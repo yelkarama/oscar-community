@@ -1254,6 +1254,60 @@ document.forms[1].r_doctor_ohip.value = refNo;
 								#</a> <% } %>
 				</td>
 			</tr>
+            <tr valign="top">
+                <td align="right" height="10"><b><bean:message
+                        key="demographic.demographicaddrecordhtm.formFamilyDoctor" />:</b></td>
+                <td align="left" height="10">
+                    <% if(oscarProps.getProperty("isMRefDocSelectList", "").equals("true") ) {
+                        // drop down list
+                        Properties prop = null;
+                        Vector vecRef = new Vector();
+
+                        List<ProfessionalSpecialist> specialists = professionalSpecialistDao.findAll();
+                        for(ProfessionalSpecialist specialist : specialists) {
+                            prop = new Properties();
+                            prop.setProperty("referral_no", specialist.getReferralNo());
+                            prop.setProperty("last_name", specialist.getLastName());
+                            prop.setProperty("first_name", specialist.getFirstName());
+                            vecRef.add(prop);
+                        }
+                    %> <select name="f_doctor"
+                               onChange="changeRefDoc()" style="width: 200px">
+                    <option value=""></option>
+                    <% for(int k=0; k<vecRef.size(); k++) {
+                        prop= (Properties) vecRef.get(k);
+                    %>
+                    <option
+                            value="<%=prop.getProperty("last_name")+","+prop.getProperty("first_name")%>">
+                        <%=Misc.getShortStr( (prop.getProperty("last_name")+","+prop.getProperty("first_name")),"",nStrShowLen)%></option>
+                    <% } %>
+                </select> <script language="Javascript">
+                    <!--
+                    function changeFamDoc() {
+                        var famName = document.forms[1].r_doctor.options[document.forms[1].f_doctor.selectedIndex].value;
+                        var famNo = "";
+                        <% for(int k=0; k<vecRef.size(); k++) {
+                            prop= (Properties) vecRef.get(k);
+                        %>
+                        if(famName.indexOf("<%=prop.getProperty("last_name")+","+prop.getProperty("first_name")%>")>=0) {
+                            famNo = <%=prop.getProperty("referral_no", "")%>;
+                        }
+                        <% } %>
+                        document.forms[1].f_doctor_ohip.value = famNo;
+                    }
+                    //-->
+                </script> <% } else {%> <input type="text" name="f_doctor" size="30" maxlength="40"
+                                               value=""> <% } %>
+                </td>
+                <td align="right" nowrap height="10"><b><bean:message
+                        key="demographic.demographicaddrecordhtm.formFamilyDoctorN" />:</b></td>
+                <td align="left" height="10"><input type="text"
+                                                    name="f_doctor_ohip" maxlength="6"> <% if("ON".equals(prov)) { %>
+                    <a
+                            href="javascript:referralScriptAttach2('f_doctor_ohip','f_doctor')"><bean:message key="demographic.demographiceditdemographic.btnSearch"/>
+                        #</a> <% } %>
+                </td>
+            </tr>
 			<tr valign="top">
 				<td align="right" id="rosterStatusLbl" nowrap><b><bean:message
 					key="demographic.demographicaddrecordhtm.formPCNRosterStatus" />: </b></td>
