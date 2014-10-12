@@ -45,13 +45,17 @@
 <%@page import="org.oscarehr.util.LocaleUtils"%>    
 <%@page import="org.oscarehr.common.dao.FrmLabReqPreSetDao, org.oscarehr.util.SpringUtils"%>
 <%@page import="oscar.form.*, oscar.OscarProperties, java.util.Date, oscar.util.UtilDateUtilities"%>
-<%@page import="oscar.oscarRx.data.RxProviderData, oscar.oscarRx.data.RxProviderData.Provider" %>
 <%@page import="org.oscarehr.util.MiscUtils,oscar.oscarClinic.ClinicData"%>
 <%@page import="org.oscarehr.PMmodule.model.Program" %>
 <%@page import="org.oscarehr.PMmodule.dao.ProgramDao" %>
+<%@page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
+<%@page import="org.oscarehr.common.dao.ClinicDAO" %>
+<%@page import="org.oscarehr.common.model.Clinic" %>
+<%@page import="org.oscarehr.common.model.Provider" %>
 <%@page import="org.oscarehr.util.SpringUtils" %>
 <%@page import="java.util.List" %>
-
+<%@page import="oscar.oscarRx.data.RxProviderData" %>
+<%@page import="org.oscarehr.util.LocaleUtils"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
@@ -75,13 +79,21 @@
 	String formLink = "formlabreq10.jsp";
 	
 	ClinicData clinic = new ClinicData();
-	RxProviderData rx = new RxProviderData();
-	List<Provider> prList = rx.getAllProviders();
+  ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
+	List<Provider> prList = providerDao.getDoctorsWithOhip();
 	
 	ProgramDao programDao = SpringUtils.getBean(ProgramDao.class);
 	List<Program> programList = programDao.getAllActivePrograms();
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 	
+  ClinicDAO clinicDao = (ClinicDAO)SpringUtils.getBean("clinicDAO");
+  Clinic clin = clinicDao.getClinic();
+
+  String clinicName = clin.getClinicName() == null ? "" : clin.getClinicName(); 
+  String clinicProvince = clin.getClinicProvince() == null ? "" : clin.getClinicProvince();
+  String clinicAddress = clin.getClinicAddress() == null ? "" : clin.getClinicAddress();
+  String clinicCity = clin.getClinicCity() == null ? "" : clin.getClinicCity();
+  String clinicPC = clin.getClinicPostal() == null ? "" : clin.getClinicPostal();
 
    boolean readOnly = false;
    int demoNo = Integer.parseInt(request.getParameter("demographic_no"));
@@ -325,19 +337,41 @@ var maxYear=3100;
     
     var providerData = new Object(); //{};
     <%
+    RxProviderData rxProviderData = new RxProviderData();
     for (Provider p : prList) {
+      if( !p.getProviderType().equals("doctor") )
+        continue;
+      
     	if (!p.getProviderNo().equalsIgnoreCase("-1")) {
     		String prov_no = "prov_"+p.getProviderNo();
-
+        
+        String comments = p.getComments();
+        String xmlSpecialtyCode = "<xml_p_specialty_code>";
+        String xmlSpecialtyCode2 = "</xml_p_specialty_code>";
+        String strSpecialtyCode = "00";
+        if( comments.indexOf(xmlSpecialtyCode) != -1 ) {
+          strSpecialtyCode = comments.substring(comments.indexOf(xmlSpecialtyCode) + xmlSpecialtyCode.length(), comments.indexOf(xmlSpecialtyCode2));
+          strSpecialtyCode = strSpecialtyCode.trim();
+          if( strSpecialtyCode.equals("") ) {
+            strSpecialtyCode = "00";
+          }
+        }
+        
+        String num = p.getOhipNo() == null ? "" : p.getOhipNo();
+        String practitionerNo="0000-" + num + "-" + strSpecialtyCode;
+        
+        oscar.oscarRx.data.RxProviderData.Provider rxp = rxProviderData.getProvider(p.getProviderNo());
     		%>
-    	 providerData['<%=prov_no%>'] = new Object(); //{};
-
-    	providerData['<%=prov_no%>'].address = "<%=p.getClinicAddress() %>";
-    	providerData['<%=prov_no%>'].city = "<%=p.getClinicCity() %>";
-    	providerData['<%=prov_no%>'].province = "<%=p.getClinicProvince() %>";
-    	providerData['<%=prov_no%>'].postal = "<%=p.getClinicPostal() %>";
-    	
-
+    providerData['<%=prov_no%>'] = new Object(); //{};
+    providerData['<%=prov_no%>'].clinic_name = "<%=clinicName %>";
+    providerData['<%=prov_no%>'].address = "<%=rxp.getClinicAddress() %>";
+    providerData['<%=prov_no%>'].city = "<%=rxp.getClinicCity() %>";
+    providerData['<%=prov_no%>'].province = "<%=rxp.getClinicProvince() %>";
+    providerData['<%=prov_no%>'].postal = "<%=rxp.getClinicPostal() %>";
+    providerData['<%=prov_no%>'].first_name = "<%=p.getFirstName() %>";
+    providerData['<%=prov_no%>'].last_name = "<%=p.getLastName() %>";
+    providerData['<%=prov_no%>'].formatted_name = "<%=p.getFormattedName() %>";
+    providerData['<%=prov_no%>'].prac_no = "<%=practitionerNo %>";
     <%	}
     }
 
@@ -366,29 +400,36 @@ if (OscarProperties.getInstance().getBooleanProperty("consultation_program_lette
     		$("input[name='clinicAddress']").val ("<%=clinic.getClinicAddress() %>");
     		$("input[name='clinicCity']").val ("<%=clinic.getClinicCity() + " " + clinic.getClinicProvince()%>");
     		$("input[name='clinicPC']").val ("<%=clinic.getClinicPostal()  %>");
-    		
+            $("input[name='practitionerNo']").val("");
+            $("input[name='reqProvName']").val("");
+
+            $("#pracNo").html("&nbsp;");
     		$("#clinicName").html("<%=clinic.getClinicName()%>");
     		$("#clinicAddress").html("<%=clinic.getClinicAddress() %>");
     		$("#clinicCity").html("<%=clinic.getClinicCity() + " " + clinic.getClinicProvince()%>");
     		$("#clinicPC").html("<%=clinic.getClinicPostal()  %>");
-    		
+            $("#reqProvName").html("&nbsp;");
     	} else {
-    		
-    		if (typeof providerData["prov_" + value] != "undefined")
-    			value = "prov_" + value;
 
+			if (typeof providerData["prov_" + value] != "undefined")
+                value = "prov_" + value;
+                
     		$("select[name='letterhead']").value = value;
     		
-    		$("input[name='clinicName']").val ("");
+    		$("input[name='clinicName']").val (providerData[value]['clinic_name']);
     		$("input[name='clinicAddress']").val (providerData[value]['address']);
     		$("input[name='clinicCity']").val (providerData[value]['city'] + providerData[value]['province']);
     		$("input[name='clinicPC']").val (providerData[value]['postal']);
-    		
-    		$("#clinicName").html ("");
-    		$("#clinicAddress").html (providerData[value]['address']);
-    		$("#clinicCity").html(providerData[value]['city'] + " " + providerData[value]['province']);
-    		$("#clinicPC").html(providerData[value]['postal']);
-    	}  
+        	$("input[name='practitionerNo']").val(providerData[value]['prac_no']);
+            $("input[name='reqProvName']").val(providerData[value]['formatted_name']);
+
+            $("#pracNo").html(providerData[value]['prac_no']);
+            $("#clinicName").html(providerData[value]['clinic_name']);
+            $("#clinicAddress").html(providerData[value]['address']);
+            $("#clinicCity").html(providerData[value]['city'] + " " + providerData[value]['province']);
+            $("#clinicPC").html(providerData[value]['postal']);
+            $("#reqProvName").html(providerData[value]['formatted_name']);
+        }
     }
     
     $(document).ready(function(){
@@ -437,11 +478,11 @@ if (OscarProperties.getInstance().getBooleanProperty("consultation_program_lette
 					<option value="-1"><%=clinic.getClinicName() %></option>
 				<%
 					for (Provider p : prList) {
-						if (p.getProviderNo().compareTo("-1") != 0 && (p.getFirstName() != null || p.getSurname() != null)) {
+						if (p.getProviderNo().compareTo("-1") != 0 && (p.getFirstName() != null || p.getLastName() != null) && p.getProviderType().equals("doctor")) {
 				%>
 				<option value="<%=p.getProviderNo() %>" <%=(!props.getProperty("letterhead","-1").equals("-1") && p.getProviderNo().equals(props.getProperty("letterhead","-1")))?" selected=\"selected\" ":"" %>>
 		
-					<%=p.getFirstName() %> <%=p.getSurname() %>
+					<%=p.getLastName() %>, <%=p.getFirstName() %> 
 				</option>
 				<% }}  
 		
@@ -476,15 +517,8 @@ if (OscarProperties.getInstance().getBooleanProperty("consultation_program_lette
 					<input type="hidden" style="width: 100%" name="provName"
 						value="<%=props.getProperty("provName", "")%>" /> <input
 						type="hidden" style="width: 100%" name="reqProvName"
-						value="<%=props.getProperty("reqProvName", "")%>" /> <%=props.getProperty("reqProvName", "")%>&nbsp;<br>
-					<%-- Dr. Hunter wants the form to say "Physician" instead of "Family Physician".  This is a quick and dirty hack to make it work.  This
-     should really be rewritten more elegantly at some later point in time. --%>
-     
-     				<% if(!oscarProps.getProperty("lab_req_override","true").equals("true")){ %>
-						<%=oscarProps.getProperty("clinic_no", "").startsWith("1022")?"Physician:":"Family Physician:"%><br>					
-						<%=props.getProperty("provName", "")==null?"":props.getProperty("provName", "")%>&nbsp;<br>
-					<% } %>
-					
+						value="<%=props.getProperty("reqProvName", "")%>" /><span id="reqProvName"><%=props.getProperty("reqProvName", "")%>&nbsp;</span><br>
+
 					<input type="hidden" style="width: 100%" name="clinicName" value="<%=props.getProperty("clinicName","")%>" /><span id="clinicName"><%=props.getProperty("clinicName","")%></span><br>
 					<input type="hidden" style="width: 100%" name="clinicAddress" value="<%=props.getProperty("clinicAddress", "")%>" /> <span id="clinicAddress"><%=props.getProperty("clinicAddress", "")%></span><br>
 					<input type="hidden" style="width: 100%" name="clinicCity" value="<%=props.getProperty("clinicCity", "")%>" /><span id="clinicCity"> <%=props.getProperty("clinicCity", "")%>,<%=props.getProperty("clinicProvince","") %></span><br>
@@ -496,7 +530,7 @@ if (OscarProperties.getInstance().getBooleanProperty("consultation_program_lette
 						class="subHeading">Physician/Practitioner Number</font><br>
 					<input type="hidden" name="practitionerNo"
 						value="<%=props.getProperty("practitionerNo", "")%>" />
-					<center><%=props.getProperty("practitionerNo", "")%>&nbsp;</center>
+					<center id="pracNo"><%=props.getProperty("practitionerNo", "")%>&nbsp;</center>
 					</td>
 				</tr>
 				<tr>
