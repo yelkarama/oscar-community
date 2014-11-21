@@ -1146,6 +1146,9 @@
 			<forward name="save" path="/form/forwardname.jsp" />
 			<forward name="graph" path="/form/createpdf" />
 			<forward name="failure" path="/oscarEncounter/error.jsp" />
+
+			<forward name="printConsultLetter" path="/form/formConsultLetterPrint.jsp" />
+			<forward name="printMaleConsultLetter" path="/form/maleconsultletterPrint.jsp" />  
 		</action>
 
 		<action name="inputForm" path="/admin/RecommitHSFO" parameter="method" scope="request" type="oscar.form.study.HSFO.pageUtil.RecommitHSFOAction">

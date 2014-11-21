@@ -1128,9 +1128,16 @@ if(wLReadonly.equals("")){
 					onClick="popupPage(700, 1000, '../billing.do?billRegion=<%=URLEncoder.encode(prov)%>&billForm=<%=URLEncoder.encode(oscarVariables.getProperty("default_view"))%>&hotclick=&appointment_no=0&demographic_name=<%=URLEncoder.encode(demographic.getLastName())%>%2C<%=URLEncoder.encode(demographic.getFirstName())%>&demographic_no=<%=demographic.getDemographicNo()%>&providerview=<%=demographic.getProviderNo()%>&user_no=<%=curProvider_no%>&apptProvider_no=none&appointment_date=<%=dateString%>&start_time=00:00:00&bNewForm=1&status=t');return false;"
 					title="<bean:message key="demographic.demographiceditdemographic.msgBillPatient"/>"><bean:message key="demographic.demographiceditdemographic.msgCreateInvoice"/></a></td>
 			</tr>
-			<%
-			if("ON".equals(prov)) {
-				String default_view = oscarVariables.getProperty("default_view", "");
+<tr>
+                <security:oscarSec roleName="<%=roleName$%>" objectName="_billing.OnAccountBilling" rights="x">
+                    <td><a
+                            href="javascript: function myFunction() {return false; }"
+                            onClick="popupPage(700, 900, '../common/includeApp_on_account_billing.jsp?redirect=true&appName=ONAccountBilling&contextName=ONAccountBilling&url=/ONAccountBilling/onAccount/onAccountBillingMaster.do?demographic_no=<%=demographic.getDemographicNo()%>&demographic_name=<%=URLEncoder.encode(demographic.getLastName())%>,<%=URLEncoder.encode(demographic.getFirstName())%>');return false;"
+                            title="On Account">On Account</a></td>
+                </security:oscarSec>
+            </tr>
+<%      if("ON".equals(prov)) {
+            String default_view = oscarVariables.getProperty("default_view", "");
 
 				if (!oscarProps.getProperty("clinic_no", "").startsWith("1022")) { // part 2 of quick hack to make Dr. Hunter happy
 	%>

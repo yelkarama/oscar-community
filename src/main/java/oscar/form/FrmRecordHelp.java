@@ -288,6 +288,14 @@ public class FrmRecordHelp {
             return "printAll";
         } else if (submit != null && submit.equalsIgnoreCase("printLabReq")) {
             return "printLabReq";
+        } else if (submit != null && submit.equalsIgnoreCase("printConsultLetter")) {
+            return "printConsultLetter";
+        } else if (submit != null && submit.equalsIgnoreCase("printNewOBConsult")) {
+            return "printNewOBConsult";
+        } else if (submit != null && submit.equalsIgnoreCase("printMaleConsultLetter")) {
+            return "printMaleConsultLetter";
+        } else if (submit != null && submit.equalsIgnoreCase("printIUDTemplate")) {
+            return "printIUDTemplate";
         } else {
             return "failure";
         }
@@ -308,6 +316,10 @@ public class FrmRecordHelp {
             temp = where;
         } else if (action.equals("printAll")) {
             temp = where + "?demographic_no=" + demoId + "&formId=" + formId;
+        }  else if (action.equalsIgnoreCase("printConsultLetter")) {
+        	temp = where +  "?formId=" + formId;
+        } else if (action.equalsIgnoreCase("printMaleConsultLetter")) {
+        	temp = where +  "?formId=" + formId;
         }else {
             temp = where;
         }
