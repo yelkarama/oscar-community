@@ -1171,7 +1171,7 @@ function toggleHeight(heightuomctrl,inchCtrl){
 
 		<tr>
 			<td height="10px"><font size="3"><b><i>a)
-			Ovulation / Menstral Factors</i></b></font></td>
+			Ovulation / Menstrual Factors</i></b></font></td>
 		</tr>
 		<tr>
 			<td><input type="checkbox" name="rfhof_ci" onchange="toggleControl(document.forms[0].rfhof_ci,document.forms[0].rfhof_ci_t)"
@@ -1301,7 +1301,7 @@ function toggleHeight(heightuomctrl,inchCtrl){
 				
 			<input type="checkbox" name="rfhtf_atdd"
 				<%=props.getProperty("rfhtf_atdd", "")%>>Admits to deep
-			dysparuenia<br>
+			dyspareunia<br>
 
 			<input type="checkbox" name="rfhcf_pd_no"
 			<%=props.getProperty("rfhcf_pd_no", "")%>>Has no dyspareunia<br>
@@ -2140,11 +2140,11 @@ function toggleHeight(heightuomctrl,inchCtrl){
 				</div>
 				<div class="field_row_div">
 					<input type="checkbox" name="pe_naus"
-							<%=props.getProperty("pe_naus", "")%>>Normal ausculation of lungs and heart,
+							<%=props.getProperty("pe_naus", "")%>>Normal auscultation of lungs and heart,
 				</div>
 				<div class="field_row_div">
 					<input type="checkbox" name="pe_nabde"
-							<%=props.getProperty("pe_nabde", "")%>>Normal abdomenal exam 
+							<%=props.getProperty("pe_nabde", "")%>>Normal abdominal exam
 				</div> 
 			</div>
 			<div>&nbsp;</div>
@@ -2333,7 +2333,7 @@ function toggleHeight(heightuomctrl,inchCtrl){
 			
 			<input type="checkbox" name="impression_ha"
 				<%=props.getProperty("impression_ha", "")%>>Hypothalamic
-			annovulation<br>
+			anovulation<br>
 			<input type="checkbox" name="impression_sfrdp"
 				<%=props.getProperty("impression_sfrdp", "")%>>Single
 			female requesting donor sperm<br>

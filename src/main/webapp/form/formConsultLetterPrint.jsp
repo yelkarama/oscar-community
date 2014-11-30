@@ -479,7 +479,7 @@ if(multiLineHeader!=null && multiLineHeader.trim().length()>0) {
 			
 			<div class="section_title">
 			<font size="3"><b><i>a)
-			Ovulation / Menstral Factors</i>: </b></font>
+			Ovulation / Menstrual Factors</i>: </b></font>
 			</div>
 			
 			<!-- </td>
@@ -647,7 +647,7 @@ if(multiLineHeader!=null && multiLineHeader.trim().length()>0) {
 			
 			<% if(printutil.isActive("rfhtf_atdd")){%>
 			<div class="reason_div">
-			<input type="checkbox" checked >Admits to deep dysparuenia
+			<input type="checkbox" checked >Admits to deep dyspareunia
 			</div>
 			<%  } %>
 			<% if(printutil.isActive("rfhcf_pd_no")){%>
@@ -1672,13 +1672,13 @@ toggleControl(document.forms[0].pi_sa,document.forms[0].pi_sa_abnormal)"
 			<% if(printutil.isActive("pe_naus")){%>
 			<div class="reason_div">
 			<input type="checkbox" name="pe_naus"
-				<%=props.getProperty("pe_naus", "")%>>Normal ausculation of lungs and heart</div>
+				<%=props.getProperty("pe_naus", "")%>>Normal auscultation of lungs and heart</div>
 			<% } %>
 			
 			<% if(printutil.isActive("pe_nabde")){%>
 			<div class="reason_div">
 			<input type="checkbox" name="pe_nabde"
-				<%=props.getProperty("pe_nabde", "")%>>Normal abdomenal exam</div>
+				<%=props.getProperty("pe_nabde", "")%>>Normal abdominal exam</div>
 			<% } %>
 			
 			<% if(printutil.isActive("pe_gpef")){%>
@@ -1903,7 +1903,7 @@ toggleControl(document.forms[0].pi_sa,document.forms[0].pi_sa_abnormal)"
 			<div class="reason_div">
 			<input type="checkbox" name="impression_ha"
 				<%=props.getProperty("impression_ha", "")%>>Hypothalamic
-			annovulation</div>
+			anovulation</div>
 			<% } %>	
 			<% if(printutil.isActive("impression_sfrdp")){%>
 			<div class="reason_div">
