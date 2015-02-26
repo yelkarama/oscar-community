@@ -104,11 +104,6 @@ public class EctIncomingEncounterAction extends Action {
 		
 
 		EctSessionBean bean = new EctSessionBean();
-		String appointmentNo = null;
-
-		if (request.getSession().getAttribute("cur_appointment_no") != null) {
-			appointmentNo = (String) request.getSession().getAttribute("cur_appointment_no");
-		}
 
 		if (request.getParameter("appointmentList") != null) {
 			bean = (EctSessionBean) request.getSession().getAttribute("EctSessionBean");
@@ -162,10 +157,6 @@ public class EctIncomingEncounterAction extends Action {
 
 			bean.demographicNo = request.getParameter("demographicNo");
 			bean.appointmentNo = request.getParameter("appointmentNo");
-			//use this one.
-			if (bean.appointmentNo != null && !bean.appointmentNo.equalsIgnoreCase("null") && !"".equals(bean.appointmentNo) && appointmentNo != null) {
-				bean.appointmentNo = appointmentNo;
-			}
 
 			bean.curProviderNo = request.getParameter("curProviderNo");
 			Provider provider = loggedInInfo.getLoggedInProvider();
