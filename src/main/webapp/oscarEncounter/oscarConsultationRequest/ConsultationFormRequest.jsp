@@ -911,6 +911,26 @@ function importFromEnct(reqInfo,txtArea)
 					out.println("info = '" + value + "'");
 				}%>
               break;
+           case "SocialHistory":
+               <%if (demo != null)
+ 				{
+ 					if (useNewCmgmt)
+ 					{
+ 						value = listNotes(cmgmtMgr, "SocHistory", providerNo, demo);
+ 					}
+ 					else
+ 					{
+ 						oscar.oscarDemographic.data.EctInformation EctInfo = new oscar.oscarDemographic.data.EctInformation(demo);
+ 						value = EctInfo.getSocialHistory();
+ 					}
+ 					if (pasteFmt == null || pasteFmt.equalsIgnoreCase("single"))
+ 					{
+ 						value = StringUtils.lineBreaks(value);
+ 					}
+ 					value = org.apache.commons.lang.StringEscapeUtils.escapeJavaScript(value);
+ 					out.println("info = '" + value + "'");
+ 				}%>
+               break;
             case "OtherMeds":
               <%if (demo != null)
 				{
@@ -1953,6 +1973,7 @@ function updateFaxButton() {
 								<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.formClinInf" />:
 							</td>
 							<td id="clinicalInfoButtonBar">
+								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportSocHistory"/>" onclick="importFromEnct('SocialHistory',document.forms[0].clinicalInformation);" />&nbsp;
 								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportFamHistory"/>" onclick="importFromEnct('FamilyHistory',document.forms[0].clinicalInformation);" />&nbsp;
 								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportMedHistory"/>" onclick="importFromEnct('MedicalHistory',document.forms[0].clinicalInformation);" />&nbsp;
 								<input id="btnOngoingConcerns" type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportConcerns"/>" onclick="importFromEnct('ongoingConcerns',document.forms[0].clinicalInformation);" />&nbsp;
@@ -1996,6 +2017,7 @@ function updateFaxButton() {
  %>
 							</td>
 							<td id="concurrentProblemsButtonBar">
+								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportSocHistory"/>" onclick="importFromEnct('SocialHistory',document.forms[0].concurrentProblems);" />&nbsp;
 								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportFamHistory"/>" onclick="importFromEnct('FamilyHistory',document.forms[0].concurrentProblems);" />&nbsp;
 								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportMedHistory"/>" onclick="importFromEnct('MedicalHistory',document.forms[0].concurrentProblems);" />&nbsp;
 								<input id="btnOngoingConcerns2" type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportConcerns"/>" onclick="importFromEnct('ongoingConcerns',document.forms[0].concurrentProblems);" />&nbsp;
