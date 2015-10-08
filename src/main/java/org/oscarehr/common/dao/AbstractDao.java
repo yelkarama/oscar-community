@@ -78,6 +78,14 @@ public abstract class AbstractDao<T extends AbstractModel<?>> {
 	public T find(Object id) {
 		return (entityManager.find(modelClass, id));
 	}
+	
+
+	/**
+	 * Check if entity exists in the current transaction context.
+	 */
+	public boolean contains(AbstractModel<?> o) {
+		return entityManager.contains(o);
+	}
 
 	/**
 	 * Fetches all instances of the persistent class handled by this DAO. 

@@ -43,11 +43,11 @@
 <%@ page import="oscar.log.*"%>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.apache.commons.lang.StringUtils"%>
-
+<%@ page import="org.oscarehr.util.MiscUtils"%>
 <%@ page import="org.oscarehr.common.model.Admission" %>
 <%@ page import="org.oscarehr.common.dao.AdmissionDao" %>
 <%@ page import="org.oscarehr.common.dao.WaitingListDao" %>
-
+<%@ page import="org.oscarehr.common.dao.DemographicGroupLinkDao" %>
 <%@ page import="org.oscarehr.common.model.DemographicExt" %>
 <%@ page import="org.oscarehr.common.dao.DemographicExtDao" %>
 
@@ -159,6 +159,8 @@
 	demographic.setChartNo(request.getParameter("chart_no"));
 	demographic.setProviderNo(request.getParameter("staff"));
 	demographic.setSex(request.getParameter("sex"));
+	demographic.setPatientType(request.getParameter("patientTypeOrig"));
+    demographic.setPatientId(request.getParameter("patientId"));
 
 	year = StringUtils.trimToNull(request.getParameter("end_date_year"));
 	month = StringUtils.trimToNull(request.getParameter("end_date_month"));
@@ -294,6 +296,30 @@
        demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "usSigned", request.getParameter("usSigned"), "");
        demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "privacyConsent", request.getParameter("privacyConsent"), "");
        demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "informedConsent", request.getParameter("informedConsent"), "");
+       
+       demographicExtDao.addKey(proNo, dem, "patientType", request.getParameter("patientType"), "");
+       demographicExtDao.addKey(proNo, dem, "demographicMiscId", request.getParameter("demographicMiscId"), "");
+		// Demographic Groups
+		String[] groups = request.getParameterValues("demographicGroups");
+	
+		if (groups != null) {
+			for (int i=0; i < groups.length; i++) {
+				if (groups[i] != null) {
+					// An empty group number indicates the 'None' group
+					if (groups[i].length() > 0) {
+						try {
+							int groupId = Integer.parseInt( groups[i] );
+							demographicGroupLinkDao.add(demographic.getDemographicNo(), groupId);
+						} catch (Exception e) {
+							MiscUtils.getLogger().error("Error parsing demographic group number", e);
+						}
+					}
+				} else {
+					MiscUtils.getLogger().warn("Null demographic group number passed in.");
+				}
+			}
+		}
+       
        //for the IBD clinic
 		OtherIdManager.saveIdDemographic(dem, "meditech_id", request.getParameter("meditech_id"));
 

@@ -80,6 +80,7 @@
 		<property column="newsletter" name="newsletter" type="string" />
 		<property column="country_of_origin" name="countryOfOrigin" type="string" />
 
-
+		<property column="patient_type" name="patientType" type="string" />
+		<property column="patient_id" name="patientId" type="string" />
 	</class>
 </hibernate-mapping>

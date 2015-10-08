@@ -470,7 +470,7 @@ div.logoutBox {
 			<li><a href="#"
 				onclick='popupPage(600,900,&quot;<html:rewrite page="/oscarReport/RptByExample.do"/>&quot;);return false;'><bean:message
 				key="admin.admin.btnQueryByExample" /></a></li>
-			
+		    <li><a href="#" onclick='popupPage(550,800,&quot;<html:rewrite page="/admin/ManageDemographicGroups.do"/>&quot;);return false;'><bean:message key="admin.admin.manageDemographicGroups"/></a></li>			
 			<li><a href="#"
 				onclick='popup(600,900,&quot;<html:rewrite page="/oscarReport/reportByTemplate/homePage.jsp"/>&quot;, "reportbytemplate")'><bean:message key="admin.admin.rptbyTemplate"/></a></li>
 			<li><a href="#"
