@@ -81,6 +81,7 @@
 	DemographicExtDao demographicExtDao = SpringUtils.getBean(DemographicExtDao.class);
 	DemographicDao demographicDao = (DemographicDao)SpringUtils.getBean("demographicDao");
 	DemographicCustDao demographicCustDao = (DemographicCustDao)SpringUtils.getBean("demographicCustDao");
+	DemographicGroupLinkDao demographicGroupLinkDao = SpringUtils.getBean(DemographicGroupLinkDao.class);
 
 	ProgramDao programDao = (ProgramDao)SpringUtils.getBean("programDao");
 	
