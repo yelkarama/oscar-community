@@ -37,13 +37,12 @@
      <bean id="dispatchProvider" class="org.apache.cxf.jaxrs.provider.RequestDispatcherProvider">
       <property name="resourcePath" value="/login/3rdpartyLogin.jsp"/>
 	 </bean>
-
-
+	      
 	<bean id="accessTokenService" class="org.apache.cxf.rs.security.oauth.services.AccessTokenService">
 	  <property name="dataProvider" ref="oauthProvider"/>
 	</bean>
-
-
+  
+	
     <jaxrs:server id="oauthService" address="/oauth" >
 
         <jaxrs:serviceBeans>
@@ -64,8 +63,14 @@
 
     <jaxrs:server id="restServices" address="/services">
 
+		<jaxrs:inInterceptors>
+			<bean name="oauthInInterceptor"
+				class="org.oscarehr.ws.oauth.util.OAuthInterceptor" />
+		</jaxrs:inInterceptors>
+
         <jaxrs:serviceBeans>
-            <bean class="org.oscarehr.ws.rest.PharmacyService"  autowire="byName"/>
+			<bean class="org.oscarehr.ws.oauth.OAuthStatusService" autowire="byName" />
+			<bean class="org.oscarehr.ws.rest.PharmacyService"  autowire="byName"/>
 			<bean class="org.oscarehr.ws.rest.DemographicService"  autowire="byName"/>
 			<bean class="org.oscarehr.ws.rest.ScheduleService"  autowire="byName"/>
 			<bean class="org.oscarehr.ws.rest.DemographicMergeService"  autowire="byName"/>
@@ -98,7 +103,8 @@
       <jaxrs:providers>
            <ref bean="oAuthFilter"/>
            <ref bean="jaxb"/>
-            <bean class="org.codehaus.jackson.jaxrs.JacksonJsonProvider"/>
+           <ref bean="jsonProvider"/>
+   	   <bean class="org.codehaus.jackson.jaxrs.JacksonJsonProvider"/> 
         </jaxrs:providers>
       
       
