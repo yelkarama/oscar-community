@@ -173,7 +173,7 @@ public class Hl7textResultsData {
 					m.setDateObserved(UtilDateUtilities.StringToDate(dateEntered, "yyyy-MM-dd hh:mm:ss"));
 				}
 				m.setAppointmentNo(0);
-
+				m.setComments(comments);
 				measurementDao.persist(m);
 
 				int mId = m.getId();
