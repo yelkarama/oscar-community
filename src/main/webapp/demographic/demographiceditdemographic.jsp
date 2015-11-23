@@ -207,6 +207,7 @@ if(!authed) {
 	ProvinceNames pNames = ProvinceNames.getInstance();
 	Map<String,String> demoExt = demographicExtDao.getAllValuesForDemo(Integer.parseInt(demographic_no));
 	List<DemographicGroupLink> demographicGroupsForPatient = demographicGroupLinkDao.findByDemographicNo(demographicNoAsInt);
+	pageContext.setAttribute("demoExtended", demoExt);
 	List<DemographicGroup> demographicGroups = demographicGroupDao.getAll();
 	List<String> demographicGroupNamesForPatient = new ArrayList<String>();
   
@@ -884,6 +885,18 @@ jQuery(document).ready(function() {
                                 	midwife = midwife==null?"":midwife;
                                 	notes = notes==null?"":notes;                               	
                                 }
+                                
+                                if( resident == null ) {
+                                	resident = "";
+                                }
+                                
+                                if( nurse == null ) {
+                                	nurse = "";
+                                }
+                                
+                                if( midwife == null ) {
+                                	midwife = "";
+                                }
 
                                 // Demographic demographic=demographicDao.getDemographic(demographic_no);
 
@@ -1522,8 +1535,16 @@ if(oscarProps.getProperty("new_label_print") != null && oscarProps.getProperty("
                                                <li><span class="label"><bean:message key="demographic.demographiceditdemographic.aboriginal"/>:</span>
                                                    <span class="info"><%=aboriginal%></span>
 							</li>
-						<% }
-						  if (oscarProps.getProperty("EXTRA_DEMO_FIELDS") !=null){
+						<% }%>
+						<oscar:oscarPropertiesCheck value="true" defaultVal="false" property="FIRST_NATIONS_MODULE">  
+	                           <li><span class="label">
+	                           	First Nations:</span>
+	                            <span class="info">
+	                            	<c:out value='${ pageScope.demoExtended["aboriginal"] }' />
+	                            </span>
+								</li>
+						  </oscar:oscarPropertiesCheck> 
+						 <% if (oscarProps.getProperty("EXTRA_DEMO_FIELDS") !=null){
                                               String fieldJSP = oscarProps.getProperty("EXTRA_DEMO_FIELDS");
                                               fieldJSP+= "View.jsp";
                                             %>
@@ -1860,6 +1881,19 @@ if ( Dead.equals(PatStat) ) {%>
                                                         <span class="info"><%=MyDateFormat.getMyStandardDate(demographic.getHcRenewDate())%></span>
                                                     </li>
 						</ul>
+						
+						<%-- TOGGLE FIRST NATIONS MODULE --%>
+
+						<oscar:oscarPropertiesCheck value="true" defaultVal="false" property="FIRST_NATIONS_MODULE">
+						                  
+											<jsp:include page="./displayFirstNationsModule.jsp" flush="false">
+												<jsp:param name="demo" value="<%= demographic_no %>" />
+											</jsp:include>
+						
+						</oscar:oscarPropertiesCheck>						
+						
+						<%-- END TOGGLE FIRST NATIONS MODULE --%>
+						
 						</div>
 
 <%-- TOGGLE WORKFLOW_ENHANCE - SHOWS PATIENTS INTERNAL PROVIDERS AND RELATED SCHEDULE AVAIL --%>
@@ -2770,6 +2804,22 @@ if ( Dead.equals(PatStat) ) {%>
 								<input type="hidden" name="cytolNumOrig"
 									value="<%=StringUtils.trimToEmpty(demoExt.get("cytolNum"))%>" />
 								</td>
+							</tr>
+							
+							<tr>
+							<td colspan="8">
+							
+							<%-- TOGGLE FIRST NATIONS MODULE --%>							    
+							<oscar:oscarPropertiesCheck value="true" defaultVal="false" property="FIRST_NATIONS_MODULE">
+							
+									<jsp:include page="manageFirstNationsModule.jsp" flush="false">
+										<jsp:param name="demo" value="<%= demographic_no %>" />
+									</jsp:include>
+															
+							</oscar:oscarPropertiesCheck>
+							<%-- END TOGGLE FIRST NATIONS MODULE --%>
+							
+							</td>								
 							</tr>
 
 <%-- TOGGLE OFF PATIENT CLINIC STATUS --%>

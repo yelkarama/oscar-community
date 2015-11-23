@@ -46,7 +46,7 @@
 
   //operation available to the client -- dboperation
   //construct SQL expression
-  String orderby="", limit="", limit1="", limit2="";
+  String orderby="", limit="", limit1="", limit2="", alias="";
   if(request.getParameter("orderby")!=null) orderby="order by "+request.getParameter("orderby");
   if(request.getParameter("limit1")!=null) limit1=request.getParameter("limit1");
   if(request.getParameter("limit2")!=null) {
@@ -91,6 +91,16 @@
     		matchingDemographicParameters=null;
     	}
     }
+    
+    if( searchMode.equals("search_demographic_no")) {
+    	  fieldname = "demographic_no";
+      }
+      
+      if( searchMode.equals("search_band_number")) {
+    	  fieldname = "de.key_val LIKE '%statusNum%' AND de.value";
+    	  alias = "d.";
+      }
+    
     if(searchMode.equals("search_chart_no")) fieldname="chart_no";
     if(searchMode.equals("search_name")) {
 	  	matchingDemographicParameters=new MatchingDemographicParameters();
@@ -112,28 +122,28 @@
   String ptstatusexp="";
   if(request.getParameter("ptstatus")!=null) {
 	if(request.getParameter("ptstatus").equals("active")) {
-		ptstatusexp=" and patient_status not in ("+props.getProperty("inactive_statuses", "'IN','DE','IC', 'ID', 'MO', 'FI'")+") ";
+		ptstatusexp=" and " + alias + "patient_status not in ("+props.getProperty("inactive_statuses", "'IN','DE','IC', 'ID', 'MO', 'FI'")+") ";
 	}
 	if(request.getParameter("ptstatus").equals("inactive"))  {
-		ptstatusexp=" and patient_status in ("+props.getProperty("inactive_statuses", "'IN','DE','IC', 'ID', 'MO', 'FI'")+") ";
+		ptstatusexp=" and " + alias + "patient_status in ("+props.getProperty("inactive_statuses", "'IN','DE','IC', 'ID', 'MO', 'FI'")+") ";
 	}
   }
   else
-      ptstatusexp=" and patient_status not in ("+props.getProperty("inactive_statuses", "'IN','DE','IC', 'ID', 'MO', 'FI'")+") ";
+      ptstatusexp=" and " + alias + "patient_status not in ("+props.getProperty("inactive_statuses", "'IN','DE','IC', 'ID', 'MO', 'FI'")+") ";
 
   String domainRestriction="";
   if(request.getParameter("outofdomain")!=null && !request.getParameter("outofdomain").equals("true")) {
   	String curProvider_no = (String) session.getAttribute("user");
-  	domainRestriction = "and demographic_no in (select client_id from admission where admission_status='current' and program_id in (select program_id from program_provider where provider_no='"+curProvider_no+"')) ";
+  	domainRestriction = "and " + alias + "demographic_no in (select client_id from admission where admission_status='current' and program_id in (select program_id from program_provider where provider_no='"+curProvider_no+"')) ";
   }
 
   String [][] dbQueries=new String[][] {
     {"search_titlename", "select *  from demographic where "+fieldname+" "+regularexp+" ? "+ptstatusexp+domainRestriction+orderby},
+    {"search_status_id_mysql", "select d.*  from demographic d left join demographicExt de on (d.demographic_no = de.demographic_no) where "+fieldname+" "+regularexp+" ? "+ptstatusexp+domainRestriction+orderby + " " + limit},
     {"search_titlename_mysql", "select *  from demographic where "+fieldname+" "+regularexp+" ? "+ptstatusexp+domainRestriction+orderby + " " + limit},
     {"search_demorecord", "select demographic_no,first_name,last_name,roster_status,sex,chart_no,year_of_birth,month_of_birth,date_of_birth,provider_no from demographic where "+fieldname+ " "+regularexp+" ? " +ptstatusexp+domainRestriction+orderby},
     {"search_detail", "select * from demographic where demographic_no=?"},
     {"search_detail_ptbr", "select * from demographic d left outer join demographic_ptbr dptbr on dptbr.demographic_no = d.demographic_no where d.demographic_no=?"},
-
     {"search_provider", "select * from provider status='1' order by last_name"},
     {"search_provider_doc", "select * from provider where provider_type='doctor' and status='1' order by last_name"},
     {"search*", "select * from demographic "+ ptstatusexp+domainRestriction+orderby + " "+limit },
@@ -149,6 +159,7 @@
     {"search_demo_waiting_list", "select * from waitingList where demographic_no=? AND listID=?  AND is_history='N' "},
     {"search_future_appt", "select a.demographic_no, a.appointment_date from appointment a where a.appointment_date >= now() AND a.demographic_no=?"},
     {"search_hin", "select demographic_no, ver from demographic where hin=?"},
+    {"search_program", "select id from program where name = ?"}    
    };
 
 	//associate each operation with an output JSP file -- displaymode

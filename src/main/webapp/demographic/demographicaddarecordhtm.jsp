@@ -680,6 +680,17 @@ function ignoreDuplicates() {
 <%} %>
             </select>
         </td>
+        
+        <td align="right"><b><bean:message
+					key="demographic.demographiceditdemographic.aboriginal" />: </b></td>
+		<td align="left">
+		<select name="aboriginal">
+			<option value="">Unknown</option>
+			<option value="No">No</option>
+			<option value="Yes" >Yes</option>
+		</select>
+		</td>
+        
     </tr>
 
 			<tr valign="top">
@@ -1097,6 +1108,17 @@ function ignoreDuplicates() {
 		<% } %>
 		</oscar:oscarPropertiesCheck>
     </tr>
+  
+     		<%-- TOGGLE FIRST NATIONS MODULE --%>							    
+			<oscar:oscarPropertiesCheck value="true" defaultVal="false" property="FIRST_NATIONS_MODULE">
+			
+					<jsp:include page="manageFirstNationsModule.jsp" flush="true">
+						<jsp:param name="demo" value="0" />
+					</jsp:include>
+											
+			</oscar:oscarPropertiesCheck>
+			<%-- END TOGGLE FIRST NATIONS MODULE --%>    
+
     <tr valign="top">
 	<td  id="sinNoLbl" align="right"><b><bean:message key="demographic.demographicaddrecordhtm.msgSIN"/>:</b> </td>
 	<td id="sinNoCell" align="left"  >

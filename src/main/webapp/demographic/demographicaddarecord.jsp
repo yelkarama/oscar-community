@@ -288,6 +288,8 @@
        demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "area",          request.getParameter("area"),          "");
        demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "statusNum",     request.getParameter("statusNum"),     "");
        demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "fNationCom",    request.getParameter("fNationCom"),    "");
+       demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "fNationFamilyNumber",    request.getParameter("fNationFamilyNumber"),    "");
+       demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "fNationFamilyPosition",    request.getParameter("fNationFamilyPosition"),    "");
        demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "given_consent", request.getParameter("given_consent"), "");
        demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "rxInteractionWarningLevel", request.getParameter("rxInteractionWarningLevel"), "");
        demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "primaryEMR", request.getParameter("primaryEMR"), "");
