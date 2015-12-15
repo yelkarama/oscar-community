@@ -776,7 +776,10 @@ div.logoutBox {
 	            onclick='popupPage(800,1000,&quot;<html:rewrite page="/admin/uploadEntryText.jsp"/>&quot;);return false;'><bean:message key="admin.admin.uploadEntryTxt"/></a>
 	            </li>
             </oscar:oscarPropertiesCheck>	
-            
+            <li><a href="javascript:void(0);" onclick="popupPage(550,800,&quot;<html:rewrite page="/lookupListManagerAction.do?method=manageSingle&listName=consultApptInst"/>&quot;);return false;" >
+				<bean:message key="admin.admin.oscarEncounter.consult.appointmentIntructions"/></a>
+			</li>
+					<li><a href="javascript:void(0);" onclick="popupPage(550,800,&quot;<html:rewrite page="/lookupListManagerAction.do?method=manage"/>&quot;);return false;" ><bean:message key="admin.admin.lookUpLists"/></a></li>
 		 	<%
 				if (oscar.oscarSecurity.CRHelper.isCRFrameworkEnabled())
 						{

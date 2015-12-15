@@ -314,6 +314,7 @@ CREATE TABLE consultationRequests (
   requestId int(10) NOT NULL auto_increment,
   concurrentProblems text,
   urgency char(2) default NULL,
+  appointmentInstructions VARCHAR(256),
   patientWillBook tinyint(1),
   followUpDate date default NULL,
   site_name varchar(255),
@@ -12041,5 +12042,35 @@ CREATE TABLE `BORNPathwayMapping` (
   `serviceId` int(10),
   PRIMARY KEY (`id`)
 );
+
+
+-- ----------------------------
+--  Table structure for `LookupList`
+-- ----------------------------
+
+CREATE TABLE `LookupList` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `listTitle` varchar(255),
+  `name` varchar(50) NOT NULL,
+  `description` varchar(255),
+  `categoryId` int(11),
+  `active` tinyint(1) NOT NULL,
+  `createdBy` varchar(8) NOT NULL,
+  `dateCreated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `LookupListItem` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `lookupListId` int(11) NOT NULL,
+  `value` varchar(50) NOT NULL,
+  `label` varchar(255),
+  `displayOrder` int(11) NOT NULL,
+  `active` tinyint(1) NOT NULL,
+  `createdBy` varchar(8) NOT NULL,
+  `dateCreated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`,`value`)
+);
+
 
 

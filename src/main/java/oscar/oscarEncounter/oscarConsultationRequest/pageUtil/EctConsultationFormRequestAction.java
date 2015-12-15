@@ -180,6 +180,7 @@ public class EctConsultationFormRequestAction extends Action {
                                 consult.setSendTo(frm.getSendTo());
                                 consult.setConcurrentProblems(frm.getConcurrentProblems());
                                 consult.setUrgency(frm.getUrgency());
+                                consult.setAppointmentInstructions( frm.getAppointmentInstructions() );
                                 consult.setSiteName(frm.getSiteName());
                                 Boolean pWillBook = false;
                                 if( frm.getPatientWillBook() != null ) {
@@ -294,6 +295,7 @@ public class EctConsultationFormRequestAction extends Action {
                 consult.setSendTo(frm.getSendTo());
                 consult.setConcurrentProblems(frm.getConcurrentProblems());
                 consult.setUrgency(frm.getUrgency());
+                consult.setAppointmentInstructions( frm.getAppointmentInstructions() );
                 consult.setSiteName(frm.getSiteName());
                  Boolean pWillBook = false;
                 if( frm.getPatientWillBook() != null ) {
