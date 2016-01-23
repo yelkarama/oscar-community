@@ -26,6 +26,10 @@ body td {
      font-family:"Arial";
 }
 
+u {
+	text-decoration: none;
+}
+
 A.orange {
 	text-decoration: none;
 	font-weight: bold;
@@ -34,7 +38,7 @@ A.orange {
 
 A.orange:Hover {
 	text-decoration: none;
-	color: red;
+	color: #004b5f;
 }
 
 A.black {
@@ -45,18 +49,26 @@ A.black {
 
 A.black:Hover {
 	text-decoration: none;
-	color: red;
+	color: #004b5f;
 }
 
 A {
 	text-decoration: none;
 	font-weight: bold;
-	color: black;
+	color: #fff;
 }
 
 A:Hover {
 	text-decoration: none;
-	color: red;
+	color: #004b5f;
+}
+
+.appt a {
+	color: #333;
+}
+
+.appt a:hover {
+	color: #9f9f9f;
 }
 
 input,select,textarea {
@@ -102,9 +114,9 @@ p {
 }
 
 .title {
-	font-family: "Times New Roman";
+	text-transform: uppercase;
 	font-size: 14px;
-	color: black;
+	color: #fff;
 }
 
 .text3 {
@@ -125,12 +137,6 @@ p {
 	font-size: 12px;
 }
 
-.dateAppointment {
-        font-weight:bold;
-        font-family: "Times New Roman";
-        font-size: 14px;
-}
-
 .datephour {
 	font-family: "Times New Roman";
 	font-size: 12px;
@@ -144,7 +150,7 @@ p {
 }
 
 .tabalert {
-	color: red;
+	color: rgb(255, 169, 5);;
 }
 
 #navlist{
@@ -161,8 +167,8 @@ p {
     display: inline;
 }
 
-#navlist li:hover { color: #fff; background-color: #486ebd; }
-#navlist li a:hover { color: #fff; background-color: #486ebd; }
+#navlist li:hover { color: #004b5f;}
+#navlist li a:hover { color: #004b5f;}
 #navlist #logoutMobile { display:none; }
 
 .reason {
@@ -170,20 +176,25 @@ p {
     font-style: italic;
 }
 
-#providerSchedule, #providerSchedule td {
+#providerSchedule, #providerSchedule tr {
     border-collapse: collapse;
-    border: 2px ridge #777777;
+    border: 1px solid #eee;
 }
+
+#providerSchedule td {
+    padding:5px;
+}
+
 #providerSchedule td.noGrid { border:none; }
 
 .scheduleTime00, .scheduleTimeNot00{
     width:5%;
 }
-.scheduleTime00 { background-color: #3EA4E1; }
-.scheduleTimeNot00 { background-color: #00A488; }
+.scheduleTime00 { background-color: #afafaf; }
+.scheduleTimeNot00 { background-color: #d0d0d0; }
 
 #ivoryBar td {
-    border-top: 1px solid #c0c0c0;
+
 }
 
 @media print {
