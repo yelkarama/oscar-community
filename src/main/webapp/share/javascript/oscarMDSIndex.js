@@ -1676,10 +1676,12 @@ function checkObservationDate(formid) {
       return false;
     }
     // year value between 1902 and 2015
-    if(regs[0] < 1902 || regs[0] > (new Date()).getFullYear()) {
-      alert("Invalid value for year: " + regs[0] + " - must be between 1902 and " + (new Date()).getFullYear());
-      form.elements["observationDate"].focus();
-      return false;
+    /*if(regs[0] < 1902 || regs[0] > (new Date()).getFullYear()) {*/
+    if(regs[0] < 1902) {
+    	/*alert("Invalid value for year: " + regs[0] + " - must be between 1902 and " + (new Date()).getFullYear());*/
+    	alert("Invalid value for year: " + regs[0] + " - must be greater than 1902");
+    	form.elements["observationDate"].focus();
+    	return false;
     }
     return true;
   }
