@@ -369,6 +369,65 @@ public class ProviderPropertyAction extends DispatchAction {
          return actionmapping.findForward("genRxPageSize");
     }
 
+   public ActionForward viewHideNoShowsAndCancellations(ActionMapping actionmapping, ActionForm actionform, HttpServletRequest request, HttpServletResponse response) {
+	
+		DynaActionForm frm = (DynaActionForm)actionform;
+		String provider = (String) request.getSession().getAttribute("user");
+		UserProperty prop = this.userPropertyDAO.getProp(provider, UserProperty.HIDE_NO_SHOWS_AND_CANCELLATIONS);
+		
+		if (prop == null){
+			prop = new UserProperty();
+		}		
+		
+		request.setAttribute("providertitle","provider.setHideNoShowsAndCancellations.title");
+		request.setAttribute("providermsgPrefs","provider.setHideNoShowsAndCancellations.msgPrefs");
+		request.setAttribute("providermsgProvider","provider.setHideNoShowsAndCancellations.msgHideTypes");
+		request.setAttribute("providermsgEdit","provider.setHideNoShowsAndCancellations.msgEdit");
+		request.setAttribute("providerbtnSubmit","provider.setHideNoShowsAndCancellations.btnSubmit");
+		request.setAttribute("providermsgSuccess","provider.setHideNoShowsAndCancellations.msgSuccess");
+		request.setAttribute("noShows", UserProperty.HIDE_NO_SHOWS_AND_CANCELLATIONS_NO_SHOW);
+		request.setAttribute("cancellations", UserProperty.HIDE_NO_SHOWS_AND_CANCELLATIONS_CANCELLATION);
+		request.setAttribute("both", UserProperty.HIDE_NO_SHOWS_AND_CANCELLATIONS_BOTH);
+		request.setAttribute("method","saveHideNoShowsAndCancellations");
+		
+		frm.set("hideNoShowsAndCancellationsProperty", prop);
+		return actionmapping.findForward("genHideNoShowsAndCancellations");
+	}
+	
+	public ActionForward saveHideNoShowsAndCancellations(ActionMapping actionmapping,ActionForm actionform,HttpServletRequest request,HttpServletResponse response){
+	
+		String provider = (String)request.getSession().getAttribute("user");
+		
+		DynaActionForm frm = (DynaActionForm)actionform;
+		UserProperty hideNoShowsAndCancellations = (UserProperty)frm.get("hideNoShowsAndCancellationsProperty");
+		String hideNoShowsAndCancellationsValue="";
+		if(hideNoShowsAndCancellations != null)
+			hideNoShowsAndCancellationsValue = hideNoShowsAndCancellations.getValue();
+		
+		UserProperty prop = this.userPropertyDAO.getProp(provider, UserProperty.HIDE_NO_SHOWS_AND_CANCELLATIONS);
+		if(prop == null){
+			prop = new UserProperty();
+			prop.setName(UserProperty.HIDE_NO_SHOWS_AND_CANCELLATIONS);
+			prop.setProviderNo(provider);
+		}
+		prop.setValue(hideNoShowsAndCancellationsValue);
+		
+		this.userPropertyDAO.saveProp(prop);
+		
+		request.setAttribute("providertitle","provider.setHideNoShowsAndCancellations.title");
+		request.setAttribute("providermsgPrefs","provider.setHideNoShowsAndCancellations.msgPrefs");
+		request.setAttribute("providermsgProvider","provider.setHideNoShowsAndCancellations.msgHideTypes");
+		request.setAttribute("providermsgEdit","provider.setHideNoShowsAndCancellations.msgEdit");
+		request.setAttribute("providerbtnSubmit","provider.setHideNoShowsAndCancellations.btnSubmit");
+		request.setAttribute("providermsgSuccess","provider.setHideNoShowsAndCancellations.msgSuccess");
+		request.setAttribute("noShows", UserProperty.HIDE_NO_SHOWS_AND_CANCELLATIONS_NO_SHOW);
+		request.setAttribute("cancellations", UserProperty.HIDE_NO_SHOWS_AND_CANCELLATIONS_CANCELLATION);
+		request.setAttribute("both", UserProperty.HIDE_NO_SHOWS_AND_CANCELLATIONS_BOTH);
+		request.setAttribute("method","saveHideNoShowsAndCancellations");
+		
+		return actionmapping.findForward("genHideNoShowsAndCancellations");
+	}
+   
       public ActionForward saveDefaultDocQueue(ActionMapping actionmapping,ActionForm actionform,HttpServletRequest request,HttpServletResponse response){
 		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 		String providerNo=loggedInInfo.getLoggedInProviderNo();
