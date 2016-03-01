@@ -77,7 +77,7 @@ public class EDoc extends TagObject implements Comparable<EDoc> {
 	private int numberOfPages = 0;
 	private Integer appointmentNo = -1;
 	private boolean restrictToProgram=false;
-	
+	private boolean abnormal = false;
 
 	/** Creates a new instance of EDoc */
 	public EDoc() {
@@ -518,6 +518,13 @@ public class EDoc extends TagObject implements Comparable<EDoc> {
 		this.restrictToProgram = restrictToProgram;
 	}
 
+	public boolean isAbnormal() {
+		return abnormal;
+	}
+	public void setAbnormal(boolean abnormal) {
+		this.abnormal = abnormal;
+	}
+	
 	@Override
 	public String toString() {
 		return (ReflectionToStringBuilder.toString(this));

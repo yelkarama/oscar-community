@@ -145,6 +145,8 @@ public class Document extends AbstractModel<Integer> implements Serializable {
     private Integer numberofpages;
     @Column(name="appointment_no")
     private Integer appointmentNo;
+    @Column(name="abnormal")
+    private boolean abnormal;
 
     private Boolean restrictToProgram=false;
     
@@ -322,6 +324,13 @@ public class Document extends AbstractModel<Integer> implements Serializable {
 
 	public void setAppointmentNo(Integer appointmentNo) {
 		this.appointmentNo = appointmentNo;
+	}
+	
+	public boolean isAbnormal() {
+		return abnormal;
+	}
+	public void setAbnormal(boolean abnormal) {
+		this.abnormal = abnormal;
 	}
 
 	public String getDocClass() {

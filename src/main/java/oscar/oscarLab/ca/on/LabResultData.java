@@ -32,6 +32,8 @@ import java.util.Date;
 import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.LabReportInformationDao;
 import org.oscarehr.common.model.LabReportInformation;
+import org.oscarehr.common.dao.DocumentDao;
+import org.oscarehr.common.model.Document;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
@@ -145,7 +147,14 @@ public class LabResultData implements Comparable<LabResultData> {
 				this.abn= true;
 			}
 		}
-
+		else if (this.labType.equals(DOCUMENT)) {
+			DocumentDao documentDao = SpringUtils.getBean(DocumentDao.class);
+			Document document = documentDao.getDocument(this.segmentID);
+			
+			if (document != null) {
+				this.abn = document.isAbnormal();
+			}
+		}
 		return abn ;
 
 

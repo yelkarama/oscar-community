@@ -1,0 +1,1 @@
+ALTER TABLE document ADD COLUMN abnormal boolean DEFAULT false;

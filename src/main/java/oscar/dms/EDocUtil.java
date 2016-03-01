@@ -475,6 +475,7 @@ public final class EDocUtil {
 			currentdoc.setReviewDateTime(ConversionUtils.toTimestampString(d.getReviewdatetime()));
 			currentdoc.setReviewDateTimeDate(d.getReviewdatetime());
                         currentdoc.setContentDateTime(d.getContentdatetime());
+            currentdoc.setAbnormal(d.isAbnormal());
 		}
 
 		return currentdoc;
@@ -567,6 +568,7 @@ public final class EDocUtil {
         currentdoc.setDocClass(d.getDocClass());
         currentdoc.setDocSubClass(d.getDocSubClass());
         currentdoc.setContentDateTime(d.getContentdatetime());
+        currentdoc.setAbnormal(d.isAbnormal());
         if(d.isRestrictToProgram() != null && d.isRestrictToProgram()) {
         	currentdoc.setRestrictToProgram(true);
         }
@@ -727,6 +729,7 @@ public final class EDocUtil {
 			currentdoc.setContentType(d.getContenttype());
 			currentdoc.setNumberOfPages(d.getNumberofpages());
             currentdoc.setContentDateTime(d.getContentdatetime());
+            currentdoc.setAbnormal(d.isAbnormal());
             
             if(d.isRestrictToProgram() != null){
             	currentdoc.setRestrictToProgram(d.isRestrictToProgram());

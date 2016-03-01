@@ -669,7 +669,14 @@ function sendMRP(ele){
                                         </td>
                                     </tr>
 
-
+									<tr>
+										<td>
+											<bean:message key="dms.documentReport.msgFlagAbnormal" />
+										</td>
+										<td>
+											<input id="abnormal<%=docId%>" type="checkbox" name="abnormalFlag" <%= curdoc.isAbnormal() ? "checked='checked'" : "" %> />
+										</td>
+									</tr>
 
                                     <tr>
                                         <td><bean:message key="dms.documentReport.msgCreator"/>:</td>
