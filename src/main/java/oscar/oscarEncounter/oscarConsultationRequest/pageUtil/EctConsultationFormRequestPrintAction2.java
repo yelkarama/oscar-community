@@ -37,6 +37,7 @@ import oscar.OscarProperties;
 import oscar.dms.EDoc;
 import oscar.dms.EDocUtil;
 import oscar.oscarLab.ca.all.pageUtil.LabPDFCreator;
+import oscar.oscarLab.ca.all.pageUtil.OLISLabPDFCreator;
 import oscar.oscarLab.ca.on.CommonLabResultData;
 import oscar.oscarLab.ca.on.LabResultData;
 import oscar.util.ConcatPDF;
@@ -125,8 +126,18 @@ public class EctConsultationFormRequestPrintAction2 extends Action {
 				// Storing the lab in PDF format inside a byte stream.
 				bos = new ByteOutputStream();
 				request.setAttribute("segmentID", labs.get(i).segmentID);
-				LabPDFCreator lpdfc = new LabPDFCreator(request, bos);
-				lpdfc.printPdf();
+				//Checks if the lab is HL7
+				if (labs.get(i).isHL7TEXT()){
+					//If the lab is HL7, use the OLISLabPDFCreator to print the lab
+					OLISLabPDFCreator olisLabPdfCreator = new OLISLabPDFCreator(request, bos);
+					olisLabPdfCreator.printPdf();
+				}
+				else {
+					//If it isn't HL7, use the normal LabPDFCreator to print
+					LabPDFCreator lpdfc = new LabPDFCreator(request, bos);
+					lpdfc.printPdf();
+				}
+				
 
 				// Transferring PDF to an input stream to be concatenated with
 				// the rest of the documents.

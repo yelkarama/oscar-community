@@ -41,6 +41,11 @@ String userlastname = (String) session.getAttribute("userlastname");
 <%@ page import="oscar.oscarLab.ca.all.Hl7textResultsData"%>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
 <%@page import="org.oscarehr.util.SessionConstants"%>
+<%@ page import="org.oscarehr.util.SpringUtils" %>
+<%@page import="org.oscarehr.hospitalReportManager.dao.HRMDocumentDao"%>
+<%@page import="org.oscarehr.hospitalReportManager.dao.HRMDocumentToDemographicDao"%>
+<%@page import="org.oscarehr.hospitalReportManager.model.HRMDocument"%>
+<%@page import="org.oscarehr.hospitalReportManager.model.HRMDocumentToDemographic"%>
 
 <%
 
@@ -63,8 +68,11 @@ if( demoNo == null || demoNo.equals("null")  ) {
     
 }
 
+HRMDocumentToDemographicDao hrmDocumentToDemographicDao = (HRMDocumentToDemographicDao) SpringUtils.getBean("HRMDocumentToDemographicDao");
+HRMDocumentDao hrmDocumentDao = (HRMDocumentDao) SpringUtils.getBean("HRMDocumentDao");
+
 String patientName = EDocUtil.getDemographicName(loggedInInfo, demoNo);
-String[] docType = {"D","L"};
+String[] docType = {"D","L", "H"};
 String http_user_agent = request.getHeader("User-Agent");
 boolean onIPad = http_user_agent.indexOf("iPad") >= 0;
 %>
@@ -89,6 +97,7 @@ CommonLabResultData labData = new CommonLabResultData();
 ArrayList<LabResultData> labs = labData.populateLabResultsData(loggedInInfo, demoNo, requestId, CommonLabResultData.ATTACHED);
 ArrayList<EDoc> privatedocs = new ArrayList<EDoc>();
 privatedocs = EDocUtil.listDocs(loggedInInfo, demoNo, requestId, EDocUtil.ATTACHED);
+List<HRMDocumentToDemographic> hrmDocumentsToDemographics = hrmDocumentToDemographicDao.findHRMDocumentsAttachedToConsultation(requestId);
 String attachedDocs = "";
 if (requestId == null || requestId.equals("") || requestId.equals("null")) {
 	attachedDocs = "window.opener.document.EctConsultationFormRequestForm.documents.value";
@@ -101,7 +110,11 @@ else {
 	for (int i = 0; i < labs.size(); i++) {
 	    attachedDocs += (attachedDocs.equals("") ? "" : "|") + "L" + (labs.get(i)).getSegmentID(); 
 	}
-	attachedDocs = "\"" + attachedDocs + "\"";
+	
+	for (HRMDocumentToDemographic hrmDocumentToDemographic : hrmDocumentsToDemographics) {
+		attachedDocs += (attachedDocs.equals("") ? "" : "|") + "H" + hrmDocumentToDemographic.getHrmDocumentId();  
+	}
+	attachedDocs = "\"" + attachedDocs + "\""; 
 }
 %>  
 
@@ -116,7 +129,7 @@ function checkDocuments(docs) {
 	if (docs == null) { return; }
 	for (var idx = 0; idx < docs.length; ++idx) {
         if (docs[idx].length < 2) { continue; }
-        $("input[name='" + (docs[idx].charAt(0) == "L" ? "labNo" : "docNo") + "']"
+        $("input[name='" + (docs[idx].charAt(0) == "L" ? "labNo" : (docs[idx].charAt(0) == "H" ? "hrmNo" : "docNo")) + "']"
               +"[value='" + docs[idx].substring(1) + "']").attr("checked", "checked");
     }
 }
@@ -149,6 +162,13 @@ function save() {
            listElem.innerHTML = $(this).next().get(0).innerHTML;
            listElem.className = "lab";
            list.appendChild(listElem);
+       });
+       $("input[name='hrmNo']:checked").each(function() {
+    	  saved += (saved == "" ? "" : "|") + "H" + $(this).attr("value");
+    	  listElem = window.opener.document.createElement("li");
+    	  listElem.innerHTML = $(this).next().get(0).innerHTML;
+          listElem.className = "hrm";
+          list.appendChild(listElem);
        });
                    
        window.opener.document.EctConsultationFormRequestForm.documents.value = saved; 
@@ -230,6 +250,8 @@ function toggleSelectAll() {
             labData = new CommonLabResultData();
             labs = labData.populateLabResultsData(loggedInInfo, "",demoNo, "", "","","U");
             Collections.sort(labs);       
+            
+            List<HRMDocumentToDemographic> hrmDocumentToDemographicList = hrmDocumentToDemographicDao.findByDemographicNo(demoNo);
             
             if (labs.size() == 0 && privatedocs.size() == 0) {
             %>
@@ -385,12 +407,74 @@ function toggleSelectAll() {
 							            <span style="float:right;">... <%=date%></span>                         
 							        </a>
 							        </div>
+							        <div style="clear:both;"></div>
 						        </div>
 						    </li>
 	    
 	                <% 
-	                     } 
-                    } %>               
+	                     }
+	                //Sets the print image to unprintable
+	                printImage = UNPRINTABLE_IMAGE;
+	                printTitle = UNPRINTABLE_TITLE;
+	                printAlt = UNPRINTABLE_ALT;
+	                
+	                if(hrmDocumentToDemographicList.size() > 0) { %>
+						<h2><bean:message key="oscarEncounter.oscarConsultationRequest.AttachDocPopup.hrmDocuments"/></h2>
+				<% 	}
+	                
+	                //For each hrmDocumentToDemographic in the list
+	                for (HRMDocumentToDemographic hrmDocumentToDemographic : hrmDocumentToDemographicList) {
+	                	//Gets the hrmDocument given the id
+	                	HRMDocument hrmDocument = hrmDocumentDao.findById(Integer.valueOf(hrmDocumentToDemographic.getHrmDocumentId())).get(0);
+	                	//Declares the displayName variable
+	                	String hrmDisplayName;
+	                	//If the HRM document has a description
+	                	if (!hrmDocument.getDescription().equals("")) {
+	                		//Set the displayName to the description if it is present
+	                		hrmDisplayName = hrmDocument.getDescription();
+	                	}
+	                	else {
+	                		//Sets the displayName to the reportType if there is no description
+	                		hrmDisplayName = hrmDocument.getReportType();	
+	                	}
+	                	
+	                	if (onIPad){
+	                		truncatedDisplayName = hrmDisplayName;
+	                	}
+	                	else {
+	                		truncatedDisplayName = StringUtils.maxLenString(hrmDisplayName,14,11,"");
+	                	}
+	                	//Gets the url for the display of the HRM Report
+	                	url = request.getContextPath() + "/hospitalReportManager/Display.do?id=" + hrmDocument.getId() + "&duplicateLabIds=";
+	                	//Gets the report date 
+	                	date = DateUtils.getDate(hrmDocument.getReportDate(), "dd-MMM-yyyy", request.getLocale());
+	                	%>
+		                	<li class="hrm" title="<%=hrmDisplayName%>" id="hrm<%=hrmDocument.getId()%>">
+								<div>
+									<div style="float:left; height:20px; line-height:20px; white-space:nowrap;">
+										<input class="tightCheckbox1" type="checkbox" name="hrmNo" id="hrmNo<%=hrmDocument.getId()%>" value="<%=hrmDocument.getId()%>" style="margin: 0px; padding: 0px;" />       
+										<span class="url" style="display:none">
+											<a href="<%=url%>" title="<%=hrmDisplayName%>" style="color: red; text-decoration: none;" target="_blank">
+											<img style="width:15px;height:15px" title="<%= printTitle %>" src="<%= printImage %>" alt="<%= printAlt %>" />
+											<%=truncatedDisplayName%></a>
+										</span>             
+										<img title="<%= printTitle %>" src="<%= printImage %>" alt="<%= printAlt %>">
+										<a class="hrmPreview" href="#" onclick="javascript:previewHTML('<%=url%>');">
+											<span class="text"><%=truncatedDisplayName%></span>								           
+										</a>
+								
+									</div>
+									<div style="float:right; height:25px; line-height:25px; white-space:nowrap;">
+										<a class="hrmPreview" href="#" onclick="javascript:previewHTML('<%=url%>');">
+											<span style="float:right;">... <%=date%></span>                         
+										 </a>
+									</div>
+									<div style="clear:both;"></div>    
+								</div>
+					    	</li>
+			    <%
+					}
+				} %>               
                          
             </ul>
             <input type="submit" class="btn" style="position: absolute; left: 35px; bottom: 5px;"
