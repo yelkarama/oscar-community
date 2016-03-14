@@ -97,14 +97,6 @@ if(!authed) {
 	Vector<String> bgColor = new Vector<String>() ;
 	Vector<Integer> siteIds = new Vector<Integer>();
 	
-	//Creates a string holding the note reason
-	String noteReason = "Consultation Notes";
-	//Creates variables for the current year, month, and day for opening the echart
-	GregorianCalendar now=new GregorianCalendar();
-    int curYear = now.get(Calendar.YEAR);
-    int curMonth = (now.get(Calendar.MONTH)+1);
-    int curDay = now.get(Calendar.DAY_OF_MONTH);
-    
 	if (bMultisites) {
 		SiteDao siteDao = (SiteDao)WebApplicationContextUtils.getWebApplicationContext(application).getBean("siteDao");
 
