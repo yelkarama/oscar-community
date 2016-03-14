@@ -75,6 +75,7 @@ if(!authed) {
 <%@ page import="org.oscarehr.common.dao.FaxConfigDao, org.oscarehr.common.model.FaxConfig" %>
 <%@page import="org.oscarehr.common.dao.ConsultationServiceDao" %>
 <%@page import="org.oscarehr.common.model.ConsultationServices" %>
+<%@ page import="java.net.URLEncoder" %>
 <jsp:useBean id="displayServiceUtil" scope="request" class="oscar.oscarEncounter.oscarConsultationRequest.config.pageUtil.EctConDisplayServiceUtil" />
 
 <html:html locale="true">
@@ -95,6 +96,15 @@ if(!authed) {
 	Vector<String> vecAddressName = new Vector<String>() ;
 	Vector<String> bgColor = new Vector<String>() ;
 	Vector<Integer> siteIds = new Vector<Integer>();
+	
+	//Creates a string holding the note reason
+	String noteReason = "Consultation Notes";
+	//Creates variables for the current year, month, and day for opening the echart
+	GregorianCalendar now=new GregorianCalendar();
+    int curYear = now.get(Calendar.YEAR);
+    int curMonth = (now.get(Calendar.MONTH)+1);
+    int curDay = now.get(Calendar.DAY_OF_MONTH);
+    
 	if (bMultisites) {
 		SiteDao siteDao = (SiteDao)WebApplicationContextUtils.getWebApplicationContext(application).getBean("siteDao");
 
@@ -941,6 +951,18 @@ function addCCName(){
         else document.EctConsultationFormRequestForm.ext_cc.value+="; "+document.EctConsultationFormRequestForm.docName.value;
 }
 
+function popup(vheight,vwidth,varpage) {
+	var page = varpage;
+	windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=0,screenY=0,top=0,left=0";
+	var popup=window.open(varpage, "<bean:message key="global.oscarRx"/>_demosearch", windowprops);
+	if (popup != null) {
+		if (popup.opener == null) {
+			popup.opener = self;
+		}
+		popup.focus();
+	}
+}
+
 </script>
 
 
@@ -1223,9 +1245,12 @@ function updateFaxButton() {
 			<td class="MainTableTopRowRightColumn">
 			<table class="TopStatusBar">
 				<tr>
-					<td class="Header"
-						style="padding-left: 2px; padding-right: 2px; border-right: 2px solid #003399; text-align: left; font-size: 80%; font-weight: bold; width: 100%;"
-						NOWRAP><%=thisForm.getPatientName()%> <%=thisForm.getPatientSex()%>	<%=thisForm.getPatientAge()%></td>
+					<td class="Header" style="padding-left: 2px; padding-right: 2px; border-right: 2px solid #003399; text-align: left; font-size: 80%; font-weight: bold; width: 100%;" NOWRAP>
+						<a href="#" onclick="popup(600,900,'<%=request.getContextPath()%>/demographic/demographiccontrol.jsp?demographic_no=<%=demo%>&displaymode=edit&dboperation=search_detail'); return false;" >
+							<%=thisForm.getPatientName()%>
+						</a>
+						<%=thisForm.getPatientSex()%>	<%=thisForm.getPatientAge()%>
+					</td>
 				</tr>
 			</table>
 			</td>
