@@ -951,7 +951,7 @@ function addCCName(){
         else document.EctConsultationFormRequestForm.ext_cc.value+="; "+document.EctConsultationFormRequestForm.docName.value;
 }
 
-function popup(vheight,vwidth,varpage) {
+function popupMasterFile(vheight,vwidth,varpage) {
 	var page = varpage;
 	windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=0,screenY=0,top=0,left=0";
 	var popup=window.open(varpage, "<bean:message key="global.oscarRx"/>_demosearch", windowprops);
@@ -1246,7 +1246,7 @@ function updateFaxButton() {
 			<table class="TopStatusBar">
 				<tr>
 					<td class="Header" style="padding-left: 2px; padding-right: 2px; border-right: 2px solid #003399; text-align: left; font-size: 80%; font-weight: bold; width: 100%;" NOWRAP>
-						<a href="#" onclick="popup(600,900,'<%=request.getContextPath()%>/demographic/demographiccontrol.jsp?demographic_no=<%=demo%>&displaymode=edit&dboperation=search_detail'); return false;" >
+						<a href="#" onclick="popupMasterFile(600,900,'<%=request.getContextPath()%>/demographic/demographiccontrol.jsp?demographic_no=<%=demo%>&displaymode=edit&dboperation=search_detail'); return false;" >
 							<%=thisForm.getPatientName()%>
 						</a>
 						<%=thisForm.getPatientSex()%>	<%=thisForm.getPatientAge()%>
