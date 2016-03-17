@@ -121,6 +121,7 @@ public class ConsultationPDFCreator extends PdfPageEventHelper {
 
 		// Creating a border for the entire request.
 		border = new PdfPTable(1);
+		border.setSplitLate(false);
 		addToTable(table, border, true);
 
 		// Adding clinic information to the border.
