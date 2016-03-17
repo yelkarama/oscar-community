@@ -38,6 +38,9 @@ import oscar.dms.EDoc;
 import oscar.dms.EDocUtil;
 import oscar.oscarLab.ca.all.pageUtil.LabPDFCreator;
 import oscar.oscarLab.ca.all.pageUtil.OLISLabPDFCreator;
+import oscar.oscarLab.ca.all.parsers.Factory;
+import oscar.oscarLab.ca.all.parsers.MessageHandler;
+import oscar.oscarLab.ca.all.parsers.OLISHL7Handler;
 import oscar.oscarLab.ca.on.CommonLabResultData;
 import oscar.oscarLab.ca.on.LabResultData;
 import oscar.util.ConcatPDF;
@@ -126,8 +129,9 @@ public class EctConsultationFormRequestPrintAction2 extends Action {
 				// Storing the lab in PDF format inside a byte stream.
 				bos = new ByteOutputStream();
 				request.setAttribute("segmentID", labs.get(i).segmentID);
+				MessageHandler messageHandler = Factory.getHandler(labs.get(i).getSegmentID()); 
 				//Checks if the lab is HL7
-				if (labs.get(i).isHL7TEXT()){
+				if (messageHandler instanceof OLISHL7Handler){
 					//If the lab is HL7, use the OLISLabPDFCreator to print the lab
 					OLISLabPDFCreator olisLabPdfCreator = new OLISLabPDFCreator(request, bos);
 					olisLabPdfCreator.printPdf();
