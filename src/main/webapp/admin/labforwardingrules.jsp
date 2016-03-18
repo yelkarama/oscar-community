@@ -211,7 +211,7 @@ status = fr.getStatus(providerNo);
 			
 				Set incoming status:
 				<input type="radio" name="status" value="N"	<%= status.equals("F") ? "" : "checked" %>> <bean:message key="oscarMDS.search.formReportStatusNew" /> 
-				<input type="radio" name="status" value="F" <%= status.equals("F") ? "checked" : "" %>> Filed
+				<input type="radio" name="status" value="F" <%= status.equals("F") ? "checked" : "" %>> Filed (HRM reports will not be filed)
 				
 				<br />
 				
