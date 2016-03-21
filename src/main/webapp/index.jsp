@@ -42,7 +42,6 @@ Cookie prvCookie = new Cookie(CookieSecurity.providerCookie, "");
 prvCookie.setPath("/");
 response.addCookie(prvCookie);
 
-
 // Initialize browser info variables
 String userAgent = request.getHeader("User-Agent");
 String httpAccept = request.getHeader("Accept");
@@ -130,10 +129,10 @@ String login_input_style="login_txt_fields";
 			}
             
             td.topbar{
-               background-color: gold;
+               background-color: rgb(83, 184, 72);
             }
             td.leftbar{
-                background-color:  #106B3A; /*#009966; */
+                background-color:  #6C706E;
                 color: white;
             }
             td.leftinput{
@@ -201,8 +200,7 @@ String login_input_style="login_txt_fields";
                         <input type="text" name="username" value="" size="15" maxlength="15" autocomplete="off" class="<%=login_input_style %>"/>
                         <br/>                
                         <bean:message key="loginApplication.formPwd"/><br/>
-                        <input type="password" name="password" value="" size="15" maxlength="32" autocomplete="off" class="<%=login_input_style %>"/><br/>
-                                <input type="submit" value="<bean:message key="index.btnSignIn"/>" />
+                        <input type="password" name="password" value="" size="15" maxlength="32" autocomplete="off" class="<%=login_input_style %>"/>
                         <br/>
                         <bean:message key="index.formPIN"/>: 
                         <br/>
@@ -211,6 +209,9 @@ String login_input_style="login_txt_fields";
                         <span class="extrasmall">
                             <bean:message key="loginApplication.formCmt"/>
                         </span>
+                        <br/>
+                        <input type="submit" value="<bean:message key="index.btnSignIn"/>" />
+                        
                         <input type=hidden name='propname' value='<bean:message key="loginApplication.propertyFile"/>' />
                         </html:form>
                         
