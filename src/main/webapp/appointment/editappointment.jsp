@@ -747,7 +747,7 @@ function setType(typeSel,reasonSel,locSel,durSel,notesSel,resSel) {
             <div class="space">&nbsp;</div>
             <div class="label"><bean:message key="Appointment.formNotes" />:</div>
             <div class="input">
-				<textarea name="notes" tabindex="3" rows="2" wrap="virtual"
+				<textarea name="notes" maxlength="255" tabindex="3" rows="2" wrap="virtual"
 					cols="18"><%=bFirstDisp?appt.getNotes():request.getParameter("notes")%></textarea>
             </div>
         </li>

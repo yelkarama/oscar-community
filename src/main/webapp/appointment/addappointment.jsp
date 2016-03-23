@@ -949,7 +949,7 @@ function pasteAppt(multipleSameDayGroupAppt) {
             <div class="space">&nbsp;</div>
             <div class="label"><bean:message key="Appointment.formNotes" />:</div>
             <div class="input">
-                <textarea name="notes" tabindex="3" rows="2" wrap="virtual" cols="18"><%=bFirstDisp?"":request.getParameter("notes").equals("")?"":request.getParameter("notes")%></textarea>
+                <textarea name="notes" tabindex="3" maxlength="255" rows="2" wrap="virtual" cols="18"><%=bFirstDisp?"":request.getParameter("notes").equals("")?"":request.getParameter("notes")%></textarea>
             </div>
         </li>
         <% if (pros.isPropertyActive("mc_number")) { %>
@@ -1207,13 +1207,14 @@ function pasteAppt(multipleSameDayGroupAppt) {
     <td valign="top">
 <table style="font-size: 8pt;" bgcolor="#c0c0c0" align="center" valign="top">
 	<tr bgcolor="#ccccff">
-		<th colspan="4"><bean:message key="appointment.addappointment.msgOverview" /></th>
+		<th colspan="5"><bean:message key="appointment.addappointment.msgOverview" /></th>
 	</tr>
 	<tr bgcolor="#ccccff">
 		<th style="padding-right: 25px"><bean:message key="Appointment.formDate" /></th>
  		<th style="padding-right: 25px"><bean:message key="Appointment.formStartTime" /></th>
 		<th style="padding-right: 25px"><bean:message key="appointment.addappointment.msgProvider" /></th>
-		<th><bean:message key="appointment.addappointment.msgComments" /></th>
+		<th style="padding-right: 25px"><bean:message key="appointment.addappointment.msgStatus" /></th>
+		<th style="padding-right: 25px"><bean:message key="appointment.addappointment.msgNotes" /></th>
 	</tr>
 	<%
 
@@ -1229,18 +1230,41 @@ function pasteAppt(multipleSameDayGroupAppt) {
             java.util.Date end = cal2.getTime();
             param2[2] = new java.sql.Date(cal2.getTime().getTime());
             
+            String status;
+            String notes;
+            String shortenedNotes;
+            String statusDescription;
+            
             for(Object[] result : appointmentDao.search_appt_future(Integer.parseInt(demoNo), start, end)) {
             	Appointment a = (Appointment)result[0];
             	p = (Provider)result[1];
            
                 iRow ++;
                 if (iRow > iPageSize) break;
+                
+                status = a.getStatus();
+                notes = a.getNotes();
+                shortenedNotes = "";
+                
+                if (notes.length() > 15) {
+                	shortenedNotes = notes.substring(0, 13).trim() + "<b>...</b>";
+                }
+                else {
+                	shortenedNotes = notes;
+                }
+                statusDescription = "";
+                for (AppointmentStatus appointmentStatus : allStatus) {
+                	if (appointmentStatus.getStatus().equals(status)) {
+                		statusDescription = appointmentStatus.getDescription();
+                	}
+                }
     %>
 	<tr bgcolor="#eeeeff">
 		<td style="background-color: #CCFFCC; padding-right: 25px"><%=ConversionUtils.toDateString(a.getAppointmentDate())%></td>
 		<td style="background-color: #CCFFCC; padding-right: 25px"><%=ConversionUtils.toTimeString(a.getStartTime())%></td>
 		<td style="background-color: #CCFFCC; padding-right: 25px"><%=p.getFormattedName()%></td>
-		<td style="background-color: #CCFFCC;"><%=a.getStatus()==null?"":(a.getStatus().equals("N")?"No Show":(a.getStatus().equals("C")?"Cancelled":"") )%></td>
+		<td style="background-color: #CCFFCC;"><%= statusDescription %></td>
+		<td style="background-color: #CCFFCC;" title="<%= notes %>"><%= shortenedNotes %></td>
 	</tr>
 	<%
             }
@@ -1249,17 +1273,38 @@ function pasteAppt(multipleSameDayGroupAppt) {
             cal2 = Calendar.getInstance();
             cal2.add(Calendar.YEAR, -1);
             
+            status = "";
+            notes = "";
+            
             for(Object[] result : appointmentDao.search_appt_past(Integer.parseInt(demoNo), start, cal2.getTime())) {
             	Appointment a = (Appointment)result[0];
             	p = (Provider)result[1];
                 iRow ++;
                 if (iRow > iPageSize) break;
+                
+                status = a.getStatus();
+                notes = a.getNotes();
+                shortenedNotes = "";
+                
+                if (notes.length() > 15) {
+                	shortenedNotes = notes.substring(0, 13).trim() + "<b>...</b>";
+                }
+                else {
+                	shortenedNotes = notes;
+                }
+                statusDescription = "";
+                for (AppointmentStatus appointmentStatus : allStatus) {
+                	if (appointmentStatus.getStatus().equals(status)) {
+                		statusDescription = appointmentStatus.getDescription();
+                	}
+                }
     %>
 	<tr bgcolor="#eeeeff">
 		<td style="background-color: #CCFFCC; padding-right: 25px"><%=ConversionUtils.toDateString(a.getAppointmentDate())%></td>
 		<td style="background-color: #CCFFCC; padding-right: 25px"><%=ConversionUtils.toTimeString(a.getStartTime())%></td>
 		<td style="background-color: #CCFFCC; padding-right: 25px"><%=p.getFormattedName()%></td>
-		<td style="background-color: #CCFFCC;"><%=a.getStatus()==null?"":(a.getStatus().equals("N")?"No Show":(a.getStatus().equals("C")?"Cancelled":"") )%></td>
+		<td style="background-color: #CCFFCC; padding-right: 25px"><%= statusDescription %></td>
+		<td style="background-color: #CCFFCC; padding-right: 25px" title="<%= notes %>"><%= shortenedNotes %></td>
 	</tr>
 	<%
             }
