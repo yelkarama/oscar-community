@@ -257,6 +257,7 @@ function showHideERxPref() {
 					<INPUT TYPE="TEXT" NAME="end_hour" VALUE='<%=endHour%>' size="2" maxlength="2">
 				</td>
 			</tr>
+			
 			<tr>
 				<td class="preferenceLabel">
 					<bean:message key="provider.preference.formPeriod" />
@@ -265,6 +266,28 @@ function showHideERxPref() {
 				<td class="preferenceValue">
 					<INPUT TYPE="TEXT" NAME="every_min" VALUE='<%=everyMin%>' size="2" maxlength="2">
 				</td>
+			</tr>
+			<tr>
+ 				<td class="preferenceLabel">
+					<bean:message key="provider.providerpreference.twelveHourFormat" />
+				</td>
+				<td class="preferenceValue">
+					<%
+	            		boolean twelveHourFormatChecked=ProviderPreferencesUIBean.isTwelveHourFormat(providerNo);
+	            	%>
+	            	<input type="checkbox" name="twelve_hour_format" <%=twelveHourFormatChecked?"checked=\"checked\"":""%> />
+	            </td>
+			</tr>
+			<tr>
+				<td class="preferenceLabel">
+					<bean:message key="provider.providerpreference.labelShortcutEnabled" />
+				</td>
+				<td class="preferenceValue">
+					<%
+	            		boolean labelShortcutEnabledChecked=ProviderPreferencesUIBean.isLabelShortcutEnabled(providerNo);
+	            	%>
+	            	<input type="checkbox" name="label_shortcut_enabled" <%=labelShortcutEnabledChecked?"checked=\"checked\"":""%> />
+	            </td>
 			</tr>
 			<tr>
 				<td class="preferenceLabel">

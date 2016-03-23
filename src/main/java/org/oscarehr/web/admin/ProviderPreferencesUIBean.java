@@ -114,6 +114,12 @@ public final class ProviderPreferencesUIBean {
 		temp = StringUtils.trimToNull(request.getParameter("every_min"));
 		if (temp != null) providerPreference.setEveryMin(Integer.parseInt(temp));
 
+		temp = StringUtils.trimToNull(request.getParameter("dboperation"));
+		if (temp == null) {
+			providerPreference.setTwelveHourFormat(WebUtils.isChecked(request,"twelve_hour_format"));
+			providerPreference.setLabelShortcutEnabled(WebUtils.isChecked(request, "label_shortcut_enabled"));
+		}
+		
 		temp = StringUtils.trimToNull(request.getParameter("mygroup_no"));
 		if (temp != null) providerPreference.setMyGroupNo(temp);
 
@@ -250,5 +256,31 @@ public final class ProviderPreferencesUIBean {
 		}
 		
 		providerPreferenceDao.merge(providerPreference);
+	}
+	
+	/**
+	 * Checks the twelveHourFormat preference for the given provider number 
+	 * @param providerNumber
+	 * @return true if twelveHourFormat is enabled, false if not
+	 */
+	public static boolean isTwelveHourFormat(String providerNumber)
+	{
+		ProviderPreference providerPreference= getProviderPreference(providerNumber);
+		if (providerPreference==null) providerPreference=new ProviderPreference();
+			
+		return(providerPreference.isTwelveHourFormat());
+	}
+
+	/**
+	 * Checks the labelShortcut preference for the given provider number 
+	 * @param providerNumber
+	 * @return true if labelShortcut is enabled, false if not
+	 */
+	public static boolean isLabelShortcutEnabled(String providerNumber)
+	{
+		ProviderPreference providerPreference = getProviderPreference(providerNumber);
+		if (providerPreference==null) providerPreference=new ProviderPreference();
+			
+		return(providerPreference.isLabelShortcutEnabled());
 	}
 }

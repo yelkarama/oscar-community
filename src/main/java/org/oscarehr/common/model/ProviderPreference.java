@@ -78,6 +78,8 @@ public class ProviderPreference extends AbstractModel<String> implements Seriali
 	private Integer startHour=8;
 	private Integer endHour=18;
 	private Integer everyMin=15;
+	private boolean twelveHourFormat = true;
+	private boolean labelShortcutEnabled = false;
 	private String myGroupNo = null;	
 	private String colourTemplate="deepblue";
 	private String newTicklerWarningWindow="disabled";
@@ -213,6 +215,20 @@ public class ProviderPreference extends AbstractModel<String> implements Seriali
     	this.everyMin = everyMin;
     }
 
+	public boolean isTwelveHourFormat() {
+		return twelveHourFormat;
+	}
+	public void setTwelveHourFormat(boolean twelveHourFormat) {
+		this.twelveHourFormat = twelveHourFormat;
+	}
+
+	public boolean isLabelShortcutEnabled() {
+		return labelShortcutEnabled;
+	}
+	public void setLabelShortcutEnabled(boolean labelShortcutEnabled) {
+		this.labelShortcutEnabled = labelShortcutEnabled;
+	}
+	
 	public String getMyGroupNo() {
     	return myGroupNo;
     }
