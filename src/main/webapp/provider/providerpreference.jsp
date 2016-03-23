@@ -58,6 +58,8 @@
 <%@page import="java.util.ArrayList" %>
 <%@page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
 <%@page import="org.oscarehr.common.model.Provider" %>
+<%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
+<%@ page import="org.oscarehr.common.model.Provider" %>
 
 <%
 	CtlBillingServiceDao ctlBillingServiceDao = SpringUtils.getBean(CtlBillingServiceDao.class);
@@ -290,6 +292,24 @@ function showHideERxPref() {
 	            </td>
 			</tr>
 			<tr>
+				<% 	
+					ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
+					List<Provider> doctors = providerDao.getProvidersByType("doctor");
+					String defaultDoctor = providerPreference.getDefaultDoctor();
+				%>
+				<td class="preferenceLabel">
+					<bean:message key="provider.preference.defaultDoctor" />
+				</td>
+				<td class="preferenceValue">
+					<select name="default_doctor">
+						<option value=""></option>
+						<% for (Provider doctor : doctors) { %>
+							<option value="<%= doctor.getProviderNo() %>" <%=doctor.getProviderNo().equals(defaultDoctor) ? "selected='selected'" : ""%>> <%= doctor.getFormattedName() %> </option>
+						<% } %>
+					</select>
+				</td>
+			</tr>
+			<tr>
 				<td class="preferenceLabel">
 					<bean:message key="provider.preference.formGroupNo" />
 				</td>
@@ -353,7 +373,6 @@ function showHideERxPref() {
 								if (ticklerforproviderNo == null) {
 									ticklerforproviderNo = loggedInInfo.getLoggedInProviderNo();
 								}
-								ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
 								List<Provider> listProvider = new ArrayList<Provider>();
 								if (providerDao != null) {
 									listProvider = providerDao.getProviders();

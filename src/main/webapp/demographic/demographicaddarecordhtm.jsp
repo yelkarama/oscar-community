@@ -1101,14 +1101,14 @@ function ignoreDuplicates() {
         <select name="staff">
 					<option value=""></option>
 					<%
+					    String defaultDoctor = ((ProviderPreference)session.getAttribute(SessionConstants.LOGGED_IN_PROVIDER_PREFERENCE)).getDefaultDoctor(); 
 						for (Provider p : providerDao.getActiveProvidersByRole("doctor")) {
 								String docProviderNo = p.getProviderNo();
 					%>
-					<option id="doc<%=docProviderNo%>" value="<%=docProviderNo%>"><%=Misc.getShortStr((p.getFormattedName()), "", 12)%></option>
+					<option id="doc<%=docProviderNo%>" value="<%=docProviderNo%>" <%=docProviderNo.equals(defaultDoctor) ? "selected='selected'" : "" %>><%=Misc.getShortStr((p.getFormattedName()), "", 12)%></option>
 					<%
 						}
 					%>
-					<option value=""></option>
 				</select></td>
 				<td id="nurseLbl" align="right"><b><bean:message
 					key="demographic.demographicaddrecordhtm.formNurse" />: </b></td>

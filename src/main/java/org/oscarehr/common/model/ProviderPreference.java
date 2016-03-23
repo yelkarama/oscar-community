@@ -80,6 +80,7 @@ public class ProviderPreference extends AbstractModel<String> implements Seriali
 	private Integer everyMin=15;
 	private boolean twelveHourFormat = true;
 	private boolean labelShortcutEnabled = false;
+	private String defaultDoctor = "";
 	private String myGroupNo = null;	
 	private String colourTemplate="deepblue";
 	private String newTicklerWarningWindow="disabled";
@@ -227,6 +228,13 @@ public class ProviderPreference extends AbstractModel<String> implements Seriali
 	}
 	public void setLabelShortcutEnabled(boolean labelShortcutEnabled) {
 		this.labelShortcutEnabled = labelShortcutEnabled;
+	}
+	
+	public String getDefaultDoctor() {
+		return defaultDoctor;
+	}
+	public void setDefaultDoctor(String defaultDoctor) {
+		this.defaultDoctor = defaultDoctor;
 	}
 	
 	public String getMyGroupNo() {

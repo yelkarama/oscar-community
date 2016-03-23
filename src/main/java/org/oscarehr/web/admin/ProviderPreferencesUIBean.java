@@ -117,7 +117,8 @@ public final class ProviderPreferencesUIBean {
 		temp = StringUtils.trimToNull(request.getParameter("dboperation"));
 		if (temp == null) {
 			providerPreference.setTwelveHourFormat(WebUtils.isChecked(request,"twelve_hour_format"));
-			providerPreference.setLabelShortcutEnabled(WebUtils.isChecked(request, "label_shortcut_enabled"));
+			providerPreference.setLabelShortcutEnabled(WebUtils.isChecked(request, "label_shortcut_enabled"));			
+			providerPreference.setDefaultDoctor(StringUtils.trimToNull(request.getParameter("default_doctor")));
 		}
 		
 		temp = StringUtils.trimToNull(request.getParameter("mygroup_no"));
