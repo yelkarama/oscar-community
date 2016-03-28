@@ -56,21 +56,28 @@
   Properties prop = null;
   String param = request.getParameter("param")==null?"":request.getParameter("param") ;
   String param2 = request.getParameter("param2")==null?"":request.getParameter("param2") ;
+  
+  String doctorNo = request.getParameter("refDoctorNo")==null? "" :request.getParameter("refDoctorNo");
+  String doctorName = request.getParameter("refDoctorName")==null? "" :request.getParameter("refDoctorName");
+  String searchType = request.getParameter("searchType") == null ? "" : request.getParameter("searchType");
+  
   String toname = request.getParameter("toname")==null?"":request.getParameter("toname") ;
   String toaddress1 = request.getParameter("toaddress1")==null?"":request.getParameter("toaddress1") ;
   String tophone = request.getParameter("tophone")==null?"":request.getParameter("tophone") ;
   String tofax = request.getParameter("tofax")==null?"":request.getParameter("tofax") ;
   String keyword = request.getParameter("keyword");
+  
+  String doctorNameData = "";
+  String doctorNumberData = "";
 
+  List<ProfessionalSpecialist> professionalSpecialists = null;
+  
 	if (request.getParameter("submit") != null && (request.getParameter("submit").equals("Search")
 		|| request.getParameter("submit").equals("Next Page") || request.getParameter("submit").equals("Last Page")) ) {
-
-	  
+  
 	  String search_mode = request.getParameter("search_mode")==null?"search_name":request.getParameter("search_mode");
 	  String orderBy = request.getParameter("orderby")==null?"last_name,first_name":request.getParameter("orderby");
 	  String where = "";
-
-	  List<ProfessionalSpecialist> professionalSpecialists = null;
 
 	  if ("search_name".equals(search_mode)) {
 	    String[] temp = keyword.split("\\,\\p{Space}*");
@@ -85,23 +92,57 @@
 	  } else if("referral_no".equals(search_mode)) {
 		  professionalSpecialists = professionalSpecialistDao.findByReferralNo(keyword);
 	  }
-
-	  if (professionalSpecialists != null) {
-		 for (ProfessionalSpecialist professionalSpecialist : professionalSpecialists) {
-		  	prop = new Properties();
-		  	prop.setProperty("referral_no", (professionalSpecialist.getReferralNo() != null ? professionalSpecialist.getReferralNo() : ""));
-		  	prop.setProperty("last_name", (professionalSpecialist.getLastName() != null ? professionalSpecialist.getLastName() : ""));
-		  	prop.setProperty("first_name", (professionalSpecialist.getFirstName() != null ? professionalSpecialist.getFirstName() : ""));
-		  	prop.setProperty("specialty", (professionalSpecialist.getSpecialtyType() != null ? professionalSpecialist.getSpecialtyType() : ""));
-		  	prop.setProperty("phone", (professionalSpecialist.getPhoneNumber() != null ? professionalSpecialist.getPhoneNumber() : ""));
-            prop.setProperty("to_fax", (professionalSpecialist.getFaxNumber() != null ? professionalSpecialist.getFaxNumber() : ""));
-            prop.setProperty("to_name", "Dr. " + professionalSpecialist.getFirstName() + " " + professionalSpecialist.getLastName());
-            prop.setProperty("to_address", (professionalSpecialist.getStreetAddress() != null ? professionalSpecialist.getStreetAddress() : ""));
-		  	vec.add(prop);
-		 }
-	  }
-
 	}
+	else if (searchType != null){
+		
+		//If there is a doctorNo
+		if (searchType.equals("number")){
+			//Gets by ReferralNo
+			if (!doctorNo.equals(""))
+				professionalSpecialists = professionalSpecialistDao.findByReferralNo(doctorNo);
+		}
+		else if (searchType.equals("name")){
+			if (!doctorName.equals("")) {
+				//Splits the doctorNames for first and last
+				String[] doctorNames = doctorName.split("\\,\\p{Space}*");
+				//Checks if there is something in the array
+				if (doctorNames.length > 0){
+					//If there is one name, search by last name
+					if (doctorNames.length == 1){
+						professionalSpecialists = professionalSpecialistDao.findByLastName(doctorNames[0]);
+					}
+					else {
+						//Else search with both
+						professionalSpecialists = professionalSpecialistDao.findByFullName(doctorNames[0], doctorNames[1]);
+					}
+				}
+			}
+		}
+		//If there is only one specialist, assign the data appropriately for check later
+		if (professionalSpecialists != null && professionalSpecialists.size() == 1) {
+			doctorNameData = professionalSpecialists.get(0).getLastName() + ", " + professionalSpecialists.get(0).getFirstName();
+			doctorNumberData = professionalSpecialists.get(0).getReferralNo();
+		}
+	}
+	
+	//If prefessionalSpecialists is not null and there is nothing in the doctorNameData or doctorNumberData, 
+	if (professionalSpecialists != null && (doctorNameData.equals("") && doctorNumberData.equals(""))) {
+		//Creates an array of all the found specialists
+		for (ProfessionalSpecialist professionalSpecialist : professionalSpecialists) {
+			prop = new Properties();
+			prop.setProperty("doctor_id", (professionalSpecialist.getId() != null ? professionalSpecialist.getId() : "").toString());
+			prop.setProperty("referral_no", (professionalSpecialist.getReferralNo() != null ? professionalSpecialist.getReferralNo() : ""));
+			prop.setProperty("last_name", (professionalSpecialist.getLastName() != null ? professionalSpecialist.getLastName() : ""));
+			prop.setProperty("first_name", (professionalSpecialist.getFirstName() != null ? professionalSpecialist.getFirstName() : ""));
+			prop.setProperty("specialty", (professionalSpecialist.getSpecialtyType() != null ? professionalSpecialist.getSpecialtyType() : ""));
+			prop.setProperty("phone", (professionalSpecialist.getPhoneNumber() != null ? professionalSpecialist.getPhoneNumber() : ""));
+			prop.setProperty("to_fax", (professionalSpecialist.getFaxNumber() != null ? professionalSpecialist.getFaxNumber() : ""));
+			prop.setProperty("to_name", "Dr. " + professionalSpecialist.getFirstName() + " " + professionalSpecialist.getLastName());
+			prop.setProperty("to_address", (professionalSpecialist.getStreetAddress() != null ? professionalSpecialist.getStreetAddress() : ""));
+			vec.add(prop);
+		}
+	 }
+
 %>
 <%@ page import="java.util.*, java.sql.*, java.net.*"%>
 
@@ -117,6 +158,14 @@
 <script language="JavaScript">
 
 <!--
+		//If there was only 1 result this information will be populated
+		<% if (!doctorNameData.equals("") || !doctorNumberData.equals("")) { %>
+			//Assigns the data to the opener's fields and closes the current window
+			opener.<%= param %> = "<%= doctorNumberData %>";
+			opener.<%= param2 %> = "<%= doctorNameData %>";
+			self.close();
+		<% } %>
+
 		function setfocus() {
 		  this.focus();
 		  document.forms[0].keyword.focus();
@@ -177,9 +226,9 @@
 		<td class="blueText" nowrap><input type="radio"
 			name="search_mode" value="specialty"> Specialty</td>
 		<td class="blueText" nowrap><input type="radio"
-			name="search_mode" value="referral_no"> Ref. no.</td>
+			name="search_mode" value="referral_no" <%= searchType.equals("number") ? "checked" : "" %>> Ref. no.</td>
 		<td valign="middle" rowspan="2" align="left"><input type="text"
-			name="keyword" value="" size="17" maxlength="100"> <input
+			name="keyword" value="<%= searchType.equals("number") ? doctorNo : (searchType.equals("name") ? doctorName : "") %>" size="17" maxlength="100"> <input
 			type="hidden" name="orderby" value="last_name, first_name"> <input
 			type="hidden" name="limit1" value="0"> <input type="hidden"
 			name="limit2" value="10"> <input type="hidden" name="submit"
@@ -212,7 +261,7 @@
 		<th width="10%"><b>Ref. No.</b></th>
 		<th width="25%">Last Name</b></th>
 		<th width="20%">First Name</b></th>
-		<th width="20%">Specialty</b></th>
+		<th width="25%">Address</th>
 		<th width="20%">Phone</b></th>
 	</tr>
 	<%for(int i=0; i<vec.size(); i++) {
@@ -233,7 +282,7 @@
 		<td><%=prop.getProperty("referral_no", "")%></td>
 		<td><%=WordUtils.capitalize(prop.getProperty("last_name", "").toLowerCase())%></td>
 		<td><%=WordUtils.capitalize(prop.getProperty("first_name", "").toLowerCase())%></td>
-		<td><%=prop.getProperty("specialty", "")%></td>
+		<td><%= prop.getProperty("to_address", "") %></td>
 		<td><%=prop.getProperty("phone", "")%></td>
 	</tr>
 	<% } %>

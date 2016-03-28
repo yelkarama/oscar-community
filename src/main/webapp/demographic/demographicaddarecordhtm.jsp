@@ -286,12 +286,21 @@ function rs(n,u,w,h,x) {
   args="width="+w+",height="+h+",resizable=yes,scrollbars=yes,status=0,top=60,left=30";
   remote=window.open(u,n,args);
 }
-function referralScriptAttach2(elementName, name2) {
+/* function referralScriptAttach2(elementName, name2) {
      var d = elementName;
      t0 = escape("document.forms[1].elements[\'"+d+"\'].value");
      t1 = escape("document.forms[1].elements[\'"+name2+"\'].value");
      rs('att',('../billing/CA/ON/searchRefDoc.jsp?param='+t0+'&param2='+t1),600,600,1);
-}
+} */
+
+function referralScriptAttach2(refDoctorNoElement, refDoctorNameElement, searchType) {
+    refDoctorNo = escape(document.forms[1].elements[refDoctorNoElement].value);
+    refDoctorName = escape(document.forms[1].elements[refDoctorNameElement].value);
+    t0 = escape("document.forms[1].elements[\'"+refDoctorNoElement+"\'].value");
+    t1 = escape("document.forms[1].elements[\'"+refDoctorNameElement+"\'].value");
+    
+    rs('att',('../billing/CA/ON/searchRefDoc.jsp?refDoctorNo='+refDoctorNo+'&refDoctorName='+refDoctorName + '&param=' + t0 + '&param2=' + t1 + '&searchType=' + searchType),600,600,1);
+	 }
 
 function checkName() {
 	var typeInOK = false;
@@ -1200,15 +1209,16 @@ if(refName.indexOf("<%=prop.getProperty("last_name")+","+prop.getProperty("first
 document.forms[1].r_doctor_ohip.value = refNo;
 }
 //-->
-</script> <% } else {%> <input type="text" name="r_doctor" size="30" maxlength="40"
-					value=""> <% } %>
+</script> <% } else {%> <input type="text" name="r_doctor" size="17" maxlength="40" value="">
+						<a href="javascript:referralScriptAttach2('r_doctor_ohip','r_doctor', 'name')"><bean:message key="demographic.demographiceditdemographic.btnSearch"/> Name</a>
+				<% } %>
 				</td>
 				<td id="referralDocNoLbl" align="right" nowrap height="10"><b><bean:message
 					key="demographic.demographicaddrecordhtm.formReferalDoctorN" />:</b></td>
 				<td id="referralDocNoCell" align="left" height="10"><input type="text"
 					name="r_doctor_ohip" maxlength="6"> <% if("ON".equals(prov)) { %>
 								<a
-									href="javascript:referralScriptAttach2('r_doctor_ohip','r_doctor')"><bean:message key="demographic.demographiceditdemographic.btnSearch"/>
+									href="javascript:referralScriptAttach2('r_doctor_ohip','r_doctor', 'number')"><bean:message key="demographic.demographiceditdemographic.btnSearch"/>
 								#</a> <% } %>
 				</td>
 			</tr>

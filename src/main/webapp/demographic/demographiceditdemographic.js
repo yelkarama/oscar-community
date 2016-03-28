@@ -151,12 +151,22 @@ function rs(n,u,w,h,x) {
   args="width="+w+",height="+h+",resizable=yes,scrollbars=yes,status=0,top=60,left=30";
   remote=window.open(u,n,args);
 }
-function referralScriptAttach2(elementName, name2) {
+/*function referralScriptAttach2(elementName, name2) {
      var d = elementName;
      t0 = escape("document.forms[1].elements[\'"+d+"\'].value");
      t1 = escape("document.forms[1].elements[\'"+name2+"\'].value");
      rs('att',('../billing/CA/ON/searchRefDoc.jsp?param='+t0+'&param2='+t1),600,600,1);
+}*/
+
+function referralScriptAttach2(refDoctorNoElement, refDoctorNameElement, searchType) {
+    refDoctorNo = escape(document.forms[1].elements[refDoctorNoElement].value);
+    refDoctorName = escape(document.forms[1].elements[refDoctorNameElement].value);
+    t0 = escape("document.forms[1].elements[\'"+refDoctorNoElement+"\'].value");
+    t1 = escape("document.forms[1].elements[\'"+refDoctorNameElement+"\'].value");
+    
+    rs('att',('../billing/CA/ON/searchRefDoc.jsp?refDoctorNo='+refDoctorNo+'&refDoctorName='+refDoctorName + '&param=' + t0 + '&param2=' + t1 + '&searchType=' + searchType),600,600,1);
 }
+
 function removeAccents(s){
     var r=s.toLowerCase();
     r = r.replace(new RegExp("\\s", 'g'),"");
