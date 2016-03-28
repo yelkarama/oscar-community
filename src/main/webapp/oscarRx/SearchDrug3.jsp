@@ -1293,7 +1293,7 @@ function changeLt(drugId){
            new Ajax.Request(url,{method: 'post',parameters:data,onSuccess:function(transport){
                    var json=transport.responseText.evalJSON();
                    if(json!=null && (json.success=='true'||json.success==true) ){
-                        $("notLongTermDrug_"+drugId).innerHTML="*";
+                        $("notLongTermDrug_"+drugId).innerHTML="yes";
                         $("notLongTermDrug_"+drugId).setStyle({
                             textDecoration: 'none',
                             color: 'red'

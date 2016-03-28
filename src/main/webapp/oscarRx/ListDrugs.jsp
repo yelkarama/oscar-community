@@ -216,7 +216,7 @@ if (heading != null){
             		if(prescriptDrug.isLongTerm())
             		{
             		%>
-            			*
+            			yes
             		<%
             		}
             		else
@@ -228,10 +228,10 @@ if (heading != null){
 								if(securityManager.hasWriteAccess("_rx",roleName$,true)) {            		
 							%>
 		            			<a id="notLongTermDrug_<%=prescriptIdInt%>" title="<bean:message key='oscarRx.Prescription.changeDrugLongTerm'/>" onclick="changeLt('<%=prescriptIdInt%>');" href="javascript:void(0);">
-		            			L
+		            			no
 		            			</a>
 							<% } else { %>
-            					<span style="color:blue">L</span>
+            					<span style="color:blue">no</span>
             				<% } %>
 
             				<%
