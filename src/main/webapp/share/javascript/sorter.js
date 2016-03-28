@@ -246,6 +246,9 @@ $(document).ready(function() {
 		
 		$.getJSON('../dms/SplitDocument.do?method=split&document=' + docnum + '&' + serialized + '&queueID=' + queueId,			
 				function(data) {
+					if (opener != null && opener.opener != null && opener.opener.location.href.indexOf("inboxManage") != -1) {
+						opener.opener.location.reload();
+					}
 					$("#tool_savecontinue span").html("Save &amp; Continue");
 					popup(screen.height,screen.width,"../dms/showDocument.jsp?segmentID="+data["newDocNum"] + '&demoName=' + encodeURIComponent(demoName) + "&inWindow=true", "assignDoc");			
 				return false;
