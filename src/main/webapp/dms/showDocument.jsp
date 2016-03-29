@@ -189,6 +189,18 @@
         <script type="text/javascript">
         jQuery.noConflict();
         
+        function removeDemoFromDoc(docId) {
+      		jQuery.ajax({
+       			type: "POST",
+       			url: "<%=request.getContextPath() %>/dms/ManageDocument.do",
+       			data: "method=removeDemographicFromDocument&docId=" + docId + "&docType=DOC",
+       			success: function(data) {
+       				if (data != null)
+      					location.reload();
+       			}
+       		});
+       	}
+        
         function renderCalendar(id,inputFieldId){
             Calendar.setup({ inputField : inputFieldId, ifFormat : "%Y-%m-%d", showsTime :false, button : id });
             
@@ -430,11 +442,13 @@
                                             <input id="saved<%=docId%>" type="hidden" name="saved" value="true"/>
                                             <input type="hidden" value="<%=demographicID%>" name="demog" id="demofind<%=docId%>" />
                                             <input type="hidden" name="demofindName" value="<%=demoName%>" id="demofindName<%=docId%>"/> 
-                                            <%=demoName%><%}else{%>
+                                            <%=demoName%>
+                                            <a href="#" onclick="removeDemoFromDoc('<%= docId %>')">(remove)</a>
+                                            <%}else{%>
                                             <input id="saved<%=docId%>" type="hidden" name="saved" value="false"/>
                                             <input type="hidden" name="demog" value="<%=demographicID%>" id="demofind<%=docId%>"/>   
                                             <input type="hidden" name="demofindName" value="<%=demoName%>" id="demofindName<%=docId%>"/>   
-                                                                                   
+
                                             <input type="checkbox" id="activeOnly<%=docId%>" name="activeOnly" checked="checked" value="true" onclick="setupDemoAutoCompletion()">Active Only<br>  
                                             <input type="text" style="width:400px;" id="autocompletedemo<%=docId%>" onchange="checkSave('<%=docId%>');" name="demographicKeyword" />
                                             <div id="autocomplete_choices<%=docId%>" class="autocomplete"></div>

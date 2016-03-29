@@ -46,6 +46,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 import javax.imageio.ImageIO;
+import javax.persistence.EntityExistsException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -73,11 +74,13 @@ import org.oscarehr.casemgmt.model.CaseManagementNoteLink;
 import org.oscarehr.casemgmt.service.CaseManagementManager;
 import org.oscarehr.common.dao.CtlDocumentDao;
 import org.oscarehr.common.dao.DocumentDao;
+import org.oscarehr.common.dao.OscarLogDao;
 import org.oscarehr.common.dao.PatientLabRoutingDao;
 import org.oscarehr.common.dao.ProviderInboxRoutingDao;
 import org.oscarehr.common.dao.SecRoleDao;
 import org.oscarehr.common.model.CtlDocument;
 import org.oscarehr.common.model.Document;
+import org.oscarehr.common.model.OscarLog;
 import org.oscarehr.common.model.PatientLabRouting;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.model.SecRole;
@@ -115,7 +118,7 @@ public class ManageDocumentAction extends DispatchAction {
 	private DocumentDao documentDao = SpringUtils.getBean(DocumentDao.class);
 	private CtlDocumentDao ctlDocumentDao = SpringUtils.getBean(CtlDocumentDao.class);
 	private ProviderInboxRoutingDao providerInboxRoutingDAO = SpringUtils.getBean(ProviderInboxRoutingDao.class);
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
+	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class) ;
 	
 	public ActionForward unspecified(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 
@@ -426,6 +429,89 @@ public class ManageDocumentAction extends DispatchAction {
 		EDocUtil.addCaseMgmtNoteLink(cmnl);
 	}
 
+	public ActionForward removeDemographicFromDocument(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+		
+		//Checks if the user has the rights to use this function
+		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_edoc", "w", null)) {
+        	throw new SecurityException("missing required security object (_edoc)");
+        }
+		
+		String documentId = request.getParameter("docId");
+		String docType = request.getParameter("docType");
+		String providerNo = LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo();
+
+		//Gets the patientLabRoutingDao
+		PatientLabRoutingDao patientLabRoutingDao = SpringUtils.getBean(PatientLabRoutingDao.class);
+		//Gets the caseManagementManager
+		CaseManagementManager caseManagementManager = SpringUtils.getBean(CaseManagementManager.class);
+		CaseManagementNote caseManagementNote;
+		OscarLogDao logDao = SpringUtils.getBean(OscarLogDao.class);
+		OscarLog log;
+		
+		try {
+			//Gets the patientLabRoutng for the given document
+			PatientLabRouting patientLabRouting = patientLabRoutingDao.findDemographics(docType, Integer.parseInt(documentId));
+			//Gets the ctlDocument for the demographic and document
+			CtlDocument ctlDocument = ctlDocumentDao.getCtrlDocument(Integer.parseInt(documentId));
+			//Gets all notes on the demographic's echart relating to the given document
+			List<CaseManagementNoteLink> caseManagementNoteLinks = caseManagementManager.getLinkByTableIdDesc(CaseManagementNoteLink.DOCUMENT, Long.valueOf(documentId));
+			//Gets the demographic number from the patientLabRouting
+			Integer demographicNumber = patientLabRouting.getDemographicNo();
+			
+			//Checks if there is a patientLabRouting
+			if (patientLabRouting != null) {
+				//Removes the patientLabRouting
+				patientLabRoutingDao.remove(patientLabRouting.getId());
+			}
+			//For each note on the echart relating to the demographic and document, archives and updates it
+			for (CaseManagementNoteLink noteLink : caseManagementNoteLinks){
+				caseManagementNote = caseManagementManager.getNote(String.valueOf(noteLink.getNoteId()));
+				
+				if (caseManagementNote != null){
+					caseManagementNote.setArchived(true);
+					caseManagementManager.updateNote(caseManagementNote);
+				}
+			}
+			//If the ctlDocument exists
+			if (ctlDocument != null) {
+				//Creates a new CtlDocument for unlinking
+				CtlDocument unlinkedCtlDocument = new CtlDocument();
+				//Populates the new unlinkedCtlDocument
+				unlinkedCtlDocument.getId().setDocumentNo(ctlDocument.getId().getDocumentNo());
+				unlinkedCtlDocument.getId().setModule(ctlDocument.getId().getModule());
+				unlinkedCtlDocument.getId().setModuleId(-1);
+				unlinkedCtlDocument.setStatus(ctlDocument.getStatus());
+				
+				//Sets the module id of the unlinkedCtlDocument to -1
+				unlinkedCtlDocument.getId().setModuleId(-1);
+				//Updates the ctlDocument and saves in the unlinkedCtlDocument
+				ctlDocumentDao.remove(ctlDocument.getId());
+				ctlDocumentDao.persist(unlinkedCtlDocument);
+			}
+			
+			//Logs the unlinking
+			log = new OscarLog();
+			log.setProviderNo(providerNo);
+			log.setAction("unlink");
+			log.setContent("document");
+			log.setContentId(documentId);
+			log.setIp(request.getRemoteAddr());
+			log.setDemographicId(demographicNumber);
+			logDao.persist(log);
+
+			request.setAttribute("success", true);
+		} catch (EntityExistsException eee) {
+			MiscUtils.getLogger().error("the unlinkedCtlDocument already exists", eee);
+			request.setAttribute("success", false);
+		} catch (Exception e) {
+			MiscUtils.getLogger().error("Tried to remove demographic from document but failed.", e); 
+			request.setAttribute("success", false);
+		}
+
+		return null;
+
+	}
+	
 	/*
 	 * private void savePatientLabRouting(String demog,String docId,String docType){ CommonLabResultData.updatePatientLabRouting(docId, demog, docType); }
 	 */
