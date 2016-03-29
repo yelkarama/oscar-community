@@ -874,7 +874,7 @@ if (request.getAttribute("printError") != null && (Boolean) request.getAttribute
                                             lineClass = "AbnormalRes";
                                         }%>
                                         <%if (handler.getMsgType().equals("EPSILON")) {
-	                                    	   if (handler.getOBXIdentifier(j,k).equals(headers.get(i)) && !obxName.equals("")) { %>
+	                                    	   if (handler.getObservationHeader(j,k).equals(headers.get(i)) && !obxName.equals("")) { %>
 
 	                                        	<tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
 		                                            <td valign="top" align="left"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../lab/CA/ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier='+encodeURIComponent('<%= handler.getOBXIdentifier(j, k)%>'))"><%=obxName %></a></td>
@@ -888,7 +888,7 @@ if (request.getAttribute("printError") != null && (Boolean) request.getAttribute
 		                                            <td align="center"><%= handler.getTimeStamp(j, k) %></td>
 		                                            <td align="center"><%= handler.getOBXResultStatus( j, k) %></td>
 	                                       		</tr>
-	                                       <% } else if (handler.getOBXIdentifier(j,k).equals(headers.get(i)) && obxName.equals("")) { %>
+	                                       <% } else if (handler.getObservationHeader(j,k).equals(headers.get(i)) && obxName.equals("")) { %>
 	                                       			<tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="NormalRes">
 	                                                    <td valign="top" align="left" colspan="8"><pre  style="margin:0px 0px 0px 100px;"><%=handler.getOBXResult( j, k)%></pre></td>
 	                                                </tr>
