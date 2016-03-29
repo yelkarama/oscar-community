@@ -158,13 +158,14 @@ function rs(n,u,w,h,x) {
      rs('att',('../billing/CA/ON/searchRefDoc.jsp?param='+t0+'&param2='+t1),600,600,1);
 }*/
 
-function referralScriptAttach2(refDoctorNoElement, refDoctorNameElement, searchType) {
+function referralScriptAttach2(refDoctorNoElement, refDoctorNameElement, refDoctorIdElement, searchType) {
     refDoctorNo = escape(document.forms[1].elements[refDoctorNoElement].value);
     refDoctorName = escape(document.forms[1].elements[refDoctorNameElement].value);
     t0 = escape("document.forms[1].elements[\'"+refDoctorNoElement+"\'].value");
     t1 = escape("document.forms[1].elements[\'"+refDoctorNameElement+"\'].value");
+    t2 = escape("document.forms[1].elements[\'"+refDoctorIdElement+"\'].value");
     
-    rs('att',('../billing/CA/ON/searchRefDoc.jsp?refDoctorNo='+refDoctorNo+'&refDoctorName='+refDoctorName + '&param=' + t0 + '&param2=' + t1 + '&searchType=' + searchType),600,600,1);
+    rs('att',('../billing/CA/ON/searchRefDoc.jsp?refDoctorNo='+refDoctorNo+'&refDoctorName='+refDoctorName + '&param=' + t0 + '&param2=' + t1 + '&paramId=' + t2 + '&searchType=' + searchType),600,600,1);
 }
 
 function removeAccents(s){

@@ -57,6 +57,7 @@
   String param = request.getParameter("param")==null?"":request.getParameter("param") ;
   String param2 = request.getParameter("param2")==null?"":request.getParameter("param2") ;
   
+  String doctorIdParameter = request.getParameter("paramId") == null ? "" : request.getParameter("paramId");
   String doctorNo = request.getParameter("refDoctorNo")==null? "" :request.getParameter("refDoctorNo");
   String doctorName = request.getParameter("refDoctorName")==null? "" :request.getParameter("refDoctorName");
   String searchType = request.getParameter("searchType") == null ? "" : request.getParameter("searchType");
@@ -67,6 +68,7 @@
   String tofax = request.getParameter("tofax")==null?"":request.getParameter("tofax") ;
   String keyword = request.getParameter("keyword");
   
+  Integer doctorId = null;
   String doctorNameData = "";
   String doctorNumberData = "";
 
@@ -120,6 +122,7 @@
 		}
 		//If there is only one specialist, assign the data appropriately for check later
 		if (professionalSpecialists != null && professionalSpecialists.size() == 1) {
+			doctorId = professionalSpecialists.get(0).getId();
 			doctorNameData = professionalSpecialists.get(0).getLastName() + ", " + professionalSpecialists.get(0).getFirstName();
 			doctorNumberData = professionalSpecialists.get(0).getReferralNo();
 		}
@@ -161,6 +164,7 @@
 		//If there was only 1 result this information will be populated
 		<% if (!doctorNameData.equals("") || !doctorNumberData.equals("")) { %>
 			//Assigns the data to the opener's fields and closes the current window
+			opener.<%= doctorIdParameter %> = "<%= doctorId %>";
 			opener.<%= param %> = "<%= doctorNumberData %>";
 			opener.<%= param2 %> = "<%= doctorNameData %>";
 			self.close();
@@ -181,10 +185,13 @@
 		  opener.<%=param%> = data;
 		}
 		<%if(param2.length()>0) {%>
-		function typeInData2(data1, data2) {
-		  opener.<%=param%> = data1;
-		  opener.<%=param2%> = data2;
-		  self.close();
+		function typeInData2(data1, data2, data3) {
+			<% if (doctorIdParameter.length() > 0) { %>
+				opener.<%= doctorIdParameter %> = data3;
+			<% } %>
+			opener.<%=param%> = data1;
+			opener.<%=param2%> = data2;
+			self.close();
 		}
 		<%}}%>
                 
@@ -239,6 +246,8 @@
 		value="<%=StringEscapeUtils.escapeHtml(param)%>">
 	<input type='hidden' name='param2'
 		value="<%=StringEscapeUtils.escapeHtml(param2)%>">
+	<input type='hidden' name='paramId'
+		value="<%=StringEscapeUtils.escapeHtml(doctorIdParameter)%>">
 	<input type='hidden' name='toname'
 		value="<%=StringEscapeUtils.escapeHtml(toname)%>">
 	<input type='hidden' name='toaddress1'
@@ -271,7 +280,7 @@
                         if ( param2.length() <= 0){
                             strOnClick = "typeInData3('" + StringEscapeUtils.escapeJavaScript(prop.getProperty("referral_no","")) + "', '" + StringEscapeUtils.escapeJavaScript(prop.getProperty("to_name", "")) + "', '" + StringEscapeUtils.escapeJavaScript(prop.getProperty("to_address", "")) + "', '" + StringEscapeUtils.escapeJavaScript(prop.getProperty("phone", "")) + "', '" + StringEscapeUtils.escapeJavaScript(prop.getProperty("to_fax", "")) + "')" ;
                         } else {
-                            strOnClick = param2.length()>0? "typeInData2('" + StringEscapeUtils.escapeJavaScript(prop.getProperty("referral_no", "")) + "','"+StringEscapeUtils.escapeJavaScript(prop.getProperty("last_name", "")+ "," + prop.getProperty("first_name", "")) + "')"
+                            strOnClick = param2.length()>0? "typeInData2('" + StringEscapeUtils.escapeJavaScript(prop.getProperty("referral_no", "")) + "','"+StringEscapeUtils.escapeJavaScript(prop.getProperty("last_name", "")+ "," + prop.getProperty("first_name", "")) + "', '" + StringEscapeUtils.escapeJavaScript(prop.getProperty("doctor_id", "")) + "')"
 				: "typeInData1('" + prop.getProperty("referral_no", "") + "')";
                                 }
         %>
