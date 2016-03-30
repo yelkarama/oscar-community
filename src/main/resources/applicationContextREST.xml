@@ -41,7 +41,6 @@
 	<bean id="accessTokenService" class="org.apache.cxf.rs.security.oauth.services.AccessTokenService">
 	  <property name="dataProvider" ref="oauthProvider"/>
 	</bean>
-  
 	
     <jaxrs:server id="oauthService" address="/oauth" >
 
@@ -98,6 +97,7 @@
 			<bean class="org.oscarehr.ws.rest.ResourceService" autowire="byName" />
 			<bean class="org.oscarehr.ws.rest.DiseaseRegistryService" autowire="byName" />
             <bean class="org.oscarehr.ws.rest.MeasurementService" autowire="byName" />
+			<bean class="org.oscarehr.ws.rest.LabService" autowire="byName" />
         </jaxrs:serviceBeans>
              
       <jaxrs:providers>
