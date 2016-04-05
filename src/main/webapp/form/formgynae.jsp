@@ -550,7 +550,7 @@ String getSelectedAttr(java.util.Properties p1, String column, String value)
 								</td>
 								<td><input tabindex="5" type="text" maxlength="15"
 									name="bpi_date1_" id="bpi_date1_" size="10" readonly="readonly"
-									value=<%=getMonthYearStr(props.getProperty("bpi_date1", ""))%>>
+									value=<%=props.getProperty("bpi_date1", "")%>>
 									
 									<input tabindex="5" type="text" maxlength="15"
 									name="bpi_date1" id="bpi_date1" size="10" readonly="readonly" 
@@ -2567,7 +2567,15 @@ function fn_onchange_dt(id)
 	
 	if(obj2.value && obj2.value!=null && obj2.value!="")
 	{
+		//Creates the variable val with the value of obj2
 		var val = obj2.value.substring(0, obj2.value.length-3);
+		
+		//If the calling ID is bpi_date1 (The LMP field)
+		if (id == "bpi_date1") {
+			//Sets the full date value instead of the YYYY/MM substring
+			val = obj2.value;	
+		}
+		
 		//alert("val = "+val);
 		obj1.value = val;
 	}
