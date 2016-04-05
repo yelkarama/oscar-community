@@ -708,363 +708,6 @@ String getSelectedAttr(java.util.Properties p1, String column, String value)
 				</tr>
 			</tbody>
 		</table>
-		<table style="WIDTH: 8.5in">
-			<tr valign="top">
-					<td
-						style="BORDER-RIGHT-WIDTH: 0px; BORDER-TOP-WIDTH: 0px; BORDER-BOTTOM-WIDTH: 0px; BORDER-LEFT-WIDTH: 0px">
-						<b>Additional Notes</b>
-						<hr noshade></td>
-			</tr>
-			<tr valign="top">
-				<td
-					style="BORDER-RIGHT-WIDTH: 0px; BORDER-TOP-WIDTH: 0px; BORDER-BOTTOM-WIDTH: 0px; BORDER-LEFT-WIDTH: 0px">
-					<textarea style="WIDTH: 830px; HEIGHT: 104px; border: 1px solid #000000;"
-						id="additional_notes" cols="80" rows="4" name="additional_notes"><%=props.getProperty("additional_notes", "")%></textarea>
-				</td>
-			</tr>
-			<tr valign="top">
-					<td>&nbsp;
-					</td>
-				</tr>
-		</table>
-		<table style="WIDTH: 8.5in">
-			<tbody>
-				<tr>
-					<td colspan="2"><b>OBS History</b>&nbsp;&nbsp;
-					<input type="checkbox" name="chk_obs_history_notes" id="chk_obs_history_notes"
-					onclick="fn_remove_section_from_printout_(this, 'tr_obs_history_notes');">
-					Notes
-					<hr noshade></td>
-				</tr>
-				<tr>
-					<td colspan="2">
-						<table width="50%" border="0" bordercolor="black">
-							<tr>
-								<td width="25%">SVD: <input id="obs_svd" maxlength="5"
-									size="5" name="obs_svd"
-									value=<%=props.getProperty("obs_svd", "")%>></td>
-								<td>CS: <input id="obs_cs" maxlength="5" size="5"
-									name="obs_cs" value=<%=props.getProperty("obs_cs", "")%>>
-								</td>
-							</tr>
-						</table></td>
-				</tr>
-				<tr>
-					<td colspan="2">&nbsp;</td>
-				</tr>
-				<tr id="tr_obs_history_notes">
-					<td colspan="2">Notes:<br> <textarea
-							style="WIDTH: 830px; HEIGHT: 104px; border: 1px solid #000000;" id="obs_notes" rows="4"  
-							cols="80" name="obs_notes"><%=props.getProperty("obs_notes", "")%></textarea>
-					</td>
-				</tr>
-			</tbody>
-		</table>
-		<br>
-		<table style="WIDTH: 8.5in" id="table_past_med_history">
-			<tbody>
-				<tr>
-					<td colspan="4"><strong>Past Medical History</strong>
-					&nbsp;&nbsp;
-					<input type="checkbox" name="no_med_hist" 
-					value="1" id="no_med_hist" 
-					onclick="fn_remove_section_from_printout(this, 'tr_past_med_hist');"
-					 <%=props.getProperty("no_med_hist", "").equals("1")?"checked":"" %>
-					>No Medical History
-					
-					&nbsp;&nbsp;<input type="checkbox" name="chk_past_med_history_notes" id="chk_past_med_history_notes"
-					onclick="fn_remove_section_from_printout_cls(this, 'cls_past_med_notes', 'no_med_hist');">
-					Notes
-					
-						<hr noshade></td>
-				</tr>
-				<tr valign="top" id="tr_past_med_hist" class="cls_tr_past_med_history">
-					<td width="25%"><input id="pmh_wt_loss" type="checkbox" name="pmh_wt_loss"
-						<%=props.getProperty("pmh_wt_loss", "")%>>WT Loss</td>
-					<td width="25%"><input id="pmh_tuberculosis" type="checkbox"
-						name="pmh_tuberculosis"
-						<%=props.getProperty("pmh_tuberculosis", "")%>>Tuberculosis</td>
-					<td width="25%"><input id="pmh_urinary" type="checkbox" name="pmh_urinary"
-						<%=props.getProperty("pmh_urinary", "")%>>Urinary</td>
-					<td width="25%"><input id="pmh_diabetes" type="checkbox"
-						name="pmh_diabetes" <%=props.getProperty("pmh_diabetes", "")%>>Diabetes</td>
-				</tr>
-				<tr valign="top" id="tr_past_med_hist"  class="cls_tr_past_med_history"> 
-					<td><input id="pmh_headaches" type="checkbox"
-						name="pmh_headaches" <%=props.getProperty("pmh_headaches", "")%>>Headaches</td>
-					<td><input id="pmh_jaundice_hep" type="checkbox"
-						name="pmh_jaundice_hep"
-						<%=props.getProperty("pmh_jaundice_hep", "")%>>Jaundice/Hep</td>
-					<td><input id="pmh_anemia_blood" type="checkbox"
-						name="pmh_anemia_blood"
-						<%=props.getProperty("pmh_anemia_blood", "")%>>Anemia/Blood</td>
-					<td><input id="pmh_cancer" type="checkbox" name="pmh_cancer"
-						<%=props.getProperty("pmh_cancer", "")%>>Cancer</td>
-				</tr>
-				<tr valign="top" id="tr_past_med_hist" class="cls_tr_past_med_history">
-					<td><input id="pmh_heart_disease" type="checkbox"
-						name="pmh_heart_disease"
-						<%=props.getProperty("pmh_heart_disease", "")%>>Heart
-						Disease</td>
-					<td><input id="pmh_gall_bladder" type="checkbox"
-						name="pmh_gall_bladder"
-						<%=props.getProperty("pmh_gall_bladder", "")%>>Gall
-						Bladder</td>
-					<td><input id="pmh_blood_trans" type="checkbox"
-						name="pmh_blood_trans"
-						<%=props.getProperty("pmh_blood_trans", "")%>>Blood Trans</td>
-					<td><input id="pmh_epilepsy" type="checkbox"
-						name="pmh_epilepsy" <%=props.getProperty("pmh_epilepsy", "")%>>Epilepsy</td>
-				</tr>
-				<tr valign="top" id="tr_past_med_hist" class="cls_tr_past_med_history">
-					<td><input id="pmh_hypertension" type="checkbox"
-						name="pmh_hypertension"
-						<%=props.getProperty("pmh_hypertension", "")%>>Hypertension</td>
-					<td><input id="pmh_hernia_ulser" type="checkbox"
-						name="pmh_hernia_ulser"
-						<%=props.getProperty("pmh_hernia_ulser", "")%>>Hernia/Ulser</td>
-					<td><input id="pmh_varicose" type="checkbox"
-						name="pmh_varicose" <%=props.getProperty("pmh_varicose", "")%>>Varicose</td>
-					<td><input id="pmh_arthritis" type="checkbox"
-						name="pmh_arthritis" <%=props.getProperty("pmh_arthritis", "")%>>Arthritis</td>
-				</tr>
-				<tr valign="top" id="tr_past_med_hist" class="cls_tr_past_med_history">
-					<td><input id="pmh_respiratory" type="checkbox"
-						name="pmh_respiratory"
-						<%=props.getProperty("pmh_respiratory", "")%>>Respiratory</td>
-					<td><input id="pmh_bowel_disorder" type="checkbox"
-						name="pmh_bowel_disorder"
-						<%=props.getProperty("pmh_bowel_disorder", "")%>>Bowel
-						Disorder</td>
-					<td><input id="pmh_phlebitis" type="checkbox"
-						name="pmh_phlebitis" <%=props.getProperty("pmh_phlebitis", "")%>>DVT</td>
-					<td><input id="pmh_osteoporosis" type="checkbox"
-						name="pmh_osteoporosis"
-						<%=props.getProperty("pmh_osteoporosis", "")%>>Osteoporosis</td>
-				</tr>
-				<tr valign="top" id="tr_past_med_hist" class="cls_tr_past_med_history">
-					<td><input id="pmh_breast_dis" type="checkbox"
-						name="pmh_breast_dis" <%=props.getProperty("pmh_breast_dis", "")%>>Breast
-						Dis</td>
-					<td><input id="pmh_kidney" type="checkbox" name="pmh_kidney"
-						<%=props.getProperty("pmh_kidney", "")%>>Kidney</td>
-					<td><input id="pmh_thyroid" type="checkbox" name="pmh_thyroid"
-						<%=props.getProperty("pmh_thyroid", "")%>>Thyroid</td>
-					<td><input id="pmh_std" type="checkbox" name="pmh_std"
-						<%=props.getProperty("pmh_std", "")%>>STI (specify)</td>
-				</tr>
-				
-				<tr valign="top" style="display: none;" id="tr_div_past_med_history" >
-					<td colspan="3">
-						<div id="div_past_med_history">
-						</div>
-					</td>
-				</tr>
-				
-				<tr valign="top" id="tr_past_med_hist" class="cls_past_med_notes">
-					<td colspan="4"><br>Notes:<br> <textarea
-							style="WIDTH: 800px; HEIGHT: 104px; border: 1px solid #000000;" id="pmh_notes" rows="4"
-							cols="80" name="pmh_notes"><%=props.getProperty("pmh_notes", "")%></textarea>
-					</td>
-				</tr>
-				
-			</tbody>
-		</table>
-		<table style="WIDTH: 8.5in">
-			<tbody>
-				<tr>
-					<td colspan="2"><br> <b>Family Medical History</b>
-					
-					&nbsp;&nbsp;<input type="checkbox" name="chk_family_med_hist_notes" id="chk_family_med_hist_notes"
-					onclick="fn_remove_section_from_printout_(this, 'tr_family_med_hist_notes');">
-					Notes
-					
-						<hr noshade></td>
-				</tr>
-				<tr valign="top">
-					<td
-						style="BORDER-RIGHT-WIDTH: 0px; BORDER-TOP-WIDTH: 0px; BORDER-BOTTOM-WIDTH: 0px; BORDER-LEFT-WIDTH: 0px">
-						<table width="50%" align="left">
-							<tr valign="top">
-								<td>Cancer:</td>
-								<td>
-								<input id="fmh_brest" type="checkbox"
-									name="fmh_brest" <%=props.getProperty("fmh_brest", "")%>>
-									Breast,
-								
-								<input id="fmh_gynaecological" type="checkbox"
-									name="fmh_gynaecological"
-									<%=props.getProperty("fmh_gynaecological", "")%>> Gynaecological,
-									
-								<input id="fmh_bowel" type="checkbox"
-									name="fmh_bowel" <%=props.getProperty("fmh_bowel", "")%>>
-									Bowel
-									
-								</td>
-							</tr>
-							<tr>
-								<td>&nbsp;</td>
-								<td>
-									<input id="fmh_osteoporosis"
-									type="checkbox" name="fmh_osteoporosis"
-									<%=props.getProperty("fmh_osteoporosis", "")%>> Osteoporosis
-								</td>
-							</tr>
-						</table>
-					</td>
-
-				</tr>
-				<tr valign="top" id="tr_family_med_hist_notes">
-					<td colspan="2">Notes:<br> <textarea
-							style="WIDTH: 810px; HEIGHT: 104px; border: 1px solid #000000;" id="fmh_notes" rows="4"
-							cols="80" name="fmh_notes"><%=props.getProperty("fmh_notes", "").trim()%></textarea>
-					</td>
-				</tr>
-			</tbody>
-		</table>
-		<br>
-		<table style="WIDTH: 8.5in">
-			<tbody>
-				<tr valign="top">
-					<td colspan="2"><br> <strong>Past Surgical
-							History</strong>
-						<hr noshade>
-					</td>
-				</tr>
-				<tr valign="top">
-					<td width="50%">Year</td>
-					<td>Operation/Illness</td>
-				</tr>
-				<tr valign="top">
-					<td><input id="year1" name="year1" type="text" maxlength="50"
-						size="50" value="<%=props.getProperty("year1", "")%>">
-					</td>
-					<td><input id="operation1" name="operation1" type="text"
-						maxlength="50" size="50"
-						value="<%=props.getProperty("operation1", "")%>">
-					</td>
-				</tr>
-				<tr valign="top">
-					<td><input id="year2" name="year2" type="text" maxlength="50"
-						size="50" value="<%=props.getProperty("year2", "")%>">
-					</td>
-					<td><input id="operation2" name="operation2" type="text"
-						maxlength="50" size="50"
-						value="<%=props.getProperty("operation2", "")%>">
-					</td>
-				</tr>
-				<tr valign="top">
-					<td><input id="year3" name="year3" type="text" maxlength="50"
-						size="50" value="<%=props.getProperty("year3", "")%>">
-					</td>
-					<td><input id="operation3" name="operation3" type="text"
-						maxlength="50" size="50"
-						value="<%=props.getProperty("operation3", "")%>">
-					</td>
-				</tr>
-				<tr valign="top">
-					<td><input id="year4" name="year4" type="text" maxlength="50"
-						size="50" value="<%=props.getProperty("year4", "")%>">
-					</td>
-					<td><input id="operation4" name="operation4" type="text"
-						maxlength="50" size="50"
-						value="<%=props.getProperty("operation4", "")%>">
-					</td>
-				</tr>
-			</tbody>
-		</table>
-		<table style="WIDTH: 8.5in">
-			<tbody>
-				<tr valign="top">
-					<td
-						style="BORDER-RIGHT-WIDTH: 0px; BORDER-TOP-WIDTH: 0px; BORDER-BOTTOM-WIDTH: 0px; BORDER-LEFT-WIDTH: 0px">
-						<br> <strong>Current Medications&nbsp;&nbsp;
-						
-						<input type="checkbox" name="no_current_medications" id="no_current_medications"
-						onclick="fn_remove_section_from_printout(this, 'tr_current_medications');">No meds
-						
-						&nbsp;&nbsp;<input type="button" value="Medication" class="NonPrintable" 
-						onclick="importFromEnct('OtherMeds',document.forms[0].cm_current_medication);"></strong>
-						<hr noshade>
-					</td>
-				</tr>
-				<tr valign="top" id="tr_current_medications">
-					<td
-						style="BORDER-RIGHT-WIDTH: 0px; BORDER-TOP-WIDTH: 0px; BORDER-BOTTOM-WIDTH: 0px; BORDER-LEFT-WIDTH: 0px">
-						<textarea style="WIDTH: 830px; HEIGHT: 104px; border: 1px solid #000000;"
-							id="cm_current_medication" cols="80" rows="4"
-							name="cm_current_medication"><%=props.getProperty("cm_current_medication", "")%></textarea>
-					</td>
-				</tr>
-				<tr valign="top">
-					<td
-						style="BORDER-RIGHT-WIDTH: 0px; BORDER-TOP-WIDTH: 0px; BORDER-BOTTOM-WIDTH: 0px; BORDER-LEFT-WIDTH: 0px">
-						<br> <b>Habits</b>
-						<hr noshade></td>
-				</tr>
-				<tr valign="top">
-					<td
-						style="BORDER-RIGHT-WIDTH: 0px; BORDER-TOP-WIDTH: 0px; BORDER-BOTTOM-WIDTH: 0px; BORDER-LEFT-WIDTH: 0px">
-						<table style="WIDTH: 8.5in" width="1005" height="26">
-							<tbody>
-								<tr valign="top">
-									<td><input id="habits_cigarettes" type="checkbox"
-										name="habits_cigarettes"
-										<%=props.getProperty("habits_cigarettes", "")%>>Cigarettes:</td>
-									<td><input id="habits_cigperday" name="habits_cigperday"
-										value=<%=props.getProperty("habits_cigperday", "")%>>/
-										day:</td>
-									<td><input id="habits_alcohol" type="checkbox"
-										name="habits_alcohol"
-										<%=props.getProperty("habits_alcohol", "")%>>Alcohol:</td>
-									<td><input id="habits_alcoholperweek"
-										name="habits_alcoholperweek"
-										value=<%=props.getProperty("habits_alcoholperweek", "")%>>/
-										week</td>
-									<td><input id="habits_streetdrugs" type="checkbox"
-										name="habits_streetdrugs"
-										<%=props.getProperty("habits_streetdrugs", "")%>>Street
-										Drugs</td>
-								</tr>
-							</tbody>
-						</table>
-					</td>
-				</tr>
-				<tr valign="top">
-					<td
-						style="BORDER-RIGHT-WIDTH: 0px; BORDER-TOP-WIDTH: 0px; BORDER-BOTTOM-WIDTH: 0px; BORDER-LEFT-WIDTH: 0px">Notes:</td>
-				</tr>
-				<tr valign="top">
-					<td
-						style="BORDER-RIGHT-WIDTH: 0px; BORDER-TOP-WIDTH: 0px; BORDER-BOTTOM-WIDTH: 0px; BORDER-LEFT-WIDTH: 0px">
-						<textarea style="WIDTH: 830px; HEIGHT: 104px; border: 1px solid #000000;" id="habits_notes"
-							rows="4" cols="80" name="habits_notes"><%=props.getProperty("habits_notes", "")%></textarea>
-					</td>
-				</tr>
-				<tr valign="top">
-					<td
-						style="BORDER-RIGHT-WIDTH: 0px; BORDER-TOP-WIDTH: 0px; BORDER-BOTTOM-WIDTH: 0px; BORDER-LEFT-WIDTH: 0px">
-						<br> <strong>Allergies&nbsp;&nbsp;
-						
-						<input type="checkbox" name="no_allergies" id="no_allergies"
-						<%=props.getProperty("no_allergies", "").equals("1")?"checked":"" %>
-						onclick="fn_remove_section_from_printout(this, 'tr_allergies');">NKDA
-						
-						&nbsp;&nbsp;<input type="button" value="Allergies" class="NonPrintable" 
-				onclick="importFromEnct('Allergies',document.forms[0].allergies);"></strong>
-						<hr noshade>
-					</td>
-				</tr>
-				<tr valign="top" id="tr_allergies">
-					<td
-						style="BORDER-RIGHT-WIDTH: 0px; BORDER-TOP-WIDTH: 0px; BORDER-BOTTOM-WIDTH: 0px; BORDER-LEFT-WIDTH: 0px">
-						<textarea style="WIDTH: 830px; HEIGHT: 104px; border: 1px solid #000000;" id="allergies"
-							cols="80" name="allergies"><%=props.getProperty("allergies", "")%></textarea>
-					</td>
-				</tr>
-				
-			</tbody>
-		</table>
 		<table id="AbnPAPDiv" <%=abnPAPDivStyle%> class="nopagebreak">
 			<tr valign="top">
 				<td
@@ -1869,6 +1512,363 @@ String getSelectedAttr(java.util.Properties p1, String column, String value)
 						name="physicalexam_notes"><%=props.getProperty("physicalexam_notes", "")%></textarea>
 				</td>
 			</tr>
+			</tbody>
+		</table>
+		<table style="WIDTH: 8.5in">
+			<tr valign="top">
+					<td
+						style="BORDER-RIGHT-WIDTH: 0px; BORDER-TOP-WIDTH: 0px; BORDER-BOTTOM-WIDTH: 0px; BORDER-LEFT-WIDTH: 0px">
+						<b>Additional Notes</b>
+						<hr noshade></td>
+			</tr>
+			<tr valign="top">
+				<td
+					style="BORDER-RIGHT-WIDTH: 0px; BORDER-TOP-WIDTH: 0px; BORDER-BOTTOM-WIDTH: 0px; BORDER-LEFT-WIDTH: 0px">
+					<textarea style="WIDTH: 830px; HEIGHT: 104px; border: 1px solid #000000;"
+						id="additional_notes" cols="80" rows="4" name="additional_notes"><%=props.getProperty("additional_notes", "")%></textarea>
+				</td>
+			</tr>
+			<tr valign="top">
+					<td>&nbsp;
+					</td>
+				</tr>
+		</table>
+		<table style="WIDTH: 8.5in">
+			<tbody>
+				<tr>
+					<td colspan="2"><b>OBS History</b>&nbsp;&nbsp;
+					<input type="checkbox" name="chk_obs_history_notes" id="chk_obs_history_notes"
+					onclick="fn_remove_section_from_printout_(this, 'tr_obs_history_notes');">
+					Notes
+					<hr noshade></td>
+				</tr>
+				<tr>
+					<td colspan="2">
+						<table width="50%" border="0" bordercolor="black">
+							<tr>
+								<td width="25%">SVD: <input id="obs_svd" maxlength="5"
+									size="5" name="obs_svd"
+									value=<%=props.getProperty("obs_svd", "")%>></td>
+								<td>CS: <input id="obs_cs" maxlength="5" size="5"
+									name="obs_cs" value=<%=props.getProperty("obs_cs", "")%>>
+								</td>
+							</tr>
+						</table></td>
+				</tr>
+				<tr>
+					<td colspan="2">&nbsp;</td>
+				</tr>
+				<tr id="tr_obs_history_notes">
+					<td colspan="2">Notes:<br> <textarea
+							style="WIDTH: 830px; HEIGHT: 104px; border: 1px solid #000000;" id="obs_notes" rows="4"  
+							cols="80" name="obs_notes"><%=props.getProperty("obs_notes", "")%></textarea>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<br>
+		<table style="WIDTH: 8.5in" id="table_past_med_history">
+			<tbody>
+				<tr>
+					<td colspan="4"><strong>Past Medical History</strong>
+					&nbsp;&nbsp;
+					<input type="checkbox" name="no_med_hist" 
+					value="1" id="no_med_hist" 
+					onclick="fn_remove_section_from_printout(this, 'tr_past_med_hist');"
+					 <%=props.getProperty("no_med_hist", "").equals("1")?"checked":"" %>
+					>No Medical History
+					
+					&nbsp;&nbsp;<input type="checkbox" name="chk_past_med_history_notes" id="chk_past_med_history_notes"
+					onclick="fn_remove_section_from_printout_cls(this, 'cls_past_med_notes', 'no_med_hist');">
+					Notes
+					
+						<hr noshade></td>
+				</tr>
+				<tr valign="top" id="tr_past_med_hist" class="cls_tr_past_med_history">
+					<td width="25%"><input id="pmh_wt_loss" type="checkbox" name="pmh_wt_loss"
+						<%=props.getProperty("pmh_wt_loss", "")%>>WT Loss</td>
+					<td width="25%"><input id="pmh_tuberculosis" type="checkbox"
+						name="pmh_tuberculosis"
+						<%=props.getProperty("pmh_tuberculosis", "")%>>Tuberculosis</td>
+					<td width="25%"><input id="pmh_urinary" type="checkbox" name="pmh_urinary"
+						<%=props.getProperty("pmh_urinary", "")%>>Urinary</td>
+					<td width="25%"><input id="pmh_diabetes" type="checkbox"
+						name="pmh_diabetes" <%=props.getProperty("pmh_diabetes", "")%>>Diabetes</td>
+				</tr>
+				<tr valign="top" id="tr_past_med_hist"  class="cls_tr_past_med_history"> 
+					<td><input id="pmh_headaches" type="checkbox"
+						name="pmh_headaches" <%=props.getProperty("pmh_headaches", "")%>>Headaches</td>
+					<td><input id="pmh_jaundice_hep" type="checkbox"
+						name="pmh_jaundice_hep"
+						<%=props.getProperty("pmh_jaundice_hep", "")%>>Jaundice/Hep</td>
+					<td><input id="pmh_anemia_blood" type="checkbox"
+						name="pmh_anemia_blood"
+						<%=props.getProperty("pmh_anemia_blood", "")%>>Anemia/Blood</td>
+					<td><input id="pmh_cancer" type="checkbox" name="pmh_cancer"
+						<%=props.getProperty("pmh_cancer", "")%>>Cancer</td>
+				</tr>
+				<tr valign="top" id="tr_past_med_hist" class="cls_tr_past_med_history">
+					<td><input id="pmh_heart_disease" type="checkbox"
+						name="pmh_heart_disease"
+						<%=props.getProperty("pmh_heart_disease", "")%>>Heart
+						Disease</td>
+					<td><input id="pmh_gall_bladder" type="checkbox"
+						name="pmh_gall_bladder"
+						<%=props.getProperty("pmh_gall_bladder", "")%>>Gall
+						Bladder</td>
+					<td><input id="pmh_blood_trans" type="checkbox"
+						name="pmh_blood_trans"
+						<%=props.getProperty("pmh_blood_trans", "")%>>Blood Trans</td>
+					<td><input id="pmh_epilepsy" type="checkbox"
+						name="pmh_epilepsy" <%=props.getProperty("pmh_epilepsy", "")%>>Epilepsy</td>
+				</tr>
+				<tr valign="top" id="tr_past_med_hist" class="cls_tr_past_med_history">
+					<td><input id="pmh_hypertension" type="checkbox"
+						name="pmh_hypertension"
+						<%=props.getProperty("pmh_hypertension", "")%>>Hypertension</td>
+					<td><input id="pmh_hernia_ulser" type="checkbox"
+						name="pmh_hernia_ulser"
+						<%=props.getProperty("pmh_hernia_ulser", "")%>>Hernia/Ulser</td>
+					<td><input id="pmh_varicose" type="checkbox"
+						name="pmh_varicose" <%=props.getProperty("pmh_varicose", "")%>>Varicose</td>
+					<td><input id="pmh_arthritis" type="checkbox"
+						name="pmh_arthritis" <%=props.getProperty("pmh_arthritis", "")%>>Arthritis</td>
+				</tr>
+				<tr valign="top" id="tr_past_med_hist" class="cls_tr_past_med_history">
+					<td><input id="pmh_respiratory" type="checkbox"
+						name="pmh_respiratory"
+						<%=props.getProperty("pmh_respiratory", "")%>>Respiratory</td>
+					<td><input id="pmh_bowel_disorder" type="checkbox"
+						name="pmh_bowel_disorder"
+						<%=props.getProperty("pmh_bowel_disorder", "")%>>Bowel
+						Disorder</td>
+					<td><input id="pmh_phlebitis" type="checkbox"
+						name="pmh_phlebitis" <%=props.getProperty("pmh_phlebitis", "")%>>DVT</td>
+					<td><input id="pmh_osteoporosis" type="checkbox"
+						name="pmh_osteoporosis"
+						<%=props.getProperty("pmh_osteoporosis", "")%>>Osteoporosis</td>
+				</tr>
+				<tr valign="top" id="tr_past_med_hist" class="cls_tr_past_med_history">
+					<td><input id="pmh_breast_dis" type="checkbox"
+						name="pmh_breast_dis" <%=props.getProperty("pmh_breast_dis", "")%>>Breast
+						Dis</td>
+					<td><input id="pmh_kidney" type="checkbox" name="pmh_kidney"
+						<%=props.getProperty("pmh_kidney", "")%>>Kidney</td>
+					<td><input id="pmh_thyroid" type="checkbox" name="pmh_thyroid"
+						<%=props.getProperty("pmh_thyroid", "")%>>Thyroid</td>
+					<td><input id="pmh_std" type="checkbox" name="pmh_std"
+						<%=props.getProperty("pmh_std", "")%>>STI (specify)</td>
+				</tr>
+				
+				<tr valign="top" style="display: none;" id="tr_div_past_med_history" >
+					<td colspan="3">
+						<div id="div_past_med_history">
+						</div>
+					</td>
+				</tr>
+				
+				<tr valign="top" id="tr_past_med_hist" class="cls_past_med_notes">
+					<td colspan="4"><br>Notes:<br> <textarea
+							style="WIDTH: 800px; HEIGHT: 104px; border: 1px solid #000000;" id="pmh_notes" rows="4"
+							cols="80" name="pmh_notes"><%=props.getProperty("pmh_notes", "")%></textarea>
+					</td>
+				</tr>
+				
+			</tbody>
+		</table>
+		<table style="WIDTH: 8.5in">
+			<tbody>
+				<tr>
+					<td colspan="2"><br> <b>Family Medical History</b>
+					
+					&nbsp;&nbsp;<input type="checkbox" name="chk_family_med_hist_notes" id="chk_family_med_hist_notes"
+					onclick="fn_remove_section_from_printout_(this, 'tr_family_med_hist_notes');">
+					Notes
+					
+						<hr noshade></td>
+				</tr>
+				<tr valign="top">
+					<td
+						style="BORDER-RIGHT-WIDTH: 0px; BORDER-TOP-WIDTH: 0px; BORDER-BOTTOM-WIDTH: 0px; BORDER-LEFT-WIDTH: 0px">
+						<table width="50%" align="left">
+							<tr valign="top">
+								<td>Cancer:</td>
+								<td>
+								<input id="fmh_brest" type="checkbox"
+									name="fmh_brest" <%=props.getProperty("fmh_brest", "")%>>
+									Breast,
+								
+								<input id="fmh_gynaecological" type="checkbox"
+									name="fmh_gynaecological"
+									<%=props.getProperty("fmh_gynaecological", "")%>> Gynaecological,
+									
+								<input id="fmh_bowel" type="checkbox"
+									name="fmh_bowel" <%=props.getProperty("fmh_bowel", "")%>>
+									Bowel
+									
+								</td>
+							</tr>
+							<tr>
+								<td>&nbsp;</td>
+								<td>
+									<input id="fmh_osteoporosis"
+									type="checkbox" name="fmh_osteoporosis"
+									<%=props.getProperty("fmh_osteoporosis", "")%>> Osteoporosis
+								</td>
+							</tr>
+						</table>
+					</td>
+
+				</tr>
+				<tr valign="top" id="tr_family_med_hist_notes">
+					<td colspan="2">Notes:<br> <textarea
+							style="WIDTH: 810px; HEIGHT: 104px; border: 1px solid #000000;" id="fmh_notes" rows="4"
+							cols="80" name="fmh_notes"><%=props.getProperty("fmh_notes", "").trim()%></textarea>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<br>
+		<table style="WIDTH: 8.5in">
+			<tbody>
+				<tr valign="top">
+					<td colspan="2"><br> <strong>Past Surgical
+							History</strong>
+						<hr noshade>
+					</td>
+				</tr>
+				<tr valign="top">
+					<td width="50%">Year</td>
+					<td>Operation/Illness</td>
+				</tr>
+				<tr valign="top">
+					<td><input id="year1" name="year1" type="text" maxlength="50"
+						size="50" value="<%=props.getProperty("year1", "")%>">
+					</td>
+					<td><input id="operation1" name="operation1" type="text"
+						maxlength="50" size="50"
+						value="<%=props.getProperty("operation1", "")%>">
+					</td>
+				</tr>
+				<tr valign="top">
+					<td><input id="year2" name="year2" type="text" maxlength="50"
+						size="50" value="<%=props.getProperty("year2", "")%>">
+					</td>
+					<td><input id="operation2" name="operation2" type="text"
+						maxlength="50" size="50"
+						value="<%=props.getProperty("operation2", "")%>">
+					</td>
+				</tr>
+				<tr valign="top">
+					<td><input id="year3" name="year3" type="text" maxlength="50"
+						size="50" value="<%=props.getProperty("year3", "")%>">
+					</td>
+					<td><input id="operation3" name="operation3" type="text"
+						maxlength="50" size="50"
+						value="<%=props.getProperty("operation3", "")%>">
+					</td>
+				</tr>
+				<tr valign="top">
+					<td><input id="year4" name="year4" type="text" maxlength="50"
+						size="50" value="<%=props.getProperty("year4", "")%>">
+					</td>
+					<td><input id="operation4" name="operation4" type="text"
+						maxlength="50" size="50"
+						value="<%=props.getProperty("operation4", "")%>">
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<table style="WIDTH: 8.5in">
+			<tbody>
+				<tr valign="top">
+					<td
+						style="BORDER-RIGHT-WIDTH: 0px; BORDER-TOP-WIDTH: 0px; BORDER-BOTTOM-WIDTH: 0px; BORDER-LEFT-WIDTH: 0px">
+						<br> <strong>Current Medications&nbsp;&nbsp;
+						
+						<input type="checkbox" name="no_current_medications" id="no_current_medications"
+						onclick="fn_remove_section_from_printout(this, 'tr_current_medications');">No meds
+						
+						&nbsp;&nbsp;<input type="button" value="Medication" class="NonPrintable" 
+						onclick="importFromEnct('OtherMeds',document.forms[0].cm_current_medication);"></strong>
+						<hr noshade>
+					</td>
+				</tr>
+				<tr valign="top" id="tr_current_medications">
+					<td
+						style="BORDER-RIGHT-WIDTH: 0px; BORDER-TOP-WIDTH: 0px; BORDER-BOTTOM-WIDTH: 0px; BORDER-LEFT-WIDTH: 0px">
+						<textarea style="WIDTH: 830px; HEIGHT: 104px; border: 1px solid #000000;"
+							id="cm_current_medication" cols="80" rows="4"
+							name="cm_current_medication"><%=props.getProperty("cm_current_medication", "")%></textarea>
+					</td>
+				</tr>
+				<tr valign="top">
+					<td
+						style="BORDER-RIGHT-WIDTH: 0px; BORDER-TOP-WIDTH: 0px; BORDER-BOTTOM-WIDTH: 0px; BORDER-LEFT-WIDTH: 0px">
+						<br> <b>Habits</b>
+						<hr noshade></td>
+				</tr>
+				<tr valign="top">
+					<td
+						style="BORDER-RIGHT-WIDTH: 0px; BORDER-TOP-WIDTH: 0px; BORDER-BOTTOM-WIDTH: 0px; BORDER-LEFT-WIDTH: 0px">
+						<table style="WIDTH: 8.5in" width="1005" height="26">
+							<tbody>
+								<tr valign="top">
+									<td><input id="habits_cigarettes" type="checkbox"
+										name="habits_cigarettes"
+										<%=props.getProperty("habits_cigarettes", "")%>>Cigarettes:</td>
+									<td><input id="habits_cigperday" name="habits_cigperday"
+										value=<%=props.getProperty("habits_cigperday", "")%>>/
+										day:</td>
+									<td><input id="habits_alcohol" type="checkbox"
+										name="habits_alcohol"
+										<%=props.getProperty("habits_alcohol", "")%>>Alcohol:</td>
+									<td><input id="habits_alcoholperweek"
+										name="habits_alcoholperweek"
+										value=<%=props.getProperty("habits_alcoholperweek", "")%>>/
+										week</td>
+									<td><input id="habits_streetdrugs" type="checkbox"
+										name="habits_streetdrugs"
+										<%=props.getProperty("habits_streetdrugs", "")%>>Street
+										Drugs</td>
+								</tr>
+							</tbody>
+						</table>
+					</td>
+				</tr>
+				<tr valign="top">
+					<td
+						style="BORDER-RIGHT-WIDTH: 0px; BORDER-TOP-WIDTH: 0px; BORDER-BOTTOM-WIDTH: 0px; BORDER-LEFT-WIDTH: 0px">Notes:</td>
+				</tr>
+				<tr valign="top">
+					<td
+						style="BORDER-RIGHT-WIDTH: 0px; BORDER-TOP-WIDTH: 0px; BORDER-BOTTOM-WIDTH: 0px; BORDER-LEFT-WIDTH: 0px">
+						<textarea style="WIDTH: 830px; HEIGHT: 104px; border: 1px solid #000000;" id="habits_notes"
+							rows="4" cols="80" name="habits_notes"><%=props.getProperty("habits_notes", "")%></textarea>
+					</td>
+				</tr>
+				<tr valign="top">
+					<td
+						style="BORDER-RIGHT-WIDTH: 0px; BORDER-TOP-WIDTH: 0px; BORDER-BOTTOM-WIDTH: 0px; BORDER-LEFT-WIDTH: 0px">
+						<br> <strong>Allergies&nbsp;&nbsp;
+						
+						<input type="checkbox" name="no_allergies" id="no_allergies"
+						<%=props.getProperty("no_allergies", "").equals("1")?"checked":"" %>
+						onclick="fn_remove_section_from_printout(this, 'tr_allergies');">NKDA
+						
+						&nbsp;&nbsp;<input type="button" value="Allergies" class="NonPrintable" 
+				onclick="importFromEnct('Allergies',document.forms[0].allergies);"></strong>
+						<hr noshade>
+					</td>
+				</tr>
+				<tr valign="top" id="tr_allergies">
+					<td
+						style="BORDER-RIGHT-WIDTH: 0px; BORDER-TOP-WIDTH: 0px; BORDER-BOTTOM-WIDTH: 0px; BORDER-LEFT-WIDTH: 0px">
+						<textarea style="WIDTH: 830px; HEIGHT: 104px; border: 1px solid #000000;" id="allergies"
+							cols="80" name="allergies"><%=props.getProperty("allergies", "")%></textarea>
+					</td>
+				</tr>
+				
 			</tbody>
 		</table>
 		<table style="WIDTH: 8.5in" class="nopagebreak">
