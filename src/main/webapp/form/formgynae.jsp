@@ -937,38 +937,38 @@ String getSelectedAttr(java.util.Properties p1, String column, String value)
 				</tr>
 				<tr valign="top">
 					<td><input id="year1" name="year1" type="text" maxlength="50"
-						size="50" value=<%=props.getProperty("year1", "")%>>
+						size="50" value="<%=props.getProperty("year1", "")%>">
 					</td>
 					<td><input id="operation1" name="operation1" type="text"
 						maxlength="50" size="50"
-						value=<%=props.getProperty("operation1", "")%>>
+						value="<%=props.getProperty("operation1", "")%>">
 					</td>
 				</tr>
 				<tr valign="top">
 					<td><input id="year2" name="year2" type="text" maxlength="50"
-						size="50" value=<%=props.getProperty("year2", "")%>>
+						size="50" value="<%=props.getProperty("year2", "")%>">
 					</td>
 					<td><input id="operation2" name="operation2" type="text"
 						maxlength="50" size="50"
-						value=<%=props.getProperty("operation2", "")%>>
+						value="<%=props.getProperty("operation2", "")%>">
 					</td>
 				</tr>
 				<tr valign="top">
 					<td><input id="year3" name="year3" type="text" maxlength="50"
-						size="50" value=<%=props.getProperty("year3", "")%>>
+						size="50" value="<%=props.getProperty("year3", "")%>">
 					</td>
 					<td><input id="operation3" name="operation3" type="text"
 						maxlength="50" size="50"
-						value=<%=props.getProperty("operation3", "")%>>
+						value="<%=props.getProperty("operation3", "")%>">
 					</td>
 				</tr>
 				<tr valign="top">
 					<td><input id="year4" name="year4" type="text" maxlength="50"
-						size="50" value=<%=props.getProperty("year4", "")%>>
+						size="50" value="<%=props.getProperty("year4", "")%>">
 					</td>
 					<td><input id="operation4" name="operation4" type="text"
 						maxlength="50" size="50"
-						value=<%=props.getProperty("operation4", "")%>>
+						value="<%=props.getProperty("operation4", "")%>">
 					</td>
 				</tr>
 			</tbody>
