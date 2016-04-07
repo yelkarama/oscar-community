@@ -228,6 +228,8 @@ public class EctDisplayHRMAction extends EctDisplayAction {
 			javascript.append("</script>");
 
 			Dao.setJavaScript(javascript.toString());
+			Dao.sortItems(NavBarDisplayDAO.DATESORT_ASC);
+			
 			return true;
 		}
 	}

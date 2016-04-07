@@ -104,8 +104,8 @@ public class ProfessionalSpecialistDao extends AbstractDao<ProfessionalSpecialis
 		if (StringUtils.isBlank(referralNo)) {
 			return null;
 		}
-		Query query = entityManager.createQuery("select x from " + modelClass.getName() + " x WHERE x.referralNo=? order by x.lastName");
-		query.setParameter(1, referralNo);
+		Query query = entityManager.createQuery("select x from " + modelClass.getName() + " x WHERE x.referralNo LIKE ? order by x.lastName");
+		query.setParameter(1, "%" + referralNo + "%");
 
 		@SuppressWarnings("unchecked")
 		List<ProfessionalSpecialist> cList = query.getResultList();

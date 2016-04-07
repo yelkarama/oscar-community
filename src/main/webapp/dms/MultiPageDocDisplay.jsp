@@ -220,7 +220,9 @@
                                         <td><%if(!demographicID.equals("-1")){%>
                                             <input id="saved<%=docId%>" type="hidden" name="saved" value="true"/>
                                             <input type="hidden" value="<%=demographicID%>" name="demog" id="demofind<%=docId%>" />
-                                            <%=demoName%><%}else{%>
+                                            <%=demoName%>
+                                            <a href="#" onclick="removeDemoFromDoc('<%= docId %>')">(remove)</a>
+                                            <%}else{%>
                                             <input id="saved<%=docId%>" type="hidden" name="saved" value="false"/>
                                             <input type="hidden" name="demog" value="<%=demographicID%>" id="demofind<%=docId%>" />
                                             <input tabindex="<%=tabindex++%>" type="text" id="autocompletedemo<%=docId%>" onchange="checkSave('<%=docId%>')" name="demographicKeyword" />
@@ -242,6 +244,17 @@
                                             <script type="text/javascript">
                                             jQuery.noConflict();
                                             
+                                            removeDemoFromDoc=function(docId) {
+                                           		jQuery.ajax({
+                                           			type: "POST",
+                                           			url: "<%=request.getContextPath() %>/dms/ManageDocument.do",
+                                           			data: "method=removeDemographicFromDocument&docId=" + docId + "&docType=DOC",
+                                           			success: function(data) {
+                                           				if (data != null)
+                                           					location.reload();
+                                           			}
+                                           		});
+                                           	}
                                             
                                             function addDocComment(docId, status) {
                                             	var url="<%=request.getContextPath()%>/oscarMDS/UpdateStatus.do";                                            	

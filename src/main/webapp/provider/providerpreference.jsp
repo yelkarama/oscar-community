@@ -58,6 +58,8 @@
 <%@page import="java.util.ArrayList" %>
 <%@page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
 <%@page import="org.oscarehr.common.model.Provider" %>
+<%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
+<%@ page import="org.oscarehr.common.model.Provider" %>
 
 <%
 	CtlBillingServiceDao ctlBillingServiceDao = SpringUtils.getBean(CtlBillingServiceDao.class);
@@ -257,6 +259,7 @@ function showHideERxPref() {
 					<INPUT TYPE="TEXT" NAME="end_hour" VALUE='<%=endHour%>' size="2" maxlength="2">
 				</td>
 			</tr>
+			
 			<tr>
 				<td class="preferenceLabel">
 					<bean:message key="provider.preference.formPeriod" />
@@ -264,6 +267,46 @@ function showHideERxPref() {
 				</td>
 				<td class="preferenceValue">
 					<INPUT TYPE="TEXT" NAME="every_min" VALUE='<%=everyMin%>' size="2" maxlength="2">
+				</td>
+			</tr>
+			<tr>
+ 				<td class="preferenceLabel">
+					<bean:message key="provider.providerpreference.twelveHourFormat" />
+				</td>
+				<td class="preferenceValue">
+					<%
+	            		boolean twelveHourFormatChecked=ProviderPreferencesUIBean.isTwelveHourFormat(providerNo);
+	            	%>
+	            	<input type="checkbox" name="twelve_hour_format" <%=twelveHourFormatChecked?"checked=\"checked\"":""%> />
+	            </td>
+			</tr>
+			<tr>
+				<td class="preferenceLabel">
+					<bean:message key="provider.providerpreference.labelShortcutEnabled" />
+				</td>
+				<td class="preferenceValue">
+					<%
+	            		boolean labelShortcutEnabledChecked=ProviderPreferencesUIBean.isLabelShortcutEnabled(providerNo);
+	            	%>
+	            	<input type="checkbox" name="label_shortcut_enabled" <%=labelShortcutEnabledChecked?"checked=\"checked\"":""%> />
+	            </td>
+			</tr>
+			<tr>
+				<% 	
+					ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
+					List<Provider> doctors = providerDao.getProvidersByType("doctor");
+					String defaultDoctor = providerPreference.getDefaultDoctor();
+				%>
+				<td class="preferenceLabel">
+					<bean:message key="provider.preference.defaultDoctor" />
+				</td>
+				<td class="preferenceValue">
+					<select name="default_doctor">
+						<option value=""></option>
+						<% for (Provider doctor : doctors) { %>
+							<option value="<%= doctor.getProviderNo() %>" <%=doctor.getProviderNo().equals(defaultDoctor) ? "selected='selected'" : ""%>> <%= doctor.getFormattedName() %> </option>
+						<% } %>
+					</select>
 				</td>
 			</tr>
 			<tr>
@@ -330,7 +373,6 @@ function showHideERxPref() {
 								if (ticklerforproviderNo == null) {
 									ticklerforproviderNo = loggedInInfo.getLoggedInProviderNo();
 								}
-								ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
 								List<Provider> listProvider = new ArrayList<Provider>();
 								if (providerDao != null) {
 									listProvider = providerDao.getProviders();

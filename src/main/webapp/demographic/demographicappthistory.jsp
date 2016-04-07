@@ -365,23 +365,14 @@ if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) {
       if(remarks == null)
     	  remarks="";
       
-         String comments = "";
+         String notes = appointment.getNotes();
          boolean newline = false;
 
-         if (appointment.getStatus()!=null) {
-            if(appointment.getStatus().contains("N")) {
-               comments = "No Show";
-            }
-            else if (appointment.getStatus().equals("C")) {
-               comments = "Cancelled";
-            }
-        }
-
-        if (!remarks.isEmpty() && !comments.isEmpty()) {
+        if (!remarks.isEmpty() && !notes.isEmpty()) {
               newline=true;
          }
 %>
-      <td>&nbsp;<%=remarks%><% if(newline){%><br/>&nbsp;<%}%><%=comments%></td>
+      <td>&nbsp;<%=remarks%><% if(newline){%><br/>&nbsp;<%}%><%=notes%></td>
 <% 
 	if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) { 
 	String[] sbc = siteBgColor.get(appointment.getLocation()); 
@@ -419,7 +410,7 @@ if (cachedAppointments != null) {
       <td><%=StringUtils.trimToEmpty(a.getReason())%></td>
       <td>
       	<%=(p != null ? p.getLastName() +","+ p.getFirstName() : "") %> (remote)</td>
-      <td>&nbsp;<%=a.getStatus()==null?"":(a.getStatus().contains("N")?"No Show":(a.getStatus().equals("C")?"Cancelled":"") ) %></td>
+      <td>&nbsp;<%=a.getNotes() %></td>
 	</tr>
 <%
 		  

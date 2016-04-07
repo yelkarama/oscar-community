@@ -269,6 +269,8 @@ public boolean patientHasOutstandingPrivateBills(String demographicNo){
     int startHour=providerPreference2.getStartHour();
     int endHour=providerPreference2.getEndHour();
     int everyMin=providerPreference2.getEveryMin();
+    boolean twelveHourFormat = providerPreference2.isTwelveHourFormat();
+    boolean labelShortcutEnabled = providerPreference2.isLabelShortcutEnabled();
     String defaultServiceType = (String) session.getAttribute("default_servicetype");
 	ProviderPreference providerPreference=ProviderPreferencesUIBean.getProviderPreference(loggedInInfo1.getLoggedInProviderNo());
     if( defaultServiceType == null && providerPreference!=null) {
@@ -1703,6 +1705,16 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
      param1[0] = strDate; //strYear+"-"+strMonth+"-"+strDay;
      param1[1] = curProvider_no[nProvider];
      
+     
+    //Sets the appointmentList
+    List<Appointment> appointmentsToCount = appointmentDao.searchappointmentday(curProvider_no[nProvider], ConversionUtils.fromDateString(year+"-"+month+"-"+day),ConversionUtils.fromIntString(programId_oscarView));
+    Integer appointmentCount = 0;
+    for(Appointment appointment : appointmentsToCount){
+    	if (!appointment.getStatus().equals("C") && !appointment.getStatus().equals("N") && appointment.getDemographicNo() != 0){
+    		appointmentCount++;
+     	}
+    }
+     
      ScheduleDate sd = scheduleDateDao.findByProviderNoAndDate(curProvider_no[nProvider],ConversionUtils.fromDateString(strDate));
      
      //viewall function
@@ -1733,7 +1745,7 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
           <b><input type='radio' name='flipview' class="noprint" onClick="goFilpView('<%=curProvider_no[nProvider]%>')" title="Flip view"  >
           <a href=# onClick="goZoomView('<%=curProvider_no[nProvider]%>','<%=StringEscapeUtils.escapeJavaScript(curProviderName[nProvider])%>')" onDblClick="goFilpView('<%=curProvider_no[nProvider]%>')" title="<bean:message key="provider.appointmentProviderAdminDay.zoomView"/>" >
           <!--a href="providercontrol.jsp?year=<%=strYear%>&month=<%=strMonth%>&day=<%=strDay%>&view=1&curProvider=<%=curProvider_no[nProvider]%>&curProviderName=<%=curProviderName[nProvider]%>&displaymode=day&dboperation=searchappointmentday" title="<bean:message key="provider.appointmentProviderAdminDay.zoomView"/>"-->
-          <%=curProviderName[nProvider]%></a> 
+          <%=curProviderName[nProvider] + "(" + appointmentCount + ")"%></a> 
        	<oscar:oscarPropertiesCheck value="yes" property="TOGGLE_REASON_BY_PROVIDER" defaultVal="true">   
 				<a id="expandReason" href="#" onclick="return toggleReason('<%=curProvider_no[nProvider]%>');" 
 					title="<bean:message key="provider.appointmentProviderAdminDay.expandreason"/>">*</a>
@@ -1796,7 +1808,7 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
     	int length = locationEnabled ? 4 : 3;
     	
         String [] param0 = new String[length];
-
+        
         param0[0]=curProvider_no[nProvider];
         param0[1]=year+"-"+month+"-"+day;//e.g."2001-02-02";
 		param0[2]=programId_oscarView;
@@ -1830,10 +1842,27 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
             		module=request.getParameter("module");
             	}
         List<Object[]> confirmTimeCode = scheduleDateDao.search_appttimecode(ConversionUtils.fromDateString(strDate), curProvider_no[nProvider]);
-            	
+        
+        String hourDisplay = "";
+		String minuteDisplay = "";
+		String timeDisplay = "";
+		    	
 	    for(ih=startHour*60; ih<=(endHour*60+(60/depth-1)*depth); ih+=depth) { // use minutes as base
             hourCursor = ih/60;
             minuteCursor = ih%60;
+            
+            minuteDisplay = (minuteCursor < 10 ? "0" : "") + minuteCursor;
+            if (twelveHourFormat) {
+	           	if (hourCursor > 12)
+	           		hourDisplay = Integer.toString(hourCursor - 12);
+	           	else
+	           		hourDisplay = Integer.toString(hourCursor);
+	            	timeDisplay = hourDisplay + ":" + minuteDisplay;
+            }
+           	else {
+            	timeDisplay = (hourCursor<10?"0":"") + hourCursor + ":" + (minuteCursor<10?"0":"") + minuteCursor;
+            }
+            
             bColorHour=minuteCursor==0?true:false; //every 00 minute, change color
 
             //templatecode
@@ -1847,7 +1876,7 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
             <td align="RIGHT" class="<%=bColorHour?"scheduleTime00":"scheduleTimeNot00"%>" NOWRAP>
              <a href=# onClick="confirmPopupPage(400,780,'../appointment/addappointment.jsp?provider_no=<%=curProvider_no[nProvider]%>&bFirstDisp=<%=true%>&year=<%=strYear%>&month=<%=strMonth%>&day=<%=strDay%>&start_time=<%=(hourCursor>9?(""+hourCursor):("0"+hourCursor))+":"+ (minuteCursor<10?"0":"") +minuteCursor%>&end_time=<%=(hourCursor>9?(""+hourCursor):("0"+hourCursor))+":"+(minuteCursor+depth-1)%>&duration=<%=dateTimeCodeBean.get("duration"+hourmin.toString())%>','<%=dateTimeCodeBean.get("confirm"+hourmin.toString())%>','<%=allowDay%>','<%=allowWeek%>');return false;"
   title='<%=MyDateFormat.getTimeXX_XXampm(hourCursor +":"+ (minuteCursor<10?"0":"")+minuteCursor)%> - <%=MyDateFormat.getTimeXX_XXampm(hourCursor +":"+((minuteCursor+depth-1)<10?"0":"")+(minuteCursor+depth-1))%>' class="adhour">
-             <%=(hourCursor<10?"0":"") +hourCursor+ ":"%><%=(minuteCursor<10?"0":"")+minuteCursor%>&nbsp;</a></td>
+             <%=timeDisplay%>&nbsp;</a></td>
             <td class="hourmin" width='1%' <%=dateTimeCodeBean.get("color"+hourmin.toString())!=null?("bgcolor="+dateTimeCodeBean.get("color"+hourmin.toString()) ):""%> title='<%=dateTimeCodeBean.get("description"+hourmin.toString())%>'><font color='<%=(dateTimeCodeBean.get("color"+hourmin.toString())!=null && !dateTimeCodeBean.get("color"+hourmin.toString()).equals(bgcolordef) )?"black":"white"%>'><%=hourmin.toString()%></font></td>
 <%
 	while (bFirstTimeRs?it.hasNext():true) { //if it's not the first time to parse the standard time, should pass it by
@@ -2256,7 +2285,11 @@ start_time += iSm + ":00";
      &#124; <a href=# onClick="popupWithApptNo(700,1027,'../oscarRx/choosePatient.do?providerNo=<%=curUser_no%>&demographicNo=<%=demographic_no%>','rx',<%=appointment.getId()%>)" title="<bean:message key="global.prescriptions"/>"><bean:message key="global.rx"/>
       </a>
 
-
+<!-- Display Label button for fast access to printing labels -->
+		<% if (labelShortcutEnabled) { %>
+			  <a href=# onClick="popupPage(700,1027,'../demographic/printDemoLabelAction.do?demographic_no=<%=demographic_no%>')" title="<bean:message key="provider.appointmentProviderAdminDay.label"/>">|<bean:message key="provider.appointmentProviderAdminDay.btnL"/>
+			  </a>
+		<% } %>
 <!-- doctor color -->
 <oscar:oscarPropertiesCheck property="ENABLE_APPT_DOC_COLOR" value="yes">
         <%

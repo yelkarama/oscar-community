@@ -145,4 +145,6 @@ public interface NoteDisplay {
 	public String getEncounterTransportationTime();
 	
 	public Integer getAppointmentNo();
+	
+	public boolean isArchived();
 }

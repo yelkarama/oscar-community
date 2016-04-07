@@ -2781,15 +2781,19 @@ if(refName=="<%=prop.getProperty("last_name")+","+prop.getProperty("first_name")
 document.updatedelete.r_doctor_ohip.value = refNo;
 }
 //-->
-</script> <% } else {%> <input type="text" name="r_doctor" size="30" maxlength="40" <%=getDisabled("r_doctor")%>
-									value="<%=rd%>"> <% } %>
+</script> <% } else {%> 
+						<input type="hidden" name="rDoctorIdOrig" size="17" maxlength="40" value="<%=demoExt.get("familyDoctorId")%>"> 
+						<input type="hidden" name="r_doctor_id" size="17" maxlength="40" value="<%=demoExt.get("familyDoctorId")%>"> 
+						<input type="text" name="r_doctor" size="17" maxlength="40" <%=getDisabled("r_doctor")%> value="<%=rd%>"> 
+						<a href="javascript:referralScriptAttach2('r_doctor_ohip','r_doctor', 'r_doctor_id', 'name')"><bean:message key="demographic.demographiceditdemographic.btnSearch"/> Name</a>
+				<% } %>
 								</td>
 								<td align="right" nowrap><b><bean:message
 									key="demographic.demographiceditdemographic.formRefDocNo" />: </b></td>
 								<td align="left"><input type="text" name="r_doctor_ohip" <%=getDisabled("r_doctor_ohip")%>
 									size="20" maxlength="6" value="<%=rdohip%>"> <% if("ON".equals(prov)) { %>
 								<a
-									href="javascript:referralScriptAttach2('r_doctor_ohip','r_doctor')"><bean:message key="demographic.demographiceditdemographic.btnSearch"/>
+									href="javascript:referralScriptAttach2('r_doctor_ohip','r_doctor', 'r_doctor_id', 'number')"><bean:message key="demographic.demographiceditdemographic.btnSearch"/>
 								#</a> <% } %>
 								</td>
 							</tr>

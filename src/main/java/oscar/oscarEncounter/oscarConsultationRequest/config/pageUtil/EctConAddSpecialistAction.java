@@ -67,12 +67,12 @@ public class EctConAddSpecialistAction extends Action {
 			professionalSpecialist=new ProfessionalSpecialist();
 			populateFields(professionalSpecialist, addSpecailistForm);
 			if (professionalSpecialist.getReferralNo() != null && professionalSpecialist.getReferralNo().length() > 0) {
-				if (referralNoValid(professionalSpecialist.getReferralNo())) {
-					if (referralNoInUse(professionalSpecialist.getReferralNo())) {
+				if (!referralNoValid(professionalSpecialist.getReferralNo())) {
+					/*if (referralNoInUse(professionalSpecialist.getReferralNo())) {
 						request.setAttribute("refnoinuse", true);
                 		return mapping.findForward("success");
 					}
-				} else {
+				} else {*/
 					request.setAttribute("refnoinvalid", true);
                 	return mapping.findForward("success");
 				}
@@ -88,11 +88,11 @@ public class EctConAddSpecialistAction extends Action {
 			populateFields(professionalSpecialist, addSpecailistForm);
 			if (professionalSpecialist.getReferralNo() != null && professionalSpecialist.getReferralNo().length() > 0) {
 				if (referralNoValid(professionalSpecialist.getReferralNo())) {
-					if (referralNoInUse(professionalSpecialist.getReferralNo(), specId)) {
+					/*if (referralNoInUse(professionalSpecialist.getReferralNo(), specId)) {
 						request.setAttribute("refnoinuse", true);
 						return mapping.findForward("success");
 					}
-				} else {
+				} else {*/
 					request.setAttribute("refnoinvalid", true);
 					return mapping.findForward("success");
 				}

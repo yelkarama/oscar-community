@@ -286,12 +286,22 @@ function rs(n,u,w,h,x) {
   args="width="+w+",height="+h+",resizable=yes,scrollbars=yes,status=0,top=60,left=30";
   remote=window.open(u,n,args);
 }
-function referralScriptAttach2(elementName, name2) {
+/* function referralScriptAttach2(elementName, name2) {
      var d = elementName;
      t0 = escape("document.forms[1].elements[\'"+d+"\'].value");
      t1 = escape("document.forms[1].elements[\'"+name2+"\'].value");
      rs('att',('../billing/CA/ON/searchRefDoc.jsp?param='+t0+'&param2='+t1),600,600,1);
-}
+} */
+
+function referralScriptAttach2(refDoctorNoElement, refDoctorNameElement, refDoctorIdElement, searchType) {
+    refDoctorNo = escape(document.forms[1].elements[refDoctorNoElement].value);
+    refDoctorName = escape(document.forms[1].elements[refDoctorNameElement].value);
+    t0 = escape("document.forms[1].elements[\'"+refDoctorNoElement+"\'].value");
+    t1 = escape("document.forms[1].elements[\'"+refDoctorNameElement+"\'].value");
+    t2 = escape("document.forms[1].elements[\'"+refDoctorIdElement+"\'].value");
+    
+    rs('att',('../billing/CA/ON/searchRefDoc.jsp?refDoctorNo='+refDoctorNo+'&refDoctorName='+refDoctorName + '&param=' + t0 + '&param2=' + t1 + '&paramId=' + t2 + '&searchType=' + searchType),600,600,1);
+	 }
 
 function checkName() {
 	var typeInOK = false;
@@ -1101,14 +1111,14 @@ function ignoreDuplicates() {
         <select name="staff">
 					<option value=""></option>
 					<%
+					    String defaultDoctor = ((ProviderPreference)session.getAttribute(SessionConstants.LOGGED_IN_PROVIDER_PREFERENCE)).getDefaultDoctor(); 
 						for (Provider p : providerDao.getActiveProvidersByRole("doctor")) {
 								String docProviderNo = p.getProviderNo();
 					%>
-					<option id="doc<%=docProviderNo%>" value="<%=docProviderNo%>"><%=Misc.getShortStr((p.getFormattedName()), "", 12)%></option>
+					<option id="doc<%=docProviderNo%>" value="<%=docProviderNo%>" <%=docProviderNo.equals(defaultDoctor) ? "selected='selected'" : "" %>><%=Misc.getShortStr((p.getFormattedName()), "", 12)%></option>
 					<%
 						}
 					%>
-					<option value=""></option>
 				</select></td>
 				<td id="nurseLbl" align="right"><b><bean:message
 					key="demographic.demographicaddrecordhtm.formNurse" />: </b></td>
@@ -1200,15 +1210,18 @@ if(refName.indexOf("<%=prop.getProperty("last_name")+","+prop.getProperty("first
 document.forms[1].r_doctor_ohip.value = refNo;
 }
 //-->
-</script> <% } else {%> <input type="text" name="r_doctor" size="30" maxlength="40"
-					value=""> <% } %>
+</script> <% } else {%> 
+						<input type="hidden" name="r_doctor_id" size="17" maxlength="40" value="">  
+						<input type="text" name="r_doctor" size="17" maxlength="40" value="">
+						<a href="javascript:referralScriptAttach2('r_doctor_ohip','r_doctor', 'r_doctor_id', 'name')"><bean:message key="demographic.demographiceditdemographic.btnSearch"/> Name</a>
+				<% } %>
 				</td>
 				<td id="referralDocNoLbl" align="right" nowrap height="10"><b><bean:message
 					key="demographic.demographicaddrecordhtm.formReferalDoctorN" />:</b></td>
 				<td id="referralDocNoCell" align="left" height="10"><input type="text"
 					name="r_doctor_ohip" maxlength="6"> <% if("ON".equals(prov)) { %>
 								<a
-									href="javascript:referralScriptAttach2('r_doctor_ohip','r_doctor')"><bean:message key="demographic.demographiceditdemographic.btnSearch"/>
+									href="javascript:referralScriptAttach2('r_doctor_ohip','r_doctor', 'r_doctor_id', 'number')"><bean:message key="demographic.demographiceditdemographic.btnSearch"/>
 								#</a> <% } %>
 				</td>
 			</tr>

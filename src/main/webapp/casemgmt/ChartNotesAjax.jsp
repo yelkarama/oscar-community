@@ -334,7 +334,7 @@ CasemgmtNoteLock casemgmtNoteLock = (CasemgmtNoteLock)session.getAttribute("case
 			if(note.isCpp() && hideCppNotes) {
 				noteDisplay="none";
 			}
-			if(note.isDocument() && hideDocumentNotes) {
+			if(note.isDocument() && (hideDocumentNotes || note.isArchived())) {
 				noteDisplay="none";
 			}
 			if(note.isEformData() && hideEformNotes) {

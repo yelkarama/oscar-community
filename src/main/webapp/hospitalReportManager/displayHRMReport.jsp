@@ -273,7 +273,10 @@ function doSignOff(reportId, isSign) {
 		url: "<%=request.getContextPath() %>/hospitalReportManager/Modify.do",
 		data: data,
 		success: function(data) {
-			window.location.reload();
+			if (opener != null && opener.location.href.indexOf("inboxManage") != -1) {
+				opener.location.reload();
+			}
+			window.close();
 		}
 	});
 }

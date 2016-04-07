@@ -472,34 +472,70 @@
 <!-- Referral information -->
 	<databaseap>
 		<ap-name>referral_name</ap-name>
-		<ap-sql>SELECT professionalSpecialists.lName, professionalSpecialists.fName
-				FROM professionalSpecialists, demographic
-                		WHERE demographic.demographic_no=${demographic} AND LENGTH(professionalSpecialists.referralNo) > 0 
-				AND SUBSTRING(demographic.family_doctor,9,(LENGTH(professionalSpecialists.referralNo)))=professionalSpecialists.referralNo</ap-sql>
-                <ap-output>${lName}, ${fName}</ap-output>
+		<ap-sql>SELECT IF((SELECT COUNT(key_val) 
+				FROM demographicExt de 
+				WHERE de.demographic_no = ${demographic} 
+				AND de.key_val = "familyDoctorId") > 0, (SELECT CONCAT(professionalSpecialists.lName, ', ', professionalSpecialists.fName)
+				                                        FROM professionalSpecialists, demographicExt
+				                                        WHERE demographicExt.demographic_no = ${demographic} AND demographicExt.key_val = "familyDoctorId" 
+				                                        AND demographicExt.value = professionalSpecialists.specId
+				                                        ORDER BY demographicExt.date_time DESC LIMIT 1), (SELECT CONCAT(professionalSpecialists.lName, ', ', professionalSpecialists.fName)
+				                                                                                          FROM professionalSpecialists, demographic
+				                                                                                          WHERE demographic.demographic_no=${demographic} AND LENGTH(professionalSpecialists.referralNo) > 0 
+				                                                                                          AND SUBSTRING(demographic.family_doctor,9,(LENGTH(professionalSpecialists.referralNo)))=professionalSpecialists.referralNo
+				                                                                                          ORDER BY specId LIMIT 1)
+				) AS fullName</ap-sql>
+                <ap-output>${fullName}</ap-output>
 	</databaseap>
 	<databaseap>
 		<ap-name>referral_address</ap-name>
-		<ap-sql>SELECT professionalSpecialists.address AS raddress
-				FROM professionalSpecialists, demographic
-                		WHERE demographic.demographic_no=${demographic} AND LENGTH(professionalSpecialists.referralNo) > 0 
-				AND SUBSTRING(demographic.family_doctor,9,(LENGTH(professionalSpecialists.referralNo)))=professionalSpecialists.referralNo</ap-sql>
+		<ap-sql>SELECT IF((SELECT COUNT(key_val) 
+				FROM demographicExt de 
+				WHERE de.demographic_no = ${demographic} 
+				AND de.key_val = "familyDoctorId") > 0, (SELECT professionalSpecialists.address
+				                                        FROM professionalSpecialists, demographicExt
+				                                        WHERE demographicExt.demographic_no = ${demographic} AND demographicExt.key_val = "familyDoctorId" 
+				                                        AND demographicExt.value = professionalSpecialists.specId
+				                                        ORDER BY demographicExt.date_time DESC LIMIT 1), (SELECT professionalSpecialists.address
+				                                                                                          FROM professionalSpecialists, demographic
+				                                                                                          WHERE demographic.demographic_no=${demographic} AND LENGTH(professionalSpecialists.referralNo) > 0 
+				                                                                                          AND SUBSTRING(demographic.family_doctor,9,(LENGTH(professionalSpecialists.referralNo)))=professionalSpecialists.referralNo
+				                                                                                          ORDER BY specId LIMIT 1)
+				) AS raddress</ap-sql>
                 <ap-output>${raddress}</ap-output>
 	</databaseap>
 	<databaseap>
 		<ap-name>referral_phone</ap-name>
-		<ap-sql>SELECT professionalSpecialists.phone
-				FROM professionalSpecialists, demographic
-                		WHERE demographic.demographic_no=${demographic} AND LENGTH(professionalSpecialists.referralNo) > 0 
-				AND SUBSTRING(demographic.family_doctor,9,(LENGTH(professionalSpecialists.referralNo)))=professionalSpecialists.referralNo</ap-sql>
+		<ap-sql>SELECT IF((SELECT COUNT(key_val) 
+				FROM demographicExt de 
+				WHERE de.demographic_no = ${demographic} 
+				AND de.key_val = "familyDoctorId") > 0, (SELECT professionalSpecialists.phone
+				                                        FROM professionalSpecialists, demographicExt
+				                                        WHERE demographicExt.demographic_no = ${demographic} AND demographicExt.key_val = "familyDoctorId" 
+				                                        AND demographicExt.value = professionalSpecialists.specId
+				                                        ORDER BY demographicExt.date_time DESC LIMIT 1), (SELECT professionalSpecialists.phone
+				                                                                                          FROM professionalSpecialists, demographic
+				                                                                                          WHERE demographic.demographic_no=${demographic} AND LENGTH(professionalSpecialists.referralNo) > 0 
+				                                                                                          AND SUBSTRING(demographic.family_doctor,9,(LENGTH(professionalSpecialists.referralNo)))=professionalSpecialists.referralNo
+				                                                                                          ORDER BY specId LIMIT 1)
+				) AS phone</ap-sql>
                 <ap-output>${phone}</ap-output>
 	</databaseap>
 	<databaseap>
 		<ap-name>referral_fax</ap-name>
-		<ap-sql>SELECT professionalSpecialists.fax 
-				FROM professionalSpecialists, demographic
-                		WHERE demographic.demographic_no=${demographic} AND LENGTH(professionalSpecialists.referralNo) > 0 
-				AND SUBSTRING(demographic.family_doctor,9,(LENGTH(professionalSpecialists.referralNo)))=professionalSpecialists.referralNo</ap-sql>
+		<ap-sql>SELECT IF((SELECT COUNT(key_val) 
+				FROM demographicExt de 
+				WHERE de.demographic_no = ${demographic} 
+				AND de.key_val = "familyDoctorId") > 0, (SELECT professionalSpecialists.fax
+				                                        FROM professionalSpecialists, demographicExt
+				                                        WHERE demographicExt.demographic_no = ${demographic} AND demographicExt.key_val = "familyDoctorId" 
+				                                        AND demographicExt.value = professionalSpecialists.specId
+				                                        ORDER BY demographicExt.date_time DESC LIMIT 1), (SELECT professionalSpecialists.fax
+				                                                                                          FROM professionalSpecialists, demographic
+				                                                                                          WHERE demographic.demographic_no=${demographic} AND LENGTH(professionalSpecialists.referralNo) > 0 
+				                                                                                          AND SUBSTRING(demographic.family_doctor,9,(LENGTH(professionalSpecialists.referralNo)))=professionalSpecialists.referralNo
+				                                                                                          ORDER BY specId LIMIT 1)
+				) AS fax</ap-sql>
                 <ap-output>${fax}</ap-output>
 	</databaseap>
 	<databaseap>

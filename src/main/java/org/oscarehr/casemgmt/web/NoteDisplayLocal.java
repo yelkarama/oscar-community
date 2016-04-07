@@ -284,4 +284,8 @@ public class NoteDisplayLocal implements NoteDisplay {
     public Integer getAppointmentNo() {
 		return caseManagementNote.getAppointmentNo();
     }
+	
+	public boolean isArchived() {
+		return this.caseManagementNote.isArchived();
+	}
 }
