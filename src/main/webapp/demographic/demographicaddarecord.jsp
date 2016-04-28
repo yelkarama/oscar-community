@@ -161,7 +161,7 @@
 	demographic.setProviderNo(request.getParameter("staff"));
 	demographic.setSex(request.getParameter("sex"));
 	demographic.setPatientType(request.getParameter("patientTypeOrig"));
-    demographic.setPatientId(request.getParameter("patientId"));
+    demographic.setPatientId(request.getParameter("demographicMiscId"));
 
 	year = StringUtils.trimToNull(request.getParameter("end_date_year"));
 	month = StringUtils.trimToNull(request.getParameter("end_date_month"));
@@ -298,8 +298,8 @@
        demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "privacyConsent", request.getParameter("privacyConsent"), "");
        demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "informedConsent", request.getParameter("informedConsent"), "");
        
-       demographicExtDao.addKey(proNo, dem, "patientType", request.getParameter("patientType"), "");
-       demographicExtDao.addKey(proNo, dem, "demographicMiscId", request.getParameter("demographicMiscId"), "");
+       demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "patientType", request.getParameter("patientType"), "");
+       demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "demographicMiscId", request.getParameter("demographicMiscId"), "");
 		// Demographic Groups
 		String[] groups = request.getParameterValues("demographicGroups");
 	

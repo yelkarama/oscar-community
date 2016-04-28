@@ -671,7 +671,7 @@ String curProvider_no = (String)session.getAttribute("user");
 			
 					<li><a href='javascript:void(0);' class="xlink" rel="${ctx}/admin/jobs.jsp"><bean:message key="admin.jobs.title"/></a></li>
 					<li><a href='javascript:void(0);' class="xlink" rel="${ctx}/admin/jobTypes.jsp"><bean:message key="admin.jobtypes.title"/></a></li>
-					
+					<li><a href='javascript:void(0);' class="xlink" rel="${ctx}/admin/ManageDemographicGroups.do"><bean:message key="admin.admin.manageDemographicGroups"/></a></li>			
 			
 			      	<oscar:oscarPropertiesCheck property="LOGINTEST" value="yes">
 			            <li><a href='javascript:void(0);'

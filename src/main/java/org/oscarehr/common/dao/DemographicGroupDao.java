@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.persistence.Query;
 
+import org.hibernate.event.SaveOrUpdateEvent;
 import org.oscarehr.common.model.DemographicGroup;
 import org.springframework.stereotype.Repository;
 
@@ -58,8 +59,13 @@ public class DemographicGroupDao extends AbstractDao<DemographicGroup> {
 		if (group == null) {
  			throw new IllegalArgumentException();
  		}
- 		
- 		remove( contains(group) ? group : merge(group) );
+ 	
+		if(contains(group)){
+			remove(group);
+		}
+		else {
+			remove(group.getId());
+		}
 	}
 	
 	public List<DemographicGroup> getAll() {
