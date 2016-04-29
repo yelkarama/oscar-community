@@ -113,6 +113,25 @@ public class LabPDFCreator extends PdfPageEventHelper{
     	this(os, (request.getParameter("segmentID")!=null?request.getParameter("segmentID"):(String)request.getAttribute("segmentID")), (request.getParameter("providerNo")!=null?request.getParameter("providerNo"):(String)request.getAttribute("providerNo")));
     }
 
+    public LabPDFCreator(MessageHandler handler, OutputStream outputStream, String labId, String multiLabId, String dateLabReceived) { 
+    	this.os = outputStream;
+    	this.id = labId;
+    	this.handler = handler;
+    	this.dateLabReceived = dateLabReceived;
+    	//Checks if the multiLabId is null, if it is, then sets it to just the labId so that it does not break when getting the version number
+    	if (multiLabId == null) {
+    		multiLabId = labId;
+    	}
+    	//Gets the version number based on the size of the multiId
+    	int i = 0;
+    	this.multiID = multiLabId.split(",");
+    	
+    	while (!multiID[i].equals(id)){
+            i++;
+        }
+        this.versionNum = i + 1;
+    }
+    
     public LabPDFCreator(OutputStream os, String segmentId, String providerNo) {
         this.os = os;
         this.id = segmentId;

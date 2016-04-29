@@ -682,6 +682,11 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                             <tr>
                                 <td align="left" class="MainTableTopRowRightColumn" width="100%">
                                     <input type="hidden" name="segmentID" value="<%= segmentID %>"/>
+                                    <% if (remoteFacilityIdString != null) { %>
+                                    	<input type="hidden" name="remoteFacilityId" value="<%= remoteFacilityIdString %>"/>
+                                    	<input type="hidden" name="remoteLabKey" value="<%= remoteLabKey %>"/>
+                                    	<input type="hidden" name="demographicId" value="<%= demographicID %>"/>
+                                    <% } %>
                                     <input type="hidden" name="multiID" value="<%= multiLabId %>" />
 									<input type="hidden" name="dateLabReceived" value="<%= dateLabReceived %>" />
                                     <input type="hidden" name="providerNo" id="providerNo" value="<%= providerNo %>"/>

@@ -37,6 +37,7 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.log4j.Logger;
 import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
@@ -45,12 +46,15 @@ import org.apache.struts.action.ActionMapping;
 import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.SpringUtils;
+import org.oscarehr.caisi_integrator.ws.CachedDemographicLabResult;
+import org.oscarehr.util.MiscUtils;
+import org.w3c.dom.Document;
 
 import oscar.oscarLab.ca.all.parsers.Factory;
 import oscar.oscarLab.ca.all.parsers.MessageHandler;
+import oscar.oscarLab.ca.all.web.LabDisplayHelper;
 
 import com.lowagie.text.DocumentException;
-
 /**
  *
  * @author wrighd
@@ -71,16 +75,43 @@ public class PrintLabsAction extends Action{
 		}
     	
         try {
-            MessageHandler handler = Factory.getHandler(request.getParameter("segmentID"));
+        	MessageHandler handler;
+        	//Gets the remoteFacilityId from the request to see if the lab is at a remote facility
+        	String remoteFacilityId = request.getParameter("remoteFacilityId");
+        	//Gets the labId and the multiLabId from the request
+        	String labId = request.getParameter("segmentID") != null ? request.getParameter("segmentID") : (String)request.getAttribute("segmentID");
+        	String multiLabId = request.getParameter("multiId");
+        	//Declares dateLabReceived
+        	String dateLabReceived = request.getParameter("dateLabReceived");
+        	
+        	//If the lab is not from a remote facility
+        	if (remoteFacilityId == null) { 
+        		//Gets the MessageHandler using the segment Id
+        		handler = Factory.getHandler(request.getParameter("segmentID"));
+        	}
+        	else {
+        		//Gets the remoteLabKey and the demographicId from the request
+        		String remoteLabKey = request.getParameter("remoteLabKey");
+        		String demographicId = request.getParameter("demographicId");
+        		//Gets the remoteLabResult from the remote facility 
+        		CachedDemographicLabResult remoteLabResult = LabDisplayHelper.getRemoteLab(LoggedInInfo.getLoggedInInfoFromSession(request), Integer.parseInt(remoteFacilityId), remoteLabKey,Integer.parseInt(demographicId));
+        		//Logs the get
+        		MiscUtils.getLogger().debug("retrieved remoteLab:" + ReflectionToStringBuilder.toString(remoteLabResult));
+        		//Gets the xmlDocument from the remoteLabResult
+        		Document cachedDemographicLabResultXmlData = LabDisplayHelper.getXmlDocument(remoteLabResult);
+        		//Gets the MessageHandler from the xml document
+        		handler = LabDisplayHelper.getMessageHandler(cachedDemographicLabResultXmlData);
+        	}
+        	
             if(handler.getHeaders().get(0).equals("CELLPATHR")){//if it is a VIHA RTF lab
                 response.setContentType("text/rtf");  //octet-stream
                 response.setHeader("Content-Disposition", "attachment; filename=\""+handler.getPatientName().replaceAll("\\s", "_")+"_LabReport.rtf\"");
-                LabPDFCreator pdf = new LabPDFCreator(request, response.getOutputStream());
+                LabPDFCreator pdf = new LabPDFCreator(handler, response.getOutputStream(), labId, multiLabId, dateLabReceived);
                 pdf.printRtf();
             } else {
 	            response.setContentType("application/pdf");  //octet-stream
 	            response.setHeader("Content-Disposition", "attachment; filename=\""+handler.getPatientName().replaceAll("\\s", "_")+"_LabReport.pdf\"");
-	            LabPDFCreator pdf = new LabPDFCreator(request, response.getOutputStream());
+	            LabPDFCreator pdf = new LabPDFCreator(handler, response.getOutputStream(), labId, multiLabId, dateLabReceived);
 	            pdf.printPdf();
             }
         }catch(DocumentException de) {
