@@ -61,6 +61,7 @@ import oscar.oscarLab.ca.all.parsers.MessageHandler;
 import oscar.oscarLab.ca.on.CommonLabTestValues;
 import oscar.oscarLab.ca.on.LabResultData;
 import oscar.oscarMDS.data.ReportStatus;
+import oscar.util.UtilDateUtilities;
 
 public class LabDisplayHelper {
 	private static Logger logger = MiscUtils.getLogger();
@@ -134,6 +135,11 @@ public class LabDisplayHelper {
 		XmlUtils.appendChildToRoot(doc, "hl7TextMessageType", type);
 		String hl7Body = new String(Base64.decodeBase64(hl7TextMessage.getBase64EncodedeMessage().getBytes(MiscUtils.DEFAULT_UTF8_ENCODING)), MiscUtils.DEFAULT_UTF8_ENCODING);
 		XmlUtils.appendChildToRoot(doc, "hl7TextMessageBody", hl7Body);
+		
+		//Gets and formats the service date of the lab
+        String stringFormat = "yyyy-MM-dd HH:mm";
+        String dateLabReceived = UtilDateUtilities.DateToString(hl7TextMessage.getCreated(), stringFormat);
+		XmlUtils.appendChildToRoot(doc, "hl7TextMessageDateLabReceived", dateLabReceived);
 
 		try {
 			// okay serious hackage going on here. I'm just going to serialise the map and all it's values. *shrugs* it's one of those days and one of those features...
@@ -194,6 +200,11 @@ public class LabDisplayHelper {
 		return (results);
 	}
 
+	public static String getDateLabReceived(Document cachedDemographicLabResultXmlData) {
+		Node rootNode = cachedDemographicLabResultXmlData.getFirstChild();
+		return XmlUtils.getChildNodeTextContents(rootNode, "hl7TextMessageDateLabReceived");
+	}
+	
 	private static ReportStatus toReportStatus(Node node) {
 		ReportStatus reportStatus = new ReportStatus();
 		reportStatus.setComment(XmlUtils.getChildNodeTextContents(node, "comment"));

@@ -112,11 +112,7 @@ MeasurementMapDao measurementMapDao = (MeasurementMapDao) SpringUtils.getBean("m
 Hl7TextMessage hl7TextMessage = hl7TxtMsgDao.find(Integer.parseInt(segmentID));
 
 String dateLabReceived = "n/a";
-if(hl7TextMessage != null){
-	java.util.Date date = hl7TextMessage.getCreated();
-	String stringFormat = "yyyy-MM-dd HH:mm";
-    dateLabReceived = UtilDateUtilities.DateToString(date, stringFormat);
-}
+String stringFormat = "yyyy-MM-dd HH:mm";
 
 boolean isLinkedToDemographic=false;
 ArrayList<ReportStatus> ackList=null;
@@ -144,7 +140,10 @@ if (remoteFacilityIdString==null) // local lab
 	reqIDL = LabRequestReportLink.getRequestTableIdByReport("hl7TextMessage",Long.valueOf(segmentID));
 	reqTableID = reqIDL==null ? "" : reqIDL.toString();
 	
-	
+	if(hl7TextMessage != null){
+		java.util.Date date = hl7TextMessage.getCreated();
+	    dateLabReceived = UtilDateUtilities.DateToString(date, stringFormat);
+	}
 
 	PatientLabRoutingDao dao = SpringUtils.getBean(PatientLabRoutingDao.class); 
 	for(PatientLabRouting r : dao.findByLabNoAndLabType(ConversionUtils.fromIntString(segmentID), "HL7")) {
@@ -217,6 +216,7 @@ else // remote lab
 	handlers.add(handler);
 	segmentIDs = new String[] {"0"};  //fake segment ID for the for loop below to execute
 	hl7=LabDisplayHelper.getHl7Body(cachedDemographicLabResultXmlData);
+	dateLabReceived = LabDisplayHelper.getDateLabReceived(cachedDemographicLabResultXmlData);
 	
 	try {
 		remoteFacilityIdQueryString="&remoteFacilityId="+remoteFacilityIdString+"&remoteLabKey="+URLEncoder.encode(remoteLabKey, "UTF-8");
@@ -683,6 +683,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                 <td align="left" class="MainTableTopRowRightColumn" width="100%">
                                     <input type="hidden" name="segmentID" value="<%= segmentID %>"/>
                                     <input type="hidden" name="multiID" value="<%= multiLabId %>" />
+									<input type="hidden" name="dateLabReceived" value="<%= dateLabReceived %>" />
                                     <input type="hidden" name="providerNo" id="providerNo" value="<%= providerNo %>"/>
                                     <input type="hidden" name="status" value="<%=labStatus%>" id="labStatus_<%=segmentID%>"/>
                                     <input type="hidden" name="comment" value=""/>
