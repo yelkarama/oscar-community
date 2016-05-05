@@ -29,9 +29,13 @@ import java.util.Properties;
 import java.util.StringTokenizer;
 
 import org.oscarehr.util.LoggedInInfo;
+import org.oscarehr.common.dao.ClinicDAO;
+import org.oscarehr.common.dao.DemographicDao;
+import org.oscarehr.common.model.Clinic;
+import org.oscarehr.common.model.Demographic;
+import org.oscarehr.util.SpringUtils;
 
 import oscar.SxmlMisc;
-import oscar.oscarDB.DBHandler;
 import oscar.util.UtilDateUtilities;
 
 public class FrmGynaeFormRecord extends FrmRecord {
@@ -84,63 +88,51 @@ public class FrmGynaeFormRecord extends FrmRecord {
 	}
 
 	public void defaultClinic(Properties props) throws SQLException {
-		String sql = "SELECT * 	FROM clinic ";
-		ResultSet rs = null;
-		try {
-			rs = DBHandler.GetSQL(sql);
-			if (rs.next()) {
-				String[] columns = new String[] { "clinic_name",
-						"clinic_address", "clinic_city", "clinic_postal",
-						"clinic_phone", "clinic_fax", "clinic_location_code",
-						"clinic_province", "clinic_delim_phone",
-						"clinic_delim_fax" };
-				for (int i = 0; i < columns.length; i++) {
-					props.setProperty(columns[i], rs.getString(columns[i]));
-				}
-			}
-		} finally {
-			rs.close();
+		ClinicDAO clinicDao = (ClinicDAO)SpringUtils.getBean(ClinicDAO.class);
+		Clinic clinic = clinicDao.getClinic();
+		if (clinic != null) {
+			props.setProperty("clinic_name", clinic.getClinicName());
+			props.setProperty("clinic_address", clinic.getClinicAddress());
+			props.setProperty("clinic_city", clinic.getClinicCity());
+			props.setProperty("clinic_postal", clinic.getClinicPostal());
+			props.setProperty("clinic_phone", clinic.getClinicPhone());
+			props.setProperty("clinic_fax", clinic.getClinicFax());
+			props.setProperty("clinic_location_code", clinic.getClinicLocationCode());
+			props.setProperty("clinic_province", clinic.getClinicProvince());
+			props.setProperty("clinic_delim_phone", clinic.getClinicDelimPhone());
+			props.setProperty("clinic_delim_fax", clinic.getClinicDelimFax());
 		}
 	}
 
 	public void defaultFromDemography(int demographicNo,Properties props, int existingID) throws SQLException{
-    	String sql = "SELECT demographic_no, "
-            + "family_doctor, provider_no, "
-            + "year_of_birth, month_of_birth, date_of_birth,  "
-            + "last_name,first_name "
-            + " FROM demographic WHERE demographic_no = " + demographicNo;
-    	ResultSet rs = null;
-        try{
-	        rs = DBHandler.GetSQL(sql);
-	        if (rs.next()) {
-                props.setProperty("demographic_no", getString(rs,"demographic_no"));
-                props.setProperty("patient_default_lname", getString(rs,"last_name"));
-                props.setProperty("patient_default_fname", getString(rs,"first_name"));
-                props.setProperty("patient_default_age", String.valueOf(UtilDateUtilities.calcAge(getString(rs,"year_of_birth"), rs
-                        .getString("month_of_birth"), getString(rs,"date_of_birth"))));
-                
-                String rd = SxmlMisc.getXmlContent(getString(rs,"family_doctor"),"rd")    ;
-                rd = rd !=null ? rd : "" ;
-                String name = rd,fname = "",lname = "";
-                StringTokenizer st = new StringTokenizer(name, ","); 
-                if(st.hasMoreTokens()){
-                	lname = 	st.nextToken().trim();
-                }
-                if(st.hasMoreTokens()){
-                	fname = 	st.nextToken().trim();
-                }
-                props.setProperty("family_doctor_default_lname",lname);
-                props.setProperty("family_doctor_default_fname",fname);
-                
-                if(existingID > 0){
-                	
-                }else{
-                	 props.setProperty("provider_no", getString(rs,"provider_no"));
-                }
-                
+    	DemographicDao demographicDao = (DemographicDao)SpringUtils.getBean(DemographicDao.class);
+    	Demographic demographic = demographicDao.getDemographic(String.valueOf(demographicNo));
+    	
+        if (demographic != null) {
+            props.setProperty("demographic_no", String.valueOf(demographic.getDemographicNo()));
+            props.setProperty("patient_default_lname", String.valueOf(demographic.getLastName()));
+            props.setProperty("patient_default_fname", String.valueOf(demographic.getFirstName()));
+            props.setProperty("patient_default_age", String.valueOf(demographic.getAgeInYears()));
+            
+            String rd = SxmlMisc.getXmlContent(demographic.getFamilyDoctor(),"rd");
+            rd = rd !=null ? rd : "" ;
+            String name = rd,fname = "",lname = "";
+            StringTokenizer st = new StringTokenizer(name, ","); 
+            if(st.hasMoreTokens()) {
+            	lname = 	st.nextToken().trim();
             }
-        }finally{
-        	rs.close();
+            if(st.hasMoreTokens()) {
+            	fname = 	st.nextToken().trim();
+            }
+            props.setProperty("family_doctor_default_lname",lname);
+            props.setProperty("family_doctor_default_fname",fname);
+            
+            if(existingID > 0) {
+            	
+            }
+            else {
+            	 props.setProperty("provider_no", demographic.getProviderNo());
+            }            
         }
     }
 	
