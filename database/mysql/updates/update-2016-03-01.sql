@@ -1,5 +1,5 @@
 /* ALTERS */
-ALTER TABLE document ADD COLUMN abnormal boolean DEFAULT false;
+ALTER TABLE document ADD COLUMN abnormal boolean;
 
 /* INSERTS */
 INSERT INTO secObjectName (objectName, description, orgapplicable) VALUES ('_unlink_demographic_from_document', 'Document - Unlink Demographic', 0);

@@ -3,7 +3,7 @@
 CREATE TABLE demographic_group (
   id int(11) NOT NULL auto_increment,
   name varchar(100) NOT NULL,
-  description varchar(255) NOT NULL default '',
+  description varchar(255) NOT NULL,
  	PRIMARY KEY  (id)
 ) ENGINE = InnoDB;
 
@@ -33,9 +33,9 @@ ALTER TABLE demographic ADD COLUMN `patient_type` VARCHAR(45)  NULL AFTER `lastU
 
 
 # MAybe not needed?
-ALTER TABLE demographic ADD COLUMN `patient_id` VARCHAR(45) NULL DEFAULT NULL AFTER `patient_type`;
+ALTER TABLE demographic ADD COLUMN `patient_id` VARCHAR(45) NULL AFTER `patient_type`;
 CREATE TABLE `patientId` (
-  `patient_id` varchar(45) NOT NULL DEFAULT '',
+  `patient_id` varchar(45) NOT NULL,
   `description` varchar(45) NOT NULL,
   PRIMARY KEY (`patient_id`),
   UNIQUE KEY `patient_id_UNIQUE` (`patient_id`),
