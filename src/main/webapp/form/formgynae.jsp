@@ -2736,7 +2736,7 @@ $(document).ready(function(){
 
         // need to apply issue filter
         List<CaseManagementNote>notes = cmgmtMgr.getActiveNotes(demoNo, issueIds);
-        StringBuffer noteStr = new StringBuffer();
+        StringBuilder noteStr = new StringBuilder();
         for(CaseManagementNote n: notes) {
             if( !n.isLocked() )
                 noteStr.append(n.getNote() + "\n");
