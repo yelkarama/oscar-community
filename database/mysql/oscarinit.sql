@@ -681,6 +681,7 @@ CREATE TABLE document (
   number_of_pages int(6),
   appointment_no int(11) default NULL,
   restrictToProgram tinyint(1) NOT NULL,
+  abnormal boolean,
   PRIMARY KEY  (document_no)
 ) ;
 
@@ -7059,7 +7060,10 @@ create table ProviderPreference
 	startHour tinyint,
 	endHour tinyint,
 	everyMin tinyint,
+	twelveHourFormat boolean,
+	labelShortcutEnabled boolean,
 	myGroupNo varchar(10),
+	defaultDoctor varchar(6),
 	colourTemplate varchar(10),
 	newTicklerWarningWindow varchar(10),
 	defaultServiceType varchar(10),

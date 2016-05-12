@@ -1847,6 +1847,8 @@ insert into `secObjectName` (`objectName`) values ('_admin.document');
 insert into `secObjectName` (`objectName`) values ('_admin.consult');
 
 
+INSERT INTO secObjectName (objectName, description, orgapplicable) VALUES ('_unlink_demographic_from_document', 'Document - Unlink Demographic', 0);
+
 insert into `secObjPrivilege` values('receptionist', '_appointment', 'x', 0, '999998');
 insert into `secObjPrivilege` values('receptionist', '_demographic', 'x', 0, '999998');
 insert into `secObjPrivilege` values('receptionist', '_billing', 'x', 0, '999998');
@@ -2037,8 +2039,7 @@ insert into `secObjPrivilege` values('admin','_appDefinition','x',0,'999998');
 insert into `secObjPrivilege` values('admin','_demographicExport','x',0,'999998');
 insert into `secObjPrivilege` values('admin','_admin.document','x',0,'999998');
 
-
-
+INSERT INTO secObjPrivilege (roleUserGroup, objectName, privilege, priority, provider_no) VALUES ('doctor', '_unlink_demographic_from_document', 'x', 0, '999998');
 
 -- for defaultqueue
 insert into queue values(1,'default');
