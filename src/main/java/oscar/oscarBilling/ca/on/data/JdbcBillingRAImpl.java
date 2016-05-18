@@ -485,12 +485,26 @@ public class JdbcBillingRAImpl {
 					demo_name = b.getDemographicName();
 					famProviderNo = d.getProviderNo();
 					site = b.getClinic();
-					if (b.getHin() != null) {
+					if (b.getHin() != null && !b.getHin().equals("")) {
 						if (!(b.getHin()).startsWith(demo_hin)) {
 							demo_hin = "";
 							demo_name = "";
 						}
-					} else {
+					}
+					else if (d.getHin() != null){
+						//Checks if the demographic HIN equals the HIN from the RADetail
+						if (d.getHin().equals(demo_hin)){
+							//Sets the HIN for the billingOnCHeader1
+							b.setHin(demo_hin);
+							//Saves the billing with the proper demo number
+							billingDao.saveEntity(b);
+						}
+						else {
+							demo_hin = "";
+							demo_name = "";
+						}
+					} 
+					else {
 						demo_hin = "";
 						demo_name = "";
 					}
