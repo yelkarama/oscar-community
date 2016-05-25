@@ -84,6 +84,7 @@ if(!authed) {
 
 <%
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+	boolean isConsultationDateReadOnly = OscarProperties.getInstance().getBooleanProperty("CONSULTATION_LOCK_REFERRAL_DATE", "true");
 
 	displayServiceUtil.estSpecialist();	
 
@@ -185,6 +186,8 @@ if(!authed) {
 		pageContext.setAttribute("appointmentInstructionList", lookupListManager.findLookupListByName(loggedInInfo, "consultApptInst") ); 
 		
 		ConsultationServiceDao consultationServiceDao = SpringUtils.getBean(ConsultationServiceDao.class);
+		
+		
 %><head>
 <c:set var="ctx" value="${pageContext.request.contextPath}" scope="request"/>
 <script>
@@ -1501,28 +1504,17 @@ function updateFaxButton() {
 						<% } %>
 						<tr>						
 							<td class="tite4"><bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.formRefDate" />:
+							</td>	
+							<td align="right" class="tite1">
+							<% 	if (request.getAttribute("id") != null)
+								{ %>
+									<html:text styleClass="righty" readonly="<%=isConsultationDateReadOnly%>" property="referalDate" /> 
+							<% 	}
+					 			else
+					 			{ %>
+									<html:text styleClass="righty" readonly="<%=isConsultationDateReadOnly%>" property="referalDate" value="<%=formattedDate%>" /> 
+							<% 	} %>
 							</td>
-							<oscar:oscarPropertiesCheck value="false" property="CONSULTATION_LOCK_REFERRAL_DATE">	
-								<td align="right" class="tite1">
-								<% 	if (request.getAttribute("id") != null)
-									{ %>
-										<html:text styleClass="righty" property="referalDate" /> 
-								<% 	}
-						 			else
-						 			{ %>
-										<html:text styleClass="righty" property="referalDate" value="<%=formattedDate%>" /> 
-								<% 	} %>
-								</td>
-							</oscar:oscarPropertiesCheck>
-							
-							<oscar:oscarPropertiesCheck value="true" property="CONSULTATION_LOCK_REFERRAL_DATE">
-						
-								<td align="right" class="tite3" >
-									<html:text styleId="referalDate" property="referalDate" 
-										readonly="true" disabled="true" value="<%=formattedDate%>" />
-								</td>
-													
-							</oscar:oscarPropertiesCheck>
 						</tr>
 						<tr>
 							<td class="tite4"><bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.formService" />:
@@ -2303,7 +2295,6 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 </body>
 
 <script type="text/javascript" language="javascript">
-
 Calendar.setup( { inputField : "followUpDate", ifFormat : "%Y/%m/%d", showsTime :false, button : "followUpDate_cal", singleClick : true, step : 1 } );
 Calendar.setup( { inputField : "appointmentDate", ifFormat : "%Y/%m/%d", showsTime :false, button : "appointmentDate_cal", singleClick : true, step : 1 } );
 </script>
