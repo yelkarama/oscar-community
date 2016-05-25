@@ -25,12 +25,16 @@
 package org.oscarehr.ws.transfer_objects;
 
 import java.io.IOException;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.log4j.Logger;
+import org.apache.commons.io.FileUtils;
+
 import org.oscarehr.common.model.CtlDocument;
 import org.oscarehr.common.model.Document;
 import org.oscarehr.managers.DocumentManager;
@@ -307,6 +311,47 @@ public final class DocumentTransfer {
 		}
 
 		return (results.toArray(new DocumentTransfer[0]));
+	}
+
+	public void copyTo(Document document,CtlDocument ctlDocument)
+	{
+		// ID should not be copied, nor createDate
+		document.setDoctype(doctype);
+		document.setDocClass(docClass);
+		document.setDocSubClass(docSubClass);
+		document.setDocdesc(docdesc);
+		document.setDocxml(docxml);
+		document.setDocfilename(docfilename);
+		document.setDoccreator(doccreator);
+		document.setResponsible(responsible);
+		document.setSource(source);
+		document.setSourceFacility(sourceFacility);
+		document.setProgramId(programId);
+		document.setStatus(status);
+		document.setContenttype(contenttype); 
+		document.setPublic1(public1);
+		document.setReviewer(reviewer);
+		document.setReviewdatetime(reviewdatetime);    
+		document.setNumberofpages(numberofpages);
+		document.setAppointmentNo(appointmentNo);
+
+		ctlDocument.getId().setModule(ctlModule);
+		ctlDocument.getId().setModuleId(ctlModuleId);
+		ctlDocument.setStatus(ctlStatus);
+		
+		String savePath = oscar.OscarProperties.getInstance().getProperty("DOCUMENT_DIR");
+        if (!savePath.endsWith(File.separator)) {
+            savePath += File.separator;
+        }
+        
+        String destFilePath = savePath + docfilename;
+        try{
+			File document_file = new File(destFilePath);
+			FileUtils.writeByteArrayToFile( document_file, fileContents );
+		} catch (IOException e) {
+            e.printStackTrace();
+        }
+
 	}
 
 	@Override
