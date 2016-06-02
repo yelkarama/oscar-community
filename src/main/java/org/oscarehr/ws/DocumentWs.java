@@ -69,16 +69,6 @@ public class DocumentWs extends AbstractWs {
 		}
 	}
 
-	public Integer addDocument(DocumentTransfer documentTransfer) {
-		LoggedInInfo loggedInInfo = getLoggedInInfo();
-		
-		Document document = new Document();
-		CtlDocument ctlDocument = new CtlDocument();
-		documentTransfer.copyTo(document, ctlDocument);
-		documentManager.addDocument(loggedInInfo, document, ctlDocument);
-		return (document.getDocumentNo());
-	}
-
 	public DocumentTransfer[] getDocumentsUpdateAfterDate(Date updatedAfterThisDateExclusive, int itemsToReturn) {
 		LoggedInInfo loggedInInfo = getLoggedInInfo();
 		List<Document> documents = documentManager.getDocumentsUpdateAfterDate(loggedInInfo, updatedAfterThisDateExclusive, itemsToReturn);
