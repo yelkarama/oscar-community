@@ -115,7 +115,7 @@ if (isSiteAccessPrivacy || isTeamAccessPrivacy) {
 			}
 
 			String monthCode = BillingDataHlp.propMonthCode.getProperty("" + curMonth);
-			String ohipdownload = oscarVariables.getProperty("HOME_DIR");
+			String ohipdownload = oscarVariables.getProperty("HOME_DIR") + thisyear + "/";
 			session.setAttribute("ohipdownload", ohipdownload);
 
 			//			 get the current year's billing disk filenames
