@@ -83,7 +83,7 @@ public class JdbcBillingRAImpl {
 	}
 
 	public boolean importRAFile(String filePathName) throws Exception {
-		String filename = "", header = "", headerCount = "", total = "", paymentdate = "", payable = "", totalStatus = "";
+		String filename = "", header = "", headerCount = "", total = "", group_no = "", paymentdate = "", payable = "", totalStatus = "";
 		String providerno = "", account = "", newhin = "", hin = "", ver = "", billtype = "";
 		String servicedate = "", serviceno = "", servicecode = "", amountsubmit = "", amountpay = "", amountpaysign = "", explain = "";
 		String balancefwd = "", abf_ca = "", abf_ad = "", abf_re = "", abf_de = "";
@@ -113,6 +113,7 @@ public class JdbcBillingRAImpl {
 				headerCount = nextline.substring(2, 3);
 
 				if (headerCount.compareTo("1") == 0) {
+					group_no = nextline.substring(7, 11);
 					paymentdate = nextline.substring(21, 29);
 					payable = nextline.substring(29, 59);
 					total = nextline.substring(59, 68);
@@ -145,6 +146,7 @@ public class JdbcBillingRAImpl {
 
 						RaHeader h = new RaHeader();
 						h.setFilename(filename);
+						h.setGroupNo(group_no);
 						h.setPaymentDate(paymentdate);
 						h.setPayable(payable);
 						h.setTotalAmount(total);
