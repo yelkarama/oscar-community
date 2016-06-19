@@ -48,13 +48,13 @@ public class BillingRAPrep {
 		return ret;
 	}
 
-        public List getRASummary(String raNo, String providerOhipNo, List OBbilling_no, List CObilling_no) {
-	   return getRASummary(raNo, providerOhipNo, OBbilling_no, CObilling_no,null); 
+        public List getRAProviderDetails(String raNo, String providerOhipNo, List OBbilling_no, List CObilling_no) {
+	   return getRAProviderDetails(raNo, providerOhipNo, OBbilling_no, CObilling_no,null); 
         }
         
-	public List getRASummary(String raNo, String providerOhipNo, List OBbilling_no, List CObilling_no,Map map) {
+	public List getRAProviderDetails(String raNo, String providerOhipNo, List OBbilling_no, List CObilling_no,Map map) {
 		List rett = new Vector();
-		List ret = dbObj.getRASummary(raNo, providerOhipNo);
+		List ret = dbObj.getRAProviderDetails(raNo, providerOhipNo);
 		double dCFee = 0.0;
 		double dPFee = 0.0;
 		BigDecimal BigCTotal = new BigDecimal(0.).setScale(2, BigDecimal.ROUND_HALF_UP);
@@ -195,6 +195,130 @@ public class BillingRAPrep {
                 
                 
                 
+		return rett;
+	}
+
+	public List getRASummary(String raNo, List OBbilling_no, List CObilling_no,Map map) {
+		List rett = new Vector();
+		List aL = getProviderListFromRAReport(raNo);
+		
+		for(int i=0; i<aL.size(); i++) {
+			Properties prop = (Properties) aL.get(i);
+			String pohipno = prop.getProperty("providerohip_no", "");
+			
+			List ret = dbObj.getRAProviderDetails(raNo, pohipno);
+			
+			int claimCount = 0;
+			double dCFee = 0.0;
+			double dPFee = 0.0;
+			BigDecimal ProvCTotal = new BigDecimal(0.).setScale(2, BigDecimal.ROUND_HALF_UP); //total submitted
+			BigDecimal ProvPTotal = new BigDecimal(0.).setScale(2, BigDecimal.ROUND_HALF_UP); //total paid
+			BigDecimal ProvOBTotal = new BigDecimal(0.).setScale(2, BigDecimal.ROUND_HALF_UP); //total OB paid
+			BigDecimal ProvCOTotal = new BigDecimal(0.).setScale(2, BigDecimal.ROUND_HALF_UP); //total colonoscopy paid
+			BigDecimal ProvLocalHTotal = new BigDecimal(0.).setScale(2, BigDecimal.ROUND_HALF_UP); //total local hospital pay
+			BigDecimal ProvHTotal = new BigDecimal(0.).setScale(2, BigDecimal.ROUND_HALF_UP); //total hospital pay
+			BigDecimal ProvTotal = new BigDecimal(0.).setScale(2, BigDecimal.ROUND_HALF_UP); //total clinic pay
+			BigDecimal ProvOTotal = new BigDecimal(0.).setScale(2, BigDecimal.ROUND_HALF_UP); //total other pay
+			BigDecimal ProvLTotal = new BigDecimal(0.).setScale(2, BigDecimal.ROUND_HALF_UP); //total local pay
+
+			// Calculate totals per provider
+			for (int j = 0; j < ret.size(); j++) {
+				Properties provProp = (Properties) ret.get(j);	
+				claimCount++;
+				
+				String servicedate = provProp.getProperty("servicedate");
+				servicedate = servicedate.length() == 8 ? (servicedate.substring(0, 4) + "-" + servicedate.substring(4, 6)
+					+ "-" + servicedate.substring(6)) : servicedate;
+				
+				String demo_hin = provProp.getProperty("demo_hin");
+				String explain = provProp.getProperty("explain");
+				String amountsubmit = provProp.getProperty("amountsubmit");
+				String amountpay = provProp.getProperty("amountpay");
+				String location = provProp.getProperty("location");
+				String localServiceDate = provProp.getProperty("localServiceDate");
+				String account = provProp.getProperty("account");
+
+				dCFee = Double.parseDouble(amountsubmit);
+				BigDecimal bdCFee = new BigDecimal(dCFee).setScale(2, BigDecimal.ROUND_HALF_UP);
+				ProvCTotal = ProvCTotal.add(bdCFee);
+
+				dPFee = Double.parseDouble(amountpay);
+				BigDecimal bdPFee = new BigDecimal(dPFee).setScale(2, BigDecimal.ROUND_HALF_UP);
+				ProvPTotal = ProvPTotal.add(bdPFee);
+				String COflag = "0";
+				String OBflag = "0";
+
+				// set flag
+				for (int k = 0; k < OBbilling_no.size(); k++) {
+					String sqlRAOB = (String) OBbilling_no.get(k);
+					if (sqlRAOB.compareTo(account) == 0) {
+						OBflag = "1";
+						break;
+					}
+				}
+				for (int k = 0; k < CObilling_no.size(); k++) {
+					String sqlRACO = (String) CObilling_no.get(k);
+					if (sqlRACO.compareTo(account) == 0) {
+						COflag = "1";
+						break;
+					}
+				}
+
+				if (OBflag.equals("1")) {
+					String amountOB = amountpay;
+					double dOBFee = Double.parseDouble(amountOB);
+					BigDecimal bdOBFee = new BigDecimal(dOBFee).setScale(2, BigDecimal.ROUND_HALF_UP);
+					ProvOBTotal = ProvOBTotal.add(bdOBFee);
+				}
+
+				if (COflag.equals("1")) {
+					String amountCO = amountpay;
+					double dCOFee = Double.parseDouble(amountCO);
+					BigDecimal bdCOFee = new BigDecimal(dCOFee).setScale(2, BigDecimal.ROUND_HALF_UP);
+					ProvCOTotal = ProvCOTotal.add(bdCOFee);
+				}
+
+				if (location.compareTo("02") == 0) {
+					double dHFee = Double.parseDouble(amountpay);
+					BigDecimal bdHFee = new BigDecimal(dHFee).setScale(2, BigDecimal.ROUND_HALF_UP);
+					ProvHTotal = ProvHTotal.add(bdHFee);
+					
+					// is local for hospital
+					if (demo_hin.length() > 1 && servicedate.equals(localServiceDate)) {
+						ProvLocalHTotal = ProvLocalHTotal.add(bdHFee);
+					}
+				} else {
+					if (location.compareTo("00") == 0 && demo_hin.length() > 1 && servicedate.equals(localServiceDate)) {
+						double dFee = Double.parseDouble(amountpay);
+						BigDecimal bdFee = new BigDecimal(dFee).setScale(2, BigDecimal.ROUND_HALF_UP);
+						ProvTotal = ProvTotal.add(bdFee);
+					} else {
+						double dOFee = Double.parseDouble(amountpay);
+						BigDecimal bdOFee = new BigDecimal(dOFee).setScale(2, BigDecimal.ROUND_HALF_UP);
+						ProvOTotal = ProvOTotal.add(bdOFee);
+					}
+				}
+			}
+
+			ProvLTotal = ProvLTotal.add(ProvTotal);
+			ProvLTotal = ProvLTotal.add(ProvLocalHTotal);
+			
+			prop.setProperty("claims", claimCount + "");
+			prop.setProperty("amountsubmit", ProvCTotal.toString());
+			prop.setProperty("amountpay", ProvPTotal.toString());
+			prop.setProperty("clinicPay", ProvTotal.toString());
+			prop.setProperty("hospitalPay", ProvHTotal.toString());
+			prop.setProperty("obPay", ProvOBTotal.toString());
+			rett.add(prop);
+		
+			if (map != null){
+			   map.put("xml_local", ProvLTotal );
+			   map.put("xml_total", ProvPTotal ); 
+			   map.put("xml_other_total", ProvOTotal);
+			   map.put("xml_ob_total", ProvOBTotal);
+			   map.put("xml_co_total", ProvCOTotal );
+			}
+		}
 		return rett;
 	}
 
