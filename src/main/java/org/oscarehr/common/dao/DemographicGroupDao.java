@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.persistence.Query;
 
-import org.hibernate.event.SaveOrUpdateEvent;
 import org.oscarehr.common.model.DemographicGroup;
 import org.springframework.stereotype.Repository;
 

@@ -10,7 +10,7 @@ CREATE TABLE `LookupList` (
   `categoryId` int(11),
   `active` tinyint(1) NOT NULL,
   `createdBy` varchar(8) NOT NULL,
-  `dateCreated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `dateCreated` timestamp NOT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 );
 
@@ -22,7 +22,7 @@ CREATE TABLE `LookupListItem` (
   `displayOrder` int(11) NOT NULL,
   `active` tinyint(1) NOT NULL,
   `createdBy` varchar(8) NOT NULL,
-  `dateCreated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `dateCreated` timestamp NOT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`,`value`)
 );
 
