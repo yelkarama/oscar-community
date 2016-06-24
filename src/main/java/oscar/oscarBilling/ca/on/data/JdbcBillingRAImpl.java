@@ -33,6 +33,7 @@ import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.BillingONCHeader1Dao;
 import org.oscarehr.common.dao.RaDetailDao;
 import org.oscarehr.common.dao.RaHeaderDao;
+import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.model.BillingONCHeader1;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.Provider;
@@ -49,6 +50,7 @@ public class JdbcBillingRAImpl {
 
 	private RaDetailDao raDetailDao = SpringUtils.getBean(RaDetailDao.class);
 	private RaHeaderDao raHeaderDao = SpringUtils.getBean(RaHeaderDao.class);
+	private ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 	private BillingONCHeader1Dao cheader1Dao = SpringUtils.getBean(BillingONCHeader1Dao.class);
 
 	public int addOneRADtRecord(BillingRAData val) {
@@ -129,7 +131,11 @@ public class JdbcBillingRAImpl {
 					for (RaHeader h : headers) {
 						raNo = "" + h.getId();
 					}
-
+					// check that group number is used in system. If not, do not set. (may be lab no)
+					if(providerDao.getActiveProvidersByGroupNo(group_no) == null 
+						|| providerDao.getActiveProvidersByGroupNo(group_no).size() == 0){
+						group_no="";
+					} 
 					// judge if it is empty in table radt
 					int radtNum = 0;
 					if (raNo != null && raNo.length() > 0) {
