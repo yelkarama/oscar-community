@@ -1286,20 +1286,21 @@ THEME 2*/
                         }
 %>
 <script type="text/javascript">
-function changeLt(drugId){
-    if (confirm('<bean:message key="oscarRx.Prescription.changeDrugLongTermConfirm" />')==true) {
+function changeLt(drugId, isLongTerm){
+    if (confirm(isLongTerm ? '<bean:message key="oscarRx.Prescription.changeDrugShortTermConfirm" />' : '<bean:message key="oscarRx.Prescription.changeDrugLongTermConfirm" />')==true) {
            var data="ltDrugId="+drugId+"&rand="+Math.floor(Math.random()*10001);
-           var url="<c:out value='${ctx}'/>"+ "/oscarRx/WriteScript.do?parameterValue=changeToLongTerm";
+           var url="<c:out value='${ctx}'/>"+ "/oscarRx/WriteScript.do?parameterValue=changeLongTerm";
            new Ajax.Request(url,{method: 'post',parameters:data,onSuccess:function(transport){
                    var json=transport.responseText.evalJSON();
                    if(json!=null && (json.success=='true'||json.success==true) ){
-                        $("notLongTermDrug_"+drugId).innerHTML="yes";
-                        $("notLongTermDrug_"+drugId).setStyle({
+                        var elementName = isLongTerm ? "longTermDrug_" : "notLongTermDrug_";
+                	    $(elementName+drugId).innerHTML= isLongTerm ? "no" : "yes";
+                        $(elementName+drugId).setStyle({
                             textDecoration: 'none',
                             color: 'red'
                         });
-                        $("notLongTermDrug_"+drugId).setAttribute("onclick","");
-                        $("notLongTermDrug_"+drugId).setAttribute("href","");
+                        $(elementName+drugId).setAttribute("onclick","");
+                        $(elementName+drugId).setAttribute("href","");
                     }else{
                     }
                }});

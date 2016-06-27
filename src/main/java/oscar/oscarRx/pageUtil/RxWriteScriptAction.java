@@ -1158,7 +1158,7 @@ public final class RxWriteScriptAction extends DispatchAction {
             return null;
         }
         
-	public ActionForward changeToLongTerm(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException, Exception {
+	public ActionForward changeLongTerm(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException, Exception {
 		checkPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), PRIVILEGE_WRITE);
 		
 		String strId = request.getParameter("ltDrugId");
@@ -1172,7 +1172,7 @@ public final class RxWriteScriptAction extends DispatchAction {
 
 			RxPrescriptionData rxData = new RxPrescriptionData();
 			RxPrescriptionData.Prescription oldRx = rxData.getPrescription(drugId);
-			oldRx.setLongTerm(true);
+			oldRx.setLongTerm(!oldRx.isLongTerm());
 			boolean b = oldRx.Save(oldRx.getScript_no());
 			HashMap hm = new HashMap();
 			if (b) hm.put("success", true);
