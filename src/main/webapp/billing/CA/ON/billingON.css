@@ -59,6 +59,58 @@ a:visited {
 	font-weight: bold
 }
 
+#raSummaryTable{
+	width: 70%;
+	margin:20px 15% 15% 15%;
+	border-spacing: 0px;
+	border-collapse: collapse;
+}
+
+#raSummaryTable th{
+	font-weight: bold;
+	border: 1px solid black;
+	border-spacing: 0px;
+	height:18px;
+	padding: 2px;
+	vertical-align: bottom;
+}
+
+#raSummaryTable td{
+	border: 1px solid black;
+	border-spacing: 0px;
+	height:18px;
+	padding: 2px;
+}
+
+#raSummaryTable .math{
+	text-align: right;
+}
+
+#raSummaryTable .separator{
+	height:50px;
+}
+
+#raSummaryTable .faded{
+	color: #595959;
+	background-color: #F2F2F2;
+}
+
+#raSummaryTable .sum{
+	background-color: #BDD7EE !important;
+}
+
+#raSummaryTable .medsum{
+	background-color: #B4C6E7 !important;
+}
+
+#raSummaryTable .bigsum{
+	background-color: #5B9BD5!important;
+}
+
+#raSummaryTable .blackText{
+	color: black !important;
+}
+
 a:hover {
 	COLOR: red;
 	font-weight: bolder;

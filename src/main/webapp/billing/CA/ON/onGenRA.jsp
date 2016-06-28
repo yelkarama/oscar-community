@@ -162,7 +162,7 @@ for(int i = 0; i < aL.size(); i++) {
 		<td align="center"><a
 			href="../billing/CA/ON/onGenRAError.jsp?rano=<%=raNo%>&proNo="
 			target="_blank">Error</a> | <a
-			href="../billing/CA/ON/onGenRASummary.jsp?rano=<%=raNo%>&proNo="
+			href="../billing/CA/ON/RASummary.do?rano=<%=raNo%>"
 			target="_blank">Summary</a>| <a
 			href="../billing/CA/ON/genRADesc.jsp?rano=<%=raNo%>" target="_blank">Report
 		</a></td>
