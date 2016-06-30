@@ -31,12 +31,12 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.log4j.Logger;
+import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.OscarAppointmentDao;
 import org.oscarehr.common.hl7.v2.oscar_to_oscar.DataTypeUtils;
 import org.oscarehr.common.model.Appointment;
 import org.oscarehr.common.model.AppointmentStatus;
 import org.oscarehr.common.model.Demographic;
-import org.oscarehr.managers.DemographicManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
@@ -54,11 +54,15 @@ public final class AdtA09Handler {
 	private static final String WAITING_ROOM = "WAITING_ROOM";
 	private static final String PATIENT_CLASS = "P";
 	private static OscarAppointmentDao appointmentDao = (OscarAppointmentDao) SpringUtils.getBean("oscarAppointmentDao");
-	private static DemographicManager demographicManager = SpringUtils.getBean(DemographicManager.class);
+	private static DemographicDao demographicDao = (DemographicDao) SpringUtils.getBean("demographicDao");
 	private static int checkInLateAllowance = Integer.parseInt(OscarProperties.getInstance().getProperty(AdtA09Handler.class.getSimpleName() + ".CHECK_IN_LATE_ALLOWANCE"));
 	private static int checkInEarlyAllowance = Integer.parseInt(OscarProperties.getInstance().getProperty(AdtA09Handler.class.getSimpleName() + ".CHECK_IN_EARLY_ALLOWANCE"));
 
 	public static void handle(LoggedInInfo loggedInInfo, ADT_A09 message) throws HL7Exception {
+		handle(message);
+	}
+	
+	public static void handle(ADT_A09 message) throws HL7Exception {
 		// algorithm
 		// ----------
 		// unparse the hl7 message so we know who's checking in and make sure it's a check in
@@ -68,7 +72,24 @@ public final class AdtA09Handler {
 		// the 2 relavent segments
 		// PID|1||hhhhhhhhhh^^^^^^199704^199903^BC||last_name^first_name^^^^^L||19750607
 		// PV1||P|||||||||^WAITING_ROOM
-
+		
+		// If the desired appointment status is not H then the Room in PV1 will be "WATING_ROOM" followed by 
+		// the desired status code ("P" Picked, or a custom appointment type)
+		// Initialize appointmentStatus as Here
+		String newAppointmentStatus = AppointmentStatus.APPOINTMENT_STATUS_HERE;
+		
+		// get the room
+		String room = message.getPV1().getTemporaryLocation().getRoom().getValue();
+		
+		// check if the room starts with WAITING_ROOM and contains additional characters
+		if (room.startsWith(WAITING_ROOM) && room.length() >= WAITING_ROOM.length())  //NOTE: This conditional can be changed to checkPv1() with some modifications
+		{
+			// get the characters following WAITING_ROOM
+			newAppointmentStatus = room.substring(WAITING_ROOM.length());
+			// Set the room code to WAITING_ROOM
+			message.getPV1().getTemporaryLocation().getRoom().setValue(WAITING_ROOM);
+		}
+		
 		checkPv1(message.getPV1());
 
 		// look for the patient four hours ago and four hours from now
@@ -87,13 +108,14 @@ public final class AdtA09Handler {
 		// if the chart number exists then use the chart number, otherwise match demographic record.
 		String chartNo = getChartNo(message);
 		if (chartNo != null) {
-			switchMatchingAppointment(loggedInInfo, chartNo, appointments);
+			switchMatchingAppointment(chartNo, appointments, newAppointmentStatus);
 		} else {
 			Demographic demographic = DataTypeUtils.parsePid(message.getPID());
-			switchMatchingAppointment(loggedInInfo, demographic, appointments);
+			switchMatchingAppointment(demographic, appointments, newAppointmentStatus);
 		}
 
 	}
+
 
 	private static String getChartNo(ADT_A09 message) throws HL7Exception {
 		PID pid = message.getPID();
@@ -105,7 +127,7 @@ public final class AdtA09Handler {
 		}
 	}
 
-	private static void switchMatchingAppointment(LoggedInInfo loggedInInfo, Demographic demographic, List<Appointment> appointments) {
+	private static void switchMatchingAppointment(Demographic demographic, List<Appointment> appointments, String newStatus) {
 		// look through all appointments for matching demographic
 		// set the here flag on matching
 		// of not match throw exception.
@@ -115,8 +137,8 @@ public final class AdtA09Handler {
 
 			if (!isValidAppointmentStatusForMatch(appointment)) continue;
 
-			if (demographicMatches(loggedInInfo, appointment, demographic)) {
-				switchAppointmentStatus(appointment);
+			if (demographicMatches(appointment, demographic)) {
+				switchAppointmentStatus(appointment, newStatus);
 				return;
 			}
 		}
@@ -124,7 +146,7 @@ public final class AdtA09Handler {
 		throw (new IllegalStateException("Some one checking in who has no appointment."));
 	}
 
-	private static void switchMatchingAppointment(LoggedInInfo loggedInInfo, String chartNo, List<Appointment> appointments) {
+	private static void switchMatchingAppointment(String chartNo, List<Appointment> appointments, String newStatus) {
 		// look through all appointments for matching demographic
 		// set the here flag on matching
 		// of not match throw exception.
@@ -134,8 +156,8 @@ public final class AdtA09Handler {
 
 			if (!isValidAppointmentStatusForMatch(appointment)) continue;
 
-			if (chartNoMatches(loggedInInfo, appointment, chartNo)) {
-				switchAppointmentStatus(appointment);
+			if (chartNoMatches(appointment, chartNo)) {
+				switchAppointmentStatus(appointment, newStatus);
 				return;
 			}
 		}
@@ -148,6 +170,7 @@ public final class AdtA09Handler {
 		else if ("N".equals(appointment.getStatus())) return (false);
 		else if ("C".equals(appointment.getStatus())) return (false);
 		else if ("B".equals(appointment.getStatus())) return (false);
+		else if ("P".equals(appointment.getStatus())) return (false);
 
 		return (true);
 	}
@@ -163,8 +186,8 @@ public final class AdtA09Handler {
 		if (!WAITING_ROOM.equals(room)) throw (new UnsupportedOperationException("PV1 doesn't match expectations : room=" + room));
 	}
 
-	private static boolean chartNoMatches(LoggedInInfo loggedInInfo, Appointment appointment, String chartNo) {
-		Demographic appointmentDemographic = demographicManager.getDemographic(loggedInInfo, appointment.getDemographicNo());
+	private static boolean chartNoMatches(Appointment appointment, String chartNo) {
+		Demographic appointmentDemographic = demographicDao.getDemographicById(appointment.getDemographicNo());
 
 		if (appointmentDemographic == null) {
 			logger.debug("appointmentDemographic was null, appointment_no=" + appointment.getId());
@@ -174,8 +197,8 @@ public final class AdtA09Handler {
 		return (chartNo.equals(appointmentDemographic.getChartNo()));
 	}
 
-	private static boolean demographicMatches(LoggedInInfo loggedInInfo, Appointment appointment, Demographic demographic) {
-		Demographic appointmentDemographic = demographicManager.getDemographic(appointment.getDemographicNo());
+	private static boolean demographicMatches(Appointment appointment, Demographic demographic) {
+		Demographic appointmentDemographic = demographicDao.getDemographicById(appointment.getDemographicNo());
 		return (demographicMatches(appointmentDemographic, demographic));
 	}
 
@@ -244,8 +267,9 @@ public final class AdtA09Handler {
 		return (true);
 	}
 
-	private static void switchAppointmentStatus(Appointment appointment) {
-		appointment.setStatus(AppointmentStatus.APPOINTMENT_STATUS_HERE);
+	private static void switchAppointmentStatus(Appointment appointment, String newStatus) {
+		
+		appointment.setStatus(newStatus);
 		appointmentDao.merge(appointment);
 	}
 }
