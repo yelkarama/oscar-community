@@ -472,6 +472,7 @@ public class JdbcBillingRAImpl {
 			for (RaDetail r : dao.findByRaHeaderNoAndProviderOhipNo(ConversionUtils.fromIntString(id), providerOhipNo)) {
 				String account = "" + r.getBillingNo();
 				String location = "";
+				String payProgram = "";
 				String demo_name = "";
 				String localServiceDate = "";
 				String demo_hin = r.getHin() != null ? r.getHin() : "";
@@ -495,6 +496,7 @@ public class JdbcBillingRAImpl {
 						demo_name = "";
 					}
 					location = b.getVisitType();
+					payProgram = b.getPayProgram();
 					localServiceDate = ConversionUtils.toDateString(b.getBillingDate());
 				}
 
@@ -525,6 +527,7 @@ public class JdbcBillingRAImpl {
 				prop.setProperty("amountsubmit", amountsubmit);
 				prop.setProperty("amountpay", amountpay);
 				prop.setProperty("location", location);
+				prop.setProperty("payProgram", payProgram);
 				prop.setProperty("localServiceDate", localServiceDate);
 				prop.setProperty("account", account);
 				prop.setProperty("demo_name", demo_name);

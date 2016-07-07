@@ -58,7 +58,7 @@
 		<logic:iterate id="provBreakDown" name="raSummary" property="providerBreakDown">
 			<tr>
 			<logic:present name="provBreakDown" property="providerName">
-				<td rowspan="4">
+				<td rowspan="5">
 					<a href="onGenRAProvider.jsp?proNo=<bean:write name="provBreakDown" property="pohipno"/>&submit=Generate&rano=<bean:write name="raNo"/>">
 						<bean:write name="provBreakDown" property="providerName" />
 					</a>
@@ -98,6 +98,10 @@
 			<tr>
 				<td colspan="2" class="faded">CO</td>
 				<td class="math faded">$<bean:write name="provBreakDown" property="coPay" /></td>
+			</tr>
+			<tr>
+				<td colspan="2" class="faded">RMB</td>
+				<td class="math faded">$<bean:write name="provBreakDown" property="RMBPay" /></td>
 			</tr>
 			</logic:present>
 		</logic:iterate>

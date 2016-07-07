@@ -190,6 +190,7 @@ public class RASummaryAction extends Action {
 		BigDecimal raClinicTotal = new BigDecimal(0.).setScale(2, BigDecimal.ROUND_HALF_UP); //RA clinic pay
 		BigDecimal raOTotal = new BigDecimal(0.).setScale(2, BigDecimal.ROUND_HALF_UP); //RA other pay
 		BigDecimal raLTotal = new BigDecimal(0.).setScale(2, BigDecimal.ROUND_HALF_UP); //RA local pay
+		BigDecimal raRTotal = new BigDecimal(0.).setScale(2, BigDecimal.ROUND_HALF_UP); //RA RMB pay
 		
 		List provList = billingRAPrep.getProviderListFromRAReport(raNo);
 		
@@ -207,6 +208,7 @@ public class RASummaryAction extends Action {
 			BigDecimal ProvClinicTotal = new BigDecimal(0.).setScale(2, BigDecimal.ROUND_HALF_UP); //provider clinic pay
 			BigDecimal ProvOTotal = new BigDecimal(0.).setScale(2, BigDecimal.ROUND_HALF_UP); //provider other pay
 			BigDecimal ProvLTotal = new BigDecimal(0.).setScale(2, BigDecimal.ROUND_HALF_UP); //provider local pay
+			BigDecimal ProvRTotal = new BigDecimal(0.).setScale(2, BigDecimal.ROUND_HALF_UP); //provider RMB pay
 
 			for (int j = 0; j < provDetails.size(); j++) {
 				Properties provProp = (Properties) provDetails.get(j);
@@ -224,6 +226,7 @@ public class RASummaryAction extends Action {
 				String location = provProp.getProperty("location");
 				String localServiceDate = provProp.getProperty("localServiceDate");
 				String account = provProp.getProperty("account");
+				String payProgram = provProp.getProperty("payProgram");
 				
 				double dCFee = Double.parseDouble(amountsubmit);
 				BigDecimal bdCFee = new BigDecimal(dCFee).setScale(2, BigDecimal.ROUND_HALF_UP);
@@ -285,6 +288,12 @@ public class RASummaryAction extends Action {
 						ProvOTotal = ProvOTotal.add(bdOFee);
 					}
 				}
+				
+				if(payProgram.equals("RMB")){
+					double dRMB = Double.parseDouble(amountpay);
+					BigDecimal bdRMB = new BigDecimal(dRMB).setScale(2, BigDecimal.ROUND_HALF_UP);
+					ProvRTotal = ProvRTotal.add(bdRMB);
+				}
 			}
 
 			ProvLTotal = ProvLTotal.add(ProvClinicTotal);
@@ -303,6 +312,7 @@ public class RASummaryAction extends Action {
 			provRASummary.setProperty("obPay", ProvOBTotal.toString());
 			provRASummary.setProperty("coPay", ProvCOTotal.toString());
 			provRASummary.setProperty("otherPay", ProvOTotal.toString());
+			provRASummary.setProperty("RMBPay", ProvRTotal.toString());
 			raSummary.addToProvBreakDown(provRASummary);
 			
 			raClaimCount += claimCount;
@@ -313,6 +323,7 @@ public class RASummaryAction extends Action {
 			raClinicTotal = raClinicTotal.add(ProvClinicTotal);
 			raOTotal = raOTotal.add(ProvOTotal);
 			raLTotal = raLTotal.add(ProvLTotal);
+			raRTotal = raRTotal.add(ProvRTotal);
 		
 		}
 		
@@ -327,6 +338,7 @@ public class RASummaryAction extends Action {
 		RASubTotal.setProperty("localHospitalPay", raLocalHTotal.toString());
 		RASubTotal.setProperty("hospitalPay", raHTotal.toString());
 		RASubTotal.setProperty("otherPay", raOTotal.toString());
+		RASubTotal.setProperty("RMBPay", raRTotal.toString());
 		raSummary.addToProvBreakDown(RASubTotal);
 	}
 }
