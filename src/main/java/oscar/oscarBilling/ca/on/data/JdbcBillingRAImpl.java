@@ -283,6 +283,7 @@ public class JdbcBillingRAImpl {
 
 				if (headerCount.compareTo("8") == 0) {
 					message_txt = message_txt + nextline.substring(3, 73) + "<br>";
+					
 				}
 
 			} // ends with header "H"
