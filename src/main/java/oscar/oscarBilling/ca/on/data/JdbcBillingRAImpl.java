@@ -10,7 +10,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License for more details.
- *
+ *loc
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+//import java.util.Locale;
 
 import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.BillingONCHeader1Dao;
@@ -88,7 +89,6 @@ public class JdbcBillingRAImpl {
 		String servicedate = "", serviceno = "", servicecode = "", amountsubmit = "", amountpay = "", amountpaysign = "", explain = "";
 		String balancefwd = "", abf_ca = "", abf_ad = "", abf_re = "", abf_de = "";
 		String transaction = "", trans_code = "", cheque_indicator = "", trans_date = "", trans_amount = "", trans_message = "";
-		String message_txt = "";
 		String claimno = "";
 		String xml_ra = "";
 
@@ -282,8 +282,8 @@ public class JdbcBillingRAImpl {
 				}
 
 				if (headerCount.compareTo("8") == 0) {
-					message_txt = message_txt + nextline.substring(3, 73) + "<br>";
-					
+					parseAndSaveRAPremiums(input);
+					break;
 				}
 
 			} // ends with header "H"
@@ -565,5 +565,152 @@ public class JdbcBillingRAImpl {
 
 		return true;
 	}
+	
+	public void parseAndSaveRAPremiums(BufferedReader input) {
+        StringBuilder msgText = new StringBuilder();
+        
+		String nextline;                       
+		while ((nextline=input.readLine())!=null){
+			
+			if (nextline.startsWith("HR8")) {                                                                                        
+					msgText = msgText.append(nextline.substring(3,73)).append("\n");
+			}
+		}
+        
+        StringReader strReader = new StringReader(msgText.toString()); 
+        input = new BufferedReader(strReader);
+            
+        List<String> providerList = new ArrayList<String>();
+        String msgLine = "";   
+        String payDateStr;                   
+        try {
+            while ((msgLine = input.readLine()) != null) {
+
+                if (msgLine.matches("(\\*){70}")){
+
+                    if ((msgLine = input.readLine()) != null && msgLine.trim().equals("PREMIUM PAYMENTS")) {
+
+                        BillingONPremium premium = new BillingONPremium();
+
+                        if ((msgLine = input.readLine()) != null && msgLine.trim().startsWith("FOR PAYMENT:")) {
+
+                            payDateStr = msgLine.substring(12,70).trim();
+                            try {
+                                Date payDate = DateUtils.parseDate(payDateStr, null);
+                                if ((msgLine = input.readLine()) != null && msgLine.trim().startsWith("PROVIDER NUMBER:")) {
+
+                                    String providerOHIPNo = msgLine.substring(16,70).trim();
+                                    providerList.add(providerOHIPNo);
+                                    while ((msgLine = input.readLine()) != null) {
+
+                                        if (msgLine.startsWith("TOTAL ELIGIBLE PREMIUMS")) {
+											
+											String amountPay = msgLine.substring(60,70).trim();
+                                            amountPay = amountPay.substring(1,amountPay.length());
+                                            if(amountPay.indexOf("-") >= 0){
+												amountPay = amountPay.substring(0,amountPay.length()-1);
+												amountPay = "-" + amountPay;	
+											}
+                                            amountPay = amountPay.replace(",","");
+											
+											BillingONPremium premium = new BillingONPremium();
+											premium.setPayDate(payDate);
+											premium.setProviderOHIPNo(providerOHIPNo);
+											premium.setPremiumType("AGE PREMIUM PAYMENT");
+                                            premium.setAmountPay(amountPay);
+                                            premium.setRAHeaderNo(raHeaderNo);
+                                            premium.setCreator(loggedInInfo.getLoggedInProviderNo());
+                                            premium.setCreateDate(new java.util.Date());
+                                            
+                                            //now that all values are filled, we can persist the object to the DB
+                                            this.persist(premium);
+                                        }else if (msgLine.startsWith("TOTAL DISCOUNT")) {
+											
+											String amountPay = msgLine.substring(60,70).trim();
+                                            amountPay = amountPay.substring(1,amountPay.length());
+                                            if(amountPay.indexOf("-") >= 0){
+												amountPay = amountPay.substring(0,amountPay.length()-1);
+												amountPay = "-" + amountPay;	
+											}
+                                            amountPay = amountPay.replace(",","");
+											
+											BillingONPremium premium = new BillingONPremium();
+											premium.setPayDate(payDate);
+											premium.setProviderOHIPNo(providerOHIPNo);
+											premium.setPremiumType("PAYMENT REDUCTION-AUTOMATED PREMIUMS");
+                                            premium.setAmountPay(amountPay);
+                                            premium.setRAHeaderNo(raHeaderNo);
+                                            premium.setCreator(loggedInInfo.getLoggedInProviderNo());
+                                            premium.setCreateDate(new java.util.Date());
+                                            
+                                            //now that all values are filled, we can persist the object to the DB
+                                            this.persist(premium);                                                                                                                                    
+                                            break;
+                                        }
+                                    }
+                                }
+                            }catch ( java.text.ParseException e) {
+                                MiscUtils.getLogger().warn("Cannot parse MOH PayDate",e);
+                            }
+                         }
+                    }else if((msgLine = input.readLine()) != null && msgLine.trim().equals("PHYSICIAN PAYMENT DISCOUNT SUMMARY REPORT")){
+						try {
+							while ((msgLine = input.readLine()) != null) {
+								if ( StringUtils.isNumeric(msgLine.substring(5,11))) {
+									String provNo = msgLine.substring(5,11);
+									boolean isProviderNo = false;
+									for(String str: providerList) {
+										if(str.trim().contains(provNo))
+										   isProviderNo = true;
+									}
+									
+									if(isProviderNo){
+										String amountPay = msgLine.substring(38,51).trim();
+										if(amountPay.indexOf("-") >= 0){
+											amountPay = amountPay.substring(0,amountPay.length()-1);
+											amountPay = "-" + amountPay;	
+										}
+										amountPay = amountPay.replace(",","");
+										
+										BillingONPremium premium = new BillingONPremium();
+										premium.setPayDate(payDate);
+										premium.setProviderOHIPNo(providerOHIPNo);
+										premium.setPremiumType("PAYMENT REDUCTION-OPTED-IN");
+										premium.setAmountPay(amountPay);
+										premium.setRAHeaderNo(raHeaderNo);
+										premium.setCreator(loggedInInfo.getLoggedInProviderNo());
+										premium.setCreateDate(new java.util.Date());
+										
+										//now that all values are filled, we can persist the object to the DB
+										this.persist(premium);
+									}
+									if((msgLine.matches("(-){70}")){
+										break;
+									}
+								}
+							}
+						}catch ( Exception e) {
+							MiscUtils.getLogger().warn("Error parsin opt-ins",e);
+						}
+					}                    
+                }
+            }
+        }
+        catch (java.io.IOException e) {
+            MiscUtils.getLogger().warn("Unexpected error",e);
+        }
+        finally {
+            if (strReader != null)
+                strReader.close();
+            try {
+                if (input != null)
+                    input.close();                
+            }
+            catch (java.io.IOException e) {
+                MiscUtils.getLogger().warn("Unexpected error",e);
+            }
+        }                
+    }
+    
 
 }
