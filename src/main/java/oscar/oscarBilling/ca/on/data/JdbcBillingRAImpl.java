@@ -21,6 +21,8 @@ package oscar.oscarBilling.ca.on.data;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -31,10 +33,14 @@ import java.util.Set;
 //import java.util.Locale;
 
 import org.apache.log4j.Logger;
+import org.apache.commons.lang.StringUtils;
+
 import org.oscarehr.common.dao.BillingONCHeader1Dao;
+import org.oscarehr.common.dao.BillingONPremiumDao;
 import org.oscarehr.common.dao.RaDetailDao;
 import org.oscarehr.common.dao.RaHeaderDao;
 import org.oscarehr.common.model.BillingONCHeader1;
+import org.oscarehr.common.model.BillingONPremium;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.model.RaDetail;
@@ -44,6 +50,7 @@ import org.oscarehr.util.SpringUtils;
 
 import oscar.util.ConversionUtils;
 import oscar.util.UtilDateUtilities;
+import oscar.util.DateUtils;
 
 public class JdbcBillingRAImpl {
 	private static final Logger _logger = Logger.getLogger(JdbcBillingRAImpl.class);
@@ -83,7 +90,7 @@ public class JdbcBillingRAImpl {
 		return retval;
 	}
 
-	public boolean importRAFile(String filePathName) throws Exception {
+	public boolean importRAFile(String filePathName, String loggedInProviderNo) throws Exception {
 		String filename = "", header = "", headerCount = "", total = "", paymentdate = "", payable = "", totalStatus = "";
 		String providerno = "", account = "", newhin = "", hin = "", ver = "", billtype = "";
 		String servicedate = "", serviceno = "", servicecode = "", amountsubmit = "", amountpay = "", amountpaysign = "", explain = "";
@@ -282,7 +289,7 @@ public class JdbcBillingRAImpl {
 				}
 
 				if (headerCount.compareTo("8") == 0) {
-					parseAndSaveRAPremiums(input);
+					parseAndSaveRAPremiums(input, Integer.parseInt(raNo), loggedInProviderNo);
 					break;
 				}
 
@@ -566,15 +573,21 @@ public class JdbcBillingRAImpl {
 		return true;
 	}
 	
-	public void parseAndSaveRAPremiums(BufferedReader input) {
+	public void parseAndSaveRAPremiums(BufferedReader input, int raHeaderNo, String loggedInProviderNo) {
         StringBuilder msgText = new StringBuilder();
+        BillingONPremiumDao billingONPremiumDao = SpringUtils.getBean(BillingONPremiumDao.class);
         
-		String nextline;                       
-		while ((nextline=input.readLine())!=null){
-			
-			if (nextline.startsWith("HR8")) {                                                                                        
-					msgText = msgText.append(nextline.substring(3,73)).append("\n");
+		String nextline;
+		try{                    
+			while ((nextline=input.readLine())!=null){
+				
+				if (nextline.startsWith("HR8")) {                                                                                        
+						msgText = msgText.append(nextline.substring(3,73)).append("\n");
+				}
 			}
+		}
+		catch(IOException ioe){
+			_logger.error("unable to parse premiums", ioe);
 		}
         
         StringReader strReader = new StringReader(msgText.toString()); 
@@ -582,7 +595,8 @@ public class JdbcBillingRAImpl {
             
         List<String> providerList = new ArrayList<String>();
         String msgLine = "";   
-        String payDateStr;                   
+        String payDateStr;   
+        Date payDate = new Date();                
         try {
             while ((msgLine = input.readLine()) != null) {
 
@@ -590,13 +604,11 @@ public class JdbcBillingRAImpl {
 
                     if ((msgLine = input.readLine()) != null && msgLine.trim().equals("PREMIUM PAYMENTS")) {
 
-                        BillingONPremium premium = new BillingONPremium();
-
                         if ((msgLine = input.readLine()) != null && msgLine.trim().startsWith("FOR PAYMENT:")) {
 
                             payDateStr = msgLine.substring(12,70).trim();
                             try {
-                                Date payDate = DateUtils.parseDate(payDateStr, null);
+                                payDate = DateUtils.parseDate(payDateStr, null);
                                 if ((msgLine = input.readLine()) != null && msgLine.trim().startsWith("PROVIDER NUMBER:")) {
 
                                     String providerOHIPNo = msgLine.substring(16,70).trim();
@@ -619,11 +631,11 @@ public class JdbcBillingRAImpl {
 											premium.setPremiumType("AGE PREMIUM PAYMENT");
                                             premium.setAmountPay(amountPay);
                                             premium.setRAHeaderNo(raHeaderNo);
-                                            premium.setCreator(loggedInInfo.getLoggedInProviderNo());
+                                            premium.setCreator(loggedInProviderNo);
                                             premium.setCreateDate(new java.util.Date());
                                             
                                             //now that all values are filled, we can persist the object to the DB
-                                            this.persist(premium);
+                                            billingONPremiumDao.persist(premium);
                                         }else if (msgLine.startsWith("TOTAL DISCOUNT")) {
 											
 											String amountPay = msgLine.substring(60,70).trim();
@@ -640,11 +652,11 @@ public class JdbcBillingRAImpl {
 											premium.setPremiumType("PAYMENT REDUCTION-AUTOMATED PREMIUMS");
                                             premium.setAmountPay(amountPay);
                                             premium.setRAHeaderNo(raHeaderNo);
-                                            premium.setCreator(loggedInInfo.getLoggedInProviderNo());
+                                            premium.setCreator(loggedInProviderNo);
                                             premium.setCreateDate(new java.util.Date());
                                             
                                             //now that all values are filled, we can persist the object to the DB
-                                            this.persist(premium);                                                                                                                                    
+                                            billingONPremiumDao.persist(premium);                                                                                                                                    
                                             break;
                                         }
                                     }
@@ -658,13 +670,13 @@ public class JdbcBillingRAImpl {
 							while ((msgLine = input.readLine()) != null) {
 								if ( StringUtils.isNumeric(msgLine.substring(5,11))) {
 									String provNo = msgLine.substring(5,11);
-									boolean isProviderNo = false;
+									String providerOHIPNo = "";
 									for(String str: providerList) {
 										if(str.trim().contains(provNo))
-										   isProviderNo = true;
+										  providerOHIPNo = str;
 									}
 									
-									if(isProviderNo){
+									if(providerOHIPNo.length() > 0){
 										String amountPay = msgLine.substring(38,51).trim();
 										if(amountPay.indexOf("-") >= 0){
 											amountPay = amountPay.substring(0,amountPay.length()-1);
@@ -678,13 +690,13 @@ public class JdbcBillingRAImpl {
 										premium.setPremiumType("PAYMENT REDUCTION-OPTED-IN");
 										premium.setAmountPay(amountPay);
 										premium.setRAHeaderNo(raHeaderNo);
-										premium.setCreator(loggedInInfo.getLoggedInProviderNo());
+										premium.setCreator(loggedInProviderNo);
 										premium.setCreateDate(new java.util.Date());
 										
 										//now that all values are filled, we can persist the object to the DB
-										this.persist(premium);
+										billingONPremiumDao.persist(premium);
 									}
-									if((msgLine.matches("(-){70}")){
+									if(msgLine.matches("(-){70}")){
 										break;
 									}
 								}

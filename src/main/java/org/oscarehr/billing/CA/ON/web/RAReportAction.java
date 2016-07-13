@@ -24,9 +24,14 @@
 
 package org.oscarehr.billing.CA.ON.web;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.Properties;
 import java.math.BigDecimal;
 
@@ -34,6 +39,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.log4j.Logger;
 import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
@@ -48,23 +54,26 @@ import org.oscarehr.util.SpringUtils;
 
 import org.oscarehr.common.dao.RaHeaderDao;
 import org.oscarehr.common.model.RaHeader;
-import org.oscarehr.common.model.BillingONPremium;
 import org.oscarehr.common.dao.BillingONPremiumDao;
-import oscar.oscarBilling.ca.on.bean.RaSummaryBean;
-import oscar.oscarBilling.ca.on.pageUtil.BillingRAPrep;
+import org.oscarehr.common.model.BillingONPremium;
+import org.oscarehr.PMmodule.dao.ProviderDao;
+import org.oscarehr.common.model.Provider;
 import oscar.oscarBilling.ca.on.data.JdbcBillingRAImpl;
 import oscar.SxmlMisc;
+import oscar.OscarProperties;
 
 /**
  *
  * @author rjonasz
  */
-public class RASummaryAction extends Action {
+public class RAReportAction extends Action {
     private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
+    private static final Logger _logger = Logger.getLogger(JdbcBillingRAImpl.class);
+    private OscarProperties props = OscarProperties.getInstance();
     
-	RaHeaderDao dao = SpringUtils.getBean(RaHeaderDao.class);
-	
-	private Hashtable map;
+	private RaHeaderDao dao = SpringUtils.getBean(RaHeaderDao.class);
+	private Properties raReport;
+	private RaHeader rh;
     private String raNo;
     
     public ActionForward execute(ActionMapping actionMapping,
@@ -74,148 +83,56 @@ public class RASummaryAction extends Action {
 
     	if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_billing", "r", null)) {
         	throw new SecurityException("missing required security object (_billing)");
-        }
-        String note="", htmlContent="", transaction="", messages="";
+        }        
 		raNo = request.getParameter("rano");
+		raReport = new Properties();
+		rh = dao.find(Integer.parseInt(raNo));
 		
-		//note = request.getParameter("note");
-		String filepath="", filename = "", header="", headerCount="", total="", new_total="",other_total="",local_total="",co_total="", ob_total="", paymentdate="", payable="", totalStatus="", deposit=""; //request.getParameter("filename");
-		String transactiontype="", providerno="", specialty="", account="", patient_last="", patient_first="", provincecode="", newhin="", hin="", ver="", billtype="", location="";
-		String servicedate="", serviceno="", servicecode="", amountsubmit="", amountpay="", amountpaysign="", explain="", error="";
-		String proFirst="", proLast="", demoFirst="", demoLast="", apptDate="", apptTime="", checkAccount="", strcount="", strtCount="";
-		String balancefwd="",abf_ca="", abf_ad="",abf_re="",abf_de="";
-		String trans_code="",cheque_indicator="", trans_date="",trans_amount="", trans_message="";
-		String message="", message_txt="";
-		String xml_ra="", HTMLtransaction="";
-		int accountno=0, totalsum=0, txFlag=0, recFlag=0, flag=0, payFlag=0, count = 0, tCount=0, amountPaySum=0, amountSubmitSum=0;
-
-		RaHeader rh = dao.find(Integer.parseInt(raNo));
+		String message_txt="";
+		String filepath="";
+		String filename = "";
+		String new_total = "";
+		String HTMLtransaction = "";
+		String balanceFwd = "";
+		
 		if(rh != null && !rh.getStatus().equals("D")) {
-			filename=rh.getFilename();
-			HTMLtransaction= SxmlMisc.getXmlContent(rh.getContent(),"<xml_transaction>","</xml_transaction>");
-			htmlContent= SxmlMisc.getXmlContent(rh.getContent(),"<xml_balancefwd>","</xml_balancefwd>");
+			filename =rh.getFilename();
+			HTMLtransaction = SxmlMisc.getXmlContent(rh.getContent(),"<xml_transaction>","</xml_transaction>");
+			balanceFwd = SxmlMisc.getXmlContent(rh.getContent(),"<xml_balancefwd>","</xml_balancefwd>");
 			new_total = SxmlMisc.getXmlContent(rh.getContent(),"<xml_total>","</xml_total>");
-			local_total= SxmlMisc.getXmlContent(rh.getContent(),"<xml_local>","</xml_local>");
-			other_total= SxmlMisc.getXmlContent(rh.getContent(),"<xml_other_total>","</xml_other_total>");
-			ob_total= SxmlMisc.getXmlContent(rh.getContent(),"<xml_ob_total>","</xml_ob_total>");
-			co_total= SxmlMisc.getXmlContent(rh.getContent(),"<xml_co_total>","</xml_co_total>");
 		}
 
-		filepath = oscarVariables.getProperty("DOCUMENT_DIR").trim();
-		FileInputStream file = new FileInputStream(filepath + filename);
-		InputStreamReader reader = new InputStreamReader(file);
-		BufferedReader input = new BufferedReader(reader);
-		String nextline;
-		while ((nextline=input.readLine())!=null){
-			header = nextline.substring(0,1);
-			if (header.compareTo("H") == 0) { 
-				headerCount = nextline.substring(2,3);
-
-				if (headerCount.compareTo("1") == 0){
-					paymentdate = nextline.substring(21,29);
-					payable = nextline.substring(29,59);
-					total = nextline.substring(59,68);
-					totalStatus = nextline.substring(68,69);
-					deposit = nextline.substring(69,77);
-
-					totalsum = Integer.parseInt(total);
-					if (totalsum == 0){ 
-						total = "0.00"; 
-					}else{
-						total = String.valueOf(totalsum);
-						total = total.substring(0, total.length()-2) + "." + total.substring(total.length()-2) + totalStatus;      
-					}
-				}
-
-				if (headerCount.compareTo("6") == 0){
-					// balancefwd = "<table width='100%' border='0' cellspacing='0' cellpadding='0'><tr><td colspan='4'>Balance Forward Record - Amount Brought Forward (ABF)</td></tr><tr><td>Claims Adjustment</td><td>Advances</td><td>Reductions</td><td>Deductions</td></tr><tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr></table>";
-					abf_ca = nextline.substring(3,10)+"."+nextline.substring(10,13);
-					abf_ad = nextline.substring(13,20)+"."+nextline.substring(20,23);
-					abf_re = nextline.substring(23,30)+"."+nextline.substring(30,33);
-					abf_de = nextline.substring(33,40)+"."+nextline.substring(40,43);
-				}
-
-
-				if (headerCount.compareTo("7") == 0){
-					trans_code = nextline.substring(3,5);
-					if (trans_code.compareTo("10")==0) trans_code="Advance";
-					if (trans_code.compareTo("20")==0) trans_code="Reduction";
-					if (trans_code.compareTo("30")==0) trans_code="Unused";
-					if (trans_code.compareTo("40")==0) trans_code="Advance repayment";
-					if (trans_code.compareTo("50")==0) trans_code="Accounting adjustment";
-					if (trans_code.compareTo("70")==0) trans_code="Attachments";
-					cheque_indicator = nextline.substring(5,6);
-					if (cheque_indicator.compareTo("M")==0) cheque_indicator="Manual Cheque issued";
-					if (cheque_indicator.compareTo("C")==0) cheque_indicator="Computer Cheque issued";
-					if (cheque_indicator.compareTo("I")==0) cheque_indicator="Interim payment Cheque/Direct Bank Deposit issued";
-					if (cheque_indicator.compareTo(" ")==0 || cheque_indicator.compareTo("N")==0) cheque_indicator="No Cheque issued";
-					trans_date = nextline.substring(6,14);
-					trans_amount= nextline.substring(14,20)+"."+nextline.substring(20,23);
-					trans_message = nextline.substring(23,73);
-
-					transaction = transaction + "<tr><td width='14%'>"+trans_code+"</td><td width='12%'>"+trans_date+"</td><td width='17%'>"+cheque_indicator+"</td><td width='13%'>"+trans_amount+"</td><td width='44%'>"+trans_message+"</td></tr>";
-				} 
-
-				if (headerCount.compareTo("4") == 0){
-					count = count + 1;
-				}
-
-				if (headerCount.compareTo("5") == 0){
-					tCount = tCount +1;
-				}
-
+		filepath = props.getProperty("DOCUMENT_DIR").trim();
+		try{
+			FileInputStream file = new FileInputStream(filepath + filename);
+			InputStreamReader reader = new InputStreamReader(file);
+			BufferedReader input = new BufferedReader(reader);
+			
+			String nextline;
+			String header ="";
+			String headerCount ="";
+			
+			while ((nextline=input.readLine())!=null){
+				header = nextline.substring(0,1);
+				if (header.compareTo("H") == 0)
+					headerCount = nextline.substring(2, 3);
+					
 				if (headerCount.compareTo("8") == 0){
 					message_txt = message_txt + nextline.substring(3,73)+"\r\n";                       
 				}
 			}
+			
+			file.close();
+			reader.close();
+			input.close();
+		}catch(FileNotFoundException fnfe){
+			_logger.error("File " + filepath + filename + " not found: " + fnfe);
+		}catch(IOException ioe){
+			_logger.error("Error reading " + filepath + filename + ": " + ioe);
 		}
-
-		if (transaction.compareTo("") != 0){
-			transaction = "<xml_transaction><table width='100%' border='0' cellspacing='0' cellpadding='0'><tr><td colspan='5'>Accounting Transaction Record</td></tr><tr><td width='14%'>Transaction</td><td width='12%'>Transaction Date</td><td width='17%'>Cheque Issued</td><td width='13%'>Amount</td><td width='44%'>Message</td></tr>"+ transaction + "</table></xml_transaction>";
-		}
-
-		balancefwd = "<xml_balancefwd><table width='100%' border='0' cellspacing='0' cellpadding='0'><tr><td colspan='4'>Balance Forward Record - Amount Brought Forward (ABF)</td></tr><tr><td>Claims Adjustment</td><td>Advances</td><td>Reductions</td><td>Deductions</td></tr><tr><td>"+abf_ca+"</td><td>"+abf_ad+"</td><td>"+abf_re+"</td><td>"+abf_de+"</td></tr></table></xml_balancefwd>";
-
-		xml_ra = transaction + balancefwd +"<xml_local>" + local_total + "</xml_local>" +"<xml_cheque>"+total+"</xml_cheque>" + "<xml_total>"+new_total+"</xml_total>" + "<xml_other_total>"+other_total+"</xml_other_total>" + "<xml_ob_total>"+ob_total+"</xml_ob_total>" +
-		"<xml_co_total>"+co_total+"</xml_co_total>";	 
-
-		int rowsAffected1 = 0;
-
-		for(RaHeader r:dao.findByFilenamePaymentDate(filename, paymentdate)) {
-				r.setTotalAmount(total);
-				r.setRecords(String.valueOf(count));
-				r.setClaims(String.valueOf(tCount));
-				r.setContent(xml_ra);
-				dao.merge(r);
-				rowsAffected1++;
-			}
-
-		rh = dao.find(Integer.parseInt(raNo));
-		if(rh != null && !rh.getStatus().equals("D")) {
-			filename=rh.getFilename();
-			HTMLtransaction= SxmlMisc.getXmlContent(rh.getContent(),"<xml_transaction>","</xml_transaction>");
-			htmlContent= SxmlMisc.getXmlContent(rh.getContent(),"<xml_balancefwd>","</xml_balancefwd>");
-			new_total = SxmlMisc.getXmlContent(rh.getContent(),"<xml_total>","</xml_total>");
-			other_total= SxmlMisc.getXmlContent(rh.getContent(),"<xml_other_total>","</xml_other_total>");
-			local_total= SxmlMisc.getXmlContent(rh.getContent(),"<xml_local>","</xml_local>");
-			ob_total= SxmlMisc.getXmlContent(rh.getContent(),"<xml_ob_total>","</xml_ob_total>");
-			co_total= SxmlMisc.getXmlContent(rh.getContent(),"<xml_co_total>","</xml_co_total>");
-		}
-
-		file.close();
-		reader.close();
-		input.close();
-		
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		Integer raHeaderNo = Integer.parseInt(raNo);
 		
 		BillingONPremiumDao bPremiumDao = (BillingONPremiumDao) SpringUtils.getBean("billingONPremiumDao");
-		List<BillingONPremium> bPremiumList = bPremiumDao.getRAPremiumsByRaHeaderNo(raHeaderNo);
-		if (bPremiumList.isEmpty()) {
-			bPremiumDao.parseAndSaveRAPremiums(loggedInInfo, raHeaderNo, request.getLocale());
-			bPremiumList = bPremiumDao.getRAPremiumsByRaHeaderNo(raHeaderNo);
-		}
-		
+		List<BillingONPremium> bPremiumList = bPremiumDao.getRAPremiumsByRaHeaderNo(Integer.parseInt(raNo));
 				
 		if (!bPremiumList.isEmpty()) {
 			for (BillingONPremium premium : bPremiumList) {  
@@ -238,7 +155,9 @@ public class RASummaryAction extends Action {
 				}
                         
 			}
-                        
 		}
 		
+		ActionForward fwd = actionMapping.findForward("success");
+		return fwd;
+	}
 }
