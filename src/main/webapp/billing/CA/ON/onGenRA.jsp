@@ -39,6 +39,7 @@
 <%@ page import="java.io.*, java.sql.*, oscar.*, oscar.util.*, java.util.*" errorPage="errorpage.jsp"%>
 <%@ page import="oscar.oscarBilling.ca.on.pageUtil.*"%>
 <%@ page import="oscar.oscarBilling.ca.on.data.*"%>
+<%@ page import="org.oscarehr.util.LoggedInInfo"%>
 <jsp:useBean id="documentBean" class="oscar.DocumentBean" scope="request" />
 
 <%
@@ -164,7 +165,7 @@ for(int i = 0; i < aL.size(); i++) {
 			target="_blank">Error</a> | <a
 			href="../billing/CA/ON/RASummary.do?rano=<%=raNo%>"
 			target="_blank">Summary</a>| <a
-			href="../billing/CA/ON/RAReportAction.do?rano=<%=raNo%>" target="_blank">Report
+			href="../billing/CA/ON/RAReport.do?rano=<%=raNo%>" target="_blank">Report
 		</a></td>
 		<td><%=status.compareTo("N")==0?"<a href=# onClick=\"checkReconcile('../billing/CA/ON/onGenRAsettle.jsp?rano=" + raNo +"')\">Settle</a> <a href=# onClick=\"checkReconcile('../billing/CA/ON/onGenRAsettle35.jsp?rano=" + raNo +"')\">S35</a>" : status.compareTo("S")==0?" <a href=# onClick=\"checkReconcile('../billing/CA/ON/onGenRAsettle35.jsp?rano=" + raNo +"')\">S35</a>":"Processed"%></td>
 	</tr>

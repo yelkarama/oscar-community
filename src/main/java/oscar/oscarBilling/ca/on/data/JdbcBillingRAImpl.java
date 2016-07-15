@@ -33,12 +33,12 @@ import java.util.Set;
 //import java.util.Locale;
 
 import org.apache.log4j.Logger;
-import org.apache.commons.lang.StringUtils;
 
 import org.oscarehr.common.dao.BillingONCHeader1Dao;
 import org.oscarehr.common.dao.BillingONPremiumDao;
 import org.oscarehr.common.dao.RaDetailDao;
 import org.oscarehr.common.dao.RaHeaderDao;
+import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.model.BillingONCHeader1;
 import org.oscarehr.common.model.BillingONPremium;
 import org.oscarehr.common.model.Demographic;
@@ -55,6 +55,7 @@ import oscar.util.DateUtils;
 public class JdbcBillingRAImpl {
 	private static final Logger _logger = Logger.getLogger(JdbcBillingRAImpl.class);
 
+	private ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 	private RaDetailDao raDetailDao = SpringUtils.getBean(RaDetailDao.class);
 	private RaHeaderDao raHeaderDao = SpringUtils.getBean(RaHeaderDao.class);
 	private BillingONCHeader1Dao cheader1Dao = SpringUtils.getBean(BillingONCHeader1Dao.class);
@@ -577,6 +578,8 @@ public class JdbcBillingRAImpl {
         StringBuilder msgText = new StringBuilder();
         BillingONPremiumDao billingONPremiumDao = SpringUtils.getBean(BillingONPremiumDao.class);
         
+        billingONPremiumDao.getRAPremiumsToInactiveByRaHeaderNo(raHeaderNo);
+        
 		String nextline;
 		try{                    
 			while ((nextline=input.readLine())!=null){
@@ -596,133 +599,141 @@ public class JdbcBillingRAImpl {
         List<String> providerList = new ArrayList<String>();
         String msgLine = "";   
         String payDateStr;   
+        String groupNo = "";
+        String providerOHIPNo = "";
         Date payDate = new Date();                
         try {
             while ((msgLine = input.readLine()) != null) {
-
-                if (msgLine.matches("(\\*){70}")){
-
-                    if ((msgLine = input.readLine()) != null && msgLine.trim().equals("PREMIUM PAYMENTS")) {
-
-                        if ((msgLine = input.readLine()) != null && msgLine.trim().startsWith("FOR PAYMENT:")) {
-
-                            payDateStr = msgLine.substring(12,70).trim();
-                            try {
-                                payDate = DateUtils.parseDate(payDateStr, null);
-                                if ((msgLine = input.readLine()) != null && msgLine.trim().startsWith("PROVIDER NUMBER:")) {
-
-                                    String providerOHIPNo = msgLine.substring(16,70).trim();
-                                    providerList.add(providerOHIPNo);
-                                    while ((msgLine = input.readLine()) != null) {
-
-                                        if (msgLine.startsWith("TOTAL ELIGIBLE PREMIUMS")) {
-											
-											String amountPay = msgLine.substring(60,70).trim();
-                                            amountPay = amountPay.substring(1,amountPay.length());
-                                            if(amountPay.indexOf("-") >= 0){
-												amountPay = amountPay.substring(0,amountPay.length()-1);
-												amountPay = "-" + amountPay;	
-											}
-                                            amountPay = amountPay.replace(",","");
-											
-											BillingONPremium premium = new BillingONPremium();
-											premium.setPayDate(payDate);
-											premium.setProviderOHIPNo(providerOHIPNo);
-											premium.setPremiumType("AGE PREMIUM PAYMENT");
-                                            premium.setAmountPay(amountPay);
-                                            premium.setRAHeaderNo(raHeaderNo);
-                                            premium.setCreator(loggedInProviderNo);
-                                            premium.setCreateDate(new java.util.Date());
-                                            
-                                            //now that all values are filled, we can persist the object to the DB
-                                            billingONPremiumDao.persist(premium);
-                                        }else if (msgLine.startsWith("TOTAL DISCOUNT")) {
-											
-											String amountPay = msgLine.substring(60,70).trim();
-                                            amountPay = amountPay.substring(1,amountPay.length());
-                                            if(amountPay.indexOf("-") >= 0){
-												amountPay = amountPay.substring(0,amountPay.length()-1);
-												amountPay = "-" + amountPay;	
-											}
-                                            amountPay = amountPay.replace(",","");
-											
-											BillingONPremium premium = new BillingONPremium();
-											premium.setPayDate(payDate);
-											premium.setProviderOHIPNo(providerOHIPNo);
-											premium.setPremiumType("PAYMENT REDUCTION-AUTOMATED PREMIUMS");
-                                            premium.setAmountPay(amountPay);
-                                            premium.setRAHeaderNo(raHeaderNo);
-                                            premium.setCreator(loggedInProviderNo);
-                                            premium.setCreateDate(new java.util.Date());
-                                            
-                                            //now that all values are filled, we can persist the object to the DB
-                                            billingONPremiumDao.persist(premium);                                                                                                                                    
-                                            break;
-                                        }
-                                    }
-                                }
-                            }catch ( java.text.ParseException e) {
-                                MiscUtils.getLogger().warn("Cannot parse MOH PayDate",e);
-                            }
-                         }
-                    }else if((msgLine = input.readLine()) != null && msgLine.trim().equals("PHYSICIAN PAYMENT DISCOUNT SUMMARY REPORT")){
-						try {
-							while ((msgLine = input.readLine()) != null) {
-								if ( StringUtils.isNumeric(msgLine.substring(5,11))) {
-									String provNo = msgLine.substring(5,11);
-									String providerOHIPNo = "";
-									for(String str: providerList) {
-										if(str.trim().contains(provNo))
-										  providerOHIPNo = str;
-									}
-									
-									if(providerOHIPNo.length() > 0){
-										String amountPay = msgLine.substring(38,51).trim();
-										if(amountPay.indexOf("-") >= 0){
-											amountPay = amountPay.substring(0,amountPay.length()-1);
-											amountPay = "-" + amountPay;	
-										}
-										amountPay = amountPay.replace(",","");
-										
-										BillingONPremium premium = new BillingONPremium();
-										premium.setPayDate(payDate);
-										premium.setProviderOHIPNo(providerOHIPNo);
-										premium.setPremiumType("PAYMENT REDUCTION-OPTED-IN");
-										premium.setAmountPay(amountPay);
-										premium.setRAHeaderNo(raHeaderNo);
-										premium.setCreator(loggedInProviderNo);
-										premium.setCreateDate(new java.util.Date());
-										
-										//now that all values are filled, we can persist the object to the DB
-										billingONPremiumDao.persist(premium);
-									}
-									if(msgLine.matches("(-){70}")){
-										break;
-									}
+				if (msgLine.trim().startsWith("FOR PAYMENT:")) {
+					payDateStr = msgLine.substring(12,70).trim();       
+					try {
+						payDate = DateUtils.parseDate(payDateStr, null);
+					}catch ( java.text.ParseException e) {
+						MiscUtils.getLogger().warn("Cannot parse MOH PayDate",e);
+					}                     
+				}else if(msgLine.startsWith("GROUP BILLING NUMBER:")){
+					groupNo =  msgLine.substring(16,70).trim();
+				}else if (msgLine.trim().startsWith("PROVIDER NUMBER:")) {
+					providerOHIPNo = msgLine.substring(16,70).trim();
+					providerList.add(providerOHIPNo);
+				}else if (msgLine.startsWith("TOTAL ELIGIBLE PREMIUMS")) {
+							
+					String amountPay = msgLine.substring(60,70).trim();
+					amountPay = amountPay.substring(1,amountPay.length());
+					if(amountPay.indexOf("-") >= 0){
+						amountPay = amountPay.substring(0,amountPay.length()-1);
+						amountPay = "-" + amountPay;	
+					}
+					amountPay = amountPay.replace(",","");
+					
+					BillingONPremium premium = new BillingONPremium();
+					premium.setPayDate(payDate);
+					premium.setProviderOHIPNo(providerOHIPNo);
+					premium.setPremiumType("AGE PREMIUM PAYMENT");
+					premium.setAmountPay(amountPay);
+					premium.setStatus(true);
+					premium.setRAHeaderNo(raHeaderNo);
+					premium.setCreator(loggedInProviderNo);
+					premium.setCreateDate(new java.util.Date());
+					
+					List<Provider> provMatches = providerDao.getBillableProvidersByOHIPNo(providerOHIPNo);
+					if(provMatches != null && !provMatches.isEmpty()){
+						Provider prov = provMatches.get(0);
+						premium.setProviderNo(prov.getProviderNo());
+					}
+					
+					//now that all values are filled, we can persist the object to the DB
+					billingONPremiumDao.persist(premium);
+				}else if (msgLine.startsWith("TOTAL DISCOUNT")) {							
+					String amountPay = msgLine.substring(60,70).trim();
+					amountPay = amountPay.substring(1,amountPay.length());
+					if(amountPay.indexOf("-") >= 0){
+						amountPay = amountPay.substring(0,amountPay.length()-1);
+						amountPay = "-" + amountPay;	
+					}
+					amountPay = amountPay.replace(",","");
+					
+					BillingONPremium premium = new BillingONPremium();
+					premium.setPayDate(payDate);
+					premium.setProviderOHIPNo(providerOHIPNo);
+					premium.setPremiumType("PAYMENT REDUCTION-AUTOMATED PREMIUMS");
+					premium.setAmountPay(amountPay);
+					premium.setStatus(true);
+					premium.setRAHeaderNo(raHeaderNo);
+					premium.setCreator(loggedInProviderNo);
+					premium.setCreateDate(new java.util.Date());
+					List<Provider> provMatches = providerDao.getBillableProvidersByOHIPNo(providerOHIPNo);
+					if(provMatches != null && !provMatches.isEmpty()){
+						Provider prov = provMatches.get(0);
+						premium.setProviderNo(prov.getProviderNo());
+					}
+					
+					//now that all values are filled, we can persist the object to the DB
+					billingONPremiumDao.persist(premium);
+				}else if(msgLine.trim().equals("PHYSICIAN PAYMENT DISCOUNT SUMMARY REPORT")){
+					try {
+						while ((msgLine = input.readLine()) != null && !msgLine.matches("-{70}")) {
+							if(msgLine.indexOf("-") > 0){ //check the group number matches that specified above. Leading 0's may have been dropped.
+								String groupNo2 = msgLine.substring(0, msgLine.indexOf("-"));
+								if(groupNo.indexOf(groupNo2) > 0){
+									groupNo = groupNo2;
 								}
 							}
-						}catch ( Exception e) {
-							MiscUtils.getLogger().warn("Error parsin opt-ins",e);
+							if ( msgLine.startsWith(groupNo) && !msgLine.startsWith(groupNo+"-000000")) {
+								String provNo = msgLine.substring(groupNo.length()+1,20).trim();
+								providerOHIPNo = "";
+								for(String str: providerList) {
+									if(str.trim().contains(provNo))
+									  providerOHIPNo = str;
+								}
+								
+								if(!providerOHIPNo.equals("")){
+									String amountPay = msgLine.substring(38,51).trim();
+									if(amountPay.indexOf("-") >= 0){
+										amountPay = amountPay.substring(0,amountPay.length()-1);
+										amountPay = "-" + amountPay;	
+									}
+									amountPay = amountPay.replace(",","");
+					
+									BillingONPremium premium = new BillingONPremium();
+									premium.setPayDate(payDate);
+									premium.setProviderOHIPNo(providerOHIPNo);
+									premium.setPremiumType("PAYMENT REDUCTION-OPTED-IN");
+									premium.setAmountPay(amountPay);
+									premium.setStatus(true);
+									premium.setRAHeaderNo(raHeaderNo);
+									premium.setCreator(loggedInProviderNo);
+									premium.setCreateDate(new java.util.Date());
+									List<Provider> provMatches = providerDao.getBillableProvidersByOHIPNo(providerOHIPNo);
+									if(provMatches != null && !provMatches.isEmpty()){
+										Provider prov = provMatches.get(0);
+										premium.setProviderNo(prov.getProviderNo());
+									}
+									
+									//now that all values are filled, we can persist the object to the DB
+									billingONPremiumDao.persist(premium);
+								}
+							}
 						}
-					}                    
-                }
-            }
-        }
-        catch (java.io.IOException e) {
-            MiscUtils.getLogger().warn("Unexpected error",e);
-        }
-        finally {
-            if (strReader != null)
-                strReader.close();
-            try {
-                if (input != null)
-                    input.close();                
-            }
-            catch (java.io.IOException e) {
-                MiscUtils.getLogger().warn("Unexpected error",e);
-            }
-        }                
-    }
-    
+					}catch ( Exception e) {
+						MiscUtils.getLogger().warn("Error parsing opt-ins",e);
+					}
+				}   
+			}
+		}catch (java.io.IOException e) {
+			MiscUtils.getLogger().warn("Unexpected error",e);
+		}finally {
+			if (strReader != null)
+				strReader.close();
+			try {
+				if (input != null)
+					input.close();                
+			}
+			catch (java.io.IOException e) {
+				MiscUtils.getLogger().warn("Unexpected error",e);
+			}
+		}                
+	}
+		
 
 }

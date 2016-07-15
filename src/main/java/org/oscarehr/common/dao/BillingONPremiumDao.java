@@ -84,4 +84,17 @@ public class BillingONPremiumDao extends AbstractDao<BillingONPremium>{
         List<BillingONPremium> results = query.getResultList();                              
         return results;
     }
+        
+    public void getRAPremiumsToInactiveByRaHeaderNo(Integer raHeaderNo) {
+        String sql = "select bPrem from BillingONPremium bPrem where raHeaderNo=?";
+        Query query = entityManager.createQuery(sql);
+        query.setParameter(1, raHeaderNo);    
+                 
+        @SuppressWarnings("unchecked")
+        List<BillingONPremium> results = query.getResultList();
+        for(int i = 0; i < results.size(); i++){
+			BillingONPremium res = results.get(i);
+			res.setStatus(false);
+		}
+    }
 }
