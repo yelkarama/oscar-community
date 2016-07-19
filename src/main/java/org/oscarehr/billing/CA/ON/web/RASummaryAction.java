@@ -49,7 +49,6 @@ import org.oscarehr.util.SpringUtils;
 import org.oscarehr.common.dao.RaHeaderDao;
 import org.oscarehr.common.model.RaHeader;
 import oscar.oscarBilling.ca.on.bean.RaSummaryBean;
-import oscar.oscarBilling.ca.on.pageUtil.BillingRAPrep;
 import oscar.oscarBilling.ca.on.data.JdbcBillingRAImpl;
 import oscar.SxmlMisc;
 
@@ -175,11 +174,10 @@ public class RASummaryAction extends Action {
 	}
 	
 	private void RASummaryByProvider(RaSummaryBean raSummary){
-		BillingRAPrep billingRAPrep = new BillingRAPrep();
 		JdbcBillingRAImpl dbObj = new JdbcBillingRAImpl();
 		
-		List<String> OBbilling_no = billingRAPrep.getRABillingNo4Code(raNo, obCodes);
-		List<String> CObilling_no = billingRAPrep.getRABillingNo4Code(raNo, colposcopyCodes);
+		List<String> OBbilling_no = dbObj.getRABillingNo4Code(raNo, obCodes);
+		List<String> CObilling_no = dbObj.getRABillingNo4Code(raNo, colposcopyCodes);
 		map = new Hashtable();
 		
 		int raClaimCount = 0;
@@ -192,7 +190,7 @@ public class RASummaryAction extends Action {
 		BigDecimal raLTotal = new BigDecimal(0.).setScale(2, BigDecimal.ROUND_HALF_UP); //RA local pay
 		BigDecimal raRTotal = new BigDecimal(0.).setScale(2, BigDecimal.ROUND_HALF_UP); //RA RMB pay
 		
-		List provList = billingRAPrep.getProviderListFromRAReport(raNo);
+		List provList = dbObj.getProviderListFromRAReport(raNo);
 		
 		for(int i=0; i<provList.size(); i++) {
 			Properties prov = (Properties) provList.get(i);

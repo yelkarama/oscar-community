@@ -75,6 +75,18 @@ public class BillingONPremiumDao extends AbstractDao<BillingONPremium>{
         return results;        
     }
     
+    public List<BillingONPremium> getActiveRAPremiumsByProviderAndRaHeader(String providerNo, Integer raHeaderNo) {
+        String sql = "select bPrem from BillingONPremium bPrem where raHeaderNo=? and status=? and providerNo=?";
+        Query query = entityManager.createQuery(sql); 
+        query.setParameter(1, raHeaderNo);  
+        query.setParameter(2, true);  
+        query.setParameter(3, providerNo);  
+        
+        @SuppressWarnings("unchecked")
+        List<BillingONPremium> results = query.getResultList();                              
+        return results;        
+    }
+    
     public List<BillingONPremium> getRAPremiumsByRaHeaderNo(Integer raHeaderNo) {
         String sql = "select bPrem from BillingONPremium bPrem where raHeaderNo=?";
         Query query = entityManager.createQuery(sql);

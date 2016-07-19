@@ -397,6 +397,7 @@ public class JdbcBillingRAImpl {
 			prop.setProperty("providerohip_no", r.getProviderOhipNo());
 			prop.setProperty("last_name", p.getLastName());
 			prop.setProperty("first_name", p.getFirstName());
+			prop.setProperty("provider_no", p.getProviderNo());
 			ret.add(prop);
 		}
 

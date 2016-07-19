@@ -48,7 +48,7 @@ public class BillingRAPrep {
 		return ret;
 	}
 
-        public List getRAProviderDetails(String raNo, String providerOhipNo, List OBbilling_no, List CObilling_no) {
+    public List getRAProviderDetails(String raNo, String providerOhipNo, List OBbilling_no, List CObilling_no) {
 	   return getRAProviderDetails(raNo, providerOhipNo, OBbilling_no, CObilling_no,null); 
         }
         

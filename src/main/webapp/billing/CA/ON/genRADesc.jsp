@@ -17,138 +17,89 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 --%>
+<%! boolean bMultisites = org.oscarehr.common.IsPropertiesOn.isMultisitesEnable(); %>
+<%@ include file="../../../taglibs.jsp"%>
+<html:html locale="true">
 
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
-<%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
-<%@taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
-
-<%@page import="oscar.util.DateUtils"%>
-<%@page import="org.oscarehr.util.SpringUtils"%>
-<%@page import="org.oscarehr.common.model.Provider,org.oscarehr.PMmodule.dao.ProviderDao"%>
-<%@page import="org.oscarehr.common.model.BillingONPremium, org.oscarehr.common.dao.BillingONPremiumDao"%>
-
-<html>
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
-<title>OSCAR Project</title>
-<link rel="stylesheet" href="../web.css">
-<script LANGUAGE="JavaScript">
-<!--
+<script type="text/javascript" src="<%= request.getContextPath() %>/js/tablefilter_all_min.js"></script>
+<link rel="stylesheet" type="text/css" href="billingON.css" />
+<title>Billing Reconcilliation</title>
+<html:base />
 
-
-
-//-->
-</script>
 </head>
-
-<body onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0">
-<table border="0" cellspacing="0" cellpadding="0" width="100%">
-	<tr bgcolor="#486ebd">
-		<th align="left">
-		<form><input type="button" onclick="window.print()"
-			value="Print"></form>
-		</th>
-		<th align="center"><font face="Helvetica" color="#FFFFFF">
-		Reconcillation Report </font></th>
-		<th align="right">
-		<form><input type="button"
-			onClick="popupPage(700,600,'billingClipboard.jsp')" value="Clipboard"></form>
-		</th>
-	</tr>
-</table>
-
-Cheque amount:
-<%=total%>
-<br>
-<%="Local clinic "%>:
-<%=local_total%>
-<br>
-Other clinic :
-<%=other_total%><br>
-
-OB Total :
-<%=ob_total%><br>
-Colposcopy Total :
-<%=co_total%><br>
-
-<br>
-<br>
-<table bgcolor="#EEEEEE" bordercolor="#666666" border="1">
-	<%=htmlContent%>
-</table>
-<br>
-<table bgcolor="#EEEEFF" bordercolor="#666666" border="1">
-	<%=transaction%>
-</table>
-
-<%
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-    Integer raHeaderNo = Integer.parseInt(raNo);
+<script type="text/javascript" language=javascript>
     
-    BillingONPremiumDao bPremiumDao = (BillingONPremiumDao) SpringUtils.getBean("billingONPremiumDao");
-    List<BillingONPremium> bPremiumList = bPremiumDao.getRAPremiumsByRaHeaderNo(raHeaderNo);
-    if (bPremiumList.isEmpty()) {
-        bPremiumDao.parseAndSaveRAPremiums(loggedInInfo, raHeaderNo, request.getLocale());
-        bPremiumList = bPremiumDao.getRAPremiumsByRaHeaderNo(raHeaderNo);
-    }
-    
-            
-    if (!bPremiumList.isEmpty()) {
-%>
-    <html:form action="/billing/CA/ON/ApplyPractitionerPremium">
-        <input type="hidden" name="rano" value="<%=raNo%>"/>
-        <input type="hidden" name="method" value="applyPremium"/>
-        <h3><bean:message key="oscar.billing.on.genRADesc.premiumTitle"/></h3>
-        <table>
-            <thead>
-                <th style="width:30px;font-family: helvetica; background-color: #486ebd; color:white;"><bean:message key="oscar.billing.on.genRADesc.applyPremium"/></th>
-                <th style="font-family: helvetica; background-color: #486ebd; color:white;"><bean:message key="oscar.billing.on.genRADesc.ohipNo"/></th>
-                <th style="font-family: helvetica; background-color: #486ebd; color:white;"><bean:message key="oscar.billing.on.genRADesc.providerName"/></th>
-                <th style="font-family: helvetica; background-color: #486ebd; color:white;"><bean:message key="oscar.billing.on.genRADesc.totalMonthlyPayment"/></th>
-                <th style="font-family: helvetica; background-color: #486ebd; color:white;"><bean:message key="oscar.billing.on.genRADesc.paymentDate"/></th>
-            </thead>
-    <%
-           
-            for (BillingONPremium premium : bPremiumList) {   
-                Integer premiumId = premium.getId();
-                ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
-                List<Provider> pList = providerDao.getBillableProvidersByOHIPNo(premium.getProviderOHIPNo());  
-                if ((pList != null) && !pList.isEmpty()) {
-                    String isChecked = "";
-                    if (premium.getStatus())
-                         isChecked = "checked";   
-    %>
-            <tr>
-                <td><input name="choosePremium<%=premiumId%>" type="checkbox" value="Y" <%=isChecked%>/>
-                <td><%=premium.getProviderOHIPNo()%></td>
-                <td><select name="providerNo<%=premiumId%>">
-    <%                     
-                    for (Provider p : pList) { 
-                        String selectedChoice = "";
-                        String providerNo = p.getProviderNo();
-                        String premiumProviderNo = premium.getProviderNo();
-                        if (premiumProviderNo != null && providerNo.equals(premiumProviderNo)) {
-                            selectedChoice = "selected=\"selected\"";
-                        }
-     %>
-                        <option value="<%=p.getProviderNo()%>" <%=selectedChoice%>><%=p.getFormattedName()%></option>
-    <%              } %>
-                    </select>
-                </td>
-                <td><%=premium.getAmountPay()%></td>
-                <td><%=DateUtils.formatDate(premium.getPayDate(), request.getLocale())%></td>
-            </tr>
-    <%                 
-                }
-            }        
-    %>
-            <tr>
-                <td colspan="5" style="text-align: right"><input type="submit" value="<bean:message key="oscar.billing.on.genRADesc.submitPremium"/>"/></td>
-            </tr>
-        </table>    
-    </html:form>
-<%      } %><%--  --%>
-<pre><%=message_txt%></pre>
+</script>
+<body topmargin="0" leftmargin="0" vlink="#0000FF" onload="window.focus();">
+<html:errors />
+
+	<table border="0" cellspacing="0" cellpadding="0" width="100%">
+		<tr bgcolor="#486ebd">
+			<th align="left">
+			<form><input type="button" onclick="window.print()"
+				value="Print"></form>
+			</th>
+			<th align="center"><font face="Helvetica" color="#FFFFFF">
+			Reconcillation Report </font></th>
+			<th align="right">
+			<form><input type="button"
+				onClick="popupPage(700,600,'billingClipboard.jsp')" value="Clipboard"></form>
+			</th>
+		</tr>
+	</table>
+	<table id="raReportTable">
+		<tr>
+			<td></td>
+			<logic:iterate id="provider" name="raReport" property="providers">
+				<td><b><bean:write name="provider"/></b></td>
+			</logic:iterate>
+		</tr>
+		<tr>
+			<td>Invoice</td>
+			<logic:iterate id="invoice" name="raReport" property="invoice">
+				<td class="math"><bean:write name="invoice"/></td>
+			</logic:iterate>
+		</tr>
+		<tr>
+			<td>RMB</td>
+			<logic:iterate id="rmb" name="raReport" property="rmb">
+				<td class="math"><bean:write name="rmb"/></td>
+			</logic:iterate>
+		</tr>
+		<tr>
+			<td class="sum">Gross</td>
+			<logic:iterate id="gross" name="raReport" property="gross">
+				<td class="math sum"><bean:write name="gross"/></td>
+			</logic:iterate>
+		</tr>
+		<tr>
+			<td>Automated Premiums</td>
+			<logic:iterate id="automated" name="raReport" property="automated">
+				<td class="math"><bean:write name="automated"/></td>
+			</logic:iterate>
+		</tr>
+		<tr>
+			<td>Opt-In</td>
+			<logic:iterate id="optIn" name="raReport" property="optIn">
+				<td class="math"><bean:write name="optIn"/></td>
+			</logic:iterate>
+		</tr>
+		<tr>
+			<td>Age Premium</td>
+			<logic:iterate id="agePremium" name="raReport" property="agePremium">
+				<td class="math"><bean:write name="agePremium"/></td>
+			</logic:iterate>
+		</tr>
+		<tr>
+			<td class="medsum"><b>Net Total</b></td>
+			<logic:iterate id="net" name="raReport" property="net">
+				<td class="math medsum"><b><bean:write name="net"/></b></td>
+			</logic:iterate>
+		</tr>
+	</table>
+<pre><bean:write name="raReport" property="messageTxt" /></pre>
 
 </body>
-</html>
+</html:html>

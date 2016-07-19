@@ -48,25 +48,25 @@ a:active {
 }
 
 a:link {
-	text-decoration: none;;
-	color: #645FCD;;
+	text-decoration: none;
+	color: #645FCD;
 	font-weight: bold;
 }
 
 a:visited {
-	text-decoration: none;;
+	text-decoration: none;
 	color: #FF5FCD;
 	font-weight: bold
 }
 
-#raSummaryTable{
+#raSummaryTable, #raReportTable{
 	width: 70%;
 	margin:20px 15% 15% 15%;
 	border-spacing: 0px;
 	border-collapse: collapse;
 }
 
-#raSummaryTable th{
+#raSummaryTable th, #raReportTable th{
 	font-weight: bold;
 	border: 1px solid black;
 	border-spacing: 0px;
@@ -75,18 +75,18 @@ a:visited {
 	vertical-align: bottom;
 }
 
-#raSummaryTable td{
+#raSummaryTable td, #raReportTable td{
 	border: 1px solid black;
 	border-spacing: 0px;
 	height:18px;
 	padding: 2px;
 }
 
-#raSummaryTable .math{
+#raSummaryTable .math, #raReportTable .math{
 	text-align: right;
 }
 
-#raSummaryTable .separator{
+#raSummaryTable .separator, #raReportTable .separator{
 	height:50px;
 }
 
@@ -95,19 +95,19 @@ a:visited {
 	background-color: #F2F2F2;
 }
 
-#raSummaryTable .sum{
+#raSummaryTable .sum, #raReportTable .sum{
 	background-color: #BDD7EE !important;
 }
 
-#raSummaryTable .medsum{
+#raSummaryTable .medsum, #raReportTable .medsum{
 	background-color: #B4C6E7 !important;
 }
 
-#raSummaryTable .bigsum{
+#raSummaryTable .bigsum, #raReportTable .bigsum{
 	background-color: #5B9BD5!important;
 }
 
-#raSummaryTable .blackText{
+#raSummaryTable .blackText, #raReportTable .blackText{
 	color: black !important;
 }
 
