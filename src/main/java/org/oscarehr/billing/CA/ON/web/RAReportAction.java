@@ -93,6 +93,7 @@ public class RAReportAction extends Action {
 		
 		String filepath="";
 		String filename = "";
+		String balanceFwd = "";
 		
 		List provList = dbObj.getProviderListFromRAReport(raNo);
 		
@@ -164,7 +165,7 @@ public class RAReportAction extends Action {
 		if(rh != null && !rh.getStatus().equals("D")) {
 			filename =rh.getFilename();
 			//HTMLtransaction = SxmlMisc.getXmlContent(rh.getContent(),"<xml_transaction>","</xml_transaction>");
-			//balanceFwd = SxmlMisc.getXmlContent(rh.getContent(),"<xml_balancefwd>","</xml_balancefwd>");
+			balanceFwd = SxmlMisc.getXmlContent(rh.getContent(),"<xml_balancefwd>","</xml_balancefwd>");
 		}
 		
 		/*
@@ -196,6 +197,40 @@ public class RAReportAction extends Action {
 			
 		}
 		*/
+		
+		List<String> rowsInTable =  SxmlMisc.getAllElementsOfTag(balanceFwd, "<tr>", "</tr>");
+		//only one row to parse here:
+		String row = rowsInTable.get(2);
+		
+		List<String> elementsInRow = SxmlMisc.getAllElementsOfTag(row, "<td>", "</td>");
+		List<BigDecimal> abfAmounts = new ArrayList<BigDecimal>();
+		
+		for(int i=0; i < elementsInRow.size(); i++){
+			String amountString = elementsInRow.get(i);
+			boolean negative = false;
+			
+			if(amountString.indexOf("-") > -1){
+					negative = true;
+					amountString = amountString.substring(0, amountString.length()-1);
+			}
+			
+			double amountd = 0.00;
+			if (amountString.length() > 0){
+				amountd = Double.parseDouble(amountString);			
+				if(negative){
+					amountd = amountd * -1;
+				}
+			}
+			
+			BigDecimal amountbd = new BigDecimal(amountd).setScale(2, BigDecimal.ROUND_HALF_UP);
+			abfAmounts.add(amountbd);
+			raNetTotal = raNetTotal.add(amountbd);
+		}
+		raReport.setClaimsAdjust(abfAmounts.get(0));
+		raReport.setAdvances(abfAmounts.get(1));
+		raReport.setReductions(abfAmounts.get(2));
+		raReport.setDeductions(abfAmounts.get(3));
+		raReport.setRaTotal(raNetTotal);
 		
 		filepath = props.getProperty("DOCUMENT_DIR").trim();
 		try{

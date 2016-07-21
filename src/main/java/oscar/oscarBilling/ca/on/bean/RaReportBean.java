@@ -42,8 +42,13 @@ public class RaReportBean {
 	private List<BigDecimal> net = new ArrayList<BigDecimal>();
 	
 	//private String HTMLtransaction = "";
-	//private String balanceFwd = "";
 	private String messageTxt = "";
+	private BigDecimal claimsAdjust = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);
+	private BigDecimal advances = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);
+	private BigDecimal reductions = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);
+	private BigDecimal deductions = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);
+	
+	private BigDecimal raTotal = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);
 	
 	public RaReportBean() { }
 	
@@ -109,4 +114,29 @@ public class RaReportBean {
 	{	this.messageTxt = messageTxt;	}
 	public void addToMessageTxt(String messageTxt)
 	{	this.messageTxt += messageTxt;	}
+	
+	public BigDecimal getClaimsAdjust()
+	{	return this.claimsAdjust;	}
+	public void setClaimsAdjust(BigDecimal claimsAdjust)
+	{	this.claimsAdjust = claimsAdjust; }
+	
+	public BigDecimal getAdvances()
+	{	return this.claimsAdjust;	}
+	public void setAdvances(BigDecimal advances){
+		this.advances = advances;	}
+		
+	public BigDecimal getReductions()
+	{	return this.reductions;	}
+	public void setReductions(BigDecimal reductions)
+	{	this.reductions = reductions;	}
+		
+	public BigDecimal getDeductions()
+	{	return this.deductions;	}
+	public void setDeductions(BigDecimal deductions)
+	{	this.deductions = deductions; }
+	
+	public BigDecimal getRaTotal()
+	{	return this.raTotal;	}
+	public void setRaTotal(BigDecimal raTotal)
+	{	this.raTotal = raTotal;	}
 }

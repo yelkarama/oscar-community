@@ -131,8 +131,6 @@ public class RASummaryAction extends Action {
 		
 		List<String> elementsInRow = SxmlMisc.getAllElementsOfTag(row, "<td>", "</td>");
 		List<BigDecimal> abfAmounts = new ArrayList<BigDecimal>();
-		
-		MiscUtils.getLogger().info("Balance forward: " + elementsInRow.size());
 
 		for(int i=0; i < elementsInRow.size(); i++){
 			String amountString = elementsInRow.get(i);
