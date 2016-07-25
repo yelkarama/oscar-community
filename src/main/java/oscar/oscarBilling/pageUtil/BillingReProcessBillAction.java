@@ -176,7 +176,7 @@ public class BillingReProcessBillAction extends Action {
         if(b != null) {
         	b.setBillingstatus(billingStatus);
         	b.setDatacenter(dataCenterId);
-        	b.setPayeeNo(billingGroupNo);
+        	b.setPayee_no(billingGroupNo);
         	b.setPractitionerNo(practitionerNo);
         	b.setPhn(hcNo);
         	b.setNameVerify(name_verify);

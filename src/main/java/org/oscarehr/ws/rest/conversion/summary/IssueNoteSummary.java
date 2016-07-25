@@ -48,10 +48,10 @@ public class IssueNoteSummary implements Summary {
 	
     
 	@Autowired
-	protected CaseManagementManager caseManagementMgr;
+	private CaseManagementManager caseManagementMgr;
 	
 	@Autowired
-	protected PreferenceManager preferenceManager;
+	private PreferenceManager preferenceManager;
     
 	//protected static final String ELLIPSES = "...";
 	//protected static final int MAX_LEN_TITLE = 48;
@@ -98,7 +98,7 @@ public class IssueNoteSummary implements Summary {
 	}
 	
 	
-	protected void getSummaryListForIssuedNotes(LoggedInInfo loggedInInfo,Integer demographicNo, List<SummaryItemTo1> list, String[] issueCodes){
+	private void getSummaryListForIssuedNotes(LoggedInInfo loggedInInfo,Integer demographicNo, List<SummaryItemTo1> list, String[] issueCodes){
 		//String[] issueCodes = { "OMeds", "SocHistory", "MedHistory", "Concerns", "Reminders", "FamHistory", "RiskFactors" };
 		
 		List<Issue> issueList = new ArrayList<Issue>();

@@ -75,17 +75,11 @@
     </div>
     
     <div class="row noprint">
-    	<div id="noteInput2" class="center-block well col-md-4 col-md-offset-3 text-center hand-hover" style="padding:0px;" ng-click="toggleNote();" ng-show="!hideNote">
+    	<div id="noteInput2" class="center-block well col-md-4 col-md-offset-3 text-center hand-hover" style="padding:0px;" ng-click="toggleNote();">
     		<span class="glyphicon glyphicon-chevron-up"></span><span class="glyphicon glyphicon-chevron-up"></span><span class="glyphicon glyphicon-chevron-up"></span>
     	</div>
     	<div id="noteInput" class="center-block well col-md-4 col-md-offset-3" ng-show="hideNote" ng-click="checkAction($event)" ng-keypress="checkAction($event)">
-			<div style="position:absolute;top:0px;Right:0px;font-size:10px">
-			<span class="glyphicon glyphicon-arrow-left hand-hover" ng-click="moveNote('l');" title="move left"></span>  			
-			<span class="glyphicon glyphicon-stop hand-hover" ng-click="moveNote('c');" title="center"></span>   
-			<span class="glyphicon glyphicon-arrow-right hand-hover" ng-click="moveNote('r');" title="move right"></span>
-			</div>
 			<div class="col-xs-4">
-			
 			    
 			    <input type="text" ng-model="options.magicVal" placeholder="Template" 
 				typeahead="t.encounterTemplateName as t.encounterTemplateName for t in searchTemplates($viewValue)" 
@@ -103,7 +97,7 @@
 			</div>
     		
     		
-    		<textarea class="form-control input-lg col-lg-4" rows="6" ng-model="page.encounterNote.note" ng-disabled="page.cannotChange" id="noteEditor{{demographicNo}}" ng-change="setEditingNoteFlag()"></textarea>
+    		<textarea class="form-control input-lg col-lg-4" rows="6" ng-model="page.encounterNote.note" ng-disabled="page.cannotChange" id="noteEditor" ng-change="setEditingNoteFlag()"></textarea>
     		
     		<div style="font-size:8pt" ng-if="page.assignedCMIssues != null  && page.assignedCMIssues.length > 0">
 			    <label>Assigned Issues:</label>

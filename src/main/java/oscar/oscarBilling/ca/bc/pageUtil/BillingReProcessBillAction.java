@@ -313,10 +313,7 @@ public class BillingReProcessBillAction extends Action {
         billingmaster.setOinAddress4(oinAddress4);
         billingmaster.setOinPostalcode(oinPostalcode);
         try{
-	        String wcbId = request.getParameter("WCBid");
-	        if(wcbId != null && wcbId.length()>0) {
-	        	billingmaster.setWcbId(Integer.parseInt(wcbId));
-	        }
+        billingmaster.setWcbId(Integer.parseInt(request.getParameter("WCBid")));
         }catch(Exception e){
         	MiscUtils.getLogger().warn("warning",e);
         }

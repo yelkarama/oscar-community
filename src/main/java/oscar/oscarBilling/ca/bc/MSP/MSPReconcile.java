@@ -792,7 +792,6 @@ public class MSPReconcile {
 		BillingmasterDAO dao = SpringUtils.getBean(BillingmasterDAO.class);
 		Billingmaster bm = dao.getBillingmaster(billingNo);
 		if (bm != null) {
-			p = new Properties();
 			try {
 				BeanInfo bi = Introspector.getBeanInfo(bm.getClass());
 				for (PropertyDescriptor pd : bi.getPropertyDescriptors()) {

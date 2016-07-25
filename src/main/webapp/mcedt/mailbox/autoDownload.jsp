@@ -33,19 +33,19 @@
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
-<%@ page import="java.math.BigInteger,java.util.*,org.oscarehr.integration.mcedt.mailbox.DetailDataCustom" %>
+<%@ page import="java.math.BigInteger,java.util.*,org.oscarehr.integration.mcedt.mailbox.DetailDataKai" %>
 
 <%    
 	BigInteger resourceIDBig = (BigInteger)session.getAttribute("resourceID");
 	String resourceID = resourceIDBig.toString();
-	List<DetailDataCustom> resourceList = (ArrayList<DetailDataCustom>)session.getAttribute("resourceList");		
+	List<DetailDataKai> resourceList = (ArrayList<DetailDataKai>)session.getAttribute("resourceList");		
 %>
 
 
 <html:html>
 <head>
 <jsp:include page="head-includes.jsp" />
-	<link href="mailbox/css/mcedt.css" rel="stylesheet" type="text/css">
+	<link href="css/mcedt.css" rel="stylesheet" type="text/css">
     <link href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700,900" rel="stylesheet" type="text/css">
 <style type="text/css">
 /* limits table height */

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
- *    
+ *
  * This software was written for the
  * Department of Family Medicine
  * McMaster University
@@ -83,18 +83,6 @@ public class ActionUtils {
 		messages.add(ActionMessages.GLOBAL_MESSAGE, message);
 		return messages;
 	}
-	
-	static ActionMessages addMoreMessage(ActionMessages messages, String messageId, String... messageParams) {
-		ActionMessage message = null;
-		if (messageParams != null) {
-			message = new ActionMessage(messageId, messageParams);
-		} else {
-			message = new ActionMessage(messageId);
-		}
-		if (messages == null) messages = new ActionMessages();
-		messages.add(ActionMessages.GLOBAL_MESSAGE, message);
-		return messages;
-	}
 
 	static Detail getDetails(HttpServletRequest request) {
 		Detail result = (Detail) request.getSession().getAttribute(McedtConstants.SESSION_KEY_RESOURCE_LIST);
@@ -107,19 +95,6 @@ public class ActionUtils {
 
 	static void removeDetails(HttpServletRequest request) {
 		request.getSession().removeAttribute(McedtConstants.SESSION_KEY_RESOURCE_LIST);
-	}
-	
-	static List<DetailDataCustom> getResourceList(HttpServletRequest request) {
-		List<DetailDataCustom> result = (List<DetailDataCustom>) request.getSession().getAttribute(McedtConstants.SESSION_KEY_CUSTOM_RESOURCE_LIST);
-		return result;
-	}
-
-	static void setResourceList(HttpServletRequest request, List<DetailDataCustom> resourceList) {
-		request.getSession().setAttribute(McedtConstants.SESSION_KEY_CUSTOM_RESOURCE_LIST, resourceList);
-	}
-
-	static void removeResourceList(HttpServletRequest request) {
-		request.getSession().removeAttribute(McedtConstants.SESSION_KEY_CUSTOM_RESOURCE_LIST);
 	}
 
 	static void clearUpdateList(HttpServletRequest request) {
@@ -176,10 +151,6 @@ public class ActionUtils {
 
 	static TypeListResult getTypeList(HttpServletRequest request) {
 		return (TypeListResult) request.getSession().getAttribute(McedtConstants.SESSION_KEY_TYPE_LIST);
-	}
-	
-	static String getServiceId(HttpServletRequest request) {
-		return request.getParameter(McedtConstants.REQUEST_ATTR_KEY_SERVICE_ID);
 	}
 
 	static void setTypeList(HttpServletRequest request, TypeListResult result) {
@@ -443,7 +414,7 @@ public class ActionUtils {
 		return displayResource;
 	}
 	
-	static boolean filterResourceStatus(DetailDataCustom detailData){
+	static boolean filterResourceStatus(DetailDataKai detailData){
 		boolean displayResource = true;
 		
 		switch(detailData.getStatus()){
@@ -463,7 +434,7 @@ public class ActionUtils {
 		return displayResource;
 	}
 	
-	static DetailDataCustom mapDetailData(ResourceForm form, DetailDataCustom detailDataK, DetailData detailData){
+	static DetailDataKai mapDetailData(ResourceForm form, DetailDataKai detailDataK, DetailData detailData){
 		
 		detailDataK.setCreateTimestamp(detailData.getCreateTimestamp());
 		detailDataK.setDescription(detailData.getDescription());
@@ -474,7 +445,6 @@ public class ActionUtils {
 		
 		detailDataK.setResult(detailData.getResult());
 		detailDataK.setStatus(detailData.getStatus());
-		detailDataK.setServiceId(form.getServiceIdSent());
 		return detailDataK;
 	}
 	
@@ -492,35 +462,5 @@ public class ActionUtils {
 			if (checkFile.exists()) FileUtils.forceDelete(checkFile);
 		}
 		FileUtils.copyFileToDirectory(srcFile, destDir, createDestDir);
-	}
-	
-	public static String getServiceId(String filename) {
-		String serviceId;
-		if(isOHIPFile(filename)) {
-			serviceId=filename.substring(2,filename.lastIndexOf("."));
-			if (serviceId.length()==4) {
-				serviceId="0"+serviceId; //for group numbers, it has to be 5 digits
-				return serviceId;
-			}
-			if(serviceId.length()==6) return serviceId;
-		}
-		OscarProperties props = OscarProperties.getInstance();
-		serviceId= props.getProperty("mcedt.service.id");
-		return serviceId;
-	}
-	public static List<String> getServiceIds() {
-		OscarProperties props = OscarProperties.getInstance();
-		String id = props.getProperty("mcedt.service.id");
-		String ids = props.getProperty("mcedt.service.designated.ids");
-		List<String> serviceIds= new ArrayList<String>();
-		serviceIds.addAll(Arrays.asList(ids.trim().split(",")));
-		if (serviceIds.contains(id)) serviceIds.remove(id);
-		if (!serviceIds.contains(id)) serviceIds.add(0, id);
-		return serviceIds;
-	}
-	public static String getDefaultServiceId() {
-		OscarProperties props = OscarProperties.getInstance();
-		String serviceId = props.getProperty("mcedt.service.id");
-		return serviceId;
 	}
 }

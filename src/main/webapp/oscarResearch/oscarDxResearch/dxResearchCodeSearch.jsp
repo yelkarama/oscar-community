@@ -93,11 +93,15 @@ function CodesAttach() {
 
 <table width="600" cellspacing="1">
 	<tr>
-		<td colspan="2"><h3><%=session.getAttribute("codeType").toString().toUpperCase()%> <bean:message key="oscarResearch.oscarDxResearch.dxResearchCodeSearch.msgCodeSearch" /></h3></td>
+		<td class="subject"><%=session.getAttribute("codeType")%></td>
+		<td class="subject"><bean:message
+			key="oscarResearch.oscarDxResearch.dxResearchCodeSearch.msgCodeSearch" /></td>
 	</tr>
 	<tr class="heading">
-		<td width="20%"><bean:message key="oscarResearch.oscarDxResearch.dxResearchCodeSearch.msgCode" /></td>
-		<td width="80%"><bean:message key="oscarResearch.oscarDxResearch.dxResearchCodeSearch.msgDescription" /></td>
+		<td width="12%"><bean:message
+			key="oscarResearch.oscarDxResearch.dxResearchCodeSearch.msgCode" /></td>
+		<td width="88%"><bean:message
+			key="oscarResearch.oscarDxResearch.dxResearchCodeSearch.msgDescription" /></td>
 	</tr>
 
 	<% 
@@ -118,11 +122,11 @@ function CodesAttach() {
         }       
      %>
 		<tr bgcolor="<%=color%>">
-			<td><input type="checkbox" name="searchCodes"
+			<td width="12%"><input type="checkbox" name="searchCodes"
 				value="<bean:write name='code' property='dxSearchCode'/>"
 				<bean:write name='code' property='exactMatch'/> /><bean:write
 				name='code' property='dxSearchCode' /></td>
-			<td><bean:write name='code' property='description' /></td>
+			<td width="88%"><bean:write name='code' property='description' /></td>
 		</tr>
 		<% intCount++; %>
 	</logic:iterate>

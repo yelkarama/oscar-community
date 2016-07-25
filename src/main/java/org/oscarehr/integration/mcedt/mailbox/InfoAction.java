@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
- *    
+ *
  * This software was written for the
  * Department of Family Medicine
  * McMaster University
@@ -23,9 +23,7 @@
  */
 package org.oscarehr.integration.mcedt.mailbox;
 
-import static org.oscarehr.integration.mcedt.mailbox.ActionUtils.getDefaultServiceId;
 import static org.oscarehr.integration.mcedt.mailbox.ActionUtils.getResourceIds;
-import static org.oscarehr.integration.mcedt.mailbox.ActionUtils.getServiceId;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -57,8 +55,6 @@ public class InfoAction extends DispatchAction {
 	@Override
 	public ActionForward unspecified(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		List<BigInteger> resourceIds = getResourceIds(request);
-		String serviceId= getServiceId(request);
-		if (serviceId==null || serviceId.trim().equals("")) serviceId= getDefaultServiceId();
 		
 		try{
 		
@@ -76,7 +72,7 @@ public class InfoAction extends DispatchAction {
 			request.getSession().setAttribute("info", "true");*/
 			//----------
 			
-		EDTDelegate delegate = DelegateFactory.newDelegate(serviceId);
+		EDTDelegate delegate = DelegateFactory.newDelegate();
 		Detail detail = delegate.info(resourceIds);
 		request.setAttribute("detail", detail);				
 		request.getSession().setAttribute("info", "true");
@@ -115,14 +111,12 @@ public class InfoAction extends DispatchAction {
 	}*/		
 	
 	public ActionForward deleteFiles(ActionMapping mapping, ActionForm form, 
-			HttpServletRequest request, HttpServletResponse response) throws Exception {		
-		List<BigInteger> ids = getResourceIds(request);
-		String serviceId= getServiceId(request);
-		if (serviceId==null || serviceId.trim().equals("")) serviceId= getDefaultServiceId();
+			HttpServletRequest request, HttpServletResponse response) {		
+		List<BigInteger> ids = getResourceIds(request);								
 		
 		ResourceResult result = null;
 		try {
-			EDTDelegate delegate = DelegateFactory.newDelegate(serviceId);
+			EDTDelegate delegate = DelegateFactory.newDelegate();
 			result = delegate.delete(ids);
 		} catch (Exception e) {
 			logger.error("Unable to delete", e);
@@ -140,7 +134,7 @@ public class InfoAction extends DispatchAction {
 		saveMessages(request, messages);
 		
 		//get the updated list from mcedt and save to session
-		List<DetailDataCustom> resourceList = getResourceList(request,form);		
+		List<DetailDataKai> resourceList = getResourceList(request,form);		
 		
 		request.getSession().setAttribute("resourceListSent",resourceList );
 		
@@ -148,9 +142,9 @@ public class InfoAction extends DispatchAction {
 	}	
 	
 	
-	private List<DetailDataCustom> getResourceList(HttpServletRequest request, ActionForm form) {
+	private List<DetailDataKai> getResourceList(HttpServletRequest request, ActionForm form) {
 	    Detail result = ActionUtils.getDetails(request);
-	    List<DetailDataCustom> resourceList =new ArrayList<DetailDataCustom>();
+	    List<DetailDataKai> resourceList =new ArrayList<DetailDataKai>();
 	    ResourceForm resourceForm = (ResourceForm)form;	    	        
 	    	    
 	    if (result == null) {
@@ -162,7 +156,7 @@ public class InfoAction extends DispatchAction {
 	    			    	
 		    	BigInteger resultSize = null;
 		    	
-		    	EDTDelegate delegate = DelegateFactory.newDelegate(resourceForm.getServiceIdSent());		    	
+		    	EDTDelegate delegate = DelegateFactory.newDelegate();		    	
 		    	result = delegate.list(resourceType, resourceForm.getStatusAsResourceStatus(), resourceForm.getPageNoAsBigInt());								
 		    	
 		    	if(result!=null)
@@ -178,26 +172,25 @@ public class InfoAction extends DispatchAction {
 					resourceForm.setTypeListResult((TypeListResult)request.getSession().getAttribute("resourceTypeList"));
 				}
 		    	
-				if(result != null && result.getData()!=null  && result.getResultSize() != null){ 
+				if(result.getData()!=null){ 
 									
-					DetailDataCustom detailDataK;
+					DetailDataKai detailDataK;
 					for(DetailData detailData : result.getData()){
 						
 						//add to list if only of certain status
 						//if(ActionUtils.filterResourceStatus(detailData)){	
-							detailDataK = new DetailDataCustom();																					
+							detailDataK = new DetailDataKai();																					
 							detailDataK = ActionUtils.mapDetailData((ResourceForm)form, detailDataK, detailData);							
 							resourceList.add(detailDataK);
 						//}						
 					}												
 
 					if(resourceList.size()>0){						
-						//Collections.sort(resourceList, DetailDataCustom.ResourceIdComparator);										
+						//Collections.sort(resourceList, DetailDataKai.ResourceIdComparator);										
 						request.getSession().setAttribute("resourceListDL",resourceList);
 					}
-				} else if (result.getResultSize() == null)	
-					// if a result is returned with no size, meaning you are accessing a list that is not permitted, one response will be returned holding the error message
-					saveErrors(request,ActionUtils.addMessage("resourceAction.getResourceList.fault", result.getData().get(0).getResult().getMsg()));							
+				}							
+					
 				
 			} catch (Exception e) {
 				logger.error("Unable to load resource list ", e);
@@ -209,7 +202,7 @@ public class InfoAction extends DispatchAction {
     }		
 	
 	public ActionForward changeDisplay(ActionMapping mapping, ActionForm form, HttpServletRequest request, 
-			HttpServletResponse response) throws Exception {
+			HttpServletResponse response){
 		
 		ResourceForm resourceForm = (ResourceForm)form;
 		String prvStatus = (String)request.getSession().getAttribute("resourceStatus");
@@ -219,7 +212,7 @@ public class InfoAction extends DispatchAction {
 			request.getSession().setAttribute("resourceStatus",currStatus );
 		}
 		
-		List<DetailDataCustom> resourceList = getResourceList(request,form);		
+		List<DetailDataKai> resourceList = getResourceList(request,form);		
 		
 		request.getSession().setAttribute("resourceListSent",resourceList );
 

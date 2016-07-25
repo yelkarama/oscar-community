@@ -49,9 +49,8 @@ public class MsgDemoMapDaoTest extends DaoTestFixtures {
 	@Test
 	public void testCreate()  {
 		MsgDemoMap entity = new MsgDemoMap();
-		entity.setDemographic_no(1);
-                entity.setMessageID(1);
-		
+		MsgDemoMapPK key = new MsgDemoMapPK(1,1);
+		entity.setId(key);
 		dao.persist(entity);
 
 		assertNotNull(entity.getId());

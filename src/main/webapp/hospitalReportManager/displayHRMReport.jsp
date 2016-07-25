@@ -424,13 +424,9 @@ String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 			<th>Demographic Info</th>
 			<td>
 				<%=hrmReport.getLegalName() %><br />
-				<% try { %>
-					<%=hrmReport.getAddressLine1() %><br />
-					<%=hrmReport.getAddressLine2() != null ? hrmReport.getAddressLine2() : "" %><br />
-					<%=hrmReport.getAddressCity() %>
-				<% } catch(Exception e) { %>
-					NO ADDRESS IN RECORD<br>
-				<% } %>
+				<%=hrmReport.getAddressLine1() %><br />
+				<%=hrmReport.getAddressLine2() != null ? hrmReport.getAddressLine2() : "" %><br />
+				<%=hrmReport.getAddressCity() %>
 			</td>
 		</tr>
 		<tr>

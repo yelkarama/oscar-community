@@ -35,7 +35,6 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.oscarehr.common.model.OscarMsgType;
 import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
@@ -107,7 +106,7 @@ public class MsgCreateMessageAction extends Action {
                 sentToWho = sentToWho+" "+messageData.getRemoteNames(remoteProviderListing);
             }
 
-            messageId = messageData.sendMessage2(message,subject,userName,sentToWho,userNo,providerListing,att, pdfAtt, OscarMsgType.GENERAL_TYPE);
+            messageId = messageData.sendMessage2(message,subject,userName,sentToWho,userNo,providerListing,att, pdfAtt);
 
             //link msg and demogrpahic if both messageId and demographic_no are not null
             if (demographic_no != null && (demographic_no.equals("") || demographic_no.equals("null")) ){

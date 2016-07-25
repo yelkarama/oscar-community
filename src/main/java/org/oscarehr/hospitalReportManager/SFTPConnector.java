@@ -36,7 +36,6 @@ import com.jcraft.jsch.ChannelSftp.LsEntry;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
-import org.oscarehr.common.model.OscarMsgType;
 
 import oscar.OscarProperties;
 import oscar.oscarMessenger.data.MsgProviderData;
@@ -579,7 +578,7 @@ public class SFTPConnector {
 		return decrypt;
 	}
 
-	public synchronized void startAutoFetch(LoggedInInfo loggedInInfo) {
+	public static synchronized void startAutoFetch(LoggedInInfo loggedInInfo) {
 
 		if (!isAutoFetchRunning) {
 			SFTPConnector.isAutoFetchRunning = true;
@@ -598,8 +597,6 @@ public class SFTPConnector {
 				SFTPConnector sftp = new SFTPConnector();
 				logger.debug("new SFTP connection established");
 
-				String[] files = ls(remoteDir);
-				
 				String[] localFilePaths =null;
 				
 				try {
@@ -615,10 +612,6 @@ public class SFTPConnector {
 					paths = localFilePaths;
 				}
 		
-				//delete all files from remote dir
-				deleteDirectoryContents(remoteDir, files);
-
-				
 				paths = copyFilesToDocumentDir(loggedInInfo, paths);
 								
 				for (String filePath : paths) {
@@ -692,7 +685,7 @@ public class SFTPConnector {
 	    }
 
     	String sentToString = messageData.createSentToString(sendToProviderListData);
-    	messageData.sendMessage2(message, "HRM Retrieval Error", "System", sentToString, "-1", sendToProviderListData, null, null, OscarMsgType.GENERAL_TYPE);
+    	messageData.sendMessage2(message, "HRM Retrieval Error", "System", sentToString, "-1", sendToProviderListData, null, null);
     }
 
 	/**

@@ -29,12 +29,11 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
+import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.struts.util.MessageResources;
-import org.oscarehr.common.model.OscarMsgType;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 
@@ -67,7 +66,7 @@ public class EctDisplayMsgAction extends EctDisplayAction {
             Dao.setRightHeadingID(cmd);  //no menu so set div id to unique id for this action
                                   
             MsgDemoMap msgDemoMap = new MsgDemoMap();
-            List<String> msgList = msgDemoMap.getMsgList(bean.demographicNo, OscarMsgType.GENERAL_TYPE);
+            Vector msgVector = msgDemoMap.getMsgVector(bean.demographicNo);
             MsgMessageData msgData; 
             String msgId;
             String msgSubject;
@@ -75,8 +74,8 @@ public class EctDisplayMsgAction extends EctDisplayAction {
             String dbFormat = "yyyy-MM-dd";
             int hash;
             Date date;
-            for( int i=0; i<msgList.size(); i++) {    
-                msgId = (String) msgList.get(i);
+            for( int i=0; i<msgVector.size(); i++) {    
+                msgId = (String) msgVector.elementAt(i);
                 msgData = new MsgMessageData(msgId);
                 msgSubject = StringUtils.maxLenString(msgData.getSubject(), MAX_LEN_TITLE, CROP_LEN_TITLE, ELLIPSES);
                 msgDate = msgData.getDate();

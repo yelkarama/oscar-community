@@ -1316,6 +1316,13 @@ public class Billingmaster {
         this.oinPostalcode = oinPostalcode;
     }
 
+    public void setPractitioner_no(String practitioner_no) {
+        this.practitionerNo = practitioner_no;
+    }
+
+    public void setPayee_no(String payee_no) {
+        this.payeeNo = payee_no;
+    }
 
     public int getPaymentMethod() {
         return paymentMethod;
@@ -1355,13 +1362,11 @@ public class Billingmaster {
         return retval;
     }
 
-    
-    public Integer getWcbId() {
-		return wcbId;
-	}
+    public int getWcbId() {
+        return wcbId;
+    }
 
-	public void setWcbId(Integer wcbId) {
-		this.wcbId = wcbId;
-	}
-
+    public void setWcbId(Integer wcbId) {
+        this.wcbId = wcbId;
+    }
 }

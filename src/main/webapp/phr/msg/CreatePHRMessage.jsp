@@ -57,10 +57,6 @@
 	MyOscarLoggedInInfo myOscarLoggedInInfo=MyOscarLoggedInInfo.getLoggedInInfo(session);
 	
 	boolean replyAll=Boolean.parseBoolean(request.getParameter("replyAll"));
-	
-	if(request.getParameter("subject") != null){
-		request.setAttribute("subject", request.getParameter("subject")); 
-	}
 %>
 <html:html locale="true">
 
@@ -332,13 +328,7 @@ Create Message
                                                 <tr>
                                                     <td>&nbsp;</td>
                                                     <td>
-                                                    	<%
-                                                    		String body="";
-                                                    		if(request.getParameter("message") != null){
-                                                    			body = "\n\n\n\n-----------------------\n"+request.getParameter("message");
-                                                    		}
-                                                    	%>
-                                                    	<html:textarea value="<%=StringEscapeUtils.escapeHtml(body)%>" name="body" styleId="message" property="body" cols="60" rows="18"/>
+                                                    	<html:textarea value="" name="body" styleId="message" property="body" cols="60" rows="18"/>
                                                     </td>
                                                         
                                                 </tr>

@@ -85,44 +85,34 @@ text-decoration:none;
     width:100px; //min width should give to center the div.
     margin:0px auto; //here it will make center 
  }
- 
 
-
-#noteInput, #noteInput2 {
+#noteInput {
     position: fixed;
     bottom: 0;
-    font-family: sans-serif;
-	margin-bottom:0px;
-	font-weight: bold;
-	bottom: 0;
-    z-index:999;
+    //width: 100%;
 }
 
 #noteInput {
-    line-height: 2;
-    font-size: 30px;
-    /*text-shadow: 0 1px 0 #84BAFF;
-    //box-shadow: 0 0 15px #00214B
     //background: #ccccFF;
+    line-height: 2;
     //text-align: center;
     //color: #042E64;
-    */
+    margin-bottom:0px;
+    
+    font-size: 30px;
+    font-family: sans-serif;
+    font-weight: bold;
+    //text-shadow: 0 1px 0 #84BAFF;
+    //box-shadow: 0 0 15px #00214B
 }
 
-.absolute-left{
-left:0px;
+#noteInput2 {
+    margin-bottom:0px;    
+    font-family: sans-serif;
+    font-weight: bold;
+    position: fixed;
+    bottom: 0;
 }
-
-.absolute-right{
-right:0px;
-} 
-
-#noteInput ul.dropdown-menu{
-max-height:220px;
-overflow-y:auto;
-overflow-x:none;
-}
-
 
 pre.noteInEdit {
 	border-color: rgba(126, 239, 104, 0.8);
@@ -217,10 +207,6 @@ color: #FF4D4D;
  
  .abnormal,  .abnormal:hover{
 color:red;
-}
-
-.glyphicon-chevron-down-disabled{
-color: #999999 !important;
 }
 
 /*for patient header*/
@@ -460,7 +446,6 @@ font-size:20px
 	<script src="common/personaServices.js"></script>
 	<script src="common/consultServices.js"></script>
 	<script src="common/appServices.js"></script>
-	<script src="common/diseaseRegistryServices.js"></script>
 	<script src="filters.js"></script>
 	<script src="app.js"></script>
 	

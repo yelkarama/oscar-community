@@ -24,24 +24,21 @@
 
 */
 
-oscarApp.controller('PatientListCtrl', function ($scope,$http,$state,Navigation,personaService,$modal) {
+oscarApp.controller('PatientListCtrl', function ($scope,$http,$state,Navigation,personaService) {
 	
 	$scope.sidebar = Navigation;
 	
     $scope.showFilter=true;
-    $scope.patientListConfig = {};
 
 	
 	 $scope.goToRecord = function(patient){
-		 if(patient.demographicNo != 0){
-			 var params = {demographicNo:patient.demographicNo};
-			 if(angular.isDefined(patient.appointmentNo)){
-				 params.appointmentNo = patient.appointmentNo;
-				 params.encType = "face to face encounter with client";
-			 }
-			 console.log("params",params);
-			 $state.go('record.summary',params);
+		 var params = {demographicNo:patient.demographicNo};
+		 if(angular.isDefined(patient.appointmentNo)){
+			 params.appointmentNo = patient.appointmentNo;
+			 params.encType = "face to face encounter with client";
 		 }
+		 console.log("params",params);
+		 $state.go('record.summary',params);
 	 }
 
 //for filter box
@@ -62,26 +59,127 @@ $scope.isMoreActive = function(temp){
 	return temp === $scope.currentmoretab.id;
 }
 
-$scope.hidePatientList = function() {
-	$scope.$emit('configureShowPatientList', false);
-}
 
 $scope.changeMoreTab = function(temp,filter){
 	var beforeChangeTab = $scope.currentmoretab;
 	$scope.currentmoretab = $scope.moreTabItems[temp];
-	
 	$scope.showFilter=true;
-	$scope.currenttab=null;
-	$scope.refresh(filter);		
+	
+	
+	if($scope.currentmoretab.url != null) {
+		var d = undefined;
+		if($scope.currentmoretab.httpType == 'POST') {
+			d = filter!=null?JSON.stringify(filter):{}
+		}
+		
+		$http({
+		    url: $scope.currentmoretab.url,
+		    dataType: 'json',
+		    data: d,
+		    method: $scope.currentmoretab.httpType,
+		    headers: {
+		        "Content-Type": "application/json"
+		    }
+		}).success(function(response){
+			$scope.currentPage = 0;
+			
+			$scope.template = $scope.moreTabItems[temp].template;
+			
+			if (response.patients instanceof Array) {
+				$scope.patients = response.patients;
+			} else if(response.patients == undefined) { 
+				$scope.patients = [];
+			} else {
+				var arr = new Array();
+				arr[0] = response.patients;
+				$scope.patients = arr;
+			}
+			
+			$scope.currenttab=null;
+		  	
+			
+			$scope.nPages = 1;
+			if($scope.patients != null && $scope.patients.length>0) {
+				$scope.nPages=Math.ceil($scope.patients.length/$scope.pageSize);
+			} 
+		
+			 Navigation.load($scope.template);
+			 
+		}).error(function(error){
+		   alert('error loading tab '+ error);
+		});	
+	} else {
+		$scope.template = $scope.moreTabItems[temp].template;
+		$scope.currentPage = 0;
+		$scope.currenttab=null;
+		$scope.nPages = 1;
+		Navigation.load($scope.template);
+		 
+	}
+}
+
+
+
+$scope.hidePatientList = function() {
+	$scope.$emit('configureShowPatientList', false);
 }
 
 $scope.changeTab = function(temp,filter){
 	console.log('change tab - ' + temp);
 	$scope.currenttab = $scope.tabItems[temp];
 	$scope.showFilter=true;
-	$scope.currentmoretab=null;
-    $scope.refresh(filter);
 	
+	if($scope.currenttab.url != null) {
+	
+		var d = undefined;
+		if($scope.currenttab.httpType == 'POST') {
+			d = filter!=null?JSON.stringify(filter):{}
+		}
+		$http({
+			url: $scope.currenttab.url,	
+			data: d,
+			dataType: 'json',		
+			method: $scope.currenttab.httpType,		
+			headers: {		
+				"Content-Type": "application/json"		
+			}		
+		}).success(function(response){
+			$scope.currentPage = 0;
+			
+			$scope.template = $scope.tabItems[temp].template;
+		  	
+			if (response.patients instanceof Array) {
+				$scope.patients = response.patients;
+			} else if(response.patients == undefined) { 
+				$scope.patients = [];
+			} else {
+				var arr = new Array();
+				arr[0] = response.patients;
+				$scope.patients = arr;
+			}
+			
+			$scope.currentmoretab=null;
+		  	
+			$scope.nPages = 1;
+			if($scope.patients != null && $scope.patients.length>0) {
+				$scope.nPages=Math.ceil($scope.patients.length/$scope.pageSize);
+			} 
+			
+			Navigation.load($scope.template);
+				
+		  	
+		}).error(function(error){
+		    alert('error loading tab '+error);
+		});	
+		
+	} else {
+		$scope.template = $scope.tabItems[temp].template;
+		$scope.currentPage = 0;
+		$scope.currentmoretab=null;
+		$scope.nPages = 1;
+		Navigation.load($scope.template);
+		 
+	}
 }	 
 
 	$scope.getMoreTabClass = function(id){ 
@@ -130,7 +228,7 @@ $scope.changeTab = function(temp,filter){
 	});
 
 
-	$scope.process = function(tab,filter) {
+	$scope.process = function(tab) {
 		if(tab.url != null) {
 			
 			var d = undefined;
@@ -174,20 +272,16 @@ $scope.changeTab = function(temp,filter){
 			});	
 		} else {
 			$scope.changePage($scope.currentPage);
-			$scope.currentPage = 0;
-			$scope.nPages = 1;
-			$scope.template = tab.template;
-			Navigation.load($scope.template);
 		}
 	}
 	
-	$scope.refresh = function(filter) {
+	$scope.refresh = function() {
 	
 		if($scope.currenttab != null) {
-			$scope.process($scope.currenttab,filter);
+			$scope.process($scope.currenttab);
 		}
 		if($scope.currentmoretab != null) {
-			$scope.process($scope.currentmoretab,filter);
+			$scope.process($scope.currentmoretab);
 		}
 		
 	}
@@ -204,40 +298,7 @@ $scope.changeTab = function(temp,filter){
 		alert(reason);
 	});
 	
-	personaService.getPatientListConfig().then(function(patientListConfig){
-		$scope.patientListConfig = patientListConfig;
-		$scope.pageSize = $scope.patientListConfig.numberOfApptstoShow;
-	},function(reason){
-		alert(reason);
-	});
-	
-	
-	
 
-
-	$scope.manageConfiguration = function() {
-		var modalInstance = $modal.open({
-        	templateUrl: 'patientlist/patientListConfiguration.jsp',
-            controller: 'PatientListConfigController',
-            backdrop: false,
-            size: 'lg',
-            resolve: {config: function() {return $scope.patientListConfig;}}
-        });
-        
-        modalInstance.result.then(function(patientListConfig){
-        	personaService.setPatientListConfig(patientListConfig).then(function(patientListConfig){
-        		$scope.patientListConfig = patientListConfig;
-        		$scope.pageSize = $scope.patientListConfig.numberOfApptstoShow;
-        		$scope.$emit('updatePatientListPagination',$scope.patients.length);
-        	},function(reason){
-        		alert(reason);
-        	});
-        	
-        },function(reason){
-        	console.log(reason);
-        });
-	};
-	
 });
 
 
@@ -261,19 +322,9 @@ oscarApp.controller('PatientListAppointmentListCtrl', function($scope, Navigatio
 	},function(reason){
 		alert(reason);
 	});
-	
-	$scope.getAppointmentTextStyle  = function(patient){
-		if(patient.demographicNo == 0){
-			 return {'color':'white'};
-		 }
-	}
 
 	//TODO:this gets called alot..should switch to a dictionary.
 	 $scope.getAppointmentStyle = function(patient){ 
-		 if(patient.demographicNo == 0){
-			 return {'background-color':'black'};
-		 }
-		 
 		 if($scope.statuses != null) {
 			for(var i=0;i<$scope.statuses.length;i++) {
 				 if($scope.statuses[i].status == patient.status) {
@@ -333,11 +384,49 @@ oscarApp.controller('PatientListAppointmentListCtrl', function($scope, Navigatio
 		temp = 0;
 		
 		$scope.currenttab = $scope.tabItems[temp];
-		var lastIndx = $scope.currenttab.url.lastIndexOf("/");
-		$scope.currenttab.url =  $scope.currenttab.url.slice(0,lastIndx+1)+day;
 		$scope.showFilter=true;
-		$scope.refresh();
 		
+		if($scope.currenttab.url != null) {
+						
+		    $scope.appointments = null;
+		    scheduleService.getAppointments(day).then(function(response){
+		    	$scope.appointments = response.patients;
+
+		    	$scope.currentPage = 0;
+				
+				$scope.template = $scope.tabItems[temp].template;
+			  	
+				if (response.patients instanceof Array) {
+					$scope.patients = response.patients;
+				} else if(response.patients == undefined) { 
+					$scope.patients = [];
+				} else {
+					var arr = new Array();
+					arr[0] = response.patients;
+					$scope.patients = arr;
+				}
+				
+				$scope.currentmoretab=null;
+			  	
+				$scope.nPages = 1;
+				if($scope.patients != null && $scope.patients.length>0) {
+					$scope.nPages=Math.ceil($scope.patients.length/$scope.pageSize);
+				} 
+				
+				Navigation.load($scope.template);
+
+		    },function(reason){
+		    	alert(reason);
+		    });
+			
+		} else {
+			$scope.template = $scope.tabItems[temp].template;
+			$scope.currentPage = 0;
+			$scope.currentmoretab=null;
+			$scope.nPages = 1;
+			Navigation.load($scope.template);
+			 
+		}
 	}
 	
 	$scope.addNewAppointment = function() {
@@ -410,21 +499,7 @@ oscarApp.controller('PatientListProgramCtrl', function($scope,$http) {
 	 }
 	
 	 //initialize..
-	 $scope.updateData(0,$scope.pageSize);
+	 $scope.updateData(0,8);
 	 $scope.$emit('togglePatientListFilter', false);
 	 
-});
-
-oscarApp.controller('PatientListConfigController',function($scope, $modalInstance, config) {
-	
-	$scope.patientListConfig= config; 
-	
-	$scope.cancel = function(){
-		$modalInstance.dismiss();
-	};
-	
-	$scope.saveConfiguration =function(){
-    	$modalInstance.close($scope.patientListConfig);
-    };
-
 });

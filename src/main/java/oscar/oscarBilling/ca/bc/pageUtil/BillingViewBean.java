@@ -151,7 +151,7 @@ public class BillingViewBean {
 	public void updateBill(String billingNo, String payeeNo) {
 		BillingmasterDAO dao = SpringUtils.getBean(Billingmaster.class);
 		for (Billingmaster bm : dao.getBillingMasterByBillingNo(billingNo)) {
-			bm.setPayeeNo(payeeNo);
+			bm.setPayee_no(payeeNo);
 			dao.update(bm);
 		}
 	}

@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
- *    
+ *
  * This software was written for the
  * Department of Family Medicine
  * McMaster University
@@ -23,10 +23,14 @@
  */
 package org.oscarehr.integration.mcedt.mailbox;
 
+import static org.oscarehr.integration.mcedt.mailbox.ActionUtils.getResourceIds;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -35,6 +39,7 @@ import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionMessages;
 import org.apache.struts.actions.DispatchAction;
 import org.oscarehr.integration.mcedt.DelegateFactory;
 import org.oscarehr.integration.mcedt.McedtMessageCreator;
@@ -42,8 +47,12 @@ import org.oscarehr.integration.mcedt.ResourceForm;
 
 import ca.ontario.health.edt.Detail;
 import ca.ontario.health.edt.DetailData;
+import ca.ontario.health.edt.DownloadData;
+import ca.ontario.health.edt.DownloadResult;
 import ca.ontario.health.edt.EDTDelegate;
+import ca.ontario.health.edt.ResourceResult;
 import ca.ontario.health.edt.ResourceStatus;
+import ca.ontario.health.edt.ResponseResult;
 import ca.ontario.health.edt.TypeListResult;
 
 
@@ -83,9 +92,9 @@ public class ResourceAction extends DispatchAction {
 	
 	//----------------------------------
 	public ActionForward loadDownloadList(ActionMapping mapping, ActionForm form, HttpServletRequest request, 
-	HttpServletResponse response) throws Exception {		
+	HttpServletResponse response) {		
 
-		List<DetailDataCustom> resourceList;
+		List<DetailDataKai> resourceList;
 		try{			
 			
 			/*ResourceForm resourceForm= (ResourceForm)form;
@@ -116,12 +125,12 @@ public class ResourceAction extends DispatchAction {
 	}
 	
 	public ActionForward loadSentList(ActionMapping mapping, ActionForm form, HttpServletRequest request, 
-			HttpServletResponse response) throws Exception {
+			HttpServletResponse response) {
 		ResourceForm resourceForm = (ResourceForm) form;
 		//resourceForm.setStatus("");
 		resetPage(form);
-		List<DetailDataCustom> resourceList;		
-		List<DetailDataCustom> resourceListFiltered = new ArrayList<DetailDataCustom>();
+		List<DetailDataKai> resourceList;		
+		List<DetailDataKai> resourceListFiltered = new ArrayList<DetailDataKai>();
 		
 		try{
 			if(request.getSession().getAttribute("resourceTypeList")==null){
@@ -136,7 +145,7 @@ public class ResourceAction extends DispatchAction {
 			resourceForm.setStatus("UPLOADED");			
 			resourceList = loadList(form,request,response,ResourceStatus.UPLOADED);
 			/*if(resourceList.size()>0){
-				for(DetailDataCustom detailDataK:resourceList){
+				for(DetailDataKai detailDataK:resourceList){
 					//if(ActionUtils.filterResourceStatus(detailDataK)){
 						resourceListFiltered.add(detailDataK);
 					//}
@@ -153,8 +162,8 @@ public class ResourceAction extends DispatchAction {
 		return mapping.findForward("successUserSent");
 	}
 			
-	public List<DetailDataCustom> loadList( ActionForm form, HttpServletRequest request, 
-		HttpServletResponse response, ResourceStatus resourceStatus) throws Exception {
+	public List<DetailDataKai> loadList( ActionForm form, HttpServletRequest request, 
+		HttpServletResponse response, ResourceStatus resourceStatus) {
 			
 			ResourceForm resourceForm = (ResourceForm) form;						
 			
@@ -180,9 +189,9 @@ public class ResourceAction extends DispatchAction {
 		
 	}		
 			
-	private List<DetailDataCustom> getResourceList(HttpServletRequest request, ResourceForm form, EDTDelegate delegate, ResourceStatus resourceStatus) {
+	private List<DetailDataKai> getResourceList(HttpServletRequest request, ResourceForm form, EDTDelegate delegate, ResourceStatus resourceStatus) {
 	    Detail result = ActionUtils.getDetails(request);
-	    List<DetailDataCustom> resourceList =new ArrayList<DetailDataCustom>();	    
+	    List<DetailDataKai> resourceList =new ArrayList<DetailDataKai>();	    
 	    
 	    
 	    if (result == null) {
@@ -199,12 +208,12 @@ public class ResourceAction extends DispatchAction {
 					resultSize = result.getResultSize();				
 				request.getSession().setAttribute("resultSize",resultSize);
 				
-				if(result!=null && result.getData()!=null){ 
+				if(result.getData()!=null){ 
 									
-					DetailDataCustom detailDataK;
+					DetailDataKai detailDataK;
 					for(DetailData detailData : result.getData()){						
 
-						detailDataK = new DetailDataCustom();
+						detailDataK = new DetailDataKai();
 						detailDataK = ActionUtils.mapDetailData(form, detailDataK, detailData);
 						resourceList.add(detailDataK);						
 					}							
@@ -248,7 +257,7 @@ public class ResourceAction extends DispatchAction {
 		return result;
     }
 	
-	/*public ActionForward delete(ActionMapping mapping, ActionForm form, 
+	public ActionForward delete(ActionMapping mapping, ActionForm form, 
 			HttpServletRequest request, HttpServletResponse response) throws Exception {
 		ResourceForm resourceForm = (ResourceForm) form;
 		List<BigInteger> ids = getResourceIds(request);
@@ -272,10 +281,10 @@ public class ResourceAction extends DispatchAction {
 		saveMessages(request, messages);
 		
 		return mapping.findForward("success");
-	}*/
+	}
 	
-	/*public ActionForward submit(ActionMapping mapping, ActionForm form, 
-			HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public ActionForward submit(ActionMapping mapping, ActionForm form, 
+			HttpServletRequest request, HttpServletResponse response) {
 		List<BigInteger> ids = getResourceIds(request);
 		
 		try {
@@ -290,9 +299,9 @@ public class ResourceAction extends DispatchAction {
 		}
 		
 		return mapping.findForward("success");
-	}*/
+	}
 
-	/*public ActionForward download(ActionMapping mapping, ActionForm form, 
+	public ActionForward download(ActionMapping mapping, ActionForm form, 
 			HttpServletRequest request, HttpServletResponse response) throws Exception {		
 		List<BigInteger> ids = getResourceIds(request);		
 		DownloadResult downloadResult = null;
@@ -325,5 +334,5 @@ public class ResourceAction extends DispatchAction {
 		zos.close();
 
 		return null;
-	}*/
+	}
 }

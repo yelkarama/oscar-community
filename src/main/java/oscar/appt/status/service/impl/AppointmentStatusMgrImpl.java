@@ -22,10 +22,8 @@
  */
 package oscar.appt.status.service.impl;
 
-import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.beanutils.BeanComparator;
 import org.oscarehr.common.dao.AppointmentStatusDao;
 import org.oscarehr.common.model.AppointmentStatus;
 import org.oscarehr.util.SpringUtils;
@@ -51,9 +49,7 @@ public class AppointmentStatusMgrImpl implements AppointmentStatusMgr {
 		return cachedActiveStatuses;
 	}
 
-	@SuppressWarnings("unchecked")
-	public static synchronized void setCachedActiveStatuses(List<AppointmentStatus> cachedActiveStatuses) {
-		Collections.sort(cachedActiveStatuses, new BeanComparator("id"));
+	public static void setCachedActiveStatuses(List<AppointmentStatus> cachedActiveStatuses) {
 		AppointmentStatusMgrImpl.cachedActiveStatuses = cachedActiveStatuses;
 	}
 	

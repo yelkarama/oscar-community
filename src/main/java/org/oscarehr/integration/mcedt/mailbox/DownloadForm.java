@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
- *    
+ *
  * This software was written for the
  * Department of Family Medicine
  * McMaster University
@@ -42,13 +42,11 @@ public class DownloadForm extends ActionForm {
 	private String resourceType;
 	private String status;
 	private Integer pageNo;
-	private String serviceId;
-
 
 	private TypeListResult typeListResult;
 	private Detail detail;
 	
-	private List<DetailDataCustom> data=new ArrayList<DetailDataCustom>();
+	private List<DetailDataKai> data=new ArrayList<DetailDataKai>();
 
 	public TypeListResult getTypeListResult() {
 		return typeListResult;
@@ -106,11 +104,11 @@ public class DownloadForm extends ActionForm {
 	}
 
 	
-	public List<DetailDataCustom> getData() {
+	public List<DetailDataKai> getData() {
 		return data;
 	}
 
-	public void setData(List<DetailDataCustom> data) {
+	public void setData(List<DetailDataKai> data) {
 		this.data = data;
 	}
 
@@ -144,13 +142,5 @@ public class DownloadForm extends ActionForm {
 		}
 		return BigInteger.valueOf(getPageNo().longValue());
 	}
-
-	public String getServiceId() {
-	    return serviceId;
-    }
-
-	public void setServiceId(String serviceId) {
-	    this.serviceId = serviceId;
-    }
 
 }

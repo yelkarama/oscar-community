@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
- *    
+ *
  * This software was written for the
  * Department of Family Medicine
  * McMaster University
@@ -36,24 +36,22 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.cxf.helpers.FileUtils;
 import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.apache.struts.action.ActionMessages;
 import org.apache.struts.actions.DispatchAction;
 import org.apache.struts.upload.FormFile;
 import org.oscarehr.integration.mcedt.DelegateFactory;
 import org.oscarehr.integration.mcedt.McedtMessageCreator;
 import org.oscarehr.util.MiscUtils;
 
+import oscar.OscarProperties;
 import ca.ontario.health.edt.EDTDelegate;
 import ca.ontario.health.edt.Faultexception;
 import ca.ontario.health.edt.ResourceResult;
 import ca.ontario.health.edt.ResponseResult;
 import ca.ontario.health.edt.UploadData;
-import oscar.OscarProperties;
 
 public class UploadAction extends DispatchAction {
 	
@@ -84,9 +82,6 @@ public class UploadAction extends DispatchAction {
 		List<File> files = ActionUtils.getSuccessfulUploads(request);
 		OscarProperties props = OscarProperties.getInstance();
 		File sent = new File(props.getProperty("ONEDT_SENT",""));
-		if (!sent.exists())
-			FileUtils.mkDir(sent);
-		
 		try {
 			if (files!=null && files.size()>0) {
 				for (File file: files) {
@@ -110,12 +105,12 @@ public class UploadAction extends DispatchAction {
 	}
 
 	public ActionForward addNew(ActionMapping mapping, ActionForm form, 
-			HttpServletRequest request, HttpServletResponse response) throws Exception {
+			HttpServletRequest request, HttpServletResponse response) {
 		return mapping.findForward("addNew");
 	}
 	
 	public ActionForward removeSelected(ActionMapping mapping, ActionForm form, 
-			HttpServletRequest request, HttpServletResponse response) throws Exception {
+			HttpServletRequest request, HttpServletResponse response) {
 		return mapping.findForward("success");
 	}
 
@@ -134,9 +129,8 @@ public class UploadAction extends DispatchAction {
 			}*/
 
 			try {
-				EDTDelegate delegate = DelegateFactory.newDelegate(ActionUtils.getServiceId(uploadForm.getDescription()));
+				EDTDelegate delegate = DelegateFactory.newDelegate();
 				ResourceResult result = new ResourceResult();
-				
 				try {
 					result = delegate.upload(uploads);
 				}
@@ -161,7 +155,6 @@ public class UploadAction extends DispatchAction {
 				ActionUtils.setUploadResponseResults(request, result.getResponse().get(0));
 				
 				return mapping.findForward("success");
-			
 			} catch (Exception e) {
 				logger.error("Unable to upload to MCEDT", e);				
 				saveErrors(request, ActionUtils.addMessage("uploadAction.upload.failure", McedtMessageCreator.exceptionToString(e)));
@@ -193,7 +186,7 @@ public class UploadAction extends DispatchAction {
 			}*/
 
 			try {
-				EDTDelegate delegate = DelegateFactory.newDelegate(ActionUtils.getServiceId(submitForm.getFileName()));
+				EDTDelegate delegate = DelegateFactory.newDelegate();
 				ResourceResult result = new ResourceResult();
 				
 				try {
@@ -227,82 +220,51 @@ public class UploadAction extends DispatchAction {
 	
 	public ActionForward uploadSubmitToMcedt(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		try {
-			List<String> successUploads= new ArrayList<String>();
-			List<String> failUploads= new ArrayList<String>();
-			List<String> successSubmits= new ArrayList<String>();
-			List<String> failSubmits= new ArrayList<String>();
 			List<UploadData> uploads =toUploadMultipe((UploadForm)form);
-			for (UploadData upload: uploads) {
-				List<UploadData> uploadData= new ArrayList<UploadData>();
-				uploadData.add(upload);
-				EDTDelegate delegate = DelegateFactory.newDelegate(ActionUtils.getServiceId(upload.getDescription()));
-				ResourceResult result = new ResourceResult();
+			EDTDelegate delegate = DelegateFactory.newDelegate();
+			ResourceResult result = new ResourceResult();
 				
-				try {
-					result = delegate.upload(uploadData);
-				}
-				catch (Faultexception e){
-					logger.error("A fault exception has occured while manually uploading MCEDT files at " + new Date());
-					saveErrors(request, ActionUtils.addMessage("uploadAction.upload.faultException", McedtMessageCreator.exceptionToString(e)));
-					return mapping.findForward("failure");
-				}
-				
-				List<BigInteger> ids = new ArrayList<BigInteger>();
-				OscarProperties props = OscarProperties.getInstance();
-				File sent = new File(props.getProperty("ONEDT_SENT",""));
-				if (!sent.exists())
-					FileUtils.mkDir(sent);
-				for (ResponseResult edtResponse: result.getResponse()) {
-					if (edtResponse.getResult().getCode().equals("IEDTS0001")) {
-						ids.add(edtResponse.getResourceID());
-						File file = new File(props.getProperty("ONEDT_OUTBOX", "") + edtResponse.getDescription());
-						ActionUtils.moveFileToDirectory(file, sent,false,true);
-						//saveMessages(request, ActionUtils.addMessage("uploadAction.upload.success", McedtMessageCreator.resourceResultToString(result)));
-						successUploads.add(McedtMessageCreator.resourceResultToString(result));
-					} else {
-						edtResponse.setDescription(upload.getDescription());
-						//saveErrors(request, ActionUtils.addMessage("uploadAction.upload.failure", edtResponse.getDescription()+": "+edtResponse.getResult().getMsg()));
-						failUploads.add(edtResponse.getDescription()+": "+edtResponse.getResult().getMsg());
-					}
-				}
-				if (ids.size()>0) {
-					
-					try {
-						result =delegate.submit(ids);
-					}
-					catch (Faultexception e){
-						logger.error("A fault exception has occured while manually submitting MCEDT files at " + new Date());
-						saveErrors(request, ActionUtils.addMessage("uploadAction.submit.faultException", McedtMessageCreator.exceptionToString(e)));
-						return mapping.findForward("failure");
-					}
-					
-					for (ResponseResult edtResponse: result.getResponse()) {
-						if (edtResponse.getResult().getCode().equals("IEDTS0001")) {
-							//saveMessages(request, ActionUtils.addMessage("uploadAction.submit.success", McedtMessageCreator.resourceResultToString(result)));
-							successSubmits.add(McedtMessageCreator.resourceResultToString(result));
-						} else {
-							edtResponse.setDescription(upload.getDescription());
-							//saveErrors(request, ActionUtils.addMessage("uploadAction.submit.failure", edtResponse.getDescription()+": "+edtResponse.getResult().getMsg()));
-							failSubmits.add(edtResponse.getDescription()+": "+edtResponse.getResult().getMsg());
-						}
-					}
+			try {
+				result = delegate.upload(uploads);
+			}
+			catch (Faultexception e){
+				logger.error("A fault exception has occured while manually uploading MCEDT files at " + new Date());
+				saveErrors(request, ActionUtils.addMessage("uploadAction.upload.faultException", McedtMessageCreator.exceptionToString(e)));
+				return mapping.findForward("failure");
+			}
+			List<BigInteger> ids = new ArrayList<BigInteger>();
+			OscarProperties props = OscarProperties.getInstance();
+			File sent = new File(props.getProperty("ONEDT_SENT",""));
+			for (ResponseResult edtResponse: result.getResponse()) {
+				if (edtResponse.getResult().getCode().equals("IEDTS0001")) {
+					ids.add(edtResponse.getResourceID());
+					File file = new File(props.getProperty("ONEDT_OUTBOX", "") + edtResponse.getDescription());
+					ActionUtils.moveFileToDirectory(file, sent,false,true);
+					saveMessages(request, ActionUtils.addMessage("uploadAction.upload.success", McedtMessageCreator.resourceResultToString(result)));
+				} else {
+					saveErrors(request, ActionUtils.addMessage("uploadAction.upload.failure", edtResponse.getResult().getMsg()));
 				}
 			}
-			// Finally save all the messages/errors
-			ActionMessages messages = new ActionMessages();
-			// we don't need to find out if upload is successful, we rather get info about submit status of that file
-			//if ( successUploads!=null && successUploads.size()>0 ) messages = ActionUtils.addMoreMessage(messages, "uploadAction.upload.success", McedtMessageCreator.stringListToString(successUploads));
-			if ( successSubmits!=null && successSubmits.size()>0 ) messages = ActionUtils.addMoreMessage(messages, "uploadAction.submit.success", McedtMessageCreator.stringListToString(successSubmits));
-			saveMessages(request, messages);
-
-			ActionMessages errors = new ActionMessages();
-			if ( failUploads!=null && failUploads.size()>0 ) errors = ActionUtils.addMoreMessage(errors,"uploadAction.upload.failure", McedtMessageCreator.stringListToString(failUploads));
-			if ( failSubmits!=null && failSubmits.size()>0 ) errors = ActionUtils.addMoreMessage(errors,"uploadAction.submit.failure", McedtMessageCreator.stringListToString(failSubmits));		
-			saveErrors(request, errors);
+			if (ids.size()>0) {
+				try {
+					result =delegate.submit(ids);
+				}
+				catch (Faultexception e){
+					logger.error("A fault exception has occured while manually submitting MCEDT files at " + new Date());
+					saveErrors(request, ActionUtils.addMessage("uploadAction.submit.faultException", McedtMessageCreator.exceptionToString(e)));
+					return mapping.findForward("failure");
+				}
+			}
 			
-		} catch (IOException e) {
-			logger.error("An IO Exception has occured while moving the files to the sent folder at " + new Date(), e);
-			saveErrors(request, ActionUtils.addMessage("uploadAction.upload.submit.IOException", McedtMessageCreator.exceptionToString(e)));
+			for (ResponseResult edtResponse: result.getResponse()) {
+				if (edtResponse.getResult().getCode().equals("IEDTS0001")) {
+					saveMessages(request, ActionUtils.addMessage("uploadAction.submit.success", McedtMessageCreator.resourceResultToString(result)));
+				} else {
+					saveErrors(request, ActionUtils.addMessage("uploadAction.submit.failure", edtResponse.getDescription()+": "+edtResponse.getResult().getMsg()));			
+				}
+			}
+			
+			
 		} catch (Exception e) {
 			logger.error("Unable to Upload/Submit file", e);
 			saveErrors(request, ActionUtils.addMessage("uploadAction.upload.submit.failure", McedtMessageCreator.exceptionToString(e)));			
@@ -318,8 +280,7 @@ public class UploadAction extends DispatchAction {
 			for (String fileName: fileNames) {
 				File file = new File(props.getProperty("ONEDT_OUTBOX","")+fileName);
 				file.delete();
-			}
-			
+			}		
 		} catch (Exception e) {
 			logger.error("Unable to Delete file", e);
 			saveErrors(request, ActionUtils.addMessage("uploadAction.upload.submit.failure", McedtMessageCreator.exceptionToString(e)));			
@@ -339,9 +300,8 @@ public class UploadAction extends DispatchAction {
 				FileOutputStream outputStream = new FileOutputStream(myFile);
 				outputStream.write(formFile.getFileData());
 				outputStream.close();
-				saveMessages(request, ActionUtils.addMessage("uploadAction.upload.add.success", formFile.getFileName()+ "is succesfully added to the uploads list!"));
+				saveMessages(request, ActionUtils.addMessage("uploadAction.upload.add.success", formFile.getFileName()+ "uploaded succesfully!"));
 			}
-		} catch (IOException e) {
 		} catch (IOException e) {
 			logger.error("An error has occured with the addUpload file at " + new Date(), e);
 			saveErrors(request, ActionUtils.addMessage("uploadAction.upload.add.failure", McedtMessageCreator.exceptionToString(e)));

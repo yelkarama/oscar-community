@@ -36,7 +36,7 @@
 <html:messages id="message" bundle="mcedt" message="true">
 	<div class="alert alert-info">
 		<p>
-			<c:out escapeXml="false" value="${message}" />
+			<c:out value="${message}" />
 		</p>
 	</div>
 </html:messages>

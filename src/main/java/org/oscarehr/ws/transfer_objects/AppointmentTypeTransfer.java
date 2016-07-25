@@ -28,6 +28,7 @@ package org.oscarehr.ws.transfer_objects;
 import java.util.List;
 
 import org.oscarehr.common.model.AppointmentType;
+import org.springframework.beans.BeanUtils;
 
 public final class AppointmentTypeTransfer {
 
@@ -99,13 +100,8 @@ public final class AppointmentTypeTransfer {
 		if (appointmentType==null) return(null);
 		
 		AppointmentTypeTransfer appointmentTypeTransfer = new AppointmentTypeTransfer();
-		appointmentTypeTransfer.setDuration(appointmentType.getDuration());
-		appointmentTypeTransfer.setId(appointmentType.getId());
-		appointmentTypeTransfer.setLocation(appointmentType.getLocation());
-		appointmentTypeTransfer.setName(appointmentType.getName());
-		appointmentTypeTransfer.setNotes(appointmentType.getNotes());
-		appointmentTypeTransfer.setReason(appointmentType.getReason());
-		appointmentTypeTransfer.setResources(appointmentType.getResources());
+
+		BeanUtils.copyProperties(appointmentType, appointmentTypeTransfer);
 
 		return (appointmentTypeTransfer);
 	}

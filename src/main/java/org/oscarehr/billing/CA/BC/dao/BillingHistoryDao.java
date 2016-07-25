@@ -97,11 +97,10 @@ public class BillingHistoryDao extends AbstractDao<BillingHistory> {
 			return 0.0;
 		}
 		
-		String d = (String) result.get(0);
+		Double d = (Double) result.get(0);
 		if (d == null) {
 			return 0.0;
 		}
-
-		return Double.valueOf(d);
+		return d;
     }
 }

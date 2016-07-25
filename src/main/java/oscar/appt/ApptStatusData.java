@@ -28,10 +28,12 @@
  */
 package oscar.appt;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import org.apache.commons.beanutils.BeanComparator;
 import org.oscarehr.common.model.AppointmentStatus;
 
 import oscar.appt.status.service.impl.AppointmentStatusMgrImpl;
@@ -213,6 +215,7 @@ public final class ApptStatusData {
 		return temp;
 	}
 
+    @SuppressWarnings("unchecked")
     private String getStr(String kind) {
         String rstr = null;
         String strOtherIcon = "";
@@ -221,8 +224,7 @@ public final class ApptStatusData {
         
         List<AppointmentStatus> apptStatuses = AppointmentStatusMgrImpl.getCachedActiveStatuses();
         
-
-       // Collections.sort(apptStatuses, new BeanComparator("id"));
+        Collections.sort(apptStatuses, new BeanComparator("id"));
         
         if (apptStatus.length()>=2){
             strOtherIcon = apptStatus.substring(1,2);

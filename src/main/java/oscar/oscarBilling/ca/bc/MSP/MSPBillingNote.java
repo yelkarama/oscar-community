@@ -111,7 +111,7 @@ public class MSPBillingNote {
 		String billingmaster_no = null;
 		String createdate = null;
 		String provider_no = null;
-		String note = "";
+		String note = null;
 
 		/**
 		 * Getter for property billingnote_no.

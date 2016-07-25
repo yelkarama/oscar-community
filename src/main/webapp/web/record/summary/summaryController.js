@@ -273,20 +273,51 @@ oscarApp.controller('SummaryCtrl', function ($rootScope,$scope,$http,$location,$
       $scope.trackerUrl = '../oscarEncounter/oscarMeasurements/HealthTrackerPage.jspf?template=tracker&demographic_no=' + demographicNo + '&numEle=4&tracker=slim';    
     };
     
-var initialDisplayLimit = 5;  
+  
 $scope.toggleList = function(mod){
-	i = initialDisplayLimit; 
+	i = 5; 
 	
-	if(mod.summaryItem.length>i){
-		if(mod.displaySize>i){
-			mod.displaySize = i;
-		}else{
-			mod.displaySize = mod.summaryItem.length;
-		}
+	if(mod.displaySize>5){
+		mod.displaySize = i;
+	}else{
+		mod.displaySize = mod.summaryItem.length;
 	}
 }
 
-$scope.showMoreItems = function(mod){
+$scope.showMoreDocuments = function(mod){
+	////console.log('showMoreDocuments',mod);
+	if(!angular.isDefined(mod.summaryItem)){
+		return false;
+	}
+	
+	if(mod.summaryItem.length == 0){
+		return false;
+	}
+	
+	
+	//if ( mod.displaySize < mod.summaryItem.length) {
+	//	return true;
+	//}
+	return true;
+	
+}
+
+
+$scope.showMoreDocumentsSymbol = function(mod){
+	if(!angular.isDefined(mod.summaryItem)){
+		return "";
+	}
+	////console.log("mod symbol output ",mod.displaySize, mod.summaryItem.length,mod);
+	if ( mod.displaySize < mod.summaryItem.length) {
+		return "glyphicon glyphicon-chevron-down pull-right";
+	}else{
+		return "glyphicon glyphicon-chevron-up pull-right";	
+	}
+
+}
+
+
+$scope.showMorePreventions = function(mod){
 
 	if(!angular.isDefined(mod.summaryItem)){
 		return false;
@@ -299,19 +330,19 @@ $scope.showMoreItems = function(mod){
 	return true;
 }
 
-$scope.showMoreItemsSymbol = function(mod){	
+$scope.showMorePreventionsSymbol = function(mod){
 	if(!angular.isDefined(mod.summaryItem)){
 		return "";
 	}
 	
-	if ( (mod.displaySize < mod.summaryItem.length) && mod.displaySize == initialDisplayLimit ) {
-		return "glyphicon glyphicon-chevron-down hand-hover pull-right";
-	}else if ( (mod.displaySize == mod.summaryItem.length) && mod.displaySize != initialDisplayLimit ){
-		return "glyphicon glyphicon-chevron-up hand-hover pull-right";	
-	}else if ( mod.summaryItem.length <= initialDisplayLimit ) {
-		return "glyphicon glyphicon-chevron-down glyphicon-chevron-down-disabled pull-right";	
-	}else{
+	if(mod.summaryCode!="preventions"){
 		return "";
+	}
+	////console.log("mod symbol output ",mod.displaySize, mod.summaryItem.length,mod);
+	if ( mod.displaySize < mod.summaryItem.length) {
+		return "glyphicon glyphicon-chevron-down pull-right";
+	}else{
+		return "glyphicon glyphicon-chevron-up pull-right";	
 	}
 
 }
@@ -416,10 +447,6 @@ $scope.gotoState = function(item,mod,itemId){
 	if(item=="add"){
 		editGroupedNotes('lg',mod,null);
 		
-	}else if(item.action == 'add' && item.type == 'dx_reg'){
-		
-		editGroupedNotes('lg',mod,itemId);
-		
 	}else if(item.type == 'lab' || item.type == 'document'  || item.type == 'rx'|| item.type == 'allergy' || item.type == 'prevention' || item.type == 'dsguideline'  ){
 
 		if(item.type == 'rx'){
@@ -474,13 +501,12 @@ $scope.gotoState = function(item,mod,itemId){
 });
 
 
-GroupNotesCtrl = function ($scope,$modal,$modalInstance,mod,action,user,$stateParams,$state,$interval,noteService,securityService,diseaseRegistryServices){
+GroupNotesCtrl = function ($scope,$modal,$modalInstance,mod,action,user,$stateParams,$state,$interval,noteService,securityService){
 
 
 	$scope.page = {};
 	$scope.page.title = mod.displayName;
 	$scope.page.items = mod.summaryItem;
-	$scope.page.quickLists = [];
 
 	//$scope.action = action;
 	$scope.page.code = mod.summaryCode;
@@ -498,26 +524,6 @@ GroupNotesCtrl = function ($scope,$modal,$modalInstance,mod,action,user,$statePa
 	securityService.hasRight("_eChart", "u", $stateParams.demographicNo).then(function(data){
 		$scope.page.cannotChange = !data;
 	});
-	
-	diseaseRegistryServices.getQuickLists().then(function(data){
-		console.log(data);
-		$scope.page.quickLists = data;
-	});
-	
-	$scope.addDxItem = function(item){
-		for(var x=0;x<$scope.groupNotesForm.assignedCMIssues.length;x++) {
-    		if($scope.groupNotesForm.assignedCMIssues[x].issue.code === item.code && $scope.groupNotesForm.assignedCMIssues[x].issue.type === item.codingSystem) {
-    			return;
-    		}
-    	}
-		
-		diseaseRegistryServices.findLikeIssue(item).then(function(response){
-    		var cmIssue = {acute:false,certain:false,issue:response,issue_id:response.issueId,major:false,resolved:false,unsaved:true};
-        	$scope.groupNotesForm.assignedCMIssues.push(cmIssue);
-    	});
-		
-		
-	}
 	
 	//disable click and keypress if user only has read-access
 	$scope.checkAction = function(event){
@@ -538,47 +544,32 @@ GroupNotesCtrl = function ($scope,$modal,$modalInstance,mod,action,user,$statePa
 	displayIssueId($scope.page.code);
 
 	displayGroupNote = function(item,itemId){
-			if($scope.page.items[itemId].noteId != null){
-				noteService.getIssueNote($scope.page.items[itemId].noteId).then(function(iNote){
-					//$scope.master = angular.copy( "iNote----" +  JSON.stringify(iNote) );
-					$scope.groupNotesForm.encounterNote = iNote.encounterNote;
-					$scope.groupNotesForm.groupNoteExt = iNote.groupNoteExt;
-					$scope.groupNotesForm.assignedCMIssues = iNote.assignedCMIssues;
-					
-					$scope.groupNotesForm.assignedCMIssues = [];
-					
-					if(iNote.assignedCMIssues instanceof Array) {
-						$scope.groupNotesForm.assignedCMIssues = iNote.assignedCMIssues;
-					} else {
-						if(iNote.assignedCMIssues != null) {
-							$scope.groupNotesForm.assignedCMIssues.push(iNote.assignedCMIssues);
-						}
-					}
-					
-					action = itemId;
-					$scope.setAvailablePositions();
-									
-					$scope.removeEditingNoteFlag();
-									
-					if($scope.groupNotesForm.encounterNote.position<1){
-						$scope.groupNotesForm.encounterNote.position=1;
-					}
-					
-				},function(reason){
-					alert(reason);
-				});
-			}else if($scope.page.items[itemId].type === "dx_reg"){
+			noteService.getIssueNote($scope.page.items[itemId].noteId).then(function(iNote){
+				//$scope.master = angular.copy( "iNote----" +  JSON.stringify(iNote) );
+				$scope.groupNotesForm.encounterNote = iNote.encounterNote;
+				$scope.groupNotesForm.groupNoteExt = iNote.groupNoteExt;
+				$scope.groupNotesForm.assignedCMIssues = iNote.assignedCMIssues;
+				
 				$scope.groupNotesForm.assignedCMIssues = [];
-				diseaseRegistryServices.findLikeIssue($scope.page.items[itemId].extra).then(function(response){
-		    		var cmIssue = {acute:false,certain:false,issue:response,issue_id:response.issueId,major:false,resolved:false,unsaved:true};
-		    		console.log("find like issue ", cmIssue, response);
-		        	$scope.groupNotesForm.assignedCMIssues.push(cmIssue);
-		        	$scope.groupNotesForm.encounterNote = {};
-		        	$scope.groupNotesForm.groupNoteExt = {};
-		        	$scope.groupNotesForm.encounterNote = {position:1};
-		        	action = itemId;
-		    	});
-			}
+				
+				if(iNote.assignedCMIssues instanceof Array) {
+					$scope.groupNotesForm.assignedCMIssues = iNote.assignedCMIssues;
+				} else {
+					if(iNote.assignedCMIssues != null) {
+						$scope.groupNotesForm.assignedCMIssues.push(iNote.assignedCMIssues);
+					}
+				}
+				
+				action = itemId;
+				$scope.setAvailablePositions();
+				
+				$scope.removeEditingNoteFlag();
+				
+				console.log(JSON.stringify($scope.groupNotesForm));
+				
+			},function(reason){
+				alert(reason);
+			});
 	};
 	
 	//action is NULL when new , action is some id when not
@@ -737,14 +728,6 @@ GroupNotesCtrl = function ($scope,$modal,$modalInstance,mod,action,user,$statePa
     		return "group-note-selected";
     	}
     }
-    
-    $scope.addToDxRegistry = function(issue){
-    	diseaseRegistryServices.addToDxRegistry($stateParams.demographicNo,issue).then(function(data){
-    		console.log(data);
-    	});
-    	
-    }
-    
 };
 var itvSet = null;
 var itvCheck = null;

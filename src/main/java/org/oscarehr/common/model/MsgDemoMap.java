@@ -23,61 +23,24 @@
  */
 package org.oscarehr.common.model;
 
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
 @Table(name="msgDemoMap")
-public class MsgDemoMap extends AbstractModel<Long> {
+public class MsgDemoMap extends AbstractModel<MsgDemoMapPK> {
 
-	@Id
-        @GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
-        
-        private Integer messageID;
-        private Integer demographic_no;
-        
+	@EmbeddedId     
+	private MsgDemoMapPK id;
 
-	public Long getId() {
-            return id;
-        }
-
-	public void setId(Long id) {
-		this.id = id;
+	public MsgDemoMapPK getId() {
+		return id;
 	}
 
-    /**
-     * @return the messageID
-     */
-    public Integer getMessageID() {
-        return messageID;
-    }
-
-    /**
-     * @param messageID the messageID to set
-     */
-    public void setMessageID(Integer messageID) {
-        this.messageID = messageID;
-    }
-
-    /**
-     * @return the demographic_no
-     */
-    public Integer getDemographic_no() {
-        return demographic_no;
-    }
-
-    /**
-     * @param demographic_no the demographic_no to set
-     */
-    public void setDemographic_no(Integer demographic_no) {
-        this.demographic_no = demographic_no;
-    }
-        
-        
+	public void setId(MsgDemoMapPK id) {
+		this.id = id;
+	}
 	
 	
 }

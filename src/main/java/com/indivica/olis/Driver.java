@@ -77,7 +77,6 @@ import ca.ssha.www._2005.hial.OLISStub.OLISRequest;
 import ca.ssha.www._2005.hial.OLISStub.OLISRequestResponse;
 
 import com.indivica.olis.queries.Query;
-import org.oscarehr.common.model.OscarMsgType;
 
 public class Driver {
 
@@ -400,7 +399,7 @@ public class Driver {
 		}
 
 		String sentToString = messageData.createSentToString(sendToProviderListData);
-		messageData.sendMessage2(message, "OLIS Retrieval Error", "System", sentToString, "-1", sendToProviderListData, null, null, OscarMsgType.GENERAL_TYPE);
+		messageData.sendMessage2(message, "OLIS Retrieval Error", "System", sentToString, "-1", sendToProviderListData, null, null);
 	}
 
 	static void writeToFile(String data) {
