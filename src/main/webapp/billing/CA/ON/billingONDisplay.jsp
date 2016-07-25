@@ -68,7 +68,9 @@
 <%@ page import="oscar.oscarBilling.ca.on.pageUtil.*"%>
 <%@page import="org.oscarehr.util.SpringUtils"%>
 <%@page import="org.oscarehr.common.model.ClinicNbr"%>
+<%@page import="org.oscarehr.common.model.ProfessionalSpecialist"%>
 <%@page import="org.oscarehr.common.dao.ClinicNbrDao"%>
+<%@page import="org.oscarehr.common.dao.ProfessionalSpecialistDao"%>
 
 <%GregorianCalendar now = new GregorianCalendar();
 			int curYear = now.get(Calendar.YEAR);
@@ -224,6 +226,11 @@ function popupPage(vheight,vwidth,varpage) {
 					if (recordObj != null && recordObj.size() > 0) {
 						ch1Obj = (BillingClaimHeader1Data) recordObj.get(0);
 
+						//Gets the professional specialist dao so that the referring doctor's name can be displayed
+						ProfessionalSpecialistDao professionalSpecialistDao = (ProfessionalSpecialistDao)SpringUtils.getBean(ProfessionalSpecialistDao.class);
+						//Gets the professional specialist based on the ref_num
+						ProfessionalSpecialist referringDoctor = professionalSpecialistDao.getByReferralNo(ch1Obj.getRef_num());
+						
 						UpdateDate = ch1Obj.getUpdate_datetime(); //.substring(0,10);
 						DemoNo = ch1Obj.getDemographic_no();
 						DemoName = ch1Obj.getDemographic_name();
@@ -248,7 +255,7 @@ function popupPage(vheight,vwidth,varpage) {
 						HCTYPE = ch1Obj.getProvince();
 						HCSex = ch1Obj.getSex();
 						r_doctor_ohip = ch1Obj.getRef_num();
-						r_doctor = "";
+						r_doctor = referringDoctor.getFormattedName();
 						r_doctor_ohip_s = "";
 						r_doctor_s = "";
 						m_review = ch1Obj.getMan_review();
