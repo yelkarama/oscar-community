@@ -76,10 +76,16 @@
 <%@page import="org.apache.commons.lang.StringEscapeUtils"%>
 <%@page import="org.oscarehr.managers.ProgramManager2" %>
 <%@page import="org.oscarehr.PMmodule.model.ProgramProvider" %>
+<%@page import="org.oscarehr.common.dao.DemographicGroupDao" %>
+<%@page import="org.oscarehr.common.model.DemographicGroup" %>
+<%@page import="org.oscarehr.common.dao.PatientTypeDao" %>
+
+<%@ page import="org.oscarehr.common.model.UserProperty"%>
 
 <jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean" scope="session" />
 <%
 	ProfessionalSpecialistDao professionalSpecialistDao = (ProfessionalSpecialistDao) SpringUtils.getBean("professionalSpecialistDao");
+	DemographicGroupDao demographicGroupDao = SpringUtils.getBean(DemographicGroupDao.class);
 	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 	ProgramManager pm = SpringUtils.getBean(ProgramManager.class);
 	DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
@@ -120,6 +126,7 @@
   CountryCodeDao ccDAO =  (CountryCodeDao) ctx.getBean("countryCodeDao");
 
   List<CountryCode> countryList = ccDAO.getAllCountryCodes();
+  List<DemographicGroup> demographicGroups = demographicGroupDao.getAll();
 
   // Used to retrieve properties from user (i.e. HC_Type & default_sex)
   UserPropertyDAO userPropertyDAO = (UserPropertyDAO) ctx.getBean("UserPropertyDAO");
@@ -673,6 +680,17 @@ function ignoreDuplicates() {
 <%} %>
             </select>
         </td>
+        
+        <td align="right"><b><bean:message
+					key="demographic.demographiceditdemographic.aboriginal" />: </b></td>
+		<td align="left">
+		<select name="aboriginal">
+			<option value="">Unknown</option>
+			<option value="No">No</option>
+			<option value="Yes" >Yes</option>
+		</select>
+		</td>
+        
     </tr>
 
 			<tr valign="top">
@@ -1090,6 +1108,17 @@ function ignoreDuplicates() {
 		<% } %>
 		</oscar:oscarPropertiesCheck>
     </tr>
+  
+     		<%-- TOGGLE FIRST NATIONS MODULE --%>							    
+			<oscar:oscarPropertiesCheck value="true" defaultVal="false" property="FIRST_NATIONS_MODULE">
+			
+					<jsp:include page="manageFirstNationsModule.jsp" flush="true">
+						<jsp:param name="demo" value="0" />
+					</jsp:include>
+											
+			</oscar:oscarPropertiesCheck>
+			<%-- END TOGGLE FIRST NATIONS MODULE --%>    
+
     <tr valign="top">
 	<td  id="sinNoLbl" align="right"><b><bean:message key="demographic.demographicaddrecordhtm.msgSIN"/>:</b> </td>
 	<td id="sinNoCell" align="left"  >
@@ -1312,7 +1341,15 @@ document.forms[1].r_doctor_ohip.value = refNo;
 							</option>
 							<%} %>
 							<%
-							for(WaitingListName wln : waitingListNameDao.findCurrentByGroup(((ProviderPreference)session.getAttribute(SessionConstants.LOGGED_IN_PROVIDER_PREFERENCE)).getMyGroupNo())) {
+							List<WaitingListName> waitLists;
+							if (OscarProperties.getInstance().getBooleanProperty("show_all_wait_lists", "true")) {
+								waitLists = waitingListNameDao.getAllActiveWaitLists();
+							}
+							else {
+								waitLists = waitingListNameDao.findCurrentByGroup(((ProviderPreference)session.getAttribute(SessionConstants.LOGGED_IN_PROVIDER_PREFERENCE)).getMyGroupNo());
+							}
+							
+							for(WaitingListName wln : waitLists) {
                                     
                                     %>
 							<option value="<%=wln.getId()%>"><%=wln.getName()%></option>
@@ -1445,6 +1482,50 @@ if(oscarVariables.getProperty("demographicExtJScript") != null) { out.println(os
 			<tr>
 				<td colspan="4">
 				<table width="100%" bgcolor="#EEEEFF">
+          <tr>
+            <td width="7%" align="right">
+							<label for="patientType">
+								<bean:message key="demographic.demographiceditdemographic.formPatientType"/>:
+							</label>
+						</td>
+  						<td>
+								<input type="hidden" name="patientTypeOrig"/>
+								<select id="patientType" name="patientType" onchange="this.form.patientTypeOrig.value=this.value">
+									<option value="NotSet">Not Specified</option>
+						
+							<%	    PatientTypeDao patientTypeDao=(PatientTypeDao)SpringUtils.getBean("patientTypeDao");
+                                		List<PatientType> patientTypes = patientTypeDao.findAllPatientTypes();
+                                		for (PatientType thisPatientType : patientTypes) { %>				
+                                			<option value="<%=thisPatientType.getType() %>"><%=thisPatientType.getDescription()%></option>		
+                               <%		}%>
+                	</select>
+              </td>
+  						<td align="right">
+  							<label for="demographicMiscId">
+  								<bean:message key="demographic.demographiceditdemographic.formDemographicMiscId"/>:
+  							</label>
+  						</td>
+  						<td>
+  							<input type="text" id="demographicMiscId" name="demographicMiscId" value=""/>
+              </td>
+          </tr>
+          <tr>
+						<td width="7%" align="right">
+							<label for="demographicGroups"> <bean:message key="demographic.demographiceditdemographic.formDemographicGroups"/>: </label>
+						</td>
+						<td>
+							<select multiple size="4" id="demographicGroups" name="demographicGroups" style="vertical-align:top;">
+							<option value="" selected> None </option>
+							<%
+							for (DemographicGroup dg : demographicGroups) {
+								%>
+								<option value="<%=dg.getId()%>"> <%=dg.getName()%> </option>
+								<%
+							}
+							%>
+							</select>
+ 						</td>
+          </tr>
 					<tr>
 						<td id="alertLbl" width="10%" align="right"><font color="#FF0000"><b><bean:message
 							key="demographic.demographicaddrecordhtm.formAlert" />: </b></font></td>

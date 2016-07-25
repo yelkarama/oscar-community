@@ -865,6 +865,7 @@
         <ViolationValue>/src/main/java/oscar/form/FrmGripStrengthRecord.java:rs = DBHandler.GetSQL(sql);</ViolationValue>
         <ViolationValue>/src/main/java/oscar/form/FrmGrowth0_36Record.java:ResultSet rs = DBHandler.GetSQL(sql);</ViolationValue>
         <ViolationValue>/src/main/java/oscar/form/FrmGrowthChartRecord.java:ResultSet rs = DBHandler.GetSQL(sql);</ViolationValue>
+        <ViolationValue>/src/main/java/oscar/form/FrmGynaeFormRecord.java:rs = DBHandler.GetSQL(sql);</ViolationValue>
         <ViolationValue>/src/main/java/oscar/form/FrmHomeFallsRecord.java:rs = DBHandler.GetSQL(sql);</ViolationValue>
         <ViolationValue>/src/main/java/oscar/form/FrmImmunAllergyRecord.java:ResultSet rs = DBHandler.GetSQL(sql);</ViolationValue>
         <ViolationValue>/src/main/java/oscar/form/FrmIntakeInfoRecord.java:rs = DBHandler.GetSQL(sql);</ViolationValue>
@@ -2709,6 +2710,7 @@
         <ViolationValue>/src/main/webapp/form/formar2wt.jsp:StringBuffer temp = new StringBuffer("");</ViolationValue>
         <ViolationValue>/src/main/webapp/form/formar2wt.jsp:temp = new StringBuffer(e.nextElement().toString());</ViolationValue>
         <ViolationValue>/src/main/webapp/form/formbcinr.jsp:Vector vecR = (new FrmBCINRRecord()).getINRLabData(demoNo);</ViolationValue>
+        <ViolationValue>/src/main/webapp/form/formgynae.jsp:StringBuffer noteStr = new StringBuffer();</ViolationValue>
         <ViolationValue>/src/main/webapp/form/formlabreqprint.jsp:StringBuffer temp = new StringBuffer("");</ViolationValue>
         <ViolationValue>/src/main/webapp/form/formlabreqprint.jsp:temp = new StringBuffer(e.nextElement().toString());</ViolationValue>
         <ViolationValue>/src/main/webapp/form/formmhassessmentprint.jsp:StringBuffer temp = new StringBuffer("");</ViolationValue>

@@ -246,6 +246,7 @@ public class ProviderDao extends HibernateDaoSupport {
 				"FROM Provider p " + 
 					"WHERE p.ProviderType = 'doctor' " +
 					"AND p.Status = '1' " +
+					"AND p.OhipNo != ''" + 
 					"AND p.OhipNo IS NOT NULL " +
 				   	"ORDER BY p.LastName, p.FirstName");
 	}

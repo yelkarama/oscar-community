@@ -122,6 +122,26 @@ public class Demographic implements Serializable {
     private String countryOfOrigin;
     private String newsletter;
     
+    private String patientType;
+    private String patientId;
+	
+    public String getPatientId() {
+		return patientId;
+ 	}
+ 	
+    public void setPatientId(String patientId) {
+    	this.patientId = patientId;
+ 	}
+ 	
+    public String getPatientType() {
+    	return patientType;
+	}
+
+	public void setPatientType(String patientType) {
+		this.patientType = patientType;
+ 	}
+
+
 
         public String getTitle() {
         	return title;

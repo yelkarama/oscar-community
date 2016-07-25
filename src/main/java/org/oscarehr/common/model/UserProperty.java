@@ -69,6 +69,10 @@ public class UserProperty extends AbstractModel<Integer> implements Serializable
     public static final String OFFICIAL_OLIS_IDTYPE="official_olis_idtype";
     
     
+    public final static String HIDE_NO_SHOWS_AND_CANCELLATIONS="hideNoShowsAndCancellations";
+    public final static String HIDE_NO_SHOWS_AND_CANCELLATIONS_NO_SHOW="N";
+    public final static String HIDE_NO_SHOWS_AND_CANCELLATIONS_CANCELLATION="C";
+    public final static String HIDE_NO_SHOWS_AND_CANCELLATIONS_BOTH="CN";
     //added to user properties with new interface
     public static final String FAX = "fax";
     public static final String SIGNATURE = "signature";

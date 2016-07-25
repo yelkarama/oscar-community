@@ -315,12 +315,18 @@ public class DmsInboxManageAction extends DispatchAction {
 
 		Date startDate = null;
 		Date endDate = null;
-
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		
+		//Tries to convert the start date to a Date object, if it fails then sets the date to null so it doesn't pass other checks
 		try {
-			startDate = UtilDateUtilities.StringToDate(startDateStr);
-			endDate = UtilDateUtilities.StringToDate(endDateStr);
+			startDate = sdf.parse(startDateStr);
 		} catch (Exception e) {
 			startDate = null;
+		}
+		//Tries to convert the end date to a Date object, if it fails then sets the date to null so it doesn't pass other checks
+		try {
+			endDate = sdf.parse(endDateStr);
+		} catch (Exception e) {
 			endDate = null;
 		}
 
@@ -370,12 +376,12 @@ public class DmsInboxManageAction extends DispatchAction {
 
 		if (!"labs".equals(view) && !"abnormal".equals(view)) {
 			labdocs = inboxResultsDao.populateDocumentResultsData(searchProviderNo, demographicNo, patientFirstName,
-					patientLastName, patientHealthNumber, ackStatus, true, page, pageSize, mixLabsAndDocs, isAbnormal);
+					patientLastName, patientHealthNumber, ackStatus, true, page, pageSize, mixLabsAndDocs, isAbnormal, startDate, endDate);
 		}
 		if (!"documents".equals(view)) {
 			labdocs.addAll(comLab.populateLabResultsData(loggedInInfo, searchProviderNo, demographicNo, patientFirstName,
-					patientLastName, patientHealthNumber, ackStatus, scannedDocStatus, true, page, pageSize,
-					mixLabsAndDocs, isAbnormal));
+					patientLastName, patientHealthNumber, ackStatus, true, page, pageSize,
+					mixLabsAndDocs, isAbnormal, startDate, endDate));
 		}
 
 		ArrayList<LabResultData> validlabdocs = new ArrayList<LabResultData>();
@@ -452,7 +458,7 @@ public class DmsInboxManageAction extends DispatchAction {
 
 		HRMResultsData hrmResult = new HRMResultsData();
 
-		Collection<LabResultData> hrmDocuments = hrmResult.populateHRMdocumentsResultsData(loggedInInfo, searchProviderNo, ackStatus, newestLab, oldestLab);
+		Collection<LabResultData> hrmDocuments = hrmResult.populateHRMdocumentsResultsData(loggedInInfo, searchProviderNo, ackStatus, endDate, startDate);
 		if (oldestLab == null) {
 			for (LabResultData hrmDocument : hrmDocuments) {
 				if (oldestLab == null || (hrmDocument.getDateObj() != null && oldestLab.compareTo(hrmDocument.getDateObj()) > 0))
@@ -468,14 +474,6 @@ public class DmsInboxManageAction extends DispatchAction {
 
 		int accessionNumCount = 0;
 		for (LabResultData result : labdocs) {
-			if (startDate != null && startDate.after(result.getDateObj())) {
-				continue;
-			}
-
-			if (endDate != null && endDate.before(result.getDateObj())) {
-				continue;
-			}
-
 			String segmentId = result.getSegmentID();
 			if (result.isDocument())
 				segmentId += "d";

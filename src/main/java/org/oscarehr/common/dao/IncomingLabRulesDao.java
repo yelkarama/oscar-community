@@ -31,6 +31,7 @@ import javax.persistence.Query;
 
 import org.oscarehr.common.model.IncomingLabRules;
 import org.oscarehr.common.model.Provider;
+import org.oscarehr.util.MiscUtils;
 import org.springframework.stereotype.Repository;
 
 @Repository

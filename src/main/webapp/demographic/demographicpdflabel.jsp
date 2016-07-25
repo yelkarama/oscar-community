@@ -401,7 +401,15 @@ out.println("failed!!!");
 				wlnote = w.getNote();
 			}
            
-			for(WaitingListName wln : waitingListNameDao.findCurrentByGroup(((ProviderPreference)session.getAttribute(SessionConstants.LOGGED_IN_PROVIDER_PREFERENCE)).getMyGroupNo())) {
+			List<WaitingListName> waitLists;
+			if (OscarProperties.getInstance().getBooleanProperty("show_all_wait_lists", "true")) {
+				waitLists = waitingListNameDao.getAllActiveWaitLists();
+			}
+			else {
+				waitLists = waitingListNameDao.findCurrentByGroup(((ProviderPreference)session.getAttribute(SessionConstants.LOGGED_IN_PROVIDER_PREFERENCE)).getMyGroupNo());
+			}
+			
+			for(WaitingListName wln : waitLists) {
 				if (wln.getId().toString().equals(listID) ) {
 					%><%=wln.getName()%> <%
 				}

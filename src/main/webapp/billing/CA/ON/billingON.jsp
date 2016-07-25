@@ -289,6 +289,8 @@
 				//propHist.setProperty("update_date", rs.getString("timestamp")); // create date
 				propHist.setProperty("visitType", obj.getVisittype());
 				propHist.setProperty("clinic_ref_code", obj.getFacilty_num());
+				propHist.setProperty("admissionDate", StringUtils.trimToEmpty(obj.getAdmission_date()));
+				propHist.setProperty("visitLocation", StringUtils.trimToEmpty(obj.getFacilty_num()));
 				vecHist.add(propHist);
 				//propHist.setProperty("service_code", serCode);
 				propHist.setProperty("diagnostic_code", iobj.getDx());
@@ -331,6 +333,22 @@
 			String xml_visittype = getDefaultValue(paraName, vecHist, "visitType");
 			//xml_visittype = paraName != null && !"".equals(paraName)? paraName : "00" ;
 
+			//Creates empty strings for the visitLocation and admissiondate
+			String visitLocation = "";
+			String admissionDate = "";
+			//Checks if the autofill option is enabled in the properties
+			if (OscarProperties.getInstance().getBooleanProperty("autofill_billing_date_and_location", "true")) {
+				//Checks if the vecHist contaions the properties
+				if (vecHist != null && vecHist.size() > 0 && vecHist.get(0) != null) {
+					//Gets the visit location
+					String visitLocationProperty = ((Properties)vecHist.get(0)).getProperty("visitLocation");
+					String admissionDateProperty = ((Properties)vecHist.get(0)).getProperty("admissionDate"); 
+					visitLocation = visitLocationProperty != null ? visitLocationProperty : "";
+					//Gets the admissionDate
+					admissionDate = admissionDateProperty != null ? admissionDateProperty : "";
+				}
+			}
+			
 			if (!"".equals(xml_visittype)) {
 				visitType = xml_visittype;
 			} else {
@@ -1539,9 +1557,11 @@ function changeSite(sel) {
 														billLocationNo = (String) lLocation.get(i);
 														billLocation = (String) lLocation.get(i + 1);
 														String strLocation = request.getParameter("xml_location") != null ? request.getParameter("xml_location") : clinicview;
+														//Checks if the visit location is null, if it is, then give it the value of strLocation so that the xml_location or clinicview is selected instead of "Not Applicable"
+														visitLocation = !visitLocation.equals("") ? visitLocation : strLocation;
 												%>
 												<option value="<%=billLocationNo + "|" + billLocation%>"
-													<%=strLocation.startsWith(billLocationNo)?"selected":""%>>
+													<%=billLocationNo.equals(visitLocation) ? "selected" : ""%>>
 													<%=billLocation%>
 												</option>
 												<%
@@ -1619,7 +1639,7 @@ function changeSite(sel) {
 												  if (visitType.startsWith("02")) admDate = visitdate;
 											%> <!--input type="text" name="xml_vdate" id="xml_vdate" value="<%--=request.getParameter("xml_vdate")!=null? request.getParameter("xml_vdate"):visitdate--%>" size='10' maxlength='10' -->
 											<input type="text" name="xml_vdate" id="xml_vdate"
-											value="<%=request.getParameter("xml_vdate")!=null? request.getParameter("xml_vdate"):admDate%>"
+											value="<%=request.getParameter("xml_vdate") != null ? request.getParameter("xml_vdate") : (!admissionDate.equals("") ? admissionDate : admDate)%>"
 											size='10' maxlength='10' readonly> <img
 											src="../../../images/cal.gif" id="xml_vdate_cal" />
 										</td>

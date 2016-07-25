@@ -2006,10 +2006,22 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
           	  bFirstTimeRs=true;
 	    as.setApptStatus(status);
 
+		UserProperty hideNoShowsAndCancellationsProperty = userPropertyDao.getProp(curUser_no, UserProperty.HIDE_NO_SHOWS_AND_CANCELLATIONS);
+		String hideAppointmentStatus = "";
+		String hideAppointmentHtml = "";
+			 
+		if (hideNoShowsAndCancellationsProperty != null)
+			hideAppointmentStatus = hideNoShowsAndCancellationsProperty.getValue();
+			 
+		if (status.equals(UserProperty.HIDE_NO_SHOWS_AND_CANCELLATIONS_NO_SHOW) || status.equals(UserProperty.HIDE_NO_SHOWS_AND_CANCELLATIONS_CANCELLATION)){
+			if (hideAppointmentStatus.equals(status) || hideAppointmentStatus.equals(UserProperty.HIDE_NO_SHOWS_AND_CANCELLATIONS_BOTH)){
+				hideAppointmentHtml = "style=\"display:none\"";
+			}
+		}
 	 //multi-site. if a site have been selected, only display appointment in that site
 	 if (!bMultisites || (selectedSite == null && CurrentSiteMap.get(sitename) != null) || sitename.equals(selectedSite)) {
 %>
-            <td class="appt" bgcolor='<%=as.getBgColor()%>' rowspan="<%=iRows%>" <%-- =view==0?(len==lenLimitedL?"nowrap":""):"nowrap"--%> nowrap>
+            <td <%=hideAppointmentHtml%> class="appt" bgcolor='<%=as.getBgColor()%>' rowspan="<%=iRows%>" <%-- =view==0?(len==lenLimitedL?"nowrap":""):"nowrap"--%> nowrap>
 			<%
 			   if (BookingSource.MYOSCAR_SELF_BOOKING == appointment.getBookingSource())
 				{

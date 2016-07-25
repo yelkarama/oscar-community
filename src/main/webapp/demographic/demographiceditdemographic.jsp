@@ -50,6 +50,11 @@
 <%@page import="org.oscarehr.common.dao.DemographicExtDao" %>
 <%@page import="org.oscarehr.common.dao.DemographicArchiveDao" %>
 <%@page import="org.oscarehr.common.dao.DemographicExtArchiveDao" %>
+<%@page import="org.oscarehr.common.dao.PatientTypeDao" %>
+<%@page import="org.oscarehr.common.dao.DemographicGroupLinkDao" %>
+<%@page import="org.oscarehr.common.dao.DemographicGroupDao" %>
+<%@page import="org.oscarehr.common.model.DemographicGroup" %>
+<%@page import="org.oscarehr.common.model.DemographicGroupLink" %>
 <%@page import="org.oscarehr.util.SpringUtils" %>
 <%@page import="oscar.OscarProperties" %>
 <%@page import="org.oscarehr.common.dao.ScheduleTemplateCodeDao" %>
@@ -85,6 +90,11 @@
     WaitingListNameDao waitingListNameDao = SpringUtils.getBean(WaitingListNameDao.class);
     String privateConsentEnabledProperty = OscarProperties.getInstance().getProperty("privateConsentEnabled");
     boolean privateConsentEnabled = (privateConsentEnabledProperty != null && privateConsentEnabledProperty.equals("true"));
+    DemographicGroupLinkDao demographicGroupLinkDao = SpringUtils.getBean(DemographicGroupLinkDao.class);
+    DemographicGroupDao demographicGroupDao = SpringUtils.getBean(DemographicGroupDao.class);
+    
+    PatientTypeDao patientTypeDao = (PatientTypeDao) SpringUtils.getBean("patientTypeDao");
+    List<PatientType> patientTypes = patientTypeDao.findAllPatientTypes();
 %>
 
 <security:oscarSec roleName="<%=roleName$%>"
@@ -128,9 +138,9 @@ if(!authed) {
 <%@ page import="org.oscarehr.common.dao.SpecialtyDao" %>
 <%@ page import="org.oscarehr.common.model.Specialty" %>
 <%
+	DemographicDao demographicDao=(DemographicDao)SpringUtils.getBean("demographicDao");
 	ProfessionalSpecialistDao professionalSpecialistDao = (ProfessionalSpecialistDao) SpringUtils.getBean("professionalSpecialistDao");
 	DemographicCustDao demographicCustDao = (DemographicCustDao)SpringUtils.getBean("demographicCustDao");
-	DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
 	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 	List<Provider> providers = providerDao.getActiveProviders();
 	List<Provider> doctors = providerDao.getActiveProvidersByRole("doctor");
@@ -186,9 +196,28 @@ if(!authed) {
 
 	OscarProperties oscarProps = OscarProperties.getInstance();
 
-        Boolean isMobileOptimized = session.getAttribute("mobileOptimized") != null;
+  int demographicNoAsInt = 0;
+  try {
+    demographicNoAsInt = Integer.parseInt( demographic_no );
+  } catch (Exception e) {
+    // TODO: Handle error
+  }
+
+  Boolean isMobileOptimized = session.getAttribute("mobileOptimized") != null;
 	ProvinceNames pNames = ProvinceNames.getInstance();
 	Map<String,String> demoExt = demographicExtDao.getAllValuesForDemo(Integer.parseInt(demographic_no));
+	List<DemographicGroupLink> demographicGroupsForPatient = demographicGroupLinkDao.findByDemographicNo(demographicNoAsInt);
+	pageContext.setAttribute("demoExtended", demoExt);
+	List<DemographicGroup> demographicGroups = demographicGroupDao.getAll();
+	List<String> demographicGroupNamesForPatient = new ArrayList<String>();
+  
+	for ( DemographicGroupLink dgl : demographicGroupsForPatient ) {
+		for ( DemographicGroup dg : demographicGroups ) {
+			if ( dgl.getId().getDemographicGroupId() == dg.getId().intValue() ) {
+				demographicGroupNamesForPatient.add( dg.getName() );
+			}
+		}
+	}
 
 	
 	String usSigned = StringUtils.defaultString(apptMainBean.getString(demoExt.get("usSigned")));
@@ -208,6 +237,32 @@ if(!authed) {
 	if (OscarProperties.getInstance().getProperty("disableTelProgressNoteTitleInEncouterNotes") != null 
 			&& OscarProperties.getInstance().getProperty("disableTelProgressNoteTitleInEncouterNotes").equals("yes")) {
 		noteReason = "";
+	}
+	
+	//String patientType = demoExt.get("patientType");
+	String patientType = demographicDao.getDemographic(demographic_no).getPatientType();
+	String patientId = demographicDao.getDemographic(demographic_no).getPatientId();
+	String demographicMiscId = demoExt.get("demographicMiscId");
+  
+	if (patientType == null) {
+		patientType = "";
+	}
+  
+	String patientTypeDesc = "";
+	for (PatientType pt : patientTypes ) {
+		if( pt.getType().equals(patientType) ) {
+			patientTypeDesc = pt.getDescription();
+			break;
+		}
+	}
+  
+  
+	if (patientId == null) {
+		patientId = "";
+	}
+  
+	if (demographicMiscId == null) {
+		demographicMiscId = "";
 	}
 	
 	// MARC-HI's Sharing Center
@@ -296,6 +351,31 @@ if(!authed) {
    <script>
      jQuery.noConflict();
    </script>
+<script>
+jQuery( document ).ready( function() {
+	var demographicGroupsForPatient = [];
+	<%
+	for (DemographicGroupLink dg : demographicGroupsForPatient) {
+		%>
+		demographicGroupsForPatient.push(<%=dg.getId().getDemographicGroupId()%>);
+		<%
+	}
+	%>
+	
+	for ( var i in demographicGroupsForPatient ) {
+		if (demographicGroupsForPatient.hasOwnProperty(i)) {
+			var elem = jQuery('#demographicGroups option[value="' + demographicGroupsForPatient[i] + '"]');
+			
+			if (elem.length === 0) {
+				console.error('Demographic Group with id "' + demographicGroupsForPatient[i] + '" does not exist.');
+				continue;
+			}
+			
+			elem.attr('selected', 'selected');
+		}
+	}
+});
+</script>
 <oscar:customInterface section="master"/>
 
 <script type="text/javascript" src="<%=request.getContextPath() %>/demographic/demographiceditdemographic.js"></script>
@@ -804,6 +884,18 @@ jQuery(document).ready(function() {
                                 	alert = alert==null?"":alert;	
                                 	midwife = midwife==null?"":midwife;
                                 	notes = notes==null?"":notes;                               	
+                                }
+                                
+                                if( resident == null ) {
+                                	resident = "";
+                                }
+                                
+                                if( nurse == null ) {
+                                	nurse = "";
+                                }
+                                
+                                if( midwife == null ) {
+                                	midwife = "";
                                 }
 
                                 // Demographic demographic=demographicDao.getDemographic(demographic_no);
@@ -1443,8 +1535,16 @@ if(oscarProps.getProperty("new_label_print") != null && oscarProps.getProperty("
                                                <li><span class="label"><bean:message key="demographic.demographiceditdemographic.aboriginal"/>:</span>
                                                    <span class="info"><%=aboriginal%></span>
 							</li>
-						<% }
-						  if (oscarProps.getProperty("EXTRA_DEMO_FIELDS") !=null){
+						<% }%>
+						<oscar:oscarPropertiesCheck value="true" defaultVal="false" property="FIRST_NATIONS_MODULE">  
+	                           <li><span class="label">
+	                           	First Nations:</span>
+	                            <span class="info">
+	                            	<c:out value='${ pageScope.demoExtended["aboriginal"] }' />
+	                            </span>
+								</li>
+						  </oscar:oscarPropertiesCheck> 
+						 <% if (oscarProps.getProperty("EXTRA_DEMO_FIELDS") !=null){
                                               String fieldJSP = oscarProps.getProperty("EXTRA_DEMO_FIELDS");
                                               fieldJSP+= "View.jsp";
                                             %>
@@ -1587,6 +1687,31 @@ if ( Dead.equals(PatStat) ) {%>
 							</li>
 						</ul>
 						</div>
+            
+            <div class="demographicSection" id="patientType">
+              <h3>&nbsp;<bean:message key="demographic.demographiceditdemographic.msgPatientType"/></h3>
+              <ul>
+                <li>								
+                <span class="label"><bean:message key="demographic.demographiceditdemographic.formPatientType"/>:</span>
+                <span class="info"><%=patientTypeDesc%></span>
+              </li>
+              <li>
+                <span class="label"><bean:message key="demographic.demographiceditdemographic.formDemographicMiscId"/>:</span>
+                <span class="info"><%=patientId%></span>
+                </li>	
+              </ul>
+            </div>
+
+            <div class="demographicSection" id="demographicGroups">
+              <h3>&nbsp; <bean:message key="demographic.demographiceditdemographic.formDemographicGroups"/> </h3>
+              <ul>
+                <li>
+                <% for (String groupName : demographicGroupNamesForPatient) { %>
+                <span class="info"> <%=groupName%> </span>
+                <% } %>
+                </li>	
+              </ul>
+            </div>
 
 						<div class="demographicSection" id="alert">
 						<h3>&nbsp;<bean:message
@@ -1756,6 +1881,19 @@ if ( Dead.equals(PatStat) ) {%>
                                                         <span class="info"><%=MyDateFormat.getMyStandardDate(demographic.getHcRenewDate())%></span>
                                                     </li>
 						</ul>
+						
+						<%-- TOGGLE FIRST NATIONS MODULE --%>
+
+						<oscar:oscarPropertiesCheck value="true" defaultVal="false" property="FIRST_NATIONS_MODULE">
+						                  
+											<jsp:include page="./displayFirstNationsModule.jsp" flush="false">
+												<jsp:param name="demo" value="<%= demographic_no %>" />
+											</jsp:include>
+						
+						</oscar:oscarPropertiesCheck>						
+						
+						<%-- END TOGGLE FIRST NATIONS MODULE --%>
+						
 						</div>
 
 <%-- TOGGLE WORKFLOW_ENHANCE - SHOWS PATIENTS INTERNAL PROVIDERS AND RELATED SCHEDULE AVAIL --%>
@@ -2667,6 +2805,22 @@ if ( Dead.equals(PatStat) ) {%>
 									value="<%=StringUtils.trimToEmpty(demoExt.get("cytolNum"))%>" />
 								</td>
 							</tr>
+							
+							<tr>
+							<td colspan="8">
+							
+							<%-- TOGGLE FIRST NATIONS MODULE --%>							    
+							<oscar:oscarPropertiesCheck value="true" defaultVal="false" property="FIRST_NATIONS_MODULE">
+							
+									<jsp:include page="manageFirstNationsModule.jsp" flush="false">
+										<jsp:param name="demo" value="<%= demographic_no %>" />
+									</jsp:include>
+															
+							</oscar:oscarPropertiesCheck>
+							<%-- END TOGGLE FIRST NATIONS MODULE --%>
+							
+							</td>								
+							</tr>
 
 <%-- TOGGLE OFF PATIENT CLINIC STATUS --%>
 <oscar:oscarPropertiesCheck property="DEMOGRAPHIC_PATIENT_CLINIC_STATUS" value="true">
@@ -2968,6 +3122,45 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 							</tr>
 							
 							<tr>
+                <td align="right">
+                  <b><bean:message key="demographic.demographiceditdemographic.formPatientType" />:</b>
+                </td>
+                <td>
+                  <select id="patientType" name="patientType" onchange="this.form.patientTypeOrig.value=this.options[this.selectedIndex].value">
+                    <option value="NotSet">Not Specified</option>
+                    <% for (PatientType thisPatientType : patientTypes) { %>
+                    <option value="<%=thisPatientType.getType()%>"
+                    <%=(patientType.equals(thisPatientType.getType()) ? "selected" : "")%>><%=thisPatientType.getDescription()%></option>
+                  <% } %>
+                  </select>
+                </td>
+
+                <td align="right">
+                  <b><bean:message key="demographic.demographiceditdemographic.formDemographicGroups"/>:</b>
+                </td>
+                <td>
+                  <%for (DemographicGroupLink dg : demographicGroupsForPatient) {%>
+                    <input type="hidden" name="demographicGroupsOrig" value="<%=dg.getId().getDemographicGroupId()%>" />
+                  <%}%>
+                  <select id="demographicGroups" name="demographicGroups">
+                    <option value="" <%=demographicGroupsForPatient.size() == 0? "selected" : ""%>> None </option>
+                    <%for (DemographicGroup dg : demographicGroups) {%>
+                    <option value="<%=dg.getId()%>"> <%=dg.getName()%> </option>
+                    <%}%>
+                  </select>
+                </td>
+              </tr>
+
+              <tr>
+              <td align="right">
+                <b><bean:message key="demographic.demographiceditdemographic.formPatientId" />:</b>
+              </td>
+              <td>
+                <input type="text" name="patientId" id="patientId" value="<%=patientId%>" size="25" maxlength="45" />
+              </td>
+            </tr>
+            
+							<tr>
 	                            <td align="right"><b><bean:message key="web.record.details.archivedPaperChart" />: </b></td>
 	                            <td align="left">
 	                            	<%
@@ -3179,8 +3372,15 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 											<%} %>
 											<%
 											
-									List<WaitingListName> wlns = waitingListNameDao.findCurrentByGroup(((org.oscarehr.common.model.ProviderPreference)session.getAttribute(org.oscarehr.util.SessionConstants.LOGGED_IN_PROVIDER_PREFERENCE)).getMyGroupNo());
-                                     for(WaitingListName wln:wlns) {
+											List<WaitingListName> waitLists;
+											if (OscarProperties.getInstance().getBooleanProperty("show_all_wait_lists", "true")) {
+												waitLists = waitingListNameDao.getAllActiveWaitLists();
+											}
+											else {
+												waitLists = waitingListNameDao.findCurrentByGroup(((org.oscarehr.common.model.ProviderPreference)session.getAttribute(org.oscarehr.util.SessionConstants.LOGGED_IN_PROVIDER_PREFERENCE)).getMyGroupNo());
+											}
+											
+                                     for(WaitingListName wln : waitLists) {
                                     %>
 											<option value="<%=wln.getId()%>"
 												<%=wln.getId().toString().equals(listID)?" selected":""%>>

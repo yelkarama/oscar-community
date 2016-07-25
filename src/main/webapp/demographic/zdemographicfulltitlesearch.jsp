@@ -39,6 +39,14 @@
 <%@ taglib uri="/WEB-INF/caisi-tag.tld" prefix="caisi" %>
 
 <script language="JavaScript">
+function checkdbstatus() {
+	if( document.titlesearch.search_mode.value == 'search_band_number' ) { 
+		document.titlesearch.dboperation.value = 'search_status_id'; 
+	} else {
+		 document.titlesearch.dboperation.value = 'search_titlename';
+	}
+}
+
 function searchInactive() {
     document.titlesearch.ptstatus.value="inactive";
     if (checkTypeIn()) document.titlesearch.submit();
@@ -83,7 +91,8 @@ function searchOutOfDomain() {
              keyWord = "";
          }
      %>
-         <select class="wideInput" name="search_mode">
+         <select class="wideInput" name="search_mode" onchange="checkdbstatus();" >
+         	
             <option value="search_name" <%=searchMode.equals("search_name")?"selected":""%>>
                 <bean:message key="demographic.zdemographicfulltitlesearch.formName" />
             </option>
@@ -105,6 +114,11 @@ function searchOutOfDomain() {
             <option value="search_demographic_no" <%=searchMode.equals("search_demographic_no")?"selected":""%>>
                 <bean:message key="demographic.zdemographicfulltitlesearch.formDemographicNo" />
             </option>
+			 <oscar:oscarPropertiesCheck value="true" defaultVal="false" property="FIRST_NATIONS_MODULE">          
+		            <option value="search_band_number" <%=searchMode.equals("search_band_number")?"selected":""%> >
+		                <bean:message key="demographic.zdemographicfulltitlesearch.formBandNumber" />
+		            </option>
+			 </oscar:oscarPropertiesCheck>
          </select>
     </li>
     <li>
@@ -122,7 +136,8 @@ function searchOutOfDomain() {
     <INPUT TYPE="hidden" NAME="fromMessenger" VALUE="<%=fromMessenger%>">
 					<INPUT TYPE="hidden" NAME="outofdomain" VALUE="">
     <INPUT TYPE="SUBMIT" class="rightButton blueButton top" VALUE="<bean:message key="demographic.zdemographicfulltitlesearch.msgSearch" />" SIZE="17"
-					TITLE="<bean:message key="demographic.zdemographicfulltitlesearch.tooltips.searchActive"/>">
+					TITLE="<bean:message key="demographic.zdemographicfulltitlesearch.tooltips.searchActive"/>" 
+					onclick="checkdbstatus();" >
 				&nbsp;&nbsp;&nbsp; <INPUT TYPE="button" onclick="searchInactive();"
 					TITLE="<bean:message key="demographic.zdemographicfulltitlesearch.tooltips.searchInactive"/>"
 					VALUE="<bean:message key="demographic.search.Inactive"/>">

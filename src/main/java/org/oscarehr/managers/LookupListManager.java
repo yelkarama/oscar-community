@@ -98,4 +98,99 @@ public class LookupListManager {
 		
 	}
 	
+	/**
+	 * Retrieve all the active select list option items by the lookUpList.id
+	 */
+	public List<LookupListItem> findLookupListItemsByLookupListId(LoggedInInfo loggedInInfo, int lookupListId ) {
+
+		List<LookupListItem> lookupListItems = lookupListItemDao.findActiveByLookupListId( lookupListId );
+
+		if ( lookupListItems != null ) {
+			LogAction.addLogSynchronous(loggedInInfo, "LookupListManager.findLookupListItemsByLookupListId", lookupListItems.toString() );
+		}
+
+		return lookupListItems;
+	}
+
+	/**
+	 * Retrieve all the active select list option items by the lookupList.name
+	 */
+	public List<LookupListItem> findLookupListItemsByLookupListName(LoggedInInfo loggedInInfo, String lookupListName ) {
+
+		LookupList lookupList = findLookupListByName(loggedInInfo, lookupListName);
+		List<LookupListItem> lookupListItems = null;
+
+		if (lookupList != null) {
+			lookupListItems = findLookupListItemsByLookupListId(loggedInInfo, lookupList.getId() );
+			LogAction.addLogSynchronous(loggedInInfo, "LookupListManager.findLookupListItemsByLookupListName", lookupList.toString() );
+		}
+
+		return lookupListItems;
+	}
+
+
+	/**
+	 * Find a specific lookupListItem by it's id
+	 */
+	public LookupListItem findLookupListItemById(LoggedInInfo loggedInInfo, int lookupListItemId ) {
+		LookupListItem lookupListItem = null;
+		if( lookupListItemId > 0 ) {		
+			lookupListItem = lookupListItemDao.find( lookupListItemId );
+		}
+		if( lookupListItem != null ) {
+			LogAction.addLogSynchronous(loggedInInfo, "LookupListManager.findLookupListItemById", lookupListItem.toString());
+		}
+		return lookupListItem;
+	}
+
+	/**
+	 * Update a lookupListItem that has been edited.
+	 */
+	public Integer updateLookupListItem(LoggedInInfo loggedInInfo, LookupListItem lookupListItem ) {
+
+		lookupListItemDao.merge(lookupListItem);
+		Integer id = lookupListItem.getId();
+		LogAction.addLogSynchronous(loggedInInfo, "LookupListManager.updateLookupListItem", "Merged LookupListItem Id: " + id );
+
+		return id;
+	}
+
+	/**
+	 * Remove a lookupListItem by it's id.
+	 */
+	public boolean removeLookupListItem(LoggedInInfo loggedInInfo, int lookupListItemId ) {
+
+		LookupListItem lookupListItem = findLookupListItemById(loggedInInfo, lookupListItemId );
+		Integer id = null;
+
+		if( lookupListItem != null ) {
+			lookupListItem.setActive(Boolean.FALSE);
+			id = updateLookupListItem(loggedInInfo, lookupListItem ); 
+		}
+		LogAction.addLogSynchronous(loggedInInfo, "LookupListManager.removeLookupListItem", "Removed lookupListItem Id: " + id );
+
+		return ( id == lookupListItemId );
+	}
+
+	/**
+	 * Change the display order sequence of this lookupListItem
+	 * @param lookupListItemId
+	 * @param displayOrder
+	 */
+	public boolean updateLookupListItemDisplayOrder(LoggedInInfo loggedInInfo, int lookupListItemId, int lookupListItemDisplayOrder ) { 
+
+		LookupListItem lookupListItem = findLookupListItemById(loggedInInfo, lookupListItemId );
+		Integer id = null;
+
+		if( lookupListItem != null ) {
+			lookupListItem.setDisplayOrder( lookupListItemDisplayOrder );
+			id = updateLookupListItem(loggedInInfo, lookupListItem ); 
+		}
+
+		LogAction.addLogSynchronous(loggedInInfo, "LookupListManager.updateLookupListItemDisplayOrder", 
+				"Changed display order for lookupListItem Id: " + id + " To: " + lookupListItemDisplayOrder );
+
+		return ( id == lookupListItemId );
+	}
+	
 }

@@ -123,8 +123,7 @@ public class RxProviderData {
         	}
 
         }
-        
-        prov =  new Provider(providerNo, surname, firstName, clinicName, clinicAddress,
+                prov =  new Provider(providerNo, surname, firstName, clinicName, clinicAddress,
                 clinicCity, clinicPostal, clinicPhone, clinicFax, clinicProvince, practitionerNo);
         
         if(!useFullAddress) {

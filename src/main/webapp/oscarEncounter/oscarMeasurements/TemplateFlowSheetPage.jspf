@@ -82,7 +82,16 @@
 	LogAction.addLog((String) session.getAttribute("user"), LogConst.READ, LogConst.CON_FLOWSHEET,  temp , request.getRemoteAddr(),demographic_no);
 
 
-    int numElementsToShow = 4;
+	int numElementsToShow;
+
+    try {
+    	numElementsToShow = Integer.valueOf(OscarProperties.getInstance().getProperty("number_of_flowsheet_values"));
+    }
+    catch (NumberFormatException nfe) {
+    	MiscUtils.getLogger().error("number_of_flowsheet_values property is not an integer", nfe);
+    	numElementsToShow = 4;
+    }
+    
     Date sdate = null;
     Date edate = null;
     if ( request.getParameter("numEle") != null ){

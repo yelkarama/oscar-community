@@ -211,6 +211,14 @@ if (userAgent != null) {
 		browserType = "ALL";
 	}
 }
+
+//Gets the autprint_rx_pharmacy_info info property as a boolean to see if it is enabled or not
+boolean autoprintRxPharmacyInfo = OscarProperties.getInstance().getBooleanProperty("autoprint_rx_pharmacy_info", "true");
+//If the autoprint property is enabled, creates an onload string to call on the printPharmacy string, else creates an empty string to output on the iframe
+String pharmacyInfoOnLoad = "";
+if(prefPharmacy.length() > 0 && prefPharmacyId.length() > 0){
+	pharmacyInfoOnLoad = autoprintRxPharmacyInfo ? "onload=\"printPharmacy(\'" + prefPharmacyId + "\',\'" + prefPharmacy + "')\"" : "";
+}
 %>
 <link rel="stylesheet" type="text/css" href="styles.css" />
 <link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
@@ -528,7 +536,7 @@ function toggleView(form) {
 			<tr>
 				<td width=420px>
 				<div class="DivContentPadding"><!-- src modified by vic, hsfo -->
-				<iframe id='preview' name='preview' width=420px height=1000px
+				<iframe id='preview' name='preview' width=420px height=1000px <%= pharmacyInfoOnLoad %>
 					src="<%= dx<0?"Preview2.jsp?scriptId="+request.getParameter("scriptId")+"&rePrint="+reprint+"&pharmacyId="+request.getParameter("pharmacyId"):dx==7?"HsfoPreview.jsp?dxCode=7":"about:blank" %>"
 					align=center border=0 frameborder=0></iframe></div>
 				</td>

@@ -60,8 +60,10 @@ import org.oscarehr.util.SpringUtils;
 
 import oscar.OscarProperties;
 import oscar.oscarLab.ca.all.pageUtil.LabPDFCreator;
+import oscar.oscarLab.ca.all.pageUtil.OLISLabPDFCreator;
 import oscar.oscarLab.ca.all.parsers.Factory;
 import oscar.oscarLab.ca.all.parsers.MessageHandler;
+import oscar.oscarLab.ca.all.parsers.OLISHL7Handler;
 import oscar.oscarLab.ca.on.CommonLabResultData;
 import oscar.oscarLab.ca.on.LabResultData;
 import oscar.util.ConcatPDF;
@@ -271,8 +273,15 @@ public class CaseManagementPrint {
 				String fileName2 = OscarProperties.getInstance().getProperty("DOCUMENT_DIR") + "//" + handler.getPatientName().replaceAll("\\s", "_") + "_" + handler.getMsgDate() + "_LabReport.pdf";
                                 file2= new File(fileName2);
 				os2 = new FileOutputStream(file2);
-				LabPDFCreator pdfCreator = new LabPDFCreator(os2, segmentId, loggedInInfo.getLoggedInProviderNo());
-				pdfCreator.printPdf();
+				if (handler instanceof OLISHL7Handler) {
+					OLISLabPDFCreator olisLabPdfCreator = new OLISLabPDFCreator(os2, segmentId, providerNo);
+					olisLabPdfCreator.printPdf();
+				}
+				else {
+					LabPDFCreator pdfCreator = new LabPDFCreator(os2, segmentId, loggedInInfo.getLoggedInProviderNo());
+					pdfCreator.printPdf();
+				}
+				
 				pdfDocs.add(fileName2);
 			}
 

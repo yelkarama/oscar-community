@@ -23,6 +23,10 @@
  */
 package org.oscarehr.common.dao;
 
+import java.util.List;
+
+import javax.persistence.Query;
+
 import org.oscarehr.common.model.LookupListItem;
 import org.springframework.stereotype.Repository;
 
@@ -31,6 +35,22 @@ public class LookupListItemDao extends AbstractDao<LookupListItem> {
 
 	public LookupListItemDao() {
 		super(LookupListItem.class);
+	}
+	
+	public List<LookupListItem> findActiveByLookupListId(int lookupListId) {
+		return findByLookupListId(lookupListId, Boolean.TRUE);
+	}
+
+	public List<LookupListItem> findByLookupListId(int lookupListId, boolean active) {
+		Query q = entityManager.createQuery("select l from LookupListItem l where l.lookupListId=? and l.active=? order by l.displayOrder");
+
+		q.setParameter(1,lookupListId);
+		q.setParameter(2,active);
+
+		@SuppressWarnings("unchecked")
+		List<LookupListItem> result = q.getResultList();
+
+		return result;
 	}
 	
 }

@@ -54,6 +54,7 @@
             ProviderInboxRoutingDao providerInboxRoutingDao = (ProviderInboxRoutingDao) ctx.getBean("providerInboxRoutingDAO");
             ProviderDao providerDao = (ProviderDao) ctx.getBean("providerDao");
             DemographicDao demographicDao = (DemographicDao)ctx.getBean("demographicDao");
+            
 
             String demoName, documentNo,providerNo,searchProviderNo,status;
 
@@ -221,7 +222,9 @@
                                             <input id="saved<%=docId%>" type="hidden" name="saved" value="true"/>
                                             <input type="hidden" value="<%=demographicID%>" name="demog" id="demofind<%=docId%>" />
                                             <%=demoName%>
-                                            <a href="#" onclick="removeDemoFromDoc('<%= docId %>')">(remove)</a>
+                                            <security:oscarSec roleName="<%=roleName$%>" objectName="_unlink_demographic_from_document" rights="r">
+                                            	<a href="#" onclick="removeDemoFromDoc('<%= docId %>')">(remove)</a>
+                                            </security:oscarSec>
                                             <%}else{%>
                                             <input id="saved<%=docId%>" type="hidden" name="saved" value="false"/>
                                             <input type="hidden" name="demog" value="<%=demographicID%>" id="demofind<%=docId%>" />
@@ -669,7 +672,14 @@ function sendMRP(ele){
                                         </td>
                                     </tr>
 
-
+									<tr>
+										<td>
+											<bean:message key="dms.documentReport.msgFlagAbnormal" />
+										</td>
+										<td>
+											<input id="abnormal<%=docId%>" type="checkbox" name="abnormalFlag" <%= curdoc.isAbnormal() ? "checked='checked'" : "" %> />
+										</td>
+									</tr>
 
                                     <tr>
                                         <td><bean:message key="dms.documentReport.msgCreator"/>:</td>

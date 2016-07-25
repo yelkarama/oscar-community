@@ -78,7 +78,6 @@
             
             String demoName=request.getParameter("demoName");
             String documentNo = request.getParameter("segmentID");
-
             
             String searchProviderNo = request.getParameter("searchProviderNo");
             String status = request.getParameter("status");
@@ -443,7 +442,9 @@
                                             <input type="hidden" value="<%=demographicID%>" name="demog" id="demofind<%=docId%>" />
                                             <input type="hidden" name="demofindName" value="<%=demoName%>" id="demofindName<%=docId%>"/> 
                                             <%=demoName%>
-                                            <a href="#" onclick="removeDemoFromDoc('<%= docId %>')">(remove)</a>
+                                            <security:oscarSec roleName="<%=roleName$%>" objectName="_unlink_demographic_from_document" rights="r">
+                                            	<a href="#" onclick="removeDemoFromDoc('<%= docId %>')">(remove)</a>
+                                            </security:oscarSec>
                                             <%}else{%>
                                             <input id="saved<%=docId%>" type="hidden" name="saved" value="false"/>
                                             <input type="hidden" name="demog" value="<%=demographicID%>" id="demofind<%=docId%>"/>   
@@ -474,7 +475,14 @@
                                         </td>
                                     </tr>
 
-
+									<tr>
+										<td>
+											<bean:message key="inboxmanager.document.FlagAbnormalMsg" />
+										</td>
+										<td>
+											<input id="abnormal<%=docId%>" type="checkbox" name="abnormalFlag" <%= curdoc.isAbnormal() ? "checked='checked'" : "" %> />
+										</td>
+									</tr>
 
                                     <tr>
                                         <td><bean:message key="dms.documentReport.msgCreator"/>:</td>

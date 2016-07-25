@@ -271,7 +271,7 @@
         <java:condition>prev.getNumberOfPreventionType("Hib") == 0 </java:condition>        
         <java:consequence>              
               prev.log("Hib 6");
-              prev.addWarning("Hib", "Needs second Hib");
+              prev.addWarning("Hib", "Needs first Hib");
         </java:consequence>
     </rule>
 
