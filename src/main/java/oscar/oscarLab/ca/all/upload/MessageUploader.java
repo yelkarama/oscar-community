@@ -361,16 +361,26 @@ public final class MessageUploader {
 		
 		if (docNums != null) {
 			for (int i = 0; i < docNums.size(); i++) {
-
-				if (docNums.get(i) != null && !((String) docNums.get(i)).trim().equals("")) {
-					sql = "select provider_no from provider where "+ sqlSearchOn +" = '" + ((String) docNums.get(i)) + "'" + sqlOrderByLength + sqlLimit;
-					pstmt = conn.prepareStatement(sql);
-					ResultSet rs = pstmt.executeQuery();
-					while (rs.next()) {
-						providerNums.add(oscar.Misc.getString(rs, "provider_no"));
+				//Gets the providerNumber from the docNums array
+				String providerNumber = (String)docNums.get(i);
+				//If the providerNumber is not null and is not a blank string
+				if (providerNumber != null && !providerNumber.trim().equals("")) {
+					//Gets the providerDao
+					ProviderDao providerDao = (ProviderDao)SpringUtils.getBean(ProviderDao.class);
+					
+					//Gets a list of providers that match the given OHIP #
+					List<Provider> matchedProviders = providerDao.getBillableProvidersByOHIPNo(providerNumber);
+					
+					//If the list is not null and the providerNumber length is 5
+					if (matchedProviders.isEmpty() && providerNumber.length() == 5) {
+						//Tries finding the provider again, this time with a leading 0 attached
+						matchedProviders = providerDao.getBillableProvidersByOHIPNo("0" + providerNumber);
 					}
-					rs.close();
-					pstmt.close();
+
+					//For each provider in the list, adds their providerNo to the providerNums list
+					for (Provider provider : matchedProviders) { 
+						providerNums.add(provider.getProviderNo());
+					}
 
 					String otherIdMatchKey = OscarProperties.getInstance().getProperty("lab.other_id_matching", "");
 					if(otherIdMatchKey.length()>0) {
@@ -395,8 +405,19 @@ public final class MessageUploader {
 				routing.route(labId, provider_no, conn, "HL7");
 			}
 		} else {
-			routing.route(labId, "0", conn, "HL7");
-			routing.route(labId, altProviderNo, conn, "HL7");
+			//Gets the ProviderDao
+			ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
+			//Gets the demographic's provider
+			List<Provider> demographicProviders = providerDao.getBillableProvidersByOHIPNo(altProviderNo);
+			//If the list is not null, and it is not empty
+			if (demographicProviders != null && !demographicProviders.isEmpty()) {
+				//Routes to the demographic's proivder
+				routing.route(labId, altProviderNo, conn, "HL7");
+			}
+			else {
+				//Routes to the general inbox when no other doctor is matched
+				routing.route(labId, "0", conn, "HL7");
+			}
 		}
 	}
 

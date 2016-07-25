@@ -473,10 +473,8 @@ public class ProviderDao extends HibernateDaoSupport {
             if(providers.size()>1) {
                 logger.warn("Found more than 1 provider with ohipNo="+ohipNo);
             }
-            if(providers.isEmpty())
-                return null;
-            else		
-                return providers;
+
+            return providers;
         }
         
         /**
