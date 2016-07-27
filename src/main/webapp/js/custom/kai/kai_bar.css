@@ -2,14 +2,14 @@
     highlight color: #FF7F00 (orange)
 */
 .KaiBar {
-    color: white;
+    color: black;
     line-height: 19px;
     width: 98%;
     height: 23px;
     font-size: 12px;
     font-family: Arial;
     font-weight: bold;
-    background-color: #222222;
+    background-color: white;
     padding: 0 1%;
     padding-top: 1px;
 }
@@ -32,7 +32,7 @@
 }
 
 .kaibar a {
-    color: #fff;
+    color: black;
     text-decoration: none;
 }
 
@@ -60,8 +60,8 @@
 }
 
 .kaibar a.btnFlat:hover .white{
-    background-color: #FFF;
-    color: #191919;
+    background-color: #d9d9d9;
+    color: black;
     -webkit-transition: background 0.25s linear;
     -moz-transition: background 0.25s linear;
     -ms-transition: background 0.25s linear;
@@ -80,7 +80,7 @@
 }
 
 .kaibar .white {
-    border: 1px solid #fff;
+    border: 1px solid black;
 }
 
 .kaibar .green {
@@ -96,6 +96,9 @@
     width: 300px;
     border: 0;
     padding: 2%;
+    /*background: #a9dba3;*/
+    background: white;
+    border: 1px solid black;
 }
 
 .kaibar .plainLink {
