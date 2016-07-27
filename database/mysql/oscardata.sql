@@ -2847,3 +2847,11 @@ INSERT INTO specialty VALUES ('BC','48',' THORACIC SURGERY');
 
 insert into ProductLocation (name) values ('Default');
 
+insert into patientType values ('HPN', 'HP NonStudent');
+insert into patientType values ('HPS', 'HP Student');
+insert into patientType values ('HPV', 'HP Varsity');
+insert into patientType values ('NS', 'NonStudent');
+insert into patientType values ('S', 'Student');
+insert into patientType values ('V', 'Varsity');
+
+REPLACE into encounterForm values ('Gynae Form', '../form/formgynae.jsp?demographic_no=', 'formgyane', '0');

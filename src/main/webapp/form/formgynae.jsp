@@ -1786,8 +1786,9 @@ String getSelectedAttr(java.util.Properties p1, String column, String value)
 						style="BORDER-RIGHT-WIDTH: 0px; BORDER-TOP-WIDTH: 0px; BORDER-BOTTOM-WIDTH: 0px; BORDER-LEFT-WIDTH: 0px">
 						<br> <strong>Current Medications&nbsp;&nbsp;
 						
-						<input type="checkbox" name="no_current_medications" id="no_current_medications"
-						onclick="fn_remove_section_from_printout(this, 'tr_current_medications');">No meds
+						<input type="checkbox" value="1" name="no_current_medications" id="no_current_medications"
+						onclick="fn_remove_section_from_printout(this, 'tr_current_medications');"
+						<%=props.getProperty("no_current_medications", "").equals("1") ? "checked" : "" %>>No meds
 						
 						&nbsp;&nbsp;<input type="button" value="Medication" class="NonPrintable" 
 						onclick="importFromEnct('OtherMeds',document.forms[0].cm_current_medication);"></strong>
@@ -1852,8 +1853,8 @@ String getSelectedAttr(java.util.Properties p1, String column, String value)
 						style="BORDER-RIGHT-WIDTH: 0px; BORDER-TOP-WIDTH: 0px; BORDER-BOTTOM-WIDTH: 0px; BORDER-LEFT-WIDTH: 0px">
 						<br> <strong>Allergies&nbsp;&nbsp;
 						
-						<input type="checkbox" name="no_allergies" id="no_allergies"
-						<%=props.getProperty("no_allergies", "").equals("1")?"checked":"" %>
+						<input type="checkbox" value="1" name="no_allergies" id="no_allergies"
+						<%=props.getProperty("no_allergies", "").equals("1") ? "checked" : "" %>
 						onclick="fn_remove_section_from_printout(this, 'tr_allergies');">NKDA
 						
 						&nbsp;&nbsp;<input type="button" value="Allergies" class="NonPrintable" 
@@ -2630,16 +2631,6 @@ function init_()
 	
 	if('<%=recordFromDB%>'=='true')
 	{
-		if('<%=props.getProperty("cm_current_medication", "").trim()%>'=='')
-		{
-			$("[id=no_current_medications]").attr("checked", true);
-			showHideSections("tr_current_medications", "no_current_medications");
-		}
-		if('<%=props.getProperty("allergies", "").trim()%>'=='')
-		{
-			$("[id=no_allergies]").attr("checked", true);
-			showHideSections("tr_allergies", "no_allergies");
-		}
 		if('<%=props.getProperty("gynaecologicalexam_notes", "").trim()%>'!='')
 		{
 			$("[id=no_gynaecologicalexam_notes]").attr("checked", true);

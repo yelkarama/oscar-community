@@ -146,7 +146,7 @@ public class Document extends AbstractModel<Integer> implements Serializable {
     @Column(name="appointment_no")
     private Integer appointmentNo;
     @Column(name="abnormal")
-    private boolean abnormal;
+    private Boolean abnormal;
 
     private Boolean restrictToProgram=false;
     
@@ -327,6 +327,9 @@ public class Document extends AbstractModel<Integer> implements Serializable {
 	}
 	
 	public boolean isAbnormal() {
+		if (abnormal == null)
+			abnormal = false;
+		
 		return abnormal;
 	}
 	public void setAbnormal(boolean abnormal) {

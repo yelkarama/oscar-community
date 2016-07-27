@@ -59,9 +59,6 @@ import oscar.oscarLab.ca.on.LabResultData;
 import oscar.util.ConcatPDF;
 
 import com.itextpdf.text.pdf.PdfReader;
-import com.lowagie.text.DocumentException;
-import com.sun.xml.messaging.saaj.util.ByteInputStream;
-import com.sun.xml.messaging.saaj.util.ByteOutputStream;
 
 public class EctConsultationFormFaxAction extends Action {
 

@@ -251,8 +251,8 @@
 	extensions.add(new DemographicExt(request.getParameter("area_id"), proNo, demographicNo, "area", request.getParameter("area")));
 	extensions.add(new DemographicExt(request.getParameter("statusNum_id"), proNo, demographicNo, "statusNum",  request.getParameter("statusNum")));
 	extensions.add(new DemographicExt(request.getParameter("fNationCom_id"), proNo, demographicNo, "fNationCom", request.getParameter("fNationCom")));
-    extensions.add(new DemographicExt(request.getParameter("fNationFamilyNumberOrig"), proNo, demographicNo, "fNationFamilyNumber", request.getParameter("fNationFamilyNumber")));
-    extensions.add(new DemographicExt(request.getParameter("fNationFamilyPositionOrig"), proNo, demographicNo, "fNationFamilyPosition", request.getParameter("fNationFamilyPosition")));
+    extensions.add(new DemographicExt(request.getParameter("fNationFamilyNumber_id"), proNo, demographicNo, "fNationFamilyNumber", request.getParameter("fNationFamilyNumber")));
+    extensions.add(new DemographicExt(request.getParameter("fNationFamilyPosition_id"), proNo, demographicNo, "fNationFamilyPosition", request.getParameter("fNationFamilyPosition")));
 	extensions.add(new DemographicExt(request.getParameter("given_consent_id"), proNo, demographicNo, "given_consent", request.getParameter("given_consent")));
 	extensions.add(new DemographicExt(request.getParameter("rxInteractionWarningLevel_id"), proNo, demographicNo, "rxInteractionWarningLevel", request.getParameter("rxInteractionWarningLevel")));
 	extensions.add(new DemographicExt(request.getParameter("primaryEMR_id"), proNo, demographicNo, "primaryEMR", request.getParameter("primaryEMR")));
@@ -264,7 +264,6 @@
 	extensions.add(new DemographicExt(request.getParameter("paper_chart_archived_date_id"), proNo, demographicNo, "paper_chart_archived_date", request.getParameter("paper_chart_archived_date")));
 	extensions.add(new DemographicExt(request.getParameter("paper_chart_archived_program_id"), proNo, demographicNo, "paper_chart_archived_program", request.getParameter("paper_chart_archived_program")));
 	extensions.add(new DemographicExt(request.getParameter("familyDoctorId_id"), proNo, demographicNo, "familyDoctorId", request.getParameter("r_doctor_id")));
-	extensions.add(new DemographicExt(request.getParameter("demographicMiscIdOrig"), proNo, demographicNo, "demographicMiscId", request.getParameter("demographicMiscId")));
    
 	// Demographic Groups
 	int demographicNoAsInt = 0;
