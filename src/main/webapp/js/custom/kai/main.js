@@ -62,7 +62,7 @@ function addKAIBar() {
 		<a href="http://www.kaiinnovations.com" target="_blank"><img alt="" src="/oscar/js/custom/kai/KAI_LOGO2_HR.png" height="18" width="18">&nbsp;&nbsp;KAI INNOVATIONS</a>
 		<div class="block">
 			Search:
-			<input class="kaiInput" type="text" placeholder="Ender Heath Card # or Demographic Name" id="kaiDemoSearch"/>
+			<input class="kaiInput" type="text" placeholder="Enter Heath Card # or Demographic Name" id="kaiDemoSearch"/>
 			<a href="" class="btnFlat" id='kaiDemoSearchButton'>
 		    	<div class="green">
 		            <span>Go</span>
@@ -120,6 +120,7 @@ function resolveCurrentProvider() {
 }
 
 function kaiDemoSearch() {
+  debugger;
   var kaiDemoSearch = jQuery('#kaiDemoSearch');
   var searchString = kaiDemoSearch.val();
   var demoRegex = /^[A-Za-z].*$/;
@@ -132,7 +133,9 @@ function kaiDemoSearch() {
     var left = (screen.width / 2) - (500 / 2);
     var top = (screen.height / 2) - (500 / 2);
     // path to your card swipe module webapp must be specified. add it in here
-    var newwindow = window.open(selectedUrl + "/CardSwipeModule/?hc=" + escape(searchString) + "&providerNo=" + escape(resolveCurrentProvider()), "name",
+    var currentProvider = resolveCurrentProvider();
+    var cardSwipeURL = "/CardSwipe/?hc=" + escape(searchString) + "&providerNo=" + escape(currentProvider);
+    var newwindow = window.open(cardSwipeURL, "name",
     "location=no,scrollbars=1,width=500,height=500,top=" + top + ",left=" + left);
 
     // focus the window
