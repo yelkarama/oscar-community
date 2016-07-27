@@ -99,14 +99,6 @@ function addKAIBar() {
     }
   });
   
-  
-  
-           if(event.which === 13){
-              //Disable textbox to prevent multiple submit
-              $(this).attr("disabled", "disabled");
-              kaiDemoSearch()
-           }
-     });
 }
 
 function getUrlVars(url) {
