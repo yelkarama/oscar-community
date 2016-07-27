@@ -396,7 +396,7 @@ public class ConsultationPDFCreator extends PdfPageEventHelper {
 		PdfPCell cell;
 		infoTable = new PdfPTable(1);
 		cell = new PdfPCell();
-
+		infoTable.setSplitLate(false);
 		infoTable.addCell(setInfoCell(cell, getResource("msgReason")));
 		infoTable.addCell(setDataCell(cell, reqFrm.reasonForConsultation));
 
