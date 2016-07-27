@@ -89,6 +89,24 @@ function addKAIBar() {
   
   var kaiDemoSearchButton = jQuery('#kaiDemoSearchButton');
   kaiDemoSearchButton.click(kaiDemoSearch);
+  var kaiDemoSearchField = jQuery('#kaiDemoSearch');
+  kaiDemoSearchField.bind("enterKey",function(e){
+    kaiDemoSearch();
+  });
+  kaiDemoSearchField.keyup(function(e){
+    if(e.keyCode == 13) {
+      kaiDemoSearchField.trigger("enterKey");
+    }
+  });
+  
+  
+  
+           if(event.which === 13){
+              //Disable textbox to prevent multiple submit
+              $(this).attr("disabled", "disabled");
+              kaiDemoSearch()
+           }
+     });
 }
 
 function getUrlVars(url) {
@@ -120,7 +138,6 @@ function resolveCurrentProvider() {
 }
 
 function kaiDemoSearch() {
-  debugger;
   var kaiDemoSearch = jQuery('#kaiDemoSearch');
   var searchString = kaiDemoSearch.val();
   var demoRegex = /^[A-Za-z].*$/;
