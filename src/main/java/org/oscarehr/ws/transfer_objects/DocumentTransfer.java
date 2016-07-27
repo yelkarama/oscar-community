@@ -349,7 +349,7 @@ public final class DocumentTransfer {
 			File document_file = new File(destFilePath);
 			FileUtils.writeByteArrayToFile( document_file, fileContents );
 		} catch (IOException e) {
-            e.printStackTrace();
+            logger.error("And error has occured copying the document", e);
         }
 
 	}
