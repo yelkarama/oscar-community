@@ -98,6 +98,7 @@ function addKAIBar() {
       kaiDemoSearchField.trigger("enterKey");
     }
   });
+  kaiDemoSearchField.focus();
   
 }
 
