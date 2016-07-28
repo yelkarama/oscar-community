@@ -75,7 +75,7 @@ function addKAIBar() {
 		            <span>Help Portal</span>
 		        </div>
 		    </a>
-		    <a href="" class="btnFlat" target="_blank">
+		    <a href="http://get.teamviewer.com/5gjkzuy" class="btnFlat" target="_blank">
 		    	<div class="green">
 		            <span>TeamViewer</span>
 		        </div>
