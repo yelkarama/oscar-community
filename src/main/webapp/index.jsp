@@ -42,7 +42,6 @@ Cookie prvCookie = new Cookie(CookieSecurity.providerCookie, "");
 prvCookie.setPath("/");
 response.addCookie(prvCookie);
 
-
 // Initialize browser info variables
 String userAgent = request.getHeader("User-Agent");
 String httpAccept = request.getHeader("Accept");
@@ -82,9 +81,7 @@ String login_error="";
             <% } %>
         </title>
         <!--LINK REL="StyleSheet" HREF="web.css" TYPE="text/css"-->
-		<link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,500,600,700' rel='stylesheet' type='text/css'>
-		
-		<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+		<link href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,600,700' rel='stylesheet' type='text/css'>
 
         <script language="JavaScript">
         function showHideItem(id){
@@ -106,10 +103,11 @@ String login_error="";
   }
   -->
         </script>
+        
         <style type="text/css">
             body { 
-            	margin: 0;
-				font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif;
+               margin: 0;
+				font-family: 'Roboto', Helvetica, Arial, sans-serif;
 				font-size: 16px;
 				color: #333333;
 				background-color: #ffffff;
@@ -122,10 +120,8 @@ String login_error="";
 			}
             
             h1 {
-                font-size: 32px;
-			    font-weight: 300;
-			    margin-top: 1em;
-			    margin-bottom: .2em;
+                font-size: 38px;
+		    	font-weight: 300;
 		    }
 		    
 		    button, input, optgroup, select, textarea {
@@ -149,37 +145,15 @@ String login_error="";
 			}
 			
 			.powered {
-			    float: right;
-				display: inline-block;
+				margin-right: auto;
+				margin-left: auto;
 			}
 			
 			.powered .details {
 				text-align: right;
-			    margin-right: 20px;
-			    display: inline-block;
-			    vertical-align: top;
-			    padding-top: 7px;
-			}
-
-			.footer {
-			    padding: 40px;
-			    background-color: #F2F2F2;
-			}
-
-			.buildInfo {
-			    font-size: 0.7em;
-			    padding-top: 10px;
-			    display: inline-block;
-			    line-height: 18px;
-			    color: #B5B5B5;
-			}
-
-			.name {
-			    margin: 30px 40px 10px;
-			    background-color: #eee;
-			    border-radius: 3px;
-			    padding: 4% 2%;
-			    font-weight: 400;
+			    margin: 10px 20px 0 0;
+			    float: left;
+			    width: 35%;
 			}
 			
             .loginContainer {
@@ -205,7 +179,7 @@ String login_error="";
            		border-color: #ddd;
             }
             
-            .form-group {
+			.form-group {
 			    margin-bottom: 15px;
 			}
 			
@@ -236,7 +210,7 @@ String login_error="";
 			}
 			
 			.has-error .form-control {
-			    border-color: #D80B0B;
+			    border-color: #a94442;
 			    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
 			    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
 			}
@@ -265,14 +239,8 @@ String login_error="";
 			
 			.btn-primary {
 			    color: #fff;
-			    background-color: #337ab7;
-			    border-color: #2e6da4;
-			}
-
-			.btn-success {
-				color: #fff;
-				background-color: #5cb85c;
-				border-color: #4cae4c;
+			    background-color: #53b848;
+			    border-color: #3f9336;
 			}
 			
 			.btn-block {
@@ -311,8 +279,8 @@ String login_error="";
 			
 			.btn-primary:hover {
 			    color: #fff;
-			    background-color: #286090;
-			    border-color: #204d74;
+			    background-color: #3f9336;
+			    border-color: #3f9336;
 			}
 			
 			.btn-primary.active, .btn-primary:active, .open>.dropdown-toggle.btn-primary {
@@ -340,58 +308,12 @@ String login_error="";
 			    background-color: #204d74;
 			    border-color: #122b40;
 			}
-
-			.btn-success:focus, .btn-success.focus {
-				color: #fff;
-				background-color: #449d44;
-				border-color: #255625;
-			}
-
-			.btn-success:hover {
-				color: #fff;
-				background-color: #449d44;
-				border-color: #398439;
-			}
-
-			.btn-success:active, .btn-success.active, .open > .dropdown-toggle.btn-success {
-				color: #fff;
-				background-color: #449d44;
-				border-color: #398439;
-			}
-
-			.btn-success:active, .btn-success.active, .open > .dropdown-toggle.btn-success {
-			  background-image: none;
-			}
-
-			.btn-success:active:hover, .btn-success.active:hover, .open > .dropdown-toggle.btn-success:hover, .btn-success:active:focus, .btn-success.active:focus, .open > .dropdown-toggle.btn-success:focus, .btn-success:active.focus, .btn-success.active.focus, .open > .dropdown-toggle.btn-success.focus {
-			  color: #fff;
-			  background-color: #398439;
-			  border-color: #255625;
-			}
-            
-            /*.login_txt_fields {
-		
-			 
-				border: 1px solid #999;
-				height: 25px;
-				-webkit-box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.3);
-				-moz-box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.3);
-				box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.3);
-			}
-			 
-			.login_txt_fields_error {
-			  border: 1px solid #F78181;
-				height: 25px;
-				-webkit-box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.3);
-				-moz-box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.3);
-				box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.3);
-			}*/
             
             td.topbar{
                background-color: rgb(83, 184, 72);
             }
             td.leftbar{
-                background-color:  #6c706e; /*#009966; */
+                background-color:  #6C706E;
                 color: white;
             }
             td.leftinput{
@@ -399,21 +321,22 @@ String login_error="";
             }
             td#loginText{
                 width:200px;
+                font-size: small;
                 }
             span#buildInfo{
                 float: right; color:#FFFFFF; font-size: xx-small; text-align: right;
             }
-            .extrasmall {
+            
+			span.extrasmall{
 			    font-size: small;
+			    float: left;
 			    margin: 10px 0 20px;
-			    text-align: left;
 			}
             #mobileMsg { display: none; }
             
-            
             @media (min-width: 768px) {
-				.loginContainer {
-				    width: 450px;
+				.loginContainer, .powered {
+					width: 450px;
 				}
 			}
 			
@@ -425,63 +348,57 @@ String login_error="";
 				
 			}
         </style>
+        <% if (isMobileOptimized) { %>
+        <!-- Small adjustments are made to the mobile stylesheet -->
+        <style type="text/css">
+            html { -webkit-text-size-adjust: none; }
+            td.topbar{ width: 75%; }
+            td.leftbar{ width: 25%; }
+            span.extrasmall{ font-size: small; }
+            #browserInfo, #logoImg, #buildInfo { display: none; }
+            #mobileMsg { display: inline; }
+        </style>
+        <% } %>
     </head>
     
-    <body onLoad="setfocus()" bgcolor="#ffffff"> 
+    <body onLoad="setfocus()" bgcolor="#ffffff">
+        
         <div class="heading">
-        	<img src="images/OSCAREMR.jpg" border="0" style="margin: 25px auto;">
+        	<img src="images/Logo.png" border="0" style="margin: 25px auto;">
         </div>
         <div class="loginContainer">
 	        <div class="panel panel-default">
-	        	<h1>OSCAR 15</h1>
-	        	<h1 style="margin-top:0;">KAI Pilot Branch</h1>
-	        	<h3 class="name">
-	        		<%=props.getProperty("logintitle", "")%>
-                    <% if (props.getProperty("logintitle", "").equals("")) { %>
-                    <bean:message key="loginApplication.alert"/>
-                    <% } %>
-                </h3>
+	        	<h1>OSCAR EMR Login</h1>
 	        	
 	        	<%String key = "loginApplication.formLabel" ;
                     if(request.getParameter("login")!=null && request.getParameter("login").equals("failed") ){
                     key = "loginApplication.formFailedLabel" ;
                     login_error="has-error";                    
                     }
-                %>
-                <span style="color:#D80B0B;">
-                	<bean:message key="<%=key%>"/>
-                </span>
-                
-			  	<div class="panel-body">
-			    	<div class="leftinput" border="0" width="100%" ng-app="indexApp" ng-controller="indexCtrl"> <!-- id="loginText" -->
-				    	<html:form action="login" >
-							<div class="form-group <%=login_error%>"> 
-		                    	<%-- <bean:message key="loginApplication.formUserName"/><%
-		                            if(oscar.oscarSecurity.CRHelper.isCRFrameworkEnabled() && !net.sf.cookierevolver.CRFactory.getManager().isMachineIdentified(request)){
-		                            %><img src="gatekeeper/appid/?act=image&/empty<%=System.currentTimeMillis() %>.gif" width='1' height='1'><%
-		                            }
-		                            %> --%>     
-	                        	<input type="text" name="username" placeholder="Enter your username" value="" size="15" maxlength="15" autocomplete="off" class="form-control" ng-model="username"/> <%-- class="<%=login_input_style %>" --%>
-	                        </div>
-	                        
-	                        <div class="form-group <%=login_error%>">               
-	                        	<%-- <bean:message key="loginApplication.formPwd"/> --%>
-	                        	<input type="password" name="password" placeholder="Enter your password" value="" size="15" maxlength="32" autocomplete="off" class="form-control" ng-model="password"/>
-	                        </div>
-	                        
-	                        <div class="form-group <%=login_error%>">
-	                        	<%-- <bean:message key="index.formPIN"/> --%>
-	                        	<input type="password" name="pin" placeholder="Enter your PIN" value="" size="15" maxlength="15" autocomplete="off" class="form-control" ng-model="pin"/>
-	                        	<span class="extrasmall">
-		                            <bean:message key="loginApplication.formCmt"/>
-		                        </span>
-	                        </div>
-	                        
-	                        <input type=hidden name='propname' value='<bean:message key="loginApplication.propertyFile"/>' />
-	                        <input class="btn btn-success" type="submit" value="<bean:message key="index.btnSignInClassic"/>" style="width: 49%;"/>
-	                        <input class="btn btn-primary" type="submit" value="<bean:message key="index.btnSignInEnchanced"/>" style="width: 49%;"/>
-						</html:form>
-			                        
+                    %>
+
+    			  	<div class="panel-body">
+    			    	<div class="leftinput" border="0" width="100%" ng-app="indexApp" ng-controller="indexCtrl"> <!-- id="loginText" -->
+    				    	<html:form action="login" >
+    							<div class="form-group <%=login_error%>"> 
+    	                        	<input type="text" name="username" placeholder="Enter your username" value="" size="15" maxlength="15" autocomplete="off" class="form-control" ng-model="username"/> <%-- class="<%=login_input_style %>" --%>
+    	                        </div>
+    	                        
+    	                        <div class="form-group <%=login_error%>">               
+    	                        	<input type="password" name="password" placeholder="Enter your password" value="" size="15" maxlength="32" autocomplete="off" class="form-control" ng-model="password"/>
+    	                        </div>
+    	                        
+    	                        <div class="form-group <%=login_error%>">
+    	                        	<input type="password" name="pin" placeholder="Enter your PIN" value="" size="15" maxlength="15" autocomplete="off" class="form-control" ng-model="pin"/>
+    	                        	<span class="extrasmall">
+    		                            <bean:message key="loginApplication.formCmt"/>
+    		                        </span>
+    	                        </div>
+    	                        
+    	                        <input type=hidden name='propname' value='<bean:message key="loginApplication.propertyFile"/>' />
+    	                        <input class="btn btn-primary btn-block" type="submit" value="<bean:message key="index.btnSignIn"/>" />
+    						</html:form>
+    			                        
                         <%if (AcceptableUseAgreementManager.hasAUA()){ %>
                         <span class="extrasmall">
                         	<bean:message key="global.aua" /> &nbsp; <a href="javascript:void(0);" onclick="showHideItem('auaText');"><bean:message key="global.showhide"/></a>
@@ -491,31 +408,12 @@ String login_error="";
 			  	</div>
 			</div>
 		</div>
-		<div class="footer">
-			<div id="buildInfo" class="buildInfo">
-				<div><strong>Build Date:</strong> <%= OscarProperties.getBuildDate() %></div>
-				<div><strong>Build Tag:</strong> <%=OscarProperties.getBuildTag()%></div>
-			</div>
-			<div class="powered">
-				<span class="details">
-					<div>Powered</div>
-					<div>by</div>
-				</span>
-				<a href="http://www.kaiinnovations.com" target="_blank">
-					<img alt="KAI Innovations" src="images/KAI_LOGO.png">
-				</a>
-			</div>
-		</div>
-
-		<script>        
-		var indexApp = angular.module('indexApp', []);
- 		indexApp.controller('indexCtrl', function($scope) {
-			// $scope.username= "oca123";
-			// $scope.password= "kaioca123!";
-			// $scope.pin= "1234";
-		});         
- 		</script>      
-        
-        
+		<div class="powered">
+			<span class="details">
+				<div>Powered</div>
+				<div>by</div>
+			</span>
+			<img alt="KAI Innovations" src="images/logo/KAI_LOGO.png">
+		</div>        
     </body>
 </html:html>
