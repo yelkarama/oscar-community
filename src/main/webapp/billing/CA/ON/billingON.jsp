@@ -273,8 +273,9 @@
 
 			// get patient's billing history
 			boolean bFirst = true;
+			int maxResults = Integer.parseInt(oscarVariables.getProperty("maxBillingHistResults"));
 			JdbcBillingReviewImpl hdbObj = new JdbcBillingReviewImpl();
-			List aL = hdbObj.getBillingHist(demo_no, 5,0, null);
+			List aL = hdbObj.getBillingHist(demo_no, maxResults,0, null);
 
 			Vector vecHistD = new Vector();
 			if (aL.size()>0) {
@@ -1955,7 +1956,7 @@ function changeSite(sel) {
 		<table border="0" cellpadding="0" cellspacing="2" width="100%"
 			class="myIvory">
 			<tr class="myYellow">
-				<td><%=demoname%> - <b>Billing History</b> (last 5 records)</td>
+				<td><%=demoname%> - <b>Billing History</b> <% if(maxResults > -1){ %>(last <%=maxResults%> records)<% } %></td>
 				<td width="20%" align="right">Last <input type="text"
 					name="day" value="365" size="3" /> days <input type="button"
 					name="buttonDay" value="Go" onClick="onHistory(); return false;" />
