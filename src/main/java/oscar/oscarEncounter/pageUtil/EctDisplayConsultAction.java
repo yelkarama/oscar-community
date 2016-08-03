@@ -118,8 +118,10 @@ public class EctDisplayConsultAction extends EctDisplayAction {
                     date = null;
                 }
                 url = "popupPage(700,960,'" + winName + "','" + request.getContextPath() + "/oscarEncounter/ViewRequest.do?de=" + bean.demographicNo + "&requestId=" + theRequests.ids.get(idx) + "'); return false;";
-                
-                item.setLinkTitle(service + " " + serviceDateStr);
+                // create the link hover over title
+                String requestingPhysician = "\nRequesting Physician: " + theRequests.requestingPhysician.get(idx);
+                String referringPhysician = "\nConsultant Physician: " + theRequests.referringPhysician.get(idx);
+                item.setLinkTitle(service + " " + serviceDateStr + requestingPhysician + referringPhysician);
                 service = StringUtils.maxLenString(service, MAX_LEN_TITLE, CROP_LEN_TITLE, ELLIPSES);
                 item.setTitle(service);
                 item.setURL(url);
