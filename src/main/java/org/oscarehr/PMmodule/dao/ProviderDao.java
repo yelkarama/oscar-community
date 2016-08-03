@@ -347,7 +347,7 @@ public class ProviderDao extends HibernateDaoSupport {
 	public List<Provider> getProvidersByType(String type) {
 		
 		List<Provider> results = this.getHibernateTemplate().find(
-				"from Provider p where p.ProviderType = ?", type);
+				"from Provider p where p.ProviderType = ? order by last_name", type);
 
 		if (log.isDebugEnabled()) {
 			log.debug("getProvidersByType: type=" + type + ",# of results="
