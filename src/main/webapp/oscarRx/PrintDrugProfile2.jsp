@@ -78,9 +78,13 @@ String userlastname = (String) session.getAttribute("userlastname");
 <html:html locale="true">
     <head>
         <script type="text/javascript" src="<%= request.getContextPath()%>/js/global.js"></script>
+        <script type="text/javascript" src="<%= request.getContextPath()%>/js/jquery-1.9.1.min.js" ></script>                
         <title>Print Drug Profile</title>
         <link rel="stylesheet" type="text/css" href="styles.css">
-
+		<link rel="stylesheet" type="text/css" media="all" href="../share/calendar/calendar.css" title="win2k-cold-1">
+		<script type="text/javascript" src="../share/calendar/calendar.js"></script>
+		<script type="text/javascript" src="../share/calendar/lang/calendar-en.js"></script>
+		<script type="text/javascript" src="../share/calendar/calendar-setup.js"></script>
         <html:base />
 
         <link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
@@ -147,10 +151,12 @@ String userlastname = (String) session.getAttribute("userlastname");
 								</td>
 								<td align="right" class="noPrint">
 								<div class="DivContentSectionHead">
+								<input type="text" id="sDate" class="noPrint" placeholder="Start Date" />
+								<input type="text" id="eDate" class="noPrint" placeholder="End Date" />
 									<% if(showall) { %>
-									  <a href="PrintDrugProfile.jsp">Show Current</a>
+									  <a href="PrintDrugProfile2.jsp">Show Current</a>
 									 <% } else { %>
-									  <a href="PrintDrugProfile.jsp?show=all">Show All</a>
+									  <a href="PrintDrugProfile2.jsp?show=all">Show All</a>
 									<% } %>
 									| <a href="javascript:void(0);window.print();">Print</a>
 								</div>
@@ -179,7 +185,7 @@ String userlastname = (String) session.getAttribute("userlastname");
     for (Drug drug: prescriptDrugs) {
         String styleColor = "";
                                                 %>
-                                                <tr>
+                                                <tr rxdate="<%=drug.getRxDate()%>">
                                                     <td width=20% valign="top">
                                                         <a <%= styleColor%> href="StaticScript2.jsp?regionalIdentifier=<%=drug.getRegionalIdentifier()%>&cn=<%=response.encodeURL(drug.getCustomName())%>&bn=<%=response.encodeURL(drug.getBrandName())%>"><%=drug.getRxDate()%> </a>
                                                     </td>
@@ -205,9 +211,9 @@ String userlastname = (String) session.getAttribute("userlastname");
 							<div class="DivContentSectionHead">
 
 								<% if(showall) { %>
-								  <a href="PrintDrugProfile.jsp">Show Current</a>
+								  <a href="PrintDrugProfile2.jsp">Show Current</a>
 								 <% } else { %>
-								  <a href="PrintDrugProfile.jsp?show=all">Show All</a>
+								  <a href="PrintDrugProfile2.jsp?show=all">Show All</a>
 								<% } %>
 								| <a href="javascript:void(0);window.print();">Print</a>
 							</div>
@@ -230,7 +236,38 @@ String userlastname = (String) session.getAttribute("userlastname");
 
         </table>
 
+<script>	
+	function showHideRx(){
+		var startDate = $("#sDate").val();
+		var endDate = $("#eDate").val();
+		
+		$("tr [rxdate]").each(function(){
+			var rxDate = new Date($(this).attr("rxdate")).getTime();
+			var display = true;
+			
+			if(Date.parse(startDate) && new Date(startDate).getTime() > rxDate){
+				display = false;
+			}
+			if(Date.parse(endDate) && new Date(endDate).getTime() < rxDate){
+				display = false;
+			}
+			
+			if(display){
+				$(this).show();
+			}else{
+				$(this).hide();
+			}
+		});
+	}
+	
+	$("#sDate").blur(showHideRx);
+	$("#eDate").blur(showHideRx);
+	
+	Calendar.setup( { inputField : "sDate", ifFormat : "%Y-%m-%d", showsTime :false, button : "sDate", singleClick : true, step : 1 } );
+	Calendar.setup( { inputField : "eDate", ifFormat : "%Y-%m-%d", showsTime :false, button : "eDate", singleClick : true, step : 1 } );
 
+
+</script>
 
 
 
