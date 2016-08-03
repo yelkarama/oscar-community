@@ -55,7 +55,6 @@
 <%@page import="org.oscarehr.common.dao.DemographicGroupDao" %>
 <%@page import="org.oscarehr.common.model.DemographicGroup" %>
 <%@page import="org.oscarehr.common.model.DemographicGroupLink" %>
-<%@page import="org.oscarehr.util.SpringUtils" %>
 <%@page import="oscar.OscarProperties" %>
 <%@page import="org.oscarehr.common.dao.ScheduleTemplateCodeDao" %>
 <%@page import="org.oscarehr.common.model.ScheduleTemplateCode" %>
@@ -122,7 +121,6 @@ if(!authed) {
 <%@ page import="org.oscarehr.common.web.ContactAction" %>
 <%@ page import="org.oscarehr.casemgmt.model.CaseManagementNoteLink" %>
 <%@ page import="org.oscarehr.casemgmt.service.CaseManagementManager" %>
-<%@ page import="org.oscarehr.util.SpringUtils"%>
 <%@page import="org.oscarehr.common.model.ProfessionalSpecialist" %>
 <%@page import="org.oscarehr.common.dao.ProfessionalSpecialistDao" %>
 <%@page import="org.oscarehr.common.model.DemographicCust" %>
@@ -288,9 +286,6 @@ if(!authed) {
 	
 %>
 
-
-
-<%@page import="org.oscarehr.util.SpringUtils"%>
 <%@page import="org.apache.commons.lang.StringUtils"%><html:html locale="true">
 
 <head>
@@ -563,6 +558,17 @@ function checkONReferralNo() {
   }
 
   <% } %>
+}
+function checkONFamilyNo() {
+    <%
+        if(!skip.equals("true")) {
+    %>
+    var referralNo = document.updatedelete.f_doctor_ohip.value ;
+    if (document.updatedelete.hc_type.value == 'ON' && referralNo.length > 0 && referralNo.length != 6) {
+        alert("<bean:message key="demographic.demographiceditdemographic.msgWrongFamily"/>") ;
+    }
+
+    <% } %>
 }
 
 
@@ -839,7 +845,7 @@ jQuery(document).ready(function() {
 </script>
 
 </head>
-<body onLoad="setfocus(); checkONReferralNo(); formatPhoneNum(); checkRosterStatus2();"
+<body onLoad="setfocus(); checkONReferralNo(); checkONFamilyNo(); formatPhoneNum(); checkRosterStatus2();"
 	topmargin="0" leftmargin="0" rightmargin="0" id="demographiceditdemographic">
 <%
        Demographic demographic = demographicDao.getDemographic(demographic_no);
@@ -868,6 +874,7 @@ jQuery(document).ready(function() {
                            java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.struts.Globals.LOCALE_KEY);
                                 //----------------------------REFERRAL DOCTOR------------------------------
                                 String rdohip="", rd="", fd="", family_doc = "";
+                                String fam_doc_contents="", fam_doc_ohip="", fam_doc_name="";
 
                                 String resident="", nurse="", alert="", notes="", midwife="";
                                 
@@ -923,6 +930,15 @@ jQuery(document).ready(function() {
                                                         family_doc = SxmlMisc.getXmlContent(StringUtils.trimToEmpty(demographic.getFamilyDoctor()),"family_doc");
                                                         family_doc = family_doc !=null ? family_doc : "" ;
                                                 }
+
+                                                fam_doc_contents = demographic.getFamilyPhysician();
+                                                if(fam_doc_contents!=null) {
+                                                    fam_doc_name = SxmlMisc.getXmlContent(StringUtils.trimToEmpty(demographic.getFamilyPhysician()), "fd");
+                                                    fam_doc_name = fam_doc_name != null ? fam_doc_name : "";
+                                                    fam_doc_ohip = SxmlMisc.getXmlContent(StringUtils.trimToEmpty(demographic.getFamilyPhysician()), "fdohip");
+                                                    fam_doc_ohip = fam_doc_ohip != null ? fam_doc_ohip : "";
+                                                }
+
                                                 //----------------------------REFERRAL DOCTOR --------------end-----------
 
                                                 if (oscar.util.StringUtils.filled(demographic.getYearOfBirth())) birthYear = StringUtils.trimToEmpty(demographic.getYearOfBirth());
@@ -2233,6 +2249,12 @@ if ( Dead.equals(PatStat) ) {%>
                                                     <li><span class="label"><bean:message
                                                             key="demographic.demographiceditdemographic.formRefDocNo" />:</span><span class="info"><%=rdohip%></span>
 							</li>
+                            <li><span class="label"><bean:message
+                                    key="demographic.demographiceditdemographic.formFamDoc" />:</span><span class="info"><%=fam_doc_name%></span>
+                            </li>
+                            <li><span class="label"><bean:message
+                                    key="demographic.demographiceditdemographic.formFamDocNo" />:</span><span class="info"><%=fam_doc_ohip%></span>
+                            </li>
 						</ul>
 						</div>
 						
@@ -2958,6 +2980,9 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 <%-- TOGGLE OFF PATIENT ROSTERING - NOT USED IN ALL PROVINCES. --%>
 <oscar:oscarPropertiesCheck property="DEMOGRAPHIC_PATIENT_ROSTERING" value="true">	
 
+							<jsp:include page="./familyPhysicianModule.jsp">
+        						<jsp:param name="family_doc" value="<%=family_doc%>"/>
+    						</jsp:include>
 							<tr valign="top">
 								<td align="right" nowrap><b><bean:message
 									key="demographic.demographiceditdemographic.formRosterStatus" />:

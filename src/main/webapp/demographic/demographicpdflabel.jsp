@@ -115,6 +115,7 @@ if(!authed) {
 <%
 //----------------------------REFERRAL DOCTOR------------------------------
 String rdohip="", rd="", fd="", family_doc = "";
+String fam_doc_ohip="", fam_doc_name="", fam_doc_content="";
 
 String resident="", nurse="", alert="", notes="", midwife="";
 
@@ -157,6 +158,17 @@ out.println("failed!!!");
                 rdohip = rdohip !=null ? rdohip : "" ;
                 family_doc = SxmlMisc.getXmlContent(d.getFamilyDoctor(),"family_doc");
                 family_doc = family_doc !=null ? family_doc : "" ;
+        }
+        fam_doc_content=apptMainBean.getString(rs, "family_physician");
+        if (fd==null) {
+            fam_doc_content = "";
+            fam_doc_name = "";
+            fam_doc_ohip = "";
+        }else{
+            fam_doc_name = SxmlMisc.getXmlContent(apptMainBean.getString(rs,"family_physician"),"fd");
+            fam_doc_name = fam_doc_name != null ? fam_doc_name : "";
+            fam_doc_ohip = SxmlMisc.getXmlContent(apptMainBean.getString(rs,"family_physician"),"fdohip");
+            fam_doc_ohip = fam_doc_ohip != null ? fam_doc_ohip : "";
         }
         //----------------------------REFERRAL DOCTOR --------------end-----------
 
@@ -351,6 +363,55 @@ out.println("failed!!!");
 			key="demographic.demographiceditdemographic.formRefDocNo" />: </b></td>
 		<td align="left"><%=rdohip%></td>
 	</tr>
+    <tr valign="top">
+        <td align="left" nowrap><b><bean:message
+                key="demographic.demographiceditdemographic.formFamDoc" />: </b> <% if(oscarProps.getProperty("isMRefDocSelectList", "").equals("true") ) {
+            // drop down list
+            Properties prop = null;
+            Vector vecRef = new Vector();
+
+            List<ProfessionalSpecialist> specialists = professionalSpecialistDao.findAll();
+            for(ProfessionalSpecialist specialist : specialists) {
+                prop = new Properties();
+                prop.setProperty("referral_no", specialist.getReferralNo());
+                prop.setProperty("last_name", specialist.getLastName());
+                prop.setProperty("first_name", specialist.getFirstName());
+                vecRef.add(prop);
+            }
+
+        %> <select name="f_doctor" onChange="changeFamDoc()"
+                   style="width: 200px">
+            <option value=""></option>
+            <% for(int k=0; k<vecRef.size(); k++) {
+                prop= (Properties) vecRef.get(k);
+            %>
+            <option
+                    value="<%=prop.getProperty("last_name")+","+prop.getProperty("first_name")%>"
+                    <%=prop.getProperty("referral_no").equals(fam_doc_ohip)?"selected":""%>>
+                <%=Misc.getShortStr( (prop.getProperty("last_name")+","+prop.getProperty("first_name")),"",nStrShowLen)%></option>
+            <% } %>
+        </select> <script language="Javascript">
+            <!--
+            function changeFamDoc() {
+                //alert(document.updatedelete.r_doctor.value);
+                var refName = document.updatedelete.f_doctor.options[document.updatedelete.f_doctor.selectedIndex].value;
+                var refNo = "";
+                <% for(int k=0; k<vecRef.size(); k++) {
+                        prop= (Properties) vecRef.get(k);
+                %>
+                if(refName=="<%=prop.getProperty("last_name")+","+prop.getProperty("first_name")%>") {
+                    refNo = '<%=prop.getProperty("referral_no", "")%>';
+                }
+                <% } %>
+                document.updatedelete.f_doctor_ohip.value = refNo;
+            }
+            //-->
+        </script> <% } else {%> <%=fam_doc_name%> <% } %>
+        </td>
+        <td align="left" nowrap><b><bean:message
+                key="demographic.demographiceditdemographic.formFamDocNo" />: </b></td>
+        <td align="left"><%=fam_doc_ohip%></td>
+    </tr>
 
 	<tr valign="top">
 		<td align="left" nowrap><b><bean:message

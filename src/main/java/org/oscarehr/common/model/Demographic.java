@@ -79,6 +79,7 @@ public class Demographic implements Serializable {
 	private String sexDesc;
 	private Date dateJoined;
 	private String familyDoctor;
+    private String familyPhysician;
 	private String city;
 	private String firstName;
 	private String postal;
@@ -538,6 +539,22 @@ public class Demographic implements Serializable {
 	public void setFamilyDoctor(String familyDoctor) {
 		this.familyDoctor = familyDoctor;
 	}
+	
+	/**
+	 * Set the value related to the column: family_physician
+	 *
+	 * @param familyPhysician the family_doctor value
+	 */
+	public void setFamilyPhysician(String familyPhysician) {
+		this.familyPhysician = familyPhysician;
+	}
+
+    /**
+     * Return the value associated with the column: family_physician
+     */
+    public String getFamilyPhysician() {
+        return familyPhysician;
+    }
 
 	/**
 	 * Return the last name as parsed from column: family_doctor

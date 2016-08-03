@@ -163,7 +163,7 @@ function referralScriptAttach2(refDoctorNoElement, refDoctorNameElement, refDoct
     refDoctorName = escape(document.forms[1].elements[refDoctorNameElement].value);
     t0 = escape("document.forms[1].elements[\'"+refDoctorNoElement+"\'].value");
     t1 = escape("document.forms[1].elements[\'"+refDoctorNameElement+"\'].value");
-    t2 = escape("document.forms[1].elements[\'"+refDoctorIdElement+"\'].value");
+    t2 = refDoctorIdElement != '' ? escape("document.forms[1].elements[\'"+refDoctorIdElement+"\'].value") : "";
     
     rs('att',('../billing/CA/ON/searchRefDoc.jsp?refDoctorNo='+refDoctorNo+'&refDoctorName='+refDoctorName + '&param=' + t0 + '&param2=' + t1 + '&paramId=' + t2 + '&searchType=' + searchType),600,600,1);
 }
