@@ -171,6 +171,15 @@ public class ProviderDao extends HibernateDaoSupport {
     	Object params[]=paramList.toArray(new Object[paramList.size()]);
     	return getHibernateTemplate().find(s,params);
 	}
+	
+    public List<Provider> getActiveProvidersByGroupNo(String groupno){
+    	groupno=groupno.trim();
+    	String s="From Provider p where p.Comments like ? and p.Status='1'";
+    	ArrayList<Object> paramList=new ArrayList<Object>();
+    	paramList.add("%<xml_p_billinggroup_no>"+groupno+"</xml_p_billinggroup_no>%");
+    	Object params[]=paramList.toArray(new Object[paramList.size()]);
+    	return getHibernateTemplate().find(s,params);
+	}
 
     public List<SecProvider> getActiveProviders(Integer programId) {
         ArrayList<Object> paramList = new ArrayList<Object>();

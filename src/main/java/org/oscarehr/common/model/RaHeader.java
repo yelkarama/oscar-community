@@ -42,6 +42,9 @@ public class RaHeader extends AbstractModel<Integer> {
 	private Integer id;
 
 	private String filename;
+	
+	@Column(name="group_no")
+	private String groupNo;
 
 	@Column(name="paymentdate")
 	private String paymentDate;
@@ -73,6 +76,14 @@ public class RaHeader extends AbstractModel<Integer> {
 
 	public void setFilename(String filename) {
     	this.filename = filename;
+    }
+
+	public String getGroupNo() {
+    	return groupNo;
+    }
+
+	public void setGroupNo(String GroupNo) {
+    	this.groupNo = groupNo;
     }
 
 	public String getPaymentDate() {
