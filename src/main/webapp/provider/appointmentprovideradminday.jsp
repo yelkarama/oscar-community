@@ -852,11 +852,11 @@ function getParameter(paramName) {
 <%
 	if (org.oscarehr.common.IsPropertiesOn.isCaisiEnable()){
 %>
-<body bgcolor="#EEEEFF" onload="load();" topmargin="0" leftmargin="0" rightmargin="0">
+<body bgcolor="#007392" onload="load();" topmargin="0" leftmargin="0" rightmargin="0"> <!-- bgcolor="#EEEEFF" -->
 <%
 	}else{
 %>
-<body bgcolor="#EEEEFF" onLoad="refreshAllTabAlerts();scrollOnLoad();" topmargin="0" leftmargin="0" rightmargin="0">
+<body bgcolor="#007392" onLoad="refreshAllTabAlerts();scrollOnLoad();" topmargin="0" leftmargin="0" rightmargin="0"> <!-- bgcolor="#EEEEFF" -->
 <%
 	}
 %>
@@ -975,7 +975,7 @@ if(mygroupno != null && providerBean.get(mygroupno) != null) { //single appointe
      }
      else {
     	 List<MyGroup> results = myGroupDao.getGroupByGroupNo(mygroupno);
-    	 Collections.sort(results,MyGroup.MyGroupNoViewOrderComparator);
+    	 Collections.sort(results,MyGroup.LastNameComparator);
   	   
     	 for(MyGroup result:results) {
     		 curProvider_no[iTemp] = String.valueOf(result.getId().getProviderNo());
@@ -1025,12 +1025,12 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 %>
 
 
-<table BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="100%" id="firstTable" class="noprint">
+<table BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="100%" id="firstTable" style="padding:10px 7px; color: #fff">
 <tr>
 <td align="center" >
-<a href="../web/" title="OSCAR EMR"><img src="<%=request.getContextPath()%>/images/oscar_small.png" border="0"></a>
+<a href="../web/" title="OSCAR EMR"><img src="../images/oscar_small.png" border="0"></a><!-- <img src="<%=request.getContextPath()%>/images/oscar_small.png" border="0"> -->
 </td>
-<td id="firstMenu">
+<td id="firstMenu" style="padding-left: 5px;">
 <ul id="navlist">
 <logic:notEqual name="infirmaryView_isOscar" value="false">
 <% if(request.getParameter("viewall")!=null && request.getParameter("viewall").equals("1") ) { %>
@@ -1280,7 +1280,7 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 </td>
 
 
-<td align="right" valign="bottom" >
+<td align="right">
 	<a href="javascript: function myFunction() {return false; }" onClick="popup(700,1024,'../scratch/index.jsp','scratch')"><span id="oscar_scratch"></span></a>&nbsp;
 
 	<%if(resourcehelpHtml==""){ %>
@@ -1332,11 +1332,11 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 	} else {
 %>
 
-<table BORDER="0" CELLPADDING="1" CELLSPACING="0" WIDTH="100%" BGCOLOR="#C0C0C0">
-<tr id="ivoryBar">
-<td id="dateAndCalendar" BGCOLOR="ivory" width="33%">
+<table BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="100%" BGCOLOR="#fff">
+<tr id="ivoryBar" style="background:#74abbe; color:#fff;">
+<td id="dateAndCalendar" width="33%" style="padding:7px"><!-- BGCOLOR="ivory" -->
  <a class="redArrow" href="providercontrol.jsp?year=<%=year%>&month=<%=month%>&day=<%=isWeekView?(day-7):(day-1)%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+URLEncoder.encode(request.getParameter("curProviderName"),"UTF-8") )%>&displaymode=day&dboperation=searchappointmentday<%=isWeekView?"&provider_no="+provNum:""%>&viewall=<%=viewall%>">
- &nbsp;&nbsp;<img src="../images/previous.gif" WIDTH="10" HEIGHT="9" BORDER="0" class="noprint" ALT="<bean:message key="provider.appointmentProviderAdminDay.viewPrevDay"/>" vspace="2"></a>
+ &nbsp;&nbsp;<img src="../images/previous.png" style="margin-bottom: -3px" BORDER="0" ALT="<bean:message key="provider.appointmentProviderAdminDay.viewPrevDay"/>"></a>
  <b><span class="dateAppointment"><%
  	if (isWeekView) {
  %><bean:message key="provider.appointmentProviderAdminDay.week"/> <%=week%><%
@@ -1345,7 +1345,7 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
  	}
  %></span></b>
  <a class="redArrow" href="providercontrol.jsp?year=<%=year%>&month=<%=month%>&day=<%=isWeekView?(day+7):(day+1)%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+URLEncoder.encode(request.getParameter("curProviderName"),"UTF-8") )%>&displaymode=day&dboperation=searchappointmentday<%=isWeekView?"&provider_no="+provNum:""%>&viewall=<%=viewall%>">
- <img src="../images/next.gif" WIDTH="10" HEIGHT="9" BORDER="0" class="noprint" ALT="<bean:message key="provider.appointmentProviderAdminDay.viewNextDay"/>" vspace="2">&nbsp;&nbsp;</a>
+ <img src="../images/next.png" style="margin-bottom: -3px" BORDER="0" class="noprint" ALT="<bean:message key="provider.appointmentProviderAdminDay.viewNextDay"/>">&nbsp;&nbsp;</a>
 <a id="calendarLink" href=# onClick ="popupPage(425,430,'../share/CalendarPopup.jsp?urlfrom=../provider/providercontrol.jsp&year=<%=strYear%>&month=<%=strMonth%>&param=<%=URLEncoder.encode("&view=0&displaymode=day&dboperation=searchappointmentday&viewall="+viewall,"UTF-8")%><%=isWeekView?URLEncoder.encode("&provider_no="+provNum, "UTF-8"):""%>')"><bean:message key="global.calendar"/></a>
 
 <logic:notEqual name="infirmaryView_isOscar" value="false">
@@ -1394,7 +1394,7 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 %>
 </td>
 
-<td class="title noprint" ALIGN="center"  BGCOLOR="ivory" width="33%">
+<td class="title noprint" ALIGN="center" width="33%" style="padding:7px"><!-- BGCOLOR="ivory" -->
 
 <%
 	if (isWeekView) {
@@ -1412,7 +1412,7 @@ if (curProvider_no[provIndex].equals(provNum)) {
 </td>
 <% } } %>
 
-<td id="group" ALIGN="RIGHT" BGCOLOR="Ivory">
+<td id="group" ALIGN="RIGHT" style="padding:7px"><!-- BGCOLOR="ivory" -->
 
 <caisi:isModuleLoad moduleName="TORONTO_RFQ" reverse="true">
 <form method="post" name="findprovider" onSubmit="findProvider(<%=year%>,<%=month%>,<%=day%>);return false;" target="apptReception" action="receptionistfindprovider.jsp" style="display:inline;margin:0px;padding:0px;padding-right:10px">
@@ -1728,8 +1728,8 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
 %>
             <td valign="top" width="<%=isWeekView?100/7:100/numProvider%>%"> <!-- for the first provider's schedule -->
 
-        <table border="0" cellpadding="0" bgcolor="#486ebd" cellspacing="0" width="100%"><!-- for the first provider's name -->
-          <tr><td class="infirmaryView" NOWRAP ALIGN="center" BGCOLOR="<%=bColor?"#bfefff":"silver"%>">
+        <table border="0" cellpadding="0" bgcolor="#fff" cellspacing="0" width="100%"><!-- for the first provider's name -->
+          <tr><td class="infirmaryView" NOWRAP ALIGN="center" style="padding:10px"><!--BGCOLOR="<%=bColor?"#bfefff":"silver"%>"  -->
  <!-- caisi infirmary view extension modify ffffffffffff-->
   <logic:notEqual name="infirmaryView_isOscar" value="false">
 
@@ -1743,7 +1743,7 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
   <b><input type='button' value="<bean:message key="provider.appointmentProviderAdminDay.weekLetter"/>" name='weekview' onClick=goWeekView('<%=curProvider_no[nProvider]%>') title="<bean:message key="provider.appointmentProviderAdminDay.weekView"/>" style="color:black" class="noprint">
 	  <input type='button' value="<bean:message key="provider.appointmentProviderAdminDay.searchLetter"/>" name='searchview' onClick=goSearchView('<%=curProvider_no[nProvider]%>') title="<bean:message key="provider.appointmentProviderAdminDay.searchView"/>" style="color:black" class="noprint">
           <b><input type='radio' name='flipview' class="noprint" onClick="goFilpView('<%=curProvider_no[nProvider]%>')" title="Flip view"  >
-          <a href=# onClick="goZoomView('<%=curProvider_no[nProvider]%>','<%=StringEscapeUtils.escapeJavaScript(curProviderName[nProvider])%>')" onDblClick="goFilpView('<%=curProvider_no[nProvider]%>')" title="<bean:message key="provider.appointmentProviderAdminDay.zoomView"/>" >
+          <a style="color:#333" href=# onClick="goZoomView('<%=curProvider_no[nProvider]%>','<%=StringEscapeUtils.escapeJavaScript(curProviderName[nProvider])%>')" onDblClick="goFilpView('<%=curProvider_no[nProvider]%>')" title="<bean:message key="provider.appointmentProviderAdminDay.zoomView"/>" >
           <!--a href="providercontrol.jsp?year=<%=strYear%>&month=<%=strMonth%>&day=<%=strDay%>&view=1&curProvider=<%=curProvider_no[nProvider]%>&curProviderName=<%=curProviderName[nProvider]%>&displaymode=day&dboperation=searchappointmentday" title="<bean:message key="provider.appointmentProviderAdminDay.zoomView"/>"-->
           <%=curProviderName[nProvider] + "(" + appointmentCount + ")"%></a> 
        	<oscar:oscarPropertiesCheck value="yes" property="TOGGLE_REASON_BY_PROVIDER" defaultVal="true">   
@@ -1795,7 +1795,7 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
 <!-- caisi infirmary view exteion add end ffffffffffffffffff-->
 <!-- =============== following block is the original oscar code. -->
         <!-- table for hours of day start -->
-        <table id="providerSchedule" border="0" cellpadding="0" bgcolor="<%=userAvail?"#486ebd":"silver"%>" cellspacing="0" width="100%">
+        <table id="providerSchedule" border="0" cellpadding="0" bgcolor="#fff" cellspacing="0" width="100%"><%-- bgcolor="<%=userAvail?"#486ebd":"silver"%>" --%>
 <%
 		bFirstTimeRs=true;
         bFirstFirstR=true;
@@ -2006,10 +2006,22 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
           	  bFirstTimeRs=true;
 	    as.setApptStatus(status);
 
+		UserProperty hideNoShowsAndCancellationsProperty = userPropertyDao.getProp(curUser_no, UserProperty.HIDE_NO_SHOWS_AND_CANCELLATIONS);
+		String hideAppointmentStatus = "";
+		String hideAppointmentHtml = "";
+			 
+		if (hideNoShowsAndCancellationsProperty != null)
+			hideAppointmentStatus = hideNoShowsAndCancellationsProperty.getValue();
+			 
+		if (status.equals(UserProperty.HIDE_NO_SHOWS_AND_CANCELLATIONS_NO_SHOW) || status.equals(UserProperty.HIDE_NO_SHOWS_AND_CANCELLATIONS_CANCELLATION)){
+			if (hideAppointmentStatus.equals(status) || hideAppointmentStatus.equals(UserProperty.HIDE_NO_SHOWS_AND_CANCELLATIONS_BOTH)){
+				hideAppointmentHtml = "style=\"display:none\"";
+			}
+		}
 	 //multi-site. if a site have been selected, only display appointment in that site
 	 if (!bMultisites || (selectedSite == null && CurrentSiteMap.get(sitename) != null) || sitename.equals(selectedSite)) {
 %>
-            <td class="appt" bgcolor='<%=as.getBgColor()%>' rowspan="<%=iRows%>" <%-- =view==0?(len==lenLimitedL?"nowrap":""):"nowrap"--%> nowrap>
+            <td <%=hideAppointmentHtml%> class="appt" bgcolor='<%=as.getBgColor()%>' rowspan="<%=iRows%>" <%-- =view==0?(len==lenLimitedL?"nowrap":""):"nowrap"--%> nowrap>
 			<%
 			   if (BookingSource.MYOSCAR_SELF_BOOKING == appointment.getBookingSource())
 				{
@@ -2360,7 +2372,7 @@ start_time += iSm + ":00";
 <!-- caisi infirmary view extension add end fffffffffffffff-->
 
          </td></tr>
-          <tr><td class="infirmaryView" ALIGN="center" BGCOLOR="<%=bColor?"#bfefff":"silver"%>">
+          <tr><td class="infirmaryView" ALIGN="center" style="padding:10px"><!-- BGCOLOR="<%=bColor?"#bfefff":"silver"%>" -->
 <!-- caisi infirmary view extension modify fffffffffffffffffff-->
 <logic:notEqual name="infirmaryView_isOscar" value="false">
 
@@ -2370,7 +2382,7 @@ start_time += iSm + ":00";
           <b><input type='button' value="<bean:message key="provider.appointmentProviderAdminDay.weekLetter"/>" name='weekview' onClick=goWeekView('<%=curProvider_no[nProvider]%>') title="<bean:message key="provider.appointmentProviderAdminDay.weekView"/>" style="color:black" class="noprint">
           <input type='button' value="<bean:message key="provider.appointmentProviderAdminDay.searchLetter"/>" name='searchview' onClick=goSearchView('<%=curProvider_no[nProvider]%>') title="<bean:message key="provider.appointmentProviderAdminDay.searchView"/>" style="color:black" class="noprint">
           <b><input type='radio' name='flipview' class="noprint" onClick="goFilpView('<%=curProvider_no[nProvider]%>')" title="Flip view"  >
-          <a href=# onClick="goZoomView('<%=curProvider_no[nProvider]%>','<%=StringEscapeUtils.escapeJavaScript(curProviderName[nProvider])%>')" onDblClick="goFilpView('<%=curProvider_no[nProvider]%>')" title="<bean:message key="provider.appointmentProviderAdminDay.zoomView"/>" >
+          <a style="color:#333" href=# onClick="goZoomView('<%=curProvider_no[nProvider]%>','<%=StringEscapeUtils.escapeJavaScript(curProviderName[nProvider])%>')" onDblClick="goFilpView('<%=curProvider_no[nProvider]%>')" title="<bean:message key="provider.appointmentProviderAdminDay.zoomView"/>" >
           <!--a href="providercontrol.jsp?year=<%=strYear%>&month=<%=strMonth%>&day=<%=strDay%>&view=1&curProvider=<%=curProvider_no[nProvider]%>&curProviderName=<%=curProviderName[nProvider]%>&displaymode=day&dboperation=searchappointmentday" title="<bean:message key="provider.appointmentProviderAdminDay.zoomView"/>"-->
           <%=curProviderName[nProvider]%></a></b>
       <% } %>
@@ -2414,15 +2426,15 @@ start_time += iSm + ":00";
 
       <tr><td colspan="3">
               <table BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="100%" class="noprint">
-                  <tr>
-                      <td BGCOLOR="ivory" width="60%">
+                  <tr style="background:#74abbe; color:#fff;">
+                      <td style="padding:7px" width="60%">
                           <a href="providercontrol.jsp?year=<%=year%>&month=<%=month%>&day=<%=isWeekView ? (day - 7) : (day - 1)%>&view=<%=view == 0 ? "0" : ("1&curProvider=" + request.getParameter("curProvider") + "&curProviderName=" + URLEncoder.encode(request.getParameter("curProviderName"),"UTF-8"))%>&displaymode=day&dboperation=searchappointmentday<%=isWeekView ? "&provider_no=" + provNum : ""%>">
-                              &nbsp;&nbsp;<img src="../images/previous.gif" WIDTH="10" HEIGHT="9" BORDER="0" ALT="<bean:message key="provider.appointmentProviderAdminDay.viewPrevDay"/>" vspace="2"></a>
+                              &nbsp;&nbsp;<img src="../images/previous.png" style="margin-bottom: -3px" BORDER="0" ALT="<bean:message key="provider.appointmentProviderAdminDay.viewPrevDay"/>"></a>
                           <b><span class="dateAppointment"><% if (isWeekView) {%><bean:message key="provider.appointmentProviderAdminDay.week"/> <%=week%><% } else {%><%=formatDate%><% }%></span></b>
                           <a href="providercontrol.jsp?year=<%=year%>&month=<%=month%>&day=<%=isWeekView ? (day + 7) : (day + 1)%>&view=<%=view == 0 ? "0" : ("1&curProvider=" + request.getParameter("curProvider") + "&curProviderName=" + URLEncoder.encode(request.getParameter("curProviderName"),"UTF-8"))%>&displaymode=day&dboperation=searchappointmentday<%=isWeekView ? "&provider_no=" + provNum : ""%>">
-                              <img src="../images/next.gif" WIDTH="10" HEIGHT="9" BORDER="0" ALT="<bean:message key="provider.appointmentProviderAdminDay.viewNextDay"/>" vspace="2">&nbsp;&nbsp;</a>
+                              <img src="../images/next.png" style="margin-bottom: -3px" BORDER="0" ALT="<bean:message key="provider.appointmentProviderAdminDay.viewNextDay"/>">&nbsp;&nbsp;</a>
                           <a id="calendarLinkBottom" href=# onClick ="popupPage(425,430,'../share/CalendarPopup.jsp?urlfrom=../provider/providercontrol.jsp&year=<%=strYear%>&month=<%=strMonth%>&param=<%=URLEncoder.encode("&view=0&displaymode=day&dboperation=searchappointmentday", "UTF-8")%><%=isWeekView ? URLEncoder.encode("&provider_no=" + provNum, "UTF-8") : ""%>')"><bean:message key="global.calendar"/></a></td>
-                      <td ALIGN="RIGHT" BGCOLOR="Ivory">
+                      <td ALIGN="RIGHT" style="padding:7px">
                          | <a href="../logout.jsp"><bean:message key="global.btnLogout"/> &nbsp;</a>
                       </td>
                   </tr>

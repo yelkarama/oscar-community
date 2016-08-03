@@ -48,6 +48,7 @@
 		<property column="roster_termination_reason" length="2" name="rosterTerminationReason" type="string"/>
 		<property column="pcn_indicator" length="20" name="PcnIndicator" type="string" />
 		<property column="family_doctor" length="80" name="FamilyDoctor" type="string" />
+        <property column="family_physician" length="80" name="FamilyPhysician" type="string" />
 
 		<property column="alias" length="70" name="Alias" type="string" />
 		<property column="previousAddress" length="255" name="PreviousAddress" type="string" />
@@ -80,6 +81,7 @@
 		<property column="newsletter" name="newsletter" type="string" />
 		<property column="country_of_origin" name="countryOfOrigin" type="string" />
 
-
+		<property column="patient_type" name="patientType" type="string" />
+		<property column="patient_id" name="patientId" type="string" />
 	</class>
 </hibernate-mapping>

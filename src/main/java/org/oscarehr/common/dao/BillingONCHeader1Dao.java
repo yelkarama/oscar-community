@@ -709,7 +709,9 @@ public class BillingONCHeader1Dao extends AbstractDao<BillingONCHeader1>{
 		Query query = entityManager.createQuery(sql);
 		query.setParameter("demoNo", demoNo);
 		query.setFirstResult(iOffSet);
-		query.setMaxResults(pageSize);
+		if(pageSize >= 0){
+			query.setMaxResults(pageSize);
+		}
 		return query.getResultList();
     }
 
@@ -724,7 +726,9 @@ public class BillingONCHeader1Dao extends AbstractDao<BillingONCHeader1>{
 		query.setParameter("dateStart", (new SimpleDateFormat("yyyy-MM-dd")).format(dateRange.getFrom()));
 		query.setParameter("dateEnd", (new SimpleDateFormat("yyyy-MM-dd")).format(dateRange.getTo()));
 		query.setFirstResult(iOffSet);
-		query.setMaxResults(pageSize);
+		if(pageSize >= 0){
+			query.setMaxResults(pageSize);
+		}
 		return query.getResultList();
     }
 

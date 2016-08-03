@@ -136,6 +136,7 @@ public final class RxWriteScriptAction extends DispatchAction {
 			rx.setDuration(frm.getDuration());
 			rx.setDurationUnit(frm.getDurationUnit());
 			rx.setQuantity(frm.getQuantity());
+			rx.setDispensingUnits(frm.getDispensingUnits());
 			rx.setRepeat(frm.getRepeat());
 			rx.setLastRefillDate(RxUtil.StringToDate(frm.getLastRefillDate(), "yyyy-MM-dd"));
 			rx.setNosubs(frm.getNosubs());
@@ -941,6 +942,8 @@ public final class RxWriteScriptAction extends DispatchAction {
 							if(val != null) {
 								rx.setDrugReasonCode(val);
 							}
+						} else if (elem.equals("dispensingUnits_" + num)) {
+							rx.setDispensingUnits(val);
 						} else if (elem.equals("instructions_" + num)) {
 							rx.setSpecial(val);
 						} else if (elem.equals("quantity_" + num)) {
@@ -1086,7 +1089,7 @@ public final class RxWriteScriptAction extends DispatchAction {
 						if (rx.getUnitName() == null) {
 							special = rx.getCustomName() + newline + rx.getSpecial();
 							if (rx.getSpecialInstruction() != null && !rx.getSpecialInstruction().equalsIgnoreCase("null") && rx.getSpecialInstruction().trim().length() > 0) special += newline + rx.getSpecialInstruction();
-							special += newline + "Qty:" + rx.getQuantity() + " Repeats:" + "" + rx.getRepeat();
+							special += newline + "Qty:" + rx.getQuantity() + " " + rx.getDispensingUnits() + " Repeats:" + "" + rx.getRepeat();
 						} else {
 							special = rx.getCustomName() + newline + rx.getSpecial();
 							if (rx.getSpecialInstruction() != null && !rx.getSpecialInstruction().equalsIgnoreCase("null") && rx.getSpecialInstruction().trim().length() > 0) special += newline + rx.getSpecialInstruction();
@@ -1097,7 +1100,7 @@ public final class RxWriteScriptAction extends DispatchAction {
 							special = rx.getBrandName() + newline + rx.getSpecial();
 							if (rx.getSpecialInstruction() != null && !rx.getSpecialInstruction().equalsIgnoreCase("null") && rx.getSpecialInstruction().trim().length() > 0) special += newline + rx.getSpecialInstruction();
 
-							special += newline + "Qty:" + rx.getQuantity() + " Repeats:" + "" + rx.getRepeat();
+							special += newline + "Qty:" + rx.getQuantity() + " " + rx.getDispensingUnits() + " Repeats:" + "" + rx.getRepeat();
 						} else {
 							special = rx.getBrandName() + newline + rx.getSpecial();
 							if (rx.getSpecialInstruction() != null && !rx.getSpecialInstruction().equalsIgnoreCase("null") && rx.getSpecialInstruction().trim().length() > 0) special += newline + rx.getSpecialInstruction();
@@ -1158,7 +1161,7 @@ public final class RxWriteScriptAction extends DispatchAction {
             return null;
         }
         
-	public ActionForward changeToLongTerm(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException, Exception {
+	public ActionForward changeLongTerm(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException, Exception {
 		checkPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), PRIVILEGE_WRITE);
 		
 		String strId = request.getParameter("ltDrugId");
@@ -1172,7 +1175,7 @@ public final class RxWriteScriptAction extends DispatchAction {
 
 			RxPrescriptionData rxData = new RxPrescriptionData();
 			RxPrescriptionData.Prescription oldRx = rxData.getPrescription(drugId);
-			oldRx.setLongTerm(true);
+			oldRx.setLongTerm(!oldRx.isLongTerm());
 			boolean b = oldRx.Save(oldRx.getScript_no());
 			HashMap hm = new HashMap();
 			if (b) hm.put("success", true);

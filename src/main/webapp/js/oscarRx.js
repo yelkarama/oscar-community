@@ -465,7 +465,7 @@ function completeMedRec() {
 function changeLt(drugId){
     if (confirm('<bean:message key="oscarRx.Prescription.changeDrugLongTermConfirm" />')==true) {
            var data="ltDrugId="+drugId+"&rand="+Math.floor(Math.random()*10001);
-           var url= ctx + "/oscarRx/WriteScript.do?parameterValue=changeToLongTerm";
+           var url= ctx + "/oscarRx/WriteScript.do?parameterValue=changeLongTerm";
            new Ajax.Request(url,{method: 'post',parameters:data,onSuccess:function(transport){
                    var json=transport.responseText.evalJSON();
                    if(json!=null && (json.success=='true'||json.success==true) ){

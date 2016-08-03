@@ -98,7 +98,7 @@
         function searchOutOfDomain() {
             document.titlesearch.outofdomain.value="true";
             if (checkTypeIn()) document.titlesearch.submit();
-        }
+        }       
          
         </script>
 <% if (isMobileOptimized) { %>
@@ -118,10 +118,10 @@
 <p>
 <!-- we may want to not allow students to create new patients? -->
 <!-- <security:oscarSec roleName="<%=roleName$%>" objectName="_demographic.addnew" rights="r">  -->
-    <div class="createNew">
+    <%-- <div class="createNew">
 	<a href="demographicaddarecordhtm.jsp"><b><font size="+1"><bean:message
 	key="demographic.search.btnCreateNew" /></font></b></a> 
-    </div>
+    </div> --%>
 <!-- </security:oscarSec> -->
 		
 	<oscar:oscarPropertiesCheck
@@ -130,5 +130,9 @@
 		size="+1"><bean:message	key="demographic.search.importNewDemographic" /></font></a>
 </oscar:oscarPropertiesCheck></p>
 <p><!--a href="http://204.92.240.253:8080/test/slt/Search.jsp"><font size="+1"><bean:message key="demographic.search.btnELearning"/></font></a--></p>
+	<div class="createNew">
+		<a href="demographicaddarecordhtm.jsp?search_mode=search_name&keyword="><b><font size="+1"><bean:message key="demographic.search.btnCreateNew" /></font></b></a>
+		<br>
+	</div>
 </body>
 </html:html>

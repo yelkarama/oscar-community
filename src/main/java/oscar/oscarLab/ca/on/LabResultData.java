@@ -32,6 +32,8 @@ import java.util.Date;
 import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.LabReportInformationDao;
 import org.oscarehr.common.model.LabReportInformation;
+import org.oscarehr.common.dao.DocumentDao;
+import org.oscarehr.common.model.Document;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
@@ -145,7 +147,14 @@ public class LabResultData implements Comparable<LabResultData> {
 				this.abn= true;
 			}
 		}
-
+		else if (this.labType.equals(DOCUMENT)) {
+			DocumentDao documentDao = SpringUtils.getBean(DocumentDao.class);
+			Document document = documentDao.getDocument(this.segmentID);
+			
+			if (document != null) {
+				this.abn = document.isAbnormal();
+			}
+		}
 		return abn ;
 
 
@@ -306,7 +315,9 @@ public class LabResultData implements Comparable<LabResultData> {
 			
 			this.dateTimeObr = UtilDateUtilities.getDateFromString(this.getDateTime(), "yyyy-MM-dd HH:mm:ss");
 		}else if(HL7TEXT.equals(this.labType) || Spire.equals(this.labType)){
-			this.dateTimeObr = UtilDateUtilities.getDateFromString(this.getDateTime(), "yyyy-MM-dd HH:mm:ss");
+			String time = this.getDateTime();
+			String dateFormat = "yyyy-MM-dd HH:mm:ss".substring( 0, time.length() );
+			this.dateTimeObr = UtilDateUtilities.getDateFromString(time, dateFormat);
 		}else if(CML.equals(this.labType)){
 			String date="";
 			

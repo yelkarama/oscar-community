@@ -164,7 +164,9 @@
 		//If there was only 1 result this information will be populated
 		<% if (!doctorNameData.equals("") || !doctorNumberData.equals("")) { %>
 			//Assigns the data to the opener's fields and closes the current window
-			opener.<%= doctorIdParameter %> = "<%= doctorId %>";
+			<% if (doctorIdParameter.length() > 0) { %>
+				opener.<%= doctorIdParameter %> = "<%= doctorId %>";
+			<% } %>
 			opener.<%= param %> = "<%= doctorNumberData %>";
 			opener.<%= param2 %> = "<%= doctorNameData %>";
 			self.close();

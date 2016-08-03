@@ -65,6 +65,7 @@ if(!authed) {
 
     {"search_demo_active", "select * from demographic where end_date = '0001-01-01' or end_date is null order by last_name limit ? offset ?"},
     {"search_waiting_list", "select * from waitingListName where group_no='" + ((ProviderPreference)session.getAttribute(SessionConstants.LOGGED_IN_PROVIDER_PREFERENCE)).getMyGroupNo() + "' and is_history='N' " },
+    {"search_all_waiting_list", "select * from waitingListName where is_history='N' " },
   };
 
   reportMainBean.doConfigure(dbQueries);

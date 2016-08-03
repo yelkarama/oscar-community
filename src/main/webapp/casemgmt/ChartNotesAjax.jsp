@@ -933,23 +933,6 @@ CasemgmtNoteLock casemgmtNoteLock = (CasemgmtNoteLock)session.getAttribute("case
         document.forms["caseManagementEntryForm"].note_edit.value = "existing";
     <%}%>
     setupNotes();
-    Element.observe(caseNote, "keyup", monitorCaseNote);
-    Element.observe(caseNote, 'click', getActiveText);
-    <%Integer num;
-			Iterator<Integer> iterator = lockedNotes.iterator();
-			while (iterator.hasNext())
-			{
-				num = iterator.next();%>
-            Element.observe('n<%=num%>', 'click', unlockNote);
-    <%}
-
-			iterator = unLockedNotes.iterator();
-			while (iterator.hasNext())
-			{
-				num = iterator.next();%>
-            Element.observe('n<%=num%>', 'click', fullView);
-    <%}%>
-
     //flag for determining if we want to submit case management entry form with enter key pressed in auto completer text box
     var submitIssues = false;
    //AutoCompleter for Issues
@@ -1006,6 +989,25 @@ CasemgmtNoteLock casemgmtNoteLock = (CasemgmtNoteLock)session.getAttribute("case
  	
 
 <% } %>
+
+<script type="text/javascript">
+	Element.observe(caseNote, "keyup", monitorCaseNote);
+	Element.observe(caseNote, 'click', getActiveText);
+	<%Integer num;
+			Iterator<Integer> iterator = lockedNotes.iterator();
+			while (iterator.hasNext())
+			{
+				num = iterator.next();%>
+	        Element.observe('n<%=num%>', 'click', unlockNote);
+	<%}
+	
+			iterator = unLockedNotes.iterator();
+			while (iterator.hasNext())
+			{
+				num = iterator.next();%>
+	        Element.observe('n<%=num%>', 'click', fullView);
+	<%}%>
+</script>
 
 <%!/*
 																						 *Insert encounter reason for new note

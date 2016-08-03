@@ -33,6 +33,7 @@ import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.BillingONCHeader1Dao;
 import org.oscarehr.common.dao.RaDetailDao;
 import org.oscarehr.common.dao.RaHeaderDao;
+import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.model.BillingONCHeader1;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.Provider;
@@ -49,6 +50,7 @@ public class JdbcBillingRAImpl {
 
 	private RaDetailDao raDetailDao = SpringUtils.getBean(RaDetailDao.class);
 	private RaHeaderDao raHeaderDao = SpringUtils.getBean(RaHeaderDao.class);
+	private ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 	private BillingONCHeader1Dao cheader1Dao = SpringUtils.getBean(BillingONCHeader1Dao.class);
 
 	public int addOneRADtRecord(BillingRAData val) {
@@ -83,7 +85,7 @@ public class JdbcBillingRAImpl {
 	}
 
 	public boolean importRAFile(String filePathName) throws Exception {
-		String filename = "", header = "", headerCount = "", total = "", paymentdate = "", payable = "", totalStatus = "";
+		String filename = "", header = "", headerCount = "", total = "", group_no = "", paymentdate = "", payable = "", totalStatus = "";
 		String providerno = "", account = "", newhin = "", hin = "", ver = "", billtype = "";
 		String servicedate = "", serviceno = "", servicecode = "", amountsubmit = "", amountpay = "", amountpaysign = "", explain = "";
 		String balancefwd = "", abf_ca = "", abf_ad = "", abf_re = "", abf_de = "";
@@ -113,6 +115,7 @@ public class JdbcBillingRAImpl {
 				headerCount = nextline.substring(2, 3);
 
 				if (headerCount.compareTo("1") == 0) {
+					group_no = nextline.substring(7, 11);
 					paymentdate = nextline.substring(21, 29);
 					payable = nextline.substring(29, 59);
 					total = nextline.substring(59, 68);
@@ -128,7 +131,11 @@ public class JdbcBillingRAImpl {
 					for (RaHeader h : headers) {
 						raNo = "" + h.getId();
 					}
-
+					// check that group number is used in system. If not, do not set. (may be lab no)
+					if(providerDao.getActiveProvidersByGroupNo(group_no) == null 
+						|| providerDao.getActiveProvidersByGroupNo(group_no).size() == 0){
+						group_no="";
+					} 
 					// judge if it is empty in table radt
 					int radtNum = 0;
 					if (raNo != null && raNo.length() > 0) {
@@ -145,6 +152,7 @@ public class JdbcBillingRAImpl {
 
 						RaHeader h = new RaHeader();
 						h.setFilename(filename);
+						h.setGroupNo(group_no);
 						h.setPaymentDate(paymentdate);
 						h.setPayable(payable);
 						h.setTotalAmount(total);
@@ -485,12 +493,26 @@ public class JdbcBillingRAImpl {
 					demo_name = b.getDemographicName();
 					famProviderNo = d.getProviderNo();
 					site = b.getClinic();
-					if (b.getHin() != null) {
+					if (b.getHin() != null && !b.getHin().equals("")) {
 						if (!(b.getHin()).startsWith(demo_hin)) {
 							demo_hin = "";
 							demo_name = "";
 						}
-					} else {
+					}
+					else if (d.getHin() != null){
+						//Checks if the demographic HIN equals the HIN from the RADetail
+						if (d.getHin().equals(demo_hin)){
+							//Sets the HIN for the billingOnCHeader1
+							b.setHin(demo_hin);
+							//Saves the billing with the proper demo number
+							billingDao.saveEntity(b);
+						}
+						else {
+							demo_hin = "";
+							demo_name = "";
+						}
+					} 
+					else {
 						demo_hin = "";
 						demo_name = "";
 					}

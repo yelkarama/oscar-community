@@ -139,7 +139,7 @@ public class BillingRAPrep {
 				prop.setProperty("explain", explain);
 			}
 
-			if (location.compareTo("02") == 0) {
+			if (!demo_hin.equals("") && location.compareTo("02") == 0) {
 				double dHFee = Double.parseDouble(amountpay);
 				BigDecimal bdHFee = new BigDecimal(dHFee).setScale(2, BigDecimal.ROUND_HALF_UP);
 				BigHTotal = BigHTotal.add(bdHFee);

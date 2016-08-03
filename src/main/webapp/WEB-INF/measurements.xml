@@ -103,6 +103,7 @@
 	<map loinc_code="2112-1" name="PREGNANCY TEST-URINE" />
 	<map loinc_code="NULL" name="NULL" />
 	<map loinc_code="14771-0" name="GLUCOSE-FASTING" />
+	<map loinc_code="14749-6" name="GLUCOSE-RANDOM" />
 	<map loinc_code="4548-4" name="HbA1C" />
 	<map loinc_code="14682-9" name="CREATININE" />
 	<map loinc_code="2951-2" name="SODIUM" />

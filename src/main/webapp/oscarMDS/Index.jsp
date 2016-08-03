@@ -157,7 +157,10 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
 		if (p == "Next") { page++; }
 		else if (p == "Previous") { page--; }
 		else { page = p; }
-		if (request != null) { request.transport.abort(); }
+		if (request != null) { 
+			request.transport.onreadystatechange = Prototype.emptyFunction;
+			request.transport.abort();
+    	}
 		request = updateListView();
 	};
 
@@ -239,7 +242,7 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
 			else {
 				// It is possible that the current amount of loaded items has not filled up the page enough
 				// to create a scroll bar. So we fake a scroll (since no scroll bar is equivalent to reaching the bottom).
-				setTimeout("fakeScroll();", 1000);
+				setTimeout("fakeScroll();", 500);
 			}
 			
 			jQuery("#readerSwitcher").prop("disabled",false);

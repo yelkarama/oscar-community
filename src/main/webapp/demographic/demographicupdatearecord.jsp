@@ -55,6 +55,7 @@
 <%@page import="org.oscarehr.common.dao.DemographicExtArchiveDao" %>
 <%@page import="org.oscarehr.common.model.DemographicExt" %>
 <%@page import="org.oscarehr.common.model.DemographicExtArchive" %>
+<%@page import="org.oscarehr.common.dao.DemographicGroupLinkDao" %>
 
 <%@ page import="org.oscarehr.common.dao.WaitingListDao" %>
 <%@ page import="org.oscarehr.common.model.WaitingList" %>
@@ -86,6 +87,7 @@
 	DemographicCustDao demographicCustDao = (DemographicCustDao)SpringUtils.getBean("demographicCustDao");
 	WaitingListDao waitingListDao = (WaitingListDao)SpringUtils.getBean("waitingListDao");
 	OscarAppointmentDao appointmentDao = (OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
+	DemographicGroupLinkDao demographicGroupLinkDao = SpringUtils.getBean(DemographicGroupLinkDao.class);
 	
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 %>
@@ -135,6 +137,7 @@
 	demographic.setPcnIndicator(request.getParameter("pcn_indicator"));
 	demographic.setHcType(request.getParameter("hc_type"));
 	demographic.setFamilyDoctor("<rdohip>" + request.getParameter("r_doctor_ohip") + "</rdohip><rd>" + request.getParameter("r_doctor") + "</rd>" + (request.getParameter("family_doc")!=null? ("<family_doc>" + request.getParameter("family_doc") + "</family_doc>") : ""));
+	demographic.setFamilyPhysician("<fdohip>" + request.getParameter("f_doctor_ohip") + "</fdohip><fd>" + request.getParameter("f_doctor") + "</fd>");
 	demographic.setCountryOfOrigin(request.getParameter("countryOfOrigin"));
 	demographic.setNewsletter(request.getParameter("newsletter"));
 	demographic.setSin(request.getParameter("sin"));
@@ -144,6 +147,8 @@
 	demographic.setRosterTerminationReason(request.getParameter("roster_termination_reason"));
 	demographic.setLastUpdateUser((String)session.getAttribute("user"));
 	demographic.setLastUpdateDate(new java.util.Date());
+	demographic.setPatientType(request.getParameter("patientType"));
+	demographic.setPatientId(request.getParameter("patientId"));	
 	
 	String yearTmp=StringUtils.trimToNull(request.getParameter("date_joined_year"));
 	String monthTmp=StringUtils.trimToNull(request.getParameter("date_joined_month"));
@@ -247,6 +252,8 @@
 	extensions.add(new DemographicExt(request.getParameter("area_id"), proNo, demographicNo, "area", request.getParameter("area")));
 	extensions.add(new DemographicExt(request.getParameter("statusNum_id"), proNo, demographicNo, "statusNum",  request.getParameter("statusNum")));
 	extensions.add(new DemographicExt(request.getParameter("fNationCom_id"), proNo, demographicNo, "fNationCom", request.getParameter("fNationCom")));
+    extensions.add(new DemographicExt(request.getParameter("fNationFamilyNumber_id"), proNo, demographicNo, "fNationFamilyNumber", request.getParameter("fNationFamilyNumber")));
+    extensions.add(new DemographicExt(request.getParameter("fNationFamilyPosition_id"), proNo, demographicNo, "fNationFamilyPosition", request.getParameter("fNationFamilyPosition")));
 	extensions.add(new DemographicExt(request.getParameter("given_consent_id"), proNo, demographicNo, "given_consent", request.getParameter("given_consent")));
 	extensions.add(new DemographicExt(request.getParameter("rxInteractionWarningLevel_id"), proNo, demographicNo, "rxInteractionWarningLevel", request.getParameter("rxInteractionWarningLevel")));
 	extensions.add(new DemographicExt(request.getParameter("primaryEMR_id"), proNo, demographicNo, "primaryEMR", request.getParameter("primaryEMR")));
@@ -258,6 +265,48 @@
 	extensions.add(new DemographicExt(request.getParameter("paper_chart_archived_date_id"), proNo, demographicNo, "paper_chart_archived_date", request.getParameter("paper_chart_archived_date")));
 	extensions.add(new DemographicExt(request.getParameter("paper_chart_archived_program_id"), proNo, demographicNo, "paper_chart_archived_program", request.getParameter("paper_chart_archived_program")));
 	extensions.add(new DemographicExt(request.getParameter("familyDoctorId_id"), proNo, demographicNo, "familyDoctorId", request.getParameter("r_doctor_id")));
+   
+	// Demographic Groups
+	int demographicNoAsInt = 0;
+	try {
+		demographicNoAsInt = Integer.parseInt( demoNo );
+	} catch (Exception e) {
+		// TODO: Handle error
+		MiscUtils.getLogger().error("Error parsing demographic number", e);
+	}
+
+	String[] groupsOrig = request.getParameterValues("demographicGroupsOrig");
+	String[] groups = request.getParameterValues("demographicGroups");
+
+	if (groupsOrig != null) {
+		for (int i=0; i < groupsOrig.length; i++) {
+			try {
+				int groupId = Integer.parseInt( groupsOrig[i] );
+				demographicGroupLinkDao.remove(demographicNoAsInt, groupId);
+			} catch (Exception e) {
+				MiscUtils.getLogger().error("Error parsing demographic group number", e);
+			}
+		}
+	}
+
+	if (groups != null) {
+		for (int i=0; i < groups.length; i++) {
+			if (groups[i] != null) {
+				// An empty group number indicates the 'None' group
+				if (groups[i].length() > 0) {
+					try {
+						int groupId = Integer.parseInt( groups[i] );
+				        demographicGroupLinkDao.add(demographicNoAsInt, groupId);
+					} catch (Exception e) {
+						MiscUtils.getLogger().error("Error parsing demographic group number", e);
+					}
+				}
+			} else {
+				MiscUtils.getLogger().warn("Null demographic group number passed in.");
+			}
+		}
+	}
+	
 	
 	// customized key
 	if(oscarVariables.getProperty("demographicExt") != null) {

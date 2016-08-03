@@ -134,6 +134,12 @@ function checkONReferralNo() {
     alert("The referral doctor's no. is wrong. Please correct it!") ;
   }
 }
+function checkONFamilyNo() {
+    var referralNo = document.updatedelete.f_doctor_ohip.value ;
+    if (document.updatedelete.hc_type.value == 'ON' && referralNo.length > 0 && referralNo.length != 6) {
+        alert("The family doctor's no. is wrong. Please correct it!") ;
+    }
+}
 
 function refresh() {
   //history.go(0);

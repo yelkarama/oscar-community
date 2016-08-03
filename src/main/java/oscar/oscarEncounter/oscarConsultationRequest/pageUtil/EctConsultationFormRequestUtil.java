@@ -73,6 +73,8 @@ public class EctConsultationFormRequestUtil {
 	public String appointmentHour;
 	public String appointmentMinute;
 	public String appointmentPm;
+	private String appointmentInstructions;
+    private String appointmentInstructionsLabel;
 	public String reasonForConsultation;
 	public String clinicalInformation;
 	public String concurrentProblems;
@@ -220,7 +222,9 @@ public class EctConsultationFormRequestUtil {
 			allergies = cr.getAllergies();
 			sendTo = cr.getSendTo();
 			status = cr.getStatus();
-
+			setAppointmentInstructions(cr.getAppointmentInstructions());
+			setAppointmentInstructionsLabel(cr.getAppointmentInstructionsLabel());
+			
 			letterheadName = cr.getLetterheadName();
 			letterheadTitle = daoExt.getConsultationRequestExtsByKey(ConversionUtils.fromIntString(id),"letterheadTitle");
 			letterheadAddress = cr.getLetterheadAddress();
@@ -254,7 +258,7 @@ public class EctConsultationFormRequestUtil {
 
             }
             else {
-            	appointmentDate = date;
+            	appointmentDate = date.toString();
             	Calendar cal = Calendar.getInstance();
 				if (appointmentTime != null) {
 					cal.setTime(appointmentTime);
@@ -278,7 +282,7 @@ public class EctConsultationFormRequestUtil {
             }
         }
 
-		return verdict;
+		return (id.equals(cr.getId()));
 	}
 
 	public String getSpecailistsName(String id) {
@@ -382,5 +386,27 @@ public class EctConsultationFormRequestUtil {
 		}
 
 		return retval;
+	}
+	
+	public String getAppointmentInstructions() {
+		return appointmentInstructions;
+	}
+
+	private void setAppointmentInstructions(String appointmentInstructions) {
+		if( appointmentInstructions == null ) {
+			appointmentInstructions = "";
+		}
+		this.appointmentInstructions = appointmentInstructions;
+	}
+
+	public String getAppointmentInstructionsLabel() {
+		return appointmentInstructionsLabel;
+	}
+
+	private void setAppointmentInstructionsLabel(String appointmentInstructionsLabel) {
+		if( appointmentInstructionsLabel == null ) {
+			appointmentInstructionsLabel = "";
+		}
+		this.appointmentInstructionsLabel = appointmentInstructionsLabel;
 	}
 }

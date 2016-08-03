@@ -31,7 +31,9 @@ import org.apache.cxf.helpers.FileUtils;
 import org.apache.log4j.Logger;
 import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.dao.DemographicDao;
+import org.oscarehr.common.dao.IncomingLabRulesDao;
 import org.oscarehr.common.model.Demographic;
+import org.oscarehr.common.model.IncomingLabRules;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.hospitalReportManager.dao.HRMDocumentDao;
 import org.oscarehr.hospitalReportManager.dao.HRMDocumentSubClassDao;
@@ -399,6 +401,7 @@ public class HRMReportParser {
 		
 		HRMDocumentToProviderDao hrmDocumentToProviderDao = (HRMDocumentToProviderDao) SpringUtils.getBean("HRMDocumentToProviderDao");
 		ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao"); 
+		IncomingLabRulesDao incomingLabRulesDao = (IncomingLabRulesDao) SpringUtils.getBean("IncomingLabRulesDao");
 
 		String providerNo = report.getDeliverToUserId().substring(1); // We have to remove the first "D"
 		//		String providerLastName = report.getDeliverToUserIdLastName();
@@ -431,7 +434,30 @@ public class HRMReportParser {
 				providerRouting.setSignedOff(0);
 	
 				hrmDocumentToProviderDao.merge(providerRouting);
-			}	
+			}
+			
+			//Gets the list of IncomingLabRules pertaining to the current provider
+			List<IncomingLabRules> incomingLabRules = incomingLabRulesDao.findCurrentByProviderNo(p.getProviderNo());
+			//If the list is not null
+			if (incomingLabRules != null) {
+				//For each labRule in the list
+				for(IncomingLabRules labRule : incomingLabRules) {
+					//Creates a string of the provider number that the lab will be forwarded to
+					String forwardProviderNumber = labRule.getFrwdProviderNo();
+					//Checks to see if this provider is already linked to this lab
+					HRMDocumentToProvider hrmDocumentToProvider = hrmDocumentToProviderDao.findByHrmDocumentIdAndProviderNo(reportId.toString(), forwardProviderNumber);
+					//If a record was not found
+					if (hrmDocumentToProvider == null) {
+						//Puts the information into the HRMDocumentToProvider object
+						hrmDocumentToProvider = new HRMDocumentToProvider();
+						hrmDocumentToProvider.setHrmDocumentId(reportId.toString());
+						hrmDocumentToProvider.setProviderNo(forwardProviderNumber);
+						hrmDocumentToProvider.setSignedOff(0);
+						//Stores it in the table
+						hrmDocumentToProviderDao.persist(hrmDocumentToProvider);
+					}
+				}
+			}
 		}
 
 		return sendToProviderList.size() > 0;

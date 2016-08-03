@@ -64,7 +64,7 @@ Boolean isMobileOptimized = session.getAttribute("mobileOptimized") != null;
 
 
 //Input field styles
-String login_input_style="login_txt_fields";
+String login_error="";
 %>
 
 <html:html locale="true">
@@ -81,6 +81,7 @@ String login_input_style="login_txt_fields";
             <% } %>
         </title>
         <!--LINK REL="StyleSheet" HREF="web.css" TYPE="text/css"-->
+		<link href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,600,700' rel='stylesheet' type='text/css'>
 
         <script language="JavaScript">
         function showHideItem(id){
@@ -105,27 +106,207 @@ String login_input_style="login_txt_fields";
         
         <style type="text/css">
             body { 
-               font-family: Verdana, helvetica, sans-serif;
-               margin: 0px;
-               padding:0px;
+               margin: 0;
+				font-family: 'Roboto', Helvetica, Arial, sans-serif;
+				font-size: 16px;
+				color: #333333;
+				background-color: #ffffff;
             }
             
-            .login_txt_fields {
-		
-			 
-				border: 1px solid #999;
-				height: 25px;
-				-webkit-box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.3);
-				-moz-box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.3);
-				box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.3);
+            * {
+			    -webkit-box-sizing: border-box;
+			    -moz-box-sizing: border-box;
+			    box-sizing: border-box;
 			}
-			 
-			.login_txt_fields_error {
-			  border: 1px solid #F78181;
-				height: 25px;
-				-webkit-box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.3);
-				-moz-box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.3);
-				box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.3);
+            
+            h1 {
+                font-size: 38px;
+		    	font-weight: 300;
+		    }
+		    
+		    button, input, optgroup, select, textarea {
+			    margin: 0;
+			    font: inherit;
+			    color: inherit;
+			}
+		    
+		    input {
+			    line-height: normal;
+			}
+            
+            button, input, select, textarea {
+			    font-family: inherit;
+			    font-size: inherit;
+			    line-height: inherit;
+			}
+			
+			.heading, .loginContainer {
+				text-align: center;
+			}
+			
+			.powered {
+				margin-right: auto;
+				margin-left: auto;
+			}
+			
+			.powered .details {
+				text-align: right;
+			    margin: 10px 20px 0 0;
+			    float: left;
+			    width: 35%;
+			}
+			
+            .loginContainer {
+            	padding: 30px 15px;
+				margin-right: auto;
+				margin-left: auto;
+            }
+            
+            .panel {
+                margin-bottom: 20px;
+			    background-color: #fff;
+			    border: 1px solid transparent;
+			    border-radius: 4px;
+			    -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.05);
+			    box-shadow: 0 1px 1px rgba(0,0,0,.05);
+			}
+			
+			.panel-body {
+			    padding: 10px 40px 40px;
+			}
+            
+            .panel-default {
+           		border-color: #ddd;
+            }
+            
+			.form-group {
+			    margin-bottom: 15px;
+			}
+			
+			label {
+			    display: inline-block;
+			    max-width: 100%;
+			    margin-bottom: 5px;
+			    font-weight: 700;
+			}
+			
+			.form-control {
+			    display: block;
+			    width: 100%;
+			    height: 34px;
+			    padding: 6px 12px;
+			    font-size: 14px;
+			    line-height: 1.42857143;
+			    color: #555;
+			    background-color: #fff;
+			    background-image: none;
+			    border: 1px solid #ccc;
+			    border-radius: 4px;
+			    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+			    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+			    -webkit-transition: border-color ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+			    -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+			    transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+			}
+			
+			.has-error .form-control {
+			    border-color: #a94442;
+			    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+			    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+			}
+			
+			.btn {
+			    display: inline-block;
+			    padding: 6px 12px;
+			    margin-bottom: 0;
+			    font-size: 14px;
+			    font-weight: 400;
+			    line-height: 1.42857143;
+			    text-align: center;
+			    white-space: nowrap;
+			    vertical-align: middle;
+			    -ms-touch-action: manipulation;
+			    touch-action: manipulation;
+			    cursor: pointer;
+			    -webkit-user-select: none;
+			    -moz-user-select: none;
+			    -ms-user-select: none;
+			    user-select: none;
+			    background-image: none;
+			    border: 1px solid transparent;
+			    border-radius: 4px;
+			}
+			
+			.btn-primary {
+			    color: #fff;
+			    background-color: #53b848;
+			    border-color: #3f9336;
+			}
+			
+			.btn-block {
+			    display: block;
+			    width: 100%;
+			}
+			
+			button, html input[type=button], input[type=reset], input[type=submit] {
+			    -webkit-appearance: button;
+			    cursor: pointer;
+			}
+			
+			.btn.active.focus, .btn.active:focus, .btn.focus, .btn:active.focus, .btn:active:focus, .btn:focus {
+			    outline: thin dotted;
+			    outline: 5px auto -webkit-focus-ring-color;
+			    outline-offset: -2px;
+			}
+			
+			.btn.focus, .btn:focus, .btn:hover {
+			    color: #333;
+			    text-decoration: none;
+			}
+			
+			.btn.active, .btn:active {
+			    background-image: none;
+			    outline: 0;
+			    -webkit-box-shadow: inset 0 3px 5px rgba(0,0,0,.125);
+			    box-shadow: inset 0 3px 5px rgba(0,0,0,.125);
+			}
+			
+			.btn-primary.focus, .btn-primary:focus {
+			    color: #fff;
+			    background-color: #286090;
+			    border-color: #122b40;
+			}
+			
+			.btn-primary:hover {
+			    color: #fff;
+			    background-color: #3f9336;
+			    border-color: #3f9336;
+			}
+			
+			.btn-primary.active, .btn-primary:active, .open>.dropdown-toggle.btn-primary {
+			    color: #fff;
+			    background-color: #286090;
+			    border-color: #204d74;
+			}
+			
+			.btn-primary.active, .btn-primary:active, .open>.dropdown-toggle.btn-primary {
+			    background-image: none;
+			}
+			
+			input[type=button].btn-block, input[type=reset].btn-block, input[type=submit].btn-block {
+			    width: 100%;
+			}
+			
+			.btn.active.focus, .btn.active:focus, .btn.focus, .btn:active.focus, .btn:active:focus, .btn:focus {
+			    outline: thin dotted;
+			    outline: 5px auto -webkit-focus-ring-color;
+			    outline-offset: -2px;
+			}
+			
+			.btn-primary.active.focus, .btn-primary.active:focus, .btn-primary.active:hover, .btn-primary:active.focus, .btn-primary:active:focus, .btn-primary:active:hover, .open>.dropdown-toggle.btn-primary.focus, .open>.dropdown-toggle.btn-primary:focus, .open>.dropdown-toggle.btn-primary:hover {
+			    color: #fff;
+			    background-color: #204d74;
+			    border-color: #122b40;
 			}
             
             td.topbar{
@@ -145,10 +326,27 @@ String login_input_style="login_txt_fields";
             span#buildInfo{
                 float: right; color:#FFFFFF; font-size: xx-small; text-align: right;
             }
-                span.extrasmall{
-                    font-size: x-small;
-                }
+            
+			span.extrasmall{
+			    font-size: small;
+			    float: left;
+			    margin: 10px 0 20px;
+			}
             #mobileMsg { display: none; }
+            
+            @media (min-width: 768px) {
+				.loginContainer, .powered {
+					width: 450px;
+				}
+			}
+			
+			@media (min-width: 992px) {
+				
+			}
+			
+			@media (min-width: 1200px) {
+				
+			}
         </style>
         <% if (isMobileOptimized) { %>
         <!-- Small adjustments are made to the mobile stylesheet -->
@@ -165,105 +363,57 @@ String login_input_style="login_txt_fields";
     
     <body onLoad="setfocus()" bgcolor="#ffffff">
         
-        <table border=0 width="100%">
-            <tr>
-                <td align="center" class="leftbar" height="20px" width="200px"><%
-                    String key = "loginApplication.formLabel" ;
+        <div class="heading">
+        	<img src="images/Logo.png" border="0" style="margin: 25px auto;">
+        </div>
+        <div class="loginContainer">
+	        <div class="panel panel-default">
+	        	<h1>OSCAR EMR Login</h1>
+	        	
+	        	<%String key = "loginApplication.formLabel" ;
                     if(request.getParameter("login")!=null && request.getParameter("login").equals("failed") ){
                     key = "loginApplication.formFailedLabel" ;
-                    login_input_style="login_txt_fields_error";                    
+                    login_error="has-error";                    
                     }
-                    %><bean:message key="<%=key%>"/>        
-                </td>
-                <td  class="topbar" align="center" >
-                    <span id="buildInfo">build date: <%= OscarProperties.getBuildDate() %> <br/> build tag: <%=OscarProperties.getBuildTag()%> </span>
-                    <%=props.getProperty("logintitle", "")%>
-                    <% if (props.getProperty("logintitle", "").equals("")) { %>
-                    <bean:message key="loginApplication.alert"/>
-                    <% } %>                    
-                </td>
-            </tr>
-        </table>
-        <table class="leftinput" border="0" width="100%">
-            <tr>
-                <td id="loginText" valign="top">
-                    <!--- left side -->
-                        
-                            <html:form action="login" >
-                            <bean:message key="loginApplication.formUserName"/><%
-                            if(oscar.oscarSecurity.CRHelper.isCRFrameworkEnabled() && !net.sf.cookierevolver.CRFactory.getManager().isMachineIdentified(request)){
-                            %><img src="gatekeeper/appid/?act=image&/empty<%=System.currentTimeMillis() %>.gif" width='1' height='1'><%
-                            }
-                            %>
-                        
-                        <br/>            
-                        <input type="text" name="username" value="" size="15" maxlength="15" autocomplete="off" class="<%=login_input_style %>"/>
-                        <br/>                
-                        <bean:message key="loginApplication.formPwd"/><br/>
-                        <input type="password" name="password" value="" size="15" maxlength="32" autocomplete="off" class="<%=login_input_style %>"/>
-                        <br/>
-                        <bean:message key="index.formPIN"/>: 
-                        <br/>
-                        <input type="password" name="pin" value="" size="15" maxlength="15" autocomplete="off" class="<%=login_input_style %>"/><br/>
-                       
-                        <span class="extrasmall">
-                            <bean:message key="loginApplication.formCmt"/>
-                        </span>
-                        <br/>
-                        <input type="submit" value="<bean:message key="index.btnSignIn"/>" />
-                        
-                        <input type=hidden name='propname' value='<bean:message key="loginApplication.propertyFile"/>' />
-                        </html:form>
-                        
+                    %>
+
+    			  	<div class="panel-body">
+    			    	<div class="leftinput" border="0" width="100%" ng-app="indexApp" ng-controller="indexCtrl"> <!-- id="loginText" -->
+    				    	<html:form action="login" >
+    							<div class="form-group <%=login_error%>"> 
+    	                        	<input type="text" name="username" placeholder="Enter your username" value="" size="15" maxlength="15" autocomplete="off" class="form-control" ng-model="username"/> <%-- class="<%=login_input_style %>" --%>
+    	                        </div>
+    	                        
+    	                        <div class="form-group <%=login_error%>">               
+    	                        	<input type="password" name="password" placeholder="Enter your password" value="" size="15" maxlength="32" autocomplete="off" class="form-control" ng-model="password"/>
+    	                        </div>
+    	                        
+    	                        <div class="form-group <%=login_error%>">
+    	                        	<input type="password" name="pin" placeholder="Enter your PIN" value="" size="15" maxlength="15" autocomplete="off" class="form-control" ng-model="pin"/>
+    	                        	<span class="extrasmall">
+    		                            <bean:message key="loginApplication.formCmt"/>
+    		                        </span>
+    	                        </div>
+    	                        
+    	                        <input type=hidden name='propname' value='<bean:message key="loginApplication.propertyFile"/>' />
+    	                        <input class="btn btn-primary btn-block" type="submit" value="<bean:message key="index.btnSignIn"/>" />
+    						</html:form>
+    			                        
                         <%if (AcceptableUseAgreementManager.hasAUA()){ %>
                         <span class="extrasmall">
                         	<bean:message key="global.aua" /> &nbsp; <a href="javascript:void(0);" onclick="showHideItem('auaText');"><bean:message key="global.showhide"/></a>
                         </span>
-                        <%} %>
-                        <hr width="100%" color="navy">
-                        
-                        <span class="extrasmall">
-                            <div id="mobileMsg"><bean:message key="loginApplication.mobileMsg"/>
-                                <a href="index.jsp?full=true"><bean:message key="loginApplication.fullSite"/></a>
-                                <br/><br/>
-                            </div>
-                            <div id="browserInfo"><bean:message key="loginApplication.leftRmk1"/></div>
-                            <bean:message key="loginApplication.leftRmk2" />
-                            <a href=# onClick='popupPage(500,700,"http://www.gnu.org/licenses/gpl-2.0.txt")'><bean:message key="loginApplication.gplLink"/></a>
-                            <br/>
-                            <img style="width: 26px; height: 18px;" alt="<bean:message key="loginApplication.image.i18nAlt"/>"
-                            title="<bean:message key="loginApplication.image.i18nTitle"/>"
-                            src="<bean:message key="loginApplication.image.i18n"/>">
-                            <bean:message key="loginApplication.i18nText"/>
-
-                        </span>
-                    <!-- left side end-->
-                </td>
-                <td id="logoImg" align="center" valign="top">
-                	<%if (AcceptableUseAgreementManager.hasAUA()){ %>
-                	<div style="float:right;text-align:center;z-index:3;display:none;" id="auaText">
-            				<h3><bean:message key="provider.login.title.confidentiality"/></h3>
-        					<div style="margin-left:auto; margin-right:auto; text-align:left; width:70%; padding:5px; border:2px groove black;"><%=AcceptableUseAgreementManager.getAUAText()%></div>
-        			</div>
-                	<%}%>
-                    <div style="margin-top:25px;"><% if (props.getProperty("loginlogo", "").equals("")) { %>
-                            <html:img srcKey="loginApplication.image.logo" width="450" height="274"/>
-                            <% } else { %>
-                            <img src="<%=props.getProperty("loginlogo", "")%>">
-                            <% } %>
-                            <p>
-                            <font face="Verdana, Arial, Helvetica, sans-serif" size="-1">
-                                <% if (props.getProperty("logintext", "").equals("")) { %>
-                                <bean:message key="loginApplication.image.logoText"/>
-                                <% } else { %>
-                                <%=props.getProperty("logintext", "")%>
-                                <% } %>
-                            </font>
-                    </div>
-                    
-                </td>
-            </tr>     
-        </table>
-        
+                        <%} %>       
+			        </div>
+			  	</div>
+			</div>
+		</div>
+		<div class="powered">
+			<span class="details">
+				<div>Powered</div>
+				<div>by</div>
+			</span>
+			<img alt="KAI Innovations" src="images/logo/KAI_LOGO.png">
+		</div>        
     </body>
 </html:html>

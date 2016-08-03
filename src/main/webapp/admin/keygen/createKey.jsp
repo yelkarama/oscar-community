@@ -208,6 +208,7 @@ if (message != null){
 					<option value="ICL">ICL</option>
 					<option value="IHA">IHA</option>
 					<option value="MDS">MDS/Lifelabs</option>
+					<option value="MEDITECH" >MEDITECH</option>
 					<option value="MEDVUE">MEDVUE</option>
 					<!-- <option value="HL7">HL7</option> -->
 					<option value="OLIS_HL7">OLIS HL7</option>

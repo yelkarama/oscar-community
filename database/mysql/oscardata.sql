@@ -1847,6 +1847,8 @@ insert into `secObjectName` (`objectName`) values ('_admin.document');
 insert into `secObjectName` (`objectName`) values ('_admin.consult');
 
 
+INSERT INTO secObjectName (objectName, description, orgapplicable) VALUES ('_unlink_demographic_from_document', 'Document - Unlink Demographic', 0);
+
 insert into `secObjPrivilege` values('receptionist', '_appointment', 'x', 0, '999998');
 insert into `secObjPrivilege` values('receptionist', '_demographic', 'x', 0, '999998');
 insert into `secObjPrivilege` values('receptionist', '_billing', 'x', 0, '999998');
@@ -2037,8 +2039,7 @@ insert into `secObjPrivilege` values('admin','_appDefinition','x',0,'999998');
 insert into `secObjPrivilege` values('admin','_demographicExport','x',0,'999998');
 insert into `secObjPrivilege` values('admin','_admin.document','x',0,'999998');
 
-
-
+INSERT INTO secObjPrivilege (roleUserGroup, objectName, privilege, priority, provider_no) VALUES ('doctor', '_unlink_demographic_from_document', 'x', 0, '999998');
 
 -- for defaultqueue
 insert into queue values(1,'default');
@@ -2762,6 +2763,9 @@ insert into CtlRelationships (value,label,active) values ('Other','Other',true);
 
 INSERT INTO LookupList(name, description, categoryId, active, createdBy, dateCreated) VALUES('reasonCode', 'Reason Code', null, 1, 'oscar', CURRENT_TIMESTAMP);
 
+INSERT INTO `LookupList` (`listTitle`,`name`, description, categoryId, active, createdBy, dateCreated) VALUES('Consultation Request Appointment Instructions List', 'consultApptInst', 'Select list for the consultation appointment instruction select list', NULL, '1', 'oscar', NOW() );
+INSERT INTO `LookupListItem` (lookupListId, value, label, displayOrder, active, createdBy, dateCreated)(SELECT id, UUID(), 'Please reply to sending facility by fax or phone with appointment','1', '1','oscar', NOW() FROM `LookupList` WHERE `name` = "consultApptInst" );
+
 SET @lookupListId:=LAST_INSERT_ID();
 
 INSERT INTO LookupListItem(lookupListId, `value`, label, displayOrder, active, createdBy, dateCreated) VALUES(@lookupListId, 'Contraception'                 , 'Contraception'                 , 1 , 1, 'oscar', CURRENT_TIMESTAMP);
@@ -2843,3 +2847,11 @@ INSERT INTO specialty VALUES ('BC','48',' THORACIC SURGERY');
 
 insert into ProductLocation (name) values ('Default');
 
+insert into patientType values ('HPN', 'HP NonStudent');
+insert into patientType values ('HPS', 'HP Student');
+insert into patientType values ('HPV', 'HP Varsity');
+insert into patientType values ('NS', 'NonStudent');
+insert into patientType values ('S', 'Student');
+insert into patientType values ('V', 'Varsity');
+
+REPLACE into encounterForm values ('Gynae Form', '../form/formgynae.jsp?demographic_no=', 'formgyane', '0');

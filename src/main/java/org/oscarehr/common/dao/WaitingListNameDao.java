@@ -92,5 +92,15 @@ public class WaitingListNameDao extends AbstractDao<WaitingListName> {
 	        List<WaitingListName> results = query.getResultList();
 	        return results;
 	    }
+	 
+	 public List<WaitingListName> getAllActiveWaitLists() {
+		 String sql = "select x from WaitingListName x where x.isHistory='N' order by x.name";
+		 Query waitListQuery = entityManager.createQuery(sql);
+		 
+		 @SuppressWarnings("unchecked")
+		 List<WaitingListName> waitingListNames = waitListQuery.getResultList();
+		 
+		 return waitingListNames;
+	 }
     
 }

@@ -123,9 +123,10 @@ public class RaHeaderDao extends AbstractDao<RaHeader>{
     }
 
 	public List<Object[]> findHeadersAndProvidersById(Integer id) {
-	    String sql = "FROM RaDetail r, Provider p " + 
+	    String sql = "SELECT r, p FROM RaDetail r, RaHeader ra, Provider p " + 
 	    		"WHERE p.OhipNo = r.providerOhipNo " +
 				"AND r.raHeaderNo = :raId " +
+				"AND p.Comments like CONCAT('%',ra.groupNo,'%')" +
 				"GROUP BY r.providerOhipNo";
 		Query query = entityManager.createQuery(sql);
 		query.setParameter("raId", id);

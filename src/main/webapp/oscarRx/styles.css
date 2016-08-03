@@ -741,8 +741,14 @@ table.mhTable td{
     font-size:10pt;
 }
 
+#sDate, #eDate{
+	width: 75px;
+	height: 17px;
+}
+
 @media print { 
 .noPrint {
 	display:none; 
 	} 
 } 
+

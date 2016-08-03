@@ -26,7 +26,9 @@
 package org.oscarehr.common.dao;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Date;
 import java.util.List;
+import java.text.SimpleDateFormat;
 
 import javax.persistence.Query;
 
@@ -37,6 +39,8 @@ import org.oscarehr.common.model.Hl7TextMessageInfo;
 import org.oscarehr.common.model.Hl7TextMessageInfo2;
 import org.oscarehr.util.MiscUtils;
 import org.springframework.stereotype.Repository;
+
+
 
 @Repository
 public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
@@ -224,10 +228,28 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 	    return null;
     }
 
+	public List<Object[]> findLabAndDocsViaMagic(String providerNo, String demographicNo, String patientFirstName, String patientLastName, String patientHealthNumber, String status, boolean isPaged, Integer page, Integer pageSize, boolean mixLabsAndDocs, Boolean isAbnormal, boolean searchProvider, boolean patientSearch) {
+		return findLabAndDocsViaMagic(providerNo, demographicNo, patientFirstName, patientLastName, patientHealthNumber, status, isPaged, page, pageSize, mixLabsAndDocs, isAbnormal, searchProvider, patientSearch, null, null);
+	}
+	
 	@SuppressWarnings("unchecked")
     @NativeSql({"hl7TextInfo", "providerLabRouting", "ctl_document", "demographic"})
-	public List<Object[]> findLabAndDocsViaMagic(String providerNo, String demographicNo, String patientFirstName, String patientLastName, String patientHealthNumber, String status, boolean isPaged, Integer page, Integer pageSize, boolean mixLabsAndDocs, Boolean isAbnormal, boolean searchProvider, boolean patientSearch) {
+	public List<Object[]> findLabAndDocsViaMagic(String providerNo, String demographicNo, String patientFirstName, String patientLastName, String patientHealthNumber, String status, boolean isPaged, Integer page, Integer pageSize, boolean mixLabsAndDocs, Boolean isAbnormal, boolean searchProvider, boolean patientSearch, Date startDate, Date endDate) {
 	    String sql;
+	    
+	    String dateSql = "";
+		SimpleDateFormat dateSqlFormatter = new SimpleDateFormat("yyyy-MM-dd");
+		
+		//Checks if the startDate is null, if it isn't then creates the dateSQL for the startDate
+		if (startDate != null) {
+			dateSql += " AND DATE(info.obr_date) >= DATE('" + dateSqlFormatter.format(startDate) + "')";
+		}
+		
+		//Checks if the endDate is null, if it isn't then creates the dateSQL for the endDate
+		if (endDate != null) {
+			dateSql += " AND DATE(info.obr_date) <= DATE('" + dateSqlFormatter.format(endDate) + "')";
+		}
+	    
 	    if (mixLabsAndDocs) {
 	    	if ("0".equals(demographicNo)  || "0".equals(providerNo)) {
 	    		sql = " SELECT info.label, info.lab_no, info.sex, info.health_no, info.result_status, info.obr_date, info.priority, info.requesting_client, info.discipline, info.last_name, info.first_name, info.report_status, info.accessionNum, info.final_result_count, X.status "
@@ -252,6 +274,7 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 	    				+ " ORDER BY id DESC "
 	    				+ " ) AS X "
 	    				+ " WHERE X.lab_type = 'HL7' AND X.lab_no = info.lab_no "
+	    				+ dateSql
 	    				+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 	    	}
 
@@ -277,6 +300,7 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 	    			+ " ORDER BY id DESC"
 	    			+ " ) AS X "
 	    			+ " WHERE X.lab_type = 'HL7' and X.lab_no = info.lab_no "
+	    			+ dateSql
 	    			+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 	    	}
 	    	else if (patientSearch) { // N
@@ -311,6 +335,7 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 						+ " 		ORDER BY id DESC " 
 						+ " 	) AS Z "
 						+ " WHERE Z.lab_type = 'HL7' and Z.lab_no = info.lab_no "
+						+ dateSql
 						+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 	    	}
 	    	else { // N
@@ -325,6 +350,7 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 	    			+ " ORDER BY id DESC "
 	    			+ " ) AS X "
 	    			+ " WHERE X.lab_type = 'HL7' and X.lab_no = info.lab_no "
+	    			+ dateSql
 	    			+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 	    	}
 	    }
@@ -340,6 +366,7 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 	    			+ " AND plr.lab_no = info.lab_no "
 	    			+ (isAbnormal != null && isAbnormal ? "AND info.result_status = 'A'" :
 	    				isAbnormal != null && !isAbnormal ? "AND (info.result_status IS NULL OR info.result_status != 'A')" : "")
+	    			+ dateSql
 	    				+ " ORDER BY plr.id DESC "
 	    				+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 	    	}
@@ -356,6 +383,7 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 	    			+ " ORDER BY plr.id DESC "
 	    			+ " ) AS X "
 	    			+ " WHERE X.lab_type = 'HL7' and X.lab_no = info.lab_no "
+	    			+ dateSql
 	    			+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 	    	}
 	    	else if (patientSearch) { // A
@@ -380,6 +408,7 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 						+ " 		ORDER BY id DESC "
 						+ " 	) AS Z "
 						+ " WHERE Z.lab_type = 'HL7' and Z.lab_no = info.lab_no "
+						+ dateSql
 						+ (isAbnormal != null ? " AND (" + (!isAbnormal ? "info.result_status IS NULL OR" : "") + " info.result_status " + (isAbnormal ? "" : "!") + "= 'A') " : " ")
 						+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 	    	}
@@ -388,6 +417,7 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 	    			+ " FROM providerLabRouting plr, hl7TextInfo info "
 	    			+ " WHERE plr.status like '%"+status+"%' " + (searchProvider ? " AND plr.provider_no = '"+providerNo+"' " : "")
 	    			+ "   AND lab_type = 'HL7' and info.lab_no = plr.lab_no "
+	    			+ dateSql
 	    			+ (isAbnormal != null ? " AND (" + (!isAbnormal ? "info.result_status IS NULL OR" : "") + " info.result_status " + (isAbnormal ? "" : "!") + "= 'A') " : " ")
 	    			+ " ORDER BY plr.id DESC "
 	    			+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");

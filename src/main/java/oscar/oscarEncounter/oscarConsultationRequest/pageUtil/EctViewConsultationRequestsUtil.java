@@ -172,6 +172,8 @@ public class EctViewConsultationRequestsUtil {
       this.patientWillBook = new Vector<String>();
       urgency = new Vector<String>();
       apptDate = new Vector<String>();
+      requestingPhysician = new Vector<String>();
+      referringPhysician = new Vector<String>();
       boolean verdict = true;      
       try {                           
 
@@ -209,6 +211,12 @@ public class EctViewConsultationRequestsUtil {
               urgency.add(consult.getUrgency());
               patientWillBook.add(""+consult.isPatientWillBook());
               date.add(DateFormatUtils.ISO_DATE_FORMAT.format(consult.getReferralDate()));
+              // get and set the specialist to the requestingPhysician list if they exist
+              Provider requestingPhys = providerDao.getProvider(consult.getProviderNo());
+              requestingPhysician.add((requestingPhys == null) ? "N/A" : "Dr. " + requestingPhys.getFullName());
+              // get and set the specialist to the referringPhysician list if they exist
+              ProfessionalSpecialist specialist = consult.getProfessionalSpecialist();
+              referringPhysician.add((specialist == null) ? "N/A" : "Dr. " + specialist.getFirstName() + " " + specialist.getLastName());
           }
       } catch(Exception e) {         
          MiscUtils.getLogger().error("Error", e);         
@@ -233,5 +241,7 @@ public class EctViewConsultationRequestsUtil {
    public Vector<String> followUpDate;
    public Vector<String> providerNo;   
    public Vector<String> siteName;
+   public Vector<String> requestingPhysician;
+   public Vector<String> referringPhysician;
    
 }
