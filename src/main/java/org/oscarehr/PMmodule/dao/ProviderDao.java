@@ -171,6 +171,15 @@ public class ProviderDao extends HibernateDaoSupport {
     	Object params[]=paramList.toArray(new Object[paramList.size()]);
     	return getHibernateTemplate().find(s,params);
 	}
+	
+    public List<Provider> getActiveProvidersByGroupNo(String groupno){
+    	groupno=groupno.trim();
+    	String s="From Provider p where p.Comments like ? and p.Status='1'";
+    	ArrayList<Object> paramList=new ArrayList<Object>();
+    	paramList.add("%<xml_p_billinggroup_no>"+groupno+"</xml_p_billinggroup_no>%");
+    	Object params[]=paramList.toArray(new Object[paramList.size()]);
+    	return getHibernateTemplate().find(s,params);
+	}
 
     public List<SecProvider> getActiveProviders(Integer programId) {
         ArrayList<Object> paramList = new ArrayList<Object>();
@@ -246,6 +255,7 @@ public class ProviderDao extends HibernateDaoSupport {
 				"FROM Provider p " + 
 					"WHERE p.ProviderType = 'doctor' " +
 					"AND p.Status = '1' " +
+					"AND p.OhipNo != ''" + 
 					"AND p.OhipNo IS NOT NULL " +
 				   	"ORDER BY p.LastName, p.FirstName");
 	}
@@ -337,7 +347,7 @@ public class ProviderDao extends HibernateDaoSupport {
 	public List<Provider> getProvidersByType(String type) {
 		
 		List<Provider> results = this.getHibernateTemplate().find(
-				"from Provider p where p.ProviderType = ?", type);
+				"from Provider p where p.ProviderType = ? order by last_name", type);
 
 		if (log.isDebugEnabled()) {
 			log.debug("getProvidersByType: type=" + type + ",# of results="
@@ -473,10 +483,8 @@ public class ProviderDao extends HibernateDaoSupport {
             if(providers.size()>1) {
                 logger.warn("Found more than 1 provider with ohipNo="+ohipNo);
             }
-            if(providers.isEmpty())
-                return null;
-            else		
-                return providers;
+
+            return providers;
         }
         
         /**

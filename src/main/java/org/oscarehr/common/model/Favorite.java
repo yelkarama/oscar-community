@@ -71,6 +71,8 @@ public class Favorite extends AbstractModel<Integer> {
 
 	private String quantity;
 
+	private String dispensingUnits;
+
 	@Column(name="`repeat`")
 	private int repeat;
 
@@ -201,6 +203,14 @@ public class Favorite extends AbstractModel<Integer> {
 
 	public void setQuantity(String quantity) {
     	this.quantity = quantity;
+    }
+
+	public String getDispensingUnits() {
+    	return dispensingUnits;
+    }
+
+	public void setDispensingUnits(String dispensingUnits) {
+    	this.dispensingUnits = dispensingUnits;
     }
 
 	public int getRepeat() {

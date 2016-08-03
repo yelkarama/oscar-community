@@ -38,6 +38,10 @@
 		<form-bean name="siteForm" type="org.apache.struts.validator.DynaValidatorForm">
 			<form-property name="site" type="org.oscarehr.common.model.Site" />
 		</form-bean>
+		<form-bean name="demographicGroupForm" type="org.apache.struts.validator.DynaValidatorForm">
+			<form-property name="group" type="org.oscarehr.common.model.DemographicGroup" />
+			<form-property name="groups" type="java.util.List" />
+		</form-bean>
 		<form-bean name="billingreferralForm" type="org.apache.struts.validator.DynaValidatorForm">
 			<form-property name="search" type="java.lang.String" />
 			<form-property name="SearchBy" type="java.lang.String" />
@@ -302,6 +306,7 @@
 			<form-property name="appointmentCardName" type="org.oscarehr.common.model.UserProperty" />
 			<form-property name="appointmentCardPhone" type="org.oscarehr.common.model.UserProperty" />
 			<form-property name="appointmentCardFax" type="org.oscarehr.common.model.UserProperty" />
+			<form-property name="hideNoShowsAndCancellationsProperty" type="org.oscarehr.common.model.UserProperty" />
 		</form-bean>
 		<form-bean name="setMyOscarIdForm" type="org.apache.struts.action.DynaActionForm">
 			<form-property name="myOscarLoginId" type="java.lang.String" />
@@ -597,6 +602,11 @@
 	</global-forwards>
 
 	<action-mappings>
+	
+		<action path="/lookupListManagerAction" type="org.oscarehr.admin.lookUpLists.LookupListManagerAction" scope="request" validate="false" parameter="method">
+			<forward name="success" path="/admin/lookUpLists/" />
+		</action>
+		
 		<!-- Pharma Best Possible Medication Health form -->
 	 	<action path="/formBPMH" parameter="method" name="bpmh" type="oscar.form.pharmaForms.formBPMH.web.BpmhFormRetrieve"	
 	 		scope="request" validate="false" > 
@@ -1123,6 +1133,13 @@
 			<forward name="close" path="/oscarEncounter/close.jsp" />
 			<forward name="concurrencyError" path="/oscarEncounter/concurrencyError.jsp" />
 		</action>
+		
+		<!-- Import Clinical Data into the Consultation form -->
+		<action path="/oscarConsultationRequest/consultationClinicalData" scope="request" validate="false" parameter="method"
+			type="oscar.oscarEncounter.oscarConsultationRequest.pageUtil.ConsultationClinicalDataAction" >
+			<forward name="success" path="/oscarEncounter/oscarConsultationRequest/ConsultationFormRequest.jsp" />
+		</action>
+		
 		<action input=" " name="EctIncomingConsultationForm" path="/oscarEncounter/IncomingConsultation" scope="request" type="oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctIncomingConsultationAction">
 			<forward name="success" path="/oscarEncounter/oscarConsultationRequest/ViewConsultationRequests.jsp" />
 		</action>
@@ -1589,6 +1606,7 @@
             <forward name="genHideOldEchartLinkInAppt"		path="/provider/setHideOldEchartLinkInAppt.jsp"/>
             <forward name="genBornPrefs"     path="/provider/setBornPrefs.jsp"/>
              <forward name="genAppointmentCardPrefs"     path="/provider/setAppointmentCardPrefs.jsp"/>
+            <forward name="genHideNoShowsAndCancellations" path="/provider/setHideNoShowsAndCancellations.jsp"/>
         </action>
 		<action input="/provider/providerIndivoIdSetter.jsp" name="setMyOscarIdForm" path="/setMyOscarId" scope="request" type="oscar.oscarProvider.pageUtil.ProEditMyOscarIdAction">
 			<forward name="success" path="/provider/providerIndivoIdSetter.jsp" />
@@ -2417,6 +2435,11 @@
 		<action path="/admin/ManageSites" name="siteForm" type="org.springframework.web.struts.DelegatingActionProxy" parameter="method" scope="request">
 			<forward name="list" path="/admin/sitesAdmin.jsp" />
 			<forward name="details" path="/admin/sitesAdminDetail.jsp" />
+		</action>
+
+		<action path="/admin/ManageDemographicGroups" name="demographicGroupForm" type="org.oscarehr.common.web.DemographicGroupsManageAction" parameter="method" scope="request">
+			<forward name="list" path="/admin/demographicGroupsAdmin.jsp" />
+			<forward name="details" path="/admin/demographicGroupsAdminDetail.jsp" />
 		</action>
 
 		<action path="/admin/ManageBillingReferral" name="billingreferralForm" type="org.oscarehr.common.web.BillingreferralEditAction" parameter="method" scope="request">

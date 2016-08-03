@@ -36,6 +36,7 @@
 <%@page import="org.oscarehr.util.WebUtils"%>
 <%@page import="org.oscarehr.util.MiscUtils" %>
 <%@page import="org.oscarehr.managers.PreventionManager" %>
+<%@page import="java.text.SimpleDateFormat"%>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -66,7 +67,8 @@ if(!authed) {
   String hin = demo.getHin()+demo.getVer();
   String mrp = demo.getProviderNo();
   PreventionManager preventionManager = SpringUtils.getBean(PreventionManager.class);
-
+  SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+  String todayString = simpleDateFormat.format(Calendar.getInstance().getTime());
   PreventionDisplayConfig pdc = PreventionDisplayConfig.getInstance();
   ArrayList<HashMap<String,String>> prevList = pdc.getPreventions();
 
@@ -442,7 +444,14 @@ text-align:left;
 		<td class="MainTableTopRowRightColumn">
 		<table class="TopStatusBar">
 			<tr>
-				<td><%=nameAge%></td>
+				<td>
+					<%=nameAge%>
+					<a title="Open Billing Page" 
+					   onclick="popupFocusPage(700, 1000, '../billing.do?billRegion=ON&amp;billForm=MFP&amp;hotclick=&amp;appointment_no=0&amp;demographic_name=<%=demo.getLastName()%>%2C<%=demo.getFirstName()%>&amp;demographic_no=<%=demographic_no%>&amp;providerview=1&amp;user_no=<%=(String) session.getValue("user")%>&amp;apptProvider_no=none&amp;appointment_date=<%=todayString%>&amp;start_time=0:00&amp;bNewForm=1&amp;status=t','_self');return false;" 
+					   href="javascript: function myFunction() {return false; }">
+					[B]
+					</a>				
+				</td>
 				<td>&nbsp;</td>
 				<td style="text-align: right"><oscar:help keywords="prevention" key="app.top1"/> | <a
 					href="javascript:popupStart(300,400,'About.jsp')"><bean:message

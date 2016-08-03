@@ -78,8 +78,8 @@ public class ProviderPreference extends AbstractModel<String> implements Seriali
 	private Integer startHour=8;
 	private Integer endHour=18;
 	private Integer everyMin=15;
-	private boolean twelveHourFormat = true;
-	private boolean labelShortcutEnabled = false;
+	private Boolean twelveHourFormat = true;
+	private Boolean labelShortcutEnabled = false;
 	private String defaultDoctor = "";
 	private String myGroupNo = null;	
 	private String colourTemplate="deepblue";
@@ -217,6 +217,11 @@ public class ProviderPreference extends AbstractModel<String> implements Seriali
     }
 
 	public boolean isTwelveHourFormat() {
+		//Checks if the value is null before returning it, if it is null then set it to the default of false first
+		if (twelveHourFormat == null){
+			twelveHourFormat = false;
+		}
+		
 		return twelveHourFormat;
 	}
 	public void setTwelveHourFormat(boolean twelveHourFormat) {
@@ -224,6 +229,11 @@ public class ProviderPreference extends AbstractModel<String> implements Seriali
 	}
 
 	public boolean isLabelShortcutEnabled() {
+		//Checks if the value is null before returning it, if it is null then set it to the default of false first
+		if (labelShortcutEnabled == null){
+			labelShortcutEnabled = false;
+		}
+		
 		return labelShortcutEnabled;
 	}
 	public void setLabelShortcutEnabled(boolean labelShortcutEnabled) {

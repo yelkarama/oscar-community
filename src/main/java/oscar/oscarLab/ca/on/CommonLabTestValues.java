@@ -476,6 +476,12 @@ public class CommonLabTestValues {
 									if (collDate.length() == 10) {
 										h.put("collDateDate", UtilDateUtilities.getDateFromString(collDate, "yyyy-MM-dd"));
 									} else {
+										//Checks if the time of the date is only 5 characters (HH:mm) 
+                                    	if (collDate.substring(collDate.indexOf(" ") + 1).length() == 5) {
+                                    		//Adds :00 to the end of the string so that it has the seconds and can be parsed 
+                                    		collDate += ":00";
+                                    	}
+                                    	
 										h.put("collDateDate", UtilDateUtilities.getDateFromString(collDate, "yyyy-MM-dd HH:mm:ss"));
 									}
 									labList.add(h);

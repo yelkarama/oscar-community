@@ -9,8 +9,10 @@
 
 package org.oscarehr.common.dao;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -136,6 +138,14 @@ public class InboxResultsDao {
 	public ArrayList<LabResultData> populateDocumentResultsData(String providerNo, String demographicNo, String patientFirstName,
 			String patientLastName, String patientHealthNumber, String status, boolean isPaged, Integer page,
 			Integer pageSize, boolean mixLabsAndDocs, Boolean isAbnormal) {
+		
+		return populateDocumentResultsData(providerNo, demographicNo, patientFirstName, patientLastName, patientHealthNumber, status, isPaged, page, pageSize, mixLabsAndDocs, isAbnormal, null, null);
+	}
+	
+	@SuppressWarnings({ "unchecked" })
+	public ArrayList<LabResultData> populateDocumentResultsData(String providerNo, String demographicNo, String patientFirstName,
+			String patientLastName, String patientHealthNumber, String status, boolean isPaged, Integer page,
+			Integer pageSize, boolean mixLabsAndDocs, Boolean isAbnormal, Date startDate, Date endDate) {
 		if (providerNo == null) {
 			providerNo = "";
 		}
@@ -157,6 +167,17 @@ public class InboxResultsDao {
 
 		ArrayList<LabResultData> labResults = new ArrayList<LabResultData>();
 		String sql = "";
+
+		String dateSql = "";
+		SimpleDateFormat dateSqlFormatter = new SimpleDateFormat("yyyy-MM-dd");
+		//Check if the startDate is null, if a date exists then creates the SQL for the startDate
+		if (startDate != null) { 
+			dateSql += " AND DATE(doc.observationdate) >= DATE('" + dateSqlFormatter.format(startDate) + "')";
+		}
+		//Check if the startDate is null, if a date exists then creates the SQL for the startDate 
+		if (endDate != null) { 
+			dateSql += " AND DATE(doc.observationdate) <= DATE('" + dateSqlFormatter.format(endDate) + "')";
+		}
 		
 		int docNoLoc = -1;
 		int statusLoc = -1;
@@ -200,11 +221,11 @@ public class InboxResultsDao {
 							+ "%' "
 							+ (searchProvider ? " AND plr.provider_no = '" + providerNo + "' " : " ")
 							+ " ORDER BY id DESC "
-							+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "")
 							+ " ) AS X "
 							+ " LEFT JOIN demographic d "
 							+ " ON d.demographic_no = -1 "
-							+ " WHERE X.lab_type = 'DOC' AND doc.document_no = X.lab_no ";
+							+ " WHERE X.lab_type = 'DOC' AND doc.document_no = X.lab_no " + dateSql
+							+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 
 				} else if (demographicNo != null && !"".equals(demographicNo)) {
 					docNoLoc = 1; statusLoc = 2; docTypeLoc = 9; lastNameLoc = 3; firstNameLoc = 4; hinLoc = 5; sexLoc = 6; moduleLoc = 7; obsDateLoc = 8; descriptionLoc = 10; updateDateLoc = 11;
@@ -236,10 +257,11 @@ public class InboxResultsDao {
 							+ "'"
 							+ " ORDER BY id DESC) AS Z"
 							+ " ORDER BY id DESC "
-							+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "")
 							+ " ) AS X "
 							+ " WHERE X.lab_type = 'DOC' and X.id = plr.id and doc.document_no = plr.lab_no and d.demographic_no = '"
-							+ demographicNo + "' ";
+							+ demographicNo + "' "
+							+ dateSql
+							+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 				} else if (patientSearch) { // N arg
 					docNoLoc = 1; statusLoc = 2; docTypeLoc = 9; lastNameLoc = 3; firstNameLoc = 4; hinLoc = 5; sexLoc = 6; moduleLoc = 7; obsDateLoc = 8; descriptionLoc = 10; updateDateLoc = 11;
 					sql = " SELECT plr.id, doc.document_no, plr.status, d.last_name, d.first_name, hin, sex, d.demographic_no as module_id, doc.observationdate, plr.lab_type as doctype, doc.doctype as description, date(doc.updatedatetime) "
@@ -285,6 +307,7 @@ public class InboxResultsDao {
 							+ " 			ORDER BY id DESC) AS X "
 							+ " 	  ) AS Z  "
 							+ " WHERE Z.lab_type = 'DOC' and Z.id = plr.id and doc.document_no = plr.lab_no and d.demographic_no = Z.demographic_no "
+							+ dateSql
 							+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 
 				} else {
@@ -303,7 +326,6 @@ public class InboxResultsDao {
 							+ (isAbnormal != null ? "     AND (pl.lab_type = 'DOC' OR (pl.lab_no = info.lab_no AND (info.result_status IS NULL OR info.result_status != 'A'))) "
 									: " AND pl.lab_type = 'DOC' ")
 							+ " 	ORDER BY pl.id DESC "
-							+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "")
 							+ "     ) AS plr"
 							+ " LEFT JOIN "
 							+ "(SELECT module_id, document_no FROM ctl_document cd "
@@ -313,7 +335,8 @@ public class InboxResultsDao {
 							+ "(SELECT demographic_no, first_name, last_name, hin, sex "
 							+ "FROM demographic d) AS Z "
 							+ "ON Y.module_id = Z.demographic_no "
-							+ "WHERE doc.document_no = plr.lab_no";
+							+ "WHERE doc.document_no = plr.lab_no" + dateSql
+							+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 				}
 			} else { // Don't mix labs and docs.
 				if ("0".equals(demographicNo) || "0".equals(providerNo)) {
@@ -328,6 +351,7 @@ public class InboxResultsDao {
 							+ "%'  "
 							+ " AND plr.provider_no = '0' "
 							+ " AND doc.document_no = plr.lab_no"
+							+ dateSql
 							+ " ORDER BY id DESC 	"
 							+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "")
 							+ ") as X"
@@ -347,6 +371,7 @@ public class InboxResultsDao {
 							+ "%' "
 							+ (searchProvider ? " AND plr.provider_no = '" + providerNo + "' " : "")
 							+ "	AND doc.document_no = cd.document_no "
+							+ dateSql
 							+ " ORDER BY id DESC "
 							+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 				} else if (patientSearch) {
@@ -368,6 +393,7 @@ public class InboxResultsDao {
 							+ "%' "
 							+ (searchProvider ? " AND plr.provider_no = '" + providerNo + "' " : "")
 							+ "	AND doc.document_no = cd.document_no "
+							+ dateSql
 							+ " ORDER BY id DESC "
 							+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 				} else {
@@ -383,6 +409,7 @@ public class InboxResultsDao {
 							+ "%'  "
 							+ (searchProvider ? " AND plr.provider_no = '" + providerNo + "' " : "")
 							+ " 	AND doc.document_no = cd.document_no  "
+							+ dateSql
 							+ " UNION "
 							+ " SELECT X.id, X.lab_no as document_no, X.status, last_name, first_name, hin, sex, X.module_id, X.observationdate, X.lab_type as doctype, docdesc, updatedatetime "
 							+ " FROM (SELECT plr.id, plr.lab_no, plr.status, plr.lab_type, cd.module_id, observationdate, docdesc, updatedatetime "
@@ -390,8 +417,10 @@ public class InboxResultsDao {
 							+ " WHERE plr.lab_type = 'DOC' " + "	AND plr.status like '%" + status + "%'  "
 							+ (searchProvider ? " AND plr.provider_no = '" + providerNo + "' " : "")
 							+ " AND plr.lab_no = cd.document_no " + " AND cd.module_id = -1 "
-							+ " AND d.document_no = cd.document_no " + " ) AS X " + " LEFT JOIN demographic d "
-							+ " ON d.demographic_no = -1) AS X " + " ORDER BY id DESC "
+							+ " AND d.document_no = cd.document_no " 
+							+ dateSql.replace("doc.", "d.") + " ) AS X " + " LEFT JOIN demographic d "
+							+ " ON d.demographic_no = -1"
+							+ ") AS X " + " ORDER BY id DESC "
 							+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 				}
 			}

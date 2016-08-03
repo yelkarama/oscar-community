@@ -143,6 +143,7 @@ $(function() {
 					<option value="BIOTEST">BioTest</option>
 					<option value="CLS">Calgary Lab Services (CLS)</option>
 					<option value="TRUENORTH">TRUENORTH</option>
+					<option value="MEDITECH">MEDITECH</option>
 					<option value="OTHER">Other</option>
 				</select>
 			<br />
@@ -181,13 +182,13 @@ $("#uploadForm").submit(function() {
         
         return false;
         
-	}else if(ext != 'hl7' && ext != 'xml'){
+	}else if(ext != 'hl7' && ext != 'xml' && ext != 'txt'){
 
 	        $('.alert').removeClass('alert-success');
 	        $('.alert').addClass('alert-error');
 	        $('.alert').show();
 	         
-	        $('#errorMsg').html("<strong>Error!</strong> The lab must be either a .xml or .hl7 file.");
+	        $('#errorMsg').html("<strong>Error!</strong> The lab must be either a .xml, a .hl7, or a .txt file.");
 
 	       
 	        return false;

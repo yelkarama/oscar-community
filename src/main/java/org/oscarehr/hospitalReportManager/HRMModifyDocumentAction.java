@@ -19,6 +19,8 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
+import org.oscarehr.common.dao.IncomingLabRulesDao;
+import org.oscarehr.common.model.IncomingLabRules;
 import org.oscarehr.hospitalReportManager.dao.HRMDocumentCommentDao;
 import org.oscarehr.hospitalReportManager.dao.HRMDocumentDao;
 import org.oscarehr.hospitalReportManager.dao.HRMDocumentSubClassDao;
@@ -159,6 +161,8 @@ public class HRMModifyDocumentAction extends DispatchAction {
 	}
 
 	public ActionForward assignProvider(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+		//Gets the Dao for incoming lab rules
+		IncomingLabRulesDao incomingLabRulesDao = (IncomingLabRulesDao) SpringUtils.getBean("IncomingLabRulesDao");
 		String hrmDocumentId = request.getParameter("reportId");
 		String providerNo = request.getParameter("providerNo");
 		
@@ -175,6 +179,29 @@ public class HRMModifyDocumentAction extends DispatchAction {
 			providerMapping.setSignedOff(0);
 
 			hrmDocumentToProviderDao.merge(providerMapping);
+			
+			//Gets the list of IncomingLabRules pertaining to the current provider
+			List<IncomingLabRules> incomingLabRules = incomingLabRulesDao.findCurrentByProviderNo(providerNo);
+			//If the list is not null
+			if (incomingLabRules != null) {
+				//For each labRule in the list
+				for(IncomingLabRules labRule : incomingLabRules) {
+					//Creates a string of the provider number that the lab will be forwarded to
+					String forwardProviderNumber = labRule.getFrwdProviderNo();
+					//Checks to see if this provider is already linked to this lab
+					HRMDocumentToProvider hrmDocumentToProvider = hrmDocumentToProviderDao.findByHrmDocumentIdAndProviderNo(hrmDocumentId, forwardProviderNumber);
+					//If a record was not found
+					if (hrmDocumentToProvider == null) {
+						//Puts the information into the HRMDocumentToProvider object
+						hrmDocumentToProvider = new HRMDocumentToProvider();
+						hrmDocumentToProvider.setHrmDocumentId(hrmDocumentId);
+						hrmDocumentToProvider.setProviderNo(forwardProviderNumber);
+						hrmDocumentToProvider.setSignedOff(0);
+						//Stores it in the table
+						hrmDocumentToProviderDao.persist(hrmDocumentToProvider);
+					}
+				}
+			}
 
 			
 			//we want to remove any unmatched entries when we do a manual match like this. -1 means unclaimed in this table.

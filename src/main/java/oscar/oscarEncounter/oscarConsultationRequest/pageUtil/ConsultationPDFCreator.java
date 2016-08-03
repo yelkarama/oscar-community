@@ -121,6 +121,7 @@ public class ConsultationPDFCreator extends PdfPageEventHelper {
 
 		// Creating a border for the entire request.
 		border = new PdfPTable(1);
+		border.setSplitLate(false);
 		addToTable(table, border, true);
 
 		// Adding clinic information to the border.
@@ -395,7 +396,7 @@ public class ConsultationPDFCreator extends PdfPageEventHelper {
 		PdfPCell cell;
 		infoTable = new PdfPTable(1);
 		cell = new PdfPCell();
-
+		infoTable.setSplitLate(false);
 		infoTable.addCell(setInfoCell(cell, getResource("msgReason")));
 		infoTable.addCell(setDataCell(cell, reqFrm.reasonForConsultation));
 

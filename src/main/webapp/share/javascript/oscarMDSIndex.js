@@ -1641,6 +1641,7 @@ function updateDocument(eleId){
 }
 
 function checkObservationDate(formid) {
+	var isValid = true;
     // regular expression to match required date format
     re = /^\d{4}\-\d{1,2}\-\d{1,2}$/;
     re2 = /^\d{4}\/\d{1,2}\/\d{1,2}$/;
@@ -1676,12 +1677,22 @@ function checkObservationDate(formid) {
       return false;
     }
     // year value between 1902 and 2015
-    if(regs[0] < 1902 || regs[0] > (new Date()).getFullYear()) {
-      alert("Invalid value for year: " + regs[0] + " - must be between 1902 and " + (new Date()).getFullYear());
-      form.elements["observationDate"].focus();
-      return false;
+    /*if(regs[0] < 1902 || regs[0] > (new Date()).getFullYear()) {*/
+    if(regs[0] < 1902) {
+    	/*alert("Invalid value for year: " + regs[0] + " - must be between 1902 and " + (new Date()).getFullYear());*/
+    	alert("Invalid value for year: " + regs[0] + " - must be greater than 1902");
+    	form.elements["observationDate"].focus();
+    	return false;
     }
-    return true;
+    else if (regs[0] > (new Date().getFullYear())) {
+    	var response = confirm("Are you sure you want to set the observation date to the year " + regs[0] + "?");
+    	if (!response) {
+    		alert("Invalid value for year: " + regs[0] + " - must be between 1902 and " + (new Date()).getFullYear());
+    		isvalid = false;
+    	}
+    }
+    
+    return isValid;
   }
 
 function updateStatus(formid){//acknowledge

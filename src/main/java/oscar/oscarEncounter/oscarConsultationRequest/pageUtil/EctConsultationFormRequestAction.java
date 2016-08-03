@@ -180,6 +180,7 @@ public class EctConsultationFormRequestAction extends Action {
                                 consult.setSendTo(frm.getSendTo());
                                 consult.setConcurrentProblems(frm.getConcurrentProblems());
                                 consult.setUrgency(frm.getUrgency());
+                                consult.setAppointmentInstructions( frm.getAppointmentInstructions() );
                                 consult.setSiteName(frm.getSiteName());
                                 Boolean pWillBook = false;
                                 if( frm.getPatientWillBook() != null ) {
@@ -225,6 +226,7 @@ public class EctConsultationFormRequestAction extends Action {
 									if (docs[idx].length() > 0) {
 										if (docs[idx].charAt(0) == 'D') EDocUtil.attachDocConsult(providerNo, docs[idx].substring(1), requestId);
 										else if (docs[idx].charAt(0) == 'L') ConsultationAttachLabs.attachLabConsult(providerNo, docs[idx].substring(1), requestId);
+										else if (docs[idx].charAt(0) == 'H') ConsultationAttachHRMReports.attachHRMReportConsult(providerNo, docs[idx].substring(1), requestId);
 									}
 								}
 			}
@@ -293,6 +295,7 @@ public class EctConsultationFormRequestAction extends Action {
                 consult.setSendTo(frm.getSendTo());
                 consult.setConcurrentProblems(frm.getConcurrentProblems());
                 consult.setUrgency(frm.getUrgency());
+                consult.setAppointmentInstructions( frm.getAppointmentInstructions() );
                 consult.setSiteName(frm.getSiteName());
                  Boolean pWillBook = false;
                 if( frm.getPatientWillBook() != null ) {

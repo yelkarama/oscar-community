@@ -172,5 +172,33 @@ public class PrescriptionManager {
 
 		return (results);
 	}
+	
+	public List<Drug> getMedicationsByDemographicNo(LoggedInInfo loggedInInfo, Integer demographicNo, Boolean archived) {
+		List<Drug> drugList = drugDao.findByDemographicId(demographicNo, archived);
+		LogAction.addLogSynchronous(loggedInInfo, "PrescriptionManager.getMedicationsByDemographicNo Archived=" + archived, drugList.toString());
+		return drugList;
+	}
+
+	public List<Drug> getActiveMedications(String demographicNo) {
+		Integer id = Integer.parseInt(demographicNo.trim());
+		return getActiveMedications(id.toString());
+	}
+
+	public List<Drug> getActiveMedications(LoggedInInfo loggedInInfo, Integer demographicNo) {
+		if (demographicNo == null) {
+			return null;
+		}
+		return getMedicationsByDemographicNo(loggedInInfo, demographicNo, false);
+	}
+
+	public Drug findDrugById(LoggedInInfo loggedInInfo, Integer drugId) {
+		LogAction.addLogSynchronous(loggedInInfo, "PrescriptionManager.findDrugById", "searching for drug id: " + drugId);
+		return drugDao.find(drugId);
+	}
+	
+	public List<Drug> getLongTermDrugs(LoggedInInfo loggedInInfo, Integer demographicId ) {
+		LogAction.addLogSynchronous(loggedInInfo, "PrescriptionManager.getLongtermDrugs", "Demographic: " + demographicId);
+		return drugDao.findLongTermDrugsByDemographic(demographicId);
+	}
 
 }

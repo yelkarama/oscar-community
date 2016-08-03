@@ -173,6 +173,10 @@ public class EctDisplayDocsAction extends EctDisplayAction {
     			item.setURL(url);
     			item.setURLJavaScript(true);
     			
+    			if(curDoc.isAbnormal()){
+					item.setColour("red");
+				}
+    			
     			Dao.addItem(item);
     
     		}
