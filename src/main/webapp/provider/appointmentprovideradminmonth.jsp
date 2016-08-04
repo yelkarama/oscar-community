@@ -431,7 +431,7 @@ function refreshTabAlerts(id) {
 }
 //-->
 </SCRIPT>
-<body bgcolor="#EEEEFF"	onLoad="refreshAllTabAlerts();" topmargin="0" leftmargin="0">
+<body bgcolor="#FFFFFF"	onLoad="refreshAllTabAlerts();" topmargin="0" leftmargin="0">
 
 <div id="jumpmenu"
 	style="position: absolute; width: 140px; height: 100px; z-index: 2; left: 240px; top: 30px; visibility: hidden">
@@ -463,7 +463,7 @@ function refreshTabAlerts(id) {
 </table>
 </div>
 
-<table BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="100%">
+<table BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="100%" id="firstTable" style="padding:10px 7px; color: #fff; background-color: #007392">
 	<tr>
 	<td align="center" >
 		<a href="http://oscarmcmaster.org/" target="_blank" title="OSCAR EMR"><img src="<%=request.getContextPath()%>/images/oscar_small.png" border="0"></a>
@@ -616,7 +616,7 @@ function refreshTabAlerts(id) {
 	<tr>
 		<td>
 		<table BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="100%">
-			<tr BGCOLOR="ivory">
+			<tr id="ivoryBar" style="background:#74abbe; color:#fff;">
 				<td width="33%"><a
 					href="providercontrol.jsp?year=<%=year%>&month=<%=(month-1)%>&day=<%=(day)%>&displaymode=month&dboperation=searchappointmentmonth&providerview=<%=providerview%>">
 				&nbsp;&nbsp;<img src="../images/previous.gif" WIDTH="10" HEIGHT="9"
