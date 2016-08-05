@@ -190,6 +190,9 @@ function isPostalCode()
     if(isCanadian()){
          e = document.updatedelete.postal;
          postalcode = e.value;
+         
+         if( postalcode == "" )
+         	return true;
         	
          rePC = new RegExp(/(^s*([a-z](\s)?\d(\s)?){3}$)s*/i);
     
