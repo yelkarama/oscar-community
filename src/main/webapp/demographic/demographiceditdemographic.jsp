@@ -2815,9 +2815,6 @@ if ( Dead.equals(PatStat) ) {%>
 								
 							</tr>
 							<tr valign="top">
-								<td align="right"><b>SIN:</b></td>
-								<td align="left"><input type="text" name="sin" size="30" <%=getDisabled("sin")%>
-									value="<%=(demographic.getSin()==null||demographic.getSin().equals("null"))?"":demographic.getSin()%>"></td>
 								<td align="right" nowrap><b> <bean:message
 									key="demographic.demographiceditdemographic.cytolNum" />:</b></td>
 								<td><input type="text" name="cytolNum" <%=getDisabled("cytolNum")%>
