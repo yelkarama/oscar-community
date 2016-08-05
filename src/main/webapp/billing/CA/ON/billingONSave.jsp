@@ -132,13 +132,12 @@
             self.opener.refresh(); 
             self.location.href="<%=urlBack%>";
         
-       	 <%}else{%>       	 
-					    self.close(); 
-					    
-					    <% if(!"Save".equals(request.getParameter("submit"))) { %>
- 					    self.opener.refresh();
- 					    <% } %>
-         <% }%>
+       	 <% } else { %>       	 
+       			if (opener != null && opener.location.href.indexOf("providercontrol.jsp") != -1) {
+       	 			self.opener.refresh();
+       			}
+	       	 	self.close(); 	    
+         <% } %>
 </script>
 	<% } else { %>
 
@@ -155,8 +154,8 @@
 	  }
 	}
 	popupPage(700,720,'billingON3rdInv.jsp?billingNo=<%=billingNo%>');
-	self.close();
 	self.opener.refresh();
+	self.close();
 </script>
 <% } %>
 
