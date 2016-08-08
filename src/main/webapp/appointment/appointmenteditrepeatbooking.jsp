@@ -54,6 +54,7 @@
 <%@page import="org.oscarehr.common.model.Appointment" %>
 <%@page import="org.oscarehr.util.SpringUtils" %>
 <%@page import="java.text.SimpleDateFormat" %>
+<%@page import="org.oscarehr.util.MiscUtils" %>
 <%
 	AppointmentArchiveDao appointmentArchiveDao = (AppointmentArchiveDao)SpringUtils.getBean("appointmentArchiveDao");
 	OscarAppointmentDao appointmentDao = (OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
@@ -78,6 +79,7 @@
     boolean bSucc = false;
 	String createdDateTime = UtilDateUtilities.DateToString(new java.util.Date(),"yyyy-MM-dd HH:mm:ss");
 	String userName =  (String) session.getAttribute("userlastname") + ", " + (String) session.getAttribute("userfirstname");
+	String providerNo = request.getParameter("provider_no");
 	String everyNum = request.getParameter("everyNum")!=null? request.getParameter("everyNum") : "0";
 	String everyUnit = request.getParameter("everyUnit")!=null? request.getParameter("everyUnit") : "day";
 	String endDate = request.getParameter("endDate")!=null? request.getParameter("endDate") : UtilDateUtilities.DateToString(new java.util.Date(),"dd/MM/yyyy");
@@ -143,7 +145,15 @@
     if (request.getParameter("groupappt").equals("Group Update") || request.getParameter("groupappt").equals("Group Cancel") ||
     		request.getParameter("groupappt").equals("Group Delete")) {
         int rowsAffected=0, datano=0;
-
+		
+        Integer reasonCode = 0;
+        try {
+        	reasonCode = Integer.parseInt(request.getParameter("reasonCode"));
+        }
+        catch (NumberFormatException nfe){
+        	MiscUtils.getLogger().error("reasonCode is not an Integer", nfe);
+        }
+        
         Object[] paramE = new Object[10];
         Appointment aa = appointmentDao.find(Integer.parseInt(request.getParameter("appointment_no")));
         if (aa != null) {
@@ -179,7 +189,7 @@
             	for(Appointment a:appts) {
             		a.setStatus("C");
             		a.setUpdateDateTime(ConversionUtils.fromTimestampString(createdDateTime));
-            		a.setLastUpdateUser(userName);
+            		a.setLastUpdateUser(providerNo);
             		appointmentDao.merge(a);
             		rowsAffected++;
             	}
@@ -237,7 +247,7 @@
 
 			// repeat doing
 			while (true) {
-				List<Appointment> appts = appointmentDao.find(dayFormatter.parse((String)paramE[0]), (String)paramE[1], ConversionUtils.fromTimeStringNoSeconds((String)paramE[2]), ConversionUtils.fromTimeStringNoSeconds((String)paramE[3]),
+				List<Appointment> appts = appointmentDao.find(dayFormatter.parse((String)param[12]), (String)paramE[1], ConversionUtils.fromTimeStringNoSeconds((String)paramE[2]), ConversionUtils.fromTimeStringNoSeconds((String)paramE[3]),
 						(String)paramE[4], (String)paramE[5], (String)paramE[6],  ConversionUtils.fromTimestampString((String)paramE[7]), (String)paramE[8], Integer.parseInt((String)paramE[9]));
 				for(Appointment appt:appts) {
 					appointmentArchiveDao.archiveAppointment(appt);
@@ -246,11 +256,12 @@
 					appt.setName(request.getParameter("keyword"));
 					appt.setDemographicNo(Integer.parseInt((String)paramE[9]));
 					appt.setNotes(request.getParameter("notes"));
+					appt.setReasonCode(reasonCode);
 					appt.setReason(request.getParameter("reason"));
 					appt.setLocation(request.getParameter("location"));
 					appt.setResources(request.getParameter("resources"));
 					appt.setUpdateDateTime(ConversionUtils.fromTimestampString(createdDateTime));
-					appt.setLastUpdateUser(userName);
+					appt.setLastUpdateUser(providerNo);
 					appt.setUrgency(request.getParameter("urgency"));
 					appt.setReasonCode(Integer.parseInt(request.getParameter("reasonCode")));
 					appointmentDao.merge(appt);
