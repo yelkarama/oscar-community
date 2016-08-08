@@ -489,12 +489,14 @@ public class MEDITECHHandler implements MessageHandler {
 
 	@Override
 	public String getPatientName(){
-		return(getFirstName()+" "+getMiddleName()+" "+getLastName());
+		return(getFirstName()+" "+getLastName());
 	}
 
 	@Override
 	public String getFirstName(){
-		return(getString(msg.getRESPONSE().getPATIENT().getPID().getPatientName().getGivenName().getValue()));
+		String name = getString(msg.getRESPONSE().getPATIENT().getPID().getPatientName().getGivenName().getValue());
+		name +=  " " + getMiddleName();
+		return(name);
 	}
 
 	public String getMiddleName(){
