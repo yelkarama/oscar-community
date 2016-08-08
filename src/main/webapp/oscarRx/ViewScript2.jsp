@@ -325,6 +325,7 @@ function printIframe(){
 			{
 				preview.focus();
 				preview.print();
+				self.parent.close();
 			}
 	}
 
