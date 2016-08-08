@@ -45,7 +45,7 @@ public class MessageTblDao extends AbstractDao<MessageTbl>{
     	Query query = entityManager.createQuery(sql);
     	List<Integer> ids = new ArrayList<Integer>();
     	for(MsgDemoMap temp:m) {
-    		ids.add(temp.getId().getMessageId());
+    		ids.add(temp.getMessageID());
     	}
     	query.setParameter("m", ids);
         List<MessageTbl> results = query.getResultList();

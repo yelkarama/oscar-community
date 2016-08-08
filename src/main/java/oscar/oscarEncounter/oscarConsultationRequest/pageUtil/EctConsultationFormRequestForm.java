@@ -582,6 +582,14 @@ public final class EctConsultationFormRequestForm extends ActionForm {
 	    this.letterheadFax = letterheadFax;
     }
 
+	public String getSource() {
+		return source;
+	}
+
+	public void setSource(String source) {
+		this.source = source;
+	}
+
 	public Integer getFdid() {
 		return fdid;
 	}
@@ -590,14 +598,6 @@ public final class EctConsultationFormRequestForm extends ActionForm {
 		this.fdid = fdid;
 	}
 
-	public String getSource() {
-		return source;
-	}
-
-	public void setSource(String source) {
-		this.source = source;
-	}
-  
 	public String getAppointmentInstructions() {
 		return appointmentInstructions;
 	}

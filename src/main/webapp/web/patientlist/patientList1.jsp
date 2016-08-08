@@ -37,6 +37,8 @@
 		</a></h6>
 	</th>
 	<th class="list-patient-date-cell">
+	
+		<span class="glyphicon glyphicon-cog" ng-click="manageConfiguration()" ></span>
 		<span class="glyphicon glyphicon-calendar"></span>
 				
 		<a href="javascript:void(0)" ng-model="appointmentDate"  datepicker-popup="yyyy-MM-dd" datepicker-append-to-body="true" is-open="appointmentDatePicker" datepicker-options="dateOptions" 
@@ -59,9 +61,10 @@
 	<!-- 
 	<span ng-if="patient.status.length>0 && patient.status != 't'" class="badge">{{patient.status}}</span>
 	-->
-	<h5 class="list-group-item-heading">{{patient.name}}</h5>
-	<h5 class="list-group-item-heading pull-right">{{patient.startTime}}</h5>
-	<p class="list-group-item-text"><bean:message key="provider.appointmentProviderAdminDay.Reason"/>: {{patient.reason}}  </p>
+	<h5 class="list-group-item-heading pull-right" ng-style="getAppointmentTextStyle(patient)">{{patient.startTime}}</h5>
+	<h5 class="list-group-item-heading" ng-style="getAppointmentTextStyle(patient)">{{patient.name}}</h5>
+	
+	<p class="list-group-item-text" ng-if="patient.demographicNo != 0" ng-show="patientListConfig.showReason" ng-style="getAppointmentTextStyle(patient)"><bean:message key="provider.appointmentProviderAdminDay.Reason"/>: {{patient.reason}}  </p>
 </a>
 
 </div>

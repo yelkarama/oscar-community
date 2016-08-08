@@ -94,7 +94,7 @@ oscarApp.controller('RecordCtrl', function ($rootScope,$scope,$http,$location,$s
 	$scope.changeTab = function(temp) {
 		$scope.currenttab2 = $scope.recordtabs2[temp.id];
 		
-		if(angular.isDefined(temp.state)){
+		if(angular.isDefined(temp.state) && temp.state != null){
 			if (/^record.consultRequests.[0-9]+$/.test(temp.state) || /^record.consultResponses.[0-9]+$/.test(temp.state)) {
 				var recIdPos = temp.state.lastIndexOf(".");
 				$state.go(temp.state.substring(0, recIdPos), {demographicNo:temp.state.substring(recIdPos+1)});
@@ -229,6 +229,26 @@ $scope.$on('$destroy', function () { clearInterval(myVar); });
 		}
 	};
 
+	$scope.moveNote = function(p) {
+		noteEditor = $("[id^=noteInput]");
+		
+		if (p == "l") {
+			$(noteEditor).removeClass('col-md-offset-3');
+			$(noteEditor).removeClass('absolute-right');
+			
+			$(noteEditor).addClass('absolute-left');
+		} else if(p == "r") {
+			$(noteEditor).removeClass('col-md-offset-3');
+			$(noteEditor).removeClass('absolute-left');
+			
+			$(noteEditor).addClass('absolute-right');
+		}else{
+			$(noteEditor).removeClass('absolute-left');
+			$(noteEditor).removeClass('absolute-right');
+			
+			$(noteEditor).addClass('col-md-offset-3');
+		}
+	};
 		
 	$scope.saveNote = function(){
 		console.log("This is the note"+$scope.page.encounterNote);
@@ -299,9 +319,9 @@ $scope.$on('$destroy', function () { clearInterval(myVar); });
 			apptStartTime = zero(dt.getHours())+":"+zero(dt.getMinutes())+":"+zero(dt.getSeconds());
 		}
 		
-		var url = "../billing.do?billRegion="+$scope.page.billregion;
-		url += "&billForm="+$scope.page.defaultView;
-		url += "&demographic_name="+demo.firstName+"+"+demo.lastName;
+		var url = "../billing.do?billRegion="+encodeURIComponent($scope.page.billregion);
+		url += "&billForm="+encodeURIComponent($scope.page.defaultView);
+		url += "&demographic_name="+encodeURIComponent(demo.lastName+","+demo.firstName);
 		url += "&demographic_no="+demo.demographicNo;
 		url += "&providerview="+user.providerNo+"&user_no="+user.providerNo;
 		url += "&appointment_no="+apptNo+"&apptProvider_no="+apptProvider;
@@ -333,6 +353,7 @@ $scope.$on('$destroy', function () { clearInterval(myVar); });
 			console.log($scope.page.encounterNote);
 			$scope.hideNote = showNoteAfterLoadingFlag;
 			$rootScope.$emit('currentlyEditingNote',$scope.page.encounterNote);
+			initAppendNoteEditor();
 	    });
 	};
 	
@@ -355,7 +376,13 @@ $scope.$on('$destroy', function () { clearInterval(myVar); });
 	    	
 	    	$scope.removeEditingNoteFlag();
 	 });
-	
+
+		
+	var initAppendNoteEditor = function() {
+		if($location.search().noteEditorText!=null){
+			$scope.page.encounterNote.note = $scope.page.encounterNote.note + $location.search().noteEditorText;
+		}
+	} 
 	 
 	 /*
 	  * handle concurrent note edit - EditingNoteFlag

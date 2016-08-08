@@ -475,6 +475,8 @@ public class CommonLabTestValues {
 									MiscUtils.getLogger().debug("COLLDATE " + collDate);
 									if (collDate.length() == 10) {
 										h.put("collDateDate", UtilDateUtilities.getDateFromString(collDate, "yyyy-MM-dd"));
+									} else if (collDate.length() == 16) {
+										h.put("collDateDate", UtilDateUtilities.getDateFromString(collDate, "yyyy-MM-dd HH:mm"));
 									} else {
 										//Checks if the time of the date is only 5 characters (HH:mm) 
                                     	if (collDate.substring(collDate.indexOf(" ") + 1).length() == 5) {
