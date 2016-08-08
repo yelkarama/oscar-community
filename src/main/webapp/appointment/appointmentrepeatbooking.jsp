@@ -53,6 +53,7 @@
 <%@page import="org.oscarehr.common.model.Appointment" %>
 <%@page import="org.oscarehr.util.SpringUtils" %>
 <%@page import="oscar.util.ConversionUtils" %>
+<%@page import="org.oscarehr.util.MiscUtils" %>
 <%
 	AppointmentArchiveDao appointmentArchiveDao = (AppointmentArchiveDao)SpringUtils.getBean("appointmentArchiveDao");
 	OscarAppointmentDao appointmentDao = (OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
@@ -77,6 +78,14 @@
 		gEndDate.setTime(UtilDateUtilities.StringToDate(endDate, "dd/MM/yyyy"));
 
   	 	Date iDate = ConversionUtils.fromDateString(request.getParameter("appointment_date"));
+  	 	Integer reasonCode = 0;
+  	 	try {
+  	 		reasonCode = Integer.parseInt(request.getParameter("reasonCode"));
+  	 	}
+  	 	catch (NumberFormatException nfe){
+  	 		MiscUtils.getLogger().error("Reason code is not an Integer", nfe);
+  	 	}
+  	 	
         // repeat adding
 		while (true) {
 			Appointment a = new Appointment();
@@ -86,6 +95,7 @@
 			a.setEndTime(ConversionUtils.fromTimeStringNoSeconds(request.getParameter("end_time")));
 			a.setName(request.getParameter("keyword"));
 			a.setNotes(request.getParameter("notes"));
+			a.setReasonCode(reasonCode);
 			a.setReason(request.getParameter("reason"));
 			a.setLocation(request.getParameter("location"));
 			a.setResources(request.getParameter("resources"));

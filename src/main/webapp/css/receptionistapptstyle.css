@@ -200,3 +200,7 @@ p {
 @media print {
  .noprint {display:none !important;}
 }
+
+#expandReason {
+	color: #000	
+}
