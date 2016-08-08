@@ -206,7 +206,6 @@
     demographic.setFamilyPhysician("<fdohip>" + request.getParameter("f_doctor_ohip") + "</fdohip><fd>" + request.getParameter("f_doctor") + "</fd>");
 	demographic.setCountryOfOrigin(request.getParameter("countryOfOrigin"));
 	demographic.setNewsletter(request.getParameter("newsletter"));
-	demographic.setSin(request.getParameter("sin"));
 	demographic.setTitle(request.getParameter("title"));
 	demographic.setOfficialLanguage(request.getParameter("official_lang"));
 	demographic.setSpokenLanguage(request.getParameter("spoken_lang"));

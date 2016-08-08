@@ -224,12 +224,6 @@
 						<td <%=isHighlighted(highlight)%>><%=demographicTransfer.getProvince()%>
 						</td>
 					</tr>
-					<%highlight = (demographicTransfer.getSin()!=null && !demographicTransfer.getSin().equals(demographic.getSin()));%>
-					<tr>
-						<td>Sin:</td>
-						<td><%=StringUtils.noNull(demographic.getSin())%></td>
-						<td <%=isHighlighted(highlight)%>><%=StringUtils.noNull(demographicTransfer.getSin())%></td>
-					</tr>
 					<%highlight = (demographicTransfer.getStreetAddress()!=null && !demographicTransfer.getStreetAddress().equals(demographic.getAddress())) ;%>
 					<tr>
 						<td>StreetAddress:</td>

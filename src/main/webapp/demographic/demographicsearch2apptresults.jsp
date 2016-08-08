@@ -433,7 +433,8 @@ function addNameCaisi(demographic_no,lastname,firstname,chartno,messageID) {
 	
 	if(demoList == null) {
 	    //out.println("failed!!!");
-	} 
+	}
+
 	else {
 		Collections.sort(demoList, Demographic.LastNameComparator);
 		
@@ -540,7 +541,8 @@ function addNameCaisi(demographic_no,lastname,firstname,chartno,messageID) {
 	int nLastPage=0,nNextPage=0;
 	nNextPage=Integer.parseInt(strLimit2)+Integer.parseInt(strLimit1);
 	nLastPage=Integer.parseInt(strLimit1)-Integer.parseInt(strLimit2);
-%> 
+%>
+ 
 <%
 	if(rowCounter==0 && nLastPage<=0) {	 
 	  	     
@@ -626,7 +628,14 @@ function addNameCaisi(demographic_no,lastname,firstname,chartno,messageID) {
   	out.println("<input type='hidden' name='"+temp+"' value='"+request.getParameter(temp)+"'>");
 	}
 %>
-
+	<% if (demoList.size() == 1) {
+		Demographic demo = demoList.get(0);
+	%>
+		<script language="JavaScript">
+			document.forms[0].demographic_no.value = <%=demo.getDemographicNo()%>;
+			addName('<%=demo.getDemographicNo()%>','<%=URLEncoder.encode(demo.getLastName())%>','<%=URLEncoder.encode(demo.getFirstName())%>','<%=URLEncoder.encode(demo.getChartNo() == null ? "" : demo.getChartNo())%>','<%=request.getParameter("messageId")%>','<%=demo.getProviderNo()%>','');
+		</script>
+	<% } %>
 </form>
 </div>
 </div>

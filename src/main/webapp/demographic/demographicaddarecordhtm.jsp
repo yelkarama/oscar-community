@@ -1120,12 +1120,6 @@ function ignoreDuplicates() {
 			<%-- END TOGGLE FIRST NATIONS MODULE --%>    
 
     <tr valign="top">
-	<td  id="sinNoLbl" align="right"><b><bean:message key="demographic.demographicaddrecordhtm.msgSIN"/>:</b> </td>
-	<td id="sinNoCell" align="left"  >
-	    <input type="text" name="sin">
-	</td>
-
-
 	<td  id="cytologyLbl" align="right"><b> <bean:message key="demographic.demographicaddrecordhtm.cytolNum"/>:</b> </td>
 	<td id="cytologyCell" align="left"  >
 	    <input type="text" name="cytolNum">
