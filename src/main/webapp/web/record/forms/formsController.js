@@ -82,6 +82,20 @@ oscarApp.controller('FormCtrl', function ($scope,$http,$location,$stateParams,de
 	
 	$scope.getFormGroups();
 	$scope.page.formOptions = [];
+	$scope.favouriteGroup = null;
+	
+	getFavouriteFormGroup = function(){
+		formService.getFavouriteFormGroup().then(function(data){
+			$scope.favouriteGroup = data;
+			
+			if(!($scope.favouriteGroup.summaryItem instanceof Array)){
+				$scope.favouriteGroup.summaryItem = [$scope.favouriteGroup.summaryItem];
+			}
+			
+		});
+	};
+	
+	getFavouriteFormGroup();
 	
 	formService.getFormOptions($scope.demographicNo).then(function(data){
 		console.log("data",data);
@@ -97,7 +111,15 @@ oscarApp.controller('FormCtrl', function ($scope,$http,$location,$stateParams,de
 	});
 	
 	formService.getCompletedEncounterForms($stateParams.demographicNo).then(function(data) {
-		$scope.page.encounterFormlist[0] = data.list;
+		if (data.list instanceof Array) {
+			$scope.page.encounterFormlist[0] = data.list;
+		} else {
+			var arr = new Array();
+			arr[0] = data.list;
+			$scope.page.encounterFormlist[0] = arr;
+		}	
+		
+		//$scope.page.encounterFormlist[0] = data.list;
 		//console.log("completed list as is:" + JSON.stringify($scope.page.encounterFormlist[0]) );
 	});
 	
@@ -185,15 +207,28 @@ oscarApp.controller('FormCtrl', function ($scope,$http,$location,$stateParams,de
 		var pymParent = new pym.Parent('formInViewFrame',url, {});
 		$scope.pymParent = pymParent;  
 		
-		if(item.type != 'eform' && view==1){
+		/*if(item.type != 'eform' && view==1){
 			document.getElementById('formInViewFrame').firstChild.style.height = "1600px"; //temp hack for the forms
-		}
+		}*/
+		
+		//resize iframe for both form and eforms
+		$('iframe').load(function() {			
+			var maxheight = Math.max( document.getElementById('formInViewFrame').firstChild.contentWindow.document.body.scrollHeight, document.getElementById('formInViewFrame').firstChild.contentWindow.document.body.offsetHeight ) + 30 + 'px';
+			document.getElementById('formInViewFrame').firstChild.style.height = maxheight;
+		});
+
 	}
 
 	$scope.isEmpty = function (obj) {
 		for (var i in obj) if (obj.hasOwnProperty(i)) return false;
 		return true;
 	};
+	
+	$scope.currentEformGroup = {}; 
+	
+	$scope.setCurrentEFormGroup = function(mod){
+		$scope.currentEformGroup = mod;
+	} 
 	
 	$scope.openFormFromGroups = function(item){
 		console.log("group item",item);
@@ -231,6 +266,15 @@ oscarApp.controller('FormCtrl', function ($scope,$http,$location,$stateParams,de
 	 */
 	$scope.getListClass = function(listId){
 		if(listId === $scope.page.currentlistId ){
+			return "active";
+		}
+	}
+	
+	/*
+	 * Used to make group setting active 
+	 */
+	$scope.getGroupListClass = function(grp){
+		if(grp === $scope.currentEformGroup ){
 			return "active";
 		}
 	}

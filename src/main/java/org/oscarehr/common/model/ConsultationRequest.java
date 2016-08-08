@@ -330,6 +330,7 @@ public class ConsultationRequest extends AbstractModel<Integer> implements Seria
 	    this.letterheadFax = letterheadFax;
     }
 	
+	
 	/**
 	 * returns the appointment instructions value. 
 	 * This can be a display value or select list value 
@@ -344,7 +345,13 @@ public class ConsultationRequest extends AbstractModel<Integer> implements Seria
 	public void setAppointmentInstructions(String appointmentInstructions) {
 		this.appointmentInstructions = appointmentInstructions;
 	}
-
+	
+	@PrePersist
+	@PreUpdate
+	protected void jpa_updateLastDateUpdated() {
+		lastUpdateDate = new Date();
+	}
+	
 	/**
 	 * Returns the display label of the Appointment Instruction if
 	 * the Lookup List interface is being used.
@@ -387,11 +394,5 @@ public class ConsultationRequest extends AbstractModel<Integer> implements Seria
 
 	public void setSource(String source) {
 		this.source = source;
-	}
-
-	@PrePersist
-	@PreUpdate
-	protected void jpa_updateLastDateUpdated() {
-		lastUpdateDate = new Date();
 	}
 }
