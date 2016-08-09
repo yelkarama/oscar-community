@@ -1613,7 +1613,7 @@ CREATE TABLE `formLabReq07` (
 	`v_immune_HepatitisC` tinyint(1) default NULL,
 	`v_immune_HepatitisB` tinyint(1) default NULL,
 	`v_immune_HepatitisA` tinyint(1) default NULL,
-        `patientChartNo` varchar(20),
+     `patientChartNo` varchar(20),
 	PRIMARY KEY  (`ID`)
 ) ;
 
@@ -2987,6 +2987,7 @@ CREATE TABLE `formLabReq10` (
   `female` tinyint(1),
   `patientChartNo` varchar(20),
   `letterhead` varchar(25),
+  UNIQUE INDEX OPTIMIZE_SEARCH (demographic_no, formEdited DESC),
   PRIMARY KEY (`ID`)
 );
 
