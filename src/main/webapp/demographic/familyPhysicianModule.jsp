@@ -58,7 +58,7 @@ public String getDisabled(String fieldName) {
         <% if(oscarProps.getProperty("isMRefDocSelectList", "").equals("true") ) {
             // drop down list
             Properties prop = null;
-            Vector vecRef = new Vector();
+            List<Properties> vecRef = new ArrayList<Properties>();
             List<ProfessionalSpecialist> specialists = professionalSpecialistDao.findAll();
             for(ProfessionalSpecialist specialist : specialists) {
                 prop = new Properties();

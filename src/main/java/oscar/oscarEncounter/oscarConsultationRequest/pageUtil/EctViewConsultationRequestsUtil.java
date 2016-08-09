@@ -25,6 +25,7 @@
 
 package oscar.oscarEncounter.oscarConsultationRequest.pageUtil;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -172,8 +173,8 @@ public class EctViewConsultationRequestsUtil {
       this.patientWillBook = new Vector<String>();
       urgency = new Vector<String>();
       apptDate = new Vector<String>();
-      requestingPhysician = new Vector<String>();
-      referringPhysician = new Vector<String>();
+      requestingPhysician = new ArrayList<String>();
+      referringPhysician = new ArrayList<String>();
       boolean verdict = true;      
       try {                           
 
@@ -241,7 +242,7 @@ public class EctViewConsultationRequestsUtil {
    public Vector<String> followUpDate;
    public Vector<String> providerNo;   
    public Vector<String> siteName;
-   public Vector<String> requestingPhysician;
-   public Vector<String> referringPhysician;
+   public List<String> requestingPhysician;
+   public List<String> referringPhysician;
    
 }
