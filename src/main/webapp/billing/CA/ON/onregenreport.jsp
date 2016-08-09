@@ -31,6 +31,7 @@
 
 
 <%//
+			String year = request.getParameter("year");
 			String diskId = request.getParameter("diskId");
 			String mohOffice = request.getParameter("billcenter");
 			boolean useProviderMOH = "true".equals(request.getParameter("useProviderMOH"));
@@ -76,8 +77,8 @@
 				objFile.setDateRange(dateRange);
 				
 				objFile.createBillingFileStr(LoggedInInfo.getLoggedInInfoFromSession(request), "" + headerId, new String[] {"B"}, false, mohOffice, false, false);
-				objFile.writeFile(objFile.getValue());
-				objFile.writeHtml(objFile.getHtmlCode());
+				objFile.writeFile(objFile.getValue(), year);
+				objFile.writeHtml(objFile.getHtmlCode(), year);
 				// update the diskname 
 				objFile.updateDisknameSum(Integer.parseInt(diskId));
 			} else if (lProvider != null && lProvider.size() >= 1) {
@@ -114,11 +115,11 @@
 						objFile.setDateRange(dateRange);
 						objFile.createBillingFileStr(LoggedInInfo.getLoggedInInfoFromSession(request), "" + headerId, new String[] {"B"}, false, mohOffice, false, false);						
 						value += objFile.getValue() + "\n";
-						objFile.writeHtml(objFile.getHtmlCode());
+						objFile.writeHtml(objFile.getHtmlCode(), year);
 						objFile.updateDisknameSum(Integer.parseInt(diskId));
  					}
                                         objFile.renameFile();
-					objFile.writeFile(value);
+					objFile.writeFile(value, year);
 				}
 
 			}

@@ -70,14 +70,6 @@ public class DocumentManager {
 		return(result);
 	}
 	
-	public Document addDocument(LoggedInInfo loggedInInfo, Document document, CtlDocument ctlDocument) {
-		documentDao.persist(document);
-		ctlDocument.getId().setDocumentNo(document.getDocumentNo());
-		ctlDocumentDao.persist(ctlDocument);
-		LogAction.addLogSynchronous(loggedInInfo, "DocumentManager.addDocument", "id=" + document.getId());
-		return(document);
-	}
-	
 	public List<Document> getDocumentsUpdateAfterDate(LoggedInInfo loggedInInfo, Date updatedAfterThisDateExclusive, int itemsToReturn) {
 		List<Document> results = documentDao.findByUpdateDate(updatedAfterThisDateExclusive, itemsToReturn);
 

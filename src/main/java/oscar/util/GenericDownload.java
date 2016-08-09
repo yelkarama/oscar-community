@@ -97,6 +97,12 @@ public class GenericDownload extends HttpServlet {
         res.setHeader("Content-Disposition", "attachment;filename=\"" + filename + "\"");
         File directory = new File(dir);
         File curfile = new File(directory, filename);
+        
+        if(!curfile.exists()){ //test for the case of billing files that were generated before annual folders were added
+			directory = new File(dir.substring(0, dir.length()-5));
+			curfile = new File(directory, filename);
+		}
+		
         FileInputStream fis = new FileInputStream(curfile);
         int bufferSize;
         byte[] buffer = new byte[BUFFER_SIZE];
