@@ -48,7 +48,7 @@
 <%String docId=request.getParameter("doc_no");%>
 <script language='JavaScript'>
 
-function doStuff() {
+function forwardProvider() {
   var docId='<%=docId%>';
   var   allSelected = "";
     if ( document.providerSelectForm.selectedProviders.selectedIndex == -1 ) {
@@ -62,12 +62,10 @@ function doStuff() {
                 allSelected = allSelected + document.providerSelectForm.selectedProviders.options[i].value;
             }
         }
-        //self.close();
-        var f=self.opener.document.forms['reassignForm_'+docId];
-        f.selectedProviders.value = allSelected;
+        var frm = self.opener.document.getElementById('reassignForm_'+docId);
+        frm.selectedProviders.value = allSelected;
         forwardDocLab(docId);
         alert("Success!");
-       // f.submit();
         self.close();
     }
 }
@@ -100,7 +98,7 @@ function forwardDocLab(doclabid){
 </select>
 <p><input type="button" class="button"
 	value="<bean:message key="oscarMDS.selectProvider.btnOk"/>"
-	onclick="doStuff()"> <input type="button" class="button"
+	onclick="forwardProvider()"> <input type="button" class="button"
 	value="<bean:message key="oscarMDS.selectProvider.btnCancel"/>"
 	onclick="window.close()"></p>
 </center>
