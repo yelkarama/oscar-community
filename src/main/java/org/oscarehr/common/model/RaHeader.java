@@ -44,7 +44,7 @@ public class RaHeader extends AbstractModel<Integer> {
 	private String filename;
 	
 	@Column(name="group_no")
-	private String groupNo;
+	private String groupNo = "";
 
 	@Column(name="paymentdate")
 	private String paymentDate;
