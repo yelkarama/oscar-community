@@ -1736,7 +1736,7 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
       <%
       	if (isWeekView) {
       %>
-          <b><a href="providercontrol.jsp?year=<%=year%>&month=<%=month%>&day=<%=day%>&view=0&displaymode=day&dboperation=searchappointmentday"><%=formatDate%></a></b>
+          <b><a href="providercontrol.jsp?year=<%=year%>&month=<%=month%>&day=<%=day%>&view=0&displaymode=day&dboperation=searchappointmentday" class="weekView"><%=formatDate%></a></b>
       <%
       	} else {
       %>
