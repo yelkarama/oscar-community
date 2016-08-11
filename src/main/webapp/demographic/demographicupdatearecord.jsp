@@ -426,7 +426,7 @@
     	}
     }
     
-    
+try {   
     //add to waiting list if the waiting_list parameter in the property file is set to true
     oscar.oscarWaitingList.WaitingList wL = oscar.oscarWaitingList.WaitingList.getInstance();
     if(wL.getFound()){
@@ -449,8 +449,9 @@
 	if(!request.getParameter("list_id").equalsIgnoreCase("0")){
 		String wlDemoId = request.getParameter("demographic_no");
 		String wlId = request.getParameter("list_id");
-	
-        List<WaitingList> waitingListList = waitingListDao.findByWaitingListIdAndDemographicId(new Integer(wlId), new Integer(wlDemoId));
+		Integer waitlistId = Integer.parseInt(wlId);
+		Integer waitlistDemographicId = Integer.parseInt(wlDemoId);
+        List<WaitingList> waitingListList = waitingListDao.findByWaitingListIdAndDemographicId(waitlistId, waitlistDemographicId);
 
 		//check if patient has already added to the waiting list and check if the patient already has an appointment in the future
 		if(waitingListList.isEmpty()){
@@ -506,8 +507,13 @@
     String ip = request.getRemoteAddr();
     String user = (String)session.getAttribute("user");
     LogAction.addLog((String) session.getAttribute("user"), LogConst.UPDATE, LogConst.CON_DEMOGRAPHIC,  request.getParameter("demographic_no") , request.getRemoteAddr(),request.getParameter("demographic_no"));
+    
+}
+catch (NumberFormatException nfe) { 
+MiscUtils.getLogger().error("Either waitListId or demographicId is not a valid integer for the demographic");
 %>
-<p></p>
+<h1 style="color:red">The waitlist could not be updated while saving the demographic.</h1>
+<% } %>
 
 </center>
 </body>

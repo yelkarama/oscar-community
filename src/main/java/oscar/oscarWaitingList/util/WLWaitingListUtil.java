@@ -24,6 +24,8 @@
 
 package oscar.oscarWaitingList.util;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -49,7 +51,7 @@ public class WLWaitingListUtil {
 		rePositionWaitingList(waitingListID);
 	}
 
-	static public synchronized void add2WaitingList(String waitingListID, String waitingListNote, String demographicNo, String onListSince) {
+	static public synchronized void add2WaitingList(String waitingListID, String waitingListNote, String demographicNo, String onListSince) throws NumberFormatException, ParseException {
 		MiscUtils.getLogger().debug("WLWaitingListUtil.add2WaitingList(): adding to waitingList: " + waitingListID + " for patient " + demographicNo);
 
 		boolean emptyIds = waitingListID.equalsIgnoreCase("0") || demographicNo.equalsIgnoreCase("0");
@@ -57,26 +59,45 @@ public class WLWaitingListUtil {
 			MiscUtils.getLogger().debug("Ids are not proper - exiting");
 			return;
 		}
-
-		WaitingListDao dao = SpringUtils.getBean(WaitingListDao.class);
-		int maxPosition = dao.getMaxPosition(ConversionUtils.fromIntString(waitingListID));
-
-		WaitingList list = new WaitingList();
-		list.setListId(maxPosition);
-		list.setDemographicNo(ConversionUtils.fromIntString(demographicNo));
-		list.setNote(waitingListNote);
-		if (onListSince == null || onListSince.length() <= 0) {
-			list.setOnListSince(new Date());
-		} else {
-			list.setOnListSince(ConversionUtils.fromDateString(onListSince));
+		
+		try {
+			WaitingListDao dao = SpringUtils.getBean(WaitingListDao.class);
+			Long maxPosition = dao.getMaxPosition(Integer.parseInt(waitingListID));
+	
+			WaitingList list = new WaitingList();
+			
+			list.setListId(Integer.parseInt(waitingListID));
+			list.setDemographicNo(Integer.parseInt(demographicNo));
+			list.setNote(waitingListNote);
+			if (onListSince == null || onListSince.length() <= 0) {
+				list.setOnListSince(new Date());
+			} else {
+				list.setOnListSince(new SimpleDateFormat(ConversionUtils.DEFAULT_DATE_PATTERN).parse(onListSince));
+			}
+			list.setPosition(maxPosition + 1);
+			list.setHistory(false);
+	
+			dao.persist(list);
+	
+			// update the waiting list positions
+			rePositionWaitingList(waitingListID);
 		}
-		list.setPosition(maxPosition + 1);
-		list.setHistory(false);
-
-		dao.persist(list);
-
-		// update the waiting list positions
-		rePositionWaitingList(waitingListID);
+		catch (NumberFormatException nfe) {
+			//Caused by Integer.parseInt()
+			
+			//Logs the error
+			MiscUtils.getLogger().error("waitingListId or DemographicNo is not a valid Integer", nfe);
+			//Throws the NumberFormatException to the JSP to be handled
+			throw nfe;
+		}
+		catch (ParseException pe) {
+			//Caused by SimpleDateFormat's .parse()
+			
+			//Logs the error
+			MiscUtils.getLogger().error("onListSince is not a valid date with the format " + ConversionUtils.DEFAULT_DATE_PATTERN, pe);
+			//Throws the ParseException to the JSP to be handled 
+			throw pe;
+		}
 	}
 
 	/*
