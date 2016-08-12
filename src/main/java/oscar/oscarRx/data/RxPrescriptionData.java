@@ -163,6 +163,7 @@ public class RxPrescriptionData {
 		prescription.setQuantity(favorite.getQuantity());
 		prescription.setDispensingUnits(favorite.getDispensingUnits());
 		prescription.setRepeat(favorite.getRepeat());
+		prescription.setLongTerm(favorite.isLongTerm());
 		prescription.setNosubs(favorite.getNosubs());
 		prescription.setPrn(favorite.getPrn());
 		prescription.setSpecial(favorite.getSpecial());
@@ -470,7 +471,7 @@ public class RxPrescriptionData {
 	}
 
 	private Favorite toFavorite(org.oscarehr.common.model.Favorite f) {
-		Favorite result = new Favorite(f.getId(), f.getProviderNo(), f.getName(), f.getBn(), (int) f.getGcnSeqno(), f.getCustomName(), f.getTakeMin(), f.getTakeMax(), f.getFrequencyCode(), f.getDuration(), f.getDurationUnit(), f.getQuantity(), f.getDispensingUnits(), f.getRepeat(), f.isNosubs(), f.isPrn(), f.getSpecial(), f.getGn(), f.getAtc(), f.getRegionalIdentifier(), f.getUnit(), f.getUnitName(), f.getMethod(), f.getRoute(), f.getDrugForm(), f.isCustomInstructions(), f.getDosage());
+		Favorite result = new Favorite(f.getId(), f.getProviderNo(), f.getName(), f.getBn(), (int) f.getGcnSeqno(), f.getCustomName(), f.getTakeMin(), f.getTakeMax(), f.getFrequencyCode(), f.getDuration(), f.getDurationUnit(), f.getQuantity(), f.getDispensingUnits(), f.getRepeat(), f.isLongTerm(), f.isNosubs(), f.isPrn(), f.getSpecial(), f.getGn(), f.getAtc(), f.getRegionalIdentifier(), f.getUnit(), f.getUnitName(), f.getMethod(), f.getRoute(), f.getDrugForm(), f.isCustomInstructions(), f.getDosage());
 		return result;
 	}
 
@@ -1654,7 +1655,8 @@ public class RxPrescriptionData {
 			Favorite fav = new Favorite(0, providerNo, favoriteName, this.getBrandName(), this.getGCN_SEQNO(), this.getCustomName(), this.getTakeMin(), this.getTakeMax(), this.getFrequencyCode(), this.getDuration(), this.getDurationUnit(), this.getQuantity(), this.getDispensingUnits(), this.getRepeat(), this.getNosubsInt(), this.getPrnInt(), this.getSpecial(), this.getGenericName(), this.getAtcCode(), this.getRegionalIdentifier(), this.getUnit(), this.getUnitName(), this.getMethod(), this.getRoute(), this.getDrugForm(),
 			        this.getCustomInstr(), this.getDosage());
 			fav.setDispenseInternal(this.getDispenseInternal());
-
+			fav.setLongTerm(this.getLongTerm());
+			
 			return fav.Save();
 		}
 
@@ -1875,6 +1877,7 @@ public class RxPrescriptionData {
 		String quantity;
 		String dispensingUnits;
 		int repeat;
+		boolean longTerm;
 		boolean nosubs;
 		boolean prn;
 		boolean customInstr;
@@ -1918,6 +1921,11 @@ public class RxPrescriptionData {
 			this.drugForm = drugForm;
 			this.customInstr = customInstr;
 			this.dosage = dosage;
+		}
+		
+		public Favorite(int favoriteId, String providerNo, String favoriteName, String BN, int GCN_SEQNO, String customName, float takeMin, float takeMax, String frequencyCode, String duration, String durationUnit, String quantity, String dispensingUnits, int repeat, Boolean longTerm, boolean nosubs, boolean prn, String special, String GN, String atc, String regionalIdentifier, String unit, String unitName, String method, String route, String drugForm, boolean customInstr, String dosage) {
+			this(favoriteId, providerNo, favoriteName, BN, GCN_SEQNO, customName, takeMin, takeMax, frequencyCode, duration, durationUnit, quantity, dispensingUnits, repeat, nosubs, prn, special, GN, atc, regionalIdentifier, unit, unitName, method, route, drugForm, customInstr, dosage);
+			this.longTerm = longTerm;
 		}
 
 		public Favorite(int favoriteId, String providerNo, String favoriteName, String BN, int GCN_SEQNO, String customName, float takeMin, float takeMax, String frequencyCode, String duration, String durationUnit, String quantity, String dispensingUnits, int repeat, boolean nosubs, boolean prn, String special, String GN, String atc, String regionalIdentifier, String unit, String unitName, String method, String route, String drugForm, boolean customInstr, String dosage) {
@@ -2070,6 +2078,14 @@ public class RxPrescriptionData {
 			this.repeat = RHS;
 		}
 
+		public boolean isLongTerm() {
+			return longTerm;
+		}
+
+		public void setLongTerm(boolean longTerm) {
+			this.longTerm = longTerm;
+		}
+
 		public boolean getNosubs() {
 			return this.nosubs;
 		}
@@ -2186,6 +2202,7 @@ public class RxPrescriptionData {
 			f.setQuantity(this.getQuantity());
 			f.setDispensingUnits(this.getDispensingUnits());
 			f.setRepeat(this.getRepeat());
+			f.setLongTerm(this.isLongTerm());
 			f.setNosubs(this.getNosubsInt() != 0);
 			f.setPrn(this.getPrnInt() != 0);
 			f.setSpecial(this.getSpecial());

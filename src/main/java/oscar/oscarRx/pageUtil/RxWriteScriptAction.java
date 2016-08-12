@@ -280,7 +280,100 @@ public final class RxWriteScriptAction extends DispatchAction {
 
 		return null;
 	}
+	
+	public ActionForward addUnits(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException, NumberFormatException {
+		checkPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), PRIVILEGE_WRITE);
+		
+		oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBean) request.getSession().getAttribute("RxSessionBean");
+		if (bean == null) {
+			response.sendRedirect("error.html");
+			return null;
+		}
+		try {
+			String randomId = request.getParameter("randomId");
+			String unit = request.getParameter("unit");
+			RxPrescriptionData.Prescription rx = bean.getStashItem2(Integer.parseInt(randomId));
+			if (rx == null) {
+				logger.error("rx is null", new NullPointerException());
+				return null;
+			}
+			rx.setDispensingUnits(unit);
 
+			bean.setStashItem(bean.getIndexFromRx(Integer.parseInt(randomId)), rx);
+
+		} catch (NumberFormatException nfe) {
+			logger.error("An error has occured while updating the RxSessionBean.  The randomId is not a valid Integer.", nfe);
+			throw nfe;
+		}
+
+		return null;
+	}
+
+	public ActionForward addRepeats(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException, NumberFormatException {
+		checkPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), PRIVILEGE_WRITE);
+		
+		oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBean) request.getSession().getAttribute("RxSessionBean");
+		if (bean == null) {
+			response.sendRedirect("error.html");
+			return null;
+		}
+		try {
+			String randomId = request.getParameter("randomId");
+			String repeats = request.getParameter("repeats");
+			//Checks if repeats is null or is a blank string, if so then gives it a string of 0 so it passes parsing and can be stored
+			if (repeats == null || repeats.equals("")) {
+				repeats = "0";
+			}
+			
+			RxPrescriptionData.Prescription rx = bean.getStashItem2(Integer.parseInt(randomId));
+			if (rx == null) {
+				logger.error("rx is null", new NullPointerException());
+				return null;
+			}
+			//Sets the repeats into the RX
+			rx.setRepeat(Integer.parseInt(repeats));
+
+			bean.setStashItem(bean.getIndexFromRx(Integer.parseInt(randomId)), rx);
+
+		} catch (NumberFormatException nfe) {
+			logger.error("An error has occured updating the RxSessionBean.  Either the randomId or the repeats are not valid Integers.", nfe);
+			throw nfe;
+		}
+
+		return null;
+	}
+	
+	public ActionForward toggleLongTerm(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException, NumberFormatException {
+		checkPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), PRIVILEGE_WRITE);
+		
+		oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBean) request.getSession().getAttribute("RxSessionBean");
+		if (bean == null) {
+			response.sendRedirect("error.html");
+			return null;
+		}
+		try {
+			String randomId = request.getParameter("randomId");
+			//Tries to get longTerm from the parameter
+			Boolean longTerm =  Boolean.parseBoolean(request.getParameter("longTerm"));
+
+			RxPrescriptionData.Prescription rx = bean.getStashItem2(Integer.parseInt(randomId));
+			if (rx == null) {
+				logger.error("rx is null", new NullPointerException());
+				return null;
+			}
+			//Sets the longTerm into the RX
+			rx.setLongTerm(longTerm);
+
+			bean.setStashItem(bean.getIndexFromRx(Integer.parseInt(randomId)), rx);
+
+		} catch (NumberFormatException nfe) {
+			logger.error("An error has occured updating the RxSessionBean.  The randomId is not a valid Integers.", nfe);
+			throw nfe;
+		}
+
+		return null;
+	}
+	
 	private void setDefaultQuantity(final HttpServletRequest request) {
 		try {
 			WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(request.getSession().getServletContext());
