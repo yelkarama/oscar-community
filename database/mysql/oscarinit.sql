@@ -966,6 +966,7 @@ CREATE TABLE favorites (
   quantity varchar(20) default NULL,
   dispensingUnits VARCHAR(20),
   `repeat` tinyint(4) default NULL,
+  longTerm boolean,
   nosubs tinyint(1) NOT NULL default '0',
   prn tinyint(1) NOT NULL default '0',
   special varchar(255) NOT NULL default '',
