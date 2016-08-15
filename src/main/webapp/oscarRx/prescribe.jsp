@@ -195,8 +195,8 @@ if(listRxDrugs!=null){
         </div>
 
         <label id="labelQuantity_<%=rand%>"  style="float:left;width:80px;">Qty/Mitte:</label><input <%if(rx.isCustomNote()){%> disabled <%}%> type="text" id="quantity_<%=rand%>"     name="quantity_<%=rand%>"     value="<%=quantityText%>" onblur="updateQty(this);" />
-        <label style="">Units:</label><input type="text" size="5" id="dispensingUnits_<%=rand%>"  <%if(rx.isCustomNote()){%> disabled <%}%> name="dispensingUnits_<%=rand%>" value="<%=dispensingUnits%>" />
-        <label style="">Repeats:</label><input type="text" id="repeats_<%=rand%>"  <%if(rx.isCustomNote()){%> disabled <%}%>    name="repeats_<%=rand%>"   value="<%=repeats%>" />
+        <label style="">Units:</label><input type="text" size="5" id="dispensingUnits_<%=rand%>" onblur="addUnits(this);" maxlength="20" <%if(rx.isCustomNote()){%> disabled <%}%> name="dispensingUnits_<%=rand%>" value="<%=dispensingUnits%>" />
+        <label style="">Repeats:</label><input type="text" id="repeats_<%=rand%>" onblur="addRepeats(this);" <%if(rx.isCustomNote()){%> disabled <%}%>    name="repeats_<%=rand%>"   value="<%=repeats%>" />
 
         <input  type="checkbox" id="longTerm_<%=rand%>"  name="longTerm_<%=rand%>" <%if(longTerm) {%> checked="true" <%}%> >Long Term Med </input>
         <%if(genericName!=null&&!genericName.equalsIgnoreCase("null")){%>
@@ -358,10 +358,10 @@ if(listRxDrugs!=null){
         </div>
 
         <label id="labelQuantity_<%=rand%>"  style="float:left;width:80px;">Qty/Mitte:</label><input <%if(rx.isCustomNote()){%> disabled <%}%> type="text" id="quantity_<%=rand%>"     name="quantity_<%=rand%>"     value="<%=quantityText%>" onblur="updateQty(this);" />
-        <label style="">Units:</label><input type="text" size="10" id="dispensingUnits_<%=rand%>"  <%if(rx.isCustomNote()){%> disabled <%}%> name="dispensingUnits_<%=rand%>" value="<%=dispensingUnits%>" />
-        <label style="">Repeats:</label><input type="text" id="repeats_<%=rand%>"  <%if(rx.isCustomNote()){%> disabled <%}%>    name="repeats_<%=rand%>"   value="<%=repeats%>" />
+        <label style="">Units:</label><input type="text" size="10" id="dispensingUnits_<%=rand%>" onblur="addUnits(this);" maxlength="20" <%if(rx.isCustomNote()){%> disabled <%}%> name="dispensingUnits_<%=rand%>" value="<%=dispensingUnits%>" />
+        <label style="">Repeats:</label><input type="text" id="repeats_<%=rand%>" onblur="addRepeats(this);" <%if(rx.isCustomNote()){%> disabled <%}%>    name="repeats_<%=rand%>"   value="<%=repeats%>" />
 
-        <input  type="checkbox" id="longTerm_<%=rand%>"  name="longTerm_<%=rand%>" <%if(longTerm) {%> checked="true" <%}%> />Long Term Med
+        <input  type="checkbox" id="longTerm_<%=rand%>"  name="longTerm_<%=rand%>" <%if(longTerm) {%> checked="true" <%}%> onchange="toggleLongTerm(this);" />Long Term Med
         <%if(genericName!=null&&!genericName.equalsIgnoreCase("null")){%>
         <div><a>Ingredient:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<%=genericName%></a></div><%}%>
        <div class="rxStr" title="not what you mean?" >

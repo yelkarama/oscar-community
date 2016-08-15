@@ -2199,6 +2199,42 @@ function updateQty(element){
         return true;
     }
 
+    function addUnits(element) {
+    	var elemId= element.id;
+        var ar= elemId.split("_");
+        var rand= ar[1];
+        var url= ctx + "/oscarRx/WriteScript.do?parameterValue=addUnits";
+        var data="unit=" + encodeURIComponent(element.value) + "&randomId="+rand;
+        new Ajax.Request(url, {method: 'get', parameters:data, onFailure:function(error){
+        	alert("An error has occured while updating the units");
+        }});
+        return true;
+    }
+    
+    function addRepeats(element) {
+    	var elemId= element.id;
+        var ar= elemId.split("_");
+        var rand= ar[1];
+        var url= ctx + "/oscarRx/WriteScript.do?parameterValue=addRepeats";
+        var data="repeats=" + encodeURIComponent(element.value) + "&randomId="+rand;
+        new Ajax.Request(url, {method: 'get', parameters:data, onFailure:function(error) {
+        	alert("An error has occurred while updating the repeats.");
+        }});
+        return true;
+    }
+    
+    function toggleLongTerm(element) {
+    	var elemId= element.id;
+        var ar= elemId.split("_");
+        var rand= ar[1];
+        var url= ctx + "/oscarRx/WriteScript.do?parameterValue=toggleLongTerm";
+        var data="longTerm=" + encodeURIComponent(element.checked) + "&randomId="+rand;
+        new Ajax.Request(url, {method: 'get', parameters:data, onFailure:function(error) {
+        	alert("An error has occurred while updating the long term.");
+        }});
+        return true;
+    }
+    
     function addLuCode(eleId,luCode){
         $(eleId).value = $(eleId).value +" LU Code: "+luCode;
     }

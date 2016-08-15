@@ -75,6 +75,8 @@ public class Favorite extends AbstractModel<Integer> {
 
 	@Column(name="`repeat`")
 	private int repeat;
+	
+	private Boolean longTerm = false;
 
 	private boolean nosubs;
 
@@ -220,6 +222,19 @@ public class Favorite extends AbstractModel<Integer> {
 	public void setRepeat(int repeat) {
     	this.repeat = repeat;
     }
+	
+	public Boolean isLongTerm() {
+		//If longTerm is null, make it false before returning it
+		if (longTerm == null) {
+			longTerm = false;
+		}
+		
+		return longTerm;
+	}
+
+	public void setLongTerm(Boolean longTerm) {
+		this.longTerm = longTerm;
+	}
 
 	public boolean isNosubs() {
     	return nosubs;
