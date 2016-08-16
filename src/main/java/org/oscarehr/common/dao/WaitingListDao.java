@@ -120,12 +120,12 @@ public class WaitingListDao extends AbstractDao<WaitingList> {
 	 * @return
 	 * 		Returns the position for the specified list.
 	 */
-	public Integer getMaxPosition(Integer listId) {
+	public Long getMaxPosition(Integer listId) {
 		Query query = entityManager.createQuery("select max(w.position) from WaitingList w where w.listId = :listId AND w.isHistory = 'N'");
 		query.setParameter("listId", listId);
-		Integer result = (Integer) query.getSingleResult();
+		Long result = (Long) query.getSingleResult();
 		if (result == null) {
-			return 0;
+			return 0L;
 		} 
 		return result;
     }

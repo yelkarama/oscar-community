@@ -33,6 +33,7 @@ import org.oscarehr.common.model.Appointment;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.WaitingList;
 import org.oscarehr.common.model.WaitingListName;
+import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
 import oscar.oscarWaitingList.util.WLWaitingListUtil;
@@ -70,7 +71,17 @@ public class WLWaitingListBeanHandler {
 
 		if (waitingListID != null && waitingListID.length() > 0) {
 			WaitingListNameDao nameDao = SpringUtils.getBean(WaitingListNameDao.class);
-			WaitingListName name = nameDao.find(waitingListID);
+			WaitingListName name = null;
+			
+			try {
+				//Parses the ID into an int and tries to find the waiting list.
+				name = nameDao.find(Integer.parseInt(waitingListID));
+			}
+			catch (NumberFormatException nfe) {
+				//Displays an error if the parsing fails
+				MiscUtils.getLogger().error("Waiting List Id is not an integer", nfe);
+			}
+			
 			if (name != null) {
 				waitingListName = name.getName();
 			}

@@ -28,6 +28,7 @@
   if(session.getValue("user") == null) response.sendRedirect("../../logout.jsp");
 %>
 <%@ page import="java.sql.*, java.util.*, oscar.oscarWaitingList.util.*"%>
+<%@ page import="java.text.ParseException" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
@@ -36,8 +37,19 @@
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title></title>
 <%
-    WLWaitingListUtil.add2WaitingList(request.getParameter("listId"), request.getParameter("waitingListNote"), request.getParameter("demographicNo"), request.getParameter("onListSince"));
-    response.sendRedirect("../demographic/demographiccontrol.jsp?demographic_no=" + request.getParameter("demographicNo") + "&displaymode=edit&dboperation=search_detail");    
+	String errorMessage = "";
+
+	try {
+		WLWaitingListUtil.add2WaitingList(request.getParameter("listId"), request.getParameter("waitingListNote"), request.getParameter("demographicNo"), request.getParameter("onListSince"));
+	    response.sendRedirect("../demographic/demographiccontrol.jsp?demographic_no=" + request.getParameter("demographicNo") + "&displaymode=edit&dboperation=search_detail");	
+	}
+	catch (NumberFormatException nfe) {
+		errorMessage = "An error has occured while adding the user to a waiting list.  The selected list id or demographic number are not valid";
+	}
+	catch (ParseException pe) {
+		errorMessage = "An error has occured while adding the user to a waiting list.  The Date of Request is not a valid date.";
+	}
+        
 %>
 
 
@@ -54,7 +66,7 @@
 	</tr>
 </table>
 
-
+<strong><%=errorMessage%></strong>
 
 
 </body>

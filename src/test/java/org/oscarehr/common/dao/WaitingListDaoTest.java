@@ -106,7 +106,7 @@ public class WaitingListDaoTest extends DaoTestFixtures {
 	
 	@Test
 	public void testMaxPosition() {
-		Integer i = dao.getMaxPosition(1);
+		Long i = dao.getMaxPosition(1);
 		assertNotNull(i);
 	}
 	
