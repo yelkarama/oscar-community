@@ -2845,9 +2845,6 @@
             		<forward name="success" path="/billing/CA/ON/billingLreport.jsp" />
 			<forward name="failure" path="/billing/CA/ON/billingLreport.jsp" />
 		</action> 			
-		<action input="/billing/CA/ON/viewMOHFiles.jsp" scope="request" path="/billing/CA/ON/moveMOHFiles" type="org.oscarehr.billing.CA.ON.web.ArchiveMOHFileAction">
-			<forward name="showInbox" path="/billing/CA/ON/viewMOHFiles.jsp" />
-		</action>
 		<action input="/billing/CA/ON/billingON3rdInv.jsp" name="FrmForm" path="/billing/ca/on/DisplayInvoiceLogo" scope="request" type="org.oscarehr.billing.CA.ON.util.DisplayInvoiceLogo"></action>
 
 	</action-mappings>
