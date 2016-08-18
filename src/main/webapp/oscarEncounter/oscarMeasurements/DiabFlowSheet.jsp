@@ -989,7 +989,13 @@ String date = year+"-"+month+"-"+day;
 		           				if (alist.get(x) != null && alist.get(x).getDataField() != null && !alist.get(x).getDataField().equals("")) {
 			           				String[] parsed = alist.get(x).getDataField().split("/");
 			           				first.add(parsed[0]);
-			           				second.add(parsed[1]);
+			           				
+			           				if (parsed.length == 2) {
+			           					second.add(parsed[1]);
+			           				}
+			           				else {
+			           					second.add("");
+			           				}
 		           				} else {
 		           					first.add("null");
 		           					second.add("null");
