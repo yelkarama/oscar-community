@@ -37,6 +37,10 @@ public class BillingRAPrep {
 		List ret = dbObj.getProviderListFromRAReport(raNo);
 		return ret;
 	}
+	
+	public List<Properties> getRAErrorReport(String raNo, String[] notErrorCode) {
+		return getRAErrorReport(raNo, null, notErrorCode);
+	}
 
 	public List<Properties> getRAErrorReport(String raNo, String providerOhipNo, String[] notErrorCode) {
 		List<Properties> ret = dbObj.getRAErrorReport(raNo, providerOhipNo, notErrorCode);
@@ -47,14 +51,17 @@ public class BillingRAPrep {
 		List<String> ret = dbObj.getRABillingNo4Code(raNo, codes);
 		return ret;
 	}
+	public List getRASummary(String raNo, List OBbilling_no, List CObilling_no) {
+		return getRASummary(raNo, null, OBbilling_no, CObilling_no,null); 
+	}
 
-        public List getRASummary(String raNo, String providerOhipNo, List OBbilling_no, List CObilling_no) {
+	public List getRASummary(String raNo, String providerOhipNo, List OBbilling_no, List CObilling_no) {
 	   return getRASummary(raNo, providerOhipNo, OBbilling_no, CObilling_no,null); 
-        }
+    }
         
 	public List getRASummary(String raNo, String providerOhipNo, List OBbilling_no, List CObilling_no,Map map) {
 		List rett = new Vector();
-		List ret = dbObj.getRASummary(raNo, providerOhipNo);
+		List ret = (providerOhipNo == null) ? dbObj.getRASummary(raNo) : dbObj.getRASummary(raNo, providerOhipNo);
 		double dCFee = 0.0;
 		double dPFee = 0.0;
 		BigDecimal BigCTotal = new BigDecimal(0.).setScale(2, BigDecimal.ROUND_HALF_UP);
