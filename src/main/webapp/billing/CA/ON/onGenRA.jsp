@@ -58,6 +58,7 @@ String xml_ra="";
 
 int accountno=0, totalsum=0, txFlag=0, recFlag=0, flag=0, payFlag=0, count=0, tCount=0, amountPaySum=0, amountSubmitSum=0;
 String raNo = "";
+String proNo = "";
 
 ResultSet rslocal;
 filename = documentBean.getFilename();
@@ -160,9 +161,9 @@ for(int i = 0; i < aL.size(); i++) {
 		<td align="center"><%=strcount%>/<%=strtCount%></td>
 		<td align="right"><%=total%></td>
 		<td align="center"><a
-			href="../billing/CA/ON/onGenRAError.jsp?rano=<%=raNo%>&proNo="
+			href="../billing/CA/ON/onGenRAError.jsp?rano=<%=raNo%>&proNo=<%=proNo%>"
 			target="_blank">Error</a> | <a
-			href="../billing/CA/ON/onGenRASummary.jsp?rano=<%=raNo%>&proNo="
+			href="../billing/CA/ON/onGenRASummary.jsp?rano=<%=raNo%>&proNo=<%=proNo%>"
 			target="_blank">Summary</a>| <a
 			href="../billing/CA/ON/genRADesc.jsp?rano=<%=raNo%>" target="_blank">Report
 		</a></td>

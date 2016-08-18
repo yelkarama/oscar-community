@@ -401,6 +401,10 @@ public class JdbcBillingRAImpl {
 
 		return ret;
 	}
+	
+	public List<Properties> getRAErrorReport(String raNo, String[] notErrorCode) {
+		return getRAErrorReport(raNo, null, notErrorCode);
+	}
 
 	public List<Properties> getRAErrorReport(String raNo, String providerOhipNo, String[] notErrorCode) {
 		List<Properties> ret = new ArrayList<Properties>();
@@ -409,7 +413,9 @@ public class JdbcBillingRAImpl {
 		BillingONCHeader1Dao billingDao = SpringUtils.getBean(BillingONCHeader1Dao.class);
 
 		try {
-			for (Integer billingNo : dao.findDistinctIdOhipWithError(ConversionUtils.fromIntString(raNo), providerOhipNo, Arrays.asList(notErrorCode))) {
+			List<Integer> billingErrorNo = (providerOhipNo == null) ? dao.findDistinctIdWithError(ConversionUtils.fromIntString(raNo), Arrays.asList(notErrorCode))
+																	: dao.findDistinctIdOhipWithError(ConversionUtils.fromIntString(raNo), providerOhipNo, Arrays.asList(notErrorCode));
+			for (Integer billingNo : billingErrorNo) {
 				String account = "" + billingNo;
 				String demoLast = "";
 				String billingDate = "";
@@ -470,6 +476,10 @@ public class JdbcBillingRAImpl {
 
 		return new ArrayList<String>(ret);
 	}
+	
+	public List<Properties> getRASummary(String id) {
+		return getRASummary(id, null);
+	}
 
 	public List<Properties> getRASummary(String id, String providerOhipNo) {
 		List<Properties> ret = new ArrayList<Properties>();
@@ -477,7 +487,9 @@ public class JdbcBillingRAImpl {
 		RaDetailDao dao = SpringUtils.getBean(RaDetailDao.class);
 		BillingONCHeader1Dao billingDao = SpringUtils.getBean(BillingONCHeader1Dao.class);
 		try {
-			for (RaDetail r : dao.findByRaHeaderNoAndProviderOhipNo(ConversionUtils.fromIntString(id), providerOhipNo)) {
+			List<RaDetail> raDetails = (providerOhipNo == null) ? dao.findByRaHeaderNo(ConversionUtils.fromIntString(id)) 
+																: dao.findByRaHeaderNoAndProviderOhipNo(ConversionUtils.fromIntString(id), providerOhipNo);
+			for (RaDetail r : raDetails) {
 				String account = "" + r.getBillingNo();
 				String location = "";
 				String demo_name = "";

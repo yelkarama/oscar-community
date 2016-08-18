@@ -101,7 +101,7 @@ BigDecimal bdLocalHFee = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP)
 BigDecimal BigLocalHTotal = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);
 String localServiceDate = "";
        	
-proNo = request.getParameter("proNo");
+proNo = (request.getParameter("proNo") != null) ? request.getParameter("proNo") : "";
 //raNo = request.getParameter("rano");
 if (raNo.compareTo("") == 0 || raNo == null){
 	flag = "0";
@@ -142,94 +142,6 @@ for(int i=0; i<aL.size(); i++) {
 	</form>
 </table>
 
-
-<% 
-	if (proNo == null || proNo.compareTo("") == 0 || proNo.compareTo("all") == 0){ 
-%>
-<table width="100%" border="1" cellspacing="0" cellpadding="0"
-	class="myIvory">
-	<tr class="myYellow">
-		<td width="7%" height="16">Billing No</td>
-		<td width="7%" height="16">Provider</td>
-		<td width="15%" height="16">Patient</td>
-		<td width="7%" height="16">HIN</td>
-		<td width="10%" height="16">Service Date</td>
-		<td width="7%" height="16">Service Code</td>
-		<!-- <td width="8%" height="16">Count</td> -->
-		<td width="7%" height="16" align=right>Invoiced</td>
-		<td width="7%" height="16" align=right>Paid</td>
-		<td width="7%" height="16" align=right>Clinic Pay</td>
-		<td width="7%" height="16" align=right>Hospital Pay</td>
-		<td width="7%" height="16" align=right>OB</td>
-		<td width="5%" height="16" align=right>Error</td>
-	</tr>
-
-	<%
-
-%>
-
-	<tr>
-		<td height="16"><%=account%></td>
-		<td height="16"><%=demo_docname%></td>
-		<td height="16"><%=demo_name%></td>
-		<td height="16"><%=demo_hin%></td>
-		<td height="16"><%=servicedate%></td>
-		<td height="16"><%=servicecode%></td>
-		<!-- <td width="8%" height="16"><%=serviceno%></td>-->
-		<td height="16" align=right><%=amountsubmit%></td>
-		<td height="16" align=right><%=amountpay%></td>
-		<td height="16" align=right>N/A</td>
-		<td height="16" align=right><%=amountpay%></td>
-		<td height="16" align=right><%=amountOB%></td>
-		<td height="16" align=right><%=explain%></td>
-	</tr>
-
-
-	<tr>
-		<td height="16"><%=account%></td>
-		<td height="16"><%=demo_docname%></td>
-		<td height="16"><%=demo_name%></td>
-		<td height="16"><%=demo_hin%></td>
-		<td height="16"><%=servicedate%></td>
-		<td height="16"><%=servicecode%></td>
-		<!-- <td width="8%" height="16"><%=serviceno%></td>-->
-		<td height="16" align=right><%=amountsubmit%></td>
-		<td height="16" align=right><%=amountpay%></td>
-		<td height="16" align=right><%=amountpay%></td>
-		<td height="16" align=right>N/A</td>
-		<td height="16" align=right><%=amountOB%></td>
-		<td height="16" align=right><%=explain%></td>
-	</tr>
-
-	<%/*
-			} else { // other fee
-				dOFee = Double.parseDouble(amountpay);
-				bdOFee = new BigDecimal(dOFee).setScale(2, BigDecimal.ROUND_HALF_UP);
-				BigOTotal = BigOTotal.add(bdOFee);
-*/
-%>
-	<tr>
-		<td height="16"><%=account%></td>
-		<td height="16"><%=demo_docname%></td>
-		<td height="16"><%=demo_name%></td>
-		<td height="16"><%=demo_hin%></td>
-		<td height="16"><%=servicedate%></td>
-		<td height="16"><%=servicecode%></td>
-		<!-- <td width="8%" height="16"><%=serviceno%></td>-->
-		<td height="16" align=right><%=amountsubmit%></td>
-		<td height="16" align=right><%=amountpay%></td>
-		<td height="16" align=right>N/A</td>
-		<td height="16" align=right>N/A</td>
-		<td height="16" align=right><%=amountOB%></td>
-		<td height="16" align=right><%=explain%></td>
-	</tr>
-	<%
-//			}
-//		}
-//	}	 
-} else { // raNo for all providers
-%>
-
 	<table id="ra_table" width="100%" border="0" cellspacing="1" cellpadding="0"
 		class="myIvory">
 		<tr class="myYellow">
@@ -251,33 +163,38 @@ for(int i=0; i<aL.size(); i++) {
 			<th width="0" align=right style="display:none">Site</th>			
 		</tr>
 
-		<%
+<%
+if (proNo == null || proNo.compareTo("") == 0 || proNo.compareTo("all") == 0) // raNo for all providers
+	aL = obj.getRASummary(raNo, OBbilling_no, CObilling_no);
+else
 	aL = obj.getRASummary(raNo, proNo, OBbilling_no, CObilling_no,map);
-	for(int i=0; i<aL.size()-1; i++) { //to use table-filter js to generate the sum - so the total-1
-		Properties prop = (Properties) aL.get(i);
-		String color = i%2==0? "class='myGreen'":"";
-		color = i == (aL.size()-1) ? "class='myYellow'" : color;
-%>
-		<tr <%=color %>>
-			<td align="center"><%=prop.getProperty("account", "&nbsp;")%></td>
-			<td align="center"><%=prop.getProperty("claimNo", "&nbsp;")%></td>
-			<!--  >td><%=prop.getProperty("demo_docname", "&nbsp;")%></td -->
-			<td><%=prop.getProperty("demo_name", "&nbsp;")%></td>
-			<td align="center"><%=prop.getProperty("demo_doc", "&nbsp;")%></td>
-			<td align="center"><%=prop.getProperty("demo_hin", "&nbsp;")%></td>
-			<td align="center"><%=prop.getProperty("servicedate", "&nbsp;")%></td>
-			<td align="center"><%=prop.getProperty("servicecode", "&nbsp;")%></td>
-			<!--<td width="8%"><%=serviceno%></td>-->
-			<td align=right><%=prop.getProperty("amountsubmit", "&nbsp;")%></td>
-			<td align=right><%=prop.getProperty("amountpay", "&nbsp;")%></td>
-			<td align=right><%=prop.getProperty("clinicPay", "&nbsp;")%></td>
-			<td align=right><%=prop.getProperty("hospitalPay", "&nbsp;")%></td>
-			<td align=right><%=prop.getProperty("obPay", "&nbsp;")%></td>
-			<td align=right><%=prop.getProperty("explain", "&nbsp;")%></td>
-			<td width="0" style="display:none"><%=prop.getProperty("site", "")%></td>			
-		</tr>
 
-		<% } }
+
+for(int i=0; i<aL.size()-1; i++) { //to use table-filter js to generate the sum - so the total-1
+	Properties prop = (Properties) aL.get(i);
+	String color = i%2==0? "class='myGreen'":"";
+	color = i == (aL.size()-1) ? "class='myYellow'" : color;
+%>
+	<tr <%=color %>>
+		<td align="center"><%=prop.getProperty("account", "&nbsp;")%></td>
+		<td align="center"><%=prop.getProperty("claimNo", "&nbsp;")%></td>
+		<!--  >td><%=prop.getProperty("demo_docname", "&nbsp;")%></td -->
+		<td><%=prop.getProperty("demo_name", "&nbsp;")%></td>
+		<td align="center"><%=prop.getProperty("demo_doc", "&nbsp;")%></td>
+		<td align="center"><%=prop.getProperty("demo_hin", "&nbsp;")%></td>
+		<td align="center"><%=prop.getProperty("servicedate", "&nbsp;")%></td>
+		<td align="center"><%=prop.getProperty("servicecode", "&nbsp;")%></td>
+		<!--<td width="8%"><%=serviceno%></td>-->
+		<td align=right><%=prop.getProperty("amountsubmit", "&nbsp;")%></td>
+		<td align=right><%=prop.getProperty("amountpay", "&nbsp;")%></td>
+		<td align=right><%=prop.getProperty("clinicPay", "&nbsp;")%></td>
+		<td align=right><%=prop.getProperty("hospitalPay", "&nbsp;")%></td>
+		<td align=right><%=prop.getProperty("obPay", "&nbsp;")%></td>
+		<td align=right><%=prop.getProperty("explain", "&nbsp;")%></td>
+		<td width="0" style="display:none"><%=prop.getProperty("site", "")%></td>			
+	</tr>
+
+<% } 
 }
 %>
 <!-- added another TR for table-filter js to automatically calculate totals based on filters -->
