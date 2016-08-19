@@ -941,26 +941,12 @@ public class JdbcBillingCreateBillingFile {
 		}
 	}
 
-	// write OHIP file to it, default to current year
+	// write OHIP file to it
 	public void writeFile(String value1) {
-		String year = Integer.toString(GregorianCalendar.getInstance().get(java.util.Calendar.YEAR));
-		writeFile(value1, year);
-	}
-	
-	// write OHIP file to it, given a year
-	public void writeFile(String value1, String year) {
 		try {
 			String home_dir;
-			String output_dir;
 			home_dir = OscarProperties.getInstance().getProperty("HOME_DIR");
-			output_dir = home_dir + year + "/";
-			
-			File directory = new File(String.valueOf(output_dir));
-			if (! directory.exists()){
-				directory.mkdir();
-			}
-			
-			FileOutputStream out = new FileOutputStream(output_dir + ohipFilename);
+			FileOutputStream out = new FileOutputStream(home_dir + ohipFilename);
 			PrintStream p = new PrintStream(out);
 			p.println(value1);
 
@@ -972,25 +958,13 @@ public class JdbcBillingCreateBillingFile {
 	}
 
 	// get path from the property file, e.g.
-	// OscarDocument/.../billing/download/, and then write to it, default to current year
+	// OscarDocument/.../billing/download/, and then write to it
 	public void writeHtml(String htmlvalue1) {
-		String year = Integer.toString(GregorianCalendar.getInstance().get(java.util.Calendar.YEAR));
-		writeHtml(htmlvalue1, year);
-	}
-	
-	public void writeHtml(String htmlvalue1, String year) {
 		try {
-			String home_dir;
-			String output_dir;
-			home_dir = OscarProperties.getInstance().getProperty("HOME_DIR");
-			output_dir = home_dir + year + "/";
-			
-			File directory = new File(String.valueOf(output_dir));
-			if (! directory.exists()){
-				directory.mkdir();
-			}
-			
-			FileOutputStream out1 = new FileOutputStream(output_dir + htmlFilename);
+			String home_dir1;
+			home_dir1 = OscarProperties.getInstance().getProperty("HOME_DIR");
+
+			FileOutputStream out1 = new FileOutputStream(home_dir1 + htmlFilename);
 			PrintStream p1 = new PrintStream(out1);
 			p1.println(htmlvalue1);
 
