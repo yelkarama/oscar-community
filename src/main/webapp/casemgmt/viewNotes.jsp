@@ -92,7 +92,7 @@
                 <input type="hidden" id="<c:out value="${param.cmd}"/><nested:write name="note" property="id"/>" value="<nested:write name="noteIdx"/>">
 		<% if( noteIdx % 2 == 0 ) { %>
 		<li class="cpp"
-			style="clear: both; whitespace: nowrap; background-color: #F3F3F3;">
+			style="clear: both; white-space: normal; background-color: #F3F3F3;">
 		<%}else {%>
 		
 		<li class="cpp" style="clear: both; white-space: normal;">
