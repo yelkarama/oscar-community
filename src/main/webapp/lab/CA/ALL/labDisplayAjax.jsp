@@ -796,6 +796,9 @@ if (request.getAttribute("printError") != null && (Boolean) request.getAttribute
     								isSGorCDC = true;
     							}
     						}
+							if (handler.getMsgType().equals("MEDITECH")) {
+								isUnstructuredDoc = ((MEDITECHHandler) handler).isUnstructured();
+							}
 		                       %><table style="page-break-inside:avoid;" bgcolor="#003399" border="0" cellpadding="0" cellspacing="0" width="100%">
 	                           <tr>
 	                               <td colspan="4" height="7">&nbsp;</td>
@@ -812,7 +815,9 @@ if (request.getAttribute("printError") != null && (Boolean) request.getAttribute
 	                               <td width="*">&nbsp;</td>
 	                           </tr>
 	                       </table>
-                           	<%if(isUnstructuredDoc){%>
+							<% if (handler.getMsgType().equals("MEDITECH")){ %>
+								<table width="100%" border="0" cellspacing="0" cellpadding="2" bgcolor="#CCCCFF" bordercolor="#9966FF" bordercolordark="#bfcbe3" name="tblDiscs" id="tblDiscs">
+							<% } else if(isUnstructuredDoc){%>
 	                       <table width="100%" border="0" cellspacing="0" cellpadding="2" bgcolor="#CCCCFF" bordercolor="#9966FF" bordercolordark="#bfcbe3" name="tblDiscs" id="tblDiscs">
 	                           <tr class="Field2">
 	                               <td width="20%" align="middle" valign="bottom" class="Cell"><bean:message key="oscarMDS.segmentDisplay.formTestName"/></td>
@@ -849,7 +854,7 @@ if (request.getAttribute("printError") != null && (Boolean) request.getAttribute
 											}
 									}
                                      boolean b2 = !obxName.equals(""), b3=handler.getObservationHeader(j, k).equals(headers.get(i));
-                                    if (handler.getMsgType().equals("EPSILON")) {
+                                     if (handler.getMsgType().equals("EPSILON") || handler.getMsgType().equals("MEDITECH")) {
                                     	b2=true; b3=true;
                                     } else if(handler.getMsgType().equals("PFHT") || handler.getMsgType().equals("HHSEMR")) {
                                     	b2=true;
@@ -923,9 +928,13 @@ if (request.getAttribute("printError") != null && (Boolean) request.getAttribute
 				                                        <td valign="top" align="left" colspan="8"><pre  style="margin:0px 0px 0px 100px;"><%=handler.getOBXComment(j, k, l)%></pre></td>
 				                                     </tr>
 				                                <%}
-
-
-                                      } else  if (!handler.getOBXResultStatus(j, k).equals("TDIS") && !handler.getMsgType().equals("EPSILON")) {
+										} else if (handler.getMsgType().equals("MEDITECH") && isUnstructuredDoc) { %>
+											<tr>
+												<td>
+													<%= handler.getOBXResult(j,k) %>
+												</td>
+											</tr>
+										<%  } else  if (!handler.getOBXResultStatus(j, k).equals("TDIS") && !handler.getMsgType().equals("EPSILON")) {
                                           	%><tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>"><%
                                        		if(isUnstructuredDoc){
 	                                   			if(handler.getOBXIdentifier(j, k).equalsIgnoreCase(handler.getOBXIdentifier(j, k-1)) && (obxCount>1)){%>
