@@ -77,6 +77,7 @@ import oscar.log.LogConst;
 import oscar.oscarSecurity.CRHelper;
 import oscar.util.AlertTimer;
 import oscar.util.CBIUtil;
+import oscar.util.ParameterActionForward;
 
 public final class LoginAction extends DispatchAction {
 	
@@ -108,7 +109,8 @@ public final class LoginAction extends DispatchAction {
 		}
     	
         LoginCheckLogin cl = new LoginCheckLogin();
-        
+        String oneIdKey = request.getParameter("nameId");
+        String oneIdEmail = request.getParameter("email");
         String userName = "";
         String password = "";
         String pin = "";
@@ -231,6 +233,7 @@ public final class LoginAction extends DispatchAction {
         if (strAuth != null && strAuth.length != 1) { // login successfully
         	
         	
+        	
         	//is the provider record inactive?
         	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
             Provider p = providerDao.getProvider(strAuth[0]);
@@ -275,6 +278,24 @@ public final class LoginAction extends DispatchAction {
             }
             session = request.getSession(); // Create a new session for this user
 
+          //If the ondIdKey parameter is not null and is not an empty string
+        	if (oneIdKey != null && !oneIdKey.equals("")) {
+        		String providerNumber = strAuth[0];
+        		SecurityDao securityDao = (SecurityDao) SpringUtils.getBean(SecurityDao.class);
+        		Security securityRecord = securityDao.getByProviderNo(providerNumber);
+        		
+        		if (securityRecord.getOneIdKey() == null || securityRecord.getOneIdKey().equals("")) {
+        			securityRecord.setOneIdKey(oneIdKey);
+        			securityRecord.setOneIdEmail(oneIdEmail);
+        			securityDao.updateOneIdKey(securityRecord);
+        			session.setAttribute("oneIdEmail", oneIdEmail);
+        		}
+        		else {
+        			logger.error("The account for provider number " + providerNumber + " already has a ONE ID key associated with it");
+        			return mapping.findForward("error");
+        		}
+        	}
+            
             logger.debug("Assigned new session for: " + strAuth[0] + " : " + strAuth[3] + " : " + strAuth[4]);
             LogAction.addLog(strAuth[0], LogConst.LOGIN, LogConst.CON_LOGIN, "", ip);
 
@@ -463,7 +484,13 @@ public final class LoginAction extends DispatchAction {
             	return null;
             }
             
-            return mapping.findForward(where);
+            ParameterActionForward forward = new ParameterActionForward(mapping.findForward(where));
+            forward.addParameter("login", "failed");
+            if (oneIdKey != null && !oneIdKey.equals("")) {
+            	forward.addParameter("nameId", oneIdKey);
+            }
+            
+            return forward;
         }
 
     	logger.debug("checking oauth_token");
@@ -492,7 +519,6 @@ public final class LoginAction extends DispatchAction {
     	logger.debug("rendering standard response : "+where);
         return mapping.findForward(where);
     }
-    
     
     /**
      * Removes attributes from session

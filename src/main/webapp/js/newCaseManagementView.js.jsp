@@ -557,10 +557,11 @@ function navBarLoader() {
                   ctx + "/oscarEncounter/displayMeasurements.do?hC=" + Colour.measurements,
                   ctx + "/oscarEncounter/displayConsultation.do?hC=" + Colour.consultation,
                   ctx + "/oscarEncounter/displayHRM.do?hC=",
-                  ctx + "/eaaps/displayEctEaaps.do?hC="
+                  ctx + "/eaaps/displayEctEaaps.do?hC=",
+                  ctx + "/oscarEncounter/displayEconsultation.do?hC=",
               ];
 
-            var leftNavBarTitles = [ "preventions", "tickler", "Dx", "forms", "eforms", "docs","labs", "msgs", "measurements", "consultation","HRM", "eaaps"];
+            var leftNavBarTitles = [ "preventions", "tickler", "Dx", "forms", "eforms", "docs","labs", "msgs", "measurements", "consultation", "HRM", "eaaps", "eConsult"];
             
             <%
             if (OscarProperties.getInstance().getBooleanProperty("echart_show_progress_sheet", "true")) { %>

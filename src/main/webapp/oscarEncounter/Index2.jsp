@@ -983,6 +983,7 @@ function navBarLoader() {
                   measurements: "<c:out value="${ctx}"/>/oscarEncounter/displayMeasurements.do?hC=344887",
                   consultation: "<c:out value="${ctx}"/>/oscarEncounter/displayConsultation.do?hC=",
                   progresssheet:"<c:out value="${ctx}"/>/oscarEncounter/displayProgressSheet.do?hC=003468"
+                  eConsult:		"<c:out value="${ctx}"/>/oscarEncounter/displayEconsultation.do"
               };
 
           var URLs = new Array();
