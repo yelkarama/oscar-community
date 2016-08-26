@@ -37,7 +37,6 @@
 <%@page import="org.oscarehr.common.dao.DemographicGroupDao" %>
 <%@page import="org.oscarehr.common.model.DemographicGroup" %>
 <%@page import="org.oscarehr.common.model.DemographicGroupLink" %>
-<%@page import="oscar.OscarProperties" %>
 <%@page import="org.oscarehr.common.dao.ScheduleTemplateCodeDao" %>
 <%@page import="org.oscarehr.common.model.ScheduleTemplateCode" %>
 <%@page import="org.oscarehr.common.dao.WaitingListDao" %>
@@ -81,7 +80,9 @@
 <%	
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 	java.util.Properties oscarVariables = OscarProperties.getInstance();
-			
+
+
+
 	String demographic_no = request.getParameter("demographic_no");
 	String aboriginal = request.getParameter("aboriginal");
 	String birthYear = request.getParameter("birthYear");
@@ -134,8 +135,18 @@
 	ProgramDao programDao = (ProgramDao)SpringUtils.getBean("programDao");
 	List<Provider> providers = providerDao.getActiveProviders();
 	List<Provider> doctors = providerDao.getActiveProvidersByRole("doctor");
-	List<Provider> nurses = providerDao.getActiveProvidersByRole("nurse");
-	List<Provider> midwifes = providerDao.getActiveProvidersByRole("midwife");
+	List<Provider> nurses;
+	List<Provider> midwifes;	
+	if (oscarVariables.getProperty("queens_resident_tagging") != null)
+	{
+		nurses = doctors;
+		midwifes = doctors;
+	}
+	else
+	{
+		nurses = providerDao.getActiveProvidersByRole("nurse");
+		midwifes = providerDao.getActiveProvidersByRole("midwife");	
+	}
 	
     OscarProperties oscarProps = OscarProperties.getInstance();
     ProvinceNames pNames = ProvinceNames.getInstance();

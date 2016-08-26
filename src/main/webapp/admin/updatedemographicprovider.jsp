@@ -49,11 +49,24 @@ if(!authed) {
 <%@ page import="org.oscarehr.common.dao.DemographicCustDao" %>
 <%@ page import="org.oscarehr.common.model.Provider" %>
 <%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
+<%@ page import="oscar.OscarProperties"%>
 <%
 	DemographicCustDao demographicCustDao = (DemographicCustDao)SpringUtils.getBean("demographicCustDao");
 	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
+	java.util.Properties oscarVariables = OscarProperties.getInstance();
 	
-	List<String> names = new ArrayList<String>();
+	List<String> names = new ArrayList<String>();	
+	
+	String nurseMessageKey = "admin.updatedemographicprovider.msgNurse";
+	String midwifeMessageKey = "admin.updatedemographicprovider.msgMidwife";
+	String residentMessageKey = "admin.updatedemographicprovider.msgResident";
+	
+	if (oscarVariables.getProperty("queens_resident_tagging") != null)
+	{
+		nurseMessageKey = "admin.updatedemographicprovider.msgAltProvider1";
+		midwifeMessageKey = "admin.updatedemographicprovider.msgAltProvider2";
+		residentMessageKey = "admin.updatedemographicprovider.msgAltProvider3";
+	}
 %>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
@@ -220,66 +233,7 @@ function setregexp2() {
 %>
 
 
-<div class="well well-small">
-<table class="table table-striped  table-condensed">
-	<FORM NAME="ADDAPPT" METHOD="post"
-		ACTION="updatedemographicprovider.jsp" onsubmit="return(setregexp())">
-	<tr>
-		<td><b><bean:message
-			key="admin.updatedemographicprovider.msgResident" /></b></td>
-	</tr>
-	<tr>
-		<td><bean:message key="admin.updatedemographicprovider.formUse" />
-		<select name="newcust2">
-			<%
- 	 for(int i=0; i<names.size(); i=i+2) {
-%>
-			<option value="<%=names.get(i)%>"><%=names.get(i+1)%></option>
-			<%
- 	 }
-%>
-		</select> <bean:message key="admin.updatedemographicprovider.formReplace" /> <select
-			name="oldcust2">
-			<%
- 	 for(int i=0; i<names.size(); i=i+2) {
-%>
-			<option value="<%=names.get(i)%>"><%=names.get(i+1)%></option>
-			<%
- 	 }
-%>
-		</select><br>
-		<bean:message key="admin.updatedemographicprovider.formCondition" /> <select
-			name="last_name_from">
-			<%
-   char cletter = 'A';
- 	 for(int i=0; i<26; i++) {
-%>
-			<option value="<%=(char) (cletter+i) %>"><%=(char) (cletter+i)%></option>
-			<%
- 	 }
-%>
-		</select> <bean:message key="admin.updatedemographicprovider.formTo" /> <select
-			name="last_name_to">
-			<%
-   cletter = 'A';
- 	 for(int i=0; i<26; i++) {
-%>
-			<option value="<%=(char) (cletter+i) %>"><%=(char) (cletter+i)%></option>
-			<%
- 	 }
-%>
-		</select> <br>
-		<INPUT TYPE="hidden" NAME="regexp" VALUE=""> <input
-			type="hidden" name="update" value=" Go "> <INPUT class="btn btn-primary"
-			TYPE="submit"
-			VALUE="<bean:message key="global.update"/>">
 
-
-		</td>
-	</tr>
-	</form>
-</table>
-</div>
 
 <!-- for nurse -->
 <div class="well well-small">
@@ -288,7 +242,7 @@ function setregexp2() {
 		ACTION="updatedemographicprovider.jsp" onsubmit="return(setregexp1())">
 	<tr>
 		<td><b><bean:message
-			key="admin.updatedemographicprovider.msgNurse" /></b></td>
+			key="<%= nurseMessageKey %>" /></b></td>
 	</tr>
 	<tr>
 		<td><bean:message key="admin.updatedemographicprovider.formUse" />
@@ -313,7 +267,7 @@ function setregexp2() {
 		<bean:message key="admin.updatedemographicprovider.formCondition" /> <select
 			name="last_name_from">
 			<%
-   cletter = 'A';
+	char cletter = 'A';
  	 for(int i=0; i<26; i++) {
 %>
 			<option value="<%=(char) (cletter+i) %>"><%=(char) (cletter+i)%></option>
@@ -347,7 +301,7 @@ function setregexp2() {
 	<FORM NAME="ADDAPPT2" METHOD="post"
 		ACTION="updatedemographicprovider.jsp" onsubmit="return(setregexp2())">
 	<tr>
-		<td><b><bean:message key="admin.updatedemographicprovider.msgMidwife" /></b></td>
+		<td><b><bean:message key="<%= midwifeMessageKey %>" /></b></td>
 	</tr>
 	<tr>
 		<td><bean:message key="admin.updatedemographicprovider.formUse" />
@@ -394,6 +348,68 @@ function setregexp2() {
 			type="hidden" name="update" value="UpdateMidwife"> <INPUT class="btn btn-primary"
 			TYPE="submit"
 			VALUE="<bean:message key="global.update"/>">
+		</td>
+	</tr>
+	</form>
+</table>
+</div>
+
+<!--  for resident -->
+<div class="well well-small">
+<table class="table table-striped  table-condensed">
+	<FORM NAME="ADDAPPT" METHOD="post"
+		ACTION="updatedemographicprovider.jsp" onsubmit="return(setregexp())">
+	<tr>
+		<td><b><bean:message
+			key="<%= residentMessageKey %>" /></b></td>
+	</tr>
+	<tr>
+		<td><bean:message key="admin.updatedemographicprovider.formUse" />
+		<select name="newcust2">
+			<%
+ 	 for(int i=0; i<names.size(); i=i+2) {
+%>
+			<option value="<%=names.get(i)%>"><%=names.get(i+1)%></option>
+			<%
+ 	 }
+%>
+		</select> <bean:message key="admin.updatedemographicprovider.formReplace" /> <select
+			name="oldcust2">
+			<%
+ 	 for(int i=0; i<names.size(); i=i+2) {
+%>
+			<option value="<%=names.get(i)%>"><%=names.get(i+1)%></option>
+			<%
+ 	 }
+%>
+		</select><br>
+		<bean:message key="admin.updatedemographicprovider.formCondition" /> <select
+			name="last_name_from">
+			<%
+   cletter = 'A';
+ 	 for(int i=0; i<26; i++) {
+%>
+			<option value="<%=(char) (cletter+i) %>"><%=(char) (cletter+i)%></option>
+			<%
+ 	 }
+%>
+		</select> <bean:message key="admin.updatedemographicprovider.formTo" /> <select
+			name="last_name_to">
+			<%
+   cletter = 'A';
+ 	 for(int i=0; i<26; i++) {
+%>
+			<option value="<%=(char) (cletter+i) %>"><%=(char) (cletter+i)%></option>
+			<%
+ 	 }
+%>
+		</select> <br>
+		<INPUT TYPE="hidden" NAME="regexp" VALUE=""> <input
+			type="hidden" name="update" value=" Go "> <INPUT class="btn btn-primary"
+			TYPE="submit"
+			VALUE="<bean:message key="global.update"/>">
+
+
 		</td>
 	</tr>
 	</form>
