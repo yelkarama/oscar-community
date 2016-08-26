@@ -78,6 +78,16 @@ public class Security extends AbstractModel<Integer> {
 
 	@Column(name="forcePasswordReset")
 	private Boolean forcePasswordReset = true;
+	
+	@Column(name="oneIdKey")
+	private String oneIdKey = "";
+	
+	@Column(name = "oneIdEmail")
+	private String oneIdEmail = "";
+	
+	@Column(name = "delegateOneIdEmail")
+	private String delagateOneIdEmail = "";
+	
 
 	/** default constructor */
 	public Security() {
@@ -233,6 +243,26 @@ public class Security extends AbstractModel<Integer> {
 
 	public void setForcePasswordReset(Boolean forcePasswordReset) {
 		this.forcePasswordReset = forcePasswordReset;
-	} 
-	
+	}
+
+	public String getOneIdKey() {
+		return oneIdKey;
+	}
+	public void setOneIdKey(String oneIdKey) {
+		this.oneIdKey = oneIdKey;
+	}
+
+	public String getOneIdEmail() {
+		return oneIdEmail;
+	}
+	public void setOneIdEmail(String oneIdEmail) {
+		this.oneIdEmail = oneIdEmail;
+	}
+
+	public String getDelagateOneIdEmail() {
+		return delagateOneIdEmail;
+	}
+	public void setDelagateOneIdEmail(String delagateOneIdEmail) {
+		this.delagateOneIdEmail = delagateOneIdEmail;
+	}
 }
