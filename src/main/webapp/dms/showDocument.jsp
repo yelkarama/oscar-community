@@ -672,6 +672,15 @@
 	            	  if( ui.item.providerNo != undefined && ui.item.providerNo != null &&ui.item.providerNo != "" && ui.item.providerNo != "null" ) {
 	            		  addDocToList(ui.item.providerNo, ui.item.provider + " (MRP)", "<%=docId%>");
 	            	  }
+	    			  if( ui.item.cust1 != undefined && ui.item.cust1 != null &&ui.item.cust1 != "" && ui.item.cust1 != "null" ) {
+	    				  addDocToList(ui.item.cust1, ui.item.cust1Name + " (Alt. Provider 1)", "<%=docId%>");
+	    			  }
+	    			  if( ui.item.cust2 != undefined && ui.item.cust2 != null &&ui.item.cust2 != "" && ui.item.cust2 != "null" ) {
+	    				  addDocToList(ui.item.cust2, ui.item.cust2Name + " (Alt. Provider 2)", "<%=docId%>");
+	    			  }
+	    			  if( ui.item.cust4 != undefined && ui.item.cust4 != null &&ui.item.cust4 != "" && ui.item.cust4 != "null" ) {
+	    				  addDocToList(ui.item.cust4, ui.item.cust4Name + " (Alt. Provider 3)", "<%=docId%>");
+	    			  }
 	            	  
 	            	  //enable Save button whenever a selection is made
 	                  jQuery('#save<%=docId%>').removeAttr('disabled');
