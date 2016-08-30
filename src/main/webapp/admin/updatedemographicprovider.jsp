@@ -107,7 +107,7 @@ function setregexp2() {
 <div class="container-fluid">
 <h3><bean:message key="admin.admin.btnUpdatePatientProvider" /></h3>
 <%
-  if(request.getParameter("update")!=null && request.getParameter("update").equals(" Go ") ) {
+  if(request.getParameter("update")!=null && request.getParameter("update").equals("UpdateResident") ) {
    
     Integer demoNo = demographicCustDao.select_demoname(request.getParameter("oldcust2"), request.getParameter("regexp"));
     if (demoNo != null) {
@@ -146,7 +146,7 @@ function setregexp2() {
 <br>
 <%}
 
-  if(request.getParameter("update")!=null && request.getParameter("update").equals(" Submit ") ) {
+  if(request.getParameter("update")!=null && request.getParameter("update").equals("UpdateNurse") ) {
 	  Integer demoNo = demographicCustDao.select_demoname1(request.getParameter("oldcust1"), request.getParameter("regexp"));
 	    if (demoNo != null) {
 	    	 novector.add(demoNo.toString());
@@ -245,8 +245,8 @@ function setregexp2() {
 			key="<%= nurseMessageKey %>" /></b></td>
 	</tr>
 	<tr>
-		<td><bean:message key="admin.updatedemographicprovider.formUse" />
-		<select name="newcust1">
+		<td><bean:message key="admin.updatedemographicprovider.formReplace" />
+		<select name="oldcust1">
 			<%
  	 for(int i=0; i<names.size(); i=i+2) {
 %>
@@ -254,8 +254,9 @@ function setregexp2() {
 			<%
  	 }
 %>
-		</select> <bean:message key="admin.updatedemographicprovider.formReplace" /> <select
-			name="oldcust1">
+		</select> <bean:message key="admin.updatedemographicprovider.formWith" /> 
+		<select name="newcust1">
+		<option value=""><bean:message key="admin.updatedemographicprovider.msgNoProvider" /></option>
 			<%
  	 for(int i=0; i<names.size(); i=i+2) {
 %>
@@ -286,7 +287,7 @@ function setregexp2() {
 %>
 		</select> <br>
 		<INPUT TYPE="hidden" NAME="regexp" VALUE=""> <input
-			type="hidden" name="update" value=" Submit "> <INPUT class="btn btn-primary"
+			type="hidden" name="update" value="UpdateNurse"> <INPUT class="btn btn-primary"
 			TYPE="submit"
 			VALUE="<bean:message key="global.update"/>">
 		</td>
@@ -304,8 +305,8 @@ function setregexp2() {
 		<td><b><bean:message key="<%= midwifeMessageKey %>" /></b></td>
 	</tr>
 	<tr>
-		<td><bean:message key="admin.updatedemographicprovider.formUse" />
-		<select name="newcust4">
+		<td><bean:message key="admin.updatedemographicprovider.formReplace" />
+		<select name="oldcust4">
 			<%
  	 for(int i=0; i<names.size(); i=i+2) {
 %>
@@ -313,8 +314,9 @@ function setregexp2() {
 			<%
  	 }
 %>
-		</select> <bean:message key="admin.updatedemographicprovider.formReplace" /> <select
-			name="oldcust4">
+		</select> <bean:message key="admin.updatedemographicprovider.formWith" /> <select
+			name="newcust4">
+		<option value=""><bean:message key="admin.updatedemographicprovider.msgNoProvider" /></option>
 			<%
  	 for(int i=0; i<names.size(); i=i+2) {
 %>
@@ -364,8 +366,8 @@ function setregexp2() {
 			key="<%= residentMessageKey %>" /></b></td>
 	</tr>
 	<tr>
-		<td><bean:message key="admin.updatedemographicprovider.formUse" />
-		<select name="newcust2">
+		<td><bean:message key="admin.updatedemographicprovider.formReplace" />
+		<select name="oldcust2">
 			<%
  	 for(int i=0; i<names.size(); i=i+2) {
 %>
@@ -373,8 +375,9 @@ function setregexp2() {
 			<%
  	 }
 %>
-		</select> <bean:message key="admin.updatedemographicprovider.formReplace" /> <select
-			name="oldcust2">
+		</select> <bean:message key="admin.updatedemographicprovider.formWith" /> <select
+			name="newcust2">
+		<option value=""><bean:message key="admin.updatedemographicprovider.msgNoProvider" /></option>
 			<%
  	 for(int i=0; i<names.size(); i=i+2) {
 %>
@@ -405,7 +408,7 @@ function setregexp2() {
 %>
 		</select> <br>
 		<INPUT TYPE="hidden" NAME="regexp" VALUE=""> <input
-			type="hidden" name="update" value=" Go "> <INPUT class="btn btn-primary"
+			type="hidden" name="update" value="UpdateResident"> <INPUT class="btn btn-primary"
 			TYPE="submit"
 			VALUE="<bean:message key="global.update"/>">
 
