@@ -413,7 +413,7 @@ public class TicklerManager {
 		}
 	}
 	
-	public void updateStatus(LoggedInInfo loggedInInfo, Integer tickler_id, String provider, Tickler.STATUS status) {
+	public void updateStatus(LoggedInInfo loggedInInfo, Integer tickler_id, String provider, String status) {
     	checkPrivilege(loggedInInfo, PRIVILEGE_UPDATE);
 		
 		Tickler tickler = ticklerDao.find(tickler_id);
@@ -475,19 +475,19 @@ public class TicklerManager {
 	public void completeTickler(LoggedInInfo loggedInInfo, Integer tickler_id, String provider) {
     	checkPrivilege(loggedInInfo, PRIVILEGE_UPDATE);
     	
-		updateStatus(loggedInInfo, tickler_id, provider, Tickler.STATUS.C);
+		updateStatus(loggedInInfo, tickler_id, provider, Tickler.COMPLETED);
 	}
 
 	public void deleteTickler(LoggedInInfo loggedInInfo, Integer tickler_id, String provider) {
     	checkPrivilege(loggedInInfo, PRIVILEGE_UPDATE);
 
-		updateStatus(loggedInInfo, tickler_id, provider, Tickler.STATUS.D);
+		updateStatus(loggedInInfo, tickler_id, provider, Tickler.DELETED);
 	}
 
 	public void activateTickler(LoggedInInfo loggedInInfo, Integer tickler_id, String provider) {
     	checkPrivilege(loggedInInfo, PRIVILEGE_UPDATE);
     	
-		updateStatus(loggedInInfo, tickler_id, provider, Tickler.STATUS.A);
+		updateStatus(loggedInInfo, tickler_id, provider, Tickler.ACTIVE);
 	}
 	
 	public void resolveTicklersBySubstring(LoggedInInfo loggedInInfo, String providerNo, List<String> demographicIds, String remString) {
@@ -546,7 +546,7 @@ public class TicklerManager {
     }
 
     
-    public void addTickler(String demographic_no,String message,Tickler.STATUS status,String service_date,String creator,Tickler.PRIORITY priority,String task_assigned_to){
+    public void addTickler(String demographic_no,String message,String status,String service_date,String creator,Tickler.PRIORITY priority,String task_assigned_to){
         
         String date = service_date;
         if ( date != null && !date.equals("now()")){          //Just a hack for now.

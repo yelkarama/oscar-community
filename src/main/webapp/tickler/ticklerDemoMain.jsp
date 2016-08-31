@@ -635,7 +635,7 @@ function generateRenalLabReq(demographicNo) {
 				</TD>
 				<TD ROWSPAN="1" class="<%=cellColour%>"><%=t.getPriority()%></TD>
 				<TD ROWSPAN="1" class="<%=cellColour%>"><%=taskAssignedTo%></TD>
-				<TD ROWSPAN="1" class="<%=cellColour%>"><%=String.valueOf(t.getStatus()).equals("A")?"Active":String.valueOf(t.getStatus()).equals("C")?"Completed":String.valueOf(t.getStatus()).equals("D")?"Deleted":String.valueOf(t.getStatus())%></TD>
+				<TD ROWSPAN="1" class="<%=cellColour%>"><%=t.getStatus().equals("A")?"Active":t.getStatus().equals("C")?"Completed":t.getStatus().equals("D")?"Deleted":t.getStatus()%></TD>
 				<TD ROWSPAN="1" class="<%=cellColour%>"><%=t.getMessage()%></TD>
 				  <td ROWSPAN="1" class="<%=cellColour%> noprint">
                 	<a href="javascript:void(0)" onClick="openNoteDialog('<%=t.getDemographicNo() %>','<%=t.getId() %>');return false;">

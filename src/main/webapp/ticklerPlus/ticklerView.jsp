@@ -121,10 +121,10 @@
 		}
 
 		status = "Active";
-		if(temp.getStatus().equals(Tickler.STATUS.C)) {
+		if(temp.getStatus().equals(Tickler.COMPLETED)) {
 	status="Completed";
 		}
-		if(temp.getStatus().equals(Tickler.STATUS.D)) {
+		if(temp.getStatus().equals(Tickler.DELETED)) {
 	status="Deleted";
 		}
 		
@@ -223,13 +223,13 @@
 			provider_name = provider.getLastName() + "," + provider.getFirstName();
 		}
 		
-		if(update.getStatus().equals(Tickler.STATUS.A)){
+		if(update.getStatus().equals(Tickler.ACTIVE)){
 			status="Active";
 		}
-		if(update.getStatus().equals(Tickler.STATUS.C)) {
+		if(update.getStatus().equals(Tickler.COMPLETED)) {
 			status="Completed";
 		}
-		if(update.getStatus().equals(Tickler.STATUS.D)) {
+		if(update.getStatus().equals(Tickler.DELETED)) {
 			status="Deleted";
 		}
 		
