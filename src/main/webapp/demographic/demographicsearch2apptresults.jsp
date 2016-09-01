@@ -630,12 +630,21 @@ function addNameCaisi(demographic_no,lastname,firstname,chartno,messageID) {
 %>
 	<% if (demoList.size() == 1) {
 		Demographic demo = demoList.get(0);
+	
+			if(caisi) {
 	%>
-		<script language="JavaScript">
-			document.forms[0].demographic_no.value = <%=demo.getDemographicNo()%>;
-			addName('<%=demo.getDemographicNo()%>','<%=URLEncoder.encode(demo.getLastName())%>','<%=URLEncoder.encode(demo.getFirstName())%>','<%=URLEncoder.encode(demo.getChartNo() == null ? "" : demo.getChartNo())%>','<%=request.getParameter("messageId")%>','<%=demo.getProviderNo()%>','');
-		</script>
-	<% } %>
+			<script language="JavaScript">
+				addNameCaisi('<%=demo.getDemographicNo()%>','<%=URLEncoder.encode(demo.getLastName())%>','<%=URLEncoder.encode(demo.getFirstName())%>','<%=URLEncoder.encode(demo.getChartNo() == null ? "" : demo.getChartNo())%>','<%=request.getParameter("messageId")%>','<%=demo.getProviderNo()%>','');
+			</script>
+	<%		}
+			else {
+	%>
+				<script language="JavaScript">
+					document.forms[0].demographic_no.value = <%=demo.getDemographicNo()%>;
+					addName('<%=demo.getDemographicNo()%>','<%=URLEncoder.encode(demo.getLastName())%>','<%=URLEncoder.encode(demo.getFirstName())%>','<%=URLEncoder.encode(demo.getChartNo() == null ? "" : demo.getChartNo())%>','<%=request.getParameter("messageId")%>','<%=demo.getProviderNo()%>','');
+				</script>
+	<%		}
+	 } %>
 </form>
 </div>
 </div>
