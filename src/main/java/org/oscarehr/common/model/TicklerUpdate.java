@@ -27,8 +27,6 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -54,8 +52,7 @@ public class TicklerUpdate extends AbstractModel<Integer> {
 	private Integer ticklerNo;
 	
 	@Column(length=1)
-	@Enumerated(EnumType.STRING)
-	private Tickler.STATUS status;
+	private String status;
 	
 	@Column(length=6)
 	private String assignedTo;
@@ -98,11 +95,11 @@ public class TicklerUpdate extends AbstractModel<Integer> {
 		this.ticklerNo = ticklerNo;
 	}
 
-	public Tickler.STATUS getStatus() {
+	public String getStatus() {
 		return status;
 	}
 
-	public void setStatus(Tickler.STATUS status) {
+	public void setStatus(String status) {
 		this.status = status;
 	}
 
@@ -157,11 +154,11 @@ public class TicklerUpdate extends AbstractModel<Integer> {
 	
     public void setStatusAsChar(char s) {
     	if(s == 'A' || s == 'a')
-    		setStatus(Tickler.STATUS.A);
+    		setStatus("A");
     	else if(s == 'C' || s == 'c')
-    		setStatus(Tickler.STATUS.C);
+    		setStatus("C");
     	else if(s == 'D' || s == 'd')
-    		setStatus(Tickler.STATUS.D);
+    		setStatus("D");
     	else
     		throw new IllegalArgumentException("Invalid status");
     }

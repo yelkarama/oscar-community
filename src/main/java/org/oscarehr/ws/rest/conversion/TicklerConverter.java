@@ -31,7 +31,6 @@ import org.oscarehr.PMmodule.model.Program;
 import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.TicklerLinkDao;
 import org.oscarehr.common.model.Tickler;
-import org.oscarehr.common.model.Tickler.STATUS;
 import org.oscarehr.common.model.TicklerComment;
 import org.oscarehr.common.model.TicklerLink;
 import org.oscarehr.common.model.TicklerUpdate;
@@ -98,13 +97,13 @@ public class TicklerConverter extends AbstractConverter<Tickler, TicklerTo1> {
 		d.setTaskAssignedToName(providerDao.getProviderName(t.getTaskAssignedTo()));
 		d.setCreatorName(providerDao.getProviderName(t.getCreator()));
 		
-		if(d.getStatus() == STATUS.A) {
+		if(d.getStatus() == Tickler.ACTIVE) {
 			d.setStatusName("Active");
 		}
-		if(d.getStatus() == STATUS.C) {
+		if(d.getStatus() == Tickler.COMPLETED) {
 			d.setStatusName("Completed");
 		}
-		if(d.getStatus() == STATUS.D) {
+		if(d.getStatus() == Tickler.DELETED) {
 			d.setStatusName("Deleted");
 		}
 		

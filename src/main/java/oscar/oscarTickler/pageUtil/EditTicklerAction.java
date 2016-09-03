@@ -189,7 +189,7 @@ public class EditTicklerAction extends DispatchAction{
 
         boolean isUpdate = false;                        
 
-        if (!status.equals(String.valueOf(t.getStatus()))){
+        if (!status.equals(t.getStatus())){
             tu.setStatusAsChar(status.charAt(0));
             t.setStatusAsChar(status.charAt(0));
             isUpdate = true;            

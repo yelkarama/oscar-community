@@ -35,7 +35,7 @@ public class TicklerUpdateTo1 implements Serializable {
 
     private static final long serialVersionUID = 1L;
     
-	private Tickler.STATUS status;
+	private String status;
 	
 	private String assignedTo;
 	
@@ -50,11 +50,11 @@ public class TicklerUpdateTo1 implements Serializable {
 	private String providerName;
 	
 
-	public Tickler.STATUS getStatus() {
+	public String getStatus() {
 		return status;
 	}
 
-	public void setStatus(Tickler.STATUS status) {
+	public void setStatus(String status) {
 		this.status = status;
 	}
 
