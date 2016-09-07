@@ -252,9 +252,11 @@
           gieat.setAdmissionManager(am);
           gieat.setProgramManager(pm);
           String bedP = request.getParameter("rps");
-          if (bedP != null) {
-          	gieat.admitBedCommunityProgram(demographic.getDemographicNo(),loggedInInfo.getLoggedInProviderNo(),Integer.parseInt(bedP),"","",null);
+          if (bedP == null) {
+        	  bedP=programDao.getProgramByName("OSCAR");
           }
+          gieat.admitBedCommunityProgram(demographic.getDemographicNo(),loggedInInfo.getLoggedInProviderNo(),Integer.parseInt(bedP),"","",null);
+
 
           String[] servP = request.getParameterValues("sp");
           if(servP!=null&&servP.length>0){
