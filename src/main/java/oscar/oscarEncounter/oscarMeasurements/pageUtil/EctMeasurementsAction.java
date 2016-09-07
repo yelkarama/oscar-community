@@ -324,8 +324,8 @@ public class EctMeasurementsAction extends Action {
      				cmn.setDemographic_no(demographicNo);
      				cmn.setProviderNo(providerNo);
      				cmn.setNote(textOnEncounter);
-     				cmn.setSigned(true);
-     				cmn.setSigning_provider_no(providerNo);
+     				cmn.setSigned(false);
+     				
      				cmn.setProgram_no(prog_no);
      				cmn.setReporter_caisi_role(reporter_caisi_role);
      								
