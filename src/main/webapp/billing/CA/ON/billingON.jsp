@@ -1443,7 +1443,7 @@ function changeSite(sel) {
 												%>
                                                                                                 
 												<option value="<%=propT.getProperty("proOHIP")%>"
-													<%=providerview.equalsIgnoreCase(prov)?"selected":""%>>
+													<%=providerview.equalsIgnoreCase(prov)?"selected":(apptProvider_no != null ? "selected" : "")%>>
 													<b><%=propT.getProperty("last_name")%>, <%=propT.getProperty("first_name")%></b>
 												</option>
 												<%
