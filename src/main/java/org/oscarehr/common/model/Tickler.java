@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -50,6 +51,8 @@ import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 import org.oscarehr.PMmodule.model.Program;
 import org.oscarehr.util.LocaleUtils;
+
+import java.util.Collections;
 import java.util.Comparator;
 
 @Entity
@@ -239,6 +242,12 @@ public class Tickler extends AbstractModel<Integer> {
 
 	public Set<TicklerComment> getComments() {
 		return comments;
+	}
+	
+	public Set<TicklerComment> getCommentsSortedByDate() {
+		TreeSet<TicklerComment> sortedComments = new TreeSet<TicklerComment>(TicklerComment.CreationDateAscComparator);
+		sortedComments.addAll(comments);
+		return sortedComments;
 	}
 
 	public void setComments(Set<TicklerComment> comments) {
