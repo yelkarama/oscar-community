@@ -1889,7 +1889,7 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
 <%
 	while (bFirstTimeRs?it.hasNext():true) { //if it's not the first time to parse the standard time, should pass it by
                   appointment = bFirstTimeRs?it.next():appointment;
-                  len = bFirstTimeRs&&!bFirstFirstR?lenLimitedS:lenLimitedL;
+                  len = lenLimitedL;
                   String strStartTime = ConversionUtils.toTimeString(appointment.getStartTime());
                   String strEndTime = ConversionUtils.toTimeString(appointment.getEndTime());
                   
