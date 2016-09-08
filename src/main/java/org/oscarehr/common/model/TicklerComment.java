@@ -23,6 +23,7 @@
  */
 package org.oscarehr.common.model;
 
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
 
@@ -122,6 +123,20 @@ public class TicklerComment extends AbstractModel<Integer> {
 		this.provider = provider;
 	}
 	
+    public static final Comparator<TicklerComment> CreationDateAscComparator = new Comparator<TicklerComment>() {
+        @Override
+		public int compare(TicklerComment c1, TicklerComment c2) {          
+	            return (c1.getUpdateDate().compareTo(c2.getUpdateDate()));
+		}
+    };
+    
+    public static final Comparator<TicklerComment> CreationDateDescComparator = new Comparator<TicklerComment>() {
+        @Override
+		public int compare(TicklerComment c1, TicklerComment c2) {          
+	            return (c2.getUpdateDate().compareTo(c1.getUpdateDate()));
+		}
+    };
+
 	
 	//this is web stuff :(
 	
