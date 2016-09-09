@@ -74,7 +74,7 @@ public class EctConAddSpecialistAction extends Action {
 					}
 				} else {*/
 					request.setAttribute("refnoinvalid", true);
-                	return mapping.findForward("success");
+					return mapping.findForward("success");
 				}
 			}
 			professionalSpecialistDao.persist(professionalSpecialist);
@@ -87,7 +87,7 @@ public class EctConAddSpecialistAction extends Action {
 			professionalSpecialist=professionalSpecialistDao.find(specId);
 			populateFields(professionalSpecialist, addSpecailistForm);
 			if (professionalSpecialist.getReferralNo() != null && professionalSpecialist.getReferralNo().length() > 0) {
-				if (referralNoValid(professionalSpecialist.getReferralNo())) {
+				if (!referralNoValid(professionalSpecialist.getReferralNo())) {
 					/*if (referralNoInUse(professionalSpecialist.getReferralNo(), specId)) {
 						request.setAttribute("refnoinuse", true);
 						return mapping.findForward("success");
