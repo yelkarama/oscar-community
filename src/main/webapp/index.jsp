@@ -397,6 +397,10 @@ String login_error="";
     	                        
     	                        <input type=hidden name='propname' value='<bean:message key="loginApplication.propertyFile"/>' />
     	                        <input class="btn btn-primary btn-block" type="submit" value="<bean:message key="index.btnSignIn"/>" />
+    	                        <% if (detector.detectSmartphone() && detector.detectWebkit()) { 
+    	                        	session.setAttribute("fullSite","true"); %>
+    	                        	<input class="btn btn-primary btn-block" type="submit" value="<bean:message key="index.btnSignIn"/> using <bean:message key="loginApplication.fullSite"/>" />
+    	                        <% } %>
     						</html:form>
     			                        
                         <%if (AcceptableUseAgreementManager.hasAUA()){ %>
