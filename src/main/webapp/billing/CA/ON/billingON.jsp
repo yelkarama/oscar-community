@@ -1437,13 +1437,21 @@ function changeSite(sel) {
 												<%
 													for (int i = 0; i < vecProvider.size(); i++) {
 														    propT = (Properties) vecProvider.get(i);
-                                                                                                                    String info = propT.getProperty("proOHIP");
-                                                                                                                    String prov = info.substring(0, info.indexOf("|"));
-                                                                                                                    
+															String info = propT.getProperty("proOHIP");
+															String prov = info.substring(0, info.indexOf("|"));
+															String selected = "";
+															if (apptProvider_no.equals(prov) && request.getParameter("fromEncounter") != null)
+															{
+																selected = "selected";
+															}
+															else if (providerview.equalsIgnoreCase(prov) && request.getParameter("fromEncounter") == null)
+															{
+																selected = "selected";
+															}
+												
 												%>
-                                                                                                
 												<option value="<%=propT.getProperty("proOHIP")%>"
-													<%=providerview.equalsIgnoreCase(prov)?"selected":(apptProvider_no != null ? "selected" : "")%>>
+													<%=selected%>>
 													<b><%=propT.getProperty("last_name")%>, <%=propT.getProperty("first_name")%></b>
 												</option>
 												<%
