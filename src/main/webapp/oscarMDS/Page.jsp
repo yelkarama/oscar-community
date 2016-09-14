@@ -75,7 +75,6 @@ String curUser_no = (String) session.getAttribute("user");
 			function submitLabel(lblval){
 		       	 document.forms['TDISLabelForm'].label.value = document.forms['acknowledgeForm'].label.value;
 	       	}
-			oldestLab = '<%=request.getAttribute("oldestLab") %>';
 		</script>
 		
         <table  oldclass="MainTable" id="scrollNumber1" border="0" name="encounterTable" cellspacing="0" cellpadding="3" width="100%">
@@ -453,6 +452,9 @@ String curUser_no = (String) session.getAttribute("user");
                                                     arr2.push(ele);
                                                 }
                                                 doclabid_seq=arr2;
+
+                                                oldestLab = '<%=request.getAttribute("oldestLab") %>';
+
                                         </script>
                                         </tr>
                                     </table>
