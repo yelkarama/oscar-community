@@ -43,7 +43,7 @@ public class HRMResultsData {
 	}
 
 	public Collection<LabResultData> populateHRMdocumentsResultsData(LoggedInInfo loggedInInfo, String providerNo, String status, Date newestDate, Date oldestDate) {
-		if (providerNo == null || "".equals(providerNo) || providerNo.equals("-1")) { //when searching all, the search provider is set to -1
+		if (providerNo == null || "".equals(providerNo)) {
 			providerNo = "%";
 		} else if (providerNo.equalsIgnoreCase("0")) {
 			providerNo = "-1";
