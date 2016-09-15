@@ -79,7 +79,7 @@ if(!authed) {
                 {
                     resData = (LabResultData)labs.get(idx);
         %>
-	<li class="lab"><%=resData.getDiscipline()+" "+resData.getDateTime()%></li>
+	<li class="lab"><%=StringUtils.maxLenString(resData.getDiscipline(), 14, 11, "") + " " + resData.getDateTime()%></li>
 	<%
                 }
                 //Gets the DAOs for HRMDocumentToDemographic and HRMDocument

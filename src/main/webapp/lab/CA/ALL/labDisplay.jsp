@@ -621,7 +621,7 @@ pre {
         		if (ackList != null){
         		    for (int i=0; i < ackList.size(); i++){
         		        ReportStatus reportStatus = ackList.get(i);
-        		        if (reportStatus.getProviderNo() != null && reportStatus.getProviderNo().equals(providerNo) ) {
+        		        if (reportStatus.getOscarProviderNo() != null && reportStatus.getOscarProviderNo().equals(providerNo) ) {
         		        	labStatus = reportStatus.getStatus();
         		        	if( labStatus.equals("A") ){
         		            	ackFlag = true;//lab has been ack by this provider.

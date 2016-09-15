@@ -412,6 +412,15 @@
 		<servlet-name>DATISExport</servlet-name>
 		<url-pattern>/PMmodule/exportfiles</url-pattern>
 	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>OscarProviderMessage</servlet-name>
+		<servlet-class>oscar.util.OscarProviderMessage</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>OscarProviderMessage</servlet-name>
+		<url-pattern>/servlet/OscarProviderMessage</url-pattern>
+	</servlet-mapping>
 
 	<servlet-mapping>
 		<servlet-name>action</servlet-name>

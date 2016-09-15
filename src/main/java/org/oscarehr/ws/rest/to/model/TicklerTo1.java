@@ -50,7 +50,7 @@ public class TicklerTo1 implements Serializable {
 	
 	private String message;
 	
-	private Tickler.STATUS status;
+	private String status;
 	
 	private Date updateDate ;
 	
@@ -115,11 +115,11 @@ public class TicklerTo1 implements Serializable {
 		this.message = message;
 	}
 
-	public Tickler.STATUS getStatus() {
+	public String getStatus() {
 		return status;
 	}
 
-	public void setStatus(Tickler.STATUS status) {
+	public void setStatus(String status) {
 		this.status = status;
 	}
 

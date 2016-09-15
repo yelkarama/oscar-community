@@ -103,7 +103,7 @@ public class TicklerDao extends AbstractDao<Tickler>{
     public List<Tickler> search_tickler_bydemo(Integer demographicNo, String status, Date beginDate, Date endDate) {
 		Query query = entityManager.createQuery("SELECT t FROM Tickler t WHERE t.demographicNo = ?1 and t.status = ?2 and t.serviceDate >= ?3 and t.serviceDate <= ?4 order by t.serviceDate desc");
 		query.setParameter(1, demographicNo);
-		query.setParameter(2, this.convertStatus(status));
+		query.setParameter(2, status);
 		query.setParameter(3, beginDate);
 		query.setParameter(4, endDate);
 		
@@ -313,7 +313,7 @@ public class TicklerDao extends AbstractDao<Tickler>{
 		}
 		if (includeStatusClause) {
 			query = query + " and t.status = ?";
-			paramList.add(convertStatus(filter.getStatus()));
+			paramList.add(filter.getStatus());
 		}
 		
 		if (includePriorityClause) {
@@ -339,15 +339,6 @@ public class TicklerDao extends AbstractDao<Tickler>{
 		return query;
 	}
 
-	private Tickler.STATUS convertStatus(String status) {
-		Tickler.STATUS result = Tickler.STATUS.A;
-		if(status != null && status.startsWith("C"))
-			result = Tickler.STATUS.C;
-		if(status != null && status.startsWith("D"))
-			result = Tickler.STATUS.D;
-		return result;
-	}
-	
 	private Tickler.PRIORITY convertPriority(String priority) {
 		Tickler.PRIORITY result = Tickler.PRIORITY.Normal;
 		if(priority != null && priority.equals("High"))

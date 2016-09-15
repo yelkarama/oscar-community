@@ -940,7 +940,7 @@ function changeSite(sel) {
                                     </td>
                                 </tr>
                                 <%
-                                	Set<TicklerComment> tcomments = t.getComments();
+                                	Set<TicklerComment> tcomments = t.getCommentsSortedByDate();
                                                                     if (ticklerEditEnabled && !tcomments.isEmpty()) {
                                                                         for(TicklerComment tc : tcomments) {
                                 %>

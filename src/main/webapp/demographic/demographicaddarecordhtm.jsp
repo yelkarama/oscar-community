@@ -1456,6 +1456,7 @@ document.forms[1].r_doctor_ohip.value = refNo;
 					type="text" name="end_date_date" size="2" maxlength="2"></td>
 			</tr>
 
+		<oscar:oscarPropertiesCheck property="DEMOGRAPHIC_PROGRAM_ADMISSIONS" value="true">
 			<tr valign="top">
 			    <td colspan="4">
 			        <table border="1" width="100%">
@@ -1498,6 +1499,7 @@ document.forms[1].r_doctor_ohip.value = refNo;
 			        </table>
 			    </td>
 			</tr>
+		</oscar:oscarPropertiesCheck>
 
 
 			<% if(oscarVariables.getProperty("demographicExt") != null) {

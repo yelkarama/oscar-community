@@ -208,3 +208,9 @@ p {
 .weekView {
 	color:#000;
 }
+
+.alert-bar {
+	background-color: #f44336;
+	color: white;
+	text-align:center;
+}

@@ -214,7 +214,7 @@
                 </tr>
                 
                     <%
-                                    	Set<TicklerComment> tComments = t.getComments(); 
+                                    	Set<TicklerComment> tComments = t.getCommentsSortedByDate(); 
                                                           for (TicklerComment tc : tComments) { 
                                                                if (cellColour.equals("lilac")) {
                                                                     cellColour = "white";

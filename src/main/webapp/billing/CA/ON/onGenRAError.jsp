@@ -35,7 +35,7 @@ String transactiontype="", providerno="", specialty="", account="", patient_last
 String servicedate="", serviceno="", servicecode="", amountsubmit="", amountpay="", amountpaysign="", explain="", error="";
 String proFirst="", proLast="", demoFirst="", demoLast="", apptDate="", apptTime="", checkAccount="";
 
-proNo = request.getParameter("proNo")!=null? request.getParameter("proNo") : "";
+proNo = (request.getParameter("proNo")!=null) ? request.getParameter("proNo") : "";
 raNo = request.getParameter("rano");
 if (raNo == null || raNo.compareTo("") == 0) return;
 %>
@@ -75,86 +75,49 @@ for(int i=0; i<aL.size(); i++) {
 </table>
 
 
-<% 
-if (proNo.compareTo("") == 0 || proNo.compareTo("all") == 0){ 
-%>
-<table width="100%" border="1" cellspacing="0" cellpadding="0">
+<table width="100%" border="0" cellspacing="1" cellpadding="0"
+	class="myIvory">
 	<tr class="myYellow">
 		<th width="10%">Billing No</th>
-		<th width="15%">Demographic</th>
+		<th width="25%">Demographic</th>
 		<th width="10%">Service Date</th>
 		<th width="10%">Service Code</th>
-		<th width="15%">Count</th>
+		<th width="10%">Count</th>
 		<th width="15%">Claim</th>
 		<th width="15%">Pay</th>
 		<th>Error</th>
 	</tr>
 
-	<%
-
-%>
-	<tr>
-		<td><%=account%></td>
-		<td><%=demoLast%></td>
-		<td><%=servicedate%></td>
-		<td><%=servicecode%></td>
-		<td><%=serviceno%></td>
-		<td align=right><%=amountsubmit%></td>
-		<td align=right><%=amountpay%></td>
-		<td align=right><%=explain%></td>
-	</tr>
-
-	<%
-
-} else {
-%>
-
-	<table width="100%" border="0" cellspacing="1" cellpadding="0"
-		class="myIvory">
-		<tr class="myYellow">
-			<th width="10%">Billing No</th>
-			<th width="25%">Demographic</th>
-			<th width="10%">Service Date</th>
-			<th width="10%">Service Code</th>
-			<th width="10%">Count</th>
-			<th width="15%">Claim</th>
-			<th width="15%">Pay</th>
-			<th>Error</th>
-		</tr>
-
 		<%//	
+if (proNo.compareTo("") == 0 || proNo.compareTo("all") == 0)
+	aL = obj.getRAErrorReport(raNo, new String[] {"I2"});
+else
 	aL = obj.getRAErrorReport(raNo, proNo, new String[] {"I2"});
-	for(int i=0; i<aL.size(); i++) {
-		Properties prop = (Properties) aL.get(i);
-		account = prop.getProperty("account", "");
-		demoLast = prop.getProperty("demoLast", "");
-		servicecode = prop.getProperty("servicecode", "");
-		servicedate = prop.getProperty("servicedate", "");
-		serviceno = prop.getProperty("serviceno", "");
-		explain = prop.getProperty("explain", "");
-		amountsubmit = prop.getProperty("amountsubmit", "");
-		amountpay = prop.getProperty("amountpay", "");
-%>
-		<tr <%=i%2==0? "class='myGreen'" : "" %>>
-			<td align="center"><%=account%></td>
-			<td><%=demoLast%></td>
-			<td align="center"><%=servicedate%></td>
-			<td align="center"><%=servicecode%></td>
-			<td align="center"><%=serviceno%></td>
-			<td align="right"><%=amountsubmit%></td>
-			<td align="right"><%=amountpay%></td>
-			<td align="right"><%=explain%></td>
-		</tr>
+	
 
-		<%
-	}
+for(int i=0; i<aL.size(); i++) {
+	Properties prop = (Properties) aL.get(i);
+	account = prop.getProperty("account", "");
+	demoLast = prop.getProperty("demoLast", "");
+	servicecode = prop.getProperty("servicecode", "");
+	servicedate = prop.getProperty("servicedate", "");
+	serviceno = prop.getProperty("serviceno", "");
+	explain = prop.getProperty("explain", "");
+	amountsubmit = prop.getProperty("amountsubmit", "");
+	amountpay = prop.getProperty("amountpay", "");
 %>
-
-	</table>
-
-	<%
-}
-%>
+	<tr <%=i%2==0? "class='myGreen'" : "" %>>
+		<td align="center"><%=account%></td>
+		<td><%=demoLast%></td>
+		<td align="center"><%=servicedate%></td>
+		<td align="center"><%=servicecode%></td>
+		<td align="center"><%=serviceno%></td>
+		<td align="right"><%=amountsubmit%></td>
+		<td align="right"><%=amountpay%></td>
+		<td align="right"><%=explain%></td>
+	</tr>
+<% } %>
+</table>
 
 </body>
 </html>

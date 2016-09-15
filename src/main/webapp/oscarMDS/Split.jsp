@@ -49,16 +49,6 @@ if(!authed) {
 	</ul>
 </div>
 
-<div id="pickertoolscontainer">
-	<ul id="pickertools">
-		<li id="tool_add"><img src="../images/icons/103.png"><span>Add</span></li>
-		<li id="tool_remove"><img src="../images/icons/101.png"><span>Remove</span></li>
-		<li id="tool_rotate"><img src="../images/icons/114.png"><span>Rotate</span></li>
-		<li id="tool_savecontinue"><img src="../images/icons/172.png"><span>Save &amp; Continue</span></li>
-		<li id="tool_done"><img src="../images/icons/071.png"><span>Done</span></li>
-	</ul>
-</div>
-
 <div id="pickercontainer">
 <ul id="picker">
 <%
@@ -76,6 +66,18 @@ for (int i = 1; i <= thisDocument.getNumberofpages(); i++) {
 %>
 </ul>
 </div>
+
+<div id="pickertoolscontainer">
+	<ul id="pickertools">
+		<li id="tool_add"><img src="../images/icons/103.png"><span>Add</span></li>
+		<li id="tool_remove"><img src="../images/icons/101.png"><span>Remove</span></li>
+		<li id="tool_rotate"><img src="../images/icons/114.png"><span>Rotate</span></li>
+		<li id="tool_savecontinue"><img src="../images/icons/172.png"><span>Save &amp; Continue</span></li>
+		<li id="tool_done"><img src="../images/icons/071.png"><span>Done</span></li>
+	</ul>
+</div>
+
+
 </div>
 
 <input type="hidden" id="document_no" value="<%=documentId %>" />

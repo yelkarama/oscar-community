@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -50,6 +51,8 @@ import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 import org.oscarehr.PMmodule.model.Program;
 import org.oscarehr.util.LocaleUtils;
+
+import java.util.Collections;
 import java.util.Comparator;
 
 @Entity
@@ -66,10 +69,6 @@ public class Tickler extends AbstractModel<Integer> {
 	public static final String LOW = "Low";
         
         public static final String NOT_APPLICABLE = "N/A";
-	
-	public static enum STATUS {
-        A, C, D
-	}
 	
 	public static enum PRIORITY {
         High, Normal, Low
@@ -89,8 +88,7 @@ public class Tickler extends AbstractModel<Integer> {
 	private String message;
 	
 	@Column(length=1)
-	@Enumerated(EnumType.STRING)
-	private STATUS status = STATUS.A;
+	private String status = ACTIVE;
 	
 	@Column(name="update_date")
 	@Temporal(TemporalType.TIMESTAMP)
@@ -150,7 +148,7 @@ public class Tickler extends AbstractModel<Integer> {
 	public Tickler() {
 		setUpdateDate(new Date());
 		setServiceDate(new Date());
-		setStatus(STATUS.A);
+		setStatus(ACTIVE);
 		setPriority(PRIORITY.Normal);
 	}
 	
@@ -185,12 +183,12 @@ public class Tickler extends AbstractModel<Integer> {
 	public void setMessage(String message) {
 		this.message = message;
 	}
-
-	public STATUS getStatus() {
+	
+	public String getStatus() {
 		return status;
 	}
-
-	public void setStatus(STATUS status) {
+	
+	public void setStatus(String status) {
 		this.status = status;
 	}
 
@@ -245,6 +243,12 @@ public class Tickler extends AbstractModel<Integer> {
 	public Set<TicklerComment> getComments() {
 		return comments;
 	}
+	
+	public Set<TicklerComment> getCommentsSortedByDate() {
+		TreeSet<TicklerComment> sortedComments = new TreeSet<TicklerComment>(TicklerComment.CreationDateAscComparator);
+		sortedComments.addAll(comments);
+		return sortedComments;
+	}
 
 	public void setComments(Set<TicklerComment> comments) {
 		this.comments = comments;
@@ -286,13 +290,13 @@ public class Tickler extends AbstractModel<Integer> {
 
     public String getStatusDesc(Locale locale) {
         String statusStr = "";            
-        if (status.equals(Tickler.STATUS.A)){
+        if (status.equals(Tickler.ACTIVE)){
             statusStr = LocaleUtils.getMessage(locale,"tickler.ticklerMain.stActive");
         }
-        else if (status.equals(Tickler.STATUS.C)) {               
+        else if (status.equals(Tickler.COMPLETED)) {               
             statusStr = LocaleUtils.getMessage(locale,"tickler.ticklerMain.stComplete");
         }
-        else if (status.equals(Tickler.STATUS.D)) {                
+        else if (status.equals(Tickler.DELETED)) {                
             statusStr = LocaleUtils.getMessage(locale,"tickler.ticklerMain.stDeleted");
         }
         return statusStr;
@@ -300,11 +304,11 @@ public class Tickler extends AbstractModel<Integer> {
     
     public void setStatusAsChar(char s) {
     	if(s == 'A' || s == 'a')
-    		setStatus(Tickler.STATUS.A);
+    		setStatus(Tickler.ACTIVE);
     	else if(s == 'C' || s == 'c')
-    		setStatus(Tickler.STATUS.C);
+    		setStatus(Tickler.COMPLETED);
     	else if(s == 'D' || s == 'd')
-    		setStatus(Tickler.STATUS.D);
+    		setStatus(Tickler.DELETED);
     	else
     		throw new IllegalArgumentException("Invalid status");
     }
@@ -352,16 +356,16 @@ public class Tickler extends AbstractModel<Integer> {
 
 	public void setStatusWeb(String s) {
 		if(s != null && s.equals("C")) {
-			setStatus(Tickler.STATUS.C);
+			setStatus(Tickler.COMPLETED);
 		} else if(s != null && s.equals("D")) {
-			setStatus(Tickler.STATUS.D);
+			setStatus(Tickler.DELETED);
 		} else if(s != null && s.equals("A")){
-			setStatus(Tickler.STATUS.A);
+			setStatus(Tickler.ACTIVE);
 		}
 	}
 	
 	public String getStatusWeb() {
-		return getStatus().toString();
+		return getStatus();
 	}
 	
 	public void setPriorityWeb(String s) {

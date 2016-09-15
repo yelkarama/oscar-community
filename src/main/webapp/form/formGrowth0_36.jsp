@@ -321,7 +321,7 @@ function htEnglish2Metric(source) {
 			<table width="100%" border="0" cellspacing="0" cellpadding="0"
 				bgcolor="<%= bGirl? girlColor:boyColor%>">
 				<tr>
-					<th align="left"><%= bGirl? "GIRLS:" : "BOYS:"%> Birth to 24
+					<th align="left"><%= bGirl? "GIRLS:" : "BOYS:"%> Birth to 36
 					Months<br>
 					WHO GROWTH CHARTS <span style="font-size: 6pts;">*(Rourke will graph input here to 19 years)</span></th>
 				</tr>
