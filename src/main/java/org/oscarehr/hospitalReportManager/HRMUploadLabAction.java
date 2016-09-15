@@ -32,7 +32,7 @@ public class HRMUploadLabAction extends DispatchAction {
         FormFile importFile = frm.getImportFile();
         
         try {
-	        String filePath = Utilities.saveHRMFile(importFile.getInputStream(), importFile.getFileName());
+	        String filePath = Utilities.saveFile(importFile.getInputStream(), importFile.getFileName());
 	        
 	        HRMReport report = HRMReportParser.parseReport(loggedInInfo,filePath);
 	        if (report != null) HRMReportParser.addReportToInbox(loggedInInfo,report);
