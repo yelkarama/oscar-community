@@ -677,7 +677,7 @@ public class OscarChartPrinter {
         	String assigneeName = tickler.getAssignee().getFormattedName();
         	String serviceDate = tickler.getServiceDateWeb();
         	String priority = tickler.getPriority().toString();
-        	char status = tickler.getStatus().toString().charAt(0);
+        	String status = tickler.getStatus();
         	String message = tickler.getMessage();
 
 

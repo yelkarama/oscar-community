@@ -429,7 +429,7 @@ function toggleSelectAll() {
 	                	//Declares the displayName variable
 	                	String hrmDisplayName;
 	                	//If the HRM document has a description
-	                	if (hrmDocument.getDescription != null && !hrmDocument.getDescription().equals("")) {
+	                	if (hrmDocument.getDescription() != null && !hrmDocument.getDescription().equals("")) {
 	                		//Set the displayName to the description if it is present
 	                		hrmDisplayName = hrmDocument.getDescription();
 	                	}

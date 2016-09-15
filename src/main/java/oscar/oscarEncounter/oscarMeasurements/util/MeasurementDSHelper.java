@@ -141,9 +141,9 @@ public class MeasurementDSHelper {
            log.debug("Trying to parse "+data);
            ret = Double.parseDouble(  data.split(delimiter)[number]  );
         }catch(Exception e){
-                
             MiscUtils.getLogger().error("Error", e);
             problem = true;
+            ret = 0d;
         }
         return ret;
     }

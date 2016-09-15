@@ -1319,11 +1319,19 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 		jQuery.get("<%=request.getContextPath()%>/FacilityMessage.do?method=view","html",function(data,textStatus){
 			jQuery("#facility_message").html(data);
 		});
+		jQuery.get("<%=request.getContextPath()%>/servlet/OscarProviderMessage","html",function(data,textStatus){
+			jQuery("#oscar_provider_message").html(data);
+		});
+		
 	});
 </script>
 
+
 <div id="system_message"></div>
 <div id="facility_message"></div>
+<div class="alert-bar">
+	<strong id="oscar_provider_message"></strong>
+</div>
 <%
 	if (caseload) {
 %>
@@ -1881,7 +1889,7 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
 <%
 	while (bFirstTimeRs?it.hasNext():true) { //if it's not the first time to parse the standard time, should pass it by
                   appointment = bFirstTimeRs?it.next():appointment;
-                  len = bFirstTimeRs&&!bFirstFirstR?lenLimitedS:lenLimitedL;
+                  len = lenLimitedL;
                   String strStartTime = ConversionUtils.toTimeString(appointment.getStartTime());
                   String strEndTime = ConversionUtils.toTimeString(appointment.getEndTime());
                   

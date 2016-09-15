@@ -249,6 +249,16 @@ public class RaDetailDao extends AbstractDao<RaDetail> {
 		query.setParameter("errorCode", errorCode);
 		return query.getResultList();
     }
+	
+	public List<Integer> findDistinctIdWithError(Integer raHeaderNo, List<String> codes) {
+	    Query query = createQuery("select distinct r.billingNo","r", "r.raHeaderNo = :raHeaderNo " +
+				"AND r.errorCode <> '' " +
+				"AND r.errorCode NOT IN (:codes)");
+		
+		query.setParameter("raHeaderNo", raHeaderNo);
+		query.setParameter("codes", codes);
+		return query.getResultList();
+    }
 
 	public List<Integer> findDistinctIdOhipWithError(Integer raHeaderNo, String providerOhipNo, List<String> codes) {
 	    Query query = createQuery("select distinct r.billingNo","r", "r.raHeaderNo = :raHeaderNo " +
@@ -260,7 +270,6 @@ public class RaDetailDao extends AbstractDao<RaDetail> {
 		query.setParameter("providerOhipNo", providerOhipNo);
 		query.setParameter("codes", codes);
 		return query.getResultList();
-	    
     }
 
 	public List<RaDetail> findByHeaderAndBillingNos(Integer raHeaderNo, Integer billingNo) {

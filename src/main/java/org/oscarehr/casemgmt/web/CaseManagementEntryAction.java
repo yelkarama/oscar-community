@@ -2063,7 +2063,8 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 					+ "&apptProvider_no=" + apptProvider
 					+ "&appointment_date=" + date
 					+ "&start_time=" + start_time
-					+ "&bNewForm=1" + dxCodes.toString();
+					+ "&bNewForm=1"
+					+ "&fromEncounter=true" + dxCodes.toString();
 			logger.debug("BILLING URL " + url);
 			ActionForward forward = new ActionForward();
 			forward.setPath(url);

@@ -4,8 +4,8 @@ body {
 }
 #picker {
 	list-style: none;
-	width: 720px;
-	height: 1024px;
+	width: 250px;
+	height: 500px;
 	overflow-y: scroll;
 	overflow-x: hidden;
 	margin: 0;
@@ -46,8 +46,7 @@ body {
 }
 
 #picker img, #picker canvas, .ui-draggable-dragging img, .ui-draggable-dragging canvas {
-	width: 720px;
-	height:1024px;
+	width: 200px;
 	cursor: pointer;
 	vertical-align: middle;
 	box-shadow: 0px 1px 3px #333333;
@@ -70,12 +69,13 @@ body {
 }
 
 #pickercontainer {
-	width: 900px;
+	width: 300px;
 	overflow-x: hidden;
+	float: right;
 }
 
 #buildercontainer {
-	width: 800px;
+	width: 75%;
 	height: 430px;
 	text-align: center;
 	overflow-x: scroll;
@@ -183,9 +183,4 @@ body {
 
 #builder .jog-control {
 	display: inline;
-}
-
-#mastercontainer {
-	width: 1400px;
-	height: 900px;
 }

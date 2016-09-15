@@ -282,7 +282,7 @@ String curUser_no = (String) session.getAttribute("user");
                                         	}
                                 		%>
 
-                                	<jsp:include page="../hospitalReportManager/Display.do" flush="true">
+                                	<%-- <jsp:include page="../hospitalReportManager/Display.do" flush="true">
                                 		<jsp:param name="id" value="<%=segmentID %>" />
                                 		<jsp:param name="segmentID" value="<%=segmentID %>" />
                                 		<jsp:param name="providerNo" value="<%=providerNo %>" />
@@ -290,7 +290,7 @@ String curUser_no = (String) session.getAttribute("user");
                                 		<jsp:param name="status" value="<%=status %>" />
                                 		<jsp:param name="demoName" value="<%=result.getPatientName() %>" />
                                 		<jsp:param name="duplicateLabIds" value="<%=duplicateLabIds.toString() %>" />
-                                	</jsp:include>
+                                	</jsp:include> --%>
 		                        		<% } else {
 
 		                        		%>
