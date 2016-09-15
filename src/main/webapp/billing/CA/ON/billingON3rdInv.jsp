@@ -418,7 +418,7 @@ bdBal = bdBal.subtract(bdPay).subtract(bdDis).add(bdCre);
 		<td><%=bdBal %></td>
 	</tr>
 	<tr align="right">
-		<td>(<%=prop3rdPayMethod.getProperty(prop3rdPart.getProperty("payMethod",""), "") %>)</td>
+		<td><%=!paymentDescription.equals("") ? "(" + paymentDescription + ")" : "" %></td>
 		<td></td>
 	</tr>
 </table>

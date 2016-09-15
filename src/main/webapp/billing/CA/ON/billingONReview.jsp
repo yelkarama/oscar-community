@@ -309,7 +309,6 @@ boolean dupServiceCode = false;
 		     popupPage('600', '700', 'onSearch3rdBillAddr.jsp?param='+t0);
 		}
                 function showtotal(){
-                	document.getElementById('payMethod_0').checked=true;
                     var subtotal = document.getElementById("total").value;
                     //subtotal = subtotal * 1 + document.getElementById("gst").value * 1;
                     var element = document.getElementById("stotal");
