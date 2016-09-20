@@ -42,7 +42,8 @@ public class HRMResultsData {
 	public HRMResultsData() {
 	}
 
-	public Collection<LabResultData> populateHRMdocumentsResultsData(LoggedInInfo loggedInInfo, String providerNo, String status, Date newestDate, Date oldestDate) {
+	public Collection<LabResultData> populateHRMdocumentsResultsData(LoggedInInfo loggedInInfo, String providerNo, String status, Date newestDate, Date oldestDate,
+																		boolean isPaged, Integer page, Integer pageSize) {
 		if (providerNo == null || "".equals(providerNo)) {
 			providerNo = "%";
 		} else if (providerNo.equalsIgnoreCase("0")) {
@@ -62,7 +63,8 @@ public class HRMResultsData {
 			signedOff = 2;
 		}
 
-		List<HRMDocumentToProvider> hrmDocResultsProvider = hrmDocumentToProviderDao.findByProviderNoLimit(providerNo, newestDate, oldestDate, viewed, signedOff);
+		List<HRMDocumentToProvider> hrmDocResultsProvider = hrmDocumentToProviderDao.findByProviderNoLimit(providerNo, newestDate, oldestDate, viewed, signedOff,
+																											 isPaged, page, pageSize);
 
 		// the key = SendingFacility+':'+ReportNumber+':'+DeliverToUserID as per HRM spec can be used to signify duplicate report
 		HashMap<String,LabResultData> labResults=new HashMap<String,LabResultData>();
