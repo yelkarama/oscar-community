@@ -615,12 +615,12 @@ changePassword.moveTo(0,0);
 }
 function popupInboxManager(varpage){
     var page = "" + varpage;
-    var windowname="_blank";
-    //var windowname="apptProviderInbox";
+    //var windowname="_blank";
+    var windowname="apptProviderInbox";
     windowprops = "height=700,width=1215,location=no,"
     + "scrollbars=yes,menubars=no,toolbars=no,resizable=yes,top=10,left=0";
-    var popup = window.open(page, windowname);
-    //var popup = window.open(page, windowname, windowprops);
+    //var popup = window.open(page, windowname);
+    var popup = window.open(page, windowname, windowprops);
     if (popup != null) {
         if (popup.opener == null) {
             popup.opener = self;
