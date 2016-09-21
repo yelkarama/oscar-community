@@ -502,11 +502,11 @@ public class RxUtil {
 		if (instructions == null) {
 			instructions = "";
 		}
-		String route = "";
-		String frequency = "";
-		String duration = "0";
-		String method = "";
-		String durationUnit = "";
+		String route = (rx.getRoute() != null) ? rx.getRoute() : "";
+		String frequency = (rx.getFreqDisplay() != null) ? rx.getFreqDisplay() : "";
+		String duration = (rx.getDuration() != null) ? rx.getDuration() : "";
+		String method = (rx.getMethod() != null) ? rx.getMethod() : "";
+		String durationUnit = (rx.getDurationUnit() != null) ? rx.getDurationUnit() : "";
 		String durationUnitSpec = "";
 		boolean prn = false;
 		String amountFrequency = "";
@@ -515,8 +515,8 @@ public class RxUtil {
 		String takeMaxFrequency = "";
 		String takeMinMethod = "";
 		String takeMaxMethod = "";
-		String takeMin = "0";
-		String takeMax = "0";
+		String takeMin = (rx.getTakeMinString() != null) ? rx.getTakeMinString() : "";
+		String takeMax = (rx.getTakeMaxString() != null) ? rx.getTakeMaxString() : "";
 		String durationSpec = "";
 		int quantity = 0;
 		List<String> policyViolations = new ArrayList<String>();
