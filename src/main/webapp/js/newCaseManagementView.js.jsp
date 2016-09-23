@@ -22,7 +22,7 @@
     Toronto, Ontario, Canada
 
 --%>
-<%@page contentType="text/javascript"%>
+<%@page contentType="application/javascript"%>
 <%@page import="org.oscarehr.casemgmt.common.Colour"%>
 
 	var numNotes = 0;   //How many saved notes do we have?
