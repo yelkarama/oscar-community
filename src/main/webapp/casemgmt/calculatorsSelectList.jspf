@@ -12,42 +12,45 @@
 	if( !eforms.isEmpty() ) {
 	   ukpdsFid = eforms.get(eforms.size()-1).getId();
 	}
+	
+
+
 %>
 
-
-  <select style="width:100px;">
+</script>
+  <select id = "menu1" style="width:100px;" onchange="javascript:chooseSelected(this);">
 	<option><bean:message key="oscarEncounter.Header.Calculators"/></option>
 	<option>----------------------</option>
 	
-	<option onclick="popperup(650,775,'http://www.mcw.edu/calculators/body-mass-index.htm','BodyMassIndex');">
+	<option data-width="525" data-height="775" data-url='http://www.mcw.edu/calculators/body-mass-index.htm' data-name='BodyMassIndex'>
 		<bean:message key="oscarEncounter.Index.bodyMass" />
 	</option>
 	
-	<option onclick="popperup(525,775,'../oscarEncounter/calculators/CoronaryArteryDiseaseRiskPrediction.jsp?sex=<%=bean.patientSex%>&age=<%=pAge%>','CoronaryArteryDiseaseRisk');">
+	<option data-width="525" data-height="775" data-url='../oscarEncounter/calculators/CoronaryArteryDiseaseRiskPrediction.jsp?sex=<%=bean.patientSex%>&age=<%=pAge%>' data-name='CoronaryArteryDiseaseRisk'>
 		<bean:message key="oscarEncounter.Index.coronary" />
 	</option>
 	
-	<option onclick="popperup(525,775,'../oscarEncounter/calculators/riskcalc/index.html?sex=<%=bean.patientSex%>&age=<%=pAge%>','Framingham');">
+	<option data-width="525" data-height="775" data-url='../oscarEncounter/calculators/riskcalc/index.html?sex=<%=bean.patientSex%>&age=<%=pAge%>' data-name='Framingham'>
 		Framingham/UKPDS Risk Calculator
 	</option>
 	
-	<option onclick="popperup(525,775,'http://cvrisk.mvm.ed.ac.uk/calculator/calc.asp','CVRisk');">
+	<option data-width="525" data-height="775" data-url='http://cvrisk.mvm.ed.ac.uk/calculator/calc.asp' data-name='CVRisk'>
 		CV Risk
 	</option>
 	
-	<option onclick="popperup(525,775,'../oscarEncounter/calculators/OsteoporoticFracture.jsp?sex=<%=bean.patientSex%>&age=<%=pAge%>','OsteoporoticFracture');">
+	<option data-width="525" data-height="775" data-url='../oscarEncounter/calculators/OsteoporoticFracture.jsp?sex=<%=bean.patientSex%>&age=<%=pAge%>' data-name='OsteoporoticFracture'>
 		<bean:message key="oscarEncounter.Index.msgOsteoporotic" />
 	</option>
 	
-	<option onclick="popperup(650,775,'http://www.mcw.edu/calculators/pregnancydate.htm','PregancyCalculator');">
+	<option data-width="650" data-height="775" data-url='http://www.mcw.edu/calculators/pregnancydate.htm' data-name='PregancyCalculator'>
 		<bean:message key="oscarEncounter.Index.pregnancy" />
 	</option>
 	
-	<option onclick="popperup(400,500,'../oscarEncounter/calculators/SimpleCalculator.jsp','SimpleCalc');">
+	<option data-width="400" data-height="500" data-url='../oscarEncounter/calculators/SimpleCalculator.jsp' data-name='SimpleCalc'>
 		<bean:message key="oscarEncounter.Index.simpleCalculator" />
 	</option>
 	
-	<option onclick="popperup(650,775,'../oscarEncounter/calculators/GeneralCalculators.jsp','GeneralConversions'); ">
+	<option data-width="650" data-height="775" data-url='../oscarEncounter/calculators/GeneralCalculators.jsp' data-name='GeneralConversions'>
 		<bean:message key="oscarEncounter.Index.generalConversions" />
 	</option>
 </select>
