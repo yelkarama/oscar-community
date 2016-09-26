@@ -459,8 +459,8 @@ function checkFormTypeIn() {
 }
 
 function checkTitleSex(ttl) {
-   // if (ttl=="MS" || ttl=="MISS" || ttl=="MRS" || ttl=="SR") document.adddemographic.sex.selectedIndex=1;
-	//else if (ttl=="MR" || ttl=="MSSR") document.adddemographic.sex.selectedIndex=0;
+   if (ttl=="MS" || ttl=="MISS" || ttl=="MRS" || ttl=="SR") document.adddemographic.sex.selectedIndex=2;
+	else if (ttl=="MR" || ttl=="MSSR") document.adddemographic.sex.selectedIndex=1;
 }
 
 function removeAccents(s){
