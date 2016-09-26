@@ -557,6 +557,7 @@ window.onload=function(){
 	<input type="hidden" name="billStatus_old" id="billStatus_old" value="<%=request.getParameter("billStatus_old")%>" />
 	<input type="hidden" name="billForm" id="billForm" value="<%=request.getParameter("billForm")%>" />
     <input type="hidden" name="payeename" id="payeename" value="" />
+    <input type="hidden" name="xml_location" id="xml_location" value="<%=request.getParameter("xml_location")%>" />
 <table border="0" cellpadding="0" cellspacing="2" width="100%" class="myIvory">
 	<tr>
 		<td>
