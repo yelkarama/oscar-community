@@ -108,7 +108,7 @@ public class HRMDocumentToProviderDao extends AbstractDao<HRMDocumentToProvider>
 		query.setParameter(1, hrmDocumentId);
 		query.setParameter(2, providerNo);
 		try {
-			return (HRMDocumentToProvider) query.getSingleResult();
+			return (HRMDocumentToProvider) query.getResultList().get(0); //get first result
 		} catch (Exception e) {
 			return null;
 		}
