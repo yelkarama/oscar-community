@@ -30,6 +30,7 @@
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
 <%@ page import="java.lang.*,oscar.oscarEncounter.oscarMeasurements.pageUtil.*"%>
+<%@ page import="oscar.OscarProperties"%>
 
 <html:html locale="true">
 <head>
@@ -39,8 +40,22 @@
 
 <script language="javascript"> 
 function closeWin() {
-     self.opener.location.reload(); 
-     self.close();     
+	self.opener.location.reload(); 
+	<%if (request.getAttribute("textOnEncounter")!=null && !OscarProperties.getInstance().isPropertyActive("measurements_create_new_note")) {%>
+		if(opener.opener!=null || opener!=null){
+			if(opener.opener.document.forms["caseManagementEntryForm"] != undefined) {        
+				//from Templateflowsheet
+				opener.opener.pasteToEncounterNote('<%=request.getAttribute("textOnEncounter")%>');
+				self.close();   
+			} 
+			else if(opener.document.forms["caseManagementEntryForm"] != undefined) { 
+				opener.pasteToEncounterNote('<%=request.getAttribute("textOnEncounter")%>');
+				self.close();   
+			}
+		}
+	<%}%>
+	
+	self.close();     
 }
 </script>
 
