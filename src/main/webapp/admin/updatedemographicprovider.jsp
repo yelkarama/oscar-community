@@ -43,7 +43,6 @@ if(!authed) {
 
 <%@ page import="java.util.*, java.sql.*, oscar.*, java.text.*, java.lang.*,java.net.*" errorPage="../appointment/errorpage.jsp"%>
 
-<jsp:useBean id="novector" class="java.util.Vector" scope="page" />
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.model.DemographicCust" %>
 <%@ page import="org.oscarehr.common.dao.DemographicCustDao" %>
@@ -56,6 +55,7 @@ if(!authed) {
 	java.util.Properties oscarVariables = OscarProperties.getInstance();
 	
 	List<String> names = new ArrayList<String>();	
+	List<Integer> noList = new ArrayList<Integer>();
 	
 	String nurseMessageKey = "admin.updatedemographicprovider.msgNurse";
 	String midwifeMessageKey = "admin.updatedemographicprovider.msgMidwife";
@@ -94,7 +94,7 @@ function setregexp2() {
 	document.ADDAPPT2.regexp.value = exp ;
 	//alert(document.ADDAPPT2.regexp.value);
 }
-// stop javascript -->
+<!-- // stop javascript -->
 </script>
 
 <%
@@ -107,25 +107,25 @@ function setregexp2() {
 <div class="container-fluid">
 <h3><bean:message key="admin.admin.btnUpdatePatientProvider" /></h3>
 <%
-  if(request.getParameter("update")!=null && request.getParameter("update").equals(" Go ") ) {
+  if(request.getParameter("update")!=null && request.getParameter("update").equals("UpdateResident") ) {
    
-    Integer demoNo = demographicCustDao.select_demoname(request.getParameter("oldcust2"), request.getParameter("regexp"));
-    if (demoNo != null) {
-        novector.add(demoNo.toString());
-    }
-    int nosize = novector.size();
+    //Integer demoNo = demographicCustDao.select_demoname(request.getParameter("oldcust2"), request.getParameter("regexp"));
+    //if (demoNo != null) {
+        noList = demographicCustDao.select_demoname(request.getParameter("oldcust2"), request.getParameter("regexp"));
+    //}
+    int nosize = noList.size();
     int rowsAffected = 0;
     if(nosize != 0) {
       String [] param = new String[nosize+2] ;
       param[0] = request.getParameter("newcust2") ;
       param[1] = request.getParameter("oldcust2") ;
       StringBuffer sbtemp = new StringBuffer("?") ;
-      param[0+2] = (String) novector.get(0);
+      param[0+2] = noList.get(0).toString();
 
       if(nosize>1) {
           for(int i=1; i<nosize; i++) {
  	      sbtemp = sbtemp.append(",?");
-              param[i+2] = (String) novector.get(i);
+              param[i+2] = noList.get(i).toString();
  	  }
       }
       String instrdemo = sbtemp.toString();
@@ -146,14 +146,14 @@ function setregexp2() {
 <br>
 <%}
 
-  if(request.getParameter("update")!=null && request.getParameter("update").equals(" Submit ") ) {
-	  Integer demoNo = demographicCustDao.select_demoname1(request.getParameter("oldcust1"), request.getParameter("regexp"));
-	    if (demoNo != null) {
-	    	 novector.add(demoNo.toString());
-	    }
+  if(request.getParameter("update")!=null && request.getParameter("update").equals("UpdateNurse") ) {
+	  //Integer demoNo = demographicCustDao.select_demoname1(request.getParameter("oldcust1"), request.getParameter("regexp"));
+	   // if (demoNo != null) {
+	    	 noList = demographicCustDao.select_demoname1(request.getParameter("oldcust1"), request.getParameter("regexp"));
+	   // }
 
   
-    int nosize = novector.size();
+    int nosize = noList.size();
     int rowsAffected = 0;
 
     if(nosize != 0) {
@@ -162,12 +162,12 @@ function setregexp2() {
       param[1] = request.getParameter("oldcust1") ;
 
       StringBuffer sbtemp = new StringBuffer("?") ;
-      param[0+2] = (String) novector.get(0);
+      param[0+2] = noList.get(0).toString();
 
       if(nosize>1) {
           for(int i=1; i<nosize; i++) {
  	      sbtemp = sbtemp.append(",?");
-              param[i+2] = (String) novector.get(i);
+              param[i+2] = noList.get(i).toString();
  	  }
       }
      
@@ -189,12 +189,12 @@ function setregexp2() {
 <%}
 
   if(request.getParameter("update")!=null && request.getParameter("update").equals("UpdateMidwife") ) {
-	  Integer demoNo = demographicCustDao.select_demoname2(request.getParameter("oldcust4"), request.getParameter("regexp"));
-	    if (demoNo != null) {
-	    	 novector.add(demoNo.toString());
-	    }
+	  //Integer demoNo = demographicCustDao.select_demoname2(request.getParameter("oldcust4"), request.getParameter("regexp"));
+	  //  if (demoNo != null) {
+	    	 noList = demographicCustDao.select_demoname2(request.getParameter("oldcust4"), request.getParameter("regexp"));
+	  //  }
 
-    int nosize = novector.size();
+    int nosize = noList.size();
     int rowsAffected = 0;
 
     if(nosize != 0) {
@@ -203,12 +203,12 @@ function setregexp2() {
       param[1] = request.getParameter("oldcust4") ;
 
       StringBuffer sbtemp = new StringBuffer("?") ;
-      param[0+2] = (String) novector.get(0);
+      param[0+2] = noList.get(0).toString();
 
       if(nosize>1) {
           for(int i=1; i<nosize; i++) {
  	      sbtemp = sbtemp.append(",?");
-              param[i+2] = (String) novector.get(i);
+              param[i+2] = noList.get(i).toString();
  	  }
       }
       String instrdemo = sbtemp.toString();
@@ -245,8 +245,8 @@ function setregexp2() {
 			key="<%= nurseMessageKey %>" /></b></td>
 	</tr>
 	<tr>
-		<td><bean:message key="admin.updatedemographicprovider.formUse" />
-		<select name="newcust1">
+		<td><bean:message key="admin.updatedemographicprovider.formReplace" />
+		<select name="oldcust1">
 			<%
  	 for(int i=0; i<names.size(); i=i+2) {
 %>
@@ -254,8 +254,9 @@ function setregexp2() {
 			<%
  	 }
 %>
-		</select> <bean:message key="admin.updatedemographicprovider.formReplace" /> <select
-			name="oldcust1">
+		</select> <bean:message key="admin.updatedemographicprovider.formWith" /> 
+		<select name="newcust1">
+		<option value=""><bean:message key="admin.updatedemographicprovider.msgNoProvider" /></option>
 			<%
  	 for(int i=0; i<names.size(); i=i+2) {
 %>
@@ -286,7 +287,7 @@ function setregexp2() {
 %>
 		</select> <br>
 		<INPUT TYPE="hidden" NAME="regexp" VALUE=""> <input
-			type="hidden" name="update" value=" Submit "> <INPUT class="btn btn-primary"
+			type="hidden" name="update" value="UpdateNurse"> <INPUT class="btn btn-primary"
 			TYPE="submit"
 			VALUE="<bean:message key="global.update"/>">
 		</td>
@@ -304,8 +305,8 @@ function setregexp2() {
 		<td><b><bean:message key="<%= midwifeMessageKey %>" /></b></td>
 	</tr>
 	<tr>
-		<td><bean:message key="admin.updatedemographicprovider.formUse" />
-		<select name="newcust4">
+		<td><bean:message key="admin.updatedemographicprovider.formReplace" />
+		<select name="oldcust4">
 			<%
  	 for(int i=0; i<names.size(); i=i+2) {
 %>
@@ -313,8 +314,9 @@ function setregexp2() {
 			<%
  	 }
 %>
-		</select> <bean:message key="admin.updatedemographicprovider.formReplace" /> <select
-			name="oldcust4">
+		</select> <bean:message key="admin.updatedemographicprovider.formWith" /> <select
+			name="newcust4">
+		<option value=""><bean:message key="admin.updatedemographicprovider.msgNoProvider" /></option>
 			<%
  	 for(int i=0; i<names.size(); i=i+2) {
 %>
@@ -364,8 +366,8 @@ function setregexp2() {
 			key="<%= residentMessageKey %>" /></b></td>
 	</tr>
 	<tr>
-		<td><bean:message key="admin.updatedemographicprovider.formUse" />
-		<select name="newcust2">
+		<td><bean:message key="admin.updatedemographicprovider.formReplace" />
+		<select name="oldcust2">
 			<%
  	 for(int i=0; i<names.size(); i=i+2) {
 %>
@@ -373,8 +375,9 @@ function setregexp2() {
 			<%
  	 }
 %>
-		</select> <bean:message key="admin.updatedemographicprovider.formReplace" /> <select
-			name="oldcust2">
+		</select> <bean:message key="admin.updatedemographicprovider.formWith" /> <select
+			name="newcust2">
+		<option value=""><bean:message key="admin.updatedemographicprovider.msgNoProvider" /></option>
 			<%
  	 for(int i=0; i<names.size(); i=i+2) {
 %>
@@ -405,7 +408,7 @@ function setregexp2() {
 %>
 		</select> <br>
 		<INPUT TYPE="hidden" NAME="regexp" VALUE=""> <input
-			type="hidden" name="update" value=" Go "> <INPUT class="btn btn-primary"
+			type="hidden" name="update" value="UpdateResident"> <INPUT class="btn btn-primary"
 			TYPE="submit"
 			VALUE="<bean:message key="global.update"/>">
 

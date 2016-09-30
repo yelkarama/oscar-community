@@ -2119,8 +2119,8 @@ if ( Dead.equals(PatStat) ) {%>
                         }
                         %>
                             </li>
-                            <% } if (StringUtils.isNotEmpty(providerBean.getProperty(resident,""))) { %>
-                            <li>Alt. Provider 1: <b><%=providerBean.getProperty(resident,"")%></b>
+                            <% } if (StringUtils.isNotEmpty(providerBean.getProperty(nurse,""))) { %>
+                            <li>Alt. Provider 1: <b><%=providerBean.getProperty(nurse,"")%></b>
                         <% // ===== quick appointment booking for prov1 =====
                         if (provMap.get("prov1") != null) {
 				%><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<%
@@ -2181,8 +2181,8 @@ if ( Dead.equals(PatStat) ) {%>
                         }
                         %>
                             </li>
-                            <% } if (StringUtils.isNotEmpty(providerBean.getProperty(nurse,""))) { %>
-                            <li>Alt. Provider 3: <b><%=providerBean.getProperty(nurse,"")%></b>
+                            <% } if (StringUtils.isNotEmpty(providerBean.getProperty(resident,""))) { %>
+                            <li>Alt. Provider 3: <b><%=providerBean.getProperty(resident,"")%></b>
                         <% // ===== quick appointment booking for prov3 =====
                         if (provMap.get("prov3") != null) {
 							%><br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<%
