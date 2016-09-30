@@ -358,7 +358,7 @@
                             <%} %>
                         </div>
                         <% if (displayDocumentAs.equals(UserProperty.IMAGE)) { %>
-                            <a href="<%=url2%>" target="_blank"><img alt="document" id="docImg_<%=docId%>"  src="<%=url%>" /></a>
+                            <a href="<%=url2%>" target="_blank"><img alt="document" id="docImg_<%=docId%>"  src="<%=url2%>" /></a>
                         <%} else {%>
                             <div id="docDispPDF_<%=docId%>"></div>
                         <%}%>
