@@ -102,7 +102,9 @@ if(labReqVer.equals("")) {labReqVer="07";}
 	//String providerview=request.getParameter("provider")==null?"":request.getParameter("provider");
   String ticklerview=request.getParameter("ticklerview")==null?"A":request.getParameter("ticklerview");
    String xml_vdate=request.getParameter("xml_vdate") == null?"":request.getParameter("xml_vdate");
-   String xml_appointment_date = request.getParameter("xml_appointment_date")==null?"8888-12-31":request.getParameter("xml_appointment_date");
+	SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+	Date today = new Date();
+   String xml_appointment_date = request.getParameter("xml_appointment_date")==null?df.format(today).toString():request.getParameter("xml_appointment_date");
 %>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
