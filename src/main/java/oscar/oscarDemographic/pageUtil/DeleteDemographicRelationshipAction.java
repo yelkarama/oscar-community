@@ -67,7 +67,7 @@ public class DeleteDemographicRelationshipAction extends Action {
 
       DemographicRelationship demo = new DemographicRelationship();
       demo.deleteDemographicRelationship(id);
-      demo.deleteDemographicRelationship(idRel);
+      if (!idRel.equals("")) { demo.deleteDemographicRelationship(idRel); }
 
       String ip = request.getRemoteAddr();
       LogAction.addLog( (String) request.getSession().getAttribute("user"), LogConst.DELETE, LogConst.CON_DEMOGRAPHIC_RELATION, id, ip);
