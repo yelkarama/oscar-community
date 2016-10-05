@@ -68,6 +68,9 @@
 <%@page import="org.oscarehr.PMmodule.model.Program" %>
 <%@page import="org.oscarehr.PMmodule.web.GenericIntakeEditAction" %>
 <%@page import="org.oscarehr.PMmodule.model.ProgramProvider" %>
+<%@page import="org.oscarehr.managers.PatientConsentManager" %>
+<%@page import="org.oscarehr.common.model.Consent" %>
+<%@page import="org.oscarehr.common.model.ConsentType" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean" scope="session" />
 <%
@@ -89,7 +92,7 @@
     WaitingListNameDao waitingListNameDao = SpringUtils.getBean(WaitingListNameDao.class);
     String privateConsentEnabledProperty = OscarProperties.getInstance().getProperty("privateConsentEnabled");
     boolean privateConsentEnabled = (privateConsentEnabledProperty != null && privateConsentEnabledProperty.equals("true"));
-    DemographicGroupLinkDao demographicGroupLinkDao = SpringUtils.getBean(DemographicGroupLinkDao.class);
+	DemographicGroupLinkDao demographicGroupLinkDao = SpringUtils.getBean(DemographicGroupLinkDao.class);
     DemographicGroupDao demographicGroupDao = SpringUtils.getBean(DemographicGroupDao.class);
     
     PatientTypeDao patientTypeDao = (PatientTypeDao) SpringUtils.getBean("patientTypeDao");
@@ -147,6 +150,7 @@ if(!authed) {
 	
 	DemographicManager demographicManager = SpringUtils.getBean(DemographicManager.class);
 	ProgramManager2 programManager2 = SpringUtils.getBean(ProgramManager2.class);
+    
 %>
 
 <jsp:useBean id="providerBean" class="java.util.Properties"	scope="session" />
@@ -293,6 +297,13 @@ if(!authed) {
 		}
 	}
 	
+	// get a list of programs the patient has consented to. 
+	if( OscarProperties.getInstance().getBooleanProperty("USE_NEW_PATIENT_CONSENT_MODULE", "true") ) {
+	    PatientConsentManager patientConsentManager = SpringUtils.getBean( PatientConsentManager.class );
+		pageContext.setAttribute( "consentTypes", patientConsentManager.getConsentTypes() );
+		pageContext.setAttribute( "patientConsents", patientConsentManager.getAllConsentsByDemographic( loggedInInfo, Integer.parseInt(demographic_no) ) );
+	}
+
 %>
 
 <%@page import="org.apache.commons.lang.StringUtils"%><html:html locale="true">
@@ -1793,8 +1804,14 @@ if ( Dead.equals(PatStat) ) {%>
 	                       </ul>
 						</div>
 						
-<%-- TOGGLE PRIVACY CONSENT --%>						
+<%-- TOGGLE PRIVACY CONSENTS --%>						
 <oscar:oscarPropertiesCheck property="privateConsentEnabled" value="true">
+
+		<div class="demographicSection" id="consent">
+				<h3>&nbsp;<bean:message key="demographic.demographiceditdemographic.consent" /></h3>
+                             
+					<ul>
+					
 						<%
 							String[] privateConsentPrograms = OscarProperties.getInstance().getProperty("privateConsentPrograms","").split(",");
 							ProgramProvider pp = programManager2.getCurrentProgramInDomain(loggedInInfo,loggedInInfo.getLoggedInProviderNo());
@@ -1807,14 +1824,8 @@ if ( Dead.equals(PatStat) ) {%>
 								}
 							}
 						
-							if(showConsentsThisTime) {
-						%>
-						<!--  consents -->
-						<div class="demographicSection" id="consent">
-						<h3>&nbsp;<bean:message
-							key="demographic.demographiceditdemographic.consent" /></h3>
-                             
-						 <ul>
+						if(showConsentsThisTime) { %>
+
 	                          <li><span class="label"><bean:message key="demographic.demographiceditdemographic.privacyConsent"/>:</span>
 	                              <span class="info"><%=privacyConsent %></span>
 	                          </li>
@@ -1824,13 +1835,39 @@ if ( Dead.equals(PatStat) ) {%>
 	                          <li><span class="label"><bean:message key="demographic.demographiceditdemographic.usConsent"/>:</span>
 	                              <span class="info"><%=usSigned %></span>
 	                          </li>
-	                       </ul>
-						
-						</div>
+	                          
 						
 						<% } %>
+    
+<%-- ENABLE THE NEW PATIENT CONSENT MODULE --%>
+<oscar:oscarPropertiesCheck property="USE_NEW_PATIENT_CONSENT_MODULE" value="true" >
+		                          	
+                          		<c:forEach items="${ patientConsents }" var="patientConsent" >
+                          		<li>
+                          			<span class="popup label" onmouseover="nhpup.popup(${ patientConsent.consentType.description },{'width':350} );" >
+										<c:out value="${ patientConsent.consentType.name }" />
+									</span>
+                          			
+                          			<c:choose>
+										<c:when test="${ patientConsent.optout }">
+											<span class="info" style="color:red;"> Opted Out:<c:out value="${ patientConsent.optoutDate }" /></span>
+										</c:when>
+															
+										<c:otherwise>
+											<span class="info" style="color:green;">Consented:<c:out value="${ patientConsent.consentDate }" /></span>
+										</c:otherwise>				
+									</c:choose>		
+                          				
+                          		</li>	
+                          		</c:forEach>	                              	
 </oscar:oscarPropertiesCheck>
-<%-- END TOGGLE PRIVACY CONSENT --%>
+<%-- END ENABLE NEW PATIENT CONSENT MODULE --%>
+
+	                       </ul>						
+						</div>
+						
+</oscar:oscarPropertiesCheck>	                      
+<%-- END TOGGLE ALL PRIVACY CONSENTS --%>
 
 						</div>
 						<div class="rightSection">
@@ -2395,7 +2432,7 @@ if ( Dead.equals(PatStat) ) {%>
 									    onclick="popupPage(400,700,'<%=printEnvelope%><%=demographic.getDemographicNo()%>');return false;">
 									<input type="button" size="110" name="Button"
 									    value="<bean:message key="demographic.demographiceditdemographic.btnCreatePDFLabel"/>"
-									    onclick="popupPage(400,700,'<%=printLbl%><%=demographic.getDemographicNo()%>');return false;">
+									    onclick="popupPage(400,700,'<%=printLbl%><%=demographic.getDemographicNo()%>&appointment_no=<%=appointment%>');return false;">
 									<input type="button" size="110" name="Button"
 									    value="<bean:message key="demographic.demographiceditdemographic.btnCreatePDFAddressLabel"/>"
 									    onclick="popupPage(400,700,'<%=printAddressLbl%><%=demographic.getDemographicNo()%>');return false;">
