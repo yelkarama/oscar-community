@@ -135,6 +135,11 @@ p {
 .datepname {
 	font-family: "Times New Roman";
 	font-size: 12px;
+	color: #6060ff;
+}
+
+.datepname:hover {
+	color: #004b5f;
 }
 
 .datephour {
