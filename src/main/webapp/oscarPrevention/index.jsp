@@ -497,7 +497,11 @@ text-align:left;
 		<form name="printFrm" method="post" onsubmit="return onPrint();"
 			action="<rewrite:reWrite jspPage="printPrevention.do"/>">
 		<td valign="top" class="MainTableRightColumn">
-		<a href="#" onclick="popup(600,800,'http://www.phac-aspc.gc.ca/im/is-cv/index-eng.php')">Immunization Schedules - Public Health Agency of Canada</a>
+		<% 
+			String immunizationScheduleLink = OscarProperties.getInstance().getProperty("preventions_immunization_link", "http://www.phac-aspc.gc.ca/im/is-cv/index-eng.php");
+			String immunizationScheduleLinkText = OscarProperties.getInstance().getProperty("preventions_immunization_link_text", "Immunization Schedules - Public Health Agency of Canada");
+		%>
+		<a href="#" onclick="popup(600,800,'<%=immunizationScheduleLink %>')"><%=immunizationScheduleLinkText %></a>
 
 		<%
 				if (MyOscarUtils.isMyOscarEnabled((String) session.getAttribute("user")))
