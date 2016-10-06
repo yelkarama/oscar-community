@@ -53,8 +53,6 @@ import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 import org.oscarehr.PMmodule.model.Program;
 import org.oscarehr.util.LocaleUtils;
-import java.util.Collections;
-import java.util.Comparator;
 
 @Entity
 @Table(name="tickler")

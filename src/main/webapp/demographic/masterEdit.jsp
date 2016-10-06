@@ -843,7 +843,7 @@
 				<% if(oscarProps.getProperty("isMRefDocSelectList", "").equals("true") ) {
                                   		// drop down list
 									  Properties prop = null;
-									  Vector vecRef = new Vector();
+									  ArrayList<Properties> refProperties = new ArrayList<Properties>();
 									  List<ProfessionalSpecialist> specialists = professionalSpecialistDao.findAll();
                                       for(ProfessionalSpecialist specialist : specialists) {
                                     	  prop = new Properties();
@@ -851,7 +851,7 @@
 	                                          prop.setProperty("referral_no", specialist.getReferralNo());
 	                                          prop.setProperty("last_name", specialist.getLastName());
 	                                          prop.setProperty("first_name", specialist.getFirstName());
-	                                          vecRef.add(prop);
+	                                          refProperties.add(prop);
                                     	  }
                                       }
 
@@ -859,8 +859,8 @@
 				<%=getDisabled("r_doctor")%> onChange="changeRefDoc()"
 				style="width: 200px">
 					<option value=""></option>
-					<% for(int k=0; k<vecRef.size(); k++) {
-                                  		prop= (Properties) vecRef.get(k);
+					<% for(int k=0; k<refProperties.size(); k++) {
+                                  		prop= (Properties) refProperties.get(k);
                                   	%>
 					<option
 						value="<%=prop.getProperty("last_name")+","+prop.getProperty("first_name")%>"
@@ -875,8 +875,8 @@ function changeRefDoc() {
 //alert(document.updatedelete.r_doctor.value);
 var refName = document.updatedelete.r_doctor.options[document.updatedelete.r_doctor.selectedIndex].value;
 var refNo = "";
-  	<% for(int k=0; k<vecRef.size(); k++) {
-  		prop= (Properties) vecRef.get(k);
+  	<% for(int k=0; k<refProperties.size(); k++) {
+  		prop= (Properties) refProperties.get(k);
   	%>
 if(refName=="<%=prop.getProperty("last_name")+","+prop.getProperty("first_name")%>") {
   refNo = '<%=prop.getProperty("referral_no", "")%>';
