@@ -275,6 +275,7 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 	    				+ " ) AS X "
 	    				+ " WHERE X.lab_type = 'HL7' AND X.lab_no = info.lab_no "
 	    				+ dateSql
+	    				+ " ORDER BY info.obr_date DESC "
 	    				+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 	    	}
 
@@ -301,6 +302,7 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 	    			+ " ) AS X "
 	    			+ " WHERE X.lab_type = 'HL7' and X.lab_no = info.lab_no "
 	    			+ dateSql
+	    			+ " ORDER BY info.obr_date DESC "
 	    			+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 	    	}
 	    	else if (patientSearch) { // N
@@ -336,6 +338,7 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 						+ " 	) AS Z "
 						+ " WHERE Z.lab_type = 'HL7' and Z.lab_no = info.lab_no "
 						+ dateSql
+	    				+ " ORDER BY info.obr_date DESC "
 						+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 	    	}
 	    	else { // N
@@ -351,6 +354,7 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 	    			+ " ) AS X "
 	    			+ " WHERE X.lab_type = 'HL7' and X.lab_no = info.lab_no "
 	    			+ dateSql
+	    			+ " ORDER BY info.obr_date DESC "
 	    			+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 	    	}
 	    }
@@ -384,6 +388,7 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 	    			+ " ) AS X "
 	    			+ " WHERE X.lab_type = 'HL7' and X.lab_no = info.lab_no "
 	    			+ dateSql
+	    			+ " ORDER BY info.obr_date DESC "
 	    			+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 	    	}
 	    	else if (patientSearch) { // A
@@ -410,7 +415,8 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 						+ " WHERE Z.lab_type = 'HL7' and Z.lab_no = info.lab_no "
 						+ dateSql
 						+ (isAbnormal != null ? " AND (" + (!isAbnormal ? "info.result_status IS NULL OR" : "") + " info.result_status " + (isAbnormal ? "" : "!") + "= 'A') " : " ")
-						+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
+	    				+ " ORDER BY info.obr_date DESC "
+	    				+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 	    	}
 	    	else { // A
 	    		sql = " SELECT info.label, info.lab_no, info.sex, info.health_no, info.result_status, info.obr_date, info.priority, info.requesting_client, info.discipline, info.last_name, info.first_name, info.report_status,  info.accessionNum, info.final_result_count, plr.status "

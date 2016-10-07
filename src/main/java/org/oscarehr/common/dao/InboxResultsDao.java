@@ -225,6 +225,7 @@ public class InboxResultsDao {
 							+ " LEFT JOIN demographic d "
 							+ " ON d.demographic_no = -1 "
 							+ " WHERE X.lab_type = 'DOC' AND doc.document_no = X.lab_no " + dateSql
+							+ " ORDER BY doc.observationdate DESC "
 							+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 
 				} else if (demographicNo != null && !"".equals(demographicNo)) {
@@ -261,6 +262,7 @@ public class InboxResultsDao {
 							+ " WHERE X.lab_type = 'DOC' and X.id = plr.id and doc.document_no = plr.lab_no and d.demographic_no = '"
 							+ demographicNo + "' "
 							+ dateSql
+							+ " ORDER BY doc.observationdate DESC "
 							+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 				} else if (patientSearch) { // N arg
 					docNoLoc = 1; statusLoc = 2; docTypeLoc = 9; lastNameLoc = 3; firstNameLoc = 4; hinLoc = 5; sexLoc = 6; moduleLoc = 7; obsDateLoc = 8; descriptionLoc = 10; updateDateLoc = 11;
@@ -308,6 +310,7 @@ public class InboxResultsDao {
 							+ " 	  ) AS Z  "
 							+ " WHERE Z.lab_type = 'DOC' and Z.id = plr.id and doc.document_no = plr.lab_no and d.demographic_no = Z.demographic_no "
 							+ dateSql
+							+ " ORDER BY doc.observationdate DESC "
 							+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 
 				} else {
@@ -336,6 +339,7 @@ public class InboxResultsDao {
 							+ "FROM demographic d) AS Z "
 							+ "ON Y.module_id = Z.demographic_no "
 							+ "WHERE doc.document_no = plr.lab_no" + dateSql
+							+ " ORDER BY observationdate DESC "
 							+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 				}
 			} else { // Don't mix labs and docs.
