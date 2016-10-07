@@ -94,7 +94,7 @@ if(!authed) {
       dsProblems = true;
   }
 
-  ArrayList warnings = p.getWarnings();
+  Map<String, Object> warnings = p.getWarningMsgs();
   ArrayList recomendations = p.getReminder();
 
   boolean printError = request.getAttribute("printError") != null;
@@ -536,8 +536,13 @@ text-align:left;
                    %> <span style="font-size: larger;">Prevention
 		Recommendations</span>
 		<ul>
-			<% for (int i = 0 ;i < warnings.size(); i++){
-                       String warn = (String) warnings.get(i);%>
+			<%  Object[] keysObjs = warnings.keySet().toArray();
+				String[] warningKeys = Arrays.copyOf(keysObjs, keysObjs.length, String[].class);
+				for (int i = 0 ;i < warnings.size(); i++){
+					String warn = "";
+					if (!preventionManager.hideItem(warningKeys[i])) {
+                       warn = (String) warnings.get(warningKeys[i]);
+					} %>
 			<li style="color: red;"><%=warn%></li>
 			<%}%>
 			<% for (int i = 0 ;i < recomendations.size(); i++){
