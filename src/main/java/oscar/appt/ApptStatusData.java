@@ -111,17 +111,22 @@ public final class ApptStatusData {
      * @return
      */
     public String getTitleString(Locale locale) {
-    	ResourceBundle bundle = ResourceBundle.getBundle("oscarResources",locale);
+		
+		if (strEditable!=null&&strEditable.equalsIgnoreCase("yes"))
+            return getStr("desc");
+        else{
+			ResourceBundle bundle = ResourceBundle.getBundle("oscarResources",locale);
     	
-    	String value = "";
-    	if(bundle != null) {
-    		String keyName = getStr(aStatus, aTitle);
-    		if(keyName != null && !keyName.isEmpty()) {
-    			value = bundle.getString(keyName);
-    		}
-    	}
-    
-        return value;
+			String value = "";
+			if(bundle != null) {
+				String keyName = getStr(aStatus, aTitle);
+				if(keyName != null && !keyName.isEmpty()) {
+					value = bundle.getString(keyName);
+				}
+			}
+		
+			return value;
+		}
     }
     
     public String getBgColor() {
