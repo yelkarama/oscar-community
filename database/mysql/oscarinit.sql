@@ -7600,7 +7600,10 @@ CREATE TABLE tickler (
   creator varchar(6) default NULL,
   priority varchar(6) default 'Normal',
   task_assigned_to varchar(255),
-  PRIMARY KEY  (tickler_no)
+  category_id int(11),
+  PRIMARY KEY  (tickler_no),
+  KEY `statusIndex` (`status`),
+  KEY `demo_status_date_Index` (demographic_no,status,service_date)
 ) ;
 
 --
@@ -12055,6 +12058,29 @@ CREATE TABLE `BORNPathwayMapping` (
   PRIMARY KEY (`id`)
 );
 
+CREATE TABLE `Consent` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `demographic_no` int(10),
+  `consent_type_id` int(10),
+  `explicit` tinyint(1),
+  `optout` tinyint(1),
+  `last_entered_by` varchar(10),
+  `consent_date` datetime,
+  `optout_date` datetime,
+  `edit_date` datetime,
+  PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `consentType` (
+  `id` int(15) NOT NULL AUTO_INCREMENT,
+  `type` varchar(50),
+  `name` varchar(50),
+  `description` varchar(500),
+  `active` tinyint(1),
+  PRIMARY KEY (`id`)
+);
+
+
 
 CREATE TABLE billingperclimit (
   service_code varchar(10) NOT NULL ,
@@ -12374,4 +12400,39 @@ CREATE TABLE IF NOT EXISTS  `formgyane` (
   `prn` varchar(2),
   `appt_date` date,
   PRIMARY KEY (`ID`)
+);
+
+CREATE TABLE `dashboard` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255),
+  `description` varchar(255),
+  `creator` varchar(11),
+  `edited` datetime,
+  `active` bit(1),
+  `locked` bit(1),
+  PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `indicatorTemplate` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `dashboardId` int(11),
+  `name` varchar(255),
+  `category` varchar(255),
+  `subCategory` varchar(255),
+  `framework` varchar(255),
+  `frameworkVersion` date,
+  `definition` tinytext,
+  `notes` tinytext,
+  `template` mediumtext,
+  `active` bit(1),
+  `locked` bit(1),
+  PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `tickler_category` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `category` varchar(55),
+  `description` varchar(255),
+  `active` bit(1),
+  PRIMARY KEY (`id`)
 );
