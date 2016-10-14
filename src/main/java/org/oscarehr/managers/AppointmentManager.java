@@ -25,6 +25,8 @@ package org.oscarehr.managers;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -103,6 +105,34 @@ public class AppointmentManager {
 			}
 		}
 
+		//--- log action ---
+		if (result.size() > 0) {
+			Collections.sort(result, new Comparator<Object>() {
+				@Override
+				public int compare(final Object object1, final Object object2) {
+					if(object1.getClass() == Appointment.class){
+						Appointment appt1 = (Appointment) object1;
+						if(object2.getClass() == Appointment.class){
+							Appointment appt2 = (Appointment) object2;
+							return appt2.getAppointmentDate().compareTo(appt1.getAppointmentDate());
+						}else{
+							AppointmentArchive appt2 = (AppointmentArchive) object2;
+							return appt2.getAppointmentDate().compareTo(appt1.getAppointmentDate());
+						}
+					}else{
+						AppointmentArchive appt1 = (AppointmentArchive) object1;
+						if(object2.getClass() == Appointment.class){
+							Appointment appt2 = (Appointment) object2;
+							return appt2.getAppointmentDate().compareTo(appt1.getAppointmentDate());
+						}else{
+							AppointmentArchive appt2 = (AppointmentArchive) object2;
+							return appt2.getAppointmentDate().compareTo(appt1.getAppointmentDate());
+						}
+					}
+				}
+			});
+			LogAction.addLogSynchronous(loggedInInfo, "AppointmentManager.getAppointmentHistoryWithDeleted", "ids returned=" + ids);
+		}
 		return result;
 	}
 
