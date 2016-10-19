@@ -363,12 +363,21 @@ function scrollDownInnerBar() {
 	$("encMainDiv").scrollTop= $("encMainDiv").scrollHeight;
 }
 
+function chooseSelected(control) {
+	var selectedControl = jQuery(control).find(":selected");
+	var width = selectedControl.attr("data-width");
+	var height = selectedControl.attr("data-height");
+	var url = selectedControl.attr("data-url");
+	var name = selectedControl.attr("data-name");
+	popperup(height, width, url, name); 
+}
 function popperup(vheight,vwidth,varpage,pageName) { //open a new popup window
      		var page = varpage;
      		windowprops = "height="+vheight+",width="+vwidth+",status=yes,location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=0,screenY=0,top=100,left=100";
      		var popup=window.open(varpage, pageName, windowprops);
      		popup.pastewin = opener;
      		popup.focus();
+     		
 }
 
 var fullChart = "false";
