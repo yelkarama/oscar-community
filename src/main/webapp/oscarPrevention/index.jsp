@@ -447,7 +447,7 @@ text-align:left;
 				<td>
 					<%=nameAge%>
 					<a title="Open Billing Page" 
-					   onclick="popupFocusPage(700, 1000, '../billing.do?billRegion=ON&amp;billForm=MFP&amp;hotclick=&amp;appointment_no=0&amp;demographic_name=<%=demo.getLastName()%>%2C<%=demo.getFirstName()%>&amp;demographic_no=<%=demographic_no%>&amp;providerview=1&amp;user_no=<%=(String) session.getValue("user")%>&amp;apptProvider_no=none&amp;appointment_date=<%=todayString%>&amp;start_time=0:00&amp;bNewForm=1&amp;status=t','_self');return false;" 
+					   onclick="popupFocusPage(700, 1000, '../billing.do?billRegion=ON&amp;billForm=MFP&amp;hotclick=&amp;appointment_no=0&amp;demographic_name=<%=demo.getLastName()%>%2C<%=demo.getFirstName()%>&amp;demographic_no=<%=demographic_no%>&amp;providerview=1&amp;user_no=<%=(String) session.getValue("user")%>&amp;apptProvider_no=none&amp;appointment_date=<%=todayString%>&amp;start_time=0:00:00&amp;bNewForm=1&amp;status=t','_self');return false;" 
 					   href="javascript: function myFunction() {return false; }">
 					[B]
 					</a>				
