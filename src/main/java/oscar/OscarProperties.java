@@ -353,7 +353,7 @@ public class OscarProperties extends Properties {
 			count++;
 			result = statement;
 		}
-		return result;
+		return result == null ? "" : result;
 	}
 	
 	public static String getIntakeProgramCashFId() {
