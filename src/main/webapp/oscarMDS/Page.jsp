@@ -140,7 +140,7 @@ String curUser_no = (String) session.getAttribute("user");
 							padding: 0px 5px;
 						}
 					</style>
-					<table id="summaryView" width="100%" style="margin:0px;padding:0px;" cellpadding="0" cellspacing="0">
+					<table id="summaryView" class="tablesorter"  width="100%" style="margin:0px;padding:0px;" cellpadding="0" cellspacing="0">
 					<thead>
 						<tr>
                             <th align="left" valign="bottom" class="cell" nowrap>
@@ -465,5 +465,24 @@ String curUser_no = (String) session.getAttribute("user");
                 </td>
             </tr>
         </table>
+        <script>
+	        jQuery.tablesorter.addParser({
+		  id: 'dateOfTest',
+		  is: function(s) {return false;},
+		  format: function(s) {
+		    return s.indexOf("/")?s.substr(s.indexOf("/")+2,10):s;
+		  },
+		  type: 'text'
+		});
+
+	        jQuery("#summaryView").tablesorter({
+			sortList:[[5,1]],
+			headers:{
+				5:{
+					sorter:'dateOfTest'
+				}
+			}
+	        });
+        </script>
     <% } // End if (pageNum == 1) %>
 
