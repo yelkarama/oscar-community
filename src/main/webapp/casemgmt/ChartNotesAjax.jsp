@@ -859,7 +859,7 @@ CasemgmtNoteLock casemgmtNoteLock = (CasemgmtNoteLock)session.getAttribute("case
 	else if( casemgmtNoteLock.isLockedBySameUser() && !casemgmtNoteLock.getSessionId().equals(request.getRequestedSessionId()) ) {
     	//note is locked by same user so offer to unlock note and view locked note in progress    	    
 %>
-		var viewEditedNote = confirm("You have started to edit this note in another window at <%=casemgmtNoteLock.getIpAddress()%>.\nDo you wish to continue?");
+		var viewEditedNote = confirm("A note on this demographic's encounter page is being edited from another computer, proceeding will overwrite that note.\nDo you wish to continue?");
 		if( viewEditedNote ) {	
 			doscroll();
 			var params = "method=updateNoteLock&demographicNo=" + demographicNo;
