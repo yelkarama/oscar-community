@@ -649,7 +649,7 @@ function toggleView(form) {
 						<!--td width=10px></td-->
 						<td><span><input type=button value="<bean:message key="ViewScript.msgPrint"/>"
 							class="ControlPushButton" style="width: 150px"
-							onClick="javascript:printIframe();" /></span></td>
+							onClick="<%=request.getParameter("caseReferrer").equals("true")?"javascript:printPaste2Parent(true);":"javascript:printIframe();"%>"</span></td>
 					</tr>
 					<tr>
 						<td><span><input type=button
