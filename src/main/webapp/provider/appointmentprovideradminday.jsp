@@ -862,11 +862,11 @@ function getParameter(paramName) {
 <%
 	if (org.oscarehr.common.IsPropertiesOn.isCaisiEnable()){
 %>
-<body bgcolor="#007392" onload="load();" topmargin="0" leftmargin="0" rightmargin="0"> <!-- bgcolor="#EEEEFF" -->
+<body bgcolor="#259145" onload="load();" topmargin="0" leftmargin="0" rightmargin="0"> <!-- bgcolor="#EEEEFF" -->
 <%
 	}else{
 %>
-<body bgcolor="#007392" onLoad="refreshAllTabAlerts();scrollOnLoad();" topmargin="0" leftmargin="0" rightmargin="0"> <!-- bgcolor="#EEEEFF" -->
+<body bgcolor="#259145" onLoad="refreshAllTabAlerts();scrollOnLoad();" topmargin="0" leftmargin="0" rightmargin="0"> <!-- bgcolor="#EEEEFF" -->
 <%
 	}
 %>
@@ -1373,7 +1373,7 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 %>
 
 <table BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="100%" BGCOLOR="#fff">
-<tr id="ivoryBar" style="background:#74abbe; color:#fff;">
+<tr id="ivoryBar" color:#fff;">
 <td id="dateAndCalendar" width="33%" style="padding:7px"><!-- BGCOLOR="ivory" -->
  <a class="redArrow" href="providercontrol.jsp?year=<%=year%>&month=<%=month%>&day=<%=isWeekView?(day-7):(day-1)%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+URLEncoder.encode(request.getParameter("curProviderName"),"UTF-8") )%>&displaymode=day&dboperation=searchappointmentday<%=isWeekView?"&provider_no="+provNum:""%>&viewall=<%=viewall%>">
  &nbsp;&nbsp;<img src="../images/previous.png" style="margin-bottom: -3px" BORDER="0" ALT="<bean:message key="provider.appointmentProviderAdminDay.viewPrevDay"/>"></a>
@@ -2466,7 +2466,7 @@ start_time += iSm + ":00";
 
       <tr><td colspan="3">
               <table BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="100%" class="noprint">
-                  <tr style="background:#74abbe; color:#fff;">
+                  <tr style="background:#53B848; color:#fff;">
                       <td style="padding:7px" width="60%">
                           <a href="providercontrol.jsp?year=<%=year%>&month=<%=month%>&day=<%=isWeekView ? (day - 7) : (day - 1)%>&view=<%=view == 0 ? "0" : ("1&curProvider=" + request.getParameter("curProvider") + "&curProviderName=" + URLEncoder.encode(request.getParameter("curProviderName"),"UTF-8"))%>&displaymode=day&dboperation=searchappointmentday<%=isWeekView ? "&provider_no=" + provNum : ""%>">
                               &nbsp;&nbsp;<img src="../images/previous.png" style="margin-bottom: -3px" BORDER="0" ALT="<bean:message key="provider.appointmentProviderAdminDay.viewPrevDay"/>"></a>
