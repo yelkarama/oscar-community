@@ -1127,6 +1127,13 @@
         <artifactId>encoder</artifactId>
         <version>1.2.1</version>
     </dependency>
+        
+	<dependency>
+		<groupId>com.medseek</groupId>
+		<artifactId>SSOClinicalConnect</artifactId>
+		<version>20161017</version>
+	</dependency>
+
 	</dependencies>
 
 	<build>
