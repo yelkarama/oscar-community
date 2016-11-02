@@ -475,7 +475,6 @@ if (OscarProperties.getInstance().getBooleanProperty("consultation_program_lette
 				<input type="submit" value="Print Pdf" onclick="javascript:return onPrintPDF();" />
 
 				<select name="letterhead" id="letterhead" onchange="switchProvider(this.value)">
-					<option value="-1"><%=clinic.getClinicName() %></option>
 				<%
 					for (Provider p : prList) {
 						if (p.getProviderNo().compareTo("-1") != 0 && (p.getFirstName() != null || p.getLastName() != null) && p.getProviderType().equals("doctor")) {
@@ -484,8 +483,9 @@ if (OscarProperties.getInstance().getBooleanProperty("consultation_program_lette
 		
 					<%=p.getLastName() %>, <%=p.getFirstName() %> 
 				</option>
-				<% }}  
-		
+				<% }} %>
+				<option value="-1"><%=clinic.getClinicName() %></option>
+				<%
 				if (OscarProperties.getInstance().getBooleanProperty("consultation_program_letterhead_enabled", "true")) {
 				for (Program p : programList) {
 				%>
