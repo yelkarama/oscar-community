@@ -133,8 +133,7 @@ function manageBillType(id,oldtype,newtype) {
 </script>
 </head>
 
-<body leftmargin="0" topmargin="5" rightmargin="0"
-	onload="showManageType(false);">
+<body leftmargin="0" topmargin="5" rightmargin="0">
 
 <table width="100%" border="0" cellspacing="0" cellpadding="0">
 	<tr bgcolor="#000000">
