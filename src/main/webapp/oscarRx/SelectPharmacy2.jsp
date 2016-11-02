@@ -194,11 +194,11 @@ $(function() {
   function isFaxNumberCorrect() {
 	  
 	  var faxNumber = $("#pharmacyFax").val().trim();
-	  var isCorrect = faxNumber.match(/^1?\s?\(?[0-9]{3}\)?[\-\s]?[0-9]{3}[\-\s]?[0-9]{4}$/);
+	  var isCorrect = faxNumber.match(/^9?1?\s?\(?[0-9]{3}\)?[\-\s]?[0-9]{3}[\-\s]?[0-9]{4}$/);
   	
 	  if( !isCorrect  ) {
 	  		
-	  	alert("Please enter the fax number in the format 9051234567");
+	  	alert("Please enter the fax number in the format 9051234567 or 19051234567");
 	  	setTimeout( function() {
 	  			$("#pharmacyFax").focus();	
 	  	},1);
