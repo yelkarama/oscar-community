@@ -584,7 +584,7 @@ function toggleView(form) {
                                     frames['preview'].document.getElementById('pharmInfo').innerHTML=text;
                                     //frames['preview'].document.getElementById('removePharm').show();
                                     $("selectedPharmacy").innerHTML='<bean:message key="oscarRx.printPharmacyInfo.paperSizeWarning"/>';
-
+                                    frames['preview'].document.getElementById('pharmaShow').value='true';
                                 }
                                 function reducePreview(){
                                     parent.document.getElementById('lightwindow_container').style.width="980px";
@@ -592,6 +592,7 @@ function toggleView(form) {
                                     document.getElementById('preview').style.width="420px";
                                     frames['preview'].document.getElementById('pharmInfo').innerHTML="";
                                     $("selectedPharmacy").innerHTML="";
+                                    frames['preview'].document.getElementById('pharmaShow').value='false';
                                 }
                             </script>
 
@@ -649,7 +650,7 @@ function toggleView(form) {
 						<!--td width=10px></td-->
 						<td><span><input type=button value="<bean:message key="ViewScript.msgPrint"/>"
 							class="ControlPushButton" style="width: 150px"
-							onClick="<%=request.getParameter("caseReferrer").equals("true")?"javascript:printPaste2Parent(true);":"javascript:printIframe();"%>"</span></td>
+							onClick="javascript:printIframe();" /></span></td>
 					</tr>
 					<tr>
 						<td><span><input type=button
