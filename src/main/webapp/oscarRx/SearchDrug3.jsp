@@ -1771,19 +1771,23 @@ function popForm2(scriptId){
                 var url;
                 var json = jQuery("#Calcs").val();
                 //oscarLog(json);
+                var caseReferrer = false;
+                if (document.referrer.includes("/oscar/casemgmt/forward.jsp")){
+                	caseReferrer = true;
+                }
                 if( json != null && json != "" ) {
                 	
                 	var pharmacy = JSON.parse(json);
                     
                     if( pharmacy != null ) {
-                    	url= "<c:out value="${ctx}"/>" + "/oscarRx/ViewScript2.jsp?scriptId="+scriptId+"&pharmacyId="+pharmacy.id;
+                    	url= "<c:out value="${ctx}"/>" + "/oscarRx/ViewScript2.jsp?scriptId="+scriptId+"&caseReferrer="+caseReferrer+"&pharmacyId="+pharmacy.id;
                     }
                     else {
-                    	url= "<c:out value="${ctx}"/>" + "/oscarRx/ViewScript2.jsp?scriptId="+scriptId;
+                    	url= "<c:out value="${ctx}"/>" + "/oscarRx/ViewScript2.jsp?scriptId="+scriptId+"&caseReferrer="+caseReferrer;
                     }	
                 }
                 else {
-                	url= "<c:out value="${ctx}"/>" + "/oscarRx/ViewScript2.jsp?scriptId="+scriptId;
+                	url= "<c:out value="${ctx}"/>" + "/oscarRx/ViewScript2.jsp?scriptId="+scriptId+"&caseReferrer="+caseReferrer;
                 }
                 
                 //oscarLog( "preview2 done");
