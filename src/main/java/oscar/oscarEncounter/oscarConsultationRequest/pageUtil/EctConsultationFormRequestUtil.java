@@ -46,6 +46,7 @@ import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
+import oscar.oscarProvider.data.ProSignatureData;
 import oscar.util.ConversionUtils;
 import oscar.util.StringUtils;
 
@@ -348,6 +349,12 @@ public class EctConsultationFormRequestUtil {
 	public String getProviderName(String id) {
 		if(id == null || id.length()==0)
 			return "";
+		
+		ProSignatureData sig = new ProSignatureData();
+		
+		if(sig.hasSignature(id)){
+			return sig.getSignature(id);
+		}
 		
 		ProviderDao dao = SpringUtils.getBean(ProviderDao.class);
 		Provider p = dao.getProvider(id);
