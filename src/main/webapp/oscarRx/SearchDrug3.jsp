@@ -2052,10 +2052,12 @@ function removeReRxDrugId(drugId){
 	   new Ajax.Request(url, {method: 'get',parameters:data});
 	}
 	}
-
+var reRxCompleted;
 //represcribe a drug
 function represcribe(element, toArchive){
-  
+    jQuery('input[name^="checkBox_"]').each(function(){
+    	updateReRxDrugId(jQuery(this).attr('id'));
+    	});
     var elemId=element.id;
     var ar=elemId.split("_");
     var drugId=ar[1];
@@ -2064,6 +2066,7 @@ function represcribe(element, toArchive){
         var url= "<c:out value="${ctx}"/>" + "/oscarRx/rePrescribe2.do?method=represcribeMultiple&rand="+Math.floor(Math.random()*10001);
         new Ajax.Updater('rxText',url, {method:'get',parameters:data,asynchronous:false,evalScripts:true,
             insertion: Insertion.Bottom,onSuccess:function(transport){
+            	reRxCompleted=true;
                 updateCurrentInteractions();
             }});
     }else if(drugId!=null){
@@ -2075,6 +2078,7 @@ function represcribe(element, toArchive){
         var url= "<c:out value="${ctx}"/>" + "/oscarRx/rePrescribe2.do?method=represcribe2&rand="+Math.floor(Math.random()*10001);
         new Ajax.Updater('rxText',url, {method:'get',parameters:data,evalScripts:true,
             insertion: Insertion.Bottom,onSuccess:function(transport){
+            	reRxCompleted=true;
                 updateCurrentInteractions();
             }});
 
@@ -2336,7 +2340,19 @@ function updateQty(element){
 		if(!validateRxDate()) {
     		return false;
     	}
+		var checkedDrugs = false;
+		jQuery('input[name^="checkBox_"]').each(function(){
+			if (jQuery(this).is(":checked"))
+	    		checkedDrugs=true;
+	    	});
 		
+		if (reRxCompleted != true && checkedDrugs==true) {
+			var r = confirm("You have marked some drugs for Re-Prescription. Would you like to return and re-prescribe before saving? Click \"OK\" to return. Click \"Cancel\" to discard Re-Rx drugs and save");
+			if (r == true) {
+				return false;
+			}
+		}
+		reRxCompleted=false;
         var data=Form.serialize($('drugForm'));
         var url= "<c:out value="${ctx}"/>" + "/oscarRx/WriteScript.do?parameterValue=updateSaveAllDrugs&rand="+ Math.floor(Math.random()*10001);
         new Ajax.Request(url,
@@ -2357,8 +2373,19 @@ function updateQty(element){
 		if(!validateRxDate()) {
     		return false;
     	}
+		var checkedDrugs = false;
+		jQuery('input[name^="checkBox_"]').each(function(){
+			if (jQuery(this).is(":checked"))
+	    		checkedDrugs=true;
+	    	});
 		
-		
+		if (reRxCompleted != true && checkedDrugs==true) {
+			var r = confirm("You have marked some drugs for Re-Prescription. Would you like to return and re-prescribe before saving? Click \"OK\" to return. Click \"Cancel\" to discard Re-Rx drugs and save");
+			if (r == true) {
+				return false;
+			}
+		}
+		reRxCompleted=false;
         var data=Form.serialize($('drugForm'));
         var url= "<c:out value="${ctx}"/>" + "/oscarRx/WriteScript.do?parameterValue=updateSaveAllDrugs&rand="+ Math.floor(Math.random()*10001);
         new Ajax.Request(url,
