@@ -9,9 +9,14 @@
 
 package oscar.oscarLab.ca.all.upload.handlers;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.Hl7TextInfoDao;
@@ -38,6 +43,34 @@ public class PFHTHandler implements MessageHandler {
 	            for (i=0; i < messages.size(); i++){
 
 	                String msg = (String) messages.get(i);
+	    	     	String obxRegEx = "|NUM|";
+	    	     	
+	    	     	// Replace OBX "NUM" with "NM" and update the file
+	    	     	if(msg.contains(obxRegEx)){
+	    	     		msg = msg.replace(obxRegEx, "|NM|");
+	    	     		Files.write((Paths.get(fileName)), msg.getBytes());
+	    	     	}
+	    	     	
+	    	     	Pattern pattern = Pattern.compile("PID.*");
+	    	     	Matcher matcher = pattern.matcher(msg);
+	    	     	
+	    	     	String sex = "";
+	    	     	
+	    	     	// Determine what PID sex (at position 8) value is REF: https://corepointhealth.com/resource-center/hl7-resources/hl7-pid-segment
+	    	     	if (matcher.find()){
+	    	     		String pid = matcher.group(0);
+	    	     		String[] pidParts = pid.split("\\|");
+	    	     		sex = pidParts[8];
+	    	     		// if the string set for sex is longer than 1 character
+	    	     		if (sex.length() > 1){
+	    	     			// return the first character and update the file
+	    	     			String sexChar = String.valueOf(sex.charAt(0));
+	    	     			msg = msg.replace("|"+pidParts[8]+"|", "|"+sexChar+"|");
+	    	     			Files.write((Paths.get(fileName)), msg.getBytes());
+	    	     		}
+	    	     	}	
+
+	    	     	
 	                MessageUploader.routeReport(loggedInInfo, serviceName, "PFHT", msg,fileId);
 
 	            }

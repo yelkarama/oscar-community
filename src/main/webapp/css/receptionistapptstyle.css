@@ -38,7 +38,7 @@ A.orange {
 
 A.orange:Hover {
 	text-decoration: none;
-	color: #004b5f;
+	color: #21773B;
 }
 
 A.black {
@@ -49,7 +49,7 @@ A.black {
 
 A.black:Hover {
 	text-decoration: none;
-	color: #004b5f;
+	color: #21773B;
 }
 
 A {
@@ -60,7 +60,7 @@ A {
 
 A:Hover {
 	text-decoration: none;
-	color: #004b5f;
+	color: #21773B;
 }
 
 .appt a {
@@ -95,7 +95,7 @@ p {
 .adhour {
 	font-family: "Arial";
 	font-size: 12px;
-	color: white;
+	color: #000000;
 }
 
 .small {
@@ -135,6 +135,11 @@ p {
 .datepname {
 	font-family: "Times New Roman";
 	font-size: 12px;
+	color: #6060ff;
+}
+
+.datepname:hover {
+	color: #21773B;
 }
 
 .datephour {
@@ -167,8 +172,8 @@ p {
     display: inline;
 }
 
-#navlist li:hover { color: #004b5f;}
-#navlist li a:hover { color: #004b5f;}
+#navlist li:hover { color: #21773B;}
+#navlist li a:hover { color: #21773B;}
 #navlist #logoutMobile { display:none; }
 
 .reason {
@@ -190,11 +195,40 @@ p {
 .scheduleTime00, .scheduleTimeNot00{
     width:5%;
 }
-.scheduleTime00 { background-color: #afafaf; }
-.scheduleTimeNot00 { background-color: #d0d0d0; }
+.scheduleTime00 { background-color: rgba(37, 145, 69, 0.45); }
+.scheduleTimeNot00 { background-color: #ffffff; }
+
+#ivoryBar{
+	background-color: #53B848;
+}
 
 #ivoryBar td {
 
+}
+
+.dropdown {
+	display: inline-block !important;
+	position: relative;
+}
+
+.dashboardDropdown {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+}
+
+.dashboardDropdown a {
+    color: black;
+    text-decoration: none;
+    display: block;
+    text-align: left;
+	  padding:2px 5px;
+}
+
+.dropdown:hover .dashboardDropdown {
+    display: block;
 }
 
 @media print {

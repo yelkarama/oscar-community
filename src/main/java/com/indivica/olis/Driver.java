@@ -12,6 +12,7 @@ package com.indivica.olis;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.security.KeyStore;
@@ -59,6 +60,7 @@ import org.bouncycastle.util.encoders.Base64;
 import org.oscarehr.common.dao.OscarLogDao;
 import org.oscarehr.common.model.OscarLog;
 import org.oscarehr.common.model.Provider;
+import org.oscarehr.olis.OLISPoller;
 import org.oscarehr.olis.OLISProtocolSocketFactory;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
@@ -174,8 +176,15 @@ public class Driver {
 		try {
 			DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			SchemaFactory factory = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
-
-			Source schemaFile = new StreamSource(new File(OscarProperties.getInstance().getProperty("olis_response_schema")));
+			
+			InputStream is = OLISPoller.class.getResourceAsStream("/org/oscarehr/olis/response.xsd");
+			
+			Source schemaFile = new StreamSource(is);
+		
+			if(OscarProperties.getInstance().getProperty("olis_response_schema") != null){
+				schemaFile = new StreamSource(new File(OscarProperties.getInstance().getProperty("olis_response_schema")));
+			}
+			
 			factory.newSchema(schemaFile);
 
 			JAXBContext jc = JAXBContext.newInstance("ca.ssha._2005.hial");

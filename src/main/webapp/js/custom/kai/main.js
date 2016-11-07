@@ -102,9 +102,6 @@ function addKAIBar() {
       kaiDemoSearchField.trigger("enterKey");
     }
   });
-  var position = window.pageYOffset;
-  kaiDemoSearchField.focus();
-  window.scrollTo(0, position);
 }
 
 function getUrlVars(url) {

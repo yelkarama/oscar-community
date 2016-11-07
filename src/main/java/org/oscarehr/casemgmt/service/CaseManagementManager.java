@@ -508,15 +508,24 @@ public class CaseManagementManager {
 
 	public List<Drug> getPrescriptions(String demographic_no, boolean all) {
 		DrugDao drugDao = (DrugDao) SpringUtils.getBean("drugDao");
+		OscarProperties properties = OscarProperties.getInstance();
 
-		if (all) {
+		if (all && properties.isPropertyActive("RX_ORDER_BY_DATE")) {
+			return (drugDao.findByDemographicIdOrderByDate(new Integer(demographic_no), null));
+		}else if(all){
 			return (drugDao.findByDemographicIdOrderByPosition(new Integer(demographic_no), null));
 		}
+		
 		return (drugDao.getUniquePrescriptions(demographic_no));
 	}
 
 	public List<Drug> getCurrentPrescriptions(int demographic_no) {
 		DrugDao drugDao = (DrugDao) SpringUtils.getBean("drugDao");
+		OscarProperties properties = OscarProperties.getInstance();
+		
+		if (properties.isPropertyActive("RX_ORDER_BY_DATE")) {
+			return (drugDao.findByDemographicIdOrderByDate(new Integer(demographic_no), false));
+		}
 		
 		return (drugDao.findByDemographicIdOrderByPosition(new Integer(demographic_no), false));
 	}

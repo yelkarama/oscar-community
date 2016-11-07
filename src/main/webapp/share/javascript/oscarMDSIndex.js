@@ -1659,7 +1659,7 @@ function checkObservationDate(formid) {
     		form.elements["observationDate"].focus();
     		return false;
     	} else if(form.elements["observationDate"].value.match(re2)) {
-    		form.elements["observationDate"].value=form.elements["observationDate"].value.replace("/","-");
+    		form.elements["observationDate"].value=form.elements["observationDate"].value.replace(/\//g,"-");
     	}
     }
     regs= form.elements["observationDate"].value.split("-");

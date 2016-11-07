@@ -45,7 +45,7 @@ demo_hin = request.getParameter("demo_hin");
 provider = request.getParameter("provider");
 if (provider.trim().length() <= 0) { errorCode = "Please select a provider.<br>"; } else{
 provider_ohip_no = provider.substring(0,6);
-provider_no = provider.substring(7);
+provider_no = provider.substring(6);
 }
 
 demoid = request.getParameter("functionid");

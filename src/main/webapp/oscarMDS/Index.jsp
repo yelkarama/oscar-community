@@ -57,6 +57,7 @@ String ackStatus 		= (String) request.getAttribute("ackStatus");
 String selectedCategory        = request.getParameter("selectedCategory");
 String selectedCategoryPatient = request.getParameter("selectedCategoryPatient");
 String selectedCategoryType    = request.getParameter("selectedCategoryType");
+String isListView			   = request.getParameter("isListView");
 
 String patientFirstName    = (String) request.getAttribute("patientFirstName");
 String patientLastName     = (String) request.getAttribute("patientLastName");
@@ -102,9 +103,7 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
 <link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/share/yui/css/fonts-min.css"/>
 <link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/share/yui/css/autocomplete.css"/>
 <link rel="stylesheet" type="text/css" media="all" href="<%=request.getContextPath()%>/share/css/demographicProviderAutocomplete.css"  />
-
 <link rel="stylesheet" type="text/css" media="all" href="<%=request.getContextPath()%>/share/css/oscarMDSIndex.css"  />
-
 <script type="text/javascript" src="<%=request.getContextPath()%>/dms/showDocument.js"></script>        
 
 
@@ -148,7 +147,8 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
 	var endDate = "<%= endDate %>";
 	var request = null;
 	var canLoad = true;
-	var isListView = false;
+	console.log("<%= isListView == null %>");
+	var isListView = <%= isListView %>;
 	var loadingDocs = false;
 	var currentBold = false;
 	var oldestDate = null;
@@ -305,13 +305,27 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
 		selected_category_patient = patientId;
 		selected_category_type = subtype;
 		document.getElementById("docViews").innerHTML = "";
+		
 		changePage(1);
 	}
 
 	function switchView() {
+		var newUrl;
+		if(location.href.includes("isListView")){
+			newUrl = location.href.replace("isListView="+ isListView, "isListView="+ !isListView);
+		}else{
+			newUrl = location.href + "&isListView="+ !isListView
+		}
+		window.location.href = newUrl;
+	}
+
+	jQuery(document).ready(function() {
+		if(isListView == null){
+			isListView = <%= (selectedCategoryPatient == null) %>;
+		}
+		jQuery('input[name=isListView]').val(isListView);
+		
 		loadingDocs = true;
-		isListView = !isListView;
-		jQuery("input[name=isListView]").val(isListView);
 		document.getElementById("docViews").innerHTML = "";
 		var list = document.getElementById("listSwitcher");
 		var view = document.getElementById("readerSwitcher");
@@ -328,14 +342,8 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
 		}
 		active.style.display = "inline";
 		passive.style.display = "none";
-
+		
 		changePage(1);
-	}
-
-	jQuery(document).ready(function() {
-		isListView = <%= (selectedCategoryPatient != null) %>;
-		jQuery('input[name=isListView]').val(isListView);
-		switchView();
 		//un_bold($("totalAll"));
 		currentBold = "totalAll";
 		refreshCategoryList();

@@ -198,7 +198,8 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 				"WHERE p.labNo = hl7.labNumber "+
 				"AND p.labType = 'HL7' " +
 				"AND p.demographicNo = :dNo " +
-				"GROUP BY hl7.labNumber";
+				"GROUP BY hl7.labNumber "
+				+ "ORDER BY hl7.labNumber DESC";
 		Query q = entityManager.createQuery(sql);
 		q.setParameter("dNo", demographicNo);
 		return q.getResultList();
