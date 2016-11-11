@@ -645,7 +645,7 @@
                                                         <input type="button" id="closeBtn_<%=docId%>" value=" <bean:message key="global.btnClose"/> " onClick="window.close()">                                                        
                                                         <input type="button" id="printBtn_<%=docId%>" value=" <bean:message key="global.btnPrint"/> " onClick="popup(700,960,'<%=url2%>','file download')">
                                                         <% 
-                                                        String btnDisabled = "disabled";
+                                                        btnDisabled = "disabled";
                                                         if (demographicID != null && !demographicID.equals("") && !demographicID.equalsIgnoreCase("null") && !demographicID.equals("-1") ) {
                                                         	btnDisabled = "";
                                                         }
