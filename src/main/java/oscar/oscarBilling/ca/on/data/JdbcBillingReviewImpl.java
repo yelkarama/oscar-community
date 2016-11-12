@@ -172,8 +172,9 @@ public class JdbcBillingReviewImpl {
 				//ch1Obj.setPaid(b[11]);
 				ch1Obj.setClinic(b[12]);
 				//ch1Obj.setTotal(b[13]);//fee is not total?
-				ch1Obj.setSer_num(b[15]); //14 is service code
-				ch1Obj.setBilling_on_item_id(b[17]); //16 is dx
+				ch1Obj.setSer_num(b[15]); //15 is service code
+				ch1Obj.setService_date(b[19]); //19 is service date
+				ch1Obj.setBilling_on_item_id(b[17]); //17 is dx
 				
 				List<BillingONExt> exts = extDao.findByBillingNoAndKey(Integer.parseInt(b[0]), "payDate");
 				for(BillingONExt e : exts ) {
@@ -341,6 +342,7 @@ public class JdbcBillingReviewImpl {
 				ch1Obj.setProvider_ohip_no(ch1.getProviderOhipNo());
 				ch1Obj.setApptProvider_no(ch1.getApptProviderNo());
 				ch1Obj.setUpdate_datetime(ConversionUtils.toTimestampString(ch1.getTimestamp()));
+				ch1Obj.setService_date(ConversionUtils.toDateString(bi.getServiceDate()));
 				ch1Obj.setClinic(ch1.getClinic());
 				ch1Obj.setPay_program(ch1.getPayProgram());
 				

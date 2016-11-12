@@ -786,7 +786,7 @@ public class BillingONCHeader1Dao extends AbstractDao<BillingONCHeader1>{
 
 		String sql = "SELECT ch1.id,ch1.pay_program,ch1.demographic_no,ch1.demographic_name,ch1.billing_date,ch1.billing_time,"
 				+ "ch1.status,ch1.provider_no,ch1.provider_ohip_no,ch1.apptProvider_no,ch1.timestamp1,ch1.total,ch1.paid,ch1.clinic,"
-				+ "bi.fee, bi.service_code, bi.ser_num, bi.dx, bi.id as billing_on_item_id "
+				+ "bi.fee, bi.service_code, bi.ser_num, bi.dx, bi.id, bi.service_date as billing_on_item_id "
 				+ "FROM billing_on_item bi LEFT JOIN billing_on_cheader1 ch1 ON ch1.id=bi.ch1_id "
 				+ "WHERE "
 				+ conditions				

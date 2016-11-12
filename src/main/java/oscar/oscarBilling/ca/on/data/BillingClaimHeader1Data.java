@@ -64,6 +64,7 @@ public class BillingClaimHeader1Data {
 	String update_datetime;
 	String billing_on_item_id; // just used for 3rd party bill invoice report
 	String ser_num;
+	String service_date;
 
 	double cashTotal;
 	double debitTotal;
@@ -73,11 +74,18 @@ public class BillingClaimHeader1Data {
 	public String getSer_num() {
 		return ser_num;
 	}
-
+	
 	public void setSer_num(String ser_num) {
 		this.ser_num = ser_num;
 	}
-
+	
+	public String getService_date() {
+		return service_date;
+	}
+	
+	public void setService_date(String service_date) {
+		this.service_date = service_date;
+	}
 
 	public String getClinic() {
 		return clinic;
@@ -461,6 +469,7 @@ public class BillingClaimHeader1Data {
 		this.update_datetime = ch1Data.getUpdate_datetime();
 		this.billing_on_item_id = ch1Data.getBilling_on_item_id();
 		this.ser_num = ch1Data.getSer_num();
+		this.service_date = ch1Data.getService_date();
 	}
 
 
