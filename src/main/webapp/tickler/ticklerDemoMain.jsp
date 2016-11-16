@@ -612,9 +612,7 @@ function generateRenalLabReq(demographicNo) {
 			%>
 
 			<tr>
-				<TD ROWSPAN="1" class="<%=cellColour%> noprint"><input
-					type="checkbox" name="checkbox"
-					value="<%=t.getId()%>"></TD>
+				<TD ROWSPAN="1" class="<%=cellColour%> noprint"><input type="checkbox" name="checkbox" value="<%=t.getId()%>"><% if (Boolean.parseBoolean(OscarProperties.getInstance().getProperty("tickler_edit_enabled"))) { %> <a href=#  onClick="popupPage(600,800, '../tickler/ticklerEdit.jsp?tickler_no=<%=t.getId()%>')"><bean:message key="tickler.ticklerMain.editTickler"/></a>  <% } %> </TD>  
 				<TD ROWSPAN="1" class="<%=cellColour%>"><a
 					href=#
 					onClick="popupPage(600,800,'../demographic/demographiccontrol.jsp?demographic_no=<%=t.getDemographicNo()%>&displaymode=edit&dboperation=search_detail')"><%=d.getLastName()%>,<%=d.getFirstName()%></a></TD>
