@@ -117,6 +117,13 @@ public class DemographicManager {
 
 		return (result);
 	}
+	
+	
+	public Demographic getDemographic(Integer demographicId) {
+		Demographic result = demographicDao.getDemographicById(demographicId);
+		
+		return (result);
+	}
 		
 	public Demographic getDemographic(LoggedInInfo loggedInInfo, String demographicNo) {
 		checkPrivilege(loggedInInfo, SecurityInfoManager.READ);
@@ -727,7 +734,7 @@ public class DemographicManager {
     				throw new RuntimeException("missing required security object (_demographic)");
     			}
         	}
-		
+		 
 		private void checkPrivilege(LoggedInInfo loggedInInfo, String privilege, int demographicNo) {
       			if (!securityInfoManager.hasPrivilege(loggedInInfo, "_demographic", privilege, demographicNo)) {
     				throw new RuntimeException("missing required security object (_demographic)");
