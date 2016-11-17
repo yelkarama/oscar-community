@@ -1367,7 +1367,7 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 <%
 	if (caseload) {
 %>
-<%@ include file="caseload.jspf" %>
+<jsp:include page="caseload.jspf" />
 <%
 	} else {
 %>
