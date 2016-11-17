@@ -496,14 +496,7 @@ if (isMobileOptimized) {
 %>
 <c:if test="${empty sessionScope.archiveView or sessionScope.archiveView != true}">
 <%!String refresh = oscar.OscarProperties.getInstance().getProperty("refresh.appointmentprovideradminday.jsp", "-1");%>
-<c:if test="${!\"-1\".equals(refresh)}">
-	<script type="text/javascript">
-		var timeout = setTimeout("refresh();",<%=refresh%>000);
-	</script>
-	<noscript>
-		<meta http-equiv="refresh" content="<%=refresh%>" />
-	</noscript>
-</c:if>
+<%="-1".equals(refresh)?"":"<meta http-equiv=\"refresh\" content=\""+refresh+";\">"%>
 </c:if>
 <%
 	}
@@ -703,23 +696,7 @@ function review(key) {
 }
 
 function refresh() {
-	var url = window.location.href;
-	var rtn = url.split("?")[0];
-    var param;
-    var params_arr = [];
-    var queryString = (url.indexOf("?") !== -1) ? url.split("?")[1] : "";
-        
-    if (queryString !== "") {
-        params_arr = queryString.split("&");
-        for (var i = params_arr.length - 1; i >= 0; i -= 1) {
-            param = params_arr[i].split("=")[0];
-            if (param === "x" || param === "y") {
-                params_arr.splice(i, 1);
-            }
-        }
-        rtn = rtn + "?" + params_arr.join("&");
-    }
-	refreshSameLoc(rtn);
+document.location.reload();
 }
 
 function refresh1() {
