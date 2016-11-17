@@ -379,6 +379,18 @@ function isValidDate(day,month,year){
    return ((day==dteDate.getDate()) && (month==dteDate.getMonth()) && (year==dteDate.getFullYear()));
 }
 
+function checkOOPHin() {
+	
+	var hin = document.adddemographic.hin.value;
+	var province = document.adddemographic.hc_type.value;
+	
+	if (!isValidOOPHinLength(hin, province)) {
+		alert("Please enter a valid HIN for HC Type: " + province);
+		return(false);
+	}
+	return(true);
+}
+
 function checkHin() {
 	var hin = document.adddemographic.hin.value;
 	var province = document.adddemographic.hc_type.value;
@@ -461,6 +473,9 @@ function checkFormTypeIn() {
 	if ( !checkName() ) return false;
 	if ( !checkDob() ) return false;
 	if ( !checkHin() ) return false;
+	if ( document.adddemographic.hc_type.value !== "ON" ) {
+		if ( !checkOOPHin() ) return false;
+	}
 	if ( !checkSex() ) return false;
 	if ( !checkResidentStatus() ) return false;
 	if ( !checkAllDate() ) return false;
