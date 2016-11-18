@@ -346,7 +346,7 @@ public class JdbcBillingReviewImpl {
 				
 				if("PAT".equals(ch1.getPayProgram()) ){ 
 					BigDecimal amountPaid = billOnItemPaymentDao.getAmountPaidByItemId(bi.getId());
-					ch1Obj.setPaid(amountPaid.toString());
+					ch1Obj.setPaid(amountPaid != null ? amountPaid.toString() : ch1.getPaid().toString());
 					ch1Obj.setBilling_on_item_id(bi.getId().toString());
 				} else {
 					if( prevId==null && prevPaid==null) {
