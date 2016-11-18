@@ -103,9 +103,7 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
 <link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/share/yui/css/fonts-min.css"/>
 <link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/share/yui/css/autocomplete.css"/>
 <link rel="stylesheet" type="text/css" media="all" href="<%=request.getContextPath()%>/share/css/demographicProviderAutocomplete.css"  />
-
 <link rel="stylesheet" type="text/css" media="all" href="<%=request.getContextPath()%>/share/css/oscarMDSIndex.css"  />
-
 <script type="text/javascript" src="<%=request.getContextPath()%>/dms/showDocument.js"></script>        
 
 
