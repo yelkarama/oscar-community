@@ -91,7 +91,7 @@ public class EctDisplayTicklerAction extends EctDisplayAction {
         NavBarDisplayDAO.Item item = NavBarDisplayDAO.Item();
         serviceDate = t.getServiceDate();
         item.setDate(serviceDate);
-        if(serviceDate.before(today)) {
+
         	days = (today.getTime() - serviceDate.getTime())/(1000*60*60*24);
             if( days > 0 )
                 item.setColour("#FF0000");
@@ -110,12 +110,12 @@ public class EctDisplayTicklerAction extends EctDisplayAction {
             item.setURL(url);
             Dao.addItem(item);
 
-        }
+        
         
     }
  	}
 
-     Dao.sortItems(NavBarDisplayDAO.DATESORT);
+     Dao.sortItems(NavBarDisplayDAO.DATESORT_ASC);
  
     return true;
   }
