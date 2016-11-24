@@ -57,7 +57,7 @@ public class RxProviderData {
     }
     
     public Provider convertProvider(org.oscarehr.common.model.Provider p) {
-    	String surname=null, firstName=null,  clinicName=null, clinicAddress=null, clinicCity=null, clinicPostal=null, clinicPhone=null, clinicFax=null, clinicProvince=null, practitionerNo=null;
+    	String surname=null, firstName=null, formatted=null,  clinicName=null, clinicAddress=null, clinicCity=null, clinicPostal=null, clinicPhone=null, clinicFax=null, clinicProvince=null, practitionerNo=null;
     	boolean useFullAddress=true;
         //Get Provider from database
 
@@ -78,6 +78,7 @@ public class RxProviderData {
         if(p != null) {
         	surname = p.getLastName();
         	firstName = p.getFirstName();
+        	formatted = p.getFormattedName();
         	practitionerNo = p.getPractitionerNo();
         	if(firstName.indexOf("Dr.")<0) {
                 firstName = "Dr. " + firstName;
@@ -125,6 +126,7 @@ public class RxProviderData {
         }
                 prov =  new Provider(providerNo, surname, firstName, clinicName, clinicAddress,
                 clinicCity, clinicPostal, clinicPhone, clinicFax, clinicProvince, practitionerNo);
+                prov.setFormattedName(formatted);
         
         if(!useFullAddress) {
         	prov.fullAddress=false;
@@ -147,6 +149,7 @@ public class RxProviderData {
         String providerNo;
         String surname;
         String firstName;
+        String formattedName;
         String clinicName;
         String clinicAddress;
         String clinicCity;
@@ -170,14 +173,12 @@ public class RxProviderData {
             this.clinicFax = clinicFax;
 	    this.practitionerNo = practitionerNo;
         }
-
         public Provider(String providerNo, String surname, String firstName,
         String clinicName, String clinicAddress, String clinicCity,
         String clinicPostal, String clinicPhone, String clinicFax,String clinicProvince, String practitionerNo){
         	this(providerNo,surname,firstName,clinicName,clinicAddress,clinicCity,clinicPostal,clinicPhone,clinicFax,practitionerNo);
             this.clinicProvince = clinicProvince;
         }
-
 
         public String getProviderNo(){
             return this.providerNo;
@@ -189,6 +190,14 @@ public class RxProviderData {
 
         public String getFirstName(){
             return this.firstName;
+        }
+
+        public String getFormattedName(){
+            return this.formattedName;
+        }
+        
+        public void setFormattedName(String formattedName){
+            this.formattedName = formattedName;
         }
 
         public String getClinicName(){
