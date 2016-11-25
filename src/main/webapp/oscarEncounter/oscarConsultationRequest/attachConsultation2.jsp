@@ -413,10 +413,10 @@ function toggleSelectAll() {
 	    
 	                <% 
 	                     }
-	                //Sets the print image to unprintable
-	                printImage = UNPRINTABLE_IMAGE;
-	                printTitle = UNPRINTABLE_TITLE;
-	                printAlt = UNPRINTABLE_ALT;
+
+					printImage = PRINTABLE_IMAGE;
+					printTitle = PRINTABLE_TITLE;
+					printAlt = PRINTABLE_ALT;
 	                
 	                if(hrmDocumentToDemographicList.size() > 0) { %>
 						<h2><bean:message key="oscarEncounter.oscarConsultationRequest.AttachDocPopup.hrmDocuments"/></h2>

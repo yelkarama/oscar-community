@@ -147,6 +147,15 @@ if(demographicLink != null){
 }
 </style>
 
+<%
+// check for errors printing
+if (request.getAttribute("printError") != null && (Boolean) request.getAttribute("printError")){
+%>
+	<script language="JavaScript">
+		alert("The HRM Report could not be printed due to an error.");
+	</script>
+<% } %>
+
 <script type="text/javascript">
 function makeIndependent(reportId) {
 	jQuery.ajax({
@@ -533,20 +542,24 @@ String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 		</tr>
 		<tr>
 			<td colspan=2>
-				<input type="button" value="Print" onClick="window.print()" />
-				<input type="button" style="display: none;" value="Save" id="save<%=hrmReportId %>hrm" />
-				<% 
-				HRMDocumentToProvider hrmDocumentToProvider = HRMDisplayReportAction.getHRMDocumentFromProvider(loggedInInfo.getLoggedInProviderNo(), hrmReportId);
-				if (hrmDocumentToProvider != null && hrmDocumentToProvider.getSignedOff() != null && hrmDocumentToProvider.getSignedOff() == 1) {
-				%>
-				<input type="button" id="signoff<%=hrmReportId %>" value="Revoke Sign-Off" onClick="revokeSignOffHrm('<%=hrmReportId %>')" />
-				<%
-				} else { 
-				%>
-				<input type="button" id="signoff<%=hrmReportId %>" value="Sign-Off" onClick="signOffHrm('<%=hrmReportId %>')" />
-				<%
-				} 
-				%>
+				<form action="<%=request.getContextPath() %>/hospitalReportManager/PrintHRMReport.do" >
+					<input type="hidden" value="<%=hrmReportId %>" name="hrmReportId" />
+					<input type="submit" value="Print"  />
+
+					<input type="button" style="display: none;" value="Save" id="save<%=hrmReportId %>hrm" />
+					<%
+					HRMDocumentToProvider hrmDocumentToProvider = HRMDisplayReportAction.getHRMDocumentFromProvider(loggedInInfo.getLoggedInProviderNo(), hrmReportId);
+					if (hrmDocumentToProvider != null && hrmDocumentToProvider.getSignedOff() != null && hrmDocumentToProvider.getSignedOff() == 1) {
+					%>
+					<input type="button" id="signoff<%=hrmReportId %>" value="Revoke Sign-Off" onClick="revokeSignOffHrm('<%=hrmReportId %>')" />
+					<%
+					} else {
+					%>
+					<input type="button" id="signoff<%=hrmReportId %>" value="Sign-Off" onClick="signOffHrm('<%=hrmReportId %>')" />
+					<%
+					}
+					%>
+				</form>
 			</td>
 		</tr>
 			
