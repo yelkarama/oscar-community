@@ -14,14 +14,21 @@
 <%@ page import="java.util.*, java.sql.*, java.net.URLEncoder "%>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
 <%@ page import="org.oscarehr.PMmodule.dao.ProviderDao, org.oscarehr.common.model.Provider" %>
-<%@ page import="org.oscarehr.common.dao.DemographicDao" %>
+<%@ page import="org.oscarehr.common.dao.DemographicDao, org.oscarehr.common.model.Demographic" %>
 <%@ page import="oscar.OscarProperties" %>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security" %>
 <%@ page import="org.oscarehr.util.LoggedInInfo" %>
 <%@ page import="org.oscarehr.util.LocaleUtils" %>
 <%@ page import="java.util.Locale" %>
-
+<%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
+<%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
+<jsp:useBean id="providerBean" class="java.util.Properties" scope="session" />
+<jsp:useBean id="as" class="oscar.appt.ApptStatusData" scope="page" />
+<jsp:useBean id="dateTimeCodeBean" class="java.util.Hashtable" scope="page" />
 <%
+
+	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
+	DemographicDao demographicDao = (DemographicDao)SpringUtils.getBean("demographicDao");
 
 	String caseloadProv = (request.getParameter("clProv") != null) ? URLEncoder.encode(request.getParameter("clProv"), "UTF-8") : "";
 	String caseloadDx = (request.getParameter("clDx") != null) ? request.getParameter("clDx") : "";
