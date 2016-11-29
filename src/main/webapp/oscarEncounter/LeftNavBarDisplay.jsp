@@ -143,12 +143,13 @@ if(!authed) {
             div = div.trim();
             int numItems = dao.numItems();
             StringBuilder reloadURL = new StringBuilder(request.getParameter("reloadURL") + "&reloadURL=" + request.getParameter("reloadURL"));
+            String currentDisplay = request.getParameter("currentDisplay");
             String strToDisplay = request.getParameter("numToDisplay");
             int numToDisplay;
             boolean xpanded = false;
             int displayThreshold = 6;
 
-            if( strToDisplay != null ) {
+            if( strToDisplay != null && currentDisplay == null ) {
                 numToDisplay = Integer.parseInt(strToDisplay);
 				reloadURL.append("&numToDisplay=" + strToDisplay);
                 if( numItems > numToDisplay ) {
@@ -157,8 +158,14 @@ if(!authed) {
                 }
             }
             else {
-                numToDisplay = numItems;
-                if( numToDisplay > displayThreshold ) {
+				int numCurrentDisplay = 0;
+				numToDisplay = numItems;
+				
+				if(currentDisplay != null){
+					numCurrentDisplay = Integer.parseInt(currentDisplay);
+				}
+                
+                if( numToDisplay > displayThreshold || numCurrentDisplay > displayThreshold) {
                     xpanded = true;
                 }
             }
