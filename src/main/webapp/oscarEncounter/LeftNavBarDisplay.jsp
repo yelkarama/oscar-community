@@ -57,8 +57,7 @@ if(!authed) {
         String js = dao.getJavaScript();
         int maxColumnHeight = 40;  //break into columns after maxColumnHeight items reached
         int menuWidth = 125;
-
-
+		
         //Is there java script to insert in page?  Then do it
         if( js != null ) {
         %>
