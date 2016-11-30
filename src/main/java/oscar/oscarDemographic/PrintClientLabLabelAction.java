@@ -86,7 +86,7 @@ public class PrintClientLabLabelAction extends OscarAction {
                 silentPrint = true;
             }
         }
-        String exportPdfJavascript = null;
+        String exportPdfJavascript = "this.print()";
 
         if (defaultPrinterName != null && !defaultPrinterName.isEmpty()) {
             exportPdfJavascript = "var params = this.getPrintParams();"

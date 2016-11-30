@@ -85,7 +85,7 @@ public class GenerateEnvelopesAction  extends Action {
                silentPrintPDFLabel = true;
            }
        }
-       String exportPdfJavascript = "";
+       String exportPdfJavascript = "this.print()";
 
        if (defaultPrinterNamePDFLabel != null && !defaultPrinterNamePDFLabel.isEmpty()) {
            exportPdfJavascript = "var params = this.getPrintParams();"
