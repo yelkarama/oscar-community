@@ -41,8 +41,8 @@ age_40	:	weight_40
 age_41	:	weight_41
 age_42	:	weight_42
 
-__origX		:	112
-__origY		:	721
+__origX		:	102
+__origY		:	711
 __nMaxPixX	:	422
 __nMaxPixY	:	353
 __fStartX	:	2
