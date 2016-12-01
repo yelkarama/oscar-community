@@ -118,15 +118,14 @@ public class EctDisplayPreventionAction extends EctDisplayAction {
                     }
                     
                     item.setDate(date);
-
+                    if( hdata.get("refused") != null && hdata.get("refused").equals("1") ) { // 1 for refused
+                        item.setColour(refusedColour);
+                    }
                     if( hdata.get("refused") != null && hdata.get("refused").equals("2") ) {
                         item.setColour(inelligibleColour);
                     }
                     else if( result != null && result.equalsIgnoreCase("pending") && !hdata.get("refused").equals("1")) {
                         item.setColour(pendingColour);
-                    }
-                    else if (hdata.get("refused") != null && hdata.get("refused").equals("1")){
-                        item.setColour(refusedColour);
                     }
                 }
                 else {
