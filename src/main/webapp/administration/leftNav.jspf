@@ -593,7 +593,7 @@ String curProvider_no = (String)session.getAttribute("user");
 <!-- #CAISI END-->
 
 <!-- #SYSTEM Management-->
-	<security:oscarSec roleName="<%=roleName$%>" objectName="_admin,_admin.measurements,_admin.document" rights="r" reverse="<%=false%>">
+	<security:oscarSec roleName="<%=roleName$%>" objectName="_admin,_admin.measurements,_admin.document,_admin.consult" rights="r" reverse="<%=false%>">
 				<div class="accordion-heading">
 				<a class="accordion-toggle" data-toggle="collapse" data-parent="#adminNav" href="#collapseEight">
 				<bean:message key="admin.admin.SystemManagement" />
@@ -635,8 +635,6 @@ String curProvider_no = (String)session.getAttribute("user");
 					<%
 						}
 					%>
-		            <li><a href='javascript:void(0);'
-						class="xlink" rel="${ctx}/oscarEncounter/oscarConsultationRequest/config/EditSpecialists.jsp"><bean:message key="admin.admin.consultationSettings"/></a></li>
 <!--
 		            <li><a href='javascript:void(0);'
 						class="xlink" rel="${ctx}/oscarEncounter/oscarConsultationRequest/config/EditSpecialists.jsp"><bean:message key="admin.admin.professionalSpecialistAdmin"/></a></li>
@@ -645,6 +643,11 @@ String curProvider_no = (String)session.getAttribute("user");
 						class="xlink" rel="${ctx}/oscarResearch/oscarDxResearch/dxResearchCustomization.jsp"><bean:message
 						key="oscarEncounter.Index.btnCustomize" /> <bean:message
 						key="oscar.admin.diseaseRegistryQuickList" /></a></li>
+					</security:oscarSec>
+
+					<security:oscarSec roleName="<%=roleName$%>" objectName="_admin,_admin.consult" rights="r" reverse="<%=false%>">
+						<li><a href='javascript:void(0);'
+							   class="xlink" rel="${ctx}/oscarEncounter/oscarConsultationRequest/config/EditSpecialists.jsp"><bean:message key="admin.admin.consultationSettings"/></a></li>
 					</security:oscarSec>
 					
 					<security:oscarSec roleName="<%=roleName$%>" objectName="_admin,_admin.measurements" rights="r" reverse="<%=false%>">	
