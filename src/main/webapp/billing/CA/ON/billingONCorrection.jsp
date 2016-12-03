@@ -89,7 +89,7 @@
     <%isTeamAccessPrivacy=true; %>
 </security:oscarSec>
 <%
-    ProviderSiteDao providerSiteDao = (ProviderSiteDao) SpringUtils.getBean("providerSiteDao");
+	ProviderSiteDao providerSiteDao = (ProviderSiteDao) SpringUtils.getBean("providerSiteDao");
     Set<String> providerAccessList = new HashSet<String>();
     
     //multisites function
@@ -124,7 +124,7 @@
                 mgrSites.add(s.getName());
         }
     }
-    
+	
     int MAXRECORDS = 6;  //number of billing items to display if record has less than 6
     String UpdateDate = "";
     String DemoNo = "";
@@ -199,6 +199,14 @@ function rs(n,u,w,h,x) {
 	if (x == 1) { return remote; }
 }
 
+function demoUpdate(){
+	document.getElementsByName("method")[0].value="updateDemographic"
+	if(confirm("Update Demographic information and set status to \"Bill OHIP\"?")){
+		return true;
+	}else{
+		return false;
+	}
+}
 
 var awnd=null;
 function ScriptAttach() {
@@ -433,8 +441,7 @@ function validateAmountNumberic(idx) {
 		bCh1 = bCh1Dao.find(billingNo);
 
         if (bCh1 != null) {	
-
-	    clinicSite = bCh1.getClinic();
+			clinicSite = bCh1.getClinic();
 
                 //multisite. check provider no
             if (((isSiteAccessPrivacy || isTeamAccessPrivacy) && !providerAccessList.contains(bCh1.getProviderNo())) 
@@ -709,18 +716,23 @@ OHIP Claim No  <br>
 <table>
 	<tr>
 		<th align="left" colspan="2"><bean:message
-			key="billing.billingCorrection.msgPatientInformation" /></th>
+			key="billing.billingCorrection.msgPatientInformation" /> </th>
 	</tr>
 	<tr>
-		<td width="54%"><bean:message
+		<td width="47%"><bean:message
 			key="billing.billingCorrection.msgPatientName" />: <a href=#
 			onclick="popupPage(720,860,'../../../demographic/demographiccontrol.jsp?demographic_no=<%=DemoNo %>&displaymode=edit&dboperation=search_detail');return false;">
 		<%=DemoName%></a> <input type="hidden" name="demo_name"
 			value="<%=DemoName%>"></td>
-		<td width="46%"><bean:message
+		<td width="41%"><bean:message
 			key="billing.billingCorrection.formHealth" />: <%=hin%> <input
 			type="hidden" name="xml_hin" value="<%=hin%>">
 		RS: <%=DemoRS%></td>
+		<td>
+		<% if(bCh1 != null && !BillType.equals("S") && !BillType.equals("D") && !BillType.equals("N")){ %>
+			<input class="btn" onclick="demoUpdate();" type="submit" value="Update and Bill">
+		<% } %>
+		</td>
 	</tr>
 	<tr>
 		<td><bean:message key="billing.billingCorrection.msgSex" />:
@@ -728,6 +740,8 @@ OHIP Claim No  <br>
 			<input type="hidden" name="hc_sex" value="<%=HCSex%>"></td>
 		<td><bean:message key="billing.billingCorrection.formDOB" />:
 			<input type="hidden" name="xml_dob" value="<%=DemoDOB%>"> <%=DemoDOB%>
+		</td>
+		<td>
 		</td>
 	</tr>
 	<tr>
