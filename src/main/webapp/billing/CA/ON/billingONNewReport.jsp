@@ -37,6 +37,7 @@ String strLimit2="50";
 if(request.getParameter("limit1")!=null) strLimit1 = request.getParameter("limit1");
 if(request.getParameter("limit2")!=null) strLimit2 = request.getParameter("limit2");
 String providerview = request.getParameter("providerview")==null?"all":request.getParameter("providerview") ;
+String sqlProviderView = request.getParameter("providerview")==null?"%":request.getParameter("providerview") ;
 %>
 
 <%@ page import="java.util.*, java.sql.*, oscar.login.*, oscar.*, java.net.*" errorPage="errorpage.jsp"%>
@@ -78,7 +79,7 @@ if("unbilled".equals(action)) {
     vecHeader.add("DESCRIPTION");
     vecHeader.add("COMMENTS");
     
-    sql = "select * from appointment where provider_no='" + providerview + "' and appointment_date >='" + xml_vdate   
+    sql = "select * from appointment where provider_no like '" + sqlProviderView + "' and appointment_date >='" + xml_vdate   
             + "' and appointment_date<='" + xml_appointment_date 
             + "' and (BINARY status NOT LIKE 'B%' AND BINARY status NOT LIKE 'C%' AND BINARY status NOT LIKE 'N%' AND BINARY status NOT LIKE 'T%' AND BINARY status NOT LIKE 't%')"
             + " and demographic_no != 0 order by appointment_date , start_time ";
@@ -115,7 +116,7 @@ if("billed".equals(action)) {
     vecHeader.add("PATIENT");
     vecHeader.add("DESCRIPTION");
     vecHeader.add("ACCOUNT");
-    sql = "select * from billing_on_cheader1 where provider_no='" + providerview + "' and billing_date >='" + xml_vdate 
+    sql = "select * from billing_on_cheader1 where provider_no like " + sqlProviderView + "' and billing_date >='" + xml_vdate 
             + "' and billing_date<='" + xml_appointment_date + "' and (status<>'D' and status<>'S' and status<>'B')" 
             + " order by billing_date , billing_time ";
     rs = dbObj.searchDBRecord(sql);
