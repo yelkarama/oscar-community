@@ -778,14 +778,24 @@ var demographicNo='<%=demographic_no%>';
 
 
 function checkRosterStatus2(){
-	<oscar:oscarPropertiesCheck property="FORCED_ROSTER_INTEGRATOR_LOCAL_STORE" value="yes">
 	var rosterSelect = document.getElementById("roster_status");
-	if(rosterSelect.getValue() == "RO"){
+	<oscar:oscarPropertiesCheck property="FORCED_ROSTER_INTEGRATOR_LOCAL_STORE" value="yes">
+	if(rosterSelect.value == "RO"){
 		var primaryEmr = document.getElementById("primaryEMR");
 		primaryEmr.value = "1";
 		primaryEmr.disable(true);
 	}
 	</oscar:oscarPropertiesCheck>
+	
+	if(rosterSelect.value == "TE" || rosterSelect.value == "NR"){
+		jQuery(".termination_details").show();
+		jQuery("#roster_termination_reason").focus();
+	}else{
+		jQuery(".termination_details").hide();
+		jQuery(".termination_details input").val("");
+		jQuery(".termination_details select").val("");
+	}
+	
 	return true;
 }
 
@@ -2537,6 +2547,9 @@ jQuery(document).ready(function(){
 <%
 }
 %>
+if(jQuery("#roster_status").val() != "TE" && jQuery("#roster_status").val() != "NR"){
+	jQuery(".termination_details").hide();
+}
 </script>
 </body>
 </html:html>

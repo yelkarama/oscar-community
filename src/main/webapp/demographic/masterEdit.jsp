@@ -146,6 +146,7 @@
     List<PatientType> patientTypes = patientTypeDao.findAllPatientTypes();
 	List<DemographicGroup> demographicGroups = demographicGroupDao.getAll();
 	
+	GregorianCalendar dateCal = new GregorianCalendar();
 	
 %>
 <%!
@@ -743,7 +744,6 @@
 					<% if (oscar.util.StringUtils.noNull(demographic.getCountryOfOrigin()).equals(cc.getCountryId())){out.print("SELECTED") ;}%>><%=cc.getCountryName() %></option>
 				<%}%>
 		</select></td>
-
 	</tr>
 	<tr valign="top">
 		<td align="right" nowrap><b> <bean:message
@@ -966,7 +966,7 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 					// Year
 					decF.applyPattern("0000");
 
-					GregorianCalendar dateCal = new GregorianCalendar();
+					
 					String rosterDateYear = "";
 					String rosterDateMonth = "";
 					String rosterDateDay = "";
@@ -978,6 +978,7 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 						rosterDateMonth = decF.format(dateCal.get(GregorianCalendar.MONTH) + 1);
 						rosterDateDay = decF.format(dateCal.get(GregorianCalendar.DAY_OF_MONTH));
 					}
+					
 					String rosterTerminationDateYear = "";
 					String rosterTerminationDateMonth = "";
 					String rosterTerminationDateDay = "";
@@ -1014,22 +1015,28 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 				name="roster_date_day" size="2" maxlength="2"
 				value="<%=rosterDateDay%>"></td>
 		</tr>
-
-
-		<%--
-							<tr valign="top">
-								<td align="right" nowrap><b><bean:message
-									key="demographic.demographiceditdemographic.RosterTerminationReason" />: </b></td>
-								<td align="left" colspan="3">
-									<select  name="roster_termination_reason">
-										<option value="">N/A</option>
+		<tr valign="top" class="termination_details">
+			<td align="right" nowrap><b><bean:message
+				key="demographic.demographiceditdemographic.RosterTerminationReason" />: </b></td>
+			<td align="left" colspan="3">
+				<select  name="roster_termination_reason">
+					<option value="">N/A</option>
 <%for (String code : Util.rosterTermReasonProperties.getTermReasonCodes()) { %>
-										<option value="<%=code %>" <%=code.equals(rosterTerminationReason)?"selected":"" %> ><%=Util.rosterTermReasonProperties.getReasonByCode(code) %></option>
+					<option value="<%=code %>" <%=code.equals(rosterTerminationReason)?"selected":"" %> ><%=Util.rosterTermReasonProperties.getReasonByCode(code) %></option>
 <%} %>
-									</select>
-								</td>
-							</tr>
-							--%>
+				</select>
+			</td>
+		</tr>
+		<tr valign="top" class="termination_details">
+			<td align="right" nowrap><b><bean:message
+				key="demographic.demographiceditdemographic.RosterTerminationDate" />: </b></td>
+			<td align="left"><input type="text" name="roster_termination_date_year"
+				size="4" maxlength="4" value="<%=rosterTerminationDateYear%>"> <input
+				type="text" name="roster_termination_date_month" size="2" maxlength="2"
+				value="<%=rosterTerminationDateMonth%>"> <input type="text"
+				name="roster_termination_date_day" size="2" maxlength="2"
+				value="<%=rosterTerminationDateDay%>"></td>
+		</tr>
 
 	</oscar:oscarPropertiesCheck>
 	<%-- END TOGGLE OFF PATIENT ROSTERING --%>
