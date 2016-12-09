@@ -183,8 +183,8 @@ p {
 
 #providerSchedule, #providerSchedule tr {
     border-collapse: collapse;
-    border: 1px solid #eee;
-    background-color: #fcfcfc;
+    border: 1px solid #dbdbdb;
+    background-color: #ededed;
 }
 
 #providerSchedule td {
@@ -196,11 +196,11 @@ p {
 .scheduleTime00, .scheduleTimeNot00{
     width:5%;
 }
-.scheduleTime00 { background-color: #ededed; }
+.scheduleTime00 { background-color: #dbdbdb; }
 .scheduleTimeNot00 { 
-	background-color: #fcfcfc;
+	background-color: #ededed;
     border: 1px solid;
-    border-color: #ededed;
+    border-color: #dbdbdb;
 }
 
 #ivoryBar{
