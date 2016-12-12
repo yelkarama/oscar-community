@@ -749,6 +749,10 @@ popupPage(360,780,('../appointment/appointmentcontrol.jsp?displaymode=edit&dbope
 function goFilpView(s) {
 self.location.href = "../schedule/scheduleflipview.jsp?originalpage=../provider/providercontrol.jsp&startDate=<%=year+"-"+month+"-"+day%>" + "&provider_no="+s ;
 }
+function goDaySheet(s) {
+var date="<%=year%>-<%=month%>-<%=day%>";
+popupPage2("../report/reportdaysheet.jsp?dsmode=all&provider_no="+s+"&sdate="+date+"&edate="+date+"&sTime=<%=startHour%>&eTime=<%=endHour%>","reportPage");
+}
 function goWeekView(s) {
 self.location.href = "providercontrol.jsp?year=<%=year%>&month=<%=month%>&day=<%=day%>&view=0&displaymode=day&dboperation=searchappointmentday&viewall=1&provider_no="+s;
 }
@@ -1772,7 +1776,6 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
           <tr><td class="infirmaryView" NOWRAP ALIGN="center" style="padding:10px"><!--BGCOLOR="<%=bColor?"#bfefff":"silver"%>"  -->
  <!-- caisi infirmary view extension modify ffffffffffff-->
   <logic:notEqual name="infirmaryView_isOscar" value="false">
-
       <%
       	if (isWeekView) {
       %>
@@ -1780,7 +1783,10 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
       <%
       	} else {
       %>
-  <b><input type='button' value="<bean:message key="provider.appointmentProviderAdminDay.weekLetter"/>" name='weekview' onClick=goWeekView('<%=curProvider_no[nProvider]%>') title="<bean:message key="provider.appointmentProviderAdminDay.weekView"/>" style="color:black" class="noprint">
+  <b><% if(OscarProperties.getInstance().isPropertyActive("view.appointmentdaysheetbutton")){ %>
+	<input type='button' value="<bean:message key="provider.appointmentProviderAdminDay.daySheetLetter"/>" name='daysheetview' onClick=goDaySheet('<%=curProvider_no[nProvider]%>') title="<bean:message key="provider.appointmentProviderAdminDay.daySheet"/>" style="color:black">
+  <% } %>
+  <input type='button' value="<bean:message key="provider.appointmentProviderAdminDay.weekLetter"/>" name='weekview' onClick=goWeekView('<%=curProvider_no[nProvider]%>') title="<bean:message key="provider.appointmentProviderAdminDay.weekView"/>" style="color:black" class="noprint">
 	  <input type='button' value="<bean:message key="provider.appointmentProviderAdminDay.searchLetter"/>" name='searchview' onClick=goSearchView('<%=curProvider_no[nProvider]%>') title="<bean:message key="provider.appointmentProviderAdminDay.searchView"/>" style="color:black" class="noprint">
           <b><input type='radio' name='flipview' class="noprint" onClick="goFilpView('<%=curProvider_no[nProvider]%>')" title="Flip view"  >
           <a style="color:#333" href=# onClick="goZoomView('<%=curProvider_no[nProvider]%>','<%=StringEscapeUtils.escapeJavaScript(curProviderName[nProvider])%>')" onDblClick="goFilpView('<%=curProvider_no[nProvider]%>')" title="<bean:message key="provider.appointmentProviderAdminDay.zoomView"/>" >
