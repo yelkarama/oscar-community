@@ -358,8 +358,13 @@ var newD = newYear + "-" + newMonth + "-" + newDay;
 var _providers = [];
 <%	
 Site site = null;
-for (int i=0; i<sites.size(); i++) { %>
-	_providers["<%= sites.get(i).getSiteId() %>"]="<% Iterator<Provider> iter = sites.get(i).getProviders().iterator();
+for (int i=0; i<sites.size(); i++) {
+    List<Provider> sortedProviderList = new ArrayList<Provider>();
+    for(Provider provider : sites.get(i).getProviders()){
+        sortedProviderList.add(provider);
+    }
+    Collections.sort(sortedProviderList, Provider.LastNameComparator); %>
+	_providers["<%= sites.get(i).getSiteId() %>"]="<% Iterator<Provider> iter = sortedProviderList.iterator();
 	while (iter.hasNext()) {
 		Provider p=iter.next();
 		if ("1".equals(p.getStatus())) {
