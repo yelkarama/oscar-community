@@ -1074,25 +1074,14 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 			value="<bean:message key="demographic.demographiceditdemographic.btnAddNew"/>">
 
 		</td>
-		<%--
-								<td align="right" nowrap><b><bean:message
-									key="demographic.demographiceditdemographic.PatientStatusDate" />: </b></td>
-								<td align="left">
-                                                                    <input  type="text" name="patientstatus_date_year" size="4" maxlength="4" value="<%=patientStatusDateYear%>">
-                                                                    <input  type="text" name="patientstatus_date_month" size="2" maxlength="2" value="<%=patientStatusDateMonth%>">
-                                                                    <input  type="text" name="patientstatus_date_day" size="2" maxlength="2" value="<%=patientStatusDateDay%>">
-								</td>
-                                                        </tr>
-                                                        <tr>
-                                                                <td>&nbsp;</td>
-                                                                --%>
-		<td align="right"><b><bean:message
-					key="demographic.demographiceditdemographic.formChartNo" />:</b></td>
-		<td align="left"><input type="text" name="chart_no" size="30"
-			value="<%=StringUtils.trimToEmpty(demographic.getChartNo())%>"
-			<%=getDisabled("chart_no")%>></td>
+		<td align="right" nowrap>
+			<b><bean:message key="demographic.demographiceditdemographic.PatientStatusDate" />: </b></td>
+		<td align="left">
+											<input  type="text" name="patientstatus_date_year" size="4" maxlength="4" value="<%=patientStatusDateYear%>">
+											<input  type="text" name="patientstatus_date_month" size="2" maxlength="2" value="<%=patientStatusDateMonth%>">
+											<input  type="text" name="patientstatus_date_day" size="2" maxlength="2" value="<%=patientStatusDateDay%>">
+		</td>
 	</tr>
-
 	<tr>
 		<td align="right"><b><bean:message
 					key="demographic.demographiceditdemographic.formPatientType" />:</b></td>
@@ -1109,6 +1098,19 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 				%>
 		</select></td>
 
+		<td align="right"><b><bean:message
+					key="demographic.demographiceditdemographic.formChartNo" />:</b></td>
+		<td align="left"><input type="text" name="chart_no" size="30"
+			value="<%=StringUtils.trimToEmpty(demographic.getChartNo())%>"
+			<%=getDisabled("chart_no")%>></td>		
+	</tr>
+
+	<tr>
+		<td align="right"><b><bean:message
+					key="demographic.demographiceditdemographic.formPatientId" />:</b></td>
+		<td><input type="text" name="patientId" id="patientId"
+			value="<%=patientId%>" size="25" maxlength="45" /></td>
+			
 		<td align="right"><b><bean:message
 					key="demographic.demographiceditdemographic.formDemographicGroups" />:</b>
 		</td>
@@ -1135,13 +1137,6 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 				%>
 		</select>
 		</td>
-	</tr>
-
-	<tr>
-		<td align="right"><b><bean:message
-					key="demographic.demographiceditdemographic.formPatientId" />:</b></td>
-		<td><input type="text" name="patientId" id="patientId"
-			value="<%=patientId%>" size="25" maxlength="45" /></td>
 	</tr>
 
 	<tr>
