@@ -565,6 +565,9 @@
 	}
 	
 	
+	extensions.add(new DemographicExt(request.getParameter("HasPrimaryCarePhysician_id"), proNo, demographicNo, "HasPrimaryCarePhysician", request.getParameter("HasPrimaryCarePhysician")));
+	extensions.add(new DemographicExt(request.getParameter("EmploymentStatus_id"), proNo, demographicNo, "EmploymentStatus", request.getParameter("EmploymentStatus")));
+	
 	// customized key
 	if(oscarVariables.getProperty("demographicExt") != null) {
 	   String [] propDemoExt = oscarVariables.getProperty("demographicExt","").split("\\|");
