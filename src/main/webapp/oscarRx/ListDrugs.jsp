@@ -108,7 +108,8 @@ if (heading != null){
 			<%if(securityManager.hasWriteAccess("_rx",roleName$,true)) {%>
             <th align="center" width="35px"><b><bean:message key="SearchDrug.msgReprescribe"/></b></th>
             	<%if(!OscarProperties.getInstance().getProperty("rx.delete_drug.hide","false").equals("true")) {%>
-            	<th align="center" width="35px"><b><bean:message key="SearchDrug.msgDelete"/></b></th>
+            	<th align="center" colspan="2" width="70px"><b><bean:message key="SearchDrug.msgDelete"/></b></th>
+
             <% 	}	 
 			}            
             %>
@@ -264,7 +265,7 @@ if (heading != null){
            	%>
             <td width="20px" align="center" valign="top">
                 <%if (prescriptDrug.getRemoteFacilityName() == null) {%>
-                <input id="reRxCheckBox_<%=prescriptIdInt%>" type=CHECKBOX onclick="updateReRxDrugId(this.id)" <%if(reRxDrugList.contains(prescriptIdInt.toString())){%>checked<%}%> name="checkBox_<%=prescriptIdInt%>">
+                <input id="reRxCheckBox_<%=prescriptIdInt%>" type=CHECKBOX <%if(reRxDrugList.contains(prescriptIdInt.toString())){%>checked<%}%> name="checkBox_<%=prescriptIdInt%>">
                 <a name="rePrescribe" style="vertical-align:top" id="reRx_<%=prescriptIdInt%>" <%=styleColor%> href="javascript:void(0)" onclick="represcribe(this, <%=prescriptIdInt%>)">ReRx</a>
                 <%} else {%>
                 <form action="<%=request.getContextPath()%>/oscarRx/searchDrug.do" method="post">
@@ -278,6 +279,11 @@ if (heading != null){
             <td width="20px" align="center" valign="top">
                 <%if (prescriptDrug.getRemoteFacilityName() == null) {%>
                    <a id="del_<%=prescriptIdInt%>" name="delete" <%=styleColor%> href="javascript:void(0);" onclick="Delete2(this);">Del</a>
+                <%}%>
+            </td>
+            <td width="20px" align="center" valign="top">
+                <%if (prescriptDrug.getRemoteFacilityName() == null) {%>
+                   <a id="delA_<%=prescriptIdInt%>" name="deleteAll" <%=styleColor%> href="javascript:void(0);" onclick="Delete2(this);">DelAll</a>
                 <%}%>
             </td>
 

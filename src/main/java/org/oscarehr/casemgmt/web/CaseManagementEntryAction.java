@@ -321,7 +321,7 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 
 		}
 		// get the last temp note?
-		else if (tmpsavenote != null && !forceNote.equals("true")) {
+		else if (tmpsavenote != null && forceNote.equals("true")) {
 			logger.debug("tempsavenote is NOT NULL");
 			if (tmpsavenote.getNoteId() > 0) {
 				session.setAttribute("newNote", "false");

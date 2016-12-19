@@ -38,7 +38,7 @@ A.orange {
 
 A.orange:Hover {
 	text-decoration: none;
-	color: #004b5f;
+	color: #21773B;
 }
 
 A.black {
@@ -49,7 +49,7 @@ A.black {
 
 A.black:Hover {
 	text-decoration: none;
-	color: #004b5f;
+	color: #21773B;
 }
 
 A {
@@ -60,7 +60,7 @@ A {
 
 A:Hover {
 	text-decoration: none;
-	color: #004b5f;
+	color: #21773B;
 }
 
 .appt a {
@@ -95,7 +95,7 @@ p {
 .adhour {
 	font-family: "Arial";
 	font-size: 12px;
-	color: white;
+	color: #000000;
 }
 
 .small {
@@ -139,7 +139,7 @@ p {
 }
 
 .datepname:hover {
-	color: #004b5f;
+	color: #21773B;
 }
 
 .datephour {
@@ -172,8 +172,8 @@ p {
     display: inline;
 }
 
-#navlist li:hover { color: #004b5f;}
-#navlist li a:hover { color: #004b5f;}
+#navlist li:hover { color: #21773B;}
+#navlist li a:hover { color: #21773B;}
 #navlist #logoutMobile { display:none; }
 
 .reason {
@@ -183,7 +183,8 @@ p {
 
 #providerSchedule, #providerSchedule tr {
     border-collapse: collapse;
-    border: 1px solid #eee;
+    border: 1px solid #dbdbdb;
+    background-color: #ededed;
 }
 
 #providerSchedule td {
@@ -195,8 +196,16 @@ p {
 .scheduleTime00, .scheduleTimeNot00{
     width:5%;
 }
-.scheduleTime00 { background-color: #afafaf; }
-.scheduleTimeNot00 { background-color: #d0d0d0; }
+.scheduleTime00 { background-color: #dbdbdb; }
+.scheduleTimeNot00 { 
+	background-color: #ededed;
+    border: 1px solid;
+    border-color: #dbdbdb;
+}
+
+#ivoryBar{
+	background-color: #53B848;
+}
 
 #ivoryBar td {
 

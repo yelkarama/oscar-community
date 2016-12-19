@@ -175,7 +175,7 @@ public final class AdtA09Handler {
 	}
 
 	private static boolean demographicMatches(LoggedInInfo loggedInInfo, Appointment appointment, Demographic demographic) {
-		Demographic appointmentDemographic = demographicManager.getDemographic(loggedInInfo, appointment.getDemographicNo());
+		Demographic appointmentDemographic = demographicManager.getDemographic(appointment.getDemographicNo());
 		return (demographicMatches(appointmentDemographic, demographic));
 	}
 
