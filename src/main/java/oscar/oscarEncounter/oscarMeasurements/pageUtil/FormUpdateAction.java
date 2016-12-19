@@ -53,6 +53,8 @@ import org.oscarehr.common.model.SecRole;
 import oscar.oscarEncounter.data.EctProgram;
 
 import org.oscarehr.casemgmt.model.CaseManagementNote;
+import org.oscarehr.common.model.CaseManagementTmpSave;
+import org.oscarehr.common.dao.CaseManagementTmpSaveDao;
 import org.oscarehr.casemgmt.service.CaseManagementManager;
 import org.apache.log4j.Logger;
 
@@ -202,38 +204,44 @@ public class FormUpdateAction extends Action {
 		HttpSession session = request.getSession();
 		WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(session.getServletContext());
 		CaseManagementManager cmm = (CaseManagementManager) ctx.getBean("caseManagementManager");
-
+		CaseManagementTmpSaveDao caseManagementTmpSaveDao = (CaseManagementTmpSaveDao) ctx.getBean("caseManagementTmpSaveDao");
 		
 		SecRoleDao secRoleDao = (SecRoleDao) SpringUtils.getBean("secRoleDao");
 		SecRole doctorRole = secRoleDao.findByName("doctor");
 		String reporter_caisi_role=doctorRole.getId().toString();
+		
+		CaseManagementTmpSave cmTmpSave = caseManagementTmpSaveDao.find(providerNo, Integer.parseInt(demographic_no), Integer.parseInt(prog_no));
 
-		SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy");  
-		Date date = new Date(); 
-		String formattedDate= "["+df.format(date)+" .: ]";
-		note = formattedDate+"\n"+ note;
+		if(cmTmpSave == null){
+			SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yyyy");  
+			Date date = new Date(); 
+			String formattedDate= "["+df.format(date)+" .: ]";
+			note = formattedDate+"\n"+ note;
  
-		    
-		        CaseManagementNote cmn = new CaseManagementNote();
-				cmn.setUpdate_date(date);
-				cmn.setObservation_date(date);
-				cmn.setDemographic_no(demographic_no);
-				cmn.setProviderNo(providerNo);
-				cmn.setNote(note);
-				cmn.setSigned(true);
-				cmn.setSigning_provider_no(providerNo);
-				cmn.setProgram_no(prog_no);
-				cmn.setReporter_caisi_role(reporter_caisi_role);
-								
-				cmn.setReporter_program_team("0");
-				cmn.setPassword("NULL");
-				cmn.setLocked(false);
-				cmn.setHistory(note+"-----hi story----");
-				cmn.setPosition(0);
-				cmn.setAppointmentNo(apptNoInt);
-				
-				
-				cmm.saveNoteSimple(cmn);
+		    CaseManagementNote cmn = new CaseManagementNote();
+			cmn.setUpdate_date(date);
+			cmn.setObservation_date(date);
+			cmn.setDemographic_no(demographic_no);
+			cmn.setProviderNo(providerNo);
+			cmn.setNote(note);
+			cmn.setSigned(false);
+			cmn.setSigning_provider_no(providerNo);
+			cmn.setProgram_no(prog_no);
+			cmn.setReporter_caisi_role(reporter_caisi_role);
+							
+			cmn.setReporter_program_team("0");
+			cmn.setPassword("NULL");
+			cmn.setLocked(false);
+			cmn.setHistory(note+"-----history----");
+			cmn.setPosition(0);
+			cmn.setAppointmentNo(apptNoInt);
+			
+			cmm.saveNoteSimple(cmn);
+		}else{
+			String tmpSave = cmTmpSave.getNote();
+			cmTmpSave.setNote(note + "\n" + tmpSave);
+			caseManagementTmpSaveDao.persist(cmTmpSave);
+		}
 		
 	}
 	

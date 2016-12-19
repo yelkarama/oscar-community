@@ -46,6 +46,23 @@ function checkTypeNum(typeIn) {
 	} else typeInOK = false;
 	return typeInOK;
 }
+function isValidOOPHinLength(hin, province) {
+	var isValid  = true;
+	if ("AB" === province || "MB" === province || "SK" === province || "NB" === province || "NU" === province || "YU" === province) {
+		if (hin.length != 9) 
+	   	 	isValid = false; 
+    } else if ("QC" === province || "NL" === province) {
+		if (hin.length != 12) 
+			isValid = false;
+    } else if ("NS" === province || "BC" === province) {
+		if (hin.length != 10) 
+	   	 	isValid = false;;
+    } else if ("NT" === province || "PE" === province) {
+		if (hin.length != 8) 
+	   	 	isValid = false;
+    }
+	return isValid;
+}
 
 function isValidHin(hin, province) {
 	if (province!="ON") return(true);

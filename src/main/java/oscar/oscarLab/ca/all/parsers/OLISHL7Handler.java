@@ -1774,11 +1774,11 @@ public class OLISHL7Handler implements MessageHandler {
 				obr = (Segment) terser.getFinder().getRoot().get("OBR" + obrIndex);
 			}
 			String from = getString(Terser.get(obr, 7, 0, 1, 1));
-			if (from.length() > 13) {
+			if (from.length() >= 8) {
 				from = formatDateTime(from);
 			}
 			String to = getString(Terser.get(obr, 8, 0, 1, 1));
-			if (to.length() > 13) {
+			if (to.length() >= 8) {
 				to = formatDateTime(to);
 			}
 			boolean hasBoth = stringIsNotNullOrEmpty(from) && stringIsNotNullOrEmpty(to);

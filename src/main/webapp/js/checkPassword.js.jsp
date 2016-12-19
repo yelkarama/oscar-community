@@ -26,7 +26,7 @@
 <%@ page import="org.springframework.web.util.JavaScriptUtils"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 
-<%@ page contentType="text/javascript"%>
+<%@ page contentType="application/javascript"%>
 
 <%!
 	OscarProperties op = OscarProperties.getInstance();

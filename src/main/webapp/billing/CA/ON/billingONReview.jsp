@@ -557,6 +557,7 @@ window.onload=function(){
 	<input type="hidden" name="billStatus_old" id="billStatus_old" value="<%=request.getParameter("billStatus_old")%>" />
 	<input type="hidden" name="billForm" id="billForm" value="<%=request.getParameter("billForm")%>" />
     <input type="hidden" name="payeename" id="payeename" value="" />
+    <input type="hidden" name="xml_location" id="xml_location" value="<%=request.getParameter("xml_location")%>" />
 <table border="0" cellpadding="0" cellspacing="2" width="100%" class="myIvory">
 	<tr>
 		<td>
@@ -1126,7 +1127,7 @@ Properties prop = oscar.OscarProperties.getInstance();
 			</td></tr>
 			<tr>
 				<td colspan='2' align='center' bgcolor="silver"><input type="submit" name="submit" value="Save & Print Invoice"
-					style="width: 150px;" /><input type="submit" name="submit"
+					style="width: 150px;" /><input type="submit" name="submit" id="settlePrintBtn"
 					value="Settle & Print Invoice" onClick="document.forms['titlesearch'].btnPressed.value='Settle'; document.forms['titlesearch'].submit();javascript:popupPage(700,720,'billingON3rdInv.jsp');" style="width: 160px;" />
 				<input type="hidden"  name="btnPressed" value="">
 				<input type="hidden" name="total_payment" id="total_payment" value="0.00"/>

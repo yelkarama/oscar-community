@@ -25,6 +25,7 @@ package org.oscarehr.common.model;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Locale;
@@ -42,6 +43,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -51,9 +53,6 @@ import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
 import org.oscarehr.PMmodule.model.Program;
 import org.oscarehr.util.LocaleUtils;
-
-import java.util.Collections;
-import java.util.Comparator;
 
 @Entity
 @Table(name="tickler")
@@ -73,6 +72,9 @@ public class Tickler extends AbstractModel<Integer> {
 	public static enum PRIORITY {
         High, Normal, Low
 	}
+	
+	public static final String DATE_FORMAT = "MM-dd-yyyy";
+	public static final String TIME_FORMAT = "hh:mm a";
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -108,13 +110,22 @@ public class Tickler extends AbstractModel<Integer> {
 	@Column(name="task_assigned_to")
 	private String taskAssignedTo;
 
+	@Column(name="category_id")
+	private Integer categoryId;
+	
+	@ManyToOne(fetch=FetchType.EAGER)
+	@JoinColumn(name="category_id", referencedColumnName="id", insertable=false, updatable=false)
+	@NotFound(action=NotFoundAction.IGNORE)
+	private TicklerCategory ticklerCategory;
 	
 	@OneToMany(fetch=FetchType.EAGER)
     @JoinColumn(name="tickler_no", referencedColumnName="tickler_no")
+	@OrderBy("updateDate ASC")
 	private Set<TicklerUpdate> updates = new HashSet<TicklerUpdate>();
 	
 	@OneToMany( fetch=FetchType.EAGER)
     @JoinColumn(name="tickler_no", referencedColumnName="tickler_no")
+	@OrderBy("updateDate ASC")
 	private Set<TicklerComment> comments = new HashSet<TicklerComment>();
 	
 	
@@ -138,6 +149,7 @@ public class Tickler extends AbstractModel<Integer> {
 	@JoinColumn(name="program_id", referencedColumnName="id", insertable=false, updatable=false)
 	@NotFound(action=NotFoundAction.IGNORE)
 	private Program program;
+
 	
 	@Transient
 	private String demographic_webName;
@@ -557,7 +569,23 @@ public class Tickler extends AbstractModel<Integer> {
             }
             return compareVal;
 	}
-    };	
-	
+    };
+
+	public Integer getCategoryId() {
+		return categoryId;
+	}
+
+	public void setCategoryId(Integer categoryId) {
+		this.categoryId = categoryId;
+	}
+
+	public TicklerCategory getTicklerCategory() {
+		return ticklerCategory;
+	}
+
+	public void setTicklerCategory(TicklerCategory ticklerCategory) {
+		this.ticklerCategory = ticklerCategory;
+	}
+
 }
 
