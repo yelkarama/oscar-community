@@ -66,6 +66,7 @@ import oscar.oscarEncounter.oscarMeasurements.MeasurementTemplateFlowSheetConfig
 import oscar.oscarEncounter.pageUtil.EctSessionBean;
 import oscar.oscarMessenger.util.MsgStringQuote;
 import oscar.util.ConversionUtils;
+import oscar.OscarProperties;
 
 
 public class EctMeasurementsAction extends Action {
@@ -303,7 +304,7 @@ public class EctMeasurementsAction extends Action {
                     return (new ActionForward(mapping.getInput()));
                 }
                
-         if(valid){ 
+         if(valid && OscarProperties.getInstance().isPropertyActive("measurements_create_new_note")){ 
         	//create note
      		CaseManagementManager cmm = (CaseManagementManager)  SpringUtils.getBean("caseManagementManager");
 
