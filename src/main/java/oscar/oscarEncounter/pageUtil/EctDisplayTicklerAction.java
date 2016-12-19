@@ -52,7 +52,6 @@ public class EctDisplayTicklerAction extends EctDisplayAction {
  		return true; //The link of tickler won't show up on new CME screen.
  	} else {
 
- 
 
     //Set lefthand module heading and link
     String winName = "ViewTickler" + bean.demographicNo;

@@ -1,0 +1,105 @@
+/*
+    highlight color: #FF7F00 (orange)
+*/
+.KaiBar {
+    color: black;
+    line-height: 19px;
+    width: 98%;
+    height: 23px;
+    font-size: 12px;
+    font-family: Arial;
+    font-weight: bold;
+    background-color: white;
+    padding: 0 1%;
+    padding-top: 1px;
+}
+
+.kaibar h1 {
+    font-weight: 500;
+}
+
+.kaibar .block {
+    padding-left: 30px;
+    display: inline-block;
+}
+
+.kaibar .right {
+    float: right;
+}
+
+.kaibar img {
+    vertical-align: middle;
+}
+
+.kaibar a {
+    color: black;
+    text-decoration: none;
+}
+
+.kaibar a.plainLink:hover {
+    text-decoration: underline;
+}
+
+.kaibar .btnFlat {
+    display: inline-block;
+    margin: 1px;
+}
+
+.kaibar .btnFlat span {
+    vertical-align: middle;
+    letter-spacing: 0.1em;
+    font-size: 12px;
+    text-transform: uppercase;
+    line-height: 17px;
+    height: 17px;
+    padding: 0px 10px;
+}
+
+.kaibar a.btnFlat:hover {
+    text-decoration: none;
+}
+
+.kaibar a.btnFlat:hover .white{
+    background-color: #d9d9d9;
+    color: black;
+    -webkit-transition: background 0.25s linear;
+    -moz-transition: background 0.25s linear;
+    -ms-transition: background 0.25s linear;
+    -o-transition: background 0.25s linear;
+    transition: background 0.25s linear;
+}
+
+.kaibar a.btnFlat:hover .green{
+    background-color: #53B848;
+    color: #fff;
+    -webkit-transition: background 0.25s linear;
+    -moz-transition: background 0.25s linear;
+    -ms-transition: background 0.25s linear;
+    -o-transition: background 0.25s linear;
+    transition: background 0.25s linear;
+}
+
+.kaibar .white {
+    border: 1px solid black;
+}
+
+.kaibar .green {
+    border: 1px solid #53B848;
+    color: #53B848;
+}
+
+.kaibar .kaiInput {
+    height: 19px;
+    font-family: inherit;
+    font-size: 12px;
+    margin: 0 2px 0 8px;
+    width: 300px;
+    border: 0;
+    /*background: #a9dba3;*/
+    background: white;
+    border: 1px solid black;
+}
+
+.kaibar .plainLink {
+    margin-left: 18px;
+}
