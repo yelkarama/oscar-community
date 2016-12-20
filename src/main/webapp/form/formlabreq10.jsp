@@ -480,13 +480,13 @@ if (OscarProperties.getInstance().getBooleanProperty("consultation_program_lette
 					//Gets the letterhead provider number
 					String providerNumber = props.getProperty("letterhead", "-1");
 					//If there is no provider in the letterhead
-					if(providerNumber.isEmpty()) {
-					    //Checks if the currently logged in provider is billable, if so then it because the provider number to select
+					if(providerNumber.isEmpty() || providerNumber.equals("-1")) {
+					    //Checks if the currently logged in provider is billable, if so then it becomes the provider number to select
 						if (!loggedInInfo.getLoggedInProvider().getBillingNo().equals("")) {
 							providerNumber = loggedInInfo.getLoggedInProviderNo();
 						} else {
 						    //Else it gets the demographics MRP
-							props.getProperty("demoProvider", "-1");
+							providerNumber = props.getProperty("demoProvider", "-1");
 						}
 					}
 
