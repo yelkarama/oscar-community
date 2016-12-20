@@ -239,8 +239,8 @@ public class FormUpdateAction extends Action {
 			cmm.saveNoteSimple(cmn);
 		}else{
 			String tmpSave = cmTmpSave.getNote();
-			cmTmpSave.setNote(note + "\n" + tmpSave);
-			caseManagementTmpSaveDao.persist(cmTmpSave);
+			cmTmpSave.setNote(tmpSave + "\n" + note);
+			caseManagementTmpSaveDao.saveEntity(cmTmpSave);
 		}
 		
 	}
