@@ -133,7 +133,7 @@ public class ProfessionalSpecialist extends AbstractModel<Integer> implements Se
     }
 
 	public String getStreetAddress() {
-    	return streetAddress;
+    	return StringUtils.trimToNull(streetAddress).replaceAll("\r\n", " ");
     }
 
 	public void setStreetAddress(String streetAddress) {
