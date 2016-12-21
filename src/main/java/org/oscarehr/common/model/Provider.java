@@ -364,4 +364,10 @@ public class Provider implements Serializable, Comparable<Provider>{
 	    return(providerNo.compareTo(o.providerNo));
     }
 
+	public static final Comparator<Provider> LastNameComparator = new Comparator<Provider>() {
+		public int compare(Provider o1, Provider o2) {
+			return o1.getLastName().compareTo(o2.getLastName());
+		}
+	};
+
 }

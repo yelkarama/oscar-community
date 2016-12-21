@@ -957,6 +957,7 @@ if(mygroupno != null && providerBean.get(mygroupno) != null) { //single appointe
      if (selectedSite!=null) {
     	 List<String> siteProviders = providerSiteDao.findByProviderNoBySiteName(selectedSite);
     	 List<MyGroup> results = myGroupDao.getGroupByGroupNo(mygroupno);
+		 Collections.sort(results,MyGroup.LastNameComparator);
     	 for(MyGroup result:results) {
     		 if(siteProviders.contains(result.getId().getProviderNo())) {
     			 curProvider_no[iTemp] = String.valueOf(result.getId().getProviderNo());
