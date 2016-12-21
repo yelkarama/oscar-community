@@ -1044,7 +1044,21 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 
 	</oscar:oscarPropertiesCheck>
 	<%-- END TOGGLE OFF PATIENT ROSTERING --%>
+<script type="text/javascript" language="Javascript">
+function updateStatusDate(){
+	var d = new Date();
 
+	patientStatusYear = document.updatedelete.patientstatus_date_year;
+	patientStatusMonth = document.updatedelete.patientstatus_date_month;
+	patientStatusDay = document.updatedelete.patientstatus_date_day;
+
+	if(patientStatusYear.value == "" && patientStatusMonth.value == "" && patientStatusDay.value =="" ){
+		patientStatusYear.value = d.getFullYear();
+		patientStatusMonth.value = d.getMonth() + 1;
+		patientStatusDay.value = d.getDate();
+	}
+}
+</script>
 
 	<tr valign="top">
 		<td align="right"><b><bean:message
@@ -1058,7 +1072,8 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 			%>
 			<input type="hidden" name="initial_patientstatus"
 			value="<%=patientStatus%>"> <select name="patient_status"
-			style="width: 120" <%=getDisabled("patient_status")%>>
+			style="width: 120" <%=getDisabled("patient_status")%> onChange="updateStatusDate();">
+			
 				<option value="AC" <%="AC".equals(patientStatus) ? " selected" : ""%>>
 					<bean:message
 						key="demographic.demographiceditdemographic.optActive" /></option>
