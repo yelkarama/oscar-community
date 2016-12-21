@@ -475,17 +475,31 @@ if (OscarProperties.getInstance().getBooleanProperty("consultation_program_lette
 				<input type="submit" value="Print Pdf" onclick="javascript:return onPrintPDF();" />
 
 				<select name="letterhead" id="letterhead" onchange="switchProvider(this.value)">
-					<option value="-1"><%=clinic.getClinicName() %></option>
 				<%
+
+					//Gets the letterhead provider number
+					String providerNumber = props.getProperty("letterhead", "-1");
+					//If there is no provider in the letterhead
+					if(providerNumber.isEmpty() || providerNumber.equals("-1")) {
+					    //Checks if the currently logged in provider is billable, if so then it becomes the provider number to select
+						if (!loggedInInfo.getLoggedInProvider().getBillingNo().equals("")) {
+							providerNumber = loggedInInfo.getLoggedInProviderNo();
+						} else {
+						    //Else it gets the demographics MRP
+							providerNumber = props.getProperty("demoProvider", "-1");
+						}
+					}
+
 					for (Provider p : prList) {
 						if (p.getProviderNo().compareTo("-1") != 0 && (p.getFirstName() != null || p.getLastName() != null) && p.getProviderType().equals("doctor")) {
 				%>
-				<option value="<%=p.getProviderNo() %>" <%=(!props.getProperty("letterhead","-1").equals("-1") && p.getProviderNo().equals(props.getProperty("letterhead","-1")))?" selected=\"selected\" ":"" %>>
+				<option value="<%=p.getProviderNo() %>" <%= p.getProviderNo().equals(providerNumber) ? "selected=\"selected\"" : "" %>>
 		
 					<%=p.getLastName() %>, <%=p.getFirstName() %> 
 				</option>
-				<% }}  
-		
+				<% }} %>
+				<option value="-1"><%=clinic.getClinicName() %></option>
+				<%
 				if (OscarProperties.getInstance().getBooleanProperty("consultation_program_letterhead_enabled", "true")) {
 				for (Program p : programList) {
 				%>

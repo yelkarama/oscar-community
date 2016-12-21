@@ -66,6 +66,7 @@ import oscar.oscarEncounter.oscarMeasurements.MeasurementTemplateFlowSheetConfig
 import oscar.oscarEncounter.pageUtil.EctSessionBean;
 import oscar.oscarMessenger.util.MsgStringQuote;
 import oscar.util.ConversionUtils;
+import oscar.OscarProperties;
 
 
 public class EctMeasurementsAction extends Action {
@@ -303,7 +304,7 @@ public class EctMeasurementsAction extends Action {
                     return (new ActionForward(mapping.getInput()));
                 }
                
-         if(valid){ 
+         if(valid && OscarProperties.getInstance().isPropertyActive("measurements_create_new_note")){ 
         	//create note
      		CaseManagementManager cmm = (CaseManagementManager)  SpringUtils.getBean("caseManagementManager");
 
@@ -324,7 +325,7 @@ public class EctMeasurementsAction extends Action {
      				cmn.setDemographic_no(demographicNo);
      				cmn.setProviderNo(providerNo);
      				cmn.setNote(textOnEncounter);
-     				cmn.setSigned(true);
+     				cmn.setSigned(false);
      				cmn.setSigning_provider_no(providerNo);
      				cmn.setProgram_no(prog_no);
      				cmn.setReporter_caisi_role(reporter_caisi_role);
@@ -332,7 +333,7 @@ public class EctMeasurementsAction extends Action {
      				cmn.setReporter_program_team("0");
      				cmn.setPassword("NULL");
      				cmn.setLocked(false);
-     				cmn.setHistory(textOnEncounter+"-----hi story----");
+     				cmn.setHistory(textOnEncounter+"-----history----");
      				cmn.setPosition(0);
      				cmn.setAppointmentNo(0);
      				

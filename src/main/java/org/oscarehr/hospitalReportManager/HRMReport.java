@@ -102,7 +102,7 @@ public class HRMReport {
 	
 	public String getDateOfBirthAsString() {
 		List<Integer> dob = getDateOfBirth();
-		return dob.get(0) + "-" + dob.get(1) + "-" + dob.get(2);
+		return dob.get(0) + "-" + String.format("%02d", dob.get(1)) + "-" + String.format("%02d", dob.get(2));
 	}
 
 	public String getHCN(){

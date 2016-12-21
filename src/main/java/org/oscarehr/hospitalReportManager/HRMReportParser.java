@@ -222,21 +222,14 @@ public class HRMReportParser {
 		// Search the demographics on the system for a likely match and route it to them automatically
 		DemographicDao demographicDao = (DemographicDao) SpringUtils.getBean("demographicDao");
 
-		List<Demographic> matchingDemographicListByName = demographicDao.searchDemographic(report.getLegalName());
+		List<Demographic> matchingDemographicListByHin = demographicDao.searchDemographicByHIN(report.getHCN());
 
-		if (matchingDemographicListByName.size() == 1) {
-			// Found a match by name
-			HRMReportParser.routeReportToDemographic(mergedDocument.getId().toString(), matchingDemographicListByName.get(0).getDemographicNo().toString());
-		} else {
-			for (Demographic d : matchingDemographicListByName) {
-
-				if (report.getHCN().equalsIgnoreCase(d.getHin())) { // Check health card no.
-					HRMReportParser.routeReportToDemographic(mergedDocument.getId().toString(), d.getDemographicNo().toString());
-					return;
-				} else if (report.getGender().equalsIgnoreCase(d.getSex()) && report.getDateOfBirthAsString().equalsIgnoreCase(d.getBirthDayAsString())) { // Check dob & sex
-					HRMReportParser.routeReportToDemographic(mergedDocument.getId().toString(), d.getDemographicNo().toString());
-					return;
-				}
+		// if there is a matching record assign to variable
+		if (matchingDemographicListByHin.size() > 0){
+			Demographic demographic = matchingDemographicListByHin.get(0); // searchDemographicByHIN typically returns only one result where there is a match
+			// if not empty and DOB matches as well, route report to Demographic
+			if (!demographic.equals(null) && report.getDateOfBirthAsString().equalsIgnoreCase(demographic.getBirthDayAsString())) {
+				HRMReportParser.routeReportToDemographic(mergedDocument.getId().toString(), demographic.getDemographicNo().toString());
 			}
 		}
 	}

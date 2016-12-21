@@ -102,7 +102,7 @@ if(labReqVer.equals("")) {labReqVer="07";}
 	//String providerview=request.getParameter("provider")==null?"":request.getParameter("provider");
   String ticklerview=request.getParameter("ticklerview")==null?"A":request.getParameter("ticklerview");
    String xml_vdate=request.getParameter("xml_vdate") == null?"":request.getParameter("xml_vdate");
-   String xml_appointment_date = request.getParameter("xml_appointment_date")==null?"8888-12-31":request.getParameter("xml_appointment_date");
+   String xml_appointment_date = request.getParameter("xml_appointment_date")==null? "8888-12-31":request.getParameter("xml_appointment_date");
 %>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
@@ -610,9 +610,7 @@ function generateRenalLabReq(demographicNo) {
 			%>
 
 			<tr>
-				<TD ROWSPAN="1" class="<%=cellColour%> noprint"><input
-					type="checkbox" name="checkbox"
-					value="<%=t.getId()%>"></TD>
+				<TD ROWSPAN="1" class="<%=cellColour%> noprint"><input type="checkbox" name="checkbox" value="<%=t.getId()%>"><% if (Boolean.parseBoolean(OscarProperties.getInstance().getProperty("tickler_edit_enabled"))) { %> <a href=#  onClick="popupPage(600,800, '../tickler/ticklerEdit.jsp?tickler_no=<%=t.getId()%>')"><bean:message key="tickler.ticklerMain.editTickler"/></a>  <% } %> </TD>  
 				<TD ROWSPAN="1" class="<%=cellColour%>"><a
 					href=#
 					onClick="popupPage(600,800,'../demographic/demographiccontrol.jsp?demographic_no=<%=t.getDemographicNo()%>&displaymode=edit&dboperation=search_detail')"><%=d.getLastName()%>,<%=d.getFirstName()%></a></TD>
@@ -654,11 +652,7 @@ function generateRenalLabReq(demographicNo) {
                             <td width="12%" ROWSPAN="1" class="<%=cellColour%>"></td>
                             <td ROWSPAN="1" class="<%=cellColour%>"><%=tc.getProvider().getLastName()%>,<%=tc.getProvider().getFirstName()%></td>
                             <td ROWSPAN="1" class="<%=cellColour%>"></td>
-                            <% if (tc.isUpdateDateToday()) { %>
-                            <td ROWSPAN="1" class="<%=cellColour%>"><%=tc.getUpdateTime(request.getLocale())%></td>
-                            <% } else { %>
-                            <td ROWSPAN="1" class="<%=cellColour%>"><%=tc.getUpdateDate(request.getLocale())%></td>
-                            <% } %>
+                            <td ROWSPAN="1" class="<%=cellColour%>"><%=tc.getUpdateDate(request.getLocale())%> <%=tc.getUpdateTime(request.getLocale())%></td>
                             <td ROWSPAN="1" class="<%=cellColour%>"></td>
                             <td ROWSPAN="1" class="<%=cellColour%>"></td>
                             <td ROWSPAN="1" class="<%=cellColour%>"></td>

@@ -950,11 +950,7 @@ function changeSite(sel) {
                                         <td width="12%" ROWSPAN="1" class="<%=cellColour%>"></td>
                                         <td ROWSPAN="1" class="<%=cellColour%>"><%=tc.getProvider().getLastName()%>,<%=tc.getProvider().getFirstName()%></td>
                                         <td ROWSPAN="1" class="<%=cellColour%>"></td>
-                                        <% if (tc.isUpdateDateToday()) { %>
-                                        <td ROWSPAN="1" class="<%=cellColour%>"><%=tc.getUpdateTime(locale)%></td>
-                                        <% } else { %>
-                                        <td ROWSPAN="1" class="<%=cellColour%>"><%=tc.getUpdateDate(locale)%></td>
-                                        <% } %>
+                                        <td ROWSPAN="1" class="<%=cellColour%>"><%=tc.getUpdateDate(locale)%> <%=tc.getUpdateTime(locale)%></td>
                                         <td ROWSPAN="1" class="<%=cellColour%>"></td>
                                         <td ROWSPAN="1" class="<%=cellColour%>"></td>
                                         <td ROWSPAN="1" class="<%=cellColour%>"></td>

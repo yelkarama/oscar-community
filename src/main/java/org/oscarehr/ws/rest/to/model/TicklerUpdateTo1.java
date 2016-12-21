@@ -28,8 +28,6 @@ import java.util.Date;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.oscarehr.common.model.Tickler;
-
 @XmlRootElement(name="ticklerUpdate")
 public class TicklerUpdateTo1 implements Serializable {
 

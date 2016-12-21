@@ -37,7 +37,6 @@
 <%@page import="org.oscarehr.common.dao.DemographicGroupDao" %>
 <%@page import="org.oscarehr.common.model.DemographicGroup" %>
 <%@page import="org.oscarehr.common.model.DemographicGroupLink" %>
-<%@page import="oscar.OscarProperties" %>
 <%@page import="org.oscarehr.common.dao.ScheduleTemplateCodeDao" %>
 <%@page import="org.oscarehr.common.model.ScheduleTemplateCode" %>
 <%@page import="org.oscarehr.common.dao.WaitingListDao" %>
@@ -81,7 +80,9 @@
 <%	
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 	java.util.Properties oscarVariables = OscarProperties.getInstance();
-			
+
+
+
 	String demographic_no = request.getParameter("demographic_no");
 	String aboriginal = request.getParameter("aboriginal");
 	String birthYear = request.getParameter("birthYear");
@@ -134,8 +135,18 @@
 	ProgramDao programDao = (ProgramDao)SpringUtils.getBean("programDao");
 	List<Provider> providers = providerDao.getActiveProviders();
 	List<Provider> doctors = providerDao.getActiveProvidersByRole("doctor");
-	List<Provider> nurses = providerDao.getActiveProvidersByRole("nurse");
-	List<Provider> midwifes = providerDao.getActiveProvidersByRole("midwife");
+	List<Provider> nurses;
+	List<Provider> midwifes;	
+	if (oscarVariables.getProperty("queens_resident_tagging") != null)
+	{
+		nurses = doctors;
+		midwifes = doctors;
+	}
+	else
+	{
+		nurses = providerDao.getActiveProvidersByRole("nurse");
+		midwifes = providerDao.getActiveProvidersByRole("midwife");	
+	}
 	
     OscarProperties oscarProps = OscarProperties.getInstance();
     ProvinceNames pNames = ProvinceNames.getInstance();
@@ -146,6 +157,7 @@
     List<PatientType> patientTypes = patientTypeDao.findAllPatientTypes();
 	List<DemographicGroup> demographicGroups = demographicGroupDao.getAll();
 	
+	GregorianCalendar dateCal = new GregorianCalendar();
 	
 %>
 <%!
@@ -743,7 +755,6 @@
 					<% if (oscar.util.StringUtils.noNull(demographic.getCountryOfOrigin()).equals(cc.getCountryId())){out.print("SELECTED") ;}%>><%=cc.getCountryName() %></option>
 				<%}%>
 		</select></td>
-
 	</tr>
 	<tr valign="top">
 		<td align="right" nowrap><b> <bean:message
@@ -843,7 +854,7 @@
 				<% if(oscarProps.getProperty("isMRefDocSelectList", "").equals("true") ) {
                                   		// drop down list
 									  Properties prop = null;
-									  Vector vecRef = new Vector();
+									  ArrayList<Properties> refProperties = new ArrayList<Properties>();
 									  List<ProfessionalSpecialist> specialists = professionalSpecialistDao.findAll();
                                       for(ProfessionalSpecialist specialist : specialists) {
                                     	  prop = new Properties();
@@ -851,7 +862,7 @@
 	                                          prop.setProperty("referral_no", specialist.getReferralNo());
 	                                          prop.setProperty("last_name", specialist.getLastName());
 	                                          prop.setProperty("first_name", specialist.getFirstName());
-	                                          vecRef.add(prop);
+	                                          refProperties.add(prop);
                                     	  }
                                       }
 
@@ -859,8 +870,8 @@
 				<%=getDisabled("r_doctor")%> onChange="changeRefDoc()"
 				style="width: 200px">
 					<option value=""></option>
-					<% for(int k=0; k<vecRef.size(); k++) {
-                                  		prop= (Properties) vecRef.get(k);
+					<% for(int k=0; k<refProperties.size(); k++) {
+                                  		prop= (Properties) refProperties.get(k);
                                   	%>
 					<option
 						value="<%=prop.getProperty("last_name")+","+prop.getProperty("first_name")%>"
@@ -875,8 +886,8 @@ function changeRefDoc() {
 //alert(document.updatedelete.r_doctor.value);
 var refName = document.updatedelete.r_doctor.options[document.updatedelete.r_doctor.selectedIndex].value;
 var refNo = "";
-  	<% for(int k=0; k<vecRef.size(); k++) {
-  		prop= (Properties) vecRef.get(k);
+  	<% for(int k=0; k<refProperties.size(); k++) {
+  		prop= (Properties) refProperties.get(k);
   	%>
 if(refName=="<%=prop.getProperty("last_name")+","+prop.getProperty("first_name")%>") {
   refNo = '<%=prop.getProperty("referral_no", "")%>';
@@ -966,7 +977,7 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 					// Year
 					decF.applyPattern("0000");
 
-					GregorianCalendar dateCal = new GregorianCalendar();
+					
 					String rosterDateYear = "";
 					String rosterDateMonth = "";
 					String rosterDateDay = "";
@@ -978,6 +989,7 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 						rosterDateMonth = decF.format(dateCal.get(GregorianCalendar.MONTH) + 1);
 						rosterDateDay = decF.format(dateCal.get(GregorianCalendar.DAY_OF_MONTH));
 					}
+					
 					String rosterTerminationDateYear = "";
 					String rosterTerminationDateMonth = "";
 					String rosterTerminationDateDay = "";
@@ -1014,26 +1026,46 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 				name="roster_date_day" size="2" maxlength="2"
 				value="<%=rosterDateDay%>"></td>
 		</tr>
-
-
-		<%--
-							<tr valign="top">
-								<td align="right" nowrap><b><bean:message
-									key="demographic.demographiceditdemographic.RosterTerminationReason" />: </b></td>
-								<td align="left" colspan="3">
-									<select  name="roster_termination_reason">
-										<option value="">N/A</option>
+		<tr valign="top" class="termination_details">
+			<td align="right" nowrap><b><bean:message
+				key="demographic.demographiceditdemographic.RosterTerminationReason" />: </b></td>
+			<td align="left" colspan="3">
+				<select  name="roster_termination_reason">
+					<option value="">N/A</option>
 <%for (String code : Util.rosterTermReasonProperties.getTermReasonCodes()) { %>
-										<option value="<%=code %>" <%=code.equals(rosterTerminationReason)?"selected":"" %> ><%=Util.rosterTermReasonProperties.getReasonByCode(code) %></option>
+					<option value="<%=code %>" <%=code.equals(rosterTerminationReason)?"selected":"" %> ><%=Util.rosterTermReasonProperties.getReasonByCode(code) %></option>
 <%} %>
-									</select>
-								</td>
-							</tr>
-							--%>
+				</select>
+			</td>
+		</tr>
+		<tr valign="top" class="termination_details">
+			<td align="right" nowrap><b><bean:message
+				key="demographic.demographiceditdemographic.RosterTerminationDate" />: </b></td>
+			<td align="left"><input type="text" name="roster_termination_date_year"
+				size="4" maxlength="4" value="<%=rosterTerminationDateYear%>"> <input
+				type="text" name="roster_termination_date_month" size="2" maxlength="2"
+				value="<%=rosterTerminationDateMonth%>"> <input type="text"
+				name="roster_termination_date_day" size="2" maxlength="2"
+				value="<%=rosterTerminationDateDay%>"></td>
+		</tr>
 
 	</oscar:oscarPropertiesCheck>
 	<%-- END TOGGLE OFF PATIENT ROSTERING --%>
+<script type="text/javascript" language="Javascript">
+function updateStatusDate(){
+	var d = new Date();
 
+	patientStatusYear = document.updatedelete.patientstatus_date_year;
+	patientStatusMonth = document.updatedelete.patientstatus_date_month;
+	patientStatusDay = document.updatedelete.patientstatus_date_day;
+
+	if(patientStatusYear.value == "" && patientStatusMonth.value == "" && patientStatusDay.value =="" ){
+		patientStatusYear.value = d.getFullYear();
+		patientStatusMonth.value = d.getMonth() + 1;
+		patientStatusDay.value = d.getDate();
+	}
+}
+</script>
 
 	<tr valign="top">
 		<td align="right"><b><bean:message
@@ -1047,7 +1079,8 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 			%>
 			<input type="hidden" name="initial_patientstatus"
 			value="<%=patientStatus%>"> <select name="patient_status"
-			style="width: 120" <%=getDisabled("patient_status")%>>
+			style="width: 120" <%=getDisabled("patient_status")%> onChange="updateStatusDate();">
+			
 				<option value="AC" <%="AC".equals(patientStatus) ? " selected" : ""%>>
 					<bean:message
 						key="demographic.demographiceditdemographic.optActive" /></option>
@@ -1074,25 +1107,14 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 			value="<bean:message key="demographic.demographiceditdemographic.btnAddNew"/>">
 
 		</td>
-		<%--
-								<td align="right" nowrap><b><bean:message
-									key="demographic.demographiceditdemographic.PatientStatusDate" />: </b></td>
-								<td align="left">
-                                                                    <input  type="text" name="patientstatus_date_year" size="4" maxlength="4" value="<%=patientStatusDateYear%>">
-                                                                    <input  type="text" name="patientstatus_date_month" size="2" maxlength="2" value="<%=patientStatusDateMonth%>">
-                                                                    <input  type="text" name="patientstatus_date_day" size="2" maxlength="2" value="<%=patientStatusDateDay%>">
-								</td>
-                                                        </tr>
-                                                        <tr>
-                                                                <td>&nbsp;</td>
-                                                                --%>
-		<td align="right"><b><bean:message
-					key="demographic.demographiceditdemographic.formChartNo" />:</b></td>
-		<td align="left"><input type="text" name="chart_no" size="30"
-			value="<%=StringUtils.trimToEmpty(demographic.getChartNo())%>"
-			<%=getDisabled("chart_no")%>></td>
+		<td align="right" nowrap>
+			<b><bean:message key="demographic.demographiceditdemographic.PatientStatusDate" />: </b></td>
+		<td align="left">
+											<input  type="text" name="patientstatus_date_year" size="4" maxlength="4" value="<%=patientStatusDateYear%>">
+											<input  type="text" name="patientstatus_date_month" size="2" maxlength="2" value="<%=patientStatusDateMonth%>">
+											<input  type="text" name="patientstatus_date_day" size="2" maxlength="2" value="<%=patientStatusDateDay%>">
+		</td>
 	</tr>
-
 	<tr>
 		<td align="right"><b><bean:message
 					key="demographic.demographiceditdemographic.formPatientType" />:</b></td>
@@ -1109,6 +1131,19 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 				%>
 		</select></td>
 
+		<td align="right"><b><bean:message
+					key="demographic.demographiceditdemographic.formChartNo" />:</b></td>
+		<td align="left"><input type="text" name="chart_no" size="30"
+			value="<%=StringUtils.trimToEmpty(demographic.getChartNo())%>"
+			<%=getDisabled("chart_no")%>></td>		
+	</tr>
+
+	<tr>
+		<td align="right"><b><bean:message
+					key="demographic.demographiceditdemographic.formPatientId" />:</b></td>
+		<td><input type="text" name="patientId" id="patientId"
+			value="<%=patientId%>" size="25" maxlength="45" /></td>
+			
 		<td align="right"><b><bean:message
 					key="demographic.demographiceditdemographic.formDemographicGroups" />:</b>
 		</td>
@@ -1135,13 +1170,6 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 				%>
 		</select>
 		</td>
-	</tr>
-
-	<tr>
-		<td align="right"><b><bean:message
-					key="demographic.demographiceditdemographic.formPatientId" />:</b></td>
-		<td><input type="text" name="patientId" id="patientId"
-			value="<%=patientId%>" size="25" maxlength="45" /></td>
 	</tr>
 
 	<tr>

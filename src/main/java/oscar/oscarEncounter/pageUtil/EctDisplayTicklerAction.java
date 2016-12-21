@@ -30,10 +30,12 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Date;
 import java.util.List;
+import java.util.Iterator;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.struts.util.MessageResources;
 import org.oscarehr.common.model.Tickler;
+import org.oscarehr.common.model.TicklerComment;
 import org.oscarehr.managers.TicklerManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
@@ -52,7 +54,6 @@ public class EctDisplayTicklerAction extends EctDisplayAction {
  		return true; //The link of tickler won't show up on new CME screen.
  	} else {
 
- 
 
     //Set lefthand module heading and link
     String winName = "ViewTickler" + bean.demographicNo;
@@ -91,28 +92,41 @@ public class EctDisplayTicklerAction extends EctDisplayAction {
         NavBarDisplayDAO.Item item = NavBarDisplayDAO.Item();
         serviceDate = t.getServiceDate();
         item.setDate(serviceDate);
-        days = (today.getTime() - serviceDate.getTime())/(1000*60*60*24);
-        if( days > 0 )
-            item.setColour("#FF0000");
 
-        itemHeader = StringUtils.maxLenString(t.getMessage(), MAX_LEN_TITLE, CROP_LEN_TITLE, ELLIPSES);
-        item.setLinkTitle(itemHeader+ " " + DateUtils.formatDate(serviceDate,request.getLocale()));
-        item.setTitle(itemHeader);
-        // item.setValue(String.valueOf(t.getTickler_no()));
-        winName = StringUtils.maxLenString(t.getMessage(), MAX_LEN_TITLE, MAX_LEN_TITLE, "");
-        hash = Math.abs(winName.hashCode());
-        if( org.oscarehr.common.IsPropertiesOn.isTicklerPlusEnable() ) {
-        	url = "popupPage(500,900,'" + hash + "','" + request.getContextPath() + "/Tickler.do?method=view&id="+t.getId()+"'); return false;";
-        } else {
-        	url = "popupPage(500,900,'" + hash + "','" + request.getContextPath() + "/tickler/ticklerDemoMain.jsp?demoview=" + bean.demographicNo + "&parentAjaxId=" + cmd + "'); return false;";
-        }
-        item.setURL(url);
-        Dao.addItem(item);
+        	days = (today.getTime() - serviceDate.getTime())/(1000*60*60*24);
+            if( days > 0 )
+                item.setColour("#FF0000");
+			
+			String message = t.getMessage();
+			if(t.getComments().size() > 0){
+				Iterator itr = t.getComments().iterator();
+				TicklerComment lastComment = (TicklerComment) itr.next();
+				while(itr.hasNext()) {
+					lastComment= (TicklerComment)itr.next();
+				}
+				message = lastComment.getMessage();
+			}
+			
+            itemHeader = StringUtils.maxLenString(message, MAX_LEN_TITLE, CROP_LEN_TITLE, ELLIPSES);
+            item.setLinkTitle(itemHeader+ " " + DateUtils.formatDate(serviceDate,request.getLocale()));
+            item.setTitle(itemHeader);
+            // item.setValue(String.valueOf(t.getTickler_no()));
+            winName = StringUtils.maxLenString(t.getMessage(), MAX_LEN_TITLE, MAX_LEN_TITLE, "");
+            hash = Math.abs(winName.hashCode());
+            if( org.oscarehr.common.IsPropertiesOn.isTicklerPlusEnable() ) {
+            	url = "popupPage(500,900,'" + hash + "','" + request.getContextPath() + "/Tickler.do?method=view&id="+t.getId()+"'); return false;";
+            } else {
+            	url = "popupPage(500,900,'" + hash + "','" + request.getContextPath() + "/tickler/ticklerDemoMain.jsp?demoview=" + bean.demographicNo + "&parentAjaxId=" + cmd + "'); return false;";
+            }
+            item.setURL(url);
+            Dao.addItem(item);
 
+        
+        
     }
  	}
 
-     Dao.sortItems(NavBarDisplayDAO.DATESORT);
+     Dao.sortItems(NavBarDisplayDAO.DATESORT_ASC);
  
     return true;
   }

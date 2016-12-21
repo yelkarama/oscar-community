@@ -929,13 +929,14 @@ function pasteAppt(multipleSameDayGroupAppt) {
 				    <%
 				    if(reasonCodes != null) {
 				    	for(LookupListItem reasonCode : reasonCodes.getItems()) {
+				    		if(reasonCode.isActive()) {
 				    %>
 				    <option value="<%=reasonCode.getId()%>"
 				    				<%=reasonCode.getValue().equals("Others")?"selected":""%>>
 				    	<%=StringEscapeUtils.escapeHtml(reasonCode.getValue())%>
 				    </option>
 				    <%
-				    	}
+				    		} }
 				    } else {
 					%>
 						<option value="-1">Other</option>
@@ -1105,9 +1106,14 @@ function pasteAppt(multipleSameDayGroupAppt) {
                if (props.getProperty("allowMultipleSameDayGroupAppt", "").equalsIgnoreCase("no")) {
                     String [] sqlParam = new String[3] ;
                     sqlParam[0] = myGroupNo; //schedule group
+                    //convert empty string to placeholder demographic number "0" to prevent NumberFormatException when cutting/copying an empty appointmnet.
+                    if(apptObj.getDemographic_no().trim().equals(""))
+                    {
+                        apptObj.setDemographic_no("0");//demographic numbers start at 1
+                    }
                     sqlParam[1] = apptObj.getDemographic_no();
                     sqlParam[2] = dateString2;
-					appts = appointmentDao.search_group_day_appt(myGroupNo, Integer.parseInt(apptObj.getDemographic_no()), apptDate);
+		    appts = appointmentDao.search_group_day_appt(myGroupNo, Integer.parseInt(apptObj.getDemographic_no()), apptDate);
                     numSameDayGroupApptsPaste = appts.size() > 0 ? new Long(appts.size()) : 0;
                 }
           %>
@@ -1300,11 +1306,11 @@ function pasteAppt(multipleSameDayGroupAppt) {
                 }
     %>
 	<tr bgcolor="#eeeeff">
-		<td style="background-color: #CCFFCC; padding-right: 25px"><%=ConversionUtils.toDateString(a.getAppointmentDate())%></td>
-		<td style="background-color: #CCFFCC; padding-right: 25px"><%=ConversionUtils.toTimeString(a.getStartTime())%></td>
-		<td style="background-color: #CCFFCC; padding-right: 25px"><%=p.getFormattedName()%></td>
-		<td style="background-color: #CCFFCC; padding-right: 25px"><%= statusDescription %></td>
-		<td style="background-color: #CCFFCC; padding-right: 25px" title="<%= notes %>"><%= shortenedNotes %></td>
+		<td style="padding-right: 25px"><%=ConversionUtils.toDateString(a.getAppointmentDate())%></td>
+		<td style="padding-right: 25px"><%=ConversionUtils.toTimeString(a.getStartTime())%></td>
+		<td style="padding-right: 25px"><%=p.getFormattedName()%></td>
+		<td style="padding-right: 25px"><%= statusDescription %></td>
+		<td style="padding-right: 25px" title="<%= notes %>"><%= shortenedNotes %></td>
 	</tr>
 	<%
             }

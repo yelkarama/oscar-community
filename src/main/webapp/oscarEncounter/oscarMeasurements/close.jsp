@@ -28,13 +28,26 @@
    "http://www.w3.org/TR/html4/loose.dtd">
 
 <html>
+<%@ page import="oscar.OscarProperties"%>
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>close</title>
-<script LANGUAGE="JavaScript">
+<script type="text/javascript">
 function closeWin() {
-	  opener.refreshEncounter();
-      self.opener.location.reload(); 
+      window.opener.location.reload(false);
+    <%if (request.getAttribute("textOnEncounter")!=null && !OscarProperties.getInstance().isPropertyActive("measurements_create_new_note")) {%>
+    if(opener.opener!=null || opener!=null){
+        if(opener.opener.document.forms["caseManagementEntryForm"] != undefined) {
+            //from Templateflowsheet
+            opener.opener.pasteToEncounterNote('<%=request.getAttribute("textOnEncounter")%>');
+            self.close();
+        }
+        else if(opener.document.forms["caseManagementEntryForm"] != undefined) {
+            opener.pasteToEncounterNote('<%=request.getAttribute("textOnEncounter")%>');
+            self.close();
+        }
+    }
+    <%}%>
       self.close();     
 }
 </script>

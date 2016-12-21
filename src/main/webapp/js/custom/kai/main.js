@@ -102,9 +102,6 @@ function addKAIBar() {
       kaiDemoSearchField.trigger("enterKey");
     }
   });
-  var position = window.pageYOffset;
-  kaiDemoSearchField.focus();
-  window.scrollTo(0, position);
 }
 
 function getUrlVars(url) {
@@ -136,35 +133,39 @@ function resolveCurrentProvider() {
 }
 
 function kaiDemoSearch() {
-  var kaiDemoSearch = jQuery('#kaiDemoSearch');
-  var searchString = kaiDemoSearch.val();
-  var demoRegex = /^[A-Za-z].*$/;
-  if( demoRegex.test(searchString) ) {
-    var searchUrl = "/oscar/demographic/demographiccontrol.jsp?search_mode=search_name&keyword=" + encodeURIComponent(searchString) + "&orderby=last_name%2C+first_name&dboperation=search_titlename&limit1=0&limit2=10&displaymode=Search&ptstatus=active"
-    popupPage2(searchUrl);
-    kaiDemoSearch.val("");
-  } else {
-    // set the dimensions and open the popup window
-    var left = (screen.width / 2) - (500 / 2);
-    var top = (screen.height / 2) - (500 / 2);
-    // path to your card swipe module webapp must be specified. add it in here
-    var currentProvider = resolveCurrentProvider();
-    var cardSwipeURL = "/CardSwipe/?hc=" + escape(searchString) + "&providerNo=" + escape(currentProvider);
-    var newwindow = window.open(cardSwipeURL, "name",
-    "location=no,scrollbars=1,width=500,height=500,top=" + top + ",left=" + left);
+    var kaiDemoSearch = jQuery('#kaiDemoSearch');
+    var searchString = kaiDemoSearch.val();
+    var demoRegex = /^[,A-Za-z].*$/;
+    if(searchString == "," || searchString.length == 0 || searchString.length == -1){
+        alert("You must swipe a Health Card or Search by Demographic");
+        kaiDemoSearch.val("");
+        searchString = "";
+    } else if( demoRegex.test(searchString) ) {
+        var searchUrl = "/oscar/demographic/demographiccontrol.jsp?search_mode=search_name&keyword=" + encodeURIComponent(searchString) + "&orderby=last_name%2C+first_name&dboperation=search_titlename&limit1=0&limit2=10&displaymode=Search&ptstatus=active"
+        popupPage2(searchUrl);
+        kaiDemoSearch.val("");
+    } else {
+        // set the dimensions and open the popup window
+        var left = (screen.width / 2) - (500 / 2);
+        var top = (screen.height / 2) - (500 / 2);
+        // path to your card swipe module webapp must be specified. add it in here
+        var currentProvider = resolveCurrentProvider();
+        var cardSwipeURL = "/CardSwipe/?hc=" + escape(searchString) + "&providerNo=" + escape(currentProvider);
+        var newwindow = window.open(cardSwipeURL, "name",
+            "location=no,scrollbars=1,width=500,height=500,top=" + top + ",left=" + left);
 
-    // focus the window
-    if (window.focus) {
-      newwindow.focus();
+        // focus the window
+        if (window.focus) {
+            newwindow.focus();
+        }
+
+        var timer = setInterval(function() {
+            if (newwindow.closed) {
+                clearInterval(timer);
+                window.location.reload();
+            }
+        }, 100);
     }
 
-    var timer = setInterval(function() {
-      if (newwindow.closed) {
-        clearInterval(timer);
-        window.location.reload();
-      }
-    }, 100);
-  }
-  
-  return false;
+    return false;
 }

@@ -22,7 +22,7 @@
     Toronto, Ontario, Canada
 
 --%>
-<%@page contentType="text/javascript"%>
+<%@page contentType="application/javascript"%>
 <%@page import="org.oscarehr.casemgmt.common.Colour"%>
 
 	var numNotes = 0;   //How many saved notes do we have?
@@ -363,12 +363,21 @@ function scrollDownInnerBar() {
 	$("encMainDiv").scrollTop= $("encMainDiv").scrollHeight;
 }
 
+function chooseSelected(control) {
+	var selectedControl = jQuery(control).find(":selected");
+	var width = selectedControl.attr("data-width");
+	var height = selectedControl.attr("data-height");
+	var url = selectedControl.attr("data-url");
+	var name = selectedControl.attr("data-name");
+	popperup(height, width, url, name); 
+}
 function popperup(vheight,vwidth,varpage,pageName) { //open a new popup window
      		var page = varpage;
      		windowprops = "height="+vheight+",width="+vwidth+",status=yes,location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=0,screenY=0,top=100,left=100";
      		var popup=window.open(varpage, pageName, windowprops);
      		popup.pastewin = opener;
      		popup.focus();
+     		
 }
 
 var fullChart = "false";
@@ -709,6 +718,33 @@ function navBarLoader() {
 
 }
 
+function showIntegratedNote(title, note, location, providerName, obsDate){
+	$("integratedNoteTitle").innerHTML = title;
+	$("integratedNoteDetails").innerHTML = "Integrated Facility:" + location + " by " + providerName + " on " + obsDate;
+	
+	$("integratedNoteTxt").value = note;
+	
+	var coords = null;
+    if(document.getElementById("measurements_div") == null) {
+    	coords = Position.page($("topContent"));
+    } else {
+   		coords = Position.positionedOffset($("cppBoxes"));
+    }
+
+    var top = Math.max(coords[1], 0);
+    var right = Math.round(coords[0]/0.66);
+
+	$("showIntegratedNote").style.right = right + "px";
+    $("showIntegratedNote").style.top = top + "px";
+    
+    $("channel").style.visibility = "hidden";
+    $("showEditNote").style.display = "none";
+    
+	$("showIntegratedNote").style.display = "block";
+	
+	$("integratedNoteTxt").focus();
+}
+
 //display in place editor
 function showEdit(e,title, noteId, editors, date, revision, note, url, containerDiv, reloadUrl, noteIssues, noteExts, demoNo) {
     //Event.extend(e);
@@ -784,6 +820,7 @@ function showEdit(e,title, noteId, editors, date, revision, note, url, container
 
     $(editElem).style.right = right + "px";
     $(editElem).style.top = top + "px";
+    $("showIntegratedNote").style.display = "none";
     if( Prototype.Browser.IE ) {
         //IE6 bug of showing select box
         $("channel").style.visibility = "hidden";
@@ -1009,31 +1046,30 @@ function clickLoadDiv(e) {
 }
 
 function loadDiv(div,url,limit) {
-
+	var divItems = $(div).getElementsByTagName("li");
     var objAjax = new Ajax.Request (
-                            url,
-                            {
-                                method: 'post',
-                                evalScripts: true,
-                                /*onLoading: function() {
-                                                $(div).update("<p>Loading ...<\/p>");
-                                            },*/
-                                onSuccess: function(request) {
-                                                /*while( $(div).firstChild )
-                                                    $(div).removeChild($(div).firstChild);
-                                                */
+		url + "&currentDisplay=" + divItems.length,
+		{
+			method: 'post',
+			evalScripts: true,
+			/*onLoading: function() {
+							$(div).update("<p>Loading ...<\/p>");
+						},*/
+			onSuccess: function(request) {
+							/*while( $(div).firstChild )
+								$(div).removeChild($(div).firstChild);
+							*/
 
-                                                $(div).update(request.responseText);
-                                                //listDisplay(div,100);
-												notifyDivLoaded($(div).id);
+							$(div).update(request.responseText);
+							//listDisplay(div,100);
+							notifyDivLoaded($(div).id);
 
-                                           },
-                                onFailure: function(request) {
-                                                $(div).innerHTML = "<h3>" + div + "<\/h3>Error: " + request.status + "<br>" + request.responseText;
-                                            }
-                            }
-
-                      );
+					   },
+			onFailure: function(request) {
+							$(div).innerHTML = "<h3>" + div + "<\/h3>Error: " + request.status + "<br>" + request.responseText;
+						}
+		}
+	);
     return false;
 
 }

@@ -167,7 +167,11 @@ for(int i=0; i<aL.size(); i=i+2) {
 		<td align="center"><%=itObj.getService_code()%></td>
 		<td align="center"><%=itObj.getDx()%></td>
 		<td align="center"><%if("PAT".equals(strBillType)||"PAT Settled".equals(strBillType)){ %>
+			<%if(balance.compareTo(BigDecimal.ZERO) > 0 && "PAT Settled".equals(strBillType)) { %>
+			<%="0.00" %>
+			<%} else { %>
 			<%=balance %>
+			<%} %>
 		<%}else{ %>
 			<%="" %>
 		<%} %></td>

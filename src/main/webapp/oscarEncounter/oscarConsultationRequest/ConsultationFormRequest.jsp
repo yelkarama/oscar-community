@@ -132,6 +132,10 @@ if(!authed) {
 		
 		EctConsultationFormRequestUtil consultUtil = new EctConsultationFormRequestUtil();
 		
+		if( team == null || team.trim().equals("")){
+			team = consultUtil.getProviderTeam(providerNo);
+		}
+		
 		if (requestId != null) consultUtil.estRequestFromId(loggedInInfo, requestId);
 		if (demo == null) demo = consultUtil.demoNo;
 
@@ -1073,6 +1077,7 @@ function switchProvider(value) {
 		document.getElementById("letterheadPhone").value = providerData[value]['phone'];
 		document.getElementById("letterheadPhoneSpan").innerHTML = providerData[value]['phone'];
 		document.getElementById("letterheadFax").value = providerData[value]['fax'];
+			
 		//document.getElementById("letterheadFaxSpan").innerHTML = providerData[value]['fax'];
 	}
 }
@@ -1259,8 +1264,8 @@ function updateFaxButton() {
 						thisForm.setCurrentMedications(RxInfo.getCurrentMedication(demo));
 					}
 				}
-
-				team = consultUtil.getProviderTeam(consultUtil.mrp);
+				String familyDoctorTeam = consultUtil.getProviderTeam(consultUtil.mrp);
+				if(team == null || team.trim().equals("")){ team = familyDoctorTeam; }
 			}
 
 			thisForm.setStatus("1");
@@ -1492,7 +1497,7 @@ function updateFaxButton() {
 											if (p.getProviderNo().compareTo("-1") != 0) {
 									%>
 									<option value="<%=p.getProviderNo() %>" <%=((consultUtil.providerNo != null && consultUtil.providerNo.equalsIgnoreCase(p.getProviderNo())) || (consultUtil.providerNo == null &&  providerNo.equalsIgnoreCase(p.getProviderNo())) ? "selected='selected'" : "") %>>
-										<%=p.getFirstName() %> <%=p.getSurname() %>
+										<%=p.getFormattedName() %>
 									</option>
 									<% }
 
@@ -1748,13 +1753,13 @@ function updateFaxButton() {
 							<td class="tite4"><bean:message
 								key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.msgSendTo" />:
 							</td>
-							<td class="tite3"><html:select property="sendTo">
+							<td class="tite3"><html:select property="sendTo" styleId="sendTo">
 								<html:option value="-1">---- <bean:message
 										key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.msgTeams" /> ----</html:option>
 								<%
 									for (int i = 0; i < consultUtil.teamVec.size(); i++)
-												{
-													String te = (String)consultUtil.teamVec.elementAt(i);
+										{
+											String te = (String)consultUtil.teamVec.elementAt(i);
 								%>
 								<html:option value="<%=te%>"><%=te%></html:option>
 								<%
@@ -1847,7 +1852,7 @@ function updateFaxButton() {
 								%>
 								<option value="<%=p.getProviderNo() %>" 
 								<%=(consultUtil.letterheadName != null && consultUtil.letterheadName.equalsIgnoreCase(p.getProviderNo()) ? "selected='selected'"  : consultUtil.letterheadName == null && p.getProviderNo().equalsIgnoreCase(providerDefault) && lhndType.equals("provider") ? "selected='selected'"  : "") %>>
-									<%=p.getSurname() %>, <%=p.getFirstName().replace("Dr.", "") %>
+									<%=p.getFormattedName() %>
 								</option>
 								<% }
 								}
@@ -2295,6 +2300,7 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 </body>
 
 <script type="text/javascript" language="javascript">
+document.getElementById('sendTo').value = "<%= team %>";
 Calendar.setup( { inputField : "followUpDate", ifFormat : "%Y/%m/%d", showsTime :false, button : "followUpDate_cal", singleClick : true, step : 1 } );
 Calendar.setup( { inputField : "appointmentDate", ifFormat : "%Y/%m/%d", showsTime :false, button : "appointmentDate_cal", singleClick : true, step : 1 } );
 </script>

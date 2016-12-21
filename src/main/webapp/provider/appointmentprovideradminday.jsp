@@ -65,6 +65,8 @@
 <%@page import="org.oscarehr.common.model.LookupListItem" %>
 <%@page import="org.oscarehr.managers.SecurityInfoManager" %>
 <%@page import="org.oscarehr.managers.AppManager" %>
+<%@page import="org.oscarehr.managers.DashboardManager" %>
+<%@ page import="org.oscarehr.common.model.Dashboard" %>
 
 <!-- add by caisi -->
 <%@ taglib uri="http://www.caisi.ca/plugin-tag" prefix="plugin" %>
@@ -101,17 +103,25 @@
 	for(LookupListItem lli:reasonCodes.getItems()) {
 		reasonCodesMap.put(lli.getId(),lli);	
 	}
-    
-%>
 
-<%
 	String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
 
     boolean isSiteAccessPrivacy=false;
     boolean isTeamAccessPrivacy=false;
 
     MyGroupAccessRestrictionDao myGroupAccessRestrictionDao = SpringUtils.getBean(MyGroupAccessRestrictionDao.class);
+    boolean authed=true;
 %>
+<security:oscarSec roleName="<%=roleName$%>" objectName="_appointment,_day" rights="r" reverse="<%=true%>">
+	<%authed=false; %>
+	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_appointment");%>
+</security:oscarSec>
+<%
+	if(!authed) {
+		return;
+	}
+%>
+
 <security:oscarSec objectName="_site_access_privacy" roleName="<%=roleName$%>" rights="r" reverse="false">
 	<%
 		isSiteAccessPrivacy=true;
@@ -852,11 +862,11 @@ function getParameter(paramName) {
 <%
 	if (org.oscarehr.common.IsPropertiesOn.isCaisiEnable()){
 %>
-<body bgcolor="#007392" onload="load();" topmargin="0" leftmargin="0" rightmargin="0"> <!-- bgcolor="#EEEEFF" -->
+<body bgcolor="#259145" onload="load();" topmargin="0" leftmargin="0" rightmargin="0"> <!-- bgcolor="#EEEEFF" -->
 <%
 	}else{
 %>
-<body bgcolor="#007392" onLoad="refreshAllTabAlerts();scrollOnLoad();" topmargin="0" leftmargin="0" rightmargin="0"> <!-- bgcolor="#EEEEFF" -->
+<body bgcolor="#259145" onLoad="refreshAllTabAlerts();scrollOnLoad();" topmargin="0" leftmargin="0" rightmargin="0"> <!-- bgcolor="#EEEEFF" -->
 <%
 	}
 %>
@@ -940,20 +950,6 @@ if(mygroupno != null && providerBean.get(mygroupno) != null) { //single appointe
          if(numAvailProvider == 2) {lenLimitedL = 20; lenLimitedS = 10; len = 20;}
          if(numAvailProvider == 1) {lenLimitedL = 30; lenLimitedS = 30; len = 30; }
        }
-      UserProperty uppatientNameLength = userPropertyDao.getProp(curUser_no, UserProperty.PATIENT_NAME_LENGTH);
-      int NameLength=0;
-      
-      if ( uppatientNameLength != null && uppatientNameLength.getValue() != null) {
-          try {
-             NameLength=Integer.parseInt(uppatientNameLength.getValue());
-          } catch (NumberFormatException e) {
-             NameLength=0;
-          }
-      
-          if(NameLength>0) {
-             len=lenLimitedS= lenLimitedL = NameLength;
-          }
-                   }
      curProvider_no = new String [numProvider];
      curProviderName = new String [numProvider];
 
@@ -961,6 +957,7 @@ if(mygroupno != null && providerBean.get(mygroupno) != null) { //single appointe
      if (selectedSite!=null) {
     	 List<String> siteProviders = providerSiteDao.findByProviderNoBySiteName(selectedSite);
     	 List<MyGroup> results = myGroupDao.getGroupByGroupNo(mygroupno);
+		 Collections.sort(results,MyGroup.LastNameComparator);
     	 for(MyGroup result:results) {
     		 if(siteProviders.contains(result.getId().getProviderNo())) {
     			 curProvider_no[iTemp] = String.valueOf(result.getId().getProviderNo());
@@ -998,6 +995,22 @@ if(mygroupno != null && providerBean.get(mygroupno) != null) { //single appointe
      curProviderName[0]=request.getParameter("curProviderName");
    }
 }
+
+      UserProperty uppatientNameLength = userPropertyDao.getProp(curUser_no, UserProperty.PATIENT_NAME_LENGTH);
+      int NameLength=0;
+      
+      if ( uppatientNameLength != null && uppatientNameLength.getValue() != null) {
+          try {
+             NameLength=Integer.parseInt(uppatientNameLength.getValue());
+          } catch (NumberFormatException e) {
+             NameLength=0;
+          }
+      
+          if(NameLength>0) {
+             len=lenLimitedS= lenLimitedL = NameLength;
+          }
+       }
+	   
 //set timecode bean
 String bgcolordef = "#486ebd" ;
 String [] param3 = new String[2];
@@ -1231,7 +1244,29 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 <li id="admin2">
  <a href="javascript:void(0)" id="admin-panel" TITLE='Administration Panel' onclick="newWindow('<%=request.getContextPath()%>/administration/','admin')">Administration</a>
 </li>
-  
+
+<security:oscarSec roleName="<%=roleName$%>" objectName="_dashboardDisplay" rights="r">
+	<% 
+		DashboardManager dashboardManager = SpringUtils.getBean(DashboardManager.class);
+		List<Dashboard> dashboards = dashboardManager.getActiveDashboards(loggedInInfo1);
+		pageContext.setAttribute("dashboards", dashboards);
+	%>
+
+	<li id="dashboardList">
+		 <div class="dropdown">
+			<a href="#" class="dashboardBtn">Dashboard</a>
+			<div class="dashboardDropdown">
+				<c:forEach items="${ dashboards }" var="dashboard" >			
+					<a href="javascript:void(0)" onclick="newWindow('<%=request.getContextPath()%>/web/dashboard/display/DashboardDisplay.do?method=getDashboard&dashboardId=${ dashboard.id }','admin')"> 
+						<c:out value="${ dashboard.name }" />
+					</a>
+				</c:forEach>
+			</div>
+		</div>
+	</li>		
+
+</security:oscarSec> 
+ 
   <!-- Added logout link for mobile version -->
   <li id="logoutMobile">
       <a href="../logout.jsp"><bean:message key="global.btnLogout"/></a>
@@ -1335,13 +1370,13 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 <%
 	if (caseload) {
 %>
-<%@ include file="caseload.jspf" %>
+<jsp:include page="caseload.jspf" />
 <%
 	} else {
 %>
 
 <table BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="100%" BGCOLOR="#fff">
-<tr id="ivoryBar" style="background:#74abbe; color:#fff;">
+<tr id="ivoryBar" color:#fff;">
 <td id="dateAndCalendar" width="33%" style="padding:7px"><!-- BGCOLOR="ivory" -->
  <a class="redArrow" href="providercontrol.jsp?year=<%=year%>&month=<%=month%>&day=<%=isWeekView?(day-7):(day-1)%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+URLEncoder.encode(request.getParameter("curProviderName"),"UTF-8") )%>&displaymode=day&dboperation=searchappointmentday<%=isWeekView?"&provider_no="+provNum:""%>&viewall=<%=viewall%>">
  &nbsp;&nbsp;<img src="../images/previous.png" style="margin-bottom: -3px" BORDER="0" ALT="<bean:message key="provider.appointmentProviderAdminDay.viewPrevDay"/>"></a>
@@ -2434,7 +2469,7 @@ start_time += iSm + ":00";
 
       <tr><td colspan="3">
               <table BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="100%" class="noprint">
-                  <tr style="background:#74abbe; color:#fff;">
+                  <tr style="background:#53B848; color:#fff;">
                       <td style="padding:7px" width="60%">
                           <a href="providercontrol.jsp?year=<%=year%>&month=<%=month%>&day=<%=isWeekView ? (day - 7) : (day - 1)%>&view=<%=view == 0 ? "0" : ("1&curProvider=" + request.getParameter("curProvider") + "&curProviderName=" + URLEncoder.encode(request.getParameter("curProviderName"),"UTF-8"))%>&displaymode=day&dboperation=searchappointmentday<%=isWeekView ? "&provider_no=" + provNum : ""%>">
                               &nbsp;&nbsp;<img src="../images/previous.png" style="margin-bottom: -3px" BORDER="0" ALT="<bean:message key="provider.appointmentProviderAdminDay.viewPrevDay"/>"></a>

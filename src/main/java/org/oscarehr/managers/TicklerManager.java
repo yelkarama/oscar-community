@@ -47,6 +47,7 @@ import org.oscarehr.PMmodule.service.ProgramManager;
 import org.oscarehr.casemgmt.service.CaseManagementManager;
 import org.oscarehr.common.dao.ClinicDAO;
 import org.oscarehr.common.dao.CustomFilterDao;
+import org.oscarehr.common.dao.TicklerCategoryDao;
 import org.oscarehr.common.dao.TicklerCommentDao;
 import org.oscarehr.common.dao.TicklerDao;
 import org.oscarehr.common.dao.TicklerTextSuggestDao;
@@ -54,7 +55,9 @@ import org.oscarehr.common.dao.TicklerUpdateDao;
 import org.oscarehr.common.model.Clinic;
 import org.oscarehr.common.model.CustomFilter;
 import org.oscarehr.common.model.Tickler;
+import org.oscarehr.common.model.TicklerCategory;
 import org.oscarehr.common.model.TicklerComment;
+import org.oscarehr.common.model.TicklerLink;
 import org.oscarehr.common.model.TicklerTextSuggest;
 import org.oscarehr.common.model.TicklerUpdate;
 import org.oscarehr.util.EmailUtilsOld;
@@ -122,7 +125,17 @@ public class TicklerManager {
 	@Autowired
 	private SecurityInfoManager securityInfoManager;
 	
+	@Autowired
+	private TicklerCategoryDao ticklerCategoryDao;
 	
+	public List<TicklerCategory> getActiveTicklerCategories( LoggedInInfo loggedInInfo ) {
+		checkPrivilege(loggedInInfo, PRIVILEGE_READ);
+		
+		LogAction.addLogSynchronous(loggedInInfo, "TicklerManager.getActiveTicklerCategories", "All active categories");
+		
+		return ticklerCategoryDao.getActiveCategories();
+	}
+        
 	
 	public boolean validateTicklerIsValid(Tickler tickler) {
 		if(tickler == null)
@@ -136,6 +149,17 @@ public class TicklerManager {
 		return true;
 	}
 	
+	public boolean addTicklerLink(LoggedInInfo loggedInInfo, TicklerLink ticklerLink )
+        {
+            checkPrivilege(loggedInInfo, PRIVILEGE_WRITE);    	    	
+            ticklerDao.persist(ticklerLink);
+	     
+	    //--- log action ---
+            LogAction.addLogSynchronous(loggedInInfo, "TicklerManager.addTicklerLink", "ticklerLinkId="+ticklerLink.getId());
+		
+            return true;			
+	}
+        
     public boolean addTickler(LoggedInInfo loggedInInfo, Tickler tickler) {
     	checkPrivilege(loggedInInfo, PRIVILEGE_WRITE);
     	
@@ -150,7 +174,7 @@ public class TicklerManager {
 		
 		return true;
     }
-    
+        
     public boolean updateTickler(LoggedInInfo loggedInInfo, Tickler tickler) {
     	checkPrivilege(loggedInInfo, PRIVILEGE_UPDATE);
     	
@@ -191,9 +215,7 @@ public class TicklerManager {
         }    
         
         //--- log action ---
-        for(Tickler tickler:results) {
-        	LogAction.addLogSynchronous(loggedInInfo, "TicklerManager.getTicklers", "ticklerId="+tickler.getId());
-        }
+        LogAction.addLogSynchronous(loggedInInfo, "TicklerManager.getTicklers", "providerNo="+providerNo+", " + results.size() + " results");
         
         return(results);
     }
@@ -204,9 +226,7 @@ public class TicklerManager {
     	List<Tickler> results = ticklerDao.getTicklers(filter);     
         
         //--- log action ---
-        for(Tickler tickler:results) {
-        	LogAction.addLogSynchronous(loggedInInfo, "TicklerManager.getTicklers", "ticklerId="+tickler.getId());
-        }
+        LogAction.addLogSynchronous(loggedInInfo, "TicklerManager.getTicklers", "results.size() " + results);
         
         return(results);
     }
@@ -217,9 +237,7 @@ public class TicklerManager {
     	List<Tickler> results = ticklerDao.getTicklers(filter,offset,limit);     
         
         //--- log action ---
-        for(Tickler tickler:results) {
-        	LogAction.addLogSynchronous(loggedInInfo, "TicklerManager.getTicklers", "ticklerId="+tickler.getId());
-        }
+        LogAction.addLogSynchronous(loggedInInfo, "TicklerManager.getTicklers", "results.size() " + results);
         
         return(results);
     }
@@ -633,13 +651,10 @@ public class TicklerManager {
     	  
     	  public List<Tickler> findActiveByDemographicNo(LoggedInInfo loggedInInfo, Integer demographicNo) {
     		  checkPrivilege(loggedInInfo, PRIVILEGE_READ);
-    		  
+			  
     		  List<Tickler> result = ticklerDao.findActiveByDemographicNo(demographicNo);
-    		  
-    		  for(Tickler tmp:result) {
-	    		//--- log action ---
-	  			LogAction.addLogSynchronous(loggedInInfo, "TicklerManager.listTicklers", "ticklerId="+tmp.getId());
-    		  }
+			  
+			  LogAction.addLogSynchronous(loggedInInfo, "TicklerManager.findActiveByDemographicNo", "demoId="+demographicNo+", " +result.size() + " results");
     		  
     		  return result;
     	  }
@@ -648,12 +663,7 @@ public class TicklerManager {
     		  checkPrivilege(loggedInInfo, PRIVILEGE_READ);
     		  
     		  List<Tickler> result = ticklerDao.search_tickler_bydemo(demographicNo,status,beginDate,endDate);
-    		  
-    		  for(Tickler tmp:result) {
-	    		//--- log action ---
-	  			LogAction.addLogSynchronous(loggedInInfo, "TicklerManager.search_tickler_bydemo", "ticklerId="+tmp.getId());
-    		  }
-    		  
+    		  LogAction.addLogSynchronous(loggedInInfo, "TicklerManager.search_tickler_bydemo", "demoId="+demographicNo+", " +result.size() + " results");    		  
     		  return result;
     	  }
     	  
@@ -661,11 +671,7 @@ public class TicklerManager {
     		  checkPrivilege(loggedInInfo, PRIVILEGE_READ);
     		  
     		  List<Tickler> result = ticklerDao.search_tickler(demographicNo,endDate);
-    		  
-    		  for(Tickler tmp:result) {
-	    		//--- log action ---
-	  			LogAction.addLogSynchronous(loggedInInfo, "TicklerManager.search_tickler", "ticklerId="+tmp.getId());
-    		  }
+	  		  LogAction.addLogSynchronous(loggedInInfo, "TicklerManager.search_tickler", "demoId="+demographicNo+", " +result.size() + " results");
     		  
     		  return result;
     	  }

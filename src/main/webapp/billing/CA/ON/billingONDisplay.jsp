@@ -255,7 +255,11 @@ function popupPage(vheight,vwidth,varpage) {
 						HCTYPE = ch1Obj.getProvince();
 						HCSex = ch1Obj.getSex();
 						r_doctor_ohip = ch1Obj.getRef_num();
-						r_doctor = referringDoctor.getFormattedName();
+						if (referringDoctor == null) {
+							r_doctor = "";
+						} else {
+							r_doctor = referringDoctor.getFormattedName();
+						}
 						r_doctor_ohip_s = "";
 						r_doctor_s = "";
 						m_review = ch1Obj.getMan_review();

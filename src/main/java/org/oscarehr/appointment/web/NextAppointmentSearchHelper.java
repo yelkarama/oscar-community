@@ -32,12 +32,14 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.oscarehr.PMmodule.dao.ProviderDao;
+import org.oscarehr.common.dao.ProviderPreferenceDao;
 import org.oscarehr.common.dao.OscarAppointmentDao;
 import org.oscarehr.common.dao.ScheduleDateDao;
 import org.oscarehr.common.dao.ScheduleTemplateCodeDao;
 import org.oscarehr.common.dao.ScheduleTemplateDao;
 import org.oscarehr.common.model.Appointment;
 import org.oscarehr.common.model.Provider;
+import org.oscarehr.common.model.ProviderPreference;
 import org.oscarehr.common.model.ScheduleDate;
 import org.oscarehr.common.model.ScheduleTemplate;
 import org.oscarehr.common.model.ScheduleTemplateCode;
@@ -49,7 +51,8 @@ public class NextAppointmentSearchHelper {
 	static final int MAX_DAYS_TO_SEARCH = 180;
 
 	static Logger logger = MiscUtils.getLogger();
-	static ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");			 	
+	static ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
+	static ProviderPreferenceDao providerPreferenceDao = (ProviderPreferenceDao) SpringUtils.getBean("providerPreferenceDao");	 	
 	static ScheduleDateDao scheduleDateDao = (ScheduleDateDao)SpringUtils.getBean("scheduleDateDao");
 	static ScheduleTemplateDao scheduleTemplateDao = (ScheduleTemplateDao)SpringUtils.getBean("scheduleTemplateDao");
 	static ScheduleTemplateCodeDao scheduleTemplateCodeDao = (ScheduleTemplateCodeDao)SpringUtils.getBean("scheduleTemplateCodeDao");
@@ -147,11 +150,13 @@ public class NextAppointmentSearchHelper {
 	 */
 	private static List<NextAppointmentSearchResult> searchDayProvider(String providerNo, Date day, boolean today, NextAppointmentSearchBean searchBean) {
 		List<NextAppointmentSearchResult> results = new ArrayList<NextAppointmentSearchResult>();
+		ProviderPreference providerPreference = providerPreferenceDao.find(providerNo);
+		
 		//load up the schedule
 		ScheduleDate sd = scheduleDateDao.findByProviderNoAndDate(providerNo, day);
 		if(sd == null) {
-			logger.warn("no schedule found for provider " + providerNo + " on day " + day);
-			return results;
+			//logger.warn("no schedule found for provider " + providerNo + " on day " + day);
+			return searchDayProviderNoSchedule(providerNo, day, today, searchBean);
 		}
 		//we have a schedule..lets check what template to use
 		String templateName = sd.getHour();		
@@ -206,7 +211,7 @@ public class NextAppointmentSearchHelper {
 					}
 					
 					//TODO: is there a default appt length somewhere?					
-					int duration = 15;
+					int duration = providerPreference.getEveryMin();
 					if(searchBean.getCode().length()>0) {
 						//load the template code
 						ScheduleTemplateCode stc = scheduleTemplateCodeDao.getByCode(searchBean.getCode().charAt(0));
@@ -241,6 +246,58 @@ public class NextAppointmentSearchHelper {
 				}
 			}						
 		}
+		return results;
+	}
+	
+	private static List<NextAppointmentSearchResult> searchDayProviderNoSchedule(String providerNo, Date day, boolean today, NextAppointmentSearchBean searchBean){
+		List<NextAppointmentSearchResult> results = new ArrayList<NextAppointmentSearchResult>();
+		ProviderPreference providerPreference = providerPreferenceDao.find(providerNo);
+		Calendar c = Calendar.getInstance();
+		
+		int duration = providerPreference.getEveryMin();
+		int startHour = Integer.parseInt(searchBean.getStartTimeOfDay());
+		int endHour = Integer.parseInt(searchBean.getEndTimeOfDay());
+		
+		int startMin = 0;
+		
+		c.setTime(day);
+		c.set(Calendar.HOUR_OF_DAY, endHour);
+		c.set(Calendar.MINUTE, 0);
+		c.set(Calendar.SECOND,0);
+		c.set(Calendar.MILLISECOND, 0);
+		
+		Date endTime = c.getTime();
+		
+		c.set(Calendar.HOUR_OF_DAY, startHour);
+		c.set(Calendar.MINUTE, startMin);
+		
+		Date curTime = c.getTime();
+		
+		
+		if(today) {
+			Calendar cur = Calendar.getInstance();
+			curTime = cur.getTime();
+		}
+		
+		while(endTime.compareTo(c.getTime()) > 0){
+		
+			if(curTime.compareTo(c.getTime()) >= 0) {
+				logger.info(" on day " + c.getTime());
+				c.add(Calendar.MINUTE, duration);
+				continue;
+			}
+			
+			if(checkAvailability(c.getTime(), duration, providerNo)) {
+				NextAppointmentSearchResult result = new NextAppointmentSearchResult();
+				result.setProviderNo(providerNo);
+				result.setProvider(providerDao.getProvider(providerNo));
+				result.setDate(c.getTime());
+				result.setDuration(duration);
+				results.add(result);
+			}
+			
+			c.add(Calendar.MINUTE, duration);
+		}	
 		return results;
 	}
 	
