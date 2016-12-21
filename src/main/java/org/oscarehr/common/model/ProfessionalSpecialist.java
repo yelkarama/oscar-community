@@ -35,6 +35,7 @@ import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -96,6 +97,9 @@ public class ProfessionalSpecialist extends AbstractModel<Integer> implements Se
 	private Date lastUpdated=new Date();
 
 	private Integer eformId;
+
+	@Transient
+	private String regex = "(\r|\n)";
 	
 	@PreUpdate
 	protected void jpaUpdateLastUpdateTime() {
@@ -133,11 +137,11 @@ public class ProfessionalSpecialist extends AbstractModel<Integer> implements Se
     }
 
 	public String getStreetAddress() {
-    	return streetAddress;
+		return StringUtils.trimToNull(streetAddress).replaceAll(regex, " ");
     }
 
 	public void setStreetAddress(String streetAddress) {
-    	this.streetAddress = StringUtils.trimToNull(streetAddress).replaceAll("\r\n", " ");
+    	this.streetAddress = StringUtils.trimToNull(streetAddress).replaceAll(regex, " ");
     }
 
 	public String getPhoneNumber() {
