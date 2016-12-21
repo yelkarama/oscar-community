@@ -652,11 +652,7 @@ function generateRenalLabReq(demographicNo) {
                             <td width="12%" ROWSPAN="1" class="<%=cellColour%>"></td>
                             <td ROWSPAN="1" class="<%=cellColour%>"><%=tc.getProvider().getLastName()%>,<%=tc.getProvider().getFirstName()%></td>
                             <td ROWSPAN="1" class="<%=cellColour%>"></td>
-                            <% if (tc.isUpdateDateToday()) { %>
-                            <td ROWSPAN="1" class="<%=cellColour%>"><%=tc.getUpdateTime(request.getLocale())%></td>
-                            <% } else { %>
-                            <td ROWSPAN="1" class="<%=cellColour%>"><%=tc.getUpdateDate(request.getLocale())%></td>
-                            <% } %>
+                            <td ROWSPAN="1" class="<%=cellColour%>"><%=tc.getUpdateDate(request.getLocale())%> <%=tc.getUpdateTime(request.getLocale())%></td>
                             <td ROWSPAN="1" class="<%=cellColour%>"></td>
                             <td ROWSPAN="1" class="<%=cellColour%>"></td>
                             <td ROWSPAN="1" class="<%=cellColour%>"></td>
