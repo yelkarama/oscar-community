@@ -82,12 +82,16 @@
     	allergyString.append(allergy.getDescription());
     }
 
-    String providerName = providerDao.getProvider(demographic.getProviderNo()).getFormattedName();
+	Provider provider = providerDao.getProvider(demographic.getProviderNo());
+    String providerName = provider != null ? provider.getFormattedName() : "";
     
     Appointment appt = null;
     if(request.getParameter("appointmentNo") != null)
     	appt = appointmentDao.find(Integer.parseInt(request.getParameter("appointmentNo")));
-    
+
+	Provider appointmentProvider = providerDao.getProvider(appt.getProviderNo());
+	String appointmentProviderName = appointmentProvider != null ? appointmentProvider.getFormattedName() : "";
+
     SimpleDateFormat dateFormatter =new SimpleDateFormat("yyyy-MM-dd");
     SimpleDateFormat timeFormatter =new SimpleDateFormat("HH:mm");
     
@@ -273,7 +277,7 @@
 					</tr>
 					<tr>
 						<td>&nbsp;</td>
-						<td>Dr. <%=loggedInInfo.getLoggedInProvider().getFormattedName() %></td>
+						<td>Dr. <%= !providerName.equals("") ? providerName : appointmentProviderName %></td>
 					</tr>
 				</table>
 		 </td>
