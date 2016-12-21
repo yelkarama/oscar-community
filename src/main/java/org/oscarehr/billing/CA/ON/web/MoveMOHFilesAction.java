@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
@@ -137,7 +138,28 @@ public class MoveMOHFilesAction extends Action {
 
 	private boolean moveFile(File file) {
 		File archiveDir = new File(EDTFolder.ARCHIVE.getPath());
+		boolean archivedFileExists = FileUtils.getFile(archiveDir + "/"+ file.getName()).exists();
 		try {
+			File renamedFile = null;
+			int iterator = 1; // initialize iterator
+			// while archived file exists, loop through incrementing the number that will be appended
+			while (archivedFileExists){
+				iterator++; //increment iterator
+				String name = file.getName();
+				String newName = name.substring(0, name.lastIndexOf(FilenameUtils.EXTENSION_SEPARATOR)) + " (" + iterator + ")" + name.substring(name.lastIndexOf(FilenameUtils.EXTENSION_SEPARATOR));
+
+				// generate file name with a number added in the filename to mark it as a duplicate
+				renamedFile = new File(file.getParentFile() + "/" + newName);
+				// check if generated file exists as an archived file
+				archivedFileExists = FileUtils.getFile(archiveDir + "/"+ renamedFile.getName()).exists();
+			}
+			if (!renamedFile.equals(null)){
+				// if generated file name is created
+				// rename file to prepare to archive
+				file.renameTo(renamedFile);
+				file = renamedFile;
+			}
+			// when archived file does not exist, move it.
 			FileUtils.moveToDirectory(file, archiveDir, true);
         } catch (IOException e) {
 	       logger.error("Unable to move", e);
