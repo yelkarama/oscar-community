@@ -1046,31 +1046,30 @@ function clickLoadDiv(e) {
 }
 
 function loadDiv(div,url,limit) {
-
+	var divItems = $(div).getElementsByTagName("li");
     var objAjax = new Ajax.Request (
-                            url,
-                            {
-                                method: 'post',
-                                evalScripts: true,
-                                /*onLoading: function() {
-                                                $(div).update("<p>Loading ...<\/p>");
-                                            },*/
-                                onSuccess: function(request) {
-                                                /*while( $(div).firstChild )
-                                                    $(div).removeChild($(div).firstChild);
-                                                */
+		url + "&currentDisplay=" + divItems.length,
+		{
+			method: 'post',
+			evalScripts: true,
+			/*onLoading: function() {
+							$(div).update("<p>Loading ...<\/p>");
+						},*/
+			onSuccess: function(request) {
+							/*while( $(div).firstChild )
+								$(div).removeChild($(div).firstChild);
+							*/
 
-                                                $(div).update(request.responseText);
-                                                //listDisplay(div,100);
-												notifyDivLoaded($(div).id);
+							$(div).update(request.responseText);
+							//listDisplay(div,100);
+							notifyDivLoaded($(div).id);
 
-                                           },
-                                onFailure: function(request) {
-                                                $(div).innerHTML = "<h3>" + div + "<\/h3>Error: " + request.status + "<br>" + request.responseText;
-                                            }
-                            }
-
-                      );
+					   },
+			onFailure: function(request) {
+							$(div).innerHTML = "<h3>" + div + "<\/h3>Error: " + request.status + "<br>" + request.responseText;
+						}
+		}
+	);
     return false;
 
 }
