@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.validator.GenericValidator;
 import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
@@ -40,6 +41,7 @@ import org.oscarehr.util.SpringUtils;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
+import oscar.OscarProperties;
 import oscar.oscarEncounter.oscarMeasurements.FlowSheetItem;
 import oscar.oscarEncounter.oscarMeasurements.MeasurementFlowSheet;
 import oscar.oscarEncounter.oscarMeasurements.MeasurementTemplateFlowSheetConfig;
@@ -190,8 +192,12 @@ public class FormUpdateAction extends Action {
 		}
 		
 		session.setAttribute("textOnEncounter", textOnEncounter);
-		
-		addNote(demographic_no, providerNo, prog_no, note, apptNoInt, request);
+		if (OscarProperties.getInstance().isPropertyActive("measurements_create_new_note")) {
+			addNote(demographic_no, providerNo, prog_no, note, apptNoInt, request);
+		}
+		else { //append to current note
+			request.setAttribute("textOnEncounter", StringEscapeUtils.escapeJavaScript(note));
+		}
 		
 		if (request.getParameter("submit").equals("Add") || request.getParameter("submit").equals("Save") || request.getParameter("submit").equals("Save All")) {
 			return mapping.findForward("reload");
