@@ -529,7 +529,7 @@ CasemgmtNoteLock casemgmtNoteLock = (CasemgmtNoteLock)session.getAttribute("case
 							String winName = "docs" + demographicNo;
 							int hash = Math.abs(winName.hashCode());
 
-							url = "popupPage(700,800,'" + hash + "', '" + request.getContextPath() + "/dms/documentGetFile.jsp?document=" + StringEscapeUtils.escapeJavaScript(dispFilename) + "&type=" + dispStatus + "&doc_no=" + dispDocNo + "');";
+							url = "popupPage(700,800,'" + hash + "', '" + request.getContextPath() + "/dms/documentGetFile.jsp?document=" + StringEscapeUtils.escapeJavaScript(dispFilename.replace("+", "%2B")) + "&type=" + dispStatus + "&doc_no=" + dispDocNo + "');";
 							url = url + "return false;";
 
 							if (note.getRemoteFacilityId()==null) // only allow editing for local notes
@@ -558,7 +558,7 @@ CasemgmtNoteLock casemgmtNoteLock = (CasemgmtNoteLock)session.getAttribute("case
 							String winName = "docs" + demographicNo;
 							int hash = Math.abs(winName.hashCode());
 
-							url = "popupPage(700,800,'" + hash + "', '" + request.getContextPath() + "/dms/documentGetFile.jsp?document=" + StringEscapeUtils.escapeJavaScript(dispFilename) + "&type=" + dispStatus + "&doc_no=" + dispDocNo + "');";
+							url = "popupPage(700,800,'" + hash + "', '" + request.getContextPath() + "/dms/documentGetFile.jsp?document=" + StringEscapeUtils.escapeJavaScript(dispFilename.replace("+", "%2B")) + "&type=" + dispStatus + "&doc_no=" + dispDocNo + "');";
 							url = url + "return false;";
 						 	%>
 							 	<a class="links" title="<bean:message key="oscarEncounter.view.docView"/>" id="view<%=globalNoteId%>" href="javascript:void(0);" onclick="<%=url%>" style="float: right; margin-right: 5px; font-size: 10px;color:black">
