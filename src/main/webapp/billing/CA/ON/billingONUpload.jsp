@@ -51,9 +51,11 @@ function onSubmit(){
 	}else{
 		if (document.all){
 			document.all.form1.action="/<%=props.getProperty("project_home", "")%>/oscarBilling/DocumentErrorReportUpload.do";
+			document.all.form1.target="errorReport";
 			document.all.form1.submit();
 		}else{
 			document.getElementById('form1').action="/<%=props.getProperty("project_home", "")%>/oscarBilling/DocumentErrorReportUpload.do";
+			document.getElementById('form1').target="errorReport";
 			document.getElementById('form1').submit();
 		}
 	}
