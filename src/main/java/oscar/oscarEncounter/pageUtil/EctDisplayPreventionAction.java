@@ -88,6 +88,7 @@ public class EctDisplayPreventionAction extends EctDisplayAction {
         String highliteColour = "#FF0000";
         String inelligibleColour = "#FF6600";
         String pendingColour = "#FF00FF";
+        String refusedColour = "#FFDDDD";
         Date date = null;
         //Date defaultDate = new Date(System.currentTimeMillis());
         url += "; return false;";
@@ -121,8 +122,11 @@ public class EctDisplayPreventionAction extends EctDisplayAction {
                     if( hdata.get("refused") != null && hdata.get("refused").equals("2") ) {
                         item.setColour(inelligibleColour);
                     }
-                    else if( result != null && result.equalsIgnoreCase("pending") ) {
+                    else if( result != null && result.equalsIgnoreCase("pending") && !hdata.get("refused").equals("1")) {
                         item.setColour(pendingColour);
+                    }
+                    else if (hdata.get("refused") != null && hdata.get("refused").equals("1")){
+                        item.setColour(refusedColour);
                     }
                 }
                 else {
