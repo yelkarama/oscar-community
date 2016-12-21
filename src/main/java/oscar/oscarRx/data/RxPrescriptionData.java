@@ -2179,10 +2179,16 @@ public class RxPrescriptionData {
 				}
 
 			} else {
-				favorite = syncFavorite(favorite);
-				dao.merge(favorite);
+				favorite = dao.findById(this.getFavoriteId());
+				
+				if(favorite != null){
+					favorite = syncFavorite(favorite);
+					dao.merge(favorite);
 
-				b = true;
+					b = true;	
+				}else{
+					logger.warn("Cannot find favorite with id : " + this.getFavoriteId());
+				}
 			}
 
 			return b;
