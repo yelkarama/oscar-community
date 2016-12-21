@@ -359,144 +359,135 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 
                 }
                 else {
-                    boolean showPatientDOB = false;
-                    //head.writeSelectedRows(0, 1,document.leftMargin(), page.height() - document.topMargin()+ head.getTotalHeight(),writer.getDirectContent());
-                    if (this.patientDOB != null && this.patientDOB.length() > 0) {
-                        showPatientDOB = true;
-                    }
-                    //header table for patient's information.
-                    PdfPTable head = new PdfPTable(1);
-                    String newline = System.getProperty("line.separator");
-                    StringBuilder hStr = new StringBuilder(this.patientName);
-                    if (showPatientDOB) {
-                        hStr.append("   " + geti18nTagValue(locale, "RxPreview.msgDOB") + ":").append(this.patientDOB);
-                    }
-                    hStr.append(newline).append(this.patientAddress).append(newline).append(this.patientCityPostal).append(newline).append(this.patientPhone);
+                    boolean showPatientDOB=false;
+					//head.writeSelectedRows(0, 1,document.leftMargin(), page.height() - document.topMargin()+ head.getTotalHeight(),writer.getDirectContent());
+					if(this.patientDOB!=null && this.patientDOB.length()>0){
+						showPatientDOB=true;
+					}
+					//header table for patient's information.
+					PdfPTable head = new PdfPTable(1);
+					String newline = System.getProperty("line.separator");
+					StringBuilder hStr = new StringBuilder(this.patientName);
+					if(showPatientDOB){
+						 hStr.append("   "+geti18nTagValue(locale, "RxPreview.msgDOB")+":").append(this.patientDOB);
+					}
+					hStr.append(newline).append(this.patientAddress).append(newline).append(this.patientCityPostal).append(newline).append(this.patientPhone);
+					
+					if (patientHIN != null && patientHIN.trim().length() > 0) { 
+						hStr.append(newline).append(geti18nTagValue(locale, "oscar.oscarRx.hin")+" ").append(patientHIN); 
+					}
 
-                    if (patientHIN != null && patientHIN.trim().length() > 0) {
-                        hStr.append(newline).append(geti18nTagValue(locale, "oscar.oscarRx.hin") + " ").append(patientHIN);
-                    }
+					if (patientChartNo != null && !patientChartNo.isEmpty()) {
+						String chartNoTitle = geti18nTagValue(locale, "oscar.oscarRx.chartNo") ;
+						hStr.append(newline).append(chartNoTitle).append(patientChartNo);
+					}
+					
+					if( bandNumber != null && ! bandNumber.isEmpty() ) {
+						String bandNumberTitle = org.oscarehr.util.LocaleUtils.getMessage(locale, "oscar.oscarRx.bandNumber");
+						 hStr.append(newline).append(bandNumberTitle).append(bandNumber);
+					}
+                                
+					Phrase hPhrase = new Phrase(hStr.toString(), new Font(bf, 10));
+					head.addCell(hPhrase);
+					head.setTotalWidth(272f);
+					head.writeSelectedRows(0, -1, 13f, height - 100f, cb);
 
-                    if (patientChartNo != null && !patientChartNo.isEmpty()) {
-                        String chartNoTitle = geti18nTagValue(locale, "oscar.oscarRx.chartNo");
-                        hStr.append(newline).append(chartNoTitle).append(patientChartNo);
-                    }
+					bf = BaseFont.createFont(BaseFont.TIMES_ROMAN, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+					writeDirectContent(cb, bf, 12, PdfContentByte.ALIGN_LEFT, "o s c a r", 21, page.getHeight() - 60, 90);
+					// draw R
+					writeDirectContent(cb, bf, 50, PdfContentByte.ALIGN_LEFT, "P", 24, page.getHeight() - 53, 0);
 
-                    if (bandNumber != null && !bandNumber.isEmpty()) {
-                        String bandNumberTitle = org.oscarehr.util.LocaleUtils.getMessage(locale, "oscar.oscarRx.bandNumber");
-                        hStr.append(newline).append(bandNumberTitle).append(bandNumber);
-                    }
+					bf = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+					// draw X
+					writeDirectContent(cb, bf, 43, PdfContentByte.ALIGN_LEFT, "X", 38, page.getHeight() - 69, 0);
 
-                    Phrase hPhrase = new Phrase(hStr.toString(), new Font(bf, 10));
-                    head.addCell(hPhrase);
-                    head.setTotalWidth(272f);
-                    head.writeSelectedRows(0, -1, 13f, height - 100f, cb);
+					bf = BaseFont.createFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+					writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, this.sigDoctorName, 80, (page.getHeight() - 25), 0);
+					
+					bf = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+					int fontFlags = Font.NORMAL;
+					Font font = new Font(bf, 10, fontFlags);
+					ColumnText ct = new ColumnText(cb);
+					ct.setSimpleColumn(80, (page.getHeight() - 25), 280, (page.getHeight() - 90), 11, Element.ALIGN_LEFT);
+					// p("value of clinic name", this.clinicName);
+					ct.setText(new Phrase(12, clinicName+(pracNo.trim().length()>0 ? "\r\n"+geti18nTagValue(locale, "RxPreview.PractNo")+": "+ pracNo : ""), font));ct.go();
+					// render clinicTel;
+					int diff = (this.clinicTel.length() - 12)*2;
+					writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, geti18nTagValue(locale, "RxPreview.msgTel")+":" + this.clinicTel, 188 - diff, (page.getHeight() - 70), 0);
+					// render clinicFax;
+					writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, geti18nTagValue(locale, "RxPreview.msgFax")+":" + this.clinicFax, 188 - diff, (page.getHeight() - 80), 0);
+					writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, this.rxDate, 188 - diff, (page.getHeight() - 90), 0);
+					
+					if (this.pharmaShow) {
+						writeDirectContent(cb,bf,10,PdfContentByte.ALIGN_LEFT,this.pharmaName,290,(page.getHeight()-30),0);
+						writeDirectContent(cb,bf,10,PdfContentByte.ALIGN_LEFT,this.pharmaAddress1,290,(page.getHeight()-42),0);
+						writeDirectContent(cb,bf,10,PdfContentByte.ALIGN_LEFT,this.pharmaAddress2,290,(page.getHeight()-54),0);
+						writeDirectContent(cb,bf,10,PdfContentByte.ALIGN_LEFT,"Tel:" + this.pharmaTel,290,(page.getHeight()-66),0);
+						writeDirectContent(cb,bf,10,PdfContentByte.ALIGN_LEFT,"Fax:" + this.pharmaFax,290,(page.getHeight()-78),0);
+						writeDirectContent(cb,bf,10,PdfContentByte.ALIGN_LEFT,"Email:" + this.pharmaEmail,290,(page.getHeight()-90),0);
+						writeDirectContent(cb,bf,10,PdfContentByte.ALIGN_LEFT,"Note:" + this.pharmaNote,290,(page.getHeight()-102),0);
+					}
+					// get the end of paragraph
+					endPara = writer.getVerticalPosition(true);
+					// draw left line
+					cb.setRGBColorStrokeF(0f, 0f, 0f);
+					cb.setLineWidth(0.5f);
+					// cb.moveTo(13f, 20f);
+					cb.moveTo(13f, endPara - 60);
+					cb.lineTo(13f, height - 15f);
+					cb.stroke();
 
-                    bf = BaseFont.createFont(BaseFont.TIMES_ROMAN, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
-                    writeDirectContent(cb, bf, 12, PdfContentByte.ALIGN_LEFT, "o s c a r", 21, page.getHeight() - 60, 90);
-                    // draw R
-                    writeDirectContent(cb, bf, 50, PdfContentByte.ALIGN_LEFT, "P", 24, page.getHeight() - 53, 0);
+					// draw right line 285, 20, 285, 405, 0.5
+					cb.setRGBColorStrokeF(0f, 0f, 0f);
+					cb.setLineWidth(0.5f);
+					// cb.moveTo(285f, 20f);
+					cb.moveTo(285f, endPara - 60);
+					cb.lineTo(285f, height - 15f);
+					cb.stroke();
+					// draw top line 10, 405, 285, 405, 0.5
+					cb.setRGBColorStrokeF(0f, 0f, 0f);
+					cb.setLineWidth(0.5f);
+					cb.moveTo(13f, height - 15f);
+					cb.lineTo(285f, height - 15f);
+					cb.stroke();
 
-                    bf = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
-                    // draw X
-                    writeDirectContent(cb, bf, 43, PdfContentByte.ALIGN_LEFT, "X", 38, page.getHeight() - 69, 0);
+					// draw bottom line 10, 20, 285, 20, 0.5
+					cb.setRGBColorStrokeF(0f, 0f, 0f);
+					cb.setLineWidth(0.5f);
+					// cb.moveTo(13f, 20f);
+					// cb.lineTo(285f, 20f);
+					cb.moveTo(13f, endPara - 60);
+					cb.lineTo(285f, endPara - 60);
+					cb.stroke();
+					// Render "Signature:"
+					writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, geti18nTagValue(locale, "RxPreview.msgSignature"), 20f, endPara - 30f, 0);// Render line for Signature 75, 55, 280, 55, 0.5
+					cb.setRGBColorStrokeF(0f, 0f, 0f);
+					cb.setLineWidth(0.5f);
+					// cb.moveTo(75f, 50f);
+					// cb.lineTo(280f, 50f);
+					cb.moveTo(75f, endPara - 30f);
+					cb.lineTo(280f, endPara - 30f);
+					cb.stroke();
 
-                    bf = BaseFont.createFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
-                    writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, this.sigDoctorName, 80, (page.getHeight() - 25), 0);
-                    writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, this.rxDate, 188, (page.getHeight() - 90), 0);
+					if (this.imgPath != null) {
+						Image img = Image.getInstance(this.imgPath);
+						// image, image_width, 0, 0, image_height, x, y
+						//         131, 55, 375, 75, 0
+						cb.addImage(img, 157, 0, 0, 40, 150f, endPara-30f);
+					}
 
-                    bf = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
-                    int fontFlags = Font.NORMAL;
-                    Font font = new Font(bf, 10, fontFlags);
-                    ColumnText ct = new ColumnText(cb);
-                    ct.setSimpleColumn(80, (page.getHeight() - 25), 280, (page.getHeight() - 90), 11, Element.ALIGN_LEFT);
-                    // p("value of clinic name", this.clinicName);
-                    ct.setText(new Phrase(12, clinicName + (pracNo.trim().length() > 0 ? "\r\n" + geti18nTagValue(locale, "RxPreview.PractNo") + ": " + pracNo : ""), font));
-                    ct.go();
-                    // render clnicaTel;
-                    if (this.clinicTel.length() <= 13) {
-                        writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, geti18nTagValue(locale, "RxPreview.msgTel") + ":" + this.clinicTel, 188, (page.getHeight() - 70), 0);
-                        // render clinicFax;
-                        writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, geti18nTagValue(locale, "RxPreview.msgFax") + ":" + this.clinicFax, 188, (page.getHeight() - 80), 0);
-                    } else {
-                        String str1 = this.clinicTel.substring(0, 13);
-                        String str2 = this.clinicTel.substring(13);
-                        writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, geti18nTagValue(locale, "RxPreview.msgTel") + ":" + str1, 188, (page.getHeight() - 70), 0);
-                        writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, str2, 188, (page.getHeight() - 80), 0);
-                        writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, geti18nTagValue(locale, "RxPreview.msgFax") + ":" + this.clinicFax, 188, (page.getHeight() - 88), 0);
-                    }
-
-                    if (this.pharmaShow) {
-                        writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, this.pharmaName, 290, (page.getHeight() - 30), 0);
-                        writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, this.pharmaAddress1, 290, (page.getHeight() - 42), 0);
-                        writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, this.pharmaAddress2, 290, (page.getHeight() - 54), 0);
-                        writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, "Tel:" + this.pharmaTel, 290, (page.getHeight() - 66), 0);
-                        writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, "Fax:" + this.pharmaFax, 290, (page.getHeight() - 78), 0);
-                        writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, "Email:" + this.pharmaEmail, 290, (page.getHeight() - 90), 0);
-                        writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, "Note:" + this.pharmaNote, 290, (page.getHeight() - 102), 0);
-                    }
-
-
-                    // draw left line
-                    cb.setRGBColorStrokeF(0f, 0f, 0f);
-                    cb.setLineWidth(0.5f);
-                    // cb.moveTo(13f, 20f);
-                    cb.moveTo(13f, endPara - 60);
-                    cb.lineTo(13f, height - 15f);
-                    cb.stroke();
-
-                    // draw right line 285, 20, 285, 405, 0.5
-                    cb.setRGBColorStrokeF(0f, 0f, 0f);
-                    cb.setLineWidth(0.5f);
-                    // cb.moveTo(285f, 20f);
-                    cb.moveTo(285f, endPara - 60);
-                    cb.lineTo(285f, height - 15f);
-                    cb.stroke();
-                    // draw top line 10, 405, 285, 405, 0.5
-                    cb.setRGBColorStrokeF(0f, 0f, 0f);
-                    cb.setLineWidth(0.5f);
-                    cb.moveTo(13f, height - 15f);
-                    cb.lineTo(285f, height - 15f);
-                    cb.stroke();
-
-                    // draw bottom line 10, 20, 285, 20, 0.5
-                    cb.setRGBColorStrokeF(0f, 0f, 0f);
-                    cb.setLineWidth(0.5f);
-                    // cb.moveTo(13f, 20f);
-                    // cb.lineTo(285f, 20f);
-                    cb.moveTo(13f, endPara - 60);
-                    cb.lineTo(285f, endPara - 60);
-                    cb.stroke();
-                    // Render "Signature:"
-                    writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, geti18nTagValue(locale, "RxPreview.msgSignature"), 20f, endPara - 30f, 0);// Render line for Signature 75, 55, 280, 55, 0.5
-                    cb.setRGBColorStrokeF(0f, 0f, 0f);
-                    cb.setLineWidth(0.5f);
-                    // cb.moveTo(75f, 50f);
-                    // cb.lineTo(280f, 50f);
-                    cb.moveTo(75f, endPara - 30f);
-                    cb.lineTo(280f, endPara - 30f);
-                    cb.stroke();
-
-                    if (this.imgPath != null) {
-                        Image img = Image.getInstance(this.imgPath);
-                        // image, image_width, 0, 0, image_height, x, y
-                        //         131, 55, 375, 75, 0
-                        cb.addImage(img, 157, 0, 0, 40, 150f, endPara - 30f);
-                    }
-
-                    // Render doctor name
-                    writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, this.sigDoctorName, 90, endPara - 40f, 0);
-                    // public void writeDirectContent(PdfContentByte cb, BaseFont bf, float fontSize, int alignment, String text, float x, float y, float rotation)
-                    // render reprint origPrintDate and numPrint
-                    if (origPrintDate != null && numPrint != null) {
-                        String rePrintStr = geti18nTagValue(locale, "RxPreview.msgReprintBy") + " " + this.sigDoctorName + "; " + geti18nTagValue(locale, "RxPreview.msgOrigPrinted") + ": " + origPrintDate + "; " + geti18nTagValue(locale, "RxPreview.msgTimesPrinted") + ": " + numPrint;
-                        writeDirectContent(cb, bf, 6, PdfContentByte.ALIGN_LEFT, rePrintStr, 50, endPara - 48, 0);
-                    }
-                    // print promoText
-                    writeDirectContent(cb, bf, 6, PdfContentByte.ALIGN_LEFT, this.promoText, 70, endPara - 57, 0);
-                    // print page number
-                    String footer = "" + writer.getPageNumber();
-                    writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_RIGHT, footer, 280, endPara - 57, 0);
+					// Render doctor name
+					writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, this.sigDoctorName, 90, endPara - 40f, 0);
+					// public void writeDirectContent(PdfContentByte cb, BaseFont bf, float fontSize, int alignment, String text, float x, float y, float rotation)
+					// render reprint origPrintDate and numPrint
+					if (origPrintDate != null && numPrint != null) {
+						String rePrintStr = geti18nTagValue(locale, "RxPreview.msgReprintBy")+" " + this.sigDoctorName + "; "+geti18nTagValue(locale, "RxPreview.msgOrigPrinted")+": " + origPrintDate + "; "+geti18nTagValue(locale, "RxPreview.msgTimesPrinted") +": " + numPrint;writeDirectContent(cb, bf, 6, PdfContentByte.ALIGN_LEFT, rePrintStr, 50, endPara - 48, 0);
+					}
+					// print promoText
+					writeDirectContent(cb, bf, 6, PdfContentByte.ALIGN_LEFT, this.promoText, 70, endPara - 57, 0);
+					// print page number
+					String footer = "" + writer.getPageNumber();
+					writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_RIGHT, footer, 280, endPara - 57, 0);
                 }
 			} catch (Exception e) {
 				logger.error("Error", e);
