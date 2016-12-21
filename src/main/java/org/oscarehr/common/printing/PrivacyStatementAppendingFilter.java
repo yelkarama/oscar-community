@@ -76,6 +76,7 @@ public class PrivacyStatementAppendingFilter implements Filter {
 	private Set<String> exclusions = Collections.synchronizedSet(new HashSet<String>());
 	
 	private String getPrivacyStatement() { 
+		if(!OscarProperties.getConfidentialityStatement().equals("")){
 			return "<style type=\"text/css\"><!--\n" +
 			".yesprint {\n" + 
 			"	display: none;        \n" + 
@@ -91,6 +92,8 @@ public class PrivacyStatementAppendingFilter implements Filter {
 			"</b><br/>" +
 			"<b>END OF PRINTED DOCUMENT</b>" +
 			"</p>";
+		}
+		return "";
 	}
 	
 	@Override
