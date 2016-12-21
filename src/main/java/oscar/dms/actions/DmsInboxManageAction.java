@@ -259,6 +259,7 @@ public class DmsInboxManageAction extends DispatchAction {
 			request.setAttribute("endDate", endDate);
 			return mapping.findForward("dms_index");
 		} catch (SQLException e) {
+			logger.error("Error: ", e);
 			return mapping.findForward("error");
 		}
 	}

@@ -134,7 +134,7 @@ public class CategoryData {
 			throws SQLException {
 		String sql;
 		sql = "SELECT HIGH_PRIORITY COUNT(1) AS count " +
-			" FROM hl7textmessage tm " +
+			" FROM hl7TextMessage tm " +
 			" WHERE tm.lab_id NOT IN (SELECT plr.lab_no " +
 			" FROM patientLabRouting plr " +
 			" WHERE lab_type = 'Hl7')";
