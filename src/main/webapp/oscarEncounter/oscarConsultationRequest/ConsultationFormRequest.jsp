@@ -1077,6 +1077,7 @@ function switchProvider(value) {
 		document.getElementById("letterheadPhone").value = providerData[value]['phone'];
 		document.getElementById("letterheadPhoneSpan").innerHTML = providerData[value]['phone'];
 		document.getElementById("letterheadFax").value = providerData[value]['fax'];
+			
 		//document.getElementById("letterheadFaxSpan").innerHTML = providerData[value]['fax'];
 	}
 }
@@ -1496,7 +1497,7 @@ function updateFaxButton() {
 											if (p.getProviderNo().compareTo("-1") != 0) {
 									%>
 									<option value="<%=p.getProviderNo() %>" <%=((consultUtil.providerNo != null && consultUtil.providerNo.equalsIgnoreCase(p.getProviderNo())) || (consultUtil.providerNo == null &&  providerNo.equalsIgnoreCase(p.getProviderNo())) ? "selected='selected'" : "") %>>
-										<%=p.getFirstName() %> <%=p.getSurname() %>
+										<%=p.getFormattedName() %>
 									</option>
 									<% }
 
@@ -1851,7 +1852,7 @@ function updateFaxButton() {
 								%>
 								<option value="<%=p.getProviderNo() %>" 
 								<%=(consultUtil.letterheadName != null && consultUtil.letterheadName.equalsIgnoreCase(p.getProviderNo()) ? "selected='selected'"  : consultUtil.letterheadName == null && p.getProviderNo().equalsIgnoreCase(providerDefault) && lhndType.equals("provider") ? "selected='selected'"  : "") %>>
-									<%=p.getSurname() %>, <%=p.getFirstName().replace("Dr.", "") %>
+									<%=p.getFormattedName() %>
 								</option>
 								<% }
 								}
