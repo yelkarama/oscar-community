@@ -951,6 +951,13 @@ if(statusType.equals("_")) { %>
     $( document ).ready(function() {
     	parent.parent.resizeIframe($('html').height());
     });
+	
+	$("input[name='serviceCode']").click(function(){
+		console.log("test");
+		if(this.value == "%"){
+			this.value = "";
+		}
+	});
 </script>
     </body>
     <%! String getStdCurr(String s) {
