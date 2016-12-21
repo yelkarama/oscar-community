@@ -149,7 +149,7 @@ public class InboxResultsDao {
 		if (providerNo == null) {
 			providerNo = "";
 		}
-		boolean searchProvider = !"-1".equals(providerNo) || !"0".equals(providerNo);
+		boolean searchProvider = !"-1".equals(providerNo);
 		if (patientFirstName == null) {
 			patientFirstName = "";
 		}
