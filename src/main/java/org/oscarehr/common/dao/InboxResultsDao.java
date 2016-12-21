@@ -47,7 +47,8 @@ public class InboxResultsDao {
 				+ "WHERE patientLabRouting.lab_no = hl7.lab_no "
 				+ "AND patientLabRouting.lab_type = 'HL7' AND patientLabRouting.demographic_no="
 				+ demographicNo
-				+ " GROUP BY hl7.lab_no";
+				+ " GROUP BY hl7.lab_no"
+				+ " ORDER BY date(hl7.obr_date) DESC";
 
 		String attachQuery = "SELECT consultdocs.document_no FROM consultdocs, patientLabRouting "
 				+ "WHERE patientLabRouting.id = consultdocs.document_no AND " + "consultdocs.requestId = "
@@ -356,7 +357,7 @@ public class InboxResultsDao {
 							+ " AND plr.provider_no = '0' "
 							+ " AND doc.document_no = plr.lab_no"
 							+ dateSql
-							+ " ORDER BY id DESC 	"
+							+ " ORDER BY doc.observationdate DESC 	"
 							+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "")
 							+ ") as X"
 							+ " LEFT JOIN demographic d" + " ON d.demographic_no = -1";
@@ -376,7 +377,7 @@ public class InboxResultsDao {
 							+ (searchProvider ? " AND plr.provider_no = '" + providerNo + "' " : "")
 							+ "	AND doc.document_no = cd.document_no "
 							+ dateSql
-							+ " ORDER BY id DESC "
+							+ " ORDER BY doc.observationdate DESC "
 							+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 				} else if (patientSearch) {
 					docNoLoc = 1; statusLoc = 2; docTypeLoc = 9; lastNameLoc = 3; firstNameLoc = 4; hinLoc = 5; sexLoc = 6; moduleLoc = 7; obsDateLoc = 8; descriptionLoc = 10; updateDateLoc = 11;
@@ -398,7 +399,7 @@ public class InboxResultsDao {
 							+ (searchProvider ? " AND plr.provider_no = '" + providerNo + "' " : "")
 							+ "	AND doc.document_no = cd.document_no "
 							+ dateSql
-							+ " ORDER BY id DESC "
+							+ " ORDER BY doc.observationdate DESC "
 							+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 				} else {
 					docNoLoc = 1; statusLoc = 2; docTypeLoc = 9; lastNameLoc = 3; firstNameLoc = 4; hinLoc = 5; sexLoc = 6; moduleLoc = 7; obsDateLoc = 8; descriptionLoc = 10; updateDateLoc = 11;
@@ -424,7 +425,7 @@ public class InboxResultsDao {
 							+ " AND d.document_no = cd.document_no " 
 							+ dateSql.replace("doc.", "d.") + " ) AS X " + " LEFT JOIN demographic d "
 							+ " ON d.demographic_no = -1"
-							+ ") AS X " + " ORDER BY id DESC "
+							+ ") AS X " + " ORDER BY doc.observationdate DESC "
 							+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 				}
 			}
