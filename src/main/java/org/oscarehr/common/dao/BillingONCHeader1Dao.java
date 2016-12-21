@@ -342,6 +342,18 @@ public class BillingONCHeader1Dao extends AbstractDao<BillingONCHeader1>{
         return numDays;
     }    
     
+    public BillingONCHeader1 getFirstInvoice(Integer demographicNo) {
+    	String sql = "select h1 from BillingONCHeader1 h1 where " +
+                " h1.demographicNo = :demo and h1.status != 'D' order by h1.billingDate";
+        Query q = entityManager.createQuery(sql);
+        
+        q.setParameter("demo", demographicNo);
+        q.setMaxResults(1);
+        
+        List<BillingONCHeader1> ret = q.getResultList();
+        
+        return ret.size() == 0 ? null : ret.get(0);
+    }
     
     public List<BillingONCHeader1> getInvoices(Integer demographicNo, Integer limit) {
     	String sql = "select h1 from BillingONCHeader1 h1 where " +

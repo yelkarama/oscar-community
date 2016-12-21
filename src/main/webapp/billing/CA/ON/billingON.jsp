@@ -143,55 +143,55 @@
 			    // user picks a bill form from browser
 			    ctlBillForm = curBillForm;
 			} else {                    
-                            //check if patient's roster status determines which billing form to display (this superceeds provider preference)                    
-                            String rosterStatus = demo.getRosterStatus();
-                            
-                            CtlBillingServiceDao ctlBillingServiceDao = (CtlBillingServiceDao) SpringUtils.getBean("ctlBillingServiceDao");
-                            List<CtlBillingService> ctlBillSrvList = ctlBillingServiceDao.findByServiceTypeId(rosterStatus);
-                            
-                            if (!ctlBillSrvList.isEmpty() && !rosterStatus.isEmpty()) {
-                                ctlBillForm = ctlBillSrvList.get(0).getServiceType();
-                            }
-                            else {                                                        
-                                // check user preference to show a bill form
-                                ProviderPreferenceDao providerPreferenceDao=(ProviderPreferenceDao)SpringUtils.getBean("providerPreferenceDao");
-                                ProviderPreference providerPreference=null;
-                            
-                                //use the appointment provider's preferences first if we can
-                                //otherwise, use the preferences of the logged in user
-                                if( apptProvider_no.equalsIgnoreCase("none") ) {                                   
-                                    providerPreference = providerPreferenceDao.find(user_no);
-                                } else {                                    
-                                    providerPreference = providerPreferenceDao.find(apptProvider_no);
-                                }
+				//check if patient's roster status determines which billing form to display (this superceeds provider preference)                    
+				String rosterStatus = demo.getRosterStatus();
+				
+				CtlBillingServiceDao ctlBillingServiceDao = (CtlBillingServiceDao) SpringUtils.getBean("ctlBillingServiceDao");
+				List<CtlBillingService> ctlBillSrvList = ctlBillingServiceDao.findByServiceTypeId(rosterStatus);
+				
+				if (!ctlBillSrvList.isEmpty() && !rosterStatus.isEmpty()) {
+					ctlBillForm = ctlBillSrvList.get(0).getServiceType();
+				}
+				else {                                                        
+					// check user preference to show a bill form
+					ProviderPreferenceDao providerPreferenceDao=(ProviderPreferenceDao)SpringUtils.getBean("providerPreferenceDao");
+					ProviderPreference providerPreference=null;
+				
+					//use the appointment provider's preferences first if we can
+					//otherwise, use the preferences of the logged in user
+					if( apptProvider_no.equalsIgnoreCase("none") ) {                                   
+						providerPreference = providerPreferenceDao.find(user_no);
+					} else {                                    
+						providerPreference = providerPreferenceDao.find(apptProvider_no);
+					}
 
-                                String defaultServiceType = "";
-                                if (providerPreference!=null) {
-                                    defaultServiceType = providerPreference.getDefaultServiceType();
-                                }
-                                
-                                if (defaultServiceType != null && !defaultServiceType.isEmpty() && !defaultServiceType.equals("no")) {
-									ctlBillForm = providerPreference.getDefaultServiceType();
-                                } else { 
-                                        //check if there is a group preference for default billing
-                                        MyGroupDao myGroupDao = (MyGroupDao) SpringUtils.getBean("myGroupDao"); 
-                                        List<MyGroup> myGroups = myGroupDao.getProviderGroups(provider_no);
-                                        String groupBillForm = "";
-                                        for (MyGroup group : myGroups) {
-                                            groupBillForm = group.getDefaultBillingForm();
-                                            if (groupBillForm != null && !groupBillForm.isEmpty()) {
-                                                ctlBillForm = groupBillForm;
-                                                break;
-                                            }
-                                        }
-                                       
-                                        if (ctlBillForm == null || ctlBillForm.isEmpty()) {
-                                            // check oscar.properties to show a default bill form
-                                            String dv = OscarProperties.getInstance().getProperty("default_view");
-                                            if (dv!=null) ctlBillForm = dv;
-                                        }
-                                }
-                            }
+					String defaultServiceType = "";
+					if (providerPreference!=null) {
+						defaultServiceType = providerPreference.getDefaultServiceType();
+					}
+					
+					if (defaultServiceType != null && !defaultServiceType.isEmpty() && !defaultServiceType.equals("no")) {
+						ctlBillForm = providerPreference.getDefaultServiceType();
+					} else { 
+							//check if there is a group preference for default billing
+							MyGroupDao myGroupDao = (MyGroupDao) SpringUtils.getBean("myGroupDao"); 
+							List<MyGroup> myGroups = myGroupDao.getProviderGroups(provider_no);
+							String groupBillForm = "";
+							for (MyGroup group : myGroups) {
+								groupBillForm = group.getDefaultBillingForm();
+								if (groupBillForm != null && !groupBillForm.isEmpty()) {
+									ctlBillForm = groupBillForm;
+									break;
+								}
+							}
+						   
+							if (ctlBillForm == null || ctlBillForm.isEmpty()) {
+								// check oscar.properties to show a default bill form
+								String dv = OscarProperties.getInstance().getProperty("default_view");
+								if (dv!=null) ctlBillForm = dv;
+							}
+					}
+				}
 			}
 
 			if( ctlBillForm == null ) {
@@ -340,14 +340,24 @@
 			//Checks if the autofill option is enabled in the properties
 			if (OscarProperties.getInstance().getBooleanProperty("autofill_billing_date_and_location", "true")) {
 				//Checks if the vecHist contaions the properties
-				if (vecHist != null && vecHist.size() > 0 && vecHist.get(0) != null) {
-					//Gets the visit location
-					String visitLocationProperty = ((Properties)vecHist.get(0)).getProperty("visitLocation");
-					String admissionDateProperty = ((Properties)vecHist.get(0)).getProperty("admissionDate"); 
-					visitLocation = visitLocationProperty != null ? visitLocationProperty : "";
-					//Gets the admissionDate
-					admissionDate = admissionDateProperty != null ? admissionDateProperty : "";
+				String visitLocationProperty = null;
+				String admissionDateProperty = null;
+				if(OscarProperties.getInstance().getBooleanProperty("useFirstLocationAndAdmission", "true")){
+					List firstBill = hdbObj.getFirstBill(demo_no);
+					BillingClaimHeader1Data obj = (BillingClaimHeader1Data) firstBill.get(0);
+					BillingItemData iobj = (BillingItemData) firstBill.get(1);
+
+					propHist.setProperty("admissionDate", StringUtils.trimToEmpty(obj.getAdmission_date()));
+					propHist.setProperty("visitLocation", StringUtils.trimToEmpty(obj.getFacilty_num()));
+					
+					visitLocationProperty = StringUtils.trimToEmpty(obj.getFacilty_num());
+					admissionDateProperty = StringUtils.trimToEmpty(obj.getAdmission_date());
+				}else if (vecHist != null && vecHist.size() > 0 && vecHist.get(0) != null) {
+					visitLocationProperty = ((Properties)vecHist.get(0)).getProperty("visitLocation");
+					admissionDateProperty = ((Properties)vecHist.get(0)).getProperty("admissionDate"); 
 				}
+				visitLocation = visitLocationProperty != null ? visitLocationProperty : "";
+				admissionDate = admissionDateProperty != null ? admissionDateProperty : "";
 			}
 			
 			if (!"".equals(xml_visittype)) {
