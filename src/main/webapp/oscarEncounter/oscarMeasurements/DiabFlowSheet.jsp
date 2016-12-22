@@ -21,6 +21,7 @@
 <%@page import="org.oscarehr.common.dao.AllergyDao"%>
 <%@page import="org.oscarehr.common.model.Allergy"%>
 <%@page import="org.oscarehr.util.SpringUtils" %>
+<%@page import="oscar.OscarProperties"%>
 
 <%@ include file="/common/webAppContextAndSuperMgr.jsp"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
@@ -120,6 +121,19 @@ ArrayList<String> recomendations = mi.getRecommendations();
     		$('.xsparkline').sparkline(vals1,{type:"line", lineColor:"#f00", fillColor:"", spotRadius:"0", spotColor:""});
     		$('.xsparkline').sparkline(vals2,{type:"line", lineColor:"#f00", fillColor:"", spotRadius:"0", spotColor:"", composite:"true"});
     	});
+
+        //append measurements to note
+        <%if (request.getAttribute("textOnEncounter")!=null && !OscarProperties.getInstance().isPropertyActive("measurements_create_new_note")) {%>
+        if(opener!=null){
+            if(opener.opener != null && opener.opener.document.forms["caseManagementEntryForm"] != undefined) {
+                //from Templateflowsheet
+                opener.opener.pasteToEncounterNote('<%=request.getAttribute("textOnEncounter")%>');
+            }
+            else if(opener.document.forms["caseManagementEntryForm"] != undefined) {
+                opener.pasteToEncounterNote('<%=request.getAttribute("textOnEncounter")%>');
+            }
+        }
+        <%}%>
     </script>
     
 <script>
