@@ -197,7 +197,7 @@ public class InboxResultsDao {
 			//if (demographicNo != null && !"".equals(demographicNo)) {
 			// Get mix from labs
 			if (mixLabsAndDocs) {
-				if ("0".equals(demographicNo) || "0".equals(providerNo)) {
+				if ("0".equals(demographicNo)) {
 					docNoLoc = 1; statusLoc = 2; docTypeLoc = 3; lastNameLoc = 4; firstNameLoc = 5; hinLoc = 6; sexLoc = 7; moduleLoc = 8; obsDateLoc = 9; descriptionLoc = 10; updateDateLoc = 11;
 					sql = " SELECT X.id, X.lab_no as document_no, X.status, X.lab_type as doctype, d.last_name, d.first_name, hin, sex, d.demographic_no as module_id, doc.observationdate, doc.doctype as description, date(doc.updatedatetime) "
 							+ " FROM document doc, "
@@ -216,10 +216,12 @@ public class InboxResultsDao {
 									&& !isAbnormal ? "AND (info.result_status IS NULL OR info.result_status != 'A')" : "")
 							+ " UNION "
 							+ " SELECT plr.id, plr.lab_type, plr.lab_no, plr.status "
-							+ " FROM providerLabRouting plr  "
+							+ " FROM providerLabRouting plr, ctl_document cd  "
 							+ " WHERE plr.lab_type = 'DOC' AND plr.status like '%"
 							+ status
 							+ "%' "
+							+ " AND cd.document_no  = plr.lab_no "
+							+ " AND cd.module_id = -1 "
 							+ (searchProvider ? " AND plr.provider_no = '" + providerNo + "' " : " ")
 							+ " ORDER BY id DESC "
 							+ " ) AS X "
@@ -344,7 +346,7 @@ public class InboxResultsDao {
 							+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 				}
 			} else { // Don't mix labs and docs.
-				if ("0".equals(demographicNo) || "0".equals(providerNo)) {
+				if ("0".equals(demographicNo)) {
 					docNoLoc = 1; statusLoc = 2; docTypeLoc = 5; lastNameLoc = 6; firstNameLoc = 7; hinLoc = 8; sexLoc = 9; moduleLoc = 3; obsDateLoc = 4; descriptionLoc = 10; updateDateLoc = 11;
 					sql = " SELECT id, document_no, status, demographic_no as module_id, observationdate, doctype, last_name, first_name, hin, sex, docdesc, updateDateLoc"
 							+ " FROM "
