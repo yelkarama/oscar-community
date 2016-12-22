@@ -35,6 +35,9 @@ import org.oscarehr.common.dao.FaxJobDao;
 import org.oscarehr.common.model.FaxConfig;
 import org.oscarehr.common.model.FaxJob;
 import org.oscarehr.fax.util.PdfCoverPageCreator;
+import org.oscarehr.hospitalReportManager.HRMPDFCreator;
+import org.oscarehr.hospitalReportManager.dao.HRMDocumentToDemographicDao;
+import org.oscarehr.hospitalReportManager.model.HRMDocumentToDemographic;
 import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
@@ -96,6 +99,8 @@ public class EctConsultationFormFaxAction extends Action {
 		ByteInputStream bis;
 		ByteOutputStream bos;
 		CommonLabResultData consultLabs = new CommonLabResultData();
+		HRMDocumentToDemographicDao hrmDocumentToDemographicDao = SpringUtils.getBean(HRMDocumentToDemographicDao.class);
+		List<HRMDocumentToDemographic> attachedHRMReports = hrmDocumentToDemographicDao.findHRMDocumentsAttachedToConsultation(reqId);
 		ArrayList<InputStream> streams = new ArrayList<InputStream>();
 		String provider_no = loggedInInfo.getLoggedInProviderNo();		
 
@@ -190,7 +195,19 @@ public class EctConsultationFormFaxAction extends Action {
 				alist.add(bis);
 
 			}
-			
+
+			for (HRMDocumentToDemographic attachedHRM : attachedHRMReports) {
+				bos = new ByteOutputStream();
+				HRMPDFCreator hrmPdfCreator = new HRMPDFCreator(bos, attachedHRM.getHrmDocumentId(), loggedInInfo);
+				hrmPdfCreator.printPdf();
+
+				buffer = bos.getBytes();
+				bis = new ByteInputStream(buffer, bos.getCount());
+				bos.close();
+				streams.add(bis);
+				alist.add(bis);
+			}
+
 			if (alist.size() > 0) {
 				
 				String referralFax = request.getParameter("fax");
