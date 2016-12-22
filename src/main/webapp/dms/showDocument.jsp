@@ -222,28 +222,7 @@
     			}
     		});
     	}
-        function handleDocSave(docid,action){
-			var url=contextpath + "/dms/inboxManage.do";
-			var data='method=isDocumentLinkedToDemographic&docId='+docid;
-			new Ajax.Request(url, {method: 'post',parameters:data,onSuccess:function(transport){
-                            var json=transport.responseText.evalJSON();
-                            if(json!=null){
-                                var success=json.isLinkedToDemographic;
-                                var demoid='';
-                          
-                                if(success){
-                                    if(action=='addTickler'){
-                                        demoid=json.demoId;
-                                        if(demoid!=null && demoid.length>0)
-                                            popupStart(450,600,contextpath + '/tickler/ForwardDemographicTickler.do?docType=DOC&docId='+docid+'&demographic_no='+demoid,'tickler')
-                                    }                    
-                                }
-                                else {
-                                    alert("Make sure demographic is linked and document changes saved!");
-                                }
-                            }
-			}});
-        }
+
 
 
         function rotate90(id) {
@@ -358,7 +337,7 @@
                             <%} %>
                         </div>
                         <% if (displayDocumentAs.equals(UserProperty.IMAGE)) { %>
-                            <a href="<%=url2%>" target="_blank"><img alt="document" id="docImg_<%=docId%>"  src="<%=url%>" /></a>
+                            <a href="<%=url2%>" target="_blank"><img alt="document" id="docImg_<%=docId%>"  src="<%=url2%>" /></a>
                         <%} else {%>
                             <div id="docDispPDF_<%=docId%>"></div>
                         <%}%>
@@ -726,6 +705,15 @@
 	            	  if( ui.item.providerNo != undefined && ui.item.providerNo != null &&ui.item.providerNo != "" && ui.item.providerNo != "null" ) {
 	            		  addDocToList(ui.item.providerNo, ui.item.provider + " (MRP)", "<%=docId%>");
 	            	  }
+	    			  if( ui.item.cust1 != undefined && ui.item.cust1 != null &&ui.item.cust1 != "" && ui.item.cust1 != "null" ) {
+	    				  addDocToList(ui.item.cust1, ui.item.cust1Name + " (Alt. Provider 1)", "<%=docId%>");
+	    			  }
+	    			  if( ui.item.cust2 != undefined && ui.item.cust2 != null &&ui.item.cust2 != "" && ui.item.cust2 != "null" ) {
+	    				  addDocToList(ui.item.cust2, ui.item.cust2Name + " (Alt. Provider 2)", "<%=docId%>");
+	    			  }
+	    			  if( ui.item.cust4 != undefined && ui.item.cust4 != null &&ui.item.cust4 != "" && ui.item.cust4 != "null" ) {
+	    				  addDocToList(ui.item.cust4, ui.item.cust4Name + " (Alt. Provider 3)", "<%=docId%>");
+	    			  }
 	            	  
 	            	  //enable Save button whenever a selection is made
 	                  jQuery('#save<%=docId%>').removeAttr('disabled');

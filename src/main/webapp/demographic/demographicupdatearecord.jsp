@@ -250,16 +250,18 @@
 		for( ConsentType consentType : consentTypes ) {
 			consentTypeId = request.getParameter( consentType.getType() );
 			String patientConsentId = request.getParameter( consentType.getType() + "_id" );
-			patientConsentIdInt = Integer.parseInt( patientConsentId );
-			
-			// checked box means add or edit consent. 
-			if( consentTypeId != null ) {		
-				patientConsentManager.addConsent(loggedInInfo, demographic.getDemographicNo(), Integer.parseInt( consentTypeId ) );
-			
-			// unchecked and patientConsentId > 0 could mean the patient opted out. 
-			} else if( patientConsentIdInt > 0 ) {
-				patientConsentManager.optoutConsent( loggedInInfo, patientConsentIdInt );		
-			}		
+			if( patientConsentId != null ){
+				patientConsentIdInt = Integer.parseInt( patientConsentId );
+				
+				// checked box means add or edit consent. 
+				if( consentTypeId != null ) {
+					patientConsentManager.addConsent(loggedInInfo, demographic.getDemographicNo(), Integer.parseInt( consentTypeId ) );
+				
+				// unchecked and patientConsentId > 0 could mean the patient opted out. 
+				} else if( patientConsentIdInt > 0 ) {
+					patientConsentManager.optoutConsent( loggedInInfo, patientConsentIdInt );		
+				}
+			}
 		}
 	}
 	

@@ -99,7 +99,7 @@ public class SearchDemographicAutoCompleteAction extends Action {
         } 
         else if (searchStr.length() == 10 && searchStr.matches("([0-9]{4}-[0-9]{2}-[0-9]{2})")) {
             list = demographicDao.searchDemographicByDOB(searchStr, 100, 0,providerNo,outOfDomain);
-        } 
+        }
         else if( activeOnly ) {
         	OscarProperties props = OscarProperties.getInstance();
         	String pstatus = props.getProperty("inactive_statuses", "IN, DE, IC, ID, MO, FI");
@@ -193,6 +193,11 @@ public class SearchDemographicAutoCompleteAction extends Action {
     		record = info.get(idx);
     		json.append("{\"label\":\"" + record.get("formattedName") + " " + record.get("fomattedDob") + " (" + record.get("status") + ")\",\"value\":\"" + record.get("demographicNo") + "\"");
     		json.append(",\"providerNo\":\"" + record.get("providerNo") + "\",\"provider\":\"" + record.get("providerName") + "\",\"nextAppt\":\"" + record.get("nextAppointment")+"\",");
+    		if (OscarProperties.getInstance().isPropertyActive("queens_resident_tagging")) {
+	    		json.append("\"cust1\":\"" + record.get("cust1") + "\",\"cust1Name\":\"" + record.get("cust1Name") + "\",");
+	    		json.append("\"cust2\":\"" + record.get("cust2") + "\",\"cust2Name\":\"" + record.get("cust2Name") + "\",");
+	    		json.append("\"cust4\":\"" + record.get("cust4") + "\",\"cust4Name\":\"" + record.get("cust4Name") + "\",");
+    		}
     		json.append("\"formattedName\":\"" + record.get("formattedName") + "\"}");
     		
     		if( idx < size-1) {

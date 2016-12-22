@@ -41,8 +41,8 @@ age_40	:	stature_40
 age_41	:	stature_41
 age_42	:	stature_42
 
-__origX		:	112
-__origY		:	609
+__origX		:	102
+__origY		:	599
 __nMaxPixX	:	422
 __nMaxPixY	:	508
 __fStartX	:	2

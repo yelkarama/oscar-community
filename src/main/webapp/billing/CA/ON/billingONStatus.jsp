@@ -254,9 +254,11 @@ NumberFormat formatter = new DecimalFormat("#0.00");
 					document.serviceform.submit();
 				}
 				else return;				
-        	} 
+        	}
+        	else if (provider_no == "none"){
+                document.serviceform.provider_ohipNo.value="";
+            }
         	<%} %>
-        	document.serviceform.provider_ohipNo.value="";
         	if (shouldSubmit) document.serviceform.submit();
         }	
         </script>
@@ -419,6 +421,9 @@ function changeSite(sel) {
 		if (document.serviceform.provider_ohipNo.value!='')
 			sel.form.providerview.value='<%=request.getParameter("providerview")%>';
 	}
+	else{
+        document.serviceform.provider_ohipNo.value="";
+	}
 	changeProvider(false);
 }
       </script>
@@ -450,6 +455,10 @@ function changeSite(sel) {
 				String temp[] = ( pList.get(0)).split("\\|");
 			%>
 			<option value="<%=temp[0]%>"> <%=temp[1]%>, <%=temp[2]%></option>
+			<script>
+                var provider_ohipNo="<%=temp[3]%>";
+                document.serviceform.provider_ohipNo.value=provider_ohipNo;
+			</script>
 			<%
 			} else {
 			%>
@@ -459,7 +468,7 @@ function changeSite(sel) {
 	%>
        <option value="<%=temp[0]%>" <%=providerNo.equals(temp[0])?"selected":""%>><%=temp[1]%>, <%=temp[2]%></option>
          
-    <% } 
+    <% }
     } %>
     </select>
 <% } %>
@@ -942,6 +951,13 @@ if(statusType.equals("_")) { %>
     $( document ).ready(function() {
     	parent.parent.resizeIframe($('html').height());
     });
+	
+	$("input[name='serviceCode']").click(function(){
+		console.log("test");
+		if(this.value == "%"){
+			this.value = "";
+		}
+	});
 </script>
     </body>
     <%! String getStdCurr(String s) {

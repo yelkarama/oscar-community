@@ -1306,11 +1306,11 @@ function pasteAppt(multipleSameDayGroupAppt) {
                 }
     %>
 	<tr bgcolor="#eeeeff">
-		<td style="background-color: #CCFFCC; padding-right: 25px"><%=ConversionUtils.toDateString(a.getAppointmentDate())%></td>
-		<td style="background-color: #CCFFCC; padding-right: 25px"><%=ConversionUtils.toTimeString(a.getStartTime())%></td>
-		<td style="background-color: #CCFFCC; padding-right: 25px"><%=p.getFormattedName()%></td>
-		<td style="background-color: #CCFFCC; padding-right: 25px"><%= statusDescription %></td>
-		<td style="background-color: #CCFFCC; padding-right: 25px" title="<%= notes %>"><%= shortenedNotes %></td>
+		<td style="padding-right: 25px"><%=ConversionUtils.toDateString(a.getAppointmentDate())%></td>
+		<td style="padding-right: 25px"><%=ConversionUtils.toTimeString(a.getStartTime())%></td>
+		<td style="padding-right: 25px"><%=p.getFormattedName()%></td>
+		<td style="padding-right: 25px"><%= statusDescription %></td>
+		<td style="padding-right: 25px" title="<%= notes %>"><%= shortenedNotes %></td>
 	</tr>
 	<%
             }

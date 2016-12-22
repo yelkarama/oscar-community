@@ -47,6 +47,7 @@ function viewMOHFile (filename) {
 		form.action ="billingLreport.jsp";
 	} else {
 		form.action = "/<%= OscarProperties.getInstance().getProperty("project_home") %>/oscarBilling/DocumentErrorReportUpload.do";
+		form.target = "errorReport";
 	}
 	form.submit();
 }

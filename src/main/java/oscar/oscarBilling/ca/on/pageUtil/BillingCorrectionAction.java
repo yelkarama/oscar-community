@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
+import org.apache.struts.action.ActionRedirect;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
 import org.oscarehr.PMmodule.dao.ProviderDao;
@@ -43,12 +44,14 @@ import org.oscarehr.common.dao.BillingONExtDao;
 import org.oscarehr.common.dao.BillingONPaymentDao;
 import org.oscarehr.common.dao.BillingONRepoDao;
 import org.oscarehr.common.dao.BillingServiceDao;
+import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.model.BillingONCHeader1;
 import org.oscarehr.common.model.BillingONExt;
 import org.oscarehr.common.model.BillingONItem;
 import org.oscarehr.common.model.BillingONPayment;
 import org.oscarehr.common.model.BillingService;
 import org.oscarehr.common.model.Provider;
+import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.service.BillingONService;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
@@ -67,6 +70,7 @@ public class BillingCorrectionAction extends DispatchAction{
     private BillingONPaymentDao bPaymentDao = (BillingONPaymentDao) SpringUtils.getBean("billingONPaymentDao");        
     private BillingONCHeader1Dao bCh1Dao = (BillingONCHeader1Dao) SpringUtils.getBean("billingONCHeader1Dao");     
     private  BillingONExtDao billExtDao = (BillingONExtDao) SpringUtils.getBean("billingONExtDao");
+	private DemographicDao demographicDao = (DemographicDao) SpringUtils.getBean("demographicDao");
         
     public ActionForward add3rdPartyPayment(ActionMapping mapping,ActionForm form,HttpServletRequest request,HttpServletResponse response){
         
@@ -251,6 +255,43 @@ public class BillingCorrectionAction extends DispatchAction{
         
         
                     
+    }
+    
+	public ActionForward updateDemographic(ActionMapping mapping,ActionForm form,HttpServletRequest request,HttpServletResponse response){
+        
+        Integer billingNo = null;
+        try {
+            billingNo = Integer.parseInt(request.getParameter("xml_billing_no"));
+        }                       
+        catch (NumberFormatException e) {
+            MiscUtils.getLogger().error("Billing number invalid for Ch1 Id: " + request.getParameter("xml_billing_no"));           
+            return mapping.findForward("closeReload");
+        }
+        BillingONCHeader1 bCh1 = bCh1Dao.find(billingNo);
+                        
+        if (bCh1 == null) {
+            MiscUtils.getLogger().error("No billing object found for Ch1 Id: " + request.getParameter("xml_billing_no"));
+            return mapping.findForward("closeReload");            
+        }        
+		
+        Demographic demo = demographicDao.getDemographicById(bCh1.getDemographicNo());
+
+        if(demo == null) {
+        	MiscUtils.getLogger().error("No demographic found for Ch1 Id: " + request.getParameter("xml_billing_no"));
+            return mapping.findForward("closeReload");  
+        }
+        bCh1.setHin(demo.getHin());
+        bCh1.setVer(demo.getVer());
+        bCh1.setDob(demo.getDateOfBirth());
+        bCh1.setDemographicName(demo.getLastName() + "," + demo.getFirstName());
+        bCh1.setSex(demo.getSex());
+        bCh1.setStatus("O");
+        
+        bCh1Dao.merge(bCh1);
+		
+		ActionRedirect redirect = new ActionRedirect(mapping.findForward("success"));
+		redirect.addParameter("billing_no", billingNo);
+		return redirect;
     }
         
     private boolean updateBillingONCHeader1(BillingONCHeader1 bCh1, HttpServletRequest request) {

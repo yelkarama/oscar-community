@@ -128,7 +128,7 @@ public class Provider implements Serializable, Comparable<Provider>{
 	}
 
 	public String getFormattedName() {
-		return getLastName() + ", " + getFirstName();
+		return "Dr. " + getLastName() + ", " + getFirstName();
 	}
 
 	public String getFullName() {
@@ -363,5 +363,11 @@ public class Provider implements Serializable, Comparable<Provider>{
 		if (providerNo==null) return(0);
 	    return(providerNo.compareTo(o.providerNo));
     }
+
+	public static final Comparator<Provider> LastNameComparator = new Comparator<Provider>() {
+		public int compare(Provider o1, Provider o2) {
+			return o1.getLastName().compareTo(o2.getLastName());
+		}
+	};
 
 }

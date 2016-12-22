@@ -137,8 +137,8 @@ public class FrmPdfGraphicRourke extends FrmPdfGraphic {
         GregorianCalendar curDate;
         xDate = makeDateStr(xDate);
         
-        MiscUtils.getLogger().debug("xDate: " + xDate);
-        MiscUtils.getLogger().debug("yHeight = " + yHeight );
+        MiscUtils.getLogger().info("xDate: " + xDate);
+        MiscUtils.getLogger().info("yHeight = " + yHeight );
         if( (ycoord = toFloat(yHeight)) > -1 ) {
             MiscUtils.getLogger().debug("ycoord = " + ycoord );
             //calc diff between start date and current date
@@ -152,11 +152,11 @@ public class FrmPdfGraphicRourke extends FrmPdfGraphic {
             sday = startDate.get(Calendar.DAY_OF_MONTH);
             eday = curDate.get(Calendar.DAY_OF_MONTH);
             
-            MiscUtils.getLogger().debug("sday, eday " + sday + ", " + eday);
-            
             smonth += (sday / startDate.getActualMaximum(Calendar.DAY_OF_MONTH));
             emonth += (eday / curDate.getActualMaximum(Calendar.DAY_OF_MONTH));                        
             
+            MiscUtils.getLogger().info("smonth, emonth, xDateScale: " + smonth + ", " + emonth + ", " + xDateScale);
+                
             //don't forget to add years
             switch (xDateScale) {
             case Calendar.YEAR:
@@ -164,14 +164,12 @@ public class FrmPdfGraphicRourke extends FrmPdfGraphic {
                 emonth = (emonth/12.0f) + curDate.get(Calendar.YEAR);
                 break;
                 
-            case Calendar.MONTH:
+            default:
             	smonth += startDate.get(Calendar.YEAR) * 12.0;
                 emonth += curDate.get(Calendar.YEAR) * 12.0;
                 break;
-                
-            default:
-            	break;
             }
+            MiscUtils.getLogger().info("smonth, emonth, Calendar.MONTH: " + smonth + ", " + emonth + ", " + Calendar.MONTH);
             
             if ( smonth > emonth ) {
                 MiscUtils.getLogger().debug("FrmPdfGraphicRourke: Start date after xDate");
