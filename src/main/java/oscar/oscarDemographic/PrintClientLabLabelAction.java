@@ -51,6 +51,7 @@ import org.oscarehr.util.SpringUtils;
 
 import oscar.OscarAction;
 import oscar.OscarDocumentCreator;
+import oscar.OscarProperties;
 
 
 public class PrintClientLabLabelAction extends OscarAction {
@@ -103,7 +104,11 @@ public class PrintClientLabLabelAction extends OscarAction {
         InputStream ins = null;
         try {
         	logger.debug("user home: " + System.getProperty("user.home"));
-        	File file = new File(System.getProperty("user.home") + "/ClientLabLabel.xml");
+
+            String defaultPath = System.getProperty("user.home") + File.separator + "ClientLabLabel.xml";
+            String labelPath = OscarProperties.getInstance().getProperty("clientLabLabelPath", defaultPath);
+
+        	File file = new File(labelPath);
         	if (file.exists()) {
         		ins = new FileInputStream(file);
         	} else {

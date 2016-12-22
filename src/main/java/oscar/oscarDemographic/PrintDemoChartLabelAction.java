@@ -32,6 +32,7 @@ import org.oscarehr.util.SpringUtils;
 
 import oscar.OscarAction;
 import oscar.OscarDocumentCreator;
+import oscar.OscarProperties;
 
 public class PrintDemoChartLabelAction extends OscarAction {
 
@@ -114,7 +115,10 @@ public class PrintDemoChartLabelAction extends OscarAction {
       
         try {
 	        try {
-	        	ins = new FileInputStream(System.getProperty("user.home") + File.separator + labelFile);
+	            String defaultPath = System.getProperty("user.home") + File.separator + labelFile;
+	            String labelPath = OscarProperties.getInstance().getProperty("chartLabelPath", defaultPath);
+
+	        	ins = new FileInputStream(labelPath);
 	        }
 	        catch (FileNotFoundException ex1) {
 	        	logger.warn(labelFile + " not found in user's home directory. Using default instead (classpath)",ex1);

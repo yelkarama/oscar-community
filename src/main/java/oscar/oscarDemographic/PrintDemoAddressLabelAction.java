@@ -1,10 +1,7 @@
 
 package oscar.oscarDemographic;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.sql.SQLException;
 import java.util.HashMap;
 
@@ -26,6 +23,7 @@ import org.oscarehr.util.SpringUtils;
 
 import oscar.OscarAction;
 import oscar.OscarDocumentCreator;
+import oscar.OscarProperties;
 
 
 public class PrintDemoAddressLabelAction extends OscarAction {
@@ -83,7 +81,10 @@ public class PrintDemoAddressLabelAction extends OscarAction {
 	logger.debug("user home: " + System.getProperty("user.home"));
 
         try {
-                ins = new FileInputStream(System.getProperty("user.home") + "/Addresslabel.xml");
+            String defaultPath = System.getProperty("user.home") + File.separator + "Addresslabel.xml";
+            String labelPath = OscarProperties.getInstance().getProperty("addressLabelPath", defaultPath);
+
+            ins = new FileInputStream(labelPath);
         }
 
         catch (FileNotFoundException ex1) {
