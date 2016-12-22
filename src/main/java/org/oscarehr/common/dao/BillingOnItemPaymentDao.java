@@ -65,10 +65,6 @@ public class BillingOnItemPaymentDao extends AbstractDao<BillingOnItemPayment>{
 			paid = (BigDecimal) query.getSingleResult();
 		} catch (Exception e) {}
 		
-		if (paid == null) {
-			paid = new BigDecimal("0.00");
-		}
-		
 		return paid;
 	}
 	
