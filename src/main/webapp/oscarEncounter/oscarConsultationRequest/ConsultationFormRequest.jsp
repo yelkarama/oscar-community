@@ -1067,11 +1067,12 @@ function switchProvider(value) {
 		document.getElementById("letterheadPhoneSpan").innerHTML = "<%=clinic.getClinicPhone().trim() %>";
 		document.getElementById("letterheadFax").value = "<%=clinic.getClinicFax().trim() %>";
 		// document.getElementById("letterheadFaxSpan").innerHTML = "<%=clinic.getClinicFax().trim() %>";
-	} else {
-		if (typeof providerData["prov_" + value] != "undefined")
-			value = "prov_" + value;
+    } else {
+        if (typeof providerData["prov_" + value] != "undefined")
+            selectedProvider = value;
+            value = "prov_" + value;
 
-		document.getElementById("letterheadName").value = value;
+        document.getElementById("letterheadName").value = selectedProvider;
 		document.getElementById("letterheadAddress").value = providerData[value]['address'];
 		document.getElementById("letterheadAddressSpan").innerHTML = providerData[value]['address'].replace(" ", "&nbsp;");
 		document.getElementById("letterheadPhone").value = providerData[value]['phone'];
@@ -1915,7 +1916,7 @@ function updateFaxButton() {
 									List<FaxConfig> faxConfigs = faxConfigDao.findAll(null, null);
 								%>
 									<span id="letterheadFaxSpan">
-										<select name="letterheadFax">
+										<select name="letterheadFax" id="letterheadFax">
 								<%
 									for( FaxConfig faxConfig : faxConfigs ) {
 								%>
