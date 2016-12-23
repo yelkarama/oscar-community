@@ -84,7 +84,15 @@
 
 	Provider provider = providerDao.getProvider(demographic.getProviderNo());
     String providerName = provider != null ? provider.getFormattedName() : "";
-    
+
+	String referralContent = demographic.getFamilyDoctor();
+	String referralName = new String();
+	String elementString = "<rd>";
+	int begin = referralContent.indexOf(elementString);
+	int end = referralContent.indexOf("</rd>");
+	if(begin != -1 && end != -1){
+		referralName = referralContent.substring(begin + elementString.length(), end);
+	}
     Appointment appt = null;
     if(request.getParameter("appointmentNo") != null)
     	appt = appointmentDao.find(Integer.parseInt(request.getParameter("appointmentNo")));
@@ -208,20 +216,15 @@
 			<td valign="top" width="50%">
 				<table border="0" cellspacing="2" cellpadding="2">
 					<input type="hidden" name="mrp_provider" value="<%=providerName %>"/>
-					<input type="hidden" name="fam_provider" value="test,test"/>
-					<input type="hidden" name="ref_provider" value="test,test"/>
+					<input type="hidden" name="ref_provider" value="<%=referralName%>"/>
 					
 					<tr>
 						<td>Provider:</td>
 						<td><%=providerName %></td>
 					</tr>
 					<tr>
-						<td>Family Doctor:</td>
-						<td>Smith, John</td>
-					</tr>
-					<tr>
 						<td>Referring Doctor:</td>
-						<td>Smith, John</td>
+						<td><%=referralName%></td>
 					</tr>
 				</table>
 			</td>
