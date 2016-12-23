@@ -23,19 +23,8 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
-import org.oscarehr.hospitalReportManager.dao.HRMCategoryDao;
-import org.oscarehr.hospitalReportManager.dao.HRMDocumentCommentDao;
-import org.oscarehr.hospitalReportManager.dao.HRMDocumentDao;
-import org.oscarehr.hospitalReportManager.dao.HRMDocumentSubClassDao;
-import org.oscarehr.hospitalReportManager.dao.HRMDocumentToDemographicDao;
-import org.oscarehr.hospitalReportManager.dao.HRMDocumentToProviderDao;
-import org.oscarehr.hospitalReportManager.dao.HRMProviderConfidentialityStatementDao;
-import org.oscarehr.hospitalReportManager.model.HRMCategory;
-import org.oscarehr.hospitalReportManager.model.HRMDocument;
-import org.oscarehr.hospitalReportManager.model.HRMDocumentComment;
-import org.oscarehr.hospitalReportManager.model.HRMDocumentSubClass;
-import org.oscarehr.hospitalReportManager.model.HRMDocumentToDemographic;
-import org.oscarehr.hospitalReportManager.model.HRMDocumentToProvider;
+import org.oscarehr.hospitalReportManager.dao.*;
+import org.oscarehr.hospitalReportManager.model.*;
 import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
@@ -49,7 +38,7 @@ public class HRMDisplayReportAction extends DispatchAction {
 	private static HRMDocumentToDemographicDao hrmDocumentToDemographicDao = (HRMDocumentToDemographicDao) SpringUtils.getBean("HRMDocumentToDemographicDao");
 	private static HRMDocumentToProviderDao hrmDocumentToProviderDao = (HRMDocumentToProviderDao) SpringUtils.getBean("HRMDocumentToProviderDao");
 	private static HRMDocumentSubClassDao hrmDocumentSubClassDao = (HRMDocumentSubClassDao) SpringUtils.getBean("HRMDocumentSubClassDao");
-	//private static HRMSubClassDao hrmSubClassDao = (HRMSubClassDao) SpringUtils.getBean("HRMSubClassDao");
+	private static HRMSubClassDao hrmSubClassDao = (HRMSubClassDao) SpringUtils.getBean("HRMSubClassDao");
 	private static HRMCategoryDao hrmCategoryDao = (HRMCategoryDao) SpringUtils.getBean("HRMCategoryDao");
 	private static HRMDocumentCommentDao hrmDocumentCommentDao = (HRMDocumentCommentDao) SpringUtils.getBean("HRMDocumentCommentDao");
 	private static HRMProviderConfidentialityStatementDao hrmProviderConfidentialityStatementDao = (HRMProviderConfidentialityStatementDao) SpringUtils.getBean("HRMProviderConfidentialityStatementDao");
@@ -112,7 +101,14 @@ public class HRMDisplayReportAction extends DispatchAction {
                             
                             HRMCategory category = null;
                             if (hrmDocumentSubClass != null) {
-                                category = hrmCategoryDao.findBySubClassNameMnemonic(hrmDocumentSubClass.getSubClass()+':'+hrmDocumentSubClass.getSubClassMnemonic());
+                                String subClassName = hrmDocumentSubClass.getSubClass();
+                                String subClasMnemonic = hrmDocumentSubClass.getSubClassMnemonic();
+                                category = hrmCategoryDao.findBySubClassNameMnemonic(hrmDocumentSubClass.getSendingFacilityId(),subClassName+':'+subClasMnemonic);
+
+                                if(category == null){
+                                    HRMSubClass subClass = hrmSubClassDao.findApplicableSubClassMapping(document.getReportType(),subClassName, subClasMnemonic, hrmDocumentSubClass.getSendingFacilityId());
+                                    category = (subClass != null)?subClass.getHrmCategory():null;
+                                }
                             }
                             else
                             {
