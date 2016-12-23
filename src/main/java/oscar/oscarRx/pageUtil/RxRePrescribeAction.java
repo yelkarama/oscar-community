@@ -28,6 +28,7 @@ package oscar.oscarRx.pageUtil;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -419,10 +420,10 @@ public final class RxRePrescribeAction extends DispatchAction {
 			response.sendRedirect("error.html");
 			return null;
 		}
-		List<String> reRxDrugList = new ArrayList<String>();
+		CopyOnWriteArrayList<String> reRxDrugList = new CopyOnWriteArrayList<String>();
 		reRxDrugList = bean.getReRxDrugIdList();
 		MiscUtils.getLogger().debug(reRxDrugList);
-		List<RxPrescriptionData.Prescription> listReRxDrug = new ArrayList<Prescription>();
+		CopyOnWriteArrayList<RxPrescriptionData.Prescription> listReRxDrug = new CopyOnWriteArrayList<Prescription>();
 		for (String drugId : reRxDrugList) {
 			Long rand = Math.round(Math.random() * 1000000);
 			RxPrescriptionData rxData = new RxPrescriptionData();
