@@ -49,7 +49,7 @@
 				<textFieldExpression><![CDATA[$F{last_name} + "," + $F{first_name} + "   " + "CHART#:" + $F{chart_no}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true">
-				<reportElement stretchType="RelativeToTallestObject" x="17" y="30" width="330" height="14"/>
+				<reportElement stretchType="RelativeToTallestObject" x="17" y="30" width="500" height="14"/>
 				<textElement textAlignment="Left">
                     <font size="16" isBold="true"/>
                 </textElement>
