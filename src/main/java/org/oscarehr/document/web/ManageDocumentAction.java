@@ -774,6 +774,11 @@ public class ManageDocumentAction extends DispatchAction {
 
 			Document d = documentDao.getDocument(doc_no);
 			log.debug("Document Name :" + d.getDocfilename());
+			//if the file is not a pdf, use display function
+			if(!(d.getContenttype().equals("application/pdf") || d.getDocfilename().endsWith(".pdf"))) {
+				display(mapping, form, request, response);
+				return null;
+			}
 			String name = d.getDocfilename() + "_" + pn + ".png";
 			log.debug("name " + name);
 
