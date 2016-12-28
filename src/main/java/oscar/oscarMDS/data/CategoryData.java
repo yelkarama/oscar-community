@@ -132,15 +132,23 @@ public class CategoryData {
 
 	public int getLabCountForUnmatched()
 			throws SQLException {
-		String sql;
-		sql = "SELECT HIGH_PRIORITY COUNT(1) AS count " +
-			" FROM hl7TextMessage tm " +
-			" WHERE tm.lab_id NOT IN (SELECT plr.lab_no " +
-			" FROM patientLabRouting plr " +
-			" WHERE lab_type = 'Hl7')";
-				
+		String sql = " SELECT HIGH_PRIORITY COUNT(1) as count "
+				+ " FROM providerLabRouting plr "
+				+ " LEFT JOIN patientlabrouting plr2 "
+				+ " ON plr.lab_no = plr2.lab_no "
+				+ " WHERE plr.lab_type = 'HL7' "
+				+ (providerSearch ? " AND plr.provider_no = '"+searchProviderNo+"' " : "")
+				+ " AND plr.status like '%"+status+"%' "
+				+ " AND (NOT EXISTS (SELECT * "
+				+ " FROM  patientlabrouting plr2 "
+				+ " WHERE plr.lab_no = plr2.lab_no)) "
+				+ " OR (plr.lab_no = plr2.lab_no "
+				+ " AND plr2.lab_type = 'HL7'"
+				+ " AND plr2.demographic_no = '0') ";
 
-			
+
+
+
 		Connection c  = DbConnectionFilter.getThreadLocalDbConnection();
 		PreparedStatement ps = c.prepareStatement(sql);
 		ResultSet rs= ps.executeQuery(sql);
