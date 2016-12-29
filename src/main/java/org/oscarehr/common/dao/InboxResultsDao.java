@@ -427,7 +427,7 @@ public class InboxResultsDao {
 							+ " AND d.document_no = cd.document_no " 
 							+ dateSql.replace("doc.", "d.") + " ) AS X " + " LEFT JOIN demographic d "
 							+ " ON d.demographic_no = -1"
-							+ ") AS X " + " ORDER BY doc.observationdate DESC "
+							+ ") AS X " + " ORDER BY observationdate DESC "
 							+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 				}
 			}

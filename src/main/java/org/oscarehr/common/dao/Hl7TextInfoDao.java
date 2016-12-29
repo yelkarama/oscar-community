@@ -252,7 +252,7 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 		}
 	    
 	    if (mixLabsAndDocs) {
-	    	if ("0".equals(demographicNo)  || "0".equals(providerNo)) {
+	    	if ("0".equals(demographicNo)) {
 	    		sql = " SELECT info.label, info.lab_no, info.sex, info.health_no, info.result_status, info.obr_date, info.priority, info.requesting_client, info.discipline, info.last_name, info.first_name, info.report_status, info.accessionNum, info.final_result_count, X.status "
 	    			+ " FROM hl7TextInfo info, "
 	    			+ " (SELECT plr.id, plr.lab_type, plr.lab_no, plr.status "
@@ -335,7 +335,7 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 						+ " 				AND plr.status like '%"+status+"%' " + (searchProvider ? " AND plr.provider_no = '"+providerNo+"' " : " ")
 						+ " 				AND plr.lab_no NOT IN (SELECT DISTINCT lab_no FROM patientLabRouting WHERE lab_type = 'HL7' AND demographic_no != 0) "
 						+ " 		) "
-						+ " 		ORDER BY id DESC " 
+						+ " 		ORDER BY id DESC "
 						+ " 	) AS Z "
 						+ " WHERE Z.lab_type = 'HL7' and Z.lab_no = info.lab_no "
 						+ dateSql
@@ -360,7 +360,7 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 	    	}
 	    }
 	    else {
-	    	if ("0".equals(demographicNo) || "0".equals(providerNo)) { // Unmatched labs
+	    	if ("0".equals(demographicNo)) { // Unmatched labs
 	    		sql = " SELECT info.label, info.lab_no, info.sex, info.health_no, info.result_status, info.obr_date, info.priority, info.requesting_client, info.discipline, info.last_name, info.first_name, info.report_status,  info.accessionNum, info.final_result_count, plr.status "
 	    			+ " FROM patientLabRouting plr2, providerLabRouting plr, hl7TextInfo info "
 	    			+ " WHERE plr.lab_no = plr2.lab_no "
@@ -426,7 +426,7 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 	    			+ "   AND lab_type = 'HL7' and info.lab_no = plr.lab_no "
 	    			+ dateSql
 	    			+ (isAbnormal != null ? " AND (" + (!isAbnormal ? "info.result_status IS NULL OR" : "") + " info.result_status " + (isAbnormal ? "" : "!") + "= 'A') " : " ")
-	    			+ " ORDER BY plr.id DESC "
+	    			+ " ORDER BY info.obr_date DESC "
 	    			+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 	    	}
 	    }
