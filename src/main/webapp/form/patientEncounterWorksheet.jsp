@@ -280,7 +280,7 @@
 					</tr>
 					<tr>
 						<td>&nbsp;</td>
-						<td>Dr. <%= !providerName.equals("") ? providerName : appointmentProviderName %></td>
+						<td><%= !providerName.equals("") ? providerName : appointmentProviderName %></td>
 					</tr>
 				</table>
 		 </td>
