@@ -134,13 +134,13 @@ public class CategoryData {
 			throws SQLException {
 		String sql = " SELECT HIGH_PRIORITY COUNT(1) as count "
 				+ " FROM providerLabRouting plr "
-				+ " LEFT JOIN patientlabrouting plr2 "
+				+ " LEFT JOIN patientLabRouting plr2 "
 				+ " ON plr.lab_no = plr2.lab_no "
 				+ " WHERE plr.lab_type = 'HL7' "
 				+ (providerSearch ? " AND plr.provider_no = '"+searchProviderNo+"' " : "")
 				+ " AND plr.status like '%"+status+"%' "
 				+ " AND (NOT EXISTS (SELECT * "
-				+ " FROM  patientlabrouting plr2 "
+				+ " FROM  patientLabRouting plr2 "
 				+ " WHERE plr.lab_no = plr2.lab_no)) "
 				+ " OR (plr.lab_no = plr2.lab_no "
 				+ " AND plr2.lab_type = 'HL7'"
