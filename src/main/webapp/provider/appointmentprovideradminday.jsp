@@ -2368,7 +2368,7 @@ start_time += iSm + ":00";
 	  <%}}%>
       <oscar:oscarPropertiesCheck property="SHOW_APPT_REASON" value="yes" defaultVal="true">
      		<span class="reason_<%=curProvider_no[nProvider]%> ${ hideReason ? "hideReason" : "" }">
-     			<strong>&#124;<%=reasonCodeName==null?"":"&nbsp;" + reasonCodeName + " -"%><%=reason==null?"":"&nbsp;" + reason%></strong>
+     			<strong>&#124;<%=reasonCodeName==null?"":"&nbsp;" + reasonCodeName%><%=(reason==null || reason.isEmpty())?"":" -&nbsp;" + reason%></strong>
      		</span>
       </oscar:oscarPropertiesCheck>
       

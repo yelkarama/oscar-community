@@ -926,14 +926,14 @@ function pasteAppt(multipleSameDayGroupAppt) {
             <div class="label"><bean:message key="Appointment.formReason" />:</div>
             <div class="input">
                 <select name="reasonCode">
+                    <option value="0" selected></option>
 				    <%
 				    if(reasonCodes != null) {
 				    	for(LookupListItem reasonCode : reasonCodes.getItems()) {
 				    		if(reasonCode.isActive()) {
 				    %>
-				    <option value="<%=reasonCode.getId()%>"
-				    				<%=reasonCode.getValue().equals("Others")?"selected":""%>>
-				    	<%=StringEscapeUtils.escapeHtml(reasonCode.getValue())%>
+				    <option value="<%=reasonCode.getId()%>">
+				    	<%=StringEscapeUtils.escapeHtml(reasonCode.getLabel())%>
 				    </option>
 				    <%
 				    		} }
