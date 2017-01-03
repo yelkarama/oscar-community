@@ -200,6 +200,9 @@
 	<bean name="/oscarRx/copyFavorite2" class="oscar.oscarRx.web.CopyFavoritesAction" singleton="false">
 	</bean>
 
+	<bean name="/admin/daySheetConfiguration" class="org.oscarehr.common.web.DaySheetConfigAction" singleton="false">
+		<property name="dsConfigDao" ref="dsConfigDao" />
+	</bean>
 	<bean name="/admin/ManageClinic" class="org.oscarehr.common.web.ClinicManageAction" singleton="false">
 		<property name="clinicDAO" ref="clinicDAO" />
 	</bean>

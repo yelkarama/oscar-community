@@ -30,6 +30,9 @@
 		</form-bean>
 		<form-bean name="lookupCodeEditForm" type="com.quatro.web.lookup.LookupCodeEditForm">
 		</form-bean>
+		<form-bean name="dSConfigForm" type="org.apache.struts.validator.DynaValidatorForm">
+			<form-property name="dsConfig" type="java.util.List" />
+		</form-bean>
 		<form-bean name="clinicForm" type="org.apache.struts.validator.DynaValidatorForm">
 			<form-property name="clinic" type="org.oscarehr.common.model.Clinic" />
 		</form-bean>
@@ -2453,7 +2456,9 @@
 			<forward name="viewVerification" path="/phr/PHRVerification.jsp" />
 		</action>
 
-
+		<action path="/admin/daySheetConfiguration" name="dSConfigForm" type="org.springframework.web.struts.DelegatingActionProxy" parameter="method" scope="request">
+			<forward name="success" path="/admin/daySheetConfiguration.jsp" />
+		</action>
 		<action path="/admin/ManageClinic" name="clinicForm" type="org.springframework.web.struts.DelegatingActionProxy" parameter="method" scope="request">
 			<forward name="success" path="/admin/clinicAdmin.jsp" />
 		</action>
