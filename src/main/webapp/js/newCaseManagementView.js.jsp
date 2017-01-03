@@ -3154,9 +3154,9 @@ function autoSave(async) {
 
 function backup() {
 	
-    //if(origCaseNote != $(caseNote).value || origObservationDate != $("observationDate").value) {
+    if(origCaseNote != $(caseNote).value || origObservationDate != $("observationDate").value) {
         autoSave(true);        
-    //}
+    }
 
 	if( !lostNoteLock ) {
     	setTimer();
