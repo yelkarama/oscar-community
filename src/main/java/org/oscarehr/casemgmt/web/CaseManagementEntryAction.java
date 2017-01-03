@@ -56,6 +56,7 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
+import org.apache.struts.action.ActionRedirect;
 import org.oscarehr.PMmodule.dao.ProgramProviderDAO;
 import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.PMmodule.model.Program;
@@ -2892,22 +2893,34 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 		
 		Calendar cStartDate = null;
 		Calendar cEndDate = null;
-		
+
+		Date startDate = null;
+		Date endDate = null;
+
 		pStartDate = request.getParameter("pStartDate");
 		pEndDate = request.getParameter("pEndDate");
 		
 		SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy");
 		
 		if(pStartDate!=null && !pStartDate.isEmpty()){
-		Date startDate = formatter.parse(pStartDate);
+		startDate = formatter.parse(pStartDate);
 		cStartDate = Calendar.getInstance();
 		cStartDate.setTime(startDate);
 		}
 		
 		if(pEndDate!=null && !pEndDate.isEmpty()){
-		Date endDate = formatter.parse(pEndDate);
+		endDate = formatter.parse(pEndDate);
 		cEndDate = Calendar.getInstance();
 		cEndDate.setTime(endDate);
+		}
+
+		if (startDate != null && endDate !=null){
+			ids = "";
+			List<CaseManagementNote> notesInDateRange = caseManagementNoteDao.getNotesByDemographicDateRange(demographicNo.toString(), startDate, endDate);
+
+			for(CaseManagementNote note : notesInDateRange){
+				ids += (notesInDateRange.size()>1)?(note.getId().toString() + ","):(note.getId().toString());
+			}
 		}
 
 		boolean printAllNotes = "ALL_NOTES".equals(ids);
@@ -2922,7 +2935,14 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 		boolean printLabs = request.getParameter("printLabs") != null && request.getParameter("printLabs").equalsIgnoreCase("true");		
 		
 		CaseManagementPrint cmp = new CaseManagementPrint();
-		cmp.doPrint(loggedInInfo,demographicNo, printAllNotes,noteIds,printCPP,printRx,printLabs,cStartDate,cEndDate,request, response.getOutputStream());
+		if (noteIds.length == 0 && !printCPP && !printRx & !printLabs){
+			HttpSession session = request.getSession();
+			session.setAttribute("Results", noteIds.length);
+			return new ActionRedirect(request.getHeader("Referer"));
+		}
+		else{
+			cmp.doPrint(loggedInInfo,demographicNo, printAllNotes,noteIds,printCPP,printRx,printLabs,cStartDate,cEndDate,request, response.getOutputStream());
+		}
 		
 		return null;
 	}

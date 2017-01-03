@@ -463,8 +463,30 @@ public class CaseManagementNoteDAO extends HibernateDaoSupport {
 
 
     @SuppressWarnings("unchecked")
-	public List<CaseManagementNote> getNotesByDemographicDateRange(String demographic_no, Date startDate, Date endDate) {
-		return getHibernateTemplate().findByNamedQuery("mostRecentDateRange", new Object[] { demographic_no, startDate, endDate });
+	public List<CaseManagementNote> getNotesByDemographicDateRange(String demographicNo, Date startDate, Date endDate) {
+		String hql;
+
+		SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy");
+		formatter.applyPattern("yyyy-MM-dd");
+
+		try {
+			startDate = formatter.parse((formatter.format(startDate)).toString());
+			endDate = formatter.parse((formatter.format(endDate)).toString());
+		} catch (ParseException pe) {
+			MiscUtils.getLogger().error("Error " + pe);
+			return null;
+		}
+
+		hql = " select distinct cmn from CaseManagementNote cmn " +
+				"where cmn.demographic_no = ? " +
+				"and cmn.observation_date >= ?  " +
+				"and cmn.observation_date <= ?  " +
+				"and cmn.providerNo > 0 " +
+				"and cmn.id in (select max(cmn.id) from CaseManagementNote cmn GROUP BY cmn.uuid)  " +
+				"order by cmn.observation_date desc";
+
+		List<CaseManagementNote> result = getHibernateTemplate().find(hql, new Object[] { demographicNo, startDate, endDate });
+		return result;
 	}
 
 	@SuppressWarnings("unchecked")
