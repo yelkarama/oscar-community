@@ -32,6 +32,8 @@
 <%@page import="org.oscarehr.web.admin.ProviderPreferencesUIBean"%>
 <%@page import="org.oscarehr.util.SpringUtils"%>
 <%@page import="org.oscarehr.PMmodule.dao.ProviderDao"%>
+<%@page import="org.oscarehr.common.dao.DxresearchDAO"%>
+<%@page import="org.oscarehr.common.model.Dxresearch"%>
 <%@page
 	import="oscar.oscarBilling.ca.bc.decisionSupport.BillingGuidelines"%>
 <%@page import="org.oscarehr.decisionSupport.model.DSConsequence"%>
@@ -44,6 +46,7 @@
 
 <%
 	ProfessionalSpecialistDao professionalSpecialistDao = (ProfessionalSpecialistDao) SpringUtils.getBean("professionalSpecialistDao");
+	DxresearchDAO dxresearchDao = SpringUtils.getBean(DxresearchDAO.class);
     LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
 	UserPropertyDAO propertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 	Map<String, String> provinces = ProvinceNames.getDefaultProvinces();
@@ -93,7 +96,6 @@
 			String demo_no = request.getParameter("demographic_no");
 			String apptProvider_no = request.getParameter("apptProvider_no");
 			String assgProvider_no = request.getParameter("assgProvider_no");
-			//String dob = request.getParameter("dob");
 			String demoSex = request.getParameter("DemoSex");
 			String m_review = request.getParameter("m_review")!=null ? request.getParameter("m_review") : "";
 			String ctlBillForm = request.getParameter("billForm");
@@ -122,6 +124,13 @@
 				}
 				
  			}
+			
+			//load patientDx
+			List<Dxresearch> dxList = dxresearchDao.getByDemographicNo(Integer.parseInt(demo_no));
+			List<String> patientDx = new ArrayList<String>();
+			for (Dxresearch dx : dxList) {
+				if ("icd9".equals(dx.getCodingSystem())) patientDx.add(dx.getDxresearchCode());
+			}
 
             //check for management fee code eligibility
             StringBuilder billingRecomendations = new StringBuilder();
@@ -691,6 +700,16 @@ function showHideLayers() { //v3.0
 }
 
 function onNext() {
+	var dxCode = document.titlesearch.dxCode.value;
+	var doNotAdd = [460,461,463,464,466];
+	if (doNotAdd.indexOf(dxCode)<0) {
+<%for (String pcode : patientDx) {%>
+		if (dxCode==<%=pcode%>) dxCode = -1;
+<%}%>
+	} else {
+		dxCode = -1;
+	}
+    
     var ret = true;
     <% if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) { %>
         if (!checkSiteSelect()) {
@@ -719,7 +738,11 @@ function onNext() {
 	    ret = confirm("You didn't enter a diagnostic code in the Dx box. Continue?");
 	    if (!ret) document.forms[0].dxCode.focus();
 	}
-   
+	else if (dxCode!=-1) {
+    	var codeDesc = document.getElementById("code_desc").innerHTML.trim();
+    	var yes = confirm("Add \""+codeDesc+"\"("+dxCode+") to patient's disease registry?");
+    	if (yes) document.titlesearch.addToPatientDx.value = "yes";
+    }
     return ret;
 }
 
@@ -1372,14 +1395,15 @@ function toggleDiv(selectedBillForm, selectedBillFormName,billType,visitType, lo
 	</div>
 
 	<div id="Layer2"
-		style="position: absolute; left: 1px; top: 26px; width: 332px; height: 660px; z-index: 2; background-color: #FFCC00; layer-background-color: #FFCC00; border: 1px none #000000; visibility: hidden">
+		style="position: absolute; left: 1px; top: 26px; width: 435px; height: 680px; z-index: 2; background-color: #FFCC00; layer-background-color: #FFCC00; border: 1px none #000000; visibility: hidden">
 		<table width="98%" border="0" cellspacing="0" cellpadding="0"
 			align=center>
 			<tr>
-				<td width="18%"><b><font size="-2">Dx Code</font></b></td>
-				<td width="76%"><b><font size="-2">Description</font></b></td>
-				<td width="6%"><a href="#"
-					onclick="showHideLayers('Layer2','','hide');return false">X</a></td>
+				<td width="10%"><b><font size="-2">DxCode</font></b></td>
+				<td width="85%"><b><font size="-2">Description</font></b></td>
+				<td><a href="#" onclick="showHideLayers('Layer2','','hide');return false">
+					<font face="verdana">X</font></a>
+				</td>
 			</tr>
 		</table>
 		<%
@@ -1403,18 +1427,18 @@ function toggleDiv(selectedBillForm, selectedBillFormName,billType,visitType, lo
 				ctldiagcodename = d.getDescription();
 				ctlCount++;
 %>
-			<table width="98%" border="0" cellspacing="0" cellpadding="0"
-				align=center>
+			<table width="98%" border="0" cellspacing="0" cellpadding="1" align=center>
 				<tr bgcolor=<%=ctlCount%2==0 ? "#FFFFFF" : "#EEEEFF"%>>
-					<td width="18%"><b><font size="-1" color="#7A388D">
-							<a href="#"
-								onclick="document.forms[0].dxCode.value='<%=ctldiagcode%>';showHideLayers('Layer2','','hide');changeCodeDesc();return false;"><%=ctldiagcode%></a>
-						</font></b></td>
-					<td colspan="2"><font size="-2" color="#7A388D"> <a
-							href="#"
-							onclick="document.forms[0].dxCode.value='<%=ctldiagcode%>';showHideLayers('Layer2','','hide');changeCodeDesc();return false;">
-							<%=ctldiagcodename.length() < 56 ? ctldiagcodename : ctldiagcodename.substring(0, 55)%></a>
-					</font></td>
+					<td width="10%">
+							<a href="#" onclick="document.forms[0].dxCode.value='<%=ctldiagcode%>';showHideLayers('Layer2','','hide');changeCodeDesc();return false;">
+								<font face="verdana" size="-2"><%=ctldiagcode%></font>
+							</a>
+					</td>
+					<td colspan="2">
+						<a href="#" onclick="document.forms[0].dxCode.value='<%=ctldiagcode%>';showHideLayers('Layer2','','hide');changeCodeDesc();return false;">
+							<font face="verdana" size="-2"><%=ctldiagcodename.length() < 56 ? ctldiagcodename : ctldiagcodename.substring(0, 55)%></font>
+						</a>
+					</td>
 				</tr>
 			</table>
 			<%} %>
@@ -1431,6 +1455,7 @@ if(checkFlag == null) checkFlag = "0";
 %>
 		<input type="hidden" name="checkFlag" id="checkFlag"
 			value="<%=checkFlag %>" />
+		<input type="hidden" name="addToPatientDx" />
 
 		<table border="0" cellspacing="0" cellpadding="0" class="myDarkGreen"
 			width="100%">
@@ -1521,7 +1546,8 @@ if(checkFlag == null) checkFlag = "0";
 														maxlength="5" ondblClick="dxScriptAttach('dxCode')"
 														onchange="changeCodeDesc();"
 														value="<%=request.getParameter("dxCode")!=null?request.getParameter("dxCode"):dxCode%>" />
-														<a href=# onclick="dxScriptAttach('dxCode');">Search</a></td>
+														<a href=# onclick="dxScriptAttach('dxCode');">Search</a>
+													</td>
 												</tr>
 												<tr>
 													<td>dx1</td>
