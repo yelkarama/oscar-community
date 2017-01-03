@@ -946,7 +946,7 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 				%> <input type="hidden"
 				name="initial_rosterstatus" value="<%=rosterStatus%>" /> <select
 				id="roster_status" name="roster_status" style="width: 120"
-				<%=getDisabled("roster_status")%> onchange="checkRosterStatus2()">
+				<%=getDisabled("roster_status")%> onchange="updateStatusDate('roster');checkRosterStatus2();">
 					<option value=""></option>
 					<option value="RO" <%="RO".equals(rosterStatus) ? " selected" : ""%>>
 						<bean:message
@@ -1052,17 +1052,32 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 	</oscar:oscarPropertiesCheck>
 	<%-- END TOGGLE OFF PATIENT ROSTERING --%>
 <script type="text/javascript" language="Javascript">
-function updateStatusDate(){
+function updateStatusDate(patientOrRoster){
 	var d = new Date();
+	if(patientOrRoster == "patient"){
+        patientStatusYear = document.updatedelete.patientstatus_date_year;
+        patientStatusMonth = document.updatedelete.patientstatus_date_month;
+        patientStatusDay = document.updatedelete.patientstatus_date_day;
 
-	patientStatusYear = document.updatedelete.patientstatus_date_year;
-	patientStatusMonth = document.updatedelete.patientstatus_date_month;
-	patientStatusDay = document.updatedelete.patientstatus_date_day;
+        if(patientStatusYear.value == "" && patientStatusMonth.value == "" && patientStatusDay.value =="" ){
+            patientStatusYear.value = d.getFullYear();
+            patientStatusMonth.value = d.getMonth() + 1;
+            patientStatusDay.value = d.getDate();
+        }
+	}
+	else if (patientOrRoster == "roster"){
+	    selectedRosterStatus = document.getElementById("roster_status").value;
+		rosterStatusYear = document.updatedelete.roster_date_year;
+		rosterStatusMonth = document.updatedelete.roster_date_month;
+		rosterStatusDay = document.updatedelete.roster_date_day;
 
-	if(patientStatusYear.value == "" && patientStatusMonth.value == "" && patientStatusDay.value =="" ){
-		patientStatusYear.value = d.getFullYear();
-		patientStatusMonth.value = d.getMonth() + 1;
-		patientStatusDay.value = d.getDate();
+		if(rosterStatusYear.value == "" && rosterStatusMonth.value == "" && rosterStatusDay.value =="" ){
+		    if (selectedRosterStatus == "RO" || selectedRosterStatus == "NR"){
+				rosterStatusYear.value = d.getFullYear();
+				rosterStatusMonth.value = d.getMonth() + 1;
+				rosterStatusDay.value = d.getDate();
+			}
+		}
 	}
 }
 </script>
@@ -1079,7 +1094,7 @@ function updateStatusDate(){
 			%>
 			<input type="hidden" name="initial_patientstatus"
 			value="<%=patientStatus%>"> <select name="patient_status"
-			style="width: 120" <%=getDisabled("patient_status")%> onChange="updateStatusDate();">
+			style="width: 120" <%=getDisabled("patient_status")%> onChange="updateStatusDate('patient');">
 			
 				<option value="AC" <%="AC".equals(patientStatus) ? " selected" : ""%>>
 					<bean:message
