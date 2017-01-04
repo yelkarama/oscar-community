@@ -78,6 +78,7 @@ public class ProviderPreference extends AbstractModel<String> implements Seriali
 	private Integer startHour=8;
 	private Integer endHour=18;
 	private Integer everyMin=15;
+	private Boolean showAppointmentReason = false;
 	private Boolean twelveHourFormat = true;
 	private Boolean labelShortcutEnabled = false;
 	private String defaultDoctor = "";
@@ -158,7 +159,7 @@ public class ProviderPreference extends AbstractModel<String> implements Seriali
 	@CollectionOfElements(targetElement = QuickLink.class)
 	@JoinTable(name = "ProviderPreferenceAppointmentScreenQuickLink",joinColumns = @JoinColumn(name = "providerNo"))
 	private Collection<QuickLink> appointmentScreenQuickLinks=new HashSet<QuickLink>();
-	
+
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date lastUpdated=new Date();
 	
@@ -215,6 +216,18 @@ public class ProviderPreference extends AbstractModel<String> implements Seriali
 	public void setEveryMin(Integer everyMin) {
     	this.everyMin = everyMin;
     }
+
+	public boolean isShowAppointmentReason() {
+		//Checks if the value is null before returning it, if it is null then set it to the default of false first
+		if (showAppointmentReason == null){
+			showAppointmentReason = false;
+		}
+
+		return showAppointmentReason;
+	}
+	public void setShowAppointmentReason(boolean showAppointmentReason) {
+		this.showAppointmentReason = showAppointmentReason;
+	}
 
 	public boolean isTwelveHourFormat() {
 		//Checks if the value is null before returning it, if it is null then set it to the default of false first
