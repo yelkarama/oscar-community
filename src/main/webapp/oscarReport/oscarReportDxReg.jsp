@@ -109,7 +109,7 @@ if(!authed) {
 			</logic:iterate>
 		</html:select>
         OR
-        <html:select property="codesystem" styleClass="sel">
+        <html:select property="codesystem" styleClass="sel" styleId="codesystem">
         	<option  value="">Select Coding System</option>
 			<logic:iterate id="codingSys" name="codingSystem" property="codingSystems">
 				<option value="<bean:write name="codingSys"/>"><bean:write name="codingSys"/></option>
@@ -117,7 +117,11 @@ if(!authed) {
 		</html:select>
         <input type="text" id="codesearch" name="codesearch" class="span4"/>
         <script>
-            $("#codesearch").autocomplete("../oscarReport/oscarReportDxRegHelper.jsp");
+            $("#codesearch").autocomplete("../oscarReport/oscarReportDxRegHelper.jsp", {
+                extraParams:{
+                    codingSystem: function() { return $("#codesystem").find(":selected").val(); }
+                }
+            });
         </script>
         <br>
         <nested:submit styleClass="btn" onclick="setAction('edit');submit();">EDIT</nested:submit>
@@ -129,7 +133,7 @@ if(!authed) {
     </html:form>
 </div>
 
-	Search Patients Who Registed With Below Codes:(ichppccode/icd10 not supported yet)
+	Search Patients Who Registed With Below Codes:
 	<br>
     <nested:form action='<%=formAction%>'>
 
