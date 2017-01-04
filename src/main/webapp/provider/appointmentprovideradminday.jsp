@@ -995,6 +995,18 @@ if(mygroupno != null && providerBean.get(mygroupno) != null) { //single appointe
      curProviderName[0]=request.getParameter("curProviderName");
    }
 }
+    List<Integer> demographicNumbers = appointmentDao.getDemographicNumbersForCurrentScheduleByProviderNumbers(Arrays.asList(curProvider_no), ConversionUtils.fromDateString(strDate));
+	
+	HashMap<Integer, String> ticklers;
+	
+	if (demographicNumbers.size() > 0) {
+        //Gets all ticklers for the provider numbers found in the curProvider_no array and the current day
+	    ticklers = ticklerManager.getTicklersByDemographicsAndDay(demographicNumbers, ConversionUtils.fromDateString(strDate));    
+    }
+    else {
+	    ticklers = new HashMap<Integer, String>();
+    }
+	
 
       UserProperty uppatientNameLength = userPropertyDao.getProp(curUser_no, UserProperty.PATIENT_NAME_LENGTH);
       int NameLength=0;
@@ -1968,12 +1980,11 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
                   tickler_no = "";
                   tickler_note="";
                   
-                 if(securityInfoManager.hasPrivilege(loggedInInfo1, "_tickler", "r", demographic_no)) {
-	                  for(Tickler t: ticklerManager.search_tickler(loggedInInfo1, demographic_no,MyDateFormat.getSysDate(strDate))) {
-	                	  tickler_no = t.getId().toString();
-	                      tickler_note = t.getMessage()==null?tickler_note:tickler_note + "\n" + t.getMessage();
-	                  }
-                 }
+                  if (ticklers.containsKey(demographic_no)) {
+                   	tickler_no = "1";
+                   	tickler_note = ticklers.get(demographic_no);
+                  }
+                  
                      
                   //alerts and notes
                   DemographicCust dCust = demographicCustDao.find(demographic_no);

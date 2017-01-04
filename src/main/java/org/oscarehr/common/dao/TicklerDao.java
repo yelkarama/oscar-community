@@ -23,11 +23,7 @@
  */
 package org.oscarehr.common.dao;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import javax.persistence.Query;
 
@@ -123,6 +119,17 @@ public class TicklerDao extends AbstractDao<Tickler>{
 		
 		return results;		
     }
+
+	public List<Tickler> getTicklersByDemographicsAndDay(List<Integer> demographicNumbers, Date endDate) {
+		Query query = entityManager.createQuery("SELECT t FROM Tickler t WHERE t.demographicNo IN (?1) AND t.serviceDate <= ?2 AND t.status = 'A' ORDER BY t.serviceDate desc");
+
+		query.setParameter(1, demographicNumbers);
+		query.setParameter(2, endDate);
+
+		List<Tickler> ticklers = query.getResultList();
+
+		return ticklers;
+	}
 
 	/**
 	 * Finds all ticklers for the specified demographic, and date range. 

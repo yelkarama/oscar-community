@@ -748,4 +748,15 @@ public class OscarAppointmentDao extends AbstractDao<Appointment> {
 		return results;
 	}
 	
+	public List<Integer> getDemographicNumbersForCurrentScheduleByProviderNumbers(List<String> providerNumbers, Date appointmentDate) {
+		String sql = "SELECT DISTINCT a.demographicNo FROM Appointment a WHERE a.providerNo IN (?1) AND a.appointmentDate = ?2";
+		Query query = entityManager.createQuery(sql);
+		query.setParameter(1, providerNumbers);
+		query.setParameter(2, appointmentDate);
+		
+		List<Integer> demographicNumbers = query.getResultList();
+		
+		return demographicNumbers;
+	}
+	
 }
