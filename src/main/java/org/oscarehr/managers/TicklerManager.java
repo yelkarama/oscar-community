@@ -27,11 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -67,8 +63,6 @@ import org.oscarehr.util.SpringUtils;
 import org.oscarehr.util.VelocityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.Collections;
 
 import oscar.OscarProperties;
 import oscar.log.LogAction;
@@ -198,7 +192,25 @@ public class TicklerManager {
 		
 		return true;
     }
-   
+
+	public HashMap<Integer, String> getTicklersByDemographicsAndDay(List<Integer> demographicNumbers, Date endDate) {
+		HashMap<Integer, String> ticklers = new HashMap<Integer, String>();
+		List<Tickler> allTicklers = ticklerDao.getTicklersByDemographicsAndDay(demographicNumbers, endDate);
+		
+		for (Tickler tickler : allTicklers) {
+            //Checks if the demographic number is already a key in the map, if it is then a tickler for it has already 
+            // been added so it appends to the message.  If it isn't already in the map then it just adds a new item to 
+            // the map with the demographic number as the key
+            if (ticklers.containsKey(tickler.getDemographicNo())) {
+                String newTicklerMessage = ticklers.get(tickler.getDemographicNo()) + "\n" + tickler.getMessage();
+                ticklers.put(tickler.getDemographicNo(), newTicklerMessage);
+            } else {
+                ticklers.put(tickler.getDemographicNo(), tickler.getMessage());
+            }
+		}
+
+		return ticklers;
+	}
     
     public List<Tickler> getTicklers(LoggedInInfo loggedInInfo,CustomFilter filter,String providerNo,String programId) {
     	checkPrivilege(loggedInInfo, PRIVILEGE_READ);
