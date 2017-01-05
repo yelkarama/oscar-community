@@ -365,13 +365,16 @@ public class JdbcBillingCreateBillingFile {
 				errorPartMsg += "Header1: outPatient Visit. wrong!<br>";
 			}
 		}
-		if (ch1Obj.getVer() != null && (ch1Obj.getVer().length() > 2 || "##".equals(ch1Obj.getVer())))
+		if(!ch1Obj.getStatus().equals("I")){
+			if (ch1Obj.getVer() != null && (ch1Obj.getVer().length() > 2 || "##".equals(ch1Obj.getVer())))
 			errorPartMsg += "Header1: Ver. code wrong!<br>";
 
                 //If HIN is not out of province and is not 10 digits, mark as invalid		
-		if(ch1Obj.getHin() == null || !(isRMB()) && (!ch1Obj.getHin().matches("[0-9]{10}"))) {
-			errorPartMsg += "Header1: HIN is invalid!<br>";
+			if(ch1Obj.getHin() == null || !(isRMB()) && (!ch1Obj.getHin().matches("[0-9]{10}"))) {
+				errorPartMsg += "Header1: HIN is invalid!<br>";
+			}
 		}
+		
 
 		if(errorPartMsg.length() > 0)
 			errorMsg += ch1Obj.getId() + " - " + errorPartMsg;
