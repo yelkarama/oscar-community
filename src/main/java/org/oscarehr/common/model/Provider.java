@@ -128,7 +128,12 @@ public class Provider implements Serializable, Comparable<Provider>{
 	}
 
 	public String getFormattedName() {
-		return "Dr. " + getLastName() + ", " + getFirstName();
+		String prefix = "";
+		if (getOhipNo() != null && !getOhipNo().equals("")){
+			prefix = "Dr. ";
+		}
+		
+		return prefix + getLastName() + ", " + getFirstName();
 	}
 
 	public String getFullName() {
