@@ -423,7 +423,7 @@ public class RxPrescriptionData {
 		List<Prescription> result = new ArrayList<Prescription>();
 		DrugDao dao = SpringUtils.getBean(DrugDao.class);
 
-		List<Drug> drugList = dao.findByDemographicId(demographicNo);
+		List<Drug> drugList = dao.findByDemographicId(demographicNo, false);
 
 		Collections.sort(drugList, new Drug.ComparatorIdDesc());
 
