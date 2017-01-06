@@ -869,14 +869,6 @@ function ignoreDuplicates() {
 					<option value="Electronic"><bean:message
 						key="demographic.demographicaddrecordhtm.formNewsLetter.optElectronic" /></option>
 				</select></td>
-				<td align="right"><b><bean:message
-					key="demographic.demographiceditdemographic.aboriginal" />: </b></td>
-				<td align="left">
-				<select name="aboriginal">
-					<option value="">Unknown</option>
-					<option value="No">No</option>
-					<option value="Yes" >Yes</option>
-				</select>
 			</tr>
 			<tr valign="top">
 				<td id="emailLbl" align="right"><b><bean:message
