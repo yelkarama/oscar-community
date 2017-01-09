@@ -190,7 +190,16 @@ public class CaseManagementPrint {
 							}
 						}
 						if (!exclude) {
-							issueNotes.add(tmpNotes.get(k));
+							// filter cpp within specified date range
+							if(startDate != null && endDate !=null){
+								Date observationDate = tmpNotes.get(k).getObservation_date();
+								if(startDate.getTime().before(observationDate) && endDate.getTime().after(observationDate)){
+									issueNotes.add(tmpNotes.get(k));
+								}
+							}
+							else{
+								issueNotes.add(tmpNotes.get(k));
+							}
 						}
 					}
 				}
@@ -207,6 +216,16 @@ public class CaseManagementPrint {
 				othermeds = caseManagementMgr.getNotes(demono, issueIds);
 			} else {
 				othermeds = cpp.get("OMeds");
+			}
+
+			if(startDate != null && endDate !=null && othermeds.size() > 0){
+				for (CaseManagementNote med : othermeds){
+					Date observationDate = med.getObservation_date();
+					// remove rx not in specified date range from already created list
+					if(!startDate.getTime().before(observationDate) && !endDate.getTime().after(observationDate)){
+						othermeds.remove(med);
+					}
+				}
 			}
 		}
 
@@ -266,8 +285,7 @@ public class CaseManagementPrint {
 				}
 			}
 			for (LabResultData result : accessionMap.values()) {
-				//Date d = result.getDateObj();
-				// TODO:filter out the ones which aren't in our date range if there's a date range????
+				Date observationDate = result.getDateObj();
 				String segmentId = result.segmentID;
 				MessageHandler handler = Factory.getHandler(segmentId);
 				String fileName2 = OscarProperties.getInstance().getProperty("DOCUMENT_DIR") + "//" + handler.getPatientName().replaceAll("\\s", "_") + "_" + handler.getMsgDate() + "_LabReport.pdf";
@@ -281,8 +299,15 @@ public class CaseManagementPrint {
 					LabPDFCreator pdfCreator = new LabPDFCreator(os2, segmentId, loggedInInfo.getLoggedInProviderNo());
 					pdfCreator.printPdf();
 				}
-				
-				pdfDocs.add(fileName2);
+				// filter labs within specified date range
+				if(startDate != null && endDate !=null){
+					if(startDate.getTime().before(observationDate) && endDate.getTime().after(observationDate)){
+						pdfDocs.add(fileName2);
+					}
+				}
+				else{
+					pdfDocs.add(fileName2);
+				}
 			}
 
 		}
