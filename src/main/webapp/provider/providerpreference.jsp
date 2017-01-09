@@ -440,6 +440,18 @@ function showHideERxPref() {
 
 			</caisi:isModuleLoad>
 
+			<tr>
+				<td class="preferenceLabel">
+					<bean:message key="provider.providerpreference.ticklerDefaultAssignedProvider" />
+				</td>
+				<td class="preferenceValue">
+					<%
+						boolean ticklerDefaultAssignedProviderChecked=ProviderPreferencesUIBean.isTicklerDefaultAssignedProvider(providerNo);
+					%>
+					<input type="checkbox" name="tickler_default_assigned_provider" <%=ticklerDefaultAssignedProviderChecked?"checked=\"checked\"":""%> />
+				</td>
+			</tr>
+
 			<!-- QR Code on prescriptions setting -->
 			<tr>
 				<td class="preferenceLabel">

@@ -119,6 +119,7 @@ public final class ProviderPreferencesUIBean {
 			providerPreference.setTwelveHourFormat(WebUtils.isChecked(request,"twelve_hour_format"));
 			providerPreference.setLabelShortcutEnabled(WebUtils.isChecked(request, "label_shortcut_enabled"));			
 			providerPreference.setDefaultDoctor(StringUtils.trimToNull(request.getParameter("default_doctor")));
+			providerPreference.setTicklerDefaultAssignedProvider(WebUtils.isChecked(request, "tickler_default_assigned_provider"));
 		}
 		
 		temp = StringUtils.trimToNull(request.getParameter("mygroup_no"));
@@ -283,5 +284,18 @@ public final class ProviderPreferencesUIBean {
 		if (providerPreference==null) providerPreference=new ProviderPreference();
 			
 		return(providerPreference.isLabelShortcutEnabled());
+	}
+
+	/**
+	 * Checks the ticklerDefaultAssignedProvider preference for the given provider number
+	 * @param providerNumber
+	 * @return true if ticklerDefaultAssignedProvider is enabled, false if not
+	 */
+	public static boolean isTicklerDefaultAssignedProvider(String providerNumber)
+	{
+		ProviderPreference providerPreference = getProviderPreference(providerNumber);
+		if (providerPreference==null) providerPreference=new ProviderPreference();
+
+		return(providerPreference.isTicklerDefaultAssignedProvider());
 	}
 }

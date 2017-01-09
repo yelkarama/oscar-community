@@ -81,7 +81,8 @@ public class ProviderPreference extends AbstractModel<String> implements Seriali
 	private Boolean twelveHourFormat = true;
 	private Boolean labelShortcutEnabled = false;
 	private String defaultDoctor = "";
-	private String myGroupNo = null;	
+	private String myGroupNo = null;
+	private Boolean ticklerDefaultAssignedProvider = false;
 	private String colourTemplate="deepblue";
 	private String newTicklerWarningWindow="disabled";
 	private String defaultServiceType="no";
@@ -254,6 +255,18 @@ public class ProviderPreference extends AbstractModel<String> implements Seriali
 	public void setMyGroupNo(String myGroupNo) {
     	this.myGroupNo = myGroupNo;
     }
+
+	public boolean isTicklerDefaultAssignedProvider() {
+		//Checks if the value is null before returning it, if it is null then set it to the default of false first
+		if (ticklerDefaultAssignedProvider == null){
+			ticklerDefaultAssignedProvider = false;
+		}
+
+		return ticklerDefaultAssignedProvider;
+	}
+	public void setTicklerDefaultAssignedProvider(boolean ticklerDefaultAssignedProvider) {
+		this.ticklerDefaultAssignedProvider = ticklerDefaultAssignedProvider;
+	}
 
 	public String getColourTemplate() {
     	return colourTemplate;
