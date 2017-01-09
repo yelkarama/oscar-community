@@ -666,42 +666,7 @@ window.onload=function(){
     //validation that user hasn't already had billed to OHIP an annual physical this year
     String serviceCodeValue = null;
     int srvCodeIdx = 0;
-    while (codeValid && (srvCodeIdx < BillingDataHlp.FIELD_SERVICE_NUM)) {
-         
-         serviceCodeValue = request.getParameter("serviceCode" + srvCodeIdx);
-         //Only worry about this check if we are billing OHIP for A003
-         if (serviceCodeValue.equals("A003A") && request.getParameter("xml_billtype").matches("ODP.*")) {
-            BillingONCHeader1 bCh1 = billingONCHeader1Dao.getLastOHIPBillingDateForServiceCode(Integer.parseInt(demo_no),"A003A");
-            if (bCh1 != null) {                
-                Calendar serviceDateCal = Calendar.getInstance();                
-                java.util.Date serviceDate = null;               
-                try {                   
-                    serviceDate = oscar.util.DateUtils.parseDate(request.getParameter("service_date"),request.getLocale()); 
-                    serviceDateCal.setTime(serviceDate);                    
-                } catch (java.text.ParseException e) {}
-                
-                Calendar nextBillDateCal = Calendar.getInstance();               
-                nextBillDateCal.setTime(bCh1.getBillingDate());
-                //year plus a day
-                nextBillDateCal.add(Calendar.YEAR,1); 
-                nextBillDateCal.add(Calendar.DATE,1);
-                if (nextBillDateCal.after(serviceDateCal)) {
-                      codeValid = false;
-    %>
-                       <tr style="color:white">
-                            <td align=center>
-                                <div class='myError'>
-                                  (<bean:message key="oscar.billing.ca.on.billingON.review.invoiceNo"/><%=String.valueOf(bCh1.getId())%>) A003A - <bean:message key="oscar.billing.ca.on.billingON.review.msgServiceCodeAlreadyBilled"/>                                
-                                </div>
-                            </td>
-                       </tr>
-    <%               
-                }
-            }
-        }
-        srvCodeIdx++;
-    }
-    
+
     //validation of user entered service codes    
     serviceCodeValue = null;
     for (int i = 0; i < BillingDataHlp.FIELD_SERVICE_NUM; i++) {
