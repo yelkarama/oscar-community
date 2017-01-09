@@ -39,6 +39,7 @@
 			String escapedLinkUrl=quickLink.getUrl();
 			escapedLinkUrl=escapedLinkUrl.replaceAll("\\$\\{contextPath\\}", request.getContextPath());
 			escapedLinkUrl=escapedLinkUrl.replaceAll("\\$\\{demographicId\\}", String.valueOf(demographic_no));
+			escapedLinkUrl=escapedLinkUrl.replaceAll("\\$\\{appointmentId\\}", String.valueOf(appointment_no));
 			escapedLinkUrl=StringEscapeUtils.escapeHtml(escapedLinkUrl);
 			
 			String escapedLinkName=StringEscapeUtils.escapeHtml(quickLink.getName());
