@@ -115,7 +115,9 @@ oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBea
 						pharm += "<td rowspan='3' style='padding-left: 5px'>" + preferredPharmacyInfo.name + "<br /> ";
 						pharm += preferredPharmacyInfo.address + ", " + preferredPharmacyInfo.city + " " +preferredPharmacyInfo.province + "<br /> ";
 						pharm += preferredPharmacyInfo.postalCode + "<br />";
-						pharm += preferredPharmacyInfo.fax + "</td>";
+						pharm += "Main Phone: " + preferredPharmacyInfo.phone1 + "<br />";
+						pharm += "Fax: " + preferredPharmacyInfo.fax + "<br />";
+                        pharm += "<a href='#'  onclick='viewPharmacy(" + preferredPharmacyInfo.id  + ");'>View More</a>" + "</td>";
 						pharm += "</tr><tr><td class='prefAction prefUnlink'> Unlink </td></tr><tr><td class='prefAction prefDown'>Down</td></tr></table></div>";
 						
 						$("#preferredList").append(pharm);
@@ -216,6 +218,19 @@ oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBea
 			}
 		  });
 	  });
+
+        $("#pharmacyPhoneSearch").keyup(function(){
+            $(".pharmacyItem").hide();
+            $.each($(".phone"), function( key, value ) {
+                if($(value).html().indexOf($("#pharmacyPhoneSearch").val()) >= 0 || $(value).html().split("-").join("").indexOf($("#pharmacyPhoneSearch").val()) >= 0){
+                    if($(value).siblings(".pharmacyName").html().indexOf($("#pharmacySearch").val()) >= 0){
+                        if($(value).siblings(".city").html().indexOf($("#pharmacyCitySearch").val()) >= 0){
+                            $(value).parent().show();
+                        }
+                    }
+                }
+            });
+        });
       
       $(".pharmacyItem").click(function(){
 		  var pharmId = $(this).attr("pharmId");
@@ -271,6 +286,14 @@ function editPharmacy(id){
 		height: 500
 	});
 }
+
+function viewPharmacy(id){
+    myLightWindow.activateWindow({
+        href: "<%= request.getContextPath() %>/oscarRx/ViewPharmacy.jsp?type=View&ID=" + id,
+        width: 400,
+        height: 500
+    });
+}
   
 </script>
 </head>
@@ -310,6 +333,7 @@ function editPharmacy(id){
 				<th class="DivContentSectionHead">
 					Search Pharmacy&nbsp;&nbsp;<input type="text" id="pharmacySearch"/>&nbsp;&nbsp;
 					City&nbsp;&nbsp;<input type="text" id="pharmacyCitySearch" style="width: 75px"/> &nbsp;&nbsp;
+					Phone&nbsp;&nbsp;<input type="text" id="pharmacyPhoneSearch" style="width: 75px"/> &nbsp;&nbsp;
 					Fax&nbsp;&nbsp;<input type="text" id="pharmacyFaxSearch" style="width: 75px"/> &nbsp;&nbsp;
 					<a href="#" onclick="addPharmacy();"><bean:message key="SelectPharmacy.addLink" /></a>
 				</th>
