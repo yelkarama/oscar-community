@@ -1313,7 +1313,9 @@ document.forms[1].r_doctor_ohip.value = refNo;
                         document.forms[1].f_doctor_ohip.value = famNo;
                     }
                     //-->
-                </script> <% } else {%> <input type="text" name="f_doctor" size="30" maxlength="40"
+                </script> <% } else {%>
+					<input type="hidden" name="f_doctor_id" size="17" maxlength="40" value="">
+					<input type="text" name="f_doctor" size="30" maxlength="40"
                                                value=""> <% } %>
                 </td>
                 <td align="right" nowrap height="10"><b><bean:message
@@ -1321,7 +1323,7 @@ document.forms[1].r_doctor_ohip.value = refNo;
                 <td align="left" height="10"><input type="text"
                                                     name="f_doctor_ohip" maxlength="6"> <% if("ON".equals(prov)) { %>
                     <a
-                            href="javascript:referralScriptAttach2('f_doctor_ohip','f_doctor')"><bean:message key="demographic.demographiceditdemographic.btnSearch"/>
+                            href="javascript:referralScriptAttach2('f_doctor_ohip','f_doctor','f_doctor_id')"><bean:message key="demographic.demographiceditdemographic.btnSearch"/>
                         #</a> <% } %>
                 </td>
             </tr>
