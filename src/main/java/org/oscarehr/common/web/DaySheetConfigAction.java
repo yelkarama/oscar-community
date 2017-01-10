@@ -58,12 +58,28 @@ public class DaySheetConfigAction extends DispatchAction {
 
     public ActionForward update(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
         DynaActionForm frm = (DynaActionForm)form;
+		String[] ids = (String[]) frm.getStrings("id");
+		String[] actives = (String[]) frm.getStrings("active");
+		String[] headings = (String[]) frm.getStrings("heading");
         
-        //weird hack, but not sure why struts isn't filling in the id.
-        //if(request.getParameter("clinic.id") != null && request.getParameter("clinic.id").length()>0 && clinic.getId()==null) {
-        	//clinic.setId(Integer.parseInt(request.getParameter("clinic.id")));
-        //}
-
+		for(int i=0; i < ids.length; i++){
+			DaySheetConfiguration current = dsConfigDao.getConfig(Integer.parseInt(ids[i]));
+			
+			if(actives[i].equals("true")){
+				current.setActive(true);
+			}else{
+				current.setActive(false);
+			}
+			current.setHeading(headings[i]);
+			current.setPos(i+1);
+			
+			dsConfigDao.save(current);
+		}
+        
+		//load new config
+		List<DaySheetConfiguration> dsConfig = dsConfigDao.getConfigurationList();
+        frm.set("dsConfig",dsConfig);
+		request.setAttribute("dsConfigForm",form);
         return mapping.findForward("success");
     }
 

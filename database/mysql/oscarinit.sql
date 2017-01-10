@@ -7708,8 +7708,8 @@ CREATE TABLE IF NOT EXISTS `daysheet_configuration` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `field` varchar(55),
   `heading` varchar(255),
-  `active` bit(1),
-  `order` int(11),
+  `active` char(1) default '1',
+  `pos` int(11),
   PRIMARY KEY (`id`)
 );
 

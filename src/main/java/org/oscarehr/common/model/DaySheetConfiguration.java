@@ -40,7 +40,7 @@ public class DaySheetConfiguration extends AbstractModel<Integer>  {
 	private String field;
 	private String heading;
 	private boolean active;
-	private int order;
+	private int pos;
 	
 	@Override
 	public Integer getId() {
@@ -71,12 +71,12 @@ public class DaySheetConfiguration extends AbstractModel<Integer>  {
 		this.active = active;
 	}
 
-	public int getOrder() {
-		return order;
+	public int getPos() {
+		return pos;
 	}
 
-	public void setOrder(int order) {
-		this.order = order;
+	public void setPos(int pos) {
+		this.pos = pos;
 	}
 
 	public void setId(int id) {

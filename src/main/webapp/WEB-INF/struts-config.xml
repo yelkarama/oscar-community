@@ -32,6 +32,9 @@
 		</form-bean>
 		<form-bean name="dSConfigForm" type="org.apache.struts.validator.DynaValidatorForm">
 			<form-property name="dsConfig" type="java.util.List" />
+			<form-property name="id" type="java.lang.String[]"/>
+			<form-property name="active" type="java.lang.String[]"/>
+			<form-property name="heading" type="java.lang.String[]"/>
 		</form-bean>
 		<form-bean name="clinicForm" type="org.apache.struts.validator.DynaValidatorForm">
 			<form-property name="clinic" type="org.oscarehr.common.model.Clinic" />

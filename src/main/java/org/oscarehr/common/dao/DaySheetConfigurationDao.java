@@ -26,8 +26,9 @@ package org.oscarehr.common.dao;
 import java.util.List;
 
 import javax.persistence.Query;
-import org.oscarehr.common.model.DaySheetConfiguration;
 import org.springframework.stereotype.Repository;
+
+import org.oscarehr.common.model.DaySheetConfiguration;
 
 @Repository
 public class DaySheetConfigurationDao extends AbstractDao<DaySheetConfiguration> {
@@ -38,10 +39,29 @@ public class DaySheetConfigurationDao extends AbstractDao<DaySheetConfiguration>
 	
 	@SuppressWarnings("unchecked")
 	public List<DaySheetConfiguration> getConfigurationList() {
-		String sql = "SELECT x FROM DaySheetConfiguration x WHERE x.active = true ORDER BY x.order";
+		String sql = "SELECT x FROM DaySheetConfiguration x ORDER BY x.pos";
 		Query query = entityManager.createQuery(sql);		
 		List<DaySheetConfiguration> results = query.getResultList();
 		return results;
 	}
 
+	public DaySheetConfiguration getConfig(int id){
+    	Query query = entityManager.createQuery("select x from DaySheetConfiguration x where x.id= :id");
+		query.setParameter("id", id);
+		
+        @SuppressWarnings("unchecked")
+        List<DaySheetConfiguration> configList = query.getResultList();
+        if(configList.size()>0) {
+        	return configList.get(0);
+        }
+        return null;
+    }
+
+    public void save(DaySheetConfiguration dsConfig) {
+        if(dsConfig.getId() != null && dsConfig.getId()>0) {
+        	merge(dsConfig);
+        } else {
+        	persist(dsConfig);
+        }
+    }
 }
