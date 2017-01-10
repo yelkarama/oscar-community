@@ -139,12 +139,12 @@ public class CategoryData {
 				+ " WHERE plr.lab_type = 'HL7' "
 				+ (providerSearch ? " AND plr.provider_no = '"+searchProviderNo+"' " : "")
 				+ " AND plr.status like '%"+status+"%' "
-				+ " AND (NOT EXISTS (SELECT * "
+				+ " AND ((NOT EXISTS (SELECT * "
 				+ " FROM  patientLabRouting plr2 "
 				+ " WHERE plr.lab_no = plr2.lab_no)) "
 				+ " OR (plr.lab_no = plr2.lab_no "
 				+ " AND plr2.lab_type = 'HL7'"
-				+ " AND plr2.demographic_no = '0') ";
+				+ " AND plr2.demographic_no = '0')) ";
 
 
 
