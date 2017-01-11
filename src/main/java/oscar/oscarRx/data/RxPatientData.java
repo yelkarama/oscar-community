@@ -268,6 +268,13 @@ public class RxPatientData {
 			return allergy;
 		}
 
+		public org.oscarehr.common.model.Allergy updateAllergy(java.util.Date lastUpdateDate, org.oscarehr.common.model.Allergy allergy) {
+			allergy.setLastUpdateDate(lastUpdateDate);
+			allergyDao.saveEntity(allergy);
+			partialDateDao.setPartialDate(PartialDate.ALLERGIES, allergy.getId(), PartialDate.ALLERGIES_STARTDATE, allergy.getStartDateFormat());
+			return allergy;
+		}
+
 		private static boolean setAllergyArchive(int allergyId, boolean archive) {
 			org.oscarehr.common.model.Allergy allergy = allergyDao.find(allergyId);
 			if (allergy != null) {

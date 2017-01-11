@@ -27,6 +27,9 @@
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
 <%@ page import="org.oscarehr.util.LoggedInInfo" %>
+<%@ page import="org.oscarehr.common.model.PartialDate" %>
+<%@ page import="org.oscarehr.common.dao.PartialDateDao" %>
+<%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
 	String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -40,12 +43,18 @@
 	if(!authed) {
 		return;
 	}
+
+	Boolean addReaction = true;
+	if(!request.getAttribute("allergyId").equals("0")){
+	    addReaction = false;
+	}
 %>
 
 <html:html locale="true">
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
-<title><bean:message key="AddReaction.title" /></title>
+<script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery-1.9.1.min.js"></script>
+<title><bean:message key='<%=addReaction?"AddReaction.title":"EditReaction.title"%>' /></title>
 <html:base />
 
 <logic:notPresent name="RxSessionBean" scope="session">
@@ -62,10 +71,37 @@
 <%
 oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBean)pageContext.findAttribute("bean");
 String name = (String) request.getAttribute("name");
-String type = (String) request.getAttribute("type");
+String type = String.valueOf(request.getAttribute("type"));
 String allergyId = (String) request.getAttribute("allergyId");
-%>
 
+String reactionDescription ="";
+String startDate ="";
+String ageOfOnset = "";
+String severityOfReaction = "";
+String onSetOfReaction = "";
+String lifeStage = "";
+
+if(!addReaction){
+	PartialDateDao partialDateDao = (PartialDateDao) SpringUtils.getBean("partialDateDao");
+	reactionDescription = (String) request.getAttribute("reactionDescription");
+	startDate = partialDateDao.getDatePartial((String) request.getAttribute("startDate"), PartialDate.ALLERGIES, Integer.parseInt(allergyId), PartialDate.ALLERGIES_STARTDATE);
+	ageOfOnset = (String) request.getAttribute("ageOfOnset");
+	severityOfReaction = (String) request.getAttribute("severityOfReaction");
+	onSetOfReaction = (String) request.getAttribute("onSetOfReaction");
+	lifeStage = (String) request.getAttribute("lifeStage");
+}
+%>
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('select[name=severityOfReaction] option[value="<%=severityOfReaction%>"]').attr('selected', 'selected');
+
+        $('select[name=onSetOfReaction] option[value="<%=onSetOfReaction%>"]').attr('selected', 'selected');
+
+        <% if (lifeStage!=null){ %>
+            $('select[name=lifeStage] option[value="<%=lifeStage.toUpperCase()%>"]').attr('selected', 'selected');
+		<% } %>
+    });
+</script>
 <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body topmargin="0" leftmargin="0" vlink="#0000FF">
@@ -87,7 +123,7 @@ String allergyId = (String) request.getAttribute("allergyId");
 					key="SearchDrug.title" /></a>&nbsp;&gt;&nbsp; <a
 					href="ShowAllergies2.jsp"> <bean:message
 					key="EditAllergies.title" /></a>&nbsp;&gt;&nbsp; <b><bean:message
-					key="AddReaction.title" /></b></div>
+					key='<%=addReaction?"AddReaction.title":"EditReaction.title"%>' /></b></div>
 				</td>
 			</tr>
 			<!----Start new rows here-->
@@ -98,13 +134,13 @@ String allergyId = (String) request.getAttribute("allergyId");
 				</td>
 			</tr>
 			<tr>
-				<td><html:form action="/oscarRx/addAllergy2"
+				<td><html:form action='<%=addReaction?"/oscarRx/addAllergy2":"/oscarRx/updateAllergy"%>'
 					focus="reactionDescription">
 					<table>
 						<tr valign="center">
 
 							<td colspan="2"><html:textarea
-								property="reactionDescription" cols="40" rows="3" /> <html:hidden
+								property="reactionDescription" cols="40" rows="3" value="<%=reactionDescription%>" /> <html:hidden
 								property="ID" value="<%=allergyId%>" /> <html:hidden
 								property="name" value="<%=name%>" /> <html:hidden
 								property="type" value="<%=type%>" /></td>
@@ -112,14 +148,14 @@ String allergyId = (String) request.getAttribute("allergyId");
 
 						<tr valign="center">
 							<td colspan="2">Start Date: <html:text
-								property="startDate" size="10" maxlength="10"/>
+								property="startDate" size="10" maxlength="10" value="<%=startDate%>"/>
 							    (yyyy-mm-dd OR yyyy-mm OR yyyy)</td>
 
 						</tr>
 
 						<tr valign="center">
 							<td colspan="2">Age Of Onset: <html:text
-								property="ageOfOnset" size="4" maxlength="4" /></td>
+								property="ageOfOnset" size="4" maxlength="4" value="<%=ageOfOnset%>" /></td>
 
 						</tr>
 						
@@ -163,7 +199,7 @@ String allergyId = (String) request.getAttribute("allergyId");
 
 						<tr>
 							<td colspan="2"><html:submit property="submit"
-								value="Add Allergy" styleClass="ControlPushButton" /> <input
+								value='<%=addReaction?"Add Allergy":"Update Allergy"%>' styleClass="ControlPushButton" /> <input
 								type=button class="ControlPushButton"
 								onclick="javascript:document.forms.RxAddAllergyForm.reactionDescription.value='';document.forms.RxAddAllergyForm.startDate.value='';document.forms.RxAddAllergyForm.ageOfOnset.value='';document.forms.RxAddAllergyForm.reactionDescription.focus();"
 								value="Reset" /></td>
