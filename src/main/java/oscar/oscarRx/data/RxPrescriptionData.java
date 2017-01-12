@@ -46,6 +46,7 @@ import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
+import oscar.OscarProperties;
 import oscar.oscarProvider.data.ProSignatureData;
 import oscar.oscarRx.util.RxUtil;
 import oscar.util.ConversionUtils;
@@ -606,7 +607,7 @@ public class RxPrescriptionData {
 		java.util.Date lastRefillDate = null;
 		boolean nosubs = false;
 		boolean prn = false;
-		boolean longTerm = false;
+		boolean longTerm = OscarProperties.getInstance().getBooleanProperty("rx_longterm_default", "true");
 		boolean pastMed = false;
 		boolean startDateUnknown = false;
 		Boolean patientCompliance = null;
