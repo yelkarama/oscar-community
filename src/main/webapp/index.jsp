@@ -324,7 +324,10 @@ String login_error="";
                 font-size: small;
                 }
             span#buildInfo{
-                float: right; color:#FFFFFF; font-size: xx-small; text-align: right;
+                float: right;
+                color:#000000;
+                font-size: xx-small;
+                text-align: right;
             }
             
 			span.extrasmall{
@@ -362,6 +365,9 @@ String login_error="";
     </head>
     
     <body onLoad="setfocus()" bgcolor="#ffffff">
+        <div>
+            <span id="buildInfo">Build: <%=OscarProperties.getBuildTag()%> </span>
+        </div>
         
         <div class="heading">
         	<img src="images/Logo.png" border="0" style="margin: 25px auto;">
