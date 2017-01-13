@@ -6,21 +6,25 @@
 <%@page import="org.oscarehr.common.model.ProfessionalSpecialist" %>
 <%@page import="org.oscarehr.common.dao.ProfessionalSpecialistDao" %>
 <%@page import="org.apache.commons.lang.StringUtils"%>
+<%@ page import="org.oscarehr.common.dao.DemographicExtDao" %>
 <%@taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <% 
 OscarProperties oscarProps = OscarProperties.getInstance();
 ProfessionalSpecialistDao professionalSpecialistDao = (ProfessionalSpecialistDao) SpringUtils.getBean("professionalSpecialistDao");
 DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
+DemographicExtDao demographicExtDao = SpringUtils.getBean(DemographicExtDao.class);
 
 java.util.Properties oscarVariables = OscarProperties.getInstance();
 String demographic_no = request.getParameter("demographic_no");
 Demographic demographic = demographicDao.getDemographic(demographic_no);
 String prov= (oscarVariables.getProperty("billregion","")).trim().toUpperCase();
+boolean keyExists = demographicExtDao.getValueForDemoKey(Integer.parseInt(demographic_no), "familyPhysicianId")!=null?true:false;
 
 int nStrShowLen = 20;
 
 String family_doc = request.getParameter("family_doc");
 
+String familyPhysicianId = keyExists?demographicExtDao.getValueForDemoKey(Integer.parseInt(demographic_no), "familyPhysicianId"):"";
 String fam_doc_contents="";
 String fam_doc_ohip="";
 String fam_doc_name="";
@@ -32,6 +36,24 @@ if(fam_doc_contents!=null) {
     fam_doc_name = fam_doc_name != null ? fam_doc_name : "";
     fam_doc_ohip = SxmlMisc.getXmlContent(StringUtils.trimToEmpty(demographic.getFamilyPhysician()), "fdohip");
     fam_doc_ohip = fam_doc_ohip != null ? fam_doc_ohip : "";
+
+    // work around for familyPhysicianId not previously stored in the demographicExt table
+    if(familyPhysicianId == "" && fam_doc_ohip!=""){
+        ProfessionalSpecialist professionalSpecialist = professionalSpecialistDao.getByReferralNo(fam_doc_ohip)!=null?professionalSpecialistDao.getByReferralNo(fam_doc_ohip):null;
+        //make sure searching by ohip does not return a null result
+        familyPhysicianId = professionalSpecialist!=null?String.valueOf(professionalSpecialist.getId()):"";
+    }
+
+    if(familyPhysicianId == "" && fam_doc_name.contains(",")){
+        List<ProfessionalSpecialist> professionalSpecialists = professionalSpecialistDao.findByFullName(String.valueOf(fam_doc_name.split(",",0)),String.valueOf(fam_doc_name.split(",",1)));
+        if(professionalSpecialists.size() == 1){
+            //get Id only if there is one match
+            familyPhysicianId = String.valueOf(professionalSpecialists.get(0).getId());
+        }
+    }
+    if (!keyExists){
+        demographicExtDao.addKey((String) session.getAttribute("user"), demographic.getDemographicNo(), "familyPhysicianId", familyPhysicianId, "");
+    }
 }
 
 %>
@@ -51,7 +73,7 @@ public String getDisabled(String fieldName) {
 
 <!-- Family Doctor Field -->
 <tr valign="top">
-	<!-- <input type="hidden" name="f_doctor_id" size="17" maxlength="40" value=""> -->
+	<input type="hidden" name="f_doctor_id" size="17" maxlength="40" value="<%=familyPhysicianId%>">
     <td align="right" nowrap><b><bean:message
             key="demographic.demographiceditdemographic.formFamDoc" />: </b></td>
     <td align="left">
@@ -97,7 +119,7 @@ public String getDisabled(String fieldName) {
         //-->
     </script> <% } else {%> <input type="text" name="f_doctor" size="17" maxlength="40" <%=getDisabled("f_doctor")%>
                                    value="<%=fam_doc_name%>">
-                            <a href="javascript:referralScriptAttach2('f_doctor_ohip','f_doctor', '', 'name')"><bean:message key="demographic.demographiceditdemographic.btnSearch"/> Name</a>
+                            <a href="javascript:referralScriptAttach2('f_doctor_ohip','f_doctor', 'f_doctor_id', 'name')"><bean:message key="demographic.demographiceditdemographic.btnSearch"/> Name</a>
                      <% } %>
     </td>
     <td align="right" nowrap><b><bean:message
@@ -105,7 +127,7 @@ public String getDisabled(String fieldName) {
     <td align="left"><input type="text" name="f_doctor_ohip" <%=getDisabled("f_doctor_ohip")%>
                             size="20" maxlength="6" value="<%=fam_doc_ohip%>"> <% if("ON".equals(prov)) { %>
         <a
-                href="javascript:referralScriptAttach2('f_doctor_ohip','f_doctor','', 'number')"><bean:message key="demographic.demographiceditdemographic.btnSearch"/>
+                href="javascript:referralScriptAttach2('f_doctor_ohip','f_doctor','f_doctor_id', 'number')"><bean:message key="demographic.demographiceditdemographic.btnSearch"/>
             #</a> <% } %>
     </td>
 </tr>
