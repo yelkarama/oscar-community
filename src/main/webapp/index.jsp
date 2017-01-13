@@ -328,6 +328,8 @@ String login_error="";
                 color:#000000;
                 font-size: xx-small;
                 text-align: right;
+                position: absolute;
+                right: 0;
             }
             
 			span.extrasmall{
