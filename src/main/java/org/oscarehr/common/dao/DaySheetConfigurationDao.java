@@ -45,6 +45,13 @@ public class DaySheetConfigurationDao extends AbstractDao<DaySheetConfiguration>
 		return results;
 	}
 
+	public List<DaySheetConfiguration> getActiveConfigurationList() {
+		String sql = "SELECT x FROM DaySheetConfiguration x WHERE x.active=true ORDER BY x.pos";
+		Query query = entityManager.createQuery(sql);		
+		List<DaySheetConfiguration> results = query.getResultList();
+		return results;
+	}
+
 	public DaySheetConfiguration getConfig(int id){
     	Query query = entityManager.createQuery("select x from DaySheetConfiguration x where x.id= :id");
 		query.setParameter("id", id);

@@ -751,7 +751,7 @@ self.location.href = "../schedule/scheduleflipview.jsp?originalpage=../provider/
 }
 function goDaySheet(s) {
 var date="<%=year%>-<%=month%>-<%=day%>";
-popupPage2("../report/reportdaysheet.jsp?dsmode=all&provider_no="+s+"&sdate="+date+"&edate="+date+"&sTime=<%=startHour%>&eTime=<%=endHour%>","reportPage");
+popupPage2("../report/displayDaysheet.do?dsmode=all&provider_no="+s+"&sdate="+date+"&edate="+date+"&sTime=<%=startHour%>&eTime=<%=endHour%>","reportPage");
 }
 function goWeekView(s) {
 self.location.href = "providercontrol.jsp?year=<%=year%>&month=<%=month%>&day=<%=day%>&view=0&displaymode=day&dboperation=searchappointmentday&viewall=1&provider_no="+s;

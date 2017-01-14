@@ -166,9 +166,9 @@ function go(r) {
   var z = document.getElementsByName("eTime")[0].value;
   var ro = document.getElementById("rosteredOnly").checked;
   var td = document.getElementsByName("tabDay")[0].value;
-  var w = 'reportdaysheet.jsp?dsmode=' + r + '&provider_no=' + s +'&sdate='+ t;
-  var x = 'reportdaysheet.jsp?dsmode=' + r + '&provider_no=' + s +'&sdate='+ u + '&edate=' + v + '&sTime=' + y + '&eTime=' + z ;
-  var x2 = 'reportdaysheet.jsp?dsmode=' + r + '&provider_no=' + s +'&sdate='+ u + '&edate=' + v + '&sTime=' + y + '&eTime=' + z + '&rosteredStatus=true';
+  var w = 'displayDaysheet.do?dsmode=' + r + '&provider_no=' + s +'&sdate='+ t;
+  var x = 'displayDaysheet.do?dsmode=' + r + '&provider_no=' + s +'&sdate='+ u + '&edate=' + v + '&sTime=' + y + '&eTime=' + z ;
+  var x2 = 'displayDaysheet.do?dsmode=' + r + '&provider_no=' + s +'&sdate='+ u + '&edate=' + v + '&sTime=' + y + '&eTime=' + z + '&rosteredStatus=true';
   var y2 =  'tabulardaysheetreport.jsp?provider_no=' + s +'&sdate=' + td.replace('/', '-');
 
 if (r=='tab')
@@ -362,7 +362,7 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
                         <sup>*</sup><a HREF="#" ONCLICK="gonew('all')">Hospital Appointment</a><br>
 </oscar:oscarPropertiesCheck>
                         <sup>*</sup><a HREF="#" ONCLICK="go('all')"><bean:message
-			key="report.reportindex.btnAllAppt" /></a><br>&nbsp;&nbsp; <bean:message key="report.reportindex.chkRostered"/> <input type="checkbox" id="rosteredOnly" value="true"> </td>
+			key="report.reportindex.btnAllAppt" /></a><br>nbsp;&nbsp; <bean:message key="report.reportindex.chkRostered"/> <input type="checkbox" id="rosteredOnly" value="true"> </td>
 		<td><a HREF="#"
 			onClick="popupPage(310,430,'../share/CalendarPopup.jsp?urlfrom=../report/reportindex.jsp&year=<%=now.get(Calendar.YEAR)%>&month=<%=now.get(Calendar.MONTH)+1%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('asdate')[0].value")%>')"><bean:message
 			key="report.reportindex.formFrom" /></a> <input type='text' name="asdate"
