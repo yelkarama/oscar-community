@@ -102,10 +102,10 @@ public class BillingONPaymentsAction extends DispatchAction {
 		BigDecimal discounts = BigDecimal.ZERO;
 		BigDecimal credits = BigDecimal.ZERO;
 		for(BillingONPayment pmt:paymentLists) {
-			payments = new BigDecimal(pmt.getTotal_payment().intValue() + payments.intValue());
-			discounts = new BigDecimal(pmt.getTotal_discount().intValue() + discounts.intValue());
-			refunds = new BigDecimal (pmt.getTotal_refund().intValue() + refunds.intValue());
-			credits = new BigDecimal(pmt.getTotal_credit().intValue() + credits.intValue());
+			payments = new BigDecimal(pmt.getTotal_payment().doubleValue() + payments.doubleValue());
+			discounts = new BigDecimal(pmt.getTotal_discount().doubleValue() + discounts.doubleValue());
+			refunds = new BigDecimal (pmt.getTotal_refund().doubleValue() + refunds.doubleValue());
+			credits = new BigDecimal(pmt.getTotal_credit().doubleValue() + credits.doubleValue());
 		}
 		BigDecimal balance = total.subtract(payments).subtract(discounts).add(credits);
 		request.setAttribute("balance", balance);
