@@ -82,7 +82,7 @@ public final class AdtA09Handler {
 		String room = message.getPV1().getTemporaryLocation().getRoom().getValue();
 		
 		// check if the room starts with WAITING_ROOM and contains additional characters
-		if (room.startsWith(WAITING_ROOM) && room.length() >= WAITING_ROOM.length())  //NOTE: This conditional can be changed to checkPv1() with some modifications
+		if (room.startsWith(WAITING_ROOM) && room.length() > WAITING_ROOM.length())  //NOTE: This conditional can be changed to checkPv1() with some modifications
 		{
 			// get the characters following WAITING_ROOM
 			newAppointmentStatus = room.substring(WAITING_ROOM.length());
