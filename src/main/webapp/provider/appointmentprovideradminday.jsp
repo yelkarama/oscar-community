@@ -1805,15 +1805,15 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
           <a style="color:#333" href=# onClick="goZoomView('<%=curProvider_no[nProvider]%>','<%=StringEscapeUtils.escapeJavaScript(curProviderName[nProvider])%>')" onDblClick="goFilpView('<%=curProvider_no[nProvider]%>')" title="<bean:message key="provider.appointmentProviderAdminDay.zoomView"/>" >
           <!--a href="providercontrol.jsp?year=<%=strYear%>&month=<%=strMonth%>&day=<%=strDay%>&view=1&curProvider=<%=curProvider_no[nProvider]%>&curProviderName=<%=curProviderName[nProvider]%>&displaymode=day&dboperation=searchappointmentday" title="<bean:message key="provider.appointmentProviderAdminDay.zoomView"/>"-->
           <%=curProviderName[nProvider] + "(" + appointmentCount + ")"%></a> 
-       	<oscar:oscarPropertiesCheck value="yes" property="TOGGLE_REASON_BY_PROVIDER" defaultVal="true">   
-				<a id="expandReason" href="#" onclick="return toggleReason('<%=curProvider_no[nProvider]%>');" 
-					title="<bean:message key="provider.appointmentProviderAdminDay.expandreason"/>">*</a>
-					<%-- Default is to hide inline reasons. --%>
-				<c:set value="true" var="hideReason" />
-		</oscar:oscarPropertiesCheck>	
+
 </b>
       <% } %>
-
+	  <oscar:oscarPropertiesCheck value="yes" property="TOGGLE_REASON_BY_PROVIDER" defaultVal="true">
+	  <a id="expandReason" href="#" onclick="return toggleReason('<%=isWeekView?strDate:curProvider_no[nProvider]%>');"
+		 title="<bean:message key="provider.appointmentProviderAdminDay.expandreason"/>">*</a>
+		  <%-- Default is to hide inline reasons. --%>
+		  <c:set value="true" var="hideReason" />
+	  </oscar:oscarPropertiesCheck>
           <%
           	if (!userAvail) {
           %>
@@ -2171,7 +2171,7 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
             .<%=(view==0&&numAvailProvider!=1)?(name.length()>len?name.substring(0,len).toUpperCase():name.toUpperCase()):name.toUpperCase()%>
             </font></a><!--Inline display of reason -->
       <oscar:oscarPropertiesCheck property="SHOW_APPT_REASON" value="yes" defaultVal="true">
-      <span class="reason reason_<%=curProvider_no[nProvider]%> ${ hideReason ? "hideReason" : "" }"><bean:message key="provider.appointmentProviderAdminDay.Reason"/>:<%=UtilMisc.htmlEscape(reason)%></span>
+      <span class="reason reason_<%=isWeekView?strDate:curProvider_no[nProvider]%> ${ hideReason ? "hideReason" : "" }"><bean:message key="provider.appointmentProviderAdminDay.Reason"/>:<%=UtilMisc.htmlEscape(reason)%></span>
       </oscar:oscarPropertiesCheck></td>
         <%
         			} else {
@@ -2381,11 +2381,6 @@ start_time += iSm + ":00";
 	  %>
 	  &#124;<b style="color:#FF0000">$</b>
 	  <%}}%>
-      <oscar:oscarPropertiesCheck property="SHOW_APPT_REASON" value="yes" defaultVal="true">
-     		<span class="reason_<%=curProvider_no[nProvider]%> ${ hideReason ? "hideReason" : "" }">
-     			<strong>&#124;<%=reasonCodeName==null?"":"&nbsp;" + reasonCodeName%><%=(reason==null || reason.isEmpty())?"":" -&nbsp;" + reason%></strong>
-     		</span>
-      </oscar:oscarPropertiesCheck>
       
 	</security:oscarSec>
 
@@ -2412,7 +2407,13 @@ start_time += iSm + ":00";
 
 	</oscar:oscarPropertiesCheck>
 
-<% }} %>
+<% } %>
+	<oscar:oscarPropertiesCheck property="SHOW_APPT_REASON" value="yes" defaultVal="true">
+				<span class="reason reason_<%=isWeekView?strDate:curProvider_no[nProvider]%> ${ hideReason ? "hideReason" : "" }">
+		<strong>&#124;<%=reasonCodeName==null?"":"&nbsp;" + reasonCodeName + " -"%><%=reason==null?"":"&nbsp;" + reason%></strong>
+		</span>
+	</oscar:oscarPropertiesCheck>
+			  <%} %>
         	</font></td>	
         <%
         			}
