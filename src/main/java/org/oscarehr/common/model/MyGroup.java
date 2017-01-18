@@ -45,7 +45,7 @@ public class MyGroup  extends AbstractModel<MyGroupPrimaryKey> implements Serial
 	@Column(name="first_name")
     private String firstName;
 	@Column(name="vieworder")
-    private String viewOrder;
+    private int viewOrder;
 
     @Column(name="default_billing_form")
     private String defaultBillingForm;
@@ -60,7 +60,7 @@ public class MyGroup  extends AbstractModel<MyGroupPrimaryKey> implements Serial
         this.lastName = lastName;
         this.firstName = firstName;
     }
-    public MyGroup(MyGroupPrimaryKey id, String lastName, String firstName, String vieworder) {
+    public MyGroup(MyGroupPrimaryKey id, String lastName, String firstName, int vieworder) {
        this.id = id;
        this.lastName = lastName;
        this.firstName = firstName;
@@ -89,11 +89,11 @@ public class MyGroup  extends AbstractModel<MyGroupPrimaryKey> implements Serial
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
-    public String getViewOrder() {
+    public int getViewOrder() {
         return this.viewOrder;
     }
     
-    public void setViewOrder(String viewOrder) {
+    public void setViewOrder(int viewOrder) {
         this.viewOrder = viewOrder;
     }
 
@@ -112,7 +112,12 @@ public class MyGroup  extends AbstractModel<MyGroupPrimaryKey> implements Serial
         	if(o1.getId()!=null && o2.getId() != null) {
         		return o1.getId().getMyGroupNo().compareTo(o2.getId().getMyGroupNo());
         	}
-        	return 0;
+			//compares by view order within the same group
+        	if(o1.getViewOrder() == o2.getViewOrder()) {
+				return o1.getId().getProviderNo().compareTo(o2.getId().getProviderNo());
+			} else {
+				return o2.getViewOrder() - o1.getViewOrder();
+			}
         }
     };
 
@@ -124,16 +129,11 @@ public class MyGroup  extends AbstractModel<MyGroupPrimaryKey> implements Serial
     
     public static final Comparator<MyGroup> MyGroupNoViewOrderComparator = new Comparator<MyGroup>() {
         public int compare(MyGroup o1, MyGroup o2) {
-        	if(o1.getViewOrder() !=null && o2.getViewOrder() != null) {
-        		int result =  o1.getViewOrder().compareTo(o2.getViewOrder());
-        		if(result == 0) {
-        			return o1.getId().getProviderNo().compareTo(o2.getId().getProviderNo());
-        		} else {
-        			return result;
-        		}
-        	} else {
-        		return o1.getId().getProviderNo().compareTo(o2.getId().getProviderNo());
-        	}
+			if(o1.getViewOrder() == o2.getViewOrder()) {
+				return o1.getId().getProviderNo().compareTo(o2.getId().getProviderNo());
+			} else {
+				return o2.getViewOrder() - o1.getViewOrder();
+			}
         }
     };
 

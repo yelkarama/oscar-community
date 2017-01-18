@@ -988,7 +988,7 @@ if(mygroupno != null && providerBean.get(mygroupno) != null) { //single appointe
      }
      else {
     	 List<MyGroup> results = myGroupDao.getGroupByGroupNo(mygroupno);
-    	 Collections.sort(results,MyGroup.LastNameComparator);
+    	 //Collections.sort(results,MyGroup.LastNameComparator);
   	   
     	 for(MyGroup result:results) {
     		 curProvider_no[iTemp] = String.valueOf(result.getId().getProviderNo());

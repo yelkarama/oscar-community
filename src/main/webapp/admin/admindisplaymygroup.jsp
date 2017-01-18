@@ -29,6 +29,7 @@
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 
 <%@ page import="java.util.*" %>
+<%@ page import="java.net.URLEncoder" %>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.model.MyGroup" %>
 <%@ page import="org.oscarehr.common.model.MyGroupPrimaryKey" %>
@@ -54,45 +55,65 @@
 <head>
 
 <title><bean:message key="admin.admindisplaymygroup.title" /></title>
-
+<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath() %>/js/bootstrap.min.js"></script>
 <script>
-<!-- start javascript ---- check to see if it is really empty in database
+function removeProvider(hideId){
+	var $providerRow = $("#"+hideId).parent().parent();
+	var providerRemove = $providerRow.find("[name='removeBtn']")[0];
+	
+	if(providerRemove.value == "true"){
+		providerRemove.value = "false";
+		$("#"+hideId).removeClass("icon-ok");
+		$("#"+hideId).addClass("icon-remove");
+		
+		$providerRow.removeClass("remove");
+	}else{
+		providerRemove.value = "true";
+		$("#"+hideId).removeClass("icon-remove");
+		$("#"+hideId).addClass("icon-ok");
+		
+		$providerRow.addClass("remove");
+	}
+}
 
-//function upCaseCtrl(ctrl) {
-//	ctrl.value = ctrl.value.toUpperCase();
-//}
+function moveUp(upId){
+	var $providerRow = $("#"+upId).parent().parent();
+	 $providerRow.insertBefore($providerRow.prev());
+}
 
-// stop javascript -->
+function moveDown(downId){
+	var $providerRow = $("#"+downId).parent().parent();
+	if($providerRow.next().hasClass('provider')){
+		$providerRow.insertAfter($providerRow.next());
+	}
+}
 </script>
 
-<link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
+<link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet" />
+<link href="<%=request.getContextPath() %>/css/panel.css" rel="stylesheet" />
+<link href="<%=request.getContextPath() %>/css/list-group.css" rel="stylesheet" />
+<style>
+ul{
+	margin:0px;
+}
+.controls{
+	float: right;
+	cursor: pointer;
+}
+.remove{
+	background-color: #999999;
+}
+</style>
 </head>
 
 
 <body>
-<FORM NAME="UPDATEPRE" id="groupForm"  METHOD="post" ACTION="adminnewgroup.jsp">
-
-<h3><bean:message key="admin.admin.btnSearchGroupNoRecords" /></h3>
-			
-
-		<table class="table table-condensed table-hover">
-		<thead>
-			<tr class="btn-inverse">
-				<th></th>
-				<th>
-					<bean:message key="admin.adminmygroup.formGroupNo" />
-				</th>
-				<th>
-					<bean:message key="admin.admindisplaymygroup.formProviderName" />
-				</th>
-			</tr>
-		</thead>
-			
-		<tbody>		
+<h3><bean:message key="admin.admin.btnSearchGroupNoRecords" /></h3>	
 <%
 
 String oldNumber="";
-boolean toggleLine=false;
+boolean firstGroup=true;
 
 List<MyGroup> groupList = myGroupDao.findAll();
 Collections.sort(groupList, MyGroup.MyGroupNoComparator);
@@ -101,62 +122,71 @@ if(isSiteAccessPrivacy) {
 	groupList = myGroupDao.getProviderGroups(curProvider_no);
 }
 
-
+int i=0;
+int j=0;
 for(MyGroup myGroup : groupList) {
 
 	if(!myGroup.getId().getMyGroupNo().equals(oldNumber)) {
-		toggleLine = !toggleLine;
-		oldNumber = myGroup.getId().getMyGroupNo();
+		i++;
+		if(!firstGroup){%>
+				<li class="list-group-item">
+				<a href="adminnewgroup.jsp?groupNo=<%=URLEncoder.encode(oldNumber, "UTF-8")%>" class="btn"><bean:message key="admin.admindisplaymygroup.btnSubmit2"/></a>
+			</li>
+				</ul>
+			  <div class="panel-footer"> 
+				<INPUT TYPE="submit" name="submit" class="btn btn-primary" VALUE="<bean:message key="admin.admindisplaymygroup.btnSubmit1"/>" SIZE="7">
+			  </div>
+			</div>
+		  </div>
+		</div>
+	</FORM>
+		<%} %>
+	<FORM NAME="UPDATEPRE" METHOD="post" ACTION="adminnewgroup.jsp?groupNo=<%=URLEncoder.encode(myGroup.getId().getMyGroupNo(), "UTF-8")%>">
+		<div class="panel-group">
+		  <div class="panel panel-default">
+			<div class="panel-heading">
+			  <h4 class="panel-title">
+				<a data-toggle="collapse" href="#collapse<%=i%>"><%=myGroup.getId().getMyGroupNo()%></a>
+			  </h4>
+			</div>
+			<div id="collapse<%=i%>" class="panel-collapse collapse">
+			  <ul class="list-group">
+<%		oldNumber = myGroup.getId().getMyGroupNo();
+		firstGroup = false;
 	}
+	j++;
 %>
-			<tr class="<%=toggleLine?"":"info"%>">
-				<td width="20px">
-					<input type="checkbox"
-					name="<%=myGroup.getId().getMyGroupNo() + myGroup.getId().getProviderNo()%>"
-					value="<%=myGroup.getId().getMyGroupNo()%>">
-				</td>
-				<td><%=myGroup.getId().getMyGroupNo()%></td>
-				<td> <%=myGroup.getLastName()+","+ myGroup.getFirstName()%>
-				</td>
-			</tr>
+			<li class="list-group-item provider">
+				<%=myGroup.getLastName()+","+ myGroup.getFirstName()%>
+				<input name="removeBtn" type="hidden" />
+				<input name="providerNo" type="hidden" value="<%=myGroup.getId().getProviderNo()%>" />
+				<span class="controls">
+					<i id="up<%=j%>" class="icon-chevron-up" onclick="moveUp(this.id)"></i>
+					<i id="down<%=j%>" class="icon-chevron-down" onclick="moveDown(this.id)"></i>
+					<i id="remove<%=j%>" class="icon-remove" onclick="removeProvider(this.id)"></i>
+				</span>
+			</li>
 <%
    }
 %>
-		</tbody>
-		</table>
-
-
-
-			<INPUT TYPE="submit" name="submit" class="btn btn-danger"
-			VALUE="<bean:message key="admin.admindisplaymygroup.btnSubmit1"/>"
-			SIZE="7"> 
-					
-			<a href="adminnewgroup.jsp" class="btn btn-primary"><bean:message key="admin.admindisplaymygroup.btnSubmit2"/></a>
-
-</FORM>
-
-<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-1.9.1.min.js"></script>
+			<li class="list-group-item">
+				<a href="adminnewgroup.jsp?groupNo=<%=URLEncoder.encode(oldNumber, "UTF-8")%>" class="btn">
+					<bean:message key="admin.admindisplaymygroup.btnSubmit2"/>
+				</a>
+			</li>
+				</ul>
+			  <div class="panel-footer"> 
+				<INPUT TYPE="submit" name="submit" class="btn btn-primary" VALUE="<bean:message key="admin.admindisplaymygroup.btnSubmit1"/>">
+			  </div>
+			</div>
+		  </div>
+		</div>
+	</FORM>
 
 <script>
-function anyChecks(){
-    if ($("#groupForm input:checkbox:checked").length > 0)
-    {
-        // any one is checked
-    	return true;
-    }
-    else
-    {
-       // none is checked
-        alert('please select provider(s)');
-    	return false;
-    }
-}
-
-$('#groupForm').submit(anyChecks);
-
 
 $( document ).ready(function() {
-parent.parent.resizeIframe($('html').height());      
+parent.parent.resizeIframe(1000);
 
 });
 
