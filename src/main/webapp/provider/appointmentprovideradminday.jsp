@@ -1578,7 +1578,11 @@ if (curProvider_no[provIndex].equals(provNum)) {
 		if(!skip) {
 %>
 <option value="<%=p.getProviderNo()%>" <%=mygroupno.equals(p.getProviderNo())?"selected":""%>>
-		<%=p.getFormattedName()%></option>
+	<% if(org.oscarehr.common.IsPropertiesOn.propertiesOn("external_name_on_schedule")){%>
+		<%=p.getFormattedName(true)%>
+	<%}else{ %>
+		<%=p.getFormattedName()%>
+	<%}%></option>
 <%
 	} }
 %>

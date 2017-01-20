@@ -359,7 +359,7 @@ public class EctConsultationFormRequestUtil {
 		ProviderDao dao = SpringUtils.getBean(ProviderDao.class);
 		Provider p = dao.getProvider(id);
 		if (p != null) {
-			return p.getFormattedName();
+			return p.getFormattedName(true);
 		}
 		return "";
 	}
