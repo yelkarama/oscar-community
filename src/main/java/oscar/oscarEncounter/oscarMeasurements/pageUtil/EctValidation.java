@@ -154,9 +154,13 @@ public class EctValidation{
     }
     
     public boolean isDate(String inputValue){
+        return isDate(inputValue, "yyyy-MM-dd");
+    }
+
+    public boolean isDate(String inputValue, String simpleDateFormatPattern){
 
         boolean validation = true;
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat sdf = new SimpleDateFormat(simpleDateFormatPattern);
         sdf.setLenient(false);
         
         try {
