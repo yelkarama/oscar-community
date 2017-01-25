@@ -86,7 +86,7 @@ public class EctDisplayPreventionAction extends EctDisplayAction {
 
 
         String highliteColour = "#FF0000";
-        String inelligibleColour = "#FF6600";
+        String inelligibleColour = "#E6AC00";
         String pendingColour = "#FF00FF";
         String refusedColour = "#FFDDDD";
         Date date = null;
