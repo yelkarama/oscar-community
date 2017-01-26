@@ -28,6 +28,7 @@ package oscar.oscarDemographic.data;
 import org.oscarehr.common.model.Allergy;
 import org.oscarehr.util.LoggedInInfo;
 
+import oscar.OscarProperties;
 import oscar.oscarRx.data.RxPatientData;
 
 public class RxInformation {
@@ -40,7 +41,7 @@ public class RxInformation {
 		arr = prescriptData.getUniquePrescriptionsByPatient(Integer.parseInt(demographic_no));
 		StringBuilder stringBuffer = new StringBuilder();
 		for (int i = 0; i < arr.length; i++) {
-			if (arr[i].isCurrent()) {
+			if (arr[i].isCurrent() || OscarProperties.getInstance().isPropertyActive("use_current_rx_outside_rx_page")) {
 
 				stringBuffer.append(arr[i].getFullOutLine().replaceAll(";", " ") + "\n");
 				// stringBuffer.append(arr[i].getRxDisplay()+"\n");

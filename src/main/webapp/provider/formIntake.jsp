@@ -38,7 +38,7 @@ public boolean isNumeric (String s) {
 }
 %>
 <%
-OscarProperties props = OscarProperties.getInstance();
+OscarProperties oscarProperties = OscarProperties.getInstance();
 String project = request.getContextPath();
 String curUser_no = (String) session.getAttribute("user");
 String demographic_no = ""+Integer.parseInt(request.getParameter("demographic_no"));
@@ -447,7 +447,7 @@ if (allergiesResult.size() > 1) {
 	}
 }
 
-String medicationsQuery = "intake_medications";
+String medicationsQuery = OscarProperties.getInstance().isPropertyActive("use_current_rx_outside_rx_page")?"intake_medications_current":"intake_medications";
 List<Map<String, Object>> medicationsResult = oscarSuperManager.find("providerDao", medicationsQuery, demographicParam);
 String medicationsList = "";
 if (!medicationsResult.isEmpty()) {
@@ -502,6 +502,7 @@ if (!medicationsResult.isEmpty()) {
 		if (medicationsResult.get(i).get("repeat").toString().equals("1")) {
 			medicationsList += " No subs";
 		}
+		if (medicationsResult.get(i).get("long_term").toString().equals("true")) { medicationsList += ", Long Term: yes"; };
 	}
 }
 

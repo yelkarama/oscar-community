@@ -715,7 +715,7 @@ for(int x=0;x<allergies.size();x++) {
 
 String curUser_no = (String) session.getAttribute("user");
 
-String medicationsQuery = "intake_medications";
+String medicationsQuery = OscarProperties.getInstance().isPropertyActive("use_current_rx_outside_rx_page")?"intake_medications_current":"intake_medications";
 List<Map<String,Object>> medicationsResult = oscarSuperManager.find("providerDao", medicationsQuery, demographicParam);
 String medicationsList = "";
 if (!medicationsResult.isEmpty()) {
@@ -769,6 +769,7 @@ if (!medicationsResult.isEmpty()) {
 		if (medicationsResult.get(i).get("repeat").toString().equals("1")) {
 			medicationsList += " No subs";
 		}
+		if (medicationsResult.get(i).get("long_term").toString().equals("true")) { medicationsList += ", Long Term: yes"; };
 	}
 }
 

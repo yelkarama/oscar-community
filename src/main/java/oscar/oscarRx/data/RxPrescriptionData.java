@@ -46,6 +46,7 @@ import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
+import oscar.OscarProperties;
 import oscar.oscarProvider.data.ProSignatureData;
 import oscar.oscarRx.util.RxUtil;
 import oscar.util.ConversionUtils;
@@ -310,6 +311,15 @@ public class RxPrescriptionData {
 		return lst.toArray(new Prescription[lst.size()]);
 	}
 
+	public Prescription[] getPrescriptionScriptsByPatientIdOrderByDate(int demographicNo, Boolean archived) {
+		List<Prescription> lst = new ArrayList<Prescription>();
+		DrugDao dao = SpringUtils.getBean(DrugDao.class);
+
+		for (Drug drug : dao.findByDemographicIdOrderByDate(demographicNo, archived))
+			lst.add(toPrescription(drug, demographicNo));
+		return lst.toArray(new Prescription[lst.size()]);
+	}
+	
 	// do not return customed drugs
 	public Prescription[] getPrescriptionScriptsByPatientRegionalIdentifier(int demographicNo, String regionalIdentifier) {
 		List<Prescription> lst = new ArrayList<Prescription>();
@@ -420,6 +430,9 @@ public class RxPrescriptionData {
 	}
 
 	public Prescription[] getUniquePrescriptionsByPatient(int demographicNo) {
+		if (OscarProperties.getInstance().isPropertyActive("use_current_rx_outside_rx_page")) {
+			return getPrescriptionScriptsByPatientIdOrderByDate(demographicNo, false);
+		}
 		List<Prescription> result = new ArrayList<Prescription>();
 		DrugDao dao = SpringUtils.getBean(DrugDao.class);
 

@@ -561,10 +561,10 @@ div.recommendations li{
                     <%for (int i = 0; i < arr.length; i++){
                         String rxD = arr[i].getRxDate().toString();
                         //String rxP = arr[i].getRxDisplay();
-                        String rxP = arr[i].getFullOutLine().replaceAll(";"," ");
+                        String rxP = arr[i].getFullOutLine().replaceAll(";"," ") + (arr[i].getLongTerm() ? " Long Term: yes" : "");
                         rxP = rxP + "   " + arr[i].getEndDate();
                         String styleColor = "";
-                        if(arr[i].isCurrent()){
+                        if(arr[i].isCurrent() || OscarProperties.getInstance().isPropertyActive("use_current_rx_outside_rx_page")){
                     %>
                     <li title="<%=rxD%> - <%=rxP%>">
                         <oscar:oscarPropertiesCheck property="SPEC3" value="yes">
