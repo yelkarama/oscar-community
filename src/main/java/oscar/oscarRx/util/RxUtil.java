@@ -927,7 +927,7 @@ public class RxUtil {
 			} else {//if duration is valid, find quantity based on duration
 				rx.setDurationSpecifiedByUser(true);
 				rx.setDuration(duration);
-				if (!isUnitNameUsed && !durationUnit.equals("") && !takeMin.equals("0") && !takeMax.equals("0") && !frequency.equals("")) {
+				if (!durationUnit.equals("") && !takeMin.equals("0") && !takeMax.equals("0") && !frequency.equals("")) {
 					nPerDay = findNPerDay(frequency);
 					nDays = findNDays(durationUnit);
 					MiscUtils.getLogger().debug("in instrucParser duration=" + duration);
@@ -951,7 +951,7 @@ public class RxUtil {
 			rx.setDurationUnit(durationUnit);
 			rx.setPrn(prn);
 			MiscUtils.getLogger().debug("in instrucParser,quantity=" + quantity + " ; unitName=" + rx.getUnitName());
-			if (!isUnitNameUsed && quantity != 0) {
+			if (quantity != 0) {
 				rx.setQuantity(Integer.toString(quantity));
 			}
 			rx.setSpecial(instructions);
