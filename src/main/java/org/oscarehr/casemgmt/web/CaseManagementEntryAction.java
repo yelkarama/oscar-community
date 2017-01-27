@@ -1941,7 +1941,7 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 		session.removeAttribute("casemgmtNoteLock" + demoNo);
 
 		if (noteId == -1) {
-			return mapping.findForward("windowCloseError");
+			return mapping.findForward("windowClose");
 		}
 
 		releaseNoteLock(providerNo, Integer.parseInt(demoNo), noteId);
