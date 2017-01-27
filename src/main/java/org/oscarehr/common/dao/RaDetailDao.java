@@ -142,7 +142,7 @@ public class RaDetailDao extends AbstractDao<RaDetail> {
 	 }
    	 
    	 public List<Integer> search_ranoerror35(Integer raHeaderNo, String error1, String error2, String providerOhipNo) { 
-   		Query query = entityManager.createQuery("select distinct rad.billingNo from RaDetail rad where rad.raHeaderNo=:raHeaderNo and (rad.errorCode='' or rad.errorCode=:error1 or rad.errorCode=:error2 or rad.errorCode='EV' or rad.errorCode='55' or rad.errorCode='57' or rad.errorCode='HM' or (rad.serviceCode='Q200A' and rad.errorCode='I9')) and rad.providerOhipNo like :ohip");
+   		Query query = entityManager.createQuery("select distinct rad.billingNo from RaDetail rad where rad.raHeaderNo=:raHeaderNo and (rad.errorCode='' or rad.errorCode=:error1 or rad.errorCode=:error2 or rad.errorCode='EV' or rad.errorCode='55' or rad.errorCode='57' or rad.errorCode='HM' or (rad.serviceCode='Q200A' and rad.errorCode='I9') or (rad.serviceCode='Q200A' and rad.errorCode='30')) and rad.providerOhipNo like :ohip");
    		 
    		query.setParameter("raHeaderNo", raHeaderNo);
    		query.setParameter("error1", error1);
