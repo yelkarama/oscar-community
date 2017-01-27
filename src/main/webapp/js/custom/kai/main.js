@@ -63,7 +63,7 @@ jQuery(document).ready(function(){
 
 function addKAIBar() {
   var kaiBarHTML = `<div class="KaiBar">
-		<a href="http://www.kaiinnovations.com" target="_blank"><img alt="" src="/oscar/js/custom/kai/KAI_LOGO2_HR.png" height="18" width="18">&nbsp;&nbsp;KAI INNOVATIONS</a>
+		<a href="http://www.kaiinnovations.com" target="_blank"><img alt="" src="../js/custom/kai/KAI_LOGO2_HR.png" height="18" width="18">&nbsp;&nbsp;KAI INNOVATIONS</a>
 		<div class="block">
 			Search:
 			<input class="kaiInput" type="text" placeholder="Enter Heath Card # or Demographic Name" id="kaiDemoSearch"/>
@@ -87,7 +87,7 @@ function addKAIBar() {
 		</div>
 	</div>`
   
-  jQuery('head').append('<link rel="stylesheet" href="/oscar/js/custom/kai/kai_bar.css" type="text/css" />');
+  jQuery('head').append('<link rel="stylesheet" href="../js/custom/kai/kai_bar.css" type="text/css" />');
   var kaiBar = jQuery(kaiBarHTML);
   kaiBar.insertAfter('table#firstTable');
   
