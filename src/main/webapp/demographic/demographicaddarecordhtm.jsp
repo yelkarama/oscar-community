@@ -1161,7 +1161,7 @@ function ignoreDuplicates() {
 						for (Provider p : providerDao.getActiveProvidersByRole("doctor")) {
 								String docProviderNo = p.getProviderNo();
 					%>
-					<option id="doc<%=docProviderNo%>" value="<%=docProviderNo%>" <%=docProviderNo.equals(defaultDoctor) ? "selected='selected'" : "" %>><%=Misc.getShortStr((p.getFormattedName(org.oscarehr.common.isPropertiesOn.propertiesOn("external_name_on_demographic"))), "", 12)%></option>
+					<option id="doc<%=docProviderNo%>" value="<%=docProviderNo%>" <%=docProviderNo.equals(defaultDoctor) ? "selected='selected'" : "" %>><%=Misc.getShortStr((p.getFormattedName(org.oscarehr.common.IsPropertiesOn.propertiesOn("external_name_on_demographic"))), "", 12)%></option>
 					<%
 						}
 					%>
