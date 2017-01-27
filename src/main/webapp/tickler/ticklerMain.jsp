@@ -52,6 +52,7 @@
 <%@ page import="java.text.DateFormat" %>
 <%@ page import="java.text.SimpleDateFormat" %>
 <%@ page import="java.util.Locale" %>
+<%@ page import="org.oscarehr.web.admin.ProviderPreferencesUIBean" %>
 
 <%
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -78,6 +79,8 @@
 	String user_no;
      user_no = (String) session.getAttribute("user");
 
+    ProviderPreference providerPreference = ProviderPreferencesUIBean.getProviderPreferenceByProviderNo(user_no);
+
      TicklerLinkDao ticklerLinkDao = (TicklerLinkDao) SpringUtils.getBean("ticklerLinkDao");
 
      String providerview;
@@ -90,8 +93,10 @@
          providerview = request.getParameter("providerview");
      }
 
+    // Check for property to default assigned provider and if present - default to user logged in
+    boolean ticklerDefaultAssignedProvider = OscarProperties.getInstance().isPropertyActive("tickler_default_assigned_provider") || providerPreference.isTicklerDefaultAssignedProvider();
      if( request.getParameter("assignedTo") == null ) {
-             assignedTo = "all";
+             assignedTo = ticklerDefaultAssignedProvider?user_no:"all";
      }
      else {
          assignedTo = request.getParameter("assignedTo");
@@ -649,15 +654,6 @@ function changeSite(sel) {
 } else {
 %>
         <select id="assignedTo" name="assignedTo">
-        <% 
-        // Check for property to default assigned provider and if present - default to user logged in
-        	boolean ticklerDefaultAssignedProvier = OscarProperties.getInstance().isPropertyActive("tickler_default_assigned_provider");
-        	if (ticklerDefaultAssignedProvier) { 
-        		if("all".equals(assignedTo)) {
-        			assignedTo = user_no;
-        		}
-        	}
-        %>
         	<option value="all" <%=assignedTo.equals("all")?"selected":""%>><bean:message key="tickler.ticklerMain.formAllProviders"/></option>
         <% 	
         	List<Provider> providersActive = providerDao.getActiveProviders(); 
