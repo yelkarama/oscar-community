@@ -307,8 +307,7 @@ function setDescription(reportId) {
 		url: "<%=request.getContextPath() %>/hospitalReportManager/Modify.do",
 		data: "method=setDescription&reportId=" + reportId + "&description=" + comment,
 		success: function(data) {
-			if (data !
-				null)
+			if (data != null)
 				$("descriptionstatus" + reportId).innerHTML = data;
 		}
 	});
