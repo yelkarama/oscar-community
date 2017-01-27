@@ -110,7 +110,7 @@ oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBea
 					for( var idx = 0; idx < data.length; ++idx  ) {
 						preferredPharmacyInfo = data[idx];
 						json = JSON.stringify(preferredPharmacyInfo);
-						
+
 						var pharm = "<div prefOrder='"+idx+"' pharmId='"+preferredPharmacyInfo.id+"'><table><tr><td class='prefAction prefUp'> Up </td>";
 						pharm += "<td rowspan='3' style='padding-left: 5px'>" + preferredPharmacyInfo.name + "<br /> ";
 						pharm += preferredPharmacyInfo.address + ", " + preferredPharmacyInfo.city + " " +preferredPharmacyInfo.province + "<br /> ";
@@ -119,15 +119,15 @@ oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBea
 						pharm += "Fax: " + preferredPharmacyInfo.fax + "<br />";
                         pharm += "<a href='#'  onclick='viewPharmacy(" + preferredPharmacyInfo.id  + ");'>View More</a>" + "</td>";
 						pharm += "</tr><tr><td class='prefAction prefUnlink'> Unlink </td></tr><tr><td class='prefAction prefDown'>Down</td></tr></table></div>";
-						
+
 						$("#preferredList").append(pharm);
 					}
-					
+
 					$(".prefUnlink").click(function(){
 						  var data = "pharmacyId=" + $(this).closest("div").attr("pharmId") + "&demographicNo=" + demo;
 						  $.post("<%=request.getContextPath()%>/oscarRx/managePharmacy.do?method=unlink",
 							  data, function( data ) {
-								if( data.id ) {	  	
+								if( data.id ) {
 									window.location.reload(false);
 								}
 								else {
@@ -135,12 +135,12 @@ oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBea
 								}
 							}, "json");
 					  });
-					  
+
 					$(".prefUp").click(function(){
 						if($(this).closest("div").prev() != null){
 							var $curr = $(this).closest("div");
 							var $prev = $(this).closest("div").prev();
-							
+
 							var data = "pharmId=" + $curr.attr("pharmId") + "&demographicNo=" + demo + "&preferredOrder=" + (parseInt($curr.attr("prefOrder")) - 1);
 							$.post("<%=request.getContextPath()%>/oscarRx/managePharmacy.do?method=setPreferred",
 							  data, function( data2 ) {
@@ -156,12 +156,12 @@ oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBea
 							}, "json");
 						}
 					  });
-					  
+
 					$(".prefDown").click(function(){
 						if($(this).closest("div").next() != null){
 							var $curr = $(this).closest("div");
 							var $next = $(this).closest("div").next();
-							
+
 							var data = "pharmId=" + $curr.attr("pharmId") + "&demographicNo=" + demo + "&preferredOrder=" + (parseInt($curr.attr("prefOrder")) + 1);
 							$.post("<%=request.getContextPath()%>/oscarRx/managePharmacy.do?method=setPreferred",
 							  data, function( data2 ) {
@@ -183,7 +183,7 @@ oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBea
       $("#pharmacySearch").keyup(function(){
 		  $(".pharmacyItem").hide();
 		  $.each($(".pharmacyName"), function( key, value ) {
-			if($(value).html().indexOf($("#pharmacySearch").val()) >= 0){
+			if($(value).html().toLowerCase().indexOf($("#pharmacySearch").val().toLowerCase()) >= 0){
 				if($(value).siblings(".city").html().indexOf($("#pharmacyCitySearch").val()) >= 0){
 					if($(value).siblings(".fax").html().indexOf($("#pharmacyFaxSearch").val()) >= 0){
 						$(value).parent().show();
@@ -196,7 +196,7 @@ oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBea
 	  $("#pharmacyCitySearch").keyup(function(){
 		  $(".pharmacyItem").hide();
 		  $.each($(".city"), function( key, value ) {
-			if($(value).html().indexOf($("#pharmacyCitySearch").val()) >= 0){
+			if($(value).html().toLowerCase().indexOf($("#pharmacyCitySearch").val().toLowerCase()) >= 0){
 				if($(value).siblings(".pharmacyName").html().indexOf($("#pharmacySearch").val()) >= 0){
 					if($(value).siblings(".fax").html().indexOf($("#pharmacyFaxSearch").val()) >= 0){
 						$(value).parent().show();
@@ -209,7 +209,7 @@ oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBea
 	  $("#pharmacyFaxSearch").keyup(function(){
 		  $(".pharmacyItem").hide();
 		  $.each($(".fax"), function( key, value ) {
-			if($(value).html().indexOf($("#pharmacyFaxSearch").val()) >= 0){
+			if($(value).html().indexOf($("#pharmacyFaxSearch").val()) >= 0 || $(value).html().split("-").join("").indexOf($("#pharmacyFaxSearch").val()) >= 0){
 				if($(value).siblings(".pharmacyName").html().indexOf($("#pharmacySearch").val()) >= 0){
 					if($(value).siblings(".city").html().indexOf($("#pharmacyCitySearch").val()) >= 0){
 						$(value).parent().show();
