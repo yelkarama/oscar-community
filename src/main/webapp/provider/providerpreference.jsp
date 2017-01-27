@@ -268,6 +268,17 @@ function showHideERxPref() {
 				</td>
 			</tr>
 			<tr>
+				<td class="preferenceLabel">
+					<bean:message key="provider.providerpreference.showAppointmentReason" />
+				</td>
+				<td class="preferenceValue">
+					<%
+						boolean showAppointmentReasonChecked=ProviderPreferencesUIBean.isShowAppointmentReason(providerNo);
+					%>
+					<input type="checkbox" name="show_appointment_reason" <%=showAppointmentReasonChecked?"checked=\"checked\"":""%> />
+				</td>
+			</tr>
+			<tr>
  				<td class="preferenceLabel">
 					<bean:message key="provider.providerpreference.twelveHourFormat" />
 				</td>
