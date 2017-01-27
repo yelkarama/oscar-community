@@ -108,8 +108,8 @@
 	  if( $("#pharmacyName").val() == "" ) {
 		  alert("Please fill in the name of a pharmacy");
 		  return false;
-	  } 
-	  
+	  }
+
 	  var data = $("#pharmacyForm").serialize();
 	  $.post("<%=request.getContextPath() + "/oscarRx/managePharmacy.do?method=add"%>",
 			  data, function( data ) {
@@ -127,19 +127,31 @@
   function isFaxNumberCorrect() {
 	  
 	  var faxNumber = $("#pharmacyFax").val().trim();
-	  var isCorrect = faxNumber.match(/^1?\s?\(?[0-9]{3}\)?[\-\s]?[0-9]{3}[\-\s]?[0-9]{4}$/);
-  	
-	  if( !isCorrect  ) {
-	  		
-	  	alert("Please enter the fax number in the format 9051234567");
+	  var isCorrect = false;
+
+	  if(faxNumber.split("-").join("").length == 12){
+          isCorrect = faxNumber.match(/^1?\s?\(?[9]{1}\)?[\-\s]?[1|9]{1}\)?[\-\s]?[0-9]{3}\)?[\-\s]?[0-9]{3}[\-\s]?[0-9]{4}$/);
+	  } else if (faxNumber.split("-").join("").length == 11){
+	      isCorrect = faxNumber.match(/^1?\s?\(?[1|9]{1}\)?[\-\s]?[0-9]{3}\)?[\-\s]?[0-9]{3}[\-\s]?[0-9]{4}$/);
+	  } else if (faxNumber.split("-").join("").length == 10){
+	      isCorrect = faxNumber.match(/^1?\s?\(?[0-9]{3}\)?[\-\s]?[0-9]{3}[\-\s]?[0-9]{4}$/)
+	  }
+
+	  if(!isCorrect) {
+
+	  	alert("Fax numbers are accepted in the following formats" +
+			"\n###-###-#### " +
+			"\n1-###-###-###" +
+			"\n9-###-###-####" +
+			"\n9-1-###-###-####" +
+			"\n9-9-###-###-####");
 	  	setTimeout( function() {
-	  			$("#pharmacyFax").focus();	
+	  			$("#pharmacyFax").focus();
 	  	},1);
-	  		
+
  	  }
-	  
+
 	  return isCorrect;
-  	
   }
   
 </script>
