@@ -307,7 +307,8 @@ function setDescription(reportId) {
 		url: "<%=request.getContextPath() %>/hospitalReportManager/Modify.do",
 		data: "method=setDescription&reportId=" + reportId + "&description=" + comment,
 		success: function(data) {
-			if (data != null)
+			if (data !
+				null)
 				$("descriptionstatus" + reportId).innerHTML = data;
 		}
 	});
@@ -319,7 +320,7 @@ function popupPatient(height, width, url, windowName, docId, d) {
 }
 
 function popupPatientTickler(height, width, url, windowName,docId,d,n) {
-	urlNew = url + "method=edit&tickler.demographic_webName=" + n + "&tickler.demographicNo=" +  d + "&docType=DOC&docId="+docId;
+	urlNew = url + "method=edit&tickler.demographic_webName=" + n + "&tickler.demographicNo=" +  d + "&docType=HRM&docId="+docId;
 	return popup2(height, width, 0, 0, urlNew, windowName);
 }
 
@@ -348,7 +349,7 @@ String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 	<% if (OscarProperties.getInstance().isPropertyActive("ticklerplus")) { %> 
 		<input type="button" id="mainTickler_<%=hrmReportId%>" value="Tickler" onClick="popupPatientTickler(710, 1024,'<%= request.getContextPath() %>/Tickler.do?', 'Tickler','<%=hrmReportId%>','<%=demographicNo %>')" <%=btnDisabled %>>
 	<% } else { %>
-		<input type="button" id="mainTickler_<%=hrmReportId%>" value="Tickler" onClick="popupPatient(710, 1024,'<%= request.getContextPath() %>/tickler/ForwardDemographicTickler.do?docType=DOC&docId=<%=hrmReportId%>&demographic_no=', 'Tickler','<%=hrmReportId%>','<%=demographicNo %>')" <%=btnDisabled %>>
+		<input type="button" id="mainTickler_<%=hrmReportId%>" value="Tickler" onClick="popupPatient(710, 1024,'<%= request.getContextPath() %>/tickler/ForwardDemographicTickler.do?docType=HRM&docId=<%=hrmReportId%>&demographic_no=', 'Tickler','<%=hrmReportId%>','<%=demographicNo %>')" <%=btnDisabled %>>
 	<%} %>
 	<input type="button" id="mainEchart_<%=hrmReportId%>" value=" <bean:message key="oscarMDS.segmentDisplay.btnEChart"/> " onClick="popupPatient(710, 1024,'<%= request.getContextPath() %>/oscarEncounter/IncomingEncounter.do?reason=<bean:message key="oscarMDS.segmentDisplay.labResults"/>&curDate=<%=currentDate%>>&appointmentNo=&appointmentDate=&startTime=&status=&demographicNo=', 'encounter', '<%=hrmReportId%>','<%=demographicNo %>')" <%=btnDisabled %>>
 	<input type="button" id="mainMaster_<%=hrmReportId%>" value=" <bean:message key="oscarMDS.segmentDisplay.btnMaster"/>" onClick="popupPatient(710,1024,'<%= request.getContextPath() %>/demographic/demographiccontrol.jsp?displaymode=edit&dboperation=search_detail&demographic_no=','master','<%=hrmReportId%>','<%=demographicNo %>')" <%=btnDisabled %>>
