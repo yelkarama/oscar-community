@@ -202,7 +202,7 @@ public class MeasurementMapConfig {
                 "JOIN measurementsExt me3 ON me1.measurement_id = me3.measurement_id AND me3.keyval='lab_no' " +
                 "JOIN hl7TextMessage h ON me3.val = h.lab_id " +
                 "WHERE me1.keyval='identifier' AND h.type LIKE '" + type + "%' " +
-                "AND me1.val NOT IN (SELECT ident_code FROM measurementMap) ORDER BY h.type";
+                "AND me1.val NOT IN (SELECT ident_code FROM measurementMap  WHERE measurementMap.name = me2.val) ORDER BY h.type";
 
         try {
 
