@@ -199,8 +199,6 @@ public class DmsInboxManageAction extends DispatchAction {
 		Boolean searchAll = request.getParameter("searchProviderAll") != null;
 		String status = request.getParameter("status");
 
-		boolean providerSearch = !"-1".equals(searchProviderNo);
-
 		if (status == null) {
 			status = "N";
 		} // default to new labs only
@@ -217,6 +215,9 @@ public class DmsInboxManageAction extends DispatchAction {
 		else if (searchProviderNo == null) {
 			searchProviderNo = providerNo;
 		} // default to current provider
+
+		boolean providerSearch = !"-1".equals(searchProviderNo);
+		
 		MiscUtils.getLogger().debug("SEARCH " + searchProviderNo);
 		String patientFirstName = request.getParameter("fname");
 		String patientLastName = request.getParameter("lname");
