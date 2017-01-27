@@ -587,7 +587,7 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 			q.setFirstResult(offset);
 			q.setMaxResults(limit);
 
-			q.setParameter("phone", phoneStr.trim() + "%");
+			q.setParameter("phone", "%" + phoneStr.trim() + "%");
 			
 			if(statuses != null) {
 				q.setParameterList("statuses", statuses);
@@ -615,7 +615,7 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 			q.setFirstResult(offset);
 			q.setMaxResults(limit);
 
-			q.setParameter("phone", phoneStr.trim() + "%");
+			q.setParameter("phone", "%" + phoneStr.trim() + "%");
 
 			list = q.list();
 		} finally {
@@ -822,7 +822,7 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 			q.setFirstResult(offset);
 			q.setMaxResults(limit);
 
-			q.setParameter("address", addressStr.trim() + "%");
+			q.setParameter("address", "%" + addressStr.trim() + "%");
 			
 			if(statuses != null) {
 				q.setParameterList("statuses", statuses);
@@ -850,7 +850,7 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 			q.setFirstResult(offset);
 			q.setMaxResults(limit);
 
-			q.setParameter("address", addressStr.trim() + "%");
+			q.setParameter("address", "%" + addressStr.trim() + "%");
 
 			list = q.list();
 		} finally {
