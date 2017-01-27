@@ -400,6 +400,7 @@ boolean filterOut=false;
 									<%									
 									if (displayAllergy.getRemoteFacilityId()==null && securityManager.hasDeleteAccess("_allergies",roleName2$)) {
 									%>
+									<a href="editReaction.do?ID=<%= String.valueOf(displayAllergy.getId()) %>&demographicNo=<%=demoNo %>" >Edit</a> |
 									<a href="deleteAllergy.do?ID=<%= String.valueOf(displayAllergy.getId()) %>&demographicNo=<%=demoNo %>&action=<%=actionPath %>" onClick="return confirm('Are you sure you want to set the allergy <%=displayAllergy.getDescription() %> to <%=labelConfirmAction%>?');"><%=labelAction%></a>
 									<% } %>
 									</td>

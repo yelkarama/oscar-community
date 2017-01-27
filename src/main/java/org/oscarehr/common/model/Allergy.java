@@ -39,6 +39,8 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import org.apache.commons.lang.StringUtils;
+import org.oscarehr.util.MiscUtils;
+import oscar.oscarRx.data.RxDrugData;
 
 @Entity
 @Table(name = "allergies")
@@ -412,4 +414,37 @@ public class Allergy extends AbstractModel<Integer> {
         return this.getDescription() + " (" + getTypeDesc(getTypeCode()) + ")";
     }
 
+    public String getDatePattern(String startDate) {
+    	String datePattern = null;
+		if (startDate.length()>=8 && getCharOccur(startDate,'-')==2) {
+			datePattern = "yyyy-MM-dd";
+		} else if (startDate.length()>=6 && getCharOccur(startDate,'-')>=1) {
+			datePattern = "yyyy-MM";
+		} else if (startDate.length()>=4) {
+			datePattern = "yyyy";
+		}
+		return datePattern;
+	}
+
+	public RxDrugData.DrugMonograph isDrug(Integer type){
+		RxDrugData.DrugMonograph drugMonograph= null;
+		if (type != null && type.equals("13")){
+			RxDrugData drugData = new RxDrugData();
+			try{
+				drugMonograph = drugData.getDrug(""+id);
+			}catch(Exception e){
+				MiscUtils.getLogger().error("Error", e);
+			}
+		}
+		return drugMonograph;
+	}
+
+	private int getCharOccur(String str, char ch) {
+		int occurence=0, from=0;
+		while (str.indexOf(ch,from)>=0) {
+			occurence++;
+			from = str.indexOf(ch,from)+1;
+		}
+		return occurence;
+	}
 }

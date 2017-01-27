@@ -86,6 +86,7 @@
 		<form-bean name="RxClearPendingForm" type="oscar.oscarRx.pageUtil.RxClearPendingForm" />
 		<form-bean name="RxSearchAllergyForm" type="oscar.oscarRx.pageUtil.RxSearchAllergyForm" />
 		<form-bean name="RxAddAllergyForm" type="oscar.oscarRx.pageUtil.RxAddAllergyForm" />
+		<form-bean name="RxUpdateAllergyForm" type="oscar.oscarRx.pageUtil.RxAddAllergyForm" />
 		<form-bean name="RxDeleteRxForm" type="oscar.oscarRx.pageUtil.RxDrugListForm" />
 		<form-bean name="RxManagePharmacyForm" type="oscar.oscarRx.pageUtil.RxManagePharmacyForm" />
 		<form-bean name="FrmStudyForm" type="oscar.form.study.FrmStudyForm" />
@@ -934,8 +935,21 @@
 			<forward name="success" path="/oscarRx/ShowAllergies2.jsp" redirect="true"/>
 		</action>
 
+		<action input="/oscarRx/ChooseAllergy.jsp" name="RxUpdateAllergyForm" path="/oscarRx/updateAllergy" scope="request" type="oscar.oscarRx.pageUtil.RxUpdateAllergyAction">
+			<forward name="success" path="/oscarRx/ShowAllergies.jsp" redirect="true" />
+		</action>
+
+		<action input="/oscarRx/ChooseAllergy2.jsp" name="RxUpdateAllergyForm" path="/oscarRx/updateAllergy" scope="request" type="oscar.oscarRx.pageUtil.RxUpdateAllergyAction">
+			<forward name="success" path="/oscarRx/ShowAllergies2.jsp" redirect="true"/>
+		</action>
+		<action input="/oscarRx/ChooseAllergy.jsp" path="/oscarRx/editReaction" scope="request" type="oscar.oscarRx.pageUtil.RxEditReactionAction">
+			<forward name="success" path="/oscarRx/AddReaction2.jsp" />
+		</action>
+		<action input="/oscarRx/ChooseAllergy2.jsp" path="/oscarRx/editReaction" scope="request" type="oscar.oscarRx.pageUtil.RxEditReactionAction">
+			<forward name="success" path="/oscarRx/AddReaction2.jsp" />
+		</action>
 		<action input="/oscarRx/ChooseAllergy.jsp" path="/oscarRx/addReaction" scope="request" type="oscar.oscarRx.pageUtil.RxAddReactionAction">
-			<forward name="success" path="/oscarRx/AddReaction.jsp" />
+			<forward name="success" path="/oscarRx/AddReaction2.jsp" />
 		</action>
 		<action input="/oscarRx/ChooseAllergy2.jsp" path="/oscarRx/addReaction2" scope="request" type="oscar.oscarRx.pageUtil.RxAddReactionAction">
 			<forward name="success" path="/oscarRx/AddReaction2.jsp" />

@@ -432,7 +432,8 @@ padding-right:6;
 									<%
 										if(!allergy.isIntegratorResult() && securityManager.hasDeleteAccess("_allergies",roleName$)) {
 									%>
-									<a href="deleteAllergy.do?ID=<%= String.valueOf(allergy.getAllergyId()) %>&demographicNo=<%=demoNo %>&action=<%=actionPath %>" onClick="return confirm('Are you sure you want to set the allergy <%=allergy.getDescription() %> to <%=labelConfirmAction%>?');"><%=labelAction%></a>
+										<a href="editReaction.do?ID=<%= String.valueOf(allergy.getAllergyId()) %>&demographicNo=<%=demoNo %>" >Edit</a> |
+										<a href="deleteAllergy.do?ID=<%= String.valueOf(allergy.getAllergyId()) %>&demographicNo=<%=demoNo %>&action=<%=actionPath %>" onClick="return confirm('Are you sure you want to set the allergy <%=allergy.getDescription() %> to <%=labelConfirmAction%>?');"><%=labelAction%></a>
 									<% } %>
 									</td>
 								</tr>

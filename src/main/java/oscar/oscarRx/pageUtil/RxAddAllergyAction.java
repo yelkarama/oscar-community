@@ -47,6 +47,8 @@ import oscar.log.LogConst;
 import oscar.oscarRx.data.RxDrugData;
 import oscar.oscarRx.data.RxPatientData;
 
+import static oscar.oscarRx.util.RxUtil.StringToDate;
+
 
 public final class RxAddAllergyAction extends Action {
 	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
@@ -76,28 +78,21 @@ public final class RxAddAllergyAction extends Action {
             allergy.setTypeCode(Integer.parseInt(type));
             allergy.setReaction(description);
 
-	    if (startDate.length()>=8 && getCharOccur(startDate,'-')==2) {
-	    	allergy.setStartDate(oscar.oscarRx.util.RxUtil.StringToDate(startDate, "yyyy-MM-dd"));
-	    } else if (startDate.length()>=6 && getCharOccur(startDate,'-')>=1) {
-	    	allergy.setStartDate(oscar.oscarRx.util.RxUtil.StringToDate(startDate, "yyyy-MM"));
-	    	allergy.setStartDateFormat(PartialDate.YEARMONTH);
-	    } else if (startDate.length()>=4) {
-	    	allergy.setStartDate(oscar.oscarRx.util.RxUtil.StringToDate(startDate, "yyyy"));
-	    	allergy.setStartDateFormat(PartialDate.YEARONLY);
-	    }
+        String pattern = allergy.getDatePattern(startDate).toUpperCase();
+        allergy.setStartDate(StringToDate(startDate, pattern));
+        if (pattern.equals(PartialDate.YEARMONTH)) {
+            allergy.setStartDateFormat(PartialDate.YEARMONTH);
+        } else if (pattern.equals(PartialDate.YEARONLY)) {
+            allergy.setStartDateFormat(PartialDate.YEARONLY);
+        }
             allergy.setAgeOfOnset(ageOfOnset);
             allergy.setSeverityOfReaction(severityOfReaction);
             allergy.setOnsetOfReaction(onSetOfReaction);
             allergy.setLifeStage(lifeStage);
 
-            if (type != null && type.equals("13")){
-                RxDrugData drugData = new RxDrugData();
-                try{
-                RxDrugData.DrugMonograph f = drugData.getDrug(""+id);
-                allergy.setRegionalIdentifier(f.regionalIdentifier);
-                }catch(Exception e){
-                    MiscUtils.getLogger().error("Error", e);
-                }
+            RxDrugData.DrugMonograph drugMonograph = allergy.isDrug(Integer.parseInt(type));
+            if (drugMonograph!=null){
+                allergy.setRegionalIdentifier(drugMonograph.regionalIdentifier);
             }
 
             allergy.setDemographicNo(patient.getDemographicNo());
