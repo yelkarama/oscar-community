@@ -228,7 +228,7 @@ public class EctMeasurementsAction extends Action {
                         saveErrors(request, errors);
                         valid = false;
                     }
-                    if(!ectValidation.isDate(dateObserved)&&inputValue.compareTo("")!=0){
+                    if(!ectValidation.isDate(dateObserved, "dd-MM-yyyy HH:mm")&&inputValue.compareTo("")!=0){
                         errors.add(dateName,
                         new ActionMessage("errors.invalidDate", inputTypeDisplay));
                         saveErrors(request, errors);
@@ -265,7 +265,7 @@ public class EctMeasurementsAction extends Action {
                         	sc.setDataField(inputValue);
                         	sc.setMeasuringInstrc(mInstrc);
                         	sc.setComments(comments);
-                        	sc.setDateObserved(ConversionUtils.fromDateString(dateObserved));
+                        	sc.setDateObserved(ConversionUtils.fromDateString(dateObserved, "dd-MM-yyyy HH:mm"));
                         	sc.setType(inputType);
                         	List<Measurement> ms = dao.find(sc);
                         	
@@ -278,7 +278,7 @@ public class EctMeasurementsAction extends Action {
                             	m.setDataField(inputValue);
                             	m.setMeasuringInstruction(mInstrc);
                             	m.setComments(comments);
-                            	m.setDateObserved(ConversionUtils.fromDateString(dateObserved));
+                            	m.setDateObserved(ConversionUtils.fromDateString(dateObserved, "dd-MM-yyyy HH:mm"));
                             	m.setAppointmentNo(0);
                             	dao.persist(m);
                                 
