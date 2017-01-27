@@ -3459,52 +3459,6 @@ function autoCompleteShowMenuCPP(element, update) {
             return false;
         }
 
-        //cycle through container divs for each note
-        var idx;
-        var noteId;
-        var notesDiv;
-        var noteDate = null;
-        var msnote;
-        var pos;
-        var imgId;
-
-        for( idx = 1; idx <= maxNcId; ++idx ) {
-        	
-        	if($("nc"+idx) == null) continue;
-        	noteDate = null;
-            notesDiv = $("nc" + idx).down('div');
-            noteId = notesDiv.id.substr(1);  //get note id
-            if(noteId==0) continue;
-
-            imgId = "print" + noteId;
-            if( $(imgId) == null ) continue;
-
-            if( $("obs"+noteId) != null )
-                noteDate = $("obs"+noteId).innerHTML;
-            else if( $("observationDate") != null )
-                noteDate = $F("observationDate");
-
-            //trim leading and trailing whitespace from date
-            noteDate = noteDate.replace(/^\s+|\s+$/g,"");
-			
-            if( noteDate != null ) {
-                //grab date and splice off time and format for js date object
-                noteDate = noteDate.substr(0,noteDate.indexOf(" "));
-                tmp = noteDate.split("-");
-                formatdate = tmp[1] + " " + tmp[0] + ", " + tmp[2];
-                msnote = Date.parse(formatdate);
-                pos = noteIsQeued(noteId);
-                                
-                if( msnote >= msbeg && msnote <= msend ) {
-                    if( pos == -1 )
-                        addPrintQueue(noteId);
-                }
-                else if( pos >= 0 ) {
-                    removePrintQueue(noteId, pos);
-                }
-            }
-        }
-
         return true;
     }
 
@@ -3528,7 +3482,7 @@ function autoCompleteShowMenuCPP(element, update) {
             printAll();
         }
 
-        if( $F("notes2print").length == 0 && $F("printCPP") == "false" && $F("printRx") == "false" && $F("printLabs") == "false" ) {
+        if( $F("notes2print").length == 0 && $F("printCPP") == "false" && $F("printRx") == "false" && $F("printLabs") == "false" && !printDateRange() ) {
             alert(nothing2PrintMsg);
             return false;
         }
@@ -3592,6 +3546,12 @@ function autoCompleteShowMenuCPP(element, update) {
 
         printNotes();
 
+    }
+
+    var results = <%= session.getAttribute("Results")%>;
+    if (results == 0){
+        <% session.removeAttribute("Results");%>
+        alert("Nothing selected to print");
     }
 
     function clearAll(e) {
