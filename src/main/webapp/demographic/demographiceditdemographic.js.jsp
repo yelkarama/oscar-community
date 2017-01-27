@@ -155,6 +155,12 @@ function checkTypeInEdit() {
   <% } %>
   if ( !checkRosterStatus() ) return false;
   if ( !checkPatientStatus() ) return false;
+    if(document.updatedelete.r_doctor.value==""){
+        document.updatedelete.r_doctor_id.value=""
+    }
+    if(document.updatedelete.f_doctor.value==""){
+        document.updatedelete.f_doctor_id.value=""
+    }
   return(true);
 }
 
@@ -170,6 +176,27 @@ function formatPhoneNum() {
         }
     if (document.updatedelete.phone2.value.length == 11 && document.updatedelete.phone2.value.charAt(3) == '-') {
         document.updatedelete.phone2.value = document.updatedelete.phone2.value.substring(0,3) + "-" + document.updatedelete.phone2.value.substring(4,7) + "-" + document.updatedelete.phone2.value.substring(7);
+    }
+    if (document.getElementById("refDocPhone").innerHTML.length == 10) {
+        document.getElementById("refDocPhone").innerHTML = document.getElementById("refDocPhone").innerHTML.substring(3,0) + "-" + document.getElementById("refDocPhone").innerHTML.substring(3,6) + "-" + document.getElementById("refDocPhone").innerHTML.substring(6);
+    }
+    if (document.getElementById("refDocPhone").innerHTML.length == 11 && document.getElementById("refDocPhone").innerHTML.length.charAt(3) == '-') {
+        document.getElementById("refDocPhone").innerHTML = document.getElementById("refDocPhone").innerHTML.substring(3,0) + "-" +document.getElementById("refDocPhone").innerHTML.substring(4,7) + "-" + document.getElementById("refDocPhone").innerHTML.substring(7);
+    }
+    if (document.getElementById("refDocFax").innerHTML.length == 10) {
+        document.getElementById("refDocFax").innerHTML = document.getElementById("refDocFax").innerHTML.substring(3,0) + "-" + document.getElementById("refDocFax").innerHTML.substring(3,6) + "-" + document.getElementById("refDocFax").innerHTML.substring(6);
+    }
+    if (document.getElementById("refDocFax").innerHTML.length == 11 && document.getElementById("refDocFax").innerHTML.length.charAt(3) == '-') {
+        document.getElementById("refDocFax").innerHTML = document.getElementById("refDocFax").innerHTML.substring(3,0) + "-" +document.getElementById("refDocFax").innerHTML.substring(4,7) + "-" + document.getElementById("refDocFax").innerHTML.substring(7);
+    }
+    if (document.getElementById("famDocPhone").innerHTML.length == 11 && document.getElementById("famDocPhone").innerHTML.length.charAt(3) == '-') {
+        document.getElementById("famDocPhone").innerHTML = document.getElementById("famDocPhone").innerHTML.substring(3,0) + "-" +document.getElementById("famDocPhone").innerHTML.substring(4,7) + "-" + document.getElementById("famDocPhone").innerHTML.substring(7);
+    }
+    if (document.getElementById("famDocFax").innerHTML.length == 10) {
+        document.getElementById("famDocFax").innerHTML = document.getElementById("famDocFax").innerHTML.substring(3,0) + "-" + document.getElementById("famDocFax").innerHTML.substring(3,6) + "-" + document.getElementById("famDocFax").innerHTML.substring(6);
+    }
+    if (document.getElementById("famDocFax").innerHTML.length == 11 && document.getElementById("famDocFax").innerHTML.length.charAt(3) == '-') {
+        document.getElementById("famDocFax").innerHTML = document.getElementById("famDocFax").innerHTML.substring(3,0) + "-" +document.getElementById("famDocFax").innerHTML.substring(4,7) + "-" + document.getElementById("famDocFax").innerHTML.substring(7);
     }
 }
 
@@ -241,4 +268,29 @@ function isCanadian(){
             return false;
     }
     return true;
+}
+
+function getSpecialistInfo(specialistId, specialistType) {
+    if (specialistId != null || specialistId != ""){
+        jQuery.getJSON("../oscarEncounter/oscarConsultationRequest/getProfessionalSpecialist.json", {id: specialistId},
+            function (xml) {
+                if (specialistType == "r") {
+                    document.getElementById("refDocPhone").innerHTML = xml.phoneNumber;
+                    document.getElementById("refDocFax").innerHTML = xml.faxNumber;
+                } else if(specialistType = 'f'){
+                    document.getElementById("famDocPhone").innerHTML = xml.phoneNumber;
+                    document.getElementById("famDocFax").innerHTML = xml.faxNumber;
+                }
+            });
+        formatPhoneNum();
+    }
+    else{
+        if (specialistType == "r") {
+            document.getElementById("refDocPhone").innerHTML = "";
+            document.getElementById("refDocFax").innerHTML = "";
+        } else if(specialistType = 'f'){
+            document.getElementById("famDocPhone").innerHTML = "";
+            document.getElementById("famDocFax").innerHTML = "";
+        }
+    }
 }

@@ -397,6 +397,14 @@ jQuery( document ).ready( function() {
 
 <script language="JavaScript" type="text/javascript">
 
+jQuery(document).ready(function() {
+	var referralDoctorId = document.updatedelete.r_doctor_id.value;
+
+	var familyDoctorId = document.updatedelete.f_doctor_id.value;
+	getSpecialistInfo(referralDoctorId, 'r')
+	getSpecialistInfo(familyDoctorId, 'd')
+});
+
 function checkTypeIn() {
   var dob = document.titlesearch.keyword; typeInOK = false;
 
@@ -2302,12 +2310,16 @@ if ( Dead.equals(PatStat) ) {%>
                                                     <li><span class="label"><bean:message
                                                             key="demographic.demographiceditdemographic.formRefDoc" />:</span><span class="info"><%=rd%></span>
 							</li>
+							<li><span class="label">Referral Doctor Phone #:</span> <span class="info" id="refDocPhone"></span></li>
+							<li><span class="label">Referral Doctor Fax #:</span> <span class="info" id="refDocFax"></span></li>
                                                     <li><span class="label"><bean:message
                                                             key="demographic.demographiceditdemographic.formRefDocNo" />:</span><span class="info"><%=rdohip%></span>
 							</li>
                             <li><span class="label"><bean:message
                                     key="demographic.demographiceditdemographic.formFamDoc" />:</span><span class="info"><%=fam_doc_name%></span>
                             </li>
+							<li><span class="label">Family Doctor Phone #:</span> <span class="info" id="famDocPhone"></span></li>
+							<li><span class="label">Family Doctor Fax #:</span> <span class="info" id="famDocFax"></span></li>
                             <li><span class="label"><bean:message
                                     key="demographic.demographiceditdemographic.formFamDocNo" />:</span><span class="info"><%=fam_doc_ohip%></span>
                             </li>
