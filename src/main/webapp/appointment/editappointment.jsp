@@ -729,13 +729,14 @@ function setType(typeSel,reasonSel,locSel,durSel,notesSel,resSel) {
             <div class="label"><bean:message key="Appointment.formReason" />:</div>
             <div class="input">
 				<select name="reasonCode">
+                    <option value="0" selected></option>
 					<%
 					Integer apptReasonCode = bFirstDisp ? (appt.getReasonCode() == null ? 0 : appt.getReasonCode()) : Integer.parseInt(request.getParameter("reasonCode"));
 					if(reasonCodes != null) {
 						for(LookupListItem reasonCode : reasonCodes.getItems()) {
 							if(reasonCode.isActive() || (apptReasonCode.equals(reasonCode.getId()) && !reasonCode.isActive())) {
 					%>
-						<option value="<%=reasonCode.getId()%>" <%=apptReasonCode.equals(reasonCode.getId()) ? "selected=\"selected\"" : "" %>><%=StringEscapeUtils.escapeHtml(reasonCode.getValue())%></option>
+						<option value="<%=reasonCode.getId()%>" <%=apptReasonCode.equals(reasonCode.getId()) ? "selected=\"selected\"" : "" %>><%=StringEscapeUtils.escapeHtml(reasonCode.getLabel())%></option>
 					<%
 							} } //end of for loop
 					} else {
