@@ -702,8 +702,11 @@ public class BillingONCHeader1Dao extends AbstractDao<BillingONCHeader1>{
 		
 		app.and("bi.dx = :dx", "dx", dx);
 		app.and("ch1.visitType = :visitType", "visitType", visitType);
-		
-		if( serviceCodes != null && !serviceCodes.isEmpty()) {
+
+		if(serviceCodes.size()  == 1){
+            app.and("bi.serviceCode like :serviceCode", "serviceCode", "%" + serviceCodes.get(0) + "%");
+        }
+		else if( serviceCodes != null && !serviceCodes.isEmpty() && serviceCodes.size() > 1) {
 			app.and("bi.serviceCode in (:serviceCodes)", "serviceCodes", serviceCodes);
 		}
         
