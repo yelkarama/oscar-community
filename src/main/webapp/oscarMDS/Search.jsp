@@ -27,6 +27,14 @@
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
 <%@ page import="oscar.oscarMDS.data.ProviderData, java.util.ArrayList"%>
+<%@page import="org.oscarehr.util.LoggedInInfo"%>
+
+<%
+	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+	String firstName = loggedInInfo.getLoggedInProvider().getFirstName();
+	String lastName = loggedInInfo.getLoggedInProvider().getLastName();
+%>
+
 <html>
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
@@ -36,6 +44,7 @@
 
 <script type="text/javascript" >
 var readOnly=false;
+
 function onSubmitCheck(){
 	if(!check_date('startDate')){
 		return false;
@@ -90,7 +99,7 @@ $(function() {
     	  $( "#autocompleteprov" ).val(ui.item.label);
     	  $( "#provfind" ).val(ui.item.value);
     	  return false;
-      }      
+      },
     })
   });
 
@@ -179,8 +188,8 @@ $(function() {
 			<tr>
 			<td>&nbsp;</td>
 			<td>
-				<input type="hidden" name="searchProviderNo" id="provfind" />
-                <input type="text" id="autocompleteprov" name="demographicKeyword"/>
+				<input type="hidden" value="<%= request.getParameter("providerNo") %>"name="searchProviderNo" id="provfind" />
+                <input type="text"  value="<%= lastName + ", " + firstName %>" id="autocompleteprov" name="demographicKeyword"/>
 			</td>
 			</tr>
 			<tr>
