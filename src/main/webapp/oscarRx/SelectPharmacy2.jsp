@@ -26,6 +26,7 @@
 <%@page import="java.io.StringWriter"%>
 <%@page import="org.codehaus.jackson.map.ObjectMapper"%>
 <%@page import="org.apache.commons.lang.StringEscapeUtils"%>
+<%@page import="oscar.OscarProperties,oscar.log.*"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
@@ -231,7 +232,7 @@ oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBea
                 }
             });
         });
-      
+
       $(".pharmacyItem").click(function(){
 		  var pharmId = $(this).attr("pharmId");
 		  
@@ -294,7 +295,19 @@ function viewPharmacy(id){
         height: 500
     });
 }
-  
+
+
+function returnToRx(){
+	var rx_enhance = <%=OscarProperties.getInstance().getProperty("rx_enhance")%>;
+
+	if(rx_enhance){
+	    opener.window.refresh();
+	    window.close();
+	} else {
+        window.location.href="SearchDrug3.jsp";
+	}
+}
+
 </script>
 </head>
 <body topmargin="0" leftmargin="0" vlink="#0000FF">
@@ -322,7 +335,10 @@ function viewPharmacy(id){
 				<div class="DivContentTitle"><b><bean:message
 					key="SearchDrug.nameText" /></b> <jsp:getProperty name="patient"
 					property="surname" />, <jsp:getProperty name="patient"
-					property="firstName" /></div>
+					property="firstName" />
+
+					<input type=button class="ControlPushButton ReturnToRx" onclick="returnToRx();" value="Return to RX" />
+				</div>
 				<br />
 				&nbsp; <bean:message key="SelectPharmacy.instructions" /></td>
 			</tr>			
@@ -377,14 +393,6 @@ function viewPharmacy(id){
 					</table>
 					</div>
 				</td>
-			</tr>			
-			<tr>
-				<td colspan="2">
-				<%
-                        String sBack="SearchDrug3.jsp";
-                      %> <input type=button class="ControlPushButton"
-					onclick="javascript:window.location.href='<%=sBack%>';"
-					value="Back to Rx" /></td>
 			</tr>
 			<!----End new rows here-->
 			<tr height="100%">

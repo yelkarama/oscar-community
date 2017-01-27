@@ -741,6 +741,14 @@ TABLE {
 	font-family: Verdana, Tahoma, Arial, sans-serif;
 }
 
+.ReturnToRx{
+	float: right;
+	margin-right: 10px;
+	margin-top: 8px;
+	font-size: 10px;
+	width: 100px;
+	height: 25px;
+}
 .ControlTextField {
 	font-family: Verdana, Tahoma, Arial, sans-serif;
 	font-size: 100%;
