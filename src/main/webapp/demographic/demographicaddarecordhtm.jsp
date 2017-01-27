@@ -122,7 +122,7 @@
   String prov= (props.getProperty("billregion","")).trim().toUpperCase();
 
   String billingCentre = (props.getProperty("billcenter","")).trim().toUpperCase();
-  String defaultCity = prov.equals("ON")&&billingCentre.equals("N") ? "Toronto":"";
+  String defaultCity = prov.equals("ON")&&billingCentre.equals("N") ? OscarProperties.getInstance().getProperty("default_city") : "";
 
   WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
   CountryCodeDao ccDAO =  (CountryCodeDao) ctx.getBean("countryCodeDao");
