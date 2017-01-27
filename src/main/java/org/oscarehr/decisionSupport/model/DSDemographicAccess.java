@@ -32,6 +32,7 @@ package org.oscarehr.decisionSupport.model;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
@@ -57,6 +58,9 @@ import org.oscarehr.util.SpringUtils;
 
 import oscar.OscarProperties;
 import oscar.oscarBilling.ca.bc.MSP.ServiceCodeValidationLogic;
+import oscar.oscarBilling.ca.on.data.BillingClaimHeader1Data;
+import oscar.oscarBilling.ca.on.data.BillingItemData;
+import oscar.oscarBilling.ca.on.data.JdbcBillingReviewImpl;
 import oscar.oscarDemographic.data.DemographicData;
 import oscar.oscarEncounter.oscarMeasurements.MeasurementFlowSheet;
 import oscar.oscarEncounter.oscarMeasurements.MeasurementInfo;
@@ -598,11 +602,13 @@ public class DSDemographicAccess {
 
     public boolean paidAll(String searchStrings,Map options) {
 
+        int MAX_CODES_PER_YEAR = 4;
+        int count = 0;
         int countPaid = 0;
         int numCodes = 0;
-
 	if(options.containsKey("payer") && options.get("payer").equals("MSP")){
 
+	        count = 0;
             BillingONCHeader1Dao billingONCHeader1Dao = (BillingONCHeader1Dao)SpringUtils.getBean("billingONCHeader1Dao");
             String[] codes = searchStrings.replaceAll("'","" ).split(",");
             numCodes = codes.length;
@@ -611,6 +617,25 @@ public class DSDemographicAccess {
                 int inDays = getAsInt(options,"inDays");
 
                 for (String code: codes){
+                    JdbcBillingReviewImpl dbObj = new JdbcBillingReviewImpl();
+                    List<Object> billingHistory = dbObj.getBillingHist(demographicNo, 1000000, 0,null);
+                    Calendar c = Calendar.getInstance();
+                    int currentYear = c.get(Calendar.YEAR);
+                    for(int i=0; i<billingHistory.size(); i=i+2) {
+                        BillingClaimHeader1Data header1Data = (BillingClaimHeader1Data) billingHistory.get(i);
+                        BillingItemData itemData = (BillingItemData) billingHistory.get(i + 1);
+                        String strServiceCode = itemData.getService_code();
+                        int billingYear = Integer.parseInt(header1Data.getBilling_date().split("-")[0]);
+                        if (!code.equals("")) {
+                            if (strServiceCode.indexOf(code) < 0) {
+                                continue;
+                            } else if (strServiceCode.contains(code) && (billingYear == currentYear)) {
+                                count++;
+                            }
+                        }
+                    }
+
+
                     //This returns how many days since the last time this code was paid and -1 if it never has been settled
                     int numDaysSinceSettled = billingONCHeader1Dao.getDaysSincePaid(code, Integer.parseInt(demographicNo));
                     int numDaysSinceBilled =  billingONCHeader1Dao.getDaysSinceBilled(code, Integer.parseInt(demographicNo));
@@ -624,7 +649,7 @@ public class DSDemographicAccess {
             }
         }
 
-	return ((countPaid > 0) && (countPaid == numCodes));
+	return ((countPaid > 0) && (countPaid == numCodes) && (count >= MAX_CODES_PER_YEAR));
     }
     public boolean paidNot(String searchStrings,Map options) throws DecisionSupportException { throw new DecisionSupportException("NOT IMPLEMENTED");  }
     public boolean paidNotall(String searchStrings,Map options) throws DecisionSupportException { throw new DecisionSupportException("NOT IMPLEMENTED"); }
