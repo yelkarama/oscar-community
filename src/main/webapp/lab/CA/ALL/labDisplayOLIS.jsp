@@ -48,6 +48,10 @@ PatientLabRoutingDao plrDao = preview ? null : (PatientLabRoutingDao) SpringUtil
 PatientLabRouting plr = preview ? null : plrDao.findDemographicByLabId(Integer.valueOf(segmentID));
 String demographicID = preview || plr.getDemographicNo() == null ? "" : plr.getDemographicNo().toString();
 
+GregorianCalendar cal = new GregorianCalendar();
+int curYear = cal.get(Calendar.YEAR);
+int curMonth = (cal.get(Calendar.MONTH)+1);
+int curDay = cal.get(Calendar.DAY_OF_MONTH);
 
 if(demographicID != null && !demographicID.equals("")){
     LogAction.addLog((String) session.getAttribute("user"), LogConst.READ, LogConst.CON_HL7_LAB, segmentID, request.getRemoteAddr(),demographicID);
@@ -328,9 +332,10 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                     <% if ( demographicID != null && !demographicID.equals("") && !demographicID.equalsIgnoreCase("null")){ %>
                                     <input type="button" value="Msg" onclick="popup(700,960,'../../../oscarMessenger/SendDemoMessage.do?demographic_no=<%=demographicID%>','msg')"/>
                                     <input type="button" value="Tickler" onclick="popup(450,600,'../../../tickler/ForwardDemographicTickler.do?docType=HL7&docId=<%= segmentID %>&demographic_no=<%=demographicID%>','tickler')"/>
+                                    <input type="button" value=" <bean:message key="oscarMDS.segmentDisplay.btnEChart"/> " onClick="popupStart(710,1024, '/oscar/oscarEncounter/IncomingEncounter.do?providerNo=<%=providerNo%>&appointmentNo=&demographicNo=<%=demographicID%>&curProviderNo=&reason=Lab%20Results&encType=&curDate=<%=curYear%>-<%=curMonth%>-<%=curDay%>&appointmentDate=&startTime=&status='
+                                            +'&curDate=<%=curYear%>-<%=curMonth%>-<%=curDay%>&appointmentDate=&startTime=&status=')">
                                     <% } %>
 
-                                    <input type="button" value=" <bean:message key="oscarMDS.segmentDisplay.btnEChart"/> " onClick="popupStart(360, 680, '../../../oscarMDS/SearchPatient.do?labType=HL7&segmentID=<%= segmentID %>&name=<%=java.net.URLEncoder.encode(handler.getLastName()+", "+handler.getFirstName())%>', 'searchPatientWindow')">
 
 				    <input type="button" value="Req# <%=reqTableID%>" title="Link to Requisition" onclick="linkreq('<%=segmentID%>','<%=reqID%>');" />
                                     <span class="Field2"><i>Next Appointment: <%=AppointmentUtil.getNextAppointment(demographicID) %></i></span>
@@ -1634,8 +1639,9 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                         <indivo:indivoRegistered demographic="<%=demographicID%>" provider="<%=providerNo%>">
                                         <input type="button" value="<bean:message key="global.btnSendToPHR"/>" onClick="sendToPHR('<%=segmentID%>', '<%=demographicID%>')">
                                         </indivo:indivoRegistered>
-                                    <% if ( searchProviderNo != null ) { // we were called from e-chart %>
-                                    <input type="button" value=" <bean:message key="oscarMDS.segmentDisplay.btnEChart"/> " onClick="popupStart(360, 680, '../../../oscarMDS/SearchPatient.do?labType=HL7&segmentID=<%=segmentID%>&name=<%=java.net.URLEncoder.encode(handler.getLastName()+", "+handler.getFirstName())%>', 'searchPatientWindow')">
+                                    <% if ( searchProviderNo != null && demographicID != null) { // we were called from e-chart %>
+                                    <input type="button" value=" <bean:message key="oscarMDS.segmentDisplay.btnEChart"/> " onClick="popupStart(710,1024, '/oscar/oscarEncounter/IncomingEncounter.do?providerNo=<%=providerNo%>&appointmentNo=&demographicNo=<%=demographicID%>&curProviderNo=&reason=Lab%20Results&encType=&curDate=<%=curYear%>-<%=curMonth%>-<%=curDay%>&appointmentDate=&startTime=&status='
+                                            +'&curDate=<%=curYear%>-<%=curMonth%>-<%=curDay%>&appointmentDate=&startTime=&status=')">
                                     <% } %>
                                 </td>
                                 <td width="50%" valign="center" align="left">
