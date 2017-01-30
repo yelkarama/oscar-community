@@ -87,8 +87,8 @@ public final class RxSearchDrugAction extends DispatchAction {
     	RxDrugData.DrugSearch drugSearch = null;
 
     	try{
-    		if (genericSearch != null ){                    
-    			drugSearch = drugData.listDrugFromElement(genericSearch);
+    		if (genericSearch != null){
+    			drugSearch = drugData.listDrug(genericSearch);
     		}
     		else if (!searchRoute.equals("")){
     			drugSearch = drugData.listDrugByRoute(searchString, searchRoute);
