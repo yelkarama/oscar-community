@@ -24,12 +24,7 @@
 
 package org.oscarehr.provider.web;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -49,6 +44,7 @@ import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
+import oscar.OscarProperties;
 import oscar.eform.EFormUtil;
 import oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctConsultationFormRequestUtil;
 
@@ -2492,7 +2488,77 @@ public ActionForward viewEDocBrowserInDocumentReport(ActionMapping actionmapping
 
 		return actionmapping.findForward("genAppointmentCardPrefs");
 	}
-    
+
+    public ActionForward viewDefaultSearchMode(ActionMapping actionmapping, ActionForm actionform, HttpServletRequest request, HttpServletResponse response) {
+		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+		String providerNo = loggedInInfo.getLoggedInProviderNo();
+		ResourceBundle oscarResources = ResourceBundle.getBundle("oscarResources", Locale.ENGLISH);
+		DynaActionForm frm = (DynaActionForm)actionform;
+		UserProperty prop = this.userPropertyDAO.getProp(providerNo, UserProperty.DEFAULT_SEARCH_MODE);
+
+		if (prop == null){
+			prop = new UserProperty();
+		}
+
+		ArrayList<LabelValueBean> serviceList = new ArrayList<LabelValueBean>();
+		serviceList.add(new LabelValueBean(oscarResources.getString("demographic.zdemographicfulltitlesearch.formName"), "search_name"));
+		serviceList.add(new LabelValueBean(oscarResources.getString("demographic.zdemographicfulltitlesearch.formPhone"), "search_phone"));
+		serviceList.add(new LabelValueBean(oscarResources.getString("demographic.zdemographicfulltitlesearch.formDOB"), "search_dob"));
+		serviceList.add(new LabelValueBean(oscarResources.getString("demographic.zdemographicfulltitlesearch.formAddr"), "search_address"));
+		serviceList.add(new LabelValueBean(oscarResources.getString("demographic.zdemographicfulltitlesearch.formHIN"), "search_hin"));
+		serviceList.add(new LabelValueBean(oscarResources.getString("demographic.zdemographicfulltitlesearch.formChart"), "search_chart_no"));
+		serviceList.add(new LabelValueBean(oscarResources.getString("demographic.zdemographicfulltitlesearch.formDemographicNo"), "search_demographic_no"));
+		if (OscarProperties.getInstance().isPropertyActive("FIRST_NATIONS_MODULE")) {
+			serviceList.add(new LabelValueBean(oscarResources.getString("demographic.zdemographicfulltitlesearch.formBandNumber"), "search_band_number"));
+		}
+		
+		request.setAttribute("dropOpts",serviceList);
+
+		request.setAttribute("dateProperty",prop);
+
+
+		request.setAttribute("providertitle","provider.setDefaultSearchMode.title");
+		request.setAttribute("providermsgPrefs","provider.setDefaultSearchMode.msgPrefs");
+		request.setAttribute("providermsgProvider","provider.setDefaultSearchMode.msgDefaultSex");
+		request.setAttribute("providermsgEdit","provider.setDefaultSearchMode.msgEdit");
+		request.setAttribute("providerbtnSubmit","provider.setDefaultSearchMode.btnSubmit");
+		request.setAttribute("providermsgSuccess","provider.setDefaultSearchMode.msgSuccess");
+		request.setAttribute("method","saveDefaultSearchMode");
+
+		frm.set("dateProperty", prop);
+		
+		return  actionmapping.findForward("gen");
+	}
+	public ActionForward saveDefaultSearchMode(ActionMapping actionmapping, ActionForm actionform, HttpServletRequest request, HttpServletResponse response) {
+		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+		String providerNo=loggedInInfo.getLoggedInProviderNo();
+
+		DynaActionForm frm = (DynaActionForm)actionform;
+		UserProperty prop = (UserProperty)frm.get("dateProperty");
+		String fmt = prop != null ? prop.getValue() : "";
+		UserProperty saveProperty = this.userPropertyDAO.getProp(providerNo,UserProperty.DEFAULT_SEARCH_MODE);
+
+		if( saveProperty == null ) {
+			saveProperty = new UserProperty();
+			saveProperty.setProviderNo(providerNo);
+			saveProperty.setName(UserProperty.DEFAULT_SEARCH_MODE);
+		}
+
+		saveProperty.setValue(fmt);
+		this.userPropertyDAO.saveProp(saveProperty);
+
+		request.setAttribute("status", "success");
+		request.setAttribute("providertitle","provider.setDefaultSearchMode.title");
+		request.setAttribute("providermsgPrefs","provider.setDefaultSearchMode.msgPrefs");
+		request.setAttribute("providermsgProvider","provider.setDefaultSearchMode.msgDefaultSex");
+		request.setAttribute("providermsgEdit","provider.setDefaultSearchMode.msgEdit");
+		request.setAttribute("providerbtnSubmit","provider.btnSubmit");
+		request.setAttribute("providermsgSuccess","provider.setDefaultSearchMode.msgSuccess");
+		request.setAttribute("method","saveDefaultSearchMode");
+
+		return actionmapping.findForward("gen");
+	}
+
     /**
      * Creates a new instance of ProviderPropertyAction
      */

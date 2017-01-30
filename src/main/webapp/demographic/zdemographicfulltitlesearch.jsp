@@ -28,6 +28,9 @@
 <%@ page import="java.lang.*"%>
 <%@page import="oscar.OscarProperties"%>
 <%@page import="org.apache.commons.lang.StringEscapeUtils"%>
+<%@ page import="org.oscarehr.common.dao.UserPropertyDAO" %>
+<%@ page import="org.oscarehr.util.SpringUtils" %>
+<%@ page import="org.oscarehr.common.model.UserProperty" %>
 
 <%
         boolean fromMessenger = request.getParameter("fromMessenger") == null ? false : (request.getParameter("fromMessenger")).equalsIgnoreCase("true")?true:false;
@@ -82,7 +85,10 @@ function searchOutOfDomain() {
     <li>
         <div class="label">
         </div>
-	<% String searchMode = request.getParameter("search_mode");
+	<%
+        UserPropertyDAO userPropertyDAO = (UserPropertyDAO) SpringUtils.getBean("UserPropertyDAO");
+        UserProperty defaultSearchModeProp = userPropertyDAO.getProp((String)session.getAttribute("user"),"DEFAULT_SEARCH_MODE");
+        String searchMode = (defaultSearchModeProp==null) ? request.getParameter("search_mode") : defaultSearchModeProp.getValue();
          String keyWord = request.getParameter("keyword");
          if (searchMode == null || searchMode.equals("")) {
              searchMode = OscarProperties.getInstance().getProperty("default_search_mode","search_name");             
