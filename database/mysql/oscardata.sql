@@ -2888,3 +2888,11 @@ INSERT INTO `kai15`.`secobjprivilege` (`roleUserGroup`, `objectName`, `privilege
 INSERT INTO `kai15`.`secobjprivilege` (`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('readOnly', '_Concerns', 'r', '0', '999998');
 INSERT INTO `kai15`.`secobjprivilege` (`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('readOnly', '_SocHistory', 'r', '0', '999998');
 INSERT INTO `kai15`.`secobjprivilege` (`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('readOnly', '_demographic.createInvoice', 'r', '0', '999998');
+
+insert into scheduletemplate Values('Public','P:OnCallClinic','Weekends/Holidays','________________________________________CCCCCCCCCCCCCCCC________________________________________');
+
+insert into scheduletemplatecode Values(null,'C','On Call Clinic','15','green','Onc',1);
+
+insert into OscarJobType Values(null,'OSCAR ON CALL CLINIC', 'Notifies MRP if patient seen during on-call clinic','org.oscarehr.jobs.OscarOnCallClinic',false,now());
+
+insert into OscarJob Values(null,'OSCAR On-Call Clinic',null,(select id from OscarJobType where name = 'OSCAR ON CALL CLINIC'),'0 0 4 * * *','999998',false,now());

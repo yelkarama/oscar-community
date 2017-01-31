@@ -619,7 +619,9 @@
 		<action path="/lookupListManagerAction" type="org.oscarehr.admin.lookUpLists.LookupListManagerAction" scope="request" validate="false" parameter="method">
 			<forward name="success" path="/admin/lookUpLists/" />
 		</action>
-
+		
+		<action path="/admin/oncallClinic" scope="request" parameter="method" type="org.oscarehr.admin.reports.SaveOnCallClinicAction"></action>
+	
 		<!-- OMD Dashboard Proof of Concept -->
 		<action input="/web/dashboard/admin/DashboardManager.jsp" name="FrmForm" path="/web/dashboard/admin/DashboardManager" 
 			parameter="method" type="org.oscarehr.dashboard.admin.ManageDashboardAction" scope="request" >
