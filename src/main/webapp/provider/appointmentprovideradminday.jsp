@@ -1769,7 +1769,7 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
     List<Appointment> appointmentsToCount = appointmentDao.searchappointmentday(curProvider_no[nProvider], ConversionUtils.fromDateString(year+"-"+month+"-"+day),ConversionUtils.fromIntString(programId_oscarView));
     Integer appointmentCount = 0;
     for(Appointment appointment : appointmentsToCount){
-    	if (!appointment.getStatus().equals("C") && !appointment.getStatus().equals("N") && appointment.getDemographicNo() != 0){
+    	if (!appointment.getStatus().equals("C") && !appointment.getStatus().equals("CS") && !appointment.getStatus().equals("N") && !appointment.getStatus().equals("NS") && appointment.getDemographicNo() != 0){
     		appointmentCount++;
      	}
     }
