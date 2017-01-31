@@ -1268,11 +1268,9 @@ public final class RxWriteScriptAction extends DispatchAction {
 
 			RxPrescriptionData rxData = new RxPrescriptionData();
 			RxPrescriptionData.Prescription oldRx = rxData.getPrescription(drugId);
-			oldRx.setLongTerm(!oldRx.isLongTerm());
-			boolean b = oldRx.Save(oldRx.getScript_no());
+			oldRx.SetLongTermAndSave(!oldRx.isLongTerm());
 			HashMap hm = new HashMap();
-			if (b) hm.put("success", true);
-			else hm.put("success", false);
+			hm.put("success", true);
 			JSONObject jsonObject = JSONObject.fromObject(hm);
 			response.getOutputStream().write(jsonObject.toString().getBytes());
 			return null;

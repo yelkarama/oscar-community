@@ -1569,17 +1569,6 @@ public class RxPrescriptionData {
 
 			if (escapedSpecial == null || escapedSpecial.length() < 6) logger.warn("drug special after escaping appears to be null or empty : " + escapedSpecial);
 
-			// check to see if there is an identitical prescription in
-			// the database. If there is we'll return that drugid instead
-			// of adding a new prescription.
-			/*
-						String endDate;
-						if (this.getEndDate() == null) {
-							endDate = "0001-01-01";
-						} else {
-							endDate = RxUtil.DateToString(this.getEndDate());
-						}
-			*/
 			DrugDao dao = SpringUtils.getBean(DrugDao.class);
 			// double check if we don't h
 			Drug drug = dao.findByEverything(this.getProviderNo(), this.getDemographicNo(), this.getRxDate(), this.getEndDate(), this.getWrittenDate(), this.getBrandName(), this.getGCN_SEQNO(), this.getCustomName(), this.getTakeMin(), this.getTakeMax(), this.getFrequencyCode(), this.getDuration(), this.getDurationUnit(), this.getQuantity(), this.getUnitName(), this.getRepeat(), this.getLastRefillDate(), this.getNosubs(), this.getPrn(), escapedSpecial, this.getOutsideProviderName(),
@@ -1649,6 +1638,14 @@ public class RxPrescriptionData {
 			drug.setComment(getComment());
 			drug.setStartDateUnknown(getStartDateUnknown());
 			drug.setDispenseInternal(getDispenseInternal());
+		}
+
+		public boolean SetLongTermAndSave(boolean lt) {
+			DrugDao dao = SpringUtils.getBean(DrugDao.class);
+			Drug drug = dao.find(this.getDrugId());
+			drug.setLongTerm(lt);
+			dao.merge(drug);
+			return true;
 		}
 
 		public boolean AddToFavorites(String providerNo, String favoriteName) {
