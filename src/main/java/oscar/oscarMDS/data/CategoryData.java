@@ -42,6 +42,9 @@ public class CategoryData {
     private int totalNumDocs = 0;
     private int abnormalCount = 0;
     private int normalCount = 0;
+    private int unmatchedHRMCount = 0;
+    private int matchedHRMCount = 0;
+
     private HashMap<Integer,PatientInfo> patients;
 
 	public int getTotalDocs() {
@@ -72,6 +75,10 @@ public class CategoryData {
 		return normalCount;
 	}
 
+	public int getHRMCountMatched() { return matchedHRMCount; }
+
+	public int getHRMCountUnmatched() { return unmatchedHRMCount; }
+
 	public HashMap<Integer, PatientInfo> getPatients() {
 		return patients;
 	}
@@ -87,6 +94,8 @@ public class CategoryData {
 	private String documentJoinSql = "";
 	private String labDateSql = "";
 	private String labJoinSql = "";
+	private String hrmDateSql = "";
+	private String hrmProviderSql = "";
 
 	public CategoryData(String patientLastName, String patientFirstName, String patientHealthNumber, boolean patientSearch,
 					    boolean providerSearch, String searchProviderNo, String status, String startDate, String endDate)  {
@@ -102,11 +111,13 @@ public class CategoryData {
 		if (startDate != null && !startDate.equals("")) {
 			documentDateSql += "AND DATE(doc.observationdate) >= DATE('" + startDate + "') ";
 			labDateSql += "AND DATE(info.obr_date) >= DATE('" + startDate + "') ";
+			hrmDateSql += "AND h.timeReceived >= '" + startDate + "' ";
 		}
 		
 		if (endDate != null && !endDate.equals("")) {
 			documentDateSql += "AND DATE(doc.observationdate) <= DATE('" + endDate + "') ";
 			labDateSql += "AND DATE(info.obr_date) <= DATE('" + endDate + "') ";
+			hrmDateSql += "AND h.timeReceived <= '" + endDate + "' ";
 		}
 		
 		if (!documentDateSql.equals("")) {
@@ -115,6 +126,14 @@ public class CategoryData {
 
 		if (!labDateSql.equals("")) {
 			labJoinSql = " LEFT JOIN hl7TextInfo info ON plr.lab_no = info.lab_no";
+		}
+
+		if(providerSearch){
+			if(searchProviderNo.equals("0")){
+				hrmProviderSql += " AND hp.providerNo ='-1'";
+			} else{
+				hrmProviderSql += " AND hp.providerNo ='" + searchProviderNo +"' ";
+			}
 		}
 
     	totalDocs = 0;
@@ -134,10 +153,23 @@ public class CategoryData {
 		totalDocs += getDocumentCountForPatientSearch();
         totalLabs += getLabCountForPatientSearch();
 
+        //Checking for HRM counts for Logged in Doctor
+        matchedHRMCount = getHRMDocumentCountForPatient();
+
+        //Adding matched HRM count to total docs
+        totalDocs += matchedHRMCount;
+
         // If this is not a patient search, then we need to find the unmatched documents.
         if (!patientSearch) {
             unmatchedDocs += getDocumentCountForUnmatched();
             unmatchedLabs += getLabCountForUnmatched();
+
+            //Unmatched Counts for HRM
+            unmatchedHRMCount += getHRMDocumentCountForUnmatched();
+
+            //Adding Unmatched HRM to totalDocs
+			totalDocs += unmatchedHRMCount;
+
             totalDocs += unmatchedDocs;
             totalLabs += unmatchedLabs;
         }
@@ -317,9 +349,70 @@ public class CategoryData {
         	patients.put(info.id, info);
         	count += info.getDocCount();
         }
+
         return count;
 	}
 
+	public int getHRMDocumentCountForPatient() throws SQLException{
+		int count = 0;
+		PatientInfo info;
+
+		String sql = " SELECT HIGH_PRIORITY demographic_no, first_name, last_name, COUNT( distinct h.id) as count "
+						+ " FROM HRMDocument h "
+						+ " LEFT JOIN HRMDocumentToDemographic hd ON h.id = hd.hrmDocumentId"
+						+ " LEFT JOIN HRMDocumentToProvider hp ON h.id = hp.hrmDocumentId"
+						+ " LEFT JOIN demographic d ON hd.demographicNo = d.demographic_no"
+						+ " WHERE h.id IN (SELECT hrmDocumentId FROM HRMDocumentToDemographic hd)"
+						+ " 	AND d.last_name like '%"+patientLastName+"%' "
+						+ "		AND d.hin like '%"+patientHealthNumber+"%'"
+						+ "		AND d.first_name like '%"+patientFirstName+"%'"
+						+ hrmDateSql
+						+ hrmProviderSql
+						+ "GROUP BY demographic_no ";
+
+		Connection c  = DbConnectionFilter.getThreadLocalDbConnection();
+		PreparedStatement ps = c.prepareStatement(sql);
+		ResultSet rs= ps.executeQuery(sql);
+
+		while(rs.next()){
+			int id = rs.getInt("demographic_no");
+			// Updating patient info if it already exists.
+			if (patients.containsKey(id)) {
+				info = patients.get(id);
+				info.setDocCount(info.getDocCount() + rs.getInt("count"));
+			}
+			// Otherwise adding a new patient record.
+			else {
+				info = new PatientInfo(id, rs.getString("first_name"), rs.getString("last_name"));
+				info.setDocCount(rs.getInt("count"));
+				patients.put(info.id, info);
+			}
+
+			count += info.getDocCount();
+		}
+
+		return count;
+	}
+
+	public int getHRMDocumentCountForUnmatched() throws SQLException{
+		int count = 0;
+		String sql = " SELECT HIGH_PRIORITY COUNT( distinct h.id) as count "
+					+" FROM HRMDocument h"
+					+" LEFT JOIN HRMDocumentToProvider hp ON h.id = hp.hrmDocumentId"
+					+" WHERE h.id NOT IN (SELECT hrmDocumentId FROM HRMDocumentToDemographic) "
+					+ hrmDateSql
+					+ hrmProviderSql;
+
+		Connection c  = DbConnectionFilter.getThreadLocalDbConnection();
+		PreparedStatement ps = c.prepareStatement(sql);
+		ResultSet rs= ps.executeQuery(sql);
+
+		while(rs.next()){
+			count = rs.getInt("count");
+		}
+
+		return count;
+	}
 
 	public Long getCategoryHash() {
 		return Long.valueOf("" + (int)'A' + totalNumDocs)
