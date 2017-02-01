@@ -238,7 +238,7 @@ public class DmsInboxManageAction extends DispatchAction {
 				|| !"".equals(patientHealthNumber);
 		try {
 			CategoryData cData = new CategoryData(patientLastName, patientFirstName, patientHealthNumber,
-					patientSearch, providerSearch, searchProviderNo, status);
+					patientSearch, providerSearch, searchProviderNo, status, startDate, endDate);
 			cData.populateCountsAndPatients();
 			MiscUtils.getLogger().debug("LABS " + cData.getTotalLabs());
 			request.setAttribute("patientFirstName", patientFirstName);
