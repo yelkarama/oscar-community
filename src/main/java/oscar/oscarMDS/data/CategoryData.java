@@ -114,7 +114,7 @@ public class CategoryData {
 		}
 
 		if (!labDateSql.equals("")) {
-			labJoinSql = " LEFT JOIN HL7TextInfo info ON plr.lab_no = info.lab_no";
+			labJoinSql = " LEFT JOIN hl7TextInfo info ON plr.lab_no = info.lab_no";
 		}
 
     	totalDocs = 0;
