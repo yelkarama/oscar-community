@@ -88,7 +88,7 @@ public class EctDisplayPreventionAction extends EctDisplayAction {
         String highliteColour = "#FF0000";
         String inelligibleColour = "#FF6600";
         String pendingColour = "#FF00FF";
-        String refusedColour = "#FFDDDD";
+        String refusedColour = "#EAACAC";	//light pink
         Date date = null;
         //Date defaultDate = new Date(System.currentTimeMillis());
         url += "; return false;";
