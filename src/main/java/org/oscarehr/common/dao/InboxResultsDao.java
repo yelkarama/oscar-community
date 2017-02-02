@@ -21,9 +21,11 @@ import javax.persistence.Query;
 
 import org.apache.http.impl.cookie.DateUtils;
 import org.apache.log4j.Logger;
+import org.oscarehr.util.SpringUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import oscar.oscarLab.ca.on.LabResultData;
+import oscar.util.StringUtils;
 
 @Transactional
 public class InboxResultsDao {
@@ -470,10 +472,28 @@ public class InboxResultsDao {
 				lbData.accessionNumber = "";
 				lbData.resultStatus = "N";
 
-				lbData.dateTime = getStringValue(r[obsDateLoc]);
-				lbData.setDateObj(DateUtils.parseDate(getStringValue(r[obsDateLoc]), new String[] {
-						"yyyy-MM-dd"
-				}));
+                DocumentDao documentDao = (DocumentDao) SpringUtils.getBean("documentDao");
+                Date contentDateTime = documentDao.findActiveByDocumentNo(Integer.parseInt(getStringValue(r[docNoLoc]))).get(0).getContentdatetime();
+
+                if(!StringUtils.isNullOrEmpty(getStringValue(r[obsDateLoc]))){
+                    //if observation is not null, set that as date
+                    lbData.dateTime = getStringValue(r[obsDateLoc]);
+                    lbData.setDateObj(DateUtils.parseDate(getStringValue(r[obsDateLoc]), new String[]{
+                            "yyyy-MM-dd"
+                    }));
+                }
+                else if (!StringUtils.isNullOrEmpty(getStringValue(r[updateDateLoc]))){
+                    //elseif updateDate is not null, set that as date
+                    lbData.dateTime = getStringValue(r[updateDateLoc]);
+                    lbData.setDateObj(DateUtils.parseDate(getStringValue(r[updateDateLoc]), new String[] {
+                            "yyyy-MM-dd"
+                    }));
+                }
+                else if(contentDateTime!=null){
+                    //elseif contentDate is not null, set that as date
+                    lbData.dateTime = dateSqlFormatter.format(contentDateTime);
+                    lbData.setDateObj(contentDateTime);
+                }
 
 				String priority = "";
 				if (priority != null && !priority.equals("")) {
