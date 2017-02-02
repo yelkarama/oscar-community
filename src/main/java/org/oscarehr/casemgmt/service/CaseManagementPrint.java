@@ -248,7 +248,12 @@ public class CaseManagementPrint {
 		CaseManagementPrintPdf printer = new CaseManagementPrintPdf(request, out);
 		printer.printDocHeaderFooter();
 		printer.printCPP(cpp);
-		printer.printRx(demoNo, othermeds);
+		if(startDate!=null&&endDate!=null){
+			printer.printRx(demoNo, othermeds, startDate, endDate);
+		}
+		else{
+			printer.printRx(demoNo, othermeds);
+		}
 		printer.printNotes(notes);
 
 		/* check extensions */
