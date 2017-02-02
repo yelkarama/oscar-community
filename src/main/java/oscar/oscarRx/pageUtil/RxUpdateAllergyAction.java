@@ -21,6 +21,7 @@ import oscar.log.LogAction;
 import oscar.log.LogConst;
 import oscar.oscarRx.data.RxDrugData;
 import oscar.oscarRx.data.RxPatientData;
+import oscar.util.StringUtils;
 
 import static oscar.oscarRx.util.RxUtil.StringToDate;
 
@@ -41,9 +42,13 @@ public class RxUpdateAllergyAction extends Action{
         Integer type = Integer.parseInt(request.getParameter("type"));
         String reactionDescription = request.getParameter("reactionDescription");
 
+        Date startDate = null;
         String startDateString = request.getParameter("startDate");
-        String pattern = allergy.getDatePattern(startDateString).toUpperCase();
-        Date startDate = StringToDate(startDateString, pattern);
+        String pattern = "";
+        if(!StringUtils.isNullOrEmpty(startDateString)){
+            pattern = allergy.getDatePattern(startDateString).toUpperCase();
+            startDate = StringToDate(startDateString, pattern);
+        }
 
         String ageOfOnset = request.getParameter("ageOfOnset");
         String severityOfReaction = request.getParameter("severityOfReaction");
@@ -68,13 +73,19 @@ public class RxUpdateAllergyAction extends Action{
             isUpdate = true;
         }
 
-        if(!startDate.equals(allergy.getStartDate())){
+        if(startDate!=null && !startDate.equals(allergy.getStartDate())){
+            //update when a new value is entered
             allergy.setStartDate(startDate);
             if (pattern.equals(PartialDate.YEARMONTH)) {
                 allergy.setStartDateFormat(PartialDate.YEARMONTH);
             } else if (pattern.equals(PartialDate.YEARONLY)) {
                 allergy.setStartDateFormat(PartialDate.YEARONLY);
             }
+            isUpdate = true;
+        }
+        else if(startDate==null && allergy.getStartDate()!=null){
+            //update if value is cleared
+            allergy.setStartDate(startDate);
             isUpdate = true;
         }
 
