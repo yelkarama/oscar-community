@@ -322,7 +322,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                     <% if ( !ackFlag ) { %>
                                     <input type="submit" value="<bean:message key="oscarMDS.segmentDisplay.btnAcknowledge"/>" onclick="return getComment();">
                                     <% } %>
-                                    <input type="button" class="smallButton" value="<bean:message key="oscarMDS.index.btnForward"/>" onClick="popupStart(300, 400, '../../../oscarMDS/SelectProvider.jsp', 'providerselect')">
+                                    <input type="button" class="smallButton" value="<bean:message key="oscarMDS.index.btnForward"/>" onClick="popupStart(397, 700, '../../../oscarMDS/SelectProvider.jsp?docId=<%=segmentID%>&labDisplay=true', 'providerselect')">
                                     <input type="button" value=" <bean:message key="global.btnClose"/> " onClick="window.close()">
                                     <input type="button" value=" <bean:message key="global.btnPrint"/> " onClick="printPDF()">
                                     <% if ( demographicID != null && !demographicID.equals("") && !demographicID.equalsIgnoreCase("null")){ %>
@@ -1628,7 +1628,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                     <% if ( providerNo != null /*&& ! mDSSegmentData.getAcknowledgedStatus(providerNo) */) { %>
                                     <input type="submit" value="<bean:message key="oscarMDS.segmentDisplay.btnAcknowledge"/>" onclick="getComment()">
                                     <% } %>
-                                    <input type="button" class="smallButton" value="<bean:message key="oscarMDS.index.btnForward"/>" onClick="popupStart(300, 400, '../../../oscarMDS/SelectProvider.jsp', 'providerselect')">
+                                    <input type="button" class="smallButton" value="<bean:message key="oscarMDS.index.btnForward"/>" onClick="popupStart(397, 700, '../../../oscarMDS/SelectProvider.jsp?docId=<%=segmentID%>&labDisplay=true', 'providerselect')">
                                     <input type="button" value=" <bean:message key="global.btnClose"/> " onClick="window.close()">
                                     <input type="button" value=" <bean:message key="global.btnPrint"/> " onClick="printPDF()">
                                         <indivo:indivoRegistered demographic="<%=demographicID%>" provider="<%=providerNo%>">
