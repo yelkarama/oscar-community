@@ -208,6 +208,6 @@ function next() {
 %>
 </form>
 <br>
-<a href="<%=request.getContextPath() %>/oscarEncounter/oscarConsultationRequest/config/ShowAllServices.jsp">Add/Edit Professional Specialist</a></center>
+<a href="<%=request.getContextPath() %>/oscarEncounter/oscarConsultationRequest/config/EditSpecialists.jsp">Add/Edit Professional Specialist</a></center>
 </body>
 </html:html>
