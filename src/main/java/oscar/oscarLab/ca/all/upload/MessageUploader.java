@@ -81,6 +81,7 @@ import oscar.oscarLab.ca.all.parsers.HHSEmrDownloadHandler;
 import oscar.oscarLab.ca.all.parsers.MEDITECHHandler;
 import oscar.oscarLab.ca.all.parsers.MessageHandler;
 import oscar.oscarLab.ca.all.parsers.SpireHandler;
+import oscar.oscarLab.ca.all.parsers.OLISHL7Handler;
 import oscar.util.UtilDateUtilities;
 
 public final class MessageUploader {
@@ -115,6 +116,7 @@ public final class MessageUploader {
 		String retVal = "";
 		try {
 			MessageHandler h = Factory.getHandler(type, hl7Body);
+			OLISHL7Handler handler = null;
 
 			String firstName = h.getFirstName();
 			String lastName = h.getLastName();
@@ -131,6 +133,11 @@ public final class MessageUploader {
 			ArrayList docNums = h.getDocNums();
 			int finalResultCount = h.getOBXFinalResultCount();
 			String obrDate = h.getMsgDate();
+			String collectionDate = "";
+			if (h instanceof OLISHL7Handler) {
+				handler = (OLISHL7Handler) h;
+                collectionDate = handler.getCollectionDateTime(0);
+			}
 
 			if(h instanceof HHSEmrDownloadHandler) {
 				try{
@@ -165,8 +172,10 @@ public final class MessageUploader {
 
 			try {
 				// reformat date
-				String format = "yyyy-MM-dd HH:mm:ss".substring(0, obrDate.length() - 1);
-				obrDate = UtilDateUtilities.DateToString(UtilDateUtilities.StringToDate(obrDate, format), "yyyy-MM-dd HH:mm:ss");
+				// use OBR date, if blank use specimen received date
+				String date = obrDate.trim()!=""?obrDate.substring(0,obrDate.length()-1):collectionDate.substring(0,collectionDate.trim().length());
+				String format = "yyyy-MM-dd HH:mm:ss".substring(0, date.length());
+				obrDate = UtilDateUtilities.DateToString(UtilDateUtilities.StringToDate(date, format), "yyyy-MM-dd HH:mm:ss");
 			} catch (Exception e) {				
 				logger.error("Error parsing obr date : ", e);
 				throw e;

@@ -46,7 +46,7 @@ String reqTableID = reqIDL==null ? "" : reqIDL.toString();
 
 PatientLabRoutingDao plrDao = preview ? null : (PatientLabRoutingDao) SpringUtils.getBean("patientLabRoutingDao");
 PatientLabRouting plr = preview ? null : plrDao.findDemographicByLabId(Integer.valueOf(segmentID));
-String demographicID = preview || plr.getDemographicNo() == null ? "" : plr.getDemographicNo().toString();
+String demographicID = preview || plr==null  || plr.getDemographicNo() == null ? "" : plr.getDemographicNo().toString();
 
 
 if(demographicID != null && !demographicID.equals("")){
