@@ -19,24 +19,25 @@
 --%>
 <%@page import="java.util.Iterator"%>
 <%@page import="java.util.List"%>
-<%@page import="org.oscarehr.common.dao.Icd9Dao"%>
-<%@page import="org.oscarehr.common.model.Icd9"%>
 <%@page import="org.oscarehr.util.SpringUtils"%>
+<%@ page import="org.oscarehr.common.dao.AbstractCodeSystemDao" %>
+<%@ page import="org.oscarehr.common.model.AbstractCodeSystemModel" %>
 <%
-
-            Icd9Dao icd9dao = (Icd9Dao) SpringUtils.getBean("Icd9DAO");
-
+            String codingSystem =  request.getParameter("codingSystem").trim();
+            String daoName = AbstractCodeSystemDao.getDaoName(codingSystem);
 
             String query = request.getParameter("q");
 
-            List<Icd9> Icd9List = icd9dao.getIcd9(query);
+            @SuppressWarnings("unchecked")
+            AbstractCodeSystemDao<AbstractCodeSystemModel<?>> csDao = (AbstractCodeSystemDao<AbstractCodeSystemModel<?>>) SpringUtils.getBean(daoName);
+            List<AbstractCodeSystemModel<?>> codeList = csDao.searchCode(query);
 
-            if (Icd9List != null && Icd9List.size() > 0) {
-                Iterator<Icd9> iterator = Icd9List.iterator();
+            if (codeList != null && codeList.size() > 0) {
+                Iterator<AbstractCodeSystemModel<?>> iterator = codeList.iterator();
                 while (iterator.hasNext()) {
-                    Icd9 icd9 = iterator.next();
-                    String code = icd9.getIcd9();
-                    String description = icd9.getDescription();
+                    AbstractCodeSystemModel<?> codeSystemModel = iterator.next();
+                    String code = codeSystemModel.getCode();
+                    String description = codeSystemModel.getDescription();
                     out.println(code + " --> " + description);
                 }
             }

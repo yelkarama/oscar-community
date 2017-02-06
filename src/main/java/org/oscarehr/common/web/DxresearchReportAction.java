@@ -269,6 +269,8 @@ public class DxresearchReportAction extends DispatchAction {
 
         DynaBean lazyForm = (DynaBean) form;
         String quickListName = (String)lazyForm.get("quicklistname");
+        String codeSystem = (String)lazyForm.get("codesystem");
+
         List codeSearch = dxresearchdao.getQuickListItems(quickListName);
         dxCodeSearchBean newAddition = null;
 
@@ -278,7 +280,7 @@ public class DxresearchReportAction extends DispatchAction {
 
         {
             newAddition = new dxCodeSearchBean();
-            newAddition.setType("icd9"); // ichppccode/icd10 not supported yet
+            newAddition.setType(codeSystem);
             newAddition.setDxSearchCode(codeSingle.split("-->")[0]);
             newAddition.setDescription(codeSingle.split("-->")[1]);
         }

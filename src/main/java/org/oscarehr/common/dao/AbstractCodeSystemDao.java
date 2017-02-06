@@ -23,13 +23,14 @@
  */
 package org.oscarehr.common.dao;
 
+import java.beans.Introspector;
 import java.util.List;
 
 import org.oscarehr.common.model.AbstractCodeSystemModel;
 
 public abstract class AbstractCodeSystemDao<T extends AbstractCodeSystemModel<?>> extends AbstractDao<T> {
 
-	public static enum codingSystem {icd9,ichppccode,SnomedCore}
+	public static enum codingSystem {icd9,ichppccode,SnomedCore,encodeFm}
 	
 	/**
 	 * Gets the name of the DAO for the specified code system
@@ -40,15 +41,34 @@ public abstract class AbstractCodeSystemDao<T extends AbstractCodeSystemModel<?>
 	 * 		Return the name of the DAO bean.
 	 */
 	public static String getDaoName(codingSystem codeSystem) {
-		if (codeSystem == codingSystem.icd9) return "icd9Dao";
-
-		if (codeSystem == codingSystem.ichppccode) return "ichppccodeDao";
-
-		if (codeSystem == codingSystem.SnomedCore) return "snomedCoreDao";
-
-		throw new IllegalArgumentException("Unsupported code system: " + codeSystem + ". Please use one of icd9, ichppccode, snomedcore");
+		return Introspector.decapitalize(codeSystem.name()) + "Dao";
 	}
 
+	/**
+	 * Gets the name of the DAO for the specified code system
+	 *
+	 * @param codeSystemName
+	 * 		Code system to get DAO name for.
+	 * @return
+	 * 		Return the name of the DAO bean.
+	 */
+	public static String getDaoName(String codeSystemName) {
+		codeSystemName = codeSystemName.trim();
+		try {
+			codingSystem.valueOf(codeSystemName);
+		}
+		catch (IllegalArgumentException e) {
+			String errorText = "Unsupported code system: " + codeSystemName + ". Please use one of ";
+			for (AbstractCodeSystemDao.codingSystem codeSys : AbstractCodeSystemDao.codingSystem.values()) {
+				errorText += codeSys.name() + ", ";
+			}
+			errorText.substring(0, errorText.length() - 2);
+			throw new IllegalArgumentException(errorText);
+		}
+		codeSystemName = Introspector.decapitalize(codeSystemName); //spring uses Introspector.decapitalize() for bean names
+		return codeSystemName + "Dao";
+	}
+	
 	protected AbstractCodeSystemDao(Class<T> modelClass) {
 		super(modelClass);
 	}

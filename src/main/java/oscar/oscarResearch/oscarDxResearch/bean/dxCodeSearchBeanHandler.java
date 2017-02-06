@@ -25,9 +25,13 @@
 package oscar.oscarResearch.oscarDxResearch.bean;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
-import org.oscarehr.common.dao.DxDao;
+import org.apache.commons.lang.enums.EnumUtils;
+import org.oscarehr.common.dao.*;
+import org.oscarehr.common.model.AbstractCodeSystemModel;
 import org.oscarehr.util.SpringUtils;
 
 public class dxCodeSearchBeanHandler {
@@ -39,16 +43,23 @@ public class dxCodeSearchBeanHandler {
 	}
 
 	public boolean init(String codingSystem, String[] keywords) {
-		DxDao dao = SpringUtils.getBean(DxDao.class);
+		String daoName = AbstractCodeSystemDao.getDaoName(codingSystem);
+		@SuppressWarnings("unchecked")
+		AbstractCodeSystemDao<AbstractCodeSystemModel<?>> csDao = (AbstractCodeSystemDao<AbstractCodeSystemModel<?>>) SpringUtils.getBean(daoName);
 
-		for (Object[] o : dao.findCodingSystemDescription(codingSystem, keywords)) {
-			String cs = String.valueOf(o[0]);
-			String desc = String.valueOf(o[1]);
-			dxCodeSearchBean bean = new dxCodeSearchBean(desc, cs);
+		List<AbstractCodeSystemModel<?>> results = new ArrayList<AbstractCodeSystemModel<?>>();
+		for (String keyword : keywords) {
+			if (!keyword.isEmpty() && keyword != null) { results.addAll(csDao.searchCode(keyword)); }
+		}
+		//remove duplicate entries
+		Set<AbstractCodeSystemModel<?>> resultsSet = new LinkedHashSet<>(results);
+		results = new ArrayList<AbstractCodeSystemModel<?>>(resultsSet);
+
+		for (AbstractCodeSystemModel<?> result : results) {
+			dxCodeSearchBean bean = new dxCodeSearchBean(result.getDescription(), result.getCode());
 			for (int i = 0; i < keywords.length; i++) {
-				if (keywords[i].equals(cs)) bean.setExactMatch("checked");
+				if (keywords[i].equals(result.getCode())) bean.setExactMatch("checked");
 			}
-
 			dxCodeSearchBeanVector.add(bean);
 		}
 		return true;
