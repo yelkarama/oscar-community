@@ -1642,6 +1642,7 @@ function updateDocument(eleId){
 
 function checkObservationDate(formid) {
 	var isValid = true;
+	var isLeapYear = false;
     // regular expression to match required date format
     re = /^\d{4}\-\d{1,2}\-\d{1,2}$/;
     re2 = /^\d{4}\/\d{1,2}\/\d{1,2}$/;
@@ -1652,8 +1653,8 @@ function checkObservationDate(formid) {
 		form.elements["observationDate"].focus();
 		return false;
     }
-    
-    if(!form.elements["observationDate"].value.match(re)) {
+
+	if(!form.elements["observationDate"].value.match(re)) {
     	if(!form.elements["observationDate"].value.match(re2)) {
     		alert("Invalid date format: " + form.elements["observationDate"].value);
     		form.elements["observationDate"].focus();
@@ -1663,6 +1664,13 @@ function checkObservationDate(formid) {
     	}
     }
     regs= form.elements["observationDate"].value.split("-");
+
+    if ( (!(regs[0] % 4) && regs[0] % 100) || !(regs[0] % 400)){
+    	isLeapYear = true;
+	} else{
+    	isLeapYear = false;
+	}
+
     // day value between 1 and 31
     if(regs[2] < 1 || regs[2] > 31) {
       alert("Invalid value for day: " + regs[2]);
@@ -1674,7 +1682,21 @@ function checkObservationDate(formid) {
       alert("Invalid value for month: " + regs[1]);
       form.elements["observationDate"].focus();
       return false;
-    }
+    } else if (regs[1] == 2){
+    	if(isLeapYear){
+    		if(regs[2] > 29){
+                alert("Invalid value for date: " + form.elements['observationDate'].value + " does not exist");
+                form.elements["observationDate"].focus();
+                return false;
+			}
+		} else {
+    		if(regs[2] >= 29){
+                alert("Invalid value for date: " + form.elements['observationDate'].value + " does not exist");
+                form.elements["observationDate"].focus();
+                return false;
+			}
+		}
+	}
     // year value between 1902 and 2015
     /*if(regs[0] < 1902 || regs[0] > (new Date()).getFullYear()) {*/
     if(regs[0] < 1902) {
@@ -1690,6 +1712,8 @@ function checkObservationDate(formid) {
     		isvalid = false;
     	}
     }
+
+
     
     return isValid;
   }
