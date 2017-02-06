@@ -38,6 +38,7 @@ import org.oscarehr.caisi_integrator.ws.CachedDemographicDrug;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 
+import oscar.OscarProperties;
 import oscar.oscarRx.data.RxPrescriptionData.Prescription;
 import oscar.util.DateUtils;
 import oscar.util.StringUtils;
@@ -138,7 +139,7 @@ public class EctDisplayRxAction extends EctDisplayAction {
                 styleColor="style=\"color:blue;\"";
             }else if (drug.isLongTerm() )  {
                 styleColor="style=\"color:grey;\"";
-            }else
+            }else if (!OscarProperties.getInstance().isPropertyActive("use_current_rx_outside_rx_page"))
                 continue;
 
             date = drug.getRxDate();

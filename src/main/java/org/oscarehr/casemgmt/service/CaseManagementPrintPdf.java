@@ -261,7 +261,7 @@ public class CaseManagementPrintPdf {
             oscar.oscarRx.data.RxPrescriptionData.Prescription drug = arr[idx];
             p = new Paragraph();
             p.setAlignment(Paragraph.ALIGN_LEFT);
-            if(drug.isCurrent() && !drug.isArchived() ){
+            if((drug.isCurrent() || OscarProperties.getInstance().isPropertyActive("use_current_rx_outside_rx_page")) && !drug.isArchived() ){
                 curFont = normal;
                 phrase = new Phrase(LEADING, "", curFont);
                 phrase.add(formatter.format(drug.getRxDate()) + " - ");
