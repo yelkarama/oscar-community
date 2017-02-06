@@ -491,8 +491,7 @@ function fmtOscarMsg() {
 								style="background: #EEEEFF; border: none"
 								value="<%=demoN%>" /> <a
 								href="javascript:popupViewAttach(700,960,'../demographic/demographiccontrol.jsp?demographic_no=<%=demoID%>&displaymode=edit&dboperation=search_detail')">M</a>
-								
-							<a href="javascript:void(0)" onclick="window.opener.location.href='../web/#/record/<%=demoID%>/summary'">E2</a>
+
 							<%
 								//Hide old echart link
 								boolean showOldEchartLink = true;
