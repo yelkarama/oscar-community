@@ -578,8 +578,8 @@ function toggleView(form) {
 
                                 }
                                 function expandPreview(text){
-                                    parent.document.getElementById('lightwindow_container').style.width="1140px";
-                                    parent.document.getElementById('lightwindow_contents').style.width="1120px";
+                                    parent.document.getElementById('lightwindow_container').style.width="1000px";
+                                    parent.document.getElementById('lightwindow_contents').style.width="980px";
                                     document.getElementById('preview').style.width="580px";
                                     frames['preview'].document.getElementById('pharmInfo').innerHTML=text;
                                     //frames['preview'].document.getElementById('removePharm').show();
