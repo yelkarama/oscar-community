@@ -9,29 +9,36 @@
 
 package oscar.oscarLab.ca.all.upload.handlers;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
+import ca.uhn.hl7v2.model.AbstractMessage;
+import ca.uhn.hl7v2.model.v26.message.ADT_A09;
+import ca.uhn.hl7v2.parser.PipeParser;
+import ca.uhn.hl7v2.validation.impl.NoValidation;
 import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.Hl7TextInfoDao;
+import org.oscarehr.common.hl7.v2.oscar_to_oscar.OscarToOscarUtils;
 import org.oscarehr.common.model.Hl7TextInfo;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.SpringUtils;
 
 import oscar.oscarLab.ca.all.parsers.Factory;
 import oscar.oscarLab.ca.all.upload.MessageUploader;
+import oscar.oscarLab.ca.all.upload.handlers.OscarToOscarHl7V2.AdtA09Handler;
 import oscar.oscarLab.ca.all.util.PFHTUtilities;
 
 
 public class PFHTHandler implements MessageHandler {
+	Logger logger = Logger.getLogger(PFHTHandler.class);
+	public static final PipeParser pipeParser = initialisePipeParser();
 
-	 Logger logger = Logger.getLogger(PFHTHandler.class);
+		private static PipeParser initialisePipeParser() {
+			PipeParser pipeParser = new PipeParser();
+			pipeParser.setValidationContext(new NoValidation());
+			return (pipeParser);
+		}
 
 	    public String parse(LoggedInInfo loggedInInfo, String serviceName, String fileName,int fileId, String ipAddr){
 
@@ -43,35 +50,18 @@ public class PFHTHandler implements MessageHandler {
 	            for (i=0; i < messages.size(); i++){
 
 	                String msg = (String) messages.get(i);
-	    	     	String obxRegEx = "|NUM|";
-	    	     	
-	    	     	// Replace OBX "NUM" with "NM" and update the file
-	    	     	if(msg.contains(obxRegEx)){
-	    	     		msg = msg.replace(obxRegEx, "|NM|");
-	    	     		Files.write((Paths.get(fileName)), msg.getBytes());
-	    	     	}
-	    	     	
-	    	     	Pattern pattern = Pattern.compile("PID.*");
-	    	     	Matcher matcher = pattern.matcher(msg);
-	    	     	
-	    	     	String sex = "";
-	    	     	
-	    	     	// Determine what PID sex (at position 8) value is REF: https://corepointhealth.com/resource-center/hl7-resources/hl7-pid-segment
-	    	     	if (matcher.find()){
-	    	     		String pid = matcher.group(0);
-	    	     		String[] pidParts = pid.split("\\|");
-	    	     		sex = pidParts[8];
-	    	     		// if the string set for sex is longer than 1 character
-	    	     		if (sex.length() > 1){
-	    	     			// return the first character and update the file
-	    	     			String sexChar = String.valueOf(sex.charAt(0));
-	    	     			msg = msg.replace("|"+pidParts[8]+"|", "|"+sexChar+"|");
-	    	     			Files.write((Paths.get(fileName)), msg.getBytes());
-	    	     		}
-	    	     	}	
 
-	    	     	
-	                MessageUploader.routeReport(loggedInInfo, serviceName, "PFHT", msg,fileId);
+	                // find a replace invalid fields in the OBX segments
+					msg = u.handleInvalidSegments(msg, fileName);
+					AbstractMessage message= OscarToOscarUtils.pipeParserParse(msg);
+
+					if (message instanceof ADT_A09)
+					{
+						AdtA09Handler.handle((ADT_A09) message);
+					}
+					else{
+						MessageUploader.routeReport(loggedInInfo, serviceName, "PFHT", msg,fileId);
+					}
 
 	            }
 

@@ -22,8 +22,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
@@ -168,5 +172,86 @@ public class PFHTUtilities {
         stream.close();
         br.close();
         return sb.toString();
+    }
+
+    /**
+     * Finds and replaces invalid segment fields to conform with HL7 validation.
+     * @param msg //hl7 body passed
+     * @param fileName //file name
+     * @return String msg // updated hl7 body
+     * @throws IOException
+     */
+    public String handleInvalidSegments(String msg, String fileName) throws IOException{
+
+        Pattern patientIdentification = Pattern.compile("PID.*");
+        Pattern observationResults = Pattern.compile("OBR.*");
+        Pattern observation = Pattern.compile("OBX.*");
+        Matcher matcher = null;
+        String[] segments = null;
+
+        // PID
+        matcher = patientIdentification.matcher(msg);
+        if (matcher.find()){
+            // Determine what PID sex (at position 8) value is REF: https://corepointhealth.com/resource-center/hl7-resources/hl7-pid-segment
+            String pid = matcher.group(0);
+            segments = pid.split("\\|");
+            String sex = segments[8];
+            // if the string set for sex is longer than 1 character
+            if (sex.trim().length() > 1){
+                // return the first character and update the file
+                String sexChar = String.valueOf(sex.charAt(0));
+                msg = msg.replace("|"+sex+"|", "|"+sexChar+"|");
+            }
+            segments = null;
+        }
+
+        // OBR
+        matcher = observationResults.matcher(msg);
+        if (matcher.find()){
+            // Determine what PID sex (at position 8) value is REF: https://corepointhealth.com/resource-center/hl7-resources/hl7-pid-segment
+            String obr = matcher.group(0);
+            segments = obr.split("\\|")[27].split("\\^");
+            String priority = segments[10];
+
+            if (priority.trim().length() > 1){
+                if(priority.equalsIgnoreCase("Critical")){
+                    msg = msg.replace("^"+priority+"|", "^C|");
+                }
+                else if (priority.equalsIgnoreCase("Stat") || priority.equalsIgnoreCase("Urgent")){
+                    msg = msg.replace("^"+priority+"|", "^S|");
+                }
+                else if (priority.equalsIgnoreCase("Unclaimed")){
+                    msg = msg.replace("^"+priority+"|", "^U|");
+                }
+                else if (priority.equalsIgnoreCase("ASAP")){
+                    msg = msg.replace("^"+priority+"|", "^A|");
+                }
+                else if (priority.equalsIgnoreCase("Alert")){
+                    msg = msg.replace("^"+priority+"|", "^L|");
+                }
+                else {
+                    msg = msg.replace("^"+priority, "^R");
+                }
+            }
+            segments = null;
+        }
+
+        // OBX
+        matcher = observation.matcher(msg);
+        if (matcher.find()){
+            String NUM = "|NUM|";
+            String TXT = "|TXT|";
+
+            if(msg.contains(NUM)){
+                msg = msg.replace(NUM, "|NM|");
+            }
+
+            if(msg.contains(TXT)){
+                msg = msg.replace(TXT, "|TX|");
+            }
+        }
+        Files.write((Paths.get(fileName)), msg.getBytes());
+
+        return msg;
     }
 }
