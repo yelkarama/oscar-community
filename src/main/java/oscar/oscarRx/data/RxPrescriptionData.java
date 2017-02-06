@@ -619,7 +619,7 @@ public class RxPrescriptionData {
 		java.util.Date lastRefillDate = null;
 		boolean nosubs = false;
 		boolean prn = false;
-		boolean longTerm = false;
+		boolean longTerm = OscarProperties.getInstance().getBooleanProperty("rx_longterm_default", "true");
 		boolean pastMed = false;
 		boolean startDateUnknown = false;
 		Boolean patientCompliance = null;
