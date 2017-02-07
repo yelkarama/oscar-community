@@ -288,7 +288,9 @@ public class DmsInboxManageAction extends DispatchAction {
 		Integer page = 0;
 		try {
 			page = Integer.parseInt(request.getParameter("page"));
-			page = page > 0 ? page - 1 : page; 	//needs to start at 0. Otherwise header and formatting is broken.
+			if (page > 0) {
+				page--;
+			}
 		} catch (NumberFormatException nfe) {
 			page = 0;
 		}
@@ -303,7 +305,9 @@ public class DmsInboxManageAction extends DispatchAction {
 
 		String startDateStr = request.getParameter("startDate");
 		String endDateStr = request.getParameter("endDate");
-		
+
+
+
 		String view = request.getParameter("view");
 		if (view == null || "".equals(view)) {
 			view = "all";
@@ -371,16 +375,14 @@ public class DmsInboxManageAction extends DispatchAction {
 		String patientHealthNumber = request.getParameter("hnum");
 
 		ArrayList<LabResultData> labdocs = new ArrayList<LabResultData>();
-		//Since we are combining the results of two lists, we have to include all elements up to page * pageSize of each.
-		//We will sort the elements then take the sublist that represents the page.
 
 		if (!"labs".equals(view) && !"abnormal".equals(view)) {
 			labdocs = inboxResultsDao.populateDocumentResultsData(searchProviderNo, demographicNo, patientFirstName,
-					patientLastName, patientHealthNumber, ackStatus, true, 0 ,(page + 1) * pageSize, mixLabsAndDocs, isAbnormal, startDate, endDate);
+					patientLastName, patientHealthNumber, ackStatus, true, page, pageSize, mixLabsAndDocs, isAbnormal, startDate, endDate);
 		}
 		if (!"documents".equals(view)) {
 			labdocs.addAll(comLab.populateLabResultsData(loggedInInfo, searchProviderNo, demographicNo, patientFirstName,
-					patientLastName, patientHealthNumber, ackStatus, true, 0, (page + 1) * pageSize,
+					patientLastName, patientHealthNumber, ackStatus, true, page, pageSize,
 					mixLabsAndDocs, isAbnormal, startDate, endDate));
 		}
 
@@ -459,7 +461,7 @@ public class DmsInboxManageAction extends DispatchAction {
 		HRMResultsData hrmResult = new HRMResultsData();
 
 		Collection<LabResultData> hrmDocuments = hrmResult.populateHRMdocumentsResultsData(loggedInInfo, searchProviderNo, ackStatus, 
-				endDate, startDate, true, 0, (page + 1) * pageSize);
+				endDate, startDate, true, page, pageSize);
 		if (oldestLab == null) {
 			for (LabResultData hrmDocument : hrmDocuments) {
 				if (oldestLab == null || (hrmDocument.getDateObj() != null && oldestLab.compareTo(hrmDocument.getDateObj()) > 0))
@@ -533,16 +535,6 @@ public class DmsInboxManageAction extends DispatchAction {
 			}
 		}
 		logger.debug("labdocs.size()="+labdocs.size());
-		
-		int fromIndex = page * pageSize;
-		int toIndex = (page + 1) * pageSize;
-		
-		//if there are more labdocs than requested, give the next pagesize. Otherwise we've reached the end.
-		if(labdocs.size() > fromIndex){
-			labdocs = new ArrayList(labdocs.subList( fromIndex , toIndex < labdocs.size() ? toIndex : labdocs.size() ));
-		}else{
-			labdocs.clear();
-		}
 
 		/* find all data for the index.jsp page */
 		Hashtable patientDocs = new Hashtable();

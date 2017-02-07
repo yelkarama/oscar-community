@@ -94,18 +94,20 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery.tablesorter.js"></script>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <script type="text/javascript" src="<%= request.getContextPath() %>/share/javascript/Oscar.js"></script>
-<script type="text/javascript" src="<%=request.getContextPath()%>/share/yui/js/yahoo-dom-event.js"></script>
-<script type="text/javascript" src="<%=request.getContextPath()%>/share/yui/js/connection-min.js"></script>
-<script type="text/javascript" src="<%=request.getContextPath()%>/share/yui/js/animation-min.js"></script>
-<script type="text/javascript" src="<%=request.getContextPath()%>/share/yui/js/datasource-min.js"></script>
-<script type="text/javascript" src="<%=request.getContextPath()%>/share/yui/js/autocomplete-min.js"></script>
-<script type="text/javascript" src="<%=request.getContextPath()%>/js/demographicProviderAutocomplete.js"></script>        
+        <script type="text/javascript" src="<%=request.getContextPath()%>/share/yui/js/yahoo-dom-event.js"></script>
+        <script type="text/javascript" src="<%=request.getContextPath()%>/share/yui/js/connection-min.js"></script>
+        <script type="text/javascript" src="<%=request.getContextPath()%>/share/yui/js/animation-min.js"></script>
+        <script type="text/javascript" src="<%=request.getContextPath()%>/share/yui/js/datasource-min.js"></script>
+        <script type="text/javascript" src="<%=request.getContextPath()%>/share/yui/js/autocomplete-min.js"></script>
+        <script type="text/javascript" src="<%=request.getContextPath()%>/js/demographicProviderAutocomplete.js"></script>        
 
-<link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/share/yui/css/fonts-min.css"/>
-<link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/share/yui/css/autocomplete.css"/>
-<link rel="stylesheet" type="text/css" media="all" href="<%=request.getContextPath()%>/share/css/demographicProviderAutocomplete.css"  />
-<link rel="stylesheet" type="text/css" media="all" href="<%=request.getContextPath()%>/share/css/oscarMDSIndex.css"  />
-<script type="text/javascript" src="<%=request.getContextPath()%>/dms/showDocument.js"></script>        
+        <link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/share/yui/css/fonts-min.css"/>
+        <link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/share/yui/css/autocomplete.css"/>
+        <link rel="stylesheet" type="text/css" media="all" href="<%=request.getContextPath()%>/share/css/demographicProviderAutocomplete.css"  />
+
+        
+        <link rel="stylesheet" type="text/css" media="all" href="<%=request.getContextPath()%>/share/css/oscarMDSIndex.css"  />
+  <script type="text/javascript" src="<%=request.getContextPath()%>/dms/showDocument.js"></script>        
 
 
 
