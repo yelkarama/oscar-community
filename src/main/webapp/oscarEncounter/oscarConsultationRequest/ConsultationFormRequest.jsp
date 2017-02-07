@@ -2301,7 +2301,6 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 </body>
 
 <script type="text/javascript" language="javascript">
-document.getElementById('sendTo').value = "<%= team %>";
 Calendar.setup( { inputField : "followUpDate", ifFormat : "%Y/%m/%d", showsTime :false, button : "followUpDate_cal", singleClick : true, step : 1 } );
 Calendar.setup( { inputField : "appointmentDate", ifFormat : "%Y/%m/%d", showsTime :false, button : "appointmentDate_cal", singleClick : true, step : 1 } );
 </script>
