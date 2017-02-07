@@ -64,7 +64,7 @@ public final class EctSetupMeasurementsAction extends Action {
         EctValidation ectValidation = new EctValidation();             
         String css = ectValidation.getCssPath(groupName);
         java.util.Calendar calender = java.util.Calendar.getInstance();
-        SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd H:mm");
         String today = df.format(calender.getTime());
         
         request.setAttribute("groupName", groupName);
