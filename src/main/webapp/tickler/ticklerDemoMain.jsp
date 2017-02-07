@@ -78,7 +78,7 @@ else
 <%@ page import="org.oscarehr.common.model.TicklerComment" %>
 <%@ page import="org.oscarehr.common.model.TicklerUpdate" %>
 <%@ page import="org.oscarehr.managers.TicklerManager" %>
-
+<%@page import="java.net.URLEncoder"%>
 <%
 	TicklerManager ticklerManager = SpringUtils.getBean(TicklerManager.class);
 	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
@@ -684,7 +684,7 @@ if (nItems == 0) {
 					key="tickler.ticklerDemoMain.btnClearAll" /></a> &nbsp; &nbsp; &nbsp;
 				&nbsp; &nbsp; <input type="button" name="button"
 					value="<bean:message key="tickler.ticklerDemoMain.btnAddTickler"/>"
-					onClick="popupPage('400','600', 'ticklerAdd.jsp?updateParent=true&parentAjaxId=<%=parentAjaxId%>&bFirstDisp=false&messageID=null&demographic_no=<%=d.getDemographicNo()%>&chart_no=<%=d.getChartNo()%>&name=<%=d.getDisplayName()%>')"
+					onClick="popupPage('400','600', 'ticklerAdd.jsp?updateParent=true&parentAjaxId=<%=parentAjaxId%>&bFirstDisp=false&messageID=null&demographic_no=<%=d.getDemographicNo()%>&chart_no=<%=d.getChartNo()%>&name=<%=URLEncoder.encode(d.getDisplayName(), "UTF-8")%>')"
 					class="sbttn"> <input type="hidden" name="submit_form"
 					value=""> <% if (ticklerview.compareTo("D") == 0){%> <input
 					type="button"
