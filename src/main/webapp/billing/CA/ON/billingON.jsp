@@ -1764,9 +1764,9 @@ function changeSite(sel) {
 
 											</td>
 											<td
-												<%=serviceDesc.length()>30?"title=\""+serviceDesc+"\"":""%>
+												<%=serviceDesc.length()>50?"title=\""+serviceDesc+"\"":""%>
 												<%=displayStyle.equals("")? "class=\"smallFont\"": "style=\"" + displayStyle + "\""%>>
-												<div><%=serviceDesc.length() > 30 ? serviceDesc.substring(0, 30) + "..." : serviceDesc%>
+												<div><%=serviceDesc.length() > 50 ? serviceDesc.substring(0, 50) + "..." : serviceDesc%>
 													<!--<input type="hidden" name="desc_xml_<%=serviceCode%>" value="<%=serviceDesc%>" />-->
 												</div>
 											</td>
