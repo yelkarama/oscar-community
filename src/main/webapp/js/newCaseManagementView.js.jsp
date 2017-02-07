@@ -3181,6 +3181,15 @@ function restore() {
     }
 }
 
+function showAll(demoNo, event) {
+    Event.stop(event);
+    var rnd = Math.round(Math.random() * 1000);
+    win = "win" + rnd;
+    var url = ctx + "/CaseManagementEntry.do?method=allNotes&demoNo="+demoNo;
+    window.open(url,win,"scrollbars=yes, location=no, width=647, height=600","");
+    return false;
+}
+
 function showHistory(noteId, event) {
     Event.stop(event);
     var rnd = Math.round(Math.random() * 1000);
