@@ -153,6 +153,7 @@
     String moduleNames = OscarProperties.getInstance().getProperty("ModuleNames");
     boolean caisiEnabled = moduleNames != null && org.apache.commons.lang.StringUtils.containsIgnoreCase(moduleNames, "Caisi");
     boolean locationEnabled = caisiEnabled && (useProgramLocation != null && useProgramLocation.equals("true"));
+    boolean HighlightUserAppt = true;
     
     ProgramManager2 programManager2 = SpringUtils.getBean(ProgramManager2.class);
 %>
@@ -1265,7 +1266,7 @@ function pasteAppt(multipleSameDayGroupAppt) {
                 	}
                 }
     %>
-	<tr bgcolor="#eeeeff">
+	<tr bgcolor="#eeeeff" style="<%=HighlightUserAppt==curUser_no.equals(p.getProviderNo())?"font-weight:bold":""%>">
 		<td style="background-color: #CCFFCC; padding-right: 25px"><%=ConversionUtils.toDateString(a.getAppointmentDate())%></td>
 		<td style="background-color: #CCFFCC; padding-right: 25px"><%=ConversionUtils.toTimeString(a.getStartTime())%></td>
 		<td style="background-color: #CCFFCC; padding-right: 25px"><%=p.getFormattedName()%></td>
@@ -1305,7 +1306,7 @@ function pasteAppt(multipleSameDayGroupAppt) {
                 	}
                 }
     %>
-	<tr bgcolor="#eeeeff">
+	<tr bgcolor="#eeeeff" style="<%=HighlightUserAppt==curUser_no.equals(p.getProviderNo())?"font-weight:bold":""%>">
 		<td style="padding-right: 25px"><%=ConversionUtils.toDateString(a.getAppointmentDate())%></td>
 		<td style="padding-right: 25px"><%=ConversionUtils.toTimeString(a.getStartTime())%></td>
 		<td style="padding-right: 25px"><%=p.getFormattedName()%></td>

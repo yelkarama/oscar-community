@@ -549,6 +549,7 @@
                                 int iPageSize = 5;
                                 Provider prov;
                                 boolean HighlightUserAppt = false;
+                                boolean HighlightFutureAppt = false;
                                 if (!demographicID.equals("-1")) {
                                     
                                     List<Appointment> appointmentList = appointmentDao.getAppointmentHistory(Integer.parseInt(demographicID), 0, iPageSize);
@@ -568,12 +569,24 @@
                                 <%
                                     for (Appointment a : appointmentList) {
                                         prov = providerDao.getProvider(a.getProviderNo());
+                                        Calendar cal = Calendar.getInstance();
+                                        Date today = cal.getTime();
+                                        String todayString = ConversionUtils.toDateString(today);
+
+                                        HighlightFutureAppt = false;
+                                        if(a.getAppointmentDate().after(today)){
+                                            HighlightFutureAppt = true;
+                                        }
+                                        else if (todayString.equals(ConversionUtils.toDateString(a.getAppointmentDate()))){
+                                            HighlightFutureAppt = true;
+                                        }
+
                                         HighlightUserAppt = false;
                                         if (creator.equals(a.getProviderNo())) {
                                             HighlightUserAppt = true;
                                         }
                                 %>
-                                <tr bgcolor="<%=HighlightUserAppt == false ? "#FFFFFF" : "#CCFFCC"%>">
+                                <tr style="<%=HighlightUserAppt?"font-weight:bold":""%>" bgcolor="<%=HighlightFutureAppt? "#ccffcc" : "#eeeeff"%>">
                                     <td ><%=ConversionUtils.toDateString(a.getAppointmentDate())%></td>
                                     <td ><%=ConversionUtils.toTimeString(a.getStartTime())%></td>
                                     <td ><%=prov == null ? "N/A" : prov.getFormattedName()%></td>
