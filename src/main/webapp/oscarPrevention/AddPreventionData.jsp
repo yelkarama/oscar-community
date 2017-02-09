@@ -165,6 +165,7 @@ if(!authed) {
 <script type="text/javascript" src="../share/calendar/calendar.js" ></script>
 <script type="text/javascript" src="../share/calendar/lang/<bean:message key="global.javascript.calendar"/>" ></script>
 <script type="text/javascript" src="../share/calendar/calendar-setup.js" ></script>
+<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-1.9.1.js"></script>
 
 <style type="text/css">
   div.ImmSet { background-color: #ffffff; }
@@ -219,6 +220,14 @@ function disableifchecked(ele,nextDate){
        document.getElementById(nextDate).disabled = false;
     }
 }
+
+$(document).ready(function(){
+    $("form input").change(function(){
+        warnOnWindowClose = true;
+    });
+});
+
+
 </SCRIPT>
 
 <style type="text/css">
@@ -380,7 +389,7 @@ clear: left;
 	  }
 
 
-var warnOnWindowClose=true;
+var warnOnWindowClose=false;
 
 function cancelCloseWarning(){
 warnOnWindowClose=false;
