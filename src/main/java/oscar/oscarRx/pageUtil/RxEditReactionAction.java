@@ -61,6 +61,7 @@ public class RxEditReactionAction extends Action {
         String onSetOfReaction = allergy.getOnsetOfReaction();
         String lifeStage = allergy.getLifeStage();
 
+        request.setAttribute("action", "edit");
         request.setAttribute("allergyId",id);
         request.setAttribute("name",name);
         request.setAttribute("type", type);

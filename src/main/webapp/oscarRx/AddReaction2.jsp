@@ -45,7 +45,7 @@
 	}
 
 	Boolean addReaction = true;
-	if(!request.getAttribute("allergyId").equals("0")){
+	if(request.getAttribute("action").equals("edit")){
 	    addReaction = false;
 	}
 %>
