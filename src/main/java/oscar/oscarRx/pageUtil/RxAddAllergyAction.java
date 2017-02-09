@@ -78,13 +78,16 @@ public final class RxAddAllergyAction extends Action {
             allergy.setTypeCode(Integer.parseInt(type));
             allergy.setReaction(description);
 
-        String pattern = allergy.getDatePattern(startDate).toUpperCase();
-        allergy.setStartDate(StringToDate(startDate, pattern));
-        if (pattern.equals(PartialDate.YEARMONTH)) {
-            allergy.setStartDateFormat(PartialDate.YEARMONTH);
-        } else if (pattern.equals(PartialDate.YEARONLY)) {
-            allergy.setStartDateFormat(PartialDate.YEARONLY);
-        }
+            if(!startDate.trim().equals("")){
+                String pattern = allergy.getDatePattern(startDate).toUpperCase();
+                allergy.setStartDate(StringToDate(startDate, pattern));
+                if (pattern.equals(PartialDate.YEARMONTH)) {
+                    allergy.setStartDateFormat(PartialDate.YEARMONTH);
+                } else if (pattern.equals(PartialDate.YEARONLY)) {
+                    allergy.setStartDateFormat(PartialDate.YEARONLY);
+                }
+            }
+
             allergy.setAgeOfOnset(ageOfOnset);
             allergy.setSeverityOfReaction(severityOfReaction);
             allergy.setOnsetOfReaction(onSetOfReaction);

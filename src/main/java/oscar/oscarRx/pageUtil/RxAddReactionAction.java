@@ -50,8 +50,8 @@ public final class RxAddReactionAction extends Action {
             String id = request.getParameter("ID");
             String name = request.getParameter("name");
             String type = request.getParameter("type");
-            
-            
+
+            request.setAttribute("action", "add");
             request.setAttribute("allergyId",id);
             request.setAttribute("name",name);
             request.setAttribute("type", type);
