@@ -342,6 +342,7 @@ public class InboxResultsDao {
 							+ "FROM demographic d) AS Z "
 							+ "ON Y.module_id = Z.demographic_no "
 							+ "WHERE doc.document_no = plr.lab_no" + dateSql
+							+ " ORDER BY observationdate DESC "
 							+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 				}
 			} else { // Don't mix labs and docs.
