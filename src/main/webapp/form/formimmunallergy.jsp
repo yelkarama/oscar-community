@@ -97,10 +97,6 @@ function onCheckSlave(a, masterName) {
 }
 
 
-    function reset() {
-        document.forms[0].target = "apptProviderSearch";
-        document.forms[0].action = "/<%=project_home%>/form/formname.do" ;
-	}
     function onPrint() {
         document.forms[0].submit.value="print"; //printAR1
         var ret = checkAllDates();
@@ -120,7 +116,6 @@ function onCheckSlave(a, masterName) {
         var ret = checkAllDates();
         if(ret==true)
         {
-            reset();
             ret = confirm("Are you sure you want to save this form?");
         }
         return ret;
@@ -131,7 +126,6 @@ function onCheckSlave(a, masterName) {
         var ret = checkAllDates();
         if(ret == true)
         {
-            reset();
             ret = confirm("Are you sure you wish to save and close this window?");
         } 
         return ret;
