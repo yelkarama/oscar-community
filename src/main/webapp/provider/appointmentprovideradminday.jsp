@@ -2304,7 +2304,7 @@ start_time += iSm + ":00";
 <bean:message key="provider.appointmentProviderAdminDay.btnE"/></a>
 <% }} %>
 
-<%= (bShortcutIntakeForm) ? "| <a href='#' onClick='popupPage(700, 1024, \"formIntake.jsp?demographic_no="+demographic_no+"\")' title='Intake Form'>In</a>" : "" %>
+<%= (bShortcutIntakeForm) ? "| <a href='#' onClick='popupPage(700, 1024, \"formIntake.jsp?demographic_no="+demographic_no+"&appointmentNo="+appointment.getId()+"&fromSchedule=true\")' title='Intake Form'>In</a>" : "" %>
 <!--  eyeform open link -->
 <% if (oscar.OscarProperties.getInstance().isPropertyActive("new_eyeform_enabled") && !isWeekView) { %>
 &#124; <a href="#" onClick='popupPage(800, 1280, "../eyeform/eyeform.jsp?demographic_no=<%=demographic_no %>&appointment_no=<%=appointment.getId()%>");return false;' title="EyeForm">EF</a>
