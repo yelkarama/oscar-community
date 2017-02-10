@@ -225,15 +225,8 @@
 
 
 
-        function rotate90(id) {
-        	jQuery("#rotate90btn_" + id).attr('disabled', 'disabled');
 
-        	new Ajax.Request(contextpath + "/dms/SplitDocument.do", {method: 'post', parameters: "method=rotate90&document=" + id, onSuccess: function(data) {
-        		jQuery("#rotate90btn_" + id).removeAttr('disabled');
-        		jQuery("#docImg_" + id).attr('src', contextpath + "/dms/ManageDocument.do?method=showPage&doc_no=" + id + "&page=1&rand=" + (new Date().getTime()));
 
-        	}});
-        }
 
 
         function split(id,demoName) {
