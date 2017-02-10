@@ -45,6 +45,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 
 <%@ page import="java.util.*,oscar.oscarRx.data.*,oscar.oscarRx.pageUtil.*, oscar.OscarProperties" %>
+<%@ page import="java.util.regex.Pattern" %>
+<%@ page import="java.util.regex.Matcher" %>
 <logic:notPresent name="RxSessionBean" scope="session">
     <logic:redirect href="error.html" />
 </logic:notPresent>
@@ -269,7 +271,20 @@ for (int j=0; j<selRoute.length; j++) {
                                   %>
                                   <tr>
                                     <td bgcolor="<%=bgColor%>">
-                                      <a href="searchDrug.do?genericSearch=<%= response.encodeURL( t.pKey ) %>&demographicNo=<%= response.encodeURL(demoNo) %>" title="<%=t.name%>">
+                                        <%
+                                            String searchKey = "";
+                                            if (t.name.contains("(")){
+                                                Pattern regex = Pattern.compile("^[^\\(]+");
+                                                Matcher regexMatcher = regex.matcher(t.name);
+                                                if (regexMatcher.find()) {
+                                                    searchKey = regexMatcher.group();
+                                                }
+                                            }
+                                            else{
+                                                searchKey = t.name;
+                                            }
+                                        %>
+                                      <a href="searchDrug.do?genericSearch=<%= response.encodeURL( searchKey ) %>&demographicNo=<%= response.encodeURL(demoNo) %>" title="<%=t.name%>">
                                       <%= getMaxVal(t.name)%>  
                                       </a>
                                       <span>&nbsp;&nbsp;(<a href="javascript:ShowDrugInfoGN('<%= response.encodeURL(t.name)%>');"><bean:message key="ChooseDrug.msgInfo"/></a>)</span>

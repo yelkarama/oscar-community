@@ -354,7 +354,7 @@ public class RxDrugData {
 				if (!h.get("name").equals("None found")){
 					MinDrug d = new MinDrug(h);
 
-					if(d.type.equals("13")){
+					if(d.type.equals("13") || d.type.equals("18")){
 						brand.add(d);
 					}else if (d.type.equals("11") || d.type.equals("12")){
 						gen.add(d);

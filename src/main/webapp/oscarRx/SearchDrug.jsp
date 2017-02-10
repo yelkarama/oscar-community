@@ -49,6 +49,9 @@
 	if(!authed) {
 		return;
 	}
+	else{
+		response.sendRedirect("SearchDrug3.jsp");
+	}
 %>
 
 <logic:notPresent name="RxSessionBean" scope="session">
