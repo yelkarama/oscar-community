@@ -32,6 +32,7 @@
 <c:set var="ctx" value="${pageContext.request.contextPath}"
 	scope="request" />
 <%
+	java.util.Properties oscarVariables = oscar.OscarProperties.getInstance();
     long startTime = System.currentTimeMillis();
     if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -55,11 +56,13 @@
 if(!authed) {
 	return;
 }
+// The 'acctLocked.html' previously just had 'o' as the rights, and false as the 'reverse' parameter
+// echart_minimum_rights allows defining custom minimum rights, for use in filtering access on a user by user basis
+String singleChartRights = oscarVariables.getProperty("echart_minimum_rights", "o");
+boolean singleChartRightsActive = oscarVariables.containsKey("echart_minimum_rights");
 %>
-
-
 <security:oscarSec roleName="<%=roleName$%>" objectName="<%=eChart$%>"
-	rights="o" reverse="<%=false%>">
+	rights="<%=singleChartRights%>" reverse="<%=singleChartRightsActive%>">
 You have no rights to access the data!
 <% response.sendRedirect("../acctLocked.html");  %>
 </security:oscarSec>
@@ -99,8 +102,6 @@ You have no rights to access the data!
 	import="oscar.oscarEncounter.oscarMeasurements.*,oscar.oscarResearch.oscarDxResearch.bean.*,oscar.util.*"%>
 <%@page
 	import="oscar.eform.*, oscar.dms.*, org.apache.commons.lang.StringEscapeUtils"%>
-
-<% java.util.Properties oscarVariables = oscar.OscarProperties.getInstance(); %>
 
 <%
 	String ip = request.getRemoteAddr();
