@@ -287,8 +287,12 @@ public class BillingSavePrep {
 		claim1Header.setLocation(val.getParameter("xml_slicode").trim());
 
 		claim1Header.setDemographic_no(val.getParameter("demographic_no"));
-		if(org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) {		
-			claim1Header.setProviderNo(val.getParameter("xml_provider").substring(0, val.getParameter("xml_provider").indexOf("|")));
+		if(org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) {
+			if(val.getParameter("xml_provider").contains("|")){
+				claim1Header.setProviderNo(val.getParameter("xml_provider").substring(0, val.getParameter("xml_provider").indexOf("|")));
+			} else {
+				claim1Header.setProviderNo(val.getParameter("xml_provider"));
+			}
 		} else {
 			claim1Header.setProviderNo(val.getParameter("xml_provider"));
 		}
