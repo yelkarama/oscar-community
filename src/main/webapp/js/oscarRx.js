@@ -962,7 +962,7 @@ function popForm2(scriptId){
                 //oscarLog( "preview2 done");
                 myLightWindow.activateWindow({
                     href: url,
-                    width: 1000,
+                    width: 980,
                     height: h
                 });
                 var editRxMsg='<bean:message key="oscarRx.Preview.EditRx"/>';
