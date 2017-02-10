@@ -174,7 +174,11 @@ try
     	requireObsDate = false;
     <% } %>
 
-    
+    <c:if test="${sessionScope.passwordEnabled=='true'}">
+
+        passwordEnabled = true;
+    </c:if>
+
     strToday = "<%=strToday%>";
 
 	notesIncrement = parseInt("<%=OscarProperties.getInstance().getProperty("num_loaded_notes", "20") %>");
@@ -586,7 +590,9 @@ try
 				}
 			%>
 
-			
+			<c:if test="${sessionScope.passwordEnabled=='true'}">
+				<input tabindex="22" type='image' src="<c:out value="${ctx}/oscarEncounter/graphics/lock-note.png"/>" onclick="return toggleNotePasswd();" title='<bean:message key="oscarEncounter.Index.btnLock"/>'>&nbsp;
+	    	</c:if>
 
 	    	<input tabindex="23" type='image' src="<c:out value="${ctx}/oscarEncounter/graphics/system-log-out.png"/>" onclick='closeEnc(event);return false;' title='<bean:message key="global.btnExit"/>'>&nbsp;
 	    	<input tabindex="24" type='image' src="<c:out value="${ctx}/oscarEncounter/graphics/document-print.png"/>" onclick="return printSetup(event);" title='<bean:message key="oscarEncounter.Index.btnPrint"/>' id="imgPrintEncounter">
