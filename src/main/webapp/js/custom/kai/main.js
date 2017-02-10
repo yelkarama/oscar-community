@@ -66,7 +66,7 @@ function addKAIBar() {
 		<a href="http://www.kaiinnovations.com" target="_blank"><img alt="" src="../js/custom/kai/KAI_LOGO2_HR.png" height="18" width="18">&nbsp;&nbsp;KAI INNOVATIONS</a>
 		<div class="block">
 			Search:
-			<input class="kaiInput" type="text" placeholder="Enter Heath Card # or Demographic Name" id="kaiDemoSearch"/>
+			<input class="kaiInput" type="text" placeholder="Enter Health Card # or Demographic Name" id="kaiDemoSearch"/>
 			<a href="" class="btnFlat" id='kaiDemoSearchButton'>
 		    	<div class="green">
 		            <span>Go</span>
