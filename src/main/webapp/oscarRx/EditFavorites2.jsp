@@ -112,6 +112,7 @@ int i, j;
         var special          = eval('get.fldSpecial' + rowId).value;
         var dispenseInternal = eval('get.dispenseInternal'+rowId).value;
         customName			= encodeURI(customName);
+        favoriteName		= encodeURI(favoriteName);
         special				= encodeURI(special);
         
         if(favoriteName==null || favoriteName.length < 1) {
