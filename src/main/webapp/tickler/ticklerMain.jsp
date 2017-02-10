@@ -53,6 +53,8 @@
 <%@ page import="java.text.SimpleDateFormat" %>
 <%@ page import="java.util.Locale" %>
 <%@ page import="org.oscarehr.web.admin.ProviderPreferencesUIBean" %>
+<%@ page import="org.oscarehr.hospitalReportManager.model.HRMDocument" %>
+<%@ page import="org.oscarehr.hospitalReportManager.dao.HRMDocumentDao" %>
 
 <%
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -894,6 +896,7 @@ function changeSite(sel) {
                                     <TD ROWSPAN="1" class="<%=cellColour%>"><%=t.getMessage()%>
                                         
                                         <%
+                                            HRMDocumentDao hrmDocumentDao = new HRMDocumentDao();
                                                                                 	List<TicklerLink> linkList = ticklerLinkDao.getLinkByTickler(t.getId().intValue());
                                                                                                                         if (linkList != null){
                                                                                                                             for(TicklerLink tl : linkList){
@@ -916,6 +919,23 @@ function changeSite(sel) {
                                                 	}else if (LabResultData.isDocument(type)){
                                                 %>
                                                 <a href="javascript:reportWindow('../dms/ManageDocument.do?method=display&doc_no=<%=tl.getTableId()%>&providerNo=<%=user_no%>&searchProviderNo=<%=user_no%>&status=')">ATT</a>
+                                                <%
+                                                    }else if (LabResultData.isHRM(type)){
+                                                        String duplicateLabIds = "";
+                                                        try {
+                                                            //try to find related HRMs
+                                                            List<HRMDocument> duplicateLabs = hrmDocumentDao.findAllDocumentsWithRelationship(tl.getTableId().intValue());
+
+                                                            if (duplicateLabs != null) {
+                                                                for (HRMDocument hrmDoc : duplicateLabs) {
+                                                                    duplicateLabIds += hrmDoc.getId().toString() + ",";
+                                                                }
+                                                            }
+                                                        }
+                                                        catch(NullPointerException npe){
+
+                                                        }
+                                                %>
                                                 <%
                                                 	}else {
                                                 %>
