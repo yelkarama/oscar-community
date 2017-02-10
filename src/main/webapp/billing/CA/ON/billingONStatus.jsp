@@ -170,7 +170,11 @@ NumberFormat formatter = new DecimalFormat("#0.00");
 <%@page import="org.oscarehr.common.dao.SiteDao"%>
 <%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
 <%@page import="org.oscarehr.common.model.Site"%>
-<%@page import="org.oscarehr.common.model.Provider"%><html>
+<%@page import="org.oscarehr.common.model.Provider"%>
+<%@ page import="org.oscarehr.common.model.BillingONCHeader1" %>
+<%@ page import="org.oscarehr.common.dao.BillingONCHeader1Dao" %>
+<%@ page import="org.oscarehr.util.SpringUtils" %>
+<html>
     <head>
         <title><bean:message key="admin.admin.invoiceRpts"/></title>
         
@@ -649,6 +653,7 @@ if(statusType.equals("_")) { %>
              <!--th>Type</th-->
              <th>Ref #</th>
              <th>Hosp #</th>
+			 <th>Status</th>
              <th title="admission date">Admitted</th>
              <th>Claim Error</th>
              <th>Code</th>
@@ -658,8 +663,8 @@ if(statusType.equals("_")) { %>
              <th>Dx</th>
              <th>Exp.</th>
              <th>Code Error</th>
-             <th>Status</th>
-             <th>Filename</th>
+             <th>Checked</th>
+             <th>Report Name</th>
           </tr>
 	<% //
         ArrayList<String> aLProviders;
@@ -689,9 +694,11 @@ if(statusType.equals("_")) { %>
 
 	for(int i=0; i<lPat.size(); i++) {
 		BillingErrorRepData bObj = (BillingErrorRepData) lPat.get(i);
+		BillingONCHeader1Dao cheader1Dao = (BillingONCHeader1Dao)SpringUtils.getBean(BillingONCHeader1Dao.class);
+		BillingONCHeader1 billCheader1 = cheader1Dao.find(Integer.parseInt(bObj.getBilling_no()));
 		String color = "";
 		if(!invoiceNo.equals(bObj.getBilling_no())) {
-			invoiceNo = bObj.getBilling_no(); 
+			invoiceNo = bObj.getBilling_no();
 			nC = nC ? false : true;
 		} 
 	    color = nC ? "class='success'" : "";
@@ -702,6 +709,7 @@ if(statusType.equals("_")) { %>
     			<td align="right"><a href=# onclick="popupPage(800,700,'billingONCorrection.jsp?billing_no=<%=bObj.getBilling_no()%>','BillCorrection<%=bObj.getBilling_no()%>');return false;"><%=bObj.getBilling_no() %></a></td>
     			<td><%=bObj.getRef_no() %></td>
     			<td><%=bObj.getFacility() %></td>
+				<td><%=billCheader1.getStatus() %></td>
     			<td><%=bObj.getAdmitted_date() %></td>
     			<td><%=bObj.getClaim_error() %></td>
     			<td><%=bObj.getCode() %></td>
