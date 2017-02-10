@@ -113,34 +113,37 @@ function setregexp2() {
     //if (demoNo != null) {
         noList = demographicCustDao.select_demoname(request.getParameter("oldcust2"), request.getParameter("regexp"));
     //}
-    int nosize = noList.size();
     int rowsAffected = 0;
-    if(nosize != 0) {
-      String [] param = new String[nosize+2] ;
-      param[0] = request.getParameter("newcust2") ;
-      param[1] = request.getParameter("oldcust2") ;
-      StringBuffer sbtemp = new StringBuffer("?") ;
-      param[0+2] = noList.get(0).toString();
-
-      if(nosize>1) {
-          for(int i=1; i<nosize; i++) {
- 	      sbtemp = sbtemp.append(",?");
-              param[i+2] = noList.get(i).toString();
- 	  }
-      }
-      String instrdemo = sbtemp.toString();
-     
-      List<Integer> demoList= new ArrayList<Integer>();
-      for(int x=2;x<param.length;x++) {
-    	  demoList.add(Integer.parseInt(param[x]));
-      }
-      List<DemographicCust> demographicCusts = demographicCustDao.findMultipleResident(demoList, param[1]);
-      for(DemographicCust demographicCust:demographicCusts) {
-    	  demographicCust.setResident(param[0]);
-    	  demographicCustDao.merge(demographicCust);
-      }
-      rowsAffected = demographicCusts.size();
-    } %>
+    if (noList != null) {
+	    int nosize = noList.size();
+	    if(nosize != 0) {
+	      String [] param = new String[nosize+2] ;
+	      param[0] = request.getParameter("newcust2") ;
+	      param[1] = request.getParameter("oldcust2") ;
+	      StringBuffer sbtemp = new StringBuffer("?") ;
+	      param[0+2] = noList.get(0).toString();
+	
+	      if(nosize>1) {
+	          for(int i=1; i<nosize; i++) {
+	 	      sbtemp = sbtemp.append(",?");
+	              param[i+2] = noList.get(i).toString();
+	 	  }
+	      }
+	      String instrdemo = sbtemp.toString();
+	     
+	      List<Integer> demoList= new ArrayList<Integer>();
+	      for(int x=2;x<param.length;x++) {
+	    	  demoList.add(Integer.parseInt(param[x]));
+	      }
+	      List<DemographicCust> demographicCusts = demographicCustDao.findMultipleResident(demoList, param[1]);
+	      for(DemographicCust demographicCust:demographicCusts) {
+	    	  demographicCust.setResident(param[0]);
+	    	  demographicCustDao.merge(demographicCust);
+	      }
+	      rowsAffected = demographicCusts.size();
+	    }
+    }
+%>
 <%=rowsAffected %>
 <bean:message key="admin.updatedemographicprovider.msgRecords" />
 <br>
@@ -151,38 +154,38 @@ function setregexp2() {
 	   // if (demoNo != null) {
 	    	 noList = demographicCustDao.select_demoname1(request.getParameter("oldcust1"), request.getParameter("regexp"));
 	   // }
-
-  
-    int nosize = noList.size();
     int rowsAffected = 0;
-
-    if(nosize != 0) {
-      String [] param = new String[nosize+2] ;
-      param[0] = request.getParameter("newcust1") ;
-      param[1] = request.getParameter("oldcust1") ;
-
-      StringBuffer sbtemp = new StringBuffer("?") ;
-      param[0+2] = noList.get(0).toString();
-
-      if(nosize>1) {
-          for(int i=1; i<nosize; i++) {
- 	      sbtemp = sbtemp.append(",?");
-              param[i+2] = noList.get(i).toString();
- 	  }
-      }
-     
-
-      List<Integer> demoList= new ArrayList<Integer>();
-      for(int x=2;x<param.length;x++) {
-    	  demoList.add(Integer.parseInt(param[x]));
-      }
-      List<DemographicCust> demographicCusts = demographicCustDao.findMultipleNurse(demoList, param[1]);
-      for(DemographicCust demographicCust:demographicCusts) {
-    	  demographicCust.setNurse(param[0]);
-    	  demographicCustDao.merge(demographicCust);
-      }
-      rowsAffected = demographicCusts.size();
-    } %>
+    if (noList != null) {
+	    int nosize = noList.size();
+	    if(nosize != 0) {
+	      String [] param = new String[nosize+2] ;
+	      param[0] = request.getParameter("newcust1") ;
+	      param[1] = request.getParameter("oldcust1") ;
+	
+	      StringBuffer sbtemp = new StringBuffer("?") ;
+	      param[0+2] = noList.get(0).toString();
+	
+	      if(nosize>1) {
+	          for(int i=1; i<nosize; i++) {
+	 	      sbtemp = sbtemp.append(",?");
+	              param[i+2] = noList.get(i).toString();
+	 	  }
+	      }
+	     
+	
+	      List<Integer> demoList= new ArrayList<Integer>();
+	      for(int x=2;x<param.length;x++) {
+	    	  demoList.add(Integer.parseInt(param[x]));
+	      }
+	      List<DemographicCust> demographicCusts = demographicCustDao.findMultipleNurse(demoList, param[1]);
+	      for(DemographicCust demographicCust:demographicCusts) {
+	    	  demographicCust.setNurse(param[0]);
+	    	  demographicCustDao.merge(demographicCust);
+	      }
+	      rowsAffected = demographicCusts.size();
+	    }
+    }
+%>
 <%=rowsAffected %>
 <bean:message key="admin.updatedemographicprovider.msgRecords" />
 <br>
@@ -193,38 +196,38 @@ function setregexp2() {
 	  //  if (demoNo != null) {
 	    	 noList = demographicCustDao.select_demoname2(request.getParameter("oldcust4"), request.getParameter("regexp"));
 	  //  }
-
-    int nosize = noList.size();
     int rowsAffected = 0;
-
-    if(nosize != 0) {
-      String [] param = new String[nosize+2] ;
-      param[0] = request.getParameter("newcust4") ;
-      param[1] = request.getParameter("oldcust4") ;
-
-      StringBuffer sbtemp = new StringBuffer("?") ;
-      param[0+2] = noList.get(0).toString();
-
-      if(nosize>1) {
-          for(int i=1; i<nosize; i++) {
- 	      sbtemp = sbtemp.append(",?");
-              param[i+2] = noList.get(i).toString();
- 	  }
-      }
-      String instrdemo = sbtemp.toString();
-     
-      List<Integer> demoList= new ArrayList<Integer>();
-      for(int x=2;x<param.length;x++) {
-    	  demoList.add(Integer.parseInt(param[x]));
-      }
-      List<DemographicCust> demographicCusts = demographicCustDao.findMultipleMidwife(demoList, param[1]);
-      for(DemographicCust demographicCust:demographicCusts) {
-    	  demographicCust.setMidwife(param[0]);
-    	  demographicCustDao.merge(demographicCust);
-      }
-      rowsAffected = demographicCusts.size();
-
-    } %>
+    if (noList != null) {
+	    int nosize = noList.size();
+	    if(nosize != 0) {
+	      String [] param = new String[nosize+2] ;
+	      param[0] = request.getParameter("newcust4") ;
+	      param[1] = request.getParameter("oldcust4") ;
+	
+	      StringBuffer sbtemp = new StringBuffer("?") ;
+	      param[0+2] = noList.get(0).toString();
+	
+	      if(nosize>1) {
+	          for(int i=1; i<nosize; i++) {
+	 	      sbtemp = sbtemp.append(",?");
+	              param[i+2] = noList.get(i).toString();
+	 	  }
+	      }
+	      String instrdemo = sbtemp.toString();
+	     
+	      List<Integer> demoList= new ArrayList<Integer>();
+	      for(int x=2;x<param.length;x++) {
+	    	  demoList.add(Integer.parseInt(param[x]));
+	      }
+	      List<DemographicCust> demographicCusts = demographicCustDao.findMultipleMidwife(demoList, param[1]);
+	      for(DemographicCust demographicCust:demographicCusts) {
+	    	  demographicCust.setMidwife(param[0]);
+	    	  demographicCustDao.merge(demographicCust);
+	      }
+	      rowsAffected = demographicCusts.size();
+	    }
+	}
+%>
 <%=rowsAffected %>
 <bean:message key="admin.updatedemographicprovider.msgRecords" />
 <br>
