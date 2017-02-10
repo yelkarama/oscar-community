@@ -26,12 +26,7 @@ package oscar.oscarLab.ca.on;
 
 import java.io.Serializable;
 import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.log4j.Logger;
 import org.oscarehr.billing.CA.BC.model.Hl7Obx;
@@ -449,8 +444,11 @@ public class CommonLabTestValues {
 
 		} else if (labType != null && labType.equals("HL7")) {
 			MeasurementDao dao = SpringUtils.getBean(MeasurementDao.class);
+			List<Object> items;
+			if (identCode.equals("-INR")) { items = dao.findLabNumbersOrderByObserved(demographicNo==null?0:demographicNo, identCode); }
+			else { items = dao.findLabNumbers(demographicNo==null?0:demographicNo, identCode); }
 			
-			for(Object lNo : dao.findLabNumbers(demographicNo==null?0:demographicNo, identCode)) {
+			for(Object lNo : items) {
 					String lab_no = String.valueOf(lNo);
 
 					MessageHandler handler = Factory.getHandler(lab_no);
