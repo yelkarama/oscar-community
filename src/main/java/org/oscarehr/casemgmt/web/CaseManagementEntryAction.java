@@ -2698,6 +2698,19 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 		return mapping.findForward("showHistory");
 	}
 
+	public ActionForward allNotes(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+		if (request.getSession().getAttribute("userrole") == null) return mapping.findForward("expired");
+
+		String demoNo = request.getParameter("demoNo");
+		request.setAttribute("demoName", getDemoName(demoNo));
+
+
+		List<CaseManagementNote> notes = caseManagementMgr.getNotes(demoNo);
+		request.setAttribute("showAll", notes);
+		request.setAttribute("title", " Encounter Notes ");
+		return mapping.findForward("showAll");
+	}
+
 	public ActionForward issuehistory(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		if (request.getSession().getAttribute("userrole") == null) return mapping.findForward("expired");
 

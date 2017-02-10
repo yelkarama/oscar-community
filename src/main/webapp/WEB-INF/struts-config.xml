@@ -2300,6 +2300,7 @@
 			<forward name="windowCloseError" path="/casemgmt/closeWithError.jsp" />
 			<forward name="historyview" path="/casemgmt/historyview.jsp" />
 			<forward name="showHistory" path="/casemgmt/showHistory.jsp" />
+			<forward name="showAll" path="/casemgmt/showAll.jsp" />
 			<forward name="issueAutoCompletion" path="/casemgmt/IssueList.jsp" />
 			<forward name="issueList_ajax" path="/casemgmt/noteIssueList.jsp" />
 			<forward name="expired" path="/casemgmt/expired.jsp" />
