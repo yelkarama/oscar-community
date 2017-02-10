@@ -243,25 +243,24 @@ public class ConsultationPDFCreator extends PdfPageEventHelper {
 		cell.setHorizontalAlignment(Element.ALIGN_CENTER);
 		infoTable.addCell(cell);
 
-		if (reqFrm.pwb.equals("1")){
+		if (reqFrm.pwb.equals("0"))
+		{
 			//cell.setPhrase(new Phrase(getResource("msgPleaseReplyPatient"), boldFont));
 			// msgPleaseReplyPatient does not exist. Using Part1 and Part2 method instead
 			cell.setPhrase(new Phrase(
 					String.format("%s %s %s", getResource("msgPleaseReplyPart1"),
-											  clinic.getClinicName(),
-											  getResource("msgPleaseReplyPart2")), boldFont));
-		}
+							clinic.getClinicName(),
+							getResource("msgPleaseReplyPart2")), boldFont));
 
+			infoTable.addCell(cell);
+
+		}
 		else if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) {
 			cell.setPhrase(new Phrase("Please reply", boldFont));
+			infoTable.addCell(cell);
 		}
-		else {
-			cell.setPhrase(new Phrase(
-					String.format("%s %s %s", getResource("msgPleaseReplyPart1"),
-											  clinic.getClinicName(),
-											  getResource("msgPleaseReplyPart2")), boldFont));
-		}
-		infoTable.addCell(cell);
+
+
 
 		return infoTable;
 	}
