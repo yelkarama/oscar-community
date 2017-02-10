@@ -386,7 +386,6 @@ function pasteAppt(multipleSameDayGroupAppt) {
 
 	function setType(typeSel,reasonSel,locSel,durSel,notesSel,resSel) {
 		  document.forms['ADDAPPT'].type.value = typeSel;
-		  document.forms['ADDAPPT'].reason.value = reasonSel;
 		  document.forms['ADDAPPT'].duration.value = durSel;
 		  document.forms['ADDAPPT'].notes.value = notesSel;
 		  document.forms['ADDAPPT'].duration.value = durSel;
@@ -403,6 +402,14 @@ function pasteAppt(multipleSameDayGroupAppt) {
 		  } else if (loc.nodeName == "INPUT") {
 			  document.forms['ADDAPPT'].location.value = locSel;
 		  }
+        var reasonOption = $("select[name='reasonCode'] option:contains('" + reasonSel + "')");
+        if (reasonOption.length > 0) {
+            reasonOption[0].selected = true;
+        }
+        else {
+            document.forms['ADDAPPT'].reason.value = reasonSel;
+        }
+		  
 	}
 
 
@@ -928,12 +935,13 @@ function pasteAppt(multipleSameDayGroupAppt) {
                 <select name="reasonCode">
                     <option value="0" selected></option>
 				    <%
+                    Integer apptReasonCode = (request.getParameter("reasonCode") == null? null : Integer.valueOf(request.getParameter("reasonCode")));
 				    if(reasonCodes != null) {
 				    	for(LookupListItem reasonCode : reasonCodes.getItems()) {
 				    		if(reasonCode.isActive()) {
-				    %>
-				    <option value="<%=reasonCode.getId()%>">
-				    	<%=StringEscapeUtils.escapeHtml(reasonCode.getLabel())%>
+                    %>
+				    <option value="<%=reasonCode.getId()%>" <%=(apptReasonCode == null)?(reasonCode.getValue().equals("Others")?"selected":""):(apptReasonCode.equals(reasonCode.getId())  ? "selected":"")%>>
+				        <%=StringEscapeUtils.escapeHtml(reasonCode.getLabel())%>
 				    </option>
 				    <%
 				    		} }
@@ -951,8 +959,7 @@ function pasteAppt(multipleSameDayGroupAppt) {
             <div class="label"><bean:message key="Appointment.formNotes" />:</div>
             <div class="input">
                 <textarea name="notes" tabindex="3" maxlength="255" rows="2" wrap="virtual" cols="18"><%=bFirstDisp?"":request.getParameter("notes").equals("")?"":request.getParameter("notes")%></textarea>
-            </div>
-        </li>
+            </div> </li>
         <% if (pros.isPropertyActive("mc_number")) { %>
         <li class="row deep">
             <div class="label">M/C number:</div>

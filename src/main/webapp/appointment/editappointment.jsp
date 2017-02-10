@@ -166,6 +166,7 @@
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="appointment.editappointment.title" /></title>
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery.js"></script>
+<script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery-1.7.1.min.js"></script>
    <script>
      jQuery.noConflict();
    </script>
@@ -416,7 +417,6 @@ function openTypePopup () {
 
 function setType(typeSel,reasonSel,locSel,durSel,notesSel,resSel) {
   document.forms['EDITAPPT'].type.value = typeSel;
-  document.forms['EDITAPPT'].reason.value = reasonSel;
   document.forms['EDITAPPT'].duration.value = durSel;
   document.forms['EDITAPPT'].notes.value = notesSel;
   document.forms['EDITAPPT'].duration.value = durSel;
@@ -432,6 +432,13 @@ function setType(typeSel,reasonSel,locSel,durSel,notesSel,resSel) {
           }
   } else if (loc.nodeName == "INPUT") {
 	  document.forms['EDITAPPT'].location.value = locSel;
+  }
+  var reasonOption = $("select[name='reasonCode'] option:contains('" + reasonSel + "')");
+  if (reasonOption.length > 0) {
+      reasonOption[0].selected = true;
+  }
+  else {
+      document.forms['EDITAPPT'].reason.value = reasonSel;
   }
 }
 

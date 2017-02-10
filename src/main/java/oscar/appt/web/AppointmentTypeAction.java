@@ -26,6 +26,7 @@ package oscar.appt.web;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -38,9 +39,14 @@ import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 import org.apache.struts.util.LabelValueBean;
 import org.oscarehr.common.dao.AppointmentTypeDao;
+import org.oscarehr.common.dao.LookupListDao;
 import org.oscarehr.common.dao.SiteDao;
 import org.oscarehr.common.model.AppointmentType;
+import org.oscarehr.common.model.LookupList;
+import org.oscarehr.common.model.LookupListItem;
 import org.oscarehr.common.model.Site;
+import org.oscarehr.managers.LookupListManager;
+import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.SpringUtils;
 
 import oscar.OscarAction;
@@ -51,6 +57,7 @@ public class AppointmentTypeAction extends OscarAction  {
 					ActionForm form,
 					HttpServletRequest request,
 					HttpServletResponse response) throws IOException, ServletException {
+		   LoggedInInfo loggedInInfo= LoggedInInfo.getLoggedInInfoFromSession(request);
 	                                   
 			AppointmentTypeForm formBean = (AppointmentTypeForm)form;
 			String sOper = request.getParameter("oper");			
@@ -91,7 +98,8 @@ public class AppointmentTypeAction extends OscarAction  {
 		    	}	
 
 		    	AppointmentTypeDao appDao = (AppointmentTypeDao) SpringUtils.getBean("appointmentTypeDao");
-
+				LookupListDao lookupListDao = SpringUtils.getBean(LookupListDao.class);
+				
 		    	if (sOper.equals("edit")) {
 		    		AppointmentType dbBean = appDao.find(Integer.valueOf(typeNo));
 		    		if(dbBean != null) {
@@ -134,7 +142,25 @@ public class AppointmentTypeAction extends OscarAction  {
 		    				saveErrors(request,errors);
 		    				return mapping.findForward("failure");
 		    			}	
-		    		}				
+		    		}	
+		    		LookupListManager lookupListManager = SpringUtils.getBean(LookupListManager.class);
+					LookupList reasonCodes = lookupListManager.findLookupListByName(loggedInInfo, "reasonCode");
+					List<LookupListItem> reasonCodesItems = reasonCodes.getItems();
+					String reason = formBean.getReason();
+					boolean isNewReason = true;
+					for (int i = 0; i < reasonCodesItems.size() && isNewReason; i++) {
+						if (reasonCodesItems.get(i).getValue().equals(reason)) { isNewReason = false; }
+					}
+					if (isNewReason) {
+						LookupListItem newReason = new LookupListItem();
+						newReason.setActive(true);
+						newReason.setCreatedBy("apptType");
+						newReason.setDisplayOrder(reasonCodesItems.get(reasonCodesItems.size() - 1 ).getDisplayOrder() + 1);
+						newReason.setLabel(reason);
+						newReason.setLookupListId(reasonCodes.getId());
+						newReason.setValue(UUID.randomUUID().toString());
+						lookupListManager.addLookupListItem(loggedInInfo, newReason);
+					}			
 		    		request.setAttribute("AppointmentTypeForm", new AppointmentTypeForm());
 		    	} else if (sOper.equals("del")) {
 		    		appDao.remove(typeNo);
