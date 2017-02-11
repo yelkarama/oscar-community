@@ -44,6 +44,7 @@ import org.oscarehr.common.dao.BillingONRepoDao;
 import org.oscarehr.common.dao.BillingOnItemPaymentDao;
 import org.oscarehr.common.dao.BillingOnTransactionDao;
 import org.oscarehr.common.dao.BillingPaymentTypeDao;
+import org.oscarehr.common.dao.BillingPermissionDao;
 import org.oscarehr.common.model.BillingONCHeader1;
 import org.oscarehr.common.model.BillingONExt;
 import org.oscarehr.common.model.BillingONItem;
@@ -52,6 +53,8 @@ import org.oscarehr.common.model.BillingONRepo;
 import org.oscarehr.common.model.BillingOnItemPayment;
 import org.oscarehr.common.model.BillingOnTransaction;
 import org.oscarehr.common.model.BillingPaymentType;
+import org.oscarehr.common.model.BillingPermission;
+import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
@@ -65,6 +68,7 @@ public class JdbcBillingClaimImpl {
 	private BillingONExtDao extDao = (BillingONExtDao)SpringUtils.getBean(BillingONExtDao.class);
 	private BillingONDiskNameDao diskNameDao = SpringUtils.getBean(BillingONDiskNameDao.class);
 	private BillingONFilenameDao filenameDao = SpringUtils.getBean(BillingONFilenameDao.class);
+	private BillingPermissionDao billingPermissionDao = SpringUtils.getBean(BillingPermissionDao.class);
 	private BillingONRepoDao repoDao = SpringUtils.getBean(BillingONRepoDao.class);
 
 	
@@ -570,8 +574,11 @@ public class JdbcBillingClaimImpl {
 		return retval;
 	}
 	
-
 	public List getMRIList(String sDate, String eDate, String status) {
+		return getMRIList(null, null, sDate, eDate, status);
+	}
+
+	public List getMRIList(String billingPermission, LoggedInInfo loggedInInfo, String sDate, String eDate, String status) {
 		List retval = new Vector();
 		BillingDiskNameData obj = null;
 		
@@ -579,6 +586,7 @@ public class JdbcBillingClaimImpl {
 			List<BillingONDiskName> results = diskNameDao.findByCreateDateRangeAndStatus(dateformatter.parse(sDate),dateformatter.parse(eDate),status);
 	
 			for(BillingONDiskName b : results) {
+				
 				obj = new BillingDiskNameData();
 				obj.setId("" + b.getId());
 				obj.setMonthCode(b.getMonthCode());
@@ -601,6 +609,14 @@ public class JdbcBillingClaimImpl {
 				Vector vecFilenameId = new Vector();
 					
 				for(BillingONFilename f:ff) {	
+					if(loggedInInfo != null && billingPermission != null){
+						String curUser_providerno = loggedInInfo.getLoggedInProviderNo();
+						
+						if(!billingPermissionDao.hasPermission(f.getProviderNo(), curUser_providerno, billingPermission)){
+							continue;
+						}
+					}
+				
 					vecFilenameId.add("" + f.getId());
 					vecHtmlfilename.add(f.getHtmlFilename());
 					vecProviderohipno.add(f.getProviderOhipNo());
@@ -609,6 +625,11 @@ public class JdbcBillingClaimImpl {
 					vecStatus.add(f.getStatus());
 					vecTotal.add(f.getTotal());
 				}
+				
+				if(vecProviderno.size() <= 0){
+					continue;
+				}
+
 				obj.setVecFilenameId(vecFilenameId);
 				obj.setHtmlfilename(vecHtmlfilename);
 				obj.setProviderohipno(vecProviderohipno);

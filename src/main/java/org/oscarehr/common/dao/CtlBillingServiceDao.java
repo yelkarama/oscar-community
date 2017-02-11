@@ -111,6 +111,14 @@ public class CtlBillingServiceDao extends AbstractDao<CtlBillingService> {
 			return results;
         }
 
+        public List<CtlBillingService> getServiceTypeListByStatus(String serviceStatus) {
+			Query query = entityManager.createQuery("SELECT bs FROM " + modelClass.getSimpleName() + " bs WHERE bs.status = :serviceStatus GROUP BY bs.serviceType, bs.serviceTypeName"); 
+			query.setParameter("serviceStatus", serviceStatus);
+			
+			List<CtlBillingService> results = query.getResultList();
+			return results;
+        }
+
 		/**
 		 * Gets all service type names and service types from the {@link CtlBillingService} instances.
 		 */

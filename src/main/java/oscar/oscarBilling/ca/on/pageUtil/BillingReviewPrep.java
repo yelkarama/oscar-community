@@ -26,6 +26,7 @@ import java.util.Vector;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
+import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 
 import oscar.oscarBilling.ca.on.data.BillingReviewCodeItem;
@@ -40,6 +41,7 @@ public class BillingReviewPrep {
 			.getLogger(BillingReviewPrep.class);
 
 	JdbcBillingReviewImpl dbObj = new JdbcBillingReviewImpl();
+	HttpServletRequest request = null;
 
 	public Vector getServiceCodeReviewVec(Vector vecCode, Vector vecUnit,
 			Vector vecAt, String billReferalDate) {
@@ -249,27 +251,43 @@ public class BillingReviewPrep {
 	}
 
 	public List getMRIList(String sDate, String eDate, String status) {
+		return getMRIList(null, sDate, eDate, status);
+	}
+	
+	public List getMRIList(String billingPermission, String sDate, String eDate, String status) {
 		JdbcBillingClaimImpl dbObj = new JdbcBillingClaimImpl();
-		List ret = dbObj.getMRIList(sDate, eDate, status);
+		List ret = dbObj.getMRIList(billingPermission, LoggedInInfo.getLoggedInInfoFromSession(request), sDate, eDate, status);
 		return ret;
 	}
 
 	// ret - Vector = || ||
 	public List getProviderBillingStr() {
+		return getProviderBillingStr(null);
+	}
+
+	public List getProviderBillingStr(String billingPermission) {
 		JdbcBillingPageUtil dbObj = new JdbcBillingPageUtil();
-		List ret = dbObj.getCurProviderStr(false);
+		List ret = dbObj.getCurProviderStr(billingPermission, LoggedInInfo.getLoggedInInfoFromSession(request), false);
 		return ret;
 	}
 	
 	public List getTeamProviderBillingStr(String provider_no) {
-		JdbcBillingPageUtil dbObj = new JdbcBillingPageUtil();
-		List ret = dbObj.getCurTeamProviderStr(provider_no);
-		return ret;
+		return getTeamProviderBillingStr(null, provider_no);
 	}
 
-	public List getSiteProviderBillingStr(String provider_no) {
+	public List getTeamProviderBillingStr(String billingPermission, String provider_no) {
 		JdbcBillingPageUtil dbObj = new JdbcBillingPageUtil();
-		List ret = dbObj.getCurSiteProviderStr(provider_no);
+		List ret = dbObj.getCurTeamProviderStr(billingPermission, LoggedInInfo.getLoggedInInfoFromSession(request), provider_no);
+		return ret;
+	}
+	
+	public List getSiteProviderBillingStr(String provider_no) {
+		return getSiteProviderBillingStr(null, provider_no);
+	}
+	
+	public List getSiteProviderBillingStr(String billingPermission, String provider_no) {
+		JdbcBillingPageUtil dbObj = new JdbcBillingPageUtil();
+		List ret = dbObj.getCurSiteProviderStr(billingPermission, LoggedInInfo.getLoggedInInfoFromSession(request), provider_no);
 		return ret;
 	}
 
@@ -289,6 +307,10 @@ public class BillingReviewPrep {
 		String ret = dxObj.getDxDescription(val);
 
 		return ret;
+	}
+	
+	public void setRequest(HttpServletRequest request){
+		this.request = request;
 	}
 
 }

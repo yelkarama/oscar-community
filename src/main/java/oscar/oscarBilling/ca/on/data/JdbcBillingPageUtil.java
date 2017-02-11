@@ -35,6 +35,7 @@ import org.oscarehr.common.dao.ClinicLocationDao;
 import org.oscarehr.common.dao.OscarAppointmentDao;
 import org.oscarehr.common.dao.ProfessionalSpecialistDao;
 import org.oscarehr.common.dao.ProviderSiteDao;
+import org.oscarehr.common.dao.BillingPermissionDao;
 import org.oscarehr.common.model.Appointment;
 import org.oscarehr.common.model.BillingPaymentType;
 import org.oscarehr.common.model.ClinicLocation;
@@ -42,6 +43,7 @@ import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.ProfessionalSpecialist;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.model.ProviderSite;
+import org.oscarehr.common.model.BillingPermission;
 import org.oscarehr.managers.DemographicManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
@@ -61,9 +63,14 @@ public class JdbcBillingPageUtil {
 	private BillingONFavouriteDao billingONFavouriteDao = SpringUtils.getBean(BillingONFavouriteDao.class);
 	private DemographicManager demographicManager = SpringUtils.getBean(DemographicManager.class);
 	private BillingONFilenameDao billingONFilenameDao = SpringUtils.getBean(BillingONFilenameDao.class);
+	private BillingPermissionDao billingPermissionDao = SpringUtils.getBean(BillingPermissionDao.class);
 	private ProviderSiteDao providerSiteDao = SpringUtils.getBean(ProviderSiteDao.class);
 
-	public List<String> getCurTeamProviderStr(String provider_no) {
+	public List<String> getCurTeamProviderStr(String provider_no){
+		return getCurTeamProviderStr(null, null, provider_no);
+	}
+	
+	public List<String> getCurTeamProviderStr(String billingPermission, LoggedInInfo loggedInInfo, String provider_no) {
 		List<String> retval = new ArrayList<String>();
 		String proid = "";
 		String proFirst = "";
@@ -74,6 +81,14 @@ public class JdbcBillingPageUtil {
 		
 		List<Provider> ps = providerDao.getCurrentTeamProviders(provider_no);
 		for(Provider p:ps) {
+			if(loggedInInfo != null && billingPermission != null){
+				String curUser_providerno = loggedInInfo.getLoggedInProviderNo();
+		
+				if(!billingPermissionDao.hasPermission(p.getProviderNo(), curUser_providerno, billingPermission)){
+					continue;
+				}
+			}
+			
 			proid = p.getProviderNo();
 			proLast = p.getLastName();
 			proFirst = p.getFirstName();
@@ -85,8 +100,12 @@ public class JdbcBillingPageUtil {
 
 		return retval;
 	}
-
+	
 	public List<String> getCurSiteProviderStr(String provider_no) {
+		return getCurSiteProviderStr(null, null, provider_no);
+	}
+
+	public List<String> getCurSiteProviderStr(String billingPermission, LoggedInInfo loggedInInfo, String provider_no) {
 		List<String> retval = new ArrayList<String>();
 		
 		List<ProviderSite> sites = providerSiteDao.findByProviderNo(provider_no);
@@ -106,6 +125,15 @@ public class JdbcBillingPageUtil {
 		
 		try {
 			for(Provider p : dao.findActiveProvidersWithSites(provider_no)) {
+				
+				if(loggedInInfo != null && billingPermission != null){
+					String curUser_providerno = loggedInInfo.getLoggedInProviderNo();
+			
+					if(!billingPermissionDao.hasPermission(p.getProviderNo(), curUser_providerno, billingPermission)){
+						continue;
+					}
+				}
+				
 				proid = p.getProviderNo();
 				proLast = p.getLastName();
 				proFirst = p.getFirstName();
@@ -124,10 +152,10 @@ public class JdbcBillingPageUtil {
 	}
 
 	public List<String> getCurProviderStr() {
-		return getCurProviderStr(true);
+		return getCurProviderStr(null, null, true);
 	}
-
-	public List<String> getCurProviderStr(Boolean includeThirdPartyOnly) {
+	
+	public List<String> getCurProviderStr(String billingPermission, LoggedInInfo loggedInInfo, Boolean includeThirdPartyOnly) {
 		List<String> retval = new ArrayList<String>();
 		
 		List<Provider> ps = includeThirdPartyOnly?providerDao.getAllBillableProviders():providerDao.getBillableProviders();
@@ -139,6 +167,15 @@ public class JdbcBillingPageUtil {
 		String billinggroup_no;
 		
 		for(Provider p:ps) {
+			
+			if(loggedInInfo != null && billingPermission != null){
+				String curUser_providerno = loggedInInfo.getLoggedInProviderNo();
+		
+				if(!billingPermissionDao.hasPermission(p.getProviderNo(), curUser_providerno, billingPermission)){
+					continue;
+				}
+			}
+			
 			proid = p.getProviderNo();
 			proLast = p.getLastName();
 			proFirst = p.getFirstName();

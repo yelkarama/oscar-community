@@ -45,6 +45,7 @@
 <%@ page import="oscar.oscarBilling.ca.on.data.*"%>
 <%@page import="org.oscarehr.billing.CA.ON.dao.*" %>
 <%@page import="org.oscarehr.util.SpringUtils" %>
+<%@page import="org.oscarehr.util.LoggedInInfo" %>
 
 <%@ page import="org.oscarehr.util.LoggedInInfo" %>
 <%@ page import="org.oscarehr.casemgmt.model.ProviderExt" %>
@@ -188,7 +189,8 @@ function refreshBillHistory() {
 JdbcBillingReviewImpl dbObj = new JdbcBillingReviewImpl();
 BillingONExtDao billingOnExtDao = (BillingONExtDao)SpringUtils.getBean(BillingONExtDao.class);
 String limit = " limit " + strLimit1 + "," + strLimit2;
-List aL = dbObj.getBillingHist(request.getParameter("demographic_no"), Integer.parseInt(strLimit2), Integer.parseInt(strLimit1), request.getParameter("providerNo"), request.getParameter("serviceCode"), null, showDeleted);
+
+List aL = dbObj.getBillingHist(loggedInInfo, request.getParameter("demographic_no"), Integer.parseInt(strLimit2), Integer.parseInt(strLimit1), request.getParameter("providerNo"), request.getParameter("serviceCode"), null, showDeleted);
 int nItems=0;
 for(int i=0; i<aL.size(); i=i+2) {
 	nItems++;

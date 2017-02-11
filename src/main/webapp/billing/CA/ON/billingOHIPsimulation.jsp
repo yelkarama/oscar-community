@@ -51,6 +51,7 @@ String user_no = (String) session.getAttribute("user");
 <%@ page import="oscar.oscarBilling.ca.on.data.*"%>
 <%@ page import="oscar.log.LogAction" %>
 <%@ page import="oscar.log.LogConst" %>
+<%@ page import="org.oscarehr.common.model.BillingPermission"%>
 <jsp:useBean id="SxmlMisc" class="oscar.SxmlMisc" scope="session" />
 
 <head>
@@ -89,13 +90,13 @@ if(request.getParameter("submit")!=null && request.getParameter("submit").equals
 		BillingReviewPrep prep = new BillingReviewPrep();
 		List<String> providerStr = null;
 		if (isTeamBillingOnly || isTeamAccessPrivacy) {			
-			providerStr = prep.getTeamProviderBillingStr(user_no);
+			providerStr = prep.getTeamProviderBillingStr(BillingPermission.GENERATE_SIMULATE, user_no);
 		}
 		else if (isSiteAccessPrivacy) {
-			providerStr = prep.getSiteProviderBillingStr(user_no);
+			providerStr = prep.getSiteProviderBillingStr(BillingPermission.GENERATE_SIMULATE, user_no);
 		}
 		else {
-			providerStr = prep.getProviderBillingStr();
+			providerStr = prep.getProviderBillingStr(BillingPermission.GENERATE_SIMULATE);
 		}
 		for (int i = 0; i < providerStr.size(); i++) {
 			providers.add((providerStr.get(i)).split("\\|")[0]);			
@@ -271,18 +272,18 @@ Select Provider<br>
 		<option value="all">All Providers</option>
 		<%
 	BillingReviewPrep prep = new BillingReviewPrep();
-		
+	prep.setRequest(request);
 		
 	List providerStr; 
 		
 	if (isTeamBillingOnly || isTeamAccessPrivacy) {
-		providerStr = prep.getTeamProviderBillingStr(user_no);
+		providerStr = prep.getTeamProviderBillingStr(BillingPermission.GENERATE_SIMULATE, user_no);
 	}
 	else if (isSiteAccessPrivacy) {
-		providerStr = prep.getSiteProviderBillingStr(user_no);
+		providerStr = prep.getSiteProviderBillingStr(BillingPermission.GENERATE_SIMULATE, user_no);
 	}
 	else {
-		providerStr = prep.getProviderBillingStr();
+		providerStr = prep.getProviderBillingStr(BillingPermission.GENERATE_SIMULATE);
 	}
 	
 	for (int i = 0; i < providerStr.size(); i++) {

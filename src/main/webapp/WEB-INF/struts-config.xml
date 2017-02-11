@@ -230,6 +230,7 @@
 		<form-bean name="billingReceivePaymentActionForm" type="oscar.oscarBilling.ca.bc.pageUtil.BillingReceivePaymentActionForm" />
 		<form-bean name="receivePaymentActionForm" type="oscar.oscarBilling.ca.bc.pageUtil.ReceivePaymentActionForm" />
 		<form-bean name="billingPreferencesActionForm" type="oscar.oscarBilling.ca.bc.pageUtil.BillingPreferencesActionForm" />
+		<form-bean name="billingONPreferencesActionForm" type="oscar.oscarBilling.ca.on.pageUtil.BillingPreferencesActionForm" />
 		<form-bean name="supServiceCodeAssocActionForm" type="oscar.oscarBilling.ca.bc.pageUtil.SupServiceCodeAssocActionForm" />
 		<form-bean name="eDocsAddEditDocument" type="oscar.dms.data.AddEditDocumentForm" />
 		<form-bean name="documentUploadForm" type="oscar.dms.data.DocumentUploadForm" />
@@ -2118,8 +2119,14 @@
 		<action name="billingPreferencesActionForm" path="/billing/CA/BC/saveBillingPreferencesAction" scope="request" type="oscar.oscarBilling.ca.bc.pageUtil.SaveBillingPreferencesAction" validate="false">
 			<forward name="success" path="/billing/CA/BC/viewBillingPreferencesAction.do" />
 		</action>
+		<action name="billingONPreferencesActionForm" path="/billing/CA/ON/saveBillingPreferencesAction" scope="request" type="oscar.oscarBilling.ca.on.pageUtil.SaveBillingPreferencesAction" validate="false">
+			<forward name="success" path="/billing/CA/ON/viewBillingPreferencesAction.do" />
+		</action>
 		<action input="/billing/CA/BC/billingPreferences.jsp" name="billingPreferencesActionForm" path="/billing/CA/BC/viewBillingPreferencesAction" scope="request" type="oscar.oscarBilling.ca.bc.pageUtil.ViewBillingPreferencesAction" validate="false">
 			<forward name="success" path="/billing/CA/BC/billingPreferences.jsp" />
+		</action>
+		<action input="/billing/CA/ON/billingPreferences.jsp" name="billingONPreferencesActionForm" path="/billing/CA/ON/viewBillingPreferencesAction" scope="request" type="oscar.oscarBilling.ca.on.pageUtil.ViewBillingPreferencesAction" validate="false">
+			<forward name="success" path="/billing/CA/ON/billingPreferences.jsp" />
 		</action>
 		<action input="/report/ClinicalReports.jsp" name="FrmForm" path="/RunClinicalReport" type="oscar.oscarReport.ClinicalReports.PageUtil.RunClinicalReportAction">
 			<forward name="success" path="/report/ClinicalReports.jsp" />

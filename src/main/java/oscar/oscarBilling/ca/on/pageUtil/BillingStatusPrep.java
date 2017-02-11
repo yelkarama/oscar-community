@@ -21,11 +21,13 @@ package oscar.oscarBilling.ca.on.pageUtil;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.StringUtils;
 import org.apache.struts.util.LabelValueBean;
 
 import oscar.oscarBilling.ca.on.data.BillingClaimHeader1Data;
 import oscar.oscarBilling.ca.on.data.JdbcBillingReviewImpl;
+import org.oscarehr.util.LoggedInInfo;
 
 public class BillingStatusPrep {
 	//private static final Logger _logger = Logger.getLogger(BillingStatusPrep.class);
@@ -36,12 +38,20 @@ public class BillingStatusPrep {
 	public static final String ANY_VISIT_LOCATION = "0000";
 
 	// JdbcBillingRAImpl dbObj = new JdbcBillingRAImpl();
-
+	private HttpServletRequest request = null;
 	
 	
 	public List<BillingClaimHeader1Data> getBills(String[] billTypes, String statusType, String providerNo, String startDate, String endDate,
-			String demoNo, String visitLocation,String paymentStartDate, String paymentEndDate) {
+			String demoNo, String visitLocation,String paymentStartDate, String paymentEndDate){
+		return getBills(null, billTypes, statusType, providerNo, startDate, endDate, demoNo, visitLocation,paymentStartDate, paymentEndDate);
+	}
+	public List<BillingClaimHeader1Data> getBills(String billingPermission, String[] billTypes, String statusType, String providerNo, String startDate,
+			String endDate, String demoNo, String visitLocation,String paymentStartDate, String paymentEndDate) {
 		JdbcBillingReviewImpl bObj = new JdbcBillingReviewImpl();
+		LoggedInInfo loggedInInfo = null;
+		if(request != null){
+			loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+		}
 		
 		billTypes = billTypes == null || billTypes.length == 0 ? null : billTypes;
 		statusType = statusType == null || statusType.length() == 0 || statusType.equals(ANY_STATUS_TYPE) ? null : statusType;
@@ -53,19 +63,35 @@ public class BillingStatusPrep {
 		paymentStartDate = paymentStartDate == null || paymentStartDate.length() == 0 ? null : paymentStartDate;
 		paymentEndDate = paymentEndDate == null || paymentEndDate.length() == 0 ? null : paymentEndDate;
 		
-		return bObj.getBill(billTypes, statusType, providerNo, startDate, endDate, demoNo, visitLocation, paymentStartDate,paymentEndDate);
+		return bObj.getBill(billingPermission, loggedInInfo, billTypes, statusType, providerNo, startDate, endDate, demoNo, visitLocation, paymentStartDate,paymentEndDate);
 	}
 
 	
 	public List<BillingClaimHeader1Data> getBills(String[] billType, String statusType, String providerNo, String startDate, String endDate,
+			String demoNo, String serviceCodeParams, String dx, String visitType, String billingForm, String visitLocation, String paymentStartDate, String paymentEndDate) {
+		return getBillsWithSorting(null, billType,statusType,providerNo,startDate,endDate,demoNo, null, null, serviceCodeParams,null, null,dx,visitType,billingForm,visitLocation,null,null, paymentStartDate,paymentEndDate);
+	}
+
+	public List<BillingClaimHeader1Data> getBills(String billingPermission, String[] billType, String statusType, String providerNo, String startDate, String endDate,
 			String demoNo, String demoName, String demoHin, String serviceCodeParams, String accountingNumber, String claimNumber, String dx, String visitType, String billingForm, String visitLocation, String paymentStartDate, String paymentEndDate) {
 		return getBillsWithSorting(billType,statusType,providerNo,startDate,endDate,demoNo, demoName, demoHin, serviceCodeParams, accountingNumber, claimNumber, dx,visitType,billingForm,visitLocation,null,null, paymentStartDate,paymentEndDate);
 	}
 	
 	public List<BillingClaimHeader1Data> getBillsWithSorting(String[] billType, String statusType, String providerNo, String startDate, String endDate,
 			String demoNo, String demoName, String demoHin, String serviceCodeParams, String accountingNumber, String claimNumber, String dx, String visitType, String billingForm, String visitLocation, String sortName, String sortOrder,
-			String paymentStartDate, String paymentEndDate) {
+			String paymentStartDate, String paymentEndDate) {	
+		return getBillsWithSorting(null, billType, statusType, providerNo, startDate, endDate, demoNo, demoName, demoHin, serviceCodeParams, accountingNumber, claimNumber, dx, visitType, billingForm, 
+			visitLocation, sortName, sortOrder, paymentStartDate, paymentEndDate);
+	}
+	public List<BillingClaimHeader1Data> getBillsWithSorting(String billingPermission, String[] billType, String statusType, String providerNo, String startDate, 
+			String endDate, String demoNo, String demoName, String demoHin, String serviceCodeParams, String accountingNumber, String claimNumber, String dx, String visitType, String billingForm, String visitLocation, String sortName, 
+			String sortOrder, String paymentStartDate, String paymentEndDate) {
 		JdbcBillingReviewImpl bObj = new JdbcBillingReviewImpl();
+		LoggedInInfo loggedInInfo = null;
+		if(request != null){
+			loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+		}
+		
 		billType = billType == null || billType.length == 0 ? null : billType;
 		statusType = statusType == null || statusType.length() == 0 || statusType.equals(ANY_STATUS_TYPE) ? null : statusType;
 		providerNo = providerNo == null || providerNo.length() == 0 || providerNo.equals(ANY_PROVIDER) ? null : providerNo;
@@ -87,7 +113,7 @@ public class BillingStatusPrep {
 		paymentEndDate = paymentEndDate == null || paymentEndDate.length() == 0 ? null : paymentEndDate;
 		
 		List<String> serviceCodeList = bObj.mergeServiceCodes(serviceCodeParams, billingForm);
-		List<BillingClaimHeader1Data> retval = bObj.getBillWithSorting(billType, statusType, providerNo, startDate, endDate, demoNo, demoName, demoHin, serviceCodeList, accountingNumber, claimNumber, dx, visitType, visitLocation,sortName,sortOrder,paymentStartDate,paymentEndDate);
+		List<BillingClaimHeader1Data> retval = bObj.getBillWithSorting(billingPermission, loggedInInfo, billType, statusType, providerNo, startDate, endDate, demoNo, demoName, demoHin, serviceCodeList, accountingNumber, claimNumber, dx, visitType, visitLocation,sortName,sortOrder,paymentStartDate,paymentEndDate);
 		return retval;
 	}
 
@@ -97,5 +123,9 @@ public class BillingStatusPrep {
         List<LabelValueBean> billingFormsList = bObj.listBillingForms();
         if(billingFormsList == null) billingFormsList = new ArrayList<LabelValueBean>();
 		return billingFormsList;
+	}
+	
+	public void setRequest(HttpServletRequest request){
+		this.request = request;
 	}
 }

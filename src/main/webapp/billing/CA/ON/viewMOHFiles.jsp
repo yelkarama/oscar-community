@@ -22,6 +22,10 @@
 	<%response.sendRedirect("/oscar/logout.jsp");%>
 </security:oscarSec>
 <%@ page import="java.util.*,oscar.*,java.io.*,java.net.*,oscar.util.*,org.apache.commons.io.FileUtils,java.text.SimpleDateFormat,org.oscarehr.billing.CA.ON.util.EDTFolder,org.oscarehr.util.MiscUtils" errorPage="errorpage.jsp"%>
+<%@page import="org.oscarehr.util.LoggedInInfo"%>
+<%@page import="org.oscarehr.util.SpringUtils"%>
+<%@page import="org.oscarehr.common.model.BillingPermission"%>
+<%@page import="org.oscarehr.common.dao.BillingPermissionDao"%>
 <jsp:useBean id="oscarVariables" class="java.util.Properties" scope="session" />
 <html>
 <head>
@@ -160,6 +164,24 @@ function checkForm() {
       if (contents[i].getName().endsWith(".sh")) continue;
       String archiveElement = "<td ><input type='checkbox' name='mohFile' value='"+URLEncoder.encode(contents[i].getName())+"' title='select to archive'/></td>";
       if (folder == EDTFolder.INBOX || folder == EDTFolder.ARCHIVE) {
+		  LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+		  BillingPermissionDao billingPermissionDao = SpringUtils.getBean(BillingPermissionDao.class);
+	
+		  boolean allowed = true;
+		  String filename = contents[i].getName();
+		  String curUser_providerno = loggedInInfo.getLoggedInProviderNo();
+		  
+		  List<String> ohipNos = billingPermissionDao.getOhipNosNotAllowed(curUser_providerno, BillingPermission.BILLING_RECONCILIATION);
+		  for(int j = 0; j < ohipNos.size(); j++){
+			if(filename.indexOf(ohipNos.get(j)) > 0){
+				allowed = false;
+				break;
+			}
+		  }
+		  if(!allowed){
+			continue;
+		  }
+		  
           out.println("<tr id='" + URLEncoder.encode(contents[i].getName()) + "'>"+(folder == EDTFolder.INBOX ? archiveElement : "")+"<td><a HREF='javascript:void(0)' onclick='viewMOHFile(\""+URLEncoder.encode(contents[i].getName())+"\")'>"+contents[i].getName()+unzipMSG+"</a></td>") ;
           out.println("<td><a HREF='../../../servlet/BackupDownload?filename="+URLEncoder.encode(contents[i].getName())+"'>Download</a></td>") ;
       } else {

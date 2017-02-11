@@ -34,11 +34,15 @@ import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.dao.BillingONCHeader1Dao;
 import org.oscarehr.common.dao.RaDetailDao;
 import org.oscarehr.common.dao.RaHeaderDao;
+import org.oscarehr.common.dao.BillingPermissionDao;
+import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.model.BillingONCHeader1;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.model.RaDetail;
 import org.oscarehr.common.model.RaHeader;
+import org.oscarehr.common.model.BillingPermission;
+import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
@@ -52,6 +56,7 @@ public class JdbcBillingRAImpl {
 	private RaHeaderDao raHeaderDao = SpringUtils.getBean(RaHeaderDao.class);
 	private ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 	private BillingONCHeader1Dao cheader1Dao = SpringUtils.getBean(BillingONCHeader1Dao.class);
+	private BillingPermissionDao billingPermissionDao = SpringUtils.getBean(BillingPermissionDao.class);
 
 	public int addOneRADtRecord(BillingRAData val) {
 		RaDetail r = new RaDetail();
@@ -319,10 +324,30 @@ public class JdbcBillingRAImpl {
 	}
 
 	public List<Properties> getAllRahd(String status) {
+		return getAllRahd(null, null, status);
+	}
+	
+	public List<Properties> getAllRahd(String billingPermission, LoggedInInfo loggedInInfo, String status) {
 		List<Properties> ret = new ArrayList<Properties>();
 
 		List<RaHeader> headers = raHeaderDao.findAllExcludeStatus(status);
 		for (RaHeader h : headers) {
+			if(billingPermission != null && loggedInInfo != null){
+				boolean allowed = true;
+				String filename = h.getFilename();
+				String curUser_providerno = loggedInInfo.getLoggedInProviderNo();
+				List<String> ohipNos = billingPermissionDao.getOhipNosNotAllowed(curUser_providerno, billingPermission);
+				for(int i = 0; i < ohipNos.size(); i++){
+					if(filename.indexOf(ohipNos.get(i)) > 0){
+						allowed = false;
+						break;
+					}
+				}
+				if(!allowed){
+					continue;
+				}
+			
+			}
 			Properties prop = new Properties();
 			prop.setProperty("raheader_no", h.getId().toString());
 			prop.setProperty("readdate", h.getReadDate());
@@ -339,9 +364,29 @@ public class JdbcBillingRAImpl {
 	}
 
 	public List<Properties> getTeamRahd(String status, String provider_no) {
+		return getTeamRahd(null, status, provider_no);
+	}
+	
+	public List<Properties> getTeamRahd(String billingPermission, String status, String provider_no) {
 		List<Properties> ret = new ArrayList<Properties>();
 		RaHeaderDao dao = SpringUtils.getBean(RaHeaderDao.class);
 		for (RaHeader r : dao.findByHeaderDetailsAndProviderMagic(status, provider_no)) {
+			if(billingPermission != null){
+				boolean allowed = true;
+				String filename = r.getFilename();
+				List<String> ohipNos = billingPermissionDao.getOhipNosNotAllowed(provider_no, billingPermission);
+				for(int i = 0; i < ohipNos.size(); i++){
+					if(filename.indexOf(ohipNos.get(i)) > 0){
+						allowed = false;
+						break;
+					}
+				}
+				if(!allowed){
+					continue;
+				}
+			
+			}
+			
 			Properties prop = new Properties();
 			prop.setProperty("raheader_no", "" + r.getId());
 			prop.setProperty("readdate", r.getReadDate());
@@ -358,9 +403,28 @@ public class JdbcBillingRAImpl {
 	}
 
 	public List<Properties> getSiteRahd(String status, String provider_no) {
+		return getSiteRahd(null, status, provider_no);
+	}
+	
+	public List<Properties> getSiteRahd(String billingPermission, String status, String provider_no) {
 		List<Properties> ret = new ArrayList<Properties>();
 		RaHeaderDao dao = SpringUtils.getBean(RaHeaderDao.class);
 		for (RaHeader r : dao.findByStatusAndProviderMagic(status, provider_no)) {
+			if(billingPermission != null){
+				boolean allowed = true;
+				String filename = r.getFilename();
+				List<String> ohipNos = billingPermissionDao.getOhipNosNotAllowed(provider_no, billingPermission);
+				for(int i = 0; i < ohipNos.size(); i++){
+					if(filename.indexOf(ohipNos.get(i)) > 0){
+						allowed = false;
+						break;
+					}
+				}
+				if(!allowed){
+					continue;
+				}
+			}
+			
 			Properties prop = new Properties();
 			prop.setProperty("raheader_no", "" + r.getId());
 			prop.setProperty("readdate", r.getReadDate());

@@ -66,9 +66,14 @@
 	errorPage="errorpage.jsp"%>
 <%@ page import="oscar.oscarBilling.ca.on.data.*"%>
 <%@ page import="oscar.oscarBilling.ca.on.pageUtil.*"%>
+<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="org.oscarehr.util.SpringUtils"%>
+
+<%@page import="org.oscarehr.common.model.BillingPermission"%>
 <%@page import="org.oscarehr.common.model.ClinicNbr"%>
 <%@page import="org.oscarehr.common.model.ProfessionalSpecialist"%>
+
+<%@page import="org.oscarehr.common.dao.BillingPermissionDao"%>
 <%@page import="org.oscarehr.common.dao.ClinicNbrDao"%>
 <%@page import="org.oscarehr.common.dao.ProfessionalSpecialistDao"%>
 <%@ page import="org.oscarehr.common.dao.RaDetailDao" %>
@@ -216,9 +221,11 @@ function popupPage(vheight,vwidth,varpage) {
 				BillingClaimHeader1Data ch1Obj = new BillingClaimHeader1Data();
 				BillingItemData itemObj = null;
 				RaDetailDao raDetailDao = SpringUtils.getBean(RaDetailDao.class);
+				BillingPermissionDao billingPermissionDao = SpringUtils.getBean(BillingPermissionDao.class);
 
 				// bFlag - fill in data?
 				boolean bFlag = false;
+				boolean hasPermission = false;
 				String billNo = request.getParameter("billing_no").trim();
 				if (billNo != null && billNo.length() > 0) {
 					bFlag = true;
@@ -228,48 +235,62 @@ function popupPage(vheight,vwidth,varpage) {
 					recordObj = obj.getBillingRecordObj(billNo);
 					if (recordObj != null && recordObj.size() > 0) {
 						ch1Obj = (BillingClaimHeader1Data) recordObj.get(0);
-
-						//Gets the professional specialist dao so that the referring doctor's name can be displayed
-						ProfessionalSpecialistDao professionalSpecialistDao = (ProfessionalSpecialistDao)SpringUtils.getBean(ProfessionalSpecialistDao.class);
-						//Gets the professional specialist based on the ref_num
-						ProfessionalSpecialist referringDoctor = professionalSpecialistDao.getByReferralNo(ch1Obj.getRef_num());
 						
-						UpdateDate = ch1Obj.getUpdate_datetime(); //.substring(0,10);
-						DemoNo = ch1Obj.getDemographic_no();
-						DemoName = ch1Obj.getDemographic_name();
-						DemoAddress = "";
-						DemoCity = "";
-						DemoProvince = "";
-						DemoPostal = "";
-						DemoDOB = ch1Obj.getDob();
-						DemoSex = ch1Obj.getSex().equals("1") ? "M" : "F";
-						hin = ch1Obj.getHin() + ch1Obj.getVer();
-						location = ch1Obj.getFacilty_num();
-						BillLocation = "";
-						BillLocationNo = ch1Obj.getFacilty_num();
-						BillDate = ch1Obj.getBilling_date();
-						Provider = ch1Obj.getProviderNo();
-						BillType = ch1Obj.getStatus();
-						payProgram = ch1Obj.getPay_program();
-						BillTotal = ch1Obj.getTotal();
-						visitdate = ch1Obj.getAdmission_date();
-						visittype = ch1Obj.getVisittype();
-						BillDTNo = "";
-						HCTYPE = ch1Obj.getProvince();
-						HCSex = ch1Obj.getSex();
-						r_doctor_ohip = ch1Obj.getRef_num();
-						if (referringDoctor == null) {
-							r_doctor = "";
-						} else {
-							r_doctor = referringDoctor.getFormattedName();
+						LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+						String curUser_providerno = loggedInInfo.getLoggedInProviderNo();
+						
+						if(ch1Obj.getPay_program().equals("HCP")){
+							hasPermission = billingPermissionDao.hasPermission(ch1Obj.getProviderNo(), curUser_providerno, BillingPermission.OHIP_INVOICES);
+						}else{
+							hasPermission = billingPermissionDao.hasPermission(ch1Obj.getProviderNo(), curUser_providerno, BillingPermission.THIRD_PARTY_INVOICES);
 						}
-						r_doctor_ohip_s = "";
-						r_doctor_s = "";
-						m_review = ch1Obj.getMan_review();
-						specialty = "";
-						r_status = "";
-						roster_status = "";
-						comment = ch1Obj.getComment();
+						
+						if(hasPermission){
+							//Gets the professional specialist dao so that the referring doctor's name can be displayed
+							ProfessionalSpecialistDao professionalSpecialistDao = (ProfessionalSpecialistDao)SpringUtils.getBean(ProfessionalSpecialistDao.class);
+							//Gets the professional specialist based on the ref_num
+							ProfessionalSpecialist referringDoctor = professionalSpecialistDao.getByReferralNo(ch1Obj.getRef_num());
+							
+							UpdateDate = ch1Obj.getUpdate_datetime(); //.substring(0,10);
+							DemoNo = ch1Obj.getDemographic_no();
+							DemoName = ch1Obj.getDemographic_name();
+							DemoAddress = "";
+							DemoCity = "";
+							DemoProvince = "";
+							DemoPostal = "";
+							DemoDOB = ch1Obj.getDob();
+							DemoSex = ch1Obj.getSex().equals("1") ? "M" : "F";
+							hin = ch1Obj.getHin() + ch1Obj.getVer();
+							location = ch1Obj.getFacilty_num();
+							BillLocation = "";
+							BillLocationNo = ch1Obj.getFacilty_num();
+							BillDate = ch1Obj.getBilling_date();
+							Provider = ch1Obj.getProviderNo();
+							BillType = ch1Obj.getStatus();
+							payProgram = ch1Obj.getPay_program();
+							BillTotal = ch1Obj.getTotal();
+							visitdate = ch1Obj.getAdmission_date();
+							visittype = ch1Obj.getVisittype();
+							BillDTNo = "";
+							HCTYPE = ch1Obj.getProvince();
+							HCSex = ch1Obj.getSex();
+							r_doctor_ohip = ch1Obj.getRef_num();
+							if (referringDoctor == null) {
+								r_doctor = "";
+							} else {
+								r_doctor = referringDoctor.getFormattedName();
+							}
+							r_doctor_ohip_s = "";
+							r_doctor_s = "";
+							m_review = ch1Obj.getMan_review();
+							specialty = "";
+							r_status = "";
+							roster_status = "";
+							comment = ch1Obj.getComment();	
+						}
+						else{
+							bFlag = false;
+						}
 					}
 				}
 %>
@@ -287,6 +308,12 @@ function popupPage(vheight,vwidth,varpage) {
 			onClick="window.close();" /></th>
 	</tr>
 	</form>
+	<% if(!hasPermission){ %>
+	<tr>
+		<td colspan="4" align="center"><b><bean:message
+			key="billing.billingCorrection.msgDoNotHavePermission" /></b></td>
+	</tr>
+	<% } %>
 </table>
 
 <!-- RA error -->

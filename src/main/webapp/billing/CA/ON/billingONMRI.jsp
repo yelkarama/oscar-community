@@ -22,6 +22,7 @@
 <%@ page import="java.util.*,java.sql.*,oscar.*,oscar.util.*,java.net.*" errorPage="errorpage.jsp"%>
 <%@ page import="oscar.oscarBilling.ca.on.pageUtil.*"%>
 <%@ page import="oscar.oscarBilling.ca.on.data.*"%>
+<%@ page import="org.oscarehr.common.model.BillingPermission"%>
 
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.model.Provider" %>
@@ -32,6 +33,8 @@
 
 <%@ page import="org.oscarehr.common.model.ProviderData"%>
 <%@ page import="org.oscarehr.common.dao.ProviderDataDao"%>
+
+<%@ page import="org.oscarehr.common.model.BillingPermission"%>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
@@ -44,6 +47,7 @@
 <%@ page import="org.oscarehr.common.dao.UserPropertyDAO" %>
 <%@ page import="org.oscarehr.common.model.UserProperty" %>
 <%@ page import="org.oscarehr.common.dao.ProviderSiteDao" %>
+<%@ page import="org.oscarehr.common.dao.BillingPermissionDao" %>
 
 <%
 	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
@@ -126,7 +130,8 @@ if (isSiteAccessPrivacy || isTeamAccessPrivacy) {
 
 			//			 get the current year's billing disk filenames
 			BillingReviewPrep prep = new BillingReviewPrep();
-			List mriList = prep.getMRIList(thisyear + "-01-01 00:00:01", thisyear + "-12-31 23:59:59","U");
+			prep.setRequest(request);
+			List mriList = prep.getMRIList(BillingPermission.GENERATE_SIMULATE, thisyear + "-01-01 00:00:01", thisyear + "-12-31 23:59:59","U");
 			
 			String xml_vdate=request.getParameter("xml_vdate") == null?"":request.getParameter("xml_vdate");
 			String xml_appointment_date = request.getParameter("xml_appointment_date")==null? UtilDateUtilities.DateToString(new java.util.Date(), "yyyy-MM-dd") : request.getParameter("xml_appointment_date");
@@ -263,6 +268,9 @@ function setBillingCenter( providerNo ) {
 				providers = providerDao.getBillableProviders();
 			}
 			
+			BillingPermissionDao billingPermissionDao = SpringUtils.getBean(BillingPermissionDao.class); 
+			List<String> blockedProviders = billingPermissionDao.getProviderNumbersNotAllowed(curProvider_no, BillingPermission.GENERATE_SIMULATE);
+			
 			List<String> listedGroupNos = new ArrayList<String>();
 			List<Provider> providersToRemove = new ArrayList<Provider>();
 			for (Provider p : providers) {
@@ -271,6 +279,10 @@ function setBillingCenter( providerNo ) {
 					if (!listedGroupNos.contains(groupNo)) {
 						listedGroupNos.add(groupNo);
 					}
+					providersToRemove.add(p);
+				}
+				
+				if (blockedProviders.contains(p.getProviderNo()) && !providersToRemove.contains(p)) {
 					providersToRemove.add(p);
 				}
 			}

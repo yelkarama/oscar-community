@@ -49,6 +49,7 @@ import org.oscarehr.common.dao.BillingPaymentTypeDao;
 import org.oscarehr.common.dao.BillingServiceDao;
 import org.oscarehr.common.dao.ClinicLocationDao;
 import org.oscarehr.common.dao.CtlBillingServiceDao;
+import org.oscarehr.common.dao.BillingPermissionDao;
 import org.oscarehr.common.model.BillingONCHeader1;
 import org.oscarehr.common.model.BillingONExt;
 import org.oscarehr.common.model.BillingONItem;
@@ -57,6 +58,8 @@ import org.oscarehr.common.model.BillingOnItemPayment;
 import org.oscarehr.common.model.BillingPaymentType;
 import org.oscarehr.common.model.BillingService;
 import org.oscarehr.common.model.Provider;
+import org.oscarehr.common.model.BillingPermission;
+import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.DateRange;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
@@ -72,6 +75,7 @@ public class JdbcBillingReviewImpl {
 	private BillingONExtDao extDao = SpringUtils.getBean(BillingONExtDao.class);
 	private BillingONPaymentDao payDao = SpringUtils.getBean(BillingONPaymentDao.class);
 	private BillingServiceDao serviceDao = SpringUtils.getBean(BillingServiceDao.class);
+	private BillingPermissionDao billingPermissionDao = SpringUtils.getBean(BillingPermissionDao.class);
 	BillingOnItemPaymentDao billOnItemPaymentDao = (BillingOnItemPaymentDao)SpringUtils.getBean(BillingOnItemPaymentDao.class);
 	
 	public String getCodeFee(String val, String billReferalDate) {
@@ -135,7 +139,12 @@ public class JdbcBillingReviewImpl {
 	// invoice report
 	public List getBill(String billType, String statusType, String providerNo,
 			String startDate, String endDate, String demoNo,
-			String serviceCodes, String dx, String visitType) {
+			String serviceCodes, String dx, String visitType){
+		return getBill(null, null, billType, statusType, providerNo, startDate, endDate, demoNo, serviceCodes, dx, visitType);
+	}
+
+	public List getBill(String billingPermission, LoggedInInfo loggedInInfo, String billType, String statusType, String providerNo,
+			String startDate, String endDate, String demoNo, String serviceCodes, String dx, String visitType) {
 		
 		List<BillingClaimHeader1Data> retval = new ArrayList<BillingClaimHeader1Data>();
 		BillingClaimHeader1Data ch1Obj = null ;
@@ -157,6 +166,13 @@ public class JdbcBillingReviewImpl {
 		List<String[]> bills = dao.findBillingData(temp);
 		if(bills!=null) {
 			for(String[] b : bills) {
+				if(loggedInInfo != null && billingPermission != null){
+					String curUser_providerno = loggedInInfo.getLoggedInProviderNo();
+					if(!billingPermissionDao.hasPermission(b[7], curUser_providerno, billingPermission)){
+						continue;
+					}
+				}
+				
 				String prevId = null;
 				String prevPaid = null;
 				
@@ -212,14 +228,29 @@ public class JdbcBillingReviewImpl {
 
 
 	public List<BillingClaimHeader1Data> getBill(String[] billType, String statusType, String providerNo, String startDate, String endDate, String demoNo, String visitLocation, String paymentStartDate, String paymentEndDate) {
-		return getBillWithSorting(billType,statusType,providerNo,startDate,endDate,demoNo,visitLocation,null,null, paymentStartDate,paymentEndDate);
+		return getBillWithSorting(null, null, billType,statusType,providerNo,startDate,endDate,demoNo,visitLocation,null,null, paymentStartDate,paymentEndDate);
+	}
+
+	public List<BillingClaimHeader1Data> getBill(String billingPermission, LoggedInInfo loggedInInfo, String[] billType, String statusType, String providerNo, String startDate, String endDate, String demoNo, String visitLocation, String paymentStartDate, String paymentEndDate) {
+		return getBillWithSorting(billingPermission, loggedInInfo,billType,statusType,providerNo,startDate,endDate,demoNo,visitLocation,null,null, paymentStartDate,paymentEndDate);
 	}
 	
 	// invoice report
 	public List<BillingClaimHeader1Data> getBillWithSorting(String[] billType, String statusType, String providerNo, String startDate, String endDate, String demoNo, String visitLocation, String sortName, String sortOrder,  String paymentStartDate, String paymentEndDate) {
+		return getBillWithSorting(null, null, billType, statusType, providerNo, startDate, endDate, demoNo, visitLocation, sortName, sortOrder, paymentStartDate, paymentEndDate);
+	}
+	
+	public List<BillingClaimHeader1Data> getBillWithSorting(String billingPermission, LoggedInInfo loggedInInfo, String[] billType, String statusType, String providerNo, String startDate, String endDate, String demoNo, String visitLocation, String sortName, String sortOrder,  String paymentStartDate, String paymentEndDate) {
 		List<BillingClaimHeader1Data> retval = new ArrayList<BillingClaimHeader1Data>();		
 		try {
 			for (BillingONCHeader1 h : dao.findByMagic(Arrays.asList(billType), statusType, providerNo, ConversionUtils.fromDateString(startDate), ConversionUtils.fromDateString(endDate), ConversionUtils.fromIntString(demoNo),visitLocation, ConversionUtils.fromDateString(paymentStartDate), ConversionUtils.fromDateString(paymentEndDate))) {
+				if(loggedInInfo != null && billingPermission != null){
+					String curUser_providerno = loggedInInfo.getLoggedInProviderNo();
+					if(!billingPermissionDao.hasPermission(h.getProviderNo(), curUser_providerno, billingPermission)){
+						continue;
+					}
+				}
+				
 				String prevId = null;
 				String prevPaid = null;
 				
@@ -317,6 +348,9 @@ public class JdbcBillingReviewImpl {
 	
 	//invoice report
 	public List<BillingClaimHeader1Data> getBillWithSorting(String[] billType, String statusType, String providerNo, String startDate, String endDate, String demoNo, String demoName, String demoHin, List<String> serviceCodes, String accountingNumber, String claimNumber, String dx, String visitType, String visitLocation, String sortName, String sortOrder, String paymentStartDate, String paymentEndDate) {
+		return getBillWithSorting(null, null, billType, statusType, providerNo, startDate, endDate, demoNo, demoName, demoHin, serviceCodes, accountingNumber, claimNumber, dx, visitType, visitLocation, sortName, sortOrder, paymentStartDate, paymentEndDate);
+	}
+	public List<BillingClaimHeader1Data> getBillWithSorting(String billingPermission, LoggedInInfo loggedInInfo, String[] billType, String statusType, String providerNo, String startDate, String endDate, String demoNo, String demoName, String demoHin, List<String> serviceCodes, String accountingNumber, String claimNumber, String dx, String visitType, String visitLocation, String sortName, String sortOrder, String paymentStartDate, String paymentEndDate) {
 		List<BillingClaimHeader1Data> retval = new ArrayList<BillingClaimHeader1Data>();
 
 		try {
@@ -341,6 +375,13 @@ public class JdbcBillingReviewImpl {
 				// If bopIds is empty then the invoice was migrated from 12
 				List<Integer> bopIds = billingOnPaymentDao.find3rdPartyPayments(ch1.getId());
 
+                if(loggedInInfo != null && billingPermission != null){
+                    String curUser_providerno = loggedInInfo.getLoggedInProviderNo();
+                    if(!billingPermissionDao.hasPermission(ch1.getProviderNo(), curUser_providerno, billingPermission)){
+                        continue;
+                    }
+                }
+				
 				BillingClaimHeader1Data ch1Obj = new BillingClaimHeader1Data();
 				ch1Obj.setId("" + ch1.getId());
 				ch1Obj.setDemographic_no("" + ch1.getDemographicNo());
@@ -474,14 +515,13 @@ public class JdbcBillingReviewImpl {
 
 	// billing page
 	public List<Object> getBillingHist(String demoNo, int iPageSize, int iOffSet, DateRange dateRange)  {
-		return getBillingHist(demoNo, iPageSize, iOffSet, dateRange, false);
+		return getBillingHist(null, demoNo, iPageSize, iOffSet, dateRange, false);
 	}
-
-	public List<Object> getBillingHist(String demoNo, int iPageSize, int iOffSet, DateRange dateRange, Boolean showDeleted) {
-		return getBillingHist(demoNo, iPageSize, iOffSet, null, null, dateRange, showDeleted);
+	public List<Object> getBillingHist(LoggedInInfo loggedInInfo, String demoNo, int iPageSize, int iOffSet, DateRange dateRange, Boolean showDeleted) {
+		return getBillingHist(loggedInInfo, demoNo, iPageSize, iOffSet, null, null, dateRange, showDeleted);
 	}
-
-	public List<Object> getBillingHist(String demoNo, Integer iPageSize, Integer iOffSet, String providerNo, String serviceCode, DateRange dateRange, Boolean showDeleted)  {
+    
+	public List<Object> getBillingHist(LoggedInInfo loggedInInfo, String demoNo, Integer iPageSize, Integer iOffSet, String providerNo, String serviceCode, DateRange dateRange, Boolean showDeleted)  {
 		List<Object> retval = new ArrayList<Object>();
 		int iRow = 0;
 
@@ -505,6 +545,20 @@ public class JdbcBillingReviewImpl {
 					break;
 				}
 				ch1Obj = new BillingClaimHeader1Data();
+				
+				if(loggedInInfo != null){
+					String curUser_providerno = loggedInInfo.getLoggedInProviderNo();
+					if("HCP".equals(h.getPayProgram())){
+						if(!billingPermissionDao.hasPermission(h.getProviderNo(), curUser_providerno, BillingPermission.OHIP_INVOICES)){
+							continue;
+						}
+					}else{
+						if(!billingPermissionDao.hasPermission(h.getProviderNo(), curUser_providerno, BillingPermission.THIRD_PARTY_INVOICES)){
+							continue;
+						}
+					}
+				}
+				
 				ch1Obj.setId("" + h.getId());
 				ch1Obj.setBilling_date(ConversionUtils.toDateString(h.getBillingDate()));
 				ch1Obj.setBilling_time(ConversionUtils.toDateString(h.getBillingTime()));

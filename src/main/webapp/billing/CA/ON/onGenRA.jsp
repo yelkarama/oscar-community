@@ -39,11 +39,16 @@
 <%@ page import="java.io.*, java.sql.*, oscar.*, oscar.util.*, java.util.*" errorPage="errorpage.jsp"%>
 <%@ page import="oscar.oscarBilling.ca.on.pageUtil.*"%>
 <%@ page import="oscar.oscarBilling.ca.on.data.*"%>
+<%@ page import="org.oscarehr.util.LoggedInInfo"%>
+<%@ page import="org.oscarehr.common.model.BillingPermission"%>
+<%@ page import="org.oscarehr.common.dao.BillingPermissionDao"%>
+
 <jsp:useBean id="documentBean" class="oscar.DocumentBean" scope="request" />
 
 <%
 JdbcBillingRAImpl dbObj = new JdbcBillingRAImpl();
 Properties propRt = new Properties();
+LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 
 String nowDate = ""; 
 
@@ -133,13 +138,13 @@ function checkReconcile(url){
 List aL;
 
 if (isTeamBillingOnly || isTeamAccessPrivacy) {
-	aL = dbObj.getTeamRahd("D", (String) session.getAttribute("user"));
+	aL = dbObj.getTeamRahd(BillingPermission.BILLING_RECONCILIATION, "D", (String) session.getAttribute("user"));
 }
 else if (isSiteAccessPrivacy) {
-	aL = dbObj.getSiteRahd("D", (String) session.getAttribute("user"));
+	aL = dbObj.getSiteRahd(BillingPermission.BILLING_RECONCILIATION, "D", (String) session.getAttribute("user"));
 }
 else {
-	aL =  dbObj.getAllRahd("D");
+	aL =  dbObj.getAllRahd(BillingPermission.BILLING_RECONCILIATION, loggedInInfo, "D");
 }
 
 for(int i = 0; i < aL.size(); i++) {

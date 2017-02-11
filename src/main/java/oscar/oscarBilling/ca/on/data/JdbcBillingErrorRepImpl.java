@@ -23,7 +23,10 @@ import java.util.List;
 
 import org.apache.commons.lang.math.NumberUtils;
 import org.oscarehr.common.dao.BillingONEAReportDao;
+import org.oscarehr.common.dao.BillingPermissionDao;
 import org.oscarehr.common.model.BillingONEAReport;
+import org.oscarehr.common.model.BillingPermission;
+import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.SpringUtils;
 
 import oscar.util.ConversionUtils;
@@ -31,13 +34,24 @@ import oscar.util.ConversionUtils;
 public class JdbcBillingErrorRepImpl {
 	
 	private BillingONEAReportDao billingONEARReportDao = (BillingONEAReportDao) SpringUtils.getBean(BillingONEAReportDao.class);
-	
+	private BillingPermissionDao billingPermissionDao = (BillingPermissionDao) SpringUtils.getBean(BillingPermissionDao.class);
 	JdbcBillingLog dbLog = new JdbcBillingLog();
 
 	public List<BillingErrorRepData> getErrorRecords(BillingProviderData val, String fromDate, String toDate, String filename) {
+		return getErrorRecords(null, null, val, fromDate, toDate, filename);
+	}
+	public List<BillingErrorRepData> getErrorRecords(String billingPermission, LoggedInInfo loggedInInfo, BillingProviderData val, String fromDate, String toDate, String filename) {
 		List<BillingErrorRepData> retval = new ArrayList<BillingErrorRepData>();
 		BillingONEAReportDao dao = SpringUtils.getBean(BillingONEAReportDao.class);
 		for (BillingONEAReport r : dao.findByParametersAndGroup(val.getOhipNo(), val.getBillingGroupNo(), val.getSpecialtyCode(), ConversionUtils.fromDateString(fromDate), ConversionUtils.fromDateString(toDate), filename)) {
+			if(billingPermission != null && loggedInInfo != null){
+				String curUser_providerno = loggedInInfo.getLoggedInProviderNo();
+				
+				if(!billingPermissionDao.hasPermission(val.getProviderNo(), curUser_providerno, billingPermission)){
+					continue;
+				}
+			}
+			
 			toReportData(retval, r);
 		}
 		return retval;
@@ -73,6 +87,9 @@ public class JdbcBillingErrorRepImpl {
     }
 
 	public List<BillingErrorRepData> getErrorRecords(List<BillingProviderData> list, String fromDate, String toDate, String filename) {
+		return getErrorRecords(null, null, list, fromDate, toDate, filename);
+	}
+	public List<BillingErrorRepData> getErrorRecords(String billingPermission, LoggedInInfo loggedInInfo, List<BillingProviderData> list, String fromDate, String toDate, String filename) {
 		List<BillingErrorRepData> retval = new ArrayList<BillingErrorRepData>();
 		if (list == null) {
 			return retval;
@@ -80,6 +97,14 @@ public class JdbcBillingErrorRepImpl {
 		
 		BillingONEAReportDao dao = SpringUtils.getBean(BillingONEAReportDao.class);
 		for(BillingONEAReport r : dao.findByParametersAndGroup(list, ConversionUtils.fromDateString(fromDate), ConversionUtils.fromDateString(toDate), filename)) {
+			if(billingPermission != null && loggedInInfo != null){
+				String curUser_providerno = loggedInInfo.getLoggedInProviderNo();
+				
+				if(!billingPermissionDao.hasPermissionByOhipNo(r.getProviderOHIPNo(), curUser_providerno, billingPermission)){
+					continue;
+				}
+			}
+			
 			toReportData(retval, r);
 		}
 

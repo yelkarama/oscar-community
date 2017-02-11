@@ -19,6 +19,7 @@
 
 --%>
 <%@page import="org.oscarehr.util.MiscUtils"%>
+<%@ page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="oscar.OscarProperties" %>
 <%@page import="java.text.NumberFormat" %>
 <%@page import="java.text.DecimalFormat" %>
@@ -26,6 +27,8 @@
 
 <%! boolean bMultisites = org.oscarehr.common.IsPropertiesOn.isMultisitesEnable(); %>
 <%@ page import="java.math.*,java.util.*, java.sql.*, oscar.*, java.net.*,oscar.util.*,oscar.oscarBilling.ca.on.pageUtil.*,oscar.oscarBilling.ca.on.data.*,org.apache.struts.util.LabelValueBean" %>
+<%@ page import="org.oscarehr.common.model.BillingPermission"%>
+<%@ page import="org.oscarehr.common.dao.BillingPermissionDao"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic" %>
@@ -48,6 +51,7 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
     OscarProperties props = OscarProperties.getInstance();
     
     boolean hideName = Boolean.valueOf(props.getProperty("invoice_reports.print.hide_name","false"));
+	BillingPermissionDao billingPermissionDao = SpringUtils.getBean(BillingPermissionDao.class);
     
 %>
 <security:oscarSec objectName="_team_billing_only" roleName="<%=roleName$ %>" rights="r" reverse="false">
@@ -84,6 +88,8 @@ response.setHeader("Cache-Control", "private"); // HTTP 1.1
 response.setHeader("Cache-Control", "no-store"); // HTTP 1.1 
 response.setHeader("Cache-Control", "max-stale=0"); // HTTP 1.1 
 
+LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+String curUser_providerno = loggedInInfo.getLoggedInProviderNo();
 
 boolean bSearch = true;
 String[] billType = request.getParameterValues("billType");
@@ -145,14 +151,16 @@ List<Provider> providerList = isTeamBillingOnly
 			: providerDao.getAllBillableProviders();
 
 BillingStatusPrep sObj = new BillingStatusPrep();
+sObj.setRequest(request);
+
 List<BillingClaimHeader1Data> bList = null;
 if((serviceCode == null || billingForm == null) && dx.length()<2 && visitType.length()<2) {
-	bList = bSearch ? sObj.getBills(strBillType, statusType, providerNo, startDate, endDate, demoNo, visitLocation,paymentStartDate, paymentEndDate) : new ArrayList<BillingClaimHeader1Data>();
+	bList = bSearch ? sObj.getBills(BillingPermission.INVOICE_REPORT, strBillType, statusType, providerNo, startDate, endDate, demoNo, visitLocation,paymentStartDate, paymentEndDate) : new ArrayList<BillingClaimHeader1Data>();
 	//serviceCode = "-";
 	serviceCode = "%";
 } else {
 	serviceCode = (serviceCode == null || serviceCode.length()<2)? "%" : serviceCode; 
-	bList = bSearch ? sObj.getBillsWithSorting(strBillType, statusType,  providerNo, startDate,  endDate,  demoNo, demoName, demoHin, serviceCode, accountingNumber, claimNumber, dx, visitType, billingForm, visitLocation,sortName,sortOrder,paymentStartDate, paymentEndDate) : new ArrayList<BillingClaimHeader1Data>();
+	bList = bSearch ? sObj.getBillsWithSorting(BillingPermission.INVOICE_REPORT, strBillType, statusType,  providerNo, startDate,  endDate,  demoNo, demoName, demoHin, serviceCode, accountingNumber, claimNumber, dx, visitType, billingForm, visitLocation,sortName,sortOrder,paymentStartDate, paymentEndDate) : new ArrayList<BillingClaimHeader1Data>();
 }
 
 RAData raData = new RAData();
@@ -176,6 +184,10 @@ NumberFormat formatter = new DecimalFormat("#0.00");
 %>
 
 <%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
+<%@page import="org.oscarehr.common.model.Site"%>
+<%@page import="org.oscarehr.common.model.Provider"%>
+<%@ page import="org.oscarehr.common.model.BillingONCHeader1" %>
+<%@ page import="org.oscarehr.common.dao.BillingONCHeader1Dao" %>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.model.*" %>
 <%@ page import="org.oscarehr.common.dao.*" %>
@@ -253,14 +265,17 @@ NumberFormat formatter = new DecimalFormat("#0.00");
 			if (provider_no == "none") {
 				document.serviceform.provider_ohipNo.value = "";
 			}
-        	<% for (Provider provider : providerList){ %>
+        	<% for (Provider provider : providerList){
+        	    if(billingPermissionDao.hasPermission(provider.getProviderNo(), curUser_providerno, BillingPermission.INVOICE_REPORT)){
+        	%>
 			if (provider_no == "<%=provider.getProviderNo()%>") {
 				document.serviceform.provider_ohipNo.value = "<%=provider.getOhipNo()%>";
 				if (shouldSubmit) {
 					if (document.getElementById("xml_vdate").value.length > 0 && document.getElementById("xml_appointment_date").value.length > 0)
 						document.serviceform.submit();
 				} else { return };
-			}<% 
+			}<%
+			    } 
         	} %>
         	if (shouldSubmit) { document.serviceform.submit(); }
         }	
@@ -396,11 +411,13 @@ table td,th{font-size:12px;}
 	// Create option list for all billable providers
 	StringBuilder allProviderOptions = new StringBuilder();
 	for (Provider provider : providerList) {
-		allProviderOptions.append("<option ");
-		if (providerNo.equals(provider.getProviderNo())) { allProviderOptions.append("selected "); }
-		allProviderOptions.append("value=\"").append(provider.getProviderNo()).append("\">");
-		allProviderOptions.append(Encode.forJavaScript(provider.getLastName())).append(", ").append(Encode.forJavaScript(provider.getFirstName()));
-		allProviderOptions.append("</option>");
+	    if (billingPermissionDao.hasPermission(provider.getProviderNo(), curUser_providerno, BillingPermission.INVOICE_REPORT)) {
+            allProviderOptions.append("<option ");
+            if (providerNo.equals(provider.getProviderNo())) { allProviderOptions.append("selected "); }
+            allProviderOptions.append("value=\"").append(provider.getProviderNo()).append("\">");
+            allProviderOptions.append(Encode.forJavaScript(provider.getLastName())).append(", ").append(Encode.forJavaScript(provider.getFirstName()));
+            allProviderOptions.append("</option>");
+        }
 	}
 	if (bMultisites) {
 		SiteDao siteDao = SpringUtils.getBean(SiteDao.class);
@@ -417,7 +434,7 @@ table td,th{font-size:12px;}
 		siteProvidersList.addAll(siteProvidersSet);
 		Collections.sort(siteProvidersList, (new Provider()).ComparatorName());
 		for (Provider provider : siteProvidersList) {
-			if (providerList.contains(provider)) {
+			if (providerList.contains(provider) && billingPermissionDao.hasPermission(provider.getProviderNo(), curUser_providerno, BillingPermission.INVOICE_REPORT)) {
 				optionsString.append("<option ");
 				if (providerNo.equals(provider.getProviderNo())) { optionsString.append("selected "); }
 				optionsString.append("value=\"").append(provider.getProviderNo()).append("\">");
@@ -712,11 +729,11 @@ if(statusType.equals("_")) { %>
 	String[] errorCodes = {"AC1", "D8"};
         if(providerNo.equals("all")) {
             List<BillingProviderData> providerObj = (new JdbcBillingPageUtil()).getProviderObjList(providerNo);
-            lPat = (new JdbcBillingErrorRepImpl()).getErrorRecords(providerObj, startDate, endDate, filename);
+            lPat = (new JdbcBillingErrorRepImpl()).getErrorRecords(BillingPermission.INVOICE_REPORT, loggedInInfo, providerObj, startDate, endDate, filename);
             errors = raDetailDao.getRaErrorsByProviderDate(Arrays.asList(errorCodes), startDate, endDate, ohipNo);
         } else {
             BillingProviderData providerObj = (new JdbcBillingPageUtil()).getProviderObj(providerNo);
-            lPat = (new JdbcBillingErrorRepImpl()).getErrorRecords(providerObj, startDate, endDate, filename);
+            lPat = (new JdbcBillingErrorRepImpl()).getErrorRecords(BillingPermission.INVOICE_REPORT, loggedInInfo, providerObj, startDate, endDate, filename);
             errors = raDetailDao.getRaErrorsByProviderDate(Arrays.asList(errorCodes), startDate, endDate, ohipNo);
         }
     boolean nC = false;

@@ -20,15 +20,18 @@
 --%>
 <%@page import="org.oscarehr.common.dao.BillingOnItemPaymentDao"%>
 <%@page import="org.oscarehr.managers.SecurityInfoManager"%>
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="java.math.*,java.util.*,java.sql.*,oscar.*,java.net.*" %> <!-- errorPage="errorpage.jsp" -->
 <%@page import="oscar.oscarBilling.ca.on.data.*"%>
 <%@page import="oscar.oscarBilling.ca.on.pageUtil.*"%>
+<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="oscar.oscarDemographic.data.*"%>
 <%@page import="oscar.util.UtilDateUtilities"%>
 <%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
 <%@page import="org.oscarehr.util.SpringUtils"%>
 <%@page import="oscar.util.DateUtils"%>
+
+<%@page import="org.oscarehr.common.model.BillingPermission"%>
+<%@page import="org.oscarehr.common.dao.BillingPermissionDao"%>
 <%@page import="org.oscarehr.common.model.BillingONItem"%>
 <%@page import="org.oscarehr.common.model.BillingONErrorCode, org.oscarehr.common.dao.BillingONErrorCodeDao"%>
 <%@page import="org.oscarehr.common.dao.BillingONEAReportDao, org.oscarehr.common.model.BillingONEAReport"%>
@@ -62,6 +65,7 @@
     String userProviderNo = (String) session.getAttribute("user");
     ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao");
     BillingONExtDao bExtDao = (BillingONExtDao) SpringUtils.getBean("billingONExtDao");
+	BillingPermissionDao billingPermissionDao = SpringUtils.getBean(BillingPermissionDao.class);
     
     BillingONPaymentDao billingOnPaymentDao = SpringUtils.getBean(BillingONPaymentDao.class);
     Provider userProvider = providerDao.getProvider(userProviderNo);
@@ -490,6 +494,7 @@ function validateAmountNumberic(idx) {
     
     // bFlag - fill in data?
     boolean bFlag = false;
+	boolean hasPermission = false;
     boolean billNoErr = false;
     
     String billNo = request.getParameter("billing_no").trim();
@@ -551,17 +556,26 @@ function validateAmountNumberic(idx) {
                 out.write("<script>window.alert('sorry, billing access denied.')</script>");               
 
             }else {
-                createTimestamp = DateUtils.formatDateTime(bCh1.getTimestamp(), locale);                
-                DemoNo = bCh1.getDemographicNo().toString();
-                DemoName = bCh1.getDemographicName();
-                DemoAddress = "";
-                DemoCity = "";
-                DemoProvince = "";
-                DemoPostal = "";
-                DemoDOB = bCh1.getDob();
-                DemoSex = bCh1.getSex().equals("1") ? "M" : "F";
+				String curUser_providerno = loggedInInfo.getLoggedInProviderNo();
+				
+				if(bCh1.getPayProgram().equals("HCP")){
+					hasPermission = billingPermissionDao.hasPermission(bCh1.getProviderNo(), curUser_providerno, BillingPermission.OHIP_INVOICES);
+				}else{
+					hasPermission = billingPermissionDao.hasPermission(bCh1.getProviderNo(), curUser_providerno, BillingPermission.THIRD_PARTY_INVOICES);
+				}
+				
+				if(hasPermission){
+					createTimestamp = DateUtils.formatDateTime(bCh1.getTimestamp(), locale);                
+					DemoNo = bCh1.getDemographicNo().toString();
+					DemoName = bCh1.getDemographicName();
+					DemoAddress = "";
+					DemoCity = "";
+					DemoProvince = "";
+					DemoPostal = "";
+					DemoDOB = bCh1.getDob();
+					DemoSex = bCh1.getSex().equals("1") ? "M" : "F";
 
-                BigDecimal billTotal = bCh1.getTotal();                
+					BigDecimal billTotal = bCh1.getTotal();                
 
                 org.oscarehr.common.model.Demographic sdemo = (new DemographicData()).getDemographic(loggedInInfo, DemoNo);
                 hin = sdemo.getHin()+sdemo.getVer();
@@ -604,54 +618,54 @@ function validateAmountNumberic(idx) {
                 comment = bCh1.getComment();
                 
 				// get ohip claim number
-                 List<RaDetail> raDetails = raDetailDao.findByBillingNo(billingNo);
+				List<RaDetail> raDetails = raDetailDao.findByBillingNo(billingNo);
                  for (RaDetail ra : raDetails) {
                      if ((ra.getProviderOhipNo().equals(bCh1.getProviderOhipNo()))) {
                          if (ra.getHin() != null) {
                              String raHin = (ra.getHin().length() >= 10 ? ra.getHin().substring(0,10) : ra.getHin()).trim();
                              if (raHin.equals(sdemo.getHin().trim())) {
-                                 claimNo = ra.getClaimNo();
+				claimNo = ra.getClaimNo();
                              }
                          }
                      }
-                 }
+}
             }
         }
     }
     
 				boolean thirdParty = false;
 				Billing3rdPartPrep tObj = new Billing3rdPartPrep();
-				
-				if("HCP".equals(payProgram) || "RMB".equals(payProgram) || "WCB".equals(payProgram)
+				if(hasPermission){
+					if("HCP".equals(payProgram) || "RMB".equals(payProgram) || "WCB".equals(payProgram)
 						|| billNo.length() < 1) {
 					
-					Properties tProp = null;					
-					if( billNo.length() > 0 ) {
-						tProp = tObj.get3rdPartBillPropInactive(billNo.trim());						
-					}
-					
-					if( tProp == null || tProp.size() == 0 ) {
-						htmlPaid = "Paid<br><input type='text' id='payment' name='payment' size=5 value='0.00'/>" +
-							"<input type='hidden' id='oldPayment' name='oldPayment' value='0.00'/> <input type='hidden' id='payDate' name='payDate' value='" +
-                        	UtilDateUtilities.getToday("yyyy-MM-dd HH:mm:ss") + "'/><br> Refund<br><input type='text' id='refund' name='refund' size=5 value='0.00'/><br>";
-                        	payer = "";
-					}
-					else {
-						htmlPaid = "Paid<br><input type='text' id='payment' name='payment' size=5 value='"
-					    	+ tProp.getProperty("payment","0.00") + "' /><input type='hidden' id='oldPayment' name='oldPayment' value='"
-		                    + tProp.getProperty("payment","0.00") + "' /><input type='hidden' id='payDate' name='payDate' value='"
-		                    + UtilDateUtilities.getToday("yyyy-MM-dd HH:mm:ss") + "'/><br>";
-						htmlPaid += "Refund<br><input type='text' id='refund' name='refund' size=5 value='"
-							+ tProp.getProperty("refund") + "' /><br>";
-						payer = tProp.getProperty("billTo");
-                        if( payer == null ) {
-                        	payer = "";
-                       	}
-					}
-				} else {
-					thirdParty = true;
-					Properties tProp = tObj.get3rdPartBillProp(billNo.trim());	
-					NumberFormat currency = NumberFormat.getCurrencyInstance(Locale.US);
+						Properties tProp = null;					
+						if( billNo.length() > 0 ) {
+							tProp = tObj.get3rdPartBillPropInactive(billNo.trim());						
+						}
+						
+						if( tProp == null || tProp.size() == 0 ) {
+							htmlPaid = "Paid<br><input type='text' id='payment' name='payment' size=5 value='0.00'/>" +
+								"<input type='hidden' id='oldPayment' name='oldPayment' value='0.00'/> <input type='hidden' id='payDate' name='payDate' value='" +
+								UtilDateUtilities.getToday("yyyy-MM-dd HH:mm:ss") + "'/><br> Refund<br><input type='text' id='refund' name='refund' size=5 value='0.00'/><br>";
+								payer = "";
+						}
+						else {
+							htmlPaid = "Paid<br><input type='text' id='payment' name='payment' size=5 value='"
+								+ tProp.getProperty("payment","0.00") + "' /><input type='hidden' id='oldPayment' name='oldPayment' value='"
+								+ tProp.getProperty("payment","0.00") + "' /><input type='hidden' id='payDate' name='payDate' value='"
+								+ UtilDateUtilities.getToday("yyyy-MM-dd HH:mm:ss") + "'/><br>";
+							htmlPaid += "Refund<br><input type='text' id='refund' name='refund' size=5 value='"
+								+ tProp.getProperty("refund") + "' /><br>";
+							payer = tProp.getProperty("billTo");
+							if( payer == null ) {
+								payer = "";
+							}
+						}
+					} else {
+						thirdParty = true;
+						Properties tProp = tObj.get3rdPartBillProp(billNo.trim());	
+						NumberFormat currency = NumberFormat.getCurrencyInstance(Locale.US);
 
 				if(isMultiSiteProvider) {	
 					BigDecimal payment = BigDecimal.ZERO;
@@ -664,22 +678,23 @@ function validateAmountNumberic(idx) {
 					List<BillingONPayment> bops = billingOnPaymentDao.find3rdPartyPaymentsByBillingNo(Integer.parseInt(request.getParameter("billing_no").trim()));
 					if (bops.isEmpty()) {
 						payment = bCh1.getPaid();
-					} else {
-						for (BillingONPayment bop : bops) {
-							credit = credit.add(bop.getTotal_credit());
-							discount = discount.add(bop.getTotal_discount());
-							payment = payment.add(bop.getTotal_payment());
-							refund = refund.add(bop.getTotal_refund());
-						}
+					} else {for(BillingONPayment bop:bops) {
+						credit = credit.add(bop.getTotal_credit());
+						discount = discount.add(bop.getTotal_discount());
+						payment = payment.add(bop.getTotal_payment());
+						refund = refund.add(bop.getTotal_refund());				
 					}
+					}
+					
+					
 					total = bCh1.getTotal();
 					
 					balance = total.subtract(payment).subtract(discount).subtract(refund).add(credit);
 					payment = payment.subtract(credit);
-					
-					htmlPaid = "<br/>&nbsp;&nbsp;<span style='font-size:large;font-weight:bold'>Billed:</span>&nbsp;&nbsp;&nbsp;<span id='billed' style='font-size:large;font-weight:bold'>"
+
+                    htmlPaid = "<br/>&nbsp;&nbsp;<span style='font-size:large;font-weight:bold'>Billed:</span>&nbsp;&nbsp;&nbsp;<span id='billed' style='font-size:large;font-weight:bold'>"
 							+ ((total.compareTo(BigDecimal.ZERO) == -1) ? "-" : "") + currency.format(total) + "</span>";
-                    htmlPaid += "&nbsp;&nbsp;<span style='font-size:large;font-weight:bold'>Paid:</span>&nbsp;&nbsp;&nbsp;<span id='payment' style='font-size:large;font-weight:bold'>"
+                    htmlPaid += "&nbsp;&nbsp;<spanstyle='font-size:large;font-weight:bold'>Paid:</span>&nbsp;&nbsp;&nbsp;<span id='payment' style='font-size:large;font-weight:bold'>"
                     	+ ((payment.compareTo(BigDecimal.ZERO) == -1) ? "-" : "") + currency.format(payment) + "</span>";
 					htmlPaid += "&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-size:large;font-weight:bold'>Balance:</span>&nbsp;&nbsp;&nbsp;<span id='balance' style='font-size:large;font-weight:bold'>"
 						+ ((balance.compareTo(BigDecimal.ZERO) == -1 && refund.compareTo(BigDecimal.ZERO) == 0 ) ? "-" : "") + currency.format(balance) + "</span>";
@@ -688,7 +703,9 @@ function validateAmountNumberic(idx) {
                     		payer = tProp.getProperty("billTo");
                     		if( payer == null ) {
                     		    payer = "";
-                    		}
+                    		}}
+			}else{
+				bFlag = false;
 			}
 
 %>
@@ -696,7 +713,12 @@ function validateAmountNumberic(idx) {
 <h3><bean:message key="admin.admin.btnBillingCorrection" /></h3>
 
 <div class="container-fluid">
-
+<% if(!hasPermission){ %>
+	<div class="alert alert-error" id="alert_message">
+    	<button type="button" class="close" data-dismiss="alert">&times;</button>
+  		<strong>Error </strong> <bean:message key="billing.billingCorrection.msgDoNotHavePermission" />
+    </div>
+<% } %>
 <%if (request.getParameter("adminSubmit")!=null) { %>
     <div class="alert alert-success" id="alert_message">
     	<button type="button" class="close" data-dismiss="alert">&times;</button>
