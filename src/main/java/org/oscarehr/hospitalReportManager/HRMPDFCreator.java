@@ -2,11 +2,8 @@ package org.oscarehr.hospitalReportManager;
 
 
 import com.itextpdf.text.Element;
-import com.lowagie.text.Document;
-import com.lowagie.text.DocumentException;
+import com.lowagie.text.*;
 import com.lowagie.text.Font;
-import com.lowagie.text.PageSize;
-import com.lowagie.text.Phrase;
 import com.lowagie.text.pdf.*;
 import org.apache.log4j.Logger;
 import org.oscarehr.hospitalReportManager.dao.HRMDocumentDao;
@@ -23,6 +20,7 @@ public class HRMPDFCreator extends PdfPageEventHelper {
     private Logger logger = MiscUtils.getLogger();
     private OutputStream outputStream;
     private HRMDocument hrmDocument;
+    private HRMReport hrmReport;
     private Document document;
     private LoggedInInfo loggedInInfo;
 
@@ -39,6 +37,10 @@ public class HRMPDFCreator extends PdfPageEventHelper {
             //If the list is not null and it has items in it
             if (hrmDocuments != null && hrmDocuments.size() > 0) {
                 hrmDocument =  hrmDocuments.get(0);
+
+                logger.info("Parsing the HRM Document into a report for printing");
+                //Gets and parses the HRMReport storing it in the class variable
+                hrmReport = HRMReportParser.parseReport(loggedInInfo, hrmDocument.getReportFile());
             }
         }
         catch (NumberFormatException e) {
@@ -48,27 +50,58 @@ public class HRMPDFCreator extends PdfPageEventHelper {
 
     public void printPdf()  {
         try {
-            document = new Document();
+            if (!hrmReport.isBinary()) {
+                document = new Document();
 
-            PdfWriter writer = PdfWriter.getInstance(document, outputStream);
+                PdfWriter writer = PdfWriter.getInstance(document, outputStream);
+                writer.setPageEvent(this);
 
-            writer.setPageEvent(this);
+                document.setPageSize(PageSize.LETTER);
+                
+                document.open();
+                
+                if (hrmReport != null) {
+                    generateHRMReport(hrmReport);
+                } else {
+                    logger.error("There is no HRM Report");
+                }
 
-            document.setPageSize(PageSize.LETTER);
-            document.open();
+                document.close();
+            }
+            else if (hrmReport.getFileExtension() != null && (hrmReport.getFileExtension().equals(".gif") || hrmReport.getFileExtension().equals(".jpg") || hrmReport.getFileExtension().equals(".png"))) {
+                document = new Document();
 
-            logger.info("Parsing the HRM Document into a report for printing");
-            //Gets and parses the HRMReport storing it in the class variable
-            HRMReport hrmReport = HRMReportParser.parseReport(loggedInInfo, hrmDocument.getReportFile());
+                PdfWriter writer = PdfWriter.getInstance(document, outputStream);
+                writer.setPageEvent(this);
 
-            if (hrmReport != null) {
-                generateHRMReport(hrmReport);
+                document.setPageSize(PageSize.LETTER);
+                
+                //Sets the margins to 0 so that the entire page is used
+                document.setMargins(0, 0, 0, 0);
+                document.open();
+                
+                //Translates the binary content into an image
+                Image image = Image.getInstance(hrmReport.getBinaryContent());
+                //Scales the image in case one of the dimensions is bigger than the document
+                image.scaleToFit(document.getPageSize().getWidth(), document.getPageSize().getHeight());
+                
+                //Checks if the scaled width is bigger than the document width and that the height can fit the width
+                if (image.getScaledWidth() >= document.getPageSize().getWidth() && image.getScaledHeight() <= document.getPageSize().getWidth()) {
+                    //Rotates the image 90 degrees so that it displays portrait style on the document
+                    image.setRotationDegrees(90);
+                    //Rescales the image so that it fits the page better
+                    image.scaleToFit(document.getPageSize().getWidth(), document.getPageSize().getHeight());
+                }
+                
+                document.add(image);
+                
+                document.close();
             }
             else {
-                logger.error("There is no HRM Report");
+                logger.info("HRM Report is binary, only printing the attachment");
+                outputStream.write(hrmReport.getBinaryContent());
             }
-            document.close();
-
+            
             outputStream.flush();
         }
         catch (IOException e) {
