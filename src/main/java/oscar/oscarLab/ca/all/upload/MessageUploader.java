@@ -46,6 +46,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.OtherIdManager;
+import org.oscarehr.common.dao.DemographicCustDao;
 import org.oscarehr.common.dao.FileUploadCheckDao;
 import org.oscarehr.common.dao.Hl7TextInfoDao;
 import org.oscarehr.common.dao.Hl7TextMessageDao;
@@ -55,6 +56,7 @@ import org.oscarehr.common.dao.PatientLabRoutingDao;
 import org.oscarehr.common.dao.ProviderLabRoutingDao;
 import org.oscarehr.common.dao.RecycleBinDao;
 import org.oscarehr.common.model.Demographic;
+import org.oscarehr.common.model.DemographicCust;
 import org.oscarehr.common.model.FileUploadCheck;
 import org.oscarehr.common.model.Hl7TextInfo;
 import org.oscarehr.common.model.Hl7TextMessage;
@@ -526,20 +528,33 @@ public final class MessageUploader {
 						result = null;
 					}
 				}
-			}
-			
-			
-			if (result == null) {
-				logger.info("Could not find patient for lab: " + labId);
-			} else {
+				
 				Hl7textResultsData.populateMeasurementsTable("" + labId, result.getDemographicNo().toString());
-			}
 
-			if(result != null) {
 				sql = "insert into patientLabRouting (demographic_no, lab_no,lab_type,dateModified,created) values ('" + ((result != null && result.getDemographicNo()!=null)?result.getDemographicNo().toString():"0") + "', '" + labId + "','HL7',now(),now())";
 				PreparedStatement pstmt = conn.prepareStatement(sql);
 				pstmt.executeUpdate();
 				pstmt.close();
+				
+				if (OscarProperties.getInstance().isPropertyActive("queens_resident_tagging")) {
+					DemographicCustDao demographicCustDao = SpringUtils.getBean(DemographicCustDao.class);
+					List<DemographicCust> demographicCust = demographicCustDao.findAllByDemographicNumber(headDemo);
+					if (demographicCust.size() > 0) {
+						ArrayList<String> residentIds = new ArrayList<String>();
+						residentIds.add(demographicCust.get(0).getMidwife());
+						residentIds.add(demographicCust.get(0).getNurse());
+						residentIds.add(demographicCust.get(0).getResident());
+						
+						for (String residentId : residentIds) {
+							if (residentId != null && !residentId.equals("")) {
+								ProviderLabRouting p = new ProviderLabRouting();
+								p.routeMagic(labId, residentId, "HL7");
+							}
+						}
+					}
+				}
+			} else {
+				logger.info("Could not find patient for lab: " + labId);
 			}
 		} catch (SQLException sqlE) {
 			logger.info("NO MATCHING PATIENT FOR LAB id =" + labId);

@@ -40,6 +40,7 @@ import org.oscarehr.billing.CA.BC.dao.Hl7MshDao;
 import org.oscarehr.caisi_integrator.ws.CachedDemographicLabResult;
 import org.oscarehr.caisi_integrator.ws.DemographicWs;
 import org.oscarehr.common.dao.CtlDocumentDao;
+import org.oscarehr.common.dao.DemographicCustDao;
 import org.oscarehr.common.dao.DocumentResultsDao;
 import org.oscarehr.common.dao.Hl7TextMessageDao;
 import org.oscarehr.common.dao.LabPatientPhysicianInfoDao;
@@ -48,6 +49,7 @@ import org.oscarehr.common.dao.PatientLabRoutingDao;
 import org.oscarehr.common.dao.ProviderLabRoutingDao;
 import org.oscarehr.common.dao.QueueDocumentLinkDao;
 import org.oscarehr.common.model.CtlDocument;
+import org.oscarehr.common.model.DemographicCust;
 import org.oscarehr.common.model.PatientLabRouting;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.model.ProviderLabRoutingModel;
@@ -477,6 +479,25 @@ public class CommonLabResultData {
 				plr.setDemographicNo(Integer.parseInt(demographicNo));
 				plr.setLabType(labType);
 				patientLabRoutingDao.persist(plr);
+				
+				if (OscarProperties.getInstance().isPropertyActive("queens_resident_tagging")) {
+					DemographicCustDao demographicCustDao = SpringUtils.getBean(DemographicCustDao.class);
+					List<DemographicCust> demographicCust = demographicCustDao.findAllByDemographicNumber(Integer.parseInt(demographicNo));
+					if (demographicCust.size() > 0) {
+						ArrayList<String> residentIds = new ArrayList<String>();
+						residentIds.add(demographicCust.get(0).getMidwife());
+						residentIds.add(demographicCust.get(0).getNurse());
+						residentIds.add(demographicCust.get(0).getResident());
+						
+						for (String residentId : residentIds) {
+							if (residentId != null && !residentId.equals("")) {
+								ProviderLabRouting p = new ProviderLabRouting();
+								p.routeMagic(Integer.parseInt(labArray[i]), residentId, labType);
+							}
+						}
+						
+					}
+				}
 				
 
 				// add labs to measurements table
