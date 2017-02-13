@@ -512,8 +512,8 @@
         <parameter identifier="prev">
             <class>oscar.oscarPrevention.Prevention</class>
         </parameter>
-        <java:condition>prev.getNumberOfPreventionType("Td") == 0</java:condition> 
-        <java:condition>prev.getHowManyMonthsSinceLast("dTaP") &gt;= 120</java:condition>
+        <java:condition>prev.getNumberOfPreventionType("Td") &gt;= 0</java:condition>
+        <java:condition>prev.getHowManyMonthsSinceLast("Td") &gt;= 120</java:condition>
         <java:consequence>              
               prev.log("Td 1");
               prev.addWarning("Td", "Needs Td");
@@ -524,12 +524,10 @@
         <parameter identifier="prev">
             <class>oscar.oscarPrevention.Prevention</class>
         </parameter>
-        <java:condition>prev.getNumberOfPreventionType("Td") &gt;= 1</java:condition> 
-        <java:condition>prev.getHowManyMonthsSinceLast("Td") &gt;= 120</java:condition>
-        <java:condition>prev.getHowManyMonthsSinceLast("dTaP") &gt;= 120</java:condition>
-        <java:condition>prev.getHowManyMonthsSinceLast("Td-IPV") &gt;= 120</java:condition>
-        <java:condition>prev.getHowManyMonthsSinceLast("TdP-IPV-Hib") &gt;= 120</java:condition>
-        <java:condition>prev.getHowManyMonthsSinceLast("Tdap-IPV") &gt;= 120</java:condition>
+        <java:condition>prev.getNumberOfPreventionType("Td") &gt;= 1</java:condition>
+        <java:condition>
+            ((prev.getHowManyMonthsSinceLast("Td") &gt;= 120)||(prev.getHowManyMonthsSinceLast("dTaP") &gt;= 120)||(prev.getHowManyMonthsSinceLast("Td-IPV") &gt;= 120)||(prev.getHowManyMonthsSinceLast("TdP-IPV-Hib") &gt;= 120)||(prev.getHowManyMonthsSinceLast("Tdap-IPV") &gt;= 120))
+        </java:condition>
         <java:consequence>              
               prev.log("Td 2");
               prev.addWarning("Td", "Needs repeat Td");
