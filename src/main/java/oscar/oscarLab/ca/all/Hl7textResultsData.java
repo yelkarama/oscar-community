@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.ConsultDocsDao;
 import org.oscarehr.common.dao.ConsultResponseDocDao;
@@ -155,121 +156,125 @@ public class Hl7textResultsData {
 				
 				
 				Measurement m = new Measurement();
-				m.setType(measType);
-				m.setDemographicId(Integer.parseInt(demographic_no));
-				m.setProviderNo("0");
-				m.setDataField(result);
-				m.setMeasuringInstruction(measInst);
-				logger.info("DATETIME FOR MEASUREMENT " + datetime);
-				if(datetime != null && datetime.length()>0) {
-					m.setDateObserved(UtilDateUtilities.StringToDate(datetime, "yyyy-MM-dd hh:mm:ss"));
-				} 
-				
-				if( m.getDateObserved() == null && datetime != null && datetime.length() > 0 ) {
-					m.setDateObserved(UtilDateUtilities.StringToDate(datetime, "yyyy-MM-dd"));
-				}
-				
-				if( m.getDateObserved() == null ){
-					m.setDateObserved(UtilDateUtilities.StringToDate(dateEntered, "yyyy-MM-dd hh:mm:ss"));
-				}
-				m.setAppointmentNo(0);
-				m.setComments(comments);
-				measurementDao.persist(m);
+				boolean negativeOrPositive = result.trim().equalsIgnoreCase("negative") || result.trim().equalsIgnoreCase("positive");
+				boolean plusOrMinus = result.matches("^\\-\\d*\\.?\\d*|\\+?\\d*\\.?\\d*$") || result.matches("^\\d*\\.?\\d*\\-|\\d*\\.?\\d*\\+$");
+				if ((negativeOrPositive || plusOrMinus || NumberUtils.isNumber(result)) && !result.trim().equals(".")) {
+					m.setType(measType);
+					m.setDemographicId(Integer.parseInt(demographic_no));
+					m.setProviderNo("0");
+					m.setDataField(result);
+					m.setMeasuringInstruction(measInst);
+					logger.info("DATETIME FOR MEASUREMENT " + datetime);
+					if(datetime != null && datetime.length()>0) {
+						m.setDateObserved(UtilDateUtilities.StringToDate(datetime, "yyyy-MM-dd hh:mm:ss"));
+					}
 
-				int mId = m.getId();
+					if( m.getDateObserved() == null && datetime != null && datetime.length() > 0 ) {
+						m.setDateObserved(UtilDateUtilities.StringToDate(datetime, "yyyy-MM-dd"));
+					}
 
-				MeasurementsExt me = new MeasurementsExt();
-				me.setMeasurementId(mId);
-				me.setKeyVal("lab_no");
-				me.setVal(lab_no);
-				measurementsExtDao.persist(me);
+					if( m.getDateObserved() == null ){
+						m.setDateObserved(UtilDateUtilities.StringToDate(dateEntered, "yyyy-MM-dd hh:mm:ss"));
+					}
+					m.setAppointmentNo(0);
+					m.setComments(comments);
+					measurementDao.persist(m);
 
-				me = new MeasurementsExt();
-				me.setMeasurementId(mId);
-				me.setKeyVal("abnormal");
-				me.setVal(abnormal);
-				measurementsExtDao.persist(me);
+					int mId = m.getId();
 
-				me = new MeasurementsExt();
-				me.setMeasurementId(mId);
-				me.setKeyVal("identifier");
-				me.setVal(identifier);
-				measurementsExtDao.persist(me);
+					MeasurementsExt me = new MeasurementsExt();
+					me.setMeasurementId(mId);
+					me.setKeyVal("lab_no");
+					me.setVal(lab_no);
+					measurementsExtDao.persist(me);
 
-				me = new MeasurementsExt();
-				me.setMeasurementId(mId);
-				me.setKeyVal("name");
-				me.setVal(name);
-				measurementsExtDao.persist(me);
-
-				me = new MeasurementsExt();
-				me.setMeasurementId(mId);
-				me.setKeyVal("labname");
-				me.setVal(labname);
-				measurementsExtDao.persist(me);
-
-				me = new MeasurementsExt();
-				me.setMeasurementId(mId);
-				me.setKeyVal("accession");
-				me.setVal(accession);
-				measurementsExtDao.persist(me);
-
-				me = new MeasurementsExt();
-				me.setMeasurementId(mId);
-				me.setKeyVal("request_datetime");
-				me.setVal(req_datetime);
-				measurementsExtDao.persist(me);
-
-				me = new MeasurementsExt();
-				me.setMeasurementId(mId);
-				me.setKeyVal("datetime");
-				me.setVal(datetime);
-				measurementsExtDao.persist(me);
-
-				if (olis_status != null && olis_status.length() > 0) {
 					me = new MeasurementsExt();
 					me.setMeasurementId(mId);
-					me.setKeyVal("olis_status");
-					me.setVal(olis_status);
+					me.setKeyVal("abnormal");
+					me.setVal(abnormal);
 					measurementsExtDao.persist(me);
-				}
 
-				if (unit != null && unit.length() > 0) {
 					me = new MeasurementsExt();
 					me.setMeasurementId(mId);
-					me.setKeyVal("unit");
-					me.setVal(unit);
+					me.setKeyVal("identifier");
+					me.setVal(identifier);
 					measurementsExtDao.persist(me);
-				}
 
-				if (refRange[0].length() > 0) {
 					me = new MeasurementsExt();
 					me.setMeasurementId(mId);
-					me.setKeyVal("range");
-					me.setVal(refRange[0]);
+					me.setKeyVal("name");
+					me.setVal(name);
 					measurementsExtDao.persist(me);
-				} else {
-					if (refRange[1].length() > 0) {
+
+					me = new MeasurementsExt();
+					me.setMeasurementId(mId);
+					me.setKeyVal("labname");
+					me.setVal(labname);
+					measurementsExtDao.persist(me);
+
+					me = new MeasurementsExt();
+					me.setMeasurementId(mId);
+					me.setKeyVal("accession");
+					me.setVal(accession);
+					measurementsExtDao.persist(me);
+
+					me = new MeasurementsExt();
+					me.setMeasurementId(mId);
+					me.setKeyVal("request_datetime");
+					me.setVal(req_datetime);
+					measurementsExtDao.persist(me);
+
+					me = new MeasurementsExt();
+					me.setMeasurementId(mId);
+					me.setKeyVal("datetime");
+					me.setVal(datetime);
+					measurementsExtDao.persist(me);
+
+					if (olis_status != null && olis_status.length() > 0) {
 						me = new MeasurementsExt();
 						me.setMeasurementId(mId);
-						me.setKeyVal("minimum");
-						me.setVal(refRange[1]);
+						me.setKeyVal("olis_status");
+						me.setVal(olis_status);
 						measurementsExtDao.persist(me);
 					}
-					if (refRange[2].length() > 0) {
+
+					if (unit != null && unit.length() > 0) {
 						me = new MeasurementsExt();
 						me.setMeasurementId(mId);
-						me.setKeyVal("maximum");
-						me.setVal(refRange[2]);
+						me.setKeyVal("unit");
+						me.setVal(unit);
 						measurementsExtDao.persist(me);
 					}
+
+					if (refRange[0].length() > 0) {
+						me = new MeasurementsExt();
+						me.setMeasurementId(mId);
+						me.setKeyVal("range");
+						me.setVal(refRange[0]);
+						measurementsExtDao.persist(me);
+					} else {
+						if (refRange[1].length() > 0) {
+							me = new MeasurementsExt();
+							me.setMeasurementId(mId);
+							me.setKeyVal("minimum");
+							me.setVal(refRange[1]);
+							measurementsExtDao.persist(me);
+						}
+						if (refRange[2].length() > 0) {
+							me = new MeasurementsExt();
+							me.setMeasurementId(mId);
+							me.setKeyVal("maximum");
+							me.setVal(refRange[2]);
+							measurementsExtDao.persist(me);
+						}
+					}
+
+					me = new MeasurementsExt();
+					me.setMeasurementId(mId);
+					me.setKeyVal("other_id");
+					me.setVal(i + "-" + j);
+					measurementsExtDao.persist(me);
 				}
-				
-				me = new MeasurementsExt();
-				me.setMeasurementId(mId);
-				me.setKeyVal("other_id");
-				me.setVal(i + "-" + j);
-				measurementsExtDao.persist(me);
 			}
 		}
 		
