@@ -174,6 +174,8 @@ if(!authed) {
             ArrayList<NavBarDisplayDAO.Item> current = new ArrayList<NavBarDisplayDAO.Item>();
             ArrayList<NavBarDisplayDAO.Item> pastDates = new ArrayList<NavBarDisplayDAO.Item>();
             ArrayList<NavBarDisplayDAO.Item> noDates = new ArrayList<NavBarDisplayDAO.Item>();
+            ArrayList<NavBarDisplayDAO.Item> duePreventions = new ArrayList<NavBarDisplayDAO.Item>();
+
             Calendar threshold = Calendar.getInstance();
             threshold.add(Calendar.MONTH, -3);
             Date threeMths = threshold.getTime();
@@ -182,17 +184,27 @@ if(!authed) {
             for(j=0; j<numItems; j++) {
                 NavBarDisplayDAO.Item item = dao.getItem(j);
                 Date d = item.getDate();
+                String itemColour = item.getColour();
+
                 if( d == null )
                     noDates.add(item);
-                else if( d.compareTo(threeMths) < 0 )
-                    pastDates.add(item);
+                else if( d.compareTo(threeMths) < 0)
+                    if(itemColour.equals("#FF0000") && div.equals("preventions"))
+                        duePreventions.add(item);
+                    else
+                        pastDates.add(item);
                 else
                     current.add(item);
             }
 
             StringBuilder jscode = new StringBuilder();
-			
-            numDisplayed = display(noDates, numToDisplay, numDisplayed, manageItems, xpanded, numItems, jscode, displayThreshold, reloadURL.toString(), dao.getDivId(), request, out);
+
+            if(div.equals("preventions")){
+                numDisplayed = display(duePreventions, numToDisplay, numDisplayed, manageItems, xpanded, numItems, jscode, displayThreshold, reloadURL.toString(),dao.getDivId(),request,out);
+                numDisplayed += display(noDates, numToDisplay, numDisplayed, manageItems, xpanded, numItems, jscode, displayThreshold, reloadURL.toString(), dao.getDivId(), request, out);
+            } else{
+                numDisplayed = display(noDates, numToDisplay, numDisplayed, manageItems, xpanded, numItems, jscode, displayThreshold, reloadURL.toString(), dao.getDivId(), request, out);
+            }
 
             if( numDisplayed < numToDisplay ){
                numDisplayed += display(current, numToDisplay, numDisplayed, manageItems, xpanded, numItems, jscode, displayThreshold, reloadURL.toString(), dao.getDivId(), request, out);
