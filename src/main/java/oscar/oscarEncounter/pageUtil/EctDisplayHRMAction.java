@@ -28,9 +28,13 @@ import org.oscarehr.common.dao.OscarLogDao;
 import org.oscarehr.hospitalReportManager.HRMReport;
 import org.oscarehr.hospitalReportManager.HRMReportParser;
 import org.oscarehr.hospitalReportManager.dao.HRMDocumentDao;
+import org.oscarehr.hospitalReportManager.dao.HRMDocumentSubClassDao;
 import org.oscarehr.hospitalReportManager.dao.HRMDocumentToDemographicDao;
+import org.oscarehr.hospitalReportManager.dao.HRMSubClassDao;
 import org.oscarehr.hospitalReportManager.model.HRMDocument;
+import org.oscarehr.hospitalReportManager.model.HRMDocumentSubClass;
 import org.oscarehr.hospitalReportManager.model.HRMDocumentToDemographic;
+import org.oscarehr.hospitalReportManager.model.HRMSubClass;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
@@ -45,6 +49,8 @@ public class EctDisplayHRMAction extends EctDisplayAction {
 	private static final String cmd = "HRM";
 	private HRMDocumentToDemographicDao hrmDocumentToDemographicDao = (HRMDocumentToDemographicDao) SpringUtils.getBean("HRMDocumentToDemographicDao");
 	private HRMDocumentDao hrmDocumentDao = (HRMDocumentDao) SpringUtils.getBean("HRMDocumentDao");
+	private HRMDocumentSubClassDao hrmDocumentSubClassDao = (HRMDocumentSubClassDao) SpringUtils.getBean("HRMDocumentSubClassDao");
+	private HRMSubClassDao hrmSubClassDao = (HRMSubClassDao) SpringUtils.getBean("HRMSubClassDao");
 	private OscarLogDao oscarLogDao = (OscarLogDao) SpringUtils.getBean("oscarLogDao");
 	
 	public boolean getInfo(EctSessionBean bean, HttpServletRequest request, NavBarDisplayDAO Dao, MessageResources messages) {
@@ -163,13 +169,40 @@ public class EctDisplayHRMAction extends EctDisplayAction {
 				
 				String duplicateKey=entry.getKey();
 				HRMDocument hrmDocument=entry.getValue();
-				
+				List<HRMDocumentSubClass> hrmDocumentSubClassList = hrmDocumentSubClassDao.getSubClassesByDocumentId(hrmDocument.getId());
 				String reportStatus = hrmDocument.getReportStatus();
 				String dispFilename = hrmDocument.getReportType();
-				String dispDocNo    = hrmDocument.getId().toString();
+				String dispSubClass ="";
+				HRMSubClass subClass;
+				String dispDocNo = hrmDocument.getId().toString();
 				String description = hrmDocument.getDescription();
-				
-				String t = StringUtils.isNullOrEmpty(description)?dispFilename:description;
+
+				HRMReport hrmReport = HRMReportParser.parseReport(loggedInInfo, hrmDocument.getReportFile());
+				if (hrmReport.getFirstReportClass().equalsIgnoreCase("Diagnostic Imaging Report") || hrmReport.getFirstReportClass().equalsIgnoreCase("Cardio Respiratory Report")) {
+					//Get first sub class to display on eChart
+					if (hrmDocumentSubClassList != null) {
+						HRMDocumentSubClass firstSubClass = hrmDocumentSubClassList.get(0);
+						subClass = hrmSubClassDao.findApplicableSubClassMapping(hrmReport.getFirstReportClass(), firstSubClass.getSubClass(), firstSubClass.getSubClassMnemonic(), hrmReport.getSendingFacilityId());
+						dispSubClass = subClass!=null?subClass.getSubClassDescription():"";
+					}
+				} else {
+					//Medical Records Report
+					String[] reportSubClass = hrmReport.getFirstReportSubClass().split("\\^");
+					dispSubClass = reportSubClass!=null?reportSubClass[1]:"";
+				}
+
+				// Determine text to display on eChart
+				String t = "";
+				if(!StringUtils.isNullOrEmpty(description)){
+					t = description; //custom label
+				}
+				else if(!StringUtils.isNullOrEmpty(dispSubClass)){
+					t = dispSubClass; // subclass
+				}
+				else {
+					t = dispFilename; // report class
+				}
+
 				if (reportStatus != null && reportStatus.equalsIgnoreCase("C")) {
 					t = "(Cancelled) " + t;
 				}
