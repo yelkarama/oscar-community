@@ -616,8 +616,8 @@ function sendMRP(ele){
                                                                $('autocompletedemo'+num).disabled=true;
                                                            if($('removeProv'+num))
                                                                     $('removeProv'+num).remove();
-
-                                                refreshParent();
+                                                    addDocCommentOnSave();
+                                                    refreshParent();
 
                                                     }});
                                                     return false;
@@ -841,6 +841,11 @@ function sendMRP(ele){
                 <tr><td colspan="9" ><hr width="100%" color="blue"></td></tr>
             </table>
         </div>
+        <script type="text/javascript">
+            function addDocCommentOnSave(){
+                addDocComment('<%=docId%>', '<%=curAckStatus%>');
+            }
+        </script>
 
     </body>
 </html>
