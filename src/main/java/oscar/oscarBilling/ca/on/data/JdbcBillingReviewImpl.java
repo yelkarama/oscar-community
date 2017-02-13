@@ -519,68 +519,70 @@ public class JdbcBillingReviewImpl {
 		h = dao.getFirstInvoice(ConversionUtils.fromIntString(demoNo));
 
 		try {
-			ch1Obj = new BillingClaimHeader1Data();
-			ch1Obj.setId("" + h.getId());
-			ch1Obj.setBilling_date(ConversionUtils.toDateString(h.getBillingDate()));
-			ch1Obj.setBilling_time(ConversionUtils.toDateString(h.getBillingTime()));
-			ch1Obj.setStatus(h.getStatus());
-			ch1Obj.setProviderNo(h.getProviderNo());
-			ch1Obj.setApptProvider_no(h.getApptProviderNo());
-			ch1Obj.setUpdate_datetime(ConversionUtils.toDateString(h.getTimestamp()));
+			if(h != null){
+				ch1Obj = new BillingClaimHeader1Data();
+				ch1Obj.setId("" + h.getId());
+				ch1Obj.setBilling_date(ConversionUtils.toDateString(h.getBillingDate()));
+				ch1Obj.setBilling_time(ConversionUtils.toDateString(h.getBillingTime()));
+				ch1Obj.setStatus(h.getStatus());
+				ch1Obj.setProviderNo(h.getProviderNo());
+				ch1Obj.setApptProvider_no(h.getApptProviderNo());
+				ch1Obj.setUpdate_datetime(ConversionUtils.toDateString(h.getTimestamp()));
 
-			ch1Obj.setClinic(h.getClinic());
-			ch1Obj.setAppointment_no("" + h.getAppointmentNo());
-			ch1Obj.setPay_program(h.getPayProgram());
-			ch1Obj.setVisittype(h.getVisitType());
-			ch1Obj.setAdmission_date(ConversionUtils.toDateString(h.getAdmissionDate()));
-			ch1Obj.setFacilty_num(h.getFaciltyNum());
-			ch1Obj.setTotal(h.getTotal().toString());
-			
-			Provider provider = providerdao.getProvider(h.getProviderNo());
-			ch1Obj.setLast_name(provider.getLastName());
-			ch1Obj.setFirst_name(provider.getFirstName());
-
-			retval.add(ch1Obj);
-
-			String dx = "";
-			Set<String> serviceCodeSet = new HashSet<String>();
-		
-			String strServiceDate = "";
-			BigDecimal paid = new BigDecimal("0.00");
-			BigDecimal refund = new BigDecimal("0.00");
-			BigDecimal discount = new BigDecimal("0.00");
-
-			for (BillingONItem i : itemDao.findByCh1IdAndStatusNotEqual(h.getId(), "D")) {
-				String strService = i.getServiceCode() + " x " + i.getServiceCount() + ", ";
-				dx = i.getDx();
-				strServiceDate = ConversionUtils.toDateString(i.getServiceDate());
+				ch1Obj.setClinic(h.getClinic());
+				ch1Obj.setAppointment_no("" + h.getAppointmentNo());
+				ch1Obj.setPay_program(h.getPayProgram());
+				ch1Obj.setVisittype(h.getVisitType());
+				ch1Obj.setAdmission_date(ConversionUtils.toDateString(h.getAdmissionDate()));
+				ch1Obj.setFacilty_num(h.getFaciltyNum());
+				ch1Obj.setTotal(h.getTotal().toString());
 				
-				serviceCodeSet.add(strService);
-			}
-							
-			BillingItemData itObj = new BillingItemData();
-			StringBuffer codeBuf = new StringBuffer();
-			for (String codeStr : serviceCodeSet) {
-				codeBuf.append(codeStr + ",");
-			}
-			if (codeBuf.length() > 0) {
-				codeBuf.deleteCharAt(codeBuf.length() - 1);
-			}
-			itObj.setService_code(codeBuf.toString());
-			itObj.setDx(dx);
-			itObj.setService_date(strServiceDate);
+				Provider provider = providerdao.getProvider(h.getProviderNo());
+				ch1Obj.setLast_name(provider.getLastName());
+				ch1Obj.setFirst_name(provider.getFirstName());
+
+				retval.add(ch1Obj);
+
+				String dx = "";
+				Set<String> serviceCodeSet = new HashSet<String>();
 			
-			List<BillingONPayment> payment = payDao.find3rdPartyPaymentsByBillingNo(h.getId());
-			itObj.setPaid(payDao.getTotalSumByBillingNoWeb(h.getId().toString()));
-			itObj.setRefund(payDao.getPaymentsRefundByBillingNoWeb(h.getId().toString()));
-			BigDecimal discount_total = payDao.getPaymentsDiscountByBillingNo(h.getId());
-			if(discount_total == null) {
-				discount_total = new BigDecimal(0);
+				String strServiceDate = "";
+				BigDecimal paid = new BigDecimal("0.00");
+				BigDecimal refund = new BigDecimal("0.00");
+				BigDecimal discount = new BigDecimal("0.00");
+
+				for (BillingONItem i : itemDao.findByCh1IdAndStatusNotEqual(h.getId(), "D")) {
+					String strService = i.getServiceCode() + " x " + i.getServiceCount() + ", ";
+					dx = i.getDx();
+					strServiceDate = ConversionUtils.toDateString(i.getServiceDate());
+					
+					serviceCodeSet.add(strService);
+				}
+								
+				BillingItemData itObj = new BillingItemData();
+				StringBuffer codeBuf = new StringBuffer();
+				for (String codeStr : serviceCodeSet) {
+					codeBuf.append(codeStr + ",");
+				}
+				if (codeBuf.length() > 0) {
+					codeBuf.deleteCharAt(codeBuf.length() - 1);
+				}
+				itObj.setService_code(codeBuf.toString());
+				itObj.setDx(dx);
+				itObj.setService_date(strServiceDate);
+				
+				List<BillingONPayment> payment = payDao.find3rdPartyPaymentsByBillingNo(h.getId());
+				itObj.setPaid(payDao.getTotalSumByBillingNoWeb(h.getId().toString()));
+				itObj.setRefund(payDao.getPaymentsRefundByBillingNoWeb(h.getId().toString()));
+				BigDecimal discount_total = payDao.getPaymentsDiscountByBillingNo(h.getId());
+				if(discount_total == null) {
+					discount_total = new BigDecimal(0);
+				}
+				NumberFormat currency = NumberFormat.getCurrencyInstance(Locale.US);		        
+				itObj.setDiscount(currency.format(discount_total));
+				
+				retval.add(itObj);
 			}
-			NumberFormat currency = NumberFormat.getCurrencyInstance(Locale.US);		        
-			itObj.setDiscount(currency.format(discount_total));
-			
-			retval.add(itObj);
 		} catch (Exception e) {
 			_logger.error("error", e);
 		}

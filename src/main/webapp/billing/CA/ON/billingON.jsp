@@ -278,7 +278,7 @@
 			List aL = hdbObj.getBillingHist(demo_no, maxResults,0, null);
 
 			Vector vecHistD = new Vector();
-			if (aL.size()>0) {
+			if (aL != null && aL.size()>0) {
 				BillingClaimHeader1Data obj = (BillingClaimHeader1Data) aL.get(0);
 				BillingItemData iobj = (BillingItemData) aL.get(1);
 
@@ -327,7 +327,6 @@
             }
             String dxCode = getDefaultValue(paraName, vecHistD, "diagnostic_code");
 
-
 			//visitType
 			paraName = request.getParameter("xml_visittype");
 
@@ -344,14 +343,16 @@
 				String admissionDateProperty = null;
 				if(OscarProperties.getInstance().getBooleanProperty("useFirstLocationAndAdmission", "true")){
 					List firstBill = hdbObj.getFirstBill(demo_no);
-					BillingClaimHeader1Data obj = (BillingClaimHeader1Data) firstBill.get(0);
-					BillingItemData iobj = (BillingItemData) firstBill.get(1);
+					if(firstBill != null && firstBill.size() > 0){
+						BillingClaimHeader1Data obj = (BillingClaimHeader1Data) firstBill.get(0);
+						BillingItemData iobj = (BillingItemData) firstBill.get(1);
 
-					propHist.setProperty("admissionDate", StringUtils.trimToEmpty(obj.getAdmission_date()));
-					propHist.setProperty("visitLocation", StringUtils.trimToEmpty(obj.getFacilty_num()));
-					
-					visitLocationProperty = StringUtils.trimToEmpty(obj.getFacilty_num());
-					admissionDateProperty = StringUtils.trimToEmpty(obj.getAdmission_date());
+						propHist.setProperty("admissionDate", StringUtils.trimToEmpty(obj.getAdmission_date()));
+						propHist.setProperty("visitLocation", StringUtils.trimToEmpty(obj.getFacilty_num()));
+						
+						visitLocationProperty = StringUtils.trimToEmpty(obj.getFacilty_num());
+						admissionDateProperty = StringUtils.trimToEmpty(obj.getAdmission_date());
+					}
 				}else if (vecHist != null && vecHist.size() > 0 && vecHist.get(0) != null) {
 					visitLocationProperty = ((Properties)vecHist.get(0)).getProperty("visitLocation");
 					admissionDateProperty = ((Properties)vecHist.get(0)).getProperty("admissionDate"); 
@@ -406,152 +407,150 @@
             CtlBillingServiceDao cbsDao = SpringUtils.getBean(CtlBillingServiceDao.class);
             BillingServiceDao bDao = SpringUtils.getBean(BillingServiceDao.class);
             CtlBillingServicePremiumDao pDao = SpringUtils.getBean(CtlBillingServicePremiumDao.class);
-            
+
             for(Object[] i : cbsDao.findServiceTypesByStatus("A")) {
-                    ArrayList<Properties> listGroup1 = new ArrayList<Properties>();
-                    ArrayList<Properties> listGroup2 = new ArrayList<Properties>();
-                    ArrayList<Properties> listGroup3 = new ArrayList<Properties>();
+				ArrayList<Properties> listGroup1 = new ArrayList<Properties>();
+				ArrayList<Properties> listGroup2 = new ArrayList<Properties>();
+				ArrayList<Properties> listGroup3 = new ArrayList<Properties>();
 
-                    String ctlcode = String.valueOf(i[1]);
-                    String ctlcodename = String.valueOf(i[0]);
+				String ctlcode = String.valueOf(i[1]);
+				String ctlcodename = String.valueOf(i[0]);
 
-                    listServiceType.add(ctlcode);
+				listServiceType.add(ctlcode);
+					
+				for(Object[] o : bDao.findBillingServiceAndCtlBillingServiceByMagic(ctlcode, "Group1", ConversionUtils.fromDateString(billReferenceDate))) {
+					BillingService b = (BillingService) o[0];
+					CtlBillingService c = (CtlBillingService) o[1];
+									
+					if(!codeFilterManager.isCodeValid(b.getServiceCode(), null, false, filterDate, demo)){
+						continue;
+					}
+					
+					propT = new Properties();
+					propT.setProperty("serviceCode", b.getServiceCode() );
+					propT.setProperty("serviceDesc", b.getDescription() == null ? "N/A" : b.getDescription());
+					propT.setProperty("serviceDisp", noNull(b.getValue()));
+					propT.setProperty("servicePercentage", noNull(b.getPercentage()));
+					propT.setProperty("serviceType", c.getServiceType());
+					propT.setProperty("serviceTypeName", c.getServiceGroupName());
+					styleId = null;
+					if(b != null && b.getDisplayStyle() != null) {
+						styleId = "" + b.getDisplayStyle();
+						cssStyle = cssStylesDao.find(b.getDisplayStyle());
+						propT.setProperty("displaystyle", cssStyle.getStyle());
+					}
+					else {
+						propT.setProperty("displaystyle", "");
+					}
 
-			for(Object[] o : bDao.findBillingServiceAndCtlBillingServiceByMagic(ctlcode, "Group1", ConversionUtils.fromDateString(billReferenceDate))) {
-				BillingService b = (BillingService) o[0];
-				CtlBillingService c = (CtlBillingService) o[1];
-								
-				if(!codeFilterManager.isCodeValid(b.getServiceCode(), null, false, filterDate, demo)){
-					continue;
+					propT.setProperty("serviceSLI",  "" + b.getSliFlag());
+					titleMap.put("group1_".concat(ctlcode), c.getServiceGroupName());
+
+					listGroup1.add(propT);
+				}
+
+				if (listGroup1.size() > 0) {
+					List<String> serviceCodes = new ArrayList<String>();
+					for (int ii = 0; ii < listGroup1.size(); ii++) {
+						serviceCodes.add(listGroup1.get(ii).getProperty("serviceCode"));
+					}
+					
+					for(CtlBillingServicePremium p : pDao.findByServceCodes(serviceCodes)) {
+						propPremium.setProperty(p.getServiceCode(), "A");
+					}
+				}
+				billingServiceCodesMap.put("group1_".concat(ctlcode),listGroup1);
+				
+				for(Object[] o : bDao.findBillingServiceAndCtlBillingServiceByMagic(ctlcode, "Group2", ConversionUtils.fromDateString(billReferenceDate))) {
+					BillingService b = (BillingService) o[0];
+					CtlBillingService c = (CtlBillingService) o[1];
+									
+					if(!codeFilterManager.isCodeValid(b.getServiceCode(), null, false, filterDate, demo)){
+						continue;
+					}
+					propT = new Properties();
+					
+					propT.setProperty("serviceCode", b.getServiceCode() );
+					propT.setProperty("serviceDesc", b.getDescription());
+					propT.setProperty("serviceDisp", b.getValue());
+					propT.setProperty("servicePercentage", noNull(b.getPercentage()));
+					propT.setProperty("serviceType", c.getServiceType());
+					propT.setProperty("serviceTypeName", c.getServiceGroupName());
+					styleId = null;
+					if(b != null && b.getDisplayStyle() != null) {
+						styleId = "" + b.getDisplayStyle();
+						cssStyle = cssStylesDao.find(b.getDisplayStyle());
+						propT.setProperty("displaystyle", cssStyle.getStyle());
+					}
+					else {
+						propT.setProperty("displaystyle", "");
+					}
+
+					propT.setProperty("serviceSLI", "" + b.getSliFlag());
+					titleMap.put("group2_".concat(ctlcode), c.getServiceGroupName());
+
+					listGroup2.add(propT);
+
+				}
+
+				if (listGroup2.size() > 0) {
+					List<String> serviceCodes = new ArrayList<String>();
+					for (int ii = 0; ii < listGroup2.size(); ii++) {
+						serviceCodes.add(listGroup2.get(ii).getProperty("serviceCode"));
+					}
+					
+					for(CtlBillingServicePremium p : pDao.findByServceCodes(serviceCodes)) {
+						propPremium.setProperty(p.getServiceCode(), "A");
+					}
 				}
 				
-				propT = new Properties();
-				propT.setProperty("serviceCode", b.getServiceCode() );
-				propT.setProperty("serviceDesc", b.getDescription() == null ? "N/A" : b.getDescription());
-				propT.setProperty("serviceDisp", noNull(b.getValue()));
-				propT.setProperty("servicePercentage", noNull(b.getPercentage()));
-				propT.setProperty("serviceType", c.getServiceType());
-                propT.setProperty("serviceTypeName", c.getServiceGroupName());
-                styleId = null;
-                if(b != null && b.getDisplayStyle() != null) {
-                	styleId = "" + b.getDisplayStyle();
-                	cssStyle = cssStylesDao.find(b.getDisplayStyle());
-                	propT.setProperty("displaystyle", cssStyle.getStyle());
-                }
-                else {
-                	propT.setProperty("displaystyle", "");
-                }
-
-                propT.setProperty("serviceSLI",  "" + b.getSliFlag());
-               	titleMap.put("group1_".concat(ctlcode), c.getServiceGroupName());
-
-                listGroup1.add(propT);
-			}
-
-			if (listGroup1.size() > 0) {
-				List<String> serviceCodes = new ArrayList<String>();
-				for (int ii = 0; ii < listGroup1.size(); ii++) {
-					serviceCodes.add(listGroup1.get(ii).getProperty("serviceCode"));
-				}
+				billingServiceCodesMap.put("group2_".concat(ctlcode),listGroup2);
 				
-				for(CtlBillingServicePremium p : pDao.findByServceCodes(serviceCodes)) {
-					propPremium.setProperty(p.getServiceCode(), "A");
+				for(Object[] o : bDao.findBillingServiceAndCtlBillingServiceByMagic(ctlcode, "Group3", ConversionUtils.fromDateString(billReferenceDate))) {
+					BillingService b = (BillingService) o[0];
+					CtlBillingService c = (CtlBillingService) o[1];
+
+					if(!codeFilterManager.isCodeValid(b.getServiceCode(), null, false, filterDate, demo)){
+						continue;
+					}
+					
+					propT = new Properties();
+					
+					propT.setProperty("serviceCode", b.getServiceCode() );
+					propT.setProperty("serviceDesc", b.getDescription());
+					propT.setProperty("serviceDisp", b.getValue());
+					propT.setProperty("servicePercentage", noNull(b.getPercentage()));
+					propT.setProperty("serviceType", c.getServiceType());
+					propT.setProperty("serviceTypeName", c.getServiceGroupName());
+					styleId = null;
+					if(b != null && b.getDisplayStyle() != null) {
+						styleId = "" + b.getDisplayStyle();
+						cssStyle = cssStylesDao.find(b.getDisplayStyle());
+						propT.setProperty("displaystyle", cssStyle.getStyle());
+					}
+					else {
+						propT.setProperty("displaystyle", "");
+					}
+
+					propT.setProperty("serviceSLI", "" + b.getSliFlag());
+					titleMap.put("group3_".concat(ctlcode), c.getServiceGroupName());
+
+					listGroup3.add(propT);
+
 				}
-			}
-			billingServiceCodesMap.put("group1_".concat(ctlcode),listGroup1);
 
-			for(Object[] o : bDao.findBillingServiceAndCtlBillingServiceByMagic(ctlcode, "Group2", ConversionUtils.fromDateString(billReferenceDate))) {
-				BillingService b = (BillingService) o[0];
-				CtlBillingService c = (CtlBillingService) o[1];
-								
-				if(!codeFilterManager.isCodeValid(b.getServiceCode(), null, false, filterDate, demo)){
-					continue;
+				if (listGroup3.size() > 0) {
+					List<String> serviceCodes = new ArrayList<String>();
+					for (int ii = 0; ii < listGroup3.size(); ii++) {
+						serviceCodes.add(listGroup3.get(ii).getProperty("serviceCode"));
+					}
+					
+					for(CtlBillingServicePremium p : pDao.findByServceCodes(serviceCodes)) {
+						propPremium.setProperty(p.getServiceCode(), "A");
+					}
 				}
-				
-				propT = new Properties();
-				
-				propT.setProperty("serviceCode", b.getServiceCode() );
-				propT.setProperty("serviceDesc", b.getDescription());
-				propT.setProperty("serviceDisp", b.getValue());
-				propT.setProperty("servicePercentage", noNull(b.getPercentage()));
-				propT.setProperty("serviceType", c.getServiceType());
-                propT.setProperty("serviceTypeName", c.getServiceGroupName());
-                styleId = null;
-                if(b != null && b.getDisplayStyle() != null) {
-                	styleId = "" + b.getDisplayStyle();
-                	cssStyle = cssStylesDao.find(b.getDisplayStyle());
-                	propT.setProperty("displaystyle", cssStyle.getStyle());
-                }
-                else {
-                	propT.setProperty("displaystyle", "");
-                }
 
-                propT.setProperty("serviceSLI", "" + b.getSliFlag());
-                titleMap.put("group2_".concat(ctlcode), c.getServiceGroupName());
-
-                listGroup2.add(propT);
-
-			}
-
-			if (listGroup2.size() > 0) {
-				List<String> serviceCodes = new ArrayList<String>();
-				for (int ii = 0; ii < listGroup2.size(); ii++) {
-					serviceCodes.add(listGroup2.get(ii).getProperty("serviceCode"));
-				}
-				
-				for(CtlBillingServicePremium p : pDao.findByServceCodes(serviceCodes)) {
-					propPremium.setProperty(p.getServiceCode(), "A");
-				}
-			}
-			
-            billingServiceCodesMap.put("group2_".concat(ctlcode),listGroup2);
-
-
-            for(Object[] o : bDao.findBillingServiceAndCtlBillingServiceByMagic(ctlcode, "Group3", ConversionUtils.fromDateString(billReferenceDate))) {
-				BillingService b = (BillingService) o[0];
-				CtlBillingService c = (CtlBillingService) o[1];
-
-				if(!codeFilterManager.isCodeValid(b.getServiceCode(), null, false, filterDate, demo)){
-					continue;
-				}
-				
-				propT = new Properties();
-				
-				propT.setProperty("serviceCode", b.getServiceCode() );
-				propT.setProperty("serviceDesc", b.getDescription());
-				propT.setProperty("serviceDisp", b.getValue());
-				propT.setProperty("servicePercentage", noNull(b.getPercentage()));
-				propT.setProperty("serviceType", c.getServiceType());
-                propT.setProperty("serviceTypeName", c.getServiceGroupName());
-                styleId = null;
-                if(b != null && b.getDisplayStyle() != null) {
-                	styleId = "" + b.getDisplayStyle();
-                	cssStyle = cssStylesDao.find(b.getDisplayStyle());
-                	propT.setProperty("displaystyle", cssStyle.getStyle());
-                }
-                else {
-                	propT.setProperty("displaystyle", "");
-                }
-
-                propT.setProperty("serviceSLI", "" + b.getSliFlag());
-                titleMap.put("group3_".concat(ctlcode), c.getServiceGroupName());
-
-                listGroup3.add(propT);
-
-			}
-
-            if (listGroup3.size() > 0) {
-				List<String> serviceCodes = new ArrayList<String>();
-				for (int ii = 0; ii < listGroup3.size(); ii++) {
-					serviceCodes.add(listGroup3.get(ii).getProperty("serviceCode"));
-				}
-				
-				for(CtlBillingServicePremium p : pDao.findByServceCodes(serviceCodes)) {
-					propPremium.setProperty(p.getServiceCode(), "A");
-				}
-			}
-
-            billingServiceCodesMap.put("group3_".concat(ctlcode),listGroup3);
+				billingServiceCodesMap.put("group3_".concat(ctlcode),listGroup3);
 
             }
 
@@ -2003,9 +2002,10 @@ function changeSite(sel) {
 					</tr>
 					<%
 						// new billing records
-						for (int i = 0; i < aL.size(); i = i + 2) {
-							BillingClaimHeader1Data obj = (BillingClaimHeader1Data) aL.get(i);
-							BillingItemData iobj = (BillingItemData) aL.get(i + 1);
+						if(aL != null && aL.size() > 0){
+							for (int i = 0; i < aL.size(); i = i + 2) {
+								BillingClaimHeader1Data obj = (BillingClaimHeader1Data) aL.get(i);
+								BillingItemData iobj = (BillingItemData) aL.get(i + 1);
 					%>
 					<tr <%=i%4==0? "class=\"myGreen\"":""%> align="center">
 						<td class="smallFont"><%=obj.getId()%></td>
@@ -2016,6 +2016,7 @@ function changeSite(sel) {
 						<td class="smallFont"><%=obj.getUpdate_datetime().substring(0, 10)%></td>
 					</tr>
 					<%
+							}
 						}
 					%>
 				</table>
