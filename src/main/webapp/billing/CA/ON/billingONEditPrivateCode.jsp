@@ -23,6 +23,8 @@
 <%@ page import="oscar.oscarBilling.ca.on.data.*"%>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
 <%@ page import="org.oscarehr.util.MiscUtils"%>
+<%@ page import="oscar.oscarBilling.ca.on.administration.GstControlAction" %>
+<%@ page import="java.math.BigDecimal" %>
 <%//
 			//int serviceCodeLen = 5;
 			String msg = "Type in a service code and search first to see if it is available.";
@@ -31,6 +33,11 @@
 			//BillingServiceCode serviceCodeObj = new BillingServiceCode();
 			Properties prop = new Properties();
 			JdbcBillingCodeImpl dbObj = new JdbcBillingCodeImpl();
+			GstControlAction db = new GstControlAction();
+			Properties gstProp =  db.readDatabase();
+			String percent = gstProp.getProperty("gstPercent");
+			String gstPercent = new BigDecimal(percent).divide(new BigDecimal(100)).toString();
+
 			if (request.getParameter("submit") != null && request.getParameter("submit").equals("Save")) {
 				String valuePara = request.getParameter("value");
 				if (request.getParameter("action").startsWith("edit")) {
@@ -40,7 +47,8 @@
 						serviceCode = "";
 					serviceCode = "_" + serviceCode;
 					if (serviceCode.equals(request.getParameter("action").substring("edit".length()))) {
-						if (dbObj.updateCodeByName(serviceCode, request.getParameter("description"), valuePara, "0.00",
+						gstPercent = request.getParameter("gstFlag").equals("1")?gstPercent:"0.00";
+						if (dbObj.updateCodeByName(serviceCode, request.getParameter("description"), valuePara, gstPercent,
 								request.getParameter("billingservice_date"), request.getParameter("gstFlag"))) {
 							msg = serviceCode + " is updated.<br>"
 									+ "Type in a service code and search first to see if it is available.";
@@ -320,16 +328,17 @@ Description<br>
 Fee <small>(format: xx.xx, e.g. 18.20)</small><br>
 <input type="text" name="value" value="<%=prop.getProperty("value", "")%>" size='8' maxlength='8'> <br>
 
-<input type="checkbox" name="gstCheck" id="gstCheck" onclick="setFlag()" /> Add GST <br>
+<input type="checkbox" name="gstCheck" id="gstCheck" onclick="setFlag()" <%=prop.getProperty("gstFlag", "").equals("true")?"checked":""%> /> Add GST <br>
 
-<input type="hidden" value="" id="gstFlag" name="gstFlag" />
+<input type="hidden" value="<%=prop.getProperty("gstFlag", "")%>" id="gstFlag" name="gstFlag" />
 
 <br>
 
 Issued Date <small>(effective date)</small><br>
 
 <div class="input-append date" id="billingservice_date" data-date="today();" data-date-format="yyyy-mm-dd">
-<input  style="width:90px" name="billingservice_date"  id="billingservice_date" size="16" type="text" value="" pattern="^\d{4}-((0\d)|(1[012]))-(([012]\d)|3[01])$" readonly>
+	<% String billingServiceDate = prop.getProperty("billingservice_date")!=null?prop.getProperty("billingservice_date"):""; %>
+<input  style="width:90px" name="billingservice_date"  id="billingservice_date" size="16" type="text" value="<%=billingServiceDate%>" pattern="^\d{4}-((0\d)|(1[012]))-(([012]\d)|3[01])$" readonly>
 <span class="add-on"><i class="icon-calendar"></i></span>
 </div>
 
