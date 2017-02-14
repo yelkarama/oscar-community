@@ -88,11 +88,16 @@ function searchOutOfDomain() {
 	<%
         UserPropertyDAO userPropertyDAO = (UserPropertyDAO) SpringUtils.getBean("UserPropertyDAO");
         UserProperty defaultSearchModeProp = userPropertyDAO.getProp((String)session.getAttribute("user"),"DEFAULT_SEARCH_MODE");
-        String searchMode = (request.getParameter("search_mode")==null) ? defaultSearchModeProp.getValue() : request.getParameter("search_mode");
-         String keyWord = request.getParameter("keyword");
+        String searchMode;
+        if (defaultSearchModeProp != null) {
+        	searchMode = (request.getParameter("search_mode")==null) ? defaultSearchModeProp.getValue() : request.getParameter("search_mode");
+        }  else {
+        	searchMode = (request.getParameter("search_mode")==null) ? "" : request.getParameter("search_mode");
+        }
          if (searchMode == null || searchMode.equals("")) {
              searchMode = OscarProperties.getInstance().getProperty("default_search_mode","search_name");             
          }  
+         String keyWord = request.getParameter("keyword");
          if (keyWord == null) {
              keyWord = "";
          }
