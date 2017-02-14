@@ -285,6 +285,7 @@ public class BillingCorrectionAction extends DispatchAction{
         bCh1.setDob(demo.getDateOfBirth());
         bCh1.setDemographicName(demo.getLastName() + "," + demo.getFirstName());
         bCh1.setSex(demo.getSex());
+        bCh1.setRefNum(request.getParameter("rdohip"));
         bCh1.setStatus("O");
         
         bCh1Dao.merge(bCh1);
