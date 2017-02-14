@@ -831,8 +831,22 @@ function checkForm(submissionVal,formName){
      return false;
   }
   $("saved").value = "true";
-  document.forms[formName].submission.value=submissionVal;
-  document.forms[formName].submit();
+  var form = document.forms[formName]
+  if (submissionVal == "Submit Print And Fax" || submissionVal == "Update Print And Fax"){
+      //in current window forward to fax page
+      form.submission.value=submissionVal;
+      form.submit();
+
+      //in new window open print pag
+      window.open('', 'form-target', 'width=960, height=700');
+      form.submission.value="And Print Preview";
+      form.target = 'form-target';
+      form.submit();
+  }
+  else{
+      form.submission.value=submissionVal;
+      form.submit();
+  }
   return true;
 }
 
@@ -1460,8 +1474,9 @@ function updateFaxButton() {
 			
 						<oscar:oscarPropertiesCheck value="yes" property="faxEnable">
 							<input id="fax_button" name="updateAndFax" type="button" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnUpdateAndFax"/>" onclick="return checkForm('Update And Fax','EctConsultationFormRequestForm');" />
+							<input id="update_print_fax_button" name="updatePrintAndFax" type="button" value="Update, Print, & Fax" onclick="return checkForm('Update Print And Fax','EctConsultationFormRequestForm');" />
 						</oscar:oscarPropertiesCheck>
-						
+
 					<% } else { %>
 					
 						<input name="submitSaveOnly" type="button" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnSubmit"/>" onclick="return checkForm('Submit Consultation Request','EctConsultationFormRequestForm'); " />
@@ -1475,6 +1490,7 @@ function updateFaxButton() {
 				
 						<oscar:oscarPropertiesCheck value="yes" property="faxEnable">
 							<input id="fax_button" name="submitAndFax" type="button" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnSubmitAndFax"/>" onclick="return checkForm('Submit And Fax','EctConsultationFormRequestForm');" />
+							<input id="submit_print_fax_button2" name="submitPrintAndFax" type="button" value="Submit, Print, & Fax" onclick="return checkForm('Submit Print And Fax','EctConsultationFormRequestForm');" />
 						</oscar:oscarPropertiesCheck>
 					<% }%>
 					
@@ -2209,6 +2225,7 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 
 						<oscar:oscarPropertiesCheck value="yes" property="faxEnable">
 							<input id="fax_button2" name="updateAndFax" type="button" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnUpdateAndFax"/>" onclick="return checkForm('Update And Fax','EctConsultationFormRequestForm');" />
+							<input id="update_print_fax_button2" name="updatePrintAndFax" type="button" value="Update, Print, & Fax" onclick="return checkForm('Update Print And Fax','EctConsultationFormRequestForm');" />
 						</oscar:oscarPropertiesCheck>
 					<%
 						}
@@ -2222,6 +2239,7 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 						</logic:equal>
 						<oscar:oscarPropertiesCheck value="yes" property="faxEnable">
 							<input id="fax_button2" name="submitAndFax" type="button" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnSubmitAndFax"/>" onclick="return checkForm('Submit And Fax','EctConsultationFormRequestForm');" />
+							<input id="submit_print_fax_button2" name="submitPrintAndFax" type="button" value="Submit, Print, & Fax" onclick="return checkForm('Submit Print And Fax','EctConsultationFormRequestForm');" />
 						</oscar:oscarPropertiesCheck>
 					<%
 						}%>
