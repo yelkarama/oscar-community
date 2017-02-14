@@ -941,7 +941,7 @@ function pasteAppt(multipleSameDayGroupAppt) {
 				    	for(LookupListItem reasonCode : reasonCodes.getItems()) {
 				    		if(reasonCode.isActive()) {
                     %>
-				    <option value="<%=reasonCode.getId()%>" <%=(apptReasonCode == null)?(reasonCode.getValue().equals("Others")?"selected":""):(apptReasonCode.equals(reasonCode.getId())  ? "selected":"")%>>
+				    <option value="<%=reasonCode.getId()%>" <%=(apptReasonCode == null)?(""):(apptReasonCode.equals(reasonCode.getId())  ? "selected":"")%>>
 				        <%=StringEscapeUtils.escapeHtml(reasonCode.getLabel())%>
 				    </option>
 				    <%
