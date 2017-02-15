@@ -86,8 +86,7 @@ function searchOutOfDomain() {
         <div class="label">
         </div>
 	<%
-        UserPropertyDAO userPropertyDAO = (UserPropertyDAO) SpringUtils.getBean("UserPropertyDAO");
-        UserProperty defaultSearchModeProp = userPropertyDAO.getProp((String)session.getAttribute("user"),"DEFAULT_SEARCH_MODE");
+        UserProperty defaultSearchModeProp = ((UserPropertyDAO) SpringUtils.getBean("UserPropertyDAO")).getProp((String)session.getAttribute("user"),"DEFAULT_SEARCH_MODE");
         String searchMode;
         if (defaultSearchModeProp != null) {
         	searchMode = (request.getParameter("search_mode")==null) ? defaultSearchModeProp.getValue() : request.getParameter("search_mode");
