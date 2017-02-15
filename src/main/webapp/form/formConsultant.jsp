@@ -217,7 +217,7 @@
                 </div>
                 <script type="text/javascript">
                 document.forms[0].t_name.value = "<%=props.getProperty("t_name","")%>";
-                document.forms[0].t_address.value = "<%=props.getProperty("t_address","")%>";
+                document.forms[0].t_address1.value = "<%=props.getProperty("t_address1","")%>";
                 document.forms[0].t_phone.value = "<%=props.getProperty("t_phone","")%>";
                 document.forms[0].t_fax.value = "<%=props.getProperty("t_fax","")%>";
                 </script>
