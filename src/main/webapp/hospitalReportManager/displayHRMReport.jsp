@@ -104,10 +104,6 @@ if(demographicLink != null){
 	vertical-align: top;
 }
 
-#hrmHeader {
-    display: none;
-}
-
 #hrmNotice {
 	border-bottom: 1px solid black;
 	padding-bottom: 15px;
