@@ -69,8 +69,12 @@ if(!authed) {
         String rh = dao.getRightHeadingID();
 		String rhid = dao.getRightHeadingID();
 		com.quatro.service.security.SecurityManager securityMgr = new com.quatro.service.security.SecurityManager();
-
-		if( !rh.equals("") && securityMgr.hasWriteAccess("_" + ((String)request.getAttribute("cmd")).toLowerCase(),roleName$)) {
+		if (rh.equals("blank")) {
+       	 	%> <div id='menuTitle<%=rh%>' style="width: 10%; float: right; text-align: center;">
+  				<h3 style="padding:0px; <%=getBackgroundColor(dao)%>">&nbsp;</h3>
+			</div> <%
+		}
+		else if( !rh.equals("") && securityMgr.hasWriteAccess("_" + ((String)request.getAttribute("cmd")).toLowerCase(),roleName$)) {
         %>
 <div id='menuTitle<%=rh%>'
 	style="width: 10%; float: right; text-align: center;">

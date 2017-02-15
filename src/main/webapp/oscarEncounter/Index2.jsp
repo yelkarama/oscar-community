@@ -753,7 +753,8 @@ document.onclick = hideAllMenus;
                   labs:         "<rewrite:reWrite jspPage="displayLabs.do?hC=A0509C"/>", <%/* 550066   */%>
                   msgs:         "<rewrite:reWrite jspPage="displayMessages.do?hC=DDDD00"/>", <% /* FF33CC */ %>
                   measurements: "<rewrite:reWrite jspPage="displayMeasurements.do?hC=344887"/>",
-                  consultation: "<rewrite:reWrite jspPage="displayConsultation.do"/>"
+                  consultation: "<rewrite:reWrite jspPage="displayConsultation.do"/>",
+                  progresssheet:"<rewrite:reWrite jspPage="displayProgressSheet.do"/>"
               };
 
     var params = new Array("cmd=forms", "cmd=eforms", "cmd=docs", "cmd=labs", "cmd=msgs", "cmd=measurements", "cmd=tickler",
@@ -982,7 +983,8 @@ function navBarLoader() {
                   labs:         "<c:out value="${ctx}"/>/oscarEncounter/displayLabs.do?hC=A0509C", <%/* 550066   */%>
                   msgs:         "<c:out value="${ctx}"/>/oscarEncounter/displayMessages.do?hC=DDDD00", <% /* FF33CC */ %>
                   measurements: "<c:out value="${ctx}"/>/oscarEncounter/displayMeasurements.do?hC=344887",
-                  consultation: "<c:out value="${ctx}"/>/oscarEncounter/displayConsultation.do?hC="
+                  consultation: "<c:out value="${ctx}"/>/oscarEncounter/displayConsultation.do?hC=",
+                  progresssheet:"<c:out value="${ctx}"/>/oscarEncounter/displayProgressSheet.do?hC=003468"
               };
 
           var URLs = new Array();
