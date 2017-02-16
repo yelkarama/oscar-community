@@ -65,9 +65,9 @@
 <script type="text/javascript" src="<c:out value="../share/javascript/prototype.js"/>"></script>
 
 <%
-RxSessionBean bean = (RxSessionBean)pageContext.findAttribute("bean");
+RxSessionBean rxBean = (RxSessionBean)pageContext.findAttribute("bean");
 RxDrugData.DrugSearch drugSearch = (RxDrugData.DrugSearch) request.getAttribute("drugSearch");//set from searchdrugaction
-String demoNo = (String) request.getAttribute("demoNo");//set from searchdrugaction
+String demoNo = String.valueOf(rxBean.getDemographicNo());
 ArrayList brand = drugSearch.getBrand();
 ArrayList gen = drugSearch.getGen();
 ArrayList afhcClass = drugSearch.getAfhcClass();
@@ -155,7 +155,7 @@ for (int j=0; j<selRoute.length; j++) {
         var ele = $(textId);
         var url = "TreatmentMyD.jsp"
         var ran_number=Math.round(Math.random()*1000000);
-        var params = "demographicNo=<%=bean.getDemographicNo()%>&cond="+ele.value+"&rand="+ran_number;  //hack to get around ie caching the page
+        var params = "demographicNo=<%=rxBean.getDemographicNo()%>&cond="+ele.value+"&rand="+ran_number;  //hack to get around ie caching the page
         new Ajax.Updater(id,url, {method:'get',parameters:params,asynchronous:true});
         $('treatmentsMyD').toggle();
     }
@@ -284,8 +284,18 @@ for (int j=0; j<selRoute.length; j++) {
                                                 searchKey = t.name;
                                             }
                                         %>
-                                      <a href="searchDrug.do?genericSearch=<%= response.encodeURL( searchKey ) %>&demographicNo=<%= response.encodeURL(demoNo) %>" title="<%=t.name%>">
-                                      <%= getMaxVal(t.name)%>  
+                                        <%
+                                            if(t.getType()!=null && (t.getType()).equals("13") || t.getType().equals("18") || gen.size()==1){
+                                        %>
+                                        <a href="javascript: void(0);" onclick="setDrugRx2('<%=t.pKey%>','<%= t.name %>')" >
+                                            <%= t.name%>
+                                        </a>
+                                        <% }else{
+                                            String searchName = t.name.replaceAll("[\\.]*[0-9]*%","");%>
+                                        <a href="searchDrug.do?genericSearch=<%= response.encodeURL(searchName) %>&demographicNo=<%= response.encodeURL(demoNo) %>">
+                                            <%= t.name%>
+                                        </a>
+                                        <% } %>
                                       </a>
                                       <span>&nbsp;&nbsp;(<a href="javascript:ShowDrugInfoGN('<%= response.encodeURL(t.name)%>');"><bean:message key="ChooseDrug.msgInfo"/></a>)</span>
                                     </td>
@@ -355,7 +365,7 @@ for (int j=0; j<selRoute.length; j++) {
                     <td>
                         <div class="ChooseDrugBox">
                                 <table width="100%" border=0>
-                                  <%
+                                    <%
                                     boolean grey2 = false;
                                     String bgColor="WHITE";                                    
                                     for(i=0; i<afhcClass.size(); i++){
@@ -364,7 +374,8 @@ for (int j=0; j<selRoute.length; j++) {
                                   %>
                                   <tr>
                                     <td bgcolor="<%=bgColor%>">
-                                      <a href="searchDrug.do?genericSearch=<%= response.encodeURL(t.pKey) %>&demographicNo=<%= response.encodeURL(demoNo) %>">
+
+                                        <a href="searchDrug.do?genericSearch=<%= response.encodeURL(t.pKey) %>&demographicNo=<%= response.encodeURL(demoNo) %>">
                                       <%= t.name%> 
                                       </a>
                                       <span>&nbsp;&nbsp;(<a href="javascript:ShowDrugInfo('<%= response.encodeURL(t.pKey)  %>');"><bean:message key="ChooseDrug.msgInfo"/></a>)</span>
