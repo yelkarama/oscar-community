@@ -54,10 +54,57 @@
 <html:html locale="true">
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
-<style type="text/css" media="print">
-    .DoNotPrint {
-        display: none;
-    }
+<script type="text/javascript">
+	function printApptCard(){
+	    document.getElementById("PrintAppointmentLabel").style.zoom = "1.1";
+	    window.print();
+	}
+</script>
+
+<style type="text/css">
+.appointmentLabelContainer {
+	border: 1px solid black;
+	background-color: #FFFFFF;
+}
+
+#PrintAppointmentLabel {
+	display: none;
+}
+
+@media print {
+	 .DoNotPrint {
+		 display: none;
+	 }
+
+	 @page {
+		 size: auto;
+		 margin: 0mm 0mm 0mm 0mm;
+	 }
+
+     body{
+         margin: 3mm 3mm 3mm 3mm;
+     }
+
+	 #appointmentLabel {
+		 display: none;
+	 }
+
+     #PrintAppointmentLabel{
+		 display: block;
+		 text-align: center;
+		 margin-left: auto;
+		 margin-right: auto;
+     }
+
+     .appointmentLabelContainer{
+         border: 0px;
+     }
+
+     .info{
+		font-family: Arial, Sans-Serif;
+		font-size: 8pt;
+     }
+ }
 </style>
 </head>
 <body>
@@ -162,18 +209,18 @@
 
     </div>
 <form>
-    <table border="1" bgcolor="white" >
+    <table class="appointmentLabelContainer">
         <tr><td>
  
-        <table style="font-size: 8pt;"  align="left" valign="top">
+        <table style="font-size: 8pt;"  align="left" valign="top" id="appointmentLabel">
 
-            <tr style="font-family: arial, sans-serif; font-size: 6pt;" >
+            <tr style="font-family: arial, sans-serif; font-size: 8pt;" >
                 <th colspan="3"><%=patientname%></th>
             </tr>
              <tr style="font-family: arial, sans-serif; font-size: 8pt;" >
-		<th style="padding-right: 10px"><bean:message key="Appointment.formDate" /></th>
+		<th width="60" style="padding-right: 10px"><bean:message key="Appointment.formDate" /></th>
  		<th width="60" style="padding-right: 10px"><bean:message key="Appointment.formStartTime" /></th>
-		<th width="120" style="padding-right: 10px"><bean:message key="appointment.addappointment.msgProvider" /></th>
+		<th width="100" style="padding-right: 10px"><bean:message key="appointment.addappointment.msgProvider" /></th>
 
             </tr>
         <%
@@ -206,13 +253,12 @@
                 iRow ++;
                 if (iRow > iPageSize) break;
                 appt_time = MyDateFormat.getTimeXX_XXampm(ConversionUtils.toTimeStringNoSeconds(ap.getStartTime()));
-                pname = "" + p.getFirstName();
-                pname = ""+ p.getLastName()+ ", "+ pname.substring(0,1);
+                pname = "Dr. "+  p.getLastName() + ", " + p.getFirstName();
     %>
             <tr bgcolor="#eeeeff">
 		<td style="padding-right: 10px"><%=ConversionUtils.toDateString(ap.getAppointmentDate())%></td>
 		<td style="padding-right: 10px"><%=appt_time%></td>
-		<td style="padding-right: 10px"><%=pname%></td>
+		<td class="DoNotPrint" style="padding-right: 10px"><%=pname%></td>
             </tr>
 	<%
             }
@@ -220,13 +266,25 @@
     %>
     
             <tr class="DoNotPrint">
-		<td style="padding-left: 10px"><input type="button" value="<bean:message key="global.btnPrint"/>" onClick="window.print();"></td>
+		<td style="padding-left: 10px"><input type="button" value="<bean:message key="global.btnPrint"/>" onClick="printApptCard();"></td>
                 <td>&nbsp;</td>
 		<td>&nbsp;</td>
             </tr>
        </table>
+        <table id="PrintAppointmentLabel">
+            <tr class="info">
+                <td><span style="font-weight: bold;"><%=patientname%></span></td>
+            </tr>
+            <tr class="info">
+                <td><span style="font-weight: bold;">Date:&nbsp;</span><%=appt_date%><span style="font-weight: bold;">,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Time:&nbsp;</span><%=appt_time%></td>
+            </tr>
+            <tr class="info" colspan="2">
+                <td><span style="font-weight: bold;">Provider:&nbsp;</span><%=pname%></td>
+            </tr>
+        </table>
        </td></tr>
 </table>
+
 <%
 		int demoNo1 = 0;
 		if (request.getParameter("demographic_no") != null && !(request.getParameter("demographic_no").equals(""))) {
