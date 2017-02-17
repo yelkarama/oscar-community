@@ -2124,7 +2124,6 @@ private String updateApptStatus(String status, String type) {
 		
 		if (appointment != null) {
 			appointmentArchiveDao.archiveAppointment(appointment);
-			appointment.setLastUpdateUser(note.getProviderNo());
 			appointmentDao.merge(appointment);
 		}
 		
