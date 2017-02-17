@@ -1764,9 +1764,9 @@ function changeSite(sel) {
 
 											</td>
 											<td
-												<%=serviceDesc.length()>50?"title=\""+serviceDesc+"\"":""%>
+												title="<%=serviceDesc%>"
 												<%=displayStyle.equals("")? "class=\"smallFont\"": "style=\"" + displayStyle + "\""%>>
-												<div><%=serviceDesc.length() > 50 ? serviceDesc.substring(0, 50) + "..." : serviceDesc%>
+												<div><%=serviceDesc%>
 													<!--<input type="hidden" name="desc_xml_<%=serviceCode%>" value="<%=serviceDesc%>" />-->
 												</div>
 											</td>
@@ -1837,11 +1837,10 @@ function changeSite(sel) {
 												onDblClick="onDblClickServiceCode(this)"><%=serviceCode%></span>
 
 											</td>
-											<td
-												<%=serviceDesc.length()>30?"title=\""+serviceDesc+"\"":""%>
+											<td title="<%=serviceDesc%>"
 												<%=displayStyle.equals("")? "class=\"smallFont\"": "style=\"" + displayStyle + "\""%>>
 												<div>
-													<%=serviceDesc.length() > 30 ? serviceDesc.substring(0, 30) + "..." : serviceDesc%>
+													<%=serviceDesc%>
 												</div> <!--<input type="hidden" name="desc_xml_<%=serviceCode%>" value="<%=serviceDesc%>" />-->
 											</td>
 											<td align="right">
@@ -1909,11 +1908,10 @@ function changeSite(sel) {
 												<span id="sc<%=(""+i).substring(0,1)+serviceCode%>"
 												onDblClick="onDblClickServiceCode(this)"><%=serviceCode%></span>
 											</td>
-											<td
-												<%=serviceDesc.length()>30?"title=\""+serviceDesc+"\"":""%>
+											<td title="<%=serviceDesc%>"
 												<%=displayStyle.equals("")? "class=\"smallFont\"": "style=\"" + displayStyle + "\""%>>
 												<div>
-													<%=serviceDesc.length() > 30 ? serviceDesc.substring(0, 30) + "..." : serviceDesc%>
+													<%=serviceDesc%>
 													<!--<input type="hidden" name="desc_xml_<%=serviceCode%>" value="<%=serviceDesc%>" />-->
 												</div>
 											</td>
