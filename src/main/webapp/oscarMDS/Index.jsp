@@ -190,6 +190,7 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
 		var scroller;
 		if (isListView) {
 			scroller = document.getElementById("summaryView");
+            jQuery("#summaryView").trigger("updateRows");
 		}
 		else {
 			scroller = document.getElementById("docViews");
@@ -218,7 +219,7 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
 			div = document.getElementById("docViews");
 		}
 		else {
-			div = document.getElementById("summaryView");
+			div = document.getElementById("summaryBody");
 		}	
 		jQuery("#readerSwitcher").prop("disabled",true);
 		jQuery("#listSwitcher").prop("disabled",true);
@@ -241,6 +242,15 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
 			}
 			if (transport.responseText.indexOf("<input type=\"hidden\" name=\"NoMoreItems\" value=\"true\" />") >= 0) {
 				canLoad = false;
+                var div = document.getElementById("summaryBody");
+                var newDiv = "<tbody id=\"newBody\"></tbody>";
+                div.insertAdjacentHTML("beforeBegin", newDiv);
+                newDiv = document.getElementById("newBody");
+                newDiv.innerHTML = div.innerHTML;
+                div.innerHTML = "";
+                newDiv.id = "summaryBody";
+                div.id = "";
+                jQuery("#summaryView").trigger("updateRows");
 			}
 			else {
 				// It is possible that the current amount of loaded items has not filled up the page enough
@@ -249,7 +259,8 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
 			}
 			
 			jQuery("#readerSwitcher").prop("disabled",false);
-			jQuery("#listSwitcher").prop("disabled",false);
+            
+			jQuery("#listSwitcher").prop("disabled",fjqueryalse);
 		}});
 	}
 
