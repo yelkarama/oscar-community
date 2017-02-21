@@ -61,6 +61,7 @@ import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 import org.springframework.beans.BeanUtils;
+import oscar.util.ParameterActionForward;
 
 import oscar.OscarProperties;
 
@@ -522,7 +523,12 @@ public class ContactAction extends DispatchAction {
 			contact.setId(null);
 			contactDao.persist(contact);
 		}
-	   return mapping.findForward("cForm");
+		ParameterActionForward paf = new ParameterActionForward(mapping.findForward("cForm"));
+		paf.addParameter("form", "contactForm");
+		paf.addParameter("elementName", "" + contact.getFormattedName());
+		paf.addParameter("elementId", "" + contact.getId());
+		
+	   return paf;
 	}
 
 	public ActionForward saveProContact(ActionMapping mapping, ActionForm form, 
