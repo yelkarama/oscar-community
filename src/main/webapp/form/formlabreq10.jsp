@@ -533,7 +533,7 @@ if (OscarProperties.getInstance().getBooleanProperty("consultation_program_lette
 						value="<%=props.getProperty("provName", "")%>" /> <input
 						type="hidden" style="width: 100%" name="reqProvName"
 						value="<%=props.getProperty("reqProvName", "")%>" /><span id="reqProvName"><%=props.getProperty("reqProvName", "")%>&nbsp;</span><br>
-
+						<span id="MRP"><%=props.getProperty("provName", "")%>&nbsp;</span><br>			
 					<input type="hidden" style="width: 100%" name="clinicName" value="<%=props.getProperty("clinicName","")%>" /><span id="clinicName"><%=props.getProperty("clinicName","")%></span><br>
 					<input type="hidden" style="width: 100%" name="clinicAddress" value="<%=props.getProperty("clinicAddress", "")%>" /> <span id="clinicAddress"><%=props.getProperty("clinicAddress", "")%></span><br>
 					<input type="hidden" style="width: 100%" name="clinicCity" value="<%=props.getProperty("clinicCity", "")%>" /><span id="clinicCity"> <%=props.getProperty("clinicCity", "")%>,<%=props.getProperty("clinicProvince","") %></span><br>
