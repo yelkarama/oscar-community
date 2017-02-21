@@ -464,14 +464,33 @@ text-align:left;
 	</tr>
 	<tr>
 		<td class="MainTableLeftColumn" valign="top">
-
-
+<% 
+	String headingTitle;
+	if (prevList.size() > 0) {
+		headingTitle = (prevList.get(0).get("headingName") != null) ? prevList.get(0).get("headingName") : "Preventions";
+	} else {
+		headingTitle = "Preventions";
+	}
+%>
 		<div class="leftBox">
-		<h3>&nbsp;Preventions</h3>
+			<h3>&nbsp;<%=headingTitle%></h3>
+			<div style="background-color: #EEEEFF;">
+			<ul>
+<% 
+	for (HashMap<String,String> h : prevList) {
+		if (!headingTitle.equals(h.get("headingName")) && h.get("headingName") != null) {
+			headingTitle = h.get("headingName");
+%>
+		</ul>
+		</div>
+		</div>
+		<div class="leftBox">
+		<h3>&nbsp;<%=headingTitle%></h3>
 		<div style="background-color: #EEEEFF;">
 		<ul>
-			<%for (int i = 0 ; i < prevList.size(); i++){
-				HashMap<String,String> h = prevList.get(i);
+<%
+		}
+		
                 String prevName = h.get("name");
                            
 	            if(!preventionManager.hideItem(prevName)){%>
