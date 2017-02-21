@@ -920,7 +920,7 @@ function importFromEnct(reqInfo,txtArea)
  					}
  					else
  					{
- 						oscar.oscarDemographic.data.EctInformation EctInfo = new oscar.oscarDemographic.data.EctInformation(demo);
+ 						oscar.oscarDemographic.data.EctInformation EctInfo = new oscar.oscarDemographic.data.EctInformation(LoggedInInfo.getLoggedInInfoFromSession(request),demo);
  						value = EctInfo.getSocialHistory();
  					}
  					if (pasteFmt == null || pasteFmt.equalsIgnoreCase("single"))
