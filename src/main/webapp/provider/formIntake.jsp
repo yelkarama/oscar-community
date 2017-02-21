@@ -296,6 +296,19 @@ if (selfSubmit) {
 		m.setType("DRPW");
 		dao.persist(m);
 	}
+	
+	if (request.getParameter("street_drugs_value")!=null) {
+		Measurement m = new Measurement();
+		m.setDemographicId(Integer.parseInt(demographic_no));
+		m.setProviderNo(curUser_no);
+		m.setAppointmentNo(0);
+		m.setDataField(request.getParameter("street_drugs_value"));
+		m.setMeasuringInstruction("StreetDrugs");
+		m.setComments((request.getParameter("street_drugs_comment") != null) ? request.getParameter("street_drugs_comment") : "");
+		m.setDateObserved(new java.util.Date());
+		m.setType("StreetDrugs");
+		dao.persist(m);
+	}
 
 	if (request.getParameter("smoking_value")!=null) {
 		Measurement m = new Measurement();
@@ -701,6 +714,17 @@ String msmtValueDRINKS = (!msmtResult.isEmpty() && msmtResult.get(0).get("dataFi
 String msmtDateDRINKS = (!msmtResult.isEmpty() && msmtResult.get(0).get("dateObserved")!=null) ? msmtResult.get(0).get("dateObserved").toString().split(" ")[0] : "";
 String msmtCommentDRINKS = (!msmtResult.isEmpty() && msmtResult.get(0).get("comments")!=null) ? msmtResult.get(0).get("comments").toString() : "";
 
+String msmtValueStreetDrugs = "";
+String msmtDateStreetDrugs = "";
+String msmtCommentStreetDrugs = "";
+if (oscarProperties.getBooleanProperty("intake_street_drugs", "true")) {
+	msmtParam[0] = "StreetDrugs";
+	msmtResultEx = oscarSuperManager.find("providerDao", msmtQuery, msmtParam);
+	msmtValueStreetDrugs = (!msmtResultEx.isEmpty() && msmtResultEx.get(0).get("dataField")!=null) ? msmtResultEx.get(0).get("dataField").toString() : "";
+	msmtDateStreetDrugs = (!msmtResultEx.isEmpty() && msmtResultEx.get(0).get("dateObserved")!=null) ? msmtResultEx.get(0).get("dateObserved").toString().split(" ")[0] : "";
+	msmtCommentStreetDrugs = (!msmtResultEx.isEmpty() && msmtResultEx.get(0).get("comments")!=null) ? msmtResultEx.get(0).get("comments").toString() : "";
+}
+
 msmtParam[0] = "SMK";
 msmtResult = oscarSuperManager.find("providerDao", msmtQuery, msmtParam);
 String msmtValueSMK = (!msmtResult.isEmpty() && msmtResult.get(0).get("dataField")!=null) ? msmtResult.get(0).get("dataField").toString() : "";
@@ -1086,6 +1110,16 @@ function calcPYHX() {
 	<td><%=msmtDateDRINKS%></td>
 	<td><p><%=msmtCommentDRINKS%></p></td>
 </tr>
+<% if (oscarProperties.getBooleanProperty("intake_street_drugs", "true")) { %>
+<tr>
+	<td class="rowheader2">Street Drugs:</td>
+	<td colspan="3"><input type="radio" name="street_drugs_value" value="Yes">Yes</input><input type="radio" name="street_drugs_value" value="No">No</input></td>
+	<td><input type="text" name="street_drugs_comment" /></td>
+	<td><%=msmtValueStreetDrugs%></td>
+	<td><%=msmtDateStreetDrugs%></td>
+	<td><p><%=msmtCommentStreetDrugs%></p></td>
+</tr>
+<% } %>
 <tr>
 	<td class="rowheader2">Smoking:</td>
 	<td><input type="radio" name="smoking_value" value="Current">Current</input></td>
