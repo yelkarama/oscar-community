@@ -362,7 +362,7 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
                         <sup>*</sup><a HREF="#" ONCLICK="gonew('all')">Hospital Appointment</a><br>
 </oscar:oscarPropertiesCheck>
                         <sup>*</sup><a HREF="#" ONCLICK="go('all')"><bean:message
-			key="report.reportindex.btnAllAppt" /></a><br>nbsp;&nbsp; <bean:message key="report.reportindex.chkRostered"/> <input type="checkbox" id="rosteredOnly" value="true"> </td>
+			key="report.reportindex.btnAllAppt" /></a><br>&nbsp;&nbsp; <bean:message key="report.reportindex.chkRostered"/> <input type="checkbox" id="rosteredOnly" value="true"> </td>
 		<td><a HREF="#"
 			onClick="popupPage(310,430,'../share/CalendarPopup.jsp?urlfrom=../report/reportindex.jsp&year=<%=now.get(Calendar.YEAR)%>&month=<%=now.get(Calendar.MONTH)+1%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('asdate')[0].value")%>')"><bean:message
 			key="report.reportindex.formFrom" /></a> <input type='text' name="asdate"

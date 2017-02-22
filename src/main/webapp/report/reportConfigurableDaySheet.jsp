@@ -57,7 +57,19 @@ if(!authed) {
 <title><bean:message key="report.reportdaysheet.title" /></title>
 <link rel="stylesheet" href="../web.css">
 <link rel="stylesheet" href="<%= request.getContextPath() %>/share/lightwindow/css/lightwindow.css" type="text/css" media="screen">
-<style> td {font-size: 16px;}</style>
+<style>
+td {font-size: 16px;}
+
+@media print{    
+    .no-print, .no-print *{
+        display: none !important;
+    }
+	#lightwindow_overlay{
+		display:none;
+	}
+}
+
+</style>
 <script>
 	function viewDemographic(demo_no){
 	myLightWindow.activateWindow({
@@ -76,8 +88,8 @@ if(!authed) {
 		<th width="10%" nowrap><bean:write name="createtime" /> <input type="button"
 			name="Button"
 			value="<bean:message key="report.reportdaysheet.btnPrint"/>"
-			onClick="window.print()"><input type="button" name="Button"
-			value="<bean:message key="global.btnExit"/>" onClick="window.close()">
+			onClick="window.print()" class="no-print" /><input type="button" name="Button"
+			value="<bean:message key="global.btnExit"/>" onClick="window.close()" class="no-print" />
 		</th>
 	</tr>
 </table>

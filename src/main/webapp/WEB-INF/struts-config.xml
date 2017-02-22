@@ -1147,7 +1147,7 @@
 		<action path="/oscarEncounter/displayResolvedIssues" scope="request" type="org.springframework.web.struts.DelegatingActionProxy"></action>
 		<action path="/oscarEncounter/displayDecisionSupportAlerts" scope="request" type="oscar.oscarEncounter.pageUtil.EctDisplayDecisionSupportAlertsAction"></action>
 		<action path="/report/displayDaysheet" type="oscar.oscarReport.pageUtil.RptShowDaySheetAction">
-			<forward name="success" path="/report/reportdaysheet3.jsp" />
+			<forward name="success" path="/report/reportConfigurableDaySheet.jsp" />
 		</action>
 		<action path="/report/printLabDaySheetAction" type="oscar.oscarReport.pageUtil.printLabDaySheetAction"></action>
 		<action path="/oscarEncounter/displayDiagrams" scope="request" type="oscar.oscarEncounter.pageUtil.EctDisplayDiagramAction"></action>
