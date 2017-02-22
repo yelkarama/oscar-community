@@ -68,7 +68,7 @@ if(!authed) {
 
 
 	String [][] dbQueries=new String[][] { 
-		{"search_noshowappt", "select a.appointment_no, a.appointment_date,a.name, a.provider_no, a.start_time, a.end_time, d.last_name, d.first_name from appointment a, demographic d where (a.status = 'N' or a.status = 'NS') and a.provider_no = ? and a.appointment_date >= ? and a.appointment_date<= ? and a.demographic_no=d.demographic_no  order by "+orderby }, 
+		{"search_noshowappt", "select a.appointment_no, a.appointment_date,a.name, a.provider_no, a.start_time, a.end_time, d.last_name, d.first_name, d.demographic_no from appointment a, demographic d where (a.status = 'N' or a.status = 'NS') and a.provider_no = ? and a.appointment_date >= ? and a.appointment_date<= ? and a.demographic_no=d.demographic_no  order by "+orderby }, 
 	};
   
 	String[][] responseTargets=new String[][] {  };
@@ -208,7 +208,7 @@ if(!authed) {
 %>
 	<tr bgcolor="<%=bodd?weakcolor:"white"%>">
 		<td align="center"><a href=#
-			onClick="popupPage(300,700,'../appointment/appointmentcontrol.jsp?displaymode=edit&dboperation=search&appointment_no=<%=rsdemo.getString("appointment_no")%>&provider_no=<%=curProvider_no%>&year=<%=MyDateFormat.getYearFromStandardDate(rsdemo.getString("appointment_date"))%>&month=<%=MyDateFormat.getMonthFromStandardDate(rsdemo.getString("appointment_date"))%>&day=<%=MyDateFormat.getDayFromStandardDate(rsdemo.getString("appointment_date"))%>&start_time=<%=rsdemo.getString("start_time")%>&demographic_no=');return false;">
+			onClick="popupPage(300,700,'../appointment/appointmentcontrol.jsp?displaymode=edit&dboperation=search&appointment_no=<%=rsdemo.getString("appointment_no")%>&provider_no=<%=curProvider_no%>&year=<%=MyDateFormat.getYearFromStandardDate(rsdemo.getString("appointment_date"))%>&month=<%=MyDateFormat.getMonthFromStandardDate(rsdemo.getString("appointment_date"))%>&day=<%=MyDateFormat.getDayFromStandardDate(rsdemo.getString("appointment_date"))%>&start_time=<%=rsdemo.getString("start_time")%>&demographic_no=<%=rsdemo.getString("demographic_no")%>');return false;">
 		<%=rsdemo.getString("appointment_date")%></a></td>
 		<td align="center"><%=rsdemo.getString("start_time")%></td>
 		<td align="center"><%=rsdemo.getString("end_time")%></td>
