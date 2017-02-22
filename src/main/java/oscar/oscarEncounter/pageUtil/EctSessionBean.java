@@ -81,6 +81,7 @@ public class EctSessionBean implements java.io.Serializable {
     public String postal;
     public String phone;
     public String roster;
+    public String quickList;
     public String team = null;
     public String consultationRequestId = null;
     public String currentTeam = null;

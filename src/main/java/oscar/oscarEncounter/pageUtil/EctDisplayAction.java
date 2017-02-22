@@ -47,6 +47,7 @@ import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
+import oscar.oscarResearch.oscarDxResearch.bean.dxQuickListBean;
 import oscar.util.UtilDateUtilities;
 
 
@@ -152,7 +153,8 @@ public class EctDisplayAction extends Action {
 			if (request.getParameter("source") != null) {
 				bean.source = request.getParameter("source");
 			}
-
+            dxQuickListBean d = new dxQuickListBean();
+            bean.quickList = d.getQuickListName();
 			request.setAttribute("EctSessionBean", bean);
 		}
 
@@ -285,8 +287,8 @@ public class EctDisplayAction extends Action {
 	 * 		Title to be displayed for the item
 	 * @param color
 	 * 		Color of the link to be displayed in the item (e.g. "red", or "green")
-	 * @param link
-	 * 		Targer URL to be opened with link is clicked
+	 * @param url
+	 * 		Target URL to be opened with link is clicked
 	 * @return
 	 * 		Returns the new item.
 	 */
