@@ -616,14 +616,13 @@ public class DSDemographicAccess {
 
             if(options.containsKey("inDays")){
                 int inDays = getAsInt(options,"inDays");
-
+                JdbcBillingReviewImpl dbObj = new JdbcBillingReviewImpl();
+                Date today = new Date();
+                Calendar calendarYear = Calendar.getInstance();
+                calendarYear.set(Calendar.DAY_OF_YEAR, 1); //Jan 1st of current year
+                Date firstDayOfYear = calendarYear.getTime();
+                List<Object> billingHistory = dbObj.getBillingHist(demographicNo, 1000000, 0, new DateRange(firstDayOfYear, today));
                 for (String code: codes){
-                    JdbcBillingReviewImpl dbObj = new JdbcBillingReviewImpl();
-                    Date today = new Date();
-                    Calendar calendarYear = Calendar.getInstance();
-                    calendarYear.set(Calendar.DAY_OF_YEAR, 1); //Jan 1st of current year
-                    Date firstDayOfYear = calendarYear.getTime();
-                    List<Object> billingHistory = dbObj.getBillingHist(demographicNo, 1000000, 0, new DateRange(firstDayOfYear, today));
                     for(int i=0; i<billingHistory.size(); i=i+2) {
                         BillingItemData itemData = (BillingItemData) billingHistory.get(i + 1);
                         String strServiceCode = itemData.getService_code();
