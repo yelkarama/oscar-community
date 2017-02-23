@@ -73,7 +73,6 @@ TABLE {
 
 .pharmacyItem:hover{
 	background: #DCDCDC;
-	font-weight: bold;
 	cursor: pointer; 
 }
 
