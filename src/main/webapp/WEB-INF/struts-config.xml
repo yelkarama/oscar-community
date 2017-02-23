@@ -2900,6 +2900,10 @@
 			<forward name="failure" path="/billing/CA/ON/billingLreport.jsp" />
 		</action> 			
 		<action input="/billing/CA/ON/billingON3rdInv.jsp" name="FrmForm" path="/billing/ca/on/DisplayInvoiceLogo" scope="request" type="org.oscarehr.billing.CA.ON.util.DisplayInvoiceLogo"></action>
+		
+		<action path="/indivicare/asthmaLife" type="com.indivica.asthmalife.DemographicPayloadAction" scope="request" validate="false" parameter="method">
+    		<forward name="proxy" path='/indivicare/asthmaLife/indivicareAsthmaLifeProxy.jsp' />
+		</action>
 
 	</action-mappings>
 	<controller processorClass="org.apache.struts.tiles.TilesRequestProcessor" maxFileSize="100M" />
