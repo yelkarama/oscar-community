@@ -323,11 +323,9 @@ function printIframe(){
 			}
 			else
 			{
-			    preview.document.body.style.zoom = "1.4";
 				preview.focus();
 				preview.print();
-                preview.document.body.style.zoom = "";
-                self.parent.close();
+				self.parent.close();
 			}
 	}
 
