@@ -51,7 +51,7 @@ public class LabTag extends TagSupport {
 		HRMDocumentToProviderDao hrmDao = SpringUtils.getBean(HRMDocumentToProviderDao.class);
 
 		numNewLabs = dao.findByProviderNo(providerNo, "N").size();
-		numNewLabs = hrmDao.getCountByProviderNo(providerNo).size() + numNewLabs;
+		numNewLabs = hrmDao.getCountByProviderNo(providerNo) + numNewLabs;
 		try {
 			JspWriter out = super.pageContext.getOut();
 			if (numNewLabs > 0) {
