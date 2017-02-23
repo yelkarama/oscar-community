@@ -153,6 +153,22 @@ if(!authed) {
 		UserProperty fmtProperty = userPropertyDAO.getProp(providerNo, UserProperty.CONSULTATION_REQ_PASTE_FMT);
 		String pasteFmt = fmtProperty != null?fmtProperty.getValue():null;
 
+		if(userPropertyDAO.getProp(providerNo,"rxAddress")!=null && userPropertyDAO.getProp(providerNo,"rxAddress").getValue().length()>0){
+		    //default letterhead address to rxAddress if it is set it in preferences
+			consultUtil.letterheadAddress =(userPropertyDAO.getProp(providerNo,"rxAddress").getValue()  + " " + userPropertyDAO.getProp(providerNo, "rxCity").getValue()  + " " + userPropertyDAO.getProp(providerNo, "rxProvince").getValue() + " " +userPropertyDAO.getProp(providerNo, "rxPostal").getValue());
+		}
+
+		if(userPropertyDAO.getProp(providerNo,"rxPhone")!=null && userPropertyDAO.getProp(providerNo,"rxPhone").getValue().length()>0){
+			//default letterhead phone to rxPhone if it is set it in preferences
+			consultUtil.letterheadPhone = userPropertyDAO.getProp(providerNo,"rxPhone").getValue();
+		}
+
+		if(userPropertyDAO.getProp(providerNo,"rxFax")!=null  && userPropertyDAO.getProp(providerNo,"rxFax").getValue().length()>0){
+			//default letterhead fax to rxFax if it is set it in preferences
+			consultUtil.letterheadFax = userPropertyDAO.getProp(providerNo,"rxFax").getValue();
+
+		}
+
 		if (demo != null)
 		{
 			demoData = new oscar.oscarDemographic.data.DemographicData();
@@ -1223,7 +1239,7 @@ function updateFaxButton() {
 <%=WebUtilsOld.popErrorMessagesAsAlert(session)%>
 <link rel="stylesheet" type="text/css" href="../encounterStyles.css">
 <body topmargin="0" leftmargin="0" vlink="#0000FF" 
-	onload="window.focus();disableDateFields();fetchAttached();disableEditing();showSignatureImage();">
+	onload="window.focus();disableDateFields();fetchAttached();disableEditing();showSignatureImage();switchProvider(document.getElementById('letterheadName').value)">
 <html:errors />
 <html:form action="/oscarEncounter/RequestConsultation"
 	onsubmit="alert('HTHT'); return false;">
