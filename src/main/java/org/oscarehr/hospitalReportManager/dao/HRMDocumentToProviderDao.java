@@ -124,4 +124,13 @@ public class HRMDocumentToProviderDao extends AbstractDao<HRMDocumentToProvider>
 		List<HRMDocumentToProvider> documentToProviders = query.getResultList();
 		return documentToProviders;
 	}
+
+	public List<HRMDocumentToProvider> getCountByProviderNo(String providerNo){
+		String sql = "select x from " + this.modelClass.getName() + " x where x.providerNo=? and x.signedOff=0";
+		Query query = entityManager.createQuery(sql);
+		query.setParameter(1, providerNo);
+		@SuppressWarnings("unchecked")
+		List<HRMDocumentToProvider> documentToProviders = query.getResultList();
+		return documentToProviders;
+	}
 }

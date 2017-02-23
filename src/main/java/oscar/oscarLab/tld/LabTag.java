@@ -29,6 +29,7 @@ import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.TagSupport;
 
 import org.oscarehr.common.dao.ProviderLabRoutingDao;
+import org.oscarehr.hospitalReportManager.dao.HRMDocumentToProviderDao;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
@@ -47,8 +48,10 @@ public class LabTag extends TagSupport {
 
 	public int doStartTag() throws JspException {
 		ProviderLabRoutingDao dao = SpringUtils.getBean(ProviderLabRoutingDao.class);
+		HRMDocumentToProviderDao hrmDao = SpringUtils.getBean(HRMDocumentToProviderDao.class);
 
 		numNewLabs = dao.findByProviderNo(providerNo, "N").size();
+		numNewLabs = hrmDao.getCountByProviderNo(providerNo).size() + numNewLabs;
 		try {
 			JspWriter out = super.pageContext.getOut();
 			if (numNewLabs > 0) {
