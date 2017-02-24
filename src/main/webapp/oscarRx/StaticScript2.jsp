@@ -91,6 +91,9 @@ oscar.oscarRx.pageUtil.RxSessionBean rxBean = null;
 	if( rxBean == null ) {
 		rxBean=(oscar.oscarRx.pageUtil.RxSessionBean)pageContext.findAttribute("bean");
 	}
+	if (rxBean.getDemographicNo() != Integer.parseInt(request.getParameter("demographicNo"))) {
+		rxBean.setDemographicNo(Integer.parseInt(request.getParameter("demographicNo")));
+	}
 	com.quatro.service.security.SecurityManager securityManager = new com.quatro.service.security.SecurityManager();
 %>
 
