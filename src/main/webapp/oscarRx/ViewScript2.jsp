@@ -327,7 +327,7 @@ function printIframe(){
 				preview.focus();
 				preview.print();
                 preview.document.body.style.zoom = "";
-				self.close();
+                self.parent.close();
 			}
 	}
 
