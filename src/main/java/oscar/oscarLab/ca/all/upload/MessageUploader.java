@@ -394,15 +394,21 @@ public final class MessageUploader {
 				if (providerNumber != null && !providerNumber.trim().equals("")) {
 					//Gets the providerDao
 					ProviderDao providerDao = (ProviderDao)SpringUtils.getBean(ProviderDao.class);
-					
-					//Gets a list of providers that match the given OHIP #
-					List<Provider> matchedProviders = providerDao.getBillableProvidersByOHIPNo(providerNumber);
-					
-					//If the list is not null and the providerNumber length is 5
-					if (matchedProviders.isEmpty() && providerNumber.length() == 5) {
-						//Tries finding the provider again, this time with a leading 0 attached
-						matchedProviders = providerDao.getBillableProvidersByOHIPNo("0" + providerNumber);
+					List<Provider> matchedProviders = new ArrayList<Provider>();
+					if (sqlSearchOn.equals("practitionerNo")) {
+						//Gets a list of providers that match the given CPSO #
+						matchedProviders = providerDao.getProvidersByPractitionerNo(providerNumber);
+					} else {
+						//Gets a list of providers that match the given OHIP #
+						matchedProviders = providerDao.getBillableProvidersByOHIPNo(providerNumber);
+						
+						//If the list is not null and the providerNumber length is 5
+						if (matchedProviders.isEmpty() && providerNumber.length() == 5) {
+							//Tries finding the provider again, this time with a leading 0 attached
+							matchedProviders = providerDao.getBillableProvidersByOHIPNo("0" + providerNumber);
+						}
 					}
+					
 
 					//For each provider in the list, adds their providerNo to the providerNums list
 					for (Provider provider : matchedProviders) { 

@@ -457,6 +457,19 @@ public class ProviderDao extends HibernateDaoSupport {
 
 		return null;
 	}
+	
+	public List<Provider> getProvidersByPractitionerNo(String practitionerNo) {
+		if (practitionerNo == null || practitionerNo.length() <= 0) {
+			throw new IllegalArgumentException();
+		}
+
+		List<Provider> providerList = getHibernateTemplate().find("From Provider p where p.practitionerNo=?",new Object[]{practitionerNo});
+
+		if(providerList.size()>1) {
+			logger.warn("Found more than 1 provider with practitionerNo="+practitionerNo);
+		}
+		return providerList;
+	}
 
 	public List<String> getUniqueTeams() {
 		
