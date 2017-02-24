@@ -249,7 +249,7 @@ NumberFormat formatter = new DecimalFormat("#0.00");
 				String temp[] = ( pList.get(i)).split("\\|");				
 			%>
 			
-			var temp_provider_no = <%=temp[0]%> ;			
+			var temp_provider_no = "<%=temp[0]%>" ;
 			if(provider_no==temp_provider_no) {				
 				var provider_ohipNo="<%=temp[3]%>";
 				document.serviceform.provider_ohipNo.value=provider_ohipNo;	
