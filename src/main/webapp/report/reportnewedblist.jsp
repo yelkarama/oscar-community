@@ -59,6 +59,7 @@ if(!authed) {
 <%@ page import="org.oscarehr.common.dao.DemographicDao" %>
 <%@ page import="org.oscarehr.common.model.Demographic" %>
 <%@ page import="org.oscarehr.common.dao.forms.FormsDao" %>
+<%@ page import="oscar.OscarProperties" %>
 
 <%
 	DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
@@ -155,11 +156,6 @@ function loadPage() {
         paramI[1]=sdf.format(cal.getTime());
         
         
-        for( Integer obj :formsDao.select_maxformar_id2(paramI[0],paramI[1]) ) {        
-        	arMaxId.setProperty(obj.toString(),"1");
-        }
-      	
-        
         Properties demoProp = new Properties();
         
         String[] param =new String[2];
@@ -175,9 +171,18 @@ function loadPage() {
         itemp1[0] = Integer.parseInt(strLimit2);
         boolean bodd=false;
         int nItems=0;
-        List<Object[]> results  = formsDao.select_formar2(startDate, endDate, Integer.parseInt(strLimit2), Integer.parseInt(strLimit1));
-        
-        
+        List<Object[]> results = new ArrayList<Object[]>();
+        if (oscar.OscarProperties.getInstance().getBooleanProperty("edb_list_show_ar2005", "true")) {
+	        // Add results from ON AR Enchanced And AR2005
+	        results = formsDao.selectFromArAndArEnchanced(startDate, endDate, Integer.parseInt(strLimit2), Integer.parseInt(strLimit1));
+        } else {
+	        for( Integer obj :formsDao.select_maxformar_id2(paramI[0],paramI[1]) ) {        
+	        	arMaxId.setProperty(obj.toString(),"1");
+	        };
+	        // Add results from ON AR Enchanced
+	        results = formsDao.select_formar2(startDate, endDate, Integer.parseInt(strLimit2), Integer.parseInt(strLimit1));
+        }
+
         for (Object[] result : results) {
         	Integer id = (Integer)result[0];
         	Integer demographicNo = (Integer)result[1];
@@ -191,7 +196,7 @@ function loadPage() {
         	String prov = (String)result[8];
         	
         	
-        if (!arMaxId.containsKey(""+id) ) {            
+        if (!arMaxId.containsKey(""+id) && !oscar.OscarProperties.getInstance().getBooleanProperty("edb_list_show_ar2005", "true")) {            
             continue;
         }
         if (demoProp.containsKey(demographicNo) ) {            
