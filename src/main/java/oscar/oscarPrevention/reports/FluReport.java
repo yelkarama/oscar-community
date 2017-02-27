@@ -26,6 +26,7 @@
 package oscar.oscarPrevention.reports;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -126,6 +127,17 @@ public class FluReport implements PreventionReport {
                 }
 
                 String prevDateStr = (String) h.get("prevention_date");
+                String nextDateStr = (String) h.get("next_date");
+                if (nextDateStr != null) {
+            		try {
+						cutoffDate = formatter.parse(nextDateStr);
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
+                } else {
+                    cal.add(Calendar.MONTH,-6);
+                    cutoffDate = cal.getTime();
+                }
 
                 if (refused && noFutureItems.size() > 1){
                     log.debug("REFUSED AND PREV IS greater than one for demo "+demo);

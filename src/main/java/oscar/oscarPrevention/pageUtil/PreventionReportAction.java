@@ -76,9 +76,13 @@ public class PreventionReportAction extends Action {
 	   if(!securityInfoManager.hasPrivilege(loggedInInfo, "_report", "r", null)) {
  		  throw new SecurityException("missing required security object (_report)");
  	  }
-	   
+       
        String setName = request.getParameter("patientSet");
        String prevention  = request.getParameter("prevention");
+	   if (prevention.equals("-1") || setName.equals("-1")) {	// "-1" is unselected
+		   return (mapping.findForward("success"));
+	   }
+	   
        Date asofDate = UtilDateUtilities.getDateFromString(request.getParameter("asofDate"),"yyyy-MM-dd");
 
        RptDemographicReportForm frm = new RptDemographicReportForm ();
