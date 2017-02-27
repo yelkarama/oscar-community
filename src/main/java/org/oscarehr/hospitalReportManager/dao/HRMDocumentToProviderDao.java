@@ -46,9 +46,18 @@ public class HRMDocumentToProviderDao extends AbstractDao<HRMDocumentToProvider>
 		return documentToProviders;
 	}
 
-	public List<HRMDocumentToProvider> findByProviderNoLimit(String providerNo, Date newestDate, Date oldestDate, 
+	public List<HRMDocumentToProvider> findByProviderNoLimit(String providerNo, String demographicNumber, Date newestDate, Date oldestDate, 
 				Integer viewed, Integer signedOff, boolean isPaged, Integer page, Integer pageSize) {
-		String sql = "select x from " + this.modelClass.getName() + " x, HRMDocument h where x.hrmDocumentId=h.id and x.providerNo like ?";
+		
+		String hrmToDemographicJoinAndSearchSql = "";
+		String hrmToDemographicTableName = "";
+		
+		if (demographicNumber != null) {
+			hrmToDemographicTableName = ", HRMDocumentToDemographic d";
+			hrmToDemographicJoinAndSearchSql = " AND x.hrmDocumentId = d.hrmDocumentId AND d.demographicNo = :demographicNumber";
+		}
+		
+		String sql = "select x from " + this.modelClass.getName() + " x, HRMDocument h" + hrmToDemographicTableName + " where x.hrmDocumentId=h.id AND x.providerNo like ?" + hrmToDemographicJoinAndSearchSql;
 		if (newestDate != null)
 			sql += " and h.reportDate <= :newest";
 		if (oldestDate != null)
@@ -61,6 +70,9 @@ public class HRMDocumentToProviderDao extends AbstractDao<HRMDocumentToProvider>
 		Query query = entityManager.createQuery(sql);
 		query.setParameter(1, providerNo);
 		
+		if (demographicNumber != null) {
+			query.setParameter("demographicNumber", demographicNumber);
+		}
 		if (newestDate != null)
 			query.setParameter("newest", newestDate);
 
