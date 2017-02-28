@@ -457,7 +457,7 @@ public class CaseloadContentAction extends DispatchAction {
 				if (hasPrivilege("_billing", roleName$)) {
 					buttons += bShortcutForm?"| <a href=# onClick='popupPage2( \"../form/forwardshortcutname.jsp?formname="+formName+"&demographic_no="+demographic_no+"\")' title='form'>"+formNameShort+"</a> " : "";
 					buttons += bShortcutForm2?"| <a href=# onClick='popupPage2( \"../form/forwardshortcutname.jsp?formname="+formName2+"&demographic_no="+demographic_no+"\")' title='form'>"+formName2Short+"</a> " : "";
-					buttons += (bShortcutIntakeForm) ? "| <a href='#' onClick='popupPage(700, 1024, \"formIntake.jsp?demographic_no="+demographic_no+"\")'>In</a> " : "";
+					buttons += (bShortcutIntakeForm) ? "| <a href='#' onClick='popupPage(700, 1024, \"formIntake.jsp?demographic_no="+demographic_no+"&fromSchedule=true\")'>In</a> " : "";
 				}
 
 				// add B button to string
