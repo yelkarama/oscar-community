@@ -311,6 +311,7 @@ public final class EDocUtil {
 				doc.setDocfilename(newDocument.getFileName());
 				doc.setContenttype(newDocument.getContentType());
                                 doc.setContentdatetime(newDocument.getContentDateTime());
+                                doc.setNumberofpages(newDocument.getNumberOfPages());
 			}
 			documentDao.merge(doc);
 		}
