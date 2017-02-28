@@ -1511,14 +1511,14 @@ function updateFaxButton() {
 						<tr>						
 							<td class="tite4"><bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.formRefDate" />:
 							</td>	
-							<td align="right" class="tite1">
-							<% 	if (request.getAttribute("id") != null)
+							<td align="right" class="tite1"><img alt="calendar" id="referalDate_cal" src="../../images/cal.gif">
+								<% 	if (request.getAttribute("id") != null)
 								{ %>
-									<html:text styleClass="righty" readonly="<%=isConsultationDateReadOnly%>" property="referalDate" /> 
+									<html:text styleId="referralDate" styleClass="righty" readonly="<%=isConsultationDateReadOnly%>" property="referalDate" ondblclick="this.value='';"/>
 							<% 	}
 					 			else
 					 			{ %>
-									<html:text styleClass="righty" readonly="<%=isConsultationDateReadOnly%>" property="referalDate" value="<%=formattedDate%>" /> 
+									<html:text styleId="referralDate" styleClass="righty" readonly="<%=isConsultationDateReadOnly%>" property="referalDate" ondblclick="this.value='';" value="<%=formattedDate%>" />
 							<% 	} %>
 							</td>
 						</tr>
@@ -2303,6 +2303,7 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 <script type="text/javascript" language="javascript">
 document.getElementById('sendTo').value = "<%= team %>";
 Calendar.setup( { inputField : "followUpDate", ifFormat : "%Y/%m/%d", showsTime :false, button : "followUpDate_cal", singleClick : true, step : 1 } );
+Calendar.setup( { inputField : "referralDate", ifFormat : "%Y/%m/%d", showsTime :false, button : "referalDate_cal", singleClick : true, step : 1 } );
 Calendar.setup( { inputField : "appointmentDate", ifFormat : "%Y/%m/%d", showsTime :false, button : "appointmentDate_cal", singleClick : true, step : 1 } );
 </script>
 </html:html>
