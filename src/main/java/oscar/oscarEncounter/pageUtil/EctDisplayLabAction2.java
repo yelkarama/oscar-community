@@ -132,6 +132,7 @@ public class EctDisplayLabAction2 extends EctDisplayAction {
 			
 			for (int j = 0; j < labs.size(); j++) {
 				result = labs.get(j);
+
                 Date date = getServiceDate(loggedInInfo,result);
                 String formattedDate = "";
                 if(date != null) {
@@ -205,10 +206,21 @@ public class EctDisplayLabAction2 extends EctDisplayAction {
     public Date getServiceDate(LoggedInInfo loggedInInfo, LabResultData labData) {
         ServiceDateLoader loader = new ServiceDateLoader(labData);
         Date resultDate = loader.determineResultDate(loggedInInfo);
-        if (resultDate != null) {
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+
+        if(labData.labType == "CML"){
+        	try{
+				return df.parse(labData.getDateTime());
+			} catch (ParseException pe){
+        		pe.printStackTrace();
+			}
+		}
+
+		if (resultDate != null) {
             return resultDate;
         }
-        return labData.getDateObj();
+
+		return labData.getDateObj();
     }
 
 	public String getCmd() {
