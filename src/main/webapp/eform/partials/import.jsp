@@ -38,9 +38,12 @@ String status = (String) request.getAttribute("status");
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery-ui-1.10.2.custom.min.js"></script>
 
 <script>
-$(function() {
-    //x$( document ).tooltip();
-  });
+$(window).ready(function() {
+    $('#eformImportForm').submit(function(){
+        $('#importSubmitButton').val("Importing...");
+        $('#importSubmitButton').prop('disabled',true);
+    });
+});
 </script>
 </head>
 
@@ -81,7 +84,7 @@ window.top.location.href = "<%=request.getContextPath()%>/administration/?show=F
         <input type="file" name="zippedForm" size="50">
         <span title="<bean:message key="global.uploadWarningBody"/>" style="vertical-align:middle;font-family:arial;font-size:20px;font-weight:bold;color:#ABABAB;cursor:pointer"><img border="0" src="../../images/icon_alertsml.gif"/></span></span>
                                         
-        <input type="submit" name="subm" value="Import" class="btn" onclick="this.value = 'Importing...'; this.disabled = true;"><br>
+        <input type="submit" name="subm" value="Import" class="btn" id="importSubmitButton"><br>
         <span class="label label-info">Info: </span> <strong>When importing the file format is required to be a zip file.</strong>
 </form>
 
