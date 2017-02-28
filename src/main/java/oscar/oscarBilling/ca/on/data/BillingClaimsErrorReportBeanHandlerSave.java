@@ -22,10 +22,16 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Vector;
 
+import org.apache.commons.lang.math.NumberUtils;
+import org.oscarehr.common.dao.BillingONCHeader1Dao;
+import org.oscarehr.common.model.BillingONCHeader1;
 import org.oscarehr.util.MiscUtils;
 
+import org.oscarehr.util.SpringUtils;
 import oscar.oscarBilling.ca.on.bean.BillingClaimsErrorReportBean;
 import oscar.oscarBilling.ca.on.bean.BillingClaimsErrorReportBeanHandler;
 
@@ -33,6 +39,7 @@ public class BillingClaimsErrorReportBeanHandlerSave {
 
 	Vector claimsErrorReportBeanVector = new Vector();
 	public boolean verdict = true;
+	BillingONCHeader1Dao billingONCHeader1Dao = SpringUtils.getBean(BillingONCHeader1Dao.class);
 
 	public BillingClaimsErrorReportBeanHandlerSave(FileInputStream file, String filename) {
 		init(file, filename);
@@ -180,7 +187,16 @@ public class BillingClaimsErrorReportBeanHandlerSave {
 					erObj.setReport_name(filename);
 					erObj.setStatus("N");
 					erObj.setComment("");
-					erRepObj.addErrorReportRecord(erObj);
+					List<BillingONCHeader1> existingInvoice = billingONCHeader1Dao.getInvoicesByIds(Arrays.asList(Integer.parseInt(erObj.getBilling_no())));
+					// Filter out the invoices on the report that were not created in our system
+					if(NumberUtils.isNumber(erObj.getBilling_no()) && existingInvoice!=null && existingInvoice.get(0).getHin().contains(erObj.getHin())){
+						// If the invoice exists, show it
+						erRepObj.addErrorReportRecord(erObj);
+					}
+					else{
+						// Else the invoice does not exist in the system, hide it
+						claimsErrorReportBeanVector.remove(CERBean);
+					}
 				}
 
 				if (headerCount.compareTo("9") == 0) {
