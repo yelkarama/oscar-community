@@ -242,6 +242,7 @@ public final class MessageUploader {
 			}
 			int insertID = 0;
 			if (!isTDIS || !hasBeenUpdated) {
+				List<Hl7TextInfo> matchingLabs =  hl7TextInfoDao.searchByAccessionNumber(accessionNum);
 				hl7TextMessage.setFileUploadCheckId(fileId);
 				hl7TextMessage.setType(type);
 				hl7TextMessage.setBase64EncodedeMessage(new String(Base64.encodeBase64(hl7Body.getBytes(MiscUtils.DEFAULT_UTF8_ENCODING)), MiscUtils.DEFAULT_UTF8_ENCODING));
@@ -263,6 +264,17 @@ public final class MessageUploader {
 				hl7TextInfo.setReportStatus(reportStatus);
 				hl7TextInfo.setAccessionNumber(accessionNum);
 				hl7TextInfo.setFillerOrderNum(fillerOrderNum);
+				// Set label if there is a matching lab already uploaded with a label
+				if(matchingLabs.size()>0){
+					String label = "";
+					for(Hl7TextInfo lab : matchingLabs){
+						label = lab.getLabel()!=null?lab.getLabel():"";
+						if(label.trim().length()>0){
+							hl7TextInfo.setLabel(label);
+							break;
+						}
+					}
+				}
 				hl7TextInfoDao.persist(hl7TextInfo);
 			}
 
