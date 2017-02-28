@@ -655,8 +655,8 @@ java.util.Date preventionDate;
 if (!preventionsResult.isEmpty()) {
         for (int i=0; i<preventionsResult.size(); i++) {
 	       	try {
-				preventionDateStr = preventionsResult.get(i).get("prevention_date").toString();
-				preventionDateArr = preventionsResult.get(i).get("prevention_date").toString().split("-");
+				preventionDateStr = preventionsResult.get(i).get("prevention_date").toString().substring(0, 10);
+				preventionDateArr = preventionDateStr.split("-");
 				preventionDate = new GregorianCalendar(Integer.parseInt(preventionDateArr[0]), Integer.parseInt(preventionDateArr[1])-1, Integer.parseInt(preventionDateArr[2])).getTime(); 
 				
 	       	} catch (Exception e) {
