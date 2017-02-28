@@ -47,7 +47,7 @@
         String alle = "";
         if (allergies.length > 0 ){ alle = "Red"; }
         %>
-<td width="10%" height="100%" valign="top">
+<td width="20%" height="100%" valign="top">
 <div class="PropSheetMenu">
 
 <security:oscarSec roleName="<%=roleName$%>" objectName="_allergy" rights="r" reverse="<%=false%>">
@@ -63,7 +63,7 @@
 
 <p class="PropSheetMenuItemLevel1"><a
 	title="<%= allergies[j].getDescription() %> - <%= allergies[j].getReaction() %>">
-<%=allergies[j].getShortDesc(13,8,"...")%> </a></p>
+	<%= allergies[j].getDescription() %> </a></p>
 <%}%>
 </p>
 
@@ -136,9 +136,8 @@ for (Dxresearch dx:dxreasearchDao.getByDemographicNo(bean2.getDemographicNo())){
 
 <p class="PropSheetMenuItemLevel1"><a
         href="javascript:void(0);" onclick="useFav2('<%= favorites[j].getFavoriteId() %>');"
-	title="<%= favorites[j].getFavoriteName() %>"> <%if(favorites[j].getFavoriteName().length()>13){%>
-<%= favorites[j].getFavoriteName().substring(0, 10) + "..." %> <%}else{%>
-<%= favorites[j].getFavoriteName() %> <%}%> </a></p>
+	title="<%= favorites[j].getFavoriteName() %>">
+<%= favorites[j].getFavoriteName() %>  </a></p>
 <%}%>
 </p>
 </div>
