@@ -2360,6 +2360,10 @@ start_time += iSm + ":00";
 			  <a href=# onClick="popupPage(700,1027,'../demographic/printDemoLabelAction.do?demographic_no=<%=demographic_no%>')" title="<bean:message key="provider.appointmentProviderAdminDay.label"/>">|<bean:message key="provider.appointmentProviderAdminDay.btnL"/>
 			  </a>
 		<% } %>
+<!-- AsthmaLife link -->
+		<% if (OscarProperties.getInstance().isPropertyActive("indivicare_asthma_life_enabled")) { %>
+			  <b><a href="#" onclick="popupPage(500,1024, '../indivicare/asthmaLife.do?demographicNo=<%=demographic_no%>');return false;" title="Indivicare Asthma Life">|As </a></b>
+		<% } %>
 <!-- doctor color -->
 <oscar:oscarPropertiesCheck property="ENABLE_APPT_DOC_COLOR" value="yes">
         <%
