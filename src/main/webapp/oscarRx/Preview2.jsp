@@ -256,7 +256,7 @@ String pharmaAddress2="";
 String pharmaEmail="";
 String pharmaNote="";
 RxPharmacyData pharmacyData = new RxPharmacyData();
-PharmacyInfo pharmacy;
+PharmacyInfo pharmacy = null;
 String pharmacyId = request.getParameter("pharmacyId");
 
 if (pharmacyId != null && !"null".equalsIgnoreCase(pharmacyId)) {
@@ -579,6 +579,15 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
 																	String imageUrl=null;
 																	String startimageUrl=null;
 																	String statusUrl=null;
+																	if (props.getBooleanProperty("rx_electronic_signing", "true")) { 
+																		SimpleDateFormat sdf = new SimpleDateFormat ("MMM-dd-yyyy 'at' HH:mm");
+																		String getFirstName =  provider.getFirstName().replace("Dr. ", "");
+																		String signatureMessage = "Electronically Authorized by " + provider.getSurname() + ", \n" + getFirstName
+																								+ " (" + provider.getPractitionerNo() + ") at " + sdf.format(new Date());
+																		%>
+                                                                    	<p id="electronic_signature" style="display:none;"><%=signatureMessage%></p>
+                                                                    	<input type="hidden" id="electronicSignature" name="electronicSignature" value=""/>
+                                                                    <% } else {
 
 																	signatureRequestId=loggedInInfo.getLoggedInProviderNo();
 																	imageUrl=request.getContextPath()+"/imageRenderingServlet?source="+ImageRenderingServlet.Source.signature_preview.name()+"&"+DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY+"="+signatureRequestId;
@@ -611,19 +620,33 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
 																	                    	});
 						
 																			}
-																	</script>
-                                                                    
-                                                            &nbsp;</td>
+																		</script>&nbsp;
+                                                                    <% } %></td>
                                                     </tr>
                                                     <tr valign=bottom>
                                                             <td height=25px>
                                                             <% if (props.getProperty("signature_tablet", "").equals("yes")) { %>
                                                             <input type="button" value=<bean:message key="RxPreview.digitallySign"/> class="noprint" onclick="setInterval('refreshImage()', POLL_TIME); document.location='<%=request.getContextPath()%>/signature_pad/topaz_signature_pad.jnlp.jsp?<%=DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY%>=<%=signatureRequestId%>'"  />
-                                                            	<% } %>
+		                                                        <% } 
+	                                                            if (props.getBooleanProperty("rx_electronic_signing", "true")) { %>
+		                                                            <input type="button" value=<bean:message key="RxPreview.digitallySign"/> class="noprint" onclick="electronicallySign();"  />
+		                                                            <script type="text/javascript">
+		                                                            	function electronicallySign() {
+		                                                            		document.getElementById('electronic_signature').style.display = 'block';
+		                                                            		document.getElementById('electronicSignature').value = document.getElementById('electronic_signature').innerHTML;
+			                                                            <% if (OscarProperties.getInstance().isRxFaxEnabled() && pharmacy != null) { %>
+			                                                            	var hasFaxNumber = <%= pharmacy != null && pharmacy.getFax().trim().length() > 0 ? "true" : "false" %>;
+			                                                            	parent.document.getElementById("faxButton").disabled = !hasFaxNumber;
+                                                            			<% } %>
+																		}
+		                                                            </script>
                                                             </td>
+	                                                            <% } else { %>
+		                                                            </td>
                                                             <td height=25px>&nbsp; <%= doctorName%> <% if ( pracNo != null && ! pracNo.equals("") && !pracNo.equalsIgnoreCase("null")) { %>
                                                                 <br /> &nbsp; <bean:message key="RxPreview.PractNo"/> <%= pracNo%> <% } %>                                                         
                                                             </td>
+	                                                            <% } %>
                                                     </tr>
                                                     <% 
                                                     	 if( rePrint.equalsIgnoreCase("true") && rx != null ) 

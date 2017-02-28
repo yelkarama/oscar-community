@@ -725,7 +725,7 @@ function toggleView(form) {
                                         </tr>
 
                                         <%}%>
-					<% if (OscarProperties.getInstance().isRxSignatureEnabled() && !OscarProperties.getInstance().getBooleanProperty("signature_tablet", "yes")) { %>
+					<% if (OscarProperties.getInstance().isRxSignatureEnabled() && !OscarProperties.getInstance().getBooleanProperty("signature_tablet", "yes") && !props.getBooleanProperty("rx_electronic_signing", "true")) { %>
                                         
                     <tr>
 						<td colspan=2 style="font-weight: bold"><span>Signature</span></td>
