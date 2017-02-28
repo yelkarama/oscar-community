@@ -55,6 +55,7 @@ public class RxSessionBean  implements java.io.Serializable {
 
     private ArrayList<RxPrescriptionData.Prescription> stash = new ArrayList();
    // private ArrayList stash=new ArrayList();
+    private HashMap<Integer, Long> favIdRandomIdMap = new HashMap<Integer, Long>();
     private int stashIndex = -1;
     private Hashtable allergyWarnings = new Hashtable();
     private Hashtable workingAllergyWarnings = new Hashtable();
@@ -273,7 +274,22 @@ public class RxSessionBean  implements java.io.Serializable {
         stash = new ArrayList();
     }
 
+    public HashMap<Integer, Long> getFavIdRandomIdMaps() {
+        return favIdRandomIdMap;
+    }
 
+    public void setFavIdRandomIdMap(HashMap<Integer, Long> stashedIds) {
+        this.favIdRandomIdMap = stashedIds;
+    }
+
+    public void addNewRandomIdToMap(Integer newId, Long newRandomId) {
+        this.favIdRandomIdMap.put(newId, newRandomId);
+    }
+
+    public Long getStashedFavId(Integer idToGet) {
+        return this.favIdRandomIdMap.get(idToGet);
+    }
+    
     //--------------------------------------------------------------------------
 
     public boolean isValid() {
