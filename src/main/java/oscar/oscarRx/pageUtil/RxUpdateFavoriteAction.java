@@ -141,6 +141,34 @@ public final class RxUpdateFavoriteAction extends DispatchAction {
             
             fav.Save();
 
+            //find if prescription is stored in stash, if so, replace it with new favorite
+
+        	RxPrescriptionData rxData = new RxPrescriptionData();
+
+            oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBean)request.getSession().getAttribute("RxSessionBean");
+
+    		RxPrescriptionData.Prescription favRx = rxData.newPrescription(bean.getProviderNo(), bean.getDemographicNo(), fav);
+
+            Long prescriptionRandomId = bean.getStashedFavId(fav.getFavoriteId());
+
+            if (prescriptionRandomId != null) {
+
+            	for (int j = 0; j < bean.getStashSize(); j++) {
+
+            		RxPrescriptionData.Prescription stashedRx = bean.getStashItem(j);
+
+            		if (prescriptionRandomId.equals(stashedRx.getRandomId())) {
+
+            			favRx.setRandomId(prescriptionRandomId);
+
+            			bean.setStashItem(j, favRx);
+
+            		}
+
+            	}
+
+            }
+
             return null;
     }
 }
