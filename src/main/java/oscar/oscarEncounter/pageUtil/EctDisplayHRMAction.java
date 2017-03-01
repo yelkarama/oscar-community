@@ -180,7 +180,7 @@ public class EctDisplayHRMAction extends EctDisplayAction {
 				HRMReport hrmReport = HRMReportParser.parseReport(loggedInInfo, hrmDocument.getReportFile());
 				if (hrmReport.getFirstReportClass().equalsIgnoreCase("Diagnostic Imaging Report") || hrmReport.getFirstReportClass().equalsIgnoreCase("Cardio Respiratory Report")) {
 					//Get first sub class to display on eChart
-					if (hrmDocumentSubClassList != null) {
+					if (hrmDocumentSubClassList != null && hrmDocumentSubClassList.size()>0) {
 						HRMDocumentSubClass firstSubClass = hrmDocumentSubClassList.get(0);
 						subClass = hrmSubClassDao.findApplicableSubClassMapping(hrmReport.getFirstReportClass(), firstSubClass.getSubClass(), firstSubClass.getSubClassMnemonic(), hrmReport.getSendingFacilityId());
 						dispSubClass = subClass!=null?subClass.getSubClassDescription():"";
