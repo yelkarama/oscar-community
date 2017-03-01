@@ -68,12 +68,12 @@ public class RptDemographicQuerySaver {
         String[] rosterStatus   = frm.getRosterStatus();
         String[] patientStatus  = frm.getPatientStatus();
         String[] providers      = frm.getProviderNo();
-
         String firstName        = frm.getFirstName();
         String lastName         = frm.getLastName();
         String sex              = frm.getSex();
         String queryName        = frm.getQueryName();
         String demoIds        	= frm.getDemoIds();
+        String asOfDate			= frm.getAsofDate();
 
 
         if (firstName != null ){
@@ -92,6 +92,7 @@ public class RptDemographicQuerySaver {
         String sqAge = yearStyle;
         String sqStartYear  = startYear   ;
         String sqEndYear  = endYear;
+        String sqAsOfDate  = asOfDate;
         String sqFirstName  = firstName;
 
         String sqLastName  = lastName;
@@ -156,6 +157,7 @@ public class RptDemographicQuerySaver {
     	dqf.setAge(sqAge);
     	dqf.setStartYear(sqStartYear);
     	dqf.setEndYear(sqEndYear);
+    	dqf.setAsOfDate(sqAsOfDate);
     	dqf.setFirstName(sqFirstName);
     	dqf.setLastName(sqLastName);
     	dqf.setRosterStatus(sqRosterStatus);
