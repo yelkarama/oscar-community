@@ -26,8 +26,10 @@
 package oscar.oscarLab.ca.on;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.LabReportInformationDao;
@@ -443,7 +445,25 @@ public class LabResultData implements Comparable<LabResultData> {
 	}
 
 	public ArrayList<Integer> getDuplicateLabIds() {
+		if (duplicateLabIds.size()==0 && getMultiLabId() != null) {
+			List<String> multiIds =  Arrays.asList(this.multiLabId.split(","));
+			for(String matchingLabId : multiIds){
+				duplicateLabIds.add(Integer.parseInt(matchingLabId));
+			}
+		}
 		return (duplicateLabIds);
+	}
+
+	public String getMultiLabId(){
+		if (multiLabId == null) {
+			CommonLabResultData data = new CommonLabResultData();
+			multiLabId = data.getMatchingLabs(this.segmentID, this.labType);
+			int count = 0;
+			if (multiLabId.split(",").length == 1) {
+				multiLabId = null;
+			}
+		}
+		return (multiLabId);
 	}
 
 	public String getLabel() {
