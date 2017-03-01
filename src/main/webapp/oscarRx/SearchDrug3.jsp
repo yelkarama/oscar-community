@@ -890,7 +890,7 @@ THEME 2*/
                                                 <%}%>
                                                 <br>
                                                 <security:oscarSec roleName="<%=roleName2$%>" objectName="_rx" rights="x">
-                                                <input id="saveButton" type="button"  class="ControlPushButton" onclick="updateSaveAllDrugsPrint();" value="<bean:message key="SearchDrug.msgSaveAndPrint"/>" title="<bean:message key="SearchDrug.help.SaveAndPrint"/>" />
+                                                <input id="saveButton" type="button"  class="ControlPushButton" onclick="updateSaveAllDrugsPrintContinue();" value="<bean:message key="SearchDrug.msgSaveAndPrint"/>" title="<bean:message key="SearchDrug.help.SaveAndPrint"/>" />
                                                 </security:oscarSec>
 
                                                 <input id="saveOnlyButton" type="button"  class="ControlPushButton" onclick="updateSaveAllDrugs();" value="<bean:message key="SearchDrug.msgSaveOnly"/>" title="<bean:message key="SearchDrug.help.Save"/>"/>
