@@ -795,13 +795,13 @@ function checkRosterStatus2(){
 	}
 	</oscar:oscarPropertiesCheck>
 	
-	if(rosterSelect.value == "TE"){
-		jQuery(".termination_details").show();
-		jQuery("#roster_termination_reason").focus();
-	}else{
+	if(rosterSelect.value == "RO" || rosterSelect.value == ""){
 		jQuery(".termination_details").hide();
-		jQuery(".termination_details input").val("");
-		jQuery(".termination_details select").val("");
+        jQuery(".termination_details input").val("");
+        jQuery(".termination_details select").val("");
+	}else{
+        jQuery(".termination_details").show();
+        jQuery("#roster_termination_reason").focus();
 	}
 	
 	return true;
