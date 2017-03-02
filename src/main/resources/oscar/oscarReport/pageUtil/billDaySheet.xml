@@ -24,7 +24,8 @@
 	<import value="net.sf.jasperreports.engine.data.*" />
 
 	<parameter name="input_date" isForPrompting="false" class="java.lang.String"/>
-	<queryString><![CDATA[select * from appointment where appointment_date = $P{input_date}]]></queryString>
+	<parameter name="provider" isForPrompting="false" class="java.lang.String"/>
+	<queryString><![CDATA[select * from appointment where appointment_date = $P{input_date} and provider_no = $P{provider}]]></queryString>
 
 	<field name="appointment_no" class="java.lang.Integer"/>
 	<field name="provider_no" class="java.lang.String"/>

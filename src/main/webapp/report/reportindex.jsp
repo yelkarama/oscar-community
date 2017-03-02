@@ -421,7 +421,8 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
         }
         function labgo1(s) {
         	var t = document.getElementsByName("apptDate1")[0].value;
-                var u = 'printLabDaySheetAction.do?xmlStyle=billDaySheet.xml&input_date=' + t;
+        	var p = document.getElementsByName("provider_no")[0].value;
+                var u = 'printLabDaySheetAction.do?xmlStyle=billDaySheet.xml&input_date=' + t + '&provider_no=' + p;
                 popupPage(600,1000,u);
         }
         </script>
