@@ -382,11 +382,35 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
 	}
 	window.FileSelectedRows = function () {
 		var query = jQuery(document.reassignForm).formSerialize();
+		var hrmQueryMethod = "method=signOff";
+		var hrmQuery = "";
 		var labs = jQuery("input[name='flaggedLabs']:checked");
 		for (var i = 0; i < labs.length; i++) {
-			query += "&flaggedLabs=" + labs[i].value;
-			query += "&" + labs[i].next().name + "=" + labs[i].next().value;
+		    if(labs[i].next().value == "HRM"){
+		        hrmQuery += "&signedOff=1&reportId=" + labs[i].value;
+            } else {
+                query += "&flaggedLabs=" + labs[i].value;
+                query += "&" + labs[i].next().name + "=" + labs[i].next().value;
+            }
+
 		}
+		if(!hrmQuery.empty()){
+            jQuery.ajax({
+                type: "POST",
+                url: "<%=request.getContextPath() %>/hospitalReportManager/Modify.do",
+                data: hrmQueryMethod + hrmQuery,
+                success: function(data) {
+                    updateCategoryList();
+
+                    jQuery("input[name='flaggedLabs']:checked").each(function () {
+                        jQuery(this).parent().parent().remove();
+                    });
+
+                    fakeScroll();
+                }
+            });
+        }
+
 		jQuery.ajax({
 			type: "POST",
 			url:  "<%= request.getContextPath()%>/oscarMDS/FileLabs.do",
@@ -403,6 +427,8 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
 				fakeScroll();
 			}
 		});
+
+		location.reload();
 	}
 
 	function refreshCategoryList() {
