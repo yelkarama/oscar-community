@@ -349,7 +349,7 @@ var maxYear=3100;
         String xmlSpecialtyCode = "<xml_p_specialty_code>";
         String xmlSpecialtyCode2 = "</xml_p_specialty_code>";
         String strSpecialtyCode = "00";
-        if( comments.indexOf(xmlSpecialtyCode) != -1 ) {
+        if( comments != null && comments.indexOf(xmlSpecialtyCode) != -1 ) {
           strSpecialtyCode = comments.substring(comments.indexOf(xmlSpecialtyCode) + xmlSpecialtyCode.length(), comments.indexOf(xmlSpecialtyCode2));
           strSpecialtyCode = strSpecialtyCode.trim();
           if( strSpecialtyCode.equals("") ) {
