@@ -32,12 +32,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 import org.apache.struts.util.MessageResources;
 import org.oscarehr.caisi_integrator.ws.CachedDemographicLabResult;
+import org.oscarehr.common.dao.Hl7TextInfoDao;
 import org.oscarehr.common.dao.OscarLogDao;
+import org.oscarehr.common.model.Hl7TextInfo;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
@@ -60,6 +63,7 @@ public class EctDisplayLabAction2 extends EctDisplayAction {
 		
 		logger.debug("EctDisplayLabAction2");
 		OscarLogDao oscarLogDao = (OscarLogDao) SpringUtils.getBean("oscarLogDao");
+		Hl7TextInfoDao hl7TextInfoDao = (Hl7TextInfoDao) SpringUtils.getBean("hl7TextInfoDao");
 
 		if(!securityInfoManager.hasPrivilege(loggedInInfo, "_lab", "r", null)) {
 			return true; // Lab result link won't show up on new CME screen.
@@ -141,6 +145,12 @@ public class EctDisplayLabAction2 extends EctDisplayAction {
 				// String formattedDate = DateUtils.getDate(date);
 				func = new StringBuilder("popupPage(700,960,'");
 				label = result.getLabel();
+				if (result.getDuplicateLabIds().size()>0){
+					// if there are matching labs, get the most recent one and set the segmentId and label in the eChart
+					List<Hl7TextInfo> matchingLab = hl7TextInfoDao.findByLabId(result.getDuplicateLabIds().get((result.getDuplicateLabIds().size()-1)));
+					result.segmentID = String.valueOf(matchingLab.get(0).getLabNumber());
+					label = matchingLab.get(0).getLabel()!=null?matchingLab.get(0).getLabel():label;
+				}
 
 				String remoteFacilityIdQueryString = "";
 				if (result.getRemoteFacilityId() != null) {
