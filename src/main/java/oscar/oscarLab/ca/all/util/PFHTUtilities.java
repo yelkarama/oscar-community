@@ -208,32 +208,35 @@ public class PFHTUtilities {
         // OBR
         matcher = observationResults.matcher(msg);
         if (matcher.find()){
-            // Determine what PID sex (at position 8) value is REF: https://corepointhealth.com/resource-center/hl7-resources/hl7-pid-segment
+            // Determine the priority if exists
+            int priorityIndex = 27;
             String obr = matcher.group(0);
-            segments = obr.split("\\|")[27].split("\\^");
-            String priority = segments[10];
+            if (priorityIndex < obr.split("\\|").length){
+                segments = obr.split("\\|")[priorityIndex].split("\\^");
+                String priority = segments[10];
 
-            if (priority.trim().length() > 1){
-                if(priority.equalsIgnoreCase("Critical")){
-                    msg = msg.replace("^"+priority+"|", "^C|");
+                if (priority.trim().length() > 1){
+                    if(priority.equalsIgnoreCase("Critical")){
+                        msg = msg.replace("^"+priority+"|", "^C|");
+                    }
+                    else if (priority.equalsIgnoreCase("Stat") || priority.equalsIgnoreCase("Urgent")){
+                        msg = msg.replace("^"+priority+"|", "^S|");
+                    }
+                    else if (priority.equalsIgnoreCase("Unclaimed")){
+                        msg = msg.replace("^"+priority+"|", "^U|");
+                    }
+                    else if (priority.equalsIgnoreCase("ASAP")){
+                        msg = msg.replace("^"+priority+"|", "^A|");
+                    }
+                    else if (priority.equalsIgnoreCase("Alert")){
+                        msg = msg.replace("^"+priority+"|", "^L|");
+                    }
+                    else {
+                        msg = msg.replace("^"+priority, "^R");
+                    }
                 }
-                else if (priority.equalsIgnoreCase("Stat") || priority.equalsIgnoreCase("Urgent")){
-                    msg = msg.replace("^"+priority+"|", "^S|");
-                }
-                else if (priority.equalsIgnoreCase("Unclaimed")){
-                    msg = msg.replace("^"+priority+"|", "^U|");
-                }
-                else if (priority.equalsIgnoreCase("ASAP")){
-                    msg = msg.replace("^"+priority+"|", "^A|");
-                }
-                else if (priority.equalsIgnoreCase("Alert")){
-                    msg = msg.replace("^"+priority+"|", "^L|");
-                }
-                else {
-                    msg = msg.replace("^"+priority, "^R");
-                }
+                segments = null;
             }
-            segments = null;
         }
 
         // OBX
