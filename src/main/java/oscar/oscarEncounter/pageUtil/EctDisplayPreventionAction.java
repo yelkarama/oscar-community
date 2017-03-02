@@ -128,6 +128,10 @@ public class EctDisplayPreventionAction extends EctDisplayAction {
                     else if (hdata.get("refused") != null && hdata.get("refused").equals("1")){
                         item.setColour(refusedColour);
                     }
+                    else if (result != null && result.equalsIgnoreCase("abnormal") && !hdata.get("refused").equals("1"))
+                    {
+                        item.setColour(inelligibleColour);
+                    }
                 }
                 else {
                     item.setDate(null);
