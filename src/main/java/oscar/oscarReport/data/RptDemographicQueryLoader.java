@@ -50,6 +50,7 @@ public class RptDemographicQueryLoader {
         String mAge           = null;
 		String mStartYear = null;
 		String mEndYear   = null;
+		String mAsOfDate = null;
 		String mFirstName = null;
 		String mLastName  = null;
 		String mRosterStatus  = null;
@@ -65,6 +66,7 @@ public class RptDemographicQueryLoader {
 			  mAge = dqf.getAge();
 			  mStartYear = dqf.getStartYear();
 			  mEndYear = dqf.getEndYear();
+			  mAsOfDate = dqf.getAsOfDate();
 			  mFirstName = dqf.getFirstName();
 			  mLastName = dqf.getLastName();
 			  mRosterStatus = dqf.getRosterStatus();
@@ -87,6 +89,9 @@ public class RptDemographicQueryLoader {
           }
           if (mEndYear != null && mEndYear.length() != 0){
             dRF.setEndYear(mEndYear);
+          }
+          if (mAsOfDate != null && mAsOfDate.length() != 0){
+              dRF.setAsofDate(mAsOfDate);
           }
           if (mFirstName != null && mFirstName.length() != 0){
             dRF.setFirstName(mFirstName);
