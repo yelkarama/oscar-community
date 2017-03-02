@@ -211,7 +211,7 @@ public class ConsultationClinicalDataAction extends DispatchAction  {
 		
 		for( Drug medication : medications ) {
 			
-			if( medication.isCurrent() ) {
+			if( medication.isCurrent() || (medication.isLongTerm() && !medication.isArchived()) ) {
 			
 				prescription = medication.getSpecial();
 				
