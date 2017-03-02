@@ -25,6 +25,7 @@
 package oscar.oscarLab.ca.all;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -54,6 +55,7 @@ import org.oscarehr.common.model.PatientLabRouting;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
+import oscar.OscarProperties;
 import oscar.oscarLab.ca.all.parsers.Factory;
 import oscar.oscarLab.ca.all.parsers.MessageHandler;
 import oscar.oscarLab.ca.on.LabResultData;
@@ -93,6 +95,12 @@ public class Hl7textResultsData {
 		String[] matchingLabs = getMatchingLabs(lab_no).split(",");
 		//if this lab is the latest version delete the measurements from the previous version and add the new ones
 
+		// Get list of obx names that will always be added to measurements
+		List<String> alwaysAddObxNames = new ArrayList<String>();
+		if (OscarProperties.getInstance().hasProperty("hl7_measurements_names_to_always_add")) {
+			alwaysAddObxNames = Arrays.asList(OscarProperties.getInstance().get("hl7_measurements_names_to_always_add").toString().split(","));
+		}
+		
 		int k = 0;
 		while (k < matchingLabs.length && !matchingLabs[k].equals(lab_no)) {
 			k++;
@@ -113,8 +121,11 @@ public class Hl7textResultsData {
 
 				String result = h.getOBXResult(i, j);
 
+				
 				// only add if there is a result and it is supposed to be viewed
-				if (result.equals("") || result.equals("DNR") || h.getOBXName(i, j).equals("") || h.getOBXResultStatus(i, j).equals("DNS")) continue;
+				if (result.equals("") || result.equals("DNR") || h.getOBXName(i, j).equals("") || h.getOBXResultStatus(i, j).equals("DNS")) {
+					if (!alwaysAddObxNames.contains(h.getOBXName(i, j))) continue;
+				}
 				logger.debug("obx(" + j + ") should be added");
 				String identifier = h.getOBXIdentifier(i, j);
 				String name = h.getOBXName(i, j);
