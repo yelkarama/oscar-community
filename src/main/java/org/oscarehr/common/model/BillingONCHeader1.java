@@ -306,7 +306,7 @@ public class BillingONCHeader1 extends AbstractModel<Integer> implements Seriali
 	}
 
 	public void setAdmissionDate(Date admissionDate) {
-		this.admissionDate = (new SimpleDateFormat("yyyy-MM-dd")).format(admissionDate);
+		this.admissionDate = admissionDate!=null?(new SimpleDateFormat("yyyy-MM-dd")).format(admissionDate):null;
 	}
 
 	public String getRefLabNum() {
