@@ -335,9 +335,10 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                                     <c:when test="${empty infirmaryView_programAddress}">
                                                <%
                                                 	UserProperty phoneProp = userPropertyDAO.getProp(provider.getProviderNo(),"rxPhone");
-                                                	
+                                                	UserProperty faxProp = userPropertyDAO.getProp(provider.getProviderNo(), "faxnumber");
                                                 
                                                 	String finalPhone = provider.getClinicPhone();
+                                                	String finalFax = provider.getClinicFax();
                                                 	
                                                 	//if(providerPhone != null) {
                                                 	//	finalPhone = providerPhone;
@@ -345,10 +346,14 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                                 	if(phoneProp != null && phoneProp.getValue().length()>0) {                                                		
                                                 		finalPhone = phoneProp.getValue();
                                                 	}
+												   if(faxProp != null && faxProp.getValue().length()>0) {
+													   finalFax = faxProp.getValue();
+												   }
                                                 	
                                                 	
                                                 	
                                                 	request.setAttribute("phone",finalPhone);
+                                                	
                                                 
                                              	%>                     
                                                             <input type="hidden" name="clinicName"
@@ -356,7 +361,7 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                                             <input type="hidden" name="clinicPhone"
                                                                     value="<%= StringEscapeUtils.escapeHtml(finalPhone) %>" />
                                                             <input type="hidden" id="finalFax" name="clinicFax"
-                                                                    value="" />
+                                                                    value="<%=StringEscapeUtils.escapeHtml(finalFax)%>" />
                                                     </c:when>
                                                     <c:otherwise>
                                                <%
