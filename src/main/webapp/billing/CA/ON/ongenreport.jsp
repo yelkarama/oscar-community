@@ -154,9 +154,7 @@
                         	objFile.setProviderNo(dataProvider.getProviderNo());
 							objFile.setOhipFilename(ohipFilename);
 							objFile.setHtmlFilename(htmlFilename);
-							objFile.createBillingFileStr(LoggedInInfo.getLoggedInInfoFromSession(request), "" + headerId, BILLING_STATUS, false, mohOffice, false, "on".equals(useProviderMOH));	
-							if(objFile.getBigTotal().compareTo(BigDecimal.ZERO)==0)
-								continue;
+							objFile.createBillingFileStr(LoggedInInfo.getLoggedInInfoFromSession(request), "" + headerId, BILLING_STATUS, false, mohOffice, false, "on".equals(useProviderMOH));
 							value += objFile.getValue();
 							objFile.writeHtml(objFile.getHtmlCode());
 							objFile.updateDisknameSum(diskId);
