@@ -323,8 +323,40 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 		public void writeDirectContent(PdfContentByte cb, BaseFont bf, float fontSize, int alignment, String text, float x, float y, float rotation) {
 			cb.beginText();
 			cb.setFontAndSize(bf, fontSize);
-			cb.showTextAligned(alignment, text, x, y, rotation);
+			// Split the pharmacy's note onto separate so it does not get cut off if it is too long
+			if (text.contains(this.pharmaNote)){
+				int startNote = 0;
+				int endNote = 0;
+				for (int wrapPoint : findWrapPoints(text) ) {
+					// Find wrap points of the long text to display them on separate lines
+					float width = bf.getWidth(text.substring(startNote,wrapPoint)) / 1000 * fontSize;
+					if (startNote < endNote && width > x) {
+						// Write out each line lower than the previous
+						cb.moveText(15, y);
+						cb.showTextAligned(alignment, text.substring(startNote,endNote), x, y, rotation);
+						y += (bf.getDescentPoint(text.substring(wrapPoint), fontSize) - (bf.getAscentPoint(text.substring(wrapPoint), fontSize)));
+						startNote = endNote;
+					}
+					endNote = wrapPoint;
+				}
+				// Write out last line
+				cb.moveText(10, y);
+				cb.showTextAligned(alignment, text.substring(startNote), x, y, rotation);
+			}
+			else{
+				cb.showTextAligned(alignment, text, x, y, rotation);
+			}
 			cb.endText();
+		}
+
+		private int[] findWrapPoints(String text) {
+			String[] lines = text.split("(?<=\\W)");
+			int[] wrapPoints = new int[lines.length];
+			wrapPoints[0] = lines[0].length();
+			for (int i = 1 ; i < lines.length ; i++){
+				wrapPoints[i] = wrapPoints[i-1] + lines[i].length();
+			}
+			return wrapPoints;
 		}
 		
 		private String geti18nTagValue(Locale locale, String tag) {
