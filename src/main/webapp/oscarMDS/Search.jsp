@@ -33,6 +33,7 @@
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 	String firstName = loggedInInfo.getLoggedInProvider().getFirstName();
 	String lastName = loggedInInfo.getLoggedInProvider().getLastName();
+	String providerNo = request.getParameter("providerNo");
 %>
 
 <html>
@@ -102,6 +103,10 @@ $(function() {
       },
     })
   });
+
+function clearProviderInfo(previousInformation){
+	<% providerNo = "0"; %>
+}
 
 </script>
 
@@ -188,8 +193,8 @@ $(function() {
 			<tr>
 			<td>&nbsp;</td>
 			<td>
-				<input type="hidden" value="<%= request.getParameter("providerNo") %>"name="searchProviderNo" id="provfind" />
-                <input type="text"  value="<%= lastName + ", " + firstName %>" id="autocompleteprov" name="demographicKeyword"/>
+				<input type="hidden" value="<%= providerNo %>"name="searchProviderNo" id="provfind" />
+                <input type="text"  value="<%= lastName + ", " + firstName %>" id="autocompleteprov" onchange="clearProviderInfo(this.val);"name="demographicKeyword"/>
 			</td>
 			</tr>
 			<tr>
