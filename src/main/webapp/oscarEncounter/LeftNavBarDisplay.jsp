@@ -27,11 +27,14 @@
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
       String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
+    String demographic$ = (String)session.getAttribute("casemgmt_DemoNo");
+    boolean authed=true;
+    String eChartObjectName = "_eChart";
+    if (oscar.OscarProperties.getInstance().isPropertyActive("queens_privilege_check_with_priority")) { eChartObjectName += ",_eChart$"+demographic$; }
 %>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_eChart" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_eChart");%>
+<security:oscarSec roleName="<%=roleName$%>" objectName="<%=eChartObjectName%>" rights="r" reverse="<%=true%>">
+    <%authed=false; %>
+    <%response.sendRedirect("../securityError.jsp?type="+eChartObjectName);%>
 </security:oscarSec>
 <%
 if(!authed) {

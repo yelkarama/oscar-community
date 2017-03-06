@@ -1645,6 +1645,7 @@ if (curProvider_no[provIndex].equals(provNum)) {
 <%
 	boolean bShowDocLink = false;
 boolean bShowEncounterLink = false;
+if (oscar.OscarProperties.getInstance().isPropertyActive("queens_privilege_check_with_priority")) { bShowEncounterLink = true; }
 %>
 <security:oscarSec roleName="<%=roleName$%>" objectName="_appointment.doctorLink" rights="r">
 <%
