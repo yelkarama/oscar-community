@@ -499,6 +499,10 @@ public class CaseManagementNoteDAO extends HibernateDaoSupport {
 		this.getHibernateTemplate().update(note);
 	}
 
+	public void updateIssueNote(CaseManagementNote note) {
+		this.getHibernateTemplate().update(note);
+	}
+
 	public void saveNote(CaseManagementNote note) {
 		if (note.getUuid() == null) {
 			UUID uuid = UUID.randomUUID();

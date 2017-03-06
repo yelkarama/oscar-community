@@ -1059,15 +1059,15 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 					if (newNote && c.getPosition() >= newPos) {
 						position = c.getPosition() + 1;
 						c.setPosition(position);
-						this.caseManagementMgr.updateNote(c);
+						this.caseManagementMgr.updateIssueNote(c);
 					} else if ((!newNote && newPos < note.getPosition()) && c.getPosition() >= newPos && c.getPosition() < note.getPosition()) {
 						position = c.getPosition() + 1;
 						c.setPosition(position);
-						this.caseManagementMgr.updateNote(c);
+						this.caseManagementMgr.updateIssueNote(c);
 					} else if ((!newNote && newPos > note.getPosition()) && c.getPosition() <= newPos && c.getPosition() > note.getPosition()) {
 						position = c.getPosition() - 1;
 						c.setPosition(position);
-						this.caseManagementMgr.updateNote(c);
+						this.caseManagementMgr.updateIssueNote(c);
 					}
 
 				}
