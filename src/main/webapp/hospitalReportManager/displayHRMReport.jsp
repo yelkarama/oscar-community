@@ -11,7 +11,6 @@
 <%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="org.apache.commons.lang.StringUtils,oscar.log.*"%>
 <%@page import="org.apache.commons.lang.StringEscapeUtils"%>
-<%@page import="java.util.Map"%>
 <%@page import="java.text.SimpleDateFormat" %>
 <%@ page import="oscar.OscarProperties"%>
 <%@ page language="java" contentType="text/html" %>
@@ -31,20 +30,124 @@
 if(!authed) {
 	return;
 }
+Logger logger= MiscUtils.getLogger();
+HRMDocumentDao hrmDocumentDao = (HRMDocumentDao) SpringUtils.getBean("HRMDocumentDao");
+HRMDocumentToDemographicDao hrmDocumentToDemographicDao = (HRMDocumentToDemographicDao) SpringUtils.getBean("HRMDocumentToDemographicDao");
+HRMDocumentToProviderDao hrmDocumentToProviderDao = (HRMDocumentToProviderDao) SpringUtils.getBean("HRMDocumentToProviderDao");
+HRMDocumentSubClassDao hrmDocumentSubClassDao = (HRMDocumentSubClassDao) SpringUtils.getBean("HRMDocumentSubClassDao");
+HRMSubClassDao hrmSubClassDao = (HRMSubClassDao) SpringUtils.getBean("HRMSubClassDao");
+HRMCategoryDao hrmCategoryDao = (HRMCategoryDao) SpringUtils.getBean("HRMCategoryDao");
+HRMDocumentCommentDao hrmDocumentCommentDao = (HRMDocumentCommentDao) SpringUtils.getBean("HRMDocumentCommentDao");
+HRMProviderConfidentialityStatementDao hrmProviderConfidentialityStatementDao = (HRMProviderConfidentialityStatementDao) SpringUtils.getBean("HRMProviderConfidentialityStatementDao");
 %>
 
-<%@page import="java.util.LinkedList, org.oscarehr.hospitalReportManager.*, org.oscarehr.hospitalReportManager.model.*, java.util.List, org.oscarehr.util.SpringUtils, org.oscarehr.PMmodule.dao.ProviderDao, java.util.Date" %>
+<%@page import="org.oscarehr.hospitalReportManager.*, org.oscarehr.hospitalReportManager.model.*, org.oscarehr.util.SpringUtils, org.oscarehr.PMmodule.dao.ProviderDao" %>
+<%@ page import="java.util.*" %>
+<%@ page import="org.apache.log4j.Logger" %>
+<%@ page import="org.oscarehr.util.MiscUtils" %>
+<%@ page import="org.oscarehr.hospitalReportManager.dao.*" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 
 <%
-HRMDocument hrmDocument = (HRMDocument) request.getAttribute("hrmDocument");
-HRMReport hrmReport = (HRMReport) request.getAttribute("hrmReport");
-Integer hrmReportId = (Integer) request.getAttribute("hrmReportId");
-
-HRMDocumentToDemographic demographicLink = (HRMDocumentToDemographic) request.getAttribute("demographicLink");
-List<HRMDocumentToProvider> providerLinkList = (List<HRMDocumentToProvider>) request.getAttribute("providerLinkList");
-
+Integer hrmReportId = Integer.parseInt(request.getParameter("segmentID"));
+String hrmReportTime = "";
+Integer hrmDuplicateNum =null;
 LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+HRMDocument document = hrmDocumentDao.findById(hrmReportId).get(0);
+HRMReport hrmReport = null;
+Map<Integer,Date> dupReportDates = new HashMap<Integer,Date>();
+Map<Integer,Date> dupTimeReceived = new HashMap<Integer,Date>();
+HRMDocumentToDemographic demographicLink = null;
+List<HRMDocumentToDemographic> demographicLinkList =null;
+List<HRMDocumentToProvider> providerLinkList =null;
+List<HRMDocumentSubClass> subClassList;
+HRMDocumentToProvider thisProviderLink;
+HRMCategory category = null;
+List<HRMDocument> allDocumentsWithRelationship=null;
+List<HRMDocumentComment> documentComments = null;
+String confidentialityStatement = null;
+
+
+	if (document != null) {
+		logger.debug("reading repotFile : "+document.getReportFile());
+		 hrmReport = HRMReportParser.parseReport(loggedInInfo, document.getReportFile());
+
+		if (hrmReport != null) {
+			hrmReportTime = document.getTimeReceived().toString();
+			hrmDuplicateNum = document.getNumDuplicatesReceived();
+
+			demographicLinkList = hrmDocumentToDemographicDao.findByHrmDocumentId(document.getId().toString());
+			demographicLink = (demographicLinkList.size() > 0 ? demographicLinkList.get(0) : null);
+
+			providerLinkList = hrmDocumentToProviderDao.findByHrmDocumentIdNoSystemUser(document.getId().toString());
+
+
+			subClassList = hrmDocumentSubClassDao.getSubClassesByDocumentId(document.getId());
+
+
+			thisProviderLink = hrmDocumentToProviderDao.findByHrmDocumentIdAndProviderNo(document.getId().toString(), loggedInInfo.getLoggedInProviderNo());
+
+
+			if (thisProviderLink != null) {
+				thisProviderLink.setViewed(1);
+				hrmDocumentToProviderDao.merge(thisProviderLink);
+			}
+
+			HRMDocumentSubClass hrmDocumentSubClass=null;
+			if (subClassList!= null)
+			{
+				for (HRMDocumentSubClass temp : subClassList)
+				{
+					if (temp.isActive())
+					{
+						hrmDocumentSubClass=temp;
+						break;
+					}
+				}
+			}
+
+
+			if (hrmDocumentSubClass != null) {
+				String subClassName = hrmDocumentSubClass.getSubClass();
+				String subClasMnemonic = hrmDocumentSubClass.getSubClassMnemonic();
+				category = hrmCategoryDao.findBySubClassNameMnemonic(hrmDocumentSubClass.getSendingFacilityId(),subClassName+':'+subClasMnemonic);
+
+				if(category == null){
+					HRMSubClass subClass = hrmSubClassDao.findApplicableSubClassMapping(document.getReportType(),subClassName, subClasMnemonic, hrmDocumentSubClass.getSendingFacilityId());
+					category = (subClass != null)?subClass.getHrmCategory():null;
+				}
+			}
+			else
+			{
+				category=hrmCategoryDao.findBySubClassNameMnemonic("DEFAULT");
+			}
+
+			// Get all the other HRM documents that are either a child, sibling, or parent
+			allDocumentsWithRelationship = hrmDocumentDao.findAllDocumentsWithRelationship(document.getId());
+
+
+
+			documentComments = hrmDocumentCommentDao.getCommentsForDocument(hrmReportId);
+
+
+			confidentialityStatement = hrmProviderConfidentialityStatementDao.getConfidentialityStatementForProvider(loggedInInfo.getLoggedInProviderNo());
+
+
+			String duplicateLabIdsString=StringUtils.trimToNull(request.getParameter("duplicateLabIds"));
+
+
+			if (duplicateLabIdsString!=null) {
+				String[] duplicateLabIdsStringSplit=duplicateLabIdsString.split(",");
+				for (String tempId : duplicateLabIdsStringSplit) {
+					HRMDocument doc = hrmDocumentDao.find(Integer.parseInt(tempId));
+					dupReportDates.put(Integer.parseInt(tempId),doc.getReportDate());
+					dupTimeReceived.put(Integer.parseInt(tempId),doc.getTimeReceived());
+				}
+
+			}
+		}
+	}
+
 ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao");
 
 if(demographicLink != null){
@@ -359,10 +462,10 @@ String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 	</div>
 	<br />
 	<div id="hrmNotice">
-	This report was received from the Hospital Report Manager (HRM) at <%=(String) request.getAttribute("hrmReportTime") %>.
-	<% if (request.getAttribute("hrmDuplicateNum") != null && ((Integer) request.getAttribute("hrmDuplicateNum")) > 0) { %><br /><i>OSCAR has received <%=request.getAttribute("hrmDuplicateNum") %> duplicates of this report.</i><% } %>
+	This report was received from the Hospital Report Manager (HRM) at <%=(String) hrmReportTime %>.
+	<% if (hrmDuplicateNum != null && (hrmDuplicateNum > 0)) { %><br /><i>OSCAR has received <%=String.valueOf(hrmDuplicateNum) %> duplicates of this report.</i><% } %>
 	<%
-	List<HRMDocument> allDocumentsWithRelationship = (List<HRMDocument>) request.getAttribute("allDocumentsWithRelationship");
+	allDocumentsWithRelationship = (List<HRMDocument>) request.getAttribute("allDocumentsWithRelationship");
 	if (allDocumentsWithRelationship != null && allDocumentsWithRelationship.size() >= 1) {
 	%>
 		OSCAR has detected that this is similar to the following reports: 
@@ -371,7 +474,7 @@ String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 		for (HRMDocument relationshipDocument : allDocumentsWithRelationship) { 
 			if (!seenBefore.contains(relationshipDocument.getId().intValue())) { %>
 			<span class="documentLink_status<%=relationshipDocument.getReportStatus() %>" title="<%=relationshipDocument.getReportDate().toString() %>">
-			<% if (relationshipDocument.getId().intValue() != hrmReportId.intValue()) { %><a href="<%=request.getContextPath() %>/hospitalReportManager/Display.do?id=<%=relationshipDocument.getId() %>"><% } %>[<%=relationshipDocument.getId() %>]<% if (relationshipDocument.getId().intValue() != hrmReportId.intValue()) { %></a><% } %>
+			<% if (relationshipDocument.getId().intValue() != hrmReportId.intValue()) { %><a href="<%=request.getContextPath() %>/hospitalReportManager/Display.do?id=<%=relationshipDocument.getId() %>&segmentId=<%=relationshipDocument.getId() %> "><% } %>[<%=relationshipDocument.getId() %>]<% if (relationshipDocument.getId().intValue() != hrmReportId.intValue()) { %></a><% } %>
 			</span>&nbsp;&nbsp;
 		<% 	seenBefore.add(relationshipDocument.getId().intValue());
 			}
@@ -415,7 +518,6 @@ String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 	<% } %>
 	
 	<%
-	String confidentialityStatement = (String) request.getAttribute("confidentialityStatement");
 	if (confidentialityStatement != null && confidentialityStatement.trim().length() > 0) {
 	%>
 	<hr />
@@ -463,7 +565,7 @@ String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 			<th>Assigned Providers</th>
 			<td>
 				<div id="provstatus<%=hrmReportId %>"></div>
-				<% if (providerLinkList != null || providerLinkList.size() >= 1) {
+				<% if (providerLinkList != null && providerLinkList.size()>0) {
 					for (HRMDocumentToProvider p : providerLinkList) { 
 						if (!p.getProviderNo().equalsIgnoreCase("-1")) { %>
 						<%=providerDao.getProviderName(p.getProviderNo())%> <%=p.getSignedOff() !=null && p.getSignedOff()  == 1 ? "<abbr title='" + p.getSignedOffTimestamp() + "'>(Signed-Off)</abbr>" : "" %> <a href="#" onclick="removeProvFromHrm('<%=p.getId() %>', '<%=hrmReportId %>')">(remove)</a><br />
@@ -472,8 +574,8 @@ String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 				} else { %>
 					<i>No providers currently assigned</i><br />
 				<% } %>
-				<% if (hrmDocument.getUnmatchedProviders() != null && hrmDocument.getUnmatchedProviders().trim().length() >= 1) {
-					String[] unmatchedProviders = hrmDocument.getUnmatchedProviders().substring(1).split("\\|");
+				<% if (document.getUnmatchedProviders() != null && document.getUnmatchedProviders().trim().length() >= 1) {
+					String[] unmatchedProviders = document.getUnmatchedProviders().substring(1).split("\\|");
 					for (String unmatchedProvider : unmatchedProviders) { %>
 						<i><abbr title="From the HRM document"><%=unmatchedProvider %></abbr></i><br />
 					<% }
@@ -534,7 +636,6 @@ String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 			<th>Categorization</th>
 			<td>
 				<%
-					HRMCategory category = (HRMCategory) request.getAttribute("category");
 					if (category != null){
 				%>
 				<%=StringEscapeUtils.escapeHtml(category.getCategoryName())%>
@@ -569,7 +670,7 @@ String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
 <div id="commentBox">
 Set description to this report:<br />
-<input type="text" id="descriptionField_<%=hrmReportId %>_hrm" size="100" value="<%=StringEscapeUtils.escapeHtml(hrmDocument.getDescription())%>"/><br />
+<input type="text" id="descriptionField_<%=hrmReportId %>_hrm" size="100" value="<%=StringEscapeUtils.escapeHtml(document.getDescription())%>"/><br />
 
  <div class="boxButton">
    <input type="button" onClick="setDescription('<%=hrmReportId %>')" value="Set Description" /><span id="descriptionstatus<%=hrmReportId %>"></span><br /><br />
@@ -585,8 +686,6 @@ Add a comment to this report:<br />
    <input type="button" onClick="addComment('<%=hrmReportId %>')" value="Add Comment" /><span id="commentstatus<%=hrmReportId %>"></span><br /><br />
  </div>
 <%
-List<HRMDocumentComment> documentComments = (List<HRMDocumentComment>) request.getAttribute("hrmDocumentComments");
-
 if (documentComments != null) {
 	%>Displaying <%=documentComments.size() %> comment<%=documentComments.size() != 1 ? "s" : "" %><br />
 	<% for (HRMDocumentComment comment : documentComments) { %>
@@ -714,8 +813,7 @@ YAHOO.example.BasicRemote = function() {
 String duplicateLabIdsString=StringUtils.trimToNull(request.getParameter("duplicateLabIds"));
 if (duplicateLabIdsString!=null)
 {
-	Map<Integer,Date> dupReportDates = (Map<Integer,Date>)request.getAttribute("dupReportDates");
-	Map<Integer,Date> dupTimeReceived = (Map<Integer,Date>)request.getAttribute("dupTimeReceived");
+
 	SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm");
 	%>
 		<hr />
@@ -749,8 +847,7 @@ if (duplicateLabIdsString!=null)
 %>
 
 <br/>
-
-Duplicates of this report have been received <%=request.getAttribute("hrmDuplicateNum")!=null?request.getAttribute("hrmDuplicateNum"):"0"%> time(s).
-
+Duplicates of this report have been received <%=hrmDuplicateNum!=null?hrmDuplicateNum:"0"%> time(s).
+<hr width="100%" color="red">
 </body>
 </html>

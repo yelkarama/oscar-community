@@ -936,7 +936,7 @@ function changeSite(sel) {
                                                             npe.printStackTrace();
                                                         }
                                                 %>
-                                            <a href="javascript:reportWindow('../hospitalReportManager/Display.do?id=<%=tl.getTableId()%>&duplicateLabIds=')">ATT</a>
+                                            <a href="javascript:reportWindow('../hospitalReportManager/Display.do?id=<%=tl.getTableId()%>&segmentID=<%=tl.getTableId()%>&duplicateLabIds=')">ATT</a>
                                                 <%
                                                 	}else {
                                                 %>

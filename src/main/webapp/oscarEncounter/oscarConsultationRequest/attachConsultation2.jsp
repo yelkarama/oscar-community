@@ -445,7 +445,7 @@ function toggleSelectAll() {
 	                		truncatedDisplayName = StringUtils.maxLenString(hrmDisplayName,14,11,"");
 	                	}
 	                	//Gets the url for the display of the HRM Report
-	                	url = request.getContextPath() + "/hospitalReportManager/Display.do?id=" + hrmDocument.getId() + "&duplicateLabIds=";
+	                	url = request.getContextPath() + "/hospitalReportManager/Display.do?id=" + hrmDocument.getId() + "&segmentID=" + hrmDocument.getId() + "&duplicateLabIds=";
 	                	//Gets the report date 
 	                	date = DateUtils.getDate(hrmDocument.getReportDate(), "dd-MMM-yyyy", request.getLocale());
 	                	%>
