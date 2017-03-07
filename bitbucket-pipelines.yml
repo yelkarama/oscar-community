@@ -1,0 +1,13 @@
+image: maven:3.3.3
+
+pipelines:
+  default:
+    - step:
+        script:
+          - mvn clean install -Dcheckstyle.skip -Dmaven.test.skip=True
+  branches:
+    KAI-15-Pilot-Release:
+      - step:
+          script:
+            - mvn package -Dcheckstyle.skip -Dmaven.test.skip=True
+    
