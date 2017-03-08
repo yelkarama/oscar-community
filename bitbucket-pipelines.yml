@@ -4,7 +4,7 @@ pipelines:
   default:
     - step:
         script:
-          - mvn clean package -Dcheckstyle.skip -Dmaven.test.skip=True
+          - mvn clean package -Dcheckstyle.skip -Dmaven.test.skip=True -e -X
   branches:
     KAI-15-Pilot-Release:
       - step:
