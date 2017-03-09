@@ -325,7 +325,14 @@ public class EctConsultationFormFaxAction extends Action {
 
 				LogAction.addLog(provider_no, LogConst.SENT, LogConst.CON_FAX, "CONSULT "+ reqId);
 				request.setAttribute("faxSuccessful", true);
-				return mapping.findForward("success");
+				String print = request.getParameter("printType");
+				if (print!=null){
+					return mapping.findForward(print);
+				}
+				else{
+					return mapping.findForward("success");
+				}
+
 
 			}
 
