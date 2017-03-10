@@ -847,22 +847,8 @@ function checkForm(submissionVal,formName){
      return false;
   }
   $("saved").value = "true";
-  var form = document.forms[formName]
-  if (submissionVal == "Submit Print And Fax" || submissionVal == "Update Print And Fax"){
-      //in current window forward to fax page
-      form.submission.value=submissionVal;
-      form.submit();
-
-      //in new window open print pag
-      window.open('', 'form-target', 'width=960, height=700');
-      form.submission.value="And Print Preview";
-      form.target = 'form-target';
-      form.submit();
-  }
-  else{
-      form.submission.value=submissionVal;
-      form.submit();
-  }
+  document.forms[formName].submission.value=submissionVal;
+  document.forms[formName].submit();
   return true;
 }
 
