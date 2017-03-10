@@ -120,7 +120,7 @@ public class PreventionPrintPdf {
         //Create the font we are going to print to       
         Font font = FontFactory.getFont(FontFactory.HELVETICA, 9, Font.NORMAL, Color.BLACK);     
                
-        StringBuilder demoInfo = new StringBuilder(demo.getSexDesc()).append(" Age: ").append(demo.getAge()).append(" (").append(demo.getBirthDayAsString()).append(")")
+        StringBuilder demoInfo = new StringBuilder(demo.getSexDesc()!=null?demo.getSexDesc():demo.getSex()).append(" Age: ").append(demo.getAge()).append(" (").append(demo.getBirthDayAsString()).append(")")
                 .append(" HIN: (").append(demo.getHcType()).append(") ").append(demo.getHin()).append(" ").append(demo.getVer());                                                                 
               
         //Header will be printed at top of every page beginning with p2
