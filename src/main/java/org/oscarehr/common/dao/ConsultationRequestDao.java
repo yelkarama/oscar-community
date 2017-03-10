@@ -110,7 +110,7 @@ public class ConsultationRequestDao extends AbstractDao<ConsultationRequest> {
             }else if(orderby.equals("3")){               //3 = msgPatient
                 sql.append("order by d.LastName " + orderDesc + service);
             }else if(orderby.equals("4")){               //4 = msgProvider
-                sql.append("order by p.LastName " + orderDesc + ", cr.referralDate " + orderDesc);
+                sql.append("order by p.LastName " + orderDesc + ", cr.referralDate desc " + service);
             }else if(orderby.equals("5")){               //5 = msgService Desc
                 sql.append("order by service.serviceDesc " + orderDesc);
             }else if(orderby.equals("6")){               //6 = msgSpecialist Name
