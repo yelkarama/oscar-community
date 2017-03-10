@@ -645,6 +645,7 @@ Visit Location:<br>
 <% //
 if(statusType.equals("_")) { %>
     <!--  div class="rejected list"-->
+		<p>(*) Invoice was created in another system.</p>
        <table class="table">
           <tr class="warning"> 
              <th>Health#</th>
@@ -706,10 +707,16 @@ if(statusType.equals("_")) { %>
     		<tr <%=color %>>
     			<td><small><%=bObj.getHin() %> <%=bObj.getVer() %></small></td>
     			<td><font size="-1"><%=bObj.getDob() %></font></td>
-    			<td align="right"><a href=# onclick="popupPage(800,700,'billingONCorrection.jsp?billing_no=<%=bObj.getBilling_no()%>','BillCorrection<%=bObj.getBilling_no()%>');return false;"><%=bObj.getBilling_no() %></a></td>
+    			<td align="right">
+					<% if (billCheader1!=null) {%>
+						<a href=# onclick="popupPage(800,700,'billingONCorrection.jsp?billing_no=<%=bObj.getBilling_no()%>','BillCorrection<%=bObj.getBilling_no()%>');return false;"><%=bObj.getBilling_no() %></a>
+					<% } else {%>
+						* <%=bObj.getBilling_no() %>
+					<%  } %>
+				</td>
     			<td><%=bObj.getRef_no() %></td>
     			<td><%=bObj.getFacility() %></td>
-				<td><%=billCheader1.getStatus() %></td>
+				<td><%=billCheader1!=null?billCheader1.getStatus():"" %></td>
     			<td><%=bObj.getAdmitted_date() %></td>
     			<td><%=bObj.getClaim_error() %></td>
     			<td><%=bObj.getCode() %></td>
