@@ -457,7 +457,7 @@ try
             String oscarMsgType = (String)request.getParameter("msgType");   
             String OscarMsgTypeLink = (String)request.getParameter("OscarMsgTypeLink");
          %>
-<nested:form action="/CaseManagementEntry" style="display:inline; margin-top:0; margin-bottom:0; position: relative;">
+<nested:form action="/CaseManagementEntry" style="display:inline; margin-top:0; margin-bottom:0;">
 	<html:hidden property="demographicNo" value="<%=demographicNo%>" />
 	<html:hidden property="includeIssue" value="off" />
         <input type="hidden" name="OscarMsgType" value="<%=oscarMsgType%>"/>        
