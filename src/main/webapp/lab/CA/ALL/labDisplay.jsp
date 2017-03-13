@@ -1093,7 +1093,7 @@ pre {
                                                                         <% if ( ackStatus.equals("Acknowledged") ) { %>
                                                                             <%= report.getTimestamp() %>,
                                                                         <% } %>
-                                                                        <span id="<%=report.getOscarProviderNo() + "_" + segmentID%>commentLabel"><%=report.getComment() == null || report.getComment().equals("") ? "no comment" : "comment : "%></span><span id="<%=report.getOscarProviderNo() + "_" + segmentID%>commentText"><%=report.getComment()==null ? "" : report.getComment()%></span>
+                                                                        <span id="<%=report.getOscarProviderNo() + "_" + segmentID%>commentLabel"><%=report.getComment() == null || report.getComment().equals("") ? "" : "comment : "%></span><span id="<%=report.getOscarProviderNo() + "_" + segmentID%>commentText"><%=report.getComment()==null ? "" : report.getComment()%></span>
                                                                         <br>
                                                                     <% }
                                                                     if (ackList.size() == 0){

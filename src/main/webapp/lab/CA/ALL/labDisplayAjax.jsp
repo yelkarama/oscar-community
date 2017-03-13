@@ -704,7 +704,7 @@ if (request.getAttribute("printError") != null && (Boolean) request.getAttribute
                                                                             <%= report.getTimestamp() %>,
                                                                             <% String commentTitle = null;
                                                                                if(report.getComment() == null || report.getComment().equals("")) {
-                                                                        	   	commentTitle = "no comment";
+                                                                        	   	commentTitle = "";
                                                                                }
                                                                                else {
                                                                         	   	commentTitle = "comment: ";

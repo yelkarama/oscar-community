@@ -742,7 +742,7 @@ function sendMRP(ele){
                                                                         <font color="red"><%= ackStatus %></font>
                                                                        		&nbsp;
                                                                             <%= report.getTimestamp()== null ? "" : report.getTimestamp() %>,&nbsp;
-                                                                            comment: <%= ( report.getComment() == null || report.getComment().equals("") ? "no comment" : report.getComment() ) %>
+                                                                             <%= ( report.getComment() == null || report.getComment().equals("") ? "" : "comment: " + report.getComment() ) %>
                                                                        
                                                                         <br>
                                                                     <% }
