@@ -84,91 +84,12 @@ public class EctDisplayHRMAction extends EctDisplayAction {
 				allHrmDocsForDemo.addAll(hrmDoc);
 			}
 
-
-			List<Integer> doNotShowList = new LinkedList<Integer>();
-			// the key = SendingFacility+':'+ReportNumber+':'+DeliverToUserID as per HRM spec can be used to signify duplicate report
-			HashMap<String,HRMDocument> docsToDisplay = new HashMap<String,HRMDocument>();
-			HashMap<String,HRMReport> labReports=new HashMap<String,HRMReport>();
-			HashMap<String,ArrayList<Integer>> duplicateLabIds=new HashMap<String,ArrayList<Integer>>();
-			for (HRMDocument doc : allHrmDocsForDemo) {
+			for (HRMDocument hrmDocument : allHrmDocsForDemo) {
 				// filter duplicate reports
-				HRMReport hrmReport = HRMReportParser.parseReport(loggedInInfo, doc.getReportFile());
+				HRMReport hrmReport = HRMReportParser.parseReport(loggedInInfo, hrmDocument.getReportFile());
 				if (hrmReport == null) continue;
-				hrmReport.setHrmDocumentId(doc.getId());
-				String duplicateKey=hrmReport.getSendingFacilityId()+':'+hrmReport.getSendingFacilityReportNo()+':'+hrmReport.getDeliverToUserId();
+				hrmReport.setHrmDocumentId(hrmDocument.getId());
 
-				
-				List<HRMDocument> relationshipDocs = hrmDocumentDao.findAllDocumentsWithRelationship(doc.getId());
-
-				HRMDocument oldestDocForTree = doc;
-				for (HRMDocument relationshipDoc : relationshipDocs) {
-					if (relationshipDoc.getId().intValue() != doc.getId().intValue()) {
-						if (relationshipDoc.getReportDate().compareTo(oldestDocForTree.getReportDate()) >= 0 || relationshipDoc.getReportStatus().equalsIgnoreCase("C")) {
-							doNotShowList.add(oldestDocForTree.getId());
-							oldestDocForTree = relationshipDoc;
-						}
-					}
-				}
-
-				boolean addToList = true;
-				for (HRMDocument displayDoc : docsToDisplay.values()) {
-					if (displayDoc.getId().intValue() == oldestDocForTree.getId().intValue()) {
-						addToList = false;
-					}
-				}
-				
-				for (Integer doNotShowId : doNotShowList) {
-					if (doNotShowId.intValue() == oldestDocForTree.getId().intValue()) {
-						addToList = false;
-					}
-				}
-
-				if (addToList)
-				{
-					// if no duplicate
-					if (!docsToDisplay.containsKey(duplicateKey))
-					{
-						docsToDisplay.put(duplicateKey,oldestDocForTree);
-						labReports.put(duplicateKey, hrmReport);
-					}
-					else // there exists an entry like this one
-					{
-						HRMReport previousHrmReport=labReports.get(duplicateKey);
-						
-						logger.debug("Duplicate report found : previous="+previousHrmReport.getHrmDocumentId()+", current="+hrmReport.getHrmDocumentId());
-						
-						Integer duplicateIdToAdd;
-						
-						// if the current entry is newer than the previous one then replace it, other wise just keep the previous entry
-						if (HRMResultsData.isNewer(hrmReport, previousHrmReport))
-						{
-							HRMDocument previousHRMDocument = docsToDisplay.get(duplicateKey);
-							duplicateIdToAdd=previousHRMDocument.getId();
-							
-							docsToDisplay.put(duplicateKey,oldestDocForTree);
-							labReports.put(duplicateKey, hrmReport);
-						}
-						else
-						{
-							duplicateIdToAdd=doc.getId();
-						}
-
-						ArrayList<Integer> duplicateIds=duplicateLabIds.get(duplicateKey);
-						if (duplicateIds==null)
-						{
-							duplicateIds=new ArrayList<Integer>();
-							duplicateLabIds.put(duplicateKey, duplicateIds);
-						}
-						
-						duplicateIds.add(duplicateIdToAdd);						
-					}
-				}
-			}
-
-			for (Map.Entry<String, HRMDocument> entry : docsToDisplay.entrySet()) {
-				
-				String duplicateKey=entry.getKey();
-				HRMDocument hrmDocument=entry.getValue();
 				List<HRMDocumentSubClass> hrmDocumentSubClassList = hrmDocumentSubClassDao.getSubClassesByDocumentId(hrmDocument.getId());
 				String reportStatus = hrmDocument.getReportStatus();
 				String dispFilename = hrmDocument.getReportType();
@@ -177,7 +98,6 @@ public class EctDisplayHRMAction extends EctDisplayAction {
 				String dispDocNo = hrmDocument.getId().toString();
 				String description = hrmDocument.getDescription();
 
-				HRMReport hrmReport = HRMReportParser.parseReport(loggedInInfo, hrmDocument.getReportFile());
 				if (hrmReport.getFirstReportClass().equalsIgnoreCase("Diagnostic Imaging Report") || hrmReport.getFirstReportClass().equalsIgnoreCase("Cardio Respiratory Report")) {
 					//Get first sub class to display on eChart
 					if (hrmDocumentSubClassList != null && hrmDocumentSubClassList.size()>0) {
@@ -227,15 +147,6 @@ public class EctDisplayHRMAction extends EctDisplayAction {
 				hash = Math.abs(winName.hashCode());
 
 				StringBuilder duplicateLabIdQueryString=new StringBuilder();
-				ArrayList<Integer> duplicateIdList=duplicateLabIds.get(duplicateKey);
-            	if (duplicateIdList!=null)
-            	{
-					for (Integer duplicateLabIdTemp : duplicateIdList)
-	            	{
-	            		if (duplicateLabIdQueryString.length()>0) duplicateLabIdQueryString.append(',');
-	            		duplicateLabIdQueryString.append(duplicateLabIdTemp);
-	            	}
-				}
 
 				url = "popupPage(700,800,'" + hash + "', '" + request.getContextPath() + "/hospitalReportManager/Display.do?id="+dispDocNo+"&duplicateLabIds="+duplicateLabIdQueryString+"');";
 
