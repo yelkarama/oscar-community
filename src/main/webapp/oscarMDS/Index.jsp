@@ -259,8 +259,7 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
 			}
 			
 			jQuery("#readerSwitcher").prop("disabled",false);
-            
-			jQuery("#listSwitcher").prop("disabled",fjqueryalse);
+			jQuery("#listSwitcher").prop("disabled",false);
 		}});
 	}
 
