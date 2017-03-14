@@ -666,7 +666,7 @@ function toggleView(form) {
 					<tr>                            
                             <td><span><input type=button value="Fax & Paste into EMR"
                                     class="ControlPushButton" id="faxButton" style="width: 150px"
-                                    onClick="printPaste2Parent(false);sendFax();javascript:parent.myLightWindow.deactivate();"/></span>
+                                    onClick="printPaste2Parent(false);sendFax();" disabled/></span>
                                     
                                  <span>
                                  	<select id="faxNumber" name="faxNumber">
