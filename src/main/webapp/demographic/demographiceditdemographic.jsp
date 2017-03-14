@@ -1941,7 +1941,7 @@ if ( Dead.equals(PatStat) ) {%>
 						</div>
 
 						<div class="demographicSection" id="healthInsurance">
-						<h3>&nbsp;<bean:message key="demographic.demographiceditdemographic.msgHealthIns"/></h3>
+						<h3>&nbsp;<bean:message key="demographic.demographiceditdemographic.msgHealthIns"/> <a href="#" onclick="popup(500, 500, '/CardSwipe/?hc=<%=StringUtils.trimToEmpty(demographic.getHin())%> <%=StringUtils.trimToEmpty(demographic.getVer())%>&providerNo=<%=StringUtils.trimToEmpty(curProvider_no)%>', 'Card Swipe'); return false;" style="float:right; padding-right: 5px;">Validate HC</a></h3>
 						<ul>
                                                     <li><span class="label"><bean:message
 								key="demographic.demographiceditdemographic.formHin" />:</span>
