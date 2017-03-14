@@ -38,8 +38,9 @@
 <input type="hidden" name="demographicNo" value="<%=request.getParameter("demographicNo")%>"/>
 <input type="hidden" name="letterheadFax" value="<%=request.getParameter("letterheadFax")%>"/>
 <input type="hidden" name="fax" value="<%=request.getParameter("fax")%>"/>
-<input type="hidden" name="printType" value="<%=request.getAttribute("printType")%>"/>
-<%
+<%if(request.getAttribute("printType")!=null){%>
+	<input type="hidden" name="printType" value="<%=request.getAttribute("printType")%>"/>
+<%}
 	String consultResponsePage = request.getParameter("consultResponsePage");
 	if (consultResponsePage!=null) {
 	%>
