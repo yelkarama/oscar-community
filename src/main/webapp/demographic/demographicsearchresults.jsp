@@ -298,7 +298,7 @@
 	if (searchMode == null)
 		searchMode = "search_name";
 	if (orderBy == null)
-		orderBy = "last_name";
+		orderBy = "last_name, first_name";
 	
 	
 	List<Demographic> demoList = null;
@@ -317,6 +317,9 @@
 		
 		if(orderBy.equals("last_name")) {
 			Collections.sort(demoList, Demographic.LastNameComparator);
+		}
+		else if (orderBy.equals("last_name, first_name")) {
+		    Collections.sort(demoList, Demographic.LastAndFirstNameComparator);
 		}
 		else if(orderBy.equals("demographic_no")) {
 			Collections.sort(demoList, Demographic.DemographicNoComparator);
