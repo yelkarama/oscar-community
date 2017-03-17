@@ -245,7 +245,7 @@ public class BillingCorrectionAction extends DispatchAction{
         }            
     
  
-        if(request.getParameter("submit").equals("Save&Correct Another")){
+        if(request.getParameter("submit").contains("Save")){
             return mapping.findForward("closeReload");
         } else if(request.getParameter("adminSubmit")!=null){
         	return mapping.findForward("adminReload");
