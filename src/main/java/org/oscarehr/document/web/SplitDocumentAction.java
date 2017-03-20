@@ -8,9 +8,8 @@
  */
 package org.oscarehr.document.web;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -20,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.time.DateFormatUtils;
+import org.apache.pdfbox.exceptions.COSVisitorException;
 import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -200,11 +200,14 @@ public class SplitDocumentAction extends DispatchAction {
 		Document doc = documentDao.getDocument(request.getParameter("document"));
 
 		String docdownload = oscar.OscarProperties.getInstance().getProperty("DOCUMENT_DIR");
+		String fileName = docdownload + doc.getDocfilename();
 
-		FileInputStream input = new FileInputStream(docdownload + doc.getDocfilename());
+		FileInputStream input = new FileInputStream(fileName);
 		PDFParser parser = new PDFParser(input);
 		parser.parse();
 		PDDocument pdf = parser.getPDDocument();
+		File file = new File(fileName);
+		setFilePermissions(file);
 		int x = 1;
 		for (Object p : pdf.getDocumentCatalog().getAllPages()) {
 			PDPage pg = (PDPage)p;
@@ -215,10 +218,7 @@ public class SplitDocumentAction extends DispatchAction {
 			x++;
 		}
 
-		pdf.save(docdownload + doc.getDocfilename());
-		pdf.close();
-
-		input.close();
+		saveFile(pdf,fileName,input);
 
 		return null;
 	}
@@ -227,11 +227,14 @@ public class SplitDocumentAction extends DispatchAction {
 		Document doc = documentDao.getDocument(request.getParameter("document"));
 
 		String docdownload = oscar.OscarProperties.getInstance().getProperty("DOCUMENT_DIR");
+		String fileName = docdownload + doc.getDocfilename();
 
-		FileInputStream input = new FileInputStream(docdownload + doc.getDocfilename());
+		FileInputStream input = new FileInputStream(fileName);
 		PDFParser parser = new PDFParser(input);
 		parser.parse();
 		PDDocument pdf = parser.getPDDocument();
+		File file = new File(fileName);
+		setFilePermissions(file);
 		int x = 1;
 		for (Object p : pdf.getDocumentCatalog().getAllPages()) {
 			PDPage pg = (PDPage)p;
@@ -242,10 +245,7 @@ public class SplitDocumentAction extends DispatchAction {
 			x++;
 		}
 
-		pdf.save(docdownload + doc.getDocfilename());
-		pdf.close();
-
-		input.close();
+		saveFile(pdf,fileName,input);
 
 		return null;
 	}
@@ -254,8 +254,9 @@ public class SplitDocumentAction extends DispatchAction {
 		Document doc = documentDao.getDocument(request.getParameter("document"));
 
 		String docdownload = oscar.OscarProperties.getInstance().getProperty("DOCUMENT_DIR");
+		String fileName = docdownload + doc.getDocfilename();
 
-		FileInputStream input = new FileInputStream(docdownload + doc.getDocfilename());
+		FileInputStream input = new FileInputStream(fileName);
 		PDFParser parser = new PDFParser(input);
 		parser.parse();
 		PDDocument pdf = parser.getPDDocument();
@@ -263,23 +264,67 @@ public class SplitDocumentAction extends DispatchAction {
 		// Documents must have at least 2 pages, for the first page to be removed.
 		if (pdf.getNumberOfPages() <= 1) { return null; }
 
+		File file = new File(fileName);
+		setFilePermissions(file);
 		int x = 1;
 		for (Object p : pdf.getDocumentCatalog().getAllPages()) {
 			ManageDocumentAction.deleteCacheVersion(doc, x);
 			x++;
 		}
 
-		pdf.removePage(0);
-
-
-		EDocUtil.subtractOnePage(request.getParameter("document"));
-
-		pdf.save(docdownload + doc.getDocfilename());
-		pdf.close();
-
-		input.close();
+		if (saveFile(pdf, fileName, input)){
+			// Only update the number of pages in the database if no exceptions are thrown
+			EDocUtil.subtractOnePage(request.getParameter("document"));
+		}
 
 		return null;
 	}
 
+	/**
+	 *
+	 * @param pdf The pdf document
+	 * @param fileName The file name string
+	 * @param input The input stream
+	 * @return A boolean value indicating if the file was successfully saved without errors
+	 */
+	private boolean saveFile(PDDocument pdf, String fileName, InputStream input) {
+		ArrayList<String> errors = new ArrayList<String>();
+		try {
+			pdf.save(fileName);
+		} catch (IOException ioe) {
+			errors.add(ioe.getMessage());
+			ioe.printStackTrace();
+		} catch (COSVisitorException cve) {
+			errors.add(cve.getMessage());
+			cve.printStackTrace();
+		} finally {
+			try {
+				if (pdf != null) pdf.close();
+				if (input != null) input.close();
+			} catch (IOException ioeClose) {
+				errors.add(ioeClose.getMessage());
+				ioeClose.printStackTrace();
+			}
+			if(errors.size()>0){
+				for (String errorMessage : errors){
+					MiscUtils.getLogger().error(errorMessage);
+				}
+				return false;
+			}
+			else{
+				return true;
+			}
+		}
+	}
+
+	/**
+	 * Sets file permissions for the file that is being modified.
+	 *
+	 * @param   file  A file
+	 */
+	private void setFilePermissions(File file){
+		file.setWritable(true, false);
+		file.setExecutable(true,false);
+		file.setReadable(true, false);
+	}
 }
