@@ -38,6 +38,10 @@
 <%@page import="org.oscarehr.common.dao.ProviderDataDao" %>
 <%@page import="org.oscarehr.common.model.ProviderData"%>
 <%@page import="java.util.List"%>
+<%@ page import="oscar.SxmlMisc" %>
+<%@ page import="org.oscarehr.common.model.Demographic" %>
+<%@ page import="oscar.oscarDemographic.data.DemographicData" %>
+<jsp:useBean id="displayServiceUtil" scope="request" class="oscar.oscarEncounter.oscarConsultationRequest.config.pageUtil.EctConDisplayServiceUtil" />
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 "http://www.w3.org/TR/html4/loose.dtd">
@@ -56,6 +60,28 @@
 
     String encTimeMandatoryValue = OscarProperties.getInstance().getProperty("ENCOUNTER_TIME_MANDATORY","false");
 
+	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+	//EctConDisplayServiceUtil displayServiceUtil =
+	displayServiceUtil.estSpecialist();
+	String providerNoFromChart = null;
+	String demoNo = request.getParameter("demographicNo");
+	DemographicData demoData = null;
+	Demographic demographic = null;
+	String familyDoctor = null;
+	String rdohip = "";
+
+	if (demoNo != null) {
+		demoData = new oscar.oscarDemographic.data.DemographicData();
+		demographic = demoData.getDemographic(loggedInInfo, demoNo);
+
+		providerNoFromChart = demographic.getProviderNo();
+
+		familyDoctor = demographic.getFamilyDoctor();
+		if (familyDoctor != null && familyDoctor.trim().length() > 0) {
+			rdohip = SxmlMisc.getXmlContent(familyDoctor, "rdohip");
+			rdohip = rdohip == null ? "" : rdohip.trim();
+		}
+	}
 %>
 
 <html:html locale="true">
@@ -112,6 +138,9 @@
 <!-- phr popups -->
 <script type="text/javascript" src="<c:out value="${ctx}/phr/phr.js"/>"></script>
 
+<!-- fax recipients add control -->
+<script type="text/javascript" src="<c:out value="${ctx}/share/javascript/casemgmt/faxControl.js"/>"></script>
+
 
 <link rel="stylesheet" type="text/css" href="<c:out value="${ctx}/css/oscarRx.css" />">
 
@@ -148,7 +177,6 @@ var Colour = {
 	<script type="text/javascript" src="<c:out value="${ctx}/casemgmt/noteProgram.js" />"></script>
 <% } 
 
-LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 %>
 
 <script type="text/javascript">
@@ -579,7 +607,7 @@ div.autocomplete ul li {
 	position: absolute;
 	display: none;
 	z-index: 1;
-	width: 200px;
+	width: 230px;
 	right: 100px;
 	bottom: 200px;
 }
@@ -708,6 +736,7 @@ div.autocomplete ul li {
         printDateMsg = "<bean:message key="oscarEncounter.printDate.msg"/>";
         printDateOrderMsg = "<bean:message key="oscarEncounter.printDateOrder.msg"/>";
         nothing2PrintMsg = "<bean:message key="oscarEncounter.nothingToPrint.msg"/>";
+        nothing2FaxMsg = "<bean:message key="oscarEncounter.nothingToFax.msg"/>";
         editUnsignedMsg = "<bean:message key="oscarEncounter.editUnsignedNote.msg"/>";
         msgDraftSaved = "<bean:message key="oscarEncounter.draftSaved.msg"/>";
         msgPasswd = "<bean:message key="Logon.passWord"/>";
@@ -965,7 +994,7 @@ window.onbeforeunload = onClosing;
 		</form>
 	</div>
 	<div id="printOps" class="printOps">
-		<h3 style="margin-bottom: 5px; text-align: center;">
+		<h3 id="dialogTitle" style="margin-bottom: 5px; text-align: center;">
 			<bean:message key="oscarEncounter.Index.PrintDialog" />
 		</h3>
 		<form id="frmPrintOps" action="" onsubmit="return false;">
@@ -1045,7 +1074,9 @@ window.onbeforeunload = onClosing;
 			<div style="margin-top: 5px; text-align: center">
 				<input type="submit" id="printOp" style="border: 1px solid #7682b1;"
 					value="Print" onclick="return printNotes();">
-				
+				<input type="submit" id="faxOp" style="border: 1px solid #7682b1;"
+				    value="Fax" onclick="return toggleFax();">
+
 					<indivo:indivoRegistered
 						demographic="<%=(String) request.getAttribute(\"demographicNo\")%>"
 						provider="<%=(String) request.getSession().getAttribute(\"user\")%>">
@@ -1106,6 +1137,64 @@ if (OscarProperties.getInstance().getBooleanProperty("note_program_ui_enabled", 
 }
 %>
 		</form>
+		<div id="faxOps" style="display: none;">
+			<div>
+                <div style="float: left; margin-left: 5px; width: 55px;">Ref Doctor:</div>
+				<select id="otherFaxSelect">
+					<%
+						String rdName = "";
+						String rdFaxNo = "";
+						for (int i=0;i < displayServiceUtil.specIdVec.size(); i++) {
+							String  specId     =  displayServiceUtil.specIdVec.elementAt(i);
+							String  fName      =  displayServiceUtil.fNameVec.elementAt(i);
+							String  lName      =  displayServiceUtil.lNameVec.elementAt(i);
+							String  proLetters =  displayServiceUtil.proLettersVec.elementAt(i);
+							String  address    =  displayServiceUtil.addressVec.elementAt(i);
+							String  phone      =  displayServiceUtil.phoneVec.elementAt(i);
+							String  fax        =  displayServiceUtil.faxVec.elementAt(i);
+							String  referralNo = "";
+							if (rdohip != null && !"".equals(rdohip) && rdohip.equals(referralNo)) {
+								rdName = String.format("%s, %s", lName, fName);
+								rdFaxNo = fax;
+							}
+							if (!"".equals(fax)) {
+					%>
+
+					<option value="<%= fax %>"> <%= String.format("%s, %s", lName, fName) %> </option>
+					<%
+							}
+						}
+					%>
+
+				</select> <input type="submit" style="border: 1px solid #7682b1;" value="Add" onclick="addOtherFaxProvider(); return false;">
+			</div>
+            <div><div style="float: left; margin-left: 5px; width: 55px;">Fax No. :</div>
+				<input type="text" id="otherFaxInput" name="otherFaxInput"  style="font-style: italic; border: 1px solid #7682b1; width: 125px; background-color: #FFFFFF;"  value=""/>
+				<input type="submit" style="border: 1px solid #7682b1;" value="Add" onclick="addOtherFax(); return false;">
+			</div>
+			<div style="margin-top: 5px; text-align: center">
+				<input type="submit" style="border: 1px solid #7682b1;" value="Back" onclick="toggleFax(); return false;">
+				<input type="submit" id="clearfaxOp" style="border: 1px solid #7682b1;" value="Clear" onclick="toggleFax();$('printOps').style.display='none'; return clearAll(event);">
+				<input type="submit" style="border: 1px solid #7682b1;" value="Send" onclick="faxNotes();return false;">
+			</div>
+			<div>
+
+				<ul id="faxRecipients">
+					<%
+						if (!"".equals(rdName) && !"".equals(rdFaxNo)) {
+					%>
+
+					<input type="hidden" name="faxRecipients" value="<%= rdFaxNo %>" />
+
+					<%
+
+						}
+					%>
+				</ul>
+			</div>
+
+
+		</div>
 	</div>
 <%
     String apptNo = request.getParameter("appointmentNo");
@@ -1168,8 +1257,8 @@ if (OscarProperties.getInstance().getBooleanProperty("note_program_ui_enabled", 
                             <tr>
                                 <td colspan="2">
                                     <input id="submitResident" value="Continue" name="submitResident" type="submit" onclick="return subResident();"/>
-                                    <input id="submitResident" value="Return to Chart" name="submitResident" type="submit" onclick="return cancelResident();"/>                                
-                                </td>                                
+                                    <input id="submitResident" value="Return to Chart" name="submitResident" type="submit" onclick="return cancelResident();"/>
+                                </td>
                             </tr>
                         </table>
                         </form>
