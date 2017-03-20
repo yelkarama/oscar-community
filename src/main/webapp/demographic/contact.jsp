@@ -89,9 +89,13 @@
 		            	<option value="<%=DemographicContact.TYPE_CONTACT%>">External</option>
 					</select>
 	            			           
-	            	<input type="hidden" name="contact_<%=id%>.contactId" value="0"/>
-		             <input type="text" name="contact_<%=id%>.contactName" id="contact_<%=id%>.contactName" size="20" readonly="readonly"/>		             
-		             <a href="#" onclick="doPersonalSearch('<%=id%>');return false;">${param.search}</a>
+	            	<input type="hidden" name="contact_<%=id%>.contactId" id="contact_<%=id%>.contactId" value="0"/>
+		             <input type="text" name="contact_<%=id%>.contactName" id="contact_<%=id%>.contactName" size="20"/>
+					 <script> 
+						 var contactName = document.getElementById('contact_<%=id%>.contactName');
+                         var contactId = document.getElementById('contact_<%=id%>.contactId');
+					 </script>
+		             <a href="#" onclick="doPersonalSearch('<%=id%>', contactName.value, contactId.value);return false;">${param.search}</a>
 		             
 		             &nbsp;
 		             SDM:<input type="checkbox" name="contact_<%=id%>.sdm"/>
