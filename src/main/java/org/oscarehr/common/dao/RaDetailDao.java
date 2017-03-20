@@ -184,8 +184,7 @@ public class RaDetailDao extends AbstractDao<RaDetail> {
    	 }
    	
    	public List<Object[]> search_raprovider(Integer raHeaderNo) {
-   	   	Query query = entityManager.createQuery("from RaDetail r, Provider p where p.OhipNo=r.providerOhipNo and r.raHeaderNo=:raHeaderNo group by r.providerOhipNo");
-   	   	
+   	   	Query query = entityManager.createQuery("from RaDetail r, Provider p where p.OhipNo=r.providerOhipNo and r.raHeaderNo=:raHeaderNo group by p.last_name,p.first_name");
    	   	query.setParameter("raHeaderNo", raHeaderNo);
 		
 		
