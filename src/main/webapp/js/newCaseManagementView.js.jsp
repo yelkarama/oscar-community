@@ -2847,6 +2847,22 @@ function changeDiagnosisUnresolved(issueId) {
         return false;
     }
 
+    function toggleFax() {
+        var faxOps = document.getElementById('faxOps');
+        var frmPrintOps = document.getElementById('frmPrintOps');
+        var dialogTitle = document.getElementById('dialogTitle');
+        if (faxOps.style.display === 'none') {
+            frmPrintOps.style.display = 'none';
+            faxOps.style.display = 'block';
+            dialogTitle.innerHTML = "Fax Recipients";
+        } else {
+            frmPrintOps.style.display = '';
+            faxOps.style.display = 'none';
+            dialogTitle.innerHTML = "Print Dialog";
+        }
+        return false;
+    }
+
     var closeWithoutSaveMsg;
     function closeEnc(e) {
         Event.stop(e);
@@ -3507,6 +3523,46 @@ function autoCompleteShowMenuCPP(element, update) {
 
         return false;
     }
+
+    var nothing2FaxMsg;
+    function faxNotes(){
+        if( $("printopDates").checked && !printDateRange()) {
+            return false;
+        }else if( $("printopAll").checked ){
+            printAll();
+        }
+
+        var faxRecipients = "";
+        if($("faxRecipients").children.length <= 0){
+            alert("Please select at least one Fax Recipient");
+            return false;
+        }
+        else{
+            for(var i=0; i<$("faxRecipients").children.length; i++){
+                faxRecipients += document.getElementsByName('faxRecipients')[i].value + ",";
+            }
+            document.getElementsByName('faxRecipients').length
+        }
+
+        if( $F("notes2print").length == 0 && $F("printCPP") == "false" && $F("printRx") == "false" && $F("printLabs") == "false" && !printDateRange() ) {
+            alert(nothing2FaxMsg);
+            return false;
+        }
+        var frm = document.forms["caseManagementEntryForm"];
+
+        frm.method.value = "fax";
+        jQuery('<input>').attr({
+            type: 'hidden',
+            id: 'recipients',
+            name: 'recipients',
+            value: faxRecipients
+        }).appendTo("form[name='caseManagementEntryForm']");
+
+        frm.pStartDate.value = $F("printStartDate");
+        frm.pEndDate.value = $F("printEndDate");
+        frm.submit();
+    }
+
 
     function sendToPhrr() {
         if( $("printopDates").checked && !printDateRange()) {
