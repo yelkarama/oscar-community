@@ -23,11 +23,7 @@
 
 package oscar.util;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
-import java.util.Vector;
+import java.util.*;
 
 import javax.servlet.jsp.PageContext;
 
@@ -63,6 +59,13 @@ public class OscarRoleObjectPrivilege {
 		return ret;
 	}
 
+	public static List<SecObjPrivilege> getSecObjPrivileges(String objNamesStr, String userRoleNamesStr) {
+		List<String> objectNames = Arrays.asList(objNamesStr.split("\\,"));
+		List<String> userRoleNames = Arrays.asList(userRoleNamesStr.split("\\,"));
+		SecObjPrivilegeDao dao = SpringUtils.getBean(SecObjPrivilegeDao.class);
+		return dao.findByRoleUserGroupsAndObjectNames(userRoleNames, objectNames);
+	}
+	
 	public static ArrayList<Object> getPrivilegePropAsArrayList(String objName) {
 		ArrayList<Object> ret = new ArrayList<Object>();
 		Properties prop = new Properties();
@@ -152,6 +155,27 @@ public class OscarRoleObjectPrivilege {
 			if (priority != null && priority.get(i) != null) {
 				// Since higher priority goes first in the list, if priority>0 we can skip the rest
 				if (!priority.get(i).trim().equals("") && !priority.get(i).trim().equals("0")) break;
+			}
+		}
+		return ret;
+	}
+
+	public static boolean checkPrivilege(List<SecObjPrivilege> secObjPrivileges, String rightCustom) {
+		boolean ret = false;
+		for (SecObjPrivilege privlege : secObjPrivileges) {
+			List<String> privilegeNames = getPrivilege(privlege.getPrivilege());
+			String priority = Integer.toString(privlege.getPriority());
+
+			for (String privilege : privilegeNames) {
+				if ("x".equals(privilege)) {
+					ret = true;
+				} else if (privilege.compareTo(rightCustom.toLowerCase()) >= 0) {
+					ret = true;
+				}
+			}
+			if (priority != null) {
+				// Since higher priority goes first in the list, if priority>0 we can skip the rest
+				if (!priority.trim().equals("") && !priority.trim().equals("0")) break;
 			}
 		}
 		return ret;

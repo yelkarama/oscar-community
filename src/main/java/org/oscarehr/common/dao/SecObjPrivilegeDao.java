@@ -53,6 +53,15 @@ public class SecObjPrivilegeDao extends AbstractDao<SecObjPrivilege> {
 
 		return result;
 	}
+
+	public List<SecObjPrivilege> findByRoleUserGroupsAndObjectNames(Collection<String> userRoleNames, Collection<String> objectNames) {
+		String sql = "SELECT s FROM SecObjPrivilege s WHERE s.id.roleUserGroup IN (:rug) AND  s.id.objectName IN (:obj) ORDER BY s.priority DESC";
+		Query query = entityManager.createQuery(sql);
+		query.setParameter("rug", userRoleNames);
+		query.setParameter("obj",  objectNames);
+		List<SecObjPrivilege> result =  query.getResultList();
+		return result;
+	}
 	
 	public List<SecObjPrivilege> findByObjectNames(Collection<String> objectNames) {
 		String sql = "select s FROM SecObjPrivilege s WHERE s.id.objectName IN (:obj) order by s.priority desc";

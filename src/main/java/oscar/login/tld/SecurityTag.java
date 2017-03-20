@@ -25,6 +25,7 @@
 
 package oscar.login.tld;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Vector;
@@ -33,6 +34,7 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.PageContext;
 import javax.servlet.jsp.tagext.Tag;
 
+import org.oscarehr.common.model.SecObjPrivilege;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -65,7 +67,6 @@ public class SecurityTag implements Tag {
          * try { JspWriter out = pageContext.getOut(); out.print("goooooooo"); } catch (Exception e) { }
          */
         int ret = 0;
-        Vector v = OscarRoleObjectPrivilege.getPrivilegeProp(objectName);
         // if (checkPrivilege(roleName, (Properties) getPrivilegeProp(objectName).get(0), (Vector) getPrivilegeProp(
         ///        objectName).get(1)))
     	/*TODO: temporily allow current security work, the if statement should be removed */
@@ -77,7 +78,15 @@ public class SecurityTag implements Tag {
         }
         else
         {
-	        if (OscarRoleObjectPrivilege.checkPrivilege(roleName, (Properties)v.get(0), (List<String>)v.get(1), (List<String>)v.get(2), rights)){
+        	boolean hasPrivilege;
+        	if (oscar.OscarProperties.getInstance().isPropertyActive("queens_privilege_check_with_priority")) {
+				List<SecObjPrivilege> secObjPrivileges = OscarRoleObjectPrivilege.getSecObjPrivileges(objectName, roleName);
+				hasPrivilege = OscarRoleObjectPrivilege.checkPrivilege(secObjPrivileges, rights);
+			} else {
+				Vector<Object> v = OscarRoleObjectPrivilege.getPrivilegeProp(objectName);
+				hasPrivilege = OscarRoleObjectPrivilege.checkPrivilege(roleName, (Properties)v.get(0), (List<String>)v.get(1), (List<String>)v.get(2), rights);
+			}
+	        if (hasPrivilege) {
 	            ret = EVAL_BODY_INCLUDE;
 	        }else{
 	            ret = SKIP_BODY;

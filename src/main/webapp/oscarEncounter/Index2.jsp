@@ -36,7 +36,7 @@
     long startTime = System.currentTimeMillis();
     if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    String demographic$ = request.getParameter("demographicNo") ;
+    String demographic$ = request.getParameter("demographicNo");
     boolean bPrincipalControl = false;
     boolean bPrincipalDisplay = false;
 
@@ -44,30 +44,27 @@
     
     String eChart$ = "_eChart$"+demographic$;
 
+    boolean authed=true;
+    String eChartObjectName = "_eChart";
+    if (oscar.OscarProperties.getInstance().isPropertyActive("queens_privilege_check_with_priority")) { eChartObjectName += ",_eChart$"+demographic$; } 
 %>
-<%
-       boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_eChart" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_eChart");%>
+<security:oscarSec roleName="<%=roleName$%>" objectName="<%=eChartObjectName%>" rights="r" reverse="<%=true%>">
+    <%authed=false; %>
+    <%response.sendRedirect("../securityError.jsp?type="+eChartObjectName);%>
 </security:oscarSec>
 <%
-if(!authed) {
-	return;
-}
-// The 'acctLocked.html' previously just had 'o' as the rights, and false as the 'reverse' parameter
-// echart_minimum_rights allows defining custom minimum rights, for use in filtering access on a user by user basis
-String singleChartRights = oscarVariables.getProperty("echart_minimum_rights", "o");
-boolean singleChartRightsActive = oscarVariables.containsKey("echart_minimum_rights");
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="<%=eChart$%>"
-	rights="<%=singleChartRights%>" reverse="<%=singleChartRightsActive%>">
-You have no rights to access the data!
-<% response.sendRedirect("../acctLocked.html");  %>
-</security:oscarSec>
-
-<%-- only principal has the save rights --%>
+    if(!authed) {
+        return;
+    }
+    
+    if (!oscar.OscarProperties.getInstance().isPropertyActive("queens_privilege_check_with_priority")) { %>
+        <security:oscarSec roleName="<%=roleName$%>" objectName="<%=eChart$%>"
+            rights="o" reverse="<%=false%>">
+        You have no rights to access the data!
+        <% response.sendRedirect("../acctLocked.html");  %>
+        </security:oscarSec>
+<%  } %>
+ <%--only principal has the save rights --%>
 
 <security:oscarSec roleName="_principal" objectName="_eChart"
 	rights="ow" reverse="<%=false%>">
