@@ -323,29 +323,30 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 		public void writeDirectContent(PdfContentByte cb, BaseFont bf, float fontSize, int alignment, String text, float x, float y, float rotation) {
 			cb.beginText();
 			cb.setFontAndSize(bf, fontSize);
-			// Split the pharmacy's note onto separate so it does not get cut off if it is too long
-			if (text.contains(this.pharmaNote)){
-				int startNote = 0;
-				int endNote = 0;
-				for (int wrapPoint : findWrapPoints(text) ) {
-					// Find wrap points of the long text to display them on separate lines
-					float width = bf.getWidth(text.substring(startNote,wrapPoint)) / 1000 * fontSize;
-					if (startNote < endNote && width > x) {
-						// Write out each line lower than the previous
-						cb.moveText(15, y);
-						cb.showTextAligned(alignment, text.substring(startNote,endNote), x, y, rotation);
-						y += (bf.getDescentPoint(text.substring(wrapPoint), fontSize) - (bf.getAscentPoint(text.substring(wrapPoint), fontSize)));
-						startNote = endNote;
-					}
-					endNote = wrapPoint;
+			cb.showTextAligned(alignment, text, x, y, rotation);
+			cb.endText();
+		}
+		public void writeDirectContentWrapText(PdfContentByte cb, BaseFont bf, float fontSize, int alignment, String text, float x, float y, float rotation) {
+			cb.beginText();
+			cb.setFontAndSize(bf, fontSize);
+			// Split the note's text onto separate so it does not get cut off if it is too long
+			int startNote = 0;
+			int endNote = 0;
+			for (int wrapPoint : findWrapPoints(text) ) {
+				// Find wrap points of the long text to display them on separate lines
+				float width = bf.getWidth(text.substring(startNote,wrapPoint)) / 1000 * fontSize;
+				if (startNote < endNote && width > x) {
+					// Write out each line lower than the previous
+					cb.moveText(15, y);
+					cb.showTextAligned(alignment, text.substring(startNote,endNote), x, y, rotation);
+					y += (bf.getDescentPoint(text.substring(wrapPoint), fontSize) - (bf.getAscentPoint(text.substring(wrapPoint), fontSize)));
+					startNote = endNote;
 				}
-				// Write out last line
-				cb.moveText(10, y);
-				cb.showTextAligned(alignment, text.substring(startNote), x, y, rotation);
+				endNote = wrapPoint;
 			}
-			else{
-				cb.showTextAligned(alignment, text, x, y, rotation);
-			}
+			// Write out last line
+			cb.moveText(10, y);
+			cb.showTextAligned(alignment, text.substring(startNote), x, y, rotation);
 			cb.endText();
 		}
 
@@ -459,7 +460,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 						writeDirectContent(cb,bf,10,PdfContentByte.ALIGN_LEFT,"Tel:" + this.pharmaTel,290,(page.getHeight()-66),0);
 						writeDirectContent(cb,bf,10,PdfContentByte.ALIGN_LEFT,"Fax:" + this.pharmaFax,290,(page.getHeight()-78),0);
 						writeDirectContent(cb,bf,10,PdfContentByte.ALIGN_LEFT,"Email:" + this.pharmaEmail,290,(page.getHeight()-90),0);
-						writeDirectContent(cb,bf,10,PdfContentByte.ALIGN_LEFT,"Note:" + this.pharmaNote,290,(page.getHeight()-102),0);
+						writeDirectContentWrapText(cb,bf,10,PdfContentByte.ALIGN_LEFT,"Note:" + this.pharmaNote,290,(page.getHeight()-102),0);
 					}
 					// get the end of paragraph
 					endPara = writer.getVerticalPosition(true);
@@ -506,12 +507,12 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 					cb.lineTo(280f, endPara - 60f);
 					cb.stroke();
 
-					if (this.imgPath != null) {
+					if (this.imgPath != null && !this.imgPath.equals("")) {
 						Image img = Image.getInstance(this.imgPath);
 						// image, image_width, 0, 0, image_height, x, y
 						//         131, 55, 375, 75, 0
 						cb.addImage(img, 150, 0, 0, 40, 100f, endPara-55f);
-					} else if (!this.electronicSignature.equals("") || this.electronicSignature != null) {
+					} else if (this.electronicSignature != null && !this.electronicSignature.equals("")) {
 						//PdfContentByte
 						String[] lines = this.electronicSignature.split(System.getProperty("line.separator"));
 						writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, lines[0], 72f, endPara - 48f, 0);
