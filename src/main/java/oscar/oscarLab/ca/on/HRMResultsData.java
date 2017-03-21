@@ -43,7 +43,17 @@ public class HRMResultsData {
 	}
 
 	public Collection<LabResultData> populateHRMdocumentsResultsData(LoggedInInfo loggedInInfo, String providerNo, String status, Date newestDate, Date oldestDate,
+																	 boolean isPaged, Integer page, Integer pageSize) {
+		return populateHRMdocumentsResultsData(loggedInInfo, providerNo, "", "", "", null, status, newestDate, oldestDate, isPaged, page, pageSize);
+	}
+	
+	
+	public Collection<LabResultData> populateHRMdocumentsResultsData(LoggedInInfo loggedInInfo, String providerNo, String firstName, String lastName, String hin, String demographicNumber, String status, Date newestDate, Date oldestDate,
 																		boolean isPaged, Integer page, Integer pageSize) {
+		String firstNameSearch = firstName != null ? firstName : "";
+		String lastNameSearch = lastName != null ? lastName : ""; 
+		String hinSearch = hin != null ? hin : "";
+		
 		if (providerNo == null || "".equals(providerNo)) {
 			providerNo = "%";
 		} else if (providerNo.equalsIgnoreCase("0")) {
@@ -63,7 +73,7 @@ public class HRMResultsData {
 			signedOff = 2;
 		}
 
-		List<HRMDocumentToProvider> hrmDocResultsProvider = hrmDocumentToProviderDao.findByProviderNoLimit(providerNo, newestDate, oldestDate, viewed, signedOff,
+		List<HRMDocumentToProvider> hrmDocResultsProvider = hrmDocumentToProviderDao.findByProviderNoLimit(providerNo, demographicNumber, newestDate, oldestDate, viewed, signedOff,
 																											 isPaged, page, pageSize);
 
 		// the key = SendingFacility+':'+ReportNumber+':'+DeliverToUserID as per HRM spec can be used to signify duplicate report
@@ -112,34 +122,37 @@ public class HRMResultsData {
 			lbData.resultStatus = hrmReport.getResultStatus();
 
 			String duplicateKey=hrmReport.getSendingFacilityId()+':'+hrmReport.getSendingFacilityReportNo()+':'+hrmReport.getDeliverToUserId();
-
-			// if no duplicate
-			if (!labResults.containsKey(duplicateKey))
+			String[] patientName = lbData.patientName.split(","); 
+			if (lbData.healthNumber.contains(hinSearch) && patientName[0].contains(lastNameSearch) && patientName[1].contains(firstNameSearch))
 			{
-				labResults.put(duplicateKey,lbData);
-				labReports.put(duplicateKey, hrmReport);
-			}
-			else // there exists an entry like this one
-			{
-				HRMReport previousHrmReport=labReports.get(duplicateKey);
-
-				logger.debug("Duplicate report found : previous="+previousHrmReport.getHrmDocumentId()+", current="+hrmReport.getHrmDocumentId());
-
-				// if the current entry is newer than the previous one then replace it, other wise just keep the previous entry
-				if (isNewer(hrmReport, previousHrmReport))
+				// if no duplicate
+				if (!labResults.containsKey(duplicateKey))
 				{
-					LabResultData olderLabData=labResults.get(duplicateKey);
-
-					lbData.getDuplicateLabIds().addAll(olderLabData.getDuplicateLabIds());
-					lbData.getDuplicateLabIds().add(previousHrmReport.getHrmDocumentId());
-
-					labResults.put(duplicateKey,lbData);
-					labReports.put(duplicateKey, hrmReport);
-				}
-				else
+                    labResults.put(duplicateKey,lbData);
+                    labReports.put(duplicateKey, hrmReport);
+                }
+				else // there exists an entry like this one
 				{
-					LabResultData newerLabData=labResults.get(duplicateKey);
-					newerLabData.getDuplicateLabIds().add(hrmReport.getHrmDocumentId());
+					HRMReport previousHrmReport=labReports.get(duplicateKey);
+
+					logger.debug("Duplicate report found : previous="+previousHrmReport.getHrmDocumentId()+", current="+hrmReport.getHrmDocumentId());
+
+					// if the current entry is newer than the previous one then replace it, other wise just keep the previous entry
+					if (isNewer(hrmReport, previousHrmReport))
+					{
+						LabResultData olderLabData=labResults.get(duplicateKey);
+
+						lbData.getDuplicateLabIds().addAll(olderLabData.getDuplicateLabIds());
+						lbData.getDuplicateLabIds().add(previousHrmReport.getHrmDocumentId());
+
+						labResults.put(duplicateKey,lbData);
+						labReports.put(duplicateKey, hrmReport);
+					}
+					else
+                    {
+						LabResultData newerLabData=labResults.get(duplicateKey);
+						newerLabData.getDuplicateLabIds().add(hrmReport.getHrmDocumentId());
+					}
 				}
 			}
 

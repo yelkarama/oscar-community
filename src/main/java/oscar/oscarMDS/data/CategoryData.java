@@ -93,7 +93,6 @@ public class CategoryData {
 	private String documentDateSql = "";
 	private String documentJoinSql = "";
 	private String labDateSql = "";
-	private String labJoinSql = "";
 	private String hrmDateSql = "";
 	private String hrmProviderSql = "";
 
@@ -122,10 +121,6 @@ public class CategoryData {
 		
 		if (!documentDateSql.equals("")) {
 			documentJoinSql = " LEFT JOIN document doc ON cd.document_no = doc.document_no";
-		}
-
-		if (!labDateSql.equals("")) {
-			labJoinSql = " LEFT JOIN hl7TextInfo info ON plr.lab_no = info.lab_no";
 		}
 
 		if(providerSearch){
@@ -186,10 +181,10 @@ public class CategoryData {
 
 	public int getLabCountForUnmatched()
 			throws SQLException {
-		String sql = " SELECT HIGH_PRIORITY COUNT(1) as count "
+		String sql = " SELECT HIGH_PRIORITY COUNT(DISTINCT accessionNum) as count "
 				+ " FROM providerLabRouting plr "
 				+ " LEFT JOIN patientLabRouting plr2 ON plr.lab_no = plr2.lab_no AND plr2.lab_type = 'HL7'"
-				+ labJoinSql
+				+ " RIGHT JOIN hl7TextInfo info ON plr.lab_no = info.lab_no"
 				+ " WHERE plr.lab_type = 'HL7' "
 				+ (providerSearch ? " AND plr.provider_no = '"+searchProviderNo+"' " : "")
 				+ " AND plr.status like '%"+status+"%' "
@@ -263,11 +258,11 @@ public class CategoryData {
 
 	public int getLabCountForPatientSearch() throws SQLException {
 		PatientInfo info;
-		String sql = " SELECT HIGH_PRIORITY d.demographic_no, d.last_name, d.first_name, COUNT(1) as count "
+		String sql = " SELECT HIGH_PRIORITY d.demographic_no, d.last_name, d.first_name, COUNT(DISTINCT info.accessionNum) as count "
         	+ " FROM patientLabRouting cd" 
 			+ " LEFT JOIN demographic d ON cd.demographic_no = d.demographic_no" 
 			+ " LEFT JOIN providerLabRouting plr ON cd.lab_no = plr.lab_no" 
-			+ labJoinSql
+			+ " LEFT JOIN hl7TextInfo info ON cd.lab_no = info.lab_no"
         	+ " WHERE   d.last_name like '%"+patientLastName+"%' "
         	+ " 	AND d.first_name like '%"+patientFirstName+"%' "
         	+ " 	AND d.hin like '%"+patientHealthNumber+"%' "

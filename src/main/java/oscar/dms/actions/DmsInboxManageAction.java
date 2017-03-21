@@ -458,18 +458,20 @@ public class DmsInboxManageAction extends DispatchAction {
 			}
 		}
 
-		HRMResultsData hrmResult = new HRMResultsData();
+		if (!"labs".equals(view) && !"abnormal".equals(view)) {
+			HRMResultsData hrmResult = new HRMResultsData();
 
-		Collection<LabResultData> hrmDocuments = hrmResult.populateHRMdocumentsResultsData(loggedInInfo, searchProviderNo, ackStatus, 
-				endDate, startDate, true, page, pageSize);
-		if (oldestLab == null) {
-			for (LabResultData hrmDocument : hrmDocuments) {
-				if (oldestLab == null || (hrmDocument.getDateObj() != null && oldestLab.compareTo(hrmDocument.getDateObj()) > 0))
-					oldestLab = hrmDocument.getDateObj();
+			Collection<LabResultData> hrmDocuments = hrmResult.populateHRMdocumentsResultsData(loggedInInfo, searchProviderNo, patientFirstName, patientLastName, patientHealthNumber, demographicNo, ackStatus,
+					endDate, startDate, true, page, pageSize);
+			if (oldestLab == null) {
+				for (LabResultData hrmDocument : hrmDocuments) {
+					if (oldestLab == null || (hrmDocument.getDateObj() != null && oldestLab.compareTo(hrmDocument.getDateObj()) > 0))
+						oldestLab = hrmDocument.getDateObj();
+				}
 			}
-		}
 
-		labdocs.addAll(hrmDocuments);
+			labdocs.addAll(hrmDocuments);
+		}
 		Collections.sort(labdocs);
 
 		HashMap<String,LabResultData> labMap = new HashMap<String,LabResultData>();
