@@ -370,9 +370,6 @@ List<OLISRequestNomenclature> requestNomenclatureList = requestDao.findAll();
                             resultsList : "results",
                             fields : ["formattedName","fomattedDob","demographicNo","status"]
                         };
-                        // Enable caching
-                        oDS.maxCacheEntries = 100;
-                        //oDS.connXhrMode ="cancelStaleRequests";
 
                         // Instantiate the AutoComplete
                         var oAC = new YAHOO.widget.AutoComplete("autocompletedemo<%=currentDocId%>", "autocomplete_choices<%=currentDocId%>", oDS);
@@ -579,8 +576,6 @@ List<OLISRequestNomenclature> requestNomenclatureList = requestDao.findAll();
                             resultsList : "results",
                             fields : ["formattedName","fomattedDob","demographicNo","status"]
                         };
-                        // Enable caching
-                        oDS.maxCacheEntries = 100;
 
                         // Instantiate the AutoComplete
                         var oAC = new YAHOO.widget.AutoComplete("autocompletedemo<%=currentDocId%>", "autocomplete_choices<%=currentDocId%>", oDS);
