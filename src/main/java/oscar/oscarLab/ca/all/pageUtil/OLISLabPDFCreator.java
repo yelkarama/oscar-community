@@ -85,10 +85,10 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 
     /** Creates a new instance of LabPDFCreator */
     public OLISLabPDFCreator(HttpServletRequest request, OutputStream os) {
-		this(os, request, request.getParameter("segmentID")!=null?request.getParameter("segmentID"):(String)request.getAttribute("segmentID"), (request.getParameter("providerNo")!=null?request.getParameter("providerNo"):(String)request.getAttribute("providerNo")));
+		this(os, request, request.getParameter("segmentID")!=null?request.getParameter("segmentID"):(String)request.getAttribute("segmentID"));
     }
 
-    public OLISLabPDFCreator(OutputStream os, HttpServletRequest request, String segmentId, String providerNo) {
+    public OLISLabPDFCreator(OutputStream os, HttpServletRequest request, String segmentId) {
         this.os = os;
         this.id = segmentId;
 
