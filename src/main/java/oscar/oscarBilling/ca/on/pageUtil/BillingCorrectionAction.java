@@ -245,7 +245,7 @@ public class BillingCorrectionAction extends DispatchAction{
         }            
     
  
-        if(request.getParameter("submit").contains("Save")){
+        if(request.getParameter("submit").contains("Save") || request.getParameter("submit").equalsIgnoreCase("Unlink Referral Doctor")){
             return mapping.findForward("closeReload");
         } else if(request.getParameter("adminSubmit")!=null){
         	return mapping.findForward("adminReload");
