@@ -148,7 +148,7 @@ public class EctDisplayHRMAction extends EctDisplayAction {
 
 				StringBuilder duplicateLabIdQueryString=new StringBuilder();
 
-				url = "popupPage(700,800,'" + hash + "', '" + request.getContextPath() + "/hospitalReportManager/Display.do?id="+dispDocNo+"&duplicateLabIds="+duplicateLabIdQueryString+"');";
+				url = "popupPage(700,800,'" + hash + "', '" + request.getContextPath() + "/hospitalReportManager/Display.do?id="+dispDocNo+"&segmentID="+dispDocNo+"&duplicateLabIds="+duplicateLabIdQueryString+"');";
 
 				String labRead = "";
 				if(!oscarLogDao.hasRead(( (String) request.getSession().getAttribute("user")   ),"hrm",dispDocNo)){
