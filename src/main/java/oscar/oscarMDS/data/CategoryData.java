@@ -258,7 +258,7 @@ public class CategoryData {
 
 	public int getLabCountForPatientSearch() throws SQLException {
 		PatientInfo info;
-		String sql = " SELECT HIGH_PRIORITY d.demographic_no, d.last_name, d.first_name, COUNT(DISTINCT info.accessionNum) as count "
+		String sql = " SELECT HIGH_PRIORITY d.demographic_no, d.last_name, d.first_name, COUNT(*) as count "
         	+ " FROM patientLabRouting cd" 
 			+ " LEFT JOIN demographic d ON cd.demographic_no = d.demographic_no" 
 			+ " LEFT JOIN providerLabRouting plr ON cd.lab_no = plr.lab_no" 
@@ -271,7 +271,7 @@ public class CategoryData {
         	+ " 	AND plr.status like '%"+status+"%' "
         	+ (providerSearch ? "AND plr.provider_no = '"+searchProviderNo+"' " : "")
 			+ labDateSql
-        	+ " GROUP BY demographic_no ";
+        	+ " GROUP BY demographic_no, info.accessionNum ";
 
 		Connection c  = DbConnectionFilter.getThreadLocalDbConnection();
 		PreparedStatement ps = c.prepareStatement(sql);
@@ -370,20 +370,21 @@ public class CategoryData {
 		ResultSet rs= ps.executeQuery(sql);
 
 		while(rs.next()){
+			Integer hrmCount = rs.getInt("count");
 			int id = rs.getInt("demographic_no");
 			// Updating patient info if it already exists.
 			if (patients.containsKey(id)) {
 				info = patients.get(id);
-				info.setDocCount(info.getDocCount() + rs.getInt("count"));
+				info.setDocCount(info.getDocCount() + hrmCount);
 			}
 			// Otherwise adding a new patient record.
 			else {
 				info = new PatientInfo(id, rs.getString("first_name"), rs.getString("last_name"));
-				info.setDocCount(rs.getInt("count"));
+				info.setDocCount(hrmCount);
 				patients.put(info.id, info);
 			}
 
-			count += info.getDocCount();
+			count += hrmCount;
 		}
 
 		return count;

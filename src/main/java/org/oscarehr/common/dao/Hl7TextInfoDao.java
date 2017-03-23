@@ -264,7 +264,6 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 						isAbnormal != null && !isAbnormal ? "AND (info.result_status IS NULL OR info.result_status != 'A')" : "")
 						+ dateSql
 						+ " AND (plr2.demographic_no IS NULL OR plr2.demographic_no = '0')"
-						+ " GROUP BY accessionNum"
 						+ " ORDER BY plr.id DESC "
 						+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 	    	}
@@ -292,7 +291,6 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 	    			+ " ) AS X "
 	    			+ " WHERE X.lab_type = 'HL7' and X.lab_no = info.lab_no "
 	    			+ dateSql
-					+ " GROUP BY accessionNum"
 	    			+ " ORDER BY info.obr_date DESC "
 	    			+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 	    	}
@@ -329,7 +327,6 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 						+ " 	) AS Z "
 						+ " WHERE Z.lab_type = 'HL7' and Z.lab_no = info.lab_no "
 						+ dateSql
-						+ " GROUP BY accessionNum"
 	    				+ " ORDER BY info.obr_date DESC "
 						+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 	    	}
@@ -346,7 +343,6 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 	    			+ " ) AS X "
 	    			+ " WHERE X.lab_type = 'HL7' and X.lab_no = info.lab_no "
 	    			+ dateSql
-					+ " GROUP BY accessionNum"
 	    			+ " ORDER BY info.obr_date DESC "
 	    			+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 	    	}
@@ -364,7 +360,6 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 	    				isAbnormal != null && !isAbnormal ? "AND (info.result_status IS NULL OR info.result_status != 'A')" : "")
 	    			+ dateSql
 					+ " AND (plr2.demographic_no IS NULL OR plr2.demographic_no = '0')"
-					+ " GROUP BY accessionNum"
 	    				+ " ORDER BY plr.id DESC "
 	    				+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 	    	}
@@ -382,7 +377,6 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 	    			+ " ) AS X "
 	    			+ " WHERE X.lab_type = 'HL7' and X.lab_no = info.lab_no "
 	    			+ dateSql
-					+ " GROUP BY accessionNum"
 	    			+ " ORDER BY info.obr_date DESC "
 	    			+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 	    	}
@@ -410,7 +404,6 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 						+ " WHERE Z.lab_type = 'HL7' and Z.lab_no = info.lab_no "
 						+ dateSql
 						+ (isAbnormal != null ? " AND (" + (!isAbnormal ? "info.result_status IS NULL OR" : "") + " info.result_status " + (isAbnormal ? "" : "!") + "= 'A') " : " ")
-						+ " GROUP BY accessionNum"
 	    				+ " ORDER BY info.obr_date DESC "
 	    				+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 	    	}
@@ -421,7 +414,6 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 	    			+ "   AND lab_type = 'HL7' and info.lab_no = plr.lab_no "
 	    			+ dateSql
 	    			+ (isAbnormal != null ? " AND (" + (!isAbnormal ? "info.result_status IS NULL OR" : "") + " info.result_status " + (isAbnormal ? "" : "!") + "= 'A') " : " ")
-					+ "GROUP BY accessionNum"
 	    			+ " ORDER BY info.obr_date DESC "
 	    			+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 	    	}
