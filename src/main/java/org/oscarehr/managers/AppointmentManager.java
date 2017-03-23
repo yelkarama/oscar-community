@@ -44,6 +44,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import oscar.log.LogAction;
+import oscar.log.LogConst;
 
 @Service
 public class AppointmentManager {
@@ -76,11 +77,6 @@ public class AppointmentManager {
 		}
 		result.addAll(nonDeleted);
 
-		//--- log action ---
-		if (result.size() > 0) {
-
-			LogAction.addLogSynchronous(loggedInInfo, "AppointmentManager.getAppointmentHistoryWithDeleted", "ids returned=" + ids);
-		}
 		return result;
 	}
 
@@ -107,11 +103,6 @@ public class AppointmentManager {
 			}
 		}
 
-		//--- log action ---
-		if (result.size() > 0) {
-
-			LogAction.addLogSynchronous(loggedInInfo, "AppointmentManager.getAppointmentHistoryWithDeleted", "ids returned=" + ids);
-		}
 		return result;
 	}
 
@@ -151,7 +142,7 @@ public class AppointmentManager {
 		
 		appointmentDao.persist(appointment);
 
-		LogAction.addLogSynchronous(loggedInInfo, "AppointmentManager.saveAppointment", "id=" + appointment.getId());
+		LogAction.addLogSynchronous(loggedInInfo, LogConst.ADD, "appointment", String.valueOf(appointment.getId()));
 	}
 
 	public void updateAppointment(LoggedInInfo loggedInInfo, Appointment appointment) {
@@ -166,7 +157,7 @@ public class AppointmentManager {
 		}
 		appointmentDao.merge(appointment);
 
-		LogAction.addLogSynchronous(loggedInInfo, "AppointmentManager.updateAppointment", "id=" + appointment.getId());
+		LogAction.addLogSynchronous(loggedInInfo, LogConst.UPDATE, "appointment", String.valueOf(appointment.getId()));
 
 	}
 
@@ -181,7 +172,7 @@ public class AppointmentManager {
 		
 		appointmentDao.remove(apptNo);
 
-		LogAction.addLogSynchronous(loggedInInfo, "AppointmentManager.deleteAppointment", "id=" + apptNo);
+		LogAction.addLogSynchronous(loggedInInfo, LogConst.DELETE, "appointment", String.valueOf(apptNo));
 
 	}
 
@@ -189,11 +180,8 @@ public class AppointmentManager {
 		if (!securityInfoManager.hasPrivilege(loggedInInfo, "_appointment", "r", null)) {
 			throw new RuntimeException("Access Denied");
 		}
-		
 
 		Appointment appt = appointmentDao.find(apptNo);
-
-		LogAction.addLogSynchronous(loggedInInfo, "AppointmentManager.getAppointment", "id=" + apptNo);
 
 		return appt;
 	}
@@ -211,7 +199,7 @@ public class AppointmentManager {
 		}
 		appointmentDao.merge(appt);
 
-		LogAction.addLogSynchronous(loggedInInfo, "AppointmentManager.updateAppointmentStatus", "id=" + appt.getId());
+		LogAction.addLogSynchronous(loggedInInfo, LogConst.UPDATE, "updateAppointmentStatus", String.valueOf(appt.getId()));
 
 		return appt;
 
@@ -228,7 +216,7 @@ public class AppointmentManager {
 		}
 		appointmentDao.merge(appt);
 
-		LogAction.addLogSynchronous(loggedInInfo, "AppointmentManager.updateAppointmentType", "id=" + appt.getId());
+		LogAction.addLogSynchronous(loggedInInfo, LogConst.UPDATE, "updateAppointmentType", String.valueOf(appt.getId()));
 
 		return appt;
 
@@ -244,7 +232,7 @@ public class AppointmentManager {
 		}
 		appointmentDao.merge(appt);
 
-		LogAction.addLogSynchronous(loggedInInfo, "AppointmentManager.updateAppointmentUrgency", "id=" + appt.getId());
+		LogAction.addLogSynchronous(loggedInInfo, LogConst.UPDATE, "updateAppointmentUrgency", String.valueOf(appt.getId()));
 
 		return appt;
 
@@ -291,10 +279,6 @@ public class AppointmentManager {
 		
 		
 		List<Appointment> results = appointmentDao.findByDateRangeAndProvider(startDate, endDate, providerNo);
-		
-		if (results.size() > 0) {
-			LogAction.addLogSynchronous(loggedInInfo, "AppointmentManager.findMonthlyAppointments", "");
-		}
 		
 		return results;
 	}

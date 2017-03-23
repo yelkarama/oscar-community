@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import oscar.log.LogAction;
+import oscar.log.LogConst;
 
 /**
  * Will provide access to pharmacy data.
@@ -51,14 +52,7 @@ public class PharmacyManager {
 	public List<DemographicPharmacy> getPharmacies(LoggedInInfo loggedInInfo, Integer demographicId) {
 		List<DemographicPharmacy> result =  demographicPharmacyDao.findAllByDemographicId(demographicId);
 		
-		if(result != null) {
-			for(DemographicPharmacy item:result) {
-		    	//--- log action ---
-				LogAction.addLogSynchronous(loggedInInfo, "PharmacyManager.getPharmacies", "pharmacyId="+item.getPharmacyId());
-			}
-	    }
-	    
-	    return result;
+		return result;
 	}
 
 	public DemographicPharmacy addPharmacy(LoggedInInfo loggedInInfo, Integer demographicId, Integer pharmacyId, Integer preferredOrder) {

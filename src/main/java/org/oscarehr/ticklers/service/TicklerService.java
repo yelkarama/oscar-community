@@ -33,8 +33,6 @@ import org.oscarehr.util.LoggedInInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import oscar.log.LogAction;
-
 @Component
 public class TicklerService {
 	@Autowired
@@ -58,12 +56,7 @@ public class TicklerService {
 		TicklerQuery query = (TicklerQuery) paginationQuery;
 
 		List<Tickler> results = TicklerDao.getTicklers(query);
-		//--- log action ---
-		if (results.size()>0) {
-			String resultIds=Tickler.getIdsAsStringList(results);
-			LogAction.addLogSynchronous(loggedInInfo, "TicklerService.getTicklers", "ids returned=" + resultIds);
-		}
-				
+
 		return results;
 	}
 }

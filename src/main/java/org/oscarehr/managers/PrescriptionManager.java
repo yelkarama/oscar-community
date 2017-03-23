@@ -42,8 +42,6 @@ import org.oscarehr.util.MiscUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import oscar.log.LogAction;
-
 @Service
 public class PrescriptionManager {
 	private static Logger logger = MiscUtils.getLogger();
@@ -60,28 +58,17 @@ public class PrescriptionManager {
 	public Prescription getPrescription(LoggedInInfo loggedInInfo, Integer prescriptionId) {
 		Prescription result = prescriptionDao.find(prescriptionId);
 
-		//--- log action ---
-		LogAction.addLogSynchronous(loggedInInfo, "PrescriptionManager.getPrescription", "id:" + result.getId());
-
 		return (result);
 	}
 
 	public List<Prescription> getPrescriptionUpdatedAfterDate(LoggedInInfo loggedInInfo, Date updatedAfterThisDateExclusive, int itemsToReturn) {
 		List<Prescription> results = prescriptionDao.findByUpdateDate(updatedAfterThisDateExclusive, itemsToReturn);
 
-		LogAction.addLogSynchronous(loggedInInfo, "PrescriptionManager.getPrescriptionUpdatedAfterDate", "updatedAfterThisDateExclusive=" + updatedAfterThisDateExclusive);
-
 		return (results);
 	}
 
 	public List<Drug> getDrugsByScriptNo(LoggedInInfo loggedInInfo, Integer scriptNo, Boolean archived) {
 		List<Drug> results = drugDao.findByScriptNo(scriptNo, archived);
-
-		//--- log action ---
-		if (results.size() > 0) {
-			String resultIds = Drug.getIdsAsStringList(results);
-			LogAction.addLogSynchronous(loggedInInfo, "PrescriptionManager.getDrugsByScriptNo", "drug ids returned=" + resultIds);
-		}
 
 		return (results);
 	}
@@ -90,7 +77,6 @@ public class PrescriptionManager {
 		List<Drug> results = new ArrayList<Drug>();
 
 		if (!securityInfoManager.hasPrivilege(loggedInInfo, "_demographic", "r", null)) {
-			LogAction.addLogSynchronous(loggedInInfo, "PrescriptionManager.getUniquePrescriptionsByPatient", "No Read Access");
 			return results;
 		}
 
@@ -156,7 +142,6 @@ public class PrescriptionManager {
 
 		if (results.size() > 0) {
 			String resultIds = Drug.getIdsAsStringList(results);
-			LogAction.addLogSynchronous(loggedInInfo, "PrescriptionManager.getUniquePrescriptionsByPatient", "drug ids returned=" + resultIds);
 		}
 
 		return results;
@@ -168,14 +153,11 @@ public class PrescriptionManager {
 	public List<Prescription> getPrescriptionsByProgramProviderDemographicDate(LoggedInInfo loggedInInfo, Integer programId, String providerNo, Integer demographicId, Calendar updatedAfterThisDateExclusive, int itemsToReturn) {
 		List<Prescription> results = prescriptionDao.findByProviderDemographicLastUpdateDate(providerNo, demographicId, updatedAfterThisDateExclusive.getTime(), itemsToReturn);
 
-		LogAction.addLogSynchronous(loggedInInfo, "PrescriptionManager.getPrescriptionsByProgramProviderDemographicDate", "programId=" + programId+", providerNo="+providerNo+", demographicId="+demographicId+", updatedAfterThisDateExclusive="+updatedAfterThisDateExclusive.getTime());
-
 		return (results);
 	}
 	
 	public List<Drug> getMedicationsByDemographicNo(LoggedInInfo loggedInInfo, Integer demographicNo, Boolean archived) {
 		List<Drug> drugList = drugDao.findByDemographicId(demographicNo, archived);
-		LogAction.addLogSynchronous(loggedInInfo, "PrescriptionManager.getMedicationsByDemographicNo Archived=" + archived, drugList.toString());
 		return drugList;
 	}
 
@@ -192,12 +174,10 @@ public class PrescriptionManager {
 	}
 
 	public Drug findDrugById(LoggedInInfo loggedInInfo, Integer drugId) {
-		LogAction.addLogSynchronous(loggedInInfo, "PrescriptionManager.findDrugById", "searching for drug id: " + drugId);
 		return drugDao.find(drugId);
 	}
 	
 	public List<Drug> getLongTermDrugs(LoggedInInfo loggedInInfo, Integer demographicId ) {
-		LogAction.addLogSynchronous(loggedInInfo, "PrescriptionManager.getLongtermDrugs", "Demographic: " + demographicId);
 		return drugDao.findLongTermDrugsByDemographic(demographicId);
 	}
 
