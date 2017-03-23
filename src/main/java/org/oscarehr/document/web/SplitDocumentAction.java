@@ -271,7 +271,7 @@ public class SplitDocumentAction extends DispatchAction {
 			ManageDocumentAction.deleteCacheVersion(doc, x);
 			x++;
 		}
-
+		pdf.removePage(0);
 		if (saveFile(pdf, fileName, input)){
 			// Only update the number of pages in the database if no exceptions are thrown
 			EDocUtil.subtractOnePage(request.getParameter("document"));
