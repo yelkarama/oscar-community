@@ -481,9 +481,9 @@ if (OscarProperties.getInstance().getBooleanProperty("consultation_program_lette
 					String providerNumber = props.getProperty("letterhead", "-1");
 					//If there is no provider in the letterhead
 					if(providerNumber.isEmpty() || providerNumber.equals("-1")) {
-					    String loggedInProviderOhipNumber = loggedInInfo.getLoggedInProvider().getOhipNo();
+					    String loggedInProviderCpsoNumber = loggedInInfo.getLoggedInProvider().getPractitionerNo();
 					    //Checks if the currently logged in provider is billable, if so then it becomes the provider number to select
-						if (loggedInProviderOhipNumber != null && !loggedInProviderOhipNumber.equals("")) {
+						if (loggedInProviderCpsoNumber != null && !loggedInProviderCpsoNumber.equals("")) {
 							providerNumber = loggedInInfo.getLoggedInProviderNo();
 						} else {
 						    //Else it gets the demographics MRP
