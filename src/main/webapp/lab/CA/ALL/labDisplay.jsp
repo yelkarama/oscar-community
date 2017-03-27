@@ -618,11 +618,13 @@ pre {
         		boolean notBeenAcked = ackList.size() == 0;
         		boolean ackFlag = false;
         		String labStatus = "";
+        		String providerComment = "";
         		if (ackList != null){
         		    for (int i=0; i < ackList.size(); i++){
         		        ReportStatus reportStatus = ackList.get(i);
         		        if (reportStatus.getOscarProviderNo() != null && reportStatus.getOscarProviderNo().equals(providerNo) ) {
         		        	labStatus = reportStatus.getStatus();
+                            providerComment = reportStatus.getComment();
         		        	if( labStatus.equals("A") ){
         		            	ackFlag = true;//lab has been ack by this provider.
         		            	break;
@@ -698,7 +700,7 @@ pre {
 									<input type="hidden" name="dateLabReceived" value="<%= dateLabReceived %>" />
                                     <input type="hidden" name="providerNo" id="providerNo" value="<%= providerNo %>"/>
                                     <input type="hidden" name="status" value="<%=labStatus%>" id="labStatus_<%=segmentID%>"/>
-                                    <input type="hidden" name="comment" value=""/>
+                                    <input type="hidden" name="comment" value="<%=providerComment%>"/>
                                     <input type="hidden" name="labType" value="HL7"/>
                                     <%
                                     if ( !ackFlag ) {
