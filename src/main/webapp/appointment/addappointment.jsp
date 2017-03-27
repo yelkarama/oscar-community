@@ -1151,7 +1151,10 @@ function pasteAppt(multipleSameDayGroupAppt) {
                 </th>
             </tr>
              <tr bgcolor="#ccccff">
-                <th style="padding-right: 20px" align="left"><bean:message key="appointment.addappointment.msgHin"/>:</th>
+                <th style="padding-right: 20px" align="left">
+                    <bean:message key="appointment.addappointment.msgHin"/>:<br/>
+                    <a href="#" onclick="popup(500, 500, '/CardSwipe/?hc=<%=hin.replace("null", "")%>&providerNo=<%=StringUtils.trimToEmpty(curProvider_no)%>', 'Card Swipe'); return false;" style="float:right; padding-right: 5px;">Validate HC</a>
+                </th>
                 <td><%=hin.replace("null", "")%> </td>
             </tr>
             <tr bgcolor="#ccccff">
