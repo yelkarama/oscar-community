@@ -167,6 +167,12 @@ var Colour = {
 	episode: '<%=Colour.getInstance().episode%>',
 	pregancies: '<%=Colour.getInstance().episode%>'
 };
+
+function checkDemographic(){
+    <% if(demographic.getPatientStatus()!=null && demographic.getPatientStatus().trim().equals("DE")){ %>
+		alert("Please Note: This patient is marked as Deceased in the Master Record");
+	<% }%>
+}
 </script>
 
 <!--js code for newCaseManagementView.jsp -->
@@ -801,7 +807,7 @@ window.onbeforeunload = onClosing;
 
 </script>
 </head>
-<body id="body" style="margin: 0px;">
+<body id="body" onload="checkDemographic();" style="margin: 0px;">
 
 	<%--
 	<caisi:isModuleLoad moduleName="eaaps.enabled">
