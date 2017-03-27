@@ -53,9 +53,8 @@ if(!authed) {
 
 
 <%@page import="java.util.ArrayList, java.util.Collections, java.util.List, java.util.*, oscar.util.StringUtils, oscar.dms.*, oscar.oscarEncounter.pageUtil.*,oscar.oscarEncounter.data.*, oscar.OscarProperties, oscar.oscarLab.ca.on.*"%>
-<%@page import="org.oscarehr.casemgmt.service.CaseManagementManager,org.oscarehr.casemgmt.model.CaseManagementNote,org.oscarehr.casemgmt.model.Issue,org.oscarehr.common.model.UserProperty,org.oscarehr.common.dao.UserPropertyDAO,org.springframework.web.context.support.*,org.springframework.web.context.*"%>
+<%@page import="org.oscarehr.casemgmt.service.CaseManagementManager,org.oscarehr.casemgmt.model.CaseManagementNote,org.oscarehr.casemgmt.model.Issue,org.oscarehr.common.model.UserProperty,org.springframework.web.context.support.*,org.springframework.web.context.*"%>
 
-<%@page import="org.oscarehr.common.dao.SiteDao"%>
 <%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
 <%@page import="org.oscarehr.common.model.Site"%>
 <%@page import="org.oscarehr.util.WebUtils, oscar.SxmlMisc"%>
@@ -72,10 +71,10 @@ if(!authed) {
 <%@page import="org.oscarehr.util.MiscUtils, org.oscarehr.PMmodule.caisi_integrator.CaisiIntegratorManager, org.oscarehr.caisi_integrator.ws.CachedDemographicNote"%>
 <%@page import="org.oscarehr.PMmodule.dao.ProgramDao, org.oscarehr.PMmodule.model.Program" %>
 <%@page import="oscar.oscarDemographic.data.DemographicData, oscar.oscarRx.data.RxProviderData, oscar.oscarRx.data.RxProviderData.Provider, oscar.oscarClinic.ClinicData"%>
-<%@ page import="org.oscarehr.common.dao.FaxConfigDao, org.oscarehr.common.model.FaxConfig" %>
-<%@page import="org.oscarehr.common.dao.ConsultationServiceDao" %>
+<%@ page import="org.oscarehr.common.model.FaxConfig" %>
 <%@page import="org.oscarehr.common.model.ConsultationServices" %>
 <%@ page import="java.net.URLEncoder" %>
+<%@ page import="org.oscarehr.common.dao.*" %>
 <jsp:useBean id="displayServiceUtil" scope="request" class="oscar.oscarEncounter.oscarConsultationRequest.config.pageUtil.EctConDisplayServiceUtil" />
 
 <html:html locale="true">
@@ -1777,7 +1776,17 @@ function updateFaxButton() {
 							</td>
 							<td class="tite2"><%=thisForm.getPatientWPhone()%></td>
 						</tr>
-                                                <tr>
+						<%
+							DemographicExtDao demographicExtDao = SpringUtils.getBean(DemographicExtDao.class);
+							Map<String,String> demoExt = demographicExtDao.getAllValuesForDemo(Integer.parseInt(demo));
+						%>
+						<tr>
+							<td class="tite4">Cell No.:
+							</td>
+							<td class="tite2"><%=demoExt.get("demo_cell")%></td>
+						</tr>
+						
+						<tr>
 							<td class="tite4"><bean:message
 								key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.msgEmail" />:
 							</td>
