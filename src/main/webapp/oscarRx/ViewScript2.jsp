@@ -324,7 +324,27 @@ function printIframe(){
 			else
 			{
 				preview.focus();
+				var oldPageSize = frames['preview'].document.getElementById('pwTable').style.width;
+				frames['preview'].document.getElementById('pwTable').style.width = '690px';
+				
+				var pharmacyInfoElement = frames['preview'].document.getElementById('pharmInfo');
+				if (pharmacyInfoElement.innerHTML.trim() != '') {
+					pharmacyInfoElement.style.display = 'none';
+					var demographicInfoRow = frames['preview'].document.getElementById('demographicInfoRow');
+					var demographicInfoCell = frames['preview'].document.getElementById('demographicInfoCell');
+					demographicInfoCell.colSpan = 1;
+					var pharmacyInfoCell = demographicInfoRow.insertCell(1);
+					pharmacyInfoCell.innerHTML = pharmacyInfoElement.innerHTML;
+					pharmacyInfoCell.style.width = "40%";
+				}
+				 //pharmacyText
 				preview.print();
+				frames['preview'].document.getElementById('pwTable').style.width = oldPageSize;
+				if (pharmacyInfoElement.innerHTML.trim() != '') {
+					pharmacyInfoElement.style.display = 'block';
+					pharmacyInfoCell.remove();
+					demographicInfoCell.colSpan = 2;
+				}
 				self.parent.close();
 			}
 	}
@@ -580,7 +600,6 @@ function toggleView(form) {
                                 function expandPreview(text){
                                     parent.document.getElementById('lightwindow_container').style.width="1000px";
                                     parent.document.getElementById('lightwindow_contents').style.width="980px";
-                                    document.getElementById('preview').style.width="580px";
                                     frames['preview'].document.getElementById('pharmInfo').innerHTML=text;
                                     //frames['preview'].document.getElementById('removePharm').show();
                                     $("selectedPharmacy").innerHTML='<bean:message key="oscarRx.printPharmacyInfo.paperSizeWarning"/>';
@@ -589,7 +608,6 @@ function toggleView(form) {
                                 function reducePreview(){
                                     parent.document.getElementById('lightwindow_container').style.width="980px";
                                     parent.document.getElementById('lightwindow_contents').style.width="960px";
-                                    document.getElementById('preview').style.width="420px";
                                     frames['preview'].document.getElementById('pharmInfo').innerHTML="";
                                     $("selectedPharmacy").innerHTML="";
                                     frames['preview'].document.getElementById('pharmaShow').value='false';
