@@ -2061,34 +2061,50 @@ function removeReRxDrugId(drugId){
 var reRxCompleted;
 //represcribe a drug
 function represcribe(element, toArchive){
-    jQuery('input[name^="checkBox_"]').each(function(){
-    	updateReRxDrugId(jQuery(this).attr('id'));
-    	});
-    var elemId=element.id;
-    var ar=elemId.split("_");
-    var drugId=ar[1];
-    if(drugId!=null && $("reRxCheckBox_"+drugId).checked==true){
-    	        	
-        var url= "<c:out value="${ctx}"/>" + "/oscarRx/rePrescribe2.do?method=represcribeMultiple&rand="+Math.floor(Math.random()*10001);
-        new Ajax.Updater('rxText',url, {method:'get',parameters:data,asynchronous:false,evalScripts:true,
-            insertion: Insertion.Bottom,onSuccess:function(transport){
-            	reRxCompleted=true;
-                updateCurrentInteractions();
-            }});
-    }else if(drugId!=null){
-        var dataUpdateId="reRxDrugId="+toArchive+"&action=addToReRxDrugIdList&rand="+Math.floor(Math.random()*10001);
-        var urlUpdateId= "<c:out value="${ctx}"/>" + "/oscarRx/WriteScript.do?parameterValue=updateReRxDrug";
-        new Ajax.Request(urlUpdateId, {method: 'get',parameters:dataUpdateId});
-                	
-        var data="drugId="+drugId;
-        var url= "<c:out value="${ctx}"/>" + "/oscarRx/rePrescribe2.do?method=represcribe2&rand="+Math.floor(Math.random()*10001);
-        new Ajax.Updater('rxText',url, {method:'get',parameters:data,evalScripts:true,
-            insertion: Insertion.Bottom,onSuccess:function(transport){
-            	reRxCompleted=true;
-                updateCurrentInteractions();
-            }});
-
-   }
+    var reRxDrugId = element.id.split("_")[1]; 
+    if(reRxDrugId != null && $("reRxCheckBox_" + reRxDrugId).checked){
+        var idsToAdd = [];
+        jQuery('input[name^="checkBox_"]').each(function(){
+            var elementId = jQuery(this).attr('id');
+            if ($(elementId).checked) {
+                var drugId = elementId.split("_")[1];
+                idsToAdd.push(drugId);
+            }
+        });
+    
+        var data="reRxDrugIds="+idsToAdd+"&rand="+ Math.floor(Math.random()*10001);
+        var url= "<c:out value="${ctx}"/>" + "/oscarRx/WriteScript.do?parameterValue=manageReRx";
+        new Ajax.Request(url, {method: 'get',parameters:data, 
+            onComplete: function(response) {
+                var elemId=element.id;
+                var ar=elemId.split("_");
+                var drugId=ar[1];
+                
+                var url= "<c:out value="${ctx}"/>" + "/oscarRx/rePrescribe2.do?method=represcribeMultiple&rand="+Math.floor(Math.random()*10001);
+                new Ajax.Updater('rxText',url, {method:'get',parameters:data,asynchronous:false,evalScripts:true, insertion: Insertion.Bottom,
+                    onSuccess:function(transport){
+                        reRxCompleted=true;
+                        updateCurrentInteractions();
+                    }
+                });
+            }
+        });
+    } else if(reRxDrugId != null){
+        var dataUpdateId="reRxDrugIds="+toArchive+"&rand="+Math.floor(Math.random()*10001);
+        var urlUpdateId= "<c:out value="${ctx}"/>" + "/oscarRx/WriteScript.do?parameterValue=manageReRx";
+        new Ajax.Request(urlUpdateId, {method: 'get',parameters:dataUpdateId, 
+            onComplete:function(){
+                var data="drugId=" + reRxDrugId;
+                var url= "<c:out value="${ctx}"/>" + "/oscarRx/rePrescribe2.do?method=represcribe2&rand="+Math.floor(Math.random()*10001);
+                new Ajax.Updater('rxText',url, {method:'get',parameters:data,evalScripts:true, insertion: Insertion.Bottom,
+                    onSuccess:function(transport){
+                        reRxCompleted=true;
+                        updateCurrentInteractions();
+                    }
+                });
+            }
+        });
+    }
 }
 
 function updateQty(element){
