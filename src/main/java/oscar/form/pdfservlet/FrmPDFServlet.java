@@ -667,6 +667,12 @@ public class FrmPDFServlet extends HttpServlet {
 	                        Properties args = new Properties();
 	
 	                        
+							/* THE WAY THIS WORKS (I think):
+								The GrowthChartRourke[GENDER]Graphic[NUMBER].txt files define coordinates and properties to pull 
+								that get added to the chart. Different files correspond to different metrics (eg height:age, weight:age)
+								that are taken from the form. The Graphic2.txt is for first page height:age, Graphic6.txt for the
+								second page height:age. It can take some guesswork to figure out which is which
+							 */
 	                        for (Enumeration e = tempPropertiesArray[k].propertyNames(); e.hasMoreElements();) {
 	                            tempName = new StringBuilder(e.nextElement().toString());
 	                            tempValue = tempPropertiesArray[k].getProperty(tempName.toString()).trim();
