@@ -685,6 +685,20 @@ div.autocomplete ul li {
 
 .reviewer {
 }
+.encounterFax{
+	margin-bottom: 5px;
+}
+select#otherFaxSelect{
+	float: left;
+	width: 125px;
+	margin-right: 2px;
+}
+input#otherFaxInput{
+	float: left;
+	height: 13px;
+	width: 121px;
+	margin-right: 2px;
+}
 </style>
 
 <html:base />
@@ -1140,37 +1154,43 @@ if (OscarProperties.getInstance().getBooleanProperty("note_program_ui_enabled", 
 		<div id="faxOps" style="display: none;">
 			<div>
                 <div style="float: left; margin-left: 5px; width: 55px;">Ref Doctor:</div>
-				<select id="otherFaxSelect">
-					<%
-						String rdName = "";
-						String rdFaxNo = "";
-						for (int i=0;i < displayServiceUtil.specIdVec.size(); i++) {
-							String  specId     =  displayServiceUtil.specIdVec.elementAt(i);
-							String  fName      =  displayServiceUtil.fNameVec.elementAt(i);
-							String  lName      =  displayServiceUtil.lNameVec.elementAt(i);
-							String  proLetters =  displayServiceUtil.proLettersVec.elementAt(i);
-							String  address    =  displayServiceUtil.addressVec.elementAt(i);
-							String  phone      =  displayServiceUtil.phoneVec.elementAt(i);
-							String  fax        =  displayServiceUtil.faxVec.elementAt(i);
-							String  referralNo = "";
-							if (rdohip != null && !"".equals(rdohip) && rdohip.equals(referralNo)) {
-								rdName = String.format("%s, %s", lName, fName);
-								rdFaxNo = fax;
-							}
-							if (!"".equals(fax)) {
-					%>
+				<div class="encounterFax">
+					<select id="otherFaxSelect">
+						<%
+							String rdName = "";
+							String rdFaxNo = "";
+							for (int i=0;i < displayServiceUtil.specIdVec.size(); i++) {
+								String  specId     =  displayServiceUtil.specIdVec.elementAt(i);
+								String  fName      =  displayServiceUtil.fNameVec.elementAt(i);
+								String  lName      =  displayServiceUtil.lNameVec.elementAt(i);
+								String  proLetters =  displayServiceUtil.proLettersVec.elementAt(i);
+								String  address    =  displayServiceUtil.addressVec.elementAt(i);
+								String  phone      =  displayServiceUtil.phoneVec.elementAt(i);
+								String  fax        =  displayServiceUtil.faxVec.elementAt(i);
+								String  referralNo = "";
+								if (rdohip != null && !"".equals(rdohip) && rdohip.equals(referralNo)) {
+									rdName = String.format("%s, %s", lName, fName);
+									rdFaxNo = fax;
+								}
+								if (!"".equals(fax)) {
+						%>
 
-					<option value="<%= fax %>"> <%= String.format("%s, %s", lName, fName) %> </option>
-					<%
+						<option value="<%= fax %>"> <%= String.format("%s, %s", lName, fName) %> </option>
+						<%
+								}
 							}
-						}
-					%>
+						%>
 
-				</select> <input type="submit" style="border: 1px solid #7682b1;" value="Add" onclick="addOtherFaxProvider(); return false;">
+					</select>
+					<input type="submit" style="border: 1px solid #7682b1;" value="Add" onclick="addOtherFaxProvider(); return false;">
+				</div>
 			</div>
-            <div><div style="float: left; margin-left: 5px; width: 55px;">Fax No. :</div>
-				<input type="text" id="otherFaxInput" name="otherFaxInput"  style="font-style: italic; border: 1px solid #7682b1; width: 125px; background-color: #FFFFFF;"  value=""/>
-				<input type="submit" style="border: 1px solid #7682b1;" value="Add" onclick="addOtherFax(); return false;">
+            <div>
+				<div style="float: left; margin-left: 5px; width: 55px;">Fax No. :</div>
+				<div class="encounterFax">
+					<input type="text" id="otherFaxInput" name="otherFaxInput" value=""/>
+					<input type="submit" style="border: 1px solid #7682b1;" value="Add" onclick="addOtherFax(); return false;">
+				</div>
 			</div>
 			<div style="margin-top: 5px; text-align: center">
 				<input type="submit" style="border: 1px solid #7682b1;" value="Back" onclick="toggleFax(); return false;">
