@@ -51,6 +51,7 @@ if(!authed) {
 
 <%@ page import="org.oscarehr.common.model.ProviderData"%>
 <%@ page import="org.oscarehr.common.dao.ProviderDataDao"%>
+<%@ page import="java.net.URLEncoder" %>
 
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
@@ -59,7 +60,15 @@ if(!authed) {
 
 <%
     String curProvider_no = (String) session.getAttribute("user");
-    
+
+	GregorianCalendar now=new GregorianCalendar();
+	int curYear = now.get(Calendar.YEAR);
+	int curMonth = (now.get(Calendar.MONTH)+1);
+	int curDay = now.get(Calendar.DAY_OF_MONTH);
+
+	java.util.ResourceBundle oscarResources = ResourceBundle.getBundle("oscarResources", request.getLocale());
+	String noteReason = oscarResources.getString("oscarEncounter.noteReason.TelProgress");
+	
     boolean isSiteAccessPrivacy=false;
     boolean isTeamAccessPrivacy=false; 
     boolean bMultisites=org.oscarehr.common.IsPropertiesOn.isMultisitesEnable();
@@ -266,6 +275,18 @@ function gotoPage(next) {
 	else frm.offset.value = <%=offset-limit%>;
 	
 	frm.submit();
+}
+
+function popupEChart(vheight,vwidth,varpage) { //open a new popup window
+	var page = "" + varpage;
+	windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=50,screenY=50,top=20,left=20";
+	var popup=window.open(page, "encounter", windowprops);
+	if (popup != null) {
+		if (popup.opener == null) {
+			popup.opener = self;
+		}
+		popup.focus();
+	}
 }
 </script>
 
@@ -514,9 +535,17 @@ function gotoPage(next) {
                                     </a>
                                 </td>
                                 <td class="stat<%=status%>">
-                                    <a href="javascript:popupOscarRx(700,960,'<%=request.getContextPath()%>/oscarEncounter/ViewRequest.do?requestId=<%=id%>')">
-                                    <%=patient%>
-                                    </a>
+									<security:oscarSec roleName="<%=roleName$%>" objectName="_eChart" rights="r"><!-- Show echart if has rights -->
+										<a title="Encounter" 
+										   href="javascript:popupEChart(710,1024,'<%=request.getContextPath()%>/oscarEncounter/IncomingEncounter.do?providerNo=<%=curProvider_no%>&appointmentNo=&demographicNo=<%=demo%>&curProviderNo=&reason=<%=URLEncoder.encode(noteReason)%>&encType=&curDate=<%=""+curYear%>-<%=""+curMonth%>-<%=""+curDay%>&appointmentDate=&startTime=&status=');">
+											<%=patient%>
+										</a>
+									</security:oscarSec>
+									<security:oscarSec roleName="<%=roleName$%>" objectName="_eChart" rights="r" reverse="<%=true%>"><!-- Show consultation if not -->
+										<a href="javascript:popupOscarRx(700,960,'<%=request.getContextPath()%>/oscarEncounter/ViewRequest.do?requestId=<%=id%>')">
+											<%=patient%>
+										</a>
+									</security:oscarSec>
                                 </td>
                                 <td class="stat<%=status%>">
                                     <%=provide%>
