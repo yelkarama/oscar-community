@@ -163,9 +163,9 @@ if(!authed) {
 			consultUtil.letterheadPhone = userPropertyDAO.getProp(providerNo,"rxPhone").getValue();
 		}
 
-		if(userPropertyDAO.getProp(providerNo,"rxFax")!=null  && userPropertyDAO.getProp(providerNo,"rxFax").getValue().length()>0){
-			//default letterhead fax to rxFax if it is set it in preferences
-			consultUtil.letterheadFax = userPropertyDAO.getProp(providerNo,"rxFax").getValue();
+		if(userPropertyDAO.getProp(providerNo,"faxnumber")!=null  && userPropertyDAO.getProp(providerNo,"faxnumber").getValue().length()>0){
+			//default letterhead fax to faxnumber if it is set it in preferences
+			consultUtil.letterheadFax = userPropertyDAO.getProp(providerNo,"faxnumber").getValue();
 
 		}
 
@@ -1113,7 +1113,7 @@ function switchProvider(value) {
 		document.getElementById("letterheadAddressSpan").innerHTML = providerData[value]['address'].replace(" ", "&nbsp;");
 		document.getElementById("letterheadPhone").value = providerData[value]['phone'];
 		document.getElementById("letterheadPhoneSpan").innerHTML = providerData[value]['phone'];
-		document.getElementById("letterheadFax").value = providerData[value]['fax'];
+		document.getElementById("letterheadFax").value = providerData[value]['fax'].replace("-", "");
 			
 		//document.getElementById("letterheadFaxSpan").innerHTML = providerData[value]['fax'];
 	}
@@ -1259,7 +1259,7 @@ function updateFaxButton() {
 <%=WebUtilsOld.popErrorMessagesAsAlert(session)%>
 <link rel="stylesheet" type="text/css" href="../encounterStyles.css">
 <body topmargin="0" leftmargin="0" vlink="#0000FF" 
-	onload="window.focus();disableDateFields();fetchAttached();disableEditing();showSignatureImage();switchProvider(document.getElementById('letterheadName').value)">
+	onload="window.focus();disableDateFields();fetchAttached();disableEditing();showSignatureImage();">
 <html:errors />
 <html:form action="/oscarEncounter/RequestConsultation"
 	onsubmit="alert('HTHT'); return false;">
@@ -1958,7 +1958,7 @@ function updateFaxButton() {
 								<%
 									for( FaxConfig faxConfig : faxConfigs ) {
 								%>
-										<option value="<%=faxConfig.getFaxNumber()%>" <%=faxConfig.getFaxNumber().equalsIgnoreCase(consultUtil.letterheadFax) ? "selected" : ""%>><%=faxConfig.getFaxUser()%></option>								
+										<option value="<%=faxConfig.getFaxNumber().replace("-", "")%>" <%=faxConfig.getFaxNumber().replace("-", "").equals(consultUtil.letterheadFax.replace("-", "")) ? "selected" : ""%>><%=faxConfig.getFaxUser()%></option>
 								<%	    
 									}								
 								%>
