@@ -126,7 +126,6 @@ text-align:left;
 <body bgcolor="#B7B18D">
 
 <%
-String getStatus=""; //initialize getStatus
 String formAction = request.getParameter("formAction");
 String setPropValue;
 
@@ -137,105 +136,40 @@ PreventionDisplayConfig pdc = PreventionDisplayConfig.getInstance();
 ArrayList<HashMap<String,String>> prevList = pdc.getPreventions();
 
 	
-	PropertyDao propDao = (PropertyDao)SpringUtils.getBean("propertyDao");
-	List<Property> pList = propDao.findByName(vProp); 
-	
-  	Iterator<Property> i = pList.iterator();
-
-  	while (i.hasNext()) {
-  	Property item = i.next();
-  	getStatus  = item.getValue();
-  	
-  	}
+List<String> disabledPreventions = PreventionManager.getDisabledPreventions();
 	
 //checking if hide stop signs have been set in the database if not then check to see if
 //show stop signs have been turned off in the property file
-if(getStatus=="" && OscarProperties.getInstance().getProperty("SHOW_PREVENTION_STOP_SIGNS","false").equals("false") ) { 
-  		//for users who have SHOW_PREVENTION_STOP_SIGNS disabled
-  		getStatus="master";
+if(disabledPreventions.get(0).equals("") && OscarProperties.getInstance().getProperty("SHOW_PREVENTION_STOP_SIGNS","false").equals("false") ) { 
+	//for users who have SHOW_PREVENTION_STOP_SIGNS disabled
+	disabledPreventions.set(0, "master");
 }
   	
 //--------------------------UPDATE START-----------------------------
-if(formAction!=null ){
-
-String new_value ="";
-  	
-if(formAction.equals("update")){
-setPropValue=request.getParameter("master_radio");	
-	if(formAction.equals("update")){
-		
- 		if(setPropValue!=null){
- 		new_value=setPropValue;
- 		}	
-	}
+if( formAction != null) {
+	List<String> newDisabledPreventions = new ArrayList<String>();
 	
-}else if (formAction.equals("custom") ){
-	String v; 
-	
-	int count=0;  
-	for(int c=0;c<prevList.size();c++){
-		v = request.getParameter("onOff"+c);
-		
-		if(!v.equals("0")){
-		count++;
+	if (formAction.equals("update")){
+		setPropValue=request.getParameter("master_radio");	
+		if(setPropValue!=null){
+			newDisabledPreventions.add(setPropValue);
+		}
+	} else if (formAction.equals("custom") ) {
+		for (int i = 0; i < prevList.size(); i++) {
+			if (!request.getParameter("onOff" + i).equals("0")) {
+				newDisabledPreventions.add(request.getParameter("onOff" + i));
+			}
 		}
 	}
-    
-	String outMe="";
-	int idisable = 0;
-	for(int d=0;d<prevList.size();d++){
-		
-		v = request.getParameter("onOff"+d);
-		if(!v.equals("0")){
-		outMe=outMe+"["+v+"]";
-		idisable++;
-		}
-		
+	
+	if (newDisabledPreventions.isEmpty()) {
+		newDisabledPreventions.add("false");
 	}
 	
-	if(idisable>0){
-	new_value=outMe;
-	}else{
-		new_value="false";
-	}
-	
-}
-
-if(pList.size()>0){
-	Property p = propDao.checkByName(vProp);
-	p.setValue(new_value);
-	propDao.merge(p);
-}else{
-	//if hide_prevention_stop_signs does not exist then create it and store the value
-	Property x = new Property();
-	x.setName(vProp);
-	x.setValue(new_value);
-	propDao.persist(x);
-}
-
-getStatus = new_value;
-
+	PreventionManager.setDisabledPreventions(newDisabledPreventions);
+	disabledPreventions = new ArrayList<String>(newDisabledPreventions);
 }
 //-----------------------------UPDATE END---------------------------	
-
-//search and find start+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-Pattern pattern = Pattern.compile("(\\[)(.*?)(\\])");
-Matcher matcher = pattern.matcher(getStatus);
-List<String> listMatches = new ArrayList<String>();
-
-while(matcher.find()){
-
-listMatches.add(matcher.group(2));
-
-}
-
-int listCount =listMatches.size();
-
-//start a counter when the value is found
-int matchCount=0;
-String r="";
-
-//search and find end+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 String masterOff;
 String masterOn;
@@ -243,7 +177,7 @@ String stopSign;
 String rowBgcolor;
 String isDisabled;
 
-if(getStatus!=null && getStatus.equals("master")){
+if(disabledPreventions.get(0).equals("master")){
 	masterOff="checked";
 	masterOn="";
 	stopSign="images/stop_sign_grey.png";
@@ -272,12 +206,29 @@ if(getStatus!=null && getStatus.equals("master")){
 			<table cellspacing="1" cellpadding="6" border="0" width="530">
 		
 			<tr bgcolor="<%=rowBgcolor%>">
-				<td valign="middle" align="center" width="40"><img src="<%=stopSign%>" border="0"></img></td> <td width="260"><div title="This is a global setting that will affect all users."> Display on Appointment Screen</div> </td> <td align="center"> <table width="240"><td width="50%"><input type="radio" name="master_radio" value="false" <%=masterOn%> > Enabled </td> <td width="50%"> <input type="radio" name="master_radio" value="master" <%=masterOff%> onClick="return confirm('Are you sure you want to disable this option?\n\nThis will disable all prevention notifications from displaying on the appointment screen.');"> Disabled </td></table> </td> 
+				<td valign="middle" align="center" width="40"><img src="<%=stopSign%>" border="0"/></td>
+				<td width="260">
+					<div title="This is a global setting that will affect all users."> Display on Appointment Screen</div>
+				</td>
+				<td align="center">
+					<table width="240">
+						<td width="50%">
+							<label>
+								<input type="radio" name="master_radio" value="false" <%=masterOn%> > Enabled 
+							</label>
+						</td>
+						<td width="50%">
+							<label>
+								<input type="radio" name="master_radio" value="master" <%=masterOff%> onClick="return confirm('Are you sure you want to disable this option?\n\nThis will disable all prevention notifications from displaying on the appointment screen.');"> Disabled
+							</label>
+						</td>
+					</table>
+				</td> 
 			</tr>
 			</table>
 			</td>
 		</table>
-		<p align="right"><input type="submit" value="Save" ></input></p>
+		<p align="right"><input type="submit" value="Save" /></p>
 		</form>
 </td>
 </tr> <!-- end row / new row main wrapper table -->
@@ -290,51 +241,55 @@ if(getStatus!=null && getStatus.equals("master")){
 		To customize the notifications below, "Display on Appointment Screen" must be enabled.
 		
 		<form name="prevForm" action="PreventionManager.jsp?formAction=custom" method="post">
-		<table bgcolor="#666666" cellspacing="0" cellpadding="0" border="0" width="530">
-			<td>
-			
-			<table cellspacing="1" cellpadding="6" border="0" width="530">
-
-			<%for (int e = 0 ; e < prevList.size(); e++){ 
-				HashMap<String,String> h = prevList.get(e);
-                String prevName = h.get("name");
-                String prevDesc = h.get("desc");
-                
-                
-	                if(!getStatus.equals("master") && (getStatus!=null || getStatus!="")){
-	                	for(String s : listMatches){
-		
-			                if(prevName.equals(s)){
-			
-			                	masterOff="checked";
-			                	masterOn="";
-			                	stopSign="images/stop_sign_grey.png";
-			                	rowBgcolor="#F2F2F2";
-			                	
-			                matchCount++;
-			                r=s;
-			
-			                }
-		                }
-	                }	
-             %>
-			<tr bgcolor="<%=rowBgcolor%>">
-				<td valign="middle" align="center" width="40"><img src="<%=stopSign%>" border="0"></img></td> <td width="260"><div title="<%=prevDesc%>"><%=prevName%></div> </td> <td align="center"> <table width="240" ><tr><td width="50%"><input type="radio" name="onOff<%=e%>" value="0" <%=isDisabled%> <%=masterOn%>> Enabled </td> <td width="50%"> <input type="radio" name="onOff<%=e%>" value="<%=prevName%>" <%=isDisabled%>  <%=masterOff%>> Disabled </td></tr></table> </td> 
-			</tr>
-			
-			<%
-			if(!getStatus.equals("master")){
-			masterOff="";
-        	masterOn="checked";
-        	stopSign="images/stop_sign.png";
-        	rowBgcolor="#D7FFD7";
-			}
-			
-			}%>
+			<table bgcolor="#666666" cellspacing="0" cellpadding="0" border="0" width="530">
+				<td>
+				
+					<table cellspacing="1" cellpadding="6" border="0" width="530">
+						<% for (int e = 0 ; e < prevList.size(); e++){ 
+							HashMap<String,String> h = prevList.get(e);
+							String prevName = h.get("name");
+							String prevDesc = h.get("desc");
+							
+							if(!disabledPreventions.get(0).equals("master") && disabledPreventions.contains(prevName)){
+								masterOff="checked";
+								masterOn="";
+								stopSign="images/stop_sign_grey.png";
+								rowBgcolor="#F2F2F2";
+							}%>
+							<tr bgcolor="<%=rowBgcolor%>">
+								<td valign="middle" align="center" width="40">
+									<img src="<%=stopSign%>" border="0"/>
+								</td>
+								<td width="260"><div title="<%=prevDesc%>"><%=prevName%></div></td>
+								<td align="center">
+									<table width="240" >
+										<tr>
+											<td width="50%">
+												<label>
+													<input type="radio" name="onOff<%=e%>" value="0" <%=isDisabled%> <%=masterOn%>> Enabled
+												</label>
+											</td>
+											<td width="50%">
+												<label>
+													<input type="radio" name="onOff<%=e%>" value="<%=prevName%>" <%=isDisabled%>  <%=masterOff%>> Disabled
+												</label>
+											</td>
+										</tr>
+									</table>
+								</td> 
+							</tr>
+					
+							<% if(!disabledPreventions.get(0).equals("master")){
+								masterOff="";
+								masterOn="checked";
+								stopSign="images/stop_sign.png";
+								rowBgcolor="#D7FFD7";
+							}
+						} %>
+					</table>
+				</td>
 			</table>
-			</td>
-		</table>
-		<p align="right"><input type="submit" value="Save Custom" <%=isDisabled%> ></input></p>
+			<p align="right"><input type="submit" value="Save Custom" <%=isDisabled%> /></p>
 		</form>
 		
 <!-- end of main wrapper table -->

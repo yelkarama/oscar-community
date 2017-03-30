@@ -98,4 +98,11 @@ public class PropertyDao extends AbstractDao<Property> {
 
  		return(results);
  	}
+
+	public void removeByName(String name) {
+		String sqlCommand="delete from "+modelClass.getSimpleName()+"  where name=?1";
+		Query query = entityManager.createQuery(sqlCommand);
+		query.setParameter(1, name);
+		query.executeUpdate();
+	}
 }
