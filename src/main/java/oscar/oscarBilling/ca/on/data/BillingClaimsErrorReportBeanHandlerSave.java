@@ -187,11 +187,13 @@ public class BillingClaimsErrorReportBeanHandlerSave {
 					erObj.setReport_name(filename);
 					erObj.setStatus("N");
 					erObj.setComment("");
-					List<BillingONCHeader1> existingInvoice = billingONCHeader1Dao.getInvoicesByIds(Arrays.asList(Integer.parseInt(erObj.getBilling_no())));
 					// Filter out the invoices on the report that were not created in our system
-					if(NumberUtils.isNumber(erObj.getBilling_no()) && existingInvoice!=null && existingInvoice.get(0).getHin().contains(erObj.getHin())){
+					if(NumberUtils.isNumber(erObj.getBilling_no())){
 						// If the invoice exists, show it
-						erRepObj.addErrorReportRecord(erObj);
+						List<BillingONCHeader1> existingInvoice = billingONCHeader1Dao.getInvoicesByIds(Arrays.asList(Integer.parseInt(erObj.getBilling_no())));
+						if(existingInvoice!=null && existingInvoice.size()>0 && existingInvoice.get(0).getHin().contains(erObj.getHin())){
+							erRepObj.addErrorReportRecord(erObj);
+						}
 					}
 					else{
 						// Else the invoice does not exist in the system, hide it
