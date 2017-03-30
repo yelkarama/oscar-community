@@ -252,12 +252,11 @@
             	Provider p =  (Provider)appt1[1];
                 iRow ++;
                 if (iRow > iPageSize) break;
-                appt_time = MyDateFormat.getTimeXX_XXampm(ConversionUtils.toTimeStringNoSeconds(ap.getStartTime()));
                 pname = "Dr. "+  p.getLastName() + ", " + p.getFirstName();
     %>
             <tr bgcolor="#eeeeff">
 		<td style="padding-right: 10px"><%=ConversionUtils.toDateString(ap.getAppointmentDate())%></td>
-		<td style="padding-right: 10px"><%=appt_time%></td>
+		<td style="padding-right: 10px"><%=MyDateFormat.getTimeXX_XXampm(ConversionUtils.toTimeStringNoSeconds(ap.getStartTime()))%></td>
 		<td class="DoNotPrint" style="padding-right: 10px"><%=pname%></td>
             </tr>
 	<%
