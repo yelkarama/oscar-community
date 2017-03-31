@@ -126,7 +126,7 @@
 						<logic:present name="data" property="canPlot">
 							<td width="5">
 								<img src="img/chart.gif" title="<bean:message key="oscarEncounter.oscarMeasurements.displayHistory.plot"/>"
-								onclick="window.open('../../servlet/oscar.oscarEncounter.oscarMeasurements.pageUtil.ScatterPlotChartServlet?type=<bean:write name="data" property="type"/>&mInstrc=<bean:write name="data" property="measuringInstrc"/>')" />
+								onclick="popupPage(300,800,'../../oscarEncounter/GraphMeasurements.do?demographic_no=<%=demo%>&type=<bean:write name="type" />')" />
 							</td>
 							<td width="5">
 								<a title="<bean:write name="data" property="typeDescription" />"><bean:write name="data" property="type" /></a>
