@@ -923,6 +923,9 @@ Event.observe('rxInteractionWarningLevel', 'change', function(event) {
 			<a href=# onClick ="popupPage(230,860,'../setProviderStaleDate.do?method=viewDefaultSearchMode');return false;"><bean:message key="provider.btnSelectDefaultSearchModePrefs"/></a></td>
 		</td>
 	</tr>
+<tr>
+    	<td align="center"><a href=# onClick ="popupPage(230,860,'../setProviderStaleDate.do?method=viewDashboardPrefs');return false;"><bean:message key="provider.btnViewDashboardPrefs"/></a></td>
+    </tr>
 
 </table>
 </FORM>
