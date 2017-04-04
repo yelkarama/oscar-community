@@ -130,7 +130,7 @@ for(int i=0; i<aL.size(); i=i+2) {
 	
 	//BigDecimal balance = new BigDecimal("0.00");
 	BigDecimal balance = new BigDecimal("0.00");
-	if("PAT".equals(strBillType)||"PAT Settled".equals(strBillType)){
+	if("PAT".equals(strBillType)||"PAT Settled".equals(strBillType)||"IFH".equals(strBillType)){
 		int billingNo = Integer.parseInt(obj.getId());
 		BillingONCHeader1 bCh1 = bCh1Dao.find(billingNo);
 		
@@ -166,7 +166,7 @@ for(int i=0; i<aL.size(); i=i+2) {
 		<td align="center"><%=strBillType%></td>
 		<td align="center"><%=itObj.getService_code()%></td>
 		<td align="center"><%=itObj.getDx()%></td>
-		<td align="center"><%if("PAT".equals(strBillType)||"PAT Settled".equals(strBillType)){ %>
+		<td align="center"><%if("PAT".equals(strBillType)||"PAT Settled".equals(strBillType)||"IFH".equals(strBillType)){ %>
 			<%if(balance.compareTo(BigDecimal.ZERO) > 0 && "PAT Settled".equals(strBillType)) { %>
 			<%="0.00" %>
 			<%} else { %>
