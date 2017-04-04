@@ -441,7 +441,7 @@
 		<dependency>
 			<groupId>org.oscarehr.caisi_integrator</groupId>
 			<artifactId>caisi_integrator_client_stubs</artifactId>
-			<version>0.2</version>
+			<version>0.9</version>
 		</dependency>
 
 		<!-- macplus -->
@@ -966,7 +966,7 @@
 	<groupId>org.codehaus.woodstox</groupId>
 	<artifactId>woodstox-core-asl</artifactId>
 	<version>4.4.1</version>
-</dependency>		
+</dependency>
 <dependency>
     <groupId>org.apache.cxf</groupId>
     <artifactId>cxf-rt-frontend-jaxws</artifactId>
@@ -1135,6 +1135,22 @@
 	    <artifactId>jasypt</artifactId>
 	    <version>1.8</version>
 	</dependency>
+
+
+	<dependency>
+  <groupId>org.oscarehr.caisi_integrator</groupId>
+  <artifactId>integrator-objects</artifactId>
+  <version>0.0.3</version>
+
+	</dependency>
+
+<dependency>
+    <groupId>org.apache.commons</groupId>
+    <artifactId>commons-compress</artifactId>
+    <version>1.14</version>
+</dependency>
+
+
     <dependency>
         <groupId>org.owasp.encoder</groupId>
         <artifactId>encoder</artifactId>

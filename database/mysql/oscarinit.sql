@@ -12161,7 +12161,7 @@ CREATE TABLE patientType (
   UNIQUE INDEX `type_UNIQUE` (`type` ASC),
   UNIQUE INDEX `description_UNIQUE` (`description` ASC)
 );
-  
+
 CREATE TABLE patientId (
   `patient_id` varchar(45) NOT NULL,
   `description` varchar(45) NOT NULL,
@@ -12471,6 +12471,27 @@ CREATE TABLE `tickler_category` (
   PRIMARY KEY (`id`)
 );
 
+CREATE TABLE `onCallClinicDates` (
+   `id` int(10) NOT NULL,
+   `startDate` date,
+   `endDate` date,
+   `name` varchar(256),
+   `location` varchar(256),
+   `color` varchar(7),
+  PRIMARY KEY (`id`)
+);
+
+CREATE TABLE IntegratorFileLog (
+    id int(11) auto_increment,
+    filename varchar(255),
+    checksum varchar(255),
+    lastDateUpdated datetime,
+    currentDate datetime,
+    integratorStatus varchar(100),
+    dateCreated timestamp,
+    PRIMARY KEY(id)
+);
+
 CREATE TABLE messageFolder
 (
   folderID int(10) PRIMARY KEY  NOT NULL auto_increment,
@@ -12567,9 +12588,20 @@ INSERT INTO form_drawing_tool_image (name, file_name) VALUES ('Lined Paper', 'li
 INSERT INTO form_drawing_tool_image (name, file_name) VALUES ('Anatomical Diagram', 'anatomical_diagram.png');
 INSERT INTO encounterform (form_name, form_value, form_table) VALUES ('Drawing Tool', '../form/formDrawingTool.jsp?demographic_no=', 'form_drawing_tool');
 
+CREATE TABLE IntegratorFileLog (
+    id int(11) auto_increment,
+    filename varchar(255),
+    checksum varchar(255),
+    lastDateUpdated datetime,
+    currentDate datetime,
+    integratorStatus varchar(100),
+    dateCreated timestamp,
+    PRIMARY KEY(id)
+);
+
 ALTER TABLE site CHANGE short_name full_name VARCHAR(255) NOT NULL default '';
 
-ALTER TABLE hl7TextInfo MODIFY discipline VARCHAR(300); 
+ALTER TABLE hl7TextInfo MODIFY discipline VARCHAR(300);
 
 ALTER TABLE appointmentType ADD COLUMN template_id INT DEFAULT NULL;
 ALTER TABLE appointmentType ADD COLUMN provider_no VARCHAR(6) DEFAULT NULL;
