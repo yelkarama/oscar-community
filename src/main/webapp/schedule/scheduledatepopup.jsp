@@ -120,7 +120,7 @@ function upCaseCtrl(ctrl) {
 						
 	%>
 					<option value="<%=st.getId().getName()%>"
-						<%=strHour.equals(st.getId().getName())?"selected":""%>><%=st.getId().getName()+" |"+st.getSummary()%></option>
+						<%=(strHour!=null?(strHour.equals(st.getId().getName())?"selected":""):"")%>><%=st.getId().getName()+" |"+st.getSummary()%></option>
 					<% }
 					for(ScheduleTemplate st: scheduleTemplateDao.findByProviderNo( request.getParameter("provider_no"))) {
   
