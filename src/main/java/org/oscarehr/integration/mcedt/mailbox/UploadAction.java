@@ -81,18 +81,8 @@ public class UploadAction extends DispatchAction {
 			HttpServletRequest request, HttpServletResponse response) {
 		ActionUtils.removeUploadResourceId(request);
 		ActionUtils.removeUploadFileName(request);
-		List<File> files = ActionUtils.getSuccessfulUploads(request);
-		OscarProperties props = OscarProperties.getInstance();
-		File sent = new File(props.getProperty("ONEDT_SENT",""));
-		if (!sent.exists())
-			FileUtils.mkDir(sent);
-		
 		try {
-			if (files!=null && files.size()>0) {
-				for (File file: files) {
-					ActionUtils.moveFileToDirectory(file, sent, false, true);
-				}
-			}
+            moveSuccessfulUploadsToSent(request);
 		}
 		catch (IOException e){
 			logger.error("A exception has occured while moving files at " + new Date());
@@ -205,7 +195,17 @@ public class UploadAction extends DispatchAction {
 					return mapping.findForward("failure");
 				}
 				
-				if (!result.getResponse().get(0).getResult().getCode().equals("IEDTS0001")) {
+				if (result.getResponse().get(0).getResult().getCode().equals("IEDTS0001")) {
+					try {
+						moveSuccessfulUploadsToSent(request);
+					}
+					catch (IOException e){
+						logger.error("A exception has occured while moving files at " + new Date());
+						saveErrors(request, ActionUtils.addMessage("uploadAction.upload.faultException", McedtMessageCreator.exceptionToString(e)));
+						return mapping.findForward("failure");
+					}
+				}
+				else{
 					result.getResponse().get(0).setDescription(submitForm.getFileName());
 				}
 				ActionUtils.setSubmitResponseResults(request, result.getResponse().get(0));
@@ -404,4 +404,21 @@ public class UploadAction extends DispatchAction {
 		}
 		return results;
 	}
+
+	private void moveSuccessfulUploadsToSent(HttpServletRequest request) throws IOException{
+        List<File> files = ActionUtils.getSuccessfulUploads(request);
+        OscarProperties props = OscarProperties.getInstance();
+        File sent = new File(props.getProperty("ONEDT_SENT",""));
+        if (!sent.exists())
+            FileUtils.mkDir(sent);
+
+        if (files!=null && files.size()>0) {
+            for (File file: files) {
+            	if (file.exists()){
+					ActionUtils.moveFileToDirectory(file, sent, false, true);
+				}
+            }
+        }
+
+    }
 }
