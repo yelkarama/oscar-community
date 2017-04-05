@@ -10,6 +10,7 @@
 package org.oscarehr.hospitalReportManager;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,9 +31,11 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.cxf.helpers.FileUtils;
 import org.apache.log4j.Logger;
 import org.oscarehr.PMmodule.dao.ProviderDao;
+import org.oscarehr.common.dao.DemographicCustDao;
 import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.IncomingLabRulesDao;
 import org.oscarehr.common.model.Demographic;
+import org.oscarehr.common.model.DemographicCust;
 import org.oscarehr.common.model.IncomingLabRules;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.hospitalReportManager.dao.HRMDocumentDao;
@@ -414,6 +417,28 @@ public class HRMReportParser {
 			sendToProviderList.add(sendToProvider);
 		}
 		//		}
+
+		if (OscarProperties.getInstance().isPropertyActive("queens_resident_tagging")) {
+			DemographicDao demographicDao = (DemographicDao) SpringUtils.getBean("demographicDao");
+			Demographic demographic = demographicDao.searchDemographicByHIN(report.getHCN()).get(0);
+			DemographicCustDao demographicCustDao = SpringUtils.getBean(DemographicCustDao.class);
+			//add mrp if not already in list
+			if (sendToProvider != null && !sendToProvider.getProviderNo().equals(demographic.getProviderNo())) { sendToProviderList.add(demographic.getProvider()); }
+			//get and add alt providers
+			List<DemographicCust> demographicCust = demographicCustDao.findAllByDemographicNumber(demographic.getDemographicNo());
+			if (demographicCust.size() > 0) {
+				ArrayList<String> residentIds = new ArrayList<String>();
+				residentIds.add(demographicCust.get(0).getMidwife());
+				residentIds.add(demographicCust.get(0).getNurse());
+				residentIds.add(demographicCust.get(0).getResident());
+				for (String residentId : residentIds) {
+					if (residentId != null && !residentId.equals("")) {
+						Provider p = providerDao.getProvider(residentId);
+						if (p != null) { sendToProviderList.add(p); }
+					}
+				}
+			}
+		}
 
 		for (Provider p : sendToProviderList) {
 						
