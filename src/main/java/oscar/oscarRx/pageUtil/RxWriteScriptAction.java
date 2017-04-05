@@ -250,7 +250,25 @@ public final class RxWriteScriptAction extends DispatchAction {
 		}
 
 		return null;
-
+	}
+	
+	public ActionForward manageReRx(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException {
+		checkPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), PRIVILEGE_WRITE);
+		oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBean) request.getSession().getAttribute("RxSessionBean");
+		if (bean == null) {
+			response.sendRedirect("error.html");
+			return null;
+		}
+		
+		String drugIds = request.getParameter("reRxDrugIds");
+		
+		bean.clearReRxDrugIdList();
+		List<String> reRxDrugIdList = bean.getReRxDrugIdList();
+		for (String drugId : drugIds.split(",")) {
+			reRxDrugIdList.add(drugId);	
+		}
+		
+		return null;
 	}
 
 	public ActionForward saveCustomName(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException {
