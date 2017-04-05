@@ -65,7 +65,7 @@ String percent = props.getProperty("gstPercent");
 <h3><bean:message key="admin.admin.manageGSTControl"/></h3>
 
 <html:form action="/admin/GstControl">
-GST:<br>
+HST:<br>
 <div class="input-append">
 	<input type="text" class="span2" maxlength="3" id="gstPercent" name="gstPercent" value="<%=percent%>" />
 	<span class="add-on">%</span>
