@@ -107,7 +107,8 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
 
         
         <link rel="stylesheet" type="text/css" media="all" href="<%=request.getContextPath()%>/share/css/oscarMDSIndex.css"  />
-  <script type="text/javascript" src="<%=request.getContextPath()%>/dms/showDocument.js"></script>        
+  <script type="text/javascript" src="<%=request.getContextPath()%>/dms/showDocument.js"></script>
+    <script type="text/javascript" src="<%=request.getContextPath()%>/hospitalReportManager/hrmActions.js"></script>
 
 
 

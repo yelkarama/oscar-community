@@ -22,15 +22,29 @@ function handleDocSave(docid,action){
 }
 
 function popupPatient(height, width, url, windowName, docId) {
-	  d = document.getElementById('demofind'+ docId).value; //demog  //attachedDemoNo
+    if(document.getElementById('demofind'+ docId)){
+        d = document.getElementById('demofind'+ docId).value; //demog  //attachedDemoNo
+    }
+    else{
+        //else HRM
+        d = document.getElementById('demofind'+ docId + 'hrm').value; //demog  //attachedDemoNo
+    }
+
 	  urlNew = url + d;
 	
 	  return popup2(height, width, 0, 0, urlNew, windowName);
 }
 
 function popupPatientTickler(height, width, url, windowName,docId) {
-  d = document.getElementById('demofind'+ docId).value; //demog  //attachedDemoNo
-  n = document.getElementById('demofindName' + docId).value;
+    if(document.getElementById('demofind'+ docId)){
+        d = document.getElementById('demofind'+ docId).value; //demog  //attachedDemoNo
+        n = document.getElementById('demofindName' + docId).value;
+    }
+    else{
+        // else HRM
+        d = document.getElementById('demofind'+ docId + 'hrm').value; //demog  //attachedDemoNo
+        n = document.getElementById('demofindName' + docId + 'hrm').value;
+    }
   urlNew = url + "method=edit&tickler.demographic_webName=" + n + "&tickler.demographicNo=" +  d + "&docType=DOC&docId="+docId;
   	
   	  return popup2(height, width, 0, 0, urlNew, windowName);
