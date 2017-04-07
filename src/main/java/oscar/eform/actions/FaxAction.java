@@ -138,4 +138,29 @@ public final class FaxAction {
 		} 
 	}
 
+	public void attachForms(String formId) throws DocumentException {
+		File tempFile = null;
+		String tempPath = System.getProperty("java.io.tmpdir");
+		String tempName = "EForm-" + formId + "." + System.currentTimeMillis();
+
+		try {
+			// Create temp file
+			tempFile = File.createTempFile(tempName, ".pdf");
+
+			// Convert to PDF
+			String viewUri = localUri + formId;
+			WKHtmlToPdfUtils.convertToPdf(viewUri, tempFile);
+			logger.info("Writing pdf to : "+tempFile.getCanonicalPath());
+			String tempPdf = String.format("%s%s%s.pdf", tempPath, File.separator, tempName);
+			FileUtils.copyFile(tempFile, new File(tempPdf));
+
+			// Removing the temp consultation pdf.
+			tempFile.delete();
+
+		} catch (IOException e) {
+			MiscUtils.getLogger().error("Error converting and sending eform. id="+formId, e);
+		}
+
+	}
+
 }
