@@ -453,7 +453,10 @@ public final class MessageUploader {
 			//Gets the ProviderDao
 			ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
 			//Gets the demographic's provider
-			List<Provider> demographicProviders = providerDao.getBillableProvidersByOHIPNo(altProviderNo);
+			List<Provider> demographicProviders = new ArrayList<>();
+			if(altProviderNo!=null && altProviderNo.trim().length()>0){
+				demographicProviders = providerDao.getBillableProvidersByOHIPNo(altProviderNo);
+			}
 			//If the list is not null, and it is not empty
 			if (demographicProviders != null && !demographicProviders.isEmpty()) {
 				//Routes to the demographic's proivder
