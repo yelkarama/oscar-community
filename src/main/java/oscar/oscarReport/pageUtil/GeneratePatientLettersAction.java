@@ -43,10 +43,7 @@ import net.sf.jasperreports.engine.JasperReport;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.apache.struts.action.Action;
-import org.apache.struts.action.ActionForm;
-import org.apache.struts.action.ActionForward;
-import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.*;
 import org.oscarehr.PMmodule.model.ProgramProvider;
 import org.oscarehr.managers.ProgramManager2;
 import org.oscarehr.managers.SecurityInfoManager;
@@ -119,91 +116,108 @@ public class GeneratePatientLettersAction extends Action {
         ArrayList<Object> fullPatientlist = new ArrayList<Object>();
 
         //for each demographic generate a letter for that patient
-        for (int i =0; i < demos.length; i++){
-           //fill the map with patient info
-           if (log.isTraceEnabled()) { log.trace("Getting demographic info for "+demos[i]);}
+        if (demos!=null && demos.length>0) {
+            for (int i = 0; i < demos.length; i++) {
+                //fill the map with patient info
+                if (log.isTraceEnabled()) {
+                    log.trace("Getting demographic info for " + demos[i]);
+                }
 
-           HashMap parameters = new HashMap();
-              if ( reportParams != null ){
-                   for (int p = 0; p < reportParams.length; p++){
-                       MiscUtils.getLogger().debug("demo = "+demos[i]);
-                       parameters.put(reportParams[p],apExe.execute(reportParams[p],demos[i]));
-                   }
-              }
+                HashMap parameters = new HashMap();
+                if (reportParams != null) {
+                    for (int p = 0; p < reportParams.length; p++) {
+                        MiscUtils.getLogger().debug("demo = " + demos[i]);
+                        parameters.put(reportParams[p], apExe.execute(reportParams[p], demos[i]));
+                    }
+                }
 
-           try{
+                try {
 
-                if (log.isTraceEnabled()) { log.trace("Filling report for "+demos[i]);}
-                JasperPrint print =  JasperFillManager.fillReport(jasperReport,parameters, new JREmptyDataSource());
+                    if (log.isTraceEnabled()) {
+                        log.trace("Filling report for " + demos[i]);
+                    }
+                    JasperPrint print = JasperFillManager.fillReport(jasperReport, parameters, new JREmptyDataSource());
 
-                String description = letterData.get("ID")+"-"+letterData.get("report_name");
-                String type = "others";
-                String fileName = letterData.get("ID")+"-"+StringUtils.replace((String)letterData.get("report_name")," ","-")+"-"+demos[i]+".pdf";
-                String html = "";
-                char status = 'A';
-                String observationDate = UtilDateUtilities.DateToString(new Date());
-                String module = "demographic";
-                String moduleId = demos[i];
+                    String description = letterData.get("ID") + "-" + letterData.get("report_name");
+                    String type = "others";
+                    String fileName = letterData.get("ID") + "-" + StringUtils.replace((String) letterData.get("report_name"), " ", "-") + "-" + demos[i] + ".pdf";
+                    String html = "";
+                    char status = 'A';
+                    String observationDate = UtilDateUtilities.DateToString(new Date());
+                    String module = "demographic";
+                    String moduleId = demos[i];
 
-                EDoc newDoc = new EDoc(description, type, fileName, "", providerNo, providerNo, "", status, observationDate, "", "", module, moduleId);
-                newDoc.setDocPublic("0");
-                newDoc.setContentType("application/pdf");
-                
-                // if the document was added in the context of a program
-        		ProgramManager2 programManager = SpringUtils.getBean(ProgramManager2.class);
-        		LoggedInInfo loggedInInfo  = LoggedInInfo.getLoggedInInfoFromSession(request);
-        		ProgramProvider pp = programManager.getCurrentProgramInDomain(loggedInInfo, loggedInInfo.getLoggedInProviderNo());
-        		if(pp != null && pp.getProgramId() != null) {
-        			newDoc.setProgramId(pp.getProgramId().intValue());
-        		}
+                    EDoc newDoc = new EDoc(description, type, fileName, "", providerNo, providerNo, "", status, observationDate, "", "", module, moduleId);
+                    newDoc.setDocPublic("0");
+                    newDoc.setContentType("application/pdf");
 
-                fileName = newDoc.getFileName();
-                String savePath = oscar.OscarProperties.getInstance().getProperty("DOCUMENT_DIR") + "/" + fileName;
-                if (log.isTraceEnabled()) { log.trace("writing report to disk location "+savePath);}
-                JasperExportManager.exportReportToPdfFile(print, savePath);
-                if (log.isTraceEnabled()) { log.trace("Saving reference to database for"+demos[i]);}
-                EDocUtil.addDocumentSQL(newDoc);
+                    // if the document was added in the context of a program
+                    ProgramManager2 programManager = SpringUtils.getBean(ProgramManager2.class);
+                    LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+                    ProgramProvider pp = programManager.getCurrentProgramInDomain(loggedInInfo, loggedInInfo.getLoggedInProviderNo());
+                    if (pp != null && pp.getProgramId() != null) {
+                        newDoc.setProgramId(pp.getProgramId().intValue());
+                    }
 
-                fullPatientlist.add(savePath);
+                    fileName = newDoc.getFileName();
+                    String savePath = oscar.OscarProperties.getInstance().getProperty("DOCUMENT_DIR") + "/" + fileName;
+                    if (log.isTraceEnabled()) {
+                        log.trace("writing report to disk location " + savePath);
+                    }
+                    JasperExportManager.exportReportToPdfFile(print, savePath);
+                    if (log.isTraceEnabled()) {
+                        log.trace("Saving reference to database for" + demos[i]);
+                    }
+                    EDocUtil.addDocumentSQL(newDoc);
 
-            }catch(Exception  jpException){
-            	MiscUtils.getLogger().error("Error", jpException);
+                    fullPatientlist.add(savePath);
+
+                } catch (Exception jpException) {
+                    MiscUtils.getLogger().error("Error", jpException);
+                }
+
             }
 
-        }
+
+            //LogAction.addLog((String) request.getSession().getAttribute("user"), LogConst.READ, LogConst.CON_JASPERREPORTLETER, demographic$, request.getRemoteAddr());
+            manageLetters.logLetterCreated(providerNo, id, demos);
+            MiscUtils.getLogger().debug("Add Follow Up " + request.getParameter("addFollowUp"));
+            if (request.getParameter("addFollowUp") != null && request.getParameter("addFollowUp").equals("ON")) {
+                //MARK IN MEASUREMENTS????
+                MiscUtils.getLogger().debug("IN MARK MEASUREMENTS");
+                String followUpType = request.getParameter("followupType");//"FLUF";
+                String followUpValue = request.getParameter("followupValue"); //"L1";
+                String comment = request.getParameter("message");
+                MiscUtils.getLogger().debug("Follow up type " + followUpType + " follow up value " + followUpValue);
+                if (followUpType != null && followUpValue != null) {
+                    FollowupManagement fup = new FollowupManagement();
+                    fup.markFollowupProcedure(followUpType, followUpValue, demos, providerNo, new Date(), comment);
+                }
+            }
+
+            response.setHeader("Content-disposition", "inline; filename=GeneratedLetters.pdf");
+            response.setHeader("Cache-Control", "max-age=0");
+            response.setDateHeader("Expires", 0);
+            response.setContentType("application/pdf");
 
 
-        //LogAction.addLog((String) request.getSession().getAttribute("user"), LogConst.READ, LogConst.CON_JASPERREPORTLETER, demographic$, request.getRemoteAddr());
-        manageLetters.logLetterCreated( providerNo, id,demos);
-        MiscUtils.getLogger().debug("Add Follow Up "+request.getParameter("addFollowUp"));
-        if (request.getParameter("addFollowUp") != null && request.getParameter("addFollowUp").equals("ON")){
-        //MARK IN MEASUREMENTS????
-            MiscUtils.getLogger().debug("IN MARK MEASUREMENTS");
-            String followUpType =  request.getParameter("followupType");//"FLUF";
-            String followUpValue = request.getParameter("followupValue"); //"L1";
-            String comment = request.getParameter("message");
-            MiscUtils.getLogger().debug("Follow up type "+followUpType+" follow up value "+followUpValue);
-            if ( followUpType != null && followUpValue != null){
-                FollowupManagement fup = new FollowupManagement();
-                fup.markFollowupProcedure(followUpType,followUpValue,demos,providerNo,new Date(),comment);
+            try {
+                sos = response.getOutputStream();
+            } catch (IOException ex) {
+                MiscUtils.getLogger().error("Error", ex);
+            }
+
+
+            ConcatPDF.concat(fullPatientlist, sos);
+
+            if (log.isTraceEnabled()) {
+                log.trace("End of GeneratePatientLetters Action");
             }
         }
-
-        response.setHeader("Content-disposition", "inline; filename=GeneratedLetters.pdf");
-        response.setHeader("Cache-Control", "max-age=0");
-        response.setDateHeader("Expires", 0);
-        response.setContentType("application/pdf");
-
-
-        try {
-            sos = response.getOutputStream();
-        }catch (IOException ex) {MiscUtils.getLogger().error("Error", ex);
+        else{
+            request.setAttribute("demoError", demos);
+            return new ActionRedirect(request.getHeader("Referer"));
         }
-
-
-        ConcatPDF.concat(fullPatientlist,sos);
-
-        if (log.isTraceEnabled()) { log.trace("End of GeneratePatientLetters Action");}
         return null;
      }
 

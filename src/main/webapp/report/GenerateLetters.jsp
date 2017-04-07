@@ -119,6 +119,10 @@ function disableifchecked(ele,nextDate){
 
 
 <script type="text/javascript">
+	<% if (request.getAttribute("demoError")==null){
+		request.removeAttribute("demoError");%>
+		alert("Must select at least one demographic");
+	<%}%>
                         
                         
                         

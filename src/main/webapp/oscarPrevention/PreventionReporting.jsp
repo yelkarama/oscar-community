@@ -437,6 +437,7 @@ table.ele thead {
                 <%ArrayList overDueList = new ArrayList();
                   ArrayList firstLetter = new ArrayList();
                   ArrayList secondLetter = new ArrayList();
+                  ArrayList otherLetter = new ArrayList();
                   ArrayList refusedLetter = new ArrayList();
                   ArrayList phoneCall = new ArrayList();
                   String type = (String) request.getAttribute("ReportType");
@@ -534,6 +535,8 @@ table.ele thead {
                                 }else if (dis.nextSuggestedProcedure.equals("P1")){
                                     phoneCall.add(dis.demographicNo);
                                     setBill = true;
+                                }else if(dis.state.equalsIgnoreCase("ineligible")) {
+                                    otherLetter.add(dis.demographicNo);
                                 }
                             }
 
@@ -669,6 +672,12 @@ table.ele thead {
                         %>
                     <a target="_blank" href="../report/GenerateLetters.jsp?<%=queryStr%>&amp;message=<%=java.net.URLEncoder.encode("Letter 2 Reminder Letter sent for :"+request.getAttribute("prevType"),"UTF-8")%>&amp;followupType=<%=followUpType%>&amp;followupValue=L2">Generate Second Letter</a>
                   <%}%>
+
+                    <% if ( !(firstLetter.size() > 0 && secondLetter.size() > 0) && otherLetter.size() > 0 ) {
+                        String queryStr = getUrlParamList(otherLetter, "demo");
+                    %>
+                    <a target="_blank" href="../report/GenerateLetters.jsp?<%=queryStr%>&amp;message=<%=java.net.URLEncoder.encode("Letter 1 Reminder Letter sent for :"+request.getAttribute("prevType"),"UTF-8")%>&amp;followupType=<%=followUpType%>&amp;followupValue=L1">Generate Other Letter</a>
+                    <%}%>
 
                   <% if ( refusedLetter.size() > 0 ) {
                         String queryStr = getUrlParamList(refusedLetter, "demo");
