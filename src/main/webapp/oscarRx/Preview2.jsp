@@ -77,7 +77,7 @@
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <script type="text/javascript" src="../share/javascript/prototype.js"></script>
-<script type="text/javascript" src="../share/javascript/Oscar.js"/></script>
+<script type="text/javascript" src="../share/javascript/Oscar.js"></script>
 <title><bean:message key="RxPreview.title"/></title>
 <style type="text/css" media="print">
  .noprint {
@@ -287,7 +287,7 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
 <html:form action="/form/formname" styleId="preview2Form">
 
 	<input type="hidden" name="demographic_no" value="<%=bean.getDemographicNo()%>"/>
-    <p id="pharmInfo" style="float:right;">
+    <p id="pharmInfo" style="float:left;">
     </p>
     <table>
         <tr>
@@ -499,8 +499,8 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                                     </c:otherwise>
                                             </c:choose></td>
                                     </tr>
-                                    <tr>
-                                            <td colspan=2 valign=top height="75px">
+                                    <tr id="demographicInfoRow">
+                                            <td id="demographicInfoCell" colspan=2 valign=top height="75px">
                                             <table width=100% cellspacing=0 cellpadding=0>
                                                     <tr>
                                                             <td align=left valign=top><br>
