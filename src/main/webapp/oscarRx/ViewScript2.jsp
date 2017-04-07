@@ -451,6 +451,7 @@ function signatureHandler(e) {
 	e.target.onbeforeunload = null;
 	<% if (OscarProperties.getInstance().isRxFaxEnabled()) { //%>
 	e.target.document.getElementById("faxButton").disabled = !hasFaxNumber || !e.isSave;
+    e.target.document.getElementById("faxPasteButton").disabled = !hasFaxNumber || !e.isSave;
 	<% } %>
 	if (e.isSave) {
 		<% if (OscarProperties.getInstance().isRxFaxEnabled()) { //%>
@@ -663,9 +664,15 @@ function toggleView(form) {
 					    	List<FaxConfig> faxConfigs = faxConfigDao.findAll(null, null);
 					    
 					    %>
+					<tr>
+						<td><span><input type=button value="Fax"
+										 class="ControlPushButton" id="faxButton" style="width: 150px"
+										 onClick="sendFax();"/></span>
+						</td>
+					</tr>
 					<tr>                            
                             <td><span><input type=button value="Fax & Paste into EMR"
-                                    class="ControlPushButton" id="faxButton" style="width: 150px"
+                                    class="ControlPushButton" id="faxPasteButton" style="width: 150px"
                                     onClick="printPaste2Parent(false);sendFax();" disabled/></span>
                                     
                                  <span>
