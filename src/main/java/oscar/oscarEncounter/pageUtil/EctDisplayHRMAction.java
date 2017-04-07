@@ -111,7 +111,7 @@ public class EctDisplayHRMAction extends EctDisplayAction {
 				} else {
 					//Medical Records Report
 					String[] reportSubClass = hrmReport.getFirstReportSubClass().split("\\^");
-					dispSubClass = reportSubClass!=null?reportSubClass[1]:"";
+					dispSubClass = reportSubClass!=null&&reportStatus.length()>1?reportSubClass[1]:"";
 				}
 
 				// Determine text to display on eChart
