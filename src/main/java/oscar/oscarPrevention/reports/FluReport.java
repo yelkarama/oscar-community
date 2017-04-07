@@ -194,7 +194,7 @@ public class FluReport implements PreventionReport {
                 log.debug("bonusEl start date "+beginingOfYear+ " "+beginingOfYear.before(prevDate));
                 log.debug("bonusEl end date "+endOfYear+ " "+endOfYear.after(prevDate));
                 log.debug("ASOFDATE "+asofDate);
-                if (beginingOfYear.before(prevDate) && endOfYear.after(prevDate) && isOfAge(loggedInInfo, demo.toString(),asofDate)){
+                if (!cutoffDate.after(prevDate) && isOfAge(loggedInInfo, demo.toString(),asofDate)){
                     if( refused ) {
                         prd.billStatus = "Y";
                     }
