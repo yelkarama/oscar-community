@@ -66,7 +66,12 @@ public class PrintAction extends Action {
 			MiscUtils.getLogger().error("",e);
 			return mapping.findForward("error");
 		}
-		return mapping.findForward("success");
+		if(skipSave){
+			return mapping.findForward("success");
+		}
+		else {
+			return mapping.findForward("close");
+		}
 	}
 	
 	/**
