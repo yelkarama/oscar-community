@@ -131,7 +131,12 @@
 </oscar:oscarPropertiesCheck></p>
 <p><!--a href="http://204.92.240.253:8080/test/slt/Search.jsp"><font size="+1"><bean:message key="demographic.search.btnELearning"/></font></a--></p>
 	<div class="createNew">
-		<a href="demographicaddarecordhtm.jsp?search_mode=search_name&keyword="><b><font size="+1"><bean:message key="demographic.search.btnCreateNew" /></font></b></a>
+		<caisi:isModuleLoad moduleName="caisi">
+			<a href="../demographic/demographicaddarecordhtm.jsp?search_mode=search_name&keyword="><b><font size="+1"><bean:message key="demographic.search.btnCreateNew" /></font></b></a>
+		</caisi:isModuleLoad>
+		<caisi:isModuleLoad moduleName="caisi" reverse="true">
+			<a href="demographicaddarecordhtm.jsp?search_mode=search_name&keyword="><b><font size="+1"><bean:message key="demographic.search.btnCreateNew" /></font></b></a>
+		</caisi:isModuleLoad>
 		<br>
 	</div>
 </body>
