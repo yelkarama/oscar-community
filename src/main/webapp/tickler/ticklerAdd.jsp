@@ -72,6 +72,7 @@ if( request.getParameter("updateParent") != null )
 else
     updateParent = "true";  
 
+Boolean writeToEncounter = false;
 %>
 <%@ page import="java.util.*, java.sql.*, oscar.*, java.net.*, oscar.oscarEncounter.pageUtil.EctSessionBean" %>
 <%@page import="org.oscarehr.util.SpringUtils" %>
@@ -148,12 +149,18 @@ function setfocus() {
 }
 
 function validate(form){
-if (validateDemoNo(form)){
-form.action = "dbTicklerAdd.jsp";
-form.submit();
-
+validate(form, false);
 }
-else{}
+function validate(form, writeToEncounter){
+    if (validateDemoNo(form)){
+        if(writeToEncounter){
+            form.action = "dbTicklerAdd.jsp?writeToEncounter=true";
+        }
+        else{
+            form.action = "dbTicklerAdd.jsp";
+        }
+        form.submit();
+    }
 }
 function validateDemoNo() {
   if (document.serviceform.demographic_no.value == "") {
@@ -423,9 +430,12 @@ function changeSite(sel) {
     </tr>
         
      <INPUT TYPE="hidden" NAME="user_no" VALUE="<%=user_no%>">
+      <input type="hidden" name="writeToEncounter" value="<%=writeToEncounter%>"/>
     <tr> 
       <td><input type="button" name="Button" value="<bean:message key="tickler.ticklerAdd.btnCancel"/>" onClick="window.close()"></td>
-      <td><input type="button" name="Button" value="<bean:message key="tickler.ticklerAdd.btnSubmit"/>" onClick="validate(this.form)"></td>
+      <td><input type="button" name="Button" value="<bean:message key="tickler.ticklerAdd.btnSubmit"/>" onClick="validate(this.form)">
+          <input type="button" name="Button" value="Submit & Write to Encounter" onClick="validate(this.form, true)">
+      </td>
       <td></td>
 	  </tr>
   </form>
