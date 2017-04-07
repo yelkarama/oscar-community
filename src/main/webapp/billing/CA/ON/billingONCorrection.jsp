@@ -1197,7 +1197,7 @@ for (ClinicNbr clinic : nbrs) {
 <%
 	if(securityInfoManager.hasPrivilege(loggedInInfo, "_billing", "w", null)) {
 %>
-<%if (request.getParameter("admin")!=null || request.getParameter("adminSubmit")!=null ) { %>
+<%if (request.getParameter("admin")!=null || request.getParameter("adminSubmit")!=null || request.getHeader("referer").contains("administration") ) { %>
 <input type="hidden" name="adminSubmit" value="adminSubmit">
 <input class="btn btn-primary" type="submit" name="submit" onclick="return validateAllItems();" value="Save">
 <%}else{%> 
