@@ -728,6 +728,12 @@ Event.observe('rxInteractionWarningLevel', 'change', function(event) {
 	  </div>
       </td>
   </tr>
+	  <tr>
+		  <td align="center">
+			  <a href=# onClick ="popupPage(230,860,'../setProviderStaleDate.do?method=viewDefaultOhipProvider');return false;">Set Default Physician on Generate OHIP File</a>
+			  
+		  </td>
+	  </tr>
 </security:oscarSec>
 	  <tr>
           <td align="center"><a href=# onClick ="popupPage(400,860,'providerAddress.jsp');return false;"><bean:message key="provider.btnEditAddress"/></a></td>
