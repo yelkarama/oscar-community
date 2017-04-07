@@ -171,6 +171,12 @@
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/checkDate.js"></script>
 <script type="text/javascript" src="<%= request.getContextPath() %>/share/javascript/Oscar.js"></script>
+    <% if (OscarProperties.getInstance().getBooleanProperty("indivica_hc_read_enabled", "true")) { %>
+    <script language="javascript" src="<%=request.getContextPath() %>/hcHandler/hcHandler.js"></script>
+    <script language="javascript"
+            src="<%=request.getContextPath() %>/hcHandler/hcHandlerAddAppointment.js"></script>
+    <link rel="stylesheet" href="<%=request.getContextPath() %>/hcHandler/hcHandler.css" type="text/css"/>
+    <% } %>
 <% if (isMobileOptimized) { %>
     <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, width=device-width" />
     <link rel="stylesheet" href="../mobile/appointmentstyle.css" type="text/css">
@@ -810,6 +816,11 @@ function pasteAppt(multipleSameDayGroupAppt) {
         <%          out.println("("+pFirstname+" "+pLastname+")"); %>
         <% } %>
     </div>
+    <% if (OscarProperties.getInstance().getBooleanProperty("indivica_hc_read_enabled", "true")) { %>
+    <span style="position: relative; font-style: italic; background: black; color: white; padding: 4px; font-size: 12px; border-radius: 3px;">
+			<span class="_hc_status_icon _hc_status_success"></span>Ready for Card Swipe
+		</span>
+    <% } %>
 </div>
 <div class="panel">
     <ul>
