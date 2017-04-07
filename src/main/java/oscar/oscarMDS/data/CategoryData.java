@@ -269,6 +269,7 @@ public class CategoryData {
         	+ " 	AND plr.lab_type = 'HL7' "
         	+ " 	AND cd.lab_type = 'HL7' "
         	+ " 	AND plr.status like '%"+status+"%' "
+			+ " AND info.lab_no IS NOT NULL "
         	+ (providerSearch ? "AND plr.provider_no = '"+searchProviderNo+"' " : "")
 			+ labDateSql
         	+ " GROUP BY demographic_no, info.accessionNum ";
