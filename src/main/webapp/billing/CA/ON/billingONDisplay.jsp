@@ -566,7 +566,7 @@ if(bFlag) {
 			value="<%=billingunit%>" size="5" maxlength="5"></th>
 		<th align="right"><input type="hidden"
 			name="xml_billing_amount<%=rowCount%>" value="<%=billAmount%>">
-		<input type="text" style="width: 100%" size="5" maxlength="6"
+		<input type="text" style="width: 100%" size="5" maxlength="7"
 			id="billingamount<%=rowCount-1%>" name="billingamount<%=rowCount-1%>"
 			value="<%=billAmount%>" onchange="javascript:validateNum(this)"></th>
 		<td align="center"><input type="checkbox"
