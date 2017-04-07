@@ -345,7 +345,7 @@ public class FormUpdateAction extends Action {
 
 		if (valid) {
 			comments = org.apache.commons.lang.StringEscapeUtils.escapeSql(comments);
-			if (!GenericValidator.isBlankOrNull(inputValue)) {
+			if (!GenericValidator.isBlankOrNull(inputValue) || !GenericValidator.isBlankOrNull(comment)) {
 
 				Measurement measurement = new Measurement();
 				measurement.setDemographicId(Integer.parseInt(demographicNo));
