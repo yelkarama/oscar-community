@@ -1307,8 +1307,10 @@ document.forms[1].r_doctor_ohip.value = refNo;
                     //-->
                 </script> <% } else {%>
 					<input type="hidden" name="f_doctor_id" size="17" maxlength="40" value="">
-					<input type="text" name="f_doctor" size="30" maxlength="40"
-                                               value=""> <% } %>
+					<input type="text" name="f_doctor" size="17" maxlength="40"
+                                               value="">
+					<a href="javascript:referralScriptAttach2('f_doctor_ohip','f_doctor', 'f_doctor_id', 'name')"><bean:message key="demographic.demographiceditdemographic.btnSearch"/> Name</a>
+					<% } %>
                 </td>
                 <td align="right" nowrap height="10"><b><bean:message
                         key="demographic.demographicaddrecordhtm.formFamilyDoctorN" />:</b></td>
