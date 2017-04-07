@@ -208,6 +208,10 @@ function demoUpdate(){
 	}
 }
 
+function unlinkReferralDoctor(){
+    document.forms[1].elements['rd'].value = "";
+    document.forms[1].elements['rdohip'].value = "";
+}
 var awnd=null;
 function ScriptAttach() {
 	f0 = escape(document.forms[1].xml_diagnostic_detail.value);
@@ -758,6 +762,15 @@ OHIP Claim No  <br>
 			</div>
 			</td>
 	</tr>
+<% if(r_doctor != null && !r_doctor.trim().equals("")){  %>
+    <tr>
+        <td></td>
+        <td>
+            <input class="btn" onclick="unlinkReferralDoctor();" type="submit" name="submit" value="Unlink Referral Doctor"/>
+        </td>
+    </tr>
+<% } %>
+
 </table>
 </div><!--span-->
 </div>
