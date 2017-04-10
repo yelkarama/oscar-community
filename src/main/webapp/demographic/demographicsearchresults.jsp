@@ -533,6 +533,9 @@ List<Demographic> doSearch(DemographicDao demographicDao,String searchMode, Stri
 		else if(searchMode.equals("search_phone")) {
 			demoList = demographicDao.searchDemographicByPhone(keyword, limit, offset,providerNo,outOfDomain);
 		}
+		else if(searchMode.equals("search_cell_phone")) {
+			demoList = demographicDao.searchDemographicByExtKeyAndValueLike("demo_cell", keyword, limit, offset, providerNo, outOfDomain);
+		}
 		else if(searchMode.equals("search_dob")) {
 			demoList = demographicDao.searchDemographicByDOB(keyword, limit, offset,providerNo,outOfDomain);
 		}
@@ -559,6 +562,9 @@ List<Demographic> doSearch(DemographicDao demographicDao,String searchMode, Stri
 	    else if(searchMode.equals("search_phone")) {
 			demoList = demographicDao.searchDemographicByPhoneAndNotStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
 		}
+		else if(searchMode.equals("search_cell_phone")) {
+			demoList = demographicDao.searchDemographicByExtKeyAndValueLikeAndNotStatus("demo_cell", keyword, stati, limit, offset, providerNo, outOfDomain);
+		}
 		else if(searchMode.equals("search_dob")) {
 			demoList = demographicDao.searchDemographicByDOBAndNotStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
 		}
@@ -584,6 +590,9 @@ List<Demographic> doSearch(DemographicDao demographicDao,String searchMode, Stri
 		}
 	    else if(searchMode.equals("search_phone")) {
 			demoList = demographicDao.searchDemographicByPhoneAndStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
+		}
+		else if(searchMode.equals("search_cell_phone")) {
+			demoList = demographicDao.searchDemographicByExtKeyAndValueLikeAndStatus("demo_cell", keyword, stati, limit, offset, providerNo, outOfDomain);
 		}
 		else if(searchMode.equals("search_dob")) {
 			demoList = demographicDao.searchDemographicByDOBAndStatus(keyword, stati, limit, offset,providerNo,outOfDomain);
