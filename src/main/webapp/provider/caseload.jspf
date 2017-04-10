@@ -45,7 +45,7 @@
 	Integer facilityId = loggedInInfo.getCurrentFacility().getId();
 
 %>
-<tr><td colspan="3">
+<div id="caseloadDiv">
 <style>
 #caseloadTable {
 	border-collapse: collapse;
@@ -389,6 +389,9 @@ jQuery(document).ready(function(){
 	jQuery(window).scroll(handleScroll);
 	change_program_lists();
 	search(searchMethod);
+	var table = jQuery('div#caseloadDiv');
+	var topPadding = jQuery('div.header-div').height();
+	table.css('padding-top', (topPadding)+'px');
 });
 </script>
-</td></tr>
+</div>

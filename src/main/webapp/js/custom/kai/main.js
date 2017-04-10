@@ -51,13 +51,18 @@ jQuery(document).ready(function(){
 //	jQuery("#navlist").append("<li><a href=\"../eyeform/ConsultationReportList.do\">ConReport</a></li>");
 	jQuery("<li><a href=\"#\" onclick=\"popupOscarRx(625,1024,'../eyeform/ConsultationReportList.do\');\" title\"View Consultation Reports\">ConReport</a></li>").insertAfter("#con");
 
-  // Disable link to new UI
-  jQuery('a[href="../web/"]').attr("href",'#');
-  
-  // Add KAI bar as appropriate
-  if (!SmartPhone.isMobile()) {
-    addKAIBar();
-  }
+	// Disable link to new UI
+	jQuery('a[href="../web/"]').attr("href",'#');
+	
+	// Add KAI bar as appropriate
+	if (!SmartPhone.isMobile()) {
+		addKAIBar();
+
+		var table = jQuery('table#scheduleTable');
+		var topPadding = jQuery('div.header-div').height();
+		table.css('padding-top', (topPadding)+'px');
+		table.floatThead({top: topPadding});
+	}
 });
 
 
@@ -85,7 +90,7 @@ function addKAIBar() {
 		        </div>
 		    </a>
 		</div>
-	</div>`
+	</div>`;
   
   jQuery('head').append('<link rel="stylesheet" href="../js/custom/kai/kai_bar.css" type="text/css" />');
   var kaiBar = jQuery(kaiBarHTML);
