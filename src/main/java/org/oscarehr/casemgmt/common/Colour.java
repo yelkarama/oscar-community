@@ -64,7 +64,7 @@ public class Colour {
     public  String labs = "A0509C";
     public  String messages = "7F462C";
     public  String measurements = "344887";
-    public  String rx="7D2252";
+    public  String rx="DC52D5";
     public  String allergy="C85A17";
     public  String omed="306754";
     public  String riskFactors="993333";
