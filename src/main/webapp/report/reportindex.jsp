@@ -166,9 +166,9 @@ function go(r) {
   var z = document.getElementsByName("eTime")[0].value;
   var ro = document.getElementById("rosteredOnly").checked;
   var td = document.getElementsByName("tabDay")[0].value;
-  var w = 'reportdaysheet.jsp?dsmode=' + r + '&provider_no=' + s +'&sdate='+ t;
-  var x = 'reportdaysheet.jsp?dsmode=' + r + '&provider_no=' + s +'&sdate='+ u + '&edate=' + v + '&sTime=' + y + '&eTime=' + z ;
-  var x2 = 'reportdaysheet.jsp?dsmode=' + r + '&provider_no=' + s +'&sdate='+ u + '&edate=' + v + '&sTime=' + y + '&eTime=' + z + '&rosteredStatus=true';
+  var w = 'displayDaysheet.do?dsmode=' + r + '&provider_no=' + s +'&sdate='+ t;
+  var x = 'displayDaysheet.do?dsmode=' + r + '&provider_no=' + s +'&sdate='+ u + '&edate=' + v + '&sTime=' + y + '&eTime=' + z ;
+  var x2 = 'displayDaysheet.do?dsmode=' + r + '&provider_no=' + s +'&sdate='+ u + '&edate=' + v + '&sTime=' + y + '&eTime=' + z + '&rosteredStatus=true';
   var y2 =  'tabulardaysheetreport.jsp?provider_no=' + s +'&sdate=' + td.replace('/', '-');
 
 if (r=='tab')
