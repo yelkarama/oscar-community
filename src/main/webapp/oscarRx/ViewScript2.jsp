@@ -352,7 +352,10 @@ function printIframe(){
 function printPaste2Parent(print){
     //console.log("in printPaste2Parent");
    try{
-      text =""; // "****<%=oscar.oscarProvider.data.ProviderData.getProviderName(bean.getProviderNo())%>********************************************************************************";
+      var text =""; 
+      <% if (props.isPropertyActive("rx_paste_asterisk")) { %>
+	   text += "****<%=oscar.oscarProvider.data.ProviderData.getProviderName(bean.getProviderNo())%>********************************************************************************\n";
+     <% } %>
       //console.log("1");
       //text = text.substring(0, 82) + "\n";
       if (document.all){
@@ -361,8 +364,12 @@ function printPaste2Parent(print){
          text += preview.document.forms[0].rx_no_newlines.value + "\n";
       }
       //console.log("2");
-      text+=document.getElementById('additionalNotes').value+"\n";
-      //text += "**********************************************************************************\n";
+	  if (document.getElementById('additionalNotes') !== null) {
+		  text += document.getElementById('additionalNotes').value + "\n";
+	  }
+	   <% if (props.isPropertyActive("rx_paste_asterisk")) { %>
+		  text += "**********************************************************************************\n";
+	   <% } %>
       //oscarLog(text);
 
       //we support pasting into orig encounter and new casemanagement
