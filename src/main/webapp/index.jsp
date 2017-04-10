@@ -161,6 +161,12 @@ String login_error="";
 				margin-right: auto;
 				margin-left: auto;
             }
+            .auaContainer {
+				margin-right: auto;
+				margin-left: auto;
+				text-align:center;
+				z-index:3;width:70%;
+            }
             
             .panel {
                 margin-bottom: 20px;
@@ -411,7 +417,7 @@ String login_error="";
     	                        <% } %>
     						</html:form>
     			                        
-                        <%if (AcceptableUseAgreementManager.hasAUA()){ %>
+                        <%if (AcceptableUseAgreementManager.hasAUA() && !AcceptableUseAgreementManager.auaAlwaysShow()){ %>
                         <span class="extrasmall">
                         	<bean:message key="global.aua" /> &nbsp; <a href="javascript:void(0);" onclick="showHideItem('auaText');"><bean:message key="global.showhide"/></a>
                         </span>
@@ -420,6 +426,16 @@ String login_error="";
 			  	</div>
 			</div>
 		</div>
+		<%if (AcceptableUseAgreementManager.hasAUA() || AcceptableUseAgreementManager.auaAlwaysShow()){ %>
+			<div id="auaText" class="auaContainer" style="display:none;" >
+				<div class="panel panel-default">
+					<%=AcceptableUseAgreementManager.getAUAText()%>
+				</div>
+			</div>
+		<%}
+		if (AcceptableUseAgreementManager.auaAlwaysShow()) { %>
+			<script type="text/javascript">document.getElementById('auaText').style.display = 'block';</script>
+		<% } %>
 		<div class="powered">
 			<span class="details">
 				<div>Powered</div>

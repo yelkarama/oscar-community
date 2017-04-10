@@ -68,6 +68,9 @@ public class AcceptableUseAgreementManager {
 	 }
 	 
 	public static boolean hasAUA(){
+		String auaProp = oscar.OscarProperties.getInstance().getProperty("show_aua");
+		auaProp = (auaProp == null) ? "" : auaProp;
+		if (!(auaProp.equals("always") || auaProp.equals("true"))) { return false; } 
 		logger.debug("loadAttempted "+loadAttempted+" auaText "+auaText);
 		if(!loadAttempted){
 			loadAUA();
@@ -77,6 +80,13 @@ public class AcceptableUseAgreementManager {
 			return false;
 		}
 		return true;
+	}
+	
+	public static boolean auaAlwaysShow(){
+		String auaProp = oscar.OscarProperties.getInstance().getProperty("show_aua");
+		auaProp = (auaProp == null) ? "" : auaProp;
+		if (auaProp.equals("always")) { return true; } 
+		return false;
 	}
 	
 	 public static String getAUAText() {
