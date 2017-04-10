@@ -106,9 +106,12 @@ function searchOutOfDomain() {
             <option value="search_name" <%=searchMode.equals("search_name")?"selected":""%>>
                 <bean:message key="demographic.zdemographicfulltitlesearch.formName" />
             </option>
-            <option value="search_phone" <%=searchMode.equals("search_phone")?"selected":""%>>
-                <bean:message key="demographic.zdemographicfulltitlesearch.formPhone" />
-            </option>
+			 <option value="search_phone" <%=searchMode.equals("search_phone")?"selected":""%>>
+				 <bean:message key="demographic.zdemographicfulltitlesearch.formPhone" />
+			 </option>
+			 <option value="search_cell_phone" <%=searchMode.equals("search_cell_phone")?"selected":""%>>
+				 <bean:message key="demographic.zdemographicfulltitlesearch.formCellPhone" />
+			 </option>
             <option value="search_dob" <%=searchMode.equals("search_dob")?"selected":""%>>
                 <bean:message key="demographic.zdemographicfulltitlesearch.formDOB" />
             </option>

@@ -2570,6 +2570,7 @@ public ActionForward viewEDocBrowserInDocumentReport(ActionMapping actionmapping
 		ArrayList<LabelValueBean> serviceList = new ArrayList<LabelValueBean>();
 		serviceList.add(new LabelValueBean(oscarResources.getString("demographic.zdemographicfulltitlesearch.formName"), "search_name"));
 		serviceList.add(new LabelValueBean(oscarResources.getString("demographic.zdemographicfulltitlesearch.formPhone"), "search_phone"));
+		serviceList.add(new LabelValueBean(oscarResources.getString("demographic.zdemographicfulltitlesearch.formCellPhone"), "search_cell_phone"));
 		serviceList.add(new LabelValueBean(oscarResources.getString("demographic.zdemographicfulltitlesearch.formDOB"), "search_dob"));
 		serviceList.add(new LabelValueBean(oscarResources.getString("demographic.zdemographicfulltitlesearch.formAddr"), "search_address"));
 		serviceList.add(new LabelValueBean(oscarResources.getString("demographic.zdemographicfulltitlesearch.formHIN"), "search_hin"));
