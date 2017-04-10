@@ -40,6 +40,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.oscarehr.PMmodule.model.Program;
 import org.oscarehr.PMmodule.model.ProgramProvider;
 import org.oscarehr.casemgmt.model.CaseManagementNote;
+import org.oscarehr.common.dao.AllergyDao;
+import org.oscarehr.common.model.Allergy;
 import org.oscarehr.common.printing.FontSettings;
 import org.oscarehr.common.printing.PdfWriterFactory;
 import org.oscarehr.managers.ProgramManager2;
@@ -486,6 +488,41 @@ public class CaseManagementPrintPdf {
             p.add(phrase);
             document.add(p);
         }
+    }
+
+    public void printAllergies(Integer demographicNo) throws DocumentException{
+        Paragraph p = new Paragraph();
+        Font obsfont = new Font(bf, FONTSIZE, Font.UNDERLINE);
+        Chunk chunk;
+        p.setAlignment(Paragraph.ALIGN_LEFT);
+        Phrase phrase = new Phrase(LEADING, "Allergies\n", obsfont);
+        p.add(phrase);
+        document.add(p);
+        newPage = false;
+
+        AllergyDao allergyDao = SpringUtils.getBean(AllergyDao.class);
+        List<Allergy> allergies = allergyDao.findActiveAllergies(demographicNo);
+
+        if( newPage ){
+            document.newPage();
+        } else{
+            newPage = true;
+        }
+
+        // Print active allergies
+        if(allergies!=null && !allergies.isEmpty()){
+            for(Allergy allergy : allergies) {
+                p = new Paragraph();
+                //p.setSpacingBefore(font.leading(LINESPACING)*2f);
+                phrase = new Phrase(LEADING, "", font);
+                chunk = new Chunk("Entry Date: " + formatter.format(allergy.getEntryDate()) + "\n", obsfont);
+                phrase.add(chunk);
+                phrase.add(allergy.getDescription() + ", (" + allergy.getSeverityOfReaction() +")\n\n");
+                p.add(phrase);
+                document.add(p);
+            }
+        }
+
     }
 
     public void finish() {

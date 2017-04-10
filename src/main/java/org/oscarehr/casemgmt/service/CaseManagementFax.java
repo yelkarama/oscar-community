@@ -234,6 +234,10 @@ public class CaseManagementFax {
             printer = new CaseManagementPrintPdf(request, out);
             printer.printDocHeaderFooter();
             printer.printCPP(cpp);
+            if (cpp != null){
+                // Only fax allergies when faxing CPP
+                printer.printAllergies(demographicNo);
+            }
             if(startDate!=null&&endDate!=null){
                 printer.printRx(demoNo, othermeds, startDate, endDate);
             }
