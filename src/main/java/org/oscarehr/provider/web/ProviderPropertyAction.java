@@ -35,10 +35,12 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 import org.apache.struts.actions.DispatchAction;
 import org.apache.struts.util.LabelValueBean;
+import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.dao.CtlBillingServiceDao;
 import org.oscarehr.common.dao.QueueDao;
 import org.oscarehr.common.dao.UserPropertyDAO;
 import org.oscarehr.common.model.Facility;
+import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.model.UserProperty;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
@@ -2622,6 +2624,71 @@ public ActionForward viewEDocBrowserInDocumentReport(ActionMapping actionmapping
 		request.setAttribute("providerbtnSubmit","provider.btnSubmit");
 		request.setAttribute("providermsgSuccess","provider.setDefaultSearchMode.msgSuccess");
 		request.setAttribute("method","saveDefaultSearchMode");
+
+		return actionmapping.findForward("gen");
+	}
+
+	public ActionForward viewDefaultOhipProvider(ActionMapping actionmapping, ActionForm actionform, HttpServletRequest request, HttpServletResponse response) {
+		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+		ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
+		String providerNo = loggedInInfo.getLoggedInProviderNo();
+		ResourceBundle oscarResources = ResourceBundle.getBundle("oscarResources", Locale.ENGLISH);
+		DynaActionForm frm = (DynaActionForm)actionform;
+		UserProperty prop = this.userPropertyDAO.getProp(providerNo, UserProperty.DEFAULT_OHIP_PROVIDER);
+
+		if (prop == null){
+			prop = new UserProperty();
+		}
+
+		ArrayList<LabelValueBean> optionList = new ArrayList<LabelValueBean>();
+		List<Provider> providers = providerDao.getBillableProviders();
+		
+		optionList.add(new LabelValueBean("All Providers", "all"));
+		for (Provider provider : providers) {
+			optionList.add(new LabelValueBean(provider.getFormattedName(), provider.getProviderNo()));
+		}
+		
+		request.setAttribute("dropOpts",optionList);
+
+		request.setAttribute("dateProperty",prop);
+		request.setAttribute("providertitle","provider.setDefaultOhipProvider.title");
+		request.setAttribute("providermsgPrefs","provider.setDefaultOhipProvider.msgPrefs");
+		request.setAttribute("providermsgProvider","provider.setDefaultOhipProvider.msgDefaultText");
+		request.setAttribute("providermsgEdit","provider.setDefaultOhipProvider.msgEdit");
+		request.setAttribute("providerbtnSubmit","provider.setDefaultOhipProvider.btnSubmit");
+		request.setAttribute("providermsgSuccess","provider.setDefaultOhipProvider.msgSuccess");
+		request.setAttribute("method","saveDefaultOhipProvider");
+
+		frm.set("dateProperty", prop);
+
+		return  actionmapping.findForward("gen");
+	}
+	public ActionForward saveDefaultOhipProvider(ActionMapping actionmapping, ActionForm actionform, HttpServletRequest request, HttpServletResponse response) {
+		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+		String providerNo=loggedInInfo.getLoggedInProviderNo();
+
+		DynaActionForm frm = (DynaActionForm)actionform;
+		UserProperty prop = (UserProperty)frm.get("dateProperty");
+		String fmt = prop != null ? prop.getValue() : "";
+		UserProperty saveProperty = this.userPropertyDAO.getProp(providerNo,UserProperty.DEFAULT_OHIP_PROVIDER);
+
+		if( saveProperty == null ) {
+			saveProperty = new UserProperty();
+			saveProperty.setProviderNo(providerNo);
+			saveProperty.setName(UserProperty.DEFAULT_OHIP_PROVIDER);
+		}
+
+		saveProperty.setValue(fmt);
+		this.userPropertyDAO.saveProp(saveProperty);
+
+		request.setAttribute("status", "success");
+		request.setAttribute("providertitle","provider.setDefaultOhipProvider.title");
+		request.setAttribute("providermsgPrefs","provider.setDefaultOhipProvider.msgPrefs");
+		request.setAttribute("providermsgProvider","provider.setDefaultOhipProvider.msgDefaultText");
+		request.setAttribute("providermsgEdit","provider.setDefaultOhipProvider.msgEdit");
+		request.setAttribute("providerbtnSubmit","provider.setDefaultOhipProvider.btnSubmit");
+		request.setAttribute("providermsgSuccess","provider.setDefaultOhipProvider.msgSuccess");
+		request.setAttribute("method","saveDefaultOhipProvider");
 
 		return actionmapping.findForward("gen");
 	}
