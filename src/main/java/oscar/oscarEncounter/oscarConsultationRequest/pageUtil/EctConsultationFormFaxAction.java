@@ -30,10 +30,12 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.tika.io.IOUtils;
+import org.oscarehr.common.dao.ConsultationRequestDao;
 import org.oscarehr.common.dao.FaxConfigDao;
 import org.oscarehr.common.dao.FaxJobDao;
 import org.oscarehr.common.model.FaxConfig;
 import org.oscarehr.common.model.FaxJob;
+import org.oscarehr.common.model.ProfessionalSpecialist;
 import org.oscarehr.fax.util.PdfCoverPageCreator;
 import org.oscarehr.hospitalReportManager.HRMPDFCreator;
 import org.oscarehr.hospitalReportManager.dao.HRMDocumentToDemographicDao;
@@ -50,6 +52,7 @@ import com.sun.xml.messaging.saaj.util.ByteOutputStream;
 import oscar.OscarProperties;
 import oscar.dms.EDoc;
 import oscar.dms.EDocUtil;
+import oscar.eform.actions.FaxAction;
 import oscar.log.LogAction;
 import oscar.log.LogConst;
 import oscar.oscarLab.ca.all.pageUtil.LabPDFCreator;
@@ -67,6 +70,7 @@ public class EctConsultationFormFaxAction extends Action {
 
 	private static final Logger logger = MiscUtils.getLogger();
 	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
+	private ConsultationRequestDao consultationRequestDao = SpringUtils.getBean(ConsultationRequestDao.class);
 	
 	public EctConsultationFormFaxAction() {
 	}
@@ -206,6 +210,22 @@ public class EctConsultationFormFaxAction extends Action {
 				bos.close();
 				streams.add(bis);
 				alist.add(bis);
+			}
+
+			if(reqId!=null && !reqId.trim().equals("") && consultationRequestDao.getConsultation(Integer.parseInt(reqId))!=null){
+				ProfessionalSpecialist professionalSpecialist = consultationRequestDao.getConsultation(Integer.parseInt(reqId)).getProfessionalSpecialist();
+				if (professionalSpecialist!=null && professionalSpecialist.getEformId()!=null && professionalSpecialist.getEformId()!=0){
+					bos = new ByteOutputStream();
+				 	FaxAction faxAction = new FaxAction(request);
+				 	faxAction.attachForms(String.valueOf(professionalSpecialist.getEformId()));
+
+				 	buffer = bos.getBytes();
+					bis = new ByteInputStream(buffer, bos.getCount());
+					bos.close();
+					streams.add(bis);
+					alist.add(bis);
+
+				}
 			}
 
 			if (alist.size() > 0) {

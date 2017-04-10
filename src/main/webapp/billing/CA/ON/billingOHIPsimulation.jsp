@@ -213,11 +213,11 @@ if(request.getParameter("submit")!=null && request.getParameter("submit").equals
 			if (dbObj.getRecordCount() > 0) {
 				recordCount += dbObj.getRecordCount();	
 				bigTotal = bigTotal.add(dbObj.getBigTotal());
-				htmlValue += dbObj.getHtmlValue();			
-			}			
-			errorCount += "".equals(dbObj.errorMsg) ? 0 : dbObj.errorMsg.split("<br>").length;
-			errorCount += "".equals(dbObj.errorFatalMsg) ? 0 : dbObj.errorFatalMsg.split("<br>").length;
-			dbObj.errorMsg = "";
+				htmlValue += dbObj.getHtmlValue();
+				errorCount += "".equals(dbObj.errorMsg) ? 0 : dbObj.errorMsg.split("<br>").length;
+				errorCount += "".equals(dbObj.errorFatalMsg) ? 0 : dbObj.errorFatalMsg.split("<br>").length;
+				dbObj.errorMsg = "";
+			}
 		}
 		
 		String billingTable = htmlValue;

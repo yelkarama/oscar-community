@@ -42,6 +42,8 @@
 <%@page import="org.oscarehr.common.model.ProviderBillCenter" %>
 <%@page import="org.oscarehr.common.dao.ProviderBillCenterDao" %>
 <%@page import="org.oscarehr.util.SpringUtils" %>
+<%@ page import="org.oscarehr.common.dao.UserPropertyDAO" %>
+<%@ page import="org.oscarehr.common.model.UserProperty" %>
 
 <%
 	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
@@ -242,6 +244,9 @@ function setBillingCenter( providerNo ) {
 		Select Provider<br>
 		<select name="provider" onchange = "setBillingCenter(this.value);">
 			<%
+			UserPropertyDAO userPropertyDAO = (UserPropertyDAO) SpringUtils.getBean("UserPropertyDAO");
+			UserProperty defaultOhipProviderProp = userPropertyDAO.getProp((String)session.getAttribute("user"),"DEFAULT_OHIP_PROVIDER");
+			
 			List providerStr; 
 			
 			if (isTeamBillingOnly || isTeamAccessPrivacy) {
@@ -255,23 +260,18 @@ function setBillingCenter( providerNo ) {
 			}
 			
 			
-			if(providerStr.size() == 1) {
-				String temp[] = ((String) providerStr.get(0)).split("\\|");
-			%>
-			<option value="<%=temp[0]%>"><%=temp[1]%>, <%=temp[2]%></option>
-			<%
-			} else {
-			%>
-			<option value="all">All Providers</option>
+			if(providerStr.size() > 1) { %>
+				<option value="all">All Providers</option>
+			<% } %>
 
-			<%
-			for (int i = 0; i < providerStr.size(); i++) {
+			<% for (int i = 0; i < providerStr.size(); i++) {
 				String temp[] = ((String) providerStr.get(i)).split("\\|");
-			%>
-			<option value="<%=temp[0]%>"><%=temp[1]%>, <%=temp[2]%></option>
-			<%}
-			}
-			%>
+				if (defaultOhipProviderProp != null && defaultOhipProviderProp.getValue().equals(temp[0])) { %>
+					<option value="<%=temp[0]%>" selected="selected"><%=temp[1]%>, <%=temp[2]%></option>
+				<% } else { %>
+					<option value="<%=temp[0]%>"><%=temp[1]%>, <%=temp[2]%></option>
+				<% } %>
+			<% } %>
 		</select>
 		</div>
 

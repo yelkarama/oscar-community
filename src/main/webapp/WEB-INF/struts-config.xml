@@ -30,6 +30,12 @@
 		</form-bean>
 		<form-bean name="lookupCodeEditForm" type="com.quatro.web.lookup.LookupCodeEditForm">
 		</form-bean>
+		<form-bean name="dSConfigForm" type="org.apache.struts.validator.DynaValidatorForm">
+			<form-property name="dsConfig" type="java.util.List" />
+			<form-property name="id" type="java.lang.String[]"/>
+			<form-property name="active" type="java.lang.String[]"/>
+			<form-property name="heading" type="java.lang.String[]"/>
+		</form-bean>
 		<form-bean name="clinicForm" type="org.apache.struts.validator.DynaValidatorForm">
 			<form-property name="clinic" type="org.oscarehr.common.model.Clinic" />
 		</form-bean>
@@ -1167,6 +1173,9 @@
 		<action path="/oscarEncounter/displayIssues" scope="request" type="org.springframework.web.struts.DelegatingActionProxy"></action>
 		<action path="/oscarEncounter/displayResolvedIssues" scope="request" type="org.springframework.web.struts.DelegatingActionProxy"></action>
 		<action path="/oscarEncounter/displayDecisionSupportAlerts" scope="request" type="oscar.oscarEncounter.pageUtil.EctDisplayDecisionSupportAlertsAction"></action>
+		<action path="/report/displayDaysheet" type="oscar.oscarReport.pageUtil.RptShowDaySheetAction">
+			<forward name="success" path="/report/reportConfigurableDaySheet.jsp" />
+		</action>
 		<action path="/report/printLabDaySheetAction" type="oscar.oscarReport.pageUtil.printLabDaySheetAction"></action>
 		<action path="/oscarEncounter/displayDiagrams" scope="request" type="oscar.oscarEncounter.pageUtil.EctDisplayDiagramAction"></action>
 		<action path="/oscarEncounter/displayExaminationHistory" scope="request" type="oscar.oscarEncounter.pageUtil.EctDisplayExaminationHistoryAction"></action>
@@ -2489,7 +2498,9 @@
 			<forward name="viewVerification" path="/phr/PHRVerification.jsp" />
 		</action>
 
-
+		<action path="/admin/daySheetConfiguration" name="dSConfigForm" type="org.springframework.web.struts.DelegatingActionProxy" parameter="method" scope="request">
+			<forward name="success" path="/admin/daySheetConfiguration.jsp" />
+		</action>
 		<action path="/admin/ManageClinic" name="clinicForm" type="org.springframework.web.struts.DelegatingActionProxy" parameter="method" scope="request">
 			<forward name="success" path="/admin/clinicAdmin.jsp" />
 		</action>

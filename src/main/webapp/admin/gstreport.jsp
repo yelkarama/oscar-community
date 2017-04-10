@@ -161,9 +161,9 @@ Provider
 		<TD align="center">SERVICE DATE</TD>
 		<TD align="center">PATIENT</TD>
 		<TD align="center">PATIENT NAME</TD>
-		<TD align="center">GST Billed</TD>
+		<TD align="center">HST Billed</TD>
 		<TD align="center">Revenue</TD>
-		<TD align="center">Total with ONLY GST</TD>
+		<TD align="center">Total with ONLY HST</TD>
 	</TR>
 	<% for ( i = 0; i < list.size(); i++){
                 if ( i % 2 == 1)        // If odd, then have colour, 

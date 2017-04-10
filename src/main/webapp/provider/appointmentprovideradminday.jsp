@@ -759,8 +759,12 @@ popupPage(360,780,('../appointment/appointmentcontrol.jsp?displaymode=edit&dbope
 function goFilpView(s) {
 self.location.href = "../schedule/scheduleflipview.jsp?originalpage=../provider/providercontrol.jsp&startDate=<%=year+"-"+month+"-"+day%>" + "&provider_no="+s ;
 }
+function goDaySheet(s) {
+var date="<%=year%>-<%=month%>-<%=day%>";
+popupPage2("../report/displayDaysheet.do?dsmode=all&provider_no="+s+"&sdate="+date+"&edate="+date+"&sTime=<%=startHour%>&eTime=<%=endHour%>","reportPage");
+}
 function goWeekView(s) {
-self.location.href = "providercontrol.jsp?year=<%=year%>&month=<%=month%>&day=<%=day%>&view=<%=view%>&displaymode=day&dboperation=searchappointmentday&viewall=<%=viewall%>&provider_no="+s;
+self.location.href = "providercontrol.jsp?year=<%=year%>&month=<%=month%>&day=<%=day%>&view=0&displaymode=day&dboperation=searchappointmentday&viewall=<%=viewall%>&provider_no="+s;
 }
 function goZoomView(s, n) {
 self.location.href = "providercontrol.jsp?year=<%=strYear%>&month=<%=strMonth%>&day=<%=strDay%>&view=1&curProvider="+s+"&curProviderName="+encodeURIComponent(n)+"&displaymode=day&dboperation=searchappointmentday" ;
@@ -1763,6 +1767,9 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
 											   name='weekview' onClick=goWeekView('<%=curProvider_no[nProvider]%>')
 											   title="<bean:message key="provider.appointmentProviderAdminDay.weekView"/>"
 											   style="color:black" class="noprint">
+										<% if(OscarProperties.getInstance().isPropertyActive("view.appointmentdaysheetbutton")){ %>
+											<input type='button' value="<bean:message key="provider.appointmentProviderAdminDay.daySheetLetter"/>" name='daysheetview' onClick=goDaySheet('<%=curProvider_no[nProvider]%>') title="<bean:message key="provider.appointmentProviderAdminDay.daySheet"/>" style="color:black">
+										<% } %>
 										<input type='button'
 											   value="<bean:message key="provider.appointmentProviderAdminDay.searchLetter"/>"
 											   name='searchview' onClick=goSearchView('<%=curProvider_no[nProvider]%>')

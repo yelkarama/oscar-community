@@ -1582,14 +1582,26 @@ public class RxPrescriptionData {
 
 			if (escapedSpecial == null || escapedSpecial.length() < 6) logger.warn("drug special after escaping appears to be null or empty : " + escapedSpecial);
 
+			int position = 0;
 			DrugDao dao = SpringUtils.getBean(DrugDao.class);
-			// double check if we don't h
-			Drug drug = dao.findByEverything(this.getProviderNo(), this.getDemographicNo(), this.getRxDate(), this.getEndDate(), this.getWrittenDate(), this.getBrandName(), this.getGCN_SEQNO(), this.getCustomName(), this.getTakeMin(), this.getTakeMax(), this.getFrequencyCode(), this.getDuration(), this.getDurationUnit(), this.getQuantity(), this.getUnitName(), this.getRepeat(), this.getLastRefillDate(), this.getNosubs(), this.getPrn(), escapedSpecial, this.getOutsideProviderName(),
-			        this.getOutsideProviderOhip(), this.getCustomInstr(), this.getLongTerm(), this.isCustomNote(), this.getPastMed(), this.getPatientCompliance(), this.getSpecialInstruction(), this.getComment(), this.getStartDateUnknown());
+			Drug drug;
+			
+			if (this.getDrugId() == 0)
+			{
+				position = this.getNextPosition();
+				drug = new Drug();
+				syncDrug(drug, ConversionUtils.fromIntString(scriptId));
+				dao.persist(drug);
+				drugId = drug.getId();
+			}
+			else
+			{
+				drug = dao.find(getDrugId());
+				syncDrug(drug, ConversionUtils.fromIntString(scriptId));
+				dao.merge(drug);
+			}
 
-			drug = new Drug();
-
-			int position = this.getNextPosition();
+			
 			this.position = position;
 			syncDrug(drug, ConversionUtils.fromIntString(scriptId));
 			dao.persist(drug);

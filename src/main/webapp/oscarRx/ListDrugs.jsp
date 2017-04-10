@@ -459,10 +459,6 @@ String getName(Drug prescriptDrug){
             sb.append("longTermMed ");
         }
 
-        if(drug.isDiscontinued()){
-            sb.append("discontinued ");
-        }
-
         if(drug.isDeleted()){
                 sb.append("deleted ");
 
@@ -476,6 +472,10 @@ String getName(Drug prescriptDrug){
         	sb = new StringBuilder("class=\"");
         	sb.append("external ");
         }
+        if(drug.isDiscontinued()){
+            sb.append("discontinued ");
+        }
+
         String retval = sb.toString();
 
         if(retval.equals("class=\"")){

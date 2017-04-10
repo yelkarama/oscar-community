@@ -838,6 +838,55 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 		return list;
 	}
 
+	public List<Demographic> searchDemographicByExtKeyAndValueLike(String key, String value, int limit, int offset, String providerNo, boolean outOfDomain) {
+		return searchDemographicByExtKeyAndValueLikeAndStatus(key,value,null,limit,offset,providerNo,outOfDomain,false);
+	}
+
+	public List<Demographic> searchDemographicByExtKeyAndValueLikeAndNotStatus(String key, String value, List<String> statuses, int limit, int offset, String providerNo, boolean outOfDomain) {
+		return searchDemographicByExtKeyAndValueLikeAndStatus(key,value,statuses,limit,offset,providerNo,outOfDomain,true);
+	}
+
+	public List<Demographic> searchDemographicByExtKeyAndValueLikeAndStatus(String key, String value, List<String> statuses, int limit, int offset, String providerNo, boolean outOfDomain) {
+		return searchDemographicByExtKeyAndValueLikeAndStatus(key,value,statuses,limit,offset,providerNo,outOfDomain,false);
+	}
+	
+	public List<Demographic> searchDemographicByExtKeyAndValueLikeAndStatus(String key, String value, List<String> statuses, int limit, int offset, String providerNo, boolean outOfDomain,boolean ignoreStatuses) {
+		List<Demographic> list = new ArrayList<Demographic>();
+		String queryString = "SELECT {d.*} FROM demographic d "
+				+ "INNER JOIN demographicext dext ON (dext.demographic_no=d.demographic_no) "
+				+ "WHERE dext.key_val=:key "
+				+ "AND dext.value LIKE :value";
+
+		if(statuses != null) {
+			queryString += " AND d.patient_status " + ((ignoreStatuses)?"NOT":"") + "  IN (:statuses)";
+		}
+		if(providerNo != null && !outOfDomain) {
+			queryString += " AND d.id IN ("+ PROGRAM_DOMAIN_RESTRICTION+") ";
+		}
+
+		Session session = this.getSession();
+		try {
+			SQLQuery query = session.createSQLQuery(queryString);
+			query.setFirstResult(offset);
+			query.setMaxResults(limit);
+			query.setParameter("key", key);
+			query.setParameter("value", "%" + value + "%");
+
+			if(statuses != null) {
+				query.setParameterList("statuses", statuses);
+			}
+			if(providerNo != null && !outOfDomain) {
+				query.setParameter("providerNo", providerNo);
+			}
+
+			query.addEntity("d", Demographic.class); //tried to define 
+			list = query.list();
+		} finally {
+			this.releaseSession(session);
+		}
+		return list;
+	}
+
 	@SuppressWarnings("unchecked")
 	public List<Demographic> searchMergedDemographicByAddress(String addressStr, int limit, int offset,  String providerNo, boolean outOfDomain) {
 		List<Demographic> list = new ArrayList<Demographic>();

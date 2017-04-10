@@ -186,9 +186,11 @@ oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBea
 		  $.each($(".pharmacyName"), function( key, value ) {
 			if($(value).html().toLowerCase().indexOf($("#pharmacySearch").val().toLowerCase()) >= 0){
 				if($(value).siblings(".city").html().indexOf($("#pharmacyCitySearch").val()) >= 0){
-					if($(value).siblings(".fax").html().indexOf($("#pharmacyFaxSearch").val()) >= 0){
-						$(value).parent().show();
-					}
+                    if($(value).siblings(".postalCode").html().indexOf($("#pharmacyPostalCodeSearchSearch").val()) >= 0) {
+                        if ($(value).siblings(".fax").html().indexOf($("#pharmacyFaxSearch").val()) >= 0) {
+                            $(value).parent().show();
+                        }
+                    }
 				}
 			}
 		  });
@@ -199,13 +201,30 @@ oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBea
 		  $.each($(".city"), function( key, value ) {
 			if($(value).html().toLowerCase().indexOf($("#pharmacyCitySearch").val().toLowerCase()) >= 0){
 				if($(value).siblings(".pharmacyName").html().indexOf($("#pharmacySearch").val()) >= 0){
-					if($(value).siblings(".fax").html().indexOf($("#pharmacyFaxSearch").val()) >= 0){
-						$(value).parent().show();
-					}
+                    if($(value).siblings(".postalCode").html().indexOf($("#pharmacyPostalCodeSearch").val()) >= 0) {
+                        if ($(value).siblings(".fax").html().indexOf($("#pharmacyFaxSearch").val()) >= 0) {
+                            $(value).parent().show();
+                        }
+                    }
 				}
 			}
 		  });
 	  });
+
+        $("#pharmacyPostalCodeSearch").keyup(function(){
+            $(".pharmacyItem").hide();
+            $.each($(".postalCode"), function( key, value ) {
+                if($(value).html().toLowerCase().indexOf($("#pharmacyPostalCodeSearch").val().toLowerCase()) >= 0){
+                    if($(value).siblings(".pharmacyName").html().indexOf($("#pharmacySearch").val()) >= 0){
+                        if($(value).siblings(".city").html().indexOf($("#pharmacyCitySearch").val()) >= 0){
+                            if($(value).siblings(".fax").html().indexOf($("#pharmacyFaxSearch").val()) >= 0){
+                                $(value).parent().show();
+                            }
+                        }
+					}
+                }
+            });
+        });
     
 	  $("#pharmacyFaxSearch").keyup(function(){
 		  $(".pharmacyItem").hide();
@@ -213,7 +232,9 @@ oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBea
 			if($(value).html().indexOf($("#pharmacyFaxSearch").val()) >= 0 || $(value).html().split("-").join("").indexOf($("#pharmacyFaxSearch").val()) >= 0){
 				if($(value).siblings(".pharmacyName").html().indexOf($("#pharmacySearch").val()) >= 0){
 					if($(value).siblings(".city").html().indexOf($("#pharmacyCitySearch").val()) >= 0){
-						$(value).parent().show();
+                        if($(value).siblings(".postalCode").html().indexOf($("#pharmacyPostalCodeSearch").val()) >= 0) {
+                            $(value).parent().show();
+                        }
 					}
 				}
 			}
@@ -226,7 +247,9 @@ oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBea
                 if($(value).html().indexOf($("#pharmacyPhoneSearch").val()) >= 0 || $(value).html().split("-").join("").indexOf($("#pharmacyPhoneSearch").val()) >= 0){
                     if($(value).siblings(".pharmacyName").html().indexOf($("#pharmacySearch").val()) >= 0){
                         if($(value).siblings(".city").html().indexOf($("#pharmacyCitySearch").val()) >= 0){
-                            $(value).parent().show();
+                            if($(value).siblings(".postalCode").html().indexOf($("#pharmacyPostalCodeSearch").val()) >= 0) {
+                                $(value).parent().show();
+                            }
                         }
                     }
                 }
@@ -349,6 +372,7 @@ function returnToRx(){
 				<th class="DivContentSectionHead">
 					Search Pharmacy&nbsp;&nbsp;<input type="text" id="pharmacySearch"/>&nbsp;&nbsp;
 					City&nbsp;&nbsp;<input type="text" id="pharmacyCitySearch" style="width: 75px"/> &nbsp;&nbsp;
+					Postal Code&nbsp;&nbsp;<input type="text" id="pharmacyPostalCodeSearch" style="width: 75px"/> &nbsp;&nbsp;
 					Phone&nbsp;&nbsp;<input type="text" id="pharmacyPhoneSearch" style="width: 75px"/> &nbsp;&nbsp;
 					Fax&nbsp;&nbsp;<input type="text" id="pharmacyFaxSearch" style="width: 75px"/> &nbsp;&nbsp;
 					<a href="#" onclick="addPharmacy();"><bean:message key="SelectPharmacy.addLink" /></a>
@@ -370,6 +394,7 @@ function returnToRx(){
 							<th><bean:message key="SelectPharmacy.table.pharmacyName" /></th>
 							<th><bean:message key="SelectPharmacy.table.address" /></th>
 							<th><bean:message key="SelectPharmacy.table.city" /></th>
+							<th><bean:message key="SelectPharmacy.table.postalCode" /></th>
 							<th><bean:message key="SelectPharmacy.table.phone" /></th>
 							<th><bean:message key="SelectPharmacy.table.fax" /></th>
 							<th>&nbsp;</th>
@@ -382,6 +407,7 @@ function returnToRx(){
 							<td class="pharmacyName" ><%=ph.getName()%></td>
 							<td class="address" ><%=ph.getAddress()%></td>
 							<td class="city" ><%=ph.getCity()%></td>
+							<td class="postalCode" ><%=ph.getPostalCode()%></td>
 							<td class="phone" ><%=ph.getPhone1()%></td>
 							<td class="fax" ><%=ph.getFax()%></td>
 							<td onclick='event.stopPropagation();return false;'><a href="#"  onclick="editPharmacy(<%=ph.getId()%>);"><bean:message

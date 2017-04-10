@@ -105,10 +105,13 @@ public class EctDisplayHRMAction extends EctDisplayAction {
 						subClass = hrmSubClassDao.findApplicableSubClassMapping(hrmReport.getFirstReportClass(), firstSubClass.getSubClass(), firstSubClass.getSubClassMnemonic(), hrmReport.getSendingFacilityId());
 						dispSubClass = subClass!=null?subClass.getSubClassDescription():"";
 					}
+					else if (hrmReport.getAccompanyingSubclassList().size()>0){
+						dispSubClass = hrmReport.getFirstAccompanyingSubClass();
+					}
 				} else {
 					//Medical Records Report
 					String[] reportSubClass = hrmReport.getFirstReportSubClass().split("\\^");
-					dispSubClass = reportSubClass!=null?reportSubClass[1]:"";
+					dispSubClass = reportSubClass!=null&&reportStatus.length()>1?reportSubClass[1]:"";
 				}
 
 				// Determine text to display on eChart

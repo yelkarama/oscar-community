@@ -328,7 +328,7 @@ Description<br>
 Fee <small>(format: xx.xx, e.g. 18.20)</small><br>
 <input type="text" name="value" value="<%=prop.getProperty("value", "")%>" size='8' maxlength='8'> <br>
 
-<input type="checkbox" name="gstCheck" id="gstCheck" onclick="setFlag()" <%=prop.getProperty("gstFlag", "").equals("true")?"checked":""%> /> Add GST <br>
+<input type="checkbox" name="gstCheck" id="gstCheck" onclick="setFlag()" <%=prop.getProperty("gstFlag", "").equals("true")?"checked":""%> /> Add HST <br>
 
 <input type="hidden" value="<%=prop.getProperty("gstFlag", "")%>" id="gstFlag" name="gstFlag" />
 
