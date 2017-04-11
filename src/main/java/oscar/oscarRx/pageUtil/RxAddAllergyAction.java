@@ -79,7 +79,7 @@ public final class RxAddAllergyAction extends Action {
             allergy.setReaction(description);
 
             if(!startDate.trim().equals("")){
-                String pattern = allergy.getDatePattern(startDate).toUpperCase();
+                String pattern = allergy.getDatePattern(startDate);
                 allergy.setStartDate(StringToDate(startDate, pattern));
                 if (pattern.equals(PartialDate.YEARMONTH)) {
                     allergy.setStartDateFormat(PartialDate.YEARMONTH);
