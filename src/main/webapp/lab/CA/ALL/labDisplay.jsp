@@ -818,7 +818,7 @@ pre {
                                                                             <% if ( searchProviderNo == null ) { // we were called from e-chart%>
                                                                             <a href="javascript:window.close()">
                                                                             <% } else { // we were called from lab module%>
-                                                                            <a href="javascript:popupStart(360, 680, '../../../oscarMDS/SearchPatient.do?labType=HL7&segmentID=<%= segmentID %>&name=<%=java.net.URLEncoder.encode(handler.getLastName()+", "+handler.getFirstName())%>', 'searchPatientWindow')">
+                                                                            <a href="javascript:void(0)" onclick="popupStart(360, 680, '../../../oscarMDS/SearchPatient.do?labType=HL7&segmentID=<%= segmentID %>&name=<%=java.net.URLEncoder.encode(handler.getLastName()+", "+handler.getFirstName())%>', 'searchPatientWindow')">
                                                                                 <% } %>
                                                                                 <%=handler.getPatientName()%>
                                                                             </a>
