@@ -389,9 +389,6 @@ jQuery(document).ready(function(){
 	jQuery(window).scroll(handleScroll);
 	change_program_lists();
 	search(searchMethod);
-	var table = jQuery('div#caseloadDiv');
-	var topPadding = jQuery('div.header-div').height();
-	table.css('padding-top', (topPadding)+'px');
 });
 </script>
 </div>

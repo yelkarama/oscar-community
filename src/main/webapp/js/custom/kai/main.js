@@ -58,12 +58,23 @@ jQuery(document).ready(function(){
 	if (!SmartPhone.isMobile()) {
 		addKAIBar();
 
-		var table = jQuery('table#scheduleTable');
-		var topPadding = jQuery('div.header-div').height();
-		table.css('padding-top', (topPadding)+'px');
-		table.floatThead({top: topPadding});
+		addTableHeaderFloat();
 	}
 });
+
+function addTableHeaderFloat() {
+	if (jQuery('div#caseloadDiv')) { //if on caseload screen
+		var table = jQuery('div#caseloadDiv');
+		var topPadding = jQuery('div.header-div').height();
+		table.css('padding-top', (topPadding + 2) + 'px');
+	} else if (jQuery_3_1_0().floatThead && jQuery_3_1_0('table#scheduleTable')) { //if on schedule and floatThead enabled
+		var table = jQuery_3_1_0('table#scheduleTable');
+		var topPadding = jQuery_3_1_0('div.header-div').height();
+		table.css('padding-top', (topPadding) + 'px');
+		table.floatThead('destroy');
+		table.floatThead({top: topPadding});
+	}
+}
 
 
 function addKAIBar() {
@@ -92,7 +103,7 @@ function addKAIBar() {
 		</div>
 	</div>`;
   
-  jQuery('head').append('<link rel="stylesheet" href="../js/custom/kai/kai_bar.css" type="text/css" />');
+  jQuery('head').append('<link rel="stylesheet" href="../js/custom/kai/kai_bar.css" type="text/css" onload="addTableHeaderFloat()"/>');
   var kaiBar = jQuery(kaiBarHTML);
   kaiBar.insertAfter('table#firstTable');
   
