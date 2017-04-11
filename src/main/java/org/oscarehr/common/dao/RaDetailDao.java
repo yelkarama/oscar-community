@@ -37,6 +37,7 @@ import org.oscarehr.common.model.RaDetail;
 import org.springframework.stereotype.Repository;
 
 import oscar.util.DateUtils;
+import oscar.util.ParamAppender;
 
 @Repository
 @SuppressWarnings("unchecked")
@@ -232,6 +233,33 @@ public class RaDetailDao extends AbstractDao<RaDetail> {
 		return errors;
 	}
 
+	public List<RaDetail> getRaErrorsByProviderDate(List<String> errorCodes, String startDate, String endDate, String providerOhip) {
+
+		ParamAppender appender = getAppender("rad");
+		for (String code :errorCodes){
+			appender.or("rad.errorCode = :code", "code", code);
+		}
+
+		if (startDate!=null && !startDate.trim().equals("")){
+			appender.and("rad.paymentDate >= :startDate", "startDate", startDate);
+		}
+
+		if (endDate!=null && !endDate.trim().equals("")){
+			appender.and("rad.paymentDate < :endDate", "endDate", endDate );
+		}
+
+		if (providerOhip!=null && !providerOhip.trim().equals("")){
+			appender.and("rad.providerOhipNo = :ohip","ohip",providerOhip);
+		}
+
+		appender.addOrder("rad.raHeaderNo, rad.billingNo, rad.serviceCode");
+		Query query = entityManager.createQuery(appender.getQuery());
+		appender.setParams(query);
+
+		List<RaDetail> results = query.getResultList();
+
+		return results;
+	}
 	
 	public List<RaDetail> findByBillingNoServiceDateAndProviderNo(Integer billingNo, String serviceDate, String providerNo) {
 		Query query = createQuery("r", "r.billingNo = :billingNo AND r.serviceDate = :serviceDate and r.providerOhipNo = :providerNo");

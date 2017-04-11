@@ -174,6 +174,8 @@ NumberFormat formatter = new DecimalFormat("#0.00");
 <%@ page import="org.oscarehr.common.model.BillingONCHeader1" %>
 <%@ page import="org.oscarehr.common.dao.BillingONCHeader1Dao" %>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
+<%@ page import="org.oscarehr.common.model.RaDetail" %>
+<%@ page import="org.oscarehr.common.dao.RaDetailDao" %>
 <html>
     <head>
         <title><bean:message key="admin.admin.invoiceRpts"/></title>
@@ -682,20 +684,49 @@ if(statusType.equals("_")) { %>
             providerNo = provInfo[0].trim();
 
 	List lPat = null;
+	List<RaDetail> errors = new ArrayList<RaDetail>();
+	BillingONCHeader1Dao cheader1Dao = (BillingONCHeader1Dao)SpringUtils.getBean(BillingONCHeader1Dao.class);
+	RaDetailDao raDetailDao = SpringUtils.getBean(RaDetailDao.class);
+	String[] errorCodes = {"AC1", "D8"};
         if(providerNo.equals("all")) {
             List<BillingProviderData> providerObj = (new JdbcBillingPageUtil()).getProviderObjList(providerNo);
             lPat = (new JdbcBillingErrorRepImpl()).getErrorRecords(providerObj, startDate, endDate, filename);
+            errors = raDetailDao.getRaErrorsByProviderDate(Arrays.asList(errorCodes), startDate, endDate, ohipNo);
         } else {
             BillingProviderData providerObj = (new JdbcBillingPageUtil()).getProviderObj(providerNo);
             lPat = (new JdbcBillingErrorRepImpl()).getErrorRecords(providerObj, startDate, endDate, filename);
+            errors = raDetailDao.getRaErrorsByProviderDate(Arrays.asList(errorCodes), startDate, endDate, ohipNo);
             }
     boolean nC = false;
 	String invoiceNo = "";
+	if (!errors.isEmpty()){
+	    for (RaDetail detail : errors){
+			BillingErrorRepData errorRep = new BillingErrorRepData();
+			errorRep.setHin(detail.getHin());
+			errorRep.setDob("");
+			errorRep.setBilling_no(String.valueOf(detail.getBillingNo()));
+			errorRep.setRef_no("");
+			errorRep.setGroup_no("");
+			errorRep.setStatus("");
+			errorRep.setAdmitted_date("");
+			errorRep.setClaim_error("");
+			errorRep.setCode(detail.getServiceCode());
+			errorRep.setFee(detail.getAmountClaim());
+			errorRep.setUnit(detail.getServiceCount());
+			errorRep.setCode_date(detail.getServiceDate());
+			errorRep.setDx("");
+			errorRep.setExp("");
+			errorRep.setCode_error(detail.getErrorCode());
+			errorRep.setReport_name(detail.getClaimNo());
+			errorRep.setStatus("N");
+
+			lPat.add(errorRep);
+		}
+	}
 	
 
 	for(int i=0; i<lPat.size(); i++) {
 		BillingErrorRepData bObj = (BillingErrorRepData) lPat.get(i);
-		BillingONCHeader1Dao cheader1Dao = (BillingONCHeader1Dao)SpringUtils.getBean(BillingONCHeader1Dao.class);
 		BillingONCHeader1 billCheader1 = cheader1Dao.find(Integer.parseInt(bObj.getBilling_no()));
 		String color = "";
 		if(!invoiceNo.equals(bObj.getBilling_no())) {
