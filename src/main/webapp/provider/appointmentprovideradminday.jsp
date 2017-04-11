@@ -507,12 +507,15 @@ if (isMobileOptimized) {
 <script type="text/javascript" src="../phr/phr.js"></script>
 
 <script src="<c:out value="../js/jquery.js"/>"></script>
-<script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery-3.1.0.min.js"></script>
-<script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery.floatThead.js"></script>
 <script>
 	jQuery.noConflict();
 </script>
-
+	<%-- jquery-3.1.0.min.js included for floatThead.js but may be used for new features using the jQuery_3_1_0 variable --%>
+<script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery-3.1.0.min.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery.floatThead.js"></script>
+<script type="application/javascript">
+	var jQuery_3_1_0 = jQuery.noConflict(true);
+</script>
 
 
 <script type="text/javascript">
