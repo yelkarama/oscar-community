@@ -1724,6 +1724,8 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
 								MiscUtils.getLogger().error("Error", e);
 								formatDate = UtilDateUtilities.DateToString(inform.parse(strDate), "EEE, yyyy-MM-dd");
 							}
+							// move the calendar forward one day
+							cal.add(Calendar.DATE, 1);
 						} else {
 							nProvider = iterNum;
 						}

@@ -63,11 +63,11 @@ jQuery(document).ready(function(){
 });
 
 function addTableHeaderFloat() {
-	if (jQuery('div#caseloadDiv')) { //if on caseload screen
+	if (jQuery('div#caseloadDiv').length) { //if on caseload screen
 		var table = jQuery('div#caseloadDiv');
 		var topPadding = jQuery('div.header-div').height();
 		table.css('padding-top', (topPadding + 2) + 'px');
-	} else if (jQuery_3_1_0().floatThead && jQuery_3_1_0('table#scheduleTable')) { //if on schedule and floatThead enabled
+	} else if (typeof jQuery_3_1_0 != 'undefined' && jQuery_3_1_0().floatThead && jQuery('table#scheduleTable').length) { //if on schedule and floatThead enabled
 		var table = jQuery_3_1_0('table#scheduleTable');
 		var topPadding = jQuery_3_1_0('div.header-div').height();
 		table.css('padding-top', (topPadding) + 'px');
