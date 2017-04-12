@@ -243,7 +243,11 @@ public class ConsultationPDFCreator extends PdfPageEventHelper {
 		cell.setHorizontalAlignment(Element.ALIGN_CENTER);
 		infoTable.addCell(cell);
 
-		if (reqFrm.pwb.equals("0"))
+		if (reqFrm.getAppointmentInstructions()!=null && !reqFrm.getAppointmentInstructionsLabel().contains(getResource("msgPleaseReplyPart1"))){
+			cell.setPhrase(new Phrase(reqFrm.getAppointmentInstructionsLabel()));
+			infoTable.addCell(cell);
+
+		}else if (reqFrm.pwb.equals("0") || (reqFrm.getAppointmentInstructions()!=null && !reqFrm.getAppointmentInstructionsLabel().contains(getResource("msgPleaseReplyPart1"))))
 		{
 			//cell.setPhrase(new Phrase(getResource("msgPleaseReplyPatient"), boldFont));
 			// msgPleaseReplyPatient does not exist. Using Part1 and Part2 method instead
