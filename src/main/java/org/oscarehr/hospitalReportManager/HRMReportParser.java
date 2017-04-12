@@ -10,6 +10,8 @@
 package org.oscarehr.hospitalReportManager;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
@@ -103,7 +105,7 @@ public class HRMReportParser {
 				Unmarshaller u = jc.createUnmarshaller();
 				u.setSchema(schema);
 				
-				root = (OmdCds) u.unmarshal(tmpXMLholder);
+				root = (OmdCds) u.unmarshal(new FileInputStream(tmpXMLholder));
 
 				tmpXMLholder = null;
 
@@ -111,6 +113,8 @@ public class HRMReportParser {
 				logger.error("SAX ERROR PARSING XML " + e);
 			} catch (ParserConfigurationException e) {
 				logger.error("PARSER ERROR PARSING XML " + e);
+			} catch (FileNotFoundException e) {
+				logger.error("FILE ERROR PARSING XML " + e);
 			} catch (JAXBException e) {
 				// TODO Auto-generated catch block
 				logger.error("error",e);
