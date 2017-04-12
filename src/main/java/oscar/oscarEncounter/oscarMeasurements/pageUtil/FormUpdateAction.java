@@ -147,12 +147,10 @@ public class FormUpdateAction extends Action {
 								if(name.equals("BP")){
 									note = note + " " + mtypeBean.getMeasuringInstrc();
 								}
-										
-								note = note + "\n Date Observed: " + date;
 								if (request.getParameter(name + "_comments") != null && !request.getParameter(name + "_comments").equals("")) {
-									note = note + "\n comment: " + comment;
+									note = note + "\n" + comment;
 								}
-								note=note +"\n\n ";
+								note=note +"\n";
 							}
 							
 							

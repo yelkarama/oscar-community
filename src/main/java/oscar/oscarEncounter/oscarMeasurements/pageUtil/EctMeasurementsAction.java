@@ -284,9 +284,9 @@ public class EctMeasurementsAction extends Action {
                                 
                                 //prepare input values for writing to the encounter form
                                 if (mFlowsheet == null){
-                                    textOnEncounter =  textOnEncounter + inputType + "    " + inputValue + " " + mInstrc + " " + comments + "\n";
+                                    textOnEncounter =  textOnEncounter + inputType + ": " + inputValue + " " + mInstrc + "\n" + comments + "\n";
                                 }else{
-                                    textOnEncounter += mFlowsheet.getFlowSheetItem(inputType).getDisplayName()+"    "+inputValue + " " +  comments + "\n";
+                                    textOnEncounter += mFlowsheet.getFlowSheetItem(inputType).getDisplayName()+": "+inputValue + "\n" +  comments + "\n";
                                 }
                             }
                         }
