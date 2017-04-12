@@ -40,7 +40,6 @@
 
 <script language="javascript"> 
 function closeWin() {
-	self.opener.location.reload(); 
 	<%if (request.getAttribute("textOnEncounter")!=null && !OscarProperties.getInstance().isPropertyActive("measurements_create_new_note")) {%>
 		if(opener.opener!=null || opener!=null){
 			if(opener.opener.document.forms["caseManagementEntryForm"] != undefined) {        
