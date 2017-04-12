@@ -1223,13 +1223,6 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 			if (casemgmtNoteLockSession == null) {
 				throw new Exception("SESSION CASEMANAGEMENT NOTE LOCK OBJECT IS NULL");
 			}
-
-			CasemgmtNoteLock casemgmtNoteLock = casemgmtNoteLockDao.find(casemgmtNoteLockSession.getId());
-			//if other window has acquired lock we reject save									
-			if (!casemgmtNoteLock.getSessionId().equals(casemgmtNoteLockSession.getSessionId()) || !request.getRequestedSessionId().equals(casemgmtNoteLockSession.getSessionId())) {
-				logger.debug("DO NOT HAVE LOCK FOR " + demo + " PROVIDER " + providerNo + " CONTINUE SAVING LOCAL SESSION " + request.getRequestedSessionId() + " LOCAL IP " + request.getRemoteAddr() + " LOCK SESSION " + casemgmtNoteLockSession.getSessionId() + " LOCK IP " + casemgmtNoteLockSession.getIpAddress());
-				return -1L;
-			}
 		} catch (Exception e) {
 			//Exception thrown if other window has saved and exited so lock is gone
 			logger.error("Lock not found for " + demo + " provider " + providerNo + " IP " + request.getRemoteAddr(), e);
