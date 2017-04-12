@@ -332,7 +332,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                     <input type="button" value=" <bean:message key="global.btnPrint"/> " onClick="printPDF()">
                                     <% if ( demographicID != null && !demographicID.equals("") && !demographicID.equalsIgnoreCase("null")){ %>
                                     <input type="button" value="Msg" onclick="popup(700,960,'../../../oscarMessenger/SendDemoMessage.do?demographic_no=<%=demographicID%>','msg')"/>
-                                    <input type="button" value="Tickler" onclick="popup(450,600,'../../../tickler/ForwardDemographicTickler.do?docType=HL7&docId=<%= segmentID %>&demographic_no=<%=demographicID%>','tickler')"/>
+                                    <input type="button" value="Tickler" onclick="popup(450,600,'../../../tickler/ForwardDemographicTickler.do?updateParent=false&docType=HL7&docId=<%= segmentID %>&demographic_no=<%=demographicID%>','tickler')"/>
                                     <input type="button" value=" <bean:message key="oscarMDS.segmentDisplay.btnEChart"/> " onClick="popupStart(710,1024, '/oscar/oscarEncounter/IncomingEncounter.do?providerNo=<%=providerNo%>&appointmentNo=&demographicNo=<%=demographicID%>&curProviderNo=&reason=Lab%20Results&encType=&curDate=<%=curYear%>-<%=curMonth%>-<%=curDay%>&appointmentDate=&startTime=&status='
                                             +'&curDate=<%=curYear%>-<%=curMonth%>-<%=curDay%>&appointmentDate=&startTime=&status=')">
                                     <% } %>

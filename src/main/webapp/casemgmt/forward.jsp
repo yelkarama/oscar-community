@@ -43,6 +43,11 @@
     else {
         useNewCaseMgmt = (String)session.getAttribute("newCaseManagement");                
    }
+
+    Boolean updateParent = true;
+    if (request.getHeader("Referer")!=null && (request.getHeader("Referer").contains("inbox") || request.getHeader("Referer").contains("updateParent=false"))) {
+        updateParent = false;
+    }
     
     if( useNewCaseMgmt != null && useNewCaseMgmt.equals("true") ) {    	
 	%>
@@ -53,12 +58,15 @@
 			<jsp:param name="demographicNo" value='<%=request.getParameter("demographicNo")%>' />
                         <jsp:param name="OscarMsgTypeLink" value='<%=request.getParameter("OscarMsgTypeLink")%>'/>
                         <jsp:param name="msgType" value='<%=request.getParameter("msgType")%>'/>
+            <jsp:param name="updateParent" value="<%=updateParent%>"/>
 		</jsp:forward>
 	<%
     }
     else {
 	%>
-		<jsp:forward page="/CaseManagementView.do" />
+		<jsp:forward page="/CaseManagementView.do">
+            <jsp:param name="updateParent" value="<%=updateParent%>"/>
+        </jsp:forward>
 	<%
     }
 %>

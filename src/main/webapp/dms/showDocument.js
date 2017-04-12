@@ -11,7 +11,7 @@ function handleDocSave(docid,action){
                 if(action=='addTickler'){
                     demoid=json.demoId;
                     if(demoid!=null && demoid.length>0)
-                        popupStart(450,600,contextpath + '/tickler/ForwardDemographicTickler.do?docType=DOC&docId='+docid+'&demographic_no='+demoid,'tickler')
+                        popupStart(450,600,contextpath + '/tickler/ForwardDemographicTickler.do?updateParent=false&docType=DOC&docId='+docid+'&demographic_no='+demoid,'tickler')
                 }
             }
             else {

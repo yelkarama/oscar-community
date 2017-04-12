@@ -172,6 +172,14 @@ try
 	    labs = printLabs.getValue().equals("true")?true:false;
 	}
 
+
+    String updateParent = "";
+    if (request.getParameter("updateParent")!=null){
+        updateParent = request.getParameter("updateParent");
+    } else{
+        updateParent = "true";
+    }
+
 %>
 
 
@@ -597,6 +605,7 @@ try
 
 	<div id='save' style="width: 99%; background-color: #CCCCFF; padding-top: 5px; margin-left: 2px; border-left: thin solid #000000; border-right: thin solid #000000; border-bottom: thin solid #000000;">
 		<span style="float: right; margin-right: 5px;">
+            <input type="hidden" name="updateParent" value="<%=updateParent%>"/>
 		<%
 
 			if(facility.isEnableGroupNotes()) {

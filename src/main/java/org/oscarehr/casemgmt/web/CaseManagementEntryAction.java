@@ -1922,6 +1922,11 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 
 		String demoNo = getDemographicNo(request);
 
+		String updateParent = null;
+		if (request.getParameter("updateParent")!=null){
+			updateParent = request.getParameter("updateParent");
+		}
+
 		if (session.getAttribute("userrole") == null) return mapping.findForward("expired");
 
 		request.setAttribute("change_flag", "false");

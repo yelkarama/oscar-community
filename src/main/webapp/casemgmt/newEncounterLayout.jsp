@@ -83,6 +83,11 @@
 			rdohip = rdohip == null ? "" : rdohip.trim();
 		}
 	}
+
+	String updateParent ="true";
+	if (request.getParameter("updateParent")!=null){
+		updateParent = request.getParameter("updateParent");
+	}
 %>
 
 <html:html locale="true">
@@ -891,6 +896,7 @@ window.onbeforeunload = onClosing;
 			<input type="hidden" id="issueChange" name="issueChange" value="">
 			<input type="hidden" id="archived" name="archived" value="false">
 			<input type="hidden" id="annotation_attrib" name="annotation_attrib">
+			<input type="hidden" name="updateParent" value="<%=updateParent%>"/>
 			<div id="winTitle"></div>
 			<textarea style="margin: 10px;" cols="50" rows="15" id="noteEditTxt"
 				name="value"></textarea>
