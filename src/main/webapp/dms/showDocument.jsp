@@ -55,7 +55,13 @@
 <%@ page import="oscar.util.ConversionUtils" %>
 <%@page import="org.oscarehr.PMmodule.dao.ProviderDao"%>
 <%@page import="org.springframework.web.context.support.WebApplicationContextUtils,oscar.oscarLab.ca.all.*,oscar.oscarMDS.data.*,oscar.oscarLab.ca.all.util.*"%>
-<%@page import="org.springframework.web.context.WebApplicationContext,org.oscarehr.common.dao.*,org.oscarehr.common.model.*,org.oscarehr.util.SpringUtils"%><%
+<%@page import="org.springframework.web.context.WebApplicationContext,org.oscarehr.common.dao.*,org.oscarehr.common.model.*,org.oscarehr.util.SpringUtils"%>
+<%@ page import="oscar.util.StringUtils" %>
+<%@ page import="oscar.oscarDemographic.data.DemographicData" %>
+<%@ page import="org.oscarehr.util.LoggedInInfo" %>
+<%@ page import="oscar.SxmlMisc" %>
+<jsp:useBean id="displayServiceUtil" scope="request" class="oscar.oscarEncounter.oscarConsultationRequest.config.pageUtil.EctConDisplayServiceUtil" />
+<%
 
             WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
             ProviderInboxRoutingDao providerInboxRoutingDao = (ProviderInboxRoutingDao) ctx.getBean("providerInboxRoutingDAO");
@@ -141,7 +147,29 @@
             String cp=request.getContextPath() ;
             String url = cp+"/dms/ManageDocument.do?method=viewDocPage&doc_no=" + docId+"&curPage=1";
             String url2 = cp+"/dms/ManageDocument.do?method=display&doc_no=" + docId;
-            String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());	
+            String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+
+    LoggedInInfo loggedInInfo= LoggedInInfo.getLoggedInInfoFromSession(request);
+    displayServiceUtil.estSpecialist();
+    String providerNoFromChart = null;
+    String demoNo = request.getParameter("demographicNo");
+    DemographicData demoData = null;
+    Demographic demographic = null;
+    String familyDoctor = null;
+    String rdohip = "";
+
+    if (demoNo != null) {
+        demoData = new oscar.oscarDemographic.data.DemographicData();
+        demographic = demoData.getDemographic(loggedInInfo, demoNo);
+
+        providerNoFromChart = demographic.getProviderNo();
+
+        familyDoctor = demographic.getFamilyDoctor();
+        if (familyDoctor != null && familyDoctor.trim().length() > 0) {
+            rdohip = SxmlMisc.getXmlContent(familyDoctor, "rdohip");
+            rdohip = rdohip == null ? "" : rdohip.trim();
+        }
+    }
 %>
 <% if (request.getParameter("inWindow") != null && request.getParameter("inWindow").equalsIgnoreCase("true")) {  %>
 <html>
@@ -161,6 +189,7 @@
 		<script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery-1.9.1.js"></script>
 		<script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery-ui-1.10.2.custom.min.js"></script>
         <script language="javascript" type="text/javascript" src="<%= request.getContextPath() %>/share/javascript/Oscar.js" ></script>
+        <script type="text/javascript" src="<%= request.getContextPath() %>/share/javascript/casemgmt/faxControl.js"> </script>
         
 
         
@@ -468,6 +497,7 @@
                                             <%
             Properties p = (Properties) session.getAttribute("providerBean");
             List<ProviderInboxItem> routeList = providerInboxRoutingDao.getProvidersWithRoutingForDocument("DOC", Integer.parseInt(docId));
+            int countValidProvider = 0;
                                             %>
                                             <ul>
                                                 <%for (ProviderInboxItem pItem : routeList) {
@@ -475,7 +505,7 @@
 
                                                     if(!s.equals("0")&&!s.equals("null")&& !pItem.getStatus().equals("X")){  %>
                                                         <li><%=s%><a href="#" onclick="removeLink('DOC', '<%=docId %>', '<%=pItem.getProviderNo() %>', this);return false;"><bean:message key="inboxmanager.document.RemoveLinkedProviderMsg" /></a></li>
-                                                <%}
+                                                <%countValidProvider++;}
                                                 }%>
                                             </ul>
                                         </td>
@@ -647,6 +677,108 @@
                             </form> 
                          
                          </fieldset>
+                        <% if (!StringUtils.isNullOrEmpty(demographicID) && !StringUtils.isNullOrEmpty(curdoc.getDescription()) && countValidProvider!=0){ %>
+                        <fieldset>
+                            <script type="text/javascript">
+                                jQuery.noConflict();
+                                function faxDocument(docId){
+
+                                    var faxRecipients = "";
+                                    if($("faxRecipients").children.length <= 0){
+                                        alert("Please select at least one Fax Recipient");
+                                        return false;
+                                    }
+                                    else{
+                                        for(var i=0; i<$("faxRecipients").children.length; i++){
+                                            faxRecipients += document.getElementsByName('faxRecipients')[i].value + ",";
+                                        }
+                                        document.getElementsByName('faxRecipients').length
+                                    }
+                                    jQuery.ajax({
+                                        type: "POST",
+                                        url: "<%=request.getContextPath() %>/dms/ManageDocument.do",
+                                        data: "method=fax&docId=" + docId + "&faxRecipients=" + faxRecipients + "&demoNo=<%=demographicID%>&docType=DOC",
+                                        success: function(data) {
+                                            if (data != null)
+                                                location.reload();
+                                        }
+                                    });
+                                }
+                            </script>
+                            <legend>Fax</legend>
+                            <form name="faxForm_<%=docId%>" id="faxForm_<%=docId%>" onsubmit="" method="post" action="javascript:void(0);">
+                                <table border="0px">
+                                    <tbody>
+                                    <tr>
+                                        <td>
+                                            Referral Doctor:
+                                        </td>
+                                        <td>
+                                            <select id="otherFaxSelect" style="margin-left: 5px;max-width: 300px;min-width:150px;">
+                                                <%
+                                                    String rdName = "";
+                                                    String rdFaxNo = "";
+                                                    for (int i=0;i < displayServiceUtil.specIdVec.size(); i++) {
+                                                        String  specId     =  displayServiceUtil.specIdVec.elementAt(i);
+                                                        String  fName      =  displayServiceUtil.fNameVec.elementAt(i);
+                                                        String  lName      =  displayServiceUtil.lNameVec.elementAt(i);
+                                                        String  proLetters =  displayServiceUtil.proLettersVec.elementAt(i);
+                                                        String  address    =  displayServiceUtil.addressVec.elementAt(i);
+                                                        String  phone      =  displayServiceUtil.phoneVec.elementAt(i);
+                                                        String  fax        =  displayServiceUtil.faxVec.elementAt(i);
+                                                        String  referralNo = "";
+                                                        if (rdohip != null && !"".equals(rdohip) && rdohip.equals(referralNo)) {
+                                                            rdName = String.format("%s, %s", lName, fName);
+                                                            rdFaxNo = fax;
+                                                        }
+                                                        if (!"".equals(fax)) {
+                                                %>
+
+                                                <option value="<%= fax %>"> <%= String.format("%s, %s", lName, fName) %> </option>
+                                                <%
+                                                        }
+                                                    }
+                                                %>
+
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input type="submit" value="Add" onclick="addOtherFaxProvider(); return false;">
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>Fax Number:</td>
+                                        <td><input type="text" id="otherFaxInput" name="otherFaxInput" style="margin-left: 5px;max-width: 300px;min-width:150px;" value=""/></td>
+                                        <td>
+                                            <input type="submit"  value="Add" onclick="addOtherFax(); return false;">
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                <div id="faxOps">
+                                    <div>
+
+                                        <ul id="faxRecipients">
+                                            <%
+                                                if (!"".equals(rdName) && !"".equals(rdFaxNo)) {
+                                            %>
+
+                                            <input type="hidden" name="faxRecipients" value="<%= rdFaxNo %>" />
+
+                                            <%
+                                                }
+                                            %>
+                                        </ul>
+                                    </div>
+                                    <div style="margin-top: 5px; text-align: center">
+                                        <input type="submit" onclick="faxDocument('<%=docId%>');" value="Send"/>
+                                    </div>
+                                </div>
+
+                            </form>
+                        </fieldset>
+                        <% } %>
                                                                            	                                
                     </td>
                 </tr>
