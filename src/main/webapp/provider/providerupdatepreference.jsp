@@ -75,6 +75,16 @@
 	}
 	prop.setValue(ticklerforproviderno);
 	propDao.saveProp(prop);
+
+	String ticklerDefaultRecipient = request.getParameter("ticklerDefaultRecipient");
+	prop = propDao.getProp(curUser_providerno, UserProperty.TICKLER_DEFAULT_RECIPIENT);
+	if (prop == null) {
+		prop = new UserProperty();
+		prop.setProviderNo(curUser_providerno);
+		prop.setName(UserProperty.TICKLER_DEFAULT_RECIPIENT);
+	}
+	prop.setValue(ticklerDefaultRecipient);
+	propDao.saveProp(prop);
 	
 	ProviderPreference providerPreference=ProviderPreferencesUIBean.updateOrCreateProviderPreferences(request);
 
