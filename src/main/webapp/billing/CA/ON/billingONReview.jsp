@@ -768,7 +768,7 @@ window.onload=function(){
                     <% if( strWarning.length() > 0 ) { %>
                     <span style="color:red; float:left;"><%=strWarning%></span>
                     <%}%>
-                    <span style="float:right;"> <%=codeFee %> x <%=codeUnit %><% if (gstFlag.equals("1")){%> + <%=percent%>% GST<%}%> =
+                    <span style="float:right;"> <%=codeFee %> x <%=codeUnit %><% if (gstFlag.equals("1")){%> + <%=percent%>% HST<%}%> =
 				<input type="text" name="percCodeSubtotal_<%=i %>" size="5" value="<%=codeTotal %>" id="percCodeSubtotal_<%=i %>" onBlur="calculateTotal();" onchange="validateFeeNumberic(<%=i%>)"/>
 				<input type="hidden" name="xserviceCode_<%=i %>" value="<%=codeName %>" />
 				<input type="hidden" id="xserviceUnit_<%=i %>" name="xserviceUnit_<%=i %>" value="<%=codeUnit %>" />
@@ -1075,7 +1075,7 @@ Properties prop = oscar.OscarProperties.getInstance();
 			</td>
 			<td align="right">
                         <input type="hidden" name="provider_no" value="<%=request.getParameter("xml_provider").substring(0,request.getParameter("xml_provider").indexOf("|"))%>"/>
-                        GST Billed:<input type="text" id="gst" name="gst" value="<%=gstTotal%>" size="6"/><br>
+                        HST Billed:<input type="text" id="gst" name="gst" value="<%=gstTotal%>" size="6"/><br>
                         <input type="hidden" id="gstBilledTotal" name="gstBilledTotal" value="<%=gstbilledtotal%>" size="6" />
                         Total:<input type="text" id="stotal" disabled name = "stotal" value="0.00" size="6" /><br>
 			Payments:<input type="text"  disabled name="payment1" id="payment"value="0.00" size="6" onDblClick="settlePayment();" /><br/>

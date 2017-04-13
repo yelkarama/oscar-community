@@ -27,6 +27,7 @@ package oscar.oscarPrevention.reports;
 
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -100,7 +101,7 @@ public class PapReport implements PreventionReport {
                 }
 
                 String prevDateStr = (String) h.get("prevention_date");
-
+                String nextDateStr = (String) h.get("next_date");
 
                 if (refused && noFutureItems.size() > 1){
                     log.debug("REFUSED AND PREV IS greater than one for demo "+demo);
@@ -128,8 +129,17 @@ public class PapReport implements PreventionReport {
                 Calendar cal = Calendar.getInstance();
                 cal.add(Calendar.YEAR, -3);
                 Date dueDate = cal.getTime();
-                cal.add(Calendar.MONTH,-6);
-                Date cutoffDate = cal.getTime();
+                Date cutoffDate = null;
+                if (nextDateStr != null) {
+            		try {
+						cutoffDate = formatter.parse(nextDateStr);
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
+                } else {
+                    cal.add(Calendar.MONTH,-6);
+                    cutoffDate = cal.getTime();
+                }
 
                 Calendar cal2 = GregorianCalendar.getInstance();
                 cal2.add(Calendar.YEAR, -3);

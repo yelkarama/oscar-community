@@ -24,6 +24,7 @@
 
 package oscar.oscarPrevention;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -266,6 +267,8 @@ public class PreventionData {
 				h.put("prevention_date", blankIfNull(UtilDateUtilities.DateToString(pDate, "yyyy-MM-dd HH:mm")));
 				h.put("prevention_date_asDate", pDate);
 				h.put("prevention_date_no_time", blankIfNull(UtilDateUtilities.DateToString(pDate, "yyyy-MM-dd")));
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+				h.put("next_date", (prevention.getNextDate() != null ? sdf.format(prevention.getNextDate()) : null));
 				
 				String age = "N/A";
 				if (pDate != null) {

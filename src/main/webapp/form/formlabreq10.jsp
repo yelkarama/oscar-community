@@ -349,7 +349,7 @@ var maxYear=3100;
         String xmlSpecialtyCode = "<xml_p_specialty_code>";
         String xmlSpecialtyCode2 = "</xml_p_specialty_code>";
         String strSpecialtyCode = "00";
-        if( comments.indexOf(xmlSpecialtyCode) != -1 ) {
+        if( comments != null && comments.indexOf(xmlSpecialtyCode) != -1 ) {
           strSpecialtyCode = comments.substring(comments.indexOf(xmlSpecialtyCode) + xmlSpecialtyCode.length(), comments.indexOf(xmlSpecialtyCode2));
           strSpecialtyCode = strSpecialtyCode.trim();
           if( strSpecialtyCode.equals("") ) {
@@ -481,9 +481,9 @@ if (OscarProperties.getInstance().getBooleanProperty("consultation_program_lette
 					String providerNumber = props.getProperty("letterhead", "-1");
 					//If there is no provider in the letterhead
 					if(providerNumber.isEmpty() || providerNumber.equals("-1")) {
-					    String loggedInProviderOhipNumber = loggedInInfo.getLoggedInProvider().getOhipNo();
+					    String loggedInProviderCpsoNumber = loggedInInfo.getLoggedInProvider().getPractitionerNo();
 					    //Checks if the currently logged in provider is billable, if so then it becomes the provider number to select
-						if (loggedInProviderOhipNumber != null && !loggedInProviderOhipNumber.equals("")) {
+						if (loggedInProviderCpsoNumber != null && !loggedInProviderCpsoNumber.equals("")) {
 							providerNumber = loggedInInfo.getLoggedInProviderNo();
 						} else {
 						    //Else it gets the demographics MRP
@@ -533,7 +533,7 @@ if (OscarProperties.getInstance().getBooleanProperty("consultation_program_lette
 						value="<%=props.getProperty("provName", "")%>" /> <input
 						type="hidden" style="width: 100%" name="reqProvName"
 						value="<%=props.getProperty("reqProvName", "")%>" /><span id="reqProvName"><%=props.getProperty("reqProvName", "")%>&nbsp;</span><br>
-
+						<span id="MRP"><%=props.getProperty("provName", "")%>&nbsp;</span><br>			
 					<input type="hidden" style="width: 100%" name="clinicName" value="<%=props.getProperty("clinicName","")%>" /><span id="clinicName"><%=props.getProperty("clinicName","")%></span><br>
 					<input type="hidden" style="width: 100%" name="clinicAddress" value="<%=props.getProperty("clinicAddress", "")%>" /> <span id="clinicAddress"><%=props.getProperty("clinicAddress", "")%></span><br>
 					<input type="hidden" style="width: 100%" name="clinicCity" value="<%=props.getProperty("clinicCity", "")%>" /><span id="clinicCity"> <%=props.getProperty("clinicCity", "")%>,<%=props.getProperty("clinicProvince","") %></span><br>

@@ -153,6 +153,22 @@ if(!authed) {
 		UserProperty fmtProperty = userPropertyDAO.getProp(providerNo, UserProperty.CONSULTATION_REQ_PASTE_FMT);
 		String pasteFmt = fmtProperty != null?fmtProperty.getValue():null;
 
+		if(userPropertyDAO.getProp(providerNo,"rxAddress")!=null && userPropertyDAO.getProp(providerNo,"rxAddress").getValue().length()>0){
+		    //default letterhead address to rxAddress if it is set it in preferences
+			consultUtil.letterheadAddress =(userPropertyDAO.getProp(providerNo,"rxAddress").getValue()  + " " + userPropertyDAO.getProp(providerNo, "rxCity").getValue()  + " " + userPropertyDAO.getProp(providerNo, "rxProvince").getValue() + " " +userPropertyDAO.getProp(providerNo, "rxPostal").getValue());
+		}
+
+		if(userPropertyDAO.getProp(providerNo,"rxPhone")!=null && userPropertyDAO.getProp(providerNo,"rxPhone").getValue().length()>0){
+			//default letterhead phone to rxPhone if it is set it in preferences
+			consultUtil.letterheadPhone = userPropertyDAO.getProp(providerNo,"rxPhone").getValue();
+		}
+
+		if(userPropertyDAO.getProp(providerNo,"faxnumber")!=null  && userPropertyDAO.getProp(providerNo,"faxnumber").getValue().length()>0){
+			//default letterhead fax to faxnumber if it is set it in preferences
+			consultUtil.letterheadFax = userPropertyDAO.getProp(providerNo,"faxnumber").getValue();
+
+		}
+
 		if (demo != null)
 		{
 			demoData = new oscar.oscarDemographic.data.DemographicData();
@@ -911,6 +927,26 @@ function importFromEnct(reqInfo,txtArea)
 					out.println("info = '" + value + "'");
 				}%>
               break;
+           case "SocialHistory":
+               <%if (demo != null)
+ 				{
+ 					if (useNewCmgmt)
+ 					{
+ 						value = listNotes(cmgmtMgr, "SocHistory", providerNo, demo);
+ 					}
+ 					else
+ 					{
+ 						oscar.oscarDemographic.data.EctInformation EctInfo = new oscar.oscarDemographic.data.EctInformation(LoggedInInfo.getLoggedInInfoFromSession(request),demo);
+ 						value = EctInfo.getSocialHistory();
+ 					}
+ 					if (pasteFmt == null || pasteFmt.equalsIgnoreCase("single"))
+ 					{
+ 						value = StringUtils.lineBreaks(value);
+ 					}
+ 					value = org.apache.commons.lang.StringEscapeUtils.escapeJavaScript(value);
+ 					out.println("info = '" + value + "'");
+ 				}%>
+               break;
             case "OtherMeds":
               <%if (demo != null)
 				{
@@ -1077,7 +1113,7 @@ function switchProvider(value) {
 		document.getElementById("letterheadAddressSpan").innerHTML = providerData[value]['address'].replace(" ", "&nbsp;");
 		document.getElementById("letterheadPhone").value = providerData[value]['phone'];
 		document.getElementById("letterheadPhoneSpan").innerHTML = providerData[value]['phone'];
-		document.getElementById("letterheadFax").value = providerData[value]['fax'];
+		document.getElementById("letterheadFax").value = providerData[value]['fax'].replace("-", "");
 			
 		//document.getElementById("letterheadFaxSpan").innerHTML = providerData[value]['fax'];
 	}
@@ -1460,8 +1496,9 @@ function updateFaxButton() {
 			
 						<oscar:oscarPropertiesCheck value="yes" property="faxEnable">
 							<input id="fax_button" name="updateAndFax" type="button" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnUpdateAndFax"/>" onclick="return checkForm('Update And Fax','EctConsultationFormRequestForm');" />
+							<input id="update_print_fax_button" name="updatePrintAndFax" type="button" value="Update, Print, & Fax" onclick="return checkForm('Update Print And Fax','EctConsultationFormRequestForm');" />
 						</oscar:oscarPropertiesCheck>
-						
+
 					<% } else { %>
 					
 						<input name="submitSaveOnly" type="button" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnSubmit"/>" onclick="return checkForm('Submit Consultation Request','EctConsultationFormRequestForm'); " />
@@ -1475,6 +1512,7 @@ function updateFaxButton() {
 				
 						<oscar:oscarPropertiesCheck value="yes" property="faxEnable">
 							<input id="fax_button" name="submitAndFax" type="button" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnSubmitAndFax"/>" onclick="return checkForm('Submit And Fax','EctConsultationFormRequestForm');" />
+							<input id="submit_print_fax_button2" name="submitPrintAndFax" type="button" value="Submit, Print, & Fax" onclick="return checkForm('Submit Print And Fax','EctConsultationFormRequestForm');" />
 						</oscar:oscarPropertiesCheck>
 					<% }%>
 					
@@ -1511,14 +1549,14 @@ function updateFaxButton() {
 						<tr>						
 							<td class="tite4"><bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.formRefDate" />:
 							</td>	
-							<td align="right" class="tite1">
-							<% 	if (request.getAttribute("id") != null)
+							<td align="right" class="tite1"><img alt="calendar" id="referalDate_cal" src="../../images/cal.gif">
+								<% 	if (request.getAttribute("id") != null)
 								{ %>
-									<html:text styleClass="righty" readonly="<%=isConsultationDateReadOnly%>" property="referalDate" /> 
+									<html:text styleId="referralDate" styleClass="righty" readonly="<%=isConsultationDateReadOnly%>" property="referalDate" ondblclick="this.value='';"/>
 							<% 	}
 					 			else
 					 			{ %>
-									<html:text styleClass="righty" readonly="<%=isConsultationDateReadOnly%>" property="referalDate" value="<%=formattedDate%>" /> 
+									<html:text styleId="referralDate" styleClass="righty" readonly="<%=isConsultationDateReadOnly%>" property="referalDate" ondblclick="this.value='';" value="<%=formattedDate%>" />
 							<% 	} %>
 							</td>
 						</tr>
@@ -1920,7 +1958,7 @@ function updateFaxButton() {
 								<%
 									for( FaxConfig faxConfig : faxConfigs ) {
 								%>
-										<option value="<%=faxConfig.getFaxNumber()%>" <%=faxConfig.getFaxNumber().equalsIgnoreCase(consultUtil.letterheadFax) ? "selected" : ""%>><%=faxConfig.getFaxUser()%></option>								
+										<option value="<%=faxConfig.getFaxNumber().replace("-", "")%>" <%=faxConfig.getFaxNumber().replace("-", "").equals(consultUtil.letterheadFax.replace("-", "")) ? "selected" : ""%>><%=faxConfig.getFaxUser()%></option>
 								<%	    
 									}								
 								%>
@@ -1953,6 +1991,7 @@ function updateFaxButton() {
 								<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.formClinInf" />:
 							</td>
 							<td id="clinicalInfoButtonBar">
+								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportSocHistory"/>" onclick="importFromEnct('SocialHistory',document.forms[0].clinicalInformation);" />&nbsp;
 								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportFamHistory"/>" onclick="importFromEnct('FamilyHistory',document.forms[0].clinicalInformation);" />&nbsp;
 								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportMedHistory"/>" onclick="importFromEnct('MedicalHistory',document.forms[0].clinicalInformation);" />&nbsp;
 								<input id="btnOngoingConcerns" type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportConcerns"/>" onclick="importFromEnct('ongoingConcerns',document.forms[0].clinicalInformation);" />&nbsp;
@@ -1996,6 +2035,7 @@ function updateFaxButton() {
  %>
 							</td>
 							<td id="concurrentProblemsButtonBar">
+								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportSocHistory"/>" onclick="importFromEnct('SocialHistory',document.forms[0].concurrentProblems);" />&nbsp;
 								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportFamHistory"/>" onclick="importFromEnct('FamilyHistory',document.forms[0].concurrentProblems);" />&nbsp;
 								<input type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportMedHistory"/>" onclick="importFromEnct('MedicalHistory',document.forms[0].concurrentProblems);" />&nbsp;
 								<input id="btnOngoingConcerns2" type="button" class="btn" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnImportConcerns"/>" onclick="importFromEnct('ongoingConcerns',document.forms[0].concurrentProblems);" />&nbsp;
@@ -2209,6 +2249,7 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 
 						<oscar:oscarPropertiesCheck value="yes" property="faxEnable">
 							<input id="fax_button2" name="updateAndFax" type="button" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnUpdateAndFax"/>" onclick="return checkForm('Update And Fax','EctConsultationFormRequestForm');" />
+							<input id="update_print_fax_button2" name="updatePrintAndFax" type="button" value="Update, Print, & Fax" onclick="return checkForm('Update Print And Fax','EctConsultationFormRequestForm');" />
 						</oscar:oscarPropertiesCheck>
 					<%
 						}
@@ -2222,6 +2263,7 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 						</logic:equal>
 						<oscar:oscarPropertiesCheck value="yes" property="faxEnable">
 							<input id="fax_button2" name="submitAndFax" type="button" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnSubmitAndFax"/>" onclick="return checkForm('Submit And Fax','EctConsultationFormRequestForm');" />
+							<input id="submit_print_fax_button2" name="submitPrintAndFax" type="button" value="Submit, Print, & Fax" onclick="return checkForm('Submit Print And Fax','EctConsultationFormRequestForm');" />
 						</oscar:oscarPropertiesCheck>
 					<%
 						}%>
@@ -2301,8 +2343,8 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 </body>
 
 <script type="text/javascript" language="javascript">
-document.getElementById('sendTo').value = "<%= team %>";
 Calendar.setup( { inputField : "followUpDate", ifFormat : "%Y/%m/%d", showsTime :false, button : "followUpDate_cal", singleClick : true, step : 1 } );
+Calendar.setup( { inputField : "referralDate", ifFormat : "%Y/%m/%d", showsTime :false, button : "referalDate_cal", singleClick : true, step : 1 } );
 Calendar.setup( { inputField : "appointmentDate", ifFormat : "%Y/%m/%d", showsTime :false, button : "appointmentDate_cal", singleClick : true, step : 1 } );
 </script>
 </html:html>

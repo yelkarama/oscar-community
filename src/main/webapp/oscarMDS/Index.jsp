@@ -107,7 +107,8 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
 
         
         <link rel="stylesheet" type="text/css" media="all" href="<%=request.getContextPath()%>/share/css/oscarMDSIndex.css"  />
-  <script type="text/javascript" src="<%=request.getContextPath()%>/dms/showDocument.js"></script>        
+  <script type="text/javascript" src="<%=request.getContextPath()%>/dms/showDocument.js"></script>
+    <script type="text/javascript" src="<%=request.getContextPath()%>/hospitalReportManager/hrmActions.js"></script>
 
 
 
@@ -190,6 +191,7 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
 		var scroller;
 		if (isListView) {
 			scroller = document.getElementById("summaryView");
+            jQuery("#summaryView").trigger("updateRows");
 		}
 		else {
 			scroller = document.getElementById("docViews");
@@ -218,7 +220,7 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
 			div = document.getElementById("docViews");
 		}
 		else {
-			div = document.getElementById("summaryView");
+			div = document.getElementById("summaryBody");
 		}	
 		jQuery("#readerSwitcher").prop("disabled",true);
 		jQuery("#listSwitcher").prop("disabled",true);
@@ -241,6 +243,15 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
 			}
 			if (transport.responseText.indexOf("<input type=\"hidden\" name=\"NoMoreItems\" value=\"true\" />") >= 0) {
 				canLoad = false;
+                var div = document.getElementById("summaryBody");
+                var newDiv = "<tbody id=\"newBody\"></tbody>";
+                div.insertAdjacentHTML("beforeBegin", newDiv);
+                newDiv = document.getElementById("newBody");
+                newDiv.innerHTML = div.innerHTML;
+                div.innerHTML = "";
+                newDiv.id = "summaryBody";
+                div.id = "";
+                jQuery("#summaryView").trigger("updateRows");
 			}
 			else {
 				// It is possible that the current amount of loaded items has not filled up the page enough
@@ -371,11 +382,35 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
 	}
 	window.FileSelectedRows = function () {
 		var query = jQuery(document.reassignForm).formSerialize();
+		var hrmQueryMethod = "method=signOff";
+		var hrmQuery = "";
 		var labs = jQuery("input[name='flaggedLabs']:checked");
 		for (var i = 0; i < labs.length; i++) {
-			query += "&flaggedLabs=" + labs[i].value;
-			query += "&" + labs[i].next().name + "=" + labs[i].next().value;
+		    if(labs[i].next().value == "HRM"){
+		        hrmQuery += "&signedOff=1&reportId=" + labs[i].value;
+            } else {
+                query += "&flaggedLabs=" + labs[i].value;
+                query += "&" + labs[i].next().name + "=" + labs[i].next().value;
+            }
+
 		}
+		if(!hrmQuery.empty()){
+            jQuery.ajax({
+                type: "POST",
+                url: "<%=request.getContextPath() %>/hospitalReportManager/Modify.do",
+                data: hrmQueryMethod + hrmQuery,
+                success: function(data) {
+                    updateCategoryList();
+
+                    jQuery("input[name='flaggedLabs']:checked").each(function () {
+                        jQuery(this).parent().parent().remove();
+                    });
+
+                    fakeScroll();
+                }
+            });
+        }
+
 		jQuery.ajax({
 			type: "POST",
 			url:  "<%= request.getContextPath()%>/oscarMDS/FileLabs.do",
@@ -392,6 +427,8 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
 				fakeScroll();
 			}
 		});
+
+		location.reload();
 	}
 
 	function refreshCategoryList() {

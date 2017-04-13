@@ -896,7 +896,7 @@ function changeSite(sel) {
                                     <TD ROWSPAN="1" class="<%=cellColour%>"><%=t.getMessage()%>
                                         
                                         <%
-                                            HRMDocumentDao hrmDocumentDao = new HRMDocumentDao();
+                                            HRMDocumentDao hrmDocumentDao = (HRMDocumentDao) SpringUtils.getBean("HRMDocumentDao");
                                                                                 	List<TicklerLink> linkList = ticklerLinkDao.getLinkByTickler(t.getId().intValue());
                                                                                                                         if (linkList != null){
                                                                                                                             for(TicklerLink tl : linkList){
@@ -933,9 +933,10 @@ function changeSite(sel) {
                                                             }
                                                         }
                                                         catch(NullPointerException npe){
-
+                                                            npe.printStackTrace();
                                                         }
                                                 %>
+                                            <a href="javascript:reportWindow('../hospitalReportManager/Display.do?id=<%=tl.getTableId()%>&segmentID=<%=tl.getTableId()%>&duplicateLabIds=')">ATT</a>
                                                 <%
                                                 	}else {
                                                 %>

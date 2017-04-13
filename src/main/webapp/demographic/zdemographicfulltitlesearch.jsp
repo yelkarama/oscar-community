@@ -86,13 +86,17 @@ function searchOutOfDomain() {
         <div class="label">
         </div>
 	<%
-        UserPropertyDAO userPropertyDAO = (UserPropertyDAO) SpringUtils.getBean("UserPropertyDAO");
-        UserProperty defaultSearchModeProp = userPropertyDAO.getProp((String)session.getAttribute("user"),"DEFAULT_SEARCH_MODE");
-        String searchMode = (request.getParameter("search_mode")==null) ? defaultSearchModeProp.getValue() : request.getParameter("search_mode");
-         String keyWord = request.getParameter("keyword");
+        UserProperty defaultSearchModeProp = ((UserPropertyDAO) SpringUtils.getBean("UserPropertyDAO")).getProp((String)session.getAttribute("user"),"DEFAULT_SEARCH_MODE");
+        String searchMode;
+        if (defaultSearchModeProp != null) {
+        	searchMode = (request.getParameter("search_mode")==null) ? defaultSearchModeProp.getValue() : request.getParameter("search_mode");
+        }  else {
+        	searchMode = (request.getParameter("search_mode")==null) ? "" : request.getParameter("search_mode");
+        }
          if (searchMode == null || searchMode.equals("")) {
              searchMode = OscarProperties.getInstance().getProperty("default_search_mode","search_name");             
          }  
+         String keyWord = request.getParameter("keyword");
          if (keyWord == null) {
              keyWord = "";
          }
@@ -102,9 +106,12 @@ function searchOutOfDomain() {
             <option value="search_name" <%=searchMode.equals("search_name")?"selected":""%>>
                 <bean:message key="demographic.zdemographicfulltitlesearch.formName" />
             </option>
-            <option value="search_phone" <%=searchMode.equals("search_phone")?"selected":""%>>
-                <bean:message key="demographic.zdemographicfulltitlesearch.formPhone" />
-            </option>
+			 <option value="search_phone" <%=searchMode.equals("search_phone")?"selected":""%>>
+				 <bean:message key="demographic.zdemographicfulltitlesearch.formPhone" />
+			 </option>
+			 <option value="search_cell_phone" <%=searchMode.equals("search_cell_phone")?"selected":""%>>
+				 <bean:message key="demographic.zdemographicfulltitlesearch.formCellPhone" />
+			 </option>
             <option value="search_dob" <%=searchMode.equals("search_dob")?"selected":""%>>
                 <bean:message key="demographic.zdemographicfulltitlesearch.formDOB" />
             </option>

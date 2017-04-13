@@ -76,6 +76,7 @@ import org.oscarehr.casemgmt.model.CaseManagementNoteExt;
 import org.oscarehr.casemgmt.model.CaseManagementNoteLink;
 import org.oscarehr.casemgmt.model.ClientImage;
 import org.oscarehr.casemgmt.model.Issue;
+import org.oscarehr.casemgmt.service.CaseManagementFax;
 import org.oscarehr.casemgmt.service.CaseManagementPrint;
 import org.oscarehr.casemgmt.web.CaseManagementViewAction.IssueDisplay;
 import org.oscarehr.casemgmt.web.formbeans.CaseManagementEntryFormBean;
@@ -1059,15 +1060,15 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 					if (newNote && c.getPosition() >= newPos) {
 						position = c.getPosition() + 1;
 						c.setPosition(position);
-						this.caseManagementMgr.updateNote(c);
+						this.caseManagementMgr.updateIssueNote(c);
 					} else if ((!newNote && newPos < note.getPosition()) && c.getPosition() >= newPos && c.getPosition() < note.getPosition()) {
 						position = c.getPosition() + 1;
 						c.setPosition(position);
-						this.caseManagementMgr.updateNote(c);
+						this.caseManagementMgr.updateIssueNote(c);
 					} else if ((!newNote && newPos > note.getPosition()) && c.getPosition() <= newPos && c.getPosition() > note.getPosition()) {
 						position = c.getPosition() - 1;
 						c.setPosition(position);
-						this.caseManagementMgr.updateNote(c);
+						this.caseManagementMgr.updateIssueNote(c);
 					}
 
 				}
@@ -2887,6 +2888,74 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 		}
 
 		out.println("</body></html>");
+	}
+
+	public ActionForward fax(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		SimpleDateFormat headerFormat = new SimpleDateFormat("yyyy-MM-dd.hh.mm.ss");
+		Date now = new Date();
+		String headerDate = headerFormat.format(now);
+
+		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+		Integer demographicNo = Integer.parseInt(getDemographicNo(request));
+		String ids = request.getParameter("notes2print");
+
+		String pStartDate = null;
+		String pEndDate = null;
+
+		Calendar cStartDate = null;
+		Calendar cEndDate = null;
+
+		Date startDate = null;
+		Date endDate = null;
+
+		pStartDate = request.getParameter("pStartDate");
+		pEndDate = request.getParameter("pEndDate");
+
+		SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy");
+
+		if (pStartDate != null && !pStartDate.isEmpty()) {
+			startDate = formatter.parse(pStartDate);
+			cStartDate = Calendar.getInstance();
+			cStartDate.setTime(startDate);
+		}
+
+		if (pEndDate != null && !pEndDate.isEmpty()) {
+			endDate = formatter.parse(pEndDate);
+			cEndDate = Calendar.getInstance();
+			cEndDate.setTime(endDate);
+		}
+
+		if (startDate != null && endDate != null) {
+			ids = "";
+			List<CaseManagementNote> notesInDateRange = caseManagementNoteDao.getNotesByDemographicDateRange(demographicNo.toString(), startDate, endDate);
+
+			for (CaseManagementNote note : notesInDateRange) {
+				ids += (notesInDateRange.size() > 1) ? (note.getId().toString() + ",") : (note.getId().toString());
+			}
+		}
+
+		boolean printAllNotes = "ALL_NOTES".equals(ids);
+		String[] noteIds;
+		if (ids.length() > 0) {
+			noteIds = ids.split(",");
+		} else {
+			noteIds = new String[]{};
+		}
+		boolean printCPP = request.getParameter("printCPP").equalsIgnoreCase("true");
+		boolean printRx = request.getParameter("printRx").equalsIgnoreCase("true");
+		boolean printLabs = request.getParameter("printLabs") != null && request.getParameter("printLabs").equalsIgnoreCase("true");
+
+		CaseManagementFax cmf = new CaseManagementFax();
+		if (noteIds.length == 0 && !printCPP && !printRx & !printLabs) {
+			HttpSession session = request.getSession();
+			session.setAttribute("Results", noteIds.length);
+			return new ActionRedirect(request.getHeader("Referer"));
+		} else {
+			cmf.doFax(loggedInInfo, demographicNo, printAllNotes, noteIds, printCPP, printRx, printLabs, cStartDate, cEndDate, request);
+			HttpSession session = request.getSession();
+			session.setAttribute("FaxSuccess", true);
+			return new ActionRedirect(request.getHeader("Referer"));
+		}
 	}
 
 	public ActionForward print(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {

@@ -57,8 +57,8 @@ int curYear = now.get(Calendar.YEAR);
 int curMonth = (now.get(Calendar.MONTH)+1);
 int curDay = now.get(Calendar.DAY_OF_MONTH);
 
-String xml_vdate = request.getParameter("xml_vdate") == null ? "" : request.getParameter("xml_vdate");
-String xml_appointment_date = request.getParameter("xml_appointment_date") == null? "" : request.getParameter("xml_appointment_date");
+String xml_vdate = request.getParameter("xml_vdate") == null ? "" : request.getParameter("xml_vdate").replaceAll("/", "-");
+String xml_appointment_date = request.getParameter("xml_appointment_date") == null? "" : request.getParameter("xml_appointment_date").replaceAll("/", "-");
 %>
 
 <%
@@ -81,7 +81,7 @@ if("unbilled".equals(action)) {
     
     sql = "select * from appointment where provider_no like '" + sqlProviderView + "' and appointment_date >='" + xml_vdate   
             + "' and appointment_date<='" + xml_appointment_date 
-            + "' and (BINARY status NOT LIKE 'B%' AND BINARY status NOT LIKE 'C%' AND BINARY status NOT LIKE 'N%' AND BINARY status NOT LIKE 'T%' AND BINARY status NOT LIKE 't%')"
+            + "' and (BINARY status NOT LIKE 'B%' AND BINARY status NOT LIKE 'C%' AND BINARY status NOT LIKE 'N%')"
             + " and demographic_no != 0 order by appointment_date , start_time ";
     
     rs = dbObj.searchDBRecord(sql);
@@ -116,8 +116,8 @@ if("billed".equals(action)) {
     vecHeader.add("PATIENT");
     vecHeader.add("DESCRIPTION");
     vecHeader.add("ACCOUNT");
-    sql = "select * from billing_on_cheader1 where provider_no like " + sqlProviderView + "' and billing_date >='" + xml_vdate 
-            + "' and billing_date<='" + xml_appointment_date + "' and (status<>'D' and status<>'S' and status<>'B')" 
+    sql = "select * from billing_on_cheader1 where provider_no like " + sqlProviderView + " and billing_date between '" + xml_vdate 
+            + "' and '" + xml_appointment_date + "' and (status<>'D' and status<>'S' and status<>'B')" 
             + " order by billing_date , billing_time ";
     rs = dbObj.searchDBRecord(sql);
     while (rs.next()) {

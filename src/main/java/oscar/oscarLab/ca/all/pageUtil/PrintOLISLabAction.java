@@ -21,6 +21,7 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.oscarehr.managers.SecurityInfoManager;
+import org.oscarehr.olis.OLISResultsAction;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
@@ -44,7 +45,16 @@ public class PrintOLISLabAction extends Action {
 		}
 		
 		try {
-			MessageHandler handler = Factory.getHandler(request.getParameter("segmentID"));
+			String segmentId = request.getParameter("segmentID");
+			String resultUuid = request.getParameter("uuid");
+			MessageHandler handler = null;
+			if (segmentId==null && segmentId.equals("0")) {
+				// if viewing in preview from OLIS search, use uuid
+				handler = OLISResultsAction.searchResultsMap.get(resultUuid);
+			}
+			else{
+				handler = Factory.getHandler(segmentId);
+			}
 			response.setContentType("application/pdf");  //octet-stream
 			response.setHeader("Content-Disposition", "attachment; filename=\"" + handler.getPatientName().replaceAll("\\s", "_") + "_OLISLabReport.pdf\"");
 			OLISLabPDFCreator pdf = new OLISLabPDFCreator(request, response.getOutputStream());

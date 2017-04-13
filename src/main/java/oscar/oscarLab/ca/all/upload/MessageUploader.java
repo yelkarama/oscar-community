@@ -242,6 +242,7 @@ public final class MessageUploader {
 			}
 			int insertID = 0;
 			if (!isTDIS || !hasBeenUpdated) {
+				List<Hl7TextInfo> matchingLabs =  hl7TextInfoDao.searchByAccessionNumber(accessionNum);
 				hl7TextMessage.setFileUploadCheckId(fileId);
 				hl7TextMessage.setType(type);
 				hl7TextMessage.setBase64EncodedeMessage(new String(Base64.encodeBase64(hl7Body.getBytes(MiscUtils.DEFAULT_UTF8_ENCODING)), MiscUtils.DEFAULT_UTF8_ENCODING));
@@ -263,6 +264,17 @@ public final class MessageUploader {
 				hl7TextInfo.setReportStatus(reportStatus);
 				hl7TextInfo.setAccessionNumber(accessionNum);
 				hl7TextInfo.setFillerOrderNum(fillerOrderNum);
+				// Set label if there is a matching lab already uploaded with a label
+				if(matchingLabs.size()>0){
+					String label = "";
+					for(Hl7TextInfo lab : matchingLabs){
+						label = lab.getLabel()!=null?lab.getLabel():"";
+						if(label.trim().length()>0){
+							hl7TextInfo.setLabel(label);
+							break;
+						}
+					}
+				}
 				hl7TextInfoDao.persist(hl7TextInfo);
 			}
 
@@ -394,15 +406,21 @@ public final class MessageUploader {
 				if (providerNumber != null && !providerNumber.trim().equals("")) {
 					//Gets the providerDao
 					ProviderDao providerDao = (ProviderDao)SpringUtils.getBean(ProviderDao.class);
-					
-					//Gets a list of providers that match the given OHIP #
-					List<Provider> matchedProviders = providerDao.getBillableProvidersByOHIPNo(providerNumber);
-					
-					//If the list is not null and the providerNumber length is 5
-					if (matchedProviders.isEmpty() && providerNumber.length() == 5) {
-						//Tries finding the provider again, this time with a leading 0 attached
-						matchedProviders = providerDao.getBillableProvidersByOHIPNo("0" + providerNumber);
+					List<Provider> matchedProviders = new ArrayList<Provider>();
+					if (sqlSearchOn.equals("practitionerNo")) {
+						//Gets a list of providers that match the given CPSO #
+						matchedProviders = providerDao.getProvidersByPractitionerNo(providerNumber);
+					} else {
+						//Gets a list of providers that match the given OHIP #
+						matchedProviders = providerDao.getBillableProvidersByOHIPNo(providerNumber);
+						
+						//If the list is not null and the providerNumber length is 5
+						if (matchedProviders.isEmpty() && providerNumber.length() == 5) {
+							//Tries finding the provider again, this time with a leading 0 attached
+							matchedProviders = providerDao.getBillableProvidersByOHIPNo("0" + providerNumber);
+						}
 					}
+					
 
 					//For each provider in the list, adds their providerNo to the providerNums list
 					for (Provider provider : matchedProviders) { 
@@ -435,7 +453,10 @@ public final class MessageUploader {
 			//Gets the ProviderDao
 			ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
 			//Gets the demographic's provider
-			List<Provider> demographicProviders = providerDao.getBillableProvidersByOHIPNo(altProviderNo);
+			List<Provider> demographicProviders = new ArrayList<>();
+			if(altProviderNo!=null && altProviderNo.trim().length()>0){
+				demographicProviders = providerDao.getBillableProvidersByOHIPNo(altProviderNo);
+			}
 			//If the list is not null, and it is not empty
 			if (demographicProviders != null && !demographicProviders.isEmpty()) {
 				//Routes to the demographic's proivder

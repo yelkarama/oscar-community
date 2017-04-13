@@ -539,7 +539,6 @@ function navBarLoader() {
                   ctx + "/oscarEncounter/displayMeasurements.do?hC=" + Colour.measurements,
                   ctx + "/oscarEncounter/displayConsultation.do?hC=" + Colour.consultation,
                   ctx + "/oscarEncounter/displayHRM.do?hC=",
-                  ctx + "/oscarEncounter/displayMyOscar.do?hC=",
                   ctx + "/eaaps/displayEctEaaps.do?hC="
               ];
 
@@ -2088,7 +2087,8 @@ function editNote(e) {
     Element.observe(caseNote, 'click', getActiveText);
 
     if( passwordEnabled ) {
-           input = "<p style='background-color:#CCCCFF; display:none; margin:0px;' id='notePasswd'>Password:&nbsp;<input type='password' name='caseNote.password'/><\/p>";
+           input = "<p style='background-color:#CCCCFF; display:none; margin:0px;' id='notePasswd'>Password:&nbsp;<input type='password' name='caseNote.password' value=''/>" +
+               "Confirmation:&nbsp;<input type='password' name='caseNote.passwordConfirm' value=''/><\/p>";
            new Insertion.Bottom(txt, input);
     }
 
@@ -2700,6 +2700,21 @@ function savePage(method, chain) {
         return false;
     }
 
+    if(passwordEnabled){
+       if (jQuery("#notePasswd").is( ":hidden" )==false){
+           if(jQuery("form[name='caseManagementEntryForm'] input[name='caseNote.password']").val() != jQuery("form[name='caseManagementEntryForm'] input[name='caseNote.passwordConfirm']").val()){
+               //passwords do not match
+               alert("Password and Confirm Password do not match");
+               return false;
+           }
+       }
+       else{
+           //password field not visible, do not submit anything for password
+           jQuery("form[name='caseManagementEntryForm'] input[name='caseNote.password']").val('');
+           jQuery("form[name='caseManagementEntryForm'] input[name='caseNote.passwordConfirm']").val('');
+       }
+    }
+
     if( caisiEnabled ) {
         if( requireIssue && !issueIsAssigned() ) {
             alert(assignIssueError);
@@ -2845,10 +2860,29 @@ function changeDiagnosisUnresolved(issueId) {
     function toggleNotePasswd() {
         if( passwordEnabled ) {
             Element.toggle('notePasswd');
-            if( $('notePasswd').style.display != "none" )
+            if( $('notePasswd').style.display != "none" ){
+                document.forms['caseManagementEntryForm'].elements['caseNote.password'].value = "";
                 document.forms['caseManagementEntryForm'].elements['caseNote.password'].focus();
-            else
+            }
+            else{
                 document.forms['caseManagementEntryForm'].elements[caseNote].focus();
+            }
+        }
+        return false;
+    }
+
+    function toggleFax() {
+        var faxOps = document.getElementById('faxOps');
+        var frmPrintOps = document.getElementById('frmPrintOps');
+        var dialogTitle = document.getElementById('dialogTitle');
+        if (faxOps.style.display === 'none') {
+            frmPrintOps.style.display = 'none';
+            faxOps.style.display = 'block';
+            dialogTitle.innerHTML = "Fax Recipients";
+        } else {
+            frmPrintOps.style.display = '';
+            faxOps.style.display = 'none';
+            dialogTitle.innerHTML = "Print Dialog";
         }
         return false;
     }
@@ -3035,7 +3069,8 @@ function newNote(e) {
     var input = "<textarea tabindex='7' cols='84' rows='1' wrap='hard' class='txtArea' style='line-height:1.0em;' name='caseNote_note' id='caseNote_note" + newNoteIdx + "'>" + reason + "<\/textarea>";
     var passwd = "";
     if( passwordEnabled ) {
-        passwd = "<p style='background-color:#CCCCFF; display:none; margin:0px;' id='notePasswd'>Password:&nbsp;<input type='password' name='caseNote.password'/><\/p>";
+        passwd = "<p style='background-color:#CCCCFF; display:none; margin:0px;' id='notePasswd'>Password:&nbsp;<input type='password' name='caseNote.password' value=''/>" +
+            "Confirmation:&nbsp;<input type='password' name='caseNote.passwordConfirm' value=''/><\/p>";
     }
 
     // the extra BR NBSP at the ends are for IE fix for selection box is out of scrolling pane view.
@@ -3513,6 +3548,46 @@ function autoCompleteShowMenuCPP(element, update) {
 
         return false;
     }
+
+    var nothing2FaxMsg;
+    function faxNotes(){
+        if( $("printopDates").checked && !printDateRange()) {
+            return false;
+        }else if( $("printopAll").checked ){
+            printAll();
+        }
+
+        var faxRecipients = "";
+        if($("faxRecipients").children.length <= 0){
+            alert("Please select at least one Fax Recipient");
+            return false;
+        }
+        else{
+            for(var i=0; i<$("faxRecipients").children.length; i++){
+                faxRecipients += document.getElementsByName('faxRecipients')[i].value + ",";
+            }
+            document.getElementsByName('faxRecipients').length
+        }
+
+        if( $F("notes2print").length == 0 && $F("printCPP") == "false" && $F("printRx") == "false" && $F("printLabs") == "false" && !printDateRange() ) {
+            alert(nothing2FaxMsg);
+            return false;
+        }
+        var frm = document.forms["caseManagementEntryForm"];
+
+        frm.method.value = "fax";
+        jQuery('<input>').attr({
+            type: 'hidden',
+            id: 'recipients',
+            name: 'recipients',
+            value: faxRecipients
+        }).appendTo("form[name='caseManagementEntryForm']");
+
+        frm.pStartDate.value = $F("printStartDate");
+        frm.pEndDate.value = $F("printEndDate");
+        frm.submit();
+    }
+
 
     function sendToPhrr() {
         if( $("printopDates").checked && !printDateRange()) {

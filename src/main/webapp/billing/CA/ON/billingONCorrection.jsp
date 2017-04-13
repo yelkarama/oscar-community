@@ -208,6 +208,10 @@ function demoUpdate(){
 	}
 }
 
+function unlinkReferralDoctor(){
+    document.forms[1].elements['rd'].value = "";
+    document.forms[1].elements['rdohip'].value = "";
+}
 var awnd=null;
 function ScriptAttach() {
 	f0 = escape(document.forms[1].xml_diagnostic_detail.value);
@@ -758,6 +762,15 @@ OHIP Claim No  <br>
 			</div>
 			</td>
 	</tr>
+<% if(r_doctor != null && !r_doctor.trim().equals("")){  %>
+    <tr>
+        <td></td>
+        <td>
+            <input class="btn" onclick="unlinkReferralDoctor();" type="submit" name="submit" value="Unlink Referral Doctor"/>
+        </td>
+    </tr>
+<% } %>
+
 </table>
 </div><!--span-->
 </div>
@@ -1144,7 +1157,7 @@ for (ClinicNbr clinic : nbrs) {
 			value="<%=billingunit%>" size="5" maxlength="5"></th>
 		<th align="right"><input type="hidden"
 			name="xml_billing_amount<%=rowCount%>" value="<%=billAmount%>">
-		<input type="text" style="width: 100%" size="5" maxlength="6"
+		<input type="text" style="width: 100%" size="5" maxlength="7"
 			id="billingamount<%=rowCount-1%>" name="billingamount<%=rowCount-1%>"
 			value="<%=billAmount%>" onchange="javascript:validateNum(this)"></th>
 		<td align="center"><input type="checkbox"
@@ -1184,7 +1197,7 @@ for (ClinicNbr clinic : nbrs) {
 <%
 	if(securityInfoManager.hasPrivilege(loggedInInfo, "_billing", "w", null)) {
 %>
-<%if (request.getParameter("admin")!=null || request.getParameter("adminSubmit")!=null ) { %>
+<%if (request.getParameter("admin")!=null || request.getParameter("adminSubmit")!=null || request.getHeader("referer").contains("administration") ) { %>
 <input type="hidden" name="adminSubmit" value="adminSubmit">
 <input class="btn btn-primary" type="submit" name="submit" onclick="return validateAllItems();" value="Save">
 <%}else{%> 

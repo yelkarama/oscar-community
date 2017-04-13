@@ -323,18 +323,39 @@ function printIframe(){
 			}
 			else
 			{
-			    preview.document.body.style.zoom = "1.4";
 				preview.focus();
+				var oldPageSize = frames['preview'].document.getElementById('pwTable').style.width;
+				frames['preview'].document.getElementById('pwTable').style.width = '690px';
+				
+				var pharmacyInfoElement = frames['preview'].document.getElementById('pharmInfo');
+				if (pharmacyInfoElement.innerHTML.trim() != '') {
+					pharmacyInfoElement.style.display = 'none';
+					var demographicInfoRow = frames['preview'].document.getElementById('demographicInfoRow');
+					var demographicInfoCell = frames['preview'].document.getElementById('demographicInfoCell');
+					demographicInfoCell.colSpan = 1;
+					var pharmacyInfoCell = demographicInfoRow.insertCell(1);
+					pharmacyInfoCell.innerHTML = pharmacyInfoElement.innerHTML;
+					pharmacyInfoCell.style.width = "40%";
+				}
+				 //pharmacyText
 				preview.print();
-                preview.document.body.style.zoom = "";
-				self.close();
+				frames['preview'].document.getElementById('pwTable').style.width = oldPageSize;
+				if (pharmacyInfoElement.innerHTML.trim() != '') {
+					pharmacyInfoElement.style.display = 'block';
+					pharmacyInfoCell.remove();
+					demographicInfoCell.colSpan = 2;
+				}
+				self.parent.close();
 			}
 	}
 
 function printPaste2Parent(print){
     //console.log("in printPaste2Parent");
    try{
-      text =""; // "****<%=oscar.oscarProvider.data.ProviderData.getProviderName(bean.getProviderNo())%>********************************************************************************";
+      var text =""; 
+      <% if (props.isPropertyActive("rx_paste_asterisk")) { %>
+	   text += "****<%=oscar.oscarProvider.data.ProviderData.getProviderName(bean.getProviderNo())%>********************************************************************************\n";
+     <% } %>
       //console.log("1");
       //text = text.substring(0, 82) + "\n";
       if (document.all){
@@ -343,8 +364,12 @@ function printPaste2Parent(print){
          text += preview.document.forms[0].rx_no_newlines.value + "\n";
       }
       //console.log("2");
-      text+=document.getElementById('additionalNotes').value+"\n";
-      //text += "**********************************************************************************\n";
+	  if (document.getElementById('additionalNotes') !== null) {
+		  text += document.getElementById('additionalNotes').value + "\n";
+	  }
+	   <% if (props.isPropertyActive("rx_paste_asterisk")) { %>
+		  text += "**********************************************************************************\n";
+	   <% } %>
       //oscarLog(text);
 
       //we support pasting into orig encounter and new casemanagement
@@ -453,6 +478,7 @@ function signatureHandler(e) {
 	e.target.onbeforeunload = null;
 	<% if (OscarProperties.getInstance().isRxFaxEnabled()) { //%>
 	e.target.document.getElementById("faxButton").disabled = !hasFaxNumber || !e.isSave;
+    e.target.document.getElementById("faxPasteButton").disabled = !hasFaxNumber || !e.isSave;
 	<% } %>
 	if (e.isSave) {
 		<% if (OscarProperties.getInstance().isRxFaxEnabled()) { //%>
@@ -582,7 +608,6 @@ function toggleView(form) {
                                 function expandPreview(text){
                                     parent.document.getElementById('lightwindow_container').style.width="1000px";
                                     parent.document.getElementById('lightwindow_contents').style.width="980px";
-                                    document.getElementById('preview').style.width="580px";
                                     frames['preview'].document.getElementById('pharmInfo').innerHTML=text;
                                     //frames['preview'].document.getElementById('removePharm').show();
                                     $("selectedPharmacy").innerHTML='<bean:message key="oscarRx.printPharmacyInfo.paperSizeWarning"/>';
@@ -591,7 +616,6 @@ function toggleView(form) {
                                 function reducePreview(){
                                     parent.document.getElementById('lightwindow_container').style.width="980px";
                                     parent.document.getElementById('lightwindow_contents').style.width="960px";
-                                    document.getElementById('preview').style.width="420px";
                                     frames['preview'].document.getElementById('pharmInfo').innerHTML="";
                                     $("selectedPharmacy").innerHTML="";
                                     frames['preview'].document.getElementById('pharmaShow').value='false';
@@ -665,9 +689,15 @@ function toggleView(form) {
 					    	List<FaxConfig> faxConfigs = faxConfigDao.findAll(null, null);
 					    
 					    %>
+					<tr>
+						<td><span><input type=button value="Fax"
+										 class="ControlPushButton" id="faxButton" style="width: 150px"
+										 onClick="sendFax();"/></span>
+						</td>
+					</tr>
 					<tr>                            
                             <td><span><input type=button value="Fax & Paste into EMR"
-                                    class="ControlPushButton" id="faxButton" style="width: 150px"
+                                    class="ControlPushButton" id="faxPasteButton" style="width: 150px"
                                     onClick="printPaste2Parent(false);sendFax();" disabled/></span>
                                     
                                  <span>
@@ -725,7 +755,7 @@ function toggleView(form) {
                                         </tr>
 
                                         <%}%>
-					<% if (OscarProperties.getInstance().isRxSignatureEnabled() && !OscarProperties.getInstance().getBooleanProperty("signature_tablet", "yes")) { %>
+					<% if (OscarProperties.getInstance().isRxSignatureEnabled() && !OscarProperties.getInstance().getBooleanProperty("signature_tablet", "yes") && !props.getBooleanProperty("rx_electronic_signing", "true")) { %>
                                         
                     <tr>
 						<td colspan=2 style="font-weight: bold"><span>Signature</span></td>

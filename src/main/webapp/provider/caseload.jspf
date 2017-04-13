@@ -45,7 +45,7 @@
 	Integer facilityId = loggedInInfo.getCurrentFacility().getId();
 
 %>
-<tr><td colspan="3">
+<div id="caseloadDiv">
 <style>
 #caseloadTable {
 	border-collapse: collapse;
@@ -391,4 +391,4 @@ jQuery(document).ready(function(){
 	search(searchMethod);
 });
 </script>
-</td></tr>
+</div>

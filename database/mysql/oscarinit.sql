@@ -7700,7 +7700,18 @@ create table demographicPharmacy (
 ) ;
 
 
+--
+-- Table structure for table `daysheet_configuration`
+--
 
+CREATE TABLE IF NOT EXISTS `daysheet_configuration` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `field` varchar(55),
+  `heading` varchar(255),
+  `active` char(1) default '1',
+  `pos` int(11),
+  PRIMARY KEY (`id`)
+);
 
 
 CREATE TABLE `log` (
@@ -12426,6 +12437,7 @@ CREATE TABLE `indicatorTemplate` (
   `template` mediumtext,
   `active` bit(1),
   `locked` bit(1),
+  `shared` tinyint(1),
   PRIMARY KEY (`id`)
 );
 

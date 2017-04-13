@@ -142,7 +142,8 @@ public final class RxUseFavoriteAction extends DispatchAction {
             }
             int rxStashIndex=bean.addStashItem(loggedInInfo, rx);
             bean.setStashIndex(rxStashIndex);
-
+            bean.addNewRandomIdToMap(Integer.valueOf(favoriteId), Long.parseLong(randomId));
+            
 
             request.setAttribute("listRxDrugs",listRxDrugs);
             request.setAttribute("BoxNoFillFirstLoad", "true");

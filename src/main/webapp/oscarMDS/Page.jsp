@@ -176,7 +176,7 @@ String curUser_no = (String) session.getAttribute("user");
                             </th>
                         </tr>
                           </thead>    
-                          <tbody>
+                          <tbody id="summaryBody">
                                             <%
 							} // End if(pageNum == 1)
                             List<String> doclabid_seq=new ArrayList<String>();
@@ -187,7 +187,7 @@ String curUser_no = (String) session.getAttribute("user");
                                 	%> <input type="hidden" name="NoMoreItems" value="true" /> <%
                             		if (isListView) { %>
 		                                <tr>
-		                                    <tdcolspan="9" align="center">
+		                                    <td colspan="9" align="center">
 		                                        <i>	<% if (pageNum == 1) { %>
 		                                        	<bean:message key="oscarMDS.index.msgNoReports"/>
 		                                        	<% } else { %>
@@ -282,7 +282,7 @@ String curUser_no = (String) session.getAttribute("user");
                                         	}
                                 		%>
 
-                                	<%-- <jsp:include page="../hospitalReportManager/Display.do" flush="true">
+                                	<jsp:include page="../hospitalReportManager/displayHRMReport.jsp" flush="true">
                                 		<jsp:param name="id" value="<%=segmentID %>" />
                                 		<jsp:param name="segmentID" value="<%=segmentID %>" />
                                 		<jsp:param name="providerNo" value="<%=providerNo %>" />
@@ -290,7 +290,7 @@ String curUser_no = (String) session.getAttribute("user");
                                 		<jsp:param name="status" value="<%=status %>" />
                                 		<jsp:param name="demoName" value="<%=result.getPatientName() %>" />
                                 		<jsp:param name="duplicateLabIds" value="<%=duplicateLabIds.toString() %>" />
-                                	</jsp:include> --%>
+                                	</jsp:include>
 		                        		<% } else {
 
 		                        		%>
@@ -476,9 +476,9 @@ String curUser_no = (String) session.getAttribute("user");
 		});
 
 	        jQuery("#summaryView").tablesorter({
-			sortList:[[5,1]],
+			sortList:[],
 			headers:{
-				5:{
+				4:{
 					sorter:'dateOfTest'
 				}
 			}

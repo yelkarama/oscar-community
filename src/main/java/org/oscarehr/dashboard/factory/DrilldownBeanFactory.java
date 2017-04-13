@@ -45,23 +45,25 @@ public class DrilldownBeanFactory {
 	private DrilldownQueryHandler drilldownQueryHandler = SpringUtils.getBean( DrilldownQueryHandler.class );
 	
 	public DrilldownBeanFactory( LoggedInInfo loggedInInfo, IndicatorTemplate indicatorTemplate ) {
+		this(loggedInInfo, indicatorTemplate, null);
+	}
+	
+	public DrilldownBeanFactory( LoggedInInfo loggedInInfo, IndicatorTemplate indicatorTemplate, String providerNo ) {
 		
 		logger.info("Building Drilldown Bean for Indicator ID: " + indicatorTemplate.getId() );
 		
 		setIndicatorTemplate( indicatorTemplate );
 		String indicatorTemplateXML = getIndicatorTemplate().getTemplate();
-		setIndicatorTemplateHandler( new IndicatorTemplateHandler( indicatorTemplateXML.getBytes() ) );
-		setIndicatorTemplateXML( getIndicatorTemplateHandler().getIndicatorTemplateXML() );
-		
-		if( drilldownQueryHandler != null ) {
-			drilldownQueryHandler.setLoggedInInfo( loggedInInfo );
-			drilldownQueryHandler.setParameters( getIndicatorTemplateXML().getDrilldownParameters() );
-			drilldownQueryHandler.setColumns( getIndicatorTemplateXML().getDrilldownDisplayColumns() );
-			drilldownQueryHandler.setRanges( getIndicatorTemplateXML().getDrilldownRanges() );
-		} else {
-			logger.warn("There was a problem with building the Drilldown Query Handler for Indicator ID " + indicatorTemplate.getId() );
-		}
-		
+		setIndicatorTemplateHandler( new IndicatorTemplateHandler( loggedInInfo, indicatorTemplateXML.getBytes() ) );
+		IndicatorTemplateXML indicatorTemplateXmlObj = getIndicatorTemplateHandler().getIndicatorTemplateXML();
+		indicatorTemplateXmlObj.setProviderNo(providerNo);
+		setIndicatorTemplateXML( indicatorTemplateXmlObj );
+
+		drilldownQueryHandler.setLoggedInInfo( loggedInInfo );
+		drilldownQueryHandler.setParameters( getIndicatorTemplateXML().getDrilldownParameters() );
+		drilldownQueryHandler.setColumns( getIndicatorTemplateXML().getDrilldownDisplayColumns() );
+		drilldownQueryHandler.setRanges( getIndicatorTemplateXML().getDrilldownRanges() );
+
 		setDrilldownBean( new DrilldownBean() );
 	}
 
@@ -108,7 +110,8 @@ public class DrilldownBeanFactory {
 		List<?> queryResultList = null;
 		
 		if( getDrilldownQueryHandler() != null ) {	
-			queryResultList = getDrilldownQueryHandler().execute( getIndicatorTemplateXML().getDrilldownQuery() );
+			getDrilldownQueryHandler().setQuery( getIndicatorTemplateXML().getDrilldownQuery() );
+			queryResultList = getDrilldownQueryHandler().execute();
 		}
 		
 		if( queryResultList != null ) {

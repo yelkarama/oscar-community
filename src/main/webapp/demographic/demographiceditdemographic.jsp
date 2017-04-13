@@ -795,13 +795,13 @@ function checkRosterStatus2(){
 	}
 	</oscar:oscarPropertiesCheck>
 	
-	if(rosterSelect.value == "TE"){
-		jQuery(".termination_details").show();
-		jQuery("#roster_termination_reason").focus();
-	}else{
+	if(rosterSelect.value == "RO" || rosterSelect.value == ""){
 		jQuery(".termination_details").hide();
-		jQuery(".termination_details input").val("");
-		jQuery(".termination_details select").val("");
+        jQuery(".termination_details input").val("");
+        jQuery(".termination_details select").val("");
+	}else{
+        jQuery(".termination_details").show();
+        jQuery("#roster_termination_reason").focus();
 	}
 	
 	return true;
@@ -1941,7 +1941,7 @@ if ( Dead.equals(PatStat) ) {%>
 						</div>
 
 						<div class="demographicSection" id="healthInsurance">
-						<h3>&nbsp;<bean:message key="demographic.demographiceditdemographic.msgHealthIns"/></h3>
+						<h3>&nbsp;<bean:message key="demographic.demographiceditdemographic.msgHealthIns"/> <a href="#" onclick="popup(500, 500, '/CardSwipe/?hc=<%=StringUtils.trimToEmpty(demographic.getHin())%> <%=StringUtils.trimToEmpty(demographic.getVer())%>&providerNo=<%=StringUtils.trimToEmpty(curProvider_no)%>', 'Card Swipe'); return false;" style="float:right; padding-right: 5px;">Validate HC</a></h3>
 						<ul>
                                                     <li><span class="label"><bean:message
 								key="demographic.demographiceditdemographic.formHin" />:</span>

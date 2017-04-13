@@ -1567,6 +1567,10 @@ public class CaseManagementManager {
 		this.caseManagementNoteDAO.updateNote(note);
 	}
 
+	public void updateIssueNote(CaseManagementNote note) {
+		this.caseManagementNoteDAO.updateIssueNote(note);
+	}
+
 	public void saveNoteSimple(CaseManagementNote note) {
 		this.caseManagementNoteDAO.saveNote(note);
 		
@@ -2124,7 +2128,6 @@ private String updateApptStatus(String status, String type) {
 		
 		if (appointment != null) {
 			appointmentArchiveDao.archiveAppointment(appointment);
-			appointment.setLastUpdateUser(note.getProviderNo());
 			appointmentDao.merge(appointment);
 		}
 		

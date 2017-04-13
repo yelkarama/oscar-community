@@ -91,6 +91,9 @@ oscar.oscarRx.pageUtil.RxSessionBean rxBean = null;
 	if( rxBean == null ) {
 		rxBean=(oscar.oscarRx.pageUtil.RxSessionBean)pageContext.findAttribute("bean");
 	}
+	if (request.getParameter("demographicNo")!=null && rxBean.getDemographicNo() != Integer.parseInt(request.getParameter("demographicNo"))) {
+		rxBean.setDemographicNo(Integer.parseInt(request.getParameter("demographicNo")));
+	}
 	com.quatro.service.security.SecurityManager securityManager = new com.quatro.service.security.SecurityManager();
 %>
 
@@ -114,7 +117,7 @@ oscar.oscarRx.pageUtil.RxSessionBean rxBean = null;
 	Integer currentDemographicNo=rxBean.getDemographicNo();
 	String atc = request.getParameter("atc");
 
-        ArrayList<StaticScriptBean.DrugDisplayData> drugs=StaticScriptBean.getDrugList(loggedInInfo, currentDemographicNo, regionalIdentifier, cn,bn,atc);
+        ArrayList<StaticScriptBean.DrugDisplayData> drugs=StaticScriptBean.getDrugList(loggedInInfo, currentDemographicNo, regionalIdentifier, cn,bn,null);
 
 	oscar.oscarRx.data.RxPatientData.Patient patient=oscar.oscarRx.data.RxPatientData.getPatient(loggedInInfo, currentDemographicNo);
 	String annotation_display=org.oscarehr.casemgmt.model.CaseManagementNoteLink.DISP_PRESCRIP;

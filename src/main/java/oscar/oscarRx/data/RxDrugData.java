@@ -352,14 +352,16 @@ public class RxDrugData {
 			for (int i = 0 ; i <  vec.size(); i++){
 				Hashtable h = (Hashtable) vec.get(i);
 				if (!h.get("name").equals("None found")){
-					MinDrug d = new MinDrug(h);
-
-					if(d.type.equals("13") || d.type.equals("18")){
-						brand.add(d);
-					}else if (d.type.equals("11") || d.type.equals("12")){
-						gen.add(d);
-					}else if (d.type.equals("8") || d.type.equals("10") ){
-						afhcClass.add(d);
+					Hashtable prev = i>0?(Hashtable) vec.get(i-1):null;
+					if (prev==null || !h.get("name").equals(prev.get("name"))){
+						MinDrug d = new MinDrug(h);
+						if(d.type.equals("13")){
+							brand.add(d);
+						}else if (d.type.equals("11") || d.type.equals("12") || d.type.equals("18")){
+							gen.add(d);
+						}else if (d.type.equals("8") || d.type.equals("10") ){
+							afhcClass.add(d);
+						}
 					}
 				}else{
 					this.setEmpty(true);
@@ -508,9 +510,18 @@ public class RxDrugData {
 		DrugSearch drugSearch = new DrugSearch();
 		RxDrugRef drugRef = new RxDrugRef();
 		Vector vec= new Vector();
+		String regex = "/";
 		//Vector vec = drugRef.list_drugs(searchStr,hashtable);
 		try{
-			vec  = drugRef.list_drug_element(searchStr);
+			if(searchStr!=null && searchStr.contains(regex)){
+				for (String item : searchStr.split(regex)){
+					vec = drugRef.list_drug_element3(item.trim(), false);
+				}
+			}
+			else{
+				vec  = drugRef.list_drug_element3(searchStr,false);
+			}
+
 		}catch(Exception connEx){
 			drugSearch.failed = true;
 			drugSearch.errorMessage = connEx.getMessage();

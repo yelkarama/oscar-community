@@ -297,7 +297,7 @@ public class CaseManagementPrint {
                                 file2= new File(fileName2);
 				os2 = new FileOutputStream(file2);
 				if (handler instanceof OLISHL7Handler) {
-					OLISLabPDFCreator olisLabPdfCreator = new OLISLabPDFCreator(os2, segmentId, providerNo);
+					OLISLabPDFCreator olisLabPdfCreator = new OLISLabPDFCreator(os2, request, segmentId);
 					olisLabPdfCreator.printPdf();
 				}
 				else {

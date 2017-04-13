@@ -34,13 +34,15 @@ package oscar.oscarPrevention.pageUtil;
 import java.awt.Color;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.sf.json.JSONException;
+import net.sf.json.JSONObject;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.printing.FontSettings;
 import org.oscarehr.common.printing.PdfWriterFactory;
@@ -118,7 +120,7 @@ public class PreventionPrintPdf {
         //Create the font we are going to print to       
         Font font = FontFactory.getFont(FontFactory.HELVETICA, 9, Font.NORMAL, Color.BLACK);     
                
-        StringBuilder demoInfo = new StringBuilder(demo.getSexDesc()).append(" Age: ").append(demo.getAge()).append(" (").append(demo.getBirthDayAsString()).append(")")
+        StringBuilder demoInfo = new StringBuilder(demo.getSexDesc()!=null?demo.getSexDesc():demo.getSex()).append(" Age: ").append(demo.getAge()).append(" (").append(demo.getBirthDayAsString()).append(")")
                 .append(" HIN: (").append(demo.getHcType()).append(") ").append(demo.getHin()).append(" ").append(demo.getVer());                                                                 
               
         //Header will be printed at top of every page beginning with p2
@@ -177,190 +179,204 @@ public class PreventionPrintPdf {
         curPage = 1;
         
         boolean onColumnLeft = true;
-                        
-        //now we can start to print the prevention data
-        for(int idx = 0; idx < headerIds.length; ++idx) {
 
-            preventionHeader = request.getParameter("preventionHeader" + headerIds[idx]);
+        List<JSONObject> preventionItems = new ArrayList<JSONObject>();
+
+        preventionItems = createPreventionItems(headerIds, request);
+        Collections.reverse(preventionItems);
+
+        int currentIndex = 0;
+        //now we can start to print the prevention data
+        for(JSONObject currentPrevention : preventionItems) {
+
+            preventionHeader = currentPrevention.getString("preventionName");
             Phrase procHeader = new Phrase(LEADING, "Prevention " + preventionHeader + "\n", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, Font.BOLD, Color.BLACK));
-            ct.addText(procHeader);
-            ct.setAlignment(Element.ALIGN_LEFT);
-            ct.setIndent(0);
-            ct.setFollowingIndent(0);
+
+            if(currentIndex == 0 ){
+                ct.addText(procHeader);
+                ct.setAlignment(Element.ALIGN_LEFT);
+                ct.setIndent(0);
+                ct.setFollowingIndent(0);
+            } else {
+                //This check is done to print the prevention header if it is different from the previous Prevention.
+                if(!preventionHeader.equals(preventionItems.get(currentIndex-1).getString("preventionName"))){
+                    ct.addText(procHeader);
+                    ct.setAlignment(Element.ALIGN_LEFT);
+                    ct.setIndent(0);
+                    ct.setFollowingIndent(0);
+                } else{
+                    procHeader = new Phrase();
+                }
+            }
+
+
             float titleYPos = ct.getYLine();
-            
+
             //check whether the Prevention Title can fit on the page
             boolean writeTitleOk = true;
             int status = ct.go(true);
             if (ColumnText.hasMoreText(status)) {
                 writeTitleOk = false;
             }
-                
-            subIdx = 0;
-           
-            while( (procedureAge = request.getParameter("preventProcedureAge" + headerIds[idx] + "-" + subIdx)) != null ) {
-                procedureDate = request.getParameter("preventProcedureDate" + headerIds[idx] + "-" + subIdx);
-                procedureStatus = request.getParameter("preventProcedureStatus" + headerIds[idx] + "-" + subIdx);
-                procedureStatus = readableStatuses.get(procedureStatus);              
-                
-                if( procedureStatus == null ) {
-                	procedureStatus = "N/A";
+
+            procedureAge = currentPrevention.getString("preventionAge");
+            procedureDate = currentPrevention.getString("preventionDate");
+            procedureStatus = currentPrevention.getString("preventionStatus");
+
+            //Age
+            Phrase procedure = new Phrase(LEADING, "Age:", FontFactory.getFont(FontFactory.HELVETICA, 10, Font.NORMAL, Color.BLACK));
+            procedure.add(new Chunk(procedureAge,FontFactory.getFont(FontFactory.HELVETICA, 9, Font.NORMAL, Color.BLACK)));
+            procedure.add(Chunk.NEWLINE);
+
+            //Date
+            procedure.add("Date:");
+            procedure.add(new Chunk(procedureDate, FontFactory.getFont(FontFactory.HELVETICA, 9, Font.NORMAL, Color.BLACK)));
+            procedure.add(Chunk.NEWLINE);
+
+            //Status
+            procedure.add("Status:");
+            procedure.add(new Chunk(procedureStatus, FontFactory.getFont(FontFactory.HELVETICA, 9, Font.NORMAL, Color.BLACK)));
+            procedure.add(Chunk.NEWLINE);
+
+            //Comments
+            String procedureComments = null;
+            if (showComments) {
+                procedureComments = currentPrevention.getString("preventionComments");
+                if (procedureComments != null && !procedureComments.isEmpty()){
+                    procedure.add("Comments:");
+                    procedure.add(Chunk.NEWLINE);
                 }
-              
-                //Age                
-                Phrase procedure = new Phrase(LEADING, "Age:", FontFactory.getFont(FontFactory.HELVETICA, 10, Font.NORMAL, Color.BLACK));
-                procedure.add(new Chunk(procedureAge,FontFactory.getFont(FontFactory.HELVETICA, 9, Font.NORMAL, Color.BLACK)));
-                procedure.add(Chunk.NEWLINE);
-                
-                //Date
-                procedure.add("Date:");
-                procedure.add(new Chunk(procedureDate, FontFactory.getFont(FontFactory.HELVETICA, 9, Font.NORMAL, Color.BLACK)));
-                procedure.add(Chunk.NEWLINE);
-                
-                //Status
-                procedure.add("Status:");
-                procedure.add(new Chunk(procedureStatus, FontFactory.getFont(FontFactory.HELVETICA, 9, Font.NORMAL, Color.BLACK)));
-                procedure.add(Chunk.NEWLINE);
-                
-                String procedureComments = null;
-                if (showComments) { 
-                    procedureComments = request.getParameter("preventProcedureComments" + headerIds[idx] + "-" + subIdx);
-                    if (procedureComments != null && !procedureComments.isEmpty()){
-                        procedure.add("Comments:");
-                        procedure.add(Chunk.NEWLINE);                        
-                    }
-                }
-                         
-                //check if the Date/Age/Comments title can fit on the page.
-                ct.addText(procedure);
-                ct.setAlignment(Element.ALIGN_LEFT);
-                ct.setIndent(10);
-                ct.setFollowingIndent(0);
-                float detailYPos = ct.getYLine();
-                status = ct.go(true);
-                
-                boolean writeDetailOk = true;
-                if (ColumnText.hasMoreText(status)) {
-                    writeDetailOk = false;
-                }
-                
-                //Comments
-                Phrase commentsPhrase = new Phrase(LEADING, "", FontFactory.getFont(FontFactory.HELVETICA, 9, Font.NORMAL, Color.BLACK));
-                if (showComments && procedureComments != null && !procedureComments.isEmpty()){
-                    commentsPhrase.add(procedureComments);
-                    commentsPhrase.add(Chunk.NEWLINE);                                                                
-                }
-                
+            }
+
+            //check if the Date/Age/Comments title can fit on the page.
+            ct.addText(procedure);
+            ct.setAlignment(Element.ALIGN_LEFT);
+            ct.setIndent(10);
+            ct.setFollowingIndent(0);
+            float detailYPos = ct.getYLine();
+            status = ct.go(true);
+
+            boolean writeDetailOk = true;
+            if (ColumnText.hasMoreText(status)) {
+                writeDetailOk = false;
+            }
+
+            //Comments
+            Phrase commentsPhrase = new Phrase(LEADING, "", FontFactory.getFont(FontFactory.HELVETICA, 9, Font.NORMAL, Color.BLACK));
+            if (showComments && procedureComments != null && !procedureComments.isEmpty()){
+                commentsPhrase.add(procedureComments);
                 commentsPhrase.add(Chunk.NEWLINE);
-               
-                //Check if the comments can fit on the page
-                ct.addText(commentsPhrase);
-                ct.setAlignment(Element.ALIGN_JUSTIFIED);
-                ct.setIndent(25);
-                ct.setFollowingIndent(25);
-                float commentYPos = ct.getYLine();
-                status = ct.go(true);
-                
-                boolean writeCommentsOk = true;
-                if (ColumnText.hasMoreText(status)) {
-                    writeCommentsOk = false;
-                }                                
+            }
 
-                 boolean proceedWrite = true;
-                 if (writeDetailOk && writeCommentsOk) {
-                                        
-                    //write on the same column and page
-                    if (subIdx == 0) {
-                        if (writeTitleOk) {
-                            //we still need to write the title
-                            ct.addText(procHeader);
-                            ct.setAlignment(Element.ALIGN_LEFT);
-                            ct.setYLine(titleYPos);
-                            ct.setIndent(0);
-                            ct.setFollowingIndent(0);                     
-                            ct.go(); 
-                        }
-                        else {
-                            proceedWrite = false;
-                        }
-                    }
-                    
-                    if (proceedWrite) {
-                        //Date and Age
-                        ct.addText(procedure);
-                        ct.setAlignment(Element.ALIGN_LEFT);
-                        ct.setYLine(detailYPos);
-                        ct.setIndent(10);
-                        ct.setFollowingIndent(0);
-                        ct.go();
+            commentsPhrase.add(Chunk.NEWLINE);
 
-                        //Comments
-                        ct.addText(commentsPhrase);
-                        ct.setAlignment(Element.ALIGN_JUSTIFIED);
-                        ct.setYLine(commentYPos);
-                        ct.setIndent(25);
-                        ct.setFollowingIndent(25);
-                        ct.go();
-                    }
+            //Check if the comments can fit on the page
+            ct.addText(commentsPhrase);
+            ct.setAlignment(Element.ALIGN_JUSTIFIED);
+            ct.setIndent(25);
+            ct.setFollowingIndent(25);
+            float commentYPos = ct.getYLine();
+            status = ct.go(true);
+
+            boolean writeCommentsOk = true;
+            if (ColumnText.hasMoreText(status)) {
+                writeCommentsOk = false;
+            }
+
+            boolean proceedWrite = true;
+            if (writeDetailOk && writeCommentsOk) {
+
+                //write on the same column and page
+
+                if (writeTitleOk) {
+                    //we still need to write the title
+                    ct.addText(procHeader);
+                    ct.setAlignment(Element.ALIGN_LEFT);
+                    ct.setYLine(titleYPos);
+                    ct.setIndent(0);
+                    ct.setFollowingIndent(0);
+                    ct.go();
                 }
                 else {
                     proceedWrite = false;
                 }
-                    
-                //We can't fit the prevention we are printing into the current column on the current page we are printing to 
-                if (!proceedWrite) {
-                                        
-                    if (onColumnLeft) {  
-                        //Print to the right column (i.e. we are printing to the current page)
-                        onColumnLeft = false;
-                        ct.setSimpleColumn(document.right()/2f, document.bottom(), document.right(), upperYcoord);                                                
-                    }
-                    else {
-                        //Print to the left column (i.e. we are starting a new page)
-                        onColumnLeft = true;
-                        ColumnText.showTextAligned(cb, Phrase.ALIGN_CENTER, new Phrase("-" + curPage + "-"), document.right()/2f, document.bottom()-(document.bottomMargin()/2f), 0f);
-                        addPromoText();                       
-                        upperYcoord = document.top() - header.getHeight() - font.getCalculatedLeading(LINESPACING);
-                        document.newPage();
-                        
-                        curPage++;
-                        ct.setSimpleColumn(document.left(), document.bottom(), document.right()/2f, upperYcoord);
-                    }
-                    
-                    //Title (if we are starting to print a new prevention, use the Prevention name as title, otherwise if we 
-                    //are in the middle of printing a prevention that has multiple items, identify this as a continued prevention
-                    if (subIdx != 0) {
-                        Phrase contdProcHeader = new Phrase(LEADING, "Prevention " + preventionHeader + " (cont'd)\n", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, Font.ITALIC, Color.BLACK));
-                        ct.setText(contdProcHeader);
-                    } else { 
-                        ct.setText(procHeader);
-                    }
-                    ct.setAlignment(Element.ALIGN_LEFT);
-                    ct.setIndent(0);
-                    ct.setFollowingIndent(0);                          
-                    ct.go();
-                    titleYPos = ct.getYLine();
-                    
 
+
+                if (proceedWrite) {
                     //Date and Age
-                    ct.setText(procedure);
+                    ct.addText(procedure);
                     ct.setAlignment(Element.ALIGN_LEFT);
+                    ct.setYLine(detailYPos);
                     ct.setIndent(10);
-                    ct.setFollowingIndent(0);                    
-                    ct.go();                   
+                    ct.setFollowingIndent(0);
+                    ct.go();
 
                     //Comments
-                    ct.setText(commentsPhrase);
+                    ct.addText(commentsPhrase);
                     ct.setAlignment(Element.ALIGN_JUSTIFIED);
+                    ct.setYLine(commentYPos);
                     ct.setIndent(25);
-                    ct.setFollowingIndent(25);                   
-                    ct.go();                   
-                    
+                    ct.setFollowingIndent(25);
+                    ct.go();
+                }
+            }
+            else {
+                proceedWrite = false;
+            }
+
+            //We can't fit the prevention we are printing into the current column on the current page we are printing to
+            if (!proceedWrite) {
+
+                if(!preventionHeader.equals(preventionItems.get(currentIndex-1).getString("preventionName"))){
+                    if (onColumnLeft) {
+                        //Print to the right column (i.e. we are printing to the current page)
+                        onColumnLeft = false;
+                        ct.setSimpleColumn(document.right() / 2f, document.bottom(), document.right(), upperYcoord);
+                    } else {
+                        //Print to the left column (i.e. we are starting a new page)
+                        onColumnLeft = true;
+                        ColumnText.showTextAligned(cb, Phrase.ALIGN_CENTER, new Phrase("-" + curPage + "-"), document.right() / 2f, document.bottom() - (document.bottomMargin() / 2f), 0f);
+                        addPromoText();
+                        upperYcoord = document.top() - header.getHeight() - font.getCalculatedLeading(LINESPACING);
+                        document.newPage();
+
+                        curPage++;
+                        ct.setSimpleColumn(document.left(), document.bottom(), document.right() / 2f, upperYcoord);
+                    }
                 }
 
-                ++subIdx;
+                //Title (if we are starting to print a new prevention, use the Prevention name as title, otherwise if we
+                //are in the middle of printing a prevention that has multiple items, identify this as a continued prevention
+                if (preventionHeader.equals(preventionItems.get(currentIndex - 1).getString("preventionName"))) {
+                    Phrase contdProcHeader = new Phrase(LEADING, "Prevention " + preventionHeader + " (cont'd)\n", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, Font.ITALIC, Color.BLACK));
+                    ct.setText(contdProcHeader);
+                } else {
+                    ct.setText(procHeader);
+                }
+                ct.setAlignment(Element.ALIGN_LEFT);
+                ct.setIndent(0);
+                ct.setFollowingIndent(0);
+                ct.go();
+                titleYPos = ct.getYLine();
+
+
+                //Date and Age
+                ct.setText(procedure);
+                ct.setAlignment(Element.ALIGN_LEFT);
+                ct.setIndent(10);
+                ct.setFollowingIndent(0);
+                ct.go();
+
+                //Comments
+                ct.setText(commentsPhrase);
+                ct.setAlignment(Element.ALIGN_JUSTIFIED);
+                ct.setIndent(25);
+                ct.setFollowingIndent(25);
+                ct.go();
+
             }
-            
+
+            currentIndex++;
         }
         
         //Make sure last page has the footer
@@ -378,4 +394,79 @@ public class PreventionPrintPdf {
             cb.endText();
         }
     }
+
+    private List<JSONObject> createPreventionItems(String [] headerIds, HttpServletRequest request){
+        List<JSONObject> preventionItems = new ArrayList<JSONObject>();
+        JSONObject currentPrevention = new JSONObject();
+
+        String preventionName, preventionAge, preventionDate, preventionStatus, preventionComments;
+
+        int mainIndex = 0;
+        int subIndex = 0;
+
+        for(mainIndex = 0; mainIndex < headerIds.length; mainIndex++){
+            preventionName = request.getParameter("preventionHeader" + headerIds[mainIndex]);
+
+            //Populating other information of prevention
+            while(request.getParameter("preventProcedureAge" + headerIds[mainIndex]+"-"+subIndex) != null){
+                preventionAge = request.getParameter("preventProcedureAge" + headerIds[mainIndex] + "-" + subIndex);
+                preventionDate = request.getParameter("preventProcedureDate" + headerIds[mainIndex] + "-" + subIndex);
+                preventionStatus = request.getParameter("preventProcedureStatus" + headerIds[mainIndex] + "-" + subIndex);
+
+                preventionStatus = readableStatuses.get(preventionStatus);
+
+                preventionComments = request.getParameter("preventProcedureComments" + headerIds[mainIndex] + "-" + subIndex);
+
+                if( preventionStatus == null ) {
+                    preventionStatus = "N/A";
+                }
+
+                //Populating JSON object with Prevention Data.
+                currentPrevention.put("preventionName", preventionName);
+                currentPrevention.put("preventionAge", preventionAge);
+                currentPrevention.put("preventionDate", preventionDate);
+                currentPrevention.put("preventionStatus", preventionStatus);
+                currentPrevention.put("preventionComments", preventionComments);
+
+                //Adding it to list
+                preventionItems.add(currentPrevention);
+
+                //Emptying JSON object
+                currentPrevention = new JSONObject();
+
+                //Incrementing subIndex if there are more than one of same prevention
+                subIndex++;
+
+            }
+
+            //No more of same prevention, subIndex set back to 0
+            subIndex = 0;
+        }
+
+        //Sorting List of Preventions by Date. This sorts from oldest to newest.
+        Collections.sort(preventionItems, new Comparator<JSONObject>(){
+            private static final String KEY_NAME = "preventionDate";
+
+            @Override
+            public int compare(JSONObject a, JSONObject b){
+                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+                Date date1 = new Date();
+                Date date2 = new Date();
+
+                try{
+                    date1 = df.parse((String)a.get(KEY_NAME));
+                    date2 = df.parse((String)b.get(KEY_NAME));
+                } catch(JSONException jse){
+                    jse.printStackTrace();
+                } catch(ParseException pe){
+                    pe.printStackTrace();
+                }
+
+                return date1.compareTo(date2);
+            }
+        });
+
+        return preventionItems;
+    }
+
 }

@@ -359,13 +359,7 @@
 
                                 <tr><td></td>
                                     <td>
-                                        <% boolean updatableContent=true; %>
-                                        <oscar:oscarPropertiesCheck property="ALLOW_UPDATE_DOCUMENT_CONTENT" value="false" defaultVal="false">
-                                            <%
-                                                if(!demographicID.equals("-1")) { updatableContent=false; }
-                                            %>
-                                        </oscar:oscarPropertiesCheck>
-                                        <div style="<%=updatableContent==true?"":"visibility: hidden"%>">
+                                        <div>
                                             <input onclick="split('<%=docId%>','<%=StringEscapeUtils.escapeJavaScript(demoName) %>')" type="button" value="<bean:message key="inboxmanager.document.split" />" />
                                             <input id="rotate180btn_<%=docId %>" onclick="rotate180('<%=docId %>')" type="button" value="<bean:message key="inboxmanager.document.rotate180" />" />
                                             <input id="rotate90btn_<%=docId %>" onclick="rotate90('<%=docId %>')" type="button" value="<bean:message key="inboxmanager.document.rotate90" />" />

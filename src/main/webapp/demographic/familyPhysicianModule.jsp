@@ -46,7 +46,7 @@ if(fam_doc_contents!=null) {
 
     if(familyPhysicianId == "" && fam_doc_name.contains(",")){
         List<ProfessionalSpecialist> professionalSpecialists = professionalSpecialistDao.findByFullName(String.valueOf(fam_doc_name.split(",",0)),String.valueOf(fam_doc_name.split(",",1)));
-        if(professionalSpecialists.size() == 1){
+        if(professionalSpecialists != null && professionalSpecialists.size() == 1){
             //get Id only if there is one match
             familyPhysicianId = String.valueOf(professionalSpecialists.get(0).getId());
         }

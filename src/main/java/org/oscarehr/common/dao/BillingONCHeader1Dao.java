@@ -718,7 +718,10 @@ public class BillingONCHeader1Dao extends AbstractDao<BillingONCHeader1>{
             }
         }
 
-        
+        if (paymentStartDate!=null || paymentEndDate!=null){
+            app.addGroup("ch1.id, bi.serviceCode");
+        }
+
 		app.addOrder("ch1.billingDate, ch1.billingTime");
         
 		Query query = entityManager.createQuery(app.toString());

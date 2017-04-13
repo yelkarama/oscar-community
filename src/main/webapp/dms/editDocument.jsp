@@ -192,6 +192,7 @@ for (String reportClass : reportClasses) {
             }
 	    function reviewed(ths) {
 		thisForm = ths.form;
+		thisForm.reviewerId.value = <%=user_no%>;
 		thisForm.reviewDoc.value = true;
 		thisForm.submit();
 	    }

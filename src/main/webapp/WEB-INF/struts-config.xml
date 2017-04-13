@@ -30,6 +30,12 @@
 		</form-bean>
 		<form-bean name="lookupCodeEditForm" type="com.quatro.web.lookup.LookupCodeEditForm">
 		</form-bean>
+		<form-bean name="dSConfigForm" type="org.apache.struts.validator.DynaValidatorForm">
+			<form-property name="dsConfig" type="java.util.List" />
+			<form-property name="id" type="java.lang.String[]"/>
+			<form-property name="active" type="java.lang.String[]"/>
+			<form-property name="heading" type="java.lang.String[]"/>
+		</form-bean>
 		<form-bean name="clinicForm" type="org.apache.struts.validator.DynaValidatorForm">
 			<form-property name="clinic" type="org.oscarehr.common.model.Clinic" />
 		</form-bean>
@@ -308,6 +314,7 @@
 			<form-property name="appointmentCardPhone" type="org.oscarehr.common.model.UserProperty" />
 			<form-property name="appointmentCardFax" type="org.oscarehr.common.model.UserProperty" />
 			<form-property name="hideNoShowsAndCancellationsProperty" type="org.oscarehr.common.model.UserProperty" />
+			<form-property name="dashboardShareProperty" type="org.oscarehr.common.model.UserProperty" />
 		</form-bean>
 		<form-bean name="setMyOscarIdForm" type="org.apache.struts.action.DynaActionForm">
 			<form-property name="myOscarLoginId" type="java.lang.String" />
@@ -643,7 +650,19 @@
 			<forward name="unauthorized" path="/securityError.jsp" />
 			<forward name="error" path="/failure.jsp" />
 		</action>
-
+		
+		<action name="FrmForm" path="/web/dashboard/display/DisplayIndicator" 
+			parameter="method" type="org.oscarehr.dashboard.display.DisplayIndicatorAction" scope="request" >
+			<forward name="success" path="/web/dashboard/display/IndicatorPanel.jsp" />
+			<forward name="unauthorized" path="/securityError.jsp" />
+			<forward name="error" path="/failure.jsp" />
+		</action>
+	
+		<action path="/web/dashboard/OutcomesDashboard" 
+			parameter="method" type="org.oscarehr.integration.dashboard.OutcomesDashboardAction" scope="request" >
+			
+		</action>
+		
 		<!-- Pharma Best Possible Medication Health form -->
 	 	<action path="/formBPMH" parameter="method" name="bpmh" type="oscar.form.pharmaForms.formBPMH.web.BpmhFormRetrieve"	
 	 		scope="request" validate="false" > 
@@ -1154,6 +1173,9 @@
 		<action path="/oscarEncounter/displayIssues" scope="request" type="org.springframework.web.struts.DelegatingActionProxy"></action>
 		<action path="/oscarEncounter/displayResolvedIssues" scope="request" type="org.springframework.web.struts.DelegatingActionProxy"></action>
 		<action path="/oscarEncounter/displayDecisionSupportAlerts" scope="request" type="oscar.oscarEncounter.pageUtil.EctDisplayDecisionSupportAlertsAction"></action>
+		<action path="/report/displayDaysheet" type="oscar.oscarReport.pageUtil.RptShowDaySheetAction">
+			<forward name="success" path="/report/reportConfigurableDaySheet.jsp" />
+		</action>
 		<action path="/report/printLabDaySheetAction" type="oscar.oscarReport.pageUtil.printLabDaySheetAction"></action>
 		<action path="/oscarEncounter/displayDiagrams" scope="request" type="oscar.oscarEncounter.pageUtil.EctDisplayDiagramAction"></action>
 		<action path="/oscarEncounter/displayExaminationHistory" scope="request" type="oscar.oscarEncounter.pageUtil.EctDisplayExaminationHistoryAction"></action>
@@ -1184,13 +1206,13 @@
 			<forward name="close" path="/oscarEncounter/close.jsp" />
 			<forward name="concurrencyError" path="/oscarEncounter/concurrencyError.jsp" />
 		</action>
-		
+
 		<!-- Import Clinical Data into the Consultation form -->
 		<action path="/oscarConsultationRequest/consultationClinicalData" scope="request" validate="false" parameter="method"
 			type="oscar.oscarEncounter.oscarConsultationRequest.pageUtil.ConsultationClinicalDataAction" >
 			<forward name="success" path="/oscarEncounter/oscarConsultationRequest/ConsultationFormRequest.jsp" />
 		</action>
-		
+
 		<action input=" " name="EctIncomingConsultationForm" path="/oscarEncounter/IncomingConsultation" scope="request" type="oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctIncomingConsultationAction">
 			<forward name="success" path="/oscarEncounter/oscarConsultationRequest/ViewConsultationRequests.jsp" />
 		</action>
@@ -1230,6 +1252,10 @@
 		</action>
 		<action input="/oscarEncounter/oscarconsultationRequest/ConsultationFormRequest.jsp" path="/oscarEncounter/oscarConsultationRequest/ConsultationFormFax" scope="request" type="oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctConsultationFormFaxAction">
 			<forward name="success" path="/oscarEncounter/oscarConsultationRequest/ConfirmConsultationRequest.jsp" />
+			<forward name="print" path="/oscarEncounter/oscarConsultationRequest/ConsultationFormPrint.jsp" />
+			<forward name="printalt" path="/oscarEncounter/oscarConsultationRequest/ConsultationFormPrint2.jsp" />
+			<forward name="printpdf" path="/oscarEncounter/oscarConsultationRequest/printPdf.do" />
+			<forward name="printIndivica" path="/oscarEncounter/oscarConsultationRequest/printPdf2.do" />
 			<forward name="error" path="/oscarEncounter/ViewRequest.do?error=error" />
 		</action>
 		<action input="/oscarEncounter/oscarConsultationRequest/attachmentReport.jsp" name="FrmForm" path="/oscarEncounter/oscarConsultation/printAttached" scope="request" type="oscar.oscarEncounter.oscarConsultationRequest.pageUtil.ConsultationPrintDocsAction">
@@ -1598,9 +1624,12 @@
 			<forward name="input" path="/oscarMaintenance/oscarMaintenanceInput.jsp" />
 		</action>
 		<action input="/oscarEncounter/oscarConsultationRequest/ConsultationFaxForm.jsp" name="EctConsultationFaxForm" path="/oscarEncounter/oscarConsultationRequests/consultationFax" scope="request"
-			type="oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctConsultationFaxAction"
-		>
+			type="oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctConsultationFaxAction">
 			<forward name="success" path="/oscarEncounter/oscarConsultationRequest/ConsultationFaxComfirmation.jsp" />
+			<forward name="print" path="/oscarEncounter/oscarConsultationRequest/ConsultationFormPrint.jsp" />
+			<forward name="printalt" path="/oscarEncounter/oscarConsultationRequest/ConsultationFormPrint2.jsp" />
+			<forward name="printpdf" path="/oscarEncounter/oscarConsultationRequest/printPdf.do" />
+			<forward name="printIndivica" path="/oscarEncounter/oscarConsultationRequest/printPdf2.do" />
 		</action>
 		<action input="/provider/editSignature.jsp" name="ProEditSignatureForm" path="/EnterSignature" scope="request" type="oscar.oscarProvider.pageUtil.ProEditSignatureAction">
 			<forward name="success" path="/provider/providerSignature.jsp" />
@@ -1658,6 +1687,7 @@
             <forward name="genBornPrefs"     path="/provider/setBornPrefs.jsp"/>
              <forward name="genAppointmentCardPrefs"     path="/provider/setAppointmentCardPrefs.jsp"/>
             <forward name="genHideNoShowsAndCancellations" path="/provider/setHideNoShowsAndCancellations.jsp"/>
+             <forward name="genDashboardPrefs"     path="/provider/setDashboardPrefs.jsp"/>
         </action>
 		<action input="/provider/providerIndivoIdSetter.jsp" name="setMyOscarIdForm" path="/setMyOscarId" scope="request" type="oscar.oscarProvider.pageUtil.ProEditMyOscarIdAction">
 			<forward name="success" path="/provider/providerIndivoIdSetter.jsp" />
@@ -2431,7 +2461,7 @@
 
 		<action path="/demographic/Contact" type="org.oscarehr.common.web.ContactAction" parameter="method" scope="request" validate="false" name="contactForm">
 			<forward name="pForm" path="/demographic/addEditProfessionalContact.jsp" />
-			<forward name="cForm" path="/demographic/addEditContact.jsp" />
+			<forward name="cForm" path="/demographic/contactSearch.jsp" />
 			<forward name="manage" path="/demographic/ManageContacts.jsp" />
 			<forward name="windowClose" path="/demographic/close.jsp" />
 			<forward name="ajax" path="/demographic/demographiceditdemographic.jsp" />
@@ -2469,7 +2499,9 @@
 			<forward name="viewVerification" path="/phr/PHRVerification.jsp" />
 		</action>
 
-
+		<action path="/admin/daySheetConfiguration" name="dSConfigForm" type="org.springframework.web.struts.DelegatingActionProxy" parameter="method" scope="request">
+			<forward name="success" path="/admin/daySheetConfiguration.jsp" />
+		</action>
 		<action path="/admin/ManageClinic" name="clinicForm" type="org.springframework.web.struts.DelegatingActionProxy" parameter="method" scope="request">
 			<forward name="success" path="/admin/clinicAdmin.jsp" />
 		</action>
@@ -2899,8 +2931,12 @@
 		<action name="BillingDocumentErrorReportUploadForm" path="/billing/CA/ON/displayMOHXML" scope="request" type="org.oscarehr.billing.CA.ON.web.DisplayMOHXMLAction">
             		<forward name="success" path="/billing/CA/ON/billingLreport.jsp" />
 			<forward name="failure" path="/billing/CA/ON/billingLreport.jsp" />
-		</action> 			
+		</action>
 		<action input="/billing/CA/ON/billingON3rdInv.jsp" name="FrmForm" path="/billing/ca/on/DisplayInvoiceLogo" scope="request" type="org.oscarehr.billing.CA.ON.util.DisplayInvoiceLogo"></action>
+		
+		<action path="/indivicare/asthmaLife" type="com.indivica.asthmalife.DemographicPayloadAction" scope="request" validate="false" parameter="method">
+    		<forward name="proxy" path='/indivicare/asthmaLife/indivicareAsthmaLifeProxy.jsp' />
+		</action>
 
 	</action-mappings>
 	<controller processorClass="org.apache.struts.tiles.TilesRequestProcessor" maxFileSize="100M" />

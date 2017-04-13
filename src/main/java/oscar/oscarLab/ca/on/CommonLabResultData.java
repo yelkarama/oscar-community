@@ -55,6 +55,7 @@ import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.model.ProviderLabRoutingModel;
 import org.oscarehr.common.model.QueueDocumentLink;
 import org.oscarehr.hospitalReportManager.dao.HRMDocumentToDemographicDao;
+import org.oscarehr.hospitalReportManager.dao.HRMDocumentToProviderDao;
 import org.oscarehr.hospitalReportManager.model.HRMDocumentToDemographic;
 import org.oscarehr.labs.LabIdAndType;
 import org.oscarehr.managers.DemographicManager;
@@ -657,8 +658,13 @@ public class CommonLabResultData {
 
 
 	public int getAckCount(String labId, String labType) {
-		ProviderLabRoutingDao dao = SpringUtils.getBean(ProviderLabRoutingDao.class);
-		return dao.findByStatusANDLabNoType(ConversionUtils.fromIntString(labId), labType, "A").size();
+		if (labType.equals(LabResultData.HRM)) {
+			HRMDocumentToProviderDao hrmDao = SpringUtils.getBean(HRMDocumentToProviderDao.class);
+			return hrmDao.findSignedByHrmDocumentId(labId).size();
+		} else {
+			ProviderLabRoutingDao dao = SpringUtils.getBean(ProviderLabRoutingDao.class);
+			return dao.findByStatusANDLabNoType(ConversionUtils.fromIntString(labId), labType, "A").size();
+		}
 	}
 
 	public static void populateMeasurementsTable(String labId, String demographicNo, String labType) {

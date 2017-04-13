@@ -26,6 +26,7 @@
 package oscar.oscarPrevention.reports;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -92,6 +93,7 @@ public class MammogramReport implements PreventionReport{
             	 Map<String,Object> h =  noFutureItems.get(noFutureItems.size()-1);
                 DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
                 String prevDateStr = (String) h.get("prevention_date");
+                String nextDateStr = (String) h.get("next_date");
 
                 try{
                    prevDate = formatter.parse(prevDateStr);
@@ -106,8 +108,17 @@ public class MammogramReport implements PreventionReport{
                 Calendar cal = Calendar.getInstance();
                 cal.add(Calendar.YEAR, -2);
                 Date dueDate = cal.getTime();
-                cal.add(Calendar.MONTH,-6);
-                Date cutoffDate = cal.getTime();
+                Date cutoffDate = null;
+                if (nextDateStr != null) {
+            		try {
+						cutoffDate = formatter.parse(nextDateStr);
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
+                } else {
+                    cal.add(Calendar.MONTH,-6);
+                    cutoffDate = cal.getTime();
+                }
 
                 Calendar cal2 = GregorianCalendar.getInstance();
                 cal2.add(Calendar.YEAR, -2);

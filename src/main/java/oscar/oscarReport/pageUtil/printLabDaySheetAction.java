@@ -63,6 +63,7 @@ public class printLabDaySheetAction extends OscarAction{
         System.setProperty("jasper.reports.compile.class.path", classpath);
 
         HashMap parameters = new HashMap();
+        parameters.put("provider", request.getParameter("provider_no")); 
         parameters.put("input_date", request.getParameter("input_date"));
         String xmlStyleFile=request.getParameter("xmlStyle");
         ServletOutputStream sos = null;

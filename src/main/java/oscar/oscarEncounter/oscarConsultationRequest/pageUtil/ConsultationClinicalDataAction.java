@@ -61,7 +61,8 @@ public class ConsultationClinicalDataAction extends DispatchAction  {
 	
 	public ActionForward fetchMedications(ActionMapping mapping,
 			ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		
+
+		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
 		String demographicNo = request.getParameter("demographicNo");
 		HttpSession session = request.getSession();
 		if (session.getAttribute("userrole") == null) {
@@ -73,7 +74,7 @@ public class ConsultationClinicalDataAction extends DispatchAction  {
 		
 		}
 		
-		List<Drug> medications = prescriptionManager.getActiveMedications( demographicNo );
+		List<Drug> medications = prescriptionManager.getActiveMedications(loggedInInfo, Integer.parseInt(demographicNo));
 		
 		if( medications != null ) {
 			medicationToJson( response, medications, "Medications" );
@@ -210,7 +211,7 @@ public class ConsultationClinicalDataAction extends DispatchAction  {
 		
 		for( Drug medication : medications ) {
 			
-			if( medication.isCurrent() ) {
+			if( medication.isCurrent() || (medication.isLongTerm() && !medication.isArchived()) ) {
 			
 				prescription = medication.getSpecial();
 				

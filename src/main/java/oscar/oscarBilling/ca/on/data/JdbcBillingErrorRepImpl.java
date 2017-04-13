@@ -21,6 +21,7 @@ package oscar.oscarBilling.ca.on.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.math.NumberUtils;
 import org.oscarehr.common.dao.BillingONEAReportDao;
 import org.oscarehr.common.model.BillingONEAReport;
 import org.oscarehr.util.SpringUtils;
@@ -86,15 +87,20 @@ public class JdbcBillingErrorRepImpl {
 	}
 
 	public boolean deleteErrorReport(BillingErrorRepData val) {
-		List<BillingONEAReport> bs = billingONEARReportDao.findByProviderOhipNoAndGroupNoAndSpecialtyAndProcessDateAndBillingNo(val.getProviderohip_no(), val.getGroup_no(), val.getSpecialty(), ConversionUtils.fromDateString(val.getProcess_date()),  Integer.parseInt(val.getBilling_no()));
-		for (BillingONEAReport b : bs) {
-			billingONEARReportDao.remove(b.getId());
+		// Only try to delete if billing number is a number
+		if (NumberUtils.isNumber(val.getBilling_no())){
+			List<BillingONEAReport> bs = billingONEARReportDao.findByProviderOhipNoAndGroupNoAndSpecialtyAndProcessDateAndBillingNo(val.getProviderohip_no(), val.getGroup_no(), val.getSpecialty(), ConversionUtils.fromDateString(val.getProcess_date()),  Integer.parseInt(val.getBilling_no()));
+			for (BillingONEAReport b : bs) {
+				billingONEARReportDao.remove(b.getId());
+			}
+			return true;
+		}else{
+			return false;
 		}
-		return true;
 	}
 
 	public int addErrorReportRecord(BillingErrorRepData val) {
-		BillingONEAReport b = new BillingONEAReport();
+        BillingONEAReport b = new BillingONEAReport();
 		b.setProviderOHIPNo(val.providerohip_no);
 		b.setGroupNo(val.group_no);
 		b.setSpecialty(val.specialty);

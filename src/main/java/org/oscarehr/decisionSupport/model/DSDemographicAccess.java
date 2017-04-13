@@ -52,6 +52,7 @@ import org.oscarehr.common.model.ProviderStudyPK;
 import org.oscarehr.common.model.Study;
 import org.oscarehr.common.model.StudyData;
 import org.oscarehr.decisionSupport.model.conditionValue.DSValue;
+import org.oscarehr.util.DateRange;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
@@ -615,23 +616,19 @@ public class DSDemographicAccess {
 
             if(options.containsKey("inDays")){
                 int inDays = getAsInt(options,"inDays");
-
+                JdbcBillingReviewImpl dbObj = new JdbcBillingReviewImpl();
+                Date today = new Date();
+                Calendar calendarYear = Calendar.getInstance();
+                calendarYear.set(Calendar.DAY_OF_YEAR, 1); //Jan 1st of current year
+                Date firstDayOfYear = calendarYear.getTime();
+                List<Object> billingHistory = dbObj.getBillingHist(demographicNo, 1000000, 0, new DateRange(firstDayOfYear, today));
                 for (String code: codes){
-                    JdbcBillingReviewImpl dbObj = new JdbcBillingReviewImpl();
-                    List<Object> billingHistory = dbObj.getBillingHist(demographicNo, 1000000, 0,null);
-                    Calendar c = Calendar.getInstance();
-                    int currentYear = c.get(Calendar.YEAR);
                     for(int i=0; i<billingHistory.size(); i=i+2) {
-                        BillingClaimHeader1Data header1Data = (BillingClaimHeader1Data) billingHistory.get(i);
                         BillingItemData itemData = (BillingItemData) billingHistory.get(i + 1);
                         String strServiceCode = itemData.getService_code();
-                        int billingYear = Integer.parseInt(header1Data.getBilling_date().split("-")[0]);
-                        if (!code.equals("")) {
-                            if (strServiceCode.indexOf(code) < 0) {
-                                continue;
-                            } else if (strServiceCode.contains(code) && (billingYear == currentYear)) {
-                                count++;
-                            }
+                        if (strServiceCode.contains(code)) {
+                            //count number of times code appears(Not Eligible to Bill if reaches/exceeds annual limit)
+                            count++;
                         }
                     }
 

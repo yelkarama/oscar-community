@@ -266,6 +266,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 		private String origPrintDate = null;
 		private String numPrint = null;
 		private String imgPath;
+		private String electronicSignature;
 		private String pharmaName;
 		private String pharmaTel;
 		private String pharmaFax;
@@ -280,7 +281,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 		}
 
         public EndPage(String clinicName, String clinicTel, String clinicFax, String patientPhone, String patientCityPostal, String patientAddress,
-                String patientName,String patientDOB, String sigDoctorName, String rxDate,String origPrintDate,String numPrint, String imgPath, String patientHIN, String patientChartNo, String bandNumber, String pracNo, String pharmaName, String pharmaAddress1, String pharmaAddress2, String pharmaTel, String pharmaFax, String pharmaEmail, String pharmaNote, boolean pharmaShow, Locale locale) {
+                String patientName,String patientDOB, String sigDoctorName, String rxDate,String origPrintDate,String numPrint, String imgPath, String electronicSignature, String patientHIN, String patientChartNo, String bandNumber, String pracNo, String pharmaName, String pharmaAddress1, String pharmaAddress2, String pharmaTel, String pharmaFax, String pharmaEmail, String pharmaNote, boolean pharmaShow, Locale locale) {
 			this.clinicName = clinicName==null ? "" : clinicName;
 			this.clinicTel = clinicTel==null ? "" : clinicTel;
 			this.clinicFax = clinicFax==null ? "" : clinicFax;
@@ -298,6 +299,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 				promoText = "";
 			}
 			this.imgPath = imgPath;
+			this.electronicSignature = electronicSignature;
 			this.patientHIN = patientHIN==null ? "" : patientHIN;
 			this.patientChartNo = patientChartNo==null ? "" : patientChartNo;
 			this.bandNumber = bandNumber;
@@ -323,6 +325,39 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 			cb.setFontAndSize(bf, fontSize);
 			cb.showTextAligned(alignment, text, x, y, rotation);
 			cb.endText();
+		}
+		public void writeDirectContentWrapText(PdfContentByte cb, BaseFont bf, float fontSize, int alignment, String text, float x, float y, float rotation) {
+			cb.beginText();
+			cb.setFontAndSize(bf, fontSize);
+			// Split the note's text onto separate so it does not get cut off if it is too long
+			int startNote = 0;
+			int endNote = 0;
+			for (int wrapPoint : findWrapPoints(text) ) {
+				// Find wrap points of the long text to display them on separate lines
+				float width = bf.getWidth(text.substring(startNote,wrapPoint)) / 1000 * fontSize;
+				if (startNote < endNote && width > x) {
+					// Write out each line lower than the previous
+					cb.moveText(15, y);
+					cb.showTextAligned(alignment, text.substring(startNote,endNote), x, y, rotation);
+					y += (bf.getDescentPoint(text.substring(wrapPoint), fontSize) - (bf.getAscentPoint(text.substring(wrapPoint), fontSize)));
+					startNote = endNote;
+				}
+				endNote = wrapPoint;
+			}
+			// Write out last line
+			cb.moveText(10, y);
+			cb.showTextAligned(alignment, text.substring(startNote), x, y, rotation);
+			cb.endText();
+		}
+
+		private int[] findWrapPoints(String text) {
+			String[] lines = text.split("(?<=\\W)");
+			int[] wrapPoints = new int[lines.length];
+			wrapPoints[0] = lines[0].length();
+			for (int i = 1 ; i < lines.length ; i++){
+				wrapPoints[i] = wrapPoints[i-1] + lines[i].length();
+			}
+			return wrapPoints;
 		}
 		
 		private String geti18nTagValue(Locale locale, String tag) {
@@ -425,15 +460,18 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 						writeDirectContent(cb,bf,10,PdfContentByte.ALIGN_LEFT,"Tel:" + this.pharmaTel,290,(page.getHeight()-66),0);
 						writeDirectContent(cb,bf,10,PdfContentByte.ALIGN_LEFT,"Fax:" + this.pharmaFax,290,(page.getHeight()-78),0);
 						writeDirectContent(cb,bf,10,PdfContentByte.ALIGN_LEFT,"Email:" + this.pharmaEmail,290,(page.getHeight()-90),0);
-						writeDirectContent(cb,bf,10,PdfContentByte.ALIGN_LEFT,"Note:" + this.pharmaNote,290,(page.getHeight()-102),0);
+						writeDirectContentWrapText(cb,bf,10,PdfContentByte.ALIGN_LEFT,"Note:" + this.pharmaNote,290,(page.getHeight()-102),0);
 					}
 					// get the end of paragraph
 					endPara = writer.getVerticalPosition(true);
+					if (document.getPageSize().getWidth() == PageSize.A6.getWidth() && document.getPageSize().getHeight() == PageSize.A6.getHeight()) {
+						endPara = endPara + 10;
+					}
 					// draw left line
 					cb.setRGBColorStrokeF(0f, 0f, 0f);
 					cb.setLineWidth(0.5f);
 					// cb.moveTo(13f, 20f);
-					cb.moveTo(13f, endPara - 60);
+					cb.moveTo(13f, endPara - 90);
 					cb.lineTo(13f, height - 15f);
 					cb.stroke();
 
@@ -441,7 +479,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 					cb.setRGBColorStrokeF(0f, 0f, 0f);
 					cb.setLineWidth(0.5f);
 					// cb.moveTo(285f, 20f);
-					cb.moveTo(285f, endPara - 60);
+					cb.moveTo(285f, endPara - 90);
 					cb.lineTo(285f, height - 15f);
 					cb.stroke();
 					// draw top line 10, 405, 285, 405, 0.5
@@ -456,38 +494,43 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 					cb.setLineWidth(0.5f);
 					// cb.moveTo(13f, 20f);
 					// cb.lineTo(285f, 20f);
-					cb.moveTo(13f, endPara - 60);
-					cb.lineTo(285f, endPara - 60);
+					cb.moveTo(13f, endPara - 90);
+					cb.lineTo(285f, endPara - 90);
 					cb.stroke();
 					// Render "Signature:"
-					writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, geti18nTagValue(locale, "RxPreview.msgSignature"), 20f, endPara - 30f, 0);// Render line for Signature 75, 55, 280, 55, 0.5
+					writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, geti18nTagValue(locale, "RxPreview.msgSignature"), 20f, endPara - 60f, 0);// Render line for Signature 75, 55, 280, 55, 0.5
 					cb.setRGBColorStrokeF(0f, 0f, 0f);
 					cb.setLineWidth(0.5f);
 					// cb.moveTo(75f, 50f);
 					// cb.lineTo(280f, 50f);
-					cb.moveTo(75f, endPara - 30f);
-					cb.lineTo(280f, endPara - 30f);
+					cb.moveTo(75f, endPara - 60f);
+					cb.lineTo(280f, endPara - 60f);
 					cb.stroke();
 
-					if (this.imgPath != null) {
+					if (this.imgPath != null && !this.imgPath.equals("")) {
 						Image img = Image.getInstance(this.imgPath);
 						// image, image_width, 0, 0, image_height, x, y
 						//         131, 55, 375, 75, 0
-						cb.addImage(img, 157, 0, 0, 40, 150f, endPara-30f);
+						cb.addImage(img, 150, 0, 0, 40, 100f, endPara-55f);
+					} else if (this.electronicSignature != null && !this.electronicSignature.equals("")) {
+						//PdfContentByte
+						String[] lines = this.electronicSignature.split(System.getProperty("line.separator"));
+						writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, lines[0], 72f, endPara - 48f, 0);
+						writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, lines[1], 72f, endPara - 57f, 0);
 					}
 
 					// Render doctor name
-					writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, this.sigDoctorName, 90, endPara - 40f, 0);
+					writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, this.sigDoctorName, 90, endPara - 75f, 0);
 					// public void writeDirectContent(PdfContentByte cb, BaseFont bf, float fontSize, int alignment, String text, float x, float y, float rotation)
 					// render reprint origPrintDate and numPrint
 					if (origPrintDate != null && numPrint != null) {
-						String rePrintStr = geti18nTagValue(locale, "RxPreview.msgReprintBy")+" " + this.sigDoctorName + "; "+geti18nTagValue(locale, "RxPreview.msgOrigPrinted")+": " + origPrintDate + "; "+geti18nTagValue(locale, "RxPreview.msgTimesPrinted") +": " + numPrint;writeDirectContent(cb, bf, 6, PdfContentByte.ALIGN_LEFT, rePrintStr, 50, endPara - 48, 0);
+						String rePrintStr = geti18nTagValue(locale, "RxPreview.msgReprintBy")+" " + this.sigDoctorName + "; "+geti18nTagValue(locale, "RxPreview.msgOrigPrinted")+": " + origPrintDate + "; "+geti18nTagValue(locale, "RxPreview.msgTimesPrinted") +": " + numPrint;writeDirectContent(cb, bf, 6, PdfContentByte.ALIGN_LEFT, rePrintStr, 45, endPara - 67, 0);
 					}
 					// print promoText
-					writeDirectContent(cb, bf, 6, PdfContentByte.ALIGN_LEFT, this.promoText, 70, endPara - 57, 0);
+					writeDirectContent(cb, bf, 6, PdfContentByte.ALIGN_LEFT, this.promoText, 70, endPara - 82, 0);
 					// print page number
 					String footer = "" + writer.getPageNumber();
-					writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_RIGHT, footer, 280, endPara - 57, 0);
+					writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_RIGHT, footer, 280, endPara - 82, 0);
                 }
 			} catch (Exception e) {
 				logger.error("Error", e);
@@ -577,6 +620,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
         String patientDOB=req.getParameter("patientDOB");
         String showPatientDOB=req.getParameter("showPatientDOB");
         String imgFile=req.getParameter("imgFile");
+        String electronicSignature = req.getParameter("electronicSignature");
         String patientHIN=req.getParameter("patientHIN");
         String patientChartNo = req.getParameter("patientChartNo");
         String patientBandNumber = req.getParameter("bandNumber");
@@ -629,6 +673,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 			}
 
 		}
+		if (!listElem.equals("")) { listRx.add(listElem); }
 
 		// get the print prop values
 		Properties props = new Properties();
@@ -693,7 +738,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 
 			// writer = PdfWriter.getInstance(document, baosPDF);
 			writer = PdfWriterFactory.newInstance(document, baosPDF, FontSettings.HELVETICA_10PT);
-			writer.setPageEvent(new EndPage(clinicName, clinicTel, clinicFax, patientPhone, patientCityPostal, patientAddress, patientName,patientDOB, sigDoctorName, rxDate, origPrintDate, numPrint, imgFile, patientHIN, patientChartNo, patientBandNumber, pracNo, pharmaName, pharmaAddress1, pharmaAddress2, pharmaTel, pharmaFax, pharmaEmail, pharmaNote, pharmaShow, locale));
+			writer.setPageEvent(new EndPage(clinicName, clinicTel, clinicFax, patientPhone, patientCityPostal, patientAddress, patientName,patientDOB, sigDoctorName, rxDate, origPrintDate, numPrint, imgFile, electronicSignature, patientHIN, patientChartNo, patientBandNumber, pracNo, pharmaName, pharmaAddress1, pharmaAddress2, pharmaTel, pharmaFax, pharmaEmail, pharmaNote, pharmaShow, locale));
 			document.addTitle(title);
 			document.addSubject("");
 			document.addKeywords("pdf, itext");

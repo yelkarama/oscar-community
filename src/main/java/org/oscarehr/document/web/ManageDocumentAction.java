@@ -977,7 +977,11 @@ public class ManageDocumentAction extends DispatchAction {
 			if (file.exists()) {
 				contentBytes = FileUtils.readFileToByteArray(file);
 			} else {
-				throw new IllegalStateException("Local document doesn't exist for eDoc (ID " + d.getId() + "): " + file.getAbsolutePath());
+				if (docxml==null || docxml.trim().equals("")){
+					// Only throw exception if the file does not exist and the docxml is null/empty to serve HTML files that were uploaded in OSCAR 12,
+					// where HTML file uploads contents were stored in the docxml field of the document table, and the file was never saved.
+					throw new IllegalStateException("Local document doesn't exist for eDoc (ID " + d.getId() + "): " + file.getAbsolutePath());
+				}
 			}
 		} else // remote document
 		{

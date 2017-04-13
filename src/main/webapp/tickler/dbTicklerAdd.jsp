@@ -36,6 +36,15 @@
 <%@page import="org.oscarehr.util.MiscUtils"%>
 <%@ page import="org.oscarehr.util.LoggedInInfo" %>
 <%@ page import="org.oscarehr.managers.TicklerManager" %>
+<%@ page import="java.util.GregorianCalendar" %>
+<%@ page import="java.util.Calendar" %>
+<%@ page import="org.oscarehr.casemgmt.model.CaseManagementNote" %>
+<%@ page import="java.util.Date" %>
+<%@ page import="org.oscarehr.casemgmt.service.CaseManagementManager" %>
+<%@ page import="oscar.oscarEncounter.data.EctProgram" %>
+<%@ page import="org.oscarehr.common.dao.SecRoleDao" %>
+<%@ page import="org.oscarehr.common.model.SecRole" %>
+<%@ page import="java.util.Locale" %>
 
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
@@ -68,8 +77,13 @@ docassigned =request.getParameter("task_assigned_to");
 
 String docType =request.getParameter("docType");
 String docId = request.getParameter("docId");
-
-
+String writeToEncounter = request.getParameter("writeToEncounter");
+GregorianCalendar now=new GregorianCalendar();
+int curYear = now.get(Calendar.YEAR);
+int curMonth = (now.get(Calendar.MONTH)+1);
+String monthStr = now.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.CANADA);
+int curDay = now.get(Calendar.DAY_OF_MONTH);
+String dateString = curDay+"-"+monthStr+"-"+curYear;
 
 Tickler tickler = new Tickler();
     tickler.setDemographicNo(Integer.parseInt(module_id));
@@ -88,10 +102,8 @@ Tickler tickler = new Tickler();
 
    ticklerManager.addTickler(loggedInInfo,tickler);
 
-
+   int ticklerNo = tickler.getId();
    if (docType != null && docId != null && !docType.trim().equals("") && !docId.trim().equals("") && !docId.equalsIgnoreCase("null") ){
-
-      int ticklerNo = tickler.getId();
       if (ticklerNo > 0){
           try{
              TicklerLink tLink = new TicklerLink();
@@ -106,11 +118,46 @@ Tickler tickler = new Tickler();
       }
    }
 
+    if (writeToEncounter!=null && writeToEncounter.equals("true") && ticklerNo > 0){
+       // Create new note
+        CaseManagementManager caseManagementMgr = (CaseManagementManager) SpringUtils.getBean("caseManagementManager");
+        CaseManagementNote note = new CaseManagementNote();
+        String noteBody = "["+dateString+" .: Tickler]\n\n"+docfilename;
+        Date today = new Date();
+        note.setObservation_date(today);
+        note.setUpdate_date(today);
+        note.setCreate_date(today);
+        note.setDemographic_no(module_id);
+        note.setProvider(loggedInInfo.getLoggedInProvider());
+        note.setProviderNo(loggedInInfo.getLoggedInProviderNo());
+        note.setSigned(false);
+        note.setSigning_provider_no("");
+        note.setProgram_no(new EctProgram(session).getProgram(session.getAttribute("user").toString()));
+        note.setNote(noteBody);
+
+        SecRoleDao secRoleDao = (SecRoleDao) SpringUtils.getBean("secRoleDao");
+        SecRole doctorRole = secRoleDao.findByName("doctor");
+        note.setReporter_caisi_role(doctorRole.getId().toString());
+
+        note.setReporter_program_team("0");
+        note.setPassword(null);
+        note.setLocked(false);
+        note.setHistory(noteBody);
+
+        caseManagementMgr.saveNoteSimple(note);
+%>
+<script>
+    var windowFeatures = "height=700,width=960";
+    // Open encounter window
+    window.open('../oscarEncounter/IncomingEncounter.do?demographicNo=<%=module_id%>&providerNo=<%=loggedInInfo.getLoggedInProviderNo()%>&curDate=<%=curYear%>-<%=curMonth%>-<%=curDay%>&encType=&status=', '', windowFeatures)
+</script>
+<%
+    }
+
    boolean rowsAffected = true;
 
 String parentAjaxId = request.getParameter("parentAjaxId");
 String updateParent = request.getParameter("updateParent");
-
 if (rowsAffected ){
 %>
 <script LANGUAGE="JavaScript">

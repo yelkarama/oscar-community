@@ -35,10 +35,12 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 import org.apache.struts.actions.DispatchAction;
 import org.apache.struts.util.LabelValueBean;
+import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.dao.CtlBillingServiceDao;
 import org.oscarehr.common.dao.QueueDao;
 import org.oscarehr.common.dao.UserPropertyDAO;
 import org.oscarehr.common.model.Facility;
+import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.model.UserProperty;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
@@ -2330,11 +2332,11 @@ public ActionForward viewEDocBrowserInDocumentReport(ActionMapping actionmapping
     }
 
     
-    public ActionForward viewBornPrefs(ActionMapping actionmapping,ActionForm actionform,HttpServletRequest request, HttpServletResponse response) {
+    public ActionForward viewDashboardPrefs(ActionMapping actionmapping,ActionForm actionform,HttpServletRequest request, HttpServletResponse response) {
     	DynaActionForm frm = (DynaActionForm)actionform;
 		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 		String providerNo=loggedInInfo.getLoggedInProviderNo();
-		UserProperty prop = this.userPropertyDAO.getProp(providerNo, UserProperty.DISABLE_BORN_PROMPTS);
+		UserProperty prop = this.userPropertyDAO.getProp(providerNo, UserProperty.DASHBOARD_SHARE);
 
 		String propValue="";
 		if (prop == null){
@@ -2344,57 +2346,57 @@ public ActionForward viewEDocBrowserInDocumentReport(ActionMapping actionmapping
 		}
 
 		boolean checked;
-		if(propValue.equals("Y"))
+		if(propValue.equals("true"))
 			checked=true;
 		else
 			checked=false;
 
 		prop.setChecked(checked);
-		request.setAttribute("bornPromptsProperty", prop);
-		request.setAttribute("providertitle","provider.bornPrefs.title"); 
-		request.setAttribute("providermsgPrefs","provider.bornPrefs.msgPrefs"); //=Preferences
-		request.setAttribute("providerbtnSubmit","provider.bornPrefs.btnSubmit"); //=Save
-		request.setAttribute("providerbtnCancel","provider.bornPrefs.btnCancel"); //=Cancel
-		request.setAttribute("method","saveBornPrefs");
+		request.setAttribute("dashboardShareProperty", prop);
+		request.setAttribute("providertitle","provider.dashboardPrefs.title"); 
+		request.setAttribute("providermsgPrefs","provider.dashboardPrefs.msgPrefs"); //=Preferences
+		request.setAttribute("providerbtnSubmit","provider.dashboardPrefs.btnSubmit"); //=Save
+		request.setAttribute("providerbtnCancel","provider.dashboardPrefs.btnCancel"); //=Cancel
+		request.setAttribute("method","saveDashboardPrefs");
 
-		frm.set("bornPromptsProperty", prop);
+		frm.set("dashboardShareProperty", prop);
 
-		return actionmapping.findForward("genBornPrefs");
+		return actionmapping.findForward("genDashboardPrefs");
     }
 
-    public ActionForward saveBornPrefs(ActionMapping actionmapping,ActionForm actionform, HttpServletRequest request, HttpServletResponse response) {
+    public ActionForward saveDashboardPrefs(ActionMapping actionmapping,ActionForm actionform, HttpServletRequest request, HttpServletResponse response) {
     	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 		String providerNo=loggedInInfo.getLoggedInProviderNo();
     	DynaActionForm frm=(DynaActionForm)actionform;
-    	UserProperty Uprop=(UserProperty)frm.get("bornPromptsProperty");
+    	UserProperty Uprop=(UserProperty)frm.get("dashboardShareProperty");
 
 		boolean checked=false;
 		if(Uprop!=null)
 			checked = Uprop.isChecked();
-		UserProperty prop=this.userPropertyDAO.getProp(providerNo, UserProperty.DISABLE_BORN_PROMPTS);
+		UserProperty prop=this.userPropertyDAO.getProp(providerNo, UserProperty.DASHBOARD_SHARE);
 		if(prop==null){
 			prop=new UserProperty();
-			prop.setName(UserProperty.DISABLE_BORN_PROMPTS);
+			prop.setName(UserProperty.DASHBOARD_SHARE);
 			prop.setProviderNo(providerNo);
 		}
-		String propValue="N";
-		if(checked) propValue="Y";
+		String propValue="false";
+		if(checked) propValue="true";
 
 		prop.setValue(propValue);
 		this.userPropertyDAO.saveProp(prop);
 
 		request.setAttribute("status", "success");
-		request.setAttribute("bornPromptsProperty",prop);
-		request.setAttribute("providertitle","provider.bornPrefs.title"); 
-		request.setAttribute("providermsgPrefs","provider.bornPrefs.msgPrefs"); //=Preferences
-		request.setAttribute("providerbtnClose","provider.bornPrefs.btnClose"); //=Close
+		request.setAttribute("dashboardShareProperty",prop);
+		request.setAttribute("providertitle","provider.dashboardPrefs.title"); 
+		request.setAttribute("providermsgPrefs","provider.dashboardPrefs.msgPrefs"); //=Preferences
+		request.setAttribute("providerbtnClose","provider.dashboardPrefs.btnClose"); //=Close
 		if(checked)
-			request.setAttribute("providermsgSuccess","provider.bornPrefs.msgSuccess_selected"); 
+			request.setAttribute("providermsgSuccess","provider.dashboardPrefs.msgSuccess_selected"); 
 		else
-			request.setAttribute("providermsgSuccess","provider.bornPrefs.msgSuccess_unselected"); 
-		request.setAttribute("method","saveBornPrefs");
+			request.setAttribute("providermsgSuccess","provider.dashboardPrefs.msgSuccess_unselected"); 
+		request.setAttribute("method","saveDashboardPrefs");
 
-		return actionmapping.findForward("genBornPrefs");
+		return actionmapping.findForward("genDashboardPrefs");
 	}
 
     public ActionForward viewAppointmentCardPrefs(ActionMapping actionmapping,ActionForm actionform,HttpServletRequest request, HttpServletResponse response) {
@@ -2488,6 +2490,73 @@ public ActionForward viewEDocBrowserInDocumentReport(ActionMapping actionmapping
 
 		return actionmapping.findForward("genAppointmentCardPrefs");
 	}
+    
+    public ActionForward viewBornPrefs(ActionMapping actionmapping,ActionForm actionform,HttpServletRequest request, HttpServletResponse response) {
+    	DynaActionForm frm = (DynaActionForm)actionform;
+		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+		String providerNo=loggedInInfo.getLoggedInProviderNo();
+		UserProperty prop = this.userPropertyDAO.getProp(providerNo, UserProperty.DISABLE_BORN_PROMPTS);
+
+		String propValue="";
+		if (prop == null){
+			prop = new UserProperty();
+		}else{
+			propValue=prop.getValue();
+		}
+
+		boolean checked;
+		if(propValue.equals("Y"))
+			checked=true;
+		else
+			checked=false;
+
+		prop.setChecked(checked);
+		request.setAttribute("bornPromptsProperty", prop);
+		request.setAttribute("providertitle","provider.bornPrefs.title"); 
+		request.setAttribute("providermsgPrefs","provider.bornPrefs.msgPrefs"); //=Preferences
+		request.setAttribute("providerbtnSubmit","provider.bornPrefs.btnSubmit"); //=Save
+		request.setAttribute("providerbtnCancel","provider.bornPrefs.btnCancel"); //=Cancel
+		request.setAttribute("method","saveBornPrefs");
+
+		frm.set("bornPromptsProperty", prop);
+
+		return actionmapping.findForward("genBornPrefs");
+    }
+
+    public ActionForward saveBornPrefs(ActionMapping actionmapping,ActionForm actionform, HttpServletRequest request, HttpServletResponse response) {
+    	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+		String providerNo=loggedInInfo.getLoggedInProviderNo();
+    	DynaActionForm frm=(DynaActionForm)actionform;
+    	UserProperty Uprop=(UserProperty)frm.get("bornPromptsProperty");
+
+		boolean checked=false;
+		if(Uprop!=null)
+			checked = Uprop.isChecked();
+		UserProperty prop=this.userPropertyDAO.getProp(providerNo, UserProperty.DISABLE_BORN_PROMPTS);
+		if(prop==null){
+			prop=new UserProperty();
+			prop.setName(UserProperty.DISABLE_BORN_PROMPTS);
+			prop.setProviderNo(providerNo);
+		}
+		String propValue="N";
+		if(checked) propValue="Y";
+
+		prop.setValue(propValue);
+		this.userPropertyDAO.saveProp(prop);
+
+		request.setAttribute("status", "success");
+		request.setAttribute("bornPromptsProperty",prop);
+		request.setAttribute("providertitle","provider.bornPrefs.title"); 
+		request.setAttribute("providermsgPrefs","provider.bornPrefs.msgPrefs"); //=Preferences
+		request.setAttribute("providerbtnClose","provider.bornPrefs.btnClose"); //=Close
+		if(checked)
+			request.setAttribute("providermsgSuccess","provider.bornPrefs.msgSuccess_selected"); 
+		else
+			request.setAttribute("providermsgSuccess","provider.bornPrefs.msgSuccess_unselected"); 
+		request.setAttribute("method","saveBornPrefs");
+
+		return actionmapping.findForward("genBornPrefs");
+	}
 
     public ActionForward viewDefaultSearchMode(ActionMapping actionmapping, ActionForm actionform, HttpServletRequest request, HttpServletResponse response) {
 		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
@@ -2503,6 +2572,7 @@ public ActionForward viewEDocBrowserInDocumentReport(ActionMapping actionmapping
 		ArrayList<LabelValueBean> serviceList = new ArrayList<LabelValueBean>();
 		serviceList.add(new LabelValueBean(oscarResources.getString("demographic.zdemographicfulltitlesearch.formName"), "search_name"));
 		serviceList.add(new LabelValueBean(oscarResources.getString("demographic.zdemographicfulltitlesearch.formPhone"), "search_phone"));
+		serviceList.add(new LabelValueBean(oscarResources.getString("demographic.zdemographicfulltitlesearch.formCellPhone"), "search_cell_phone"));
 		serviceList.add(new LabelValueBean(oscarResources.getString("demographic.zdemographicfulltitlesearch.formDOB"), "search_dob"));
 		serviceList.add(new LabelValueBean(oscarResources.getString("demographic.zdemographicfulltitlesearch.formAddr"), "search_address"));
 		serviceList.add(new LabelValueBean(oscarResources.getString("demographic.zdemographicfulltitlesearch.formHIN"), "search_hin"));
@@ -2555,6 +2625,71 @@ public ActionForward viewEDocBrowserInDocumentReport(ActionMapping actionmapping
 		request.setAttribute("providerbtnSubmit","provider.btnSubmit");
 		request.setAttribute("providermsgSuccess","provider.setDefaultSearchMode.msgSuccess");
 		request.setAttribute("method","saveDefaultSearchMode");
+
+		return actionmapping.findForward("gen");
+	}
+
+	public ActionForward viewDefaultOhipProvider(ActionMapping actionmapping, ActionForm actionform, HttpServletRequest request, HttpServletResponse response) {
+		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+		ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
+		String providerNo = loggedInInfo.getLoggedInProviderNo();
+		ResourceBundle oscarResources = ResourceBundle.getBundle("oscarResources", Locale.ENGLISH);
+		DynaActionForm frm = (DynaActionForm)actionform;
+		UserProperty prop = this.userPropertyDAO.getProp(providerNo, UserProperty.DEFAULT_OHIP_PROVIDER);
+
+		if (prop == null){
+			prop = new UserProperty();
+		}
+
+		ArrayList<LabelValueBean> optionList = new ArrayList<LabelValueBean>();
+		List<Provider> providers = providerDao.getBillableProviders();
+		
+		optionList.add(new LabelValueBean("All Providers", "all"));
+		for (Provider provider : providers) {
+			optionList.add(new LabelValueBean(provider.getFormattedName(), provider.getProviderNo()));
+		}
+		
+		request.setAttribute("dropOpts",optionList);
+
+		request.setAttribute("dateProperty",prop);
+		request.setAttribute("providertitle","provider.setDefaultOhipProvider.title");
+		request.setAttribute("providermsgPrefs","provider.setDefaultOhipProvider.msgPrefs");
+		request.setAttribute("providermsgProvider","provider.setDefaultOhipProvider.msgDefaultText");
+		request.setAttribute("providermsgEdit","provider.setDefaultOhipProvider.msgEdit");
+		request.setAttribute("providerbtnSubmit","provider.setDefaultOhipProvider.btnSubmit");
+		request.setAttribute("providermsgSuccess","provider.setDefaultOhipProvider.msgSuccess");
+		request.setAttribute("method","saveDefaultOhipProvider");
+
+		frm.set("dateProperty", prop);
+
+		return  actionmapping.findForward("gen");
+	}
+	public ActionForward saveDefaultOhipProvider(ActionMapping actionmapping, ActionForm actionform, HttpServletRequest request, HttpServletResponse response) {
+		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+		String providerNo=loggedInInfo.getLoggedInProviderNo();
+
+		DynaActionForm frm = (DynaActionForm)actionform;
+		UserProperty prop = (UserProperty)frm.get("dateProperty");
+		String fmt = prop != null ? prop.getValue() : "";
+		UserProperty saveProperty = this.userPropertyDAO.getProp(providerNo,UserProperty.DEFAULT_OHIP_PROVIDER);
+
+		if( saveProperty == null ) {
+			saveProperty = new UserProperty();
+			saveProperty.setProviderNo(providerNo);
+			saveProperty.setName(UserProperty.DEFAULT_OHIP_PROVIDER);
+		}
+
+		saveProperty.setValue(fmt);
+		this.userPropertyDAO.saveProp(saveProperty);
+
+		request.setAttribute("status", "success");
+		request.setAttribute("providertitle","provider.setDefaultOhipProvider.title");
+		request.setAttribute("providermsgPrefs","provider.setDefaultOhipProvider.msgPrefs");
+		request.setAttribute("providermsgProvider","provider.setDefaultOhipProvider.msgDefaultText");
+		request.setAttribute("providermsgEdit","provider.setDefaultOhipProvider.msgEdit");
+		request.setAttribute("providerbtnSubmit","provider.setDefaultOhipProvider.btnSubmit");
+		request.setAttribute("providermsgSuccess","provider.setDefaultOhipProvider.msgSuccess");
+		request.setAttribute("method","saveDefaultOhipProvider");
 
 		return actionmapping.findForward("gen");
 	}

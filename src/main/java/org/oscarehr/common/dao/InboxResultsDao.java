@@ -230,6 +230,7 @@ public class InboxResultsDao {
 							+ " LEFT JOIN demographic d "
 							+ " ON d.demographic_no = -1 "
 							+ " WHERE X.lab_type = 'DOC' AND doc.document_no = X.lab_no " + dateSql
+							+ " GROUP BY doc.document_no"
 							+ " ORDER BY doc.observationdate DESC, doc.document_no DESC "
 							+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 
@@ -267,6 +268,7 @@ public class InboxResultsDao {
 							+ " WHERE X.lab_type = 'DOC' and X.id = plr.id and doc.document_no = plr.lab_no and d.demographic_no = '"
 							+ demographicNo + "' "
 							+ dateSql
+							+ " GROUP BY doc.document_no"
 							+ " ORDER BY doc.observationdate DESC, doc.document_no DESC "
 							+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 				} else if (patientSearch) { // N arg
@@ -315,6 +317,7 @@ public class InboxResultsDao {
 							+ " 	  ) AS Z  "
 							+ " WHERE Z.lab_type = 'DOC' and Z.id = plr.id and doc.document_no = plr.lab_no and d.demographic_no = Z.demographic_no "
 							+ dateSql
+							+ " GROUP BY doc.document_no"
 							+ " ORDER BY doc.observationdate DESC, doc.document_no DESC "
 							+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 
@@ -344,27 +347,27 @@ public class InboxResultsDao {
 							+ "FROM demographic d) AS Z "
 							+ "ON Y.module_id = Z.demographic_no "
 							+ "WHERE doc.document_no = plr.lab_no" + dateSql
+							+ " GROUP BY doc.document_no"
 							+ " ORDER BY observationdate DESC "
 							+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 				}
 			} else { // Don't mix labs and docs.
 				if ("0".equals(demographicNo)) {
 					docNoLoc = 1; statusLoc = 2; docTypeLoc = 5; lastNameLoc = 6; firstNameLoc = 7; hinLoc = 8; sexLoc = 9; moduleLoc = 3; obsDateLoc = 4; descriptionLoc = 10; updateDateLoc = 11;
-					sql = " SELECT id, document_no, status, demographic_no as module_id, observationdate, doctype, last_name, first_name, hin, sex, docdesc, updateDateLoc"
-							+ " FROM "
-							+ " (SELECT plr.id, doc.document_no, plr.status, observationdate, plr.lab_type as doctype, doc.doctype as description, date(doc.updatedatetime) as updateDateLoc, docdesc"
-							+ " FROM providerLabRouting plr, document doc"
+					sql = "SELECT plr.id, doc.document_no, plr.status, demographic_no as module_id, observationdate, plr.lab_type as doctype, last_name, first_name, hin, sex, docdesc, date(doc.updatedatetime) as updateDateLoc"
+							+ " FROM providerLabRouting plr"
+							+ " LEFT JOIN document doc ON doc.document_no = plr.lab_no"
+							+ " RIGHT JOIN ctl_document cd ON cd.document_no = plr.lab_no AND cd.module_id = -1"
+							+ " LEFT JOIN demographic d ON d.demographic_no = -1"
 							+ " WHERE plr.lab_type = 'DOC' "
 							+ " AND plr.status like '%"
 							+ status
 							+ "%'  "
-							+ " AND plr.provider_no = '0' "
-							+ " AND doc.document_no = plr.lab_no"
+							+ (searchProvider ? " AND plr.provider_no = '" + providerNo + "' " : "")
 							+ dateSql
-							+ " ORDER BY doc.observationdate DESC 	"
-							+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "")
-							+ ") as X"
-							+ " LEFT JOIN demographic d" + " ON d.demographic_no = -1";
+							+ " GROUP BY doc.document_no"
+							+ " ORDER BY doc.observationdate DESC "
+							+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 				} else if (demographicNo != null && !"".equals(demographicNo)) {
 					docNoLoc = 1; statusLoc = 2; docTypeLoc = 9; lastNameLoc = 3; firstNameLoc = 4; hinLoc = 5; sexLoc = 6; moduleLoc = 7; obsDateLoc = 8; descriptionLoc = 10; updateDateLoc = 11;
 					sql = "SELECT plr.id, doc.document_no, plr.status, last_name, first_name, hin, sex, module_id, observationdate, plr.lab_type as doctype, doc.doctype as description, date(doc.updatedatetime) "
@@ -381,6 +384,7 @@ public class InboxResultsDao {
 							+ (searchProvider ? " AND plr.provider_no = '" + providerNo + "' " : "")
 							+ "	AND doc.document_no = cd.document_no "
 							+ dateSql
+							+ " GROUP BY doc.document_no"
 							+ " ORDER BY doc.observationdate DESC "
 							+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 				} else if (patientSearch) {
@@ -403,6 +407,7 @@ public class InboxResultsDao {
 							+ (searchProvider ? " AND plr.provider_no = '" + providerNo + "' " : "")
 							+ "	AND doc.document_no = cd.document_no "
 							+ dateSql
+							+ " GROUP BY doc.document_no"
 							+ " ORDER BY doc.observationdate DESC "
 							+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 				} else {
@@ -429,7 +434,9 @@ public class InboxResultsDao {
 							+ " AND d.document_no = cd.document_no " 
 							+ dateSql.replace("doc.", "d.") + " ) AS X " + " LEFT JOIN demographic d "
 							+ " ON d.demographic_no = -1"
-							+ ") AS X " + " ORDER BY observationdate DESC "
+							+ ") AS X "
+							+ " GROUP BY document_no"
+							+ " ORDER BY observationdate DESC "
 							+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 				}
 			}

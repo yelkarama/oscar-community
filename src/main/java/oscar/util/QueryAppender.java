@@ -37,6 +37,8 @@ public class QueryAppender {
 	
 	private Appender orderBuffer = new Appender(",");
 
+	private Appender groupBuffer = new Appender(",");
+
 	/**
 	 * Creates a new instance and sets the empty base query
 	 */
@@ -170,6 +172,11 @@ public class QueryAppender {
 			appender.append("WHERE");
 			appender.append(getWhereClause());
 		}
+
+		if (getGroupBuffer().getBuffer().length() != 0){
+			appender.append("GROUP BY");
+			appender.append(getGroupBuffer());
+		}
 		
 		if (getOrderBuffer().getBuffer().length() != 0) {
 			appender.append("ORDER BY");
@@ -225,5 +232,13 @@ public class QueryAppender {
 
 	protected void setOrderBuffer(Appender orderBuffer) {
 		this.orderBuffer = orderBuffer;
+	}
+
+	public void addGroup(String group){
+		getGroupBuffer().append(group);
+	}
+
+	protected Appender getGroupBuffer() {
+		return groupBuffer;
 	}
 }

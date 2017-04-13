@@ -125,7 +125,6 @@ public class FormsDao {
 		return results;
 	}
 	
-	
 	@NativeSql("formONAR")
 	public List<Object[]> select_formar(String beginEdd, String endEdd, int limit, int offset) {
 		String sql = "select ID, demographic_no, c_finalEDB, concat(c_lastname,\",\",c_firstname) as c_pName, pg1_age, c_gravida, c_term, pg1_homePhone, provider_no from formONAR where c_finalEDB >= ? and c_finalEDB <= ? order by c_finalEDB desc";
@@ -141,6 +140,24 @@ public class FormsDao {
 	@NativeSql("formONAR")
 	public List<Object[]> select_formar2(String beginEdd, String endEdd, int limit, int offset) {
 		String sql = "select ID, demographic_no, c_finalEDB, concat(c_lastName,\",\",c_firstName) as c_pName, pg1_age, c_gravida, c_term, pg1_homePhone, provider_no from formONAREnhancedRecord where c_finalEDB >= ? and c_finalEDB <= ? order by c_finalEDB desc";
+		Query query = entityManager.createNativeQuery(sql);
+		query.setParameter(1, beginEdd);
+		query.setParameter(2, endEdd);
+		query.setMaxResults(limit);
+		query.setFirstResult(offset);
+		
+		return query.getResultList();
+	}
+	
+	@NativeSql("formONAR")
+	public List<Object[]> selectFromArAndArEnchanced(String beginEdd, String endEdd, int limit, int offset) {
+		String sql = "select a.* from "
+				+"((select ID, demographic_no, c_finalEDB, concat(c_lastName, ', ',c_firstName) as c_pName, pg1_age, c_gravida, c_term, pg1_homePhone, provider_no, formCreated from formONAREnhancedRecord where c_finalEDB is not null) "
+				+"UNION ALL (select ID, demographic_no, c_finalEDB, concat(c_lastName, ', ',c_firstName) as c_pName, pg1_age, c_gravida, c_term, pg1_homePhone, provider_no, formCreated from formONAR where c_finalEDB is not null)) a "
+				+"LEFT JOIN ((select ID, demographic_no, c_finalEDB, concat(c_lastName, ', ',c_firstName) as c_pName, pg1_age, c_gravida, c_term, pg1_homePhone, provider_no, formCreated from formONAREnhancedRecord where c_finalEDB is not null) "
+				+"UNION ALL (select ID, demographic_no, c_finalEDB, concat(c_lastName, ', ',c_firstName) as c_pName, pg1_age, c_gravida, c_term, pg1_homePhone, provider_no, formCreated from formONAR where c_finalEDB is not null)) b "
+				+"ON a.demographic_no = b.demographic_no AND (a.formCreated < b.formCreated OR (a.formCreated = b.formCreated AND a.ID < b.ID))"
+				+"WHERE b.formCreated is NULL AND a.c_finalEDB >= ? and a.c_finalEDB <= ?";
 		Query query = entityManager.createNativeQuery(sql);
 		query.setParameter(1, beginEdd);
 		query.setParameter(2, endEdd);

@@ -51,14 +51,30 @@ jQuery(document).ready(function(){
 //	jQuery("#navlist").append("<li><a href=\"../eyeform/ConsultationReportList.do\">ConReport</a></li>");
 	jQuery("<li><a href=\"#\" onclick=\"popupOscarRx(625,1024,'../eyeform/ConsultationReportList.do\');\" title\"View Consultation Reports\">ConReport</a></li>").insertAfter("#con");
 
-  // Disable link to new UI
-  jQuery('a[href="../web/"]').attr("href",'#');
-  
-  // Add KAI bar as appropriate
-  if (!SmartPhone.isMobile()) {
-    addKAIBar();
-  }
+	// Disable link to new UI
+	jQuery('a[href="../web/"]').attr("href",'#');
+	
+	// Add KAI bar as appropriate
+	if (!SmartPhone.isMobile()) {
+		addKAIBar();
+
+		addTableHeaderFloat();
+	}
 });
+
+function addTableHeaderFloat() {
+	if (jQuery('div#caseloadDiv').length) { //if on caseload screen
+		var table = jQuery('div#caseloadDiv');
+		var topPadding = jQuery('div.header-div').height();
+		table.css('padding-top', (topPadding + 2) + 'px');
+	} else if (typeof jQuery_3_1_0 != 'undefined' && jQuery_3_1_0().floatThead && jQuery('table#scheduleTable').length) { //if on schedule and floatThead enabled
+		var table = jQuery_3_1_0('table#scheduleTable');
+		var topPadding = jQuery_3_1_0('div.header-div').height();
+		table.css('padding-top', (topPadding) + 'px');
+		table.floatThead('destroy');
+		table.floatThead({top: topPadding});
+	}
+}
 
 
 function addKAIBar() {
@@ -85,9 +101,9 @@ function addKAIBar() {
 		        </div>
 		    </a>
 		</div>
-	</div>`
+	</div>`;
   
-  jQuery('head').append('<link rel="stylesheet" href="../js/custom/kai/kai_bar.css" type="text/css" />');
+  jQuery('head').append('<link rel="stylesheet" href="../js/custom/kai/kai_bar.css" type="text/css" onload="addTableHeaderFloat()"/>');
   var kaiBar = jQuery(kaiBarHTML);
   kaiBar.insertAfter('table#firstTable');
   

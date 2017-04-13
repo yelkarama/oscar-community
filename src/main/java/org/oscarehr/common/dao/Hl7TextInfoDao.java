@@ -253,31 +253,19 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 	    
 	    if (mixLabsAndDocs) {
 	    	if ("0".equals(demographicNo)) {
-	    		sql = " SELECT info.label, info.lab_no, info.sex, info.health_no, info.result_status, info.obr_date, info.priority, info.requesting_client, info.discipline, info.last_name, info.first_name, info.report_status, info.accessionNum, info.final_result_count, X.status "
-	    			+ " FROM hl7TextInfo info, "
-	    			+ " (SELECT plr.id, plr.lab_type, plr.lab_no, plr.status "
-	    			+ "  FROM patientLabRouting plr2, providerLabRouting plr, hl7TextInfo info "
-	    			+ "  WHERE plr.lab_no = plr2.lab_no "
-	    			+ (searchProvider ? " AND plr.provider_no = '"+providerNo+"' " : "")
-	    			+ "    AND plr.status like '%"+status+"%' "
-	    			+ "    AND plr.lab_type = 'HL7' "
-	    			+ "    AND plr2.lab_type = 'HL7' "
-	    			+ "    AND info.lab_no = plr.lab_no "
-	    			+ (isAbnormal != null && isAbnormal ? " AND info.result_status = 'A' " :
-	    				isAbnormal != null && !isAbnormal ? " AND (info.result_status IS NULL OR info.result_status != 'A') " : "")
-	    				+ " UNION "
-	    				+ " SELECT plr.id, plr.lab_type, plr.lab_no, plr.status "
-	    				+ " FROM ctl_document cd, providerLabRouting plr  "
-	    				+ " WHERE plr.lab_type = 'DOC' AND plr.status like '%"+status+"%' "
-	    				+ (searchProvider ? " AND plr.provider_no = '"+providerNo+"' " : "")
-	    				+ " AND plr.lab_no = cd.document_no "
-	    				+ " AND 	cd.module_id = -1 "
-	    				+ " ORDER BY id DESC "
-	    				+ " ) AS X "
-	    				+ " WHERE X.lab_type = 'HL7' AND X.lab_no = info.lab_no "
-	    				+ dateSql
-	    				+ " ORDER BY info.obr_date DESC "
-	    				+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
+				sql = " SELECT info.label, info.lab_no, info.sex, info.health_no, info.result_status, info.obr_date, info.priority, info.requesting_client, info.discipline, info.last_name, info.first_name, info.report_status,  info.accessionNum, info.final_result_count, plr.status "
+						+ " FROM patientLabRouting plr2"
+						+ " RIGHT JOIN providerLabRouting plr ON plr.lab_no = plr2.lab_no AND plr2.lab_type = 'HL7'"
+						+ " RIGHT JOIN hl7TextInfo info ON plr.lab_no = info.lab_no"
+						+ " WHERE plr.lab_type = 'HL7'"
+						+ (searchProvider ? " AND plr.provider_no = '"+providerNo+"' " : "")
+						+ " AND plr.status like '%"+status+"%' "
+						+ (isAbnormal != null && isAbnormal ? "AND info.result_status = 'A'" :
+						isAbnormal != null && !isAbnormal ? "AND (info.result_status IS NULL OR info.result_status != 'A')" : "")
+						+ dateSql
+						+ " AND (plr2.demographic_no IS NULL OR plr2.demographic_no = '0')"
+						+ " ORDER BY plr.id DESC "
+						+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 	    	}
 
 	    	else if (demographicNo != null && !"".equals(demographicNo)) {
@@ -362,16 +350,16 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 	    else {
 	    	if ("0".equals(demographicNo)) { // Unmatched labs
 	    		sql = " SELECT info.label, info.lab_no, info.sex, info.health_no, info.result_status, info.obr_date, info.priority, info.requesting_client, info.discipline, info.last_name, info.first_name, info.report_status,  info.accessionNum, info.final_result_count, plr.status "
-	    			+ " FROM patientLabRouting plr2, providerLabRouting plr, hl7TextInfo info "
-	    			+ " WHERE plr.lab_no = plr2.lab_no "
+	    			+ " FROM patientLabRouting plr2"
+					+ " RIGHT JOIN providerLabRouting plr ON plr.lab_no = plr2.lab_no AND plr2.lab_type = 'HL7'"
+					+ " RIGHT JOIN hl7TextInfo info ON plr.lab_no = info.lab_no"
+	    			+ " WHERE plr.lab_type = 'HL7'"
 	    			+ (searchProvider ? " AND plr.provider_no = '"+providerNo+"' " : "")
-	    			+ " AND plr.lab_type = 'HL7' "
 	    			+ " AND plr.status like '%"+status+"%' "
-	    			+ " AND plr2.lab_type = 'HL7' "
-	    			+ " AND plr.lab_no = info.lab_no "
 	    			+ (isAbnormal != null && isAbnormal ? "AND info.result_status = 'A'" :
 	    				isAbnormal != null && !isAbnormal ? "AND (info.result_status IS NULL OR info.result_status != 'A')" : "")
 	    			+ dateSql
+					+ " AND (plr2.demographic_no IS NULL OR plr2.demographic_no = '0')"
 	    				+ " ORDER BY plr.id DESC "
 	    				+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 	    	}

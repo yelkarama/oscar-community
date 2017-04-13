@@ -502,21 +502,6 @@
 			<%=getDisabled("email")%>
 			value="<%=demographic.getEmail()!=null? demographic.getEmail() : ""%>">
 		</td>
-		<td align="right"><b><bean:message
-					key="demographic.demographiceditdemographic.formPHRUserName" />: </b></td>
-		<td align="left"><input type="text" name="myOscarUserName"
-			size="30" <%=getDisabled("myOscarUserName")%>
-			value="<%=demographic.getMyOscarUserName()!=null? demographic.getMyOscarUserName() : ""%>"><br />
-			<%if (demographic.getMyOscarUserName()==null ||demographic.getMyOscarUserName().equals("")) {%>
-
-			<%
-									String onclickString="popup(900, 800, '../phr/indivo/RegisterIndivo.jsp?demographicNo="+demographic_no+"', 'indivoRegistration');";
-									MyOscarLoggedInInfo myOscarLoggedInInfo=MyOscarLoggedInInfo.getLoggedInInfo(session);
-									if (myOscarLoggedInInfo==null || !myOscarLoggedInInfo.isLoggedIn()) onclickString="alert('Please login to MyOscar first.')";
-								%> <a href="javascript:" onclick="<%=onclickString%>"><sub
-				style="white-space: nowrap;"><bean:message
-						key="demographic.demographiceditdemographic.msgRegisterPHR" /></sub></a> <%}%>
-		</td>
 	</tr>
 	<tr valign="top">
 		<td align="right"><b><bean:message

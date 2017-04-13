@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -12,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.Hl7TextMessageDao;
 import org.oscarehr.common.model.Hl7TextMessage;
+import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
@@ -35,6 +38,7 @@ import oscar.OscarProperties;
 import oscar.oscarLab.ca.all.Hl7textResultsData;
 import oscar.oscarLab.ca.all.parsers.Factory;
 import oscar.oscarLab.ca.all.parsers.OLISHL7Handler;
+import oscar.oscarLab.ca.all.util.Utilities;
 import oscar.util.UtilDateUtilities;
 
 
@@ -81,33 +85,64 @@ public class OLISLabPDFCreator extends PdfPageEventHelper{
 
     /** Creates a new instance of LabPDFCreator */
     public OLISLabPDFCreator(HttpServletRequest request, OutputStream os) {
-    	this(os, (request.getParameter("segmentID")!=null?request.getParameter("segmentID"):(String)request.getAttribute("segmentID")), (request.getParameter("providerNo")!=null?request.getParameter("providerNo"):(String)request.getAttribute("providerNo")));
+		this(os, request, request.getParameter("segmentID")!=null?request.getParameter("segmentID"):(String)request.getAttribute("segmentID"));
     }
 
-    public OLISLabPDFCreator(OutputStream os, String segmentId, String providerNo) {
+    public OLISLabPDFCreator(OutputStream os, HttpServletRequest request, String segmentId) {
         this.os = os;
         this.id = segmentId;
 
-      //Need date lab was received by OSCAR
-        Hl7TextMessageDao hl7TxtMsgDao = (Hl7TextMessageDao)SpringUtils.getBean("hl7TextMessageDao");
-        Hl7TextMessage hl7TextMessage = hl7TxtMsgDao.find(Integer.parseInt(segmentId));
-        java.util.Date date = hl7TextMessage.getCreated();
-        String stringFormat = "yyyy-MM-dd HH:mm";
-        dateLabReceived = UtilDateUtilities.DateToString(date, stringFormat);
-
-        // create handler
-        this.handler = (OLISHL7Handler) Factory.getHandler(id);
-
         // determine lab version
-        String multiLabId = Hl7textResultsData.getMatchingLabs(id);
-        this.multiID = multiLabId.split(",");
+		String multiLabId = Hl7textResultsData.getMatchingLabs(id);
+		this.multiID = multiLabId.split(",");
 
-        int i=0;
-        while (!multiID[i].equals(id)){
-            i++;
-        }
-        this.versionNum = i+1;
+		int i=0;
+		while (!multiID[i].equals(id)){
+			i++;
+		}
+		this.versionNum = i+1;
 
+        if(!segmentId.equals("0")){ // OLIS lab that is stored in chart has a segmentID that is not 0
+			//Need date lab was received by OSCAR
+			Hl7TextMessageDao hl7TxtMsgDao = (Hl7TextMessageDao)SpringUtils.getBean("hl7TextMessageDao");
+			Hl7TextMessage hl7TextMessage = hl7TxtMsgDao.find(Integer.parseInt(segmentId));
+			java.util.Date date = hl7TextMessage.getCreated();
+			String stringFormat = "yyyy-MM-dd HH:mm";
+			dateLabReceived = UtilDateUtilities.DateToString(date, stringFormat);
+
+			// create handler
+			this.handler = (OLISHL7Handler) Factory.getHandler(id);
+		}
+		else{ // OLIS lab not saved to chart has a segmentId of 0
+			LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+
+			String uuidToAdd = request.getParameter("uuid");
+			String fileName = System.getProperty("java.io.tmpdir") + "/olis_" + uuidToAdd + ".response";
+			String hl7Parsed = "";
+			try {
+				if (Files.exists(Paths.get(fileName))) {
+					ArrayList<String> hl7Body = Utilities.separateMessages(fileName);
+					for (String hl7Text : hl7Body){
+						hl7Parsed += hl7Text.replace("\\E\\", "\\SLASHHACK\\").replace("µ", "\\MUHACK\\").replace("\\H\\", "\\.H\\").replace("\\N\\", "\\.N\\");
+					}
+					// set
+					java.util.Date date = new java.util.Date();
+					String stringFormat = "yyyy-MM-dd HH:mm";
+					dateLabReceived = UtilDateUtilities.DateToString(date, stringFormat);
+					//create handler
+					this.handler = (OLISHL7Handler) Factory.getHandler("OLIS_HL7", hl7Parsed);
+				}
+			} catch (IOException ioe) {
+				//Reading file failed
+				MiscUtils.getLogger().error("Couldn't print requested OLIS lab.", ioe);
+				request.setAttribute("result", "Error");
+			}
+			catch (Exception e){
+				// separating message failed
+				MiscUtils.getLogger().error("Couldn't print requested OLIS lab.", e);
+				request.setAttribute("result", "Error");
+			}
+		}
     }
     
     public void printPdf() throws IOException, DocumentException{

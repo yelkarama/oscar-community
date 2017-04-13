@@ -245,7 +245,7 @@ public class BillingCorrectionAction extends DispatchAction{
         }            
     
  
-        if(request.getParameter("submit").equals("Save&Correct Another")){
+        if(request.getParameter("submit").equals("Save&Correct Another") || request.getParameter("submit").equalsIgnoreCase("Unlink Referral Doctor")){
             return mapping.findForward("closeReload");
         } else if(request.getParameter("adminSubmit")!=null){
         	return mapping.findForward("adminReload");
@@ -285,6 +285,7 @@ public class BillingCorrectionAction extends DispatchAction{
         bCh1.setDob(demo.getDateOfBirth());
         bCh1.setDemographicName(demo.getLastName() + "," + demo.getFirstName());
         bCh1.setSex(demo.getSex());
+        bCh1.setRefNum(request.getParameter("rdohip"));
         bCh1.setStatus("O");
         
         bCh1Dao.merge(bCh1);
@@ -350,8 +351,7 @@ public class BillingCorrectionAction extends DispatchAction{
             bCh1.setFaciltyNum(request.getParameter("clinic_ref_code"));                        
             bCh1.setManReview(manualReview);                        
             bCh1.setBillingDate(billingDate); 
-            if(visitDate!=null) 
-            	bCh1.setAdmissionDate(visitDate);
+            bCh1.setAdmissionDate(visitDate);
             bCh1.setProviderNo(request.getParameter("provider_no"));
             bCh1.setComment(request.getParameter("comment"));           
             bCh1.setProviderOhipNo(provider.getOhipNo());

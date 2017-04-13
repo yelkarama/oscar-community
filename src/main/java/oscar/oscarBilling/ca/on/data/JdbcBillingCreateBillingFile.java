@@ -336,7 +336,7 @@ public class JdbcBillingCreateBillingFile {
 	}
 
 	private String buildItem() {
-		String ret = itemObj.getTransc_id() + itemObj.getRec_id() + itemObj.getService_code() + space(2) + rightJustify("0", 6, itemObj.getFee().replaceAll("\\.", "")) + rightJustify("0", 2, itemObj.getSer_num()) + itemObj.getService_date().replaceAll("-", "") + leftJustify(" ", 4, itemObj.getDx()) + space(11) + space(5) + space(2) + space(6) + space(25);
+		String ret = itemObj.getTransc_id() + itemObj.getRec_id() + itemObj.getService_code() + space(2) + rightJustify("0", 6, itemObj.getFee().replaceAll("\\.", "")) + rightJustify("0", 2, itemObj.getSer_num().replaceAll("\\.", "")) + itemObj.getService_date().replaceAll("-", "") + leftJustify(" ", 4, itemObj.getDx()) + space(11) + space(5) + space(2) + space(6) + space(25);
 		if (ret.length() != 79) errorFatalMsg += "Item length wrong! - " + ch1Obj.getId() + "<br>";
 		return "\n" + ret + "\r";
 	}

@@ -34,6 +34,7 @@ import org.oscarehr.dashboard.query.Parameter;
 import org.oscarehr.dashboard.query.RangeInterface;
 import org.oscarehr.dashboard.query.RangeLowerLimit;
 import org.oscarehr.dashboard.query.RangeUpperLimit;
+import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -46,13 +47,16 @@ public class IndicatorTemplateXML {
 
 	private static Logger logger = MiscUtils.getLogger();
 	
-	private enum Root {heading, author, indicatorQuery, drillDownQuery}
+	private enum Root {heading, author, indicatorQuery, drillDownQuery, shared}
 	private enum Heading {category, subCategory, framework, frameworkVersion, name, definition, notes}
 	private enum Indicator {version, params, parameter, range, query}
 	private enum Drilldown {version, params, parameter, range, displayColumns, column, exportColumns, query}
 	private enum ParameterAttribute {id, name, value}
 	private enum ColumnAttribute {id, name, title, primary}
 	private enum RangeAttribute {id, label, name, value}
+	
+	private static enum ManditoryParameter { provider }
+	private static enum ProviderValueAlias { all, loggedinprovider }
 	public static enum RangeType {upperLimit, lowerLimit}
 		
 	private Integer id;
@@ -62,8 +66,18 @@ public class IndicatorTemplateXML {
 	private Node drillDownQueryNode;	
 	private String template;	
 	private String author;
+	private String shared;
+	private LoggedInInfo loggedInInfo;
+	
+	private String providerNo = null;
+	
 
-	public IndicatorTemplateXML( Document xmlDocument ) {		
+	public IndicatorTemplateXML( LoggedInInfo loggedInInfo, Document xmlDocument ) {
+		this( xmlDocument );
+		this.loggedInInfo = loggedInInfo;
+	}
+	
+	public IndicatorTemplateXML( Document xmlDocument ) {
 		xmlDocument.getDocumentElement().normalize();
 		setXmlDocument(xmlDocument);
 		setRootChildren();
@@ -91,6 +105,14 @@ public class IndicatorTemplateXML {
 			author = authorNode.item(0).getTextContent();
 		}
 		setAuthor( author );
+		
+		//Shared element is optional
+		NodeList sharedNode = getXmlDocument().getElementsByTagName( Root.shared.name() );
+		String shared = "";
+		if( sharedNode != null && sharedNode.getLength() > 0 ) {
+			shared = sharedNode.item(0).getTextContent();
+		}
+		setShared( shared );
 		
 		// Required nodes - instantiation will fail if these nodes are missing.
 		setHeadingNode( getXmlDocument().getElementsByTagName( Root.heading.name() ).item(0) );
@@ -155,7 +177,17 @@ public class IndicatorTemplateXML {
 		this.author = author;
 	}
 	
+	
+	public String getShared() {
+		return shared;
+	}
+	
+	public void setShared(String shared) {
+		this.shared = shared;
+	}
+	
 	// Heading elements
+	
 	
 	/**
 	 * Required Element - runtime error will be thrown if the node or element is missing
@@ -388,13 +420,20 @@ public class IndicatorTemplateXML {
 	private static List<Column> createColumnList( NodeList columnNodeList ) {
 		
 		List<Column> columnList = null;	
+		Element columnsNode = null;
+		NodeList columns = null;
 		
 		if( columnNodeList == null ) {
 			return columnList;
 		}
 		
-		Element columnsNode = (Element) columnNodeList.item(0);
-		NodeList columns = columnsNode.getElementsByTagName( Drilldown.column.name() );
+		columnsNode = (Element) columnNodeList.item(0);
+		
+		if( columnsNode == null ) {
+			return columnList;
+		}
+		
+		columns = columnsNode.getElementsByTagName( Drilldown.column.name() );
 		
 		if( columns == null ) {
 			return columnList;
@@ -434,7 +473,7 @@ public class IndicatorTemplateXML {
 		return columnList;
 	}
 
-	private static List<Parameter> createParameterList( NodeList parameters ) {
+	private List<Parameter> createParameterList( NodeList parameters ) {
 		
 		List<Parameter> parameterList = null;
 		
@@ -462,6 +501,8 @@ public class IndicatorTemplateXML {
 			} else {
 				values = new String[]{ value };
 			}
+			
+			values = setParameterAliasWithValue( id, values );
 
 			parameter.setId(id);
 			parameter.setName(name);
@@ -471,6 +512,71 @@ public class IndicatorTemplateXML {
 		}
 		
 		return parameterList;
+	}
+	
+	private String[] setParameterAliasWithValue( String parameterId, String[] parameterValues ) {
+		
+		String[] newParameterValues = new String[ parameterValues.length ];
+		
+		for( int i = 0; i < parameterValues.length; i++ ) {
+			newParameterValues[i] = setParameterAliasWithValue( parameterId, parameterValues[i] );
+		}
+		
+		return newParameterValues;
+	}
+	
+	/**
+	 * This is set to replace a Provider Number alias with the logged in Provider Number.
+	 * Others can be added as needed by editing the Enum values and Switch in this method.
+	 */
+	private String setParameterAliasWithValue( String parameterId, String parameterValue ) {
+
+		parameterValue = parameterValue.trim();
+		
+		//TODO for now only captures one required parameter value
+		// A switch will be required here to handle more values.
+		if( ! ( ManditoryParameter.provider.name() ).equalsIgnoreCase( parameterId ) ) {			
+			return parameterValue;
+		}
+		
+		if(providerNo != null) {
+			return providerNo;
+		}
+		
+		if( parameterValue.equals("%")) {
+			return parameterValue;
+		}
+		
+		// alias values should not have punctuation.
+		parameterValue = parameterValue.replaceAll("[^a-zA-Z ]", "").toLowerCase();
+		
+		if( parameterValue.isEmpty() ) {
+			return parameterValue;
+		}
+		
+		switch( ProviderValueAlias.valueOf( parameterValue ) ) {
+		case loggedinprovider : parameterValue = getLoggedInProvider().trim();
+				break;
+		case all : parameterValue = "%";
+				break;
+		
+		}
+		
+		return parameterValue;
+	}
+	
+	public String getLoggedInProvider() {
+		String providerNo = "";
+		
+		if( this.loggedInInfo != null ) {
+			providerNo = this.loggedInInfo.getLoggedInProviderNo(); 
+		}
+		
+		return providerNo;
+	}
+	
+	public void setProviderNo(String providerNo) {
+		this.providerNo = providerNo;
 	}
 	
 	@Override

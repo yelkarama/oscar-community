@@ -43,28 +43,6 @@
   String form = request.getParameter("form")==null?"":request.getParameter("form") ;
   String elementName = request.getParameter("elementName")==null?"":request.getParameter("elementName") ;
   String elementId = request.getParameter("elementId")==null?"":request.getParameter("elementId") ;
-  String keyword = request.getParameter("keyword");
-
-	if (request.getParameter("submit") != null 
-		&& (request.getParameter("submit").equals("Search")
-		|| request.getParameter("submit").equals("Next Page") 
-		|| request.getParameter("submit").equals("Last Page")) ) {
-			  
-	  String search_mode = request.getParameter("search_mode")==null?"search_name":request.getParameter("search_mode");
-	  String orderBy = request.getParameter("orderby")==null?"c.lastName,c.firstName":request.getParameter("orderby");
-	  String list = request.getParameter("list");
-	  List<Contact> contacts;
-	  
-	  if( "all".equalsIgnoreCase(list) ) {
-		  contacts = ContactAction.searchAllContacts(search_mode, orderBy, keyword);
-	  } else {
-		  contacts = ContactAction.searchContacts(search_mode, orderBy, keyword);
-	  }
-	   
-	  nItems = contacts.size();
-	  pageContext.setAttribute("contacts",contacts);
-	}
-	
 	
 %>
 
@@ -121,7 +99,7 @@
 			<input type="radio" name="search_mode" value="search_name" checked="checked"> Name
 		</td>
 		<td valign="middle" rowspan="2" align="left">
-			<input type="text" name="keyword" value="" size="17" maxlength="100"> 
+			<input type="text" name="elementName" value="" size="17" maxlength="100"> 
 			<input type="hidden" name="orderby" value="c.lastName, c.firstName"> 
 			<input type="hidden" name="limit1" value="0"> 
 			<input type="hidden" name="limit2" value="10"> 
@@ -132,13 +110,27 @@
 </table>
 <table>
 	<tr>
-		<td align="left">Results based on keyword(s): <%=keyword==null?"":keyword%></td>
+		<td align="left">Results based on keyword(s): <%=elementName.equalsIgnoreCase("contact_2.contactName")?"":elementName%></td>
 	</tr>
 </table>
 <input type='hidden' name='form' value="<%=StringEscapeUtils.escapeHtml(form)%>"/>
 <input type='hidden' name='elementName' value="<%=StringEscapeUtils.escapeHtml(elementName)%>"/>
 <input type='hidden' name='elementId' value="<%=StringEscapeUtils.escapeHtml(elementId)%>"/>
 </form>
+
+<%
+	String list = request.getParameter("list");
+	List<Contact> contacts;
+
+	if( "all".equalsIgnoreCase(list) ) {
+		contacts = ContactAction.searchAllContacts("search_name", "c.lastName, c.firstName", elementName);
+	} else {
+		contacts = ContactAction.searchContacts("search_name", "c.lastName, c.firstName", elementName);
+	}
+
+	nItems = contacts.size();
+	pageContext.setAttribute("contacts",contacts);
+%>
 
 <table bgcolor="#C0C0C0" width="100%">
 	<tr class="title" >
@@ -208,6 +200,6 @@ function next() {
 %>
 </form>
 <br>
-<a href="Contact.do?method=addContact">Add/Edit Contact</a>
+<a href="addEditContact.jsp">Add/Edit Contact</a>
 </body>
 </html:html>

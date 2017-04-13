@@ -371,11 +371,11 @@ public class CaseManagementNoteDAO extends HibernateDaoSupport {
 					list += issueIds[x];
 				}
 				hql = "select cmn from CaseManagementNote cmn join cmn.issues i where i.issue_id in (" + list
-				        + ") and cmn.demographic_no = ? and cmn.id = (select max(cmn2.id) from CaseManagementNote cmn2 where cmn.uuid = cmn2.uuid) ORDER BY cmn.position desc, cmn.observation_date asc";
+				        + ") and cmn.demographic_no = ? and cmn.id = (select max(cmn2.id) from CaseManagementNote cmn2 where cmn.uuid = cmn2.uuid) ORDER BY cmn.position asc, cmn.observation_date desc";
 				return this.getHibernateTemplate().find(hql, demographic_no);
 
 			} else if (issueIds.length == 1) {
-				hql = "select cmn from CaseManagementNote cmn join cmn.issues i where i.issue_id = ? and cmn.demographic_no = ? and cmn.id = (select max(cmn2.id) from CaseManagementNote cmn2 where cmn.uuid = cmn2.uuid) order by cmn.position desc, cmn.observation_date asc";
+				hql = "select cmn from CaseManagementNote cmn join cmn.issues i where i.issue_id = ? and cmn.demographic_no = ? and cmn.id = (select max(cmn2.id) from CaseManagementNote cmn2 where cmn.uuid = cmn2.uuid) order by cmn.position asc, cmn.observation_date desc";
 				long id = Long.parseLong(issueIds[0]);
 				return this.getHibernateTemplate().find(hql, new Object[] { id, demographic_no});
 			}
@@ -496,6 +496,10 @@ public class CaseManagementNoteDAO extends HibernateDaoSupport {
 	
 	public void updateNote(CaseManagementNote note) {
 		note.setUpdate_date(new Date());
+		this.getHibernateTemplate().update(note);
+	}
+
+	public void updateIssueNote(CaseManagementNote note) {
 		this.getHibernateTemplate().update(note);
 	}
 

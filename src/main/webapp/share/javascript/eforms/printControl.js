@@ -57,8 +57,7 @@ function submitPrintButton(save) {
 		document.getElementById('Letter').value=editControlContents('edit');		
 	}	
 	
-	jQuery("form").submit();	
-	if (save) { setTimeout("window.close()", 3000); }
+	jQuery("form").submit();
 	printHolder.val("false");
 	saveHolder.val("false");
 	

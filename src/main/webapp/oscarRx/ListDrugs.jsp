@@ -199,12 +199,12 @@ if (heading != null){
                 boolean startDateUnknown = prescriptDrug.getStartDateUnknown();
         %>
         <tr>
-        <td valign="top"><a id="createDate_<%=prescriptIdInt%>"   <%=styleColor%> href="StaticScript2.jsp?regionalIdentifier=<%=prescriptDrug.getRegionalIdentifier()%>&amp;cn=<%=(prescriptDrug.getCustomName() != null) ? URLEncoder.encode(prescriptDrug.getCustomName()) : ""%>&amp;bn=<%=response.encodeURL(bn)%>&amp;atc=<%=prescriptDrug.getAtc()%>"><%=oscar.util.UtilDateUtilities.DateToString(prescriptDrug.getCreateDate())%></a></td>
+        <td valign="top"><a id="createDate_<%=prescriptIdInt%>"   <%=styleColor%> href="StaticScript2.jsp?regionalIdentifier=<%=prescriptDrug.getRegionalIdentifier()%>&amp;cn=<%=(prescriptDrug.getCustomName() != null) ? URLEncoder.encode(prescriptDrug.getCustomName()) : ""%>&amp;bn=<%=response.encodeURL(bn)%>&amp;atc=<%=prescriptDrug.getAtc()%>&demographicNo=<%=patient.getDemographicNo()%>"><%=oscar.util.UtilDateUtilities.DateToString(prescriptDrug.getCreateDate())%></a></td>
             <td valign="top">
             	<% if(startDateUnknown) { %>
             		
             	<% } else { %>
-            		<a id="rxDate_<%=prescriptIdInt%>"   <%=styleColor%> href="StaticScript2.jsp?regionalIdentifier=<%=prescriptDrug.getRegionalIdentifier()%>&amp;cn=<%=(prescriptDrug.getCustomName() != null) ? URLEncoder.encode(prescriptDrug.getCustomName()) : ""%>&amp;bn=<%=response.encodeURL(bn)%>"><%=oscar.util.UtilDateUtilities.DateToString(prescriptDrug.getRxDate())%></a>
+            		<a id="rxDate_<%=prescriptIdInt%>"   <%=styleColor%> href="StaticScript2.jsp?regionalIdentifier=<%=prescriptDrug.getRegionalIdentifier()%>&amp;cn=<%=(prescriptDrug.getCustomName() != null) ? URLEncoder.encode(prescriptDrug.getCustomName()) : ""%>&amp;bn=<%=response.encodeURL(bn)%>&demographicNo=<%=patient.getDemographicNo()%>"><%=oscar.util.UtilDateUtilities.DateToString(prescriptDrug.getRxDate())%></a>
             	<% } %>
             </td>
             <td valign="top">
@@ -259,7 +259,7 @@ if (heading != null){
 			}
 			
 			%>
-            <td valign="top"><a id="prescrip_<%=prescriptIdInt%>" <%=styleColor%> href="StaticScript2.jsp?regionalIdentifier=<%=prescriptDrug.getRegionalIdentifier()%>&amp;cn=<%=(prescriptDrug.getCustomName() != null) ? URLEncoder.encode(prescriptDrug.getCustomName()) : ""%>&amp;bn=<%=response.encodeURL(bn)%>&amp;atc=<%=prescriptDrug.getAtc()%>"   <%=tComment%>   ><%=RxPrescriptionData.getFullOutLine(prescriptDrug.getSpecial()).replaceAll(";", " ")%></a></td>
+            <td valign="top"><a id="prescrip_<%=prescriptIdInt%>" <%=styleColor%> href="StaticScript2.jsp?regionalIdentifier=<%=prescriptDrug.getRegionalIdentifier()%>&amp;cn=<%=(prescriptDrug.getCustomName() != null) ? URLEncoder.encode(prescriptDrug.getCustomName()) : ""%>&amp;bn=<%=response.encodeURL(bn)%>&amp;atc=<%=prescriptDrug.getAtc()%>&demographicNo=<%=patient.getDemographicNo()%>"   <%=tComment%>   ><%=RxPrescriptionData.getFullOutLine(prescriptDrug.getSpecial()).replaceAll(";", " ")%></a></td>
 			<%            			
 	           	if(securityManager.hasWriteAccess("_rx",roleName$,true)) {            		
            	%>
@@ -459,10 +459,6 @@ String getName(Drug prescriptDrug){
             sb.append("longTermMed ");
         }
 
-        if(drug.isDiscontinued()){
-            sb.append("discontinued ");
-        }
-
         if(drug.isDeleted()){
                 sb.append("deleted ");
 
@@ -476,6 +472,10 @@ String getName(Drug prescriptDrug){
         	sb = new StringBuilder("class=\"");
         	sb.append("external ");
         }
+        if(drug.isDiscontinued()){
+            sb.append("discontinued ");
+        }
+
         String retval = sb.toString();
 
         if(retval.equals("class=\"")){

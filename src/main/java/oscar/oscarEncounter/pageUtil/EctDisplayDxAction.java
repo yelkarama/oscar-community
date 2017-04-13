@@ -57,7 +57,7 @@ public class EctDisplayDxAction extends EctDisplayAction {
     	
         //set lefthand module heading and link
         String winName = "Disease" + bean.demographicNo;
-        String url = "popupPage(580,900,'" + winName + "','" + request.getContextPath() + "/oscarResearch/oscarDxResearch/setupDxResearch.do?demographicNo=" + bean.demographicNo + "&providerNo=" + bean.providerNo + "&quickList=')";        
+        String url = "popupPage(580,900,'" + winName + "','" + request.getContextPath() + "/oscarResearch/oscarDxResearch/setupDxResearch.do?demographicNo=" + bean.demographicNo + "&providerNo=" + bean.providerNo + "&quickList=" + bean.quickList + "')";        
         Dao.setLeftHeading(messages.getMessage(request.getLocale(), "oscarEncounter.LeftNavBar.DxRegistry"));
         Dao.setLeftURL(url);
         

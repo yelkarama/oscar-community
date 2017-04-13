@@ -405,7 +405,7 @@ CasemgmtNoteLock casemgmtNoteLock = (CasemgmtNoteLock)session.getAttribute("case
 						</div>
 
 						<c:if test="${sessionScope.passwordEnabled=='true'}">
-							<p style='background-color: #CCCCFF; display: none; margin: 0px;' id='notePasswd'>Password:&nbsp;<input type="password" name="caseNote.password" value="" />&nbsp;Confirmation:&nbsp;<input type='password' name='caseNote.passwordConfirm'/></p>
+							<p style='background-color: #CCCCFF; display: none; margin: 0px;' id='notePasswd'>Password:&nbsp;<input type="password" name="caseNote.password" value="" />&nbsp;Confirmation:&nbsp;<input type='password' name='caseNote.passwordConfirm' value=""/></p>
 						</c:if>
 					<%
 		 		}
@@ -829,7 +829,7 @@ CasemgmtNoteLock casemgmtNoteLock = (CasemgmtNoteLock)session.getAttribute("case
 			<c:if test="${sessionScope.passwordEnabled=='true'}">
 				<p style='background-color: #CCCCFF; display: none; margin: 0px;' id='notePasswd'>Password:&nbsp;
 				<input type="password" name="caseNote.password" value="" />&nbsp;Confirmation:&nbsp;
-				<input type='password' name='caseNote.passwordConfirm'/>
+				<input type='password' name='caseNote.passwordConfirm' value=""/>
 				</p>
 			</c:if>
 		</div> <!-- end of div n<%=savedId%>  -->
@@ -855,38 +855,6 @@ CasemgmtNoteLock casemgmtNoteLock = (CasemgmtNoteLock)session.getAttribute("case
 	caseNote = "caseNote_note" + "<%=savedId%>";
 	//save initial note to determine whether save is necessary
 	origCaseNote = $F(caseNote);
-<%
-
-	if( casemgmtNoteLock.isLocked() ) {
-    //note is locked so display message
-%>
-		alert("Another user is currently editing this note.  Please try again later.");
-<%
-	}
-	else if( casemgmtNoteLock.isLockedBySameUser() && !casemgmtNoteLock.getSessionId().equals(request.getRequestedSessionId()) ) {
-    	//note is locked by same user so offer to unlock note and view locked note in progress    	    
-%>
-		var viewEditedNote = confirm("A note on this demographic's encounter page is being edited from another computer, proceeding will overwrite that note.\nDo you wish to continue?");
-		if( viewEditedNote ) {	
-			doscroll();
-			var params = "method=updateNoteLock&demographicNo=" + demographicNo;
-			jQuery.ajax({
-				type: "POST",
-				url:  "<%=ctx%>/CaseManagementEntry.do",
-				data: params,
-				success: function() {
-					//force save when exiting chart in case we loaded edited note in other chart
-					origCaseNote += ".";
-					tmpSaveNeeded = true;
-				}
-			});
-		}
-		else {
-			window.close();
-		}
-<%
-	}
-%>
 
 	jQuery(document).ready(function() {
 		<%

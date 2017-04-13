@@ -47,6 +47,7 @@ public class DemographicQueryFavourite extends AbstractModel<Integer> implements
 	private String age;
 	private String startYear;
 	private String endYear;
+	private String asOfDate;
 	private String firstName;
 	private String lastName;
 	private String rosterStatus;
@@ -87,6 +88,14 @@ public class DemographicQueryFavourite extends AbstractModel<Integer> implements
 
 	public void setEndYear(String endYear) {
 		this.endYear = endYear;
+	}
+	
+	public String getAsOfDate() {
+		return asOfDate;
+	}
+
+	public void setAsOfDate(String asOfDate) {
+		this.asOfDate = asOfDate;
 	}
 
 	public String getFirstName() {

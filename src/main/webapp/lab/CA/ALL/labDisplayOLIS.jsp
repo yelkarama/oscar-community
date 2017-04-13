@@ -270,7 +270,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
         }
 
         function printPDF(){
-            document.acknowledgeForm.action="PrintOLISLab.do";
+            document.acknowledgeForm.action="PrintOLISLab.do?uuid=<%=request.getParameter("uuid")%>";
             document.acknowledgeForm.submit();
         }
 
@@ -301,9 +301,10 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
 
     <body style="width:800px">
         <!-- form forwarding of the lab -->
-        <form name="reassignForm" method="post" action="Forward.do">
+        <form name="reassignForm_<%=segmentID%>" method="post" action="Forward.do">
             <input type="hidden" name="flaggedLabs" value="<%= segmentID %>" />
             <input type="hidden" name="selectedProviders" value="" />
+            <input type="hidden" name="favorites" value="" />
             <input type="hidden" name="labType" value="HL7" />
             <input type="hidden" name="labType<%= segmentID %>HL7" value="imNotNull" />
             <input type="hidden" name="providerNo" value="<%= providerNo %>" />
