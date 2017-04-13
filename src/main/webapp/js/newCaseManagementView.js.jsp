@@ -177,6 +177,7 @@
             if ((noteNotNull && notesChanged) || (parseInt(nId) !=0 && datesChanged)) {
                 
                 //autoSave(false);
+                document.forms['caseManagementEntryForm'].sign.value='persist';
                 document.forms["caseManagementEntryForm"].method.value = "saveAndExit";
                 document.forms["caseManagementEntryForm"].ajax.value = false;
                 document.forms["caseManagementEntryForm"].chain.value = "";
