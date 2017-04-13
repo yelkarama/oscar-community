@@ -1180,6 +1180,7 @@
 		<action path="/oscarEncounter/displayDiagrams" scope="request" type="oscar.oscarEncounter.pageUtil.EctDisplayDiagramAction"></action>
 		<action path="/oscarEncounter/displayExaminationHistory" scope="request" type="oscar.oscarEncounter.pageUtil.EctDisplayExaminationHistoryAction"></action>
 		<action path="/oscarEncounter/displayHRM" scope="request" type="oscar.oscarEncounter.pageUtil.EctDisplayHRMAction"></action>
+		<action path="/oscarEncounter/displayProgressSheet" scope="request" type="oscar.oscarEncounter.pageUtil.EctDisplayProgressSheetAction"></action>
 		<action path="/oscarEncounter/decisionSupport/guidelineAction" scope="request" parameter="method" type="org.springframework.web.struts.DelegatingActionProxy">
 			<forward name="guidelineList" path="/oscarEncounter/decisionSupport/guidelineList.jsp" />
 			<forward name="guidelineDetail" path="/oscarEncounter/decisionSupport/guidelineDetail.jsp" />

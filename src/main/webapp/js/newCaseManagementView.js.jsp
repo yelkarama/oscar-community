@@ -24,6 +24,7 @@
 --%>
 <%@page contentType="application/javascript"%>
 <%@page import="org.oscarehr.casemgmt.common.Colour"%>
+<%@page import=" oscar.OscarProperties" %>
 
 	var numNotes = 0;   //How many saved notes do we have?
     var ctx;        //url context
@@ -542,7 +543,12 @@ function navBarLoader() {
               ];
 
             var leftNavBarTitles = [ "preventions", "tickler", "Dx", "forms", "eforms", "docs","labs", "msgs", "measurements", "consultation","HRM", "eaaps"];
-
+            
+            <%
+            if (OscarProperties.getInstance().getBooleanProperty("echart_show_progress_sheet", "true")) { %>
+        		leftNavBar.unshift(ctx + '/oscarEncounter/displayProgressSheet.do?hC=003468');
+        		leftNavBarTitles.unshift('progressSheet');
+            <% } %>
             var rightNavBar = [
                   ctx + "/oscarEncounter/displayAllergy.do?hC=" + Colour.allergy,
                   ctx + "/oscarEncounter/displayRx.do?hC=" + Colour.rx + "&numToDisplay=12",
