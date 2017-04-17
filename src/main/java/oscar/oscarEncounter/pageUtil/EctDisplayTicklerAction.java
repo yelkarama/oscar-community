@@ -125,8 +125,7 @@ public class EctDisplayTicklerAction extends EctDisplayAction {
         
     }
  	}
-
-     Dao.sortItems(NavBarDisplayDAO.DATESORT_ASC);
+     
  
     return true;
   }

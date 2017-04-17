@@ -71,7 +71,7 @@ public class TicklerDao extends AbstractDao<Tickler>{
 	@SuppressWarnings("unchecked")
     public List<Tickler> findActiveByDemographicNo(Integer demoNo) {
 		
-		Query query = entityManager.createQuery("select t from Tickler t where t.demographicNo = ?1 and t.status = 'A' order by t.serviceDate desc");
+		Query query = entityManager.createQuery("select t from Tickler t where t.demographicNo = ?1 and t.status = 'A' order by t.serviceDate asc");
 		query.setParameter(1, demoNo);
 		
 		List<Tickler> results = query.getResultList();
