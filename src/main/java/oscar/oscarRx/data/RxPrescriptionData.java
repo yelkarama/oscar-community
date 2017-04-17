@@ -365,7 +365,7 @@ public class RxPrescriptionData {
 	public List<Prescription> getPrescriptionsByScriptNo(int script_no, int demographicNo) {
 		List<Prescription> lst = new ArrayList<Prescription>();
 		DrugDao dao = SpringUtils.getBean(DrugDao.class);
-		for (Object[] pair : dao.findDrugsAndPrescriptionsByScriptNumber(script_no)) {
+		for (Object[] pair : dao.findDrugsAndPrescriptionsByScriptNumber(script_no, demographicNo)) {
 			Drug drug = (Drug) pair[0];
 			org.oscarehr.common.model.Prescription rx = (org.oscarehr.common.model.Prescription) pair[1];
 
