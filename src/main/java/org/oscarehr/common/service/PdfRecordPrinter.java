@@ -376,6 +376,9 @@ public class PdfRecordPrinter {
                                         billTo = billToExt.getValue();
                                     }
                                     parameters.put(paramName,billTo);
+                            } else if (paramName.equals("comment")) {
+                                String comment = billingONCHeader1.getComment();
+                                parameters.put(paramName, comment);
                             } else {
                                 parameters.put(paramName,apExe.execute(paramName,String.valueOf(billingONCHeader1.getDemographicNo()),invoiceNo));
                             }                            
