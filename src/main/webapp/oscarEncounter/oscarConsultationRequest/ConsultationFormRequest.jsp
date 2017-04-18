@@ -1956,9 +1956,11 @@ function updateFaxButton() {
 									<span id="letterheadFaxSpan">
 										<select name="letterheadFax" id="letterheadFax">
 								<%
+									String letterheadFax = consultUtil.letterheadFax != null ? consultUtil.letterheadFax : "";
+									
 									for( FaxConfig faxConfig : faxConfigs ) {
 								%>
-										<option value="<%=faxConfig.getFaxNumber().replace("-", "")%>" <%=faxConfig.getFaxNumber().replace("-", "").equals(consultUtil.letterheadFax.replace("-", "")) ? "selected" : ""%>><%=faxConfig.getFaxUser()%></option>
+										<option value="<%=faxConfig.getFaxNumber().replace("-", "")%>" <%=faxConfig.getFaxNumber().replace("-", "").equals(letterheadFax.replace("-", "")) ? "selected" : ""%>><%=faxConfig.getFaxUser()%></option>
 								<%	    
 									}								
 								%>
