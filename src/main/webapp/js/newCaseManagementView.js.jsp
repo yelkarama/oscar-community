@@ -3512,15 +3512,35 @@ function autoCompleteShowMenuCPP(element, update) {
         return true;
     }
 
-    function printSetup(e) {
+    function printSetup(e, printOp, printCpp, printRx, printLabs) {
         if( $F("notes2print").length > 0 )
             $("printopSelected").checked = true;
         else
-            $("printopAll").checked = true;
+            jQuery(("input:radio[name=printop][value="+printOp+"]")).prop("checked", true)
 
         $("printOps").style.right = (pageWidth() - Event.pointerX(e)) + "px";
         $("printOps").style.bottom = (pageHeight() - Event.pointerY(e)) + "px";
         $("printOps").style.display = "block";
+
+        if (printCpp){
+            printInfo($("imgPrintCPP"),'printCPP');
+        }
+
+        if(printRx){
+            printInfo($("imgPrintRx"),'printRx');
+        }
+
+        if(printLabs){
+            printInfo($("imgPrintLabs"),'printLabs');
+        }
+        return false;
+    }
+
+    function setEncounterPrintOptions(e, printOp, printCpp, printRx, printLabs){
+        $("input:radio[name=printop][value="+printOp+"]").prop("checked", true);
+        if (printCpp){
+            printInfo($("#imgPrintCPP"),'printCPP')
+        }
         return false;
     }
 

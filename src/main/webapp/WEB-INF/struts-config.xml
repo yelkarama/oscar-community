@@ -315,6 +315,10 @@
 			<form-property name="appointmentCardFax" type="org.oscarehr.common.model.UserProperty" />
 			<form-property name="hideNoShowsAndCancellationsProperty" type="org.oscarehr.common.model.UserProperty" />
 			<form-property name="dashboardShareProperty" type="org.oscarehr.common.model.UserProperty" />
+			<form-property name="printOp" type="org.oscarehr.common.model.UserProperty" />
+			<form-property name="printCPP" type="org.oscarehr.common.model.UserProperty" />
+			<form-property name="printRx" type="org.oscarehr.common.model.UserProperty" />
+			<form-property name="printLabs" type="org.oscarehr.common.model.UserProperty" />
 		</form-bean>
 		<form-bean name="setMyOscarIdForm" type="org.apache.struts.action.DynaActionForm">
 			<form-property name="myOscarLoginId" type="java.lang.String" />
@@ -1677,6 +1681,7 @@
             <forward name="genAckCommentLab"				path="/provider/setLabAckComment.jsp"/>
             <forward name="genIntegrator"					path="/admin/setIntegratorProperties.jsp" />
             <forward name="genEncounterWindowSize"			path="/provider/setEncounterWindowSize.jsp"/>
+			<forward name="genEncounterPrintOptions"		path="/provider/setEncounterPrintOptions.jsp"/>
             <forward name="genQuickChartSize"				path="/provider/setQuickChartSize.jsp"/>
             <forward name="genEDocBrowserInDocumentReport"	path="/provider/setEDocBrowserInDocumentReport.jsp"/>
             <forward name="genEDocBrowserInMasterFile"		path="/provider/setEDocBrowserInMasterFile.jsp"/>

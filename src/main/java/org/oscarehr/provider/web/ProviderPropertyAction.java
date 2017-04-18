@@ -1936,6 +1936,131 @@ public ActionForward viewEDocBrowserInDocumentReport(ActionMapping actionmapping
 		return actionmapping.findForward("genEncounterWindowSize");
 	}
 
+    public ActionForward viewEncounterPrintOptions(ActionMapping actionmapping,ActionForm actionform,HttpServletRequest request, HttpServletResponse response) {
+
+        LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+        String providerNo = loggedInInfo.getLoggedInProviderNo();
+
+        DynaActionForm frm = (DynaActionForm)actionform;
+        UserProperty printOp = this.userPropertyDAO.getProp(providerNo, UserProperty.ENCOUNTER_PRINT_OPTION);
+        UserProperty printCPP = this.userPropertyDAO.getProp(providerNo, UserProperty.ENCOUNTER_PRINT_CPP);
+        UserProperty printRx = this.userPropertyDAO.getProp(providerNo, UserProperty.ENCOUNTER_PRINT_RX);
+        UserProperty printLabs = this.userPropertyDAO.getProp(providerNo, UserProperty.ENCOUNTER_PRINT_LABS);
+
+        ArrayList<LabelValueBean> printOptions = new ArrayList<LabelValueBean>(Arrays.asList(new LabelValueBean("All", "all"), new LabelValueBean("Dates", "dates")));
+
+        if (printOp == null){
+            printOp = new UserProperty();
+            printOp.setValue("all");
+        }
+        if (printCPP == null){
+            printCPP = new UserProperty();
+        }
+        if (printRx == null){
+            printRx = new UserProperty();
+        }
+        if(printLabs == null) {
+            printLabs = new UserProperty();
+        }
+
+        if(printCPP.getValue()!=null) {
+            printCPP.setChecked(printCPP.getValue().equals("true")?true:false);
+        }
+        if(printRx.getValue()!=null) {
+            printRx.setChecked(printRx.getValue().equals("true")?true:false);
+        }
+        if(printLabs.getValue()!=null) {
+            printLabs.setChecked(printLabs.getValue().equals("true")?true:false);
+        }
+
+        request.setAttribute("dropOpts",printOptions);
+
+        request.setAttribute("printOp",printOp);
+        request.setAttribute("printCPP",printCPP);
+        request.setAttribute("printRx",printRx);
+        request.setAttribute("printLabs",printLabs);
+
+        request.setAttribute("providertitle","provider.encounterPrintOptions.title"); //=Set myDrugref ID
+        request.setAttribute("providermsgPrefs","provider.encounterPrintOptions.msgPrefs"); //=Preferences"); //
+        request.setAttribute("providermsgProvider","provider.encounterPrintOptions.msgProvider"); //=myDrugref ID
+        request.setAttribute("providermsgEdit","provider.encounterPrintOptions.msgEdit"); //=Enter your desired login for myDrugref
+        request.setAttribute("providerbtnSubmit","provider.encounterPrintOptions.btnSubmit"); //=Save
+        request.setAttribute("providermsgSuccess","provider.encounterPrintOptions.msgSuccess"); //=myDrugref Id saved
+        request.setAttribute("method","saveEncounterPrintOptions");
+
+        frm.set("printOp", printOp);
+        frm.set("printCPP", printCPP);
+        frm.set("printRx", printRx);
+        frm.set("printLabs", printLabs);
+
+        return actionmapping.findForward("genEncounterPrintOptions");
+    }
+
+    public ActionForward saveEncounterPrintOptions(ActionMapping actionmapping,ActionForm actionform, HttpServletRequest request, HttpServletResponse response) {
+
+        LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+        String providerNo = loggedInInfo.getLoggedInProviderNo();
+
+        DynaActionForm frm = (DynaActionForm)actionform;
+        UserProperty optionProp =(UserProperty)frm.get("printOp");
+        UserProperty cppProp = (UserProperty)frm.get("printCPP");
+        UserProperty rxProp = (UserProperty)frm.get("printRx");
+        UserProperty labsProp = (UserProperty)frm.get("printLabs");
+
+        String option = optionProp != null ? optionProp.getValue() : "";
+        boolean cpp = cppProp != null ? cppProp.isChecked() : false;
+        boolean rx = rxProp != null ? rxProp.isChecked() : false;
+        boolean labs = labsProp != null ? labsProp.isChecked() : false;
+
+        UserProperty printOp = this.userPropertyDAO.getProp(providerNo, UserProperty.ENCOUNTER_PRINT_OPTION);
+        UserProperty printCPP = this.userPropertyDAO.getProp(providerNo, UserProperty.ENCOUNTER_PRINT_CPP);
+        UserProperty printRx = this.userPropertyDAO.getProp(providerNo, UserProperty.ENCOUNTER_PRINT_RX);
+        UserProperty printLabs = this.userPropertyDAO.getProp(providerNo, UserProperty.ENCOUNTER_PRINT_LABS);
+
+        if (printOp == null){
+            printOp = new UserProperty();
+            printOp.setProviderNo(providerNo);
+            printOp.setName(UserProperty.ENCOUNTER_PRINT_OPTION);
+        }
+        printOp.setValue(option);
+        userPropertyDAO.saveProp(printOp);
+
+        if (printCPP == null){
+            printCPP = new UserProperty();
+            printCPP.setProviderNo(providerNo);
+            printCPP.setName(UserProperty.ENCOUNTER_PRINT_CPP);
+        }
+        printCPP.setValue(cpp?"true":"false");
+        userPropertyDAO.saveProp(printCPP);
+
+        if (printRx == null){
+            printRx = new UserProperty();
+            printRx.setProviderNo(providerNo);
+            printRx.setName(UserProperty.ENCOUNTER_PRINT_RX);
+        }
+        printRx.setValue(rx?"true":"false");
+        userPropertyDAO.saveProp(printRx);
+
+        if(printLabs == null) {
+            printLabs = new UserProperty();
+            printLabs.setProviderNo(providerNo);
+            printLabs.setName(UserProperty.ENCOUNTER_PRINT_LABS);
+        }
+        printLabs.setValue(labs?"true":"false");
+        userPropertyDAO.saveProp(printLabs);
+
+        request.setAttribute("status", "success");
+        request.setAttribute("providertitle","provider.encounterPrintOptions.title"); //=Set myDrugref ID
+        request.setAttribute("providermsgPrefs","provider.encounterPrintOptions.msgPrefs"); //=Preferences"); //
+        request.setAttribute("providermsgProvider","provider.encounterPrintOptions.msgProvider"); //=myDrugref ID
+        request.setAttribute("providermsgEdit","provider.encounterPrintOptions.msgEdit"); //=Enter your desired login for myDrugref
+        request.setAttribute("providerbtnSubmit","provider.encounterPrintOptions.btnSubmit"); //=Save
+        request.setAttribute("providermsgSuccess","provider.encounterPrintOptions.msgSuccess"); //=myDrugref Id saved
+        request.setAttribute("method","saveEncounterWindowSize");
+
+        return actionmapping.findForward("genEncounterPrintOptions");
+    }
+
     public ActionForward viewQuickChartSize(ActionMapping actionmapping,ActionForm actionform,HttpServletRequest request, HttpServletResponse response) {
 
 		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);

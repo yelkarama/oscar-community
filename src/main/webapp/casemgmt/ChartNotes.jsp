@@ -64,6 +64,7 @@
 <%@page import="org.oscarehr.casemgmt.web.CheckBoxBean"%>
 <%@page import="org.oscarehr.common.dao.DemographicExtDao" %>
 <%@page import="org.oscarehr.managers.ProgramManager2" %>
+<%@ page import="org.oscarehr.common.dao.UserPropertyDAO" %>
 
 <c:set var="ctx" value="${pageContext.request.contextPath}" scope="request" />
 
@@ -144,6 +145,33 @@ try
 	{
 		request.setAttribute("caseManagementEntryForm", cform);
 	}
+
+	String option = "all";
+	Boolean cpp = false;
+	Boolean rx = false;
+	Boolean labs = false;
+	UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
+	UserProperty printOp = userPropertyDao.getProp(provNo, UserProperty.ENCOUNTER_PRINT_OPTION);
+	UserProperty printCPP = userPropertyDao.getProp(provNo, UserProperty.ENCOUNTER_PRINT_CPP);
+	UserProperty printRx = userPropertyDao.getProp(provNo, UserProperty.ENCOUNTER_PRINT_RX);
+	UserProperty printLabs = userPropertyDao.getProp(provNo, UserProperty.ENCOUNTER_PRINT_LABS);
+
+	if(printOp!=null){
+	    option = printOp.getValue();
+	}
+
+	if(printCPP!=null && printCPP.getValue()!=null){
+	    cpp = printCPP.getValue().equals("true")?true:false;
+	}
+
+	if(printRx!=null && printRx.getValue()!=null){
+		rx =printRx.getValue().equals("true")?true:false;
+	}
+
+	if(printLabs!=null && printLabs.getValue()!=null){
+	    labs = printLabs.getValue().equals("true")?true:false;
+	}
+
 %>
 
 
@@ -595,7 +623,7 @@ try
 	    	</c:if>
 
 	    	<input tabindex="23" type='image' src="<c:out value="${ctx}/oscarEncounter/graphics/system-log-out.png"/>" onclick='closeEnc(event);return false;' title='<bean:message key="global.btnExit"/>'>&nbsp;
-	    	<input tabindex="24" type='image' src="<c:out value="${ctx}/oscarEncounter/graphics/document-print.png"/>" onclick="return printSetup(event);" title='<bean:message key="oscarEncounter.Index.btnPrint"/>' id="imgPrintEncounter">
+	    	<input tabindex="24" type='image' src="<c:out value="${ctx}/oscarEncounter/graphics/document-print.png"/>" onclick="return printSetup(event, '<%=option%>', <%=cpp%>, <%=rx%>, <%=labs%>);" title='<bean:message key="oscarEncounter.Index.btnPrint"/>' id="imgPrintEncounter">
     	</span>
     	<div id="assignIssueSection">
 	    	<!-- input type='image' id='toggleIssue' onclick="return showIssues(event);" src="<c:out value="${ctx}/oscarEncounter/graphics/issues.png"/>" title='<bean:message key="oscarEncounter.Index.btnDisplayIssues"/>'>&nbsp; -->
