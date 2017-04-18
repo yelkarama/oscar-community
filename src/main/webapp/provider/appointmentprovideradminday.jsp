@@ -555,6 +555,9 @@ function toggleReason( providerNo ) {
 	var id = ".reason_" + providerNo;
     jQuery( id ).toggle();
     localStorage.setItem( id, jQuery( id ).is( ":visible" ) );
+	if (typeof jQuery_3_1_0 != 'undefined' && jQuery_3_1_0().floatThead && jQuery('table#scheduleTable').length) { //if on schedule and floatThead enabled
+		jQuery_3_1_0('table#scheduleTable').floatThead('reflow');
+	}
 }
     
 
