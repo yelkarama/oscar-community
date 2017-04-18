@@ -1706,14 +1706,16 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
    }
 
 					java.util.ResourceBundle wdProp = ResourceBundle.getBundle("oscarResources", request.getLocale());
-
+   					//Clones the calendar for this first iteration of the week so that the second iteration of the week later on still starts on 
+					// the first day of the week instead of where this iteration left off 
+					Calendar firstWeekCalendar = (Calendar)cal.clone();
 					for (int iterNum = 0; iterNum < iterMax; iterNum++) {
 
 						if (isWeekView) {
 							// get the appropriate datetime objects for the current day in this week
-							year = cal.get(Calendar.YEAR);
-							month = (cal.get(Calendar.MONTH) + 1);
-							day = cal.get(Calendar.DAY_OF_MONTH);
+							year = firstWeekCalendar.get(Calendar.YEAR);
+							month = (firstWeekCalendar.get(Calendar.MONTH) + 1);
+							day = firstWeekCalendar.get(Calendar.DAY_OF_MONTH);
 
 							strDate = year + "-" + month + "-" + day;
 
@@ -1725,7 +1727,7 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
 								formatDate = UtilDateUtilities.DateToString(inform.parse(strDate), "EEE, yyyy-MM-dd");
 							}
 							// move the calendar forward one day
-							cal.add(Calendar.DATE, 1);
+							firstWeekCalendar.add(Calendar.DATE, 1);
 						} else {
 							nProvider = iterNum;
 						}
