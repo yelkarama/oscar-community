@@ -140,7 +140,7 @@ function setDescription(reportId) {
     var comment = jQuery("#descriptionField_" + reportId + "_hrm").val();
     jQuery.ajax({
         type: "POST",
-        url: contextPath+"/hospitalReportManager/Modify.do",
+        url: contextpath+"/hospitalReportManager/Modify.do",
         data: "method=setDescription&reportId=" + reportId + "&description=" + comment,
         success: function(data) {
             if (data != null)
