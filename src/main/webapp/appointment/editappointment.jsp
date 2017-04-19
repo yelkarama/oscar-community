@@ -104,7 +104,9 @@
     ProviderDataDao providerDao = SpringUtils.getBean(ProviderDataDao.class);
     SiteDao siteDao = SpringUtils.getBean(SiteDao.class);
 	ProviderDao pDao = SpringUtils.getBean(ProviderDao.class);
-	BillingONCHeader1Dao cheader1Dao = (BillingONCHeader1Dao)SpringUtils.getBean("billingONCHeader1Dao"); 
+	BillingONCHeader1Dao cheader1Dao = (BillingONCHeader1Dao)SpringUtils.getBean("billingONCHeader1Dao");
+    
+    boolean twelveHourFormat = providerPreference.isTwelveHourFormat();
 	
     ProviderManager providerManager = SpringUtils.getBean(ProviderManager.class);
 	ProgramManager programManager = SpringUtils.getBean(ProgramManager.class);
@@ -253,12 +255,12 @@ function onSub() {
 
 
 function calculateEndTime() {
-  var stime = document.EDITAPPT.start_time.value;
+  var stime = <%=request.getParameter("start_time")%>
   var vlen = stime.indexOf(':')==-1?1:2;
 
   if(vlen==1 && stime.length==4 ) {
-    document.EDITAPPT.start_time.value = stime.substring(0,2) +":"+ stime.substring(2);
-    stime = document.EDITAPPT.start_time.value;
+      <%=request.getParameter("start_time")%> = stime.substring(0,2) +":"+ stime.substring(2);
+    stime = <%=request.getParameter("start_time")%>;
   }
   
   if(stime.length!=5) {
@@ -608,7 +610,7 @@ function setType(typeSel,reasonSel,locSel,durSel,notesSel,resSel) {
             <div class="input">
                 <INPUT TYPE="TEXT"
 					NAME="start_time"
-					VALUE="<%=bFirstDisp?ConversionUtils.toTimeStringNoSeconds(appt.getStartTime()):request.getParameter("start_time")%>"
+					VALUE="<%=bFirstDisp?twelveHourFormat?MyDateFormat.getTimeXX_XXampm(ConversionUtils.toTimeStringNoSeconds(appt.getStartTime())):ConversionUtils.toTimeStringNoSeconds(appt.getStartTime()):twelveHourFormat?MyDateFormat.getTimeXX_XXampm(request.getParameter("start_time")):request.getParameter("start_time")%>"
                     WIDTH="25"
                     HEIGHT="20" border="0" onChange="checkTimeTypeIn(this)" >
             </div>
@@ -1151,7 +1153,7 @@ Currently this is only used in the mobile version -->
                 </div>
             </li>
             <li><div class="label"><bean:message key="appointment.editappointment.msgTime" />: </div>
-                <div class="info">From <%=bFirstDisp ? ConversionUtils.toTimeStringNoSeconds(appt.getStartTime()) : request.getParameter("start_time")%>
+                <div class="info">From <%=bFirstDisp ? ConversionUtils.toTimeStringNoSeconds(appt.getStartTime()) : MyDateFormat.getTimeXX_XX_XX(request.getParameter("start_time"))%>
                 to <%=bFirstDisp ? ConversionUtils.toTimeStringNoSeconds(appt.getEndTime()) : request.getParameter("end_time")%></div>
             </li>
             <li><div class="label"><bean:message key="Appointment.formType" />: </div>

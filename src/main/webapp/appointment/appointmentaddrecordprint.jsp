@@ -78,7 +78,7 @@
 	Appointment a = new Appointment();
 	a.setProviderNo(request.getParameter("provider_no"));
 	a.setAppointmentDate(ConversionUtils.fromDateString(request.getParameter("appointment_date")));
-	a.setStartTime(ConversionUtils.fromTimeStringNoSeconds(request.getParameter("start_time")));
+	a.setStartTime(ConversionUtils.fromTimeStringNoSeconds(MyDateFormat.getTimeXX_XX_XX(request.getParameter("start_time"))));
 	a.setEndTime(ConversionUtils.fromTimeStringNoSeconds(request.getParameter("end_time")));
 	a.setName(request.getParameter("keyword"));
 	a.setNotes(request.getParameter("notes"));

@@ -109,7 +109,7 @@
 		    Appointment a = new Appointment();
 			a.setProviderNo(request.getParameter("provider_no"+datano));
 			a.setAppointmentDate(ConversionUtils.fromDateString(request.getParameter("appointment_date")));
-			a.setStartTime(ConversionUtils.fromTimeStringNoSeconds(request.getParameter("start_time")));
+			a.setStartTime(ConversionUtils.fromTimeStringNoSeconds(MyDateFormat.getTimeXX_XX_XX(request.getParameter("start_time"))));
 			a.setEndTime(ConversionUtils.fromTimeStringNoSeconds(request.getParameter("end_time")));
 			a.setName(request.getParameter("keyword"));
 			a.setNotes(request.getParameter("notes"));
@@ -152,7 +152,7 @@
      	    } 
 			
 			Appointment appt = appointmentDao.search_appt_no(request.getParameter("provider_no"+datano), ConversionUtils.fromDateString(request.getParameter("appointment_date")), 
-					ConversionUtils.fromTimeStringNoSeconds(request.getParameter("start_time")), ConversionUtils.fromTimeStringNoSeconds(request.getParameter("end_time")), 
+					ConversionUtils.fromTimeStringNoSeconds(MyDateFormat.getTimeXX_XX_XX(request.getParameter("start_time"))), ConversionUtils.fromTimeStringNoSeconds(request.getParameter("end_time")), 
 					ConversionUtils.fromTimestampString(createdDateTime), userName, demographicNo);
 			
 			if (appt != null) {
@@ -235,7 +235,7 @@
 		    	Appointment a = new Appointment();
 				a.setProviderNo(request.getParameter("provider_no"+datano));
 				a.setAppointmentDate(ConversionUtils.fromDateString(request.getParameter("appointment_date")));
-				a.setStartTime(ConversionUtils.fromTimeStringNoSeconds(request.getParameter("start_time")));
+				a.setStartTime(ConversionUtils.fromTimeStringNoSeconds(MyDateFormat.getTimeXX_XX_XX(request.getParameter("start_time"))));
 				a.setEndTime(ConversionUtils.fromTimeStringNoSeconds(request.getParameter("end_time")));
 				a.setName(request.getParameter("keyword"));
 				a.setNotes(request.getParameter("notes"));
@@ -272,7 +272,7 @@
 					
 					
 					Appointment appt = appointmentDao.search_appt_no(request.getParameter("provider_no"+datano), ConversionUtils.fromDateString(request.getParameter("appointment_date")), 
-							ConversionUtils.fromTimeStringNoSeconds(request.getParameter("start_time")), ConversionUtils.fromTimeStringNoSeconds(request.getParameter("end_time")), 
+							ConversionUtils.fromTimeStringNoSeconds(MyDateFormat.getTimeXX_XX_XX(request.getParameter("start_time"))), ConversionUtils.fromTimeStringNoSeconds(request.getParameter("end_time")), 
 							ConversionUtils.fromTimestampString(createdDateTime), userName, demographicNo);
 					
 
@@ -490,7 +490,7 @@ function onSub() {
 <table border=0 cellspacing=0 cellpadding=0 width="100%">
 	<tr>
 		<td nowrap><font color='black'><%=request.getParameter("appointment_date")%>
-		| <%=request.getParameter("start_time")%> - <%=request.getParameter("end_time")%>
+		| <%=request.getParameter("start_time")%> - <%=request.getParameter(MyDateFormat.getTimeXX_XXampm("end_time"))%>
 		| <%=UtilMisc.toUpperLowerCase(request.getParameter("keyword"))%></font></td>
 		<td align='right' nowrap>Group : <%=mygroupno%></td>
 	</tr>

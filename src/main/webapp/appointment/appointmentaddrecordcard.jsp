@@ -44,12 +44,18 @@
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@page import="org.oscarehr.common.dao.AppointmentArchiveDao" %>
+<%@page import="org.oscarehr.util.SessionConstants"%>
 <%@page import="org.oscarehr.common.dao.OscarAppointmentDao" %>
 <%@page import="org.oscarehr.common.model.Appointment" %>
 <%@page import="org.oscarehr.common.model.Provider" %>
+<%@ page import="org.oscarehr.common.model.ProviderPreference" %>
 <%
 	AppointmentArchiveDao appointmentArchiveDao = (AppointmentArchiveDao)SpringUtils.getBean("appointmentArchiveDao");
 	OscarAppointmentDao appointmentDao = (OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
+
+	ProviderPreference providerPreference=(ProviderPreference)session.getAttribute(SessionConstants.LOGGED_IN_PROVIDER_PREFERENCE);
+	boolean twelveHourFormat = providerPreference.isTwelveHourFormat();
+	
 %>
 <html:html locale="true">
 <head>
@@ -129,7 +135,7 @@
     	Appointment a = new Appointment();
     	a.setProviderNo(request.getParameter("provider_no"));
     	a.setAppointmentDate(ConversionUtils.fromDateString(request.getParameter("appointment_date")));
-    	a.setStartTime(ConversionUtils.fromTimeStringNoSeconds(request.getParameter("start_time")));
+    	a.setStartTime(ConversionUtils.fromTimeStringNoSeconds(MyDateFormat.getTimeXX_XX_XX(request.getParameter("start_time"))));
     	a.setEndTime(ConversionUtils.fromTimeStringNoSeconds(request.getParameter("end_time")));
     	a.setName(request.getParameter("keyword"));
     	a.setNotes(request.getParameter("notes"));
@@ -226,7 +232,11 @@
         <%
         String demoNo = String.valueOf(demographicNo);
         String appt_date = request.getParameter("appointment_date");
-        String appt_time = MyDateFormat.getTimeXX_XXampm(MyDateFormat.getTimeXX_XX_XX(request.getParameter("start_time")));
+        String appt_time = MyDateFormat.getTimeXX_XX_XX(request.getParameter("start_time"));
+        if (twelveHourFormat) 
+        {
+			appt_time = request.getParameter("start_time");
+		}
         int iRow=0;
         int iPageSize=5;
         String pname="";
