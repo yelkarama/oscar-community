@@ -869,7 +869,7 @@ function pasteAppt(multipleSameDayGroupAppt) {
             <div class="label"><bean:message key="Appointment.formStartTime" />:</div>
             <div class="input">
                 <INPUT TYPE="TEXT" NAME="start_time"
-                    VALUE='<%=twelveHourFormat?MyDateFormat.getTimeXX_XXampm(request.getParameter("start_time")):request.getParameter("start_time")%>' WIDTH="25"
+                    VALUE='<%=twelveHourFormat?MyDateFormat.getTimeXX_XXampm(MyDateFormat.getTimeXX_XX_XX(request.getParameter("start_time"))):request.getParameter("start_time")%>' WIDTH="25"
                     HEIGHT="20" border="0" onChange="checkTimeTypeIn(this);checkPageLock()">
             </div>
             <div class="space">&nbsp;</div>
