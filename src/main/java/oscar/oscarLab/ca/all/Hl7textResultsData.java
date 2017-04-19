@@ -152,7 +152,7 @@ public class Hl7textResultsData {
 				String measType = "";
 				String measInst = "";
 				
-				List<Object[]> measurements = measurementMapDao.findMeasurements("FLOWSHEET", identifier);
+				List<Object[]> measurements = measurementMapDao.findMeasurements("FLOWSHEET", identifier, name);
 				if (measurements.isEmpty()) {
 					logger.warn("CODE:" + identifier + " needs to be mapped");
 				} else {
