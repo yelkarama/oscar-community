@@ -847,8 +847,6 @@ function onCheckMaster() {
 		String iCheckNo = (String)vecPercNo.get(i);
 %>
 	var nSubtotal = 0.00;
-	var nMin = <%=vecPercMin.get(i)%>;
-	var nMax = <%=vecPercMax.get(i)%>;
     	//alert(":" + document.forms[0].percCode_<%=iCheckNo%>.type);
     if(document.forms[0].percCode_<%=iCheckNo%>.length == undefined) {
 		if (document.forms[0].percCode_<%=iCheckNo%>.checked){
@@ -871,11 +869,7 @@ function onCheckMaster() {
 		ssubtotal = ssubtotal + "00".substring(0, (ssubtotal.length - ssubtotal.indexOf('.') - 1));
 	}
 	document.forms[0].percCodeSubtotal_<%=iCheckNo%>.value = ssubtotal;
-	if(nMin > document.forms[0].percCodeSubtotal_<%=iCheckNo%>.value) {
-		document.forms[0].percCodeSubtotal_<%=iCheckNo%>.value = nMin;
-	} else if (nMax < document.forms[0].percCodeSubtotal_<%=iCheckNo%>.value) {
-		document.forms[0].percCodeSubtotal_<%=iCheckNo%>.value = nMax;
-	}
+
 <%	}
 %>
 	nSubtotal = 0.00;
