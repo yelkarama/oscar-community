@@ -557,15 +557,13 @@ public class Hl7textResultsData {
 			for(Hl7TextInfo info : hl7TxtInfoDao.findByLabId(labNo)) {
 				routings.add(new Object[]{info});
 			}
+		} else if (demographicNo == null) {
+			// note to self: lab reports not found in the providerLabRouting table will not show up - 
+			// need to ensure every lab is entered in providerLabRouting, with '0'
+			// for the provider number if unable to find correct provider				
+			routings = hl7TxtInfoDao.findLabsViaMagic(status, providerNo, patientFirstName, patientLastName, patientHealthNumber);
 		} else {
-			if (demographicNo == null) {
-				// note to self: lab reports not found in the providerLabRouting table will not show up - 
-				// need to ensure every lab is entered in providerLabRouting, with '0'
-				// for the provider number if unable to find correct provider				
-				routings = hl7TxtInfoDao.findLabsViaMagic(status, providerNo, patientFirstName, patientLastName, patientHealthNumber);
-			} else {
-				routings = hl7TxtInfoDao.findByDemographicId(ConversionUtils.fromIntString(demographicNo));
-			}
+			routings = hl7TxtInfoDao.findByDemographicId(ConversionUtils.fromIntString(demographicNo));
 		}
 
 		for (Object[] o : routings) {
@@ -576,18 +574,23 @@ public class Hl7textResultsData {
 			lbData.labType = LabResultData.HL7TEXT;
 			lbData.segmentID = "" + hl7.getLabNumber();
 
-			//check if any demographic is linked to this lab
-			if (lbData.isMatchedToPatient()) {
-				//get matched demographic no
-				List<PatientLabRouting> lst = patientLabRoutingDao.findByLabNoAndLabType(Integer.parseInt(lbData.segmentID), lbData.labType);
+			//if the demographic number is null find a matching demo
+			if (demographicNo == null) {
+				//check if any demographic is linked to this lab
+				if (lbData.isMatchedToPatient()) {
+					//get matched demographic no
+					List<PatientLabRouting> lst = patientLabRoutingDao.findByLabNoAndLabType(Integer.parseInt(lbData.segmentID), lbData.labType);
 
-				if (!lst.isEmpty()) {
-					lbData.setLabPatientId("" + lst.get(0).getDemographicNo());
+					if (!lst.isEmpty()) {
+						lbData.setLabPatientId("" + lst.get(0).getDemographicNo());
+					} else {
+						lbData.setLabPatientId("-1");
+					}
 				} else {
 					lbData.setLabPatientId("-1");
 				}
 			} else {
-				lbData.setLabPatientId("-1");
+				lbData.setLabPatientId(demographicNo);
 			}
 
 			if(o.length == 1) {
