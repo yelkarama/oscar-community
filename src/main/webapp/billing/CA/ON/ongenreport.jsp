@@ -146,7 +146,7 @@
 							String ohipFilename = obj.getOhipfilename(diskId);
 							String htmlFilename = obj.getHtmlfilename(diskId, dataProvider.getProviderNo());
 
-							boolean existBillCenter = oriBillCenter.hasBillCenter(dataProvider.getProviderNo());x
+							boolean existBillCenter = oriBillCenter.hasBillCenter(dataProvider.getProviderNo());
 							// create the billing file with provider's own bill center
 							if (existBillCenter && oriBillCenter.getBillCenter(dataProvider.getProviderNo()).compareTo(mohOffice) != 0)
 								headerId = obj.createBatchHeader(dataProvider, "" + diskId, oriBillCenter.getBillCenter(dataProvider.getProviderNo()), "" + (i + 1), (String) session.getAttribute("user"));
