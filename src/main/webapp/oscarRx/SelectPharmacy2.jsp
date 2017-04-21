@@ -186,7 +186,7 @@ oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBea
 		  $.each($(".pharmacyName"), function( key, value ) {
 			if($(value).html().toLowerCase().indexOf($("#pharmacySearch").val().toLowerCase()) >= 0){
 				if($(value).siblings(".city").html().indexOf($("#pharmacyCitySearch").val()) >= 0){
-                    if($(value).siblings(".postalCode").html().indexOf($("#pharmacyPostalCodeSearchSearch").val()) >= 0) {
+                    if($(value).siblings(".postalCode").html().indexOf($("#pharmacyPostalCodeSearch").val()) >= 0) {
                         if ($(value).siblings(".fax").html().indexOf($("#pharmacyFaxSearch").val()) >= 0) {
                             $(value).parent().show();
                         }
