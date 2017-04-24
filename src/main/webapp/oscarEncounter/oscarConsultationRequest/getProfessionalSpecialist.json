@@ -5,8 +5,13 @@
 <%@page import="org.oscarehr.util.SpringUtils"%>
 <%@page import="org.oscarehr.common.dao.ProfessionalSpecialistDao"%><%
 	ProfessionalSpecialistDao professionalSpecialistDao=(ProfessionalSpecialistDao)SpringUtils.getBean("professionalSpecialistDao");
-
-	ProfessionalSpecialist professionalSpecialist=professionalSpecialistDao.find(Integer.parseInt(request.getParameter("id")));
+	ProfessionalSpecialist professionalSpecialist = null;			
+	String id = request.getParameter("id")==null?"":request.getParameter("id");
+				
+	if (id.length() > 0)
+	{
+		professionalSpecialist=professionalSpecialistDao.find(Integer.parseInt(id));
+	}
 
 	if(professionalSpecialist != null) {
 		response.setContentType("text/x-json");
