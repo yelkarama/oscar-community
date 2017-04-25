@@ -2693,7 +2693,62 @@ public ActionForward viewEDocBrowserInDocumentReport(ActionMapping actionmapping
 
 		return actionmapping.findForward("gen");
 	}
+	
+	public ActionForward viewDefaultRxPrintFullPage(ActionMapping actionmapping, ActionForm actionform, HttpServletRequest request, HttpServletResponse response) {
+		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+		String providerNo = loggedInInfo.getLoggedInProviderNo();
+		DynaActionForm frm = (DynaActionForm)actionform;
+		UserProperty prop = this.userPropertyDAO.getProp(providerNo, UserProperty.RX_DEFAULT_FULL_PRINT);
 
+		if (prop == null){ prop = new UserProperty(); }
+
+		ArrayList<LabelValueBean> optionList = new ArrayList<LabelValueBean>();
+		optionList.add(new LabelValueBean("Yes", "yes"));
+		optionList.add(new LabelValueBean("No", "no"));
+		request.setAttribute("dropOpts",optionList);
+
+		request.setAttribute("dateProperty",prop);
+		request.setAttribute("providertitle","provider.setDefaultRxPrintFullPage.title");
+		request.setAttribute("providermsgPrefs","provider.setDefaultRxPrintFullPage.msgPrefs");
+		request.setAttribute("providermsgProvider","provider.setDefaultRxPrintFullPage.msgDefaultText");
+		request.setAttribute("providermsgEdit","provider.setDefaultRxPrintFullPage.msgEdit");
+		request.setAttribute("providerbtnSubmit","provider.setDefaultRxPrintFullPage.btnSubmit");
+		request.setAttribute("providermsgSuccess","provider.setDefaultRxPrintFullPage.msgSuccess");
+		request.setAttribute("method","saveDefaultRxPrintFullPage");
+
+		frm.set("dateProperty", prop);
+
+		return  actionmapping.findForward("gen");
+	}
+	public ActionForward saveDefaultRxPrintFullPage(ActionMapping actionmapping, ActionForm actionform, HttpServletRequest request, HttpServletResponse response) {
+		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+		String providerNo=loggedInInfo.getLoggedInProviderNo();
+
+		DynaActionForm frm = (DynaActionForm)actionform;
+		UserProperty prop = (UserProperty)frm.get("dateProperty");
+		String fmt = prop != null ? prop.getValue() : "";
+		UserProperty saveProperty = this.userPropertyDAO.getProp(providerNo,UserProperty.RX_DEFAULT_FULL_PRINT);
+
+		if( saveProperty == null ) {
+			saveProperty = new UserProperty();
+			saveProperty.setProviderNo(providerNo);
+			saveProperty.setName(UserProperty.RX_DEFAULT_FULL_PRINT);
+		}
+
+		saveProperty.setValue(fmt);
+		this.userPropertyDAO.saveProp(saveProperty);
+
+		request.setAttribute("status", "success");
+		request.setAttribute("providertitle","provider.setDefaultRxPrintFullPage.title");
+		request.setAttribute("providermsgPrefs","provider.setDefaultRxPrintFullPage.msgPrefs");
+		request.setAttribute("providermsgProvider","provider.setDefaultRxPrintFullPage.msgDefaultText");
+		request.setAttribute("providermsgEdit","provider.setDefaultRxPrintFullPage.msgEdit");
+		request.setAttribute("providerbtnSubmit","provider.setDefaultRxPrintFullPage.btnSubmit");
+		request.setAttribute("providermsgSuccess","provider.setDefaultRxPrintFullPage.msgSuccess");
+		request.setAttribute("method","saveDefaultRxPrintFullPage");
+
+		return actionmapping.findForward("gen");
+	}
     /**
      * Creates a new instance of ProviderPropertyAction
      */
