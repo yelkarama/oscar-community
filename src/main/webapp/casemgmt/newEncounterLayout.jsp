@@ -1060,6 +1060,15 @@ window.onbeforeunload = onClosing;
 						src='<c:out value="${ctx}"/>/oscarEncounter/graphics/printer.png'>&nbsp;<bean:message
 							key="oscarEncounter.Labs.title" /></td>
 				</tr>
+				<tr>
+					<td></td>
+					<td><img style="cursor: pointer;"
+							 title="<bean:message key="oscarEncounter.print.title"/>"
+							 id='imgPrintNotes'
+							 alt="Toggle Print Notes"
+							 onclick="return printInfo(this, 'printNotes');"
+							 src='<c:out value="${ctx}"/>/oscarEncounter/graphics/printerGreen.png'>&nbsp;Notes</td>
+				</tr>
 				<!--  extension point -->
 				<tr id="printDateRow">
 					<td><input type="radio" id="printopDates" name="printop"

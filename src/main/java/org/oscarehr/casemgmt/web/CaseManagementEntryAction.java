@@ -2937,6 +2937,11 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 		boolean printCPP = request.getParameter("printCPP").equalsIgnoreCase("true");
 		boolean printRx = request.getParameter("printRx").equalsIgnoreCase("true");
 		boolean printLabs = request.getParameter("printLabs") != null && request.getParameter("printLabs").equalsIgnoreCase("true");
+		boolean printNotes = request.getParameter("printNotes").equalsIgnoreCase("true");
+		if(!printNotes){
+			printAllNotes = false;
+			noteIds = new String[]{};
+		}
 
 		CaseManagementFax cmf = new CaseManagementFax();
 		if (noteIds.length == 0 && !printCPP && !printRx & !printLabs) {
@@ -3007,8 +3012,13 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 		}
 		boolean printCPP  = request.getParameter("printCPP").equalsIgnoreCase("true");
 		boolean printRx   = request.getParameter("printRx").equalsIgnoreCase("true");
-		boolean printLabs = request.getParameter("printLabs") != null && request.getParameter("printLabs").equalsIgnoreCase("true");		
-		
+		boolean printLabs = request.getParameter("printLabs") != null && request.getParameter("printLabs").equalsIgnoreCase("true");
+		boolean printNotes = request.getParameter("printNotes").equalsIgnoreCase("true");
+		if(!printNotes){
+			printAllNotes = false;
+			noteIds = new String[]{};
+		}
+
 		CaseManagementPrint cmp = new CaseManagementPrint();
 		if (noteIds.length == 0 && !printCPP && !printRx & !printLabs){
 			HttpSession session = request.getSession();
