@@ -143,7 +143,7 @@ if (heading != null){
 			
             DrugDispensingManager drugDispensingManager = SpringUtils.getBean(DrugDispensingManager.class);
             List<String> reRxDrugList=bean.getReRxDrugIdList();
-
+            Collections.sort(prescriptDrugs, Drug.START_DATE_COMPARATOR);
 
             long now = System.currentTimeMillis();
             long month = 1000L * 60L * 60L * 24L * 30L;
