@@ -356,12 +356,13 @@ public class CategoryData {
 		String sql = " SELECT HIGH_PRIORITY demographic_no, first_name, last_name, COUNT( distinct h.id) as count "
 						+ " FROM HRMDocument h "
 						+ " LEFT JOIN HRMDocumentToDemographic hd ON h.id = hd.hrmDocumentId"
-						+ " LEFT JOIN HRMDocumentToProvider hp ON h.id = hp.hrmDocumentId AND signedOff = 0"
+						+ " LEFT JOIN HRMDocumentToProvider hp ON h.id = hp.hrmDocumentId"
 						+ " LEFT JOIN demographic d ON hd.demographicNo = d.demographic_no"
 						+ " WHERE h.id IN (SELECT hrmDocumentId FROM HRMDocumentToDemographic hd)"
 						+ " 	AND d.last_name like '%"+patientLastName+"%' "
 						+ "		AND d.hin like '%"+patientHealthNumber+"%'"
 						+ "		AND d.first_name like '%"+patientFirstName+"%'"
+						+ "		AND hp.signedOff = 0 "
 						+ hrmDateSql
 						+ hrmProviderSql
 						+ "GROUP BY demographic_no ";
@@ -395,8 +396,8 @@ public class CategoryData {
 		int count = 0;
 		String sql = " SELECT HIGH_PRIORITY COUNT( distinct h.id) as count "
 					+" FROM HRMDocument h"
-					+" LEFT JOIN HRMDocumentToProvider hp ON h.id = hp.hrmDocumentId AND signedOff = 0"
-					+" WHERE h.id NOT IN (SELECT hrmDocumentId FROM HRMDocumentToDemographic) "
+					+" LEFT JOIN HRMDocumentToProvider hp ON h.id = hp.hrmDocumentId"
+					+" WHERE h.id NOT IN (SELECT hrmDocumentId FROM HRMDocumentToDemographic) AND hp.signedOff=0"
 					+ hrmDateSql
 					+ hrmProviderSql;
 
