@@ -24,10 +24,6 @@
 
 --%>
 <%@ page import="oscar.oscarProvider.data.*, oscar.oscarRx.data.*,oscar.OscarProperties, oscar.oscarClinic.ClinicData, java.util.*"%>
-<%@ page import="org.oscarehr.common.model.PharmacyInfo" %>
-<%@ page import="org.oscarehr.common.model.DemographicPharmacy" %>
-<%@ page import="org.oscarehr.common.dao.DemographicPharmacyDao" %>
-<%@ page import="org.oscarehr.common.dao.PharmacyInfoDao" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
@@ -41,15 +37,18 @@
 <%! boolean bMultisites = org.oscarehr.common.IsPropertiesOn.isMultisitesEnable(); %>
 
 
-<%@page import="org.oscarehr.common.dao.SiteDao"%>
 <%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
-<%@page import="org.oscarehr.common.model.Site"%>
 <%@page import="org.oscarehr.util.SpringUtils"%>
-<%@page import="org.oscarehr.common.model.Appointment"%>
-<%@page import="org.oscarehr.common.dao.OscarAppointmentDao"%>
-<%@ page import="org.oscarehr.common.dao.FaxConfigDao, org.oscarehr.common.model.FaxConfig" %>
+<%@ page import="org.oscarehr.common.dao.*" %>
+<%@ page import="org.oscarehr.common.model.*" %>
 <%
 	OscarAppointmentDao appointmentDao = SpringUtils.getBean(OscarAppointmentDao.class);
+	UserPropertyDAO userPropertyDAO = (UserPropertyDAO) SpringUtils.getBean(UserPropertyDAO.class);
+	UserProperty defaultFullPrintProviderProp = userPropertyDAO.getProp((String)session.getAttribute("user"),"RX_DEFAULT_FULL_PRINT");
+	boolean printFullPage = false;
+	if (defaultFullPrintProviderProp != null) {
+		printFullPage = ("yes".equals(defaultFullPrintProviderProp.getValue()));
+	}
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 %>
 
@@ -324,26 +323,31 @@ function printIframe(){
 			else
 			{
 				preview.focus();
-				var oldPageSize = frames['preview'].document.getElementById('pwTable').style.width;
-				frames['preview'].document.getElementById('pwTable').style.width = '690px';
-				
-				var pharmacyInfoElement = frames['preview'].document.getElementById('pharmInfo');
-				if (pharmacyInfoElement.innerHTML.trim() != '') {
-					pharmacyInfoElement.style.display = 'none';
-					var demographicInfoRow = frames['preview'].document.getElementById('demographicInfoRow');
-					var demographicInfoCell = frames['preview'].document.getElementById('demographicInfoCell');
-					demographicInfoCell.colSpan = 1;
-					var pharmacyInfoCell = demographicInfoRow.insertCell(1);
-					pharmacyInfoCell.innerHTML = pharmacyInfoElement.innerHTML;
-					pharmacyInfoCell.style.width = "40%";
-				}
-				 //pharmacyText
-				preview.print();
-				frames['preview'].document.getElementById('pwTable').style.width = oldPageSize;
-				if (pharmacyInfoElement.innerHTML.trim() != '') {
-					pharmacyInfoElement.style.display = 'block';
-					pharmacyInfoCell.remove();
-					demographicInfoCell.colSpan = 2;
+				var useWidePrint = document.getElementById('rx_print_full_page').checked;
+				if (useWidePrint) {
+					var oldPageSize = frames['preview'].document.getElementById('pwTable').style.width;
+					frames['preview'].document.getElementById('pwTable').style.width = '690px';
+					
+					var pharmacyInfoElement = frames['preview'].document.getElementById('pharmInfo');
+					if (pharmacyInfoElement.innerHTML.trim() != '') {
+						pharmacyInfoElement.style.display = 'none';
+						var demographicInfoRow = frames['preview'].document.getElementById('demographicInfoRow');
+						var demographicInfoCell = frames['preview'].document.getElementById('demographicInfoCell');
+						demographicInfoCell.colSpan = 1;
+						var pharmacyInfoCell = demographicInfoRow.insertCell(1);
+						pharmacyInfoCell.innerHTML = pharmacyInfoElement.innerHTML;
+						pharmacyInfoCell.style.width = "40%";
+					}
+					 //pharmacyText
+					preview.print();
+					frames['preview'].document.getElementById('pwTable').style.width = oldPageSize;
+					if (pharmacyInfoElement.innerHTML.trim() != '') {
+						pharmacyInfoElement.style.display = 'block';
+						pharmacyInfoCell.remove();
+						demographicInfoCell.colSpan = 2;
+					}
+				} else {
+					preview.print();
 				}
 				self.parent.close();
 			}
@@ -647,42 +651,47 @@ function toggleView(form) {
 						</td>
 					</tr>
 
-                                        <tr>
-                                            <!--td width=10px></td-->
-                                            <td>Size of Print PDF :
-                                                <select name="printPageSize" id="printPageSize" style="height:20px;font-size:10px" >
-                                                     <%
-                                                     String rxPageSize=(String)request.getSession().getAttribute("rxPageSize");
-                                                     for(int i=0;i<vecPageSizes.size();i++){
-                                                                String te=(String)vecPageSizes.get(i);
-                                                                String tf=(String)vecPageSizeValues.get(i);%>
-                                                    <option value="<%=tf%>" <%if(rxPageSize!=null && rxPageSize.equals(tf)){%>SELECTED<%}%>
-                                                        ><%=te%>
-                                                    </option>
-                                                    <%  }%>
-                                                </select>
-                                            </td>
-                                        </tr>
 					<tr>
 						<!--td width=10px></td-->
-						<td>
+						<td style="padding-bottom: 0">
 						<span>
 							<input type=button value="Print PDF" class="ControlPushButton" style="width: 150px" onClick="<%=reprint.equalsIgnoreCase("true") ? "javascript:return onPrint2('rePrint', "+request.getParameter("scriptId")+");" : "javascript:return onPrint2('print', "+request.getParameter("scriptId")+");" %>" />
 						</span>
 						</td>
 					</tr>
-
 					<tr>
 						<!--td width=10px></td-->
-						<td><span><input type=button value="<bean:message key="ViewScript.msgPrint"/>"
+						<td style="padding-top: 0; padding-left: 52px;">Size:
+							<select name="printPageSize" id="printPageSize" style="height:20px;font-size:10px" >
+								 <%
+								 String rxPageSize=(String)request.getSession().getAttribute("rxPageSize");
+								 for(int i=0;i<vecPageSizes.size();i++){
+											String te=(String)vecPageSizes.get(i);
+											String tf=(String)vecPageSizeValues.get(i);%>
+								<option value="<%=tf%>" <%if(rxPageSize!=null && rxPageSize.equals(tf)){%>SELECTED<%}%>
+									><%=te%>
+								</option>
+								<%  }%>
+							</select>
+						</td>
+					</tr>
+
+					<tr>
+						<td style="padding-bottom: 0"><span><input type=button value="<bean:message key="ViewScript.msgPrint"/>"
 							class="ControlPushButton" style="width: 150px"
 							onClick="javascript:printIframe();" /></span></td>
 					</tr>
 					<tr>
-						<td><span><input type=button
+						<td style="padding-bottom: 0; padding-top: 0;"><span><input type=button
 							<%=reprint.equals("true")?"disabled='true'":""%> value="<bean:message key="ViewScript.msgPrintPasteEmr"/>"
 							class="ControlPushButton" style="width: 150px"
 							onClick="javascript:printPaste2Parent(true);" /></span></td>
+					</tr>
+					<tr>
+						<td style="padding-top: 0">
+							<label><input type="checkbox" id="rx_print_full_page" <%=(printFullPage?"checked='checked'":"")%>/>
+								Print full page</label>
+						</td>
 					</tr>
 					<% if (OscarProperties.getInstance().isRxFaxEnabled()) {
 					    	FaxConfigDao faxConfigDao = SpringUtils.getBean(FaxConfigDao.class);
@@ -690,13 +699,13 @@ function toggleView(form) {
 					    
 					    %>
 					<tr>
-						<td><span><input type=button value="Fax"
+						<td style="padding-bottom: 0"><span><input type=button value="Fax"
 										 class="ControlPushButton" id="faxButton" style="width: 150px"
 										 onClick="sendFax();"/></span>
 						</td>
 					</tr>
 					<tr>                            
-                            <td><span><input type=button value="Fax & Paste into EMR"
+                            <td style="padding-top: 0"><span><input type=button value="Fax & Paste into EMR"
                                     class="ControlPushButton" id="faxPasteButton" style="width: 150px"
                                     onClick="printPaste2Parent(false);sendFax();" disabled/></span>
                                     
