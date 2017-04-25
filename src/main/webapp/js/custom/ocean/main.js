@@ -51,19 +51,35 @@ jQuery(document).ready(function(){
 //	jQuery("#navlist").append("<li><a href=\"../eyeform/ConsultationReportList.do\">ConReport</a></li>");
 	jQuery("<li><a href=\"#\" onclick=\"popupOscarRx(625,1024,'../eyeform/ConsultationReportList.do\');\" title\"View Consultation Reports\">ConReport</a></li>").insertAfter("#con");
 
-  // Disable link to new UI
-  jQuery('a[href="../web/"]').attr("href",'#');
-  
-  // Add KAI bar as appropriate
-  if (!SmartPhone.isMobile()) {
-    addKAIBar();
-  }
+	// Disable link to new UI
+	jQuery('a[href="../web/"]').attr("href",'#');
+	
+	// Add KAI bar as appropriate
+	if (!SmartPhone.isMobile()) {
+		addKAIBar();
+
+		addTableHeaderFloat();
+	}
 });
+
+function addTableHeaderFloat() {
+	if (jQuery('div#caseloadDiv').length) { //if on caseload screen
+		var table = jQuery('div#caseloadDiv');
+		var topPadding = jQuery('div.header-div').height();
+		table.css('padding-top', (topPadding + 2) + 'px');
+	} else if (typeof jQuery_3_1_0 != 'undefined' && jQuery_3_1_0().floatThead && jQuery('table#scheduleTable').length) { //if on schedule and floatThead enabled
+		var table = jQuery_3_1_0('table#scheduleTable');
+		var topPadding = jQuery_3_1_0('div.header-div').height();
+		table.css('padding-top', (topPadding) + 'px');
+		table.floatThead('destroy');
+		table.floatThead({top: topPadding});
+	}
+}
 
 
 function addKAIBar() {
   var kaiBarHTML = `<div class="KaiBar">
-		<a href="http://www.kaiinnovations.com" target="_blank"><img alt="" src="/oscar/js/custom/kai/KAI_LOGO2_HR.png" height="18" width="18">&nbsp;&nbsp;KAI INNOVATIONS</a>
+		<a href="http://www.kaiinnovations.com" target="_blank"><img alt="" src="../js/custom/kai/KAI_LOGO2_HR.png" height="18" width="18">&nbsp;&nbsp;KAI INNOVATIONS</a>
 		<div class="block">
 			Search:
 			<input class="kaiInput" type="text" placeholder="Enter Health Card # or Demographic Name" id="kaiDemoSearch"/>
@@ -85,9 +101,9 @@ function addKAIBar() {
 		        </div>
 		    </a>
 		</div>
-	</div>`
+	</div>`;
   
-  jQuery('head').append('<link rel="stylesheet" href="/oscar/js/custom/kai/kai_bar.css" type="text/css" />');
+  jQuery('head').append('<link rel="stylesheet" href="../js/custom/kai/kai_bar.css" type="text/css" onload="addTableHeaderFloat()"/>');
   var kaiBar = jQuery(kaiBarHTML);
   kaiBar.insertAfter('table#firstTable');
   
@@ -133,35 +149,39 @@ function resolveCurrentProvider() {
 }
 
 function kaiDemoSearch() {
-  var kaiDemoSearch = jQuery('#kaiDemoSearch');
-  var searchString = kaiDemoSearch.val();
-  var demoRegex = /^[A-Za-z].*$/;
-  if( demoRegex.test(searchString) ) {
-    var searchUrl = "/oscar/demographic/demographiccontrol.jsp?search_mode=search_name&keyword=" + encodeURIComponent(searchString) + "&orderby=last_name%2C+first_name&dboperation=search_titlename&limit1=0&limit2=10&displaymode=Search&ptstatus=active"
-    popupPage2(searchUrl);
-    kaiDemoSearch.val("");
-  } else {
-    // set the dimensions and open the popup window
-    var left = (screen.width / 2) - (500 / 2);
-    var top = (screen.height / 2) - (500 / 2);
-    // path to your card swipe module webapp must be specified. add it in here
-    var currentProvider = resolveCurrentProvider();
-    var cardSwipeURL = "/CardSwipe/?hc=" + escape(searchString) + "&providerNo=" + escape(currentProvider);
-    var newwindow = window.open(cardSwipeURL, "name",
-    "location=no,scrollbars=1,width=500,height=500,top=" + top + ",left=" + left);
+    var kaiDemoSearch = jQuery('#kaiDemoSearch');
+    var searchString = kaiDemoSearch.val();
+    var demoRegex = /^[,A-Za-z].*$/;
+    if(searchString == "," || searchString.length == 0 || searchString.length == -1){
+        alert("You must swipe a Health Card or Search by Demographic");
+        kaiDemoSearch.val("");
+        searchString = "";
+    } else if( demoRegex.test(searchString) ) {
+        var searchUrl = "/oscar/demographic/demographiccontrol.jsp?search_mode=search_name&keyword=" + encodeURIComponent(searchString) + "&orderby=last_name%2C+first_name&dboperation=search_titlename&limit1=0&limit2=10&displaymode=Search&ptstatus=active"
+        popupPage2(searchUrl);
+        kaiDemoSearch.val("");
+    } else {
+        // set the dimensions and open the popup window
+        var left = (screen.width / 2) - (500 / 2);
+        var top = (screen.height / 2) - (500 / 2);
+        // path to your card swipe module webapp must be specified. add it in here
+        var currentProvider = resolveCurrentProvider();
+        var cardSwipeURL = "/CardSwipe/?hc=" + escape(searchString) + "&providerNo=" + escape(currentProvider);
+        var newwindow = window.open(cardSwipeURL, "name",
+            "location=no,scrollbars=1,width=500,height=500,top=" + top + ",left=" + left);
 
-    // focus the window
-    if (window.focus) {
-      newwindow.focus();
+        // focus the window
+        if (window.focus) {
+            newwindow.focus();
+        }
+
+        var timer = setInterval(function() {
+            if (newwindow.closed) {
+                clearInterval(timer);
+                window.location.reload();
+            }
+        }, 100);
     }
 
-    var timer = setInterval(function() {
-      if (newwindow.closed) {
-        clearInterval(timer);
-        window.location.reload();
-      }
-    }, 100);
-  }
-  
-  return false;
+    return false;
 }
