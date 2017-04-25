@@ -142,14 +142,13 @@ var _hc_addAppointmentHandler = function(args) {
                             addDemoWindow.document.getElementById('first_name').value = args["firstName"];
                             addDemoWindow.document.getElementById('hin').value = args["hin"];
                             addDemoWindow.document.getElementById('hc_type').value = "ON";
+							addDemoWindow.document.getElementById('full_birth_date').value = args["dob"].substring(0,4) + '-' + args["dob"].substring(4,6) + '-' + args["dob"].substring(6,8);
                             addDemoWindow.document.getElementById('year_of_birth').value = args["dob"].substring(0,4);
                             addDemoWindow.document.getElementById('month_of_birth').value = args["dob"].substring(4,6);
                             addDemoWindow.document.getElementById('date_of_birth').value = args["dob"].substring(6,8);
                             addDemoWindow.document.getElementById('ver').value = args["hinVer"];
                             addDemoWindow.document.getElementById('sex').value = (args["sex"] == "1" ? "M" : (args["sex"] == "2" ? "F" : ""));
-                            addDemoWindow.document.getElementById('eff_date_year').value = issueDate.substring(0,4);
-                            addDemoWindow.document.getElementById('eff_date_month').value = issueDate.substring(4,6);
-                            addDemoWindow.document.getElementById('eff_date_date').value = issueDate.substring(6,8);
+							addDemoWindow.document.getElementById('eff_date').value = issueDate.substring(0,4) + '-' + issueDate.substring(4,6) + '-' + issueDate.substring(6,8);
                         }
                     }
                 }

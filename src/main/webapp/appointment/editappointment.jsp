@@ -163,13 +163,26 @@
         .weak { background-color: <%= weakcolor %>; }
     </style>
 <% } %>
+		
+<%-- Calendar.js --%>
+<script type="text/javascript" src="<%= request.getContextPath() %>/share/calendar/calendar.js"></script>
+<script type="text/javascript" src="<%= request.getContextPath() %>/share/calendar/lang/<bean:message key="global.javascript.calendar"/>"></script>
+<script type="text/javascript" src="<%= request.getContextPath() %>/share/calendar/calendar-setup.js"></script>
+<link rel="stylesheet" type="text/css" media="all" href="<%= request.getContextPath() %>/share/calendar/calendar.css" title="win2k-cold-1" />
+	
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="appointment.editappointment.title" /></title>
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery.js"></script>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="<%= request.getContextPath() %>/share/javascript/Oscar.js"></script>
    <script>
      jQuery.noConflict();
    </script>
+	<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-3.1.0.min.js"></script>
+	<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery.maskedinput.js"></script>
+	<script type="application/javascript">
+		var jQuery_3_1_0 = jQuery.noConflict(true);
+	</script>
 <oscar:customInterface section="editappt"/>
 <script language="javascript">
 <!-- // start javascript
@@ -562,10 +575,10 @@ function setType(typeSel,reasonSel,locSel,durSel,notesSel,resSel) {
                 <bean:message key="Appointment.formDate" />:
             </div>
             <div class="input">
-		<INPUT TYPE="TEXT"
-					NAME="appointment_date"
-					VALUE="<%=bFirstDisp?ConversionUtils.toDateString(appt.getAppointmentDate()):strApptDate%>"
-                    WIDTH="25" HEIGHT="20" border="0">
+				<input type="text" name="appointment_date" id="appointment_date" WIDTH="25" HEIGHT="20" border="0"
+					   value="<%=bFirstDisp?ConversionUtils.toDateString(appt.getAppointmentDate()):strApptDate%>">
+				<img src="../images/cal.gif" id="appointment_date_cal">
+				<script type="application/javascript">createStandardDatepicker(jQuery_3_1_0('#appointment_date'), "appointment_date_cal");</script>
             </div>
             <div class="space">&nbsp;</div>
             <div class="label"><bean:message key="Appointment.formStatus" />:</div>

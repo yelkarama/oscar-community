@@ -69,6 +69,7 @@
 				response.sendRedirect("../../../logout.jsp");
 			}
                         oscar.OscarProperties oscarVariables = oscar.OscarProperties.getInstance();
+			java.text.SimpleDateFormat standardDateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd");
 
 			String user_no = (String) session.getAttribute("user");
 			String providerview = request.getParameter("providerview") == null ? "" : request.getParameter("providerview");
@@ -608,11 +609,16 @@
 
 <script type="text/javascript"
 	src="../../../share/javascript/prototype.js"></script>
+<script type="text/javascript" src="<%= request.getContextPath() %>/share/javascript/Oscar.js"></script>
 <script type="text/javascript"
 	src="<%=request.getContextPath() %>/js/jquery.js"></script>
 <script type="text/javascript" language="JavaScript">
-<!--
-jQuery.noConflict();
+	jQuery.noConflict();
+</script>
+<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-3.1.0.min.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery.maskedinput.js"></script>
+<script type="application/javascript">
+	var jQuery_3_1_0 = jQuery.noConflict(true);
 </script>
 <oscar:customInterface section="billing"/>
 <script>
@@ -1237,14 +1243,18 @@ if(checkFlag == null) checkFlag = "0";
 					<table border="0" cellspacing="0" cellpadding="0" width="100%"
 						class="myYellow">
 						<tr>
-							<td nowrap bgcolor="#FFCC99" width="10%" align="center"><b>&nbsp;<oscar:nameage
-										demographicNo="<%=demo_no%>" /> <%=roster_status%></b> <%if (appt_no.compareTo("0") == 0) {%>
-								<img src="../../../images/cal.gif" id="service_date_cal" /> <input
-								type="text" id="service_date" name="service_date" readonly
-								value="<%=request.getParameter("service_date")!=null? request.getParameter("service_date"):strToday%>"
-								size="10" /> <%} else {%> <input type="text" name="service_date"
-								readonly value="<%=request.getParameter("appointment_date")%>"
-								size="10" maxlength="10" style="width: 80px;" /> <%}%></td>
+							<td nowrap bgcolor="#FFCC99" width="10%" align="center">
+								<b>&nbsp;<oscar:nameage demographicNo="<%=demo_no%>" /> <%=roster_status%></b> 
+								<%if (appt_no.compareTo("0") == 0) {%>
+									<img src="../../../images/cal.gif" id="service_date_cal" />
+									<input type="text" id="service_date" name="service_date" readonly size="10"
+										   value="<%=request.getParameter("service_date")!=null? request.getParameter("service_date"):strToday%>"/>
+									<script type="application/javascript">createStandardDatepicker(jQuery_3_1_0('#service_date'), "service_date_cal");</script>
+								<%} else {%> 
+									<input type="text" name="service_date" readonly size="10" maxlength="10" style="width: 80px;"
+										   value="<%=standardDateFormat.format(standardDateFormat.parse(request.getParameter("appointment_date")))%>"/> 
+								<%}%>
+							</td>
 							<%
                                                               String warningStyle = "";
                                                               if (billingRecomendations.length() > 0) {
@@ -1659,11 +1669,11 @@ function changeSite(sel) {
 											          }
 
 												  if (visitType.startsWith("02")) admDate = visitdate;
-											%> <!--input type="text" name="xml_vdate" id="xml_vdate" value="<%--=request.getParameter("xml_vdate")!=null? request.getParameter("xml_vdate"):visitdate--%>" size='10' maxlength='10' -->
-											<input type="text" name="xml_vdate" id="xml_vdate"
-											value="<%=request.getParameter("xml_vdate") != null ? request.getParameter("xml_vdate") : (!admissionDate.equals("") ? admissionDate : admDate)%>"
-											size='10' maxlength='10'> <img
-											src="../../../images/cal.gif" id="xml_vdate_cal" />
+											%>
+											<img src="../../../images/cal.gif" id="xml_vdate_cal">
+											<input type="text" name="xml_vdate" id="xml_vdate" size='10' maxlength='10'
+												value="<%=request.getParameter("xml_vdate") != null ? request.getParameter("xml_vdate") : (!admissionDate.equals("") ? admissionDate : admDate)%>"> 
+											<script type="application/javascript">createStandardDatepicker(jQuery_3_1_0('#xml_vdate'), "xml_vdate_cal");</script>
 										</td>
 										<td colspan="2"><a href="#"
 											onclick="showHideLayers('Layer1','','show');return false;">
@@ -2022,13 +2032,6 @@ function changeSite(sel) {
 		</tr>
 	</table>
 
-	<script type="text/javascript">
-           
-Calendar.setup( { inputField : "xml_vdate", ifFormat : "%Y-%m-%d", showsTime :false, button : "xml_vdate_cal", singleClick : true, step : 1 } );
-<%if (appt_no.compareTo("0") == 0) {%>
-    Calendar.setup( { inputField : "service_date", ifFormat : "%Y-%m-%d", showsTime :false, button : "service_date_cal", singleClick : true, step : 1 } );
-<%}%>
-</script>
 
 	<%!String getDefaultValue(String paraName, Vector vec, String propName) {
 		String ret = "";

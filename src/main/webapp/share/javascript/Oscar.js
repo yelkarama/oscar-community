@@ -219,3 +219,49 @@ function trim(str){
    str=str.replace(/\s+$/g,"");//trim str
    return str;
 }
+
+// Requires at least jQuery_3_1_0 declared using noConflict(), along with 
+// jquery.maskedinput.js for full functionality
+function createStandardDatepicker(jQueryElement, buttonId) {
+	if (typeof jQueryElement.mask == 'undefined' || typeof Calendar == 'undefined') {
+		console.log("createStandardDatepicker() was called without including jquery.maskedinput.js or Calendar.js in file");
+		return false;
+	}
+
+	jQueryElement.attr("placeholder", "yyyy-mm-dd");
+	jQueryElement.attr("size", "11");
+	jQueryElement.mask("9999-99-99");
+	jQueryElement.on('blur', function() {
+		var newDate = new Date(jQueryElement.val());
+		if (jQueryElement.val() != "") {
+			if (isNaN(newDate)) {
+				jQueryElement.css({ "border": "1px solid red", "box-shadow": "0 0 3px #CC0000" });
+			} else if (newDate.toISOString().substring(0, 10) != jQueryElement.val()) {
+				// javascript parses a date such like 2017-02-30 (Feb 30th; not a real date) as 2017-03-01 or
+				// 2017-03-02 depending on year. If the string parsed is successfully but not matching the
+				// original string then string was an invalid date, since javascript fudged the number
+				// PS: For some reason 2017-02-29 (a non leap year) is parsed as 2017-02-28.
+				jQueryElement.css({ "border": "1px solid red", "box-shadow": "0 0 3px #CC0000" });
+			} else {
+				jQueryElement.css({"border": "", "box-shadow": ""});
+			}
+		} 
+	});
+	
+	if (typeof buttonId == 'undefined') {
+		Calendar.setup({ inputField : jQueryElement.attr("name"), ifFormat : "%Y-%m-%d", showsTime :false, singleClick : true, step : 1,
+			onClose: function() { 
+				jQueryElement.trigger('blur');
+				this.hide();
+			}}
+		);
+	} else {
+		Calendar.setup({ inputField : jQueryElement.attr("name"), ifFormat : "%Y-%m-%d", showsTime :false, singleClick : true, step : 1,
+			button : buttonId,
+			onClose: function() {
+				jQueryElement.trigger('blur');
+				this.hide();
+			}}
+		);
+	}
+}

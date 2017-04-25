@@ -213,7 +213,7 @@ function ClipBoard4() {
 		dob_month = Integer.parseInt(demo.getMonthOfBirth());
 		dob_date = Integer.parseInt(demo.getDateOfBirth());
 		if(dob_year!=0) age=MyDateFormat.getAge(dob_year,dob_month,dob_date);
-		dob=dob_year + "/" + demo.getMonthOfBirth() + "/" + demo.getDateOfBirth();
+		dob=dob_year + "-" + demo.getMonthOfBirth() + "-" + demo.getDateOfBirth();
 		
 		if (demo.getChartNo()!=null) chart_no = demo.getChartNo();
 		if (demo.getAddress()!=null) address = Misc.JSEscape(demo.getAddress());

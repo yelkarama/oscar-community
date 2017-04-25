@@ -63,16 +63,11 @@ var _hc_newDemographicHandler = function(args) {
 				jQuery(window).find("#_hc_layout_valid_to").addClass("_hc_mismatch");
 				jQuery(window).find("#_hc_errors").append("<div class='_hc_error'>This health card has expired.</div>");
 			}
-			
-			jQuery("input[name='end_date_year']").val(hinExp.substring(0,4));
-	   	 	jQuery("input[name='end_date_month']").val(hinExp.substring(4,6));
-	   	 	jQuery("input[name='end_date_date']").val(hinExp.substring(6,8));
-	   	 	
+
+			jQuery("input[name='hc_renew_date']").val(hinExp.substring(0,4) + '-' + hinExp.substring(4,6) + '-' + hinExp.substring(6,8));
 		} else {
 			jQuery(window).find("#_hc_layout_valid_to").text("No Expiry");
-			jQuery("input[name='end_date_year']").val("");
-	   	 	jQuery("input[name='end_date_month']").val("");
-	   	 	jQuery("input[name='end_date_date']").val("");
+			jQuery("input[name='hc_renew_date']").val("");
 	   	 	
 		}
 		
@@ -95,18 +90,14 @@ var _hc_newDemographicHandler = function(args) {
             jQuery("input[name='hin']").css({'background-color' : 'yellow'});
             jQuery("input[name='hin']").val(args["hin"]);
         }
-        if (jQuery("input[name='year_of_birth']").val() != args["dob"].substring(0,4)){
-            jQuery("input[name='year_of_birth']").css({'background-color' : 'yellow'});
-            jQuery("input[name='year_of_birth']").val(args["dob"].substring(0,4));
-        }
-        if (jQuery("input[name='month_of_birth']").val() != args["dob"].substring(4,6)){
-            jQuery("input[name='month_of_birth']").css({'background-color' : 'yellow'});
-            jQuery("input[name='month_of_birth']").val(args["dob"].substring(4,6));
-        }
-        if (jQuery("input[name='date_of_birth']").val() != args["dob"].substring(6,8)){
-            jQuery("input[name='date_of_birth']").css({'background-color' : 'yellow'});
-            jQuery("input[name='date_of_birth']").val(args["dob"].substring(6,8));
-        }
+        var fomattedDob = args["dob"].substring(0,4) + '-' + args["dob"].substring(4,6) + '-' + args["dob"].substring(6,8);
+		if (jQuery("input[name='full_birth_date']").val() != fomattedDob){
+			jQuery("input[name='full_birth_date']").css({'background-color' : 'yellow'});
+			jQuery("input[name='full_birth_date']").val(fomattedDob);
+			jQuery("input[name='year_of_birth']").val(args["dob"].substring(0,4));
+			jQuery("input[name='month_of_birth']").val(args["dob"].substring(4,6));
+			jQuery("input[name='date_of_birth']").val(args["dob"].substring(6,8));
+		}
         if (jQuery("input[name='ver']").val() != args["hinVer"]){
             jQuery("input[name='ver']").css({'background-color' : 'yellow'});
             jQuery("input[name='ver']").val(args["hinVer"]);
@@ -115,17 +106,10 @@ var _hc_newDemographicHandler = function(args) {
             jQuery("input[name='sex']").css({'background-color' : 'yellow'});
             jQuery("input[name='sex']").val((args["sex"] == "1" ? "M" : (args["sex"] == "2" ? "F" : "")));
         }
-        if (jQuery("input[name='eff_date_year']").val() != issueDate.substring(0,4)){
-            jQuery("input[name='eff_date_year']").css({'background-color' : 'yellow'});
-            jQuery("input[name='eff_date_year']").val(issueDate.substring(0,4));
-        }
-        if (jQuery("input[name='eff_date_year']").val() != issueDate.substring(0,4)){
-            jQuery("input[name='eff_date_year']").css({'background-color' : 'yellow'});
-            jQuery("input[name='eff_date_year']").val(issueDate.substring(0,4));
-        }
-        if (jQuery("input[name='eff_date_year']").val() != issueDate.substring(0,4)){
-            jQuery("input[name='eff_date_year']").css({'background-color' : 'yellow'});
-            jQuery("input[name='eff_date_year']").val(issueDate.substring(0,4));
+        var issueDateFormatted = issueDate.substring(0,4) + "-" + issueDate.substring(4,6)+ "-" + issueDate.substring(6,8);
+		if (jQuery("input[name='eff_date']").val() != issueDateFormatted){
+            jQuery("input[name='eff_date']").css({'background-color' : 'yellow'});
+            jQuery("input[name='eff_date']").val(issueDateFormatted);
         }
         showEdit();
 		

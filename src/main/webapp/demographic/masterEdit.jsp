@@ -509,36 +509,35 @@
 		<bean:message
 				key="demographic.demographiceditdemographic.formDOBDetais" /><b>:</b>
 		</td>
-		<td align="left" nowrap><input type="text" name="year_of_birth"
-			<%=getDisabled("year_of_birth")%> value="<%=birthYear%>" size="3"
-			maxlength="4"> <% 
-									String sbMonth;
-									String sbDay;
-									DecimalFormat dFormat = new DecimalFormat("00");
-									%> <select name="month_of_birth" id="month_of_birth">
-				<% for(int i=1; i<=12; i++) {
-										sbMonth = dFormat.format(i); %>
-				<option value="<%=sbMonth%>"
-					<%=birthMonth.equals(sbMonth)?" selected":""%>><%=sbMonth%></option>
-				<%} %>
-		</select> <select name="date_of_birth" id="date_of_birth">
-				<% for(int i=1; i<=31; i++) {
-										sbDay = dFormat.format(i); %>
-				<option value="<%=sbDay%>"
-					<%=birthDate.equals(sbDay)?" selected":""%>><%=sbDay%></option>
-				<%} %>
-		</select> <b>Age: <input type="text" name="age" readonly value="<%=age%>"
-				size="3">
-		</b></td>
-		<td align="right" nowrap><b><bean:message
-					key="demographic.demographiceditdemographic.formSex" />:</b></td>
-		<td><select name="sex" id="sex">
+		<td align="left" nowrap>
+			<input type="text" name="full_birth_date" id="full_birth_date" value="<%=birthYear + "_" + birthMonth + "_" + birthDate%>"/>
+			<img src="../images/cal.gif" id="full_birth_date_cal">
+			<input type="hidden" name="year_of_birth" id="year_of_birth" value="<%=birthYear%>"/>
+			<input type="hidden" name="month_of_birth" id="month_of_birth" value="<%=birthMonth%>"/>
+			<input type="hidden" name="date_of_birth" id="date_of_birth" value="<%=birthDate%>"/>
+			<script type="application/javascript">
+				createStandardDatepicker(jQuery_3_1_0('#full_birth_date'), "full_birth_date_cal");
+				jQuery_3_1_0('#full_birth_date').change(function(){
+					var birthDate = new Date(jQuery_3_1_0('#full_birth_date').val());
+					if (!isNaN(birthDate)) {
+						document.getElementById('year_of_birth').value = birthDate.toISOString().substring(0, 4);
+						document.getElementById('month_of_birth').value = birthDate.toISOString().substring(5, 7)
+						document.getElementById('date_of_birth').value = birthDate.toISOString().substring(8, 10)
+					}
+				});
+			</script>
+			<b>Age: <input type="text" name="age" readonly value="<%=age%>" size="3"></b>
+		</td>
+		<td align="right" nowrap><b><bean:message key="demographic.demographiceditdemographic.formSex" />:</b></td>
+		<td>
+			<select name="sex" id="sex">
 				<option value=""></option>
 				<% for(Gender gn : Gender.values()){ %>
-				<option value=<%=gn.name()%>
-					<%=((demographic.getSex().toUpperCase().equals(gn.name())) ? " selected=\"selected\" " : "") %>><%=gn.getText()%></option>
+					<option value=<%=gn.name()%> <%=((demographic.getSex().toUpperCase().equals(gn.name())) ? " selected=\"selected\" " : "") %>>
+						<%=gn.getText()%></option>
 				<% } %>
-		</select></td>
+			</select>
+		</td>
 	</tr>
 	<tr valign="top">
 		<td align="right"><b><bean:message
@@ -555,33 +554,15 @@
 					key="demographic.demographiceditdemographic.formEFFDate" />:</b></td>
 		<td align="left">
 			<%
-								java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
-								String effDate=null;
-								if(demographic.getEffDate() != null) {
-									effDate=StringUtils.trimToNull(sdf.format(demographic.getEffDate()));
-								}
-                                // Put 0 on the left on dates
-                                DecimalFormat decF = new DecimalFormat();
-								String effDateYear="";
-								String effDateMonth="";
-								String effDateDay="";
-								if (effDate!=null)
-								{
-	                                 // Year
-	                                 decF.applyPattern("0000");
-	                                 effDateYear = decF.format(MyDateFormat.getYearFromStandardDate(effDate));
-	                                 // Month and Day
-	                                 decF.applyPattern("00");
-	                                 effDateMonth = decF.format(MyDateFormat.getMonthFromStandardDate(effDate));
-	                                 effDateDay = decF.format(MyDateFormat.getDayFromStandardDate(effDate));
-								}
-                              %> <input type="text" name="eff_date_year"
-			<%=getDisabled("eff_date_year")%> size="4" maxlength="4"
-			value="<%= effDateYear%>"> <input type="text"
-			name="eff_date_month" size="2" maxlength="2"
-			<%=getDisabled("eff_date_month")%> value="<%= effDateMonth%>">
-			<input type="text" name="eff_date_date" size="2" maxlength="2"
-			<%=getDisabled("eff_date_date")%> value="<%= effDateDay%>">
+				java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+				String effDate=null;
+				if(demographic.getEffDate() != null) {
+					effDate=StringUtils.trimToNull(sdf.format(demographic.getEffDate()));
+				}
+			%>
+			<input type="text" name="eff_date" id="eff_date" <%=getDisabled("eff_date")%> size="11" value="<%= effDate%>">
+			<img src="../images/cal.gif" id="eff_date_cal">
+			<script type="application/javascript">createStandardDatepicker(jQuery_3_1_0('#eff_date'), "eff_date_cal");</script>
 		</td>
 	</tr>
 	<tr valign="top">
@@ -700,31 +681,15 @@
 					key="demographic.demographiceditdemographic.formHCRenewDate" />:</b></td>
 		<td align="left">
 			<%
-                                 // Put 0 on the left on dates
-                                 // Year
-                                 decF.applyPattern("0000");
-
-								 GregorianCalendar hcRenewalCal=new GregorianCalendar();
-								 String renewDateYear="";
-								 String renewDateMonth="";
-								 String renewDateDay="";
-								 if (demographic.getHcRenewDate()!=null)
-								 {
-								    hcRenewalCal.setTime(demographic.getHcRenewDate());
-	                                 renewDateYear = decF.format(hcRenewalCal.get(GregorianCalendar.YEAR));
-                                 // Month and Day
-                                 decF.applyPattern("00");
-	                                 renewDateMonth = decF.format(hcRenewalCal.get(GregorianCalendar.MONTH)+1);
-	                                 renewDateDay = decF.format(hcRenewalCal.get(GregorianCalendar.DAY_OF_MONTH));
-								 }
-
-                              %> <input type="text"
-			name="hc_renew_date_year" size="4" maxlength="4"
-			value="<%=renewDateYear%>" <%=getDisabled("hc_renew_date_year")%>>
-			<input type="text" name="hc_renew_date_month" size="2" maxlength="2"
-			value="<%=renewDateMonth%>" <%=getDisabled("hc_renew_date_month")%>>
-			<input type="text" name="hc_renew_date_date" size="2" maxlength="2"
-			value="<%=renewDateDay%>" <%=getDisabled("hc_renew_date_date")%>>
+				 String renewDate="";
+				 if (demographic.getHcRenewDate()!=null) {
+					 renewDate = demographic.getHcRenewDate().toString();
+				 }
+			%> 
+			<input type="text" name="hc_renew_date" id="hc_renew_date"
+				size="11" value="<%=renewDate%>" <%=getDisabled("hc_renew_date")%>>
+			<img src="../images/cal.gif" id="hc_renew_date_cal">
+			<script type="application/javascript">createStandardDatepicker(jQuery_3_1_0('#hc_renew_date'), "hc_renew_date_cal");</script>
 		</td>
 	</tr>
 	<tr valign="top">
@@ -958,58 +923,31 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 				value="<bean:message key="demographic.demographiceditdemographic.btnAddNew"/>">
 			</td>
 			<%
-				// Put 0 on the left on dates
-					// Year
-					decF.applyPattern("0000");
+				String rosterDate = "";
+				if (demographic.getRosterDate() != null) {
+					rosterDate = demographic.getRosterDate().toString();
+				}
+				
+				String rosterTerminationDate = "";
+				String rosterTerminationReason = "";
+				if (demographic.getRosterTerminationDate() != null) {
+					rosterTerminationDate = demographic.getRosterTerminationDate().toString();
+				}
+				rosterTerminationReason = demographic.getRosterTerminationReason();
 
-					
-					String rosterDateYear = "";
-					String rosterDateMonth = "";
-					String rosterDateDay = "";
-					if (demographic.getRosterDate() != null) {
-						dateCal.setTime(demographic.getRosterDate());
-						rosterDateYear = decF.format(dateCal.get(GregorianCalendar.YEAR));
-						// Month and Day
-						decF.applyPattern("00");
-						rosterDateMonth = decF.format(dateCal.get(GregorianCalendar.MONTH) + 1);
-						rosterDateDay = decF.format(dateCal.get(GregorianCalendar.DAY_OF_MONTH));
-					}
-					
-					String rosterTerminationDateYear = "";
-					String rosterTerminationDateMonth = "";
-					String rosterTerminationDateDay = "";
-					String rosterTerminationReason = "";
-					if (demographic.getRosterTerminationDate() != null) {
-						dateCal.setTime(demographic.getRosterTerminationDate());
-						rosterTerminationDateYear = decF.format(dateCal.get(GregorianCalendar.YEAR));
-						// Month and Day
-						decF.applyPattern("00");
-						rosterTerminationDateMonth = decF.format(dateCal.get(GregorianCalendar.MONTH) + 1);
-						rosterTerminationDateDay = decF.format(dateCal.get(GregorianCalendar.DAY_OF_MONTH));
-					}
-					rosterTerminationReason = demographic.getRosterTerminationReason();
-
-					String patientStatusDateYear = "";
-					String patientStatusDateMonth = "";
-					String patientStatusDateDay = "";
-					if (demographic.getPatientStatusDate() != null) {
-						dateCal.setTime(demographic.getPatientStatusDate());
-						patientStatusDateYear = decF.format(dateCal.get(GregorianCalendar.YEAR));
-						// Month and Day
-						decF.applyPattern("00");
-						patientStatusDateMonth = decF.format(dateCal.get(GregorianCalendar.MONTH) + 1);
-						patientStatusDateDay = decF.format(dateCal.get(GregorianCalendar.DAY_OF_MONTH));
-					}
+				String patientStatusDate = "";
+				if (demographic.getPatientStatusDate() != null) {
+					patientStatusDate = demographic.getPatientStatusDate().toString();
+				}
 			%>
 
 			<td align="right" nowrap><b><bean:message
 						key="demographic.demographiceditdemographic.DateJoined" />: </b></td>
-			<td align="left"><input type="text" name="roster_date_year"
-				size="4" maxlength="4" value="<%=rosterDateYear%>"> <input
-				type="text" name="roster_date_month" size="2" maxlength="2"
-				value="<%=rosterDateMonth%>"> <input type="text"
-				name="roster_date_day" size="2" maxlength="2"
-				value="<%=rosterDateDay%>"></td>
+			<td align="left">
+				<input type="text" name="roster_date" id="roster_date" size="11" value="<%=rosterDate%>">
+				<img src="../images/cal.gif" id="roster_date_cal">
+				<script type="application/javascript">createStandardDatepicker(jQuery_3_1_0('#roster_date'), "roster_date_cal");</script>
+			</td>
 		</tr>
 		<tr valign="top" class="termination_details">
 			<td align="right" nowrap><b><bean:message
@@ -1026,12 +964,11 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 		<tr valign="top" class="termination_details">
 			<td align="right" nowrap><b><bean:message
 				key="demographic.demographiceditdemographic.RosterTerminationDate" />: </b></td>
-			<td align="left"><input type="text" name="roster_termination_date_year"
-				size="4" maxlength="4" value="<%=rosterTerminationDateYear%>"> <input
-				type="text" name="roster_termination_date_month" size="2" maxlength="2"
-				value="<%=rosterTerminationDateMonth%>"> <input type="text"
-				name="roster_termination_date_day" size="2" maxlength="2"
-				value="<%=rosterTerminationDateDay%>"></td>
+			<td align="left">
+				<input type="text" name="roster_termination_date" id="roster_termination_date" value="<%=rosterTerminationDate%>">
+				<img src="../images/cal.gif" id="roster_termination_date_cal">
+				<script type="application/javascript">createStandardDatepicker(jQuery_3_1_0('#roster_termination_date'), "roster_termination_date_cal");</script>
+			</td>
 		</tr>
 
 	</oscar:oscarPropertiesCheck>
@@ -1040,27 +977,19 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 function updateStatusDate(patientOrRoster){
 	var d = new Date();
 	if(patientOrRoster == "patient"){
-        patientStatusYear = document.updatedelete.patientstatus_date_year;
-        patientStatusMonth = document.updatedelete.patientstatus_date_month;
-        patientStatusDay = document.updatedelete.patientstatus_date_day;
+        patientStatus = document.updatedelete.patientstatus_date;
 
-        if(patientStatusYear.value == "" && patientStatusMonth.value == "" && patientStatusDay.value =="" ){
-            patientStatusYear.value = d.getFullYear();
-            patientStatusMonth.value = d.getMonth() + 1;
-            patientStatusDay.value = d.getDate();
+        if(patientStatus.value == ""){
+            patientStatus.value = d.getFullYear() + "-" + d.getMonth() + 1 + "-" + d.getDate();
         }
 	}
 	else if (patientOrRoster == "roster"){
 	    selectedRosterStatus = document.getElementById("roster_status").value;
-		rosterStatusYear = document.updatedelete.roster_date_year;
-		rosterStatusMonth = document.updatedelete.roster_date_month;
-		rosterStatusDay = document.updatedelete.roster_date_day;
+		rosterStatusDate = document.updatedelete.roster_date;
 
-		if(rosterStatusYear.value == "" && rosterStatusMonth.value == "" && rosterStatusDay.value =="" ){
+		if(rosterStatusDate.value == "" ){
 		    if (selectedRosterStatus == "RO" || selectedRosterStatus == "NR"){
-				rosterStatusYear.value = d.getFullYear();
-				rosterStatusMonth.value = d.getMonth() + 1;
-				rosterStatusDay.value = d.getDate();
+				rosterStatusDate.value = d.getFullYear() + "-" + d.getMonth() + 1 + "-" + d.getDate();
 			}
 		}
 	}
@@ -1110,9 +1039,9 @@ function updateStatusDate(patientOrRoster){
 		<td align="right" nowrap>
 			<b><bean:message key="demographic.demographiceditdemographic.PatientStatusDate" />: </b></td>
 		<td align="left">
-											<input  type="text" name="patientstatus_date_year" size="4" maxlength="4" value="<%=patientStatusDateYear%>">
-											<input  type="text" name="patientstatus_date_month" size="2" maxlength="2" value="<%=patientStatusDateMonth%>">
-											<input  type="text" name="patientstatus_date_day" size="2" maxlength="2" value="<%=patientStatusDateDay%>">
+			<input  type="text" name="patientstatus_date" id="patientstatus_date" size="11" value="<%=patientStatusDate%>">
+			<img src="../images/cal.gif" id="patientstatus_date_cal">
+			<script type="application/javascript">createStandardDatepicker(jQuery_3_1_0('#patientstatus_date'), "patientstatus_date_cal");</script>
 		</td>
 	</tr>
 	<tr>
@@ -1195,14 +1124,11 @@ function updateStatusDate(patientOrRoster){
 					<bean:message
 						key="demographic.demographiceditdemographic.paperChartIndicator.yes" />
 				</option>
-		</select> <input type="text" name="paper_chart_archived_date"
-			id="paper_chart_archived_date" size="11"
-			value="<%=paperChartIndicatorDate%>"> <img
-			src="../images/cal.gif" id="archive_date_cal"> <bean:message
-				key="schedule.scheduletemplateapplying.msgDateFormat" /> <input
-			type="hidden" name="paper_chart_archived_program"
-			id="paper_chart_archived_program"
-			value="<%=paperChartIndicatorProgram%>" />
+		</select>
+			<input type="text" name="paper_chart_archived_date" id="paper_chart_archived_date" value="<%=paperChartIndicatorDate%>">
+			<img src="../images/cal.gif" id="archive_date_cal">
+			<script type="application/javascript">createStandardDatepicker(jQuery_3_1_0('#paper_chart_archived_date'), "archive_date_cal");</script>
+			<input type="hidden" name="paper_chart_archived_program" id="paper_chart_archived_program" value="<%=paperChartIndicatorProgram%>" />
 		</td>
 	</tr>
 	<%-- 
@@ -1215,52 +1141,18 @@ function updateStatusDate(patientOrRoster){
 		<td align="right" nowrap><b><bean:message
 					key="demographic.demographiceditdemographic.formDateJoined1" />: </b></td>
 		<td align="left">
-			<%
-				String date_joined = demographic.getDateJoined() != null ? sdf.format(demographic.getDateJoined()) : null;
-				String dateJoinedYear = "";
-				String dateJoinedMonth = "";
-				String dateJoinedDay = "";
-				if (date_joined != null && date_joined.length() == 10) {
-					// Format year
-					decF.applyPattern("0000");
-					dateJoinedYear = decF.format(MyDateFormat.getYearFromStandardDate(date_joined));
-					decF.applyPattern("00");
-					dateJoinedMonth = decF.format(MyDateFormat.getMonthFromStandardDate(date_joined));
-					dateJoinedDay = decF.format(MyDateFormat.getDayFromStandardDate(date_joined));
-				}
-			%> <input type="text"
-			name="date_joined_year" size="4" maxlength="4"
-			value="<%=dateJoinedYear%>"> <input type="text"
-			name="date_joined_month" size="2" maxlength="2"
-			value="<%=dateJoinedMonth%>"> <input type="text"
-			name="date_joined_date" size="2" maxlength="2"
-			value="<%=dateJoinedDay%>">
+			<% String dateJoined = demographic.getDateJoined() != null ? sdf.format(demographic.getDateJoined()) : null; %> 
+			<input type="text" name="date_joined" id="date_joined" size="11" value="<%=dateJoined%>">
+			<img src="../images/cal.gif" id="date_joined_cal">
+			<script type="application/javascript">createStandardDatepicker(jQuery_3_1_0('#date_joined'), "date_joined_cal");</script>
 		</td>
 		<td align="right"><b><bean:message
 					key="demographic.demographiceditdemographic.formEndDate" />: </b></td>
 		<td align="left">
-			<%
-				String endDate = null;
-				if (demographic.getEndDate() != null) {
-					endDate = sdf.format(demographic.getEndDate());
-				}
-				String endYear = "";
-				String endMonth = "";
-				String endDay = "";
-
-				if (endDate != null) {
-					// Format year
-					decF.applyPattern("0000");
-					endYear = decF.format(MyDateFormat.getYearFromStandardDate(endDate));
-					decF.applyPattern("00");
-					endMonth = decF.format(MyDateFormat.getMonthFromStandardDate(endDate));
-					endDay = decF.format(MyDateFormat.getDayFromStandardDate(endDate));
-				}
-			%> <input type="text" name="end_date_year"
-			size="4" maxlength="4" value="<%=endYear%>"> <input
-			type="text" name="end_date_month" size="2" maxlength="2"
-			value="<%=endMonth%>"> <input type="text"
-			name="end_date_date" size="2" maxlength="2" value="<%=endDay%>">
+			<% String endDate = demographic.getEndDate() != null ? sdf.format(demographic.getEndDate()) : null; %> 
+			<input type="text" name="end_date" id="end_date" size="11" value="<%=endDate%>">
+			<img src="../images/cal.gif" id="end_date_cal">
+			<script type="application/javascript">createStandardDatepicker(jQuery_3_1_0('#end_date'), "end_date_cal");</script>
 		</td>
 	</tr>
 	<%-- END MOVE PATIENT JOINED DATE --%>
@@ -1438,13 +1330,11 @@ function updateStatusDate(patientOrRoster){
 						<td colspan="2">&nbsp;</td>
 						<td align="right" nowrap><b><bean:message
 									key="demographic.demographiceditdemographic.msgDateOfReq" />: </b></td>
-						<td align="left"><input type="text"
-							name="waiting_list_referral_date" id="waiting_list_referral_date"
-							size="11" value="<%=wlReferralDate%>" <%=wLReadonly%>><img
-							src="../images/cal.gif" id="referral_date_cal">
-						<bean:message
-								key="schedule.scheduletemplateapplying.msgDateFormat" /></td>
-
+						<td align="left">
+							<input type="text" name="waiting_list_referral_date" id="waiting_list_referral_date" size="11" value="<%=wlReferralDate%>" <%=wLReadonly%>>
+							<img src="../images/cal.gif" id="waiting_list_referral_date_cal">
+							<script type="application/javascript">createStandardDatepicker(jQuery_3_1_0('#waiting_list_referral_date'), "waiting_list_referral_date_cal");</script>
+						</td>
 					</tr>
 				</table>
 			</td>

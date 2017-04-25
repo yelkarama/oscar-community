@@ -366,6 +366,11 @@ if(!authed) {
    <script>
      jQuery.noConflict();
    </script>
+	<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-3.1.0.min.js"></script>
+	<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery.maskedinput.js"></script>
+	<script type="application/javascript">
+		var jQuery_3_1_0 = jQuery.noConflict(true);
+	</script>
 <script>
 jQuery( document ).ready( function() {
 	var demographicGroupsForPatient = [];
@@ -2512,16 +2517,12 @@ if ( Dead.equals(PatStat) ) {%>
 </table>
 
 <oscar:oscarPropertiesCheck property="DEMOGRAPHIC_WAITING_LIST" value="true">
-<script type="text/javascript">
-Calendar.setup({ inputField : "waiting_list_referral_date", ifFormat : "%Y-%m-%d", showsTime :false, button : "referral_date_cal", singleClick : true, step : 1 });
-</script>
 </oscar:oscarPropertiesCheck>
 
 <script type="text/javascript">
 
 
 
-Calendar.setup({ inputField : "paper_chart_archived_date", ifFormat : "%Y-%m-%d", showsTime :false, button : "archive_date_cal", singleClick : true, step : 1 });
 
 function callEligibilityWebService(url,id){
 
