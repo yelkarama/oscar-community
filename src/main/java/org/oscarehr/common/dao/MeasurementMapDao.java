@@ -126,15 +126,17 @@ public class MeasurementMapDao extends AbstractDao<MeasurementMap> {
 	 * 		Returns a list of triples holding {@link MeasurementMap}, {@link MeasurementMap}, {@link MeasurementType}
 	 */
 	@SuppressWarnings("unchecked")
-    public List<Object[]> findMeasurements(String labType, String idCode) {
+    public List<Object[]> findMeasurements(String labType, String idCode, String name) {
 		String sql = "FROM MeasurementMap a, MeasurementMap b, " + MeasurementType.class.getSimpleName() + " type " +
 				"WHERE b.labType = :labType " +
 				"AND a.identCode = :idCode " +
+				"AND a.name = :name " +
 				"AND a.loincCode = b.loincCode " +
 				"AND type.type = b.identCode";
 		Query q = entityManager.createQuery(sql);
 		q.setParameter("labType", labType);
 		q.setParameter("idCode", idCode);
+		q.setParameter("name", name);
 		return q.getResultList();
     }
 
