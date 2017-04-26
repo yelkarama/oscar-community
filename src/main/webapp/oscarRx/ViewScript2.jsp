@@ -701,7 +701,7 @@ function toggleView(form) {
 					<tr>
 						<td style="padding-bottom: 0"><span><input type=button value="Fax"
 										 class="ControlPushButton" id="faxButton" style="width: 150px"
-										 onClick="sendFax();"/></span>
+										 onClick="sendFax();" disabled/></span>
 						</td>
 					</tr>
 					<tr>                            
