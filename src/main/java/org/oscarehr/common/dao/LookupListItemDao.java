@@ -52,5 +52,18 @@ public class LookupListItemDao extends AbstractDao<LookupListItem> {
 
 		return result;
 	}
+
+	public List<LookupListItem> findByLookupListIdPosition(int lookupListId, int lookupListItemPosition) {
+		Query q = entityManager.createQuery("select l from LookupListItem l where l.lookupListId=? and l.displayOrder=? and l.active=?");
+
+		q.setParameter(1,lookupListId);
+		q.setParameter(2,lookupListItemPosition);
+		q.setParameter(3,true);
+
+		@SuppressWarnings("unchecked")
+		List<LookupListItem> result = q.getResultList();
+
+		return result;
+	}
 	
 }

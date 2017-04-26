@@ -37,6 +37,7 @@
 
 		$(".addLookupListItemButton").unbind("click");
 		$(".removeLookupListItem").unbind("click");
+        $(".reorderLookupListItem").unbind("click");
 		$(".showHideEdit").unbind( "click");
 		
 		$(".addLookupListItemButton").bind("click", function(){
@@ -54,6 +55,15 @@
 			data.method = "remove";
 			postData( data, "#lookupListItems_" + lookupListId );
 		});
+
+        $(".reorderLookupListItem").bind("click", function(){
+            var lookupListId = this.id.split("_")[2];
+            var data = new Object();
+            data.direction = this.id.split("_")[0];
+            data.lookupListItemId = this.id.split("_")[1];
+            data.method = "reorder";
+            postData( data, "#lookupListItems_" + lookupListId );
+        });
 	
 		$(".showHideEdit").bind( "click", function(){		
 			var lookupListId = this.id.split("_")[1];
@@ -181,6 +191,14 @@ ul {
 		border-color: #555;
 		color: #555;
 	}
+
+li.lookupListItem a.reorderLookupListItem {
+	display: inline-block;
+	float: right;
+	border: transparent;
+	padding: 0 2px;
+	margin: 0 5px;
+}
 
 div.addLookupListItemTools {
 	padding:5px;

@@ -143,6 +143,18 @@ public class LookupListManager {
 		return lookupListItem;
 	}
 
+	public LookupListItem findLookupListItemByDisplayOrder(LoggedInInfo loggedInInfo, int lookupListId, int lookupListItemDisplayOrder) {
+		LookupListItem lookupListItem = null;
+		List<LookupListItem> lookupListItems = null;
+		if( lookupListId > 0 ) {
+			lookupListItems = lookupListItemDao.findByLookupListIdPosition(lookupListId,lookupListItemDisplayOrder);
+		}
+		if( lookupListItems != null && !lookupListItems.isEmpty() ) {
+			lookupListItem = lookupListItems.get(0);
+		}
+		return lookupListItem;
+	}
+
 	/**
 	 * Update a lookupListItem that has been edited.
 	 */
