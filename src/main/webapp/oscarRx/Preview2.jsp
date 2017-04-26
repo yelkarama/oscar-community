@@ -642,6 +642,7 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
 			                                                            <% if (OscarProperties.getInstance().isRxFaxEnabled() && pharmacy != null) { %>
 			                                                            	var hasFaxNumber = <%= pharmacy != null && pharmacy.getFax().trim().length() > 0 ? "true" : "false" %>;
 			                                                            	parent.document.getElementById("faxButton").disabled = !hasFaxNumber;
+																			parent.document.getElementById("faxPasteButton").disabled = !hasFaxNumber;
                                                             			<% } %>
 																		}
 		                                                            </script>
