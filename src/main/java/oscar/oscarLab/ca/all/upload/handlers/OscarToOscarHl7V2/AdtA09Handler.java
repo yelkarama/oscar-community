@@ -139,6 +139,10 @@ public final class AdtA09Handler {
 
 			if (demographicMatches(appointment, demographic)) {
 				switchAppointmentStatus(appointment, newStatus);
+				if (!isAppointmentStatusChanged(appointment)){
+					continue;
+				}
+
 				return;
 			}
 		}
@@ -158,6 +162,10 @@ public final class AdtA09Handler {
 
 			if (chartNoMatches(appointment, chartNo)) {
 				switchAppointmentStatus(appointment, newStatus);
+				if (!isAppointmentStatusChanged(appointment)){
+					continue;
+				}
+
 				return;
 			}
 		}
@@ -172,6 +180,13 @@ public final class AdtA09Handler {
 		else if ("B".equals(appointment.getStatus())) return (false);
 		else if ("P".equals(appointment.getStatus())) return (false);
 
+		return (true);
+	}
+
+	private static boolean isAppointmentStatusChanged(Appointment appointment) {
+		if (!("H").equals(appointment.getStatus())){
+			return (false);
+		}
 		return (true);
 	}
 
