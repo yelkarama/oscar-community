@@ -37,6 +37,8 @@ import org.oscarehr.common.dao.OscarAppointmentDao;
 import org.oscarehr.common.dao.ScheduleDateDao;
 import org.oscarehr.common.dao.ScheduleTemplateCodeDao;
 import org.oscarehr.common.dao.ScheduleTemplateDao;
+import org.oscarehr.common.dao.RScheduleDao;
+import org.oscarehr.common.model.RSchedule;
 import org.oscarehr.common.model.Appointment;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.model.ProviderPreference;
@@ -52,7 +54,8 @@ public class NextAppointmentSearchHelper {
 
 	static Logger logger = MiscUtils.getLogger();
 	static ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
-	static ProviderPreferenceDao providerPreferenceDao = (ProviderPreferenceDao) SpringUtils.getBean("providerPreferenceDao");	 	
+	static ProviderPreferenceDao providerPreferenceDao = (ProviderPreferenceDao) SpringUtils.getBean("providerPreferenceDao");	
+	static RScheduleDao rScheduleDao = (RScheduleDao)SpringUtils.getBean("rScheduleDao");
 	static ScheduleDateDao scheduleDateDao = (ScheduleDateDao)SpringUtils.getBean("scheduleDateDao");
 	static ScheduleTemplateDao scheduleTemplateDao = (ScheduleTemplateDao)SpringUtils.getBean("scheduleTemplateDao");
 	static ScheduleTemplateCodeDao scheduleTemplateCodeDao = (ScheduleTemplateCodeDao)SpringUtils.getBean("scheduleTemplateCodeDao");
@@ -151,12 +154,17 @@ public class NextAppointmentSearchHelper {
 	private static List<NextAppointmentSearchResult> searchDayProvider(String providerNo, Date day, boolean today, NextAppointmentSearchBean searchBean) {
 		List<NextAppointmentSearchResult> results = new ArrayList<NextAppointmentSearchResult>();
 		ProviderPreference providerPreference = providerPreferenceDao.find(providerNo);
+		List<RSchedule> rs = rScheduleDao.findByProviderAndStatus(providerNo, "A");
 		
 		//load up the schedule
 		ScheduleDate sd = scheduleDateDao.findByProviderNoAndDate(providerNo, day);
 		if(sd == null) {
 			//logger.warn("no schedule found for provider " + providerNo + " on day " + day);
-			return searchDayProviderNoSchedule(providerNo, day, today, searchBean);
+            if(rs.size()>0)
+            {
+                return results;
+            }
+            return searchDayProviderNoSchedule(providerNo, day, today, searchBean);
 		}
 		//we have a schedule..lets check what template to use
 		String templateName = sd.getHour();		
@@ -200,6 +208,8 @@ public class NextAppointmentSearchHelper {
 				if(hour==startHour && min<startMin) {
 					continue;
 				}
+				int duration = providerPreference.getEveryMin();
+				
 				//logger.info("currently at position " + x + " which is hour " + hour + " and min " + min);
 				if(slot != '_') {
 					//filter by code
@@ -209,9 +219,8 @@ public class NextAppointmentSearchHelper {
 							continue;
 						}
 					}
-					
-					//TODO: is there a default appt length somewhere?					
-					int duration = providerPreference.getEveryMin();
+
+					//TODO: is there a default appt length somewhere?
 					if(searchBean.getCode().length()>0) {
 						//load the template code
 						ScheduleTemplateCode stc = scheduleTemplateCodeDao.getByCode(searchBean.getCode().charAt(0));
@@ -224,6 +233,8 @@ public class NextAppointmentSearchHelper {
 							duration = Integer.parseInt(stc.getDuration());
 						}
 					}
+
+				}
 					
 					//ready to check appointments
 					//logger.info("schedule availability found at hour " + hour + ", min = " + min + " duration = " + duration);
@@ -242,8 +253,7 @@ public class NextAppointmentSearchHelper {
 						result.setDate(cal2.getTime());
 						result.setDuration(duration);
 						results.add(result);
-					} 
-				}
+					}
 			}						
 		}
 		return results;
