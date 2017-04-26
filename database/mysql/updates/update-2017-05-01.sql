@@ -1,0 +1,1 @@
+ALTER TABLE professionalSpecialists ADD deleted tinyint(1) DEFAULT 0;

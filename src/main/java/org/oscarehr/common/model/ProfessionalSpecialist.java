@@ -91,7 +91,8 @@ public class ProfessionalSpecialist extends AbstractModel<Integer> implements Se
     private String pagerNumber;
     private String salutation;
 
-    private boolean hideFromView=false;
+	private boolean hideFromView=false;
+    private boolean deleted=false;
     
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date lastUpdated=new Date();
@@ -224,6 +225,10 @@ public class ProfessionalSpecialist extends AbstractModel<Integer> implements Se
 	public void seteDataServiceName(String eDataServiceName) {
     	this.eDataServiceName = StringUtils.trimToNull(eDataServiceName);
     }
+
+	public boolean isDeleted() {return deleted;}
+
+	public void setDeleted(boolean deleted) {this.deleted = deleted;}
 
     /**
      * @return the annotation
