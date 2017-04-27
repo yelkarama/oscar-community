@@ -76,6 +76,25 @@ public class UploadAction extends DispatchAction {
 		
 		return mapping.findForward("success");
 	}
+
+	public ActionForward moveFiles(ActionMapping mapping, ActionForm form,
+									  HttpServletRequest request, HttpServletResponse response) {
+		ActionUtils.removeUploadResourceId(request);
+		ActionUtils.removeUploadFileName(request);
+		try {
+			moveSuccessfulUploadsToSent(request);
+		}
+		catch (IOException e){
+			logger.error("A exception has occured while moving files at " + new Date());
+			saveErrors(request, ActionUtils.addMessage("uploadAction.upload.faultException", McedtMessageCreator.exceptionToString(e)));
+			return mapping.findForward("failure");
+		}
+		ActionUtils.removeSuccessfulUploads(request);
+		ActionUtils.removeUploadResponseResults(request);
+		ActionUtils.removeSubmitResponseResults(request);
+
+		return mapping.findForward("success");
+	}
 	
 	public ActionForward cancelUpload(ActionMapping mapping, ActionForm form, 
 			HttpServletRequest request, HttpServletResponse response) {
@@ -195,17 +214,7 @@ public class UploadAction extends DispatchAction {
 					return mapping.findForward("failure");
 				}
 				
-				if (result.getResponse().get(0).getResult().getCode().equals("IEDTS0001")) {
-					try {
-						moveSuccessfulUploadsToSent(request);
-					}
-					catch (IOException e){
-						logger.error("A exception has occured while moving files at " + new Date());
-						saveErrors(request, ActionUtils.addMessage("uploadAction.upload.faultException", McedtMessageCreator.exceptionToString(e)));
-						return mapping.findForward("failure");
-					}
-				}
-				else{
+				if (!result.getResponse().get(0).getResult().getCode().equals("IEDTS0001")) {
 					result.getResponse().get(0).setDescription(submitForm.getFileName());
 				}
 				ActionUtils.setSubmitResponseResults(request, result.getResponse().get(0));
