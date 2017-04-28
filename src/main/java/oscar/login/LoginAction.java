@@ -102,6 +102,10 @@ public final class LoginAction extends DispatchAction {
     	
     	String ip = request.getRemoteAddr();
         Boolean isMobileOptimized = request.getSession().getAttribute("mobileOptimized") != null;
+		String submitType = "";
+        if(request.getParameter("submit")!=null){
+			submitType = String.valueOf(request.getParameter("submit"));
+		}
     	
         LoginCheckLogin cl = new LoginCheckLogin();
         
@@ -287,7 +291,15 @@ public final class LoginAction extends DispatchAction {
             session.setAttribute("oscar_context_path", request.getContextPath());
             session.setAttribute("expired_days", strAuth[5]);
             // If a new session has been created, we must set the mobile attribute again
-            if (isMobileOptimized) session.setAttribute("mobileOptimized","true");
+            if (isMobileOptimized){
+            	if (submitType.equalsIgnoreCase("Sign in using Full Site")){
+					session.setAttribute("fullSite","true");
+				}
+				else{
+					session.setAttribute("mobileOptimized","true");
+				}
+			}
+
             // initiate security manager
             String default_pmm = null;
             
