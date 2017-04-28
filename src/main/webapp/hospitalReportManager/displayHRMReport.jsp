@@ -50,6 +50,7 @@ HRMProviderConfidentialityStatementDao hrmProviderConfidentialityStatementDao = 
 
 <%
 Integer hrmReportId = Integer.parseInt(request.getParameter("segmentID"));
+boolean isListView = Boolean.parseBoolean(request.getParameter("isListView"));
 String hrmReportTime = "";
 Integer hrmDuplicateNum =null;
 LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
@@ -289,6 +290,7 @@ if(demographicLink != null) {
 String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());	
 
 %>
+<div id="hrmdoc_<%=hrmReportId%>">
 <div >
 	<input type="button" id="msgBtn_<%=hrmReportId%>" value="Msg" onclick="popupPatient(700,960,'<%= request.getContextPath() %>/oscarMessenger/SendDemoMessage.do?demographic_no=','msg', '<%=hrmReportId%>','<%=demographicNo %>')" <%=btnDisabled %>/>
 	<!--input type="button" id="ticklerBtn_<%=hrmReportId%>" value="Tickler" onclick="handleDocSave('<%=hrmReportId%>','addTickler')"/-->
@@ -301,7 +303,7 @@ String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 	<input type="button" id="mainMaster_<%=hrmReportId%>" value=" <bean:message key="oscarMDS.segmentDisplay.btnMaster"/>" onClick="popupPatient(710,1024,'<%= request.getContextPath() %>/demographic/demographiccontrol.jsp?displaymode=edit&dboperation=search_detail&demographic_no=','master','<%=hrmReportId%>','<%=demographicNo %>')" <%=btnDisabled %>>
 	<input type="button" id="mainApptHistory_<%=hrmReportId%>" value=" <bean:message key="oscarMDS.segmentDisplay.btnApptHist"/>" onClick="popupPatient(710,1024,'<%= request.getContextPath() %>/demographic/demographiccontrol.jsp?orderby=appttime&displaymode=appt_history&dboperation=appt_history&limit1=0&limit2=25&demographic_no=','ApptHist','<%=hrmReportId%>','<%=demographicNo %>')" <%=btnDisabled %>>
 </div>
-                            
+
 <div id="hrmReportContent">
 	<div id="hrmHeader"><b>Demographic Info:</b><br />
 			<%=hrmReport.getLegalName() %> <br />
@@ -510,7 +512,7 @@ String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 					<%
 					} else {
 					%>
-					<input type="button" id="signoff<%=hrmReportId %>" value="Sign-Off" onClick="signOffHrm('<%=hrmReportId %>')" />
+					<input type="button" id="signoff<%=hrmReportId %>" value="Sign-Off" onClick="signOffHrm('<%=hrmReportId %>', '<%=isListView%>')" />
 					<%
 					}
 					%>
@@ -702,5 +704,6 @@ if (duplicateLabIdsString!=null)
 <br/>
 Duplicates of this report have been received <%=hrmDuplicateNum!=null?hrmDuplicateNum:"0"%> time(s).
 <hr width="100%" color="red">
+</div>
 </body>
 </html>

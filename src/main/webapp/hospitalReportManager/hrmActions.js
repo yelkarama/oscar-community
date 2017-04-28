@@ -23,7 +23,7 @@ function deleteComment(commentId, reportId) {
     });
 }
 
-function doSignOff(reportId, isSign) {
+function doSignOff(reportId, view, isSign) {
     var data;
     if (isSign)
         data = "method=signOff&signedOff=1&reportId=" + reportId;
@@ -34,11 +34,21 @@ function doSignOff(reportId, isSign) {
         type: "POST",
         url: contextpath +"/hospitalReportManager/Modify.do",
         data: data,
-        success: function(data) {
-            if (opener != null && opener.location.href.indexOf("inboxManage") != -1) {
-                opener.location.reload();
+        success: function(data)
+        {
+            if (reportId) {
+                Effect.Fade('hrmdoc_'+reportId);
             }
-            window.close();
+            if (view)
+            {
+                self.opener.removeReport(reportId);
+                window.close();
+            }
+            else
+            {
+                refreshCategoryList();
+                fakeScroll();
+            }
         }
     });
 }
@@ -149,9 +159,9 @@ function setDescription(reportId) {
     });
 }
 
-function signOffHrm(reportId) {
+function signOffHrm(reportId, view) {
 
-    doSignOff(reportId, true);
+    doSignOff(reportId, view, true);
 }
 
 function revokeSignOffHrm(reportId) {
