@@ -133,8 +133,10 @@ String connection = ((request.getParameter("connection")==null ||request.getPara
 
 				}
 				//if we are done
-                submitForm('moveFiles', null);
-				if (files.length==responseSubmitFileNames.length && files.length>0 ) ShowDoneDialog(true);
+				if (files.length==responseSubmitFileNames.length && files.length>0 ){
+                    submitForm('moveFiles', null);
+				    ShowDoneDialog(true);
+                }
 			}
 			
 			//enable the finish button
