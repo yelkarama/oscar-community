@@ -11,7 +11,8 @@ demo_name      : left, 365, 85, 0, BaseFont.HELVETICA, 8
 demo_address1      : left, 365, 95, 0, BaseFont.HELVETICA, 8
 demo_address2      : left, 365, 105, 0, BaseFont.HELVETICA, 8
 demo_id      : left, 365, 125, 0, BaseFont.HELVETICA, 8
-demo_bday      : left, 480, 125, 0, BaseFont.HELVETICA, 8
+demo_bday   : left, 480, 125, 0, BaseFont.HELVETICA, 8
+demo_phone     : left, 480, 137, 0, BaseFont.HELVETICA, 8
 demo_hin      : left, 365, 137, 0, BaseFont.HELVETICA, 8
 
 mrp_provider      : left, 90, 161, 0, BaseFont.HELVETICA, 8
