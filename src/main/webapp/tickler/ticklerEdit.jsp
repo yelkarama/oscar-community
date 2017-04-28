@@ -24,11 +24,12 @@
 
 --%>
 <%@page import="org.oscarehr.util.SpringUtils"%>
-<%@page import="java.util.Set, java.util.List,org.oscarehr.util.LocaleUtils, java.util.Calendar, java.util.GregorianCalendar"%>
+<%@page import="java.util.Set, java.util.List,org.oscarehr.util.LocaleUtils, java.util.Calendar, java.util.GregorianCalendar, java.util.Map"%>
 <%@page import="org.oscarehr.common.dao.TicklerTextSuggestDao"%>
 <%@page import="org.oscarehr.PMmodule.dao.ProviderDao"  %>
 <%@page import="org.oscarehr.common.model.Provider"  %>
 <%@page import="org.oscarehr.common.model.Demographic"  %>
+<%@ page import="org.oscarehr.common.dao.DemographicExtDao" %>
 <%@page import="org.oscarehr.common.model.TicklerTextSuggest"  %>
 <%@ page import="org.oscarehr.common.model.Tickler" %>
 <%@ page import="org.oscarehr.common.model.TicklerComment" %>
@@ -82,7 +83,8 @@
     else {
         response.sendRedirect("../errorpage.jsp");
     }
-             
+    DemographicExtDao demographicExtDao = (DemographicExtDao)SpringUtils.getBean("demographicExtDao");
+    Map<String,String> demoExt = demographicExtDao.getAllValuesForDemo(d.getDemographicNo());
     java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.struts.Globals.LOCALE_KEY);
 
     String selected="";
@@ -187,8 +189,15 @@
                     <td><%=d.getPhone2()%></td>
                 </tr>
                 <tr>
-                    <th style="background-color: #EEEEFF"><bean:message key="tickler.ticklerEdit.age"/></th>                           
-                    <td><%=d.getAge()%>(<%=d.getFormattedDob()%>)</td> 
+                    <th style="background-color: #EEEEFF"><bean:message key="tickler.ticklerEdit.age"/></th>
+                    <td><%=d.getAge()%>(<%=d.getFormattedDob()%>)</td>
+                    <th style="background-color: #EEEEFF"><bean:message
+                            key="demographic.demographiceditdemographic.formPhoneC" /></th>
+                    <td><%=demoExt.get("demo_cell")%></td>
+                </tr>
+                <tr>
+                    <th> </th>
+                    <td> </td>
                     <th style="background-color: #EEEEFF"><bean:message key="tickler.ticklerEdit.email"/></th>
                     <td><%=d.getEmail()%></td>
                 </tr>                
