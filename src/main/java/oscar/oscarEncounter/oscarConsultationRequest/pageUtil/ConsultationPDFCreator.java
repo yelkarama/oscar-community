@@ -449,6 +449,14 @@ public class ConsultationPDFCreator extends PdfPageEventHelper {
 					infoTable.addCell(setFooterCell(cell, getResource("msgAssociated2"), reqFrm.getProviderName(reqFrm.providerNo) + ((getlen(ohipNo) > 0) ? " (" + ohipNo + ")" : "")));
   		    		infoTable.addCell(setFooterCell(cell, getResource("msgFamilyDoc2"), reqFrm.getFamilyDoctor() + ((getlen(famDocOhipNo) > 0) ? " (" + famDocOhipNo + ")" : "")));
                 }
+
+        pro = proDAO.getProvider(loggedInInfo.getLoggedInProviderNo());
+        ohipNo = pro.getOhipNo();
+        if (pro.getPractitionerNo().length() > 0)
+        {
+            infoTable.addCell(setFooterCell(cell, getResource("msgReqPhysician"), reqFrm.getProviderName(pro.getProviderNo()) + ((getlen(ohipNo) > 0) ? " (" + ohipNo + ")" : "")));
+        }
+        
 		if (getlen(reqFrm.signatureImg) > 0) {
 			addSignature(infoTable);
 		}
