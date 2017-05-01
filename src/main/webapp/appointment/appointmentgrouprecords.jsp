@@ -311,12 +311,22 @@
 <html:html locale="true">
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
+<script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery.js"></script>
 <title><bean:message
 	key="appointment.appointmentgrouprecords.title" /></title>
 <script language="JavaScript">
 <!--
 
 function onCheck(a) {
+	var providerRowExistingAppt = $('#providerRowExistingAppt' + a.name.substring(3));
+	providerRowExistingAppt.children('#'+providerRowExistingAppt.attr('id')+'DoubleBooked').remove();
+	if (providerRowExistingAppt.text().trim() !== '' && a.checked == true) {
+		providerRowExistingAppt.css('background-color', 'gold');
+		providerRowExistingAppt.prepend('<span id="'+providerRowExistingAppt.attr('id')+'DoubleBooked" style="color: red;">Double Booked <br/></span>');
+	} else {
+		providerRowExistingAppt.css('background-color', '');
+		providerRowExistingAppt.children('#'+providerRowExistingAppt.attr('id')+'DoubleBooked').remove();
+	}
     if (a.checked) {
 		var s ;
         if(a.name.indexOf("one") != -1) {
@@ -328,35 +338,25 @@ function onCheck(a) {
     }
 }
 function unCheck(s) {
-    for (var i =0; i <document.groupappt.elements.length; i++) {
-        if (document.groupappt.elements[i].name == s) {
-            document.groupappt.elements[i].checked = false;
-    	}
-	}
+	document.getElementsByName(s)[0].checked = false;
 }
 function isCheck(s) {
-    for (var i =0; i <document.groupappt.elements.length; i++) {
-        if (document.groupappt.elements[i].name == s) {
-            return (document.groupappt.elements[i].checked);
-    	}
-    }
+	return document.getElementsByName(s)[0].checked;
 }
 function checkAll(col, value, opo) {
-    var f = document.groupappt.elements;
-        for (var i=0; i < document.groupappt.elements.length; i++) {
-            if (value == 'true') {
-                if(document.groupappt.elements[i].name.indexOf(col) != -1) {
-                    var tar = document.groupappt.elements[i].name;
-                    var oposite = opo + tar.substring(3);
-                    if (isCheck(oposite)) continue;
-                    document.groupappt.elements[i].checked = true;
-                }
-            } else {
-                if(document.groupappt.elements[i].name.indexOf(col) != -1) {
-                    document.groupappt.elements[i].checked = false;
-                }
-            }
-        }
+	var checkboxes = $('input[name^="'+col+'"]');
+	for (var i=0; i < checkboxes.length; i++) {
+		if (value == 'true') {
+			var tar = checkboxes[i].name;
+			var oposite = opo + tar.substring(3);
+			if (isCheck(oposite)) continue;
+			checkboxes[i].checked = true;
+			onCheck(checkboxes[i]);
+		} else {
+			checkboxes[i].checked = false;
+			onCheck(checkboxes[i]);
+		}
+	}
     return false;
 }
 function onExit() {
@@ -413,6 +413,9 @@ function onSub() {
 	<tr bgcolor="<%=deepcolor%>">
 		<th><font face="Helvetica"><bean:message
 			key="appointment.appointmentgrouprecords.msgLabel" /></font></th>
+	</tr>
+	<tr  id="double-booking-row" style="display: none; background-color: gold; color: red">
+		<th><bean:message key="appointment.addappointment.msgDoubleBooking" /></th>
 	</tr>
 </table>
 
@@ -550,11 +553,11 @@ function onSub() {
 			<%=bEdit ? (otherAppt.getProperty(provider.getProviderNo()+"two")
 		!= null ? otherAppt.getProperty(provider.getProviderNo()+"two") : "") : ""%>
 			onclick="onCheck(this)"></td>
-		<td nowrap><%=otherAppt.getProperty(provider.getProviderNo()+"appt")
+		<td id="providerRowExistingAppt<%=i%>"><span><%=otherAppt.getProperty(provider.getProviderNo()+"appt")
 		!= null ? otherAppt.getProperty(provider.getProviderNo()+"appt") : ""%>
 		<%--
     // <input type="text" name="orig<%=i%>" value="<%=bDefProvider? request.getParameter("reason"):""%>" style="width:100%">
---%> &nbsp;</td>
+--%> &nbsp;</span></td>
 	</tr>
 	<%
       }
