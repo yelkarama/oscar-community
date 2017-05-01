@@ -261,6 +261,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
         private String bandNumber;
         private String pracNo;
 		private String sigDoctorName;
+		private String MRP;
 		private String rxDate;
 		private String promoText;
 		private String origPrintDate = null;
@@ -281,7 +282,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 		}
 
         public EndPage(String clinicName, String clinicTel, String clinicFax, String patientPhone, String patientCityPostal, String patientAddress,
-                String patientName,String patientDOB, String sigDoctorName, String rxDate,String origPrintDate,String numPrint, String imgPath, String electronicSignature, String patientHIN, String patientChartNo, String bandNumber, String pracNo, String pharmaName, String pharmaAddress1, String pharmaAddress2, String pharmaTel, String pharmaFax, String pharmaEmail, String pharmaNote, boolean pharmaShow, Locale locale) {
+                String patientName,String patientDOB, String sigDoctorName, String MRP, String rxDate,String origPrintDate,String numPrint, String imgPath, String electronicSignature, String patientHIN, String patientChartNo, String bandNumber, String pracNo, String pharmaName, String pharmaAddress1, String pharmaAddress2, String pharmaTel, String pharmaFax, String pharmaEmail, String pharmaNote, boolean pharmaShow, Locale locale) {
 			this.clinicName = clinicName==null ? "" : clinicName;
 			this.clinicTel = clinicTel==null ? "" : clinicTel;
 			this.clinicFax = clinicFax==null ? "" : clinicFax;
@@ -291,6 +292,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 			this.patientName = patientName;
             this.patientDOB=patientDOB;
 			this.sigDoctorName = sigDoctorName==null ? "" : sigDoctorName;
+			this.MRP = MRP==null ? "" : MRP;
 			this.rxDate = rxDate;
 			this.promoText = OscarProperties.getInstance().getProperty("FORMS_PROMOTEXT");
 			this.origPrintDate = origPrintDate;
@@ -471,7 +473,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 					cb.setRGBColorStrokeF(0f, 0f, 0f);
 					cb.setLineWidth(0.5f);
 					// cb.moveTo(13f, 20f);
-					cb.moveTo(13f, endPara - 90);
+					cb.moveTo(13f, endPara - 110);
 					cb.lineTo(13f, height - 15f);
 					cb.stroke();
 
@@ -479,7 +481,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 					cb.setRGBColorStrokeF(0f, 0f, 0f);
 					cb.setLineWidth(0.5f);
 					// cb.moveTo(285f, 20f);
-					cb.moveTo(285f, endPara - 90);
+					cb.moveTo(285f, endPara - 110);
 					cb.lineTo(285f, height - 15f);
 					cb.stroke();
 					// draw top line 10, 405, 285, 405, 0.5
@@ -494,8 +496,8 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 					cb.setLineWidth(0.5f);
 					// cb.moveTo(13f, 20f);
 					// cb.lineTo(285f, 20f);
-					cb.moveTo(13f, endPara - 90);
-					cb.lineTo(285f, endPara - 90);
+					cb.moveTo(13f, endPara - 110);
+					cb.lineTo(285f, endPara - 110);
 					cb.stroke();
 					// Render "Signature:"
 					writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, geti18nTagValue(locale, "RxPreview.msgSignature"), 20f, endPara - 60f, 0);// Render line for Signature 75, 55, 280, 55, 0.5
@@ -520,17 +522,20 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 					}
 
 					// Render doctor name
-					writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, this.sigDoctorName, 90, endPara - 75f, 0);
+					bf = BaseFont.createFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+					writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, "Req. Physician: " + this.sigDoctorName, 20f, endPara - 78f, 0);
+					writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, "MRP: " + this.MRP, 20f,endPara - 88f, 0);
+					bf = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
 					// public void writeDirectContent(PdfContentByte cb, BaseFont bf, float fontSize, int alignment, String text, float x, float y, float rotation)
 					// render reprint origPrintDate and numPrint
 					if (origPrintDate != null && numPrint != null) {
 						String rePrintStr = geti18nTagValue(locale, "RxPreview.msgReprintBy")+" " + this.sigDoctorName + "; "+geti18nTagValue(locale, "RxPreview.msgOrigPrinted")+": " + origPrintDate + "; "+geti18nTagValue(locale, "RxPreview.msgTimesPrinted") +": " + numPrint;writeDirectContent(cb, bf, 6, PdfContentByte.ALIGN_LEFT, rePrintStr, 45, endPara - 67, 0);
 					}
 					// print promoText
-					writeDirectContent(cb, bf, 6, PdfContentByte.ALIGN_LEFT, this.promoText, 70, endPara - 82, 0);
+					writeDirectContent(cb, bf, 6, PdfContentByte.ALIGN_LEFT, this.promoText, 70, endPara - 102, 0);
 					// print page number
 					String footer = "" + writer.getPageNumber();
-					writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_RIGHT, footer, 280, endPara - 82, 0);
+					writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_RIGHT, footer, 280, endPara - 102, 0);
                 }
 			} catch (Exception e) {
 				logger.error("Error", e);
@@ -615,6 +620,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 		String patientAddress = req.getParameter("patientAddress");
 		String patientName = req.getParameter("patientName");
 		String sigDoctorName = req.getParameter("sigDoctorName");
+		String MRP = req.getParameter("MRP");
 		String rxDate = req.getParameter("rxDate");
 		String rx = req.getParameter("rx");
         String patientDOB=req.getParameter("patientDOB");
@@ -738,7 +744,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 
 			// writer = PdfWriter.getInstance(document, baosPDF);
 			writer = PdfWriterFactory.newInstance(document, baosPDF, FontSettings.HELVETICA_10PT);
-			writer.setPageEvent(new EndPage(clinicName, clinicTel, clinicFax, patientPhone, patientCityPostal, patientAddress, patientName,patientDOB, sigDoctorName, rxDate, origPrintDate, numPrint, imgFile, electronicSignature, patientHIN, patientChartNo, patientBandNumber, pracNo, pharmaName, pharmaAddress1, pharmaAddress2, pharmaTel, pharmaFax, pharmaEmail, pharmaNote, pharmaShow, locale));
+			writer.setPageEvent(new EndPage(clinicName, clinicTel, clinicFax, patientPhone, patientCityPostal, patientAddress, patientName,patientDOB, sigDoctorName, MRP, rxDate, origPrintDate, numPrint, imgFile, electronicSignature, patientHIN, patientChartNo, patientBandNumber, pracNo, pharmaName, pharmaAddress1, pharmaAddress2, pharmaTel, pharmaFax, pharmaEmail, pharmaNote, pharmaShow, locale));
 			document.addTitle(title);
 			document.addSubject("");
 			document.addKeywords("pdf, itext");

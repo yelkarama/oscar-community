@@ -56,6 +56,7 @@
 %>	
 
 <%@page import="org.oscarehr.web.PrescriptionQrCodeUIBean"%>
+<jsp:useBean id="providerBean" class="java.util.Properties" scope="session" />
 
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
@@ -157,6 +158,8 @@ String patientPostal = patient.getPostal()==null ? "" : patient.getPostal();
 String patientPhone = patient.getPhone()==null ? "" : patient.getPhone();
 String patientHin = patient.getHin()==null ? "" : patient.getHin();
 
+DemographicDao demographicDao=(DemographicDao)SpringUtils.getBean("demographicDao");
+Demographic demographic = demographicDao.getDemographic(String.valueOf(patient.getDemographicNo()));
 
 oscar.oscarRx.data.RxPrescriptionData.Prescription rx = null;
 int i;
@@ -432,7 +435,8 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                             <input type="hidden" name="rxDate"
                                                     value="<%= StringEscapeUtils.escapeHtml(oscar.oscarRx.util.RxUtil.DateToString(rxDate, "MMMM d, yyyy")) %>" />
                                             <input type="hidden" name="sigDoctorName" value="<%= StringEscapeUtils.escapeHtml(doctorName) %>" /> <!--img src="img/rx.gif" border="0"-->
-                                            </td>
+												<input type="hidden" name="MRP" value="<%=providerBean.getProperty(demographic.getProviderNo(),"")%>" />
+											</td>
                                             <td valign=top height="100px" id="clinicAddress"><b><%=doctorName%></b><br>
                                             <c:choose>
                                                     <c:when test="${empty infirmaryView_programAddress}">
@@ -649,8 +653,10 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                                             </td>
 	                                                            <% } else { %>
 		                                                            </td>
-                                                            <td height=25px>&nbsp; <%= doctorName%> <% if ( pracNo != null && ! pracNo.equals("") && !pracNo.equalsIgnoreCase("null")) { %>
-                                                                <br /> &nbsp; <bean:message key="RxPreview.PractNo"/> <%= pracNo%> <% } %>                                                         
+														<td height=25px><b>Requesting Physician:</b> <%= doctorName%> 
+																<%if(demographic != null && demographic.getProviderNo() != null){%>
+															<br/><b>MRP:</b> <%=providerBean.getProperty(demographic.getProviderNo(),"")%>
+																<%}%>                                                         
                                                             </td>
 	                                                            <% } %>
                                                     </tr>
