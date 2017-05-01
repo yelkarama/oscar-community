@@ -101,13 +101,16 @@ $(function() {
     	  $( "#provfind" ).val(ui.item.value);
     	  return false;
       },
-    })
+        response: function(event, ui) {
+            if (ui.content.length === 1) {
+                $("#provfind").val(ui.content[0].value);
+            } else {
+                $("#provfind").val("0");
+            }
+        }
+    });
     $("span.ui-helper-hidden-accessible").text("<%=providerNo%>");
 });
-
-function clearProviderInfo(previousInformation){
-    $("#provfind").val("0");
-}
 
 </script>
 
@@ -195,7 +198,7 @@ function clearProviderInfo(previousInformation){
 			<td>&nbsp;</td>
 			<td>
 				<input type="hidden" value="<%= providerNo %>"name="searchProviderNo" id="provfind" />
-                <input type="text"  value="<%= lastName + ", " + firstName %>" id="autocompleteprov" onchange="clearProviderInfo(this.val);"name="demographicKeyword"/>
+                <input type="text"  value="<%= lastName + ", " + firstName %>" id="autocompleteprov" name="demographicKeyword"/>
 			</td>
 			</tr>
 			<tr>
