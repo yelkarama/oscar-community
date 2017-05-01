@@ -26,6 +26,7 @@ package oscar.oscarReport.data;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.oscarehr.common.dao.forms.FormsDao;
@@ -400,13 +401,12 @@ public class RptDemographicQueryBuilder {
 
 				// need to check if they were rostered at this point to this provider  (asofRosterDate is only set if this is being called from prevention reports)
 				if (demoNo != null && asofRosterDate != null && providers != null && providers.length > 0) {
-					//Only checking the first doc.  Only one should be included for finding the cumulative bonus
 					try {
-						if (!PreventionReportUtil.wasRosteredToThisProvider(loggedInInfo, Integer.parseInt(demoNo), DateUtils.parseDate(asofRosterDate, null), providers[0])) {
-							MiscUtils.getLogger().info("Demographic :" + demoNo + " was not included in returned array because they were not rostered to " + providers[0] + " on " + asofRosterDate);
+						if (!PreventionReportUtil.wasRosteredToProviders(loggedInInfo, Integer.parseInt(demoNo), DateUtils.parseDate(asofRosterDate, null), providers)) {
+							MiscUtils.getLogger().info("Demographic :" + demoNo + " was not included in returned array because they were not rostered to " + Arrays.toString(providers) + " on " + asofRosterDate);
 							continue;
 						} else {
-							MiscUtils.getLogger().info("Demographic :" + demoNo + " was included in returned array because they were not rostered to " + providers[0] + " on " + asofRosterDate);
+							MiscUtils.getLogger().info("Demographic :" + demoNo + " was included in returned array because they were rostered to " + Arrays.toString(providers) + " on " + asofRosterDate);
 						}
 					} catch (NumberFormatException e) {
 						MiscUtils.getLogger().error("Error", e);
