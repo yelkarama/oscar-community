@@ -92,6 +92,39 @@ public class LookupListManagerAction extends DispatchAction {
 		return mapping.findForward("success");
 	}
 
+	public ActionForward reorder(ActionMapping mapping,
+							   ActionForm form,
+							   HttpServletRequest request,
+							   HttpServletResponse response) {
+
+		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+		String lookupListItemId = request.getParameter("lookupListItemId");
+		String direction =  request.getParameter("direction");
+
+		if( lookupListItemId != null && ! lookupListItemId.isEmpty() ) {
+			LookupListItem lookupListItem = lookupListManager.findLookupListItemById(loggedInInfo, Integer.parseInt(lookupListItemId));
+
+			if (direction.equalsIgnoreCase("up") && lookupListItem!=null){
+				LookupListItem previousLookupListItem = lookupListManager.findLookupListItemByDisplayOrder(loggedInInfo, lookupListItem.getLookupListId(), (lookupListItem.getDisplayOrder()-1));
+				if(previousLookupListItem!=null){
+					lookupListManager.updateLookupListItemDisplayOrder(loggedInInfo, previousLookupListItem.getId(), lookupListItem.getDisplayOrder() );
+				}
+				lookupListManager.updateLookupListItemDisplayOrder(loggedInInfo, Integer.parseInt( lookupListItemId ), (lookupListItem.getDisplayOrder()-1) );
+			}
+			else if (direction.equalsIgnoreCase("down") && lookupListItem!=null){
+				LookupListItem nextLookupListItem = lookupListManager.findLookupListItemByDisplayOrder(loggedInInfo, lookupListItem.getLookupListId(), (lookupListItem.getDisplayOrder()+1));
+				if(nextLookupListItem!=null){
+					lookupListManager.updateLookupListItemDisplayOrder(loggedInInfo, nextLookupListItem.getId(), lookupListItem.getDisplayOrder() );
+				}
+				lookupListManager.updateLookupListItemDisplayOrder(loggedInInfo, Integer.parseInt( lookupListItemId ), (lookupListItem.getDisplayOrder()+1) );
+			}
+
+		}
+		request.setAttribute("lookupLists", lookupListManager.findAllActiveLookupLists(loggedInInfo));
+
+		return mapping.findForward("success");
+	}
+
 	public ActionForward add(ActionMapping mapping,
 			ActionForm form,
 			HttpServletRequest request,

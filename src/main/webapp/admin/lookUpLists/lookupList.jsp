@@ -42,7 +42,7 @@
 	
 	<div class="row lookupListItems" id="lookupListItems_${ lookuplist.id }"  >		
 		<ul>						
-			<c:forEach var="lookupListItem" items="${ lookuplist.items }" >	
+			<c:forEach var="lookupListItem" items="${ lookuplist.items }" varStatus="itemIndex">
 				<c:if test="${ lookupListItem.active }" >
 					<li class="lookupListItem" id="lookupListItem_${ lookupListItem.displayOrder }">							
 						<span class="label">
@@ -50,6 +50,12 @@
 						</span>	
 						<a href="javascript:void(0);" id="removeLookupListItem_${ lookupListItem.id }_${ lookuplist.id }" 
 							class="removeLookupListItem" >X</a>
+						<c:if test="${ !itemIndex.last }">
+							<a href="javascript:void(0);" id="down_${ lookupListItem.id }_${ lookuplist.id }" class="reorderLookupListItem"><img border="0" src="/oscar/images/icon_down_sort_arrow.png"></a>
+						</c:if>
+						<c:if test="${ itemIndex.index != 0 }">
+							<a href="javascript:void(0);" id="up_${ lookupListItem.id }_${ lookuplist.id }" class="reorderLookupListItem"><img border="0" src="/oscar/images/icon_up_sort_arrow.png"></a>
+						</c:if>
 					</li>
 				</c:if>
 			</c:forEach>			
