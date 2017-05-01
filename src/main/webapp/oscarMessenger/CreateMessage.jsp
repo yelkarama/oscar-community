@@ -260,8 +260,14 @@ height:100% !important;
 <script language="JavaScript">
 function validatefields(){
   if (document.forms[0].message.value.length == 0){
-    alert("<bean:message key="oscarMessenger.CreateMessage.msgEmptyMessage"/>");
-    return false;
+      if (document.forms[0].subject.value.length == 0){
+          alert("You have forgotten to enter a subject or a message");
+          return false;
+	  } else{
+          if (confirm("Send message without content?")==false){
+              return false;
+		  }
+	  }
   }
   val = validateCheckBoxes(document.forms[0]);
   if (val  == 0)
