@@ -102,10 +102,11 @@ $(function() {
     	  return false;
       },
     })
-  });
+    $("span.ui-helper-hidden-accessible").text("<%=providerNo%>");
+});
 
 function clearProviderInfo(previousInformation){
-	<% providerNo = "0"; %>
+    $("#provfind").val("0");
 }
 
 </script>
