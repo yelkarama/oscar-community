@@ -138,7 +138,7 @@ public final class MsgCreateMessageForm extends ActionForm {
         
         ActionErrors errors = new ActionErrors();
         
-        if (message == null || message.length() == 0){
+        if ((message == null || message.length() == 0) && (subject == null || subject.length() == 0)){
             errors.add("message", new ActionMessage("error.message.missing"));
         }
         
