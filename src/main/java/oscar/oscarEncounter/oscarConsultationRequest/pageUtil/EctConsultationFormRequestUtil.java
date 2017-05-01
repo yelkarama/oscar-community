@@ -24,17 +24,10 @@
 
 package oscar.oscarEncounter.oscarConsultationRequest.pageUtil;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 
 import org.oscarehr.PMmodule.dao.ProviderDao;
-import org.oscarehr.common.dao.ClinicDAO;
-import org.oscarehr.common.dao.ConsultationRequestDao;
-import org.oscarehr.common.dao.ConsultationRequestExtDao;
-import org.oscarehr.common.dao.ConsultationServiceDao;
-import org.oscarehr.common.dao.ProfessionalSpecialistDao;
+import org.oscarehr.common.dao.*;
 import org.oscarehr.common.model.Clinic;
 import org.oscarehr.common.model.ConsultationRequest;
 import org.oscarehr.common.model.ConsultationServices;
@@ -58,6 +51,7 @@ public class EctConsultationFormRequestUtil {
 	public String patientAddress;
 	public String patientPhone;
 	public String patientWPhone;
+	public String patientCPhone;
 	public String patientEmail;
 	public String patientDOB;
 	public String patientHealthNum;
@@ -113,6 +107,8 @@ public class EctConsultationFormRequestUtil {
 	public boolean estPatient(LoggedInInfo loggedInInfo, String demographicNo) {
 
 		Demographic demographic = demographicManager.getDemographic(loggedInInfo, Integer.parseInt(demographicNo));
+		DemographicExtDao demographicExtDao = SpringUtils.getBean(DemographicExtDao.class);
+		Map<String,String> demoExt = demographicExtDao.getAllValuesForDemo(Integer.parseInt(demographicNo));
 		boolean estPatient = false;
 
 		if (demographic != null) {
@@ -129,6 +125,7 @@ public class EctConsultationFormRequestUtil {
 			patientAddress = patientAddressSb.toString();
 			patientPhone = StringUtils.noNull(demographic.getPhone());
 			patientWPhone = StringUtils.noNull(demographic.getPhone2());
+			patientCPhone = StringUtils.noNull(demoExt.get("demo_cell"));
 			patientEmail = StringUtils.noNull(demographic.getEmail());
 			patientDOB = demographic.getFormattedDob();
 			patientHealthNum = StringUtils.noNull(demographic.getHin());
