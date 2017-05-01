@@ -533,13 +533,13 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
         <table id="readerViewTable" style="table-layout: fixed;border-color: blue;border-width: thin;border-spacing: 0px;background-color: #E0E1FF" width="100%" border="1">
                                                      <col width="120">
                                                      <col width="100%">
-          <tr height="600px">
+          <tr height="100%">
               <td id="categoryList" valign="top" style="overflow:hidden;border-color: blue;border-width: thin;background-color: #E0E1FF" >
 <% } // end if(!ajax)
    else {
 %>
 					<input type="hidden" id="categoryHash" value="<%=categoryHash%>" />
-                    <div style="height:600px; overflow:auto;">
+                    <div style="height:100%; overflow:auto;">
                     <%
                     	//Enumeration en=patientIdNames.keys();
                         if((totalNumDocs) > 0){
@@ -647,8 +647,8 @@ boolean ajax = "true".equals(request.getParameter("ajax"));
 	if (!ajax) {
 %>
              </td>
-             <td style="width:100%;height:600px;background-color: #E0E1FF">
-                 <div id="docViews" style="width:100%;height:600px;overflow:auto;" onscroll="handleScroll(this)">
+             <td style="width:100%;height:100%;background-color: #E0E1FF;vertical-align:top;">
+                 <div id="docViews" style="width:100%;height:925px;overflow:scroll;" onscroll="handleScroll(this)">
 
                  </div>
              </td>
