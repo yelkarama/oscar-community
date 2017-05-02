@@ -2951,7 +2951,7 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 		} else {
 			cmf.doFax(loggedInInfo, demographicNo, printAllNotes, noteIds, printCPP, printRx, printLabs, cStartDate, cEndDate, request);
 			HttpSession session = request.getSession();
-			session.setAttribute("FaxSuccess", true);
+			session.setAttribute("faxSuccessful", request.getAttribute("faxSuccessful"));
 			return new ActionRedirect(request.getHeader("Referer"));
 		}
 	}

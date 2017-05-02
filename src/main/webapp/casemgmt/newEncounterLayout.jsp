@@ -57,6 +57,7 @@
 
     String frmName = "caseManagementEntryForm" + request.getParameter("demographicNo");
 	CaseManagementEntryFormBean cform = (CaseManagementEntryFormBean)session.getAttribute(frmName);
+	Boolean faxSuccessful = (Boolean)session.getAttribute("faxSuccessful");
 
     String encTimeMandatoryValue = OscarProperties.getInstance().getProperty("ENCOUNTER_TIME_MANDATORY","false");
 
@@ -168,10 +169,19 @@ var Colour = {
 	pregancies: '<%=Colour.getInstance().episode%>'
 };
 
-function checkDemographic(){
+function checkNotifications(){
     <% if(demographic.getPatientStatus()!=null && demographic.getPatientStatus().trim().equals("DE")){ %>
 		alert("Please Note: This patient is marked as Deceased in the Master Record");
 	<% }%>
+
+	<% if(faxSuccessful!=null) {
+		 if(faxSuccessful){%>
+			alert("Fax sent successfully");
+		<% } else {%>
+			alert("Error sending fax");
+		<%}
+		session.removeAttribute("faxSuccessful");
+	}%>
 }
 </script>
 
@@ -821,7 +831,7 @@ window.onbeforeunload = onClosing;
 
 </script>
 </head>
-<body id="body" onload="checkDemographic();" style="margin: 0px;">
+<body id="body" onload="checkNotifications();" style="margin: 0px;">
 
 	<%--
 	<caisi:isModuleLoad moduleName="eaaps.enabled">

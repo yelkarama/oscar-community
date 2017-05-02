@@ -307,6 +307,7 @@ public class CaseManagementFax {
 
         }
         finally {
+            boolean faxSuccessful = false;
             String tmpRecipients = request.getParameter("recipients");
             // Removing all non digit characters from fax numbers.
             ArrayList<String> recipients = tmpRecipients == null ? new ArrayList<String>() : new ArrayList<String>(Arrays.asList(tmpRecipients.split(",")));
@@ -406,13 +407,14 @@ public class CaseManagementFax {
                 } else {
 
                     faxJob.setStatus(FaxJob.STATUS.SENT);
+                    faxSuccessful = true;
                 }
 
                 faxJobDao.persist(faxJob);
             }
-            System.out.print("successsss");
+
             LogAction.addLog(providerNo, LogConst.SENT, LogConst.CON_FAX, "ECTNOTES");
-            request.setAttribute("faxSuccessful", true);
+            request.setAttribute("faxSuccessful", faxSuccessful);
 
             if (out!=null) {
                 out.close();
