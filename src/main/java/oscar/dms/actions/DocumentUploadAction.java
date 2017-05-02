@@ -50,7 +50,7 @@ import oscar.dms.data.DocumentUploadForm;
 import oscar.log.LogAction;
 import oscar.log.LogConst;
 
-import com.lowagie.text.pdf.PdfReader;
+import com.itextpdf.text.pdf.PdfReader;
 
 public class DocumentUploadAction extends DispatchAction {
 	
