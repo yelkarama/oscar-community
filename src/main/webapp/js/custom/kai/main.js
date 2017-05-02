@@ -55,8 +55,8 @@ jQuery(document).ready(function(){
 	jQuery('a[href="../web/"]').attr("href",'#');
 	
 	// Add KAI bar as appropriate
+    addKAIBar();
 	if (!SmartPhone.isMobile()) {
-		addKAIBar();
 
 		addTableHeaderFloat();
 	}
