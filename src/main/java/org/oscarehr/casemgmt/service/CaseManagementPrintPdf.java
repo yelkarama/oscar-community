@@ -389,6 +389,7 @@ public class CaseManagementPrintPdf {
             p = new Paragraph();
             p.setAlignment(Paragraph.ALIGN_LEFT);
             phrase = new Phrase(LEADING, headings[idx], obsfont);
+            p.add("\n");
             p.add(phrase);
             document.add(p);
             newPage = false;
@@ -482,9 +483,7 @@ public class CaseManagementPrintPdf {
             p = new Paragraph();
             //p.setSpacingBefore(font.leading(LINESPACING)*2f);
             phrase = new Phrase(LEADING, "", font);
-            chunk = new Chunk("Documentation Date: " + formatter.format(note.getObservation_date()) + "\n", obsfont);
-            phrase.add(chunk);
-            phrase.add(note.getNote() + "\n\n");
+            phrase.add("-" + note.getNote() + "\n");
             p.add(phrase);
             document.add(p);
         }
