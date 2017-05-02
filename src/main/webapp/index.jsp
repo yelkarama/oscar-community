@@ -55,7 +55,7 @@ if (request.getParameter("full") != null) {
 // If a user is accessing through a smartphone (currently only supports mobile browsers with webkit),
 // and if they haven't already clicked to see the full site, then we set a property which is
 // used to bring up iPhone-optimized stylesheets, and add or remove functionality in certain pages.
-if (detector.detectSmartphone() && detector.detectWebkit()  && session.getAttribute("fullSite") == null) {
+if (detector.detectSmartphone() && detector.detectWebkit()) {
     session.setAttribute("mobileOptimized", "true");
 } else {
     session.removeAttribute("mobileOptimized");
@@ -410,10 +410,10 @@ String login_error="";
     	                        </div>
     	                        
     	                        <input type=hidden name='propname' value='<bean:message key="loginApplication.propertyFile"/>' />
-    	                        <input class="btn btn-primary btn-block" type="submit" value="<bean:message key="index.btnSignIn"/>" />
-    	                        <% if (detector.detectSmartphone() && detector.detectWebkit()) { 
+    	                        <input class="btn btn-primary btn-block" name="submit" type="submit" value="<bean:message key="index.btnSignIn"/>" />
+    	                        <% if (detector.detectSmartphone() && detector.detectWebkit()) {
     	                        	session.setAttribute("fullSite","true"); %>
-    	                        	<input class="btn btn-primary btn-block" type="submit" value="<bean:message key="index.btnSignIn"/> using <bean:message key="loginApplication.fullSite"/>" />
+    	                        	<input class="btn btn-primary btn-block" name="submit" type="submit" value="<bean:message key="index.btnSignIn"/> using <bean:message key="loginApplication.fullSite"/>" />
     	                        <% } %>
     						</html:form>
     			                        
