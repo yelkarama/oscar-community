@@ -28,10 +28,14 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.TagSupport;
 
+import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.ProviderLabRoutingDao;
 import org.oscarehr.hospitalReportManager.dao.HRMDocumentToProviderDao;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
+import oscar.oscarMDS.data.CategoryData;
+
+import java.sql.SQLException;
 
 /**
  *
@@ -46,12 +50,23 @@ public class LabTag extends TagSupport {
 		numNewLabs = 0;
 	}
 
+	private static Logger logger=MiscUtils.getLogger();
+
 	public int doStartTag() throws JspException {
 		ProviderLabRoutingDao dao = SpringUtils.getBean(ProviderLabRoutingDao.class);
 		HRMDocumentToProviderDao hrmDao = SpringUtils.getBean(HRMDocumentToProviderDao.class);
 
-		numNewLabs = dao.findByProviderNo(providerNo, "N").size();
-		numNewLabs = hrmDao.getCountByProviderNo(providerNo) + numNewLabs;
+		try {
+			CategoryData cd = new CategoryData("", "",
+					"", false, true, "" + providerNo,
+					"N", "", "");
+
+			cd.populateCountsAndPatients();
+			numNewLabs = cd.getTotalNumDocs();
+		}
+		 catch (SQLException e) {
+			logger.error("Error: ", e);
+		}
 		try {
 			JspWriter out = super.pageContext.getOut();
 			if (numNewLabs > 0) {
