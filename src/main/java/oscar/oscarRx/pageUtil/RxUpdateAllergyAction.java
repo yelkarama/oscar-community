@@ -46,7 +46,7 @@ public class RxUpdateAllergyAction extends Action{
         String startDateString = request.getParameter("startDate");
         String pattern = "";
         if(!StringUtils.isNullOrEmpty(startDateString)){
-            pattern = allergy.getDatePattern(startDateString).toUpperCase();
+            pattern = allergy.getDatePattern(startDateString);
             startDate = StringToDate(startDateString, pattern);
         }
 
