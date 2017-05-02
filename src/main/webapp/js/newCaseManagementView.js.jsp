@@ -3528,11 +3528,11 @@ function autoCompleteShowMenuCPP(element, update) {
     function printNotes() {
         if( $("printopDates").checked && !printDateRange()) {
             return false;
-        }else if( $("printopAll").checked ){
+        }else if( $("printopAll").checked && ($F("printCPP") == "true" || $F("printRx") == "true" || $F("printLabs") == "true" || $F("printNotes") == "true" || $("printopAll").checked == "true")){
             printAll();
         }
 
-        if( $F("notes2print").length == 0 && $F("printCPP") == "false" && $F("printRx") == "false" && $F("printLabs") == "false" && !printDateRange() ) {
+        if( $F("notes2print").length == 0 && $F("printCPP") == "false" && $F("printRx") == "false" && $F("printLabs") == "false" && !printDateRange() && $F("printNotes") == "false") {
             alert(nothing2PrintMsg);
             return false;
         }
