@@ -88,6 +88,10 @@ public class UserProperty extends AbstractModel<Integer> implements Serializable
     public static final String NEW_CME = "new_cme";
     public static final String ENCOUNTER_FORM_LENGTH = "encounter.form_length";
     public static final String ENCOUNTER_FORM_NAME = "encounter.form_name";
+    public static final String ENCOUNTER_PRINT_OPTION = "encounter.print_option";
+    public static final String ENCOUNTER_PRINT_CPP = "encounter.print_cpp";
+    public static final String ENCOUNTER_PRINT_RX = "encounter.print_rx";
+    public static final String ENCOUNTER_PRINT_LABS = "encounter.print_labs";
     public static final String EFORM_NAME = "encounter.eform_name";
     public static final String RX_SHOW_QR_CODE = "rx_show_qr_code";
     public static final String MYMEDS = "mymeds";
