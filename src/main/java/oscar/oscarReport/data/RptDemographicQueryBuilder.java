@@ -362,6 +362,10 @@ public class RptDemographicQueryBuilder {
 				stringBuffer.append(" order by " + demoCols.getColumnName(orderBy) + " ");
 			}
 		}
+		else
+		{
+			stringBuffer.append(" order by d.last_name ");
+		}
 
 		if (limit != null && limit.length() != 0) {
 			if (!limit.equals("0")) {
