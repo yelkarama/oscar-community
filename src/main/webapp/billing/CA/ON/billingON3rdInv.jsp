@@ -367,7 +367,9 @@ boolean isMulitSites = oscarProp.getBooleanProperty("multisites", "on");
                 <th>Service Code</th>
                 <th>Qty</th>
                 <th>Dx</th>
-                <th>Amount</th>
+                <th>Individual Total</th>
+                <th>Total HST</th>
+                <th>Total</th>
             </tr>
             <%
             BillingServiceDao billingServiceDao = (BillingServiceDao) SpringUtils.getBean("billingServiceDao");
@@ -375,6 +377,10 @@ boolean isMulitSites = oscarProp.getBooleanProperty("multisites", "on");
             for(BillingONItem billItem : billingItems) { 	
                 BillingService bs = null;
                 String serviceDesc = "N/A";
+                BigDecimal fee = new BigDecimal(billItem.getFee());
+                BigDecimal hstAmount = new BigDecimal("0.00").setScale(2);
+                BigDecimal serviceCount = new BigDecimal(billItem.getServiceCount());
+                BigDecimal value = new BigDecimal(0);
                 if (billItem.getServiceCode().startsWith("_"))
                     bs = billingServiceDao.searchPrivateBillingCode(billItem.getServiceCode(),billItem.getServiceDate());
                 else
@@ -382,6 +388,15 @@ boolean isMulitSites = oscarProp.getBooleanProperty("multisites", "on");
                  
                 if (bs != null) {
                     serviceDesc = bs.getDescription();
+                    if (bs.getGstFlag() && bs.getPercentage()!=null && fee != bCh1.getTotal()) {
+                        // Calculate billing hst per item as (fee - (value*serviceCount)) to
+                        // maintain old tax values charged.
+                        value = new BigDecimal(bs.getValue());
+                        hstAmount = fee.subtract(value.multiply(serviceCount));
+                    } else{
+                        // Else, no hst on item, set value as (fee/serviceCount)
+                        value = fee.divide(serviceCount);
+                    }
                 }    
              %>
             <tr align="center">
@@ -390,6 +405,8 @@ boolean isMulitSites = oscarProp.getBooleanProperty("multisites", "on");
                 <td><%=billItem.getServiceCode()%></td>
                 <td><%=billItem.getServiceCount()%></td>
                 <td><%=billItem.getDx()%></td>
+                <td><%=value.toString()%></td>
+                <td><%=hstAmount.toString()%></td>
                 <td align="right"><%=billItem.getFee()%></td>
             </tr>
             <% } %>
