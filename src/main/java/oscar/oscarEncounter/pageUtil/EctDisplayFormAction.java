@@ -115,7 +115,7 @@ public class EctDisplayFormAction extends EctDisplayAction {
 					String table = encounterForm.getFormTable();
 					if (!table.equalsIgnoreCase("")) {
 						new EctFormData();
-						EctFormData.PatientForm[] pforms = EctFormData.getPatientFormsFromLocalAndRemote(loggedInInfo, bean.demographicNo, table);
+						EctFormData.PatientForm[] pforms = EctFormData.getPatientFormsFromLocalAndRemote(loggedInInfo, bean.demographicNo, table, true);
 						// if a form has been started for the patient, create a module item for it
 						if (pforms.length > 0) {	
 														
@@ -124,7 +124,7 @@ public class EctDisplayFormAction extends EctDisplayAction {
 
 							// convert date to that specified in base class
 							DateFormat formatter = new SimpleDateFormat(dbFormat);
-							String dateStr = pfrm.getCreated();
+							String dateStr = pfrm.getEdited();
 							try {
 								date = formatter.parse(dateStr);
 							} catch (ParseException ex) {
