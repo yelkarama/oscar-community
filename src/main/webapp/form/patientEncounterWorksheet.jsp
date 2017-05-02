@@ -145,7 +145,7 @@
 	<form action="../form/createpdf" method="POST">
 	<input type="hidden" name="demographic_no" value="<%=request.getParameter("demographic_no") %>" />
 	<input type="hidden" name="form_id" value="<%=request.getParameter("form_id") %>" />
-	<input type="hidden" name="__title" value="PatientEcounterWorksheet" />
+	<input type="hidden" name="__title" value="PatientEncounterWorksheet" />
 	<input type="hidden" name="__cfgfile" value="patientEncounterWorksheetCfg" />
 	<input type="hidden" name="__template" value="patientEncounterWorksheet" />
 
@@ -185,6 +185,7 @@
 					<input type="hidden" name="demo_address1" value="<%=demographic.getAddress() %>"/>
 					<input type="hidden" name="demo_address2" value="<%=demographic.getCity() + ", " + demographic.getProvince() + ", " + demographic.getPostal() %>"/>
 					<input type="hidden" name="demo_id" value="<%=demographic.getDemographicNo() %>"/>
+					<input type="hidden" name="demo_phone" value="<%=demographic.getPhone() %>"/>
 					<input type="hidden" name="demo_bday" value="<%=demographic.getBirthDayAsString() + " (" + demographic.getAgeInYears() + ")" %>"/>
 					<input type="hidden" name="demo_hin" value="<%=demographic.getHin() + " (" + demographic.getHcType() + ")" %>"/>
 					<tr>
@@ -198,6 +199,10 @@
 					<tr>
 						<td>Pat ID:</td>
 						<td><%=demographic.getDemographicNo() %></td>
+					</tr>
+					<tr>
+						<td>Phone:</td>
+						<td><%=demographic.getPhone() %></td>
 					</tr>
 					<tr>
 						<td>DOB:</td>
