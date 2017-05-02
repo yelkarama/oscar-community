@@ -26,6 +26,7 @@ package oscar.oscarRx.data;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -349,6 +350,7 @@ public class RxPrescriptionData {
 			MiscUtils.getLogger().debug("Looking at drug " + drug + " and rx " + rx);
 			lst.add(toPrescription(demographicNo, drug, rx));
 		}
+		Collections.sort(lst, RxPrescriptionData.Prescription.START_DATE_COMPARATOR);
 		return lst.toArray(new Prescription[lst.size()]);
 	}
 
@@ -1880,6 +1882,22 @@ public class RxPrescriptionData {
 		public void setDispenseInterval(int dispenseInterval) {
 			this.dispenseInterval = dispenseInterval;
 		}
+
+		public static final Comparator<Prescription> START_DATE_COMPARATOR = new Comparator<Prescription>() {
+			public int compare(Prescription p1, Prescription p2) {
+				if( p1.rxDate == null && p2.rxDate == null) {
+					return p2.rxCreatedDate.compareTo(p1.rxCreatedDate);
+				}
+				if( p2.rxDate == null && p1.rxDate != null ) {
+					return p2.rxCreatedDate.compareTo(p1.rxDate);
+				}
+				if( p1.rxDate == null && p2.rxDate != null ) {
+					return p2.rxDate.compareTo(p1.rxCreatedDate);
+				}
+
+				return (p2.rxDate.compareTo(p1.rxDate));
+			}
+		};
 
 	}
 
