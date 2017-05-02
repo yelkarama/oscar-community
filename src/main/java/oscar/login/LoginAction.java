@@ -180,12 +180,12 @@ public final class LoginAction extends DispatchAction {
 	            // return mapping.findForward(where); //go to block page
 	            // change to block page
 	            String newURL = mapping.findForward("error").getPath();
-	            newURL = newURL + "?errormsg=Your account is locked. Please contact your administrator to unlock.";
+	            newURL = newURL + "?errormsg=Oops! Your account is now locked due to incorrect password attempts!";
 	            
 	            if(ajaxResponse) {
 	            	JSONObject json = new JSONObject();
 	            	json.put("success", false);
-	            	json.put("error", "Your account is locked. Please contact your administrator to unlock.");
+	            	json.put("error", "Oops! Your account is now locked due to incorrect password attempts!");
 	            	response.setContentType("text/x-json");
 	            	json.write(response.getWriter());
 	            	return null;

@@ -40,10 +40,13 @@
 <html:base />
 <title>Login Failure</title>
 </head>
-<body>
-<!--h2>OSCAR has encountered the following fatal error:</h2>
-  <hr-->
-<p><%=errormsg%>
-<p>Please correct and try again.
+<body style="font-family: Helvetica, Arial">
+<h4><%=errormsg%></h4>
+<h4>KAI Tips:</h4>
+<ul>
+    <li>Should it be after-hours, not that the account will automatically unlock after 15 minutes for you to try again.</li>
+    <li>If another user with admin-rights in your clinic is currently logged in, they can click "Administration>User Management>Unlock Account" in order toi unlock this for you immediately.</li>
+    <li>If you have forgotten your password all together, please email KAI Support: <a href="mailto:support@kaiinnovations.com">support@kaiinnovations.com</a> to have it reset.</li>
+</ul>
 </body>
 </html:html>
