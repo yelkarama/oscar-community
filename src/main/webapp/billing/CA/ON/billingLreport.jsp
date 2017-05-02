@@ -27,6 +27,7 @@
 
 <%
 String INBOX = OscarProperties.getInstance().getProperty("ONEDT_INBOX");
+String ARCHIVE = OscarProperties.getInstance().getProperty("ONEDT_ARCHIVE");
 String filename = (String)request.getAttribute("filename");
 if (filename == null) { 
     filename = request.getParameter("filename"); 
@@ -36,6 +37,11 @@ String fileContents = null;
 if( !filename.matches(".*\\.\\..*") ) {
 
 	File file = new File(INBOX + "/" + filename);
+	if (!file.exists()){
+	    // if file does not exist in the inbox, try and open it from the archive
+		file = new File(ARCHIVE + "/" + filename);
+	}
+
 	fileContents = FileUtils.readFileToString(file, "UTF-8");
 }
 else {
