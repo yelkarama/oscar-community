@@ -1234,7 +1234,7 @@ function GetTextBottom(){
 	/*textBottom += "\n\n &lt;div class=&quot;DoNotPrint&quot; id=&quot;BottomButtons&quot; style=&quot;position: relative; top:"
 	textBottom += "10px; left:0px;&quot;&gt;\n" */
 
-	textBottom += "\n\n &lt;div class=&quot;DoNotPrint&quot; id=&quot;BottomButtons&quot; style=&quot;position: absolute; top:"
+	textBottom += "\n\n &lt;div class=&quot;DoNotPrint&quot; style=&quot;position: absolute; top:"
 
 	//var totalpx =  parseInt(BGHeight) ;
 	//if ( totalpx == 750 ) { totalpx=1000;} // deep choclate fudge
@@ -1242,7 +1242,7 @@ function GetTextBottom(){
 	//totalpx =  totalpx + parseInt(pageoffset);
 	//textBottom += totalpx;
 	textBottom += pageoffset;
-	textBottom += "px; left:0px;&quot;&gt;\n"
+	textBottom += "px; left:0px;&quot; id=&quot;BottomButtons&quot; &gt;\n"
 
 	textBottom += "\t &lt;table&gt;&lt;tr&gt;&lt;td&gt;\n"
 	textBottom += "\t\t Subject: &lt;input name=&quot;subject&quot; size=&quot;40&quot; type=&quot;text&quot;&gt; &lt;br&gt; \n"
