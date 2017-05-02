@@ -656,7 +656,6 @@ if(listRxDrugs!=null){
 
         <script type="text/javascript">
             $('drugName_'+'<%=rand%>').value=decodeURIComponent(encodeURIComponent('<%=drugName%>'));
-            calculateRxData('<%=rand%>');
             handleEnter=function handleEnter(inField, ev){
                 var charCode;
                 if(ev && ev.which)
