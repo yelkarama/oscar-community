@@ -50,6 +50,16 @@ public class RScheduleDao extends AbstractDao<RSchedule>{
         List<RSchedule> results = query.getResultList();
 		return results;
 	}
+
+    public List<RSchedule> findByProviderAndStatus(String providerNo, String status)
+    {
+        Query query = entityManager.createQuery("select s from RSchedule s where s.providerNo=? and s.status=?");
+        query.setParameter(1, providerNo);
+        query.setParameter(2, status);
+
+        List<RSchedule> results = query.getResultList();
+        return results;
+    }
 	
 	public Long search_rschedule_overlaps(String providerNo, Date d1, Date d2, Date d3, Date d4, Date d5, Date d6, Date d7, Date d8, Date d9, Date d10, Date d11, Date d12,Date d13,Date d14) {
 		Query query = entityManager.createQuery("select count(r.id) from RSchedule r where r.providerNo=? and ((r.sDate <? and r.eDate >=?) or (? < r.sDate and r.sDate < ?) or (? < r.eDate and r.eDate <= ?) or ( ? < r.sDate and r.eDate <= ?) or (r.sDate = ? and r.sDate = ?) or (r.eDate = ? and r.eDate <= ?) or (r.sDate = ? and r.eDate != ?)) and r.status = 'A'");
