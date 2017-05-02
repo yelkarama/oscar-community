@@ -80,6 +80,8 @@ Boolean writeToEncounter = false;
 <%@page import="org.oscarehr.common.dao.OscarAppointmentDao" %>
 <%@page import="org.oscarehr.common.model.Provider" %>
 <%@page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
+<%@page import="org.oscarehr.common.model.UserProperty" %>
+<%@page import="org.oscarehr.common.dao.UserPropertyDAO" %>
 
 <%
 	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
@@ -347,7 +349,9 @@ var newD = newYear + "-" + newMonth + "-" + newDay;
     <tr> 
       <td height="21" valign="top"><font color="#003366" size="2" face="Verdana, Arial, Helvetica, sans-serif"><strong><bean:message key="tickler.ticklerMain.taskAssignedTo"/></strong></font></td>
       <td valign="top"> <font face="Verdana, Arial, Helvetica, sans-serif" size="2" color="#333333">
-<% if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) 
+<% UserPropertyDAO propDao = SpringUtils.getBean(UserPropertyDAO.class);
+
+if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable())
 { // multisite start ==========================================
         	SiteDao siteDao = (SiteDao)WebApplicationContextUtils.getWebApplicationContext(application).getBean("siteDao");
           	List<Site> sites = siteDao.getActiveSitesByProviderNo(user_no);
@@ -403,6 +407,11 @@ function changeSite(sel) {
             <%  String proFirst="";
                 String proLast="";
                 String proOHIP="";
+                String selectProvider = user_no;
+                UserProperty prop = propDao.getProp(user_no, UserProperty.TICKLER_DEFAULT_RECIPIENT);
+                if (prop!=null){
+                    selectProvider = prop.getValue();
+                }
 				
                 for(Provider p : providerDao.getActiveProviders()) {
                
@@ -411,7 +420,7 @@ function changeSite(sel) {
                     proOHIP = p.getProviderNo();
 
             %> 
-            <option value="<%=proOHIP%>" <%=user_no.equals(proOHIP)?"selected":""%>><%=proLast%>, <%=proFirst%></option>
+            <option value="<%=proOHIP%>" <%=selectProvider.equals(proOHIP)?"selected":""%>><%=proLast%>, <%=proFirst%></option>
             <%
                 }
             %>

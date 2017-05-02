@@ -228,7 +228,7 @@ function showHideERxPref() {
 	String ticklerProviderNo = request.getParameter("tklerproviderno");
 	String defaultPMM = request.getParameter("default_pmm")!=null?request.getParameter("default_pmm"):providerPreference.getDefaultCaisiPmm();
 	String caisiBillingNotDelete = request.getParameter("caisiBillingPreferenceNotDelete")!=null?request.getParameter("caisiBillingPreferenceNotDelete"):String.valueOf(providerPreference.getDefaultDoNotDeleteBilling());
-	
+    UserPropertyDAO propertyDao = (UserPropertyDAO)SpringUtils.getBean("UserPropertyDAO");
 %>
 
 <body bgproperties="fixed"  onLoad="setfocus();showHideBillPref();showHideERxPref();" topmargin="0"leftmargin="0" rightmargin="0" style="font-family:sans-serif">
@@ -463,6 +463,27 @@ function showHideERxPref() {
 				</td>
 			</tr>
 
+            <tr>
+                <%
+                    UserProperty ticklerRecipientProperty = propertyDao.getProp(providerNo, "tickler_default_recipient");
+                    String defaultRecipient = providerNo;
+                    if(ticklerRecipientProperty!=null) {
+                        defaultRecipient = ticklerRecipientProperty.getValue();
+                    }
+                %>
+                <td class="preferenceLabel">
+                    <bean:message key="provider.providerpreference.ticklerDefaultRecipient" />
+                </td>
+                <td class="preferenceValue">
+                    <select name="ticklerDefaultRecipient">
+                        <option value=""></option>
+                        <% for (Provider doctor : doctors) { %>
+                        <option value="<%= doctor.getProviderNo() %>" <%=doctor.getProviderNo().equals(defaultRecipient) ? "selected='selected'" : ""%>> <%= doctor.getFormattedName() %> </option>
+                        <% } %>
+                    </select>
+                </td>
+            </tr>
+
 			<!-- QR Code on prescriptions setting -->
 			<tr>
 				<td class="preferenceLabel">
@@ -578,7 +599,6 @@ function showHideERxPref() {
 
 			<tr>
 				<%
-					UserPropertyDAO propertyDao = (UserPropertyDAO)SpringUtils.getBean("UserPropertyDAO");
 					UserProperty prop = propertyDao.getProp(providerNo,"rxInteractionWarningLevel");
 					String warningLevel = "0";
 					if(prop!=null) {
