@@ -318,13 +318,16 @@ public class DrugDao extends AbstractDao<Drug> {
 	 * 
 	 * @param scriptNumber
 	 * 		Script number of a prescription to be found
+	 * @param demographicNumber
+	 * 		Demographic number to search entities for
 	 * @return
 	 * 		Returns the list of arrays, where first element is of type Drug and the second is of type Prescription.
 	 */
 	@SuppressWarnings("unchecked")
-	public List<Object[]> findDrugsAndPrescriptionsByScriptNumber(int scriptNumber) {
-		Query query = entityManager.createQuery("SELECT d, p FROM Drug d, Prescription p WHERE d.scriptNo = p.id AND d.scriptNo = :scriptNo ORDER BY d.position DESC, d.rxDate DESC, d.id ASC");
+	public List<Object[]> findDrugsAndPrescriptionsByScriptNumber(int scriptNumber, int demographicNumber) {
+		Query query = entityManager.createQuery("SELECT d, p FROM Drug d, Prescription p WHERE d.scriptNo = p.id AND d.scriptNo = :scriptNo AND d.demographicId = :demographicNo ORDER BY d.position DESC, d.rxDate DESC, d.id ASC");
 		query.setParameter("scriptNo", scriptNumber);
+		query.setParameter("demographicNo", demographicNumber);
 		return query.getResultList();
 	}
 
