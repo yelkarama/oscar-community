@@ -59,6 +59,7 @@ import org.oscarehr.casemgmt.model.CaseManagementIssue;
 import org.oscarehr.casemgmt.model.CaseManagementNote;
 import org.oscarehr.casemgmt.model.Issue;
 import org.oscarehr.casemgmt.service.CaseManagementManager;
+import org.oscarehr.common.dao.QuickListDao;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.myoscar.client.ws_manager.AccountManager;
@@ -85,6 +86,8 @@ public class EctIncomingEncounterAction extends Action {
 	private CaseManagementNoteDAO caseManagementNoteDao = (CaseManagementNoteDAO) SpringUtils.getBean("caseManagementNoteDAO");
 	private CaseManagementManager caseManagementMgr = SpringUtils.getBean(CaseManagementManager.class);
 	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
+	private QuickListDao quickListDao = SpringUtils.getBean(QuickListDao.class);
+	private List<Object> quickLists = quickListDao.findDistinctAlphabetically();
 	
 	
 	public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -130,6 +133,7 @@ public class EctIncomingEncounterAction extends Action {
 			//bean.date="";
 			bean.appointmentNo = "0";
 			bean.check = "myCheck";
+			bean.quickList = quickLists!=null?quickLists.get(0).toString():"";
 			bean.setUpEncounterPage(LoggedInInfo.getLoggedInInfoFromSession(request));
 			request.getSession().setAttribute("EctSessionBean", bean);
 		} else {
@@ -209,6 +213,7 @@ public class EctIncomingEncounterAction extends Action {
 			bean.date = request.getParameter("date");
 			bean.check = "myCheck";
 			bean.oscarMsgID = request.getParameter("msgId");
+			bean.quickList = quickLists!=null?quickLists.get(0).toString():"";
 			bean.setUpEncounterPage(LoggedInInfo.getLoggedInInfoFromSession(request));
 			request.getSession().setAttribute("EctSessionBean", bean);
 			request.getSession().setAttribute("eChartID", bean.eChartId);
