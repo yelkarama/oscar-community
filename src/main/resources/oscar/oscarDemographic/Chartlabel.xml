@@ -60,7 +60,7 @@
 				<textElement textAlignment="Left">
                     <font size="15" isBold="true"/>
                 </textElement>
-				<textFieldExpression><![CDATA["HIN:" + $F{hin} + " " + $F{ver} + "   " + "SEX:" + $F{sex} + "  " + "DOB:" +$F{date_of_birth} + "/" + $F{month_of_birth} + "/" + $F{year_of_birth} + "  AGE:" + $F{age}]]></textFieldExpression>
+				<textFieldExpression><![CDATA["HIN:" + $F{hin} + " " + $F{ver} + "   " + "SEX:" + $F{sex} + "  " + "DOB:" +$F{year_of_birth} + "-" + $F{month_of_birth} + "-" + $F{date_of_birth} + "  AGE:" + $F{age}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true">
 				<reportElement stretchType="RelativeToBandHeight" x="17" y="0" width="400" height="14">

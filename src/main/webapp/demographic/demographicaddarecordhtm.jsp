@@ -84,6 +84,7 @@
 <%@ page import="org.oscarehr.common.model.UserProperty"%>
 
 <%@page import="org.oscarehr.managers.PatientConsentManager" %>
+<%@ page import="java.text.SimpleDateFormat" %>
 <jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean" scope="session" />
 <%
 	ProfessionalSpecialistDao professionalSpecialistDao = (ProfessionalSpecialistDao) SpringUtils.getBean("professionalSpecialistDao");
@@ -109,6 +110,7 @@
   OscarProperties props = OscarProperties.getInstance();
 
   GregorianCalendar now=new GregorianCalendar();
+	SimpleDateFormat standardDateFormat = new SimpleDateFormat("yyyy-MM-dd");
   String curYear = Integer.toString(now.get(Calendar.YEAR));
   String curMonth = Integer.toString(now.get(Calendar.MONTH)+1);
   if (curMonth.length() < 2) curMonth = "0"+curMonth;
@@ -160,10 +162,16 @@
 <html:html locale="true">
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
+<script type="text/javascript" src="<%= request.getContextPath() %>/share/javascript/Oscar.js"></script>
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery.js"></script> 
    <script>
      jQuery.noConflict();     
-   </script>
+   </script>	
+	<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-3.1.0.min.js"></script>
+	<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery.maskedinput.js"></script>
+	<script type="application/javascript">
+		var jQuery_3_1_0 = jQuery.noConflict(true);
+	</script>
 
    <script type="text/javascript">
         function aSubmit(){
@@ -428,16 +436,16 @@ function checkResidentStatus(){
 
 function checkAllDate() {
 	var typeInOK = false;
-	typeInOK = checkDateYMD( document.adddemographic.date_joined_year.value , document.adddemographic.date_joined_month.value , document.adddemographic.date_joined_date.value , "Date Joined" );
+	typeInOK = checkDateYMD( document.adddemographic.date_joined.value, "Date Joined" );
 	if (!typeInOK) { return false; }
 
-	typeInOK = checkDateYMD( document.adddemographic.end_date_year.value , document.adddemographic.end_date_month.value , document.adddemographic.end_date_date.value , "End Date" );
+	typeInOK = checkDateYMD( document.adddemographic.end_date.value, "End Date" );
 	if (!typeInOK) { return false; }
 
-	typeInOK = checkDateYMD( document.adddemographic.hc_renew_date_year.value , document.adddemographic.hc_renew_date_month.value , document.adddemographic.hc_renew_date_date.value , "PCN Date" );
+	typeInOK = checkDateYMD( document.adddemographic.hc_renew_date.value, "PCN Date" );
 	if (!typeInOK) { return false; }
 
-	typeInOK = checkDateYMD( document.adddemographic.eff_date_year.value , document.adddemographic.eff_date_month.value , document.adddemographic.eff_date_date.value , "EFF Date" );
+	typeInOK = checkDateYMD( document.adddemographic.eff_date.value, "EFF Date" );
 	if (!typeInOK) { return false; }
 
 	return typeInOK;
@@ -453,6 +461,16 @@ function checkAllDate() {
 		}
 		if (!typeInOK) { alert ("You must type in the right '" + fieldName + "'."); return false; }
 		return typeInOK;
+	}
+
+	function checkDateYMD(dateString, fieldName) {
+		var date = new Date(dateString);
+		if (isNaN(date)) {
+			alert ("You must type in the right '" + fieldName + "'.");
+			return false;
+		} else {
+			return true;
+		}
 	}
 
 	function checkDateYear(y) {
@@ -882,70 +900,25 @@ function ignoreDuplicates() {
 			</tr>
 			<tr valign="top">
 				<td id="dobLbl" align="right"><b><bean:message
-					key="demographic.demographicaddrecordhtm.formDOB" /></b><font size="-2">(yyyymmdd)</font><b><font
+					key="demographic.demographicaddrecordhtm.formDOB" /></b><b><font
 					color="red">:</font></b></td>
 				<td id="dobTbl" align="left" nowrap>
-				<table border="0" cellpadding="0" cellspacing="0">
-					<tr>
-						<td><input type="text" name="year_of_birth" size="4" id="year_of_birth"
-							maxlength="4" value="yyyy"
-							onFocus="if(this.value=='yyyy')this.value='';"
-							onBlur="if(this.value=='')this.value='yyyy';"></td>
-						<td>-</td>
-						<td><!--input type="text" name="month_of_birth" size="2" maxlength="2"-->
-                                                    <select name="month_of_birth" id="month_of_birth">
-							<option value="01">01
-							<option value="02">02
-							<option value="03">03
-							<option value="04">04
-							<option value="05">05
-							<option selected value="06">06
-							<option value="07">07
-							<option value="08">08
-							<option value="09">09
-							<option value="10">10
-							<option value="11">11
-							<option value="12">12
-						</select></td>
-						<td>-</td>
-						<td><!--input type="text" name="date_of_birth" size="2" maxlength="2"-->
-						<select name="date_of_birth" id="date_of_birth">
-							<option value="01">01
-							<option value="02">02
-							<option value="03">03
-							<option value="04">04
-							<option value="05">05
-							<option value="06">06
-							<option value="07">07
-							<option value="08">08
-							<option value="09">09
-							<option value="10">10
-							<option value="11">11
-							<option value="12">12
-							<option value="13">13
-							<option value="14">14
-							<option selected value="15">15
-							<option value="16">16
-							<option value="17">17
-							<option value="18">18
-							<option value="19">19
-							<option value="20">20
-							<option value="21">21
-							<option value="22">22
-							<option value="23">23
-							<option value="24">24
-							<option value="25">25
-							<option value="26">26
-							<option value="27">27
-							<option value="28">28
-							<option value="29">29
-							<option value="30">30
-							<option value="31">31
-						</select></td>
-						<td><b></b></td>
-						<td>&nbsp;</td>
-					</tr>
-				</table>
+					<input type="text" name="full_birth_date" id="full_birth_date"/>
+					<img src="../images/cal.gif" id="full_birth_date_cal">
+					<input type="hidden" name="year_of_birth" id="year_of_birth"/>
+					<input type="hidden" name="month_of_birth" id="month_of_birth"/>
+					<input type="hidden" name="date_of_birth" id="date_of_birth"/>
+					<script type="application/javascript">
+						createStandardDatepicker(jQuery_3_1_0('#full_birth_date'), "full_birth_date_cal");
+						jQuery_3_1_0('#full_birth_date').change(function(){
+							var birthDate = new Date(jQuery_3_1_0('#full_birth_date').val());
+							if (!isNaN(birthDate)) {
+								document.getElementById('year_of_birth').value = birthDate.toISOString().substring(0, 4);
+								document.getElementById('month_of_birth').value = birthDate.toISOString().substring(5, 7)
+								document.getElementById('date_of_birth').value = birthDate.toISOString().substring(8, 10)
+							}
+						});
+					</script>
 				</td>
 				<td align="right" id="genderLbl"><b><bean:message
 					key="demographic.demographicaddrecordhtm.formSex" /><font
@@ -988,10 +961,11 @@ function ignoreDuplicates() {
 				</b></td>
 				<td id="effDateLbl" align="right"><b><bean:message
 					key="demographic.demographicaddrecordhtm.formEFFDate" /></b><b>: </b></td>
-				<td id="effDate" align="left"><b> <input type="text"
-					id="eff_date_year" name="eff_date_year" size="4" maxlength="4"> <input
-					type="text" id="eff_date_month" name="eff_date_month" size="2" maxlength="2"> <input
-					type="text" id="eff_date_date" name="eff_date_date" size="2" maxlength="2"> </b></td>
+				<td id="effDate" align="left">
+					<input type="text" name="eff_date" id="eff_date">
+					<img src="../images/cal.gif" id="eff_date_cal">
+					<script type="application/javascript">createStandardDatepicker(jQuery_3_1_0('#eff_date'), "eff_date_cal");</script>
+				</td>
 			</tr>                       
 			<tr>
 				<td id="hcTypeLbl" align="right"><b><bean:message
@@ -1082,9 +1056,10 @@ function ignoreDuplicates() {
        
       </td>
       <td id="renewDateLbl" align="right"><b>*<bean:message key="demographic.demographiceditdemographic.formHCRenewDate" />:</b></td>
-      <td id="renewDate" align="left"> <input type="text" id="hc_renew_date_year" name="hc_renew_date_year" size="4" maxlength="4" value="">
-                                       <input type="text" id="hc_renew_date_month" name="hc_renew_date_month" size="2" maxlength="2" value="">
-                                       <input type="text" id="hc_renew_date_date" name="hc_renew_date_date" size="2" maxlength="2" value="">
+      <td id="renewDate" align="left">
+		  <input type="text" name="hc_renew_date" id="hc_renew_date">
+		  <img src="../images/cal.gif" id="hc_renew_date_cal">
+		  <script type="application/javascript">createStandardDatepicker(jQuery_3_1_0('#hc_renew_date'), "hc_renew_date_cal");</script>
       </td>
      </tr>
      <tr>
@@ -1339,10 +1314,10 @@ document.forms[1].r_doctor_ohip.value = refNo;
 					key="demographic.demographicaddrecordhtm.AddNewRosterStatus"/> " /></td>
 				<td id="rosterDateLbl" align="right" nowrap><b><bean:message
 					key="demographic.demographicaddrecordhtm.formPCNDateJoined" />: </b></td>
-				<td id="rosterDateCell" align="left"><input type="text" name="roster_date_year"
-					size="4" maxlength="4"> <input type="text"
-					name="roster_date_month" size="2" maxlength="2"> <input
-					type="text" name="roster_date_date" size="2" maxlength="2">
+				<td id="rosterDateCell" align="left">					
+					<input type="text" name="roster_date" id="roster_date">
+					<img src="../images/cal.gif" id="roster_date_cal">
+					<script type="application/javascript">createStandardDatepicker(jQuery_3_1_0('#roster_date'), "roster_date_cal");</script>
 				</td>
 			</tr>
 			<tr valign="top">
@@ -1432,10 +1407,11 @@ document.forms[1].r_doctor_ohip.value = refNo;
 					<tr>
 						<td colspan="2" align="right">&nbsp;</td>
 						<td align="right" nowrap><b><bean:message key="demographic.demographicaddarecordhtm.msgDateOfReq"/>:</b></td>
-						<td align="left"><input type="text"
-							name="waiting_list_referral_date" id="waiting_list_referral_date"
-							value="" size="12" <%=wLReadonly%>> <img
-							src="../images/cal.gif" id="referral_date_cal">(yyyy-mm-dd)
+						<td align="left">
+							<input type="text" name="waiting_list_referral_date" id="waiting_list_referral_date"
+								value="" size="12" <%=wLReadonly%>>
+							<img src="../images/cal.gif" id="referral_date_cal">
+							<script type="application/javascript">createStandardDatepicker(jQuery_3_1_0('#waiting_list_referral_date'), "referral_date_cal");</script>
 						</td>
 					</tr>
 				</table>
@@ -1504,18 +1480,17 @@ document.forms[1].r_doctor_ohip.value = refNo;
 				<td id="joinDateLbl" align="right"><b><bean:message
 					key="demographic.demographicaddrecordhtm.formDateJoined" /></b><b>:
 				</b></td>
-				<td id="joinDateCell" align="left"><input type="text" name="date_joined_year"
-					size="4" maxlength="4" value="<%=curYear%>"> <input
-					type="text" name="date_joined_month" size="2" maxlength="2"
-					value="<%=curMonth%>"> <input type="text"
-					name="date_joined_date" size="2" maxlength="2" value="<%=curDay%>">
+				<td id="joinDateCell" align="left">
+					<input type="text" name="date_joined" id="date_joined" value="<%=standardDateFormat.format(now.getTime())%>">
+					<img src="../images/cal.gif" id="date_joined_cal">
+					<script type="application/javascript">createStandardDatepicker(jQuery_3_1_0('#date_joined'), "date_joined_cal");</script>
 				</td>
 				<td id="endDateLbl" align="right"><b><bean:message
 					key="demographic.demographicaddrecordhtm.formEndDate" /></b><b>: </b></td>
-				<td id="endDateCell" align="left"><input type="text" name="end_date_year"
-					size="4" maxlength="4"> <input type="text"
-					name="end_date_month" size="2" maxlength="2"> <input
-					type="text" name="end_date_date" size="2" maxlength="2"></td>
+				<td id="endDateCell" align="left">
+					<input type="text" name="end_date" id="end_date">
+					<img src="../images/cal.gif" id="end_date_cal">
+					<script type="application/javascript">createStandardDatepicker(jQuery_3_1_0('#end_date'), "end_date_cal");</script>
 			</tr>
 
 		<oscar:oscarPropertiesCheck property="DEMOGRAPHIC_PROGRAM_ADMISSIONS" value="true">
@@ -1714,7 +1689,6 @@ if(oscarVariables.getProperty("demographicExtJScript") != null) { out.println(os
 	key="demographic.demographicaddrecordhtm.formDateFormat" /> </font>
 
 <script type="text/javascript">
-Calendar.setup({ inputField : "waiting_list_referral_date", ifFormat : "%Y-%m-%d", showsTime :false, button : "referral_date_cal", singleClick : true, step : 1 });
 
 <%
 if (privateConsentEnabled) {
@@ -1740,7 +1714,5 @@ jQuery(document).ready(function(){
 }
 %>
 </script>
-<!--<iframe src="../eform/efmshowform_data.jsp?fid=<%=fid%>" width="100%" height="100%"></iframe>-->
-<%//}%>
 </body>
 </html:html>

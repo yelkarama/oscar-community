@@ -193,10 +193,8 @@ if(!authed) {
 	}
 
 		java.util.Calendar calender = java.util.Calendar.getInstance();
-		String day = Integer.toString(calender.get(java.util.Calendar.DAY_OF_MONTH));
-		String mon = Integer.toString(calender.get(java.util.Calendar.MONTH) + 1);
-		String year = Integer.toString(calender.get(java.util.Calendar.YEAR));
-		String formattedDate = year + "/" + mon + "/" + day;
+		java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+		String formattedDate = sdf.format(calender.getTime());
 
 		OscarProperties props = OscarProperties.getInstance();
 		
@@ -232,10 +230,16 @@ if(!authed) {
 <script type="text/javascript"
 	src="<%=request.getContextPath()%>/share/calendar/calendar-setup.js"></script>
 
+	<script type="text/javascript" src="<%= request.getContextPath() %>/share/javascript/Oscar.js"></script>
    <script src="<c:out value="${ctx}/js/jquery.js"/>"></script>
    <script>
      jQuery.noConflict();
    </script>
+	<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-3.1.0.min.js"></script>
+	<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery.maskedinput.js"></script>
+	<script type="application/javascript">
+		var jQuery_3_1_0 = jQuery.noConflict(true);
+	</script>
 
 
 	<oscar:customInterface section="conreq"/>
@@ -1551,11 +1555,11 @@ function updateFaxButton() {
 							<td align="right" class="tite1"><img alt="calendar" id="referalDate_cal" src="../../images/cal.gif">
 								<% 	if (request.getAttribute("id") != null)
 								{ %>
-									<html:text styleId="referralDate" styleClass="righty" readonly="<%=isConsultationDateReadOnly%>" property="referalDate" ondblclick="this.value='';"/>
+									<html:text styleId="referalDate" styleClass="righty" readonly="<%=isConsultationDateReadOnly%>" property="referalDate" ondblclick="this.value='';"/>
 							<% 	}
 					 			else
 					 			{ %>
-									<html:text styleId="referralDate" styleClass="righty" readonly="<%=isConsultationDateReadOnly%>" property="referalDate" ondblclick="this.value='';" value="<%=formattedDate%>" />
+									<html:text styleId="referalDate" styleClass="righty" readonly="<%=isConsultationDateReadOnly%>" property="referalDate" ondblclick="this.value='';" value="<%=formattedDate%>" />
 							<% 	} %>
 							</td>
 						</tr>
@@ -2354,9 +2358,9 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 </body>
 
 <script type="text/javascript" language="javascript">
-Calendar.setup( { inputField : "followUpDate", ifFormat : "%Y/%m/%d", showsTime :false, button : "followUpDate_cal", singleClick : true, step : 1 } );
-Calendar.setup( { inputField : "referralDate", ifFormat : "%Y/%m/%d", showsTime :false, button : "referalDate_cal", singleClick : true, step : 1 } );
-Calendar.setup( { inputField : "appointmentDate", ifFormat : "%Y/%m/%d", showsTime :false, button : "appointmentDate_cal", singleClick : true, step : 1 } );
+createStandardDatepicker(jQuery_3_1_0('#referalDate'), "referalDate_cal");
+createStandardDatepicker(jQuery_3_1_0('#followUpDate'), "followUpDate_cal");
+createStandardDatepicker(jQuery_3_1_0('#appointmentDate'), "appointmentDate_cal");
 </script>
 </html:html>
 

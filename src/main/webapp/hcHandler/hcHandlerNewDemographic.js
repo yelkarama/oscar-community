@@ -63,16 +63,11 @@ var _hc_newDemographicHandler = function(args) {
 				jQuery(window).find("#_hc_layout_valid_to").addClass("_hc_mismatch");
 				jQuery(window).find("#_hc_errors").append("<div class='_hc_error'>This health card has expired.</div>");
 			}
-			
-			jQuery("input[name='end_date_year']").val(hinExp.substring(0,4));
-	   	 	jQuery("input[name='end_date_month']").val(hinExp.substring(4,6));
-	   	 	jQuery("input[name='end_date_date']").val(hinExp.substring(6,8));
-	   	 	
+
+			jQuery("input[name='hc_renew_date']").val(hinExp.substring(0,4) + '-' + hinExp.substring(4,6) + '-' + hinExp.substring(6,8));
 		} else {
 			jQuery(window).find("#_hc_layout_valid_to").text("No Expiry");
-			jQuery("input[name='end_date_year']").val("");
-	   	 	jQuery("input[name='end_date_month']").val("");
-	   	 	jQuery("input[name='end_date_date']").val("");
+			jQuery("input[name='hc_renew_date']").val("");
 	   	 	
 		}
 		
@@ -81,14 +76,13 @@ var _hc_newDemographicHandler = function(args) {
 		jQuery("input[name='last_name']").val(args["lastName"]);
 		jQuery("input[name='first_name']").val(args["firstName"]);
 		jQuery("input[name='hin']").val(args["hin"]);
+		jQuery("input[name='full_birth_date']").val(args["dob"].substring(0,4) + '-' + args["dob"].substring(4,6) + '-' + args["dob"].substring(6,8));
    	 	jQuery("input[name='year_of_birth']").val(args["dob"].substring(0,4));
    	 	jQuery("select[name='month_of_birth']").val(args["dob"].substring(4,6));
    	 	jQuery("select[name='date_of_birth']").val(args["dob"].substring(6,8));
    	 	jQuery("input[name='ver']").val(args["hinVer"]);
    	 	jQuery("select[name='sex']").val((args["sex"] == "1" ? "M" : (args["sex"] == "2" ? "F" : "")));
-   	 	jQuery("input[name='eff_date_year']").val(issueDate.substring(0,4));
-   	 	jQuery("input[name='eff_date_month']").val(issueDate.substring(4,6));
-   	 	jQuery("input[name='eff_date_date']").val(issueDate.substring(6,8));
+		jQuery("input[name='eff_date']").val(issueDate.substring(0,4) + '-' + issueDate.substring(4,6) + '-' + issueDate.substring(6,8));
    	 	
    	 	_hc_windowTimeout = setTimeout(function() {
 			jQuery("#_hc_window").css("display", "none");
