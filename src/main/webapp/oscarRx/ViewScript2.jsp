@@ -273,7 +273,9 @@ if(prefPharmacy.length() > 0 && prefPharmacyId.length() > 0){
       }%>
               var action="../form/createcustomedpdf?__title=Rx&__method=" +  method+"&useSC="+useSC+"&scAddress="+scAddress+"&rxPageSize="+rxPageSize+"&scriptId="+scriptId;
             document.getElementById("preview").contentWindow.document.getElementById("preview2Form").action = action;
-            document.getElementById("preview").contentWindow.document.getElementById("preview2Form").target="_blank";
+            if (method!="oscarRxFax"){
+                document.getElementById("preview").contentWindow.document.getElementById("preview2Form").target="_blank";
+            }
             document.getElementById("preview").contentWindow.document.getElementById("preview2Form").submit();
        return true;
     }
@@ -458,10 +460,9 @@ function sendFax()
 {
 	var faxNumber = document.getElementById('faxNumber');
 	frames['preview'].document.getElementById('finalFax').value = faxNumber.options[faxNumber.selectedIndex].value;
-	frames['preview'].document.getElementById('pdfId').value='<%=signatureRequestId%>';	
-	frames['preview'].onPrint2('oscarRxFax');
-	frames['preview'].document.FrmForm.submit();	
-	window.onbeforeunload = null;
+	frames['preview'].document.getElementById('pdfId').value='<%=signatureRequestId%>';
+   	onPrint2('oscarRxFax', "<%=request.getParameter("scriptId")%>");
+
 }
 
 function unloadMess(){
@@ -585,6 +586,11 @@ function toggleView(form) {
                                     document.forms.RxClearPendingForm.action.value = action;
                                     document.forms.RxClearPendingForm.submit();
                                 }
+
+                                function clearPendingFax(){
+                                    parent.window.location = "../oscarRx/close.html";
+                                    parent.myLightWindow.deactivate();
+								}
 
                                 function ShowDrugInfo(drug){
                                     window.open("drugInfo.do?GN=" + escape(drug), "_blank",
