@@ -112,7 +112,7 @@ param[19]=request.getParameter("reasonCode");
 	Appointment a = new Appointment();
 	a.setProviderNo(request.getParameter("provider_no"));
 	a.setAppointmentDate(ConversionUtils.fromDateString(request.getParameter("appointment_date")));
-	a.setStartTime(ConversionUtils.fromTimeStringNoSeconds(request.getParameter("start_time")));
+	a.setStartTime(ConversionUtils.fromTimeStringNoSeconds(MyDateFormat.getTimeXX_XX_XX(request.getParameter("start_time"))));
 	a.setEndTime(ConversionUtils.fromTimeStringNoSeconds(request.getParameter("end_time")));
 	a.setName(request.getParameter("keyword"));
 	a.setNotes(request.getParameter("notes"));
@@ -153,7 +153,7 @@ if (request.getParameter("demographic_no") != null && !(request.getParameter("de
             if (request.getParameter("emailPt")!= null) {
                 try{
                    
-                   Appointment aa =  appointmentDao.search_appt_no(request.getParameter("provider_no"), ConversionUtils.fromDateString(request.getParameter("appointment_date")), ConversionUtils.fromTimeStringNoSeconds(request.getParameter("start_time")),
+                   Appointment aa =  appointmentDao.search_appt_no(request.getParameter("provider_no"), ConversionUtils.fromDateString(request.getParameter("appointment_date")), ConversionUtils.fromTimeStringNoSeconds(MyDateFormat.getTimeXX_XX_XX(request.getParameter("start_time"))),
                     			ConversionUtils.fromTimeStringNoSeconds(request.getParameter("end_time")), ConversionUtils.fromTimestampString(createDateTime), request.getParameter("creator"), Integer.parseInt(param[16]));
 		   
                     if (aa != null) {
@@ -217,7 +217,7 @@ if (request.getParameter("demographic_no") != null && !(request.getParameter("de
     <% 
         int apptId=0;
         if(!(request.getParameter("printReceipt")==null) && request.getParameter("printReceipt").equals("1")) { 
-            Appointment aa =  appointmentDao.search_appt_no(request.getParameter("provider_no"), ConversionUtils.fromDateString(request.getParameter("appointment_date")), ConversionUtils.fromTimeStringNoSeconds(request.getParameter("start_time")),
+            Appointment aa =  appointmentDao.search_appt_no(request.getParameter("provider_no"), ConversionUtils.fromDateString(request.getParameter("appointment_date")), ConversionUtils.fromTimeStringNoSeconds(MyDateFormat.getTimeXX_XX_XX(request.getParameter("start_time"))),
      			ConversionUtils.fromTimeStringNoSeconds(request.getParameter("end_time")),ConversionUtils.fromTimestampString(createDateTime),  request.getParameter("creator"), Integer.parseInt(param[16]));
             if (aa != null) {
                 apptId = aa.getId();
@@ -229,7 +229,7 @@ if (request.getParameter("demographic_no") != null && !(request.getParameter("de
 </script>
 
 <%
-		 Appointment aa =  appointmentDao.search_appt_no(request.getParameter("provider_no"), ConversionUtils.fromDateString(request.getParameter("appointment_date")), ConversionUtils.fromTimeStringNoSeconds(request.getParameter("start_time")),
+		 Appointment aa =  appointmentDao.search_appt_no(request.getParameter("provider_no"), ConversionUtils.fromDateString(request.getParameter("appointment_date")), ConversionUtils.fromTimeStringNoSeconds(MyDateFormat.getTimeXX_XX_XX(request.getParameter("start_time"))),
      			ConversionUtils.fromTimeStringNoSeconds(request.getParameter("end_time")), ConversionUtils.fromTimestampString(createDateTime), request.getParameter("creator"), Integer.parseInt(param[16]));
 
 		

@@ -59,6 +59,7 @@
   LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 
   ProviderPreference providerPreference=(ProviderPreference)session.getAttribute(SessionConstants.LOGGED_IN_PROVIDER_PREFERENCE);
+    boolean twelveHourFormat = providerPreference.isTwelveHourFormat();
   int everyMin=providerPreference.getEveryMin();
 
   boolean bFirstDisp=true; //this is the first time to display the window
@@ -286,7 +287,7 @@ function checkDateTypeIn(obj) {
 }
 
 function calculateEndTime() {
-  var stime = document.ADDAPPT.start_time.value;
+  var stime = <%=request.getParameter("start_time")%>;
   var vlen = stime.indexOf(':')==-1?1:2;
   var shour = stime.substring(0,2) ;
   var smin = stime.substring(stime.length-vlen) ;
@@ -855,7 +856,7 @@ function pasteAppt(multipleSameDayGroupAppt) {
             <div class="label"><bean:message key="Appointment.formStartTime" />:</div>
             <div class="input">
                 <INPUT TYPE="TEXT" NAME="start_time"
-                    VALUE='<%=request.getParameter("start_time")%>' WIDTH="25"
+                    VALUE='<%=twelveHourFormat?MyDateFormat.getTimeXX_XXampm(request.getParameter("start_time")):request.getParameter("start_time")%>' WIDTH="25"
                     HEIGHT="20" border="0" onChange="checkTimeTypeIn(this);checkPageLock()">
             </div>
             <div class="space">&nbsp;</div>

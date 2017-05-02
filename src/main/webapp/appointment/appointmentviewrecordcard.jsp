@@ -49,12 +49,19 @@
 <%@ page import="org.oscarehr.common.model.Provider"%>
 <%@ page import="org.oscarehr.common.dao.ClinicDAO"%>
 <%@ page import="org.oscarehr.common.model.Clinic"%>
+<%@ page import="org.oscarehr.common.model.ProviderPreference"%>
 <%@ page import="org.oscarehr.common.dao.UserPropertyDAO"%>
 <%@ page import="org.oscarehr.common.model.UserProperty"%>
+<%@ page import="org.oscarehr.util.SessionConstants" %>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ include file="/common/webAppContextAndSuperMgr.jsp"%>
+
+<%
+	ProviderPreference providerPreference=(ProviderPreference)session.getAttribute(SessionConstants.LOGGED_IN_PROVIDER_PREFERENCE);
+	boolean twelveHourFormat = providerPreference.isTwelveHourFormat();
+%>
 
 <html:html locale="true">
 <head>
@@ -225,7 +232,7 @@
 	
 	<tr> <!-- appt date and time-->
 		<td colspan="2">
-			<b>Appointment Date</b>: <span style="text-decoration: underline;"><%=dateFormatter2.format(appt.getAppointmentDate()) %> at <%=timeFormatter2.format(appt.getStartTime()) %><span>
+			<b>Appointment Date</b>: <span style="text-decoration: underline;"><%=dateFormatter2.format(appt.getAppointmentDate()) %> at <%=twelveHourFormat?MyDateFormat.getTimeXX_XXampm(appt.getStartTime().toString()):appt.getStartTime()%><span>
 		</td>
 	</tr>
 	
