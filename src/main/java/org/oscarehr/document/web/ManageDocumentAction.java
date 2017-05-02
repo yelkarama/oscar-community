@@ -39,8 +39,11 @@ import java.io.PrintWriter;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -52,6 +55,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.lowagie.text.DocumentException;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.io.FileUtils;
@@ -60,6 +64,7 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
+import org.apache.tika.io.IOUtils;
 import org.jpedal.PdfDecoder;
 import org.jpedal.fonts.FontMappings;
 import org.oscarehr.PMmodule.caisi_integrator.CaisiIntegratorManager;
@@ -72,14 +77,19 @@ import org.oscarehr.caisi_integrator.ws.FacilityIdIntegerCompositePk;
 import org.oscarehr.casemgmt.model.CaseManagementNote;
 import org.oscarehr.casemgmt.model.CaseManagementNoteLink;
 import org.oscarehr.casemgmt.service.CaseManagementManager;
+import org.oscarehr.common.dao.ClinicDAO;
 import org.oscarehr.common.dao.CtlDocumentDao;
 import org.oscarehr.common.dao.DocumentDao;
+import org.oscarehr.common.dao.FaxConfigDao;
+import org.oscarehr.common.dao.FaxJobDao;
 import org.oscarehr.common.dao.OscarLogDao;
 import org.oscarehr.common.dao.PatientLabRoutingDao;
 import org.oscarehr.common.dao.ProviderInboxRoutingDao;
 import org.oscarehr.common.dao.SecRoleDao;
 import org.oscarehr.common.model.CtlDocument;
 import org.oscarehr.common.model.Document;
+import org.oscarehr.common.model.FaxConfig;
+import org.oscarehr.common.model.FaxJob;
 import org.oscarehr.common.model.OscarLog;
 import org.oscarehr.common.model.PatientLabRouting;
 import org.oscarehr.common.model.Provider;
@@ -95,6 +105,7 @@ import org.oscarehr.util.WebUtils;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
+import oscar.OscarProperties;
 import oscar.dms.EDoc;
 import oscar.dms.EDocUtil;
 import oscar.dms.IncomingDocUtil;
@@ -1046,6 +1057,122 @@ public class ManageDocumentAction extends DispatchAction {
 		outs.write(contentBytes);
 		outs.flush();
 		outs.close();
+		return null;
+	}
+
+	public ActionForward fax(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+		String docId = request.getParameter("docId");
+		String[] tmpRecipients = request.getParameterValues("faxRecipients");
+		String provider_no = loggedInInfo.getLoggedInProviderNo();
+		Document doc = documentDao.getDocument(docId);
+		PatientLabRoutingDao patientLabRoutingDao = SpringUtils.getBean(PatientLabRoutingDao.class);
+
+		String demoNo = request.getParameter("demoNo");
+
+		for (int i = 0; tmpRecipients != null && i < tmpRecipients.length; i++) {
+			tmpRecipients[i] = tmpRecipients[i].trim().replaceAll("\\D", "");
+		}
+		ArrayList<String> recipients = tmpRecipients == null ? new ArrayList<String>() : new ArrayList<String>(Arrays.asList(tmpRecipients));
+
+		// Removing duplicate phone numbers.
+		recipients = new ArrayList<String>(new HashSet<String>(recipients));
+
+		// Writing consultation request to disk as a pdf.
+		String path =  OscarProperties.getInstance().getProperty("DOCUMENT_DIR");
+		// File documentDir = new File(docdownload);
+
+		String faxPdf = String.format("%s%s%s", path, File.separator, doc.getDocfilename());
+
+		FileOutputStream fos = null;
+
+		String tempPath = System.getProperty("java.io.tmpdir");
+		String faxClinicId = OscarProperties.getInstance().getProperty("fax_clinic_id","1234");
+		String faxNumber = "";
+		ClinicDAO clinicDAO = SpringUtils.getBean(ClinicDAO.class);
+		if(!faxClinicId.equals("") && clinicDAO.find(Integer.parseInt(faxClinicId))!=null){
+			faxNumber = clinicDAO.find(Integer.parseInt(faxClinicId)).getClinicFax();
+			faxNumber =faxNumber.replace("-", "");
+		}
+
+
+		com.itextpdf.text.pdf.PdfReader pdfReader = new com.itextpdf.text.pdf.PdfReader(faxPdf);
+		int numPages = pdfReader.getNumberOfPages();
+		pdfReader.close();
+
+
+		FaxJob faxJob = null;
+		FaxJobDao faxJobDao = SpringUtils.getBean(FaxJobDao.class);
+		FaxConfigDao faxConfigDao = SpringUtils.getBean(FaxConfigDao.class);
+
+		List<FaxConfig> faxConfigs = faxConfigDao.findAll(null, null);
+		boolean validFaxNumber = false;
+
+		for (int i = 0; i < recipients.size(); i++) {
+			String faxNo = recipients.get(i).replaceAll("\\D", "");
+			if (faxNo.length() < 7) {
+				throw new DocumentException("Document target fax number '" + faxNo + "' is invalid.");
+			}
+
+			String tempName = "DOC-" + faxClinicId + docId + "." + System.currentTimeMillis();
+
+			String tempPdf = String.format("%s%s%s.pdf", tempPath, File.separator, tempName);
+			String tempTxt = String.format("%s%s%s.txt", tempPath, File.separator, tempName);
+
+			// Copying the fax pdf.
+			FileUtils.copyFile(new File(faxPdf), new File(tempPdf));
+
+			// Creating text file with the specialists fax number.
+			PrintWriter pw = null;
+
+			try {
+				fos = new FileOutputStream(tempTxt);
+				pw = new PrintWriter(fos);
+				pw.println(faxNo);
+			} finally {
+				IOUtils.closeQuietly(pw);
+				IOUtils.closeQuietly(fos);
+			}
+
+			// A little sanity check to ensure both files exist.
+			if (!new File(tempPdf).exists() || !new File(tempTxt).exists()) {
+				throw new DocumentException("Unable to create file for fax of document " + docId + ".");
+			}
+
+			validFaxNumber = false;
+
+			faxJob = new FaxJob();
+			faxJob.setDestination(faxNo);
+			faxJob.setFile_name(doc.getDocfilename());
+			faxJob.setNumPages(numPages);
+			faxJob.setFax_line(faxNumber);
+			faxJob.setStamp(new Date());
+			faxJob.setOscarUser(provider_no);
+			faxJob.setDemographicNo(Integer.parseInt(demoNo));
+
+			for (FaxConfig faxConfig : faxConfigs) {
+				if (faxConfig.getFaxNumber().equals(faxNumber)) {
+					faxJob.setStatus(FaxJob.STATUS.SENT);
+					faxJob.setUser(faxConfig.getFaxUser());
+					validFaxNumber = true;
+					break;
+				}
+			}
+
+			if( !validFaxNumber ) {
+				faxJob.setStatus(FaxJob.STATUS.ERROR);
+				log.error("PROBLEM CREATING FAX JOB", new DocumentException("Document outgoing fax number '"+faxNumber+"' is invalid."));
+			}
+			else {
+				faxJob.setStatus(FaxJob.STATUS.SENT);
+			}
+
+			faxJobDao.persist(faxJob);
+		}
+
+		LogAction.addLog(provider_no, LogConst.SENT, LogConst.CON_FAX, "DOCUMENT  "+ docId);
+		request.getSession().setAttribute("faxSuccessful", validFaxNumber);
+
 		return null;
 	}
 
