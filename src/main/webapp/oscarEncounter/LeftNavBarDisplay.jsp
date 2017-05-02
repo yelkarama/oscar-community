@@ -192,16 +192,31 @@ if(!authed) {
                 NavBarDisplayDAO.Item item = dao.getItem(j);
                 Date d = item.getDate();
                 String itemColour = item.getColour();
-
-                if( d == null )
-                    noDates.add(item);
-                else if( d.compareTo(threeMths) < 0)
-                    if(itemColour.equals("#FF0000") && div.equals("preventions"))
-                        duePreventions.add(item);
+                
+                if (div.equals("tickler"))
+                {
+                    if( d == null ) 
+                    {
+                        noDates.add(item);
+                    }
                     else
-                        pastDates.add(item);
+                    {
+                        current.add(item);
+                    }
+                }
                 else
-                    current.add(item);
+                {
+                    if( d == null )
+                        noDates.add(item);
+                    else if( d.compareTo(threeMths) < 0)
+                        if(itemColour.equals("#FF0000") && div.equals("preventions"))
+                            duePreventions.add(item);
+                        else
+                            pastDates.add(item);
+                    else
+                        current.add(item); 
+                }
+                
             }
 
             StringBuilder jscode = new StringBuilder();
