@@ -26,7 +26,9 @@
 
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-    String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
+	String user = (String) session.getAttribute("user");
+	if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
+	String roleName2$ = (String)session.getAttribute("userrole") + "," + user;
     boolean authed=true;
 %>
 <security:oscarSec roleName="<%=roleName2$%>" objectName="_form" rights="r" reverse="<%=true%>">
@@ -49,6 +51,12 @@
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
 <%@page import="org.oscarehr.util.LoggedInInfo"%>
+<%@ page import="java.util.HashMap" %>
+<%@ page import="oscar.eform.EFormUtil" %>
+<%@ page import="java.util.ArrayList" %>
+<%@ page import="org.oscarehr.common.model.UserProperty" %>
+<%@ page import="org.oscarehr.common.dao.UserPropertyDAO" %>
+<%@ page import="org.oscarehr.util.SpringUtils" %>
 
 <%
     String formClass = "ONAREnhanced";
@@ -57,6 +65,10 @@
     int demoNo = Integer.parseInt(request.getParameter("demographic_no"));
     int formId = Integer.parseInt(request.getParameter("formId"));
     int provNo = Integer.parseInt((String) session.getAttribute("user"));
+	String appointment = "";
+	if(request.getParameter("appointmentNo")!=null){
+		appointment = request.getParameter("appointmentNo");
+	}
     FrmRecord rec = (new FrmRecordFactory()).factory(formClass);
     java.util.Properties props = rec.getFormRecord(LoggedInInfo.getLoggedInInfoFromSession(request), demoNo, formId);
 
@@ -80,6 +92,24 @@
     
     String labReqVer = oscar.OscarProperties.getInstance().getProperty("onare_labreqver","07");
     if(labReqVer.equals("")) {labReqVer="07";}
+
+	String orderByRequest = request.getParameter("orderby");
+	String orderBy = "";
+	if (orderByRequest == null) orderBy = EFormUtil.NAME;
+	else if (orderByRequest.equals("form_subject")) orderBy = EFormUtil.SUBJECT;
+	else if (orderByRequest.equals("form_date")) orderBy = EFormUtil.DATE;
+
+	String groupView = request.getParameter("group_view");
+	if (groupView == null) {
+		UserPropertyDAO userPropDAO = SpringUtils.getBean(UserPropertyDAO.class);
+		UserProperty usrProp = userPropDAO.getProp(user, UserProperty.EFORM_FAVOURITE_GROUP);
+		if( usrProp != null ) {
+			groupView = usrProp.getValue();
+		}
+		else {
+			groupView = "";
+		}
+	}
 %>
 <%
   boolean bView = false;
@@ -1630,6 +1660,11 @@ $(document).ready(function(){
 			content: $('#forms_menu_div').html(), 
 			showSpeed: 400 
 		});
+
+        $('#eforms_menu').menu({
+            content: $('#eforms_menu_div').html(),
+            showSpeed: 400
+        });
 		
     });
 </script>
@@ -2133,6 +2168,9 @@ $(document).ready(function(){
 			
 			<tr id="forms_prompt" >
 				<td>Forms<span style="float:right"><img id="forms_menu" src="../images/right-circle-arrow-Icon.png" border="0"></span></td>						
+			</tr>
+			<tr id="eforms_prompt" >
+				<td>eForms<span style="float:right"><img id="eforms_menu" src="../images/right-circle-arrow-Icon.png" border="0"></span></td>
 			</tr>
 			
 			<tr id="strep_prompt" style="display:none">
@@ -2793,6 +2831,30 @@ $(document).ready(function(){
 <ul>
 	<li><a href="javascript:void(0)" onclick="loadUltrasoundForms();">Ultrasound</a></li>
 	<li><a href="javascript:void(0)" onclick="loadIPSForms();">IPS</a></li></ul>
+</div>
+
+<div id="eforms_menu_div" class="hidden">
+	<ul>
+		<%
+			ArrayList<HashMap<String, ? extends Object>> eForms;
+			if (groupView.equals("") || groupView.equals("default")) {
+				eForms = EFormUtil.listEForms(orderBy, EFormUtil.CURRENT, roleName2$);
+			} else {
+				eForms = EFormUtil.listEForms(orderBy, EFormUtil.CURRENT, groupView, roleName2$);
+			}
+			if (eForms.size() > 0) {
+				for (int i=0; i<eForms.size(); i++) {
+					HashMap<String, ? extends Object> curForm = eForms.get(i);
+		%>
+		<li><a href="javascript:void(0)" onclick ="popPage('<%=request.getContextPath()%>/eform/efmformadd_data.jsp?fid=<%=curForm.get("fid")%>&demographic_no=<%=demoNo%>&appointment=<%=appointment%>','<%=curForm.get("fid") + "_" + demoNo %>'); return true;">
+			<%=curForm.get("formName")%></a></li>
+		<%
+			}
+		} else {
+		%>
+		<li><bean:message key="eform.showmyform.msgNoData"/></li>
+		<%}%>
+	</ul>
 </div>
 
 <div id="ips-form" title="IPS Support Tool">
