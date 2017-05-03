@@ -171,7 +171,7 @@ public class MammogramReport implements PreventionReport{
                       doneWithGrace++;
                    }
 
-                } else if (!refused && cutoffDate.after(prevDate)){ // overdue
+                } else if (!refused && dueDate.after(prevDate)){ // overdue
                    prd.rank = 2;
                    prd.lastDate = prevDateStr;
                    prd.state = "Overdue";
