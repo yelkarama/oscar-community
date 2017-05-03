@@ -987,7 +987,7 @@ var InputType = P[0];
 		m = "&lt;/div&gt;\n\n\n"
 		m += "&lt;div id=&quot;page"
 		m += pg
-		m += "&quot; style=&quot;page-break-after:always;position:relative;&quot; &gt;\n\n"
+		m += "&quot; style=&quot;position:relative;&quot; &gt;\n\n"
 		m += "&lt;img id=&quot;BGImage"
 		m += pg
 		m += "&quot; src=&quot;$%7Boscar_image_path%7D";
