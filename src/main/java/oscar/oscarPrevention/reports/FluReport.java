@@ -215,7 +215,7 @@ public class FluReport implements PreventionReport {
                    prd.numMonths = numMonths;
                    prd.color = "yellow"; //FF00FF
 
-                } else if (!refused && cutoffDate.after(prevDate)){ // overdue
+                } else if (!refused && dueDate.after(prevDate)){ // overdue
                    prd.rank = 2;
                    prd.lastDate = prevDateStr;
                    prd.state = "Overdue";
