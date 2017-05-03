@@ -38,6 +38,7 @@
 <%@page import="org.oscarehr.common.dao.ScheduleTemplateDao" %>
 <%@page import="org.oscarehr.common.model.ScheduleTemplateCode" %>
 <%@page import="org.oscarehr.common.dao.ScheduleTemplateCodeDao" %>
+<%@ page import="org.oscarehr.common.dao.ScheduleDateDao" %>
 <%@page import="oscar.util.ConversionUtils" %>
 <%
 	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
@@ -318,11 +319,36 @@ function t(s1,s2,s3,s4,s5,s6) {
         
 
 %>
-		<td
-			<%=DateTimeCodeBean.get("color"+temp.toString())!=null?("bgcolor="+DateTimeCodeBean.get("color"+temp.toString()) ):""%>
-                            title="<%=hour+":"+(min<10?"0":"")+min%>"><table style="display:inline; font-size:x-small;"><tr><td rowspan="2" style="vertical-align:middle;"><a href=#
-			onClick="t(<%=cal.get(Calendar.YEAR)%>,<%=cal.get(Calendar.MONTH)+1%>,<%=cal.get(Calendar.DATE)%>,'<%=(hour<10?"0":"")+hour+":"+(min<10?"0":"")+min %>','<%=appointmentTime.get(Calendar.HOUR_OF_DAY)%>:<%=appointmentTime.get(Calendar.MINUTE)%>','<%=DateTimeCodeBean.get("duration"+temp.toString())%>');return false;">
-                    <%=temp.toString()%></a></td><td title="<bean:message key="schedule.scheduleflipview.msgbookings"/>" style="vertical-align:top; font-size: x-small;"><%=strNumOfAppts%></td></tr><tr><td style="vertical-align:bottom; font-size: x-small;" title="<bean:message key="schedule.scheduleflipview.msgbookinglimit"/>"><%=bookinglimit%></td></tr></table></td>
+		<td <%=DateTimeCodeBean.get("color" + temp.toString()) != null ? ("bgcolor=" + DateTimeCodeBean.get("color" + temp.toString())) : ""%>
+				title="<%=hour+":"+(min<10?"0":"")+min%>">
+			<table style="display:inline; font-size:x-small;">
+				<tr>
+					<td rowspan="2" style="vertical-align:middle;">
+						<% ScheduleDateDao scheduleDateDao = SpringUtils.getBean(ScheduleDateDao.class);
+							String strDate = cal.get(Calendar.YEAR) + "-" + (cal.get(Calendar.MONTH) + 1) + "-" + cal.get(Calendar.DATE);
+							ScheduleDate sd = scheduleDateDao.findByProviderNoAndDate(curProvider_no, ConversionUtils.fromDateString(strDate));
+							boolean userTemplateAvailable = true;
+							if (sd == null || "0".equals(String.valueOf(sd.getAvailable()))) {
+								userTemplateAvailable = false;
+							}
+							if (!OscarProperties.getInstance().isPropertyActive("not_availiable_lock_appointemnts") ||
+									(userTemplateAvailable && (temp.toString().equals("") || temp.toString().equals("_") || temp.toString().equals("&nbsp;")))) { %>
+						<a href=# onClick="t(<%=cal.get(Calendar.YEAR)%>,<%=cal.get(Calendar.MONTH)+1%>,<%=cal.get(Calendar.DATE)%>,'<%=(hour<10?"0":"")+hour+":"+(min<10?"0":"")+min %>','<%=appointmentTime.get(Calendar.HOUR_OF_DAY)%>:<%=appointmentTime.get(Calendar.MINUTE)%>','<%=DateTimeCodeBean.get("duration"+temp.toString())%>');return false;">
+							<%=temp.toString()%>
+						</a>
+						<% } else { %>
+						<span title="Provider not available at this time" style="color: grey;"><%=temp.toString()%></span>
+						<% } %>
+					</td>
+					<td title="<bean:message key="schedule.scheduleflipview.msgbookings"/>" style="vertical-align:top; font-size: x-small;"><%=strNumOfAppts%>
+					</td>
+				</tr>
+				<tr>
+					<td style="vertical-align:bottom; font-size: x-small;" title="<bean:message key="schedule.scheduleflipview.msgbookinglimit"/>"><%=bookinglimit%>
+					</td>
+				</tr>
+			</table>
+		</td>
 		<%
   }
 %>
