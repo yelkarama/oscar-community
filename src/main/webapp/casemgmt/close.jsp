@@ -24,9 +24,17 @@
 
 --%>
 
-
+<% String updateParent = "";
+    if (request.getParameter("updateParent")!=null){
+        updateParent = request.getParameter("updateParent");
+    } else{
+        updateParent = "true";
+    }
+%>
 
 <script type="text/javascript">
+<% if (updateParent.equals("true")) {%>
 window.opener.location.reload(true);
+<%}%>
 window.close();
 </script>
