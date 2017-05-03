@@ -469,7 +469,7 @@
                                             <div id="providerList<%=docId%>"></div>
                                         </td>
                                     </tr>
-
+                                    <%if (OscarProperties.getInstance().isPropertyActive("flag_as_abnormal")) {%> 
 									<tr>
 										<td>
 											<bean:message key="inboxmanager.document.FlagAbnormalMsg" />
@@ -478,7 +478,7 @@
 											<input id="abnormal<%=docId%>" type="checkbox" name="abnormalFlag" <%= curdoc.isAbnormal() ? "checked='checked'" : "" %> />
 										</td>
 									</tr>
-
+                                    <%}%>
                                     <tr>
                                         <td><bean:message key="dms.documentReport.msgCreator"/>:</td>
                                         <td><%=curdoc.getCreatorName()%></td>
