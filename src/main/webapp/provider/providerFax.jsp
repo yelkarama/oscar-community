@@ -92,6 +92,7 @@
 			<li>Override the fax # in prescriptions</li>
 			<li> When choosing your letterhead in consult requests, the clinic fax # and your provider record's fax # will be overridden
 			</li>
+				<li>Override the fax # in Prevention print-outs</li>
 			</ul>
 			</span>
             <br/>

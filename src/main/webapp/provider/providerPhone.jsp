@@ -93,6 +93,7 @@
 			<li>Override the phone # in prescriptions</li>
 			<li> When choosing your letterhead in consult requests, the clinic phone# and your provider record's work phone # will be overridden
 			</li>
+				<li>Override the phone # in Prevention print-outs</li>
 			</ul>
 			</span>
             <br/>
