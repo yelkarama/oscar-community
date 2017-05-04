@@ -47,6 +47,7 @@
 <title>Demographic Search</title>
 <%
 	String query=request.getParameter("query");
+	String keyword = request.getParameter("elementName");
 	String formName=request.getParameter("form");
 	String elementName=request.getParameter("elementName");
 	String elementId=request.getParameter("elementId");
@@ -66,7 +67,7 @@
 		Name: </b></font></font></td>
 		<td colspan="2" width="65%">
 		<div align="left"><INPUT TYPE="HIDDEN"
-			value="<%=(query!=null)?query:"" %>" NAME="keyword" size="25">
+			value="<%=(query!=null)?query:keyword%>" NAME="keyword" size="25">
 		</div>
 
 		</td>

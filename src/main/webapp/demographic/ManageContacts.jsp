@@ -134,13 +134,13 @@ function deleteProContact(id) {
 
 }
 
-function doPersonalSearch(id) {
+function doPersonalSearch(id, contactName, contactId) {
 	var type = jQuery("select[name='contact_"+id+".type']").val();
 	if(type == '<%=DemographicContact.TYPE_DEMOGRAPHIC%>') {
-		search_demographic('contact_'+id+'.contactName','contact_'+id+'.contactId');
+		search_demographic(contactName, contactId);
 	}
 	if(type == '<%=DemographicContact.TYPE_CONTACT%>') {
-		search_contact('contact_'+id+'.contactName','contact_'+id+'.contactId');
+		search_contact(contactName, contactId);
 	}
 }
 
