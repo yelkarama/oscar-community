@@ -181,6 +181,7 @@ br {
 			<li>Override the address in prescriptions</li>
 			<li> When choosing your letterhead in consult requests, the clinic address and your provider record's address will be overridden
 			</li>
+				<li>Override the address in Prevention print-outs</li>
 			</ul>
 			</span>
             <br/>

@@ -43,13 +43,17 @@ import javax.servlet.http.HttpServletResponse;
 
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
+import org.oscarehr.common.dao.UserPropertyDAO;
 import org.oscarehr.common.model.Demographic;
+import org.oscarehr.common.model.UserProperty;
 import org.oscarehr.common.printing.FontSettings;
 import org.oscarehr.common.printing.PdfWriterFactory;
 import org.oscarehr.managers.DemographicManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.SpringUtils;
 
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 import oscar.OscarProperties;
 import oscar.oscarClinic.ClinicData;
 
@@ -68,6 +72,8 @@ import com.lowagie.text.pdf.BaseFont;
 import com.lowagie.text.pdf.ColumnText;
 import com.lowagie.text.pdf.PdfContentByte;
 import com.lowagie.text.pdf.PdfWriter;
+import oscar.oscarProvider.data.ProviderFaxUpdater;
+
 /*
  * @author rjonasz
  */
@@ -103,10 +109,14 @@ public class PreventionPrintPdf {
         //make sure we have data to print      
         if( headerIds == null )
             throw new DocumentException();
+
+        WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(request.getSession().getServletContext());
         
         String demoNo = request.getParameter("demographicNo");
         DemographicManager demographicManager = SpringUtils.getBean(DemographicManager.class);
         Demographic demo = demographicManager.getDemographic(LoggedInInfo.getLoggedInInfoFromSession(request), demoNo);
+
+        LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
         
         if (demo == null) 
             throw new DocumentException();
@@ -147,19 +157,35 @@ public class PreventionPrintPdf {
         //Clinic Address Information
         ClinicData clinicData = new ClinicData();
         clinicData.refreshClinicData();
- 
-        StringBuilder clinicAddrCont = new StringBuilder(clinicData.getClinicCity()).append(", ").append(clinicData.getClinicProvince()).append(" ").append(clinicData.getClinicPostal());       
-                
+
+        UserPropertyDAO userPropertyDAO = (UserPropertyDAO) ctx.getBean("UserPropertyDAO");
+        
+        UserProperty phoneProp = userPropertyDAO.getProp(loggedInInfo.getLoggedInProviderNo(),"rxPhone");
+        UserProperty addressProp = userPropertyDAO.getProp(loggedInInfo.getLoggedInProviderNo(),"rxAddress");
+        ProviderFaxUpdater faxProp = new ProviderFaxUpdater(loggedInInfo.getLoggedInProviderNo());
+        UserProperty cityProp = userPropertyDAO.getProp(loggedInInfo.getLoggedInProviderNo(), "rxCity");
+        UserProperty provinceProp = userPropertyDAO.getProp(loggedInInfo.getLoggedInProviderNo(),"rxProvince");
+        UserProperty postalProp = userPropertyDAO.getProp(loggedInInfo.getLoggedInProviderNo(), "rxPostal");
+
+        String address = (addressProp==null?clinicData.getClinicAddress():addressProp.getValue().length()<=0?clinicData.getClinicAddress():addressProp.getValue());
+        String city = (cityProp==null?clinicData.getClinicCity():cityProp.getValue().length()<=0?clinicData.getClinicCity():cityProp.getValue());
+        String province = (provinceProp==null?clinicData.getClinicProvince():provinceProp.getValue().length()<=0?clinicData.getClinicProvince():provinceProp.getValue());
+        String postal = (postalProp==null?clinicData.getClinicPostal():postalProp.getValue().length()<=0?clinicData.getClinicPostal():postalProp.getValue());
+        String phone = (phoneProp==null?clinicData.getClinicPhone():phoneProp.getValue().length()<=0?clinicData.getClinicPhone():phoneProp.getValue());
+        String fax = (faxProp==null?clinicData.getClinicFax():faxProp.getFax().length()<=0?clinicData.getClinicFax():faxProp.getFax());
+        
+        StringBuilder clinicAddrCont = new StringBuilder(city).append(", ").append(province).append(" ").append(postal);       
+        
         Paragraph clinicParagraph = new Paragraph(LEADING, clinicData.getClinicName(), FontFactory.getFont(FontFactory.HELVETICA, 12, Font.BOLD, Color.BLACK));
         clinicParagraph.add(Chunk.NEWLINE);
-        clinicParagraph.add(new Chunk(clinicData.getClinicAddress(),FontFactory.getFont(FontFactory.HELVETICA, 10, Font.NORMAL, Color.BLACK)));
+        clinicParagraph.add(new Chunk(address,FontFactory.getFont(FontFactory.HELVETICA, 10, Font.NORMAL, Color.BLACK)));
         clinicParagraph.add(Chunk.NEWLINE);
         clinicParagraph.add(new Chunk(clinicAddrCont.toString(),FontFactory.getFont(FontFactory.HELVETICA, 10, Font.NORMAL, Color.BLACK)));
         clinicParagraph.add(Chunk.NEWLINE);
         clinicParagraph.add(new Chunk("Ph.",FontFactory.getFont(FontFactory.HELVETICA, 10, Font.BOLD, Color.BLACK)));
-        clinicParagraph.add(new Chunk(clinicData.getClinicPhone(),FontFactory.getFont(FontFactory.HELVETICA, 10, Font.NORMAL, Color.BLACK)));
+        clinicParagraph.add(new Chunk(phone,FontFactory.getFont(FontFactory.HELVETICA, 10, Font.NORMAL, Color.BLACK)));
         clinicParagraph.add(new Chunk(" Fax.",FontFactory.getFont(FontFactory.HELVETICA, 10, Font.BOLD, Color.BLACK)));
-        clinicParagraph.add(new Chunk(clinicData.getClinicFax(),FontFactory.getFont(FontFactory.HELVETICA, 10, Font.NORMAL, Color.BLACK)));
+        clinicParagraph.add(new Chunk(fax,FontFactory.getFont(FontFactory.HELVETICA, 10, Font.NORMAL, Color.BLACK)));
         clinicParagraph.setAlignment(Paragraph.ALIGN_CENTER);
         document.add(clinicParagraph);
         
