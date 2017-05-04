@@ -215,7 +215,7 @@
 		<td><%= provider.getTeam() %></td>
 		<td align="center"><%= provider.getSex() %></td>
 		<td><%= provider.getPhone() %></td>
-		<td><%= provider.getStatus().equals("1")?"Active":"Inactive" %></td>
+		<td><%= (provider.getStatus()!=null)?(provider.getStatus().equals("1")?"Active":"Inactive"):"" %></td>
 	</tr>
 	<%
     }
