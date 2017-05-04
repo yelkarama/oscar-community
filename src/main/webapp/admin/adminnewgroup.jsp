@@ -151,7 +151,7 @@ function validate() {
 <%
 	// find all active providers
 	int i=0;
-	List<ProviderData> providerList = providerDao.findAll(false);
+	List<ProviderData> providerList = providerDao.findAllOrderByLastName();
    
    for(ProviderData provider : providerList) {
 		i++;

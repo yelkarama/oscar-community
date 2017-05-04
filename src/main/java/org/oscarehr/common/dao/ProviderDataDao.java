@@ -123,9 +123,9 @@ public class ProviderDataDao extends AbstractDao<ProviderData> {
 	
 	
 	public List<ProviderData> findAllOrderByLastName() {
-
-		String sqlCommand = "select x from ProviderData x order by x.lastName";
-
+		
+		String sqlCommand = "select x from ProviderData x where x.status = '1' order by x.lastName";
+		
 		Query query = entityManager.createQuery(sqlCommand);
 
 		@SuppressWarnings("unchecked")
