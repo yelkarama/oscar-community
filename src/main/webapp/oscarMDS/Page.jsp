@@ -470,7 +470,7 @@ String curUser_no = (String) session.getAttribute("user");
 		  id: 'dateOfTest',
 		  is: function(s) {return false;},
 		  format: function(s) {
-		    return s.indexOf("/")?s.substr(s.indexOf("/")+2,10):s;
+		    return s.indexOf("/")!=-1?s.substr(s.indexOf("/")+2,10):s;
 		  },
 		  type: 'text'
 		});
