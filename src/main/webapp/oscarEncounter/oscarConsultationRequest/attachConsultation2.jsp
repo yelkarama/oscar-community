@@ -421,12 +421,25 @@ function toggleSelectAll() {
 	                if(hrmDocumentToDemographicList.size() > 0) { %>
 						<h2><bean:message key="oscarEncounter.oscarConsultationRequest.AttachDocPopup.hrmDocuments"/></h2>
 				<% 	}
+
+					List<HRMDocument> docs = new ArrayList<HRMDocument>();
 	                
+					for (HRMDocumentToDemographic hrmDocumentToDemographic : hrmDocumentToDemographicList) 
+					{
+					    docs.add(hrmDocumentDao.findById(Integer.valueOf(hrmDocumentToDemographic.getHrmDocumentId())).get(0));
+					}
+					
+					Collections.sort(docs, new Comparator<HRMDocument>() {
+						@Override
+						public int compare(HRMDocument o1, HRMDocument o2) {
+							return o2.getReportDate().after(o1.getReportDate()) ? 1 : -1;
+						}
+					});
+				
 	                //For each hrmDocumentToDemographic in the list
-	                for (HRMDocumentToDemographic hrmDocumentToDemographic : hrmDocumentToDemographicList) {
-	                	//Gets the hrmDocument given the id
-	                	HRMDocument hrmDocument = hrmDocumentDao.findById(Integer.valueOf(hrmDocumentToDemographic.getHrmDocumentId())).get(0);
-	                	//Declares the displayName variable
+	                for (HRMDocument hrmDocument : docs) {
+	                    
+						//Declares the displayName variable
 	                	String hrmDisplayName;
 	                	//If the HRM document has a description
 	                	if (hrmDocument.getDescription() != null && !hrmDocument.getDescription().equals("")) {
