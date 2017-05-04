@@ -826,6 +826,23 @@ if (request.getAttribute("printError") != null && (Boolean) request.getAttribute
 	                           </tr><%
 						} else {%>
                         <table width="100%" border="0" cellspacing="0" cellpadding="2" bgcolor="#CCCCFF" bordercolor="#9966FF" bordercolordark="#bfcbe3" name="tblDiscs" id="tblDiscs">
+                            <% if(handler.getMsgType().equals("MEDITECH") && "MIC".equals(((MEDITECHHandler) handler).getSendingApplication())) { %>
+                                <tr>
+                                    <td colspan="8" ></td>
+                                </tr>
+                                <tr>
+                                    <td valign="top" align="left" style="padding-left:20px;font-weight:bold;" >SPECIMEN SOURCE: </td>
+                                    <td valign="top" align="left" style="font-weight:bold;" colspan="7"><%= ((MEDITECHHandler) handler).getSpecimenSource(i) %></td>
+                                </tr>
+                                <tr>
+                                    <td valign="top" align="left" style="padding-left:20px;font-weight:bold;">SPECIMEN DESCRIPTION: </td>
+                                    <td valign="top" align="left" style="font-weight:bold;" colspan="7"><%= ((MEDITECHHandler) handler).getSpecimenDescription(i) %></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="8" ></td>
+                                </tr>
+                            <% }%>
+
                             <tr class="Field2">
                                 <td width="25%" align="middle" valign="bottom" class="Cell"><bean:message key="oscarMDS.segmentDisplay.formTestName"/></td>
                                 <td width="15%" align="middle" valign="bottom" class="Cell"><bean:message key="oscarMDS.segmentDisplay.formResult"/></td>
@@ -854,7 +871,7 @@ if (request.getAttribute("printError") != null && (Boolean) request.getAttribute
 											}
 									}
                                      boolean b2 = !obxName.equals(""), b3=handler.getObservationHeader(j, k).equals(headers.get(i));
-                                     if (handler.getMsgType().equals("EPSILON") || handler.getMsgType().equals("MEDITECH")) {
+                                     if (handler.getMsgType().equals("EPSILON")) {
                                     	b2=true; b3=true;
                                     } else if(handler.getMsgType().equals("PFHT") || handler.getMsgType().equals("HHSEMR")) {
                                     	b2=true;
@@ -996,6 +1013,18 @@ if (request.getAttribute("printError") != null && (Boolean) request.getAttribute
 		                                	<%}
 	                                   }
                                    }
+                                    if(handler.getMsgType().equals("MEDITECH")  && isUnstructuredDoc ) {  %>
+                                    <pre>
+                                        <%= handler.getOBXResult(j,k) %>
+                                    </pre>
+
+                                    <%} if(handler.getMsgType().equals("MEDITECH")  && ((MEDITECHHandler) handler).isReportData() ) { %>
+                                    <tr>
+                                        <td>
+                                            <%= handler.getOBXResult(j,k) %>
+                                        </td>
+                                    </tr>
+                                    <%}
                                 }
                             //}
 
