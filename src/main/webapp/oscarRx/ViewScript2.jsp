@@ -360,7 +360,7 @@ function printPaste2Parent(print){
    try{
       var text =""; 
       <% if (props.isPropertyActive("rx_paste_asterisk")) { %>
-	   text += "****<%=oscar.oscarProvider.data.ProviderData.getProviderName(bean.getProviderNo())%>********************************************************************************\n";
+	   text += "**********************************************************************************\n";
      <% } %>
       //console.log("1");
       //text = text.substring(0, 82) + "\n";
@@ -373,8 +373,11 @@ function printPaste2Parent(print){
 	  if (document.getElementById('additionalNotes') !== null) {
 		  text += document.getElementById('additionalNotes').value + "\n";
 	  }
-	   <% if (props.isPropertyActive("rx_paste_asterisk")) { %>
-		  text += "**********************************************************************************\n";
+	   <% if (props.isPropertyActive("rx_paste_asterisk")) {
+	   		if(prefPharmacy!=null && prefPharmacy.trim()!=""){ %>
+       			text += "<%=prefPharmacy%>\n"
+	   		<% } %>
+		  text += "****<%=oscar.oscarProvider.data.ProviderData.getProviderName(bean.getProviderNo())%>********************************************************************************\n";
 	   <% } %>
       //oscarLog(text);
 
