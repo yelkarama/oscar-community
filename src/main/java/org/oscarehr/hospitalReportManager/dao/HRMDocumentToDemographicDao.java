@@ -55,32 +55,35 @@ public class HRMDocumentToDemographicDao extends AbstractDao<HRMDocumentToDemogr
 		//Creates a new empty list, it remains empty if an error occurs
 		List<HRMDocumentToDemographic> attachedHRMDocumentToDemographics = new ArrayList<HRMDocumentToDemographic>();
 		
-		try {
-			//Parses the consultationId to an integer
-			Integer parsedConsultationId = Integer.parseInt(consultationId);
-			
-			//Creates the SQL
-			String sql = "SELECT hdtd "
+		if (!consultationId.equalsIgnoreCase("null") || !consultationId.equals("") || !consultationId.equals(null))
+		{
+			try {
+				//Parses the consultationId to an integer
+				Integer parsedConsultationId = Integer.parseInt(consultationId);
+
+				//Creates the SQL
+				String sql = "SELECT hdtd "
 						+ "FROM " + this.modelClass.getName() + " hdtd "
 						+ "WHERE hdtd.hrmDocumentId IN (SELECT cd.documentNo "
-														+ "FROM " + ConsultDocs.class.getName() + " cd "
-														+ "WHERE cd.requestId = ? AND cd.docType = 'H' AND cd.deleted IS NULL)";
-			
-			//Creates the query using the SQL
-			Query query = entityManager.createQuery(sql);
-			//Sets the query parameters
-			query.setParameter(1, parsedConsultationId);
-			//Gets the query results and converts them to ConsultDocs
-			attachedHRMDocumentToDemographics = query.getResultList();
-		}
-		catch (NumberFormatException nfe) {
-			MiscUtils.getLogger().error("The consultationId is not a valid integer. consultationId: " + consultationId);
-		}
-		catch (IllegalStateException ise) {
-			MiscUtils.getLogger().error("The entity manager has been closed" + System.getProperty("line.separator") + ise.getMessage());
-		}
-		catch (IllegalArgumentException iae) {
-			MiscUtils.getLogger().error("An IllegalArgumentException has occured, the cause could be from the SQL or the consultationId" + System.getProperty("line.separator") + iae.getMessage());
+						+ "FROM " + ConsultDocs.class.getName() + " cd "
+						+ "WHERE cd.requestId = ? AND cd.docType = 'H' AND cd.deleted IS NULL)";
+
+				//Creates the query using the SQL
+				Query query = entityManager.createQuery(sql);
+				//Sets the query parameters
+				query.setParameter(1, parsedConsultationId);
+				//Gets the query results and converts them to ConsultDocs
+				attachedHRMDocumentToDemographics = query.getResultList();
+			}
+			catch (NumberFormatException nfe) {
+				MiscUtils.getLogger().error("The consultationId is not a valid integer. consultationId: " + consultationId);
+			}
+			catch (IllegalStateException ise) {
+				MiscUtils.getLogger().error("The entity manager has been closed" + System.getProperty("line.separator") + ise.getMessage());
+			}
+			catch (IllegalArgumentException iae) {
+				MiscUtils.getLogger().error("An IllegalArgumentException has occured, the cause could be from the SQL or the consultationId" + System.getProperty("line.separator") + iae.getMessage());
+			}
 		}
 		
 		return attachedHRMDocumentToDemographics;
