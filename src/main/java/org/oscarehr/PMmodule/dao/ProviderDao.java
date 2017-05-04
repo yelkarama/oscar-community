@@ -164,7 +164,7 @@ public class ProviderDao extends HibernateDaoSupport {
     public List<Provider> getActiveProviderLikeFirstLastName(String firstname,String lastname){
     	firstname=firstname.trim();
     	lastname=lastname.trim();
-    	String s="From Provider p where p.FirstName like ? and p.LastName like ? and p.Status='1'";
+    	String s="From Provider p where p.FirstName like ? and p.LastName like ? and p.Status='1' order by p.LastName";
     	ArrayList<Object> paramList=new ArrayList<Object>();
     	paramList.add(firstname);
     	paramList.add(lastname);
