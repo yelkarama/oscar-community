@@ -1527,7 +1527,13 @@ function updateFaxButton() {
                     </tr>
                     <tr>
 					<td>
-
+						<% // Determine if curUser has selected a default sex in preferences
+							UserProperty refPracProp = userPropertyDAO.getProp(providerNo,  UserProperty.DEFAULT_REF_PRACTITIONER);
+							String refPrac = "";
+							if (refPracProp != null) {
+								refPrac = refPracProp.getValue();
+							}
+						%>
 					<table border=0 width="100%">
 						<% if (props.isConsultationFaxEnabled() && OscarProperties.getInstance().isPropertyActive("consultation_dynamic_labelling_enabled")) { %>
 						<tr>
@@ -1536,9 +1542,9 @@ function updateFaxButton() {
 								<html:select property="providerNo" onchange="switchProvider(this.value)">
 									<%
 										for (Provider p : prList) {
-											if (p.getProviderNo().compareTo("-1") != 0) {
+											if (p.getPractitionerNo().length() > 0) {
 									%>
-									<option value="<%=p.getProviderNo() %>" <%=((consultUtil.providerNo != null && consultUtil.providerNo.equalsIgnoreCase(p.getProviderNo())) || (consultUtil.providerNo == null &&  providerNo.equalsIgnoreCase(p.getProviderNo())) ? "selected='selected'" : "") %>>
+									<option value="<%=p.getProviderNo() %>" <%=refPrac.equalsIgnoreCase(p.getFormattedName())?"selected='selected'":""%>>
 										<%=p.getFormattedName() %>
 									</option>
 									<% }

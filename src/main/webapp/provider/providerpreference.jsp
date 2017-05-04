@@ -703,6 +703,9 @@ Event.observe('rxInteractionWarningLevel', 'change', function(event) {
   <tr>
       <td align="center"><a href=# onClick ="popupPage(230,860,'../setProviderStaleDate.do?method=viewDefaultSex');return false;"><bean:message key="provider.btnSetDefaultSex" /></a></td>
       </tr>
+	<tr>
+		<td align="center"><a href=# onClick ="popupPage(230,860,'../setProviderStaleDate.do?method=viewDefaultRefPractitioner');return false;"><bean:message key="provider.setDefaultRefPractitioner" /></a></td>
+	</tr>
   <tr>
     <td align="center"><a href=# onClick ="popupPage(230,860,'providerSignature.jsp');return false;"><bean:message key="provider.btnEditSignature"/></a>
     </td>

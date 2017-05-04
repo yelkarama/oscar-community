@@ -49,6 +49,7 @@ import org.oscarehr.util.SpringUtils;
 import oscar.OscarProperties;
 import oscar.eform.EFormUtil;
 import oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctConsultationFormRequestUtil;
+import oscar.oscarRx.data.RxProviderData;
 
 /**
  *
@@ -215,7 +216,83 @@ public class ProviderPropertyAction extends DispatchAction {
 
          return actionmapping.findForward("gen");
     }
-    /////
+
+    public ActionForward viewDefaultRefPractitioner(ActionMapping actionmapping,
+                                                    ActionForm actionform,
+                                                    HttpServletRequest request,
+                                                    HttpServletResponse response) {
+
+        LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+        String providerNo=loggedInInfo.getLoggedInProviderNo();
+        DynaActionForm frm = (DynaActionForm)actionform;
+        UserProperty prop = this.userPropertyDAO.getProp(providerNo, UserProperty.DEFAULT_REF_PRACTITIONER);
+        RxProviderData rx = new RxProviderData();
+        List<RxProviderData.Provider> prList = rx.getAllProviders();
+
+        if (prop == null){
+            prop = new UserProperty();
+        }
+
+        ArrayList<LabelValueBean> optionList = new ArrayList<LabelValueBean>();
+        
+
+        optionList.add(new LabelValueBean("All Practitioners", "all"));
+        for (RxProviderData.Provider doctor : prList) 
+        {
+            if (doctor.getPractitionerNo().length() > 0)
+            {
+                optionList.add(new LabelValueBean(doctor.getFormattedName(), doctor.getFormattedName()));   
+            }
+        }
+
+        request.setAttribute("dateProperty",prop);
+        request.setAttribute("dropOpts",optionList);
+
+        request.setAttribute("providertitle","provider.setDefaultRefPractitioner.title");
+        request.setAttribute("providermsgPrefs","provider.setDefaultRefPractitioner.msgPrefs");
+        request.setAttribute("providermsgProvider","provider.setDefaultRefPractitioner.msgDefaultRefPrac");
+        request.setAttribute("providermsgEdit","provider.setDefaultRefPractitioner.msgEdit");
+        request.setAttribute("providerbtnSubmit","provider.setDefaultRefPractitioner.btnSubmit");
+        request.setAttribute("providermsgSuccess","provider.setDefaultRefPractitioner.msgSuccess");
+        request.setAttribute("method","saveDefaultRefPractitioner");
+
+        frm.set("dateProperty", prop);
+        return actionmapping.findForward("gen");
+    }
+
+    public ActionForward saveDefaultRefPractitioner(ActionMapping actionmapping,
+                                        ActionForm actionform,
+                                        HttpServletRequest request,
+                                        HttpServletResponse response) {
+
+        LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+        String providerNo=loggedInInfo.getLoggedInProviderNo();
+
+        DynaActionForm frm = (DynaActionForm)actionform;
+        UserProperty prop = (UserProperty)frm.get("dateProperty");
+        String fmt = prop != null ? prop.getValue() : "";
+        UserProperty saveProperty = this.userPropertyDAO.getProp(providerNo,UserProperty.DEFAULT_REF_PRACTITIONER);
+
+        if( saveProperty == null ) {
+            saveProperty = new UserProperty();
+            saveProperty.setProviderNo(providerNo);
+            saveProperty.setName(UserProperty.DEFAULT_REF_PRACTITIONER);
+        }
+
+        saveProperty.setValue(fmt);
+        this.userPropertyDAO.saveProp(saveProperty);
+
+        request.setAttribute("status", "success");
+        request.setAttribute("providertitle","provider.setDefaultRefPractitioner.title");
+        request.setAttribute("providermsgPrefs","provider.setDefaultRefPractitioner.msgPrefs");
+        request.setAttribute("providermsgProvider","provider.setDefaultRefPractitioner.msgDefaultRefPrac");
+        request.setAttribute("providermsgEdit","provider.setDefaultRefPractitioner.msgEdit");
+        request.setAttribute("providerbtnSubmit","provider.setDefaultRefPractitioner.btnSubmit");
+        request.setAttribute("providermsgSuccess","provider.setDefaultRefPractitioner.msgSuccess");
+        request.setAttribute("method","saveDefaultSex");
+
+        return actionmapping.findForward("gen");
+    }
 
     public ActionForward viewHCType(ActionMapping actionmapping,
                                ActionForm actionform,
