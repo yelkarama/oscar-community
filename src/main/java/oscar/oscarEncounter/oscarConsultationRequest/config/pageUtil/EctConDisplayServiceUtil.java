@@ -56,6 +56,7 @@ public class EctConDisplayServiceUtil
     public Vector<String> serviceName;
     public Vector<String> serviceId;
     public ArrayList<String> referralNoVec;
+    public Vector<Boolean> deleted;  
 	
     public String getServiceDesc(String serId)
     {
@@ -86,6 +87,7 @@ public class EctConDisplayServiceUtil
         specTypeVec = new Vector<String>();
         specIdVec = new Vector<String>();
         referralNoVec = new ArrayList<String>();
+        deleted = new Vector<Boolean>();
         
         ProfessionalSpecialistDao dao = SpringUtils.getBean(ProfessionalSpecialistDao.class);        
         for(ProfessionalSpecialist ps : dao.findAll()) {
@@ -99,6 +101,7 @@ public class EctConDisplayServiceUtil
             emailVec.add(ps.getEmailAddress());
             specTypeVec.add(ps.getSpecialtyType());
             specIdVec.add(ps.getId().toString());
+            deleted.add(ps.isDeleted());
         }
     }
 

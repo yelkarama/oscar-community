@@ -59,13 +59,17 @@ public class EctConEditSpecialistsAction extends Action {
 		String delete = editSpecialistsForm.getDelete();
 		String specialists[] = editSpecialistsForm.getSpecialists();
 
+		ProfessionalSpecialist professionalSpecialist= null;
+		
 		ResourceBundle oscarR = ResourceBundle.getBundle("oscarResources", request.getLocale());
 
 		if (delete.equals(oscarR.getString("oscarEncounter.oscarConsultationRequest.config.EditSpecialists.btnDeleteSpecialist"))) {
 			if (specialists.length > 0) {
 				for (int i = 0; i < specialists.length; i++)
 				{
-					professionalSpecialistDao.remove(Integer.parseInt(specialists[i]));
+					professionalSpecialist=professionalSpecialistDao.find(Integer.parseInt(specialists[i]));
+					professionalSpecialist.setDeleted(true);
+					professionalSpecialistDao.merge(professionalSpecialist);
 				}
 			}
 			EctConConstructSpecialistsScriptsFile constructSpecialistsScriptsFile = new EctConConstructSpecialistsScriptsFile();
@@ -74,7 +78,7 @@ public class EctConEditSpecialistsAction extends Action {
 		}
 
 		// not delete request, just update one entry
-		ProfessionalSpecialist professionalSpecialist=professionalSpecialistDao.find(Integer.parseInt(specId));
+		professionalSpecialist=professionalSpecialistDao.find(Integer.parseInt(specId));
 
 		int updater = 0;
 		request.setAttribute("fName", professionalSpecialist.getFirstName());

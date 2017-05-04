@@ -7153,7 +7153,8 @@ CREATE TABLE professionalSpecialists (
   pagerNumber varchar(30),
   salutation varchar(10),
   hideFromView tinyint(1),
-  eformId int(10)
+  eformId int(10),
+  deleted tinyint(1) default 0
 );
 
 --

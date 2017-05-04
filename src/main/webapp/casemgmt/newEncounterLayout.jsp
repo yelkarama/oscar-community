@@ -1198,17 +1198,21 @@ if (OscarProperties.getInstance().getBooleanProperty("note_program_ui_enabled", 
 								String  address    =  displayServiceUtil.addressVec.elementAt(i);
 								String  phone      =  displayServiceUtil.phoneVec.elementAt(i);
 								String  fax        =  displayServiceUtil.faxVec.elementAt(i);
+								boolean delete     =  displayServiceUtil.deleted.elementAt(i);
 								String  referralNo = "";
 								if (rdohip != null && !"".equals(rdohip) && rdohip.equals(referralNo)) {
 									rdName = String.format("%s, %s", lName, fName);
 									rdFaxNo = fax;
 								}
-								if (!"".equals(fax)) {
+								if (!delete) 
+								{
+								    if (!"".equals(fax)) {
 						%>
 
 						<option value="<%= fax %>"> <%= String.format("%s, %s", lName, fName) %> </option>
 						<%
-								}
+								    }
+                                }	
 							}
 						%>
 

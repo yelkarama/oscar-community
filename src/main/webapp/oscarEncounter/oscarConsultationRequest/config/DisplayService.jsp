@@ -135,7 +135,10 @@ function BackToOscar()
                                  String  address    = displayServiceUtil.addressVec.elementAt(i);
                                  String  phone      = displayServiceUtil.phoneVec.elementAt(i);
                                  String  fax        = displayServiceUtil.faxVec.elementAt(i);
-
+								 boolean deleted    = displayServiceUtil.deleted.elementAt(i);
+                                 
+                                 if (!deleted)
+                                 {
                               %>
 							
 						<tr>
@@ -152,7 +155,8 @@ function BackToOscar()
 							<td><%=phone%></td>
 							<td><%=fax%></td>
 						</tr>
-						<% }%>
+						<% }
+                                 }%>
 						<!--</div>-->
 						</td>
 						</tr>

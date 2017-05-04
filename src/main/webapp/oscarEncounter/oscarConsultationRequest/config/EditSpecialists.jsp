@@ -103,8 +103,8 @@ function BackToOscar()
 			</tr>
 			<tr>
 				<td><html:form action="/oscarEncounter/EditSpecialists">
-					<%-- input type="submit" name="delete"
-						value="<bean:message key="oscarEncounter.oscarConsultationRequest.config.EditSpecialists.btnDeleteSpecialist"/>"--%>
+					<input type="submit" name="delete"
+						value="<bean:message key="oscarEncounter.oscarConsultationRequest.config.EditSpecialists.btnDeleteSpecialist"/>">
 					<div class="ChooseRecipientsBox1">
 					<table>
 						<tr>
@@ -134,8 +134,11 @@ function BackToOscar()
                                  String  address    = displayServiceUtil.addressVec.elementAt(i);
                                  String  phone      = displayServiceUtil.phoneVec.elementAt(i);
                                  String  fax        = displayServiceUtil.faxVec.elementAt(i);
+                                 boolean deleted    = displayServiceUtil.deleted.elementAt(i);
+                                 
+                                 if (!deleted)
+                                 {
                               %>
-							
 						<tr>
 							<td><input type="checkbox" name="specialists"
 								value="<%=specId%>"></td>
@@ -150,7 +153,8 @@ function BackToOscar()
 							<td><%=phone%></td>
 							<td><%=fax%></td>
 						</tr>
-						<% }%>
+						<%}
+                                 }%>
 						</td>
 						</tr>
 					</table>
