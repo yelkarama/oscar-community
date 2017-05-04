@@ -372,17 +372,15 @@ public class CommonLabResultData {
 			while (rs.next()) {
 				empty = false;
 				String id = oscar.Misc.getString(rs, "id");
-				if (!oscar.Misc.getString(rs, "status").equals("A")) {
-					ProviderLabRoutingModel plr  = providerLabRoutingDao.find(Integer.parseInt(id));
-					if(plr != null) {
-						plr.setStatus(""+status);
-						//we don't want to clobber existing comments when filing labs
-						if( status != 'F' ) {
-							plr.setComment(comment);
-						}
-						plr.setTimestamp(new Date());
-						providerLabRoutingDao.merge(plr);
+				ProviderLabRoutingModel plr  = providerLabRoutingDao.find(Integer.parseInt(id));
+				if(plr != null) {
+					plr.setStatus(""+status);
+					//we don't want to clobber existing comments when filing labs
+					if( status != 'F' ) {
+						plr.setComment(comment);
 					}
+					plr.setTimestamp(new Date());
+					providerLabRoutingDao.merge(plr);
 				}
 			} 
 			if (empty) {
