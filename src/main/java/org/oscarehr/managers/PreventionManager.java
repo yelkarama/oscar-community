@@ -42,7 +42,6 @@ import org.oscarehr.util.SpringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import oscar.log.LogAction;
 import oscar.oscarPrevention.PreventionDisplayConfig;
 import oscar.util.StringUtils;
 
@@ -62,26 +61,17 @@ public class PreventionManager {
 	public List<Prevention> getUpdatedAfterDate(LoggedInInfo loggedInInfo, Date updatedAfterThisDateExclusive, int itemsToReturn) {
 		List<Prevention> results = preventionDao.findByUpdateDate(updatedAfterThisDateExclusive, itemsToReturn);
 
-		LogAction.addLogSynchronous(loggedInInfo, "PreventionManager.getUpdatedAfterDate", "updatedAfterThisDateExclusive=" + updatedAfterThisDateExclusive);
-
 		return (results);
 	}
 
 	public Prevention getPrevention(LoggedInInfo loggedInInfo, Integer id) {
 		Prevention result = preventionDao.find(id);
 
-		//--- log action ---
-		if (result != null) {
-			LogAction.addLogSynchronous(loggedInInfo, "PreventionManager.getPrevention", "id=" + id);
-		}
-
 		return (result);
 	}
 
 	public List<PreventionExt> getPreventionExtByPrevention(LoggedInInfo loggedInInfo, Integer preventionId) {
 		List<PreventionExt> results = preventionExtDao.findByPreventionId(preventionId);
-
-		LogAction.addLogSynchronous(loggedInInfo, "PreventionManager.getPreventionExtByPrevention", "preventionId=" + preventionId);
 
 		return (results);
 	}
@@ -176,16 +166,12 @@ public class PreventionManager {
 	public List<Prevention> getPreventionsByProgramProviderDemographicDate(LoggedInInfo loggedInInfo, Integer programId, String providerNo, Integer demographicId, Calendar updatedAfterThisDateExclusive, int itemsToReturn) {
 		List<Prevention> results = preventionDao.findByProviderDemographicLastUpdateDate(providerNo, demographicId, updatedAfterThisDateExclusive.getTime(), itemsToReturn);
 
-		LogAction.addLogSynchronous(loggedInInfo, "PreventionManager.getUpdatedAfterDate", "programId=" + programId + ", providerNo=" + providerNo + ", demographicId=" + demographicId + ", updatedAfterThisDateExclusive=" + updatedAfterThisDateExclusive.getTime());
-
 		return (results);
 	}
 	
 	public List<Prevention> getPreventionsByDemographicNo(LoggedInInfo loggedInInfo, Integer demographicNo) {
 		List<Prevention> results = preventionDao.findUniqueByDemographicId(demographicNo);
 		
-		LogAction.addLogSynchronous(loggedInInfo, "PreventionManager.getPreventionsByDemographicNo", "demographicNo=" + demographicNo);
-
 		return (results);
 	}
 }

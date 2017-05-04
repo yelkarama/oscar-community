@@ -56,8 +56,6 @@ import org.oscarehr.util.SpringUtils;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.transaction.annotation.Transactional;
 
-import oscar.log.LogAction;
-
 @Transactional
 public class AdmissionManager {
 
@@ -556,9 +554,6 @@ public class AdmissionManager {
     public List<Admission> findAdmissionsByProgramAndDate(LoggedInInfo loggedInInfo, Integer programNo, Date day, int startIndex, int numToReturn) {
     	List<Admission> results =  dao.findAdmissionsByProgramAndDate(programNo,day, startIndex, numToReturn);
     	
-    	for(Admission result:results) {
-    		LogAction.addLogSynchronous(loggedInInfo,"AdmissionManager.findAdmissionsByProgramAndDate", "admission id=" + result.getId());
-    	}
     	return results;
     }
     

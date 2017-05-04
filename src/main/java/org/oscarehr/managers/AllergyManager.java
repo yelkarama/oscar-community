@@ -34,8 +34,6 @@ import org.oscarehr.util.LoggedInInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import oscar.log.LogAction;
-
 @Service
 public class AllergyManager {
 	@Autowired
@@ -44,29 +42,17 @@ public class AllergyManager {
 	public Allergy getAllergy(LoggedInInfo loggedInInfo, Integer id) {
 		Allergy result = allergyDao.find(id);
 
-		//--- log action ---
-		if (result != null) {
-			LogAction.addLogSynchronous(loggedInInfo, "AllergyManager.getAllergy", "id=" + id);
-		}
-
 		return (result);
 	}
 	
 	public List<Allergy> getActiveAllergies(LoggedInInfo loggedInInfo, Integer demographicNo) {
 		List<Allergy> results = allergyDao.findActiveAllergiesOrderByDescription(demographicNo);
-		
-		//--- log action ---
-		if (results!=null && results.size()>0) {
-			LogAction.addLogSynchronous(loggedInInfo, "AllergyManager.getActiveAllergies", "demographicNo=" + demographicNo);
-		}
 
 		return(results);
 	}
 	
 	public List<Allergy> getUpdatedAfterDate(LoggedInInfo loggedInInfo, Date updatedAfterThisDateInclusive, int itemsToReturn) {
 		List<Allergy> results = allergyDao.findByUpdateDate(updatedAfterThisDateInclusive, itemsToReturn);
-
-		LogAction.addLogSynchronous(loggedInInfo, "AllergyManager.getUpdatedAfterDate", "updatedAfterThisDateInclusive=" + updatedAfterThisDateInclusive);
 
 		return (results);
 	}
@@ -77,8 +63,6 @@ public class AllergyManager {
 	 */
 	public List<Allergy> getAllergiesByProgramProviderDemographicDate(LoggedInInfo loggedInInfo, Integer programId, String providerNo, Integer demographicId, Calendar updatedAfterThisDateInclusive, int itemsToReturn) {
 		List<Allergy> results = allergyDao.findByProviderDemographicLastUpdateDate(providerNo, demographicId, updatedAfterThisDateInclusive.getTime(), itemsToReturn);
-
-		LogAction.addLogSynchronous(loggedInInfo, "AllergyManager.getUpdatedAfterDate", "programId=" + programId + ", providerNo=" + providerNo + ", demographicId=" + demographicId + ", updatedAfterThisDateInclusive=" + updatedAfterThisDateInclusive.getTime());
 
 		return (results);
 	}

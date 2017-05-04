@@ -30,8 +30,6 @@ import org.oscarehr.util.LoggedInInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import oscar.log.LogAction;
-
 @Service
 public class OscarLogManager {
 
@@ -40,8 +38,6 @@ public class OscarLogManager {
 	
 	public List<Object[]> getRecentDemographicsViewedByProvider(LoggedInInfo loggedInInfo, String providerNo, int startPosition, int itemsToReturn) {
 		List<Object[]> results = oscarLogDao.getRecentDemographicsViewedByProvider(providerNo, startPosition, itemsToReturn);
-		
-		LogAction.addLogSynchronous(loggedInInfo,"OscarLogManager.getRecentDemographicsViewedByProvider", "providerNo"+providerNo);
 		
 		return results;
 			

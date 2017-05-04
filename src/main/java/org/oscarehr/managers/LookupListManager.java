@@ -34,6 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import oscar.log.LogAction;
+import oscar.log.LogConst;
 
 @Service
 public class LookupListManager {
@@ -46,23 +47,12 @@ public class LookupListManager {
 	
 	public List<LookupList> findAllActiveLookupLists(LoggedInInfo loggedInInfo) {
 		List<LookupList> results = lookupListDao.findAllActive();
-		
-		//--- log action ---
-		if (results.size()>0) {
-			String resultIds=LookupList.getIdsAsStringList(results);
-			LogAction.addLogSynchronous(loggedInInfo, "LookupListManager.findAllLookupLists", "ids returned=" + resultIds);
-		}
 
 		return (results);
 	}
 	
 	public LookupList findLookupListById(LoggedInInfo loggedInInfo, int id) {
 		LookupList result = lookupListDao.find(id);
-		
-		//--- log action ---
-		if (result != null) {
-			LogAction.addLogSynchronous(loggedInInfo, "LookupListManager.findLookupListById", "id returned=" + result.getId());
-		}
 
 		return (result);
 		
@@ -70,11 +60,6 @@ public class LookupListManager {
 	
 	public LookupList findLookupListByName(LoggedInInfo loggedInInfo, String name) {
 		LookupList result = lookupListDao.findByName(name);
-		
-		//--- log action ---
-		if (result != null) {
-			LogAction.addLogSynchronous(loggedInInfo, "LookupListManager.findLookupListByName", "id returned=" + result.getId());
-		}
 
 		return (result);
 		
@@ -82,7 +67,7 @@ public class LookupListManager {
 	
 	public LookupList addLookupList(LoggedInInfo loggedInInfo, LookupList lookupList) {
 		lookupListDao.persist(lookupList);
-		LogAction.addLogSynchronous(loggedInInfo, "LookupListManager.addLookupList", "id=" + lookupList.getId());
+		LogAction.addLogSynchronous(loggedInInfo, LogConst.ADD, "LookupListManager.addLookupList", String.valueOf(lookupList.getId()));
 		
 
 		return (lookupList);
@@ -91,7 +76,7 @@ public class LookupListManager {
 	
 	public LookupListItem addLookupListItem(LoggedInInfo loggedInInfo, LookupListItem lookupListItem) {
 		lookupListItemDao.persist(lookupListItem);
-		LogAction.addLogSynchronous(loggedInInfo, "LookupListManager.addLookupListItem", "id=" + lookupListItem.getId());
+		LogAction.addLogSynchronous(loggedInInfo, LogConst.ADD, "LookupListManager.addLookupListItem", String.valueOf(lookupListItem.getId()));
 		
 
 		return (lookupListItem);
@@ -105,10 +90,6 @@ public class LookupListManager {
 
 		List<LookupListItem> lookupListItems = lookupListItemDao.findActiveByLookupListId( lookupListId );
 
-		if ( lookupListItems != null ) {
-			LogAction.addLogSynchronous(loggedInInfo, "LookupListManager.findLookupListItemsByLookupListId", lookupListItems.toString() );
-		}
-
 		return lookupListItems;
 	}
 
@@ -119,11 +100,6 @@ public class LookupListManager {
 
 		LookupList lookupList = findLookupListByName(loggedInInfo, lookupListName);
 		List<LookupListItem> lookupListItems = null;
-
-		if (lookupList != null) {
-			lookupListItems = findLookupListItemsByLookupListId(loggedInInfo, lookupList.getId() );
-			LogAction.addLogSynchronous(loggedInInfo, "LookupListManager.findLookupListItemsByLookupListName", lookupList.toString() );
-		}
 
 		return lookupListItems;
 	}
@@ -137,9 +113,7 @@ public class LookupListManager {
 		if( lookupListItemId > 0 ) {		
 			lookupListItem = lookupListItemDao.find( lookupListItemId );
 		}
-		if( lookupListItem != null ) {
-			LogAction.addLogSynchronous(loggedInInfo, "LookupListManager.findLookupListItemById", lookupListItem.toString());
-		}
+
 		return lookupListItem;
 	}
 
@@ -162,7 +136,7 @@ public class LookupListManager {
 
 		lookupListItemDao.merge(lookupListItem);
 		Integer id = lookupListItem.getId();
-		LogAction.addLogSynchronous(loggedInInfo, "LookupListManager.updateLookupListItem", "Merged LookupListItem Id: " + id );
+		LogAction.addLogSynchronous(loggedInInfo, LogConst.UPDATE, "LookupListManager.updateLookupListItem", String.valueOf(lookupListItem.getId()));
 
 		return id;
 	}
@@ -179,7 +153,7 @@ public class LookupListManager {
 			lookupListItem.setActive(Boolean.FALSE);
 			id = updateLookupListItem(loggedInInfo, lookupListItem ); 
 		}
-		LogAction.addLogSynchronous(loggedInInfo, "LookupListManager.removeLookupListItem", "Removed lookupListItem Id: " + id );
+		LogAction.addLogSynchronous(loggedInInfo, LogConst.DELETE, "LookupListManager.removeLookupListItem", String.valueOf(lookupListItem.getId()));
 
 		return ( id == lookupListItemId );
 	}

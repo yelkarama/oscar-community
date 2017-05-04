@@ -31,8 +31,6 @@ import org.oscarehr.util.LoggedInInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import oscar.log.LogAction;
-
 @Service
 public class MessagingManager {
 
@@ -49,10 +47,6 @@ public class MessagingManager {
 		
 		List<MessageList> msgs = messageListDao.search(providerNo, status, offset, limit);
 		
-		for(MessageList msg:msgs) {
-	        	LogAction.addLogSynchronous(loggedInInfo, "MessagingManager.getMyInboxMessages", "msglistid="+msg.getId());
-		}
-		 
 		return msgs;
 	}
 	

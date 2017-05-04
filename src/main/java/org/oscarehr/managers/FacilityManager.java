@@ -32,8 +32,6 @@ import org.oscarehr.util.LoggedInInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import oscar.log.LogAction;
-
 @Service
 public class FacilityManager {
 	@Autowired
@@ -45,18 +43,12 @@ public class FacilityManager {
 			return (null);
 		} else {
 
-			//--- log action ---
-			LogAction.addLogSynchronous(loggedInInfo,"FacilityManager.getDefaultFacility", null);
-
 			return (results.get(0));
 		}
 	}
 
 	public List<Facility> getAllFacilities(LoggedInInfo loggedInInfo, Boolean active) {
 		List<Facility> results = facilityDao.findAll(active);
-		
-		//--- log action ---
-		LogAction.addLogSynchronous(loggedInInfo,"FacilityManager.getAllFacilities", null);
 
 		return (results);
 	}

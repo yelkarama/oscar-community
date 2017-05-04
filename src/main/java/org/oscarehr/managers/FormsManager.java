@@ -38,7 +38,6 @@ import org.oscarehr.common.model.EncounterForm;
 import org.oscarehr.util.LoggedInInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import oscar.log.LogAction;
 
 /**
  * 
@@ -80,11 +79,6 @@ public class FormsManager {
 	public List<EForm> findByStatus(LoggedInInfo loggedInInfo, boolean status, EFormSortOrder sortOrder) {
 		List<EForm> results = eformDao.findByStatus(status, sortOrder);
 		
-		if (results.size() > 0) {
-			String resultIds = EForm.getIdsAsStringList(results);
-			LogAction.addLogSynchronous(loggedInInfo, "FormsManager.findByStatus", "ids returned=" + resultIds);
-		}
-
 		return (results);
 	}
 
@@ -96,10 +90,6 @@ public class FormsManager {
      */
     public List<EForm> getEfromInGroupByGroupName(LoggedInInfo loggedInInfo, String groupName){
     	List<EForm> results = eformDao.getEfromInGroupByGroupName(groupName);
-    	if (results.size() > 0) {
-			String resultIds = EForm.getIdsAsStringList(results);
-			LogAction.addLogSynchronous(loggedInInfo, "FormsManager.getEfromInGroupByGroupName", "ids returned=" + resultIds);
-		}
 
 		return (results);
     }
@@ -112,10 +102,6 @@ public class FormsManager {
     
     public List<EFormData> findByDemographicId(LoggedInInfo loggedInInfo, Integer demographicId){
     	List<EFormData> results = eFormDataDao.findByDemographicId(demographicId);
-    	if (results.size() > 0) {
-			String resultIds = EForm.getIdsAsStringList(results);
-			LogAction.addLogSynchronous(loggedInInfo, "FormsManager.findByDemographicId", "ids returned=" + resultIds);
-		}
 
 		return (results);
     	

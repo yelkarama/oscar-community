@@ -46,6 +46,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import oscar.log.LogAction;
+import oscar.log.LogConst;
 
 @Service
 public class ProviderManager2 {
@@ -70,18 +71,12 @@ public class ProviderManager2 {
 		if (active == null) results = providerDao.getProviders();
 		else results = providerDao.getProviders(active);
 
-		//--- log action ---
-		LogAction.addLogSynchronous(loggedInInfo, "ProviderManager.getProviders, active=" + active, null);
-
 		return (results);
 	}
 
 	public Provider getProvider(LoggedInInfo loggedInInfo, String providerNo) {
 
 		Provider result = providerDao.getProvider(providerNo);
-
-		//--- log action ---
-		LogAction.addLogSynchronous(loggedInInfo, "ProviderManager.getProvider, providerNo=" + providerNo, null);
 
 		return (result);
 	}
@@ -90,7 +85,6 @@ public class ProviderManager2 {
 		List<Provider> results = new ArrayList<Provider>();
 		for(String id:ids) {
 			results.add(getProvider(loggedInInfo, id));
-			LogAction.addLogSynchronous(loggedInInfo, "ProviderManager.getProviders, providerNo=" + id, null);
 		}
 		return results;
 	}
@@ -98,9 +92,6 @@ public class ProviderManager2 {
 	public List<Property> getProviderProperties(LoggedInInfo loggedInInfo, String providerNo, String propertyName)
 	{
 		List<Property> results=propertyDao.findByNameAndProvider(propertyName, providerNo);
-		
-		//--- log action ---
-		LogAction.addLogSynchronous(loggedInInfo, "ProviderManager.getProviderProperties, providerNo=" + providerNo+", propertyName="+propertyName, null);
 		
 		return(results);
 	}
@@ -116,11 +107,6 @@ public class ProviderManager2 {
 			logger.debug("searchProviderByNames, searchString="+searchString+", result.size="+results.size());
 		}
 		
-		//--- log action ---
-		for (Provider provider : results) {
-			LogAction.addLogSynchronous(loggedInInfo, "ProviderManager.searchProviderByNames result", "provideRNo=" + provider.getProviderNo());
-		}
-
 		return (results);
 	}
 	
@@ -132,11 +118,6 @@ public class ProviderManager2 {
 			logger.debug("search, active="+active+", term="+term+" result.size="+results.size());
 		}
 		
-		//--- log action --- this seems useless
-		for (Provider provider : results) {
-			LogAction.addLogSynchronous(loggedInInfo, "ProviderManager.search result", "providerNo=" + provider.getProviderNo());
-		}
-
 		return (results);
 	}
 	
@@ -753,7 +734,6 @@ public class ProviderManager2 {
 		providerDao.updateProvider(provider);
 		
 		//--- log action ---
-		LogAction.addLogSynchronous(loggedInInfo, "ProviderManager.updateProvider, providerNo=" + provider.getProviderNo(), null);
-
+		LogAction.addLogSynchronous(loggedInInfo, LogConst.UPDATE, "ProviderManager.updateProvider", provider.getPractitionerNo());
 	}
 }

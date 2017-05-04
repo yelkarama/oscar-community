@@ -33,7 +33,6 @@ import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 
 import oscar.OscarProperties;
-import oscar.log.LogAction;
 import oscar.oscarDB.DBHandler;
 import oscar.util.UtilDateUtilities;
 
@@ -51,7 +50,6 @@ public class EctPatientData {
         } catch (SQLException e) {
             MiscUtils.getLogger().debug("error - EctPatientData.getProviderNo");
         }
-        LogAction.addLogSynchronous(loggedInInfo, "EctPatientData.getProviderNo", "demographicNo=" + demographicNo);
         
         
         return ret;
@@ -73,8 +71,6 @@ public class EctPatientData {
         } catch (SQLException e) {
             MiscUtils.getLogger().error("Error", e);
         }
-        
-        LogAction.addLogSynchronous(loggedInInfo, "EctPatientData.getPatient", "demographicNo=" + demographicNo);
         
         return p;
     }
