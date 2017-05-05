@@ -199,7 +199,7 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 				"AND p.labType = 'HL7' " +
 				"AND p.demographicNo = :dNo " +
 				"GROUP BY hl7.labNumber "
-				+ "ORDER BY hl7.labNumber DESC";
+				+ "ORDER BY hl7.resultStatus DESC, hl7.obrDate DESC";
 		Query q = entityManager.createQuery(sql);
 		q.setParameter("dNo", demographicNo);
 		return q.getResultList();
@@ -216,7 +216,7 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 		if (patientHealthNumber!=null) { 
 			sql = sql + " AND info.healthNumber like :hNum";
 		}
-		sql = sql+" ORDER BY info.labNumber DESC";
+		sql = sql+ " ORDER BY hl7.resultStatus DESC, hl7.obrDate DESC";
 		
 		Query q = entityManager.createQuery(sql);
 		q.setParameter("status", "%" + status + "%" );
