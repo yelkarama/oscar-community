@@ -1202,7 +1202,18 @@ public class Demographic implements Serializable {
         public int compare(Demographic dm1, Demographic dm2) {
         	return dm1.getFirstName().compareTo(dm2.getFirstName());
         }
-    }; 
+    };
+	public static final Comparator<Demographic> LastAndFirstNameComparator = new Comparator<Demographic>() {
+		public int compare(Demographic dm1, Demographic dm2) 
+		{
+			int res = dm1.getLastName().compareToIgnoreCase(dm2.getLastName());
+			if (res != 0)
+			{
+				return res;
+			}
+			return dm1.getFirstName().compareTo(dm2.getFirstName());
+		}
+	};
 	public static final Comparator<Demographic> DemographicNoComparator = new Comparator<Demographic>() {
         public int compare(Demographic dm1, Demographic dm2) {
         	return dm1.getDemographicNo().compareTo(dm2.getDemographicNo());
