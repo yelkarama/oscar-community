@@ -59,6 +59,9 @@ public class Prevention extends AbstractModel<Integer> implements Serializable {
 	@Column(name = "provider_no")
 	private String providerNo = null;
 
+	@Column(name = "provider_name")
+	private String providerName = null;
+
 	@Column(name = "prevention_type")
 	private String preventionType = null;
 
@@ -98,6 +101,10 @@ public class Prevention extends AbstractModel<Integer> implements Serializable {
 	public void setProviderNo(String providerNo) {
 		this.providerNo = providerNo;
 	}
+	
+	public String getProviderName() { return providerName; }
+	
+	public void setProviderName(String provName) { providerName = provName; }
 
 	public String getPreventionType() {
 		return preventionType;

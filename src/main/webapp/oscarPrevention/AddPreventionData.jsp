@@ -60,8 +60,7 @@ if(!authed) {
   String demographic_no = request.getParameter("demographic_no");
   String id = request.getParameter("id");
   Map<String,Object> existingPrevention = null;
-
-  String providerName ="";
+    
   String lot ="";
   String provider = (String) session.getValue("user");
   String dateFmt = "yyyy-MM-dd HH:mm";
@@ -69,6 +68,7 @@ if(!authed) {
   String completed = "0";
   String nextDate = "";
   String summary = "";
+  String providerName ="";
   String creatorProviderNo = "";
   String creatorName = "";
   boolean never = false;
@@ -81,7 +81,6 @@ if(!authed) {
      existingPrevention = PreventionData.getPreventionById(id);
 
      prevDate = (String) existingPrevention.get("preventionDate");
-     providerName = (String) existingPrevention.get("providerName");
      provider = (String) existingPrevention.get("provider_no");
      creatorProviderNo = (String) existingPrevention.get("creator");
      
@@ -98,6 +97,7 @@ if(!authed) {
         nextDate = "";
      }
      summary = (String) existingPrevention.get("summary");
+     providerName = (String) existingPrevention.get("providerName");
      extraData = PreventionData.getPreventionKeyValues(id);
      lot = (String) extraData.get("lot");
      
@@ -635,7 +635,7 @@ function displayCloseWarning(){
                          </div>
                          <div style="float:left;margin-left:30px;">
                             <label for="prevDate" class="fields" >Date:</label>    <input type="text" name="prevDate" id="prevDate" value="<%=prevDate%>" size="9" > <a id="date"><img title="Calendar" src="../images/cal.gif" alt="Calendar" border="0" /></a> <br>
-                            <label for="provider" class="fields">Provider:</label> <input type="text" name="providerName" id="providerName"/>
+                            <label for="provider" class="fields">Provider:</label> <input type="text" value="<%=providerName%>" name="providerName" id="providerName"/>
                                   <select onchange="javascript:hideExtraName(this);" id="providerDrop" name="provider">
                                       <%
 										boolean provInList=false;
