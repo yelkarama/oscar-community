@@ -218,7 +218,9 @@ if (isOk) {
 <h1><bean:message key="admin.provideraddrecord.msgAdditionFailure" /></h1>
 <%
 	if(alreadyExists) {
-		%><h2><bean:message key="admin.provideraddrecord.msgAlreadyExists" /></h2><%
+		%><h2><bean:message key="admin.provideraddrecord.msgAlreadyExists" /></h2>
+		<h3>The provider number may already exist with or without leading zeroes</h3>
+	<%
 	}
 
   }

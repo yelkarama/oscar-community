@@ -57,7 +57,11 @@ public class ProviderDao extends HibernateDaoSupport {
 	private static Logger log = MiscUtils.getLogger();
 
 	public boolean providerExists(String providerNo) {
-		return getHibernateTemplate().get(Provider.class, providerNo) != null;
+		String sql = "FROM Provider x WHERE x.id IN (?, TRIM(LEADING '0' FROM ?))";
+		
+		List<Provider> providers = getHibernateTemplate().find(sql, providerNo, providerNo);
+
+		return providers.size() > 0;
 	}
 
 	public Provider getProvider(String providerNo) {
