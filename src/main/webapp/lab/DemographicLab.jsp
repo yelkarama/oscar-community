@@ -153,6 +153,53 @@ function checkAll(formId){
       f.flaggedLabs[i].checked = val;
    }
 }
+
+function selectAll(formId){
+    var f = document.getElementById(formId);
+    var val = f.pdfSelectAll.checked;
+    for (i =0; i < f.labNo.length; i++){
+        f.labNo[i].checked = val;
+    }
+}
+
+function submitForm(actionPath) {
+    var form =  document.forms['reassignForm'];
+    if(verifyChecks(form)) {
+        form.action="../lab/CA/ALL/PrintPDF.do?method=combineAndPrint&demographicNo=<%=demographicNo%>";
+        form.submit();
+        return true;
+    }
+    else{
+        return false;
+	}
+}
+
+function verifyChecks(form){
+
+    if (form.labNo == null){
+        alert("No labs selected");
+        return false;
+    }else{
+        var oneChecked = 0;
+        if(form.labNo.length) {
+            for ( i=0; i < form.labNo.length; i++){
+                if(form.labNo[i].checked){
+                    ++oneChecked;
+                    break;
+                }
+            }
+        } else{
+            oneChecked = form.labNo.checked ? 1 : 0;
+		}
+
+        if ( oneChecked == 0 ){
+            alert("No labs selected");
+            return false;
+        }
+    }
+    return true;
+}
+
 </script>
 
 <link rel="stylesheet" type="text/css" href="<%= request.getContextPath() %>/js/jquery_css/smoothness/jquery-ui-1.10.2.custom.min.css"/>
@@ -189,7 +236,9 @@ $(function() {
 					onClick="window.location='Search.jsp?providerNo=<%= providerNo %>'">
 				<% } %> <input type="button" class="smallButton"
 					value="<bean:message key="oscarMDS.index.btnClose"/>"
-					onClick="window.close()"> <% if (demographicNo == null && request.getParameter("fname") != null) { %>
+					onClick="window.close()">
+					<input type="button" class="smallButton" value="<bean:message key="dms.documentReport.btnCombinePDF"/>" onClick="submitForm()">
+					<% if (demographicNo == null && request.getParameter("fname") != null) { %>
 				<input type="button" class="smallButton"
 					value="<bean:message key="oscarMDS.index.btnDefaultView"/>"
 					onClick="window.location='DemographicLab.jsp?providerNo=<%= providerNo %>'">
@@ -231,6 +280,7 @@ $(function() {
                 <th align="left" valign="bottom" class="cell">
                     <bean:message key="oscarMDS.index.msgSex"/>
                 </th-->
+		<th align="left" valign="bottom" class="cell"><input class="tightCheckbox" type="checkbox" nmae="pdfSelectAll" id="pdfSelectAll" onclick="selectAll('lab_form');"></th>
 		<th align="left" valign="bottom" class="cell"><bean:message
 			key="oscarMDS.index.msgDiscipline" /></th>
 		<th align="left" valign="bottom" class="cell"><bean:message
@@ -298,6 +348,7 @@ $(function() {
                 <td nowrap>
                     <center><%= (String) result.getSex() %></center>
                 </td-->
+		<td><input type="checkbox" name="labNo" id="labNo<%=result.getSegmentID()%>" value="<%=result.getSegmentID()%>"/> </td>
 		<td nowrap>
 		<% 
 			String remoteFacilityIdQueryString="";
@@ -355,7 +406,9 @@ $(function() {
 					onClick="window.location='Search.jsp?providerNo=<%= providerNo %>'">
 				<% } %> <input type="button" class="smallButton"
 					value="<bean:message key="oscarMDS.index.btnClose"/>"
-					onClick="window.close()"> <% if (request.getParameter("fname") != null) { %>
+					onClick="window.close()">
+					<input type="button" class="smallButton" value="<bean:message key="dms.documentReport.btnCombinePDF"/>" onClick="submitForm()">
+					<% if (request.getParameter("fname") != null) { %>
 				<input type="button" class="smallButton"
 					value="<bean:message key="oscarMDS.index.btnDefaultView"/>"
 					onClick="window.location='DemographicLab.jsp?providerNo=<%= providerNo %>'">
