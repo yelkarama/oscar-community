@@ -799,12 +799,12 @@ public class MEDITECHHandler implements MessageHandler {
 		int i=0;
 
 		try{
-			while( ! getFullDocName(msg.getRESPONSE().getORDER_OBSERVATION(0).getOBR().getResultCopiesTo(i)).isEmpty() ) {
+			while( ! getFullDocName(msg.getRESPONSE().getPATIENT().getVISIT().getPV1().getOtherHealthcareProvider(i)).isEmpty() ) {
 
 				if (i == 0){
-					docName = getFullDocName( msg.getRESPONSE().getORDER_OBSERVATION(0).getOBR().getResultCopiesTo(i) );
+					docName = getFullDocName( msg.getRESPONSE().getPATIENT().getVISIT().getPV1().getOtherHealthcareProvider(i) );
 				}else{
-					docName = docName + ", " + getFullDocName(msg.getRESPONSE().getORDER_OBSERVATION(0).getOBR().getResultCopiesTo(i));
+					docName = docName + ", " + getFullDocName(msg.getRESPONSE().getPATIENT().getVISIT().getPV1().getOtherHealthcareProvider(i));
 				}
 				i++;
 			}            
