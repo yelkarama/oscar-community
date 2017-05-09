@@ -1428,6 +1428,9 @@ import oscar.util.UtilDateUtilities;
 
                     Date entryDateDate=toDateFromString(entryDate);
                     Date startDateDate=toDateFromString(startDate);
+                    if (typeCode.isEmpty()) {
+                        typeCode = "0";
+                    }
                     Integer allergyId = saveRxAllergy(Integer.valueOf(demographicNo), entryDateDate, description, Integer.parseInt(typeCode), reaction, startDateDate, severity, regionalId, lifeStage);
                     addOneEntry(ALLERGY);
 
