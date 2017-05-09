@@ -263,6 +263,16 @@ public class ProviderDao extends HibernateDaoSupport {
 					"AND p.OhipNo IS NOT NULL " +
 				   	"ORDER BY p.LastName, p.FirstName");
 	}
+
+	public List<Provider> getDoctorsWithPractionerNo(){
+		return getHibernateTemplate().find(
+				"FROM Provider p " +
+						"WHERE p.ProviderType = 'doctor' " +
+						"AND p.Status = '1' " +
+						"AND p.practitionerNo != '' " +
+						"AND p.practitionerNo IS NOT NULL " +
+						"ORDER BY p.LastName, p.FirstName");
+	}
 	
     public List<Provider> getBillableProviders() {
 		List<Provider> rs = getHibernateTemplate().find("FROM Provider p where p.OhipNo != '' and p.Status = '1' order by p.LastName");
