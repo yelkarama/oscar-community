@@ -179,11 +179,11 @@
         <script type="text/javascript">
 
                 <%
-                            if(request.getAttribute("faxSuccessful")!=null){
-                                if((Boolean)request.getAttribute("faxSuccessful")==true){ %>
+                            if(request.getSession().getAttribute("faxSuccessful")!=null){
+                                if((Boolean)request.getSession().getAttribute("faxSuccessful")==true){ %>
                 alert("Fax sent successfully!");
             <% }
-            request.removeAttribute("faxSuccessful");
+            request.getSession().removeAttribute("faxSuccessful");
             }  %>
 
         </script>
