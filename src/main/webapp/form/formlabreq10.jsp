@@ -80,7 +80,7 @@
 	
 	ClinicData clinic = new ClinicData();
   ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
-	List<Provider> prList = providerDao.getDoctorsWithOhip();
+	List<Provider> prList = providerDao.getDoctorsWithPractionerNo();
 	
 	ProgramDao programDao = SpringUtils.getBean(ProgramDao.class);
 	List<Program> programList = programDao.getAllActivePrograms();
