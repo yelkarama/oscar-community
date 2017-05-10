@@ -64,6 +64,10 @@
 	cursor: pointer;
 }
 
+.caseloadEntry a {
+	color: #000000;
+}
+
 #leftSearch, #rightSearch { display: inline; }
 #rightSearch { float:right; }
 </style>
