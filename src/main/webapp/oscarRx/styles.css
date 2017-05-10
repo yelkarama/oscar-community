@@ -787,5 +787,33 @@ table.mhTable td{
 .noPrint {
 	display:none; 
 	} 
-} 
+}
 
+table#pwtable{
+	border: 2px #808080 outset;
+	border-spacing: 0;
+	page-break-inside:auto;
+}
+thead.prescription-header {
+	display:table-header-group;
+}
+thead.prescription-header td {
+	border: 1px #808080 inset;
+	padding: 10px;
+}
+tbody.prescription-content td {
+	border-left: 1px #808080 inset;
+	border-right: 1px #808080 inset;
+	padding: 0 10px;
+}
+tbody.prescription-content tr {
+	page-break-inside:avoid;
+	page-break-after:auto;
+}
+tbody.prescription-content div {
+	page-break-inside:avoid;
+}
+
+tfoot.prescription-footer {
+	display: table-footer-group;
+}

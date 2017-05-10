@@ -329,28 +329,9 @@ function printIframe(){
 				if (useWidePrint) {
 					var oldPageSize = frames['preview'].document.getElementById('pwTable').style.width;
 					frames['preview'].document.getElementById('pwTable').style.width = '690px';
-					
-					var pharmacyInfoElement = frames['preview'].document.getElementById('pharmInfo');
-					if (pharmacyInfoElement.innerHTML.trim() != '') {
-						pharmacyInfoElement.style.display = 'none';
-						var demographicInfoRow = frames['preview'].document.getElementById('demographicInfoRow');
-						var demographicInfoCell = frames['preview'].document.getElementById('demographicInfoCell');
-						demographicInfoCell.colSpan = 1;
-						var pharmacyInfoCell = demographicInfoRow.insertCell(1);
-						pharmacyInfoCell.innerHTML = pharmacyInfoElement.innerHTML;
-						pharmacyInfoCell.style.width = "40%";
-					}
-					 //pharmacyText
-					preview.print();
-					frames['preview'].document.getElementById('pwTable').style.width = oldPageSize;
-					if (pharmacyInfoElement.innerHTML.trim() != '') {
-						pharmacyInfoElement.style.display = 'block';
-						pharmacyInfoCell.remove();
-						demographicInfoCell.colSpan = 2;
-					}
-				} else {
-					preview.print();
 				}
+				preview.print();
+				frames['preview'].document.getElementById('pwTable').style.width = oldPageSize;
 				self.parent.close();
 			}
 	}
@@ -574,9 +555,9 @@ function toggleView(form) {
 			width="100%" height="100%">
 
 			<tr>
-				<td width=420px>
+				<td width="420px" valign="top">
 				<div class="DivContentPadding"><!-- src modified by vic, hsfo -->
-				<iframe id='preview' name='preview' width=420px height=1000px <%= pharmacyInfoOnLoad %>
+				<iframe id='preview' name='preview' width="420px" height="880px" <%= pharmacyInfoOnLoad %>
 					src="<%= dx<0?"Preview2.jsp?scriptId="+request.getParameter("scriptId")+"&rePrint="+reprint+"&pharmacyId="+request.getParameter("pharmacyId"):dx==7?"HsfoPreview.jsp?dxCode=7":"about:blank" %>"
 					align=center border=0 frameborder=0></iframe></div>
 				</td>
@@ -621,15 +602,21 @@ function toggleView(form) {
                                 function expandPreview(text){
                                     parent.document.getElementById('lightwindow_container').style.width="1000px";
                                     parent.document.getElementById('lightwindow_contents').style.width="980px";
-                                    frames['preview'].document.getElementById('pharmInfo').innerHTML=text;
-                                    //frames['preview'].document.getElementById('removePharm').show();
+									var demographicInfoRow = frames['preview'].document.getElementById('demographicInfoRow');
+									var demographicInfoCell = frames['preview'].document.getElementById('demographicInfoCell');
+									demographicInfoCell.colSpan = 1;
+									var pharmacyInfoCell = demographicInfoRow.insertCell(1);
+									pharmacyInfoCell.id = "pharmacyInfoCell";
+									pharmacyInfoCell.innerHTML = text;
+									pharmacyInfoCell.style.width = "40%";
                                     $("selectedPharmacy").innerHTML='<bean:message key="oscarRx.printPharmacyInfo.paperSizeWarning"/>';
                                     frames['preview'].document.getElementById('pharmaShow').value='true';
                                 }
                                 function reducePreview(){
                                     parent.document.getElementById('lightwindow_container').style.width="980px";
                                     parent.document.getElementById('lightwindow_contents').style.width="960px";
-                                    frames['preview'].document.getElementById('pharmInfo').innerHTML="";
+									frames['preview'].document.getElementById('pharmacyInfoCell').remove();
+									frames['preview'].document.getElementById('demographicInfoCell').colSpan = 2;
                                     $("selectedPharmacy").innerHTML="";
                                     frames['preview'].document.getElementById('pharmaShow').value='false';
                                 }

@@ -464,7 +464,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 						writeDirectContentWrapText(cb,bf,10,PdfContentByte.ALIGN_LEFT,"Note:" + this.pharmaNote,290,(page.getHeight()-102),0);
 					}
 					// get the end of paragraph
-					endPara = writer.getVerticalPosition(true);
+					endPara = writer.getVerticalPosition(true) + 30;
 					if (document.getPageSize().getWidth() == PageSize.A6.getWidth() && document.getPageSize().getHeight() == PageSize.A6.getHeight()) {
 						endPara = endPara + 10;
 					}
@@ -697,26 +697,6 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 		try {
 			String title = req.getParameter("__title") != null ? req.getParameter("__title") : "Unknown";
 
-			// specify the page of the picture using __graphicPage, it may be used multiple times to specify multiple pages
-			// however the same graphic will be applied to all pages
-			// ie. __graphicPage=2&__graphicPage=3
-			String[] cfgGraphicFile = req.getParameterValues("__cfgGraphicFile");
-			int cfgGraphicFileNo = cfgGraphicFile == null ? 0 : cfgGraphicFile.length;
-			if (cfgGraphicFile != null) {
-				// for (String s : cfgGraphicFile) {
-				// p("cfgGraphicFile", s);
-				// }
-			}
-
-			String[] graphicPage = req.getParameterValues("__graphicPage");
-			ArrayList<String> graphicPageArray = new ArrayList<String>();
-			if (graphicPage != null) {
-				// for (String s : graphicPage) {
-				// p("graphicPage", s);
-				// }
-				graphicPageArray = new ArrayList<String>(Arrays.asList(graphicPage));
-			}
-
 			// A0-A10, LEGAL, LETTER, HALFLETTER, _11x17, LEDGER, NOTE, B0-B5, ARCH_A-ARCH_E, FLSA
 			// and FLSE
 			// the following shows a temp way to get a print page size
@@ -731,11 +711,6 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 					pageSize = PageSize.A4;
 				}
 			}
-			/*
-			 * if ("PageSize.HALFLETTER".equals(props.getProperty(PAGESIZE))) { pageSize = PageSize.HALFLETTER; } else if ("PageSize.A6".equals(props.getProperty(PAGESIZE))) { pageSize = PageSize.A6; } else if
-			 * ("PageSize.A4".equals(props.getProperty(PAGESIZE))) { pageSize = PageSize.A4; }
-			 */
-			// p("size of page ", props.getProperty(PAGESIZE));
 
 			document.setPageSize(pageSize);
 			// 285=left margin+width of box, 5f is space for looking nice
