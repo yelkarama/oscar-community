@@ -212,6 +212,12 @@ height: 100%;
 width: 100%; 
 }
 
+.fg-menu{
+	overflow:scroll;
+	overflow-x: hidden;
+	max-height:400px;
+}
+
 </style>
 
 <script>
