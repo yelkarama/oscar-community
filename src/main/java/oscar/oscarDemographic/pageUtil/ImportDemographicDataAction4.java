@@ -1496,8 +1496,23 @@ import oscar.util.UtilDateUtilities;
 
                     Calendar endDate = Calendar.getInstance();
                     endDate.setTime(drug.getRxDate());
-                    if (StringUtils.filled(duration))
-                    	endDate.add(Calendar.DAY_OF_YEAR, Integer.valueOf(duration)+timeShiftInDays);
+                    if (StringUtils.filled(duration)) {
+                        Integer parsedDuration;
+                        try {
+                            parsedDuration = Integer.valueOf(duration);
+                        }
+                        catch (NumberFormatException e) {
+                            String matchedDays = duration.replaceAll("\\D", "");
+                            if (!matchedDays.isEmpty()) {
+                                parsedDuration = Integer.valueOf(matchedDays);
+                            }
+                            else {
+                                parsedDuration = 0;
+                            }
+                        }
+                        
+                        endDate.add(Calendar.DAY_OF_YEAR, parsedDuration + timeShiftInDays);
+                    }
                     drug.setEndDate(endDate.getTime());
 
                     String freq = StringUtils.noNull(medArray[i].getFrequency());
@@ -3003,7 +3018,7 @@ import oscar.util.UtilDateUtilities;
 		
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(dateOfMessage);
-		msh.getDateTimeOfMessage().getTimeOfAnEvent().setDateSecondPrecision(cal.get(Calendar.YEAR),cal.get(Calendar.MONTH),cal.get(Calendar.DAY_OF_MONTH),cal.get(Calendar.HOUR_OF_DAY),cal.get(Calendar.MINUTE),cal.get(Calendar.SECOND));
+		msh.getDateTimeOfMessage().getTimeOfAnEvent().setDateSecondPrecision(cal.get(Calendar.YEAR),cal.get(Calendar.MONTH) + 1,cal.get(Calendar.DAY_OF_MONTH),cal.get(Calendar.HOUR_OF_DAY),cal.get(Calendar.MINUTE),cal.get(Calendar.SECOND));
 		msh.getMessageType().getMessageType().setValue(messageCode);
 		msh.getMessageType().getTriggerEvent().setValue(triggerEvent);
 		msh.getMessageControlID().setValue(messageControlId);
@@ -3124,16 +3139,18 @@ import oscar.util.UtilDateUtilities;
 					
 					obr.getObservationDateTime().getTimeOfAnEvent().setDateSecondPrecision(cal.get(Calendar.YEAR),
 							cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND));
-					
-					if(result.getLabRequisitionDateTime().isSetFullDate()) {
-						cal = result.getLabRequisitionDateTime().getFullDate();
-					} else {
-						cal = result.getLabRequisitionDateTime().getFullDateTime();
-					}
-					
-					obr.getRequestedDateTime().getTimeOfAnEvent().setDateSecondPrecision(cal.get(Calendar.YEAR),
-							cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND));
-				
+
+                    if (result.getLabRequisitionDateTime() != null) {
+                        if (result.getLabRequisitionDateTime().isSetFullDate()) {
+                            cal = result.getLabRequisitionDateTime().getFullDate();
+                        } else {
+                            cal = result.getLabRequisitionDateTime().getFullDateTime();
+                        }
+
+
+                        obr.getRequestedDateTime().getTimeOfAnEvent().setDateSecondPrecision(cal.get(Calendar.YEAR),
+                                cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND));
+                    }
 					//NOTE: obr-17 lost - ordering physician
 					
 					//OBX
@@ -3152,7 +3169,9 @@ import oscar.util.UtilDateUtilities;
 					val.setData(st);
 					
 					obx.getObx6_Units().getCe2_Text().setValue(result.getResult().getUnitOfMeasure());
-					obx.getObx7_ReferencesRange().setValue(result.getReferenceRange().getReferenceRangeText());
+					if (result.getReferenceRange() != null) {
+                        obx.getObx7_ReferencesRange().setValue(result.getReferenceRange().getReferenceRangeText());
+                    }
 					
 					abnormalFlags.setValue(result.getResultNormalAbnormalFlag().toString());
 					
