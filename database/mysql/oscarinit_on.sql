@@ -1431,6 +1431,8 @@ CREATE TABLE billing_on_favourite (
   provider_no varchar(6) default null,
   timestamp timestamp,
   deleted boolean NOT NULL default false,
+  visitType char(2) DEFAULT NULL,
+  location varchar(4) DEFAULT NULL,
   PRIMARY KEY  (id)
 ) ;
 

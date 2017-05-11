@@ -28,7 +28,18 @@
 <%@ page import="oscar.oscarBilling.ca.on.data.JdbcBillingPageUtil"%>
 <%@ page import="oscar.oscarBilling.ca.on.data.*"%>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
+<%@ page import="org.oscarehr.common.dao.ClinicNbrDao" %>
+<%@ page import="org.oscarehr.common.model.ClinicNbr" %>
+<%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
+<%@ page import="org.oscarehr.util.SpringUtils" %>
+<%@ page import="org.oscarehr.common.model.Provider" %>
 <% //
+			String apptProvider_no = request.getParameter("apptProvider_no");
+			String visitType = request.getParameter("visitType")!=null?request.getParameter("visitType"):"";
+			boolean bHospitalBilling = false;
+			String clinicView = bHospitalBilling ? OscarProperties.getInstance().getProperty("clinic_hospital", "") : OscarProperties.getInstance().getProperty("clinic_view", "");
+			String location = request.getParameter("location")!=null?request.getParameter("location"):"";
+
 			int serviceCodeLen = 5;
 			String msg = "Type in a name and search first to see if it is available.";
 			String action = "search"; // add/edit
@@ -61,7 +72,7 @@
 							}
 						}
 
-						boolean ni = dbObj.updateBillingFavouriteList(name, list, user_no);
+						boolean ni = dbObj.updateBillingFavouriteList(name, list, user_no, visitType.split("\\|")[0], location.split("\\|")[0]);
 						if (ni) {
 							msg = name + " is updated.<br>"
 									+ "Type in a name and search first to see if it is available.";
@@ -118,7 +129,7 @@
 							}
 						}
 
-						int ni = dbObj.addBillingFavouriteList(name, list, user_no);
+						int ni = dbObj.addBillingFavouriteList(name, list, user_no, visitType.split("\\|")[0], location.split("\\|")[0]);
 						if (ni > 0) {
 							msg = name + " is added.<br>"
 									+ "Type in a name and search first to see if it is available.";
@@ -181,6 +192,8 @@
 					if (ni != null && ni.size() > 0) {
 						prop.setProperty("name", (String) ni.get(0));
 						String list1 = (String) ni.get(1);
+						visitType = String.valueOf(ni.get(2));
+						location = String.valueOf(ni.get(3));
 						String[] temp = list1.split("\\|");
 						int n = 0;
 						for (int i = 0; i < temp.length; i++) {
@@ -410,6 +423,53 @@
 			value="<%=prop.getProperty("dx1", "")%>" size='3' maxlength='4' /> <b>Dx2</b>
 		<input type="text" name="dx2" value="<%=prop.getProperty("dx2", "")%>"
 			size='3' maxlength='4' /></td>
+	</tr>
+	<tr>
+			<td style="padding-left: 10%;" colspan="5">
+				<label>Vist Type:</label><select name="visitType">
+				<%
+					if (OscarProperties.getInstance().getBooleanProperty("rma_enabled", "true")) {
+				%>
+				<%
+					ClinicNbrDao cnDao = (ClinicNbrDao) SpringUtils.getBean("clinicNbrDao");
+					ArrayList<ClinicNbr> nbrs = cnDao.findAll();
+					ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao");
+					String providerSearch = apptProvider_no.equalsIgnoreCase("none") ? user_no : apptProvider_no;
+					Provider p = providerDao.getProvider(providerSearch);
+					String providerNbr = SxmlMisc.getXmlContent(p.getComments(),"xml_p_nbr");
+					for (ClinicNbr clinic : nbrs) {
+						String valueString = String.format("%s | %s", clinic.getNbrValue(), clinic.getNbrString());
+				%>
+				<option value="<%=valueString%>" <%=providerNbr.startsWith(clinic.getNbrValue())?"selected":""%>><%=valueString%></option>
+				<% } %>
+				<% } else { %>
+				<option value="00| Clinic Visit" <%=visitType.startsWith("00")?"selected":""%>>00 | Clinic Visit</option>
+				<option value="01| Outpatient Visit" <%=visitType.startsWith("01")?"selected":""%>>01 | Outpatient Visit</option>
+				<option value="02| Hospital Visit" <%=visitType.startsWith("02")?"selected":""%>>02 | Hospital Visit</option>
+				<option value="03| ER" <%=visitType.startsWith("03")?"selected":""%>>03 | ER</option>
+				<option value="04| Nursing Home" <%=visitType.startsWith("04")?"selected":""%>>04 | Nursing Home</option>
+				<option value="05| Home Visit" <%=visitType.startsWith("05")?"selected":""%>>05 | Home Visit</option>
+				<% } %>
+			</select>
+				<label>Vist Location:</label><select name="location">
+				<%
+					//
+					String billLocationNo="", billLocation="";
+					List lLocation = dbObj.getFacilty_num();
+					for (int i = 0; i < lLocation.size(); i = i + 2) {
+						billLocationNo = (String) lLocation.get(i);
+						billLocation = (String) lLocation.get(i + 1);
+						String strLocation = location != null ? location : clinicView;
+						location = !location.equals("") ? location.split("\\|")[0]: strLocation;
+				%>
+				<option value="<%=billLocationNo + "|" + billLocation%>" <%=billLocationNo.equals(location) ? "selected" : ""%>>
+					<%=billLocation%>
+				</option>
+				<%
+					}
+				%>
+			</select>
+			</td>
 	</tr>
 	<tr>
 		<td align="center" class="myGreen" colspan="2"><input
