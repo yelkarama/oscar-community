@@ -33,6 +33,15 @@ function rs(n,u,w,h,x) {
   }
   if (x == 1) { return remote; }
 }
+    jQuery(document).ready(function()
+    {
+        jQuery("#title").change(function()
+        {
+            var value = jQuery(this).val();
+            if (value=="MS"||"MRS"||"MISS") {jQuery("#sex").val("Female")};
+            if (value=="MR") {jQuery("#sex").val("Male")};
+        });
+    });
 
 var awnd=null;
 function ScriptAttach() {
