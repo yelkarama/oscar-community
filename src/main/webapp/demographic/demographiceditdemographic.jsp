@@ -245,6 +245,9 @@ if(!authed) {
 		pageContext.setAttribute( "patientConsents", patientConsentManager.getAllConsentsByDemographic( loggedInInfo, Integer.parseInt(demographic_no) ) );
 	}
 
+	List<String> updatedFamily = (List<String>) session.getAttribute("updatedFamily");
+	session.removeAttribute("updatedFamily");
+	
 %>
 
 
