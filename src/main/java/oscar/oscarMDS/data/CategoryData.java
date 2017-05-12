@@ -397,7 +397,7 @@ public class CategoryData {
 		String sql = " SELECT HIGH_PRIORITY COUNT( distinct h.id) as count "
 					+" FROM HRMDocument h"
 					+" LEFT JOIN HRMDocumentToProvider hp ON h.id = hp.hrmDocumentId"
-					+" WHERE h.id NOT IN (SELECT hrmDocumentId FROM HRMDocumentToDemographic) AND hp.signedOff=0"
+					+" WHERE h.id NOT IN (SELECT hrmDocumentId FROM HRMDocumentToDemographic) AND hp.signedOff=0 "
 					+ hrmDateSql
 					+ hrmProviderSql;
 
