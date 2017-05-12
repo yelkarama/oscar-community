@@ -118,6 +118,16 @@
 	if(demographic == null) {
 	 //we have a problem!
 	}
+
+	boolean updateFamily = false;
+	if (request.getParameter("submit")!=null&&request.getParameter("submit").equalsIgnoreCase("Save & Update Family Members")){
+		updateFamily = true;
+	}
+
+	List<Demographic> family = null;
+	if (updateFamily){
+		 family = demographicDao.getDemographicFamilyMembers(String.valueOf(demographic.getDemographicNo()));
+	}
 	
 	demographic.setLastName(request.getParameter("last_name").trim());
 	demographic.setFirstName(request.getParameter("first_name").trim());
@@ -355,6 +365,19 @@
 	}	
 	
     demographicDao.save(demographic);
+	if(family!=null && !family.isEmpty()){
+	    List<String> members = new ArrayList<String>();
+		for (Demographic member : family){
+		    member.setAddress(demographic.getAddress());
+		    member.setCity(demographic.getCity());
+		    member.setProvince(demographic.getProvince());
+		    member.setPostal(demographic.getPostal());
+		    member.setPhone(demographic.getPhone());
+			demographicDao.save(member);
+			members.add(member.getFormattedName());
+		}
+		session.setAttribute("updatedFamily", members);
+	}
     
     try{
     	oscar.oscarDemographic.data.DemographicNameAgeString.resetDemographic(request.getParameter("demographic_no"));
