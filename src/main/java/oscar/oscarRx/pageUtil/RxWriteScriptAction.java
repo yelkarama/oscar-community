@@ -1248,6 +1248,9 @@ public final class RxWriteScriptAction extends DispatchAction {
 		}
 
 		saveDrug(request);
+		JSONObject jo= new JSONObject();
+		jo.put("scriptId", request.getAttribute("scriptId"));
+		response.getOutputStream().write(jo.toString().getBytes());
 		return null;
 	}
 
