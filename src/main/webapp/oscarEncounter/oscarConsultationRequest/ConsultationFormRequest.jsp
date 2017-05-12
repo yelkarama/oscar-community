@@ -1542,7 +1542,7 @@ function updateFaxButton() {
 								<html:select property="providerNo" onchange="switchProvider(this.value)">
 									<%
 										for (Provider p : prList) {
-											if (p.getPractitionerNo().length() > 0) {
+											if (p.getPractitionerNo() != null && p.getPractitionerNo().length() > 0) {
 									%>
 									<option value="<%=p.getProviderNo() %>" <%=refPrac.equalsIgnoreCase(p.getFormattedName())?"selected='selected'":""%>>
 										<%=p.getFormattedName() %>
