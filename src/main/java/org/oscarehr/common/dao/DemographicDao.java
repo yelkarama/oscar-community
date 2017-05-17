@@ -853,7 +853,7 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 	public List<Demographic> searchDemographicByExtKeyAndValueLikeAndStatus(String key, String value, List<String> statuses, int limit, int offset, String providerNo, boolean outOfDomain,boolean ignoreStatuses) {
 		List<Demographic> list = new ArrayList<Demographic>();
 		String queryString = "SELECT {d.*} FROM demographic d "
-				+ "INNER JOIN demographicext dext ON (dext.demographic_no=d.demographic_no) "
+				+ "INNER JOIN demographicExt dext ON (dext.demographic_no=d.demographic_no) "
 				+ "WHERE dext.key_val=:key "
 				+ "AND dext.value LIKE :value";
 
