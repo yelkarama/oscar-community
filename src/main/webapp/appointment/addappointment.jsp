@@ -212,7 +212,6 @@ function onAdd() {
 }
 
 
-<!--
 function setfocus() {
 	this.focus();
   document.ADDAPPT.keyword.focus();
@@ -253,28 +252,36 @@ function checkTypeNum(typeIn) {
 
 function checkTimeTypeIn(obj) {
   var colonIdx;
-  if(!checkTypeNum(obj.value) ) {
+  var timeVal = obj.value;
+  var amPmStr = "";
+  if ("<%=twelveHourFormat%>" == "true") {
+	  if (timeVal.substring(5).trim().toUpperCase() == "AM" || timeVal.substring(5).trim().toUpperCase() == "PM") {
+		  amPmStr = timeVal.substring(5).trim();
+	  }
+  }
+  timeVal = timeVal.substring(0, 5);
+  if(!checkTypeNum(timeVal) ) {
 	  alert ("<bean:message key="Appointment.msgFillTimeField"/>");
   } else {
-      colonIdx = obj.value.indexOf(':');
-      if(colonIdx==-1) {
-        if(obj.value.length < 3) alert("<bean:message key="Appointment.msgFillValidTimeField"/>");
-        obj.value = obj.value.substring(0, obj.value.length-2 )+":"+obj.value.substring( obj.value.length-2 );
+	  colonIdx = timeVal.indexOf(':');
+	  if(colonIdx==-1) {
+		  if(timeVal.length < 3) alert("<bean:message key="Appointment.msgFillValidTimeField"/>");
+		  timeVal = timeVal.substring(0, timeVal.length-2 )+":"+timeVal.substring( timeVal.length-2 );
+	  }
   }
-}
           
   var hours = "";
   var minutes = "";  
 
-  colonIdx = obj.value.indexOf(':');  
+  colonIdx = timeVal.indexOf(':');  
   if (colonIdx < 1)
       hours = "00";     
   else if (colonIdx == 1)
-      hours = "0" + obj.value.substring(0,1);
+      hours = "0" + timeVal.substring(0,1);
   else
-      hours = obj.value.substring(0,2);
+      hours = timeVal.substring(0,2);
   
-  minutes = obj.value.substring(colonIdx+1,colonIdx+3);
+  minutes = timeVal.substring(colonIdx+1,colonIdx+3);
   if (minutes.length == 0)
 	    minutes = "00";
   else if (minutes.length == 1)
@@ -282,7 +289,7 @@ function checkTimeTypeIn(obj) {
   else if (minutes > 59)
     minutes = "00";
 
-  obj.value = hours + ":" + minutes;    
+  obj.value = hours + ":" + minutes + amPmStr;    
 }
 
 var readOnly=false;
@@ -298,11 +305,19 @@ function checkDateTypeIn(obj) {
 }
 
 function calculateEndTime() {
-  var stime = <%=request.getParameter("start_time")%>;
+  var stime = document.ADDAPPT.start_time.value;
   var vlen = stime.indexOf(':')==-1?1:2;
+  var amPmStr = "";
+  if ("<%=twelveHourFormat%>" == "true") {
+	  if (stime.substring(5).trim().toUpperCase() == "AM" || stime.substring(5).trim().toUpperCase() == "PM") {
+		  amPmStr = stime.substring(5).trim();
+	  }
+  }
+  stime = stime.substring(0, 5);
   var shour = stime.substring(0,2) ;
   var smin = stime.substring(stime.length-vlen) ;
   var duration = document.ADDAPPT.duration.value ;
+  document.ADDAPPT.start_time.value = stime + amPmStr;
   
   if(isNaN(duration)) {
 	  alert("<bean:message key="Appointment.msgFillTimeField"/>");
@@ -313,6 +328,8 @@ function calculateEndTime() {
   if(eval(duration) < 0) { duration = Math.abs(duration) ; }
 
   var lmin = eval(smin)+eval(duration)-1 ;
+  if (shour == "12" && amPmStr.toUpperCase() == "AM") { shour = parseInt(shour) + 12; }
+  else if (shour != "12" && amPmStr.toUpperCase() == "PM") { shour = parseInt(shour) + 12; }
   var lhour = parseInt(lmin/60);
 
   if((lmin) > 59) {
