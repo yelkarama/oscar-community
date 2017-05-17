@@ -677,8 +677,8 @@
                             </form> 
                          
                          </fieldset>
-                        <% if (!StringUtils.isNullOrEmpty(demographicID) && !StringUtils.isNullOrEmpty(curdoc.getDescription()) && countValidProvider!=0){ %>
-                        <fieldset>
+                        <% Boolean faxEnabled = (!StringUtils.isNullOrEmpty(demographicID) && !StringUtils.isNullOrEmpty(curdoc.getDescription()) && countValidProvider!=0); %>
+                        <fieldset id="faxFields_<%=docId%>"  <%=faxEnabled?"":"style='display:none'"%>  >
                             <script type="text/javascript">
                                 jQuery.noConflict();
                                 function faxDocument(docId){
@@ -778,7 +778,7 @@
 
                             </form>
                         </fieldset>
-                        <% } %>
+
                                                                            	                                
                     </td>
                 </tr>
@@ -802,6 +802,13 @@
 
 //-->
 <script type="text/javascript">
+    <%
+            if(request.getSession().getAttribute("faxSuccessful")!=null){
+                if((Boolean)request.getSession().getAttribute("faxSuccessful")==true){ %>
+    alert("Fax sent successfully!");
+    <% }
+    request.getSession().removeAttribute("faxSuccessful");
+    }  %>
 
         if($('displayDocumentAs_<%=docId%>').value=="<%=UserProperty.PDF%>") {
             showPDF('<%=docId%>',contextpath);

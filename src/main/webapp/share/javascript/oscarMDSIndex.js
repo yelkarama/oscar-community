@@ -1577,6 +1577,9 @@ function updateDocumentAndNext(eleId){//save doc info
 						var num=ar[1];
 						num=num.replace(/\s/g,'');
 						$("saveSucessMsg_"+num).show();
+                        if ($('docDesc_'+num).value!=""){
+                            $('faxFields_'+num).show();
+                        }
 						$('saved'+num).value='true';
 						$("msgBtn_"+num).onclick = function() { popup(700,960, contextpath +'/oscarMessenger/SendDemoMessage.do?demographic_no='+patientId,'msg'); };
 						//Hide document						
@@ -1619,6 +1622,9 @@ function updateDocument(eleId){
 			var num=ar[1];
 			num=num.replace(/\s/g,'');
 			$("saveSucessMsg_"+num).show();
+			if ($('docDesc_'+num).value!=""){
+				$('faxFields_'+num).show();
+			}
 			$('saved'+num).value='true';
 			$("msgBtn_"+num).onclick = function() { popup(700,960,contextpath +'/oscarMessenger/SendDemoMessage.do?demographic_no='+patientId,'msg'); };
 			
