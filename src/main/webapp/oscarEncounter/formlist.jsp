@@ -134,7 +134,7 @@ function popupPageK(page) {
                     pforms = new EctFormData.PatientForm[0];
                 }
                 else {
-                    pforms = EctFormData.getPatientFormsFromLocalAndRemote(loggedInInfo, demoNo, table);
+                    pforms = EctFormData.getPatientFormsFromLocalAndRemote(loggedInInfo, demoNo, table,true);
                 }
 		int nItems = 0;
 
