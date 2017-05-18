@@ -167,15 +167,10 @@ NumberFormat formatter = new DecimalFormat("#0.00");
 		ohipNo = request.getParameter("provider_ohipNo");
 %>
 
-<%@page import="org.oscarehr.common.dao.SiteDao"%>
 <%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
-<%@page import="org.oscarehr.common.model.Site"%>
-<%@page import="org.oscarehr.common.model.Provider"%>
-<%@ page import="org.oscarehr.common.model.BillingONCHeader1" %>
-<%@ page import="org.oscarehr.common.dao.BillingONCHeader1Dao" %>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
-<%@ page import="org.oscarehr.common.model.RaDetail" %>
-<%@ page import="org.oscarehr.common.dao.RaDetailDao" %>
+<%@ page import="org.oscarehr.common.model.*" %>
+<%@ page import="org.oscarehr.common.dao.*" %>
 <html>
     <head>
         <title><bean:message key="admin.admin.invoiceRpts"/></title>
@@ -793,8 +788,7 @@ if(statusType.equals("_")) { %>
              <th>TYPE</th>
              <th>INVOICE #</th>
              <th>MESSAGES</th>
-             <th>CASH</th>
-             <th>DEBIT</th>
+             <th>METHOD</th>
              <th>Quantity</th>
               <th>Provider</th>
 		<% if (bMultisites) {%>
@@ -903,12 +897,11 @@ if(statusType.equals("_")) { %>
                if(payProgram.equals("PAT") || payProgram.equals("OCF") || payProgram.equals("ODS") || payProgram.equals("CPP") || payProgram.equals("STD")) {
                    b3rdParty = true;
                }
-	      
-               String cash = formatter.format(ch1Obj.getCashTotal());
-			   String debit = formatter.format(ch1Obj.getDebitTotal());
-			   
+
 			   totalCash += ch1Obj.getCashTotal();
 			   totalDebit += ch1Obj.getDebitTotal();
+			   List<BigDecimal> paymentTotals = ch1Obj.getPaymentTotals();
+			   BillingPaymentTypeDao paymentTypeDao = SpringUtils.getBean(BillingPaymentTypeDao.class);
 			   
 			
 				
@@ -922,15 +915,32 @@ if(statusType.equals("_")) { %>
              <td align="center"><%=settleDate%></td> <!--SETTLE DATE-->
              <td align="center"><%=getHtmlSpace(ch1Obj.getTransc_id())%></td><!--CODE-->
              <td align="right"><%=getStdCurr(ch1Obj.getTotal())%></td><!--BILLED-->
-             <td align="right"><%=amountPaid%></td><!--PAID-->
+             <td align="right">
+				 <%
+					if (!amountPaid.equals("0.00")){
+						 for (BigDecimal typeTotal : paymentTotals){
+							if (typeTotal!=null){%>
+							<%=typeTotal%><br/>
+				<%			}
+						 }
+					} else{%>
+						<%=amountPaid%>
+					 <%}%>
+			 </td><!--PAID-->
              <td align="center"><%=adj.toString()%></td> <!--SETTLE DATE-->
              <td align="center"><%=getHtmlSpace(ch1Obj.getRec_id())%></td><!--DX1-->
              <!--td>&nbsp;</td--><!--DX2-->
              <td align="center"><%=payProgram%></td>
              <td align="center"><a href=#  onclick="popupPage(800,700,'billingONCorrection.jsp?billing_no=<%=ch1Obj.getId()%>','BillCorrection<%=ch1Obj.getId()%>');nav_colour_swap(this.id, <%=bList.size()%>);return false;"><%=ch1Obj.getId()%></a></td><!--ACCOUNT-->
              <td class="highlightBox"><a id="A<%=i%>" href=#  onclick="popupPage(800,700,'billingONCorrection.jsp?billing_no=<%=ch1Obj.getId()%>','BillCorrection<%=ch1Obj.getId()%>');nav_colour_swap(this.id, <%=bList.size()%>);return false;">Edit</a> <%=errorCode%></td><!--MESSAGES-->
-             <td align="center">$<%=cash%></td>
-             <td align="center">$<%=debit%></td>
+             <td align="center">
+				 <% for (int totalIndex = 0; totalIndex<paymentTotals.size(); totalIndex++){
+				 	if (paymentTotals.get(totalIndex)!=null){%>
+
+				 <%=paymentTypeDao.find(totalIndex+1).getPaymentType()%><br/>
+
+				 <%}}%>
+			 </td>
              <td align="center"><%=qty %></td>
              <td align="center"><%=ch1Obj.getProviderName() %></td>
              <% if (bMultisites) {%>
@@ -961,8 +971,7 @@ if(statusType.equals("_")) { %>
              <td>&nbsp;</td><!--TYPE-->
              <td>&nbsp;</td><!--ACCOUNT-->
              <td>&nbsp;</td><!--MESSAGES-->
-             <td align="center">$<%=formatter.format(totalCash)%></td>
-             <td align="center">$<%=formatter.format(totalDebit) %></td>
+             <td align="center">&nbsp;</td>
              <td align="center">&nbsp;</td>
              <td>&nbsp;</td><!--PROVIDER-->
              <% if (bMultisites) {%>

@@ -52,6 +52,7 @@ import org.oscarehr.common.model.BillingONExt;
 import org.oscarehr.common.model.BillingONItem;
 import org.oscarehr.common.model.BillingONPayment;
 import org.oscarehr.common.model.BillingOnItemPayment;
+import org.oscarehr.common.model.BillingPaymentType;
 import org.oscarehr.common.model.BillingService;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.util.DateRange;
@@ -323,8 +324,7 @@ public class JdbcBillingReviewImpl {
 			BillingPaymentTypeDao billingPaymentTypeDao = SpringUtils.getBean(BillingPaymentTypeDao.class);
 			ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 			
-			Integer CASH_PAYMENT_ID = billingPaymentTypeDao.findIdByName("CASH");
-			Integer DEBIT_PAYMENT_ID = billingPaymentTypeDao.findIdByName("DEBIT");
+			List<BillingPaymentType> allPaymentTypes = billingPaymentTypeDao.findAll();
 			
 			for (Object[] o : dao.findByMagic2(Arrays.asList(billType), statusType, providerNo, ConversionUtils.fromDateString(startDate), ConversionUtils.fromDateString(endDate), ConversionUtils.fromIntString(demoNo), serviceCodes, dx, visitType, visitLocation, ConversionUtils.fromDateString(paymentStartDate),  ConversionUtils.fromDateString(paymentEndDate))) {
 				BillingONCHeader1 ch1 = (BillingONCHeader1) o[0];
@@ -366,8 +366,10 @@ public class JdbcBillingReviewImpl {
 				
 				ch1Obj.setFacilty_num(clinicLocationDao.searchVisitLocation(ch1.getFaciltyNum()));
 				
-				double cashTotal = 0.00;
-				double debitTotal = 0.00;
+				List<BigDecimal> paymentTypeTotals = new ArrayList<BigDecimal>();
+				for (BillingPaymentType type : allPaymentTypes){
+					paymentTypeTotals.add(type.getId()-1, null);
+				}
 
 				ch1Obj.setNumItems(Integer.parseInt(bi.getServiceCount()));
 				
@@ -381,18 +383,20 @@ public class JdbcBillingReviewImpl {
 						//probably means that no payment was applied to this item.
 						continue;
 					}
-					
-					if(paymentObj.getPaymentTypeId() == CASH_PAYMENT_ID) {
-						cashTotal += boip.getPaid().intValue();
-					} else if(paymentObj.getPaymentTypeId() == DEBIT_PAYMENT_ID) {
-						debitTotal += boip.getPaid().intValue();
+
+					for(int i = 0; i<=paymentTypeTotals.size(); i++){
+						BigDecimal currentTotal = (BigDecimal)paymentTypeTotals.get(paymentObj.getPaymentTypeId()-1);
+						if (currentTotal == null && !"0.00".equals(String.valueOf(boip.getPaid()))){
+							paymentTypeTotals.set((paymentObj.getPaymentTypeId()-1),boip.getPaid());
+						} else if (!"0.00".equals(String.valueOf(boip.getPaid()))) {
+							paymentTypeTotals.set((paymentObj.getPaymentTypeId()-1),boip.getPaid());
+						}
 					}
 					
 				}
 				
 				
-				ch1Obj.setCashTotal(cashTotal);
-				ch1Obj.setDebitTotal(debitTotal);
+				ch1Obj.setPaymentTotals(paymentTypeTotals);
 				
 				Provider provider = providerDao.getProvider(ch1Obj.getProvider_no());
 				if(provider!=null) {
