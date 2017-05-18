@@ -51,6 +51,7 @@ import org.oscarehr.common.model.Appointment;
 import org.oscarehr.common.dao.OscarAppointmentDao;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.dao.DemographicDao;
+import org.oscarehr.common.dao.LookupListItemDao;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.util.MiscUtils;
@@ -63,6 +64,7 @@ public class RptShowDaySheetAction extends Action {
    private OscarAppointmentDao appointmentDao = (OscarAppointmentDao) SpringUtils.getBean("oscarAppointmentDao");
    private ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao");
    private DemographicDao demographicDao = (DemographicDao) SpringUtils.getBean("demographicDao");
+   private LookupListItemDao lookupListItemDao = SpringUtils.getBean(LookupListItemDao.class);
    private Properties oscarVariables = oscar.OscarProperties.getInstance();
    private DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
    private DateFormat time = new SimpleDateFormat("hh:mm a");
@@ -115,6 +117,11 @@ public class RptShowDaySheetAction extends Action {
 			Appointment currAppt = appts.get(i);
 			Properties appt = new Properties();
 			Demographic demo = demographicDao.getDemographicById(currAppt.getDemographicNo());
+
+			String reasonDropDown = "";
+			if (currAppt.getReasonCode()!=null && currAppt.getReasonCode()>0){
+				reasonDropDown = lookupListItemDao.find(currAppt.getReasonCode())!=null ? lookupListItemDao.find(currAppt.getReasonCode()).getLabel() + " - " : "";
+			}
 			
 			if(demo == null){
 				continue;
@@ -124,7 +131,7 @@ public class RptShowDaySheetAction extends Action {
 			appt.setProperty("Demographic Number",""+demo.getDemographicNo());
 			appt.setProperty("Appointment Start Time", time.format(currAppt.getStartTime()));
 			appt.setProperty("Appointment Type", currAppt.getType());
-			appt.setProperty("Appointment Reason", currAppt.getReason());
+			appt.setProperty("Appointment Reason", reasonDropDown + currAppt.getReason());
 			appt.setProperty("Home Phone", demo.getPhone());
 			appt.setProperty("Date of Birth", df.format(demo.getBirthDay().getTime()));
 			appt.setProperty("Health Card Number", demo.getHin());
