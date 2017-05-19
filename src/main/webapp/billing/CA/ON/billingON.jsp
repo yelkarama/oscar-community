@@ -36,11 +36,9 @@
 <%@page import="org.oscarehr.common.dao.CtlBillingServiceDao, org.oscarehr.common.model.CtlBillingService"%>
 <%@page import="org.oscarehr.common.dao.CtlBillingServicePremiumDao, org.oscarehr.common.model.CtlBillingServicePremium"%>
 <%@page import="org.oscarehr.common.dao.DiagnosticCodeDao, org.oscarehr.common.model.CtlDiagCode, org.oscarehr.common.model.DiagnosticCode"%>
-<%@page import="org.oscarehr.common.dao.DxresearchDAO, org.oscarehr.common.model.Dxresearch"%>
 <%@page import="org.oscarehr.common.dao.MyGroupDao, org.oscarehr.common.model.MyGroup"%>
 <%@page import="org.oscarehr.common.dao.OscarAppointmentDao, org.oscarehr.common.model.Appointment"%>
 <%@page import="org.oscarehr.common.dao.ProfessionalSpecialistDao, org.oscarehr.common.model.ProfessionalSpecialist"%>
-<%@page import="org.oscarehr.common.dao.UserPropertyDAO, org.oscarehr.common.model.UserProperty"%>
 <%@page import="org.oscarehr.common.model.Demographic"%>
 <%@page import="org.oscarehr.PMmodule.dao.ProviderDao, org.oscarehr.common.model.ProviderPreference"%>
 <%@page import="org.oscarehr.decisionSupport.model.DSConsequence"%>
@@ -51,8 +49,6 @@
 
 <%
 	ProfessionalSpecialistDao professionalSpecialistDao = (ProfessionalSpecialistDao) SpringUtils.getBean("professionalSpecialistDao");
-	DxresearchDAO dxresearchDao = SpringUtils.getBean(DxresearchDAO.class);
-	UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
     LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
 %>
 <jsp:useBean id="providerBean" class="java.util.Properties"
@@ -109,22 +105,6 @@
 			if(request.getParameter("start_time") != null){
 	   			filterDate =  ConversionUtils.fromTimestampString(billReferenceDate+" "+request.getParameter("start_time"));
  			}
-			
-			//load patientDx
-			List<Dxresearch> dxList = dxresearchDao.getByDemographicNo(Integer.parseInt(demo_no));
-			List<String> patientDx = new ArrayList<String>();
-			for (Dxresearch dx : dxList) {
-				if ("icd9".equals(dx.getCodingSystem())) patientDx.add(dx.getDxresearchCode());
-			}
-			
-			//load codelist to add to patientDx
-			UserProperty codeList = userPropertyDao.getProp(UserProperty.CODE_TO_ADD_PATIENTDX);
-			String codeToAddPatientDx = codeList!=null ? codeList.getValue() : "";
-			codeToAddPatientDx = codeToAddPatientDx!=null ? codeToAddPatientDx.trim() : "";
-			
-			codeList = userPropertyDao.getProp(UserProperty.CODE_TO_MATCH_PATIENTDX);
-			String codeToMatchPatientDx = codeList!=null ? codeList.getValue() : "";
-			codeToMatchPatientDx = codeToMatchPatientDx!=null ? codeToMatchPatientDx.trim() : "";
 
             //check for management fee code eligibility
             StringBuilder billingRecomendations = new StringBuilder();
@@ -632,33 +612,6 @@ function showHideLayers() { //v3.0
 }
 
 function onNext() {
-	var codeToAddStr = "<%=codeToAddPatientDx%>";
-	var codeToMatchStr = "<%=codeToMatchPatientDx%>";
-	
-	var codeToAdd = codeToAddStr.split(",");
-	var codeToMatch = {};
-	if (codeToMatchStr!="") {
-		var codeToMatchArr = codeToMatchStr.split(",");
-		for (var i=0; i<codeToMatchArr.length; i++) {
-			var codeMatch = codeToMatchArr[i].split(":");
-			codeToMatch[codeMatch[0]] = codeMatch[1];
-		}
-	}
-	
-	var dxCode = document.titlesearch.dxCode.value;
-	var codeMatch = codeToMatch[dxCode];
-	if (codeToAdd.indexOf(dxCode)>=0 || codeMatch!=null) {
-		var dxCodeMatch = codeMatch==null ? dxCode : codeMatch;
-<%for (String pcode : patientDx) {%>
-		if (dxCodeMatch==<%=pcode%>) dxCode = -1;
-<%}%>
-		if (dxCode!=-1 && codeMatch!=null) {
-			document.titlesearch.codeMatchToPatientDx.value = codeMatch;
-		}
-	} else {
-		dxCode = -1;
-	}
-    
     var ret = true;
     if (!checkAllDates()) {
     	ret = false;
@@ -677,11 +630,6 @@ function onNext() {
 	    ret = confirm("You didn't enter a diagnostic code in the Dx box. Continue?");
 	    if (!ret) document.forms[0].dxCode.focus();
 	}
-	else if (dxCode!=-1) {
-    	var codeDesc = document.getElementById("code_desc").innerHTML.trim();
-    	var yes = confirm("Add \""+codeDesc+"\"("+dxCode+") to patient's disease registry?\n(OK=Yes, Cancel=No)");
-    	if (yes) document.titlesearch.addToPatientDx.value = "yes";
-    }
     return ret;
 }
 
@@ -1218,8 +1166,6 @@ if(checkFlag == null) checkFlag = "0";
 %>
 		<input type="hidden" name="checkFlag" id="checkFlag"
 			value="<%=checkFlag %>" />
-		<input type="hidden" name="addToPatientDx" />
-		<input type="hidden" name="codeMatchToPatientDx" />
 
 		<table border="0" cellspacing="0" cellpadding="0" class="myDarkGreen"
 			width="100%">
@@ -1307,23 +1253,28 @@ if(checkFlag == null) checkFlag = "0";
 														<a href=# onclick="dxScriptAttach('dxCode');">Search</a>
 													</td>
 												</tr>
-												<tr>
+												
+												<tr hidden="hidden"> <!-- Hidden by Ronnie Cheng 2017-05-26 -->
 													<td>dx1</td>
 													<td><input type="text" name="dxCode1" size="5"
 														maxlength="5" ondblClick="dxScriptAttach('dxCode1')"
 														value="<%=request.getParameter("dxCode1")!=null?request.getParameter("dxCode1"):""%>" />
 														<a href=# onclick="dxScriptAttach('dxCode1')">Search</a></td>
 												</tr>
-												<tr>
+												<tr hidden="hidden"> <!-- Hidden by Ronnie Cheng 2017-05-26 -->
 													<td>dx2</td>
 													<td><input type="text" name="dxCode2" size="5"
 														maxlength="5" ondblClick="dxScriptAttach('dxCode2')"
 														value="<%=request.getParameter("dxCode2")!=null?request.getParameter("dxCode2"):""%>" />
 														<a href=# onclick="dxScriptAttach('dxCode2')">Search</a></td>
 												</tr>
-											</table> <a
-											href="javascript:referralScriptAttach2('referralCode','referralDocName')">Refer.
-												Doctor #</a> <%
+												
+ 											</table>
+ 											<p>&nbsp;</p>
+ 											<a href="javascript:referralScriptAttach2('referralCode','referralDocName')">
+ 												Refer. Doctor #
+											</a>
+			<%
 			String checkRefBox = "";
 			String refName = "";
 			String refNo = "";

@@ -19,8 +19,6 @@
 --%>
 <%@page import="org.oscarehr.common.dao.BillingServiceDao"%>
 <%@page import="org.oscarehr.common.dao.DemographicDao"%>
-<%@page import="org.oscarehr.common.dao.DxresearchDAO" %>
-<%@page import="org.oscarehr.common.model.Dxresearch" %>
 <%@page import="org.oscarehr.common.model.Demographic"%>
 <%@page import="org.oscarehr.common.model.Provider"%>
 <%@page import="org.oscarehr.PMmodule.dao.ProviderDao"%>
@@ -40,10 +38,13 @@
 <%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
 <% java.util.Properties oscarVariables = OscarProperties.getInstance(); %>
 <jsp:useBean id="providerBean" class="java.util.Properties" scope="session" />
-<%@ page import="org.oscarehr.util.SpringUtils" %>
-<%@ page import="org.oscarehr.common.model.DiagnosticCode" %>
-<%@ page import="org.oscarehr.common.dao.DiagnosticCodeDao" %>
-<%@ page import="org.oscarehr.common.dao.BillingONCHeader1Dao, org.oscarehr.common.model.BillingONCHeader1" %>
+<%@ page import="org.oscarehr.util.SpringUtils"%>
+<%@ page import="org.oscarehr.common.model.DiagnosticCode"%>
+<%@ page import="org.oscarehr.common.dao.DiagnosticCodeDao"%>
+<%@ page import="org.oscarehr.common.dao.BillingONCHeader1Dao, org.oscarehr.common.model.BillingONCHeader1"%>
+<%@ page import="org.oscarehr.common.dao.UserPropertyDAO, org.oscarehr.common.model.UserProperty"%>
+<%@ page import="org.oscarehr.common.dao.DxresearchDAO, org.oscarehr.common.model.Dxresearch"%>
+<%@ page import="org.oscarehr.common.dao.Icd9Dao, org.oscarehr.common.model.Icd9" %>
 
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery.js"></script>
 <script>
@@ -53,7 +54,7 @@
 
 <%
 	DiagnosticCodeDao diagnosticCodeDao = SpringUtils.getBean(DiagnosticCodeDao.class);
-        BillingONCHeader1Dao billingONCHeader1Dao = (BillingONCHeader1Dao) SpringUtils.getBean("billingONCHeader1Dao");
+	BillingONCHeader1Dao billingONCHeader1Dao = (BillingONCHeader1Dao) SpringUtils.getBean("billingONCHeader1Dao");
 %>
 <%//
 	if (session.getAttribute("user") == null) {
@@ -148,14 +149,78 @@ boolean dupServiceCode = false;
 
 
         Properties propCodeDesc = (new JdbcBillingCodeImpl()).getCodeDescByNames(vecServiceParam[0]);
-			String dxCode = request.getParameter("dxCode");
+		String demo_no = request.getParameter("demographic_no");
+		String dxCode = request.getParameter("dxCode");
+		if (dxCode!=null) dxCode = dxCode.trim();
+		
+		String icd9Code = "";
+		String icd9Desc = "";
+		if (dxCode!=null && !dxCode.isEmpty()) {
+			
+			UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
+			DxresearchDAO dxresearchDao = SpringUtils.getBean(DxresearchDAO.class);
+			Icd9Dao icd9Dao = SpringUtils.getBean(Icd9Dao.class);
+			
+			//load codelists to add to patientDx
+			UserProperty codeListProp = userPropertyDao.getProp(UserProperty.CODE_TO_ADD_PATIENTDX);
+			if (codeListProp!=null) {
+				String codeList = codeListProp.getValue();
+				if (codeList!=null) {
+					String[] codes = codeList.replace(" ","").split(","); //remove spaces & split
+					if (Arrays.asList(codes).contains(dxCode)) icd9Code = dxCode;
+				}
+			}
+			if (icd9Code.isEmpty()) {
+				codeListProp = userPropertyDao.getProp(UserProperty.CODE_TO_MATCH_PATIENTDX);
+				if (codeListProp!=null) {
+					String codeList = codeListProp.getValue();
+					if (codeList!=null) {
+						String[] codes = codeList.replace(" ","").split(","); //remove spaces & split
+						for (String codePair : codes) {
+							String[] code = codePair.split(":");
+							if (dxCode.equals(code[0])) {
+								icd9Code = code[1]; break;
+							}
+						}
+					}
+				}
+			}
+			
+			//match previously not-approved list
+			if (! icd9Code.isEmpty()) {
+				codeListProp = userPropertyDao.getProp(user_no, "code_to_avoid_patientDx");
+				if (codeListProp!=null) {
+					String codeList = codeListProp.getValue();
+					if (codeList!=null) {
+						String[] codes = codeList.replace(" ","").split(","); //remove spaces & split
+						if (Arrays.asList(codes).contains(icd9Code)) icd9Code = "";
+					}
+				}
+			}
+			
+			//match patientDx
+			if (! icd9Code.isEmpty()) {
+				List<Dxresearch> dxList = dxresearchDao.getByDemographicNo(Integer.parseInt(demo_no));
+				for (Dxresearch dx : dxList) {
+					if ("icd9".equals(dx.getCodingSystem()) && icd9Code.equals(dx.getDxresearchCode())) {
+						icd9Code = ""; break;
+					}
+				}
+			}
+			
+			//load icd9 description
+			if (! icd9Code.isEmpty()) {
+				Icd9 icd9 = icd9Dao.findByCode(icd9Code);
+				if (icd9!=null) icd9Desc = icd9.getDescription();
+			}
+		}
+			
 			String dxDesc = prepObj.getDxDescription(dxCode);
 			String clinicview = oscarVariables.getProperty("clinic_view", "");
 			String clinicNo = oscarVariables.getProperty("clinic_no", "");
 			String visitType = oscarVariables.getProperty("visit_type", "");
 			String appt_no = request.getParameter("appointment_no");
 			String demoname = request.getParameter("demographic_name");
-			String demo_no = request.getParameter("demographic_no");
 			String apptProvider_no = request.getParameter("apptProvider_no");
 			String ctlBillForm = request.getParameter("billForm");
 			String assgProvider_no = request.getParameter("assgProvider_no");
@@ -168,17 +233,6 @@ boolean dupServiceCode = false;
 			int dob_year = 0, dob_month = 0, dob_date = 0, age = 0;
 			String content = "";
 			String total = "";
-			
-			//add to patientDx (or not)
-			if ("yes".equals(request.getParameter("addToPatientDx"))) {
-				String dxCodeMatch = request.getParameter("codeMatchToPatientDx");
-				String dxCodeAdd = dxCodeMatch.isEmpty() ? dxCode : dxCodeMatch;
-				
-				DxresearchDAO dxresearchDao = SpringUtils.getBean(DxresearchDAO.class);
-				java.util.Date d = new java.util.Date();
-				Dxresearch dx = new Dxresearch(Integer.valueOf(demo_no), d, d, 'A', dxCodeAdd, "icd9", (byte)0, user_no);
-				dxresearchDao.save(dx);
-			}
 
 			String msg = "<tr><td colspan='2'>Calculation</td></tr>";
 			String action = "edit";
@@ -322,7 +376,7 @@ boolean dupServiceCode = false;
 		     popupPage('600', '700', 'onSearch3rdBillAddr.jsp?param='+t0);
 		}
                 function showtotal(){
-                	document.getElementById('payMethod_0').checked=true;
+//                 	document.getElementById('payMethod_0').checked=true;
                     var subtotal = document.getElementById("total").value;
                     //subtotal = subtotal * 1 + document.getElementById("gst").value * 1;
                     var element = document.getElementById("stotal");
@@ -563,7 +617,7 @@ window.onload=function(){
 
 </head>
 
-<body topmargin="0" onload="showtotal(),calculatePayment()">
+<body topmargin="0" onload="showtotal(),calculatePayment(), confirmDialog()">
 
 <form method="post" name="titlesearch" action="billingONSave.jsp" onsubmit="return onSave();">
     <input type="hidden" name="url_back" value="<%=request.getParameter("url_back")%>">
@@ -1126,8 +1180,8 @@ Properties prop = oscar.OscarProperties.getInstance();
                         GST Billed:<input type="text" id="gst" name="gst" value="<%=gstTotal%>" size="6"/><br>
                         <input type="hidden" id="gstBilledTotal" name="gstBilledTotal" value="<%=gstbilledtotal%>" size="6" />
                         Total:<input type="text" id="stotal" disabled name = "stotal" value="0.00" size="6" /><br>
-			Payments:<input type="text"  disabled name="payment1" id="payment"value="0.00" size="6" onDblClick="settlePayment();" /><br/>
-			Discount:<input type="text" disabled name="discount2" id="discount"value="0.00" size="6"/>
+			Payments:<input type="text"  disabled name="payment1" id="payment" value="0.00" size="6" onDblClick="settlePayment();" /><br/>
+			Discount:<input type="text" disabled name="discount2" id="discount" value="0.00" size="6"/>
 			</td>
 			</tr>
 			</table>
@@ -1175,9 +1229,8 @@ function calculatePayment(){
     		payment = payment.toFixed(2);
     	}
     });
-
-	document.getElementById("payment").value=payment;
-	document.getElementById("total_payment").value=payment;
+	if (document.getElementById("payment")!=null) document.getElementById("payment").value=payment;
+	if (document.getElementById("total_payment")!=null) document.getElementById("total_payment").value=payment;
 }
 
 function calculateDiscount(){
@@ -1220,8 +1273,8 @@ function onTotalChanged() {
 	jQuery("#stotal").val(total);
 }
 
-function addToDiseaseRegistry(){
-	if ( validateItems() ) {
+function addToDiseaseRegistry(skipValidate){
+	if ( skipValidate || validateItems() ) {
 		var url = "../../../oscarResearch/oscarDxResearch/dxResearch.do";
 		var data = Form.serialize(dxForm);
 		
@@ -1244,45 +1297,76 @@ function validateItems(){
 	return ret;
 }
 
-
 function getNewCurrentDxCodeList(origRequest){
-   //alert("calling get NEW current Dx Code List");
-   var url = "../../../oscarResearch/oscarDxResearch/currentCodeList.jsp";
-   var ran_number=Math.round(Math.random()*1000000);
-   var params = "demographicNo=<%=demo_no%>&rand="+ran_number;  //hack to get around ie caching the page
-   //alert(params);
-   new Ajax.Updater('dxFullListing',url, {method:'get',parameters:params,asynchronous:true});
-   //alert(origRequest.responseText);
+	var url = "../../../oscarResearch/oscarDxResearch/currentCodeList.jsp";
+	var ran_number=Math.round(Math.random()*1000000);
+	var params = "demographicNo=<%=demo_no%>&rand="+ran_number;  //hack to get around ie caching the page
+	new Ajax.Updater('dxFullListing',url, {method:'get',parameters:params,asynchronous:true});
 }
 
+function confirmDialog() {
+	if ("<%=icd9Desc%>"=="") {
+		jQuery("#confirmDialog").hide();
+		return;
+	}
+	
+	var html = jQuery("#confirmDialog").html().replace("[item]", "<%=icd9Desc%>");
+	jQuery("#confirmDialog").html(html);
+}
+
+function addToPatientDx(){
+	jQuery("#confirmDialog").hide();
+	
+	var html = jQuery("#dxForm").html();
+	html += "<input name='xml_research' value='icd9,<%=icd9Code%>' type='checkbox' checked='checked' hidden='hidden'>";
+	jQuery("#dxForm").html(html);
+	addToDiseaseRegistry(true);
+}
+
+function noAddToPatientDx(){
+	jQuery("#confirmDialog").hide();
+	window.open("billingONXAddToPatientDx.jsp?demo=<%=demo_no%>&dxcode=<%=dxCode%>&icd9code=<%=icd9Code%>","_blank","height=100,width=100");
+}
 </script>
 
 
 <oscar:oscarPropertiesCheck property="DX_QUICK_LIST_BILLING_REVIEW" value="yes">
 
-<div class="dxBox">
-    <h3>&nbsp;Current Patient Dx List &nbsp;<a href="#" onclick="Element.toggle('dxFullListing'); return false;" style="font-size:small;" >show/hide</a></h3>
-       <div class="wrapper" id="dxFullListing">
-       <jsp:include page="../../../oscarResearch/oscarDxResearch/currentCodeList.jsp">
-          <jsp:param name="demographicNo" value="<%=demo_no%>"/>
-       </jsp:include>
-       </div>
+<div id="confirmDialog" style="position:absolute; left:29%; top:30%; z-index:99; background-color:white; padding:50px; border:solid grey; border-width:1px 4px 4px 1px; font-size:medium">
+	Do you want to add [item] to the Disease Registry?
+	<br/><br/>
+	<div style="text-align:center">
+		<input type="button" value="Yes" onclick="addToPatientDx()"/>
+		<input type="button" value="No" onclick="noAddToPatientDx()"/>
+	</div>
 </div>
 
 <div class="dxBox">
-    <h3>&nbsp;Dx Quick Pick Add Lists</h3>
-       <form id="dxForm">
-       <input type="hidden" name="demographicNo" value="<%=demo_no%>" />
-       <input type="hidden" name="providerNo" value="<%=session.getAttribute("user")%>" />
-       <input type="hidden" name="forward" value="" />
-       <input type="hidden" name="forwardTo" value="codeList"/>
-       <div class="wrapper" id="dxListing">
-       <jsp:include page="../../../oscarResearch/oscarDxResearch/quickCodeList.jsp">
-          <jsp:param name="demographicNo" value="<%=demo_no%>"/>
-       </jsp:include>
-       </div>
-       <input type="button" value="Add To Disease Registry" onclick="addToDiseaseRegistry()"/>
-       </form>
+	<h3>
+		&nbsp;Current Patient Dx List&nbsp;
+		<a href="#" onclick="Element.toggle('dxFullListing'); return false;" style="font-size:small;">show/hide</a>
+	</h3>
+	<div class="wrapper" id="dxFullListing">
+		<jsp:include page="../../../oscarResearch/oscarDxResearch/currentCodeList.jsp">
+			<jsp:param name="demographicNo" value="<%=demo_no%>"/>
+		</jsp:include>
+	</div>
+</div>
+
+<div class="dxBox">
+	<h3>&nbsp;Dx Quick Pick Add Lists</h3>
+	<form id="dxForm">
+		<input type="hidden" name="demographicNo" value="<%=demo_no%>" />
+		<input type="hidden" name="providerNo" value="<%=session.getAttribute("user")%>" />
+		<input type="hidden" name="forward" value="" />
+		<input type="hidden" name="forwardTo" value="codeList"/>
+		<div class="wrapper" id="dxListing">
+			<jsp:include page="../../../oscarResearch/oscarDxResearch/quickCodeList.jsp">
+				<jsp:param name="demographicNo" value="<%=demo_no%>"/>
+			</jsp:include>
+		</div>
+		<input type="button" value="Add To Disease Registry" onclick="addToDiseaseRegistry()"/>
+	</form>
 </div>
 
 </oscar:oscarPropertiesCheck>
