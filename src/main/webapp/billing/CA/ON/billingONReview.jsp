@@ -190,16 +190,18 @@ boolean dupServiceCode = false;
 			
 			//match previously not-approved list
 			if (! icd9Code.isEmpty()) {
+				
 // 				codeListProp = userPropertyDao.getProp(user_no, UserProperty.CODE_TO_AVOID_PATIENTDX);
 // 				if (codeListProp!=null) {
 // 					String codeList = codeListProp.getValue();
+
 				DemographicExt demoExt = demoExtDao.getDemographicExt(Integer.parseInt(demo_no), "code_to_avoid_patientDx");
 				if (demoExt!=null) {
 					String codeList = demoExt.getValue();
 					
 					if (codeList!=null) {
 						String[] codes = codeList.replace(" ","").split(","); //remove spaces & split
-						if (Arrays.asList(codes).contains(icd9Code)) icd9Code = "";
+						if (Arrays.asList(codes).contains(icd9Code+"x3")) icd9Code = "";
 					}
 				}
 			}
@@ -348,8 +350,10 @@ boolean dupServiceCode = false;
 		var bClick = false;
 	    
 		function onSave() {
-		var value=jQuery("#payee").val();
-		jQuery("#payeename").val(value);
+			addToDiseaseRegistry();
+			
+			var value=jQuery("#payee").val();
+			jQuery("#payeename").val(value);
             var ret = checkTotal();
             bClick = false;
 
@@ -1279,8 +1283,8 @@ function onTotalChanged() {
 	jQuery("#stotal").val(total);
 }
 
-function addToDiseaseRegistry(skipValidate){
-	if ( skipValidate || validateItems() ) {
+function addToDiseaseRegistry(){
+	if ( validateItems() ) {
 		var url = "../../../oscarResearch/oscarDxResearch/dxResearch.do";
 		var data = Form.serialize(dxForm);
 		
@@ -1298,8 +1302,9 @@ function validateItems(){
 			break;
 		}
 	}
-	if (!ret) alert("Error: Nothing was selected");
-	else ret = confirm("Are you sure to add to the patient's disease registry?");
+// Ronnie 2017-06-13: disabled upon client request
+// 	if (!ret) alert("Error: Nothing was selected");
+// 	else ret = confirm("Are you sure to add to the patient's disease registry?");
 	return ret;
 }
 
@@ -1328,7 +1333,7 @@ function addToPatientDx(){
 	jQuery("#dxForm").html(html);
 	
 	window.open("billingONLogAddToPatientDx.jsp?demo=<%=demo_no%>&dxcode=<%=dxCode%>&icd9code=<%=icd9Code%>","_blank","height=100,width=100");
-	addToDiseaseRegistry(true);
+	addToDiseaseRegistry();
 }
 
 function noAddToPatientDx(){
@@ -1375,7 +1380,8 @@ function noAddToPatientDx(){
 				<jsp:param name="demographicNo" value="<%=demo_no%>"/>
 			</jsp:include>
 		</div>
-		<input type="button" value="Add To Disease Registry" onclick="addToDiseaseRegistry()"/>
+<!-- Ronnie 2017-06-13: disabled upon client request
+		<input type="button" value="Add To Disease Registry" onclick="addToDiseaseRegistry()"/> -->
 	</form>
 </div>
 

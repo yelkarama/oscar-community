@@ -21,6 +21,7 @@
 <%@ page import="org.oscarehr.common.dao.DemographicExtDao, org.oscarehr.common.model.DemographicExt"%>
 <%@ page import="org.oscarehr.util.SpringUtils"%>
 <%@ page import="oscar.log.LogAction" %>
+<%@ page import="java.util.*" %>
 <%
 	String user_no = (String) session.getAttribute("user");
 	String demoNo = request.getParameter("demo");
@@ -33,17 +34,35 @@
 	
 	int demoNoI = Integer.parseInt(demoNo);
 	String key = "code_to_avoid_patientDx";
+	
 // 	UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 // 	UserProperty codeNotApproved = userPropertyDao.getProp(user_no, UserProperty.CODE_TO_AVOID_PATIENTDX);
+
 	DemographicExtDao demoExtDao = SpringUtils.getBean(DemographicExtDao.class);
 	DemographicExt codeNotApproved = demoExtDao.getLatestDemographicExt(demoNoI, key);
 	
 	if (codeNotApproved!=null) {
-		String value = codeNotApproved.getValue();
-		if (value!=null && !value.trim().isEmpty()) icd9Code += ","+value;
+		String codes = codeNotApproved.getValue();
+		if (codes!=null && !codes.trim().isEmpty()) {
+			String[] codeArray = codes.split(",");
+			codes = new String();
+			for (String code : codeArray) {
+				String[] c = code.split("x");
+				if (c[0].equals(icd9Code)) {
+					icd9Code = null;
+					int x = Integer.parseInt(c[1]);
+					x = x<3 ? x+1 : 3;
+					code = c[0]+"x"+x;
+				}
+				if (!codes.isEmpty()) codes+=",";
+				codes += code;
+			}
+			if (icd9Code!=null) icd9Code += "x1,"+codes;
+			else icd9Code = codes;
+		}
 		demoExtDao.saveDemographicExt(demoNoI, key, icd9Code);
 	} else {
-		demoExtDao.addKey(user_no, demoNoI, key, icd9Code);
+		demoExtDao.addKey(user_no, demoNoI, key, icd9Code+"x1");
 	}
 	
 // 	userPropertyDao.saveProp(user_no, UserProperty.CODE_TO_AVOID_PATIENTDX, icd9Code);
