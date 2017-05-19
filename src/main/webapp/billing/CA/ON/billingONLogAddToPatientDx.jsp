@@ -17,9 +17,6 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 --%>
-<%-- <%@ page import="org.oscarehr.common.dao.UserPropertyDAO, org.oscarehr.common.model.UserProperty"%> --%>
-<%@ page import="org.oscarehr.common.dao.DemographicExtDao, org.oscarehr.common.model.DemographicExt"%>
-<%@ page import="org.oscarehr.util.SpringUtils"%>
 <%@ page import="oscar.log.LogAction" %>
 <%
 	String user_no = (String) session.getAttribute("user");
@@ -31,28 +28,11 @@
 	if (dxCode==null || dxCode.trim().isEmpty()) return;
 	if (icd9Code==null || icd9Code.trim().isEmpty()) return;
 	
-	int demoNoI = Integer.parseInt(demoNo);
-	String key = "code_to_avoid_patientDx";
-// 	UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
-// 	UserProperty codeNotApproved = userPropertyDao.getProp(user_no, UserProperty.CODE_TO_AVOID_PATIENTDX);
-	DemographicExtDao demoExtDao = SpringUtils.getBean(DemographicExtDao.class);
-	DemographicExt codeNotApproved = demoExtDao.getLatestDemographicExt(demoNoI, key);
-	
-	if (codeNotApproved!=null) {
-		String value = codeNotApproved.getValue();
-		if (value!=null && !value.trim().isEmpty()) icd9Code += ","+value;
-		demoExtDao.saveDemographicExt(demoNoI, key, icd9Code);
-	} else {
-		demoExtDao.addKey(user_no, demoNoI, key, icd9Code);
-	}
-	
-// 	userPropertyDao.saveProp(user_no, UserProperty.CODE_TO_AVOID_PATIENTDX, icd9Code);
-
-	LogAction.addLog(user_no, "Billing: Add to Disease Registry: Not approved", "billing diagnostic code: "+dxCode+", mapped ICD9 code: "+icd9Code, null, null, demoNo);
+	LogAction.addLog(user_no, "Billing: Add to Disease Registry: Approved", "billing diagnostic code: "+dxCode+", mapped ICD9 code: "+icd9Code, null, null, demoNo);
 %>
 <html>
 <body onload="window.close()">
-	Logging dx code which is not approved...<br/>
+	Logging dx code which is approved...<br/>
 	(This window should close by itself)
 </body>
 </html>

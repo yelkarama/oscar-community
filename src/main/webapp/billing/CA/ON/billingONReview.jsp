@@ -1326,6 +1326,8 @@ function addToPatientDx(){
 	var html = jQuery("#dxForm").html();
 	html += "<input name='xml_research' value='icd9,<%=icd9Code%>' type='checkbox' checked='checked' hidden='hidden'>";
 	jQuery("#dxForm").html(html);
+	
+	window.open("billingONLogAddToPatientDx.jsp?demo=<%=demo_no%>&dxcode=<%=dxCode%>&icd9code=<%=icd9Code%>","_blank","height=100,width=100");
 	addToDiseaseRegistry(true);
 }
 
