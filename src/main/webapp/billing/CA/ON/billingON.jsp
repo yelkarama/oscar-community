@@ -279,7 +279,7 @@
 				propHist.setProperty("clinic_ref_code", obj.getFacilty_num());
 				vecHist.add(propHist);
 				//propHist.setProperty("service_code", serCode);
-				propHist.setProperty("diagnostic_code", iobj.getDx());
+				//propHist.setProperty("diagnostic_code", iobj.getDx()); //Ronnie 2017-06-06: stop showing last dxcode
 				vecHistD.add(propHist);
 			}
 

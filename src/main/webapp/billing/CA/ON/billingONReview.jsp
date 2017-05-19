@@ -1351,18 +1351,20 @@ function noAddToPatientDx(){
 
 <div class="dxBox">
 	<h3>
-		&nbsp;Current Patient Dx List&nbsp;
+		&nbsp;Current Patient Disease Registry&nbsp;
 		<a href="#" onclick="Element.toggle('dxFullListing'); return false;" style="font-size:small;">show/hide</a>
 	</h3>
+	<br/>
 	<div class="wrapper" id="dxFullListing">
 		<jsp:include page="../../../oscarResearch/oscarDxResearch/currentCodeList.jsp">
 			<jsp:param name="demographicNo" value="<%=demo_no%>"/>
 		</jsp:include>
 	</div>
+	<br/>
 </div>
 
 <div class="dxBox">
-	<h3>&nbsp;Dx Quick Pick Add Lists</h3>
+	<h3>&nbsp;Select Disease Registry Terms from the options below to be added to Current Patient's Disease Registry List</h3>
 	<form id="dxForm">
 		<input type="hidden" name="demographicNo" value="<%=demo_no%>" />
 		<input type="hidden" name="providerNo" value="<%=session.getAttribute("user")%>" />
