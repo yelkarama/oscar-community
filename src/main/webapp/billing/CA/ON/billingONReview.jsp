@@ -188,7 +188,7 @@ boolean dupServiceCode = false;
 			
 			//match previously not-approved list
 			if (! icd9Code.isEmpty()) {
-				codeListProp = userPropertyDao.getProp(user_no, "code_to_avoid_patientDx");
+				codeListProp = userPropertyDao.getProp(user_no, UserProperty.CODE_TO_AVOID_PATIENTDX);
 				if (codeListProp!=null) {
 					String codeList = codeListProp.getValue();
 					if (codeList!=null) {
