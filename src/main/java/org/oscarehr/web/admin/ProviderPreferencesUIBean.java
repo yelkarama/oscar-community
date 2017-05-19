@@ -99,9 +99,10 @@ public final class ProviderPreferencesUIBean {
 			}
 		}
 		
-		// default billing dxCode 
-		temp = StringUtils.trimToNull(request.getParameter("dxCode"));
-		if (temp != null) providerPreference.setDefaultDxCode(temp);
+		// default billing dxCode
+		// Ronnie 2017-06-06: Allow empty string to remove unwanted setting
+		temp = StringUtils.trimToEmpty(request.getParameter("dxCode"));
+		providerPreference.setDefaultDxCode(temp);
 		
 		
 		// rest
