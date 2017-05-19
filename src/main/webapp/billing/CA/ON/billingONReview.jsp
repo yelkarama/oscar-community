@@ -45,6 +45,7 @@
 <%@ page import="org.oscarehr.common.dao.UserPropertyDAO, org.oscarehr.common.model.UserProperty"%>
 <%@ page import="org.oscarehr.common.dao.DxresearchDAO, org.oscarehr.common.model.Dxresearch"%>
 <%@ page import="org.oscarehr.common.dao.Icd9Dao, org.oscarehr.common.model.Icd9" %>
+<%@ page import="org.oscarehr.common.dao.DemographicExtDao, org.oscarehr.common.model.DemographicExt" %>
 
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery.js"></script>
 <script>
@@ -160,6 +161,7 @@ boolean dupServiceCode = false;
 			UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 			DxresearchDAO dxresearchDao = SpringUtils.getBean(DxresearchDAO.class);
 			Icd9Dao icd9Dao = SpringUtils.getBean(Icd9Dao.class);
+			DemographicExtDao demoExtDao = SpringUtils.getBean(DemographicExtDao.class);
 			
 			//load codelists to add to patientDx
 			UserProperty codeListProp = userPropertyDao.getProp(UserProperty.CODE_TO_ADD_PATIENTDX);
@@ -188,9 +190,13 @@ boolean dupServiceCode = false;
 			
 			//match previously not-approved list
 			if (! icd9Code.isEmpty()) {
-				codeListProp = userPropertyDao.getProp(user_no, UserProperty.CODE_TO_AVOID_PATIENTDX);
-				if (codeListProp!=null) {
-					String codeList = codeListProp.getValue();
+// 				codeListProp = userPropertyDao.getProp(user_no, UserProperty.CODE_TO_AVOID_PATIENTDX);
+// 				if (codeListProp!=null) {
+// 					String codeList = codeListProp.getValue();
+				DemographicExt demoExt = demoExtDao.getDemographicExt(Integer.parseInt(demo_no), "code_to_avoid_patientDx");
+				if (demoExt!=null) {
+					String codeList = demoExt.getValue();
+					
 					if (codeList!=null) {
 						String[] codes = codeList.replace(" ","").split(","); //remove spaces & split
 						if (Arrays.asList(codes).contains(icd9Code)) icd9Code = "";
