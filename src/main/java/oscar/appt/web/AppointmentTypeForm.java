@@ -29,6 +29,8 @@ public class AppointmentTypeForm  extends ActionForm {
     private Integer id;
     private String name;
     private String notes;
+	private String newReasonCode;
+	private Integer reasonCode = 0;
     private String reason;
     private String location;
     private String resources;    
@@ -60,6 +62,20 @@ public class AppointmentTypeForm  extends ActionForm {
 	}
 	public void setNotes(String notes) {
 		this.notes = notes;
+	}
+
+	public String getNewReasonCode() {
+		return newReasonCode;
+	}
+	public void setNewReasonCode(String newReasonCode) {
+		this.newReasonCode = newReasonCode;
+	}
+
+	public Integer getReasonCode() {
+		return reasonCode;
+	}
+	public void setReasonCode(Integer reasonCode) {
+		this.reasonCode = reasonCode;
 	}
 
 	public String getReason() {

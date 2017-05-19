@@ -35,6 +35,7 @@ public class AppointmentType extends AbstractModel<Integer> {
     
     private String name=null;
     private String notes=null;
+	private Integer reasonCode = 0;
     private String reason=null;
     private String location=null;
     private String resources=null;    
@@ -59,6 +60,14 @@ public class AppointmentType extends AbstractModel<Integer> {
 	
 	public void setNotes(String notes) {
 		this.notes = notes;
+	}
+
+	public Integer getReasonCode() {
+		return reasonCode;
+	}
+
+	public void setReasonCode(Integer reasonCode) {
+		this.reasonCode = reasonCode;
 	}
 
     public String getReason() {

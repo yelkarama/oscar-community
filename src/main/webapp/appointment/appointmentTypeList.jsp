@@ -30,6 +30,9 @@
   String sError = "";
   if (request.getParameter("err")!=null &&  !request.getParameter("err").equals(""))
   	sError = "Error: " + request.getParameter("err");
+
+    LookupListManager lookupListManager = SpringUtils.getBean(LookupListManager.class);
+    LookupList reasonCodes = lookupListManager.findLookupListByName(LoggedInInfo.getLoggedInInfoFromSession(request), "reasonCode");
 %>
 
 <%@ page errorPage="../errorpage.jsp" %>
@@ -39,11 +42,16 @@
 <%@ page import="oscar.login.*" %>
 <%@ page import="oscar.log.*" %>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
-  <html>
+<%@ page import="org.oscarehr.common.model.LookupListItem" %>
+<%@ page import="org.oscarehr.managers.LookupListManager" %>
+<%@ page import="org.oscarehr.common.model.LookupList" %>
+<%@ page import="org.oscarehr.util.LoggedInInfo" %>
+<html>
     <head>
       <title>
         APPOINTMENT TYPES
       </title>
+<script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery-1.9.1.js"></script>
 <script language="JavaScript">
 	function popupPage(vheight,vwidth,title,varpage) {
 		var page = "" + varpage;
@@ -108,6 +116,15 @@
 		  } 
 		}
 	}
+    function toggleReason() {
+        $('#reasonCode').toggle();
+	    $('#newReasonCode').toggle();
+	    if($('#newReasonCode').css('display') == 'none'){
+            $('#newReasonCode').val('');
+        } else {
+            $('#newReasonCode').focus();
+        }
+    }
 </script>
     </head>
     <body topmargin="0" leftmargin="0" rightmargin="0">
@@ -157,8 +174,33 @@
 			            				<td width="25%"> <INPUT TYPE="TEXT" NAME="duration" VALUE="<bean:write name="AppointmentTypeForm" property="duration"/>" WIDTH="5" HEIGHT="20" border="0"  onChange="checkTimeTypeIn(this)"> </td> 
           							</tr> 
           							<tr valign="middle" BGCOLOR="#EEEEFF"> 
-            							<td > <div align="right"><font face="arial"><font face="arial">Reason:</font></font></div></td> 
-            							<td > <TEXTAREA NAME="reason" COLS="40" ROWS="2" border="0" hspace="2"><bean:write name="AppointmentTypeForm" property="reason"/></TEXTAREA> </td> 
+            							<td>
+                                            <div align="right"><font face="arial"><font face="arial">Reason:</font></font></div>
+                                        </td>
+            							<td >
+                                            <input type="text" id="newReasonCode" name="newReasonCode" style="display: none" ondblclick="toggleReason();" />
+                                            <select id="reasonCode" name="reasonCode" ondblclick="toggleReason();">
+                                                <option value="0" selected></option>
+                                                <%
+                                                    Integer apptReasonCode = (request.getParameter("reasonCode") == null? null : Integer.valueOf(request.getParameter("reasonCode")));
+                                                    if(reasonCodes != null) {
+                                                        for(LookupListItem reasonCode : reasonCodes.getItems()) {
+                                                            if(reasonCode.isActive()) {
+                                                %>
+                                                <option value="<%=reasonCode.getId()%>" <%=(apptReasonCode == null)?(""):(apptReasonCode.equals(reasonCode.getId())  ? "selected":"")%>>
+                                                    <%=StringEscapeUtils.escapeHtml(reasonCode.getLabel())%>
+                                                </option>
+                                                <%
+                                                        } } //end of for loop
+                                                } else {
+                                                %>
+                                                <option value="-1">Other</option>
+                                                <%
+                                                    }
+                                                %>
+                                            </select><br/>
+                                            <TEXTAREA NAME="reason" COLS="40" ROWS="2" border="0" hspace="2"><bean:write name="AppointmentTypeForm" property="reason"/></TEXTAREA>
+                                        </td>
             							<td > <div align="right"><font face="arial">Notes:</font></div></td> 
             							<td > <TEXTAREA NAME="notes"  COLS="40" ROWS="2" border="0" hspace="2"><bean:write name="AppointmentTypeForm" property="notes"/></TEXTAREA> </td> 
           							</tr> 
@@ -230,6 +272,10 @@ types = dao.listAll();
   String bgColor = "#EEEEFF";
   if(types != null && types.size()>0) {
   	for(AppointmentType type : types) {
+  	    String reasonCode = "";
+  	    if (lookupListManager.findLookupListItemById(LoggedInInfo.getLoggedInInfoFromSession(request),type.getReasonCode())!=null){
+  	        reasonCode = lookupListManager.findLookupListItemById(LoggedInInfo.getLoggedInInfoFromSession(request),type.getReasonCode()).getLabel() + " - ";
+        }
 		bgColor = bgColor.equals("#EEEEFF")?color:"#EEEEFF";
 %> 
           <tr bgcolor="<%=bgColor%>">
@@ -240,7 +286,7 @@ types = dao.listAll();
               <%= Integer.toString(type.getDuration()) %> min
             </th>
             <th >
-              <%= type.getReason() %>
+              <%= reasonCode + type.getReason() %>
             </th>
             <th >
               <%= type.getNotes() %>

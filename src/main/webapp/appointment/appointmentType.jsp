@@ -18,16 +18,19 @@
 
 --%>
 <%@ page import="java.util.*, java.sql.*, oscar.*, java.text.*, java.lang.*,java.net.*, oscar.appt.*, org.oscarehr.common.dao.AppointmentTypeDao, org.oscarehr.common.model.AppointmentType, org.oscarehr.util.SpringUtils" %>
+<%@ page import="org.oscarehr.common.dao.LookupListItemDao" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <%
 	AppointmentTypeDao appDao = (AppointmentTypeDao) SpringUtils.getBean("appointmentTypeDao");
 	List<AppointmentType> types = appDao.listAll();
+	LookupListItemDao lookupListItemDao = SpringUtils.getBean(LookupListItemDao.class);
 %>
 <html>
 <head>
 <title>Appointment Type</title>
 <script type="text/javascript">
 var dur = '';
+var reasonCode = '';
 var reason = '';
 var loc = '';
 var notes = '';
@@ -35,6 +38,7 @@ var resources = '';
 var names = '';
 <%   for(int j = 0;j < types.size(); j++) { %>
 		dur = dur + '<%= types.get(j).getDuration() %>'+',';
+		reasonCode = reasonCode + '<%= types.get(j).getReasonCode() %>_<%=lookupListItemDao.find(types.get(j).getReasonCode())!=null?lookupListItemDao.find(types.get(j).getReasonCode()).getLabel():""%>'+',';
 		reason = reason + '<%= types.get(j).getReason() %>'+',';
 		loc = loc + '<%= types.get(j).getLocation() %>'+',';
 		notes = notes + '<%= types.get(j).getNotes() %>'+',';
@@ -42,6 +46,7 @@ var names = '';
 		names = names + '<%= types.get(j).getName() %>'+',';
 <%   } %>
 	var durArray = dur.split(",");
+	var reasonCodeArray = reasonCode.split(",");
 	var reasonArray = reason.split(",");
 	var locArray = loc.split(",");
 	var notesArray = notes.split(",");
@@ -49,6 +54,8 @@ var names = '';
 	var nameArray = names.split(",");
 	
 	var typeSel = '';
+	var reasonCodeSel = '';
+	var reasonCodeSelLabel = '';
 	var reasonSel = '';
 	var locSel = '';
 	var durSel = 15;
@@ -59,6 +66,8 @@ function getFields(idx) {
 	if(idx>0) {
 		typeSel = document.getElementById('durId').innerHTML = nameArray[idx-1];
 		durSel = document.getElementById('durId').innerHTML = durArray[idx-1];
+        reasonCodeSelLabel = document.getElementById('reasonCodeId').innerHTML = reasonCodeArray[idx-1].split('_')[1];
+        reasonCodeSel = reasonCodeArray[idx-1].split('_')[0];
 		reasonSel = document.getElementById('reasonId').innerHTML = reasonArray[idx-1];
 		locSel = document.getElementById('locId').innerHTML = locArray[idx-1];
 		notesSel = document.getElementById('notesId').innerHTML = notesArray[idx-1];
@@ -80,11 +89,15 @@ function getFields(idx) {
 <%   } %>
 			</select>
 		</td>
-		<td><input type="button" name="Select" value="Select" onclick="window.opener.setType(typeSel,reasonSel,locSel,durSel,notesSel,resSel); window.close()">
+		<td><input type="button" name="Select" value="Select" onclick="window.opener.setType(typeSel,reasonCodeSel,reasonSel,locSel,durSel,notesSel,resSel); window.close()">
 	</tr>
 	<tr>
 		<td>Duration</td>
 		<td colspan="2"><div id="durId"></div></td>
+	</tr>
+	<tr>
+		<td>Reason Code</td>
+		<td colspan="2"><span id="reasonCodeId"/></td>
 	</tr>
 	<tr>
 		<td>Reason</td>

@@ -420,12 +420,13 @@ function pasteAppt(multipleSameDayGroupAppt) {
 		}
 	}
 
-	function setType(typeSel,reasonSel,locSel,durSel,notesSel,resSel) {
+	function setType(typeSel,reasonCodeSel,reasonSel,locSel,durSel,notesSel,resSel) {
 		  document.forms['ADDAPPT'].type.value = typeSel;
 		  document.forms['ADDAPPT'].duration.value = durSel;
 		  document.forms['ADDAPPT'].notes.value = notesSel;
 		  document.forms['ADDAPPT'].duration.value = durSel;
 		  document.forms['ADDAPPT'].resources.value = resSel;
+		  document.forms['ADDAPPT'].reason.value = reasonSel;
 		  var loc = document.forms['ADDAPPT'].location;
 		  if(loc.nodeName == 'SELECT') {
 		          for(c = 0;c < loc.length;c++) {
@@ -438,7 +439,7 @@ function pasteAppt(multipleSameDayGroupAppt) {
 		  } else if (loc.nodeName == "INPUT") {
 			  document.forms['ADDAPPT'].location.value = locSel;
 		  }
-        var reasonOption = $("select[name='reasonCode'] option:contains('" + reasonSel + "')");
+        var reasonOption = $("select[name='reasonCode'] option[value='" + reasonCodeSel + "']");
         if (reasonOption.length > 0) {
             reasonOption[0].selected = true;
         }

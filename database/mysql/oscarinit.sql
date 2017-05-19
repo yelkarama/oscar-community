@@ -9230,6 +9230,7 @@ CREATE TABLE `appointmentType` (
   `id` int(12) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NULL,
   `notes` varchar(80) NULL,
+  `reasonCode` int(11) DEFAULT 0,
   `reason` varchar(80) NULL,
   `location` varchar(30) NULL,
   `resources` varchar(10) NULL,
