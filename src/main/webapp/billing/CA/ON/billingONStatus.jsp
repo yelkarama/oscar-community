@@ -624,7 +624,7 @@ Visit Location:<br>
        <input type="radio" name="statusType" value="P" <%=statusType.equals("P")?"checked":""%>>Bill Patient</input>
         <!--li><input type="radio" name="statusType" value="N" <%=statusType.equals("N")?"checked":""%>>Do Not Bill</input>
        <input type="radio" name="statusType" value="W" <%=statusType.equals("W")?"checked":""%>>WCB</input>-->
-       <input type="radio" name="statusType" value="B" <%=statusType.equals("B")?"checked":""%>>Submmitted OHIP</input>
+       <input type="radio" name="statusType" value="B" <%=statusType.equals("B")?"checked":""%>>Submitted OHIP</input>
        <input type="radio" name="statusType" value="S" <%=statusType.equals("S")?"checked":""%>>Settled/Paid</input>
        <input type="radio" name="statusType" value="X" <%=statusType.equals("X")?"checked":""%>>Bad Debt</input>
        <input type="radio" name="statusType" value="D" <%=statusType.equals("D")?"checked":""%>>Deleted Bill</input>
