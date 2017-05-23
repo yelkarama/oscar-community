@@ -151,7 +151,8 @@ if((serviceCode == null || billingForm == null) && dx.length()<2 && visitType.le
 
 RAData raData = new RAData();
 
-BigDecimal total = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP); 
+BigDecimal total = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);
+BigDecimal feeTotal = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);
 BigDecimal paidTotal = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);
 BigDecimal adjTotal = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);
 
@@ -726,6 +727,8 @@ if(statusType.equals("_")) { %>
 	
 
 	for(int i=0; i<lPat.size(); i++) {
+
+	    patientCount++;
 		BillingErrorRepData bObj = (BillingErrorRepData) lPat.get(i);
 		BillingONCHeader1 billCheader1 = cheader1Dao.find(Integer.parseInt(bObj.getBilling_no()));
 		String color = "";
@@ -755,7 +758,7 @@ if(statusType.equals("_")) { %>
     				String formattedFee = null;
     				try {
     				    formattedFee = String.valueOf(Integer.parseInt(bObj.getFee()));
-    				    
+						feeTotal = feeTotal.add(new BigDecimal(ch2StdCurrFromNoDot(formattedFee)));
     				}
     				catch( NumberFormatException e ) {
     				    formattedFee = "N/A";
@@ -773,7 +776,27 @@ if(statusType.equals("_")) { %>
     			</td>
     			<td id="<%=bObj.getId() %>"><%=bObj.getReport_name() %></td>
     		</tr>
-<% }}} else { %>
+<% }} %>
+		   <tr class="warning">
+			   <td>Count:</td>
+			   <td align="center"><%=patientCount%></td>
+			   <td align="center" class="<%=hideName?"hidden-print":""%>">&nbsp;</td>
+			   <td>&nbsp;</td>
+			   <td>&nbsp;</td>
+			   <td>&nbsp;</td>
+			   <td>&nbsp;</td>
+			   <td>&nbsp;</td>
+			   <td>Total:</td>
+			   <td align="right"><%=feeTotal.toString()%></td>
+			   <td>&nbsp;</td>
+			   <td>&nbsp;</td>
+			   <td>&nbsp;</td>
+			   <td>&nbsp;</td>
+			   <td>&nbsp;</td>
+			   <td>&nbsp;</td>
+			   <td>&nbsp;</td>
+		   </tr>
+        <%} else { %>
     <!--  div class="tableListing"-->
        <table class="table" id="bListTable">
           <thead>
