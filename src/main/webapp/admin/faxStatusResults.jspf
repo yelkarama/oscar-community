@@ -49,6 +49,9 @@ if(!authed) {
 	    else if( faxJob.getFile_name().indexOf("fax") > -1 ) {
 			type = "RECEIVED FAX";
 	    }
+		else if( faxJob.getFile_name().indexOf("EForm") > -1 ) {
+			type = "EFORM";
+		}
     
 	    String providerName = "N/A";
 	    String demographicName = "N/A";
