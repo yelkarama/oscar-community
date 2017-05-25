@@ -1532,8 +1532,7 @@ function updateFaxButton() {
 						<% // Determine if curUser has selected a default practitioner in preferences
 							UserProperty refPracProp = userPropertyDAO.getProp(providerNo,  UserProperty.DEFAULT_REF_PRACTITIONER);
 							String refPrac = "";
-							if (refPracProp.getValue() != null) 
-							{
+							if (refPracProp != null && refPracProp.getValue() != null) {
 								refPrac = refPracProp.getValue();
 							}
 						%>
