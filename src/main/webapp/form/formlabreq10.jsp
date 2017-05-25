@@ -373,6 +373,7 @@ var maxYear=3100;
     providerData['<%=prov_no%>'].formatted_name = "<%=p.getFormattedName() %>";
     providerData['<%=prov_no%>'].prac_no = "<%=practitionerNo %>";
 	providerData['<%=prov_no%>'].ohip_no = "<%=num%>";
+	providerData['<%=prov_no%>'].specialty = "<%=p.getSpecialty()%>";
     <%	}
     }
 
@@ -424,10 +425,13 @@ if (OscarProperties.getInstance().getBooleanProperty("consultation_program_lette
             $("input[name='reqProvName']").val(providerData[value]['formatted_name']);
 
             
-            if (providerData[value]['ohip_no'] != "") {
+            if (providerData[value]['ohip_no'] != "" &&  providerData[value]['specialty'].toUpperCase() != 'NP') {
 				$("#pracNo").html(providerData[value]['prac_no']);
 				$("input[name='practitionerNo']").val(providerData[value]['prac_no']);
-			} else { // If the requesting physician does not have a billing number, use MRP's
+			} else if ("prov_<%=props.getProperty("mrp", "")%>" != "") { // If the requesting physician does not have a billing number, use MRP's
+				$("#pracNo").html(providerData["prov_<%=props.getProperty("mrp", "")%>"]['prac_no']);
+				$("input[name='practitionerNo']").val(providerData["prov_<%=props.getProperty("mrp", "")%>"]['prac_no']);
+			} else { //else just use the requesting physician's ohip number
 				$("#pracNo").html("<%=props.getProperty("practitionerNo", "")%>");
 				$("input[name='practitionerNo']").val("<%=props.getProperty("practitionerNo", "")%>");
 			}
