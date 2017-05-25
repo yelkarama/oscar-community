@@ -75,7 +75,9 @@ if(!authed) {
 <%@page import="org.oscarehr.common.model.ConsultationServices" %>
 <%@ page import="java.net.URLEncoder" %>
 <%@ page import="org.oscarehr.common.dao.*" %>
+<%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
 <jsp:useBean id="displayServiceUtil" scope="request" class="oscar.oscarEncounter.oscarConsultationRequest.config.pageUtil.EctConDisplayServiceUtil" />
+<jsp:useBean id="providerBean" class="java.util.Properties"	scope="session" />
 
 <html:html locale="true">
 
@@ -1527,10 +1529,11 @@ function updateFaxButton() {
                     </tr>
                     <tr>
 					<td>
-						<% // Determine if curUser has selected a default sex in preferences
+						<% // Determine if curUser has selected a default practitioner in preferences
 							UserProperty refPracProp = userPropertyDAO.getProp(providerNo,  UserProperty.DEFAULT_REF_PRACTITIONER);
 							String refPrac = "";
-							if (refPracProp != null) {
+							if (refPracProp.getValue() != null) 
+							{
 								refPrac = refPracProp.getValue();
 							}
 						%>
@@ -1541,16 +1544,44 @@ function updateFaxButton() {
 							<td align="right" class="tite1">
 								<html:select property="providerNo" onchange="switchProvider(this.value)">
 									<%
-										for (Provider p : prList) {
-											if (p.getPractitionerNo() != null && p.getPractitionerNo().length() > 0) {
+										DemographicDao demographicDao=(DemographicDao)SpringUtils.getBean("demographicDao");
+										ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
+										demographic = demographicDao.getDemographic(demo);
+										String practitionerNo = consultUtil.providerNo;
+										if (practitionerNo==null) {practitionerNo="";}
+										
+										if (practitionerNo.isEmpty() || practitionerNo.equals("-1"))
+										{
+										    if (refPrac.equalsIgnoreCase("all"))
+											{
+												String loggedInPractitionerNo = loggedInInfo.getLoggedInProvider().getPractitionerNo();
+
+												if (loggedInPractitionerNo != null && !loggedInPractitionerNo.equals(""))
+												{
+													practitionerNo = loggedInPractitionerNo;
+												}
+												else if (demographic.getProvider() != null && !demographic.getProvider().equals("") && demographic.getProvider().getPractitionerNo() != null && !demographic.getProvider().getPractitionerNo().equals(""))
+												{
+													practitionerNo = demographic.getProvider().getPractitionerNo();
+												}
+											}
+											else
+											{
+											    practitionerNo = refPrac;
+											}
+										}
+										List<org.oscarehr.common.model.Provider>prPracList = providerDao.getDoctorsWithPractionerNo();
+										for (org.oscarehr.common.model.Provider p : prPracList) {
+													if (p.getProviderNo().compareTo("-1") != 0) 
+													{
+														 
 									%>
-									<option value="<%=p.getProviderNo() %>" <%=refPrac.equalsIgnoreCase(p.getFormattedName())?"selected='selected'":""%>>
+									<option value="<%=p.getProviderNo() %>" <%= p.getPractitionerNo().equals(practitionerNo) ? "selected='selected'" : ""%> >
 										<%=p.getFormattedName() %>
 									</option>
-									<% }
-
-								}
-								%>
+									<% } 
+									}
+									%>
 								</html:select>
 							</td>
 						</tr>
