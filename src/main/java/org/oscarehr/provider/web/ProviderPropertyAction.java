@@ -239,9 +239,12 @@ public class ProviderPropertyAction extends DispatchAction {
         optionList.add(new LabelValueBean("All Practitioners", "all"));
         for (RxProviderData.Provider doctor : prList) 
         {
-            if (doctor.getPractitionerNo().length() > 0)
+            if (doctor.getPractitionerNo() != null)
             {
-                optionList.add(new LabelValueBean(doctor.getFormattedName(), doctor.getFormattedName()));   
+                if (doctor.getPractitionerNo().length() > 0)
+                {
+                    optionList.add(new LabelValueBean(doctor.getFormattedName(), doctor.getPractitionerNo()));
+                }  
             }
         }
 
