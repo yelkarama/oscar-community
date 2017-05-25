@@ -970,13 +970,25 @@ function showHideBox(layerName, iState) { // 1 visible, 0 hidden
     }
 }
 
-function onHistory() {
-    //alert(dd);
+function onHistory(type) {
     <%
-    	DemographicDao demographicDao=(DemographicDao)SpringUtils.getBean("demographicDao");
-     	Demographic demographic = demographicDao.getDemographic(demo_no);
+        DemographicDao demographicDao = (DemographicDao)SpringUtils.getBean("demographicDao");
+        Demographic demographic = demographicDao.getDemographic(demo_no);
     %>
-    popupPage(500,800,'billinghistory.jsp?demographic_no=<%=demographic.getDemographicNo()%>&last_name=<%=URLEncoder.encode(demographic.getLastName())%>&first_name=<%=URLEncoder.encode(demographic.getFirstName())%>&orderby=appointment_date&displaymode=appt_history&dboperation=appt_history&limit1=0&limit2=10');
+    
+    var dd = document.forms[0].day.value;
+    //alert(dd);
+	
+	if (type == 'day')
+	{
+        popupPage(800,640,"billingONHistorySpec.jsp?demographic_no=<%=demo_no%>&demo_name=<%=URLEncoder.encode(demoname,"UTF-8")%>&orderby=appointment_date&day=" + dd); 
+	}
+	else
+	{
+        popupPage(800,640,'billinghistory.jsp?demographic_no=<%=demographic.getDemographicNo()%>&last_name=<%=URLEncoder.encode(demographic.getLastName())%>&first_name=<%=URLEncoder.encode(demographic.getFirstName())%>&orderby=appointment_date&displaymode=appt_history&dboperation=appt_history&limit1=0&limit2=10');
+	}
+	
+    
 }
 
 function prepareBack() {
@@ -1990,8 +2002,15 @@ function changeSite(sel) {
 			class="myIvory">
 			<tr class="myYellow">
 				<td><%=demoname%> - <b>Billing History</b> <% if(maxResults > -1){ %>(last <%=maxResults%> records)<% } %></td>
-				<td width="20%" align="right">View Full History&nbsp;<input type="button"
-					name="buttonDay" value="Go" onClick="onHistory(); return false;" />
+				<td width="20%" align="right">Last <input type="text"
+					name="day" value="365" size="3" /> days <input type="button"
+					name="buttonDay" value="Go" onClick="onHistory('day'); return false;" />
+				</td>
+			</tr>
+			<tr class="myYellow">
+				<td></td>
+				<td align="right">
+					View Fully History&nbsp; <input type="button" name="buttonAll" value="Go" onClick="onHistory('all'); return false;"/>
 				</td>
 			</tr>
 		</table>
