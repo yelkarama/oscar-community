@@ -262,7 +262,7 @@ public class PreventionData {
 				h.put("refused", prevention.isRefused() ? "1" : prevention.isIneligible() ? "2" : "0");
 				h.put("type", prevention.getPreventionType());
 				h.put("provider_no", prevention.getProviderNo());
-				h.put("provider_name", prevention.getProviderName());
+				h.put("provider_name", prevention.getProviderName()!=null&&prevention.getProviderName().trim().length()>0?prevention.getProviderName():ProviderData.getProviderName(prevention.getProviderNo()));
 
 				Date pDate = prevention.getPreventionDate();
 				h.put("prevention_date", blankIfNull(UtilDateUtilities.DateToString(pDate, "yyyy-MM-dd HH:mm")));
@@ -459,7 +459,7 @@ public class PreventionData {
 			Prevention prevention = preventionDao.find(Integer.valueOf(id));
 			if (prevention != null) {
 				h = new HashMap<String, Object>();
-				String providerName = prevention.getProviderName();
+				String providerName = prevention.getProviderName()!=null&&prevention.getProviderName().trim().length()>0?prevention.getProviderName():ProviderData.getProviderName(prevention.getProviderNo());
 				String preventionDate = UtilDateUtilities.DateToString(prevention.getPreventionDate(), "yyyy-MM-dd HH:mm");
 				String lastUpdateDate = UtilDateUtilities.DateToString(prevention.getLastUpdateDate(), "yyyy-MM-dd");
 				@SuppressWarnings("deprecation")
