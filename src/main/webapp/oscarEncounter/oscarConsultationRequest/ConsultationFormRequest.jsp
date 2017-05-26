@@ -1546,7 +1546,13 @@ function updateFaxButton() {
 										DemographicDao demographicDao=(DemographicDao)SpringUtils.getBean("demographicDao");
 										ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
 										demographic = demographicDao.getDemographic(demo);
-										String practitionerNo = consultUtil.providerNo;
+										
+										if (consultUtil.providerNo==null) {consultUtil.providerNo = "";}
+										org.oscarehr.common.model.Provider prov = providerDao.getProvider(consultUtil.providerNo);
+										
+										String practitionerNo = "";
+										boolean exisitingConsultNoCPSO = false;
+										if (prov != null && prov.getPractitionerNo() != null && !prov.getPractitionerNo().equalsIgnoreCase("")) { practitionerNo = prov.getPractitionerNo(); }
 										if (practitionerNo==null) {practitionerNo="";}
 										
 										if (practitionerNo.isEmpty() || practitionerNo.equals("-1"))
@@ -1570,12 +1576,15 @@ function updateFaxButton() {
 											}
 										}
 										List<org.oscarehr.common.model.Provider>prPracList = providerDao.getDoctorsWithPractionerNo();
+
+										if (consultUtil.providerNo!=null && prov != null && prov.getPractitionerNo().isEmpty()) {prPracList.add(prov); exisitingConsultNoCPSO = true;}
+										
 										for (org.oscarehr.common.model.Provider p : prPracList) {
 													if (p.getProviderNo().compareTo("-1") != 0) 
 													{
 														 
 									%>
-									<option value="<%=p.getProviderNo() %>" <%= p.getPractitionerNo().equals(practitionerNo) ? "selected='selected'" : ""%> >
+									<option value="<%=p.getProviderNo() %>" <%=!exisitingConsultNoCPSO?(p.getPractitionerNo().equals(practitionerNo) ? "selected='selected'" : ""):(p.getProviderNo().equals((prov.getProviderNo()))?"selected='selected'":"")%> >
 										<%=p.getFormattedName() %>
 									</option>
 									<% } 
