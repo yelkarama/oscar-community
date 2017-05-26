@@ -1551,7 +1551,7 @@ function updateFaxButton() {
 										
 										if (practitionerNo.isEmpty() || practitionerNo.equals("-1"))
 										{
-										    if (refPrac.equalsIgnoreCase("all"))
+										    if (refPrac.equalsIgnoreCase("all") || refPrac.equalsIgnoreCase(""))
 											{
 												String loggedInPractitionerNo = loggedInInfo.getLoggedInProvider().getPractitionerNo();
 
