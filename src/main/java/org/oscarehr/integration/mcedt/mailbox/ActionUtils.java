@@ -307,6 +307,7 @@ public class ActionUtils {
 			OscarProperties props = OscarProperties.getInstance();
 			File generatedFiles = new File(props.getProperty("HOME_DIR", ""));
 			File outbox = new File(props.getProperty("ONEDT_OUTBOX", ""));
+			File sent = new File(props.getProperty("ONEDT_SENT", ""));
 			FileFilter fileFilter = new FileFilter() {
 				public boolean accept(File file) {
 					return (file.isFile() && !file.isHidden() && ActionUtils.isOHIPFile(file.getName()));
@@ -320,11 +321,13 @@ public class ActionUtils {
 					}
 				});
 				for (File file : toOutbox) {
-					if (new Date(file.lastModified()).after(startDate) && new Date(file.lastModified()).before(endDate)) copyFileToDirectory(file, outbox, false, true);
+					Boolean alreadySent = new File(sent.getAbsolutePath()+ File.separator + file.getName()).exists();
+					if (new Date(file.lastModified()).after(startDate) && new Date(file.lastModified()).before(endDate) && !alreadySent) copyFileToDirectory(file, outbox, false, true);
 				}
 			}
 			for (File file : toOutbox) {
-				if (new Date(file.lastModified()).after(startDate) && new Date(file.lastModified()).before(endDate)) copyFileToDirectory(file, outbox,false, true);
+				Boolean alreadySent = new File(sent.getAbsolutePath()+ File.separator + file.getName()).exists();
+				if (new Date(file.lastModified()).after(startDate) && new Date(file.lastModified()).before(endDate) && !alreadySent) copyFileToDirectory(file, outbox,false, true);
 			}
 		} catch (Exception e) {
 			logger.error("Unable to copy OHIP files to outbox", e);
@@ -336,6 +339,7 @@ public class ActionUtils {
 			OscarProperties props = OscarProperties.getInstance();
 			File generatedFiles = new File(props.getProperty("DOCUMENT_DIR", ""));
 			File outbox = new File(props.getProperty("ONEDT_OUTBOX", ""));
+			File sent = new File(props.getProperty("ONEDT_SENT", ""));
 			FileFilter fileFilter = new FileFilter() {
 				public boolean accept(File file) {
 					return (file.isFile() && !file.isHidden() && ActionUtils.isOBECFile(file.getName()));
@@ -349,7 +353,8 @@ public class ActionUtils {
 					}
 				});
 				for (File file : toOutbox) {
-					if (new Date(file.lastModified()).after(startDate) && new Date(file.lastModified()).before(endDate)) copyFileToDirectory(file, outbox, false, true);
+					Boolean alreadySent = new File(sent.getAbsolutePath()+ File.separator + file.getName()).exists();
+					if (new Date(file.lastModified()).after(startDate) && new Date(file.lastModified()).before(endDate) && !alreadySent) copyFileToDirectory(file, outbox, false, true);
 				}
 			}
 			
