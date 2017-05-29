@@ -858,7 +858,7 @@ if(statusType.equals("_")) { %>
 	    	   amountPaid = ch1Obj.getPaid();
 	       }
 	       
-	       int qty = ch1Obj.getNumItems();
+	       float qty = ch1Obj.getNumItems();
 	       
     	   amountPaid = (amountPaid==null||amountPaid.equals("")||amountPaid.equals("null"))? "0.00" : amountPaid;
 	       
