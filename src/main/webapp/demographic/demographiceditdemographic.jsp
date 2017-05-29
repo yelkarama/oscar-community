@@ -2317,6 +2317,8 @@ if ( Dead.equals(PatStat) ) {%>
 							</li>
 							<li><span class="label">Referral Doctor Phone #:</span> <span class="info" id="refDocPhone"></span></li>
 							<li><span class="label">Referral Doctor Fax #:</span> <span class="info" id="refDocFax"></span></li>
+							<li><span class="label">Referral Doctor Private Phone #:</span> <span class="info" id="refDocPrivPhone"></span></li>
+							<li><span class="label">Referral Doctor Address:</span> <span class="info" id="refDocAddress"></span></li>
                                                     <li><span class="label"><bean:message
                                                             key="demographic.demographiceditdemographic.formRefDocNo" />:</span><span class="info"><%=rdohip%></span>
 							</li>
