@@ -38,6 +38,7 @@ import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -307,7 +308,6 @@ public class ActionUtils {
 			OscarProperties props = OscarProperties.getInstance();
 			File generatedFiles = new File(props.getProperty("HOME_DIR", ""));
 			File outbox = new File(props.getProperty("ONEDT_OUTBOX", ""));
-			File sent = new File(props.getProperty("ONEDT_SENT", ""));
 			FileFilter fileFilter = new FileFilter() {
 				public boolean accept(File file) {
 					return (file.isFile() && !file.isHidden() && ActionUtils.isOHIPFile(file.getName()));
@@ -321,12 +321,12 @@ public class ActionUtils {
 					}
 				});
 				for (File file : toOutbox) {
-					Boolean alreadySent = new File(sent.getAbsolutePath()+ File.separator + file.getName()).exists();
+					Boolean alreadySent = isSent(file);
 					if (new Date(file.lastModified()).after(startDate) && new Date(file.lastModified()).before(endDate) && !alreadySent) copyFileToDirectory(file, outbox, false, true);
 				}
 			}
 			for (File file : toOutbox) {
-				Boolean alreadySent = new File(sent.getAbsolutePath()+ File.separator + file.getName()).exists();
+				Boolean alreadySent = isSent(file);
 				if (new Date(file.lastModified()).after(startDate) && new Date(file.lastModified()).before(endDate) && !alreadySent) copyFileToDirectory(file, outbox,false, true);
 			}
 		} catch (Exception e) {
@@ -339,7 +339,6 @@ public class ActionUtils {
 			OscarProperties props = OscarProperties.getInstance();
 			File generatedFiles = new File(props.getProperty("DOCUMENT_DIR", ""));
 			File outbox = new File(props.getProperty("ONEDT_OUTBOX", ""));
-			File sent = new File(props.getProperty("ONEDT_SENT", ""));
 			FileFilter fileFilter = new FileFilter() {
 				public boolean accept(File file) {
 					return (file.isFile() && !file.isHidden() && ActionUtils.isOBECFile(file.getName()));
@@ -353,7 +352,7 @@ public class ActionUtils {
 					}
 				});
 				for (File file : toOutbox) {
-					Boolean alreadySent = new File(sent.getAbsolutePath()+ File.separator + file.getName()).exists();
+					Boolean alreadySent = isSent(file);
 					if (new Date(file.lastModified()).after(startDate) && new Date(file.lastModified()).before(endDate) && !alreadySent) copyFileToDirectory(file, outbox, false, true);
 				}
 			}
@@ -527,5 +526,20 @@ public class ActionUtils {
 		OscarProperties props = OscarProperties.getInstance();
 		String serviceId = props.getProperty("mcedt.service.id");
 		return serviceId;
+	}
+
+	public static Boolean isSent(File file){
+		Boolean alreadySent = false;
+		OscarProperties props = OscarProperties.getInstance();
+		File sentFile = new File(props.getProperty("ONEDT_SENT", "")+ File.separator + file.getName());
+		Calendar fileDate = Calendar.getInstance();
+		fileDate.setTime(new Date(file.lastModified()));
+
+		if(sentFile.exists()){
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(new Date(sentFile.lastModified()));
+			alreadySent = calendar.get(Calendar.YEAR) == fileDate.get(Calendar.YEAR);
+		}
+		return alreadySent;
 	}
 }
