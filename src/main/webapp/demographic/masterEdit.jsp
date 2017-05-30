@@ -980,7 +980,7 @@ function updateStatusDate(patientOrRoster){
         patientStatus = document.updatedelete.patientstatus_date;
 
         if(patientStatus.value == ""){
-            patientStatus.value = d.getFullYear() + "-" + d.getMonth() + 1 + "-" + d.getDate();
+            patientStatus.value = d.toISOString().substring(0, 10);
         }
 	}
 	else if (patientOrRoster == "roster"){
@@ -989,7 +989,7 @@ function updateStatusDate(patientOrRoster){
 
 		if(rosterStatusDate.value == "" ){
 		    if (selectedRosterStatus == "RO" || selectedRosterStatus == "NR"){
-				rosterStatusDate.value = d.getFullYear() + "-" + d.getMonth() + 1 + "-" + d.getDate();
+				rosterStatusDate.value = d.toISOString().substring(0, 10);
 			}
 		}
 	}
