@@ -77,7 +77,18 @@ jQuery(function() {
 <body>
 <h4>Hospital Report Manager</h4>
 <% if (request.getParameter("fetch") != null && request.getParameter("fetch").equalsIgnoreCase("true"))
-		new SFTPConnector().startAutoFetch(loggedInInfo);
+    try {
+		new SFTPConnector().startAutoFetch(loggedInInfo); }
+
+	catch (Exception e){
+    	String error = "";
+    	if (e.toString()!=null){
+    	    // get general exception message
+			error = e.toString();
+		}
+%>
+<div class="alert alert-danger"><b>ERROR: </b><%=error%></div>
+	<%}
 %>
 <p>
 	HRM Status: <%=SFTPConnector.isFetchRunning() ? "Fetching data from HRM" : "Idle" %><br />
