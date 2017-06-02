@@ -424,21 +424,26 @@ public class HRMReportParser {
 
 		if (OscarProperties.getInstance().isPropertyActive("queens_resident_tagging")) {
 			DemographicDao demographicDao = (DemographicDao) SpringUtils.getBean("demographicDao");
-			Demographic demographic = demographicDao.searchDemographicByHIN(report.getHCN()).get(0);
-			DemographicCustDao demographicCustDao = SpringUtils.getBean(DemographicCustDao.class);
-			//add mrp if not already in list
-			if (sendToProvider != null && !sendToProvider.getProviderNo().equals(demographic.getProviderNo())) { sendToProviderList.add(demographic.getProvider()); }
-			//get and add alt providers
-			List<DemographicCust> demographicCust = demographicCustDao.findAllByDemographicNumber(demographic.getDemographicNo());
-			if (demographicCust.size() > 0) {
-				ArrayList<String> residentIds = new ArrayList<String>();
-				residentIds.add(demographicCust.get(0).getMidwife());
-				residentIds.add(demographicCust.get(0).getNurse());
-				residentIds.add(demographicCust.get(0).getResident());
-				for (String residentId : residentIds) {
-					if (residentId != null && !residentId.equals("")) {
-						Provider p = providerDao.getProvider(residentId);
-						if (p != null) { sendToProviderList.add(p); }
+			List<Demographic> matchingDemographicListByHin = demographicDao.searchDemographicByHIN(report.getHCN());
+			if (!matchingDemographicListByHin.isEmpty()) {
+				Demographic demographic = demographicDao.searchDemographicByHIN(report.getHCN()).get(0);
+				DemographicCustDao demographicCustDao = SpringUtils.getBean(DemographicCustDao.class);
+				//add mrp if not already in list
+				if (sendToProvider != null && !sendToProvider.getProviderNo().equals(demographic.getProviderNo())) {
+					sendToProviderList.add(demographic.getProvider());
+				}
+				//get and add alt providers
+				List<DemographicCust> demographicCust = demographicCustDao.findAllByDemographicNumber(demographic.getDemographicNo());
+				if (demographicCust.size() > 0) {
+					ArrayList<String> residentIds = new ArrayList<String>();
+					residentIds.add(demographicCust.get(0).getMidwife());
+					residentIds.add(demographicCust.get(0).getNurse());
+					residentIds.add(demographicCust.get(0).getResident());
+					for (String residentId : residentIds) {
+						if (residentId != null && !residentId.equals("")) {
+							Provider p = providerDao.getProvider(residentId);
+							if (p != null) { sendToProviderList.add(p); }
+						}
 					}
 				}
 			}
