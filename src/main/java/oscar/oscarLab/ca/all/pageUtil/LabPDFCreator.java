@@ -282,7 +282,12 @@ public class LabPDFCreator extends PdfPageEventHelper{
 		
 		if(handler.getMsgType().equals("CLS")) {
 			this.isUnstructuredDoc  = ((CLSHandler) handler).isUnstructured();
-		}	
+		}
+
+		if( handler.getMsgType().equals("MEDITECH") ) {
+			this.isUnstructuredDoc = ((MEDITECHHandler) handler).isUnstructured();
+		}
+
 		PdfPCell cell = new PdfPCell();
 		float[] mainTableWidths;
 		PdfPTable table = null;
