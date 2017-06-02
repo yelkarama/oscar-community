@@ -425,10 +425,10 @@ if (OscarProperties.getInstance().getBooleanProperty("consultation_program_lette
             $("input[name='reqProvName']").val(providerData[value]['formatted_name']);
 
             
-            if (providerData[value]['ohip_no'] != "" &&  providerData[value]['specialty'].toUpperCase() != 'NP') {
+            if (providerData[value]['ohip_no'] != "" && !providerData[value]['specialty'].toUpperCase().startsWith('NP')) {
 				$("#pracNo").html(providerData[value]['prac_no']);
 				$("input[name='practitionerNo']").val(providerData[value]['prac_no']);
-			} else if ("prov_<%=props.getProperty("mrp", "")%>" != "") { // If the requesting physician does not have a billing number, use MRP's
+			} else if ("<%=props.getProperty("mrp", "")%>" != "") { // If the requesting physician does not have a billing number, use MRP's
 				$("#pracNo").html(providerData["prov_<%=props.getProperty("mrp", "")%>"]['prac_no']);
 				$("input[name='practitionerNo']").val(providerData["prov_<%=props.getProperty("mrp", "")%>"]['prac_no']);
 			} else { //else just use the requesting physician's ohip number
