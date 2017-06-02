@@ -42,6 +42,7 @@
     LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
     
     String eChart$ = "_eChart$"+demographic$;
+    String eChartOverride = "_eChart+"+demographic$;
 
 %>
 <%
@@ -60,8 +61,10 @@ if(!authed) {
 
 <security:oscarSec roleName="<%=roleName$%>" objectName="<%=eChart$%>"
 	rights="o" reverse="<%=false%>">
+	<security:oscarSec roleName="<%=roleName$%>" objectName="<%=eChartOverride%>" rights="o" reverse="<%=true%>">
 You have no rights to access the data!
 <% response.sendRedirect("../acctLocked.html");  %>
+	</security:oscarSec>
 </security:oscarSec>
 
 <%-- only principal has the save rights --%>
