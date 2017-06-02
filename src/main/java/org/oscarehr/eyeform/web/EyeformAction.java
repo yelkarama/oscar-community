@@ -1346,6 +1346,10 @@ public class EyeformAction extends DispatchAction {
 				}
 				return x + "\n" + wrap(in.substring(in.indexOf("\n") + 1), len);
 			}
+			if (in.substring(0, len).contains(",")){
+				// add spaces to list of items and remove any additional spaces
+				in = in.replaceAll(",", ", ").replaceAll("\\s", " ");
+			}
 			int place=Math.max(Math.max(in.lastIndexOf(" ",len),in.lastIndexOf("\t",len)),in.lastIndexOf("-",len));
 			return in.substring(0,place).trim()+"\n"+wrap(in.substring(place),len);
 			}
