@@ -144,7 +144,8 @@ public class FrmLabReq10Record extends FrmRecord {
             mrp =  providerDao.getProvider(demoProvider);
 
             if (mrp != null) {
-                props.setProperty("provName", "MRP: " + mrp.getFormattedName());            
+                props.setProperty("provName", "MRP: " + mrp.getFormattedName());
+                props.setProperty("mrp", mrp.getProviderNo());
             }
         }
                         

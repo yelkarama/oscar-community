@@ -42,6 +42,7 @@ if(!authed) {
 <%@ page import="java.util.*, java.sql.*, oscar.*, java.text.*, oscar.login.*,java.net.*" errorPage="../appointment/errorpage.jsp"%>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.dao.AppointmentArchiveDao" %>
+<%@ page import="org.oscarehr.common.dao.AppointmentStatusDao" %>
 <%@ page import="org.oscarehr.common.dao.OscarAppointmentDao" %>
 <%@ page import="org.oscarehr.common.model.Appointment" %>
 
@@ -76,6 +77,7 @@ if(!authed) {
 
 	AppointmentArchiveDao appointmentArchiveDao = (AppointmentArchiveDao)SpringUtils.getBean("appointmentArchiveDao");
 	OscarAppointmentDao appointmentDao = (OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
+	AppointmentStatusDao appointmentStatusDao = SpringUtils.getBean(AppointmentStatusDao.class);
 	MyGroupDao myGroupDao = SpringUtils.getBean(MyGroupDao.class);
 	ProviderDataDao providerDataDao = SpringUtils.getBean(ProviderDataDao.class);
 
@@ -115,6 +117,8 @@ if (isSiteAccessPrivacy || isTeamAccessPrivacy) {
 		providerMap.put(providerData.getId(), "true");
 	}
 }
+//check if "Daysheet Printed" status exists
+String daysheetStatus = appointmentStatusDao.findByDescription("Daysheet Printed")!=null?appointmentStatusDao.findByDescription("Daysheet Printed").getStatus():null;
 %>
 <html:html locale="true">
 <head>
@@ -211,8 +215,9 @@ function hideOnSource(){
 			  org.oscarehr.util.MiscUtils.getLogger().error("Cannot archive appt",e);
 		  }
 	  for(Appointment a : appointmentDao.findByDayAndStatus(oscar.util.ConversionUtils.fromDateString(sdate), "t")) {
-		  if(a.getProviderNo().equals(provider_no)) {
-			  a.setStatus("T");
+
+		  if(a.getProviderNo().equals(provider_no) && daysheetStatus!=null) {
+			  a.setStatus(daysheetStatus);
 			  a.setLastUpdateUser((String) session.getAttribute("user"));
 			  a.setUpdateDateTime(new java.util.Date());
 			  appointmentDao.merge(a);
@@ -230,10 +235,12 @@ function hideOnSource(){
 			  org.oscarehr.util.MiscUtils.getLogger().error("Cannot archive appt",e);
 		  }
 	  for(Appointment a : appointmentDao.findByDayAndStatus(oscar.util.ConversionUtils.fromDateString(sdate), "t")) {
-		  a.setStatus("T");
-		  a.setLastUpdateUser((String) session.getAttribute("user"));
-		  a.setUpdateDateTime(new java.util.Date());
-		  appointmentDao.merge(a);
+	      if (daysheetStatus!=null){
+			  a.setStatus(daysheetStatus);
+			  a.setLastUpdateUser((String) session.getAttribute("user"));
+			  a.setUpdateDateTime(new java.util.Date());
+			  appointmentDao.merge(a);
+		  }
 	  }
     }
   }

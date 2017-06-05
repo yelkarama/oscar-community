@@ -120,11 +120,16 @@
   int nStrShowLen = 20;
   OscarProperties oscarProps = OscarProperties.getInstance();
 
+  String address = session.getAttribute("address")!=null?(String)session.getAttribute("address"):"";
+
   ProvinceNames pNames = ProvinceNames.getInstance();
   String prov= (props.getProperty("billregion","")).trim().toUpperCase();
 
   String billingCentre = (props.getProperty("billcenter","")).trim().toUpperCase();
-  String defaultCity = prov.equals("ON") ? (billingCentre.equals("N") ? "Toronto" : OscarProperties.getInstance().getProperty("default_city")) : "";
+  String defaultCity = session.getAttribute("city")!=null? (String) session.getAttribute("city") : (prov.equals("ON") ? (billingCentre.equals("N") ? "Toronto" : OscarProperties.getInstance().getProperty("default_city")) : "");
+
+  String postal = session.getAttribute("postal")!=null? (String) session.getAttribute("postal") : "";
+  String phone = session.getAttribute("phone")!=null? (String) session.getAttribute("phone") : props.getProperty("phoneprefix", "905-");
 
   WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
   CountryCodeDao ccDAO =  (CountryCodeDao) ctx.getBean("countryCodeDao");
@@ -150,7 +155,13 @@
      }
   }
   // Use this value as the default value for province, as well
-  String defaultProvince = HCType;
+  String defaultProvince = session.getAttribute("province")!=null?(String)session.getAttribute("province"):HCType;
+
+	session.removeAttribute("address");
+	session.removeAttribute("city");
+	session.removeAttribute("province");
+	session.removeAttribute("postal");
+	session.removeAttribute("phone");
 		  
 		  
 	//get a list of programs the patient has consented to. 
@@ -644,6 +655,7 @@ function ignoreDuplicates() {
           <input type="hidden" name="displaymode" value="Add Record">
 				<input type="submit" name="submit"
 					value="<bean:message key="demographic.demographicaddrecordhtm.btnAddRecord"/>">
+				<input type="submit" name="submit" value="Save & Add Family Member">
 				<input type="button" name="Button"
 					value="<bean:message key="demographic.demographicaddrecordhtm.btnSwipeCard"/>"
 					onclick="window.open('zadddemographicswipe.htm','', 'scrollbars=yes,resizable=yes,width=600,height=300')";>
@@ -686,6 +698,14 @@ function ignoreDuplicates() {
         <input type="text" name="first_name" id="first_name" onBlur="upCaseCtrl(this)"  value="<%=firstNameVal%>" size=30>
       </td>
     </tr>
+	<tr>
+		<td align="right"> <b><bean:message key="demographic.demographicaddrecordhtm.formPrefName"/><font color="red">:</font> </b></td>
+		<td id="prefName" align="left">
+			<input type="text" name="pref_name" id="pref_name" onBlur="upCaseCtrl(this)" size=30 value="">
+		</td>fuck
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+	</tr>
     <tr>
 	<td id="languageLbl" align="right"><b><bean:message key="demographic.demographicaddrecordhtm.msgDemoLanguage"/><font color="red">:</font></b></td>
 	<td id="languageCell" align="left">
@@ -738,7 +758,7 @@ function ignoreDuplicates() {
 			<tr valign="top">
 				<td id="addrLbl" align="right"><b><bean:message
 					key="demographic.demographicaddrecordhtm.formAddress" />: </b></td>
-				<td id="addressCell" align="left"><input id="address" type="text" name="address" size=40 />
+				<td id="addressCell" align="left"><input id="address" type="text" name="address" value="<%=address%>" size=40 />
 
 				</td>
 				<td id="cityLbl" align="right"><b><bean:message
@@ -844,7 +864,7 @@ function ignoreDuplicates() {
 				<% } else {
           out.print(oscarProps.getProperty("demographicLabelPostal"));
       	 } %> : </b></td>
-				<td id="postalCell" align="left"><input type="text" id="postal" name="postal"
+				<td id="postalCell" align="left"><input type="text" id="postal" name="postal" value="<%=postal%>"
 					onBlur="upCaseCtrl(this)"></td>
 			</tr>
 
@@ -853,7 +873,7 @@ function ignoreDuplicates() {
 					key="demographic.demographicaddrecordhtm.formPhoneHome" />: </b></td>
 				<td id="phoneCell" align="left"><input type="text" id="phone" name="phone"
 					onBlur="formatPhoneNum()"
-					value="<%=props.getProperty("phoneprefix", "905-")%>"> <bean:message
+					value="<%=phone%>"> <bean:message
 					key="demographic.demographicaddrecordhtm.Ext" />:<input
 					type="text" id="hPhoneExt" name="hPhoneExt" value="" size="4" /></td>
 				<td id="phoneWorkLbl" align="right"><b><bean:message
@@ -1653,6 +1673,7 @@ if(oscarVariables.getProperty("demographicExtJScript") != null) { out.println(os
 					value="add_record"> <input type="hidden" name="displaymode" value="Add Record">
 				<input type="submit" id="btnAddRecord" name="btnAddRecord" 
 					value="<bean:message key="demographic.demographicaddrecordhtm.btnAddRecord"/>">
+				<input type="submit" name="submit" value="Save & Add Family Member">
 				<input type="button" id="btnSwipeCard" name="Button"
 					value="<bean:message key="demographic.demographicaddrecordhtm.btnSwipeCard"/>"
 					onclick="window.open('zadddemographicswipe.htm','', 'scrollbars=yes,resizable=yes,width=600,height=300')";>

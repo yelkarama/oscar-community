@@ -650,6 +650,9 @@ function sendMRP(ele){
                                                                 var num=ar[1];
                                                                 num=num.replace(/\s/g,'');
                                                            if($("saveSucessMsg_"+num))     $("saveSucessMsg_"+num).show();
+                                                            if ($('docDesc_'+num).value!=""){
+                                                                $('faxFields_'+num).show();
+                                                            }
                                                            if($('saved'+num))      $('saved'+num).value='true';
                                                            if($('autocompletedemo'+num))
                                                                $('autocompletedemo'+num).disabled=true;
@@ -862,8 +865,8 @@ function sendMRP(ele){
                                 </table>
                             </form>
                         </fieldset>
-                        <% if (!StringUtils.isNullOrEmpty(demographicID) && !StringUtils.isNullOrEmpty(curdoc.getDescription()) && countValidProvider!=0){ %>
-                        <fieldset>
+                        <% Boolean faxEnabled = (!StringUtils.isNullOrEmpty(demographicID) && !StringUtils.isNullOrEmpty(curdoc.getDescription()) && countValidProvider!=0); %>
+                        <fieldset  id="faxFields_<%=docId%>"  <%=faxEnabled?"":"style='display:none'"%>  >
                             <script type="text/javascript">
                                 jQuery.noConflict();
                                 function faxDocument(docId){
@@ -963,7 +966,6 @@ function sendMRP(ele){
 
                             </form>
                         </fieldset>
-                        <% } %>
                     </td>
                 </tr>
                 <tr>

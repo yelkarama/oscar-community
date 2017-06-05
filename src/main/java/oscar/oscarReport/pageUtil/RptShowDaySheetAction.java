@@ -127,7 +127,7 @@ public class RptShowDaySheetAction extends Action {
 			appt.setProperty("Appointment Reason", currAppt.getReason());
 			appt.setProperty("Home Phone", demo.getPhone());
 			appt.setProperty("Date of Birth", df.format(demo.getBirthDay().getTime()));
-			appt.setProperty("Health Card Number", demo.getHin());
+			appt.setProperty("Health Card Number", demo.getHin() + " " + demo.getVer());
 			appointments.add(appt);
 		}
 		

@@ -2380,9 +2380,10 @@ function updateQty(element){
         new Ajax.Request(url,
         {method: 'post',postBody:data,asynchronous:false,
             onSuccess:function(transport){
+                var scriptId = transport.responseText.evalJSON().scriptId;
             	
                 callReplacementWebService("ListDrugs.jsp",'drugProfile');
-                popForm2(null);
+                popForm2(scriptId);
                 resetReRxDrugList();
             }});
         return false;

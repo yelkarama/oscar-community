@@ -188,7 +188,9 @@ oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBea
 				if($(value).siblings(".city").html().indexOf($("#pharmacyCitySearch").val()) >= 0){
                     if($(value).siblings(".postalCode").html().indexOf($("#pharmacyPostalCodeSearch").val()) >= 0) {
                         if ($(value).siblings(".fax").html().indexOf($("#pharmacyFaxSearch").val()) >= 0) {
-                            $(value).parent().show();
+							if ($(value).siblings(".fax").html().indexOf($("#pharmacyAddressSearch").val()) >= 0) {
+								$(value).parent().show();
+							}
                         }
                     }
 				}
@@ -203,7 +205,9 @@ oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBea
 				if($(value).siblings(".pharmacyName").html().indexOf($("#pharmacySearch").val()) >= 0){
                     if($(value).siblings(".postalCode").html().indexOf($("#pharmacyPostalCodeSearch").val()) >= 0) {
                         if ($(value).siblings(".fax").html().indexOf($("#pharmacyFaxSearch").val()) >= 0) {
-                            $(value).parent().show();
+							if ($(value).siblings(".fax").html().indexOf($("#pharmacyAddressSearch").val()) >= 0) {
+								$(value).parent().show();
+							}
                         }
                     }
 				}
@@ -255,6 +259,21 @@ oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBea
                 }
             });
         });
+
+		$("#pharmacyAddressSearch").keyup(function(){
+			$(".pharmacyItem").hide();
+			$.each($(".address"), function( key, value ) {
+				if($(value).html().indexOf($("#pharmacyAddressSearch").val()) >= 0 || $(value).html().split("-").join("").indexOf($("#pharmacyAddressSearch").val()) >= 0){
+					if($(value).siblings(".pharmacyName").html().indexOf($("#pharmacySearch").val()) >= 0){
+						if($(value).siblings(".city").html().indexOf($("#pharmacyCitySearch").val()) >= 0){
+							if($(value).siblings(".postalCode").html().indexOf($("#pharmacyPostalCodeSearch").val()) >= 0) {
+								$(value).parent().show();
+							}
+						}
+					}
+				}
+			});
+		});
 
       $(".pharmacyItem").click(function(){
 		  var pharmId = $(this).attr("pharmId");
@@ -375,6 +394,7 @@ function returnToRx(){
 					Postal Code&nbsp;&nbsp;<input type="text" id="pharmacyPostalCodeSearch" style="width: 75px"/> &nbsp;&nbsp;
 					Phone&nbsp;&nbsp;<input type="text" id="pharmacyPhoneSearch" style="width: 75px"/> &nbsp;&nbsp;
 					Fax&nbsp;&nbsp;<input type="text" id="pharmacyFaxSearch" style="width: 75px"/> &nbsp;&nbsp;
+					Address&nbsp;&nbsp;<input type="text" id="pharmacyAddressSearch" style="width: 75px"/> &nbsp;&nbsp;
 					<a href="#" onclick="addPharmacy();"><bean:message key="SelectPharmacy.addLink" /></a>
 				</th>
 			</tr>			

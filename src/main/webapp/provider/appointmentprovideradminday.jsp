@@ -1064,6 +1064,16 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
 
 java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.struts.Globals.LOCALE_KEY);
 %>
+<div id="helpHtml">
+	<div class="help-title">Help
+		<a href="javascript:void(0)" class="help-close" onclick="document.getElementById('helpHtml').style.right='-280px';document.getElementById('helpHtml').style.display='none'">(X)</a>
+	</div>
+
+	<div class="help-body">
+
+		<%=resourcehelpHtml%>
+	</div>
+</div>
 <div class="header-div" style="width: 100%; position: fixed; background-color: #259145;">
 
 
@@ -1358,17 +1368,6 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 	<%}else{%>
 <div id="help-link">
 	    <a href="javascript:void(0)" onclick="document.getElementById('helpHtml').style.display='block';document.getElementById('helpHtml').style.right='0px';"><bean:message key="global.help"/></a>
-	    
-		<div id="helpHtml">
-		<div class="help-title">Help</div>
-		
-		<div class="help-body">
-		
-		<%=resourcehelpHtml%>
-		</div>
-		<a href="javascript:void(0)" class="help-close" onclick="document.getElementById('helpHtml').style.right='-280px';document.getElementById('helpHtml').style.display='none'">(X)</a>
-		</div>
-
 </div>
 	<%}%>
 
@@ -2103,8 +2102,10 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
                   //Pull the appointment name from the demographic information if the appointment is attached to a specific demographic.
                   //Otherwise get the name associated with the appointment from the appointment information
                   StringBuilder nameSb = new StringBuilder();
+                  String prefName = "";
                   if ((demographic_no != 0)&& (demographicDao != null)) {
                         Demographic demo = demographicDao.getDemographic(String.valueOf(demographic_no));
+                        if (demo.getPrefName().length()>0) { prefName = " (" + demo.getPrefName() + ")"; }
                         nameSb.append(demo.getLastName())
                               .append(",")
                               .append(demo.getFirstName());
@@ -2113,7 +2114,8 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
                         nameSb.append(String.valueOf(appointment.getName()));
                   }
                   String name = UtilMisc.toUpperLowerCase(nameSb.toString());
-
+		
+                  
                   paramTickler[0]=String.valueOf(demographic_no);
                   paramTickler[1]=MyDateFormat.getSysDate(strDate); //year+"-"+month+"-"+day;//e.g."2001-02-02";
                   tickler_no = "";
@@ -2380,12 +2382,12 @@ start_time += iSm + ":00";
 
 <a class="apptLink" href=# onClick ="popupPage(535,860,'../appointment/appointmentcontrol.jsp?appointment_no=<%=appointment.getId()%>&provider_no=<%=curProvider_no[nProvider]%>&year=<%=year%>&month=<%=month%>&day=<%=day%>&start_time=<%=iS+":"+iSm%>&demographic_no=<%=demographic_no%>&displaymode=edit&dboperation=search');return false;" 
 <oscar:oscarPropertiesCheck property="SHOW_APPT_REASON_TOOLTIP" value="yes" defaultVal="true"> 
-	title="<%=name%>
+	title="<%=name + prefName%>
 	type: <%=type != null ? type : "" %>
 	reason: <%=reasonCodeName!=null? reasonCodeName:""%> <%if(reason!=null && !reason.isEmpty()){%>- <%=UtilMisc.htmlEscape(reason)%><%}%>
 	notes: <%=notes%>"
-</oscar:oscarPropertiesCheck> ><%=(view==0) ? (name.length()>len?name.substring(0,len) : name) :name%></a>
-
+</oscar:oscarPropertiesCheck> ><%=(view==0) ? (name.length()>len?name.substring(0,len) : name + prefName) :name + prefName%></a>
+	
 <% if(len==lenLimitedL || view!=0 || numAvailProvider==1 ) {%>
 
 <security:oscarSec roleName="<%=roleName$%>" objectName="_eChart" rights="r">

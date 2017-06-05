@@ -75,7 +75,9 @@ if(!authed) {
 <%@page import="org.oscarehr.common.model.ConsultationServices" %>
 <%@ page import="java.net.URLEncoder" %>
 <%@ page import="org.oscarehr.common.dao.*" %>
+<%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
 <jsp:useBean id="displayServiceUtil" scope="request" class="oscar.oscarEncounter.oscarConsultationRequest.config.pageUtil.EctConDisplayServiceUtil" />
+<jsp:useBean id="providerBean" class="java.util.Properties"	scope="session" />
 
 <html:html locale="true">
 
@@ -1527,10 +1529,10 @@ function updateFaxButton() {
                     </tr>
                     <tr>
 					<td>
-						<% // Determine if curUser has selected a default sex in preferences
+						<% // Determine if curUser has selected a default practitioner in preferences
 							UserProperty refPracProp = userPropertyDAO.getProp(providerNo,  UserProperty.DEFAULT_REF_PRACTITIONER);
 							String refPrac = "";
-							if (refPracProp != null) {
+							if (refPracProp != null && refPracProp.getValue() != null) {
 								refPrac = refPracProp.getValue();
 							}
 						%>
@@ -1541,16 +1543,53 @@ function updateFaxButton() {
 							<td align="right" class="tite1">
 								<html:select property="providerNo" onchange="switchProvider(this.value)">
 									<%
-										for (Provider p : prList) {
-											if (p.getPractitionerNo() != null && p.getPractitionerNo().length() > 0) {
+										DemographicDao demographicDao=(DemographicDao)SpringUtils.getBean("demographicDao");
+										ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
+										demographic = demographicDao.getDemographic(demo);
+										
+										if (consultUtil.providerNo==null) {consultUtil.providerNo = "";}
+										org.oscarehr.common.model.Provider prov = providerDao.getProvider(consultUtil.providerNo);
+										
+										String practitionerNo = "";
+										boolean exisitingConsultNoCPSO = false;
+										if (prov != null && prov.getPractitionerNo() != null && !prov.getPractitionerNo().equalsIgnoreCase("")) { practitionerNo = prov.getPractitionerNo(); }
+										if (practitionerNo==null) {practitionerNo="";}
+										
+										if (practitionerNo.isEmpty() || practitionerNo.equals("-1"))
+										{
+										    if (refPrac.equalsIgnoreCase("all") || refPrac.equalsIgnoreCase(""))
+											{
+												String loggedInPractitionerNo = loggedInInfo.getLoggedInProvider().getPractitionerNo();
+
+												if (loggedInPractitionerNo != null && !loggedInPractitionerNo.equals(""))
+												{
+													practitionerNo = loggedInPractitionerNo;
+												}
+												else if (demographic.getProvider() != null && !demographic.getProvider().equals("") && demographic.getProvider().getPractitionerNo() != null && !demographic.getProvider().getPractitionerNo().equals(""))
+												{
+													practitionerNo = demographic.getProvider().getPractitionerNo();
+												}
+											}
+											else
+											{
+											    practitionerNo = refPrac;
+											}
+										}
+										List<org.oscarehr.common.model.Provider>prPracList = providerDao.getDoctorsWithPractionerNo();
+
+										if (consultUtil.providerNo!=null && prov != null && prov.getPractitionerNo().isEmpty()) {prPracList.add(prov); exisitingConsultNoCPSO = true;}
+										
+										for (org.oscarehr.common.model.Provider p : prPracList) {
+													if (p.getProviderNo().compareTo("-1") != 0) 
+													{
+														 
 									%>
-									<option value="<%=p.getProviderNo() %>" <%=refPrac.equalsIgnoreCase(p.getFormattedName())?"selected='selected'":""%>>
+									<option value="<%=p.getProviderNo() %>" <%=!exisitingConsultNoCPSO?(p.getPractitionerNo().equals(practitionerNo) ? "selected='selected'" : ""):(p.getProviderNo().equals((prov.getProviderNo()))?"selected='selected'":"")%> >
 										<%=p.getFormattedName() %>
 									</option>
-									<% }
-
-								}
-								%>
+									<% } 
+									}
+									%>
 								</html:select>
 							</td>
 						</tr>
@@ -1879,8 +1918,21 @@ function updateFaxButton() {
 						<tr>
 						<%
 						String lhndType = "provider"; //set default as provider
-						String providerDefault = providerNo;
+						String providerDefault = providerNoFromChart==null?"":providerNoFromChart;
 
+							//MRP
+							ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
+							org.oscarehr.common.model.Provider mrp = providerDao.getProvider(providerNoFromChart);
+							org.oscarehr.common.model.Provider loggedIn = providerDao.getProvider(providerNo);
+							String mrpCPSO = "";
+							String userCPSO = "";
+							if (mrp!=null) {mrpCPSO = mrp.getPractitionerNo();}
+							if (loggedIn!=null) {userCPSO = loggedIn.getPractitionerNo();}
+
+							if (consultUtil.letterheadName != null && !consultUtil.letterheadName.equalsIgnoreCase("")) {providerDefault = consultUtil.letterheadName;}
+							else if ((mrpCPSO == null || mrpCPSO.equals("")) && (userCPSO == null || userCPSO.equals(""))) {providerDefault = providerNoFromChart;}
+							else if ((mrpCPSO == null || mrpCPSO.equals("")) && (userCPSO != null || !userCPSO.equals(""))) {providerDefault = providerNo;}
+						
 						if(consultUtil.letterheadName == null ){
 						//nothing saved so find default	
 						UserProperty lhndProperty = userPropertyDAO.getProp(providerNo, UserProperty.CONSULTATION_LETTERHEADNAME_DEFAULT);
@@ -1898,6 +1950,9 @@ function updateFaxButton() {
 							}	
 
 						}
+
+                            if (providerDefault==null||providerDefault.equals("")) {providerDefault = providerNo;}
+							
 						%>
 							<td class="tite4"><bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.letterheadName" />:
 							</td>							
@@ -1909,7 +1964,7 @@ function updateFaxButton() {
 										if (p.getProviderNo().compareTo("-1") != 0 && (p.getFirstName() != null || p.getSurname() != null)) {
 								%>
 								<option value="<%=p.getProviderNo() %>" 
-								<%=(consultUtil.letterheadName != null && consultUtil.letterheadName.equalsIgnoreCase(p.getProviderNo()) ? "selected='selected'"  : consultUtil.letterheadName == null && p.getProviderNo().equalsIgnoreCase(providerDefault) && lhndType.equals("provider") ? "selected='selected'"  : "") %>>
+								<%=(p.getProviderNo().equalsIgnoreCase(providerDefault)&&!lhndType.equals("clinic")?"selected='selected'":"") %>>
 									<%=p.getFormattedName() %>
 								</option>
 								<% }

@@ -189,7 +189,7 @@ public class BillingServiceDao extends AbstractDao<BillingService> {
         
         public BillingService searchPrivateBillingCode(String privateCode, Date billingDate) {               
             
-            Query query = entityManager.createQuery("select bs from BillingService bs where bs.region is null and bs.serviceCode = :searchStr and bs.billingserviceDate = (select max(b2.billingserviceDate) from BillingService b2 where b2.serviceCode = bs.serviceCode and b2.billingserviceDate <= (:billDate))");
+            Query query = entityManager.createQuery("select bs from BillingService bs where (bs.region is null or bs.region = '') and bs.serviceCode = :searchStr and bs.billingserviceDate = (select max(b2.billingserviceDate) from BillingService b2 where b2.serviceCode = bs.serviceCode and b2.billingserviceDate <= (:billDate))");
 
             query.setParameter("searchStr", privateCode);
             query.setParameter("billDate", billingDate);

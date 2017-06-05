@@ -151,7 +151,8 @@ if((serviceCode == null || billingForm == null) && dx.length()<2 && visitType.le
 
 RAData raData = new RAData();
 
-BigDecimal total = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP); 
+BigDecimal total = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);
+BigDecimal feeTotal = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);
 BigDecimal paidTotal = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);
 BigDecimal adjTotal = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);
 
@@ -167,15 +168,10 @@ NumberFormat formatter = new DecimalFormat("#0.00");
 		ohipNo = request.getParameter("provider_ohipNo");
 %>
 
-<%@page import="org.oscarehr.common.dao.SiteDao"%>
 <%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
-<%@page import="org.oscarehr.common.model.Site"%>
-<%@page import="org.oscarehr.common.model.Provider"%>
-<%@ page import="org.oscarehr.common.model.BillingONCHeader1" %>
-<%@ page import="org.oscarehr.common.dao.BillingONCHeader1Dao" %>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
-<%@ page import="org.oscarehr.common.model.RaDetail" %>
-<%@ page import="org.oscarehr.common.dao.RaDetailDao" %>
+<%@ page import="org.oscarehr.common.model.*" %>
+<%@ page import="org.oscarehr.common.dao.*" %>
 <html>
     <head>
         <title><bean:message key="admin.admin.invoiceRpts"/></title>
@@ -624,7 +620,7 @@ Visit Location:<br>
        <input type="radio" name="statusType" value="P" <%=statusType.equals("P")?"checked":""%>>Bill Patient</input>
         <!--li><input type="radio" name="statusType" value="N" <%=statusType.equals("N")?"checked":""%>>Do Not Bill</input>
        <input type="radio" name="statusType" value="W" <%=statusType.equals("W")?"checked":""%>>WCB</input>-->
-       <input type="radio" name="statusType" value="B" <%=statusType.equals("B")?"checked":""%>>Submmitted OHIP</input>
+       <input type="radio" name="statusType" value="B" <%=statusType.equals("B")?"checked":""%>>Submitted OHIP</input>
        <input type="radio" name="statusType" value="S" <%=statusType.equals("S")?"checked":""%>>Settled/Paid</input>
        <input type="radio" name="statusType" value="X" <%=statusType.equals("X")?"checked":""%>>Bad Debt</input>
        <input type="radio" name="statusType" value="D" <%=statusType.equals("D")?"checked":""%>>Deleted Bill</input>
@@ -726,6 +722,8 @@ if(statusType.equals("_")) { %>
 	
 
 	for(int i=0; i<lPat.size(); i++) {
+
+	    patientCount++;
 		BillingErrorRepData bObj = (BillingErrorRepData) lPat.get(i);
 		BillingONCHeader1 billCheader1 = cheader1Dao.find(Integer.parseInt(bObj.getBilling_no()));
 		String color = "";
@@ -755,7 +753,7 @@ if(statusType.equals("_")) { %>
     				String formattedFee = null;
     				try {
     				    formattedFee = String.valueOf(Integer.parseInt(bObj.getFee()));
-    				    
+						feeTotal = feeTotal.add(new BigDecimal(ch2StdCurrFromNoDot(formattedFee)));
     				}
     				catch( NumberFormatException e ) {
     				    formattedFee = "N/A";
@@ -773,7 +771,27 @@ if(statusType.equals("_")) { %>
     			</td>
     			<td id="<%=bObj.getId() %>"><%=bObj.getReport_name() %></td>
     		</tr>
-<% }}} else { %>
+<% }} %>
+		   <tr class="warning">
+			   <td>Count:</td>
+			   <td align="center"><%=patientCount%></td>
+			   <td align="center" class="<%=hideName?"hidden-print":""%>">&nbsp;</td>
+			   <td>&nbsp;</td>
+			   <td>&nbsp;</td>
+			   <td>&nbsp;</td>
+			   <td>&nbsp;</td>
+			   <td>&nbsp;</td>
+			   <td>Total:</td>
+			   <td align="right"><%=feeTotal.toString()%></td>
+			   <td>&nbsp;</td>
+			   <td>&nbsp;</td>
+			   <td>&nbsp;</td>
+			   <td>&nbsp;</td>
+			   <td>&nbsp;</td>
+			   <td>&nbsp;</td>
+			   <td>&nbsp;</td>
+		   </tr>
+        <%} else { %>
     <!--  div class="tableListing"-->
        <table class="table" id="bListTable">
           <thead>
@@ -793,8 +811,7 @@ if(statusType.equals("_")) { %>
              <th>TYPE</th>
              <th>INVOICE #</th>
              <th>MESSAGES</th>
-             <th>CASH</th>
-             <th>DEBIT</th>
+             <th>METHOD</th>
              <th>Quantity</th>
               <th>Provider</th>
 		<% if (bMultisites) {%>
@@ -858,7 +875,7 @@ if(statusType.equals("_")) { %>
 	    	   amountPaid = ch1Obj.getPaid();
 	       }
 	       
-	       int qty = ch1Obj.getNumItems();
+	       float qty = ch1Obj.getNumItems();
 	       
     	   amountPaid = (amountPaid==null||amountPaid.equals("")||amountPaid.equals("null"))? "0.00" : amountPaid;
 	       
@@ -903,12 +920,11 @@ if(statusType.equals("_")) { %>
                if(payProgram.equals("PAT") || payProgram.equals("OCF") || payProgram.equals("ODS") || payProgram.equals("CPP") || payProgram.equals("STD")) {
                    b3rdParty = true;
                }
-	      
-               String cash = formatter.format(ch1Obj.getCashTotal());
-			   String debit = formatter.format(ch1Obj.getDebitTotal());
-			   
+
 			   totalCash += ch1Obj.getCashTotal();
 			   totalDebit += ch1Obj.getDebitTotal();
+			   List<BigDecimal> paymentTotals = ch1Obj.getPaymentTotals();
+			   BillingPaymentTypeDao paymentTypeDao = SpringUtils.getBean(BillingPaymentTypeDao.class);
 			   
 			
 				
@@ -922,15 +938,32 @@ if(statusType.equals("_")) { %>
              <td align="center"><%=settleDate%></td> <!--SETTLE DATE-->
              <td align="center"><%=getHtmlSpace(ch1Obj.getTransc_id())%></td><!--CODE-->
              <td align="right"><%=getStdCurr(ch1Obj.getTotal())%></td><!--BILLED-->
-             <td align="right"><%=amountPaid%></td><!--PAID-->
+             <td align="right">
+				 <%
+					if (!amountPaid.equals("0.00")){
+						 for (BigDecimal typeTotal : paymentTotals){
+							if (typeTotal!=null){%>
+							<%=typeTotal%><br/>
+				<%			}
+						 }
+					} else{%>
+						<%=amountPaid%>
+					 <%}%>
+			 </td><!--PAID-->
              <td align="center"><%=adj.toString()%></td> <!--SETTLE DATE-->
              <td align="center"><%=getHtmlSpace(ch1Obj.getRec_id())%></td><!--DX1-->
              <!--td>&nbsp;</td--><!--DX2-->
              <td align="center"><%=payProgram%></td>
              <td align="center"><a href=#  onclick="popupPage(800,700,'billingONCorrection.jsp?billing_no=<%=ch1Obj.getId()%>','BillCorrection<%=ch1Obj.getId()%>');nav_colour_swap(this.id, <%=bList.size()%>);return false;"><%=ch1Obj.getId()%></a></td><!--ACCOUNT-->
              <td class="highlightBox"><a id="A<%=i%>" href=#  onclick="popupPage(800,700,'billingONCorrection.jsp?billing_no=<%=ch1Obj.getId()%>','BillCorrection<%=ch1Obj.getId()%>');nav_colour_swap(this.id, <%=bList.size()%>);return false;">Edit</a> <%=errorCode%></td><!--MESSAGES-->
-             <td align="center">$<%=cash%></td>
-             <td align="center">$<%=debit%></td>
+             <td align="center">
+				 <% for (int totalIndex = 0; totalIndex<paymentTotals.size(); totalIndex++){
+				 	if (paymentTotals.get(totalIndex)!=null){%>
+
+				 <%=paymentTypeDao.find(totalIndex+1).getPaymentType()%><br/>
+
+				 <%}}%>
+			 </td>
              <td align="center"><%=qty %></td>
              <td align="center"><%=ch1Obj.getProviderName() %></td>
              <% if (bMultisites) {%>
@@ -961,8 +994,7 @@ if(statusType.equals("_")) { %>
              <td>&nbsp;</td><!--TYPE-->
              <td>&nbsp;</td><!--ACCOUNT-->
              <td>&nbsp;</td><!--MESSAGES-->
-             <td align="center">$<%=formatter.format(totalCash)%></td>
-             <td align="center">$<%=formatter.format(totalDebit) %></td>
+             <td align="center">&nbsp;</td>
              <td align="center">&nbsp;</td>
              <td>&nbsp;</td><!--PROVIDER-->
              <% if (bMultisites) {%>

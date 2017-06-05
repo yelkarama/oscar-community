@@ -372,6 +372,8 @@ var maxYear=3100;
     providerData['<%=prov_no%>'].last_name = "<%=p.getLastName() %>";
     providerData['<%=prov_no%>'].formatted_name = "<%=p.getFormattedName() %>";
     providerData['<%=prov_no%>'].prac_no = "<%=practitionerNo %>";
+	providerData['<%=prov_no%>'].ohip_no = "<%=num%>";
+	providerData['<%=prov_no%>'].specialty = "<%=p.getSpecialty()%>";
     <%	}
     }
 
@@ -420,10 +422,19 @@ if (OscarProperties.getInstance().getBooleanProperty("consultation_program_lette
     		$("input[name='clinicAddress']").val (providerData[value]['address']);
     		$("input[name='clinicCity']").val (providerData[value]['city'] + providerData[value]['province']);
     		$("input[name='clinicPC']").val (providerData[value]['postal']);
-        	$("input[name='practitionerNo']").val(providerData[value]['prac_no']);
             $("input[name='reqProvName']").val(providerData[value]['formatted_name']);
 
-            $("#pracNo").html(providerData[value]['prac_no']);
+            
+            if (providerData[value]['ohip_no'] != "" && !providerData[value]['specialty'].toUpperCase().startsWith('NP')) {
+				$("#pracNo").html(providerData[value]['prac_no']);
+				$("input[name='practitionerNo']").val(providerData[value]['prac_no']);
+			} else if ("<%=props.getProperty("mrp", "")%>" != "") { // If the requesting physician does not have a billing number, use MRP's
+				$("#pracNo").html(providerData["prov_<%=props.getProperty("mrp", "")%>"]['prac_no']);
+				$("input[name='practitionerNo']").val(providerData["prov_<%=props.getProperty("mrp", "")%>"]['prac_no']);
+			} else { //else just use the requesting physician's ohip number
+				$("#pracNo").html("<%=props.getProperty("practitionerNo", "")%>");
+				$("input[name='practitionerNo']").val("<%=props.getProperty("practitionerNo", "")%>");
+			}
             $("#clinicName").html(providerData[value]['clinic_name']);
             $("#clinicAddress").html(providerData[value]['address']);
             $("#clinicCity").html(providerData[value]['city'] + " " + providerData[value]['province']);
