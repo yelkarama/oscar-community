@@ -517,6 +517,9 @@ function generateRenalLabReq(demographicNo) {
 				<TD width="8%"><FONT FACE="verdana,arial,helvetica"
 					COLOR="#FFFFFF" SIZE="-2"><B><bean:message
 					key="tickler.ticklerMain.msgDoctorName" /></B></FONT></TD>
+				<td width="8%">
+					<b style="color:#FFFFFF"><bean:message key="tickler.ticklerMain.msgCreator"/></b>
+				</td>
 				<TD width="9%"><FONT FACE="verdana,arial,helvetica"
 					COLOR="#FFFFFF" SIZE="-2"><B><bean:message
 					key="tickler.ticklerMain.msgDate" /></B></FONT></TD>
@@ -533,7 +536,7 @@ function generateRenalLabReq(demographicNo) {
 				<TD width="6%"><FONT FACE="verdana,arial,helvetica"
 					COLOR="#FFFFFF" SIZE="-2"><B><bean:message
 					key="tickler.ticklerMain.msgStatus" /></B></FONT></TD>
-				<TD width="39%"><FONT FACE="verdana,arial,helvetica"
+				<TD width="22%"><FONT FACE="verdana,arial,helvetica"
 					COLOR="#FFFFFF" SIZE="-2"><B><bean:message
 					key="tickler.ticklerMain.msgMessage" /></B></FONT></TD>
 				<td COLOR="#FFFFFF" SIZE="-2" class="noprint">&nbsp;</td>
@@ -565,6 +568,8 @@ function generateRenalLabReq(demographicNo) {
 				    if(t.getTaskAssignedTo().length()>0) {
 				            assignedP = providerDao.getProvider(t.getTaskAssignedTo());
 				    }
+				    
+				    String creatorName = providerDao.getProvider(t.getCreator()).getFormattedName();
 
 				    nItems = nItems +1; 
 				    
@@ -615,6 +620,9 @@ function generateRenalLabReq(demographicNo) {
 					href=#
 					onClick="popupPage(600,800,'../demographic/demographiccontrol.jsp?demographic_no=<%=t.getDemographicNo()%>&displaymode=edit&dboperation=search_detail')"><%=d.getLastName()%>,<%=d.getFirstName()%></a></TD>
 				<TD ROWSPAN="1" class="<%=cellColour%>"><%=provider%></TD>
+				<td class="<%=cellColour%>">
+					<%=creatorName%>
+				</td>
 				<TD ROWSPAN="1" class="<%=cellColour%>">
 				<%
 					java.util.Date service_date = t.getServiceDate();
