@@ -75,6 +75,26 @@ public class AppointmentStatusDao extends AbstractDao<AppointmentStatus> {
     	return null;
     }
 
+	public AppointmentStatus findByDescription(String description) {
+		if(description == null){
+			return null;
+		}
+
+		Query q = entityManager.createQuery("select a from AppointmentStatus a where a.description = :description");
+		q.setParameter("description", description);
+
+		List<AppointmentStatus> results = q.getResultList();
+
+
+		for(AppointmentStatus r:results) {
+			if(r.getStatus() != null && r.getDescription().length()>0 && r.getDescription().equalsIgnoreCase(description)) {
+				return r;
+			}
+		}
+
+		return null;
+	}
+
     public void modifyStatus(int ID, String strDesc, String strColor) {
     	AppointmentStatus appts = find(ID);
     	if(appts != null) {
