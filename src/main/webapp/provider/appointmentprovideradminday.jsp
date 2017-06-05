@@ -1064,6 +1064,16 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
 
 java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.struts.Globals.LOCALE_KEY);
 %>
+<div id="helpHtml">
+	<div class="help-title">Help
+		<a href="javascript:void(0)" class="help-close" onclick="document.getElementById('helpHtml').style.right='-280px';document.getElementById('helpHtml').style.display='none'">(X)</a>
+	</div>
+
+	<div class="help-body">
+
+		<%=resourcehelpHtml%>
+	</div>
+</div>
 <div class="header-div" style="width: 100%; position: fixed; background-color: #259145;">
 
 
@@ -1358,17 +1368,6 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 	<%}else{%>
 <div id="help-link">
 	    <a href="javascript:void(0)" onclick="document.getElementById('helpHtml').style.display='block';document.getElementById('helpHtml').style.right='0px';"><bean:message key="global.help"/></a>
-	    
-		<div id="helpHtml">
-		<div class="help-title">Help</div>
-		
-		<div class="help-body">
-		
-		<%=resourcehelpHtml%>
-		</div>
-		<a href="javascript:void(0)" class="help-close" onclick="document.getElementById('helpHtml').style.right='-280px';document.getElementById('helpHtml').style.display='none'">(X)</a>
-		</div>
-
 </div>
 	<%}%>
 
