@@ -890,17 +890,20 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 				<%=getDisabled("roster_status")%> onchange="updateStatusDate('roster');checkRosterStatus2();">
 					<option value=""></option>
 					<option value="RO" <%="RO".equals(rosterStatus) ? " selected" : ""%>>
-						<bean:message
-							key="demographic.demographiceditdemographic.optRostered" /></option>
+						<bean:message key="demographic.demographiceditdemographic.optRostered" />
+					</option>
 					<option value="NR" <%=rosterStatus.equals("NR") ? " selected" : ""%>>
-						<bean:message
-							key="demographic.demographiceditdemographic.optNotRostered" /></option>
+						<bean:message key="demographic.demographiceditdemographic.optNotRostered" />
+					</option>
 					<option value="TE" <%=rosterStatus.equals("TE") ? " selected" : ""%>>
-						<bean:message
-							key="demographic.demographiceditdemographic.optTerminated" /></option>
+						<bean:message key="demographic.demographiceditdemographic.optTerminated" />
+					</option>
 					<option value="FS" <%=rosterStatus.equals("FS") ? " selected" : ""%>>
-						<bean:message
-							key="demographic.demographiceditdemographic.optFeeService" /></option>
+						<bean:message key="demographic.demographiceditdemographic.optFeeService" />
+					</option>
+					<option value="UHIP" <%=rosterStatus.equals("UHIP") ? " selected" : ""%>>
+						<bean:message key="demographic.demographiceditdemographic.optUhip"/>
+					</option>
 					<%
 						for (String status : demographicDao.getRosterStatuses()) {
 					%>
@@ -968,18 +971,18 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 function updateStatusDate(patientOrRoster){
 	var d = new Date();
 	if(patientOrRoster == "patient"){
-        patientStatus = document.updatedelete.patientstatus_date;
+        var patientStatus = document.getElementById("patientstatus_date");
 
         if(patientStatus.value == ""){
             patientStatus.value = d.toISOString().substring(0, 10);
         }
 	}
 	else if (patientOrRoster == "roster"){
-	    selectedRosterStatus = document.getElementById("roster_status").value;
-		rosterStatusDate = document.updatedelete.roster_date;
+		var selectedRosterStatus = document.getElementById("roster_status").value;
+		var rosterStatusDate = document.getElementById("roster_date");
 
 		if(rosterStatusDate.value == "" ){
-		    if (selectedRosterStatus == "RO" || selectedRosterStatus == "NR"){
+		    if (selectedRosterStatus == "RO" || selectedRosterStatus == "NR" || selectedRosterStatus == "UHIP"){
 				rosterStatusDate.value = d.toISOString().substring(0, 10);
 			}
 		}
