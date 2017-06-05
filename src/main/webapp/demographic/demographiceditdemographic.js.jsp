@@ -277,6 +277,12 @@ function getSpecialistInfo(specialistId, specialistType) {
                 if (specialistType == "r") {
                     document.getElementById("refDocPhone").innerHTML = xml.phoneNumber;
                     document.getElementById("refDocFax").innerHTML = xml.faxNumber;
+                    if (xml.privatePhoneNumber != "") {
+						document.getElementById("refDocPrivPhone").innerHTML = xml.privatePhoneNumber;
+					} else { document.getElementById("refDocPrivPhone").parentElement.style.display = "none"; }
+					if (xml.streetAddress != "") {
+						document.getElementById("refDocAddress").innerHTML = xml.streetAddress;
+					} else { document.getElementById("refDocAddress").parentElement.style.display = "none"; }
                 } else if(specialistType = 'f'){
                     document.getElementById("famDocPhone").innerHTML = xml.phoneNumber;
                     document.getElementById("famDocFax").innerHTML = xml.faxNumber;
@@ -288,6 +294,10 @@ function getSpecialistInfo(specialistId, specialistType) {
         if (specialistType == "r") {
             document.getElementById("refDocPhone").innerHTML = "";
             document.getElementById("refDocFax").innerHTML = "";
+			document.getElementById("refDocPrivPhone").innerHTML = "";
+			document.getElementById("refDocPrivPhone").parentElement.style.display = "none";
+			document.getElementById("refDocAddress").innerHTML = "";
+			document.getElementById("refDocAddress").parentElement.style.display = "none";
         } else if(specialistType = 'f'){
             document.getElementById("famDocPhone").innerHTML = "";
             document.getElementById("famDocFax").innerHTML = "";
