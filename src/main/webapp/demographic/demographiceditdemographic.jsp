@@ -304,6 +304,9 @@ if(!authed) {
 		pageContext.setAttribute( "patientConsents", patientConsentManager.getAllConsentsByDemographic( loggedInInfo, Integer.parseInt(demographic_no) ) );
 	}
 
+	List<String> updatedFamily = (List<String>) session.getAttribute("updatedFamily");
+	session.removeAttribute("updatedFamily");
+
 %>
 
 <%@page import="org.apache.commons.lang.StringUtils"%><html:html locale="true">
@@ -394,6 +397,15 @@ jQuery( document ).ready( function() {
 			elem.attr('selected', 'selected');
 		}
 	}
+
+    <% if (updatedFamily!=null && !updatedFamily.isEmpty()){ %>
+		var familyMembers = "";
+    	<% for (String member : updatedFamily){%>
+			familyMembers += "\n<%=member%>"
+		<%}%>
+
+        alert("Updated demographic and the following family members:" + familyMembers+"");
+    <% }%>
 });
 </script>
 <oscar:customInterface section="master"/>
@@ -2447,8 +2459,10 @@ if ( Dead.equals(PatStat) ) {%>
 									<%
 										boolean showCbiReminder=oscarProps.getBooleanProperty("CBI_REMIND_ON_UPDATE_DEMOGRAPHIC", "true");
 									%>
-									<input type="submit" <%=(showCbiReminder?"onclick='showCbiReminder()'":"")%>
+									<input type="submit" name="submit" <%=(showCbiReminder?"onclick='showCbiReminder()'":"")%>
 										value="<bean:message key="demographic.demographiceditdemographic.btnUpdate"/>">
+									<input type="submit" name="submit" <%=(showCbiReminder?"onclick='showCbiReminder()'":"")%>
+											   value="Save & Update Family Members">
 								</security:oscarSec> </span> <!-- security code block --></td>
 								<td width="40%" align='right' valign="top"><span
 									id="swipeButton" style="display: none;"> <input
