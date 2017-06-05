@@ -369,7 +369,7 @@ public class JdbcBillingReviewImpl {
 				double cashTotal = 0.00;
 				double debitTotal = 0.00;
 
-				ch1Obj.setNumItems(Integer.parseInt(bi.getServiceCount()));
+				ch1Obj.setNumItems(Float.parseFloat(bi.getServiceCount()));
 				
 				for(Integer paymentId:billingOnPaymentDao.find3rdPartyPayments(Integer.parseInt(ch1Obj.getId()))) {
 					//because private billing changed, we'll check via paymentTypeId in billing_on_payment
