@@ -149,6 +149,7 @@
 	Demographic demographic = new Demographic();
 	demographic.setLastName(request.getParameter("last_name").trim());
 	demographic.setFirstName(request.getParameter("first_name").trim());
+	demographic.setPrefName(request.getParameter("pref_name").trim());
 	demographic.setAddress(request.getParameter("address"));
 	demographic.setCity(request.getParameter("city"));
 	demographic.setProvince(request.getParameter("province"));

@@ -1571,6 +1571,9 @@ if(oscarProps.getProperty("new_label_print") != null && oscarProps.getProperty("
                                                                 key="demographic.demographiceditdemographic.formFirstName" />:</span>
                                                         <span class="info"><%=demographic.getFirstName()%></span>
 							</li>
+													<li><span class="label"><bean:message key="demographic.demographiceditdemographic.formPrefName" />:</span>
+															<span class="info"><%=demographic.getPrefName()%></span>
+													</li>
                                                     <li><span class="label"><bean:message key="demographic.demographiceditdemographic.msgDemoTitle"/>:</span>
                                                         <span class="info"><%=StringUtils.trimToEmpty(demographic.getTitle())%></span>
 							</li>

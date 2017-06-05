@@ -698,6 +698,14 @@ function ignoreDuplicates() {
         <input type="text" name="first_name" id="first_name" onBlur="upCaseCtrl(this)"  value="<%=firstNameVal%>" size=30>
       </td>
     </tr>
+	<tr>
+		<td align="right"> <b><bean:message key="demographic.demographicaddrecordhtm.formPrefName"/><font color="red">:</font> </b></td>
+		<td id="prefName" align="left">
+			<input type="text" name="pref_name" id="pref_name" onBlur="upCaseCtrl(this)" size=30 value="">
+		</td>fuck
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+	</tr>
     <tr>
 	<td id="languageLbl" align="right"><b><bean:message key="demographic.demographicaddrecordhtm.msgDemoLanguage"/><font color="red">:</font></b></td>
 	<td id="languageCell" align="left">

@@ -537,6 +537,7 @@ CREATE TABLE demographic (
   lastUpdateDate datetime not null,
   patient_type VARCHAR(45) NULL,
   patient_id VARCHAR(45) NULL,
+  pref_name varchar(30) NOT NULL DEFAULT '',
   PRIMARY KEY  (demographic_no),
   KEY hin (hin),
   KEY name (last_name,first_name),
