@@ -331,20 +331,16 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 						+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 	    	}
 	    	else { // N
-	    		sql = " SELECT info.label, info.lab_no, info.sex, info.health_no, info.result_status, info.obr_date, info.priority, info.requesting_client, info.discipline, info.last_name, info.first_name, info.report_status,  info.accessionNum, info.final_result_count, X.status "
-	    			+ " FROM hl7TextInfo info, "
-	    			+ " (SELECT DISTINCT plr.id, plr.lab_type, plr.lab_no, plr.status "
-	    			+ " FROM providerLabRouting plr"  + (isAbnormal != null ? ", hl7TextInfo info " : " ")
-	    			+ " WHERE ("
-	    			+ "       plr.status like '%"+status+"%' " + (searchProvider ? " AND plr.provider_no = '"+providerNo+"' " : "")
-	    			+ (isAbnormal != null ? "     AND (plr.lab_type = 'DOC' OR (plr.lab_no = info.lab_no AND ("+(!isAbnormal ? "info.result_status IS NULL OR" : "") + " info.result_status "+(isAbnormal ? "" : "!")+"= 'A'))) " : " ")
-	    			+ "       ) "
-	    			+ " ORDER BY id DESC "
-	    			+ " ) AS X "
-	    			+ " WHERE X.lab_type = 'HL7' and X.lab_no = info.lab_no "
-	    			+ dateSql
-	    			+ " ORDER BY info.obr_date DESC "
-	    			+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
+				sql = " SELECT info.label, info.lab_no, info.sex, info.health_no, info.result_status, info.obr_date, info.priority, info.requesting_client, info.discipline, info.last_name, info.first_name, info.report_status,  info.accessionNum, info.final_result_count, plr.status "
+						+ " FROM hl7textinfo info"
+						+ " LEFT JOIN providerLabRouting plr ON plr.lab_no = info.lab_no "
+						+ (!status.equals("")?" WHERE plr.status = '" + status + "' AND plr.lab_type = 'HL7' ":" WHERE plr.lab_type = 'HL7'")
+						+ (searchProvider ? " AND plr.provider_no = '"+providerNo+"' " : "") + " AND plr.lab_no = info.lab_no "
+						+ (isAbnormal != null ? " AND ("+(!isAbnormal ? "info.result_status IS NULL OR" : "") + " info.result_status "+(isAbnormal ? "" : "!")+"= 'A'))) " : " ")
+						+ dateSql
+						+ " GROUP BY info.lab_no "
+						+ " ORDER BY plr.id DESC, info.obr_date DESC "
+						+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 	    	}
 	    }
 	    else {
