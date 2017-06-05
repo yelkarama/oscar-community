@@ -227,7 +227,7 @@
 						if(title == null) {
 							title="";
 						}
-					%> <select name="title" <%=getDisabled("title")%>>
+					%> <select name="title" id="title" <%=getDisabled("title")%>>
 				<option value="" <%=title.equals("")?"selected":""%>><bean:message
 						key="demographic.demographiceditdemographic.msgNotSet" /></option>
 				<option value="DR" <%=title.equalsIgnoreCase("DR")?"selected":""%>><bean:message
