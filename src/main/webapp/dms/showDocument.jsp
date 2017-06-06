@@ -374,7 +374,7 @@
                             <%} %>
                         </div>
                         <% if (displayDocumentAs.equals(UserProperty.IMAGE)) { %>
-                            <a href="<%=url2%>" target="_blank"><img alt="document" id="docImg_<%=docId%>"  src="<%=url%>" /></a>
+                            <a target="_blank" onClick="popup(800,1060,'<%=url2%>','document')"><img alt="document" id="docImg_<%=docId%>"  src="<%=url%>" style="cursor: hand;" /></a>
                         <%} else {%>
                             <div id="docDispPDF_<%=docId%>"></div>
                         <%}%>
