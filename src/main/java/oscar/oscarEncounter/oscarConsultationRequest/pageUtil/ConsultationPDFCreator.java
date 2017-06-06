@@ -233,9 +233,28 @@ public class ConsultationPDFCreator extends PdfPageEventHelper {
 							   clinic.getClinicProvince(), clinic.getClinicPostal())), font));
 		infoTable.addCell(cell);
 
+		String letterheadFax = reqFrm.letterheadFax==null||reqFrm.letterheadFax.trim().length()<=0?"":reqFrm.letterheadFax;
+		if (letterheadFax != null && letterheadFax.trim().length() > 0)
+        {
+            letterheadFax = letterheadFax.substring(0, 3) + "-" + letterheadFax.substring(3, 6) + "-" + letterheadFax.substring(6, 10);
+        }
+        
+        String clinicPhone = clinic.getClinicPhone()==null?"":clinic.getClinicPhone();
+		String clinicFax = clinic.getClinicFax()==null?"":clinic.getClinicFax();
+		
+		if (!clinicPhone.contains("-"))
+        {
+            clinicPhone =  clinicPhone.substring(0, 3) + "-" + clinicPhone.substring(3, 6) + "-" + clinicPhone.substring(6, 10);
+        }
+
+        if (!clinicFax.contains("-"))
+        {
+            clinicFax =  clinicFax.substring(0, 3) + "-" + clinicFax.substring(3, 6) + "-" + clinicFax.substring(6, 10);
+        }
+		
 		cell.setPhrase(new Phrase(String.format("Tel: %s Fax: %s",
-				(reqFrm.letterheadPhone != null && reqFrm.letterheadPhone.trim().length() > 0 ? reqFrm.letterheadPhone : clinic.getClinicPhone()),
-				(reqFrm.letterheadFax != null && reqFrm.letterheadFax.trim().length() > 0 ? reqFrm.letterheadFax : clinic.getClinicFax())), font));
+				(reqFrm.letterheadPhone != null && reqFrm.letterheadPhone.trim().length() > 0 ? reqFrm.letterheadPhone : clinicPhone),
+				(letterheadFax != null && letterheadFax.trim().length() > 0 ? letterheadFax : clinicFax)), font));
 		infoTable.addCell(cell);
 
 		cell.setPadding(0);
