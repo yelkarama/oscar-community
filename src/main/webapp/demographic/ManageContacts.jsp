@@ -137,10 +137,10 @@ function deleteProContact(id) {
 function doPersonalSearch(id, contactName, contactId) {
 	var type = jQuery("select[name='contact_"+id+".type']").val();
 	if(type == '<%=DemographicContact.TYPE_DEMOGRAPHIC%>') {
-		search_demographic(contactName, contactId);
-	}
+		search_demographic(contactName.value, contactName.name, contactId.name);
+}
 	if(type == '<%=DemographicContact.TYPE_CONTACT%>') {
-		search_contact(contactName, contactId);
+		search_contact(contactName.value, contactName, contactId);
 	}
 }
 
@@ -161,8 +161,8 @@ function updTklrList() {
     clearInterval(check_demo_no);
 }
 
-function search_demographic(nameEl, valueEl) {
-    var url = '../ticklerPlus/demographicSearch2.jsp?outofdomain=false&form=contactForm&elementName='+nameEl+'&elementId='+valueEl;
+function search_demographic(keyword, nameEl, valueEl) {
+    var url = '../ticklerPlus/demographicSearch2.jsp?outofdomain=false&form=contactForm&query='+keyword+'&elementName='+nameEl+'&elementId='+valueEl;
     var popup = window.open(url,'demographic_search');
     demo_no_orig = document.contactForm.elements[valueEl].value;
     //check_demo_no = setInterval("if (demo_no_orig != document.contactForm.elements[valueEl].value) updTklrList()",100);
@@ -277,7 +277,7 @@ jQuery(document).ready(function() {
 					setSelect(num,'contact','consentToContact','<%=dc.isConsentToContact()?"1":"0"%>');
 					setSelect(num,'contact','active','<%=dc.isActive()?"1":"0"%>');
 					setInput(num,'contact','contactId','<%=dc.getContactId()%>');
-					setInput(num,'contact','contactName','<%=dc.getContactName()%>');
+					setInput(num,'contact','contactName',"<%=dc.getContactName()%>");
 					setTextarea(num,'contact','note','<%=dc.getNote()!=null?dc.getNote():""%>');
 					<%if(dc.getSdm() != null && dc.getSdm().equals("true")) {%>setChecked(num,'contact','sdm');<%}%>
 					<%if(dc.getEc() != null && dc.getEc().equals("true")) {%>setChecked(num,'contact','ec');<%}%>
