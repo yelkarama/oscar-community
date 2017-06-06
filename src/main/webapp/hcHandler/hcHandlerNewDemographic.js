@@ -78,8 +78,8 @@ var _hc_newDemographicHandler = function(args) {
 		jQuery("input[name='hin']").val(args["hin"]);
 		jQuery("input[name='full_birth_date']").val(args["dob"].substring(0,4) + '-' + args["dob"].substring(4,6) + '-' + args["dob"].substring(6,8));
    	 	jQuery("input[name='year_of_birth']").val(args["dob"].substring(0,4));
-   	 	jQuery("select[name='month_of_birth']").val(args["dob"].substring(4,6));
-   	 	jQuery("select[name='date_of_birth']").val(args["dob"].substring(6,8));
+   	 	jQuery("input[name='month_of_birth']").val(args["dob"].substring(4,6));
+   	 	jQuery("input[name='date_of_birth']").val(args["dob"].substring(6,8));
    	 	jQuery("input[name='ver']").val(args["hinVer"]);
    	 	jQuery("select[name='sex']").val((args["sex"] == "1" ? "M" : (args["sex"] == "2" ? "F" : "")));
 		jQuery("input[name='eff_date']").val(issueDate.substring(0,4) + '-' + issueDate.substring(4,6) + '-' + issueDate.substring(6,8));
