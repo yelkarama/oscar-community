@@ -49,6 +49,8 @@ public class PreventionReportFactory {
             report = new ChildImmunizationReport();     
         }else if (preventionName.equals("FOBT")){
             report = new FOBTReport();
+        }else if (preventionName.equals("Colonoscopy")){
+            report = new ColonoscopyReport();
         }
         
        return report;
