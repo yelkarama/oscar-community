@@ -76,6 +76,11 @@ PreventionsLotNrsDao PreventionsLotNrsDao = (PreventionsLotNrsDao)SpringUtils.ge
 String curUser_no = (String)session.getAttribute("user");
 String prevention = request.getParameter("prevention");
 String lotnr = request.getParameter("lotnr");
+java.util.Date expDate = null;
+if (request.getParameter("expDate")!=null||!request.getParameter("expDate").equals(""))
+{
+    expDate = new java.text.SimpleDateFormat("yyyy-MM-dd").parse(request.getParameter("expDate"));
+}
 List<String> currentLotnrs = PreventionsLotNrsDao.findLotNrs(prevention, false);
 List<String> deletedLotnrs = PreventionsLotNrsDao.findLotNrs(prevention, true);
 
@@ -104,6 +109,7 @@ p.setLotNr(lotnr);
 p.setProviderNo((String)session.getAttribute("user"));
 p.setCreationDate(new java.util.Date());
 p.setDeleted(false);
+p.setExpiryDate(expDate);
 
 PreventionsLotNrsDao.persist(p);
 

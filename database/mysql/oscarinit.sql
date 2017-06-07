@@ -10359,6 +10359,7 @@ create table PreventionsLotNrs(
   lotNr text NOT NULL,
   deleted boolean NOT NULL, 
   lastUpdateDate datetime NOT NULL,
+  expiryDate date NULL,
   PRIMARY KEY (`id`)
 );
 
