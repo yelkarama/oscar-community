@@ -245,7 +245,7 @@ public class NextAppointmentSearchHelper {
 					cal2.set(Calendar.MINUTE, min);
 					cal2.set(Calendar.SECOND,0);
 					cal2.set(Calendar.MILLISECOND, 0);
-					if(slot == '1' || slot == '2' || slot == '3' || slot == '6' || slot == '_')
+					if(slot != 'L' && slot != 'V')
 					{
 						if(checkAvailability(cal2.getTime(), duration, providerNo)) {
 							//logger.info("spot available at " + cal2.getTime() + " for " + duration + " mins with provider " + providerNo);
