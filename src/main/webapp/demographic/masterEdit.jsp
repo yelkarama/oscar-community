@@ -540,7 +540,11 @@
 					key="demographic.demographiceditdemographic.formVer" /></b> <input
 			type="text" name="ver" <%=getDisabled("ver")%>
 			value="<%=StringUtils.trimToEmpty(demographic.getVer())%>" size="3"
-			onBlur="upCaseCtrl(this)"></td>
+			onBlur="upCaseCtrl(this)">
+		<a href="#" onclick="popup(500, 500, '/CardSwipe/?hc='+(document.getElementsByName('hin')[0].value)+' '+(document.getElementsByName('ver')[0].value)+'&providerNo=<%=loggedInInfo.getLoggedInProviderNo()%>', 'Card Swipe'); return false;">
+			Validate HC
+		</a>
+	</td>
 		<td align="right"><b><bean:message
 					key="demographic.demographiceditdemographic.formEFFDate" />:</b></td>
 		<td align="left">
