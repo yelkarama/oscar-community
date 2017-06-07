@@ -185,6 +185,12 @@ public class FrmLabReq10Record extends FrmRecord {
                     props.setProperty("reqProvName", provider.getFormattedName());
                     props.setProperty("practitionerNo", "0000-" + ohipNo + "-" + strSpecialtyCode);
                 }
+
+                String cpsoNo = provider.getPractitionerNo();
+
+                if (cpsoNo != null && !cpsoNo.isEmpty()) {
+                    props.setProperty("cpso", cpsoNo);
+                }
             }
         }
                                                  	    	    	    	
