@@ -879,12 +879,20 @@ function upCaseCtrl(ctrl) {
 	if(val.substring(0,3) == "ODP" || val.substring(0,3) == "WCB" || val.substring(0,3) == "BON") ctrl.value = ctrl.value.toUpperCase();
 }
 
+function changeTypeLocation(dropdown){
+
+}
 function changeCut(dropdown) {
 	var str = dropdown.options[dropdown.selectedIndex].value;
 	var temp = new Array();
-	temp = str.split('\|');
+	temp =  str.split(" ");
+
+	var codes = new Array();
+	codes = temp[0].split('\|');
+	var visitCode = temp[1].split('\|')[0].replace('[', '');
+	var locationCode = temp[1].split('\|')[1].replace(']', '');
 	//alert(temp);
-	var tlen = temp.length;
+	var tlen = codes.length;
 	//alert(tlen);
 	document.forms[0].dxCode.value="";
 	document.forms[0].dxCode1.value="";
@@ -898,18 +906,18 @@ function changeCut(dropdown) {
 		ocode.value	= "";
 		ounit.value	= "";
 		operc.value	= "";
-		if(i<tlen && temp[n].length==5) {
-			ocode.value	= temp[n];
-			ounit.value	= temp[n+1];
-			operc.value	= temp[n+2];
+		if(i<tlen && codes[n].length==5) {
+			ocode.value	= codes[n];
+			ounit.value	= codes[n+1];
+			operc.value	= codes[n+2];
 			n=n+3;
-		} else if(i<tlen && temp[n].length==3) {
+		} else if(i<tlen && codes[n].length==3) {
 			if(document.forms[0].dxCode.value=="") {
-				document.forms[0].dxCode.value=temp[n];
+				document.forms[0].dxCode.value=codes[n];
 			} else if(document.forms[0].dxCode1.value=="") {
-				document.forms[0].dxCode1.value=temp[n];
+				document.forms[0].dxCode1.value=codes[n];
 			} else if(document.forms[0].dxCode2.value=="") {
-				document.forms[0].dxCode2.value=temp[n];
+				document.forms[0].dxCode2.value=codes[n];
 			}
 			n=n+1;
 		}
@@ -919,6 +927,21 @@ function changeCut(dropdown) {
 		document.forms[0].dxCode1.value='<%=request.getParameter("dxCode1")!=null?request.getParameter("dxCode1"):""%>';
 		document.forms[0].dxCode2.value='<%=request.getParameter("dxCode2")!=null?request.getParameter("dxCode2"):""%>';
 		}
+
+	if (visitCode.trim().length>0){
+        jQuery('select[name=xml_visittype] option').each(function(){
+            if (this.value.startsWith(visitCode) ) {
+                this.selected = true;
+            }
+        });
+	}
+    if (locationCode.trim().length>0){
+        jQuery('select[name=xml_location] option').each(function(){
+            if (this.value.startsWith(locationCode) ) {
+                this.selected = true;
+            }
+        });
+    }
 }
 
 function popupPage(vheight,vwidth,varpage) { //open a new popup window
@@ -1236,14 +1259,16 @@ if(checkFlag == null) checkFlag = "0";
 				<td align="right"><oscar:help keywords="1.4 Billing"
 						key="app.top1" style="color: #FFFFFF" /> <font color="#FFFFFF">
 					| </font> <a href=#
-					onclick="popupPage(460,680,'billingONfavourite.jsp'); return false;">
+					onclick="popupPage(460,680,'billingONfavourite.jsp?apptProvider_no=<%=apptProvider_no%>&visitType='+document.forms[0].xml_visittype.value+'&location='+document.forms[0].xml_location.value); return false;">
 						<font color="#FFFFFF">Edit</font>
 				</a> <select name="cutlist" id="cutlist" onchange="changeCut(this)">
 						<option selected="selected" value="">- SUPER CODES -</option>
 						<% //
 		    List sL = tdbObj.getBillingFavouriteList();
-		    for (int i = 0; i < sL.size(); i = i + 2) { %>
-						<option value="<%=(String) sL.get(i+1)%>"><%=(String) sL.get(i)%></option>
+		    for (int i = 0; i < sL.size(); i = i + 2) {
+				String favouriteName = String.valueOf(sL.get(i));
+				List<String> visitTypeLocation = tdbObj.getBillingFavouriteTypeAndLocation(favouriteName);		%>
+						<option value="<%=(String) sL.get(i+1)%> [<%=visitTypeLocation.get(0)!=null?visitTypeLocation.get(0):""%>|<%=visitTypeLocation.get(1)!=null?visitTypeLocation.get(1):""%>]"><%=favouriteName%></option>
 						<% } %>
 				</select></td>
 				<td align="right" width="10%" nowrap><input type="submit"
