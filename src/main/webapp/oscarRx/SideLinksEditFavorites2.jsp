@@ -47,8 +47,8 @@
         String alle = "";
         if (allergies.length > 0 ){ alle = "Red"; }
         %>
-<td width="20%" height="100%" valign="top">
-<div class="PropSheetMenu">
+<td width="20%" valign="top">
+<div class="PropSheetMenu" style="overflow-x: scroll; height: 100%;">
 
 <security:oscarSec roleName="<%=roleName$%>" objectName="_allergy" rights="r" reverse="<%=false%>">
 
