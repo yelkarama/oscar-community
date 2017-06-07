@@ -6976,6 +6976,7 @@ CREATE TABLE messagelisttbl (
   provider_no varchar(6) default NULL,
   status varchar(10) default NULL,
   remoteLocation int(10) default NULL,
+  folderid INT(10) DEFAULT 0 NULL,
   PRIMARY KEY(id),
   KEY `message` (`message`),
   KEY `provider_no` (`provider_no`),
@@ -12449,4 +12450,13 @@ CREATE TABLE `tickler_category` (
   `description` varchar(255),
   `active` bit(1),
   PRIMARY KEY (`id`)
+);
+
+CREATE TABLE messageFolder
+(
+  folderID int(10) PRIMARY KEY  NOT NULL auto_increment,
+  name varchar(25) NOT NULL default '',
+  providerNo varchar(6) default null,
+  displayOrder int(10),
+  deleted boolean NOT NULL DEFAULT false
 );

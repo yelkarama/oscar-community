@@ -847,6 +847,10 @@
 		<action input="/oscarMessenger/ViewMessage.jsp" path="/oscarMessenger/WriteToEncounter" scope="request" type="oscar.oscarMessenger.pageUtil.MsgWriteToEncounterAction">
 			<forward name="success" path="/oscarEncounter/IncomingEncounter.do" />
 		</action>
+		<action input="/oscarMessenger/ManageFolders.jsp"  path="/oscarMessenger/ManageFolders" scope="request" type="oscar.oscarMessenger.pageUtil.MsgManageFolderAction">
+			<forward name="success" path="/oscarMessenger/ManageFolders.jsp" />
+		</action>
+
 		<action name="RxChoosePatientForm" path="/oscarRx/choosePatient" scope="request" type="oscar.oscarRx.pageUtil.RxChoosePatientAction">
 			<forward name="success" path="/oscarRx/SearchDrug.jsp" />
 			<forward name="successRX3" path="/oscarRx/SearchDrug3.jsp" />
