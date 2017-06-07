@@ -31,6 +31,7 @@
 		<property column="provider_activity" length="3" name="ProviderActivity" not-null="false" type="string" />
 		<property column="first_name" length="30" name="FirstName" not-null="true" type="string" />
 		<property column="rma_no" length="20" name="RmaNo" not-null="false" type="string" />
+		<property column="thirdPartyOnly" length="1" name="ThirdPartyOnly" not-null="true" type="java.lang.Boolean" />
 		<property column="signed_confidentiality" name="SignedConfidentiality" not-null="false" type="java.util.Date" />
 		<property name="email" />
 		<property column="practitionerNo" length="20" name="practitionerNo" not-null="false" type="string" />

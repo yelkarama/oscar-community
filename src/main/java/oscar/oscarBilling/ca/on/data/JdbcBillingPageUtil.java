@@ -124,9 +124,13 @@ public class JdbcBillingPageUtil {
 	}
 
 	public List<String> getCurProviderStr() {
+		return getCurProviderStr(true);
+	}
+
+	public List<String> getCurProviderStr(Boolean includeThirdPartyOnly) {
 		List<String> retval = new ArrayList<String>();
 		
-		List<Provider> ps = providerDao.getBillableProviders();
+		List<Provider> ps = includeThirdPartyOnly?providerDao.getAllBillableProviders():providerDao.getBillableProviders();
 		String proid = "";
 		String proFirst = "";
 		String proLast = "";

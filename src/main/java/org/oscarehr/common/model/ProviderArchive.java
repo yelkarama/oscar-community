@@ -64,6 +64,8 @@ public class ProviderArchive extends AbstractModel<Integer> {
 	private String ohipNo;
 	@Column(name="rma_no")
 	private String rmaNo;
+	@Column(name="thirdPartyOnly")
+	private boolean thirdPartyOnly;
 	@Column(name="billing_no")
 	private String billingNo;
 	@Column(name="hso_no")
@@ -166,6 +168,12 @@ public class ProviderArchive extends AbstractModel<Integer> {
 	public void setRmaNo(String rmaNo) {
     	this.rmaNo = rmaNo;
     }
+	public boolean isThirdPartyOnly() {
+		return thirdPartyOnly;
+	}
+	public void setThirdPartyOnly(boolean thirdPartyOnly) {
+		this.thirdPartyOnly = thirdPartyOnly;
+	}
 	public String getBillingNo() {
     	return billingNo;
     }

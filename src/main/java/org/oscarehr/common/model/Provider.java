@@ -58,6 +58,7 @@ public class Provider implements Serializable, Comparable<Provider>{
 	private String providerActivity;
 	private String firstName;
 	private String rmaNo;
+	private boolean thirdPartyOnly = false;
     private Date SignedConfidentiality;
     private String practitionerNo;
     private String email;
@@ -117,6 +118,7 @@ public class Provider implements Serializable, Comparable<Provider>{
 		providerActivity = provider.providerActivity;
 		firstName = provider.firstName;
 		rmaNo = provider.rmaNo;
+		thirdPartyOnly = provider.thirdPartyOnly;
 		SignedConfidentiality = provider.SignedConfidentiality;
 		practitionerNo = provider.practitionerNo;
 		email = provider.email;
@@ -289,6 +291,15 @@ public class Provider implements Serializable, Comparable<Provider>{
 
 	public void setRmaNo(String rmaNo) {
 		this.rmaNo = rmaNo;
+	}
+
+	public boolean isThirdPartyOnly() {
+		return thirdPartyOnly;
+	}
+
+	public void setThirdPartyOnly(boolean isThirdPartyOnly) {
+
+		this.thirdPartyOnly = isThirdPartyOnly;
 	}
 
     public String getEmail() {

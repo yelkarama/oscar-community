@@ -257,7 +257,7 @@ public class BillingReviewPrep {
 	// ret - Vector = || ||
 	public List getProviderBillingStr() {
 		JdbcBillingPageUtil dbObj = new JdbcBillingPageUtil();
-		List ret = dbObj.getCurProviderStr();
+		List ret = dbObj.getCurProviderStr(false);
 		return ret;
 	}
 	

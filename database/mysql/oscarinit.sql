@@ -7201,6 +7201,7 @@ CREATE TABLE provider (
   `lastUpdateUser` varchar(6) default NULL,
   `lastUpdateDate` datetime not null,
   `signed_confidentiality` datetime,
+  thirdPartyOnly BOOLEAN DEFAULT FALSE NOT NULL,
   PRIMARY KEY  (provider_no)
 );
 
