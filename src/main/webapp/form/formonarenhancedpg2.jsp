@@ -153,13 +153,15 @@
 <script src="<%=request.getContextPath()%>/js/jquery-ui-1.8.18.custom.min.js"></script>
 <script src="<%=request.getContextPath()%>/js/fg.menu.js"></script>
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/fancybox/jquery.fancybox-1.3.4.pack.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath()%>/js/formonarenhanced.js"></script>
 <link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/js/fancybox/jquery.fancybox-1.3.4.css" media="screen" />
-
 
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/cupertino/jquery-ui-1.8.18.custom.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/fg.menu.css">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/formonarenhanced.css">
 
-<script>
+
+	<script>
 	$(document).ready(function(){	
 		window.moveTo(0, 0);
 		window.resizeTo(screen.availWidth, screen.availHeight);
@@ -167,59 +169,16 @@
 </script>
 
 <style type="text/css">
-
-body{
-margin: 0;
-padding: 0;
-border: 0;
-overflow: hidden;
-height: 100%; 
-max-height: 100%; 
-}
-
-#framecontent{
-position: absolute;
-top: 0;
-bottom: 0; 
-left: 0;
-width: 190px; /*Width of frame div*/
-height: 100%;
-overflow: hidden; /*Disable scrollbars. Set to "scroll" to enable*/
-background: navy;
-color: white;
-}
-
-#maincontent{
-position: fixed;
-top: 0; 
-left: 190px; /*Set left value to WidthOfFrameDiv*/
-right: 0;
-bottom: 0;
-overflow: auto; 
-background: #fff;
-}
-
-.innertube{
-margin: 5px; /*Margins for inner DIV inside each DIV (to provide padding)*/
-}
-
-* html body{ /*IE6 hack*/
-padding: 0 0 0 200px; /*Set value to (0 0 0 WidthOfFrameDiv)*/
-}
-
-* html #maincontent{ /*IE6 hack*/
-height: 100%; 
-width: 100%; 
-}
-
-.fg-menu{
-	overflow:scroll;
-	overflow-x: hidden;
-	max-height:400px;
-}
-
+	#AR2-ALI{
+		width:20%;
+		height:100%;
+		float:right;
+	}
+	#AR2-US{
+		width:80%;
+		float:right;
+	}
 </style>
-
 <script>
 	<%if(bView) { %>
 	$(document).ready(function(){
@@ -299,7 +258,7 @@ width: 100%;
 					alert("Subsequent Visit - Date is invalid");
 					return false;
 				}
-				
+
 				patt1=new RegExp("^((\\d)+w(\\+\\d)?)?$");
 				if(!patt1.test($("input[name='pg2_gest"+x+"']").val())) {
 					alert("Subsequent Visit - Gestational Age is invalid");
@@ -315,11 +274,11 @@ width: 100%;
 					alert("Subsequent Visit - BP is invalid");
 					return false;
 				}
-				
-				
+
+
 			}
 		}
-		
+
 		for(var x=1;x<=12;x++) {
 			if($('#us_'+ x).length>0) {
 				var patt1=new RegExp("^(\\d{4}/\\d{2}/\\d{2})?$");
@@ -327,7 +286,7 @@ width: 100%;
 					alert("U/S - Date is invalid");
 					return false;
 				}
-				
+
 				patt1=new RegExp("^((\\d)+w(\\+\\d)?)?$");
 				if(!patt1.test($("input[name='ar2_uGA"+x+"']").val())) {
 					alert("U/S - Gestational Age is invalid");
@@ -394,66 +353,6 @@ width: 100%;
 		}
 	
 	});
-	
-	function adjustDynamicListTotals() {		
-		$('#rf_num').val(adjustDynamicListTotalsRF('rf_',20,true));
-		$('#sv_num').val(adjustDynamicListTotalsSV('sv_',70,true));
-		$('#us_num').val(adjustDynamicListTotalsUS('us_',12,true));
-	}
-	
-	function adjustDynamicListTotalsRF(name,max,adjust) {		
-		var total = 0;
-		for(var x=1;x<=max;x++) {
-			if($('#'+ name +x).length>0) {
-				total++;
-				if((x != total) && adjust) {
-					$("#rf_"+x).attr('id','rf_'+total);				
-					$("input[name='c_riskFactors"+x+"']").attr('name','c_riskFactors'+total);
-					$("input[name='c_planManage"+x+"']").attr('name','c_planManage'+total);				
-				}
-			}			
-		}	
-		return total;
-	}
-	
-	function adjustDynamicListTotalsSV(name,max,adjust) {		
-		var total = 0;
-		for(var x=1;x<=max;x++) {
-			if($('#'+ name +x).length>0) {
-				total++;
-				if((x != total) && adjust) {			
-					$("#sv_"+x).attr('id','sv_'+total);				
-					$("input[name='pg2_date"+x+"']").attr('name','pg2_date'+total);
-					$("input[name='pg2_gest"+x+"']").attr('name','pg2_gest'+total);
-					$("input[name='pg2_wt"+x+"']").attr('name','pg2_wt'+total);
-					$("input[name='pg2_BP"+x+"']").attr('name','pg2_BP'+total);
-					$("input[name='pg2_urinePr"+x+"']").attr('name','pg2_urinePr'+total);
-					//$("input[name='pg2_urineGl"+x+"']").attr('name','pg2_urineGl'+total);
-					$("input[name='pg2_ht"+x+"']").attr('name','pg2_ht'+total);
-					$("input[name='pg2_presn"+x+"']").attr('name','pg2_presn'+total);
-					$("input[name='pg2_FHR"+x+"']").attr('name','pg2_FHR'+total);
-					$("input[name='pg2_comments"+x+"']").attr('name','pg2_comments'+total);
-				}
-			}			
-		}	
-		return total;
-	}
-	
-	function adjustDynamicListTotalsUS(name,max,adjust) {		
-		var total = 0;
-		for(var x=1;x<=max;x++) {
-			if($('#'+ name +x).length>0) {
-				total++;
-				if((x != total) && adjust) {
-					$("#us_"+x).attr('id','us_'+total);				
-					$("input[name='ar2_uDate"+x+"']").attr('name','ar2_uDate'+total);
-					$("input[name='ar2_uGA"+x+"']").attr('name','ar2_uGA'+total);
-					$("input[name='ar2_uResults"+x+"']").attr('name','ar2_uResults'+total);						  
-				}
-			}			
-		}	
-		return total;
-	}
 </script>
 
 
@@ -518,38 +417,6 @@ function deleteSubsequentVisit(id) {
 	var followUpId = jQuery("input[name='sv_"+id+"']").val();
 	jQuery("form[name='FrmForm']").append("<input type=\"hidden\" name=\"sv.delete\" value=\""+followUpId+"\"/>");
 	jQuery("#sv_"+id).remove();
-
-}
-
-function addUltraSound() {
-	if(adjustDynamicListTotalsUS("us_",12,false) >= 12) {
-		alert('Maximum number of rows is 12');
-		return;
-	}
-	
-	var total = jQuery("#us_num").val();
-	total++;
-	jQuery("#us_num").val(total);
-	jQuery.ajax({url:'onarenhanced_us.jsp?n='+total,async:false, success:function(data) {
-		  jQuery("#us_container tbody").append(data);
-	}});
-	
-	Calendar.setup({ inputField : "ar2_uDate"+total, ifFormat : "%Y/%m/%d", showsTime :false, button : "ar2_uDate"+total+"_cal", singleClick : true, step : 1 });
-}
-
-
-function createCalendarSetupOnLoad(){
-	var numItems = $('.ar2uDate').length;
-	for(var x=1;x<=numItems;x++) {	
-		Calendar.setup({ inputField : "ar2_uDate"+x, ifFormat : "%Y/%m/%d", showsTime :false, button : "ar2_uDate"+x+"_cal", singleClick : true, step : 1 });
-	}
-}
-
-
-function deleteUltraSound(id) {
-	var followUpId = jQuery("input[name='us_"+id+"']").val();
-	jQuery("form[name='FrmForm']").append("<input type=\"hidden\" name=\"us.delete\" value=\""+followUpId+"\"/>");
-	jQuery("#us_"+id).remove();
 
 }
 
@@ -922,18 +789,7 @@ function onPrint2() {
         adjustDynamicListTotals();
         return ret && ret1;
     }
-    
-    function onSaveExit() {
-        document.forms[0].submit.value="exit";
-        var ret = checkAllDates();
-        var ret1 = validate();
-        if(ret==true && ret1 == true) {
-            reset();
-            ret = confirm("Are you sure you wish to save and close this window?");
-        }
-        adjustDynamicListTotals();
-        return ret && ret1;
-    }
+
     function onPageChange(url) {
     	var result = false;
     	var newID = 0;
@@ -1255,13 +1111,6 @@ if (!fedb.equals("") && fedb.length()==10 ) {
 	    }
         return temp;
     }
-function calToday(field) {	
-	var calDate=new Date();
-	varMonth = calDate.getMonth()+1;
-	varMonth = varMonth>9? varMonth : ("0"+varMonth);
-	varDate = calDate.getDate()>9? calDate.getDate(): ("0"+calDate.getDate());
-	field.value = calDate.getFullYear() + '/' + (varMonth) + '/' + varDate;
-}
 
 
 /*
@@ -2466,20 +2315,17 @@ $(document).ready(function(){
 	
 	<input type="hidden" id="us_num" name="us_num" value="<%= props.getProperty("us_num", "0") %>"/>
 	
-	<table width="100%" border="0" cellspacing="0" cellpadding="0">
-		<tr>
-			<td width="20%">&nbsp;</td>
+	<table id="AR2" width="100%" border="0" cellspacing="0" cellpadding="0">
+		<tr width="80%">
 			<td width="80%" valign="top">
-			<table width="100%" border="1" cellspacing="0" cellpadding="0">
+				<table id="AR2-US" border="1" cellspacing="0" cellpadding="0" style="min-width:620px;">
 				<tr>
-					<th colspan="3" align="center" bgcolor="#CCCCCC">Ultrasound</th>
-					<th colspan="2" align="center" bgcolor="#CCCCCC">Additional
-					Lab Investigations</th>
+					<th align="center" bgcolor="#CCCCCC">Ultrasound</th>
 				</tr>
 				
 				
 				<tr>
-					<td colspan="3" align="center">
+					<td align="center">
 					<div style="height:10em;overflow-y:scroll;width:100%">
 						<table width="100%" id="us_container">
 						<thead>
@@ -2499,74 +2345,13 @@ $(document).ready(function(){
 						</table>
 						</div>
 					</td>
-					<td colspan="2" align="center" valign="top" >
-						<table border="1" cellspacing="0" cellpadding="0">
-							<tr>
-								<td align="center" width="15%">Test</td>
-								<td align="center">Result</td>
-							</tr>
-							<tr>
-								<td>Hb</td>
-								<td><input type="text" name="ar2_hb" size="10" maxlength="10"
-								value="<%= UtilMisc.htmlEscape(props.getProperty("ar2_hb", "")) %>"></td>
-							</tr>
+				</tr>
 				<tr>
-
-					<td>ABO/Rh</td>
-					
-					<td>
-						<select name="ar2_bloodGroup">
-							<option value="ND">Not Done</option>
-							<option value="A">A</option>
-							<option value="B">B</option>
-							<option value="AB">AB</option>
-							<option value="O">O</option>
-							<option value="UN">Unknown</option>
-						</select>		
-						/
-						<select name="ar2_rh">
-							<option value="NDONE">Not Done</option>
-							<option value="POS">Positive</option>
-							<option value="WPOS">Weak Positive</option>
-							<option value="NEG">Negative</option>
-							<option value="UNK">Unknown</option>
-						</select>					
-					
-					</td>
+					<th>Discussion Topics</th>
 
 				</tr>
 				<tr>
-
-					<td>Repeat ABS</td>
-					<td><input type="text" name="ar2_labABS" size="10"
-						maxlength="10"
-						value="<%= UtilMisc.htmlEscape(props.getProperty("ar2_labABS", "")) %>"></td>
-				</tr>
-				<tr>
-
-					<td>1 hr. GCT</td>
-					<td><input type="text" name="ar2_lab1GCT" size="10"
-						maxlength="10"
-						value="<%= UtilMisc.htmlEscape(props.getProperty("ar2_lab1GCT", "")) %>"></td>
-				</tr>							
-						</table>
-					</td>
-				</tr>
-			
-
-				<tr>
-					<th colspan="3">Discussion Topics</th>
-					<td colspan="2" nowrap="nowrap">2 hr. GTT &nbsp;
-					
-						<input type="hidden" name="ar2_lab2GTT" value="<%= UtilMisc.htmlEscape(props.getProperty("ar2_lab2GTT", "")) %>"/> 
-						<input style="width:50px" type="text" name="ar2_lab2GTT1" size="4" maxlength="4">/
-						<input style="width:50px" type="text" name="ar2_lab2GTT2" size="4" maxlength="4">/
-						<input style="width:50px" type="text" name="ar2_lab2GTT3" size="4" maxlength="4">
-					
-					</td>					
-				</tr>
-				<tr>
-					<td colspan="3" rowspan="5">
+					<td rowspan="5">
 
 					<table border="0" cellspacing="0" cellpadding="0" width="100%">
 						<tr>
@@ -2625,49 +2410,130 @@ $(document).ready(function(){
 					</table>
 
 					</td>
-					<td>GBS</td>
-					<td>
-						<select name="ar2_strep">
-							<option value="NDONE">Not Done</option>
-							<option value="POSSWAB">Positive swab result</option>
-							<option value="POSURINE">Urine Positive for GBS</option>
-							<option value="NEGSWAB">Negative swab result</option>
-							<option value="DONEUNK">Done-result unknown</option>
-							<option value="UNK">Unknown if screened</option>						
-						</select>
-					</td>
 				</tr>
 				<tr>
-					<td>
-						<select name="ar2_labCustom1Label">
-							<option value=""></option>
-							<option value="chlamydia_toc">chlamydia TOC</option>
-							<option value="fu_urine">f/u urine</option>
-						</select>
-					</td>
-					<td><input type="text"  size="10" name="ar2_labCustom1Result" value="<%= UtilMisc.htmlEscape(props.getProperty("ar2_labCustom1Result", "")) %>"/></td>
-				</tr>
-				<tr>
-					<td>
-						<select name="ar2_labCustom2Label">
-							<option value=""></option>
-							<option value="chlamydia_toc">chlamydia TOC</option>
-							<option value="fu_urine">f/u urine</option>
-						</select>
-					</td>
-					<td><input type="text"  size="10" name="ar2_labCustom2Result" value="<%= UtilMisc.htmlEscape(props.getProperty("ar2_labCustom2Result", "")) %>"/></td>
-				</tr>
-				<tr>
-					<td><input type="text" size="10" name="ar2_labCustom3Label" value="<%= UtilMisc.htmlEscape(props.getProperty("ar2_labCustom3Label", "")) %>"/></td>
-					<td><input type="text"  size="10" name="ar2_labCustom3Result" value="<%= UtilMisc.htmlEscape(props.getProperty("ar2_labCustom3Result", "")) %>"/></td>
-				</tr>
-				<tr>
-					<td><input type="text" size="10" name="ar2_labCustom4Label" value="<%= UtilMisc.htmlEscape(props.getProperty("ar2_labCustom4Label", "")) %>"/></td>
-					<td><input type="text"  size="10" name="ar2_labCustom4Result" value="<%= UtilMisc.htmlEscape(props.getProperty("ar2_labCustom4Result", "")) %>"/></td>
 				</tr>
 			</table>
 
 			</td>
+			<td width="20%" height="100%" valign="top">
+				<table id="AR2-ALI" border="1" cellspacing="0" cellpadding="0">
+					<tr>
+						<th align="center" bgcolor="#CCCCCC" colspan="2">Additional Lab Investigations</th>
+					</tr>
+
+					<tr>
+						<td align="center" colspan="2" valign="top" >
+							<table border="1" cellspacing="0" cellpadding="0">
+								<tr>
+									<td align="center" width="15%">Test</td>
+									<td align="center">Result</td>
+								</tr>
+								<tr>
+									<td>Hb</td>
+									<td><input type="text" name="ar2_hb" size="10" maxlength="10"
+											   value="<%= UtilMisc.htmlEscape(props.getProperty("ar2_hb", "")) %>"></td>
+								</tr>
+								<tr>
+
+									<td>ABO/Rh</td>
+
+									<td>
+										<select name="ar2_bloodGroup">
+											<option value="ND">Not Done</option>
+											<option value="A">A</option>
+											<option value="B">B</option>
+											<option value="AB">AB</option>
+											<option value="O">O</option>
+											<option value="UN">Unknown</option>
+										</select>
+										/
+										<select name="ar2_rh">
+											<option value="NDONE">Not Done</option>
+											<option value="POS">Positive</option>
+											<option value="WPOS">Weak Positive</option>
+											<option value="NEG">Negative</option>
+											<option value="UNK">Unknown</option>
+										</select>
+
+									</td>
+
+								</tr>
+								<tr>
+
+									<td>Repeat ABS</td>
+									<td><input type="text" name="ar2_labABS" size="10"
+											   maxlength="10"
+											   value="<%= UtilMisc.htmlEscape(props.getProperty("ar2_labABS", "")) %>"></td>
+								</tr>
+								<tr>
+
+									<td>1 hr. GCT</td>
+									<td><input type="text" name="ar2_lab1GCT" size="10"
+											   maxlength="10"
+											   value="<%= UtilMisc.htmlEscape(props.getProperty("ar2_lab1GCT", "")) %>"></td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+
+
+					<tr>
+						<td nowrap="nowrap">2 hr. GTT &nbsp;
+
+							<input type="hidden" name="ar2_lab2GTT" value="<%= UtilMisc.htmlEscape(props.getProperty("ar2_lab2GTT", "")) %>"/>
+							<input style="width:50px" type="text" name="ar2_lab2GTT1" size="4" maxlength="4">/
+							<input style="width:50px" type="text" name="ar2_lab2GTT2" size="4" maxlength="4">/
+							<input style="width:50px" type="text" name="ar2_lab2GTT3" size="4" maxlength="4">
+
+						</td>
+					</tr>
+					<tr>
+
+						<td>GBS</td>
+						<td>
+							<select name="ar2_strep">
+								<option value="NDONE">Not Done</option>
+								<option value="POSSWAB">Positive swab result</option>
+								<option value="POSURINE">Urine Positive for GBS</option>
+								<option value="NEGSWAB">Negative swab result</option>
+								<option value="DONEUNK">Done-result unknown</option>
+								<option value="UNK">Unknown if screened</option>
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							<select name="ar2_labCustom1Label">
+								<option value=""></option>
+								<option value="chlamydia_toc">chlamydia TOC</option>
+								<option value="fu_urine">f/u urine</option>
+							</select>
+						</td>
+						<td><input type="text"  size="10" name="ar2_labCustom1Result" value="<%= UtilMisc.htmlEscape(props.getProperty("ar2_labCustom1Result", "")) %>"/></td>
+					</tr>
+					<tr>
+						<td>
+							<select name="ar2_labCustom2Label">
+								<option value=""></option>
+								<option value="chlamydia_toc">chlamydia TOC</option>
+								<option value="fu_urine">f/u urine</option>
+							</select>
+						</td>
+						<td><input type="text"  size="10" name="ar2_labCustom2Result" value="<%= UtilMisc.htmlEscape(props.getProperty("ar2_labCustom2Result", "")) %>"/></td>
+					</tr>
+					<tr>
+						<td><input type="text" size="10" name="ar2_labCustom3Label" value="<%= UtilMisc.htmlEscape(props.getProperty("ar2_labCustom3Label", "")) %>"/></td>
+						<td><input type="text"  size="10" name="ar2_labCustom3Result" value="<%= UtilMisc.htmlEscape(props.getProperty("ar2_labCustom3Result", "")) %>"/></td>
+					</tr>
+					<tr>
+						<td><input type="text" size="10" name="ar2_labCustom4Label" value="<%= UtilMisc.htmlEscape(props.getProperty("ar2_labCustom4Label", "")) %>"/></td>
+						<td><input type="text"  size="10" name="ar2_labCustom4Result" value="<%= UtilMisc.htmlEscape(props.getProperty("ar2_labCustom4Result", "")) %>"/></td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+		<tr width="20%">
 		</tr>
 	</table>
 	<table width="100%" border="0">

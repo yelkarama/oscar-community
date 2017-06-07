@@ -59,6 +59,7 @@
 <jsp:useBean id="oscarVariables" class="java.util.Properties" scope="session" />
 <%@	page import="javax.swing.text.rtf.RTFEditorKit"%>
 <%@	page import="java.io.ByteArrayInputStream"%>
+<%@ page import="oscar.oscarEncounter.data.EctFormData" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic" %>
@@ -128,6 +129,18 @@ String formNameShort = formName.length() > 3 ? (formName.substring(0,2)+".") : f
 String formName2 = bShortcutForm ? OscarProperties.getInstance().getProperty("appt_formview_name2", "") : "";
 String formName2Short = formName2.length() > 3 ? (formName2.substring(0,2)+".") : formName2;
 boolean bShortcutForm2 = bShortcutForm && !formName2.equals("");
+boolean obgynShortcuts = OscarProperties.getInstance().getProperty("show_obgyn_shortcuts", "false").equalsIgnoreCase("true") ? true : false;
+if (oscar.util.StringUtils.isNullOrEmpty(demographicID)){
+    obgynShortcuts = false;
+}
+String formId = "0";
+if (obgynShortcuts){
+    List<EctFormData.PatientForm> formsONAREnhanced = Arrays.asList(EctFormData.getPatientFormsFromLocalAndRemote(loggedInInfo,demographicID,"formONAREnhancedRecord",true));
+    if (formsONAREnhanced!=null && !formsONAREnhanced.isEmpty()){
+        formId = formsONAREnhanced.get(0).getFormId();
+    }
+}
+
 List<MessageHandler>handlers = new ArrayList<MessageHandler>();
 String []segmentIDs = null;
 Boolean showAll = showAllstr != null && !"null".equalsIgnoreCase(showAllstr);
@@ -751,6 +764,18 @@ pre {
                                     <span class="Field2"><i>Next Appointment: <oscar:nextAppt demographicNo="<%=demographicID%>"/></i></span>
                                 </td>
                             </tr>
+                            <% if (obgynShortcuts) {%>
+                            <tr>
+                                <td>
+                                    <input type="button" value="AR1-ILI" onClick="popupONAREnhanced(290, 625, '<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&section='+this.value)" />
+                                    <input type="button" value="AR1-PGI" onClick="popupONAREnhanced(225, 590,'<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&section='+this.value)" />
+                                    <input type="button" value="AR2-US" onClick="popupONAREnhanced(395, 655, '<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&section='+this.value)" />
+                                    <input type="button" value="AR2-ALI" onClick="popupONAREnhanced(375, 430, '<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&section='+this.value)" />
+                                    <input type="button" value="AR2" onClick="popupPage(700, 1024, '<%=request.getContextPath()%>/form/formonarenhancedpg2.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>')" />
+
+                                </td>
+                            </tr>
+                            <% } %>
                         </table>
                         <table width="100%" border="1" cellspacing="0" cellpadding="3" bgcolor="#9999CC" bordercolordark="#bfcbe3">
                             <%
@@ -1733,8 +1758,19 @@ pre {
                         </table>
                     </td>
                 </tr>
-            </table>
+               <% if (obgynShortcuts) {%>
+               <tr>
+                   <td>
+                       <input type="button" value="AR1-ILI" onClick="popupONAREnhanced(290, 625, '<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&section='+this.value)" />
+                       <input type="button" value="AR1-PGI" onClick="popupONAREnhanced(225, 590,'<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&section='+this.value)" />
+                       <input type="button" value="AR2-US" onClick="popupONAREnhanced(395, 655, '<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&section='+this.value)" />
+                       <input type="button" value="AR2-ALI" onClick="popupONAREnhanced(375, 430, '<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&section='+this.value)" />
+                       <input type="button" value="AR2" onClick="popupPage(700, 1024, '<%=request.getContextPath()%>/form/formonarenhancedpg2.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>')" />
 
+                   </td>
+               </tr>
+               <% } %>
+            </table>
         </form>      
         
         <%String s = ""+System.currentTimeMillis();%>
