@@ -376,25 +376,25 @@ function popupOscarRx(vheight,vwidth,varpage) { //open a new popup window
 
 
     function selectprovider(s) {
-        if(s.options[s.selectedIndex].value.indexOf("_grp_")!=-1 ) 
-        {
-            var newGroupNo = s.options[s.selectedIndex].value.substring(5) ;
-            <%if (org.oscarehr.common.IsPropertiesOn.isCaisiEnable() && org.oscarehr.common.IsPropertiesOn.isTicklerPlusEnable()){%>
-            {
-                popupOscarRx(10,10, "providercontrol.jsp?provider_no=<%=curUser_no%>&start_hour=<%=startHour%>&end_hour=<%=endHour%>&every_min=<%=everyMin%>&new_tickler_warning_window=<%=n_t_w_w%>&color_template=deepblue&dboperation=updatepreference&displaymode=updatepreference&mygroup_no="+newGroupNo) + "<%=eformIds.toString()%><%=ectFormNames.toString()%>";
-            }
-            <%}else {%>
-                popupOscarRx(10,10, "providercontrol.jsp?provider_no=<%=curUser_no%>&start_hour=<%=startHour%>&end_hour=<%=endHour%>&every_min=<%=everyMin%>&color_template=deepblue&dboperation=updatepreference&displaymode=updatepreference&mygroup_no="+newGroupNo + "<%=eformIds.toString()%><%=ectFormNames.toString()%>");
-            <%}%>
-        } 
-        else 
-        {
-            if(self.location.href.lastIndexOf("&providerview=") > 0 ) 
-                a = self.location.href.substring(0,self.location.href.lastIndexOf("&providerview="));
-            else 
-                a = self.location.href;
-            self.location.href = a + "&providerview=" +s.options[s.selectedIndex].value ;
-        }
+		//remove providers and groups parameter's from url
+		var url = self.location.href;
+		var params = url.substr(url.indexOf("?")+1).split(/\?|&/);
+		url = url.substr(0, url.indexOf("?"));
+		//remove mygroup_no and providerview params and rebuild with existing params
+		for (var i = params.size()-1; i>=0; i--) {
+			var param = params[i];
+			if (param.includes("mygroup_no") || param.includes("providerview")) {
+				params.splice(i, 1);
+			} else {
+				url += (url.includes("?")?"&":"?") + param;
+			}
+		}
+		//determine which view to switch to
+		if (s.options[s.selectedIndex].value.includes("_grp_")) {
+			self.location.href = url + "&mygroup_no=" + s.options[s.selectedIndex].value.substring(5);
+		} else {
+			self.location.href = url + "&providerview=" + s.options[s.selectedIndex].value;
+		}
     }
 
 
