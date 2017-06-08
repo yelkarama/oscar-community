@@ -29,30 +29,22 @@
 <head>
 <title>Appointment Type</title>
 <script type="text/javascript">
-var dur = '';
-var reasonCode = '';
-var reason = '';
-var loc = '';
-var notes = '';
-var resources = '';
-var names = '';
+var durations = [];
+var reasonCodes = [];
+var reasons = [];
+var locations = [];
+var notes = [];
+var resources = [];
+var names = [];
 <%   for(int j = 0;j < types.size(); j++) { %>
-		dur = dur + '<%= types.get(j).getDuration() %>'+',';
-		reasonCode = reasonCode + '<%= types.get(j).getReasonCode() %>_<%=lookupListItemDao.find(types.get(j).getReasonCode())!=null?lookupListItemDao.find(types.get(j).getReasonCode()).getLabel():""%>'+',';
-		reason = reason + '<%= types.get(j).getReason() %>'+',';
-		loc = loc + '<%= types.get(j).getLocation() %>'+',';
-		notes = notes + '<%= types.get(j).getNotes() %>'+',';
-		resources = resources + '<%= types.get(j).getResources() %>'+',';
-		names = names + '<%= types.get(j).getName() %>'+',';
+		durations.push('<%= types.get(j).getDuration() %>');
+		reasonCodes.push('<%= types.get(j).getReasonCode() %>_<%=lookupListItemDao.find(types.get(j).getReasonCode())!=null?lookupListItemDao.find(types.get(j).getReasonCode()).getLabel():""%>');
+		reasons.push('<%= types.get(j).getReason() %>');
+		locations.push('<%= types.get(j).getLocation() %>');
+		notes.push('<%= types.get(j).getNotes() %>');
+		resources.push('<%= types.get(j).getResources() %>');
+		names.push('<%= types.get(j).getName() %>');
 <%   } %>
-	var durArray = dur.split(",");
-	var reasonCodeArray = reasonCode.split(",");
-	var reasonArray = reason.split(",");
-	var locArray = loc.split(",");
-	var notesArray = notes.split(",");
-	var resArray = resources.split(",");
-	var nameArray = names.split(",");
-	
 	var typeSel = '';
 	var reasonCodeSel = '';
 	var reasonCodeSelLabel = '';
@@ -64,14 +56,14 @@ var names = '';
 
 function getFields(idx) {
 	if(idx>0) {
-		typeSel = document.getElementById('durId').innerHTML = nameArray[idx-1];
-		durSel = document.getElementById('durId').innerHTML = durArray[idx-1];
-        reasonCodeSelLabel = document.getElementById('reasonCodeId').innerHTML = reasonCodeArray[idx-1].split('_')[1];
-        reasonCodeSel = reasonCodeArray[idx-1].split('_')[0];
-		reasonSel = document.getElementById('reasonId').innerHTML = reasonArray[idx-1];
-		locSel = document.getElementById('locId').innerHTML = locArray[idx-1];
-		notesSel = document.getElementById('notesId').innerHTML = notesArray[idx-1];
-		resSel = document.getElementById('resId').innerHTML = resArray[idx-1];
+		typeSel = document.getElementById('durId').innerHTML = names[idx-1];
+		durSel = document.getElementById('durId').innerHTML = durations[idx-1];
+        reasonCodeSelLabel = document.getElementById('reasonCodeId').innerHTML = reasonCodes[idx-1].split('_')[1];
+        reasonCodeSel = reasonCodes[idx-1].split('_')[0];
+		reasonSel = document.getElementById('reasonId').innerHTML = reasons[idx-1];
+		locSel = document.getElementById('locId').innerHTML = locations[idx-1];
+		notesSel = document.getElementById('notesId').innerHTML = notes[idx-1];
+		resSel = document.getElementById('resId').innerHTML = resources[idx-1];
 	}	
 }
 </script>
