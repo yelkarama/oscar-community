@@ -45,6 +45,12 @@ group1 = request.getParameter("group1");
 group2 = request.getParameter("group2");
 group3 = request.getParameter("group3");
 billtype = request.getParameter("billtype");
+String visitType = (request.getParameter("visitType")!=null && request.getParameter("visitType").equals("none")) ? null : request.getParameter("visitType");
+if(visitType!=null){
+	visitType = visitType.split("\\|")[0];
+}
+String location = request.getParameter("location");
+
 
 String errMessage = null;
 
@@ -120,10 +126,12 @@ if (type.compareTo("") == 0 || group1.compareTo("") == 0 || group2.compareTo("")
 	cdc.setStatus("A");
 	ctlDiagCodeDao.persist(cdc);
 
-	if (!billtype.equals("no")) {
+	if (!billtype.equals("no") &&  visitType!=null && !location.startsWith("0000")) {
 		CtlBillingType cbt = new CtlBillingType();
 		cbt.setId(typeid);
 		cbt.setBillType(billtype);
+		cbt.setVisitType(visitType);
+		cbt.setLocation(location.split("\\|")[0]);
 		ctlBillingTypeDao.persist(cbt);
 	}
 

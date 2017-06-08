@@ -1,4 +1,9 @@
-<%--  
+<%@ page import="org.oscarehr.common.dao.ClinicNbrDao" %>
+<%@ page import="org.oscarehr.common.model.ClinicNbr" %>
+<%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
+<%@ page import="org.oscarehr.common.model.Provider" %>
+<%@ page import="org.oscarehr.util.LoggedInInfo" %>
+<%@ page import="oscar.oscarBilling.ca.on.data.JdbcBillingPageUtil" %><%--
 /*
  * 
  * Copyright (c) 2001-2002. Department of Family Medicine, McMaster University. All Rights Reserved. *
@@ -89,6 +94,61 @@
 					<option value="ODS">-ODSP</option>
 					<option value="CPP">-CPP</option>
 					<option value="STD">-STD/LTD</option>
+				</select></td>
+			</tr>
+			<tr>
+				<td class="white">Default <bean:message key="billing.visittype" /> :</td>
+				<td class="white"><select name="visitType">
+					<option value="none">None</option>
+					<%
+						if (OscarProperties.getInstance().getBooleanProperty("rma_enabled", "true")) {
+					%>
+					<%
+						ClinicNbrDao cnDao = (ClinicNbrDao) SpringUtils.getBean("clinicNbrDao");
+						ArrayList<ClinicNbr> nbrs = cnDao.findAll();
+						ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao");
+						Provider p = providerDao.getProvider(user_no);
+						String providerNbr = SxmlMisc.getXmlContent(p.getComments(),"xml_p_nbr");
+						for (ClinicNbr clinic : nbrs) {
+							String valueString = String.format("%s | %s", clinic.getNbrValue(), clinic.getNbrString());
+					%>
+					<option value="<%=valueString%>"
+							<%=providerNbr.startsWith(clinic.getNbrValue())?"selected":""%>><%=valueString%></option>
+					<%
+						}
+					%>
+					<%
+					} else {
+					%>
+					<option value="00| Clinic Visit">00 | Clinic Visit</option>
+					<option value="01| Outpatient Visit">01 | Outpatient Visit</option>
+					<option value="02| Hospital Visit">02 | Hospital Visit</option>
+					<option value="03| ER">03 | ER</option>
+					<option value="04| Nursing Home">04 | Nursing Home</option>
+					<option value="05| Home Visit">05 | Home Visit</option>
+					<%
+						}
+					%>
+				</select></td>
+			</tr>
+			<tr>
+				<td class="white">Default <bean:message key="billing.visitlocation" /> :</td>
+				<td class="white"><select name="billlocation">
+					<%
+						JdbcBillingPageUtil tdbObj = new JdbcBillingPageUtil();
+						String billLocationNo="", billLocation="";
+						List lLocation = tdbObj.getFacilty_num();
+						for (int i = 0; i < lLocation.size(); i = i + 2) {
+							billLocationNo = (String) lLocation.get(i);
+							billLocation = (String) lLocation.get(i + 1);
+					%>
+					<option value="<%=billLocationNo + "|" + billLocation%>">
+						<%=billLocation%>
+					</option>
+					<%
+						}
+					%>
+
 				</select></td>
 			</tr>
 			<tr>

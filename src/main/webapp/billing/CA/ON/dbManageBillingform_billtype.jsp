@@ -39,22 +39,29 @@ String[] param = new String[2];
 
 servicetype = request.getParameter("servicetype");
 billtype = request.getParameter("billtype");
-billtype_old = request.getParameter("billtype_old");
+String visitType = (request.getParameter("visitType")!=null && request.getParameter("visitType").equals("none")) ? null : request.getParameter("visitType");
+if(visitType!=null){
+    visitType = visitType.split("\\|")[0];
+}
+String location = request.getParameter("location");
 
-if (billtype.equals("no")) {
+if (billtype.equals("no") && visitType==null && location.startsWith("0000")) {
     ctlBillingTypeDao.remove(servicetype);
     
-}
-else if (billtype_old.equals("no")) {
-    CtlBillingType cbt = new CtlBillingType();
-    cbt.setId(servicetype);
-    cbt.setBillType(billtype);
-    ctlBillingTypeDao.persist(cbt);
 } else {
     CtlBillingType cbt = ctlBillingTypeDao.find(servicetype);
     if(cbt != null) {
     	cbt.setBillType(billtype);
+    	cbt.setVisitType(visitType);
+    	cbt.setLocation(location!=null?location.split("\\|")[0]:location);
     	ctlBillingTypeDao.merge(cbt);
+    } else {
+        cbt = new CtlBillingType();
+        cbt.setId(servicetype);
+        cbt.setBillType(billtype);
+        cbt.setVisitType(visitType);
+        cbt.setLocation(location!=null?location.split("\\|")[0]:location);
+        ctlBillingTypeDao.persist(cbt);
     }
 }
 %>

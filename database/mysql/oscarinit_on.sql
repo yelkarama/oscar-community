@@ -1491,6 +1491,8 @@ CREATE TABLE billing_on_ext (
 CREATE TABLE ctl_billingtype (
     servicetype varchar(10) not null,
     billtype    varchar(5)  not null,
+    visitType char(2) DEFAULT NULL;
+    location varchar(4) DEFAULT NULL;
     primary key (servicetype)
 );
 

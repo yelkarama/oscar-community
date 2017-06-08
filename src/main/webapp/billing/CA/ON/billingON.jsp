@@ -1088,7 +1088,7 @@ function changeCodeDesc() {
 }
 
 //this function will show the content within the <div> tag of billing codes
-function toggleDiv(selectedBillForm, selectedBillFormName,billType)
+function toggleDiv(selectedBillForm, selectedBillFormName,billType,visitType, location)
 {
         document.getElementById("billForm").value=selectedBillForm;
         document.getElementById("billFormName").value=selectedBillFormName;
@@ -1100,6 +1100,23 @@ function toggleDiv(selectedBillForm, selectedBillFormName,billType)
         		}
         	}
         }
+
+        if(visitType!=''){
+            for (var i=0;i<document.forms[0].xml_visittype.options.length;i++) {
+                if (document.forms[0].xml_visittype.options[i].value.substring(0,2) == visitType){
+                    document.forms[0].xml_visittype.options[i].selected = true;
+                }
+            }
+		}
+
+		if(location!='')
+		{
+            for (var i=0;i<document.forms[0].xml_location.options.length;i++) {
+                if (document.forms[0].xml_location.options[i].value.substring(0,4) == location){
+                    document.forms[0].xml_location.options[i].selected = true;
+                }
+            }
+		}
 
         //dx search
         showBillFormDiv("dxCodeSearchDiv_",selectedBillForm);
@@ -1176,15 +1193,19 @@ function toggleDiv(selectedBillForm, selectedBillFormName,billType)
 			    currentFormName = ctlcodename;
 			}
 			String billType = "";
+			String formVisitType = "";
+			String formLocation = "";
 			
 			for(CtlBillingType bt : ctlBillingtypeDao.findByServiceType(ctlcode)) {
 				billType = bt.getBillType();
+				formVisitType = bt.getVisitType()!=null?bt.getVisitType():"";
+				formLocation = bt.getLocation()!=null?bt.getLocation():"";
 	        }
 %>
 			<tr bgcolor=<%=ctlCount%2==0 ? "#FFFFFF" : "#EEEEFF"%>>
 				<td colspan="2"><b><font size="-1" color="#7A388D">
 						<a href="#"
-							onclick="toggleDiv('<%=ctlcode%>', '<%=ctlcodename %>','<%=billType%>');showHideLayers('Layer1','','hide');"><%=ctlcodename%></a>
+							onclick="toggleDiv('<%=ctlcode%>', '<%=ctlcodename %>','<%=billType%>', '<%=formVisitType%>', '<%=formLocation%>');showHideLayers('Layer1','','hide');"><%=ctlcodename%></a>
 					</font></b></td>
 			</tr>
 			<%}%>
