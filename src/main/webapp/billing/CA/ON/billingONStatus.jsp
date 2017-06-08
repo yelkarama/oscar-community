@@ -800,6 +800,7 @@ if(statusType.equals("_")) { %>
              <th> <a href="javascript:void();" onClick="updateSort('DemographicNo');return false;">PATIENT</a></th>
              <th class="<%=hideName?"hidden-print":""%>">PATIENT NAME</th>
              <th> <a href="javascript:void();" onClick="updateSort('VisitLocation');return false;">LOCATION</a></th>
+             <th title="Billing Date">BILLING DATE</th>
              <th title="Status">STAT</th>
              <th>SETTLED</th>
              <th title="Code Billed">CODE</th>
@@ -930,10 +931,11 @@ if(statusType.equals("_")) { %>
 				
        %>       
           <tr <%=color %>> 
-             <td align="center"><%= ch1Obj.getBilling_date()%>  <%--=ch1Obj.getBilling_time()--%></td>  <!--SERVICE DATE-->
+             <td align="center"><%=ch1Obj.getService_date()%>  <%--=ch1Obj.getBilling_time()--%></td>  <!--SERVICE DATE-->
              <td align="center"><%=ch1Obj.getDemographic_no()%></td> <!--PATIENT-->
              <td align="center" class="<%=hideName?"hidden-print":""%>"><a href=# onclick="popupPage(800,740,'../../../demographic/demographiccontrol.jsp?demographic_no=<%=ch1Obj.getDemographic_no()%>&displaymode=edit&dboperation=search_detail');return false;"><%= ch1Obj.getDemographic_name()%></a></td> 
              <td align="center"><%=ch1Obj.getFacilty_num()!=null?ch1Obj.getFacilty_num():"" %></td>
+             <td align="center"><%=ch1Obj.getBilling_date()%></td><!--BILLING DATE-->
              <td align="center"><%=ch1Obj.getStatus()%></td> <!--STAT-->
              <td align="center"><%=settleDate%></td> <!--SETTLE DATE-->
              <td align="center"><%=getHtmlSpace(ch1Obj.getTransc_id())%></td><!--CODE-->
