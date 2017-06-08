@@ -87,6 +87,7 @@ public class ProviderPreference extends AbstractModel<String> implements Seriali
 	private String colourTemplate="deepblue";
 	private String newTicklerWarningWindow="disabled";
 	private String defaultServiceType="no";
+	private String defaultSliCode="no";
 	private String defaultCaisiPmm="disabled";
 	private String defaultNewOscarCme="disabled";
 	private boolean printQrCodeOnPrescriptions=Boolean.valueOf(OscarProperties.getInstance().getProperty("QR_CODE_ENABLED_PROVIDER_DEFAULT"));
@@ -304,6 +305,14 @@ public class ProviderPreference extends AbstractModel<String> implements Seriali
 	public void setDefaultServiceType(String defaultServiceType) {
     	this.defaultServiceType = defaultServiceType;
     }
+
+	public String getDefaultSliCode() {
+		return defaultSliCode;
+	}
+
+	public void setDefaultSliCode(String defaultSliCode) {
+		this.defaultSliCode = defaultSliCode;
+	}
 
 	public String getDefaultCaisiPmm() {
     	return defaultCaisiPmm;
