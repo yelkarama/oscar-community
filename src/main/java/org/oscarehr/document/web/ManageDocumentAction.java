@@ -165,9 +165,6 @@ public class ManageDocumentAction extends DispatchAction {
 				for (String proNo : flagproviders) {
 					providerInboxRoutingDAO.addToProviderInbox(proNo, Integer.parseInt(documentId), LabResultData.DOCUMENT);
 				}
-
-				// Removes the link to the "0" provider so that the document no longer shows up as "unclaimed"
-				providerInboxRoutingDAO.removeLinkFromDocument("DOC", Integer.parseInt(documentId), "0");
 			} catch (Exception e) {
 				MiscUtils.getLogger().error("Error", e);
 			}
