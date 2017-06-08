@@ -91,6 +91,7 @@
 	//--- 
 	session.setAttribute(SessionConstants.LOGGED_IN_PROVIDER_PREFERENCE, providerPreference);
 	session.setAttribute("default_servicetype", providerPreference.getDefaultServiceType());
+	session.setAttribute("default_slicode", providerPreference.getDefaultSliCode());
 	session.setAttribute("newticklerwarningwindow", providerPreference.getNewTicklerWarningWindow());
 	session.setAttribute("default_pmm", providerPreference.getDefaultCaisiPmm());
 	session.setAttribute("caisiBillingPreferenceNotDelete",providerPreference.getDefaultDoNotDeleteBilling());

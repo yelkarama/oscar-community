@@ -7092,7 +7092,8 @@ create table ProviderPreference
     eRxPassword varchar(64),
     eRxFacility varchar(32),
     eRxTrainingMode tinyint(1) not null,
-    encryptedMyOscarPassword varbinary(255)
+    encryptedMyOscarPassword varbinary(255),
+    defaultSliCode varchar(4) default 'no'
 );
 
 --

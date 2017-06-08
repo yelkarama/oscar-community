@@ -137,6 +137,7 @@
             ProviderPreferenceDao preferenceDao = (ProviderPreferenceDao) SpringUtils.getBean("providerPreferenceDao");
             ProviderPreference preference = null;
             preference=ProviderPreferencesUIBean.getProviderPreferenceByProviderNo(provider_no);
+            String defaultSliCode = clinicNo;
 
 
            	
@@ -170,6 +171,9 @@
 					String defaultServiceType = "";
 					if (providerPreference!=null) {
 						defaultServiceType = providerPreference.getDefaultServiceType();
+						if ((providerPreference.getDefaultSliCode()!=null && !providerPreference.getDefaultSliCode().isEmpty() && !providerPreference.getDefaultSliCode().equals("no"))){
+							defaultSliCode = providerPreference.getDefaultSliCode();
+						}
 					}
 					
 					if (defaultServiceType != null && !defaultServiceType.isEmpty() && !defaultServiceType.equals("no")) {
@@ -1087,6 +1091,10 @@ function changeCodeDesc() {
     var descAjax = new Ajax.Updater("code_desc",url, {method: "get", parameters: pars});
 }
 
+function setBillingPreferences(){
+    document.forms[0].xml_slicode.value = '<%=defaultSliCode%>';
+}
+
 //this function will show the content within the <div> tag of billing codes
 function toggleDiv(selectedBillForm, selectedBillFormName,billType,visitType, location)
 {
@@ -1151,7 +1159,7 @@ function toggleDiv(selectedBillForm, selectedBillFormName,billType,visitType, lo
 </script>
 </head>
 
-<body onload="prepareBack();changeCodeDesc();" topmargin="0">
+<body onload="prepareBack();changeCodeDesc();setBillingPreferences();" topmargin="0">
 	<div id="Instrdiv" class="demo1">
 
 		<table bgcolor='#007FFF' width='99%'>

@@ -209,6 +209,14 @@ function showHideERxPref() {
 		margin-left:25%; 
 		margin-right:25%;
     }
+
+	#billingONpref{
+		text-align: left;
+		margin-left: 20%;
+	}
+	#billingONpref select{
+		width:350px;
+	}
 	
 </style>
 </head>
@@ -751,6 +759,20 @@ Event.observe('rxInteractionWarningLevel', 'change', function(event) {
 		}
 	}
 %>
+	  </select> <br/>
+		  Default SLI Code:&nbsp;&nbsp;&nbsp;&nbsp;
+	  <select name="default_slicode">
+		  <option value="no">-- no --</option>
+		  <option value="HDS"><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.HDS" /></option>
+		  <option value="HED"><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.HED" /></option>
+		  <option value="HIP"><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.HIP" /></option>
+		  <option value="HOP"><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.HOP" /></option>
+		  <option value="HRP"><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.HRP" /></option>
+		  <option value="IHF"><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.IHF" /></option>
+		  <option value="OFF"><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.OFF" /></option>
+		  <option value="OTN"><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.OTN" /></option>
+		  <option value="PDF"><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.PDF" /></option>
+		  <option value="RTF"><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.RTF" /></option>
 	  </select>
 	  </div>
       </td>
