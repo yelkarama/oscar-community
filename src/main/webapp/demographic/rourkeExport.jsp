@@ -47,6 +47,9 @@
 <%@page import="org.apache.struts.validator.DynaValidatorForm" %>
 <%@page import="java.util.ArrayList, java.util.List" %>
 <%@page import="org.oscarehr.common.model.DataExport" %>
+<%@ page import="org.oscarehr.common.model.Provider" %>
+<%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
+<%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@include file="/casemgmt/taglibs.jsp"%>
 <c:set var="ctx" value="${pageContext.request.contextPath}" scope="request" />
 <%
@@ -54,8 +57,8 @@ String demographic_no = request.getParameter("demographic_no");
 %>
 
 <%
-DemographicSets  ds = new DemographicSets();
-List<String> setsList = ds.getDemographicSets();
+ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
+List<Provider> setsList = providerDao.getActiveProviders();
 
 %>
 
@@ -93,16 +96,14 @@ Extract Type
 </td></tr>
 
 <tr><td>
-Patient Set
+Patient Enrollment
 </td><td>
 <html:select property="patientSet">
 	<html:option value="-1">--Select Set--</html:option>
 <%
-String setName;
-for( int idx = 0; idx < setsList.size(); ++idx ) {
-	setName = setsList.get(idx);
+for(Provider provider : setsList) {
 %>
-	<html:option value="<%=setName%>"><%=setName%></html:option>
+	<html:option value="<%=provider.getProviderNo()%>"><%=provider.getFormattedName()%></html:option>
 <%
 }
 %>

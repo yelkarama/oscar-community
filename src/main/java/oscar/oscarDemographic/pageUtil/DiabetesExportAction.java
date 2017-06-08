@@ -60,11 +60,14 @@ import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.filter.ElementFilter;
 import org.jdom.input.SAXBuilder;
+import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.casemgmt.model.CaseManagementNote;
 import org.oscarehr.casemgmt.model.CaseManagementNoteLink;
 import org.oscarehr.casemgmt.service.CaseManagementManager;
+import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.DemographicExtDao;
 import org.oscarehr.common.dao.PartialDateDao;
+import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.Dxresearch;
 import org.oscarehr.common.model.PartialDate;
 import org.oscarehr.managers.SecurityInfoManager;
@@ -116,6 +119,8 @@ public class DiabetesExportAction extends Action {
     private static final CaseManagementManager cmm = (CaseManagementManager) SpringUtils.getBean("caseManagementManager");
     private static final PartialDateDao partialDateDao = (PartialDateDao) SpringUtils.getBean("partialDateDao");
     private static final DemographicExtDao demographicExtDao = (DemographicExtDao) SpringUtils.getBean("demographicExtDao");
+    private static final DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
+    private static final ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 
 
 public DiabetesExportAction(){}
@@ -128,14 +133,24 @@ public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServlet
 		}
     	
     DiabetesExportForm defrm = (DiabetesExportForm)form;
-    String setName = defrm.getPatientSet();
+    String providerNo = defrm.getPatientSet();
     this.startDate = UtilDateUtilities.StringToDate(defrm.getstartDate());
     this.endDate = UtilDateUtilities.StringToDate(defrm.getendDate());
     this.errors = new ArrayList<String>();
     getListOfDINS();
 
     //Create Patient List from Patient Set
-    List<String> patientList = new DemographicSets().getDemographicSet(setName);
+    List<String> patientList = new ArrayList<String>();
+    if (providerNo!=null && !providerNo.equals("-1")) {
+        List<Demographic> demographics = demographicDao.getDemographicByProvider(providerNo,false);
+        if(demographics!=null && !demographics.isEmpty()){
+            for (Demographic demographic : demographics){
+                if(demographic.getDemographicNo()!=null){
+                    patientList.add(String.valueOf(demographic.getDemographicNo()));
+                }
+            }
+        }
+    }
 
     //Create export files
     String tmpDir = OscarProperties.getInstance().getProperty("TMP_DIR");
