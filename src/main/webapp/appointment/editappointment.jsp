@@ -446,12 +446,13 @@ function openTypePopup () {
     }
 }
 
-function setType(typeSel,reasonSel,locSel,durSel,notesSel,resSel) {
+function setType(typeSel,reasonCodeSel,reasonSel,locSel,durSel,notesSel,resSel) {
   document.forms['EDITAPPT'].type.value = typeSel;
   document.forms['EDITAPPT'].duration.value = durSel;
   document.forms['EDITAPPT'].notes.value = notesSel;
   document.forms['EDITAPPT'].duration.value = durSel;
   document.forms['EDITAPPT'].resources.value = resSel;
+  document.forms['EDITAPPT'].reason.value = reasonSel;
   var loc = document.forms['EDITAPPT'].location;
   if(loc.nodeName == 'SELECT') {
           for(c = 0;c < loc.length;c++) {
@@ -464,7 +465,7 @@ function setType(typeSel,reasonSel,locSel,durSel,notesSel,resSel) {
   } else if (loc.nodeName == "INPUT") {
 	  document.forms['EDITAPPT'].location.value = locSel;
   }
-  var reasonOption = $("select[name='reasonCode'] option:contains('" + reasonSel + "')");
+  var reasonOption = $("select[name='reasonCode'] option[value='" + reasonCodeSel + "']");
   if (reasonOption.length > 0) {
       reasonOption[0].selected = true;
   }
