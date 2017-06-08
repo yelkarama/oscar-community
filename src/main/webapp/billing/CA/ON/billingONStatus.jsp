@@ -949,7 +949,9 @@ if(statusType.equals("_")) { %>
 				<%			}
 						 }
 					} else{%>
-						<%=amountPaid%>
+				 <a href="javascript: function myFunction() {return false; }"  onclick="javascript:popupPage(800,860,'billingRAView.jsp?billing_no=<%=ch1Obj.getId()%>','RAView<%=ch1Obj.getId()%>');return false;">
+					 <%=amountPaid%>
+				 </a>
 					 <%}%>
 			 </td><!--PAID-->
              <td align="center"><%=adj.toString()%></td> <!--SETTLE DATE-->
