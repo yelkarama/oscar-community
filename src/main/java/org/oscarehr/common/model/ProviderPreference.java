@@ -87,6 +87,7 @@ public class ProviderPreference extends AbstractModel<String> implements Seriali
 	private String colourTemplate="deepblue";
 	private String newTicklerWarningWindow="disabled";
 	private String defaultServiceType="no";
+	private String defaultBillingLocation="no";
 	private String defaultSliCode="no";
 	private String defaultCaisiPmm="disabled";
 	private String defaultNewOscarCme="disabled";
@@ -305,6 +306,14 @@ public class ProviderPreference extends AbstractModel<String> implements Seriali
 	public void setDefaultServiceType(String defaultServiceType) {
     	this.defaultServiceType = defaultServiceType;
     }
+
+	public String getDefaultBillingLocation() {
+		return defaultBillingLocation;
+	}
+
+	public void setDefaultBillingLocation(String defaultBillingLocation) {
+		this.defaultBillingLocation = defaultBillingLocation;
+	}
 
 	public String getDefaultSliCode() {
 		return defaultSliCode;

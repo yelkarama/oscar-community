@@ -7093,6 +7093,7 @@ create table ProviderPreference
     eRxFacility varchar(32),
     eRxTrainingMode tinyint(1) not null,
     encryptedMyOscarPassword varbinary(255),
+    defaultBillingLocation varchar(4) DEFAULT 'no',
     defaultSliCode varchar(4) default 'no'
 );
 

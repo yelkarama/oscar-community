@@ -58,6 +58,7 @@
 <%@page import="java.util.ArrayList" %>
 <%@page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
 <%@page import="org.oscarehr.common.model.Provider" %>
+<%@ page import="oscar.oscarBilling.ca.on.data.JdbcBillingPageUtil" %>
 
 <%
 	CtlBillingServiceDao ctlBillingServiceDao = SpringUtils.getBean(CtlBillingServiceDao.class);
@@ -737,7 +738,7 @@ Event.observe('rxInteractionWarningLevel', 'change', function(event) {
   <tr>
       <td align="center">
 	  <div id="billingONpref">
-          <bean:message key="provider.labelDefaultBillForm"/>:
+          <bean:message key="provider.labelDefaultBillForm"/>:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	  <select name="default_servicetype">
 	      <option value="no">-- no --</option>
 <%
@@ -759,8 +760,27 @@ Event.observe('rxInteractionWarningLevel', 'change', function(event) {
 		}
 	}
 %>
-	  </select> <br/>
-		  Default SLI Code:&nbsp;&nbsp;&nbsp;&nbsp;
+	  </select>
+		  <br/>
+		  Default Billing Location:
+	  <select name="deafult_location">
+		  <option value="no">-- no --</option>
+		  <%
+			  String billLocationNo="", billLocation="";
+			  JdbcBillingPageUtil tdbObj = new JdbcBillingPageUtil();
+
+			  List lLocation = tdbObj.getFacilty_num();
+			  for (int i = 0; i < lLocation.size(); i = i + 2) {
+				  billLocationNo = (String) lLocation.get(i);
+				  billLocation = (String) lLocation.get(i + 1);
+		  %>
+		  <option value="<%=billLocationNo%>"> <%=billLocation%> </option>
+		  <%
+			  }
+		  %>
+	  </select>
+		  <br/>
+		  Default SLI Code:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	  <select name="default_slicode">
 		  <option value="no">-- no --</option>
 		  <option value="HDS"><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.HDS" /></option>
