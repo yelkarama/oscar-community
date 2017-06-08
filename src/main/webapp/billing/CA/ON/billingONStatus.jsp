@@ -734,7 +734,7 @@ if(statusType.equals("_")) { %>
 	    color = nC ? "class='success'" : "";
 	%>
     		<tr <%=color %>>
-    			<td><small><%=bObj.getHin() %> <%=bObj.getVer() %></small></td>
+    			<td><small><%=bObj.getHin() %> <%=(bObj.getVer()!=null)?bObj.getVer():""%></small></td>
     			<td><font size="-1"><%=bObj.getDob() %></font></td>
     			<td align="right">
 					<% if (billCheader1!=null) {%>
