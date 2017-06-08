@@ -50,6 +50,8 @@ if(!authed) {
 <%@ page import="org.oscarehr.hospitalReportManager.dao.HRMDocumentToDemographicDao" %>
 <%@ page import="org.oscarehr.hospitalReportManager.model.HRMDocument" %>
 <%@ page import="org.oscarehr.hospitalReportManager.model.HRMDocumentToDemographic" %>
+<%@ page import="org.oscarehr.common.model.EFormData" %>
+<%@ page import="oscar.eform.EFormUtil" %>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 
@@ -108,10 +110,17 @@ if(!authed) {
 					<li class="hrm"><%=truncatedDisplayName%></li>
                 <%
                 }
+
+				//Get attached eForms
+				List<EFormData> eForms = EFormUtil.listPatientEformsCurrentAttachedToConsult(requestId);
+				for (EFormData eForm : eForms) { %>
+					<li class="eForm"><%=(eForm.getFormName().length()>14)?eForm.getFormName().substring(0, 11)+"...":eForm.getFormName()%></li>
+				<%
+				}
         %>
 </ul>
 <%
-           if( privatedocs.size() == 0 && labs.size() == 0 && hrmDocumentToDemographicList.size() == 0 ) {
+           if( privatedocs.size() == 0 && labs.size() == 0 && hrmDocumentToDemographicList.size() == 0 && eForms.isEmpty()) {
         %>
 <p id="attachDefault"
 	style="background-color: white; text-align: center;"><bean:message
