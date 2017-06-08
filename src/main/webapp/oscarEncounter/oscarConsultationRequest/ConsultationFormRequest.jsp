@@ -76,6 +76,7 @@ if(!authed) {
 <%@ page import="java.net.URLEncoder" %>
 <%@ page import="org.oscarehr.common.dao.*" %>
 <%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
+<%@ page import="java.io.File" %>
 <jsp:useBean id="displayServiceUtil" scope="request" class="oscar.oscarEncounter.oscarConsultationRequest.config.pageUtil.EctConDisplayServiceUtil" />
 <jsp:useBean id="providerBean" class="java.util.Properties"	scope="session" />
 
@@ -1185,7 +1186,6 @@ function requestSignature()
 	document.getElementById('newSignature').value = "true";
 	document.getElementById('signatureShow').style.display = "block";
 	document.getElementById('clickToSign').style.display = "none";
-	document.getElementById('signatureShow').style.display = "block";
 	setInterval('refreshImage()', POLL_TIME);
 	document.location='<%=request.getContextPath()%>/signature_pad/topaz_signature_pad.jnlp.jsp?<%=DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY%>=<%=signatureRequestId%>';
 
@@ -2219,8 +2219,15 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 							<img id="signatureImgTag" src="" />
 						</div>
 
-						<% if (OscarProperties.getInstance().getBooleanProperty("topaz_enabled", "true")) { %>
+						<%
+						UserProperty signatureProperty = null;
+						if (OscarProperties.getInstance().isPropertyActive("consult_auto_load_signature")) {
+							signatureProperty = userPropertyDAO.getProp(providerNo,UserProperty.PROVIDER_CONSULT_SIGNATURE);
+						}
+						if (OscarProperties.getInstance().getBooleanProperty("topaz_enabled", "true")) { %>
 						<input type="button" id="clickToSign" onclick="requestSignature()" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.formClickToSign" />" />
+						<% } else if (signatureProperty != null) { %>
+						<img src="<%=request.getContextPath()%>/eform/displayImage.do?imagefile=<%=signatureProperty.getValue()%>"/>
 						<% } else { %>
 						<iframe style="width:500px; height:132px;"id="signatureFrame" src="<%= request.getContextPath() %>/signature_pad/tabletSignature.jsp?inWindow=true&<%=DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY%>=<%=signatureRequestId%>" ></iframe>
 						<% } %>

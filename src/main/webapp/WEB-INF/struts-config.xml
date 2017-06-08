@@ -1917,9 +1917,13 @@
 			<forward name="success" path="/eform/efmformmanageredit.jsp" />
 			<forward name="fail" path="/eform/efmformmanageredit.jsp" />
 		</action>
-		<action input="/eform/partials/upload_image.jsp" name="eFormImageUpload" path="/eform/imageUpload" scope="request" type="oscar.eform.upload.ImageUploadAction" validate="true">
+		<action name="eFormImageUpload" path="/eform/imageUpload" scope="request" type="oscar.eform.upload.ImageUploadAction" validate="true">
 			<forward name="success" path="/eform/partials/upload_image.jsp" />
+            <forward name="consultSignatureSuccess" path="/provider/providerConsultSignature.jsp" />
 		</action>
+        <action path="/eform/providerImageUpload" scope="request" type="oscar.eform.upload.ImageUploadAction" parameter="method">
+            <forward name="success" path="/provider/providerConsultSignature.jsp" />
+        </action>
 		<action input="/eform/efmformmanager.jsp" name="deleteEform" path="/eform/delEForm" scope="request" type="oscar.eform.actions.DelEFormAction">
 			<forward name="success" path="/eform/efmformmanager.jsp" />
 		</action>
