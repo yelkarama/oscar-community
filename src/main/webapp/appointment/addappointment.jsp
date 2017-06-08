@@ -693,6 +693,8 @@ function pasteAppt(multipleSameDayGroupAppt) {
   String hin = "";
   String dob = "";
   String sex = "";
+  String famDoc = "";
+  String refDoc = "";
 
   //to show Alert msg
 
@@ -750,6 +752,8 @@ function pasteAppt(multipleSameDayGroupAppt) {
 	      hin = d.getHin();
 	      String ver = d.getVer();
 	      hin = hin +" "+ ver;
+	      famDoc = d.getFamilyDoctor();
+	      refDoc = d.getFamilyPhysician();
 	        
 	      if (patientStatus == null || patientStatus.equalsIgnoreCase("AC")) {
 	        patientStatus = "";
@@ -1211,7 +1215,14 @@ function pasteAppt(multipleSameDayGroupAppt) {
                 <th style="padding-right: 20px"><bean:message key="appointment.addappointment.msgEmail"/>:</th>
                 <td><%=StringUtils.trimToEmpty(email)%></td>
             </tr>
-
+            <tr bgcolor="#ccccff" align="left">
+                <th style="padding-right: 20px"><bean:message key="appointment.addappointment.msgFamDoc"/>:</th>
+                <td><%=famDoc%></td>
+            </tr>
+            <tr bgcolor="#ccccff" align="left">
+                <th style="padding-right: 20px"><bean:message key="appointment.addappointment.msgRefDoc"/>:</th>
+                <td><%=refDoc%></td>
+            </tr>
         </table>
         <%}%>
     </td>
