@@ -389,6 +389,29 @@ public class JdbcBillingReviewImpl {
 					}
 					
 				}
+
+				String settledDate = null;
+				if (ch1Obj.getPay_program().matches("PAT|OCF|ODS|CPP|STD|IFH")){
+					for (BillingONExt b : extDao.findByBillingNoAndKey(ch1.getId(), "payDate")) {
+						if (b.getValue()!=null){
+							settledDate = b.getValue();
+						}
+					}
+					if (settledDate==null){
+						for (BillingONExt b : extDao.findByBillingNoAndKey(ch1.getId(), "payment")) {
+							if (b.getValue()!=null){
+								BigDecimal value = new BigDecimal(b.getValue());
+								if (ch1.getTotal().compareTo(value) < 0 || ch1.getTotal().equals(value)){
+									settledDate = b.getDateTime().toString();
+								}
+							}
+						}
+					}
+				}else {
+					//HCP
+					settledDate = ch1Obj.getUpdate_datetime();
+				}
+				ch1Obj.setSettle_date(settledDate);
 				
 				
 				ch1Obj.setCashTotal(cashTotal);

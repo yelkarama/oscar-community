@@ -783,7 +783,7 @@ if(statusType.equals("_")) { %>
              <th class="<%=hideName?"hidden-print":""%>">PATIENT NAME</th>
              <th> <a href="javascript:void();" onClick="updateSort('VisitLocation');return false;">LOCATION</a></th>
              <th title="Status">STAT</th>
-             <th>SETTLED</th>
+             <th>SETTLED/PAID</th>
              <th title="Code Billed">CODE</th>
              <th title="Amount Billed">BILLED</th>
              <th title="Amount Paid"  >PAID</th>
@@ -894,7 +894,7 @@ if(statusType.equals("_")) { %>
                if( settleDate == null || !ch1Obj.getStatus().equals("S")) {
                    settleDate = "N/A";
                }
-               else {
+               else if (settleDate.indexOf(" ")>0){
                    settleDate = settleDate.substring(0, settleDate.indexOf(" "));
                }
                
