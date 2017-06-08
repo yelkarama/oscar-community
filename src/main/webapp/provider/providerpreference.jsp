@@ -304,6 +304,7 @@ function showHideERxPref() {
 				<% 	
 					ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 					List<Provider> doctors = providerDao.getProvidersByType("doctor");
+					List<Provider> listProvider = providerDao.getProviders(true);
 					String defaultDoctor = providerPreference.getDefaultDoctor();
 				%>
 				<td class="preferenceLabel">
@@ -382,10 +383,6 @@ function showHideERxPref() {
 								if (ticklerforproviderNo == null) {
 									ticklerforproviderNo = loggedInInfo.getLoggedInProviderNo();
 								}
-								List<Provider> listProvider = new ArrayList<Provider>();
-								if (providerDao != null) {
-									listProvider = providerDao.getProviders();
-								}							
 								for (Provider provider : listProvider) {
 									String selected = "";
 									if (ticklerforproviderNo.equals(provider.getProviderNo())) {
@@ -477,8 +474,8 @@ function showHideERxPref() {
                 <td class="preferenceValue">
                     <select name="ticklerDefaultRecipient">
                         <option value=""></option>
-                        <% for (Provider doctor : doctors) { %>
-                        <option value="<%= doctor.getProviderNo() %>" <%=doctor.getProviderNo().equals(defaultRecipient) ? "selected='selected'" : ""%>> <%= doctor.getFormattedName() %> </option>
+                        <% for (Provider provider : listProvider) { %>
+                        <option value="<%= provider.getProviderNo() %>" <%=provider.getProviderNo().equals(defaultRecipient) ? "selected='selected'" : ""%>> <%= provider.getFormattedName() %> </option>
                         <% } %>
                     </select>
                 </td>
