@@ -7491,6 +7491,7 @@ CREATE TABLE scheduletemplatecode (
   color varchar(10) default NULL,
   confirm char(3) NOT NULL default 'No',
   bookinglimit int NOT NULL default 1,
+  available tinyint default '1' not null,
   KEY code (code),
   PRIMARY KEY(id)
 ) ;
