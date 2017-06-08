@@ -277,6 +277,9 @@ input.btn{
 .hrm {
 	color: red;
 }
+.eForm {
+	color: #008000;
+}
 td.tite {
 
 background-color: #bbbbFF;
@@ -1444,7 +1447,7 @@ function updateFaxButton() {
 								{
 									%>
 									<% if (OscarProperties.getInstance().isPropertyActive("consultation_indivica_attachment_enabled")) { %>
-									<a href="#" onclick="popup('<rewrite:reWrite jspPage="attachConsultation2.jsp"/>?provNo=<%=consultUtil.providerNo%>&demo=<%=demo%>&requestId=<%=requestId%>');return false;">
+									<a href="#" onclick="popupAttach(700,960,'<rewrite:reWrite jspPage="attachConsultation2.jsp"/>?provNo=<%=consultUtil.providerNo%>&demo=<%=demo%>&requestId=<%=requestId%>','_blank');return false;">
 										<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.attachDoc" />
 									</a>
 									<% } else { %>
@@ -1470,7 +1473,9 @@ function updateFaxButton() {
 							<span class="lab"><bean:message
 								key="oscarEncounter.oscarConsultationRequest.AttachDoc.LegendLabs" /></span><br />
 							<span class="hrm"><bean:message
-								key="oscarEncounter.oscarConsultationRequest.AttachDoc.LegendHRMs" /></span>
+								key="oscarEncounter.oscarConsultationRequest.AttachDoc.LegendHRMs" /></span><br />
+							<span class="eForm"><bean:message
+									key="oscarEncounter.oscarConsultationRequest.AttachDoc.LegendEForms" /></span>
 							</td>
 						</tr>
 					</table>
