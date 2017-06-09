@@ -49,6 +49,7 @@ public class ProviderTo1 implements Serializable {
 	private String hsoNo;
 	private String providerActivity;
 	private String rmaNo;
+	private Boolean thirdPartyOnly;
 	private Date signedConfidentiality;
 	private String practitionerNo;
 	private String email;
@@ -254,5 +255,13 @@ public class ProviderTo1 implements Serializable {
 
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
+	}
+
+	public Boolean isThirdPartyOnly() {
+		return thirdPartyOnly;
+	}
+
+	public void setThirdPartyOnly(Boolean thirdPartyOnly) {
+		this.thirdPartyOnly = thirdPartyOnly;
 	}
 }

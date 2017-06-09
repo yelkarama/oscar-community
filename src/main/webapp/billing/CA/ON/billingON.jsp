@@ -313,7 +313,7 @@
 				propT = new Properties();
 				propT.setProperty("last_name", p.getLastName());
 				propT.setProperty("first_name", p.getFirstName());
-				propT.setProperty("proOHIP", p.getProviderNo() + "|" + p.getOhipNo());
+				propT.setProperty("proOHIP", p.getProviderNo() + "|" + p.getOhipNo() + "|" + p.isThirdPartyOnly());
 				vecProvider.add(propT);
 			}
 
@@ -627,6 +627,13 @@
 </script>
 <oscar:customInterface section="billing"/>
 <script>
+function changeBillType(selection){
+    var isThirdPartyOnly = selection.split("|")[2];
+    if(isThirdPartyOnly){
+        document.forms[0].xml_billtype.value = "PAT | Bill Patient";
+        onChangePrivate();
+	}
+}
 
 function gotoBillingOB() {
     if(self.location.href.lastIndexOf("?") > 0) {
@@ -1505,7 +1512,7 @@ function changeSite(sel) {
       	</script> <%
  	// multisite end ==========================================
  } else {
- %> <select name="xml_provider">
+ %> <select name="xml_provider" onchange="changeBillType(this.value);">
 												<%
 													String[] tmp;
 												            if (vecProvider.size() == 1) {
