@@ -46,6 +46,7 @@ public class ScheduleTemplateCode extends AbstractModel<Integer> {
 	private String color;
 	private String confirm;
 	private int bookinglimit;
+	private boolean available;
 	
 	@Override
 	public Integer getId() {
@@ -95,6 +96,14 @@ public class ScheduleTemplateCode extends AbstractModel<Integer> {
 	public Character getCode() {
     	return code;
     }
+
+	public void setAvailable(boolean available) {
+    	this.available = available;
+    }
+
+	public boolean getAvailable() {
+		return available;
+	}
 
 	public void setCode(Character code) {
     	this.code = code;

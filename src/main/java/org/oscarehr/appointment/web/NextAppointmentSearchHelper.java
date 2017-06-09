@@ -235,6 +235,12 @@ public class NextAppointmentSearchHelper {
 					}
 
 				}
+
+				ScheduleTemplateCode tempCode = null;
+				if (slot != '_')
+				{
+					tempCode = scheduleTemplateCodeDao.getByCode(slot);
+				}
 					
 					//ready to check appointments
 					//logger.info("schedule availability found at hour " + hour + ", min = " + min + " duration = " + duration);
@@ -245,7 +251,8 @@ public class NextAppointmentSearchHelper {
 					cal2.set(Calendar.MINUTE, min);
 					cal2.set(Calendar.SECOND,0);
 					cal2.set(Calendar.MILLISECOND, 0);
-					if(slot != 'L' && slot != 'V')
+					
+					if (slot == '_')
 					{
 						if(checkAvailability(cal2.getTime(), duration, providerNo)) {
 							//logger.info("spot available at " + cal2.getTime() + " for " + duration + " mins with provider " + providerNo);
@@ -255,7 +262,22 @@ public class NextAppointmentSearchHelper {
 							result.setDate(cal2.getTime());
 							result.setDuration(duration);
 							results.add(result);
-						}	
+						}
+					}
+					else 
+					{
+						if (tempCode != null && tempCode.getAvailable()) 
+						{
+							if(checkAvailability(cal2.getTime(), duration, providerNo)) {
+								//logger.info("spot available at " + cal2.getTime() + " for " + duration + " mins with provider " + providerNo);
+								NextAppointmentSearchResult result = new NextAppointmentSearchResult();
+								result.setProviderNo(providerNo);
+								result.setProvider(providerDao.getProvider(providerNo));
+								result.setDate(cal2.getTime());
+								result.setDuration(duration);
+								results.add(result);
+							}
+						}
 					}
 			}						
 		}

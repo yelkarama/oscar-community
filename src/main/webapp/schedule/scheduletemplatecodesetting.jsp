@@ -46,20 +46,29 @@
   {
 	  if (request.getParameter("dboperation").compareTo(" Save ")==0 )
 	  {
-	    ScheduleTemplateCode code = scheduleTemplateCodeDao.getByCode(request.getParameter("code").toCharArray()[0]);
-	    if(code != null) {
-	    	scheduleTemplateCodeDao.remove(code.getId());
-	    }
+	      if (request.getParameter("code")!=null && !request.getParameter("code").equals(""))
+		  {
+			  ScheduleTemplateCode code = scheduleTemplateCodeDao.getByCode(request.getParameter("code").toCharArray()[0]);
+			  if(code != null) {
+				  scheduleTemplateCodeDao.remove(code.getId());
+			  }
 
-	    code = new ScheduleTemplateCode();
-	    code.setCode(request.getParameter("code").toCharArray()[0]);
-	    code.setDescription(request.getParameter("description"));
-	    code.setDuration(request.getParameter("duration"));
-	    code.setColor(request.getParameter("color"));
-		code.setConfirm(request.getParameter("confirm"));
-		code.setBookinglimit(Integer.parseInt(request.getParameter("bookinglimit")));
-		scheduleTemplateCodeDao.persist(code);
-
+			  code = new ScheduleTemplateCode();
+			  code.setCode(request.getParameter("code").toCharArray()[0]);
+			  code.setDescription(request.getParameter("description"));
+			  code.setDuration(request.getParameter("duration"));
+			  code.setColor(request.getParameter("color"));
+			  code.setConfirm(request.getParameter("confirm"));
+			  code.setBookinglimit(Integer.parseInt(request.getParameter("bookinglimit")));
+			  code.setAvailable(Boolean.parseBoolean(request.getParameter("bookingavail")));
+			  scheduleTemplateCodeDao.persist(code);
+		  }
+		  else
+		  {
+			%>
+				<script>alert("You must edit a template code before saving!")</script>
+			<%
+		  }
 	  }
 	  if (request.getParameter("dboperation").equals("Delete") )
 	  {
@@ -165,7 +174,8 @@ function checkInput() {
 			dataBean.setProperty("duration", stc.getDuration()==null?"":stc.getDuration() );
 			dataBean.setProperty("color", stc.getColor()==null?"":stc.getColor() );
 			dataBean.setProperty("confirm", stc.getConfirm()==null?"No":stc.getConfirm() );
-                        dataBean.setProperty("bookinglimit", String.valueOf(stc.getBookinglimit()));
+            dataBean.setProperty("bookinglimit", String.valueOf(stc.getBookinglimit()));
+            dataBean.setProperty("bookingavail", String.valueOf(stc.getAvailable())); 
 		}
 	}
 %>
@@ -207,6 +217,17 @@ function checkInput() {
 					key="schedule.scheduletemplatecodesetting.formBookingLimit" />:</font></td>
 				<td><input type="text" id="bookinglimit" name="bookinglimit" size="10"
 					<%=bEdit?("value='"+dataBean.getProperty("bookinglimit")+"'"):"value='1'"%>></td>
+			</tr>
+			</tr>
+			<tr bgcolor='ivory'>
+				<td><font color="red"><bean:message key="schedule.scheduletemplatecodesetting.formAvailability" />:</font></td>
+				
+				<td>
+					<input type="radio" name="bookingavail" value="true"
+					<%=(bEdit ? (dataBean.getProperty("bookingavail").equals("true")? "checked" : "") : "checked")%>>Yes
+					<input type="radio" name="bookingavail" value="false"
+					<%=(bEdit ? (dataBean.getProperty("bookingavail").equals("false")? "checked" : "") : "checked")%>>No
+				</td>
 			</tr>
 			<tr bgcolor='ivory'>
 				<td><font color="red">Limit Type:</font></td>
@@ -252,6 +273,8 @@ function checkInput() {
 			key="schedule.scheduletemplatecodesetting.msgColor" /><br>
                 &nbsp; <bean:message
 			key="schedule.scheduletemplatecodesetting.msgBookingLimit" /><br>
+			&nbsp; <bean:message
+					key="schedule.scheduletemplatecodesetting.msgAvailable" /><br>
 		
                     </p>
 		</td>

@@ -1,0 +1,1 @@
+ALTER TABLE scheduletemplatecode ADD COLUMN available tinyint(0) not null default 1;
