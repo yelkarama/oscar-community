@@ -325,6 +325,14 @@ public class BillingONPaymentsAction extends DispatchAction {
 				tExtObj.add3rdBillExt(Integer.toString(billNo), demographicNo, BillingONExtDao.KEY_PAY_METHOD, paymentTypeId);
 			}
 		}
+
+		if(paymentdate!=null){
+			if (tExtObj.keyExists(Integer.toString(billNo), BillingONExtDao.KEY_PAY_DATE)) {
+				tExtObj.updateKeyValue(Integer.toString(billNo), BillingONExtDao.KEY_PAY_DATE, paymentdate1 + paymentdate.getTime());
+			} else {
+				tExtObj.add3rdBillExt(Integer.toString(billNo), demographicNo, BillingONExtDao.KEY_PAY_DATE, paymentdate1 + paymentdate.getTime());
+			}
+		}
 				
 		// 4.update billing_on_payment
 		BillingONPayment billPayment = new BillingONPayment();
