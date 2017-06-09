@@ -79,8 +79,6 @@ public class EctDisplayLabAction2 extends EctDisplayAction {
 				labs.addAll(remoteResults);
 			}
 
-			Collections.sort(labs);
-
 			// set text for lefthand module title
 			Dao.setLeftHeading(messages.getMessage(request.getLocale(), "oscarEncounter.LeftNavBar.Labs"));
 

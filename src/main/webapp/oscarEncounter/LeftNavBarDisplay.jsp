@@ -193,7 +193,7 @@ if(!authed) {
                 Date d = item.getDate();
                 String itemColour = item.getColour();
                 
-                if (div.equals("tickler"))
+                if (div.equals("tickler") || div.equals("labs"))
                 {
                     if( d == null ) 
                     {
