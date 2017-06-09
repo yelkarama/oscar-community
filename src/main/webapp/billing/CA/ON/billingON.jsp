@@ -366,6 +366,10 @@
 				visitLocation = visitLocationProperty != null ? visitLocationProperty : "";
 				admissionDate = admissionDateProperty != null ? admissionDateProperty : "";
 			}
+
+			if (visitLocation.isEmpty() && preference.getDefaultBillingLocation()!=null && !preference.getDefaultBillingLocation().isEmpty() && !preference.getDefaultBillingLocation().equals("no")){
+			    visitLocation = preference.getDefaultBillingLocation();
+			}
 			
 			if (!"".equals(xml_visittype)) {
 				visitType = xml_visittype;
