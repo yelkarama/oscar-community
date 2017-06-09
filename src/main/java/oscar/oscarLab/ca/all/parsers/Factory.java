@@ -136,6 +136,9 @@ public final class Factory {
 			for (int i = 0; i < items.size(); i++) {
 				Element element = (Element) items.get(i);
 				msgType = element.getAttributeValue("name").trim();
+				if (type.equals("SIOUX")){
+					type = "MEDITECH";
+				}
 				if (msgType.equalsIgnoreCase(type)) {
 					String className = element.getAttributeValue("className");
 					
