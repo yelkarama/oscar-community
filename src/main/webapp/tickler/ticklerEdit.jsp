@@ -337,6 +337,7 @@
                          </oscar:oscarPropertiesCheck>
                        
                          <input type="submit" name="updateTickler" value="<bean:message key="tickler.ticklerEdit.update"/>"/>
+                        <input type="submit" name="updateTickler" value="Update & Write to Encounter">
                          <input type="button" name="cancelChangeTickler" value="<bean:message key="tickler.ticklerEdit.cancel"/>" onClick="window.close()"/>
                     </td>         
                 </tr>               
