@@ -89,6 +89,51 @@ function updateAjax() {
     }
 
 }
+
+function selectAll(formId){
+    var f = document.getElementById(formId);
+    var val = f.pdfSelectAll.checked;
+    for (i =0; i < f.hrmReportId.length; i++){
+        f.hrmReportId[i].checked = val;
+    }
+}
+
+function submitForm() {
+    var form =  document.forms['printHRMForm'];
+    if(verifyChecks(form)) {
+        form.submit();
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
+function verifyChecks(form){
+
+    if (form.hrmReportId == null){
+        alert("No HRM reports selected");
+        return false;
+    }else{
+        var oneChecked = 0;
+        if(form.hrmReportId.length) {
+            for (var i=0; i < form.hrmReportId.length; i++){
+                if(form.hrmReportId[i].checked){
+                    ++oneChecked;
+                    break;
+                }
+            }
+        } else{
+            oneChecked = form.hrmReportId.checked ? 1 : 0;
+        }
+
+        if ( oneChecked == 0 ){
+            alert("No HRM reports selected");
+            return false;
+        }
+    }
+    return true;
+}
 </script>
 <script type="text/javascript" language="JavaScript"
 	src="../share/javascript/Oscar.js"></script>
@@ -119,11 +164,12 @@ function updateAjax() {
 		<td class="MainTableLeftColumn" valign="top">
 			</td>
 		<td class="MainTableRightColumn" valign="top">
-		
+
+			<form name="printHRMForm" method="post" action="/oscar/hospitalReportManager/PrintHRMReport.do" id="printHRMForm">
 				<table class="elements" width="100%">
 					
 					<tr bgcolor=<%=deepColor%>>
-						
+						<th align="left" valign="bottom" class="cell"><input class="tightCheckbox" type="checkbox" name="pdfSelectAll" id="pdfSelectAll" onclick="selectAll('printHRMForm');"></th>
 						<th>
 							<a href="displayHRMDocList.jsp?demographic_no=<%=demographic_no%>&orderby=form_name&group_view=<%=groupView%>&parentAjaxId=<%=parentAjaxId%>">
 								<bean:message key="hrm.displayHRMDocList.reportType" />
@@ -151,7 +197,7 @@ function updateAjax() {
 							HashMap<String,? extends Object> curhrmdoc = hrmdocs.get(i);
 					%>
 					<tr bgcolor="<%=((i % 2) == 1)?"#F2F2F2":"white"%>">
-						
+						<td><input type="checkbox" name="hrmReportId" id="hrmReportId<%=curhrmdoc.get("id")%>" value="<%=curhrmdoc.get("id")%>"/> </td>
 						<td><a href="#"
 							ONCLICK="popupPage('<%=request.getContextPath() %>/hospitalReportManager/Display.do?id=<%=curhrmdoc.get("id")%>&segmentID=<%=curhrmdoc.get("id")%>&duplicateLabIds=<%=curhrmdoc.get("duplicateLabIds")!=null?curhrmdoc.get("duplicateLabIds"):""%>', 'HRM Report'); return false;"
 							TITLE="<bean:message key="hrm.displayHRMDocList.reportTitle"/>"><%=curhrmdoc.get("report_type")%></a></td>
@@ -173,6 +219,10 @@ function updateAjax() {
 						}
 					%>
 				</table>
+					<div>
+						<input type="button" class="smallButton" value="Print Selected" onClick="submitForm()">
+					</div>
+			</form>
 				
 		</td>
 	</tr>
