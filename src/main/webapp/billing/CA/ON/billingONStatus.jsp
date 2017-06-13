@@ -924,7 +924,10 @@ if(statusType.equals("_")) { %>
 
 			   totalCash += ch1Obj.getCashTotal();
 			   totalDebit += ch1Obj.getDebitTotal();
-			   List<BigDecimal> paymentTotals = ch1Obj.getPaymentTotals();
+			   List<BigDecimal> paymentTotals = new ArrayList<BigDecimal>();
+			   if (ch1Obj.getPaymentTotals()!=null){
+			       paymentTotals = ch1Obj.getPaymentTotals();
+			   }
 			   BillingPaymentTypeDao paymentTypeDao = SpringUtils.getBean(BillingPaymentTypeDao.class);
 			   
 			
