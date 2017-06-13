@@ -192,7 +192,7 @@ public class RASummaryAction extends Action {
 		
 		for(int i=0; i<provList.size(); i++) {
 			Properties prov = (Properties) provList.get(i);
-			List provDetails = dbObj.getRAProviderDetails(raNo, prov.getProperty("providerohip_no", ""));
+			List provDetails = dbObj.getRASummary(raNo, prov.getProperty("providerohip_no", ""));
 			int claimCount = 0;
 			
 			BigDecimal ProvCTotal = new BigDecimal(0.).setScale(2, BigDecimal.ROUND_HALF_UP); //provider submitted

@@ -489,7 +489,7 @@ public class JdbcBillingRAImpl {
 		return getRASummary(id, null);
 	}
 
-	public List<Properties> getRAProviderDetails(String id, String providerOhipNo) {
+	public List<Properties> getRASummary(String id, String providerOhipNo) {
 		List<Properties> ret = new ArrayList<Properties>();
 
 		RaDetailDao dao = SpringUtils.getBean(RaDetailDao.class);

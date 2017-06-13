@@ -160,7 +160,7 @@ for(int i=0; i<aL.size(); i++) {
 	</tr>
 
 	<%
-aL = obj.getRAProviderDetails(raNo, proNo, OBbilling_no, CObilling_no,map);
+aL = obj.getRASummary(raNo, proNo, OBbilling_no, CObilling_no,map);
 for(int i=0; i<aL.size()-1; i++) { //to use table-filter js to generate the sum - so the total-1
 	Properties prop = (Properties) aL.get(i);
 	String color = i%2==0? "class='myGreen'":"";

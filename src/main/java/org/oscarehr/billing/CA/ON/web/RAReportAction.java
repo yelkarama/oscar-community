@@ -113,7 +113,7 @@ public class RAReportAction extends Action {
 			BigDecimal ProvGrossTotal = new BigDecimal(0.).setScale(2, BigDecimal.ROUND_HALF_UP); //provider gross
 			BigDecimal ProvNetTotal = new BigDecimal(0.).setScale(2, BigDecimal.ROUND_HALF_UP); //provider net
 			
-			List provDetails = dbObj.getRAProviderDetails(raNo, prov.getProperty("providerohip_no", ""));
+			List provDetails = dbObj.getRASummary(raNo, prov.getProperty("providerohip_no", ""));
 			String provNo = prov.getProperty("provider_no", "");
 
 			for (int j = 0; j < provDetails.size(); j++) {
