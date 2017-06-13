@@ -1953,6 +1953,10 @@ if ( Dead.equals(PatStat) ) {%>
                                                             key="demographic.demographiceditdemographic.formEmail" />:</span>
                                                         <span class="info"><%=demographic.getEmail()!=null? demographic.getEmail() : ""%></span>
 							</li>
+							<li>
+								<span class="label"><bean:message key="demographic.demographiceditdemographic.emailOnConsult"/>:</span>
+								<span class="info"><%=demoExt.get("includeEmailOnConsults") != null ? demoExt.get("includeEmailOnConsults") : "false"%></span>
+							</li>
                                                     <li><span class="label"><bean:message
                                                             key="demographic.demographiceditdemographic.formNewsLetter" />:</span>
                                                         <span class="info"><%=demographic.getNewsletter()!=null? demographic.getNewsletter() : "Unknown"%></span>

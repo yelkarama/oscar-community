@@ -45,15 +45,12 @@ import org.apache.xml.security.exceptions.Base64DecodingException;
 import org.apache.xml.security.utils.Base64;
 import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.dao.ConsultationRequestDao;
+import org.oscarehr.common.dao.DemographicExtDao;
 import org.oscarehr.common.dao.Hl7TextMessageDao;
 import org.oscarehr.common.hl7.v2.oscar_to_oscar.DataTypeUtils;
 import org.oscarehr.common.hl7.v2.oscar_to_oscar.OscarToOscarUtils;
 import org.oscarehr.common.hl7.v2.oscar_to_oscar.RefI12;
-import org.oscarehr.common.model.ConsultationRequest;
-import org.oscarehr.common.model.Demographic;
-import org.oscarehr.common.model.Hl7TextMessage;
-import org.oscarehr.common.model.ProfessionalSpecialist;
-import org.oscarehr.common.model.Provider;
+import org.oscarehr.common.model.*;
 import org.oscarehr.managers.DemographicManager;
 import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.LoggedInInfo;
@@ -156,7 +153,9 @@ public class EctViewRequestAction extends Action {
 
             DemographicManager demographicManager = SpringUtils.getBean(DemographicManager.class);
             Demographic demo = demographicManager.getDemographic(loggedInInfo, consult.getDemographicId());
-
+            DemographicExtDao demographicExtDao = SpringUtils.getBean(DemographicExtDao.class);
+            DemographicExt includeEmailOnConsults = demographicExtDao.getDemographicExt(demo.getDemographicNo(), "includeEmailOnConsults");
+            
             thisForm.setPatientAddress(demo.getAddress());
             thisForm.setPatientDOB(demo.getFormattedDob());
             thisForm.setPatientHealthNum(demo.getHin());
@@ -167,7 +166,9 @@ public class EctViewRequestAction extends Action {
             thisForm.setPatientPhone(demo.getPhone());
             thisForm.setPatientSex(demo.getSex());
             thisForm.setPatientWPhone(demo.getPhone2());
-            thisForm.setPatientEmail(demo.getEmail());
+            if (includeEmailOnConsults != null && Boolean.parseBoolean(includeEmailOnConsults.getValue())) {
+                thisForm.setPatientEmail(demo.getEmail());
+            }
             thisForm.setPatientAge(demo.getAge());
 
             ProviderDao provDao = (ProviderDao)SpringUtils.getBean("providerDao");
@@ -280,7 +281,12 @@ public class EctViewRequestAction extends Action {
         thisForm.setPatientPhone(demographic.getPhone());
         thisForm.setPatientSex(demographic.getSex());
 //        thisForm.setPatientWPhone(patientAddress);
-        thisForm.setPatientEmail(demographic.getEmail());
+
+        DemographicExtDao demographicExtDao = SpringUtils.getBean(DemographicExtDao.class);
+        DemographicExt includeEmailOnConsults = demographicExtDao.getDemographicExt(demographic.getDemographicNo(), "includeEmailOnConsults");
+        if (includeEmailOnConsults != null && Boolean.parseBoolean(includeEmailOnConsults.getValue())) {
+            thisForm.setPatientEmail(demographic.getEmail());    
+        }
         
         // referring provider
         PRD referringPrd=RefI12.getPrdByRoleId(refI12, "RP");

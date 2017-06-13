@@ -326,6 +326,7 @@
        
        demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "patientType", request.getParameter("patientType"), "");
        demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "demographicMiscId", request.getParameter("demographicMiscId"), "");
+       demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "includeEmailOnConsults", request.getParameter("includeEmailOnConsults") != null ? request.getParameter("includeEmailOnConsults") : "false");
 		// Demographic Groups
 		String[] groups = request.getParameterValues("demographicGroups");
 	

@@ -126,7 +126,9 @@ public class EctConsultationFormRequestUtil {
 			patientPhone = StringUtils.noNull(demographic.getPhone());
 			patientWPhone = StringUtils.noNull(demographic.getPhone2());
 			patientCPhone = StringUtils.noNull(demoExt.get("demo_cell"));
-			patientEmail = StringUtils.noNull(demographic.getEmail());
+			if (demoExt.get("includeEmailOnConsults") != null && Boolean.parseBoolean(demoExt.get("includeEmailOnConsults"))) {
+				patientEmail = StringUtils.noNull(demographic.getEmail());
+			}
 			patientDOB = demographic.getFormattedDob();
 			patientHealthNum = StringUtils.noNull(demographic.getHin());
 			patientSex = demographic.getSex();
