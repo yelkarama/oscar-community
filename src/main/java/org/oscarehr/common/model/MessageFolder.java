@@ -5,17 +5,19 @@
 package org.oscarehr.common.model;
 
 import javax.persistence.Entity;
+import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="messagefolder")
+@Table(name="messageFolder")
 public class MessageFolder extends AbstractModel<Integer> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name ="folderID")
     private Integer id;
 
     private String name;
