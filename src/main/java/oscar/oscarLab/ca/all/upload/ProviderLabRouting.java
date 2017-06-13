@@ -42,6 +42,8 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.ProviderLabRoutingDao;
+import org.oscarehr.common.model.IncomingLabRules;
+import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.model.ProviderLabRoutingModel;
 import org.oscarehr.util.SpringUtils;
 
@@ -93,7 +95,7 @@ public class ProviderLabRouting {
 
 		if (routings.isEmpty()) {
 			String status = fr.getStatus(provider_no);
-			ArrayList<ArrayList<String>> forwardProviders = fr.getProviders(provider_no);
+            List<Object[]> forwardProviders = fr.getForwardRulesAndProviders(provider_no);
 
 			ProviderLabRoutingModel p = new ProviderLabRoutingModel();
 			p.setProviderNo(provider_no);
@@ -104,8 +106,12 @@ public class ProviderLabRouting {
 
 			//forward lab to specified providers
 			for (int j = 0; j < forwardProviders.size(); j++) {
-				logger.info("FORWARDING PROVIDER: " + ((forwardProviders.get(j)).get(0)));
-				routeMagic(labId, ((forwardProviders.get(j)).get(0)), labType);
+                IncomingLabRules forwardRules = (IncomingLabRules) forwardProviders.get(j)[0];
+                Provider provider = (Provider) forwardProviders.get(j)[1];
+                if (forwardRules.getForwardTypeStrings().contains(labType)) {
+                    logger.info("FORWARDING PROVIDER: " + (provider.getProviderNo()));
+                    routeMagic(labId, provider.getProviderNo(), labType);
+                }
 			}
 
 			// If the lab has already been sent to this provider check to make sure that
