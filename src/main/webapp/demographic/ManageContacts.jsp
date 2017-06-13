@@ -140,7 +140,7 @@ function doPersonalSearch(id, contactName, contactId) {
 		search_demographic(contactName.value, contactName.name, contactId.name);
 }
 	if(type == '<%=DemographicContact.TYPE_CONTACT%>') {
-		search_contact(contactName.value, contactName, contactId);
+		search_contact(contactName, contactId);
 	}
 }
 
@@ -189,10 +189,10 @@ function search_provider(nameEl, valueEl) {
 		}
 }
 
-function search_contact(nameEl, valueEl) {
-    var url = 'contactSearch.jsp?form=contactForm&elementName='+nameEl+'&elementId='+valueEl;
+function search_contact(nameEl, idEl) {
+    var url = 'contactSearch.jsp?form=contactForm&elementName='+nameEl.id+'&elementId='+idEl.id+'&keyword='+nameEl.value;
     var popup = window.open(url,'demographic_search');
-    demo_no_orig = document.contactForm.elements[valueEl].value;
+    demo_no_orig = document.contactForm.elements[idEl.id].value;
     //check_demo_no = setInterval("if (demo_no_orig != document.contactForm.elements[valueEl].value) updTklrList()",100);
 
 		if (popup != null) {
