@@ -240,9 +240,10 @@ function showHideERxPref() {
     UserPropertyDAO propertyDao = (UserPropertyDAO)SpringUtils.getBean("UserPropertyDAO");
 
     String defaultBillingLocation = providerPreference.getDefaultBillingLocation()!=null?providerPreference.getDefaultBillingLocation():"no";
+	String defaultSliCode = providerPreference.getDefaultSliCode()!=null?providerPreference.getDefaultSliCode():"no";
 %>
 
-<body bgproperties="fixed"  onLoad="setfocus();showHideBillPref();showHideERxPref();" topmargin="0"leftmargin="0" rightmargin="0" style="font-family:sans-serif">
+<body bgproperties="fixed"  onLoad="setfocus();showHideBillPref();showHideERxPref();selectSelectListOption(document.forms[0].default_slicode,'<%=defaultSliCode%>')" topmargin="0"leftmargin="0" rightmargin="0" style="font-family:sans-serif">
 	<FORM NAME = "UPDATEPRE" METHOD="post" ACTION="providerupdatepreference.jsp" onSubmit="return(checkTypeInAll())">
 
 		<div style="background-color:<%=deepcolor%>;text-align:center;font-weight:bold">
