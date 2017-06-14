@@ -8930,7 +8930,8 @@ CREATE TABLE providerArchive (
   `title` varchar(20),
   `lastUpdateUser` varchar(6),
   `lastUpdateDate` date,
-  `signed_confidentiality` date
+  `signed_confidentiality` date,
+  thirdPartyOnly BOOLEAN DEFAULT FALSE NOT NULL,
 );
 
 CREATE TABLE appointmentArchive (
