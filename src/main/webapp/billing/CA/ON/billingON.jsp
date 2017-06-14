@@ -1301,7 +1301,7 @@ if(checkFlag == null) checkFlag = "0";
 				<td align="right"><oscar:help keywords="1.4 Billing"
 						key="app.top1" style="color: #FFFFFF" /> <font color="#FFFFFF">
 					| </font> <a href=#
-					onclick="popupPage(460,680,'billingONfavourite.jsp?apptProvider_no=<%=apptProvider_no%>&visitType='+document.forms[0].xml_visittype.value+'&location='+document.forms[0].xml_location.value); return false;">
+					onclick="popupPage(460,680,'billingONfavourite.jsp?apptProvider_no=<%=apptProvider_no%>&visitType='+document.forms[0].xml_visittype.value.split('|')[0]+'&location='+document.forms[0].xml_location.value.split('|')[0]); return false;">
 						<font color="#FFFFFF">Edit</font>
 				</a> <select name="cutlist" id="cutlist" onchange="changeCut(this)">
 						<option selected="selected" value="">- SUPER CODES -</option>
