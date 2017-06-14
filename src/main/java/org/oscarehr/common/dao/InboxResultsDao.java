@@ -326,8 +326,8 @@ public class InboxResultsDao {
 					// document_no, status, last_name, first_name, hin, sex, module_id, observationdate
 					sql = " SELECT doc.document_no, plr.status, d.last_name, d.first_name, d.hin, d.sex, cd.module_id, doc.observationdate, plr.lab_type, doc.doctype , date(doc.updatedatetime)"
 							+ " FROM document doc "
-							+ " LEFT JOIN providerlabrouting plr ON doc.document_no = plr.lab_no AND plr.lab_type = 'DOC' "
-							+ " AND plr.id = (SELECT MAX(id) FROM providerlabrouting plrr WHERE plrr.lab_no = plr.lab_no) "
+							+ " LEFT JOIN providerLabRouting plr ON doc.document_no = plr.lab_no AND plr.lab_type = 'DOC' "
+							+ " AND plr.id = (SELECT MAX(id) FROM providerLabRouting plrr WHERE plrr.lab_no = plr.lab_no) "
 							+ (searchProvider ? " AND plr.provider_no = '" + providerNo + "' " : " ")
 							+ (!status.equals("")?" AND plr.status = '" + status + "' ":" ")
 							+ " LEFT JOIN ctl_document cd ON doc.document_no = cd.document_no "
