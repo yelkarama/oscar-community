@@ -83,7 +83,7 @@ public class ScheduleService extends AbstractServiceImpl {
 	@GET
 	@Path("/day/{date}")
 	@Produces("application/json")
-	public PatientListApptBean getAppointmentsForDay(@PathParam("date") String date) {
+	public PatientListApptItemBean[] getAppointmentsForDay(@PathParam("date") String date) {
 		String providerNo = this.getCurrentProvider().getProviderNo();
 		return getAppointmentsForDay(providerNo, date);
 	}
@@ -99,7 +99,7 @@ public class ScheduleService extends AbstractServiceImpl {
 	 * @param date
 	 * @return
 	 */
-	public PatientListApptBean getAppointmentsForDay(@PathParam("providerNo") String providerNo, @PathParam("date") String date) {
+	public PatientListApptItemBean[] getAppointmentsForDay(@PathParam("providerNo") String providerNo, @PathParam("date") String date) {
 		SimpleDateFormat timeFormatter = new SimpleDateFormat("hh:mm aa");
 		LoggedInInfo loggedInInfo = getLoggedInInfo();
 		PatientListApptBean response = new PatientListApptBean();
@@ -130,12 +130,15 @@ public class ScheduleService extends AbstractServiceImpl {
 				item.setStatus(appt.getStatus());
 				item.setAppointmentNo(appt.getId());
 				item.setDate(appt.getStartTimeAsFullDate());
+				item.setDuration(appt.getDuration());
+				item.setType(appt.getType());
+				item.setNotes(appt.getNotes());
 				response.getPatients().add(item);
 			}
 		} catch (ParseException e) {
 			throw new RuntimeException("Invalid Date sent, use yyyy-MM-dd format");
 		}
-		return response;
+		return response.getPatients().toArray(new PatientListApptItemBean[response.getPatients().size()]);
 	}
 
 	@GET

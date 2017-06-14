@@ -804,7 +804,6 @@ function addToPatientSet(demoNo, patientSet) {
 
 var demographicNo='<%=demographic_no%>';
 
-
 function checkRosterStatus2(){
 	var rosterSelect = document.getElementById("roster_status");
 	<oscar:oscarPropertiesCheck property="FORCED_ROSTER_INTEGRATOR_LOCAL_STORE" value="yes">
@@ -815,13 +814,28 @@ function checkRosterStatus2(){
 	}
 	</oscar:oscarPropertiesCheck>
 	
+	
 	if(rosterSelect.value == "RO" || rosterSelect.value == ""){
 		jQuery(".termination_details").hide();
         jQuery(".termination_details input").val("");
         jQuery(".termination_details select").val("");
-	}else{
+        jQuery(".bill_insurance").hide();
+        jQuery(".bill_insurance select").val("");
+	}
+	else if (rosterSelect.value == "BI")
+	{
+        jQuery(".termination_details").hide();
+        jQuery(".termination_details input").val("");
+        jQuery(".termination_details select").val("");
+        jQuery(".bill_insurance").show();
+        jQuery("#insurance_company").focus();
+	}
+	else
+	{
         jQuery(".termination_details").show();
         jQuery("#roster_termination_reason").focus();
+        jQuery(".bill_insurance").hide();
+        jQuery(".bill_insurance select").val("");
 	}
 	
 	return true;

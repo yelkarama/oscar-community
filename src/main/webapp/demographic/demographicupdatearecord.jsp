@@ -45,23 +45,6 @@
 <%@page import="org.oscarehr.util.MiscUtils"%>
 <%@page import="org.oscarehr.util.SpringUtils" %>
 
-<%@page import="org.oscarehr.common.model.Demographic" %>
-<%@page import="org.oscarehr.common.dao.DemographicDao" %>
-<%@page import="org.oscarehr.common.dao.DemographicArchiveDao" %>
-<%@page import="org.oscarehr.common.model.DemographicArchive" %>
-<%@page import="org.oscarehr.common.model.DemographicCust" %>
-<%@page import="org.oscarehr.common.dao.DemographicCustDao" %>
-<%@page import="org.oscarehr.common.dao.DemographicExtDao" %>
-<%@page import="org.oscarehr.common.dao.DemographicExtArchiveDao" %>
-<%@page import="org.oscarehr.common.model.DemographicExt" %>
-<%@page import="org.oscarehr.common.model.DemographicExtArchive" %>
-<%@page import="org.oscarehr.common.dao.DemographicGroupLinkDao" %>
-
-<%@ page import="org.oscarehr.common.dao.WaitingListDao" %>
-<%@ page import="org.oscarehr.common.model.WaitingList" %>
-
-<%@page import="org.oscarehr.common.dao.OscarAppointmentDao" %>
-<%@page import="org.oscarehr.common.model.Appointment" %>
 <%@page import="org.oscarehr.provider.model.PreventionManager" %>
 
 <%@ page import="org.oscarehr.PMmodule.dao.ProgramDao" %>
@@ -71,9 +54,11 @@
 <%@page import="org.oscarehr.PMmodule.service.AdmissionManager" %>
 <%@page import="org.oscarehr.managers.PatientConsentManager" %>
 <%@page import="org.oscarehr.util.LoggedInInfo" %>
-<%@page import="org.oscarehr.common.model.Consent" %>
-<%@page import="org.oscarehr.common.model.ConsentType" %>
 <%@page import="oscar.OscarProperties" %>
+<%@ page import="org.oscarehr.common.model.*" %>
+<%@ page import="org.oscarehr.common.dao.*" %>
+<%@ page import="javax.swing.*" %>
+<%@ page import="org.oscarehr.casemgmt.model.ProviderExt" %>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -128,7 +113,82 @@
 	if (updateFamily){
 		 family = demographicDao.getDemographicFamilyMembers(String.valueOf(demographic.getDemographicNo()));
 	}
-	
+
+
+	// Update Freshbooks section
+	DemographicExtDao ded = SpringUtils.getBean(DemographicExtDao.class);
+	UserPropertyDAO propertyDao = (UserPropertyDAO) SpringUtils.getBean("UserPropertyDAO");
+	String demoNo = request.getParameter("demographic_no");
+	int demographicNo = Integer.parseInt(demoNo);
+	List<DemographicExt> demoProviders = ded.getMultipleDemographicExt(demographicNo, "freshbooksId");
+
+	String updateEmail = demographic.getEmail();
+	String updateFirstName = demographic.getFirstName();
+	String updateLastName = demographic.getLastName();
+	String updateHomePhone = demographic.getPhone();
+	String updateStreet = demographic.getAddress();
+	String updatePostal = demographic.getPostal();
+	String updateProvince = demographic.getProvince();
+	String updateCity = demographic.getCity();
+
+	if (!request.getParameter("email").equalsIgnoreCase(demographic.getEmail()))
+	{
+		updateEmail = request.getParameter("email");
+	}
+
+	if (!request.getParameter("first_name").equalsIgnoreCase(demographic.getFirstName()))
+	{
+		updateFirstName = request.getParameter("first_name");
+	}
+
+	if (!request.getParameter("last_name").equalsIgnoreCase(demographic.getLastName()))
+	{
+		updateLastName = request.getParameter("last_name");
+	}
+
+	if (!request.getParameter("phone").equalsIgnoreCase(demographic.getPhone()))
+	{
+		updateHomePhone = request.getParameter("phone");
+	}
+
+	if (!request.getParameter("address").equalsIgnoreCase(demographic.getAddress()))
+	{
+		updateStreet = request.getParameter("address");
+	}
+
+	if (!request.getParameter("city").equalsIgnoreCase(demographic.getCity()))
+	{
+		updateCity = request.getParameter("city");
+	}
+
+	if (!request.getParameter("province").equalsIgnoreCase(demographic.getProvince()))
+	{
+		updateProvince = request.getParameter("province");
+	}
+
+	if (!request.getParameter("postal").equalsIgnoreCase(demographic.getPostal()))
+	{
+		updatePostal = request.getParameter("postal");
+	}
+
+	if (!demoProviders.isEmpty() && demoProviders.size() > 0)
+	{
+		for (DemographicExt demo : demoProviders)
+		{
+		    UserProperty prop = propertyDao.getProp(demo.getProviderNo(), UserProperty.PROVIDER_FRESHBOOKS_ID);
+			if (prop!=null)
+			{
+				String provFreshbooksId = prop.getValue();
+				String demoFreshbooksId = demo.getValue();
+				FreshbooksService fs = new FreshbooksService();
+				if(provFreshbooksId!=null && demoFreshbooksId != null && !provFreshbooksId.equals("") && !demoFreshbooksId.equals(""))
+				{
+					fs.updateClient(demoFreshbooksId, provFreshbooksId, updateEmail, updateFirstName, updateLastName, updateHomePhone, updateStreet, updateCity, updateProvince, updatePostal, false);
+				}
+			}
+		}
+	}
+
 	demographic.setLastName(request.getParameter("last_name").trim());
 	demographic.setFirstName(request.getParameter("first_name").trim());
 	demographic.setPrefName(request.getParameter("pref_name").trim());
@@ -241,10 +301,10 @@
 	
 	//DemographicExt
 	String proNo = (String) session.getValue("user");
-	String demoNo = request.getParameter("demographic_no");
-	int demographicNo = Integer.parseInt(demoNo);
 	List<DemographicExt> extensions = new ArrayList<DemographicExt>();
 
+    extensions.add(new DemographicExt(request.getParameter("insurance_company_id"), proNo, demographicNo, "insurance_company", request.getParameter("insurance_company")));
+    extensions.add(new DemographicExt(request.getParameter("insurance_number_id"), proNo, demographicNo, "insurance_number", request.getParameter("insurance_number")));
 	extensions.add(new DemographicExt(request.getParameter("demo_cell_id"), proNo, demographicNo, "demo_cell", request.getParameter("demo_cell")));
 	extensions.add(new DemographicExt(request.getParameter("aboriginal_id"), proNo, demographicNo, "aboriginal", request.getParameter("aboriginal")));
 	extensions.add(new DemographicExt(request.getParameter("hPhoneExt_id"), proNo, demographicNo, "hPhoneExt", request.getParameter("hPhoneExt")));

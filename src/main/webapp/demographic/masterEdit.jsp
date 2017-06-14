@@ -73,7 +73,9 @@
 <%@ page import="org.oscarehr.PMmodule.service.AdmissionManager" %>
 <%@ page import="org.oscarehr.common.dao.SpecialtyDao" %>
 <%@ page import="org.oscarehr.common.model.Specialty" %>
-<%@ page import="org.apache.commons.lang.StringUtils"%><html:html locale="true">
+<%@ page import="org.apache.commons.lang.StringUtils"%>
+<%@ page import="oscar.oscarBilling.ca.on.data.JdbcBilling3rdPartImpl" %>
+<html:html locale="true">
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean" scope="session" />
 
@@ -117,7 +119,10 @@
     CountryCodeDao ccDAO =  (CountryCodeDao) ctx.getBean("countryCodeDao");
     UserPropertyDAO pref = (UserPropertyDAO) ctx.getBean("UserPropertyDAO");                       
     List<CountryCode> countryList = ccDAO.getAllCountryCodes();
-	
+	JdbcBilling3rdPartImpl dbObj = new JdbcBilling3rdPartImpl();
+	Billing3rdPartyAddressDao billing3rdPartyAddressDao = SpringUtils.getBean(Billing3rdPartyAddressDao.class);
+
+
 	DemographicDao demographicDao=(DemographicDao)SpringUtils.getBean("demographicDao");
     Demographic demographic = demographicDao.getDemographic(demographic_no);
 	DemographicExtDao demographicExtDao = SpringUtils.getBean(DemographicExtDao.class);
@@ -922,6 +927,9 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 					<option value="UHIP" <%=rosterStatus.equals("UHIP") ? " selected" : ""%>>
 						<bean:message key="demographic.demographiceditdemographic.optUhip"/>
 					</option>
+					<option value="BI" <%=rosterStatus.equals("BI") ? " selected" : ""%>>
+						<bean:message key="demographic.demographiceditdemographic.optBillInsurance"/>
+					</option>
 					<%
 						for (String status : demographicDao.getRosterStatuses()) {
 					%>
@@ -959,6 +967,33 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 				<input type="text" name="roster_date" id="roster_date" size="11" value="<%=rosterDate%>">
 				<img src="../images/cal.gif" id="roster_date_cal">
 				<script type="application/javascript">createStandardDatepicker(jQuery_3_1_0('#roster_date'), "roster_date_cal");</script>
+			</td>
+		</tr>
+		<tr valign="top" class="bill_insurance">
+			<td align="right" nowrap>
+				<b><bean:message key="demographic.demographiceditdemographic.BillInsurance" />:</b>
+			</td>
+			<td align="left">
+				<select name="insurance_company"
+						id="insurance_company">
+					<option selected="selected" value=""></option>
+					<%
+						List sL = dbObj.get3rdAddrNameList();
+						for (int i = 0; i < sL.size(); i++) {
+							Properties propT = (Properties) sL.get(i);
+					%>
+					<option value="<%=propT.getProperty("id", "")%>" <%=propT.getProperty("id", "").equalsIgnoreCase(demoExt.get("insurance_company"))?" selected" : ""%>><%=propT.getProperty("company_name", "")%></option>
+					<%}
+					%>
+				</select>
+			</td>
+		</tr>
+		<tr valign="top" class="insurance_number">
+			<td align="right">
+				<b><bean:message key="demographic.demographiceditdemographic.InsuranceNumber" />: </b>
+			</td>
+			<td align="left">
+				<input type="text" name="insurance_number" id="insurance_number" value="<%=StringUtils.trimToEmpty(demoExt.get("insurance_number"))%>">
 			</td>
 		</tr>
 		<tr valign="top" class="termination_details">

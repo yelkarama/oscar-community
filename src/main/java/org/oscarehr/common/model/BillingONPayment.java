@@ -76,6 +76,8 @@ public class BillingONPayment extends AbstractModel<Integer> implements Serializ
 	
 	private String creator;
 	private Integer paymentTypeId; 
+	
+	private String freshbooksId;
 
 	public int getPaymentTypeId() {
 		if(paymentTypeId == null) {
@@ -151,9 +153,10 @@ public class BillingONPayment extends AbstractModel<Integer> implements Serializ
 	public void setTotal_credit(BigDecimal total_credit) {
 		this.total_credit = total_credit;
 	}
+	
+	public String getFreshbooksId() {return freshbooksId;}
 
-        
-
+	public void setFreshbooksId(String freshbooksId) {this.freshbooksId = freshbooksId;}
                         
         public List<BillingONExt> getBillingONExtItems() {
             return this.billingONExtItems;

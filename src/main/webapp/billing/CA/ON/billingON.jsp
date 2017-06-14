@@ -19,18 +19,6 @@
 
 --%>
 <%@page import="org.oscarehr.util.LoggedInInfo"%>
-<%@page import="org.oscarehr.common.model.Appointment"%>
-<%@page import="org.oscarehr.common.dao.OscarAppointmentDao"%>
-<%@page import="org.oscarehr.common.model.CtlDiagCode"%>
-<%@page import="org.oscarehr.common.model.DiagnosticCode"%>
-<%@page import="org.oscarehr.common.dao.DiagnosticCodeDao"%>
-<%@page import="org.oscarehr.common.model.CtlBillingType"%>
-<%@page import="org.oscarehr.common.dao.CtlBillingTypeDao"%>
-<%@page import="org.oscarehr.common.model.CtlBillingServicePremium"%>
-<%@page import="org.oscarehr.common.dao.CtlBillingServicePremiumDao"%>
-<%@page import="org.oscarehr.common.model.BillingService"%>
-<%@page import="org.oscarehr.common.dao.BillingServiceDao"%>
-<%@page import="org.oscarehr.common.dao.DemographicDao"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
@@ -40,16 +28,10 @@
 	import="java.util.*,java.net.*,java.sql.*,oscar.*,oscar.util.*,oscar.appt.*"%>
 <%@ page import="oscar.oscarBilling.ca.on.data.*"%>
 <%@ page import="oscar.oscarBilling.ca.on.pageUtil.*"%>
-<%@page
-	import="org.oscarehr.common.model.ProviderPreference, org.oscarehr.common.model.CssStyle, org.oscarehr.common.dao.CSSStylesDAO"%>
 <%@page import="org.oscarehr.common.model.ProviderPreference"%>
 <%@page import="org.oscarehr.web.admin.ProviderPreferencesUIBean"%>
 <%@page import="org.oscarehr.util.SpringUtils"%>
-<%@page import="org.oscarehr.common.model.ClinicNbr"%>
-<%@page import="org.oscarehr.common.dao.ClinicNbrDao"%>
 <%@page import="org.oscarehr.PMmodule.dao.ProviderDao"%>
-<%@page import="org.oscarehr.common.model.ProfessionalSpecialist"%>
-<%@page import="org.oscarehr.common.dao.ProfessionalSpecialistDao"%>
 <%@page
 	import="oscar.oscarBilling.ca.bc.decisionSupport.BillingGuidelines"%>
 <%@page import="org.oscarehr.decisionSupport.model.DSConsequence"%>
@@ -69,8 +51,15 @@
 			if (session.getAttribute("user") == null) {
 				response.sendRedirect("../../../logout.jsp");
 			}
+
+		String invoiceID = (String)request.getAttribute("invoiceId");
+		String freshbooksProvNo = (String)request.getAttribute("freshbooksProvNo");
+
                         oscar.OscarProperties oscarVariables = oscar.OscarProperties.getInstance();
 			java.text.SimpleDateFormat standardDateFormat = new java.text.SimpleDateFormat("yyyy-MM-dd");
+
+			FreshbooksService fbs = new FreshbooksService();
+			DemographicExtDao ded = SpringUtils.getBean(DemographicExtDao.class);
 
 			String user_no = (String) session.getAttribute("user");
 			String providerview = request.getParameter("providerview") == null ? "" : request.getParameter("providerview");
@@ -115,6 +104,9 @@
             CodeFilterManager codeFilterManager = SpringUtils.getBean(CodeFilterManager.class);
             DemographicManager demographicManager = SpringUtils.getBean(DemographicManager.class);
 			Demographic demo = demographicManager.getDemographic(loggedInInfo, demo_no); 
+
+			// True - has e-mail, False - doesn't have e-mail
+			Boolean demoEmail = demo.getEmail()!=null&&!demo.getEmail().equals("");
 			java.util.Date filterDate = ConversionUtils.fromDateString(billReferenceDate);
 			if(request.getParameter("start_time") != null){
 	   			filterDate =  ConversionUtils.fromTimestampString(billReferenceDate+" "+request.getParameter("start_time"));
@@ -572,16 +564,18 @@
 			msg += errorMsg + warningMsg;
 %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
-<%@page import="org.oscarehr.common.dao.SiteDao"%>
-<%@page import="org.oscarehr.common.model.Site"%>
-<%@page import="org.oscarehr.common.model.Provider"%>
 <%@page import="org.apache.commons.lang.StringUtils"%>
 <%@page import="org.oscarehr.util.MiscUtils"%>
-<%@page import="org.oscarehr.common.dao.ProviderPreferenceDao"%>
 <%@page import="org.oscarehr.util.SpringUtils"%>
-<%@page import="org.oscarehr.common.model.ProviderPreference"%><html>
+<%@page import="org.oscarehr.common.model.ProviderPreference"%>
+<%@ page import="org.oscarehr.common.model.*" %>
+<%@ page import="org.oscarehr.common.dao.*" %>
+<%@ page import="java.util.regex.Pattern" %>
+<%@ page import="java.util.regex.Matcher" %>
+<%@ page import="javax.swing.*" %>
+<html>
 <head>
 <title>Ontario Billing</title>
 <style type="text/css">
@@ -978,21 +972,114 @@ function onClickRefDoc() {
 	document.forms[0].referralSpet.value="<%=referSpet%>";
     }
 }
+function validateEmail(email)
+{
+    var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(email);
+}
 
 function onChangePrivate() {
-	var n = document.forms[0].xml_billtype.selectedIndex;
-	var val = document.forms[0].xml_billtype[n].value;
-	var providerSelect = document.getElementsByName('xml_provider')[0];
-	var selectedProvider = providerSelect.options[providerSelect.selectedIndex].value.split("|")[0];
-  	if(val.substring(0,3) == "PAT" || val.substring(0,3) == "OCF" || val.substring(0,3) == "ODS" || val.substring(0,3) == "CPP" || val.substring(0,3) == "STD") {
-  		self.location.href = "billingON.jsp?curBillForm=<%="PRI"%>&hotclick=<%=URLEncoder.encode("","UTF-8")%>&appointment_no=<%=request.getParameter("appointment_no")%>&demographic_name=<%=URLEncoder.encode(demoname,"UTF-8")%>&demographic_no=<%=request.getParameter("demographic_no")%>&xml_billtype="+val.substring(0,3)+"&apptProvider_no=<%=request.getParameter("apptProvider_no")%>&providerview="+selectedProvider+"&appointment_date=<%=request.getParameter("appointment_date")%>&status=<%=request.getParameter("status")%>&start_time=<%=request.getParameter("start_time")%>&bNewForm=1";
-  	}
-    else if( val.substring(0,3) == "BON") {
-        self.location.href = "billingON.jsp?curBillForm=<%=oscarVariables.getProperty("primary_care_incentive", "").trim()%>&hotclick=<%=URLEncoder.encode("","UTF-8")%>&appointment_no=<%=request.getParameter("appointment_no")%>&demographic_name=<%=URLEncoder.encode(demoname,"UTF-8")%>&demographic_no=<%=request.getParameter("demographic_no")%>&xml_billtype="+val.substring(0,3)+"&apptProvider_no=<%=request.getParameter("apptProvider_no")%>&providerview="+selectedProvider+"&appointment_date=<%=request.getParameter("appointment_date")%>&status=<%=request.getParameter("status")%>&start_time=<%=request.getParameter("start_time")%>&bNewForm=1";
+    var n = document.forms[0].xml_billtype.selectedIndex;
+    var val = document.forms[0].xml_billtype[n].value;
+    var n2 = document.forms[0].xml_provider.selectedIndex;
+    var providerSelect = document.getElementsByName('xml_provider')[0];
+    var selectedProvider = providerSelect.options[providerSelect.selectedIndex].value.split("|")[0];
+    if (val.substring(0, 3) == "PAT" || val.substring(0, 3) == "OCF" || val.substring(0, 3) == "ODS" || val.substring(0, 3) == "CPP" || val.substring(0, 3) == "STD") {
+        self.location.href = "billingON.jsp?curBillForm=<%="PRI"%>&hotclick=<%=URLEncoder.encode("","UTF-8")%>&appointment_no=<%=request.getParameter("appointment_no")%>&demographic_name=<%=URLEncoder.encode(demoname,"UTF-8")%>&demographic_no=<%=request.getParameter("demographic_no")%>&xml_billtype="+val.substring(0,3)+"&apptProvider_no=<%=request.getParameter("apptProvider_no")%>&providerview="+selectedProvider+"&appointment_date=<%=request.getParameter("appointment_date")%>&status=<%=request.getParameter("status")%>&start_time=<%=request.getParameter("start_time")%>&bNewForm=1";
+    }
+    else if (val.substring(0, 3) == "BON") {
+        self.location.href = "billingON.jsp?curBillForm=<%=oscarVariables.getProperty("primary_care_incentive", "").trim()%>&hotclick=<%=URLEncoder.encode("","UTF-8")%>&appointment_no=<%=request.getParameter("appointment_no")%>&demographic_name=<%=URLEncoder.encode(demoname,"UTF-8")%>&demographic_no=<%=request.getParameter("demographic_no")%>&xml_billtype="+val.substring(0,3)+"&apptProvider_no=<%=request.getParameter("apptProvider_no")%>&providerview="+selectedProvider+"&appointment_date=<%=request.getParameter("appointment_date")%>&status=<%=request.getParameter("status")%>&start_time=<%=request.getParameter("start_time")%>&bNewForm=1";    }
+    else if (val.substring(0, 3) == "K3P")
+    {
+        if (document.forms[0].xml_provider[n2].value == "000000")
+        {
+            alert("You must select a provider before proceeding!");
+            document.forms[0].xml_billtype.selectedIndex = 0;
+        }
+        else
+        {
+            var hasEmail = '<%=demoEmail%>';
+            var provNo = document.forms[0].xml_provider[n2].value;
+            var apptNo = '<%=request.getParameter("appointment_no")%>';
+            var serviceDate = '<%=request.getParameter("appointment_date")%>';
+
+            if (hasEmail=='true')
+            {
+                var email = '<%=demo.getEmail()%>';
+                var demoNo = '<%=demo.getDemographicNo()%>';
+                var data = "submit=validate&email="+email+"&provNo="+provNo+"&demoNo="+demoNo+"&isNewEmail=false&apptNo=" + apptNo + "&serviceDate=" + serviceDate;
+                var url = "<%=request.getContextPath()%>/FreshbooksAction.do";
+
+                new Ajax.Request(url,{method:'post',parameters:data, onSuccess:function(transport)
+				{
+				    window.location.href=transport.responseText;
+                },
+                    onFailure:function()
+					{
+                        alert("Something went wrong! Please contact Kai Support.\n\n Error: Failed to write to Freshbooks with demographic E-mail. Reference: BO.JSPL-1018\nU");
+                    }});
+            }
+            else
+            {
+                var emailOption = prompt("No E-mail on file for <%=demo.getDisplayName()%>!\nEnter an E-mail for <%=demo.getDisplayName()%>, or leave blank and click OK to continue", "");
+
+                if (emailOption!==null) // If they didn't click cancel
+                {
+                    if(emailOption.toString().trim().length > 0) // If the demo has no e-mail but they enter one
+                    {
+                        while (!validateEmail(emailOption)) // If they have a valid e-mail, use that for the invoice
+                        { // If the email is not valid, ...
+							if (emailOption==null) {break;}
+							if (emailOption=='') {break;}
+                            alert("The e-mail you entered is not valid! Please try again.");
+                            document.forms[0].xml_billtype.selectedIndex = 0;
+
+                            emailOption = prompt("No E-mail on file for <%=demo.getDisplayName()%>!\nEnter an E-mail for <%=demo.getDisplayName()%>, or leave blank and click OK to continue", "");
+                        }
+                        if (emailOption!=null || emailOption == '')
+						{
+                            var email = emailOption;
+                            var demoNo = '<%=demo.getDemographicNo()%>';
+                            var data = "submit=validate&email="+email+"&provNo="+provNo+"&demoNo="+demoNo+"&isNewEmail=true&apptNo=" + apptNo + "&serviceDate=" + serviceDate;
+                            var url = "<%=request.getContextPath()%>/FreshbooksAction.do";
+
+                            new Ajax.Request(url,{method:'post',parameters:data, onSuccess:function(transport)
+                            {
+                                window.location.href=transport.responseText;
+                            },
+                                onFailure:function()
+                                {
+                                    alert("Something went wrong! Please contact Support.\n\n ERR: Failed to write to Freshbooks with prompted E-mail. Code: BO.JSPL-1051");
+                                }});
+						}
+                    }
+                    else
+                    {
+                        var demoNo = '<%=demo.getDemographicNo()%>';
+                        var data = "submit=validate&provNo="+provNo+"&demoNo="+demoNo+"&isNewEmail=false&apptNo=" + apptNo + "&serviceDate=" + serviceDate;
+                        var url = "<%=request.getContextPath()%>/FreshbooksAction.do";
+
+                        new Ajax.Request(url,{method:'post',parameters:data, onSuccess:function(transport)
+                        {
+                            window.location.href=transport.responseText;
+                        },
+                            onFailure:function()
+                            {
+                                alert("Something went wrong! Please contact Support.\n\n ERR: Failed to write to Freshbooks with no E-mail. Code: BO.JSPL-1068");
+                            }});
+
+                    }
+                }
+                else // If the user clicked cancel, set the billing type select box back to the top and cancel the creation
+                {
+                    document.forms[0].xml_billtype.selectedIndex = 0;
+                }
+            }
+        }
     }
     else {
 <% if(ctlBillForm.equals("PRI") ) {%>
-        self.location.href = "billingON.jsp?curBillForm=<%=oscarVariables.getProperty("default_view", "").trim()%>&hotclick=<%=URLEncoder.encode("","UTF-8")%>&appointment_no=<%=request.getParameter("appointment_no")%>&demographic_name=<%=URLEncoder.encode(demoname,"UTF-8")%>&demographic_no=<%=request.getParameter("demographic_no")%>&xml_billtype="+val.substring(0,3)+"&apptProvider_no=<%=request.getParameter("apptProvider_no")%>&providerview="+selectedProvider+"&appointment_date=<%=request.getParameter("appointment_date")%>&status=<%=request.getParameter("status")%>&start_time=<%=request.getParameter("start_time")%>&bNewForm=1";
+        self.location.href = "billingON.jsp?curBillForm=<%=oscarVariables.getProperty("default_view", "").trim()%>&hotclick=<%=URLEncoder.encode("","UTF-8")%>&appointment_no=<%=request.getParameter("appointment_no")%>&demographic_name=<%=URLEncoder.encode(demoname,"UTF-8")%>&demographic_no=<%=request.getParameter("demographic_no")%>&xml_billtype="+val.substring(0,3)+"&apptProvider_no=<%=request.getParameter("apptProvider_no")%>&providerview=<%=request.getParameter("apptProvider_no")%>&appointment_date=<%=request.getParameter("appointment_date")%>&status=<%=request.getParameter("status")%>&start_time=<%=request.getParameter("start_time")%>&bNewForm=1";
 <% } %>
   	}
 }
@@ -1638,6 +1725,9 @@ function changeSite(sel) {
 													Not Bill</option>
 												<option value="IFH | Interm Federal Health"
 													<%=srtBillType.startsWith("IFH")?"selected" : ""%>>IFH</option>
+												<option value="K3P | Kai 3rd Party"
+													<%=srtBillType.startsWith("K3P")?"selected" : ""%>>Kai 3rd
+													Party</option>
 												<option value="PAT | Bill Patient"
 													<%=srtBillType.startsWith("PAT")?"selected" : ""%>>3rd
 													Party</option>

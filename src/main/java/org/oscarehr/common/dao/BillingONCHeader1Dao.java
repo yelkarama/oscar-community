@@ -837,5 +837,16 @@ public class BillingONCHeader1Dao extends AbstractDao<BillingONCHeader1>{
        
         return results;
     }
+    
+    public List<BillingONCHeader1> findByFreshbooksId (String freshbooksId)
+    {
+        String sql = "SELECT b FROM BillingONCHeader1 b WHERE b.freshbooksId = ?";
+        Query query = entityManager.createQuery(sql);
+        query.setParameter(1, freshbooksId);
+        
+        List<BillingONCHeader1> results = query.getResultList();
+        
+        return results;
+    }
 	
 }

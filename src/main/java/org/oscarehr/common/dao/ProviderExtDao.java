@@ -26,10 +26,27 @@ package org.oscarehr.common.dao;
 import org.oscarehr.casemgmt.model.ProviderExt;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.Query;
+import java.util.List;
+
 @Repository
 public class ProviderExtDao extends AbstractDao<ProviderExt>{
 
 	public ProviderExtDao() {
 		super(ProviderExt.class);
+	}
+
+	@SuppressWarnings("unchecked")
+	public ProviderExt findByProvNo(String provNo)
+	{
+		String sql = "SELECT x FROM ProviderExt x WHERE x.providerNo=?";
+
+		Query query = entityManager.createQuery(sql);
+		query.setParameter(1, provNo);
+
+		List<ProviderExt> results = query.getResultList();
+
+		if (results.size() > 0) return results.get(0);
+		return null;
 	}
 }

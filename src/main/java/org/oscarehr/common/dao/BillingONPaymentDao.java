@@ -234,6 +234,17 @@ public class BillingONPaymentDao extends AbstractDao<BillingONPayment>{
         Collections.sort(results, BillingONPayment.BILLING_ON_PAYMENT_COMPARATOR);
         return results;
      }
+
+    public List<BillingONPayment> findByFreshbooksId (String freshbooksId)
+    {
+        String sql = "SELECT b FROM BillingONPayment b WHERE b.freshbooksId = ?";
+        Query query = entityManager.createQuery(sql);
+        query.setParameter(1, freshbooksId);
+
+        List<BillingONPayment> results = query.getResultList();
+
+        return results;
+    }
     
      public void createPayment(BillingONCHeader1 bCh1,Locale locale, String payType, BigDecimal paidAmt, String payMethod, String providerNo) {
          //add new payment

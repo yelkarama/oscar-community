@@ -1284,7 +1284,7 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 
 	@SuppressWarnings("unchecked")
 	public List<String> getRosterStatuses() {
-		List<String> results = getHibernateTemplate().find("SELECT DISTINCT d.RosterStatus FROM Demographic d where d.RosterStatus != '' and d.RosterStatus != 'RO' and d.RosterStatus != 'NR' and d.RosterStatus != 'TE' and d.RosterStatus != 'FS' and d.RosterStatus != 'UHIP'");
+		List<String> results = getHibernateTemplate().find("SELECT DISTINCT d.RosterStatus FROM Demographic d where d.RosterStatus != '' and d.RosterStatus != 'RO' and d.RosterStatus != 'NR' and d.RosterStatus != 'TE' and d.RosterStatus != 'FS' and d.RosterStatus != 'UHIP' and d.RosterStatus != 'BI'");
 		return results;
 	}
 

@@ -86,6 +86,54 @@ public class DemographicExtDao extends AbstractDao<DemographicExt>{
  		return result;
  	}
 
+	public List<DemographicExt> getMultipleDemographicExt (Integer demographicNo, String key) 
+	{
+
+		if (demographicNo == null || demographicNo.intValue() <= 0) {
+			throw new IllegalArgumentException();
+		}
+
+		if (key == null || key.length() <= 0) {
+			throw new IllegalArgumentException();
+		}
+
+		Query query = entityManager.createQuery("SELECT d from DemographicExt d where d.demographicNo=? and d.key = ? order by d.dateCreated DESC");
+		query.setParameter(1, demographicNo);
+		query.setParameter(2, key);
+		
+		List<DemographicExt> results = query.getResultList();
+
+		return results;
+	}
+ 	
+ 	public DemographicExt getDemographicExtKeyAndProvider (Integer demographicNo, String key, String providerNo)
+	{
+		if (demographicNo == null || demographicNo.intValue() <= 0) {
+			throw new IllegalArgumentException();
+		}
+
+		if (key == null || key.length() <= 0) {
+			throw new IllegalArgumentException();
+		}
+
+		if (providerNo == null || providerNo.length() <= 0) {
+			throw new IllegalArgumentException();
+		}
+
+		Query query = entityManager.createQuery("SELECT d from DemographicExt d where d.demographicNo=? and d.key = ? and d.providerNo = ? order by d.dateCreated DESC");
+		query.setParameter(1, demographicNo);
+		query.setParameter(2, key);
+		query.setParameter(3, providerNo);
+
+		@SuppressWarnings("unchecked")
+		List<DemographicExt> results = query.getResultList();
+
+		if (results.isEmpty()) return null;
+		DemographicExt result = results.get(0);
+
+		return result;
+	}
+
  	
  	public List<DemographicExt> getDemographicExtByKeyAndValue(String key,String value) {
 

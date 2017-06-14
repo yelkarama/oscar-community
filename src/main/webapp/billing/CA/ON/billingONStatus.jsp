@@ -383,7 +383,7 @@ table td,th{font-size:12px;}
         <input type="checkbox" name="billType" value="ODS" <%=tmpStrBillType.indexOf("ODS")>=0?"checked":""%>><span style="padding-right:4px">ODSP</span></input> 
         <input type="checkbox" name="billType" value="CPP" <%=tmpStrBillType.indexOf("CPP")>=0?"checked":""%>><span style="padding-right:4px">CPP</span></input> 
         <input type="checkbox" name="billType" value="STD" <%=tmpStrBillType.indexOf("STD")>=0?"checked":""%>><span style="padding-right:4px">STD/LTD</span></input> 
-        <input type="checkbox" name="billType" value="IFH" <%=tmpStrBillType.indexOf("IFH")>=0?"checked":""%>><span style="padding-right:4px">IFH</span></input> 
+        <input type="checkbox" name="billType" value="IFH" <%=tmpStrBillType.indexOf("IFH")>=0?"checked":""%>><span style="padding-right:4px">IFH</span></input>
 </small>
 </div>
 </div><!-- row -->
@@ -631,6 +631,8 @@ Site Number:<br>
 <div class="row">
 <div class="span2" style="padding-top:10px;">
 <input class="btn btn-primary" type="submit" name="Submit" value="Create Report">
+<br><br>
+<input class="btn btn-primary" onClick="popupPage(600,800, 'https://my.freshbooks.com/#/reports/invoice-details')" value="Open Kai 3rd Party Reports">
 </div>   
 </div><!-- row -->
 

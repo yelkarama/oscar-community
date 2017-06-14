@@ -43,7 +43,7 @@ public final class BillingDataHlp {
 	public static String BILLINGACTION_CREATE = "create";
 	public static String BILLINGACTION_UPDATE = "update";
 
-	public static String BILLINGMATCHSTRING_3RDPARTY = "PAT|OCF|ODS|CPP|STD|IFH";
+	public static String BILLINGMATCHSTRING_3RDPARTY = "PAT|OCF|ODS|CPP|STD|IFH|K3P";
 
 	// UH: update billing_on_cheader1, refer to issue#233 https://github.com/oscaremr/oscar/issues/233
 	public enum ACTION_TYPE {C, R, U, D, UH};

@@ -106,6 +106,8 @@ public class BillingONCHeader1 extends AbstractModel<Integer> implements Seriali
 	private String apptProviderNo = null;
 	@Column(name = "asstProvider_no")
 	private String asstProviderNo = null;
+	@Column(name = "freshbooksId")
+	private String freshbooksId = null;
 	private String creator = null;        
 	@Column(name = "timestamp1", insertable = false, updatable = false)
 	@Temporal(TemporalType.TIMESTAMP)
@@ -308,6 +310,10 @@ public class BillingONCHeader1 extends AbstractModel<Integer> implements Seriali
 	public void setAdmissionDate(Date admissionDate) {
 		this.admissionDate = admissionDate!=null?(new SimpleDateFormat("yyyy-MM-dd")).format(admissionDate):null;
 	}
+
+	public String getFreshbooksId() { return freshbooksId; }
+
+	public void setFreshbooksId(String freshbooksId) { this.freshbooksId = freshbooksId; }
 
 	public String getRefLabNum() {
 		return refLabNum;

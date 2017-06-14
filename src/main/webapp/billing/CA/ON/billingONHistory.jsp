@@ -30,22 +30,32 @@
   String strLimit2="10";
   if(request.getParameter("limit1")!=null) strLimit1 = request.getParameter("limit1");
   if(request.getParameter("limit2")!=null) strLimit2 = request.getParameter("limit2");
+  int pageNumber = request.getParameter("freshbooksPage")==null?1:Integer.parseInt(request.getParameter("freshbooksPage"));
+  boolean invoiceRefresh = request.getParameter("invoiceRefresh")==null?true:Boolean.parseBoolean(request.getParameter("invoiceRefresh"));
+  String demographicNo = request.getParameter("demographic_no");
+	UserPropertyDAO userPropertyDAO = SpringUtils.getBean(UserPropertyDAO.class);
+	UserProperty prop;
 %>
 <%@ page
 	import="java.util.*, java.sql.*, java.net.*, oscar.*, oscar.oscarDB.*"
 	errorPage="errorpage.jsp"%>
 <%@ page import="oscar.oscarBilling.ca.on.data.*"%>
 <%@page import="org.oscarehr.billing.CA.ON.dao.*" %>
-<%@page import="org.oscarehr.common.dao.BillingONExtDao" %>
 <%@page import="org.oscarehr.util.SpringUtils" %>
 
-<%@page import="org.oscarehr.common.dao.BillingONPaymentDao" %>
-<%@page import="org.oscarehr.common.model.BillingONPayment" %>
-<%@page import="org.oscarehr.common.dao.BillingONCHeader1Dao" %>
-<%@page import="org.oscarehr.common.model.BillingONCHeader1" %>
+<%@ page import="org.oscarehr.util.LoggedInInfo" %>
+<%@ page import="org.oscarehr.casemgmt.model.ProviderExt" %>
+<%@ page import="org.oscarehr.ws.rest.to.model.NoteSelectionTo1" %>
+<%@ page import="org.oscarehr.ws.rest.NotesService" %>
+<%@ page import="net.sf.json.JSONObject" %>
+<%@ page import="java.util.Date" %>
+<%@ page import="javax.swing.*" %>
+<%@ page import="org.oscarehr.common.dao.*" %>
+<%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
+<%@ page import="org.oscarehr.common.model.*" %>
 <%
 	BillingONPaymentDao billingOnPaymentDao = SpringUtils.getBean(BillingONPaymentDao.class);
-	BillingONCHeader1Dao bCh1Dao = SpringUtils.getBean(BillingONCHeader1Dao.class);	
+	BillingONCHeader1Dao bCh1Dao = SpringUtils.getBean(BillingONCHeader1Dao.class);
 %>
 
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
@@ -59,6 +69,38 @@
 <title>BILLING HISTORY</title>
 <link rel="stylesheet" href="billingON.css">
 <script language="JavaScript">
+	<%
+	LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+	ProviderDao pd = SpringUtils.getBean(ProviderDao.class);
+	List<Provider> providers = pd.getActiveProviders();
+	FreshbooksService fs = new FreshbooksService();
+
+	if (invoiceRefresh)
+	{
+	    DemographicExtDao demographicExtDao = SpringUtils.getBean(DemographicExtDao.class);
+		DemographicExt demographicExt = demographicExtDao.getDemographicExt(Integer.parseInt(demographicNo), "freshbooksId");
+
+	    if (demographicExt != null && demographicExt.getValue() != null)
+		{
+			String clientFreshbooksId = demographicExt.getValue();
+
+			if (providers.size() > 0)
+			{
+				for (Provider prov : providers)
+				{
+					String curProvFreshbooksId;
+					prop = userPropertyDAO.getProp(prov.getProviderNo(), UserProperty.PROVIDER_FRESHBOOKS_ID);
+					if (prop != null && prop.getValue() != null && !prop.getValue().isEmpty())
+					{
+						curProvFreshbooksId = prop.getValue();
+						fs.dailyInvoiceUpdate(curProvFreshbooksId, loggedInInfo, pageNumber, clientFreshbooksId, false);
+					}
+
+				}
+			}
+		}
+	}
+	%>
 function onUnbilled(url) {
   if(confirm("<bean:message key="provider.appointmentProviderAdminDay.onUnbilled"/>")) {
     popupPage(700,720, url);
@@ -117,7 +159,7 @@ for(int i=0; i<aL.size(); i=i+2) {
 	String billStatus = "";
 	if(strBillType != null) {
 		if(strBillType.matches(BillingDataHlp.BILLINGMATCHSTRING_3RDPARTY)) {
-			if(BillingDataHlp.propBillingType.getProperty(obj.getStatus(),"").equals("Settled")) {
+			if(BillingDataHlp.propBillingType.getProperty(obj.getStatus(),"").equals("Settled") || obj.getStatus().equals("A")) {
 				strBillType += " Settled";
 			}
 		} else {
@@ -131,7 +173,7 @@ for(int i=0; i<aL.size(); i=i+2) {
 	
 	//BigDecimal balance = new BigDecimal("0.00");
 	BigDecimal balance = new BigDecimal("0.00");
-	if("PAT".equals(strBillType)||"PAT Settled".equals(strBillType)||"IFH".equals(strBillType)){
+	if("PAT".equals(strBillType)||"PAT Settled".equals(strBillType)||"IFH".equals(strBillType) || "K3P".equals(strBillType)){
 		int billingNo = Integer.parseInt(obj.getId());
 		BillingONCHeader1 bCh1 = bCh1Dao.find(billingNo);
 		billStatus = bCh1.getStatus();
@@ -147,17 +189,48 @@ for(int i=0; i<aL.size(); i=i+2) {
 			sumOfRefund = sumOfRefund.add(payment.getTotal_refund());
 			sumOfCredit = sumOfCredit.add(payment.getTotal_credit());
 		}
-		
-		balance = total.subtract(sumOfPay).subtract(sumOfDiscount).add(sumOfCredit);
+
+		if ("K3P".equals(strBillType))
+		{
+		    // Discounts, etc. already applied within Freshbooks, no need to double it here
+		    balance = total.subtract(sumOfPay);
+		}
+		else
+		{
+			balance = total.subtract(sumOfPay).subtract(sumOfDiscount).add(sumOfCredit);
+		}
+
 	}
 %>
+	
+	<%
+		String editUrl = "billingONCorrection.jsp?billing_no=" + obj.getId();
+		boolean removeUnbill = false;
+		BillingONCHeader1Dao billingONCHeader1Dao = SpringUtils.getBean(BillingONCHeader1Dao.class);
+		BillingONCHeader1 invoice;
+		if (strBillType.equals("K3P") || strBillType.equals("K3P Settled") || strBillType.equals("K3P Draft"))
+		{
+		    if (obj.getId() != null && obj.getProvider_no() != null)
+			{
+				invoice = billingONCHeader1Dao.find(Integer.parseInt(obj.getId()));
+
+				prop = userPropertyDAO.getProp(obj.getProvider_no(), UserProperty.PROVIDER_FRESHBOOKS_ID);
+
+				if (invoice != null && prop != null && invoice.getFreshbooksId()!=null && prop.getValue() != null)
+				{
+					editUrl = "https://my.freshbooks.com/#/invoice/" + prop.getValue() + "-" + invoice.getFreshbooksId();
+					removeUnbill = true;
+				}   
+			}
+		}
+	%>
 
 	<tr bgcolor="<%=i%2==0?"#CCFF99":"white"%>">
 		<td width="5%" align="center" height="25">
 		<a href="javascript:void(0)" onClick="popupPage(600,800, 'billingONDisplay.jsp?billing_no=<%=obj.getId()%>')" title="Billing Display"><%=obj.getId()%></a>
 		
 		<security:oscarSec roleName="<%=roleName$%>" objectName="_billing" rights="w">
-		<a href="javascript:void(0)" onClick="popupPage(600,800, 'billingONCorrection.jsp?billing_no=<%=obj.getId()%>')" title="Billing Correction">Edit</a>
+		<a href="javascript:void(0)" onClick="popupPage(600,800, '<%=editUrl%>')" title="Billing Correction">Edit</a>
 		</security:oscarSec>
 		
 		<a href="javascript:void(0)" onClick="popupPage(600,800, 'billingON3rdInv.jsp?billingNo=<%=obj.getId()%>')">Print</a>
@@ -165,10 +238,10 @@ for(int i=0; i<aL.size(); i=i+2) {
 		<td align="center"><%=obj.getLast_name()+", "+obj.getFirst_name()%></td>
 		<td align="center"><%=obj.getBilling_date()%> <%--=obj.getBilling_time()--%></td>
 		<td align="center"><%=billStatus.equals("X")?"Bad Debt":strBillType%></td>
-		<td align="center"><%=itObj.getService_code()%></td>
+		<td align="center"><%="K3P".equals(strBillType) || "K3P Settled".equals(strBillType)?"<a href='" + editUrl +"'>View Kai 3rd Party Invoice</a>":itObj.getService_code()%></td>
 		<td align="center"><%=itObj.getDx()%></td>
-		<td align="center"><%if("PAT".equals(strBillType)||"PAT Settled".equals(strBillType)||"IFH".equals(strBillType)){ %>
-			<%if(balance.compareTo(BigDecimal.ZERO) > 0 && "PAT Settled".equals(strBillType)) { %>
+		<td align="center"><%if("PAT".equals(strBillType)||"PAT Settled".equals(strBillType)||"IFH".equals(strBillType)||"K3P".equals(strBillType)|| "K3P Settled".equals(strBillType)){ %>
+			<%if(balance.compareTo(BigDecimal.ZERO) > 0 && ("PAT Settled".equals(strBillType) || "K3P Settled".equals(strBillType))) { %>
 			<%="0.00" %>
 			<%} else { %>
 			<%=balance %>
@@ -176,19 +249,24 @@ for(int i=0; i<aL.size(); i=i+2) {
 		<%}else{ %>
 			<%="" %>
 		<%} %></td>
+		
+		
 		<td align="center"><%=obj.getTotal()%></td>
-
+		
 		<% if (obj.getStatus().compareTo("B")==0 || obj.getStatus().compareTo("S")==0) { %>
 		<td align="center">&nbsp;</td>
-		<% } else if (OscarProperties.getInstance().getBooleanProperty("warnOnDeleteBill","true")){ %>
+		<% } else if (OscarProperties.getInstance().getBooleanProperty("warnOnDeleteBill","true") && !removeUnbill){ %>
 		<td align="center"><a
 			href="#" onClick="onUnbilled('billingDeleteNoAppt.jsp?billing_no=<%=obj.getId()%>&billCode=<%=obj.getStatus()%>&hotclick=0');return false;">Unbill</a>
                 </td>
-		<% } else { %>
+		<% } else {
+		    	if (!removeUnbill) {%>
                 <td align="center">
 			<a href="billingDeleteNoAppt.jsp?billing_no=<%=obj.getId()%>&billCode=<%=obj.getStatus()%>&dboperation=delete_bill&hotclick=0">Unbill</a></td>
-
-                <% }%>
+                <%} else {
+				}%>
+		<td align="center"></td>
+		<%}%>
 	</tr>
 	<% 
 }
@@ -202,12 +280,12 @@ for(int i=0; i<aL.size(); i=i+2) {
   nLastPage=Integer.parseInt(strLimit1)-Integer.parseInt(strLimit2);
   if(nLastPage>=0) {
 %> <a
-	href="billinghistory.jsp?last_name=<%=URLEncoder.encode(request.getParameter("last_name")) %>&first_name=<%=URLEncoder.encode(request.getParameter("first_name")) %>&demographic_no=<%=request.getParameter("demographic_no")%>&displaymode=<%=request.getParameter("displaymode")%>&dboperation=<%=request.getParameter("dboperation")%>&orderby=<%=request.getParameter("orderby")%>&limit1=<%=nLastPage%>&limit2=<%=strLimit2%>">Last
+	href="billinghistory.jsp?last_name=<%=URLEncoder.encode(request.getParameter("last_name")) %>&first_name=<%=URLEncoder.encode(request.getParameter("first_name")) %>&demographic_no=<%=request.getParameter("demographic_no")%>&displaymode=<%=request.getParameter("displaymode")%>&dboperation=<%=request.getParameter("dboperation")%>&orderby=<%=request.getParameter("orderby")%>&limit1=<%=nLastPage%>&limit2=<%=strLimit2%>&invoiceRefresh=false">Last
 Page</a> | <%
   }
   if(nItems==Integer.parseInt(strLimit2)) {
 %> <a
-	href="billinghistory.jsp?last_name=<%=URLEncoder.encode(request.getParameter("last_name")) %>&first_name=<%=URLEncoder.encode(request.getParameter("first_name")) %>&demographic_no=<%=request.getParameter("demographic_no")%>&displaymode=<%=request.getParameter("displaymode")%>&dboperation=<%=request.getParameter("dboperation")%>&orderby=<%=request.getParameter("orderby")%>&limit1=<%=nNextPage%>&limit2=<%=strLimit2%>">
+	href="billinghistory.jsp?last_name=<%=URLEncoder.encode(request.getParameter("last_name")) %>&first_name=<%=URLEncoder.encode(request.getParameter("first_name")) %>&demographic_no=<%=request.getParameter("demographic_no")%>&displaymode=<%=request.getParameter("displaymode")%>&dboperation=<%=request.getParameter("dboperation")%>&orderby=<%=request.getParameter("orderby")%>&limit1=<%=nNextPage%>&limit2=<%=strLimit2%>&freshbooksPage=<%=(pageNumber+1)%>&invoiceRefresh=true">
 Next Page</a> <%
 }
 

@@ -43,9 +43,7 @@ String sqlProviderView = request.getParameter("providerview")==null?"%":request.
 <%@ page import="java.util.*, java.sql.*, oscar.login.*, oscar.*, java.net.*" errorPage="errorpage.jsp"%>
 <%@ include file="../../../admin/dbconnection.jsp"%>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
-<%@ page import="org.oscarehr.common.model.ReportProvider" %>
 <%@ page import="org.oscarehr.common.dao.ReportProviderDao" %>
-<%@ page import="org.oscarehr.common.model.Provider" %>
 
 
 <%
@@ -116,7 +114,7 @@ if("billed".equals(action)) {
     vecHeader.add("PATIENT");
     vecHeader.add("DESCRIPTION");
     vecHeader.add("ACCOUNT");
-    sql = "select * from billing_on_cheader1 where provider_no like " + sqlProviderView + " and billing_date between '" + xml_vdate 
+    sql = "select * from billing_on_cheader1 where provider_no like '" + sqlProviderView + "' and billing_date between '" + xml_vdate
             + "' and '" + xml_appointment_date + "' and (status<>'D' and status<>'S' and status<>'B')" 
             + " order by billing_date , billing_time ";
     rs = dbObj.searchDBRecord(sql);
@@ -153,11 +151,25 @@ if("billed".equals(action)) {
     	else if (reason.compareTo("P") == 0) reason="Bill Patient";
 
     	prop.setProperty("DESCRIPTION", reason + "(" + note + ")");
-        String tempStr = "<a href=# onClick='popupPage(700,720, \"../../../billing/CA/ON/billingCorrection.jsp?billing_no="
-                + rs.getString("id") + "&dboperation=search_bill&hotclick=0\"); return false;' title="
-                + reason + ">" + rs.getString("id") + "</a>";
-  	    prop.setProperty("ACCOUNT", tempStr);
-        vecValue.add(prop);
+
+    	String tempStr;
+    	if (rs.getString("freshbooksId") != null && !rs.getString("freshbooksId").isEmpty())
+		{
+			UserPropertyDAO userPropertyDAO = SpringUtils.getBean(UserPropertyDAO.class);
+			UserProperty property = userPropertyDAO.getProp(rs.getString("provider_no"), org.oscarehr.common.model.UserProperty.PROVIDER_FRESHBOOKS_ID);
+
+			tempStr = "<a href=# onClick='popupPage(600, 800, \"https://my.freshbooks.com/#/invoice/" + property.getValue()  + "-" + rs.getString("freshbooksId")+ "\"); return false;'" +
+					" title=\"Freshbooks Invoice\">" + rs.getString("id") + "</a>";
+		}
+		else
+		{
+    	    tempStr = "<a href=# onClick='popupPage(700,720, \"../../../billing/CA/ON/billingCorrection.jsp?billing_no="
+					+ rs.getString("id") + "&dboperation=search_bill&hotclick=0\"); return false;' title="
+					+ reason + ">" + rs.getString("id") + "</a>";
+		}
+
+		prop.setProperty("ACCOUNT", tempStr);
+		vecValue.add(prop);
     }
     
     
@@ -334,9 +346,11 @@ if("unpaid".equals(action)) {
 
 <%@page import="org.oscarehr.common.dao.SiteDao"%>
 <%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
-<%@page import="org.oscarehr.common.model.Site"%>
 <%@page import="org.oscarehr.common.model.Provider"%>
-<%@page import="org.apache.commons.lang.StringUtils"%><html>
+<%@page import="org.apache.commons.lang.StringUtils"%>
+<%@ page import="org.oscarehr.common.model.*" %>
+<%@ page import="org.oscarehr.common.dao.UserPropertyDAO" %>
+<html>
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>ON Billing Report</title>

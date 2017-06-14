@@ -25,6 +25,13 @@
 <%@ page import="org.oscarehr.util.MiscUtils"%>
 <%@ page import="oscar.oscarBilling.ca.on.administration.GstControlAction" %>
 <%@ page import="java.math.BigDecimal" %>
+<%@ page import="org.oscarehr.common.model.FreshbooksService" %>
+<%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
+<%@ page import="org.oscarehr.util.SpringUtils" %>
+<%@ page import="org.oscarehr.common.dao.UserPropertyDAO" %>
+<%@ page import="static org.oscarehr.consultations.ConsultationResponseSearchFilter.SORTMODE.Provider" %>
+<%@ page import="org.oscarehr.common.model.Provider" %>
+<%@ page import="org.oscarehr.common.model.UserProperty" %>
 <%//
 			//int serviceCodeLen = 5;
 			String msg = "Type in a service code and search first to see if it is available.";
@@ -37,6 +44,12 @@
 			Properties gstProp =  db.readDatabase();
 			String percent = gstProp.getProperty("gstPercent");
 			String gstPercent = new BigDecimal(percent).divide(new BigDecimal(100)).toString();
+			ProviderDao pDao = SpringUtils.getBean(ProviderDao.class);
+			List<Provider> providers = pDao.getActiveProviders();
+			UserPropertyDAO userPropertyDAO = (UserPropertyDAO) SpringUtils.getBean("UserPropertyDAO");
+			UserProperty uProp;
+			FreshbooksService fs = new FreshbooksService();
+			List sL = dbObj.getPrivateBillingCodeDesc();
 
 			if (request.getParameter("submit") != null && request.getParameter("submit").equals("Save")) {
 				String valuePara = request.getParameter("value");
@@ -85,6 +98,21 @@
 									+ "Type in a service code and search first to see if it is available.";
 							action = "search";
 							prop.setProperty("service_code", serviceCode);
+
+							if (providers.size() > 0)
+							{
+								for (Provider prov : providers)
+								{
+									String curProvFreshbooksId;
+
+									uProp = userPropertyDAO.getProp(prov.getProviderNo(), UserProperty.PROVIDER_FRESHBOOKS_ID);
+									if (uProp != null && uProp.getValue() != null && !uProp.getValue().isEmpty())
+									{
+										curProvFreshbooksId = uProp.getValue();
+										fs.addServiceCodeItem(curProvFreshbooksId, serviceCode, request.getParameter("description"), valuePara, request.getParameter("billingservice_date"), false);
+									}
+								}
+							}
 						} else {
 							msg = serviceCode
 									+ " is not added. Action failed! Try edit it again.";
@@ -153,6 +181,45 @@
 						prop.setProperty("service_code", "_");
 					} 
 				}
+			}
+
+
+			if (request.getParameter("upload") != null && request.getParameter("upload").equals("Upload"))
+			{
+				String strCode = "";
+				String strDesc = "";
+				List list;
+				for (int i = 0; i < sL.size(); i = i + 2) {
+
+					list = dbObj.getBillingCodeAttr((String) sL.get(i));
+
+					try {
+						strCode = ((String) sL.get(i)).substring(1);
+					} catch (NullPointerException e) {
+						strCode = "";
+						MiscUtils.getLogger().warn("NULL value set for a private billing code");
+					}
+
+					if (list.size() > 0 && providers.size() > 0)
+					{
+							for (Provider prov : providers)
+							{
+								String curProvFreshbooksId;
+								String description = list.get(1).toString();
+								String value = list.get(2).toString();
+								String serviceDate = list.get(4).toString();
+
+								uProp = userPropertyDAO.getProp(prov.getProviderNo(), UserProperty.PROVIDER_FRESHBOOKS_ID);
+								if (uProp != null && uProp.getValue() != null && !uProp.getValue().isEmpty())
+								{
+									curProvFreshbooksId = uProp.getValue();
+									fs.addServiceCodeItem(curProvFreshbooksId, strCode, description, value, serviceDate, false);
+								}
+							}
+					}
+				}
+
+				msg = "All Private Billing Codes successfully pushed to Freshbooks!";
 			}
 %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
@@ -278,7 +345,6 @@ Select Code to edit:<br>
 	<select name="service_code" id="service_code" required>
 		<option selected="selected" value="">- choose one -</option>
 		<%//
-			List sL = dbObj.getPrivateBillingCodeDesc();
 			String strCode = "";
 			String strDesc = "";
 			for (int i = 0; i < sL.size(); i = i + 2) {
@@ -304,6 +370,11 @@ Select Code to edit:<br>
 	</select>
 	<input type="hidden" name="submit" value="Search"> 
 	<input class="btn" type="submit" name="action" value="Edit">
+	<br><br>
+	<b>Push All Private Billing Codes To Freshbooks</b>
+	<br><b>
+	</b><input class="btn" type="submit" name="upload" value="Upload" formnovalidate>
+
 </form>
 </div><!--select code to edit well-->
 
