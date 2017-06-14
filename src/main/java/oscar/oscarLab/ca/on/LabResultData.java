@@ -39,6 +39,9 @@ import org.oscarehr.common.model.Document;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
+import oscar.oscarLab.ca.all.parsers.Factory;
+import oscar.oscarLab.ca.all.parsers.MessageHandler;
+import oscar.oscarLab.ca.all.parsers.OLISHL7Handler;
 import oscar.oscarLab.ca.bc.PathNet.PathnetResultsData;
 import oscar.oscarLab.ca.on.CML.CMLLabTest;
 import oscar.oscarLab.ca.on.Spire.SpireLabTest;
@@ -318,6 +321,11 @@ public class LabResultData implements Comparable<LabResultData> {
 			this.dateTimeObr = UtilDateUtilities.getDateFromString(this.getDateTime(), "yyyy-MM-dd HH:mm:ss");
 		}else if(HL7TEXT.equals(this.labType) || Spire.equals(this.labType)){
 			String time = this.getDateTime();
+			MessageHandler messageHandler = Factory.getHandler(this.getSegmentID());
+			if (time==null && messageHandler instanceof OLISHL7Handler){
+				OLISHL7Handler handler = (OLISHL7Handler) messageHandler;
+				time = handler.getOrderDate();
+			}
 			String dateFormat = "yyyy-MM-dd HH:mm:ss".substring( 0, time.length() );
 			this.dateTimeObr = UtilDateUtilities.getDateFromString(time, dateFormat);
 		}else if(CML.equals(this.labType)){
