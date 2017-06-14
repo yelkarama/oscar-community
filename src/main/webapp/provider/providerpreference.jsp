@@ -238,6 +238,8 @@ function showHideERxPref() {
 	String defaultPMM = request.getParameter("default_pmm")!=null?request.getParameter("default_pmm"):providerPreference.getDefaultCaisiPmm();
 	String caisiBillingNotDelete = request.getParameter("caisiBillingPreferenceNotDelete")!=null?request.getParameter("caisiBillingPreferenceNotDelete"):String.valueOf(providerPreference.getDefaultDoNotDeleteBilling());
     UserPropertyDAO propertyDao = (UserPropertyDAO)SpringUtils.getBean("UserPropertyDAO");
+
+    String defaultBillingLocation = providerPreference.getDefaultBillingLocation()!=null?providerPreference.getDefaultBillingLocation():"no";
 %>
 
 <body bgproperties="fixed"  onLoad="setfocus();showHideBillPref();showHideERxPref();" topmargin="0"leftmargin="0" rightmargin="0" style="font-family:sans-serif">
@@ -763,7 +765,7 @@ Event.observe('rxInteractionWarningLevel', 'change', function(event) {
 	  </select>
 		  <br/>
 		  Default Billing Location:
-	  <select name="deafult_location">
+	  <select name="default_location">
 		  <option value="no">-- no --</option>
 		  <%
 			  String billLocationNo="", billLocation="";
@@ -774,7 +776,7 @@ Event.observe('rxInteractionWarningLevel', 'change', function(event) {
 				  billLocationNo = (String) lLocation.get(i);
 				  billLocation = (String) lLocation.get(i + 1);
 		  %>
-		  <option value="<%=billLocationNo%>"> <%=billLocation%> </option>
+		  <option value="<%=billLocationNo%>" <%=billLocationNo.equals(defaultBillingLocation)?"selected":""%>> <%=billLocation%> </option>
 		  <%
 			  }
 		  %>

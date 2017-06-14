@@ -359,7 +359,9 @@
 						visitLocationProperty = StringUtils.trimToEmpty(obj.getFacilty_num());
 						admissionDateProperty = StringUtils.trimToEmpty(obj.getAdmission_date());
 					}
-				}else if (vecHist != null && vecHist.size() > 0 && vecHist.get(0) != null) {
+				} else if (preference.getDefaultBillingLocation()!=null && !preference.getDefaultBillingLocation().isEmpty() && !preference.getDefaultBillingLocation().equals("no")){
+					visitLocationProperty = preference.getDefaultBillingLocation();
+				} else if (vecHist != null && vecHist.size() > 0 && vecHist.get(0) != null) {
 					visitLocationProperty = ((Properties)vecHist.get(0)).getProperty("visitLocation");
 					admissionDateProperty = ((Properties)vecHist.get(0)).getProperty("admissionDate"); 
 				}
@@ -367,10 +369,6 @@
 				admissionDate = admissionDateProperty != null ? admissionDateProperty : "";
 			}
 
-			if (visitLocation.isEmpty() && preference.getDefaultBillingLocation()!=null && !preference.getDefaultBillingLocation().isEmpty() && !preference.getDefaultBillingLocation().equals("no")){
-			    visitLocation = preference.getDefaultBillingLocation();
-			}
-			
 			if (!"".equals(xml_visittype)) {
 				visitType = xml_visittype;
 			} else {
