@@ -81,6 +81,15 @@
             }
         </style>
         <script type="text/javascript">
+            function BackToOscar()
+            {
+                if (opener.callRefreshTabAlerts) {
+                    opener.callRefreshTabAlerts("oscar_new_msg");
+                    setTimeout("window.close()", 100);
+                } else {
+                    window.close();
+                }
+            }
             function checkAll(formId){
                 var f = document.getElementById(formId);
                 var val = f.checkA.checked;
