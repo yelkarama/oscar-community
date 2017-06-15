@@ -28,7 +28,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -366,9 +368,9 @@ public class JdbcBillingReviewImpl {
 				
 				ch1Obj.setFacilty_num(clinicLocationDao.searchVisitLocation(ch1.getFaciltyNum()));
 				
-				List<BigDecimal> paymentTypeTotals = new ArrayList<BigDecimal>();
-				for (BillingPaymentType type : allPaymentTypes){
-					paymentTypeTotals.add(type.getId()-1, null);
+				Map<Integer,BigDecimal> paymentTypeTotals = new HashMap<Integer, BigDecimal>();
+				for (BillingPaymentType type: allPaymentTypes){
+					paymentTypeTotals.put(type.getId(), null);
 				}
 
 				ch1Obj.setNumItems(Integer.parseInt(bi.getServiceCount()));
@@ -384,13 +386,16 @@ public class JdbcBillingReviewImpl {
 						continue;
 					}
 
-					for(int i = 0; i<=paymentTypeTotals.size(); i++){
+					for (int i=0; i<paymentTypeTotals.entrySet().size(); i++){
 						BigDecimal currentTotal = (BigDecimal)paymentTypeTotals.get(paymentObj.getPaymentTypeId()-1);
 						if (currentTotal == null && !"0.00".equals(String.valueOf(boip.getPaid()))){
-							paymentTypeTotals.set((paymentObj.getPaymentTypeId()-1),boip.getPaid());
+							paymentObj.getPaymentTypeId();
+							paymentTypeTotals.put(paymentObj.getPaymentTypeId(), boip.getPaid());
+
 						} else if (!"0.00".equals(String.valueOf(boip.getPaid()))) {
-							paymentTypeTotals.set((paymentObj.getPaymentTypeId()-1),boip.getPaid());
+							paymentTypeTotals.put(paymentObj.getPaymentTypeId(), boip.getPaid());
 						}
+
 					}
 					
 				}
