@@ -151,6 +151,8 @@
 
 <html>
     <head>
+<!-- global -->
+<script type="text/javascript" src="<%=request.getContextPath()%>/js/global.js"></script>
             <!-- main calendar program -->
 <script type="text/javascript" src="../share/calendar/calendar.js"></script>
 <!-- language for the calendar -->
