@@ -20,7 +20,7 @@ package oscar.oscarBilling.ca.on.data;
 
 
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.Map;
 
 public class BillingClaimHeader1Data {
 	String id;
@@ -71,7 +71,7 @@ public class BillingClaimHeader1Data {
 
 	double cashTotal;
 	double debitTotal;
-	List<BigDecimal> paymentTotals;
+	Map<Integer, BigDecimal> paymentTotals;
 	String providerName;
 	float numItems;
 	
@@ -493,11 +493,11 @@ public class BillingClaimHeader1Data {
 		this.debitTotal = debitTotal;
 	}
 
-	public List<BigDecimal> getPaymentTotals() {
+	public Map<Integer, BigDecimal> getPaymentTotals() {
 		return paymentTotals;
 	}
 
-	public void setPaymentTotals(List<BigDecimal> paymentTotals) {
+	public void setPaymentTotals(Map<Integer, BigDecimal> paymentTotals) {
 		this.paymentTotals = paymentTotals;
 	}
 

@@ -924,7 +924,7 @@ if(statusType.equals("_")) { %>
 
 			   totalCash += ch1Obj.getCashTotal();
 			   totalDebit += ch1Obj.getDebitTotal();
-			   List<BigDecimal> paymentTotals = new ArrayList<BigDecimal>();
+			   Map<Integer, BigDecimal> paymentTotals = new HashMap<Integer, BigDecimal>();
 			   if (ch1Obj.getPaymentTotals()!=null){
 			       paymentTotals = ch1Obj.getPaymentTotals();
 			   }
@@ -946,9 +946,9 @@ if(statusType.equals("_")) { %>
              <td align="right">
 				 <%
 					if (!amountPaid.equals("0.00")){
-						 for (BigDecimal typeTotal : paymentTotals){
-							if (typeTotal!=null){%>
-							<%=typeTotal%><br/>
+						 for (Map.Entry<Integer, BigDecimal> payment : paymentTotals.entrySet()){
+							if (payment.getValue()!=null){%>
+							<%=payment.getValue()%><br/>
 				<%			}
 						 }
 					} else{%>
@@ -964,10 +964,10 @@ if(statusType.equals("_")) { %>
              <td align="center"><a href=#  onclick="popupPage(800,700,'billingONCorrection.jsp?billing_no=<%=ch1Obj.getId()%>','BillCorrection<%=ch1Obj.getId()%>');nav_colour_swap(this.id, <%=bList.size()%>);return false;"><%=ch1Obj.getId()%></a></td><!--ACCOUNT-->
              <td class="highlightBox"><a id="A<%=i%>" href=#  onclick="popupPage(800,700,'billingONCorrection.jsp?billing_no=<%=ch1Obj.getId()%>','BillCorrection<%=ch1Obj.getId()%>');nav_colour_swap(this.id, <%=bList.size()%>);return false;">Edit</a> <%=errorCode%></td><!--MESSAGES-->
              <td align="center">
-				 <% for (int totalIndex = 0; totalIndex<paymentTotals.size(); totalIndex++){
-				 	if (paymentTotals.get(totalIndex)!=null){%>
+				 <% for (Map.Entry<Integer, BigDecimal> payment : paymentTotals.entrySet()){
+				 	if (payment.getValue()!=null){%>
 
-				 <%=paymentTypeDao.find(totalIndex+1).getPaymentType()%><br/>
+				 <%=paymentTypeDao.find(payment.getKey()).getPaymentType()%><br/>
 
 				 <%}}%>
 			 </td>
@@ -1011,7 +1011,7 @@ if(statusType.equals("_")) { %>
                                 <a href="#" onClick="submitForm('email')"><bean:message key="billing.billingStatus.email"/></a>
              </td>
           </tr>
-	</tobdy>
+</tbody>
        </table>
        <%if(bList != null && !bList.isEmpty()) {%> 
      	  <a download="oscar_invoices.xls" href="#" onclick="return ExcellentExport.excel(this, 'bListTable', 'OSCAR Invoices');">Export to Excel</a>
