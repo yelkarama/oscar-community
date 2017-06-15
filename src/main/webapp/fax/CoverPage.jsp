@@ -23,6 +23,10 @@
     Ontario, Canada
 
 --%>
+
+<%@ page import="oscar.OscarProperties" %>
+<%@ page import="java.io.File" %>
+<%@ page import="org.apache.commons.io.FileUtils" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -36,6 +40,7 @@
 <input type="hidden" name="reqId" value="<%=request.getAttribute("reqId")==null ? request.getParameter("reqId") : request.getAttribute("reqId") %>"/>
 <input type="hidden" name="transType" value="<%=request.getAttribute("transType") %>"/>
 <input type="hidden" name="demographicNo" value="<%=request.getParameter("demographicNo")%>"/>
+<input type="hidden" name="specialist" value="<%=request.getParameter("specialist")%>"/>
 <input type="hidden" name="letterheadFax" value="<%=request.getParameter("letterheadFax")%>"/>
 <input type="hidden" name="fax" value="<%=request.getParameter("fax")%>"/>
 <%if(request.getAttribute("printType")!=null){%>
@@ -59,15 +64,30 @@
 <%
 		}
 	}
+	String defaultCoverMessage = "";
+	if (OscarProperties.getInstance().getBooleanProperty("consultation_cover_default_message", "true")) {
+		String path = oscar.OscarProperties.getInstance().getProperty("DOCUMENT_DIR") + "/OSCARFaxCoverText.txt";
+		try{
+			File coverMessageFile = new File(path);
+			if(!coverMessageFile.exists()){
+				defaultCoverMessage = "";
+			} else {
+				defaultCoverMessage = FileUtils.readFileToString(coverMessageFile);
+			}
+		}catch(Exception e){
+			defaultCoverMessage = "";
+		}
+	}
 %>
 
 
 <div style="border-style:solid; border-width:5px;">
-	Yes<input type="radio" name="coverpage" value="true"/>&nbsp;No<input type="radio" checked="checked" name="coverpage" value="false"/>
+	<label>Yes<input type="radio" name="coverpage" value="true"/></label>&nbsp;
+	<label>No<input type="radio" checked="checked" name="coverpage" value="false"/></label>
 </div>
 <div style="margin-top:25px;">
 Notes<br>
-	<textarea name="note" rows="25" cols="72"></textarea>
+	<textarea name="note" rows="25" cols="72"><%=defaultCoverMessage%></textarea>
 <br>
 	<input type="submit" value="Submit"/>
 </div>
