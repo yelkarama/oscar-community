@@ -155,17 +155,17 @@ if(!authed) {
 		UserProperty fmtProperty = userPropertyDAO.getProp(providerNo, UserProperty.CONSULTATION_REQ_PASTE_FMT);
 		String pasteFmt = fmtProperty != null?fmtProperty.getValue():null;
 
-		if(userPropertyDAO.getProp(providerNo,"rxAddress")!=null && userPropertyDAO.getProp(providerNo,"rxAddress").getValue().length()>0){
+		if(userPropertyDAO.getProp(providerNo,"rxAddress")!=null && userPropertyDAO.getProp(providerNo,"rxAddress").getValue() != null && userPropertyDAO.getProp(providerNo,"rxAddress").getValue().length()>0){
 		    //default letterhead address to rxAddress if it is set it in preferences
 			consultUtil.letterheadAddress =(userPropertyDAO.getProp(providerNo,"rxAddress").getValue()  + " " + userPropertyDAO.getProp(providerNo, "rxCity").getValue()  + " " + userPropertyDAO.getProp(providerNo, "rxProvince").getValue() + " " +userPropertyDAO.getProp(providerNo, "rxPostal").getValue());
 		}
 
-		if(userPropertyDAO.getProp(providerNo,"rxPhone")!=null && userPropertyDAO.getProp(providerNo,"rxPhone").getValue().length()>0){
+		if(userPropertyDAO.getProp(providerNo,"rxPhone")!=null && userPropertyDAO.getProp(providerNo,"rxPhone").getValue() != null && userPropertyDAO.getProp(providerNo,"rxPhone").getValue().length()>0){
 			//default letterhead phone to rxPhone if it is set it in preferences
 			consultUtil.letterheadPhone = userPropertyDAO.getProp(providerNo,"rxPhone").getValue();
 		}
 
-		if(userPropertyDAO.getProp(providerNo,"faxnumber")!=null  && userPropertyDAO.getProp(providerNo,"faxnumber").getValue().length()>0){
+		if(userPropertyDAO.getProp(providerNo,"faxnumber")!=null && userPropertyDAO.getProp(providerNo,"faxnumber").getValue() != null  && userPropertyDAO.getProp(providerNo,"faxnumber").getValue().length()>0){
 			//default letterhead fax to faxnumber if it is set it in preferences
 			consultUtil.letterheadFax = userPropertyDAO.getProp(providerNo,"faxnumber").getValue();
 
@@ -2033,9 +2033,15 @@ function updateFaxButton() {
 									List<FaxConfig> faxConfigs = faxConfigDao.findAll(null, null);
 								%>
 									<span id="letterheadFaxSpan">
-										<select name="letterheadFax" id="letterheadFax">
+										
 								<%
 									String letterheadFax = consultUtil.letterheadFax != null ? consultUtil.letterheadFax : "";
+
+									if (letterheadFax.equals(""))
+									{
+								%>		
+										<select name="letterheadFax" id="letterheadFax">
+								<%
 									
 									for( FaxConfig faxConfig : faxConfigs ) {
 								%>
@@ -2044,6 +2050,15 @@ function updateFaxButton() {
 									}								
 								%>
 									</select>
+								<%
+									}
+									else
+									{
+								%>
+									<%=letterheadFax%>		
+								<%
+									}		
+								%>
 								</span>
 							
 							</td>
