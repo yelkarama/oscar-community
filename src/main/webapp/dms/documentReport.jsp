@@ -493,9 +493,14 @@ function popup1(height, width, url, windowName){
 
                               String url = "ManageDocument.do?method=display&doc_no="+curdoc.getDocId()+"&providerNo="+user_no+(curdoc.getRemoteFacilityId()!=null?"&remoteFacilityId="+curdoc.getRemoteFacilityId():"");
                               //String url = "documentGetFile.jsp?document=" + StringEscapeUtils.escapeJavaScript(curdoc.getFileName()) + "&type=" + dStatus + "&doc_no=" + curdoc.getDocId();
-
+              if(curdoc.isText()){
           %>  <a <%=curdoc.getStatus() == 'D' ? "style='text-decoration:line-through'" : ""%>
-            href="javascript:void(0);" onclick="popupFocusPage(500,700,'<%=url%>','demographic_document');"> <%=curdoc.getDescription()%></a></td>
+            href="javascript:void(0);" onclick="popupFocusPage(500,700,'<%=url%>','demographic_document');"> <%=curdoc.getDescription()%></a> <%}
+                else{%>
+              <a <%=curdoc.getStatus() == 'D' ? "style='text-decoration:line-through'" : ""%>
+                      href="javascript:void(0);" onclick="window.location.href = '<%=url%>';return false;"> <%=curdoc.getDescription()%></a>
+              <%}%>
+          </td>
           <td><%=contentType%></td>
           <td><%=curdoc.getType()==null ? "N/A" : curdoc.getType()%></td>
           <td><%=curdoc.getCreatorName()%></td>

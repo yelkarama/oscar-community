@@ -156,9 +156,12 @@ public class EctDisplayDocsAction extends EctDisplayAction {
     				url = "popupPage(window.screen.width,window.screen.height,'" + hash + "','" + request.getContextPath() + "/dms/MultiPageDocDisplay.jsp?segmentID=" + dispDocNo + "&providerNo=" + user + "&searchProviderNo=" + user + "&status=A'); return false;";
     				isURLjavaScript = true;
     			}
-    			else {
+    			else if (curDoc.isText()) {
     				url = "popupPage(700,800,'" + hash + "', '" +  request.getContextPath() + "/dms/ManageDocument.do?method=display&doc_no=" + dispDocNo + "&providerNo=" + user + (curDoc.getRemoteFacilityId()!=null?"&remoteFacilityId="+curDoc.getRemoteFacilityId():"") + "'); return false;";
     			}
+    			else {
+					url = "window.location.href = '"+request.getContextPath() + "/dms/ManageDocument.do?method=display&doc_no=" + dispDocNo + "&demoNo=" + bean.demographicNo + "&providerNo=" + user + (curDoc.getRemoteFacilityId()!=null?"&remoteFacilityId="+curDoc.getRemoteFacilityId():"") + "';return false;";
+				}
     			
     			item.setLinkTitle(title + serviceDateStr);
     			item.setTitle(title);
