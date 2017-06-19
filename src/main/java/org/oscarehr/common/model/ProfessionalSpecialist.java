@@ -99,9 +99,6 @@ public class ProfessionalSpecialist extends AbstractModel<Integer> implements Se
 
 	private Integer eformId;
 
-	@Transient
-	private String regex = "(\r|\n)";
-	
 	@PreUpdate
 	protected void jpaUpdateLastUpdateTime() {
 		lastUpdated = new Date();
@@ -138,11 +135,11 @@ public class ProfessionalSpecialist extends AbstractModel<Integer> implements Se
     }
 
 	public String getStreetAddress() {
-		return StringUtils.trimToEmpty(streetAddress).replaceAll(regex, " ");
+		return StringUtils.trimToEmpty(streetAddress);
     }
 
 	public void setStreetAddress(String streetAddress) {
-    	this.streetAddress = StringUtils.trimToEmpty(streetAddress).replaceAll(regex, " ");
+    	this.streetAddress = StringUtils.trimToEmpty(streetAddress);
     }
 
 	public String getPhoneNumber() {

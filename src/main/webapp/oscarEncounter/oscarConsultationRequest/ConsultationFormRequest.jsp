@@ -707,7 +707,7 @@ function onSelectSpecialist(SelectedSpec)	{
 	<%if(requestId!=null && !consultUtil.specialist.equals("null")){ %>
 	form.phone.value = '<%=StringEscapeUtils.escapeJavaScript(consultUtil.specPhone)%>';
 	form.fax.value = '<%=StringEscapeUtils.escapeJavaScript(consultUtil.specFax)%>';					
-	form.address.value = '<%=StringEscapeUtils.escapeJavaScript(consultUtil.specAddr) %>';
+	form.address.value = '<%=StringEscapeUtils.escapeJavaScript(consultUtil.specAddr) %>'.replace(new RegExp("\\\\r\\\\n", 'g'), "\r\n");
 
 	//make sure this dislaimer is displayed
 	document.getElementById("consult-disclaimer").style.display='inline';
@@ -719,7 +719,7 @@ function onSelectSpecialist(SelectedSpec)	{
             if( aSpeci.specNbr == SelectedSpec.value ) {
             	form.phone.value = (aSpeci.phoneNum.replace(null,""));
             	form.fax.value = (aSpeci.specFax.replace(null,""));					// load the text fields with phone fax and address
-            	form.address.value = (aSpeci.specAddress.replace(null,""));
+            	form.address.value = (aSpeci.specAddress.replace(null,"").replace(new RegExp("\\\\r\\\\n", 'g'), "\r\n"));
             	
        			//since there is a match make sure the dislaimer is hidden
        			document.getElementById("consult-disclaimer").style.display='none';
@@ -761,7 +761,7 @@ function FillThreeBoxes(serNbr)	{
             if( aSpeci.specNbr == serNbr ) {
                 document.EctConsultationFormRequestForm.phone.value = (aSpeci.phoneNum);
                 document.EctConsultationFormRequestForm.fax.value = (aSpeci.specFax);					// load the text fields with phone fax and address
-                document.EctConsultationFormRequestForm.address.value = (aSpeci.specAddress);
+                document.EctConsultationFormRequestForm.address.value = (aSpeci.specAddress).replace(new RegExp("\\\\r\\\\n", 'g'), "\r\n");
                 <%
         		if (props.isConsultationFaxEnabled()) {//
 				%>
@@ -2365,7 +2365,13 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 				<script type="text/javascript">
 
 	        initMaster();
-	        initService('<%=consultUtil.service%>','<%=((consultUtil.service==null)?"":StringEscapeUtils.escapeJavaScript(consultUtil.getServiceName(consultUtil.service.toString())))%>','<%=consultUtil.specialist%>','<%=((consultUtil.specialist==null)?"":StringEscapeUtils.escapeJavaScript(consultUtil.getSpecailistsName(consultUtil.specialist.toString())))%>','<%=StringEscapeUtils.escapeJavaScript(consultUtil.specPhone)%>','<%=StringEscapeUtils.escapeJavaScript(consultUtil.specFax)%>','<%=StringEscapeUtils.escapeJavaScript(consultUtil.specAddr)%>');
+	        initService('<%=consultUtil.service%>',
+				'<%=((consultUtil.service==null)?"":StringEscapeUtils.escapeJavaScript(consultUtil.getServiceName(consultUtil.service.toString())))%>',
+				'<%=consultUtil.specialist%>',
+				'<%=((consultUtil.specialist==null)?"":StringEscapeUtils.escapeJavaScript(consultUtil.getSpecailistsName(consultUtil.specialist.toString())))%>',
+				'<%=StringEscapeUtils.escapeJavaScript(consultUtil.specPhone)%>',
+				'<%=StringEscapeUtils.escapeJavaScript(consultUtil.specFax)%>',
+				'<%=StringEscapeUtils.escapeJavaScript(consultUtil.specAddr)%>'.replace(new RegExp("\\\\r\\\\n", 'g'), "\r\n"));
             initSpec();
             document.EctConsultationFormRequestForm.phone.value = ("");
         	document.EctConsultationFormRequestForm.fax.value = ("");
