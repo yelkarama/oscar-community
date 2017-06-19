@@ -351,10 +351,8 @@ function checkName() {
 function checkDob() {
 	var typeInOK = false;
 	var yyyy = document.adddemographic.year_of_birth.value;
-	var selectBox = document.adddemographic.month_of_birth;
-	var mm = selectBox.options[selectBox.selectedIndex].value
-	selectBox = document.adddemographic.date_of_birth;
-	var dd = selectBox.options[selectBox.selectedIndex].value
+	var mm = document.adddemographic.month_of_birth.value;
+	var dd = document.adddemographic.date_of_birth.value
 
 	if(checkTypeNum(yyyy) && checkTypeNum(mm) && checkTypeNum(dd) ){
         //alert(yyyy); alert(mm); alert(dd);
