@@ -378,9 +378,7 @@ function checkDob() {
 
 	if (!typeInOK){
       alert ("You must type in the right DOB.");
-   }
-
-   if (!isValidDate(dd,mm,yyyy)){
+   } else if (!isValidDate(dd,mm,yyyy)){
       alert ("DOB Date is an incorrect date");
       typeInOK = false;
    }
@@ -934,6 +932,10 @@ function ignoreDuplicates() {
 								document.getElementById('year_of_birth').value = birthDate.toISOString().substring(0, 4);
 								document.getElementById('month_of_birth').value = birthDate.toISOString().substring(5, 7)
 								document.getElementById('date_of_birth').value = birthDate.toISOString().substring(8, 10)
+							} else if (jQuery_3_1_0('#full_birth_date').val() == '') {
+								document.getElementById('year_of_birth').value = '';
+								document.getElementById('month_of_birth').value = '';
+								document.getElementById('date_of_birth').value = '';
 							}
 						});
 					</script>
