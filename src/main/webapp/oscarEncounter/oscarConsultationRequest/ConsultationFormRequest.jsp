@@ -1224,7 +1224,7 @@ function AddOtherFaxProvider() {
 function AddOtherFax() {
 	var number = jQuery("#otherFaxInput").val();
 	if (checkPhone(number)) {
-		_AddOtherFax(number,number);
+		_AddOtherFax(number, number.replace(/(\D|-)+/g, ''));
 	}
 	else {
 		alert("The fax number you entered is invalid.");
@@ -1240,9 +1240,10 @@ function _AddOtherFax(name, number) {
 
 function checkPhone(str)
 {
-	var phone =  /^((\+\d{1,3}(-| )?\(?\d\)?(-| )?\d{1,5})|(\(?\d{2,6}\)?))(-| )?(\d{3,4})(-| )?(\d{4})(( x| ext)\d{1,5}){0,1}$/
-	if (str.match(phone)) {
-   		return true;
+	var phone =  /(([0-9]-{0,1}){0,1}(\([0-9]{3}\)|[0-9]{3}-{0,1})[0-9]{3}-{0,1}[0-9]{4})/;
+	var numbersOnly = str.replace(/(\D|-)+/g, '');
+	if (str.match(phone) && numbersOnly.length >= 10 && numbersOnly.length <= 11)  {
+			return true;
  	} else {
  		return false;
  	}
