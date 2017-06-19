@@ -157,6 +157,16 @@
     boolean HighlightUserAppt = true;
     
     ProgramManager2 programManager2 = SpringUtils.getBean(ProgramManager2.class);
+
+    Demographic lastSwiped = null;
+    Cookie[] cookies = request.getCookies();
+    if (cookies != null) {
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals("demographic_no") && cookie.getValue()!=null && !cookie.getValue().equals("-1")) {
+                lastSwiped = demographicDao.getDemographic(cookie.getValue());
+            }
+        }
+    }
 %>
 <%@page import="org.oscarehr.common.dao.SiteDao"%>
 <%@page import="org.oscarehr.common.model.Site"%>
@@ -449,6 +459,15 @@ function pasteAppt(multipleSameDayGroupAppt) {
 		  
 	}
 
+    function pasteSwipedInfo() {
+        <%if (lastSwiped!=null){ %>
+        document.ADDAPPT.demographic_no.value='<%=lastSwiped.getDemographicNo()%>';
+        document.ADDAPPT.keyword.value='<%=lastSwiped.getFormattedName()%>';
+        document.ADDAPPT.curDoctor_no.value='<%=StringEscapeUtils.escapeHtml(providerBean.getProperty(lastSwiped.getProviderNo(),""))%>';
+
+       <% } %>
+        return true;
+    }
 
 // stop javascript -->
 
@@ -933,7 +952,7 @@ function pasteAppt(multipleSameDayGroupAppt) {
             <div class="space">&nbsp;</div>
             <div class="label"><bean:message key="Appointment.formDoctor" />:</div>
             <div class="input">
-                <INPUT type="TEXT" readonly
+                <INPUT type="TEXT" name="curDoctor_no" readonly
                        value="<%=bFirstDisp ? "" : StringEscapeUtils.escapeHtml(providerBean.getProperty(curDoctor_no,""))%>">
             </div>
         </li>
@@ -1148,6 +1167,7 @@ function pasteAppt(multipleSameDayGroupAppt) {
             VALUE="<bean:message key='appointment.addappointment.btnPrintReceipt'/>"
             <%=disabled%>>
         <input type="hidden" name="printReceipt" value="">
+        <input type="button" id="pasteSwiped" onclick="pasteSwipedInfo()" value="Swiped" <%=lastSwiped==null?"disabled":""%>>
                 </TD>
 		<TD></TD>
         <% } %>
