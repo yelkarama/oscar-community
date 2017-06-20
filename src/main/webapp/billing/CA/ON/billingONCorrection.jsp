@@ -648,7 +648,11 @@ function validateAmountNumberic(idx) {
 <bean:message key="billing.billingCorrection.msgLastUpdate" />: <%=nullToEmpty(createTimestamp)%>
 <%}%>
 
-<form name="form1" method="post" action="billingONCorrection.jsp<%if (request.getParameter("admin")!=null) { out.print("?admin"); }%>">
+<% 	String adminParam = "";
+	if (request.getParameter("admin")!=null || request.getParameter("adminSubmit")!=null || request.getHeader("referer").contains("administration")) {
+		adminParam = "?admin";
+}%>
+<form name="form1" method="post" action="billingONCorrection.jsp<%=adminParam%>">
 <input type="hidden" id="billTotal" value="<%=BillTotal%>" />
     
 <div class="span2">
