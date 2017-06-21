@@ -50,6 +50,9 @@ if(visitType!=null){
 	visitType = visitType.split("\\|")[0];
 }
 String location = request.getParameter("location");
+if (location==null){
+    location = "0000";
+}
 
 
 String errMessage = null;
