@@ -250,19 +250,14 @@
         int size = vecServiceCodePerc.size()/4;
         String[] aMinFee = new String[size];
         String[] aMaxFee = new String[size];
-        Boolean[] aLimits = new Boolean[size];
-        for( int idx1 = 0; idx1 < aLimits.length; ++idx1 ) {
-            aLimits[idx1] = false;
-        }
 
     int codeIdx = 0;
 	for(int idx2 = 0; idx2 < size; ++idx2) {
 		//TODO: only one perc code allowed, otherwise error msg
 		BillingPercLimitDao bplDao = SpringUtils.getBean(BillingPercLimitDao.class);
 		for(BillingPercLimit bpl : bplDao.findByServiceCode("" + vecServiceCodePerc.get(codeIdx))) {
-			aLimits[idx2] = true;
-			aMinFee[idx2] = bpl.getMin();
-			aMaxFee[idx2] = bpl.getMax();
+			if (!"".equals(bpl.getMin())) { aMinFee[idx2] = bpl.getMin(); }
+			if (!"".equals(bpl.getMax())) { aMaxFee[idx2] = bpl.getMax(); }
 		}
         codeIdx += 4;
 	}
@@ -294,11 +289,16 @@
 		bdPerc = bdPercBase.multiply(perc).setScale(2, BigDecimal.ROUND_HALF_UP);
 		msg += "<tr bgcolor='#EEEEFF'><td align='right'>"+vecServiceCodePerc.get(codeIdx-1)+" (1)</td><td align='right'>Percentage : " + bdPercBase + " x " + perc + " = " + bdPerc + "</td></tr>";
 		// adjust perc by min/max
-		if(aLimits[idx3]) {
-			bdPerc = bdPerc.min(new BigDecimal(Double.parseDouble(aMaxFee[idx3]) ).setScale(2, BigDecimal.ROUND_HALF_UP) );
-			bdPerc = bdPerc.max(new BigDecimal(Double.parseDouble(aMinFee[idx3]) ).setScale(2, BigDecimal.ROUND_HALF_UP) );
-		msg += "<tr bgcolor='ivory'><td align='right' colspan='2'>Adjust to (" + aMinFee[idx3] + ", " + aMaxFee[idx3] + "): </td><td align='right'>" + bdPerc + "</td></tr>";
+		
+		if (aMaxFee[idx3] != null && !aMaxFee[idx3].equals("") && bdPerc.compareTo(new BigDecimal(Double.parseDouble(aMaxFee[idx3]))) > 0) {
+			bdPerc = bdPerc.min(new BigDecimal(Double.parseDouble(aMaxFee[idx3])).setScale(2, BigDecimal.ROUND_HALF_UP));
+			msg += "<tr bgcolor='ivory'><td align='right' colspan='2'>Adjusted to " + aMaxFee[idx3] + "): </td><td align='right'>" + bdPerc + "</td></tr>";
 		}
+		if (aMinFee[idx3] != null && !aMinFee[idx3].equals("") && bdPerc.compareTo(new BigDecimal(Double.parseDouble(aMinFee[idx3]))) < 0) {
+			bdPerc = bdPerc.max(new BigDecimal(Double.parseDouble(aMinFee[idx3])).setScale(2, BigDecimal.ROUND_HALF_UP));
+			msg += "<tr bgcolor='ivory'><td align='right' colspan='2'>Adjusted to " + aMinFee[idx3] + "): </td><td align='right'>" + bdPerc + "</td></tr>";
+		}
+		
     	bdTotal = bdTotal.add(bdPerc);
         bdPercs[idx3] = bdPerc;
         codeIdx += 4;
