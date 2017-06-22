@@ -281,7 +281,7 @@ function isCanadian(){
 
 function getSpecialistInfo(specialistId, specialistType) {
     if (specialistId != null || specialistId != ""){
-        jQuery.getJSON("../oscarEncounter/oscarConsultationRequest/getProfessionalSpecialist.json", {id: specialistId},
+        jQuery.getJSON("../oscarEncounter/oscarConsultationRequest/getProfessionalSpecialist.jsp", {id: specialistId},
             function (xml) {
                 if (specialistType == "r") {
                     document.getElementById("refDocPhone").innerHTML = xml.phoneNumber;

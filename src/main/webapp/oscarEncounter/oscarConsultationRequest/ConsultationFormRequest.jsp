@@ -731,16 +731,17 @@ function onSelectSpecialist(SelectedSpec)	{
 				updateFaxButton();
         		<% } %>
             	
-            	jQuery.getJSON("getProfessionalSpecialist.json", {id: aSpeci.specNbr},
-                    function(xml)
-                    {
-                		var hasUrl=xml.eDataUrl!=null&&xml.eDataUrl!="";
-                		enableDisableRemoteReferralButton(form, !hasUrl);
+				if (aSpeci.specNbr != null) {
+					jQuery.getJSON("getProfessionalSpecialist.jsp", {id: aSpeci.specNbr},
+						function (xml) {
+							var hasUrl = xml.eDataUrl != null && xml.eDataUrl != "";
+							enableDisableRemoteReferralButton(form, !hasUrl);
 
-                                var annotation = document.getElementById("annotation");
-                                annotation.value = xml.annotation;
-                	}
-            	);
+							var annotation = document.getElementById("annotation");
+							annotation.value = xml.annotation;
+						}
+					);
+				}
 
             	break;
             }
