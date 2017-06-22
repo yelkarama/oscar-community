@@ -478,29 +478,6 @@ public class PreventionPrintPdf {
             subIndex = 0;
         }
 
-        //Sorting List of Preventions by Date. This sorts from oldest to newest.
-        Collections.sort(preventionItems, new Comparator<JSONObject>(){
-            private static final String KEY_NAME = "preventionDate";
-
-            @Override
-            public int compare(JSONObject a, JSONObject b){
-                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-                Date date1 = new Date();
-                Date date2 = new Date();
-
-                try{
-                    date1 = df.parse((String)a.get(KEY_NAME));
-                    date2 = df.parse((String)b.get(KEY_NAME));
-                } catch(JSONException jse){
-                    jse.printStackTrace();
-                } catch(ParseException pe){
-                    pe.printStackTrace();
-                }
-
-                return date1.compareTo(date2);
-            }
-        });
-
         return preventionItems;
     }
 
