@@ -115,7 +115,7 @@ public class MsgDemoMap {
     public List<String> getMsgList(String demographic_no, Integer type) {
         List<String> msgList= new ArrayList<String>();
         MsgDemoMapDao dao = SpringUtils.getBean(MsgDemoMapDao.class);
-        for(Object[] o : dao.getMapAndMessagesByDemographicNoAndType(Integer.valueOf(demographic_no), type)) {
+        for(Object[] o : dao.getMapAndMessagesByDemographicNoAndTypeNotDeleted(Integer.valueOf(demographic_no), type)) {
         	org.oscarehr.common.model.MsgDemoMap map = (org.oscarehr.common.model.MsgDemoMap) o[0];
         	msgList.add("" + map.getMessageID());
         }

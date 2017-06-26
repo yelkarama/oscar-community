@@ -89,6 +89,19 @@ public class MsgDemoMapDao extends AbstractDao<MsgDemoMap>{
                 query.setParameter("type", type);
 		return query.getResultList();	    
     }
+
+	public List<Object[]> getMapAndMessagesByDemographicNoAndTypeNotDeleted(Integer demoNo, Integer type) {
+		String sql = "FROM MsgDemoMap map, MessageTbl m, MessageList ml " +
+				"WHERE m.id = map.messageID " +
+				"And m.id = ml.message " +
+				"AND map.demographic_no = :demoNo " +
+				"AND ml.status != 'del' " +
+				"AND m.type = :type ORDER BY m.date DESC, m.id DESC";
+		Query query = entityManager.createQuery(sql);
+		query.setParameter("demoNo", demoNo);
+		query.setParameter("type", type);
+		return query.getResultList();
+	}
         
         public void remove(Integer messageID, Integer demographicNo ) {
             String sql = "select x from MsgDemoMap x where x.messageID = :id and x.demographic_no = :demoNo";

@@ -367,7 +367,7 @@ public class MsgDisplayMessagesBean implements java.io.Serializable {
 		String[] searchCols = { "m.thesubject", "m.themessage", "m.sentby", "m.sentto" };
 		
 		try {
-			String sql = "select map.messageID is null as isnull, map.demographic_no, m.messageid, m.thesubject, m.thedate, m.theime, m.attachment, m.pdfattachment, m.sentby  " + "from  messagetbl m, msgDemoMap map where map.demographic_no = '" + demographic_no + "'  " + "and m.messageid = map.messageID " + getSQLSearchFilter(searchCols) + " order by " + getOrderBy(orderby);
+			String sql = "select map.messageID is null as isnull, map.demographic_no, m.messageid, m.thesubject, m.thedate, m.theime, m.attachment, m.pdfattachment, m.sentby  " + "from  messagetbl m, msgDemoMap map, msglisttbl ml where map.demographic_no = '" + demographic_no + "'  " + "and m.messageid = map.messageID " + getSQLSearchFilter(searchCols) + " and ml.status != 'del' order by " + getOrderBy(orderby);
 			FormsDao dao = SpringUtils.getBean(FormsDao.class);
 			List<Object[]> os = dao.runNativeQuery(sql);
 			for (Object[] o : os) {
