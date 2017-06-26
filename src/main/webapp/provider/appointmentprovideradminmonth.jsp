@@ -564,7 +564,7 @@ function refreshTabAlerts(id) {
 				objectName="_admin,_admin.userAdmin,_admin.schedule,_admin.billing,_admin.resource,_admin.reporting,_admin.backup,_admin.messenger,_admin.eform,_admin.encounter,_admin.misc"
 				rights="r">
 				<li><a HREF="#"
-					ONCLICK="popupOscarRx(700,687,'../admin/admin.jsp', 'Admin');return false;"><bean:message
+					ONCLICK="newWindow('/oscar/administration/', 'Admin');return false;"><bean:message
 					key="global.admin" /></a></li>
 			</security:oscarSec>
 
@@ -1102,7 +1102,7 @@ document.onkeypress=function(e){
 	if (evt.altKey) {
 		//use if (evt.altKey || evt.metaKey) Alt+A (and)/or for Mac when the browser supports it, Command+A
 		switch(evt.keyCode) {
-			case <bean:message key="global.adminShortcut"/> : popupOscarRx(700,687,'../admin/admin.jsp');  return false;  //run code for 'A'dmin
+			case <bean:message key="global.adminShortcut"/> : newWindow('/oscar/administration/', 'Admin');  return false;  //run code for 'A'dmin
 			case <bean:message key="global.billingShortcut"/> : popupOscarRx(600,1024,'../billing/CA/<%=prov%>/billingReportCenter.jsp?displaymode=billreport&providerview=<%=curUser_no%>');return false;  //code for 'B'illing
 			case <bean:message key="global.calendarShortcut"/> : popupOscarRx(425,430,'../share/CalendarPopup.jsp?urlfrom=../provider/providercontrol.jsp&year=<%=strYear%>&month=<%=strMonth%>&param=<%=URLEncoder.encode("&view=0&displaymode=day&dboperation=searchappointmentday","UTF-8")%>');  return false;  //run code for 'C'alendar
 			case <bean:message key="global.edocShortcut"/> : popupOscarRx('700', '1024', '../dms/documentReport.jsp?function=provider&functionid=<%=curUser_no%>&curUser=<%=curUser_no%>', 'edocView');  return false;  //run code for e'D'oc
