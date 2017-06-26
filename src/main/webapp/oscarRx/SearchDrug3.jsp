@@ -2435,7 +2435,8 @@ function checkEnterSendRx(){
 
 $("searchString").focus();
 
-
+document.getElementsByTagName("html")[0].style.height = '100%';
+document.getElementsByTagName("body")[0].style.height = '100%';
 
 </script>
 
