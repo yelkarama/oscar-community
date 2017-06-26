@@ -109,6 +109,8 @@ param[17]=(String)request.getSession().getAttribute("programId_oscarView");
 param[18]=(request.getParameter("urgency")!=null)?request.getParameter("urgency"):"";
 param[19]=request.getParameter("reasonCode");
 
+String status = request.getParameter("status")!=null?request.getParameter("status"):"t";
+
 	Appointment a = new Appointment();
 	a.setProviderNo(request.getParameter("provider_no"));
 	a.setAppointmentDate(ConversionUtils.fromDateString(request.getParameter("appointment_date")));
@@ -122,7 +124,7 @@ param[19]=request.getParameter("reasonCode");
 	a.setType(request.getParameter("type"));
 	a.setStyle(request.getParameter("style"));
 	a.setBilling(request.getParameter("billing"));
-	a.setStatus(request.getParameter("status"));
+	a.setStatus(status);
 	a.setCreateDateTime(ConversionUtils.fromTimestampString(createDateTime));
 	a.setCreator(request.getParameter("creator"));
 	a.setRemarks(request.getParameter("remarks"));
