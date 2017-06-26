@@ -130,16 +130,7 @@ String formName2 = bShortcutForm ? OscarProperties.getInstance().getProperty("ap
 String formName2Short = formName2.length() > 3 ? (formName2.substring(0,2)+".") : formName2;
 boolean bShortcutForm2 = bShortcutForm && !formName2.equals("");
 boolean obgynShortcuts = OscarProperties.getInstance().getProperty("show_obgyn_shortcuts", "false").equalsIgnoreCase("true") ? true : false;
-if (oscar.util.StringUtils.isNullOrEmpty(demographicID)){
-    obgynShortcuts = false;
-}
 String formId = "0";
-if (obgynShortcuts){
-    List<EctFormData.PatientForm> formsONAREnhanced = Arrays.asList(EctFormData.getPatientFormsFromLocalAndRemote(loggedInInfo,demographicID,"formONAREnhancedRecord",true));
-    if (formsONAREnhanced!=null && !formsONAREnhanced.isEmpty()){
-        formId = formsONAREnhanced.get(0).getFormId();
-    }
-}
 
 List<MessageHandler>handlers = new ArrayList<MessageHandler>();
 String []segmentIDs = null;
@@ -170,8 +161,19 @@ if (remoteFacilityIdString==null) // local lab
 	    LogAction.addLog((String) session.getAttribute("user"), LogConst.READ, LogConst.CON_HL7_LAB, segmentID, request.getRemoteAddr());
 	}
 
-	
-	if( showAll ) {
+    if (oscar.util.StringUtils.isNullOrEmpty(demographicID)){
+        obgynShortcuts = false;
+    }
+    if (obgynShortcuts){
+        List<EctFormData.PatientForm> formsONAREnhanced = Arrays.asList(EctFormData.getPatientFormsFromLocalAndRemote(loggedInInfo,demographicID,"formONAREnhancedRecord",true));
+        if (formsONAREnhanced!=null && !formsONAREnhanced.isEmpty()){
+            formId = formsONAREnhanced.get(0).getFormId();
+        }
+    }
+
+
+
+    if( showAll ) {
 		multiLabId = request.getParameter("multiID");		
 		segmentIDs = multiLabId.split(",");
 		for( int i = 0; i < segmentIDs.length; ++i) {
