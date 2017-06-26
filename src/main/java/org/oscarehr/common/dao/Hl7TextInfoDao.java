@@ -336,7 +336,7 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 						+ " LEFT JOIN providerLabRouting plr ON plr.lab_no = info.lab_no "
 						+ (!status.equals("")?" WHERE plr.status = '" + status + "' AND plr.lab_type = 'HL7' ":" WHERE plr.lab_type = 'HL7'")
 						+ (searchProvider ? " AND plr.provider_no = '"+providerNo+"' " : "") + " AND plr.lab_no = info.lab_no "
-						+ (isAbnormal != null ? " AND ("+(!isAbnormal ? "info.result_status IS NULL OR" : "") + " info.result_status "+(isAbnormal ? "" : "!")+"= 'A'))) " : " ")
+						+ (isAbnormal != null ? " AND ("+(!isAbnormal ? "info.result_status IS NULL OR" : "") + " info.result_status "+(isAbnormal ? "" : "!")+"= 'A') " : " ")
 						+ dateSql
 						+ " GROUP BY info.lab_no "
 						+ " ORDER BY plr.id DESC, info.obr_date DESC "
