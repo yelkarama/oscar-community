@@ -50,10 +50,15 @@ import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
+import org.oscarehr.billing.CA.ON.dao.BillingONDiskNameDao;
+import org.oscarehr.billing.CA.ON.dao.BillingONFilenameDao;
+import org.oscarehr.billing.CA.ON.model.BillingONDiskName;
+import org.oscarehr.billing.CA.ON.model.BillingONFilename;
 import org.oscarehr.integration.mcedt.McedtConstants;
 import org.oscarehr.integration.mcedt.ResourceForm;
 import org.oscarehr.util.MiscUtils;
 
+import org.oscarehr.util.SpringUtils;
 import oscar.OscarProperties;
 import oscar.util.ConversionUtils;
 import ca.ontario.health.edt.Detail;
@@ -308,6 +313,7 @@ public class ActionUtils {
 			OscarProperties props = OscarProperties.getInstance();
 			File generatedFiles = new File(props.getProperty("HOME_DIR", ""));
 			File outbox = new File(props.getProperty("ONEDT_OUTBOX", ""));
+			File sent = new File(props.getProperty("ONEDT_SENT", ""));
 			FileFilter fileFilter = new FileFilter() {
 				public boolean accept(File file) {
 					return (file.isFile() && !file.isHidden() && ActionUtils.isOHIPFile(file.getName()));
@@ -322,12 +328,26 @@ public class ActionUtils {
 				});
 				for (File file : toOutbox) {
 					Boolean alreadySent = isSent(file);
-					if (new Date(file.lastModified()).after(startDate) && new Date(file.lastModified()).before(endDate) && !alreadySent) copyFileToDirectory(file, outbox, false, true);
+					Boolean isEmptyOrZero = isEmptyOrZero(file);
+					if (isEmptyOrZero){
+						// if the claim is empty or has a $0 value file it to the sent folder
+						// this does not actually send the file to the ministry but rather avoids uploading the files and sending them
+						copyFileToDirectory(file, sent, false, true);
+					} else if (new Date(file.lastModified()).after(startDate) && new Date(file.lastModified()).before(endDate) && !alreadySent) {
+						copyFileToDirectory(file, outbox, false, true);
+					}
 				}
 			}
 			for (File file : toOutbox) {
 				Boolean alreadySent = isSent(file);
-				if (new Date(file.lastModified()).after(startDate) && new Date(file.lastModified()).before(endDate) && !alreadySent) copyFileToDirectory(file, outbox,false, true);
+				Boolean isEmptyOrZero = isEmptyOrZero(file);
+				if (isEmptyOrZero){
+					// if the claim is empty or has a $0 value file it to the sent folder
+					// this does not actually send the file to the ministry but rather avoids uploading the files and sending them
+					copyFileToDirectory(file, sent, false, true);
+				} else if (new Date(file.lastModified()).after(startDate) && new Date(file.lastModified()).before(endDate) && !alreadySent){
+					copyFileToDirectory(file, outbox,false, true);
+				}
 			}
 		} catch (Exception e) {
 			logger.error("Unable to copy OHIP files to outbox", e);
@@ -339,6 +359,7 @@ public class ActionUtils {
 			OscarProperties props = OscarProperties.getInstance();
 			File generatedFiles = new File(props.getProperty("DOCUMENT_DIR", ""));
 			File outbox = new File(props.getProperty("ONEDT_OUTBOX", ""));
+			File sent = new File(props.getProperty("ONEDT_SENT", ""));
 			FileFilter fileFilter = new FileFilter() {
 				public boolean accept(File file) {
 					return (file.isFile() && !file.isHidden() && ActionUtils.isOBECFile(file.getName()));
@@ -353,7 +374,14 @@ public class ActionUtils {
 				});
 				for (File file : toOutbox) {
 					Boolean alreadySent = isSent(file);
-					if (new Date(file.lastModified()).after(startDate) && new Date(file.lastModified()).before(endDate) && !alreadySent) copyFileToDirectory(file, outbox, false, true);
+					Boolean isEmptyOrZero = isEmptyOrZero(file);
+					if (isEmptyOrZero){
+						// if the claim is empty or has a $0 value file it to the sent folder
+						// this does not actually send the file to the ministry but rather avoids uploading the files and sending them
+						copyFileToDirectory(file, sent, false, true);
+					} else if (new Date(file.lastModified()).after(startDate) && new Date(file.lastModified()).before(endDate) && !alreadySent){
+						copyFileToDirectory(file, outbox, false, true);
+					}
 				}
 			}
 			
@@ -541,5 +569,27 @@ public class ActionUtils {
 			alreadySent = calendar.get(Calendar.YEAR) == fileDate.get(Calendar.YEAR);
 		}
 		return alreadySent;
+	}
+
+	public static Boolean isEmptyOrZero(File file){
+		Boolean isEmptyOrZero = true;
+		OscarProperties props = OscarProperties.getInstance();
+		BillingONDiskNameDao billingONDiskNameDao = SpringUtils.getBean(BillingONDiskNameDao.class);
+		BillingONFilenameDao billingONFilenameDao = SpringUtils.getBean(BillingONFilenameDao.class);
+		BillingONDiskName diskName = billingONDiskNameDao.findLatestByOhipFilename(file.getName());
+
+
+		if (diskName!=null){
+			Integer diskId = diskName.getId();
+			List<BillingONFilename> filenames = billingONFilenameDao.findByDiskId(diskId);
+			if (filenames!=null && !filenames.isEmpty()){
+				String total = filenames.get(0).getTotal();
+				if (total!=null && !total.trim().equals("") && !total.trim().equals("0.00")){
+					isEmptyOrZero = false;
+				}
+			}
+		}
+
+		return isEmptyOrZero;
 	}
 }

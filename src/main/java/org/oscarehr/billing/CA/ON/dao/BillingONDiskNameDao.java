@@ -85,6 +85,17 @@ public class BillingONDiskNameDao extends AbstractDao<BillingONDiskName>{
 		
 		return results;
 	}
+
+	public BillingONDiskName findLatestByOhipFilename(String ohipFilename){
+		String q = "SELECT b FROM BillingONDiskName b WHERE b.ohipFilename = :ohipFilename ORDER BY b.createDateTime DESC";
+		Query query = entityManager.createQuery(q);
+		query.setParameter("ohipFilename", ohipFilename);
+		query.setMaxResults(1);
+
+		BillingONDiskName result = getSingleResultOrNull(query);
+
+		return result;
+	}
 	
 	
 }
