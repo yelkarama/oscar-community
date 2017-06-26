@@ -141,11 +141,7 @@
 </script>
 	<% } else { 
 		response.sendRedirect("billingON3rdInv.jsp?billingNo=" + billingNo);
-	%>
-		<script LANGUAGE="JavaScript">
-			self.opener.refresh();
-		</script>
-	<% } %>
+	} %>
 
 <%} else { %>
 
