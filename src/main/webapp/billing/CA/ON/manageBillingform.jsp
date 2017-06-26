@@ -126,7 +126,7 @@ function showManageType(cmd) {
 
 function manageBillType(id, billType, vistType, location) {
     url = "dbManageBillingform_billtype.jsp";
-    pars = "?servicetype="+id+"&billtype="+billType+"&visitType="+vistType+"&location="+location;
+    pars = "?servicetype="+id+"&billtype="+encodeURIComponent(billType)+"&visitType="+encodeURIComponent(vistType)+"&location="+encodeURIComponent(location);
     popupPage(700,720,url+pars);
 }
 //-->
