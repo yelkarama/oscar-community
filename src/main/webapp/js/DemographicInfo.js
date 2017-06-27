@@ -127,6 +127,12 @@ function formatPhoneNum() {
     if (document.updatedelete.phone2.value.length == 11 && document.updatedelete.phone2.value.charAt(3) == '-') {
         document.updatedelete.phone2.value = document.updatedelete.phone2.value.substring(0,3) + "-" + document.updatedelete.phone2.value.substring(4,7) + "-" + document.updatedelete.phone2.value.substring(7);
     }
+    if (document.updatedelete.demo_cell.value.length == 10) {
+        document.updatedelete.demo_cell.value = document.updatedelete.demo_cell.value.substring(0,3) + "-" + document.updatedelete.demo_cell.value.substring(3,6) + "-" + document.updatedelete.demo_cell.value.substring(6);
+    }
+    if (document.updatedelete.demo_cell.value.length == 11 && document.updatedelete.demo_cell.value.charAt(3) == '-') {
+        document.updatedelete.demo_cell.value = document.updatedelete.demo_cell.value.substring(0,3) + "-" + document.updatedelete.demo_cell.value.substring(4,7) + "-" + document.updatedelete.demo_cell.value.substring(7);
+    }
 }
 function checkONReferralNo() {
   var referralNo = document.updatedelete.r_doctor_ohip.value ;
