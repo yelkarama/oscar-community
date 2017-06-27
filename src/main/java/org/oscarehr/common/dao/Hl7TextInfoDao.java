@@ -39,7 +39,7 @@ import org.oscarehr.common.model.Hl7TextMessageInfo;
 import org.oscarehr.common.model.Hl7TextMessageInfo2;
 import org.oscarehr.util.MiscUtils;
 import org.springframework.stereotype.Repository;
-
+import oscar.OscarProperties;
 
 
 @Repository
@@ -198,8 +198,12 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 				"WHERE p.labNo = hl7.labNumber "+
 				"AND p.labType = 'HL7' " +
 				"AND p.demographicNo = :dNo " +
-				"GROUP BY hl7.labNumber "
-				+ "ORDER BY hl7.resultStatus DESC, hl7.obrDate DESC";
+				"GROUP BY hl7.labNumber ";
+        if (OscarProperties.getInstance().isPropertyActive("abnormal_labs_first")) {
+            sql += "ORDER BY hl7.resultStatus DESC, hl7.obrDate DESC";
+        } else {
+            sql += "ORDER BY hl7.labNumber DESC";
+        }
 		Query q = entityManager.createQuery(sql);
 		q.setParameter("dNo", demographicNo);
 		return q.getResultList();
@@ -214,9 +218,13 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 			"AND info.firstName like :fName " +
 			"AND info.lastName like :lName";
 		if (patientHealthNumber!=null) { 
-			sql = sql + " AND info.healthNumber like :hNum";
+			sql = sql + " AND info.healthNumber like :hNum ";
 		}
-		sql = sql+ " ORDER BY hl7.resultStatus DESC, hl7.obrDate DESC";
+        if (OscarProperties.getInstance().isPropertyActive("abnormal_labs_first")) {
+            sql += "ORDER BY hl7.resultStatus DESC, hl7.obrDate DESC";
+        } else {
+            sql += "ORDER BY info.labNumber DESC";
+        }
 		
 		Query q = entityManager.createQuery(sql);
 		q.setParameter("status", "%" + status + "%" );
