@@ -282,7 +282,7 @@ public class EctConsultationFormFaxAction extends Action {
 				    String faxNo = recipients.get(i).replaceAll("\\D", "");
 				    if (faxNo.length() < 7) { throw new DocumentException("Document target fax number '"+faxNo+"' is invalid."); }
 				
-				    String tempName = "CRF-" + faxClinicId + reqId + "." + System.currentTimeMillis();
+				    String tempName = "CRF-" + faxClinicId + reqId + "." + String.valueOf(i) + "." + System.currentTimeMillis();
 					
 					String tempPdf = String.format("%s%s%s.pdf", tempPath, File.separator, tempName);
 					String tempTxt = String.format("%s%s%s.txt", tempPath, File.separator, tempName);

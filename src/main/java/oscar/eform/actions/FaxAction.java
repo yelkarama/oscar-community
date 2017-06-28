@@ -104,7 +104,7 @@ public final class FaxAction {
 			for (int i = 0; i < recipients.size(); i++) {					
 			    String faxNo = recipients.get(i).trim().replaceAll("\\D", "");
 			    if (faxNo.length() < 7) { throw new DocumentException("Document target fax number '"+faxNo+"' is invalid."); }
-			    String tempName = "EForm-" + formId + "." + System.currentTimeMillis();
+			    String tempName = "EForm-" + formId + "." + String.valueOf(i) + "." + System.currentTimeMillis();
 				
 				String tempPdf = String.format("%s%s%s.pdf", tempPath, File.separator, tempName);
 				String tempTxt = String.format("%s%s%s.txt", tempPath, File.separator, tempName);
