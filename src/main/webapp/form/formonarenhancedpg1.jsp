@@ -226,7 +226,47 @@ function loadIPSForms() {
 		});
 		
 	<% } %>
-	
+function onPageChange(url) {
+    var result = false;
+    var newID = 0;
+    document.forms[0].submit.value="save";
+    var ret1 = validate();
+    var ret = checkAllDates();
+    if(ret==true && ret1==true)
+    {
+        reset();
+        ret = confirm("Are you sure you want to save this form?");
+        if(ret) {
+            window.onunload=null;
+            adjustDynamicListTotals();
+            jQuery.ajax({
+                url:'<%=request.getContextPath()%>/Pregnancy.do?method=saveFormAjax',
+                data: $("form").serialize(),
+                async:false,
+                dataType:'json',
+                success:function(data) {
+                    if(data.value == 'error') {
+                        alert('Error saving form.');
+                        result = false;
+                    } else {
+                        result= true;
+                        newID = parseInt(data.value);
+                    }
+                }
+            });
+        } else {
+            url = url.replace('#id','<%=formId%>');
+            location.href=url;
+        }
+    }
+
+    if(result == true) {
+        url = url.replace('#id',newID);
+        location.href=url;
+    }
+
+    return;
+}
 </script>
 
 <script>
