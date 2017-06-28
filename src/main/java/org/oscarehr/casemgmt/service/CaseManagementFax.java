@@ -360,7 +360,7 @@ public class CaseManagementFax {
                     throw new DocumentException("Document target fax number '" + faxNo + "' is invalid.");
                 }
 
-                String tempName = "CRF-" + faxClinicId + "." + System.currentTimeMillis();
+                String tempName = "CRF-" + faxClinicId + "." + String.valueOf(i) + "." + System.currentTimeMillis();
 
                 String tempPdf = String.format("%s%s%s.pdf", tempPath, File.separator, tempName);
                 String tempTxt = String.format("%s%s%s.txt", tempPath, File.separator, tempName);

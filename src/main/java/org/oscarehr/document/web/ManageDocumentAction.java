@@ -1111,7 +1111,7 @@ public class ManageDocumentAction extends DispatchAction {
 				throw new DocumentException("Document target fax number '" + faxNo + "' is invalid.");
 			}
 
-			String tempName = "DOC-" + faxClinicId + docId + "." + System.currentTimeMillis();
+			String tempName = "DOC-" + faxClinicId + docId + "." + String.valueOf(i) + "." + System.currentTimeMillis();
 
 			String tempPdf = String.format("%s%s%s.pdf", tempPath, File.separator, tempName);
 			String tempTxt = String.format("%s%s%s.txt", tempPath, File.separator, tempName);
