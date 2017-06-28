@@ -59,6 +59,8 @@
 <%@page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
 <%@page import="org.oscarehr.common.model.Provider" %>
 <%@ page import="oscar.oscarBilling.ca.on.data.JdbcBillingPageUtil" %>
+<%@ page import="oscar.oscarRx.data.RxPharmacyData" %>
+<%@ page import="org.oscarehr.common.model.PharmacyInfo" %>
 
 <%
 	CtlBillingServiceDao ctlBillingServiceDao = SpringUtils.getBean(CtlBillingServiceDao.class);
@@ -318,6 +320,15 @@ function showHideERxPref() {
 					List<Provider> doctors = providerDao.getProvidersByType("doctor");
 					List<Provider> listProvider = providerDao.getProviders(true);
 					String defaultDoctor = providerPreference.getDefaultDoctor();
+
+					RxPharmacyData pharmacy = new RxPharmacyData();
+					List<PharmacyInfo> pharList = pharmacy.getAllPharmacies();
+					String defaultPharmacy = propertyDao.getStringValue(providerNo, "default_pharmacy");
+					
+					if (defaultPharmacy==null)
+					{
+					    defaultPharmacy = "";
+					}
 				%>
 				<td class="preferenceLabel">
 					<bean:message key="provider.preference.defaultDoctor" />
@@ -327,6 +338,19 @@ function showHideERxPref() {
 						<option value=""></option>
 						<% for (Provider doctor : doctors) { %>
 							<option value="<%= doctor.getProviderNo() %>" <%=doctor.getProviderNo().equals(defaultDoctor) ? "selected='selected'" : ""%>> <%= doctor.getFormattedName() %> </option>
+						<% } %>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td class="preferenceLabel">
+					<bean:message key="provider.preference.defaultPharmacy" />
+				</td>
+				<td class="preferenceValue">
+					<select name="default_pharmacy">
+						<option value=""></option>
+						<% for (PharmacyInfo pharmacies : pharList) { %>
+						<option value="<%= pharmacies.getId() %>" <%=pharmacies.getId().toString().equals(defaultPharmacy) ? "selected='selected'" : ""%>> <%= pharmacies.getName() %> </option>
 						<% } %>
 					</select>
 				</td>

@@ -165,6 +165,7 @@ public class UserProperty extends AbstractModel<Integer> implements Serializable
 	public static final String STUDENT_PARTICIPATION_CONSENT = "student_participation_consent";	
 	public static final String PROVIDER_FOR_TICKLER_WARNING = "provider_for_tickler_warning";
     public static final String TICKLER_DEFAULT_RECIPIENT = "tickler_default_recipient";
+    public static final String DEFAULT_PHARMACY = "default_pharmacy";
 
 	public static final String MCEDT_ACCOUNT_PASSWORD = "mcedt_account_password";
 
