@@ -249,8 +249,12 @@ public class JdbcBillingCreateBillingFile {
 		if (invCount == 0) {
 			Demographic demo = demographicManager.getDemographic(loggedInInfo, ch1Obj.getDemographic_no());
 			ret += "\n<tr " + (summaryView ? "style='display:none;' class='record" + providerNo + "'" : "") + ">";
+			String providerOhip = ch1Obj.getProvider_ohip_no();
+			if (providerOhip!=null & providerOhip.contains("|")){
+				providerOhip = providerOhip.substring(0, providerOhip.indexOf("|"));
+			}
 			if (simulation) {
-				ret += "<td class='" + styleClass + "'>" + ch1Obj.getProvider_ohip_no() + "</td>"
+				ret += "<td class='" + styleClass + "'>" + providerOhip + "</td>"
 					+ "<td class='" + styleClass + "'><a href='javascript:void(0);'  onclick=\"popupPage(1000,800,'../billing/CA/ON/billingONCorrection.jsp?billing_no=" + ch1Obj.getId() + "');return false;\">" + ch1Obj.getId() + "</a></td>" 
 					+ "<td class='" + styleClass + "'><a href='javascript:void(0);' onclick=\"popupPage(720,740,'../demographic/demographiccontrol.jsp?demographic_no=" + ch1Obj.getDemographic_no() + "&displaymode=edit&dboperation=search_detail');return false;\">" + ch1Obj.getDemographic_name() + "</a></td>"; 
 			}
@@ -491,8 +495,11 @@ public class JdbcBillingCreateBillingFile {
 				ch1Obj.setStatus(h.getStatus());
 				ch1Obj.setComment(h.getComment());
 				ch1Obj.setVisittype(h.getVisitType());
-				ch1Obj.setProvider_ohip_no(h.getProviderOhipNo());
-				ohipNo = ch1Obj.getProvider_ohip_no();
+				ohipNo = h.getProviderOhipNo();
+				if (ohipNo!=null & ohipNo.contains("|")){
+					ohipNo = ohipNo.substring(0, ohipNo.indexOf("|"));
+				}
+				ch1Obj.setProvider_ohip_no(ohipNo);
 				ch1Obj.setProvider_rma_no(h.getProviderRmaNo());
 				ch1Obj.setApptProvider_no(h.getApptProviderNo());
 				ch1Obj.setAsstProvider_no(h.getAsstProviderNo());
