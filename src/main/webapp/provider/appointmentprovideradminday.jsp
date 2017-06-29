@@ -1311,8 +1311,12 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 		</div>
 	</li>		
 
-</security:oscarSec> 
- 
+</security:oscarSec>
+<% if (OscarProperties.getInstance().hasProperty("kaiemr_work_queue_url")) { %>			
+	<li>
+		<a href="javascript:void(0)" id="work_queue_button" title='Work Queue' onclick="popupPage2('<%=OscarProperties.getInstance().getProperty("kaiemr_work_queue_url")%>','work_queue', 700, 1215)">Work Queue</a>
+	</li>
+<% } %>
   <!-- Added logout link for mobile version -->
   <li id="logoutMobile">
       <a href="../logout.jsp"><bean:message key="global.btnLogout"/></a>
