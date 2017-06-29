@@ -21,36 +21,28 @@
  * Hamilton
  * Ontario, Canada
  */
-package org.oscarehr.web;
+package org.oscarehr.ws.rest.conversion;
 
-import javax.servlet.http.HttpSessionEvent;
-import javax.servlet.http.HttpSessionListener;
+import org.oscarehr.common.model.Hl7TextMessage;
+import org.oscarehr.util.LoggedInInfo;
+import org.oscarehr.ws.rest.to.model.Hl7TextMessageTo1;
+import org.springframework.beans.BeanUtils;
 
-import org.oscarehr.common.dao.CasemgmtNoteLockDao;
-import org.oscarehr.common.model.CasemgmtNoteLock;
-import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
-
-public class OscarSessionListener implements HttpSessionListener {
+public class Hl7TextMessageConverter extends AbstractConverter<Hl7TextMessage, Hl7TextMessageTo1> {
 
 	@Override
-	public void sessionCreated(HttpSessionEvent se) {
-		// TODO Auto-generated method stub
-
+	public Hl7TextMessage getAsDomainObject(LoggedInInfo loggedInInfo, Hl7TextMessageTo1 t) throws ConversionException {
+		Hl7TextMessage d = new Hl7TextMessage();
+		BeanUtils.copyProperties(t, d);
+		return d;
 	}
 
 	@Override
-	public void sessionDestroyed(HttpSessionEvent se) {
-		String id = se.getSession().getId();
-		MiscUtils.getLogger().info("session is being destroyed - " + id);
-
-		CasemgmtNoteLockDao casemgmtNoteLockDao = SpringUtils.getBean(CasemgmtNoteLockDao.class);
-		
-		for(CasemgmtNoteLock lock:casemgmtNoteLockDao.findBySession(id)) {
-			MiscUtils.getLogger().info("removing note locks for this session - " + lock);
-			
-			casemgmtNoteLockDao.remove(lock.getId());
-		}
+	public Hl7TextMessageTo1 getAsTransferObject(LoggedInInfo loggedInInfo, Hl7TextMessage d) throws ConversionException {
+		Hl7TextMessageTo1 t = new Hl7TextMessageTo1();
+		BeanUtils.copyProperties(d, t);
+		return t;
 	}
 
+	
 }
