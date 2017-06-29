@@ -209,8 +209,11 @@ public class BillingSavePrep {
 		claim1Header.setStatus(getStatus(val.getParameter("submit"), val.getParameter("xml_billtype")));
 		claim1Header.setComment(val.getParameter("comment") != null ? val.getParameter("comment") : "");
 		claim1Header.setVisittype(val.getParameter("xml_visittype").substring(0, 2));
-		claim1Header.setProvider_ohip_no(val.getParameter("xml_provider").substring(
-				val.getParameter("xml_provider").indexOf("|") + 1));
+		String providerOhip = val.getParameter("xml_provider").substring(val.getParameter("xml_provider").indexOf("|") + 1);
+		if (providerOhip.contains("|")){
+			providerOhip = providerOhip.substring(0, providerOhip.indexOf("|"));
+		}
+		claim1Header.setProvider_ohip_no(providerOhip);
 		claim1Header.setProvider_rma_no("");
 		claim1Header.setApptProvider_no(val.getParameter("apptProvider_no"));
 		claim1Header.setAsstProvider_no("");
