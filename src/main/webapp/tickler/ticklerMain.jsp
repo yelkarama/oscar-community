@@ -980,7 +980,7 @@ function changeSite(sel) {
 
                             if (ticklers.isEmpty()) {
                             %>
-                            <tr><td colspan="10" class="white"><bean:message key="tickler.ticklerMain.msgNoMessages"/></td></tr>                                                            
+                            <tr><td colspan="11" class="white"><bean:message key="tickler.ticklerMain.msgNoMessages"/></td></tr>                                                            
                             <%}%>
                         </tbody>
 
