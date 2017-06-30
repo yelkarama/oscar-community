@@ -446,15 +446,6 @@ function checkAllDate() {
 	typeInOK = checkDateYMD( document.adddemographic.date_joined.value, "Date Joined" );
 	if (!typeInOK) { return false; }
 
-	typeInOK = checkDateYMD( document.adddemographic.end_date.value, "End Date" );
-	if (!typeInOK) { return false; }
-
-	typeInOK = checkDateYMD( document.adddemographic.hc_renew_date.value, "PCN Date" );
-	if (!typeInOK) { return false; }
-
-	typeInOK = checkDateYMD( document.adddemographic.eff_date.value, "EFF Date" );
-	if (!typeInOK) { return false; }
-
 	return typeInOK;
 }
 	function checkDateYMD(yy, mm, dd, fieldName) {
