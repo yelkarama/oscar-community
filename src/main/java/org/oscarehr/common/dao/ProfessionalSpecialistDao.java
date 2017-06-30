@@ -44,7 +44,7 @@ public class ProfessionalSpecialistDao extends AbstractDao<ProfessionalSpecialis
 	 */
 	public List<ProfessionalSpecialist> findAll()
 	{
-		Query query = entityManager.createQuery("select x from "+modelClass.getSimpleName()+" x order by x.lastName,x.firstName");
+		Query query = entityManager.createQuery("select x from "+modelClass.getSimpleName()+" x where x.deleted=0 order by x.lastName,x.firstName");
 
 		@SuppressWarnings("unchecked")
 		List<ProfessionalSpecialist> results=query.getResultList();
