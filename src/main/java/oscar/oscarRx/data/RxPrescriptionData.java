@@ -252,7 +252,7 @@ public class RxPrescriptionData {
 		Prescription p = new Prescription(drug.getId(), drug.getProviderNo(), demographicNo);
 		p.setRxCreatedDate(drug.getCreateDate());
 		p.setRxDate(drug.getRxDate());
-		p.setEndDate(drug.getEndDate());
+		p.setEndDate(drug.getEndDate(true));
 		p.setWrittenDate(drug.getWrittenDate());
 		p.setBrandName(drug.getBrandName());
 		p.setGCN_SEQNO(drug.getGcnSeqNo());
@@ -283,6 +283,7 @@ public class RxPrescriptionData {
 		p.setCustomInstr(drug.isCustomInstructions());
 		p.setDosage(drug.getDosage());
 		p.setLongTerm(drug.getLongTerm());
+		p.setArchivedDate(drug.getArchivedDate());
 		p.setCustomNote(drug.isCustomNote());
 		p.setPastMed(drug.getPastMed());
 		p.setStartDateUnknown(drug.getStartDateUnknown());
@@ -954,6 +955,14 @@ public class RxPrescriptionData {
 		public java.util.Date getEndDate() {
 			if (this.isDiscontinued()) return this.archivedDate;
 			else return this.endDate;
+		}
+
+		public Date getEndDate(boolean ignoreDiscontinued) {
+			if (ignoreDiscontinued){
+				return endDate;
+			} else {
+				return getEndDate();
+			}
 		}
 
 		public void setEndDate(java.util.Date RHS) {

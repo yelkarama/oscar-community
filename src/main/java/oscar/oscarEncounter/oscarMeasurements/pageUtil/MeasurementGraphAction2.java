@@ -178,7 +178,7 @@ public class MeasurementGraphAction2 extends Action {
              oscar.oscarRx.data.RxPrescriptionData.Prescription [] arr =  prescriptData.getPrescriptionScriptsByPatientRegionalIdentifier(demographicId,din);
              TaskSeries ts  = new TaskSeries(arr[0].getBrandName());
              for(oscar.oscarRx.data.RxPrescriptionData.Prescription pres:arr){
-                 ts.add(new Task(pres.getBrandName(),pres.getRxDate(),pres.getEndDate()));
+                 ts.add(new Task(pres.getBrandName(),pres.getRxDate(),pres.getEndDate(true)));
              }
              datasetDrug.add(ts);
         }
