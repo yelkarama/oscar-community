@@ -161,6 +161,10 @@ String patientHin = patient.getHin()==null ? "" : patient.getHin();
 DemographicDao demographicDao=(DemographicDao)SpringUtils.getBean("demographicDao");
 Demographic demographic = demographicDao.getDemographic(String.valueOf(patient.getDemographicNo()));
 
+RxManageDao rxManageDao = SpringUtils.getBean(RxManageDao.class);
+RxManage rxManage = rxManageDao.findByProviderNo(loggedInInfo.getLoggedInProviderNo());
+Boolean mrpRx = rxManage!=null?rxManage.getMrpOnRx(): true;
+
 oscar.oscarRx.data.RxPrescriptionData.Prescription rx = null;
 int i;
 ProSignatureData sig = new ProSignatureData();
@@ -656,7 +660,7 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
 	                                                            <% } else { %>
 		                                                            </td>
 														<td height=25px><b>Requesting Physician:</b> <%= doctorName%> <%=(pracNo!=null && !pracNo.equals(""))?"("+pracNo+")":""%>
-																<%if(demographic != null && demographic.getProviderNo() != null){%>
+																<%if(demographic != null && demographic.getProviderNo() != null && mrpRx){%>
 															<br/><b>MRP:</b> <%=providerBean.getProperty(demographic.getProviderNo(),"")%> <%=(mrpPracNo!=null && !mrpPracNo.equals(""))?"("+mrpPracNo+")":""%>
 																<%}%>                                                         
                                                             </td>

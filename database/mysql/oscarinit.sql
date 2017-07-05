@@ -12467,3 +12467,10 @@ CREATE TABLE messageFolder
   displayOrder int(10),
   deleted boolean NOT NULL DEFAULT false
 );
+
+CREATE TABLE `rxmanage`
+(
+	id int not null auto_increment primary key,
+	provider_no varchar(6) not null,
+	mrpOnRx tinyint(1) default '0' not null
+);
