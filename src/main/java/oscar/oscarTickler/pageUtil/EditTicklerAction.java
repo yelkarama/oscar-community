@@ -30,6 +30,7 @@ import java.util.ResourceBundle;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.mail.EmailException;
 import org.apache.log4j.Logger;
@@ -40,8 +41,12 @@ import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 import org.apache.struts.actions.DispatchAction;
 import org.apache.struts.validator.DynaValidatorForm;
+import org.oscarehr.casemgmt.model.CaseManagementNote;
+import org.oscarehr.casemgmt.service.CaseManagementManager;
+import org.oscarehr.common.dao.SecRoleDao;
 import org.oscarehr.common.dao.TicklerTextSuggestDao;
 import org.oscarehr.common.model.Tickler;
+import org.oscarehr.common.model.SecRole;
 import org.oscarehr.common.model.TicklerComment;
 import org.oscarehr.common.model.TicklerTextSuggest;
 import org.oscarehr.common.model.TicklerUpdate;
@@ -52,6 +57,7 @@ import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
 import oscar.OscarProperties;
+import oscar.oscarEncounter.data.EctProgram;
 import oscar.util.DateUtils;
 
 public class EditTicklerAction extends DispatchAction{
@@ -66,6 +72,8 @@ public class EditTicklerAction extends DispatchAction{
 		if (!securityInfoManager.hasPrivilege(loggedInInfo, "_tickler", "u", null)) {
 			throw new RuntimeException("missing required security object (_tickler)");
 		}
+
+        HttpSession session = request.getSession();
 		
 		String providerNo=loggedInInfo.getLoggedInProviderNo();
 		
@@ -79,6 +87,7 @@ public class EditTicklerAction extends DispatchAction{
         String priority = request.getParameter("priority");
         String assignedTo = request.getParameter("assignedToProviders");
         String serviceDate = request.getParameter("xml_appointment_date");
+        boolean writeToEncounter = request.getParameter("updateTickler")!=null && request.getParameter("updateTickler").contains("Write to Encounter");
         
         if ((ticklerNo == null)
          || (status == null)
@@ -227,7 +236,36 @@ public class EditTicklerAction extends DispatchAction{
 
         if (isComment || isUpdate) {            
             ticklerManager.updateTickler(loggedInInfo,t);
-        }                                    
+        }
+
+        if (writeToEncounter){
+            // Create new note
+            CaseManagementManager caseManagementMgr = (CaseManagementManager) SpringUtils.getBean("caseManagementManager");
+            CaseManagementNote note = new CaseManagementNote();
+            String noteBody = "["+t.getUpdateDate()+" .: Tickler]\n\n"+newMessage;
+            Date today = new Date();
+            note.setObservation_date(today);
+            note.setUpdate_date(today);
+            note.setCreate_date(today);
+            note.setDemographic_no(String.valueOf(t.getDemographicNo()));
+            note.setProvider(loggedInInfo.getLoggedInProvider());
+            note.setProviderNo(loggedInInfo.getLoggedInProviderNo());
+            note.setSigned(false);
+            note.setSigning_provider_no("");
+            note.setProgram_no(new EctProgram(session).getProgram(session.getAttribute("user").toString()));
+            note.setNote(noteBody);
+
+            SecRoleDao secRoleDao = (SecRoleDao) SpringUtils.getBean("secRoleDao");
+            SecRole doctorRole = secRoleDao.findByName("doctor");
+            note.setReporter_caisi_role(doctorRole.getId().toString());
+
+            note.setReporter_program_team("0");
+            note.setPassword(null);
+            note.setLocked(false);
+            note.setHistory(noteBody);
+
+            caseManagementMgr.saveNoteSimple(note);
+        }
                 
         if (emailFailed) {
             errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("tickler.ticklerEdit.emailFailed.error"));
