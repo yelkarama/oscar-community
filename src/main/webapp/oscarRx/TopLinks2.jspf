@@ -57,7 +57,10 @@ function newWindow(url) {
 	{
 		pi = pid.getPharmacy(Integer.parseInt(defaultPharmacy));
 		if (pharmacyList==null) {pharmacyList = new ArrayList<PharmacyInfo>();}
-		pharmacyList.add(pi);
+		if (pi != null)
+		{
+			pharmacyList.add(pi);  
+		}
 	}
 	
 if (rx_enhance!=null && rx_enhance.equals("true")) { %>
@@ -77,7 +80,7 @@ if (rx_enhance!=null && rx_enhance.equals("true")) { %>
 	        					
 	        						
 					%>
-								<option value='<%=jsonObject.toString().replaceAll("'", "")%>' <%=pharmacyInfo.getId().equals(pi.getId())?" selected='selected'":""%>><%=pharmacyInfo.getName() + " " + pharmacyInfo.getCity()%></option>
+								<option value='<%=jsonObject.toString().replaceAll("'", "")%>' <%=pharmacyInfo.getId().equals(pi.getId()==null?"":pi.getId())?" selected='selected'":""%>><%=pharmacyInfo.getName() + " " + pharmacyInfo.getCity()%></option>
 					<%
 	        				}
 	       		 		}
