@@ -14,6 +14,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -54,8 +57,17 @@ public class OscarStatusAction extends Action {
 		}
 		
 		if (servletRequest.getParameter("delayed") != null) {
-			servletRequest.setAttribute("documentStatusText", documentStorage());
-			servletRequest.setAttribute("hl7StatusText", hl7Status());
+            List<String> statusCheckStorageProps = new ArrayList<String>();
+            String statusCheckStorageText = OscarProperties.getInstance().getProperty("status_check_storage");
+            if (statusCheckStorageText != null) {
+                statusCheckStorageProps = Arrays.asList(OscarProperties.getInstance().getProperty("status_check_storage").split("\\s*,\\s*"));
+            }
+            if (statusCheckStorageProps.contains("DOCUMENTS")) {
+                servletRequest.setAttribute("documentStatusText", documentStorage());
+            }
+            if (statusCheckStorageProps.contains("HL7LABS")) {
+                servletRequest.setAttribute("hl7StatusText", hl7Status());
+            }
 		}
 		
 		servletRequest.setAttribute("sqlMasterStatusText", getOscarSQLMasterStatus());
