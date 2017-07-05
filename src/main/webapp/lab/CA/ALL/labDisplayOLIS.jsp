@@ -11,6 +11,9 @@
 <%@ page language="java" errorPage="../../../provider/errorpage.jsp" %>
 <%@ page import="java.util.*,java.sql.*,org.oscarehr.olis.*,org.oscarehr.common.dao.PatientLabRoutingDao, org.oscarehr.util.SpringUtils, org.oscarehr.common.model.PatientLabRouting,oscar.oscarLab.ca.all.*,oscar.oscarLab.ca.all.util.*,oscar.oscarLab.ca.all.parsers.*,oscar.oscarLab.LabRequestReportLink,oscar.oscarMDS.data.ReportStatus,oscar.log.*,org.apache.commons.codec.binary.Base64" %>
 <%@page import="org.oscarehr.util.AppointmentUtil" %>
+<%@ page import="oscar.OscarProperties" %>
+<%@ page import="org.oscarehr.common.dao.DemographicDao" %>
+<%@ page import="java.net.URLEncoder" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic" %>
@@ -59,6 +62,9 @@ if(demographicID != null && !demographicID.equals("")){
     LogAction.addLog((String) session.getAttribute("user"), LogConst.READ, LogConst.CON_HL7_LAB, segmentID, request.getRemoteAddr());
 }
 
+String billRegion=(OscarProperties.getInstance().getProperty("billregion","")).trim().toUpperCase();
+String billForm=OscarProperties.getInstance().getProperty("default_view");
+DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
 
 boolean ackFlag = false;
 ArrayList ackList = preview ? null : AcknowledgementData.getAcknowledgements(segmentID);
@@ -330,11 +336,15 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                     <input type="button" class="smallButton" value="<bean:message key="oscarMDS.index.btnForward"/>" onClick="popupStart(397, 700, '../../../oscarMDS/SelectProvider.jsp?docId=<%=segmentID%>&labDisplay=true', 'providerselect')">
                                     <input type="button" value=" <bean:message key="global.btnClose"/> " onClick="window.close()">
                                     <input type="button" value=" <bean:message key="global.btnPrint"/> " onClick="printPDF()">
-                                    <% if ( demographicID != null && !demographicID.equals("") && !demographicID.equalsIgnoreCase("null")){ %>
+                                    <% if ( demographicID != null && !demographicID.equals("") && !demographicID.equalsIgnoreCase("null")){
+                                        String demographicName = demographicDao.getDemographic(demographicID).getFormattedName();
+                                        String demographicProvider = demographicDao.getDemographic(demographicID).getProviderNo()!=null?demographicDao.getDemographic(demographicID).getProviderNo():"";
+                                    %>
                                     <input type="button" value="Msg" onclick="popup(700,960,'../../../oscarMessenger/SendDemoMessage.do?demographic_no=<%=demographicID%>','msg')"/>
                                     <input type="button" value="Tickler" onclick="popup(450,600,'../../../tickler/ForwardDemographicTickler.do?updateParent=false&docType=HL7&docId=<%= segmentID %>&demographic_no=<%=demographicID%>','tickler')"/>
                                     <input type="button" value=" <bean:message key="oscarMDS.segmentDisplay.btnEChart"/> " onClick="popupStart(710,1024, '/oscar/oscarEncounter/IncomingEncounter.do?providerNo=<%=providerNo%>&appointmentNo=&demographicNo=<%=demographicID%>&curProviderNo=&reason=Lab%20Results&encType=&curDate=<%=curYear%>-<%=curMonth%>-<%=curDay%>&appointmentDate=&startTime=&status='
                                             +'&curDate=<%=curYear%>-<%=curMonth%>-<%=curDay%>&appointmentDate=&startTime=&status=')">
+                                    <input type="button" value="Bill" onClick="popup(700, 1000, '<%=request.getContextPath()%>/billing.do?billRegion=<%=URLEncoder.encode(billRegion, "UTF-8")%>&billForm=<%=URLEncoder.encode(billForm, "UTF-8")%>&hotclick=&appointment_no=0&demographic_name=<%=URLEncoder.encode(demographicName, "UTF-8")%>&demographic_no=<%=demographicID%>&providerview=<%=demographicProvider%>&user_no=<%=providerNo%>&apptProvider_no=none&appointment_date=&start_time=00:00:00&bNewForm=1&status=t');return false;"/>
                                     <% } %>
 
 
