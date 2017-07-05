@@ -101,6 +101,9 @@ public class ForwardingRulesAction extends Action{
                     	IncomingLabRules r =new IncomingLabRules();
                     	r.setProviderNo(providerNo);
                     	r.setFrwdProviderNo(providerNums[i]);
+                        for (String forwardType : request.getParameterValues("forward_type")) {
+                            r.addForwardType(forwardType);
+                        }
                     	dao.persist(r);
                     	
                     	logger.info("Added rule: " + r);

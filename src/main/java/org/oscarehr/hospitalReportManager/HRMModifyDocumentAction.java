@@ -190,21 +190,23 @@ public class HRMModifyDocumentAction extends DispatchAction {
 			if (incomingLabRules != null) {
 				//For each labRule in the list
 				for(IncomingLabRules labRule : incomingLabRules) {
-					//Creates a string of the provider number that the lab will be forwarded to
-					String forwardProviderNumber = labRule.getFrwdProviderNo();
-					//Checks to see if this provider is already linked to this lab
-					HRMDocumentToProvider hrmDocumentToProvider = hrmDocumentToProviderDao.findByHrmDocumentIdAndProviderNo(hrmDocumentId, forwardProviderNumber);
-					//If a record was not found
-					if (hrmDocumentToProvider == null) {
-						//Puts the information into the HRMDocumentToProvider object
-						hrmDocumentToProvider = new HRMDocumentToProvider();
-						hrmDocumentToProvider.setHrmDocumentId(hrmDocumentId);
-						hrmDocumentToProvider.setProviderNo(forwardProviderNumber);
-						hrmDocumentToProvider.setSignedOff(0);
-						//Stores it in the table
-						hrmDocumentToProviderDao.persist(hrmDocumentToProvider);
-					}
-				}
+                    if (labRule.getForwardTypeStrings().contains("HRM")) {
+                        //Creates a string of the provider number that the lab will be forwarded to
+                        String forwardProviderNumber = labRule.getFrwdProviderNo();
+                        //Checks to see if this provider is already linked to this lab
+                        HRMDocumentToProvider hrmDocumentToProvider = hrmDocumentToProviderDao.findByHrmDocumentIdAndProviderNo(hrmDocumentId, forwardProviderNumber);
+                        //If a record was not found
+                        if (hrmDocumentToProvider == null) {
+                            //Puts the information into the HRMDocumentToProvider object
+                            hrmDocumentToProvider = new HRMDocumentToProvider();
+                            hrmDocumentToProvider.setHrmDocumentId(hrmDocumentId);
+                            hrmDocumentToProvider.setProviderNo(forwardProviderNumber);
+                            hrmDocumentToProvider.setSignedOff(0);
+                            //Stores it in the table
+                            hrmDocumentToProviderDao.persist(hrmDocumentToProvider);
+                        }
+                    }
+                }
 			}
 
 			
