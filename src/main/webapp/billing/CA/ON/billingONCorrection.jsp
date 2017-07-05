@@ -582,36 +582,14 @@ function validateAmountNumberic(idx) {
 						payment = payment.add(bop.getTotal_payment());
 						refund = refund.add(bop.getTotal_refund());				
 					}
-					/*
-					
-					BillingONExtDao billingOnExtDao = (BillingONExtDao)WebApplicationContextUtils.getWebApplicationContext(application).getBean("billingONExtDao");
-					BillingONExt paymentItem = billingOnExtDao.getClaimExtItem(Integer.parseInt(request.getParameter("billing_no").trim()), Integer.parseInt(DemoNo), BillingONExtDao.KEY_PAYMENT);
-					if (paymentItem != null) {
-						payment = new BigDecimal(paymentItem.getValue());
-					}
-					BillingONExt discountItem = billingOnExtDao.getClaimExtItem(Integer.parseInt(request.getParameter("billing_no").trim()), Integer.parseInt(DemoNo), BillingONExtDao.KEY_DISCOUNT);
-					if (discountItem != null) {
-						discount = new BigDecimal(discountItem.getValue());
-					}
-					BillingONExt refundItem = billingOnExtDao.getClaimExtItem(Integer.parseInt(request.getParameter("billing_no").trim()), Integer.parseInt(DemoNo), BillingONExtDao.KEY_REFUND);
-					if (refundItem != null) {
-						refund = new BigDecimal(refundItem.getValue());
-					}
-					BillingONExt totalItem = billingOnExtDao.getClaimExtItem(Integer.parseInt(request.getParameter("billing_no").trim()), Integer.parseInt(DemoNo), BillingONExtDao.KEY_TOTAL);
-					if (totalItem != null) {
-						total = new BigDecimal(totalItem.getValue());
-					}
-					BillingONExt creditItem = billingOnExtDao.getClaimExtItem(Integer.parseInt(request.getParameter("billing_no").trim()), Integer.parseInt(DemoNo), BillingONExtDao.KEY_CREDIT);
-					if (creditItem != null) {
-						credit = new BigDecimal(creditItem.getValue());
-					}
-					*/
 					total = bCh1.getTotal();
 					
-					balance = total.subtract(payment).subtract(discount).add(credit);
+					balance = total.subtract(payment).subtract(discount).subtract(refund).add(credit);
 					payment = payment.subtract(credit);
-
-                    htmlPaid = "<br/>&nbsp;&nbsp;<span style='font-size:large;font-weight:bold'>Paid:</span>&nbsp;&nbsp;&nbsp;<span id='payment' style='font-size:large;font-weight:bold'>"
+					
+					htmlPaid = "<br/>&nbsp;&nbsp;<span style='font-size:large;font-weight:bold'>Billed:</span>&nbsp;&nbsp;&nbsp;<span id='billed' style='font-size:large;font-weight:bold'>"
+							+ ((total.compareTo(BigDecimal.ZERO) == -1) ? "-" : "") + currency.format(total) + "</span>";
+                    htmlPaid += "&nbsp;&nbsp;<span style='font-size:large;font-weight:bold'>Paid:</span>&nbsp;&nbsp;&nbsp;<span id='payment' style='font-size:large;font-weight:bold'>"
                     	+ ((payment.compareTo(BigDecimal.ZERO) == -1) ? "-" : "") + currency.format(payment) + "</span>";
 					htmlPaid += "&nbsp;&nbsp;&nbsp;&nbsp;<span style='font-size:large;font-weight:bold'>Balance:</span>&nbsp;&nbsp;&nbsp;<span id='balance' style='font-size:large;font-weight:bold'>"
 						+ ((balance.compareTo(BigDecimal.ZERO) == -1) ? "-" : "") + currency.format(balance) + "</span>";
@@ -1270,7 +1248,7 @@ for (ClinicNbr clinic : nbrs) {
 </div>
 
 </div>
-<div id="thirdPartyPymnt" style="<%=thirdParty ? "" : "display:none"%>"">
+<div id="thirdPartyPymnt" style="<%=thirdParty ? "" : "display:none"%>">
 <%=htmlPaid %>
 </div>
 

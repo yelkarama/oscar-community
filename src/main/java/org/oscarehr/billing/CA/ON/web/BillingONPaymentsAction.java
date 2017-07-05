@@ -107,7 +107,7 @@ public class BillingONPaymentsAction extends DispatchAction {
 			refunds = new BigDecimal (pmt.getTotal_refund().doubleValue() + refunds.doubleValue());
 			credits = new BigDecimal(pmt.getTotal_credit().doubleValue() + credits.doubleValue());
 		}
-		BigDecimal balance = total.subtract(payments).subtract(discounts).add(credits);
+		BigDecimal balance = total.subtract(payments).subtract(discounts).subtract(refunds).add(credits);
 		request.setAttribute("balance", balance);
 	
 		
@@ -144,24 +144,6 @@ public class BillingONPaymentsAction extends DispatchAction {
 		List<BillingPaymentType> paymentTypes = billingPaymentTypeDao.findAll();
 		request.setAttribute("paymentTypeList", paymentTypes);
 
-		
-		BillingONCHeader1 cheader1 = billingClaimDAO.find(billingNo);
-		Integer demographicNo = cheader1.getDemographicNo();
-		BigDecimal payment = BigDecimal.ZERO;
-		balance = BigDecimal.ZERO;
-		total = BigDecimal.ZERO;
-		BigDecimal discount = BigDecimal.ZERO;
-		BigDecimal credit = BigDecimal.ZERO;
-		BigDecimal refund = BigDecimal.ZERO;
-		
-		total = cheader1.getTotal();
-		
-		for (BillingONPayment bop : paymentLists) {
-			credit = credit.add(bop.getTotal_credit());
-			discount = discount.add(bop.getTotal_discount());
-			payment = payment.add(bop.getTotal_payment());
-			refund = refund.add(bop.getTotal_refund());		
-		}
 		return actionMapping.findForward("success");
 	}
 	
