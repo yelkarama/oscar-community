@@ -242,12 +242,12 @@ public class ConsultationPDFCreator extends PdfPageEventHelper {
         String clinicPhone = clinic.getClinicPhone()==null?"":clinic.getClinicPhone();
 		String clinicFax = clinic.getClinicFax()==null?"":clinic.getClinicFax();
 		
-		if (!clinicPhone.contains("-"))
+		if (clinicPhone.length()>=10 && !clinicPhone.contains("-"))
         {
             clinicPhone =  clinicPhone.substring(0, 3) + "-" + clinicPhone.substring(3, 6) + "-" + clinicPhone.substring(6, 10);
         }
 
-        if (!clinicFax.contains("-"))
+        if (clinicFax.length()>=10 &&  !clinicFax.contains("-"))
         {
             clinicFax =  clinicFax.substring(0, 3) + "-" + clinicFax.substring(3, 6) + "-" + clinicFax.substring(6, 10);
         }

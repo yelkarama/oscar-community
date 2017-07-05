@@ -348,10 +348,10 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                                 	//if(providerPhone != null) {
                                                 	//	finalPhone = providerPhone;
                                                 	//}
-                                                	if(phoneProp != null && phoneProp.getValue().length()>0) {                                                		
+                                                	if(phoneProp != null && phoneProp.getValue() != null && phoneProp.getValue().length()>0) {                                                		
                                                 		finalPhone = phoneProp.getValue();
                                                 	}
-												   if(faxProp != null && faxProp.getValue().length()>0) {
+												   if(faxProp != null && faxProp.getValue() != null && faxProp.getValue().length()>0) {
 													   finalFax = faxProp.getValue();
 												   }
                                                 	
@@ -379,11 +379,11 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                                 	//if(providerPhone != null) {
                                                 	//	finalPhone = providerPhone;
                                                 	//}
-                                                	if(phoneProp != null && phoneProp.getValue().length()>0) {                                                		
+                                                	if(phoneProp != null && phoneProp.getValue() != null && phoneProp.getValue().length()>0) {                                                		
                                                 		finalPhone = phoneProp.getValue();
                                                 	}
                                                 	
-                                                	if(faxProp != null && faxProp.getValue().length()>0) {                                                		
+                                                	if(faxProp != null && faxProp.getValue() != null && faxProp.getValue().length()>0) {                                                		
                                                 		finalFax = faxProp.getValue();
                                                 	}
                                                 	
@@ -457,11 +457,11 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                                 	//if(providerPhone != null) {
                                                 	//	finalPhone = providerPhone;
                                                 	//}
-                                                	if(phoneProp != null && phoneProp.getValue().length()>0) {                                                		
+                                                	if(phoneProp != null && phoneProp.getValue() != null && phoneProp.getValue().length()>0) {                                                		
                                                 		finalPhone = phoneProp.getValue();
                                                 	}
                                                 	
-                                                	if(faxProp != null && faxProp.getValue().length()>0) {                                                		
+                                                	if(faxProp != null && faxProp.getValue() != null && faxProp.getValue().length()>0) {                                                		
                                                 		finalFax = faxProp.getValue();
                                                 	}
                                                 	
@@ -484,11 +484,11 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                                 	//if(providerPhone != null) {
                                                 	//	finalPhone = providerPhone;
                                                 	//}
-                                                	if(phoneProp != null && phoneProp.getValue().length()>0) {                                                		
+                                                	if(phoneProp != null && phoneProp.getValue() != null && phoneProp.getValue().length()>0) {                                                		
                                                 		finalPhone = phoneProp.getValue();
                                                 	}
                                                 	
-                                                	if(faxProp != null && faxProp.getValue().length()>0) {                                                		
+                                                	if(faxProp != null && faxProp.getValue() != null && faxProp.getValue().length()>0) {                                                		
                                                 		finalFax = faxProp.getValue();
                                                 	}
                                                 	
