@@ -166,7 +166,7 @@ public class CaseManagementFax {
                 tmpNotes = caseManagementMgr.getNotes(demono, issueIds);
                 issueNotes = new ArrayList<CaseManagementNote>();
                 for (int k = 0; k < tmpNotes.size(); ++k) {
-                    if (!tmpNotes.get(k).isLocked()) {
+                    if (!tmpNotes.get(k).isLocked() && !tmpNotes.get(k).isArchived()) {
                         List<CaseManagementNoteExt> exts = caseManagementMgr.getExtByNote(tmpNotes.get(k).getId());
                         boolean exclude = false;
                         for (CaseManagementNoteExt ext : exts) {
