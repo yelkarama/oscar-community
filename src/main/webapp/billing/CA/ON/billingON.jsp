@@ -359,7 +359,7 @@
 						visitLocationProperty = StringUtils.trimToEmpty(obj.getFacilty_num());
 						admissionDateProperty = StringUtils.trimToEmpty(obj.getAdmission_date());
 					}
-				} else if (preference.getDefaultBillingLocation()!=null && !preference.getDefaultBillingLocation().isEmpty() && !preference.getDefaultBillingLocation().equals("no")){
+				} else if (preference!=null && preference.getDefaultBillingLocation()!=null && !preference.getDefaultBillingLocation().isEmpty() && !preference.getDefaultBillingLocation().equals("no")){
 					visitLocationProperty = preference.getDefaultBillingLocation();
 				} else if (vecHist != null && vecHist.size() > 0 && vecHist.get(0) != null) {
 					visitLocationProperty = ((Properties)vecHist.get(0)).getProperty("visitLocation");
