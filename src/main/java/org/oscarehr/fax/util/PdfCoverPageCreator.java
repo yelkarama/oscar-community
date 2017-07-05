@@ -26,19 +26,14 @@ package org.oscarehr.fax.util;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.*;
 import org.oscarehr.common.dao.ClinicDAO;
+import org.oscarehr.common.dao.ProfessionalSpecialistDao;
 import org.oscarehr.common.model.Clinic;
+import org.oscarehr.common.model.ProfessionalSpecialist;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
-
-import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Font;
-import com.itextpdf.text.Phrase;
-import com.itextpdf.text.pdf.BaseFont;
-import com.itextpdf.text.pdf.PdfPCell;
-import com.itextpdf.text.pdf.PdfPTable;
-import com.itextpdf.text.pdf.PdfWriter;
 
 public class PdfCoverPageCreator {
 	
@@ -122,4 +117,42 @@ public class PdfCoverPageCreator {
 		
 		return os.toByteArray();
 	}
+
+    public byte[] createStandardCoverPage(String specialistId) {
+        Document document = new Document();
+        document.setPageSize(new Rectangle(PageSize.LETTER));
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+        try {
+            PdfWriter pdfWriter = PdfWriter.getInstance(document, os);
+            document.open();
+            BaseFont baseFont = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+            Font headerFont = new Font(baseFont, 50, Font.NORMAL);
+            Font infoFont = new Font(baseFont, 12, Font.NORMAL);
+
+            document.add(new Phrase("\n\n", infoFont));
+            document.add(new Phrase("Fax Message", headerFont));
+            
+            if (specialistId != null && !specialistId.isEmpty()) {
+                ProfessionalSpecialistDao professionalSpecialistDao = SpringUtils.getBean(ProfessionalSpecialistDao.class);
+                ProfessionalSpecialist specialist = professionalSpecialistDao.find(Integer.parseInt(specialistId));
+                String clinicInfo = "\n\nRecipient: " + specialist.getFormattedTitle() + "\n" +
+                        "Phone Number: " + specialist.getPhoneNumber()  + "\n" +
+                        "Fax Number: " + specialist.getFaxNumber()  + "\n";
+                document.add(new Phrase(clinicInfo, infoFont));
+            }
+
+            document.add(new Phrase("\n\n\n" + note, infoFont));
+        } catch (DocumentException e) {
+            MiscUtils.getLogger().error("PDF COVER PAGE ERROR",e);
+            return new byte[] {};
+        }catch(IOException e) {
+            MiscUtils.getLogger().error("PDF COVER PAGE ERROR",e);
+            return new byte[] {};
+        } finally {
+            document.close();
+        }
+        
+        return os.toByteArray();
+    }
 }

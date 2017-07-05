@@ -39,6 +39,7 @@
          oscar.OscarProperties,
 		 org.apache.commons.codec.binary.Base64,org.oscarehr.common.dao.Hl7TextInfoDao,org.oscarehr.common.model.Hl7TextInfo,
 		 org.oscarehr.common.dao.UserPropertyDAO, org.oscarehr.common.model.UserProperty,
+		 org.oscarehr.common.dao.DemographicDao,
 		javax.swing.text.rtf.RTFEditorKit,
 		java.io.ByteArrayInputStream"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
@@ -68,7 +69,10 @@ String segmentID = request.getParameter("segmentID");
 String providerNo = request.getParameter("providerNo");
 String searchProviderNo = request.getParameter("searchProviderNo");
 String patientMatched = request.getParameter("patientMatched");
+String billRegion=(props.getProperty("billregion","")).trim().toUpperCase();
+String billForm=props.getProperty("default_view");
 
+DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
 UserPropertyDAO userPropertyDAO = (UserPropertyDAO)SpringUtils.getBean("UserPropertyDAO");
 UserProperty uProp = userPropertyDAO.getProp(providerNo, UserProperty.LAB_ACK_COMMENT);
 boolean skipComment = false;
@@ -363,6 +367,11 @@ if (request.getAttribute("printError") != null && (Boolean) request.getAttribute
 
                                     <% if ( searchProviderNo != null ) { // null if we were called from e-chart%>
                                     <input type="button" value=" <bean:message key="oscarMDS.segmentDisplay.btnEChart"/> " onClick="popupStart(360, 680, '../oscarMDS/SearchPatient.do?updateParent=false&labType=HL7&segmentID=<%= segmentID %>&name=<%=java.net.URLEncoder.encode(handler.getLastName()+", "+handler.getFirstName())%>', 'searchPatientWindow')">
+                                    <% } if ( demographicID != null && demographicDao.getDemographic(demographicID)!=null ) {
+                                        String demographicName = demographicDao.getDemographic(demographicID).getFormattedName();
+                                        String demographicProvider = demographicDao.getDemographic(demographicID).getProviderNo()!=null?demographicDao.getDemographic(demographicID).getProviderNo():"";
+                                    %>
+                                    <input type="button" value="Bill" onClick="popupPage(700, 1000, '<%=request.getContextPath()%>/billing.do?billRegion=<%=URLEncoder.encode(billRegion, "UTF-8")%>&billForm=<%=URLEncoder.encode(billForm, "UTF-8")%>&hotclick=&appointment_no=0&demographic_name=<%=URLEncoder.encode(demographicName, "UTF-8")%>&demographic_no=<%=demographicID%>&providerview=<%=demographicProvider%>&user_no=<%=providerNo%>&apptProvider_no=none&appointment_date=&start_time=00:00:00&bNewForm=1&status=t');return false;"/>
                                     <% } %>
 				    <input type="button" value="Req# <%=reqTableID%>" title="Link to Requisition" onclick="linkreq('<%=segmentID%>','<%=reqID%>');" />
                                     <% if (!label.equals(null) && !label.equals("")) { %>

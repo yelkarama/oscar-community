@@ -129,7 +129,7 @@ public class FormUpdateAction extends Action {
 					String name = h2.get("display_name").toString().replaceAll("\\W","");
 					String displayName=h2.get("display_name").toString();
 							
-					if (request.getParameter(name) != null && !request.getParameter(name).equals("")) {
+					if (request.getParameter(name) != null && !request.getParameter(name).equals("") || request.getParameter(name + "_comments") != null && !request.getParameter(name + "_comments").equals("")) {
 
 						String comment = "";
 						if (request.getParameter(name + "_comments") != null && !request.getParameter(name + "_comments").equals("")) {

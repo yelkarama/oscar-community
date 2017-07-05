@@ -309,7 +309,7 @@ public class MsgDisplayMessagesBean implements java.io.Serializable {
 				
 		try {
 			//String sql = ("select map.messageID is null as isnull, map.demographic_no, ml.message, ml.status," + " m.thesubject, m.thedate, m.theime, m.attachment, m.pdfattachment, m.sentby  " + "from messagelisttbl ml, messagetbl m " + "(select map.messageID, map.demographic_no from msgDemoMap map where map.messageID = m.messageid limit 1) as map" + " " + "where ml.provider_no = '" + providerNo + "' " + "and status not like \'del\' and remoteLocation = '" + getCurrentLocationId() + "' " + " and ml.message = m.messageid "                       
-                        String sql = "(select m.messageid, (select map.demographic_no from msgDemoMap map where map.messageID = m.messageid limit 1) as demographic_no, ml.message, ml.status,  m.thesubject, m.thedate, m.theime, m.attachment, m.pdfattachment, m.sentby  from messagelisttbl ml, messagetbl m  where ml.provider_no = '" + providerNo + "' " + "and status not like \'del\' and remoteLocation = '" + getCurrentLocationId() + "' " + " and ml.message = m.messageid "
+                        String sql = "(select m.messageid, (select map.demographic_no from msgDemoMap map where map.messageID = m.messageid limit 1) as demographic_no, ml.message, ml.status,  m.thesubject, m.thedate, m.theime, m.attachment, m.pdfattachment, m.sentby  from messagelisttbl ml, messagetbl m  where ml.provider_no = '" + providerNo + "' " + "and status not like \'del\' and remoteLocation = '" + getCurrentLocationId() + "' " + " and folderId = 0 and ml.message = m.messageid "
 			        + getSQLSearchFilter(searchCols) + " order by " + getOrderBy(orderby) + limitSql + ")";
 
 			FormsDao dao = SpringUtils.getBean(FormsDao.class);
@@ -423,6 +423,9 @@ public class MsgDisplayMessagesBean implements java.io.Serializable {
 	public Vector<MsgDisplayMessage> estDeletedInbox() {
 		return estDeletedInbox(null, 1);
 	}
+	public Vector<MsgDisplayMessage> estFolder(Integer folderId){
+		return estFolder(folderId, null, 1);
+	}
 	
 	public int getTotalMessages(int type){
 		String providerNo = this.getProviderNo();
@@ -487,6 +490,63 @@ public class MsgDisplayMessagesBean implements java.io.Serializable {
 		}
 
 		return msg;
+	}
+
+	public Vector<MsgDisplayMessage> estFolder(Integer folderId, String orderby, int page){
+		String providerNo = this.getProviderNo();
+		Vector<MsgDisplayMessage> msg = new Vector<MsgDisplayMessage>();
+		String[] searchCols = { "m.thesubject", "m.themessage", "m.sentby", "m.sentto" };
+
+		int recordsToDisplay = 25;
+		int fromRecordNum = (recordsToDisplay * page) - recordsToDisplay;
+		String limitSql = " limit " + fromRecordNum + ", " + recordsToDisplay;
+
+		try {
+			String sql = "(select m.messageid, (select map.demographic_no from msgDemoMap map where map.messageID = m.messageid limit 1) as demographic_no, ml.message, ml.status,  m.thesubject, m.thedate, m.theime, m.attachment, m.pdfattachment, m.sentby  from messagelisttbl ml, messagetbl m  where ml.provider_no = '" + providerNo + "' " + "and status not like \'del\' and remoteLocation = '" + getCurrentLocationId() + "' " + " and folderId = " + folderId + " and ml.message = m.messageid "
+					+ getSQLSearchFilter(searchCols) + " order by " + getOrderBy(orderby) + limitSql + ")";
+
+			FormsDao dao = SpringUtils.getBean(FormsDao.class);
+			for (Object[] o : dao.runNativeQuery(sql)) {
+				String demographic_no = String.valueOf(o[1]);
+				String message = String.valueOf(o[2]);
+				String status = String.valueOf(o[3]);
+				String thesubject = String.valueOf(o[4]);
+				String thedate = String.valueOf(o[5]);
+				String theime = String.valueOf(o[6]);
+				String attachment = String.valueOf(o[7]);
+				String pdfattachment = String.valueOf(o[8]);
+				String sentby = String.valueOf(o[9]);
+
+				oscar.oscarMessenger.data.MsgDisplayMessage dm = new oscar.oscarMessenger.data.MsgDisplayMessage();
+				dm.status = status;
+				dm.messageId = message;
+				dm.thesubject = thesubject;
+				dm.thedate = thedate;
+				dm.theime = theime;
+				dm.sentby = sentby;
+				dm.demographic_no = demographic_no;
+				String att = attachment;
+				String pdfAtt = pdfattachment;
+
+				if (att == null || att.equalsIgnoreCase("null")) {
+					dm.attach = "0";
+				} else {
+					dm.attach = "1";
+				}
+				if (pdfAtt == null || pdfAtt.equalsIgnoreCase("null")) {
+					dm.pdfAttach = "0";
+				} else {
+					dm.pdfAttach = "1";
+				}
+
+				msg.add(dm);
+			}
+		} catch (Exception e) {
+			MiscUtils.getLogger().error("Error", e);
+		}
+
+		return msg;
+
 	}
 
 	/**

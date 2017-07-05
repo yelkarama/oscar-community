@@ -99,9 +99,18 @@ ArrayList frwdProviders = fr.getProviders(providerNo);
                 <%}else if(autoFileLabs != null && autoFileLabs.equalsIgnoreCase("yes")){%>
                     return confirm ("Are you sure you would like to update the forwarding rules?")
                 <%}else{%>
-                    if (document.RULES.providerNums.value == '' && document.RULES.status[1].checked && <%= (frwdProviders.size() == 0)%>){
-                        alert("You must select a provider to forward the incoming labs to if you wish to automatically file them.");
-                        return false;
+					var forwardTypes = [];
+					for (var i = 0; i < document.RULES.forward_type.length; i++) {
+						if (document.RULES.forward_type[i].checked) { 
+							forwardTypes.push(document.RULES.forward_type[i].value);
+						}
+					}
+                    if (document.RULES.providerNums.value == '' && document.RULES.status[1].checked && <%= (frwdProviders.size() == 0)%>) {
+						alert("You must select a provider to forward the incoming labs to if you wish to automatically file them.");
+						return false;
+					} else if (forwardTypes.length == 0) {
+						alert("You must select at least one type of incoming labs to forward.");
+						return false;
                     }else{
                         return confirm ("Are you sure you would like to update the forwarding rules?")
                     }
@@ -113,7 +122,7 @@ ArrayList frwdProviders = fr.getProviders(providerNo);
 
 <body>
 
-<h3><bean:message key="admin.admin.labFwdRules" /></h3>
+<h3 class="span12"><bean:message key="admin.admin.labFwdRules" /></h3>
 
 
 
@@ -146,7 +155,7 @@ Please Select the provider to set fowarding rules for:
 
 		
 		
-<div class="well">	
+<div class="span12 well">	
 <h5>Current Forwarding Rules</h5>
 <%
 String status = "N";
@@ -169,6 +178,7 @@ status = fr.getStatus(providerNo);
  <tr>
  <th>Provider</th>
  <th>Incoming Status</th>
+ <th>Forward Types</th>
  <th></th>
  </tr>
  </thead>   
@@ -178,6 +188,7 @@ status = fr.getStatus(providerNo);
 <tr> 
 <td><%= (String) ((ArrayList) frwdProviders.get(i)).get(1) %> <%= (String) ((ArrayList) frwdProviders.get(i)).get(2) %></td>
 <td><%= status.equals("N") ? "New" : "Filed" %></td>
+<td><%=(String) ((ArrayList) frwdProviders.get(i)).get(3)%></td>
 <td><button type="submit" class="btn btn-small" onclick="return removeProvider('<%= (String) ((ArrayList) frwdProviders.get(i)).get(0) %>', '<%= StringEscapeUtils.escapeJavaScript((String) ((ArrayList) frwdProviders.get(i)).get(1)) %> <%= StringEscapeUtils.escapeJavaScript((String) ((ArrayList) frwdProviders.get(i)).get(2)) %>')" title="remove provider"><i class="icon-trash"></i> remove</button></td>
 </tr> 
 
@@ -201,42 +212,44 @@ status = fr.getStatus(providerNo);
 
 <%}%>
 
-</div>			
-			
-			
-	
-	<div class="well">		
-
+</div>
+		<div class="span12 well">
+			<div class="span12">
 				<h5>Update Forwarding Rules</h5>
-			
-				Set incoming status:
-				<input type="radio" name="status" value="N"	<%= status.equals("F") ? "" : "checked" %>> <bean:message key="oscarMDS.search.formReportStatusNew" /> 
-				<input type="radio" name="status" value="F" <%= status.equals("F") ? "checked" : "" %>> Filed (HRM reports will not be filed)
-				
-				<br />
-				
-				Forward incoming reports to the	following providers:<br />
-				
-				<small>(Hold 'Ctrl' to select multiple providers)</small>
-				<br />
+			</div>
+			<div class="span3">
+				Set incoming status:<br/>
+				<label><input type="radio" name="status" value="N"	<%= status.equals("F") ? "" : "checked" %>> <bean:message key="oscarMDS.search.formReportStatusNew" /></label>
+				<label><input type="radio" name="status" value="F" <%= status.equals("F") ? "checked" : "" %>> Filed (HRM reports will not be filed)</label>
+			</div>
+			<div class="span3">
+				Forward inbox types:<br/>
+				<label><input type="checkbox" name="forward_type" value="HL7">Forward HL7 labs</label>
+				<label><input type="checkbox" name="forward_type" value="DOC">Forward Documents</label>
+				<label><input type="checkbox" name="forward_type" value="HRM">Forward HRM labs</label>
+			</div>
+			<div class="span4">
+				Forward incoming reports to the	following providers:<br/>
+				<small>(Hold 'Ctrl' to select multiple providers)</small><br/>
 				
 				<select multiple name="providerNums" style="height: 200px">
 					<optgroup
 						label="&#160&#160Doctors&#160&#160&#160&#160&#160&#160&#160&#160">
 						<% //ArrayList providers = ProviderData.getProviderList();
-                                                for (int i=0; i < providers.size(); i++) { 
-                                                String prov_no = (String) ((ArrayList) providers.get(i)).get(0);
-                                                if ( !providerNo.equals(prov_no) && !frwdProviders.contains(providers.get(i))){%>
-						<option value="<%= prov_no %>"><%= (String) ((ArrayList) providers.get(i)).get(1) %>
-						<%= (String) ((ArrayList) providers.get(i)).get(2) %></option>
-						<% }
-                                                } %>
+						for (int i=0; i < providers.size(); i++) { 
+							String prov_no = (String) ((ArrayList) providers.get(i)).get(0);
+							if ( !providerNo.equals(prov_no) && !frwdProviders.contains(providers.get(i))){ %>
+								<option value="<%= prov_no %>"><%= (String) ((ArrayList) providers.get(i)).get(1) %>
+									<%= (String) ((ArrayList) providers.get(i)).get(2) %></option>
+							<% }
+						} %>
 					</optgroup>
 				</select>
-			
-<br />
-<input type="submit" class="btn btn-primary" value="Update" onclick="return confirmUpdate()"> 
-	
+			</div>
+			<div class="span12">
+				<input type="submit" class="btn btn-primary" value="Update" onclick="return confirmUpdate()">
+			</div>
+
 		</div>
 
 </form>

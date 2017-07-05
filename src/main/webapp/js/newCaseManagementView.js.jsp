@@ -454,6 +454,24 @@ function showIssueNotes() {
     }
 }
 
+function showCustomIssueNotes(socialHistoryPositon, medicalHistoryPosition, ongoingConcernsPosition, remindersPostion) {
+
+    var customIssueNoteUrls = {
+        [socialHistoryPositon]:    ctx + "/CaseManagementView.do?hc=996633&method=listNotes&providerNo=" + providerNo + "&demographicNo=" + demographicNo + "&issue_code=SocHistory&title=" + socHistoryLabel + "&cmd=div"+socialHistoryPositon,
+        [medicalHistoryPosition]:    ctx + "/CaseManagementView.do?hc=996633&method=listNotes&providerNo=" + providerNo + "&demographicNo=" + demographicNo + "&issue_code=MedHistory&title=" + medHistoryLabel + "&cmd=div"+medicalHistoryPosition,
+        [ongoingConcernsPosition]:    ctx + "/CaseManagementView.do?hc=996633&method=listNotes&providerNo=" + providerNo + "&demographicNo=" + demographicNo + "&issue_code=Concerns&title=" + onGoingLabel + "&cmd=div"+ongoingConcernsPosition,
+        [remindersPostion]:    ctx + "/CaseManagementView.do?hc=996633&method=listNotes&providerNo=" + providerNo + "&demographicNo=" + demographicNo + "&issue_code=Reminders&title=" + remindersLabel + "&cmd=div"+remindersPostion
+    };
+
+    var limit = 5;
+
+    for(idx in customIssueNoteUrls ) {
+        if(idx!=null && idx.length>0){
+            loadDiv('div'+idx,customIssueNoteUrls[idx],limit);
+        }
+    }
+}
+
 var notesOffset = 0;
 var notesIncrement = 20;
 var notesRetrieveOk = false;

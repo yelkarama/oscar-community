@@ -246,8 +246,11 @@ public class EFormUtil {
 	public static List<EFormData> listPatientEformsCurrent(Integer demographicNo, Boolean current, int startIndex, int numToReturn) {
 		return eFormDataDao.findByDemographicIdCurrent(demographicNo, current, startIndex, numToReturn);
 	}
-	
-	public static ArrayList<HashMap<String, ? extends Object>> listPatientEForms(String sortBy, String deleted, String demographic_no, String userRoles, int offset, int itemsToReturn) {
+    public static List<EFormData> listPatientEformsCurrentAttachedToConsult(String consultationId) {
+        return eFormDataDao.findByDemographicIdCurrentAttachedToConsult(consultationId);
+    }
+
+    public static ArrayList<HashMap<String, ? extends Object>> listPatientEForms(String sortBy, String deleted, String demographic_no, String userRoles, int offset, int itemsToReturn) {
 
 		Boolean current = null;
 		if (deleted.equals("deleted")) current = false;

@@ -18,271 +18,153 @@
 
 --%>
 <%! boolean bMultisites = org.oscarehr.common.IsPropertiesOn.isMultisitesEnable(); %>
+<%@ include file="../../../taglibs.jsp"%>
+<html:html locale="true">
 
-
-<%@ page import="java.math.*, java.util.*, java.io.*, java.sql.*, java.net.*,oscar.*, oscar.util.*, oscar.MyDateFormat" errorPage="errorpage.jsp"%>
-<%@ page import="oscar.oscarBilling.ca.on.pageUtil.*"%>
-
-<jsp:useBean id="billingLocalInvNoBean" class="java.util.Properties" scope="page" />
-
-<%@page import="org.oscarehr.util.SpringUtils" %>
-<%@page import="org.oscarehr.common.model.RaHeader" %>
-<%@page import="org.oscarehr.common.dao.RaHeaderDao" %>
-<%
-	RaHeaderDao dao = SpringUtils.getBean(RaHeaderDao.class);
-%>
-
-<html>
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/tablefilter_all_min.js"></script>
 <link rel="stylesheet" type="text/css" href="billingON.css" />
 <title>Billing Reconcilliation</title>
-
-<style>
-<% if (bMultisites) { %>
-	.positionFilter {position:absolute;top:2px;right:350px;display:block;}
-<% } else { %>
-	.positionFilter {display:none;}
-<% } %>
-</style>
+<html:base />
 
 </head>
-
-<body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
-
-<% 
-String nowDate = UtilDateUtilities.DateToString(new java.util.Date(), "yyyy/MM/dd"); 
-
-String raNo = "", flag="", plast="", pfirst="", pohipno="", proNo="";
-String filepath="", filename = "", header="", headerCount="", total="", paymentdate="", payable="", totalStatus="", deposit=""; //request.getParameter("filename");
-String transactiontype="", providerno="", specialty="", account="", patient_last="", patient_first="", provincecode="", hin="", ver="", billtype="", location="";
-String servicedate="", serviceno="", servicecode="", amountsubmit="", amountpay="", amountpaysign="", explain="", error="";
-String proFirst="", proLast="", demoFirst="", demoLast="", apptDate="", apptTime="", checkAccount="", proName="";
-String sqlRACO="",sqlRAOB="", OBflag="0",COflag="0", amountOB="", amountCO="";
-String demo_name ="",demo_hin="", demo_docname="";
-int accountno=0 ;
-
-raNo = request.getParameter("rano");
-
-BillingRAPrep obj = new BillingRAPrep();
-String obCodes = "'P006A','P020A','P022A','P028A','P023A','P007A','P009A','P011A','P008B','P018B','E502A','C989A','E409A','E410A','E411A','H001A'";	
-String colposcopyCodes = "'A004A','A005A','Z731A','Z666A','Z730A','Z720A'";
-List<String> OBbilling_no = obj.getRABillingNo4Code(raNo, obCodes);
-List<String> CObilling_no = obj.getRABillingNo4Code(raNo, colposcopyCodes);
-
-Hashtable map = new Hashtable();
-BigDecimal bdCFee = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);     	     
-BigDecimal bdPFee = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);     	     
-BigDecimal bdOFee = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);     	     
-BigDecimal bdCOFee = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);     	     
-
-BigDecimal bdFee = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);
-BigDecimal bdHFee = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);
-BigDecimal BigTotal = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);
-BigDecimal BigCTotal = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);
-BigDecimal BigPTotal = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);
-BigDecimal BigOTotal = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);
-BigDecimal BigCOTotal = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);
-BigDecimal BigLTotal = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);
-BigDecimal BigHTotal = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);
-BigDecimal bdOBFee = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);
-BigDecimal BigOBTotal = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);
-double dHFee = 0.00;        
-double dFee = 0.00;
-double dCOFee = 0.00; 
-double dOBFee = 0.00; 
-double dCFee = 0.00;       	
-double dPFee = 0.00;       	       	
-double dOFee = 0.00;
-
-double dLocalHFee = 0.00;        
-BigDecimal bdLocalHFee = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);
-BigDecimal BigLocalHTotal = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);
-String localServiceDate = "";
-       	
-proNo = (request.getParameter("proNo") != null) ? request.getParameter("proNo") : "";
-//raNo = request.getParameter("rano");
-if (raNo.compareTo("") == 0 || raNo == null){
-	flag = "0";
-	return;
-} else {
-%>
-
-<table border="0" cellspacing="0" cellpadding="0" width="100%">
-	<form action="onGenRASummary.jsp">
-	<tr class="myDarkGreen">
-		<th align='LEFT'><font color="#FFFFFF"> Billing
-		Reconcilliation - Summary Report</font></th>
-		<th align='RIGHT'>
-		<select id="loadingMsg" class="positionFilter"><option>Loading filters...</option></select>
-		<select name="proNo">
-			<option value="all" <%=proNo.equals("all")?"selected":""%>>All
-			Providers</option>
-
-			<%   
-//
-List aL = obj.getProviderListFromRAReport(raNo);
-for(int i=0; i<aL.size(); i++) {
-	Properties prop = (Properties) aL.get(i);
-	pohipno = prop.getProperty("providerohip_no", "");
-	plast = prop.getProperty("last_name", "");
-	pfirst = prop.getProperty("first_name", "");
-%>
-			<option value="<%=pohipno%>" <%=proNo.equals(pohipno)?"selected":""%>><%=plast%>,<%=pfirst%></option>
-			<%
-}
-%>
-		</select><input type='submit' name='submit' value='Generate'> <input
-			type="hidden" name="rano" value="<%=raNo%>"> <input
-			type='button' name='print' value='Print' onClick='window.print()'>
-		<input type='button' name='close' value='Close'
-			onClick='window.close()'></th>
-	</tr>
-	</form>
-</table>
-
-	<table id="ra_table" width="100%" border="0" cellspacing="1" cellpadding="0"
-		class="myIvory">
-		<tr class="myYellow">
-			<th width="6%">Billing No</th>
-			<td width="7%">Claim No</td>
-			<!--  th width="14%">Provider </th -->
-			<th width="14%">Patient</th>
-			<th>Fam Doc</th>
-			<th width="10%">HIN</th>
-			<th width="9%">Service Date</th>
-			<th width="8%">Service Code</th>
-			<!-- <th width="8%">Count</th> -->
-			<th width="7%" align=right>Invoiced</th>
-			<th width="7%" align=right>Paid</th>
-			<th width="7%" align=right>Clinic Pay</th>
-			<th width="7%" align=right>Hospital Pay</th>
-			<th width="7%" align=right>OB</th>
-			<th align=right>Error</th>
-			<th width="0" align=right style="display:none">Site</th>			
-		</tr>
-
-<%
-if (proNo == null || proNo.compareTo("") == 0 || proNo.compareTo("all") == 0) // raNo for all providers
-	aL = obj.getRASummary(raNo, OBbilling_no, CObilling_no);
-else
-	aL = obj.getRASummary(raNo, proNo, OBbilling_no, CObilling_no,map);
-
-
-for(int i=0; i<aL.size()-1; i++) { //to use table-filter js to generate the sum - so the total-1
-	Properties prop = (Properties) aL.get(i);
-	String color = i%2==0? "class='myGreen'":"";
-	color = i == (aL.size()-1) ? "class='myYellow'" : color;
-%>
-	<tr <%=color %>>
-		<td align="center"><%=prop.getProperty("account", "&nbsp;")%></td>
-		<td align="center"><%=prop.getProperty("claimNo", "&nbsp;")%></td>
-		<!--  >td><%=prop.getProperty("demo_docname", "&nbsp;")%></td -->
-		<td><%=prop.getProperty("demo_name", "&nbsp;")%></td>
-		<td align="center"><%=prop.getProperty("demo_doc", "&nbsp;")%></td>
-		<td align="center"><%=prop.getProperty("demo_hin", "&nbsp;")%></td>
-		<td align="center"><%=prop.getProperty("servicedate", "&nbsp;")%></td>
-		<td align="center"><%=prop.getProperty("servicecode", "&nbsp;")%></td>
-		<!--<td width="8%"><%=serviceno%></td>-->
-		<td align=right><%=prop.getProperty("amountsubmit", "&nbsp;")%></td>
-		<td align=right><%=prop.getProperty("amountpay", "&nbsp;")%></td>
-		<td align=right><%=prop.getProperty("clinicPay", "&nbsp;")%></td>
-		<td align=right><%=prop.getProperty("hospitalPay", "&nbsp;")%></td>
-		<td align=right><%=prop.getProperty("obPay", "&nbsp;")%></td>
-		<td align=right><%=prop.getProperty("explain", "&nbsp;")%></td>
-		<td width="0" style="display:none"><%=prop.getProperty("site", "")%></td>			
-	</tr>
-
-<% } 
-}
-%>
-<!-- added another TR for table-filter js to automatically calculate totals based on filters -->
-<tr class="myYellow">
-                        <td align="center"></td>
-                        <td></td>
-                        <td align="center"></td>
-                        <td align="center"></td>
-                        <td align="center"></td>
-                         <td align="center"></td>
-                        <td align="center">Total:</td>
-                        <td id="amountSubmit" align=right></td>
-                        <td id="amountPay" align=right></td>
-                        <td id="clinicPay" align=right></td>
-                        <td id="hospitalPay" align=right></td>
-                        <td id="OBPay" align=right></td>
-                        <td align=right>&nbsp;</td>
-                        <td align=right  width="0" style="display:none" >&nbsp;</td>
-
-
-</tr>
-
-		<%
-
-String transaction="", content="", balancefwd="", xtotal="", other_total="", ob_total=""; 
-RaHeader rh = dao.find(Integer.parseInt(raNo));
-if(rh != null) {
-	transaction= SxmlMisc.getXmlContent(rh.getContent(),"<xml_transaction>","</xml_transaction>");
-	balancefwd= SxmlMisc.getXmlContent(rh.getContent(),"<xml_balancefwd>","</xml_balancefwd>");
-}
-
-
-if(!map.isEmpty()){
-    BigLTotal = (BigDecimal) map.get("xml_local");
-    BigPTotal = (BigDecimal) map.get("xml_total"); 
-    BigOTotal = (BigDecimal) map.get("xml_other_total"); 
-    BigOBTotal= (BigDecimal) map.get("xml_ob_total"); 
-    BigCOTotal= (BigDecimal) map.get("xml_co_total");
-}
-
-
-content = content + "<xml_transaction>" + transaction + "</xml_transaction>" + "<xml_balancefwd>" + balancefwd + "</xml_balancefwd>";
-content = content + "<xml_local>" + BigLTotal + "</xml_local>"+ "<xml_total>" + BigPTotal + "</xml_total>" + "<xml_other_total>" + BigOTotal + "</xml_other_total>" + "<xml_ob_total>" + BigOBTotal + "</xml_ob_total>" + "<xml_co_total>" + BigCOTotal + "</xml_co_total>";
-
-int recordAffected=0;
-RaHeader raHeader = dao.find(Integer.parseInt(raNo));
-if(raHeader != null) {
-	 raHeader.setContent(content);
-	 dao.merge(raHeader);
-	recordAffected++;
-}
-
-%>
-<script language="javascript" type="text/javascript">
-        document.getElementById('loadingMsg').style.display='none';
-        var totRowIndex = tf_Tag(tf_Id('ra_table'),"tr").length;
-        var table_Props =       {
-                                        col_0: "none",
-                                        col_1: "none",
-                                        col_2: "none",
-                                        col_3: "none",
-                                        col_4: "none",
-                                        col_5: "none",
-                                        col_6: "none",
-                                        col_7: "none",
-                                        col_8: "none",
-                                        col_9: "none",
-                                        col_10: "none",
-                                        col_11: "none",
-                                        col_12: "select",
-                                        display_all_text: " [ Show all clinics ] ",
-                                        flts_row_css_class: "dummy",
-                                        flt_css_class: "positionFilter",
-                                        sort_select: true,
-                                        rows_always_visible: [totRowIndex],
-                                        col_operation: {
-                                                                id: ["amountSubmit","amountPay","clinicPay","hospitalPay","OBPay"],
-                                                                col: [7,8,9,10,11],
-                                                                operation: ["sum","sum","sum","sum","sum"],
-                                                                write_method: ["innerHTML","innerHTML","innerHTML","innerHTML","innerHTML"],
-                                                                exclude_row: [totRowIndex],
-                                                                decimal_precision: [2,2,2,2,2],
-                                                                tot_row_index: [totRowIndex]
-                                                        }
-                                };
-        var tf = setFilterGrid( "ra_table",table_Props );
+<script type="text/javascript" language=javascript>
 
 </script>
-	
+<body topmargin="0" leftmargin="0" vlink="#0000FF"
+	onload="window.focus();">
+<html:errors />
+	<table border="0" cellspacing="0" cellpadding="0" width="100%">
+		<tr class="myDarkGreen">
+			<th align='LEFT'><font color="#FFFFFF"> Billing
+			Reconcilliation - Summary Report</font></th>
+			<th align='RIGHT'>
+			 <input type='button' name='print' value='Print' onClick='window.print()'>
+			<input type='button' name='close' value='Close'
+				onClick='window.close()'></th>
+		</tr>
+	</table>
+	<table id="raSummaryTable">
+		<tr>
+			<th>Provider</th>
+			<th>Claims</th>
+			<th>Invoiced</th>
+			<th class="payFormat">Paid</th>
+			<th>Clinic Pay</th>
+			<th>Hospital Pay</th>
+			<th>Other</th>
+		</tr>
+		<logic:iterate id="provBreakDown" name="raSummary" property="providerBreakDown">
+			<tr>
+			<logic:present name="provBreakDown" property="providerName">
+				<td rowspan="5">
+					<a href="onGenRAProvider.jsp?proNo=<bean:write name="provBreakDown" property="pohipno"/>&submit=Generate&rano=<bean:write name="raNo"/>">
+						<bean:write name="provBreakDown" property="providerName" />
+					</a>
+				</td>
+			</logic:present>
+			<logic:notPresent name="provBreakDown" property="providerName">
+				<td><b>RA subtotal:</b></td>
+			</logic:notPresent>
+				<td class="math"><bean:write name="provBreakDown" property="claims" /></td>
+				<td class="math">$<bean:write name="provBreakDown" property="amountInvoiced" /></td>
+			<logic:present name="provBreakDown" property="providerName">
+				<td class="math medsum">$<bean:write name="provBreakDown" property="amountPay" /></td>
+			</logic:present>
+			<logic:notPresent name="provBreakDown" property="providerName">
+				<td class="math bigsum">$<bean:write name="provBreakDown" property="amountPay" /></td>
+			</logic:notPresent>
+				<td class="math">$<bean:write name="provBreakDown" property="clinicPay" /></td>
+				<td class="math">$<bean:write name="provBreakDown" property="hospitalPay" /></td>
+				<td class="math">$<bean:write name="provBreakDown" property="otherPay" /></td>
+			</tr>
+			<tr>
+			<logic:present name="provBreakDown" property="providerName">
+				<td colspan="2" class="faded">Local Pay</td>
+			</logic:present>
+			<logic:notPresent name="provBreakDown" property="providerName">
+				<td colspan="3" class="faded">RA Local subtotal: </td>
+			</logic:notPresent>
+				<td class="math faded">$<bean:write name="provBreakDown" property="localPay" /></td>
+				<td class="math faded">$<bean:write name="provBreakDown" property="clinicPay" /></td>
+				<td class="math faded">$<bean:write name="provBreakDown" property="localHospitalPay" /></td>
+			</tr>
+			<logic:present name="provBreakDown" property="obPay">
+			<tr>
+				<td colspan="2" class="faded">OB</td>
+				<td class="math faded">$<bean:write name="provBreakDown" property="obPay" /></td>
+			</tr>
+			<tr>
+				<td colspan="2" class="faded">CO</td>
+				<td class="math faded">$<bean:write name="provBreakDown" property="coPay" /></td>
+			</tr>
+			<tr>
+				<td colspan="2" class="faded">RMB</td>
+				<td class="math faded">$<bean:write name="provBreakDown" property="RMBPay" /></td>
+			</tr>
+			</logic:present>
+		</logic:iterate>
+			<tr>
+				<th class="separator" colspan="3"> </th>
+				<th class="separator">Payments</th>
+				<th class="separator">Reductions</th>
+			</tr>
+		<logic:iterate id="acctTrans" name="raSummary" property="accountingTransactions">
+			<tr>
+				<td colspan="3"><bean:write name="acctTrans" property="type" /></td>
+				<logic:present name="acctTrans" property="negative">
+				<td class="faded"></td>
+				<td class="math faded blackText">$<bean:write name="acctTrans" property="amount" /></td>
+				</logic:present>
+				<logic:notPresent name="acctTrans" property="negative">
+				<td class="math faded blackText">$<bean:write name="acctTrans" property="amount" /></td>
+				<td class="faded"></td>
+				</logic:notPresent>
+			</tr>
+		</logic:iterate>
+		<tr><td colspan="5"></td></tr>
+		<tr><td colspan="5">Balance Forward Record - Amount Brought Forward (ABF)</td></tr>
+		<tr><td colspan="3">Claims Adjustment</td>
+			<logic:greaterEqual name="raSummary" property="abfClaimsAdjust" value="0">
+			<td class="math faded blackText">$<bean:write name="raSummary" property="abfClaimsAdjust" /></td><td class="faded"></td>
+			</logic:greaterEqual>
+			<logic:lessThan name="raSummary" property="abfClaimsAdjust" value="0">
+			<td  class="faded"></td><td class="math faded blackText">$<bean:write name="raSummary" property="abfClaimsAdjust" /></td>
+			</logic:lessThan>
+		</tr>
+		<tr><td colspan="3">Advances</td>
+			<logic:greaterEqual name="raSummary" property="abfAdvances" value="0">
+			<td class="math faded blackText">$<bean:write name="raSummary" property="abfAdvances" /></td><td class="faded"></td>
+			</logic:greaterEqual>
+			<logic:lessThan name="raSummary" property="abfAdvances" value="0">
+			<td class="faded"></td><td class="math faded blackText">$<bean:write name="raSummary" property="abfAdvances" /></td>
+			</logic:lessThan>
+		</tr>
+		</tr>
+		<tr><td colspan="3">Reductions</td>
+			<logic:greaterEqual name="raSummary" property="abfReductions" value="0">
+			<td class="math faded blackText">$<bean:write name="raSummary" property="abfReductions" /></td><td class="faded"></td>
+			</logic:greaterEqual>
+			<logic:lessThan name="raSummary" property="abfReductions" value="0">
+			<td class="faded"></td><td class="math faded blackText">$<bean:write name="raSummary" property="abfReductions" /></td>
+			</logic:lessThan>
+		</tr>
+		</tr>
+		<tr><td colspan="3">Deductions</td>
+			<logic:greaterEqual name="raSummary" property="abfDeductions" value="0">
+			<td class="math faded blackText">$<bean:write name="raSummary" property="abfDeductions" /></td><td class="faded"></td>
+			</logic:greaterEqual>
+			<logic:lessThan name="raSummary" property="abfDeductions" value="0">
+			<td class="faded"></td><td class="math faded blackText">$<bean:write name="raSummary" property="abfDeductions" /></td>
+			</logic:lessThan>
+		</tr>
+		<tr><td colspan="5"></td></tr>
+		<tr><td colspan="3">RA Total:</td>
+			<td class="math sum">$<bean:write name="raSummary" property="raTotalPos" /></td>
+			<td class="math sum">$<bean:write name="raSummary" property="raTotalNeg" /></td>
+			<td class="math bigsum"><b>$<bean:write name="raSummary" property="raTotalNet" /><b></td>
+		</tr>
+	</table>
 </body>
-</html>
+</html:html>

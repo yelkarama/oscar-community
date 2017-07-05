@@ -28,7 +28,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -52,6 +54,7 @@ import org.oscarehr.common.model.BillingONExt;
 import org.oscarehr.common.model.BillingONItem;
 import org.oscarehr.common.model.BillingONPayment;
 import org.oscarehr.common.model.BillingOnItemPayment;
+import org.oscarehr.common.model.BillingPaymentType;
 import org.oscarehr.common.model.BillingService;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.util.DateRange;
@@ -172,8 +175,9 @@ public class JdbcBillingReviewImpl {
 				//ch1Obj.setPaid(b[11]);
 				ch1Obj.setClinic(b[12]);
 				//ch1Obj.setTotal(b[13]);//fee is not total?
-				ch1Obj.setSer_num(b[15]); //14 is service code
-				ch1Obj.setBilling_on_item_id(b[17]); //16 is dx
+				ch1Obj.setSer_num(b[15]); //15 is service code
+				ch1Obj.setService_date(b[19]); //19 is service date
+				ch1Obj.setBilling_on_item_id(b[17]); //17 is dx
 				
 				List<BillingONExt> exts = extDao.findByBillingNoAndKey(Integer.parseInt(b[0]), "payDate");
 				for(BillingONExt e : exts ) {
@@ -323,8 +327,7 @@ public class JdbcBillingReviewImpl {
 			BillingPaymentTypeDao billingPaymentTypeDao = SpringUtils.getBean(BillingPaymentTypeDao.class);
 			ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 			
-			Integer CASH_PAYMENT_ID = billingPaymentTypeDao.findIdByName("CASH");
-			Integer DEBIT_PAYMENT_ID = billingPaymentTypeDao.findIdByName("DEBIT");
+			List<BillingPaymentType> allPaymentTypes = billingPaymentTypeDao.findAll();
 			
 			for (Object[] o : dao.findByMagic2(Arrays.asList(billType), statusType, providerNo, ConversionUtils.fromDateString(startDate), ConversionUtils.fromDateString(endDate), ConversionUtils.fromIntString(demoNo), serviceCodes, dx, visitType, visitLocation, ConversionUtils.fromDateString(paymentStartDate),  ConversionUtils.fromDateString(paymentEndDate))) {
 				BillingONCHeader1 ch1 = (BillingONCHeader1) o[0];
@@ -341,6 +344,7 @@ public class JdbcBillingReviewImpl {
 				ch1Obj.setProvider_ohip_no(ch1.getProviderOhipNo());
 				ch1Obj.setApptProvider_no(ch1.getApptProviderNo());
 				ch1Obj.setUpdate_datetime(ConversionUtils.toTimestampString(ch1.getTimestamp()));
+				ch1Obj.setService_date(ConversionUtils.toDateString(bi.getServiceDate()));
 				ch1Obj.setClinic(ch1.getClinic());
 				ch1Obj.setPay_program(ch1.getPayProgram());
 				
@@ -366,10 +370,12 @@ public class JdbcBillingReviewImpl {
 				
 				ch1Obj.setFacilty_num(clinicLocationDao.searchVisitLocation(ch1.getFaciltyNum()));
 				
-				double cashTotal = 0.00;
-				double debitTotal = 0.00;
+				Map<Integer,BigDecimal> paymentTypeTotals = new HashMap<Integer, BigDecimal>();
+				for (BillingPaymentType type: allPaymentTypes){
+					paymentTypeTotals.put(type.getId(), null);
+				}
 
-				ch1Obj.setNumItems(Integer.parseInt(bi.getServiceCount()));
+				ch1Obj.setNumItems(Float.parseFloat(bi.getServiceCount()));
 				
 				for(Integer paymentId:billingOnPaymentDao.find3rdPartyPayments(Integer.parseInt(ch1Obj.getId()))) {
 					//because private billing changed, we'll check via paymentTypeId in billing_on_payment
@@ -381,18 +387,46 @@ public class JdbcBillingReviewImpl {
 						//probably means that no payment was applied to this item.
 						continue;
 					}
-					
-					if(paymentObj.getPaymentTypeId() == CASH_PAYMENT_ID) {
-						cashTotal += boip.getPaid().intValue();
-					} else if(paymentObj.getPaymentTypeId() == DEBIT_PAYMENT_ID) {
-						debitTotal += boip.getPaid().intValue();
+
+					for (int i=0; i<paymentTypeTotals.entrySet().size(); i++){
+						BigDecimal currentTotal = (BigDecimal)paymentTypeTotals.get(paymentObj.getPaymentTypeId()-1);
+						if (currentTotal == null && !"0.00".equals(String.valueOf(boip.getPaid()))){
+							paymentObj.getPaymentTypeId();
+							paymentTypeTotals.put(paymentObj.getPaymentTypeId(), boip.getPaid());
+
+						} else if (!"0.00".equals(String.valueOf(boip.getPaid()))) {
+							paymentTypeTotals.put(paymentObj.getPaymentTypeId(), boip.getPaid());
+						}
+
 					}
 					
 				}
+
+				String settledDate = null;
+				if (ch1Obj.getPay_program().matches("PAT|OCF|ODS|CPP|STD|IFH")){
+					for (BillingONExt b : extDao.findByBillingNoAndKey(ch1.getId(), "payDate")) {
+						if (b.getValue()!=null){
+							settledDate = b.getValue();
+						}
+					}
+					if (settledDate==null){
+						for (BillingONExt b : extDao.findByBillingNoAndKey(ch1.getId(), "payment")) {
+							if (b.getValue()!=null){
+								BigDecimal value = new BigDecimal(b.getValue());
+								if (ch1.getTotal().compareTo(value) < 0 || ch1.getTotal().equals(value)){
+									settledDate = b.getDateTime().toString();
+								}
+							}
+						}
+					}
+				}else {
+					//HCP
+					settledDate = ch1Obj.getUpdate_datetime();
+				}
+				ch1Obj.setSettle_date(settledDate);
 				
 				
-				ch1Obj.setCashTotal(cashTotal);
-				ch1Obj.setDebitTotal(debitTotal);
+				ch1Obj.setPaymentTotals(paymentTypeTotals);
 				
 				Provider provider = providerDao.getProvider(ch1Obj.getProvider_no());
 				if(provider!=null) {

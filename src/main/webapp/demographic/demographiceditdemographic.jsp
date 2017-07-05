@@ -304,6 +304,9 @@ if(!authed) {
 		pageContext.setAttribute( "patientConsents", patientConsentManager.getAllConsentsByDemographic( loggedInInfo, Integer.parseInt(demographic_no) ) );
 	}
 
+	List<String> updatedFamily = (List<String>) session.getAttribute("updatedFamily");
+	session.removeAttribute("updatedFamily");
+
 %>
 
 <%@page import="org.apache.commons.lang.StringUtils"%><html:html locale="true">
@@ -394,6 +397,15 @@ jQuery( document ).ready( function() {
 			elem.attr('selected', 'selected');
 		}
 	}
+
+    <% if (updatedFamily!=null && !updatedFamily.isEmpty()){ %>
+		var familyMembers = "";
+    	<% for (String member : updatedFamily){%>
+			familyMembers += "\n<%=member%>"
+		<%}%>
+
+        alert("Updated demographic and the following family members:" + familyMembers+"");
+    <% }%>
 });
 </script>
 <oscar:customInterface section="master"/>
@@ -1559,6 +1571,9 @@ if(oscarProps.getProperty("new_label_print") != null && oscarProps.getProperty("
                                                                 key="demographic.demographiceditdemographic.formFirstName" />:</span>
                                                         <span class="info"><%=demographic.getFirstName()%></span>
 							</li>
+													<li><span class="label"><bean:message key="demographic.demographiceditdemographic.formPrefName" />:</span>
+															<span class="info"><%=demographic.getPrefName()%></span>
+													</li>
                                                     <li><span class="label"><bean:message key="demographic.demographiceditdemographic.msgDemoTitle"/>:</span>
                                                         <span class="info"><%=StringUtils.trimToEmpty(demographic.getTitle())%></span>
 							</li>
@@ -2317,6 +2332,8 @@ if ( Dead.equals(PatStat) ) {%>
 							</li>
 							<li><span class="label">Referral Doctor Phone #:</span> <span class="info" id="refDocPhone"></span></li>
 							<li><span class="label">Referral Doctor Fax #:</span> <span class="info" id="refDocFax"></span></li>
+							<li><span class="label">Referral Doctor Private Phone #:</span> <span class="info" id="refDocPrivPhone"></span></li>
+							<li><span class="label">Referral Doctor Address:</span> <span class="info" id="refDocAddress"></span></li>
                                                     <li><span class="label"><bean:message
                                                             key="demographic.demographiceditdemographic.formRefDocNo" />:</span><span class="info"><%=rdohip%></span>
 							</li>
@@ -2445,8 +2462,10 @@ if ( Dead.equals(PatStat) ) {%>
 									<%
 										boolean showCbiReminder=oscarProps.getBooleanProperty("CBI_REMIND_ON_UPDATE_DEMOGRAPHIC", "true");
 									%>
-									<input type="submit" <%=(showCbiReminder?"onclick='showCbiReminder()'":"")%>
+									<input type="submit" name="submit" <%=(showCbiReminder?"onclick='showCbiReminder()'":"")%>
 										value="<bean:message key="demographic.demographiceditdemographic.btnUpdate"/>">
+									<input type="submit" name="submit" <%=(showCbiReminder?"onclick='showCbiReminder()'":"")%>
+											   value="Save & Update Family Members">
 								</security:oscarSec> </span> <!-- security code block --></td>
 								<td width="40%" align='right' valign="top"><span
 									id="swipeButton" style="display: none;"> <input

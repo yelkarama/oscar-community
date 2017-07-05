@@ -190,8 +190,7 @@
 
 
 <table width="100%" bgcolor="#EEEEFF" border=0 id="editDemographic"
-	style="display: none;">
-	<tr>
+	style="display: none;"><tr>
 		<td align="right" title='<%=demographic.getDemographicNo()%>'><b><bean:message
 					key="demographic.demographiceditdemographic.formLastName" />: </b></td>
 		<td align="left"><input type="text" name="last_name"
@@ -207,17 +206,23 @@
 	</tr>
 	<tr>
 		<td align="right"><b><bean:message
-					key="demographic.demographiceditdemographic.msgDemoLanguage" />: </b></td>
+			key="demographic.demographiceditdemographic.formPrefName" />: </b></td>
+		<td align="left"><input type="text" name="pref_name"
+			<%=getDisabled("pref_name")%> size="30"
+			value="<%=StringEscapeUtils.escapeHtml(demographic.getPrefName())%>"
+			onBlur="upCaseCtrl(this)"></td>
+		<td align="right"><b><bean:message
+			key="demographic.demographiceditdemographic.msgDemoLanguage" />: </b></td>
 		<td align="left">
 			<% String lang = oscar.util.StringUtils.noNull(demographic.getOfficialLanguage()); %>
 			<select name="official_lang" <%=getDisabled("official_lang")%>>
-				<option value="English" <%=lang.equals("English")?"selected":""%>><bean:message
-						key="demographic.demographiceditdemographic.msgEnglish" /></option>
-				<option value="French" <%=lang.equals("French")?"selected":""%>><bean:message
-						key="demographic.demographiceditdemographic.msgFrench" /></option>
-				<option value="Other" <%=lang.equals("Other")?"selected":""%>><bean:message
-						key="demographic.demographiceditdemographic.optOther" /></option>
-		</select>
+			<option value="English" <%=lang.equals("English")?"selected":""%>><bean:message
+				key="demographic.demographiceditdemographic.msgEnglish" /></option>
+			<option value="French" <%=lang.equals("French")?"selected":""%>><bean:message
+				key="demographic.demographiceditdemographic.msgFrench" /></option>
+			<option value="Other" <%=lang.equals("Other")?"selected":""%>><bean:message
+				key="demographic.demographiceditdemographic.optOther" /></option>
+			</select>
 		</td>
 		<td align="right"><b><bean:message
 					key="demographic.demographiceditdemographic.msgDemoTitle" />: </b></td>
@@ -227,7 +232,7 @@
 						if(title == null) {
 							title="";
 						}
-					%> <select name="title" <%=getDisabled("title")%>>
+					%> <select name="title" id="title" <%=getDisabled("title")%>>
 				<option value="" <%=title.equals("")?"selected":""%>><bean:message
 						key="demographic.demographiceditdemographic.msgNotSet" /></option>
 				<option value="DR" <%=title.equalsIgnoreCase("DR")?"selected":""%>><bean:message
@@ -265,20 +270,6 @@
 						key="demographic.demographiceditdemographic.msgDr" /></option>
 		</select>
 		</td>
-	</tr>
-	<tr>
-		<td align="right"><b><bean:message
-					key="demographic.demographiceditdemographic.msgSpoken" />: </b></td>
-		<td>
-			<%String spokenLang = oscar.util.StringUtils.noNull(demographic.getSpokenLanguage()); %>
-			<select name="spoken_lang" <%=getDisabled("spoken_lang")%>>
-				<%for (String splang : Util.spokenLangProperties.getLangSorted()) { %>
-				<option value="<%=splang %>"
-					<%=spokenLang.equals(splang)?"selected":"" %>><%=splang %></option>
-				<%} %>
-		</select>
-		</td>
-		<td colspan="2">&nbsp;</td>
 	</tr>
 
 	<tr valign="top">
@@ -549,7 +540,11 @@
 					key="demographic.demographiceditdemographic.formVer" /></b> <input
 			type="text" name="ver" <%=getDisabled("ver")%>
 			value="<%=StringUtils.trimToEmpty(demographic.getVer())%>" size="3"
-			onBlur="upCaseCtrl(this)"></td>
+			onBlur="upCaseCtrl(this)">
+		<a href="#" onclick="popup(500, 500, '/CardSwipe/?hc='+(document.getElementsByName('hin')[0].value)+' '+(document.getElementsByName('ver')[0].value)+'&providerNo=<%=loggedInInfo.getLoggedInProviderNo()%>', 'Card Swipe'); return false;">
+			Validate HC
+		</a>
+	</td>
 		<td align="right"><b><bean:message
 					key="demographic.demographiceditdemographic.formEFFDate" />:</b></td>
 		<td align="left">
@@ -899,17 +894,20 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 				<%=getDisabled("roster_status")%> onchange="updateStatusDate('roster');checkRosterStatus2();">
 					<option value=""></option>
 					<option value="RO" <%="RO".equals(rosterStatus) ? " selected" : ""%>>
-						<bean:message
-							key="demographic.demographiceditdemographic.optRostered" /></option>
+						<bean:message key="demographic.demographiceditdemographic.optRostered" />
+					</option>
 					<option value="NR" <%=rosterStatus.equals("NR") ? " selected" : ""%>>
-						<bean:message
-							key="demographic.demographiceditdemographic.optNotRostered" /></option>
+						<bean:message key="demographic.demographiceditdemographic.optNotRostered" />
+					</option>
 					<option value="TE" <%=rosterStatus.equals("TE") ? " selected" : ""%>>
-						<bean:message
-							key="demographic.demographiceditdemographic.optTerminated" /></option>
+						<bean:message key="demographic.demographiceditdemographic.optTerminated" />
+					</option>
 					<option value="FS" <%=rosterStatus.equals("FS") ? " selected" : ""%>>
-						<bean:message
-							key="demographic.demographiceditdemographic.optFeeService" /></option>
+						<bean:message key="demographic.demographiceditdemographic.optFeeService" />
+					</option>
+					<option value="UHIP" <%=rosterStatus.equals("UHIP") ? " selected" : ""%>>
+						<bean:message key="demographic.demographiceditdemographic.optUhip"/>
+					</option>
 					<%
 						for (String status : demographicDao.getRosterStatuses()) {
 					%>
@@ -977,19 +975,19 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 function updateStatusDate(patientOrRoster){
 	var d = new Date();
 	if(patientOrRoster == "patient"){
-        patientStatus = document.updatedelete.patientstatus_date;
+        var patientStatus = document.getElementById("patientstatus_date");
 
         if(patientStatus.value == ""){
-            patientStatus.value = d.getFullYear() + "-" + d.getMonth() + 1 + "-" + d.getDate();
+            patientStatus.value = d.toISOString().substring(0, 10);
         }
 	}
 	else if (patientOrRoster == "roster"){
-	    selectedRosterStatus = document.getElementById("roster_status").value;
-		rosterStatusDate = document.updatedelete.roster_date;
+		var selectedRosterStatus = document.getElementById("roster_status").value;
+		var rosterStatusDate = document.getElementById("roster_date");
 
 		if(rosterStatusDate.value == "" ){
-		    if (selectedRosterStatus == "RO" || selectedRosterStatus == "NR"){
-				rosterStatusDate.value = d.getFullYear() + "-" + d.getMonth() + 1 + "-" + d.getDate();
+		    if (selectedRosterStatus == "RO" || selectedRosterStatus == "NR" || selectedRosterStatus == "UHIP"){
+				rosterStatusDate.value = d.toISOString().substring(0, 10);
 			}
 		}
 	}

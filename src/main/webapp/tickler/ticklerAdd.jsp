@@ -409,7 +409,7 @@ function changeSite(sel) {
                 String proOHIP="";
                 String selectProvider = user_no;
                 UserProperty prop = propDao.getProp(user_no, UserProperty.TICKLER_DEFAULT_RECIPIENT);
-                if (prop!=null){
+                if (prop!=null && prop.getValue()!=null){
                     selectProvider = prop.getValue();
                 }
 				

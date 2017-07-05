@@ -36,6 +36,7 @@ import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.util.LoggedInInfo;
 
+
 /**
  * Base class for RESTful web services
  */
@@ -97,8 +98,14 @@ public abstract class AbstractServiceImpl {
 	    HttpServletRequest request = (HttpServletRequest)message.get(AbstractHTTPDestination.HTTP_REQUEST);
 	    
 	    LoggedInInfo info = LoggedInInfo.getLoggedInInfoFromSession(request);
+
+        if (info != null && info.getLoggedInProvider() == null) {
+            // It's possible in the OAuth situation that the session is empty, but we have a valid LoggedInInfo on the request.
+            info = LoggedInInfo.getLoggedInInfoFromRequest(request);
+        }
+
 		if (info == null) {
-			throw new IllegalStateException("Authentication info is not available.");
+            throw new IllegalStateException("Authentication info is not available.");
 		}
 		return info;
 	}

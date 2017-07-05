@@ -82,6 +82,7 @@ public class Demographic implements Serializable {
     private String familyPhysician;
 	private String city;
 	private String firstName;
+	private String prefName;
 	private String postal;
 	private Date hcRenewDate;
 	private String phone2;
@@ -636,6 +637,21 @@ public class Demographic implements Serializable {
 	public void setFirstName(String firstName) {
 		this.firstName = firstName;
 	}
+
+	/**
+	 * Gets demographic's preferred name.
+	 *
+	 * @return
+	 * 		Returns the preferred name.
+	 */
+	public String getPrefName() {return prefName;}
+
+	/**
+	 * Set the value related to the column: pref_name
+	 *
+	 * @param prefName the pref_name value
+	 */
+	public void setPrefName(String prefName) {this.prefName = prefName;}
 
 	/**
 	 * Return the value associated with the column: postal

@@ -86,11 +86,23 @@
 	prop.setValue(ticklerDefaultRecipient);
 	propDao.saveProp(prop);
 	
+	String defaultPharmacy = request.getParameter("default_pharmacy");
+	prop = propDao.getProp(curUser_providerno, UserProperty.DEFAULT_PHARMACY);
+	if (prop == null) {
+		prop = new UserProperty();
+		prop.setProviderNo(curUser_providerno);
+		prop.setName(UserProperty.DEFAULT_PHARMACY);
+	}
+	prop.setValue(defaultPharmacy);
+	propDao.saveProp(prop);
+	
 	ProviderPreference providerPreference=ProviderPreferencesUIBean.updateOrCreateProviderPreferences(request);
 
 	//--- 
 	session.setAttribute(SessionConstants.LOGGED_IN_PROVIDER_PREFERENCE, providerPreference);
 	session.setAttribute("default_servicetype", providerPreference.getDefaultServiceType());
+	session.setAttribute("default_location", providerPreference.getDefaultBillingLocation());
+	session.setAttribute("default_slicode", providerPreference.getDefaultSliCode());
 	session.setAttribute("newticklerwarningwindow", providerPreference.getNewTicklerWarningWindow());
 	session.setAttribute("default_pmm", providerPreference.getDefaultCaisiPmm());
 	session.setAttribute("caisiBillingPreferenceNotDelete",providerPreference.getDefaultDoNotDeleteBilling());

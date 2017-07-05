@@ -37,6 +37,16 @@ public class PreventionsLotNrsDao extends AbstractDao<PreventionsLotNrs> {
 		super(PreventionsLotNrs.class);
 	}
 	
+	public List<PreventionsLotNrs> findAll()
+	{
+		String sql = "SELECT x from PreventionsLotNrs x";
+		Query query = entityManager.createQuery(sql.toString());
+
+		List<PreventionsLotNrs> pList = query.getResultList();
+		
+		return (pList);
+	}
+	
 	public List<PreventionsLotNrs> findLotNrData(Boolean bDeleted) {
 		StringBuilder sb=new StringBuilder();
 		sb.append("select x from PreventionsLotNrs x");

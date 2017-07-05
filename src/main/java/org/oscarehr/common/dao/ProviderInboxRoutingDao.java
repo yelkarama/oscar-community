@@ -112,8 +112,10 @@ public class ProviderInboxRoutingDao extends AbstractDao<ProviderInboxItem> {
 				String status = rules.getStatus();
 				String frwdProvider = rules.getFrwdProviderNo();
 
-				listofAdditionalProviders.add(frwdProvider);
-				if (status != null && status.equals("F")) fileForMainProvider = true;
+				if (rules.getForwardTypeStrings().contains(labType)) {
+                    listofAdditionalProviders.add(frwdProvider);
+                    if (status != null && status.equals("F")) fileForMainProvider = true;
+                }
 			}
 
 			ProviderInboxItem p = new ProviderInboxItem();

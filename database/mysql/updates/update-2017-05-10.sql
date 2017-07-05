@@ -1,0 +1,1 @@
+ALTER TABLE demographic ADD pref_name varchar(30) NOT NULL DEFAULT '';

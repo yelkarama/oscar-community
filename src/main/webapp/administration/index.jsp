@@ -280,13 +280,14 @@ i[class*='icon-']:hover {color:#0088cc;}
 	    <a href="javascript:void(0)" onclick="document.getElementById('helpHtml').style.display='block';document.getElementById('helpHtml').style.right='0px';"><bean:message key="global.help"/></a>
 	    
 		<div id="helpHtml">
-		<div class="help-title">Help</div>
+		<div class="help-title">Help
+			<a href="javascript:void(0)" class="help-close" onclick="document.getElementById('helpHtml').style.right='-280px';document.getElementById('helpHtml').style.display='none'">(X)</a>
+		</div>
 		
 		<div class="help-body">
 		
 		<%=resourcehelpHtml%>
 		</div>
-		<a href="javascript:void(0)" class="help-close" onclick="document.getElementById('helpHtml').style.right='-280px';document.getElementById('helpHtml').style.display='none'">(X)</a>
 		</div>
 
 </div>

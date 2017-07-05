@@ -65,6 +65,7 @@ public class UserProperty extends AbstractModel<Integer> implements Serializable
     public static final String RX_SHOW_PATIENT_DOB="rx_show_patient_dob";
     public static final String PATIENT_NAME_LENGTH="patient_name_length";
     public static final String DEFAULT_SEARCH_MODE="default_search_mode";
+    public static final String PROVIDER_CONSULT_SIGNATURE="provider_consult_signauture";
 	public static final String DEFAULT_OHIP_PROVIDER="default_ohip_provider";
     public static final String OFFICIAL_FIRST_NAME="official_first_name";
     public static final String OFFICIAL_SECOND_NAME="official_second_name";
@@ -164,6 +165,7 @@ public class UserProperty extends AbstractModel<Integer> implements Serializable
 	public static final String STUDENT_PARTICIPATION_CONSENT = "student_participation_consent";	
 	public static final String PROVIDER_FOR_TICKLER_WARNING = "provider_for_tickler_warning";
     public static final String TICKLER_DEFAULT_RECIPIENT = "tickler_default_recipient";
+    public static final String DEFAULT_PHARMACY = "default_pharmacy";
 
 	public static final String MCEDT_ACCOUNT_PASSWORD = "mcedt_account_password";
 

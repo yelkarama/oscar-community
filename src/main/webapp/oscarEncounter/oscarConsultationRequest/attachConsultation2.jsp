@@ -46,6 +46,9 @@ String userlastname = (String) session.getAttribute("userlastname");
 <%@page import="org.oscarehr.hospitalReportManager.dao.HRMDocumentToDemographicDao"%>
 <%@page import="org.oscarehr.hospitalReportManager.model.HRMDocument"%>
 <%@page import="org.oscarehr.hospitalReportManager.model.HRMDocumentToDemographic"%>
+<%@ page import="java.text.SimpleDateFormat" %>
+<%@ page import="org.oscarehr.common.model.EFormData" %>
+<%@ page import="oscar.eform.EFormUtil" %>
 
 <%
 
@@ -72,7 +75,7 @@ HRMDocumentToDemographicDao hrmDocumentToDemographicDao = (HRMDocumentToDemograp
 HRMDocumentDao hrmDocumentDao = (HRMDocumentDao) SpringUtils.getBean("HRMDocumentDao");
 
 String patientName = EDocUtil.getDemographicName(loggedInInfo, demoNo);
-String[] docType = {"D","L", "H"};
+String[] docType = {"D","L", "H", "E"};
 String http_user_agent = request.getHeader("User-Agent");
 boolean onIPad = http_user_agent.indexOf("iPad") >= 0;
 %>
@@ -98,6 +101,7 @@ ArrayList<LabResultData> labs = labData.populateLabResultsData(loggedInInfo, dem
 ArrayList<EDoc> privatedocs = new ArrayList<EDoc>();
 privatedocs = EDocUtil.listDocs(loggedInInfo, demoNo, requestId, EDocUtil.ATTACHED);
 List<HRMDocumentToDemographic> hrmDocumentsToDemographics = hrmDocumentToDemographicDao.findHRMDocumentsAttachedToConsultation(requestId);
+List<EFormData> eForms = EFormUtil.listPatientEformsCurrentAttachedToConsult(requestId);
 String attachedDocs = "";
 if (requestId == null || requestId.equals("") || requestId.equals("null")) {
 	attachedDocs = "window.opener.document.EctConsultationFormRequestForm.documents.value";
@@ -114,6 +118,9 @@ else {
 	for (HRMDocumentToDemographic hrmDocumentToDemographic : hrmDocumentsToDemographics) {
 		attachedDocs += (attachedDocs.equals("") ? "" : "|") + "H" + hrmDocumentToDemographic.getHrmDocumentId();  
 	}
+	for (EFormData eForm : eForms) {
+		attachedDocs += (attachedDocs.equals("") ? "" : "|") + "E" + eForm.getId();  
+	}
 	attachedDocs = "\"" + attachedDocs + "\""; 
 }
 %>  
@@ -129,7 +136,14 @@ function checkDocuments(docs) {
 	if (docs == null) { return; }
 	for (var idx = 0; idx < docs.length; ++idx) {
         if (docs[idx].length < 2) { continue; }
-        $("input[name='" + (docs[idx].charAt(0) == "L" ? "labNo" : (docs[idx].charAt(0) == "H" ? "hrmNo" : "docNo")) + "']"
+		var attachmentType = "docNo";
+        switch (docs[idx].charAt(0)) {
+			case "L": attachmentType = "labNo"; break;
+			case "H": attachmentType = "hrmNo"; break;
+			case "D": attachmentType = "docNo"; break;
+			case "E": attachmentType = "eFormNo"; break;
+		}
+        $("input[name='" + attachmentType + "']"
               +"[value='" + docs[idx].substring(1) + "']").attr("checked", "checked");
     }
 }
@@ -170,6 +184,13 @@ function save() {
           listElem.className = "hrm";
           list.appendChild(listElem);
        });
+		$("input[name='eFormNo']:checked").each(function() {
+			saved += (saved == "" ? "" : "|") + "E" + $(this).attr("value");
+			listElem = window.opener.document.createElement("li");
+			listElem.innerHTML = $(this).next().get(0).innerHTML;
+			listElem.className = "eForm";
+			list.appendChild(listElem);
+		});
                    
        window.opener.document.EctConsultationFormRequestForm.documents.value = saved; 
       
@@ -194,7 +215,15 @@ function previewPDF(docId, url) {
 }
 
 function previewHTML(url) {
+	previewHTML(url, false);
+}
+function previewHTML(url, blockInteraction) {
 	$("#previewPane").attr("src", url);
+	if (blockInteraction) {
+		$("#previewPane").attr("sandbox", "allow-same-origin allow-scripts");
+	} else {
+		$("#previewPane").removeAttr("sandbox");
+	}
 }
 
 function previewImage(url) {
@@ -486,6 +515,41 @@ function toggleSelectAll() {
 								</div>
 					    	</li>
 			    <%
+					}
+
+					SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yyyy", request.getLocale());
+					//Get eforms
+					eForms= EFormUtil.listPatientEformsCurrent(new Integer(demoNo), true, 0, 100);
+					if (!eForms.isEmpty()) { %>
+						<h2>eForms</h2>
+					<% }
+					for (EFormData eForm : eForms) {
+						url = request.getContextPath() + "/eform/efmshowform_data.jsp?fdid="+eForm.getId();
+					%>
+						<li class="eForm" title="<%=eForm.getFormName()%>" id="eForm<%=eForm.getId()%>">
+							<div>
+								<div style="float:left; height:20px; line-height:20px; white-space:nowrap;">
+									<input class="tightCheckbox1" type="checkbox" name="eFormNo" id="eFormNo<%=eForm.getId()%>" value="<%=eForm.getId()%>" style="margin: 0px; padding: 0px;" />
+									<span class="url" style="display:none">
+															<a href="<%=url%>" title="<%=eForm.getFormName()%>" style="color: #917611; text-decoration: none;" target="_blank">
+															<img style="width:15px;height:15px" title="<%= printTitle %>" src="<%= printImage %>" alt="<%= printAlt %>" />
+															<%=eForm.getFormName()%></a>
+														</span>
+									<img title="<%= printTitle %>" src="<%= printImage %>" alt="<%= printAlt %>">
+									<a class="eFormPreview" href="#" onclick="javascript:previewHTML('<%=url%>', true);">
+										<span class="text"><%=(eForm.getFormName().length()>14)?eForm.getFormName().substring(0, 11)+"...":eForm.getFormName()%></span>
+									</a>
+		
+								</div>
+								<div style="float:right; height:25px; line-height:25px; white-space:nowrap;">
+									<a class="eFormPreview" href="#" onclick="javascript:previewHTML('<%=url%>', true);">
+										<span style="float:right;"><%=sdf.format(eForm.getFormDate())%></span>
+									</a>
+								</div>
+								<div style="clear:both;"></div>
+							</div>
+						</li>
+					<%
 					}
 				} %>               
                          

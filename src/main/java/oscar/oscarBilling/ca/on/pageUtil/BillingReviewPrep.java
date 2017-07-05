@@ -165,8 +165,7 @@ public class BillingReviewPrep {
 			for (int j = 0; j < vecCodeFee.size(); j++) {
 				BigDecimal bigCodeFee = new BigDecimal((String) vecCodeFee
 						.get(j));
-				// BigDecimal bigCodeUnit = new BigDecimal((String)
-				// vecUnit.get(i));
+				BigDecimal bigCodeUnit = new BigDecimal((String) vecUnit.get(j));
 				// BigDecimal bigCodeAt = new BigDecimal((String) vecAt.get(i));
                                 
                                 
@@ -176,7 +175,7 @@ public class BillingReviewPrep {
                                 
 				BigDecimal bigFee = bigCodeFee.multiply(new BigDecimal(fee));
 
-				// bigFee = bigFee.multiply(bigCodeAt);
+				bigFee = bigFee.multiply(bigCodeUnit);
 
 				bigFee = bigFee.setScale(4, BigDecimal.ROUND_HALF_UP);
 				// bigFee = bigFee.round(new MathContext(2));
@@ -257,7 +256,7 @@ public class BillingReviewPrep {
 	// ret - Vector = || ||
 	public List getProviderBillingStr() {
 		JdbcBillingPageUtil dbObj = new JdbcBillingPageUtil();
-		List ret = dbObj.getCurProviderStr();
+		List ret = dbObj.getCurProviderStr(false);
 		return ret;
 	}
 	

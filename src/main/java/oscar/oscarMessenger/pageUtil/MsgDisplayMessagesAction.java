@@ -106,6 +106,7 @@ public class MsgDisplayMessagesAction extends Action {
 				List<MessageList> msgs = dao.findByProviderNoAndMessageNo(providerNo, ConversionUtils.fromLongString(messageNo[i]));
 				for (MessageList msg : msgs) {
 					msg.setDeleted(true);
+					msg.setFolderId(0);
 					dao.merge(msg);
 				}
 			}//for
@@ -126,6 +127,20 @@ public class MsgDisplayMessagesAction extends Action {
 				List<MessageList> msgs = dao.findByProviderNoAndMessageNo(providerNo, ConversionUtils.fromLongString(messageNo[i]));
 				for (MessageList msg : msgs) {
 					msg.setStatus("unread");
+					dao.merge(msg);
+				}
+			}
+		} else if (request.getParameter("moveTo") != null){
+			providerNo = bean.getProviderNo();
+			MessageListDao dao = SpringUtils.getBean(MessageListDao.class);
+			Integer folderId = 0;
+			if (request.getParameter("moveTo")!=null && !request.getParameter("moveTo").equals("Remove")){
+				folderId = Integer.parseInt(request.getParameter("moveTo"));
+			}
+			for (int i = 0; i < messageNo.length; i++) {
+				List<MessageList> msgs = dao.findByProviderNoAndMessageNo(providerNo, ConversionUtils.fromLongString(messageNo[i]));
+				for (MessageList msg : msgs) {
+					msg.setFolderId(folderId);
 					dao.merge(msg);
 				}
 			}

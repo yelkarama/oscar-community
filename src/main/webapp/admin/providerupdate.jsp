@@ -171,6 +171,7 @@ if(!authed) {
 		  p.setEmail(request.getParameter("email"));
 		  p.setOhipNo(request.getParameter("ohip_no"));
 		  p.setRmaNo(request.getParameter("rma_no"));
+		  p.setThirdPartyOnly(request.getParameter("thirdPartyOnly")!=null&&request.getParameter("thirdPartyOnly").equals("on"));
 		  p.setBillingNo(request.getParameter("billing_no"));
 		  p.setHsoNo(request.getParameter("hso_no"));
 		  p.setStatus(request.getParameter("status"));

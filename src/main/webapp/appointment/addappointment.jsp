@@ -420,12 +420,13 @@ function pasteAppt(multipleSameDayGroupAppt) {
 		}
 	}
 
-	function setType(typeSel,reasonSel,locSel,durSel,notesSel,resSel) {
+	function setType(typeSel,reasonCodeSel,reasonSel,locSel,durSel,notesSel,resSel) {
 		  document.forms['ADDAPPT'].type.value = typeSel;
 		  document.forms['ADDAPPT'].duration.value = durSel;
 		  document.forms['ADDAPPT'].notes.value = notesSel;
 		  document.forms['ADDAPPT'].duration.value = durSel;
 		  document.forms['ADDAPPT'].resources.value = resSel;
+		  document.forms['ADDAPPT'].reason.value = reasonSel;
 		  var loc = document.forms['ADDAPPT'].location;
 		  if(loc.nodeName == 'SELECT') {
 		          for(c = 0;c < loc.length;c++) {
@@ -438,7 +439,7 @@ function pasteAppt(multipleSameDayGroupAppt) {
 		  } else if (loc.nodeName == "INPUT") {
 			  document.forms['ADDAPPT'].location.value = locSel;
 		  }
-        var reasonOption = $("select[name='reasonCode'] option:contains('" + reasonSel + "')");
+        var reasonOption = $("select[name='reasonCode'] option[value='" + reasonCodeSel + "']");
         if (reasonOption.length > 0) {
             reasonOption[0].selected = true;
         }
@@ -692,6 +693,8 @@ function pasteAppt(multipleSameDayGroupAppt) {
   String hin = "";
   String dob = "";
   String sex = "";
+  String famDoc = "";
+  String refDoc = "";
 
   //to show Alert msg
 
@@ -749,6 +752,8 @@ function pasteAppt(multipleSameDayGroupAppt) {
 	      hin = d.getHin();
 	      String ver = d.getVer();
 	      hin = hin +" "+ ver;
+	      famDoc = d.getFamilyDoctor();
+	      refDoc = d.getFamilyPhysician();
 	        
 	      if (patientStatus == null || patientStatus.equalsIgnoreCase("AC")) {
 	        patientStatus = "";
@@ -1210,7 +1215,14 @@ function pasteAppt(multipleSameDayGroupAppt) {
                 <th style="padding-right: 20px"><bean:message key="appointment.addappointment.msgEmail"/>:</th>
                 <td><%=StringUtils.trimToEmpty(email)%></td>
             </tr>
-
+            <tr bgcolor="#ccccff" align="left">
+                <th style="padding-right: 20px"><bean:message key="appointment.addappointment.msgFamDoc"/>:</th>
+                <td><%=famDoc%></td>
+            </tr>
+            <tr bgcolor="#ccccff" align="left">
+                <th style="padding-right: 20px"><bean:message key="appointment.addappointment.msgRefDoc"/>:</th>
+                <td><%=refDoc%></td>
+            </tr>
         </table>
         <%}%>
     </td>

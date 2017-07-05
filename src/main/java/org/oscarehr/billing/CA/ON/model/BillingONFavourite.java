@@ -61,6 +61,10 @@ public class BillingONFavourite extends AbstractModel<Integer> implements Serial
 
 	private int deleted;
 
+	private String visitType = null;
+
+	private String location = null;
+
 	public Integer getId() {
     	return id;
     }
@@ -109,7 +113,23 @@ public class BillingONFavourite extends AbstractModel<Integer> implements Serial
     	this.deleted = deleted;
     }
 
-    public static final Comparator<BillingONFavourite> NAME_COMPARATOR = new Comparator<BillingONFavourite>() {
+	public String getVistType() {
+		return visitType;
+	}
+
+	public void setVisitType(String visitType) {
+		this.visitType = visitType;
+	}
+
+	public String getLocation() {
+		return location;
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
+	}
+
+	public static final Comparator<BillingONFavourite> NAME_COMPARATOR = new Comparator<BillingONFavourite>() {
         public int compare(BillingONFavourite p1, BillingONFavourite p2) {
                 return (p1.getName().compareTo(p2.getName()));
         }

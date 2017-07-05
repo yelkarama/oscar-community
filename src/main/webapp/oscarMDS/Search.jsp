@@ -198,6 +198,7 @@ $(function() {
 			<td>&nbsp;</td>
 			<td>
 				<input type="hidden" value="<%= providerNo %>"name="searchProviderNo" id="provfind" />
+				<input type="hidden" value="true" name="isSearchPage" id="isSearchPage" />
                 <input type="text"  value="<%= lastName + ", " + firstName %>" id="autocompleteprov" name="demographicKeyword"/>
 			</td>
 			</tr>

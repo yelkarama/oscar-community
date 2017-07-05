@@ -57,6 +57,7 @@ public class PreventionsLotNrs extends AbstractModel<Integer> implements Seriali
 	
 	private Boolean	deleted = false;
 	private Date lastUpdateDate = null;
+	private Date expiryDate = null;
 
 	public PreventionsLotNrs() {
 	}
@@ -107,6 +108,14 @@ public class PreventionsLotNrs extends AbstractModel<Integer> implements Seriali
 
 	public void setDeleted(Boolean deleted) {
 		this.deleted = deleted;
+	}
+
+	public Date getExpiryDate() {
+		return expiryDate;
+	}
+
+	public void setExpiryDate(Date expDate) {
+		this.expiryDate = expDate;
 	}
 	
 	public Date getLastUpdateDate() {

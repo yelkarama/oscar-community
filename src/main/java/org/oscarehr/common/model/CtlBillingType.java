@@ -41,6 +41,10 @@ public class CtlBillingType extends AbstractModel<String>{
 	@Column(name="billtype")
 	private String billType;
 
+	private String visitType;
+
+	private String location;
+
 	public String getId() {
     	return id;
     }
@@ -56,6 +60,22 @@ public class CtlBillingType extends AbstractModel<String>{
 	public void setBillType(String billType) {
     	this.billType = billType;
     }
+
+	public String getVisitType() {
+		return visitType;
+	}
+
+	public void setVisitType(String visitType) {
+		this.visitType = visitType;
+	}
+
+	public String getLocation() {
+		return location;
+	}
+
+	public void setLocation(String location) {
+		this.location = location;
+	}
 
 
 }

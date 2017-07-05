@@ -1,0 +1,1 @@
+ALTER TABLE measurements MODIFY comments TEXT;

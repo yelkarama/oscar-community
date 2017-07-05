@@ -40,6 +40,7 @@ function Attach(lname, fname, hin, yob,mob,dob, vercode, sex, effyear, effmonth,
         	 self.opener.document.adddemographic.year_of_birth.value = yob;
         	 self.opener.document.adddemographic.month_of_birth.value = mob;
         	 self.opener.document.adddemographic.date_of_birth.value = dob;
+        	 self.opener.document.adddemographic.full_birth_date.value = yob + '-' + mob + '-' + dob;
                  self.opener.document.adddemographic.ver.value = vercode;
         	 self.opener.document.adddemographic.sex.value = sex;
                  self.opener.document.adddemographic.eff_date.value = effyear + '-' + effmonth + '-' + effdate;

@@ -27,6 +27,9 @@ package oscar;
 
 import java.util.Enumeration;
 import java.util.Properties;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ArrayList;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -138,6 +141,28 @@ public class SxmlMisc extends Properties {
 //  	str = SxmlMisc.replaceString(str,"'","&apos;");
 //  	str = SxmlMisc.replaceString(str,"\"","&quot;");
   	return str;
+  }
+  
+  public static List<String> getAllElementsOfTag(String str, String sTag, String eTag) {
+  	int fromIndex = 0;
+  	List<String> ret = new ArrayList<String>();
+  	
+  	while(str.indexOf(sTag, fromIndex) > -1){
+  	
+		String newStr = null;
+		int s = str.indexOf(sTag, fromIndex);
+		int e = str.indexOf(eTag, fromIndex + eTag.length()-1);
+		
+		if(s!=-1 && e!=-1)
+			newStr = str.substring(s+sTag.length(),e);
+		else
+			break;
+		
+		ret.add(newStr);
+		fromIndex = e;
+	}
+
+  	return ret;
   }
 
 }

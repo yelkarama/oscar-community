@@ -367,7 +367,9 @@ for (int i=0; i<sites.size(); i++) {
 			<td align="right"><bean:message key="admin.provider.formRmaNo" />:
 			</td>
 			<td><input type="text" name="rma_no"
-				value="<%= provider.getRmaNo()==null ? "" : provider.getRmaNo() %>" maxlength="20"></td>
+				value="<%= provider.getRmaNo()==null ? "" : provider.getRmaNo() %>" maxlength="20">
+				<input type="checkbox" name="thirdPartyOnly" <%=provider.isThirdPartyOnly()?"checked":""%>> 3rd Party Billing Only
+			</td>
 		</tr>
 		<tr>
 			<td align="right"><bean:message

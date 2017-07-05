@@ -100,6 +100,7 @@ public class ProviderData {
 	String work_phone;
 	String ohip_no;
 	String rma_no;
+	Boolean thirdPartyOnly;
 	String billing_no;
 	String hso_no;
 	String status;
@@ -148,6 +149,7 @@ public class ProviderData {
 		result.setWorkPhone(work_phone);
 		result.setOhipNo(ohip_no);
 		result.setRmaNo(rma_no);
+		result.setThirdPartyOnly(thirdPartyOnly);
 		result.setBillingNo(billing_no);
 		result.setHsoNo(hso_no);
 		result.setStatus(status);
@@ -178,6 +180,7 @@ public class ProviderData {
 		work_phone = p.getWorkPhone();
 		ohip_no = p.getOhipNo();
 		rma_no = p.getRmaNo();
+		thirdPartyOnly = p.isThirdPartyOnly();
 		billing_no = p.getBillingNo();
 		hso_no = p.getHsoNo();
 		status = p.getStatus();
@@ -418,6 +421,22 @@ public class ProviderData {
 	 */
 	public void setRma_no(java.lang.String rma_no) {
 		this.rma_no = rma_no;
+	}
+
+	/**
+	 * Getter for property rma_no.
+	 * @return Value of property rma_no.
+	 */
+	public Boolean isThirdPartyOnly() {
+		return thirdPartyOnly;
+	}
+
+	/**
+	 * Setter for property rma_no.
+	 * @param rma_no New value of property rma_no.
+	 */
+	public void setThirdPartyOnly(Boolean thirdPartyOnly) {
+		this.thirdPartyOnly = thirdPartyOnly;
 	}
 
 	/**

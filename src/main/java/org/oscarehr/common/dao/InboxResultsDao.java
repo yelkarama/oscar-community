@@ -27,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 import oscar.oscarLab.ca.on.LabResultData;
 import oscar.util.StringUtils;
 
-@Transactional
 public class InboxResultsDao {
 
 	Logger logger = Logger.getLogger(InboxResultsDao.class);
@@ -325,31 +324,18 @@ public class InboxResultsDao {
 					docNoLoc = 0; statusLoc = 1; docTypeLoc = 8; lastNameLoc = 2; firstNameLoc = 3; hinLoc = 4; sexLoc = 5; moduleLoc = 6; obsDateLoc = 7; descriptionLoc = 9; updateDateLoc = 10;
 					// N
 					// document_no, status, last_name, first_name, hin, sex, module_id, observationdate
-					sql = " SELECT doc.document_no, plr.status, last_name, first_name, hin, sex, module_id, observationdate, plr.lab_type, doc.doctype , date(doc.updatedatetime)"
-							+ " FROM document doc, "
-							+ " 	(SELECT DISTINCT pl.status, pl.lab_type, pl.lab_no FROM providerLabRouting pl "
-							+ (isAbnormal != null ? ", hl7TextInfo info " : "")
-							+ " 	WHERE pl.status like '%"
-							+ status
-							+ "%' "
-							+ (searchProvider ? " AND pl.provider_no = '" + providerNo + "' " : "")
-							// The only time abnormal matters for documents is when we are looking for normal documents since there are no abnormal documents.
-							+ (isAbnormal != null ? "     AND (pl.lab_type = 'DOC' OR (pl.lab_no = info.lab_no AND (info.result_status IS NULL OR info.result_status != 'A'))) "
-									: " AND pl.lab_type = 'DOC' ")
-							+ " 	ORDER BY pl.id DESC "
-							+ "     ) AS plr"
-							+ " LEFT JOIN "
-							+ "(SELECT module_id, document_no FROM ctl_document cd "
-							+ "WHERE cd.module = 'demographic' AND cd.module_id != '-1') AS Y "
-							+ "ON plr.lab_type = 'DOC' AND plr.lab_no = Y.document_no"
-							+ " LEFT JOIN "
-							+ "(SELECT demographic_no, first_name, last_name, hin, sex "
-							+ "FROM demographic d) AS Z "
-							+ "ON Y.module_id = Z.demographic_no "
-							+ "WHERE doc.document_no = plr.lab_no" + dateSql
-							+ " GROUP BY doc.document_no"
-							+ " ORDER BY observationdate DESC "
-							+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
+					sql = "SELECT doc.document_no, plr.status, d.last_name, d.first_name, d.hin, d.sex, cd.module_id, doc.observationdate, plr.lab_type, doc.doctype, date(doc.updatedatetime) "
+							+ "FROM document doc "
+							+ "LEFT JOIN providerLabRouting plr ON doc.document_no = plr.lab_no "
+							+ "LEFT JOIN ctl_document cd ON cd.document_no = doc.document_no "
+							+ "LEFT JOIN demographic d ON cd.module_id = d.demographic_no "
+							+ "WHERE plr.lab_type = 'DOC' "
+							+ (searchProvider ? " AND plr.provider_no = '" + providerNo + "' " : " ")
+							+ (!status.equals("") ? " AND plr.status = '" + status + "' ":" ")
+							+ dateSql
+							+ "GROUP BY doc.document_no "
+							+ "ORDER BY observationdate DESC "
+							+ (isPaged ? " LIMIT " + (page * pageSize) + "," + pageSize : "");
 				}
 			} else { // Don't mix labs and docs.
 				if ("0".equals(demographicNo)) {

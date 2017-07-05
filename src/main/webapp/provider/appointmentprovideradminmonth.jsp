@@ -376,25 +376,25 @@ function popupOscarRx(vheight,vwidth,varpage) { //open a new popup window
 
 
     function selectprovider(s) {
-        if(s.options[s.selectedIndex].value.indexOf("_grp_")!=-1 ) 
-        {
-            var newGroupNo = s.options[s.selectedIndex].value.substring(5) ;
-            <%if (org.oscarehr.common.IsPropertiesOn.isCaisiEnable() && org.oscarehr.common.IsPropertiesOn.isTicklerPlusEnable()){%>
-            {
-                popupOscarRx(10,10, "providercontrol.jsp?provider_no=<%=curUser_no%>&start_hour=<%=startHour%>&end_hour=<%=endHour%>&every_min=<%=everyMin%>&new_tickler_warning_window=<%=n_t_w_w%>&color_template=deepblue&dboperation=updatepreference&displaymode=updatepreference&mygroup_no="+newGroupNo) + "<%=eformIds.toString()%><%=ectFormNames.toString()%>";
-            }
-            <%}else {%>
-                popupOscarRx(10,10, "providercontrol.jsp?provider_no=<%=curUser_no%>&start_hour=<%=startHour%>&end_hour=<%=endHour%>&every_min=<%=everyMin%>&color_template=deepblue&dboperation=updatepreference&displaymode=updatepreference&mygroup_no="+newGroupNo + "<%=eformIds.toString()%><%=ectFormNames.toString()%>");
-            <%}%>
-        } 
-        else 
-        {
-            if(self.location.href.lastIndexOf("&providerview=") > 0 ) 
-                a = self.location.href.substring(0,self.location.href.lastIndexOf("&providerview="));
-            else 
-                a = self.location.href;
-            self.location.href = a + "&providerview=" +s.options[s.selectedIndex].value ;
-        }
+		//remove providers and groups parameter's from url
+		var url = self.location.href;
+		var params = url.substr(url.indexOf("?")+1).split(/\?|&/);
+		url = url.substr(0, url.indexOf("?"));
+		//remove mygroup_no and providerview params and rebuild with existing params
+		for (var i = params.size()-1; i>=0; i--) {
+			var param = params[i];
+			if (param.includes("mygroup_no") || param.includes("providerview")) {
+				params.splice(i, 1);
+			} else {
+				url += (url.includes("?")?"&":"?") + param;
+			}
+		}
+		//determine which view to switch to
+		if (s.options[s.selectedIndex].value.includes("_grp_")) {
+			self.location.href = url + "&mygroup_no=" + s.options[s.selectedIndex].value.substring(5);
+		} else {
+			self.location.href = url + "&providerview=" + s.options[s.selectedIndex].value;
+		}
     }
 
 
@@ -564,7 +564,7 @@ function refreshTabAlerts(id) {
 				objectName="_admin,_admin.userAdmin,_admin.schedule,_admin.billing,_admin.resource,_admin.reporting,_admin.backup,_admin.messenger,_admin.eform,_admin.encounter,_admin.misc"
 				rights="r">
 				<li><a HREF="#"
-					ONCLICK="popupOscarRx(700,687,'../admin/admin.jsp', 'Admin');return false;"><bean:message
+					ONCLICK="newWindow('/oscar/administration/', 'Admin');return false;"><bean:message
 					key="global.admin" /></a></li>
 			</security:oscarSec>
 
@@ -590,13 +590,14 @@ function refreshTabAlerts(id) {
 				    <a href="javascript:void(0)" onclick="document.getElementById('helpHtml').style.display='block';document.getElementById('helpHtml').style.right='0px';"><bean:message key="global.help"/></a>
 			
 				<div id="helpHtml">
-				<div class="help-title">Help</div>
+				<div class="help-title">Help
+					<a href="javascript:void(0)" class="help-close" onclick="document.getElementById('helpHtml').style.right='-280px';document.getElementById('helpHtml').style.display='none'">(X)</a>
+				</div>
 				
 				<div class="help-body">
 				
 				<%=resourcehelpHtml%>
 				</div>
-				<a href="javascript:void(0)" class="help-close" onclick="document.getElementById('helpHtml').style.right='-280px';document.getElementById('helpHtml').style.display='none'">(X)</a>
 					</div>
 			
 			</div>
@@ -1101,7 +1102,7 @@ document.onkeypress=function(e){
 	if (evt.altKey) {
 		//use if (evt.altKey || evt.metaKey) Alt+A (and)/or for Mac when the browser supports it, Command+A
 		switch(evt.keyCode) {
-			case <bean:message key="global.adminShortcut"/> : popupOscarRx(700,687,'../admin/admin.jsp');  return false;  //run code for 'A'dmin
+			case <bean:message key="global.adminShortcut"/> : newWindow('/oscar/administration/', 'Admin');  return false;  //run code for 'A'dmin
 			case <bean:message key="global.billingShortcut"/> : popupOscarRx(600,1024,'../billing/CA/<%=prov%>/billingReportCenter.jsp?displaymode=billreport&providerview=<%=curUser_no%>');return false;  //code for 'B'illing
 			case <bean:message key="global.calendarShortcut"/> : popupOscarRx(425,430,'../share/CalendarPopup.jsp?urlfrom=../provider/providercontrol.jsp&year=<%=strYear%>&month=<%=strMonth%>&param=<%=URLEncoder.encode("&view=0&displaymode=day&dboperation=searchappointmentday","UTF-8")%>');  return false;  //run code for 'C'alendar
 			case <bean:message key="global.edocShortcut"/> : popupOscarRx('700', '1024', '../dms/documentReport.jsp?function=provider&functionid=<%=curUser_no%>&curUser=<%=curUser_no%>', 'edocView');  return false;  //run code for e'D'oc

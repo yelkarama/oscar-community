@@ -1,0 +1,1 @@
+ALTER TABLE ProviderPreference ADD COLUMN defaultSliCode VARCHAR(4) DEFAULT 'no';

@@ -129,6 +129,12 @@ public final class ProviderPreferencesUIBean {
 		temp = StringUtils.trimToNull(request.getParameter("default_servicetype"));
 		if (temp != null) providerPreference.setDefaultServiceType(temp);
 
+		temp = StringUtils.trimToNull(request.getParameter("default_location"));
+		if (temp != null) providerPreference.setDefaultBillingLocation(temp);
+
+		temp = StringUtils.trimToNull(request.getParameter("default_slicode"));
+		if (temp != null) providerPreference.setDefaultSliCode(temp);
+
 		temp = StringUtils.trimToNull(request.getParameter("color_template"));
 		if (temp != null) providerPreference.setColourTemplate(temp);
 

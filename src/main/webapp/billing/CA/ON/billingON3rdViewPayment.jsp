@@ -52,7 +52,7 @@ BillingONPayment billPayment = (BillingONPayment)request.getAttribute("billPayme
 				<th>Payment</th>
 				<th>Discount</th>
 				<th>Refund Credit / Overpayment</th>
-				<th>Refund / Write off</th>
+				<th>Write off</th>
 			</tr>
 			<logic:present name="itemDataList" scope="request">
 				<logic:iterate id="itemData" name="itemDataList" indexId="idx">
@@ -102,7 +102,7 @@ BillingONPayment billPayment = (BillingONPayment)request.getAttribute("billPayme
 			<td><%=billPayment.getTotal_credit()%></td>
 		</tr>
 		<tr align="right">
-			<td width="86%">Refund / Write off:</td>
+			<td width="86%">Write off:</td>
 			<td><%=billPayment.getTotal_refund() %></td>
 		</tr>
 	</table>

@@ -33,6 +33,15 @@ function rs(n,u,w,h,x) {
   }
   if (x == 1) { return remote; }
 }
+    jQuery(document).ready(function()
+    {
+        jQuery("#title").change(function()
+        {
+            var value = jQuery(this).val();
+            if (value=="MS"||"MRS"||"MISS") {jQuery("#sex").val("Female")};
+            if (value=="MR") {jQuery("#sex").val("Male")};
+        });
+    });
 
 var awnd=null;
 function ScriptAttach() {
@@ -177,6 +186,12 @@ function formatPhoneNum() {
     if (document.updatedelete.phone2.value.length == 11 && document.updatedelete.phone2.value.charAt(3) == '-') {
         document.updatedelete.phone2.value = document.updatedelete.phone2.value.substring(0,3) + "-" + document.updatedelete.phone2.value.substring(4,7) + "-" + document.updatedelete.phone2.value.substring(7);
     }
+    if (document.updatedelete.demo_cell.value.length == 10) {
+        document.updatedelete.demo_cell.value = document.updatedelete.demo_cell.value.substring(0,3) + "-" + document.updatedelete.demo_cell.value.substring(3,6) + "-" + document.updatedelete.demo_cell.value.substring(6);
+    }
+    if (document.updatedelete.demo_cell.value.length == 11 && document.updatedelete.demo_cell.value.charAt(3) == '-') {
+        document.updatedelete.demo_cell.value = document.updatedelete.demo_cell.value.substring(0,3) + "-" + document.updatedelete.demo_cell.value.substring(4,7) + "-" + document.updatedelete.demo_cell.value.substring(7);
+    }
     if (document.getElementById("refDocPhone").innerHTML.length == 10) {
         document.getElementById("refDocPhone").innerHTML = document.getElementById("refDocPhone").innerHTML.substring(3,0) + "-" + document.getElementById("refDocPhone").innerHTML.substring(3,6) + "-" + document.getElementById("refDocPhone").innerHTML.substring(6);
     }
@@ -272,11 +287,17 @@ function isCanadian(){
 
 function getSpecialistInfo(specialistId, specialistType) {
     if (specialistId != null || specialistId != ""){
-        jQuery.getJSON("../oscarEncounter/oscarConsultationRequest/getProfessionalSpecialist.json", {id: specialistId},
+        jQuery.getJSON("../oscarEncounter/oscarConsultationRequest/getProfessionalSpecialist.jsp", {id: specialistId},
             function (xml) {
                 if (specialistType == "r") {
                     document.getElementById("refDocPhone").innerHTML = xml.phoneNumber;
                     document.getElementById("refDocFax").innerHTML = xml.faxNumber;
+                    if (xml.privatePhoneNumber != "") {
+						document.getElementById("refDocPrivPhone").innerHTML = xml.privatePhoneNumber;
+					} else { document.getElementById("refDocPrivPhone").parentElement.style.display = "none"; }
+					if (xml.streetAddress != "") {
+						document.getElementById("refDocAddress").innerHTML = xml.streetAddress;
+					} else { document.getElementById("refDocAddress").parentElement.style.display = "none"; }
                 } else if(specialistType = 'f'){
                     document.getElementById("famDocPhone").innerHTML = xml.phoneNumber;
                     document.getElementById("famDocFax").innerHTML = xml.faxNumber;
@@ -288,6 +309,10 @@ function getSpecialistInfo(specialistId, specialistType) {
         if (specialistType == "r") {
             document.getElementById("refDocPhone").innerHTML = "";
             document.getElementById("refDocFax").innerHTML = "";
+			document.getElementById("refDocPrivPhone").innerHTML = "";
+			document.getElementById("refDocPrivPhone").parentElement.style.display = "none";
+			document.getElementById("refDocAddress").innerHTML = "";
+			document.getElementById("refDocAddress").parentElement.style.display = "none";
         } else if(specialistType = 'f'){
             document.getElementById("famDocPhone").innerHTML = "";
             document.getElementById("famDocFax").innerHTML = "";

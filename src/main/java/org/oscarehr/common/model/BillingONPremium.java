@@ -50,6 +50,9 @@ public class BillingONPremium extends AbstractModel<Integer> implements Serializ
     @Column(name = "providerohip_no", nullable = false)
     private String providerOHIPNo;
     
+    @Column(name = "premium_type", nullable = false)
+    private String premiumType;
+    
     @Column(name = "pay_date", nullable = false)
     @Temporal(TemporalType.DATE)
     private Date payDate;
@@ -80,6 +83,9 @@ public class BillingONPremium extends AbstractModel<Integer> implements Serializ
     
     public String getProviderOHIPNo() { return this.providerOHIPNo; }
     public void setProviderOHIPNo(String providerOHIPNo) { this.providerOHIPNo = providerOHIPNo; }
+    
+    public String getPremiumType() { return this.premiumType; }
+    public void setPremiumType(String premiumType) { this.premiumType = premiumType; }
     
     public Date getPayDate() { return this.payDate; }
     public void setPayDate(Date payDate) { this.payDate = payDate; }

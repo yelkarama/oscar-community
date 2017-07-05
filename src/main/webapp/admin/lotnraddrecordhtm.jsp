@@ -79,6 +79,18 @@ PreventionsLotNrsDao PreventionsLotNrsDao = (PreventionsLotNrsDao)SpringUtils.ge
 <html:html locale="true">
 <head>
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/global.js"></script>
+	<script type="text/javascript" src="<%=request.getContextPath()%>/share/javascript/Oscar.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery-3.1.0.min.js"></script>
+	<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery.maskedinput.js"></script>
+	<script type="text/javascript" src="<%=request.getContextPath()%>/share/calendar/calendar.js"></script>
+	<script type="text/javascript" src="<%=request.getContextPath()%>/share/calendar/lang/calendar-en.js"></script>
+	<script type="text/javascript" src="<%=request.getContextPath()%>/share/calendar/calendar-setup.js"></script>
+		<script type="text/javascript">
+            var jQuery_3_1_0 = jQuery.noConflict(true);
+		</script>
+
+	<link rel="stylesheet" type="text/css" media="all"
+		  href="<%=request.getContextPath()%>/share/calendar/calendar.css" title="win2k-cold-1" />
 <title><bean:message key="admin.admin.add_lot_nr.title" /></title>
 <link rel="stylesheet" href="../web.css">
 <script type="text/javascript">
@@ -125,9 +137,18 @@ function onsub() {
 	<tr>
 			<td align="right"><bean:message
 				key="admin.admin.add_lot_nr.lotnr" />:</td>
-			<td><input type="text" name="lotnr" size="20"
-				maxlength="20"></td>
-	</tr>		
+			<td><input type="text" name="lotnr" size="30"
+				maxlength="30"></td>
+	</tr>
+	<tr>
+		<td align="right"><bean:message
+				key="admin.admin.add_lot_nr.expdate" />:</td>
+		<td>
+		<input type="text" name="expDate" id="expDate" size="11" value="">
+		<img src="../images/cal.gif" id="expDate_cal">
+		<script type="application/javascript">createStandardDatepicker(jQuery_3_1_0('#expDate'), "expDate_cal");</script>
+		</td>
+	</tr>
 
 	<tr>
 		<td colspan="2">

@@ -195,7 +195,7 @@ public class PreventionPrintPdf {
         upperYcoord = document.top() - header.getHeight() -(clinicParagraph.getLeading()*4f) - font.getCalculatedLeading(LINESPACING);
         
         int subIdx;
-        String preventionHeader, procedureAge, procedureDate, procedureStatus, procedureResult;
+        String preventionHeader, procedureAge, procedureDate, procedureLotNumber, procedureStatus, procedureResult;
         
         //1 - obtain number of lines of incoming prevention data
         boolean showComments = OscarProperties.getInstance().getBooleanProperty("prevention_show_comments", "true");        
@@ -249,6 +249,7 @@ public class PreventionPrintPdf {
 
             procedureAge = currentPrevention.getString("preventionAge");
             procedureDate = currentPrevention.getString("preventionDate");
+            procedureLotNumber = currentPrevention.getString("preventionLot");
             procedureStatus = currentPrevention.getString("preventionStatus");
             procedureResult = currentPrevention.getString("preventionResult");            
 
@@ -261,6 +262,13 @@ public class PreventionPrintPdf {
             procedure.add("Date:");
             procedure.add(new Chunk(procedureDate, FontFactory.getFont(FontFactory.HELVETICA, 9, Font.NORMAL, Color.BLACK)));
             procedure.add(Chunk.NEWLINE);
+
+            //Lot
+            if (procedureLotNumber!=null && !procedureLotNumber.trim().equals("")){
+                procedure.add("Lot No:");
+                procedure.add(new Chunk(procedureLotNumber, FontFactory.getFont(FontFactory.HELVETICA, 9, Font.NORMAL, Color.BLACK)));
+                procedure.add(Chunk.NEWLINE);
+            }
 
             //Status
             procedure.add("Status:");
@@ -455,10 +463,15 @@ public class PreventionPrintPdf {
 
                 pe = preventionExtDao.findByPreventionIdAndKey(Integer.parseInt(preventionId), "result");
                 if (pe.size()>0) { result = pe.get(0).getVal(); }
+
+                String lot = "";
+                pe = preventionExtDao.findByPreventionIdAndKey(Integer.parseInt(preventionId), "lot");
+                if (pe.size()>0) { lot = pe.get(0).getVal(); }
                 //Populating JSON object with Prevention Data.
                 currentPrevention.put("preventionName", preventionName);
                 currentPrevention.put("preventionAge", preventionAge);
                 currentPrevention.put("preventionDate", preventionDate);
+                currentPrevention.put("preventionLot", lot);
                 currentPrevention.put("preventionStatus", preventionStatus);
                 currentPrevention.put("preventionComments", preventionComments);
                 currentPrevention.put("preventionResult", result);
@@ -477,29 +490,6 @@ public class PreventionPrintPdf {
             //No more of same prevention, subIndex set back to 0
             subIndex = 0;
         }
-
-        //Sorting List of Preventions by Date. This sorts from oldest to newest.
-        Collections.sort(preventionItems, new Comparator<JSONObject>(){
-            private static final String KEY_NAME = "preventionDate";
-
-            @Override
-            public int compare(JSONObject a, JSONObject b){
-                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-                Date date1 = new Date();
-                Date date2 = new Date();
-
-                try{
-                    date1 = df.parse((String)a.get(KEY_NAME));
-                    date2 = df.parse((String)b.get(KEY_NAME));
-                } catch(JSONException jse){
-                    jse.printStackTrace();
-                } catch(ParseException pe){
-                    pe.printStackTrace();
-                }
-
-                return date1.compareTo(date2);
-            }
-        });
 
         return preventionItems;
     }

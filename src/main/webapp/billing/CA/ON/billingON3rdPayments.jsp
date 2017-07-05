@@ -310,7 +310,7 @@ function validateDiscountNumberic(idx) {
 						<select id="sel<%=i%>" name="sel<%=i%>" onchange="setStatus(this.selectedIndex,<%=i %>);">
 							<option value="payment">Payment</option>
 	       		 			<option value="credit">Refund Credit / Overpayment</option>
-	       		 			<option value="refund">Refund / Write off</option>
+	       		 			<option value="refund">Write off</option>
 						</select>
 	        		</div>
 	      		</td>
@@ -385,7 +385,7 @@ function validateDiscountNumberic(idx) {
 			sumOfDiscount = sumOfDiscount.add(paymentLists.get(i).getTotal_discount());
 			sumOfRefund = sumOfRefund.add(paymentLists.get(i).getTotal_refund());
 			sumOfCredit = sumOfCredit.add(paymentLists.get(i).getTotal_credit());
-		    balance = total.subtract(sumOfPay).subtract(sumOfDiscount).add(sumOfCredit);
+		    balance = total.subtract(sumOfPay).subtract(sumOfDiscount).subtract(sumOfRefund).add(sumOfCredit);
 		    balances.add(balance);
 		    
 		    String paymentType = "";
@@ -418,7 +418,7 @@ function validateDiscountNumberic(idx) {
 					<th align="left">Date</th>
 					<th align="left">Discount</th>
 					<th align="left">Refund Credit / Overpayment</th>
-					<th align="left">Refund / Write off</th>
+					<th align="left">Write off</th>
 					<th align="left">Balance</th>
 					<th></th>
 				</tr>

@@ -83,6 +83,13 @@ public final class FaxAction {
 		File tempFile = null;
 
 		try {
+			EFormDataDao eFormDataDao = SpringUtils.getBean(EFormDataDao.class);
+			EFormData eFormData = eFormDataDao.find(Integer.parseInt(formId));
+			Integer demographicNumber = 0;
+			if (eFormData!=null){
+				demographicNumber = eFormData.getDemographicId();
+			}
+
 			logger.info("Generating PDF for eform with fdid = " + formId);
 
 			tempFile = File.createTempFile("EForm." + formId, ".pdf");
@@ -105,17 +112,40 @@ public final class FaxAction {
 			recipients = new ArrayList<String>(new HashSet<String>(recipients));
 			String tempPath = System.getProperty("java.io.tmpdir");
 			FileOutputStream fos;
-			for (int i = 0; i < recipients.size(); i++) {					
+			for (int i = 0; i < recipients.size(); i++) {
+				FaxJob faxJob = new FaxJob();
+				FaxJobDao faxJobDao = SpringUtils.getBean(FaxJobDao.class);
+				FaxConfigDao faxConfigDao = SpringUtils.getBean(FaxConfigDao.class);
+				List<FaxConfig> faxConfigs = faxConfigDao.findAll(null, null);
+				boolean validFaxNumber = false;
+
 			    String faxNo = recipients.get(i).trim().replaceAll("\\D", "");
 			    if (faxNo.length() < 7) { throw new DocumentException("Document target fax number '"+faxNo+"' is invalid."); }
-			    String tempName = "EForm-" + formId + "." + System.currentTimeMillis();
+			    String tempName = "EForm-" + formId + "." + String.valueOf(i) + "." + System.currentTimeMillis();
 				
 				String tempPdf = String.format("%s%s%s.pdf", tempPath, File.separator, tempName);
 				String tempTxt = String.format("%s%s%s.txt", tempPath, File.separator, tempName);
 				
 				// Copying the fax pdf.
 				FileUtils.copyFile(tempFile, new File(tempPdf));
-				
+
+				faxJob = new FaxJob();
+				faxJob.setDestination(faxNo);
+				faxJob.setFile_name(tempFile.getName());
+				faxJob.setFax_line(faxNo);
+				faxJob.setStamp(new Date());
+				faxJob.setOscarUser(providerId);
+				faxJob.setDemographicNo(demographicNumber);
+
+				for (FaxConfig faxConfig : faxConfigs) {
+					if (faxConfig.getFaxNumber().equals(faxNo)) {
+						faxJob.setStatus(FaxJob.STATUS.SENT);
+						faxJob.setUser(faxConfig.getFaxUser());
+						validFaxNumber = true;
+						break;
+					}
+				}
+
 				// Creating text file with the specialists fax number.
 				fos = new FileOutputStream(tempTxt);				
 				PrintWriter pw = new PrintWriter(fos);
@@ -128,27 +158,19 @@ public final class FaxAction {
 					throw new DocumentException("Unable to create files for fax of eform " + formId + ".");
 				}		
 				if (skipSave) {
-		        	 EFormDataDao eFormDataDao=(EFormDataDao) SpringUtils.getBean("EFormDataDao");
-		        	 EFormData eFormData=eFormDataDao.find(Integer.parseInt(formId));
 		        	 eFormData.setCurrent(false);
 		        	 eFormDataDao.merge(eFormData);
 				}
 
-				
-                FaxJobDao faxJobDao = SpringUtils.getBean(FaxJobDao.class);
-                FaxConfigDao faxConfigDao = SpringUtils.getBean(FaxConfigDao.class);
-                List<FaxConfig> faxConfigs = faxConfigDao.findAll(null, null);
-                FaxJob faxJob = new FaxJob();
-                faxJob.setDestination(faxNo);
-                faxJob.setFile_name(tempFile.getName());
                 faxJob.setNumPages(1);
-                faxJob.setFax_line(faxNo);
-                faxJob.setStamp(new Date());
-                faxJob.setOscarUser(providerId);
-                faxJob.setUser("fax");
-                faxJob.setDemographicNo(Integer.parseInt(demographicNo));
-                faxJob.setStatus(FaxJob.STATUS.SENT);
-                faxJobDao.persist(faxJob);
+				if( !validFaxNumber ) {
+					faxJob.setStatus(FaxJob.STATUS.ERROR);
+					logger.error("PROBLEM CREATING FAX JOB", new DocumentException("Document outgoing fax number '"+faxNo+"' is invalid."));
+				}
+				else {
+					faxJob.setStatus(FaxJob.STATUS.SENT);
+				}
+				faxJobDao.persist(faxJob);
 			}
 			// Removing the consulation pdf.
 			tempFile.delete();			

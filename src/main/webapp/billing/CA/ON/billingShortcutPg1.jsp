@@ -754,27 +754,27 @@ ctlCount = 0;
 						<td nowrap align="center"><bean:message key="billing.billingCorrection.formServiceCode"/> x <bean:message key="billing.billingCorrection.formUnit"/><br>
 						<input type="text" name="serviceDate0" size="5" maxlength="5"
 							value="<%=request.getParameter("serviceDate0")!=null?request.getParameter("serviceDate0"):""%>">x
-						<input type="text" name="serviceUnit0" size="2" maxlength="2"
+						<input type="text" name="serviceUnit0" size="10" maxlength="10"
 							style=""
 							value="<%=request.getParameter("serviceUnit0")!=null?request.getParameter("serviceUnit0"):""%>"><br>
 						<input type="text" name="serviceDate1" size="5" maxlength="5"
 							value="<%=request.getParameter("serviceDate1")!=null?request.getParameter("serviceDate1"):""%>">x
-						<input type="text" name="serviceUnit1" size="2" maxlength="2"
+						<input type="text" name="serviceUnit1" size="10" maxlength="10"
 							style=""
 							value="<%=request.getParameter("serviceUnit1")!=null?request.getParameter("serviceUnit1"):""%>"><br>
 						<input type="text" name="serviceDate2" size="5" maxlength="5"
 							value="<%=request.getParameter("serviceDate2")!=null?request.getParameter("serviceDate2"):""%>">x
-						<input type="text" name="serviceUnit2" size="2" maxlength="2"
+						<input type="text" name="serviceUnit2" size="10" maxlength="10"
 							style=""
 							value="<%=request.getParameter("serviceUnit2")!=null?request.getParameter("serviceUnit2"):""%>"><br>
                                                  <input type="text" name="serviceDate3" size="5" maxlength="5"
 							value="<%=request.getParameter("serviceDate3")!=null?request.getParameter("serviceDate3"):""%>">x
-						<input type="text" name="serviceUnit3" size="2" maxlength="2"
+						<input type="text" name="serviceUnit3" size="10" maxlength="10"
 							style=""
 							value="<%=request.getParameter("serviceUnit3")!=null?request.getParameter("serviceUnit3"):""%>"><br>
                                                 <input type="text" name="serviceDate4" size="5" maxlength="5"
 							value="<%=request.getParameter("serviceDate4")!=null?request.getParameter("serviceDate4"):""%>">x
-						<input type="text" name="serviceUnit4" size="2" maxlength="2"
+						<input type="text" name="serviceUnit4" size="10" maxlength="10"
 							style=""
 							value="<%=request.getParameter("serviceUnit4")!=null?request.getParameter("serviceUnit4"):""%>">
 						</td>

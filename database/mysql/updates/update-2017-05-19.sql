@@ -1,0 +1,1 @@
+ALTER TABLE appointmentType ADD reasonCode int(11) DEFAULT 0;

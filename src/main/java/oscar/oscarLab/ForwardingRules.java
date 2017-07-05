@@ -39,6 +39,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.IncomingLabRulesDao;
 import org.oscarehr.common.model.IncomingLabRules;
+import org.oscarehr.common.model.IncomingLabRulesType;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.util.SpringUtils;
 
@@ -60,15 +61,25 @@ public class ForwardingRules {
 
 		for (Object[] i : dao.findRules(providerNo)) {
 			Provider p = (Provider) i[1];
-
+            IncomingLabRules forwardRules = (IncomingLabRules) i[0];
 			ArrayList<String> info = new ArrayList<String>();
 			info.add(p.getProviderNo());
 			info.add(p.getFirstName());
 			info.add(p.getLastName());
+			String forwardTypes = "";
+            for (IncomingLabRulesType types : forwardRules.getForwardTypes()) {
+                forwardTypes += types.getType() + " ";
+            }
+            info.add(forwardTypes);
 			ret.add(info);
 		}
 		return ret;
 	}
+
+    public List<Object[]> getForwardRulesAndProviders(String providerNo) {
+        IncomingLabRulesDao dao = SpringUtils.getBean(IncomingLabRulesDao.class);
+        return dao.findRules(providerNo);
+    }
 
 	public String getStatus(String providerNo) {
 		String ret = "N";
