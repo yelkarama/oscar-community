@@ -512,7 +512,7 @@ String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 					<%
 					} else {
 					%>
-					<input type="button" id="signoff<%=hrmReportId %>" value="Sign-Off" onClick="signOffHrm('<%=hrmReportId %>', '<%=isListView%>')" />
+					<input type="button" id="signoff<%=hrmReportId %>" value="Sign-Off" onClick="signOffHrm('<%=hrmReportId %>', <%=isListView%>)" />
 					<%
 					}
 					%>

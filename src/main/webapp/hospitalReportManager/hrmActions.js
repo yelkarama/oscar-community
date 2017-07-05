@@ -36,9 +36,6 @@ function doSignOff(reportId, view, isSign) {
         data: data,
         success: function(data)
         {
-            if (reportId) {
-                Effect.Fade('hrmdoc_'+reportId);
-            }
             if (view)
             {
                 self.opener.removeReport(reportId);
@@ -46,8 +43,20 @@ function doSignOff(reportId, view, isSign) {
             }
             else
             {
-                refreshCategoryList();
-                fakeScroll();
+                var signOffButton = document.getElementById('signoff' + reportId);
+                var buttonText = "Sign-Off";
+                var buttonClick = "";
+
+                if (isSign) {
+                    buttonText = "Revoke " + buttonText;
+                    buttonClick = "javascript: revokeSignOffHrm('" + reportId + "');";
+                }
+                else {
+                    buttonClick = "javascript: signOffHrm('" + reportId + "', " + view + ");";
+                }
+
+                signOffButton.value = buttonText;
+                signOffButton.setAttribute("onClick", buttonClick);
             }
         }
     });
