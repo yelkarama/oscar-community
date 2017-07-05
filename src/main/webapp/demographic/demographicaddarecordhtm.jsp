@@ -316,6 +316,13 @@ function formatPhoneNum() {
     if (document.adddemographic.phone2.value.length == 11 && document.adddemographic.phone2.value.charAt(3) == '-') {
         document.adddemographic.phone2.value = document.adddemographic.phone2.value.substring(0,3) + "-" + document.adddemographic.phone2.value.substring(4,7) + "-" + document.adddemographic.phone2.value.substring(7);
     }
+
+    if (document.adddemographic.demo_cell.value.length == 10) {
+        document.adddemographic.demo_cell.value = document.adddemographic.demo_cell.value.substring(0,3) + "-" + document.adddemographic.demo_cell.value.substring(3,6) + "-" + document.adddemographic.demo_cell.value.substring(6);
+    }
+    if (document.adddemographic.demo_cell.value.length == 11 && document.adddemographic.demo_cell.value.charAt(3) == '-') {
+        document.adddemographic.demo_cell.value = document.adddemographic.demo_cell.value.substring(0,3) + "-" + document.adddemographic.demo_cell.value.substring(4,7) + "-" + document.adddemographic.demo_cell.value.substring(7);
+    }
 }
 function rs(n,u,w,h,x) {
   args="width="+w+",height="+h+",resizable=yes,scrollbars=yes,status=0,top=60,left=30";
