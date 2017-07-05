@@ -20,6 +20,8 @@ This Page creates the fax form for eforms.
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
 <%@ page import="org.oscarehr.common.model.*,org.oscarehr.common.dao.*"%>
+<%@ page import="org.oscarehr.util.SpringUtils" %>
+<%@ page import="java.util.List" %>
 <jsp:useBean id="displayServiceUtil" scope="request" class="oscar.oscarEncounter.oscarConsultationRequest.config.pageUtil.EctConDisplayServiceUtil" />
 <%
 
@@ -37,6 +39,20 @@ This Page creates the fax form for eforms.
 			demographic = demoData.getDemographic(LoggedInInfo.getLoggedInInfoFromSession(request), demo);
 			rdohip = SxmlMisc.getXmlContent(StringUtils.trimToEmpty(demographic.getFamilyDoctor()),"rdohip");
 			rdohip = SxmlMisc.getXmlContent(demographic.getFamilyDoctor(),"rdohip").trim();
+		}
+		String formId = request.getParameter("fdid");
+		List<String> faxRecipients = new ArrayList<String>();
+		List<String> faxRecipientsNames = new ArrayList<String>();
+		if (formId != null && !"".equals(formId)) {
+			EFormValueDao eFormValueDao = SpringUtils.getBean(EFormValueDao.class);
+			List<EFormValue> eFormValues = eFormValueDao.findByFormDataId(Integer.parseInt(formId));
+			for (EFormValue value : eFormValues) {
+			    if (value.getVarName().equals("faxRecipients")) {
+					faxRecipients.add(value.getVarValue());
+				} else if (value.getVarName().equals("faxRecipientsName")) {
+					faxRecipientsNames.add(value.getVarValue());
+				}
+			}
 		}
 	  
 %> 
@@ -88,19 +104,33 @@ This Page creates the fax form for eforms.
 	<td colspan=3>
 		<ul id="faxRecipients">
 		<%
-		WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
-        UserPropertyDAO userPropertyDAO = (UserPropertyDAO) ctx.getBean("UserPropertyDAO");
-        String provider = (String) request.getSession().getAttribute("user");
-        UserProperty prop = userPropertyDAO.getProp(provider, UserProperty.EFORM_REFER_FAX);
-        boolean eformFaxRefer = prop != null && !"no".equals(prop.getValue());
-		
-		if (eformFaxRefer && !"".equals(rdName) && !"".equals(rdFaxNo)) {
-			%>
-			<li>
-			<%=rdName %> <b>Fax No: </b><%= rdFaxNo %> <a href="javascript:void(0);" onclick="removeRecipient(this)">remove</a>
-				<input type="hidden" name="faxRecipients" value="<%= rdFaxNo %>" />
-			</li>
-			<%
+		if (!faxRecipients.isEmpty()) {
+			//make sure that the faxRecipients count matches up with the names
+			if (faxRecipients.size() == faxRecipientsNames.size()) {
+		    for (int i = 0; i < faxRecipients.size(); i++) { %>
+		            <li>
+						<%=faxRecipientsNames.get(i)%> <b>Fax No: </b><%=faxRecipients.get(i)%> <a href="javascript:void(0);" onclick="removeRecipient(this)">remove</a>
+						<input type="hidden" name="faxRecipients" value="<%=faxRecipients.get(i)%>"/>
+						<input type="hidden" name="faxRecipientsName" value="<%=faxRecipientsNames.get(i)%>"/>
+					</li>
+				<% }
+			}
+		} else {
+			WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
+			UserPropertyDAO userPropertyDAO = (UserPropertyDAO) ctx.getBean("UserPropertyDAO");
+			String provider = (String) request.getSession().getAttribute("user");
+			UserProperty prop = userPropertyDAO.getProp(provider, UserProperty.EFORM_REFER_FAX);
+			boolean eformFaxRefer = prop != null && !"no".equals(prop.getValue());
+			
+			if (eformFaxRefer && !"".equals(rdName) && !"".equals(rdFaxNo)) {
+				%>
+				<li>
+				<%=rdName %> <b>Fax No: </b><%= rdFaxNo %> <a href="javascript:void(0);" onclick="removeRecipient(this)">remove</a>
+					<input type="hidden" name="faxRecipients" value="<%= rdFaxNo %>" />
+					<input type="hidden" name="faxRecipientsName" value="<%=rdName%>"/>
+				</li>
+				<%
+			}
 		}
 		%>
 		</ul>

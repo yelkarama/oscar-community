@@ -20,12 +20,13 @@ var faxControl = {
 		
 		var demoNo ="";			
 		demoNo = getSearchValue("demographic_no");
+		var formId = getSearchValue("fdid");
 		if (demoNo == "") { demoNo = getSearchValue("efmdemographic_no", jQuery("form").attr('action')); }
 		placeholder.html(faxControlPlaceholder);
 		
 		$.ajax({
 			url:"../eform/efmformfax_form.jsp",
-			data:"demographicNo=" + demoNo,
+			data:"demographicNo=" + demoNo + "&fdid=" + formId,
 			success: function(data) {
 				
 				if (data == null || data.trim() == "") {
@@ -94,7 +95,7 @@ function AddOtherFax() {
 function _AddOtherFax(name, number) {
 	//if (name == "" || number == "") { alert("Invalid recipient"); return; }
 	var remove = "<a href='javascript:void(0);' onclick='removeRecipient(this)'>remove</a>";
-	var html = "<li>"+name+"<b>, Fax No: </b>"+number+ " " +remove+"<input type='hidden' name='faxRecipients' value='"+number+"'></input></li>";
+	var html = "<li>"+name+"<b>, Fax No: </b>"+number+ " " +remove+"<input type='hidden' name='faxRecipients' value='"+number+"'/><input type='hidden' name='faxRecipientsName' value='"+name+"'/></li>";
 	jQuery("#faxRecipients").append(jQuery(html));
 	updateFaxButton();
 }
