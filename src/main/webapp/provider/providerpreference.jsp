@@ -58,6 +58,9 @@
 <%@page import="java.util.ArrayList" %>
 <%@page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
 <%@page import="org.oscarehr.common.model.Provider" %>
+<%@ page import="oscar.oscarBilling.ca.on.data.JdbcBillingPageUtil" %>
+<%@ page import="oscar.oscarRx.data.RxPharmacyData" %>
+<%@ page import="org.oscarehr.common.model.PharmacyInfo" %>
 
 <%
 	CtlBillingServiceDao ctlBillingServiceDao = SpringUtils.getBean(CtlBillingServiceDao.class);
@@ -209,6 +212,14 @@ function showHideERxPref() {
 		margin-left:25%; 
 		margin-right:25%;
     }
+
+	#billingONpref{
+		text-align: left;
+		margin-left: 20%;
+	}
+	#billingONpref select{
+		width:350px;
+	}
 	
 </style>
 </head>
@@ -229,9 +240,12 @@ function showHideERxPref() {
 	String defaultPMM = request.getParameter("default_pmm")!=null?request.getParameter("default_pmm"):providerPreference.getDefaultCaisiPmm();
 	String caisiBillingNotDelete = request.getParameter("caisiBillingPreferenceNotDelete")!=null?request.getParameter("caisiBillingPreferenceNotDelete"):String.valueOf(providerPreference.getDefaultDoNotDeleteBilling());
     UserPropertyDAO propertyDao = (UserPropertyDAO)SpringUtils.getBean("UserPropertyDAO");
+
+    String defaultBillingLocation = providerPreference.getDefaultBillingLocation()!=null?providerPreference.getDefaultBillingLocation():"no";
+	String defaultSliCode = providerPreference.getDefaultSliCode()!=null?providerPreference.getDefaultSliCode():"no";
 %>
 
-<body bgproperties="fixed"  onLoad="setfocus();showHideBillPref();showHideERxPref();" topmargin="0"leftmargin="0" rightmargin="0" style="font-family:sans-serif">
+<body bgproperties="fixed"  onLoad="setfocus();showHideBillPref();showHideERxPref();selectSelectListOption(document.forms[0].default_slicode,'<%=defaultSliCode%>')" topmargin="0"leftmargin="0" rightmargin="0" style="font-family:sans-serif">
 	<FORM NAME = "UPDATEPRE" METHOD="post" ACTION="providerupdatepreference.jsp" onSubmit="return(checkTypeInAll())">
 
 		<div style="background-color:<%=deepcolor%>;text-align:center;font-weight:bold">
@@ -304,7 +318,17 @@ function showHideERxPref() {
 				<% 	
 					ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 					List<Provider> doctors = providerDao.getProvidersByType("doctor");
+					List<Provider> listProvider = providerDao.getProviders(true);
 					String defaultDoctor = providerPreference.getDefaultDoctor();
+
+					RxPharmacyData pharmacy = new RxPharmacyData();
+					List<PharmacyInfo> pharList = pharmacy.getAllPharmacies();
+					String defaultPharmacy = propertyDao.getStringValue(providerNo, "default_pharmacy");
+					
+					if (defaultPharmacy==null)
+					{
+					    defaultPharmacy = "";
+					}
 				%>
 				<td class="preferenceLabel">
 					<bean:message key="provider.preference.defaultDoctor" />
@@ -314,6 +338,19 @@ function showHideERxPref() {
 						<option value=""></option>
 						<% for (Provider doctor : doctors) { %>
 							<option value="<%= doctor.getProviderNo() %>" <%=doctor.getProviderNo().equals(defaultDoctor) ? "selected='selected'" : ""%>> <%= doctor.getFormattedName() %> </option>
+						<% } %>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td class="preferenceLabel">
+					<bean:message key="provider.preference.defaultPharmacy" />
+				</td>
+				<td class="preferenceValue">
+					<select name="default_pharmacy">
+						<option value=""></option>
+						<% for (PharmacyInfo pharmacies : pharList) { %>
+						<option value="<%= pharmacies.getId() %>" <%=pharmacies.getId().toString().equals(defaultPharmacy) ? "selected='selected'" : ""%>> <%= pharmacies.getName() %> </option>
 						<% } %>
 					</select>
 				</td>
@@ -382,10 +419,6 @@ function showHideERxPref() {
 								if (ticklerforproviderNo == null) {
 									ticklerforproviderNo = loggedInInfo.getLoggedInProviderNo();
 								}
-								List<Provider> listProvider = new ArrayList<Provider>();
-								if (providerDao != null) {
-									listProvider = providerDao.getProviders();
-								}							
 								for (Provider provider : listProvider) {
 									String selected = "";
 									if (ticklerforproviderNo.equals(provider.getProviderNo())) {
@@ -477,8 +510,8 @@ function showHideERxPref() {
                 <td class="preferenceValue">
                     <select name="ticklerDefaultRecipient">
                         <option value=""></option>
-                        <% for (Provider doctor : doctors) { %>
-                        <option value="<%= doctor.getProviderNo() %>" <%=doctor.getProviderNo().equals(defaultRecipient) ? "selected='selected'" : ""%>> <%= doctor.getFormattedName() %> </option>
+                        <% for (Provider provider : listProvider) { %>
+                        <option value="<%= provider.getProviderNo() %>" <%=provider.getProviderNo().equals(defaultRecipient) ? "selected='selected'" : ""%>> <%= provider.getFormattedName() %> </option>
                         <% } %>
                     </select>
                 </td>
@@ -710,6 +743,13 @@ Event.observe('rxInteractionWarningLevel', 'change', function(event) {
     <td align="center"><a href=# onClick ="popupPage(230,860,'providerSignature.jsp');return false;"><bean:message key="provider.btnEditSignature"/></a>
     </td>
   </tr>
+<% if(OscarProperties.getInstance().isPropertyActive("consult_auto_load_signature")) { %>
+  <tr>
+    <td align="center">
+      <a href=# onClick ="popupPage(430,860,'providerConsultSignature.jsp');return false;"><bean:message key="provider.consultSignatureStamp.title"/></a>
+    </td>
+  </tr>
+<% } %>
   <oscar:oscarPropertiesCheck property="TORONTO_RFQ" value="no" defaultVal="true">
   <security:oscarSec roleName="<%=roleName$%>" objectName="_billing" rights="r">
   <tr>
@@ -725,7 +765,7 @@ Event.observe('rxInteractionWarningLevel', 'change', function(event) {
   <tr>
       <td align="center">
 	  <div id="billingONpref">
-          <bean:message key="provider.labelDefaultBillForm"/>:
+          <bean:message key="provider.labelDefaultBillForm"/>:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	  <select name="default_servicetype">
 	      <option value="no">-- no --</option>
 <%
@@ -747,6 +787,39 @@ Event.observe('rxInteractionWarningLevel', 'change', function(event) {
 		}
 	}
 %>
+	  </select>
+		  <br/>
+		  Default Billing Location:
+	  <select name="default_location">
+		  <option value="no">-- no --</option>
+		  <%
+			  String billLocationNo="", billLocation="";
+			  JdbcBillingPageUtil tdbObj = new JdbcBillingPageUtil();
+
+			  List lLocation = tdbObj.getFacilty_num();
+			  for (int i = 0; i < lLocation.size(); i = i + 2) {
+				  billLocationNo = (String) lLocation.get(i);
+				  billLocation = (String) lLocation.get(i + 1);
+		  %>
+		  <option value="<%=billLocationNo%>" <%=billLocationNo.equals(defaultBillingLocation)?"selected":""%>> <%=billLocation%> </option>
+		  <%
+			  }
+		  %>
+	  </select>
+		  <br/>
+		  Default SLI Code:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	  <select name="default_slicode">
+		  <option value="no">-- no --</option>
+		  <option value="HDS"><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.HDS" /></option>
+		  <option value="HED"><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.HED" /></option>
+		  <option value="HIP"><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.HIP" /></option>
+		  <option value="HOP"><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.HOP" /></option>
+		  <option value="HRP"><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.HRP" /></option>
+		  <option value="IHF"><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.IHF" /></option>
+		  <option value="OFF"><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.OFF" /></option>
+		  <option value="OTN"><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.OTN" /></option>
+		  <option value="PDF"><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.PDF" /></option>
+		  <option value="RTF"><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.RTF" /></option>
 	  </select>
 	  </div>
       </td>

@@ -78,6 +78,8 @@ public final class HandlerClassFactory {
                 Element e = (Element) items.get(i);
                 msgType = e.getAttributeValue("name");
                 String className = e.getAttributeValue("className");
+                if (type.equals("SIOUX"))
+                    msgHandler = "oscar.oscarLab.ca.all.upload.handlers.MEDITECHHandler";
                 if (msgType.equals(type) && (className.indexOf(".")==-1) )
                     msgHandler = "oscar.oscarLab.ca.all.upload.handlers."+e.getAttributeValue("className");
                 if (msgType.equals(type) && (className.indexOf(".")!=-1) )

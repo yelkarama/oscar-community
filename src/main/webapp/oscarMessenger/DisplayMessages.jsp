@@ -30,6 +30,11 @@
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic" %>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar" %>
 <%@ page import="oscar.oscarDemographic.data.DemographicData"%>
+<%@ page import="org.oscarehr.common.model.MessageFolder" %>
+<%@ page import="java.util.List" %>
+<%@ page import="java.util.ArrayList" %>
+<%@ page import="org.oscarehr.common.dao.MessageFolderDao" %>
+<%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
       String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -59,6 +64,8 @@ if (boxType == null || boxType.equals("")){
 }else{
     pageType = 0;
 }   //messageid
+
+String folderId = request.getParameter("folder");
 
 String demographic_no = request.getParameter("demographic_no");
 String demographic_name = "";
@@ -101,6 +108,9 @@ oscar.oscarMessenger.pageUtil.MsgSessionBean bean = (oscar.oscarMessenger.pageUt
 <jsp:useBean id="DisplayMessagesBeanId" scope="session" class="oscar.oscarMessenger.pageUtil.MsgDisplayMessagesBean" />
 <% DisplayMessagesBeanId.setProviderNo(bean.getProviderNo());
 bean.nullAttachment();
+
+    MessageFolderDao messageFolderDao = SpringUtils.getBean(MessageFolderDao.class);
+    List<MessageFolder> messageFolders = messageFolderDao.findAllFoldersByProvider(bean.getProviderNo());
 %>
 <jsp:setProperty name="DisplayMessagesBeanId" property="*" />
 <jsp:useBean id="ViewMessageForm" scope="session" class="oscar.oscarMessenger.pageUtil.MsgViewMessageForm"/>
@@ -155,6 +165,27 @@ tr.newMessage td {
 .TopStatusBar{
 width:100% !important;
 }
+
+.MainTableLeftColumn{
+    vertical-align: top;
+}
+
+.folderList {
+    list-style-type: none;
+    list-style-position:inside;
+    margin:0;
+    padding:5px;
+}
+
+.folderList a {
+    color: #000;
+    text-decoration: none;
+}
+
+.currentFolder {
+    font-size: 90%;
+    font-weight: bold;
+}
 </style>
 
 <script type="text/javascript">
@@ -184,6 +215,23 @@ function checkAll(formId){
       f.messageNo[i].checked = val;
    }
 }
+function moveToFolder(selected){
+    var selectedMessages = [];
+    var folder = selected.value;
+    var f = document.getElementById('msgList');
+
+    for (var i = 0; i < f.messageNo.length; i++){
+        if (f.messageNo[i].checked){
+            selectedMessages.push(f.messageNo[i].value);
+        }
+    }
+    if (folder!=null && folder!="-1" && selectedMessages.length>0){
+        f.action="<%=request.getContextPath()%>/oscarMessenger/DisplayMessages.do?moveTo="+folder;
+        f.submit();
+    }
+
+
+}
 
 </script>
 </head>
@@ -201,24 +249,30 @@ function checkAll(formId){
                         <% String inbxStyle = "messengerButtonsA";
                            String sentStyle = "messengerButtonsA";
                            String delStyle  = "messengerButtonsA";
-                        switch(pageType){
-                            case 0: %>
-     		                    <div class="DivContentTitle"><bean:message key="oscarMessenger.DisplayMessages.msgInbox"/></div>
-                        <%      inbxStyle = "messengerButtonsD";
-                            break;
-                            case 1: %>
-                                <div class="DivContentTitle"><bean:message key="oscarMessenger.DisplayMessages.msgSentTitle"/></div>
-                        <%      sentStyle = "messengerButtonsD";
-                            break;
-                            case 2: %>
-                                <div class="DivContentTitle"><bean:message key="oscarMessenger.DisplayMessages.msgArchived"/></div>
-                        <%      delStyle =  "messengerButtonsD";
-                            break;
-                            case 3: %>
-                                <div class="DivContentTitle">Messages related to <%=demographic_name%> </div> 
-                        <%      delStyle =  "messengerButtonsD";
-                            break;
-                        }%>
+                        if (folderId==null){
+                            switch(pageType){
+                                case 0: %>
+                                    <div class="DivContentTitle"><bean:message key="oscarMessenger.DisplayMessages.msgInbox"/></div>
+                            <%      inbxStyle = "messengerButtonsD";
+                                break;
+                                case 1: %>
+                                    <div class="DivContentTitle"><bean:message key="oscarMessenger.DisplayMessages.msgSentTitle"/></div>
+                            <%      sentStyle = "messengerButtonsD";
+                                break;
+                                case 2: %>
+                                    <div class="DivContentTitle"><bean:message key="oscarMessenger.DisplayMessages.msgArchived"/></div>
+                            <%      delStyle =  "messengerButtonsD";
+                                break;
+                                case 3: %>
+                                    <div class="DivContentTitle">Messages related to <%=demographic_name%> </div>
+                            <%      delStyle =  "messengerButtonsD";
+                                break;
+                            }
+                        }else{
+                             String title =   messageFolderDao.getFolderNameById(bean.getProviderNo(), Integer.parseInt(folderId));%>
+                            <div class="DivContentTitle"><%=title%> </div>
+
+                        <%}%>
                         </td>
                         <td  >
                             <!-- edit 2006-0811-01 by wreby -->
@@ -240,7 +294,16 @@ function checkAll(formId){
         </tr>
         <tr>
             <td class="MainTableLeftColumn">
-            &nbsp;
+            <ul class="folderList main">
+                <li value="0" <%=pageType==0&&folderId==null?"class='currentFolder'":""%>><a href="<%=request.getContextPath()%>/oscarMessenger/DisplayMessages.jsp">Inbox</a></li>
+                <li value="1" <%=pageType==1&&folderId==null?"class='currentFolder'":""%>><a href="<%=request.getContextPath()%>/oscarMessenger/DisplayMessages.jsp?boxType=1">Sent</a></li>
+                <li value="2" <%=pageType==2&&folderId==null?"class='currentFolder'":""%>><a href="<%=request.getContextPath()%>/oscarMessenger/DisplayMessages.jsp?boxType=2">Deleted</a></li>
+            </ul>
+            <ul class="folderList">
+                <% for (MessageFolder folder : messageFolders){%>
+                    <li value="<%=folder.getId()%>" <%=folderId!=null&&(Integer.parseInt(folderId)==folder.getId())?"class='currentFolder'":""%>><a href="<%=request.getContextPath()%>/oscarMessenger/DisplayMessages.jsp?folder=<%=folder.getId()%>"><%=folder.getName()%></a></li>
+                <%}%>
+            </ul>
             </td>
             <td class="MainTableRightColumn">
                 <table width="100%">
@@ -257,24 +320,24 @@ function checkAll(formId){
                                     </td>
                                     <td >
                                         <table class=messButtonsA cellspacing=0 cellpadding=3><tr><td class="messengerButtonsA">
-                                        <html:link page="/oscarMessenger/DisplayMessages.jsp" styleClass="messengerButtons">
-                                         <bean:message key="oscarMessenger.DisplayMessages.btnRefresh"/>
+                                        <html:link page="/oscarMessenger/ManageFolders.jsp" styleClass="messengerButtons">
+                                         Manage Folders
                                         </html:link>
                                         </td></tr></table>
                                     </td>
                                     <td >
-                                        <table class=messButtonsA cellspacing=0 cellpadding=3><tr><td class="messengerButtonsA">
+                                        <!--table  class=messButtonsA cellspacing=0 cellpadding=3><tr><td class="messengerButtonsA">
                                         <html:link page="/oscarMessenger/DisplayMessages.jsp?boxType=1" styleClass="messengerButtons">
-                                         <bean:message key="oscarMessenger.DisplayMessages.btnSent"/><!--sentMessage--link-->
+                                         <bean:message key="oscarMessenger.DisplayMessages.btnSent"/>
                                         </html:link>
-                                        </td></tr></table>
+                                        </td></tr></table-->
                                     </td>
                                     <td >
-                                        <table class=messButtonsA cellspacing=0 cellpadding=3><tr><td class="messengerButtonsA">
+                                        <!--table  class=messButtonsA cellspacing=0 cellpadding=3><tr><td class="messengerButtonsA">
                                         <html:link page="/oscarMessenger/DisplayMessages.jsp?boxType=2" styleClass="messengerButtons">
-                                         <bean:message key="oscarMessenger.DisplayMessages.btnDeletedMessage"/><!--deletedMessage--link-->
+                                         <bean:message key="oscarMessenger.DisplayMessages.btnDeletedMessage"/>
                                         </html:link>
-                                        </td></tr></table>
+                                        </td></tr></table-->
                                     </td>
                                     <td >
                                         <table class=messButtonsA cellspacing=0 cellpadding=3><tr><td class="messengerButtonsA">
@@ -295,20 +358,26 @@ function checkAll(formId){
                          <html:form action="<%=strutsAction%>" styleId="msgList" >
                     <%
                            java.util.Vector theMessages2 = new java.util.Vector() ;
-                        switch(pageType){
+                        if (folderId==null){
+                            switch(pageType){
                             case 0:
                                 theMessages2 = DisplayMessagesBeanId.estInbox(orderby,pageNum);
-                            break;
+                                break;
                             case 1:
                                 theMessages2 = DisplayMessagesBeanId.estSentItemsInbox(orderby,pageNum);
-                            break;
+                                break;
                             case 2:
                                 theMessages2 = DisplayMessagesBeanId.estDeletedInbox(orderby,pageNum);
-                            break;
+                                break;
                             case 3:
                                 theMessages2 = DisplayMessagesBeanId.estDemographicInbox(orderby,demographic_no);
-                            break;
-                        }   //messageid
+                                break;
+                            }   //messageid
+                        }
+                        else{
+                            theMessages2 = DisplayMessagesBeanId.estFolder(Integer.parseInt(folderId), orderby, pageNum);
+                        }
+
 %>
 
                     <tr>
@@ -321,8 +390,18 @@ function checkAll(formId){
                         <td>
                             <%if (pageType == 0){%>
                                     <input name="btnDelete" type="submit" value="<bean:message key="oscarMessenger.DisplayMessages.formArchive"/>">
+                                    <%if (folderId != null){%>
+                                    <input name="moveTo" type="submit" value="Remove">
+                                    <%}%>
                                     <input name="btnRead" type="submit" value="Mark as Read">
                                     <input name="btnUnread" type="submit" value="Mark as Unread">
+                                    <select id="moveTo" onchange="moveToFolder(this);">
+                                        <option value="-1">Move To</option>
+                                        <option value="0">Inbox</option>
+                                        <%for (MessageFolder messageFolder : messageFolders){%>
+                                        <option value="<%=messageFolder.getId()%>"><%=messageFolder.getName()%></option>
+                                        <%}%>
+                                    </select>
                             <%}else if (pageType == 2){%>
                                     <input type="submit" value="<bean:message key="oscarMessenger.DisplayMessages.formUnarchive"/>">
                             <%}%>

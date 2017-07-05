@@ -69,6 +69,8 @@ public class ProviderData extends AbstractModel<String> implements Serializable 
 	private String ohipNo = null;
 	@Column(name = "rma_no")
 	private String rmaNo = null;
+	@Column(name = "thirdPartyOnly")
+	private Boolean thirdPartyOnly = false;
 	@Column(name = "billing_no")
 	private String billingNo = null;
 	@Column(name = "hso_no")
@@ -193,6 +195,14 @@ public class ProviderData extends AbstractModel<String> implements Serializable 
 	}
 	public void setRmaNo(String s) {
 		rmaNo = s;
+	}
+
+	public Boolean isThirdPartyOnly() {
+		return this.thirdPartyOnly;
+	}
+
+	public void setThirdPartyOnly(Boolean thirdPartyOnly) {
+		this.thirdPartyOnly = thirdPartyOnly;
 	}
 
 	public String getBillingNo() {

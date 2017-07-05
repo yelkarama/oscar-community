@@ -344,7 +344,9 @@ for (int i=0; i<sites.size(); i++) {
 		<tr>
 			<td align="right"><bean:message key="admin.provider.formRmaNo" />:
 			</td>
-			<td><input type="text" name="rma_no" maxlength="20"></td>
+			<td><input type="text" name="rma_no" maxlength="20">
+				<input type="checkbox" name="thirdPartyOnly"> 3rd Party Billing Only
+			</td>
 		</tr>
 		<tr>
 			<td align="right"><bean:message

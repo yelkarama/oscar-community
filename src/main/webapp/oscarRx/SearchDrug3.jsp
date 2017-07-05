@@ -2167,7 +2167,7 @@ function updateQty(element){
         var elemId=element.id;
         var ar=elemId.split("_");
         var rand=ar[1];
-        var instruction="instruction="+element.value+"&action=parseInstructions&randomId="+rand;
+        var instruction="instruction="+encodeURI(element.value)+"&action=parseInstructions&randomId="+rand;
         var url= "<c:out value="${ctx}"/>" + "/oscarRx/UpdateScript.do?parameterValue=updateDrug";
         var quantity="quantity_"+rand;
         var str;
@@ -2356,6 +2356,11 @@ function updateQty(element){
 
 
     function updateSaveAllDrugsPrintContinue(){
+        if (jQuery('fieldset[id^="set_"]').length == 0) {
+            alert("You must have at least 1 medication to print");
+            return false;
+        }
+        
     	if(!validateWrittenDate()) {
     		return false;
     	}
@@ -2380,9 +2385,10 @@ function updateQty(element){
         new Ajax.Request(url,
         {method: 'post',postBody:data,asynchronous:false,
             onSuccess:function(transport){
+                var scriptId = transport.responseText.evalJSON().scriptId;
             	
                 callReplacementWebService("ListDrugs.jsp",'drugProfile');
-                popForm2(null);
+                popForm2(scriptId);
                 resetReRxDrugList();
             }});
         return false;
@@ -2429,7 +2435,8 @@ function checkEnterSendRx(){
 
 $("searchString").focus();
 
-
+document.getElementsByTagName("html")[0].style.height = '100%';
+document.getElementsByTagName("body")[0].style.height = '100%';
 
 </script>
 

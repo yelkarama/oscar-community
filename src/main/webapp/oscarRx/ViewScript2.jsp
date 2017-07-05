@@ -301,8 +301,8 @@ function addNotes(){
     var url = "AddRxComment.jsp";
     var ran_number=Math.round(Math.random()*1000000);
     var comment = encodeURIComponent(document.getElementById('additionalNotes').value);
-    var params = "scriptNo=<%=request.getAttribute("scriptId")%>&comment="+comment+"&rand="+ran_number;  //]
-    new Ajax.Request(url, {method: 'post',parameters:params});        
+    var params = "scriptNo=<%=request.getParameter("scriptId")%>&comment="+comment+"&rand="+ran_number;  //]
+    new Ajax.Request(url, {method: 'post',parameters:params});
     frames['preview'].document.getElementById('additNotes').innerHTML =  document.getElementById('additionalNotes').value.replace(/\n/g, "<br>");
     frames['preview'].document.getElementsByName('additNotes')[0].value=  document.getElementById('additionalNotes').value.replace(/\n/g, "\r\n");
 }
@@ -745,8 +745,7 @@ function toggleView(form) {
                                             </td>
                                         </tr>
 
-                                        <%
-                        if (request.getSession().getAttribute("rePrint") == null ){%>
+
 
                                         <tr>
 						<td colspan=2 style="font-weight: bold"><span><bean:message key="ViewScript.msgAddNotesRx"/></span></td>
@@ -759,7 +758,7 @@ function toggleView(form) {
                                                 </td>
                                         </tr>
 
-                                        <%}%>
+
 					<% if (OscarProperties.getInstance().isRxSignatureEnabled() && !OscarProperties.getInstance().getBooleanProperty("signature_tablet", "yes") && !props.getBooleanProperty("rx_electronic_signing", "true")) { %>
                                         
                     <tr>

@@ -53,6 +53,7 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.xmlbeans.XmlOptions;
 import org.marc.everest.rmim.uv.cdar2.pocd_mt000040uv.ClinicalDocument;
+import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.casemgmt.model.CaseManagementIssue;
 import org.oscarehr.casemgmt.model.CaseManagementNote;
 import org.oscarehr.casemgmt.model.CaseManagementNoteExt;
@@ -60,6 +61,7 @@ import org.oscarehr.casemgmt.model.CaseManagementNoteLink;
 import org.oscarehr.casemgmt.service.CaseManagementManager;
 import org.oscarehr.common.dao.DemographicArchiveDao;
 import org.oscarehr.common.dao.DemographicContactDao;
+import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.DemographicExtDao;
 import org.oscarehr.common.dao.Hl7TextInfoDao;
 import org.oscarehr.common.dao.Hl7TextMessageDao;
@@ -67,6 +69,7 @@ import org.oscarehr.common.dao.OscarAppointmentDao;
 import org.oscarehr.common.dao.PartialDateDao;
 import org.oscarehr.common.model.Allergy;
 import org.oscarehr.common.model.Appointment;
+import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.DemographicArchive;
 import org.oscarehr.common.model.DemographicContact;
 import org.oscarehr.common.model.Hl7TextInfo;
@@ -148,6 +151,8 @@ public class DemographicExportAction4 extends Action {
 	private static final Hl7TextInfoDao hl7TxtInfoDao = (Hl7TextInfoDao)SpringUtils.getBean("hl7TextInfoDao");
 	private static final Hl7TextMessageDao hl7TxtMssgDao = (Hl7TextMessageDao)SpringUtils.getBean("hl7TextMessageDao");
 	private static final DemographicExtDao demographicExtDao = (DemographicExtDao) SpringUtils.getBean("demographicExtDao");
+	private static final DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
+	private static final ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 	private static final String PATIENTID = "Patient";
 	private static final String ALERT = "Alert";
 	private static final String ALLERGY = "Allergy";
@@ -190,7 +195,11 @@ public class DemographicExportAction4 extends Action {
 		
 		DemographicExportForm defrm = (DemographicExportForm)form;
 		String demographicNo = defrm.getDemographicNo();
-		String setName = defrm.getPatientSet();
+		String providerNo = defrm.getPatientSet();
+		String setName = "Unmatched";
+		if (providerNo!=null && !providerNo.equals("-1")){
+			setName = providerDao.getProviderNameLastFirst(providerNo);
+		}
 		String pgpReady = defrm.getPgpReady();
 		String templateOption = defrm.getTemplate();
 		boolean exPersonalHistory = WebUtils.isChecked(request, "exPersonalHistory");
@@ -208,26 +217,18 @@ public class DemographicExportAction4 extends Action {
 		boolean exAlertsAndSpecialNeeds = WebUtils.isChecked(request, "exAlertsAndSpecialNeeds");
 		boolean exCareElements = WebUtils.isChecked(request, "exCareElements");
 
-		List<String> list = new ArrayList<String>();
-		if (demographicNo==null) {
-			list = new DemographicSets().getDemographicSet(setName);
-		if (list.isEmpty()) {
-			Date asofDate = new Date();
-			RptDemographicReportForm frm = new RptDemographicReportForm ();
-			frm.setSavedQuery(setName);
-			RptDemographicQueryLoader demoL = new RptDemographicQueryLoader();
-			frm = demoL.queryLoader(frm);
-			frm.addDemoIfNotPresent();
-			frm.setAsofDate(UtilDateUtilities.DateToString(asofDate));
-			RptDemographicQueryBuilder demoQ = new RptDemographicQueryBuilder();
-			ArrayList<ArrayList<String>> list2 = demoQ.buildQuery(loggedInInfo, frm,UtilDateUtilities.DateToString(asofDate));
-			for (ArrayList<String> listDemo : list2) {
-				list.add(listDemo.get(0));
+		List<Demographic> list = new ArrayList<Demographic>();
+		if (demographicNo==null && providerNo!=null && !providerNo.equals("-1")) {
+			list = demographicDao.getDemographicByProvider(providerNo, false);
+			if (list.isEmpty()) {
+				return mapping.findForward("fail");
 			}
+		} else {
+			if(demographicDao.getDemographic(demographicNo)!=null){
+				list.add(demographicDao.getDemographic(demographicNo));
+			}
+
 		}
-	} else {
-		list.add(demographicNo);
-	}
 
 	String ffwd = "fail";
 	String tmpDir = oscarProperties.getProperty("TMP_DIR");
@@ -260,7 +261,8 @@ public class DemographicExportAction4 extends Action {
 
 		ArrayList<File> files = new ArrayList<File>();
 		exportError = new ArrayList<String>();
-		for (String demoNo : list) {
+		for (Demographic demographic : list) {
+			String demoNo = demographic.getDemographicNo()!=null?String.valueOf(demographic.getDemographicNo()):"";
 			if (StringUtils.empty(demoNo)) {
 				exportError.add("Error! No Demographic Number");
 				continue;
@@ -268,8 +270,6 @@ public class DemographicExportAction4 extends Action {
 
 			// DEMOGRAPHICS
 			DemographicData d = new DemographicData();
-
-			org.oscarehr.common.model.Demographic demographic = d.getDemographic(LoggedInInfo.getLoggedInInfoFromSession(request), demoNo);
 
 			if (demographic.getPatientStatus()!=null && demographic.getPatientStatus().equals("Contact-only")) continue;
 
@@ -454,7 +454,6 @@ public class DemographicExportAction4 extends Action {
 			String email = demographic.getEmail();
 			if (StringUtils.filled(email)) demo.setEmail(email);
 
-			String providerNo = demographic.getProviderNo();
 			if (StringUtils.filled(providerNo)) {
 				Demographics.PrimaryPhysician pph = demo.addNewPrimaryPhysician();
 				ProviderData prvd = new ProviderData(providerNo);
@@ -2107,7 +2106,8 @@ public class DemographicExportAction4 extends Action {
 			} else {
 				ArrayList<File> files = new ArrayList<File>();
 				StringBuilder exportLog = new StringBuilder();
-				for (String demoNo : list) {
+				for (Demographic demographic : list) {
+					String demoNo = demographic.getDemographicNo()!=null?String.valueOf(demographic.getDemographicNo()):"";
 					if (StringUtils.empty(demoNo)) {
 						String msg = "Error! No Demographic Number";
 						logger.error(msg);
@@ -2160,8 +2160,8 @@ public class DemographicExportAction4 extends Action {
 				try {
 					File exportLogFile = new File(files.get(0).getParentFile(), "ExportEvent.log");
 					BufferedWriter out = new BufferedWriter(new FileWriter(exportLogFile));
-					String pidRange = "Patient ID Range: ".concat(list.get(0));
-					pidRange = pidRange.concat("-").concat(list.get(list.size()-1));
+					String pidRange = "Patient ID Range: ".concat(String.valueOf(list.get(0).getDemographicNo()));
+					pidRange = pidRange.concat("-").concat(String.valueOf(list.get(list.size()-1).getDemographicNo()));
 
 					out.write(pidRange.concat(System.getProperty("line.separator")));
 					out.write(System.getProperty("line.separator"));

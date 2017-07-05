@@ -95,7 +95,7 @@
 						 var contactName = document.getElementById('contact_<%=id%>.contactName');
                          var contactId = document.getElementById('contact_<%=id%>.contactId');
 					 </script>
-		             <a href="#" onclick="doPersonalSearch('<%=id%>', contactName.value, contactId.value);return false;">${param.search}</a>
+		             <a href="#" onclick="doPersonalSearch('<%=id%>', contactName, contactId);return false;">${param.search}</a>
 		             
 		             &nbsp;
 		             SDM:<input type="checkbox" name="contact_<%=id%>.sdm"/>

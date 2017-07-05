@@ -119,9 +119,9 @@ public class RourkeExportAction extends DispatchAction {
 		List<DataExport> dataExportList = dataExportDAO.findAllByType(DataExportDao.ROURKE);
 
 		DynaValidatorForm frm = (DynaValidatorForm)form;
-		String patientSet = frm.getString("patientSet");
+		String providerNo = frm.getString("patientSet");
 
-		if( patientSet == null || "".equals(patientSet) || patientSet.equals("-1")) {
+		if( providerNo == null || "".equals(providerNo) || providerNo.equals("-1")) {
 			frm.set("orgName", clinic.getClinicName());
 			frm.set("vendorId", properties.getProperty("vendorId", ""));
 			frm.set("vendorBusinessName", properties.getProperty("vendorBusinessName", ""));
@@ -154,8 +154,17 @@ public class RourkeExportAction extends DispatchAction {
 
 
 	    //grab patient list from set
-	    DemographicSets demoSets = new DemographicSets();
-		List<String> patientList = demoSets.getDemographicSet(frm.getString("patientSet"));
+		List<String> patientList = new ArrayList<String>();
+		if (providerNo!=null && !providerNo.equals("-1")) {
+			List<Demographic> demographics = demographicDao.getDemographicByProvider(providerNo,false);
+			if(demographics!=null && !demographics.isEmpty()){
+				for (Demographic demographic : demographics){
+					if(demographic.getDemographicNo()!=null){
+						patientList.add(String.valueOf(demographic.getDemographicNo()));
+					}
+				}
+			}
+		}
 
 		log.info("Exporting Rourke 2009 " + patientList.size() + " patients");
 

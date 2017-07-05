@@ -305,6 +305,63 @@ public class DemographicService extends AbstractServiceImpl {
 	}
 
 	/**
+	 * Gets basic demographic data.
+	 *
+	 * @param id
+	 * 		Id of the demographic to get data for 
+	 * @return
+	 * 		Returns data for the demographic provided 
+	 */
+	@GET
+	@Path("/basic/{dataId}")
+	@Produces({MediaType.APPLICATION_JSON , MediaType.APPLICATION_XML})
+	public DemographicTo1 getBasicDemographicData(@PathParam("dataId") Integer id) throws PatientDirectiveException {
+		Demographic demo = demographicManager.getDemographic(getLoggedInInfo(),id);
+		if (demo == null) return null;
+
+		List<DemographicExt> demoExts = demographicManager.getDemographicExts(getLoggedInInfo(),id);
+		if (demoExts!=null && !demoExts.isEmpty()) {
+			DemographicExt[] demoExtArray = demoExts.toArray(new DemographicExt[demoExts.size()]);
+			demo.setExtras(demoExtArray);
+		}
+
+		DemographicTo1 result = demoConverter.getAsTransferObject(getLoggedInInfo(),demo);
+
+		DemographicCust demoCust = demographicManager.getDemographicCust(getLoggedInInfo(),id);
+		if (demoCust!=null) {
+			result.setNurse(demoCust.getNurse());
+			result.setResident(demoCust.getResident());
+			result.setAlert(demoCust.getAlert());
+			result.setMidwife(demoCust.getMidwife());
+			result.setNotes(demoCust.getNotes());
+		}
+
+		List<WaitingList> waitingList = waitingListDao.search_wlstatus(id);
+		if (waitingList!=null && !waitingList.isEmpty()) {
+			WaitingList wl = waitingList.get(0);
+			result.setWaitingListID(wl.getListId());
+			result.setWaitingListNote(wl.getNote());
+			result.setOnWaitingListSinceDate(wl.getOnListSince());
+		}
+		
+		List<String> patientStatusList = demographicManager.getPatientStatusList();
+		List<String> rosterStatusList = demographicManager.getRosterStatusList();
+		if (patientStatusList!=null) {
+			for (String ps : patientStatusList) {
+				StatusValueTo1 value = new StatusValueTo1(ps);
+				result.getPatientStatusList().add(value);
+			}
+		}
+		if (rosterStatusList!=null) {
+			for (String rs : rosterStatusList) {
+				StatusValueTo1 value = new StatusValueTo1(rs);
+				result.getRosterStatusList().add(value);
+			}
+		}
+		return result;
+	}
+
+	/**
 	 * Saves demographic information. 
 	 * 
 	 * @param data

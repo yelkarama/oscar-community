@@ -42,6 +42,9 @@
 
 <%@page
 	import="oscar.oscarDemographic.data.*,java.util.*,oscar.oscarProvider.data.*,oscar.util.*,oscar.oscarReport.data.*"%>
+<%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
+<%@ page import="org.oscarehr.util.SpringUtils" %>
+<%@ page import="org.oscarehr.common.model.Provider" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
@@ -50,8 +53,8 @@
   if(session.getAttribute("user") == null) response.sendRedirect("../logout.jsp");
   String demographic_no = request.getParameter("demographic_no");
 
-  DemographicSets  ds = new DemographicSets();
-  List<String> sets = ds.getDemographicSets();
+	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
+	List<Provider> setsList =  providerDao.getActiveProviders();
 
   RptSearchData searchData  = new RptSearchData();
   ArrayList queryArray = searchData.getQueryTypes();
@@ -76,7 +79,7 @@
 
 function checkSelect(slct) {
     if (slct==-1) {
-	alert("Please select a Patient Set");
+	alert("Please select a Patient Enrollment Set");
 	return false;
     }
     else return true;
@@ -123,10 +126,9 @@ if (!userRole.toLowerCase().contains("admin")) { %>
 	    Patient Set: <html:select property="patientSet">
 			<html:option value="-1">--Select Set--</html:option>
 	<%
-	    for (int i=0; i<sets.size(); i++) {
-		String setName = sets.get(i);
+	    for (Provider provider : setsList) {
 	%>
-		<html:option value="<%=setName%>"><%=setName%></html:option>
+		<html:option value="<%=provider.getProviderNo()%>"><%=provider.getFormattedName()%></html:option>
 	    <%}%>
 	    </html:select>
     <%}%>

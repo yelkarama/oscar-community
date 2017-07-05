@@ -71,7 +71,11 @@
         //document.forms[0].submit.value="print";
         var ret = checkAllDates();
         if(ret==true) {
-            document.forms[0].action = "../form/formGrowth0_36Print.jsp?print=" + num + "&__title=GrowthCharts&__cfgfile=<%=bGirl?"growthGirlLength0_36Print":"growthBoyLength0_36Print"%>&__cfgGraphicFile=<%=bGirl?"growthGirlLength0_36Graphic":"growthBoyLength0_36Graphic"%>&__cfgGraphicFile=<%=bGirl?"growthGirlLength0_36Graphic2":"growthBoyLength0_36Graphic2"%>&__template=<%=bGirl?"growthGirlLength0_36":"growthBoyLength0_36"%>";
+            if (document.forms[0].chartType.value == "WHO"){
+                document.forms[0].action = "../form/formGrowth0_36Print.jsp?print=" + num + "&__title=GrowthCharts&__cfgfile=<%=bGirl?"growthGirlLength0_24Print":"growthBoyLength0_24Print"%>&__cfgGraphicFile=<%=bGirl?"growthGirlLength0_24Graphic":"growthBoyLength0_24Graphic"%>&__cfgGraphicFile=<%=bGirl?"growthGirlLength0_24Graphic2":"growthBoyLength0_24Graphic2"%>&__template=<%=bGirl?"growthGirlLength0_24":"growthBoyLength0_24"%>";
+			} else {
+                document.forms[0].action = "../form/formGrowth0_36Print.jsp?print=" + num + "&__title=GrowthCharts&__cfgfile=<%=bGirl?"growthGirlLength0_36Print":"growthBoyLength0_36Print"%>&__cfgGraphicFile=<%=bGirl?"growthGirlLength0_36Graphic":"growthBoyLength0_36Graphic"%>&__cfgGraphicFile=<%=bGirl?"growthGirlLength0_36Graphic2":"growthBoyLength0_36Graphic2"%>&__template=<%=bGirl?"growthGirlLength0_36":"growthBoyLength0_36"%>";
+			}
             document.forms[0].target="_blank";
         }
         return ret;
@@ -80,7 +84,12 @@
         //document.forms[0].submit.value="print";
         var ret = checkAllDates();
         if(ret==true) {
-            document.forms[0].action = "../form/formGrowth0_36Print.jsp?print=" + num + "&__title=GrowthCharts&__cfgfile=<%=bGirl?"growthGirlHead0_36Print":"growthBoyHead0_36Print"%>&__cfgGraphicFile=<%=bGirl?"growthGirlHead0_36Graphic":"growthBoyHead0_36Graphic"%>&__cfgGraphicFile=<%=bGirl?"growthGirlHead0_36Graphic2":"growthBoyHead0_36Graphic2"%>&__template=<%=bGirl?"growthGirlHead0_36":"growthBoyHead0_36"%>";
+            if (document.forms[0].chartType.value == "WHO"){
+                document.forms[0].action = "../form/formGrowth0_36Print.jsp?print=" + num + "&__title=GrowthCharts&__cfgfile=<%=bGirl?"growthGirlHead0_24Print":"growthBoyHead0_24Print"%>&__cfgGraphicFile=<%=bGirl?"growthGirlHead0_24Graphic":"growthBoyHead0_24Graphic"%>&__cfgGraphicFile=<%=bGirl?"growthGirlHead0_24Graphic2":"growthBoyHead0_24Graphic2"%>&__template=<%=bGirl?"growthGirlHead0_24":"growthBoyHead0_24"%>";
+            } else {
+                document.forms[0].action = "../form/formGrowth0_36Print.jsp?print=" + num + "&__title=GrowthCharts&__cfgfile=<%=bGirl?"growthGirlHead0_36Print":"growthBoyHead0_36Print"%>&__cfgGraphicFile=<%=bGirl?"growthGirlHead0_36Graphic":"growthBoyHead0_36Graphic"%>&__cfgGraphicFile=<%=bGirl?"growthGirlHead0_36Graphic2":"growthBoyHead0_36Graphic2"%>&__template=<%=bGirl?"growthGirlHead0_36":"growthBoyHead0_36"%>";
+			}
+
             document.forms[0].target="_blank";
         }
         return ret;
@@ -329,6 +338,13 @@ function htEnglish2Metric(source) {
 
 			<table width="100%" border="0" cellspacing="0" cellpadding="0">
 				<tr>
+					<td>
+						<label>Chart Type </label>
+						<select name="chartType">
+							<option value="WHO">WHO Growth 0-24m</option>
+							<option value="CDC">CDC Growth 0-36m</option>
+						</select>
+					</td>
 					<td align="right">Name <input type="text" name="patientName"
 						size="50" maxlength="80"
 						value="<%= props.getProperty("patientName", "") %>" @oscar.formDB />

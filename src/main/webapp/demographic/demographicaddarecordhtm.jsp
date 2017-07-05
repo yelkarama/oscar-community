@@ -120,11 +120,16 @@
   int nStrShowLen = 20;
   OscarProperties oscarProps = OscarProperties.getInstance();
 
+  String address = session.getAttribute("address")!=null?(String)session.getAttribute("address"):"";
+
   ProvinceNames pNames = ProvinceNames.getInstance();
   String prov= (props.getProperty("billregion","")).trim().toUpperCase();
 
   String billingCentre = (props.getProperty("billcenter","")).trim().toUpperCase();
-  String defaultCity = prov.equals("ON") ? (billingCentre.equals("N") ? "Toronto" : OscarProperties.getInstance().getProperty("default_city")) : "";
+  String defaultCity = session.getAttribute("city")!=null? (String) session.getAttribute("city") : (prov.equals("ON") ? (billingCentre.equals("N") ? "Toronto" : OscarProperties.getInstance().getProperty("default_city")) : "");
+
+  String postal = session.getAttribute("postal")!=null? (String) session.getAttribute("postal") : "";
+  String phone = session.getAttribute("phone")!=null? (String) session.getAttribute("phone") : props.getProperty("phoneprefix", "905-");
 
   WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
   CountryCodeDao ccDAO =  (CountryCodeDao) ctx.getBean("countryCodeDao");
@@ -150,7 +155,13 @@
      }
   }
   // Use this value as the default value for province, as well
-  String defaultProvince = HCType;
+  String defaultProvince = session.getAttribute("province")!=null?(String)session.getAttribute("province"):HCType;
+
+	session.removeAttribute("address");
+	session.removeAttribute("city");
+	session.removeAttribute("province");
+	session.removeAttribute("postal");
+	session.removeAttribute("phone");
 		  
 		  
 	//get a list of programs the patient has consented to. 
@@ -305,6 +316,13 @@ function formatPhoneNum() {
     if (document.adddemographic.phone2.value.length == 11 && document.adddemographic.phone2.value.charAt(3) == '-') {
         document.adddemographic.phone2.value = document.adddemographic.phone2.value.substring(0,3) + "-" + document.adddemographic.phone2.value.substring(4,7) + "-" + document.adddemographic.phone2.value.substring(7);
     }
+
+    if (document.adddemographic.demo_cell.value.length == 10) {
+        document.adddemographic.demo_cell.value = document.adddemographic.demo_cell.value.substring(0,3) + "-" + document.adddemographic.demo_cell.value.substring(3,6) + "-" + document.adddemographic.demo_cell.value.substring(6);
+    }
+    if (document.adddemographic.demo_cell.value.length == 11 && document.adddemographic.demo_cell.value.charAt(3) == '-') {
+        document.adddemographic.demo_cell.value = document.adddemographic.demo_cell.value.substring(0,3) + "-" + document.adddemographic.demo_cell.value.substring(4,7) + "-" + document.adddemographic.demo_cell.value.substring(7);
+    }
 }
 function rs(n,u,w,h,x) {
   args="width="+w+",height="+h+",resizable=yes,scrollbars=yes,status=0,top=60,left=30";
@@ -340,10 +358,8 @@ function checkName() {
 function checkDob() {
 	var typeInOK = false;
 	var yyyy = document.adddemographic.year_of_birth.value;
-	var selectBox = document.adddemographic.month_of_birth;
-	var mm = selectBox.options[selectBox.selectedIndex].value
-	selectBox = document.adddemographic.date_of_birth;
-	var dd = selectBox.options[selectBox.selectedIndex].value
+	var mm = document.adddemographic.month_of_birth.value;
+	var dd = document.adddemographic.date_of_birth.value
 
 	if(checkTypeNum(yyyy) && checkTypeNum(mm) && checkTypeNum(dd) ){
         //alert(yyyy); alert(mm); alert(dd);
@@ -369,9 +385,7 @@ function checkDob() {
 
 	if (!typeInOK){
       alert ("You must type in the right DOB.");
-   }
-
-   if (!isValidDate(dd,mm,yyyy)){
+   } else if (!isValidDate(dd,mm,yyyy)){
       alert ("DOB Date is an incorrect date");
       typeInOK = false;
    }
@@ -437,15 +451,6 @@ function checkResidentStatus(){
 function checkAllDate() {
 	var typeInOK = false;
 	typeInOK = checkDateYMD( document.adddemographic.date_joined.value, "Date Joined" );
-	if (!typeInOK) { return false; }
-
-	typeInOK = checkDateYMD( document.adddemographic.end_date.value, "End Date" );
-	if (!typeInOK) { return false; }
-
-	typeInOK = checkDateYMD( document.adddemographic.hc_renew_date.value, "PCN Date" );
-	if (!typeInOK) { return false; }
-
-	typeInOK = checkDateYMD( document.adddemographic.eff_date.value, "EFF Date" );
 	if (!typeInOK) { return false; }
 
 	return typeInOK;
@@ -644,6 +649,7 @@ function ignoreDuplicates() {
           <input type="hidden" name="displaymode" value="Add Record">
 				<input type="submit" name="submit"
 					value="<bean:message key="demographic.demographicaddrecordhtm.btnAddRecord"/>">
+				<input type="submit" name="submit" value="Save & Add Family Member">
 				<input type="button" name="Button"
 					value="<bean:message key="demographic.demographicaddrecordhtm.btnSwipeCard"/>"
 					onclick="window.open('zadddemographicswipe.htm','', 'scrollbars=yes,resizable=yes,width=600,height=300')";>
@@ -686,6 +692,14 @@ function ignoreDuplicates() {
         <input type="text" name="first_name" id="first_name" onBlur="upCaseCtrl(this)"  value="<%=firstNameVal%>" size=30>
       </td>
     </tr>
+	<tr>
+		<td align="right"> <b><bean:message key="demographic.demographicaddrecordhtm.formPrefName"/><font color="red">:</font> </b></td>
+		<td id="prefName" align="left">
+			<input type="text" name="pref_name" id="pref_name" onBlur="upCaseCtrl(this)" size=30 value="">
+		</td>
+		<td>&nbsp;</td>
+		<td>&nbsp;</td>
+	</tr>
     <tr>
 	<td id="languageLbl" align="right"><b><bean:message key="demographic.demographicaddrecordhtm.msgDemoLanguage"/><font color="red">:</font></b></td>
 	<td id="languageCell" align="left">
@@ -738,7 +752,7 @@ function ignoreDuplicates() {
 			<tr valign="top">
 				<td id="addrLbl" align="right"><b><bean:message
 					key="demographic.demographicaddrecordhtm.formAddress" />: </b></td>
-				<td id="addressCell" align="left"><input id="address" type="text" name="address" size=40 />
+				<td id="addressCell" align="left"><input id="address" type="text" name="address" value="<%=address%>" size=40 />
 
 				</td>
 				<td id="cityLbl" align="right"><b><bean:message
@@ -844,7 +858,7 @@ function ignoreDuplicates() {
 				<% } else {
           out.print(oscarProps.getProperty("demographicLabelPostal"));
       	 } %> : </b></td>
-				<td id="postalCell" align="left"><input type="text" id="postal" name="postal"
+				<td id="postalCell" align="left"><input type="text" id="postal" name="postal" value="<%=postal%>"
 					onBlur="upCaseCtrl(this)"></td>
 			</tr>
 
@@ -853,7 +867,7 @@ function ignoreDuplicates() {
 					key="demographic.demographicaddrecordhtm.formPhoneHome" />: </b></td>
 				<td id="phoneCell" align="left"><input type="text" id="phone" name="phone"
 					onBlur="formatPhoneNum()"
-					value="<%=props.getProperty("phoneprefix", "905-")%>"> <bean:message
+					value="<%=phone%>"> <bean:message
 					key="demographic.demographicaddrecordhtm.Ext" />:<input
 					type="text" id="hPhoneExt" name="hPhoneExt" value="" size="4" /></td>
 				<td id="phoneWorkLbl" align="right"><b><bean:message
@@ -916,6 +930,10 @@ function ignoreDuplicates() {
 								document.getElementById('year_of_birth').value = birthDate.toISOString().substring(0, 4);
 								document.getElementById('month_of_birth').value = birthDate.toISOString().substring(5, 7)
 								document.getElementById('date_of_birth').value = birthDate.toISOString().substring(8, 10)
+							} else if (jQuery_3_1_0('#full_birth_date').val() == '') {
+								document.getElementById('year_of_birth').value = '';
+								document.getElementById('month_of_birth').value = '';
+								document.getElementById('date_of_birth').value = '';
 							}
 						});
 					</script>
@@ -1653,6 +1671,7 @@ if(oscarVariables.getProperty("demographicExtJScript") != null) { out.println(os
 					value="add_record"> <input type="hidden" name="displaymode" value="Add Record">
 				<input type="submit" id="btnAddRecord" name="btnAddRecord" 
 					value="<bean:message key="demographic.demographicaddrecordhtm.btnAddRecord"/>">
+				<input type="submit" name="submit" value="Save & Add Family Member">
 				<input type="button" id="btnSwipeCard" name="Button"
 					value="<bean:message key="demographic.demographicaddrecordhtm.btnSwipeCard"/>"
 					onclick="window.open('zadddemographicswipe.htm','', 'scrollbars=yes,resizable=yes,width=600,height=300')";>

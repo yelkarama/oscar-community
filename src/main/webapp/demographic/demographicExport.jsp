@@ -46,6 +46,8 @@
 <%@page import="org.oscarehr.sharingcenter.model.AffinityDomainDataObject"%>
 <%@page
 	import="java.util.*,oscar.oscarDemographic.data.*,oscar.oscarPrevention.*,oscar.oscarProvider.data.*,oscar.util.*,oscar.oscarReport.data.*,oscar.oscarPrevention.pageUtil.*,oscar.oscarDemographic.pageUtil.*"%>
+<%@ page import="org.oscarehr.common.model.Provider" %>
+<%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
@@ -67,8 +69,8 @@
   session.setAttribute("pgp_ready", pgp_ready);
 
   String demographicNo = request.getParameter("demographicNo");
-  DemographicSets  ds = new DemographicSets();
-  List<String> sets = ds.getDemographicSets();
+  ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
+  List<Provider> sets = providerDao.getActiveProviders();
 
 //  oscar.oscarReport.data.RptSearchData searchData  = new oscar.oscarReport.data.RptSearchData();
 //  ArrayList queryArray = searchData.getQueryTypes();
@@ -127,7 +129,7 @@ function disableifchecked(ele,nextDate){
 
 function checkSelect(slct) {
     if (slct==-1) {
-	alert("Please select a Patient Set");
+	alert("Please select a Patient Enrollment Set");
 	return false;
     }
     else return true;
@@ -235,10 +237,9 @@ if (!userRole.toLowerCase().contains("admin")) { %>
 	String qId = sc.id;
 	String qName = sc.queryName;
 	*/
-	for (int i=0; i<sets.size(); i++) {
-	String setName = sets.get(i);
+	for (Provider provider : sets) {
 	%>
-	<html:option value="<%=setName%>"><%=setName%></html:option>
+	<html:option value="<%=provider.getProviderNo()%>"><%=provider.getFormattedName()%></html:option>
 	<%}%>
 	</html:select>
 	<%}%>

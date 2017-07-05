@@ -43,7 +43,7 @@ public class OscarSessionListener implements HttpSessionListener {
 	public void sessionDestroyed(HttpSessionEvent se) {
 		String id = se.getSession().getId();
 		MiscUtils.getLogger().info("session is being destroyed - " + id);
-		
+
 		CasemgmtNoteLockDao casemgmtNoteLockDao = SpringUtils.getBean(CasemgmtNoteLockDao.class);
 		
 		for(CasemgmtNoteLock lock:casemgmtNoteLockDao.findBySession(id)) {

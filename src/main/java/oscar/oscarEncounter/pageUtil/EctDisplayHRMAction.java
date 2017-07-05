@@ -105,7 +105,9 @@ public class EctDisplayHRMAction extends EctDisplayAction {
 						subClass = hrmSubClassDao.findApplicableSubClassMapping(hrmReport.getFirstReportClass(), firstSubClass.getSubClass(), firstSubClass.getSubClassMnemonic(), hrmReport.getSendingFacilityId());
 						dispSubClass = subClass!=null?subClass.getSubClassDescription():"";
 					}
-					else if (hrmReport.getAccompanyingSubclassList().size()>0){
+
+					if ((StringUtils.isNullOrEmpty(dispSubClass)) && hrmReport.getAccompanyingSubclassList().size()>0){
+						// if sub class doesn't exist, display the accompanying subclass
 						dispSubClass = hrmReport.getFirstAccompanyingSubClass();
 					}
 				} else {

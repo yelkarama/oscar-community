@@ -424,21 +424,26 @@ public class HRMReportParser {
 
 		if (OscarProperties.getInstance().isPropertyActive("queens_resident_tagging")) {
 			DemographicDao demographicDao = (DemographicDao) SpringUtils.getBean("demographicDao");
-			Demographic demographic = demographicDao.searchDemographicByHIN(report.getHCN()).get(0);
-			DemographicCustDao demographicCustDao = SpringUtils.getBean(DemographicCustDao.class);
-			//add mrp if not already in list
-			if (sendToProvider != null && !sendToProvider.getProviderNo().equals(demographic.getProviderNo())) { sendToProviderList.add(demographic.getProvider()); }
-			//get and add alt providers
-			List<DemographicCust> demographicCust = demographicCustDao.findAllByDemographicNumber(demographic.getDemographicNo());
-			if (demographicCust.size() > 0) {
-				ArrayList<String> residentIds = new ArrayList<String>();
-				residentIds.add(demographicCust.get(0).getMidwife());
-				residentIds.add(demographicCust.get(0).getNurse());
-				residentIds.add(demographicCust.get(0).getResident());
-				for (String residentId : residentIds) {
-					if (residentId != null && !residentId.equals("")) {
-						Provider p = providerDao.getProvider(residentId);
-						if (p != null) { sendToProviderList.add(p); }
+			List<Demographic> matchingDemographicListByHin = demographicDao.searchDemographicByHIN(report.getHCN());
+			if (!matchingDemographicListByHin.isEmpty()) {
+				Demographic demographic = demographicDao.searchDemographicByHIN(report.getHCN()).get(0);
+				DemographicCustDao demographicCustDao = SpringUtils.getBean(DemographicCustDao.class);
+				//add mrp if not already in list
+				if (sendToProvider != null && !sendToProvider.getProviderNo().equals(demographic.getProviderNo())) {
+					sendToProviderList.add(demographic.getProvider());
+				}
+				//get and add alt providers
+				List<DemographicCust> demographicCust = demographicCustDao.findAllByDemographicNumber(demographic.getDemographicNo());
+				if (demographicCust.size() > 0) {
+					ArrayList<String> residentIds = new ArrayList<String>();
+					residentIds.add(demographicCust.get(0).getMidwife());
+					residentIds.add(demographicCust.get(0).getNurse());
+					residentIds.add(demographicCust.get(0).getResident());
+					for (String residentId : residentIds) {
+						if (residentId != null && !residentId.equals("")) {
+							Provider p = providerDao.getProvider(residentId);
+							if (p != null) { sendToProviderList.add(p); }
+						}
 					}
 				}
 			}
@@ -464,20 +469,22 @@ public class HRMReportParser {
 			if (incomingLabRules != null) {
 				//For each labRule in the list
 				for(IncomingLabRules labRule : incomingLabRules) {
-					//Creates a string of the provider number that the lab will be forwarded to
-					String forwardProviderNumber = labRule.getFrwdProviderNo();
-					//Checks to see if this provider is already linked to this lab
-					HRMDocumentToProvider hrmDocumentToProvider = hrmDocumentToProviderDao.findByHrmDocumentIdAndProviderNo(reportId.toString(), forwardProviderNumber);
-					//If a record was not found
-					if (hrmDocumentToProvider == null) {
-						//Puts the information into the HRMDocumentToProvider object
-						hrmDocumentToProvider = new HRMDocumentToProvider();
-						hrmDocumentToProvider.setHrmDocumentId(reportId.toString());
-						hrmDocumentToProvider.setProviderNo(forwardProviderNumber);
-						hrmDocumentToProvider.setSignedOff(0);
-						//Stores it in the table
-						hrmDocumentToProviderDao.persist(hrmDocumentToProvider);
-					}
+				    if (labRule.getForwardTypeStrings().contains("HRM")) {
+                        //Creates a string of the provider number that the lab will be forwarded to
+                        String forwardProviderNumber = labRule.getFrwdProviderNo();
+                        //Checks to see if this provider is already linked to this lab
+                        HRMDocumentToProvider hrmDocumentToProvider = hrmDocumentToProviderDao.findByHrmDocumentIdAndProviderNo(reportId.toString(), forwardProviderNumber);
+                        //If a record was not found
+                        if (hrmDocumentToProvider == null) {
+                            //Puts the information into the HRMDocumentToProvider object
+                            hrmDocumentToProvider = new HRMDocumentToProvider();
+                            hrmDocumentToProvider.setHrmDocumentId(reportId.toString());
+                            hrmDocumentToProvider.setProviderNo(forwardProviderNumber);
+                            hrmDocumentToProvider.setSignedOff(0);
+                            //Stores it in the table
+                            hrmDocumentToProviderDao.persist(hrmDocumentToProvider);
+                        }
+                    }
 				}
 			}
 		}

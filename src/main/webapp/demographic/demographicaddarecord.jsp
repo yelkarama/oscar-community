@@ -136,6 +136,10 @@
         String start_time2 = request.getParameter("start_time");
         String end_time2 = request.getParameter("end_time");
         String duration2 = request.getParameter("duration");
+        boolean addFamily = false;
+        if (request.getParameter("submit")!=null&&request.getParameter("submit").equalsIgnoreCase("Save & Add Family Member")){
+			addFamily = true;
+		}
 
     String dem = null;
     String curUser_no = (String)session.getAttribute("user");
@@ -145,6 +149,7 @@
 	Demographic demographic = new Demographic();
 	demographic.setLastName(request.getParameter("last_name").trim());
 	demographic.setFirstName(request.getParameter("first_name").trim());
+	demographic.setPrefName(request.getParameter("pref_name").trim());
 	demographic.setAddress(request.getParameter("address"));
 	demographic.setCity(request.getParameter("city"));
 	demographic.setProvince(request.getParameter("province"));
@@ -418,7 +423,16 @@
 	document.addappt.submit();
 	//-->
 	</SCRIPT> 
-	<% } %>
+	<% }
+
+		if(addFamily && demographic!=null) {
+            session.setAttribute("address", demographic.getAddress());
+			session.setAttribute("city", demographic.getCity());
+			session.setAttribute("province", demographic.getProvince());
+			session.setAttribute("postal", demographic.getPostal());
+			session.setAttribute("phone", demographic.getPhone());
+			response.sendRedirect("demographicaddarecordhtm.jsp");
+		} %>
 </form>
 
 

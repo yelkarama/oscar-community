@@ -124,9 +124,13 @@ public class JdbcBillingPageUtil {
 	}
 
 	public List<String> getCurProviderStr() {
+		return getCurProviderStr(true);
+	}
+
+	public List<String> getCurProviderStr(Boolean includeThirdPartyOnly) {
 		List<String> retval = new ArrayList<String>();
 		
-		List<Provider> ps = providerDao.getBillableProviders();
+		List<Provider> ps = includeThirdPartyOnly?providerDao.getAllBillableProviders():providerDao.getBillableProviders();
 		String proid = "";
 		String proFirst = "";
 		String proLast = "";
@@ -411,17 +415,34 @@ public class JdbcBillingPageUtil {
 				continue;
 			retval.add(b.getName());
 			retval.add(b.getServiceDx());
+			retval.add(b.getVistType());
+			retval.add(b.getLocation());
 		}
 		return retval;
 	}
 
-	public int addBillingFavouriteList(String name, String list, String providerNo) {
+	public List<String> getBillingFavouriteTypeAndLocation(String name) {
+		List<String> retval = new ArrayList<String>();
+		List<BillingONFavourite> bs = billingONFavouriteDao.findByName(name);
+		for(BillingONFavourite b:bs) {
+			if(b.getDeleted() == 1){
+				continue;
+			}
+			retval.add(b.getVistType());
+			retval.add(b.getLocation());
+		}
+		return retval;
+	}
+
+	public int addBillingFavouriteList(String name, String list, String providerNo, String visitType, String location) {
 		BillingONFavourite b = new BillingONFavourite();
 		b.setName(name);
 		b.setServiceDx(list);
 		b.setProviderNo(providerNo);
 		b.setTimestamp(new Date());
 		b.setDeleted(0);
+		b.setVisitType(visitType);
+		b.setLocation(location);
 		billingONFavouriteDao.persist(b);
 		
 		return b.getId();
@@ -438,11 +459,13 @@ public class JdbcBillingPageUtil {
 	}
 	// @ OSCARSERVICE
 
-	public boolean updateBillingFavouriteList(String name, String list, String providerNo) {
+	public boolean updateBillingFavouriteList(String name, String list, String providerNo, String visitType, String location) {
 		List<BillingONFavourite> bs = billingONFavouriteDao.findByName(name);
 		for(BillingONFavourite b:bs) {
 			b.setServiceDx(list);
 			b.setProviderNo(providerNo);
+			b.setVisitType(visitType);
+			b.setLocation(location);
 			billingONFavouriteDao.merge(b);
 		}
 		return true;

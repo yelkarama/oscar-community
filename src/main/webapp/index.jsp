@@ -345,6 +345,17 @@ String login_error="";
 			}
             #mobileMsg { display: none; }
             
+			.topbar {
+				background-color: #53B848;
+				color: #ffffff;
+				text-align: center;
+			}
+
+			.clinic-text {
+				display: inline;
+				font-weight: 400;
+			}
+			
             @media (min-width: 768px) {
 				.loginContainer, .powered {
 					width: 450px;
@@ -373,7 +384,11 @@ String login_error="";
     </head>
     
     <body onLoad="setfocus()" bgcolor="#ffffff">
-        <div>
+        <div class="topbar">
+			<% String headerText = OscarProperties.getInstance().getProperty("login_screen_header_text"); 
+			if (headerText != null && !headerText.isEmpty()) { %>
+				<h3 class="clinic-text"><%=headerText%></h3>
+			<% } %>
             <span id="buildInfo">Build: <%=OscarProperties.getBuildTag()%> </span>
         </div>
         

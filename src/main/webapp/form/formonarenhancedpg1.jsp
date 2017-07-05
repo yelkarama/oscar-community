@@ -126,10 +126,12 @@
 <script src="<%=request.getContextPath() %>/js/jquery-1.7.1.min.js" type="text/javascript"></script>
 <script src="<%=request.getContextPath()%>/js/jquery-ui-1.8.18.custom.min.js"></script>
 <script src="<%=request.getContextPath()%>/js/fg.menu.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath()%>/js/formonarenhanced.js"></script>
 
 
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/cupertino/jquery-ui-1.8.18.custom.css">
 <link rel="stylesheet" href="<%=request.getContextPath()%>/css/fg.menu.css">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/formonarenhanced.css">
 
 
 <script>
@@ -224,56 +226,48 @@ function loadIPSForms() {
 		});
 		
 	<% } %>
-	
+function onPageChange(url) {
+    var result = false;
+    var newID = 0;
+    document.forms[0].submit.value="save";
+    var ret1 = validate();
+    var ret = checkAllDates();
+    if(ret==true && ret1==true)
+    {
+        reset();
+        ret = confirm("Are you sure you want to save this form?");
+        if(ret) {
+            window.onunload=null;
+            adjustDynamicListTotals();
+            jQuery.ajax({
+                url:'<%=request.getContextPath()%>/Pregnancy.do?method=saveFormAjax',
+                data: $("form").serialize(),
+                async:false,
+                dataType:'json',
+                success:function(data) {
+                    if(data.value == 'error') {
+                        alert('Error saving form.');
+                        result = false;
+                    } else {
+                        result= true;
+                        newID = parseInt(data.value);
+                    }
+                }
+            });
+        } else {
+            url = url.replace('#id','<%=formId%>');
+            location.href=url;
+        }
+    }
+
+    if(result == true) {
+        url = url.replace('#id',newID);
+        location.href=url;
+    }
+
+    return;
+}
 </script>
-
-<style type="text/css">
-
-body{
-margin: 0;
-padding: 0;
-border: 0;
-overflow: hidden;
-height: 100%; 
-max-height: 100%; 
-}
-
-#framecontent{
-position: absolute;
-top: 0;
-bottom: 0; 
-left: 0;
-width: 190px; /*Width of frame div*/
-height: 100%;
-overflow: hidden; /*Disable scrollbars. Set to "scroll" to enable*/
-background: navy;
-color: white;
-}
-
-#maincontent{
-position: fixed;
-top: 0; 
-left: 190px; /*Set left value to WidthOfFrameDiv*/
-right: 0;
-bottom: 0;
-overflow: auto; 
-background: #fff;
-}
-
-.innertube{
-margin: 5px; /*Margins for inner DIV inside each DIV (to provide padding)*/
-}
-
-* html body{ /*IE6 hack*/
-padding: 0 0 0 200px; /*Set value to (0 0 0 WidthOfFrameDiv)*/
-}
-
-* html #maincontent{ /*IE6 hack*/
-height: 100%; 
-width: 100%; 
-}
-
-</style>
 
 <script>
 	function rhWarning() {
@@ -458,213 +452,8 @@ width: 100%;
 </script>
 
 <script>
-	function validate() {		
-		if($("input[name='c_lastName']").val().length == 0) {
-			alert('Must include last name');
-			return false;
-		}
-		if($("input[name='c_firstName']").val().length == 0) {
-			alert('Must include last name');
-			return false;
-		}
-		
-		if($("input[name='pg1_dateOfBirth']").val().length == 0) {
-			alert('Must include Date of Birth');
-			return false;
-		}
-		
-		if($("select[name='c_hinType']").val() != 'OTHER' && $("input[name='c_hin']").val().length==0 ) {
-			alert('Must include OHIP/RAMQ identifier, or set type to OTHER');
-			return false;
-		}
-		
-		
-		if($("input[name='c_postal']").val().length == 7 && $("input[name='c_postal']").val().indexOf(' ') != -1) {
-			$("input[name='c_postal']").val($("input[name='c_postal']").val().replace(' ',''));
-		}
-		var patt1=new RegExp("([a-zA-Z][0-9][a-zA-Z][0-9][a-zA-Z][0-9])?");
-		if(!patt1.test($("input[name='c_postal']").val())) {
-			alert('Postal Code must be in the following format A#A#A#');
-			return false;
-		}		
-		patt1=new RegExp("^([0-9]{3}\\-[0-9]{3}\\-[0-9]{4})?$");	
-		if(!patt1.test( $("input[name='pg1_homePhone']").val() ) ) {
-			alert('Home phone must be in the following format 555-555-5555');
-			return false;
-		}
-			
-		patt1=new RegExp("^([0-9]{3}\\-[0-9]{3}\\-[0-9]{4})?$");
-		if(!patt1.test($("input[name='pg1_workPhone']").val())) {
-			alert('Work phone must be in the following format 555-555-5555');
-			return false;
-		}
-		/*
-		var finalEDB = $("input[name='c_finalEDB']").val();
-		if(finalEDB.trim().length==0) {
-			alert('Please set a final EDB');
-			return false;
-		}
-		*/
-		
-		patt1=new RegExp("^\\d{1,2}$");
-		if(!patt1.test($("input[name='pg1_age']").val())) {
-			alert('Age must be a number');
-			return false;
-		}
-		
-		patt1=new RegExp("(^\\d{1,2}$)?");
-		if($("input[name='pg1_partnerAge']").val().length > 0 && !patt1.test($("input[name='pg1_partnerAge']").val())) {
-			alert("Partner's age must be a number");
-			return false;
-		}
-	
-		for(var x=1;x<=12;x++) {
-			if($('#obxhx_'+ x).length>0) {
-				//found a row
-				if($("input[name='pg1_year"+x+"']").val().length > 0) {
-					patt1=new RegExp("^\\d{4}$");
-					if(!patt1.test($("input[name='pg1_year"+x+"']").val())) {
-						alert("Obstetrical Hx year must be in 4 digit format (ex. 1999)");
-						return false;
-					}
-				}
-				if($("input[name='pg1_sex"+x+"']").val().length > 0) {
-					patt1=new RegExp("^[mMfF]$");
-					if(!patt1.test($("input[name='pg1_sex"+x+"']").val())) {
-						alert("Obstetrical Hx sex must be M or F");
-						return false;
-					}
-				}
-				patt1=new RegExp("^(\\d*)?$");
-				if(!patt1.test($("input[name='pg1_oh_gest"+x+"']").val())) {
-					alert("Obstetrical Gestation Age must be a number");
-					return false;
-				}
-				
-				patt1=new RegExp("^(\\d*(\\.\\d*)?)?$");
-				if(!patt1.test($("input[name='pg1_length"+x+"']").val())) {
-					alert("Obstetrical Length of Labour must be a number");
-					return false;
-				}
-								
-			}
-		}
-				
-		patt1=new RegExp("^\\d*$");
-		if(!patt1.test($("input[name='c_gravida']").val())) {
-			alert("Gravida must be a number");
-			return false;
-		}
-		
-		patt1=new RegExp("^\\d*$");
-		if(!patt1.test($("input[name='c_term']").val())) {
-			alert("Term must be a number");
-			return false;
-		}
-		
-		patt1=new RegExp("^\\d*$");
-		if(!patt1.test($("input[name='c_prem']").val())) {
-			alert("Premature must be a number");
-			return false;
-		}
-		
-		patt1=new RegExp("^\\d*$");
-		if(!patt1.test($("input[name='c_abort']").val())) {
-			alert("Abortuses must be a number");
-			return false;
-		}
-		
-		patt1=new RegExp("^\\d*$");
-		if(!patt1.test($("input[name='c_living']").val())) {
-			alert("Living must be a number");
-			return false;
-		}
-		
-		if(!validateYesNo('pg1_cp1')) {alert("Cannot choose yes and no together for an item in Medical History");return false;}
-		if(!validateYesNo('pg1_cp2')) {alert("Cannot choose yes and no together for an item in Medical History");return false;}
-		if(!validateYesNo('pg1_cp3')) {alert("Cannot choose yes and no together for an item in Medical History");return false;}
-		if(!validateYesNo('pg1_cp4')) {alert("Cannot choose yes and no together for an item in Medical History");return false;}
-		if(!validateYesNo('pg1_cp8')) {alert("Cannot choose yes and no together for an item in Medical History");return false;}
-		if(!validateYesNo('pg1_naDiet')) {alert("Cannot choose yes and no together for an item in Medical History");return false;}
-		if(!validateYesNo('pg1_naMilk')) {alert("Cannot choose yes and no together for an item in Medical History");return false;}
-		if(!validateYesNo('pg1_naFolic')) {alert("Cannot choose yes and no together for an item in Medical History");return false;}
-				
-		if(!validateYesNo2('9')) {alert("Cannot choose yes and no together for an item in Medical History");return false;}
-		if(!validateYesNo2('10')) {alert("Cannot choose yes and no together for an item in Medical History");return false;}
-		if(!validateYesNo2('12')) {alert("Cannot choose yes and no together for an item in Medical History");return false;}
-		if(!validateYesNo2('13')) {alert("Cannot choose yes and no together for an item in Medical History");return false;}
-		if(!validateYesNo2('14')) {alert("Cannot choose yes and no together for an item in Medical History");return false;}
-		if(!validateYesNo2('17')) {alert("Cannot choose yes and no together for an item in Medical History");return false;}
-		
-		if(!validateYesNo2('22')) {alert("Cannot choose yes and no together for an item in Medical History");return false;}
-		if(!validateYesNo2('20')) {alert("Cannot choose yes and no together for an item in Medical History");return false;}
-		if(!validateYesNo2('21')) {alert("Cannot choose yes and no together for an item in Medical History");return false;}
-		if(!validateYesNo2('24')) {alert("Cannot choose yes and no together for an item in Medical History");return false;}
-		if(!validateYesNo2('15')) {alert("Cannot choose yes and no together for an item in Medical History");return false;}
-		if(!validateYesNo2('25')) {alert("Cannot choose yes and no together for an item in Medical History");return false;}
-		if(!validateYesNo2('27')) {alert("Cannot choose yes and no together for an item in Medical History");return false;}
-		if(!validateYesNo2('31')) {alert("Cannot choose yes and no together for an item in Medical History");return false;}
-		if(!validateYesNo2('32')) {alert("Cannot choose yes and no together for an item in Medical History");return false;}
-		if(!validateYesNo2('34')) {alert("Cannot choose yes and no together for an item in Medical History");return false;}
-		if(!validateYesNo3('35')) {alert("Cannot choose yes and no together for an item in Medical History");return false;}
-		if(!validateYesNo3('40')) {alert("Cannot choose yes and no together for an item in Medical History");return false;}
-		if(!validateYesNo3('38')) {alert("Cannot choose yes and no together for an item in Medical History");return false;}
-		
-		if(!validateYesNo3('42')) {alert("Cannot choose yes and no together for an item in Medical History");return false;}
-		if(!validateYesNo4('43')) {alert("Cannot choose yes and no together for an item in Medical History");return false;}
-		if(!validateYesNo4('44')) {alert("Cannot choose yes and no together for an item in Medical History");return false;}
-		if(!validateYesNo4('45')) {alert("Cannot choose yes and no together for an item in Medical History");return false;}
-		if(!validateYesNo4('46')) {alert("Cannot choose yes and no together for an item in Medical History");return false;}
-		if(!validateYesNo4('47')) {alert("Cannot choose yes and no together for an item in Medical History");return false;}
-		if(!validateYesNo4('48')) {alert("Cannot choose yes and no together for an item in Medical History");return false;}
-		
-		if(!validateYesNo5('pg1_bloodTran')) {alert("Cannot choose yes and no together for an item in Medical History");return false;}
-		if(!validateYesNo5('pg1_infectDisOther')) {alert("Cannot choose yes and no together for an item in Medical History");return false;}
-		if(!validateYesNo5('pg1_reliCult')) {alert("Cannot choose yes and no together for an item in Medical History");return false;}
-		if(!validateYesNo5('pg1_fhRisk')) {alert("Cannot choose yes and no together for an item in Medical History");return false;}
-				
-		if(!validateYesNo5('pg1_thyroid')) {alert("Cannot choose normal and abnormal together for an item in Physical Exam");return false;}
-		if(!validateYesNo5('pg1_chest')) {alert("Cannot choose normal and abnormal together for an item in Physical Exam");return false;}
-		if(!validateYesNo5('pg1_breasts')) {alert("Cannot choose normal and abnormal together for an item in Physical Exam");return false;}
-		if(!validateYesNo5('pg1_cardio')) {alert("Cannot choose normal and abnormal together for an item in Physical Exam");return false;}
-		if(!validateYesNo5('pg1_abdomen')) {alert("Cannot choose normal and abnormal together for an item in Physical Exam");return false;}
-		if(!validateYesNo5('pg1_vari')) {alert("Cannot choose normal and abnormal together for an item in Physical Exam");return false;}
-		if(!validateYesNo5('pg1_extGen')) {alert("Cannot choose normal and abnormal together for an item in Physical Exam");return false;}
-		if(!validateYesNo5('pg1_cervix')) {alert("Cannot choose normal and abnormal together for an item in Physical Exam");return false;}
-		if(!validateYesNo5('pg1_uterus')) {alert("Cannot choose normal and abnormal together for an item in Physical Exam");return false;}
-		if(!validateYesNo5('pg1_adnexa')) {alert("Cannot choose normal and abnormal together for an item in Physical Exam");return false;}
-		if(!validateYesNo5('pg1_pExOther')) {alert("Cannot choose normal and abnormal together for an item in Physical Exam");return false;}
-		
-		patt1=new RegExp("^(\\d{2,3}(\\.\\d)?)?$");
-		if(!patt1.test($("input[name='pg1_ht']").val())) {
-			alert("Please choose a valid height");
-			return false;
-		}
-		
-		patt1=new RegExp("^(\\d{1,3}((\\.)\\d{1,2})?)?$");
-		if(!patt1.test($("input[name='pg1_wt']").val())) {
-			alert("Please choose a valid weight");
-			return false;
-		}
-		
-		patt1=new RegExp("^(\\d{1,2}((\\.)\\d{1,2})?)?$");
-		if(!patt1.test($("input[name='c_bmi']").val())) {
-			alert("Please choose a valid BMI");
-			return false;
-		}
-		
-		patt1=new RegExp("^(\\d{1,3}/\\d{1,3})?$");
-		if(!patt1.test($("input[name='pg1_BP']").val())) {
-			alert("Please choose a valid BP");
-			return false;
-		}
-		
-		patt1=new RegExp("^(\\d{1,3}(\\.\\d)?)?$");
-		if(!patt1.test($("input[name='pg1_labMCV']").val())) {
-			alert("Please choose a valid MCV result");
-			return false;
-		}	
-		
+	function validate() {
+
 		return true;
 	}
 	
@@ -959,7 +748,7 @@ function updateGeneticD() {
 </head>
 
 <script type="text/javascript" language="Javascript">
-    function reset() {        
+    function reset() {
         document.forms[0].target = "";
         document.forms[0].action = "/<%=project_home%>/form/formname.do" ;
     }
@@ -984,68 +773,10 @@ function updateGeneticD() {
         }
         return ret;
     }
-    
-    function refreshOpener() {
-		if (window.opener && window.opener.name=="inboxDocDetails") {
-			window.opener.location.reload(true);
-		}	
-    }
+
     window.onunload=refreshOpener;
-    function onSave() {
-        document.forms[0].submit.value="save";
-        var ret1 = validate();
-        var ret = checkAllDates();
-        if(ret==true && ret1==true)
-        {
-            reset();
-            ret = confirm("Are you sure you want to save this form?");
-        }
-        if (ret && ret1)
-            window.onunload=null;
-        adjustDynamicListTotals();
-        return ret && ret1;
-    }
-    function onPageChange(url) {
-    	var result = false;
-    	var newID = 0;
-    	document.forms[0].submit.value="save";
-        var ret1 = validate();
-        var ret = checkAllDates();
-        if(ret==true && ret1==true)
-        {
-            reset();
-            ret = confirm("Are you sure you want to save this form?");
-            if(ret) {
-	            window.onunload=null;
-	            adjustDynamicListTotals();
-	            jQuery.ajax({
-	            	url:'<%=request.getContextPath()%>/Pregnancy.do?method=saveFormAjax',
-	            	data: $("form").serialize(),
-	            	async:false, 
-	            	dataType:'json', 
-	            	success:function(data) {
-	        			if(data.value == 'error') {
-	        				alert('Error saving form.');
-	        				result = false;	        				
-	        			} else {
-	        				result= true;
-	        				newID = parseInt(data.value);
-	        			}
-	        		}
-	            });
-            } else {
-            	url = url.replace('#id','<%=formId%>');
-            	location.href=url;
-            }
-        }
-        
-        if(result == true) {
-        	url = url.replace('#id',newID);
-        	location.href=url;
-        }
-          
-       return;
-    }
+
+
     function onExit() {
     	<%if(!bView) {%>
         if(confirm("Are you sure you wish to exit without saving your changes?")==true)
@@ -1059,20 +790,7 @@ function updateGeneticD() {
         	return false;
         <% } %>
     }
-    function onSaveExit() {
-        document.forms[0].submit.value="exit";
-        var ret1 = validate();        
-        var ret = checkAllDates();
-        if(ret == true && ret1==true)
-        {
-            reset();
-            ret = confirm("Are you sure you wish to save and close this window?");
-        }
-        if (ret&&ret1)
-        	refreshOpener();
-        adjustDynamicListTotals();
-        return ret && ret1;
-    }
+
     function popupPage(varpage) {
         windowprops = "height=700,width=960"+
             ",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=no,screenX=50,screenY=50,top=20,left=20";
@@ -1259,39 +977,6 @@ var maxYear=9900;
       if(!checkTypeNum(obj.value) ) {
           alert ("You must type in a number in the field.");
         }
-    }
-
-    function valDate(dateBox)
-    {
-        try
-        {
-            var dateString = dateBox.value;
-            if(dateString == "")
-            {
-    //            alert('dateString'+dateString);
-                return true;
-            }
-            var dt = dateString.split('/');
-            var y = dt[0];
-            var m = dt[1];
-            var d = dt[2];
-            var orderString = m + '/' + d + '/' + y;
-            var pass = isDate(orderString);
-
-            if(pass!=true)
-            {
-                alert('Invalid '+pass+' in field ' + dateBox.name);
-                dateBox.focus();
-                return false;
-            }
-        }
-        catch (ex)
-        {
-            alert('Catch Invalid Date in field ' + dateBox.name);
-            dateBox.focus();
-            return false;
-        }
-        return true;
     }
 
     function checkAllDates()
@@ -3260,9 +2945,9 @@ $(document).ready(function(){
 			</table>
 
 			</td>
-			<td valign="top">
+			<td  id="AR1" valign="top">
 
-			<table width="100%" border="1" cellspacing="0" cellpadding="0">
+			<table id="AR1-ILI" width="100%" border="1" cellspacing="0" cellpadding="0">
 				<tr>
 					<td colspan="4" align="center" bgcolor="#CCCCCC"><b><font
 						face="Verdana, Arial, Helvetica, sans-serif"> Initial
@@ -3431,7 +3116,7 @@ $(document).ready(function(){
 			</table>
 			<br/>
 			
-			<table width="100%" border="1" cellspacing="0" cellpadding="0">
+			<table id="AR1-PGI" width="100%" border="1" cellspacing="0" cellpadding="0">
 				<tr>
 					<th><u>Prenatal Genetic Investigations</u></th>
 					<th>Result</th>

@@ -445,30 +445,29 @@ public class BillingCorrectionAction extends DispatchAction{
                 //Determine Unit
                 String unit = request.getParameter("billingunit" + i);
                 MiscUtils.getLogger().info("("+ serviceCodeId + ") Unit Amount:" + unit);
-                if (!unit.matches("\\d+")) {
+                if (!unit.matches("(\\d+)?(\\.\\d+)?")) {
                     unit = "1";
                 }
                 BigDecimal unitAmt = new BigDecimal(unit);
                 
                  //Determine fee
                 String fee = request.getParameter("billingamount" + i);                
-                if (fee == null || fee.isEmpty() || fee.trim().isEmpty()) {
-                    BillingServiceDao bServiceDao = (BillingServiceDao) SpringUtils.getBean("billingServiceDao");
-                    BillingService bService = bServiceDao.searchBillingCode(serviceCodeId, "ON", serviceDate);
-                    
-                    if( bService == null ) {
-                    	bService = bServiceDao.searchPrivateBillingCode(serviceCodeId, serviceDate);
-                    }
-                    if( bService != null ) {
-                    	                    
-                    	if (bService.getTerminationDate().before(serviceDate)) {
-                    		fee = "defunct";
-                    	} else { 
-                    		fee = bService.getValue();      
-                    		BigDecimal feeAmt = new BigDecimal(fee);
-                    		feeAmt = feeAmt.multiply(unitAmt).setScale(2, BigDecimal.ROUND_HALF_UP);
-                    		fee = feeAmt.toPlainString();
-                    	}
+
+                BillingServiceDao bServiceDao = (BillingServiceDao) SpringUtils.getBean("billingServiceDao");
+                BillingService bService = bServiceDao.searchBillingCode(serviceCodeId, "ON", serviceDate);
+
+                if( bService == null ) {
+                    bService = bServiceDao.searchPrivateBillingCode(serviceCodeId, serviceDate);
+                }
+                if( bService != null ) {
+
+                    if (bService.getTerminationDate().before(serviceDate)) {
+                        fee = "defunct";
+                    } else {
+                        fee = bService.getValue();
+                        BigDecimal feeAmt = new BigDecimal(fee);
+                        feeAmt = feeAmt.multiply(unitAmt).setScale(2, BigDecimal.ROUND_HALF_UP);
+                        fee = feeAmt.toPlainString();
                     }
                 }
                                                     

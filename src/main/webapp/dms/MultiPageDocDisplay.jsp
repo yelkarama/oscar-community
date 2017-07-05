@@ -53,6 +53,8 @@
 <%@ page import="oscar.oscarDemographic.data.DemographicData" %>
 <%@ page import="oscar.SxmlMisc" %>
 <%@ page import="oscar.util.StringUtils" %>
+<%@ page import="oscar.oscarEncounter.data.EctFormData" %>
+<%@ page import="oscar.OscarProperties" %>
 <jsp:useBean id="displayServiceUtil" scope="request" class="oscar.oscarEncounter.oscarConsultationRequest.config.pageUtil.EctConDisplayServiceUtil" />
 <%
             WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
@@ -82,7 +84,19 @@
             EDoc curdoc = EDocUtil.getDoc(documentNo);
 
             String demographicID = curdoc.getModuleId();
-            
+
+            boolean obgynShortcuts = OscarProperties.getInstance().getProperty("show_obgyn_shortcuts", "false").equalsIgnoreCase("true") ? true : false;
+            if (oscar.util.StringUtils.isNullOrEmpty(demographicID)){
+                obgynShortcuts = false;
+            }
+            String formId = "0";
+            if (obgynShortcuts){
+                List<EctFormData.PatientForm> formsONAREnhanced = Arrays.asList(EctFormData.getPatientFormsFromLocalAndRemote(LoggedInInfo.getLoggedInInfoFromSession(request),demographicID,"formONAREnhancedRecord",true));
+                if (formsONAREnhanced!=null && !formsONAREnhanced.isEmpty()){
+                    formId = formsONAREnhanced.get(0).getFormId();
+                }
+            }
+
             if(demoName == null || "".equals(demoName)) {
             	Demographic d = demographicDao.getDemographic(demographicID);
             	if(d != null) {
@@ -137,6 +151,8 @@
 
 <html>
     <head>
+<!-- global -->
+<script type="text/javascript" src="<%=request.getContextPath()%>/js/global.js"></script>
             <!-- main calendar program -->
 <script type="text/javascript" src="../share/calendar/calendar.js"></script>
 <!-- language for the calendar -->
@@ -179,11 +195,11 @@
         <script type="text/javascript">
 
                 <%
-                            if(request.getAttribute("faxSuccessful")!=null){
-                                if((Boolean)request.getAttribute("faxSuccessful")==true){ %>
+                            if(request.getSession().getAttribute("faxSuccessful")!=null){
+                                if((Boolean)request.getSession().getAttribute("faxSuccessful")==true){ %>
                 alert("Fax sent successfully!");
             <% }
-            request.removeAttribute("faxSuccessful");
+            request.getSession().removeAttribute("faxSuccessful");
             }  %>
 
         </script>
@@ -208,6 +224,20 @@
                         
                    </td>
                     <td align="left" valign="top">
+                    <% if (obgynShortcuts) {%>
+                    <table border="0">
+                    <tr>
+                        <td>
+                            <input type="button" value="AR1-ILI" onClick="popupONAREnhanced(290, 625, '<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&section='+this.value)" />
+                            <input type="button" value="AR1-PGI" onClick="popupONAREnhanced(225, 590,'<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&section='+this.value)" />
+                            <input type="button" value="AR2-US" onClick="popupONAREnhanced(395, 655, '<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&section='+this.value)" />
+                            <input type="button" value="AR2-ALI" onClick="popupONAREnhanced(375, 430, '<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&section='+this.value)" />
+                            <input type="button" value="AR2" onClick="popupPage(700, 1024, '<%=request.getContextPath()%>/form/formonarenhancedpg2.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>')" />
+
+                        </td>
+                    </tr>
+                    </table>
+                    <% } %>
                         <fieldset><legend>Patient:<%=demoName%> </legend>
                             <table border="0">
                                 <tr>
@@ -650,6 +680,9 @@ function sendMRP(ele){
                                                                 var num=ar[1];
                                                                 num=num.replace(/\s/g,'');
                                                            if($("saveSucessMsg_"+num))     $("saveSucessMsg_"+num).show();
+                                                            if ($('docDesc_'+num).value!=""){
+                                                                $('faxFields_'+num).show();
+                                                            }
                                                            if($('saved'+num))      $('saved'+num).value='true';
                                                            if($('autocompletedemo'+num))
                                                                $('autocompletedemo'+num).disabled=true;
@@ -862,8 +895,8 @@ function sendMRP(ele){
                                 </table>
                             </form>
                         </fieldset>
-                        <% if (!StringUtils.isNullOrEmpty(demographicID) && !StringUtils.isNullOrEmpty(curdoc.getDescription()) && countValidProvider!=0){ %>
-                        <fieldset>
+                        <% Boolean faxEnabled = (!StringUtils.isNullOrEmpty(demographicID) && !StringUtils.isNullOrEmpty(curdoc.getDescription()) && countValidProvider!=0); %>
+                        <fieldset  id="faxFields_<%=docId%>"  <%=faxEnabled?"":"style='display:none'"%>  >
                             <script type="text/javascript">
                                 jQuery.noConflict();
                                 function faxDocument(docId){
@@ -963,6 +996,19 @@ function sendMRP(ele){
 
                             </form>
                         </fieldset>
+                        <% if (obgynShortcuts) {%>
+                        <table border="0">
+                            <tr>
+                                <td>
+                                    <input type="button" value="AR1-ILI" onClick="popupONAREnhanced(290, 625, '<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&section='+this.value)" />
+                                    <input type="button" value="AR1-PGI" onClick="popupONAREnhanced(225, 590,'<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&section='+this.value)" />
+                                    <input type="button" value="AR2-US" onClick="popupONAREnhanced(395, 655, '<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&section='+this.value)" />
+                                    <input type="button" value="AR2-ALI" onClick="popupONAREnhanced(375, 430, '<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&section='+this.value)" />
+                                    <input type="button" value="AR2" onClick="popupPage(700, 1024, '<%=request.getContextPath()%>/form/formonarenhancedpg2.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>')" />
+
+                                </td>
+                            </tr>
+                        </table>
                         <% } %>
                     </td>
                 </tr>

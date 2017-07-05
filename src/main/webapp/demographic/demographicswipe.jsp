@@ -64,9 +64,8 @@ function Attach(lname, fname, hin, yob,mob,dob, vercode, sex, effyear, effmonth,
         	 self.opener.document.updatedelete.date_of_birth.value = dob;
         	 self.opener.document.updatedelete.ver.value = vercode;
         	 self.opener.document.updatedelete.sex.value = sex;
-		 self.opener.document.updatedelete.eff_date_year.value = effyear;
-		 self.opener.document.updatedelete.eff_date_month.value = effmonth;
-		 self.opener.document.updatedelete.eff_date_date.value = effdate;
+        	 self.opener.document.updatedelete.eff_date.value = effyear + '-' + effmonth + '-' + effdate;
+        	 self.opener.document.updatedelete.hc_renew_date.value = endyear + '-' + endmonth + '-' + enddate;
 		 self.opener.document.updatedelete.hc_renew_date_year.value = endyear;
 		 self.opener.document.updatedelete.hc_renew_date_month.value = endmonth;
 		 self.opener.document.updatedelete.hc_renew_date_date.value = enddate;

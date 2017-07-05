@@ -85,6 +85,7 @@ public class EctDisplayPreventionAction extends EctDisplayAction {
 
 
 
+        String abnormalColour = "#EE5F5B";
         String highliteColour = "#FF0000";
         String inelligibleColour = "#E6AC00";
         String pendingColour = "#FF00FF";
@@ -130,7 +131,7 @@ public class EctDisplayPreventionAction extends EctDisplayAction {
                     }
                     else if (result != null && result.equalsIgnoreCase("abnormal") && !hdata.get("refused").equals("1"))
                     {
-                        item.setColour(inelligibleColour);
+                        item.setColour(abnormalColour);
                     }
                 }
                 else {

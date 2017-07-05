@@ -43,8 +43,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
+import org.oscarehr.common.dao.PreventionExtDao;
 import org.oscarehr.common.dao.UserPropertyDAO;
 import org.oscarehr.common.model.Demographic;
+import org.oscarehr.common.model.PreventionExt;
 import org.oscarehr.common.model.UserProperty;
 import org.oscarehr.common.printing.FontSettings;
 import org.oscarehr.common.printing.PdfWriterFactory;
@@ -193,7 +195,7 @@ public class PreventionPrintPdf {
         upperYcoord = document.top() - header.getHeight() -(clinicParagraph.getLeading()*4f) - font.getCalculatedLeading(LINESPACING);
         
         int subIdx;
-        String preventionHeader, procedureAge, procedureDate, procedureStatus;
+        String preventionHeader, procedureAge, procedureDate, procedureLotNumber, procedureStatus, procedureResult;
         
         //1 - obtain number of lines of incoming prevention data
         boolean showComments = OscarProperties.getInstance().getBooleanProperty("prevention_show_comments", "true");        
@@ -247,7 +249,9 @@ public class PreventionPrintPdf {
 
             procedureAge = currentPrevention.getString("preventionAge");
             procedureDate = currentPrevention.getString("preventionDate");
+            procedureLotNumber = currentPrevention.getString("preventionLot");
             procedureStatus = currentPrevention.getString("preventionStatus");
+            procedureResult = currentPrevention.getString("preventionResult");            
 
             //Age
             Phrase procedure = new Phrase(LEADING, "Age:", FontFactory.getFont(FontFactory.HELVETICA, 10, Font.NORMAL, Color.BLACK));
@@ -259,10 +263,17 @@ public class PreventionPrintPdf {
             procedure.add(new Chunk(procedureDate, FontFactory.getFont(FontFactory.HELVETICA, 9, Font.NORMAL, Color.BLACK)));
             procedure.add(Chunk.NEWLINE);
 
+            //Lot
+            if (procedureLotNumber!=null && !procedureLotNumber.trim().equals("")){
+                procedure.add("Lot No:");
+                procedure.add(new Chunk(procedureLotNumber, FontFactory.getFont(FontFactory.HELVETICA, 9, Font.NORMAL, Color.BLACK)));
+                procedure.add(Chunk.NEWLINE);
+            }
+
             //Status
             procedure.add("Status:");
-            procedure.add(new Chunk(procedureStatus, FontFactory.getFont(FontFactory.HELVETICA, 9, Font.NORMAL, Color.BLACK)));
-            procedure.add(Chunk.NEWLINE);
+            procedure.add(new Chunk(procedureResult.equalsIgnoreCase("abnormal")?procedureResult.substring(0, 1).toUpperCase()+procedureResult.substring(1):procedureStatus, FontFactory.getFont(FontFactory.HELVETICA, 9, Font.NORMAL, Color.BLACK)));
+            procedure.add(Chunk.NEWLINE);   
 
             //Comments
             String procedureComments = null;
@@ -424,11 +435,14 @@ public class PreventionPrintPdf {
     private List<JSONObject> createPreventionItems(String [] headerIds, HttpServletRequest request){
         List<JSONObject> preventionItems = new ArrayList<JSONObject>();
         JSONObject currentPrevention = new JSONObject();
+        PreventionExtDao preventionExtDao = (PreventionExtDao) SpringUtils.getBean("preventionExtDao");
 
-        String preventionName, preventionAge, preventionDate, preventionStatus, preventionComments;
+        String preventionName, preventionAge, preventionDate, preventionStatus, preventionComments, preventionId;
 
         int mainIndex = 0;
         int subIndex = 0;
+        List<PreventionExt> pe = new ArrayList<PreventionExt>();
+        String result = "";
 
         for(mainIndex = 0; mainIndex < headerIds.length; mainIndex++){
             preventionName = request.getParameter("preventionHeader" + headerIds[mainIndex]);
@@ -438,21 +452,29 @@ public class PreventionPrintPdf {
                 preventionAge = request.getParameter("preventProcedureAge" + headerIds[mainIndex] + "-" + subIndex);
                 preventionDate = request.getParameter("preventProcedureDate" + headerIds[mainIndex] + "-" + subIndex);
                 preventionStatus = request.getParameter("preventProcedureStatus" + headerIds[mainIndex] + "-" + subIndex);
-
+                preventionId = request.getParameter("preventProcedureId" + headerIds[mainIndex] + "-" + subIndex);
                 preventionStatus = readableStatuses.get(preventionStatus);
-
+                
                 preventionComments = request.getParameter("preventProcedureComments" + headerIds[mainIndex] + "-" + subIndex);
 
                 if( preventionStatus == null ) {
                     preventionStatus = "N/A";
                 }
 
+                pe = preventionExtDao.findByPreventionIdAndKey(Integer.parseInt(preventionId), "result");
+                if (pe.size()>0) { result = pe.get(0).getVal(); }
+
+                String lot = "";
+                pe = preventionExtDao.findByPreventionIdAndKey(Integer.parseInt(preventionId), "lot");
+                if (pe.size()>0) { lot = pe.get(0).getVal(); }
                 //Populating JSON object with Prevention Data.
                 currentPrevention.put("preventionName", preventionName);
                 currentPrevention.put("preventionAge", preventionAge);
                 currentPrevention.put("preventionDate", preventionDate);
+                currentPrevention.put("preventionLot", lot);
                 currentPrevention.put("preventionStatus", preventionStatus);
                 currentPrevention.put("preventionComments", preventionComments);
+                currentPrevention.put("preventionResult", result);
 
                 //Adding it to list
                 preventionItems.add(currentPrevention);
@@ -468,29 +490,6 @@ public class PreventionPrintPdf {
             //No more of same prevention, subIndex set back to 0
             subIndex = 0;
         }
-
-        //Sorting List of Preventions by Date. This sorts from oldest to newest.
-        Collections.sort(preventionItems, new Comparator<JSONObject>(){
-            private static final String KEY_NAME = "preventionDate";
-
-            @Override
-            public int compare(JSONObject a, JSONObject b){
-                SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-                Date date1 = new Date();
-                Date date2 = new Date();
-
-                try{
-                    date1 = df.parse((String)a.get(KEY_NAME));
-                    date2 = df.parse((String)b.get(KEY_NAME));
-                } catch(JSONException jse){
-                    jse.printStackTrace();
-                } catch(ParseException pe){
-                    pe.printStackTrace();
-                }
-
-                return date1.compareTo(date2);
-            }
-        });
 
         return preventionItems;
     }

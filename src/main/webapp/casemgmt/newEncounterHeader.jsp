@@ -126,7 +126,10 @@
 		
         <% if(oscar.OscarProperties.getInstance().hasProperty("ONTARIO_MD_INCOMINGREQUESTOR")){%>
            <a href="javascript:void(0)" onClick="popupPage(600,175,'Calculators','<c:out value="${ctx}"/>/common/omdDiseaseList.jsp?sex=<%=bean.patientSex%>&age=<%=pAge%>'); return false;" ><bean:message key="oscarEncounter.Header.OntMD"/></a>
-        <%}%>
+        <%}
+		if (oscar.OscarProperties.getInstance().hasProperty("kaiemr_work_queue_url")) {%>
+            <a href="javascript:void(0)" id="work_queue_button" title='Work Queue' onclick="popupPage(700, 1215,'work_queue', '<%=OscarProperties.getInstance().getProperty("kaiemr_work_queue_url")%>?demographicNo=<%=bean.demographicNo%>')">Work Queue</a>
+		<%}%>
         <%=getEChartLinks() %>
         &nbsp;&nbsp;
         

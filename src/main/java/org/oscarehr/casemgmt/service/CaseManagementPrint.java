@@ -179,7 +179,7 @@ public class CaseManagementPrint {
 				tmpNotes = caseManagementMgr.getNotes(demono, issueIds);
 				issueNotes = new ArrayList<CaseManagementNote>();
 				for (int k = 0; k < tmpNotes.size(); ++k) {
-					if (!tmpNotes.get(k).isLocked()) {
+					if (!tmpNotes.get(k).isLocked() && !tmpNotes.get(k).isArchived()) {
 						List<CaseManagementNoteExt> exts = caseManagementMgr.getExtByNote(tmpNotes.get(k).getId());
 						boolean exclude = false;
 						for (CaseManagementNoteExt ext : exts) {
@@ -397,7 +397,7 @@ public class CaseManagementPrint {
 			criteria.getProviders().addAll((List<String>) se.getAttribute("CaseManagementViewAction_filter_providers"));
 		}
 
-		if (se.getAttribute("CaseManagementViewAction_filter_providers") != null) {
+		if (se.getAttribute("CaseManagementViewAction_filter_issues") != null) {
 			criteria.getIssues().addAll((List<String>) se.getAttribute("CaseManagementViewAction_filter_issues"));
 		}
 

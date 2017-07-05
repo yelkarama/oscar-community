@@ -223,6 +223,10 @@ boolean isMulitSites = oscarProp.getBooleanProperty("multisites", "on");
     </script>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <script type="text/javascript">
+	if (opener != null && opener.location.href.indexOf("providercontrol.jsp") != -1) {
+		self.opener.refresh();
+	}
+	
     function submitForm(methodName) {
         if (methodName=="email"){
             document.forms[0].method.value="sendEmail";
@@ -442,7 +446,7 @@ bdBal = bdBal.subtract(bdPay).subtract(bdDis).add(bdCre);
 		<td><%=prop3rdPart.getProperty("credit","0.00") %></td>
 	</tr>
 	<tr align="right">
-		<td>Refund / Write off:</td>
+		<td>Write off:</td>
 		<td><%=prop3rdPart.getProperty("refund","0.00") %></td>
 	</tr>
 

@@ -80,7 +80,7 @@
 	
 	ClinicData clinic = new ClinicData();
   ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
-	List<Provider> prList = providerDao.getDoctorsWithOhip();
+	List<Provider> prList = providerDao.getDoctorsWithPractionerNo();
 	
 	ProgramDao programDao = SpringUtils.getBean(ProgramDao.class);
 	List<Program> programList = programDao.getAllActivePrograms();
@@ -359,7 +359,7 @@ var maxYear=3100;
         
         String num = p.getOhipNo() == null ? "" : p.getOhipNo();
         String practitionerNo="0000-" + num + "-" + strSpecialtyCode;
-        
+        String cpso= p.getPractitionerNo()!=null?p.getPractitionerNo():"";
         oscar.oscarRx.data.RxProviderData.Provider rxp = rxProviderData.getProvider(p.getProviderNo());
     		%>
     providerData['<%=prov_no%>'] = new Object(); //{};
@@ -372,6 +372,9 @@ var maxYear=3100;
     providerData['<%=prov_no%>'].last_name = "<%=p.getLastName() %>";
     providerData['<%=prov_no%>'].formatted_name = "<%=p.getFormattedName() %>";
     providerData['<%=prov_no%>'].prac_no = "<%=practitionerNo %>";
+    providerData['<%=prov_no%>'].cpso = "<%=cpso %>";
+	providerData['<%=prov_no%>'].ohip_no = "<%=num%>";
+	providerData['<%=prov_no%>'].specialty = "<%=p.getSpecialty()%>";
     <%	}
     }
 
@@ -421,9 +424,21 @@ if (OscarProperties.getInstance().getBooleanProperty("consultation_program_lette
     		$("input[name='clinicCity']").val (providerData[value]['city'] + providerData[value]['province']);
     		$("input[name='clinicPC']").val (providerData[value]['postal']);
         	$("input[name='practitionerNo']").val(providerData[value]['prac_no']);
+            $("input[name='cpsoNo']").val(providerData[value]['cpso']);
             $("input[name='reqProvName']").val(providerData[value]['formatted_name']);
+            $("#cpsoNo").html(providerData[value]['cpso']);
 
-            $("#pracNo").html(providerData[value]['prac_no']);
+
+            if (providerData[value]['ohip_no'] != "" && !providerData[value]['specialty'].toUpperCase().startsWith('NP')) {
+				$("#pracNo").html(providerData[value]['prac_no']);
+				$("input[name='practitionerNo']").val(providerData[value]['prac_no']);
+			} else if ("<%=props.getProperty("mrp", "")%>" != "") { // If the requesting physician does not have a billing number, use MRP's
+				$("#pracNo").html(providerData["prov_<%=props.getProperty("mrp", "")%>"]['prac_no']);
+				$("input[name='practitionerNo']").val(providerData["prov_<%=props.getProperty("mrp", "")%>"]['prac_no']);
+			} else { //else just use the requesting physician's ohip number
+				$("#pracNo").html("<%=props.getProperty("practitionerNo", "")%>");
+				$("input[name='practitionerNo']").val("<%=props.getProperty("practitionerNo", "")%>");
+			}
             $("#clinicName").html(providerData[value]['clinic_name']);
             $("#clinicAddress").html(providerData[value]['address']);
             $("#clinicCity").html(providerData[value]['city'] + " " + providerData[value]['province']);
@@ -518,7 +533,7 @@ if (OscarProperties.getInstance().getBooleanProperty("consultation_program_lette
 	<!-- class="TableWithBorder" -->
 	<table class="outerTable" width="100%">
 		<tr>
-			<td width="30%" class="outerTable">
+			<td width="40%" class="outerTable">
 
 
 
@@ -541,12 +556,18 @@ if (OscarProperties.getInstance().getBooleanProperty("consultation_program_lette
 					</td>
 				</tr>
 				<tr>
-					<td class="borderGrayTopBottom" style="border-bottom: 0px;"><font
+					<td class="borderGray" style="border-bottom: 0px;width: 70%"><font
 						class="subHeading">Physician/Practitioner Number</font><br>
 					<input type="hidden" name="practitionerNo"
-						value="<%=props.getProperty("practitionerNo", "")%>" />
-					<center id="pracNo"><%=props.getProperty("practitionerNo", "")%>&nbsp;</center>
+						   value="<%=props.getProperty("practitionerNo", "")%>" />
+					<span id="pracNo"><%=props.getProperty("practitionerNo", "")%>&nbsp;</span>
 					</td>
+					<td class="borderGrayTopBottom" style="border-bottom: 0px;"><font class="subHeading">CPSO No.</font><br>
+						<input type="hidden" name="cpsoNo"
+							   value="<%=props.getProperty("cpso", "")%>" />
+						<span id="cpsoNo"><%=props.getProperty("cpso", "")%>&nbsp;</span>
+					</td>
+
 				</tr>
 				<tr>
 					<td class="borderBlackTopBottom"><b><font
@@ -560,6 +581,7 @@ if (OscarProperties.getInstance().getBooleanProperty("consultation_program_lette
 					<input type="checkbox" name="wcb" <%=props.getProperty("wcb", "")%> /><b>WCB</b><br>
 					</div>
 					</font></td>
+					<td class="borderBlackTopBottom"></td>
 				</tr>
 				<tr>
 					<td class="borderGrayTopBottom" style="border-top: 0px;"><font

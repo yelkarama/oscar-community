@@ -537,6 +537,7 @@ CREATE TABLE demographic (
   lastUpdateDate datetime not null,
   patient_type VARCHAR(45) NULL,
   patient_id VARCHAR(45) NULL,
+  pref_name varchar(30) NOT NULL DEFAULT '',
   PRIMARY KEY  (demographic_no),
   KEY hin (hin),
   KEY name (last_name,first_name),
@@ -6975,6 +6976,7 @@ CREATE TABLE messagelisttbl (
   provider_no varchar(6) default NULL,
   status varchar(10) default NULL,
   remoteLocation int(10) default NULL,
+  folderid INT(10) DEFAULT 0 NULL,
   PRIMARY KEY(id),
   KEY `message` (`message`),
   KEY `provider_no` (`provider_no`),
@@ -7027,7 +7029,7 @@ CREATE TABLE mygroup (
   provider_no varchar(6) NOT NULL default '',
   last_name varchar(30) NOT NULL default '',
   first_name varchar(30) NOT NULL default '',
-  vieworder char(2) default NULL,
+  vieworder int(11) default 0,
   default_billing_form varchar(10),
   PRIMARY KEY  (mygroup_no,provider_no)
 ) ;
@@ -7090,7 +7092,9 @@ create table ProviderPreference
     eRxPassword varchar(64),
     eRxFacility varchar(32),
     eRxTrainingMode tinyint(1) not null,
-    encryptedMyOscarPassword varbinary(255)
+    encryptedMyOscarPassword varbinary(255),
+    defaultBillingLocation varchar(4) DEFAULT 'no',
+    defaultSliCode varchar(4) default 'no'
 );
 
 --
@@ -7201,6 +7205,7 @@ CREATE TABLE provider (
   `lastUpdateUser` varchar(6) default NULL,
   `lastUpdateDate` datetime not null,
   `signed_confidentiality` datetime,
+  thirdPartyOnly BOOLEAN DEFAULT FALSE NOT NULL,
   PRIMARY KEY  (provider_no)
 );
 
@@ -7489,6 +7494,7 @@ CREATE TABLE scheduletemplatecode (
   color varchar(10) default NULL,
   confirm char(3) NOT NULL default 'No',
   bookinglimit int NOT NULL default 1,
+  available tinyint default '1' not null,
   KEY code (code),
   PRIMARY KEY(id)
 ) ;
@@ -8924,7 +8930,8 @@ CREATE TABLE providerArchive (
   `title` varchar(20),
   `lastUpdateUser` varchar(6),
   `lastUpdateDate` date,
-  `signed_confidentiality` date
+  `signed_confidentiality` date,
+  thirdPartyOnly BOOLEAN DEFAULT FALSE NOT NULL,
 );
 
 CREATE TABLE appointmentArchive (
@@ -9230,6 +9237,7 @@ CREATE TABLE `appointmentType` (
   `id` int(12) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NULL,
   `notes` varchar(80) NULL,
+  `reasonCode` int(11) DEFAULT 0,
   `reason` varchar(80) NULL,
   `location` varchar(30) NULL,
   `resources` varchar(10) NULL,
@@ -10359,6 +10367,7 @@ create table PreventionsLotNrs(
   lotNr text NOT NULL,
   deleted boolean NOT NULL, 
   lastUpdateDate datetime NOT NULL,
+  expiryDate date NULL,
   PRIMARY KEY (`id`)
 );
 
@@ -12448,4 +12457,20 @@ CREATE TABLE `tickler_category` (
   `description` varchar(255),
   `active` bit(1),
   PRIMARY KEY (`id`)
+);
+
+CREATE TABLE messageFolder
+(
+  folderID int(10) PRIMARY KEY  NOT NULL auto_increment,
+  name varchar(25) NOT NULL default '',
+  providerNo varchar(6) default null,
+  displayOrder int(10),
+  deleted boolean NOT NULL DEFAULT false
+);
+
+CREATE TABLE `rxmanage`
+(
+	id int not null auto_increment primary key,
+	provider_no varchar(6) not null,
+	mrpOnRx tinyint(1) default '0' not null
 );

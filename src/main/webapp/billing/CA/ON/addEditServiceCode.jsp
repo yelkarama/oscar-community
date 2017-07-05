@@ -92,7 +92,7 @@
             	 }
 
 
-				if(request.getParameter("percentage").length()>1 && request.getParameter("min").length()>1 && request.getParameter("max").length()>1) {
+				if(request.getParameter("percentage").length()>1) {
 					List<BillingPercLimit> percLimits=billingPercLimitDao.findByServiceCode(serviceCode);
 					if(percLimits.size() == 0) {
 						BillingPercLimit percLimit = new BillingPercLimit();
@@ -495,11 +495,16 @@ Fee <small> e.g. 18.20</small><br>
 <input type="text" name="value" value="<%=prop.getProperty("value", "")%>" size='8' maxlength='8'pattern="\d+(\.\d{2})?" ><br/>
 </div>
 
-<div class="span6">
-Percentage <small> e.g. 0.20</small><br>
-<input type="text" name="percentage" value="<%=prop.getProperty("percentage", "")%>" size='8' maxlength='8'>  
-min.<input type="text" name="min" value="<%=prop.getProperty("min", "")%>" size='7' maxlength='8'> 
-max.<input type="text" name="max" value="<%=prop.getProperty("max", "")%>" size='7' maxlength='8'>
+<div class="span6 form-inline" style="margin-left: 0">
+	<div class="span2">
+		Percentage <small> e.g. 0.20</small><br>
+		<input type="text" name="percentage" value="<%=prop.getProperty("percentage", "")%>" size='8' maxlength='8'>
+	</div>
+	<div class="span3">
+		Fee limit after percent applied:<br/>
+		min. <input type="text" name="min" value="<%=prop.getProperty("min", "")%>" size='7' maxlength='8'><br/>
+		max. <input type="text" name="max" value="<%=prop.getProperty("max", "")%>" size='7' maxlength='8'>
+	</div>
 </div>
 
 <div class="span2">		

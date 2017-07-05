@@ -34,6 +34,8 @@
 <%@page import="java.util.List"%>
 <%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="java.util.ArrayList,oscar.util.*,java.util.*,org.oscarehr.common.model.Drug,org.oscarehr.common.dao.*"%>
+<%@ page import="org.oscarehr.common.model.Provider" %>
+<%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
 <logic:notPresent name="RxSessionBean" scope="session">
     <logic:redirect href="error.html" />
 </logic:notPresent>
@@ -74,6 +76,9 @@ String userlastname = (String) session.getAttribute("userlastname");
             if (pharmacyList != null && !pharmacyList.isEmpty()) {
                 prefPharmacy = pharmacyList.get(0).getName();
             }
+
+            ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
+            List<Provider> providerList = providerDao.getActiveProviders();
 %>
 <html:html locale="true">
     <head>
@@ -151,6 +156,12 @@ String userlastname = (String) session.getAttribute("userlastname");
 								</td>
 								<td align="right" class="noPrint">
 								<div class="DivContentSectionHead">
+                                    <select id="provider" class="noPrint" onchange="showHideRx()">
+                                        <option value="all">All Providers</option>
+                                        <%for (Provider provider : providerList){%>
+                                        <option value="<%=provider.getProviderNo()%>"><%=provider.getFormattedName()%></option>
+                                        <%}%>
+                                    </select>
 								<input type="text" id="sDate" class="noPrint" placeholder="Start Date" />
 								<input type="text" id="eDate" class="noPrint" placeholder="End Date" />
 									<% if(showall) { %>
@@ -172,6 +183,7 @@ String userlastname = (String) session.getAttribute("userlastname");
                                         <td width="100%"><!--<div class="Step1Text" style="width:100%">-->
                                             <table width="100%" cellpadding="3">
                                                 <tr>
+                                                    <th align="left" width="5%" class="noPrint"></th>
                                                     <th align=left width=20%><b><bean:message key="SearchDrug.msgRxDate"/></b></th>
                                                     <th align=left width=100%><b><bean:message key="SearchDrug.msgPrescription"/></b></th>
                                                 </tr>
@@ -185,7 +197,8 @@ String userlastname = (String) session.getAttribute("userlastname");
     for (Drug drug: prescriptDrugs) {
         String styleColor = "";
                                                 %>
-                                                <tr rxdate="<%=drug.getRxDate()%>">
+                                                <tr rxdate="<%=drug.getRxDate()%>" rxProvider="<%=drug.getProviderNo()%>">
+                                                    <td class="noPrint" width="5%"><img src="<%=request.getContextPath()%>/images/collapser.png" alt="Hide From Print" title="Hide From Print" onclick="$(this).closest('tr').hide()"/></td>
                                                     <td width=20% valign="top">
                                                         <a <%= styleColor%> href="StaticScript2.jsp?regionalIdentifier=<%=drug.getRegionalIdentifier()%>&cn=<%=response.encodeURL(drug.getCustomName())%>&bn=<%=response.encodeURL(drug.getBrandName())%>"><%=drug.getRxDate()%> </a>
                                                     </td>
@@ -240,9 +253,11 @@ String userlastname = (String) session.getAttribute("userlastname");
 	function showHideRx(){
 		var startDate = $("#sDate").val();
 		var endDate = $("#eDate").val();
+		var provider = $("#provider").val();
 		
 		$("tr [rxdate]").each(function(){
 			var rxDate = new Date($(this).attr("rxdate")).getTime();
+			var rxProvider = $(this).attr("rxProvider");
 			var display = true;
 			
 			if(Date.parse(startDate) && new Date(startDate).getTime() > rxDate){
@@ -251,6 +266,10 @@ String userlastname = (String) session.getAttribute("userlastname");
 			if(Date.parse(endDate) && new Date(endDate).getTime() < rxDate){
 				display = false;
 			}
+
+			if (provider!="all" && provider!=rxProvider){
+			    display = false;
+            }
 			
 			if(display){
 				$(this).show();

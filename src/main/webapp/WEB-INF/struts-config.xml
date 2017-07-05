@@ -847,6 +847,10 @@
 		<action input="/oscarMessenger/ViewMessage.jsp" path="/oscarMessenger/WriteToEncounter" scope="request" type="oscar.oscarMessenger.pageUtil.MsgWriteToEncounterAction">
 			<forward name="success" path="/oscarEncounter/IncomingEncounter.do" />
 		</action>
+		<action input="/oscarMessenger/ManageFolders.jsp"  path="/oscarMessenger/ManageFolder" scope="request" type="oscar.oscarMessenger.pageUtil.MsgManageFolderAction">
+			<forward name="success" path="/oscarMessenger/ManageFolders.jsp" />
+		</action>
+
 		<action name="RxChoosePatientForm" path="/oscarRx/choosePatient" scope="request" type="oscar.oscarRx.pageUtil.RxChoosePatientAction">
 			<forward name="success" path="/oscarRx/SearchDrug.jsp" />
 			<forward name="successRX3" path="/oscarRx/SearchDrug3.jsp" />
@@ -1776,6 +1780,13 @@
 			<forward name="error" path="/billing/CA/ON/batcherror.jsp" />
 			<forward name="success" path="/billing/CA/ON/batchBilling.jsp" />
 		</action>
+		
+		<action path="/billing/CA/ON/RASummary" scope="request" parameter="method" type="org.oscarehr.billing.CA.ON.web.RASummaryAction">
+			<forward name="success" path="/billing/CA/ON/onGenRASummary.jsp" />
+		</action>
+		<action path="/billing/CA/ON/RAReport" scope="request" parameter="method" type="org.oscarehr.billing.CA.ON.web.RAReportAction">
+			<forward name="success" path="/billing/CA/ON/genRADesc.jsp" />
+		</action>
 
 		<action input="/billing/CA/BC/formwcb.jsp" name="WCBForm" path="/billing/CA/BC/formwcb" scope="request" type="oscar.oscarBilling.ca.bc.pageUtil.WCBAction2" parameter="method">
 			<forward name="success" path="/billing/CA/BC/billingCreated.jsp" />
@@ -1913,9 +1924,13 @@
 			<forward name="success" path="/eform/efmformmanageredit.jsp" />
 			<forward name="fail" path="/eform/efmformmanageredit.jsp" />
 		</action>
-		<action input="/eform/partials/upload_image.jsp" name="eFormImageUpload" path="/eform/imageUpload" scope="request" type="oscar.eform.upload.ImageUploadAction" validate="true">
+		<action name="eFormImageUpload" path="/eform/imageUpload" scope="request" type="oscar.eform.upload.ImageUploadAction" validate="true">
 			<forward name="success" path="/eform/partials/upload_image.jsp" />
+            <forward name="consultSignatureSuccess" path="/provider/providerConsultSignature.jsp" />
 		</action>
+        <action path="/eform/providerImageUpload" scope="request" type="oscar.eform.upload.ImageUploadAction" parameter="method">
+            <forward name="success" path="/provider/providerConsultSignature.jsp" />
+        </action>
 		<action input="/eform/efmformmanager.jsp" name="deleteEform" path="/eform/delEForm" scope="request" type="oscar.eform.actions.DelEFormAction">
 			<forward name="success" path="/eform/efmformmanager.jsp" />
 		</action>

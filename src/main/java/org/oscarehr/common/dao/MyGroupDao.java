@@ -48,7 +48,7 @@ public class MyGroupDao extends AbstractDao<MyGroup> {
 
 	@SuppressWarnings("unchecked")
 	public List<MyGroup> findAll() {
-		Query query = createQuery("x", null);
+		Query query = entityManager.createQuery("SELECT g FROM MyGroup g order by g.id.myGroupNo, g.viewOrder, g.lastName");
 		return query.getResultList();
 	}
 	
@@ -77,13 +77,31 @@ public class MyGroupDao extends AbstractDao<MyGroup> {
      }
      
      public List<MyGroup> getGroupByGroupNo(String groupNo) {
-         Query query = entityManager.createQuery("SELECT g FROM MyGroup g where g.id.myGroupNo = ?");
+         Query query = entityManager.createQuery("SELECT g FROM MyGroup g where g.id.myGroupNo = ? order by g.viewOrder, g.lastName");
          query.setParameter(1, groupNo);
          
          @SuppressWarnings("unchecked")
          List<MyGroup> dList = query.getResultList();
 
          return dList;
+     }
+	 
+	 public MyGroup getGroup(String groupNo, String providerNo) {
+         Query query = entityManager.createQuery("SELECT g FROM MyGroup g where g.id.myGroupNo = ? and g.id.providerNo = ? order by g.viewOrder, g.lastName");
+         query.setParameter(1, groupNo);
+         query.setParameter(2, providerNo);
+         
+		 @SuppressWarnings("unchecked")
+         List<MyGroup> dList = query.getResultList();         
+
+         if (dList.size() > 1)
+             MiscUtils.getLogger().warn("More than one Default biling form for this group. Should only be one");
+		 
+         MyGroup ret = null;         
+         if (dList != null && !dList.isEmpty())
+             ret = dList.get(0);
+
+         return ret;
      }
 
      public void deleteGroupMember(String myGroupNo, String providerNo){

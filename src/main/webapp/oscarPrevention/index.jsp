@@ -36,6 +36,8 @@
 <%@page import="org.oscarehr.util.WebUtils"%>
 <%@page import="org.oscarehr.util.MiscUtils" %>
 <%@page import="org.oscarehr.managers.PreventionManager" %>
+<%@ page import="org.oscarehr.common.dao.PreventionsLotNrsDao" %>
+<%@ page import="org.oscarehr.common.model.PreventionsLotNrs" %>
 <%@page import="java.text.SimpleDateFormat"%>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
@@ -58,7 +60,29 @@ if(!authed) {
 %>
 <%
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-   		 
+
+	Date today = new Date();
+	
+	PreventionsLotNrsDao plnd = SpringUtils.getBean(PreventionsLotNrsDao.class);
+	List<PreventionsLotNrs> pln = plnd.findAll();
+	
+		for (PreventionsLotNrs pItem : pln)
+		{
+			if (pItem.getExpiryDate()!=null && !pItem.getExpiryDate().equals(""))
+			{
+				switch(today.compareTo(pItem.getExpiryDate()))
+				{
+					case 1:
+						pItem.setDeleted(true);
+						plnd.merge(pItem);
+						break;
+
+					default:
+						break;
+				}
+			}
+		}
+	
   //int demographic_no = Integer.parseInt(request.getParameter("demographic_no"));
   String demographic_no = request.getParameter("demographic_no");
   DemographicData demoData = new DemographicData();
@@ -823,6 +847,9 @@ text-align:left;
 		            	Map<String,Object> hdata = alist.get(k);
                                 Map<String,String> hExt = PreventionData.getPreventionKeyValues((String)hdata.get("id"));
 		    %>
+		<input type="hidden" id="preventProcedureId<%=i%>-<%=k%>"
+			   name="preventProcedureId<%=i%>-<%=k%>"
+			   value="<%=hdata.get("id")%>">
 		<input type="hidden" id="preventProcedureStatus<%=i%>-<%=k%>"
 			name="preventProcedureStatus<%=i%>-<%=k%>"
 			value="<%=hdata.get("refused")%>">

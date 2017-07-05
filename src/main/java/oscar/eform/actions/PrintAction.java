@@ -78,7 +78,7 @@ public class PrintAction extends Action {
 	 * This method is a copy of Apache Tomcat's ApplicationHttpRequest getRequestURL method with the exception that the uri is removed and replaced with our eform viewing uri. Note that this requires that the remote url is valid for local access. i.e. the
 	 * host name from outside needs to resolve inside as well. The result needs to look something like this : https://127.0.0.1:8443/oscar/eformViewForPdfGenerationServlet?fdid=2&parentAjaxId=eforms
 	 */
-	private String getEformRequestUrl(HttpServletRequest request) {
+    public static String getEformRequestUrl(HttpServletRequest request) {
 		StringBuilder url = new StringBuilder();
 		String scheme = request.getScheme();
 		Integer port;

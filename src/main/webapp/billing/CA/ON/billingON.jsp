@@ -137,6 +137,7 @@
             ProviderPreferenceDao preferenceDao = (ProviderPreferenceDao) SpringUtils.getBean("providerPreferenceDao");
             ProviderPreference preference = null;
             preference=ProviderPreferencesUIBean.getProviderPreferenceByProviderNo(provider_no);
+            String defaultSliCode = clinicNo;
 
 
            	
@@ -170,6 +171,9 @@
 					String defaultServiceType = "";
 					if (providerPreference!=null) {
 						defaultServiceType = providerPreference.getDefaultServiceType();
+						if ((providerPreference.getDefaultSliCode()!=null && !providerPreference.getDefaultSliCode().isEmpty() && !providerPreference.getDefaultSliCode().equals("no"))){
+							defaultSliCode = providerPreference.getDefaultSliCode();
+						}
 					}
 					
 					if (defaultServiceType != null && !defaultServiceType.isEmpty() && !defaultServiceType.equals("no")) {
@@ -309,7 +313,7 @@
 				propT = new Properties();
 				propT.setProperty("last_name", p.getLastName());
 				propT.setProperty("first_name", p.getFirstName());
-				propT.setProperty("proOHIP", p.getProviderNo() + "|" + p.getOhipNo());
+				propT.setProperty("proOHIP", p.getProviderNo() + "|" + p.getOhipNo() + "|" + p.isThirdPartyOnly());
 				vecProvider.add(propT);
 			}
 
@@ -355,14 +359,16 @@
 						visitLocationProperty = StringUtils.trimToEmpty(obj.getFacilty_num());
 						admissionDateProperty = StringUtils.trimToEmpty(obj.getAdmission_date());
 					}
-				}else if (vecHist != null && vecHist.size() > 0 && vecHist.get(0) != null) {
+				} else if (preference!=null && preference.getDefaultBillingLocation()!=null && !preference.getDefaultBillingLocation().isEmpty() && !preference.getDefaultBillingLocation().equals("no")){
+					visitLocationProperty = preference.getDefaultBillingLocation();
+				} else if (vecHist != null && vecHist.size() > 0 && vecHist.get(0) != null) {
 					visitLocationProperty = ((Properties)vecHist.get(0)).getProperty("visitLocation");
 					admissionDateProperty = ((Properties)vecHist.get(0)).getProperty("admissionDate"); 
 				}
 				visitLocation = visitLocationProperty != null ? visitLocationProperty : "";
 				admissionDate = admissionDateProperty != null ? admissionDateProperty : "";
 			}
-			
+
 			if (!"".equals(xml_visittype)) {
 				visitType = xml_visittype;
 			} else {
@@ -623,6 +629,13 @@
 </script>
 <oscar:customInterface section="billing"/>
 <script>
+function changeBillType(selection){
+    var isThirdPartyOnly = selection.split("|")[2];
+    if(isThirdPartyOnly == 'true'){
+        document.forms[0].xml_billtype.value = "PAT | Bill Patient";
+        onChangePrivate();
+	}
+}
 
 function gotoBillingOB() {
     if(self.location.href.lastIndexOf("?") > 0) {
@@ -879,12 +892,20 @@ function upCaseCtrl(ctrl) {
 	if(val.substring(0,3) == "ODP" || val.substring(0,3) == "WCB" || val.substring(0,3) == "BON") ctrl.value = ctrl.value.toUpperCase();
 }
 
+function changeTypeLocation(dropdown){
+
+}
 function changeCut(dropdown) {
 	var str = dropdown.options[dropdown.selectedIndex].value;
 	var temp = new Array();
-	temp = str.split('\|');
+	temp =  str.split(" ");
+
+	var codes = new Array();
+	codes = temp[0].split('\|');
+	var visitCode = temp[1].split('\|')[0].replace('[', '');
+	var locationCode = temp[1].split('\|')[1].replace(']', '');
 	//alert(temp);
-	var tlen = temp.length;
+	var tlen = codes.length;
 	//alert(tlen);
 	document.forms[0].dxCode.value="";
 	document.forms[0].dxCode1.value="";
@@ -898,18 +919,18 @@ function changeCut(dropdown) {
 		ocode.value	= "";
 		ounit.value	= "";
 		operc.value	= "";
-		if(i<tlen && temp[n].length==5) {
-			ocode.value	= temp[n];
-			ounit.value	= temp[n+1];
-			operc.value	= temp[n+2];
+		if(i<tlen && codes[n].length==5) {
+			ocode.value	= codes[n];
+			ounit.value	= codes[n+1];
+			operc.value	= codes[n+2];
 			n=n+3;
-		} else if(i<tlen && temp[n].length==3) {
+		} else if(i<tlen && codes[n].length==3) {
 			if(document.forms[0].dxCode.value=="") {
-				document.forms[0].dxCode.value=temp[n];
+				document.forms[0].dxCode.value=codes[n];
 			} else if(document.forms[0].dxCode1.value=="") {
-				document.forms[0].dxCode1.value=temp[n];
+				document.forms[0].dxCode1.value=codes[n];
 			} else if(document.forms[0].dxCode2.value=="") {
-				document.forms[0].dxCode2.value=temp[n];
+				document.forms[0].dxCode2.value=codes[n];
 			}
 			n=n+1;
 		}
@@ -919,6 +940,21 @@ function changeCut(dropdown) {
 		document.forms[0].dxCode1.value='<%=request.getParameter("dxCode1")!=null?request.getParameter("dxCode1"):""%>';
 		document.forms[0].dxCode2.value='<%=request.getParameter("dxCode2")!=null?request.getParameter("dxCode2"):""%>';
 		}
+
+	if (visitCode.trim().length>0){
+        jQuery('select[name=xml_visittype] option').each(function(){
+            if (this.value.startsWith(visitCode) ) {
+                this.selected = true;
+            }
+        });
+	}
+    if (locationCode.trim().length>0){
+        jQuery('select[name=xml_location] option').each(function(){
+            if (this.value.startsWith(locationCode) ) {
+                this.selected = true;
+            }
+        });
+    }
 }
 
 function popupPage(vheight,vwidth,varpage) { //open a new popup window
@@ -946,15 +982,17 @@ function onClickRefDoc() {
 function onChangePrivate() {
 	var n = document.forms[0].xml_billtype.selectedIndex;
 	var val = document.forms[0].xml_billtype[n].value;
+	var providerSelect = document.getElementsByName('xml_provider')[0];
+	var selectedProvider = providerSelect.options[providerSelect.selectedIndex].value.split("|")[0];
   	if(val.substring(0,3) == "PAT" || val.substring(0,3) == "OCF" || val.substring(0,3) == "ODS" || val.substring(0,3) == "CPP" || val.substring(0,3) == "STD") {
-  		self.location.href = "billingON.jsp?curBillForm=<%="PRI"%>&hotclick=<%=URLEncoder.encode("","UTF-8")%>&appointment_no=<%=request.getParameter("appointment_no")%>&demographic_name=<%=URLEncoder.encode(demoname,"UTF-8")%>&demographic_no=<%=request.getParameter("demographic_no")%>&xml_billtype="+val.substring(0,3)+"&apptProvider_no=<%=request.getParameter("apptProvider_no")%>&providerview=<%=request.getParameter("apptProvider_no")%>&appointment_date=<%=request.getParameter("appointment_date")%>&status=<%=request.getParameter("status")%>&start_time=<%=request.getParameter("start_time")%>&bNewForm=1";
+  		self.location.href = "billingON.jsp?curBillForm=<%="PRI"%>&hotclick=<%=URLEncoder.encode("","UTF-8")%>&appointment_no=<%=request.getParameter("appointment_no")%>&demographic_name=<%=URLEncoder.encode(demoname,"UTF-8")%>&demographic_no=<%=request.getParameter("demographic_no")%>&xml_billtype="+val.substring(0,3)+"&apptProvider_no=<%=request.getParameter("apptProvider_no")%>&providerview="+selectedProvider+"&appointment_date=<%=request.getParameter("appointment_date")%>&status=<%=request.getParameter("status")%>&start_time=<%=request.getParameter("start_time")%>&bNewForm=1";
   	}
     else if( val.substring(0,3) == "BON") {
-        self.location.href = "billingON.jsp?curBillForm=<%=oscarVariables.getProperty("primary_care_incentive", "").trim()%>&hotclick=<%=URLEncoder.encode("","UTF-8")%>&appointment_no=<%=request.getParameter("appointment_no")%>&demographic_name=<%=URLEncoder.encode(demoname,"UTF-8")%>&demographic_no=<%=request.getParameter("demographic_no")%>&xml_billtype="+val.substring(0,3)+"&apptProvider_no=<%=request.getParameter("apptProvider_no")%>&providerview=<%=request.getParameter("apptProvider_no")%>&appointment_date=<%=request.getParameter("appointment_date")%>&status=<%=request.getParameter("status")%>&start_time=<%=request.getParameter("start_time")%>&bNewForm=1";
+        self.location.href = "billingON.jsp?curBillForm=<%=oscarVariables.getProperty("primary_care_incentive", "").trim()%>&hotclick=<%=URLEncoder.encode("","UTF-8")%>&appointment_no=<%=request.getParameter("appointment_no")%>&demographic_name=<%=URLEncoder.encode(demoname,"UTF-8")%>&demographic_no=<%=request.getParameter("demographic_no")%>&xml_billtype="+val.substring(0,3)+"&apptProvider_no=<%=request.getParameter("apptProvider_no")%>&providerview="+selectedProvider+"&appointment_date=<%=request.getParameter("appointment_date")%>&status=<%=request.getParameter("status")%>&start_time=<%=request.getParameter("start_time")%>&bNewForm=1";
     }
     else {
 <% if(ctlBillForm.equals("PRI") ) {%>
-        self.location.href = "billingON.jsp?curBillForm=<%=oscarVariables.getProperty("default_view", "").trim()%>&hotclick=<%=URLEncoder.encode("","UTF-8")%>&appointment_no=<%=request.getParameter("appointment_no")%>&demographic_name=<%=URLEncoder.encode(demoname,"UTF-8")%>&demographic_no=<%=request.getParameter("demographic_no")%>&xml_billtype="+val.substring(0,3)+"&apptProvider_no=<%=request.getParameter("apptProvider_no")%>&providerview=<%=request.getParameter("apptProvider_no")%>&appointment_date=<%=request.getParameter("appointment_date")%>&status=<%=request.getParameter("status")%>&start_time=<%=request.getParameter("start_time")%>&bNewForm=1";
+        self.location.href = "billingON.jsp?curBillForm=<%=oscarVariables.getProperty("default_view", "").trim()%>&hotclick=<%=URLEncoder.encode("","UTF-8")%>&appointment_no=<%=request.getParameter("appointment_no")%>&demographic_name=<%=URLEncoder.encode(demoname,"UTF-8")%>&demographic_no=<%=request.getParameter("demographic_no")%>&xml_billtype="+val.substring(0,3)+"&apptProvider_no=<%=request.getParameter("apptProvider_no")%>&providerview="+selectedProvider+"&appointment_date=<%=request.getParameter("appointment_date")%>&status=<%=request.getParameter("status")%>&start_time=<%=request.getParameter("start_time")%>&bNewForm=1";
 <% } %>
   	}
 }
@@ -970,13 +1008,25 @@ function showHideBox(layerName, iState) { // 1 visible, 0 hidden
     }
 }
 
-function onHistory() {
-    //alert(dd);
+function onHistory(type) {
     <%
-    	DemographicDao demographicDao=(DemographicDao)SpringUtils.getBean("demographicDao");
-     	Demographic demographic = demographicDao.getDemographic(demo_no);
+        DemographicDao demographicDao = (DemographicDao)SpringUtils.getBean("demographicDao");
+        Demographic demographic = demographicDao.getDemographic(demo_no);
     %>
-    popupPage(500,800,'billinghistory.jsp?demographic_no=<%=demographic.getDemographicNo()%>&last_name=<%=URLEncoder.encode(demographic.getLastName())%>&first_name=<%=URLEncoder.encode(demographic.getFirstName())%>&orderby=appointment_date&displaymode=appt_history&dboperation=appt_history&limit1=0&limit2=10');
+    
+    var dd = document.forms[0].day.value;
+    //alert(dd);
+	
+	if (type == 'day')
+	{
+        popupPage(800,640,"billingONHistorySpec.jsp?demographic_no=<%=demo_no%>&demo_name=<%=URLEncoder.encode(demoname,"UTF-8")%>&orderby=appointment_date&day=" + dd); 
+	}
+	else
+	{
+        popupPage(800,640,'billinghistory.jsp?demographic_no=<%=demographic.getDemographicNo()%>&last_name=<%=URLEncoder.encode(demographic.getLastName())%>&first_name=<%=URLEncoder.encode(demographic.getFirstName())%>&orderby=appointment_date&displaymode=appt_history&dboperation=appt_history&limit1=0&limit2=10');
+	}
+	
+    
 }
 
 function prepareBack() {
@@ -1052,8 +1102,12 @@ function changeCodeDesc() {
     var descAjax = new Ajax.Updater("code_desc",url, {method: "get", parameters: pars});
 }
 
+function setBillingPreferences(){
+    document.forms[0].xml_slicode.value = '<%=defaultSliCode%>';
+}
+
 //this function will show the content within the <div> tag of billing codes
-function toggleDiv(selectedBillForm, selectedBillFormName,billType)
+function toggleDiv(selectedBillForm, selectedBillFormName,billType,visitType, location)
 {
         document.getElementById("billForm").value=selectedBillForm;
         document.getElementById("billFormName").value=selectedBillFormName;
@@ -1065,6 +1119,23 @@ function toggleDiv(selectedBillForm, selectedBillFormName,billType)
         		}
         	}
         }
+
+        if(visitType!=''){
+            for (var i=0;i<document.forms[0].xml_visittype.options.length;i++) {
+                if (document.forms[0].xml_visittype.options[i].value.substring(0,2) == visitType){
+                    document.forms[0].xml_visittype.options[i].selected = true;
+                }
+            }
+		}
+
+		if(location!='')
+		{
+            for (var i=0;i<document.forms[0].xml_location.options.length;i++) {
+                if (document.forms[0].xml_location.options[i].value.substring(0,4) == location){
+                    document.forms[0].xml_location.options[i].selected = true;
+                }
+            }
+		}
 
         //dx search
         showBillFormDiv("dxCodeSearchDiv_",selectedBillForm);
@@ -1099,7 +1170,7 @@ function toggleDiv(selectedBillForm, selectedBillFormName,billType)
 </script>
 </head>
 
-<body onload="prepareBack();changeCodeDesc();" topmargin="0">
+<body onload="prepareBack();changeCodeDesc();setBillingPreferences();" topmargin="0">
 	<div id="Instrdiv" class="demo1">
 
 		<table bgcolor='#007FFF' width='99%'>
@@ -1141,15 +1212,19 @@ function toggleDiv(selectedBillForm, selectedBillFormName,billType)
 			    currentFormName = ctlcodename;
 			}
 			String billType = "";
+			String formVisitType = "";
+			String formLocation = "";
 			
 			for(CtlBillingType bt : ctlBillingtypeDao.findByServiceType(ctlcode)) {
 				billType = bt.getBillType();
+				formVisitType = bt.getVisitType()!=null?bt.getVisitType():"";
+				formLocation = bt.getLocation()!=null?bt.getLocation():"";
 	        }
 %>
 			<tr bgcolor=<%=ctlCount%2==0 ? "#FFFFFF" : "#EEEEFF"%>>
 				<td colspan="2"><b><font size="-1" color="#7A388D">
 						<a href="#"
-							onclick="toggleDiv('<%=ctlcode%>', '<%=ctlcodename %>','<%=billType%>');showHideLayers('Layer1','','hide');"><%=ctlcodename%></a>
+							onclick="toggleDiv('<%=ctlcode%>', '<%=ctlcodename %>','<%=billType%>', '<%=formVisitType%>', '<%=formLocation%>');showHideLayers('Layer1','','hide');"><%=ctlcodename%></a>
 					</font></b></td>
 			</tr>
 			<%}%>
@@ -1224,14 +1299,16 @@ if(checkFlag == null) checkFlag = "0";
 				<td align="right"><oscar:help keywords="1.4 Billing"
 						key="app.top1" style="color: #FFFFFF" /> <font color="#FFFFFF">
 					| </font> <a href=#
-					onclick="popupPage(460,680,'billingONfavourite.jsp'); return false;">
+					onclick="popupPage(460,680,'billingONfavourite.jsp?apptProvider_no=<%=apptProvider_no%>&visitType='+document.forms[0].xml_visittype.value.split('|')[0]+'&location='+document.forms[0].xml_location.value.split('|')[0]); return false;">
 						<font color="#FFFFFF">Edit</font>
 				</a> <select name="cutlist" id="cutlist" onchange="changeCut(this)">
 						<option selected="selected" value="">- SUPER CODES -</option>
 						<% //
 		    List sL = tdbObj.getBillingFavouriteList();
-		    for (int i = 0; i < sL.size(); i = i + 2) { %>
-						<option value="<%=(String) sL.get(i+1)%>"><%=(String) sL.get(i)%></option>
+		    for (int i = 0; i < sL.size(); i = i + 2) {
+				String favouriteName = String.valueOf(sL.get(i));
+				List<String> visitTypeLocation = tdbObj.getBillingFavouriteTypeAndLocation(favouriteName);		%>
+						<option value="<%=(String) sL.get(i+1)%> [<%=visitTypeLocation.get(0)!=null?visitTypeLocation.get(0):""%>|<%=visitTypeLocation.get(1)!=null?visitTypeLocation.get(1):""%>]"><%=favouriteName%></option>
 						<% } %>
 				</select></td>
 				<td align="right" width="10%" nowrap><input type="submit"
@@ -1439,7 +1516,7 @@ function changeSite(sel) {
       	</script> <%
  	// multisite end ==========================================
  } else {
- %> <select name="xml_provider">
+ %> <select name="xml_provider" onchange="changeBillType(this.value);">
 												<%
 													String[] tmp;
 												            if (vecProvider.size() == 1) {
@@ -1990,8 +2067,15 @@ function changeSite(sel) {
 			class="myIvory">
 			<tr class="myYellow">
 				<td><%=demoname%> - <b>Billing History</b> <% if(maxResults > -1){ %>(last <%=maxResults%> records)<% } %></td>
-				<td width="20%" align="right">View Full History&nbsp;<input type="button"
-					name="buttonDay" value="Go" onClick="onHistory(); return false;" />
+				<td width="20%" align="right">Last <input type="text"
+					name="day" value="365" size="3" /> days <input type="button"
+					name="buttonDay" value="Go" onClick="onHistory('day'); return false;" />
+				</td>
+			</tr>
+			<tr class="myYellow">
+				<td></td>
+				<td align="right">
+					View Fully History&nbsp; <input type="button" name="buttonAll" value="Go" onClick="onHistory('all'); return false;"/>
 				</td>
 			</tr>
 		</table>

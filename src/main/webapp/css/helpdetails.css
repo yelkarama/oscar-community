@@ -3,7 +3,7 @@ position: absolute;
 display:none;
 top:18px;
 right:-280px;
-z-index:999;
+z-index:1500;
 height:500px;
 width:280px;
 background-color:#fff; 
@@ -36,7 +36,15 @@ position: absolute; top: 0;width:100%; height:40px;background-color:#486ebd;colo
 
 .help-body{
 position: absolute; top: 44px;padding:10px; height:420px; width:90%; text-align:left;overflow-y:auto; overflow-x:hidden;
+	color: black;
 }
+.help-body a:visited,.help-body a:link{
+	color: black;
+}
+.help-body a:hover{
+	color: #9f9f9f;
+}
+
 
 .help-close{
 position: absolute; top: 0; right:2px; color:#fff;font-size:18px;text-align:right;font-weight:100

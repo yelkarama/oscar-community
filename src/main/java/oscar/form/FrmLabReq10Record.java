@@ -144,7 +144,8 @@ public class FrmLabReq10Record extends FrmRecord {
             mrp =  providerDao.getProvider(demoProvider);
 
             if (mrp != null) {
-                props.setProperty("provName", "MRP: " + mrp.getFormattedName());            
+                props.setProperty("provName", "MRP: " + mrp.getFormattedName());
+                props.setProperty("mrp", mrp.getProviderNo());
             }
         }
                         
@@ -183,6 +184,12 @@ public class FrmLabReq10Record extends FrmRecord {
                 if (ohipNo != null && !ohipNo.isEmpty()) {                                        
                     props.setProperty("reqProvName", provider.getFormattedName());
                     props.setProperty("practitionerNo", "0000-" + ohipNo + "-" + strSpecialtyCode);
+                }
+
+                String cpsoNo = provider.getPractitionerNo();
+
+                if (cpsoNo != null && !cpsoNo.isEmpty()) {
+                    props.setProperty("cpso", cpsoNo);
                 }
             }
         }

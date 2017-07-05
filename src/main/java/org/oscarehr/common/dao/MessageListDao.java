@@ -65,6 +65,13 @@ public class MessageListDao extends AbstractDao<MessageList> {
 		query.setParameter("status", status);
 		return query.getResultList();	    
     }
+
+	public List<MessageList> findByProviderAndFolder(String providerNo, Integer folderId) {
+		Query query = createQuery("ml", "ml.providerNo = :providerNo and ml.folderId = :folderId");
+		query.setParameter("providerNo", providerNo);
+		query.setParameter("folderId", folderId);
+		return query.getResultList();
+	}
     
 	public List<MessageList> findUnreadByProvider(String providerNo) {
 		Query query = createQuery("ml", "ml.providerNo = :providerNo and ml.status ='new'");

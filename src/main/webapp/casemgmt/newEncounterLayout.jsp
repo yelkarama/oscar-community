@@ -41,6 +41,7 @@
 <%@ page import="oscar.SxmlMisc" %>
 <%@ page import="org.oscarehr.common.model.Demographic" %>
 <%@ page import="oscar.oscarDemographic.data.DemographicData" %>
+<%@ page import="org.oscarehr.provider.web.CppPreferencesUIBean" %>
 <jsp:useBean id="displayServiceUtil" scope="request" class="oscar.oscarEncounter.oscarConsultationRequest.config.pageUtil.EctConDisplayServiceUtil" />
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
@@ -794,7 +795,21 @@ input#otherFaxInput{
 function init() {
 	//scrollDownInnerBar();
 	viewFullChart(false);
-    showIssueNotes();
+	<%
+		CppPreferencesUIBean prefsBean = new CppPreferencesUIBean(loggedInInfo.getLoggedInProviderNo());
+		prefsBean.loadValues();
+		if(prefsBean.getEnable()!=null && prefsBean.getEnable().equals("on")){
+		    String socialHistoryPositon = prefsBean.getSocialHxPosition();
+		    String medicalHistoryPosition = prefsBean.getMedicalHxPosition();
+		    String ongoingConcernsPosition = prefsBean.getOngoingConcernsPosition();
+		    String remindersPostion = prefsBean.getRemindersPosition();
+	%>
+	    showCustomIssueNotes('<%=socialHistoryPositon%>', '<%=medicalHistoryPosition%>', '<%=ongoingConcernsPosition%>','<%=remindersPostion%>');
+
+
+	<%}else{%>
+	    showIssueNotes();
+	<%}%>
 
     var navBars = new navBarLoader();
     navBars.load();

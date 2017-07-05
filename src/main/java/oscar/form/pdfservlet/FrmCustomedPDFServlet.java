@@ -56,8 +56,10 @@ import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.FaxConfigDao;
 import org.oscarehr.common.dao.FaxJobDao;
+import org.oscarehr.common.dao.RxManageDao;
 import org.oscarehr.common.model.FaxConfig;
 import org.oscarehr.common.model.FaxJob;
+import org.oscarehr.common.model.RxManage;
 import org.oscarehr.common.printing.FontSettings;
 import org.oscarehr.common.printing.PdfWriterFactory;
 import org.oscarehr.util.LocaleUtils;
@@ -275,13 +277,14 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 		private String pharmaEmail;
 		private String pharmaNote;
 		private boolean pharmaShow;
+		private String loggedInProvNo;
                 Locale locale = null;
                 
 		public EndPage() {
 		}
 
         public EndPage(String clinicName, String clinicTel, String clinicFax, String patientPhone, String patientCityPostal, String patientAddress,
-                String patientName,String patientDOB, String sigDoctorName, String MRP, String rxDate,String origPrintDate,String numPrint, String imgPath, String electronicSignature, String patientHIN, String patientChartNo, String bandNumber, String pracNo, String pharmaName, String pharmaAddress1, String pharmaAddress2, String pharmaTel, String pharmaFax, String pharmaEmail, String pharmaNote, boolean pharmaShow, Locale locale) {
+                String patientName,String patientDOB, String sigDoctorName, String MRP, String rxDate,String origPrintDate,String numPrint, String imgPath, String electronicSignature, String patientHIN, String patientChartNo, String bandNumber, String pracNo, String pharmaName, String pharmaAddress1, String pharmaAddress2, String pharmaTel, String pharmaFax, String pharmaEmail, String pharmaNote, boolean pharmaShow, Locale locale, LoggedInInfo loggedInInfo) {
 			this.clinicName = clinicName==null ? "" : clinicName;
 			this.clinicTel = clinicTel==null ? "" : clinicTel;
 			this.clinicFax = clinicFax==null ? "" : clinicFax;
@@ -314,6 +317,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 			this.pharmaNote=pharmaNote==null ? "" : pharmaNote;
 			this.pharmaShow=pharmaShow;
 			this.locale = locale;
+			this.loggedInProvNo = loggedInInfo.getLoggedInProviderNo();
 		}
 
 		@Override
@@ -368,6 +372,10 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 		public void renderPage(PdfWriter writer, Document document) {
 			Rectangle page = document.getPageSize();
 			PdfContentByte cb = writer.getDirectContent();
+			
+			RxManageDao rxManageDao = SpringUtils.getBean(RxManageDao.class);
+			RxManage rxManage = rxManageDao.findByProviderNo(this.loggedInProvNo);
+			Boolean mrpRx = rxManage!=null?rxManage.getMrpOnRx(): true;
 
 			try {
 
@@ -519,11 +527,15 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 						writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, lines[0], 72f, endPara - 48f, 0);
 						writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, lines[1], 72f, endPara - 57f, 0);
 					}
+					
 
 					// Render doctor name
 					bf = BaseFont.createFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
 					writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, "Req. Physician: " + this.sigDoctorName, 20f, endPara - 78f, 0);
-					writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, "MRP: " + this.MRP, 20f,endPara - 88f, 0);
+					if (mrpRx)
+					{
+						writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, "MRP: " + this.MRP, 20f,endPara - 88f, 0);	
+					}
 					bf = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
 					// public void writeDirectContent(PdfContentByte cb, BaseFont bf, float fontSize, int alignment, String text, float x, float y, float rotation)
 					// render reprint origPrintDate and numPrint
@@ -561,7 +573,6 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 		hm.put("clinicFax", fax);
 
 		return hm;
-
 	}
 
 	protected ByteArrayOutputStream generatePDFDocumentBytes(final HttpServletRequest req, final ServletContext ctx) throws DocumentException {
@@ -718,7 +729,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 
 			// writer = PdfWriter.getInstance(document, baosPDF);
 			writer = PdfWriterFactory.newInstance(document, baosPDF, FontSettings.HELVETICA_10PT);
-			writer.setPageEvent(new EndPage(clinicName, clinicTel, clinicFax, patientPhone, patientCityPostal, patientAddress, patientName,patientDOB, sigDoctorName, MRP, rxDate, origPrintDate, numPrint, imgFile, electronicSignature, patientHIN, patientChartNo, patientBandNumber, pracNo, pharmaName, pharmaAddress1, pharmaAddress2, pharmaTel, pharmaFax, pharmaEmail, pharmaNote, pharmaShow, locale));
+			writer.setPageEvent(new EndPage(clinicName, clinicTel, clinicFax, patientPhone, patientCityPostal, patientAddress, patientName,patientDOB, sigDoctorName, MRP, rxDate, origPrintDate, numPrint, imgFile, electronicSignature, patientHIN, patientChartNo, patientBandNumber, pracNo, pharmaName, pharmaAddress1, pharmaAddress2, pharmaTel, pharmaFax, pharmaEmail, pharmaNote, pharmaShow, locale, loggedInInfo));
 			document.addTitle(title);
 			document.addSubject("");
 			document.addKeywords("pdf, itext");

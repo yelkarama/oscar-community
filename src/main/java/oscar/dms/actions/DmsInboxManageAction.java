@@ -198,6 +198,7 @@ public class DmsInboxManageAction extends DispatchAction {
 		String searchProviderNo = request.getParameter("searchProviderNo");
 		Boolean searchAll = request.getParameter("searchProviderAll") != null;
 		String status = request.getParameter("status");
+		String searchPage = request.getParameter("isSearchPage")==null?"":request.getParameter("isSearchPage");
 
 		if (status == null) {
 			status = "N";
@@ -236,33 +237,46 @@ public class DmsInboxManageAction extends DispatchAction {
 		}
 		boolean patientSearch = !"".equals(patientFirstName) || !"".equals(patientLastName)
 				|| !"".equals(patientHealthNumber);
-		try {
-			CategoryData cData = new CategoryData(patientLastName, patientFirstName, patientHealthNumber,
-					patientSearch, providerSearch, searchProviderNo, status, startDate, endDate);
-			cData.populateCountsAndPatients();
-			MiscUtils.getLogger().debug("LABS " + cData.getTotalLabs());
-			request.setAttribute("patientFirstName", patientFirstName);
-			request.setAttribute("patientLastName", patientLastName);
-			request.setAttribute("patientHealthNumber", patientHealthNumber);
-			request.setAttribute("patients", new ArrayList<PatientInfo>(cData.getPatients().values()));
-			request.setAttribute("unmatchedDocs", cData.getUnmatchedDocs());
-			request.setAttribute("unmatchedLabs", cData.getUnmatchedLabs());
-			request.setAttribute("totalDocs", cData.getTotalDocs());
-			request.setAttribute("totalLabs", cData.getTotalLabs());
-			request.setAttribute("abnormalCount", cData.getAbnormalCount());
-			request.setAttribute("normalCount", cData.getNormalCount());
-			request.setAttribute("totalNumDocs", cData.getTotalNumDocs());
-			request.setAttribute("providerNo", providerNo);
-			request.setAttribute("searchProviderNo", searchProviderNo);
-			request.setAttribute("ackStatus", status);
-			request.setAttribute("categoryHash", cData.getCategoryHash());
-			request.setAttribute("startDate", startDate);
-			request.setAttribute("endDate", endDate);
-			return mapping.findForward("dms_index");
-		} catch (SQLException e) {
-			logger.error("Error: ", e);
-			return mapping.findForward("error");
+		
+		if (!searchPage.equals("true"))
+		{
+			try {
+				CategoryData cData = new CategoryData(patientLastName, patientFirstName, patientHealthNumber,
+						patientSearch, providerSearch, searchProviderNo, status, startDate, endDate);
+				cData.populateCountsAndPatients();
+				MiscUtils.getLogger().debug("LABS " + cData.getTotalLabs());
+				request.setAttribute("patientFirstName", patientFirstName);
+				request.setAttribute("patientLastName", patientLastName);
+				request.setAttribute("patientHealthNumber", patientHealthNumber);
+				request.setAttribute("patients", new ArrayList<PatientInfo>(cData.getPatients().values()));
+				request.setAttribute("unmatchedDocs", cData.getUnmatchedDocs());
+				request.setAttribute("unmatchedLabs", cData.getUnmatchedLabs());
+				request.setAttribute("totalDocs", cData.getTotalDocs());
+				request.setAttribute("totalLabs", cData.getTotalLabs());
+				request.setAttribute("abnormalCount", cData.getAbnormalCount());
+				request.setAttribute("normalCount", cData.getNormalCount());
+				request.setAttribute("totalNumDocs", cData.getTotalNumDocs());
+				request.setAttribute("providerNo", providerNo);
+				request.setAttribute("searchProviderNo", searchProviderNo);
+				request.setAttribute("ackStatus", status);
+				request.setAttribute("categoryHash", cData.getCategoryHash());
+				request.setAttribute("startDate", startDate);
+				request.setAttribute("endDate", endDate);
+				return mapping.findForward("dms_index");
+			} catch (SQLException e) {
+				logger.error("Error: ", e);
+				return mapping.findForward("error");
+			}	
 		}
+		request.setAttribute("patientFirstName", patientFirstName);
+		request.setAttribute("patientLastName", patientLastName);
+		request.setAttribute("patientHealthNumber", patientHealthNumber);
+		request.setAttribute("providerNo", providerNo);
+		request.setAttribute("searchProviderNo", searchProviderNo);
+		request.setAttribute("ackStatus", status);
+		request.setAttribute("startDate", startDate);
+		request.setAttribute("endDate", endDate);
+		return mapping.findForward("dms_index");
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

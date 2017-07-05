@@ -380,7 +380,7 @@ import oscar.util.UtilDateUtilities;
         //DEMOGRAPHICS
         Demographics demo = patientRec.getDemographics();
         cdsDt.PersonNameStandard.LegalName legalName = demo.getNames().getLegalName();
-        String lastName="", firstName="";
+        String lastName="", firstName="", prefName="";
         String lastNameQualifier=null, firstNameQualifier=null;
         if (legalName!=null) {
             if (legalName.getLastName()!=null) {
@@ -718,8 +718,9 @@ import oscar.util.UtilDateUtilities;
             dd.setDemographic(loggedInInfo, demographic);
             err_note.add("Replaced Contact-only patient "+patientName+" (Demo no="+demographicNo+")");
 
+            prefName = "itSetsHere!";
         } else { //add patient!
-            demoRes = dd.addDemographic(loggedInInfo, title, lastName, firstName, address, city, province, postalCode, homePhone, workPhone, year_of_birth, month_of_birth, date_of_birth, hin, versionCode, rosterStatus, rosterDate, termDate, termReason, patient_status, psDate, ""/*date_joined*/, chart_no, official_lang, spoken_lang, primaryPhysician, sex, ""/*end_date*/, ""/*eff_date*/, ""/*pcn_indicator*/, hc_type, hc_renew_date, ""/*family_doctor*/, email, ""/*pin*/, ""/*alias*/, ""/*previousAddress*/, ""/*children*/, ""/*sourceOfIncome*/, ""/*citizenship*/, sin);
+            demoRes = dd.addDemographic(loggedInInfo, title, lastName, firstName, prefName, address, city, province, postalCode, homePhone, workPhone, year_of_birth, month_of_birth, date_of_birth, hin, versionCode, rosterStatus, rosterDate, termDate, termReason, patient_status, psDate, ""/*date_joined*/, chart_no, official_lang, spoken_lang, primaryPhysician, sex, ""/*end_date*/, ""/*eff_date*/, ""/*pcn_indicator*/, hc_type, hc_renew_date, ""/*family_doctor*/, email, ""/*pin*/, ""/*alias*/, ""/*previousAddress*/, ""/*children*/, ""/*sourceOfIncome*/, ""/*citizenship*/, sin);
             demographicNo = demoRes.getId();
         }
 
@@ -804,7 +805,7 @@ import oscar.util.UtilDateUtilities;
                 String cPatient = cLastName+","+cFirstName;
                 if (StringUtils.empty(cDemoNo)) {   //add new demographic as contact
                     psDate = UtilDateUtilities.DateToString(new Date(),"yyyy-MM-dd");
-                    demoRes = dd.addDemographic(loggedInInfo, ""/*title*/, cLastName, cFirstName, ""/*address*/, ""/*city*/, ""/*province*/, ""/*postal*/,
+                    demoRes = dd.addDemographic(loggedInInfo, ""/*title*/, cLastName, cFirstName, "", ""/*address*/, ""/*city*/, ""/*province*/, ""/*postal*/,
                     			homePhone, workPhone, ""/*year_of_birth*/, ""/*month_*/, ""/*date_*/, ""/*hin*/, ""/*ver*/, ""/*roster_status*/, "", "", "",
                     			"Contact-only", psDate, ""/*date_joined*/, ""/*chart_no*/, ""/*official_lang*/, ""/*spoken_lang*/, ""/*provider_no*/,
                     			"F", ""/*end_date*/, ""/*eff_date*/, ""/*pcn_indicator*/, ""/*hc_type*/, ""/*hc_renew_date*/, ""/*family_doctor*/,
@@ -1428,6 +1429,9 @@ import oscar.util.UtilDateUtilities;
 
                     Date entryDateDate=toDateFromString(entryDate);
                     Date startDateDate=toDateFromString(startDate);
+                    if (typeCode.isEmpty()) {
+                        typeCode = "0";
+                    }
                     Integer allergyId = saveRxAllergy(Integer.valueOf(demographicNo), entryDateDate, description, Integer.parseInt(typeCode), reaction, startDateDate, severity, regionalId, lifeStage);
                     addOneEntry(ALLERGY);
 
@@ -1493,8 +1497,23 @@ import oscar.util.UtilDateUtilities;
 
                     Calendar endDate = Calendar.getInstance();
                     endDate.setTime(drug.getRxDate());
-                    if (StringUtils.filled(duration))
-                    	endDate.add(Calendar.DAY_OF_YEAR, Integer.valueOf(duration)+timeShiftInDays);
+                    if (StringUtils.filled(duration)) {
+                        Integer parsedDuration;
+                        try {
+                            parsedDuration = Integer.valueOf(duration);
+                        }
+                        catch (NumberFormatException e) {
+                            String matchedDays = duration.replaceAll("\\D", "");
+                            if (!matchedDays.isEmpty()) {
+                                parsedDuration = Integer.valueOf(matchedDays);
+                            }
+                            else {
+                                parsedDuration = 0;
+                            }
+                        }
+                        
+                        endDate.add(Calendar.DAY_OF_YEAR, parsedDuration + timeShiftInDays);
+                    }
                     drug.setEndDate(endDate.getTime());
 
                     String freq = StringUtils.noNull(medArray[i].getFrequency());
@@ -3000,7 +3019,7 @@ import oscar.util.UtilDateUtilities;
 		
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(dateOfMessage);
-		msh.getDateTimeOfMessage().getTimeOfAnEvent().setDateSecondPrecision(cal.get(Calendar.YEAR),cal.get(Calendar.MONTH),cal.get(Calendar.DAY_OF_MONTH),cal.get(Calendar.HOUR_OF_DAY),cal.get(Calendar.MINUTE),cal.get(Calendar.SECOND));
+		msh.getDateTimeOfMessage().getTimeOfAnEvent().setDateSecondPrecision(cal.get(Calendar.YEAR),cal.get(Calendar.MONTH) + 1,cal.get(Calendar.DAY_OF_MONTH),cal.get(Calendar.HOUR_OF_DAY),cal.get(Calendar.MINUTE),cal.get(Calendar.SECOND));
 		msh.getMessageType().getMessageType().setValue(messageCode);
 		msh.getMessageType().getTriggerEvent().setValue(triggerEvent);
 		msh.getMessageControlID().setValue(messageControlId);
@@ -3078,8 +3097,13 @@ import oscar.util.UtilDateUtilities;
 		List<String> accessionsDone = new ArrayList<String>();
 		
 		for(LaboratoryResults labResult: labResultArr) {
+			if(labResult.getAccessionNumber() == null || labResult.getAccessionNumber().isEmpty()) {
+				//lets generate one!
+				UUID uuid = UUID.randomUUID();
+				labResult.setAccessionNumber("OSCAR-" + uuid.toString().substring(0, 10));
+			}
 			
-			if(accessionsDone.contains(labResult.getAccessionNumber())) {
+			else if(accessionsDone.contains(labResult.getAccessionNumber())) {
 				continue;
 			}
 			
@@ -3121,16 +3145,18 @@ import oscar.util.UtilDateUtilities;
 					
 					obr.getObservationDateTime().getTimeOfAnEvent().setDateSecondPrecision(cal.get(Calendar.YEAR),
 							cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND));
-					
-					if(result.getLabRequisitionDateTime().isSetFullDate()) {
-						cal = result.getLabRequisitionDateTime().getFullDate();
-					} else {
-						cal = result.getLabRequisitionDateTime().getFullDateTime();
-					}
-					
-					obr.getRequestedDateTime().getTimeOfAnEvent().setDateSecondPrecision(cal.get(Calendar.YEAR),
-							cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND));
-				
+
+                    if (result.getLabRequisitionDateTime() != null) {
+                        if (result.getLabRequisitionDateTime().isSetFullDate()) {
+                            cal = result.getLabRequisitionDateTime().getFullDate();
+                        } else {
+                            cal = result.getLabRequisitionDateTime().getFullDateTime();
+                        }
+
+
+                        obr.getRequestedDateTime().getTimeOfAnEvent().setDateSecondPrecision(cal.get(Calendar.YEAR),
+                                cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND));
+                    }
 					//NOTE: obr-17 lost - ordering physician
 					
 					//OBX
@@ -3149,7 +3175,9 @@ import oscar.util.UtilDateUtilities;
 					val.setData(st);
 					
 					obx.getObx6_Units().getCe2_Text().setValue(result.getResult().getUnitOfMeasure());
-					obx.getObx7_ReferencesRange().setValue(result.getReferenceRange().getReferenceRangeText());
+					if (result.getReferenceRange() != null) {
+                        obx.getObx7_ReferencesRange().setValue(result.getReferenceRange().getReferenceRangeText());
+                    }
 					
 					abnormalFlags.setValue(result.getResultNormalAbnormalFlag().toString());
 					

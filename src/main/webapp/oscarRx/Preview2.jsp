@@ -161,6 +161,10 @@ String patientHin = patient.getHin()==null ? "" : patient.getHin();
 DemographicDao demographicDao=(DemographicDao)SpringUtils.getBean("demographicDao");
 Demographic demographic = demographicDao.getDemographic(String.valueOf(patient.getDemographicNo()));
 
+RxManageDao rxManageDao = SpringUtils.getBean(RxManageDao.class);
+RxManage rxManage = rxManageDao.findByProviderNo(loggedInInfo.getLoggedInProviderNo());
+Boolean mrpRx = rxManage!=null?rxManage.getMrpOnRx(): true;
+
 oscar.oscarRx.data.RxPrescriptionData.Prescription rx = null;
 int i;
 ProSignatureData sig = new ProSignatureData();
@@ -248,6 +252,8 @@ if ( "true".equalsIgnoreCase(OscarProperties.getInstance().getProperty("FIRST_NA
 OscarProperties props = OscarProperties.getInstance();
 
 String pracNo = provider.getPractitionerNo();
+oscar.oscarRx.data.RxProviderData.Provider mrp = new oscar.oscarRx.data.RxProviderData().getProvider(demographic.getProviderNo());
+String mrpPracNo = mrp.getPractitionerNo();
 String strUser = (String)session.getAttribute("user");
 ProviderData user = new ProviderData(strUser);
 String pharmaFax = "";
@@ -344,10 +350,10 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                                 	//if(providerPhone != null) {
                                                 	//	finalPhone = providerPhone;
                                                 	//}
-                                                	if(phoneProp != null && phoneProp.getValue().length()>0) {                                                		
+                                                	if(phoneProp != null && phoneProp.getValue() != null && phoneProp.getValue().length()>0) {                                                		
                                                 		finalPhone = phoneProp.getValue();
                                                 	}
-												   if(faxProp != null && faxProp.getValue().length()>0) {
+												   if(faxProp != null && faxProp.getValue() != null && faxProp.getValue().length()>0) {
 													   finalFax = faxProp.getValue();
 												   }
                                                 	
@@ -375,11 +381,11 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                                 	//if(providerPhone != null) {
                                                 	//	finalPhone = providerPhone;
                                                 	//}
-                                                	if(phoneProp != null && phoneProp.getValue().length()>0) {                                                		
+                                                	if(phoneProp != null && phoneProp.getValue() != null && phoneProp.getValue().length()>0) {                                                		
                                                 		finalPhone = phoneProp.getValue();
                                                 	}
                                                 	
-                                                	if(faxProp != null && faxProp.getValue().length()>0) {                                                		
+                                                	if(faxProp != null && faxProp.getValue() != null && faxProp.getValue().length()>0) {                                                		
                                                 		finalFax = faxProp.getValue();
                                                 	}
                                                 	
@@ -432,8 +438,8 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
 
                                             <input type="hidden" name="rxDate"
                                                     value="<%= StringEscapeUtils.escapeHtml(oscar.oscarRx.util.RxUtil.DateToString(rxDate, "MMMM d, yyyy")) %>" />
-                                            <input type="hidden" name="sigDoctorName" value="<%= StringEscapeUtils.escapeHtml(doctorName) %>" /> <!--img src="img/rx.gif" border="0"-->
-												<input type="hidden" name="MRP" value="<%=providerBean.getProperty(demographic.getProviderNo(),"")%>" />
+                                            <input type="hidden" name="sigDoctorName" value="<%= StringEscapeUtils.escapeHtml(doctorName) %> <%=(pracNo!=null && !pracNo.equals(""))?"("+pracNo+")":""%>" /> <!--img src="img/rx.gif" border="0"-->
+												<input type="hidden" name="MRP" value="<%=providerBean.getProperty(demographic.getProviderNo(),"")%>  <%= (mrpPracNo!=null && !mrpPracNo.equals(""))?"("+mrpPracNo+")":""%>" />
 											</td>
                                             <td valign=top height="100px" id="clinicAddress"><b><%=doctorName%></b><br>
                                             <c:choose>
@@ -453,11 +459,11 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                                 	//if(providerPhone != null) {
                                                 	//	finalPhone = providerPhone;
                                                 	//}
-                                                	if(phoneProp != null && phoneProp.getValue().length()>0) {                                                		
+                                                	if(phoneProp != null && phoneProp.getValue() != null && phoneProp.getValue().length()>0) {                                                		
                                                 		finalPhone = phoneProp.getValue();
                                                 	}
                                                 	
-                                                	if(faxProp != null && faxProp.getValue().length()>0) {                                                		
+                                                	if(faxProp != null && faxProp.getValue() != null && faxProp.getValue().length()>0) {                                                		
                                                 		finalFax = faxProp.getValue();
                                                 	}
                                                 	
@@ -480,11 +486,11 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                                 	//if(providerPhone != null) {
                                                 	//	finalPhone = providerPhone;
                                                 	//}
-                                                	if(phoneProp != null && phoneProp.getValue().length()>0) {                                                		
+                                                	if(phoneProp != null && phoneProp.getValue() != null && phoneProp.getValue().length()>0) {                                                		
                                                 		finalPhone = phoneProp.getValue();
                                                 	}
                                                 	
-                                                	if(faxProp != null && faxProp.getValue().length()>0) {                                                		
+                                                	if(faxProp != null && faxProp.getValue() != null && faxProp.getValue().length()>0) {                                                		
                                                 		finalFax = faxProp.getValue();
                                                 	}
                                                 	
@@ -647,8 +653,8 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
 		                                                            </script>
 															<% } else { %>
 																<div height=25px><b>Requesting Physician:</b> <%= doctorName%>
-																	<%if(demographic != null && demographic.getProviderNo() != null){%>
-																	<br/><b>MRP:</b> <%=providerBean.getProperty(demographic.getProviderNo(),"")%>
+																	<%if(demographic != null && demographic.getProviderNo() != null && mrpRx){%>
+																	<br/><b>MRP:</b> <%=providerBean.getProperty(demographic.getProviderNo(),"")%> <%=(mrpPracNo!=null && !mrpPracNo.equals(""))?"("+mrpPracNo+")":""%>
 																	<%}%>
 																</div>
 															<% } %>

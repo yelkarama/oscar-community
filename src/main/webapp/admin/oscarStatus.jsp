@@ -13,6 +13,10 @@
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%@page import="org.oscarehr.common.model.UserProperty" %>
 <%@page import="org.oscarehr.admin.traceability.BuildNumberPropertiesFileReader" %>
+<%@ page import="oscar.OscarProperties" %>
+<%@ page import="java.util.Arrays" %>
+<%@ page import="java.util.List" %>
+<%@ page import="java.util.ArrayList" %>
 
 
 <%
@@ -64,10 +68,16 @@ function doDocuments() {
 
 <link rel="stylesheet" type="text/css" href="../oscarEncounter/encounterStyles.css">
 <link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">
-
+<%
+	List<String> statusCheckStorageProps = new ArrayList<String>();
+	String statusCheckStorageText = OscarProperties.getInstance().getProperty("status_check_storage");
+	if (statusCheckStorageText != null) {
+		statusCheckStorageProps = Arrays.asList(OscarProperties.getInstance().getProperty("status_check_storage").split("\\s*,\\s*"));
+	}
+%>
 </head>
 <body 
-<%if (request.getAttribute("documentStatusText") == null) { %>
+<%if (statusCheckStorageProps.contains("DOCUMENTS") && request.getAttribute("documentStatusText") == null) { %>
 onLoad="setTimeout('doDocuments()',3000);"
 <%} %>
 >
@@ -103,21 +113,23 @@ onLoad="setTimeout('doDocuments()',3000);"
 <h5>Virtual Memory:</h5>
 <pre><%=request.getAttribute("vmstatText") %></pre>
 
-<%if (request.getAttribute("documentStatusText") != null) { %>
-	<h5>Oscar Document Storage:</h5>
+<h5>Oscar Document Storage:</h5>
+<% if (!statusCheckStorageProps.contains("DOCUMENTS")) { %>
+	<pre>Oscar document storage status is disabled by default due to performance concerns. Adding "DOCUMENTS" to property "status_check_doc_storage" enables this feature.</pre>
+<% } else if (request.getAttribute("documentStatusText") != null) { %>
 	<pre><%=request.getAttribute("documentStatusText") %></pre>
 <%} else { %>
-	<h5>Oscar Document Storage:</h5>
 	<div class="well">
 		<img src="<%= request.getContextPath() %>/images/loader.gif" />
 	</div>
 <%} %>
 
-<%if (request.getAttribute("hl7StatusText") != null) { %>
-	<h5>HL7 Status:</h5>
+<h5>HL7 Status:</h5>
+<% if (!statusCheckStorageProps.contains("HL7LABS")) { %>
+	<pre>HL7 status is disabled by default due to performance concerns. Adding "HL7LABS" to property "status_check_doc_storage" enables this feature.</pre>
+<% } else if (request.getAttribute("hl7StatusText") != null) { %>
 	<pre><%=request.getAttribute("hl7StatusText") %></pre>
 <%} else { %>
-	<h5>HL7 Status:</h5>
 	<div class="well">
 		<img src="<%= request.getContextPath() %>/images/loader.gif" />
 	</div>

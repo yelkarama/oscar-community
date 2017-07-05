@@ -34,6 +34,17 @@ function popupPage(vheight,vwidth,varpage) {
     }
   }
 }
+
+function popupONAREnhanced(vheight,vwidth,varpage) {
+    var page = "" + varpage;
+    windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=no,menubars=no,toolbars=no,resizable=yes";
+    var popup=window.open(page, "attachment", windowprops);
+    if (popup != null) {
+        if (popup.opener == null) {
+            popup.opener = self;
+        }
+    }
+}
 //popup and focus
 //allow to specify pageTitle
 function popupFocusPage(vheight,vwidth,varpage,pageTitle){

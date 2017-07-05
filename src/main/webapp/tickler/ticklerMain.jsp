@@ -55,6 +55,7 @@
 <%@ page import="org.oscarehr.web.admin.ProviderPreferencesUIBean" %>
 <%@ page import="org.oscarehr.hospitalReportManager.model.HRMDocument" %>
 <%@ page import="org.oscarehr.hospitalReportManager.dao.HRMDocumentDao" %>
+<%@ page import="java.net.URLEncoder" %>
 
 <%
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -886,7 +887,10 @@ function changeSite(sel) {
                                     <%
                                     	}
                                     %>                                    
-                                    <TD width="12%" ROWSPAN="1" class="<%=cellColour%>"><a href=# onClick="popupPage(600,800,'../demographic/demographiccontrol.jsp?demographic_no=<%=demo.getDemographicNo()%>&displaymode=edit&dboperation=search_detail')"><%=demo.getLastName()%>,<%=demo.getFirstName()%></a></TD>                                                                       
+                                    <TD width="12%" ROWSPAN="1" class="<%=cellColour%>">
+                                        <a href=# onClick="popupPage(600,800,'../demographic/demographiccontrol.jsp?demographic_no=<%=demo.getDemographicNo()%>&displaymode=edit&dboperation=search_detail')"><%=demo.getLastName()%>,<%=demo.getFirstName()%></a>
+                                        | <a href=# onClick="popupPage(710,1024,'../oscarEncounter/IncomingEncounter.do?providerNo=<%=user_no%>&appointmentNo=&demographicNo=<%=demo.getDemographicNo()%>&curProviderNo=<%=user_no%>&reason=&userName=<%=URLEncoder.encode(loggedInInfo.getLoggedInProvider().getFirstName() + " "+ loggedInInfo.getLoggedInProvider().getLastName())%>&curDate=<%=""+curYear%>-<%=""+curMonth%>-<%=""+curDay%>&appointmentDate=&startTime=&status=')">E</a>
+                                    </TD>
                                     <TD ROWSPAN="1" class="<%=cellColour%>"><%=t.getProvider() == null ? "N/A" : t.getProvider().getFormattedName()%></TD>
                                     <TD ROWSPAN="1" class="<%=cellColour%>"><%=t.getServiceDate()%></TD>
                                     <TD ROWSPAN="1" class="<%=cellColour%>"><%=t.getUpdateDate()%></TD>

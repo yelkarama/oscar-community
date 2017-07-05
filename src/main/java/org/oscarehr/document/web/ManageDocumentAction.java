@@ -165,9 +165,6 @@ public class ManageDocumentAction extends DispatchAction {
 				for (String proNo : flagproviders) {
 					providerInboxRoutingDAO.addToProviderInbox(proNo, Integer.parseInt(documentId), LabResultData.DOCUMENT);
 				}
-
-				// Removes the link to the "0" provider so that the document no longer shows up as "unclaimed"
-				providerInboxRoutingDAO.removeLinkFromDocument("DOC", Integer.parseInt(documentId), "0");
 			} catch (Exception e) {
 				MiscUtils.getLogger().error("Error", e);
 			}
@@ -1114,7 +1111,7 @@ public class ManageDocumentAction extends DispatchAction {
 				throw new DocumentException("Document target fax number '" + faxNo + "' is invalid.");
 			}
 
-			String tempName = "DOC-" + faxClinicId + docId + "." + System.currentTimeMillis();
+			String tempName = "DOC-" + faxClinicId + docId + "." + String.valueOf(i) + "." + System.currentTimeMillis();
 
 			String tempPdf = String.format("%s%s%s.pdf", tempPath, File.separator, tempName);
 			String tempTxt = String.format("%s%s%s.txt", tempPath, File.separator, tempName);

@@ -43,6 +43,7 @@
   String form = request.getParameter("form")==null?"":request.getParameter("form") ;
   String elementName = request.getParameter("elementName")==null?"":request.getParameter("elementName") ;
   String elementId = request.getParameter("elementId")==null?"":request.getParameter("elementId") ;
+  String keyword = request.getParameter("keyword") == null ? "" : request.getParameter("keyword");
 	
 %>
 
@@ -110,7 +111,7 @@
 </table>
 <table>
 	<tr>
-		<td align="left">Results based on keyword(s): <%=elementName.equalsIgnoreCase("contact_2.contactName")?"":elementName%></td>
+		<td align="left">Results based on keyword(s): <%=keyword%></td>
 	</tr>
 </table>
 <input type='hidden' name='form' value="<%=StringEscapeUtils.escapeHtml(form)%>"/>
@@ -123,9 +124,9 @@
 	List<Contact> contacts;
 
 	if( "all".equalsIgnoreCase(list) ) {
-		contacts = ContactAction.searchAllContacts("search_name", "c.lastName, c.firstName", elementName);
+		contacts = ContactAction.searchAllContacts("search_name", "c.lastName, c.firstName", keyword);
 	} else {
-		contacts = ContactAction.searchContacts("search_name", "c.lastName, c.firstName", elementName);
+		contacts = ContactAction.searchContacts("search_name", "c.lastName, c.firstName", keyword);
 	}
 
 	nItems = contacts.size();

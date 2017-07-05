@@ -53,6 +53,8 @@ public class MessageList extends AbstractModel<Integer> {
 
 	private int remoteLocation;
 
+	private int folderId;
+
 	public Integer getId() {
     	return id;
     }
@@ -92,6 +94,14 @@ public class MessageList extends AbstractModel<Integer> {
 	public void setRemoteLocation(int remoteLocation) {
     	this.remoteLocation = remoteLocation;
     }
+
+	public Integer getFolderId() {
+		return folderId;
+	}
+
+	public void setFolderId(Integer folderId) {
+		this.folderId = folderId;
+	}
 
 	public void setDeleted(boolean isDeleted) {
 		if (isDeleted) {

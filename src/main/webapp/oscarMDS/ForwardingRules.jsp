@@ -28,6 +28,7 @@
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
 <%@ page
 	import="oscar.oscarMDS.data.ProviderData, java.util.ArrayList, oscar.oscarLab.ForwardingRules, oscar.OscarProperties"%>
+<%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
 
 <%
 
@@ -74,9 +75,18 @@ ArrayList frwdProviders = fr.getProviders(providerNo);
                 if (autoFileLabs != null && autoFileLabs.equalsIgnoreCase("yes")){%>
                     return confirm ("Are you sure you would like to update the forwarding rules?")
                 <%}else{%>
-                    if (document.RULES.providerNums.value == '' && document.RULES.status[1].checked && <%= (frwdProviders.size() == 0)%>){
-                        alert("You must select a physician to forward your incoming labs to if you wish to automatically file them");
-                        return false;
+					var forwardTypes = [];
+					for (var i = 0; i < document.RULES.forward_type.length; i++) {
+						if (document.RULES.forward_type[i].checked) {
+							forwardTypes.push(document.RULES.forward_type[i].value);
+						}
+					}
+					if (document.RULES.providerNums.value == '' && document.RULES.status[1].checked && <%= (frwdProviders.size() == 0)%>) {
+						alert("You must select a provider to forward the incoming labs to if you wish to automatically file them.");
+						return false;
+					} else if (forwardTypes.length == 0) {
+						alert("You must select at least one type of incoming labs to forward.");
+						return false;
                     }else{
                         return confirm ("Are you sure you would like to update the forwarding rules?")
                     }
@@ -113,81 +123,110 @@ ArrayList frwdProviders = fr.getProviders(providerNo);
 		<center>
 		<table>
 			<tr>
-				<td colspan="2" valign="bottom" class="Header">Current
-				Forwarding Rules</td>
-			</tr>
-			<tr>
-				<%
-                                    
-                                    String status = "N";
-                                    if (!fr.isSet(providerNo)){%>
-				<td colspan="2" align="center"><font color="red">There
-				are no forwarding rules set</font></td>
-				<%}else{
-                                        status = fr.getStatus(providerNo);
-                                        %>
-				<td class="Cell">Incoming lab status:</td>
-				<td class="Cell"><%= status.equals("N") ? "New" : "Filed" %></td>
-			</tr>
-			<%if (frwdProviders != null && frwdProviders.size() > 0) {%>
-			<tr>
-				<td valign="top" class="Cell">Labs are currently forwarded to:
-				</td>
-				<td class="Cell">
-				<%for (int i=0; i < frwdProviders.size(); i++){%> <%= (String) ((ArrayList) frwdProviders.get(i)).get(1) %>
-				<%= (String) ((ArrayList) frwdProviders.get(i)).get(2) %> <a
-					href="#"
-					onclick="return removeProvider('<%= (String) ((ArrayList) frwdProviders.get(i)).get(0) %>', '<%= (String) ((ArrayList) frwdProviders.get(i)).get(1) %> <%= (String) ((ArrayList) frwdProviders.get(i)).get(2) %>')">REMOVE</a>
-				<br />
-				<%}%>
-				</td>
-			</tr>
-			<%}else{%>
-			<tr>
-				<td class="Cell" colspan="2"><font color="red">The
-				incoming labs are not being forwarded</font>
-				<td>
-			</tr>
-			<%}%>
-			<tr>
-				<td colspan="2" class="Cell"><input type="submit"
-					value=" Clear Forwarding Rules " onclick="return setActionClear()">
-				</td>
-				<%}%>
-			</tr>
-			<tr height="10"></tr>
-			<tr>
-				<td colspan="2" class="Header">Update Forwarding Rules</td>
-			</tr>
-			<tr>
-				<td class="Cell">Set incoming report status:</td>
-				<td class="Cell"><input type="radio" name="status" value="N"
-					<%= status.equals("F") ? "" : "checked" %>><bean:message
-					key="oscarMDS.search.formReportStatusNew" /> <input type="radio"
-					name="status" value="F" <%= status.equals("F") ? "checked" : "" %>>Filed
+				<td colspan="3" valign="bottom" class="Header">
+					Current Forwarding Rules
 				</td>
 			</tr>
 			<tr>
-				<td valign="top" class="Cell">Forward incoming reports to the
-				following physicians:<br />
-				(Hold 'Ctrl' to select multiple physicians)</td>
-				<td class="Cell"><select multiple name="providerNums" size="10">
-					<optgroup
-						label="&#160&#160Doctors&#160&#160&#160&#160&#160&#160&#160&#160">
+				<td colspan="3">
+					<%
+						String status = "N";
+						if (providerNo.equals("0")) {
+					%>
+					<p>No provider has been selected.</p>
+					<%
+					} else if (!fr.isSet(providerNo)) {%>
+					<p>There are no forwarding rules set</p>
+					<%
+					} else {
+						status = fr.getStatus(providerNo);
+					%>
+					<%if (frwdProviders != null && frwdProviders.size() > 0) {%>
+					<table style="width: 100%; border: 1px solid">
+
+						<thead>
+						<tr>
+							<th>Provider</th>
+							<th>Incoming Status</th>
+							<th>Forward Types</th>
+							<th></th>
+						</tr>
+						</thead>
+
+						<tbody>
+							<%for (int i=0; i < frwdProviders.size(); i++){%>
+								<tr>
+									<td><%= (String) ((ArrayList) frwdProviders.get(i)).get(1) %> <%= (String) ((ArrayList) frwdProviders.get(i)).get(2) %>
+									</td>
+									<td><%= status.equals("N") ? "New" : "Filed" %>
+									</td>
+									<td><%=(String) ((ArrayList) frwdProviders.get(i)).get(3)%>
+									</td>
+									<td>
+										<button type="submit"
+												onclick="return removeProvider('<%= (String) ((ArrayList) frwdProviders.get(i)).get(0) %>', '<%= StringEscapeUtils.escapeJavaScript((String) ((ArrayList) frwdProviders.get(i)).get(1)) %> <%= StringEscapeUtils.escapeJavaScript((String) ((ArrayList) frwdProviders.get(i)).get(2)) %>')"
+												title="remove provider"><i class="icon-trash"></i> remove
+										</button>
+									</td>
+								</tr>
+							<%}%>
+					</table>
+					<%} else {%>
+					<div>
+						<button type="button" data-dismiss="alert">&times;</button>
+						<strong>Warning!</strong> The incoming labs are not being forwarded.
+					</div>
+					<%}%>
+					<br/>
+					<button type="submit" onclick="return setActionClear()"><i
+							class="icon-trash"></i> Clear All Forwarding Rules
+					</button>
+
+					<%}%>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="3" class="Header">Update Forwarding Rules</td>
+			</tr>
+			<tr>
+				<td valign="top" class="Cell" style="padding: 0 25px;">
+					Set incoming report status:<br/>
+					<label>
+						<input type="radio" name="status" value="N" <%= status.equals("F") ? "" : "checked" %>>
+						<bean:message key="oscarMDS.search.formReportStatusNew" />
+					</label><br/>
+					<label>
+						<input type="radio" name="status" value="F" <%= status.equals("F") ? "checked" : "" %>>
+						Filed
+					</label>
+					<br/>
+				</td>
+				<td valign="top" class="Cell" style="padding: 0 25px;">
+					Forward inbox types:<br/>
+					<label><input type="checkbox" name="forward_type" value="HL7">Forward HL7 labs</label><br/>
+					<label><input type="checkbox" name="forward_type" value="DOC">Forward Documents</label><br/>
+					<label><input type="checkbox" name="forward_type" value="HRM">Forward HRM labs</label><br/>
+				</td>
+				<td valign="top" class="Cell" style="padding: 0 25px;">
+					Forward incoming reports to the following physicians:<br/>
+					(Hold 'Ctrl' to select multiple physicians)<br/>
+					<select multiple name="providerNums" size="10">
+					<optgroup label="&#160&#160Doctors&#160&#160&#160&#160&#160&#160&#160&#160">
 						<% ArrayList providers = ProviderData.getProviderList();
-                                                for (int i=0; i < providers.size(); i++) { 
-                                                String prov_no = (String) ((ArrayList) providers.get(i)).get(0);
-                                                if ( !providerNo.equals(prov_no) && !frwdProviders.contains(providers.get(i))){%>
-						<option value="<%= prov_no %>"><%= (String) ((ArrayList) providers.get(i)).get(1) %>
-						<%= (String) ((ArrayList) providers.get(i)).get(2) %></option>
-						<% }
-                                                } %>
+							for (int i=0; i < providers.size(); i++) { 
+								String prov_no = (String) ((ArrayList) providers.get(i)).get(0);
+								if ( !providerNo.equals(prov_no) && !frwdProviders.contains(providers.get(i))){%>
+									<option value="<%= prov_no %>"><%= (String) ((ArrayList) providers.get(i)).get(1) %>
+									<%= (String) ((ArrayList) providers.get(i)).get(2) %></option>
+								<% }
+							} %>
 					</optgroup>
-				</select></td>
+				</select>
+				</td>
 			</tr>
 
 			<tr>
-				<td colspan="2" class="Cell"><input type="submit"
+				<td colspan="3" class="Cell"><input type="submit"
 					value=" Update Forwarding Rules " onclick="return confirmUpdate()">
 				</td>
 			</tr>

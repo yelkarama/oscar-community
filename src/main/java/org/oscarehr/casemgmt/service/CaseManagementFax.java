@@ -34,6 +34,7 @@ import org.oscarehr.PMmodule.model.ProgramProvider;
 import org.oscarehr.PMmodule.service.ProgramManager;
 import org.oscarehr.caisi_integrator.ws.CachedDemographicNote;
 import org.oscarehr.caisi_integrator.ws.DemographicWs;
+import org.oscarehr.casemgmt.dao.CaseManagementNoteDAO;
 import org.oscarehr.casemgmt.model.CaseManagementNote;
 import org.oscarehr.casemgmt.model.CaseManagementNoteExt;
 import org.oscarehr.casemgmt.model.Issue;
@@ -165,7 +166,7 @@ public class CaseManagementFax {
                 tmpNotes = caseManagementMgr.getNotes(demono, issueIds);
                 issueNotes = new ArrayList<CaseManagementNote>();
                 for (int k = 0; k < tmpNotes.size(); ++k) {
-                    if (!tmpNotes.get(k).isLocked()) {
+                    if (!tmpNotes.get(k).isLocked() && !tmpNotes.get(k).isArchived()) {
                         List<CaseManagementNoteExt> exts = caseManagementMgr.getExtByNote(tmpNotes.get(k).getId());
                         boolean exclude = false;
                         for (CaseManagementNoteExt ext : exts) {
@@ -359,7 +360,7 @@ public class CaseManagementFax {
                     throw new DocumentException("Document target fax number '" + faxNo + "' is invalid.");
                 }
 
-                String tempName = "CRF-" + faxClinicId + "." + System.currentTimeMillis();
+                String tempName = "CRF-" + faxClinicId + "." + String.valueOf(i) + "." + System.currentTimeMillis();
 
                 String tempPdf = String.format("%s%s%s.pdf", tempPath, File.separator, tempName);
                 String tempTxt = String.format("%s%s%s.txt", tempPath, File.separator, tempName);
@@ -419,6 +420,30 @@ public class CaseManagementFax {
 
             LogAction.addLog(providerNo, LogConst.SENT, LogConst.CON_FAX, "ECTNOTES");
             request.setAttribute("faxSuccessful", faxSuccessful);
+            CaseManagementNoteDAO caseManagementNoteDAO = SpringUtils.getBean(CaseManagementNoteDAO.class);
+            org.oscarehr.PMmodule.dao.ProviderDao providerDao = (org.oscarehr.PMmodule.dao.ProviderDao) SpringUtils.getBean("providerDao");
+            String providerName = providerDao.getProviderName(providerNo);
+            SimpleDateFormat dt = new SimpleDateFormat("dd-MMM-yyyy H:mm", Locale.ENGLISH);
+            for (CaseManagementNote note : notes) {
+                String newNote = note.getNote();
+                String noteHistory = note.getHistory();
+                
+                newNote = newNote.replaceAll("\r\n", "\n");
+                newNote = newNote.replaceAll("\r", "\n");
+                if (!newNote.endsWith("\n")) {
+                    newNote += "\n";
+                }
+                
+                newNote += "[Faxed on " + dt.format(now) + " by " + providerName + "]\n";
+                note.setNote(newNote);
+
+                if (noteHistory == null) noteHistory = newNote;
+                else noteHistory = newNote + "\n" + "   ----------------History Record----------------   \n" + noteHistory + "\n";
+
+                note.setHistory(noteHistory);
+                caseManagementNoteDAO.saveNote(note);
+            }
+            
 
             if (out!=null) {
                 out.close();
@@ -487,7 +512,7 @@ public class CaseManagementFax {
             criteria.getProviders().addAll((List<String>) se.getAttribute("CaseManagementViewAction_filter_providers"));
         }
 
-        if (se.getAttribute("CaseManagementViewAction_filter_providers") != null) {
+        if (se.getAttribute("CaseManagementViewAction_filter_issues") != null) {
             criteria.getIssues().addAll((List<String>) se.getAttribute("CaseManagementViewAction_filter_issues"));
         }
 

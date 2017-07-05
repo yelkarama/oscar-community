@@ -222,9 +222,9 @@ public class CihiExportAction extends DispatchAction {
 		Collections.sort(dataExportList);
 
 		DynaValidatorForm frm = (DynaValidatorForm)form;
-		String patientSet = frm.getString("patientSet");
+		String providerNo = frm.getString("patientSet");
 
-		if( patientSet == null || "".equals(patientSet) || patientSet.equals("-1")) {
+		if( providerNo == null || "".equals(providerNo) || providerNo.equals("-1")) {
 			frm.set("orgName", clinic.getClinicName());
 			frm.set("vendorId", properties.getProperty("vendorId", ""));
 			frm.set("vendorBusinessName", properties.getProperty("vendorBusinessName", ""));
@@ -257,8 +257,17 @@ public class CihiExportAction extends DispatchAction {
 
 
 	    //grab patient list from set
-	    DemographicSets demoSets = new DemographicSets();
-		List<String> patientList = demoSets.getDemographicSet(frm.getString("patientSet"));
+		List<String> patientList = new ArrayList<String>();
+		if (providerNo!=null && !providerNo.equals("-1")) {
+			List<Demographic> demographics = demographicDao.getDemographicByProvider(providerNo,false);
+			if(demographics!=null && !demographics.isEmpty()){
+				for (Demographic demographic : demographics){
+					if(demographic.getDemographicNo()!=null){
+						patientList.add(String.valueOf(demographic.getDemographicNo()));
+					}
+				}
+			}
+		}
 
 		//make all xml files, zip them and save to document directory
 		String filename = this.make(frm, patientList, tmpDir);

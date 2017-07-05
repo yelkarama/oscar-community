@@ -236,16 +236,21 @@ public class RaDetailDao extends AbstractDao<RaDetail> {
 	public List<RaDetail> getRaErrorsByProviderDate(List<String> errorCodes, String startDate, String endDate, String providerOhip) {
 
 		ParamAppender appender = getAppender("rad");
-		for (String code :errorCodes){
-			appender.or("rad.errorCode = :code", "code", code);
+		String baseQuery = appender.getBaseQuery();
+		baseQuery += ", RaHeader AS rah ";
+        appender.setBaseQuery(baseQuery);
+        
+		for (int i = 0; i < errorCodes.size(); i++) {//String code :errorCodes){
+			appender.or("rad.errorCode = :code" + i, "code" + i, errorCodes.get(i));
 		}
 
+        appender.and("rah.id = rad.raHeaderNo");
 		if (startDate!=null && !startDate.trim().equals("")){
-			appender.and("rad.paymentDate >= :startDate", "startDate", startDate);
+			appender.and("rah.paymentDate >= :startDate", "startDate", startDate);
 		}
 
 		if (endDate!=null && !endDate.trim().equals("")){
-			appender.and("rad.paymentDate < :endDate", "endDate", endDate );
+			appender.and("rah.paymentDate < :endDate", "endDate", endDate );
 		}
 
 		if (providerOhip!=null && !providerOhip.trim().equals("")){
@@ -256,7 +261,11 @@ public class RaDetailDao extends AbstractDao<RaDetail> {
 		Query query = entityManager.createQuery(appender.getQuery());
 		appender.setParams(query);
 
-		List<RaDetail> results = query.getResultList();
+		List<RaDetail> results = new ArrayList<>();
+        List objList = query.getResultList();
+		for (Object retObj : objList) {
+            results.add((RaDetail)((Object[])retObj)[0]);
+        }
 
 		return results;
 	}

@@ -783,6 +783,10 @@ table.mhTable td{
 	height: 17px;
 }
 
+#provider{
+	height: 17px;
+}
+
 @media print { 
 .noPrint {
 	display:none; 

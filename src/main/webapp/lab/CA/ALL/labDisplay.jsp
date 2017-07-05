@@ -53,12 +53,14 @@
 <%@ page import="org.oscarehr.casemgmt.model.CaseManagementNote"%>
 <%@ page import="org.oscarehr.util.SpringUtils"%>
 <%@ page import="org.oscarehr.common.dao.UserPropertyDAO, org.oscarehr.common.model.UserProperty" %>
+<%@ page import="org.oscarehr.common.dao.DemographicDao" %>
 <%@ page import="org.oscarehr.common.model.MeasurementMap, org.oscarehr.common.dao.MeasurementMapDao" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.oscarehr.casemgmt.service.CaseManagementManager, org.oscarehr.common.dao.Hl7TextMessageDao, org.oscarehr.common.model.Hl7TextMessage,org.oscarehr.common.dao.Hl7TextInfoDao,org.oscarehr.common.model.Hl7TextInfo"%>
 <jsp:useBean id="oscarVariables" class="java.util.Properties" scope="session" />
 <%@	page import="javax.swing.text.rtf.RTFEditorKit"%>
 <%@	page import="java.io.ByteArrayInputStream"%>
+<%@ page import="oscar.oscarEncounter.data.EctFormData" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic" %>
@@ -91,13 +93,15 @@ String remoteFacilityIdString = request.getParameter("remoteFacilityId");
 String remoteLabKey = request.getParameter("remoteLabKey");
 String demographicID = request.getParameter("demographicId");
 String showAllstr = request.getParameter("all");
+String billRegion=(props.getProperty("billregion","")).trim().toUpperCase();
+String billForm=props.getProperty("default_view");
 
 
 if(providerNo == null) {
 	providerNo = loggedInInfo.getLoggedInProviderNo();
 }
 
-
+DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
 UserPropertyDAO userPropertyDAO = (UserPropertyDAO)SpringUtils.getBean("UserPropertyDAO");
 UserProperty uProp = userPropertyDAO.getProp(providerNo, UserProperty.LAB_ACK_COMMENT);
 boolean skipComment = false;
@@ -128,6 +132,9 @@ String formNameShort = formName.length() > 3 ? (formName.substring(0,2)+".") : f
 String formName2 = bShortcutForm ? OscarProperties.getInstance().getProperty("appt_formview_name2", "") : "";
 String formName2Short = formName2.length() > 3 ? (formName2.substring(0,2)+".") : formName2;
 boolean bShortcutForm2 = bShortcutForm && !formName2.equals("");
+boolean obgynShortcuts = OscarProperties.getInstance().getProperty("show_obgyn_shortcuts", "false").equalsIgnoreCase("true") ? true : false;
+String formId = "0";
+
 List<MessageHandler>handlers = new ArrayList<MessageHandler>();
 String []segmentIDs = null;
 Boolean showAll = showAllstr != null && !"null".equalsIgnoreCase(showAllstr);
@@ -157,8 +164,19 @@ if (remoteFacilityIdString==null) // local lab
 	    LogAction.addLog((String) session.getAttribute("user"), LogConst.READ, LogConst.CON_HL7_LAB, segmentID, request.getRemoteAddr());
 	}
 
-	
-	if( showAll ) {
+    if (oscar.util.StringUtils.isNullOrEmpty(demographicID)){
+        obgynShortcuts = false;
+    }
+    if (obgynShortcuts){
+        List<EctFormData.PatientForm> formsONAREnhanced = Arrays.asList(EctFormData.getPatientFormsFromLocalAndRemote(loggedInInfo,demographicID,"formONAREnhancedRecord",true));
+        if (formsONAREnhanced!=null && !formsONAREnhanced.isEmpty()){
+            formId = formsONAREnhanced.get(0).getFormId();
+        }
+    }
+
+
+
+    if( showAll ) {
 		multiLabId = request.getParameter("multiID");		
 		segmentIDs = multiLabId.split(",");
 		for( int i = 0; i < segmentIDs.length; ++i) {
@@ -624,7 +642,7 @@ pre {
         		        ReportStatus reportStatus = ackList.get(i);
         		        if (reportStatus.getOscarProviderNo() != null && reportStatus.getOscarProviderNo().equals(providerNo) ) {
         		        	labStatus = reportStatus.getStatus();
-                            providerComment = reportStatus.getComment();
+                            providerComment = reportStatus.getComment() != null ? reportStatus.getComment() : "";
         		        	if( labStatus.equals("A") ){
         		            	ackFlag = true;//lab has been ack by this provider.
         		            	break;
@@ -719,6 +737,11 @@ pre {
 
                                     <% if ( searchProviderNo != null ) { // null if we were called from e-chart%>
                                     <input type="button" value=" <bean:message key="oscarMDS.segmentDisplay.btnEChart"/>" onClick="popupStart(360, 680, '../../../oscarMDS/SearchPatient.do?labType=HL7&segmentID=<%= segmentID %>&name=<%=java.net.URLEncoder.encode(handler.getLastName()+", "+handler.getFirstName())%>', 'encounter')">
+                                    <% } if ( demographicID != null && demographicDao.getDemographic(demographicID)!=null ) {
+                                        String demographicName = demographicDao.getDemographic(demographicID).getFormattedName();
+                                        String demographicProvider = demographicDao.getDemographic(demographicID).getProviderNo()!=null?demographicDao.getDemographic(demographicID).getProviderNo():"";
+                                    %>
+                                    <input type="button" value="Bill" onClick="popupPage(700, 1000, '<%=request.getContextPath()%>/billing.do?billRegion=<%=URLEncoder.encode(billRegion, "UTF-8")%>&billForm=<%=URLEncoder.encode(billForm, "UTF-8")%>&hotclick=&appointment_no=0&demographic_name=<%=URLEncoder.encode(demographicName, "UTF-8")%>&demographic_no=<%=demographicID%>&providerview=<%=demographicProvider%>&user_no=<%=providerNo%>&apptProvider_no=none&appointment_date=&start_time=00:00:00&bNewForm=1&status=t');return false;"/>
                                     <% } %>
 				    <input type="button" value="Req# <%=reqTableID%>" title="Link to Requisition" onclick="linkreq('<%=segmentID%>','<%=reqID%>');" />
 
@@ -751,6 +774,18 @@ pre {
                                     <span class="Field2"><i>Next Appointment: <oscar:nextAppt demographicNo="<%=demographicID%>"/></i></span>
                                 </td>
                             </tr>
+                            <% if (obgynShortcuts) {%>
+                            <tr>
+                                <td>
+                                    <input type="button" value="AR1-ILI" onClick="popupONAREnhanced(290, 625, '<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&section='+this.value)" />
+                                    <input type="button" value="AR1-PGI" onClick="popupONAREnhanced(225, 590,'<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&section='+this.value)" />
+                                    <input type="button" value="AR2-US" onClick="popupONAREnhanced(395, 655, '<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&section='+this.value)" />
+                                    <input type="button" value="AR2-ALI" onClick="popupONAREnhanced(375, 430, '<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&section='+this.value)" />
+                                    <input type="button" value="AR2" onClick="popupPage(700, 1024, '<%=request.getContextPath()%>/form/formonarenhancedpg2.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>')" />
+
+                                </td>
+                            </tr>
+                            <% } %>
                         </table>
                         <table width="100%" border="1" cellspacing="0" cellpadding="3" bgcolor="#9999CC" bordercolordark="#bfcbe3">
                             <%
@@ -1733,8 +1768,19 @@ pre {
                         </table>
                     </td>
                 </tr>
-            </table>
+               <% if (obgynShortcuts) {%>
+               <tr>
+                   <td>
+                       <input type="button" value="AR1-ILI" onClick="popupONAREnhanced(290, 625, '<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&section='+this.value)" />
+                       <input type="button" value="AR1-PGI" onClick="popupONAREnhanced(225, 590,'<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&section='+this.value)" />
+                       <input type="button" value="AR2-US" onClick="popupONAREnhanced(395, 655, '<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&section='+this.value)" />
+                       <input type="button" value="AR2-ALI" onClick="popupONAREnhanced(375, 430, '<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&section='+this.value)" />
+                       <input type="button" value="AR2" onClick="popupPage(700, 1024, '<%=request.getContextPath()%>/form/formonarenhancedpg2.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>')" />
 
+                   </td>
+               </tr>
+               <% } %>
+            </table>
         </form>      
         
         <%String s = ""+System.currentTimeMillis();%>

@@ -29,6 +29,8 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.oscarehr.common.model.EFormData;
+import org.oscarehr.fax.util.PdfCoverPageCreator;
 import org.oscarehr.hospitalReportManager.HRMPDFCreator;
 import org.oscarehr.hospitalReportManager.dao.HRMDocumentToDemographicDao;
 import org.oscarehr.hospitalReportManager.model.HRMDocumentToDemographic;
@@ -37,9 +39,12 @@ import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
+import org.oscarehr.util.WKHtmlToPdfUtils;
 import oscar.OscarProperties;
 import oscar.dms.EDoc;
 import oscar.dms.EDocUtil;
+import oscar.eform.EFormUtil;
+import oscar.eform.actions.PrintAction;
 import oscar.oscarLab.ca.all.pageUtil.LabPDFCreator;
 import oscar.oscarLab.ca.all.pageUtil.OLISLabPDFCreator;
 import oscar.oscarLab.ca.all.parsers.Factory;
@@ -93,7 +98,18 @@ public class EctConsultationFormRequestPrintAction2 extends Action {
 		String error = "";
 		Exception exception = null;
 		try {
+            boolean doCoverPage = (request.getParameter("coverpage") != null && request.getParameter("coverpage").equalsIgnoreCase("true"));
+            if(doCoverPage) {
+                String note = request.getParameter("note") == null ? "" : request.getParameter("note");
 
+                PdfCoverPageCreator pdfCoverPageCreator = new PdfCoverPageCreator(note);
+
+                buffer = pdfCoverPageCreator.createStandardCoverPage(request.getParameter("specialist"));
+                bis = new ByteInputStream(buffer, buffer.length);
+                streams.add(bis);
+                alist.add(bis);
+
+            }
 			bos = new ByteOutputStream();
 			ConsultationPDFCreator cpdfc = new ConsultationPDFCreator(request,bos);
 			cpdfc.printPdf(loggedInInfo);
@@ -171,6 +187,16 @@ public class EctConsultationFormRequestPrintAction2 extends Action {
 				alist.add(bis);
 			}
 			
+            //Get attached eForms
+            List<EFormData> eForms = EFormUtil.listPatientEformsCurrentAttachedToConsult(reqId);
+            for (EFormData eForm : eForms) {
+                String localUri = PrintAction.getEformRequestUrl(request);
+                buffer = WKHtmlToPdfUtils.convertToPdf(localUri + eForm.getId());
+                bis = new ByteInputStream(buffer, buffer.length);
+                streams.add(bis);
+                alist.add(bis);
+            }
+            
 			if (alist.size() > 0) {
 				
 				bos = new ByteOutputStream();
