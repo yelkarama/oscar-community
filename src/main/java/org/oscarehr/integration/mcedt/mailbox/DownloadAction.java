@@ -28,7 +28,9 @@ import static org.oscarehr.integration.mcedt.McedtConstants.REQUEST_ATTR_KEY_RES
 import java.io.File;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -219,10 +221,12 @@ public class DownloadAction extends DispatchAction{
 					String inboxFolder = OscarProperties.getInstance().getProperty("ONEDT_INBOX");
 					File document = new File(inboxFolder + File.separator +  d.getDescription()); 				
 					byte[] inputBytes = d.getContent();
-					
-					
-					FileUtils.writeByteArrayToFile(document, inputBytes);
-					updateLastDownloadedID(d.getResourceID().toString());					
+					Boolean alreadyDownloaded = isDownloaded(document);
+
+					if (!alreadyDownloaded) {
+						FileUtils.writeByteArrayToFile(document, inputBytes);
+						updateLastDownloadedID(d.getResourceID().toString());
+					}
 					 
 				}									
 				//----------end of saving file
@@ -349,8 +353,11 @@ public class DownloadAction extends DispatchAction{
 				String inboxFolder = OscarProperties.getInstance().getProperty("ONEDT_INBOX");
 				File document = new File(inboxFolder + File.separator +  d.getDescription()); 				
 				byte[] inputBytes = d.getContent();
-									
-				FileUtils.writeByteArrayToFile(document, inputBytes);													
+				Boolean alreadyDownloaded = isDownloaded(document);
+
+				if (!alreadyDownloaded) {
+					FileUtils.writeByteArrayToFile(document, inputBytes);
+				}
 										
 			}									
 			//----------end of saving file														
@@ -429,4 +436,19 @@ public class DownloadAction extends DispatchAction{
 	    }	    
 	    return resourceList;
     }
+
+	public static Boolean isDownloaded(File file){
+		Boolean alreadyDownloaded = false;
+		OscarProperties props = OscarProperties.getInstance();
+		File savedFile = new File(props.getProperty("ONEDT_ARCHIVE", "")+ File.separator + file.getName());
+		Calendar fileDate = Calendar.getInstance();
+		fileDate.setTime(new Date(file.lastModified()));
+
+		if(savedFile.exists()){
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(new Date(savedFile.lastModified()));
+			alreadyDownloaded = calendar.get(Calendar.YEAR) == fileDate.get(Calendar.YEAR);
+		}
+		return alreadyDownloaded;
+	}
 }
