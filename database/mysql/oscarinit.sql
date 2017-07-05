@@ -12474,3 +12474,7 @@ CREATE TABLE `rxmanage`
 	provider_no varchar(6) not null,
 	mrpOnRx tinyint(1) default '0' not null
 );
+
+ALTER TABLE favorites MODIFY favoritename VARCHAR(100);
+ALTER TABLE favorites MODIFY customName VARCHAR(100);
+ALTER TABLE drugs MODIFY customName VARCHAR(100);
