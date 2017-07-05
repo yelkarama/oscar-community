@@ -107,8 +107,8 @@ public class EctDisplayConsultAction extends EctDisplayAction {
                 try {
                     date = formatter.parse(dateStr);
                     serviceDateStr = DateUtils.formatDate(date, request.getLocale());
-                    //if we are after cut off date and not completed set to red
-                    if( date.before(cutoffDate) && !status.equals("4") ) {
+                    // if not completed set to red
+                    if(!status.equals("4")) {
                         item.setColour(red);
                     }
                 }
@@ -121,9 +121,15 @@ public class EctDisplayConsultAction extends EctDisplayAction {
                 // create the link hover over title
                 String requestingPhysician = "\nRequesting Physician: " + theRequests.requestingPhysician.get(idx);
                 String referringPhysician = "\nConsultant Physician: " + theRequests.referringPhysician.get(idx);
-                item.setLinkTitle(service + " " + serviceDateStr + requestingPhysician + referringPhysician);
                 service = StringUtils.maxLenString(service, MAX_LEN_TITLE, CROP_LEN_TITLE, ELLIPSES);
-                item.setTitle(service);
+                // if cutoff is set in preferences and an incomplete consult is past the date, include a warning
+                if ( timeperiod!=null && date.before(cutoffDate) && !status.equals("4") ){
+                    item.setTitle("*"+ service + "*");
+                    item.setLinkTitle(service + " " + serviceDateStr + "\n* PAST CUTOFF DATE " + requestingPhysician + referringPhysician);
+                } else {
+                    item.setTitle(service);
+                    item.setLinkTitle(service + " " + serviceDateStr + requestingPhysician + referringPhysician);
+                }
                 item.setURL(url);
                 item.setDate(date);
                 Dao.addItem(item);
