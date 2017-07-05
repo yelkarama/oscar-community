@@ -1296,7 +1296,7 @@ function updateQty(element){
         var elemId=element.id;
         var ar=elemId.split("_");
         var rand=ar[1];
-        var instruction="instruction="+element.value+"&action=parseInstructions&randomId="+rand;
+        var instruction="instruction="+encodeURI(element.value)+"&action=parseInstructions&randomId="+rand;
         var url= ctx + "/oscarRx/UpdateScript.do?parameterValue=updateDrug";
         var quantity="quantity_"+rand;
         var str;
