@@ -30,6 +30,7 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.oscarehr.common.model.EFormData;
+import org.oscarehr.fax.util.PdfCoverPageCreator;
 import org.oscarehr.hospitalReportManager.HRMPDFCreator;
 import org.oscarehr.hospitalReportManager.dao.HRMDocumentToDemographicDao;
 import org.oscarehr.hospitalReportManager.model.HRMDocumentToDemographic;
@@ -97,7 +98,18 @@ public class EctConsultationFormRequestPrintAction2 extends Action {
 		String error = "";
 		Exception exception = null;
 		try {
+            boolean doCoverPage = (request.getParameter("coverpage") != null && request.getParameter("coverpage").equalsIgnoreCase("true"));
+            if(doCoverPage) {
+                String note = request.getParameter("note") == null ? "" : request.getParameter("note");
 
+                PdfCoverPageCreator pdfCoverPageCreator = new PdfCoverPageCreator(note);
+
+                buffer = pdfCoverPageCreator.createStandardCoverPage(request.getParameter("specialist"));
+                bis = new ByteInputStream(buffer, buffer.length);
+                streams.add(bis);
+                alist.add(bis);
+
+            }
 			bos = new ByteOutputStream();
 			ConsultationPDFCreator cpdfc = new ConsultationPDFCreator(request,bos);
 			cpdfc.printPdf(loggedInInfo);
