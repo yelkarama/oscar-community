@@ -29,6 +29,7 @@
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 
 <%@ page import="java.util.*,java.sql.*,java.util.ResourceBundle" errorPage="../provider/errorpage.jsp"%>
+<%@ page import="java.net.URLDecoder" %>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.model.MyGroup" %>
 <%@ page import="org.oscarehr.common.model.MyGroupPrimaryKey" %>
@@ -42,6 +43,7 @@
 
     String curProvider_no = (String) session.getAttribute("user");
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
+	String groupNo = request.getParameter("groupNo") != null ? URLDecoder.decode((String) request.getParameter("groupNo")) : "";
 
     boolean isSiteAccessPrivacy=false;
 %>
@@ -100,18 +102,20 @@ function validate() {
   ResourceBundle properties = ResourceBundle.getBundle("oscarResources", request.getLocale());
 
   if(request.getParameter("submit")!=null && request.getParameter("submit").equals(properties.getString("admin.admindisplaymygroup.btnSubmit1")) ) { //delete the group member
-    int rowsAffected=0;
     String[] param =new String[2];
     StringBuffer strbuf=new StringBuffer();
+	
+	String[] remProvider = request.getParameterValues("removeBtn");
+	String[] groProviders= request.getParameterValues("providerNo");
 
-  	for (Enumeration e = request.getParameterNames() ; e.hasMoreElements() ;) {
-	    strbuf=new StringBuffer(e.nextElement().toString());
-  		if( strbuf.toString().indexOf("displaymode")!=-1 || strbuf.toString().indexOf("submit")!=-1) continue;
-
-  		param[0]=request.getParameter(strbuf.toString());
-	    param[1]=strbuf.toString().substring( param[0].length() );
-	    myGroupDao.deleteGroupMember(param[0],param[1]);
-      	rowsAffected = 1;
+  	for (int i=0; i < groProviders.length; i++ ) {
+		if(remProvider[i].equals("true")){
+			myGroupDao.deleteGroupMember(groupNo,groProviders[i]);
+		}else{
+			MyGroup save = myGroupDao.getGroup(groupNo,groProviders[i]);
+			save.setViewOrder(i);
+			myGroupDao.merge(save);
+		}
     }
   }
 %>
@@ -121,7 +125,7 @@ function validate() {
 <%if(request.getParameter("submit")!=null && request.getParameter("submit").equals(properties.getString("admin.admindisplaymygroup.btnSubmit1")) ) { %>
 <br>
     <div class="alert alert-success">
- 		<strong>Success!</strong> record(s) have been deleted.
+ 		<strong>Success!</strong> Group has been updated!
     </div>
     
     <a href="admindisplaymygroup.jsp" class="btn btn-primary">View Group List</a>
@@ -134,7 +138,7 @@ function validate() {
 
 					
 				 
-					<input type="text" name="mygroup_no" size="10" maxlength="10" placeholder="<bean:message key="admin.adminmygroup.formGroupNo" />" title="Enter an existing or new group name.">
+					<input type="text" name="mygroup_no" size="10" maxlength="10" placeholder="<bean:message key="admin.adminmygroup.formGroupNo" />" title="Enter an existing or new group name." value="<%= groupNo %>">
 					<small>(Max. 10 chars.)</small>
 					
 		<table class="table table-condensed table-hover">	
@@ -152,8 +156,14 @@ function validate() {
 	// find all active providers
 	int i=0;
 	List<ProviderData> providerList = providerDao.findAllOrderByLastName();
+	List<String> groupDocs = new ArrayList();
+	
+	if(!groupNo.equals("")){
+		groupDocs = myGroupDao.getGroupDoctors(groupNo);
+	}
    
    for(ProviderData provider : providerList) {
+		if(!groupDocs.contains(provider.getId())){
 		i++;
 %>
 			<tr class="<%=i%2==0?"":"info"%>">
@@ -168,6 +178,7 @@ function validate() {
 
 			</tr>
 <%
+		}
    }
 %>
 		</tbody>
