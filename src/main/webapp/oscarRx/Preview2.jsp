@@ -298,12 +298,10 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
 	<input type="hidden" name="demographic_no" value="<%=bean.getDemographicNo()%>"/>
     <p id="pharmInfo" style="float:left;">
     </p>
-    <table>
+	<table id="pwTable" width="400px" height="500px">
+		<thead class="prescription-header" cellspacing="0" cellpadding="10">
         <tr>
-            <td>
-                            <table id="pwTable" width="400px" height="500px" cellspacing=0 cellpadding=10 border=2>
-                                    <tr>
-                                            <td valign=top height="100px"><input type="image"
+				<td valign=top height="100px" style="width: 40%;"><input type="image"
                                                     src="img/rx.gif" border="0" alt="[Submit]"
                                                     name="submit" title="Print in a half letter size paper"
                                                     onclick="<%=rePrint.equalsIgnoreCase("true") ? "javascript:return onPrint2('rePrint');" : "javascript:return onPrint2('print');"  %>"/>
@@ -510,12 +508,10 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                             </c:choose></td>
                                     </tr>
                                     <tr id="demographicInfoRow">
-                                            <td id="demographicInfoCell" colspan=2 valign=top height="75px">
-                                            <table width=100% cellspacing=0 cellpadding=0>
-                                                    <tr>
-                                                            <td align=left valign=top><br>
-                                                                <%= patient.getFirstName() %> <%= patient.getSurname() %> <%if(showPatientDOB){%>&nbsp;&nbsp; DOB:<%= StringEscapeUtils.escapeHtml(patientDOBStr) %> <%}%><br>
-                                                            <%= patientAddress %><br>
+				<td id="demographicInfoCell" colspan=2 align=left valign=top height="75px">
+					<b style="float: right"><%= oscar.oscarRx.util.RxUtil.DateToString(rxDate, "MMMM d, yyyy",request.getLocale()) %></b><br>
+						<%= patient.getFirstName() %> <%= patient.getSurname() %> <%if(showPatientDOB){%>&nbsp;&nbsp; DOB:<%= StringEscapeUtils.escapeHtml(patientDOBStr) %> <%}%><br>
+                                                                <%= patientAddress %><br>
                                                             <%= patientCityPostal %><br>
                                                             <%= patientPhone %><br>
                                                             <oscar:oscarPropertiesCheck value="true" property="showRxBandNumber">	
@@ -534,17 +530,9 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                                             <% } %>
                                                             
                                                             </td>
-                                                            <td align=right valign=top><b> <%= oscar.oscarRx.util.RxUtil.DateToString(rxDate, "MMMM d, yyyy",request.getLocale()) %>
-                                                            </b></td>
-                                                    </tr>
-                                            </table>
-                                            </td>
                                     </tr>
-                                    <tr>
-                                            <td colspan=2 valign=top height="275px">
-                                            <table height=100% width=100%>
-                                                    <tr valign=top>
-                                                            <td colspan=2 height=225px>
+		</thead>
+		<tbody class="prescription-content" cellspacing="0" cellpadding="10">
                                                             <%
                                             String strRx = "";
                                             StringBuffer strRxNoNewLines = new StringBuffer();
@@ -558,37 +546,42 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                                                             Logger.getLogger("preview_jsp").error("drug full outline was null");
                                                                             fullOutLine="<span style=\"color:red;font-size:16;font-weight:bold\">An error occurred, please write a new prescription.</span><br />"+fullOutLine;
                                                                     }
-                                            %>
-                                            <%=fullOutLine%>
-                                                            <hr>
-                                                            <%
-                                            strRx += rx.getFullOutLine() + ";;";
-                                            strRxNoNewLines.append(rx.getFullOutLine().replaceAll(";"," ")+ "\n");
-                                            }
-                                            %> <input type="hidden" name="rx"
-                                                                    value="<%= StringEscapeUtils.escapeHtml(strRx.replaceAll(";","\\\n")) %>" />
-                                                            <input type="hidden" name="rx_no_newlines"
-                                                                    value="<%= strRxNoNewLines.toString() %>" />
-                                                            <input type="hidden" name="additNotes" value=""/>
-                                                                    </td>
-                                                             
-                                                    </tr>
-
+				strRx += rx.getFullOutLine() + ";;";
+				strRxNoNewLines.append(rx.getFullOutLine().replaceAll(";"," ")+ "\n");
+		%>
+			<tr valign=top>
+				<td colspan="2" <%=(i==0)?"style=\"border-top: 1px #808080 inset;\"":""%>>
+					<div>
+						<%=fullOutLine%>
+						<hr/>
+					</div>
+				</td>
+			</tr>
+		<% } %>
+			<tr valign="top">
+				<td colspan="2">
+					<input type="hidden" name="rx"
+						   value="<%= StringEscapeUtils.escapeHtml(strRx.replaceAll(";","\\\n")) %>" />
+					<input type="hidden" name="rx_no_newlines"
+						   value="<%= strRxNoNewLines.toString() %>" />
+					<input type="hidden" name="additNotes" value=""/>
+				</td>
+			</tr>
+		</tbody>
+		<tfoot class="prescription-footer" cellspacing="0" cellpadding="10">
                                                     <tr valign="bottom">
-                                                            <td colspan="2" id="additNotes">
-                                                            
+				                                            <td colspan="2" id="additNotes" style="border-left: 1px #808080 inset; border-right: 1px #808080 inset; padding-left: 10px; padding-right: 10px;">
                                                             </td>
-                                                            
-                                                    </tr>
-
-
-                                                    <% if ( oscar.OscarProperties.getInstance().getProperty("RX_FOOTER") != null ){ out.write(oscar.OscarProperties.getInstance().getProperty("RX_FOOTER")); }%>
- 
-
-                                                    <tr valign=bottom>
-                                                            <td height=25px width=25%><bean:message key="RxPreview.msgSignature"/>:</td>
-                                                            <td height=25px width=75%
-                                                                    style="border-width: 0; border-bottom-width: 1; border-style: solid;">
+			</tr>
+			<tr valign="bottom">
+				<td colspan="2" id="additNotes" style="border-left: 1px #808080 inset; border-right: 1px #808080 inset; padding-left: 10px; padding-right: 10px;">
+					<% if ( oscar.OscarProperties.getInstance().getProperty("RX_FOOTER") != null ){ out.write(oscar.OscarProperties.getInstance().getProperty("RX_FOOTER")); }%>
+				</td>
+			</tr>
+			<tr valign=bottom>
+				<td colspan="2" height=25px style="border-left: 1px #808080 inset; padding-left: 10px; border-right: 1px #808080 inset; padding-right: 10px;">
+					<div style="width: 23%; display: inline-block;"><bean:message key="RxPreview.msgSignature"/>:</div>
+					<div  style="width: 75%; display: inline-block; border-bottom : 1px solid;">
                                                                     <%
 																	String signatureRequestId = null;	
 																	String imageUrl=null;
@@ -636,10 +629,12 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
 						
 																			}
 																		</script>&nbsp;
-                                                                    <% } %></td>
+																		<% } %>
+					</div>
+				</td>
                                                     </tr>
                                                     <tr valign=bottom>
-                                                            <td height=25px>
+                                                            <td height=25px colspan="2" style="border-left: 1px #808080 inset; border-right: 1px #808080 inset; padding-left: 10px; padding-right: 10px;">
                                                             <% if (props.getProperty("signature_tablet", "").equals("yes")) { %>
                                                             <input type="button" value=<bean:message key="RxPreview.digitallySign"/> class="noprint" onclick="setInterval('refreshImage()', POLL_TIME); document.location='<%=request.getContextPath()%>/signature_pad/topaz_signature_pad.jnlp.jsp?<%=DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY%>=<%=signatureRequestId%>'"  />
 		                                                        <% } 
@@ -656,22 +651,21 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                                             			<% } %>
 																		}
 		                                                            </script>
-                                                            </td>
-	                                                            <% } else { %>
-		                                                            </td>
-														<td height=25px><b>Requesting Physician:</b> <%= doctorName%> <%=(pracNo!=null && !pracNo.equals(""))?"("+pracNo+")":""%>
-																<%if(demographic != null && demographic.getProviderNo() != null && mrpRx){%>
-															<br/><b>MRP:</b> <%=providerBean.getProperty(demographic.getProviderNo(),"")%> <%=(mrpPracNo!=null && !mrpPracNo.equals(""))?"("+mrpPracNo+")":""%>
-																<%}%>                                                         
-                                                            </td>
-	                                                            <% } %>
+															<% } else { %>
+																<div height=25px><b>Requesting Physician:</b> <%= doctorName%>
+																	<%if(demographic != null && demographic.getProviderNo() != null && mrpRx){%>
+																	<br/><b>MRP:</b> <%=providerBean.getProperty(demographic.getProviderNo(),"")%> <%=(mrpPracNo!=null && !mrpPracNo.equals(""))?"("+mrpPracNo+")":""%>
+																	<%}%>
+																</div>
+															<% } %>
+														</td>
                                                     </tr>
                                                     <% 
                                                     	 if( rePrint.equalsIgnoreCase("true") && rx != null ) 
                                                     	 { 
                                                     	 %>
 		                                                    <tr valign=bottom style="font-size: 6px;">
-		                                                        <td height=25px colspan="2"><bean:message key="RxPreview.msgReprintBy"/> <%=ProviderData.getProviderName(strUser)%><span style="float: left;">
+				<td height=25px colspan="2" style="border-left: 1px #808080 inset; border-right: 1px #808080 inset; padding-left: 10px; padding-right: 10px;"><bean:message key="RxPreview.msgReprintBy"/> <%=ProviderData.getProviderName(strUser)%><span style="float: left;">
 		                                                            <bean:message key="RxPreview.msgOrigPrinted"/>:&nbsp;<%=rx.getPrintDate()%></span> <span
 		                                                                    style="float: right;"><bean:message key="RxPreview.msgTimesPrinted"/>:&nbsp;<%=String.valueOf(rx.getNumPrints())%></span>
 		                                                            <input type="hidden" name="origPrintDate" value="<%=rx.getPrintDate()%>"/>
@@ -685,7 +679,7 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                                     	{
                                                     	%>                                                    
 		                                                    <tr>
-			                                                    <td colspan="2">
+			                                                    <td colspan="2" style="border-left: 1px #808080 inset; border-right: 1px #808080 inset; padding-left: 10px; padding-right: 10px;">
 			                                                    	<img src="<%=request.getContextPath()%>/contentRenderingServlet/prescription_qr_code_<%=rx.getScript_no()%>.png?source=prescriptionQrCode&prescriptionId=<%=rx.getScript_no()%>" alt="qr_code" />
 			                                                    </td>
 		                                                    </tr>
@@ -697,19 +691,14 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
 	                                     				{
 	                                     				%>
 		                                                    <tr valign=bottom align="center" style="font-size: 9px">
-		                                                            <td height=25px colspan="2"></br>
+		                                                            <td height=25px colspan="2" style="border-left: 1px #808080 inset; border-right: 1px #808080 inset; border-bottom: 1px #808080 inset; padding-left: 10px; padding-right: 10px; padding-bottom: 10px;"></br>
 		                                                            <%= oscar.OscarProperties.getInstance().getProperty("FORMS_PROMOTEXT") %>
 		                                                            </td>
 		                                                    </tr>
 	                                                    <%
                                                     	}
                                                     %>
-                                            </table>
-                                            </td>
-                                    </tr>
-                            </table>
-			</td>
-		</tr>
+		</tfoot>
 	</table>
 </html:form>
 </body>
