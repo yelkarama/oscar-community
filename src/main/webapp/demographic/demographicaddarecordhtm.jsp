@@ -906,6 +906,7 @@ function ignoreDuplicates() {
 				<td id="emailLbl" align="right"><b><bean:message
 					key="demographic.demographicaddrecordhtm.formEMail" />: </b></td>
 				<td id="emailCell" align="left"><input type="text" id="email" name="email" value="">
+					<input type="checkbox" name="includeEmailOnConsults" value="true"/> Include on Consults
 				</td>
 				<td id="myOscarLbl" align="right"><b><bean:message
 					key="demographic.demographicaddrecordhtm.formPHRUserName" />:</b></td>

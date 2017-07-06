@@ -492,6 +492,7 @@
 		<td align="left"><input type="text" name="email" size="30"
 			<%=getDisabled("email")%>
 			value="<%=demographic.getEmail()!=null? demographic.getEmail() : ""%>">
+		<input type="checkbox" name="includeEmailOnConsults" <%=Boolean.parseBoolean(demoExt.get("includeEmailOnConsults")) ? "checked='checked'" : ""%> value="true"/> Include on Consults
 		</td>
 	</tr>
 	<tr valign="top">

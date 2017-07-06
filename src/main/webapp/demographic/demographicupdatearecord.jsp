@@ -268,6 +268,7 @@
 	extensions.add(new DemographicExt(request.getParameter("paper_chart_archived_program_id"), proNo, demographicNo, "paper_chart_archived_program", request.getParameter("paper_chart_archived_program")));
 	extensions.add(new DemographicExt(request.getParameter("familyDoctorId_id"), proNo, demographicNo, "familyDoctorId", request.getParameter("r_doctor_id")));
 	extensions.add(new DemographicExt(request.getParameter("familyPhysicianId_id"), proNo, demographicNo, "familyPhysicianId", request.getParameter("f_doctor_id")));
+	extensions.add(new DemographicExt(request.getParameter("includeEmailOnConsults_id"), proNo, demographicNo, "includeEmailOnConsults", request.getParameter("includeEmailOnConsults") != null ? request.getParameter("includeEmailOnConsults") : "false"));
    
 	// Demographic Groups
 	int demographicNoAsInt = 0;
