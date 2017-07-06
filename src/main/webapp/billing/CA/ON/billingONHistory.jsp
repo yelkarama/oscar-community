@@ -114,6 +114,7 @@ for(int i=0; i<aL.size(); i=i+2) {
 	BillingClaimHeader1Data obj = (BillingClaimHeader1Data) aL.get(i);
 	BillingItemData itObj = (BillingItemData) aL.get(i+1);
 	String strBillType = obj.getPay_program();
+	String billStatus = "";
 	if(strBillType != null) {
 		if(strBillType.matches(BillingDataHlp.BILLINGMATCHSTRING_3RDPARTY)) {
 			if(BillingDataHlp.propBillingType.getProperty(obj.getStatus(),"").equals("Settled")) {
@@ -133,7 +134,7 @@ for(int i=0; i<aL.size(); i=i+2) {
 	if("PAT".equals(strBillType)||"PAT Settled".equals(strBillType)||"IFH".equals(strBillType)){
 		int billingNo = Integer.parseInt(obj.getId());
 		BillingONCHeader1 bCh1 = bCh1Dao.find(billingNo);
-		
+		billStatus = bCh1.getStatus();
 		BigDecimal total = bCh1.getTotal();
 		BigDecimal sumOfPay = BigDecimal.ZERO;
 		BigDecimal sumOfDiscount = BigDecimal.ZERO;
@@ -163,7 +164,7 @@ for(int i=0; i<aL.size(); i=i+2) {
 		</td>
 		<td align="center"><%=obj.getLast_name()+", "+obj.getFirst_name()%></td>
 		<td align="center"><%=obj.getBilling_date()%> <%--=obj.getBilling_time()--%></td>
-		<td align="center"><%=strBillType%></td>
+		<td align="center"><%=billStatus.equals("X")?"Bad Debt":strBillType%></td>
 		<td align="center"><%=itObj.getService_code()%></td>
 		<td align="center"><%=itObj.getDx()%></td>
 		<td align="center"><%if("PAT".equals(strBillType)||"PAT Settled".equals(strBillType)||"IFH".equals(strBillType)){ %>
