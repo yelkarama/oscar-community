@@ -73,7 +73,7 @@ if (selfSubmit) {
 		m.setDateObserved(new java.util.Date());
 		m.setType("HT");
 		dao.persist(m);
-		note = note + " \nHeight: " + m.getDataField() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
+		note = note + " \nHeight: " + m.getDataField() + " " + m.getMeasuringInstruction() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
 	}
 	
 	if (request.getParameter("wt_value")!=null && isNumeric(request.getParameter("wt_value"))) {
@@ -87,7 +87,7 @@ if (selfSubmit) {
 		m.setDateObserved(new java.util.Date());
 		m.setType("WT");
 		dao.persist(m);
-		note = note + " \nWeight: " + m.getDataField() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
+		note = note + " \nWeight: " + m.getDataField() + " " + m.getMeasuringInstruction() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
 	}
 
 	if (request.getParameter("bmi_value")!=null && isNumeric(request.getParameter("bmi_value"))) {
@@ -115,7 +115,7 @@ if (selfSubmit) {
 		m.setDateObserved(new java.util.Date());
 		m.setType("HEAD");
 		dao.persist(m);
-		note = note + " \nHead Circ: " + m.getDataField() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
+		note = note + " \nHead Circ: " + m.getDataField() + " " + m.getMeasuringInstruction() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
 	}
 
 	if (request.getParameter("waist_value")!=null && isNumeric(request.getParameter("waist_value"))) {
@@ -129,7 +129,7 @@ if (selfSubmit) {
 		m.setDateObserved(new java.util.Date());
 		m.setType("WAIS");
 		dao.persist(m);
-		note = note + " \nWaist: " + m.getDataField() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
+		note = note + " \nWaist: " + m.getDataField() + " " + m.getMeasuringInstruction() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
 	}
 
 	if (request.getParameter("hip_value")!=null && isNumeric(request.getParameter("hip_value"))) {
@@ -143,7 +143,7 @@ if (selfSubmit) {
 		m.setDateObserved(new java.util.Date());
 		m.setType("HIP");
 		dao.persist(m);
-		note = note + " \nHip: " + m.getDataField() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
+		note = note + " \nHip: " + m.getDataField() + " " + m.getMeasuringInstruction() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
 	}
 
 	if (request.getParameter("whr_value")!=null && isNumeric(request.getParameter("whr_value"))) {
@@ -171,7 +171,7 @@ if (selfSubmit) {
 		m.setDateObserved(new java.util.Date());
 		m.setType("BP");
 		dao.persist(m);
-		note = note + " \nBP: " + m.getDataField() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
+		note = note + " \nBP: " + m.getDataField() + " " + m.getMeasuringInstruction() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
 	}
 
 	if (request.getParameter("pulse_value")!=null && isNumeric(request.getParameter("pulse_value"))) {
