@@ -531,7 +531,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 
 					// Render doctor name
 					bf = BaseFont.createFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
-					writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, "Req. Physician: " + this.sigDoctorName, 20f, endPara - 78f, 0);
+					writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, "Requesting: " + this.sigDoctorName, 20f, endPara - 78f, 0);
 					if (mrpRx)
 					{
 						writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, "MRP: " + this.MRP, 20f,endPara - 88f, 0);	

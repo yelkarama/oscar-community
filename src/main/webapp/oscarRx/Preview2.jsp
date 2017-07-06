@@ -652,7 +652,7 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
 																		}
 		                                                            </script>
 															<% } else { %>
-																<div height=25px><b>Requesting Physician:</b> <%= doctorName%>
+																<div height=25px><b>Requesting:</b> <%= doctorName%>
 																	<%if(demographic != null && demographic.getProviderNo() != null && mrpRx){%>
 																	<br/><b>MRP:</b> <%=providerBean.getProperty(demographic.getProviderNo(),"")%> <%=(mrpPracNo!=null && !mrpPracNo.equals(""))?"("+mrpPracNo+")":""%>
 																	<%}%>
