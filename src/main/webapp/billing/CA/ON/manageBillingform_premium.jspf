@@ -24,46 +24,26 @@
  */
 --%>
 <% 
-
-  List<CtlBillingServicePremium> cbsps = ctlBillingServicePremiumDao.findByStatus("A");
-  
-   int rCount = 0;     int rCount1 = 0;  int tCount = 0;  int tCount1 = 0; int tCount2 = 0; int tCount3 = 0;
-  boolean bodd=false;
-  
+   int tCount;
+   int tCount1;
+   int tCount2;
+   int tCount3;
  
-  String servicetype_name="";
-  if(cbsps == null) {
-   out.println("failed!!!"); 
-  } else {
-  %>
-<% 
-   for (CtlBillingServicePremium cbsp: cbsps) {
-     
-         rCount = rCount + 1;
-   }
- }         
- 
-     String[] service_code1 = new String[rCount];
-     String[] service_desc1 = new String[rCount];
-    
-    
-    
-    for(int j=0; j<rCount;j++){
-       service_code1[j] = "";
-       service_desc1[j] = "";
-  } 
     List<Object[]> results = ctlBillingServicePremiumDao.search_ctlpremium("A");
-     
+	String[] service_code1 = new String[results.size()];
+	String[] service_desc1 = new String[results.size()];
+	
  if(results==null) {
    out.println("failed!!!"); 
   } else {
   %>
-<% 
+<%
+   int i = 0;
    for (Object[] result: results) {
  
-        service_code1[rCount1] = (String)result[0];
-        service_desc1[rCount1] = (String)result[1];
-       rCount1 = rCount1 +1;
+		service_code1[i] = (String)result[0];
+		service_desc1[i] = (String)result[1];
+		i++;
    }
  } 
  
@@ -105,7 +85,7 @@
 
 			</tr>
 			<% tCount = 0;
-          while (tCount < rCount-3) {
+          while (tCount < results.size()-3) {
           tCount1=tCount;
           tCount2=tCount+1;
           tCount3=tCount+2;
