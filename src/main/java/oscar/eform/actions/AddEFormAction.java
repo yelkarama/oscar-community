@@ -160,8 +160,17 @@ public class AddEFormAction extends Action {
 				continue;
 			if(request.getParameter(curField) != null && (!request.getParameter(curField).trim().equals("")) )
 			{
-				paramNames.add(curField);
-				paramValues.add(request.getParameter(curField));
+                if (curField.equals("faxRecipients") || curField.equals("faxRecipientsName")) {
+                    // faxRecipients may have multiple values so save them all
+                    String[] values = request.getParameterValues(curField);
+                    for (String value : values) {
+                        paramNames.add(curField);
+                        paramValues.add(value);
+                    }
+                } else {
+                    paramNames.add(curField);
+                    paramValues.add(request.getParameter(curField));
+                }
 			}
 			
 		}

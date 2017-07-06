@@ -98,7 +98,7 @@ function AddOtherFax() {
 function _AddOtherFax(name, number) {
 	//if (name == "" || number == "") { alert("Invalid recipient"); return; }
 	var remove = "<a href='javascript:void(0);' onclick='removeRecipient(this)'>remove</a>";
-        var html = "<li>"+name+"<b>, Address: </b>"+number+ " " +remove+"<input type='hidden' name='faxRecipients' value='"+number+"'></input></li>";
+        var html = "<li>"+name+"<b>, Address: </b>"+number+ " " +remove+"<input type='hidden' name='faxRecipients' value='"+number+"'/><input type='hidden' name='faxRecipientsName' value='"+name+"'/></li>";
 
 
         //inserting the name and address(variable is number) into the copy to : Clinician/Practioner fields
