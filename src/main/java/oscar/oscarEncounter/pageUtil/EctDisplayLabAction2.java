@@ -209,7 +209,7 @@ public class EctDisplayLabAction2 extends EctDisplayAction {
 				// item.setBgColour(bgcolour);
 				Dao.addItem(item);
 			}
-
+			Dao.sortItems(NavBarDisplayDAO.DATESORT_ASC);
 			return true;
 		}
 	}
