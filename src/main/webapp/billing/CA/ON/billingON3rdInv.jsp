@@ -40,8 +40,8 @@
 <%@page import="org.oscarehr.common.model.Site" %>
 <%@page import="oscar.oscarBilling.ca.on.pageUtil.Billing3rdPartPrep" %>
 <%@page import="oscar.oscarBilling.ca.on.administration.GstControlAction" %>
+<%@ page import="java.math.MathContext" %>
 
-<%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 
 <%
@@ -399,7 +399,7 @@ boolean isMulitSites = oscarProp.getBooleanProperty("multisites", "on");
                         hstAmount = fee.subtract(value.multiply(serviceCount));
                     } else{
                         // Else, no hst on item, set value as (fee/serviceCount)
-                        value = fee.divide(serviceCount);
+                        value = fee.divide(serviceCount, 2, BigDecimal.ROUND_HALF_UP);
                     }
                 }    
              %>
