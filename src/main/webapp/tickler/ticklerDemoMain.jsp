@@ -664,7 +664,9 @@ function generateRenalLabReq(demographicNo) {
                             <td ROWSPAN="1" class="<%=cellColour%>"></td>
                             <td ROWSPAN="1" class="<%=cellColour%>"></td>
                             <td ROWSPAN="1" class="<%=cellColour%>"></td>
+                            <td ROWSPAN="1" class="<%=cellColour%>"></td>
                             <td ROWSPAN="1" class="<%=cellColour%>"><%=tc.getMessage()%></td>
+                            <td ROWSPAN="1" class="<%=cellColour%>"></td>
                         </tr>
        <%           }
                 }  
@@ -680,7 +682,7 @@ if (nItems == 0) {
 			Demographic d = demographicDao.getDemographicById(request.getParameter("demoview")==null?null: Integer.parseInt(request.getParameter("demoview")));
 			%>
 			<tr bgcolor=#FFFFFF class="noprint">
-				<td colspan="10" class="white"><a id="checkAllLink" name="checkAllLink" href="javascript:CheckAll();"><bean:message
+				<td colspan="11" class="white"><a id="checkAllLink" name="checkAllLink" href="javascript:CheckAll();"><bean:message
 					key="tickler.ticklerDemoMain.btnCheckAll" /></a> - <a
 					href="javascript:ClearAll();"><bean:message
 					key="tickler.ticklerDemoMain.btnClearAll" /></a> &nbsp; &nbsp; &nbsp;
