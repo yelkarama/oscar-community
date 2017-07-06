@@ -54,6 +54,8 @@
 <%@page import="org.oscarehr.util.SpringUtils" %>
 <%@page import="oscar.util.ConversionUtils" %>
 <%@page import="org.oscarehr.util.MiscUtils" %>
+<%@ page import="oscar.log.LogAction" %>
+<%@ page import="oscar.log.LogConst" %>
 <%
 	AppointmentArchiveDao appointmentArchiveDao = (AppointmentArchiveDao)SpringUtils.getBean("appointmentArchiveDao");
 	OscarAppointmentDao appointmentDao = (OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
@@ -86,6 +88,17 @@
   	 		MiscUtils.getLogger().error("Reason code is not an Integer", nfe);
   	 	}
   	 	
+  	 	StringBuilder logData = new StringBuilder();
+		if (request.getParameter("demographic_no")!=null && !(request.getParameter("demographic_no").equals(""))) {
+			logData.append("demographic_no=");
+			logData.append(Integer.parseInt(request.getParameter("demographic_no")));
+			logData.append("\n");
+		} else {
+			logData.append("demographic_no=");
+			logData.append(0);
+			logData.append("\n");
+		}
+		
         // repeat adding
 		while (true) {
 			Appointment a = new Appointment();
@@ -116,6 +129,9 @@
 			a.setUrgency(null);
 			
 			appointmentDao.persist(a);
+			logData.append("appointment_no=");
+			logData.append(a.getId());
+			logData.append("\n");
 			
 
             gCalDate.setTime(a.getAppointmentDate());
@@ -134,7 +150,8 @@
 			else 
 				iDate = gCalDate.getTime();
 		}
-        
+		LogAction.addLog(request.getParameter("provider_no"), LogConst.ADD, LogConst.CON_REPEAT_APPT, logData.toString(), request.getRemoteAddr());
+		
         bSucc = true;
 	}
 

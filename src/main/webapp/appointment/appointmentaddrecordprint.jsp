@@ -48,6 +48,8 @@
 <%@page import="org.oscarehr.common.model.Appointment" %>
 <%@page import="oscar.util.ConversionUtils" %>
 <%@page import="oscar.util.UtilDateUtilities"%>
+<%@ page import="oscar.log.LogAction" %>
+<%@ page import="oscar.log.LogConst" %>
 <%
 	OscarAppointmentDao appointmentDao = (OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
     		
@@ -111,6 +113,7 @@ if (request.getParameter("demographic_no") != null && !(request.getParameter("de
 	a.setUrgency((request.getParameter("urgency")!=null)?request.getParameter("urgency"):"");
 	
 	appointmentDao.persist(a);
+	LogAction.addLog(a.getProviderNo(), LogConst.ADD, LogConst.CON_APPT, "appointment_no="+a.getId(), request.getRemoteAddr(), String.valueOf(a.getDemographicNo()));
 	
     
     
