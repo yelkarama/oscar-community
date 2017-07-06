@@ -410,6 +410,14 @@ public class EDoc extends TagObject implements Comparable<EDoc> {
 	}
 
 	/**
+	 * Returns true if this document's content type is that of an image.
+	 * @return true if document is an image and false otherwise
+	 */
+	public boolean isText() {
+		return this.contentType != null && !isPDF() && this.contentType.toLowerCase().contains("text/");
+	}
+
+	/**
 	 * Returns true if this document is printable to PDF format.
 	 * @return true if this document is printable to PDF format and false otherwise
 	 */
