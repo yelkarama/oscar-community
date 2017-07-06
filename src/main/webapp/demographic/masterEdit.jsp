@@ -211,19 +211,7 @@
 			<%=getDisabled("pref_name")%> size="30"
 			value="<%=StringEscapeUtils.escapeHtml(demographic.getPrefName())%>"
 			onBlur="upCaseCtrl(this)"></td>
-		<td align="right"><b><bean:message
-			key="demographic.demographiceditdemographic.msgDemoLanguage" />: </b></td>
-		<td align="left">
-			<% String lang = oscar.util.StringUtils.noNull(demographic.getOfficialLanguage()); %>
-			<select name="official_lang" <%=getDisabled("official_lang")%>>
-			<option value="English" <%=lang.equals("English")?"selected":""%>><bean:message
-				key="demographic.demographiceditdemographic.msgEnglish" /></option>
-			<option value="French" <%=lang.equals("French")?"selected":""%>><bean:message
-				key="demographic.demographiceditdemographic.msgFrench" /></option>
-			<option value="Other" <%=lang.equals("Other")?"selected":""%>><bean:message
-				key="demographic.demographiceditdemographic.optOther" /></option>
-			</select>
-		</td>
+	
 		<td align="right"><b><bean:message
 					key="demographic.demographiceditdemographic.msgDemoTitle" />: </b></td>
 		<td align="left">
@@ -271,7 +259,32 @@
 		</select>
 		</td>
 	</tr>
-
+	<tr>
+		<td align="right"><b><bean:message
+			key="demographic.demographiceditdemographic.msgSpoken" />: </b></td>
+		<td>
+			<%String spokenLang = oscar.util.StringUtils.noNull(demographic.getSpokenLanguage()); %>
+			<select name="spoken_lang" <%=getDisabled("spoken_lang")%>>
+				<%for (String splang : Util.spokenLangProperties.getLangSorted()) { %>
+					<option value="<%=splang %>"
+					<%=spokenLang.equals(splang)?"selected":"" %>><%=splang %></option>
+				<%} %>
+			</select>
+		</td>
+		<td align="right"><b><bean:message
+			key="demographic.demographiceditdemographic.msgDemoLanguage" />: </b></td>
+		<td align="left">
+			<% String lang = oscar.util.StringUtils.noNull(demographic.getOfficialLanguage()); %>
+			<select name="official_lang" <%=getDisabled("official_lang")%>>
+				<option value="English" <%=lang.equals("English")?"selected":""%>><bean:message
+					key="demographic.demographiceditdemographic.msgEnglish" /></option>
+				<option value="French" <%=lang.equals("French")?"selected":""%>><bean:message
+					key="demographic.demographiceditdemographic.msgFrench" /></option>
+				<option value="Other" <%=lang.equals("Other")?"selected":""%>><bean:message
+					key="demographic.demographiceditdemographic.optOther" /></option>
+			</select>
+		</td>
+	</tr>
 	<tr valign="top">
 		<td align="right"><b><bean:message
 					key="demographic.demographiceditdemographic.formAddr" />: </b></td>
