@@ -265,7 +265,7 @@ public class BioTestHandler implements MessageHandler {
             // is a comment, if the name is blank the obx segment will not be displayed
             OBX obxSeg =  ( obrSegMap.get(obrSegKeySet.get(i))).get(j);
             if (!obxSeg.getValueType().getValue().equals("FT"))
-                ret = getString(obxSeg.getObservationIdentifier().getText().getValue());
+                ret = getString(obxSeg.getObservationIdentifier().getComponent(3).toString());
         }catch(Exception e){
             logger.error("Error returning OBX name", e);
         }
