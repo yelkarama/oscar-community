@@ -48,8 +48,8 @@ if(!authed) {
 	FaxJobDao faxJobDao = SpringUtils.getBean(FaxJobDao.class);
 	String Id = request.getParameter("jobId");
 	FaxJob faxJob = faxJobDao.find(Integer.parseInt(Id));
-
-	for( int idx = 1; idx <= faxJob.getNumPages(); ++idx ) {
+	int numPages = (faxJob.getNumPages()==null?1:faxJob.getNumPages()); //show only first page as preview
+	for( int idx = 1; idx <= numPages; ++idx ) {
 %>
 		<li><img src="<%=request.getContextPath() + "/admin/ManageFaxes.do?method=viewFax&jobId=" + faxJob.getId() + "&curPage=" + idx %>" ondblclick="_zoom(this)"/></li>
 <%

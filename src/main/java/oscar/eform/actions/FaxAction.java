@@ -12,11 +12,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.HashSet;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -82,7 +78,7 @@ public final class FaxAction {
 	 * This method will take eforms and send them to a PHR.
 	 * @throws DocumentException 
 	 */
-	public void faxForms(String[] numbers, String formId, String providerId) throws DocumentException {
+	public void faxForms(String[] numbers, String formId, String providerId, String demographicNo) throws DocumentException {
 		
 		File tempFile = null;
 
@@ -103,6 +99,8 @@ public final class FaxAction {
 			String viewUri = localUri + formId;
 			WKHtmlToPdfUtils.convertToPdf(viewUri, tempFile);
 			logger.info("Writing pdf to : "+tempFile.getCanonicalPath());
+            // Copying the fax pdf.
+            FileUtils.copyFile(tempFile, new File(OscarProperties.getInstance().getProperty("DOCUMENT_DIR") + "/" + tempFile.getName()));
 			
 			// Removing all non digit characters from fax numbers.
 			for (int i = 0; i < numbers.length; i++) { 
@@ -164,6 +162,7 @@ public final class FaxAction {
 		        	 eFormDataDao.merge(eFormData);
 				}
 
+                faxJob.setNumPages(1);
 				if( !validFaxNumber ) {
 					faxJob.setStatus(FaxJob.STATUS.ERROR);
 					logger.error("PROBLEM CREATING FAX JOB", new DocumentException("Document outgoing fax number '"+faxNo+"' is invalid."));

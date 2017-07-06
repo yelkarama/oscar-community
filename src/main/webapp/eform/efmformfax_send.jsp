@@ -16,6 +16,7 @@
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
 
 <%@page import="org.oscarehr.util.WebUtils,org.oscarehr.util.MiscUtils"%>
+<%@ page import="org.oscarehr.util.LoggedInInfo" %>
 <html:html locale="true">
 
 <head>
@@ -56,10 +57,12 @@ function finishPage(secs){
 					
 				String id  = (String)request.getAttribute("fdid");
 				String[] s = request.getParameterValues("faxRecipients");
-				String providerId = request.getParameter("providerId");
+				LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+				String providerId = loggedInInfo.getLoggedInProviderNo();
+				String demographic_no = request.getParameter("efmdemographic_no");
 				FaxAction bean=new FaxAction(request);
 				try { 
-					bean.faxForms(s,id,providerId);
+					bean.faxForms(s,id,providerId, demographic_no);
 					%>
 					Fax has been sent successfully.	
 					<%
