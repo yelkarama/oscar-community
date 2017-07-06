@@ -192,6 +192,7 @@ String userlastname = (String) session.getAttribute("userlastname");
 
                                                 DrugDao drugDao = (DrugDao) SpringUtils.getBean("drugDao");
             List<Drug> prescriptDrugs = drugDao.getPrescriptions(""+patient.getDemographicNo(), showall);
+            Collections.sort(prescriptDrugs, Drug.START_DATE_COMPARATOR);
 
 
     for (Drug drug: prescriptDrugs) {
