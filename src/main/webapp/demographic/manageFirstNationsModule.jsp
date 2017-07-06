@@ -123,14 +123,15 @@ jQuery(document).ready(function(){
         <input type="text" id="statusNum" name="statusNum" maxlength="10" size="10" value="${ demoExt["statusNum"] }">
 	    <input type="hidden" name="statusNumOrig" value="${ demoExt["statusNum"] }">
 	</td>
+<% if (!oscar.OscarProperties.getInstance().isPropertyActive("showBandNumberOnly")) { %>
         <td align="right" class="label disableStyle">
         	<strong>Band Name:</strong>       
         </td>
         <td align="left">
             <input type="text" id="fNationCom" name="fNationCom" value="${ demoExt["fNationCom"] }">
 	    	<input type="hidden" name="fNationComOrig" value="${ demoExt["fNationCom"] }">
-     </td>
-     
+		</td>
+<% } %>
 </tr>
 <tr>
  	<td align="right" class="label disableStyle">
