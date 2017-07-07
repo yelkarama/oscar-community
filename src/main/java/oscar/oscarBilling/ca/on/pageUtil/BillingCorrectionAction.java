@@ -445,7 +445,7 @@ public class BillingCorrectionAction extends DispatchAction{
                 //Determine Unit
                 String unit = request.getParameter("billingunit" + i);
                 MiscUtils.getLogger().info("("+ serviceCodeId + ") Unit Amount:" + unit);
-                if (!unit.matches("(\\d+)?(\\.\\d+)?")) {
+                if (!unit.matches("(\\d+)") && !unit.matches("(\\d*\\.\\d+)")) {
                     unit = "1";
                 }
                 BigDecimal unitAmt = new BigDecimal(unit);
