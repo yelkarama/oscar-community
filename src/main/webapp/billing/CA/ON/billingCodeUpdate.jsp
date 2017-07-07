@@ -38,7 +38,9 @@ function CodeAttach(File0, File1, File2) {
       
 <% 
 if(request.getParameter("nameF") != null) {
+    String feeElement = request.getParameter("nameF").replace("servicecode", "billingamount");
 		out.println("self.opener." + request.getParameter("nameF") + " = File0;");
+		out.println("self.opener." + feeElement + " = File1;");
 } else {
 %>      
       self.opener.document.serviceform.xml_other1.value = File0;
@@ -71,9 +73,17 @@ if(request.getParameter("nameF") != null) {
                  Count = Count + 1;
                  
       }
+      String fee = "";
+     List<BillingService> billingService = billingServiceDao.findByServiceCode(param[0]);
+	if (billingService!=null && !billingService.isEmpty()){
+        BillingService service = billingService.get(0);
+        if (service!=null && service.getValue()!=null){
+            fee=service.getValue();
+        }
+    }
     
     if (Count == 1) {
-    param[1] = "";
+    param[1] = fee;
     param[2] = "";
     }
         if (Count == 2) {
