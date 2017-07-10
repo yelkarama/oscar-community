@@ -136,10 +136,12 @@ public class PdfCoverPageCreator {
             if (specialistId != null && !specialistId.isEmpty()) {
                 ProfessionalSpecialistDao professionalSpecialistDao = SpringUtils.getBean(ProfessionalSpecialistDao.class);
                 ProfessionalSpecialist specialist = professionalSpecialistDao.find(Integer.parseInt(specialistId));
-                String clinicInfo = "\n\nRecipient: " + specialist.getFormattedTitle() + "\n" +
-                        "Phone Number: " + specialist.getPhoneNumber()  + "\n" +
-                        "Fax Number: " + specialist.getFaxNumber()  + "\n";
-                document.add(new Phrase(clinicInfo, infoFont));
+                if (specialist != null) {
+                    String clinicInfo = "\n\nRecipient: " + specialist.getFormattedTitle() + "\n" +
+                            "Phone Number: " + specialist.getPhoneNumber() + "\n" +
+                            "Fax Number: " + specialist.getFaxNumber() + "\n";
+                    document.add(new Phrase(clinicInfo, infoFont));
+                }
             }
 
             document.add(new Phrase("\n\n\n" + note, infoFont));
