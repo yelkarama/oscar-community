@@ -46,7 +46,7 @@ public class ScheduleTemplateCodeDao extends AbstractDao<ScheduleTemplateCode> {
 	}
 		
 	public ScheduleTemplateCode getByCode(char code) {
-		Query query = entityManager.createNativeQuery("select * from ScheduleTemplateCode where binary code='" + code + "'", ScheduleTemplateCode.class);
+		Query query = entityManager.createNativeQuery("select * from scheduletemplatecode where binary code='" + code + "'", ScheduleTemplateCode.class);
 		
 		@SuppressWarnings("unchecked")
 		List<ScheduleTemplateCode> results = query.getResultList();
