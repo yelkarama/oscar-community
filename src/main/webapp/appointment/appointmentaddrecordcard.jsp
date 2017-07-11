@@ -49,6 +49,8 @@
 <%@page import="org.oscarehr.common.model.Appointment" %>
 <%@page import="org.oscarehr.common.model.Provider" %>
 <%@ page import="org.oscarehr.common.model.ProviderPreference" %>
+<%@ page import="oscar.log.LogAction" %>
+<%@ page import="oscar.log.LogConst" %>
 <%
 	AppointmentArchiveDao appointmentArchiveDao = (AppointmentArchiveDao)SpringUtils.getBean("appointmentArchiveDao");
 	OscarAppointmentDao appointmentDao = (OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
@@ -160,6 +162,7 @@
     	a.setCreateDateTime(ConversionUtils.fromDateString(request.getParameter("createdatetime")));
     	a.setReasonCode(Integer.parseInt(request.getParameter("reasonCode")));
     	appointmentDao.persist(a);
+		LogAction.addLog(a.getProviderNo(), LogConst.ADD, LogConst.CON_APPT, "appointment_no="+a.getId(), request.getRemoteAddr(), String.valueOf(a.getDemographicNo()));
    		rowsAffected=1;
     }
     if(request.getParameter("appointment_no") != null) {

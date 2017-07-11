@@ -51,6 +51,8 @@
 <%@page import="oscar.util.UtilDateUtilities"%>
 <%@ page import="org.oscarehr.event.EventService"%>
 <%@page import="org.oscarehr.managers.DemographicManager" %>
+<%@ page import="oscar.log.LogAction" %>
+<%@ page import="oscar.log.LogConst" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <html:html locale="true">
@@ -147,6 +149,8 @@ if (request.getParameter("demographic_no") != null && !(request.getParameter("de
 	a.setUrgency((request.getParameter("urgency")!=null)?request.getParameter("urgency"):"");
 	
 	appointmentDao.persist(a);
+	LogAction.addLog(a.getProviderNo(), LogConst.ADD, LogConst.CON_APPT, "appointment_no="+a.getId(), request.getRemoteAddr(), String.valueOf(a.getDemographicNo()));
+	
 	int rowsAffected=1;
 	
 	if (rowsAffected == 1) {

@@ -66,6 +66,8 @@
 <%@ page
 	import="java.util.*, java.sql.*,java.net.*, oscar.*, oscar.util.*, org.oscarehr.common.OtherIdManager"
 	errorPage="errorpage.jsp"%>
+<%@ page import="oscar.log.LogConst" %>
+<%@ page import="oscar.log.LogAction" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 
@@ -135,6 +137,7 @@
 			a.setReasonCode(Integer.parseInt(request.getParameter("reasonCode")));
 			
 			appointmentDao.persist(a);
+			LogAction.addLog(a.getProviderNo(), LogConst.ADD, LogConst.CON_APPT, "appointment_no="+a.getId(), request.getRemoteAddr(), String.valueOf(a.getDemographicNo()));
 			rowsAffected=1;
 		    
 
@@ -261,6 +264,7 @@
 				a.setReasonCode(Integer.parseInt(request.getParameter("reasonCode")));
 				
 				appointmentDao.persist(a);
+				LogAction.addLog(a.getProviderNo(), LogConst.ADD, LogConst.CON_APPT, "appointment_no="+a.getId(), request.getRemoteAddr(), String.valueOf(a.getDemographicNo()));
 				rowsAffected=1;
 		    	
 				if (rowsAffected==1) {				
