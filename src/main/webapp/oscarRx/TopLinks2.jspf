@@ -80,7 +80,7 @@ if (rx_enhance!=null && rx_enhance.equals("true")) { %>
 	        					
 	        						
 					%>
-								<option value='<%=jsonObject.toString().replaceAll("'", "")%>' <%=pharmacyInfo.getId().equals(pi.getId()==null?"":pi.getId())?" selected='selected'":""%>><%=pharmacyInfo.getName() + " " + pharmacyInfo.getCity()%></option>
+								<option value='<%=jsonObject.toString().replaceAll("'", "")%>' <%=pharmacyInfo.getId().equals(pi==null?"":pi.getId()==null?"":pi.getId())?" selected='selected'":""%>><%=pharmacyInfo.getName() + " " + pharmacyInfo.getCity()%></option>
 					<%
 	        				}
 	       		 		}
