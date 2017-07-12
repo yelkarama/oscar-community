@@ -210,6 +210,9 @@ boolean isMulitSites = oscarProp.getBooleanProperty("multisites", "on");
         }
     </style>
     <style type="text/css" media="">
+        pre {
+            font-family: inherit;
+        }
         .titleBar {
             background-color: gray;  
             padding-top: .5em;
@@ -306,10 +309,10 @@ boolean isMulitSites = oscarProp.getBooleanProperty("multisites", "on");
 <hr>
 <table width="100%" border="0">
 	<tr>
-		<td width="50%" valign="top">Bill To<br />
+        <td width="50%" valign="top"><b>Bill To</b><br />
 		<pre><%=billTo%>
 </pre></td>
-		<td valign="top">Remit To<br />
+        <td valign="top"><b>Remit To</b><br />
 		<pre><%=remitTo%>
 </pre></td>
 	</tr>
