@@ -101,8 +101,9 @@ public class FrmONAREnhancedRecord extends FrmRecord {
 
 		int id = props.getProperty("formId")!=null ? Integer.parseInt(props.getProperty("formId")):0;
 		String section = props.getProperty("form_section");
+		boolean update = props.getProperty("update")!=null&&props.getProperty("update").trim().equals("true")?true:false;
         //insert the initial record, and grab the ID to do the inserts on the other 2 tables
-		if (id!=0 && section != null && !section.trim().isEmpty()){
+		if (id!=0 && ((section != null && !section.trim().isEmpty()) || update ) ){
 
 			updateRecord(props, "formONAREnhancedRecord", getColumnNamesToUpdate(namesA, props), id);
 			updateRecord(props, "formONAREnhancedRecordExt1", getColumnNamesToUpdate(namesB, props), id);
