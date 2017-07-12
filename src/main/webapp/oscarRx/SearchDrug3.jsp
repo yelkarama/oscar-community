@@ -2356,11 +2356,6 @@ function updateQty(element){
 
 
     function updateSaveAllDrugsPrintContinue(){
-        if (jQuery('fieldset[id^="set_"]').length == 0) {
-            alert("You must have at least 1 medication to print");
-            return false;
-        }
-        
     	if(!validateWrittenDate()) {
     		return false;
     	}
