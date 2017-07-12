@@ -99,6 +99,41 @@ public final class FrmAction extends Action {
                     if( request.getParameter(name) == null )
                         request.setAttribute(name,props.getProperty(name));
                 }
+            } else if( request.getParameter("update")!=null && request.getParameter("update").equals("true") ) {
+                boolean bMulPage = request.getParameter("c_lastVisited") != null ? true : false;
+                String name;
+
+                if (bMulPage) {
+                    String curPageNum = request.getParameter("c_lastVisited");
+                    String commonField = request.getParameter("commonField") != null ? request
+                            .getParameter("commonField") : "&'";
+                    curPageNum = curPageNum.length() > 3 ? ("" + curPageNum.charAt(0)) : curPageNum;
+                    Properties currentParam = new Properties();
+                    for (Enumeration varEnum = request.getParameterNames(); varEnum.hasMoreElements();) {
+                        name = (String) varEnum.nextElement();
+                        currentParam.setProperty(name, "");
+                    }
+                    for (Enumeration varEnum = props.propertyNames(); varEnum.hasMoreElements();) {
+                        name = (String) varEnum.nextElement();
+                        // kick off the current page elements, commonField on the current page
+                        if (name.startsWith(curPageNum + "_") || (name.startsWith(commonField) && currentParam.containsKey(name))) {
+                            props.remove(name);
+                        }
+                    }
+                    props = currentParam;
+
+                }
+                //update the current record
+                for (Enumeration varEnum = request.getParameterNames(); varEnum.hasMoreElements();) {
+                    name = (String) varEnum.nextElement();
+                    props.setProperty(name, request.getParameter(name));
+                }
+
+                props.setProperty("provider_no", (String) request.getSession().getAttribute("user"));
+                newID = rec.saveFormRecord(props);
+                String ip = request.getRemoteAddr();
+                LogAction.addLog((String) request.getSession().getAttribute("user"), LogConst.UPDATE, request
+                        .getParameter("form_class"), "" + newID, ip,request.getParameter("demographic_no"));
             }
             else {
                 boolean bMulPage = request.getParameter("c_lastVisited") != null ? true : false;

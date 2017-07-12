@@ -190,3 +190,9 @@ function checkAllDates()
 
     return b;
 }
+
+function setInput(id,type,val) {
+    jQuery("input[name='"+type+id+"']").each(function() {
+        jQuery(this).val(val);
+    });
+}

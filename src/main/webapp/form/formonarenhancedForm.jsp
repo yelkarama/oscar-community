@@ -167,6 +167,26 @@
                 document.forms[0].target = "";
                 document.forms[0].action = "/<%=project_home%>/form/formname.do" ;
             }
+
+            function bornResourcesDisplay(selected) {
+
+                var url = '';
+                if (selected.selectedIndex == 1) {
+                    url = 'http://sogc.org/wp-content/uploads/2013/01/gui261CPG1107E.pdf';
+                } else if (selected.selectedIndex == 2) {
+                    url = 'http://sogc.org/wp-content/uploads/2013/01/gui217CPG0810.pdf';
+                } else if (selected.selectedIndex == 3) {
+                    url = 'http://sogc.org/wp-content/uploads/2013/01/gui239ECPG1002.pdf';
+                }
+
+                if (url != '') {
+                    var win=window.open(url, '_blank');
+                    win.focus();
+                }
+            }
+
+
+
          <%
             if(section!=null){
                 if (section.split("-")[0].equals("AR2")){
@@ -177,6 +197,7 @@
                 }
          %>
             $(document).ready(function(){
+
                 window.moveTo(0, 0);
                 $("#formContent").load("formonarenhancedpg<%=pageNo%>.jsp?demographic_no=<%=demoNo%>&formId=<%=formId%> #<%=section.split("-")[0]%>", function(){
                     <%  if (section.contains("AR1")){
@@ -188,7 +209,12 @@
                                 $("#AR1-ILI").hide();
                             <%}
                     %>
-
+                        $("input[name='pg1_geneticD1']").bind('change',function(){
+                            $("input[name='pg1_geneticD']").val($("input[name='pg1_geneticD1']").attr('checked') + "/" + $("input[name='pg1_geneticD2']").attr('checked'));
+                        });
+                        $("input[name='pg1_geneticD2']").bind('change',function(){
+                            $("input[name='pg1_geneticD']").val($("input[name='pg1_geneticD1']").attr('checked') + "/" + $("input[name='pg1_geneticD2']").attr('checked'));
+                        });
                         $("select[name='pg1_labHIV']").val('<%= UtilMisc.htmlEscape(props.getProperty("pg1_labHIV", "")) %>');
                         $("select[name='pg1_labABO']").val('<%= UtilMisc.htmlEscape(props.getProperty("pg1_labABO", "")) %>');
                         $("select[name='pg1_labRh']").val('<%= UtilMisc.htmlEscape(props.getProperty("pg1_labRh", "")) %>');
@@ -201,6 +227,7 @@
                         $("select[name='pg1_geneticA_riskLevel']").val('<%= UtilMisc.htmlEscape(props.getProperty("pg1_geneticA_riskLevel", "")) %>');
                         $("select[name='pg1_geneticB_riskLevel']").val('<%= UtilMisc.htmlEscape(props.getProperty("pg1_geneticB_riskLevel", "")) %>');
                         $("select[name='pg1_geneticC_riskLevel']").val('<%= UtilMisc.htmlEscape(props.getProperty("pg1_geneticC_riskLevel", "")) %>');
+                        $("select[name='pg1_labCustom1Label']").val('<%= UtilMisc.htmlEscape(UtilMisc.htmlEscape(props.getProperty("pg1_labCustom1Label", ""))) %>');
                         $("select[name='pg1_labCustom3Result_riskLevel']").val('<%= UtilMisc.htmlEscape(props.getProperty("pg1_labCustom3Result_riskLevel", "")) %>');
 
                         Calendar.setup({ inputField : "pg1_labLastPapDate", ifFormat : "%Y/%m/%d", showsTime :false, button : "pg1_labLastPapDate_cal", singleClick : true, step : 1 });
@@ -243,9 +270,19 @@
                             createCalendarSetupOnLoad();
                         $("select[name='ar2_strep']").val('<%= StringEscapeUtils.escapeJavaScript(props.getProperty("ar2_strep", "")) %>');
                         $("select[name='ar2_bloodGroup']").val('<%= abo %>');
-                        $("select[name='ar2_rh']").val('<%= rh %>');
+                        $("select[name='ar2_rh']").val('<%= StringEscapeUtils.escapeJavaScript(props.getProperty("ar2_rh", "")) %>');
                         $("select[name='ar2_labCustom1Label']").val('<%= StringEscapeUtils.escapeJavaScript(props.getProperty("ar2_labCustom1Label", "")) %>');
                         $("select[name='ar2_labCustom2Label']").val('<%= StringEscapeUtils.escapeJavaScript(props.getProperty("ar2_labCustom2Label", "")) %>');
+
+                    $("input[name='ar2_lab2GTT1']").bind('keyup',function(){
+                        $("input[name='ar2_lab2GTT']").val($("input[name='ar2_lab2GTT1']").val() + "/" + $("input[name='ar2_lab2GTT2']").val() + "/" + $("input[name='ar2_lab2GTT3']").val());
+                    });
+                    $("input[name='ar2_lab2GTT2']").bind('keyup',function(){
+                        $("input[name='ar2_lab2GTT']").val($("input[name='ar2_lab2GTT1']").val() + "/" + $("input[name='ar2_lab2GTT2']").val() + "/" + $("input[name='ar2_lab2GTT3']").val());
+                    });
+                    $("input[name='ar2_lab2GTT3']").bind('keyup',function(){
+                        $("input[name='ar2_lab2GTT']").val($("input[name='ar2_lab2GTT1']").val() + "/" + $("input[name='ar2_lab2GTT2']").val() + "/" + $("input[name='ar2_lab2GTT3']").val());
+                    });
                         var gttVal = $("input[name='ar2_lab2GTT']").val();
                         if(gttVal.length > 0) {
                             var parts = gttVal.split("/");
@@ -269,23 +306,12 @@
 
                 </div>
 
-
-                <input type="hidden" name="c_lastName" style="width: 100%" size="30" maxlength="60" value="<%= UtilMisc.htmlEscape(props.getProperty("c_lastName", "")) %>" />
-                <input type="hidden" name="c_firstName" style="width: 100%" size="30" maxlength="60" value="<%= UtilMisc.htmlEscape(props.getProperty("c_firstName", "")) %>" />
-                <input type="hidden" name="pg1_dateOfBirth" style="width: 100%" size="10" maxlength="10" value="<%= UtilMisc.htmlEscape(props.getProperty("pg1_dateOfBirth", "")) %>"/>
-                <input type="hidden" name="c_hin" size="10" style="width: 100%" maxlength="20" value="<%= UtilMisc.htmlEscape(props.getProperty("c_hin", "")) %>" />
-                <input type="hidden" name="c_hinType" size="10" style="width: 100%" maxlength="20" value="<%= UtilMisc.htmlEscape(props.getProperty("c_hinType", "")) %>" />
-                <input type="hidden" name="c_postal" style="width: 100%" size="7" maxlength="7" value="<%= UtilMisc.htmlEscape(props.getProperty("c_postal", "")) %>" />
-                <input type="hidden" name="pg1_homePhone" size="15" style="width: 100%" maxlength="20" value="<%= UtilMisc.htmlEscape(props.getProperty("pg1_homePhone", "")) %>" />
-                <input type="hidden" name="pg1_workPhone" size="15" style="width: 100%" maxlength="20" value="<%= UtilMisc.htmlEscape(props.getProperty("pg1_workPhone", "")) %>" />
                 <input type="hidden" name="c_lastVisited" value=<%=props.getProperty("c_lastVisited", "pg1")%> />
                 <input type="hidden" name="formCreated" value="<%= props.getProperty("formCreated", "") %>" />
-                <input type="hidden" id="episodeId" name="episodeId" value="<%= props.getProperty("episodeId", "") %>" />
-                <input type="hidden" name="sent_to_born" value="0" />
                 <input type="hidden" name="form_link" value="<%=formLink%>" />
                 <input type="hidden" name="update" value="true"/>
-
                 <input type="hidden" name="form_class" value="<%=formClass%>" />
+                <input type="hidden" name="form_section" value="<%=section%>" />
                 <input type="hidden" name="formId" value="<%=formId%>" />
                 <input type="hidden" name="demographic_no" value="<%= props.getProperty("demographic_no", "0") %>" />
                 <input type="hidden" name="provider_no" value=<%=request.getParameter("provNo")%> />
