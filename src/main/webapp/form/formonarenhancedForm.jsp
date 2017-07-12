@@ -198,7 +198,7 @@
          %>
             $(document).ready(function(){
 
-                window.moveTo(0, 0);
+                window.moveTo(window.screen.availWidth, 0);
                 $("#formContent").load("formonarenhancedpg<%=pageNo%>.jsp?demographic_no=<%=demoNo%>&formId=<%=formId%> #<%=section.split("-")[0]%>", function(){
                     <%  if (section.contains("AR1")){
                             if(section.equalsIgnoreCase("AR1-ILI")){%>
