@@ -217,4 +217,10 @@ public class FormsDao {
 		return query.getSingleResult();
     }
 
+	@NativeSql
+	public void runNativeQueryUpdate(String sql) {
+		Query query = entityManager.createNativeQuery(sql);
+		query.executeUpdate();
+	}
+
 }

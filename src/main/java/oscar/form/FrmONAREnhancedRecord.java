@@ -31,19 +31,23 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpRequest;
+import org.oscarehr.common.dao.forms.FormsDao;
 import org.oscarehr.util.DbConnectionFilter;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 
+import org.oscarehr.util.SpringUtils;
 import oscar.OscarProperties;
 import oscar.oscarDB.DBHandler;
 import oscar.util.UtilDateUtilities;
+
+import javax.persistence.Query;
 
 public class FrmONAREnhancedRecord extends FrmRecord {
 	
@@ -94,14 +98,103 @@ public class FrmONAREnhancedRecord extends FrmRecord {
         List<String> namesA = getColumnNames("formONAREnhancedRecord");
         List<String> namesB = getColumnNames("formONAREnhancedRecordExt1");
         List<String> namesC = getColumnNames("formONAREnhancedRecordExt2");
-        
+
+		int id = props.getProperty("formId")!=null ? Integer.parseInt(props.getProperty("formId")):0;
+		String section = props.getProperty("form_section");
         //insert the initial record, and grab the ID to do the inserts on the other 2 tables
-        int id = addRecord(props, "formONAREnhancedRecord", namesA,null);
-        addRecord(props, "formONAREnhancedRecordExt1", namesB,id);
-        addRecord(props, "formONAREnhancedRecordExt2", namesC,id);
+		if (id!=0 && section != null && !section.trim().isEmpty()){
+
+			updateRecord(props, "formONAREnhancedRecord", getColumnNamesToUpdate(namesA, props), id);
+			updateRecord(props, "formONAREnhancedRecordExt1", getColumnNamesToUpdate(namesB, props), id);
+			updateRecord(props, "formONAREnhancedRecordExt2", getColumnNamesToUpdate(namesC, props), id);
+		} else {
+			id = addRecord(props, "formONAREnhancedRecord", namesA,null);
+			addRecord(props, "formONAREnhancedRecordExt1", namesB,id);
+			addRecord(props, "formONAREnhancedRecordExt2", namesC,id);
+		}
+
          
         return id;
-    }
+		}
+
+	public void updateRecord(Properties properties, String table, List<String> columns, Integer id) throws SQLException {
+		if (columns != null && !columns.isEmpty()){
+			String sql = "";
+			String demographicNo = properties.getProperty("demographic_no");
+			sql = "UPDATE  "+ table +" ar  SET  ";
+
+			for (String column : columns){
+				String columnName = column.split("\\|")[0];
+				String type = column.split("\\|")[1];
+				String value = properties.getProperty(columnName);
+
+				if(type.equals("INT") || type.equals("TINYINT")) {
+					if(value != null && value.isEmpty()) {
+						MiscUtils.getLogger().info("empty value for "+ columnName);
+					}
+					if(value == null || value.isEmpty()) {
+						value = "0";
+					}
+					else if (value.equalsIgnoreCase("on") || value.equalsIgnoreCase("checked='checked'")) {
+						value = "1";
+					}
+					sql += " ar."+columnName + " = '" + Integer.parseInt(value) +"'";
+				} else if(type.equals("DATE")) {
+
+					Date valueAsDate= null;
+
+					if (columnName.equalsIgnoreCase("formEdited")) {
+						valueAsDate = new Date();
+						sql += " ar."+columnName + " = '" + valueAsDate + "'";
+					} else {
+						if ((value == null) || (value.indexOf('/') != -1)){
+							valueAsDate = UtilDateUtilities.StringToDate(value, dateFormat);
+						}
+						else{
+							valueAsDate = UtilDateUtilities.StringToDate(value, _newDateFormat);
+						}
+
+						DateFormat df = new SimpleDateFormat(_newDateFormat);
+						if (valueAsDate!=null){
+							value = df.format(valueAsDate);
+
+							sql += " ar."+columnName + " = '" + value + "'";
+						} else {
+							sql += " ar."+columnName + " = " + valueAsDate;
+						}
+
+					}
+
+				} else if(type.equals("TIMESTAMP")) {
+					Date valueAsDate;
+					if (columnName.equalsIgnoreCase("formEdited")) {
+						valueAsDate = new Date();
+					} else {
+						valueAsDate = UtilDateUtilities.StringToDate(value, "yyyyMMddHHmmss");
+					}
+					sql += " ar."+columnName + " = " + valueAsDate ;
+				} else {
+					sql += " ar."+columnName + " = '" + value +"'";
+				}
+
+				if (!column.equals(columns.get(columns.size()-1))){
+					sql += ",";
+				}
+
+			}
+
+			if (table.equals("formONAREnhancedRecord")){
+				sql+= " WHERE ar.demographic_no = " + demographicNo + " AND ar.ID = " + id;
+			} else {
+				sql+= " WHERE ar.ID = " + id;
+			}
+
+
+			FormsDao formsDao = SpringUtils.getBean(FormsDao.class);
+			formsDao.runNativeQueryUpdate(sql);
+
+		}
+	}
 
     public Properties getPrintRecord(int demographicNo, int existingID) throws SQLException {
     	//join the 3 tables
@@ -153,6 +246,16 @@ public class FrmONAREnhancedRecord extends FrmRecord {
 		}
 		
 		return result;
+	}
+
+	private List<String> getColumnNamesToUpdate(List<String> tableColumns, Properties props) throws SQLException {
+		List<String> columns = new ArrayList<String>();
+		for (String column : tableColumns){
+			if (props.getProperty(column.split("\\|")[0])!=null){
+				columns.add(column);
+			}
+		}
+		return columns;
 	}
 	
 	int addRecord(Properties props,String table, List<String> namesA, Integer id) throws SQLException {

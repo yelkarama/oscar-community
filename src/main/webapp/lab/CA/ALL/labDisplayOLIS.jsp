@@ -14,6 +14,8 @@
 <%@ page import="oscar.OscarProperties" %>
 <%@ page import="org.oscarehr.common.dao.DemographicDao" %>
 <%@ page import="java.net.URLEncoder" %>
+<%@ page import="oscar.oscarEncounter.data.EctFormData" %>
+<%@ page import="org.oscarehr.util.LoggedInInfo" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic" %>
@@ -47,6 +49,9 @@ String reqID = reqIDL==null ? "" : reqIDL.toString();
 reqIDL = preview ? null : LabRequestReportLink.getRequestTableIdByReport("hl7TextMessage",Long.valueOf(segmentID));
 String reqTableID = reqIDL==null ? "" : reqIDL.toString();
 
+boolean obgynShortcuts = OscarProperties.getInstance().getProperty("show_obgyn_shortcuts", "false").equalsIgnoreCase("true") ? true : false;
+String formId = "0";
+
 PatientLabRoutingDao plrDao = preview ? null : (PatientLabRoutingDao) SpringUtils.getBean("patientLabRoutingDao");
 PatientLabRouting plr = preview ? null : plrDao.findDemographicByLabId(Integer.valueOf(segmentID));
 String demographicID = preview || plr==null  || plr.getDemographicNo() == null ? "" : plr.getDemographicNo().toString();
@@ -60,6 +65,16 @@ if(demographicID != null && !demographicID.equals("")){
     LogAction.addLog((String) session.getAttribute("user"), LogConst.READ, LogConst.CON_HL7_LAB, segmentID, request.getRemoteAddr(),demographicID);
 }else{
     LogAction.addLog((String) session.getAttribute("user"), LogConst.READ, LogConst.CON_HL7_LAB, segmentID, request.getRemoteAddr());
+}
+
+if (oscar.util.StringUtils.isNullOrEmpty(demographicID)){
+    obgynShortcuts = false;
+}
+if (obgynShortcuts){
+    List<EctFormData.PatientForm> formsONAREnhanced = Arrays.asList(EctFormData.getPatientFormsFromLocalAndRemote(LoggedInInfo.getLoggedInInfoFromSession(request),demographicID,"formONAREnhancedRecord",true));
+    if (formsONAREnhanced!=null && !formsONAREnhanced.isEmpty()){
+        formId = formsONAREnhanced.get(0).getFormId();
+    }
 }
 
 String billRegion=(OscarProperties.getInstance().getProperty("billregion","")).trim().toUpperCase();
@@ -263,6 +278,28 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
             windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes";
             var popup=window.open(varpage, windowname, windowprops);
         }
+        // open a new popup window
+        function popupPage(vheight,vwidth,varpage) {
+            var page = "" + varpage;
+            windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes";
+            var popup=window.open(page, "attachment", windowprops);
+            if (popup != null) {
+                if (popup.opener == null) {
+                    popup.opener = self;
+                }
+            }
+        }
+
+        function popupONAREnhanced(vheight,vwidth,varpage) {
+            var page = "" + varpage;
+            windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=no,menubars=no,toolbars=no,resizable=yes";
+            var popup=window.open(page, "attachment", windowprops);
+            if (popup != null) {
+                if (popup.opener == null) {
+                    popup.opener = self;
+                }
+            }
+        }
         function getComment() {
             var ret = true;
             var commentVal = prompt('<bean:message key="oscarMDS.segmentDisplay.msgComment"/>', '');
@@ -352,6 +389,18 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                     <span class="Field2"><i>Next Appointment: <%=AppointmentUtil.getNextAppointment(demographicID) %></i></span>
                                 </td>
                             </tr>
+                            <% if (obgynShortcuts) {%>
+                            <tr>
+                                <td>
+                                    <input type="button" value="AR1-ILI" onClick="popupONAREnhanced(290, 625, '<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&section='+this.value)" />
+                                    <input type="button" value="AR1-PGI" onClick="popupONAREnhanced(225, 590,'<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&section='+this.value)" />
+                                    <input type="button" value="AR2-US" onClick="popupONAREnhanced(395, 655, '<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&section='+this.value)" />
+                                    <input type="button" value="AR2-ALI" onClick="popupONAREnhanced(375, 430, '<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&section='+this.value)" />
+                                    <input type="button" value="AR2" onClick="popupPage(700, 1024, '<%=request.getContextPath()%>/form/formonarenhancedpg2.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&update=true')" />
+
+                                </td>
+                            </tr>
+                            <% } %>
                         </table>
                         <table width="100%" border="1" cellspacing="0" cellpadding="3" bgcolor="#9999CC" bordercolordark="#bfcbe3">
                             <%
@@ -1662,6 +1711,18 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                         </table>
                     </td>
                 </tr>
+                <% if (obgynShortcuts) {%>
+                <tr>
+                    <td>
+                        <input type="button" value="AR1-ILI" onClick="popupONAREnhanced(290, 625, '<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&section='+this.value)" />
+                        <input type="button" value="AR1-PGI" onClick="popupONAREnhanced(225, 590,'<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&section='+this.value)" />
+                        <input type="button" value="AR2-US" onClick="popupONAREnhanced(395, 655, '<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&section='+this.value)" />
+                        <input type="button" value="AR2-ALI" onClick="popupONAREnhanced(375, 430, '<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&section='+this.value)" />
+                        <input type="button" value="AR2" onClick="popupPage(700, 1024, '<%=request.getContextPath()%>/form/formonarenhancedpg2.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&update=true')" />
+
+                    </td>
+                </tr>
+                <% } %>
             </table>
 
         </form>

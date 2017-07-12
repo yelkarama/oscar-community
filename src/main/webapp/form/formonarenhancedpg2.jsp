@@ -65,6 +65,10 @@
     int demoNo = Integer.parseInt(request.getParameter("demographic_no"));
     int formId = Integer.parseInt(request.getParameter("formId"));
     int provNo = Integer.parseInt((String) session.getAttribute("user"));
+    boolean update = false;
+    if (request.getParameter("update")!=null && request.getParameter("update").trim().equals("true")){
+        update = true;
+	}
 	String appointment = "";
 	if(request.getParameter("appointmentNo")!=null){
 		appointment = request.getParameter("appointmentNo");
@@ -2067,6 +2071,7 @@ $(document).ready(function(){
 		value=<%=request.getParameter("provNo")%> />
 	<input type="hidden" name="provNo"
 		value="<%= request.getParameter("provNo") %>" />
+	<input type="hidden" name="update" value="<%=update%>" />
 	<input type="hidden" name="submit" value="exit" />
 	<%
 	String historyet = "";

@@ -393,7 +393,7 @@
                                     <input type="button" value="AR1-PGI" onClick="popupONAREnhanced(225, 590,'<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&section='+this.value)" />
                                     <input type="button" value="AR2-US" onClick="popupONAREnhanced(395, 655, '<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&section='+this.value)" />
                                     <input type="button" value="AR2-ALI" onClick="popupONAREnhanced(375, 430, '<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&section='+this.value)" />
-                                    <input type="button" value="AR2" onClick="popupPage(700, 1024, '<%=request.getContextPath()%>/form/formonarenhancedpg2.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>')" />
+                                    <input type="button" value="AR2" onClick="popupPage(700, 1024, '<%=request.getContextPath()%>/form/formonarenhancedpg2.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&update=true')" />
 
                                 </td>
                             </tr>
@@ -819,7 +819,7 @@
                                     <input type="button" value="AR1-PGI" onClick="popupONAREnhanced(225, 590,'<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&section='+this.value)" />
                                     <input type="button" value="AR2-US" onClick="popupONAREnhanced(395, 655, '<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&section='+this.value)" />
                                     <input type="button" value="AR2-ALI" onClick="popupONAREnhanced(375, 430, '<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&section='+this.value)" />
-                                    <input type="button" value="AR2" onClick="popupPage(700, 1024, '<%=request.getContextPath()%>/form/formonarenhancedpg2.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>')" />
+                                    <input type="button" value="AR2" onClick="popupPage(700, 1024, '<%=request.getContextPath()%>/form/formonarenhancedpg2.jsp?demographic_no=<%=demographicID%>&formId=<%=formId%>&update=true')" />
 
                                 </td>
                             </tr>
