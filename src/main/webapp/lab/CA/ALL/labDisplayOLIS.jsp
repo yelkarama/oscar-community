@@ -16,6 +16,7 @@
 <%@ page import="java.net.URLEncoder" %>
 <%@ page import="oscar.oscarEncounter.data.EctFormData" %>
 <%@ page import="org.oscarehr.util.LoggedInInfo" %>
+<%@ page import="oscar.OscarProperties" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic" %>
