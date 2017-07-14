@@ -113,7 +113,7 @@ clH = ["<bean:message key="caseload.msgDemographic" />", "", "<bean:message key=
 						<option value='all'><bean:message key="caseload.msgAllProviders" /></option>
 					<%} %>
 		<%
-		List<Provider> providerList = providerDao.getProviders();
+		List<Provider> providerList = providerDao.getActiveProviders();
 		for (Provider provider : providerList) {
 			if (caseloadProv.equals(provider.getProviderNo()) && !bDefaultAllProviders) {
 		%>
