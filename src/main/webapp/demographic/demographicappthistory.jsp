@@ -69,6 +69,8 @@
 <%@ page import="org.oscarehr.common.model.ProviderData"%>
 <%@ page import="org.oscarehr.common.dao.ProviderDataDao"%>
 
+<%@ page import="org.oscarehr.common.dao.LookupListItemDao" %>
+
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
@@ -90,6 +92,7 @@ LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 OscarAppointmentDao appointmentDao = (OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
 ProviderDataDao providerDao = SpringUtils.getBean(ProviderDataDao.class);
 AppointmentStatusDao appointmentStatusDao = SpringUtils.getBean(AppointmentStatusDao.class);
+LookupListItemDao lookupListItemDao = SpringUtils.getBean(LookupListItemDao.class);
 
 
 
@@ -334,6 +337,11 @@ if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) {
     if(provider != null) {
     	providerMap.put(provider.getId(),provider);
     }
+
+		String reasonDropDown = "";
+		if (appointment.getReasonCode()!=null && appointment.getReasonCode()>0){
+			reasonDropDown = lookupListItemDao.find(appointment.getReasonCode())!=null ? lookupListItemDao.find(appointment.getReasonCode()).getLabel() + " - " : "";
+		}
        
 %> 
 <tr <%=(deleted)?"style='text-decoration: line-through' ":"" %> bgcolor="<%=bodd?weakColor:"white"%>" appt_no="<%=appointment.getId().toString()%>" demographic_no="<%=demographic_no%>" provider_no="<%=provider!=null?provider.getId():""%>">	  
@@ -346,7 +354,7 @@ if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) {
 	  <% } %>
 	  </td>
       <td><%=appointment.getType() %></td>
-      <td><%=appointment.getReason()%></td>
+      <td><%=reasonDropDown%> <%=appointment.getReason()!=null?appointment.getReason():""%></td>
       <% if( provider != null ) {%>
       <td><%=(provider.getLastName() == null ? "N/A" : provider.getLastName()) + "," + (provider.getFirstName() == null ? "N/A" : provider.getFirstName())%></td>
       <%}
