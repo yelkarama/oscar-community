@@ -1955,7 +1955,7 @@ if ( Dead.equals(PatStat) ) {%>
 							</li>
 							<li>
 								<span class="label"><bean:message key="demographic.demographiceditdemographic.emailOnConsult"/>:</span>
-								<span class="info"><%=demoExt.get("includeEmailOnConsults") != null ? demoExt.get("includeEmailOnConsults") : "false"%></span>
+								<span class="info"><%=Boolean.valueOf(demoExt.get("includeEmailOnConsults")) ? "yes" : "no"%></span>
 							</li>
                                                     <li><span class="label"><bean:message
                                                             key="demographic.demographiceditdemographic.formNewsLetter" />:</span>
