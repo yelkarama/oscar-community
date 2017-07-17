@@ -89,7 +89,7 @@ public class FrmConsultantRecord extends FrmRecord {
             ProfessionalSpecialist professionalSpecialist = professionalSpecialistDao.getByReferralNo(billingreferral_no);
             if(professionalSpecialist != null) {
             	props.setProperty("t_name", "Dr. " + professionalSpecialist.getFirstName() + " " + professionalSpecialist.getLastName());
-            	props.setProperty("t_address", professionalSpecialist.getStreetAddress());
+            	props.setProperty("t_address1", professionalSpecialist.getStreetAddress());
             	props.setProperty("t_phone", professionalSpecialist.getPhoneNumber());
             	props.setProperty("t_fax", professionalSpecialist.getFaxNumber());
             }
