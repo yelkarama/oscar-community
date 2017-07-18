@@ -175,6 +175,9 @@ public class FrmONAREnhancedRecord extends FrmRecord {
 					}
 					sql += " ar."+columnName + " = " + valueAsDate ;
 				} else {
+					if (value!=null && value.contains("'")){
+						value = value.replace("'", "''");
+					}
 					sql += " ar."+columnName + " = '" + value +"'";
 				}
 

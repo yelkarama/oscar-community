@@ -185,6 +185,25 @@
                 }
             }
 
+            function getDateField(name) {
+                var temp = ""; //pg2_gest1 - pg2_date1
+                var n1 = name.substring(eval(name.indexOf("t")+1));
+
+                if(name.indexOf("ar2_")>=0) {
+                    n1 = name.substring(eval(name.indexOf("A")+1));
+                    name = "ar2_uDate" + n1;
+                } else {
+                    name = "pg2_date" + n1;
+                }
+
+                for (var i =0; i <document.forms[0].elements.length; i++) {
+                    if (document.forms[0].elements[i].name == name) {
+                        return document.forms[0].elements[i].value;
+                    }
+                }
+                return temp;
+            }
+
 
 
          <%
