@@ -494,6 +494,9 @@ public class DefaultNoteService implements NoteService {
 				filteredNotes.add(note);
 				continue;
 			}
+			if ("-1".equals(note.getProviderNo())) {
+                continue;
+            }
 			if (skipFilter) {
 				filteredNotes.add(note);
 			} else {
