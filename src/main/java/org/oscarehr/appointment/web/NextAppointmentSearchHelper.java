@@ -251,22 +251,8 @@ public class NextAppointmentSearchHelper {
 					cal2.set(Calendar.MINUTE, min);
 					cal2.set(Calendar.SECOND,0);
 					cal2.set(Calendar.MILLISECOND, 0);
-					
-					if (slot == '_')
-					{
-						if(checkAvailability(cal2.getTime(), duration, providerNo)) {
-							//logger.info("spot available at " + cal2.getTime() + " for " + duration + " mins with provider " + providerNo);
-							NextAppointmentSearchResult result = new NextAppointmentSearchResult();
-							result.setProviderNo(providerNo);
-							result.setProvider(providerDao.getProvider(providerNo));
-							result.setDate(cal2.getTime());
-							result.setDuration(duration);
-							results.add(result);
-						}
-					}
-					else 
-					{
-						if (tempCode != null && tempCode.getAvailable()) 
+
+						if (tempCode != null && tempCode.getAvailable())
 						{
 							if(checkAvailability(cal2.getTime(), duration, providerNo)) {
 								//logger.info("spot available at " + cal2.getTime() + " for " + duration + " mins with provider " + providerNo);
@@ -278,8 +264,7 @@ public class NextAppointmentSearchHelper {
 								results.add(result);
 							}
 						}
-					}
-			}						
+			}
 		}
 		return results;
 	}
