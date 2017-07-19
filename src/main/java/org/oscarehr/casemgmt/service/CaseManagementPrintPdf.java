@@ -514,8 +514,6 @@ public class CaseManagementPrintPdf {
                 p = new Paragraph();
                 //p.setSpacingBefore(font.leading(LINESPACING)*2f);
                 phrase = new Phrase(LEADING, "", font);
-                chunk = new Chunk("Entry Date: " + formatter.format(allergy.getEntryDate()) + "\n", obsfont);
-                phrase.add(chunk);
                 phrase.add(allergy.getDescription() + ", (" + allergy.getSeverityOfReaction() +")\n\n");
                 p.add(phrase);
                 document.add(p);
