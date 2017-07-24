@@ -309,7 +309,10 @@ if(!authed) {
 
 %>
 
-<%@page import="org.apache.commons.lang.StringUtils"%><html:html locale="true">
+<%@page import="org.apache.commons.lang.StringUtils"%>
+<%@ page import="org.oscarehr.util.AgeCalculator" %>
+<%@ page import="org.oscarehr.util.Age" %>
+<html:html locale="true">
 
 <head>
 <title><bean:message
@@ -963,7 +966,8 @@ jQuery(document).ready(function() {
                                 // Demographic demographic=demographicDao.getDemographic(demographic_no);
 
                                 String dateString = curYear+"-"+curMonth+"-"+curDay;
-                                int age=0, dob_year=0, dob_month=0, dob_date=0;
+                                String age="0";
+								int dob_year=0, dob_month=0, dob_date=0;
                                 String birthYear="0000", birthMonth="00", birthDate="00";
 
                                 
@@ -1003,7 +1007,17 @@ jQuery(document).ready(function() {
                                                	dob_year = Integer.parseInt(birthYear);
                                                	dob_month = Integer.parseInt(birthMonth);
                                                	dob_date = Integer.parseInt(birthDate);
-                                                if(dob_year!=0) age=MyDateFormat.getAge(dob_year,dob_month,dob_date);
+
+											    Age demographicAge = AgeCalculator.calculateAge(demographic.getBirthDay());
+												if(demographicAge!=null){
+												    age = String.valueOf(demographicAge.getYears());
+													if ("0".equals(age) && demographicAge!=null){
+														if (demographicAge.getMonths() > 0){
+															age = demographicAge.getMonths() + " months";
+														}
+													}
+												}
+
                         %> <%=demographic.getLastName()%>,
 				<%=demographic.getFirstName()%> <%=demographic.getSex()%>
 				<%=age%> years &nbsp;
