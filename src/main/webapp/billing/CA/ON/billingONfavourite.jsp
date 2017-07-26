@@ -451,7 +451,7 @@
 				<option value="05| Home Visit" <%=visitType.startsWith("05")?"selected":""%>>05 | Home Visit</option>
 				<% } %>
 			</select>
-				<label>Vist Location:</label><select name="location">
+				<label>Site Number:</label><select name="location">
 				<%
 					//
 					String billLocationNo="", billLocation="";
@@ -463,7 +463,7 @@
 						location = !location.equals("") ? location.split("\\|")[0]: strLocation;
 				%>
 				<option value="<%=billLocationNo + "|" + billLocation%>" <%=billLocationNo.equals(location) ? "selected" : ""%>>
-					<%=billLocation%>
+					<%=billLocationNo + " | " + billLocation%>
 				</option>
 				<%
 					}

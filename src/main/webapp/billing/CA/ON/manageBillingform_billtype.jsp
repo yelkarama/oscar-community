@@ -131,7 +131,7 @@ JdbcBillingPageUtil tdbObj = new JdbcBillingPageUtil();
 					location = !location.equals("") ? location.split("\\|")[0] : strLocation;
 			%>
 			<option value="<%=billLocationNo + "|" + billLocation%>" <%=billLocationNo.equals(location) ? "selected" : ""%>>
-				<%=billLocation%>
+				<%=billLocationNo + " | " + billLocation%>
 			</option>
 			<%
 				}
