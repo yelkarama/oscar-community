@@ -66,7 +66,7 @@ public class ProfessionalSpecialistDao extends AbstractDao<ProfessionalSpecialis
 	}
 
 	public List<ProfessionalSpecialist> findByFullName(String lastName, String firstName) {
-		Query query = entityManager.createQuery("select x from " + modelClass.getName() + " x WHERE x.lastName like ? and x.firstName like ? order by x.lastName");
+		Query query = entityManager.createQuery("select x from " + modelClass.getName() + " x WHERE x.lastName like ? and x.firstName like ? and x.deleted=0 order by x.lastName");
 		query.setParameter(1, "%"+lastName+"%");
 		query.setParameter(2, "%"+firstName+"%");
 
@@ -86,7 +86,7 @@ public class ProfessionalSpecialistDao extends AbstractDao<ProfessionalSpecialis
 
 
 	public List<ProfessionalSpecialist> findBySpecialty(String specialty) {
-		Query query = entityManager.createQuery("select x from " + modelClass.getName() + " x WHERE x.specialtyType like ? order by x.lastName");
+		Query query = entityManager.createQuery("select x from " + modelClass.getName() + " x WHERE x.specialtyType like ? and x.deleted=0 order by x.lastName");
 		query.setParameter(1, "%"+specialty+"%");
 
 		@SuppressWarnings("unchecked")
@@ -104,7 +104,7 @@ public class ProfessionalSpecialistDao extends AbstractDao<ProfessionalSpecialis
 		if (StringUtils.isBlank(referralNo)) {
 			return null;
 		}
-		Query query = entityManager.createQuery("select x from " + modelClass.getName() + " x WHERE x.referralNo LIKE ? order by x.lastName");
+		Query query = entityManager.createQuery("select x from " + modelClass.getName() + " x WHERE x.referralNo LIKE ? and x.deleted=0 order by x.lastName");
 		query.setParameter(1, "%" + referralNo + "%");
 
 		@SuppressWarnings("unchecked")
