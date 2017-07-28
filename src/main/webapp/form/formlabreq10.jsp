@@ -363,6 +363,7 @@ var maxYear=3100;
         oscar.oscarRx.data.RxProviderData.Provider rxp = rxProviderData.getProvider(p.getProviderNo());
     		%>
     providerData['<%=prov_no%>'] = new Object(); //{};
+	providerData['<%=prov_no%>'].providerNo = "<%=p.getProviderNo()%>";
     providerData['<%=prov_no%>'].clinic_name = "<%=clinicName %>";
     providerData['<%=prov_no%>'].address = "<%=rxp.getClinicAddress() %>";
     providerData['<%=prov_no%>'].city = "<%=rxp.getClinicCity() %>";
@@ -376,7 +377,7 @@ var maxYear=3100;
 	providerData['<%=prov_no%>'].ohip_no = "<%=num%>";
 	providerData['<%=prov_no%>'].specialty = "<%=p.getSpecialty()%>";
     <%	}
-    }
+	}
 
 
 if (OscarProperties.getInstance().getBooleanProperty("consultation_program_letterhead_enabled", "true")) {
@@ -445,7 +446,69 @@ if (OscarProperties.getInstance().getBooleanProperty("consultation_program_lette
             $("#clinicPC").html(providerData[value]['postal']);
             $("#reqProvName").html(providerData[value]['formatted_name']);
         }
+        
+
+    	<% if (oscarProps.isPropertyActive("queens_labreq10_settings")) { %>
+			var mrpProviderData = providerData['prov_<%=props.getProperty("mrp", "")%>'];
+			var rules = getQueensSpecialtyRules(providerData[value], mrpProviderData);
+			if (rules != null) {
+				//billing number
+				$("#pracNo").html(rules.billingNo);
+				$("input[name='practitionerNo']").val(rules.billingNo);
+
+				if (rules.copyToMrp) {
+					$("#copy2clinician").prop('checked', true);
+					$("#copyLname").val(mrpProviderData.last_name);
+					$("#copyFname").val(mrpProviderData.first_name);
+					$("#copyAddress").val(mrpProviderData.address);
+				} else {
+					$("#copy2clinician").prop('checked', false);
+					$("#copyLname").val("");
+					$("#copyFname").val("");
+					$("#copyAddress").val("");
+				}
+			}
+        <% } %>
     }
+
+	/** returns object with rules defined by queens for how MRP is diplayed,
+	 * what the lab req billing number should be, whether to copy to clinition
+	 * should be checked, and the address to copy to
+	 * @param providerData
+	 * @param mrpProviderData
+	 */
+	function getQueensSpecialtyRules(providerData, mrpProviderData) {
+		if (providerData == undefined) return null;
+		if (mrpProviderData == undefined) return null;
+		var specialty = (providerData['specialty'] != '' ? providerData['specialty'] : "MRP").toUpperCase();
+		var provNo = providerData['providerNo'];
+		var mrpProvNo = mrpProviderData['providerNo'];
+		
+		var rules = new Object();
+		rules.displayMrp = (mrpProvNo != provNo); // By defualt displayMrp is true if the mrp is not the requesting provider
+		rules.billingNo = providerData['prac_no'];
+		rules.copyToMrp = (mrpProvNo != provNo);
+		
+		if (specialty.startsWith('MRP')) {
+			rules.displayMrp = (mrpProvNo != provNo);
+			rules.billingNo = providerData['prac_no'];
+			rules.copyToMrp = (mrpProvNo != provNo);
+		} else if (specialty.startsWith('LOCUM') || specialty.startsWith('NP')) {
+			rules.displayMrp = true;
+			rules.billingNo = providerData['prac_no'];
+			rules.copyToMrp = true;
+		} else if (specialty.startsWith('NORTH KINGSTON')) {
+			rules.displayMrp = (mrpProvNo != provNo);
+			rules.billingNo = mrpProviderData['prac_no'];
+			rules.copyToMrp = false;
+		} else if (specialty.startsWith('RESIDENT') || specialty.startsWith('PHARMACIST') 
+				|| specialty.startsWith('RN') || specialty.startsWith('RPN')) {
+			rules.displayMrp = true;
+			rules.billingNo = mrpProviderData['prac_no'];
+			rules.copyToMrp = false;
+		}
+    	return rules;
+	}
     
     $(document).ready(function(){
     	switchProvider($("select[name='letterhead']").val());
@@ -511,7 +574,7 @@ if (OscarProperties.getInstance().getBooleanProperty("consultation_program_lette
 				%>
 				<option value="<%=p.getProviderNo() %>" <%= p.getProviderNo().equals(providerNumber) ? "selected=\"selected\"" : "" %>>
 		
-					<%=p.getLastName() %>, <%=p.getFirstName() %> 
+					<%=p.getLastName() %>, <%=p.getFirstName()%> <%=((oscarProps.isPropertyActive("queens_labreq10_settings") && !p.getSpecialty().isEmpty()) ? "(" + p.getSpecialty() + ")" : "")%>
 				</option>
 				<% }} %>
 				<option value="-1"><%=clinic.getClinicName() %></option>
@@ -600,24 +663,26 @@ if (OscarProperties.getInstance().getBooleanProperty("consultation_program_lette
 					</textarea></td>
 				</tr>
 				<tr>
-					<td style="height: 15px; vertical-align: top;"><font
-						class="subHeading"><input type="checkbox"
-						name="copy2clinician" <%=props.getProperty("copy2clinician", "")%> />Copy to: Clinician/Practitioner</font><br />
+					<td style="height: 15px; vertical-align: top;">
+						<font class="subHeading">
+							<input type="checkbox" id="copy2clinician" name="copy2clinician" <%=props.getProperty("copy2clinician", "")%> />
+							Copy to: Clinician/Practitioner
+						</font><br />
                                                 <table width="100%">
                                                     <tr>
                                                         <td style="color:grey;">Last Name</td>
                                                         <td style="color:grey;">First Name</td>
                                                     </tr>
                                                     <tr>
-                                                        <td><input type="text" name="copyLname" value="<%=props.getProperty("copyLname", "")%>"></td>
-                                                        <td><input type="text" name="copyFname" value="<%=props.getProperty("copyFname", "")%>"></td>
+                                                        <td><input type="text" id="copyLname" name="copyLname" value="<%=props.getProperty("copyLname", "")%>"></td>
+                                                        <td><input type="text" id="copyFname" name="copyFname" value="<%=props.getProperty("copyFname", "")%>"></td>
                                                     </tr>
                                                     <tr>
                                                         <td style="color:grey;">Address</td>
                                                         <td style="color:grey;">&nbsp;</td>
                                                     </tr>
                                                     <tr>
-                                                        <td colspan="2"><textarea name="copyAddress" style="width:100%;"><%=props.getProperty("copyAddress", "")%></textarea></td>
+                                                        <td colspan="2"><textarea id="copyAddress" name="copyAddress" style="width:100%;"><%=props.getProperty("copyAddress", "")%></textarea></td>
                                                     </tr>
                                                 </table>
 					</td>
