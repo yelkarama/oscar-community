@@ -33,8 +33,8 @@
 <%@ page import="org.oscarehr.common.model.DemographicContact" %>
 <%@ page import="org.oscarehr.common.model.Demographic" %>
 <%@ page import="org.oscarehr.common.dao.DemographicDao" %>
-<%@ page import="org.oscarehr.common.dao.ContactSpecialtyDao" %>
-<%@ page import="org.oscarehr.common.model.ContactSpecialty" %>
+<%@ page import="org.oscarehr.common.dao.ConsultationServiceDao" %>
+<%@ page import="org.oscarehr.common.model.ConsultationServices" %>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 
 <security:oscarSec roleName="${ sessionScope.userrole }" objectName="_demographic" rights="r" reverse="${ false }">
@@ -45,8 +45,8 @@
 	ProviderDao providerDao = null;
 	DemographicDao demographicDao = null;
 	Demographic demographic = null;
-	ContactSpecialtyDao contactSpecialtyDao = null;
-	List<ContactSpecialty> specialty = null;
+	ConsultationServiceDao consultationServiceDao = null;
+	List<ConsultationServices> specialty = null;
 	String demographicNoString = request.getParameter("demographicNo");
 	
 	if ( ! StringUtils.isBlank( demographicNoString ) ) {		
@@ -55,8 +55,8 @@
 		demographicDao = SpringUtils.getBean(DemographicDao.class);
 		demographic = demographicDao.getClientByDemographicNo( Integer.parseInt(demographicNoString) );
 		demographicContacts = ContactAction.getDemographicContacts(demographic);
-		contactSpecialtyDao = SpringUtils.getBean(ContactSpecialtyDao.class);
-		specialty = contactSpecialtyDao.findAll();
+		consultationServiceDao = SpringUtils.getBean(ConsultationServiceDao.class);
+		specialty = consultationServiceDao.findActive();
 	}	
 	
 	pageContext.setAttribute("professionalSpecialistType", DemographicContact.TYPE_PROFESSIONALSPECIALIST);
@@ -201,7 +201,6 @@ function renderResponse(html, id) {
 	
 	try{
 		jQuery("input:submit").eq(1).focus();
-		jQuery().resetFields();
 	} catch(error) {
 		// do nothing
 	}
@@ -214,11 +213,6 @@ function renderResponse(html, id) {
     },3000); */
 }
 
-//--> reset all list input fields
-jQuery.fn.resetFields = function() {
-	// clean search fields and re-focus
-	jQuery('#searchHealthCareTeamInput').val("Last Name, First Name").css('color', 'grey');
-}
 
 //--> Remove/Edit contact action. Wrapped in a function to re-bind after postback
 jQuery.fn.bindFunctions = function() {
@@ -297,19 +291,6 @@ jQuery(document).ready( function($) {
 	    	searchExternalProviders("Search");
 	    }     
 	});
-	
-	jQuery('#searchHealthCareTeamInput').val("Last Name, First Name").css('color','grey')
-	.focus(function(){
-	    if(this.value == "Last Name, First Name"){
-	         this.value = "";
-	         jQuery('#searchHealthCareTeamInput').css('color','black')
-	    }		
-	}).blur(function(){
-	    if(this.value==""){
-	         this.value = "Last Name, First Name";
-	         jQuery('#searchHealthCareTeamInput').css('color','grey')
-	    }
-	});
 			
 	jQuery('#searchHealthCareTeamButton').bind("click", function(){
 		searchExternalProviders(this.value);
@@ -331,7 +312,6 @@ jQuery(document).ready( function($) {
 	
 	
 	//--> do on page ready
-	jQuery().resetFields();	
 	jQuery().bindFunctions();
 	
 })
@@ -458,8 +438,8 @@ jQuery(document).ready( function($) {
 			<td class="external" >
 				<select id="selectHealthCareTeamRoleType" name="selectHealthCareTeamRoleType" >					
 					<c:forEach items="${ specialty }" var="specialtyType">						
-						<option value="${ specialtyType.id }" ${ specialtyType.specialty eq 'UNKNOWN' ? 'selected' : '' } > 						 
-							<c:out value="${ specialtyType.specialty }" />			
+						<option value="${ specialtyType.serviceId }" ${ specialtyType.serviceDesc eq 'UNKNOWN' ? 'selected' : '' } >
+							<c:out value="${ specialtyType.serviceDesc }" />
 						</option>
 					</c:forEach>
 				</select>
@@ -467,7 +447,7 @@ jQuery(document).ready( function($) {
 			
 			<td class="external" >
 				<input type="text" id="searchHealthCareTeamInput" 
-					name="searchHealthCareTeamInput" 
+					name="searchHealthCareTeamInput" placeholder="Last Name, First Name"
 					value="" />
 			</td>
 			
