@@ -158,5 +158,62 @@ public class BillingONEAReportDao extends AbstractDao<BillingONEAReport> {
 		return query.getResultList();
 
     }
+
+    public List<BillingONEAReport> findByParametersAndGroup(String ohipNo, String billingGroupNo, String specialtyCode, Date fromDate, Date toDate, String reportName) {
+        ParamAppender appender = getAppender("b");
+        appender.and("b.providerOHIPNo = :ohipNo", "ohipNo", ohipNo);
+        appender.and("b.groupNo = :billingGroupNo", "billingGroupNo", billingGroupNo);
+        appender.and("b.specialty = :specialtyCode", "specialtyCode", specialtyCode);
+        appender.and("b.codeDate >= :fromDate", "fromDate", fromDate);
+        appender.and("b.codeDate <= :toDate", "toDate", toDate);
+
+        if( reportName != null && !"".equals(reportName)) {
+            appender.and("b.reportName = :reportName", "reportName", reportName);
+        }
+        appender.addGroup("b.billingNo");
+        appender.addGroup("b.code");
+        appender.addGroup("b.claimError");
+        appender.addOrder("b.codeDate");
+
+        Query query = entityManager.createQuery(appender.toString());
+        appender.setParams(query);
+        return query.getResultList();
+    }
+
+    public List<BillingONEAReport> findByParametersAndGroup(List<BillingProviderData> list, Date fromDate, Date toDate, String reportName) {
+        ParamAppender appender = getAppender("b");
+
+        boolean hasProviderData = !list.isEmpty();
+        if (hasProviderData) {
+            ParamAppender providerSubclauseAppender = new ParamAppender();
+            for (int i = 0; i < list.size(); i++) {
+                ParamAppender providerAppender = new ParamAppender();
+
+                BillingProviderData d  = list.get(i);
+                ParamAppender pa = new ParamAppender();
+                pa.and("b.providerOHIPNo = :ohipNo" + i, "ohipNo" + i, d.getOhipNo());
+                pa.and("b.groupNo = :billingGroupNo" + i, "billingGroupNo" + i, d.getBillingGroupNo());
+                pa.and("b.specialty = :specialtyCode" + i, "specialtyCode" + i, d.getSpecialtyCode());
+
+                providerSubclauseAppender.or(providerAppender);
+            }
+            appender.and(providerSubclauseAppender);
+        }
+
+        appender.and("b.codeDate >= :fromDate", "fromDate", fromDate);
+        appender.and("b.codeDate <= :toDate", "toDate", toDate);
+        if( !"".equals(reportName) ) {
+            appender.and("b.reportName = :reportName", "reportName", reportName);
+        }
+        appender.addGroup("b.billingNo");
+        appender.addGroup("b.code");
+        appender.addGroup("b.claimError");
+        appender.addOrder("b.codeDate");
+
+        Query query = entityManager.createQuery(appender.toString());
+        appender.setParams(query);
+        return query.getResultList();
+
+    }
     
 }
