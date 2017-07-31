@@ -46,13 +46,16 @@ import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.rs.security.oauth.data.OAuthContext;
 import org.apache.cxf.security.SecurityContext;
 import org.oscarehr.PMmodule.dao.ProviderDao;
+import org.oscarehr.common.dao.SecObjPrivilegeDao;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.Provider;
+import org.oscarehr.common.model.SecObjPrivilege;
 import org.oscarehr.managers.DemographicManager;
 import org.oscarehr.managers.OscarLogManager;
 import org.oscarehr.managers.ProviderManager2;
 import org.oscarehr.managers.model.ProviderSettings;
 import org.oscarehr.util.MiscUtils;
+import org.oscarehr.util.SpringUtils;
 import org.oscarehr.web.PatientListApptBean;
 import org.oscarehr.web.PatientListApptItemBean;
 import org.oscarehr.ws.rest.conversion.ProviderConverter;
@@ -249,4 +252,19 @@ public class ProviderService extends AbstractServiceImpl {
 		providerManager.updateProviderSettings(getLoggedInInfo(),providerNo,json);
 		return response;
 	}
+
+    @GET
+    @Path("/provider/hasPrivilege/{objectName}")
+    @Produces("application/json")
+    public Boolean getMyRolesByName(@PathParam("objectName")String  objectName) {
+        Provider provider = getLoggedInInfo().getLoggedInProvider();
+        SecObjPrivilegeDao secObjPrivilegeDao = SpringUtils.getBean(SecObjPrivilegeDao.class);
+        if(provider != null && objectName != null && !"".equals(objectName)) {
+            List<SecObjPrivilege> privileges = secObjPrivilegeDao.findByRoleUserGroupAndObjectName(provider.getProviderNo(), objectName);
+            if (!privileges.isEmpty() && privileges.get(0).getPrivilege().equalsIgnoreCase("x")) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
