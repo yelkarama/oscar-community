@@ -272,7 +272,7 @@ public class EpsilonHandler  extends CMLHandler implements MessageHandler {
 	            Type[] previousObx = j>0?msg.getRESPONSE().getORDER_OBSERVATION(i).getOBSERVATION(j-1).getOBX().getObservationIdentifier().getComponents():null;
 	            boolean sameAsBefore = ((currentObx!=null && previousObx!=null) && currentObx[0].toString().equals(previousObx[0].toString()) && currentObx[1].toString().equals(previousObx[1].toString()) && currentObx[2].toString().equals(previousObx[2].toString()));
 	            if ((obxSeg.getValueType().getValue()!=null) && ((!obxSeg.getValueType().getValue().equals("FT") || !sameAsBefore) ))
-	                ret = getString(obxSeg.getObservationIdentifier().getText().getValue());
+	                ret = getString(obxSeg.getObservationIdentifier().getComponent(2).toString());
 	            	if((ret !=null &&ret.length()>=3) && ret.substring(0,3).contains("FOB") && obxSeg.getValueType().getValue().equals("FT")) {
 						ret = Terser.get(msg.getRESPONSE().getORDER_OBSERVATION(i).getOBSERVATION(j).getOBX(), 3, 0, 3, 1);
 					}
