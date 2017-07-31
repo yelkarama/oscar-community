@@ -1047,7 +1047,10 @@ for (ClinicNbr clinic : nbrs) {
 <%String clinicNo = OscarProperties.getInstance().getProperty("clinic_no", "").trim();%>
 <bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode"/>: <br>
 	<select name="xml_slicode">
-		<option value="<%=clinicNo%>" ><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.NA" /></option>
+		<option value="0000" ><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.NA" /></option>
+        <% if (!"0000".equals(clinicNo)){ %>
+        <option value="<%=clinicNo%>"><%=clinicNo + " | "%><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.Clinic" /></option>
+        <% } %>
 		<option value="HDS " <%=sliCode.startsWith("HDS")?"selected":""%>><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.HDS" /></option>
 		<option value="HED " <%=sliCode.startsWith("HED")?"selected":""%>><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.HED" /></option>
 		<option value="HIP " <%=sliCode.startsWith("HIP")?"selected":""%>><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.HIP" /></option>

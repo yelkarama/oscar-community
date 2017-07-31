@@ -934,7 +934,14 @@ ctlCount = 0;
 				   	 	<td colspan="3">
 						<select name="xml_slicode">
 
-							<option value="<%=clinicNo%>"><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.NA" /></option>
+							<option value="0000"><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.NA" /></option>
+
+							<% if (!"0000".equals(clinicNo)){ %>
+							<option <%=SxmlMisc.getXmlContent(prComments,"xml_p_sli").trim().equals(clinicNo)?"selected":""%> value="<%=clinicNo%>">
+								<%=clinicNo + " | "%><bean:message
+									key="oscar.billing.CA.ON.billingON.OB.SLIcode.Clinic" />
+							</option>
+							<% } %>
 
 							<%if (SxmlMisc.getXmlContent(prComments,"xml_p_sli").trim().equals("HDS")) {%>
 								<option selected value="HDS "><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.HDS" /></option>
@@ -1003,7 +1010,10 @@ ctlCount = 0;
 				    <td><b><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode"/></b></td>
 				    <td colspan="3">
 					<select name="xml_slicode">
-						<option value="<%=clinicNo%>"><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.NA" /></option>
+						<option value="0000"><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.NA" /></option>
+						<% if (!"0000".equals(clinicNo)){ %>
+						<option value="<%=clinicNo%>"><%=clinicNo + " | "%><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.Clinic" /></option>
+						<% } %>
 						<option value="HDS "><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.HDS" /></option>
 						<option value="HED "><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.HED" /></option>
 						<option value="HIP "><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.HIP" /></option>
