@@ -135,7 +135,7 @@
                                 <TD align="left">Address:</TD>
                                 <TD align="left">
 
-                                    <textarea id="t_address1" name = "t_address1" style="font-size: 13px; text-decoration: underline; width: 90%;"><%=props.getProperty("t_address", "")%></textarea>
+                                    <textarea id="t_address1" name = "t_address1" style="font-size: 13px; text-decoration: underline; width: 90%;"><%=props.getProperty("t_address1", "")%></textarea>
 
                                 </TD>
                             </TR>
@@ -217,7 +217,7 @@
                 </div>
                 <script type="text/javascript">
                 document.forms[0].t_name.value = "<%=props.getProperty("t_name","")%>";
-                document.forms[0].t_address1.value = "<%=props.getProperty("t_address","")%>";
+                document.forms[0].t_address1.value = "<%=props.getProperty("t_address1","")%>";
                 document.forms[0].t_phone.value = "<%=props.getProperty("t_phone","")%>";
                 document.forms[0].t_fax.value = "<%=props.getProperty("t_fax","")%>";
                 </script>
