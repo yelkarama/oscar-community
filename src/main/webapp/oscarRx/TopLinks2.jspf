@@ -53,7 +53,7 @@ function newWindow(url) {
 	PharmacyInfoDao pid = SpringUtils.getBean(PharmacyInfoDao.class);
 	PharmacyInfo pi = null;
 	
-	if(defaultPharmacy != null)
+	if(defaultPharmacy != null && !defaultPharmacy.equals(""))
 	{
 		pi = pid.getPharmacy(Integer.parseInt(defaultPharmacy));
 		if (pharmacyList==null) {pharmacyList = new ArrayList<PharmacyInfo>();}
