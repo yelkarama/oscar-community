@@ -421,8 +421,9 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
         }
         function labgo1(s) {
         	var t = document.getElementsByName("apptDate1")[0].value;
+        	var excludeCanceled = document.getElementsByName("excludeCanceled")[0].checked;
         	var p = document.getElementsByName("provider_no")[0].value;
-                var u = 'printLabDaySheetAction.do?xmlStyle=billDaySheet.xml&input_date=' + t + '&provider_no=' + p;
+                var u = 'printLabDaySheetAction.do?xmlStyle=billDaySheet.xml&input_date=' + t + '&excludeCanceled=' + excludeCanceled + '&provider_no=' + p;
                 popupPage(600,1000,u);
         }
         </script>
@@ -468,8 +469,7 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
             %>
             </select>
         </td>
-        <td></td>
-        <td></td>
+        <td colspan="2"><input type="checkbox" name="excludeCanceled">Exclude Canceled and No Show Appointments</td>
         <td></td>
     </tr>
 
