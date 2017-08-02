@@ -33,6 +33,7 @@ import org.apache.tika.io.IOUtils;
 import org.oscarehr.common.dao.ConsultationRequestDao;
 import org.oscarehr.common.dao.FaxConfigDao;
 import org.oscarehr.common.dao.FaxJobDao;
+import org.oscarehr.common.model.EFormData;
 import org.oscarehr.common.model.FaxConfig;
 import org.oscarehr.common.model.FaxJob;
 import org.oscarehr.common.model.ProfessionalSpecialist;
@@ -49,10 +50,13 @@ import com.lowagie.text.DocumentException;
 import com.sun.xml.messaging.saaj.util.ByteInputStream;
 import com.sun.xml.messaging.saaj.util.ByteOutputStream;
 
+import org.oscarehr.util.WKHtmlToPdfUtils;
 import oscar.OscarProperties;
 import oscar.dms.EDoc;
 import oscar.dms.EDocUtil;
+import oscar.eform.EFormUtil;
 import oscar.eform.actions.FaxAction;
+import oscar.eform.actions.PrintAction;
 import oscar.log.LogAction;
 import oscar.log.LogConst;
 import oscar.oscarLab.ca.all.pageUtil.LabPDFCreator;
@@ -211,6 +215,17 @@ public class EctConsultationFormFaxAction extends Action {
 				streams.add(bis);
 				alist.add(bis);
 			}
+
+            //Get attached eForms
+            List<EFormData> eForms = EFormUtil.listPatientEformsCurrentAttachedToConsult(reqId);
+            for (EFormData eForm : eForms) {
+                String localUri = PrintAction.getEformRequestUrl(request);
+                buffer = WKHtmlToPdfUtils.convertToPdf(localUri + eForm.getId());
+                bis = new ByteInputStream(buffer, buffer.length);
+                streams.add(bis);
+                alist.add(bis);
+            }
+
 
 			if(reqId!=null && !reqId.trim().equals("") && consultationRequestDao.getConsultation(Integer.parseInt(reqId))!=null){
 				ProfessionalSpecialist professionalSpecialist = consultationRequestDao.getConsultation(Integer.parseInt(reqId)).getProfessionalSpecialist();
