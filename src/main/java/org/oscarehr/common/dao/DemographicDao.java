@@ -150,7 +150,7 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 		// To be part of a family, the demographics must have a matching street address and other address field
 		// excluding province in the slim chance there are demographics of more than one family that live at an
 		// address that are located in different cities of the same province.
-		if(demographic.getAddress() !=null){
+		if(demographic.getAddress() !=null && !demographic.getAddress().trim().equals("")){
 			sql += " AND d.Address = '" + demographic.getAddress().trim() + "' ";
 
 			if(demographic.getCity() !=null){
