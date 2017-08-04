@@ -59,7 +59,8 @@ if (selfSubmit) {
 	
 	List<Map<String, Object>> measurementSetResult;
 	boolean pasteToNoteEnabled = OscarProperties.getInstance().isPropertyActive("intake_paste_to_note");
-	String note = "";
+	String note = "\n******Intake Form Update******";
+	String comments = "";
 	SimpleDateFormat df = new SimpleDateFormat("yyyy-M-dd");  
 
 	if (request.getParameter("ht_value")!=null && isNumeric(request.getParameter("ht_value"))) {
@@ -73,7 +74,8 @@ if (selfSubmit) {
 		m.setDateObserved(new java.util.Date());
 		m.setType("HT");
 		dao.persist(m);
-		note = note + " \nHeight: " + m.getDataField() + " " + m.getMeasuringInstruction() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
+		note = note + " \nHeight: " + m.getDataField() + " " + m.getMeasuringInstruction();
+		comments += (m.getComments().equals("") ? "" : m.getComments() + "\n");
 	}
 	
 	if (request.getParameter("wt_value")!=null && isNumeric(request.getParameter("wt_value"))) {
@@ -87,7 +89,8 @@ if (selfSubmit) {
 		m.setDateObserved(new java.util.Date());
 		m.setType("WT");
 		dao.persist(m);
-		note = note + " \nWeight: " + m.getDataField() + " " + m.getMeasuringInstruction() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
+		note = note + " \nWeight: " + m.getDataField() + " " + m.getMeasuringInstruction();
+		comments += (m.getComments().equals("") ? "" : m.getComments() + "\n");
 	}
 
 	if (request.getParameter("bmi_value")!=null && isNumeric(request.getParameter("bmi_value"))) {
@@ -101,7 +104,8 @@ if (selfSubmit) {
 		m.setDateObserved(new java.util.Date());
 		m.setType("BMI");
 		dao.persist(m);
-		note = note + " \nBMI: " + m.getDataField() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
+		note = note + " \nBMI: " + m.getDataField();
+		comments += (m.getComments().equals("") ? "" : m.getComments() + "\n");
 	}
 
 	if (request.getParameter("head_value")!=null && isNumeric(request.getParameter("head_value"))) {
@@ -115,7 +119,8 @@ if (selfSubmit) {
 		m.setDateObserved(new java.util.Date());
 		m.setType("HEAD");
 		dao.persist(m);
-		note = note + " \nHead Circ: " + m.getDataField() + " " + m.getMeasuringInstruction() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
+		note = note + " \nHead Circ: " + m.getDataField() + " " + m.getMeasuringInstruction();
+		comments += (m.getComments().equals("") ? "" : m.getComments() + "\n");
 	}
 
 	if (request.getParameter("waist_value")!=null && isNumeric(request.getParameter("waist_value"))) {
@@ -129,7 +134,8 @@ if (selfSubmit) {
 		m.setDateObserved(new java.util.Date());
 		m.setType("WAIS");
 		dao.persist(m);
-		note = note + " \nWaist: " + m.getDataField() + " " + m.getMeasuringInstruction() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
+		note = note + " \nWaist: " + m.getDataField() + " " + m.getMeasuringInstruction();
+		comments += (m.getComments().equals("") ? "" : m.getComments() + "\n");
 	}
 
 	if (request.getParameter("hip_value")!=null && isNumeric(request.getParameter("hip_value"))) {
@@ -143,7 +149,8 @@ if (selfSubmit) {
 		m.setDateObserved(new java.util.Date());
 		m.setType("HIP");
 		dao.persist(m);
-		note = note + " \nHip: " + m.getDataField() + " " + m.getMeasuringInstruction() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
+		note = note + " \nHip: " + m.getDataField() + " " + m.getMeasuringInstruction();
+		comments += (m.getComments().equals("") ? "" : m.getComments() + "\n");
 	}
 
 	if (request.getParameter("whr_value")!=null && isNumeric(request.getParameter("whr_value"))) {
@@ -157,7 +164,8 @@ if (selfSubmit) {
 		m.setDateObserved(new java.util.Date());
 		m.setType("WHR");
 		dao.persist(m);
-		note = note + " \nWaist:Hip Ratio: " + m.getDataField() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
+		note = note + " \nWaist:Hip Ratio: " + m.getDataField();
+		comments += (m.getComments().equals("") ? "" : m.getComments() + "\n");
 	}
 
 	if (request.getParameter("bp_value_s")!=null && isNumeric(request.getParameter("bp_value_s")) && request.getParameter("bp_value_d")!=null && isNumeric(request.getParameter("bp_value_d"))) {
@@ -171,7 +179,8 @@ if (selfSubmit) {
 		m.setDateObserved(new java.util.Date());
 		m.setType("BP");
 		dao.persist(m);
-		note = note + " \nBP: " + m.getDataField() + " " + m.getMeasuringInstruction() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
+		note = note + " \nBP: " + m.getDataField() + " " + m.getMeasuringInstruction();
+		comments += (m.getComments().equals("") ? "" : m.getComments() + "\n");
 	}
 
 	if (request.getParameter("pulse_value")!=null && isNumeric(request.getParameter("pulse_value"))) {
@@ -185,7 +194,8 @@ if (selfSubmit) {
 		m.setDateObserved(new java.util.Date());
 		m.setType("HR");
 		dao.persist(m);
-		note = note + " \nPulse: " + m.getDataField() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
+		note = note + " \nPulse: " + m.getDataField();
+		comments += (m.getComments().equals("") ? "" : m.getComments() + "\n");
 	}
 
 	if (request.getParameter("resp_value")!=null && isNumeric(request.getParameter("resp_value"))) {
@@ -199,7 +209,8 @@ if (selfSubmit) {
 		m.setDateObserved(new java.util.Date());
 		m.setType("RESP");
 		dao.persist(m);
-		note = note + " \nResp: " + m.getDataField() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
+		note = note + " \nResp: " + m.getDataField();
+		comments += (m.getComments().equals("") ? "" : m.getComments() + "\n");
 	}
 
 	if (request.getParameter("temp_value")!=null && isNumeric(request.getParameter("temp_value"))) {
@@ -213,7 +224,8 @@ if (selfSubmit) {
 		m.setDateObserved(new java.util.Date());
 		m.setType("TEMP");
 		dao.persist(m);
-		note = note + " \nTemp: " + m.getDataField() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
+		note = note + " \nTemp: " + m.getDataField();
+		comments += (m.getComments().equals("") ? "" : m.getComments() + "\n");
 	}
 
 	if (request.getParameter("o2_value")!=null && isNumeric(request.getParameter("o2_value"))) {
@@ -227,7 +239,8 @@ if (selfSubmit) {
 		m.setDateObserved(new java.util.Date());
 		m.setType("O2");
 		dao.persist(m);
-		note = note + " \nO2 Sats: " + m.getDataField() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
+		note = note + " \nO2 Sats: " + m.getDataField();
+		comments += (m.getComments().equals("") ? "" : m.getComments() + "\n");
 	}
 
 	if (request.getParameter("feet_sensation_value")!=null) {
@@ -241,7 +254,8 @@ if (selfSubmit) {
 		m.setDateObserved(new java.util.Date());
 		m.setType("FEET");
 		dao.persist(m);
-		note = note + " \nFeet - Sensation: " + m.getDataField() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
+		note = note + " \nFeet - Sensation: " + m.getDataField();
+		comments += (m.getComments().equals("") ? "" : m.getComments() + "\n");
 	}
 
 	if (request.getParameter("feet_vibration_value")!=null) {
@@ -255,7 +269,8 @@ if (selfSubmit) {
 		m.setDateObserved(new java.util.Date());
 		m.setType("FEET");
 		dao.persist(m);
-		note = note + " \nFeet - Vibration: " + m.getDataField() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
+		note = note + " \nFeet - Vibration: " + m.getDataField();
+		comments += (m.getComments().equals("") ? "" : m.getComments() + "\n");
 	}
 
 	if (request.getParameter("feet_reflexes_value")!=null) {
@@ -269,7 +284,8 @@ if (selfSubmit) {
 		m.setDateObserved(new java.util.Date());
 		m.setType("FEET");
 		dao.persist(m);
-		note = note + " \nFeet - Reflexes: " + m.getDataField() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
+		note = note + " \nFeet - Reflexes: " + m.getDataField();
+		comments += (m.getComments().equals("") ? "" : m.getComments() + "\n");
 	}
 
 	if (request.getParameter("feet_pulses_value")!=null) {
@@ -283,7 +299,8 @@ if (selfSubmit) {
 		m.setDateObserved(new java.util.Date());
 		m.setType("FEET");
 		dao.persist(m);
-		note = note + " \nFeet - Pulses: " + m.getDataField() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
+		note = note + " \nFeet - Pulses: " + m.getDataField();
+		comments += (m.getComments().equals("") ? "" : m.getComments() + "\n");
 	}
 
 	if (request.getParameter("feet_infection_value")!=null) {
@@ -297,7 +314,8 @@ if (selfSubmit) {
 		m.setDateObserved(new java.util.Date());
 		m.setType("FEET");
 		dao.persist(m);
-		note = note + " \nFeet - Infection: " + m.getDataField() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
+		note = note + " \nFeet - Infection: " + m.getDataField();
+		comments += (m.getComments().equals("") ? "" : m.getComments() + "\n");
 	}
 
 	if (request.getParameter("exercise_value")!=null && isNumeric(request.getParameter("exercise_value"))) {
@@ -311,7 +329,8 @@ if (selfSubmit) {
 		m.setDateObserved(new java.util.Date());
 		m.setType("Exer");
 		dao.persist(m);
-		note = note + " \nExercise: " + m.getDataField() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
+		note = note + " \nExercise: " + m.getDataField();
+		comments += (m.getComments().equals("") ? "" : m.getComments() + "\n");
 	}
 
 	if (request.getParameter("drinks_value")!=null && isNumeric(request.getParameter("drinks_value"))) {
@@ -325,7 +344,8 @@ if (selfSubmit) {
 		m.setDateObserved(new java.util.Date());
 		m.setType("DRPW");
 		dao.persist(m);
-		note = note + " \nDrinks per Week: " + m.getDataField() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
+		note = note + " \nDrinks per Week: " + m.getDataField();
+		comments += (m.getComments().equals("") ? "" : m.getComments() + "\n");
 	}
 	
 	if (request.getParameter("street_drugs_value")!=null) {
@@ -339,7 +359,8 @@ if (selfSubmit) {
 		m.setDateObserved(new java.util.Date());
 		m.setType("StreetDrugs");
 		dao.persist(m);
-		note = note + " \nStreet Drugs: " + m.getDataField() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
+		note = note + " \nStreet Drugs: " + m.getDataField();
+		comments += (m.getComments().equals("") ? "" : m.getComments() + "\n");
 	}
 
 	if (request.getParameter("smoking_value")!=null) {
@@ -353,7 +374,8 @@ if (selfSubmit) {
 		m.setDateObserved(new java.util.Date());
 		m.setType("SMK");
 		dao.persist(m);
-		note = note + " \nSmoking: " + m.getDataField() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
+		note = note + " \nSmoking: " + m.getDataField();
+		comments += (m.getComments().equals("") ? "" : m.getComments() + "\n");
 	}
 
 	if (request.getParameter("smokingrecent_value")!=null) {
@@ -367,7 +389,8 @@ if (selfSubmit) {
 		m.setDateObserved(new java.util.Date());
 		m.setType("SmkR");
 		dao.persist(m);
-		note = note + " \nRecent Tobacco Use: " + m.getDataField() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
+		note = note + " \nRecent Tobacco Use: " + m.getDataField();
+		comments += (m.getComments().equals("") ? "" : m.getComments() + "\n");
 	}
 
 	if (request.getParameter("smokingstartyear_value")!=null && isNumeric(request.getParameter("smokingstartyear_value"))) {
@@ -381,7 +404,8 @@ if (selfSubmit) {
 		m.setDateObserved(new java.util.Date());
 		m.setType("SmkS");
 		dao.persist(m);
-		note = note + " \nSmoking Start: " + m.getDataField() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
+		note = note + " \nSmoking Start: " + m.getDataField();
+		comments += (m.getComments().equals("") ? "" : m.getComments() + "\n");
 	}
 
 	if (request.getParameter("smokingcessyear_value")!=null && isNumeric(request.getParameter("smokingcessyear_value"))) {
@@ -395,7 +419,8 @@ if (selfSubmit) {
 		m.setDateObserved(new java.util.Date());
 		m.setType("SmkC");
 		dao.persist(m);
-		note = note + " \nSmoking Cessation: " + m.getDataField() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
+		note = note + " \nSmoking Cessation: " + m.getDataField();
+		comments += (m.getComments().equals("") ? "" : m.getComments() + "\n");
 	}
 
 	if (request.getParameter("smokingpks_value")!=null) {
@@ -409,7 +434,8 @@ if (selfSubmit) {
 		m.setDateObserved(new java.util.Date());
 		m.setType("SmkD");
 		dao.persist(m);
-		note = note + " \nPacks Per Day: " + m.getDataField() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
+		note = note + " \nPacks Per Day: " + m.getDataField();
+		comments += (m.getComments().equals("") ? "" : m.getComments() + "\n");
 	}
 
 	if (request.getParameter("smokingpyhx_value")!=null && isNumeric(request.getParameter("smokingpyhx_value"))) {
@@ -423,7 +449,8 @@ if (selfSubmit) {
 		m.setDateObserved(new java.util.Date());
 		m.setType("SmkPY");
 		dao.persist(m);
-		note = note + " \nPack Years: " + m.getDataField() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
+		note = note + " \nPack Years: " + m.getDataField();
+		comments += (m.getComments().equals("") ? "" : m.getComments() + "\n");
 	}
 
 	if (request.getParameter("smokingadvised_value")!=null) {
@@ -437,7 +464,8 @@ if (selfSubmit) {
 		m.setDateObserved(new java.util.Date());
 		m.setType("SmkA");
 		dao.persist(m);
-		note = note + " \nAdvised Patient to Quit: " + m.getDataField() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
+		note = note + " \nAdvised Patient to Quit: " + m.getDataField();
+		comments += (m.getComments().equals("") ? "" : m.getComments() + "\n");
 	}
 
 	if (request.getParameter("smokingquit_value")!=null) {
@@ -451,7 +479,8 @@ if (selfSubmit) {
 		m.setDateObserved(new java.util.Date());
 		m.setType("SmkQ");
 		dao.persist(m);
-		note = note + " \nPatient Ready to Quit: " + m.getDataField() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
+		note = note + " \nPatient Ready to Quit: " + m.getDataField();
+		comments += (m.getComments().equals("") ? "" : m.getComments() + "\n");
 	}
 
 	if (request.getParameter("smokingfollowup_value")!=null) {
@@ -465,9 +494,11 @@ if (selfSubmit) {
 		m.setDateObserved(new java.util.Date());
 		m.setType("SmkF");
 		dao.persist(m);
-		note = note + " \nPatient Wants Follow-up: " + m.getDataField() + (m.getComments().equals("") ? "" : "\n" + m.getComments());
+		note = note + " \nPatient Wants Follow-up: " + m.getDataField();
+		comments += (m.getComments().equals("") ? "" : m.getComments() + "\n");
 	}
-	
+
+	note = note + "\n" + comments;
 	if (pasteToNoteEnabled) {
 		if (fromSchedule) {
 			df = new SimpleDateFormat("dd-MMM-yyyy");
