@@ -195,7 +195,11 @@ public class MeasurementGraphAction2 extends Action {
         oscar.oscarRx.data.RxPrescriptionData prescriptData = new oscar.oscarRx.data.RxPrescriptionData();
         for(String din:dins){
              oscar.oscarRx.data.RxPrescriptionData.Prescription [] arr =  prescriptData.getPrescriptionScriptsByPatientRegionalIdentifier(demographic,din);
-             list.add( arr[0].getBrandName() );
+             String brandName = arr[0].getBrandName();
+             if (brandName!=null && brandName.length() > 50) {
+                 brandName = brandName.substring(0, 50) + "...";
+             }
+             list.add(brandName);
 
         }
         ret = list.toArray( new String[list.size()] );
