@@ -403,6 +403,9 @@ public class PdfRecordPrinter {
             MiscUtils.getLogger().error("Cannot file billing template file:",e);
         } finally {
             try {
+                if (os!=null){
+                    os.close();
+                }
                 if (is != null) is.close();
                 if (imageIS != null) imageIS.close();
             }catch (java.io.IOException e) {

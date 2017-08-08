@@ -73,22 +73,27 @@ public class APExecute {
         EFormLoader.getInstance();
 	DatabaseAP dap = EFormLoader.getAP(ap);
         MiscUtils.getLogger().debug("AP:" + ap);
-        String sql = DatabaseAP.parserReplace("invoiceNo", String.valueOf(invoiceNo), dap.getApSQL());                       
-        sql = DatabaseAP.parserReplace("demographic", demographicNo, sql); 
-        
-        String output = dap.getApOutput();
-        MiscUtils.getLogger().debug("SQL----" + sql);
-        
-        ArrayList<String> names = DatabaseAP.parserGetNames(output); 
-        sql = DatabaseAP.parserClean(sql);
-        
-        ArrayList<String> values = EFormUtil.getValues(names, sql);
-        if (values.size() != names.size()) {
-            output = "";
-        } else {
-            for (int i=0; i<names.size(); i++) {                
-                output = DatabaseAP.parserReplace(names.get(i), values.get(i), output);
+        String output = "";
+        if (dap!=null){
+            String sql = DatabaseAP.parserReplace("invoiceNo", String.valueOf(invoiceNo), dap.getApSQL());
+            sql = DatabaseAP.parserReplace("demographic", demographicNo, sql);
+
+            output = dap.getApOutput();
+            MiscUtils.getLogger().debug("SQL----" + sql);
+
+            ArrayList<String> names = DatabaseAP.parserGetNames(output);
+            sql = DatabaseAP.parserClean(sql);
+
+            ArrayList<String> values = EFormUtil.getValues(names, sql);
+            if (values.size() != names.size()) {
+                output = "";
+            } else {
+                for (int i=0; i<names.size(); i++) {
+                    output = DatabaseAP.parserReplace(names.get(i), values.get(i), output);
+                }
             }
+        } else {
+            MiscUtils.getLogger().error("Could not get AP for "+ ap);
         }
 
         return output;
