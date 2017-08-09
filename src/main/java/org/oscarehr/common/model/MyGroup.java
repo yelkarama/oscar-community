@@ -45,7 +45,7 @@ public class MyGroup  extends AbstractModel<MyGroupPrimaryKey> implements Serial
 	@Column(name="first_name")
     private String firstName;
 	@Column(name="vieworder")
-    private int viewOrder;
+    private Integer viewOrder;
 
     @Column(name="default_billing_form")
     private String defaultBillingForm;
@@ -60,7 +60,7 @@ public class MyGroup  extends AbstractModel<MyGroupPrimaryKey> implements Serial
         this.lastName = lastName;
         this.firstName = firstName;
     }
-    public MyGroup(MyGroupPrimaryKey id, String lastName, String firstName, int vieworder) {
+    public MyGroup(MyGroupPrimaryKey id, String lastName, String firstName, Integer vieworder) {
        this.id = id;
        this.lastName = lastName;
        this.firstName = firstName;
@@ -90,10 +90,11 @@ public class MyGroup  extends AbstractModel<MyGroupPrimaryKey> implements Serial
         this.firstName = firstName;
     }
     public int getViewOrder() {
+        if (this.viewOrder == null) { this.viewOrder = 0; }
         return this.viewOrder;
     }
     
-    public void setViewOrder(int viewOrder) {
+    public void setViewOrder(Integer viewOrder) {
         this.viewOrder = viewOrder;
     }
 
