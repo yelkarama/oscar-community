@@ -78,15 +78,17 @@
 <title>Service Code Search</title>
 <script LANGUAGE="JavaScript">
 <!--
-function CodeAttach(File0) {
+function CodeAttach(File0, File1) {
       
 <% 
 if(request.getParameter("nameF") != null) {
+    String feeElement = request.getParameter("nameF").replace("servicecode", "billingamount");
 		out.println("self.opener." + request.getParameter("nameF") + " = File0;");
+		out.println("self.opener." + feeElement + " = File1;");
 } else {
 %>      
       self.opener.document.serviceform.xml_other1.value = File0;
-      self.opener.document.serviceform.xml_other2.value ="";
+      self.opener.document.serviceform.xml_other2.value = File1;
       self.opener.document.serviceform.xml_other3.value ="";
 <% } %>
       self.close();
@@ -128,11 +130,15 @@ if(request.getParameter("nameF") != null) {
 // Retrieving Provider
  
 String Dcode="", DcodeDesc="";
+String fee = "";
 
 for (BillingService bss : billingServiceDao.search_service_code(codeName,codeName1,codeName2,desc,desc1,desc2)) {
 	intCount = intCount + 1;
 	Dcode = bss.getServiceCode();
 	DcodeDesc = bss.getDescription();
+	if (bss!=null && bss.getValue()!=null){
+		fee=bss.getValue();
+	}
 	if (Count == 0){
 		 Count = 1;
 		 color = "#FFFFFF";
@@ -172,7 +178,7 @@ for (BillingService bss : billingServiceDao.search_service_code(codeName,codeNam
 	<% if (intCount == 1) { %>
 	<script LANGUAGE="JavaScript">
 <!--
- CodeAttach('<%=Dcode%>'); 
+ CodeAttach('<%=Dcode%>', <%=fee%>);
 -->
 
 </script>
