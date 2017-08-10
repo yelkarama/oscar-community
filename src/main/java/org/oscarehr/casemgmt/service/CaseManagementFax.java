@@ -110,7 +110,10 @@ public class CaseManagementFax {
             } else {
                 Long noteId = ConversionUtils.fromLongString(noteIds[idx]);
                 if (noteId > 0) {
-                    notes.add(this.caseManagementMgr.getNote(noteId.toString()));
+                    CaseManagementNote note = this.caseManagementMgr.getNote(noteId.toString());
+                    if (note!=null && note.getProviderNo()!=null && Integer.parseInt(note.getProviderNo())>1){
+                        notes.add(note);
+                    }
                 }
             }
         }
