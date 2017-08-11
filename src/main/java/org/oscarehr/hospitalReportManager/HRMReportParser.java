@@ -429,7 +429,7 @@ public class HRMReportParser {
 				Demographic demographic = demographicDao.searchDemographicByHIN(report.getHCN()).get(0);
 				DemographicCustDao demographicCustDao = SpringUtils.getBean(DemographicCustDao.class);
 				//add mrp if not already in list
-				if (sendToProvider != null && !sendToProvider.getProviderNo().equals(demographic.getProviderNo())) {
+				if (sendToProvider != null && !sendToProvider.getProviderNo().equals(demographic.getProviderNo()) && demographic.getProvider() != null) {
 					sendToProviderList.add(demographic.getProvider());
 				}
 				//get and add alt providers
