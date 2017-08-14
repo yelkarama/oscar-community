@@ -65,6 +65,9 @@ public class printLabDaySheetAction extends OscarAction{
         HashMap parameters = new HashMap();
         parameters.put("provider", request.getParameter("provider_no")); 
         parameters.put("input_date", request.getParameter("input_date"));
+        if (request.getParameter("excludeCanceled")!=null){
+            parameters.put("excludeCanceled", request.getParameter("excludeCanceled"));
+        }
         String xmlStyleFile=request.getParameter("xmlStyle");
         ServletOutputStream sos = null;
         InputStream ins = null;

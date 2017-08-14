@@ -25,7 +25,11 @@
 
 	<parameter name="input_date" isForPrompting="false" class="java.lang.String"/>
 	<parameter name="provider" isForPrompting="false" class="java.lang.String"/>
-	<queryString><![CDATA[select * from appointment where appointment_date = $P{input_date} and provider_no = $P{provider}]]></queryString>
+	<parameter name="excludeCanceled" isForPrompting="false" class="java.lang.String"/>
+	<parameter name="excludeCanceledSQL" isForPrompting="false" class="java.lang.String">
+		<defaultValueExpression>Boolean.valueOf($P{excludeCanceled}) ? " and status != 'C' and status != 'N' " : " "</defaultValueExpression>
+	</parameter>
+	<queryString><![CDATA[select * from appointment where appointment_date = $P{input_date} and provider_no = $P{provider} $P!{excludeCanceledSQL}]]></queryString>
 
 	<field name="appointment_no" class="java.lang.Integer"/>
 	<field name="provider_no" class="java.lang.String"/>
@@ -46,7 +50,6 @@
 	<field name="updatedatetime" class="java.sql.Timestamp"/>
 	<field name="creator" class="java.lang.String"/>
 	<field name="remarks" class="java.lang.String"/>
-
 		<background>
 			<band height="0"  isSplitAllowed="true" >
 			</band>
