@@ -419,7 +419,7 @@ String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 				<% if (providerLinkList != null && providerLinkList.size()>0) {
 					for (HRMDocumentToProvider p : providerLinkList) { 
 						if (!p.getProviderNo().equalsIgnoreCase("-1")) { %>
-						<%=providerDao.getProviderName(p.getProviderNo())%> <%=p.getSignedOff() !=null && p.getSignedOff()  == 1 ? "<abbr title='" + p.getSignedOffTimestamp() + "'>(Signed-Off)</abbr>" : "" %> <a href="#" onclick="removeProvFromHrm('<%=p.getId() %>', '<%=hrmReportId %>')">(remove)</a><br />
+						<%=providerDao.getProviderName(p.getProviderNo())%> <%=p.getSignedOff() !=null && p.getSignedOff()  == 1 ? "<abbr title='" + p.getSignedOffTimestamp() + "'>(Signed-Off "+p.getSignedOffTimestamp()+")</abbr>" : "" %> <a href="#" onclick="removeProvFromHrm('<%=p.getId() %>', '<%=hrmReportId %>')">(remove)</a><br />
 				<%		}  
 					}
 				} else { %>
