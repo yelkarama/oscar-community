@@ -230,13 +230,9 @@ public class EctConsultationFormFaxAction extends Action {
 			if(reqId!=null && !reqId.trim().equals("") && consultationRequestDao.getConsultation(Integer.parseInt(reqId))!=null){
 				ProfessionalSpecialist professionalSpecialist = consultationRequestDao.getConsultation(Integer.parseInt(reqId)).getProfessionalSpecialist();
 				if (professionalSpecialist!=null && professionalSpecialist.getEformId()!=null && professionalSpecialist.getEformId()!=0){
-					bos = new ByteOutputStream();
-				 	FaxAction faxAction = new FaxAction(request);
-				 	faxAction.attachForms(String.valueOf(professionalSpecialist.getEformId()));
-
-				 	buffer = bos.getBytes();
-					bis = new ByteInputStream(buffer, bos.getCount());
-					bos.close();
+					String localUri = PrintAction.getEformRequestUrl(request);
+					buffer = WKHtmlToPdfUtils.convertToPdf(localUri + professionalSpecialist.getEformId() + "&blankForm=true");
+					bis = new ByteInputStream(buffer, buffer.length);
 					streams.add(bis);
 					alist.add(bis);
 
