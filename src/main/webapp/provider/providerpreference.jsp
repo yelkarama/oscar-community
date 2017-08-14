@@ -759,7 +759,9 @@ Event.observe('rxInteractionWarningLevel', 'change', function(event) {
 	<a href=# onClick ="popupPage(230,400,'../billing/CA/BC/viewBillingPreferencesAction.do?providerNo=<%=providerNo%>');return false;"><bean:message key="provider.btnBillPreference"/></a>
 <% } else { %>
 	<a href=# onClick ="showHideBillPref();return false;"><bean:message key="provider.btnBillPreference"/></a>
-<% } %>
+<% }
+String clinicNo = OscarProperties.getInstance().getProperty("clinic_no");
+%>
     </td>
   </tr>
   <tr>
@@ -810,6 +812,9 @@ Event.observe('rxInteractionWarningLevel', 'change', function(event) {
 		  Default SLI Code:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 	  <select name="default_slicode">
 		  <option value="no">-- no --</option>
+		  <%if (!"0000".equals(clinicNo)){ %>
+		  <option value="<%=clinicNo%>"><%=clinicNo + " | "%><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.Clinic" /></option>
+		  <% } %>
 		  <option value="HDS"><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.HDS" /></option>
 		  <option value="HED"><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.HED" /></option>
 		  <option value="HIP"><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.HIP" /></option>

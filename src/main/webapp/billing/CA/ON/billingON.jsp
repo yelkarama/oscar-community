@@ -137,7 +137,7 @@
             ProviderPreferenceDao preferenceDao = (ProviderPreferenceDao) SpringUtils.getBean("providerPreferenceDao");
             ProviderPreference preference = null;
             preference=ProviderPreferencesUIBean.getProviderPreferenceByProviderNo(provider_no);
-            String defaultSliCode = clinicNo;
+            String defaultSliCode = "0000";
 
 
            	
@@ -1687,10 +1687,16 @@ function changeSite(sel) {
 										<td><b><bean:message
 													key="oscar.billing.CA.ON.billingON.OB.SLIcode" /></b></td>
 										<td colspan="3"><select name="xml_slicode">
-												<option value="<%=clinicNo%>">
+												<option value="0000">
 													<bean:message
 														key="oscar.billing.CA.ON.billingON.OB.SLIcode.NA" />
 												</option>
+											<% if (!"0000".equals(clinicNo)){ %>
+												<option value="<%=clinicNo%>">
+													<%=clinicNo + " | "%><bean:message
+															key="oscar.billing.CA.ON.billingON.OB.SLIcode.Clinic" />
+												</option>
+											<% } %>
 												<option value="HDS">
 													<bean:message
 														key="oscar.billing.CA.ON.billingON.OB.SLIcode.HDS" />
