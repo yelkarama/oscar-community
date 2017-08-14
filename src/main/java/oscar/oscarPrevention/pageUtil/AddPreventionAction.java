@@ -146,8 +146,12 @@ public class AddPreventionAction  extends Action {
          }else if (id != null &&  delete != null  ){  // Delete
         	 PreventionData.deletePreventionData(id);               
          }else if (id != null && delete == null ){ //Update
-            addHashtoArray(extraData,id,"previousId"); 
-            PreventionData.updatetPreventionData(id,sessionUser,demographic_no,prevDate,providerNo,providerName,preventionType,refused,nextDate,neverWarn,extraData);
+            addHashtoArray(extraData,id,"previousId");
+            String creator = sessionUser;
+            if (PreventionData.getPreventionById(id)!=null && PreventionData.getPreventionById(id).get("creator")!=null){
+                creator = PreventionData.getPreventionById(id).get("creator").toString();
+            }
+            PreventionData.updatetPreventionData(id,creator,demographic_no,prevDate,providerNo,providerName,preventionType,refused,nextDate,neverWarn,extraData);
          }
 
          PreventionManager prvMgr = (PreventionManager) SpringUtils.getBean("preventionMgr");
