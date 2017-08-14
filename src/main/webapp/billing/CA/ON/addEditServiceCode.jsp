@@ -492,7 +492,14 @@ Style<br>
 
 <div class="span2">
 Fee <small> e.g. 18.20</small><br>
-<input type="text" name="value" value="<%=prop.getProperty("value", "")%>" size='8' maxlength='8'pattern="\d+(\.\d{2})?" ><br/>
+	<%
+		String value = prop.getProperty("value", "");
+		if (value.startsWith(".")){
+		    value = "0"+value;
+		}
+	%>
+
+<input type="text" name="value" value="<%=value%>" size='8' maxlength='8' pattern="\d+(\.\d{2})?" ><br/>
 </div>
 
 <div class="span6 form-inline" style="margin-left: 0">
