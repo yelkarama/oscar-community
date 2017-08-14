@@ -791,7 +791,7 @@ String clinicNo = OscarProperties.getInstance().getProperty("clinic_no");
 %>
 	  </select>
 		  <br/>
-		  Default Billing Location:
+		  Default Site Number:&nbsp;&nbsp;&nbsp;&nbsp;
 	  <select name="default_location">
 		  <option value="no">-- no --</option>
 		  <%
@@ -803,7 +803,7 @@ String clinicNo = OscarProperties.getInstance().getProperty("clinic_no");
 				  billLocationNo = (String) lLocation.get(i);
 				  billLocation = (String) lLocation.get(i + 1);
 		  %>
-		  <option value="<%=billLocationNo%>" <%=billLocationNo.equals(defaultBillingLocation)?"selected":""%>> <%=billLocation%> </option>
+		  <option value="<%=billLocationNo%>" <%=billLocationNo.equals(defaultBillingLocation)?"selected":""%>> <%=billLocationNo + " | " + billLocation%> </option>
 		  <%
 			  }
 		  %>

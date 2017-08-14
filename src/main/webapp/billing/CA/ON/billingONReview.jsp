@@ -626,7 +626,7 @@ window.onload=function(){
 						</td>
 					</tr>
 					<tr>
-						<td><b>Visit Location</b></td>
+						<td><b>Site</b></td>
 						<td><%=request.getParameter("xml_location").substring(
 							request.getParameter("xml_location").indexOf("|") + 1)%> &nbsp;
 							<% if(request.getParameter("m_review")!=null) { out.println("<b>Manual: Y</b>"); } %>

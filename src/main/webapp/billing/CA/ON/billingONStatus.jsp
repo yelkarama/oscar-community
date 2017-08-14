@@ -571,7 +571,7 @@ Billing Form:<br>
 
 <div class="row">
 <div class="span5">		
-Visit Location:<br>
+Site Number:<br>
 <select name="xml_location" class="span5">
  												<% //
 		JdbcBillingPageUtil tdbObj = new JdbcBillingPageUtil();
@@ -584,7 +584,7 @@ Visit Location:<br>
 		String locationSelected = visitLocation.equals(billLocationNo)? " selected=\"selected\" ":"";
 %>
 	<option value="<%=billLocationNo%>" <%=locationSelected %>>
-	<%=billLocation%>
+	<%=billLocationNo + " | " + billLocation%>
 	</option>
 	<%	    } %>
 												

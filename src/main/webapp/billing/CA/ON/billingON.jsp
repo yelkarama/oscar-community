@@ -1660,7 +1660,7 @@ function changeSite(sel) {
 										</td>
 									</tr>
 									<tr>
-										<td><b>Visit Location</b></td>
+										<td><b>Site Number</b></td>
 										<td colspan="3"><select name="xml_location">
 												<%
 													//
@@ -1675,7 +1675,7 @@ function changeSite(sel) {
 												%>
 												<option value="<%=billLocationNo + "|" + billLocation%>"
 													<%=billLocationNo.equals(visitLocation) ? "selected" : ""%>>
-													<%=billLocation%>
+													<%=billLocationNo + " | " + billLocation%>
 												</option>
 												<%
 													}
