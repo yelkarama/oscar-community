@@ -37,7 +37,7 @@ public class JdbcBillingErrorRepImpl {
 	public List<BillingErrorRepData> getErrorRecords(BillingProviderData val, String fromDate, String toDate, String filename) {
 		List<BillingErrorRepData> retval = new ArrayList<BillingErrorRepData>();
 		BillingONEAReportDao dao = SpringUtils.getBean(BillingONEAReportDao.class);
-		for (BillingONEAReport r : dao.findByMagic(val.getOhipNo(), val.getBillingGroupNo(), val.getSpecialtyCode(), ConversionUtils.fromDateString(fromDate), ConversionUtils.fromDateString(toDate), filename)) {
+		for (BillingONEAReport r : dao.findByParametersAndGroup(val.getOhipNo(), val.getBillingGroupNo(), val.getSpecialtyCode(), ConversionUtils.fromDateString(fromDate), ConversionUtils.fromDateString(toDate), filename)) {
 			toReportData(retval, r);
 		}
 		return retval;
@@ -79,7 +79,7 @@ public class JdbcBillingErrorRepImpl {
 		}
 		
 		BillingONEAReportDao dao = SpringUtils.getBean(BillingONEAReportDao.class);
-		for(BillingONEAReport r : dao.findByMagic(list, ConversionUtils.fromDateString(fromDate), ConversionUtils.fromDateString(toDate), filename)) {
+		for(BillingONEAReport r : dao.findByParametersAndGroup(list, ConversionUtils.fromDateString(fromDate), ConversionUtils.fromDateString(toDate), filename)) {
 			toReportData(retval, r);
 		}
 
