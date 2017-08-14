@@ -87,33 +87,39 @@ public class EctViewRequestAction extends Action {
 		Date date1 = consult.getAppointmentDate();
 		Date date2 = consult.getAppointmentTime();
 		
-		if( date1 == null || date2 == null ) {
+		if( date1 == null && date2 == null ) {
 			thisForm.setAppointmentDate("");
 		}
 		else {
-            thisForm.setAppointmentDate(DateFormatUtils.ISO_DATE_FORMAT.format(date1));
-			cal.setTime(date2);
-			
-			int hour = cal.get(Calendar.HOUR_OF_DAY);
-			if(cal.get(Calendar.AM_PM) == Calendar.AM) {
-				if( hour == 0 ) {
-					hour = 12;
-				}
-				thisForm.setAppointmentPm("AM");				
-			}
-			else {
-				if( hour > 12 ) {
-					hour -= 12;
-				}
-				thisForm.setAppointmentPm("PM");
-			}
+		    if (date1!=null){
+                thisForm.setAppointmentDate(DateFormatUtils.ISO_DATE_FORMAT.format(date1));
+            } else {
+                thisForm.setAppointmentDate("");
+            }
+            if (date2!=null){
+                cal.setTime(date2);
 
-			if(cal.get(Calendar.HOUR)==0)
-				thisForm.setAppointmentHour("12");
-			else
-				thisForm.setAppointmentHour(String.valueOf(cal.get(Calendar.HOUR)));
-			
-            thisForm.setAppointmentMinute(String.valueOf(cal.get(Calendar.MINUTE)));
+                int hour = cal.get(Calendar.HOUR_OF_DAY);
+                if(cal.get(Calendar.AM_PM) == Calendar.AM) {
+                    if( hour == 0 ) {
+                        hour = 12;
+                    }
+                    thisForm.setAppointmentPm("AM");
+                }
+                else {
+                    if( hour > 12 ) {
+                        hour -= 12;
+                    }
+                    thisForm.setAppointmentPm("PM");
+                }
+
+                if(cal.get(Calendar.HOUR)==0)
+                    thisForm.setAppointmentHour("12");
+                else
+                    thisForm.setAppointmentHour(String.valueOf(cal.get(Calendar.HOUR)));
+
+                thisForm.setAppointmentMinute(String.valueOf(cal.get(Calendar.MINUTE)));
+            }
 		}
 	}
 
