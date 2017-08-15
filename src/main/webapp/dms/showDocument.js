@@ -49,3 +49,7 @@ function popupPatientTickler(height, width, url, windowName,docId) {
   	
   	  return popup2(height, width, 0, 0, urlNew, windowName);
 }
+
+function getDocumentType() {
+    return document.getElementsByName('docType')[0].value || '<bean:message key="oscarMDS.segmentDisplay.labResults"/>';
+}

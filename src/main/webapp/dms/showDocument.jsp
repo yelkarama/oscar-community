@@ -281,10 +281,6 @@
         var _in_window = <%=( "true".equals(request.getParameter("inWindow")) ? "true" : "false" )%>;
         var contextpath = "<%=request.getContextPath()%>";
         
-        function getDocumentType() {
-        	return document.getElementsByName('docType')[0].value || '<bean:message key="oscarMDS.segmentDisplay.labResults"/>';
-		}
-        
         </script>
         <script type="text/javascript" src="showDocument.js"></script>
 </head>
