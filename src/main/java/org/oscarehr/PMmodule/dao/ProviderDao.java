@@ -23,6 +23,7 @@
 
 package org.oscarehr.PMmodule.dao;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -700,4 +701,19 @@ public class ProviderDao extends HibernateDaoSupport {
 				this.releaseSession(session);
 			}
 		}
+
+    @NativeSql({"provider", "appointment"})
+    public List<String> getProviderNosWithAppointmentsOnDate(Date appointmentDate) {
+        Session session = getSession();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            String sql = "SELECT p.provider_no FROM provider p WHERE p.provider_no IN (SELECT DISTINCT a.provider_no FROM appointment a WHERE a.appointment_date = '" + sdf.format(appointmentDate) + "') " +
+                    "AND p.Status='1'";
+            SQLQuery query = session.createSQLQuery(sql);
+            
+            return query.list();
+        }finally {
+            this.releaseSession(session);
+        }
+    }
 }

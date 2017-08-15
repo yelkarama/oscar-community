@@ -24,21 +24,10 @@
 
 --%>
 
-<%@ page import="org.oscarehr.common.dao.ProviderSiteDao"%>
 <%@ page import="org.oscarehr.util.SessionConstants"%>
-<%@ page import="org.oscarehr.common.model.ProviderPreference"%>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
-<%@ page import="org.oscarehr.common.dao.UserPropertyDAO" %>
-<%@ page import="org.oscarehr.common.model.UserProperty" %>
-<%@ page import="org.oscarehr.common.dao.ScheduleHolidayDao" %>
-<%@ page import="org.oscarehr.common.model.ScheduleHoliday" %>
-<%@ page import="org.oscarehr.common.dao.MyGroupDao" %>
-<%@ page import="org.oscarehr.common.model.MyGroup" %>
 <%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
-<%@ page import="org.oscarehr.common.model.Provider" %>
 <%@ page import="oscar.util.ConversionUtils" %>
-<%@ page import="org.oscarehr.common.dao.ScheduleDateDao" %>
-<%@ page import="org.oscarehr.common.model.ScheduleDate" %>
 <%@ page import="org.oscarehr.common.dao.ProviderSiteDao" %>
 
 <%
@@ -315,9 +304,12 @@ if (bMultisites) {
 
 
 <%@page import="org.oscarehr.common.dao.SiteDao"%>
-<%@page import="org.oscarehr.common.model.Site"%>
 <%@page import="oscar.appt.JdbcApptImpl"%>
-<%@page import="oscar.appt.ApptUtil"%><html:html locale="true">
+<%@page import="oscar.appt.ApptUtil"%>
+<%@ page import="org.oscarehr.common.dao.*" %>
+<%@ page import="org.oscarehr.common.model.*" %>
+<%@ page import="java.util.Date" %>
+<html:html locale="true">
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery.js"></script>
@@ -816,59 +808,79 @@ function refreshTabAlerts(id) {
    	
     }
 
-              Iterator<ScheduleDate> it = sds.iterator();
-              ScheduleDate date = null;
-              for (int i=0; i<dateGrid.length; i++) {
-                out.println("</tr>");
-                for (int j=0; j<7; j++) {
-                  if(dateGrid[i][j]==0) out.println("<td></td>");
-                  else {
-                    bgcolor = new StringBuffer("ivory"); //default color for absence
-                    strHour = new StringBuffer();
-                    strReason = new StringBuffer();
-                    strHolidayName = new StringBuffer();
-                    aHScheduleHoliday = (HScheduleHoliday) scheduleHolidayBean.get(year+"-"+MyDateFormat.getDigitalXX(month)+"-"+MyDateFormat.getDigitalXX(dateGrid[i][j]));
-                    if (aHScheduleHoliday!=null) {
-                      bgcolor = new StringBuffer("pink");
-                      strHolidayName = new StringBuffer(aHScheduleHoliday.holiday_name) ;
-                    }
-                 
-            %>
-					<td nowrap bgcolor="<%=bgcolor.toString()%>" valign="top"><a
-						href='providercontrol.jsp?year=<%=year%>&month=<%=MyDateFormat.getDigitalXX(month)%>&day=<%=MyDateFormat.getDigitalXX(dateGrid[i][j])%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+request.getParameter("curProviderName"))%>&displaymode=day&dboperation=searchappointmentday'>
-					<span class='date'>&nbsp;<%=dateGrid[i][j] %> </span> <font
-						size="-2" color="blue"><%=strHolidayName.toString()%></font> <%
-  while (bFistEntry?it.hasNext():true) { 
-    date = bFistEntry?it.next():date;
-    String _scheduleDate = year+"-"+MyDateFormat.getDigitalXX(month)+"-"+MyDateFormat.getDigitalXX(dateGrid[i][j]);    
-    if(!ConversionUtils.toDateString(date.getDate()).equals(_scheduleDate) ) {
-      bFistEntry = false;
-      break;
-    } else {
-      bFistEntry = true;
-      if(String.valueOf(date.getAvailable()).equals("0")) continue;
-    }
-    if(isTeamOnly || !providerview.startsWith("_grp_",0) || myGrpBean.containsKey(date.getProviderNo()) ) {
-    	%>
-    <br><span class='datepname'>&nbsp;<%=providerNameBean.getShortDef(date.getProviderNo(),"",NameMaxLen )%></span><span
-						class='datephour'><%=date.getHour() %></span>
-	<%
-    	if (bMultisites && CurrentSiteMap.get(date.getReason()) != null && ( selectedSite == null || "NONE".equals(date.getReason()) || selectedSite.equals(date.getReason()))) {
-%> 
-<% if (bMultisites) { out.print(getSiteHTML(date.getReason(), sites)); } %>
-					
-<% if (!bMultisites) { %>	
-					
-						<span class='datepreason'><%=date.getReason() %></span>
-<% } %>
-<%  } } } %>
-					</a></font></td>
+	Iterator<ScheduleDate> it = sds.iterator();
+	ScheduleDate date = null;
+	Date monthDayDate = null;
+	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	for (int i = 0; i < dateGrid.length; i++) {
+		//out.println("</tr>");
+		for (int j = 0; j < 7; j++) {
+			if (dateGrid[i][j] == 0) { 
+			    out.println("<td></td>");
+			} else {
+				monthDayDate = sdf.parse(year + "-" + MyDateFormat.getDigitalXX(month) + "-" + MyDateFormat.getDigitalXX(dateGrid[i][j]));
+				bgcolor = new StringBuffer("ivory"); //default color for absence
+				strHour = new StringBuffer();
+				strReason = new StringBuffer();
+				strHolidayName = new StringBuffer();
+				aHScheduleHoliday = (HScheduleHoliday) scheduleHolidayBean.get(sdf.format(monthDayDate));
+				if (aHScheduleHoliday != null) {
+					bgcolor = new StringBuffer("pink");
+					strHolidayName = new StringBuffer(aHScheduleHoliday.holiday_name);
+				} %>
+				<td nowrap bgcolor="<%=bgcolor.toString()%>" valign="top">
+					<span class='date'>&nbsp;<%=dateGrid[i][j] %> </span>
+					<font size="-2" color="blue"><%=strHolidayName.toString()%></font>
+
 					<%
-                  }
-                }
-                out.println("</tr>");
-              }
-            %>
+					if (OscarProperties.getInstance().isPropertyActive("schedule_monthview_show_providers_with_appointments")) {
+						List<String> providerNosWithAppointmentsOnDate = providerDao.getProviderNosWithAppointmentsOnDate(monthDayDate);
+						if (!providerNosWithAppointmentsOnDate.isEmpty()) { %>
+							<a href='providercontrol.jsp?year=<%=year%>&month=<%=MyDateFormat.getDigitalXX(month)%>&day=<%=MyDateFormat.getDigitalXX(dateGrid[i][j])%>&displaymode=day&dboperation=searchappointmentday&viewall=1'>
+							<% for (String providerNo : providerNosWithAppointmentsOnDate) {
+								Provider provider = providerDao.getProvider(providerNo);
+								if (!providerview.startsWith("_grp_", 0) || myGrpBean.containsKey(provider.getProviderNo())) { %>
+									<br/>
+									<span class='datepname'>&nbsp;<%=providerNameBean.getShortDef(provider.getProviderNo(), "", NameMaxLen)%></span>
+								<% }
+							} %>
+							</a>
+						<% }
+					} else {
+						while (bFistEntry ? it.hasNext() : true) {
+							date = bFistEntry ? it.next() : date;
+							String _scheduleDate = sdf.format(monthDayDate);
+							if (!ConversionUtils.toDateString(date.getDate()).equals(_scheduleDate)) {
+								bFistEntry = false;
+								break;
+							} else {
+								bFistEntry = true;
+								if (String.valueOf(date.getAvailable()).equals("0")) continue;
+							}
+							if (isTeamOnly || !providerview.startsWith("_grp_", 0) || myGrpBean.containsKey(date.getProviderNo())) { %>
+								<a href='providercontrol.jsp?year=<%=year%>&month=<%=MyDateFormat.getDigitalXX(month)%>&day=<%=MyDateFormat.getDigitalXX(dateGrid[i][j])%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+request.getParameter("curProviderName"))%>&displaymode=day&dboperation=searchappointmentday'>
+								<br>
+									<span class='datepname'>&nbsp;<%=providerNameBean.getShortDef(date.getProviderNo(), "", NameMaxLen)%></span>
+									<span class='datephour'><%=date.getHour() %></span>
+									<% if (bMultisites && CurrentSiteMap.get(date.getReason()) != null && (selectedSite == null || "NONE".equals(date.getReason()) || selectedSite.equals(date.getReason()))) {
+										if (bMultisites) {
+											out.print(getSiteHTML(date.getReason(), sites));
+										}
+										if (!bMultisites) { %>
+											<span class='datepreason'><%=date.getReason() %></span>
+										<% } 
+									} %>
+								</a>
+							<% } 
+						} 
+					}
+					%>
+				</td>
+			<% }
+		}
+		out.println("</tr>");
+	}
+%>
 
 				</table>
 				<!--last month & next month -->
