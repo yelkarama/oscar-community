@@ -807,11 +807,10 @@ window.onload=function(){
 						Vector vecPercTotal = percItem.getVecCodeTotal();
 						String codeUnit = percItem.getCodeUnit();
 						for(int j=0; j<vecPercTotal.size(); j++) {
-							String units = ((BillingReviewCodeItem)vecCodeItem.get(j)).getCodeUnit();
 							String percTotal = (Float.parseFloat((String)vecPercTotal.get(j)) )*Integer.parseInt(codeUnit) + "";
 				if (codeValid) {
                                                         %>
-						<input type="checkbox" name="percCode_<%=i %>" value="<%=percTotal %>" onclick="onCheckMaster();" /> <%=percTotal %><font size='-2'>(<%=vecPercFee.get(j) %>x<%=percFee %>x<%=units%>)</font> |
+						<input type="checkbox" name="percCode_<%=i %>" value="<%=percTotal %>" onclick="onCheckMaster();" /> <%=percTotal %><font size='-2'>(<%=vecPercFee.get(j) %>x<%=percFee %>x<%=codeUnit %>)</font> |
 				<%
                                 }
                                                 }
