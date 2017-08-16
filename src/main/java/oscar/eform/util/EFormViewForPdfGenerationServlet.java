@@ -44,11 +44,12 @@ public final class EFormViewForPdfGenerationServlet extends HttpServlet {
 			logger.warn("Unauthorised request made to EFormViewForPdfGenerationServlet from address : " + remoteAddress);
 			response.sendError(HttpServletResponse.SC_FORBIDDEN);
 		}
-		
+
+		boolean blankForm =  "true".equalsIgnoreCase(request.getParameter("blankForm"));
 		boolean prepareForFax = "true".equals(request.getParameter("prepareForFax")); 
 		String id = request.getParameter("fdid");
 		String providerId = request.getParameter("providerId");
-		EForm eForm = new EForm(id);
+		EForm eForm = new EForm(id, blankForm);
 		eForm.setSignatureCode(request.getContextPath(), request.getHeader("User-Agent"), eForm.getDemographicNo(), providerId);
 		eForm.setContextPath(request.getContextPath());
 		String projectHome = OscarProperties.getInstance().getProperty("project_home");

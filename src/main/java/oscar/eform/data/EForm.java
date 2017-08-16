@@ -39,6 +39,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionMessages;
 import org.oscarehr.common.OtherIdManager;
+import org.oscarehr.common.dao.EFormDao;
 import org.oscarehr.common.dao.EFormDataDao;
 import org.oscarehr.common.model.EFormData;
 import org.oscarehr.ui.servlet.ImageRenderingServlet;
@@ -55,6 +56,7 @@ import oscar.util.UtilDateUtilities;
 
 public class EForm extends EFormBase {
 	private static EFormDataDao eFormDataDao = (EFormDataDao) SpringUtils.getBean("EFormDataDao");
+	private static EFormDao eFormDao = SpringUtils.getBean(EFormDao.class);
 	private static Logger log = MiscUtils.getLogger();
 
 	private String appointment_no = "-1";
@@ -110,6 +112,42 @@ public class EForm extends EFormBase {
 		this.formSubject = "";
 		this.formHtml = "No Such Form in Database";
             }
+	}
+
+	public EForm(String fdid, Boolean blankForm) {
+		if(!StringUtils.isBlank(fdid) && !"null".equalsIgnoreCase(fdid)) {
+			org.oscarehr.common.model.EForm eForm = eFormDao.find(new Integer(fdid));
+			EFormData eFormData = eFormDataDao.find(new Integer(fdid));
+			if (blankForm && eForm!=null){
+				this.fdid = fdid;
+				this.formName = eForm.getFormName();
+				this.formSubject = eForm.getSubject();
+				this.formDate = eForm.getFormDate().toString();
+				this.formHtml = eForm.getFormHtml();
+				this.showLatestFormOnly = eForm.isShowLatestFormOnly();
+				this.patientIndependent = eForm.isPatientIndependent();
+				this.roleType = eForm.getRoleType();
+			}
+			else if (eFormData != null) {
+				this.fdid = fdid;
+				this.fid = eFormData.getFormId().toString();
+				this.providerNo = eFormData.getProviderNo();
+				this.demographicNo = eFormData.getDemographicId().toString();
+				this.formName = eFormData.getFormName();
+				this.formSubject = eFormData.getSubject();
+				this.formDate = eFormData.getFormDate().toString();
+				this.formHtml = eFormData.getFormData();
+				this.showLatestFormOnly = eFormData.isShowLatestFormOnly();
+				this.patientIndependent = eFormData.isPatientIndependent();
+				this.roleType = eFormData.getRoleType();
+			}
+			else {
+				this.formName = "";
+				this.formSubject = "";
+				this.formHtml = "No Such Form in Database";
+			}
+		}
+
 	}
 
 	public void loadEForm(String fid, String demographicNo) {
