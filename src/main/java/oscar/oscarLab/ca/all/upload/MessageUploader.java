@@ -40,6 +40,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import org.apache.commons.codec.binary.Base64;
@@ -379,7 +380,8 @@ public final class MessageUploader {
 	 * Attempt to match the doctors from the lab to a provider
 	 */ 
 	private static void providerRouteReport(String labId, ArrayList docNums, Connection conn, String altProviderNo, String labType, String search_on, Integer limit, boolean orderByLength) throws Exception {
-		ArrayList<String> providerNums = new ArrayList<String>();
+		// Using HashSet to avoid duplicate provider numbers
+	    LinkedHashSet<String> providerNums = new LinkedHashSet<>();
 		PreparedStatement pstmt;
 		String sql = "";
 		String sqlLimit = "";
@@ -442,12 +444,13 @@ public final class MessageUploader {
 		//if (!labType.equals("Spire"))
 		//	labType = "HL7";
 		
+        // remove duplicate provider numbers
+        
 		
 		ProviderLabRouting routing = new ProviderLabRouting();
 		if (providerNums.size() > 0) {
-			for (int i = 0; i < providerNums.size(); i++) {
-				String provider_no = providerNums.get(i);
-				routing.route(labId, provider_no, conn, "HL7");
+			for (String providerNo : providerNums) {
+				routing.route(labId, providerNo, conn, "HL7");
 			}
 		} else {
 			//Gets the ProviderDao
