@@ -108,7 +108,8 @@ public class EctAddMeasuringInstructionAction extends Action {
         	String typeDesc = mt.getTypeDescription();
         	
         	MeasurementType m = new MeasurementType();
-        	m.setType(typeDesc);
+        	m.setType(type);
+        	m.setTypeDescription(typeDesc);
         	m.setTypeDisplayName(typeDisplayName);
         	m.setMeasuringInstruction(measuringInstrc);
         	m.setValidation(validation);
