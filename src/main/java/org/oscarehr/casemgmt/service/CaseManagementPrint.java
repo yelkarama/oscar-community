@@ -124,7 +124,7 @@ public class CaseManagementPrint {
 				Long noteId = ConversionUtils.fromLongString(noteIds[idx]);
 				if (noteId > 0) {
 					CaseManagementNote note = this.caseManagementMgr.getNote(noteId.toString());
-					if (note!=null && note.getProviderNo()!=null && Integer.parseInt(note.getProviderNo())>1){
+					if (note!=null && note.getProviderNo()!=null && Integer.parseInt(note.getProviderNo())!=-1){
 						notes.add(note);
 					}
 				}
