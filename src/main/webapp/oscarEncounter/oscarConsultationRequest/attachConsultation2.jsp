@@ -285,7 +285,7 @@ function toggleSelectAll() {
             
             List<HRMDocumentToDemographic> hrmDocumentToDemographicList = hrmDocumentToDemographicDao.findByDemographicNo(demoNo);
             
-            if (labs.size() == 0 && privatedocs.size() == 0) {
+            if (labs.size() == 0 && privatedocs.size() == 0 && hrmDocumentToDemographicList.size() == 0 && eForms.size() == 0) {
             %>
                 <li> There are no documents to attach. </li>
             <% }
@@ -458,7 +458,10 @@ function toggleSelectAll() {
 	                
 					for (HRMDocumentToDemographic hrmDocumentToDemographic : hrmDocumentToDemographicList) 
 					{
-					    docs.add(hrmDocumentDao.findById(Integer.valueOf(hrmDocumentToDemographic.getHrmDocumentId())).get(0));
+					    List<HRMDocument> documents =  hrmDocumentDao.findById(Integer.valueOf(hrmDocumentToDemographic.getHrmDocumentId()));
+						if (documents!=null && !documents.isEmpty()){
+							docs.add(documents.get(0));
+						}
 					}
 					
 					Collections.sort(docs, new Comparator<HRMDocument>() {
