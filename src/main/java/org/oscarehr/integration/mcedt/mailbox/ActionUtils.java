@@ -588,8 +588,8 @@ public class ActionUtils {
 		if (diskName!=null){
 			Integer diskId = diskName.getId();
 			List<BillingONFilename> filenames = billingONFilenameDao.findByDiskId(diskId);
-			if (filenames!=null && !filenames.isEmpty()){
-				String total = filenames.get(0).getTotal();
+			for (BillingONFilename filename : filenames) {
+				String total = filename.getTotal();
 				if (total!=null && !total.trim().equals("") && !total.trim().equals("0.00")){
 					isEmptyOrZero = false;
 				}
