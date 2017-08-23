@@ -12494,3 +12494,24 @@ CREATE TABLE message_responder (
 );
 
 ALTER TABLE messagelisttbl MODIFY status VARCHAR(50);
+
+CREATE TABLE form_drawing_tool (
+  `ID` int(10) NOT NULL AUTO_INCREMENT,
+  `demographic_no` int(10) NOT NULL DEFAULT '0',
+  `provider_no` int(10) DEFAULT NULL,
+  `formCreated` date DEFAULT NULL,
+  `formEdited` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `drawing_json` longtext,
+  `image_id` int(10) NOT NULL,
+  PRIMARY KEY (`ID`)
+);
+CREATE TABLE form_drawing_tool_image (
+  `ID` int(10) NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `file_name` varchar(255) NOT NULL,
+  PRIMARY KEY (`ID`)
+);
+INSERT INTO form_drawing_tool_image (name, file_name) VALUES ('Blank Page', 'blank.png');
+INSERT INTO form_drawing_tool_image (name, file_name) VALUES ('Lined Paper', 'lined_paper.jpg');
+INSERT INTO form_drawing_tool_image (name, file_name) VALUES ('Anatomical Diagram', 'anatomical_diagram.png');
+INSERT INTO encounterform (form_name, form_value, form_table) VALUES ('Drawing Tool', '../form/formDrawingTool.jsp?demographic_no=', 'form_drawing_tool');
