@@ -480,7 +480,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 					cb.setRGBColorStrokeF(0f, 0f, 0f);
 					cb.setLineWidth(0.5f);
 					// cb.moveTo(13f, 20f);
-					cb.moveTo(13f, endPara - 110);
+					cb.moveTo(13f, endPara - 95);
 					cb.lineTo(13f, height - 15f);
 					cb.stroke();
 
@@ -488,7 +488,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 					cb.setRGBColorStrokeF(0f, 0f, 0f);
 					cb.setLineWidth(0.5f);
 					// cb.moveTo(285f, 20f);
-					cb.moveTo(285f, endPara - 110);
+					cb.moveTo(285f, endPara - 95);
 					cb.lineTo(285f, height - 15f);
 					cb.stroke();
 					// draw top line 10, 405, 285, 405, 0.5
@@ -503,8 +503,8 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 					cb.setLineWidth(0.5f);
 					// cb.moveTo(13f, 20f);
 					// cb.lineTo(285f, 20f);
-					cb.moveTo(13f, endPara - 110);
-					cb.lineTo(285f, endPara - 110);
+					cb.moveTo(13f, endPara - 95);
+					cb.lineTo(285f, endPara - 95);
 					cb.stroke();
 					// Render "Signature:"
 					writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, geti18nTagValue(locale, "RxPreview.msgSignature"), 20f, endPara - 60f, 0);// Render line for Signature 75, 55, 280, 55, 0.5
@@ -520,21 +520,21 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 						Image img = Image.getInstance(this.imgPath);
 						// image, image_width, 0, 0, image_height, x, y
 						//         131, 55, 375, 75, 0
-						cb.addImage(img, 150, 0, 0, 40, 100f, endPara-55f);
+						cb.addImage(img, 125, 0, 0, 25, 100f, endPara-60f);
 					} else if (this.electronicSignature != null && !this.electronicSignature.equals("")) {
 						//PdfContentByte
 						String[] lines = this.electronicSignature.split(System.getProperty("line.separator"));
 						writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, lines[0], 72f, endPara - 48f, 0);
 						writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, lines[1], 72f, endPara - 57f, 0);
 					}
-					
+
 
 					// Render doctor name
 					bf = BaseFont.createFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
-					writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, "Requesting: " + this.sigDoctorName, 20f, endPara - 78f, 0);
+					writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, "Requesting: " + this.sigDoctorName, 20f, endPara - 75f, 0);
 					if (mrpRx)
 					{
-						writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, "MRP: " + this.MRP, 20f,endPara - 88f, 0);	
+						writeDirectContent(cb, bf, 8, PdfContentByte.ALIGN_LEFT, "MRP: " + this.MRP, 20f,endPara - 85f, 0);
 					}
 					bf = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
 					// public void writeDirectContent(PdfContentByte cb, BaseFont bf, float fontSize, int alignment, String text, float x, float y, float rotation)
@@ -543,10 +543,10 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 						String rePrintStr = geti18nTagValue(locale, "RxPreview.msgReprintBy")+" " + this.sigDoctorName + "; "+geti18nTagValue(locale, "RxPreview.msgOrigPrinted")+": " + origPrintDate + "; "+geti18nTagValue(locale, "RxPreview.msgTimesPrinted") +": " + numPrint;writeDirectContent(cb, bf, 6, PdfContentByte.ALIGN_LEFT, rePrintStr, 45, endPara - 67, 0);
 					}
 					// print promoText
-					writeDirectContent(cb, bf, 6, PdfContentByte.ALIGN_LEFT, this.promoText, 70, endPara - 102, 0);
+					writeDirectContent(cb, bf, 6, PdfContentByte.ALIGN_LEFT, this.promoText, 70, endPara - 92.5f, 0);
 					// print page number
 					String footer = "" + writer.getPageNumber();
-					writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_RIGHT, footer, 280, endPara - 102, 0);
+					writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_RIGHT, footer, 280, endPara - 92.5f, 0);
                 }
 			} catch (Exception e) {
 				logger.error("Error", e);
