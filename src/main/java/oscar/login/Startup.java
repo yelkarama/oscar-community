@@ -145,6 +145,7 @@ public class Startup implements ServletContextListener {
 				checkAndSetProperty(baseDocumentDir, contextPath, "oscarMeasurement_css_upload_path", "/oscarEncounter/oscarMeasurements/styles/");
 				checkAndSetProperty(baseDocumentDir, contextPath, "TMP_DIR", "/export/");
 				checkAndSetProperty(baseDocumentDir, contextPath, "form_record_path", "/form/records/");
+                checkAndSetProperty(baseDocumentDir, contextPath, "form_drawing_images_path", "/form/drawing_images/");
 				
 				//HRM Directories
 				checkAndSetProperty(baseDocumentDir, contextPath,"OMD_hrm","/hrm/");

@@ -59,7 +59,12 @@ public class DisplayImageAction extends DownloadAction{
     	   	
         String fileName = request.getParameter("imagefile");
         //if (fileName.indexOf('/') != -1) return null;  //prevents navigating away from the page.
-        String home_dir = OscarProperties.getInstance().getProperty("eform_image");
+        String home_dir;
+        if ("true".equalsIgnoreCase(request.getParameter("drawingFormImage"))) {
+            home_dir = OscarProperties.getInstance().getProperty("form_drawing_images_path");
+        } else {
+            home_dir = OscarProperties.getInstance().getProperty("eform_image");
+        }
 
         response.setHeader("Content-disposition","inline; filename=\"" + fileName + "\"");
 
