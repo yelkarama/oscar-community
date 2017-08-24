@@ -39,8 +39,13 @@ function CodeAttach(File0, File1, File2) {
 <% 
 if(request.getParameter("nameF") != null) {
     String feeElement = request.getParameter("nameF").replace("servicecode", "billingamount");
+
+    if (!feeElement.contains("serviceCode"))
+    {
+        out.println("self.opener." + feeElement + " = File1;");
+    }
+
 		out.println("self.opener." + request.getParameter("nameF") + " = File0;");
-		out.println("self.opener." + feeElement + " = File1;");
 } else {
 %>      
       self.opener.document.serviceform.xml_other1.value = File0;
