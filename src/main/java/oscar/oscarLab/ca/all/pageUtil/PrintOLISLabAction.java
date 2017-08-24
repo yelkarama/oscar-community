@@ -55,7 +55,7 @@ public class PrintOLISLabAction extends Action {
 			String resultUuid = request.getParameter("uuid");
 			boolean includeAttachmentsInZip = Boolean.valueOf(request.getParameter("includeAttachmentsInZip"));
 			MessageHandler handler = null;
-			if (segmentId==null && segmentId.equals("0")) {
+			if (segmentId==null  || "0".equals(segmentId)) {
 				// if viewing in preview from OLIS search, use uuid
 				handler = OLISResultsAction.searchResultsMap.get(resultUuid);
 			}
