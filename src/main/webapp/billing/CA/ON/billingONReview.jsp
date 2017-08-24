@@ -787,7 +787,7 @@ window.onload=function(){
 				<%paid_value = codeTotal; %>
 				</oscar:oscarPropertiesCheck>
 				<td nowrap width='14%'><pre><%=codeDescription%></pre></td>
-				<td nowrap width='3%'><input type="text" id="paid_<%=i%>" name="paid_<%=i %>" value="<%=paid_value%>" onBlur="calculatePayment();" onchange="validatePaymentNumberic(<%=i %>)"/></td>
+				<td nowrap width='3%'><input type="text" id="paid_<%=i%>" name="paid_<%=i %>" value="<%=paid_value%>" onBlur="calculatePayment();" ondblclick="this.value = '<%=codeTotal%>'" onchange="validatePaymentNumberic(<%=i %>)"/></td>
 				<td nowrap width='3%'><input type="text" id="discount_<%=i%>" name="discount_<%=i %>" value="0.00" onBlur="calculateDiscount();" onchange="validateDiscountNumberic(<%=i %>)"/></td>
 				<%}%>
 			</tr>
