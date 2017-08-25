@@ -32,6 +32,8 @@ import javax.persistence.*;
 public class ResourceStorage extends AbstractModel<Integer> {
 	public static final String PREVENTION_RULES = "PREVENTION_RULES";
 	
+	public static final String SURVEILLANCE_CONFIGURATION = "SURVEILLANCE_CONFIGURATION";
+	
 	/*create table ResourceStorage (
 			id int(10)  NOT NULL auto_increment primary key,
 			resourceType varchar(100),
