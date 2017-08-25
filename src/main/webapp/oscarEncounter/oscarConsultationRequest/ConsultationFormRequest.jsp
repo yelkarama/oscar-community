@@ -2057,6 +2057,7 @@ function updateFaxButton() {
 									else
 									{
 								%>
+									<input type="hidden" name="letterheadFax" id="letterheadFax" value="<%=letterheadFax.replace("-", "")%>" />
 									<%=letterheadFax%>		
 								<%
 									}		
