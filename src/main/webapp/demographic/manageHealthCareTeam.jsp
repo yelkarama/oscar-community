@@ -436,7 +436,8 @@ jQuery(document).ready( function($) {
 			</td>
 			
 			<td class="external" >
-				<select id="selectHealthCareTeamRoleType" name="selectHealthCareTeamRoleType" >					
+				<select id="selectHealthCareTeamRoleType" name="selectHealthCareTeamRoleType" >
+					<option value="all">- Specialty -</option>
 					<c:forEach items="${ specialty }" var="specialtyType">						
 						<option value="${ specialtyType.serviceId }" ${ specialtyType.serviceDesc eq 'UNKNOWN' ? 'selected' : '' } >
 							<c:out value="${ specialtyType.serviceDesc }" />

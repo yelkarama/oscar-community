@@ -43,19 +43,8 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
 import org.apache.struts.validator.DynaValidatorForm;
 import org.oscarehr.PMmodule.dao.ProviderDao;
-import org.oscarehr.common.dao.ContactDao;
-import org.oscarehr.common.dao.ContactSpecialtyDao;
-import org.oscarehr.common.dao.DemographicContactDao;
-import org.oscarehr.common.dao.DemographicDao;
-import org.oscarehr.common.dao.ProfessionalContactDao;
-import org.oscarehr.common.dao.ProfessionalSpecialistDao;
-import org.oscarehr.common.model.Contact;
-import org.oscarehr.common.model.ContactSpecialty;
-import org.oscarehr.common.model.Demographic;
-import org.oscarehr.common.model.DemographicContact;
-import org.oscarehr.common.model.ProfessionalContact;
-import org.oscarehr.common.model.ProfessionalSpecialist;
-import org.oscarehr.common.model.Provider;
+import org.oscarehr.common.dao.*;
+import org.oscarehr.common.model.*;
 import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
@@ -74,7 +63,7 @@ public class ContactAction extends DispatchAction {
 	static DemographicDao demographicDao= (DemographicDao)SpringUtils.getBean("demographicDao");
 	static ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
 	static ProfessionalSpecialistDao professionalSpecialistDao = SpringUtils.getBean(ProfessionalSpecialistDao.class);
-	static ContactSpecialtyDao contactSpecialtyDao = SpringUtils.getBean(ContactSpecialtyDao.class);
+	static ConsultationServiceDao consultationServiceDao = SpringUtils.getBean(ConsultationServiceDao.class);
 	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
 	 
 	@Override
@@ -266,7 +255,13 @@ public class ContactAction extends DispatchAction {
     			}
 
 				c.setDemographicNo(Integer.parseInt(request.getParameter("demographic_no")));
-    			c.setRole(request.getParameter("procontact_"+x+".role"));
+    			if (!"all".equalsIgnoreCase(request.getParameter("procontact_"+x+".role"))) {
+					c.setRole(request.getParameter("procontact_" + x + ".role"));
+				}
+				else if (professionalSpecialistDao.find(Integer.parseInt(otherId))!=null) {
+    				c.setRole(professionalSpecialistDao.find(Integer.parseInt(otherId)).getSpecialtyType());
+				}
+
     			if (request.getParameter("procontact_"+x+".type") != null) {
     			    c.setType(Integer.parseInt(request.getParameter("procontact_"+x+".type")));
     			}
@@ -405,8 +400,7 @@ public class ContactAction extends DispatchAction {
 
 	public ActionForward addProContact(ActionMapping mapping, ActionForm form, 
 			HttpServletRequest request, HttpServletResponse response) {
-		ContactSpecialtyDao specialtyDao = SpringUtils.getBean(ContactSpecialtyDao.class);
-		List<ContactSpecialty> specialties = specialtyDao.findAll();
+		List<ConsultationServices> specialties = consultationServiceDao.findActive();
 		OscarProperties prop = OscarProperties.getInstance();
 		request.setAttribute( "region", prop.getProperty("billregion") );
 		request.setAttribute( "specialties", specialties );
@@ -424,7 +418,7 @@ public class ContactAction extends DispatchAction {
 		String contactId = "";
 		ProfessionalSpecialist professionalSpecialist = null;
 		String contactRole = "";
-		List<ContactSpecialty> specialtyList = null;
+		List<ConsultationServices> specialtyList = null;
 		
 		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_demographic", "w", null)) {
         	throw new SecurityException("missing required security object (_demographic)");
@@ -433,7 +427,7 @@ public class ContactAction extends DispatchAction {
 		
 		if( StringUtils.isNotBlank( demographicContactId ) ) {
 			
-			specialtyList = contactSpecialtyDao.findAll();						
+			specialtyList = consultationServiceDao.findActive();
 			demographicContact = demographicContactDao.find( Integer.parseInt( demographicContactId ) );
 			contactType = demographicContact.getType();
 			contactCategory = demographicContact.getCategory();
@@ -462,8 +456,8 @@ public class ContactAction extends DispatchAction {
 			
 			if( ! StringUtils.isNumeric( contactRole ) ) {
 				String specialtyDesc;
-				for( ContactSpecialty specialty : specialtyList ) {
-					specialtyDesc = specialty.getSpecialty().trim();
+				for( ConsultationServices specialty : specialtyList ) {
+					specialtyDesc = specialty.getServiceDesc().trim();
 					if( specialtyDesc.equalsIgnoreCase( contactRole ) ) {
 						 contactRole = specialty.getId()+"";
 					}
@@ -623,7 +617,7 @@ public class ContactAction extends DispatchAction {
 	 */
 	public static List<Contact> searchAllContacts(String searchMode, String orderBy, String keyword) {
 		List<Contact> contacts = new ArrayList<Contact>();
-		List<ProfessionalSpecialist> professionalSpecialistContact = professionalSpecialistDao.search(keyword);		
+		List<ProfessionalSpecialist> professionalSpecialistContact = professionalSpecialistDao.search(keyword);
 		
 		// if there is a future in adding personal contacts.
 		// contacts.addAll( contactDao.search(searchMode, orderBy, keyword) );		
@@ -650,6 +644,17 @@ public class ContactAction extends DispatchAction {
 		List<ProfessionalSpecialist> contacts = professionalSpecialistDao.search(keyword);
 		return contacts;
 	}
+
+	public static List<Contact> searchProfessionalSpecialistsBySpecialty(String searchMode, String orderBy, String keyword, String specialty) {
+		List<Contact> contacts = new ArrayList<Contact>();
+		List<ProfessionalSpecialist> professionalSpecialistContact = professionalSpecialistDao.searchSpecialty(keyword, specialty);
+		contacts.addAll( proContactDao.search(searchMode, orderBy, keyword) );
+		contacts.addAll( buildContact( professionalSpecialistContact ) );
+
+		Collections.sort(contacts, byLastName);
+
+		return contacts;
+	}
 	
 	public static List<DemographicContact> getDemographicContacts(Demographic demographic) {
 		List<DemographicContact> contacts = demographicContactDao.findByDemographicNo(demographic.getDemographicNo());	
@@ -666,15 +671,15 @@ public class ContactAction extends DispatchAction {
 		Provider provider;
 		Contact contact; 
 		ProfessionalSpecialist professionalSpecialist;
-		ContactSpecialty specialty;
+		ConsultationServices specialty;
 		String providerFormattedName = ""; 
 		String role = "";
 		
 		for( DemographicContact c : contacts ) {
 			role = c.getRole();
 			if( StringUtils.isNumeric( c.getRole() ) && ! role.isEmpty() ) {
-				specialty = contactSpecialtyDao.find( Integer.parseInt( c.getRole().trim() ) );
-				c.setRole( specialty.getSpecialty() );
+				specialty = consultationServiceDao.find(Integer.parseInt(c.getRole().trim()));
+				c.setRole(specialty.getServiceDesc());
 			}
 
 			if( c.getType() == DemographicContact.TYPE_DEMOGRAPHIC ) {
