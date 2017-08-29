@@ -462,15 +462,14 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 		
 		if(statuses != null) {
 			queryString += " and d.PatientStatus " + ((ignoreStatuses)?"not":"") + "  in (:statuses)";
+		}		 
+		
+		if(providerNo != null && !outOfDomain) {
+			queryString += " AND d.id IN ("+ PROGRAM_DOMAIN_RESTRICTION+") ";
 		}
 
 		if (orderBy!=null){
 			queryString += " ORDER BY "+getOrderField(orderBy);
-		}
-		 
-		
-		if(providerNo != null && !outOfDomain) {
-			queryString += " AND d.id IN ("+ PROGRAM_DOMAIN_RESTRICTION+") ";
 		}
 		
 		Session session = this.getSession();
@@ -659,14 +658,13 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 		if(statuses != null) {
 			queryString += " and d.PatientStatus " + ((ignoreStatuses)?"not":"") + "  in (:statuses)";
 		}
-
-		if (orderBy!=null){
-			queryString += " ORDER BY "+getOrderField(orderBy);
-		}
-		 
 		
 		if(providerNo != null && !outOfDomain) {
 			queryString += " AND d.id IN ("+ PROGRAM_DOMAIN_RESTRICTION+") ";
+		}
+
+		if (orderBy!=null){
+			queryString += " ORDER BY "+getOrderField(orderBy);
 		}
 		
 		Session session = this.getSession();
@@ -763,13 +761,13 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 		if(statuses != null) {
 			queryString += " and d.PatientStatus " + ((ignoreStatuses)?"not":"") + "  in (:statuses)";
 		}
-
-		if (orderBy!=null){
-			queryString += " ORDER BY "+getOrderField(orderBy);
-		}
 		 
 		if(providerNo != null && !outOfDomain) {
 			queryString += " AND d.id IN ("+ PROGRAM_DOMAIN_RESTRICTION+") ";
+		}
+
+		if (orderBy!=null){
+			queryString += " ORDER BY "+getOrderField(orderBy);
 		}
 		
 		Session session = this.getSession();
@@ -924,17 +922,15 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 
 		if(statuses != null) {
 			queryString += " and d.PatientStatus " + ((ignoreStatuses)?"not":"") + "  in (:statuses)";
+		}		 
+		
+		if(providerNo != null && !outOfDomain) {
+			queryString += " AND d.id IN ("+ PROGRAM_DOMAIN_RESTRICTION+") ";
 		}
 
 		if (orderBy!=null){
 			queryString += " ORDER BY "+getOrderField(orderBy);
 		}
-		 
-		
-		if(providerNo != null && !outOfDomain) {
-			queryString += " AND d.id IN ("+ PROGRAM_DOMAIN_RESTRICTION+") ";
-		}
-		
 		
 		Session session = this.getSession();
 		try {
@@ -993,14 +989,14 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 			queryString += " AND d.patient_status " + ((ignoreStatuses)?"NOT":"") + "  IN (:statuses)";
 		}
 
-		if (orderBy!=null){
-			queryString += " ORDER BY "+getOrderField(orderBy);
-		}
-
 		if(providerNo != null && !outOfDomain) {
 			queryString += " AND d.id IN ("+ PROGRAM_DOMAIN_RESTRICTION+") ";
 		}
 
+		if (orderBy!=null){
+			queryString += " ORDER BY "+getOrderField(orderBy);
+		}
+		
 		Session session = this.getSession();
 		try {
 			SQLQuery query = session.createSQLQuery(queryString);
@@ -1077,13 +1073,13 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 		if(statuses != null) {
 			queryString += " and d.PatientStatus " + ((ignoreStatuses)?"not":"") + "  in (:statuses)";
 		}
-
-		if (orderBy!=null){
-			queryString += " ORDER BY "+getOrderField(orderBy);
-		}
 		
 		if(providerNo != null && !outOfDomain) {
 			queryString += " AND d.id IN ("+ PROGRAM_DOMAIN_RESTRICTION+") ";
+		}
+
+		if (orderBy!=null){
+			queryString += " ORDER BY "+getOrderField(orderBy);
 		}
 		
 		Session session = getSession();
@@ -1142,16 +1138,14 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 		if(statuses != null) {
 			queryString += " and d.PatientStatus " + ((ignoreStatuses)?"not":"") + "  in (:statuses)";
 		}
-
-		if (orderBy!=null){
-			queryString += " ORDER BY "+getOrderField(orderBy);
-		}
-		 
 		
 		if(providerNo != null && !outOfDomain) {
 			queryString += " AND d.id IN ("+ PROGRAM_DOMAIN_RESTRICTION+") ";
 		}
-		
+
+		if (orderBy!=null){
+			queryString += " ORDER BY "+getOrderField(orderBy);
+		}
 		
 		Session session = getSession();
 		List<Demographic> list = null;
