@@ -37,6 +37,7 @@
 <%@ page import="org.oscarehr.PMmodule.service.ProgramManager"%>
 <%@ page import="org.oscarehr.PMmodule.model.Program"%>
 <%@ page import="org.oscarehr.util.SpringUtils"%>
+<%@ page import="oscar.OscarProperties" %>
 <%@ taglib uri="/WEB-INF/caisi-tag.tld" prefix="caisi"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 
@@ -168,7 +169,12 @@
             if (!userHasExternalOrErClerkRole) {
         %> <security:oscarSec roleName="<%=roleName$%>"
 	objectName="_pmm.newClient" rights="r">
-	<div><html:link action="/PMmodule/ClientSearch2.do">New Client</html:link>
+	<div>
+		<% if (OscarProperties.getInstance().isPropertyActive("caisi_ryerson_intake")) { %>
+			<html:link action="/PMmodule/GenericIntake/Search.do">New Client</html:link>
+		<% } else { %>
+			<html:link action="/PMmodule/ClientSearch2.do">New Client</html:link>
+		<% } %>
 	</div>
 </security:oscarSec> <security:oscarSec roleName="<%=roleName$%>"
 	objectName="_pmm.mergeRecords" rights="r">

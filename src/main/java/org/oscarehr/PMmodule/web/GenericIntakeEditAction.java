@@ -487,6 +487,9 @@ public class GenericIntakeEditAction extends DispatchAction {
 			if(StringUtils.isBlank(client.getPatientStatus())) {
 				client.setPatientStatus(PatientStatus.AC.name());
 			}
+            if(client.getPrefName() == null) {
+                client.setPrefName("");
+            }
 
 			// save client information.
 			saveClient(client, providerNo);

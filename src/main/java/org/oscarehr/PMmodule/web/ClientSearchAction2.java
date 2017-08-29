@@ -42,6 +42,7 @@ import org.oscarehr.casemgmt.dao.CaseManagementNoteDAO;
 import org.oscarehr.casemgmt.model.CaseManagementNote;
 import org.oscarehr.util.SpringUtils;
 
+import oscar.OscarProperties;
 import oscar.log.LogAction;
 
 import com.quatro.service.LookupManager;
@@ -75,6 +76,9 @@ public class ClientSearchAction2 extends DispatchAction {
 		
 		request.setAttribute("genders",lookupManager.LoadCodeList("GEN", true, null, null));
 		
+		if (OscarProperties.getInstance().isPropertyActive("caisi_ryerson_intake")) {
+            return mapping.findForward("ryerson-search");
+        }
 		return mapping.findForward("form");
 	}
 
@@ -137,7 +141,10 @@ public class ClientSearchAction2 extends DispatchAction {
 			LogAction.log("read","out of domain client search","",request);
 		}
 		request.setAttribute("genders",lookupManager.LoadCodeList("GEN", true, null, null));
-				
+
+        if (OscarProperties.getInstance().isPropertyActive("caisi_ryerson_intake")) {
+            return mapping.findForward("ryerson-search");
+        }
 		return mapping.findForward("form");
 	}
 
