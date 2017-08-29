@@ -39,9 +39,9 @@ var names = [];
 <%   for(int j = 0;j < types.size(); j++) { %>
 		durations.push('<%= types.get(j).getDuration() %>');
 		reasonCodes.push('<%= types.get(j).getReasonCode() %>_<%=lookupListItemDao.find(types.get(j).getReasonCode())!=null?lookupListItemDao.find(types.get(j).getReasonCode()).getLabel():""%>');
-		reasons.push('<%= types.get(j).getReason() %>');
+		reasons.push('<%= types.get(j).getReason().replaceAll("\\s", " ") %>');
 		locations.push('<%= types.get(j).getLocation() %>');
-		notes.push('<%= types.get(j).getNotes() %>');
+		notes.push('<%= types.get(j).getNotes().replaceAll("\\s", " ") %>');
 		resources.push('<%= types.get(j).getResources() %>');
 		names.push('<%= types.get(j).getName() %>');
 <%   } %>
