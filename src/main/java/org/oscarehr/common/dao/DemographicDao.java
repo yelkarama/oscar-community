@@ -566,17 +566,15 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 		
 		if(statuses != null) {
 			queryString += " and d.PatientStatus " + ((ignoreStatuses)?"not":"") + "  in (:statuses)";
-		}
-
-		if (orderBy!=null){
-			queryString += " ORDER BY "+getOrderField(orderBy);
-		}
-		 
+		}		 
 		
 		if(providerNo != null && !outOfDomain) {
 			queryString += " AND d.id IN ("+ PROGRAM_DOMAIN_RESTRICTION+") ";
 		}
 		
+		if (orderBy!=null){
+			queryString += " ORDER BY "+getOrderField(orderBy);
+		}
 		
 		Session session = this.getSession();
 		try {
