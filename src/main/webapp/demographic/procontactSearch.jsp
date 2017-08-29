@@ -49,6 +49,8 @@
 <%@ page import="org.oscarehr.common.model.Contact"%>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
 <%@ page import="org.apache.commons.lang.WordUtils"%>
+<%@ page import="org.oscarehr.common.dao.ConsultationServiceDao" %>
+<%@ page import="org.oscarehr.util.SpringUtils" %>
 
 <%@ include file="/taglibs.jsp"%>
 
@@ -76,12 +78,18 @@
 	  String search_mode = request.getParameter("search_mode")==null?"search_name":request.getParameter("search_mode");
 	  String orderBy = request.getParameter("orderby")==null?"c.lastName,c.firstName":request.getParameter("orderby");
 	  String list = request.getParameter("list");
+	  String specialityId = request.getParameter("contactRole");
+	  ConsultationServiceDao consultationServiceDao = SpringUtils.getBean(ConsultationServiceDao.class);
 	  List<?> contacts;
 
-	  if( "all".equalsIgnoreCase(list) ) {
+	  if( "all".equalsIgnoreCase(list) && "all".equals(specialityId)) {
 		  contacts = ContactAction.searchAllContacts(search_mode, orderBy, keyword);
 		  pageContext.setAttribute("toggleSearchTool", list);
-	  } else {
+	  }
+	  else if (specialityId!=null && consultationServiceDao.find(Integer.parseInt(specialityId))!=null){
+	      contacts = ContactAction.searchProfessionalSpecialistsBySpecialty(search_mode, orderBy, keyword, consultationServiceDao.find(Integer.parseInt(specialityId)).getServiceDesc());
+	  }
+	  else {
 		  contacts = ContactAction.searchProContacts(search_mode, orderBy, keyword);
 	  }
 	  

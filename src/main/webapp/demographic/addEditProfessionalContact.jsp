@@ -315,7 +315,7 @@
 			<select id="pcontact.specialty" name="pcontact.specialty" >					
 				<c:forEach items="${ specialties }" var="specialtyType">			
 					<option value="${ specialtyType.id }" ${ specialtyType.id eq requestScope.contactRole ? 'selected' : '' } >  
-						<c:out value="${ specialtyType.specialty }" />
+						<c:out value="${ specialtyType.serviceDesc }" />
 					</option>
 				</c:forEach>
 			</select>
