@@ -1590,7 +1590,11 @@ pre {
                                            &nbsp;<%if(loincCode != null){ %>
                                                 	<a href="javascript:popupStart('660','1000','http://apps.nlm.nih.gov/medlineplus/services/mpconnect.cfm?mainSearchCriteria.v.cs=2.16.840.1.113883.6.1&mainSearchCriteria.v.c=<%=loincCode%>&informationRecipient.languageCode.c=en')"> info</a>
                                                 	<%} %> </td><%}%>
-                                           	<%
+                           
+                                           <% if(handler instanceof AlphaHandler && "FT".equals(handler.getOBXValueType(j, k))) { %>
+                                                <td colspan="4"><pre style="font-family:Courier New, monospace;">       <%= handler.getOBXResult( j, k) %></pre></td>
+                                           <%                
+                                           } else { 
                                            	String align = "right";
                                           	//for pathl7, if it is an SG/CDC result greater than 100 characters, left justify it
                                            	if((handler.getOBXResult(j, k).length() > 100) && (isSGorCDC)){
@@ -1615,6 +1619,7 @@ pre {
                                            <td align="left"><%=handler.getOBXUnits( j, k) %></td>
                                            
                                            <% } %>
+                                        <% } %>
                                            <td align="center"><%= handler.getTimeStamp(j, k) %></td>
                                            <td align="center"><%= handler.getOBXResultStatus( j, k) %></td>
                                       		<td align="center" valign="top">                                           <a href="javascript:void(0);" title="Annotation" onclick="window.open('<%=request.getContextPath()%>/annotation/annotation.jsp?display=<%=annotation_display%>&amp;table_id=<%=segmentID%>&amp;demo=<%=demographicID%>&amp;other_id=<%=String.valueOf(j) + "-" + String.valueOf(k) %>','anwin','width=400,height=500');">
