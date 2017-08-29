@@ -382,10 +382,12 @@ public class ContactAction extends DispatchAction {
     	if( ids != null ) {
     		int contactId;
     		for( String id : ids ) {
-    			contactId = Integer.parseInt(id);
-    			DemographicContact dc = demographicContactDao.find( contactId );
-    			dc.setDeleted(true);
-    			demographicContactDao.merge(dc);
+    			if (!id.isEmpty()) {
+					contactId = Integer.parseInt(id);
+					DemographicContact dc = demographicContactDao.find(contactId);
+					dc.setDeleted(true);
+					demographicContactDao.merge(dc);
+				}
     		}
     	}
     	
