@@ -679,7 +679,9 @@ public class ContactAction extends DispatchAction {
 			role = c.getRole();
 			if( StringUtils.isNumeric( c.getRole() ) && ! role.isEmpty() ) {
 				specialty = consultationServiceDao.find(Integer.parseInt(c.getRole().trim()));
-				c.setRole(specialty.getServiceDesc());
+				if (specialty != null) {
+					c.setRole(specialty.getServiceDesc());
+				}
 			}
 
 			if( c.getType() == DemographicContact.TYPE_DEMOGRAPHIC ) {
