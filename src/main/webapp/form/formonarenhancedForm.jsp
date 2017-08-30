@@ -336,7 +336,9 @@
                 <input type="hidden" name="provider_no" value=<%=request.getParameter("provNo")%> />
                 <input type="hidden" name="provNo" value="<%= request.getParameter("provNo") %>" />
                 <input type="hidden" name="submit" value="exit" />
+                <%if ("AR2-US".equalsIgnoreCase(section)){%>
                 <input type="hidden" id="us_num" name="us_num" value="<%= props.getProperty("us_num", "0") %>"/>
+                <%}%>
                 <%if (!bView) { %>
                 <input type="submit" value="Save and Exit" onclick="javascript:return onSaveExit();" />
                 <%} %>
