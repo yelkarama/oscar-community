@@ -286,7 +286,7 @@ function isCanadian(){
 }
 
 function getSpecialistInfo(specialistId, specialistType) {
-    if (specialistId != null || specialistId != ""){
+    if (specialistId != null && specialistId != ""){
         jQuery.getJSON("../oscarEncounter/oscarConsultationRequest/getProfessionalSpecialist.jsp", {id: specialistId},
             function (xml) {
                 if (specialistType == "r") {

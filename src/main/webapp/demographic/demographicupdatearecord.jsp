@@ -301,7 +301,14 @@
 	
 	//DemographicExt
 	String proNo = (String) session.getValue("user");
+	String familyDoctorId = "";
+	String familyPhysicianId = "";
 	List<DemographicExt> extensions = new ArrayList<DemographicExt>();
+
+	if (request.getParameter("r_doctor")!=null && !request.getParameter("r_doctor").isEmpty()){
+		familyDoctorId = request.getParameter("r_doctor_id");
+		familyPhysicianId = request.getParameter("f_doctor_id");
+	}
 
     extensions.add(new DemographicExt(request.getParameter("insurance_company_id"), proNo, demographicNo, "insurance_company", request.getParameter("insurance_company")));
     extensions.add(new DemographicExt(request.getParameter("insurance_number_id"), proNo, demographicNo, "insurance_number", request.getParameter("insurance_number")));
@@ -326,8 +333,8 @@
 	extensions.add(new DemographicExt(request.getParameter("paper_chart_archived_id"), proNo, demographicNo, "paper_chart_archived", request.getParameter("paper_chart_archived")));
 	extensions.add(new DemographicExt(request.getParameter("paper_chart_archived_date_id"), proNo, demographicNo, "paper_chart_archived_date", request.getParameter("paper_chart_archived_date")));
 	extensions.add(new DemographicExt(request.getParameter("paper_chart_archived_program_id"), proNo, demographicNo, "paper_chart_archived_program", request.getParameter("paper_chart_archived_program")));
-	extensions.add(new DemographicExt(request.getParameter("familyDoctorId_id"), proNo, demographicNo, "familyDoctorId", request.getParameter("r_doctor_id")));
-	extensions.add(new DemographicExt(request.getParameter("familyPhysicianId_id"), proNo, demographicNo, "familyPhysicianId", request.getParameter("f_doctor_id")));
+	extensions.add(new DemographicExt(request.getParameter("familyDoctorId_id"), proNo, demographicNo, "familyDoctorId", familyDoctorId));
+	extensions.add(new DemographicExt(request.getParameter("familyPhysicianId_id"), proNo, demographicNo, "familyPhysicianId", familyPhysicianId));
 	extensions.add(new DemographicExt(request.getParameter("includeEmailOnConsults_id"), proNo, demographicNo, "includeEmailOnConsults", request.getParameter("includeEmailOnConsults") != null ? request.getParameter("includeEmailOnConsults") : "false"));
    
 	// Demographic Groups
