@@ -91,7 +91,7 @@ public class MsgMessengerAdminAction extends Action {
 				parent = "" + gg.getParentId();
 			}
 
-			if (dao.findByParentId(ConversionUtils.fromIntString(parent)).size() > 1) {
+			if (dao.findByParentId(ConversionUtils.fromIntString(grpNo)).size() > 0) {
 				request.setAttribute("groupNo", grpNo);
 				request.setAttribute("fail", "This Group has Children, you must delete the children groups first");
 				return (mapping.findForward("failure"));
