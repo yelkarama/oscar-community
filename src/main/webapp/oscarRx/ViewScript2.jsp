@@ -281,7 +281,8 @@ if(prefPharmacy.length() > 0 && prefPharmacyId.length() > 0){
     }
 
 function setComment(){
-    frames['preview'].document.getElementById('additNotes').innerHTML = '<%=comment%>';
+    frames['preview'].document.getElementById('additNotes').innerHTML = '<%=comment.replaceAll("\n", "<br>")%>';
+    frames['preview'].document.getElementsByName('additNotes')[0].value = frames['preview'].document.getElementById('additNotes').innerHTML ;
 }
 
 function setDefaultAddr(){

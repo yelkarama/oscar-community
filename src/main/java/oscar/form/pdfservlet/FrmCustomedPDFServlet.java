@@ -670,7 +670,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 			rx = "";
 		}
 
-		String additNotes = req.getParameter("additNotes");
+		String additNotes = req.getParameter("additNotes")!=null?req.getParameter("additNotes").replaceAll("<br>", "\n"):"";
 		String[] rxA = rx.split(newline);
 		List<String> listRx = new ArrayList<String>();
 		String listElem = "";
