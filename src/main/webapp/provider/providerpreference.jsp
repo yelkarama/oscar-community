@@ -842,6 +842,44 @@ String clinicNo = OscarProperties.getInstance().getProperty("clinic_no");
 		  <option value="PDF"><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.PDF" /></option>
 		  <option value="RTF"><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.RTF" /></option>
 	  </select>
+		  <hr/>
+		  <label>Default Billing Form for "Other" HC</label>
+		  <select name="default_service_other">
+			  <option value="no">-- no --</option>
+			  <%
+				  String defaultServiceOther = "";
+				  UserProperty defaultServiceOtherProperty = propertyDao.getProp(providerNo, "default_service_other");
+				  if (defaultServiceOtherProperty != null && defaultServiceOtherProperty.getValue() != null && !defaultServiceOtherProperty.getValue().isEmpty()){
+				      defaultServiceOther = defaultServiceOtherProperty.getValue();
+				  }
+
+				  for(Object[] result : ctlBillingServiceDao.getUniqueServiceTypes("A")) {
+			  %>
+			  <option value="<%=(String)result[0]%>" <%=((String)result[0]).equals(defaultServiceOther)?"selected":""%>><%=(String)result[1]%></option>
+			  <%
+				  }
+			  %>
+		  </select>
+
+		  <br/>
+
+		  <label>Default Billing Form for Quebec HC </label>
+		  <select name="default_service_quebec">
+			  <option value="no">-- no --</option>
+			  <%
+				  String defaultServiceQuebec = "";
+				  UserProperty defaultServiceQuebecProperty = propertyDao.getProp(providerNo, "default_service_quebec");
+				  if (defaultServiceQuebecProperty != null && defaultServiceQuebecProperty.getValue() != null && !defaultServiceQuebecProperty.getValue().isEmpty()){
+					  defaultServiceQuebec = defaultServiceQuebecProperty.getValue();
+				  }
+
+				  for(Object[] result : ctlBillingServiceDao.getUniqueServiceTypes("A")) {
+			  %>
+			  <option value="<%=(String)result[0]%>" <%=((String)result[0]).equals(defaultServiceQuebec)?"selected":""%>><%=(String)result[1]%></option>
+			  <%
+				  }
+			  %>
+		  </select>
 	  </div>
       </td>
   </tr>

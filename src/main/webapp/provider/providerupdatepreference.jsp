@@ -118,6 +118,26 @@
 	}
 	prop.setValue(defaultPharmacy);
 	propDao.saveProp(prop);
+
+	String defaultServiceTypeOther = request.getParameter(UserProperty.DEFAULT_SERVICE_OTHER);
+	prop = propDao.getProp(curUser_providerno, UserProperty.DEFAULT_SERVICE_OTHER);
+	if (prop == null) {
+		prop = new UserProperty();
+		prop.setProviderNo(curUser_providerno);
+		prop.setName(UserProperty.DEFAULT_SERVICE_OTHER);
+	}
+	prop.setValue(defaultServiceTypeOther);
+	propDao.saveProp(prop);
+
+	String defaultServiceTypeQuebec = request.getParameter(UserProperty.DEFAULT_SERVICE_QUEBEC);
+	prop = propDao.getProp(curUser_providerno, UserProperty.DEFAULT_SERVICE_QUEBEC);
+	if (prop == null) {
+		prop = new UserProperty();
+		prop.setProviderNo(curUser_providerno);
+		prop.setName(UserProperty.DEFAULT_SERVICE_QUEBEC);
+	}
+	prop.setValue(defaultServiceTypeQuebec);
+	propDao.saveProp(prop);
 	
 	ProviderPreference providerPreference=ProviderPreferencesUIBean.updateOrCreateProviderPreferences(request);
 

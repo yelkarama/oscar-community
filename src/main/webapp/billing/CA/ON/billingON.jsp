@@ -38,12 +38,14 @@
 <%@page import="org.oscarehr.common.model.Demographic"%>
 <%@page import="org.oscarehr.common.model.CtlBillingService, org.oscarehr.common.dao.CtlBillingServiceDao"%>
 <%@page import="org.oscarehr.common.model.MyGroup, org.oscarehr.common.dao.MyGroupDao"%>
+<%@page import="org.oscarehr.common.model.UserProperty, org.oscarehr.common.dao.UserPropertyDAO"%>
 
 <%@page import="org.oscarehr.managers.DemographicManager,org.oscarehr.billing.CA.filters.CodeFilterManager"%>
 
 <%
 	ProfessionalSpecialistDao professionalSpecialistDao = (ProfessionalSpecialistDao) SpringUtils.getBean("professionalSpecialistDao");
     LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+	UserPropertyDAO propertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 %>
 <jsp:useBean id="providerBean" class="java.util.Properties"
 	scope="session" />
@@ -559,6 +561,15 @@
            for(CtlBillingType t : tDao.findByServiceType(ctlBillForm)){
             	defaultBillType = t.getBillType();
            }
+
+           if ("OT".equals(demo.getHcType()) || "QC".equals(demo.getHcType())) {
+               ctlBillForm = "PRI";
+               UserProperty defaultServiceTypeForHc = propertyDao.getProp(loggedInInfo.getLoggedInProviderNo(), "OT".equals(demo.getHcType()) ? UserProperty.DEFAULT_SERVICE_OTHER : UserProperty.DEFAULT_SERVICE_QUEBEC);
+			   if (defaultServiceTypeForHc != null && defaultServiceTypeForHc.getValue() != null && !defaultServiceTypeForHc.getValue().isEmpty() && !defaultServiceTypeForHc.getValue().equalsIgnoreCase("no")) {
+			       ctlBillForm = defaultServiceTypeForHc.getValue();
+			   }
+			   defaultBillType = "PAT";
+		   }
 
 			// create msg
 			msg += errorMsg + warningMsg;

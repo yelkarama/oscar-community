@@ -104,6 +104,8 @@ public class UserProperty extends AbstractModel<Integer> implements Serializable
     public static final String DEFAULT_REFERRAL_TYPE = "default_referral_type";
     public static final String DEFAULT_PAYEE = "default_payee";
     public static final String DEFAULT_DX_CODE = "default_dx_code";
+    public static final String DEFAULT_SERVICE_OTHER = "default_service_other";
+    public static final String DEFAULT_SERVICE_QUEBEC = "default_service_quebec";
     public static final String CPP_SINGLE_LINE="cpp_single_line";
     public static final String LAB_ACK_COMMENT="lab_ack_comment";
     public static final String EDOC_BROWSER_IN_MASTER_FILE="edoc_browser_in_master_file";
