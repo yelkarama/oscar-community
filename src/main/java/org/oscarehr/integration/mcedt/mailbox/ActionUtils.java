@@ -379,14 +379,7 @@ public class ActionUtils {
 				for (File file : toOutbox) {
 					Boolean alreadySent = isSent(file);
 					if (new Date(file.lastModified()).after(startDate) && new Date(file.lastModified()).before(endDate) && !alreadySent) {
-						Boolean isEmptyOrZero = isEmptyOrZero(file);
-						if (isEmptyOrZero){
-							// if the claim is empty or has a $0 value file it to the sent folder
-							// this does not actually send the file to the ministry but rather avoids uploading the files and sending them
-							copyFileToDirectory(file, sent, false, true);
-						} else {
-							copyFileToDirectory(file, outbox, false, true);
-						}
+						copyFileToDirectory(file, outbox, false, true);
 					}
 				}
 			}
