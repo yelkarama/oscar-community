@@ -1631,6 +1631,18 @@ if(oscarProps.getProperty("new_label_print") != null && oscarProps.getProperty("
 	                            	<c:out value='${ pageScope.demoExtended["aboriginal"] }' />
 	                            </span>
 								</li>
+							<% String bandNumber = StringUtils.trimToEmpty(demoExt.get("statusNum"));
+							String bandName = StringUtils.trimToEmpty(demoExt.get("fNationCom"));
+							String familyNumber = StringUtils.trimToEmpty(demoExt.get("fNationFamilyNumber"));
+							String familyPosition = StringUtils.trimToEmpty(demoExt.get("fNationFamilyPosition"));
+							if (bandNumber.length()>0) { %><li>
+									<span class="label">Band Number:</span>
+									<span class="info"><%=bandNumber%></span>
+							</li><% }
+							if (bandName.length()>0) { %><li>
+								<span class="label">Band Name:</span>
+								<span class="info"><%=bandName%></span>
+							</li><% } %>
 						  </oscar:oscarPropertiesCheck> 
 						 <% if (oscarProps.getProperty("EXTRA_DEMO_FIELDS") !=null){
                                               String fieldJSP = oscarProps.getProperty("EXTRA_DEMO_FIELDS");
