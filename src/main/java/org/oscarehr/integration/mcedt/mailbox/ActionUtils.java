@@ -397,6 +397,7 @@ public class ActionUtils {
 	}
 	
 	public static Date getOutboxTimestamp() {
+		Calendar calendar = Calendar.getInstance();
 		Date startDate = new Date();
 		try {
 			SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm");
@@ -409,7 +410,9 @@ public class ActionUtils {
 			BufferedReader br = new BufferedReader(new FileReader(dateFile));
 			String temp= br.readLine().trim();
 			if (temp!=null) {
-				startDate = formatter.parse(temp);
+				calendar.setTime(formatter.parse(temp));
+				calendar.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), 1, 0, 0, 0);
+				startDate = calendar.getTime();
 			}
 			br.close();
 		} catch (Exception e) {
