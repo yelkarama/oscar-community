@@ -150,6 +150,9 @@ function checkDocuments(docs) {
 
 
 function save() {
+	if (window.opener == null) {
+		window.close();
+	}
     var ret;    
     if(document.forms[0].requestId.value == "null") {                       
        var saved = "";       
