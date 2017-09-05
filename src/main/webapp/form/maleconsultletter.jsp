@@ -45,6 +45,8 @@
 <%@page import="java.util.ArrayList"%>
 <%@page import="oscar.form.FrmRecordFactory"%>
 <%@page import="oscar.form.FrmRecord"%>
+<%@ page import="org.oscarehr.util.LoggedInInfo" %>
+<%@ page import="static org.caisi.comp.web.WebComponentUtil.getServletContext" %>
 <HTML>
 	<HEAD>
 		<TITLE>OFC-Male Consult</TITLE>
@@ -428,17 +430,18 @@ String formClass = "MaleConsultLetter";
 String formLink = "maleconsultletter.jsp";
 
 boolean readOnly = false;
+LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
 String demographicNo = request.getParameter("demographic_no");
 String formId = request.getParameter("formId");
 String providerNo = (String) session.getAttribute("user");
 FrmRecord rec = (new FrmRecordFactory()).factory(formClass);
-java.util.Properties props = rec.getFormRecord(Integer.parseInt(demographicNo), Integer.parseInt(formId));
+java.util.Properties props = rec.getFormRecord(loggedInInfo, Integer.parseInt(demographicNo), Integer.parseInt(formId));
 
 String demo = request.getParameter("demographic_no");
 oscar.oscarDemographic.data.DemographicData demoData = null;
 Demographic demographic = null;
 demoData = new oscar.oscarDemographic.data.DemographicData();
-demographic = demoData.getDemographic(demo);
+demographic = demoData.getDemographic(loggedInInfo, demo);
 
 ArrayList<String> users = (ArrayList<String>)session.getServletContext().getAttribute("CaseMgmtUsers");
 boolean useNewCmgmt = false;
@@ -455,13 +458,13 @@ Demographic partnerDemographic = null;
 
 if(partner != null && !"".equals(partner)){
 partnerDemoData = new oscar.oscarDemographic.data.DemographicData();
-partnerDemographic = partnerDemoData.getDemographic(partner);
+partnerDemographic = partnerDemoData.getDemographic(loggedInInfo, partner);
 
 RxInformation rxInfo = new RxInformation();
 
 //partner medication and allergies
 props.setProperty("partner_allergies",
-	org.apache.commons.lang.StringEscapeUtils.escapeJavaScript(rxInfo.getAllergies(partner)));
+	org.apache.commons.lang.StringEscapeUtils.escapeJavaScript(rxInfo.getAllergies(loggedInInfo, partner)));
 props.setProperty("partner_medication",
 	org.apache.commons.lang.StringEscapeUtils.escapeJavaScript(rxInfo.getCurrentMedication(partner)));
 props.setProperty("partner_medhistory",
@@ -481,10 +484,10 @@ if(spouse != null && !"".equals(spouse)){
 RxInformation rxInfo = new RxInformation();
 
 spouseDemoData = new oscar.oscarDemographic.data.DemographicData();
-spouseDemographic = spouseDemoData.getDemographic(spouse);
+spouseDemographic = spouseDemoData.getDemographic(loggedInInfo, spouse);
 //spouse medication and allergies
 props.setProperty("spouse_allergies",
-		org.apache.commons.lang.StringEscapeUtils.escapeJavaScript(rxInfo.getAllergies(spouse)));
+		org.apache.commons.lang.StringEscapeUtils.escapeJavaScript(rxInfo.getAllergies(loggedInInfo, spouse)));
 props.setProperty("spouse_medication",
 		org.apache.commons.lang.StringEscapeUtils.escapeJavaScript(rxInfo.getCurrentMedication(spouse)));
 props.setProperty("spouse_medhistory",
@@ -501,11 +504,11 @@ if(husband != null && !"".equals(husband)){
 
 RxInformation rxInfo = new RxInformation();
 husbandDemoData = new oscar.oscarDemographic.data.DemographicData();
-husbandDemographic = husbandDemoData.getDemographic(husband);
+husbandDemographic = husbandDemoData.getDemographic(loggedInInfo, husband);
 //husband medication and allergies
-System.out.println("husband is:555" + rxInfo.getAllergies(husband));
+System.out.println("husband is:555" + rxInfo.getAllergies(loggedInInfo, husband));
 props.setProperty("husband_allergies",
-		org.apache.commons.lang.StringEscapeUtils.escapeJavaScript(rxInfo.getAllergies(husband)));
+		org.apache.commons.lang.StringEscapeUtils.escapeJavaScript(rxInfo.getAllergies(loggedInInfo, husband)));
 props.setProperty("husband_medication",
 	org.apache.commons.lang.StringEscapeUtils.escapeJavaScript(rxInfo.getCurrentMedication(husband)));
 props.setProperty("husband_medhistory",
@@ -601,7 +604,7 @@ function importFromEnct(reqInfo,txtAreaId)
                     }
                     else {
                     //family history was used as bucket for Other Meds in old encounter
-                    EctInformation ectInfo = new EctInformation(demo);
+                    EctInformation ectInfo = new EctInformation(loggedInInfo, demo);
                         value = ectInfo.getFamilyHistory();
                     }
 				  }
@@ -622,7 +625,7 @@ function importFromEnct(reqInfo,txtAreaId)
                         value = listNotes(cmgmtMgr, "FamHistory", providerNo, demo);
                     }
                     else {
-                    	EctInformation ectInfo = new EctInformation(demo);
+                    	EctInformation ectInfo = new EctInformation(loggedInInfo, demo);
                     //family history was used as bucket for Other Meds in old encounter
                     	value = ectInfo.getFamilyHistory();
                     }
@@ -645,7 +648,7 @@ function importFromEnct(reqInfo,txtAreaId)
                     }
                     else {
                     //family history was used as bucket for Other Meds in old encounter
-                    EctInformation ectInfo = new EctInformation(demo);
+                    EctInformation ectInfo = new EctInformation(loggedInInfo, demo);
                         value = ectInfo.getFamilyHistory();
                     }
 				  }
@@ -658,7 +661,7 @@ function importFromEnct(reqInfo,txtAreaId)
 			 case "Allergies":
               <%
               RxInformation rxInfo = new RxInformation();
-                value = rxInfo.getAllergies(demo);
+                value = rxInfo.getAllergies(loggedInInfo, demo);
 				value = org.apache.commons.lang.StringEscapeUtils.escapeJavaScript(value);
                 out.println("info = '" + value + "'");
              %>
@@ -675,7 +678,7 @@ function importFromEnct(reqInfo,txtAreaId)
                     }
                     else {
                     //family history was used as bucket for Other Meds in old encounter
-                     EctInformation ectInfo = new EctInformation(demo);
+                     EctInformation ectInfo = new EctInformation(loggedInInfo, demo);
                         value = ectInfo.getFamilyHistory();
                     }
 				  }

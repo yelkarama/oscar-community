@@ -25,10 +25,12 @@ package oscar.form;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.Properties;
 
 import org.oscarehr.common.model.Demographic;
 
+import org.oscarehr.util.LoggedInInfo;
 import oscar.oscarDB.DBHandler;
 import oscar.util.UtilDateUtilities;
 import oscar.SxmlMisc;
@@ -37,10 +39,10 @@ import oscar.SxmlMisc;
 public class FrmMaleConsultLetterRecord extends FrmRecord {
 	private static String FORM_TABLE_NAME = "form_male_consult";
 	
-    public Properties getFormRecord(int demographicNo, int existingID) throws SQLException {
+    public Properties getFormRecord(LoggedInInfo loggedInInfo, int demographicNo, int existingID) throws SQLException {
         Properties props = new Properties();
         if (existingID <= 0) {
-            defaultRelatives(demographicNo, props);
+            defaultRelatives(loggedInInfo, demographicNo, props);
             defaultFromDemography(demographicNo, props, existingID);
         } else {
 
@@ -48,10 +50,10 @@ public class FrmMaleConsultLetterRecord extends FrmRecord {
                     + existingID;
             props = (new FrmRecordHelp()).getFormRecord(sql);
             
-            defaultRelatives(demographicNo, props);
+            defaultRelatives(loggedInInfo, demographicNo, props);
             defaultFromDemography(demographicNo, props, existingID);
         }
-        props.setProperty("formCreated", UtilDateUtilities.DateToString(UtilDateUtilities.Today(),"yyyy/MM/dd"));
+        props.setProperty("formCreated", UtilDateUtilities.DateToString(new Date(),"yyyy/MM/dd"));
         return props;
         
     }
@@ -76,7 +78,7 @@ public class FrmMaleConsultLetterRecord extends FrmRecord {
         return ((new FrmRecordHelp()).createActionURL(where, action, demoId, formId));
     }
     
-    public void defaultRelatives(int demographicNo,Properties props) throws SQLException{
+    public void defaultRelatives(LoggedInInfo loggedInInfo, int demographicNo,Properties props) throws SQLException{
     	String sql = "SELECT relation_demographic_no,relation 	FROM relationships where deleted = 0 and demographic_no=" + demographicNo +  " and relation in ('Partner','Spouse','Husband')";
         ResultSet rs = null;
         try{
@@ -86,7 +88,7 @@ public class FrmMaleConsultLetterRecord extends FrmRecord {
 	        	oscar.oscarDemographic.data.DemographicData demoData = null;
 	            Demographic demographic = null;
 	            demoData = new oscar.oscarDemographic.data.DemographicData();
-	            demographic = demoData.getDemographic(partner);
+	            demographic = demoData.getDemographic(loggedInInfo, partner);
 	            if("Partner".equalsIgnoreCase(getString(rs, "relation"))){
 	            	props.setProperty("partner_default_fname",demographic.getFirstName());
 	            	props.setProperty("partner_default_lname",demographic.getLastName());

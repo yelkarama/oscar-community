@@ -203,7 +203,7 @@ public class ProSignatureData {
         MsgStringQuote s = new MsgStringQuote();
         try{
               String sql = "insert into  providerExt (provider_no,multi_line_signature) values ('"+providerNo+"','"+s.q(signature)+"') ";
-              DBHandler.RunSQL(sql);
+              DBHandler.GetSQL(sql);
            }
            catch(SQLException e){
               System.out.println("There has been an error while adding a provider's multi_line_signature");
@@ -217,7 +217,7 @@ public class ProSignatureData {
         MsgStringQuote s = new MsgStringQuote();
         try{
               String sql = "insert into  providerExt (provider_no,multi_line_header) values ('"+providerNo+"','"+s.q(signature)+"') ";
-              DBHandler.RunSQL(sql);
+              DBHandler.GetSQL(sql);
            }
            catch(SQLException e){
               System.out.println("There has been an error while adding a provider's multi_line_header");
@@ -239,7 +239,7 @@ public class ProSignatureData {
         MsgStringQuote s = new MsgStringQuote();
         try{
               String sql = "update  providerExt set multi_line_signature = '"+s.q(signature)+"' where provider_no = '"+providerNo+"' ";
-              DBHandler.RunSQL(sql);
+              DBHandler.GetSQL(sql);
            }
            catch(SQLException e){
               System.out.println("There has been an error while updating a provider's signature");
@@ -253,7 +253,7 @@ public class ProSignatureData {
         MsgStringQuote s = new MsgStringQuote();
         try{
               String sql = "update  providerExt set multi_line_header = '"+s.q(signature)+"' where provider_no = '"+providerNo+"' ";
-              DBHandler.RunSQL(sql);
+              DBHandler.GetSQL(sql);
            }
            catch(SQLException e){
               System.out.println("There has been an error while updating a provider's multi_line_header");
