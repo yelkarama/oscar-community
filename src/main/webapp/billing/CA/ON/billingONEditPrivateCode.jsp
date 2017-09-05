@@ -407,11 +407,11 @@ Fee <small>(format: xx.xx, e.g. 18.20)</small><br>
 
 Issued Date <small>(effective date)</small><br>
 
-<div class="input-append date" id="billingservice_date" data-date="today();" data-date-format="yyyy-mm-dd">
+<label class="input-append date" id="billingservice_date" data-date="today();" data-date-format="yyyy-mm-dd">
 	<% String billingServiceDate = prop.getProperty("billingservice_date")!=null?prop.getProperty("billingservice_date"):""; %>
 <input  style="width:90px" name="billingservice_date"  id="billingservice_date" size="16" type="text" value="<%=billingServiceDate%>" pattern="^\d{4}-((0\d)|(1[012]))-(([012]\d)|3[01])$" readonly>
 <span class="add-on"><i class="icon-calendar"></i></span>
-</div>
+</label>
 
 
 <br>

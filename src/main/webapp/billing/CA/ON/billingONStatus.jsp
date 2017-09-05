@@ -482,10 +482,10 @@ OHIP No.: <br>
 
 	<div class="span2">		
 	Start:
-		<div class="input-append">
+		<label class="input-append">
 			<input type="text" name="xml_vdate" id="xml_vdate" style="width:90px" value="<%=startDate%>" pattern="^\d{4}-((0\d)|(1[012]))-(([012]\d)|3[01])$" autocomplete="off" />
 			<span class="add-on"><i class="icon-calendar"></i></span>
-		</div>
+		</label>
 	</div>
 
 
@@ -498,10 +498,10 @@ OHIP No.: <br>
 		days back                    
 		</small>
 	
-		<div class="input-append">
+		<label class="input-append">
 			<input type="text" name="xml_appointment_date" style="width:90px" id="xml_appointment_date" value="<%=endDate%>" pattern="^\d{4}-((0\d)|(1[012]))-(([012]\d)|3[01])$" autocomplete="off" />
 			<span class="add-on"><i class="icon-calendar"></i></span>
-		</div>
+		</label>
 	</div>
 </div><!-- row -->    
     
@@ -592,17 +592,17 @@ Site Number:<br>
 <div class="span7">
 	<div class="span2">		
 	Payment Start:
-		<div class="input-append">
+		<label class="input-append">
 			<input type="text" name="paymentStartDate" id="paymentStartDate" style="width:90px" value="<%=paymentStartDate%>" pattern="^\d{4}-((0\d)|(1[012]))-(([012]\d)|3[01])$" autocomplete="off" />
 			<span class="add-on"><i class="icon-calendar"></i></span>
-		</div>
+		</label>
 	</div>
 	<div class="span2">		
 	Payment End:
-		<div class="input-append">
+		<label class="input-append">
 			<input type="text" name="paymentEndDate" id="paymentEndDate" style="width:90px" value="<%=paymentEndDate%>" pattern="^\d{4}-((0\d)|(1[012]))-(([012]\d)|3[01])$" autocomplete="off" />
 			<span class="add-on"><i class="icon-calendar"></i></span>
-		</div>
+		</label>
 	</div>
 
 </div>

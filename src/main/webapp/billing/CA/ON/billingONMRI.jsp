@@ -296,18 +296,18 @@ function setBillingCenter( providerNo ) {
 
 		<div class="span4">		
 		<label>Service Date Start:</label>
-		<div class="input-append">
+		<label class="input-append">
 			<input type="text" name="xml_vdate" id="xml_vdate" value="<%=xml_vdate%>" pattern="^\d{4}-((0\d)|(1[012]))-(([012]\d)|3[01])$" autocomplete="off" />
 			<span class="add-on"><i class="icon-calendar"></i></span>
-		</div>
+		</label>
 		</div>
 		
 		<div class="span4">		
 		<label>Service Date End:</label>
-		<div class="input-append">
+		<label class="input-append">
 			<input type="text" name="xml_appointment_date" id="xml_appointment_date" value="<%=xml_appointment_date%>" pattern="^\d{4}-((0\d)|(1[012]))-(([012]\d)|3[01])$" autocomplete="off" />
 			<span class="add-on"><i class="icon-calendar"></i></span>
-		</div>
+		</label>
 		</div>
 		
 		<div class="span10">

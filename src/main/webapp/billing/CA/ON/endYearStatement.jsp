@@ -118,20 +118,20 @@ name=request.getParameter("firstNameParam")+" "+request.getParameter("lastNamePa
 
 		<div class="span2">
 		<label>Start Date:</label>
-		<div class="input-append">
+		<label class="input-append">
 			<input type="text" style="width:90px" name="fromDateParam" id="fromDateParam" value="<%= request.getAttribute("fromDateParam") != null ? request.getAttribute("fromDateParam") : "" %>" pattern="^\d{4}-((0\d)|(1[012]))-(([012]\d)|3[01])$" autocomplete="off" />
 			<span class="add-on"><i class="icon-calendar"></i></span>
-		</div>
+		</label>
 		</div>
 		
 	
 		
 		<div class="span2">
 		<label>End Date:</label>
-		<div class="input-append">
+		<label class="input-append">
 			<input type="text" style="width:90px" name="toDateParam" id="toDateParam" value="<%= request.getAttribute("toDateParam") != null ? request.getAttribute("toDateParam") : "" %>" pattern="^\d{4}-((0\d)|(1[012]))-(([012]\d)|3[01])$" autocomplete="off" />
 			<span class="add-on"><i class="icon-calendar"></i></span>
-		</div>
+		</label>
 		</div>
 		
 		<div class="span10">

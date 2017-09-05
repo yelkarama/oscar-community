@@ -354,19 +354,19 @@ Select Provider<br>
 		
 	<div class="span2">	
 	From:<br>
-	<div class="input-append">
+	<label class="input-append">
 		<input type="text" name="xml_vdate" id="xml_vdate" value="<%=xml_vdate%>"  style="width:90px" autocomplete="off" />
 		<span class="add-on"><i class="icon-calendar"></i></span>
-	</div>
+	</label>
 	</div>
 
 
 	<div class="span2" >	
 	To:<br>
-	<div class="input-append">
+	<label class="input-append">
 		<input type="text" name="xml_appointment_date" id="xml_appointment_date" value="<%=xml_appointment_date%>"  style="width:90px" autocomplete="off" />
 		<span class="add-on"><i class="icon-calendar"></i></span>
-	</div>
+	</label>
 	</div>
 	
 <% if (!bMultisites) { %>

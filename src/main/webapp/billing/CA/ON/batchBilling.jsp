@@ -325,10 +325,10 @@ ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao");
 					<td colspan="7">
 					<div class="span3">
 					<bean:message key="billing.batchbilling.serviceDate"/>
-					<div class="input-append">
+					<label class="input-append">
 						<input type="text" name="BillDate" id="BillDate" value="<%=now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.get(Calendar.DAY_OF_MONTH)%>" data-date-format="yyyy-m-d" style="width:90px"  autocomplete="off" readonly/>
 						<span class="add-on"><i class="icon-calendar"></i></span>
-					</div>
+					</label>
 					</div>
 					
 					<div class="span4">

@@ -167,18 +167,18 @@ label{margin-top:6px;margin-bottom:0px;}
 		
 			<div class="span4">		
 			<label>Start Date: </label>
-			<div class="input-append">
+			<label class="input-append">
 				<input type="text" name="startDate" id="startDate1" value="<%=startDate!=null?startDate:""%>" pattern="^\d{4}-((0\d)|(1[012]))-(([012]\d)|3[01])$" autocomplete="off" />
 				<span class="add-on"><i class="icon-calendar"></i></span>
-			</div>
+			</label>
 			</div>
 			
 			<div class="span4">		
 			<label >End Date: </label>
-			<div class="input-append">
+			<label class="input-append">
 				<input type="text" name="endDate" id="endDate1" value="<%=endDate!=null?endDate:""%>" pattern="^\d{4}-((0\d)|(1[012]))-(([012]\d)|3[01])$" autocomplete="off" />
 				<span class="add-on"><i class="icon-calendar"></i></span>
-			</div>
+			</label>
 			</div>
 
 

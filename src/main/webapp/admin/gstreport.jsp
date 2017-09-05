@@ -107,17 +107,17 @@ else {
 <div class="span12">
 	<div class="span2">		
 	Start:
-	<div class="input-append">
+	<label class="input-append">
 		<input type="text" name="xml_vdate" id="xml_vdate" value="<%=startDate%>" pattern="^\d{4}-((0\d)|(1[012]))-(([012]\d)|3[01])$" autocomplete="off" style="width:90px" />
 		<span class="add-on"><i class="icon-calendar"></i></span>
-	</div>
+	</label>
 	</div>
 	<div class="span2">		
 	End:
-	<div class="input-append">
+	<label class="input-append">
 		<input type="text" name="xml_appointment_date" id="xml_appointment_date" value="<%=endDate%>" pattern="^\d{4}-((0\d)|(1[012]))-(([012]\d)|3[01])$" autocomplete="off" style="width:90px"/>
 		<span class="add-on"><i class="icon-calendar"></i></span>
-	</div>
+	</label>
 </div>
 
 <div class="span6">

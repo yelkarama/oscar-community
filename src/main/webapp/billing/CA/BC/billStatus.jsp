@@ -449,19 +449,19 @@ if("true".equals(readonly)){
     
 <div class="span2">		
 	Service Start Date:<br>
-	<div class="input-append">
+	<label class="input-append">
 		<input type="text" name="xml_vdate" id="xml_vdate" value="<%=xml_vdate%>" pattern="^\d{4}-((0\d)|(1[012]))-(([012]\d)|3[01])$" autocomplete="off" />
 		<span class="add-on"><i class="icon-calendar"></i></span>
-	</div>
+	</label>
 </div><!--span2-->
 	
 <div class="span3">		
 	Service End Date: 	<a href="javascript: function myFunction() {return false; }" onClick="fillEndDate('<%=DateUtils.sumDate("yyyy-M-d","-30")%>')" >30</a>&nbsp; <a href="javascript: function myFunction() {return false; }" onClick="fillEndDate('<%=DateUtils.sumDate("yyyy-M-d","-60")%>')" >60</a>&nbsp; <a href="javascript: function myFunction() {return false; }" onClick="fillEndDate('<%=DateUtils.sumDate("yyyy-M-d","-90")%>')" >90</a>&nbsp;
 <br>
-	<div class="input-append">
+	<label class="input-append">
 		<input type="text" name="xml_appointment_date" id="xml_appointment_date" value="<%=xml_appointment_date%>" pattern="^\d{4}-((0\d)|(1[012]))-(([012]\d)|3[01])$" autocomplete="off" />
 		<span class="add-on"><i class="icon-calendar"></i></span>
-	</div>
+	</label>
 </div><!--span3-->
 
 <div class="span2">

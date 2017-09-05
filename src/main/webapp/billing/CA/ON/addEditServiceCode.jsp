@@ -516,18 +516,18 @@ Fee <small> e.g. 18.20</small><br>
 
 <div class="span2">		
 	<label>Issued Date</label>
-	<div class="input-append">
+	<label class="input-append">
 		<input type="text" name="billingservice_date" id="billingservice_date" value="<%=prop.getProperty("billingservice_date", "")%>" pattern="^\d{4}-((0\d)|(1[012]))-(([012]\d)|3[01])$" autocomplete="off" />
 		<span class="add-on"><i class="icon-calendar"></i></span>
-	</div>
+	</label>
 </div>
 
 <div class="span2">		
 	<label>Termination Date</label>
-	<div class="input-append">
+	<label class="input-append">
 		<input type="text" name="termination_date" id="termination_date" value="<%=prop.getProperty("termination_date", "9999-12-31")%>" pattern="^\d{4}-((0\d)|(1[012]))-(([012]\d)|3[01])$" autocomplete="off" />
 		<span class="add-on"><i class="icon-calendar"></i></span>
-	</div>
+	</label>
 </div>
 	
 	

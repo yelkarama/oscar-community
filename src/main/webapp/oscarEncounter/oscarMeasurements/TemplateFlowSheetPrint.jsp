@@ -557,15 +557,15 @@ view:
 
 
 <div class="range-<%=measure%>" style="display:none">
-	<div class="input-append date" id="dp-startDate" data-date="<%=date%>" data-date-format="yyyy-mm-dd" title="Start Date">
+	<label class="input-append date" id="dp-startDate" data-date="<%=date%>" data-date-format="yyyy-mm-dd" title="Start Date">
 	<input style="width:90px" name="sDate<%=measure%>" id="sDate-<%=measure%>" size="16" type="text" value="" placeholder="start" pattern="^\d{4}-((0\d)|(1[012]))-(([012]\d)|3[01])$">
 	<span class="add-on"><i class="icon-calendar"></i></span>
-	</div>
+	</label>
 
-	<div class="input-append date" id="dp-endDate" data-date="<%=date%>" data-date-format="yyyy-mm-dd" title="End Date">
+	<label class="input-append date" id="dp-endDate" data-date="<%=date%>" data-date-format="yyyy-mm-dd" title="End Date">
 	<input style="width:90px" name="eDate<%=measure%>" id="eDate-<%=measure%>" size="16" type="text" value="" placeholder="end" pattern="^\d{4}-((0\d)|(1[012]))-(([012]\d)|3[01])$">
 	<span class="add-on"><i class="icon-calendar"></i></span>
-	</div>
+	</label>
 </div><!--range container-->
 
  

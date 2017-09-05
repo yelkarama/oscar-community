@@ -233,18 +233,18 @@ table td,th{font-size:12px;}
 
 			<div class="span2">		
 			<bean:message key="oscar.billing.on.paymentReceived.startDate"/><br>
-			<div class="input-append">
+			<label class="input-append">
 				<input type="text" style="width:90px" name="startDateText" id="startDateText" value="<%=DateUtils.formatDate(startDate,locale)%>" pattern="^\d{4}-((0\d)|(1[012]))-(([012]\d)|3[01])$" autocomplete="off" />
 				<span class="add-on"><i class="icon-calendar"></i></span>
-			</div>
+			</label>
 			</div>
 		
 			<div class="span2">		
 			<bean:message key="oscar.billing.on.paymentReceived.endDate"/><br>
-			<div class="input-append">
+			<label class="input-append">
 				<input type="text"  style="width:90px" name="endDateText" id="endDateText" value="<%=DateUtils.formatDate(endDate,locale)%>" pattern="^\d{4}-((0\d)|(1[012]))-(([012]\d)|3[01])$" autocomplete="off" />
 				<span class="add-on"><i class="icon-calendar"></i></span>
-			</div>
+			</label>
 			</div>
             
 			<div class="span2">

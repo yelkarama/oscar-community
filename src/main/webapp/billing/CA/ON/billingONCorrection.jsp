@@ -866,10 +866,10 @@ OHIP Claim No  <br>
 
 <div class="span4" style="margin-left:0px;">		
 <label><bean:message key="billing.billingCorrection.btnBillingDate" />:</label>
-<div class="input-append">
+<label class="input-append">
 	<input type="text" name="xml_appointment_date" id="xml_appointment_date" value="<%=BillDate%>" style="width:90px" pattern="^\d{4}-((0\d)|(1[012]))-(([012]\d)|3[01])$" autocomplete="off" />
 	<span class="add-on"><i class="icon-calendar"></i></span>
-</div>
+</label>
 </div><!--cal span2-->
 
 <bean:message key="billing.billingCorrection.formBillingType" />:<br>
@@ -1009,10 +1009,10 @@ function changeSite(sel) {
 <input type="hidden" name="xml_visitdate" value="<%=visitdate%>" /> 
 <div class="span4" style="margin-left:0px;">		
 <label><bean:message key="billing.billingCorrection.btnAdmissionDate" />:</label>
-<div class="input-append">
+<label class="input-append">
 	<input type="text" name="xml_vdate" id="xml_vdate" value="<%=visitdate%>" pattern="^\d{4}-((0\d)|(1[012]))-(([012]\d)|3[01])$" style="width:90px" autocomplete="off" />
 	<span class="add-on"><i class="icon-calendar"></i></span>
-</div>
+</label>
 </div><!--date span-->
 <br>
 
@@ -1237,10 +1237,10 @@ for (ClinicNbr clinic : nbrs) {
                     -->
 					<div class="span2">		
 					<label><bean:message key="billing.billingCorrection.dueDate"/>:</label>
-					<div class="input-append">
+					<label class="input-append">
 						<input type="text" name="invoiceDueDate" id="invoiceDueDate" value="<%=dueDateStr%>" pattern="^\d{4}-((0\d)|(1[012]))-(([012]\d)|3[01])$" autocomplete="off" style="width:90px" />
 						<span class="add-on"><i class="icon-calendar"></i></span>
-					</div>
+					</label>
 					</div>
                     <% } %>
                 </div>
