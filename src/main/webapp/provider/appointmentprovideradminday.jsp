@@ -1354,9 +1354,9 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 	</li>		
 
 </security:oscarSec>
-<% if (OscarProperties.getInstance().hasProperty("kaiemr_work_queue_url")) { %>			
+<% if (OscarProperties.getInstance().hasProperty("kaiemr_lab_queue_url")) { %>			
 	<li>
-		<a href="javascript:void(0)" id="work_queue_button" title='Work Queue' onclick="popupPage2('<%=OscarProperties.getInstance().getProperty("kaiemr_work_queue_url")%>','work_queue', 700, 1215)">Work Queue</a>
+		<a href="javascript:void(0)" id="work_lab_button" title='Lab Queue' onclick="popupPage2('<%=OscarProperties.getInstance().getProperty("kaiemr_lab_queue_url")%>','work_queue', 700, 1215)">Lab Queue</a>
 	</li>
 <% }
 
