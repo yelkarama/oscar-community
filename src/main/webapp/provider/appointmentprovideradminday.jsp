@@ -1329,6 +1329,23 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 	<li>
 		<a href="javascript:void(0)" id="work_queue_button" title='Work Queue' onclick="popupPage2('<%=OscarProperties.getInstance().getProperty("kaiemr_work_queue_url")%>','work_queue', 700, 1215)">Work Queue</a>
 	</li>
+<% }
+
+	UserProperty onlineBook = userPropertyDao.getProp(loggedInInfo1.getLoggedInProviderNo(), "allow_online_booking");
+	Boolean providerAllowOnlineBooking = false;
+
+	if (onlineBook != null && onlineBook.getValue() != null && !onlineBook.getValue().isEmpty())
+	{
+	    if (Boolean.parseBoolean(onlineBook.getValue()))
+		{
+			providerAllowOnlineBooking = true;
+		}
+	}
+
+   if (OscarProperties.getInstance().hasProperty("allow_online_booking") && OscarProperties.getInstance().getBooleanProperty("allow_online_booking", "true") && providerAllowOnlineBooking) { %>
+	<li>
+		<a href="javascript:void(0)" id="online_booking_button" title='Online Booking' onclick="popupPage2('/kaiemr/app/components/onlinebooking/#!/patientModule','work_queue', 700, 1215)">Online Booking</a>
+	</li>
 <% } %>
   <!-- Added logout link for mobile version -->
   <li id="logoutMobile">

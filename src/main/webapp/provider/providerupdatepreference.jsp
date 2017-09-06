@@ -66,6 +66,7 @@
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 	String curUser_providerno = loggedInInfo.getLoggedInProviderNo();
 	String ticklerforproviderno = request.getParameter("ticklerforproviderno");
+	String allowOnlineBooking = request.getParameter("allow_online_booking")==null?"false":request.getParameter("allow_online_booking");
 	UserPropertyDAO propDao =(UserPropertyDAO)SpringUtils.getBean("UserPropertyDAO");
 	UserProperty prop = propDao.getProp(curUser_providerno, UserProperty.PROVIDER_FOR_TICKLER_WARNING);
 	if (prop == null) {
@@ -76,6 +77,25 @@
 	prop.setValue(ticklerforproviderno);
 	propDao.saveProp(prop);
 
+	UserProperty onlineBookingProp = propDao.getProp(curUser_providerno, "allow_online_booking");
+	if (onlineBookingProp == null)
+	{
+		onlineBookingProp = new UserProperty();
+		onlineBookingProp.setProviderNo(curUser_providerno);
+		onlineBookingProp.setName("allow_online_booking");
+	}
+
+	if (allowOnlineBooking.equalsIgnoreCase("on"))
+	{
+		onlineBookingProp.setValue("true");
+	}
+	else
+	{
+		onlineBookingProp.setValue("false");
+	}
+
+	propDao.saveProp(onlineBookingProp);
+
 	String ticklerDefaultRecipient = request.getParameter("ticklerDefaultRecipient");
 	prop = propDao.getProp(curUser_providerno, UserProperty.TICKLER_DEFAULT_RECIPIENT);
 	if (prop == null) {
@@ -85,7 +105,7 @@
 	}
 	prop.setValue(ticklerDefaultRecipient);
 	propDao.saveProp(prop);
-	
+
 	String defaultPharmacy = request.getParameter("default_pharmacy");
 	prop = propDao.getProp(curUser_providerno, UserProperty.DEFAULT_PHARMACY);
 	if (prop == null) {

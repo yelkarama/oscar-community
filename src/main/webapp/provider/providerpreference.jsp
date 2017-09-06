@@ -225,6 +225,7 @@ function showHideERxPref() {
 </head>
 
 <%
+	UserPropertyDAO propertyDao = (UserPropertyDAO)SpringUtils.getBean("UserPropertyDAO");
 	ProviderPreference providerPreference=ProviderPreferencesUIBean.getProviderPreference(providerNo);
 
 	if (providerPreference == null) {
@@ -239,7 +240,6 @@ function showHideERxPref() {
 	String ticklerProviderNo = request.getParameter("tklerproviderno");
 	String defaultPMM = request.getParameter("default_pmm")!=null?request.getParameter("default_pmm"):providerPreference.getDefaultCaisiPmm();
 	String caisiBillingNotDelete = request.getParameter("caisiBillingPreferenceNotDelete")!=null?request.getParameter("caisiBillingPreferenceNotDelete"):String.valueOf(providerPreference.getDefaultDoNotDeleteBilling());
-    UserPropertyDAO propertyDao = (UserPropertyDAO)SpringUtils.getBean("UserPropertyDAO");
 
     String defaultBillingLocation = providerPreference.getDefaultBillingLocation()!=null?providerPreference.getDefaultBillingLocation():"no";
 	String defaultSliCode = providerPreference.getDefaultSliCode()!=null?providerPreference.getDefaultSliCode():"no";
@@ -313,6 +313,22 @@ function showHideERxPref() {
 	            	%>
 	            	<input type="checkbox" name="label_shortcut_enabled" <%=labelShortcutEnabledChecked?"checked=\"checked\"":""%> />
 	            </td>
+			</tr>
+			<tr>
+				<td class="preferenceLabel">
+					<bean:message key="provider.providerpreference.allowOnlineBooking" />
+				</td>
+				<td class="preferenceValue">
+					<%
+						UserProperty onlineBook = propertyDao.getProp(loggedInInfo.getLoggedInProviderNo(), "allow_online_booking");
+						boolean isOnlineBook = false;
+						if (onlineBook != null)
+						{
+						    isOnlineBook = Boolean.parseBoolean(onlineBook.getValue());
+						}
+					%>
+					<input type="checkbox" name="allow_online_booking" <%=isOnlineBook?"checked=\"checked\"":""%> />
+				</td>
 			</tr>
 			<tr>
 				<% 	
