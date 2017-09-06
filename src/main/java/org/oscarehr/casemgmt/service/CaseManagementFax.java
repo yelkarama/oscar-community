@@ -343,7 +343,7 @@ public class CaseManagementFax {
             ClinicDAO clinicDAO = SpringUtils.getBean(ClinicDAO.class);
             if(!faxClinicId.equals("") && clinicDAO.find(Integer.parseInt(faxClinicId))!=null){
                 faxNumber = clinicDAO.find(Integer.parseInt(faxClinicId)).getClinicFax();
-                faxNumber =faxNumber.replace("-", "");
+                faxNumber = faxNumber.replaceAll("[^0-9]", "");
             }
 
             PdfReader pdfReader = new PdfReader(faxPdf);

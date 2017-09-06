@@ -1068,7 +1068,7 @@ public class ManageDocumentAction extends DispatchAction {
 		String demoNo = request.getParameter("demoNo");
 
 		for (int i = 0; tmpRecipients != null && i < tmpRecipients.length; i++) {
-			tmpRecipients[i] = tmpRecipients[i].trim().replaceAll("\\D", "");
+			tmpRecipients[i] = tmpRecipients[i].trim().replaceAll("[^0-9]", "");
 		}
 		ArrayList<String> recipients = tmpRecipients == null ? new ArrayList<String>() : new ArrayList<String>(Arrays.asList(tmpRecipients));
 
@@ -1089,7 +1089,7 @@ public class ManageDocumentAction extends DispatchAction {
 		ClinicDAO clinicDAO = SpringUtils.getBean(ClinicDAO.class);
 		if(!faxClinicId.equals("") && clinicDAO.find(Integer.parseInt(faxClinicId))!=null){
 			faxNumber = clinicDAO.find(Integer.parseInt(faxClinicId)).getClinicFax();
-			faxNumber =faxNumber.replace("-", "");
+			faxNumber = faxNumber.replace("[^0-9]", "");
 		}
 
 
