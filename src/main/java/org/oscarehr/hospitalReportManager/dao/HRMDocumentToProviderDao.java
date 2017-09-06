@@ -46,18 +46,26 @@ public class HRMDocumentToProviderDao extends AbstractDao<HRMDocumentToProvider>
 		return documentToProviders;
 	}
 
-	public List<HRMDocumentToProvider> findByProviderNoLimit(String providerNo, String demographicNumber, Date newestDate, Date oldestDate, 
+	public List<HRMDocumentToProvider> findByProviderNoLimit(String providerNo, List<String> demographicNumbers, Date newestDate, Date oldestDate, 
 				Integer viewed, Integer signedOff, boolean isPaged, Integer page, Integer pageSize) {
 		
-		String hrmToDemographicJoinAndSearchSql = "";
 		String hrmToDemographicTableName = "";
 		
-		if (demographicNumber != null) {
+		StringBuilder hrmToDemographicJoinAndSearchSql = new StringBuilder();
+		if (demographicNumbers != null && !demographicNumbers.isEmpty()) {
 			hrmToDemographicTableName = ", HRMDocumentToDemographic d";
-			hrmToDemographicJoinAndSearchSql = " AND x.hrmDocumentId = d.hrmDocumentId AND d.demographicNo = :demographicNumber";
+			hrmToDemographicJoinAndSearchSql.append(" AND x.hrmDocumentId = d.hrmDocumentId AND (");
+			for (int i = 0; i < demographicNumbers.size(); i++) { //String demographicNumber : demographicNumbers) {
+                hrmToDemographicJoinAndSearchSql.append("d.demographicNo = :demographicNumber").append(i);
+                if (i < demographicNumbers.size() - 1) {
+                    hrmToDemographicJoinAndSearchSql.append(" OR ");
+                } else {
+                    hrmToDemographicJoinAndSearchSql.append(") ");
+                }
+            }
 		}
 		
-		String sql = "select x from " + this.modelClass.getName() + " x, HRMDocument h" + hrmToDemographicTableName + " where x.hrmDocumentId=h.id AND x.providerNo like ?" + hrmToDemographicJoinAndSearchSql;
+		String sql = "select x from " + this.modelClass.getName() + " x, HRMDocument h" + hrmToDemographicTableName + " where x.hrmDocumentId=h.id AND x.providerNo like ?" + hrmToDemographicJoinAndSearchSql.toString();
 		if (newestDate != null)
 			sql += " and h.reportDate <= :newest";
 		if (oldestDate != null)
@@ -70,9 +78,11 @@ public class HRMDocumentToProviderDao extends AbstractDao<HRMDocumentToProvider>
 		Query query = entityManager.createQuery(sql);
 		query.setParameter(1, providerNo);
 		
-		if (demographicNumber != null) {
-			query.setParameter("demographicNumber", demographicNumber);
-		}
+        if (demographicNumbers != null && !demographicNumbers.isEmpty()) {
+            for (int i = 0; i < demographicNumbers.size(); i++) { //String demographicNumber : demographicNumbers) {
+                query.setParameter("demographicNumber" + i, demographicNumbers.get(i));
+            }
+        }
 		if (newestDate != null)
 			query.setParameter("newest", newestDate);
 

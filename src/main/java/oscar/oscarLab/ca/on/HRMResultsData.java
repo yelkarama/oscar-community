@@ -10,10 +10,7 @@
 
 package oscar.oscarLab.ca.on;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.log4j.Logger;
@@ -50,9 +47,9 @@ public class HRMResultsData {
 	
 	public Collection<LabResultData> populateHRMdocumentsResultsData(LoggedInInfo loggedInInfo, String providerNo, String firstName, String lastName, String hin, String demographicNumber, String status, Date newestDate, Date oldestDate,
 																		boolean isPaged, Integer page, Integer pageSize) {
-		String firstNameSearch = firstName != null ? firstName : "";
-		String lastNameSearch = lastName != null ? lastName : ""; 
-		String hinSearch = hin != null ? hin : "";
+		String firstNameSearch = firstName != null ? firstName.toUpperCase() : "";
+		String lastNameSearch = lastName != null ? lastName.toUpperCase() : ""; 
+		String hinSearch = hin != null ? hin.toUpperCase() : "";
 		
 		if (providerNo == null || "".equals(providerNo)) {
 			providerNo = "%";
@@ -73,7 +70,20 @@ public class HRMResultsData {
 			signedOff = 2;
 		}
 
-		List<HRMDocumentToProvider> hrmDocResultsProvider = hrmDocumentToProviderDao.findByProviderNoLimit(providerNo, demographicNumber, newestDate, oldestDate, viewed, signedOff,
+        List<String> demographicNumbers = new ArrayList<>();
+        if (demographicNumber == null && (!firstNameSearch.isEmpty() || !lastNameSearch.isEmpty() || !hinSearch.isEmpty())) {
+            List<Demographic> matchedDemographics = demographicManager.searchDemographicsByAttributes(loggedInInfo, hin,firstName, lastName,
+                    null, null, null, null, null, null, null, 0, 100);
+            for (Demographic matchedDemographic : matchedDemographics) {
+                if (matchedDemographic.isActive()) {
+                    demographicNumbers.add(String.valueOf(matchedDemographic.getDemographicNo()));
+                }
+            }
+        } else if (demographicNumber != null) {
+            demographicNumbers.add(demographicNumber);
+        }
+
+		List<HRMDocumentToProvider> hrmDocResultsProvider = hrmDocumentToProviderDao.findByProviderNoLimit(providerNo, demographicNumbers, newestDate, oldestDate, viewed, signedOff,
 																											 isPaged, page, pageSize);
 
 		// the key = SendingFacility+':'+ReportNumber+':'+DeliverToUserID as per HRM spec can be used to signify duplicate report
@@ -123,7 +133,7 @@ public class HRMResultsData {
 
 			String duplicateKey=hrmReport.getSendingFacilityId()+':'+hrmReport.getSendingFacilityReportNo()+':'+hrmReport.getDeliverToUserId();
 			String[] patientName = lbData.patientName.split(","); 
-			if (lbData.healthNumber.contains(hinSearch) && patientName[0].contains(lastNameSearch) && patientName[1].contains(firstNameSearch))
+			if (lbData.healthNumber.contains(hinSearch) || patientName[0].contains(lastNameSearch) || patientName[1].contains(firstNameSearch))
 			{
 				// if no duplicate
 				if (!labResults.containsKey(duplicateKey))
