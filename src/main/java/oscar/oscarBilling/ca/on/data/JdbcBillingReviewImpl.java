@@ -485,10 +485,10 @@ public class JdbcBillingReviewImpl {
 				ch1Obj.setTotal(h.getTotal().toString());
 				
 				Provider provider = providerdao.getProvider(h.getProviderNo());
-				ch1Obj.setLast_name(provider.getLastName());
-				ch1Obj.setFirst_name(provider.getFirstName());
-				
-	
+				ch1Obj.setLast_name(provider!=null?provider.getLastName():"");
+				ch1Obj.setFirst_name(provider!=null?provider.getFirstName():"");
+
+
 				retval.add(ch1Obj);
 
 				String dx = "";
