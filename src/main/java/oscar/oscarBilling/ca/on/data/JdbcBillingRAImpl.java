@@ -30,6 +30,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.dao.BillingONCHeader1Dao;
 import org.oscarehr.common.dao.RaDetailDao;
 import org.oscarehr.common.dao.RaHeaderDao;
@@ -49,6 +50,7 @@ public class JdbcBillingRAImpl {
 
 	private RaDetailDao raDetailDao = SpringUtils.getBean(RaDetailDao.class);
 	private RaHeaderDao raHeaderDao = SpringUtils.getBean(RaHeaderDao.class);
+	private ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 	private BillingONCHeader1Dao cheader1Dao = SpringUtils.getBean(BillingONCHeader1Dao.class);
 
 	public int addOneRADtRecord(BillingRAData val) {
