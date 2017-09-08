@@ -101,10 +101,7 @@ public class RAReportAction extends Action {
 			balanceFwd = SxmlMisc.getXmlContent(rh.getContent(),"<xml_balancefwd>","</xml_balancefwd>");
 			new_total = SxmlMisc.getXmlContent(rh.getContent(),"<xml_total>","</xml_total>");
 		}
-		
-		raReport.setProperty("transactions", HTMLtransaction);
-		raReport.setProperty("balanceFwd", balanceFwd);
-		
+
 		filepath = props.getProperty("DOCUMENT_DIR").trim();
 		try{
 			FileInputStream file = new FileInputStream(filepath + filename);
@@ -159,11 +156,6 @@ public class RAReportAction extends Action {
                         
 			}
 		}
-		
-		HttpSession session = request.getSession();
-		
-		session.setAttribute("raReport", raReport);   		
-        session.setAttribute("bPremiumList", bPremiumList);
 		
 		ActionForward fwd = actionMapping.findForward("success");
 		return fwd;
