@@ -151,7 +151,7 @@ public class SxmlMisc extends Properties {
   	
 		String newStr = null;
 		int s = str.indexOf(sTag, fromIndex);
-		int e = str.indexOf(eTag, fromIndex + eTag.length()-1);
+		int e = str.indexOf(eTag, fromIndex + eTag.length());
 		
 		if(s!=-1 && e!=-1)
 			newStr = str.substring(s+sTag.length(),e);
