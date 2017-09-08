@@ -55,9 +55,9 @@ public class BillingRAPrep {
 		return getRASummary(raNo, null, OBbilling_no, CObilling_no,null);
 	}
 
-	public List getRASummary(String raNo, String providerOhipNo, List OBbilling_no, List CObilling_no) {
-	   return getRASummary(raNo, providerOhipNo, OBbilling_no, CObilling_no,null);
-    }
+    public List getRASummary(String raNo, String providerOhipNo, List OBbilling_no, List CObilling_no) {
+	   return getRASummary(raNo, providerOhipNo, OBbilling_no, CObilling_no,null); 
+        }
         
 	public List getRASummary(String raNo, String providerOhipNo, List OBbilling_no, List CObilling_no,Map map) {
 		List rett = new Vector();
