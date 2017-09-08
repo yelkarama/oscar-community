@@ -64,10 +64,10 @@ ResultSet rslocal;
 filename = documentBean.getFilename();
 
 if(!filename.equals("")) {
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+
 	OscarProperties props = OscarProperties.getInstance();
 	filepath = props.getProperty("DOCUMENT_DIR", "").trim(); //"/usr/local/OscarDocument/" + url +"/document/";
-	dbObj.importRAFile(filepath + filename,loggedInInfo.getLoggedInProviderNo());
+	dbObj.importRAFile(filepath + filename);
 } 
 %>
 
