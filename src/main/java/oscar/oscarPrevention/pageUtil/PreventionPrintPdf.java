@@ -386,7 +386,24 @@ public class PreventionPrintPdf {
                 //are in the middle of printing a prevention that has multiple items, identify this as a continued prevention
                 if (preventionHeader.equals(preventionItems.get(currentIndex - 1).getString("preventionName"))) {
                     Phrase contdProcHeader = new Phrase(LEADING, "Prevention " + preventionHeader + " (cont'd)\n", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, Font.ITALIC, Color.BLACK));
-                    ct.setText(contdProcHeader);
+                    // if at the end of the left column print continued prevention on right hand column,
+                    // otherwise print continued prevention on a new page.
+                    if (onColumnLeft){
+                        onColumnLeft = false;
+                        ct.setText(contdProcHeader);
+                        ct.setSimpleColumn(document.right() / 2f, document.bottom(), document.right(), upperYcoord);
+                    }
+                    else {
+                        onColumnLeft = true;
+                        ColumnText.showTextAligned(cb, Phrase.ALIGN_CENTER, new Phrase("-" + curPage + "-"), document.right() / 2f, document.bottom() - (document.bottomMargin() / 2f), 0f);
+                        addPromoText();
+                        upperYcoord = document.top() - header.getHeight() - font.getCalculatedLeading(LINESPACING);
+                        document.newPage();
+
+                        curPage++;
+                        ct.setText(contdProcHeader);
+                        ct.setSimpleColumn(document.left(), document.bottom(), document.right() / 2f, upperYcoord);
+                    }
                 } else {
                     ct.setText(procHeader);
                 }
