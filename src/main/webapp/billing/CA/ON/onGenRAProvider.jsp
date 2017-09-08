@@ -102,6 +102,7 @@ BigDecimal BigLocalHTotal = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_
 String localServiceDate = "";
        	
 proNo = request.getParameter("proNo");
+//raNo = request.getParameter("rano");
 if (raNo.compareTo("") == 0 || raNo == null){
 	flag = "0";
 	return;
@@ -207,7 +208,6 @@ for(int i=0; i<aL.size()-1; i++) { //to use table-filter js to generate the sum 
 
 
 </tr>
-</table>
 
 		<%
 
