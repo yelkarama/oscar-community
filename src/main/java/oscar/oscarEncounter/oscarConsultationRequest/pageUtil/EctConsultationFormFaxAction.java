@@ -384,8 +384,9 @@ public class EctConsultationFormFaxAction extends Action {
 			}
 		}
 		if (!error.equals("")) {
-			logger.error(error + " occured insided ConsultationPrintAction", exception);
-			request.setAttribute("printError", new Boolean(true));
+			logger.error(error + " occurred inside ConsultationFormFaxAction", exception);
+			request.setAttribute("faxError", exception.getMessage());
+			request.setAttribute("de", demoNo);
 			return mapping.findForward("error");
 		}
 		return null;		

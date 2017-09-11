@@ -186,11 +186,22 @@ if(!authed) {
 		if (demo != null) consultUtil.estPatient(loggedInInfo, demo);
 		consultUtil.estActiveTeams();
 
-		if (request.getParameter("error") != null)
-		{
+		if (request.getParameter("error") != null){
 %>
 <SCRIPT LANGUAGE="JavaScript">
-        alert("The form could not be printed due to an error. Please refer to the server logs for more details.");
+	var message = "The form could not be printed due to an error.";
+	<% if (request.getAttribute("printError") != null) { %>
+    	message +="\n <%=request.getAttribute("printError")%> \n";
+	<%	request.removeAttribute("printError");
+	}
+	else if (request.getAttribute("faxError") != null) { %>
+    	message +="\n <%=request.getAttribute("faxError")%> \n";
+	<%
+		request.removeAttribute("faxError");
+	}
+	%>
+	message += "Please refer to the server logs for more details.";
+	alert(message);
     </SCRIPT>
 <%
 	}

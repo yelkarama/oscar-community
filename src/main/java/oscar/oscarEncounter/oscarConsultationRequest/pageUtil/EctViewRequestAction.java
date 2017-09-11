@@ -57,6 +57,7 @@ import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
+import oscar.util.ParameterActionForward;
 import oscar.util.UtilDateUtilities;
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.v26.message.REF_I12;
@@ -71,15 +72,23 @@ public class EctViewRequestAction extends Action {
 	@Override
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse  response)	throws ServletException, IOException {
 		checkPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request));
+        ParameterActionForward forward = new ParameterActionForward(mapping.findForward("success"));
 
 		EctViewRequestForm frm = (EctViewRequestForm) form;
-
-		request.setAttribute("id", frm.getRequestId());
+		if ((frm.getRequestId() == null || "".equals(frm.getRequestId())) && request.getParameter("reqId") != null){
+		    frm.setRequestId(request.getParameter("reqId"));
+		    forward.addParameter("requestId", frm.getRequestId());
+        }
+        request.setAttribute("id", frm.getRequestId());
 
 		logger.debug("Id:"+frm.getRequestId());
 		logger.debug("SegmentId:"+request.getParameter("segmentId"));
-		
-		return mapping.findForward("success");
+
+
+        if (request.getAttribute("de") != null && request.getParameter("de") == null){
+            forward.addParameter("de", request.getAttribute("de"));
+        }
+		return forward;
 	}
 	
 	private static void setAppointmentDateTime(EctConsultationFormRequestForm thisForm, ConsultationRequest consult) {

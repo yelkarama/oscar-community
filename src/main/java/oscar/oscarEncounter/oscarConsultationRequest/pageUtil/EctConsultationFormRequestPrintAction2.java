@@ -227,8 +227,9 @@ public class EctConsultationFormRequestPrintAction2 extends Action {
 			}
 		}
 		if (!error.equals("")) {
-			logger.error(error + " occured insided ConsultationPrintAction", exception);
-			request.setAttribute("printError", new Boolean(true));
+			logger.error(error + " occurred inside ConsultationPrintAction", exception);
+			request.setAttribute("printError", exception.getMessage());
+			request.setAttribute("de", demoNo);
 			return mapping.findForward("error");
 		}
 		return null;
