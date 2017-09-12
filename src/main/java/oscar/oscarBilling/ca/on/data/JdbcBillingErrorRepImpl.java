@@ -89,7 +89,7 @@ public class JdbcBillingErrorRepImpl {
 	public boolean deleteErrorReport(BillingErrorRepData val) {
 		// Only try to delete if billing number is a number
 		if (NumberUtils.isNumber(val.getBilling_no())){
-			List<BillingONEAReport> bs = billingONEARReportDao.findByProviderOhipNoAndGroupNoAndSpecialtyAndProcessDateAndBillingNo(val.getProviderohip_no(), val.getGroup_no(), val.getSpecialty(), ConversionUtils.fromDateString(val.getProcess_date()),  Integer.parseInt(val.getBilling_no()));
+			List<BillingONEAReport> bs = billingONEARReportDao.findByProviderOhipNoAndGroupNoAndSpecialtyAndProcessDateAndBillingNo(val.getProviderohip_no(), val.getGroup_no(), val.getSpecialty(), ConversionUtils.fromDateString(val.getProcess_date(), "yyyyMMdd"),  Integer.parseInt(val.getBilling_no()));
 			for (BillingONEAReport b : bs) {
 				billingONEARReportDao.remove(b.getId());
 			}
