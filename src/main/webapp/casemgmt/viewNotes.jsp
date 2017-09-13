@@ -82,7 +82,7 @@
                 <div style="clear: both; overflow: auto;">
             </c:when>
             <c:otherwise>
-                <div style="clear: both; height: inherit; overflow: auto;">
+                <div style="clear: both; height: 85%; overflow: auto;">
             </c:otherwise>
         </c:choose>
 <ul style="margin-left: 5px;">
