@@ -280,14 +280,18 @@ public class MEDITECHHandler implements MessageHandler {
 		StringBuilder header = new StringBuilder("");
 		String obrHeader = "";
 		String obrHeaderCode = "";
+		String obrDiagnosticService = "";
 		try{			
 			obrHeader = getString(msg.getRESPONSE().getORDER_OBSERVATION(i).getOBR().getUniversalServiceIdentifier().getCe2_Text().getValue());
 			obrHeaderCode = getString(msg.getRESPONSE().getORDER_OBSERVATION(i).getOBR().getUniversalServiceIdentifier().getCe1_Identifier().getValue());
+			obrDiagnosticService = getString(msg.getRESPONSE().getORDER_OBSERVATION(i).getOBR().getDiagnosticServiceSectionID().getExtraComponents().getComponent(0).getData().toString());
 			
 			if( ! obrHeader.isEmpty() ) {
 				header.append(obrHeader);
-			} else {
+			} else if (!obrHeaderCode.isEmpty()){
 				header.append(obrHeaderCode);
+			} else {
+				header.append(obrDiagnosticService);
 			}
 		
 		}catch(Exception e){
