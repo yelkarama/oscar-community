@@ -473,9 +473,6 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 					}
 					// get the end of paragraph
 					endPara = writer.getVerticalPosition(true) + 30;
-					if (document.getPageSize().getWidth() == PageSize.A6.getWidth() && document.getPageSize().getHeight() == PageSize.A6.getHeight()) {
-						endPara = endPara + 10;
-					}
 					// draw left line
 					cb.setRGBColorStrokeF(0f, 0f, 0f);
 					cb.setLineWidth(0.5f);
@@ -728,7 +725,13 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 			document.setMargins(15, pageSize.getWidth() - 285f + 5f, 180, 60);// left, right, top , bottom
 
 			// writer = PdfWriter.getInstance(document, baosPDF);
-			writer = PdfWriterFactory.newInstance(document, baosPDF, FontSettings.HELVETICA_10PT);
+			if (PageSize.A6.equals(pageSize)){
+				writer = PdfWriterFactory.newInstanceA6(document, baosPDF, FontSettings.HELVETICA_6PT);
+			}
+			else {
+				writer = PdfWriterFactory.newInstance(document, baosPDF, FontSettings.HELVETICA_10PT);
+			}
+
 			writer.setPageEvent(new EndPage(clinicName, clinicTel, clinicFax, patientPhone, patientCityPostal, patientAddress, patientName,patientDOB, sigDoctorName, MRP, rxDate, origPrintDate, numPrint, imgFile, electronicSignature, patientHIN, patientChartNo, patientBandNumber, pracNo, pharmaName, pharmaAddress1, pharmaAddress2, pharmaTel, pharmaFax, pharmaEmail, pharmaNote, pharmaShow, locale, loggedInInfo));
 			document.addTitle(title);
 			document.addSubject("");

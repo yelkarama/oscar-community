@@ -80,4 +80,31 @@ public class PdfWriterFactory {
 		return result;
 	}
 
+	public static PdfWriter newInstanceA6(Document document, OutputStream stream, FontSettings settings) {
+		PdfWriter result;
+		try {
+			result = PdfWriter.getInstance(document, stream);
+		} catch (DocumentException e) {
+			MiscUtils.getLogger().error("Unable to create new PdfWriter instance", e);
+			return null;
+		}
+
+		String confidentialtyStatement = OscarProperties.getConfidentialityStatement();
+		PromoTextStamper pts = new PromoTextStamper(confidentialtyStatement, 55);
+		pts.setFontSize(settings.getFontSize());
+		result.setPageEvent(pts);
+
+		SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd");
+		String promoText = OscarProperties.getInstance().getProperty("FORMS_PROMOTEXT") + " " + f.format(new Date());
+		pts = new PromoTextStamper(promoText, 50);
+		pts.setFontSize(settings.getFontSize());
+		result.setPageEvent(pts);
+
+		PageNumberStamper pns = new PageNumberStamper(40);
+		pns.setFontSize(settings.getFontSize());
+		result.setPageEvent(pns);
+
+		return result;
+	}
+
 }
