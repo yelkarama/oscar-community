@@ -994,7 +994,7 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 		}
 
 		if (orderBy!=null){
-			queryString += " ORDER BY "+getOrderField(orderBy);
+			queryString += " ORDER BY "+ getOrderField(orderBy, true);
 		}
 		
 		Session session = this.getSession();
@@ -1205,6 +1205,22 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 			publisher.publishEvent(new DemographicUpdateEvent(demographic,demographic.getDemographicNo()));	
 		}
 		
+	}
+
+	public String getOrderField(String orderBy, boolean nativeQuery){
+		if (!nativeQuery){
+			orderBy = getOrderField(orderBy);
+		}
+		else {
+			if (orderBy.equals("dob")) {
+				orderBy = "d.year_of_birth, d.month_of_birth, d.date_of_birth ";
+			}
+			else {
+				orderBy = "d."+orderBy;
+			}
+		}
+
+		return orderBy;
 	}
 
 	public String getOrderField(String orderBy){
