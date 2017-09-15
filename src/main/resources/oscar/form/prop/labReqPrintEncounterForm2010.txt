@@ -1,9 +1,10 @@
-reqProvName : left, 55, 73, 0, BaseFont.HELVETICA, 8
-provName : left, 55, 87, 0, BaseFont.HELVETICA, 8
-clinicName : left, 55, 95, 0, BaseFont.HELVETICA, 8, _, 238, 105, 10
-clinicAddress : left, 55, 105, 0, BaseFont.HELVETICA, 8, _, 238, 116, 10
-clinicCity	: left, 55, 117, 0, BaseFont.HELVETICA, 8, _, 238, 128, 10
-clinicPC	: left, 55, 129, 0, BaseFont.HELVETICA, 8, _, 238, 141, 10
+reqProvName : left, 55, 70, 0, BaseFont.HELVETICA, 8
+provName : left, 55, 80, 0, BaseFont.HELVETICA, 8
+clinicName : left, 55, 87, 0, BaseFont.HELVETICA, 8, _, 238, 105, 10
+clinicAddress : left, 55, 97, 0, BaseFont.HELVETICA, 8, _, 238, 116, 10
+clinicCity	: left, 55, 107, 0, BaseFont.HELVETICA, 8, _, 238, 128, 10
+clinicPC	: left, 55, 117, 0, BaseFont.HELVETICA, 8, _, 238, 141, 10
+lifeLabsContractId : left, 22, 127, 0, BaseFont.HELVETICA; bold, 8, _, 238, 141, 10
 
 practitionerNo : left, 22, 152, 0, BaseFont.HELVETICA, 10, _, 144, 170, 10
 cpsoNo : left, 151, 152, 0, BaseFont.HELVETICA, 10, _, 238, 170, 10

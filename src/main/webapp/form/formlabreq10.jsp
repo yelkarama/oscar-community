@@ -616,6 +616,11 @@ if (OscarProperties.getInstance().getBooleanProperty("consultation_program_lette
 					<input type="hidden" style="width: 100%" name="clinicAddress" value="<%=props.getProperty("clinicAddress", "")%>" /> <span id="clinicAddress"><%=props.getProperty("clinicAddress", "")%></span><br>
 					<input type="hidden" style="width: 100%" name="clinicCity" value="<%=props.getProperty("clinicCity", "")%>" /><span id="clinicCity"> <%=props.getProperty("clinicCity", "")%>,<%=props.getProperty("clinicProvince","") %></span><br>
 					<input type="hidden" style="width: 100%" name="clinicPC" value="<%=props.getProperty("clinicPC", "")%>" /><span id="clinicPC"> <%=props.getProperty("clinicPC", "")%></span><br>
+					<%  String lifeLabsContractId = "Report to Contract ID: " + oscarProps.getProperty("lifeLabs_contract_id");
+						if (oscarProps.getProperty("lifeLabs_contract_id") != null) { %>
+						<input type="hidden" style="width: 100%" name="lifeLabsContractId" value="<%=lifeLabsContractId%>" />
+						<b><span id="lifeLabsContractId"><%=lifeLabsContractId%></span></b><br>
+					<% } %>
 					</td>
 				</tr>
 				<tr>
