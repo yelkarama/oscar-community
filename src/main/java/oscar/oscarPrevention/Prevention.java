@@ -91,8 +91,10 @@ public class Prevention {
    }
 
    public void addWarning(String prevName, String warn) {
-        addWarning(warn);
-        warnings.put(prevName, warn);
+       if(!isPreventionNever(prevName)){
+           addWarning(warn);
+           warnings.put(prevName, warn);
+       }
    }
 
    public ArrayList<String> getWarnings(){
