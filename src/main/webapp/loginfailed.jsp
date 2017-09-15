@@ -44,8 +44,13 @@
 <h4><%=errormsg%></h4>
 <h4>KAI Tips:</h4>
 <ul>
+    <%if (errormsg!=null && errormsg.contains("Your account is expired.")){ %>
+    <li>If another user with admin-rights in your clinic is currently logged in, they can click "Administration>User Management>Search/Edit/Delete Security Records" and select your account and change the Expiry Date.</li>
+    <%}
+    else {%>
     <li>Should it be after-hours, note that the account will automatically unlock after 15 minutes for you to try again.</li>
     <li>If another user with admin-rights in your clinic is currently logged in, they can click "Administration>User Management>Unlock Account" in order to unlock this for you immediately.</li>
+    <%}%>
     <li>If you have forgotten your password all together, please email KAI Support: <a href="mailto:support@kaiinnovations.com">support@kaiinnovations.com</a> to have it reset.</li>
 </ul>
 </body>
