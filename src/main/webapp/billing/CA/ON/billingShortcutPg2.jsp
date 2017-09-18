@@ -196,8 +196,8 @@
     }
 	for(int i=0; i<recordCount; i++) {
 		BillingServiceDao bsDao = SpringUtils.getBean(BillingServiceDao.class);
-		
-		for(BillingService bs : bsDao.findByServiceCodeAndLatestDate(billrec[i], ConversionUtils.fromDateString(request.getParameter("billDate")))) {
+		BillingService bs = bsDao.findSingleResultByServiceCodeAndLatestDate(billrec[i], ConversionUtils.fromDateString(request.getParameter("billDate")));
+		if(bs!=null) {
 			billrecdesc[i] = bs.getDescription();
 			pricerec[i] = bs.getValue() == null ? "" : bs.getValue();
 			percrec[i] = bs.getPercentage();

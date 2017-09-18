@@ -197,6 +197,17 @@ public class BillingServiceDao extends AbstractDao<BillingService> {
             return getSingleResultOrNull(query);
         }
 
+	public BillingService findSingleResultByServiceCodeAndLatestDate(String serviceCode, Date date) {
+		String sql ="FROM BillingService bs WHERE bs.serviceCode = :serviceCode " +
+				" AND bs.billingserviceDate <= :date " +
+				" AND bs.serviceCode = :serviceCode" +
+				" ORDER BY bs.billingserviceDate DESC ";
+		Query query = entityManager.createQuery(sql);
+		query.setParameter("serviceCode", serviceCode);
+		query.setParameter("date", date);
+		return getSingleResultOrNull(query);
+	}
+
 	public boolean editBillingCodeDesc(String desc, String val, Integer codeId) {
 		boolean retval = true;
 		BillingService billingservice = find(codeId);
