@@ -184,7 +184,7 @@ if(bMultisites) {
         vecAddress.add("<b>"+doctorName+"</b><br>"+temp0[i]+"<br>"+temp1[i] + "<br>" + temp2[i] + ", " + temp3[i] + " " + temp4[i] + "<br>"+rb.getString("RxPreview.msgTel")+": " + temp5[i] + "<br>"+rb.getString("RxPreview.msgFax")+": " + temp6[i]);
     }
 }
-String comment = (String) request.getSession().getAttribute("comment");
+String comment = request.getSession().getAttribute("comment")!=null?request.getSession().getAttribute("comment").toString():"";
 String pharmacyId = request.getParameter("pharmacyId");
 RxPharmacyData pharmacyData = new RxPharmacyData();
 PharmacyInfo pharmacy = null;
