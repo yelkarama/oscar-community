@@ -286,6 +286,7 @@ public class AddEFormAction extends Action {
 		eFormData.setFormDate(new Date());
 		eFormData.setFormTime(eFormData.getFormDate());
 		eFormData.setProviderNo(eForm.getProviderNo());
+		eForm.setFormHtml(eForm.getFormHtml().replaceAll("data-prechecked=\"true\" checked=\"checked\"", ""));
 		eFormData.setFormData(eForm.getFormHtml());
 		eFormData.setShowLatestFormOnly(eForm.isShowLatestFormOnly());
 		eFormData.setPatientIndependent(eForm.isPatientIndependent());

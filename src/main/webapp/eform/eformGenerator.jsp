@@ -1106,8 +1106,9 @@ var InputType = P[0];
 		m += "&quot; id=&quot;"
 		m += inputName
 		m += "&quot; type=&quot;checkbox&quot;"
-		if (preCheck) {
-			m += " checked=&quot;checked&quot;"
+		if (preCheck == "true") {
+			// When the efrom is saved for the first time this string will be stripped out to prevent always being checked
+			m += " data-prechecked=&quot;true&quot; checked=&quot;checked&quot;";
 		}
 		if (document.getElementById('ScaleCheckmark').checked){
 			m += " class=&quot;largerCheckbox&quot;"
