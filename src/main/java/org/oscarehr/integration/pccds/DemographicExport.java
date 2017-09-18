@@ -246,10 +246,8 @@ public class DemographicExport {
 		String strEditable = oscarProperties.getProperty("ENABLE_EDIT_APPT_STATUS");
 
 		boolean pcds_data_enabled = false;
-		//String pcds_data_source = "";
 		try{
 			pcds_data_enabled = Boolean.parseBoolean(oscarProperties.getProperty("PCDS_DATA_ENABLED"));
-			//pcds_data_source = oscarProperties.getProperty("PCDS_DATA_SOURCE");
 		}catch(Exception e){
 			if (DEBUG){
 				logger.info("\tDEBUG : " + this.getClass().getName() + " : failed to find pcds_data_enabled, setting false");
