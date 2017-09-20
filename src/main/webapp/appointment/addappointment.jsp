@@ -92,17 +92,13 @@
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="oscar.oscarEncounter.data.EctFormData"%>
 <%@ page import="org.oscarehr.common.model.DemographicCust" %>
-<%@ page import="org.oscarehr.common.dao.DemographicCustDao" %>
-<%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
+    <%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
 <%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
 <%@ page import="org.oscarehr.common.model.Provider" %>
 <%@ page import="org.oscarehr.common.model.Demographic" %>
-<%@ page import="org.oscarehr.common.dao.DemographicDao" %>
-<%@ page import="org.oscarehr.common.model.EncounterForm" %>
-<%@ page import="org.oscarehr.common.dao.EncounterFormDao" %>
-<%@ page import="org.oscarehr.common.model.Appointment" %>
-<%@ page import="org.oscarehr.common.dao.OscarAppointmentDao" %>
-<%@ page import="oscar.util.ConversionUtils" %>
+    <%@ page import="org.oscarehr.common.model.EncounterForm" %>
+    <%@ page import="org.oscarehr.common.model.Appointment" %>
+    <%@ page import="oscar.util.ConversionUtils" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.oscarehr.PMmodule.model.Program" %>
 <%@ page import="org.oscarehr.PMmodule.model.ProgramProvider" %>
@@ -127,6 +123,7 @@
 	DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
 	EncounterFormDao encounterFormDao = SpringUtils.getBean(EncounterFormDao.class);
 	OscarAppointmentDao appointmentDao = SpringUtils.getBean(OscarAppointmentDao.class);
+    UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 	
 	ProviderManager providerManager = SpringUtils.getBean(ProviderManager.class);
 	ProgramManager programManager = SpringUtils.getBean(ProgramManager.class);
@@ -168,9 +165,9 @@
         }
     }
 %>
-<%@page import="org.oscarehr.common.dao.SiteDao"%>
-<%@page import="org.oscarehr.common.model.Site"%>
-<html:html locale="true">
+    <%@page import="org.oscarehr.common.model.Site"%>
+    <%@ page import="org.oscarehr.common.dao.*" %>
+    <html:html locale="true">
 <head>
 <script type="text/javascript" src="../js/jquery-1.7.1.min.js"></script>
 <script src="<%=request.getContextPath()%>/js/jquery-ui-1.8.18.custom.min.js"></script>
@@ -818,6 +815,12 @@ function pasteAppt(multipleSameDayGroupAppt) {
 
 		}
 	}
+
+	if (OscarProperties.getInstance().getBooleanProperty("queens_hc_settings", "true") && userPropertyDao.getProp("auto_validate_hc")!=null && "true".equals(userPropertyDao.getProp("auto_validate_hc").getValue())){ %>
+        <script type="application/javascript">
+            popup(500, 500, '/CardSwipe/?hc=<%=hin.replace("null", "")%>&providerNo=<%=StringUtils.trimToEmpty(curProvider_no)%>', 'Card Swipe');
+        </script>
+  <%  }
   }
 
 
