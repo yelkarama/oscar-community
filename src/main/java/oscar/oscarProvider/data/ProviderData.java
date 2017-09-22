@@ -433,7 +433,7 @@ public class ProviderData {
 
 	/**
 	 * Setter for property rma_no.
-	 * @param rma_no New value of property rma_no.
+	 * @param thirdPartyOnly New value of property thirdPartyOnly.
 	 */
 	public void setThirdPartyOnly(Boolean thirdPartyOnly) {
 		this.thirdPartyOnly = thirdPartyOnly;
@@ -739,6 +739,7 @@ public class ProviderData {
 		this.status = "1";
 		this.specialty = "";
 		this.sex = "";
+        this.setThirdPartyOnly(false);
 		
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		this.lastUpdateDate = sdf.format(new Date());
