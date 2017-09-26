@@ -33,15 +33,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
+import ca.uhn.hl7v2.parser.*;
 import org.apache.log4j.Logger;
 
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.v23.datatype.XCN;
 import ca.uhn.hl7v2.model.v23.message.ORU_R01;
-import ca.uhn.hl7v2.parser.DefaultXMLParser;
-import ca.uhn.hl7v2.parser.Parser;
-import ca.uhn.hl7v2.parser.PipeParser;
-import ca.uhn.hl7v2.parser.XMLParser;
 import ca.uhn.hl7v2.util.Terser;
 import ca.uhn.hl7v2.validation.impl.NoValidation;
 import oscar.util.UtilDateUtilities;
@@ -78,9 +75,12 @@ public class MEDITECHHandler implements MessageHandler {
 
 	@Override
 	public void init(String hl7Body) throws HL7Exception {
-		Parser parser = new PipeParser();
+		// Create a parser that parses any version below 2.3 to 2.3
+		CanonicalModelClassFactory mcf = new CanonicalModelClassFactory("2.3");
+		Parser parser = new PipeParser(mcf);
 		parser.setValidationContext(new NoValidation());
-		msg = (ORU_R01) parser.parse(hl7Body.replaceAll( "\n", "\r\n" ).replace("\\.Zt\\", "\t"));
+		hl7Body = hl7Body.replaceAll( "\n", "\r\n" ).replace("\\.Zt\\", "\t");
+		msg = (ORU_R01) parser.parse(hl7Body);
 		terser = new Terser(msg);
 	}
 
