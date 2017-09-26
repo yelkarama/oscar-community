@@ -197,9 +197,8 @@ for(int i=0; i<aL.size(); i=i+2) {
 		}
 		else
 		{
-			balance = total.subtract(sumOfPay).subtract(sumOfDiscount).add(sumOfCredit);
+			balance = total.subtract(sumOfPay).subtract(sumOfDiscount).subtract(sumOfRefund).add(sumOfCredit);
 		}
-
 	}
 %>
 	
