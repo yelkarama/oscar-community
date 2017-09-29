@@ -569,13 +569,14 @@ public class ActionUtils {
 		Boolean alreadySent = false;
 		OscarProperties props = OscarProperties.getInstance();
 		File sentFile = new File(props.getProperty("ONEDT_SENT", "")+ File.separator + file.getName());
-		Calendar fileDate = Calendar.getInstance();
-		fileDate.setTime(new Date(file.lastModified()));
 
-		if(sentFile.exists()){
-			Calendar calendar = Calendar.getInstance();
-			calendar.setTime(new Date(sentFile.lastModified()));
-			alreadySent = calendar.get(Calendar.YEAR) == fileDate.get(Calendar.YEAR);
+		if (sentFile.exists()){
+			try {
+				alreadySent = FileUtils.contentEquals(file, sentFile);
+			}
+			catch (IOException ioe){
+				ioe.printStackTrace();
+			}
 		}
 		return alreadySent;
 	}
