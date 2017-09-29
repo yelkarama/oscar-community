@@ -509,26 +509,31 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                     </tr>
                                     <tr id="demographicInfoRow">
 				<td id="demographicInfoCell" colspan=2 align=left valign=top height="75px">
-					<b style="float: right"><%= oscar.oscarRx.util.RxUtil.DateToString(rxDate, "MMMM d, yyyy",request.getLocale()) %></b><br>
-						<%= patient.getFirstName() %> <%= patient.getSurname() %> <%if(showPatientDOB){%>&nbsp;&nbsp; DOB:<%= StringEscapeUtils.escapeHtml(patientDOBStr) %> <%}%><br>
-                                                                <%= patientAddress %><br>
-                                                            <%= patientCityPostal %><br>
-                                                            <%= patientPhone %><br>
-                                                            <oscar:oscarPropertiesCheck value="true" property="showRxBandNumber">	
-                                                            	<c:if test="${ not empty bandNumber }">
-                                                            	<br />
-	                                                            <b><bean:message key="oscar.oscarRx.bandNumber" /></b>	  
-	                                                            	<c:out value="${ bandNumber }" />
-                                                            	</c:if>
-                                                            </oscar:oscarPropertiesCheck>
-                                                            <b> <% if(!props.getProperty("showRxHin", "").equals("false")) { %>
-                                                            <br />
-                                                            <bean:message key="oscar.oscarRx.hin" /><%= patientHin %> <% } %>                                                            
-                                                            </b><br>
-                                                                <% if(props.getProperty("showRxChartNo", "").equalsIgnoreCase("true")) { %>
-                                                            <bean:message key="oscar.oscarRx.chartNo" /><%=ptChartNo%>
-                                                            <% } %>
-                                                            
+					<div style="width: 100%;">
+						<div style="text-align: right;">
+						<b><%= oscar.oscarRx.util.RxUtil.DateToString(rxDate, "MMMM d, yyyy",request.getLocale()) %></b>
+						</div>
+						<div style="display: table-cell">
+							<span><%= patient.getFirstName() %> <%= patient.getSurname() %> <%if(showPatientDOB){%>&nbsp;&nbsp; DOB:<%= StringEscapeUtils.escapeHtml(patientDOBStr) %> <%}%></span><br/>
+							<span><%= patientAddress %></span><br/>
+							<span><%= patientCityPostal %></span><br/>
+							<span><%= patientPhone %></span><br/>
+							<oscar:oscarPropertiesCheck value="true" property="showRxBandNumber">	
+								<c:if test="${ not empty bandNumber }">
+								<br />
+								<b><bean:message key="oscar.oscarRx.bandNumber" /></b>	  
+									<c:out value="${ bandNumber }" />
+								</c:if>
+							</oscar:oscarPropertiesCheck>
+							<b> <% if(!props.getProperty("showRxHin", "").equals("false")) { %>
+							<br />
+							<bean:message key="oscar.oscarRx.hin" /><%= patientHin %> <% } %>                                                            
+							</b><br>
+								<% if(props.getProperty("showRxChartNo", "").equalsIgnoreCase("true")) { %>
+							<bean:message key="oscar.oscarRx.chartNo" /><%=ptChartNo%>
+							<% } %>
+						</div>
+					</div>
                                                             </td>
                                     </tr>
 		</thead>
