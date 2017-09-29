@@ -210,5 +210,9 @@ public class MessageTbl extends AbstractModel<Integer>{
         this.type_link = type_link;
     }
 	
-	
+    public String getResponseMessage() {
+        String reMessage = getMessage().replace("\n", "\n>"); //puts > at the beginning
+        reMessage = "\n\n\n>" + reMessage;
+        return reMessage;
+    }
 }

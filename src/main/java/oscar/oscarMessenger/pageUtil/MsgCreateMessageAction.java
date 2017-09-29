@@ -77,7 +77,6 @@ public class MsgCreateMessageAction extends Action {
             MiscUtils.getLogger().debug("Subject: " + subject);
             MiscUtils.getLogger().debug("Message: " + message);
             
-            String sentToWho    = null;
             String currLoco     = null;
             String messageId    = null;
             String demographic_no = ((MsgCreateMessageForm)form).getDemographic_no();
@@ -96,16 +95,8 @@ public class MsgCreateMessageAction extends Action {
             currLoco                = messageData.getCurrentLocationId();
 
 
-
-            if (messageData.isLocals()){
-            sentToWho = messageData.createSentToString(localProviderListing);
-            }else{
-            sentToWho = "";
-            }
-
-            if (messageData.isRemotes()){
-                sentToWho = sentToWho+" "+messageData.getRemoteNames(remoteProviderListing);
-            }
+            String sentToWho = messageData.createSentToStringLocalAndRemote(localProviderListing, remoteProviderListing);
+        
 
             messageId = messageData.sendMessage2(message,subject,userName,sentToWho,userNo,providerListing,att, pdfAtt, OscarMsgType.GENERAL_TYPE);
 

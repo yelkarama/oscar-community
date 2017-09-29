@@ -12480,3 +12480,15 @@ ALTER TABLE favorites MODIFY customName VARCHAR(100);
 ALTER TABLE drugs MODIFY customName VARCHAR(100);
 
 CREATE INDEX consultdocs_requestId  ON consultdocs (requestId);
+
+CREATE TABLE message_responder (
+  id int(10) NOT NULL AUTO_INCREMENT,
+  provider_no varchar(6) NOT NULL DEFAULT '0',
+  start_date date DEFAULT NULL,
+  end_date date DEFAULT NULL,
+  `subject` varchar(128) NOT NULL,
+  message text NOT NULL,
+  update_date datetime NOT NULL,
+  archived tinyint(1) NOT NULL,
+  PRIMARY KEY (id)
+);

@@ -35,6 +35,7 @@
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="org.oscarehr.common.dao.MessageFolderDao" %>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
+<%@ page import="oscar.OscarProperties" %>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
       String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -274,19 +275,20 @@ function moveToFolder(selected){
 
                         <%}%>
                         </td>
-                        <td  >
-                            <!-- edit 2006-0811-01 by wreby -->
+                        <td>
                             <html:form action="/oscarMessenger/DisplayMessages">
                             <input name="boxType" type="hidden" value="<%=pageType%>">
                             <input name="searchString" type="text" size="20" value="<jsp:getProperty name="DisplayMessagesBeanId" property="filter"/>">
                             <input name="btnSearch" type="submit" value="<bean:message key="oscarMessenger.DisplayMessages.btnSearch"/>">
                             <input name="btnClearSearch" type="submit" value="<bean:message key="oscarMessenger.DisplayMessages.btnClearSearch"/>">
                             </html:form>
-                            <!-- end edit 2006-0811-01 by wreby -->
                         </td>
-                        <td style="text-align:right">	
-									<oscar:help keywords="&Title=Messenger&portal_type%3Alist=Document" key="app.top1"/>&nbsp;|
-        							<a href="<%=request.getContextPath()%>/oscarEncounter/About.jsp" target="_new"><bean:message key="global.about" /></a>
+                        <td style="text-align:right">
+							<% if (OscarProperties.getInstance().isPropertyActive("queens_vacation_responder")) { %>
+							<a href="<%=request.getContextPath()%>/oscarMessenger/Settings.jsp">Settings</a>&nbsp;| 
+							<% } %>
+							<oscar:help keywords="&Title=Messenger&portal_type%3Alist=Document" key="app.top1"/>&nbsp;|
+							<a href="<%=request.getContextPath()%>/oscarEncounter/About.jsp" target="_new"><bean:message key="global.about" /></a>
                         </td>
                     </tr>
                 </table>

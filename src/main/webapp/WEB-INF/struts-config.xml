@@ -850,6 +850,9 @@
 		<action input="/oscarMessenger/ManageFolders.jsp"  path="/oscarMessenger/ManageFolder" scope="request" type="oscar.oscarMessenger.pageUtil.MsgManageFolderAction">
 			<forward name="success" path="/oscarMessenger/ManageFolders.jsp" />
 		</action>
+        <action input="/oscarMessenger/Settings.jsp" path="/oscarMessenger/Settings" scope="request" type="oscar.oscarMessenger.pageUtil.MsgSettingsAction">
+            <forward name="success" path="/oscarMessenger/Settings.jsp" />
+        </action>
 
 		<action name="RxChoosePatientForm" path="/oscarRx/choosePatient" scope="request" type="oscar.oscarRx.pageUtil.RxChoosePatientAction">
 			<forward name="success" path="/oscarRx/SearchDrug.jsp" />
@@ -1779,6 +1782,13 @@
 			<forward name="saved" path="/billing/CA/ON/batchsaved.jsp" />
 			<forward name="error" path="/billing/CA/ON/batcherror.jsp" />
 			<forward name="success" path="/billing/CA/ON/batchBilling.jsp" />
+		</action>
+		
+		<action path="/billing/CA/ON/RASummary" scope="request" parameter="method" type="org.oscarehr.billing.CA.ON.web.RASummaryAction">
+			<forward name="success" path="/billing/CA/ON/onGenRASummary.jsp" />
+		</action>
+		<action path="/billing/CA/ON/RAReport" scope="request" parameter="method" type="org.oscarehr.billing.CA.ON.web.RAReportAction">
+			<forward name="success" path="/billing/CA/ON/genRADesc.jsp" />
 		</action>
 
 		<action input="/billing/CA/BC/formwcb.jsp" name="WCBForm" path="/billing/CA/BC/formwcb" scope="request" type="oscar.oscarBilling.ca.bc.pageUtil.WCBAction2" parameter="method">

@@ -128,8 +128,7 @@ public class MsgHandleMessagesAction extends Action {
 			String[] replyval = new String[] {};
 			java.util.Vector vector = new java.util.Vector();
 			StringBuilder subject = new StringBuilder("Re:");
-			String themessage = new String();
-			StringBuilder theSendMessage = new StringBuilder();
+			String theSendMessage = "";
 
 			try { //gets the sender
 				MessageTblDao mtDao = SpringUtils.getBean(MessageTblDao.class);
@@ -137,11 +136,8 @@ public class MsgHandleMessagesAction extends Action {
 				if (t != null) {
 					vector.add(t.getSentByNo());
 					subject.append(t.getSubject());
-					themessage = t.getMessage();
 					sentByLocation = "" + t.getSentByLocation();
-					themessage = themessage.replace('\n', '>'); //puts > at the beginning
-					theSendMessage = new StringBuilder(themessage); //of each line
-					theSendMessage.insert(0, "\n\n\n>");
+					theSendMessage = t.getResponseMessage();
 					replyMessageData.add((String) vector.elementAt(0), sentByLocation);
 				}
 				replyval = new String[vector.size()];
@@ -166,29 +162,25 @@ public class MsgHandleMessagesAction extends Action {
 				MiscUtils.getLogger().error("Error", e);
 			}
 
-			request.setAttribute("ReText", theSendMessage.toString());
+			request.setAttribute("ReText", theSendMessage);
 			request.setAttribute("ReMessage", replyval); // used to set the providers that will get the reply message
 			request.setAttribute("ProvidersClassObject", replyMessageData);
 			request.setAttribute("ReSubject", subject.toString());
 			return (mapping.findForward("reply"));
 		} else if (forward.equals("Forward")) {
 			StringBuilder subject = new StringBuilder("Fwd:");
-			String themessage = new String();
-			StringBuilder theSendMessage = new StringBuilder();
+			String theSendMessage = "";
 			try { //gets the sender
 				MessageTblDao mtDao = SpringUtils.getBean(MessageTblDao.class);
 				MessageTbl m = mtDao.find(ConversionUtils.fromIntString(messageNo));
 				if (m != null) {
 					subject.append(m.getSubject());
-					themessage = m.getMessage();
-					themessage = themessage.replace('\n', '>'); //puts > at the beginning
-					theSendMessage = new StringBuilder(themessage); //of each line
-					theSendMessage.insert(0, "\n\n\n>");
+					theSendMessage = m.getResponseMessage();
 				}
 			} catch (Exception e) {
 				MiscUtils.getLogger().error("Error", e);
 			}
-			request.setAttribute("ReText", theSendMessage.toString()); //this one is a goody
+			request.setAttribute("ReText", theSendMessage); //this one is a goody
 			request.setAttribute("ReSubject", subject.toString());
 			return (mapping.findForward("reply"));
 		}

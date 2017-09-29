@@ -29,4 +29,12 @@ public class MsgProviderData {
 
     public String providerNo;
     public String locationId;
+
+    public MsgProviderData() {
+    }
+
+    public MsgProviderData(String providerNo, String locationId) {
+        this.providerNo = providerNo;
+        this.locationId = locationId;
+    }
 }

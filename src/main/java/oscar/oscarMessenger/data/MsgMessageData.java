@@ -26,12 +26,17 @@
 package oscar.oscarMessenger.data;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
+import org.apache.commons.lang.time.DateUtils;
+import org.opensaml.xml.signature.P;
+import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.dao.MessageListDao;
+import org.oscarehr.common.dao.MessageResponderDao;
 import org.oscarehr.common.dao.MessageTblDao;
-import org.oscarehr.common.model.MessageList;
-import org.oscarehr.common.model.MessageTbl;
+import org.oscarehr.common.model.*;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 import org.w3c.dom.Document;
@@ -39,6 +44,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import oscar.OscarProperties;
 import oscar.oscarDB.DBPreparedHandler;
 import oscar.oscarMessenger.util.Msgxml;
 
@@ -53,8 +59,9 @@ public class MsgMessageData {
     private String messageDate;
     private String messageTime;
     
-    MessageTblDao messageTblDao = SpringUtils.getBean(MessageTblDao.class);
-    MessageListDao messageListDao = SpringUtils.getBean(MessageListDao.class);
+    private MessageTblDao messageTblDao = SpringUtils.getBean(MessageTblDao.class);
+    private MessageListDao messageListDao = SpringUtils.getBean(MessageListDao.class);
+    private MessageResponderDao messageResponderDao = SpringUtils.getBean(MessageResponderDao.class);
      
 
     public MsgMessageData(){
@@ -100,7 +107,7 @@ public class MsgMessageData {
        * @param strarray is a String Array,
        * @return turns a String Array
        */
-   public String[] getDups4(String[] strarray){
+    public String[] getDups4(String[] strarray){
 
 		java.util.Vector<String> vector = new java.util.Vector<String>();
 		String temp = new String();
@@ -167,13 +174,19 @@ public class MsgMessageData {
 
       }catch (java.sql.SQLException e){MiscUtils.getLogger().error("Error", e); }
 
-
-
     return sentToWho.toString();
     }
-    //=-------------------------------------------------------------------------
-
-    ////////////////////////////////////////////////////////////////////////////
+    
+    public String createSentToStringLocalAndRemote(java.util.ArrayList<MsgProviderData> localProvidersStructure, java.util.ArrayList<MsgProviderData> remoteProvidersStructure) {
+        String sentToWho = "";
+        if (isLocals()) {
+            sentToWho = createSentToString(localProvidersStructure);
+        }
+        if (isRemotes()) {
+            sentToWho = sentToWho + " " + getRemoteNames(remoteProvidersStructure);
+        }
+        return sentToWho;
+    }
      public String createSentToString(java.util.ArrayList<MsgProviderData> providerList){
 
             String sql = "select first_name, last_name from provider where ";
@@ -312,11 +325,17 @@ public class MsgMessageData {
     
     }
     ////////////////////////////////////////////////////////////////////////////
-    public String sendMessage2(String message, String subject,String userName,String sentToWho,String userNo,ArrayList<MsgProviderData> providers,String attach, String pdfAttach, Integer type ){
+    public String sendMessage2(String message, String subject,String userName,String sentToWho,String userNo,ArrayList<MsgProviderData> providers,String attach, String pdfAttach, Integer type ) {
+        return sendMessage2(message, subject, userName, sentToWho, userNo, providers, attach, pdfAttach, type, new ArrayList<String>());
+    }
+    
+    public String sendMessage2(String message, String subject,String userName,String sentToWho,String userNo,ArrayList<MsgProviderData> providers,String attach, String pdfAttach, Integer type, List<String> responderProviderNumbers) {
+        if (responderProviderNumbers == null) {
+            responderProviderNumbers = new ArrayList<String>();
+        }
+        oscar.oscarMessenger.util.MsgStringQuote str = new oscar.oscarMessenger.util.MsgStringQuote();
+        Date now = new Date();
 
-      oscar.oscarMessenger.util.MsgStringQuote str = new oscar.oscarMessenger.util.MsgStringQuote();
-      
-     
         if (attach != null){
             attach = str.q(attach);
         }
@@ -325,41 +344,57 @@ public class MsgMessageData {
             pdfAttach = str.q(pdfAttach);
         }
 
-     sentToWho = org.apache.commons.lang.StringEscapeUtils.escapeSql(sentToWho);
-     userName = org.apache.commons.lang.StringEscapeUtils.escapeSql(userName);
+        sentToWho = org.apache.commons.lang.StringEscapeUtils.escapeSql(sentToWho);
+        userName = org.apache.commons.lang.StringEscapeUtils.escapeSql(userName);
      
-     MessageTbl mt = new MessageTbl();
-     mt.setDate(new Date());
-     mt.setTime(new Date());
-     mt.setMessage(message);
-     mt.setSubject(subject);
-     mt.setSentBy(userName);
-     mt.setSentTo(sentToWho);
-     mt.setSentByNo(userNo);
-     mt.setSentByLocation(Integer.parseInt(getCurrentLocationId()));
-     mt.setAttachment(attach);
-     mt.setType(type);
-     if(pdfAttach !=null){
-    	 mt.setPdfAttachment(pdfAttach.getBytes());
-     }
-     messageTblDao.persist(mt);
+        MessageTbl mt = new MessageTbl();
+        mt.setDate(now);
+        mt.setTime(now);
+        mt.setMessage(message);
+        mt.setSubject(subject);
+        mt.setSentBy(userName);
+        mt.setSentTo(sentToWho);
+        mt.setSentByNo(userNo);
+        mt.setSentByLocation(Integer.parseInt(getCurrentLocationId()));
+        mt.setAttachment(attach);
+        mt.setType(type);
+        if(pdfAttach !=null){
+            mt.setPdfAttachment(pdfAttach.getBytes());
+        }
+        messageTblDao.persist(mt);
      
      
-     String messageid = String.valueOf(mt.getId());
+        String messageid = String.valueOf(mt.getId());
 
-   
+        for (MsgProviderData providerData : providers) {
+            MessageList ml = new MessageList();
+            ml.setMessage(Integer.parseInt(messageid));
+            ml.setProviderNo(providerData.providerNo);
+            ml.setStatus("new");
+            ml.setRemoteLocation(Integer.parseInt(providerData.locationId));
+            messageListDao.persist(ml);
 
-     for (MsgProviderData providerData : providers){
-    	 MessageList ml = new MessageList();
-    	 ml.setMessage(Integer.parseInt(messageid));
-    	 ml.setProviderNo(providerData.providerNo);
-    	 ml.setStatus("new");
-    	 ml.setRemoteLocation(Integer.parseInt(providerData.locationId));
-    	 messageListDao.persist(ml);
-     }
-
-      
-      return messageid;
+            if (OscarProperties.getInstance().isPropertyActive("queens_vacation_responder")) {
+                MessageResponder responder = messageResponderDao.findNewestByProvider(providerData.providerNo);
+                if (responder != null) {
+                    Date endDateInclusive = (responder.getEndDate() == null) ? null : DateUtils.addDays(responder.getEndDate(), 1); // Add 1 to day to make Date.before inclusive
+                    if (!responder.isArchived() && !responderProviderNumbers.contains(providerData.providerNo)
+                            && (responder.getStartDate() == null || now.after(responder.getStartDate()))
+                            && (responder.getEndDate() == null || now.before(endDateInclusive))) {
+                        responderProviderNumbers.add(providerData.providerNo);
+                        String reMessage = responder.getMessage() + mt.getResponseMessage();
+                        String reSubject = responder.getSubject() + " Re:" + mt.getSubject();
+                        MsgMessageData responderMessageData = new MsgMessageData();
+                        ArrayList<MsgProviderData> responderOriginalSender = responderMessageData.getProviderStructure(userNo);
+                        String responderSentToWho = responderMessageData.createSentToStringLocalAndRemote(responderMessageData.getLocalProvidersStructure(), responderMessageData.getRemoteProvidersStructure());
+                        ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
+                        String responderSenderUserName = providerDao.getProvider(providerData.providerNo).getFullName();
+                        responderMessageData.sendMessage2(reMessage, reSubject, responderSenderUserName, responderSentToWho, providerData.providerNo, responderOriginalSender, null, null, OscarMsgType.GENERAL_TYPE, responderProviderNumbers);
+                    }
+                }
+            }
+        }
+        return messageid;
     }
 
 
@@ -390,6 +425,10 @@ public class MsgMessageData {
          return providerArrayList;
     }//-=-----------------------------------------------------------------------
 
+    public java.util.ArrayList<MsgProviderData> getProviderStructure(String provider){
+        String[] providerArray = { provider };
+        return getProviderStructure(providerArray);
+    }
     ////////////////////////////////////////////////////////////////////////////
     public java.util.ArrayList<MsgProviderData> getRemoteProvidersStructure(){
         java.util.ArrayList<MsgProviderData> arrayList = new java.util.ArrayList<MsgProviderData>();
