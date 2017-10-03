@@ -38,6 +38,7 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.apache.xpath.operations.Bool;
 import org.oscarehr.common.dao.MessageListDao;
 import org.oscarehr.common.model.MessageList;
 import org.oscarehr.common.model.OscarMsgType;
@@ -83,6 +84,7 @@ public class MsgViewMessageAction extends Action {
         String msgCount = request.getParameter("msgCount");
         String from = request.getParameter("from")==null?"oscarMessenger":request.getParameter("from");
         String boxType = request.getParameter("boxType")==null?"":request.getParameter("boxType");
+        String replyFor = request.getParameter("replyFor");
         
         if(msgCount==null){
             MsgDisplayMessagesBean DisplayMessagesBeanId = new MsgDisplayMessagesBean();
@@ -176,12 +178,21 @@ public class MsgViewMessageAction extends Action {
               }
 
               if (i == 1){
-            	  for(MessageList ml:messageListDao.findByProviderNoAndMessageNo(providerNo, Long.valueOf(messageNo))) {
-            		  if(!ml.getStatus().equals("del")) {
-            			  ml.setStatus("read");
-            			  messageListDao.merge(ml);
-            		  }
-            	  }
+                  List<MessageList> readList;
+                  String status;
+                  if (replyFor != null && !replyFor.equals(providerNo)) {
+                      readList = messageListDao.findByProviderNoAndMessageNo(replyFor, Long.valueOf(messageNo));
+                      status = "reviewed";
+                  } else {
+                      readList = messageListDao.findByProviderNoAndMessageNo(providerNo, Long.valueOf(messageNo));
+                      status = "read";
+                  }
+                  for(MessageList ml : readList) {
+                      if(!ml.getStatus().equals("del")) {
+                          ml.setStatus(status);
+                          messageListDao.merge(ml);
+                      }
+                  }
               }
               
               if (linkMsgDemo !=null && demographic_no!=null){

@@ -70,6 +70,11 @@ public class MsgHandleMessagesAction extends Action {
 		String replyAll = frm.getReplyAll();
 		String delete = frm.getDelete();
 		String forward = frm.getForward();
+		boolean fromProviderSearch = false;
+		String respondedByName = LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProvider().getFullName();
+		if (request.getParameter("fromProviderSearch") != null && request.getParameter("fromProviderSearch").equals("true")) {
+            fromProviderSearch = true;
+        }
 
 		oscar.oscarMessenger.data.MsgReplyMessageData replyMessageData;
 		replyMessageData = new oscar.oscarMessenger.data.MsgReplyMessageData();
@@ -127,7 +132,7 @@ public class MsgHandleMessagesAction extends Action {
 
 			String[] replyval = new String[] {};
 			java.util.Vector vector = new java.util.Vector();
-			StringBuilder subject = new StringBuilder("Re:");
+			StringBuilder subject = new StringBuilder();
 			String theSendMessage = "";
 
 			try { //gets the sender
@@ -135,9 +140,15 @@ public class MsgHandleMessagesAction extends Action {
 				MessageTbl t = mtDao.find(ConversionUtils.fromIntString(messageNo));
 				if (t != null) {
 					vector.add(t.getSentByNo());
-					subject.append(t.getSubject());
+					String subjectStr = "Re: " + t.getSubject();
 					sentByLocation = "" + t.getSentByLocation();
 					theSendMessage = t.getResponseMessage();
+					if (fromProviderSearch) {
+					    String sendTo = t.getSentTo().replace(".", "");
+                        theSendMessage = "\n\n\nResponded on behalf of " + sendTo.trim() + " by " + respondedByName + theSendMessage;
+                        subjectStr = "Sent on Behalf of " + sendTo.trim() + " - Re: " + t.getSubject();
+                    }
+                    subject.append(subjectStr);
 					replyMessageData.add((String) vector.elementAt(0), sentByLocation);
 				}
 				replyval = new String[vector.size()];
@@ -166,6 +177,7 @@ public class MsgHandleMessagesAction extends Action {
 			request.setAttribute("ReMessage", replyval); // used to set the providers that will get the reply message
 			request.setAttribute("ProvidersClassObject", replyMessageData);
 			request.setAttribute("ReSubject", subject.toString());
+            request.setAttribute("fromProviderSearch", fromProviderSearch);
 			return (mapping.findForward("reply"));
 		} else if (forward.equals("Forward")) {
 			StringBuilder subject = new StringBuilder("Fwd:");

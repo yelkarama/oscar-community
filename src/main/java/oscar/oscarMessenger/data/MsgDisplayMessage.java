@@ -35,9 +35,16 @@ public class MsgDisplayMessage {
     public String theime    = null;
     public String sentby     = null;
     public String sentto     = null;
+    private String sentToProviderNo;
     public String attach     = null;
     public String pdfAttach     = null;
     public String demographic_no = null;
 
+    public String getSentToProviderNo() {
+        return sentToProviderNo;
+    }
 
+    public void setSentToProviderNo(String sentToProviderNo) {
+        this.sentToProviderNo = sentToProviderNo;
+    }
 }

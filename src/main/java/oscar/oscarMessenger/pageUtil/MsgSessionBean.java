@@ -27,6 +27,11 @@ package oscar.oscarMessenger.pageUtil;
 import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.util.SpringUtils;
+import oscar.oscarMessenger.data.MsgDisplayMessage;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 
 public class MsgSessionBean implements java.io.Serializable {
 	
@@ -42,6 +47,14 @@ public class MsgSessionBean implements java.io.Serializable {
 	private int currentAttachmentCount = 0;
         private String message;
 	private String subject;
+	
+	private String searchProviderName;
+    private Date searchStartDate;
+    private Date searchEndDate;
+    private List<MsgDisplayMessage> searchResults;
+    private Integer searchPageNum;
+    private Integer searchTotalResults;
+    private String searchOrderBy;
 	
 	public String getMessage() {
 		return message;
@@ -192,4 +205,71 @@ public class MsgSessionBean implements java.io.Serializable {
 		return false;
 	}
 
+    public String getSearchProviderName() {
+        return searchProviderName;
+    }
+
+    public void setSearchProviderName(String searchProviderName) {
+        this.searchProviderName = searchProviderName;
+    }
+
+    public String getSearchStartDateString() {
+	    if (searchStartDate == null) { return null; }
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        return sdf.format(searchStartDate);
+    }
+
+    public Date getSearchStartDate() {
+        return searchStartDate;
+    }
+    
+    public void setSearchStartDate(Date searchStartDate) {
+        this.searchStartDate = searchStartDate;
+    }
+
+    public String getSearchEndDateString() {
+        if (searchEndDate == null) { return null; }
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        return sdf.format(searchEndDate);
+    }
+    
+    public Date getSearchEndDate() {
+        return searchEndDate;
+    }
+
+    public void setSearchEndDate(Date searchEndDate) {
+        this.searchEndDate = searchEndDate;
+    }
+
+    public List<MsgDisplayMessage> getSearchResults() {
+        return searchResults;
+    }
+
+    public void setSearchResults(List<MsgDisplayMessage> searchResults) {
+        this.searchResults = searchResults;
+    }
+
+    public Integer getSearchPageNum() {
+        return searchPageNum;
+    }
+
+    public void setSearchPageNum(Integer searchPageNum) {
+        this.searchPageNum = searchPageNum;
+    }
+
+    public Integer getSearchTotalResults() {
+        return searchTotalResults;
+    }
+
+    public void setSearchTotalResults(Integer searchTotalResults) {
+        this.searchTotalResults = searchTotalResults;
+    }
+
+    public String getSearchOrderBy() {
+        return searchOrderBy;
+    }
+
+    public void setSearchOrderBy(String searchOrderBy) {
+        this.searchOrderBy = searchOrderBy;
+    }
 }

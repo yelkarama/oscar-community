@@ -177,49 +177,6 @@
 					</div>
 				</div>
 			</div>
-			<!--Message Search-->
-			<%--<div class="panel panel-default">--%>
-				<%--<div class="panel-heading flow-root">--%>
-					<%--<h3 class="panel-title inline">Message Search</h3>--%>
-					<%--<small class="inline">Sends an automatic reply to incoming messages</small>--%>
-					<%--<div class="checkbox pull-right no-margin">--%>
-						<%--<label>--%>
-							<%--<input type="checkbox" name="responderEnabled"/>Enabled--%>
-						<%--</label>--%>
-					<%--</div>--%>
-				<%--</div>--%>
-				<%--<div class="panel-body">--%>
-					<%--<form class="form-horizontal no-margin" role="form">--%>
-						<%--<div class="form-group">--%>
-							<%--<label class="col-sm-2 control-label" for="firstDay">First Day</label>--%>
-							<%--<div class="col-sm-4">--%>
-								<%--<input type="date" class="form-control" id="firstDay" name="firstDay" placeholder="yyyy-mm-dd"/>--%>
-							<%--</div>--%>
-							<%--<label class="col-sm-2 control-label" for="lastDay">Last Day</label>--%>
-							<%--<div class="col-sm-4">--%>
-								<%--<input type="date" class="form-control" id="lastDay" name="lastDay" placeholder="yyyy-mm-dd"/>--%>
-							<%--</div>--%>
-						<%--</div>--%>
-						<%--<div class="form-group">--%>
-							<%--<label for="subject" class="col-sm-2 control-label">Subject</label>--%>
-							<%--<div class="col-sm-10">--%>
-								<%--<input type="text" class="form-control" id="subject" name="subject"/>--%>
-							<%--</div>--%>
-						<%--</div>--%>
-						<%--<div class="form-group">--%>
-							<%--<label for="message" class="col-sm-2 control-label">Message</label>--%>
-							<%--<div class="col-sm-10">--%>
-								<%--<textarea class="form-control" id="message" name="message" style="resize:vertical;"></textarea>--%>
-							<%--</div>--%>
-						<%--</div>--%>
-						<%--<div class="form-group no-margin">--%>
-							<%--<div class="col-sm-12">--%>
-								<%--<input class="btn btn-primary pull-right no-margin" type="submit" name="saveResponder" id="saveResponder" value="Save Changes"/>--%>
-							<%--</div>--%>
-						<%--</div>--%>
-					<%--</form>--%>
-				<%--</div>--%>
-			<%--</div>--%>
 		</form>
 	<script type="application/javascript">
 

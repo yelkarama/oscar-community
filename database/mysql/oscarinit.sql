@@ -12492,3 +12492,5 @@ CREATE TABLE message_responder (
   archived tinyint(1) NOT NULL,
   PRIMARY KEY (id)
 );
+
+ALTER TABLE messagelisttbl MODIFY status VARCHAR(50);

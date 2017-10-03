@@ -421,11 +421,17 @@ function popupAttachDemo(demographic){ // open a new popup window
 						<td>
 						<table class=messButtonsA cellspacing=0 cellpadding=3>
 							<tr>
-								<td class="messengerButtonsA"><html:link
-									page="/oscarMessenger/DisplayMessages.jsp"
-									styleClass="messengerButtons">
-									<bean:message key="oscarMessenger.ViewMessage.btnInbox" />
-								</html:link></td>
+								<td class="messengerButtonsA">
+									<% if (request.getParameter("fromProviderSearch") != null && request.getParameter("fromProviderSearch").equals("true")) { %>
+										<a class="messengerButtons" href="<%=request.getContextPath() + "/oscarMessenger/SearchProvider.do"%>">
+											<bean:message key="oscarMessenger.ViewMessage.btnInbox" />
+										<a>
+									<% } else { %>
+										<html:link page="/oscarMessenger/DisplayMessages.jsp" styleClass="messengerButtons">
+											<bean:message key="oscarMessenger.ViewMessage.btnInbox" />
+										</html:link>
+									<% } %>
+								</td>
 							</tr>
 						</table>
 						</td>
@@ -601,6 +607,10 @@ function popupAttachDemo(demographic){ // open a new popup window
 							<td bgcolor="#EEEEFF">
                                                             <input type="text" name="keyword" size="30" /> <input type="hidden" name="demographic_no" value="<%=demographic_no%>" /> 
                                                             <input type="button" class="ControlPushButton" name="searchDemo" value="<bean:message key="oscarMessenger.CreateMessage.msgSearchDemographic" />" onclick="popupSearchDemo(document.forms[0].keyword.value)" />
+								<% if (request.getParameter("fromProviderSearch") != null && request.getParameter("fromProviderSearch").equals("true")) { %>
+									<input type="hidden" name="fromProviderSearch" value="true">
+									<input type="hidden" name="replyFor" value="<%=request.getParameter("replyFor")%>">
+								<% } %>
                                                         </td>
 
 						</tr>

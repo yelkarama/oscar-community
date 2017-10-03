@@ -853,6 +853,10 @@
         <action input="/oscarMessenger/Settings.jsp" path="/oscarMessenger/Settings" scope="request" type="oscar.oscarMessenger.pageUtil.MsgSettingsAction">
             <forward name="success" path="/oscarMessenger/Settings.jsp" />
         </action>
+        <action input="/oscarMessenger/SearchProvider.jsp" path="/oscarMessenger/SearchProvider" scope="request" type="oscar.oscarMessenger.pageUtil.MsgSearchProviderAction">
+            <forward name="success" path="/oscarMessenger/SearchProviderResults.jsp" />
+            <forward name="noResults" path="/oscarMessenger/SearchProvider.jsp" />
+        </action>
 
 		<action name="RxChoosePatientForm" path="/oscarRx/choosePatient" scope="request" type="oscar.oscarRx.pageUtil.RxChoosePatientAction">
 			<forward name="success" path="/oscarRx/SearchDrug.jsp" />

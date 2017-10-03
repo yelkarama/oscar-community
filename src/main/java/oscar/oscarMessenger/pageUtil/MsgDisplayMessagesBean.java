@@ -269,7 +269,7 @@ public class MsgDisplayMessagesBean implements java.io.Serializable {
 		}
 	}
 
-	public String getOrderBy(String order) {
+	public static String getOrderBy(String order) {
 		String orderBy = null;
 		if (order == null) {
 			orderBy = " m.messageid desc";

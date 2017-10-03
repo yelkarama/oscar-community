@@ -88,7 +88,7 @@ height:100% !important;
 </style>
 
 <%
-//oscar.oscarMessenger.pageUtil.MsgSessionBean bean = (oscar.oscarMessenger.pageUtil.MsgSessionBean)pageContext.findAttribute("bean");
+//oscar.oscarMessenger.pageUtil.MsgSessionBean bean = (oscar.oscarMessenger.pageUtil.MsgSessionBean)request.getSession().getAttribute("msgSessionBean");
 oscar.oscarMessenger.util.MsgDemoMap msgDemoMap = new oscar.oscarMessenger.util.MsgDemoMap();
 java.util.HashMap<String, List<String> > demoMap = msgDemoMap.getDemoMap2((String) request.getAttribute("viewMessageId"));
 String boxType = request.getParameter("boxType");
@@ -289,11 +289,17 @@ function fmtOscarMsg() {
 							<td>
 							<table class=messButtonsA cellspacing=0 cellpadding=3>
 								<tr>
-									<td class="messengerButtonsA"><html:link
-										page="/oscarMessenger/DisplayMessages.jsp"
-										styleClass="messengerButtons">
-										<bean:message key="oscarMessenger.ViewMessage.btnInbox" />
-									</html:link></td>
+									<td class="messengerButtonsA">
+										<% if (request.getParameter("fromProviderSearch") != null && request.getParameter("fromProviderSearch").equals("true")) { %>
+											<a class="messengerButtons" href="<%=request.getContextPath() + "/oscarMessenger/SearchProvider.do"%>">
+												<bean:message key="oscarMessenger.ViewMessage.btnInbox" />
+											<a>
+										<% } else { %>
+										<html:link page="/oscarMessenger/DisplayMessages.jsp" styleClass="messengerButtons">
+											<bean:message key="oscarMessenger.ViewMessage.btnInbox" />
+										</html:link>
+										<% } %>
+									</td>
 								</tr>
 							</table>
 							</td>
@@ -399,6 +405,10 @@ function fmtOscarMsg() {
 							</html:submit> <html:submit styleClass="ControlPushButton" property="delete">
 								<bean:message key="oscarMessenger.ViewMessage.btnDelete" />
 							</html:submit> <html:hidden property="messageNo" value="<%=(String)request.getAttribute(\"viewMessageNo\") %>" />
+								<% if (request.getParameter("fromProviderSearch") != null && request.getParameter("fromProviderSearch").equals("true")) { %>
+									<input type="hidden" name="fromProviderSearch" value="true">
+									<input type="hidden" name="replyFor" value="<%=request.getParameter("replyFor")%>">
+								<% } %>
 							</td>
 
 						</tr>

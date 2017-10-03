@@ -35,6 +35,7 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.model.OscarMsgType;
 import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.LoggedInInfo;
@@ -70,6 +71,11 @@ public class MsgCreateMessageAction extends Action {
             String message      = ((MsgCreateMessageForm)form).getMessage();
             String[] providers  = ((MsgCreateMessageForm)form).getProvider();
             String subject      = ((MsgCreateMessageForm)form).getSubject();
+            boolean fromProviderSearch = false;
+            if (request.getParameter("fromProviderSearch") != null && request.getParameter("fromProviderSearch").equals("true")) {
+                fromProviderSearch = true;
+                
+            }
 	    bean.setMessage(null);
             bean.setSubject(null);
             
@@ -97,8 +103,14 @@ public class MsgCreateMessageAction extends Action {
 
             String sentToWho = messageData.createSentToStringLocalAndRemote(localProviderListing, remoteProviderListing);
         
-
-            messageId = messageData.sendMessage2(message,subject,userName,sentToWho,userNo,providerListing,att, pdfAtt, OscarMsgType.GENERAL_TYPE);
+            if (fromProviderSearch) {
+                userNo = request.getParameter("replyFor");
+                ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
+                userName = providerDao.getProvider(userNo).getFullName();
+                messageId = messageData.sendMessage2(message,subject,userName,sentToWho,userNo,providerListing,att, pdfAtt, OscarMsgType.GENERAL_TYPE);
+            } else {
+                messageId = messageData.sendMessage2(message,subject,userName,sentToWho,userNo,providerListing,att, pdfAtt, OscarMsgType.GENERAL_TYPE);
+            }
 
             //link msg and demogrpahic if both messageId and demographic_no are not null
             if (demographic_no != null && (demographic_no.equals("") || demographic_no.equals("null")) ){

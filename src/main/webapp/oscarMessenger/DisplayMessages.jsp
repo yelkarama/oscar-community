@@ -284,7 +284,10 @@ function moveToFolder(selected){
                             </html:form>
                         </td>
                         <td style="text-align:right">
-							<% if (OscarProperties.getInstance().isPropertyActive("queens_vacation_responder")) { %>
+							<% if (OscarProperties.getInstance().isPropertyActive("queens_message_search")) { %>
+							<a href="<%=request.getContextPath()%>/oscarMessenger/SearchProvider.jsp">Search Provider's Messages</a>&nbsp;|
+							<% }
+							if (OscarProperties.getInstance().isPropertyActive("queens_vacation_responder")) { %>
 							<a href="<%=request.getContextPath()%>/oscarMessenger/Settings.jsp">Settings</a>&nbsp;| 
 							<% } %>
 							<oscar:help keywords="&Title=Messenger&portal_type%3Alist=Document" key="app.top1"/>&nbsp;|
