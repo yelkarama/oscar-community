@@ -1801,11 +1801,13 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
 									<% } %>
 									<oscar:oscarPropertiesCheck value="yes" property="TOGGLE_REASON_BY_PROVIDER"
 																defaultVal="true">
+										<% if (!providerPreference.isShowAppointmentReason()) { %>
 										<a id="expandReason" href="#"
 										   onclick="return toggleReason('<%=isWeekView?strDate:curProvider_no[nProvider]%>');"
 										   title="<bean:message key="provider.appointmentProviderAdminDay.expandreason"/>">*</a>
 										<%-- Default is to hide inline reasons. --%>
 										<c:set value="true" var="hideReason"/>
+										<% } %>
 									</oscar:oscarPropertiesCheck>
 									<%
 										if (!userAvail) {
