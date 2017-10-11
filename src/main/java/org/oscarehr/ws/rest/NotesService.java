@@ -45,6 +45,7 @@ import javax.ws.rs.QueryParam;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.oscarehr.PMmodule.model.ProgramProvider;
 import org.oscarehr.PMmodule.service.AdmissionManager;
 import org.oscarehr.PMmodule.service.ProgramManager;
@@ -319,7 +320,19 @@ public class NotesService extends AbstractServiceImpl {
 	@Path("/{demographicNo}/save")
 	@Consumes("application/json")
 	@Produces("application/json")
-	public NoteTo1 saveNote(@PathParam("demographicNo") Integer demographicNo ,NoteTo1 note) throws Exception{
+	public NoteTo1 saveNote(@PathParam("demographicNo") Integer demographicNo, JSONObject jsonObject) throws Exception{
+		ObjectMapper objectMapper = new ObjectMapper();
+		NoteTo1 note = null;
+
+		if (jsonObject != null){
+			if (jsonObject.containsKey("encounterNote")){
+				note = objectMapper.readValue(jsonObject.get("encounterNote").toString(), NoteTo1.class);
+			}
+			else {
+				note = objectMapper.readValue(jsonObject.toString(), NoteTo1.class);
+			}
+		}
+
 		logger.debug("saveNote "+note);
 		LoggedInInfo loggedInInfo = getLoggedInInfo(); //LoggedInInfo.loggedInInfo.get();
 		String providerNo=loggedInInfo.getLoggedInProviderNo();

@@ -43,9 +43,8 @@ angular.module("noteServices", [])
        },
        saveNote: function(demographicNo,notea){
        	var deferred = $q.defer();
-       	var noteToSave = { encounterNote: notea };
-       	console.log("sending to server ",noteToSave);
-       	 $http.post(this.apiPath+'/'+demographicNo+'/save',noteToSave).success(function(data){
+       	console.log("sending to server ",notea);
+       	 $http.post(this.apiPath+'/'+demographicNo+'/save',notea).success(function(data){
            	console.log("returned from /save",data);
            	deferred.resolve(data);
            }).error(function(){
