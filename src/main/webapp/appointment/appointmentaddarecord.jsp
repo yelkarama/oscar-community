@@ -180,12 +180,12 @@ if (request.getParameter("demographic_no") != null && !(request.getParameter("de
             }
 
 
-		// turn off reminder of "remove patient from the waiting list"
+		//MANUALLY_CLEANUP_WL = true 	will leave patients on the waiting list without a prompt
+		//MANUALLY_CLEANUP_WL = false 	will auto remove patients from the waiting list without prompt
+		//MANUALLY_CLEANUP_WL = prompt 	will prompt the user and not auto remove unless the user clicks OK (default value)
 		oscar.OscarProperties pros = oscar.OscarProperties.getInstance();
-		String strMWL = pros.getProperty("MANUALLY_CLEANUP_WL");
-		if (strMWL != null && strMWL.equalsIgnoreCase("yes")){
-			;
-		} else {
+		String strMWL = pros.getProperty("MANUALLY_CLEANUP_WL", "prompt");
+		if (strMWL != null && !strMWL.equalsIgnoreCase("true")) {
 			oscar.oscarWaitingList.WaitingList wL = oscar.oscarWaitingList.WaitingList.getInstance();
 			if (wL.getFound()) {
 			   String demographicNo = request.getParameter("demographic_no");
@@ -204,6 +204,18 @@ if (request.getParameter("demographic_no") != null && !(request.getParameter("de
 	type="hidden" name="demographicNo"
 	value="<%=request.getParameter("demographic_no")%>" /><script
 	LANGUAGE="JavaScript">
+    var removeList = false;
+	<% if (strMWL.equalsIgnoreCase("prompt")) { %>
+		 removeList = confirm("Click OK to remove patient from the waiting list: <%=wln.getName()%> \n" +
+		"Click Cancel to keep patient on the waiting list and book the appointment.");
+    <% }
+    else if (strMWL.equalsIgnoreCase("false")) { %>
+		removeList = true;
+    <% } %>
+    if (removeList) {
+        document.forms[0].action = "../oscarWaitingList/RemoveFromWaitingList.jsp?demographicNo=<%=request.getParameter("demographic_no")%>&listID=<%=wl1.getListId()%>";
+		document.forms[0].submit();
+	}
 </script></form>
 <%
 				}
