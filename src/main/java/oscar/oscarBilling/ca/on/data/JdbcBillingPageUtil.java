@@ -450,8 +450,9 @@ public class JdbcBillingPageUtil {
 
 //	 @ OSCARSERVICE
 	public boolean delBillingFavouriteList(String name, String providerNo) {
-		List<BillingONFavourite> bs = billingONFavouriteDao.findByNameAndProviderNo(name,providerNo);
+		List<BillingONFavourite> bs = billingONFavouriteDao.findByName(name);
 		for(BillingONFavourite b:bs) {
+			b.setProviderNo(providerNo);
 			b.setDeleted(1);
 			billingONFavouriteDao.merge(b);
 		}
