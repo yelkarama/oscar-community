@@ -48,6 +48,7 @@ public class ApptUtil {
 		obj.setDemographic_no(request.getParameter("demographic_no"));
 		obj.setNotes(request.getParameter("notes"));
 		obj.setReason(request.getParameter("reason"));
+		obj.setReasonCode(request.getParameter("reasonCode"));
 		obj.setLocation(request.getParameter("location"));
 		obj.setResources(request.getParameter("resources"));
 		obj.setType(request.getParameter("type"));

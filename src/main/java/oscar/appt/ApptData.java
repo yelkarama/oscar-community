@@ -32,6 +32,7 @@ public class ApptData {
 	String demographic_no;
 	String notes;
 	String reason;
+	String reasonCode;
 	String location;
 	String resources;
 	String type;
@@ -142,6 +143,14 @@ public class ApptData {
 
 	public void setReason(String reason) {
 		this.reason = reason;
+	}
+
+	public String getReasonCode() {
+		return reasonCode;
+	}
+
+	public void setReasonCode(String reasonCode) {
+		this.reasonCode = reasonCode;
 	}
 
 	public String getRemarks() {
