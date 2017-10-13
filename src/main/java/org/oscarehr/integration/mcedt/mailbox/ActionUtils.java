@@ -584,12 +584,15 @@ public class ActionUtils {
 
 
 
+
 		if (diskName!=null){
 			Integer diskId = diskName.getId();
 			List<BillingONFilename> filenames = billingONFilenameDao.findByDiskId(diskId);
 			for (BillingONFilename filename : filenames) {
+				String claimRecords = filename.getClaimRecord() != null ? filename.getClaimRecord() : "";
 				String total = filename.getTotal();
-				if ((total != null && !total.trim().equals("") && !total.trim().equals("0.00")) || (total != null && !total.trim().equals("") && groupNumber.isEmpty())) {
+				if ((total != null && !total.trim().equals("") && !total.trim().equals("0.00"))
+						|| (!claimRecords.isEmpty() && !claimRecords.equals("0/0") && groupNumber.isEmpty())) {
 					isEmptyOrZero = false;
 				}
 			}
