@@ -580,6 +580,8 @@ public class ActionUtils {
 		BillingONDiskNameDao billingONDiskNameDao = SpringUtils.getBean(BillingONDiskNameDao.class);
 		BillingONFilenameDao billingONFilenameDao = SpringUtils.getBean(BillingONFilenameDao.class);
 		BillingONDiskName diskName = billingONDiskNameDao.findLatestByOhipFilename(file.getName());
+		String groupNumber = diskName.getGroupNo() != null ? diskName.getGroupNo() : "";
+
 
 
 		if (diskName!=null){
@@ -587,7 +589,7 @@ public class ActionUtils {
 			List<BillingONFilename> filenames = billingONFilenameDao.findByDiskId(diskId);
 			for (BillingONFilename filename : filenames) {
 				String total = filename.getTotal();
-				if (total!=null && !total.trim().equals("") && !total.trim().equals("0.00")){
+				if ((total != null && !total.trim().equals("") && !total.trim().equals("0.00")) || (total != null && !total.trim().equals("") && groupNumber.isEmpty())) {
 					isEmptyOrZero = false;
 				}
 			}
