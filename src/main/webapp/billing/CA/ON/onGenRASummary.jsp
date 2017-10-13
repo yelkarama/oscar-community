@@ -66,8 +66,8 @@ int accountno=0 ;
 raNo = request.getParameter("rano");
 
 BillingRAPrep obj = new BillingRAPrep();
-String obCodes = "'P006A','P020A','P022A','P028A','P023A','P007A','P009A','P011A','P008B','P018B','E502A','C989A','E409A','E410A','E411A','H001A'";	
-String colposcopyCodes = "'A004A','A005A','Z731A','Z666A','Z730A','Z720A'";
+String obCodes = "P006A,P020A,P022A,P028A,P023A,P007A,P009A,P011A,P008B,P018B,E502A,C989A,E409A,E410A,E411A,H001A";
+String colposcopyCodes = "A004A,A005A,Z731A,Z666A,Z730A,Z720A";
 List<String> OBbilling_no = obj.getRABillingNo4Code(raNo, obCodes);
 List<String> CObilling_no = obj.getRABillingNo4Code(raNo, colposcopyCodes);
 

@@ -470,7 +470,7 @@ public class JdbcBillingRAImpl {
 		Set<String> ret = new HashSet<String>();
 
 		RaDetailDao dao = SpringUtils.getBean(RaDetailDao.class);
-		for (RaDetail r : dao.findByRaHeaderNoAndServiceCodes(ConversionUtils.fromIntString(id), Arrays.asList(codes))) {
+		for (RaDetail r : dao.findByRaHeaderNoAndServiceCodes(ConversionUtils.fromIntString(id), Arrays.asList(codes.split(",")))) {
 			ret.add("" + r.getBillingNo());
 		}
 
