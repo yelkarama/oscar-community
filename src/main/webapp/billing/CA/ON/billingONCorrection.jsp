@@ -264,8 +264,16 @@ function validateNum(el){
       el.focus();
       return false;
    }
+
+   parseTwoDecimalPlaces(el);
    
    return true;
+}
+
+function parseTwoDecimalPlaces(element) {
+    if (element.value && element.value.length > 0 && !isNaN(element.value)){
+        element.value = parseFloat(element.value).toFixed(2);
+    }
 }
 
 function validateAllItems(){
@@ -1120,7 +1128,7 @@ for (ClinicNbr clinic : nbrs) {
 
                         serviceCode = bItem.getServiceCode();
                         serviceDesc = bService == null ? "N/A" : bService.getDescription();
-                        billAmount = bItem.getFee();
+                        billAmount = new BigDecimal(bItem.getFee()).setScale(2, BigDecimal.ROUND_HALF_UP).toString();
                         diagCode = bItem.getDx();
                         billingunit = bItem.getServiceCount();								
                         itemStatus = bItem.getStatus().equals("S") ? "checked" : "";                      
@@ -1144,7 +1152,7 @@ for (ClinicNbr clinic : nbrs) {
 			name="xml_billing_amount<%=rowCount%>" value="<%=billAmount%>">
 		<input type="text" style="width: 100%" size="5" maxlength="7"
 			id="billingamount<%=rowCount-1%>" name="billingamount<%=rowCount-1%>"
-			value="<%=billAmount%>" onchange="javascript:validateNum(this)"></th>
+			value="<%=billAmount%>" onblur="parseTwoDecimalPlaces(this)" onchange="javascript:validateNum(this)"></th>
 		<td align="center"><input type="checkbox"
 			name="itemStatus<%=rowCount-1%>" id="itemStatus<%=rowCount-1%>"
 			value="S" <%=itemStatus %>></td>

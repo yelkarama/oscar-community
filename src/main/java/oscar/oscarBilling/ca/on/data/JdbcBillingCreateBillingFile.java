@@ -526,7 +526,7 @@ public class JdbcBillingCreateBillingFile {
 					itemObj.setTransc_id(boi.getTranscId());
 					itemObj.setRec_id(boi.getRecId());
 					itemObj.setService_code(boi.getServiceCode());
-					itemObj.setFee(boi.getFee());
+					itemObj.setFee(new BigDecimal(boi.getFee()).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
 					itemObj.setSer_num(boi.getServiceCount());
 					itemObj.setService_date(ConversionUtils.toDateString(boi.getServiceDate()));
 					diagcode = boi.getDx();
@@ -692,7 +692,7 @@ public class JdbcBillingCreateBillingFile {
 					itemObj.setTransc_id(i.getTranscId());
 					itemObj.setRec_id(i.getRecId());
 					itemObj.setService_code(i.getServiceCode());
-					itemObj.setFee(i.getFee());
+					itemObj.setFee(new BigDecimal(i.getFee()).setScale(2, BigDecimal.ROUND_HALF_UP).toString());
 					itemObj.setSer_num(i.getServiceCount());
 					itemObj.setService_date(ConversionUtils.toDateString(i.getServiceDate()));
 					diagcode = i.getDx();

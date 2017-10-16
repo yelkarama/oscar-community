@@ -178,7 +178,7 @@ for (BillingService bss : billingServiceDao.search_service_code(codeName,codeNam
 	<% if (intCount == 1) { %>
 	<script LANGUAGE="JavaScript">
 <!--
- CodeAttach('<%=Dcode%>', <%=fee%>);
+ CodeAttach('<%=Dcode%>', '<%=fee%>');
 -->
 
 </script>

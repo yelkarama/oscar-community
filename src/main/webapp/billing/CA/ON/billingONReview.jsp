@@ -368,6 +368,9 @@ boolean dupServiceCode = false;
                 		alert("Please enter digital numbers !");
                 		return;
                 	}
+                	else {
+                        document.getElementById("percCodeSubtotal_" + idx).value = parseFloat(val).toFixed(2);
+					}
                 	oldVal = val;
                 }
 
