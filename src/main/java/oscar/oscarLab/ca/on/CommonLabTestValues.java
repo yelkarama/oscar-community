@@ -456,8 +456,8 @@ public class CommonLabTestValues {
 					int i = 0;
 					while (i < handler.getOBRCount() && h.get("testName") == null) {
 						for (int j = 0; j < handler.getOBXCount(i); j++) {
-							if (handler.getOBXIdentifier(i, j).equals(identCode)) {
-
+							testName = testName != null ? testName : "";
+							if (handler.getOBXIdentifier(i, j).equals(identCode) && testName.equalsIgnoreCase(handler.getOBXName(i, j))) {
 								String result = handler.getOBXResult(i, j);
 
 								// only add measurements with actual results
