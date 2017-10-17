@@ -73,14 +73,14 @@
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 
 <%
-	Date createdDateTime = new java.util.Date();
-	String createdDateTimeStr = UtilDateUtilities.DateToString(createdDateTime,"yyyy-MM-dd HH:mm:ss");
   if (request.getParameter("groupappt") != null) {
     boolean bSucc = false;
     if (request.getParameter("groupappt").equals("Add Group Appointment")) {
         String[] param = new String[20];
         int rowsAffected = 0, datano = 0;
         StringBuffer strbuf = null;
+		Date createdDateTime = new java.util.Date();
+		String createdDateTimeStr = UtilDateUtilities.DateToString(createdDateTime,"yyyy-MM-dd HH:mm:ss");
 		String userName = (String) session.getAttribute("userlastname") + ", " + (String) session.getAttribute("userfirstname");
 
         param[1]=request.getParameter("appointment_date");
@@ -204,9 +204,11 @@
             	}
             }
 
-            if (request.getParameter("groupappt").equals("Group Update")) {            	
+            if (request.getParameter("groupappt").equals("Group Update")) {
+				Date createdDateTime = UtilDateUtilities.StringToDate(request.getParameter("createdatetime"),"yyyy-MM-dd HH:mm:ss");      	
             	if( request.getParameter("appointment_no"+datano) != null ) {
             		Appointment appt = appointmentDao.find(Integer.parseInt(request.getParameter("appointment_no"+datano)));
+					createdDateTime = appt.getCreateDateTime();
             		if( appt != null ) {
 	            		appointmentArchiveDao.archiveAppointment(appt);
 	            		appointmentDao.remove(appt.getId());
@@ -214,6 +216,8 @@
 	            	
             		}
             	}
+            	
+				String createdDateTimeStr = UtilDateUtilities.DateToString(createdDateTime,"yyyy-MM-dd HH:mm:ss");
 
             	String[] paramu = new String[20];
             	paramu[0]=request.getParameter("provider_no"+datano);
