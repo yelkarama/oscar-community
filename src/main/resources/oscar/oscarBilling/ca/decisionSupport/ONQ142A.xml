@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<guideline title="Q142AMessage" >
+    <conditions>
+        <condition type="billedFor" all="Q142A">
+            <param key="payer" value="MSP"/>
+            <param key="notInDays" value="913"/>
+        </condition>
+    </conditions>
+    <consequence>
+        <warning strength="warning">Eligible to bill Q142A</warning>
+    </consequence>
+</guideline>

@@ -749,7 +749,47 @@ public class DSDemographicAccess {
         return intval;
     }
 
-    public boolean billedForAll(String searchStrings,Hashtable options) throws DecisionSupportException { throw new DecisionSupportException("NOT IMPLEMENTED");  }
+    public boolean billedForAll(String searchStrings,Hashtable options) {
+        boolean billedForAll = true;
+        int numDays = 0;
+
+        ServiceCodeValidationLogic bcCodeValidation = null;
+        BillingONCHeader1Dao billingONCHeader1Dao = null;
+        String billregion = OscarProperties.getInstance().getProperty("billregion", "");
+
+        if( billregion.equalsIgnoreCase("BC") ) {
+            bcCodeValidation = new ServiceCodeValidationLogic();
+        }
+        else if( billregion.equalsIgnoreCase("ON") ) {
+            billingONCHeader1Dao = SpringUtils.getBean(BillingONCHeader1Dao.class);
+        }
+
+        if(options.containsKey("payer") && options.get("payer").equals("MSP")){
+            String[] codes = searchStrings.replaceAll("'","" ).split(",");
+
+            if(options.containsKey("notInDays")) {
+                int notInDays = getAsInt(options,"notInDays");
+
+                for (String code: codes){
+                    if (billregion.equalsIgnoreCase("BC")) {
+                        numDays = bcCodeValidation.daysSinceCodeLastBilled(demographicNo,code) ;
+                    }
+                    else if (billregion.equalsIgnoreCase("ON")) {
+                        numDays = billingONCHeader1Dao.getDaysSinceBilled(code, Integer.parseInt(demographicNo));
+                    }
+
+                    if (numDays < notInDays){
+                        billedForAll = false;
+                        break;
+                    }
+                }
+            }
+        }
+
+
+        return billedForAll;
+    }
+
     public boolean billedForNot(String searchStrings,Hashtable options) throws DecisionSupportException { throw new DecisionSupportException("NOT IMPLEMENTED");  }
     public boolean billedForNotall(String searchStrings,Hashtable options) throws DecisionSupportException { throw new DecisionSupportException("NOT IMPLEMENTED"); }
     public boolean billedForNotany(String searchStrings,Hashtable options) throws DecisionSupportException { throw new DecisionSupportException("NOT IMPLEMENTED"); }
