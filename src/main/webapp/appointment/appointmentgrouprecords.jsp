@@ -68,17 +68,19 @@
 	errorPage="errorpage.jsp"%>
 <%@ page import="oscar.log.LogConst" %>
 <%@ page import="oscar.log.LogAction" %>
+<%@ page import="java.util.Date" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 
 <%
+	Date createdDateTime = new java.util.Date();
+	String createdDateTimeStr = UtilDateUtilities.DateToString(createdDateTime,"yyyy-MM-dd HH:mm:ss");
   if (request.getParameter("groupappt") != null) {
     boolean bSucc = false;
     if (request.getParameter("groupappt").equals("Add Group Appointment")) {
         String[] param = new String[20];
         int rowsAffected = 0, datano = 0;
         StringBuffer strbuf = null;
-		String createdDateTime = UtilDateUtilities.DateToString(new java.util.Date(),"yyyy-MM-dd HH:mm:ss");
 		String userName = (String) session.getAttribute("userlastname") + ", " + (String) session.getAttribute("userfirstname");
 
         param[1]=request.getParameter("appointment_date");
@@ -93,7 +95,7 @@
         param[10]=request.getParameter("style");
         param[11]=request.getParameter("billing");
         param[12]=request.getParameter("status");
-        param[13]=createdDateTime;   //request.getParameter("createdatetime");
+        param[13]=createdDateTimeStr;   //request.getParameter("createdatetime");
         param[14]=userName;  //request.getParameter("creator");
         param[15]=request.getParameter("remarks");
         param[17]=(String)request.getSession().getAttribute("programId_oscarView");
@@ -122,7 +124,7 @@
 			a.setStyle(request.getParameter("style"));
 			a.setBilling(request.getParameter("billing"));
 			a.setStatus(request.getParameter("status"));
-			a.setCreateDateTime(new java.util.Date());
+			a.setCreateDateTime(createdDateTime);
 			a.setCreator(userName);
 			a.setRemarks(request.getParameter("remarks"));
 			
@@ -156,7 +158,7 @@
 			
 			Appointment appt = appointmentDao.search_appt_no(request.getParameter("provider_no"+datano), ConversionUtils.fromDateString(request.getParameter("appointment_date")), 
 					ConversionUtils.fromTimeStringNoSeconds(MyDateFormat.getTimeXX_XX_XX(request.getParameter("start_time"))), ConversionUtils.fromTimeStringNoSeconds(request.getParameter("end_time")), 
-					ConversionUtils.fromTimestampString(createdDateTime), userName, demographicNo);
+					ConversionUtils.fromTimestampString(createdDateTimeStr), userName, demographicNo);
 			
 			if (appt != null) {
 				Integer apptNo = appt.getId();
@@ -171,7 +173,6 @@
     		request.getParameter("groupappt").equals("Group Delete")) {
         int rowsAffected = 0, datano = 0;
         StringBuffer strbuf = null;
-		String createdDateTime = UtilDateUtilities.DateToString(new java.util.Date(),"yyyy-MM-dd HH:mm:ss");
 		String userName = (String) session.getAttribute("userlastname") + ", " + (String) session.getAttribute("userfirstname");
 
 		for (Enumeration e = request.getParameterNames() ; e.hasMoreElements() ;) {
@@ -228,7 +229,7 @@
             	 paramu[10]=request.getParameter("style");
             	 paramu[11]=request.getParameter("billing");
             	 paramu[12]=request.getParameter("status");
-            	 paramu[13]=createdDateTime;   //request.getParameter("createdatetime");
+            	 paramu[13]=createdDateTimeStr;   //request.getParameter("createdatetime");
             	 paramu[14]=userName;  //request.getParameter("creator");
             	 paramu[15]=request.getParameter("remarks");
             	 paramu[17]=(String)request.getSession().getAttribute("programId_oscarView");
@@ -249,7 +250,7 @@
 				a.setStyle(request.getParameter("style"));
 				a.setBilling(request.getParameter("billing"));
 				a.setStatus(request.getParameter("status"));
-				a.setCreateDateTime(new java.util.Date());
+				a.setCreateDateTime(createdDateTime);
 				a.setCreator(userName);
 				a.setRemarks(request.getParameter("remarks"));
 				
@@ -277,7 +278,7 @@
 					
 					Appointment appt = appointmentDao.search_appt_no(request.getParameter("provider_no"+datano), ConversionUtils.fromDateString(request.getParameter("appointment_date")), 
 							ConversionUtils.fromTimeStringNoSeconds(MyDateFormat.getTimeXX_XX_XX(request.getParameter("start_time"))), ConversionUtils.fromTimeStringNoSeconds(request.getParameter("end_time")), 
-							ConversionUtils.fromTimestampString(createdDateTime), userName, demographicNo);
+							ConversionUtils.fromTimestampString(createdDateTimeStr), userName, demographicNo);
 					
 
 					if (appt != null) {
