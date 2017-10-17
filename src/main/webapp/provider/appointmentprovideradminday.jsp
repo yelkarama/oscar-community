@@ -274,7 +274,7 @@ public boolean patientHasOutstandingPrivateBills(String demographicNo){
 
     ProviderPreference providerPreference2=(ProviderPreference)session.getAttribute(SessionConstants.LOGGED_IN_PROVIDER_PREFERENCE);
 
-    String mygroupno = providerPreference2.getMyGroupNo();
+    String mygroupno = (request.getParameter("mygroup_no") == null ? providerPreference2.getMyGroupNo() : request.getParameter("mygroup_no"));
     if(mygroupno == null){
     	mygroupno = ".default";
     }
