@@ -175,6 +175,26 @@
       xml_appointment_date = request.getParameter("xml_appointment_date");
   }
 
+    Locale locale = request.getLocale();
+    String sortImage = "uparrow_inv.gif";
+    String sortDirection = LocaleUtils.getMessage(locale, "tickler.ticklerMain.sortUp");
+    String sortOrderStr = request.getParameter("sort_order");
+    boolean isSortAscending = true;
+
+    if (sortOrderStr == null || sortOrderStr.equals("desc")) {
+        isSortAscending = false;
+        sortOrderStr = TicklerManager.SORT_DESC;
+        sortImage = "downarrow_inv.gif";
+        sortDirection = LocaleUtils.getMessage(locale, "tickler.ticklerMain.sortDown");
+    } else {
+        sortOrderStr = TicklerManager.SORT_ASC;
+    }
+
+    String sortColumn = request.getParameter("sort_column");
+    if (sortColumn == null) {
+        sortColumn = TicklerManager.SERVICE_DATE;
+    }
+
 %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
@@ -307,8 +327,8 @@ function allYear()
 {
 var newD = "8888-12-31";
 var beginD = "1900-01-01"
-	document.serviceform.xml_appointment_date.value = newD;
-		document.serviceform.xml_vdate.value = beginD;
+	document.ticklerform.xml_appointment_date.value = newD;
+		document.ticklerform.xml_vdate.value = beginD;
 }
 
 </script>
@@ -509,6 +529,24 @@ var beginD = "1900-01-01"
 		}});
 	}
 
+    function sortTicklers(orderBy) {
+        var direction = "desc";
+        if (orderBy === '<%=sortColumn%>') {
+            if (direction === '<%=sortOrderStr%>') {
+                direction = "asc";
+            }
+        }
+        document.forms['ticklerform'].sort_order.value = direction;
+        document.forms['ticklerform'].sort_column.value = orderBy;
+        document.forms['ticklerform'].submit();
+    }
+
+    function updateTicklerStatus(statusAction){
+        document.forms['ticklerform'].submit_form.value = statusAction;
+        document.forms['ticklerform'].method = 'post';
+        document.forms['ticklerform'].action = 'dbTicklerMain.jsp';
+        document.forms['ticklerform'].submit();
+    }
 </script>
 <style type="text/css">
 	<!--
@@ -592,7 +630,7 @@ var beginD = "1900-01-01"
   </tr>        
 </table>
              
-<form name="serviceform" method="get" action="ticklerMain.jsp">
+<form name="ticklerform" method="get" action="ticklerMain.jsp">
 <table width="100%" border="0" bgcolor="#EEEEFF">  
     <tr>
       <td width="19%">
@@ -727,7 +765,7 @@ function changeSite(sel) {
       <td -->
         <font color="#333333" style="float: right" size="2" face="Verdana, Arial, Helvetica, sans-serif">
         <input type="hidden" name="Submit" value="">
-        <input type="button" value="<bean:message key="tickler.ticklerMain.btnCreateReport"/>" class="mbttn noprint" onclick="document.forms['serviceform'].Submit.value='Create Report'; document.forms['serviceform'].submit();">
+        <input type="button" value="<bean:message key="tickler.ticklerMain.btnCreateReport"/>" class="mbttn noprint" onclick="document.forms['ticklerform'].Submit.value='Create Report'; document.forms['ticklerform'].submit();">
         <oscar:oscarPropertiesCheck property="TICKLERSAVEVIEW" value="yes">
         &nbsp;
         <input type="button" value="<bean:message key="tickler.ticklerMain.msgSaveView"/>" class="mbttn" onclick="saveView();">
@@ -736,34 +774,9 @@ function changeSite(sel) {
         </td>
     </tr>  
 </table>
-</form>
-        
-<form name="ticklerform" method="post" action="dbTicklerMain.jsp">
-		
-<%
-        Locale locale = request.getLocale();
-        String sortImage = "uparrow_inv.gif";
-        String sortDirection = LocaleUtils.getMessage(locale, "tickler.ticklerMain.sortUp");
-        String sortOrderStr = request.getParameter("sort_order");
-        boolean isSortAscending = true;
-
-        if (sortOrderStr == null || sortOrderStr.equals("asc")) {
-            isSortAscending = false;
-            sortOrderStr = TicklerManager.SORT_DESC;
-            sortImage = "downarrow_inv.gif";
-            sortDirection = LocaleUtils.getMessage(locale, "tickler.ticklerMain.sortDown");
-        } else {
-            sortOrderStr = TicklerManager.SORT_ASC;
-        } 
-
-        String sortColumn = request.getParameter("sort_column");
-        if (sortColumn == null) {
-            sortColumn = TicklerManager.SERVICE_DATE;
-        }
-%>
 
 	<input type="hidden" name="sort_order" id="sort_order" value="<%=sortOrderStr%>"/>
-        <input type="hidden" name="sort_column" id="sort_column" value=""/>
+        <input type="hidden" name="sort_column" id="sort_column" value="<%=sortColumn%>"/>
 				
         <c:set var="imgTag" scope="request"><img src="<c:out value="${ctx}"/>/images/<%=sortImage%>" alt="Sort Arrow <%=sortDirection%>"/></c:set>
         <c:set var="sortColumn" scope="request"><%=sortColumn%></c:set>
@@ -788,25 +801,25 @@ function changeSite(sel) {
             }
 %>            
             <th style="color:#000000; font-size:xsmall; font-family:verdana,arial,helvetica;" width="15%"> 
-                <a href="#" onClick="document.forms['ticklerform'].sort_order.value='<%=sortOrderStr%>';document.forms['ticklerform'].sort_column.value='<c:out value="${sortByDemoName}"/>'; document.forms['ticklerform'].submit();"><bean:message key="tickler.ticklerMain.msgDemographicName"/></a>                
+                <a href="#" onClick="sortTicklers('<c:out value="${sortByDemoName}"/>')"><bean:message key="tickler.ticklerMain.msgDemographicName"/></a>
                 <c:if test="${sortColumn == sortByDemoName}">
                     <c:out value="${imgTag}" escapeXml="false"/>                    
                 </c:if>
             </th>
             <th style="color:#000000; font-size:xsmall; font-family:verdana,arial,helvetica;" width="8%">
-                <a href="#" onClick="document.forms['ticklerform'].sort_order.value='<%=sortOrderStr%>';document.forms['ticklerform'].sort_column.value='<c:out value="${sortByCreator}"/>'; document.forms['ticklerform'].submit();"><bean:message key="tickler.ticklerMain.msgCreator"/></a>               
+                <a href="#" onClick="sortTicklers('<c:out value="${sortByCreator}"/>');"><bean:message key="tickler.ticklerMain.msgCreator"/></a>
                 <c:if test="${sortColumn == sortByCreator}">
                     <c:out value="${imgTag}" escapeXml="false"/>                    
                 </c:if>
             </th>           
             <th style="color:#000000; font-size:xsmall; font-family:verdana,arial,helvetica;" width="12%">
-                <a href="#" onClick="document.forms['ticklerform'].sort_order.value='<%=sortOrderStr%>';document.forms['ticklerform'].sort_column.value='<c:out value="${sortByServiceDate}"/>'; document.forms['ticklerform'].submit();"><bean:message key="tickler.ticklerMain.msgDate"/></a>
+                <a href="#" onClick="sortTicklers('<c:out value="${sortByServiceDate}"/>');"><bean:message key="tickler.ticklerMain.msgDate"/></a>
                  <c:if test="${sortColumn == sortByServiceDate}">
                     <c:out value="${imgTag}" escapeXml="false"/>                    
                 </c:if>
             </th>
             <th style="color:#000000; font-size:xsmall; font-family:verdana,arial,helvetica;" width="15%">  
-                <a href="#" onClick="document.forms['ticklerform'].sort_order.value='<%=sortOrderStr%>';document.forms['ticklerform'].sort_column.value='<c:out value="${sortByCreationDate}"/>'; document.forms['ticklerform'].submit();"><bean:message key="tickler.ticklerMain.msgCreationDate"/></a> 
+                <a href="#" onClick="sortTicklers('<c:out value="${sortByCreationDate}"/>');"><bean:message key="tickler.ticklerMain.msgCreationDate"/></a>
                 <c:if test="${sortColumn == sortByCreationDate}">
                     <c:out value="${imgTag}" escapeXml="false"/>                   
                 </c:if> 
@@ -821,14 +834,14 @@ function changeSite(sel) {
 			<% } %>
 
             <th style="color:#000000; font-size:xsmall; font-family:verdana,arial,helvetica;" width="8%">
-                <a href="#" onClick="document.forms['ticklerform'].sort_order.value='<%=sortOrderStr%>';document.forms['ticklerform'].sort_column.value='<c:out value="${sortByPriority}"/>'; document.forms['ticklerform'].submit();"><bean:message key="tickler.ticklerMain.Priority"/></a>  
+                <a href="#" onClick="sortTicklers('<c:out value="${sortByPriority}"/>');"><bean:message key="tickler.ticklerMain.Priority"/></a>
                 <c:if test="${sortColumn == sortByPriority}">
                     <c:out value="${imgTag}" escapeXml="false"/>                   
                 </c:if>
             </th>
 
             <th style="color:#000000; font-size:xsmall; font-family:verdana,arial,helvetica;" width="15%">
-                <a href="#" onClick="document.forms['ticklerform'].sort_order.value='<%=sortOrderStr%>';document.forms['ticklerform'].sort_column.value='<c:out value="${sortByTAT}"/>'; document.forms['ticklerform'].submit();"><bean:message key="tickler.ticklerMain.taskAssignedTo"/></a>
+                <a href="#" onClick="sortTicklers('<c:out value="${sortByTAT}"/>');"><bean:message key="tickler.ticklerMain.taskAssignedTo"/></a>
                 <c:if test="${sortColumn == sortByTAT}">
                     <c:out value="${imgTag}" escapeXml="false"/>                   
                 </c:if>
@@ -855,12 +868,12 @@ function changeSite(sel) {
                                     <%
                                     	if (ticklerview.compareTo("D") == 0){
                                     %>
-                                    <input type="button" value="<bean:message key="tickler.ticklerMain.btnEraseCompletely"/>" class="sbttn" onclick="document.forms['ticklerform'].submit_form.value='Erase Completely'; document.forms['ticklerform'].submit();">
+                                    <input type="button" value="<bean:message key="tickler.ticklerMain.btnEraseCompletely"/>" class="sbttn" onclick="updateTicklerStatus('Erase Completely');">
                                     <%
                                     	} else{
                                     %>
-                                    <input type="button" value="<bean:message key="tickler.ticklerMain.btnComplete"/>" class="sbttn" onclick="document.forms['ticklerform'].submit_form.value='Complete'; document.forms['ticklerform'].submit();">
-                                    <input type="button" value="<bean:message key="tickler.ticklerMain.btnDelete"/>" class="sbttn" onclick="document.forms['ticklerform'].submit_form.value='Delete'; document.forms['ticklerform'].submit();">
+                                    <input type="button" value="<bean:message key="tickler.ticklerMain.btnComplete"/>" class="sbttn" onclick="updateTicklerStatus('Complete');">
+                                    <input type="button" value="<bean:message key="tickler.ticklerMain.btnDelete"/>" class="sbttn" onclick="updateTicklerStatus('Delete');">
                                     <%
                                     	}
                                     %>
