@@ -673,40 +673,22 @@ public class BioTestHandler implements MessageHandler {
 
     public String getCCDocs(){
 
-        String docNames = "";
-
+        String docName = "";
+        int i=0;
         try {
-            Terser terser = new Terser(msg);
-
-            String givenName = terser.get("/.ZDR(0)-4-1");
-            String middleName = terser.get("/.ZDR(0)-4-3");
-            String familyName = terser.get("/.ZDR(0)-4-2");
-
-            int i=1;
-            while (givenName != null){
-
-                if (i==1)
-                    docNames = givenName;
-                else
-                    docNames = docNames+", "+givenName;
-
-                if (middleName != null)
-                    docNames = docNames+" "+middleName;
-                if (familyName != null)
-                    docNames = docNames+" "+familyName;
-
-                givenName = terser.get("/.ZDR("+i+")-4-1");
-                middleName = terser.get("/.ZDR("+i+")-4-3");
-                familyName = terser.get("/.ZDR("+i+")-4-2");
-
+            while(!getFullDocName(msg.getRESPONSE().getORDER_OBSERVATION(0).getOBR().getResultCopiesTo(i)).equals("")){
+                if (i==0){
+                    docName = getFullDocName(msg.getRESPONSE().getORDER_OBSERVATION(0).getOBR().getResultCopiesTo(i));
+                }else{
+                    docName = docName + ", " + getFullDocName(msg.getRESPONSE().getORDER_OBSERVATION(0).getOBR().getResultCopiesTo(i));
+                }
                 i++;
             }
 
-            return(docNames);
+            return(docName);
 
         } catch (Exception e) {
-            //ignore error... it will occur when the zdr segment is not present
-            //logger.error("Could not retrieve cc'd docs", e);
+            logger.error("Could not return cc'ed doctors", e);
             return("");
         }
 
@@ -716,28 +698,29 @@ public class BioTestHandler implements MessageHandler {
         String docNum = "";
         ArrayList<String> nums = new ArrayList<String>();
         int i=0;
-        try{
+        try {
 
             //requesting client number
             docNum = msg.getRESPONSE().getORDER_OBSERVATION(0).getOBR().getOrderingProvider(i).getIDNumber().getValue();
             if (docNum != null){
                nums.add(docNum);
             }
+        } catch (Exception e){
+            logger.warn("Could not return ordering provider", e);
+        }
 
-            //cc'd docs numbers
-            Terser terser = new Terser(msg);
-            String num = terser.get("/.ZDR(0)-3-1");
-            i=1;
-            while (num != null){
-                if (!num.equals(docNum))
-                    nums.add(num);
-                num = terser.get("/.ZDR("+i+")-3-1");
+        //cc'd docs numbers
+        i = 0;
+        try {
+            while(!(msg.getRESPONSE().getORDER_OBSERVATION(0).getOBR().getResultCopiesTo(i).getIDNumber().getValue()).equals("")){
+                String newDocNum = msg.getRESPONSE().getORDER_OBSERVATION(0).getOBR().getResultCopiesTo(i).getIDNumber().getValue();
+                if (newDocNum != null && !newDocNum.equals(docNum)) {
+                    nums.add(newDocNum);
+                }
                 i++;
             }
-
-        }catch(Exception e){
-            //ignore error... it will occur when the zdr segment is not present
-            //logger.error("Could not return numbers", e);
+        } catch (Exception e) {
+            logger.warn("Could not return cc'ed doctors", e);
         }
 
         return(nums);
