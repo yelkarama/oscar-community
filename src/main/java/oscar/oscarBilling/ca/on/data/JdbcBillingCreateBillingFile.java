@@ -346,7 +346,7 @@ public class JdbcBillingCreateBillingFile {
 	}
 
 	private String buildTrailer() {
-		String ret = "\n" + "HEE" + rightJustify("0", 4, pCount) + rightJustify("0", 4, hcCount) + rightJustify("0", 5, rCount) + space(63) + "\r";
+		String ret = "\n" + "HEE" + rightJustify("0", 4, pCount) + rightJustify("0", 4, hcCount) + rightJustify("0", 5, rCount) + space(63) + "\r\n";
 		return ret;
 	}
 
