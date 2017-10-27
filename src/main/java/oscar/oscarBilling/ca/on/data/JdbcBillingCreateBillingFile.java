@@ -1041,7 +1041,7 @@ public class JdbcBillingCreateBillingFile {
 			returnZeroValue += y;
 		}
 		
-		if( z != null ) {
+		if( z != null && x - z.length() > -1) {
 			returnZeroValue = returnZeroValue.substring(0, x - z.length()) + z;
 		}
 
