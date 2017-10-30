@@ -31,7 +31,7 @@
 
 
 <% String search = "",search2 = "";
- search = request.getParameter("search"); 
+ search = request.getParameter("search");
  if (search.compareTo("") == 0){
  search = "search_service_code";
  }
@@ -83,8 +83,13 @@ function CodeAttach(File0, File1) {
 <% 
 if(request.getParameter("nameF") != null) {
     String feeElement = request.getParameter("nameF").replace("servicecode", "billingamount");
+
+    	if (!feeElement.contains("serviceCode"))
+    	{
+    	   out.println("self.opener." + feeElement + " = File1;");
+    	}
+
 		out.println("self.opener." + request.getParameter("nameF") + " = File0;");
-		out.println("self.opener." + feeElement + " = File1;");
 } else {
 %>      
       self.opener.document.serviceform.xml_other1.value = File0;
