@@ -236,6 +236,7 @@ private HashMap<String,String> CurrentSiteMap = new HashMap<String,String>();%>
 <jsp:useBean id="dateTimeCodeBean" class="java.util.Hashtable" scope="page" />
 <%
 	Properties oscarVariables = OscarProperties.getInstance();
+	OscarProperties oscarProperties = OscarProperties.getInstance();
 	String econsultUrl = oscarVariables.getProperty("backendEconsultUrl");
 	
 	//Gets the request URL
@@ -1620,7 +1621,11 @@ if (curProvider_no[provIndex].equals(provNum)) {
 		<%=p.getFormattedName(true)%>
 	<%}else{ %>
 		<%=p.getFormattedName()%>
-	<%}%></option>
+	<%}%>
+	<% if (oscarProperties.isPropertyActive("queens_message_search")) { %>
+		<%=(p.getSpecialty() != null && !p.getSpecialty().isEmpty()) ? " (" + p.getSpecialty() + ")" : ""%>
+	<% } %>
+</option>
 <%
 	} }
 %>
@@ -1647,7 +1652,11 @@ if (curProvider_no[provIndex].equals(provNum)) {
 		if (!skip && (!bMultisites || siteProviderNos  == null || siteProviderNos.size() == 0 || siteProviderNos.contains(p.getProviderNo()))) {
 %>
   <option value="<%=p.getProviderNo()%>" <%=mygroupno.equals(p.getProviderNo())?"selected":""%>>
-		<%=p.getFormattedName()%></option>
+		<%=p.getFormattedName()%>
+	  <% if (oscarProperties.isPropertyActive("queens_message_search")) { %>
+	  	<%=(p.getSpecialty() != null && !p.getSpecialty().isEmpty()) ? " (" + p.getSpecialty() + ")" : ""%>
+	  <% } %>
+  </option>
 <%
 	}
 	}

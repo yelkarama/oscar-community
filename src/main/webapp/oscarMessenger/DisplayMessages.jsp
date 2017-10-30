@@ -526,6 +526,9 @@ function moveToFolder(selected){
                                             }
                                             else {
                                                 out.print(dm.sentby);
+                                                if (dm.getSentBySpecialty() != null) {
+													out.print(" (" + dm.getSentBySpecialty() + ")");
+												}
                                            }
                                         %>
                                     

@@ -28,12 +28,18 @@
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
 <%@ page import="oscar.oscarMDS.data.ProviderData, java.util.ArrayList"%>
 <%@page import="org.oscarehr.util.LoggedInInfo"%>
+<%@ page import="oscar.OscarProperties" %>
 
 <%
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 	String firstName = loggedInInfo.getLoggedInProvider().getFirstName();
 	String lastName = loggedInInfo.getLoggedInProvider().getLastName();
 	String providerNo = request.getParameter("providerNo");
+	String specialtyText = "";
+	if (OscarProperties.getInstance().isPropertyActive("queens_message_search")) {
+	    String specialty = loggedInInfo.getLoggedInProvider().getSpecialty();
+		specialtyText = (specialty != null && !specialty.isEmpty()) ? " (" + specialty + ")" : "";
+	}
 %>
 
 <html>
@@ -199,7 +205,7 @@ $(function() {
 			<td>
 				<input type="hidden" value="<%= providerNo %>"name="searchProviderNo" id="provfind" />
 				<input type="hidden" value="true" name="isSearchPage" id="isSearchPage" />
-                <input type="text"  value="<%= lastName + ", " + firstName %>" id="autocompleteprov" name="demographicKeyword"/>
+                <input type="text"  value="<%= lastName + ", " + firstName + specialtyText %>" id="autocompleteprov" name="demographicKeyword"/>
 			</td>
 			</tr>
 			<tr>

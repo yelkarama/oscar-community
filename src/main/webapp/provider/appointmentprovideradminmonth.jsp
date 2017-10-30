@@ -219,6 +219,7 @@ if (bMultisites) {
 	errorPage="errorpage.jsp"%>
 <% 
 	java.util.Properties oscarVariables = OscarProperties.getInstance();
+	OscarProperties oscarProperties = OscarProperties.getInstance();
 %>
 	
 <jsp:useBean id="scheduleHolidayBean" class="java.util.Hashtable"
@@ -707,7 +708,11 @@ function refreshTabAlerts(id) {
 		providerNameBean.setDef(p.getProviderNo(), p.getLastName()+","+p.getFirstName());		
 %>
 					<option value="<%=p.getProviderNo()%>"
-						<%=providerview.equals(p.getProviderNo())?"selected":""%>><%=providerNameBean.getShortDef(p.getProviderNo(), "", NameMaxLen)%></option>
+						<%=providerview.equals(p.getProviderNo())?"selected":""%>><%=providerNameBean.getShortDef(p.getProviderNo(), "", NameMaxLen)%>
+						<% if (oscarProperties.isPropertyActive("queens_message_search")) { %>
+						<%=(p.getSpecialty() != null && !p.getSpecialty().isEmpty()) ? " (" + p.getSpecialty() + ")" : ""%>
+						<% } %>
+					</option>
 <%
 	}
 %>
@@ -732,7 +737,11 @@ function refreshTabAlerts(id) {
 		providerNameBean.setDef(p.getProviderNo(), p.getLastName()+","+p.getFirstName());
 %>
 					<option value="<%=p.getProviderNo()%>"
-						<%=providerview.equals(p.getProviderNo())?"selected":""%>><%=providerNameBean.getShortDef(p.getProviderNo(), "", NameMaxLen)%></option>
+						<%=providerview.equals(p.getProviderNo())?"selected":""%>><%=providerNameBean.getShortDef(p.getProviderNo(), "", NameMaxLen)%>
+						<% if (oscarProperties.isPropertyActive("queens_message_search")) { %>
+						<%=(p.getSpecialty() != null && !p.getSpecialty().isEmpty()) ? " (" + p.getSpecialty() + ")" : ""%>
+						<% } %>
+					</option>
 <%
 		}
 	}

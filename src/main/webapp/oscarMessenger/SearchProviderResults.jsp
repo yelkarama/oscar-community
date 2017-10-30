@@ -248,9 +248,11 @@
 						</td>
 						<td bgcolor="#EEEEFF">
 							<%=messagesResult.sentby%>
+							<%=(messagesResult.getSentBySpecialty() != null)?" (" + messagesResult.getSentBySpecialty() + ")":""%>
 						</td>
 						<td bgcolor="#EEEEFF">
 							<%=messagesResult.sentto%>
+							<%=(messagesResult.getSentToSpecialty() != null)?" (" + messagesResult.getSentToSpecialty() + ")":""%>
 						</td>
 						<td bgcolor="#EEEEFF">
 							<a href="<%=request.getContextPath()%>/oscarMessenger/ViewMessage.do?messageID=<%=messagesResult.messageId%>&boxType=pageType&replyFor=<%=messagesResult.getSentToProviderNo()%>&fromProviderSearch=true">

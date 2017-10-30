@@ -41,6 +41,7 @@ import org.apache.struts.actions.DispatchAction;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
+import oscar.OscarProperties;
 import oscar.oscarProvider.data.ProviderData;
 import org.oscarehr.common.dao.ProviderDataDao;
 /**
@@ -91,7 +92,11 @@ public class SearchProviderAutoCompleteAction extends DispatchAction{
     	int idx = 0;
     	
     	for( org.oscarehr.common.model.ProviderData provData : provList ) {
-    		searchResults.append("{\"label\":\"" + provData.getLastName() + ", " + provData.getFirstName() + "\",\"value\":\"" + provData.getId() + "\"}");
+    	    String specialtyText = "";
+    	    if (OscarProperties.getInstance().isPropertyActive("queens_message_search")) {
+                specialtyText = (provData.getSpecialty() != null && !provData.getSpecialty().isEmpty()) ? " (" + provData.getSpecialty() + ")" : "";
+            }
+    		searchResults.append("{\"label\":\"" + provData.getLastName() + ", " + provData.getFirstName() + specialtyText + "\",\"value\":\"" + provData.getId() + "\"}");
     		if( idx < provList.size() - 1 ) {
     			searchResults.append(",");
     		}

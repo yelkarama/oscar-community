@@ -81,8 +81,9 @@ public class MessageTblDao extends AbstractDao<MessageTbl>{
         List<OscarCommLocations> comms = oscarCommLocationsDao.findByCurrent1(1);
         OscarCommLocations currentLocation = comms.isEmpty() ? null : comms.get(0);
 
-        sql.append("SELECT m.messageid, mdm.demographic_no, ml.status,  m.thesubject, m.thedate, m.theime, m.attachment, m.pdfattachment, m.sentby, m.sentto, ml.provider_no AS sentToProviderNo ");
+        sql.append("SELECT m.messageid, mdm.demographic_no, ml.status,  m.thesubject, m.thedate, m.theime, m.attachment, m.pdfattachment, m.sentby, m.sentto, sentByProv.specialty, ml.provider_no AS sentToProviderNo, sentToProv.specialty ");
         sql.append("FROM messagetbl m LEFT JOIN msgDemoMap mdm ON mdm.messageID = m.messageid LEFT JOIN messagelisttbl ml ON ml.message = m.messageid ");
+        sql.append("LEFT JOIN provider sentByProv ON sentByProv.provider_no = m.sentbyNo LEFT JOIN provider sentToProv ON sentToProv.provider_no = ml.provider_no ");
         sql.append(createBySentToProviderAndStartDateAndEndDateWhereSql(providerNos, startDate, endDate, currentLocation));
         
         String orderBySql = "ORDER BY " + MsgDisplayMessagesBean.getOrderBy(orderBy) + " ";
@@ -118,7 +119,9 @@ public class MessageTblDao extends AbstractDao<MessageTbl>{
                 dm.pdfAttach = (String.valueOf(resultObject[7]) == null) ? "0" : "1";
                 dm.sentby = String.valueOf(resultObject[8]);
                 dm.sentto = String.valueOf(resultObject[9]);
-                dm.setSentToProviderNo(String.valueOf(resultObject[10]));
+                dm.setSentBySpecialty(String.valueOf(resultObject[10]));
+                dm.setSentToProviderNo(String.valueOf(resultObject[11]));
+                dm.setSentToSpecialty(String.valueOf(resultObject[12]));
 
                 results.add(dm);
             }
@@ -150,7 +153,7 @@ public class MessageTblDao extends AbstractDao<MessageTbl>{
     
     private String createBySentToProviderAndStartDateAndEndDateWhereSql(List<String> providerNos, Date startDate, Date endDate, OscarCommLocations currentLocation) {
         StringBuilder sql = new StringBuilder();
-        sql.append("WHERE status NOT LIKE 'del' ");
+        sql.append("WHERE ml.status NOT LIKE 'del' ");
         if (providerNos != null && !providerNos.isEmpty()) { sql.append("AND ml.provider_no IN (:providerNos) "); }//= :providerNo "); }
         if (startDate != null) { sql.append("AND m.thedate >= :startDate "); }
         if (endDate != null) { sql.append("AND m.thedate <= :endDate "); }

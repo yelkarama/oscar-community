@@ -34,8 +34,10 @@ public class MsgDisplayMessage {
     public String thedate    = null;
     public String theime    = null;
     public String sentby     = null;
+    private String sentBySpecialty = null;
     public String sentto     = null;
     private String sentToProviderNo;
+    private String sentToSpecialty = null;
     public String attach     = null;
     public String pdfAttach     = null;
     public String demographic_no = null;
@@ -43,8 +45,27 @@ public class MsgDisplayMessage {
     public String getSentToProviderNo() {
         return sentToProviderNo;
     }
-
     public void setSentToProviderNo(String sentToProviderNo) {
         this.sentToProviderNo = sentToProviderNo;
+    }
+    
+    public String getSentBySpecialty() {
+        return sentBySpecialty;
+    }
+    public void setSentBySpecialty(String SentBySpecialty) {
+        if (SentBySpecialty == null || SentBySpecialty.isEmpty() || SentBySpecialty.equalsIgnoreCase("system")) {
+            SentBySpecialty = null;
+        }
+        this.sentBySpecialty = SentBySpecialty;
+    }
+
+    public String getSentToSpecialty() {
+        return sentToSpecialty;
+    }
+    public void setSentToSpecialty(String SentToSpecialty) {
+        if (SentToSpecialty == null || SentToSpecialty.isEmpty() || SentToSpecialty.equalsIgnoreCase("system")) {
+            SentToSpecialty = null;
+        }
+        this.sentToSpecialty = SentToSpecialty;
     }
 }

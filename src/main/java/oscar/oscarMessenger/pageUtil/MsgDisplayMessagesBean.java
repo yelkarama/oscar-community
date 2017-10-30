@@ -39,6 +39,7 @@ import org.oscarehr.common.model.OscarCommLocations;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
+import oscar.OscarProperties;
 import oscar.oscarMessenger.data.MsgDisplayMessage;
 import oscar.util.ConversionUtils;
 
@@ -309,7 +310,9 @@ public class MsgDisplayMessagesBean implements java.io.Serializable {
 				
 		try {
 			//String sql = ("select map.messageID is null as isnull, map.demographic_no, ml.message, ml.status," + " m.thesubject, m.thedate, m.theime, m.attachment, m.pdfattachment, m.sentby  " + "from messagelisttbl ml, messagetbl m " + "(select map.messageID, map.demographic_no from msgDemoMap map where map.messageID = m.messageid limit 1) as map" + " " + "where ml.provider_no = '" + providerNo + "' " + "and status not like \'del\' and remoteLocation = '" + getCurrentLocationId() + "' " + " and ml.message = m.messageid "                       
-                        String sql = "(select m.messageid, (select map.demographic_no from msgDemoMap map where map.messageID = m.messageid limit 1) as demographic_no, ml.message, ml.status,  m.thesubject, m.thedate, m.theime, m.attachment, m.pdfattachment, m.sentby  from messagelisttbl ml, messagetbl m  where ml.provider_no = '" + providerNo + "' " + "and status not like \'del\' and remoteLocation = '" + getCurrentLocationId() + "' " + " and folderId = 0 and ml.message = m.messageid "
+            String sql = "(select m.messageid, (select map.demographic_no from msgDemoMap map where map.messageID = m.messageid limit 1) as demographic_no, ml.message, ml.status,  m.thesubject, m.thedate, m.theime, m.attachment, m.pdfattachment, m.sentby, sentByProv.specialty  " +
+                    "from messagelisttbl ml, messagetbl m LEFT JOIN provider sentByProv ON sentByProv.provider_no = m.sentbyNo " +
+                    "where ml.provider_no = '" + providerNo + "' " + "and ml.status not like \'del\' and ml.remoteLocation = '" + getCurrentLocationId() + "' " + " and ml.folderId = 0 and ml.message = m.messageid "
 			        + getSQLSearchFilter(searchCols) + " order by " + getOrderBy(orderby) + limitSql + ")";
 
 			FormsDao dao = SpringUtils.getBean(FormsDao.class);
@@ -323,6 +326,7 @@ public class MsgDisplayMessagesBean implements java.io.Serializable {
 				String attachment = String.valueOf(o[7]);
 				String pdfattachment = String.valueOf(o[8]);
 				String sentby = String.valueOf(o[9]);
+                String specialty = String.valueOf(o[10]);
 
 				oscar.oscarMessenger.data.MsgDisplayMessage dm = new oscar.oscarMessenger.data.MsgDisplayMessage();
 				dm.status = status;
@@ -331,6 +335,9 @@ public class MsgDisplayMessagesBean implements java.io.Serializable {
 				dm.thedate = thedate;
 				dm.theime = theime;
 				dm.sentby = sentby;
+                if (OscarProperties.getInstance().isPropertyActive("queens_message_search")) {
+                    dm.setSentBySpecialty(specialty);
+                }
 				dm.demographic_no = demographic_no;
 				String att = attachment;
 				String pdfAtt = pdfattachment;
