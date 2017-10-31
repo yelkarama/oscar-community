@@ -968,7 +968,7 @@ public class JdbcBillingCreateBillingFile {
 			home_dir = OscarProperties.getInstance().getProperty("HOME_DIR");
 			FileOutputStream out = new FileOutputStream(home_dir + ohipFilename);
 			PrintStream p = new PrintStream(out);
-			p.println(value1);
+			p.print(value1);
 
 			p.close();
 			out.close();
