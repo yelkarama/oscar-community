@@ -374,7 +374,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 			PdfContentByte cb = writer.getDirectContent();
 			
 			RxManageDao rxManageDao = SpringUtils.getBean(RxManageDao.class);
-			RxManage rxManage = rxManageDao.findByProviderNo(this.loggedInProvNo);
+			RxManage rxManage = rxManageDao.getRxManageAttributes();
 			Boolean mrpRx = rxManage!=null?rxManage.getMrpOnRx(): true;
 
 			try {

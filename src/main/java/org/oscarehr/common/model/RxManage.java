@@ -22,9 +22,6 @@ public class RxManage extends AbstractModel<Integer>
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name="provider_no")
-    private String providerNo;
-
     @Column(name="mrpOnRx")
     private Boolean mrpOnRx;
 
@@ -34,14 +31,6 @@ public class RxManage extends AbstractModel<Integer>
 
     public void setId(Integer id) {
         this.id = id;
-    }
-
-    public String getProviderNo() {
-        return providerNo;
-    }
-
-    public void setProviderNo(String providerNo) {
-        this.providerNo = providerNo;
     }
 
     public Boolean getMrpOnRx() {

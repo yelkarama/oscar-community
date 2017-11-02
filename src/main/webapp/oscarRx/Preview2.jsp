@@ -163,7 +163,7 @@ DemographicDao demographicDao=(DemographicDao)SpringUtils.getBean("demographicDa
 Demographic demographic = demographicDao.getDemographic(String.valueOf(patient.getDemographicNo()));
 
 RxManageDao rxManageDao = SpringUtils.getBean(RxManageDao.class);
-RxManage rxManage = rxManageDao.findByProviderNo(loggedInInfo.getLoggedInProviderNo());
+RxManage rxManage = rxManageDao.getRxManageAttributes();
 Boolean mrpRx = rxManage!=null?rxManage.getMrpOnRx(): true;
 
 oscar.oscarRx.data.RxPrescriptionData.Prescription rx = null;

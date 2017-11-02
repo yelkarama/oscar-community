@@ -62,18 +62,16 @@
     {
         if (request.getParameter("dboperation").equals("Save"))
         {
-            RxManage rxManage = rxManageDao.findByProviderNo(provider.getProviderNo());
+            RxManage rxManage = rxManageDao.getRxManageAttributes();
             
             if (rxManage!=null)
             {
-                rxManage.setProviderNo(provider.getProviderNo());
                 rxManage.setMrpOnRx(Boolean.parseBoolean(request.getParameter("mrpPresc")));
                 rxManageDao.merge(rxManage);
             }
             else
             {
                 rxManage = new RxManage();
-                rxManage.setProviderNo(provider.getProviderNo());
                 rxManage.setMrpOnRx(Boolean.parseBoolean(request.getParameter("mrpPresc")));
                 rxManageDao.persist(rxManage); 
             }
@@ -93,10 +91,9 @@
     </head>
     
     <%
-        RxManage rxManage = rxManageDao.findByProviderNo(provider.getProviderNo());
+        RxManage rxManage = rxManageDao.getRxManageAttributes();
         if (rxManage!=null)
         {
-            dataBean.setProperty("rxProvider", rxManage.getProviderNo()==null?provider.getProviderNo():rxManage.getProviderNo());
             dataBean.setProperty("mrpOnRx", String.valueOf(rxManage.getMrpOnRx())); 
         }
     %>

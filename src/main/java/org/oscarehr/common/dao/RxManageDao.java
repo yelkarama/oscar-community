@@ -8,21 +8,20 @@ import java.util.List;
 
 @Repository
 @SuppressWarnings("unchecked")
-public class RxManageDao extends AbstractDao<RxManage> 
+public class RxManageDao extends AbstractDao<RxManage>
 {
     public RxManageDao() { super(RxManage.class); }
-    
-    public RxManage findByProviderNo(String providerNo)
+
+    public RxManage getRxManageAttributes()
     {
-        Query query = entityManager.createQuery("FROM RxManage rx WHERE rx.providerNo = :providerNo");
-        query.setParameter("providerNo", providerNo);
-        
+        Query query = entityManager.createQuery("FROM RxManage rx");
         List<RxManage> results = query.getResultList();
+
         if (!results.isEmpty())
         {
-            return results.get(0);   
+            return results.get(0);
         }
-        
+
         return null;
     }
     
