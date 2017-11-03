@@ -106,7 +106,7 @@
 			Demographic demo = demographicManager.getDemographic(loggedInInfo, demo_no); 
 
 			// True - has e-mail, False - doesn't have e-mail
-			Boolean demoEmail = demo.getEmail()!=null&&!demo.getEmail().equals("");
+			Boolean demoEmail = demo.getEmail()!=null&&!demo.getEmail().trim().equals("");
 			java.util.Date filterDate = ConversionUtils.fromDateString(billReferenceDate);
 			if(request.getParameter("start_time") != null){
 	   			filterDate =  ConversionUtils.fromTimestampString(billReferenceDate+" "+request.getParameter("start_time"));
@@ -1021,7 +1021,7 @@ function onChangePrivate() {
             }
             else
             {
-                var emailOption = prompt("No E-mail on file for <%=demo.getDisplayName()%>!\nEnter an E-mail for <%=demo.getDisplayName()%>, or leave blank and click OK to continue", "");
+                var emailOption = prompt("No E-mail on file for <%=demo.getDisplayName().replaceAll("\"", "\\\\\"")%>!\nEnter an E-mail for <%=demo.getDisplayName().replaceAll("\"", "\\\\\"")%>, or leave blank and click OK to continue", "");
 
                 if (emailOption!==null) // If they didn't click cancel
                 {
@@ -1034,7 +1034,7 @@ function onChangePrivate() {
                             alert("The e-mail you entered is not valid! Please try again.");
                             document.forms[0].xml_billtype.selectedIndex = 0;
 
-                            emailOption = prompt("No E-mail on file for <%=demo.getDisplayName()%>!\nEnter an E-mail for <%=demo.getDisplayName()%>, or leave blank and click OK to continue", "");
+                            emailOption = prompt("No E-mail on file for <%=demo.getDisplayName().replaceAll("\"", "\\\\\"")%>!\nEnter an E-mail for <%=demo.getDisplayName().replaceAll("\"", "\\\\\"")%>, or leave blank and click OK to continue", "");
                         }
                         if (emailOption!=null || emailOption == '')
 						{
