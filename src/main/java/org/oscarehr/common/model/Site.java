@@ -67,8 +67,8 @@ public class Site extends AbstractModel<Integer> implements java.io.Serializable
 	@Column(name="site_id")
 	private Integer siteId;
 	private String name;
-	@Column(name="short_name")
-	private String shortName;
+	@Column(name="full_name")
+	private String fullName;
 	private String phone;
 	private String fax;
 	@Column(name="bg_color")
@@ -119,18 +119,18 @@ public class Site extends AbstractModel<Integer> implements java.io.Serializable
 	public Site() {
 	}
 
-	public Site(String name, String shortName, String bgColor, byte status) {
+	public Site(String name, String fullName, String bgColor, byte status) {
 		this.name = name;
-		this.shortName = shortName;
+		this.fullName = fullName;
 		this.bgColor = bgColor;
 		this.status = status;
 	}
 
-	public Site(String name, String shortName, String phone, String fax,
+	public Site(String name, String fullName, String phone, String fax,
 			String bgColor, String address, String city, String province,
 			String postal, byte status , int providerIdFrom, int providerIdTo) {
 		this.name = name;
-		this.shortName = shortName;
+		this.fullName = fullName;
 		this.phone = phone;
 		this.fax = fax;
 		this.bgColor = bgColor;
@@ -163,12 +163,20 @@ public class Site extends AbstractModel<Integer> implements java.io.Serializable
 		this.name = name;
 	}
 
-	public String getShortName() {
-		return this.shortName;
-	}
+    public String getFullName() {
+        return this.fullName;
+    }
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
 
-	public void setShortName(String shortName) {
-		this.shortName = shortName;
+    /**
+     * @deprecated
+     * Use getName() instead, short_name field is now the full_name field for printing
+     */
+	@Deprecated
+	public String getShortName() {
+		return this.name;
 	}
 
 	public String getPhone() {

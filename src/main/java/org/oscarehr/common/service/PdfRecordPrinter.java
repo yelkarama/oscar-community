@@ -36,19 +36,10 @@ import java.util.Locale;
 import org.apache.log4j.Logger;
 import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.casemgmt.model.CaseManagementNote;
-import org.oscarehr.common.dao.EFormValueDao;
-import org.oscarehr.common.model.Allergy;
-import org.oscarehr.common.model.Appointment;
-import org.oscarehr.common.model.Demographic;
-import org.oscarehr.common.model.EFormValue;
-import org.oscarehr.common.model.Measurement;
+import org.oscarehr.common.dao.*;
+import org.oscarehr.common.model.*;
 import org.oscarehr.common.printing.FontSettings;
 import org.oscarehr.common.printing.PdfWriterFactory;
-import org.oscarehr.common.dao.BillingONCHeader1Dao;
-import org.oscarehr.common.model.BillingONCHeader1;
-import org.oscarehr.common.model.BillingONExt;
-import org.oscarehr.common.dao.BillingONExtDao;
-import org.oscarehr.common.dao.ClinicDAO;
 import org.oscarehr.eyeform.MeasurementFormatter;
 import org.oscarehr.eyeform.model.EyeForm;
 import org.oscarehr.eyeform.model.EyeformFollowUp;
@@ -291,6 +282,7 @@ public class PdfRecordPrinter {
     
     public void printBillingInvoice(Integer invoiceNo, Locale locale){
         OscarProperties props = OscarProperties.getInstance();      
+        boolean bMultisites = org.oscarehr.common.IsPropertiesOn.isMultisitesEnable();
         InputStream is = null;
         InputStream imageIS = null;
         try {
@@ -385,6 +377,10 @@ public class PdfRecordPrinter {
                         }
                     }
 
+                    if (bMultisites) {
+                        parameters = setMultisiteClinicParams(billingONCHeader1.getClinic(), parameters);
+                    }
+                    
                     //print Jasper Report
                     JasperPrint jasperPrint =  JasperFillManager.fillReport(jasperReport,parameters, new JREmptyDataSource());
 
@@ -1318,4 +1314,18 @@ public class PdfRecordPrinter {
 		}
 		return ref;
 	}
+	
+	private Map<String,Object> setMultisiteClinicParams(String nameSiteName, Map<String,Object> parameters) {
+        SiteDao siteDao = SpringUtils.getBean(SiteDao.class);
+        Site matchedSite = siteDao.findByName(nameSiteName);
+        if (matchedSite != null) {
+            parameters.put("clinic_name", matchedSite.getFullName());
+            parameters.put("clinic_address", matchedSite.getAddress());
+            parameters.put("clinic_city", matchedSite.getCity());
+            parameters.put("clinic_province", matchedSite.getProvince());
+            parameters.put("clinic_postal", matchedSite.getPostal());
+            parameters.put("clinic_phone", matchedSite.getPhone());
+        }
+        return parameters;
+    }
 }

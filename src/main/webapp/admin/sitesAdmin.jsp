@@ -78,7 +78,7 @@
      <display-el:column title="Active" ><c:choose ><c:when test="${site.status==0}">No</c:when><c:otherwise>Yes</c:otherwise></c:choose></display-el:column>
      <display-el:column title="Site Name">
      <a href="<%= request.getContextPath() %>/admin/ManageSites.do?method=update&siteId=<c:out value='${site.siteId}'/>" ><c:out value="${site.name}" /></a></display-el:column>
-     <display-el:column property="shortName" title="Short Name" />
+     <display-el:column property="fullName" title="Full Name" />
      <display-el:column property="bgColor" title="Color" style="background-color:${site.bgColor}" />
      <display-el:column property="phone" title="Telephone" />
      <display-el:column property="fax" title="FAX" />

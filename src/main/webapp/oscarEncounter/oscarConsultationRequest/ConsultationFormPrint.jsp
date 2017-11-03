@@ -110,49 +110,30 @@ if(!authed) {
     }
 
     // for satellite clinics
-    Vector vecAddressName = null;
-    Vector vecAddress = null;
-    Vector vecAddressPhone = null;
-    Vector vecAddressFax = null;
-    Vector vecAddressBillingNo = null;
-    String defaultAddrName = null;
+    Vector vecAddressName = new Vector();
+    Vector vecAddress = new Vector();
+    Vector vecAddressPhone = new Vector();
+    Vector vecAddressFax = new Vector();
+    Vector vecAddressBillingNo = new Vector();
+    List<Site> sites = null;
     if (bMultisites) {
-     	vecAddressName = new Vector();
-        vecAddress = new Vector();
-        vecAddressPhone = new Vector();
-        vecAddressFax = new Vector();
-        vecAddressBillingNo = new Vector();
-
-    		SiteDao siteDao = (SiteDao)WebApplicationContextUtils.getWebApplicationContext(application).getBean("siteDao");
-      		List<Site> sites = siteDao.getActiveSitesByProviderNo((String) session.getAttribute("user"));
- 			Site defaultSite = sites.get(0);
-      		for (Site s:sites) {
-                vecAddressName.add(s.getName());
-                vecAddress.add(s.getAddress() + ", " + s.getCity() + ", " + s.getProvince() + "  " + s.getPostal());
-                vecAddressPhone.add(s.getPhone());
-                vecAddressFax.add(s.getFax());
-                if (selectedSite.equals(s.getName())) {
-                	defaultSite = s;
-            	}
-     		}
-            // default address
-	        if (defaultSite!=null) {
-	            clinic.setClinic_address(defaultSite.getAddress());
-	            clinic.setClinic_city(defaultSite.getCity());
-	            clinic.setClinic_province(defaultSite.getProvince());
-	            clinic.setClinic_postal(defaultSite.getPostal());
-	            clinic.setClinic_phone(defaultSite.getPhone());
-	            clinic.setClinic_fax(defaultSite.getFax());
-	            clinic.setClinic_name(defaultSite.getName());
-	   			defaultAddrName=defaultSite.getName();
-	        }
+		SiteDao siteDao = (SiteDao)WebApplicationContextUtils.getWebApplicationContext(application).getBean("siteDao");
+        sites = siteDao.getActiveSitesByProviderNo((String) session.getAttribute("user"));
+		Site defaultSite = (sites.size() > 0) ? sites.get(0) : null;
+		for (Site s : sites) {
+            if (selectedSite.equals(s.getFullName())) { defaultSite = s; }
+    	}
+	    if (defaultSite != null) {
+	        clinic.setClinic_address(defaultSite.getAddress());
+	        clinic.setClinic_city(defaultSite.getCity());
+	        clinic.setClinic_province(defaultSite.getProvince());
+	        clinic.setClinic_postal(defaultSite.getPostal());
+	        clinic.setClinic_phone(defaultSite.getPhone());
+	        clinic.setClinic_fax(defaultSite.getFax());
+	        clinic.setClinic_name(defaultSite.getName());
+	    }
     } else {
 	    if(props.getProperty("clinicSatelliteName") != null) {
-	        vecAddressName = new Vector();
-	        vecAddress = new Vector();
-	        vecAddressPhone = new Vector();
-	        vecAddressFax = new Vector();
-	        vecAddressBillingNo = new Vector();
 	        String[] temp0 = props.getProperty("clinicSatelliteName", "").split("\\|");
 	        String[] temp1 = props.getProperty("clinicSatelliteAddress", "").split("\\|");
 	        String[] temp2 = props.getProperty("clinicSatelliteCity", "").split("\\|");
@@ -178,25 +159,14 @@ if(!authed) {
 	        clinic.setClinic_postal(temp4[0]);
 	        clinic.setClinic_phone(temp5[0]);
 	        clinic.setClinic_fax(temp6[0]);
-	    } else {
-	    	//is letterhead different?
-	    	if(!reqFrm.letterheadName.equals(clinic.getClinicName())) {
-	    		Provider p = providerDao.getProvider(reqFrm.letterheadName);
-	    		if(p != null) {
-		    		//why, yes it is
-		    		vecAddressName = new Vector();
-			        vecAddress = new Vector();
-			        vecAddressPhone = new Vector();
-			        vecAddressFax = new Vector();
-			        vecAddressBillingNo = new Vector();
-			        
-			        vecAddressName.add(p.getFormattedName());
-			        vecAddress.add(reqFrm.letterheadAddress);
-			        vecAddressPhone.add(reqFrm.letterheadPhone);
-			        vecAddressFax.add(reqFrm.letterheadFax);
-	    		}
-		        
-	    	}
+	    } else if (!reqFrm.letterheadName.equals(clinic.getClinicName())) {
+			Provider p = providerDao.getProvider(reqFrm.letterheadName);
+			if(p != null) {
+			    vecAddressName.add(p.getFormattedName());
+			    vecAddress.add(reqFrm.letterheadAddress);
+			    vecAddressPhone.add(reqFrm.letterheadPhone);
+			    vecAddressFax.add(reqFrm.letterheadFax);
+			}
 	    }
 
     }
@@ -310,15 +280,25 @@ if(!authed) {
     }
 
     function addressSelect() {
-    	<% if(vecAddressName != null) {
-    	    for(int i=0; i<vecAddressName.size(); i++) {%>
-    	if(document.getElementById("addressSel").value=="<%=i%>") {
-        	document.getElementById("clinicName").innerHTML="<%=vecAddressName.get(i)%>";
-        	document.getElementById("clinicAddress").innerHTML="<%=vecAddress.get(i)%>";
-        	document.getElementById("clinicPhone").innerHTML="Tel: "+"<%=vecAddressPhone.get(i)%>";
-        	document.getElementById("clinicFax").innerHTML="Fax: "+"<%=vecAddressFax.get(i)%>";
-        }
-		<% } }%>
+    	<% if(sites != null) {
+    		for (Site site : sites) { %>
+				if (document.getElementById("addressSel").value=="<%=site.getFullName()%>") {
+					document.getElementById("clinicName").innerHTML="<%=site.getFullName()%>";
+					document.getElementById("clinicAddress").innerHTML="<%=site.getAddress()%>";
+					document.getElementById("clinicPhone").innerHTML="Tel: <%=site.getPhone()%>";
+					document.getElementById("clinicFax").innerHTML="Fax: <%=site.getFax()%>";
+				}
+			<% }
+		} else {
+    	    for (int i=0; i<vecAddressName.size(); i++) { %>
+            	if(document.getElementById("addressSel").value=="<%=i%>") {
+                	document.getElementById("clinicName").innerHTML="<%=vecAddressName.get(i)%>";
+                	document.getElementById("clinicAddress").innerHTML="<%=vecAddress.get(i)%>";
+                	document.getElementById("clinicPhone").innerHTML="Tel: <%=vecAddressPhone.get(i)%>";
+                	document.getElementById("clinicFax").innerHTML="Fax: <%=vecAddressFax.get(i)%>";
+                }
+			<% } 
+    	} %>
     }
 
     </script>
@@ -371,22 +351,30 @@ if(!authed) {
             <%  }%>
                 </select>
             </td>
-		<% } %>
-		<% if(vecAddress != null) { %>
-			<% if(vecAddress.size()>1) { %>
+		<% }
+		if(sites != null) { %>
+			<td align="center">
+				Address
+				<select name="addressSel" id="addressSel" onChange="addressSelect()" <%=(selectedSite != null ? " disabled " : " ") %>>
+					<% for (Site site : sites) { %>
+						<option value="<%=site.getFullName()%>" <%=(site.getFullName().equals(selectedSite)?"selected=\"selected\"":"")%>><%=site.getName()%></option>
+					<% } %>
+				</select>
+			</td>
+		<% } else if (vecAddress.size()>1) { %>
             <td align="center">
                 Address
-                <select name="addressSel" id="addressSel" onChange="addressSelect()" <%=(bMultisites && selectedSite != null ? " disabled " : " ") %>>>
+                <select name="addressSel" id="addressSel" onChange="addressSelect()">
             <%  for (int i =0; i < vecAddressName.size();i++){
                  String te = (String) vecAddressName.get(i);
             %>
-                    <option value="<%=i%>" <%=te.equals(defaultAddrName)?"selected":"" %>><%=te%></option>
+                    <option value="<%=i%>"><%=te%></option>
             <%  }%>
                 </select>
             </td>
             <% } else { %>
             	<input type="hidden" name="addressSel" id="addressSel" value="0"/>
-		<% } }%>
+		<% } %>
             </tr>
         </table>
         </form>

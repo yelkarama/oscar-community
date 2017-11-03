@@ -224,10 +224,16 @@ public class ConsultationPDFCreator extends PdfPageEventHelper {
 		PdfPTable infoTable = new PdfPTable(1);
 
 		cell = new PdfPCell(new Phrase(letterheadName, headerFont));
-
 		cell.setBorder(0);
 		cell.setPaddingLeft(25);
 		infoTable.addCell(cell);
+
+        if (reqFrm.siteName != null && !reqFrm.siteName.isEmpty()) {
+            cell = new PdfPCell((new Phrase(reqFrm.siteName, headerFont)));
+            cell.setBorder(0);
+            cell.setPaddingLeft(25);
+            infoTable.addCell(cell);
+        }
 
 		cell.setPhrase(new Phrase(
 				(reqFrm.letterheadAddress != null && reqFrm.letterheadAddress.trim().length() > 0 ?

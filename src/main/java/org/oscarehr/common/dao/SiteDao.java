@@ -78,6 +78,12 @@ public class SiteDao extends AbstractDao<Site> {
 
 
 			}
+            if (!old.getFullName().equals(s.getFullName())) {
+                Query query = entityManager.createNativeQuery("UPDATE consultationRequests SET site_name = :newname WHERE site_name = :oldname");
+                query.setParameter("oldname", old.getFullName());
+                query.setParameter("newname", s.getFullName());
+                query.executeUpdate();
+            }
 		}
 
 		Set<Provider> providers = new HashSet<Provider>();

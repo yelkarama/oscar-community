@@ -53,10 +53,9 @@ if(!authed) {
 
 
 <%@page import="java.util.ArrayList, java.util.Collections, java.util.List, java.util.*, oscar.util.StringUtils, oscar.dms.*, oscar.oscarEncounter.pageUtil.*,oscar.oscarEncounter.data.*, oscar.OscarProperties, oscar.oscarLab.ca.on.*"%>
-<%@page import="org.oscarehr.casemgmt.service.CaseManagementManager,org.oscarehr.casemgmt.model.CaseManagementNote,org.oscarehr.casemgmt.model.Issue,org.oscarehr.common.model.UserProperty,org.springframework.web.context.support.*,org.springframework.web.context.*"%>
+<%@page import="org.oscarehr.casemgmt.service.CaseManagementManager,org.oscarehr.casemgmt.model.CaseManagementNote,org.oscarehr.casemgmt.model.Issue,org.springframework.web.context.support.*,org.springframework.web.context.*"%>
 
 <%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
-<%@page import="org.oscarehr.common.model.Site"%>
 <%@page import="org.oscarehr.util.WebUtils, oscar.SxmlMisc"%>
 <%@page import="oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctConsultationFormRequestForm"%>
 <%@page import="oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctConsultationFormRequestUtil"%>
@@ -71,12 +70,14 @@ if(!authed) {
 <%@page import="org.oscarehr.util.MiscUtils, org.oscarehr.PMmodule.caisi_integrator.CaisiIntegratorManager, org.oscarehr.caisi_integrator.ws.CachedDemographicNote"%>
 <%@page import="org.oscarehr.PMmodule.dao.ProgramDao, org.oscarehr.PMmodule.model.Program" %>
 <%@page import="oscar.oscarDemographic.data.DemographicData, oscar.oscarRx.data.RxProviderData, oscar.oscarRx.data.RxProviderData.Provider, oscar.oscarClinic.ClinicData"%>
-<%@ page import="org.oscarehr.common.model.FaxConfig" %>
-<%@page import="org.oscarehr.common.model.ConsultationServices" %>
 <%@ page import="java.net.URLEncoder" %>
 <%@ page import="org.oscarehr.common.dao.*" %>
 <%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
 <%@ page import="java.io.File" %>
+<%@ page import="org.springframework.web.util.HtmlUtils" %>
+<%@ page import="org.apache.cxf.javascript.JavascriptUtils" %>
+<%@ page import="oscar.util.ConversionUtils" %>
+<%@ page import="org.oscarehr.common.model.*" %>
 <jsp:useBean id="displayServiceUtil" scope="request" class="oscar.oscarEncounter.oscarConsultationRequest.config.pageUtil.EctConDisplayServiceUtil" />
 <jsp:useBean id="providerBean" class="java.util.Properties"	scope="session" />
 
@@ -96,24 +97,18 @@ if(!authed) {
 
 	String defaultSiteName = "";
 	Integer defaultSiteId = 0;
-	Vector<String> vecAddressName = new Vector<String>() ;
-	Vector<String> bgColor = new Vector<String>() ;
-	Vector<Integer> siteIds = new Vector<Integer>();
+	List<Site> sites = new ArrayList<Site>();
 	
 	if (bMultisites) {
 		SiteDao siteDao = (SiteDao)WebApplicationContextUtils.getWebApplicationContext(application).getBean("siteDao");
-
-		List<Site> sites = siteDao.getActiveSitesByProviderNo((String) session.getAttribute("user"));
-		if (sites != null) {
-			for (Site s:sites) {
-				   siteIds.add(s.getSiteId());
-		           vecAddressName.add(s.getName());
-		           bgColor.add(s.getBgColor());
-		 	}
-		}
-
+		sites = siteDao.getActiveSitesByProviderNo((String) session.getAttribute("user"));
 		if (appNo != "") {
-			defaultSiteName = siteDao.getSiteNameByAppointmentNo(appNo);
+			String apptSiteName = siteDao.getSiteNameByAppointmentNo(appNo);
+			for (Site site : sites) {
+				if (site.getName().equals(apptSiteName)) {
+					defaultSiteName = site.getFullName();
+				}
+			}
 		}
 	}
 
@@ -1113,6 +1108,17 @@ if (OscarProperties.getInstance().getBooleanProperty("consultation_program_lette
 		}
 	}
 } %>
+var siteData = new Object();
+<% 
+if (bMultisites) {
+    for (Site site : sites) { %>
+		siteData['<%=StringEscapeUtils.escapeJavaScript(site.getFullName())%>'] = new Object();
+		siteData['<%=StringEscapeUtils.escapeJavaScript(site.getFullName())%>'].address = "<%=site.getAddress()%> <%=site.getCity()%> <%=site.getProvince()%> <%=site.getPostal()%>";
+		siteData['<%=StringEscapeUtils.escapeJavaScript(site.getFullName())%>'].phone = "<%=site.getPhone()%>";
+		siteData['<%=StringEscapeUtils.escapeJavaScript(site.getFullName())%>'].fax = "<%=site.getFax()%>";
+    <% }
+}
+%>
 
 
 function switchProvider(value) {
@@ -1138,6 +1144,18 @@ function switchProvider(value) {
 			
 		//document.getElementById("letterheadFaxSpan").innerHTML = providerData[value]['fax'];
 	}
+	<% if (bMultisites) { %>
+		var siteSelect = document.getElementsByName("siteName")[0];
+		siteSelect.style.backgroundColor=siteSelect.options[siteSelect.selectedIndex].style.backgroundColor;
+		var siteValue = siteSelect.value;
+		if (siteValue != '') {
+			document.getElementById("letterheadAddress").value = siteData[siteValue]['address'];
+			document.getElementById("letterheadAddressSpan").innerHTML = siteData[siteValue]['address'].replace(" ", "&nbsp;");
+			document.getElementById("letterheadPhone").value = siteData[siteValue]['phone'];
+			document.getElementById("letterheadPhoneSpan").innerHTML = siteData[siteValue]['phone'];
+			document.getElementById("letterheadFax").value = siteData[siteValue]['fax'].replace("-", "");
+		}
+	<% } %>
 }
 </script>
 <script type="text/javascript">
@@ -1787,17 +1805,15 @@ function updateFaxButton() {
 							<td  class="tite4">
 								<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.siteName" />:
 							</td>
-							<td>
-								<html:select property="siteName" onchange='this.style.backgroundColor=this.options[this.selectedIndex].style.backgroundColor'>
-						            <%  for (int i =0; i < vecAddressName.size();i++){
-						                 String te = vecAddressName.get(i);
-						                 String bg = bgColor.get(i);
-						                 if (te.equals(defaultSiteName))
-						                	 defaultSiteId = siteIds.get(i);
-						            %>
-						                    <html:option value="<%=te%>" style='<%="background-color: "+bg%>'> <%=te%> </html:option>
-						            <%  }%>
-							</html:select>
+							<td class="tite3">
+								<html:select property="siteName" onchange="switchProvider(document.getElementById('letterheadName').value)">
+									<html:option value="" style="background-color: #FFFFFF">Use provider default</html:option>
+									<% for (Site site: sites) {
+										String backgroundStyle = "background-color: " + site.getBgColor();
+									%>
+										<html:option value="<%=site.getFullName()%>" style="<%=backgroundStyle%>"> <%=site.getName()%> </html:option>
+									<% } %>
+								</html:select>
 							</td>
 						</tr>
 						<%} %>

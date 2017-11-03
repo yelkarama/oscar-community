@@ -65,6 +65,7 @@
 <%@page import="org.oscarehr.common.model.Demographic"%>
 <%@page import="org.oscarehr.common.dao.DemographicDao" %>
 <%@ page import="oscar.oscarDemographic.data.DemographicMerged" %>
+<%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
 
 <jsp:useBean id="providerBean" class="java.util.Properties" scope="session" />
 
@@ -243,9 +244,9 @@ function searchAll() {
 	String temp=null;
 	for (Enumeration e = request.getParameterNames() ; e.hasMoreElements() ;) {
 		temp=e.nextElement().toString();
-		if(temp.equals("keyword") || temp.equals("dboperation") ||temp.equals("displaymode") ||temp.equals("search_mode") ||temp.equals("chart_no")  ||temp.equals("ptstatus") ||temp.equals("submit") || temp.equals("includeIntegratedResults")) continue;
-  	out.println("<input type='hidden' name='"+temp+"' value='"+request.getParameter(temp)+"'>");
-  }
+		if(temp.equals("keyword") || temp.equals("dboperation") ||temp.equals("displaymode") ||temp.equals("search_mode") ||temp.equals("chart_no")  ||temp.equals("ptstatus") ||temp.equals("submit") || temp.equals("includeIntegratedResults")) continue; %>
+		<input type="hidden" name="<%=temp%>" value="<%=request.getParameter(temp)%>">
+ <% }
 %>
        <a href="#" onclick="showHideItem('demographicSearch');" id="cancelButton" class="leftButton top"><bean:message key="global.btnCancel" /></a>
        <input type="SUBMIT" class="rightButton blueButton top" name="displaymode"
@@ -530,9 +531,9 @@ function addNameCaisi(demographic_no,lastname,firstname,chartno,messageID) {
  	}
 	for (Enumeration e = request.getParameterNames() ; e.hasMoreElements() ;) {
 		temp=e.nextElement().toString();
-		if(temp.equals("keyword") || temp.equals("dboperation") ||temp.equals("displaymode")||temp.equals("submit") ||temp.equals("chart_no")) continue;
-  	out.println("<input type='hidden' name='"+temp+"' value='"+request.getParameter(temp)+"'>");
-  }
+		if(temp.equals("keyword") || temp.equals("dboperation") ||temp.equals("displaymode")||temp.equals("submit") ||temp.equals("chart_no")) continue; %>
+  	  	<input type="hidden" name="<%=temp%>" value="<%=request.getParameter(temp)%>">
+  <% }
   
 %>
 	
@@ -626,9 +627,9 @@ function addNameCaisi(demographic_no,lastname,firstname,chartno,messageID) {
 	}
 	for (Enumeration e = request.getParameterNames() ; e.hasMoreElements() ;) {
 		temp=e.nextElement().toString();
-		if(temp.equals("dboperation") ||temp.equals("displaymode") ||temp.equals("submit")  ||temp.equals("chart_no")) continue;
-  	out.println("<input type='hidden' name='"+temp+"' value='"+request.getParameter(temp)+"'>");
-	}
+		if(temp.equals("dboperation") ||temp.equals("displaymode") ||temp.equals("submit")  ||temp.equals("chart_no")) continue; %>
+  		<input type='hidden' name="<%=temp%>" value="<%=request.getParameter(temp)%>">
+	<% }
 %>
 	<% if (demoList.size() == 1) {
 		Demographic demo = demoList.get(0);

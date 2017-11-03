@@ -65,9 +65,9 @@ public class SitesManageAction extends DispatchAction {
     	Site s = (Site) lazyForm.get("site");
 
     	// verify mandatories
-    	if (StringUtils.isBlank(s.getName())||StringUtils.isBlank(s.getShortName())) {
+    	if (StringUtils.isBlank(s.getName())||StringUtils.isBlank(s.getFullName())) {
    			ActionMessages errors = this.getErrors(request);
- 			errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("errors.required", "Site name or short name"));
+ 			errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("errors.required", "Site name or full name"));
     		this.saveErrors(request, errors);
     	}
     	if (StringUtils.isBlank(s.getBgColor())) {

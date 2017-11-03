@@ -67,7 +67,6 @@ public class SiteDaoTest extends DaoTestFixtures {
 		Site entity = new Site();
 		EntityDataGenerator.generateTestDataForModelClass(entity);
 		entity.setStatus((byte)1);
-		entity.setShortName("name1");
 		dao.persist(entity);
 		assertNotNull(entity.getId());
 		Integer siteId1 = entity.getId();
@@ -75,7 +74,6 @@ public class SiteDaoTest extends DaoTestFixtures {
 		entity = new Site();
 		EntityDataGenerator.generateTestDataForModelClass(entity);
 		entity.setStatus((byte)1);
-		entity.setShortName("name2");
 		dao.persist(entity);
 		assertNotNull(entity.getId());
 		Integer siteId2 = entity.getId();

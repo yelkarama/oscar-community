@@ -12544,3 +12544,5 @@ INSERT INTO form_drawing_tool_image (name, file_name) VALUES ('Blank Page', 'bla
 INSERT INTO form_drawing_tool_image (name, file_name) VALUES ('Lined Paper', 'lined_paper.jpg');
 INSERT INTO form_drawing_tool_image (name, file_name) VALUES ('Anatomical Diagram', 'anatomical_diagram.png');
 INSERT INTO encounterform (form_name, form_value, form_table) VALUES ('Drawing Tool', '../form/formDrawingTool.jsp?demographic_no=', 'form_drawing_tool');
+
+ALTER TABLE site CHANGE short_name full_name VARCHAR(255) NOT NULL default '';

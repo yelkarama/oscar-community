@@ -273,7 +273,7 @@ boolean isMulitSites = oscarProp.getBooleanProperty("multisites", "on");
 					<%
 					} else {
 					%>
-						<b><%=site.getName() %></b><br />
+						<b><%=site.getFullName() %></b><br />
 						<%=site.getAddress() %><br />
 						<%=site.getCity() %>, <%=site.getProvince() %><br />
 						<%=site.getPostal() %><br />

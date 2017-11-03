@@ -72,36 +72,36 @@
 				<reportElement mode="Transparent" x="306" y="0" width="265" height="87"/>
 				<imageExpression class="java.io.InputStream"><![CDATA[$P{clinic_logo}]]></imageExpression>
 			</image>
-			<textField isBlankWhenNull="true">
-				<reportElement mode="Transparent" x="-1" y="0" width="320" height="23" forecolor="#666666"/>
+			<textField isBlankWhenNull="true" isStretchWithOverflow="true">
+				<reportElement mode="Transparent" x="-1" y="0" width="620" height="23" forecolor="#666666"/>
 				<textElement textAlignment="Left" verticalAlignment="Top">
 					<font size="16" isBold="false" isItalic="false"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{clinic_name}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement mode="Transparent" x="0" y="23" width="320" height="16"/>
+				<reportElement positionType="Float" mode="Transparent" x="0" y="23" width="320" height="16"/>
 				<textElement textAlignment="Left" verticalAlignment="Top">
 					<font size="12"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{clinic_address}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement mode="Transparent" x="0" y="39" width="320" height="16"/>
+				<reportElement positionType="Float" mode="Transparent" x="0" y="39" width="320" height="16"/>
 				<textElement textAlignment="Left" verticalAlignment="Top">
 					<font size="12"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{clinic_city} + ", " + $P{clinic_province}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement mode="Transparent" x="0" y="55" width="320" height="16"/>
+				<reportElement positionType="Float" mode="Transparent" x="0" y="55" width="320" height="16"/>
 				<textElement textAlignment="Left" verticalAlignment="Top">
 					<font size="12"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{clinic_postal}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement mode="Transparent" x="0" y="71" width="320" height="16"/>
+				<reportElement positionType="Float" mode="Transparent" x="0" y="71" width="320" height="16"/>
 				<textElement textAlignment="Left">
 					<font size="12" isStrikeThrough="false"/>
 				</textElement>

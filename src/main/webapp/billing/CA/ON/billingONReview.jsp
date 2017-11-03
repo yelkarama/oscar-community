@@ -57,6 +57,7 @@
 	if (session.getAttribute("user") == null) {
 		response.sendRedirect("../../../logout.jsp");
 	}
+	OscarProperties props = OscarProperties.getInstance();
 
 			String user_no = (String) session.getAttribute("user");
 			String providerview = request.getParameter("providerview") == null ? "" : request
@@ -946,7 +947,6 @@ function onCheckMaster() {
 			<%
 			String tempLoc = "";
 		if (!bMultisites) {
-            OscarProperties props = OscarProperties.getInstance();
             boolean bMoreAddr = props.getProperty("scheduleSiteID", "").equals("") ? false : true;
             if(bMoreAddr) {
             	tempLoc = request.getParameter("siteId").trim();
@@ -1000,33 +1000,31 @@ if (bMultisites) {
   	if (s==null)
   		clinicAddress = strClinicAddr;
   	else {
-  		clinicAddress = s.getName()+"\n"+s.getAddress()+"\n"+s.getCity()+", "+s.getProvince()+" "+s.getPostal()+"\nTel: "+s.getPhone()+"\nFax: "+s.getFax();
+  		clinicAddress = s.getFullName()+"\n"+s.getAddress()+"\n"+s.getCity()+", "+s.getProvince()+" "+s.getPostal()+"\nTel: "+s.getPhone()+"\nFax: "+s.getFax();
   	}
 
 } else {
 	String siteID = request.getParameter("siteId");
-	OscarProperties props2 = OscarProperties.getInstance();
-	if(props2.getProperty("clinicSatelliteCity") != null) {
+	if(props.getProperty("clinicSatelliteCity") != null) {
 	    //compare the site id with clinicSatelliteCity to get the current address index
 	    //in properties file  clinicSatelliteCity and scheduleSiteID must have same value
-	    String[] clinicCity = props2.getProperty("clinicSatelliteCity", "").split("\\|");
+	    String[] clinicCity = props.getProperty("clinicSatelliteCity", "").split("\\|");
 	    //current address index
 	    int siteFlag = 0;
 	    for(int i = 0; i < clinicCity.length; i++){
 	    	if (siteID.equals(clinicCity[i]))	siteFlag = i;
 	    }
-	    String[] temp0 = props2.getProperty("clinicSatelliteName", "").split("\\|");
-	    String[] temp1 = props2.getProperty("clinicSatelliteAddress", "").split("\\|");
-	    String[] temp3 = props2.getProperty("clinicSatelliteProvince", "").split("\\|");
-	    String[] temp4 = props2.getProperty("clinicSatellitePostal", "").split("\\|");
-	    String[] temp5 = props2.getProperty("clinicSatellitePhone", "").split("\\|");
-	    String[] temp6 = props2.getProperty("clinicSatelliteFax", "").split("\\|");
+	    String[] temp0 = props.getProperty("clinicSatelliteName", "").split("\\|");
+	    String[] temp1 = props.getProperty("clinicSatelliteAddress", "").split("\\|");
+	    String[] temp3 = props.getProperty("clinicSatelliteProvince", "").split("\\|");
+	    String[] temp4 = props.getProperty("clinicSatellitePostal", "").split("\\|");
+	    String[] temp5 = props.getProperty("clinicSatellitePhone", "").split("\\|");
+	    String[] temp6 = props.getProperty("clinicSatelliteFax", "").split("\\|");
 	    clinicAddress = temp0[siteFlag]+"\n"+temp1[siteFlag] + "\n" + clinicCity[siteFlag] + ", " + temp3[siteFlag] + " " + temp4[siteFlag] + "\nTel: " + temp5[siteFlag] + "\nFax: " + temp6[siteFlag];
 	}else{
 		clinicAddress = strClinicAddr;
 	}
 }
-	OscarProperties props = OscarProperties.getInstance();
 	String tempLoc = props.getProperty("BILLING_NOTE","");
 %>
 <tr><td>
@@ -1058,8 +1056,7 @@ if (bMultisites) {
              fname = p.getFirstName();   
              payeename=fname+" "+lname;
              	  
-Properties prop = oscar.OscarProperties.getInstance();
-   String payee = prop.getProperty("PAYEE", "");
+   String payee = props.getProperty("PAYEE", "");
    payee = payee.trim();
    if( payee.length() > 0 ) {
 %>
