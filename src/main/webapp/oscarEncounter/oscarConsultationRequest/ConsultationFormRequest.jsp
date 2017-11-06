@@ -181,6 +181,62 @@ if(!authed) {
 		if (demo != null) consultUtil.estPatient(loggedInInfo, demo);
 		consultUtil.estActiveTeams();
 
+		UserPropertyDAO userPropertyDAO = (UserPropertyDAO)ctx.getBean("UserPropertyDAO");
+		UserProperty fmtProperty = userPropertyDAO.getProp(providerNo, UserProperty.CONSULTATION_REQ_PASTE_FMT);
+		String pasteFmt = fmtProperty != null?fmtProperty.getValue():null;
+
+		String lhndType = "provider"; //set default as provider
+		String providerDefault = providerNo==null?"":providerNo;
+
+		//MRP
+		ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
+		org.oscarehr.common.model.Provider mrp = providerDao.getProvider(providerNoFromChart);
+		org.oscarehr.common.model.Provider loggedIn = providerDao.getProvider(providerNo);
+		String mrpCPSO = "";
+		String userCPSO = "";
+		if (mrp!=null) {mrpCPSO = mrp.getPractitionerNo();}
+		if (loggedIn!=null) {userCPSO = loggedIn.getPractitionerNo();}
+
+		if (consultUtil.letterheadName != null && !consultUtil.letterheadName.equalsIgnoreCase("")) {providerDefault = consultUtil.letterheadName;}
+		else if (userCPSO != null && !userCPSO.equals("")) {providerDefault = providerNo;}
+		else if (mrpCPSO != null && !mrpCPSO.equals("")) {providerDefault = providerNoFromChart;}
+
+		if(consultUtil.letterheadName == null ){
+			//nothing saved so find default
+			UserProperty lhndProperty = userPropertyDAO.getProp(providerNo, UserProperty.CONSULTATION_LETTERHEADNAME_DEFAULT);
+			String lhnd = lhndProperty != null?lhndProperty.getValue():null;
+			//1 or null = provider, 2 = MRP and 3 = clinic
+
+			if(lhnd!=null){
+				if(lhnd.equals("2")){
+					//mrp
+					providerDefault = providerNoFromChart;
+				}else if(lhnd.equals("3")){
+					//clinic
+					lhndType="clinic";
+				}
+			}
+
+		}
+
+		if (providerDefault==null||providerDefault.equals("")) {providerDefault = providerNo;}
+
+		UserProperty defaultRxAddress = userPropertyDAO.getProp(providerDefault,"rxAddress");
+		if(defaultRxAddress!=null && defaultRxAddress.getValue() != null && defaultRxAddress.getValue().length()>0){
+		    //default letterhead address to rxAddress if it is set it in preferences
+			consultUtil.letterheadAddress =(defaultRxAddress.getValue()  + " " + userPropertyDAO.getProp(providerDefault, "rxCity").getValue()  + " " + userPropertyDAO.getProp(providerDefault, "rxProvince").getValue() + " " +userPropertyDAO.getProp(providerDefault, "rxPostal").getValue());
+		}
+		UserProperty defaultRxPhone = userPropertyDAO.getProp(providerDefault,"rxPhone");
+		if(defaultRxPhone!=null && defaultRxPhone.getValue() != null && defaultRxPhone.getValue().length()>0){
+			//default letterhead phone to rxPhone if it is set it in preferences
+			consultUtil.letterheadPhone = defaultRxPhone.getValue();
+		}
+		UserProperty defaultRxFaxNumber = userPropertyDAO.getProp(providerDefault,"faxnumber");
+		if(defaultRxFaxNumber!=null && defaultRxFaxNumber.getValue() != null  && defaultRxFaxNumber.getValue().length()>0){
+			//default letterhead fax to faxnumber if it is set it in preferences
+			consultUtil.letterheadFax = defaultRxFaxNumber.getValue();
+		}
+
 		if (request.getParameter("error") != null){
 %>
 <SCRIPT LANGUAGE="JavaScript">
@@ -413,6 +469,7 @@ jQuery(document).ready(function(){
 		data.demographicNo = <%= demo %>;
 		getClinicalData( data, target )
 	});
+	document.getElementById("letterheadName").onchange();
 })
 
 function getClinicalData( data, target ) {
@@ -1080,17 +1137,41 @@ var providerData = new Object(); //{};
 <%
 for (Provider p : prList) {
 	if (!p.getProviderNo().equalsIgnoreCase("-1")) {
-		String prov_no = "prov_"+p.getProviderNo();
-
+		String provNo = p.getProviderNo();
+		String address;
+		UserProperty addressProperty = userPropertyDAO.getProp(provNo,"rxAddress");
+		if (addressProperty!=null && addressProperty.getValue() != null && addressProperty.getValue().length()>0) {
+			address = (addressProperty.getValue()  + " " + userPropertyDAO.getProp(provNo, "rxCity").getValue()  + " " + userPropertyDAO.getProp(provNo, "rxProvince").getValue() + " " +userPropertyDAO.getProp(provNo, "rxPostal").getValue());
+		} else { address = p.getFullAddress(); }
+		String phone;
+		UserProperty phoneProperty = userPropertyDAO.getProp(provNo,"rxPhone");
+		if(phoneProperty!=null && phoneProperty.getValue() != null && phoneProperty.getValue().length()>0){
+			phone = phoneProperty.getValue();
+		} else { phone = p.getClinicPhone().trim(); }
+		String faxNumber;
+		UserProperty faxNumberProperty = userPropertyDAO.getProp(provNo,"faxnumber");
+		if(faxNumberProperty!=null && faxNumberProperty.getValue() != null  && faxNumberProperty.getValue().length()>0){
+			faxNumber = faxNumberProperty.getValue();
+		} else { faxNumber = p.getClinicFax().trim(); }
 		%>
-	 providerData['<%=prov_no%>'] = new Object(); //{};
-
-	providerData['<%=prov_no%>'].address = "<%=p.getFullAddress() %>";
-	providerData['<%=prov_no%>'].phone = "<%=p.getClinicPhone().trim() %>";
-	providerData['<%=prov_no%>'].fax = "<%=p.getClinicFax().trim() %>";
+	providerData['<%="prov_"+provNo%>'] = new Object(); //{};
+	providerData['<%="prov_"+provNo%>'].address = "<%=address%>";
+	providerData['<%="prov_"+provNo%>'].phone = "<%=phone%>";
+	providerData['<%="prov_"+provNo%>'].fax = "<%=faxNumber%>";
 
 <%	}
 }
+
+	if (clinic != null)
+	{
+	    String clinic_no = "clinic_" + clinic.getClinicNo();
+%>
+		providerData['<%=clinic_no%>'] = new Object();
+		providerData['<%=clinic_no%>'].address = "<%=clinic.getClinicAddress()%>";
+		providerData['<%=clinic_no%>'].phone = "<%=clinic.getClinicPhone().trim()%>";
+		providerData['<%=clinic_no%>'].fax = "<%=clinic.getClinicFax().trim()%>";
+<%
+	}
 
 ProgramDao programDao = (ProgramDao) SpringUtils.getBean("programDao");
 List<Program> programList = programDao.getAllActivePrograms();
@@ -1109,7 +1190,7 @@ if (OscarProperties.getInstance().getBooleanProperty("consultation_program_lette
 	}
 } %>
 var siteData = new Object();
-<% 
+<%
 if (bMultisites) {
     for (Site site : sites) { %>
 		siteData['<%=StringEscapeUtils.escapeJavaScript(site.getFullName())%>'] = new Object();
@@ -1122,21 +1203,30 @@ if (bMultisites) {
 
 
 function switchProvider(value) {
-	if (value==-1) {
+	if (value==-1)
+	{
 		document.getElementById("letterheadName").value = value;
 		document.getElementById("letterheadAddress").value = "<%=(clinic.getClinicAddress() + "  " + clinic.getClinicCity() + "   " + clinic.getClinicProvince() + "  " + clinic.getClinicPostal()).trim() %>";
-		document.getElementById("letterheadAddressSpan").innerHTML = "<%=(clinic.getClinicAddress() + "  " + clinic.getClinicCity() + "   " + clinic.getClinicProvince() + "  " + clinic.getClinicPostal()).trim() %>";
-		document.getElementById("letterheadPhone").value = "<%=clinic.getClinicPhone().trim() %>";
-		document.getElementById("letterheadPhoneSpan").innerHTML = "<%=clinic.getClinicPhone().trim() %>";
-		document.getElementById("letterheadFax").value = "<%=clinic.getClinicFax().trim() %>";
-		// document.getElementById("letterheadFaxSpan").innerHTML = "<%=clinic.getClinicFax().trim() %>";
-    } else {
-        if (typeof providerData["prov_" + value] != "undefined")
+        document.getElementById("letterheadAddressSpan").innerHTML = "<%=(clinic.getClinicAddress() + "  " + clinic.getClinicCity() + "   " + clinic.getClinicProvince() + "  " + clinic.getClinicPostal()).trim() %>";
+        document.getElementById("letterheadPhone").value = "<%=clinic.getClinicPhone().trim() %>";
+        document.getElementById("letterheadPhoneSpan").innerHTML = "<%=clinic.getClinicPhone().trim() %>";
+        document.getElementById("letterheadFax").value = "<%=clinic.getClinicFax().trim() %>";
+        // document.getElementById("letterheadFaxSpan").innerHTML = "<%=clinic.getClinicFax().trim() %>";
+    }
+    else
+	{
+        if (typeof providerData["prov_" + value] !== "undefined" || typeof providerData[value] !== "undefined")
+		{
             selectedProvider = value;
+		}
+
+		if (typeof providerData["prov_" + value] !== "undefined" )
+		{
             value = "prov_" + value;
+		}
 
         document.getElementById("letterheadName").value = selectedProvider;
-		document.getElementById("letterheadAddress").value = providerData[value]['address'];
+        document.getElementById("letterheadAddress").value = providerData[value]['address'];
 		document.getElementById("letterheadAddressSpan").innerHTML = providerData[value]['address'].replace(" ", "&nbsp;");
 		document.getElementById("letterheadPhone").value = providerData[value]['phone'];
 		document.getElementById("letterheadPhoneSpan").innerHTML = providerData[value]['phone'];
@@ -1580,7 +1670,6 @@ function updateFaxButton() {
 								<html:select property="providerNo" onchange="switchProvider(this.value)">
 									<%
 										DemographicDao demographicDao=(DemographicDao)SpringUtils.getBean("demographicDao");
-										ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
 										demographic = demographicDao.getDemographic(demo);
 										
 										if (consultUtil.providerNo==null) {consultUtil.providerNo = "";}
@@ -1952,7 +2041,7 @@ function updateFaxButton() {
 						<tr>
 						<%
 						String lhndType = "provider"; //set default as provider
-                            String providerDefault = providerNo==null?"":providerNo;
+						String providerDefault = providerNoFromChart==null?"":providerNoFromChart;
 
 							//MRP
 							ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
@@ -1964,23 +2053,23 @@ function updateFaxButton() {
 							if (loggedIn!=null) {userCPSO = loggedIn.getPractitionerNo();}
 
 							if (consultUtil.letterheadName != null && !consultUtil.letterheadName.equalsIgnoreCase("")) {providerDefault = consultUtil.letterheadName;}
-                            else if (userCPSO != null && !userCPSO.equals("")) {providerDefault = providerNo;}
-                            else if (mrpCPSO != null && !mrpCPSO.equals("")) {providerDefault = providerNoFromChart;}
+							else if ((mrpCPSO == null || mrpCPSO.equals("")) && (userCPSO == null || userCPSO.equals(""))) {providerDefault = providerNoFromChart;}
+							else if ((mrpCPSO == null || mrpCPSO.equals("")) && (userCPSO != null || !userCPSO.equals(""))) {providerDefault = providerNo;}
 						
 						if(consultUtil.letterheadName == null ){
-						//nothing saved so find default	
-						UserProperty lhndProperty = userPropertyDAO.getProp(providerNo, UserProperty.CONSULTATION_LETTERHEADNAME_DEFAULT);
-						String lhnd = lhndProperty != null?lhndProperty.getValue():null;
-						//1 or null = provider, 2 = MRP and 3 = clinic
-						
-							if(lhnd!=null){	
-								if(lhnd.equals("2")){
-									//mrp
-									providerDefault = providerNoFromChart;
-								}else if(lhnd.equals("3")){
-									//clinic
-									lhndType="clinic";
-								}
+									//nothing saved so find default
+									UserProperty lhndProperty = userPropertyDAO.getProp(providerNo, UserProperty.CONSULTATION_LETTERHEADNAME_DEFAULT);
+									String lhnd = lhndProperty != null?lhndProperty.getValue():null;
+									//1 or null = provider, 2 = MRP and 3 = clinic
+
+									if(lhnd!=null){
+										if(lhnd.equals("2")){
+											//mrp
+											providerDefault = providerNoFromChart;
+										}else if(lhnd.equals("3")){
+											//clinic
+											lhndType="clinic";
+										}
 							}	
 
 						}
@@ -1992,7 +2081,7 @@ function updateFaxButton() {
 							</td>							
 							<td align="right" class="tite3">				
 								<select name="letterheadName" id="letterheadName" onchange="switchProvider(this.value)">
-									<option value="<%=StringEscapeUtils.escapeHtml(clinic.getClinicName())%>" <%=(consultUtil.letterheadName != null && consultUtil.letterheadName.equalsIgnoreCase(clinic.getClinicName()) ? "selected='selected'" : lhndType.equals("clinic") ? "selected='selected'" : "" )%>><%=clinic.getClinicName() %></option>
+									<option value="clinic_<%=StringEscapeUtils.escapeHtml(clinic.getClinicNo())%>" <%=(consultUtil.letterheadName != null && consultUtil.letterheadName.equalsIgnoreCase(clinic.getClinicName()) ? "selected='selected'" : lhndType.equals("clinic") ? "selected='selected'" : "" )%>><%=clinic.getClinicName() %></option>
 								<%
 									for (Provider p : prList) {
 										if (p.getProviderNo().compareTo("-1") != 0 && (p.getFirstName() != null || p.getSurname() != null)) {
