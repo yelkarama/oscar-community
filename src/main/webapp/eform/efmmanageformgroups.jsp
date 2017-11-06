@@ -295,6 +295,9 @@ $('#groupListTbl tbody').find('tr').each(function(){
 return result
 }
 
+function newWindow(url, id) {
+    Popup = window.open(url,id,'toolbar=no,location=no,status=yes,menubar=no, scrollbars=yes,resizable=yes,width=900,height=600,left=200,top=0');
+}
 
 </script>
 </body>
