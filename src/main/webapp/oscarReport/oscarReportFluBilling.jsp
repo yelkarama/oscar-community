@@ -55,6 +55,8 @@ if(!authed) {
 	int curYear = 0;
 
 	String pros = "";
+	Boolean ageRestrict = "on".equals(request.getParameter("ageRestrict"));
+
 	if (request.getParameter("numMonth") != null) {
 		years = request.getParameter("numMonth");
 		curYear = Integer.parseInt(years);
@@ -69,7 +71,12 @@ if(!authed) {
 	}
 
 	oscar.oscarReport.data.RptFluReportData fluData = new oscar.oscarReport.data.RptFluReportData();
-	fluData.fluReportGenerate(pros, years);
+	if (ageRestrict) {
+		fluData.fluReportGenerate(pros, years);
+	}
+	else {
+	    fluData.fluReportGenerate(pros, years, false);
+	}
 	List<Provider> providers = fluData.providerList();
 %>
 <%!String selled(String i, String years) {
@@ -111,6 +118,9 @@ if(!authed) {
 			}
 		%>
 	</select>
+
+	<label><input type="checkbox" name="ageRestrict" <%=ageRestrict ? "checked" : ""%>> 65 & older</label>
+
 	<button type="submit" class="btn btn-primary">
 		<bean:message key="oscarReport.oscarReportFluBilling.btnUpdate" />
 	</button>
@@ -143,6 +153,8 @@ if(!authed) {
 				demoData = (RptFluReportData.DemoFluDataStruct) fluData.demoList
 				.get(i);
 				count = count + 1;
+				String billingDate = (demoData.getBillingDate(fluData.years));
+				if (billingDate != null && !billingDate.isEmpty()) {
 		%>
 		<tr>
 			<td><%=demoData.demoName%></td>
@@ -151,9 +163,10 @@ if(!authed) {
 			<td><%=demoData.demoRosterStatus%></td>
 			<td><%=demoData.demoPatientStatus%></td>
 			<td><%=demoData.getDemoPhone()%></td>
-			<td><%=demoData.getBillingDate(fluData.years)%></td>
+			<td><%=billingDate%></td>
 		</tr>
 		<%
+				}
 			}
 		%>
 	</tbody>
