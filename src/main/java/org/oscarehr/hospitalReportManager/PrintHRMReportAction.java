@@ -84,6 +84,7 @@ public class PrintHRMReportAction extends Action {
             return mapping.findForward("error");
         } finally {
             if (osTemp!=null){
+                osTemp.flush();
                 osTemp.close();
             }
             if (fileTemp!=null){
