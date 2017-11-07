@@ -766,22 +766,35 @@ public class DSDemographicAccess {
 
         if(options.containsKey("payer") && options.get("payer").equals("MSP")){
             String[] codes = searchStrings.replaceAll("'","" ).split(",");
+            boolean inAgeRange = true;
+            if (options.containsKey("ageMin")) {
+                inAgeRange = getAsInt(options,"ageMin") <= Integer.valueOf(getDemographicData(loggedInInfo).getAge());
+            }
+
+            if (options.containsKey("ageMax") && inAgeRange) {
+                inAgeRange = getAsInt(options,"ageMax") >= Integer.valueOf(getDemographicData(loggedInInfo).getAge());
+            }
 
             if(options.containsKey("notInDays")) {
-                int notInDays = getAsInt(options,"notInDays");
+                if (inAgeRange) {
+                    int notInDays = getAsInt(options,"notInDays");
 
-                for (String code: codes){
-                    if (billregion.equalsIgnoreCase("BC")) {
-                        numDays = bcCodeValidation.daysSinceCodeLastBilled(demographicNo,code) ;
-                    }
-                    else if (billregion.equalsIgnoreCase("ON")) {
-                        numDays = billingONCHeader1Dao.getDaysSinceBilled(code, Integer.parseInt(demographicNo));
-                    }
+                    for (String code: codes){
+                        if (billregion.equalsIgnoreCase("BC")) {
+                            numDays = bcCodeValidation.daysSinceCodeLastBilled(demographicNo,code) ;
+                        }
+                        else if (billregion.equalsIgnoreCase("ON")) {
+                            numDays = billingONCHeader1Dao.getDaysSinceBilled(code, Integer.parseInt(demographicNo));
+                        }
 
-                    if (numDays < notInDays){
-                        billedForAll = false;
-                        break;
+                        if (numDays < notInDays){
+                            billedForAll = false;
+                            break;
+                        }
                     }
+                }
+                else {
+                    billedForAll = false;
                 }
             }
         }

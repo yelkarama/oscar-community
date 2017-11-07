@@ -4,7 +4,8 @@
     <conditions>
         <condition type="billedFor" all="Q142A">
             <param key="payer" value="MSP"/>
-            <param key="notInDays" value="913"/>
+            <param key="notInDays" value="3650"/>
+            <param key="ageMax" value="74" />
         </condition>
     </conditions>
     <consequence>
