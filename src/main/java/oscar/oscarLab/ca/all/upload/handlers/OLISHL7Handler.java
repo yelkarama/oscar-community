@@ -18,6 +18,8 @@ import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.Hl7TextInfoDao;
+import org.oscarehr.common.dao.ProviderDataDao;
+import org.oscarehr.common.model.ProviderData;
 import org.oscarehr.olis.OLISUtils;
 import org.oscarehr.util.DbConnectionFilter;
 import org.oscarehr.util.LoggedInInfo;
@@ -66,7 +68,12 @@ public class OLISHL7Handler implements MessageHandler {
 				MessageUploader.routeReport(loggedInInfo, serviceName,"OLIS_HL7", msg.replace("\\E\\", "\\SLASHHACK\\").replace("µ", "\\MUHACK\\").replace("\\H\\", "\\.H\\").replace("\\N\\", "\\.N\\"), fileId, results);
 				if (routeToCurrentProvider) {
 					ProviderLabRouting routing = new ProviderLabRouting();
-					routing.route(results.segmentId, loggedInInfo.getLoggedInProviderNo(), DbConnectionFilter.getThreadLocalDbConnection(), "HL7");
+					ProviderDataDao providerDataDao = SpringUtils.getBean(ProviderDataDao.class);
+					ProviderData provider = providerDataDao.findByOhipNumber(getOrderingProviderNo(msg));
+
+					if (provider != null){
+						routing.route(results.segmentId, provider.getId(), DbConnectionFilter.getThreadLocalDbConnection(), "HL7");
+					}
 					this.lastSegmentId = results.segmentId;
 				}
 			}
@@ -89,4 +96,11 @@ public class OLISHL7Handler implements MessageHandler {
 		oscar.oscarLab.ca.all.parsers.OLISHL7Handler h = (oscar.oscarLab.ca.all.parsers.OLISHL7Handler) Factory.getHandler("OLIS_HL7", msg);
 		return h.getLastUpdateInOLISUnformated();	
 	}
+
+	private String getOrderingProviderNo(String msg) {
+		oscar.oscarLab.ca.all.parsers.OLISHL7Handler h = (oscar.oscarLab.ca.all.parsers.OLISHL7Handler) Factory.getHandler("OLIS_HL7", msg);
+		return h.getClientRef();
+	}
+
+
 }
