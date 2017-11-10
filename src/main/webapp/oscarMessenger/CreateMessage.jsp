@@ -69,6 +69,7 @@ String[] theProviders;
 theProviders = new String[] {};
 java.util.Vector locationVect = new java.util.Vector();
 oscar.oscarMessenger.data.MsgReplyMessageData reData = new oscar.oscarMessenger.data.MsgReplyMessageData();
+ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 boolean bFirstDisp=true; //this is the first time to display the window
 if (request.getParameter("bFirstDisp")!=null) bFirstDisp= (request.getParameter("bFirstDisp")).equals("true");
 
@@ -94,7 +95,11 @@ else if (messageText != null) {
 	bean.setMessage(messageText);
 }
 %>
-<%@page import="org.oscarehr.util.MiscUtils"%><html:html locale="true">
+<%@page import="org.oscarehr.util.MiscUtils"%>
+<%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
+<%@ page import="org.oscarehr.util.SpringUtils" %>
+<%@ page import="org.oscarehr.common.model.Provider" %>
+<html:html locale="true">
 <head>
 <script type="text/javascript" src="../js/jquery-1.7.1.min.js"></script>
 <script src="<%=request.getContextPath()%>/js/jquery-ui-1.8.18.custom.min.js"></script>
@@ -562,7 +567,7 @@ function popupAttachDemo(demographic){ // open a new popup window
 
                                                                         for (int ii = 0; ii < lst.getLength(); ii++){
                                                                            Node firstnode = lst.item(ii);
-                                                                           displayNodes(firstnode,out,0,theProviders,CurrentLocationName);
+                                                                           displayNodes(firstnode,out,0,theProviders,CurrentLocationName, providerDao);
                                                                         }
                                                                     %>
 											</td>
@@ -673,7 +678,7 @@ function popupAttachDemo(demographic){ // open a new popup window
 
 <%!
 
- public void displayNodes(Node node,JspWriter out,int depth,String[] thePros,String CurrentLocationName ){
+ public void displayNodes(Node node, JspWriter out, int depth, String[] thePros, String CurrentLocationName, ProviderDao providerDao){
       depth++;
 
       Element element = (Element) node;
@@ -712,18 +717,20 @@ function popupAttachDemo(demographic){ // open a new popup window
                out.print("<input type=\"checkbox\" name=tblDFR"+depth+" onclick=\"javascript:checkGroup('tblDFR"+(depth+1)+"',event);\"><font color=#0c7bd6><b>"+element.getAttribute("desc")+"</b></font><br>");
             }
 
-         }else{
-
+         }else {
+             Provider provider = providerDao.getProvider(element.getAttribute("id"));
+			 String providerSpecialty = "";
+			 if (provider != null && !provider.getSpecialty().isEmpty()) { providerSpecialty = " (" + provider.getSpecialty() + ")"; }
                if ( java.util.Arrays.binarySearch(thePros,element.getAttribute("id")) < 0 ){
-                  out.print("<input type=\"checkbox\" name=provider value="+element.getAttribute("id")+"  > <font color=#0e8ef7>"+personTitler(element.getAttribute("desc"))+"</font>\n");
+                  out.print("<input type=\"checkbox\" name=provider value="+element.getAttribute("id")+"  > <font color=#0e8ef7>"+personTitler(element.getAttribute("desc"))+providerSpecialty+"</font>\n");
                }else{
-                  out.print("<input type=\"checkbox\" name=provider value="+element.getAttribute("id")+" checked > "+personTitler(element.getAttribute("desc"))+"\n");
+                  out.print("<input type=\"checkbox\" name=provider value="+element.getAttribute("id")+" checked > "+personTitler(element.getAttribute("desc"))+providerSpecialty+"\n");
                }
          }
          if (node.hasChildNodes()){
             NodeList nlst = node.getChildNodes();
             for (int i = 0; i < nlst.getLength(); i++){
-               displayNodes(nlst.item(i), out,depth,thePros,CurrentLocationName);
+               displayNodes(nlst.item(i), out,depth,thePros,CurrentLocationName, providerDao);
             }
          }
          out.print("</td>\n");
@@ -746,9 +753,6 @@ function popupAttachDemo(demographic){ // open a new popup window
        }
    }//display nodes
     
-%>
-
-<%!
     public String personTitler(String name){
             StringBuffer stringBuffer = new StringBuffer();
             stringBuffer.append("<a TITLE=\""+name+"\">");
