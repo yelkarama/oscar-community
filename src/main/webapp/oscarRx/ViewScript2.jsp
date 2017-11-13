@@ -185,6 +185,7 @@ if(bMultisites) {
     }
 }
 String comment = request.getSession().getAttribute("comment")!=null?request.getSession().getAttribute("comment").toString():"";
+request.getSession().removeAttribute("comment");
 String pharmacyId = request.getParameter("pharmacyId");
 RxPharmacyData pharmacyData = new RxPharmacyData();
 PharmacyInfo pharmacy = null;
