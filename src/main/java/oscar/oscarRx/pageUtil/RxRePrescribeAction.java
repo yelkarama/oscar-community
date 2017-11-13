@@ -38,7 +38,7 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
-import org.oscarehr.common.dao.DrugDao;
+import org.oscarehr.casemgmt.service.CaseManagementManager;
 import org.oscarehr.common.model.Drug;
 import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.LoggedInInfo;
@@ -324,6 +324,7 @@ public final class RxRePrescribeAction extends DispatchAction {
 	public ActionForward repcbAllLongTerm(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException {
 		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
 		checkPrivilege(loggedInInfo, PRIVILEGE_WRITE);
+		CaseManagementManager caseManagementManager = SpringUtils.getBean(CaseManagementManager.class);
 		
 		oscar.oscarRx.pageUtil.RxSessionBean beanRX = (oscar.oscarRx.pageUtil.RxSessionBean) request.getSession().getAttribute("RxSessionBean");
 		if (beanRX == null) {
@@ -333,26 +334,21 @@ public final class RxRePrescribeAction extends DispatchAction {
 		StringBuilder auditStr = new StringBuilder();
 		// String idList = request.getParameter("drugIdList");
 
-		String demoNo = request.getParameter("demoNo");
+		Integer demoNo = Integer.parseInt(request.getParameter("demoNo"));
 		String strShow = request.getParameter("showall");
-		// p("demoNo",demoNo);
-		// p("showall",strShow);
 
 		boolean showall = false;
 		if (strShow.equalsIgnoreCase("true")) {
 			showall = true;
 		}
-		// p("here");
 		// get a list of long term meds
-		DrugDao drugDao = (DrugDao) SpringUtils.getBean("drugDao");
-		List<Drug> prescriptDrugs = drugDao.getPrescriptions(demoNo, showall);
+		List<Drug> prescriptDrugs;
+		if(showall) { prescriptDrugs = caseManagementManager.getPrescriptions(loggedInInfo, demoNo, true);
+		} else { prescriptDrugs = caseManagementManager.getCurrentPrescriptions(demoNo); }
 		List<Integer> listLongTermMed = new ArrayList<Integer>();
-		// p("size of prescriptDrugs",""+prescriptDrugs.size());
 		for (Drug prescriptDrug : prescriptDrugs) {
-			// p("id of drug returned",""+prescriptDrug.getId());
 			// add all long term med drugIds to an array.
 			if (prescriptDrug.isLongTerm()) {
-
 				listLongTermMed.add(prescriptDrug.getId());
 			}
 		}
