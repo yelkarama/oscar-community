@@ -787,7 +787,7 @@ public class DSDemographicAccess {
                             numDays = billingONCHeader1Dao.getDaysSinceBilled(code, Integer.parseInt(demographicNo));
                         }
 
-                        if ((options.containsKey("notInDays") && numDays < days) || (options.containsKey("inDays") && numDays > days)) {
+                        if ((options.containsKey("notInDays") && numDays < days) || (options.containsKey("inDays") && (numDays > days || numDays == -1))) {
                             billedForAll = false;
                             break;
                         }
