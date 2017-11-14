@@ -775,9 +775,9 @@ public class DSDemographicAccess {
                 inAgeRange = getAsInt(options,"ageMax") >= Integer.valueOf(getDemographicData(loggedInInfo).getAge());
             }
 
-            if(options.containsKey("notInDays")) {
+            if(options.containsKey("notInDays") || options.containsKey("inDays")) {
                 if (inAgeRange) {
-                    int notInDays = getAsInt(options,"notInDays");
+                    int days = options.containsKey("notInDays") ? getAsInt(options,"notInDays") : getAsInt(options,"inDays");
 
                     for (String code: codes){
                         if (billregion.equalsIgnoreCase("BC")) {
@@ -787,7 +787,7 @@ public class DSDemographicAccess {
                             numDays = billingONCHeader1Dao.getDaysSinceBilled(code, Integer.parseInt(demographicNo));
                         }
 
-                        if (numDays < notInDays){
+                        if ((options.containsKey("notInDays") && numDays < days) || (options.containsKey("inDays") && numDays > days)) {
                             billedForAll = false;
                             break;
                         }

@@ -4,11 +4,11 @@
     <conditions>
         <condition type="billedFor" all="Q142A">
             <param key="payer" value="MSP"/>
-            <param key="notInDays" value="3650"/>
+            <param key="inDays" value="3650"/>
             <param key="ageMax" value="74" />
         </condition>
     </conditions>
     <consequence>
-        <warning strength="warning">Eligible to bill Q142A</warning>
+        <warning strength="warning">Not eligible to bill Q142A</warning>
     </consequence>
 </guideline>
