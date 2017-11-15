@@ -499,7 +499,12 @@ function notesIncrementAndLoadMore() {
 
 */
 function notesLoader(offset, numToReturn, demoNo) {
-	$("notesLoading").style.display = "inline";
+    var noteScrollbarVisible = $("encMainDiv").scrollHeight > $("encMainDiv").getHeight();
+
+    if (noteScrollbarVisible) {
+        $("notesLoading").style.display = "inline";
+    }
+
 	var params = "method=viewNotesOpt&offset=" + offset + "&numToReturn=" + numToReturn + "&demographicNo=" + demoNo;
 	var params2 = jQuery("input[name='filter_providers'],input[name='filter_roles'],input[name='issues'],input[name='note_sort']").serialize();
 	if(params2.length>0)
@@ -517,7 +522,9 @@ function notesLoader(offset, numToReturn, demoNo) {
 				},
 				onComplete: function() {
 					$("notesLoading").style.display = "none";
-					if (notesCurrentTop != null) $(notesCurrentTop).scrollIntoView();
+					if (notesCurrentTop != null && noteScrollbarVisible) {
+                        $(notesCurrentTop).scrollIntoView();
+                    }
 				}
 			});
 }
