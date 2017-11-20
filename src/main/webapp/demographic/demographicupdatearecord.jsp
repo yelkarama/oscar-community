@@ -307,6 +307,9 @@
 
 	if (request.getParameter("r_doctor")!=null && !request.getParameter("r_doctor").isEmpty()){
 		familyDoctorId = request.getParameter("r_doctor_id");
+	}
+
+	if (request.getParameter("f_doctor")!=null && !request.getParameter("f_doctor").isEmpty()){
 		familyPhysicianId = request.getParameter("f_doctor_id");
 	}
 
