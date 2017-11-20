@@ -206,9 +206,7 @@ public class InboxResultsDao {
 							+ "  FROM patientLabRouting plr2, providerLabRouting plr, hl7TextInfo info "
 							+ "  WHERE plr.lab_no = plr2.lab_no "
 							+ (searchProvider ? " AND plr.provider_no = '" + providerNo + "' " : " ")
-							+ "    AND plr.status like '%"
-							+ status
-							+ "%' "
+							+ "    AND plr.status " + ("".equals(status) ? " IS NOT NULL " : " = '"+status+"' ")
 							+ "    AND plr.lab_type = 'HL7'   "
 							+ "    AND plr2.lab_type = 'HL7' "
 							+ "    AND plr2.demographic_no = '0' "
@@ -218,9 +216,8 @@ public class InboxResultsDao {
 							+ " UNION "
 							+ " SELECT plr.id, plr.lab_type, plr.lab_no, plr.status "
 							+ " FROM providerLabRouting plr, ctl_document cd  "
-							+ " WHERE plr.lab_type = 'DOC' AND plr.status like '%"
-							+ status
-							+ "%' "
+							+ " WHERE plr.lab_type = 'DOC' "
+							+ " AND plr.status " + ("".equals(status) ? " IS NOT NULL " : " = '"+status+"' ")
 							+ " AND cd.document_no  = plr.lab_no "
 							+ " AND cd.module_id = -1 "
 							+ (searchProvider ? " AND plr.provider_no = '" + providerNo + "' " : " ")
@@ -244,9 +241,7 @@ public class InboxResultsDao {
 							+ "' "
 							+ "	AND cd.document_no = plr.lab_no"
 							+ "	AND plr.lab_type = 'DOC'  	"
-							+ "	AND plr.status like '%"
-							+ status
-							+ "%' "
+							+ "	AND plr.status " + ("".equals(status) ? " IS NOT NULL " : " = '"+status+"' ")
 							+ (searchProvider ? " AND plr.provider_no = '" + providerNo + "' )" : " )")
 							+ " ORDER BY id DESC) AS Y"
 							+ " UNION"
@@ -254,9 +249,7 @@ public class InboxResultsDao {
 							+ " (SELECT DISTINCT plr.id, plr.lab_type  FROM providerLabRouting plr, patientLabRouting plr2"
 							+ " WHERE"
 							+ "	plr.lab_type = 'HL7' AND plr2.lab_type = 'HL7'"
-							+ "	AND plr.status like '%"
-							+ status
-							+ "%' "
+							+ "	AND plr.status " + ("".equals(status) ? " IS NOT NULL " : " = '"+status+"' ")
 							+ (searchProvider ? " AND plr.provider_no = '" + providerNo + "' " : " ")
 							+ " 	AND plr.lab_no = plr2.lab_no AND plr2.demographic_no = '"
 							+ demographicNo
@@ -287,9 +280,7 @@ public class InboxResultsDao {
 							+ patientHealthNumber
 							+ "%' "
 							+ "		AND cd.module_id = d.demographic_no 	AND cd.document_no = plr.lab_no	AND plr.lab_type = 'DOC' "
-							+ "				AND plr.status like '%"
-							+ status
-							+ "%' "
+							+ "	AND plr.status " + ("".equals(status) ? " IS NOT NULL " : " = '"+status+"' ")
 							+ (searchProvider ? " AND plr.provider_no = '" + providerNo + "' " : " ")
 							+ "		) ORDER BY id DESC) AS Y "
 							+ " 	UNION "
@@ -307,9 +298,7 @@ public class InboxResultsDao {
 							+ "		AND	plr.lab_type = 'HL7' AND plr2.lab_type = 'HL7' "
 							+ (isAbnormal != null ? " AND plr.lab_no = info.lab_no AND (info.result_status IS NULL OR info.result_status != 'A') "
 									: " ")
-							+ "				AND plr.status like '%"
-							+ status
-							+ "%' "
+							+ "	AND plr.status " + ("".equals(status) ? " IS NOT NULL " : " = '"+status+"' ")
 							+ (searchProvider ? " AND plr.provider_no = '" + providerNo + "' " : " ")
 							+ " 	AND plr.lab_no = plr2.lab_no AND plr2.demographic_no = d.demographic_no ORDER BY id DESC) AS Z "
 							+ " 			ORDER BY id DESC) AS X "
@@ -331,7 +320,7 @@ public class InboxResultsDao {
 							+ "LEFT JOIN demographic d ON cd.module_id = d.demographic_no "
 							+ "WHERE plr.lab_type = 'DOC' "
 							+ (searchProvider ? " AND plr.provider_no = '" + providerNo + "' " : " ")
-							+ (!status.equals("") ? " AND plr.status = '" + status + "' ":" ")
+							+ " AND plr.status " + ("".equals(status) ? " IS NOT NULL " : " = '"+status+"' ")
 							+ dateSql
 							+ "GROUP BY doc.document_no "
 							+ "ORDER BY observationdate DESC "
@@ -346,9 +335,7 @@ public class InboxResultsDao {
 							+ " RIGHT JOIN ctl_document cd ON cd.document_no = plr.lab_no AND cd.module_id = -1"
 							+ " LEFT JOIN demographic d ON d.demographic_no = -1"
 							+ " WHERE plr.lab_type = 'DOC' "
-							+ " AND plr.status like '%"
-							+ status
-							+ "%'  "
+							+ " AND plr.status " + ("".equals(status) ? " IS NOT NULL " : " = '"+status+"' ")
 							+ (searchProvider ? " AND plr.provider_no = '" + providerNo + "' " : "")
 							+ dateSql
 							+ " GROUP BY doc.document_no"
@@ -364,9 +351,7 @@ public class InboxResultsDao {
 							+ "	AND cd.module_id = d.demographic_no "
 							+ "	AND cd.document_no = plr.lab_no "
 							+ "	AND plr.lab_type = 'DOC' "
-							+ "	AND plr.status like '%"
-							+ status
-							+ "%' "
+							+ "	AND plr.status " + ("".equals(status) ? " IS NOT NULL " : " = '"+status+"' ")
 							+ (searchProvider ? " AND plr.provider_no = '" + providerNo + "' " : "")
 							+ "	AND doc.document_no = cd.document_no "
 							+ dateSql
@@ -387,9 +372,7 @@ public class InboxResultsDao {
 							+ "	AND cd.module_id = d.demographic_no "
 							+ "	AND cd.document_no = plr.lab_no "
 							+ "	AND plr.lab_type = 'DOC' "
-							+ "	AND plr.status like '%"
-							+ status
-							+ "%' "
+							+ "	AND plr.status " + ("".equals(status) ? " IS NOT NULL " : " = '"+status+"' ")
 							+ (searchProvider ? " AND plr.provider_no = '" + providerNo + "' " : "")
 							+ "	AND doc.document_no = cd.document_no "
 							+ dateSql
@@ -404,9 +387,7 @@ public class InboxResultsDao {
 							+ " WHERE (cd.module_id = d.demographic_no) "
 							+ " 	AND cd.document_no = plr.lab_no "
 							+ " 	AND plr.lab_type = 'DOC' "
-							+ "	AND plr.status like '%"
-							+ status
-							+ "%'  "
+							+ "	AND plr.status " + ("".equals(status) ? " IS NOT NULL " : " = '"+status+"' ")
 							+ (searchProvider ? " AND plr.provider_no = '" + providerNo + "' " : "")
 							+ " 	AND doc.document_no = cd.document_no  "
 							+ dateSql
@@ -414,7 +395,8 @@ public class InboxResultsDao {
 							+ " SELECT X.id, X.lab_no as document_no, X.status, last_name, first_name, hin, sex, X.module_id, X.observationdate, X.lab_type as doctype, docdesc, updatedatetime "
 							+ " FROM (SELECT plr.id, plr.lab_no, plr.status, plr.lab_type, cd.module_id, observationdate, docdesc, updatedatetime "
 							+ " FROM ctl_document cd, providerLabRouting plr, document d "
-							+ " WHERE plr.lab_type = 'DOC' " + "	AND plr.status like '%" + status + "%'  "
+							+ " WHERE plr.lab_type = 'DOC' "
+							+ "	AND plr.status " + ("".equals(status) ? " IS NOT NULL " : " = '"+status+"' ")
 							+ (searchProvider ? " AND plr.provider_no = '" + providerNo + "' " : "")
 							+ " AND plr.lab_no = cd.document_no " + " AND cd.module_id = -1 "
 							+ " AND d.document_no = cd.document_no " 

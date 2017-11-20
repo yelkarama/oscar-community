@@ -31,6 +31,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 
+import org.apache.commons.lang.StringUtils;
 import org.oscarehr.util.DbConnectionFilter;
 
 public class CategoryData {
@@ -187,7 +188,7 @@ public class CategoryData {
 				+ " RIGHT JOIN hl7TextInfo info ON plr.lab_no = info.lab_no"
 				+ " WHERE plr.lab_type = 'HL7' "
 				+ (providerSearch ? " AND plr.provider_no = '"+searchProviderNo+"' " : "")
-				+ " AND plr.status like '%"+status+"%' "
+				+ " AND plr.status " + ("".equals(status) ? " IS NOT NULL " : " = '"+status+"' ")
 				+ labDateSql
 				+ " AND (plr2.demographic_no IS NULL"
 				+ " OR plr2.demographic_no = '0')";
@@ -208,10 +209,10 @@ public class CategoryData {
 		if (patientSearch) {
         	sql = " SELECT HIGH_PRIORITY COUNT(1) as count "
         		+ " FROM patientLabRouting cd, demographic d, providerLabRouting plr, hl7TextInfo info "
-        		+ " WHERE d.last_name like '%"+patientLastName+"%'  "
-        		+ " 	AND d.first_name like '%"+patientFirstName+"%' "
-        		+ " 	AND d.hin like '%"+patientHealthNumber+"%' "
-        		+ " 	AND plr.status like '%"+status+"%' "
+        		+ " WHERE d.last_name" + (StringUtils.isEmpty(patientLastName) ? " IS NOT NULL " : " like '%"+patientLastName+"%'  ")
+        		+ " 	AND d.first_name" + (StringUtils.isEmpty(patientFirstName) ? " IS NOT NULL " : " like '%"+patientFirstName+"%' ")
+        		+ " 	AND d.hin" + (StringUtils.isEmpty(patientHealthNumber) ? " IS NOT NULL " : " like '%"+patientHealthNumber+"%' ")
+        		+ " 	AND plr.status " + ("".equals(status) ? " IS NOT NULL " : " = '"+status+"' ")
         		+ (providerSearch ? "AND plr.provider_no = '"+searchProviderNo+"' " : "")
         		+ " 	AND plr.lab_type = 'HL7' "
         		+ " 	AND cd.lab_type = 'HL7' "
@@ -223,7 +224,7 @@ public class CategoryData {
         else if (providerSearch || !"".equals(status)){ // providerSearch
         	sql = "SELECT HIGH_PRIORITY COUNT(1) as count "
 				+ " FROM providerLabRouting plr, hl7TextInfo info "
-				+ " WHERE plr.status like '%"+status+"%' "
+				+ " WHERE plr.status " + ("".equals(status) ? " IS NOT NULL " : " = '"+status+"' ")
 				+ (providerSearch ? " AND plr.provider_no = '"+searchProviderNo+"' " : " ")
 				+ " AND plr.lab_type = 'HL7'  "
 				+ " AND info.lab_no = plr.lab_no"
@@ -246,7 +247,8 @@ public class CategoryData {
 					+ " FROM ctl_document cd " 
 					+ "LEFT JOIN providerLabRouting plr ON plr.lab_no = cd.document_no"
 					+ documentJoinSql
-					+ " WHERE plr.lab_type = 'DOC' AND plr.status like '%"+status+"%' "
+					+ " WHERE plr.lab_type = 'DOC' " 
+					+ " AND plr.status " + ("".equals(status) ? " IS NOT NULL " : " = '"+status+"' ")
 					+ (providerSearch ? " AND plr.provider_no ='"+searchProviderNo+"' " : "")
 					+ " AND 	cd.module_id = -1 "
 					+ documentDateSql;
@@ -263,12 +265,12 @@ public class CategoryData {
 			+ " LEFT JOIN demographic d ON cd.demographic_no = d.demographic_no" 
 			+ " LEFT JOIN providerLabRouting plr ON cd.lab_no = plr.lab_no" 
 			+ " LEFT JOIN hl7TextInfo info ON cd.lab_no = info.lab_no"
-        	+ " WHERE   d.last_name like '%"+patientLastName+"%' "
-        	+ " 	AND d.first_name like '%"+patientFirstName+"%' "
-        	+ " 	AND d.hin like '%"+patientHealthNumber+"%' "
+        	+ " WHERE   d.last_name" + (StringUtils.isEmpty(patientLastName) ? " IS NOT NULL " : "  like '%"+patientLastName+"%' ")
+        	+ " 	AND d.first_name" + (StringUtils.isEmpty(patientFirstName) ? " IS NOT NULL " : " like '%"+patientFirstName+"%' ")
+        	+ " 	AND d.hin" + (StringUtils.isEmpty(patientHealthNumber) ? " IS NOT NULL " : " like '%"+patientHealthNumber+"%' ")
         	+ " 	AND plr.lab_type = 'HL7' "
         	+ " 	AND cd.lab_type = 'HL7' "
-        	+ " 	AND plr.status like '%"+status+"%' "
+        	+ " 	AND plr.status " + ("".equals(status) ? " IS NOT NULL " : " = '"+status+"' ")
 			+ " AND info.lab_no IS NOT NULL "
         	+ (providerSearch ? "AND plr.provider_no = '"+searchProviderNo+"' " : "")
 			+ labDateSql
@@ -304,7 +306,7 @@ public class CategoryData {
         	+ " 	AND cd.lab_no = plr.lab_no "
         	+ " 	AND plr.lab_type = 'HL7' "
         	+ " 	AND cd.lab_type = 'HL7' "
-        	+ " 	AND plr.status like '%"+status+"%' "
+        	+ " 	AND plr.status " + ("".equals(status) ? " IS NOT NULL " : " = '"+status+"' ")
         	+ (providerSearch ? "AND plr.provider_no = '"+searchProviderNo+"' " : "")
         	+ " GROUP BY demographic_no ";
 
@@ -327,11 +329,11 @@ public class CategoryData {
 					+ "LEFT JOIN demographic d  ON cd.module_id = d.demographic_no "
 					+ "LEFT JOIN providerLabRouting plr ON cd.document_no = plr.lab_no "
 					+ documentJoinSql
-					+ " WHERE   d.last_name like '%"+patientLastName+"%'  "
-					+ " 	AND d.hin like '%"+patientHealthNumber+"%' "
-					+ " 	AND d.first_name like '%"+patientFirstName+"%' "
+					+ " WHERE   d.last_name" + (StringUtils.isEmpty(patientLastName) ? " IS NOT NULL " : " like '%"+patientLastName+"%'  ")
+					+ " 	AND d.hin" + (StringUtils.isEmpty(patientHealthNumber) ? " IS NOT NULL " : " like '%"+patientHealthNumber+"%' ")
+					+ " 	AND d.first_name" + (StringUtils.isEmpty(patientFirstName) ? " IS NOT NULL " : " like '%"+patientFirstName+"%' ")
 					+ " 	AND plr.lab_type = 'DOC' "
-					+ " 	AND plr.status like '%"+status+"%' "
+					+ " 	AND plr.status " + ("".equals(status) ? " IS NOT NULL " : " = '"+status+"' ")
 					+ (providerSearch ? "AND plr.provider_no = '"+searchProviderNo+"' " : "")
 					+ documentDateSql
 					+ " GROUP BY demographic_no ";
@@ -359,9 +361,9 @@ public class CategoryData {
 						+ " LEFT JOIN HRMDocumentToProvider hp ON h.id = hp.hrmDocumentId"
 						+ " LEFT JOIN demographic d ON hd.demographicNo = d.demographic_no"
 						+ " WHERE h.id IN (SELECT hrmDocumentId FROM HRMDocumentToDemographic hd)"
-						+ " 	AND d.last_name like '%"+patientLastName+"%' "
-						+ "		AND d.hin like '%"+patientHealthNumber+"%'"
-						+ "		AND d.first_name like '%"+patientFirstName+"%'"
+						+ " 	AND d.last_name " + (StringUtils.isEmpty(patientLastName) ? " IS NOT NULL " : " like '%"+patientLastName+"%' ")
+						+ "		AND d.hin " + (StringUtils.isEmpty(patientHealthNumber) ? " IS NOT NULL " : " like '%"+patientHealthNumber+"%' ")
+						+ "		AND d.first_name " + (StringUtils.isEmpty(patientFirstName) ? " IS NOT NULL " : " like '%"+patientFirstName+"%' ")
 						+ "		AND hp.signedOff = 0 "
 						+ hrmDateSql
 						+ hrmProviderSql
