@@ -375,14 +375,6 @@ public class DmsInboxManageAction extends DispatchAction {
 		}
 		roleName += "," + searchProviderNo;
 
-		List<QueueDocumentLink> qd = queueDocumentLinkDAO.getQueueDocLinks();
-		HashMap<String, String> docQueue = new HashMap<String, String>();
-		for (QueueDocumentLink qdl : qd) {
-			Integer i = qdl.getDocId();
-			Integer n = qdl.getQueueId();
-			docQueue.put(i.toString(), n.toString());
-		}
-
 		InboxResultsDao inboxResultsDao = (InboxResultsDao) SpringUtils.getBean("inboxResultsDao");
 		String patientFirstName = request.getParameter("fname");
 		String patientLastName = request.getParameter("lname");
@@ -398,57 +390,6 @@ public class DmsInboxManageAction extends DispatchAction {
 			labdocs.addAll(comLab.populateLabResultsData(loggedInInfo, searchProviderNo, demographicNo, patientFirstName,
 					patientLastName, patientHealthNumber, ackStatus, true, page, pageSize,
 					mixLabsAndDocs, isAbnormal, startDate, endDate));
-		}
-
-		ArrayList<LabResultData> validlabdocs = new ArrayList<LabResultData>();
-
-		DocumentResultsDao documentResultsDao = (DocumentResultsDao) SpringUtils.getBean("documentResultsDao");
-		// check privilege for documents only
-		for (LabResultData data : labdocs) {
-			if (data.isDocument()) {
-				String docid = data.getSegmentID();
-
-				String queueid = docQueue.get(docid);
-				if (queueid != null) {
-					queueid = queueid.trim();
-
-					int queueIdInt = Integer.parseInt(queueid);
-
-					// if doc sent to default queue and no valid provider, do NOT include it
-					if (queueIdInt == Queue.DEFAULT_QUEUE_ID && !documentResultsDao.isSentToValidProvider(docid) && isSegmentIDUnique(validlabdocs, data)) {
-						// validlabdocs.add(data);
-					}
-					// if doc sent to default queue && valid provider, check if it's sent to this provider, if yes include it
-					else if (queueIdInt == Queue.DEFAULT_QUEUE_ID && documentResultsDao.isSentToValidProvider(docid) && documentResultsDao.isSentToProvider(docid, searchProviderNo) && isSegmentIDUnique(validlabdocs, data)) {
-						validlabdocs.add(data);
-					}
-					// if doc setn to non-default queue and valid provider, check if provider is in the queue or equal to the provider
-					else if (queueIdInt != Queue.DEFAULT_QUEUE_ID && documentResultsDao.isSentToValidProvider(docid)) {
-						Vector<Object> vec = OscarRoleObjectPrivilege.getPrivilegeProp("_queue." + queueid);
-						if (OscarRoleObjectPrivilege.checkPrivilege(roleName, (Properties) vec.get(0), (Vector) vec.get(1)) || documentResultsDao.isSentToProvider(docid, searchProviderNo)) {
-							// labs is in provider's queue,do nothing
-							if (isSegmentIDUnique(validlabdocs, data)) {
-								validlabdocs.add(data);
-							}
-						}
-					}
-					// if doc sent to non default queue and no valid provider, check if provider is in the non default queue
-					else if (!queueid.equals(Queue.DEFAULT_QUEUE_ID) && !documentResultsDao.isSentToValidProvider(docid)) {
-						Vector<Object> vec = OscarRoleObjectPrivilege.getPrivilegeProp("_queue." + queueid);
-						if (OscarRoleObjectPrivilege.checkPrivilege(roleName, (Properties) vec.get(0), (Vector) vec.get(1))) {
-							// labs is in provider's queue,do nothing
-							if (isSegmentIDUnique(validlabdocs, data)) {
-								validlabdocs.add(data);
-							}
-
-						}
-					}
-				}
-			} else {// add lab
-				if (isSegmentIDUnique(validlabdocs, data)) {
-					validlabdocs.add(data);
-				}
-			}
 		}
 
 		// Find the oldest lab returned in labdocs, use that as the limit date for the HRM query
