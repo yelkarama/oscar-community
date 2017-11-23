@@ -1936,7 +1936,7 @@ function updateFaxButton() {
 						<tr>
 						<%
 						String lhndType = "provider"; //set default as provider
-						String providerDefault = providerNoFromChart==null?"":providerNoFromChart;
+                            String providerDefault = providerNo==null?"":providerNo;
 
 							//MRP
 							ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
@@ -1948,8 +1948,8 @@ function updateFaxButton() {
 							if (loggedIn!=null) {userCPSO = loggedIn.getPractitionerNo();}
 
 							if (consultUtil.letterheadName != null && !consultUtil.letterheadName.equalsIgnoreCase("")) {providerDefault = consultUtil.letterheadName;}
-							else if ((mrpCPSO == null || mrpCPSO.equals("")) && (userCPSO == null || userCPSO.equals(""))) {providerDefault = providerNoFromChart;}
-							else if ((mrpCPSO == null || mrpCPSO.equals("")) && (userCPSO != null || !userCPSO.equals(""))) {providerDefault = providerNo;}
+                            else if (userCPSO != null && !userCPSO.equals("")) {providerDefault = providerNo;}
+                            else if (mrpCPSO != null && !mrpCPSO.equals("")) {providerDefault = providerNoFromChart;}
 						
 						if(consultUtil.letterheadName == null ){
 						//nothing saved so find default	
