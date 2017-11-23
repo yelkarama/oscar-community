@@ -92,7 +92,7 @@ public class EctDisplayAction extends Action {
 			Actions.put("success", "/oscarEncounter/LeftNavBarDisplay.jsp");
 			Actions.put("error", "/oscarEncounter/LeftNavBarError.jsp");
 			Actions.put("HRM", "/oscarEncounter/displayHRM.do");
-			Actions.put("myoscar", "/oscarEncounter/displayMyOscar.do");
+			Actions.put("PHR", "/oscarEncounter/displayMyOscar.do");
 			Actions.put("eaaps", "/eaaps/displayEctEaaps.do");
 			Actions.put("progressSheet", "/oscarEncounter/displayProgressSheet.do");
 			

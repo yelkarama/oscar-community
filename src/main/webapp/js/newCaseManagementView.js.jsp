@@ -563,11 +563,16 @@ function navBarLoader() {
                   ctx + "/oscarEncounter/displayConsultation.do?hC=" + Colour.consultation,
                   ctx + "/oscarEncounter/displayHRM.do?hC=",
                   ctx + "/eaaps/displayEctEaaps.do?hC=",
-                  ctx + "/oscarEncounter/displayEconsultation.do?hC=",
+                  ctx + "/oscarEncounter/displayEconsultation.do?hC="
               ];
 
             var leftNavBarTitles = [ "preventions", "tickler", "Dx", "forms", "eforms", "docs","labs", "msgs", "measurements", "consultation", "HRM", "eaaps", "eConsult"];
-            
+
+            <%
+            if (OscarProperties.getInstance().getBooleanProperty("MY_OSCAR", "yes")) { %>
+                leftNavBar.push(ctx + '/oscarEncounter/displayMyOscar.do?hC=');
+                leftNavBarTitles.push('PHR')
+            <%}%>
             <%
             if (OscarProperties.getInstance().getBooleanProperty("echart_show_progress_sheet", "true")) { %>
         		leftNavBar.unshift(ctx + '/oscarEncounter/displayProgressSheet.do?hC=003468');
