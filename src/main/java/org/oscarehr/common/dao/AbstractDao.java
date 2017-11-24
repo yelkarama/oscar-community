@@ -25,11 +25,14 @@ package org.oscarehr.common.dao;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
 import org.oscarehr.common.model.AbstractModel;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import oscar.util.ParamAppender;
@@ -42,6 +45,8 @@ public abstract class AbstractDao<T extends AbstractModel<?>> {
 
 	@PersistenceContext
 	protected EntityManager entityManager = null;
+	@Autowired
+	private EntityManagerFactory entityManagerFactory;
 
 	protected AbstractDao(Class<T> modelClass) {
 		setModelClass(modelClass);
@@ -59,6 +64,31 @@ public abstract class AbstractDao<T extends AbstractModel<?>> {
 	 */
 	public void persist(AbstractModel<?> o) {
 		entityManager.persist(o);
+	}
+
+	public void batchPersist(List<AbstractModel<?>> oList, int batchSize) {
+		EntityManager batchEntityManager = null;
+		EntityTransaction transaction = null;
+		try {
+			batchEntityManager = entityManagerFactory.createEntityManager();
+			transaction = batchEntityManager.getTransaction();
+			transaction.begin();
+			for (int i = 0; i < oList.size(); i++) {
+				if (i > 0 && i % batchSize == 0) {
+					batchEntityManager.flush();
+					batchEntityManager.clear();
+					transaction.commit();
+					transaction.begin();
+				}
+				batchEntityManager.persist(oList.get(i));
+			}
+			transaction.commit();
+		} catch (RuntimeException e) {
+			if (transaction != null && transaction.isActive()) { transaction.rollback(); }
+			throw e;
+		} finally {
+			if (batchEntityManager != null) { batchEntityManager.close(); }
+		}
 	}
 
 	/**

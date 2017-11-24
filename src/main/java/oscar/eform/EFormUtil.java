@@ -67,6 +67,7 @@ import org.oscarehr.common.dao.EFormValueDao;
 import org.oscarehr.common.dao.ProfessionalSpecialistDao;
 import org.oscarehr.common.dao.SecRoleDao;
 import org.oscarehr.common.dao.TicklerDao;
+import org.oscarehr.common.model.AbstractModel;
 import org.oscarehr.common.model.ConsultationRequest;
 import org.oscarehr.common.model.EFormData;
 import org.oscarehr.common.model.EFormGroup;
@@ -627,6 +628,8 @@ public class EFormUtil {
 		// adds parsed values and names to DB
 		// names.size and values.size must equal!
 		try {
+			if (names.size() != values.size()) { throw new IllegalArgumentException("names and values Lists must be the same size!"); }
+			List<AbstractModel<?>> valuesList = new ArrayList<>();
 			for (int i = 0; i < names.size(); i++) {
 				EFormValue eFormValue = new EFormValue();
 				eFormValue.setFormId(fid);
@@ -634,11 +637,13 @@ public class EFormUtil {
 				eFormValue.setDemographicId(demographic_no);
 				eFormValue.setVarName(names.get(i));
 				eFormValue.setVarValue(values.get(i));
-
-				eFormValueDao.persist(eFormValue);
+				valuesList.add(eFormValue);
 			}
+            eFormValueDao.batchPersist(valuesList, 50);
 		} catch (PersistenceException ee) {
 			logger.error("Unexpected Error", ee);
+		} catch (IllegalArgumentException e) {
+            logger.error("Unexpected Error", e); 
 		}
 	}
 
