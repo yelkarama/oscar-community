@@ -354,7 +354,29 @@ public class BillingONCHeader1Dao extends AbstractDao<BillingONCHeader1>{
         
         return ret.size() == 0 ? null : ret.get(0);
     }
-    
+
+    public BillingONCHeader1 getInvoice(Integer id, String hin, String providerOhip) {
+        String andSql = "";
+
+        String sql = "select h1 from BillingONCHeader1 h1 " +
+                "where h1.id = :id " +
+                "and h1.hin = :hin " +
+                "and h1.providerOhipNo = :providerOhip " +
+                "and h1.status != 'D' " +
+                "order by h1.billingDate desc";
+        Query q = entityManager.createQuery(sql);
+
+        q.setParameter("id", id);
+        q.setParameter("hin", hin);
+        q.setParameter("providerOhip" ,providerOhip);
+
+        q.setMaxResults(1);
+
+        List<BillingONCHeader1> ret = q.getResultList();
+
+        return ret.size() == 0 ? null : ret.get(0);
+    }
+
     public List<BillingONCHeader1> getInvoices(Integer demographicNo, Integer limit) {
     	String sql = "select h1 from BillingONCHeader1 h1 where " +
                 " h1.demographicNo = :demo and h1.status != 'D' order by h1.billingDate desc";

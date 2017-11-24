@@ -155,6 +155,20 @@ public class RaDetailDao extends AbstractDao<RaDetail> {
 
         return results;
    	 }
+
+    public List<RaDetail> search_raNonError35(Integer raHeaderNo, String error1, String error2, String providerOhipNo) {
+        Query query = entityManager.createQuery("SELECT rad from RaDetail rad where rad.raHeaderNo=:raHeaderNo and (rad.errorCode='' or rad.errorCode=:error1 or rad.errorCode=:error2 or rad.errorCode='EV' or rad.errorCode='55' or rad.errorCode='57' or rad.errorCode='HM' or (rad.serviceCode='Q200A' and rad.errorCode='I9') or (rad.serviceCode='Q200A' and rad.errorCode='30')) and rad.providerOhipNo like :ohip");
+
+        query.setParameter("raHeaderNo", raHeaderNo);
+        query.setParameter("error1", error1);
+        query.setParameter("error2", error2);
+        query.setParameter("ohip", providerOhipNo);
+
+
+        List<RaDetail> results = query.getResultList();
+
+        return results;
+    }
    	 
    	 public List<Integer> search_raob(Integer raHeaderNo) {
    	   	String[] arServiceCodes = {"P006A","P020A","P022A","P028A","P023A","P007A","P009A","P011A","P008B","P018B","E502A","C989A","E409A","E410A","E411A","H001A"};
@@ -221,6 +235,21 @@ public class RaDetailDao extends AbstractDao<RaDetail> {
         return results;
    	 }
 
+    public List<RaDetail> search_raNonErrorQ(Integer raHeaderNo, String providerOhipNo) {
+        String[] arServiceCodes = {"Q011A","Q020A","Q130A","Q131A","Q132A","Q133A","Q140A","Q141A","Q142A"};
+
+        Query query = entityManager.createQuery("select rad from RaDetail rad where rad.raHeaderNo=:raHeaderNo and rad.serviceCode in (:serviceCodes) and rad.errorCode='30' and rad.providerOhipNo like :ohip");
+
+        query.setParameter("raHeaderNo", raHeaderNo);
+        query.setParameter("serviceCodes", Arrays.asList(arServiceCodes));
+        query.setParameter("ohip", providerOhipNo);
+
+
+        List<RaDetail> results = query.getResultList();
+
+        return results;
+    }
+
 
 	public List<String> getBillingExplanatoryList(Integer billingNo) {
 
@@ -232,6 +261,24 @@ public class RaDetailDao extends AbstractDao<RaDetail> {
 
 		return errors;
 	}
+
+    public List<String> getBillingExplanatoryList(Integer billingNo, String hin, String providerOhip) {
+        Query query = entityManager.createQuery("SELECT errorCode from RaDetail rad " +
+                "where rad.billingNo = (:billingNo) " +
+                "and rad.hin like :hin " +
+                "and rad.providerOhipNo = :providerOhip " +
+                "and rad.errorCode!='' " +
+                "and rad.raHeaderNo=(select max(rad2.raHeaderNo) " +
+                "from RaDetail rad2 " +
+                "where rad2.billingNo=(:billingNo))");
+        query.setParameter("billingNo", billingNo);
+        query.setParameter("hin", hin + "%");
+        query.setParameter("providerOhip", providerOhip);
+
+        List<String> errors = query.getResultList();
+
+        return errors;
+    }
 
 	public List<RaDetail> getRaErrorsByProviderDate(List<String> errorCodes, String startDate, String endDate, String providerOhip) {
 

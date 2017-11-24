@@ -28,14 +28,16 @@
 <%@page import="org.oscarehr.common.dao.RaDetailDao" %>
 <%@page import="org.oscarehr.common.model.Billing" %>
 <%@page import="org.oscarehr.common.dao.BillingDao" %>
+<%@ page import="org.oscarehr.common.dao.BillingONCHeader1Dao" %>
+<%@ page import="org.oscarehr.common.model.BillingONCHeader1" %>
 <%
 	RaHeaderDao dao = SpringUtils.getBean(RaHeaderDao.class);
-	BillingDao billingDao = SpringUtils.getBean(BillingDao.class);
+	BillingONCHeader1Dao billingONCHeader1Dao = SpringUtils.getBean(BillingONCHeader1Dao.class);
 	RaDetailDao raDetailDao = SpringUtils.getBean(RaDetailDao.class);
 %>
 
 
-<% 
+<%
 String raNo = "", flag="", plast="", pfirst="", pohipno="", proNo="";
 String filepath="", filename = "", header="", headerCount="", total="", paymentdate="", payable="", totalStatus="", deposit=""; //request.getParameter("filename");
 String transactiontype="", providerno="", specialty="", account="", patient_last="", patient_first="", provincecode="", hin="", ver="", billtype="", location="";
@@ -52,25 +54,49 @@ ArrayList errorBill = new ArrayList();
 
 for(RaDetail rad:raDetailDao.search_raerror35(Integer.parseInt(raNo),"I2","35",proNo+"%")) {
 	account = String.valueOf(rad.getBillingNo());
-	errorBill.add(account);	
+	hin = rad.getHin() != null ? rad.getHin() : "";
+
+	if (hin.length() > 10) {
+	    if (hin.length() == 12) {
+			ver = hin.substring(11, 12);
+		}
+	    hin = hin.substring(0, 10);
+	}
+
+	BillingONCHeader1 invoice = billingONCHeader1Dao.getInvoice(rad.getBillingNo(), hin, rad.getProviderOhipNo());
+	if (invoice != null) {
+		errorBill.add(account);
+	}
 }
 
 
 account = "";
-List<Integer> res = raDetailDao.search_ranoerror35(Integer.parseInt(raNo),"I2","35",proNo+"%");
+List<RaDetail> res = raDetailDao.search_raNonError35(Integer.parseInt(raNo),"I2","35",proNo+"%");
 
-for (Integer r:res) {   
-	account = String.valueOf(r);
+for (RaDetail ra : res) {
+	account = String.valueOf(ra.getBillingNo());
 	eFlag="1";
-	for (int i=0; i< errorBill.size(); i++){
-		errorAccount = (String) errorBill.get(i);
-		if(errorAccount.compareTo(account)==0) {
-			eFlag = "0";
-			break;
+	hin = ra.getHin() != null ? ra.getHin() : "";
+
+	if (hin.length() > 10) {
+		if (hin.length() == 12) {
+			ver = hin.substring(10, 12);
 		}
+		hin = hin.substring(0, 10);
 	}
 
-	if(eFlag.compareTo("1")==0) noErrorBill.add(account);
+	BillingONCHeader1 invoice = billingONCHeader1Dao.getInvoice(ra.getBillingNo(), hin, ra.getProviderOhipNo());
+	if (invoice != null) {
+		for (int i = 0; i < errorBill.size(); i++) {
+			errorAccount = (String) errorBill.get(i);
+			if (errorAccount.compareTo(account) == 0) {
+				eFlag = "0";
+				break;
+			}
+		}
+
+		if(eFlag.compareTo("1")==0 && !noErrorBill.contains(account)) noErrorBill.add(account);
+	}
 }      
 
 BillingRAPrep obj = new BillingRAPrep();

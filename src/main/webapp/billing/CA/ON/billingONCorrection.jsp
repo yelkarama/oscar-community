@@ -534,9 +534,16 @@ function validateAmountNumberic(idx) {
                 comment = bCh1.getComment();
                 
 				// get ohip claim number
-				JdbcBillingRAImpl raObj = new JdbcBillingRAImpl();
-				claimNo = raObj.getRAClaimNo4BillingNo( billNo );
-
+                 List<RaDetail> raDetails = raDetailDao.findByBillingNo(billingNo);
+                 for (RaDetail ra : raDetails) {
+                     if ((ra.getProviderOhipNo() == bCh1.getProviderNo())) {
+                         if (ra.getHin() != null) {
+                             if (ra.getHin().length() > 10 && ra.getHin().substring(0,10).equals(sdemo.getHin()) || ra.getHin().equals(sdemo.getHin())) {
+                                 claimNo = ra.getClaimNo();
+                             }
+                         }
+                     }
+                 }
             }
         }
     }
@@ -667,7 +674,7 @@ OHIP Claim No  <br>
     if(bFlag) {       
         BillingONEAReportDao billingONEAReportDao = (BillingONEAReportDao) SpringUtils.getBean("billingONEAReportDao");
 	List<String> lReject = billingONEAReportDao.getBillingErrorList(billingNo);
-	List<String> lError = raDetailDao.getBillingExplanatoryList(billingNo);
+	List<String> lError = raDetailDao.getBillingExplanatoryList(billingNo, bCh1.getHin(), bCh1.getProviderOhipNo());
 	lError.addAll(lReject);	
         
         BillingONErrorCodeDao billingONErrorCodeDao = (BillingONErrorCodeDao) SpringUtils.getBean("billingONErrorCodeDao");        

@@ -71,6 +71,7 @@
 <%@page import="org.oscarehr.common.model.ProfessionalSpecialist"%>
 <%@page import="org.oscarehr.common.dao.ClinicNbrDao"%>
 <%@page import="org.oscarehr.common.dao.ProfessionalSpecialistDao"%>
+<%@ page import="org.oscarehr.common.dao.RaDetailDao" %>
 
 <%GregorianCalendar now = new GregorianCalendar();
 			int curYear = now.get(Calendar.YEAR);
@@ -213,6 +214,7 @@ function popupPage(vheight,vwidth,varpage) {
 				List recordObj = null;
 				BillingClaimHeader1Data ch1Obj = new BillingClaimHeader1Data();
 				BillingItemData itemObj = null;
+				RaDetailDao raDetailDao = SpringUtils.getBean(RaDetailDao.class);
 
 				// bFlag - fill in data?
 				boolean bFlag = false;
@@ -291,7 +293,7 @@ function popupPage(vheight,vwidth,varpage) {
 if(bFlag) { 
 	//billNo = "44071";
 	List lReject = obj.getBillingRejectList(billNo);
-	List lError = obj.getBillingExplanatoryList(billNo);
+	List lError = raDetailDao.getBillingExplanatoryList(Integer.valueOf(billNo), ch1Obj.getHin(), ch1Obj.getProvider_ohip_no());
 	lError.addAll(lReject);
 	JdbcBillingErrorCodeImpl errorObj = new JdbcBillingErrorCodeImpl();
 %>
