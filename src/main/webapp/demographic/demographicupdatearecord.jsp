@@ -339,7 +339,7 @@
 	extensions.add(new DemographicExt(request.getParameter("familyDoctorId_id"), proNo, demographicNo, "familyDoctorId", familyDoctorId));
 	extensions.add(new DemographicExt(request.getParameter("familyPhysicianId_id"), proNo, demographicNo, "familyPhysicianId", familyPhysicianId));
 	extensions.add(new DemographicExt(request.getParameter("includeEmailOnConsults_id"), proNo, demographicNo, "includeEmailOnConsults", request.getParameter("includeEmailOnConsults") != null ? request.getParameter("includeEmailOnConsults") : "false"));
-	extensions.add(new DemographicExt(request.getParameter("patientEmailConsent_id"), proNo, demographicNo, "patientEmailConsent", request.getParameter("patientEmailConsent")));
+	extensions.add(new DemographicExt(request.getParameter("patientEmailConsent_id"), proNo, demographicNo, "patientEmailConsent", request.getParameter("patientEmailConsent")==null?"":request.getParameter("patientEmailConsent")));
 	// Demographic Groups
 	int demographicNoAsInt = 0;
 	try {
