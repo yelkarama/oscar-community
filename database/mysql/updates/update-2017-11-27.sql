@@ -1,0 +1,1 @@
+ALTER TABLE billing_on_cheader1 MODIFY billing_time TIME NOT NULL DEFAULT '00:00:00';

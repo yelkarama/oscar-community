@@ -1364,7 +1364,7 @@ CREATE TABLE billing_on_cheader1 (
   sex char(1) default '1',
   province char(2) default 'ON',
   billing_date date default NULL,
-  billing_time time default NULL,
+  billing_time TIME NOT NULL DEFAULT '00:00:00',
   total decimal(10,2),
   paid decimal(10,2),
   status char(1) default NULL,
