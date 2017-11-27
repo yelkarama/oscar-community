@@ -2039,44 +2039,6 @@ function updateFaxButton() {
 					<td colspan=2>
 					<table border=0 width="100%">
 						<tr>
-						<%
-						String lhndType = "provider"; //set default as provider
-						String providerDefault = providerNoFromChart==null?"":providerNoFromChart;
-
-							//MRP
-							ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
-							org.oscarehr.common.model.Provider mrp = providerDao.getProvider(providerNoFromChart);
-							org.oscarehr.common.model.Provider loggedIn = providerDao.getProvider(providerNo);
-							String mrpCPSO = "";
-							String userCPSO = "";
-							if (mrp!=null) {mrpCPSO = mrp.getPractitionerNo();}
-							if (loggedIn!=null) {userCPSO = loggedIn.getPractitionerNo();}
-
-							if (consultUtil.letterheadName != null && !consultUtil.letterheadName.equalsIgnoreCase("")) {providerDefault = consultUtil.letterheadName;}
-							else if ((mrpCPSO == null || mrpCPSO.equals("")) && (userCPSO == null || userCPSO.equals(""))) {providerDefault = providerNoFromChart;}
-							else if ((mrpCPSO == null || mrpCPSO.equals("")) && (userCPSO != null || !userCPSO.equals(""))) {providerDefault = providerNo;}
-						
-						if(consultUtil.letterheadName == null ){
-									//nothing saved so find default
-									UserProperty lhndProperty = userPropertyDAO.getProp(providerNo, UserProperty.CONSULTATION_LETTERHEADNAME_DEFAULT);
-									String lhnd = lhndProperty != null?lhndProperty.getValue():null;
-									//1 or null = provider, 2 = MRP and 3 = clinic
-
-									if(lhnd!=null){
-										if(lhnd.equals("2")){
-											//mrp
-											providerDefault = providerNoFromChart;
-										}else if(lhnd.equals("3")){
-											//clinic
-											lhndType="clinic";
-										}
-							}	
-
-						}
-
-                            if (providerDefault==null||providerDefault.equals("")) {providerDefault = providerNo;}
-							
-						%>
 							<td class="tite4"><bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.letterheadName" />:
 							</td>							
 							<td align="right" class="tite3">				
