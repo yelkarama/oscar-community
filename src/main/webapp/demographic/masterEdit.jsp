@@ -1219,7 +1219,7 @@ function updateStatusDate(patientOrRoster){
 						<%
 							if (showConsentsThisTime) {
 						%>
-					
+
 					<tr>
 						<td><input type="hidden" name="usSignedOrig"
 							value="<%=StringUtils.defaultString(apptMainBean.getString(demoExt.get("usSigned")))%>" />
@@ -1255,7 +1255,19 @@ function updateStatusDate(patientOrRoster){
 
 						<%
 							}
+
+							String patientEmailConsent = StringUtils.trimToEmpty(demoExt.get("patientEmailConsent"));
 						%>
+					</tr>
+					<tr>
+						<td colspan="2">
+							<label style="font-weight: bold;" for="patientEmailConsent">Patient Email Consent: </label>
+							<select name="patientEmailConsent" id="patientEmailConsent">
+								<option value="Blank" <%="Blank".equals(patientEmailConsent) ? " selected" : ""%>>Blank</option>
+								<option value="Yes" <%="Yes".equals(patientEmailConsent) ? " selected" : ""%>>Yes</option>
+								<option value="No" <%="No".equals(patientEmailConsent) ? " selected" : ""%>>No</option>
+							</select>
+						</td>
 					</tr>
 				</table>
 			</td>
