@@ -181,10 +181,6 @@ if(!authed) {
 		if (demo != null) consultUtil.estPatient(loggedInInfo, demo);
 		consultUtil.estActiveTeams();
 
-		UserPropertyDAO userPropertyDAO = (UserPropertyDAO)ctx.getBean("UserPropertyDAO");
-		UserProperty fmtProperty = userPropertyDAO.getProp(providerNo, UserProperty.CONSULTATION_REQ_PASTE_FMT);
-		String pasteFmt = fmtProperty != null?fmtProperty.getValue():null;
-
 		String lhndType = "provider"; //set default as provider
 		String providerDefault = providerNo==null?"":providerNo;
 
