@@ -1207,7 +1207,7 @@ function switchProvider(value) {
         document.getElementById("letterheadPhone").value = "<%=clinic.getClinicPhone().trim() %>";
         document.getElementById("letterheadPhoneSpan").innerHTML = "<%=clinic.getClinicPhone().trim() %>";
         document.getElementById("letterheadFax").value = "<%=clinic.getClinicFax().trim() %>";
-        // document.getElementById("letterheadFaxSpan").innerHTML = "<%=clinic.getClinicFax().trim() %>";
+        document.getElementById("letterheadFaxSpan").innerHTML = "<%=clinic.getClinicFax().trim() %>";
     }
     else
 	{
@@ -1226,9 +1226,8 @@ function switchProvider(value) {
 		document.getElementById("letterheadAddressSpan").innerHTML = providerData[value]['address'].replace(" ", "&nbsp;");
 		document.getElementById("letterheadPhone").value = providerData[value]['phone'];
 		document.getElementById("letterheadPhoneSpan").innerHTML = providerData[value]['phone'];
-		document.getElementById("letterheadFax").value = providerData[value]['fax'].replace("-", "");
-			
-		//document.getElementById("letterheadFaxSpan").innerHTML = providerData[value]['fax'];
+		document.getElementById("letterheadFax").value = providerData[value]['fax'].replace(/-/g, "");
+		document.getElementById("letterheadFaxSpan").innerHTML = providerData[value]['fax'];
 	}
 	<% if (bMultisites) { %>
 		var siteSelect = document.getElementsByName("siteName")[0];
@@ -1239,7 +1238,8 @@ function switchProvider(value) {
 			document.getElementById("letterheadAddressSpan").innerHTML = siteData[siteValue]['address'].replace(" ", "&nbsp;");
 			document.getElementById("letterheadPhone").value = siteData[siteValue]['phone'];
 			document.getElementById("letterheadPhoneSpan").innerHTML = siteData[siteValue]['phone'];
-			document.getElementById("letterheadFax").value = siteData[siteValue]['fax'].replace("-", "");
+			document.getElementById("letterheadFax").value = siteData[siteValue]['fax'].replace(/-/g, "");
+			document.getElementById("letterheadFaxSpan").innerHTML = siteData[siteValue]['fax'];
 		}
 	<% } %>
 }
@@ -2104,19 +2104,17 @@ function updateFaxButton() {
 							<td class="tite4"><bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.letterheadFax" />:
 							</td>
 							<td align="right" class="tite3">
-							   <%								
+								<%								
 									FaxConfigDao faxConfigDao = SpringUtils.getBean(FaxConfigDao.class);
 									List<FaxConfig> faxConfigs = faxConfigDao.findAll(null, null);
-								%>
-									<span id="letterheadFaxSpan">
-										
-								<%
 									String letterheadFax = consultUtil.letterheadFax != null ? consultUtil.letterheadFax : "";
-
+								%>
+									<span id="letterheadFaxSpan"><%=letterheadFax%></span>
+								<%
 									if (letterheadFax.equals(""))
 									{
 								%>		
-										<select name="letterheadFax" id="letterheadFax">
+										<select name="letterheadFax" id="letterheadFax" onchange="document.getElementById('letterheadFaxSpan').innerHTML = this.value">
 								<%
 									
 									for( FaxConfig faxConfig : faxConfigs ) {
@@ -2131,13 +2129,10 @@ function updateFaxButton() {
 									else
 									{
 								%>
-									<input type="hidden" name="letterheadFax" id="letterheadFax" value="<%=letterheadFax.replace("-", "")%>" />
-									<%=letterheadFax%>		
+									<input type="hidden" name="letterheadFax" id="letterheadFax" value="<%=letterheadFax.replaceAll("-", "")%>" />
 								<%
 									}		
 								%>
-								</span>
-							
 							</td>
 						</tr>
 					</table>
