@@ -174,6 +174,7 @@ public class BillingONEAReportDao extends AbstractDao<BillingONEAReport> {
         appender.addGroup("b.code");
         appender.addGroup("b.claimError");
         appender.addOrder("b.codeDate");
+        appender.addOrder("b.billingNo");
 
         Query query = entityManager.createQuery(appender.toString());
         appender.setParams(query);
