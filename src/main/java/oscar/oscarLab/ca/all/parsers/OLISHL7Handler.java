@@ -1629,7 +1629,12 @@ public class OLISHL7Handler implements MessageHandler {
 			String obxCategory = Terser.get(obr, 4, 0, 1, 1);
 			OLISRequestNomenclatureDao requestDao = (OLISRequestNomenclatureDao) SpringUtils.getBean("OLISRequestNomenclatureDao");
 			OLISRequestNomenclature requestNomenclature = requestDao.findByNameId(obxCategory);
-			return StringUtils.trimToEmpty(requestNomenclature.getCategory());
+			if(requestNomenclature != null) {
+				return StringUtils.trimToEmpty(requestNomenclature.getName());
+			} else {
+				logger.warn("Missing OLIS nomenclature value ("+obxCategory+"). Are you sure you ran olisinit.sql and it successfully completed?");
+				return obxCategory;
+			}
 		} catch (Exception e) {
 			MiscUtils.getLogger().error("OLIS HL7 Error", e);
 		}
