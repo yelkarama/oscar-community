@@ -150,6 +150,7 @@
         var okToClose = false;
 
             function onClosing() {
+                var frm = document.forms["caseManagementEntryForm"];
                  for( var idx = 0; idx < measurementWindows.length; ++idx ) {
                      if( !measurementWindows[idx].closed )
                          measurementWindows[idx].parentChanged = true;
@@ -210,7 +211,7 @@
                         }
                    }
             } //end if save needed
-			else if( needToReleaseLock ) {								
+			else if( needToReleaseLock && frm.method.value !== "print" && frm.method.value !== "fax") {
 				//release lock on note
 				var url = ctx + "/CaseManagementEntry.do";
 				var nId = document.forms['caseManagementEntryForm'].noteId.value;
