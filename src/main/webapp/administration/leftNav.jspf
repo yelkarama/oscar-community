@@ -264,6 +264,7 @@ String curProvider_no = (String)session.getAttribute("user");
 					<li><a href="${ctx}/admin/labforwardingrules.jsp" class="contentLink"><bean:message key="admin.admin.labFwdRules" /></a></li>
 					
 					<li><a href="${ctx}/admin/addQueue.jsp" class="contentLink"><bean:message key="admin.admin.AddNewQueue"/></a></li>
+					<li><a href="javascript:void(0);" rel="${ctx}/admin/changeInboxDateSearch.jsp" class="xlink"><bean:message key="admin.admin.changeInboxDateSearch"/></a></li>
 				</ul>
 				</div>
 				</div>
