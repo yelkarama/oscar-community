@@ -12540,6 +12540,16 @@ CREATE TABLE form_drawing_tool_image (
   `file_name` varchar(255) NOT NULL,
   PRIMARY KEY (`ID`)
 );
+
+CREATE TABLE IF NOT EXISTS systempreferences
+(
+  id         INT AUTO_INCREMENT
+    PRIMARY KEY,
+  name       VARCHAR(40) NULL,
+  value      VARCHAR(40) NULL,
+  updateDate DATETIME    NULL
+);
+
 INSERT INTO form_drawing_tool_image (name, file_name) VALUES ('Blank Page', 'blank.png');
 INSERT INTO form_drawing_tool_image (name, file_name) VALUES ('Lined Paper', 'lined_paper.jpg');
 INSERT INTO form_drawing_tool_image (name, file_name) VALUES ('Anatomical Diagram', 'anatomical_diagram.png');

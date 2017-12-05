@@ -20,6 +20,8 @@
 <%@page import="org.oscarehr.common.hl7.v2.oscar_to_oscar.OscarToOscarUtils"%>
 <%@page import="org.oscarehr.util.MiscUtils,org.apache.commons.lang.StringEscapeUtils"%>
 <%@page import="org.apache.log4j.Logger,org.oscarehr.common.dao.OscarLogDao,org.oscarehr.util.SpringUtils"%>
+<%@ page import="org.oscarehr.common.dao.SystemPreferencesDao" %>
+<%@ page import="org.oscarehr.common.model.SystemPreferences" %>
 
 <%
       String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -140,6 +142,16 @@ String curUser_no = (String) session.getAttribute("user");
 							padding: 0px 5px;
 						}
 					</style>
+                        <%
+                            SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
+                            SystemPreferences systemPreferences = systemPreferencesDao.findPreferenceByName("inboxDateSearchType");
+                            String dateType = "serviceObservation";
+
+                            if (systemPreferences != null && systemPreferences.getValue() != null)
+                            {
+                                dateType = systemPreferences.getValue();
+                            }
+                        %>
 					<table id="summaryView" class="tablesorter"  width="100%" style="margin:0px;padding:0px;" cellpadding="0" cellspacing="0">
 					<thead>
 						<tr>
@@ -157,7 +169,11 @@ String curUser_no = (String) session.getAttribute("user");
                                 <bean:message key="oscarMDS.index.msgResultStatus"/>
                             </th>
                             <th align="left" valign="bottom" class="cell">
+                                <% if (dateType.equals("receivedCreated")) { %>
+                                <bean:message key="oscarMDS.index.msgDateCreated"/>
+                                <% } else { %>
                                 <bean:message key="oscarMDS.index.msgDateTest"/>
+                                <% } %>
                             </th>
                             <th align="left" valign="bottom" class="cell">
                                 <bean:message key="oscarMDS.index.msgOrderPriority"/>

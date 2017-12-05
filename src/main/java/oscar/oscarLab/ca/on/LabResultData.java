@@ -326,7 +326,7 @@ public class LabResultData implements Comparable<LabResultData> {
 				OLISHL7Handler handler = (OLISHL7Handler) messageHandler;
 				time = handler.getOrderDate();
 			}
-			String dateFormat = "yyyy-MM-dd HH:mm:ss".substring( 0, time.length() );
+			String dateFormat = "yyyy-MM-dd HH:mm:ss.SSS".substring( 0, time.length() );
 			this.dateTimeObr = UtilDateUtilities.getDateFromString(time, dateFormat);
 		}else if(CML.equals(this.labType)){
 			String date="";

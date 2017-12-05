@@ -37,7 +37,9 @@ import org.oscarehr.common.NativeSql;
 import org.oscarehr.common.model.Hl7TextInfo;
 import org.oscarehr.common.model.Hl7TextMessageInfo;
 import org.oscarehr.common.model.Hl7TextMessageInfo2;
+import org.oscarehr.common.model.SystemPreferences;
 import org.oscarehr.util.MiscUtils;
+import org.oscarehr.util.SpringUtils;
 import org.springframework.stereotype.Repository;
 import oscar.OscarProperties;
 
@@ -245,26 +247,55 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
     @NativeSql({"hl7TextInfo", "providerLabRouting", "ctl_document", "demographic"})
 	public List<Object[]> findLabAndDocsViaMagic(String providerNo, String demographicNo, String patientFirstName, String patientLastName, String patientHealthNumber, String status, boolean isPaged, Integer page, Integer pageSize, boolean mixLabsAndDocs, Boolean isAbnormal, boolean searchProvider, boolean patientSearch, Date startDate, Date endDate) {
 	    String sql;
+
+		SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
+		String dateSearchType = "serviceObservation";
+
+		SystemPreferences systemPreferences = systemPreferencesDao.findPreferenceByName("inboxDateSearchType");
+		if (systemPreferences != null)
+		{
+			if (systemPreferences.getValue() != null && !systemPreferences.getValue().isEmpty())
+			{
+				dateSearchType = systemPreferences.getValue();
+			}
+		}
 	    
 	    String dateSql = "";
 		SimpleDateFormat dateSqlFormatter = new SimpleDateFormat("yyyy-MM-dd");
 		
 		//Checks if the startDate is null, if it isn't then creates the dateSQL for the startDate
 		if (startDate != null) {
-			dateSql += " AND DATE(info.obr_date) >= DATE('" + dateSqlFormatter.format(startDate) + "')";
+			if (dateSearchType.equals("receivedCreated"))
+			{
+				dateSql += " AND message.created >= '" + dateSqlFormatter.format(startDate) + " 00:00:00'";
+			}
+			else
+			{
+				dateSql += " AND info.obr_date >= '" + dateSqlFormatter.format(startDate) + " 00:00:00'";
+			}
 		}
 		
 		//Checks if the endDate is null, if it isn't then creates the dateSQL for the endDate
 		if (endDate != null) {
-			dateSql += " AND DATE(info.obr_date) <= DATE('" + dateSqlFormatter.format(endDate) + "')";
+			if (dateSearchType.equals("receivedCreated"))
+			{
+				dateSql += " AND message.created <= '" + dateSqlFormatter.format(endDate) + " 23:59:59'";
+			}
+			else
+			{
+				dateSql += " AND info.obr_date <= '" + dateSqlFormatter.format(endDate) + " 23:59:59'";
+			}
 		}
 	    
 	    if (mixLabsAndDocs) {
 	    	if ("0".equals(demographicNo)) {
-				sql = " SELECT info.label, info.lab_no, info.sex, info.health_no, info.result_status, info.obr_date, info.priority, info.requesting_client, info.discipline, info.last_name, info.first_name, info.report_status,  info.accessionNum, info.final_result_count, plr.status "
+				sql = " SELECT info.label, info.lab_no, info.sex, info.health_no, info.result_status, "
+						+ (dateSearchType.equals("receivedCreated")?"message.created":"info.obr_date") + ", info.priority, info.requesting_client, info.discipline, info.last_name, " +
+						" info.first_name, info.report_status,  info.accessionNum, info.final_result_count, plr.status "
 						+ " FROM patientLabRouting plr2"
 						+ " RIGHT JOIN providerLabRouting plr ON plr.lab_no = plr2.lab_no AND plr2.lab_type = 'HL7'"
-						+ " RIGHT JOIN hl7TextInfo info ON plr.lab_no = info.lab_no"
+						+ " RIGHT JOIN hl7TextInfo info ON plr.lab_no = info.lab_no "
+						+ (dateSearchType.equals("receivedCreated")?" RIGHT JOIN hl7textmessage message ON plr.lab_no = message.lab_id":"")
 						+ " WHERE plr.lab_type = 'HL7'"
 						+ (searchProvider ? " AND plr.provider_no = '"+providerNo+"' " : "")
 						+ " AND plr.status" + ("".equals(status) ? " IS NOT NULL " : " = '"+status+"' ")
@@ -277,8 +308,10 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 	    	}
 
 	    	else if (demographicNo != null && !"".equals(demographicNo)) {
-	    		sql = " SELECT info.label, info.lab_no, info.sex, info.health_no, info.result_status, info.obr_date, info.priority, info.requesting_client, info.discipline, info.last_name, info.first_name, info.report_status,  info.accessionNum, info.final_result_count, X.status "
-	    			+ " FROM hl7TextInfo info, "
+	    		sql = " SELECT info.label, info.lab_no, info.sex, info.health_no, info.result_status,"
+					+ (dateSearchType.equals("receivedCreated")?" message.created":"info.obr_date") + ", info.priority, info.requesting_client, info.discipline, info.last_name, "
+					+ " info.first_name, info.report_status,  info.accessionNum, info.final_result_count, X.status "
+	    			+ " FROM hl7TextInfo info, " + (dateSearchType.equals("receivedCreated")?" hl7textmessage message":"")
 	    			+" (SELECT * FROM "
 	    			+" (SELECT DISTINCT plr.id, plr.lab_type, plr.lab_no, plr.status FROM providerLabRouting plr, ctl_document cd "
 	    			+" WHERE 	"
@@ -299,14 +332,16 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 	    			+ " ORDER BY id DESC) AS Z"
 	    			+ " ORDER BY id DESC"
 	    			+ " ) AS X "
-	    			+ " WHERE X.lab_type = 'HL7' and X.lab_no = info.lab_no "
+	    			+ " WHERE X.lab_type = 'HL7' and X.lab_no = info.lab_no " + (dateSearchType.equals("receivedCreated")?" AND message.lab_id = info.lab_no ":"")
 	    			+ dateSql
-	    			+ " ORDER BY info.obr_date DESC "
+					+  (dateSearchType.equals("receivedCreated")?" GROUP BY info.lab_no ":"")
+	    			+ " ORDER BY " + (dateSearchType.equals("receivedCreated")?"message.created":"info.obr_date") + " DESC "
 	    			+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 	    	}
 	    	else if (patientSearch) { // N
-	    		sql = " SELECT info.label, info.lab_no, info.sex, info.health_no, info.result_status, info.obr_date, info.priority, info.requesting_client, info.discipline, info.last_name, info.first_name, info.report_status, info.accessionNum, info.final_result_count, Z.status "
-	    				+ " FROM hl7TextInfo info, "
+	    		sql = " SELECT info.label, info.lab_no, info.sex, info.health_no, info.result_status," + (dateSearchType.equals("receivedCreated")?" message.created":"info.obr_date")
+						+ ", info.priority, info.requesting_client, info.discipline, info.last_name, info.first_name, info.report_status, info.accessionNum, info.final_result_count, Z.status "
+	    				+ " FROM hl7TextInfo info, " + (dateSearchType.equals("receivedCreated")?" hl7TextMessage message, ":"")
 	    				+ " 	(SELECT * FROM "
 						+ "			(SELECT DISTINCT plr.id, plr.lab_type, plr.lab_no, plr.status, d.demographic_no "
 						+ "				FROM providerLabRouting plr, ctl_document cd, demographic d "
@@ -335,30 +370,35 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 						+ " 		) "
 						+ " 		ORDER BY id DESC "
 						+ " 	) AS Z "
-						+ " WHERE Z.lab_type = 'HL7' and Z.lab_no = info.lab_no "
+						+ " WHERE Z.lab_type = 'HL7' and Z.lab_no = info.lab_no " + (dateSearchType.equals("receivedCreated")?" and message.lab_id = info.lab_no ":"")
 						+ dateSql
-	    				+ " ORDER BY info.obr_date DESC "
+						+ (dateSearchType.equals("receivedCreated")?" GROUP BY info.lab_no ":"")
+	    				+ " ORDER BY " + (dateSearchType.equals("receivedCreated")?"message.created":"info.obr_date") + " DESC "
 						+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 	    	}
 	    	else { // N
-				sql = " SELECT info.label, info.lab_no, info.sex, info.health_no, info.result_status, info.obr_date, info.priority, info.requesting_client, info.discipline, info.last_name, info.first_name, info.report_status,  info.accessionNum, info.final_result_count, plr.status "
-						+ " FROM hl7TextInfo info"
+				sql = " SELECT info.label, info.lab_no, info.sex, info.health_no, info.result_status," + (dateSearchType.equals("receivedCreated")?" message.created":"info.obr_date") + ", info.priority, " +
+						"info.requesting_client, info.discipline, info.last_name, info.first_name, info.report_status,  info.accessionNum, info.final_result_count, plr.status "
+						+ " FROM hl7TextInfo info "
 						+ " LEFT JOIN providerLabRouting plr ON plr.lab_no = info.lab_no "
+						+ (dateSearchType.equals("receivedCreated")?" LEFT JOIN hl7TextMessage message ON message.lab_id = info.lab_no":"")
 						+ (!status.equals("")?" WHERE plr.status = '" + status + "' AND plr.lab_type = 'HL7' ":" WHERE plr.lab_type = 'HL7'")
 						+ (searchProvider ? " AND plr.provider_no = '"+providerNo+"' " : "") + " AND plr.lab_no = info.lab_no "
 						+ (isAbnormal != null ? " AND ("+(!isAbnormal ? "info.result_status IS NULL OR" : "") + " info.result_status "+(isAbnormal ? "" : "!")+"= 'A') " : " ")
 						+ dateSql
 						+ " GROUP BY info.lab_no "
-						+ " ORDER BY plr.id DESC, info.obr_date DESC "
+						+ " ORDER BY plr.id DESC, " + (dateSearchType.equals("receivedCreated")?"message.created":"info.obr_date") + " DESC"
 						+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 	    	}
 	    }
 	    else {
 	    	if ("0".equals(demographicNo)) { // Unmatched labs
-	    		sql = " SELECT info.label, info.lab_no, info.sex, info.health_no, info.result_status, info.obr_date, info.priority, info.requesting_client, info.discipline, info.last_name, info.first_name, info.report_status,  info.accessionNum, info.final_result_count, plr.status "
+	    		sql = " SELECT info.label, info.lab_no, info.sex, info.health_no, info.result_status," + (dateSearchType.equals("receivedCreated")?" message.created":"info.obr_date") + ", info.priority, " +
+						"info.requesting_client, info.discipline, info.last_name, info.first_name, info.report_status,  info.accessionNum, info.final_result_count, plr.status "
 	    			+ " FROM patientLabRouting plr2"
 					+ " RIGHT JOIN providerLabRouting plr ON plr.lab_no = plr2.lab_no AND plr2.lab_type = 'HL7'"
 					+ " RIGHT JOIN hl7TextInfo info ON plr.lab_no = info.lab_no"
+					+ (dateSearchType.equals("receivedCreated")?" RIGHT JOIN hl7textmessage message ON plr.lab_no = message.lab_id":"")
 	    			+ " WHERE plr.lab_type = 'HL7'"
 	    			+ (searchProvider ? " AND plr.provider_no = '"+providerNo+"' " : "")
 	    			+ " AND plr.status " + ("".equals(status) ? " IS NOT NULL " : " = '"+status+"' ")
@@ -370,8 +410,9 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 	    				+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 	    	}
 	    	else if (demographicNo != null && !"".equals(demographicNo)) {
-	    		sql = " SELECT info.label, info.lab_no, info.sex, info.health_no, info.result_status, info.obr_date, info.priority, info.requesting_client, info.discipline, info.last_name, info.first_name, info.report_status,  info.accessionNum, info.final_result_count, X.status "
-	    			+ " FROM hl7TextInfo info, "
+	    		sql = " SELECT info.label, info.lab_no, info.sex, info.health_no, info.result_status," + (dateSearchType.equals("receivedCreated")?" message.created":"info.obr_date") + ", info.priority, " +
+						"info.requesting_client, info.discipline, info.last_name, info.first_name, info.report_status,  info.accessionNum, info.final_result_count, X.status "
+	    			+ " FROM hl7TextInfo info, " + (dateSearchType.equals("receivedCreated")?" hl7textmessage message, ":"")
 	    			+ " (SELECT DISTINCT plr.id,plr.lab_no, plr.lab_type,  plr.status, d.demographic_no "
 	    			+ " FROM providerLabRouting plr, patientLabRouting plr2, demographic d "
 	    			+ " WHERE 	(d.demographic_no = '"+demographicNo+"' "
@@ -381,14 +422,16 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 	    			+ " 		) "
 	    			+ " ORDER BY plr.id DESC "
 	    			+ " ) AS X "
-	    			+ " WHERE X.lab_type = 'HL7' and X.lab_no = info.lab_no "
+	    			+ " WHERE X.lab_type = 'HL7' and X.lab_no = info.lab_no " + (dateSearchType.equals("receivedCreated")?" AND message.lab_id = info.lab_no ":"")
 	    			+ dateSql
-	    			+ " ORDER BY info.obr_date DESC "
+					+ (dateSearchType.equals("receivedCreated")?" GROUP BY info.lab_no":"")
+	    			+ " ORDER BY " + (dateSearchType.equals("receivedCreated")?"message.created":"info.obr_date") + " DESC "
 	    			+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 	    	}
 	    	else if (patientSearch) { // A
-				sql = " SELECT info.label, info.lab_no, info.sex, info.health_no, info.result_status, info.obr_date, info.priority, info.requesting_client, info.discipline, info.last_name, info.first_name, info.report_status, info.accessionNum, info.final_result_count, Z.status "
-						+ " FROM hl7TextInfo info, "
+				sql = " SELECT info.label, info.lab_no, info.sex, info.health_no, info.result_status," + (dateSearchType.equals("receivedCreated")?" message.created":"info.obr_date") + ", info.priority, " +
+						"info.requesting_client, info.discipline, info.last_name, info.first_name, info.report_status, info.accessionNum, info.final_result_count, Z.status "
+						+ " FROM hl7TextInfo info, " + (dateSearchType.equals("receivedCreated")?" hl7textmessage message, ":"")
 						+ " 	(SELECT * FROM "
 						+ " 		(SELECT DISTINCT plr.id, plr.lab_type, plr.status, plr.lab_no, d.demographic_no "
 						+ " 			FROM providerLabRouting plr, patientLabRouting plr2, demographic d "
@@ -407,20 +450,23 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 						+ " 		) "
 						+ " 		ORDER BY id DESC "
 						+ " 	) AS Z "
-						+ " WHERE Z.lab_type = 'HL7' and Z.lab_no = info.lab_no "
+						+ " WHERE Z.lab_type = 'HL7' and Z.lab_no = info.lab_no " + (dateSearchType.equals("receivedCreated")?" message.lab_id = info.lab_no ":"")
 						+ dateSql
 						+ (isAbnormal != null ? " AND (" + (!isAbnormal ? "info.result_status IS NULL OR" : "") + " info.result_status " + (isAbnormal ? "" : "!") + "= 'A') " : " ")
-	    				+ " ORDER BY info.obr_date DESC "
+						+ (dateSearchType.equals("receivedCreated")?" GROUP BY info.lab_no ":"")
+	    				+ " ORDER BY " + (dateSearchType.equals("receivedCreated")?"message.created":"info.obr_date") + " DESC "
 	    				+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 	    	}
 	    	else { // A
-	    		sql = " SELECT info.label, info.lab_no, info.sex, info.health_no, info.result_status, info.obr_date, info.priority, info.requesting_client, info.discipline, info.last_name, info.first_name, info.report_status,  info.accessionNum, info.final_result_count, plr.status "
-	    			+ " FROM providerLabRouting plr, hl7TextInfo info "
+	    		sql = " SELECT info.label, info.lab_no, info.sex, info.health_no, info.result_status," + (dateSearchType.equals("receivedCreated")?" message.created":"info.obr_date") + ", info.priority, " +
+						"info.requesting_client, info.discipline, info.last_name, info.first_name, info.report_status,  info.accessionNum, info.final_result_count, plr.status "
+	    			+ " FROM providerLabRouting plr, hl7TextInfo info " + (dateSearchType.equals("receivedCreated")?", hl7textmessage message, ":"")
 	    			+ " WHERE plr.status " + ("".equals(status) ? " IS NOT NULL " : " = '"+status+"' ") + (searchProvider ? " AND plr.provider_no = '"+providerNo+"' " : "")
-	    			+ "   AND lab_type = 'HL7' and info.lab_no = plr.lab_no "
+	    			+ "   AND lab_type = 'HL7' and info.lab_no = plr.lab_no " + (dateSearchType.equals("receivedCreated")?" AND message.lab_id = info.lab_no ":"")
 	    			+ dateSql
 	    			+ (isAbnormal != null ? " AND (" + (!isAbnormal ? "info.result_status IS NULL OR" : "") + " info.result_status " + (isAbnormal ? "" : "!") + "= 'A') " : " ")
-	    			+ " ORDER BY info.obr_date DESC "
+					+ (dateSearchType.equals("receivedCreated")?" GROUP BY info.lab_no ":"")
+	    			+ " ORDER BY " + (dateSearchType.equals("receivedCreated")?"message.created":"info.obr_date") + " DESC "
 	    			+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
 	    	}
 	    }
