@@ -137,8 +137,11 @@ public class WKHtmlToPdfUtils {
 						if (errorMsg != null) logger.error(errorMsg);
 						
 						//404 error returns code 2 but file is still converted if file passed and not url so we check before throwing exception
-						if( exitValue != 2 )
+						if(exitValue == 1 && f.length() != 0) {
+						    logger.warn("PDF created but with error code 1");
+						} else if(exitValue != 2) {
 							throw new IOException("Cannot convert html file to pdf");
+						}
 					}
 
 					return;
