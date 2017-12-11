@@ -423,7 +423,15 @@ function moveToFolder(selected){
 		                    
 		                    String previous = "";
 		                    String next = "";
-		                    String path = request.getContextPath()+"/oscarMessenger/DisplayMessages.jsp?boxType=" + pageType + "&page=";
+		                    String path = request.getContextPath()+"/oscarMessenger/DisplayMessages.jsp";
+
+		                    if (folderId != null) {
+                                path += "?folder=" + folderId + "&page=";
+                            }
+                            else {
+		                        path += "?boxType=" + pageType + "&page=";
+                            }
+
 		                    Boolean search = false;
 		                    if(request.getParameter("searchString")!=null){
 		                    	search = true;
@@ -431,7 +439,7 @@ function moveToFolder(selected){
 		                    
 		                    if (pageType != 3){
 		                    
-		                    int totalMsgs = DisplayMessagesBeanId.getTotalMessages(pageType);
+		                    int totalMsgs = folderId != null ? DisplayMessagesBeanId.getTotalFolderMessages(Integer.valueOf(folderId)) : DisplayMessagesBeanId.getTotalMessages(pageType);
 		                    
 		                    int totalPages = totalMsgs / recordsToDisplay + (totalMsgs % recordsToDisplay == 0 ? 0 : 1);
 

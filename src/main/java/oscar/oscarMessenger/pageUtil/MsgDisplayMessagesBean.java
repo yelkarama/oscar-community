@@ -443,6 +443,15 @@ public class MsgDisplayMessagesBean implements java.io.Serializable {
 		return total;
 	}
 
+	public int getTotalFolderMessages(Integer folderId){
+		String providerNo = this.getProviderNo();
+		MessageListDao messageListDao = SpringUtils.getBean(MessageListDao.class);
+
+		int total = messageListDao.messagesFolderTotal(folderId, providerNo, Integer.parseInt(getCurrentLocationId()), filter);
+
+		return total;
+	}
+
 	public Vector<MsgDisplayMessage> estDeletedInbox(String orderby, int page) {
 		
 		String providerNo = this.getProviderNo();

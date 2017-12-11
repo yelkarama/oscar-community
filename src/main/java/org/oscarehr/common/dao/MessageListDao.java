@@ -190,5 +190,45 @@ public class MessageListDao extends AbstractDao<MessageList> {
 		
 		return result;
 	}
+
+	public Integer messagesFolderTotal(Integer folderId, String providerNo, Integer remoteLocation, String searchFilter) {
+
+		searchFilter = "%"+searchFilter+"%";
+
+		StringBuilder sql = new StringBuilder();
+		sql.append("select count(mt) from ");
+		sql.append("MessageList ml, MessageTbl mt where ml.status !='del' " +
+				" AND ml.message = mt.id " +
+				" AND ml.providerNo= :providerNo " +
+				" AND ml.folderId = :folderId " +
+				" AND ml.remoteLocation = :remoteLocation ");
+
+		if(searchFilter != null && !searchFilter.isEmpty()) {
+			sql.append(" AND (mt.subject Like :filter1 OR mt.message Like :filter2 OR mt.sentBy Like :filter3 OR mt.sentTo Like :filter4)");
+		}
+
+		Query query = entityManager.createQuery(sql.toString());
+
+		if(providerNo != null && !providerNo.isEmpty()) {
+			query.setParameter("providerNo", providerNo);
+		}
+
+		query.setParameter("folderId", folderId);
+
+		if(remoteLocation != null) {
+			query.setParameter("remoteLocation", remoteLocation);
+		}
+
+		if(searchFilter != null && !searchFilter.isEmpty()) {
+			query.setParameter("filter1", searchFilter);
+			query.setParameter("filter2", searchFilter);
+			query.setParameter("filter3", searchFilter);
+			query.setParameter("filter4", searchFilter);
+		}
+
+		Integer result = ((Long)query.getSingleResult()).intValue();
+
+		return result;
+	}
     
 }
