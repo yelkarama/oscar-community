@@ -95,7 +95,8 @@ public class EctDisplayAction extends Action {
 			Actions.put("PHR", "/oscarEncounter/displayMyOscar.do");
 			Actions.put("eaaps", "/eaaps/displayEctEaaps.do");
 			Actions.put("progressSheet", "/oscarEncounter/displayProgressSheet.do");
-			
+			Actions.put("consent", "/oscarEncounter/displayDocuments.do?type=Consent");
+
 			if (logger.isDebugEnabled()) {
 				logger.debug("Instantiated encounter display actions: " + Actions);
 			}
@@ -111,6 +112,8 @@ public class EctDisplayAction extends Action {
 		String navName;
 		if ((navName = (String) request.getAttribute("navbarName")) != null) navName += "+" + cmd;
 		else navName = cmd;
+		String type = request.getParameter("type");
+		if (type != null && type.equals("Consent")) {cmd = "docs";}
 
 		request.setAttribute("navbarName", navName);
 
@@ -163,6 +166,10 @@ public class EctDisplayAction extends Action {
 		//Check attrib first so we know if we are in a chain call before a direct request
 		String params = (String) request.getAttribute("cmd");
 		if (params == null) params = request.getParameter("cmd");
+		if (params.equals("consent")) {
+			params = "docs";
+			request.setAttribute("consent", true);
+		}
 		request.setAttribute("cmd", params);
 
 		if (params != null) {

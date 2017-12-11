@@ -180,6 +180,10 @@ Boolean DocumentBrowserLink=false;
 if ( up != null && up.getValue() != null && up.getValue().equals("yes")){ 
    DocumentBrowserLink = true;
                             }
+
+if (request.getParameter("doctype") != null && request.getParameter("doctype").equals("consent")) {
+   view = "CONSENT / LEGAL";
+}
 %>
 <html:html locale="true">
 <head>

@@ -63,12 +63,19 @@ public class EctDisplayDocsAction extends EctDisplayAction {
     			omitTypes = omitTypeStr.split(",");
     		}
     		// add for inbox manager
+			boolean isConsent = request.getAttribute("consent")!=null?(Boolean) request.getAttribute("consent"):false;
     		boolean inboxflag = oscar.util.plugin.IsPropertiesOn.propertiesOn("inboxmnger");
     		// set lefthand module heading and link
     		String winName = "docs" + bean.demographicNo;
     		String url = "popupPage(500,1115,'" + winName + "', '" + request.getContextPath() + "/dms/documentReport.jsp?" + "function=demographic&doctype=lab&functionid=" + bean.demographicNo + "&curUser=" + bean.providerNo + "')";
     
     		Dao.setLeftHeading(messages.getMessage(request.getLocale(), "oscarEncounter.Index.msgDocuments"));
+    		if (isConsent)
+			{
+				Dao.setLeftHeading(messages.getMessage(request.getLocale(), "oscarEncounter.Index.msgConsentDocuments"));
+				url = "popupPage(500,1115,'" + winName + "', '" + request.getContextPath() + "/dms/documentReport.jsp?" + "function=demographic&doctype=consent&functionid="
+				+ bean.demographicNo + "&curUser=" + bean.providerNo + "')";
+			}
     		if (inboxflag) {
     			url = "popupPage(600,1024,'" + winName + "', '" + request.getContextPath() + "/mod/docmgmtComp/DocList.do?method=list&&demographic_no=" + bean.demographicNo + "');";
     			Dao.setLeftHeading(messages.getMessage("oscarEncounter.Index.inboxManager"));
@@ -88,6 +95,10 @@ public class EctDisplayDocsAction extends EctDisplayAction {
     		StringBuilder javascript = new StringBuilder("<script type=\"text/javascript\">");
     		String js = "";
     		ArrayList<EDoc> docList = EDocUtil.listDocs(loggedInInfo, "demographic", bean.demographicNo, null, EDocUtil.PRIVATE, EDocSort.OBSERVATIONDATE, "active");
+    		if (isConsent)
+			{
+				docList = EDocUtil.listDocs(loggedInInfo, "demographic", bean.demographicNo, "CONSENT / LEGAL", EDocUtil.PRIVATE, EDocSort.OBSERVATIONDATE, "active");
+			}
     		String dbFormat = "yyyy-MM-dd";
     		String serviceDateStr = "";
     		String key;

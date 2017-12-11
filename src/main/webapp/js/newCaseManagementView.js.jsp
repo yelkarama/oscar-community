@@ -595,6 +595,12 @@ function navBarLoader() {
 
             var rightNavBarTitles = [ "allergies", "Rx", "OMeds", "RiskFactors", "FamHistory", "unresolvedIssues", "resolvedIssues", "Guidelines","episode","pregnancy","contacts"];
 
+        <%
+            if (OscarProperties.getInstance().getBooleanProperty("enable_document_consent_module", "true")) { %>
+                rightNavBar.push(ctx + '/oscarEncounter/displayDocuments.do?hC=' + Colour.documents + '&type=Consent');
+                rightNavBarTitles.push('consent')
+            <%}%>
+
 
           var navbar = "leftNavBar";
           for( var idx = 0; idx < leftNavBar.length; ++idx ) {
