@@ -45,7 +45,7 @@ public class ConsultationRequestDao extends AbstractDao<ConsultationRequest> {
 
 	public int getCountReferralsAfterCutOffDateAndNotCompleted(Date referralDateCutoff)
 	{
-		Query query = entityManager.createNativeQuery("select count(*) from consultationRequests where referalDate < ?1 and status != 4");
+		Query query = entityManager.createNativeQuery("select count(*) from consultationRequests where referalDate < ?1 and status != '4'");
 		query.setParameter(1, referralDateCutoff);
 
 		return((BigInteger)query.getSingleResult()).intValue();
@@ -53,7 +53,7 @@ public class ConsultationRequestDao extends AbstractDao<ConsultationRequest> {
 
 	public int getCountReferralsAfterCutOffDateAndNotCompleted(Date referralDateCutoff,String sendto)
 	{
-		Query query = entityManager.createNativeQuery("select count(*) from consultationRequests where referalDate < ?1 and status != 4 and sendto = ?2");
+		Query query = entityManager.createNativeQuery("select count(*) from consultationRequests where referalDate < ?1 and status != '4' and sendto = ?2");
 		query.setParameter(1, referralDateCutoff);
 		query.setParameter(2, sendto);
 
@@ -76,7 +76,7 @@ public class ConsultationRequestDao extends AbstractDao<ConsultationRequest> {
         	StringBuilder sql = new StringBuilder("select cr from ConsultationRequest cr left outer join cr.professionalSpecialist specialist, ConsultationServices service, Demographic d left outer join d.provider p where d.DemographicNo = cr.demographicId and service.id = cr.serviceId ");
 
             if( !showCompleted ) {
-               sql.append("and cr.status != 4 ");
+               sql.append("and cr.status != '4' ");
             }
 
             if( !team.isEmpty()) {

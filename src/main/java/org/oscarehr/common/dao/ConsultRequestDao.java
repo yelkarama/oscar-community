@@ -76,7 +76,7 @@ public class ConsultRequestDao extends AbstractDao<ConsultationRequest> {
 			sql.append("and cr.providerNo = '" + StringEscapeUtils.escapeSql(consultationQuery.getProviderNo()) + "' ");
 		}
 		if (!StringUtils.equals(consultationQuery.getComplete(), "true")) {
-			sql.append("and cr.status != 4 ");
+			sql.append("and cr.status != '4' ");
 		}
 		if (StringUtils.isNotBlank(consultationQuery.getStatus())) {
 			sql.append("and cr.status = '" + StringEscapeUtils.escapeSql(consultationQuery.getStatus()) + "' ");
@@ -183,7 +183,7 @@ public class ConsultRequestDao extends AbstractDao<ConsultationRequest> {
 		if (filter.getStatus()!=null) {
 			sql.append("and cr.status = '" + filter.getStatus() + "' ");
 		} else {
-			sql.append("and cr.status!=4 and cr.status!=5 and cr.status!=7 ");
+			sql.append("and cr.status!='4' and cr.status!='5' and cr.status!='7' ");
 		}
 		
 		if (StringUtils.isNotBlank(filter.getTeam())) {
