@@ -151,7 +151,7 @@
   String apptStatusHere = pros.getProperty("appt_status_here");
 
     AppointmentStatusMgr apptStatusMgr =  new AppointmentStatusMgrImpl();
-    List allStatus = apptStatusMgr.getAllActiveStatus();
+    List<AppointmentStatus> allStatus = apptStatusMgr.getAllActiveStatus();
 
     Boolean isMobileOptimized = session.getAttribute("mobileOptimized") != null;
     
@@ -551,7 +551,7 @@ var appointmentTypeData = {};
 
 <%
 	
-	String demono="", chartno="", phone="", rosterstatus="", alert="", doctorNo="";
+	String demoNo="", chartno="", phone="", rosterstatus="", alert="", doctorNo="";
 	String strApptDate = bFirstDisp?"":request.getParameter("appointment_date") ;
 
 	if (bFirstDisp) {
@@ -565,21 +565,21 @@ var appointmentTypeData = {};
 
 
 	if (bFirstDisp) {
-		demono = String.valueOf(appt.getDemographicNo());
+		demoNo = String.valueOf(appt.getDemographicNo());
 	} else if (request.getParameter("demographic_no")!=null && !request.getParameter("demographic_no").equals("")) {
-		demono = request.getParameter("demographic_no");
+		demoNo = request.getParameter("demographic_no");
 	}
 
+	Demographic demographic = null;
 	//get chart_no from demographic table if it exists
-	if (!demono.equals("0") && !demono.equals("")) {
-		Demographic d = demographicManager.getDemographic(loggedInInfo, demono);
-		if(d != null) {
-			chartno = d.getChartNo();
-			phone = d.getPhone();
-			rosterstatus = d.getRosterStatus();
+	if (!demoNo.equals("0") && !demoNo.equals("")) {
+		demographic = demographicManager.getDemographic(loggedInInfo, demoNo);
+		if(demographic != null) {
+			chartno = demographic.getChartNo();
+			rosterstatus = demographic.getRosterStatus();
 		}
    		
-		DemographicCust demographicCust = demographicCustDao.find(Integer.parseInt(demono));
+		DemographicCust demographicCust = demographicCustDao.find(Integer.parseInt(demoNo));
 		if(demographicCust != null) {
 			alert = demographicCust.getBookingAlert();
 		}
@@ -592,13 +592,13 @@ var appointmentTypeData = {};
         boolean bMultipleSameDayGroupAppt = false;
         if (props.getProperty("allowMultipleSameDayGroupAppt", "").equalsIgnoreCase("no")) {
 
-            if (!bFirstDisp && !demono.equals("0") && !demono.equals("")) {
+            if (!bFirstDisp && !demoNo.equals("0") && !demoNo.equals("")) {
                 String [] sqlParam = new String[3] ;
                 sqlParam[0] = myGroupNo; //schedule group
-                sqlParam[1] = demono;
+                sqlParam[1] = demoNo;
                 sqlParam[2] = strApptDate;
 
-               List<Appointment> aa = appointmentDao.search_group_day_appt(myGroupNo,Integer.parseInt(demono),ConversionUtils.fromDateString(strApptDate));
+               List<Appointment> aa = appointmentDao.search_group_day_appt(myGroupNo,Integer.parseInt(demoNo),ConversionUtils.fromDateString(strApptDate));
                 
                 long numSameDayGroupAppts = aa.size() > 0 ? new Long(aa.size()) : 0;
                 bMultipleSameDayGroupAppt = (numSameDayGroupAppts > 0);
@@ -756,8 +756,8 @@ var appointmentTypeData = {};
     int starttime = (startCal.get(Calendar.HOUR_OF_DAY) )*60 + (startCal.get(Calendar.MINUTE)) ;
     everyMin = endtime - starttime +1;
 
-    if (!demono.equals("0") && !demono.equals("") && (demographicManager != null)) {
-        Demographic demo = demographicManager.getDemographic(loggedInInfo, demono);
+    if (!demoNo.equals("0") && !demoNo.equals("") && (demographicManager != null)) {
+        Demographic demo = demographicManager.getDemographic(loggedInInfo, demoNo);
         nameSb.append(demo.getLastName())
               .append(",")
               .append(demo.getFirstName());
@@ -1070,9 +1070,208 @@ if (bMultisites) { %>
 
 </div>
 <div id="bottomInfo">
+	<%
+		String formTblProp = "";
+		String[] formTblNames = new String[0];
+		int numForms;
+		int pageSize = 5;
+	%>
+	<table align="center">
+		<tr>
+			<td valign="top">
+				<% if (demographic != null) { 
+				    String dobString = "("+demographic.getYearOfBirth()+"-"+demographic.getMonthOfBirth()+"-"+demographic.getDateOfBirth()+")";
+				%>
+				<table style="font-size: 9pt;" bgcolor="#c0c0c0" align="center" valign="top" cellpadding="3px">
+					<tr bgcolor="#ccccff">
+						<th colspan="2">
+							<bean:message key="appointment.addappointment.msgDemgraphics"/>
+							<a title="Master File" onclick="popup(700,1000,'../demographic/demographiccontrol.jsp?demographic_no=<%=demoNo%>&amp;displaymode=edit&amp;dboperation=search_detail','master')" href="javascript: function myFunction() {return false; }"><bean:message key="appointment.addappointment.btnEdit"/></a>
+							<bean:message key="appointment.addappointment.msgSex"/>: <%=demographic.getSex()%> &nbsp; <bean:message key="appointment.addappointment.msgDOB"/>: <%=dobString%>
+						</th>
+					</tr>
+					<tr bgcolor="#ccccff">
+						<th style="padding-right: 20px" align="left">
+							<bean:message key="appointment.addappointment.msgHin"/>:<br/>
+							<a href="#" onclick="popup(500, 500, '/CardSwipe/?hc=<%=demographic.getHin().replace("null", "")%>&providerNo=<%=StringUtils.trimToEmpty(curProvider_no)%>', 'Card Swipe'); return false;" style="float:right; padding-right: 5px;">Validate HC</a>
+						</th>
+						<td><%=demographic.getHin().replace("null", "")%> </td>
+					</tr>
+					<tr bgcolor="#ccccff">
+						<th style="padding-right: 20px"align="left"><bean:message key="appointment.addappointment.msgAddress"/>:</th>
+						<td><%=StringUtils.trimToEmpty(demographic.getAddress())%>, <%=StringUtils.trimToEmpty(demographic.getCity())%>, <%=StringUtils.trimToEmpty(demographic.getProvince())%>, <%=StringUtils.trimToEmpty(demographic.getPostal())%></td>
+					</tr>
+					<tr bgcolor="#ccccff">
+						<th style="padding-right: 20px" align="left"><bean:message key="appointment.addappointment.msgPhone"/>:</th>
+						<td><b><bean:message key="appointment.addappointment.msgH"/></b>:<%=StringUtils.trimToEmpty(demographic.getPhone())%> <b><bean:message key="appointment.addappointment.msgW"/></b>:<%=StringUtils.trimToEmpty(demographic.getPhone2())%> </td>
+					</tr>
+					<tr bgcolor="#ccccff" align="left">
+						<th style="padding-right: 20px"><bean:message key="appointment.addappointment.msgEmail"/>:</th>
+						<td><%=StringUtils.trimToEmpty(demographic.getEmail())%></td>
+					</tr>
+					<tr bgcolor="#ccccff" align="left">
+						<th style="padding-right: 20px"><bean:message key="appointment.addappointment.msgFamDoc"/>:</th>
+						<td><%=demographic.getFamilyDoctor()%></td>
+					</tr>
+					<tr bgcolor="#ccccff" align="left">
+						<th style="padding-right: 20px"><bean:message key="appointment.addappointment.msgRefDoc"/>:</th>
+						<td><%=demographic.getFamilyPhysician()%></td>
+					</tr>
+				</table>
+				<%}%>
+			</td>
+			<td valign="top">
+				<%
+					formTblProp = props.getProperty("appt_formTbl","");
+					formTblNames = formTblProp.split(";");
+
+					numForms = 0;
+					for (String formTblName : formTblNames){
+						if ((formTblName != null) && !formTblName.equals("")) {
+							//form table name defined
+							for(EncounterForm ef:encounterFormDao.findByFormTable(formTblName)) {
+								String formName = ef.getFormName();
+								pageContext.setAttribute("formName", formName);
+								boolean formComplete = false;
+								EctFormData.PatientForm[] ptForms = EctFormData.getPatientFormsFromLocalAndRemote(loggedInInfo, demoNo, formTblName);
+
+								if (ptForms.length > 0) {
+									formComplete = true;
+								}
+								numForms++;
+								if (numForms == 1) {
+
+				%>
+				<table style="font-size: 9pt;" bgcolor="#c0c0c0" align="center" valign="top" cellpadding="3px">
+					<tr bgcolor="#ccccff">
+						<th colspan="2">
+							<bean:message key="appointment.addappointment.msgFormsSaved"/>
+						</th>
+					</tr>
+					<%              }%>
+
+					<tr bgcolor="#c0c0c0" align="left">
+						<th style="padding-right: 20px"><c:out value="${formName}:"/></th>
+						<%              if (formComplete){  %>
+						<td><bean:message key="appointment.addappointment.msgFormCompleted"/></td>
+						<%              } else {            %>
+						<td><bean:message key="appointment.addappointment.msgFormNotCompleted"/></td>
+						<%              } %>
+					</tr>
+					<%
+								}
+							}
+						}
+
+						if (numForms > 0) {
+					%>
+				</table>
+				<%  }   %>
+			</td>
+			<td valign="top">
+				<table style="font-size: 8pt;" bgcolor="#c0c0c0" align="center" valign="top">
+					<tr bgcolor="#ccccff">
+						<th colspan="5"><bean:message key="appointment.addappointment.msgOverview" /></th>
+					</tr>
+					<tr bgcolor="#ccccff">
+						<th style="padding-right: 25px"><bean:message key="Appointment.formDate" /></th>
+						<th style="padding-right: 25px"><bean:message key="Appointment.formStartTime" /></th>
+						<th style="padding-right: 25px"><bean:message key="appointment.addappointment.msgProvider" /></th>
+						<th style="padding-right: 25px"><bean:message key="appointment.addappointment.msgStatus" /></th>
+						<th style="padding-right: 25px"><bean:message key="appointment.addappointment.msgNotes" /></th>
+					</tr>
+					<%
+
+						int iRow=0;
+						if(demographic != null) {
+
+							Calendar cal2 = Calendar.getInstance();
+							java.util.Date start = cal2.getTime();
+							cal2.add(Calendar.YEAR, 1);
+							java.util.Date end = cal2.getTime();
+
+							String status;
+							String notes;
+							String shortenedNotes;
+							String statusDescription;
+
+							for(Object[] result : appointmentDao.search_appt_future(Integer.parseInt(demoNo), start, end)) {
+								Appointment a = (Appointment)result[0];
+								Provider currentProvider = (Provider)result[1];
+								iRow ++;
+								if (iRow > pageSize) break;
+
+								status = a.getStatus();
+								notes = a.getNotes();
+
+								if (notes.length() > 15) {
+									shortenedNotes = notes.substring(0, 13).trim() + "<b>...</b>";
+								}
+								else {
+									shortenedNotes = notes;
+								}
+								statusDescription = "";
+								for (AppointmentStatus appointmentStatus : allStatus) {
+									if (appointmentStatus.getStatus().equals(status)) {
+										statusDescription = appointmentStatus.getDescription();
+									}
+								}
+					%>
+					<tr bgcolor="#eeeeff" style="<%=curUser_no.equals(currentProvider.getProviderNo())?"font-weight:bold":""%>">
+						<td style="background-color: #CCFFCC; padding-right: 25px"><%=ConversionUtils.toDateString(a.getAppointmentDate())%></td>
+						<td style="background-color: #CCFFCC; padding-right: 25px"><%=ConversionUtils.toTimeString(a.getStartTime())%></td>
+						<td style="background-color: #CCFFCC; padding-right: 25px"><%=((Provider)result[1]).getFormattedName()%></td>
+						<td style="background-color: #CCFFCC;"><%= statusDescription %></td>
+						<td style="background-color: #CCFFCC;" title="<%= notes %>"><%= shortenedNotes %></td>
+					</tr>
+					<%
+						}
+
+						iRow=0;
+						cal2 = Calendar.getInstance();
+						cal2.add(Calendar.YEAR, -1);
+
+						for(Object[] result : appointmentDao.search_appt_past(Integer.parseInt(demoNo), start, cal2.getTime())) {
+							Appointment a = (Appointment)result[0];
+							Provider currentProvider = (Provider)result[1];
+							iRow ++;
+							if (iRow > pageSize) break;
+
+							status = a.getStatus();
+							notes = a.getNotes();
+
+							if (notes.length() > 15) {
+								shortenedNotes = notes.substring(0, 13).trim() + "<b>...</b>";
+							}
+							else {
+								shortenedNotes = notes;
+							}
+							statusDescription = "";
+							for (AppointmentStatus appointmentStatus : allStatus) {
+								if (appointmentStatus.getStatus().equals(status)) {
+									statusDescription = appointmentStatus.getDescription();
+								}
+							}
+					%>
+					<tr bgcolor="#eeeeff" style="<%=curUser_no.equals(currentProvider.getProviderNo())?"font-weight:bold":""%>">
+						<td style="padding-right: 25px"><%=ConversionUtils.toDateString(a.getAppointmentDate())%></td>
+						<td style="padding-right: 25px"><%=ConversionUtils.toTimeString(a.getStartTime())%></td>
+						<td style="padding-right: 25px"><%=currentProvider.getFormattedName()%></td>
+						<td style="padding-right: 25px"><%= statusDescription %></td>
+						<td style="padding-right: 25px" title="<%= notes %>"><%= shortenedNotes %></td>
+					</tr>
+					<%
+							}
+						}
+					%>
+				</table>
+			</td>
+		</tr>
+	</table>
+	
 <table width="95%" align="center">
 	<tr>
-		<td><bean:message key="Appointment.msgTelephone" />: <%= StringUtils.trimToEmpty(phone)%><br>
+		<td>
 		<bean:message key="Appointment.msgRosterStatus" />: <%=StringUtils.trimToEmpty(rosterstatus)%>
 		</td>
 		<% if (alert!=null && !alert.equals("")) { %>
@@ -1097,7 +1296,7 @@ if (bMultisites) { %>
 
                             if (props.getProperty("allowMultipleSameDayGroupAppt", "").equalsIgnoreCase("no")) {
                                 
-                                List<Appointment> aa = appointmentDao.search_group_day_appt(myGroupNo,Integer.parseInt(demono),appt.getAppointmentDate());
+                                List<Appointment> aa = appointmentDao.search_group_day_appt(myGroupNo,Integer.parseInt(demoNo),appt.getAppointmentDate());
                                 
                                 numSameDayGroupApptsPaste = aa.size() > 0 ? new Long(aa.size()): 0;
                             }
@@ -1143,10 +1342,10 @@ if (bMultisites) { %>
 </div> <!-- end of edit appointment screen -->
 
 <% 
-    String formTblProp = props.getProperty("appt_formTbl");
-    String[] formTblNames = formTblProp.split(";");
+    formTblProp = props.getProperty("appt_formTbl");
+    formTblNames = formTblProp.split(";");
                
-    int numForms = 0;
+    numForms = 0;
     for (String formTblName : formTblNames){
         if ((formTblName != null) && !formTblName.equals("")) {
             //form table name defined
@@ -1154,7 +1353,7 @@ if (bMultisites) { %>
             	String formName = ef.getFormName();
                 pageContext.setAttribute("formName", formName);
                 boolean formComplete = false;
-                EctFormData.PatientForm[] ptForms = EctFormData.getPatientFormsFromLocalAndRemote(loggedInInfo,demono, formTblName);
+                EctFormData.PatientForm[] ptForms = EctFormData.getPatientFormsFromLocalAndRemote(loggedInInfo,demoNo, formTblName);
 
                 if (ptForms.length > 0) {
                     formComplete = true;
