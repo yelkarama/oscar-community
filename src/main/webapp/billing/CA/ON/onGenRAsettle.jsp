@@ -57,9 +57,6 @@ for(RaDetail rad:raDetailDao.search_raerror35(Integer.parseInt(raNo),"I2","35",p
 	hin = rad.getHin() != null ? rad.getHin() : "";
 
 	if (hin.length() > 10) {
-	    if (hin.length() == 12) {
-			ver = hin.substring(11, 12);
-		}
 	    hin = hin.substring(0, 10);
 	}
 
@@ -79,9 +76,6 @@ for (RaDetail ra : res) {
 	hin = ra.getHin() != null ? ra.getHin() : "";
 
 	if (hin.length() > 10) {
-		if (hin.length() == 12) {
-			ver = hin.substring(10, 12);
-		}
 		hin = hin.substring(0, 10);
 	}
 

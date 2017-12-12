@@ -58,13 +58,10 @@ for(RaDetail rad:raDetailDao.search_raerror35(Integer.parseInt(raNo), "I2", "35"
 	hin = rad.getHin() != null ? rad.getHin() : "";
 
 	if (hin.length() > 10) {
-		if (hin.length() == 12) {
-			ver = hin.substring(11, 12);
-		}
 		hin = hin.substring(0, 10);
 	}
 
-	BillingONCHeader1 invoice = billingONCHeader1Dao.getInvoice(rad.getBillingNo(), hin, ver, rad.getProviderOhipNo());
+	BillingONCHeader1 invoice = billingONCHeader1Dao.getInvoice(rad.getBillingNo(), hin, rad.getProviderOhipNo());
 	if (invoice != null) {
 		errorBill.add(account);
 		if (!rad.getServiceCode().matches("Q011A|Q020A|Q130A|Q131A|Q132A|Q133A|Q140A|Q141A|Q142A")) {
@@ -82,13 +79,10 @@ for (RaDetail ra : res) {
 	hin = ra.getHin() != null ? ra.getHin() : "";
 
 	if (hin.length() > 10) {
-		if (hin.length() == 12) {
-			ver = hin.substring(10, 12);
-		}
 		hin = hin.substring(0, 10);
 	}
 
-	BillingONCHeader1 invoice = billingONCHeader1Dao.getInvoice(ra.getBillingNo(), hin, ver, ra.getProviderOhipNo());
+	BillingONCHeader1 invoice = billingONCHeader1Dao.getInvoice(ra.getBillingNo(), hin, ra.getProviderOhipNo());
 	if (invoice != null) {
 		for (int i = 0; i < errorBill.size(); i++) {
 			errorAccount = (String) errorBill.get(i);
@@ -115,9 +109,6 @@ for(RaDetail r: raDetailDao.search_raNonErrorQ(Integer.parseInt(raNo), proNo+"%"
 	hin = r.getHin() != null ? r.getHin() : "";
 
 	if (hin.length() > 10) {
-		if (hin.length() == 12) {
-			ver = hin.substring(10, 12);
-		}
 		hin = hin.substring(0, 10);
 	}
 
