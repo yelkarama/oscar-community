@@ -1459,36 +1459,32 @@ if (iviewTag!=null && !"".equalsIgnoreCase(iviewTag.trim())){
 				<table width="100%" class="demographicDetail">
 					<tr>
 						<td class="RowTop">
+						<%  oscar.oscarDemographic.data.DemographicMerged dmDAO = new oscar.oscarDemographic.data.DemographicMerged();
+							String dboperation = "search_detail";
+							String head = dmDAO.getHead(demographic_no);
+							ArrayList records = dmDAO.getTail(head);
+						%>
+							(
+							<a href="demographiccontrol.jsp?demographic_no=<%= head %>&displaymode=edit&dboperation=<%= dboperation %>">
+								<%=head%>
+							</a>
 						<%
-						oscar.oscarDemographic.data.DemographicMerged dmDAO = new oscar.oscarDemographic.data.DemographicMerged();
-                            String dboperation = "search_detail";
-                            String head = dmDAO.getHead(demographic_no);
-                            ArrayList records = dmDAO.getTail(head);
-                           
-                                    %><a
-							href="demographiccontrol.jsp?demographic_no=<%= head %>&displaymode=edit&dboperation=<%= dboperation %>"><%=head%></a>
-						<%
-
-                                for (int i=0; i < records.size(); i++){
-                                    if (((String) records.get(i)).equals(demographic_no)){
-                                        %><%=", "+demographic_no %>
-						<%
-                                    }else{
-                                        %>, <a
-							href="demographiccontrol.jsp?demographic_no=<%= records.get(i) %>&displaymode=edit&dboperation=<%= dboperation %>"><%=records.get(i)%></a>
-						<%
-                                    }
-                                }
-                            %> ) </span></b>
-                            
-                            <security:oscarSec roleName="<%=roleName$%>" objectName="_demographic" rights="w">
-                            <%
-                                                    if( head.equals(demographic_no)) {
-                                                    %>
-                                                        <a id="editBtn" href="javascript: showHideDetail();"><bean:message key="demographic.demographiceditdemographic.msgEdit"/></a>
-                                                        <a id="closeBtn" href="javascript: showHideDetail();" style="display:none;">Close</a>
-                                                   <% } %>
-                              </security:oscarSec>
+							for (int i=0; i < records.size(); i++) {
+								if (((String) records.get(i)).equals(demographic_no)) { %>
+									<%=", "+demographic_no %>
+						<%		} else { %>
+									, <a href="demographiccontrol.jsp?demographic_no=<%= records.get(i) %>&displaymode=edit&dboperation=<%= dboperation %>">
+										<%=records.get(i)%>
+									</a>
+						<%	  }
+						} %> 
+						)
+							<security:oscarSec roleName="<%=roleName$%>" objectName="_demographic" rights="w">
+							<% if( head.equals(demographic_no)) { %>
+								<a id="editBtn" href="javascript: showHideDetail();"><bean:message key="demographic.demographiceditdemographic.msgEdit"/></a>
+								<a id="closeBtn" href="javascript: showHideDetail();" style="display:none;">Close</a>
+							<% } %>
+							</security:oscarSec>
 						</td>
 					</tr>
 <%
