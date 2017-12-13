@@ -420,18 +420,15 @@ public class JdbcBillingReviewImpl {
 						continue;
 					}
 
-					for (int i=0; i<paymentTypeTotals.entrySet().size(); i++){
-						BigDecimal currentTotal = (BigDecimal)paymentTypeTotals.get(paymentObj.getPaymentTypeId()-1);
-						if (currentTotal == null && !"0.00".equals(String.valueOf(boip.getPaid()))){
-							paymentObj.getPaymentTypeId();
-							paymentTypeTotals.put(paymentObj.getPaymentTypeId(), boip.getPaid());
-
-						} else if (!"0.00".equals(String.valueOf(boip.getPaid()))) {
-							paymentTypeTotals.put(paymentObj.getPaymentTypeId(), boip.getPaid());
-						}
-
+					if (paymentTypeTotals.get(paymentObj.getPaymentTypeId()) == null)
+					{
+						paymentTypeTotals.put(paymentObj.getPaymentTypeId(), boip.getPaid());
 					}
-					
+					else
+					{
+						paymentTypeTotals.put(paymentObj.getPaymentTypeId(), paymentTypeTotals.get(paymentObj.getPaymentTypeId()).add(boip.getPaid()));
+					}
+
 				}
 
 				String settledDate = null;
