@@ -22,6 +22,7 @@
 <%@page import="oscar.OscarProperties" %>
 <%@page import="java.text.NumberFormat" %>
 <%@page import="java.text.DecimalFormat" %>
+<%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
 
 <%! boolean bMultisites = org.oscarehr.common.IsPropertiesOn.isMultisitesEnable(); %>
 <%@ page import="java.math.*,java.util.*, java.sql.*, oscar.*, java.net.*,oscar.util.*,oscar.oscarBilling.ca.on.pageUtil.*,oscar.oscarBilling.ca.on.data.*,org.apache.struts.util.LabelValueBean" %>
@@ -134,9 +135,10 @@ if ( sortOrder == null) { sortOrder = "asc";}
 if ( paymentStartDate == null ) { paymentStartDate = ""; } 
 if ( paymentEndDate == null ) { paymentEndDate = ""; } 
 
-List<String> pList = isTeamBillingOnly
-		? (new JdbcBillingPageUtil()).getCurTeamProviderStr((String) session.getAttribute("user"))
-		: (new JdbcBillingPageUtil()).getCurProviderStr();
+ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
+List<Provider> providerList = isTeamBillingOnly
+			? providerDao.getCurrentTeamProviders((String) session.getAttribute("user"))
+			: providerDao.getAllBillableProviders();
 
 BillingStatusPrep sObj = new BillingStatusPrep();
 List<BillingClaimHeader1Data> bList = null;
@@ -172,6 +174,7 @@ NumberFormat formatter = new DecimalFormat("#0.00");
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.model.*" %>
 <%@ page import="org.oscarehr.common.dao.*" %>
+<%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
 <html>
     <head>
         <title><bean:message key="admin.admin.invoiceRpts"/></title>
@@ -239,29 +242,21 @@ NumberFormat formatter = new DecimalFormat("#0.00");
         }	
         
         function changeProvider(shouldSubmit) {
-        
         	var index = document.serviceform.providerview.selectedIndex;
         	var provider_no = document.serviceform.providerview[index].value;
-        	
-        	<% for (int i = 0 ; i < pList.size(); i++) { 
-				String temp[] = ( pList.get(i)).split("\\|");				
-			%>
-			
-			var temp_provider_no = "<%=temp[0]%>" ;
-			if(provider_no==temp_provider_no) {				
-				var provider_ohipNo="<%=temp[3]%>";
-				document.serviceform.provider_ohipNo.value=provider_ohipNo;	
+			if (provider_no == "none") {
+				document.serviceform.provider_ohipNo.value = "";
+			}
+        	<% for (Provider provider : providerList){ %>
+			if (provider_no == "<%=provider.getProviderNo()%>") {
+				document.serviceform.provider_ohipNo.value = "<%=provider.getOhipNo()%>";
 				if (shouldSubmit) {
-					if(document.getElementById("xml_vdate").value.length>0 && document.getElementById("xml_appointment_date").value.length>0)
-					document.serviceform.submit();
-				}
-				else return;				
-        	}
-        	else if (provider_no == "none"){
-                document.serviceform.provider_ohipNo.value="";
-            }
-        	<%} %>
-        	if (shouldSubmit) document.serviceform.submit();
+					if (document.getElementById("xml_vdate").value.length > 0 && document.getElementById("xml_appointment_date").value.length > 0)
+						document.serviceform.submit();
+				} else { return };
+			}<% 
+        	} %>
+        	if (shouldSubmit) { document.serviceform.submit(); }
         }	
         </script>
 <script type="text/javascript">
@@ -368,8 +363,6 @@ table td,th{font-size:12px;}
     	<%
     		String tmpStrBillType = Arrays.toString(strBillType);
     	%>
-
-
 <div class="row">
 <div class="span10">
 <small>    
@@ -390,89 +383,94 @@ table td,th{font-size:12px;}
 
 
 <div class="row">
-<div class="span3">  
-<br>
-<% // multisite start ==========================================
-String curSite = request.getParameter("site");
-if (bMultisites) 
-{ 
-        	SiteDao siteDao = (SiteDao)WebApplicationContextUtils.getWebApplicationContext(application).getBean("siteDao");
-          	List<Site> sites = siteDao.getActiveSitesByProviderNo((String) session.getAttribute("user"));
-          	// now get all providers eligible         	
-          	HashSet<String> pros=new HashSet<String>();
-          	for (Object s:pList) {
-          		pros.add(((String)s).substring(0, ((String)s).indexOf("|")));
-          	}
-      %> 
-      <script>
-var _providers = [];
-<%	for (int i=0; i<sites.size(); i++) {  
-	Set<Provider> siteProviders = sites.get(i).getProviders();
-	List<Provider>  siteProvidersList = new ArrayList<Provider> (siteProviders);
-	Collections.sort(siteProvidersList,(new Provider()).ComparatorName());%>
-	_providers["<%= sites.get(i).getName() %>"]="<% Iterator<Provider> iter = siteProvidersList.iterator();
-	while (iter.hasNext()) {
-		Provider p=iter.next();
-		if (pros.contains(p.getProviderNo())) {
-	%><option value='<%= p.getProviderNo() %>'><%= p.getLastName() %>, <%= p.getFirstName() %></option><% }} %>";
-<% } %>
+<div class="span3">
+<br/>
+<%
+	String curSite = request.getParameter("site");
+	// Create option list for all billable providers
+	StringBuilder allProviderOptions = new StringBuilder();
+	for (Provider provider : providerList) {
+		allProviderOptions.append("<option ");
+		if (providerNo.equals(provider.getProviderNo())) { allProviderOptions.append("selected "); }
+		allProviderOptions.append("value=\"").append(provider.getProviderNo()).append("\">");
+		allProviderOptions.append(provider.getLastName()).append(", ").append(provider.getFirstName());
+		allProviderOptions.append("</option>");
+	}
+	if (bMultisites) {
+		SiteDao siteDao = SpringUtils.getBean(SiteDao.class);
+	  	List<Site> sites = siteDao.getActiveSitesByProviderNo((String) session.getAttribute("user"));
+%>
+<script>
+	var _providers = [];
+<%	// Create option lists for all site billable providers
+	Map siteProvidersOptions = new HashMap<Site, String>();
+	for (Site site : sites) {
+		StringBuilder optionsString = new StringBuilder();
+		Set<Provider> siteProvidersSet = site.getProviders();
+		List<Provider> siteProvidersList = new ArrayList<Provider>();
+		siteProvidersList.addAll(siteProvidersSet);
+		Collections.sort(siteProvidersList, (new Provider()).ComparatorName());
+		for (Provider provider : siteProvidersList) {
+			if (siteProvidersList.contains(provider)) {
+				optionsString.append("<option ");
+				if (providerNo.equals(provider.getProviderNo())) { optionsString.append("selected "); }
+				optionsString.append("value=\"").append(provider.getProviderNo()).append("\">");
+				optionsString.append(provider.getLastName()).append(", ").append(provider.getFirstName());
+				optionsString.append("</option>");
+			}
+		}
+		siteProvidersOptions.put(site, optionsString.toString());
+	}
+	// Output all provider arrays
+	Iterator<Map.Entry<Site, String>> it = siteProvidersOptions.entrySet().iterator();
+	while (it.hasNext()) {
+		Map.Entry<Site, String> pair = it.next();%>
+	<%="_providers[\'" + StringEscapeUtils.escapeJavaScript(pair.getKey().getName()) + "\']=\'" + pair.getValue() + "\';"%><% 
+	} %>
+	<%="_providers[\'all\']=\'" + allProviderOptions.toString() + "\';"%>
 function changeSite(sel) {
-	sel.form.providerview.innerHTML=sel.value=="none"?"":"<option value='none'>---select provider---</option>"+_providers[sel.value];
+	sel.form.providerview.innerHTML="<option value='none'>---select provider---</option>"+_providers[sel.value];
 	sel.style.backgroundColor=sel.options[sel.selectedIndex].style.backgroundColor;
-	if (sel.value=='<%=request.getParameter("site")%>') {
+	if (sel.value=='<%=StringEscapeUtils.escapeJavaScript(request.getParameter("site"))%>') {
 		if (document.serviceform.provider_ohipNo.value!='')
 			sel.form.providerview.value='<%=request.getParameter("providerview")%>';
-	}
-	else{
-        document.serviceform.provider_ohipNo.value="";
+	} else {
+		document.serviceform.provider_ohipNo.value="";
 	}
 	changeProvider(false);
 }
-      </script>
-
-
-      	<select id="site" name="site" onchange="changeSite(this)">
-      		<option value="none" style="background-color:white">---select clinic---</option>
-      	<%
-      	for (int i=0; i<sites.size(); i++) {
-      	%>
-      		<option value="<%= sites.get(i).getName() %>" style="background-color:<%= sites.get(i).getBgColor() %>"
-      			 <%=sites.get(i).getName().toString().equals(curSite)?"selected":"" %>><%= sites.get(i).getName() %></option>
-      	<% } %>
-      	</select>
+	</script>
+	<select id="site" name="site" onchange="changeSite(this)">
+		<option value="all" style="background-color:white">---All Clinics---</option>
+		<% for (Site site : sites) { %>
+			<option value="<%= site.getName() %>" style="background-color:<%= site.getBgColor() %>" <%=site.getName().toString().equals(curSite) ? "selected" : "" %>>
+				<%= site.getName() %>
+			</option>
+		<% } %>
+	</select>
 </div>
-
-
-      	<select id="providerview" name="providerview" onchange="changeProvider(true);" style="width:140px"></select>
+<div class="span3">
+<br/>
+	<select id="providerview" name="providerview" onchange="changeProvider(true);">
+		<%=allProviderOptions.toString()%>
+	</select>
 <% if (request.getParameter("providerview")!=null) { %>
-      	<script>
-     	window.onload=function(){changeSite(document.getElementById("site"));}
-      	</script>
-<% } // multisite end ==========================================
-} else {
-%>	 
-    <select name="providerview" onchange="changeProvider(false);">
-			<%
-			if(pList.size() == 1) {
-				String temp[] = ( pList.get(0)).split("\\|");
-			%>
-			<option value="<%=temp[0]%>"> <%=temp[1]%>, <%=temp[2]%></option>
-			<script>
-                var provider_ohipNo="<%=temp[3]%>";
-                document.serviceform.provider_ohipNo.value=provider_ohipNo;
-			</script>
-			<%
-			} else {
-			%>
-       <option value="all">All Providers</option>
-    <% for (int i = 0 ; i < pList.size(); i++) { 
-		String temp[] = ( pList.get(i)).split("\\|");
-	%>
-       <option value="<%=temp[0]%>" <%=providerNo.equals(temp[0])?"selected":""%>><%=temp[1]%>, <%=temp[2]%></option>
-         
-    <% }
-    } %>
-    </select>
+	  	<script>
+	 	window.onload=function(){changeSite(document.getElementById("site"));}
+	  	</script>
+<%  }
+} else { %>
+	<select name="providerview" onchange="changeProvider(false);">
+		<% if(providerList.size() == 1) {
+			Provider defaultProvider = providerList.get(0);
+		%>
+		<option value="<%=defaultProvider.getProviderNo()%>"> <%=defaultProvider.getLastName()%>, <%=defaultProvider.getFirstName()%></option>
+		<script>document.serviceform.provider_ohipNo.value=<%=defaultProvider.getOhipNo()%>;</script>
+		<% } else { %>
+			<option value="all">All Providers</option>
+			<%=allProviderOptions%>
+		<% } %>
+	</select>
 <% } %>
 </div>
 
@@ -668,19 +666,16 @@ if(statusType.equals("_")) { %>
              <th>Report Name</th>
           </tr>
 	<% //
-        ArrayList<String> aLProviders;
-        if( providerNo == null || providerNo.equals(""))  {
-            aLProviders = new ArrayList<String>(pList);
-        }
-        else {
-            aLProviders = new ArrayList<String>();
-            aLProviders.add(providerNo);
-        }
-        String[] provInfo;
-        for( int idx = 0; idx < aLProviders.size(); ++idx ) {
-            provInfo = aLProviders.get(idx).split("\\|");
-            providerNo = provInfo[0].trim();
-
+		List<Provider> aLProviders = new ArrayList<Provider>();
+		if(providerNo == null || providerNo.equals(""))  {
+			aLProviders.addAll(providerList);
+		} else {
+			for (Provider provider : providerList) {
+				if (providerNo.equals(provider.getProviderNo())) { aLProviders.add(provider); }
+			}
+		}
+		for(Provider provider : aLProviders) {
+			providerNo = provider.getProviderNo();
 	List lPat = null;
 	List<RaDetail> errors = new ArrayList<RaDetail>();
 	BillingONCHeader1Dao cheader1Dao = (BillingONCHeader1Dao)SpringUtils.getBean(BillingONCHeader1Dao.class);
@@ -841,7 +836,7 @@ if(statusType.equals("_")) { %>
     			   && !ch1Obj.getClinic().equals(curSite) && isSiteAccessPrivacy) // only applies on user have siteAccessPrivacy (SiteManager)
 				continue; // multisite: skip if the line doesn't belong to the selected clinic    		   
     		   
-	       if (bMultisites && selectedSite != null && (!selectedSite.equals(ch1Obj.getClinic())))
+	       if (bMultisites && selectedSite != null && !selectedSite.equals("all") && (!selectedSite.equals(ch1Obj.getClinic())))
 	    	   continue;
 	       
 	       patientCount ++;
