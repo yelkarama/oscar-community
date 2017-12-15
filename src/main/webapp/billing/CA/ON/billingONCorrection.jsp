@@ -591,11 +591,15 @@ function validateAmountNumberic(idx) {
 					BigDecimal credit = BigDecimal.ZERO;
 					
 					List<BillingONPayment> bops = billingOnPaymentDao.find3rdPartyPaymentsByBillingNo(Integer.parseInt(request.getParameter("billing_no").trim()));
-					for(BillingONPayment bop:bops) {
-						credit = credit.add(bop.getTotal_credit());
-						discount = discount.add(bop.getTotal_discount());
-						payment = payment.add(bop.getTotal_payment());
-						refund = refund.add(bop.getTotal_refund());				
+					if (bops.isEmpty()) {
+						payment = bCh1.getPaid();
+					} else {
+						for (BillingONPayment bop : bops) {
+							credit = credit.add(bop.getTotal_credit());
+							discount = discount.add(bop.getTotal_discount());
+							payment = payment.add(bop.getTotal_payment());
+							refund = refund.add(bop.getTotal_refund());
+						}
 					}
 					total = bCh1.getTotal();
 					

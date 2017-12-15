@@ -329,9 +329,15 @@ public class JdbcBillingReviewImpl {
 			
 			List<BillingPaymentType> allPaymentTypes = billingPaymentTypeDao.findAll();
 			
-			for (Object[] o : dao.findByMagic2(Arrays.asList(billType), statusType, providerNo, ConversionUtils.fromDateString(startDate), ConversionUtils.fromDateString(endDate), ConversionUtils.fromIntString(demoNo), serviceCodes, dx, visitType, visitLocation, ConversionUtils.fromDateString(paymentStartDate),  ConversionUtils.fromDateString(paymentEndDate))) {
-				BillingONCHeader1 ch1 = (BillingONCHeader1) o[0];
-				BillingONItem bi = (BillingONItem) o[1];
+			List<Object[]> billingResults = dao.findByMagic2(Arrays.asList(billType), statusType, providerNo, ConversionUtils.fromDateString(startDate), ConversionUtils.fromDateString(endDate), ConversionUtils.fromIntString(demoNo), serviceCodes, dx, visitType, visitLocation, ConversionUtils.fromDateString(paymentStartDate),  ConversionUtils.fromDateString(paymentEndDate));
+			BigDecimal currentRemainingPaidAmount = null;
+			
+			for (int billingIndex = 0; billingIndex < billingResults.size(); billingIndex++) {
+				BillingONCHeader1 ch1 = (BillingONCHeader1) billingResults.get(billingIndex)[0];
+				BillingONItem bi = (BillingONItem) billingResults.get(billingIndex)[1];
+
+				// If bopIds is empty then the invoice was migrated from 12
+				List<Integer> bopIds = billingOnPaymentDao.find3rdPartyPayments(ch1.getId());
 
 				BillingClaimHeader1Data ch1Obj = new BillingClaimHeader1Data();
 				ch1Obj.setId("" + ch1.getId());
@@ -375,9 +381,31 @@ public class JdbcBillingReviewImpl {
 					paymentTypeTotals.put(type.getId(), null);
 				}
 
+				if (bopIds.isEmpty()) {
+					if (billingIndex + 1 < billingResults.size()) {
+						BillingONCHeader1 nextCh1 = (BillingONCHeader1) billingResults.get(billingIndex + 1)[0];
+						if (currentRemainingPaidAmount == null) { currentRemainingPaidAmount = ch1.getPaid(); }
+						// multiply fee by service count to fill out the paid amount
+						BigDecimal fee = new BigDecimal(bi.getFee());
+						BigDecimal serviceCount = new BigDecimal(bi.getServiceCount());
+						BigDecimal itemTotalFee = fee.multiply(serviceCount);
+						if (nextCh1.getId().equals(ch1.getId()) && currentRemainingPaidAmount.compareTo(itemTotalFee) > 0) {
+							ch1Obj.setPaid(itemTotalFee.toString());
+							currentRemainingPaidAmount = currentRemainingPaidAmount.subtract(itemTotalFee);
+						} else {
+							ch1Obj.setPaid(currentRemainingPaidAmount.toString());
+							currentRemainingPaidAmount = null;
+						}
+					} else {
+						ch1Obj.setPaid(currentRemainingPaidAmount.toString());
+						currentRemainingPaidAmount = null;
+					}
+					// Billing headers migrated from 12 do not have billing payments, so add paid from header to item here
+					paymentTypeTotals.put(1, new BigDecimal(ch1Obj.getPaid()));
+				} else { currentRemainingPaidAmount = null; }
 				ch1Obj.setNumItems(Float.parseFloat(bi.getServiceCount()));
 				
-				for(Integer paymentId:billingOnPaymentDao.find3rdPartyPayments(Integer.parseInt(ch1Obj.getId()))) {
+				for(Integer paymentId : bopIds) {
 					//because private billing changed, we'll check via paymentTypeId in billing_on_payment
 					BillingONPayment paymentObj = billingOnPaymentDao.find(paymentId);
 					BillingOnItemPayment boip = billOnItemPaymentDao.findByPaymentIdAndItemId(paymentId, bi.getId());
