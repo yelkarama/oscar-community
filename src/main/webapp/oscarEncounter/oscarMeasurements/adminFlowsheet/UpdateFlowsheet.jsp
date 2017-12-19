@@ -196,6 +196,11 @@ if(request.getParameter("demographic")==null){ %>
                 Value Name:<br />
                 <input type="text" name="value_name"   value="<%=h2.get("value_name")%>"    />
                 </div>
+                    <div class="mtype-details">
+                        Scope:<br />
+                        <input type="radio" name="scope" id="clinicScope" value="true" <%=custList.size() > 0 && custList.get(custList.size() - 1).getUniversal() ? "checked" : ""%>><label style="display:inline-block;vertical-align:text-top;padding-right:10px;" for="clinicScope">Clinic</label>
+                        <input type="radio" name="scope" id="physicianScope" value="false" <%=custList.size() == 0 || !custList.get(custList.size() - 1).getUniversal() ? "checked" : ""%>><label style="display:inline-block;vertical-align:text-top;" for="physicianScope">Physician</label>
+                    </div>
                 </div>
                 
                 <div class="well">                

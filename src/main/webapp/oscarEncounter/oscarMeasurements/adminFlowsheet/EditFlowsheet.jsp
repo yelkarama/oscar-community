@@ -440,6 +440,13 @@ Flowsheet: <span style="font-weight:normal"><%=flowsheet.toUpperCase()%></span>
                     <option  value="no">NO</option>
                 </select></td></tr>
                 <tr><td>Value Name:</td><td><input type="text" name="value_name" id="value_name" /></td></tr>
+			<tr>
+				<td>Scope:</td>
+				<td>
+					<input type="radio" name="scope" id="clinicScope" value="1" checked><label style="display:inline-block;vertical-align:text-top;padding-right:10px;" for="clinicScope">Clinic</label>
+					<input type="radio" name="scope" id="physicianScope"><label style="display:inline-block;vertical-align:text-top;" for="physicianScope">Physician</label>
+				</td>
+			</tr>
 		</table>
                 
                 

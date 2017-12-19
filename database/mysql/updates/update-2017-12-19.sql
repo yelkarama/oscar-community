@@ -1,0 +1,1 @@
+CALL addColumn('flowsheet_customization', 'universal', 'BOOLEAN NOT NULL DEFAULT TRUE');

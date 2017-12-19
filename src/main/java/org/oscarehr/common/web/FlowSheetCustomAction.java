@@ -168,7 +168,7 @@ public class FlowSheetCustomAction extends DispatchAction {
         if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_demographic", "w", demographicNo)) {
         	throw new SecurityException("missing required security object (_demographic)");
         }
-
+        Boolean universal = Boolean.valueOf(request.getParameter("scope"));
         logger.debug("UPDATING FOR demographic "+demographicNo);
 
         if (request.getParameter("updater") != null) {
@@ -278,7 +278,6 @@ public class FlowSheetCustomAction extends DispatchAction {
 
 
 
-
             //DEALING WITH TARGET DATA//////////
 
           /*
@@ -310,6 +309,7 @@ public class FlowSheetCustomAction extends DispatchAction {
             cust.setAction(FlowSheetCustomization.UPDATE);
             cust.setPayload(outp.outputString(va));
             cust.setFlowsheet(flowsheet);
+            cust.setUniversal(universal);
             if(demographicNo != null ){
                cust.setDemographicNo(demographicNo);
             }
