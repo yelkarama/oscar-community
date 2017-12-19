@@ -15,7 +15,10 @@ import java.util.List;
 import javax.persistence.Query;
 
 import org.oscarehr.common.dao.AbstractDao;
+import org.oscarehr.common.dao.SystemPreferencesDao;
+import org.oscarehr.common.model.SystemPreferences;
 import org.oscarehr.hospitalReportManager.model.HRMDocumentToProvider;
+import org.oscarehr.util.SpringUtils;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -64,12 +67,24 @@ public class HRMDocumentToProviderDao extends AbstractDao<HRMDocumentToProvider>
                 }
             }
 		}
+
+		SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
+		String dateSearchType = "serviceObservation";
+
+		SystemPreferences systemPreferences = systemPreferencesDao.findPreferenceByName("inboxDateSearchType");
+		if (systemPreferences != null)
+		{
+			if (systemPreferences.getValue() != null && !systemPreferences.getValue().isEmpty())
+			{
+				dateSearchType = systemPreferences.getValue();
+			}
+		}
 		
 		String sql = "select x from " + this.modelClass.getName() + " x, HRMDocument h" + hrmToDemographicTableName + " where x.hrmDocumentId=h.id AND x.providerNo like ?" + hrmToDemographicJoinAndSearchSql.toString();
 		if (newestDate != null)
-			sql += " and h.reportDate <= :newest";
+			sql += dateSearchType.equals("receivedCreated")?" and h.timeReceived <= :newest":" and h.reportDate <= :newest";
 		if (oldestDate != null)
-			sql += " and h.reportDate >= :oldest";
+			sql += dateSearchType.equals("receivedCreated")?" and h.timeReceived >= :oldest":" and h.reportDate >= :oldest";
 		if (viewed != 2)
 			sql += " and x.viewed = :viewed";
 		if (signedOff != 2)

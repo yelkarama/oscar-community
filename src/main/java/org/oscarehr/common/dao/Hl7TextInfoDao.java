@@ -261,29 +261,30 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 		}
 	    
 	    String dateSql = "";
-		SimpleDateFormat dateSqlFormatter = new SimpleDateFormat("yyyy-MM-dd");
+		SimpleDateFormat dateSqlFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		
 		//Checks if the startDate is null, if it isn't then creates the dateSQL for the startDate
 		if (startDate != null) {
 			if (dateSearchType.equals("receivedCreated"))
 			{
-				dateSql += " AND message.created >= '" + dateSqlFormatter.format(startDate) + " 00:00:00'";
+				dateSql += " AND message.created >= '" + dateSqlFormatter.format(startDate) + "'";
 			}
 			else
 			{
-				dateSql += " AND info.obr_date >= '" + dateSqlFormatter.format(startDate) + " 00:00:00'";
+				dateSql += " AND info.obr_date >= '" + dateSqlFormatter.format(startDate) + "'";
 			}
 		}
 		
 		//Checks if the endDate is null, if it isn't then creates the dateSQL for the endDate
-		if (endDate != null) {
+		if (endDate != null)
+		{
 			if (dateSearchType.equals("receivedCreated"))
 			{
-				dateSql += " AND message.created <= '" + dateSqlFormatter.format(endDate) + " 23:59:59'";
+				dateSql += " AND message.created <= '" + dateSqlFormatter.format(endDate) + "'";
 			}
 			else
 			{
-				dateSql += " AND info.obr_date <= '" + dateSqlFormatter.format(endDate) + " 23:59:59'";
+				dateSql += " AND info.obr_date <= '" + dateSqlFormatter.format(endDate) + "'";
 			}
 		}
 	    
