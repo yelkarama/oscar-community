@@ -183,27 +183,29 @@ public class InboxResultsDao {
 		}
 
 		String dateSql = "";
-		SimpleDateFormat dateSqlFormatter = new SimpleDateFormat("yyyy-MM-dd");
+		SimpleDateFormat dateSqlFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		//Check if the startDate is null, if a date exists then creates the SQL for the startDate
 		if (startDate != null) {
 			if (dateSearchType.equals("receivedCreated"))
 			{
-				dateSql += " AND doc.contentdatetime >= '" + dateSqlFormatter.format(startDate) + " 00:00:00'";
+				dateSql += " AND doc.contentdatetime >= '" + dateSqlFormatter.format(startDate) + "'";
 			}
 			else
 			{
-				dateSql += " AND doc.observationdate >= '" + dateSqlFormatter.format(startDate) + " 00:00:00'";
+				dateSql += " AND doc.observationdate >= '" + dateSqlFormatter.format(startDate) + "'";
 			}
 		}
 		//Check if the startDate is null, if a date exists then creates the SQL for the startDate 
-		if (endDate != null) {
+		if (endDate != null)
+		{
+			endDate.setTime(endDate.getTime() + (24 * 3600 * 1000) - 1);
 			if (dateSearchType.equals("receivedCreated"))
 			{
-				dateSql += " AND doc.contentdatetime <= '" + dateSqlFormatter.format(endDate) + " 23:59:59'";
+				dateSql += " AND doc.contentdatetime <= '" + dateSqlFormatter.format(endDate) + "'";
 			}
 			else
 			{
-				dateSql += " AND doc.observationdate <= '" + dateSqlFormatter.format(endDate) + " 23:59:59'";
+				dateSql += " AND doc.observationdate <= '" + dateSqlFormatter.format(endDate) + "'";
 			}
 		}
 		
@@ -352,7 +354,7 @@ public class InboxResultsDao {
 							+ (searchProvider ? " AND plr.provider_no = '" + providerNo + "' " : " ")
 							+ " AND plr.status " + ("".equals(status) ? " IS NOT NULL " : " = '"+status+"' ")
 							+ dateSql
-							+ "GROUP BY doc.document_no "
+							+ " GROUP BY doc.document_no "
 							+ " ORDER BY " + (dateSearchType.equals("receivedCreated")?"doc.contentdatetime DESC":"doc.observationdate DESC")
 							+ (isPaged ? " LIMIT " + (page * pageSize) + "," + pageSize : "");
 				}
