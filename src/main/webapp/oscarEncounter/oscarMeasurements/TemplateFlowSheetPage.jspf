@@ -842,7 +842,7 @@ function createAddAll(d,t,h){
     oscar.oscarRx.data.RxPrescriptionData prescriptData = new oscar.oscarRx.data.RxPrescriptionData();
     oscar.oscarRx.data.RxPrescriptionData.Prescription [] arr = {};
 
-    List<FlowSheetDrug> atcCodes = flowSheetDrugDao.getFlowSheetDrugs(temp,Integer.parseInt(demographic_no));
+    List<FlowSheetDrug> atcCodes = flowSheetDrugDao.getFlowSheetDrugs(temp, Integer.parseInt(demographic_no), loggedInInfo.getLoggedInProviderNo());
     for(FlowSheetDrug fsd : atcCodes){
             arr = prescriptData.getPrescriptionScriptsByPatientATC(Integer.parseInt(demographic_no),fsd.getAtcCode());
 
@@ -850,12 +850,8 @@ function createAddAll(d,t,h){
 
 <div class="preventionSection"  >
     <div class="headPrevention">
-        <p title="fade=[on] header=[ddddd] body=[ddddddddsdfsdf]">
-            <!-- a href="javascript: function myFunction() {return false; }"  -->
-                <span title="dd" style="font-weight:bold;"><%=arr[0].getGenericName()%></span>
-            <!-- /a -->
-            &nbsp;
-            <br/>
+        <p title="fade=[on] header=[<%=fsd.getName() != null ? fsd.getName() : arr[0].getGenericName()%>] body=[<%="ATC Code: " + fsd.getAtcCode()%>]">
+            <span style="font-weight:bold;"><%=fsd.getName() != null ? fsd.getName() : arr[0].getGenericName()%></span>
         </p>
     </div>
     <%
@@ -863,7 +859,7 @@ function createAddAll(d,t,h){
         for (oscar.oscarRx.data.RxPrescriptionData.Prescription pres : arr){
     %>
     <div class="preventionProcedure"  onclick="javascript:fsPopup(465,635,'','addPreventionData')" >
-        <p <%=""/*r(hdata.get("refused"))*/%> title="fade=[on] header=[<%=""/*hdata.get("age")*/%> -- Date:<%=""/*hdata.get("prevention_date")*/%>] body=[<%=""/*com*/%>]" ><%=pres.getBrandName()%> <br/>
+        <p <%=""/*r(hdata.get("refused"))*/%> title="fade=[on] header=[<%=pres.isCurrent() ? "Current" : "Expired" %>] body=[<%=pres.getRxDisplay()%>]" ><%=pres.getBrandName()%> <br/>
             Date: <%=pres.getRxDate()%>
             <%-- if (comb) {%>
             <span class="footnote"><%=comments.size()%></span>

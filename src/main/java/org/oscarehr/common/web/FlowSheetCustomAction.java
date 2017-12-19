@@ -25,11 +25,7 @@
 
 package org.oscarehr.common.web;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.List;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -43,8 +39,10 @@ import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 import org.oscarehr.common.dao.FlowSheetCustomizationDao;
+import org.oscarehr.common.dao.FlowSheetDrugDao;
 import org.oscarehr.common.dao.FlowSheetUserCreatedDao;
 import org.oscarehr.common.model.FlowSheetCustomization;
+import org.oscarehr.common.model.FlowSheetDrug;
 import org.oscarehr.common.model.FlowSheetUserCreated;
 import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.LoggedInInfo;
@@ -58,6 +56,7 @@ import oscar.oscarEncounter.oscarMeasurements.util.Recommendation;
 import oscar.oscarEncounter.oscarMeasurements.util.RecommendationCondition;
 import oscar.oscarEncounter.oscarMeasurements.util.TargetColour;
 import oscar.oscarEncounter.oscarMeasurements.util.TargetCondition;
+import oscar.oscarRx.data.RxDrugData;
 
 public class FlowSheetCustomAction extends DispatchAction {
     private static final Logger logger = MiscUtils.getLogger();
@@ -65,6 +64,7 @@ public class FlowSheetCustomAction extends DispatchAction {
     private FlowSheetCustomizationDao flowSheetCustomizationDao =  (FlowSheetCustomizationDao) SpringUtils.getBean("flowSheetCustomizationDao");
     private FlowSheetUserCreatedDao flowSheetUserCreatedDao = (FlowSheetUserCreatedDao) SpringUtils.getBean("flowSheetUserCreatedDao");
     private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
+    private FlowSheetDrugDao flowSheetDrugDao = SpringUtils.getBean(FlowSheetDrugDao.class);
     
     public void setFlowSheetCustomizationDao(FlowSheetCustomizationDao flowSheetCustomizationDao) {
         this.flowSheetCustomizationDao = flowSheetCustomizationDao;
@@ -151,6 +151,31 @@ public class FlowSheetCustomAction extends DispatchAction {
 
             }
         }
+        
+        if(request.getParameter("drugId") != null) {
+            String drugId = request.getParameter("drugId");
+            String scope = request.getParameter("scope");
+            LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+            
+            RxDrugData drugData = new RxDrugData();
+            RxDrugData.DrugMonograph monograph = drugData.getDrug2(drugId);
+            FlowSheetDrug drug = new FlowSheetDrug();
+            
+            String providerNo = "clinic".equals(scope) ? "0" : loggedInInfo.getLoggedInProviderNo();
+            
+            drug.setFlowsheet(flowsheet);
+            drug.setAtcCode(monograph.getAtc());
+            drug.setName(monograph.getName());
+            drug.setProviderNo(providerNo);
+            drug.setDemographicNo(Integer.valueOf(demographicNo));
+            drug.setCreateDate(Calendar.getInstance().getTime());
+            drug.setArchived(false);
+            drug.setLastUpdateUser(loggedInInfo.getLoggedInProviderNo());
+            drug.setLastUpdateDate(Calendar.getInstance().getTime());
+
+            flowSheetDrugDao.persist(drug);
+        }
+        
         request.setAttribute("demographic",demographicNo);
         request.setAttribute("flowsheet", flowsheet);
         return mapping.findForward("success");
@@ -347,6 +372,34 @@ public class FlowSheetCustomAction extends DispatchAction {
 
         flowSheetCustomizationDao.persist(cust);
         logger.debug("DELETE "+cust);
+
+        request.setAttribute("demographic",demographicNo);
+        request.setAttribute("flowsheet", flowsheet);
+        return mapping.findForward("success");
+    }
+
+    public ActionForward deleteDrug(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+        logger.debug("IN DELETE");
+        LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+        String flowsheet = request.getParameter("flowsheet");
+        String drugId = request.getParameter("drugId");
+        String demographicNo = "0";
+        if (request.getParameter("demographicNo")!=null){
+            demographicNo = request.getParameter("demographicNo");
+        }
+
+        if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_demographic", "w", demographicNo)) {
+            throw new SecurityException("missing required security object (_demographic)");
+        }
+        
+        FlowSheetDrug flowSheetDrug = flowSheetDrugDao.getFlowSheetDrug(Integer.valueOf(drugId));
+        flowSheetDrug.setArchived(true);
+        flowSheetDrug.setArchivedDate(Calendar.getInstance().getTime());
+        flowSheetDrug.setLastUpdateUser(loggedInInfo.getLoggedInProviderNo());
+        flowSheetDrug.setLastUpdateDate(Calendar.getInstance().getTime());
+        flowSheetDrugDao.merge(flowSheetDrug);
+        
+        logger.debug("DELETE " + flowSheetDrug);
 
         request.setAttribute("demographic",demographicNo);
         request.setAttribute("flowsheet", flowsheet);

@@ -61,6 +61,7 @@ maybe use jquery/ajax to post this data instead of submitting a form to send ALL
 
 
 <%
+    LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
     String demographic_no = request.getParameter("demographic_no");
     String providerNo = (String) session.getAttribute("user");
     boolean printView = false;
@@ -740,7 +741,7 @@ view:
     oscar.oscarRx.data.RxPrescriptionData prescriptData = new oscar.oscarRx.data.RxPrescriptionData();
     oscar.oscarRx.data.RxPrescriptionData.Prescription [] arr = {};
 
-    List<FlowSheetDrug> atcCodes = flowSheetDrugDAO.getFlowSheetDrugs(temp,Integer.parseInt(demographic_no));
+    List<FlowSheetDrug> atcCodes = flowSheetDrugDAO.getFlowSheetDrugs(temp, Integer.parseInt(demographic_no), loggedInInfo.getLoggedInProviderNo());
     for(FlowSheetDrug fsd : atcCodes){
             arr = prescriptData.getPrescriptionScriptsByPatientATC(Integer.parseInt(demographic_no),fsd.getAtcCode());
        String measure = fsd.getAtcCode();
@@ -763,7 +764,7 @@ view:
 
     <div class="headPrevention">
         <p title="">
-		<span title=""><%=arr[0].getGenericName()%></span>
+		<span title=""><%=fsd.getName() != null ? fsd.getName() : arr[0].getGenericName()%></span>
             <br/>
         </p>
     </div> <!--headPrevention-->

@@ -91,7 +91,7 @@ public class FlowSheetDrugDaoTest extends DaoTestFixtures {
 		dao.persist(flowSheetDrug3);
 		
 		List<FlowSheetDrug> expectedResult = new ArrayList<FlowSheetDrug>(Arrays.asList(flowSheetDrug1, flowSheetDrug3));
-		List<FlowSheetDrug> result = dao.getFlowSheetDrugs(flowsheet1, demographicNo1);
+		List<FlowSheetDrug> result = dao.getFlowSheetDrugs(flowsheet1, demographicNo1, "999998");
 		
 		Logger logger = MiscUtils.getLogger();
 		

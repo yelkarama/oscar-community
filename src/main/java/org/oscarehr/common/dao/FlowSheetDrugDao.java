@@ -43,10 +43,21 @@ public class FlowSheetDrugDao extends AbstractDao<FlowSheetDrug>{
         return this.find(id);
     }
 
-    public List<FlowSheetDrug> getFlowSheetDrugs(String flowsheet,Integer demographic){
-    	Query query = entityManager.createQuery("SELECT fd FROM FlowSheetDrug fd WHERE fd.flowsheet=? and fd.archived=0 and fd.demographicNo=?");
-    	query.setParameter(1, flowsheet);
-    	query.setParameter(2, demographic);
+    public List<FlowSheetDrug> getFlowSheetDrugs(String flowsheet, Integer demographic, String providerNo){
+    	Query query = entityManager.createQuery("SELECT fd FROM FlowSheetDrug fd WHERE fd.flowsheet = :flowsheet AND fd.archived = 0 AND (fd.demographicNo = 0 OR fd.demographicNo = :demographicNo) AND (fd.providerNo = 0 OR fd.providerNo = :providerNo)");
+    	query.setParameter("flowsheet", flowsheet);
+    	query.setParameter("demographicNo", demographic);
+        query.setParameter("providerNo", providerNo);
+
+        @SuppressWarnings("unchecked")
+        List<FlowSheetDrug> list = query.getResultList();
+        return list;
+    }
+
+    public List<FlowSheetDrug> getFlowSheetDrugsByFlowsheetAndProvider(String flowsheet, String providerNo){
+        Query query = entityManager.createQuery("SELECT fd FROM FlowSheetDrug fd WHERE fd.flowsheet = :flowsheet AND fd.archived = 0 AND (fd.providerNo = 0 OR fd.providerNo = :providerNo)");
+        query.setParameter("flowsheet", flowsheet);
+        query.setParameter("providerNo", providerNo);
 
         @SuppressWarnings("unchecked")
         List<FlowSheetDrug> list = query.getResultList();

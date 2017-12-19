@@ -23,23 +23,27 @@
     Ontario, Canada
 
 --%>
+<%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar" %>
+<%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
+<%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
+<%@ taglib uri="/WEB-INF/rewrite-tag.tld" prefix="rewrite" %>
+<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <% long startTime = System.currentTimeMillis(); %>
 <%@ page import="oscar.oscarDemographic.data.*,java.util.*,oscar.oscarPrevention.*,oscar.oscarEncounter.oscarMeasurements.*,oscar.oscarEncounter.oscarMeasurements.bean.*,java.net.*"%>
 <%@ page import="org.jdom.Element,oscar.oscarEncounter.oscarMeasurements.data.*,org.jdom.output.Format,org.jdom.output.XMLOutputter,oscar.oscarEncounter.oscarMeasurements.util.*,java.io.*" %>
 <%@ page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
 <%@ page import="org.springframework.web.context.WebApplicationContext"%>
-<%@ page import="org.oscarehr.common.dao.*,org.oscarehr.common.model.FlowSheetCustomization"%>
+<%@ page import="org.oscarehr.common.dao.*"%>
 <%@ page import="oscar.oscarEncounter.oscarMeasurements.MeasurementTemplateFlowSheetConfig"%>
 <%@ page import="oscar.oscarEncounter.oscarMeasurements.FlowSheetItem"%>
 
 <%@page import="org.oscarehr.util.SpringUtils" %>
-<%@page import="org.oscarehr.common.model.Demographic" %>
+<%@ page import="org.oscarehr.common.model.*" %>
+<%@ page import="oscar.oscarRx.data.RxPrescriptionData" %>
+<%@ page import="org.oscarehr.util.LoggedInInfo" %>
 
-<%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
-<%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
-<%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar" %>
-<%@ taglib uri="/WEB-INF/rewrite-tag.tld" prefix="rewrite" %>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
+
 <%
       String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
       boolean authed2=true;
@@ -55,6 +59,7 @@ if(!authed2) {
 %>
 
 <%
+    LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
     long startTimeToGetP = System.currentTimeMillis();
     
     String module="";
@@ -83,6 +88,7 @@ if(!authed2) {
 
     WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
     FlowSheetCustomizationDao flowSheetCustomizationDao = (FlowSheetCustomizationDao) ctx.getBean("flowSheetCustomizationDao");
+    FlowSheetDrugDao flowSheetDrugDao = ctx.getBean(FlowSheetDrugDao.class);
     List<FlowSheetCustomization> custList = null;
     if(demographic == null || demographic.isEmpty()) {
     	custList = flowSheetCustomizationDao.getFlowSheetCustomizations( flowsheet,(String) session.getAttribute("user"));
@@ -201,9 +207,11 @@ width:450px;
 }
 </style>
 
+	<link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/share/yui/css/fonts-min.css" >
+	<link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/share/yui/css/autocomplete.css" >
 </head>
 
-<body id="editFlowsheetBody">
+<body id="editFlowsheetBody" class="yui-skin-sam">
 
 <%
 if( request.getParameter("tracker")!=null && request.getParameter("tracker").equals("slim") ){ 
@@ -260,13 +268,14 @@ Flowsheet: <span style="font-weight:normal"><%=flowsheet.toUpperCase()%></span>
 </div><!-- row -->
 
 <div class="row-fluid">
-		<div class="span12">
+		
 		
 		<ul class="nav nav-tabs" id="myTab">
 		<li class="list-title">Measurements:</li>
 		<li class="active"><a href="#home" data-toggle="tab">All</a></li>
 		<li><a href="#custom" data-toggle="tab">Custom</a></li>
 		<li><a href="#add" data-toggle="tab"><i class="icon-plus-sign"></i> Add</a></li>
+			<li><a href="#addMedication" data-toggle="tab"><i class="icon-plus-sign"></i> Add Medication</a></li>
 		</ul>
 
 	<%if (demographic!=null) { %>
@@ -326,6 +335,45 @@ Flowsheet: <span style="font-weight:normal"><%=flowsheet.toUpperCase()%></span>
 		                }
 		
 		            }
+		                
+						RxPrescriptionData prescriptData = new RxPrescriptionData();
+						List<FlowSheetDrug> flowSheetDrugs;
+						if (demographic == null) {
+                            flowSheetDrugs = flowSheetDrugDao.getFlowSheetDrugsByFlowsheetAndProvider(temp, loggedInInfo.getLoggedInProviderNo());
+                        }
+                        else {
+						    
+                            Integer demographicNo;
+                            try {
+                                demographicNo = Integer.parseInt(demographic);
+                            }
+                            catch(NumberFormatException e) {
+                                demographicNo = 0;
+                            }
+                            flowSheetDrugs = flowSheetDrugDao.getFlowSheetDrugs(temp, demographicNo, loggedInInfo.getLoggedInProviderNo());
+                        }
+						oscar.oscarRx.data.RxPrescriptionData.Prescription [] arr;
+		            for(FlowSheetDrug flowSheetDrug : flowSheetDrugs) {
+						%>
+					<tr>
+						<td>
+							<a href="FlowSheetCustomAction.do?method=deleteDrug&flowsheet=<%=temp%>&drugId=<%=flowSheetDrug.getId()%>" title="Delete" class="action-icon"><i class="icon-trash"></i></a>
+						</td>
+						<td>
+							<%=counter%>
+						</td>
+						<td>
+							<%=flowSheetDrug.getAtcCode()%>
+						</td>
+						<td>
+							<%=flowSheetDrug.getName()%>
+						</td>
+						<td></td>
+					</tr>
+					<%
+					    counter++;
+					}
+		                
 		            %>
 		 </tbody>    
 		</table><!-- Flowsheet Measurement List END-->
@@ -510,6 +558,39 @@ Flowsheet: <span style="font-weight:normal"><%=flowsheet.toUpperCase()%></span>
   
 </div><!-- add pane -->
 	
+<div class="tab-pane" id="addMedication">
+	<form action="FlowSheetCustomAction.do" method="post">
+		<input type="hidden" name="flowsheet" value="<%=temp%>"/>
+		<input type="hidden" name="method" value="save"/>
+		<%if (demographic !=null){%>
+		<input type="hidden" name="demographic" value="<%=demographic%>"/>
+		<%}%>
+		
+		Search
+		<input type="text" id="searchString" name="searchString" onfocus="changeContainerHeight();" onblur="changeContainerHeight();" onclick="changeContainerHeight();" onkeydown="changeContainerHeight();" style="width:248px;" autocomplete="off" />
+		<div id="autocomplete_choices" style="overflow:auto;width:500px"></div>
+		
+		<div id="drugDisplay" name="drugDisplay">
+			<h5>Drug Information:</h5>
+			<div>
+				<span>Id: </span> <input type="number" id="drugId" name="drugId" required />
+			</div>
+			<div>
+				<span>Name: </span> <input type="text" id="drugName" name="drugName" readonly /></h4> <span class="icon-trash"></span>
+			</div>
+			<div>
+				<span>Scope:
+					<input type="radio" name="scope" id="clinicScope" value="clinic" checked><label style="display:inline-block;vertical-align:text-top;padding-right:10px;" for="clinicScope">Clinic</label>
+					<input type="radio" name="scope" id="physicianScope" value="provider"><label style="display:inline-block;vertical-align:text-top;" for="physicianScope">Physician</label>
+				</span>
+			</div>
+		</div>
+		
+		
+		<input type="submit" class="btn btn-primary" value="Save">
+	</form>
+</div>
+	
 	
 	</div><!-- tab-content -->
 
@@ -530,81 +611,139 @@ Flowsheet: <span style="font-weight:normal"><%=flowsheet.toUpperCase()%></span>
             <%=outp.outputString(va)%>
         </textarea><!-- flowsheet xml output END-->
 
-<script src="<%=request.getContextPath() %>/js/jquery-1.9.1.min.js"></script> 
+	
+<script src="<%=request.getContextPath() %>/js/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-ui-1.8.18.custom.min.js" ></script>
 <script src="<%=request.getContextPath() %>/js/bootstrap.min.js"></script>	
 <script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery.dataTables.js"></script>
 <script type="text/javascript" src="<%=request.getContextPath() %>/js/DT_bootstrap.js"></script> 
 <script src="<%=request.getContextPath() %>/js/jquery.validate.js"></script>
-
-<script>
-$(function (){ 
-	$("[rel=popover]").popover({});  
-}); 
-
-
-$(document).ready(function () {
-
-		if ( self !== top ) {
-		var h = $(document).height();
-		parent.parent.document.getElementById('trackerSlim').style.height = h+"px";
 	
-        $("#demoHeader").hide();
-	}else{
-
+<script type="text/javascript" src="<%=request.getContextPath() %>/share/javascript/prototype.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath() %>/share/javascript/Oscar.js"></script>
+	
+<script type="text/javascript" src="<%=request.getContextPath() %>/share/yui/js/yahoo-dom-event.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath() %>/share/yui/js/connection-min.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath() %>/share/yui/js/animation-min.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath() %>/share/yui/js/datasource-min.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath() %>/share/yui/js/autocomplete-min.js"></script>
+<style>
+	input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button{
+		-webkit-appearance: none;
+		-moz-appearance: none;
 	}
-	
-	$('html, body', window.parent.document).animate({scrollTop:0}, 'slow');
-	
-$(".measurement-select").change(function(){
-	$("#display_name").val($(".measurement-select").val());
-	$("#value_name").val($(".measurement-select").val());
-	
-});
-	
-<%if(request.getParameter("add")!=null){%>
-//$('#addModal').modal('show');
-$('#myTab a[href="#add"]').tab('show');
-<%}%>
-	
-	$(document).scroll(function () {
-	    var y = $(this).scrollTop();
-	    if (y > 60) {
-	        $('#scrollToTop').fadeIn();
-	    } else {
-	        $('#scrollToTop').fadeOut();
-	    }
-	});
-	
-	//$('<a href="#" class="btn" id="add-new" title="Add Measurement" style="margin-left:15px"><i class="icon-plus"></i> Add</a>').appendTo('div.dataTables_filter label');	
+</style>
+<script type="text/javascript">
+    function changeContainerHeight(ele){
+        var ss=$('searchString').value;
+        ss=trim(ss);
+        if(ss.length==0)
+            $('autocomplete_choices').setStyle({height:'0%'});
+        else
+            $('autocomplete_choices').setStyle({height:'100%'});
+    }
+    var highlightMatch = function(full, snippet, matchindex) {
+        return "<a title='"+full+"'>"+full.substring(0, matchindex) +
+            "<span class=match>" +full.substr(matchindex, snippet.length) + "</span>" + full.substring(matchindex + snippet.length)+"</a>";
+    };
 
-	$("#add-new").click(function(){
-		$('#addModal').modal('show');		
-	});
+    var highlightMatchInactiveMatchWord = function(full, snippet, matchindex) {
+        return "<a title='"+full+"'>"+"<span class=matchInactive>"+full.substring(0, matchindex) +
+            "<span class=match>" +full.substr(matchindex, snippet.length) +"</span>" + full.substring(matchindex + snippet.length)+"</span>"+"</a>";
+    };
+    var highlightMatchInactive = function(full, snippet, matchindex) {
 
-	$("#measurement-select").click(function(){
-		$("#measurement-details").show();
-	});	
+        return "<a title='"+full+"'>"+"<span class=matchInactive>"+full+"</span>"+"</a>";
+    };
+    var resultFormatter2 = function(oResultData, sQuery, sResultMatch) {
+        var query = sQuery.toUpperCase();
+        var drugName = oResultData.name;
+        var isInactive=oResultData.isInactive;
 
-
-	// validate signup form on keyup and submit
-	$("#FlowSheetCustomActionForm").validate( );
-
-	$.validator.addMethod("maxlength", function (value, element, len) {
-	   return value == "" || value.length <= len;
-	});	
-	
-});
-
-$('#measurementTbl').dataTable({
-	"aaSorting" : [ [ 1, "asc" ] ],
-	"iDisplayLength": 25,
-	"aoColumnDefs": [{ //remove sorting from batch column
-	                  bSortable: false,
-	                  aTargets: [ 0 ]
-	               }]
-});
+        var mIndex = drugName.toUpperCase().indexOf(query);
+        var display = '';
+        if(mIndex>-1 && (isInactive=='true'||isInactive==true)){ //match and inactive
+            display=highlightMatchInactiveMatchWord(drugName,query,mIndex);
+        }
+        else if(mIndex > -1 && (isInactive=='false'||isInactive==false || isInactive==undefined || isInactive==null)){ //match and active
+            display = highlightMatch(drugName,query,mIndex);
+        }else if(mIndex<=-1 && (isInactive=='true'||isInactive==true)){//no match and inactive
+            display=highlightMatchInactive(drugName,query,mIndex);
+        }
+        else{//active and no match
+            display = drugName;
+        }
 
 
+        return  display;
+    };
+
+    YAHOO.example.FnMultipleFields = function(){
+        var url = "<%=request.getContextPath() %>/oscarRx/searchDrug.do?method=jsonSearch";
+        var oDS = new YAHOO.util.XHRDataSource(url,{connMethodPost:true,connXhrMode:'ingoreStaleResponse'});
+        oDS.responseType = YAHOO.util.XHRDataSource.TYPE_JSON;// Set the responseType
+        // Define the schema of the delimited results
+        oDS.responseSchema = {
+            resultsList : "results",
+            fields : ["name", "id","isInactive"]
+        };
+        // Enable caching
+        oDS.maxCacheEntries =0;
+        oDS.connXhrMode ="cancelStaleRequests";
+        // Instantiate AutoComplete
+        var oAC = new YAHOO.widget.AutoComplete("searchString", "autocomplete_choices", oDS);
+        oAC.useShadow = true;
+        oAC.resultTypeList = false;
+        oAC.queryMatchSubset = true;
+        oAC.minQueryLength = 3;
+        oAC.maxResultsDisplayed = 40;
+        oAC.formatResult = resultFormatter2;
+
+
+
+        // Define an event handler to populate a hidden form field
+        // when an item gets selected and populate the input field
+        //var myHiddenField = YAHOO.util.Dom.get("myHidden");
+        var myHandler = function(type, args) {
+            var arr = args[2];
+            var ran_number = Math.round(Math.random()*1000000);
+            var name = arr.name;
+            var id = args[2].id;
+
+            $('drugDisplay').show();
+            $('drugName').value = name;
+            $('drugId').value = id;
+
+            $('searchString').value = "";
+        };
+
+        oAC.doBeforeExpandContainer = function(sQuery, oResponse) {
+            if (oAC._nDisplayedItems < oAC.maxResultsDisplayed) {
+                oAC.setFooter("");
+            } else {
+                oAC.setFooter("<a href='javascript:void(0)' onClick='popupRxSearchWindow();oAC.collapseContainer();'>See more results...</a>");
+            }
+
+            return true;
+        };
+
+        oAC.itemSelectEvent.subscribe(myHandler);
+        var collapseFn=function(){
+            $('autocomplete_choices').hide();
+        };
+        oAC.containerCollapseEvent.subscribe(collapseFn);
+        var expandFn=function(){
+            $('autocomplete_choices').show();
+        };
+        oAC.dataRequestEvent.subscribe(expandFn);
+        return {
+            oDS: oDS,
+            oAC: oAC
+        };
+
+
+    }();
+    
 </script>
 
 </body>

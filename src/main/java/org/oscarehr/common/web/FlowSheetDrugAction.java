@@ -47,7 +47,7 @@ import org.oscarehr.util.SpringUtils;
 public class FlowSheetDrugAction extends DispatchAction {
 
     private static final Logger log2 = MiscUtils.getLogger();
-    private FlowSheetDrugDao flowSheetDrugDao;
+    private FlowSheetDrugDao flowSheetDrugDao = SpringUtils.getBean(FlowSheetDrugDao.class);
 
     private FlowSheetDxDao flowSheetDxDao = SpringUtils.getBean(FlowSheetDxDao.class);
     private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);

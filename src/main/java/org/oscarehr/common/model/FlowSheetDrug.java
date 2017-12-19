@@ -70,6 +70,9 @@ public class FlowSheetDrug  extends AbstractModel<Integer>{
     @Column(name="atc_code")
     private String atcCode = null;
 
+    @Column(name="name")
+    private String name = "";
+    
     @Column(name="provider_no")
     private String providerNo = null;
 
@@ -85,6 +88,12 @@ public class FlowSheetDrug  extends AbstractModel<Integer>{
     @Column(name="archived_date")
     @Temporal(TemporalType.TIMESTAMP)
     private Date archivedDate = null;
+    
+    @Column(name = "last_update_user")
+    private String lastUpdateUser;
+    
+    @Column(name = "last_update_date")
+    private Date lastUpdateDate;
 
     public Integer getId() {
         return id;
@@ -108,6 +117,13 @@ public class FlowSheetDrug  extends AbstractModel<Integer>{
 
     public void setAtcCode(String atcCode) {
         this.atcCode = atcCode;
+    }
+
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getProviderNo() {
@@ -150,4 +166,17 @@ public class FlowSheetDrug  extends AbstractModel<Integer>{
         this.archivedDate = archivedDate;
     }
 
+    public String getLastUpdateUser() {
+        return lastUpdateUser;
+    }
+    public void setLastUpdateUser(String lastUpdateUser) {
+        this.lastUpdateUser = lastUpdateUser;
+    }
+
+    public Date getLastUpdateDate() {
+        return lastUpdateDate;
+    }
+    public void setLastUpdateDate(Date lastUpdateDate) {
+        this.lastUpdateDate = lastUpdateDate;
+    }
 }
