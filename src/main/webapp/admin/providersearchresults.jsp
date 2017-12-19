@@ -65,6 +65,18 @@
 
 	}
 </script>
+	<style>
+		.blue-text {
+			font-family: Verdana, serif;
+			color: #0000FF;
+		}
+		
+		.small-blue-text {
+			font-size: x-small;
+			font-family: Verdana, serif;
+			color: #0000FF;
+		}
+	</style>
 </head>
 
 <%
@@ -88,15 +100,8 @@
 			searchMode = "search_name";
 		if (orderBy == null)
 			orderBy = "last_name";
-		String[] searchStatuses = request
-				.getParameterValues("search_status");
-		String searchStatus = null;
 
-		if (searchStatuses != null) {
-			if (searchStatuses.length == 1) {
-				searchStatus = searchStatuses[0];
-			}
-		}
+		String searchStatus = ("All".equalsIgnoreCase(request.getParameter("search_status")) ? null : request.getParameter("search_status"));
 		
 		int offset = Integer.parseInt(strOffset);
 		int limit = Integer.parseInt(strLimit);
@@ -108,40 +113,50 @@
 		<th><bean:message key="admin.providersearchresults.description" /></th>
 	</tr>
 </table>
+<form method="post" action="providersearchresults.jsp" name="searchprovider" onsubmit="return onsub()">
 <table cellspacing="0" cellpadding="0" width="100%" border="0" BGCOLOR="<%=weakcolor%>">
-	<form method="post" action="providersearchresults.jsp" name="searchprovider" onsubmit="return onsub()">
 	<tr valign="top">
-		<td rowspan="2" align="right" valign="middle"><font
-			face="Verdana" color="#0000FF"><b><i><bean:message key="admin.search.formSearchCriteria" /></i></b></font></td>
-		<td nowrap><font size="1" face="Verdana" color="#0000FF">
-		<input type="radio" <%=searchMode.equals("search_name")?"checked":""%>
-			name="search_mode" value="search_name"
-			onclick="document.forms['searchprovider'].keyword.focus();">
-			<bean:message key="admin.providersearch.formLastName" /></font></td>
-		<td nowrap><font size="1" face="Verdana" color="#0000FF">
-		<input type="radio"	<%=searchMode.equals("search_providerno")?"checked":""%>
-			name="search_mode" value="search_providerno"
-			onclick="document.forms['searchprovider'].keyword.focus();">
-			<bean:message key="admin.provider.formProviderNo" /></font></td>
-		<td nowrap><font size="1" face="Verdana" color="#0000FF">
-		<input type="checkbox" name="search_status" value="1"
-			<%=request.getParameter("search_status")!=null?(request.getParameter("search_status").equals("1")?"checked":""):""%>>
-			<bean:message key="admin.providersearch.formActiveStatus" /><br />
-		<input type="checkbox" name="search_status" value="0"
-			<%=request.getParameter("search_status")!=null?(request.getParameter("search_status").equals("0")?"checked":""):""%>>
-			<bean:message key="admin.providersearch.formInactiveStatus" /> </font></td>
-		<td valign="middle" rowspan="2" ALIGN="left"><input type="text"
-			NAME="keyword" SIZE="17" MAXLENGTH="100"> <INPUT
-			TYPE="hidden" NAME="orderby" VALUE="last_name"> <INPUT
-
-		<INPUT TYPE="hidden" NAME="limit1" VALUE="0"> <INPUT
-			TYPE="hidden" NAME="limit2" VALUE="10">  <INPUT
-			TYPE="SUBMIT" NAME="button"
-			VALUE=<bean:message key="admin.providersearchresults.btnSubmit"/>
-			SIZE="17"></td>
+		<td rowspan="2" align="right" valign="middle">
+			<b class="blue-text"><i><bean:message key="admin.search.formSearchCriteria" /></i></b>
+		</td>
+		<td nowrap>
+			<label class="small-blue-text">
+				<input type="radio" <%=searchMode.equals("search_name")?"checked":""%> name="search_mode" 
+					   value="search_name" onclick="document.forms['searchprovider'].keyword.focus();">
+				<bean:message key="admin.providersearch.formLastName" />
+			</label>
+		</td>
+		<td nowrap>
+			<label class="small-blue-text">
+				<input type="radio"	<%=searchMode.equals("search_providerno")?"checked":""%> name="search_mode" 
+					   value="search_providerno" onclick="document.forms['searchprovider'].keyword.focus();">
+				<bean:message key="admin.provider.formProviderNo" />
+			</label>
+		</td>
+		<td nowrap>
+			<label class="small-blue-text">
+				<input type="radio" name="search_status" value="All" <%=searchStatus == null ? "checked" : ""%>>
+				<bean:message key="admin.providersearch.formAllStatus" />
+			</label><br/>
+			<label class="small-blue-text">
+				<input type="radio" name="search_status" value="1" <%="1".equals(searchStatus) ? "checked" : ""%>>
+				<bean:message key="admin.providersearch.formActiveStatus" />
+			</label><br/>
+			<label class="small-blue-text">
+				<input type="radio" name="search_status" value="0" <%="0".equals(searchStatus) ? "checked" : ""%>>
+				<bean:message key="admin.providersearch.formInactiveStatus" />
+			</label>
+		</td>
+		<td valign="middle" rowspan="2" ALIGN="left">
+			<input type="text" NAME="keyword" SIZE="17" MAXLENGTH="100">
+			<INPUT TYPE="hidden" NAME="orderby" VALUE="last_name">
+			<INPUT TYPE="hidden" NAME="limit1" VALUE="0"> 
+			<INPUT TYPE="hidden" NAME="limit2" VALUE="10">
+			<INPUT TYPE="SUBMIT" NAME="button" VALUE=<bean:message key="admin.providersearchresults.btnSubmit"/> SIZE="17">
+		</td>
 	</tr>
-	</form>
 </table>
+</form>
 
 <table width="100%" border="0">
 	<tr>
@@ -149,7 +164,6 @@
 	</tr>
 </table>
 
-<CENTER>
 <table width="100%" cellspacing="2" cellpadding="2" border="0"
 	bgcolor="ivory">
 	<tr bgcolor="<%=deepcolor%>">

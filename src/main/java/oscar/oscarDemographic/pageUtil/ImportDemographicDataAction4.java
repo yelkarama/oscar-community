@@ -685,7 +685,7 @@ import oscar.util.UtilDateUtilities;
                 if (StringUtils.empty(personName.get("lastname"))) err_data.add("Error! No Primary Physician last name");
                 if (StringUtils.empty(personOHIP)) err_data.add("Error! No Primary Physician OHIP billing number");
                 String personCPSO = demoPrimaryPhysician.getPrimaryPhysicianCPSO();
-                primaryPhysician = writeProviderData(personName.get("firstname"), personName.get("lastname"), personOHIP, personCPSO);
+                primaryPhysician = writeProviderData(personName.get("firstname"), personName.get("lastname"), personOHIP, personCPSO, "0");
             }
             if (StringUtils.empty(primaryPhysician)) {
                 primaryPhysician = defaultProviderNo();
@@ -1418,7 +1418,7 @@ import oscar.util.UtilDateUtilities;
                             if (participatingProviders[p].getName()!=null) {
                                 HashMap<String,String> authorName = getPersonName(participatingProviders[p].getName());
                                 String authorOHIP = participatingProviders[p].getOHIPPhysicianId();
-                                String authorProvider = writeProviderData(authorName.get("firstname"), authorName.get("lastname"), authorOHIP);
+                                String authorProvider = writeProviderData(authorName.get("firstname"), authorName.get("lastname"), authorOHIP, null, "0");
                                 if (StringUtils.empty(authorProvider)) {
                                     authorProvider = defaultProviderNo();
                                     err_note.add("Clinical notes have no author; assigned to \"doctor oscardoc\" ("+(i+1)+")");
@@ -1436,7 +1436,7 @@ import oscar.util.UtilDateUtilities;
 
                                 HashMap<String,String> authorName = getPersonName(noteReviewers[r].getName());
                                 String reviewerOHIP = noteReviewers[r].getOHIPPhysicianId();
-                                String reviewer = writeProviderData(authorName.get("firstname"), authorName.get("lastname"), reviewerOHIP);
+                                String reviewer = writeProviderData(authorName.get("firstname"), authorName.get("lastname"), reviewerOHIP, null, "0");
 
                                 cmNote.setProviderNo(reviewer);
                                 cmNote.setSigning_provider_no(reviewer);
@@ -1736,7 +1736,7 @@ import oscar.util.UtilDateUtilities;
                         else { //outside provider
                             drug.setOutsideProviderName(StringUtils.noNull(personName.get("lastname"))+", "+StringUtils.noNull(personName.get("firstname")));
                             drug.setOutsideProviderOhip(personOHIP);
-                            drug.setProviderNo(writeProviderData(personName.get("firstname"), personName.get("lastname"), personOHIP));
+                            drug.setProviderNo(writeProviderData(personName.get("firstname"), personName.get("lastname"), personOHIP, null, "0"));
                         }
                     } else {
                         drug.setProviderNo(admProviderNo);
@@ -1956,7 +1956,7 @@ import oscar.util.UtilDateUtilities;
                     if (appArray[i].getProvider()!=null) {
                         HashMap<String,String> providerName = getPersonName(appArray[i].getProvider().getName());
                         String personOHIP = appArray[i].getProvider().getOHIPPhysicianId();
-                        apptProvider = writeProviderData(providerName.get("firstname"), providerName.get("lastname"), personOHIP);
+                        apptProvider = writeProviderData(providerName.get("firstname"), providerName.get("lastname"), personOHIP, null, "0");
                         if (StringUtils.empty(apptProvider)) {
                             apptProvider = defaultProviderNo();
                             err_note.add("Appointment has no provider; assigned to \"doctor oscardoc\" ("+(i+1)+")");
@@ -2103,7 +2103,7 @@ import oscar.util.UtilDateUtilities;
                                 Reports.ReportReviewed[] reportReviewed = repR[i].getReportReviewedArray();
                                 if (reportReviewed.length>0) {
                                     HashMap<String,String> reviewerName = getPersonName(reportReviewed[0].getName());
-                                    reviewer = writeProviderData(reviewerName.get("firstname"), reviewerName.get("lastname"), reportReviewed[0].getReviewingOHIPPhysicianId());
+                                    reviewer = writeProviderData(reviewerName.get("firstname"), reviewerName.get("lastname"), reportReviewed[0].getReviewingOHIPPhysicianId(), null, "0");
                                     reviewDateTime = dateFPtoString(reportReviewed[0].getDateTimeReportReviewed(), timeShiftInDays);
                                 }
 
@@ -2981,10 +2981,10 @@ import oscar.util.UtilDateUtilities;
 	}
 
 	String writeProviderData(String firstName, String lastName, String ohipNo) {
-		return writeProviderData(firstName, lastName, ohipNo, null);
+		return writeProviderData(firstName, lastName, ohipNo, null, null);
 	}
 
-	String writeProviderData(String firstName, String lastName, String ohipNo, String cpsoNo) {
+	String writeProviderData(String firstName, String lastName, String ohipNo, String cpsoNo, String status) {
 		ProviderData pd = getProviderByOhip(ohipNo);
 		
 		if (pd==null) pd = getProviderByNames(firstName, lastName, matchProviderNames);
@@ -3470,7 +3470,7 @@ import oscar.util.UtilDateUtilities;
 		      
 			        for(ResultReviewer resultReviewer : labResult.getResultReviewerArray()) {
 			        	String reviewDate = dateFPtoString(resultReviewer.getDateTimeResultReviewed(),0);
-			        	String reviewer = writeProviderData(resultReviewer.getName().getFirstName(),resultReviewer.getName().getLastName(),resultReviewer.getOHIPPhysicianId());
+			        	String reviewer = writeProviderData(resultReviewer.getName().getFirstName(),resultReviewer.getName().getLastName(),resultReviewer.getOHIPPhysicianId(), null, "0");
 			        	
 			        	String status = StringUtils.filled(reviewer) ? "A" : "N";
 	                    reviewer = status.equals("A") ? reviewer : "0";

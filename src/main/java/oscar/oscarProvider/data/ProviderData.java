@@ -717,7 +717,7 @@ public class ProviderData {
 		}
 	}
 
-	public void addExternalProvider(String firstName, String lastName, String ohipNo, String cpsoNo) {
+	public void addExternalProvider(String firstName, String lastName, String ohipNo, String cpsoNo, String status) {
 		if (!filled(firstName) && !filled(lastName) && !filled(ohipNo)) return; //no information at all!
 
 		ProviderDataDao dao = SpringUtils.getBean(ProviderDataDao.class);
@@ -737,7 +737,7 @@ public class ProviderData {
 		this.ohip_no = filled(ohipNo) ? ohipNo : "";
 		this.practitionerNo = filled(cpsoNo) ? cpsoNo : "";
 		this.provider_type = PROVIDER_TYPE_DOCTOR;
-		this.status = "1";
+		this.status = filled(status) ? status : "1";
 		this.specialty = "";
 		this.sex = "";
         this.setThirdPartyOnly(false);
