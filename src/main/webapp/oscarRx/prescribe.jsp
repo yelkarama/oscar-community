@@ -55,8 +55,6 @@ List<RxPrescriptionData.Prescription> listRxDrugs=(List)request.getAttribute("li
 oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBean)request.getSession().getAttribute("RxSessionBean");
 
 if(listRxDrugs!=null){
-            String specStr=RxUtil.getSpecialInstructions();
-
   for(RxPrescriptionData.Prescription rx : listRxDrugs ){
          String rand            = Long.toString(rx.getRandomId());
          String instructions    = rx.getSpecial();
@@ -677,7 +675,7 @@ if(listRxDrugs!=null){
             }
 
             var specArr=new Array();
-            var specStr='<%=org.apache.commons.lang.StringEscapeUtils.escapeJavaScript(specStr)%>';
+            var specStr='<%=org.apache.commons.lang.StringEscapeUtils.escapeJavaScript(specialInstruction)%>';
             
             specArr=specStr.split("*");// * is used as delimiter
             //oscarLog("specArr="+specArr);
