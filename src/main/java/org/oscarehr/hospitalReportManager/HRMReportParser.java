@@ -231,12 +231,23 @@ public class HRMReportParser {
 
 		List<Demographic> matchingDemographicListByHin = demographicDao.searchDemographicByHIN(report.getHCN());
 
-		// if there is a matching record assign to variable
-		if (matchingDemographicListByHin.size() > 0){
-			Demographic demographic = matchingDemographicListByHin.get(0); // searchDemographicByHIN typically returns only one result where there is a match
-			// if not empty and DOB matches as well, route report to Demographic
-			if (!demographic.equals(null) && report.getDateOfBirthAsString().equalsIgnoreCase(demographic.getBirthDayAsString())) {
-				HRMReportParser.routeReportToDemographic(mergedDocument.getId(), demographic.getDemographicNo());
+		if (matchingDemographicListByHin.size() > 0) {
+			if (OscarProperties.getInstance().isPropertyActive("omd_hrm_demo_matching_criteria")) {
+				for (Demographic d : matchingDemographicListByHin) {
+					if (report.getGender().equalsIgnoreCase(d.getSex()) 
+							&& report.getDateOfBirthAsString().equalsIgnoreCase(d.getBirthDayAsString())
+							&& report.getLegalLastName().equalsIgnoreCase(d.getLastName())) {
+						HRMReportParser.routeReportToDemographic(mergedDocument.getId(), d.getDemographicNo());
+						break;
+					}
+				}
+			} else {
+				// if there is a matching record assign to variable
+				Demographic demographic = matchingDemographicListByHin.get(0); // searchDemographicByHIN typically returns only one result where there is a match
+				// if not empty and DOB matches as well, route report to Demographic
+				if (report.getDateOfBirthAsString().equalsIgnoreCase(demographic.getBirthDayAsString())) {
+					HRMReportParser.routeReportToDemographic(mergedDocument.getId(), demographic.getDemographicNo());
+				}
 			}
 		}
 	}
