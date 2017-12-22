@@ -7,6 +7,7 @@ import com.lowagie.text.Font;
 import com.lowagie.text.pdf.*;
 import org.apache.log4j.Logger;
 import org.oscarehr.hospitalReportManager.dao.HRMDocumentDao;
+import org.oscarehr.hospitalReportManager.dao.HRMProviderConfidentialityStatementDao;
 import org.oscarehr.hospitalReportManager.model.HRMDocument;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
@@ -79,22 +80,62 @@ public class HRMPDFCreator extends PdfPageEventHelper {
                 //Sets the margins to 0 so that the entire page is used
                 document.setMargins(0, 0, 0, 0);
                 document.open();
+
+                
+                //Add confidentiality statement to PDF
+                float footerHeight = 0f;
+                HRMProviderConfidentialityStatementDao hrmProviderConfidentialityStatementDao = SpringUtils.getBean(HRMProviderConfidentialityStatementDao.class);
+                String confidentialityStatement = hrmProviderConfidentialityStatementDao.getConfidentialityStatementForProvider(loggedInInfo.getLoggedInProviderNo());
+                PdfPTable confidentialityStatementTable = null;
+                if (confidentialityStatement != null && confidentialityStatement.trim().length() > 0) {
+                    BaseFont baseFont = BaseFont.createFont(BaseFont.COURIER, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+                    Font font = new Font(baseFont, 10, Font.NORMAL);
+                    Font italicFont = new Font(baseFont, 10, Font.ITALIC);
+                    //Creates a cell to be used as a separator line
+                    PdfPCell separator = new PdfPCell();
+                    separator.setBorder(PdfPCell.BOTTOM);
+                    separator.setFixedHeight(0.1f);
+                    //Creates a cell to be used to insert a small amount of space
+                    PdfPCell space = new PdfPCell();
+                    space.setBorder(0);
+                    space.setFixedHeight(2f);
+                    //Creates the main page table
+                    confidentialityStatementTable = new PdfPTable(1);
+                    confidentialityStatementTable.setTotalWidth(PageSize.LETTER.getWidth());
+                    confidentialityStatementTable.setLockedWidth(true);
+                    PdfPCell cell = new PdfPCell();
+                    cell.setBorder(0);
+
+                    confidentialityStatementTable.addCell(separator);
+                    cell.setPhrase(new Phrase("Confidentiality Statement:", italicFont));
+                    confidentialityStatementTable.addCell(cell);
+                    cell.setPhrase(new Phrase(confidentialityStatement, font));
+                    confidentialityStatementTable.addCell(cell);
+                    confidentialityStatementTable.addCell(space);
+
+                    footerHeight += confidentialityStatementTable.getTotalHeight() + 5;
+                }
                 
                 //Translates the binary content into an image
                 Image image = Image.getInstance(hrmReport.getBinaryContent());
                 //Scales the image in case one of the dimensions is bigger than the document
-                image.scaleToFit(document.getPageSize().getWidth(), document.getPageSize().getHeight());
+                image.scaleToFit(document.getPageSize().getWidth(), document.getPageSize().getHeight() - footerHeight);
                 
                 //Checks if the scaled width is bigger than the document width and that the height can fit the width
                 if (image.getScaledWidth() >= document.getPageSize().getWidth() && image.getScaledHeight() <= document.getPageSize().getWidth()) {
                     //Rotates the image 90 degrees so that it displays portrait style on the document
                     image.setRotationDegrees(90);
                     //Rescales the image so that it fits the page better
-                    image.scaleToFit(document.getPageSize().getWidth(), document.getPageSize().getHeight());
+                    image.scaleToFit(document.getPageSize().getWidth(), document.getPageSize().getHeight() - footerHeight);
                 }
                 
                 document.add(image);
                 
+                if (confidentialityStatementTable != null) {
+                    //Adds the table to the document
+                    document.add(confidentialityStatementTable);
+                }
+
                 document.close();
             }
             else {
@@ -170,6 +211,18 @@ public class HRMPDFCreator extends PdfPageEventHelper {
         cell.setPhrase(new Phrase(hrmReport.getFirstReportTextContent(), font));
         mainPage.addCell(cell);
         mainPage.addCell(space);
+        
+        //Add confidentiality statement to PDF
+        HRMProviderConfidentialityStatementDao hrmProviderConfidentialityStatementDao = SpringUtils.getBean(HRMProviderConfidentialityStatementDao.class);
+        String confidentialityStatement = hrmProviderConfidentialityStatementDao.getConfidentialityStatementForProvider(loggedInInfo.getLoggedInProviderNo());
+        if (confidentialityStatement != null && confidentialityStatement.trim().length() > 0) {
+            mainPage.addCell(separator);
+            cell.setPhrase(new Phrase("Confidentiality Statement:", italicFont));
+            mainPage.addCell(cell);
+            cell.setPhrase(new Phrase(confidentialityStatement, font));
+            mainPage.addCell(cell);
+            mainPage.addCell(space);
+        }
 
         //Creates a box at the bottom of the report that contains the metadata
         float [] metaDataBoxWidths = {1f, 2f};
