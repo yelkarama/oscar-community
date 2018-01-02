@@ -401,23 +401,19 @@
 		DemographicMerged dmDAO = new DemographicMerged();
 
 		for(Demographic demo : demoList) {
-
-
-			
 			String dem_no = demo.getDemographicNo().toString();
 			String head = dmDAO.getHead(dem_no);
+			nItems++; //to calculate if it is the end of records
 
 			if (head != null && !head.equals(dem_no)) {
 				//skip non head records
 				continue;
 			}
-
 %>
 	<tr class="<%=toggleLine?"even":"odd"%>">
 	<td class="demoIdSearch">
 
 	<%
-
 		if (fromMessenger) {
 	%>
 		<a href="demographiccontrol.jsp?keyword=<%=URLEncoder.encode(Misc.toUpperLowerCase(demo.getLastName()+", "+demo.getFirstName()), "UTF-8")%>&demographic_no=<%= dem_no %>&displaymode=linkMsg2Demo&dboperation=search_detail" ><%=demo.getDemographicNo()%></a></td>
@@ -463,7 +459,6 @@
 	<%
 		
 	toggleLine = !toggleLine;
-	nItems++; //to calculate if it is the end of records
 		}
 	}
 %>
