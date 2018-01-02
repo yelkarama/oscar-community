@@ -40,42 +40,42 @@
    	Security loggedInSecurity=oscarLoggedInInfo.getLoggedInSecurity();
    	MyOscarLoggedInInfo myOscarLoggedInInfo=MyOscarLoggedInInfo.getLoggedInInfo(session);
 	
-	if (syncConfigUrl==null || oscarWsUrl==null)
-	{
+	if (syncConfigUrl==null || oscarWsUrl==null) {
 		String errorMsg="Some one is running the sync config admin page but the urls are not set. syncConfigUrl="+syncConfigUrl+", oscarWsUrl="+oscarWsUrl;
 		MiscUtils.getLogger().error(errorMsg);
 		%>
 			<%=errorMsg%>
 			return;
 		<%
-	}
+	} else {
 
-	StringBuilder sb=new StringBuilder();
-	sb.append(syncConfigUrl);
-	
-	if (syncConfigUrl.indexOf('?')==-1) sb.append('?');
-	else sb.append('&');
-	
-	sb.append("oscarUserName=");
-	String temp=loggedInSecurity.getUserName();
-	sb.append(URLEncoder.encode(temp, "UTF-8"));
-	
-	sb.append("&oscarToken=");
-	temp=WsUtils.generateSecurityToken(loggedInSecurity);
-	sb.append(URLEncoder.encode(temp, "UTF-8"));
-		
-	sb.append("&myOscarUserName=");
-	temp=myOscarLoggedInInfo.getLoggedInPerson().getUserName();
-	sb.append(URLEncoder.encode(temp, "UTF-8"));
-	
-	sb.append("&myOscarToken=");
-	temp=myOscarLoggedInInfo.getLoggedInPersonSecurityToken();
-	sb.append(URLEncoder.encode(temp, "UTF-8"));
-		
-	String resultUrl=sb.toString();
-	
-	MiscUtils.getLogger().debug("data sync url : "+resultUrl);
-	
-	// redirect
-	response.sendRedirect(resultUrl);
+		StringBuilder sb = new StringBuilder();
+		sb.append(syncConfigUrl);
+
+		if (syncConfigUrl.indexOf('?') == -1) sb.append('?');
+		else sb.append('&');
+
+		sb.append("oscarUserName=");
+		String temp = loggedInSecurity.getUserName();
+		sb.append(URLEncoder.encode(temp, "UTF-8"));
+
+		sb.append("&oscarToken=");
+		temp = WsUtils.generateSecurityToken(loggedInSecurity);
+		sb.append(URLEncoder.encode(temp, "UTF-8"));
+
+		sb.append("&myOscarUserName=");
+		temp = myOscarLoggedInInfo.getLoggedInPerson().getUserName();
+		sb.append(URLEncoder.encode(temp, "UTF-8"));
+
+		sb.append("&myOscarToken=");
+		temp = myOscarLoggedInInfo.getLoggedInPersonSecurityToken();
+		sb.append(URLEncoder.encode(temp, "UTF-8"));
+
+		String resultUrl = sb.toString();
+
+		MiscUtils.getLogger().debug("data sync url : " + resultUrl);
+
+		// redirect
+		response.sendRedirect(resultUrl);
+	}
 %>

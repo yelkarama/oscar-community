@@ -1318,7 +1318,11 @@ if(wLReadonly.equals("")){
 					</tr>
 					<tr>
 						<td>
-							<a href="" onclick="popup(600, 1000, '<%=request.getContextPath()%>/demographic/viewPhrRecord.do?demographic_no=<%=demographic_no%>', 'viewPatientPHR'); return false;">View PHR Record</a>
+							<% if (myOscarLoggedInInfo!=null && myOscarLoggedInInfo.isLoggedIn()) {
+							    onclickString = "popup(600, 1000, '" + request.getContextPath() + "/demographic/viewPhrRecord.do?demographic_no=" + demographic_no + "', 'viewPatientPHR'); return false";
+							}
+							%>
+							<a href="javascript: function myFunction() {return false; }" onclick="<%=onclickString%>">View PHR Record</a>
 						</td>
 					</tr>
 					<tr>
