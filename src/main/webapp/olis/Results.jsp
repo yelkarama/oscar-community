@@ -29,7 +29,7 @@ function addToInbox(uuid) {
 	jQuery(uuid).attr("disabled", "disabled");
 	jQuery.ajax({
 		url: "<%=request.getContextPath() %>/olis/AddToInbox.do",
-		data: "uuid=" + uuid,
+		data: 'uuid=' + uuid + '&requestingHic=<%=request.getParameter("requestingHic")%>',
 		success: function(data) {
 			jQuery("#" + uuid + "_result").html(data);
 		}

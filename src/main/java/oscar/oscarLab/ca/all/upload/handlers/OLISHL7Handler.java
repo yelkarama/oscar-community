@@ -31,6 +31,8 @@ import oscar.oscarLab.ca.all.upload.ProviderLabRouting;
 import oscar.oscarLab.ca.all.upload.RouteReportResults;
 import oscar.oscarLab.ca.all.util.Utilities;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * 
  */
@@ -67,6 +69,46 @@ public class OLISHL7Handler implements MessageHandler {
 				}
 				MessageUploader.routeReport(loggedInInfo, serviceName,"OLIS_HL7", msg.replace("\\E\\", "\\SLASHHACK\\").replace("µ", "\\MUHACK\\").replace("\\H\\", "\\.H\\").replace("\\N\\", "\\.N\\"), fileId, results);
 				if (routeToCurrentProvider) {
+					ProviderLabRouting routing = new ProviderLabRouting();
+					ProviderDataDao providerDataDao = SpringUtils.getBean(ProviderDataDao.class);
+					ProviderData provider = providerDataDao.findByOhipNumber(getOrderingProviderNo(msg));
+
+					if (provider != null){
+						routing.route(results.segmentId, provider.getId(), DbConnectionFilter.getThreadLocalDbConnection(), "HL7");
+					}
+					this.lastSegmentId = results.segmentId;
+				}
+			}
+			logger.info("Parsed OK");
+		} catch (Exception e) {
+			MessageUploader.clean(fileId);
+			logger.error("Could not upload message", e);
+			return null;
+		}
+		return lastTimeStampAccessed;
+	}
+
+	public String parse(HttpServletRequest request, String serviceName, String fileName, int fileId) {
+		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+		String requestingHic = request.getParameter("requestingHic");
+		int i = 0;
+		String lastTimeStampAccessed = null;
+		RouteReportResults results = new RouteReportResults();
+
+		try {
+			ArrayList<String> messages = Utilities.separateMessages(fileName);
+
+			for (i = 0; i < messages.size(); i++) {
+				String msg = messages.get(i);
+				logger.info(msg);
+
+				lastTimeStampAccessed = getLastUpdateInOLIS(msg) ;
+
+				if(OLISUtils.isDuplicate(loggedInInfo, msg)) {
+					continue;
+				}
+				MessageUploader.routeReport(loggedInInfo, serviceName,"OLIS_HL7", msg.replace("\\E\\", "\\SLASHHACK\\").replace("µ", "\\MUHACK\\").replace("\\H\\", "\\.H\\").replace("\\N\\", "\\.N\\"), fileId, results);
+				if (requestingHic != null) {
 					ProviderLabRouting routing = new ProviderLabRouting();
 					ProviderDataDao providerDataDao = SpringUtils.getBean(ProviderDataDao.class);
 					ProviderData provider = providerDataDao.findByOhipNumber(getOrderingProviderNo(msg));
