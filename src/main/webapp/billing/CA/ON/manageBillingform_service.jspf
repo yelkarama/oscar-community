@@ -23,9 +23,34 @@
  * Ontario, Canada 
  */
 -->
+<script>
+    function validateServiceOrderForForm() {
+        var valid = true;
+        var errors = [];
 
+        var billingFormGroups = document.form1.getElementsByClassName("billingFormGroup");
+
+        for (var f = 0; f < (billingFormGroups.size()); f++){
+            var groupNo =  f + 1;
+            var numberOfServicesInGroup = (document.querySelectorAll("input[name^='group" + groupNo  + "_service']").length / 2);
+
+            for (var i = 0; i < numberOfServicesInGroup; i++) {
+                if(document.form1['group' + groupNo + '_service' + i].value && !document.form1['group' + groupNo + '_service' + i + "_order"].value) {
+                    valid = false;
+                    errors.push("Missing service for service " + document.form1['group' + groupNo + '_service' + i].value + " in group " + groupNo);
+                }
+            }
+        }
+
+        if (!valid) {
+            alert(errors.join("\n"));
+        }
+
+        return valid;
+    }
+</script>
 <form method="post" name="form1"
-	action="dbManageBillingform_service.jsp">
+	action="dbManageBillingform_service.jsp" onsubmit="return validateServiceOrderForForm();">
 <table width="75%" border="0" cellpadding="3" bgcolor="#9999CC">
 	<tr>
 
@@ -68,7 +93,7 @@ int rCount = 0;
 		<td>
 		<table width="100%" border="0">
 			<tr>
-				<td><input type="text" name="group<%=i%>"
+				<td><input type="text" class="billingFormGroup" name="group<%=i%>"
 					value="<%=servicetype_name%>" size="20"
 					style="font-size: 8pt; text-align: right; vertical-align: bottom"></td>
 			</tr>
