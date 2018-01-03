@@ -382,12 +382,18 @@ if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) {
 %>
       <td>&nbsp;<%=remarks%><% if(newline){%><br/>&nbsp;<%}%><%=notes%></td>
 <% 
-	if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) { 
-	String[] sbc = siteBgColor.get(appointment.getLocation()); 
+	if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) {
+	    if (appointment.getLocation() != null && !appointment.getLocation().isEmpty()) {
+	        String[] sbc = siteBgColor.get(appointment.getLocation());
 %>      
 	<td style='background-color:<%= sbc[0] %>'><%= sbc[1] %></td>
 <% 
-	} 
+		}
+		else {
+%>
+	<td>none</td>
+<%		}
+	}
 %>      
 </tr>
 <%
