@@ -24,6 +24,8 @@
 	<% 
 	if(session.getValue("user") == null) response.sendRedirect("../../logout.jsp");
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+
+		String requestingHic = loggedInInfo.getLoggedInProviderNo();
 	%>
 
 
@@ -425,13 +427,13 @@
 		</tr>	
 		<tr>
 			<td><span>Requesting HIC</span></td><td>
-			<select name="requestingHic" id="requestingHic">
+			<select name="requestingHic">
 			
 			<option value=""></option>
 			<%
 			for (Provider provider : allProvidersList) {
 				%>
-				<option value="<%=provider.getProviderNo() %>">[<%=provider.getProviderNo()%>] <%=provider.getLastName() %>, <%=provider.getFirstName() %></option>
+				<option value="<%=provider.getProviderNo() %>" <%=provider.getProviderNo().equals(requestingHic)?"selected":""%>>[<%=provider.getProviderNo()%>] <%=provider.getLastName() %>, <%=provider.getFirstName() %></option>
 			<%	
 			}
 			%>
@@ -638,7 +640,7 @@
 			<%
 			for (Provider provider : allProvidersList) {
 				%>
-				<option value="<%=provider.getProviderNo() %>">[<%=provider.getProviderNo()%>] <%=provider.getLastName() %>, <%=provider.getFirstName() %></option>
+				<option value="<%=provider.getProviderNo() %>" <%=provider.getProviderNo().equals(requestingHic)?"selected":""%>>[<%=provider.getProviderNo()%>] <%=provider.getLastName() %>, <%=provider.getFirstName() %></option>
 			<%	
 			}
 			%>
