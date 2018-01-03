@@ -296,7 +296,7 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 						+ " FROM patientLabRouting plr2"
 						+ " RIGHT JOIN providerLabRouting plr ON plr.lab_no = plr2.lab_no AND plr2.lab_type = 'HL7'"
 						+ " RIGHT JOIN hl7TextInfo info ON plr.lab_no = info.lab_no "
-						+ (dateSearchType.equals("receivedCreated")?" RIGHT JOIN hl7textmessage message ON plr.lab_no = message.lab_id":"")
+						+ (dateSearchType.equals("receivedCreated")?" RIGHT JOIN hl7TextMessage message ON plr.lab_no = message.lab_id":"")
 						+ " WHERE plr.lab_type = 'HL7'"
 						+ (searchProvider ? " AND plr.provider_no = '"+providerNo+"' " : "")
 						+ " AND plr.status" + ("".equals(status) ? " IS NOT NULL " : " = '"+status+"' ")
@@ -312,7 +312,7 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 	    		sql = " SELECT info.label, info.lab_no, info.sex, info.health_no, info.result_status,"
 					+ (dateSearchType.equals("receivedCreated")?" message.created":"info.obr_date") + ", info.priority, info.requesting_client, info.discipline, info.last_name, "
 					+ " info.first_name, info.report_status,  info.accessionNum, info.final_result_count, X.status "
-	    			+ " FROM hl7TextInfo info, " + (dateSearchType.equals("receivedCreated")?" hl7textmessage message":"")
+	    			+ " FROM hl7TextInfo info, " + (dateSearchType.equals("receivedCreated")?" hl7TextMessage message":"")
 	    			+" (SELECT * FROM "
 	    			+" (SELECT DISTINCT plr.id, plr.lab_type, plr.lab_no, plr.status FROM providerLabRouting plr, ctl_document cd "
 	    			+" WHERE 	"
@@ -399,7 +399,7 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 	    			+ " FROM patientLabRouting plr2"
 					+ " RIGHT JOIN providerLabRouting plr ON plr.lab_no = plr2.lab_no AND plr2.lab_type = 'HL7'"
 					+ " RIGHT JOIN hl7TextInfo info ON plr.lab_no = info.lab_no"
-					+ (dateSearchType.equals("receivedCreated")?" RIGHT JOIN hl7textmessage message ON plr.lab_no = message.lab_id":"")
+					+ (dateSearchType.equals("receivedCreated")?" RIGHT JOIN hl7TextMessage message ON plr.lab_no = message.lab_id":"")
 	    			+ " WHERE plr.lab_type = 'HL7'"
 	    			+ (searchProvider ? " AND plr.provider_no = '"+providerNo+"' " : "")
 	    			+ " AND plr.status " + ("".equals(status) ? " IS NOT NULL " : " = '"+status+"' ")
@@ -413,7 +413,7 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 	    	else if (demographicNo != null && !"".equals(demographicNo)) {
 	    		sql = " SELECT info.label, info.lab_no, info.sex, info.health_no, info.result_status," + (dateSearchType.equals("receivedCreated")?" message.created":"info.obr_date") + ", info.priority, " +
 						"info.requesting_client, info.discipline, info.last_name, info.first_name, info.report_status,  info.accessionNum, info.final_result_count, X.status "
-	    			+ " FROM hl7TextInfo info, " + (dateSearchType.equals("receivedCreated")?" hl7textmessage message, ":"")
+	    			+ " FROM hl7TextInfo info, " + (dateSearchType.equals("receivedCreated")?" hl7TextMessage message, ":"")
 	    			+ " (SELECT DISTINCT plr.id,plr.lab_no, plr.lab_type,  plr.status, d.demographic_no "
 	    			+ " FROM providerLabRouting plr, patientLabRouting plr2, demographic d "
 	    			+ " WHERE 	(d.demographic_no = '"+demographicNo+"' "
@@ -432,7 +432,7 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 	    	else if (patientSearch) { // A
 				sql = " SELECT info.label, info.lab_no, info.sex, info.health_no, info.result_status," + (dateSearchType.equals("receivedCreated")?" message.created":"info.obr_date") + ", info.priority, " +
 						"info.requesting_client, info.discipline, info.last_name, info.first_name, info.report_status, info.accessionNum, info.final_result_count, Z.status "
-						+ " FROM hl7TextInfo info, " + (dateSearchType.equals("receivedCreated")?" hl7textmessage message, ":"")
+						+ " FROM hl7TextInfo info, " + (dateSearchType.equals("receivedCreated")?" hl7TextMessage message, ":"")
 						+ " 	(SELECT * FROM "
 						+ " 		(SELECT DISTINCT plr.id, plr.lab_type, plr.status, plr.lab_no, d.demographic_no "
 						+ " 			FROM providerLabRouting plr, patientLabRouting plr2, demographic d "
@@ -461,7 +461,7 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 	    	else { // A
 	    		sql = " SELECT info.label, info.lab_no, info.sex, info.health_no, info.result_status," + (dateSearchType.equals("receivedCreated")?" message.created":"info.obr_date") + ", info.priority, " +
 						"info.requesting_client, info.discipline, info.last_name, info.first_name, info.report_status,  info.accessionNum, info.final_result_count, plr.status "
-	    			+ " FROM providerLabRouting plr, hl7TextInfo info " + (dateSearchType.equals("receivedCreated")?", hl7textmessage message, ":"")
+	    			+ " FROM providerLabRouting plr, hl7TextInfo info " + (dateSearchType.equals("receivedCreated")?", hl7TextMessage message ":"")
 	    			+ " WHERE plr.status " + ("".equals(status) ? " IS NOT NULL " : " = '"+status+"' ") + (searchProvider ? " AND plr.provider_no = '"+providerNo+"' " : "")
 	    			+ "   AND lab_type = 'HL7' and info.lab_no = plr.lab_no " + (dateSearchType.equals("receivedCreated")?" AND message.lab_id = info.lab_no ":"")
 	    			+ dateSql
