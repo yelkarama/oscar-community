@@ -89,6 +89,9 @@
 			String clinicNo = oscarVariables.getProperty("clinic_no", "").trim();
 			String visitType = bHospitalBilling ? "02" : oscarVariables.getProperty("visit_type", "");
 			List<BillingServiceSchedule> billingServiceSchedule = new ArrayList<BillingServiceSchedule>();
+			List<String> invoiceProviderNos = new ArrayList<String>();
+
+			invoiceProviderNos.add(user_no);
 
 			if (visitType.startsWith("00") || visitType.equals(""))	clinicview = "0000";
 			String appt_no = request.getParameter("appointment_no");
@@ -114,6 +117,9 @@
  			}
 			else {
      			provider_no = apptProvider_no;
+     			if (!user_no.equals(provider_no)) {
+     			    invoiceProviderNos.add(provider_no);
+				}
  			}
  			
             CodeFilterManager codeFilterManager = SpringUtils.getBean(CodeFilterManager.class);
@@ -1668,7 +1674,9 @@ if(checkFlag == null) checkFlag = "0";
 											<% if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable())
 { // multisite start ==========================================
         	SiteDao siteDao = (SiteDao)SpringUtils.getBean("siteDao");
-          	List<Site> sites = siteDao.getActiveSitesByProviderNo((String) session.getAttribute("user"));
+          	List<Site> sites = siteDao.getActiveSitesByProviderNos(invoiceProviderNos);
+
+          	if (sites != null && !sites.isEmpty()) {
 
       %> <script>
 var _providers = [];
@@ -1716,6 +1724,32 @@ function changeSite(sel) {
      	changeSite(document.getElementById("site"));
       	document.getElementById("xml_provider").value='<%=request.getParameter("xml_provider")==null?xmlp:request.getParameter("xml_provider")%>';
       	</script> <%
+		}
+		else {
+%>
+		<select name="xml_provider" onchange="changeBillType(this.value);">
+				<%
+					List<Provider> providersNoSite = dao.getAllBillableProvidersWithNoSite();
+					for (Provider provider : providersNoSite) {
+						String selected = "";
+						if (apptProvider_no.equals(provider.getProviderNo()) && request.getParameter("fromEncounter") != null)
+						{
+							selected = "selected";
+						}
+						else if (providerview.equalsIgnoreCase(provider.getProviderNo()) && request.getParameter("fromEncounter") == null)
+						{
+							selected = "selected";
+						}
+
+				%>
+			<option value="<%=provider.getOhipNo()%>" <%=selected%>>
+				<b><%=provider.getLastName()%>, <%=provider.getFirstName()%></b>
+			</option>
+				<%
+					}
+				%>
+		</select>
+<%		}
  	// multisite end ==========================================
  } else {
  %> <select name="xml_provider" onchange="changeBillType(this.value);">

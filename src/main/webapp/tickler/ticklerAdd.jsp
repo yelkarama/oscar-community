@@ -380,7 +380,7 @@ var newD = newYear + "-" + newMonth + "-" + newDay;
 if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable())
 { // multisite start ==========================================
         	SiteDao siteDao = (SiteDao)WebApplicationContextUtils.getWebApplicationContext(application).getBean("siteDao");
-          	List<Site> sites = siteDao.getActiveSitesByProviderNo(user_no);
+          	List<Site> sites = siteDao.getAllSites();
           	String appNo = (String) session.getAttribute("cur_appointment_no");
           	String location = null;
           	if (appNo != null) {
@@ -411,14 +411,15 @@ for (int i=0; i<sites.size(); i++) {
 	} %>
 function changeSite(sel) {
 	sel.form.task_assigned_to.innerHTML=sel.value=="none"?"":_providers[sel.value];
+    sel.style.backgroundColor=sel.options[sel.selectedIndex].style.backgroundColor;
 }
       </script>
       	<select id="site" name="site" onchange="changeSite(this)">
-      		<option value="none">---select clinic---</option>
+      		<option value="none" style="background-color:#ffffff">---select clinic---</option>
       	<%
       	for (int i=0; i<sites.size(); i++) {
       	%>
-      		<option value="<%= sites.get(i).getSiteId() %>"><%= sites.get(i).getName() %></option>
+      		<option value="<%= sites.get(i).getSiteId() %>" style="background-color: <%=sites.get(i).getBgColor()%>"><%= sites.get(i).getName() %></option>
       	<% } %>
       	</select>
       	<select name="task_assigned_to" style="width:140px"></select>

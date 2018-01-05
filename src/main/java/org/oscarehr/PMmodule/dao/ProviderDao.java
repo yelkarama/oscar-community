@@ -291,6 +291,15 @@ public class ProviderDao extends HibernateDaoSupport {
 		List<Provider> rs = getHibernateTemplate().find("FROM Provider p where p.OhipNo != '' and p.Status = '1' order by p.LastName");
 		return rs;
 	}
+
+	public List<Provider> getAllBillableProvidersWithNoSite() {
+		List<Provider> rs = getHibernateTemplate().find("select p FROM Provider p " +
+				" where not exists (select distinct ps.id.providerNo from ProviderSite ps where ps.id.providerNo = p.ProviderNo ) " +
+				" and p.OhipNo != '' " +
+				" and p.Status = '1' " +
+				" order by p.LastName");
+		return rs;
+	}
 	
 	@SuppressWarnings("unchecked")
     public List<Provider> getBillableProvidersInBC() {

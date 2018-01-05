@@ -26,6 +26,7 @@
 		<property name="annotatedClasses">
 			<list>
        			<value>org.oscarehr.common.model.Admission</value>
+				<value>org.oscarehr.common.model.ProviderSite</value>
        		</list>            		
  		</property>
 		

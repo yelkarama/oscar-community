@@ -145,6 +145,19 @@ public class SiteDao extends AbstractDao<Site> {
 		return rs;
 	}
 
+	public List<Site> getActiveSitesByProviderNos(List<String> providerNos) {
+		String sql = " select s from Site s " +
+				" where s.siteId in (select distinct ps.id.siteId from ProviderSite ps where s.siteId = ps.id.siteId " +
+				" and ps.id.providerNo IN (:providerNos) )";
+
+
+		Query query = entityManager.createQuery(sql);
+		query.setParameter("providerNos", providerNos);
+
+		List<Site> results = query.getResultList();
+		return results;
+	}
+
 	public Site getById(Integer id) {
 		return find(id);
 	}
