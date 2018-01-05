@@ -74,7 +74,7 @@ account = "";
 List<RaDetail> res = raDetailDao.search_raNonError35(Integer.parseInt(raNo),"I2","35",proNo+"%");
 
 for (RaDetail ra : res) {
-	account = String.valueOf(ra);
+	account = String.valueOf(ra.getBillingNo());
 	eFlag="1";
 	hin = ra.getHin() != null ? ra.getHin() : "";
 
@@ -104,7 +104,7 @@ param0[1] = proNo+"%";
 // settle Qcodes
 account = "";
 for(RaDetail r: raDetailDao.search_raNonErrorQ(Integer.parseInt(raNo), proNo+"%")) {
-	account = String.valueOf(r);
+	account = String.valueOf(r.getBillingNo());
 	eFlag="1";
 	hin = r.getHin() != null ? r.getHin() : "";
 
