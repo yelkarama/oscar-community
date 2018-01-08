@@ -49,6 +49,11 @@
 if(!authed) {
 	return;
 }
+LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+
+if (request.getParameter("providerNo") != null && !request.getParameter("providerNo").equals(loggedInInfo.getLoggedInProviderNo())) {
+    response.sendRedirect("../oscarMessenger/DisplayMessages.jsp");
+}
 %>
 
 <%

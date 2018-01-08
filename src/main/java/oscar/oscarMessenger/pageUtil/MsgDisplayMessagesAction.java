@@ -55,52 +55,35 @@ public class MsgDisplayMessagesAction extends Action {
 			throw new SecurityException("missing required security object (_msg)");
 		}
 		
-		// Setup variables            
-		oscar.oscarMessenger.pageUtil.MsgSessionBean bean = null;
+		// Setup variables
+		Provider provider = LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProvider();
+		MsgSessionBean bean = null;
 		String[] messageNo = ((MsgDisplayMessagesForm) form).getMessageNo();
-		String providerNo;
+		String providerNo = provider.getProviderNo();
 
 		//Initialize forward location
 		String findForward = "success";
 
-		if (request.getParameter("providerNo") != null && request.getParameter("userName") != null) {
-
-			bean = new oscar.oscarMessenger.pageUtil.MsgSessionBean();
-			bean.setProviderNo(request.getParameter("providerNo"));
-			bean.setUserName(request.getParameter("userName"));
-			request.getSession().setAttribute("msgSessionBean", bean);
-
-		}//if
-		else if(request.getParameter("providerNo") != null && request.getParameter("userName") == null) {
-			ProviderManager2 providerManager = SpringUtils.getBean(ProviderManager2.class);
-			Provider p = providerManager.getProvider(LoggedInInfo.getLoggedInInfoFromSession(request), request.getParameter("providerNo"));
-			if(p != null) {
-				bean = new oscar.oscarMessenger.pageUtil.MsgSessionBean();
-				bean.setProviderNo(request.getParameter("providerNo"));
-				bean.setUserName(p.getFirstName() + " " + p.getLastName());
-				request.getSession().setAttribute("msgSessionBean", bean);
-			}
-		}
-		else {
-			bean = (oscar.oscarMessenger.pageUtil.MsgSessionBean) request.getSession().getAttribute("msgSessionBean");
-		}//else
+		bean = new MsgSessionBean();
+		bean.setProviderNo(providerNo);
+		bean.setUserName(provider.getFirstName() + " " + provider.getLastName());
+		request.getSession().setAttribute("msgSessionBean", bean);
 
 		/*
 		 *edit 2006-0811-01 by wreby
 		 *  Adding a search and clear search action to the DisplayMessages JSP
 		 */
 		if (request.getParameter("btnSearch") != null) {
-			oscar.oscarMessenger.pageUtil.MsgDisplayMessagesBean displayMsgBean = (oscar.oscarMessenger.pageUtil.MsgDisplayMessagesBean) request.getSession().getAttribute("DisplayMessagesBeanId");
+			MsgDisplayMessagesBean displayMsgBean = (MsgDisplayMessagesBean) request.getSession().getAttribute("DisplayMessagesBeanId");
 
 			displayMsgBean.setFilter(request.getParameter("searchString"));
 		} else if (request.getParameter("btnClearSearch") != null) {
-			oscar.oscarMessenger.pageUtil.MsgDisplayMessagesBean displayMsgBean = (oscar.oscarMessenger.pageUtil.MsgDisplayMessagesBean) request.getSession().getAttribute("DisplayMessagesBeanId");
+			MsgDisplayMessagesBean displayMsgBean = (MsgDisplayMessagesBean) request.getSession().getAttribute("DisplayMessagesBeanId");
 			displayMsgBean.clearFilter();
 		} else if (request.getParameter("btnDelete") != null) {
 			//This will go through the array of message Numbers and set them
 			//to del.which stands for deleted. but you prolly could have figured that out
 
-			providerNo = bean.getProviderNo();
 			MessageListDao dao = SpringUtils.getBean(MessageListDao.class);
 			for (int i = 0; i < messageNo.length; i++) {
 				List<MessageList> msgs = dao.findByProviderNoAndMessageNo(providerNo, ConversionUtils.fromLongString(messageNo[i]));
@@ -111,7 +94,6 @@ public class MsgDisplayMessagesAction extends Action {
 				}
 			}//for
 		} else if (request.getParameter("btnRead") != null){
-			providerNo = bean.getProviderNo();
 			MessageListDao dao = SpringUtils.getBean(MessageListDao.class);
 			for (int i = 0; i < messageNo.length; i++) {
 				List<MessageList> msgs = dao.findByProviderNoAndMessageNo(providerNo, ConversionUtils.fromLongString(messageNo[i]));
@@ -121,7 +103,6 @@ public class MsgDisplayMessagesAction extends Action {
 				}
 			}
 		} else if (request.getParameter("btnUnread") != null){
-			providerNo = bean.getProviderNo();
 			MessageListDao dao = SpringUtils.getBean(MessageListDao.class);
 			for (int i = 0; i < messageNo.length; i++) {
 				List<MessageList> msgs = dao.findByProviderNoAndMessageNo(providerNo, ConversionUtils.fromLongString(messageNo[i]));
@@ -131,7 +112,6 @@ public class MsgDisplayMessagesAction extends Action {
 				}
 			}
 		} else if (request.getParameter("moveTo") != null){
-			providerNo = bean.getProviderNo();
 			MessageListDao dao = SpringUtils.getBean(MessageListDao.class);
 			Integer folderId = 0;
 			if (request.getParameter("moveTo")!=null && !request.getParameter("moveTo").equals("Remove")){
