@@ -198,7 +198,6 @@ public class InboxResultsDao {
 		//Check if the startDate is null, if a date exists then creates the SQL for the startDate 
 		if (endDate != null)
 		{
-			endDate.setTime(endDate.getTime() + (24 * 3600 * 1000) - 1);
 			if (dateSearchType.equals("receivedCreated"))
 			{
 				dateSql += " AND doc.contentdatetime <= '" + dateSqlFormatter.format(endDate) + "'";

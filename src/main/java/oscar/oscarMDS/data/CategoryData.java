@@ -32,7 +32,10 @@ import java.sql.SQLException;
 import java.util.HashMap;
 
 import org.apache.commons.lang.StringUtils;
+import org.oscarehr.common.dao.SystemPreferencesDao;
+import org.oscarehr.common.model.SystemPreferences;
 import org.oscarehr.util.DbConnectionFilter;
+import org.oscarehr.util.SpringUtils;
 
 public class CategoryData {
 
@@ -107,17 +110,41 @@ public class CategoryData {
 		this.patientHealthNumber = patientHealthNumber;
 		this.patientSearch = patientSearch;
 		this.providerSearch = providerSearch;
+
+		SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
+		String dateSearchType = "serviceObservation";
+
+		SystemPreferences systemPreferences = systemPreferencesDao.findPreferenceByName("inboxDateSearchType");
+		if (systemPreferences != null)
+		{
+			if (systemPreferences.getValue() != null && !systemPreferences.getValue().isEmpty())
+			{
+				dateSearchType = systemPreferences.getValue();
+			}
+		}
 		
 		if (startDate != null && !startDate.equals("")) {
-			documentDateSql += "AND DATE(doc.observationdate) >= DATE('" + startDate + "') ";
-			labDateSql += "AND DATE(info.obr_date) >= DATE('" + startDate + "') ";
-			hrmDateSql += "AND h.timeReceived >= '" + startDate + "' ";
+			if (dateSearchType.equals("receivedCreated")) {
+				documentDateSql += "AND doc.contentdatetime >= '" + startDate + " 00:00:00' ";
+				labDateSql += "AND message.created >= '" + startDate + " 00:00:00' ";
+			} else {
+				documentDateSql += "AND doc.observationdate >= '" + startDate + " 00:00:00' ";
+				labDateSql += "AND info.obr_date >= '" + startDate + " 00:00:00' ";
+			}
+
+			hrmDateSql += "AND h.timeReceived >= '" + startDate + " 00:00:00' ";
 		}
 		
 		if (endDate != null && !endDate.equals("")) {
-			documentDateSql += "AND DATE(doc.observationdate) <= DATE('" + endDate + "') ";
-			labDateSql += "AND DATE(info.obr_date) <= DATE('" + endDate + "') ";
-			hrmDateSql += "AND h.timeReceived <= '" + endDate + "' ";
+			if (dateSearchType.equals("receivedCreated")) {
+				documentDateSql += "AND doc.contentdatetime <= '" + endDate + " 23:59:59' ";
+				labDateSql += "AND message.created <= '" + endDate + " 23:59:59' ";
+			} else {
+				documentDateSql += "AND doc.observationdate <= '" + endDate + " 23:59:59' ";
+				labDateSql += "AND info.obr_date <= '" + endDate + " 23:59:59' ";
+			}
+
+			hrmDateSql += "AND h.timeReceived <= '" + endDate + " 23:59:59' ";
 		}
 		
 		if (!documentDateSql.equals("")) {
@@ -180,12 +207,29 @@ public class CategoryData {
         normalCount = totalNumDocs - abnormalCount;
 	}
 
+	public String getDateSearchType() {
+		SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
+
+		SystemPreferences systemPreferences = systemPreferencesDao.findPreferenceByName("inboxDateSearchType");
+		if (systemPreferences != null)
+		{
+			if (systemPreferences.getValue() != null && !systemPreferences.getValue().isEmpty())
+			{
+				return systemPreferences.getValue();
+			}
+		}
+
+		return "serviceObservation";
+	}
+
 	public int getLabCountForUnmatched()
 			throws SQLException {
+		String dateSearchType = getDateSearchType();
 		String sql = " SELECT HIGH_PRIORITY COUNT(DISTINCT accessionNum) as count "
 				+ " FROM providerLabRouting plr "
 				+ " LEFT JOIN patientLabRouting plr2 ON plr.lab_no = plr2.lab_no AND plr2.lab_type = 'HL7'"
 				+ " RIGHT JOIN hl7TextInfo info ON plr.lab_no = info.lab_no"
+				+ (dateSearchType.equals("receivedCreated")?" RIGHT JOIN hl7TextMessage message ON plr.lab_no = message.lab_id":"")
 				+ " WHERE plr.lab_type = 'HL7' "
 				+ (providerSearch ? " AND plr.provider_no = '"+searchProviderNo+"' " : "")
 				+ " AND plr.status " + ("".equals(status) ? " IS NOT NULL " : " = '"+status+"' ")
@@ -260,19 +304,21 @@ public class CategoryData {
 
 	public int getLabCountForPatientSearch() throws SQLException {
 		PatientInfo info;
+		String dateSearchType = getDateSearchType();
 		String sql = " SELECT HIGH_PRIORITY d.demographic_no, d.last_name, d.first_name, COUNT(*) as count "
         	+ " FROM patientLabRouting cd" 
 			+ " LEFT JOIN demographic d ON cd.demographic_no = d.demographic_no" 
-			+ " LEFT JOIN providerLabRouting plr ON cd.lab_no = plr.lab_no" 
+			+ " LEFT JOIN providerLabRouting plr ON cd.lab_no = plr.lab_no"
 			+ " LEFT JOIN hl7TextInfo info ON cd.lab_no = info.lab_no"
+			+ (dateSearchType.equals("receivedCreated")?" LEFT JOIN hl7TextMessage message ON cd.lab_no = message.lab_id":"")
         	+ " WHERE   d.last_name" + (StringUtils.isEmpty(patientLastName) ? " IS NOT NULL " : "  like '%"+patientLastName+"%' ")
         	+ " 	AND d.first_name" + (StringUtils.isEmpty(patientFirstName) ? " IS NOT NULL " : " like '%"+patientFirstName+"%' ")
         	+ " 	AND d.hin" + (StringUtils.isEmpty(patientHealthNumber) ? " IS NOT NULL " : " like '%"+patientHealthNumber+"%' ")
         	+ " 	AND plr.lab_type = 'HL7' "
         	+ " 	AND cd.lab_type = 'HL7' "
         	+ " 	AND plr.status " + ("".equals(status) ? " IS NOT NULL " : " = '"+status+"' ")
-			+ " AND info.lab_no IS NOT NULL "
-        	+ (providerSearch ? "AND plr.provider_no = '"+searchProviderNo+"' " : "")
+			+ (dateSearchType.equals("receivedCreated")?" AND message.lab_id IS NOT NULL ":" AND info.lab_no IS NOT NULL ")
+        	+ (providerSearch ? " AND plr.provider_no = '"+searchProviderNo+"' " : "")
 			+ labDateSql
         	+ " GROUP BY demographic_no, info.accessionNum ";
 

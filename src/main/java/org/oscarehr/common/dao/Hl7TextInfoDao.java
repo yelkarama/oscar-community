@@ -312,7 +312,7 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 	    		sql = " SELECT info.label, info.lab_no, info.sex, info.health_no, info.result_status,"
 					+ (dateSearchType.equals("receivedCreated")?" message.created":"info.obr_date") + ", info.priority, info.requesting_client, info.discipline, info.last_name, "
 					+ " info.first_name, info.report_status,  info.accessionNum, info.final_result_count, X.status "
-	    			+ " FROM hl7TextInfo info, " + (dateSearchType.equals("receivedCreated")?" hl7TextMessage message":"")
+	    			+ " FROM hl7TextInfo info, " + (dateSearchType.equals("receivedCreated")?" hl7TextMessage message, ":"")
 	    			+" (SELECT * FROM "
 	    			+" (SELECT DISTINCT plr.id, plr.lab_type, plr.lab_no, plr.status FROM providerLabRouting plr, ctl_document cd "
 	    			+" WHERE 	"
@@ -451,7 +451,7 @@ public class Hl7TextInfoDao extends AbstractDao<Hl7TextInfo> {
 						+ " 		) "
 						+ " 		ORDER BY id DESC "
 						+ " 	) AS Z "
-						+ " WHERE Z.lab_type = 'HL7' and Z.lab_no = info.lab_no " + (dateSearchType.equals("receivedCreated")?" message.lab_id = info.lab_no ":"")
+						+ " WHERE Z.lab_type = 'HL7' and Z.lab_no = info.lab_no " + (dateSearchType.equals("receivedCreated")?" AND message.lab_id = info.lab_no ":"")
 						+ dateSql
 						+ (isAbnormal != null ? " AND (" + (!isAbnormal ? "info.result_status IS NULL OR" : "") + " info.result_status " + (isAbnormal ? "" : "!") + "= 'A') " : " ")
 						+ (dateSearchType.equals("receivedCreated")?" GROUP BY info.lab_no ":"")
