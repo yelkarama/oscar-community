@@ -342,6 +342,7 @@ public class DmsInboxManageAction extends DispatchAction {
 		//Tries to convert the end date to a Date object, if it fails then sets the date to null so it doesn't pass other checks
 		try {
 			endDate = sdf.parse(endDateStr);
+			endDate.setTime(endDate.getTime() + ((1000 * 3600 * 24) - 1));
 		} catch (Exception e) {
 			endDate = null;
 		}
