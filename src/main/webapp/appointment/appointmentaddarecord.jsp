@@ -53,6 +53,13 @@
 <%@page import="org.oscarehr.managers.DemographicManager" %>
 <%@ page import="oscar.log.LogAction" %>
 <%@ page import="oscar.log.LogConst" %>
+<%@ page import="org.oscarehr.common.model.AppointmentReminder" %>
+<%@ page import="org.oscarehr.common.model.AppointmentReminderStatus" %>
+<%@ page import="org.oscarehr.common.model.DemographicExt" %>
+<%@ page import="oscar.oscarDemographic.data.DemographicMerged" %>
+<%@ page import="org.oscarehr.common.dao.AppointmentReminderDao" %>
+<%@ page import="org.oscarehr.common.dao.AppointmentReminderStatusDao" %>
+<%@ page import="org.oscarehr.common.dao.DemographicExtDao" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <html:html locale="true">
@@ -72,6 +79,8 @@
 LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
 
 OscarAppointmentDao appointmentDao = (OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
+AppointmentReminderDao appointmentReminderDao = SpringUtils.getBean(AppointmentReminderDao.class);
+AppointmentReminderStatusDao appointmentReminderStatusDao = SpringUtils.getBean(AppointmentReminderStatusDao.class);
 WaitingListDao waitingListDao = SpringUtils.getBean(WaitingListDao.class);
 
 String createDateTime = UtilDateUtilities.DateToString(new java.util.Date(),"yyyy-MM-dd HH:mm:ss");
@@ -133,6 +142,7 @@ String status = request.getParameter("status")!=null?request.getParameter("statu
 	a.setReasonCode(Integer.parseInt(request.getParameter("reasonCode")));
 	//the keyword(name) must match the demographic_no if it has been changed
     demo = null;
+	DemographicExt demographicExt = null;
 if (request.getParameter("demographic_no") != null && !(request.getParameter("demographic_no").equals(""))) {
     DemographicMerged dmDAO = new DemographicMerged();
     a.setDemographicNo(Integer.parseInt(dmDAO.getHead(request.getParameter("demographic_no"))));
@@ -140,6 +150,10 @@ if (request.getParameter("demographic_no") != null && !(request.getParameter("de
 	DemographicData demData = new DemographicData();
 	demo = demData.getDemographic(loggedInInfo,String.valueOf(a.getDemographicNo()));
 	a.setName(demo.getLastName()+","+demo.getFirstName());
+
+	DemographicExtDao demographicExtDao = SpringUtils.getBean(DemographicExtDao.class);
+	demographicExt = demographicExtDao.getDemographicExt(demo.getDemographicNo(), "demo_cell");
+
 } else {
     a.setDemographicNo(0);
 	a.setName(request.getParameter("keyword"));
@@ -150,7 +164,38 @@ if (request.getParameter("demographic_no") != null && !(request.getParameter("de
 	
 	appointmentDao.persist(a);
 	LogAction.addLog(a.getProviderNo(), LogConst.ADD, LogConst.CON_APPT, "appointment_no="+a.getId(), request.getRemoteAddr(), String.valueOf(a.getDemographicNo()));
-	
+
+	AppointmentReminder ar = new AppointmentReminder();
+	String reminderEmail = "";
+	String reminderCell = "";
+	String reminderPhone = "";
+	ar.setAppointmentId(a.getId());
+	if (demo != null)
+	{
+	    reminderEmail = demo.getEmail();
+	    reminderPhone = demo.getPhone().substring(0, 1).equals("1")?"+" + demo.getPhone().replaceAll("-", ""):"+1" + demo.getPhone().replaceAll("-", "");
+	}
+
+	if (demographicExt != null)
+	{
+	    reminderCell = demographicExt.getValue().substring(0, 1).equals("1")?"+" + demographicExt.getValue().replaceAll("-", ""):"+1" + demographicExt.getValue().replaceAll("-", "");
+	}
+	ar.setReminderEmail(reminderEmail);
+	ar.setReminderCell(reminderCell);
+	ar.setReminderPhone(reminderPhone);
+	ar.setCancelled(false);
+	ar.setConfirmed(false);
+	ar.setUniqueCancellationKey(UUID.randomUUID().toString());
+	appointmentReminderDao.persist(ar);
+
+	AppointmentReminderStatus ars = new AppointmentReminderStatus();
+    ars.setApptReminderId(ar.getId());
+    ars.setProviderNo(request.getParameter("provider_no"));
+    ars.setRemindersSent(0);
+    ars.setAllDelivered(false);
+    ars.setDeliveryTime(null);
+    appointmentReminderStatusDao.persist(ars);
+
 	int rowsAffected=1;
 	
 	if (rowsAffected == 1) {
