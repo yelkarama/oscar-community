@@ -536,9 +536,9 @@ function validateAmountNumberic(idx) {
 				// get ohip claim number
                  List<RaDetail> raDetails = raDetailDao.findByBillingNo(billingNo);
                  for (RaDetail ra : raDetails) {
-                     if ((ra.getProviderOhipNo() == bCh1.getProviderNo())) {
+                     if ((ra.getProviderOhipNo().equals(bCh1.getProviderNo()))) {
                          if (ra.getHin() != null) {
-                             if (ra.getHin().length() > 10 && ra.getHin().substring(0,10).equals(sdemo.getHin()) || ra.getHin().equals(sdemo.getHin())) {
+                             if (ra.getHin().length() >= 10 && ra.getHin().substring(0,10).equals(sdemo.getHin().substring(0,10))) {
                                  claimNo = ra.getClaimNo();
                              }
                          }
