@@ -482,12 +482,10 @@ public class JdbcBillingRAImpl {
 			for (Integer billingNo : billingErrorNo) {
 				String account = "" + billingNo;
 				String demoLast = "";
-				String billingDate = "";
 
 				BillingONCHeader1 billing = billingDao.find(billingNo);
 				if (billing != null) {
 					demoLast = billing.getDemographicName();
-					billingDate = ConversionUtils.toDateString(billing.getBillingDate());
 				}
 
 				for (RaDetail rr : dao.findByHeaderAndBillingNos(ConversionUtils.fromIntString(raNo), billingNo)) {
@@ -506,7 +504,8 @@ public class JdbcBillingRAImpl {
 					prop.setProperty("amountpay", rr.getAmountPay());
 
 					prop.setProperty("account", account);
-					if (!billingDate.equals(serviceDate)) {
+					String hin = rr.getHin().length() >= 10 ? rr.getHin().substring(0, 10) : rr.getHin();
+					if (billing == null || !hin.equals(billing.getHin())) {
 						demoLast = "";
 					}
 					prop.setProperty("demoLast", demoLast);
