@@ -56,6 +56,7 @@
 %>	
 
 <%@page import="org.oscarehr.web.PrescriptionQrCodeUIBean"%>
+<%@ page import="org.oscarehr.integration.dashboard.model.User" %>
 <jsp:useBean id="providerBean" class="java.util.Properties" scope="session" />
 
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
@@ -592,7 +593,10 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
 																	String imageUrl=null;
 																	String startimageUrl=null;
 																	String statusUrl=null;
-																	if (props.getBooleanProperty("rx_electronic_signing", "true")) { 
+																	UserProperty signatureProperty = userPropertyDAO.getProp(providerNo,UserProperty.PROVIDER_CONSULT_SIGNATURE);
+																	boolean stampSignature = OscarProperties.getInstance().isPropertyActive("consult_auto_load_signature") && signatureProperty != null && signatureProperty.getValue() != null && !signatureProperty.getValue().trim().isEmpty();
+
+																	if (props.getBooleanProperty("rx_electronic_signing", "true")) {
 																		SimpleDateFormat sdf = new SimpleDateFormat ("MMM-dd-yyyy 'at' HH:mm");
 																		String getFirstName =  provider.getFirstName().replace("Dr. ", "");
 																		String signatureMessage = "Electronically Authorized by " + provider.getSurname() + ", \n" + getFirstName
@@ -601,16 +605,24 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                                                     	<p id="electronic_signature" style="display:none;"><%=signatureMessage%></p>
                                                                     	<input type="hidden" id="electronicSignature" name="electronicSignature" value=""/>
                                                                     <% } else {
-
-																	signatureRequestId=loggedInInfo.getLoggedInProviderNo();
-																	imageUrl=request.getContextPath()+"/imageRenderingServlet?source="+ImageRenderingServlet.Source.signature_preview.name()+"&"+DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY+"="+signatureRequestId;
-																	startimageUrl=request.getContextPath()+"/images/1x1.gif";		
-																	statusUrl = request.getContextPath()+"/PMmodule/ClientManager/check_signature_status.jsp?" + DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY+"="+signatureRequestId;
+																	    String imgFile = "";
+																		if (stampSignature) {
+																			signatureRequestId=loggedInInfo.getLoggedInProviderNo();
+																			imageUrl=request.getContextPath()+"/eform/displayImage.do?imagefile="+signatureProperty.getValue();
+																			startimageUrl=imageUrl;
+																			statusUrl = request.getContextPath()+"/PMmodule/ClientManager/check_signature_status.jsp?" + DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY+"="+signatureRequestId;
+																			imgFile = OscarProperties.getInstance().getProperty("eform_image") + signatureProperty.getValue();
+																		} else {
+																			signatureRequestId = loggedInInfo.getLoggedInProviderNo();
+																			imageUrl = request.getContextPath() + "/imageRenderingServlet?source=" + ImageRenderingServlet.Source.signature_preview.name() + "&" + DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY + "=" + signatureRequestId;
+																			startimageUrl = request.getContextPath() + "/images/1x1.gif";
+																			statusUrl = request.getContextPath() + "/PMmodule/ClientManager/check_signature_status.jsp?" + DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY + "=" + signatureRequestId;
+																		}
 																	%>
 																	<input type="hidden" name="<%=DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY%>" value="<%=signatureRequestId%>" />	
 
 																	<img id="signature" style="width:250px; height:50px" src="<%=startimageUrl%>" alt="digital_signature" />
-				 													<input type="hidden" name="imgFile" id="imgFile" value="" />
+				 													<input type="hidden" name="imgFile" id="imgFile" value="<%=imgFile%>" />
 																	<script type="text/javascript">
 																		
 																		var POLL_TIME=2500;
@@ -656,7 +668,14 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
                                                             			<% } %>
 																		}
 		                                                            </script>
-															<% } else { %>
+															<% } else {
+																if (stampSignature && OscarProperties.getInstance().isRxFaxEnabled() && pharmacy != null) { %>
+																	<script type="text/javascript">
+                                                                        var hasFaxNumber = <%= pharmacy != null && pharmacy.getFax().trim().length() > 0 ? "true" : "false" %>;
+                                                                        parent.document.getElementById("faxButton").disabled = !hasFaxNumber;
+                                                                        parent.document.getElementById("faxPasteButton").disabled = !hasFaxNumber;
+																	</script>
+																<% } %>
 																<div height=25px><b>Requesting:</b> <%= doctorName%> <%=(pracNo!=null && !pracNo.equals(""))?"("+pracNo+")":""%>
 																	<%if(demographic != null && demographic.getProviderNo() != null && mrpRx){%>
 																	<br/><b>MRP:</b> <%=providerBean.getProperty(demographic.getProviderNo(),"")%> <%=(mrpPracNo!=null && !mrpPracNo.equals(""))?"("+mrpPracNo+")":""%>
