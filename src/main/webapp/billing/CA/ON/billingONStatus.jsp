@@ -667,7 +667,9 @@ if(statusType.equals("_")) { %>
           </tr>
 	<% //
 		List<Provider> aLProviders = new ArrayList<Provider>();
-		if(providerNo == null || providerNo.equals(""))  {
+		if ("all".equals(providerNo)) {
+		    aLProviders.add(new Provider(providerNo));
+		} else if (providerNo == null || providerNo.equals(""))  {
 			aLProviders.addAll(providerList);
 		} else {
 			for (Provider provider : providerList) {
@@ -689,7 +691,7 @@ if(statusType.equals("_")) { %>
             BillingProviderData providerObj = (new JdbcBillingPageUtil()).getProviderObj(providerNo);
             lPat = (new JdbcBillingErrorRepImpl()).getErrorRecords(providerObj, startDate, endDate, filename);
             errors = raDetailDao.getRaErrorsByProviderDate(Arrays.asList(errorCodes), startDate, endDate, ohipNo);
-            }
+        }
     boolean nC = false;
 	String invoiceNo = "";
 	if (!errors.isEmpty()){
