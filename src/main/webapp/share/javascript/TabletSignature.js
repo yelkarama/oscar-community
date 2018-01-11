@@ -24,6 +24,12 @@ var bCY = 0;
 var bX = 0;
 var bY = 0;
 
+var tmr;
+
+var sigPlus = false;
+
+var saved = false;
+var signing = false;
 	
 function init() {
 
@@ -44,7 +50,28 @@ function init() {
 	//finally, add touch and mouse event listener
 	canvas.addEventListener('touchstart', onTouchStart, false);
 	canvas.addEventListener('mousedown', onMouseDown, false);
-	
+
+    try {
+        SigWebSetDisplayTarget(ctx);
+        SetDisplayXSize(500);
+        SetDisplayYSize(100);
+        SetTabletState(0, tmr);
+        SetJustifyMode(0);
+        ClearTablet();
+        SetKeyString("0000000000000000");
+        SetEncryptionMode(0);
+        if (tmr == null) {
+            tmr = SetTabletState(1, ctx, 50);
+        }
+        else {
+            SetTabletState(0, tmr);
+            tmr = null;
+            tmr = SetTabletState(1, ctx, 50);
+        }
+        sigPlus = true;
+    } catch (e) {
+        sigPlus = false;
+	}
 }
 
 function onTouchStart(e) {
@@ -262,6 +289,9 @@ function clearCanvas() {
 	ctx.fill();
 	
 	OnSignEvent(false, false);
+	if (sigPlus) {
+        ClearTablet();
+	}
 }
     
 function saveCanvas() {
@@ -337,6 +367,31 @@ function OnSignEvent(save,dirty,savedId) {
 			       storedImageUrl: storedImageUrl + savedId
 		});
 	}
+    setSigning(dirty);
+    setSaved(save);
+}
+
+function isSaved() {
+	return saved;
+}
+
+function setSaved(isSaved) {
+	saved = isSaved;
+}
+
+function isSigning() {
+    return signing;
+}
+
+function setSigning(isSigning) {
+    signing = isSigning;
 }
 
 window.addEventListener("load", loaded, true);
+
+window.addEventListener("unload", function (ev) {
+	if (sigPlus) {
+        ClearTablet();
+        SetTabletState(0, tmr);
+	}
+}, true);
