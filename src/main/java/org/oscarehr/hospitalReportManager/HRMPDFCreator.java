@@ -24,7 +24,7 @@ public class HRMPDFCreator extends PdfPageEventHelper {
     private Document document;
     private LoggedInInfo loggedInInfo;
 
-    public HRMPDFCreator(OutputStream outputStream, String hrmId, LoggedInInfo loggedInInfo) {
+    public HRMPDFCreator(OutputStream outputStream, Integer hrmId, LoggedInInfo loggedInInfo) {
         //Gets the HRMDocumentDao
         HRMDocumentDao hrmDocumentDao = SpringUtils.getBean(HRMDocumentDao.class);
         //Stores the output stream and hrmId
@@ -33,7 +33,7 @@ public class HRMPDFCreator extends PdfPageEventHelper {
 
         try {
             //Gets the HRMDocument by the provided Id
-            List<HRMDocument> hrmDocuments = hrmDocumentDao.findById(Integer.parseInt(hrmId));
+            List<HRMDocument> hrmDocuments = hrmDocumentDao.findById(hrmId);
             //If the list is not null and it has items in it
             if (hrmDocuments != null && hrmDocuments.size() > 0) {
                 hrmDocument =  hrmDocuments.get(0);

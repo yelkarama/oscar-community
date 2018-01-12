@@ -112,9 +112,9 @@ public class ConsultationAttachHRMReports {
             attachHRMReportConsult(providerNumber, newList.get(index), consultationId);
     }
 
-    public static void detachHRMReportConsult(String hrmDocumentNumber, String consultationId) {
+    public static void detachHRMReportConsult(Integer hrmDocumentNumber, String consultationId) {
     	//Selects all of the consultDocs for the given consultation id and hrm document number
-    	List<ConsultDocs> consultDocs = consultDocsDao.findByRequestIdDocNoDocType(Integer.parseInt(consultationId), Integer.parseInt(hrmDocumentNumber), "H");
+    	List<ConsultDocs> consultDocs = consultDocsDao.findByRequestIdDocNoDocType(Integer.parseInt(consultationId), hrmDocumentNumber, "H");
     	//For each consultDoc in the list
     	for(ConsultDocs consultDoc : consultDocs) {
     		//Sets deleted to yea and updates the record in the database

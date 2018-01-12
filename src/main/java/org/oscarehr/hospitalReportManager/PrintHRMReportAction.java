@@ -8,6 +8,7 @@ import org.apache.struts.action.ActionMapping;
 import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.hospitalReportManager.dao.HRMDocumentToDemographicDao;
+import org.oscarehr.hospitalReportManager.model.HRMDocumentToDemographic;
 import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
@@ -36,7 +37,7 @@ public class PrintHRMReportAction extends Action {
             throw new SecurityException("missing required security object (_hrm)");
         }
 
-        String demographicNo = null;
+        int demographicNo = 0;
         Demographic demographic = null;
         DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
         HRMDocumentToDemographicDao hrmDocumentToDemographicDao = SpringUtils.getBean(HRMDocumentToDemographicDao.class);
@@ -44,22 +45,34 @@ public class PrintHRMReportAction extends Action {
         List<Object> pdfDocs = new ArrayList<Object>();
         File fileTemp = null;
         FileOutputStream osTemp = null;
+        String[] hrmReportIds = request.getParameterValues("hrmReportId");
+        List<Integer> hrmIds = new ArrayList<>();
 
         try {
-            String[] hrmReportIds = request.getParameterValues("hrmReportId");
+            if (request.getParameterValues("hrmReportId") != null) {
+                for (int i = 0; i < hrmReportIds.length; i++) {
+                    try {
+                        hrmIds.add(Integer.valueOf(hrmReportIds[i]));
+                    }
+                    catch (NumberFormatException e){
+                        logger.error("Could not parse " + hrmReportIds[i] + " to an integer.");
+                    }
+                }
+            }
+
             String fileName = "";
             response.setContentType("application/pdf");  //octet-stream
 
-
-            for (int i = 0; i < hrmReportIds.length; i++) {
-                if (hrmDocumentToDemographicDao.findByHrmDocumentId(hrmReportIds[i])!=null && !hrmDocumentToDemographicDao.findByHrmDocumentId(hrmReportIds[i]).isEmpty()){
-                    demographicNo = hrmDocumentToDemographicDao.findByHrmDocumentId(hrmReportIds[i]).get(0).getDemographicNo();
-                    demographic = demographicDao.getDemographic(demographicNo);
+            for (Integer hrmId : hrmIds) {
+                List<HRMDocumentToDemographic> demographicHrms = hrmDocumentToDemographicDao.findByHrmDocumentId(hrmId);
+                if (demographicHrms!=null && !demographicHrms.isEmpty() && demographicHrms.get(0).getDemographicNo() != null){
+                    demographicNo = demographicHrms.get(0).getDemographicNo();
+                    demographic = demographicDao.getDemographicById(demographicNo);
                 }
 
                 String fileTempName = "";
                 if (demographic!=null){
-                    fileTempName = OscarProperties.getInstance().getProperty("DOCUMENT_DIR") + "//" + demographic.getLastName() + "_" + demographic.getFirstName() + "_" + hrmReportIds[i] + "_HRMReport.pdf";
+                    fileTempName = OscarProperties.getInstance().getProperty("DOCUMENT_DIR") + "//" + demographic.getLastName() + "_" + demographic.getFirstName() + "_" + hrmId + "_HRMReport.pdf";
                     fileName = demographic.getLastName() + "_" + demographic.getFirstName() +  "_HRMReport" + "_" + (new Date().getTime()) + ".pdf";
                 } else {
                     fileTempName = OscarProperties.getInstance().getProperty("DOCUMENT_DIR") + "//HRMReport.pdf";
@@ -72,7 +85,7 @@ public class PrintHRMReportAction extends Action {
                 fileTemp = new File(fileTempName);
                 osTemp = new FileOutputStream(fileTemp);
 
-                HRMPDFCreator hrmpdfCreator = new HRMPDFCreator(osTemp, hrmReportIds[i], loggedInInfo);
+                HRMPDFCreator hrmpdfCreator = new HRMPDFCreator(osTemp, hrmId, loggedInInfo);
                 hrmpdfCreator.printPdf();
             }
             ConcatPDF.concat(pdfDocs, response.getOutputStream());

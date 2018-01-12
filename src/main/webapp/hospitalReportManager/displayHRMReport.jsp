@@ -77,7 +77,7 @@ String confidentialityStatement = null;
 			hrmReportTime = document.getTimeReceived().toString();
 			hrmDuplicateNum = document.getNumDuplicatesReceived();
 
-			demographicLinkList = hrmDocumentToDemographicDao.findByHrmDocumentId(document.getId().toString());
+			demographicLinkList = hrmDocumentToDemographicDao.findByHrmDocumentId(document.getId());
 			demographicLink = (demographicLinkList.size() > 0 ? demographicLinkList.get(0) : null);
 
 			providerLinkList = hrmDocumentToProviderDao.findByHrmDocumentIdNoSystemUser(document.getId().toString());

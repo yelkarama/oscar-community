@@ -1654,7 +1654,7 @@ public class DemographicExportAction4 extends Action {
 				//HRM reports
 				List<HRMDocumentToDemographic> hrmDocToDemographics = hrmDocToDemographicDao.findByDemographicNo(demoNo);
 				for (HRMDocumentToDemographic hrmDocToDemographic : hrmDocToDemographics) {
-					String hrmDocumentId = hrmDocToDemographic.getHrmDocumentId();
+					String hrmDocumentId = String.valueOf(hrmDocToDemographic.getHrmDocumentId());
 					List<HRMDocument> hrmDocs = hrmDocDao.findById(Integer.valueOf(hrmDocumentId));
 					for (HRMDocument hrmDoc : hrmDocs) {
 						String reportFile = hrmDoc.getReportFile();

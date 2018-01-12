@@ -91,7 +91,7 @@ public class HRMResultsData {
 		HashMap<String,HRMReport> labReports=new HashMap<String,HRMReport>();
 
 		for (HRMDocumentToProvider hrmDocResult : hrmDocResultsProvider) {
-			Integer id = Integer.parseInt(hrmDocResult.getHrmDocumentId());
+			Integer id = hrmDocResult.getHrmDocumentId();
 			LabResultData lbData = new LabResultData(LabResultData.HRM);
 
 			List<HRMDocument> hrmDocument = hrmDocumentDao.findById(id);
@@ -104,7 +104,7 @@ public class HRMResultsData {
 			lbData.patientName = "Not, Assigned";
 
 			// check if patient is matched
-			List<HRMDocumentToDemographic> hrmDocResultsDemographic = hrmDocumentToDemographicDao.findByHrmDocumentId(hrmDocument.get(0).getId().toString());
+			List<HRMDocumentToDemographic> hrmDocResultsDemographic = hrmDocumentToDemographicDao.findByHrmDocumentId(hrmDocument.get(0).getId());
 			HRMReport hrmReport = HRMReportParser.parseReport(loggedInInfo, hrmDocument.get(0).getReportFile());
 			if (hrmReport == null) continue;
 

@@ -1892,8 +1892,8 @@ import oscar.util.UtilDateUtilities;
                             hrmDocCommentDao.persist(hrmDocComment);
                         }
 
-                        hrmDocToDemo.setDemographicNo(demographicNo);
-                        hrmDocToDemo.setHrmDocumentId(hrmDoc.getId().toString());
+                        hrmDocToDemo.setDemographicNo(Integer.valueOf(demographicNo));
+                        hrmDocToDemo.setHrmDocumentId(hrmDoc.getId());
                         hrmDocToDemoDao.persist(hrmDocToDemo);
 
                         ReportsReceived.OBRContent[] obr = repR[i].getOBRContentArray();

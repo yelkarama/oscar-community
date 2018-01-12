@@ -199,7 +199,7 @@ public class HRMReportParser {
 					document.setUnmatchedProviders((document.getUnmatchedProviders() != null ? document.getUnmatchedProviders() : "") + "|" + ((report.getDeliverToUserIdLastName()!=null)?report.getDeliverToUserIdLastName() + ", " + report.getDeliverToUserIdFirstName():report.getDeliverToUserId()) + " (" + report.getDeliverToUserId() + ")");
 					hrmDocumentDao.merge(document);
 					// Route this report to the "system" user so that a search for "all" in the inbox will come up with them
-					HRMReportParser.routeReportToProvider(document.getId().toString(), "-1");
+					HRMReportParser.routeReportToProvider(document.getId(), "-1");
 				}
 
 				HRMReportParser.routeReportToSubClass(report, document.getId());
@@ -236,7 +236,7 @@ public class HRMReportParser {
 			Demographic demographic = matchingDemographicListByHin.get(0); // searchDemographicByHIN typically returns only one result where there is a match
 			// if not empty and DOB matches as well, route report to Demographic
 			if (!demographic.equals(null) && report.getDateOfBirthAsString().equalsIgnoreCase(demographic.getBirthDayAsString())) {
-				HRMReportParser.routeReportToDemographic(mergedDocument.getId().toString(), demographic.getDemographicNo().toString());
+				HRMReportParser.routeReportToDemographic(mergedDocument.getId(), demographic.getDemographicNo());
 			}
 		}
 	}
@@ -332,7 +332,7 @@ public class HRMReportParser {
 		for (Demographic d : matchingDemographicListByName) {
 			List<HRMDocumentToDemographic> matchingHrmDocumentList = hrmDocumentToDemographicDao.findByDemographicNo(d.getDemographicNo().toString());
 			for (HRMDocumentToDemographic matchingHrmDocument : matchingHrmDocumentList) {
-				HRMDocument hrmDocument = hrmDocumentDao.find(Integer.parseInt(matchingHrmDocument.getHrmDocumentId()));
+				HRMDocument hrmDocument = hrmDocumentDao.find(matchingHrmDocument.getHrmDocumentId());
 
 				HRMReport hrmReport = HRMReportParser.parseReport(loggedInInfo, hrmDocument.getReportFile());
 				hrmReport.setHrmDocumentId(hrmDocument.getId());
@@ -455,7 +455,7 @@ public class HRMReportParser {
 			
 			if (existingHRMDocumentToProviders == null || existingHRMDocumentToProviders.size() == 0) {	
 				HRMDocumentToProvider providerRouting = new HRMDocumentToProvider();
-				providerRouting.setHrmDocumentId(reportId.toString());
+				providerRouting.setHrmDocumentId(reportId);
 	
 				providerRouting.setProviderNo(p.getProviderNo());
 				providerRouting.setSignedOff(0);
@@ -478,7 +478,7 @@ public class HRMReportParser {
                         if (hrmDocumentToProvider == null) {
                             //Puts the information into the HRMDocumentToProvider object
                             hrmDocumentToProvider = new HRMDocumentToProvider();
-                            hrmDocumentToProvider.setHrmDocumentId(reportId.toString());
+                            hrmDocumentToProvider.setHrmDocumentId(reportId);
                             hrmDocumentToProvider.setProviderNo(forwardProviderNumber);
                             hrmDocumentToProvider.setSignedOff(0);
                             //Stores it in the table
@@ -509,7 +509,7 @@ public class HRMReportParser {
 		routeReportToProvider(newReport, originalDocument.getId());
 	}
 
-	public static void routeReportToProvider(String reportId, String providerNo) {
+	public static void routeReportToProvider(Integer reportId, String providerNo) {
 		HRMDocumentToProviderDao hrmDocumentToProviderDao = (HRMDocumentToProviderDao) SpringUtils.getBean("HRMDocumentToProviderDao");
 		HRMDocumentToProvider providerRouting = new HRMDocumentToProvider();
 
@@ -531,7 +531,7 @@ public class HRMReportParser {
 		}
 	}
 
-	public static void routeReportToDemographic(String reportId, String demographicNo) {
+	public static void routeReportToDemographic(Integer reportId, Integer demographicNo) {
 		HRMDocumentToDemographicDao hrmDocumentToDemographicDao = (HRMDocumentToDemographicDao) SpringUtils.getBean("HRMDocumentToDemographicDao");
 
 		HRMDocumentToDemographic demographicRouting = new HRMDocumentToDemographic();

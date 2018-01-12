@@ -146,7 +146,7 @@ public class HRMModifyDocumentAction extends DispatchAction {
 				else
 				{
 					HRMDocumentToProvider hrmDocumentToProvider=new HRMDocumentToProvider();
-					hrmDocumentToProvider.setHrmDocumentId(reportId);
+					hrmDocumentToProvider.setHrmDocumentId(Integer.valueOf(reportId));
 					hrmDocumentToProvider.setProviderNo(providerNo);
 					hrmDocumentToProvider.setSignedOff(Integer.parseInt(signedOff));
 					hrmDocumentToProvider.setSignedOffTimestamp(new Date());
@@ -178,7 +178,7 @@ public class HRMModifyDocumentAction extends DispatchAction {
 		try {
 			HRMDocumentToProvider providerMapping = new HRMDocumentToProvider();
 
-			providerMapping.setHrmDocumentId(hrmDocumentId);
+			providerMapping.setHrmDocumentId(Integer.valueOf(hrmDocumentId));
 			providerMapping.setProviderNo(providerNo);
 			providerMapping.setSignedOff(0);
 
@@ -199,7 +199,7 @@ public class HRMModifyDocumentAction extends DispatchAction {
                         if (hrmDocumentToProvider == null) {
                             //Puts the information into the HRMDocumentToProvider object
                             hrmDocumentToProvider = new HRMDocumentToProvider();
-                            hrmDocumentToProvider.setHrmDocumentId(hrmDocumentId);
+                            hrmDocumentToProvider.setHrmDocumentId(Integer.valueOf(hrmDocumentId));
                             hrmDocumentToProvider.setProviderNo(forwardProviderNumber);
                             hrmDocumentToProvider.setSignedOff(0);
                             //Stores it in the table
@@ -233,7 +233,7 @@ public class HRMModifyDocumentAction extends DispatchAction {
         }
 		
 		try {
-			List<HRMDocumentToDemographic> currentMappingList = hrmDocumentToDemographicDao.findByHrmDocumentId(hrmDocumentId);
+			List<HRMDocumentToDemographic> currentMappingList = hrmDocumentToDemographicDao.findByHrmDocumentId(Integer.parseInt(hrmDocumentId));
 
 			if (currentMappingList != null) {
 				for (HRMDocumentToDemographic currentMapping : currentMappingList) {
@@ -261,7 +261,7 @@ public class HRMModifyDocumentAction extends DispatchAction {
 		
 		try {
 			try {
-				List<HRMDocumentToDemographic> currentMappingList = hrmDocumentToDemographicDao.findByHrmDocumentId(hrmDocumentId);
+				List<HRMDocumentToDemographic> currentMappingList = hrmDocumentToDemographicDao.findByHrmDocumentId(Integer.parseInt(hrmDocumentId));
 
 				if (currentMappingList != null) {
 					for (HRMDocumentToDemographic currentMapping : currentMappingList) {
@@ -274,8 +274,8 @@ public class HRMModifyDocumentAction extends DispatchAction {
 
 			HRMDocumentToDemographic demographicMapping = new HRMDocumentToDemographic();
 
-			demographicMapping.setHrmDocumentId(hrmDocumentId);
-			demographicMapping.setDemographicNo(demographicNo);
+			demographicMapping.setHrmDocumentId(Integer.valueOf(hrmDocumentId));
+			demographicMapping.setDemographicNo(Integer.valueOf(demographicNo));
 			demographicMapping.setTimeAssigned(new Date());
 
 			hrmDocumentToDemographicDao.merge(demographicMapping);

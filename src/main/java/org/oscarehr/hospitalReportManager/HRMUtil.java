@@ -129,8 +129,8 @@ public class HRMUtil {
 
 		 for (HRMDocumentToDemographic hrmDocumentToDemographic : hrmDocumentToDemographics)
 		 {
-			String id = hrmDocumentToDemographic.getHrmDocumentId();
-			List<HRMDocument> hrmDocuments = hrmDocumentDao.findById(Integer.parseInt(id));
+			int id = hrmDocumentToDemographic.getHrmDocumentId() != null ? hrmDocumentToDemographic.getHrmDocumentId() : 0;
+			List<HRMDocument> hrmDocuments = hrmDocumentDao.findById(id);
 
 			for (HRMDocument hrmDocument : hrmDocuments)
 			{
@@ -189,7 +189,7 @@ public class HRMUtil {
 
 
         for(HRMDocumentToDemographic hrmDocumentToDemographic : hrmDocResultsDemographic){
-            HRMDocument hrmDocument = hrmDocumentDao.find(Integer.parseInt((hrmDocumentToDemographic.getHrmDocumentId())));
+            HRMDocument hrmDocument = hrmDocumentDao.find(hrmDocumentToDemographic.getHrmDocumentId());
 
             HRMCategory category = null;
             HRMSubClass thisReportSubClassMapping = null;

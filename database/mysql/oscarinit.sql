@@ -9284,8 +9284,8 @@ CREATE TABLE `HRMDocumentSubClass` (
 
 CREATE TABLE `HRMDocumentToDemographic` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `demographicNo` varchar(20) ,
-  `hrmDocumentId` varchar(20) ,
+  `demographicNo` int(10) ,
+  `hrmDocumentId` int(11) ,
   `timeAssigned` datetime ,
   PRIMARY KEY (`id`)
 ) ;
@@ -9293,7 +9293,7 @@ CREATE TABLE `HRMDocumentToDemographic` (
 CREATE TABLE `HRMDocumentToProvider` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `providerNo` varchar(20) ,
-  `hrmDocumentId` varchar(20) ,
+  `hrmDocumentId` int(11) ,
   `signedOff` int(11) ,
   `signedOffTimestamp` datetime ,
   `viewed` int(11) ,
