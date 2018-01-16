@@ -47,7 +47,10 @@ import org.oscarehr.integration.mcedt.DelegateFactory;
 import org.oscarehr.integration.mcedt.McedtMessageCreator;
 import org.oscarehr.integration.mcedt.ResourceForm;
 
+import org.oscarehr.util.LoggedInInfo;
 import oscar.OscarProperties;
+import oscar.log.LogAction;
+import oscar.log.LogConst;
 import oscar.util.ConversionUtils;
 import ca.ontario.health.edt.Detail;
 import ca.ontario.health.edt.DetailData;
@@ -67,7 +70,9 @@ public class DownloadAction extends DispatchAction{
 	public ActionForward unspecified(ActionMapping mapping, ActionForm form, HttpServletRequest request,
 			HttpServletResponse response) throws Exception {
 		
-		DownloadForm resourceForm = (DownloadForm) form; 
+		DownloadForm resourceForm = (DownloadForm) form;
+        LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.CON_MCEDT_MAILBOX, LogConst.DOWNLOAD,
+                null, null, (String)null);
 		
 		try{
 			if(request.getSession().getAttribute("resourceTypeList")==null){

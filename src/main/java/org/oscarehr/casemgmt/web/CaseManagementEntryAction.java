@@ -449,8 +449,6 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 		logger.debug("The End of Edit " + String.valueOf(current - beginning));
 		start = current;
 
-		LogAction.addLog((String) session.getAttribute("user"), LogConst.EDIT, LogConst.CON_CME_NOTE, String.valueOf(note.getId()), request.getRemoteAddr(), demono, note.getAuditString());
-
 		//check to see if someone else is editing note in this chart
 		String ipAddress = request.getRemoteAddr();
 		CasemgmtNoteLock casemgmtNoteLock;
@@ -1881,6 +1879,7 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 		String demoNo = getDemographicNo(request);
 		String noteId = request.getParameter("noteId");
 		String forceRelease = request.getParameter("force");
+        Boolean closingEChart = "true".equalsIgnoreCase(request.getParameter("closingEChart"));
 		HttpSession session = request.getSession();
 		String sessionFrmName = "caseManagementEntryForm" + demoNo;
 
@@ -1909,6 +1908,12 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 			logger.error("Could not remove tmpSave", e);
 		}
 
+		if (closingEChart) {
+            String logData = null;//"Message=" + tickler.getMessage();
+            LogAction.addLog(loggedInInfo, LogConst.CLOSED, LogConst.CON_ECHART,
+                    demoNo, demoNo, logData);
+        }
+        
 		return null;
 	}
 
@@ -2088,6 +2093,9 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 			fwd.setPath(chain);
 			return fwd;
 		}
+        String logData = null;//"Message=" + tickler.getMessage();
+        LogAction.addLog(loggedInInfo, LogConst.CLOSED, LogConst.CON_ECHART,
+                demoNo, demoNo, logData);
 
 		return mapping.findForward("windowClose");
 	}

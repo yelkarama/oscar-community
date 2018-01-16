@@ -163,7 +163,10 @@ if (request.getParameter("demographic_no") != null && !(request.getParameter("de
 	a.setUrgency((request.getParameter("urgency")!=null)?request.getParameter("urgency"):"");
 	
 	appointmentDao.persist(a);
-	LogAction.addLog(a.getProviderNo(), LogConst.ADD, LogConst.CON_APPT, "appointment_no="+a.getId(), request.getRemoteAddr(), String.valueOf(a.getDemographicNo()));
+	SimpleDateFormat sdf = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss");
+	String logData = "startTime=" + sdf.format(a.getStartTimeAsFullDate()) + 
+			";\n endTime=" + sdf.format(a.getEndTimeAsFullDate()) + ";\n status=" + a.getStatus();
+	LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.ADD, LogConst.CON_APPT, "appointment_no=" + a.getId(), String.valueOf(a.getDemographicNo()), logData);
 
 	AppointmentReminder ar = new AppointmentReminder();
 	String reminderEmail = "";
@@ -196,7 +199,6 @@ if (request.getParameter("demographic_no") != null && !(request.getParameter("de
     ars.setAllDelivered(false);
     ars.setDeliveryTime(null);
     appointmentReminderStatusDao.persist(ars);
-
 	int rowsAffected=1;
 	
 	if (rowsAffected == 1) {

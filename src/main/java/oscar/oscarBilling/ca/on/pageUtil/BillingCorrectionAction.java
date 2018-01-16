@@ -57,7 +57,10 @@ import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
+import oscar.log.LogAction;
+import oscar.log.LogConst;
 import oscar.oscarBilling.ca.on.data.BillingDataHlp;
+import oscar.util.ChangedField;
 import oscar.util.DateUtils;
 import oscar.util.StringUtils;
 
@@ -137,7 +140,7 @@ public class BillingCorrectionAction extends DispatchAction{
     }
     
     public ActionForward updateInvoice(ActionMapping mapping,ActionForm form,HttpServletRequest request,HttpServletResponse response){
-        
+        List<ChangedField> changedFields = new ArrayList<ChangedField>();
         Integer billingNo = null;
         try {
             billingNo = Integer.parseInt(request.getParameter("xml_billing_no"));
@@ -151,7 +154,8 @@ public class BillingCorrectionAction extends DispatchAction{
         if (bCh1 == null) {
             MiscUtils.getLogger().error("No billing object found for Ch1 Id: " + request.getParameter("xml_billing_no"));
             return mapping.findForward("closeReload");            
-        }        
+        }
+        BillingONCHeader1 oldBCh1 = new BillingONCHeader1(bCh1);
         
         if (!updateBillingONCHeader1(bCh1, request))
             return mapping.findForward("failure");
@@ -164,7 +168,8 @@ public class BillingCorrectionAction extends DispatchAction{
         }
         
         bCh1Dao.merge(bCh1);
-         
+        changedFields.addAll(ChangedField.getChangedFieldsAndValues(oldBCh1, bCh1));
+
         String newStatus = request.getParameter("status").substring(0,1);
         String oldStatus = bCh1.getStatus();
         
@@ -174,16 +179,19 @@ public class BillingCorrectionAction extends DispatchAction{
                 billPayment.setBillingOnCheader1(bCh1);
                 billPayment.setPaymentDate(new java.util.Date());
                 bPaymentDao.persist(billPayment);
+                changedFields.add(new ChangedField("BillingStatus", oldStatus, newStatus));
         }
         
         //Update Bill To if changed.
         if (request.getParameter("billTo") != null) {           
             BillingONExt billExt = billExtDao.getBillTo(bCh1);
-            if (billExt != null) {
+            String oldValue = "";
+            if (billExt != null && !billExt.getValue().equals(request.getParameter("billTo"))) {
+                oldValue = billExt.getValue();
                 billExt.setValue(request.getParameter("billTo"));
-                
                 billExtDao.merge(billExt);
-            } else {
+                changedFields.add(new ChangedField("billTo", oldValue, request.getParameter("billTo")));
+            } else if (billExt == null) {
                 billExt = new BillingONExt();
                 billExt.setBillingNo(bCh1.getId());
                 billExt.setDateTime(new Date());
@@ -192,17 +200,18 @@ public class BillingCorrectionAction extends DispatchAction{
                 billExt.setPaymentId(new Integer(0));
                 billExt.setStatus('1');
                 billExt.setValue(request.getParameter("billTo"));
-                
                 billExtDao.persist(billExt);
-            }            
+                changedFields.add(new ChangedField("billTo", oldValue, request.getParameter("billTo")));
+            }
         }
         
         //Update Due Date if changed.
 	if (request.getParameter("invoiceDueDate") != null) {
 	           
             BillingONExt billExt = billExtDao.getDueDate(bCh1);
-	           
+            String oldValue = "";
             if (billExt != null) {
+                oldValue = billExt.getValue();
                 billExt.setValue(request.getParameter("invoiceDueDate"));                
                 billExtDao.merge(billExt);
             } else {
@@ -216,11 +225,12 @@ public class BillingCorrectionAction extends DispatchAction{
                 billExt.setValue(request.getParameter("invoiceDueDate"));
 	               
                 billExtDao.persist(billExt);
-            }            
+            }
+            changedFields.add(new ChangedField("invoiceDueDate", oldValue, request.getParameter("invoiceDueDate")));
         }        
         
         //Update Use Bill To for Reprint if changed                    
-        BillingONExt billExt = billExtDao.getUseBillTo(bCh1);            
+        BillingONExt billExt = billExtDao.getUseBillTo(bCh1);
         if (billExt != null) {
             if (request.getParameter("overrideUseDemoContact") != null) {
                 billExt.setValue(request.getParameter("overrideUseDemoContact")); 
@@ -242,8 +252,11 @@ public class BillingCorrectionAction extends DispatchAction{
             billExt.setStatus('1');
             
             billExtDao.persist(billExt);
-        }            
-    
+        }
+        if (!changedFields.isEmpty()) {
+            LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.UPDATE, LogConst.CON_BILL,
+                    "billingNo=" + billingNo, String.valueOf(bCh1.getDemographicNo()), changedFields);
+        }
  
         if(request.getParameter("submit").equals("Save&Correct Another") || request.getParameter("submit").equalsIgnoreCase("Unlink Referral Doctor")){
             return mapping.findForward("closeReload");
@@ -252,9 +265,6 @@ public class BillingCorrectionAction extends DispatchAction{
         } else {
             return mapping.findForward("submitClose"); 
         }
-        
-        
-                    
     }
     
 	public ActionForward updateDemographic(ActionMapping mapping,ActionForm form,HttpServletRequest request,HttpServletResponse response){

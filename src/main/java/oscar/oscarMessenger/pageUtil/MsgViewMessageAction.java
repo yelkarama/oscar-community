@@ -47,6 +47,8 @@ import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
+import oscar.log.LogAction;
+import oscar.log.LogConst;
 import oscar.oscarDB.DBHandler;
 import oscar.oscarMessenger.util.MsgDemoMap;
 import oscar.util.ParameterActionForward;
@@ -224,7 +226,11 @@ public class MsgViewMessageAction extends Action {
         else{          
             actionforward.addParameter("linkMsgDemo", linkMsgDemo);
         }
-                
+
+        String data = "messageNo=" + messageNo;
+        LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.READ, 
+                "View Message", messageNo, demographic_no, data);
+        
         return actionforward;
     }
 

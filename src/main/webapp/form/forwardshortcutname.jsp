@@ -41,6 +41,9 @@
 %>
 
 <%@ page import="java.net.URLDecoder, oscar.form.data.*" errorPage="../errorpage.jsp"%>
+<%@ page import="oscar.log.LogAction" %>
+<%@ page import="org.oscarehr.util.LoggedInInfo" %>
+<%@ page import="oscar.log.LogConst" %>
 
 <%
 
@@ -52,14 +55,20 @@
         String[] formPath = (new FrmData()).getShortcutFormValue(request.getParameter("demographic_no"), strFrm);
         formPath[0] = formPath[0].trim();
         
-        String remoteFacilityIdString=request.getParameter("remoteFacilityId");
-        String appointmentNo=request.getParameter("appointmentNo");
-        
+        String remoteFacilityIdString = (request.getParameter("remoteFacilityId")==null)?"":request.getParameter("remoteFacilityId");
+        String appointmentNo = (request.getParameter("appointmentNo")==null)?"":request.getParameter("appointmentNo");
+		String formId = (request.getParameter("formId") != null)?request.getParameter("formId"):formPath[1];
+		
+		String logData = "formId=" + formId + "\nappointmentNo=" + appointmentNo;
+		if (!remoteFacilityIdString.equals("")) { logData += "\nremoteFacilityId=" + remoteFacilityIdString; }
+		LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.READ, "Form",
+				strFrm, request.getParameter("demographic_no"), logData);
+
         String nextPage = formPath[0] + 
         				 request.getParameter("demographic_no")  + 
-        				 ((remoteFacilityIdString!=null)?"&remoteFacilityId="+remoteFacilityIdString:"") + 
-        				 ((appointmentNo!=null)?"&appointmentNo="+appointmentNo:"") + 
-        				 ((request.getParameter("formId") != null)?"&formId="+request.getParameter("formId"):"&formId=" + formPath[1]);
+        				 ((remoteFacilityIdString.equals(""))?"":"&remoteFacilityId="+remoteFacilityIdString) + 
+        				 ((appointmentNo.equals(""))?"":"&appointmentNo="+appointmentNo) + 
+        				 "&formId="+formId;
         MiscUtils.getLogger().info("Forwarding to page : "+nextPage);
         pageContext.forward(nextPage);
         return;

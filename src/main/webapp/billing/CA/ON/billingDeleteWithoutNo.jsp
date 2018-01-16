@@ -31,6 +31,9 @@
 <%@page import="org.oscarehr.util.SpringUtils" %>
 <%@page import="org.oscarehr.common.dao.BillingDao" %>
 <%@page import="org.oscarehr.common.model.Billing" %>
+<%@ page import="oscar.log.LogAction" %>
+<%@ page import="org.oscarehr.util.LoggedInInfo" %>
+<%@ page import="oscar.log.LogConst" %>
 
 <%
 	AppointmentArchiveDao appointmentArchiveDao = (AppointmentArchiveDao)SpringUtils.getBean("appointmentArchiveDao");
@@ -64,11 +67,13 @@
    String billCode = " ";
    String apptNo = request.getParameter("appointment_no");
    String billNo ="";
+   String demographicNo ="";
    
 
    for(Billing b:billingDao.findByAppointmentNo(Integer.parseInt(apptNo))) {
 	   billCode = b.getStatus();
 	   billNo = b.getId().toString();
+	   demographicNo = String.valueOf(b.getDemographicNo());
    }
    
    if (billCode.substring(0,1).compareTo("B") == 0) {
@@ -95,6 +100,7 @@
                 for( int idx = 0; idx < billStatus.size(); idx += 2) {
                     if( !((String)billStatus.get(idx)).equals("D") ) {
                         rowsAffected = dbObj.deleteBilling((String)billStatus.get(idx),"D", curUser_no)? 1 : 0;
+                        if (rowsAffected == 1) { billNo += billStatus.get(idx) + " "; }
                     }
                 }
 	  }
@@ -111,13 +117,17 @@
   if (rowsAffected ==1) {
 	  oscar.appt.ApptStatusData as = new oscar.appt.ApptStatusData();
 	  String unbillStatus = as.unbillStatus(request.getParameter("status"));
+	  String logData = "";
 	  Appointment appt = appointmentDao.find(Integer.parseInt(request.getParameter("appointment_no")));
       appointmentArchiveDao.archiveAppointment(appt);
       if(appt != null) {
    	   appt.setStatus(unbillStatus);
    	   appt.setLastUpdateUser((String)session.getAttribute("user"));
    	   appointmentDao.merge(appt);
-      }    
+   	     logData += "appointment_no=" + appt.getId();
+      }
+	  LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), "unbill", LogConst.CON_BILL,
+			  "billingId=" + billNo, demographicNo, logData);
 %>
 <p>
 <h1>Successful Addition of a billing Record.</h1>

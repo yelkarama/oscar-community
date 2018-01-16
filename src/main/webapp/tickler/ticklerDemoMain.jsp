@@ -63,6 +63,8 @@ if( request.getParameter("updateParent") != null )
     updateParent = request.getParameter("updateParent");
 else
     updateParent = "false";
+
+	LogAction.addLog(loggedInInfo, LogConst.READ, "Tickler", demoview, "all".equals(demoview)?null:demoview, (String)null);
 %>
 <%@ page import="java.util.*,java.text.*, oscar.*"%>
 <%@page import="org.oscarehr.util.SpringUtils" %>
@@ -79,6 +81,8 @@ else
 <%@ page import="org.oscarehr.common.model.TicklerUpdate" %>
 <%@ page import="org.oscarehr.managers.TicklerManager" %>
 <%@page import="java.net.URLEncoder"%>
+<%@ page import="oscar.log.LogAction" %>
+<%@ page import="oscar.log.LogConst" %>
 <%
 	TicklerManager ticklerManager = SpringUtils.getBean(TicklerManager.class);
 	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);

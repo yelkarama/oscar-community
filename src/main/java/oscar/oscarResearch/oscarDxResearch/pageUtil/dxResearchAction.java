@@ -144,8 +144,9 @@ public class dxResearchAction extends Action {
 						dr.setProviderNo(LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo());
 						dao.persist(dr);
 						
-						String ip = request.getRemoteAddr();
-				        LogAction.addLog((String) request.getSession().getAttribute("user"), LogConst.ADD, "DX", ""+dr.getId() , ip,"");
+                        String logData = "dxresearchCode=" + dr.getDxresearchCode() + "; codingSystem=" + dr.getCodingSystem();
+                        LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.ADD, "DX", 
+                                String.valueOf(dr.getId()), String.valueOf(dr.getDemographicNo()), logData);
 
 					}
 				}

@@ -69,6 +69,8 @@
 <%@ page import="oscar.log.LogConst" %>
 <%@ page import="oscar.log.LogAction" %>
 <%@ page import="java.util.Date" %>
+<%@ page import="org.oscarehr.util.LoggedInInfo" %>
+<%@ page import="java.text.SimpleDateFormat" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 
@@ -139,7 +141,11 @@
 			a.setReasonCode(Integer.parseInt(request.getParameter("reasonCode")));
 			
 			appointmentDao.persist(a);
-			LogAction.addLog(a.getProviderNo(), LogConst.ADD, LogConst.CON_APPT, "appointment_no="+a.getId(), request.getRemoteAddr(), String.valueOf(a.getDemographicNo()));
+
+			SimpleDateFormat sdf = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss");
+			String logData = "startTime=" + sdf.format(a.getStartTimeAsFullDate()) +
+					";\n endTime=" + sdf.format(a.getEndTimeAsFullDate()) + ";\n status=" + a.getStatus();
+			LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.ADD, LogConst.CON_APPT, "appointment_no=" + a.getId(), String.valueOf(a.getDemographicNo()), logData);
 			rowsAffected=1;
 		    
 
@@ -269,7 +275,10 @@
 				a.setReasonCode(Integer.parseInt(request.getParameter("reasonCode")));
 				
 				appointmentDao.persist(a);
-				LogAction.addLog(a.getProviderNo(), LogConst.ADD, LogConst.CON_APPT, "appointment_no="+a.getId(), request.getRemoteAddr(), String.valueOf(a.getDemographicNo()));
+				SimpleDateFormat sdf = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss");
+				String logData = "startTime=" + sdf.format(a.getStartTimeAsFullDate()) +
+						";\n endTime=" + sdf.format(a.getEndTimeAsFullDate()) + ";\n status=" + a.getStatus();
+				LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.ADD, LogConst.CON_APPT, "appointment_no=" + a.getId(), String.valueOf(a.getDemographicNo()), logData);
 				rowsAffected=1;
 		    	
 				if (rowsAffected==1) {				

@@ -31,6 +31,8 @@
 <%@ page import="org.oscarehr.common.model.Provider" %>
 <%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
 <%@ page import="org.oscarehr.util.MiscUtils" %>
+<%@ page import="oscar.log.LogAction" %>
+<%@ page import="oscar.log.LogConst" %>
 
 <%//
 			ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
@@ -194,6 +196,12 @@
 					objFile.updateDisknameSum(diskId);
 				}
 			}
+			String logData = "provider_no=" + provider +
+					"; \nbillCenter=" + mohOffice + 
+					"; \ndateBegin=" + dateBegin +
+					"; \ndateEnd=" + dateEnd;
+			LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.GENERATE, LogConst.CON_OHIP,
+					null, null, logData);
 		%>
 
 <jsp:forward page='billingONMRI.jsp'>

@@ -46,6 +46,7 @@ import org.apache.struts.actions.DispatchAction;
 import org.apache.struts.upload.FormFile;
 import org.oscarehr.integration.mcedt.DelegateFactory;
 import org.oscarehr.integration.mcedt.McedtMessageCreator;
+import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 
 import ca.ontario.health.edt.EDTDelegate;
@@ -54,6 +55,8 @@ import ca.ontario.health.edt.ResourceResult;
 import ca.ontario.health.edt.ResponseResult;
 import ca.ontario.health.edt.UploadData;
 import oscar.OscarProperties;
+import oscar.log.LogAction;
+import oscar.log.LogConst;
 
 public class UploadAction extends DispatchAction {
 	
@@ -62,6 +65,8 @@ public class UploadAction extends DispatchAction {
 	@Override
 	public ActionForward unspecified(ActionMapping mapping, ActionForm form, HttpServletRequest request, 
 			HttpServletResponse response) throws Exception {
+        LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.CON_MCEDT_MAILBOX, LogConst.UPLOAD,
+                null, null, (String)null);
 		ActionUtils.removeSuccessfulUploads(request);
 		ActionUtils.removeUploadResponseResults(request);
 		ActionUtils.removeSubmitResponseResults(request);
@@ -235,6 +240,8 @@ public class UploadAction extends DispatchAction {
 	}
 	
 	public ActionForward uploadSubmitToMcedt(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+        LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.CON_MCEDT_MAILBOX, LogConst.UPLOAD,
+                null, null, (String)null);
 		try {
 			List<String> successUploads= new ArrayList<String>();
 			List<String> failUploads= new ArrayList<String>();

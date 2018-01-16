@@ -51,6 +51,9 @@
 <%@ page import="org.oscarehr.common.model.ProviderPreference" %>
 <%@ page import="oscar.log.LogAction" %>
 <%@ page import="oscar.log.LogConst" %>
+<%@ page import="java.text.SimpleDateFormat" %>
+<%@ page import="org.oscarehr.util.LoggedInInfo" %>
+<%@ page import="oscar.util.ChangedField" %>
 <%
 	AppointmentArchiveDao appointmentArchiveDao = (AppointmentArchiveDao)SpringUtils.getBean("appointmentArchiveDao");
 	OscarAppointmentDao appointmentDao = (OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
@@ -162,12 +165,16 @@
     	a.setCreateDateTime(ConversionUtils.fromDateString(request.getParameter("createdatetime")));
     	a.setReasonCode(Integer.parseInt(request.getParameter("reasonCode")));
     	appointmentDao.persist(a);
-		LogAction.addLog(a.getProviderNo(), LogConst.ADD, LogConst.CON_APPT, "appointment_no="+a.getId(), request.getRemoteAddr(), String.valueOf(a.getDemographicNo()));
+		SimpleDateFormat sdf = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss");
+		String logData = "startTime=" + sdf.format(a.getStartTimeAsFullDate()) +
+				";\n endTime=" + sdf.format(a.getEndTimeAsFullDate()) + ";\n status=" + a.getStatus();
+		LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.ADD, LogConst.CON_APPT, "appointment_no=" + a.getId(), String.valueOf(a.getDemographicNo()), logData);
    		rowsAffected=1;
     }
     if(request.getParameter("appointment_no") != null) {
 	    Appointment appt = appointmentDao.find(Integer.parseInt(request.getParameter("appointment_no")));
 	    if(appt != null) {
+			Appointment oldAppointment = new Appointment(appt);
 	    	appt.setProviderNo(request.getParameter("provider_no"));
 	    	appt.setAppointmentDate(ConversionUtils.fromDateString(request.getParameter("appointment_date")));
 	    	appt.setStartTime(ConversionUtils.fromTimeString(MyDateFormat.getTimeXX_XX_XX(request.getParameter("start_time"))));
@@ -195,6 +202,9 @@
 	    	appt.setCreateDateTime(ConversionUtils.fromDateString(request.getParameter("createdatetime")));
 	    	appt.setReasonCode(Integer.parseInt(request.getParameter("reasonCode")));
 	    	appointmentDao.merge(appt);
+			List<ChangedField> changedFields = new ArrayList<ChangedField>(ChangedField.getChangedFieldsAndValues(oldAppointment, appt));
+			LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.UPDATE, LogConst.CON_APPT,
+					"appointment_no=" + appt.getId(), String.valueOf(appt.getDemographicNo()), changedFields);
 	    	rowsAffected=1;
 	    }
     

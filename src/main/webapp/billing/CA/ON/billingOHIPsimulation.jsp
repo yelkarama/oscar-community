@@ -49,6 +49,8 @@ String user_no = (String) session.getAttribute("user");
 <%@ page import="java.util.*, java.sql.*, oscar.*, oscar.util.*, java.net.*" errorPage="errorpage.jsp"%>
 <%@ page import="oscar.oscarBilling.ca.on.pageUtil.*"%>
 <%@ page import="oscar.oscarBilling.ca.on.data.*"%>
+<%@ page import="oscar.log.LogAction" %>
+<%@ page import="oscar.log.LogConst" %>
 <jsp:useBean id="SxmlMisc" class="oscar.SxmlMisc" scope="session" />
 
 <head>
@@ -246,6 +248,11 @@ if(request.getParameter("submit")!=null && request.getParameter("submit").equals
 			+ "\n</td></tr>";
 		htmlValue  += "</tbody></table>";
 	}
+	String logData = "provider_no=" + request.getParameter("provider") + 
+			"; \ndateBegin=" + request.getParameter("xml_vdate") +
+			"; \ndateEnd=" + request.getParameter("xml_appointment_date");
+	LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.SIMULATE, LogConst.CON_OHIP,
+			null, null, logData);
 	request.setAttribute("html",htmlValue);
 }
 %>

@@ -60,6 +60,8 @@ if(!authed) {
 %>
 <%
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+	String demographic_no = request.getParameter("demographic_no");
+	LogAction.addLog(loggedInInfo, LogConst.READ, "Preventions", demographic_no, demographic_no, (String)null);
 
 	Date today = new Date();
 	
@@ -83,8 +85,6 @@ if(!authed) {
 			}
 		}
 	
-  //int demographic_no = Integer.parseInt(request.getParameter("demographic_no"));
-  String demographic_no = request.getParameter("demographic_no");
   DemographicData demoData = new DemographicData();
   String nameAge = demoData.getNameAgeString(loggedInInfo, demographic_no);
   org.oscarehr.common.model.Demographic demo = demoData.getDemographic(loggedInInfo, demographic_no);
@@ -137,7 +137,10 @@ if(!authed) {
 
 
 
-<%@page import="org.oscarehr.util.SessionConstants"%><html:html
+<%@page import="org.oscarehr.util.SessionConstants"%>
+<%@ page import="oscar.log.LogAction" %>
+<%@ page import="oscar.log.LogConst" %>
+<html:html
 	locale="true">
 
 <head>

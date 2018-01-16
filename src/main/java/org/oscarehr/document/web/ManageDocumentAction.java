@@ -953,6 +953,7 @@ public class ManageDocumentAction extends DispatchAction {
 
 		String doc_no = request.getParameter("doc_no");
 		log.debug("Document No :" + doc_no);
+        String demoNo = request.getParameter("demoNo");
 
 		String docxml = null;
 		String contentType = null;
@@ -1045,6 +1046,9 @@ public class ManageDocumentAction extends DispatchAction {
 		if (contentType == null) {
 			contentType = "application/pdf";
 		}
+
+        String data = "doc_no=" + doc_no;
+        LogAction.addLog(loggedInInfo, LogConst.READ, "Document", null, demoNo, data);
 
 		response.setContentType(contentType);
 		response.setContentLength(contentBytes.length);

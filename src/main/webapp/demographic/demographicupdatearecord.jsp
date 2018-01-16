@@ -59,6 +59,7 @@
 <%@ page import="org.oscarehr.common.dao.*" %>
 <%@ page import="javax.swing.*" %>
 <%@ page import="org.oscarehr.casemgmt.model.ProviderExt" %>
+<%@ page import="oscar.util.ChangedField" %>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -100,9 +101,7 @@
 	java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.struts.Globals.LOCALE_KEY);
 	
 	Demographic demographic = demographicDao.getDemographic(request.getParameter("demographic_no"));
-	if(demographic == null) {
-	 //we have a problem!
-	}
+	Demographic oldDemographic = new Demographic(demographic);
 
 	boolean updateFamily = false;
 	if (request.getParameter("submit")!=null&&request.getParameter("submit").equalsIgnoreCase("Save & Update Family Members")){
@@ -434,7 +433,12 @@
 		//String oldValue = request.getParameter(archive.getKey() + "Orig");
 		archive.setValue(request.getParameter(archive.getKey()));
 		demographicExtArchiveDao.saveEntity(archive);	
-	}	
+	}
+
+	List<ChangedField> changedFields = new ArrayList<ChangedField>(ChangedField.getChangedFieldsAndValues(oldDemographic, demographic));
+	String keyword = "demographicNo=" + demographic.getDemographicNo();
+	if (request.getParameter("keyword") != null) { keyword += "\n" + request.getParameter("keyword"); }
+	LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.UPDATE, "demographic", keyword, demographic.getDemographicNo().toString(), changedFields);
 	
     demographicDao.save(demographic);
 	if(family!=null && !family.isEmpty()){
@@ -592,10 +596,6 @@ try {
 	PreventionManager prevMgr = (PreventionManager) SpringUtils.getBean("preventionMgr");
 	prevMgr.removePrevention(request.getParameter("demographic_no"));
 
-    String ip = request.getRemoteAddr();
-    String user = (String)session.getAttribute("user");
-    LogAction.addLog((String) session.getAttribute("user"), LogConst.UPDATE, LogConst.CON_DEMOGRAPHIC,  request.getParameter("demographic_no") , request.getRemoteAddr(),request.getParameter("demographic_no"));
-    
 }
 catch (NumberFormatException nfe) { 
 MiscUtils.getLogger().error("Either waitListId or demographicId is not a valid integer for the demographic");

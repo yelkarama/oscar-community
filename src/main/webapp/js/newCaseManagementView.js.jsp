@@ -215,7 +215,8 @@
 				//release lock on note
 				var url = ctx + "/CaseManagementEntry.do";
 				var nId = document.forms['caseManagementEntryForm'].noteId.value;
-				var params = "method=releaseNoteLock&providerNo=" + providerNo + "&demographicNo=" + demographicNo + "&noteId=" + nId;
+				var params = "method=releaseNoteLock&providerNo=" + providerNo + "&demographicNo=" + demographicNo 
+					+ "&noteId=" + nId + "&closingEChart=true";
 				new Ajax.Request (
 					url,
 					{

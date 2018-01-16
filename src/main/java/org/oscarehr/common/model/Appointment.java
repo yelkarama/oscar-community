@@ -113,7 +113,39 @@ public class Appointment extends AbstractModel<Integer> implements Serializable 
 	
 	private Integer reasonCode;
 
-	public Integer getReasonCode() {
+    public Appointment() {
+    }
+
+    public Appointment(Appointment a) {
+        this.id = a.getId();
+        this.providerNo = a.getProviderNo();
+        this.appointmentDate = a.getAppointmentDate();
+        this.startTime = a.getStartTime();
+        this.endTime = a.getEndTime();
+        this.name = a.getName();
+        this.demographicNo = a.getDemographicNo();
+        this.programId = a.getProgramId();
+        this.notes = a.getNotes();
+        this.reason = a.getReason();
+        this.location = a.getLocation();
+        this.resources = a.getResources();
+        this.type = a.getType();
+        this.style = a.getStyle();
+        this.billing = a.getBilling();
+        this.status = a.getStatus();
+        this.importedStatus = a.getImportedStatus();
+        this.createDateTime = a.getCreateDateTime();
+        this.updateDateTime = a.getUpdateDateTime();
+        this.creator = a.getCreator();
+        this.lastUpdateUser = a.getLastUpdateUser();
+        this.remarks = a.getRemarks();
+        this.urgency = a.getUrgency();
+        this.creatorSecurityId = a.getCreatorSecurityId();
+        this.bookingSource = a.getBookingSource();
+        this.reasonCode = a.getReasonCode();
+    }
+
+    public Integer getReasonCode() {
 		return reasonCode;
 	}
 
@@ -294,9 +326,6 @@ public class Appointment extends AbstractModel<Integer> implements Serializable 
 		this.remarks = remarks;
 	}
 
-	public Appointment() {
-	}
-
 	public String getImportedStatus() {
 		return (importedStatus);
 	}
@@ -381,5 +410,20 @@ public class Appointment extends AbstractModel<Integer> implements Serializable 
 		   return null;
 	   }
    }
+    public Date getEndTimeAsFullDate(){
+        try{
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(getAppointmentDate());
+            Calendar acal = Calendar.getInstance();
+            acal.setTime(getEndTime());
+            cal.set(Calendar.HOUR_OF_DAY, acal.get(Calendar.HOUR_OF_DAY));
+            cal.set(Calendar.MINUTE, acal.get(Calendar.MINUTE));
+            cal.set(Calendar.SECOND,0);
+            cal.set(Calendar.MILLISECOND, 0);
+            return cal.getTime();
+        }catch(Exception e){
+            return null;
+        }
+    }
     
 }

@@ -163,7 +163,8 @@ public class TicklerManager {
     	ticklerDao.persist(tickler);
 	     
 	    //--- log action ---
-		LogAction.addLogSynchronous(loggedInInfo, LogConst.ADD, "TicklerManager.addTickler", String.valueOf(tickler.getId()));
+		String logData = "Message=" + tickler.getMessage();
+        LogAction.addLog(loggedInInfo, LogConst.ADD, "TicklerManager.addTickler", String.valueOf(tickler.getId()), String.valueOf(tickler.getDemographicNo()), logData);
 		
 		return true;
     }

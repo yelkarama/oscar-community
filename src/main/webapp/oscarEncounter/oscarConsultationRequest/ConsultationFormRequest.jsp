@@ -78,6 +78,8 @@ if(!authed) {
 <%@ page import="org.apache.cxf.javascript.JavascriptUtils" %>
 <%@ page import="oscar.util.ConversionUtils" %>
 <%@ page import="org.oscarehr.common.model.*" %>
+<%@ page import="oscar.log.LogAction" %>
+<%@ page import="oscar.log.LogConst" %>
 <jsp:useBean id="displayServiceUtil" scope="request" class="oscar.oscarEncounter.oscarConsultationRequest.config.pageUtil.EctConDisplayServiceUtil" />
 <jsp:useBean id="providerBean" class="java.util.Properties"	scope="session" />
 
@@ -183,6 +185,8 @@ if(!authed) {
 
 		String lhndType = "provider"; //set default as provider
 		String providerDefault = providerNo==null?"":providerNo;
+		String logData = "requestId=" + requestId;
+		LogAction.addLog(loggedInInfo, LogConst.READ, "Consultation Request", requestId, demo, logData);
 
 		//MRP
 		ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");

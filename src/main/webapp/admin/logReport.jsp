@@ -90,7 +90,9 @@ boolean authed=true;
   }
 %>
 
-<%@page import="oscar.Misc"%><html:html locale="true">
+<%@page import="oscar.Misc"%>
+<%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
+<html:html locale="true">
 <head>
 
 
@@ -287,7 +289,7 @@ for (int i = 0; i < vec.size(); i++) {
 		<td><%=propName.getProperty(prop.getProperty("provider_no"), "")%>&nbsp;</td>
 		<% } %>
         <td><%=prop.getProperty("demographic_no")%>&nbsp;</td>
-        <td><%=prop.getProperty("data") %>&nbsp;</td>
+        <td><%=StringEscapeUtils.escapeHtml(prop.getProperty("data")).replaceAll("\n", "\n<br/>") %>&nbsp;</td>
 	</tr>
 	<% } %>
 
