@@ -25,7 +25,9 @@
 package oscar.oscarBilling.ca.on.pageUtil;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -435,7 +437,7 @@ public class BillingCorrectionAction extends DispatchAction{
         Date serviceDate = null;
         try {
             serviceDate = DateUtils.parseDate(serviceDateStr,request.getLocale());
-        } catch (java.text.ParseException e) {
+        } catch (ParseException e) {
             MiscUtils.getLogger().error("Invalid date", e);
         }        
 
@@ -443,17 +445,27 @@ public class BillingCorrectionAction extends DispatchAction{
          * Create list of billing items in current state
          */
         List<BillingONItem> bItemsCurrent = new ArrayList<BillingONItem>();
-        
-        for (int i = 0; i < BillingDataHlp.FIELD_MAX_SERVICE_NUM; i++) {
-            String serviceCodeId = request.getParameter("servicecode"+ i);
+        List<String> serviceRows = request.getParameterValues("row") != null ? Arrays.asList(request.getParameterValues("row")) : new ArrayList<String>();
+
+        for (String serviceRow : serviceRows) {
+            int row = 0;
+
+            try {
+                row = Integer.parseInt(serviceRow);
+            }
+            catch (NumberFormatException e) {
+                continue;
+            }
+
+            String serviceCodeId = request.getParameter("servicecode"+ row);
             if ((serviceCodeId != null) && (serviceCodeId.length() > 0)) { // == 5
                 
                 String itemStatus = "O";
-                if (request.getParameter("itemStatus" + i) != null)
+                if (request.getParameter("itemStatus" + row) != null)
                     itemStatus = "S";
                 
                 //Determine Unit
-                String unit = request.getParameter("billingunit" + i);
+                String unit = request.getParameter("billingunit" + row);
                 MiscUtils.getLogger().info("("+ serviceCodeId + ") Unit Amount:" + unit);
                 if (!unit.matches("(\\d+)") && !unit.matches("(\\d*\\.\\d+)")) {
                     unit = "1";
@@ -461,7 +473,7 @@ public class BillingCorrectionAction extends DispatchAction{
                 BigDecimal unitAmt = new BigDecimal(unit);
                 
                  //Determine fee
-                String fee = request.getParameter("billingamount" + i);
+                String fee = request.getParameter("billingamount" + row);
                 if (fee == null || fee.isEmpty() || fee.trim().isEmpty()) {
                     BillingServiceDao bServiceDao = (BillingServiceDao) SpringUtils.getBean("billingServiceDao");
                     BillingService bService = bServiceDao.searchBillingCode(serviceCodeId, "ON", serviceDate);

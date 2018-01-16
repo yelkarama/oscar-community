@@ -126,8 +126,7 @@
                 mgrSites.add(s.getName());
         }
     }
-	
-    int MAXRECORDS = 6;  //number of billing items to display if record has less than 6
+
     String UpdateDate = "";
     String DemoNo = "";
     String DemoName = "";
@@ -237,6 +236,40 @@ function scScriptAttach(nameF) {
 	awnd.focus();
 }
 
+function scScriptAttachNew(elementName) {
+    var row = 0;
+    if ($('#billingServices').find("tr:last").length > 0) {
+        row = parseInt($('#billingServices').find("tr:last")[0].id.replace('billingService', ''));
+    }
+    row += 1;
+
+    $('#billingServices').append('<tr id="billingService'+ row +'"> ' +
+        '<th width="25%">' +
+        '<input type="hidden" name="xml_service_code'+ row +'" value="">' +
+        '<input type="hidden" name="row" value="'+ row +'">' +
+        '<div class="input-append"> <input type="text" name="servicecode'+ row +'" value="">' +
+        '<a href="javascript:scScriptAttach(\'servicecode'+ row +')" class="btn"><i class="icon icon-search"></i></a></div></th>' +
+        '<th><font size="-1"></font></th>' +
+        '<th><input type="hidden" name="xml_billing_unit'+ row +'" value=""> ' +
+        '<input type="text" style="width: 100%" name="billingunit'+ row +'" value="1" size="5" maxlength="5"></th>' +
+        '<th align="right"><input type="hidden" name="xml_billing_amount'+ row +'" value="<">' +
+        '<input type="text" style="width: 100%" size="5" maxlength="7" id="billingamount'+ row +'" name="billingamount'+ row +'" value="" onblur="parseTwoDecimalPlaces(this)" onchange="javascript:validateNum(this)"></th>' +
+        '<td style="text-align: center"><input type="checkbox" name="itemStatus'+ row +'" id="itemStatus'+ row +'" value="S"></td>' +
+        '<td> <a href="javascript:removeService('+ row +')" class="btn" title="Remove"><i class="icon icon-remove"></i></a></td></tr>'
+    );
+
+    var searchValue = document.forms[1].elements[elementName].value;
+    var pasteInto = escape("document.forms[1].elements[\'servicecode"+row+ "\'].value");
+    awnd=rs('att','billingCodeSearch.jsp?name='+searchValue + '&search=&name1=&name2=&nameF='+pasteInto,600,600,1);
+    awnd.focus();
+
+    var searchValue = document.forms[1].elements[elementName].value = "";
+}
+
+function removeService(idx) {
+    document.getElementById("billingService" + idx).remove();
+}
+
 function search3rdParty(elementName) {
     var d = elementName;
     t0 = escape("document.forms[1].elements[\'"+d+"\'].value");
@@ -286,14 +319,11 @@ function validateAllItems(){
       return false;
    }
 
-   var billamt;
-   for( idx = 0; idx < <%=MAXRECORDS%>; ++idx ) {
-       billamt = document.getElementById("billingamount" + idx);       
-       if( billamt != undefined && !validateNum(billamt) ) {    	   
+   var billamt = document.getElementById("billingamount" + idx);
+    if( billamt != undefined && !validateNum(billamt) ) {
            return false;
-       }
-   }
-   
+    }
+
    var statusOpts = document.getElementById("status");
    var status = statusOpts.options[statusOpts.selectedIndex].value;
    var payPrgrmOpts = document.getElementById("payProgram");
@@ -1033,11 +1063,12 @@ for (ClinicNbr clinic : nbrs) {
 <table class="table table-striped table-hover">
 <thead>
 	<tr>
-		<td colspan=2><b><bean:message key="billing.billingCorrection.formServiceCode" /></b></td>
-		<th><b><bean:message key="billing.billingCorrection.formDescription" /></b></th>
-		<th><b><bean:message key="billing.billingCorrection.formUnit" /></b></th>
-		<th align="right"><b><bean:message key="billing.billingCorrection.formFee" /></b></th>
-		<th><font size="-1">Settle</font></th>
+        <th><bean:message key="billing.billingCorrection.formServiceCode" /></th>
+        <th><bean:message key="billing.billingCorrection.formDescription" /></th>
+        <th><bean:message key="billing.billingCorrection.formUnit" /></th>
+        <th align="right"><bean:message key="billing.billingCorrection.formFee" /></th>
+        <th style="text-align: center">Settle</th>
+        <th>&nbsp;</th>
 	</tr>
 </thead>
 
@@ -1057,8 +1088,7 @@ for (ClinicNbr clinic : nbrs) {
             
             if (!bItems.isEmpty()) {
 
-                int maxRecs = Math.max(bItems.size(), MAXRECORDS);
-                for (int i = 0; i < maxRecs; i++) {
+                for (int i = 0; i < bItems.size(); i++) {
                     //multisite. skip display if billing provider_no not in current access privacy
                     if (!isMultiSiteProvider) 
                         continue;
@@ -1090,26 +1120,33 @@ for (ClinicNbr clinic : nbrs) {
                     rowCount = rowCount + 1;
 %>
 
-	<tr>
-		<th width="25%"><input type="hidden"
-			name="xml_service_code<%=rowCount%>" value="<%=serviceCode%>">
-		<input type="text" style="width: 100%"
-			name="servicecode<%=rowCount-1%>" value="<%=serviceCode%>"></th>
-		<td><a href=# onClick="scScriptAttach('servicecode<%=rowCount-1%>')">Search</a></td>
-		<th><font size="-1"><%=serviceDesc%></font></th>
-		<th><input type="hidden" name="xml_billing_unit<%=rowCount%>"
-			value="<%=billingunit%>"> <input type="text"
-			style="width: 100%" name="billingunit<%=rowCount-1%>"
-			value="<%=billingunit%>" size="5" maxlength="5"></th>
-		<th align="right"><input type="hidden"
-			name="xml_billing_amount<%=rowCount%>" value="<%=billAmount%>">
-		<input type="text" style="width: 100%" size="5" maxlength="7"
-			id="billingamount<%=rowCount-1%>" name="billingamount<%=rowCount-1%>"
-			value="<%=billAmount%>" onblur="parseTwoDecimalPlaces(this)" onchange="javascript:validateNum(this)"></th>
-		<td align="center"><input type="checkbox"
-			name="itemStatus<%=rowCount-1%>" id="itemStatus<%=rowCount-1%>"
-			value="S" <%=itemStatus %>></td>
-	</tr>
+<tr id="billingService<%=rowCount%>">
+    <th width="25%">
+        <input type="hidden" name="xml_service_code<%=rowCount%>" value="<%=serviceCode%>">
+        <input type="hidden" name="row" value="<%=rowCount%>">
+
+        <div class="input-append">
+            <input type="text" name="servicecode<%=rowCount-1%>" value="<%=serviceCode%>">
+            <a href="javascript:scScriptAttach('servicecode<%=rowCount-1%>')" class="btn"><i class="icon icon-search"></i></a>
+        </div>
+    </th>
+    <th><font size="-1"><%=serviceDesc%></font></th>
+    <th>
+        <input type="hidden" name="xml_billing_unit<%=rowCount%>" value="<%=billingunit%>">
+        <input type="text" style="width: 100%" name="billingunit<%=rowCount-1%>" value="<%=billingunit%>" size="5" maxlength="5">
+    </th>
+    <th align="right">
+        <input type="hidden" name="xml_billing_amount<%=rowCount%>" value="<%=billAmount%>">
+        <input type="text" style="width: 100%" size="5" maxlength="7" id="billingamount<%=rowCount-1%>" name="billingamount<%=rowCount-1%>"
+               value="<%=billAmount%>" onblur="parseTwoDecimalPlaces(this)" onchange="javascript:validateNum(this)">
+    </th>
+    <td style="text-align: center">
+        <input type="checkbox" name="itemStatus<%=rowCount-1%>" id="itemStatus<%=rowCount-1%>" value="S" <%=itemStatus %>>
+    </td>
+    <td>
+        <a href="javascript:removeService(<%=rowCount%>);" class="btn" title="Remove"><i class="icon icon-remove"></i></a>
+    </td>
+</tr>
 <%		
                 }	
             }  
@@ -1121,7 +1158,16 @@ for (ClinicNbr clinic : nbrs) {
 
 
 <div class="row well well-small">
-<div class="span10">
+    <div class="span12">
+        <label style="font-weight: bold;">Add Service Code</label>
+        <div class="input-append">
+            <input type="text"  name="newServiceCode" value="" class="span8">
+            <a href="javascript:scScriptAttachNew('newServiceCode')" class="btn"><i class="icon icon-search"></i></a>
+        </div>
+
+    </div>
+    <br/>
+<div class="span12">
 
 <b> <bean:message key="billing.billingCorrection.formDiagnosticCode" /></b>
 <br>
