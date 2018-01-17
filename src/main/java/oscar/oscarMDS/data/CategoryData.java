@@ -95,13 +95,16 @@ public class CategoryData {
 	private boolean patientSearch;
 	private boolean providerSearch;
 	private String documentDateSql = "";
+	private String documentAbnormalSql = "";
 	private String documentJoinSql = "";
 	private String labDateSql = "";
+	private String labAbnormalSql = "";
 	private String hrmDateSql = "";
 	private String hrmProviderSql = "";
 
 	public CategoryData(String patientLastName, String patientFirstName, String patientHealthNumber, boolean patientSearch,
-					    boolean providerSearch, String searchProviderNo, String status, String startDate, String endDate)  {
+					    boolean providerSearch, String searchProviderNo, String status, String abnormalStatus, 
+						String startDate, String endDate)  {
 
 		this.patientLastName = patientLastName;
 		this.searchProviderNo = searchProviderNo;
@@ -146,8 +149,18 @@ public class CategoryData {
 
 			hrmDateSql += "AND h.timeReceived <= '" + endDate + " 23:59:59' ";
 		}
+
+		if (abnormalStatus != null && !abnormalStatus.equals("all")) {
+			if (abnormalStatus.equals("abnormalOnly")) {
+				documentAbnormalSql = " AND doc.abnormal = TRUE ";
+				labAbnormalSql = " AND info.result_status = 'A' ";
+			} else if (abnormalStatus.equals("normalOnly")) {
+				documentAbnormalSql = " AND (doc.abnormal = FALSE OR doc.abnormal IS NULL) ";
+				labAbnormalSql = " AND (info.result_status IS NULL OR info.result_status != 'A') ";
+			}
+		}
 		
-		if (!documentDateSql.equals("")) {
+		if (!documentDateSql.equals("") || !documentAbnormalSql.equals("")) {
 			documentJoinSql = " LEFT JOIN document doc ON cd.document_no = doc.document_no";
 		}
 
@@ -233,6 +246,7 @@ public class CategoryData {
 				+ " WHERE plr.lab_type = 'HL7' "
 				+ (providerSearch ? " AND plr.provider_no = '"+searchProviderNo+"' " : "")
 				+ " AND plr.status " + ("".equals(status) ? " IS NOT NULL " : " = '"+status+"' ")
+				+ labAbnormalSql
 				+ labDateSql
 				+ " AND (plr2.demographic_no IS NULL"
 				+ " OR plr2.demographic_no = '0')";
@@ -295,6 +309,7 @@ public class CategoryData {
 					+ " AND plr.status " + ("".equals(status) ? " IS NOT NULL " : " = '"+status+"' ")
 					+ (providerSearch ? " AND plr.provider_no ='"+searchProviderNo+"' " : "")
 					+ " AND 	cd.module_id = -1 "
+					+ documentAbnormalSql
 					+ documentDateSql;
 		Connection c  = DbConnectionFilter.getThreadLocalDbConnection();
 		PreparedStatement ps = c.prepareStatement(sql);
@@ -319,6 +334,7 @@ public class CategoryData {
         	+ " 	AND plr.status " + ("".equals(status) ? " IS NOT NULL " : " = '"+status+"' ")
 			+ (dateSearchType.equals("receivedCreated")?" AND message.lab_id IS NOT NULL ":" AND info.lab_no IS NOT NULL ")
         	+ (providerSearch ? " AND plr.provider_no = '"+searchProviderNo+"' " : "")
+			+ labAbnormalSql
 			+ labDateSql
         	+ " GROUP BY demographic_no, info.accessionNum ";
 
@@ -381,6 +397,7 @@ public class CategoryData {
 					+ " 	AND plr.lab_type = 'DOC' "
 					+ " 	AND plr.status " + ("".equals(status) ? " IS NOT NULL " : " = '"+status+"' ")
 					+ (providerSearch ? "AND plr.provider_no = '"+searchProviderNo+"' " : "")
+					+ documentAbnormalSql
 					+ documentDateSql
 					+ " GROUP BY demographic_no ";
 		Connection c  = DbConnectionFilter.getThreadLocalDbConnection();

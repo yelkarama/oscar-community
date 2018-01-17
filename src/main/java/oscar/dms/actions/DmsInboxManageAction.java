@@ -28,6 +28,7 @@ package oscar.dms.actions;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -198,6 +199,8 @@ public class DmsInboxManageAction extends DispatchAction {
 		String searchProviderNo = request.getParameter("searchProviderNo");
 		Boolean searchAll = request.getParameter("searchProviderAll") != null;
 		String status = request.getParameter("status");
+		List<String> abnormalStatusValues = Arrays.asList("all", "abnormalOnly", "normalOnly");
+		String abnormalStatus = request.getParameter("abnormalStatus");
 		String searchPage = request.getParameter("isSearchPage")==null?"":request.getParameter("isSearchPage");
 
 		if (status == null) {
@@ -205,6 +208,9 @@ public class DmsInboxManageAction extends DispatchAction {
 		} // default to new labs only
 		else if ("-1".equals(status)) {
 			status = "";
+		}
+		if (abnormalStatus == null || !abnormalStatusValues.contains(abnormalStatus)) {
+			abnormalStatus = "all";
 		}
 		if (providerNo == null) {
 			providerNo = "";
@@ -242,7 +248,7 @@ public class DmsInboxManageAction extends DispatchAction {
 		{
 			try {
 				CategoryData cData = new CategoryData(patientLastName, patientFirstName, patientHealthNumber,
-						patientSearch, providerSearch, searchProviderNo, status, startDate, endDate);
+						patientSearch, providerSearch, searchProviderNo, status, abnormalStatus, startDate, endDate);
 				cData.populateCountsAndPatients();
 				MiscUtils.getLogger().debug("LABS " + cData.getTotalLabs());
 				request.setAttribute("patientFirstName", patientFirstName);
@@ -259,6 +265,7 @@ public class DmsInboxManageAction extends DispatchAction {
 				request.setAttribute("providerNo", providerNo);
 				request.setAttribute("searchProviderNo", searchProviderNo);
 				request.setAttribute("ackStatus", status);
+				request.setAttribute("abnormalStatus", abnormalStatus);
 				request.setAttribute("categoryHash", cData.getCategoryHash());
 				request.setAttribute("startDate", startDate);
 				request.setAttribute("endDate", endDate);
@@ -273,6 +280,7 @@ public class DmsInboxManageAction extends DispatchAction {
 		request.setAttribute("patientHealthNumber", patientHealthNumber);
 		request.setAttribute("providerNo", providerNo);
 		request.setAttribute("searchProviderNo", searchProviderNo);
+		request.setAttribute("abnormalStatus", abnormalStatus);
 		request.setAttribute("ackStatus", status);
 		request.setAttribute("startDate", startDate);
 		request.setAttribute("endDate", endDate);
@@ -350,10 +358,11 @@ public class DmsInboxManageAction extends DispatchAction {
 		logger.debug("Got dates: " + startDate + "-" + endDate + " out of " + startDateStr + "-" + endDateStr);
 		
 		Boolean isAbnormal = null;
-		if ("abnormal".equals(view))
-			isAbnormal = new Boolean(true);
-		if ("normal".equals(view))
-			isAbnormal = new Boolean(false);
+		if ("abnormal".equals(view)) {
+			isAbnormal = true;
+		} else if ("normal".equals(view)) {
+			isAbnormal = false;
+		}
 
 		if (ackStatus == null) {
 			ackStatus = "N";
@@ -383,7 +392,7 @@ public class DmsInboxManageAction extends DispatchAction {
 
 		ArrayList<LabResultData> labdocs = new ArrayList<LabResultData>();
 
-		if (!"labs".equals(view) && !"abnormal".equals(view)) {
+		if (!"labs".equals(view)) {
 			labdocs = inboxResultsDao.populateDocumentResultsData(searchProviderNo, demographicNo, patientFirstName,
 					patientLastName, patientHealthNumber, ackStatus, true, page, pageSize, mixLabsAndDocs, isAbnormal, startDate, endDate);
 		}

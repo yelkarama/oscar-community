@@ -88,6 +88,9 @@ function onSubmitCheck(){
 	if( $("input[name='status']").is(':checked')) {
 		url+= "&status=" + $("input[name='status']:checked").val();
 	}
+	if( $("input[name='abnormalStatus']").is(':checked')) {
+		url+= "&abnormalStatus=" + $("input[name='abnormalStatus']:checked").val();
+	}
 	
 	$("#searchFrm").attr("action",url);
 	
@@ -219,6 +222,22 @@ $(function() {
 					name="status" value="A"><bean:message
 					key="oscarMDS.search.formReportStatusAcknowledged" /> <input
 					type="radio" name="status" value="F">Filed</center>
+				</td>
+			</tr>
+			<tr>
+				<td style="text-align: center;">
+					Abnormal Status:
+				</td>
+				<td style="text-align: center;">
+					<label>
+						<input type="radio" name="abnormalStatus" value="all" checked="checked"/>All
+					</label>
+					<label>
+						<input type="radio" name="abnormalStatus" value="abnormalOnly"/>Abnormal Only
+					</label>
+					<label>
+						<input type="radio" name="abnormalStatus" value="normalOnly"/>Normal Only
+					</label>
 				</td>
 			</tr>
 			<tr>

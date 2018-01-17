@@ -59,7 +59,7 @@ public class LabTag extends TagSupport {
 		try {
 			CategoryData cd = new CategoryData("", "",
 					"", false, true, "" + providerNo,
-					"N", "", "");
+					"N", "all", "", "");
 
 			cd.populateCountsAndPatients();
 			numNewLabs = cd.getTotalNumDocs();

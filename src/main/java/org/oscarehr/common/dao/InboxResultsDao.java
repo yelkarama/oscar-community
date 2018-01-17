@@ -207,6 +207,14 @@ public class InboxResultsDao {
 				dateSql += " AND doc.observationdate <= '" + dateSqlFormatter.format(endDate) + "'";
 			}
 		}
+		String isDocAbnormalSql = "";
+		if (isAbnormal != null) {
+			if (isAbnormal) {
+				isDocAbnormalSql = " AND doc.abnormal = TRUE ";
+			} else {
+				isDocAbnormalSql = " AND (doc.abnormal = FALSE OR doc.abnormal IS NULL) ";
+			}
+		}
 		
 		int docNoLoc = -1;
 		int statusLoc = -1;
@@ -253,7 +261,9 @@ public class InboxResultsDao {
 							+ " ) AS X "
 							+ " LEFT JOIN demographic d "
 							+ " ON d.demographic_no = -1 "
-							+ " WHERE X.lab_type = 'DOC' AND doc.document_no = X.lab_no " + dateSql
+							+ " WHERE X.lab_type = 'DOC' AND doc.document_no = X.lab_no " 
+							+ isDocAbnormalSql
+							+ dateSql
 							+ " GROUP BY doc.document_no"
 							+ " ORDER BY " + (dateSearchType.equals("receivedCreated")?"doc.contentdatetime DESC,":"doc.observationdate DESC," ) + " doc.document_no DESC "
 							+ (isPaged ? "	LIMIT " + (page * pageSize) + "," + pageSize : "");
@@ -288,6 +298,7 @@ public class InboxResultsDao {
 							+ " ) AS X "
 							+ " WHERE X.lab_type = 'DOC' and X.id = plr.id and doc.document_no = plr.lab_no and d.demographic_no = '"
 							+ demographicNo + "' "
+							+ isDocAbnormalSql
 							+ dateSql
 							+ " GROUP BY doc.document_no"
 							+ " ORDER BY " + (dateSearchType.equals("receivedCreated")?"doc.contentdatetime DESC,":"doc.observationdate DESC," ) + " doc.document_no DESC "
@@ -334,6 +345,7 @@ public class InboxResultsDao {
 							+ " 			ORDER BY id DESC) AS X "
 							+ " 	  ) AS Z  "
 							+ " WHERE Z.lab_type = 'DOC' and Z.id = plr.id and doc.document_no = plr.lab_no and d.demographic_no = Z.demographic_no "
+							+ isDocAbnormalSql
 							+ dateSql
 							+ " GROUP BY doc.document_no"
 							+ " ORDER BY " + (dateSearchType.equals("receivedCreated")?"doc.contentdatetime DESC,":"doc.observationdate DESC," ) + " doc.document_no DESC "
@@ -352,6 +364,7 @@ public class InboxResultsDao {
 							+ "WHERE plr.lab_type = 'DOC' "
 							+ (searchProvider ? " AND plr.provider_no = '" + providerNo + "' " : " ")
 							+ " AND plr.status " + ("".equals(status) ? " IS NOT NULL " : " = '"+status+"' ")
+							+ isDocAbnormalSql
 							+ dateSql
 							+ " GROUP BY doc.document_no "
 							+ " ORDER BY " + (dateSearchType.equals("receivedCreated")?"doc.contentdatetime DESC":"doc.observationdate DESC")
@@ -369,6 +382,7 @@ public class InboxResultsDao {
 							+ " WHERE plr.lab_type = 'DOC' "
 							+ " AND plr.status " + ("".equals(status) ? " IS NOT NULL " : " = '"+status+"' ")
 							+ (searchProvider ? " AND plr.provider_no = '" + providerNo + "' " : "")
+							+ isDocAbnormalSql
 							+ dateSql
 							+ " GROUP BY doc.document_no"
 							+ " ORDER BY " + (dateSearchType.equals("receivedCreated")?"doc.contentdatetime DESC":"doc.observationdate DESC")
@@ -387,6 +401,7 @@ public class InboxResultsDao {
 							+ "	AND plr.status " + ("".equals(status) ? " IS NOT NULL " : " = '"+status+"' ")
 							+ (searchProvider ? " AND plr.provider_no = '" + providerNo + "' " : "")
 							+ "	AND doc.document_no = cd.document_no "
+							+ isDocAbnormalSql
 							+ dateSql
 							+ " GROUP BY doc.document_no"
 							+ " ORDER BY " + (dateSearchType.equals("receivedCreated")?"doc.contentdatetime DESC ":"doc.observationdate DESC ")
@@ -409,6 +424,7 @@ public class InboxResultsDao {
 							+ "	AND plr.status " + ("".equals(status) ? " IS NOT NULL " : " = '"+status+"' ")
 							+ (searchProvider ? " AND plr.provider_no = '" + providerNo + "' " : "")
 							+ "	AND doc.document_no = cd.document_no "
+							+ isDocAbnormalSql
 							+ dateSql
 							+ " GROUP BY doc.document_no"
 							+ " ORDER BY " + (dateSearchType.equals("receivedCreated")?"doc.contentdatetime DESC":"doc.observationdate DESC")
@@ -425,6 +441,7 @@ public class InboxResultsDao {
 							+ "	AND plr.status " + ("".equals(status) ? " IS NOT NULL " : " = '"+status+"' ")
 							+ (searchProvider ? " AND plr.provider_no = '" + providerNo + "' " : "")
 							+ " 	AND doc.document_no = cd.document_no  "
+							+ isDocAbnormalSql
 							+ dateSql
 							+ " UNION "
 							+ " SELECT X.id, X.lab_no as document_no, X.status, last_name, first_name, hin, sex, X.module_id,"
@@ -437,7 +454,9 @@ public class InboxResultsDao {
 							+ (searchProvider ? " AND plr.provider_no = '" + providerNo + "' " : "")
 							+ " AND plr.lab_no = cd.document_no " + " AND cd.module_id = -1 "
 							+ " AND d.document_no = cd.document_no " 
-							+ dateSql.replace("doc.", "d.") + " ) AS X " + " LEFT JOIN demographic d "
+							+ isDocAbnormalSql.replaceAll("doc.", "d.")
+							+ dateSql.replaceAll("doc.", "d.") 
+							+ " ) AS X " + " LEFT JOIN demographic d "
 							+ " ON d.demographic_no = -1"
 							+ ") AS X "
 							+ " GROUP BY document_no"

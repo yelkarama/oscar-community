@@ -56,8 +56,14 @@ String  providerNo		= (String) request.getAttribute("providerNo");
 String searchProviderNo = (String) request.getAttribute("searchProviderNo");
 String demographicNo	= (String) request.getAttribute("demographicNo");
 String ackStatus 		= (String) request.getAttribute("ackStatus");
+String abnormalStatus   = (String) request.getAttribute("abnormalStatus");
 
 String selectedCategory        = request.getParameter("selectedCategory");
+if ("normalOnly".equals(abnormalStatus)) {
+    selectedCategory = "4";
+} else if ("abnormalOnly".equals(abnormalStatus)) {
+    selectedCategory = "5";
+}
 String selectedCategoryPatient = request.getParameter("selectedCategoryPatient");
 String selectedCategoryType    = request.getParameter("selectedCategoryType");
 String isListView			   = request.getParameter("isListView");
