@@ -470,8 +470,8 @@ public class CaseManagementNoteDAO extends HibernateDaoSupport {
 		formatter.applyPattern("yyyy-MM-dd");
 
 		try {
-			startDate = formatter.parse((formatter.format(startDate)).toString());
-			endDate = formatter.parse((formatter.format(endDate)).toString());
+			startDate = formatter.parse((formatter.format(startDate)));
+			endDate = formatter.parse((formatter.format(endDate)));
 		} catch (ParseException pe) {
 			MiscUtils.getLogger().error("Error " + pe);
 			return null;
@@ -479,8 +479,8 @@ public class CaseManagementNoteDAO extends HibernateDaoSupport {
 
 		hql = " select distinct cmn from CaseManagementNote cmn " +
 				"where cmn.demographic_no = ? " +
-				"and cmn.observation_date >= ?  " +
-				"and cmn.observation_date <= ?  " +
+				"and date(cmn.observation_date) >= ?  " +
+				"and date(cmn.observation_date) <= ?  " +
 				"and cmn.providerNo > 0 " +
 				"and cmn.id in (select max(cmn.id) from CaseManagementNote cmn GROUP BY cmn.uuid)  " +
 				"order by cmn.observation_date desc";

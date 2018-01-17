@@ -2966,6 +2966,9 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 			endDate = formatter.parse(pEndDate);
 			cEndDate = Calendar.getInstance();
 			cEndDate.setTime(endDate);
+			cEndDate.set(Calendar.HOUR, 23);
+			cEndDate.set(Calendar.MINUTE, 59);
+			cEndDate.set(Calendar.SECOND, 59);
 		}
 
 		if (startDate != null && endDate != null) {
@@ -3034,15 +3037,18 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 		SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy");
 		
 		if(pStartDate!=null && !pStartDate.isEmpty()){
-		startDate = formatter.parse(pStartDate);
-		cStartDate = Calendar.getInstance();
-		cStartDate.setTime(startDate);
+			startDate = formatter.parse(pStartDate);
+			cStartDate = Calendar.getInstance();
+			cStartDate.setTime(startDate);
 		}
 		
 		if(pEndDate!=null && !pEndDate.isEmpty()){
-		endDate = formatter.parse(pEndDate);
-		cEndDate = Calendar.getInstance();
-		cEndDate.setTime(endDate);
+			endDate = formatter.parse(pEndDate);
+			cEndDate = Calendar.getInstance();
+			cEndDate.setTime(endDate);
+			cEndDate.set(Calendar.HOUR, 23);
+			cEndDate.set(Calendar.MINUTE, 59);
+			cEndDate.set(Calendar.SECOND, 59);
 		}
 
 		if (startDate != null && endDate !=null){
