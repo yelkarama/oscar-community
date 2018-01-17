@@ -211,9 +211,12 @@ public class DemographicExportAction4 extends Action {
 		DemographicExportForm defrm = (DemographicExportForm)form;
 		String demographicNo = defrm.getDemographicNo();
 		String providerNo = defrm.getPatientSet();
+		Provider provider = providerDao.getProvider(providerNo);
 		String setName = "Unmatched";
-		if (providerNo!=null && !providerNo.equals("-1")){
-			setName = providerDao.getProviderNameLastFirst(providerNo);
+		if (provider != null) {
+			setName = provider.getFirstName() != null ? provider.getFirstName() + "_" : "";
+			setName += provider.getLastName() != null ? provider.getLastName() + "_" : "";
+			setName += provider.getOhipNo() != null ? provider.getOhipNo() : "";
 		}
 		String pgpReady = defrm.getPgpReady();
 		String templateOption = defrm.getTemplate();
@@ -2209,8 +2212,9 @@ public class DemographicExportAction4 extends Action {
 
 	//zip all export files
 		String zipName = files.get(0).getName().replace(".xml", ".zip");
-	if (setName!=null) zipName = "export_"+setName.replace(" ","")+"_"+UtilDateUtilities.getToday("yyyyMMddHHmmss")+".zip";
-//	if (setName!=null) zipName = "export_"+setName.replace(" ","")+"_"+UtilDateUtilities.getToday("yyyyMMddHHmmss")+".pgp";
+	if (setName!=null) {
+		zipName = setName + ".zip";
+	}
 	if (!Util.zipFiles(files, zipName, tmpDir)) {
 			logger.debug("Error! Failed to zip export files");
 	}
@@ -2349,8 +2353,9 @@ public class DemographicExportAction4 extends Action {
 
 				// Zip all export files
 				String zipName = files.get(0).getName().replace(".xml", ".zip");
-				if (setName!=null) zipName = "export_"+setName.replace(" ","")+"_"+UtilDateUtilities.getToday("yyyyMMddHHmmss")+".zip";
-				//	if (setName!=null) zipName = "export_"+setName.replace(" ","")+"_"+UtilDateUtilities.getToday("yyyyMMddHHmmss")+".pgp";
+				if (setName!=null) {
+					zipName = setName + ".zip";
+				}
 				if (!Util.zipFiles(files, zipName, tmpDir)) {
 					logger.debug("Error! Failed to zip export files");
 				}
