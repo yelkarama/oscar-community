@@ -102,7 +102,8 @@
     DemographicManager demographicManager = SpringUtils.getBean(DemographicManager.class);
     OscarAppointmentDao appointmentDao = SpringUtils.getBean(OscarAppointmentDao.class);
     ProviderDataDao providerDao = SpringUtils.getBean(ProviderDataDao.class);
-    SiteDao siteDao = SpringUtils.getBean(SiteDao.class);
+	AppointmentTypeDao appointmentTypeDao = SpringUtils.getBean(AppointmentTypeDao.class);
+	SiteDao siteDao = SpringUtils.getBean(SiteDao.class);
 	ProviderDao pDao = SpringUtils.getBean(ProviderDao.class);
 	BillingONCHeader1Dao cheader1Dao = (BillingONCHeader1Dao)SpringUtils.getBean("billingONCHeader1Dao");
     
@@ -126,6 +127,12 @@
 	Facility facility = loggedInInfo.getCurrentFacility();
 	
     List<Program> programs = programManager.getActiveProgramByFacility(providerNo, facility.getId());
+	List<AppointmentType> appointmentTypes;
+	if (OscarProperties.getInstance().isPropertyActive("provider_appointment_select")) {
+		appointmentTypes = appointmentTypeDao.findAllEnabledForProvider(curProvider_no);
+	} else {
+		appointmentTypes = appointmentTypeDao.listAllTemplates();
+	}
 
     LookupListManager lookupListManager = SpringUtils.getBean(LookupListManager.class);
     LookupList reasonCodes = lookupListManager.findLookupListByName(loggedInInfo, "reasonCode");
@@ -153,7 +160,9 @@
     boolean locationEnabled = caisiEnabled && (useProgramLocation != null && useProgramLocation.equals("true"));
 %>
 <%@page import="org.oscarehr.common.dao.SiteDao"%>
-<%@page import="org.oscarehr.common.model.Site"%><html:html locale="true">
+<%@page import="org.oscarehr.common.model.Site"%>
+<%@ page import="org.oscarehr.common.dao.AppointmentTypeDao" %>
+<html:html locale="true">
 <head>
 <% if (isMobileOptimized) { %>
     <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, width=device-width" />
@@ -434,7 +443,6 @@ function onCut() {
   document.EDITAPPT.submit();
 }
 
-
 function openTypePopup () {
     windowprops = "height=170,width=500,location=no,scrollbars=no,menubars=no,toolbars=no,resizable=yes,screenX=0,screenY=0,top=100,left=100";
     var popup=window.open("appointmentType.jsp?type="+document.forms['EDITAPPT'].type.value, "Appointment Type", windowprops);
@@ -446,35 +454,51 @@ function openTypePopup () {
     }
 }
 
-function setType(typeSel,reasonCodeSel,reasonSel,locSel,durSel,notesSel,resSel) {
-  document.forms['EDITAPPT'].type.value = typeSel;
-  document.forms['EDITAPPT'].duration.value = durSel;
-  document.forms['EDITAPPT'].notes.value = notesSel;
-  document.forms['EDITAPPT'].duration.value = durSel;
-  document.forms['EDITAPPT'].resources.value = resSel;
-  document.forms['EDITAPPT'].reason.value = reasonSel;
-  var loc = document.forms['EDITAPPT'].location;
-  if(loc.nodeName == 'SELECT') {
-          for(c = 0;c < loc.length;c++) {
-                  if(loc.options[c].innerHTML == locSel) {
-                          loc.selectedIndex = c;
-                          loc.style.backgroundColor=loc.options[loc.selectedIndex].style.backgroundColor;
-                          break;
-                  }
-          }
-  } else if (loc.nodeName == "INPUT") {
-	  document.forms['EDITAPPT'].location.value = locSel;
-  }
-  var reasonOption = $("select[name='reasonCode'] option[value='" + reasonCodeSel + "']");
-  if (reasonOption.length > 0) {
-      reasonOption[0].selected = true;
-  }
-  else {
-      document.forms['EDITAPPT'].reason.value = reasonSel;
-  }
-}
+var appointmentTypeData = {};
+<%	for (AppointmentType appointmentType : appointmentTypes) { %>
+	appointmentTypeData['<%=appointmentType.getId()%>'] = {};
+	appointmentTypeData['<%=appointmentType.getId()%>'].name = '<%=StringEscapeUtils.escapeJavaScript(appointmentType.getName())%>';
+	appointmentTypeData['<%=appointmentType.getId()%>'].duration = '<%=appointmentType.getDuration()%>';
+	appointmentTypeData['<%=appointmentType.getId()%>'].reasonCode = '<%=appointmentType.getReasonCode()%>';
+	appointmentTypeData['<%=appointmentType.getId()%>'].reason = '<%=StringEscapeUtils.escapeJavaScript(appointmentType.getReason())%>';
+	appointmentTypeData['<%=appointmentType.getId()%>'].location = '<%=StringEscapeUtils.escapeJavaScript(appointmentType.getLocation())%>';
+	appointmentTypeData['<%=appointmentType.getId()%>'].notes = '<%=StringEscapeUtils.escapeJavaScript(appointmentType.getNotes())%>';
+	appointmentTypeData['<%=appointmentType.getId()%>'].resources = '<%=StringEscapeUtils.escapeJavaScript(appointmentType.getResources())%>';
+<%	} %>
 
-// stop javascript -->
+	function setAppointmentType(appointmentTypeDataId) {
+		var typeData = appointmentTypeData[appointmentTypeDataId];
+		if (typeof typeData !== 'undefined') {
+			<%	if (OscarProperties.getInstance().isPropertyActive("provider_appointment_select")) { %>
+			document.forms['EDITAPPT'].typeSel.value = appointmentTypeDataId;
+			<% } %>
+			document.forms['EDITAPPT'].type.value = typeData.name;
+			document.forms['EDITAPPT'].duration.value = typeData.duration;
+			document.forms['EDITAPPT'].notes.value = typeData.notes;
+			document.forms['EDITAPPT'].resources.value = typeData.resources;
+			document.forms['EDITAPPT'].reason.value = typeData.reason;
+			var locations = document.forms['EDITAPPT'].location;
+			if (locations.nodeName === 'SELECT') {
+				for (var i = 0; i < locations.length; i++) {
+					if (locations.options[i].innerHTML === typeData.location) {
+						locations.selectedIndex = i;
+						locations.style.backgroundColor = locations.options[locations.selectedIndex].style.backgroundColor;
+						break;
+					}
+				}
+			} else if (locations.nodeName === "INPUT") {
+				document.forms['EDITAPPT'].location.value = typeData.location;
+			}
+			var reasonOption = $("select[name='reasonCode'] option[value='" + typeData.reason + "']");
+			if (reasonOption.length > 0) {
+				reasonOption[0].selected = true;
+			}
+			else {
+				document.forms['EDITAPPT'].reason.value = typeData.reason;
+			}
+		}
+	}
+
 </script>
 </head>
 <body onload="setfocus()" bgproperties="fixed"
@@ -654,7 +678,6 @@ function setType(typeSel,reasonCodeSel,reasonSel,locSel,durSel,notesSel,resSel) 
             </div>
             <div class="space">&nbsp;</div>
 
-	    <div class="label">
             <%
                         // multisites start ==================
                 boolean bMultisites = org.oscarehr.common.IsPropertiesOn.isMultisitesEnable();
@@ -670,16 +693,33 @@ function setType(typeSel,reasonCodeSel,reasonSel,locSel,durSel,notesSel,resSel) 
                                         ? ApptUtil.getColorFromLocation(sites, loc)
                                         : bMoreAddr? ApptUtil.getColorFromLocation(props.getProperty("scheduleSiteID", ""), props.getProperty("scheduleSiteColor", ""),loc) : "white";
             %>
-            
+			<%	if (OscarProperties.getInstance().isPropertyActive("provider_appointment_select")) { %>
+			<div class="label"><bean:message key="Appointment.formType"/>:</div>
+			<div class="input">
+				<select style="width: 154px" name="typeSel" id="typeSel" onchange="setAppointmentType(this.value)">
+					<option value="">Select type</option>
+					<%	String selectedApptType;
+						if (bFirstDisp) {
+							selectedApptType = appt.getType();
+						} else {
+							selectedApptType = request.getParameter("type");
+						}
+						for (AppointmentType apptType : appointmentTypes) { %>
+					<option value="<%=apptType.getId()%>" <%=(apptType.getName().equals(selectedApptType)?"selected=\"selected\"":"")%>><%=apptType.getName()%></option>
+						<% } %>
+				</select>
+				<input type="hidden" name="type" value='<%=selectedApptType%>'>
+			</div>
+			<%	} else { %>
+			<div class="label">
 				<INPUT TYPE="button" NAME="typeButton" VALUE="<bean:message key="Appointment.formType"/>" onClick="openTypePopup()">
-
             </div>
-
             <div class="input">
                 <INPUT TYPE="TEXT" NAME="type"
 					VALUE="<%=bFirstDisp?appt.getType():request.getParameter("type")%>"
                     WIDTH="25">
             </div>
+			<%	} %>
         </li>
         <li class="row weak">
             <div class="label"><bean:message key="Appointment.formDuration" />:</div>

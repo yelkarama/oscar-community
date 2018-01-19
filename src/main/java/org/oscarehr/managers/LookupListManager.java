@@ -60,10 +60,11 @@ public class LookupListManager {
 	
 	public LookupList findLookupListByName(LoggedInInfo loggedInInfo, String name) {
 		LookupList result = lookupListDao.findByName(name);
-
 		return (result);
-		
 	}
+    public LookupList findActiveLookupListByName(LoggedInInfo loggedInInfo, String name) {
+        return lookupListDao.findActiveByName(name);
+    }
 	
 	public LookupList addLookupList(LoggedInInfo loggedInInfo, LookupList lookupList) {
 		lookupListDao.persist(lookupList);

@@ -103,7 +103,6 @@
 <%@ page import="org.oscarehr.PMmodule.model.Program" %>
 <%@ page import="org.oscarehr.PMmodule.model.ProgramProvider" %>
 <%@ page import="org.oscarehr.common.model.Facility" %>
-<%@ page import="org.oscarehr.PMmodule.service.ProviderManager" %>
 <%@ page import="org.oscarehr.PMmodule.service.ProgramManager" %>
 <%@ page import="org.oscarehr.util.LoggedInInfo"%>
 <%@ page import="org.oscarehr.managers.LookupListManager"%>
@@ -124,14 +123,19 @@
 	EncounterFormDao encounterFormDao = SpringUtils.getBean(EncounterFormDao.class);
 	OscarAppointmentDao appointmentDao = SpringUtils.getBean(OscarAppointmentDao.class);
     UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
-	
-	ProviderManager providerManager = SpringUtils.getBean(ProviderManager.class);
+	AppointmentTypeDao appointmentTypeDao = SpringUtils.getBean(AppointmentTypeDao.class);
 	ProgramManager programManager = SpringUtils.getBean(ProgramManager.class);
 	
 	String providerNo = loggedInInfo.getLoggedInProviderNo();
 	Facility facility = loggedInInfo.getCurrentFacility();
 	
     List<Program> programs = programManager.getActiveProgramByFacility(providerNo, facility.getId());
+	List<AppointmentType> appointmentTypes;
+	if (OscarProperties.getInstance().isPropertyActive("provider_appointment_select")) {
+		appointmentTypes = appointmentTypeDao.findAllEnabledForProvider(curProvider_no);
+	} else {
+		appointmentTypes = appointmentTypeDao.listAllTemplates();
+	}
 
 	LookupListManager lookupListManager = SpringUtils.getBean(LookupListManager.class);
 	LookupList reasonCodes = lookupListManager.findLookupListByName(loggedInInfo, "reasonCode");
@@ -167,7 +171,8 @@
 %>
     <%@page import="org.oscarehr.common.model.Site"%>
     <%@ page import="org.oscarehr.common.dao.*" %>
-    <html:html locale="true">
+	<%@ page import="org.oscarehr.common.model.AppointmentType" %>
+	<html:html locale="true">
 <head>
 <script type="text/javascript" src="../js/jquery-1.7.1.min.js"></script>
 <script src="<%=request.getContextPath()%>/js/jquery-ui-1.8.18.custom.min.js"></script>
@@ -428,35 +433,50 @@ function pasteAppt(multipleSameDayGroupAppt) {
 		}
 	}
 
-	function setType(typeSel,reasonCodeSel,reasonSel,locSel,durSel,notesSel,resSel) {
-		  document.forms['ADDAPPT'].type.value = typeSel;
-		  document.forms['ADDAPPT'].duration.value = durSel;
-		  document.forms['ADDAPPT'].notes.value = notesSel;
-		  document.forms['ADDAPPT'].duration.value = durSel;
-		  document.forms['ADDAPPT'].resources.value = resSel;
-		  document.forms['ADDAPPT'].reason.value = reasonSel;
-		  var loc = document.forms['ADDAPPT'].location;
-		  if(loc.nodeName == 'SELECT') {
-		          for(c = 0;c < loc.length;c++) {
-		                  if(loc.options[c].innerHTML == locSel) {
-		                          loc.selectedIndex = c;
-		                          loc.style.backgroundColor=loc.options[loc.selectedIndex].style.backgroundColor;
-		                          break;
-		                  }
-		          }
-		  } else if (loc.nodeName == "INPUT") {
-			  document.forms['ADDAPPT'].location.value = locSel;
-		  }
-        var reasonOption = $("select[name='reasonCode'] option[value='" + reasonCodeSel + "']");
-        if (reasonOption.length > 0) {
-            reasonOption[0].selected = true;
-        }
-        else {
-            document.forms['ADDAPPT'].reason.value = reasonSel;
-        }
-		  
-	}
+var appointmentTypeData = {};
+<%	for (AppointmentType appointmentType : appointmentTypes) { %>
+	appointmentTypeData['<%=appointmentType.getId()%>'] = {};
+	appointmentTypeData['<%=appointmentType.getId()%>'].name = '<%=StringEscapeUtils.escapeJavaScript(appointmentType.getName())%>';
+	appointmentTypeData['<%=appointmentType.getId()%>'].duration = '<%=appointmentType.getDuration()%>';
+	appointmentTypeData['<%=appointmentType.getId()%>'].reasonCode = '<%=appointmentType.getReasonCode()%>';
+	appointmentTypeData['<%=appointmentType.getId()%>'].reason = '<%=StringEscapeUtils.escapeJavaScript(appointmentType.getReason())%>';
+	appointmentTypeData['<%=appointmentType.getId()%>'].location = '<%=StringEscapeUtils.escapeJavaScript(appointmentType.getLocation())%>';
+	appointmentTypeData['<%=appointmentType.getId()%>'].notes = '<%=StringEscapeUtils.escapeJavaScript(appointmentType.getNotes())%>';
+	appointmentTypeData['<%=appointmentType.getId()%>'].resources = '<%=StringEscapeUtils.escapeJavaScript(appointmentType.getResources())%>';
+<%	} %>
 
+	function setAppointmentType(appointmentTypeDataId) {
+		var typeData = appointmentTypeData[appointmentTypeDataId];
+		if (typeof typeData !== 'undefined') {
+			<%	if (OscarProperties.getInstance().isPropertyActive("provider_appointment_select")) { %>
+			document.forms['ADDAPPT'].typeSel.value = appointmentTypeDataId;
+			<% } %>
+			document.forms['ADDAPPT'].type.value = typeData.name;
+			document.forms['ADDAPPT'].duration.value = typeData.duration;
+			document.forms['ADDAPPT'].notes.value = typeData.notes;
+			document.forms['ADDAPPT'].resources.value = typeData.resources;
+			document.forms['ADDAPPT'].reason.value = typeData.reason;
+			var locations = document.forms['ADDAPPT'].location;
+			if (locations.nodeName === 'SELECT') {
+				for (var i = 0; i < locations.length; i++) {
+					if (locations.options[i].innerHTML === typeData.location) {
+						locations.selectedIndex = i;
+						locations.style.backgroundColor = locations.options[locations.selectedIndex].style.backgroundColor;
+						break;
+					}
+				}
+			} else if (locations.nodeName === "INPUT") {
+				document.forms['ADDAPPT'].location.value = typeData.location;
+			}
+			var reasonOption = $("select[name='reasonCode'] option[value='" + typeData.reason + "']");
+			if (reasonOption.length > 0) {
+				reasonOption[0].selected = true;
+			}
+			else {
+				document.forms['ADDAPPT'].reason.value = typeData.reason;
+			}
+		}
+	}
     function pasteSwipedInfo() {
         <%if (lastSwiped!=null){ %>
         document.ADDAPPT.demographic_no.value='<%=lastSwiped.getDemographicNo()%>';
@@ -466,8 +486,6 @@ function pasteAppt(multipleSameDayGroupAppt) {
        <% } %>
         return true;
     }
-
-// stop javascript -->
 
 </script>
 
@@ -938,14 +956,32 @@ function pasteAppt(multipleSameDayGroupAppt) {
 				    String colo = bMultisites
 				                                        ? ApptUtil.getColorFromLocation(sites, loc)
 				                                        : bMoreAddr? ApptUtil.getColorFromLocation(props.getProperty("scheduleSiteID", ""), props.getProperty("scheduleSiteColor", ""),loc) : "white";
-			%>                                    
-					<div class="input" style="text-align: right;"> <INPUT TYPE="button" NAME="typeButton" VALUE="<bean:message key="Appointment.formType"/>" onClick="openTypePopup()"> </div>
-
+			%>
+			<%	if (OscarProperties.getInstance().isPropertyActive("provider_appointment_select")) { %>
+			<div class="input" style="text-align: right;"><bean:message key="Appointment.formType"/>:</div>
+            <div class="input">
+				<select style="width: 154px" name="typeSel" id="typeSel" onchange="setAppointmentType(this.value)">
+					<option value="">Select type</option>
+					<%	String selectedApptType = null;
+						if (!bFirstDisp) {
+							selectedApptType = request.getParameter("type");
+						}
+						for (AppointmentType apptType : appointmentTypes) { %>
+					<option value="<%=apptType.getId()%>" <%=(apptType.getName().equals(selectedApptType))?"selected=\"selected\"":""%>>
+						<%=apptType.getName()%>
+					</option>
+					<%	} %>
+				</select>
+				<input type="hidden" name="type" value='<%=selectedApptType%>'>
+            </div>
+			<%	} else { %>
+			<div class="input" style="text-align: right;"> <INPUT TYPE="button" NAME="typeButton" VALUE="<bean:message key="Appointment.formType"/>" onClick="openTypePopup()"> </div>
             <div class="input">
                 <INPUT TYPE="TEXT" NAME="type"
                     VALUE='<%=bFirstDisp?"":request.getParameter("type").equals("")?"":request.getParameter("type")%>'
                     WIDTH="25" HEIGHT="20" border="0" hspace="2">
             </div>
+			<%	} %>
         </li>
         <li class="row weak">
             <div class="label"><bean:message key="Appointment.formDuration" />:</div> <!--font face="arial"> End Time :</font-->

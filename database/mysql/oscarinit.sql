@@ -82,7 +82,7 @@ CREATE TABLE appointment (
   type varchar(50) NULL,
   style varchar(10) default NULL,
   billing varchar(10) default NULL,
-  status char(2) BINARY default NULL,
+  status char(2) BINARY NOT NULL default 't',
   imported_status varchar(20),
   createdatetime datetime default NULL,
   updatedatetime datetime default NULL,
@@ -12556,3 +12556,9 @@ INSERT INTO form_drawing_tool_image (name, file_name) VALUES ('Anatomical Diagra
 INSERT INTO encounterform (form_name, form_value, form_table) VALUES ('Drawing Tool', '../form/formDrawingTool.jsp?demographic_no=', 'form_drawing_tool');
 
 ALTER TABLE site CHANGE short_name full_name VARCHAR(255) NOT NULL default '';
+
+ALTER TABLE hl7TextInfo MODIFY discipline VARCHAR(300); 
+
+ALTER TABLE appointmentType ADD COLUMN template_id INT DEFAULT NULL;
+ALTER TABLE appointmentType ADD COLUMN provider_no VARCHAR(6) DEFAULT NULL;
+ALTER TABLE appointmentType ADD COLUMN enabled BOOLEAN DEFAULT TRUE NOT NULL;

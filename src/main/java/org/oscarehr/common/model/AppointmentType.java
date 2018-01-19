@@ -40,6 +40,12 @@ public class AppointmentType extends AbstractModel<Integer> {
     private String location=null;
     private String resources=null;    
     private int duration=15;
+    @Column(name = "template_id")
+    private Integer templateId;
+    @Column(name = "provider_no")
+    private String providerNo;
+    @Column(name = "enabled")
+    private Boolean enabled;
       
 	@Override
     public Integer getId() {
@@ -101,5 +107,26 @@ public class AppointmentType extends AbstractModel<Integer> {
 	public void setDuration(int duration) {
 		this.duration = duration;
 	}
-	
+
+    public Integer getTemplateId() {
+        return templateId;
+    }
+    public void setTemplateId(Integer templateId) {
+        this.templateId = templateId;
+    }
+
+    public String getProviderNo() {
+        return providerNo;
+    }
+    public void setProviderNo(String providerNo) {
+        this.providerNo = providerNo;
+    }
+
+    public Boolean isEnabled() {
+        return enabled;
+    }
+    public void setEnabled(Boolean enabled) {
+	    if (enabled == null) { enabled = false; }
+        this.enabled = enabled;
+    }
 }

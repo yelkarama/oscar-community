@@ -35,6 +35,9 @@ public class AppointmentTypeForm  extends ActionForm {
     private String location;
     private String resources;    
     private int duration;
+    private String providerNo;
+    private Integer templateId;
+    private String enabled;
         
     public int getTypeNo() {
 		return typeNo;
@@ -105,5 +108,31 @@ public class AppointmentTypeForm  extends ActionForm {
 	public void setDuration(int duration) {
 		this.duration = duration;
 	}
-	
+
+    public String getProviderNo() {
+        return providerNo;
+    }
+    public void setProviderNo(String providerNo) {
+        if (providerNo != null && "".equals(providerNo)) {
+            providerNo = null;
+        }
+        this.providerNo = providerNo;
+    }
+
+    public Integer getTemplateId() {
+        return templateId;
+    }
+    public void setTemplateId(Integer templateId) {
+        if (templateId != null && templateId == 0) {
+            templateId = null;
+        }
+        this.templateId = templateId;
+    }
+    
+    public String getEnabled() {
+        return enabled;
+    }
+    public void setEnabled(String enabled) {
+        this.enabled = enabled;
+    }
 }

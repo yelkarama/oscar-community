@@ -50,6 +50,7 @@ import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.SpringUtils;
 
 import oscar.OscarAction;
+import oscar.OscarProperties;
 
 public class AppointmentTypeAction extends OscarAction  {
 	   @Override
@@ -61,6 +62,7 @@ public class AppointmentTypeAction extends OscarAction  {
 
 			AppointmentTypeForm formBean = (AppointmentTypeForm)form;
 			String sOper = request.getParameter("oper");			
+			String selectedProviderNo = request.getParameter("selectedProvider");
 		    ActionMessages errors = this.getErrors(request);
 		    
 		    int typeNo = -1;
@@ -123,7 +125,7 @@ public class AppointmentTypeAction extends OscarAction  {
 
 		    	if (sOper.equals("edit")) {
 		    		AppointmentType dbBean = appDao.find(Integer.valueOf(typeNo));
-		    		if(dbBean != null) {
+		    		if(dbBean != null && selectedProviderNo == null) {
 		    			//formBean.setTypeNo(dbBean.getTypeNo());
 		    			formBean.setId(dbBean.getId());
 		    			formBean.setName(dbBean.getName());
@@ -133,14 +135,36 @@ public class AppointmentTypeAction extends OscarAction  {
 		    			formBean.setReasonCode(dbBean.getReasonCode());
 		    			formBean.setReason(dbBean.getReason());
 		    			formBean.setResources(dbBean.getResources());
-		    		} else {
+                        formBean.setProviderNo(null);
+                        formBean.setTemplateId(null);
+                        formBean.setEnabled(dbBean.isEnabled()?"true":"false");
+		    		} else if (dbBean != null) {
+                        
+                        formBean.setName(dbBean.getName());
+                        formBean.setDuration(dbBean.getDuration());
+                        formBean.setLocation(dbBean.getLocation());
+                        formBean.setNotes(dbBean.getNotes());
+                        formBean.setReasonCode(dbBean.getReasonCode());
+                        formBean.setReason(dbBean.getReason());
+                        formBean.setResources(dbBean.getResources());
+                        if (dbBean.getTemplateId() == null) {
+                            formBean.setId(null);
+                            formBean.setTemplateId(dbBean.getId());
+                            formBean.setProviderNo(dbBean.getProviderNo());
+                        } else {
+                            formBean.setId(dbBean.getId());
+                            formBean.setTemplateId(dbBean.getTemplateId());
+                            formBean.setProviderNo(dbBean.getProviderNo());
+                        }
+                        formBean.setEnabled(dbBean.isEnabled()?"true":"false");
+                    } else {
 		    			errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("appointment.type.notfound.error"));
 		    			saveErrors(request,errors);
 		    			return mapping.findForward("failure");										
 		    		}
 		    	} else if (sOper.equals("save")) {
 		    		if(typeNo <= 0) {
-		    			//new bean					
+		    			//new bean
 		    			AppointmentType bean = new AppointmentType();
 		    			bean.setName(formBean.getName());
 		    			bean.setDuration(formBean.getDuration());
@@ -153,7 +177,10 @@ public class AppointmentTypeAction extends OscarAction  {
 						}
 		    			bean.setReason(formBean.getReason());
 		    			bean.setResources(formBean.getResources());
-		    			appDao.persist(bean);
+                        bean.setProviderNo(formBean.getProviderNo());
+                        bean.setTemplateId(formBean.getTemplateId());
+                        bean.setEnabled("true".equals(formBean.getEnabled()));
+                        appDao.persist(bean);
 		    		} else {
 		    			AppointmentType bean = appDao.find(Integer.valueOf(typeNo));
 		    			if(bean != null) {
@@ -168,6 +195,9 @@ public class AppointmentTypeAction extends OscarAction  {
 							}
 		    				bean.setReason(formBean.getReason());
 		    				bean.setResources(formBean.getResources());
+                            bean.setProviderNo(formBean.getProviderNo());
+                            bean.setTemplateId(formBean.getTemplateId());
+                            bean.setEnabled("true".equals(formBean.getEnabled()));
 		    				appDao.merge(bean);
 		    			} else {
 		    				errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("appointment.type.notfound.error"));
@@ -176,6 +206,7 @@ public class AppointmentTypeAction extends OscarAction  {
 		    			}	
 		    		}
 		    		request.setAttribute("AppointmentTypeForm", new AppointmentTypeForm());
+		    		request.setAttribute("selectedProvider", formBean.getProviderNo());
 		    	} else if (sOper.equals("del")) {
 		    		appDao.remove(typeNo);
 		    	}	
@@ -191,7 +222,11 @@ public class AppointmentTypeAction extends OscarAction  {
 				}
 				request.setAttribute("locationsList", locations);
 		    }
-	        
-	        return mapping.findForward("success");
+		    
+            if (OscarProperties.getInstance().isPropertyActive("provider_appointment_select")) {
+                return mapping.findForward("successNew");
+            } else {
+	            return mapping.findForward("success");
+            }
 	   }
 }

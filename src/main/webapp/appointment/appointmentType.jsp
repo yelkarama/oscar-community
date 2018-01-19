@@ -19,16 +19,18 @@
 --%>
 <%@ page import="java.util.*, java.sql.*, oscar.*, java.text.*, java.lang.*,java.net.*, oscar.appt.*, org.oscarehr.common.dao.AppointmentTypeDao, org.oscarehr.common.model.AppointmentType, org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.dao.LookupListItemDao" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <%
 	AppointmentTypeDao appDao = (AppointmentTypeDao) SpringUtils.getBean("appointmentTypeDao");
-	List<AppointmentType> types = appDao.listAll();
+	List<AppointmentType> types = appDao.listAllTemplates();
 	LookupListItemDao lookupListItemDao = SpringUtils.getBean(LookupListItemDao.class);
 %>
 <html>
 <head>
 <title>Appointment Type</title>
 <script type="text/javascript">
+var typeIds = [];
 var durations = [];
 var reasonCodes = [];
 var reasons = [];
@@ -37,14 +39,16 @@ var notes = [];
 var resources = [];
 var names = [];
 <%   for(int j = 0;j < types.size(); j++) { %>
+		typeIds.push('<%=types.get(j).getId()%>');
 		durations.push('<%= types.get(j).getDuration() %>');
 		reasonCodes.push('<%= types.get(j).getReasonCode() %>_<%=lookupListItemDao.find(types.get(j).getReasonCode())!=null?lookupListItemDao.find(types.get(j).getReasonCode()).getLabel():""%>');
-		reasons.push('<%= types.get(j).getReason().replaceAll("\\s", " ") %>');
-		locations.push('<%= types.get(j).getLocation() %>');
-		notes.push('<%= types.get(j).getNotes().replaceAll("\\s", " ") %>');
-		resources.push('<%= types.get(j).getResources() %>');
-		names.push('<%= types.get(j).getName() %>');
+		reasons.push('<%= Encode.forJavaScriptBlock(types.get(j).getReason().replaceAll("\\s", " ")) %>');
+		locations.push('<%= Encode.forJavaScriptBlock(types.get(j).getLocation()) %>');
+		notes.push('<%= Encode.forJavaScriptBlock(types.get(j).getNotes().replaceAll("\\s", " ")) %>');
+		resources.push('<%= Encode.forJavaScriptBlock(types.get(j).getResources()) %>');
+		names.push('<%= Encode.forJavaScriptBlock(types.get(j).getName()) %>');
 <%   } %>
+	var typeId = '';
 	var typeSel = '';
 	var reasonCodeSel = '';
 	var reasonCodeSelLabel = '';
@@ -56,6 +60,7 @@ var names = [];
 
 function getFields(idx) {
 	if(idx>0) {
+		typeId = typeIds[idx-1];
 		typeSel = document.getElementById('durId').innerHTML = names[idx-1];
 		durSel = document.getElementById('durId').innerHTML = durations[idx-1];
         reasonCodeSelLabel = document.getElementById('reasonCodeId').innerHTML = reasonCodes[idx-1].split('_')[1];
@@ -74,14 +79,15 @@ function getFields(idx) {
 		<td width="100">Type</td>
 		<td width="200">
 			<select id="typesId" width="25" maxsize="50" onchange="getFields(this.selectedIndex)">
-				<option value="-1">Select type</option>
-<%   for(int i = 0;i < types.size(); i++) { 
-%>
-				<option value="<%= i %>" <%= (request.getParameter("type").equals(types.get(i).getName())?" selected":"") %>><%= types.get(i).getName() %></option>
-<%   } %>
+				<option value="">Select type</option>
+				<% for(AppointmentType type : types) { %>
+				<option value="<%=type.getId()%>" <%=(type.getName().equals(request.getParameter("type"))?" selected":"") %>>
+					<%=Encode.forHtmlContent(type.getName())%>
+				</option>
+				<% } %>
 			</select>
 		</td>
-		<td><input type="button" name="Select" value="Select" onclick="window.opener.setType(typeSel,reasonCodeSel,reasonSel,locSel,durSel,notesSel,resSel); window.close()">
+		<td><input type="button" name="Select" value="Select" onclick="window.opener.setAppointmentType(typeId); window.close()">
 	</tr>
 	<tr>
 		<td>Duration</td>

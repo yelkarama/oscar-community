@@ -2720,6 +2720,7 @@
 		<action name="AppointmentTypeForm" path="/appointment/appointmentTypeAction" scope="request" type="oscar.appt.web.AppointmentTypeAction" validate="false">
 			<forward name="edit" path="/appointment/appointmentTypeAction.do?oper=edit"/>
 			<forward name="success" path="/appointment/appointmentTypeList.jsp"/>
+            <forward name="successNew" path="/admin/adminEditAppointmentTypes.jsp"/>
 			<forward name="failure" path="/appointment/appointmentTypeList.jsp"/>
 		</action>
 

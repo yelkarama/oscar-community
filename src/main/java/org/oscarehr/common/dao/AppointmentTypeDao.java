@@ -51,4 +51,34 @@ public class AppointmentTypeDao extends AbstractDao<AppointmentType>{
 	   return this.getSingleResultOrNull(query);
    }
 
+    public List<AppointmentType> listAllTemplates() {
+        String sqlCommand = "SELECT x FROM AppointmentType x WHERE x.providerNo IS NULL ORDER BY x.name";
+        Query query = entityManager.createQuery(sqlCommand);
+
+        @SuppressWarnings("unchecked")
+        List<AppointmentType> results=query.getResultList();
+
+        return (results);
+    }
+    public List<AppointmentType> findAllEnabledForProvider(String providerNo) {
+        return findAllForProvider(providerNo, true);
+    }
+    public List<AppointmentType> findAllForProvider(String providerNo, boolean enabledOnly) {
+        String sqlCommand = "SELECT a.* FROM appointmentType a " +
+                        "LEFT JOIN appointmentType p ON a.id = p.template_id " +
+                        "WHERE ";
+        if (enabledOnly) {
+            sqlCommand += "a.enabled IS TRUE AND ";
+        }
+        sqlCommand += " (a.provider_no = :providerNo OR ((p.provider_no <> :providerNo OR p.provider_no IS NULL) AND a.template_id IS NULL))";
+        Query query = entityManager.createNativeQuery(sqlCommand, AppointmentType.class);
+        query.setParameter("providerNo", providerNo);
+
+        @SuppressWarnings("unchecked")
+        List<AppointmentType> results=query.getResultList();
+
+        return (results);
+    }
+    
+
 }
