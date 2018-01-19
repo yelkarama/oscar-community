@@ -86,7 +86,7 @@ String confidentialityStatement = null;
 			subClassList = hrmDocumentSubClassDao.getSubClassesByDocumentId(document.getId());
 
 
-			thisProviderLink = hrmDocumentToProviderDao.findByHrmDocumentIdAndProviderNo(document.getId().toString(), loggedInInfo.getLoggedInProviderNo());
+			thisProviderLink = hrmDocumentToProviderDao.findByHrmDocumentIdAndProviderNo(document.getId(), loggedInInfo.getLoggedInProviderNo());
 
 
 			if (thisProviderLink != null) {
@@ -285,7 +285,7 @@ String btnDisabled = "disabled";
 String demographicNo = "";
 if(demographicLink != null) {
 	btnDisabled="";
-	demographicNo = demographicLink.getDemographicNo();
+	demographicNo = demographicLink.getDemographicNo().toString();
 }
 String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());	
 
@@ -401,7 +401,7 @@ String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 				<div id="demostatus<%=hrmReportId %>"></div>
 				<input type="hidden" id="demofind<%=hrmReportId %>hrm" value="<%=demographicNo%>" />
 				<% if (demographicLink != null) { %>
-					<oscar:nameage demographicNo="<%=demographicLink.getDemographicNo() %>" /> <a href="#" onclick="removeDemoFromHrm('<%=hrmReportId %>')">(remove)</a>
+					<oscar:nameage demographicNo="<%=demographicLink.getDemographicNo().toString()%>" /> <a href="#" onclick="removeDemoFromHrm('<%=hrmReportId %>')">(remove)</a>
 				<% } else { %>
 					<i>Not currently linked</i><br />
 					<input type="hidden" id="demofind<%=hrmReportId %>hrm" value="" />
