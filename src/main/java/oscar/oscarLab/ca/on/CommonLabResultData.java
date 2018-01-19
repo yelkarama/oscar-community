@@ -656,7 +656,8 @@ public class CommonLabResultData {
 	public int getAckCount(String labId, String labType) {
 		if (labType.equals(LabResultData.HRM)) {
 			HRMDocumentToProviderDao hrmDao = SpringUtils.getBean(HRMDocumentToProviderDao.class);
-			return hrmDao.findSignedByHrmDocumentId(labId).size();
+			Integer labIdInteger = Integer.parseInt(labId);
+			return hrmDao.findSignedByHrmDocumentId(labIdInteger).size();
 		} else {
 			ProviderLabRoutingDao dao = SpringUtils.getBean(ProviderLabRoutingDao.class);
 			return dao.findByStatusANDLabNoType(ConversionUtils.fromIntString(labId), labType, "A").size();

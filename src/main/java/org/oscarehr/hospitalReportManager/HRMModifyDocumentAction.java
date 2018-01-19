@@ -127,7 +127,7 @@ public class HRMModifyDocumentAction extends DispatchAction {
 
 		for(int i = 0; i < reportIds.length; i++){
 			try {
-				String reportId = reportIds[i];
+				Integer reportId = Integer.parseInt(reportIds[i]);
 				String signedOff = request.getParameterValues("signedOff")[i];
 				HRMDocumentToProvider providerMapping = hrmDocumentToProviderDao.findByHrmDocumentIdAndProviderNo(reportId, providerNo);
 				if(providerMapping == null) {
@@ -146,7 +146,7 @@ public class HRMModifyDocumentAction extends DispatchAction {
 				else
 				{
 					HRMDocumentToProvider hrmDocumentToProvider=new HRMDocumentToProvider();
-					hrmDocumentToProvider.setHrmDocumentId(Integer.valueOf(reportId));
+					hrmDocumentToProvider.setHrmDocumentId(reportId);
 					hrmDocumentToProvider.setProviderNo(providerNo);
 					hrmDocumentToProvider.setSignedOff(Integer.parseInt(signedOff));
 					hrmDocumentToProvider.setSignedOffTimestamp(new Date());
@@ -167,7 +167,6 @@ public class HRMModifyDocumentAction extends DispatchAction {
 	public ActionForward assignProvider(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		//Gets the Dao for incoming lab rules
 		IncomingLabRulesDao incomingLabRulesDao = (IncomingLabRulesDao) SpringUtils.getBean("IncomingLabRulesDao");
-		String hrmDocumentId = request.getParameter("reportId");
 		String providerNo = request.getParameter("providerNo");
 		
 		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_hrm", "w", null)) {
@@ -177,8 +176,8 @@ public class HRMModifyDocumentAction extends DispatchAction {
 
 		try {
 			HRMDocumentToProvider providerMapping = new HRMDocumentToProvider();
-
-			providerMapping.setHrmDocumentId(Integer.valueOf(hrmDocumentId));
+            Integer hrmDocumentId = Integer.valueOf(request.getParameter("reportId"));
+			providerMapping.setHrmDocumentId(hrmDocumentId);
 			providerMapping.setProviderNo(providerNo);
 			providerMapping.setSignedOff(0);
 
@@ -199,7 +198,7 @@ public class HRMModifyDocumentAction extends DispatchAction {
                         if (hrmDocumentToProvider == null) {
                             //Puts the information into the HRMDocumentToProvider object
                             hrmDocumentToProvider = new HRMDocumentToProvider();
-                            hrmDocumentToProvider.setHrmDocumentId(Integer.valueOf(hrmDocumentId));
+                            hrmDocumentToProvider.setHrmDocumentId(hrmDocumentId);
                             hrmDocumentToProvider.setProviderNo(forwardProviderNumber);
                             hrmDocumentToProvider.setSignedOff(0);
                             //Stores it in the table

@@ -473,7 +473,7 @@ public class HRMReportParser {
                         //Creates a string of the provider number that the lab will be forwarded to
                         String forwardProviderNumber = labRule.getFrwdProviderNo();
                         //Checks to see if this provider is already linked to this lab
-                        HRMDocumentToProvider hrmDocumentToProvider = hrmDocumentToProviderDao.findByHrmDocumentIdAndProviderNo(reportId.toString(), forwardProviderNumber);
+                        HRMDocumentToProvider hrmDocumentToProvider = hrmDocumentToProviderDao.findByHrmDocumentIdAndProviderNo(reportId, forwardProviderNumber);
                         //If a record was not found
                         if (hrmDocumentToProvider == null) {
                             //Puts the information into the HRMDocumentToProvider object

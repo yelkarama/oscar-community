@@ -44,6 +44,6 @@ public class HRMDisplayReportAction extends DispatchAction {
 	
 	public static HRMDocumentToProvider getHRMDocumentFromProvider(String providerNo, Integer hrmDocumentId)
 	{
-		return(hrmDocumentToProviderDao.findByHrmDocumentIdAndProviderNo(hrmDocumentId.toString(), providerNo));
+		return(hrmDocumentToProviderDao.findByHrmDocumentIdAndProviderNo(hrmDocumentId, providerNo));
 	}
 }
