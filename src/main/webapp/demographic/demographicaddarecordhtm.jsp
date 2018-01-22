@@ -127,7 +127,7 @@
   String prov= (props.getProperty("billregion","")).trim().toUpperCase();
 
   String billingCentre = (props.getProperty("billcenter","")).trim().toUpperCase();
-  String defaultCity = session.getAttribute("city")!=null? (String) session.getAttribute("city") : (prov.equals("ON") ? (billingCentre.equals("N") ? "Toronto" : OscarProperties.getInstance().getProperty("default_city")) : "");
+  String defaultCity = session.getAttribute("city")!=null? (String) session.getAttribute("city") : OscarProperties.getInstance().getProperty("default_city") != null ?  OscarProperties.getInstance().getProperty("default_city") : prov.equals("ON") ? (billingCentre.equals("N") ? "Toronto" : "") : "";
 
   String postal = session.getAttribute("postal")!=null? (String) session.getAttribute("postal") : "";
   String phone = session.getAttribute("phone")!=null? (String) session.getAttribute("phone") : props.getProperty("phoneprefix", "905-");
