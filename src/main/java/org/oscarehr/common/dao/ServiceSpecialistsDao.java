@@ -65,4 +65,11 @@ public class ServiceSpecialistsDao extends AbstractDao<ServiceSpecialists> {
 		query.setParameter("serviceId", servId);
 	    return query.getResultList();
     }
+
+	@SuppressWarnings("unchecked")
+    public List<ServiceSpecialists> findAllBySpecialistId(Integer specialistId) {
+		Query query = entityManager.createQuery("SELECT s FROM ServiceSpecialists s WHERE s.id.specId = :specialistId");
+		query.setParameter("specialistId", specialistId);
+		return query.getResultList();
+	}
 }

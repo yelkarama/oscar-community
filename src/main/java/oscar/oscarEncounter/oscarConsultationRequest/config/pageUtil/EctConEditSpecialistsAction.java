@@ -26,6 +26,7 @@
 package oscar.oscarEncounter.oscarConsultationRequest.config.pageUtil;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import javax.servlet.ServletException;
@@ -37,7 +38,9 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.oscarehr.common.dao.ProfessionalSpecialistDao;
+import org.oscarehr.common.dao.ServiceSpecialistsDao;
 import org.oscarehr.common.model.ProfessionalSpecialist;
+import org.oscarehr.common.model.ServiceSpecialists;
 import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.SpringUtils;
@@ -53,13 +56,15 @@ public class EctConEditSpecialistsAction extends Action {
 		}
 		
 		ProfessionalSpecialistDao professionalSpecialistDao=(ProfessionalSpecialistDao)SpringUtils.getBean("professionalSpecialistDao");
+		ServiceSpecialistsDao serviceSpecialistsDao = SpringUtils.getBean(ServiceSpecialistsDao.class);
 
 		EctConEditSpecialistsForm editSpecialistsForm = (EctConEditSpecialistsForm) form;
 		String specId = editSpecialistsForm.getSpecId();
 		String delete = editSpecialistsForm.getDelete();
 		String specialists[] = editSpecialistsForm.getSpecialists();
 
-		ProfessionalSpecialist professionalSpecialist= null;
+		ProfessionalSpecialist professionalSpecialist;
+		List<ServiceSpecialists> serviceSpecialists;
 		
 		ResourceBundle oscarR = ResourceBundle.getBundle("oscarResources", request.getLocale());
 
@@ -67,9 +72,15 @@ public class EctConEditSpecialistsAction extends Action {
 			if (specialists.length > 0) {
 				for (int i = 0; i < specialists.length; i++)
 				{
-					professionalSpecialist=professionalSpecialistDao.find(Integer.parseInt(specialists[i]));
+					professionalSpecialist = professionalSpecialistDao.find(Integer.parseInt(specialists[i]));
 					professionalSpecialist.setDeleted(true);
 					professionalSpecialistDao.merge(professionalSpecialist);
+
+					serviceSpecialists = serviceSpecialistsDao.findAllBySpecialistId(professionalSpecialist.getId());
+
+					for (ServiceSpecialists service : serviceSpecialists) {
+						serviceSpecialistsDao.remove(service.getId());
+					}
 				}
 			}
 			EctConConstructSpecialistsScriptsFile constructSpecialistsScriptsFile = new EctConConstructSpecialistsScriptsFile();
