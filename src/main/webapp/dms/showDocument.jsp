@@ -719,7 +719,11 @@
                                     }
                                     else{
                                         for(var i=0; i<$("faxRecipients").children.length; i++){
-                                            faxRecipients += document.getElementsByName('faxRecipients')[i].value + ",";
+                                            var separator = "&faxRecipients=";
+                                            if (i === ($("faxRecipients").children.length - 1)) {
+                                                separator = "";
+                                            }
+                                            faxRecipients += document.getElementsByName('faxRecipients')[i].value + separator;
                                         }
                                         document.getElementsByName('faxRecipients').length
                                     }

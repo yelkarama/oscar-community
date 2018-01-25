@@ -1093,7 +1093,7 @@ public class ManageDocumentAction extends DispatchAction {
 		ClinicDAO clinicDAO = SpringUtils.getBean(ClinicDAO.class);
 		if(!faxClinicId.equals("") && clinicDAO.find(Integer.parseInt(faxClinicId))!=null){
 			faxNumber = clinicDAO.find(Integer.parseInt(faxClinicId)).getClinicFax();
-			faxNumber = faxNumber.replace("[^0-9]", "");
+			faxNumber = faxNumber.replaceAll("[^0-9]", "");
 		}
 
 
