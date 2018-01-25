@@ -35,6 +35,7 @@
 <%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@ page import="org.oscarehr.common.dao.UserPropertyDAO" %>
 <%@ page import="org.oscarehr.common.model.UserProperty" %>
+<%@ page import="org.oscarehr.provider.web.ProviderPropertyAction" %>
 
 <html:html locale="true">
 <head>
@@ -64,80 +65,8 @@
 		session.setAttribute("site_selected", (selected_site.equals("none") ? null : selected_site) );	    
 	}
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-	String curUser_providerno = loggedInInfo.getLoggedInProviderNo();
-	String ticklerforproviderno = request.getParameter("ticklerforproviderno");
-	String allowOnlineBooking = request.getParameter("allow_online_booking");
-	UserPropertyDAO propDao =(UserPropertyDAO)SpringUtils.getBean("UserPropertyDAO");
-	UserProperty prop = propDao.getProp(curUser_providerno, UserProperty.PROVIDER_FOR_TICKLER_WARNING);
-	if (prop == null) {
-		prop = new UserProperty();
-		prop.setProviderNo(curUser_providerno);
-		prop.setName(UserProperty.PROVIDER_FOR_TICKLER_WARNING);
-	}
-	prop.setValue(ticklerforproviderno);
-	propDao.saveProp(prop);
 
-	if (allowOnlineBooking != null)
-	{
-		UserProperty onlineBookingProp = propDao.getProp(curUser_providerno, "allow_online_booking");
-		if (onlineBookingProp == null)
-		{
-			onlineBookingProp = new UserProperty();
-			onlineBookingProp.setProviderNo(curUser_providerno);
-			onlineBookingProp.setName("allow_online_booking");
-		}
-
-		if (allowOnlineBooking.equalsIgnoreCase("on"))
-		{
-			onlineBookingProp.setValue("true");
-		}
-		else
-		{
-			onlineBookingProp.setValue("false");
-		}
-
-		propDao.saveProp(onlineBookingProp);
-	}
-
-	String ticklerDefaultRecipient = request.getParameter("ticklerDefaultRecipient");
-	prop = propDao.getProp(curUser_providerno, UserProperty.TICKLER_DEFAULT_RECIPIENT);
-	if (prop == null) {
-		prop = new UserProperty();
-		prop.setProviderNo(curUser_providerno);
-		prop.setName(UserProperty.TICKLER_DEFAULT_RECIPIENT);
-	}
-	prop.setValue(ticklerDefaultRecipient);
-	propDao.saveProp(prop);
-
-	String defaultPharmacy = request.getParameter("default_pharmacy");
-	prop = propDao.getProp(curUser_providerno, UserProperty.DEFAULT_PHARMACY);
-	if (prop == null) {
-		prop = new UserProperty();
-		prop.setProviderNo(curUser_providerno);
-		prop.setName(UserProperty.DEFAULT_PHARMACY);
-	}
-	prop.setValue(defaultPharmacy);
-	propDao.saveProp(prop);
-
-	String defaultServiceTypeOther = request.getParameter(UserProperty.DEFAULT_SERVICE_OTHER);
-	prop = propDao.getProp(curUser_providerno, UserProperty.DEFAULT_SERVICE_OTHER);
-	if (prop == null) {
-		prop = new UserProperty();
-		prop.setProviderNo(curUser_providerno);
-		prop.setName(UserProperty.DEFAULT_SERVICE_OTHER);
-	}
-	prop.setValue(defaultServiceTypeOther);
-	propDao.saveProp(prop);
-
-	String defaultServiceTypeQuebec = request.getParameter(UserProperty.DEFAULT_SERVICE_QUEBEC);
-	prop = propDao.getProp(curUser_providerno, UserProperty.DEFAULT_SERVICE_QUEBEC);
-	if (prop == null) {
-		prop = new UserProperty();
-		prop.setProviderNo(curUser_providerno);
-		prop.setName(UserProperty.DEFAULT_SERVICE_QUEBEC);
-	}
-	prop.setValue(defaultServiceTypeQuebec);
-	propDao.saveProp(prop);
+	ProviderPropertyAction.updateOrCreateProviderProperties(request);
 	
 	ProviderPreference providerPreference=ProviderPreferencesUIBean.updateOrCreateProviderPreferences(request);
 

@@ -28,7 +28,9 @@ import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -147,6 +149,89 @@ public class ProviderPropertyAction extends DispatchAction {
 
          request.setAttribute("status", "success");
          return actionmapping.findForward("success");
+    }
+
+    public static void updateOrCreateProviderProperties(HttpServletRequest request) {
+        LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+        UserPropertyDAO propertyDAO = SpringUtils.getBean(UserPropertyDAO.class);
+        String providerNo = loggedInInfo.getLoggedInProviderNo();
+
+        List<UserProperty> userProperties = new ArrayList<>();
+        String propertyValue;
+        UserProperty property;
+
+        propertyValue = StringUtils.trimToNull(request.getParameter("ticklerforproviderno"));
+        if (propertyValue != null) {
+            property = propertyDAO.getProp(providerNo, UserProperty.PROVIDER_FOR_TICKLER_WARNING);
+            if (property == null) {
+                property = new UserProperty();
+                property.setProviderNo(providerNo);
+                property.setName(UserProperty.PROVIDER_FOR_TICKLER_WARNING);
+            }
+            property.setValue(propertyValue);
+            propertyDAO.saveProp(property);
+        }
+
+        propertyValue = StringUtils.trimToNull(request.getParameter("allow_online_booking"));
+        if (propertyValue != null) {
+            property = propertyDAO.getProp(providerNo, "allow_online_booking");
+            if (property == null) {
+                property = new UserProperty();
+                property.setProviderNo(providerNo);
+                property.setName("allow_online_booking");
+            }
+            property.setValue(propertyValue.equalsIgnoreCase("on") ? "true" : "false");
+            propertyDAO.saveProp(property);
+        }
+
+        propertyValue = StringUtils.trimToNull(request.getParameter("ticklerDefaultRecipient"));
+        if (propertyValue != null) {
+            property = propertyDAO.getProp(providerNo, UserProperty.TICKLER_DEFAULT_RECIPIENT);
+            if (property == null) {
+                property = new UserProperty();
+                property.setProviderNo(providerNo);
+                property.setName(UserProperty.TICKLER_DEFAULT_RECIPIENT);
+            }
+            property.setValue(propertyValue);
+            propertyDAO.saveProp(property);
+        }
+
+        propertyValue = StringUtils.trimToNull(request.getParameter("default_pharmacy"));
+        if (propertyValue != null) {
+            property = propertyDAO.getProp(providerNo, UserProperty.DEFAULT_PHARMACY);
+            if (property == null) {
+                property = new UserProperty();
+                property.setProviderNo(providerNo);
+                property.setName(UserProperty.DEFAULT_PHARMACY);
+            }
+            property.setValue(propertyValue);
+            propertyDAO.saveProp(property);
+        }
+
+        propertyValue = StringUtils.trimToNull(request.getParameter("default_service_other"));
+        if (propertyValue != null) {
+            property = propertyDAO.getProp(providerNo, UserProperty.DEFAULT_SERVICE_OTHER);
+            if (property == null) {
+                property = new UserProperty();
+                property.setProviderNo(providerNo);
+                property.setName(UserProperty.DEFAULT_SERVICE_OTHER);
+            }
+            property.setValue(propertyValue);
+            propertyDAO.saveProp(property);
+        }
+
+        propertyValue = StringUtils.trimToNull(request.getParameter("default_service_quebec"));
+        if (propertyValue != null) {
+            property = propertyDAO.getProp(providerNo, UserProperty.DEFAULT_SERVICE_QUEBEC);
+            if (property == null) {
+                property = new UserProperty();
+                property.setProviderNo(providerNo);
+                property.setName(UserProperty.DEFAULT_SERVICE_QUEBEC);
+            }
+            property.setValue(propertyValue);
+            propertyDAO.saveProp(property);
+        }
+
     }
     public ActionForward viewDefaultSex(ActionMapping actionmapping,
                                ActionForm actionform,
