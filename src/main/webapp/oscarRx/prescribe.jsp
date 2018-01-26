@@ -186,7 +186,7 @@ if(listRxDrugs!=null){
        <br>
        <label for="siInput_<%=rand%>" ></label>
        <div id="siAutoComplete_<%=rand%>" <%if(isSpecInstPresent){%> style="overflow:visible;"<%} else{%> style="overflow:visible;display:none;"<%}%> >
-           <label style="float:left;width:80px;">&nbsp;&nbsp;</label><input id="siInput_<%=rand%>"  type="text" size="60" <%if(!isSpecInstPresent) {%>style="color:gray; width:auto" value="Enter Special Instruction" <%} else {%> style="color:black; width:auto" value="<%=specialInstruction%>" <%}%> onblur="changeText('siInput_<%=rand%>');updateSpecialInstruction('siInput_<%=rand%>');" onfocus="changeText('siInput_<%=rand%>');" >
+           <label style="float:left;width:80px;">&nbsp;&nbsp;</label><input id="siInput_<%=rand%>"  type="text" size="60" <%if(!isSpecInstPresent) {%>style="color:gray; width:auto" value="Enter Special Instruction" <%} else {%> style="color:black; width:auto"value="<%=specialInstruction%>" <%}%> onblur="changeText('siInput_<%=rand%>');updateSpecialInstruction('siInput_<%=rand%>');showSpecialInstructionResults('<%=rand%>');" onfocus="changeText('siInput_<%=rand%>');showSpecialInstructionResults('<%=rand%>');"  onclick="showSpecialInstructionResults('<%=rand%>');" onkeydown="showSpecialInstructionResults('<%=rand%>');" >
            <div id="siContainer_<%=rand%>" style="float:right" >
            </div>
                        <br><br>
@@ -349,8 +349,8 @@ if(listRxDrugs!=null){
        <br>
        <label for="siInput_<%=rand%>" ></label>
        <div id="siAutoComplete_<%=rand%>" <%if(isSpecInstPresent){%> style="overflow:visible;"<%} else{%> style="overflow:visible;display:none;"<%}%> >
-           <label style="float:left;width:80px;">&nbsp;&nbsp;</label><input id="siInput_<%=rand%>"  type="text" size="60" <%if(!isSpecInstPresent) {%>style="color:gray; width:auto" value="Enter Special Instruction" <%} else {%> style="color:black; width:auto" value="<%=specialInstruction%>" <%}%> onblur="changeText('siInput_<%=rand%>');updateSpecialInstruction('siInput_<%=rand%>');" onfocus="changeText('siInput_<%=rand%>');" >
-           <div id="siContainer_<%=rand%>" style="float:right" >
+           <label style="float:left;width:80px;">&nbsp;&nbsp;</label><input id="siInput_<%=rand%>"  type="text" size="60" <%if(!isSpecInstPresent) {%>style="color:gray; width:auto" value="Enter Special Instruction" <%} else {%> style="color:black; width:auto" value="<%=specialInstruction%>" <%}%> onblur="changeText('siInput_<%=rand%>');updateSpecialInstruction('siInput_<%=rand%>');showSpecialInstructionResults('<%=rand%>');" onfocus="changeText('siInput_<%=rand%>');showSpecialInstructionResults('<%=rand%>');"  onclick="showSpecialInstructionResults('<%=rand%>');" onkeydown="showSpecialInstructionResults('<%=rand%>');" >
+           <div id="siContainer_<%=rand%>" class="autocomplete"  >
            </div>
               	<br><br>         
         </div>
@@ -679,14 +679,21 @@ if(listRxDrugs!=null){
             
             specArr=specStr.split("*");// * is used as delimiter
             //oscarLog("specArr="+specArr);
-            YAHOO.example.BasicLocal = function() {
+            YAHOO.example.BasicRemote = function() {
+                var url = "<c:out value="${ctx}"/>" + "/oscarRx/searchDrug.do?method=jsonSearchSpecialInstruction&rand=<%=rand%>";
                 // Use a LocalDataSource
-                var oDS = new YAHOO.util.LocalDataSource(specArr);
+                var oDS = new YAHOO.util.XHRDataSource(url,{connMethodPost:true,connXhrMode:'ingoreStaleResponse'});
+                oDS.responseType = YAHOO.util.XHRDataSource.TYPE_JSON;
                 // Optional to define fields for single-dimensional array
-                oDS.responseSchema = {fields : ["state"]};
+                oDS.responseSchema = {resultsList : "results"};
+                oDS.maxCacheEntries = 0;
 
                 // Instantiate the AutoComplete
                 var oAC = new YAHOO.widget.AutoComplete("siInput_<%=rand%>", "siContainer_<%=rand%>", oDS);
+                oAC.queryMatchSubset = true;
+                oAC.queryMatchContains = true;
+                oAC.minQueryLength = 1;
+                oAC.maxResultsDisplayed = 10;
                 oAC.prehighlightClassName = "yui-ac-prehighlight";
                 oAC.useShadow = true;
 

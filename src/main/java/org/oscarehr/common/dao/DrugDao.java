@@ -479,6 +479,12 @@ public class DrugDao extends AbstractDao<Drug> {
 		Query query = entityManager.createQuery("SELECT DISTINCT d.special_instruction from Drug d where d.special_instruction IS NOT NULL");
 	    return query.getResultList();
     }
+
+	public List<String> findSpecialInstructionsByKeyword(String keyword) {
+		Query query = entityManager.createQuery("SELECT DISTINCT d.special_instruction from Drug d where d.special_instruction like :keyword");
+		query.setParameter("keyword", keyword + "%");
+		return query.getResultList();
+	}
 	
 	public List<Integer> findDemographicIdsUpdatedAfterDate(Date updatedAfterThisDate) {
 		String sqlCommand = "select x.demographicId from Drug x where x.lastUpdateDate>?1";

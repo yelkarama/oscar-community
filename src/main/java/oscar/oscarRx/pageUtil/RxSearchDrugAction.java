@@ -28,6 +28,7 @@ package oscar.oscarRx.pageUtil;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
@@ -44,6 +45,7 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
+import org.oscarehr.common.dao.DrugDao;
 import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
@@ -56,6 +58,7 @@ import oscar.oscarRx.util.RxDrugRef;
 public final class RxSearchDrugAction extends DispatchAction {
 	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
 
+	private DrugDao drugDao = SpringUtils.getBean(DrugDao.class);
 	private RxDrugRef drugref;
 	private static Logger logger = MiscUtils.getLogger(); 
 	
@@ -243,6 +246,33 @@ public final class RxSearchDrugAction extends DispatchAction {
 
         return null;
     }
+
+	@SuppressWarnings({ "unchecked", "unused" })
+	public ActionForward jsonSearchSpecialInstruction(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+
+		if (!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_rx", "r", null)) {
+			throw new RuntimeException("missing required security object (_rx)");
+		}
+
+		String rand = request.getParameter("rand");
+		String searchStr = request.getParameter("query");
+
+		Hashtable results = null;
+		List<String> specialInstructions = drugDao.findSpecialInstructionsByKeyword(searchStr);
+		try {
+			results = new Hashtable();
+			results.put("results", specialInstructions);
+
+			response.setContentType("text/x-json");
+			JSONObject jsonArray=(JSONObject) JSONSerializer.toJSON(results);
+			jsonArray.write(response.getWriter());
+		}  catch (Exception e) {
+			logger.error("Unknown Error", e);
+			return mapping.findForward("error");
+		}
+
+		return null;
+	}
 
     /**
      * Utilty methods - should be split into a class if they get any bigger.
