@@ -1321,6 +1321,16 @@ function changeLt(drugId, isLongTerm){
         else
             $('autocomplete_choices').setStyle({height:'100%'});
     }
+
+    function showSpecialInstructionResults(rand){
+        var ss = $('siInput_' + rand).value;
+        if(ss.length === 0 || trim(ss).length === 0) {
+            $('siContainer_' + rand).setStyle({height:'0%'});
+        } else {
+            $('siContainer_' + rand).setStyle({height: '100%'});
+        }
+    }
+
     function addInstruction(content,randomId){
         $('instructions_'+randomId).value=content;
         parseIntr($('instructions_'+randomId));
