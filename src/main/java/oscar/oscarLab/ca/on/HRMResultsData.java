@@ -70,17 +70,17 @@ public class HRMResultsData {
 			signedOff = 2;
 		}
 
-        List<String> demographicNumbers = new ArrayList<>();
+        List<Integer> demographicNumbers = new ArrayList<>();
         if (demographicNumber == null && (!firstNameSearch.isEmpty() || !lastNameSearch.isEmpty() || !hinSearch.isEmpty())) {
             List<Demographic> matchedDemographics = demographicManager.searchDemographicsByAttributes(loggedInInfo, hin,firstName, lastName,
                     null, null, null, null, null, null, null, 0, 100);
             for (Demographic matchedDemographic : matchedDemographics) {
                 if (matchedDemographic.isActive()) {
-                    demographicNumbers.add(String.valueOf(matchedDemographic.getDemographicNo()));
+                    demographicNumbers.add(matchedDemographic.getDemographicNo());
                 }
             }
         } else if (demographicNumber != null) {
-            demographicNumbers.add(demographicNumber);
+            demographicNumbers.add(Integer.valueOf(demographicNumber));
         }
 
 		List<HRMDocumentToProvider> hrmDocResultsProvider = hrmDocumentToProviderDao.findByProviderNoLimit(providerNo, demographicNumbers, newestDate, oldestDate, viewed, signedOff,

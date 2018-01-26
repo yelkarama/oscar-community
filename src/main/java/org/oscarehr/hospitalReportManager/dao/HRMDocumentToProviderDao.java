@@ -49,7 +49,7 @@ public class HRMDocumentToProviderDao extends AbstractDao<HRMDocumentToProvider>
 		return documentToProviders;
 	}
 
-	public List<HRMDocumentToProvider> findByProviderNoLimit(String providerNo, List<String> demographicNumbers, Date newestDate, Date oldestDate, 
+	public List<HRMDocumentToProvider> findByProviderNoLimit(String providerNo, List<Integer> demographicNumbers, Date newestDate, Date oldestDate,
 				Integer viewed, Integer signedOff, boolean isPaged, Integer page, Integer pageSize) {
 		
 		String hrmToDemographicTableName = "";
