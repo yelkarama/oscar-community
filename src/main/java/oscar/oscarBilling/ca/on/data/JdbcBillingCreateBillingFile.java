@@ -189,7 +189,7 @@ public class JdbcBillingCreateBillingFile {
 		}
 
 		ret = "\n" + header1 + "\r" + header2;
-		if (header1.length() != 79) errorFatalMsg += "Header 1 length wrong! - " + ch1Obj.getId() + "<br>";
+		if (header1.length() != 79) errorFatalMsg += ch1Obj.getId() + " - Header 1 length wrong!<br>";
 
 		return ret;
 	}
@@ -206,7 +206,7 @@ public class JdbcBillingCreateBillingFile {
 		hcFirst = hcFirst.length() < 5 ? (hcFirst + space(5 - hcFirst.length())) : (hcFirst.substring(0, 5));
 		
 		String header2 = "\n" + "HER" + str1Hin + hcLast + hcFirst + ch1Obj.getSex() + ch1Obj.getProvince() + space(47) + "\r";
-		if (header2.length() != 81) errorFatalMsg += "Header 2 length wrong! - " + ch1Obj.getId() + " length = " + header2.length() + "<br>";
+		if (header2.length() != 81) errorFatalMsg += ch1Obj.getId() + "Header 2 length wrong! length = " + header2.length() + "<br>";
 		return header2;
 	}
 
@@ -343,7 +343,7 @@ public class JdbcBillingCreateBillingFile {
 
 	private String buildItem() {
 		String ret = itemObj.getTransc_id() + itemObj.getRec_id() + itemObj.getService_code() + space(2) + rightJustify("0", 6, itemObj.getFee().replaceAll("\\.", "")) + rightJustify("0", 2, itemObj.getSer_num().replaceAll("\\.", "")) + itemObj.getService_date().replaceAll("-", "") + leftJustify(" ", 4, itemObj.getDx()) + space(11) + space(5) + space(2) + space(6) + space(25);
-		if (ret.length() != 79) errorFatalMsg += "Item length wrong! - " + ch1Obj.getId() + "<br>";
+		if (ret.length() != 79) errorFatalMsg += ch1Obj.getId() + " - Item length wrong!<br>";
 		return "\n" + ret + "\r";
 	}
 
@@ -388,7 +388,7 @@ public class JdbcBillingCreateBillingFile {
 
 
 	private void checkItem() {
-		if (itemObj.getService_code().trim().length() != 5) errorPartMsg = "Item: Service Code wrong!<br>";
+		if (itemObj.getService_code().trim().length() != 5) errorPartMsg = ch1Obj.getId() + " - Item: Service Code wrong!<br>";
 		errorMsg += errorPartMsg;
 	}
 
@@ -543,7 +543,7 @@ public class JdbcBillingCreateBillingFile {
 					if (!hasSliCode) {
 						BillingServiceDao bsd = (BillingServiceDao) SpringUtils.getBean("billingServiceDao");
 						if (bsd.codeRequiresSLI(itemObj.getService_code())) {
-							errorPartMsg = "Service code '" + itemObj.getService_code() + "' requires an SLI code. <br/>";
+							errorPartMsg = ch1Obj.getId() + " - Service code '" + itemObj.getService_code() + "' requires an SLI code. <br/>";
 						}
 					}
 
