@@ -125,10 +125,11 @@ public class PHRGenericSendToPhrAction extends DispatchAction {
 			}
 			boolean printCPP  = request.getParameter("printCPP") != null && request.getParameter("printCPP").equalsIgnoreCase("true");
 			boolean printRx   = request.getParameter("printRx") != null && request.getParameter("printRx").equalsIgnoreCase("true");
-			boolean printLabs = request.getParameter("printLabs") != null && request.getParameter("printLabs").equalsIgnoreCase("true");		
+			boolean printLabs = request.getParameter("printLabs") != null && request.getParameter("printLabs").equalsIgnoreCase("true");
+            boolean printMeasurements = "true".equalsIgnoreCase(request.getParameter("printLabs"));
 		
 			CaseManagementPrint cmp = new CaseManagementPrint();
-			cmp.doPrint(loggedInInfo,demographicNo, printAllNotes,noteIds,printCPP,printRx,printLabs,null,null,request, response.getOutputStream());
+			cmp.doPrint(loggedInInfo,demographicNo, printAllNotes,noteIds,printCPP,printRx,printLabs, printMeasurements,null,null,request, response.getOutputStream());
         	
         }
         return null;
@@ -210,6 +211,7 @@ public class PHRGenericSendToPhrAction extends DispatchAction {
     			boolean printCPP  = request.getParameter("printCPP") != null && request.getParameter("printCPP").equalsIgnoreCase("true");
     			boolean printRx   = request.getParameter("printRx") != null && request.getParameter("printRx").equalsIgnoreCase("true");
     			boolean printLabs = request.getParameter("printLabs") != null && request.getParameter("printLabs").equalsIgnoreCase("true");
+                boolean printMeasurements = "true".equalsIgnoreCase(request.getParameter("printLabs"));
     			Calendar startDate = null;
     			try{
     				startDate = Calendar.getInstance();
@@ -227,7 +229,7 @@ public class PHRGenericSendToPhrAction extends DispatchAction {
     			}
     		
     			CaseManagementPrint cmp = new CaseManagementPrint();
-    			cmp.doPrint(loggedInInfo,demographicNo, printAllNotes,noteIds,printCPP,printRx,printLabs,startDate,endDate,request, os);
+    			cmp.doPrint(loggedInInfo,demographicNo, printAllNotes,noteIds,printCPP,printRx,printLabs, printMeasurements, startDate,endDate,request, os);
             	
             } else if (module != null && module.equals("document")) {
             	documentNo =  request.getParameter("documentNo");

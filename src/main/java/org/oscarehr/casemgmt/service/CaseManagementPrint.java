@@ -53,6 +53,8 @@ import org.oscarehr.casemgmt.model.Issue;
 import org.oscarehr.casemgmt.util.ExtPrint;
 import org.oscarehr.casemgmt.web.NoteDisplay;
 import org.oscarehr.casemgmt.web.NoteDisplayLocal;
+import org.oscarehr.common.dao.MeasurementDao;
+import org.oscarehr.common.model.Measurement;
 import org.oscarehr.managers.ProgramManager2;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
@@ -92,7 +94,7 @@ public class CaseManagementPrint {
 	 *This method was in CaseManagementEntryAction but has been moved out so that both the classic Echart and the flat echart can use the same printing method.
 	 * 
 	 */
-	public void doPrint(LoggedInInfo loggedInInfo,Integer demographicNo, boolean printAllNotes,String[] noteIds,boolean printCPP,boolean printRx,boolean printLabs, Calendar startDate, Calendar endDate,   HttpServletRequest request, OutputStream os) throws IOException, DocumentException {
+	public void doPrint(LoggedInInfo loggedInInfo,Integer demographicNo, boolean printAllNotes,String[] noteIds,boolean printCPP,boolean printRx,boolean printLabs, boolean printMeasurements, Calendar startDate, Calendar endDate,   HttpServletRequest request, OutputStream os) throws IOException, DocumentException {
 		
 		String providerNo=loggedInInfo.getLoggedInProviderNo();
 
@@ -232,6 +234,19 @@ public class CaseManagementPrint {
 			}
 		}
 
+		List<Measurement> measurements = null;
+		if (printMeasurements) {
+			MeasurementDao measurementsDao = SpringUtils.getBean(MeasurementDao.class);
+
+			if(startDate != null && endDate != null) {
+				measurements = measurementsDao.findByDemographicIdObservedDate(demographicNo, startDate.getTime(), endDate.getTime());
+
+			} else {
+				measurements = measurementsDao.findByDemographicId(demographicNo);
+			}
+			Collections.sort(measurements, Measurement.MEASUREMENT_TYPE_COMPARATOR);
+		}
+
 		SimpleDateFormat headerFormat = new SimpleDateFormat("yyyy-MM-dd.hh.mm.ss");
 	    Date now = new Date();
 	    String headerDate = headerFormat.format(now);
@@ -261,6 +276,7 @@ public class CaseManagementPrint {
 		else{
 			printer.printRx(demoNo, othermeds);
 		}
+		printer.printMeasurements(measurements);
 		printer.printNotes(notes);
 
 		/* check extensions */

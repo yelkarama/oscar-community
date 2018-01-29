@@ -2942,6 +2942,7 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 		boolean printCPP = request.getParameter("printCPP").equalsIgnoreCase("true");
 		boolean printRx = request.getParameter("printRx").equalsIgnoreCase("true");
 		boolean printLabs = request.getParameter("printLabs") != null && request.getParameter("printLabs").equalsIgnoreCase("true");
+		boolean printMeasurements = "true".equalsIgnoreCase(request.getParameter("printLabs"));
 		boolean printNotes = request.getParameter("printNotes").equalsIgnoreCase("true");
 		if(!printNotes){
 			printAllNotes = false;
@@ -2949,12 +2950,12 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 		}
 
 		CaseManagementFax cmf = new CaseManagementFax();
-		if (noteIds.length == 0 && !printCPP && !printRx & !printLabs) {
+		if (noteIds.length == 0 && !printCPP && !printRx & !printLabs && !printMeasurements) {
 			HttpSession session = request.getSession();
 			session.setAttribute("Results", noteIds.length);
 			return new ActionRedirect(request.getHeader("Referer"));
 		} else {
-			cmf.doFax(loggedInInfo, demographicNo, printAllNotes, noteIds, printCPP, printRx, printLabs, cStartDate, cEndDate, request);
+			cmf.doFax(loggedInInfo, demographicNo, printAllNotes, noteIds, printCPP, printRx, printLabs, printMeasurements, cStartDate, cEndDate, request);
 			HttpSession session = request.getSession();
 			session.setAttribute("faxSuccessful", request.getAttribute("faxSuccessful"));
 			return new ActionRedirect(request.getHeader("Referer"));
@@ -3018,6 +3019,7 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 		boolean printCPP  = request.getParameter("printCPP").equalsIgnoreCase("true");
 		boolean printRx   = request.getParameter("printRx").equalsIgnoreCase("true");
 		boolean printLabs = request.getParameter("printLabs") != null && request.getParameter("printLabs").equalsIgnoreCase("true");
+		boolean printMeasurements = "true".equalsIgnoreCase(request.getParameter("printLabs"));
 		boolean printNotes = request.getParameter("printNotes").equalsIgnoreCase("true");
 		if(!printNotes){
 			printAllNotes = false;
@@ -3025,13 +3027,13 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 		}
 
 		CaseManagementPrint cmp = new CaseManagementPrint();
-		if (noteIds.length == 0 && !printCPP && !printRx & !printLabs){
+		if (noteIds.length == 0 && !printCPP && !printRx & !printLabs && !printMeasurements){
 			HttpSession session = request.getSession();
 			session.setAttribute("Results", noteIds.length);
 			return new ActionRedirect(request.getHeader("Referer"));
 		}
 		else{
-			cmp.doPrint(loggedInInfo,demographicNo, printAllNotes,noteIds,printCPP,printRx,printLabs,cStartDate,cEndDate,request, response.getOutputStream());
+			cmp.doPrint(loggedInInfo,demographicNo, printAllNotes,noteIds,printCPP,printRx,printLabs, printMeasurements, cStartDate,cEndDate,request, response.getOutputStream());
 		}
 		
 		return null;

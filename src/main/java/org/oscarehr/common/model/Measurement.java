@@ -168,4 +168,13 @@ public class Measurement extends AbstractModel<Integer> implements Serializable 
 	        	return 0;
 	        }
 	    };
+
+	public static final Comparator<Measurement> MEASUREMENT_TYPE_COMPARATOR = new Comparator<Measurement>() {
+		public int compare(Measurement o1, Measurement o2) {
+			if(o1.getType() != null && o2.getType() != null) {
+				return o1.getType().compareTo(o2.getType());
+			}
+			return 0;
+		}
+	};
 }

@@ -41,7 +41,10 @@ import org.oscarehr.PMmodule.model.Program;
 import org.oscarehr.PMmodule.model.ProgramProvider;
 import org.oscarehr.casemgmt.model.CaseManagementNote;
 import org.oscarehr.common.dao.AllergyDao;
+import org.oscarehr.common.dao.MeasurementTypeDao;
 import org.oscarehr.common.model.Allergy;
+import org.oscarehr.common.model.Measurement;
+import org.oscarehr.common.model.MeasurementType;
 import org.oscarehr.common.printing.FontSettings;
 import org.oscarehr.common.printing.PdfWriterFactory;
 import org.oscarehr.managers.ProgramManager2;
@@ -462,6 +465,55 @@ public class CaseManagementPrintPdf {
 //                rworkingYcoord -= (ct.getLinesWritten() * ct.getLeading() + (ct.getLeading() * 2f));
 //        }
 //        cb.endText();
+    }
+
+    public void printMeasurements(List<Measurement> measurements) throws DocumentException {
+        if (measurements == null) {
+            return;
+        }
+        MeasurementTypeDao measurementTypeDao = SpringUtils.getBean(MeasurementTypeDao.class);
+        if (newPage) {
+            document.newPage();
+        } else {
+            newPage = true;
+        }
+
+        Paragraph p = new Paragraph();
+        Font obsfont = new Font(bf, FONTSIZE, Font.UNDERLINE);
+        Phrase phrase = new Phrase(LEADING, "", obsfont);
+        p.setAlignment(Paragraph.ALIGN_CENTER);
+        phrase.add("Patient Measurement History");
+        p.add(phrase);
+        document.add(p);
+
+        Font normal = new Font(bf, FONTSIZE, Font.NORMAL);
+        Font curFont;
+
+        String currentMeasurementType = "";
+        for (Measurement measurement : measurements) {
+            p = new Paragraph();
+            p.setAlignment(Paragraph.ALIGN_LEFT);
+
+            if (!currentMeasurementType.equals(measurement.getType())) {
+                currentMeasurementType = measurement.getType();
+                phrase = new Phrase(LEADING, "", obsfont);
+                List<MeasurementType> measurementTypes = measurementTypeDao.findByType(measurement.getType());
+                phrase.add(measurementTypes.size() > 0 ?  measurementTypes.get(0).getTypeDescription() : measurement.getType());
+                p.add(phrase);
+                document.add(p);
+                p = new Paragraph();
+            }
+
+
+            curFont = normal;
+            phrase = new Phrase(LEADING, "", curFont);
+            phrase.add(formatter.format(measurement.getDateObserved()) + " - " + measurement.getDataField());
+            if (measurement.getMeasuringInstruction() != null && !measurement.getMeasuringInstruction().trim().isEmpty()) {
+                phrase.add(" (" + measurement.getMeasuringInstruction() + ")");
+            }
+            p.add(phrase);
+            document.add(p);
+        }
     }
 
     public void printNotes(List<CaseManagementNote>notes) throws DocumentException{

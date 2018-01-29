@@ -150,6 +150,7 @@ try
 	Boolean cpp = false;
 	Boolean rx = false;
 	Boolean labs = false;
+	Boolean measurements = false;
 	UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
 	UserProperty printOp = userPropertyDao.getProp(provNo, UserProperty.ENCOUNTER_PRINT_OPTION);
 	UserProperty printCPP = userPropertyDao.getProp(provNo, UserProperty.ENCOUNTER_PRINT_CPP);
@@ -558,6 +559,7 @@ try
 	<input type="hidden" name="printCPP" id="printCPP" value="false">
 	<input type="hidden" name="printRx" id="printRx" value="false">
 	<input type="hidden" name="printLabs" id="printLabs" value="false">
+	<input type="hidden" name="printMeasurements" id="printMeasurements" value="false">
 	<input type="hidden" name="printNotes" id="printNotes" value="true">
 	<input type="hidden" name="encType" id="encType" value="">
 	<input type="hidden" name="pStartDate" id="pStartDate" value="">
@@ -633,7 +635,7 @@ try
 	    	</c:if>
 
 	    	<input tabindex="23" type='image' src="<c:out value="${ctx}/oscarEncounter/graphics/system-log-out.png"/>" onclick='closeEnc(event);return false;' title='<bean:message key="global.btnExit"/>'>&nbsp;
-	    	<input tabindex="24" type='image' src="<c:out value="${ctx}/oscarEncounter/graphics/document-print.png"/>" onclick="return printSetup(event, '<%=option%>', <%=cpp%>, <%=rx%>, <%=labs%>);" title='<bean:message key="oscarEncounter.Index.btnPrint"/>' id="imgPrintEncounter">
+	    	<input tabindex="24" type='image' src="<c:out value="${ctx}/oscarEncounter/graphics/document-print.png"/>" onclick="return printSetup(event, '<%=option%>', <%=cpp%>, <%=rx%>, <%=labs%>, <%=measurements%>);" title='<bean:message key="oscarEncounter.Index.btnPrint"/>' id="imgPrintEncounter">
     	</span>
     	<div id="assignIssueSection">
 	    	<!-- input type='image' id='toggleIssue' onclick="return showIssues(event);" src="<c:out value="${ctx}/oscarEncounter/graphics/issues.png"/>" title='<bean:message key="oscarEncounter.Index.btnDisplayIssues"/>'>&nbsp; -->

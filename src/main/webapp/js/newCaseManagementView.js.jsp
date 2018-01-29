@@ -3542,7 +3542,7 @@ function autoCompleteShowMenuCPP(element, update) {
         return true;
     }
 
-    function printSetup(e, printOp, printCpp, printRx, printLabs) {
+    function printSetup(e, printOp, printCpp, printRx, printLabs, printMeasurements) {
         if( $F("notes2print").length > 0 )
             $("printopSelected").checked = true;
         else
@@ -3563,6 +3563,11 @@ function autoCompleteShowMenuCPP(element, update) {
         if(printLabs){
             printInfo($("imgPrintLabs"),'printLabs');
         }
+
+        if(printMeasurements){
+            printInfo($("imgPrintMeasurements"),'printMeasurements');
+        }
+
         return false;
     }
 

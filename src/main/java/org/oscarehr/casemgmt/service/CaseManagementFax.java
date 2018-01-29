@@ -44,8 +44,10 @@ import org.oscarehr.casemgmt.web.NoteDisplayLocal;
 import org.oscarehr.common.dao.ClinicDAO;
 import org.oscarehr.common.dao.FaxConfigDao;
 import org.oscarehr.common.dao.FaxJobDao;
+import org.oscarehr.common.dao.MeasurementDao;
 import org.oscarehr.common.model.FaxConfig;
 import org.oscarehr.common.model.FaxJob;
+import org.oscarehr.common.model.Measurement;
 import org.oscarehr.managers.ProgramManager2;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
@@ -79,7 +81,7 @@ public class CaseManagementFax {
     private ProgramManager programMgr = SpringUtils.getBean(ProgramManager.class);
     private CaseManagementPrint cmp = new CaseManagementPrint() ;
 
-    public void doFax(LoggedInInfo loggedInInfo,Integer demographicNo, boolean printAllNotes,String[] noteIds,boolean printCPP,boolean printRx,boolean printLabs, Calendar startDate, Calendar endDate, HttpServletRequest request) throws IOException, DocumentException {
+    public void doFax(LoggedInInfo loggedInInfo,Integer demographicNo, boolean printAllNotes,String[] noteIds,boolean printCPP,boolean printRx,boolean printLabs, boolean printMeasurements, Calendar startDate, Calendar endDate, HttpServletRequest request) throws IOException, DocumentException {
 
         String providerNo=loggedInInfo.getLoggedInProviderNo();
 
@@ -219,6 +221,19 @@ public class CaseManagementFax {
             }
         }
 
+        List<Measurement> measurements = null;
+        if (printMeasurements) {
+            MeasurementDao measurementsDao = SpringUtils.getBean(MeasurementDao.class);
+
+            if(startDate != null && endDate != null) {
+                measurements = measurementsDao.findByDemographicIdObservedDate(demographicNo, startDate.getTime(), endDate.getTime());
+
+            } else {
+                measurements = measurementsDao.findByDemographicId(demographicNo);
+            }
+            Collections.sort(measurements, Measurement.MEASUREMENT_TYPE_COMPARATOR);
+        }
+
         SimpleDateFormat headerFormat = new SimpleDateFormat("yyyy-MM-dd.hh.mm.ss");
         Date now = new Date();
         String headerDate = headerFormat.format(now);
@@ -248,6 +263,7 @@ public class CaseManagementFax {
             else{
                 printer.printRx(demoNo, othermeds);
             }
+            printer.printMeasurements(measurements);
             printer.printNotes(notes);
 
 		/* check extensions */
