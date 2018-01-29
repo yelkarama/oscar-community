@@ -473,6 +473,10 @@ public class JdbcBillingReviewImpl {
 
 	// billing page
 	public List<Object> getBillingHist(String demoNo, int iPageSize, int iOffSet, DateRange dateRange)  {
+		return getBillingHist(demoNo, iPageSize, iOffSet, dateRange, false);
+	}
+
+	public List<Object> getBillingHist(String demoNo, int iPageSize, int iOffSet, DateRange dateRange, Boolean showDeleted)  {
 		List<Object> retval = new ArrayList<Object>();
 		int iRow = 0;
 
@@ -484,9 +488,9 @@ public class JdbcBillingReviewImpl {
 
 		List<BillingONCHeader1> hs = null;
 		if (dateRange == null) {
-			hs = dao.findByDemoNo(ConversionUtils.fromIntString(demoNo), iOffSet, iPageSize);
+			hs = dao.findByDemoNo(ConversionUtils.fromIntString(demoNo), iOffSet, iPageSize, showDeleted);
 		} else {
-			hs = dao.findByDemoNoAndDates(ConversionUtils.fromIntString(demoNo), dateRange, iOffSet, iPageSize);
+			hs = dao.findByDemoNoAndDates(ConversionUtils.fromIntString(demoNo), dateRange, iOffSet, iPageSize, showDeleted);
 		}
 
 		try {
@@ -511,7 +515,7 @@ public class JdbcBillingReviewImpl {
 				ch1Obj.setAdmission_date(ConversionUtils.toDateString(h.getAdmissionDate()));
 				ch1Obj.setFacilty_num(h.getFaciltyNum());
 				ch1Obj.setTotal(h.getTotal().toString());
-				
+
 				Provider provider = providerdao.getProvider(h.getProviderNo());
 				ch1Obj.setLast_name(provider!=null?provider.getLastName():"");
 				ch1Obj.setFirst_name(provider!=null?provider.getFirstName():"");
@@ -521,7 +525,7 @@ public class JdbcBillingReviewImpl {
 
 				String dx = "";
 				Set<String> serviceCodeSet = new HashSet<String>();
-			
+
 				String strServiceDate = "";
 				BigDecimal paid = new BigDecimal("0.00");
 				BigDecimal refund = new BigDecimal("0.00");
@@ -532,10 +536,10 @@ public class JdbcBillingReviewImpl {
 					String strService = i.getServiceCode() + " x " + i.getServiceCount() + ", ";
 					dx = i.getDx();
 					strServiceDate = ConversionUtils.toDateString(i.getServiceDate());
-					
+
 					serviceCodeSet.add(strService);
 				}
-								
+
 				BillingItemData itObj = new BillingItemData();
 				StringBuffer codeBuf = new StringBuffer();
 				for (String codeStr : serviceCodeSet) {
@@ -547,7 +551,7 @@ public class JdbcBillingReviewImpl {
 				itObj.setService_code(codeBuf.toString());
 				itObj.setDx(dx);
 				itObj.setService_date(strServiceDate);
-				
+
 				List<BillingONPayment> payment = payDao.find3rdPartyPaymentsByBillingNo(h.getId());
 				itObj.setPaid(payDao.getTotalSumByBillingNoWeb(h.getId().toString()));
 				itObj.setRefund(payDao.getPaymentsRefundByBillingNoWeb(h.getId().toString()));
@@ -555,9 +559,9 @@ public class JdbcBillingReviewImpl {
 				if(discount_total == null) {
 					discount_total = new BigDecimal(0);
 				}
-				NumberFormat currency = NumberFormat.getCurrencyInstance(Locale.US);		        
+				NumberFormat currency = NumberFormat.getCurrencyInstance(Locale.US);
 				itObj.setDiscount(currency.format(discount_total));
-				
+
 				retval.add(itObj);
 			}
 		} catch (Exception e) {

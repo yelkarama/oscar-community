@@ -752,33 +752,49 @@ public class BillingONCHeader1Dao extends AbstractDao<BillingONCHeader1>{
     }
 
 	public List<BillingONCHeader1> findByDemoNo(Integer demoNo, int iOffSet, int pageSize) {
-		String sql = "FROM BillingONCHeader1 b WHERE b.demographicNo = :demoNo " + 
-				"AND b.status != 'D' " +
-				"ORDER BY b.billingDate DESC, b.billingTime DESC, b.id DESC";
-		Query query = entityManager.createQuery(sql);
-		query.setParameter("demoNo", demoNo);
-		query.setFirstResult(iOffSet);
-		if(pageSize >= 0){
-			query.setMaxResults(pageSize);
-		}
-		return query.getResultList();
+		return findByDemoNo(demoNo, iOffSet, pageSize, false);
+    }
+
+    public List<BillingONCHeader1> findByDemoNo(Integer demoNo, int iOffSet, int pageSize, Boolean showDeleted) {
+        String sql = "FROM BillingONCHeader1 b WHERE b.demographicNo = :demoNo ";
+
+                if (!showDeleted) {
+                    sql += "AND b.status != 'D' ";
+                }
+
+                sql += "ORDER BY b.billingDate DESC, b.billingTime DESC, b.id DESC";
+        Query query = entityManager.createQuery(sql);
+        query.setParameter("demoNo", demoNo);
+        query.setFirstResult(iOffSet);
+        if(pageSize >= 0){
+            query.setMaxResults(pageSize);
+        }
+        return query.getResultList();
     }
 
 	public List<BillingONCHeader1> findByDemoNoAndDates(Integer demoNo, DateRange dateRange, int iOffSet, int pageSize) {
-		String sql = "FROM BillingONCHeader1 b WHERE b.demographicNo = :demoNo " + 
-	            "AND b.billingDate >= :dateStart " +
-	            "AND b.billingDate <= :dateEnd " + 
-				"AND b.status != 'D' " +
-				"ORDER BY b.billingDate DESC, b.billingTime DESC, b.id DESC";
-		Query query = entityManager.createQuery(sql);
-		query.setParameter("demoNo", demoNo);
-		query.setParameter("dateStart", (new SimpleDateFormat("yyyy-MM-dd")).format(dateRange.getFrom()));
-		query.setParameter("dateEnd", (new SimpleDateFormat("yyyy-MM-dd")).format(dateRange.getTo()));
-		query.setFirstResult(iOffSet);
-		if(pageSize >= 0){
-			query.setMaxResults(pageSize);
-		}
-		return query.getResultList();
+        return findByDemoNoAndDates(demoNo, dateRange, iOffSet, pageSize, false);
+    }
+
+    public List<BillingONCHeader1> findByDemoNoAndDates(Integer demoNo, DateRange dateRange, int iOffSet, int pageSize, Boolean showDeleted) {
+        String sql = "FROM BillingONCHeader1 b WHERE b.demographicNo = :demoNo " +
+                "AND b.billingDate >= :dateStart " +
+                "AND b.billingDate <= :dateEnd ";
+
+                if (!showDeleted) {
+                    sql += "AND b.status != 'D' ";
+                }
+
+                sql += "ORDER BY b.billingDate DESC, b.billingTime DESC, b.id DESC";
+        Query query = entityManager.createQuery(sql);
+        query.setParameter("demoNo", demoNo);
+        query.setParameter("dateStart", (new SimpleDateFormat("yyyy-MM-dd")).format(dateRange.getFrom()));
+        query.setParameter("dateEnd", (new SimpleDateFormat("yyyy-MM-dd")).format(dateRange.getTo()));
+        query.setFirstResult(iOffSet);
+        if(pageSize >= 0){
+            query.setMaxResults(pageSize);
+        }
+        return query.getResultList();
     }
 
 	public List<Object[]> findBillingsAndDemographicsByDemoIdAndDates(Integer demoNo, String payProgram, Date fromDate, Date toDate) {

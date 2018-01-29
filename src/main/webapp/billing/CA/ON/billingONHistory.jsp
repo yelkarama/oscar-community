@@ -32,6 +32,7 @@
   if(request.getParameter("limit2")!=null) strLimit2 = request.getParameter("limit2");
   int pageNumber = request.getParameter("freshbooksPage")==null?1:Integer.parseInt(request.getParameter("freshbooksPage"));
   boolean invoiceRefresh = request.getParameter("invoiceRefresh")==null?true:Boolean.parseBoolean(request.getParameter("invoiceRefresh"));
+  boolean showDeleted = "true".equalsIgnoreCase(request.getParameter("showDeleted"));
   String demographicNo = request.getParameter("demographic_no");
 	UserPropertyDAO userPropertyDAO = SpringUtils.getBean(UserPropertyDAO.class);
 	UserProperty prop;
@@ -110,6 +111,10 @@ function onUnbilled(url) {
 function popUpClosed() {
     window.location.reload();
 }
+
+function refreshBillHistory() {
+    window.location = "billinghistory.jsp?last_name=<%=URLEncoder.encode(request.getParameter("last_name")) %>&first_name=<%=URLEncoder.encode(request.getParameter("first_name")) %>&demographic_no=<%=request.getParameter("demographic_no")%>&displaymode=<%=request.getParameter("displaymode")%>&dboperation=<%=request.getParameter("dboperation")%>&orderby=<%=request.getParameter("orderby")%>&limit1=<%=strLimit1%>&limit2=<%=strLimit2%>&invoiceRefresh=false&showDeleted=<%=!showDeleted%>"
+}
 </SCRIPT>
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery.js"></script>
 <script>
@@ -131,6 +136,12 @@ function popUpClosed() {
 		<td align="left"><i>Results for Demographic</i> :<%=request.getParameter("last_name")%>,<%=request.getParameter("first_name")%>
 		(<%=request.getParameter("demographic_no")%>)</td>
 	</tr>
+
+	<tr>
+		<td align="center">
+			<label><input type="checkbox" name="showDeleted" id="showDeleted" <%=showDeleted ? "checked" : ""%> onchange="refreshBillHistory()">Show Deleted</label><br/>
+		</td>
+	</tr>
 </table>
 <CENTER>
 <table width="100%" border="0" bgcolor="#ffffff">
@@ -149,7 +160,7 @@ function popUpClosed() {
 JdbcBillingReviewImpl dbObj = new JdbcBillingReviewImpl();
 BillingONExtDao billingOnExtDao = (BillingONExtDao)SpringUtils.getBean(BillingONExtDao.class);
 String limit = " limit " + strLimit1 + "," + strLimit2;
-List aL = dbObj.getBillingHist(request.getParameter("demographic_no"), Integer.parseInt(strLimit2), Integer.parseInt(strLimit1), null);
+List aL = dbObj.getBillingHist(request.getParameter("demographic_no"), Integer.parseInt(strLimit2), Integer.parseInt(strLimit1), null, showDeleted);
 int nItems=0;
 for(int i=0; i<aL.size(); i=i+2) {
 	nItems++;
@@ -252,7 +263,7 @@ for(int i=0; i<aL.size(); i=i+2) {
 		
 		<td align="center"><%=obj.getTotal()%></td>
 		
-		<% if (obj.getStatus().compareTo("B")==0 || obj.getStatus().compareTo("S")==0) { %>
+		<% if (obj.getStatus().compareTo("B")==0 || obj.getStatus().compareTo("S")==0 || obj.getStatus().compareTo("D")==0) { %>
 		<td align="center">&nbsp;</td>
 		<% } else if (OscarProperties.getInstance().getBooleanProperty("warnOnDeleteBill","true") && !removeUnbill){ %>
 		<td align="center"><a
@@ -279,12 +290,12 @@ for(int i=0; i<aL.size(); i=i+2) {
   nLastPage=Integer.parseInt(strLimit1)-Integer.parseInt(strLimit2);
   if(nLastPage>=0) {
 %> <a
-	href="billinghistory.jsp?last_name=<%=URLEncoder.encode(request.getParameter("last_name")) %>&first_name=<%=URLEncoder.encode(request.getParameter("first_name")) %>&demographic_no=<%=request.getParameter("demographic_no")%>&displaymode=<%=request.getParameter("displaymode")%>&dboperation=<%=request.getParameter("dboperation")%>&orderby=<%=request.getParameter("orderby")%>&limit1=<%=nLastPage%>&limit2=<%=strLimit2%>&invoiceRefresh=false">Last
+	href="billinghistory.jsp?last_name=<%=URLEncoder.encode(request.getParameter("last_name")) %>&first_name=<%=URLEncoder.encode(request.getParameter("first_name")) %>&demographic_no=<%=request.getParameter("demographic_no")%>&displaymode=<%=request.getParameter("displaymode")%>&dboperation=<%=request.getParameter("dboperation")%>&orderby=<%=request.getParameter("orderby")%>&limit1=<%=nLastPage%>&limit2=<%=strLimit2%>&invoiceRefresh=false&showDeleted=<%=showDeleted%>">Last
 Page</a> | <%
   }
   if(nItems==Integer.parseInt(strLimit2)) {
 %> <a
-	href="billinghistory.jsp?last_name=<%=URLEncoder.encode(request.getParameter("last_name")) %>&first_name=<%=URLEncoder.encode(request.getParameter("first_name")) %>&demographic_no=<%=request.getParameter("demographic_no")%>&displaymode=<%=request.getParameter("displaymode")%>&dboperation=<%=request.getParameter("dboperation")%>&orderby=<%=request.getParameter("orderby")%>&limit1=<%=nNextPage%>&limit2=<%=strLimit2%>&freshbooksPage=<%=(pageNumber+1)%>&invoiceRefresh=true">
+	href="billinghistory.jsp?last_name=<%=URLEncoder.encode(request.getParameter("last_name")) %>&first_name=<%=URLEncoder.encode(request.getParameter("first_name")) %>&demographic_no=<%=request.getParameter("demographic_no")%>&displaymode=<%=request.getParameter("displaymode")%>&dboperation=<%=request.getParameter("dboperation")%>&orderby=<%=request.getParameter("orderby")%>&limit1=<%=nNextPage%>&limit2=<%=strLimit2%>&freshbooksPage=<%=(pageNumber+1)%>&invoiceRefresh=true&showDeleted=<%=showDeleted%>">
 Next Page</a> <%
 }
 
