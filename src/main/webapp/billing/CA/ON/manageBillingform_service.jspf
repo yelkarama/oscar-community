@@ -35,9 +35,17 @@
             var numberOfServicesInGroup = (document.querySelectorAll("input[name^='group" + groupNo  + "_service']").length / 2);
 
             for (var i = 0; i < numberOfServicesInGroup; i++) {
-                if(document.form1['group' + groupNo + '_service' + i].value && !document.form1['group' + groupNo + '_service' + i + "_order"].value) {
-                    valid = false;
-                    errors.push("Missing service for service " + document.form1['group' + groupNo + '_service' + i].value + " in group " + groupNo);
+                var service = document.form1['group' + groupNo + '_service' + i].value;
+                var serviceOrder = document.form1['group' + groupNo + '_service' + i + "_order"].value;
+                if(service) {
+                    if (!serviceOrder) {
+                        valid = false;
+                        errors.push("Missing service order for service " + document.form1['group' + groupNo + '_service' + i].value + " in group " + groupNo);
+                    } else if (isNaN(serviceOrder)) {
+                        valid = false;
+                        errors.push("Invalid service order value for service " + document.form1['group' + groupNo + '_service' + i].value + " in group " + groupNo +
+                            "\n Service order value must be a number.");
+                    }
                 }
             }
         }
