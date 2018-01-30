@@ -69,8 +69,7 @@ public class HRMDocumentToDemographicDao extends AbstractDao<HRMDocumentToDemogr
 		//Creates a new empty list, it remains empty if an error occurs
 		List<HRMDocumentToDemographic> attachedHRMDocumentToDemographics = new ArrayList<HRMDocumentToDemographic>();
 		
-		if (!consultationId.equalsIgnoreCase("null") || !consultationId.equals("") || !consultationId.equals(null))
-		{
+		if (consultationId != null && !consultationId.equalsIgnoreCase("null") && !consultationId.equals("")) {
 			try {
 				//Parses the consultationId to an integer
 				Integer parsedConsultationId = Integer.parseInt(consultationId);
