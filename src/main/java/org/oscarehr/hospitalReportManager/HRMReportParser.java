@@ -451,7 +451,7 @@ public class HRMReportParser {
 
 		for (Provider p : sendToProviderList) {
 						
-			List<HRMDocumentToProvider> existingHRMDocumentToProviders =  hrmDocumentToProviderDao.findByHrmDocumentIdAndProviderNoList(reportId.toString(), p.getProviderNo());
+			List<HRMDocumentToProvider> existingHRMDocumentToProviders =  hrmDocumentToProviderDao.findByHrmDocumentIdAndProviderNoList(reportId, p.getProviderNo());
 			
 			if (existingHRMDocumentToProviders == null || existingHRMDocumentToProviders.size() == 0) {	
 				HRMDocumentToProvider providerRouting = new HRMDocumentToProvider();

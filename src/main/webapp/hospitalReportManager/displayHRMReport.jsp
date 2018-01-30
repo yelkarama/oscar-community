@@ -80,7 +80,7 @@ String confidentialityStatement = null;
 			demographicLinkList = hrmDocumentToDemographicDao.findByHrmDocumentId(document.getId());
 			demographicLink = (demographicLinkList.size() > 0 ? demographicLinkList.get(0) : null);
 
-			providerLinkList = hrmDocumentToProviderDao.findByHrmDocumentIdNoSystemUser(document.getId().toString());
+			providerLinkList = hrmDocumentToProviderDao.findByHrmDocumentIdNoSystemUser(document.getId());
 
 
 			subClassList = hrmDocumentSubClassDao.getSubClassesByDocumentId(document.getId());
