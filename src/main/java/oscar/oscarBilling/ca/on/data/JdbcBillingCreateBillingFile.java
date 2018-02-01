@@ -1122,7 +1122,7 @@ public class JdbcBillingCreateBillingFile {
                                 directory.setReadable(true, false);
                                 directory.setWritable(true, false);
                                 directory.setExecutable(true, false);
-                                File newLocation = new File(directory.getPath() + matchedFile.getHtmlFilename());
+                                File newLocation = new File(directory.getPath() + "/" + matchedFile.getHtmlFilename());
                                 Files.move(file.toPath(), newLocation.toPath(), StandardCopyOption.REPLACE_EXISTING);
                             }
                         } else {
@@ -1134,7 +1134,7 @@ public class JdbcBillingCreateBillingFile {
                                 directory.setReadable(true, false);
                                 directory.setWritable(true, false);
                                 directory.setExecutable(true, false);
-                                File newLocation = new File(directory.getPath() + matchedFile.getOhipFilename());
+                                File newLocation = new File(directory.getPath() + "/" + matchedFile.getOhipFilename());
                                 Files.move(file.toPath(), newLocation.toPath(), StandardCopyOption.REPLACE_EXISTING);
                             }
                         }
