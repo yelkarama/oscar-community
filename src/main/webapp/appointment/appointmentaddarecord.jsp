@@ -170,13 +170,14 @@ if (request.getParameter("demographic_no") != null && !(request.getParameter("de
 	String reminderCell = "";
 	String reminderPhone = "";
 	ar.setAppointmentId(a.getId());
-	if (demo != null)
-	{
-	    reminderEmail = demo.getEmail();
-	    reminderPhone = demo.getPhone().substring(0, 1).equals("1")?"+" + demo.getPhone().replaceAll("-", ""):"+1" + demo.getPhone().replaceAll("-", "");
+	if (demo != null) {
+		reminderEmail = demo.getEmail();
+		if (!demo.getPhone().isEmpty()) {
+			reminderPhone = demo.getPhone().substring(0, 1).equals("1") ? "+" + demo.getPhone().replaceAll("-", "") : "+1" + demo.getPhone().replaceAll("-", "");
+		}
 	}
 
-	if (demographicExt != null)
+	if (demographicExt != null && !demographicExt.getValue().isEmpty())
 	{
 	    reminderCell = demographicExt.getValue().substring(0, 1).equals("1")?"+" + demographicExt.getValue().replaceAll("-", ""):"+1" + demographicExt.getValue().replaceAll("-", "");
 	}

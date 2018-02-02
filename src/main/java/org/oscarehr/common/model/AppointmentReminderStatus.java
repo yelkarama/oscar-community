@@ -4,7 +4,7 @@ import javax.persistence.*;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "appointmentReminderStatus")
+@Table(name = "appointment_reminder_status")
 public class AppointmentReminderStatus extends AbstractModel<Integer>
 {
     @Id
@@ -12,19 +12,19 @@ public class AppointmentReminderStatus extends AbstractModel<Integer>
     @Column(name = "id")
     private Integer id;
 
-    @Column(name = "apptReminderId")
+    @Column(name = "appt_reminder_id")
     private Integer apptReminderId;
 
-    @Column(name = "providerNo")
+    @Column(name = "provider_no")
     private String providerNo;
 
-    @Column(name = "allDelivered")
+    @Column(name = "all_delivered")
     private Boolean allDelivered;
 
-    @Column(name = "deliveryTime")
+    @Column(name = "delivery_time")
     private Timestamp deliveryTime;
 
-    @Column(name = "remindersSent")
+    @Column(name = "reminders_sent")
     private Integer remindersSent;
 
     public Integer getId() {

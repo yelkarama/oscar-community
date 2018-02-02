@@ -3,7 +3,7 @@ package org.oscarehr.common.model;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "appointmentReminders")
+@Table(name = "appointment_reminders")
 public class AppointmentReminder extends AbstractModel<Integer> {
 
     @Id
@@ -11,16 +11,16 @@ public class AppointmentReminder extends AbstractModel<Integer> {
     @Column(name = "id")
     private Integer id;
 
-    @Column(name = "appointmentId")
+    @Column(name = "appointment_id")
     private Integer appointmentId;
 
-    @Column(name = "reminderEmail")
+    @Column(name = "reminder_email")
     private String reminderEmail;
 
-    @Column(name = "reminderPhone")
+    @Column(name = "reminder_phone")
     private String reminderPhone;
 
-    @Column(name = "reminderCell")
+    @Column(name = "reminder_cell")
     private String reminderCell;
 
     @Column(name = "confirmed")
@@ -29,7 +29,7 @@ public class AppointmentReminder extends AbstractModel<Integer> {
     @Column(name = "cancelled")
     private Boolean cancelled;
 
-    @Column(name = "uniqueCancellationKey")
+    @Column(name = "unique_cancellation_key")
     private String uniqueCancellationKey;
 
     public Integer getId() {
