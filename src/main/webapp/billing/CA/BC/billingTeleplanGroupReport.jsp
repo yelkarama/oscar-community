@@ -51,6 +51,7 @@ String user_no = (String) session.getAttribute("user");
 <%@page import="org.oscarehr.billing.CA.dao.BillActivityDao" %>
 <%@page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
 <%@page import="oscar.util.ConversionUtils" %>
+<%@ page import="oscar.oscarBilling.ca.on.data.JdbcBillingCreateBillingFile" %>
 
 <%
 	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
@@ -79,20 +80,11 @@ if (thisyear.compareTo(yearArray[2])==0) yearColor="#CCCCCC";
 if (thisyear.compareTo(yearArray[3])==0) yearColor="#DDDDDD";
 if (thisyear.compareTo(yearArray[4])==0) yearColor="#EEEEEE";
 
-String monthCode = "";
-if (curMonth == 1) monthCode = "A";
-if (curMonth == 2) monthCode = "B";
-if (curMonth == 3) monthCode = "C";
-if (curMonth == 4) monthCode = "D";
-if (curMonth == 5) monthCode = "E";
-if (curMonth == 6) monthCode = "F";
-if (curMonth == 7) monthCode = "G";
-if (curMonth == 8) monthCode = "H";
-if (curMonth == 9) monthCode = "I";
-if (curMonth == 10) monthCode = "J";
-if (curMonth == 11) monthCode = "K";
-if (curMonth == 12) monthCode = "L";
-String ohipdownload = oscarVariables.getProperty("HOME_DIR") ;;
+String[] monthCodes = new String[] { "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L" };
+String monthCode;
+try { monthCode = monthCodes[curMonth - 1];
+} catch (IndexOutOfBoundsException e) { monthCode = ""; }
+String ohipdownload = JdbcBillingCreateBillingFile.getOHIPBillingFolder();
 session.setAttribute("ohipdownload", ohipdownload);
 %>
 <html>

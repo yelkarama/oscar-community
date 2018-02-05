@@ -47,6 +47,7 @@ import oscar.OscarProperties;
 import oscar.entities.Billingmaster;
 import oscar.oscarBilling.ca.bc.data.BillingHistoryDAO;
 import oscar.oscarBilling.ca.bc.data.BillingmasterDAO;
+import oscar.oscarBilling.ca.on.data.JdbcBillingCreateBillingFile;
 import oscar.util.ConversionUtils;
 
 
@@ -327,7 +328,7 @@ public class ExtractBean extends Object implements Serializable {
 
     public void writeFile(String value1){
         try{
-            String home_dir = OscarProperties.getInstance().getProperty("HOME_DIR");
+            String home_dir = JdbcBillingCreateBillingFile.getOHIPBillingFolder();
 
             FileOutputStream out = new FileOutputStream(home_dir+ ohipFilename);
             PrintStream p = new PrintStream(out);
@@ -341,7 +342,7 @@ public class ExtractBean extends Object implements Serializable {
     public void writeHtml(String htmlvalue1){
       if (eFlag.equals("1")) {
         try{
-            String home_dir = OscarProperties.getInstance().getProperty("HOME_DIR");
+            String home_dir = JdbcBillingCreateBillingFile.getOHIPBillingFolder();
             FileOutputStream out = new FileOutputStream(home_dir+htmlFilename);
             PrintStream p = new PrintStream(out);
             p.println(htmlvalue1);

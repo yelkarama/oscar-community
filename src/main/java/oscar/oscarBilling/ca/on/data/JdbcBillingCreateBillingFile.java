@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.RandomAccessFile;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -899,10 +901,12 @@ public class JdbcBillingCreateBillingFile {
 		return returnValue;
 	}
 
-	// readin billingNo 
 	public void readInBillingNo() {
-		String home_dir;
-		home_dir = OscarProperties.getInstance().getProperty("HOME_DIR");
+		String year = Integer.toString(GregorianCalendar.getInstance().get(java.util.Calendar.YEAR));
+		readInBillingNo(year);
+	}
+	public void readInBillingNo(String year) {
+		String home_dir = getOHIPBillingFolder(year);
 		propBillingNo = new Properties();
 		RandomAccessFile raf=null;
 		try {
@@ -914,7 +918,7 @@ public class JdbcBillingCreateBillingFile {
 				}
 				if (lineValue.startsWith("HEH")) {
 					// consider different cases
-					String bNo = "-1";
+					String bNo;
 					if (lineValue.length() == 79 && lineValue.substring(31, 34).matches("HCP|WCB|RMB")) {
 						bNo = lineValue.substring(23, 31);
 					} else {
@@ -926,7 +930,6 @@ public class JdbcBillingCreateBillingFile {
 					}
 
 					bNo = "" + Integer.parseInt(bNo);
-
 					propBillingNo.setProperty(bNo, "");
 				}
 			} while (true);
@@ -944,10 +947,12 @@ public class JdbcBillingCreateBillingFile {
 		}
 	}
 
-	// rename OHIP file 
 	public void renameFile() {
-		String home_dir;
-		home_dir = OscarProperties.getInstance().getProperty("HOME_DIR");
+		String year = Integer.toString(GregorianCalendar.getInstance().get(java.util.Calendar.YEAR));
+		renameFile(year);
+	}
+	public void renameFile(String year) {
+		String home_dir = getOHIPBillingFolder(year);
 		File file = new File(home_dir + ohipFilename);
 
 		// new filename
@@ -961,11 +966,16 @@ public class JdbcBillingCreateBillingFile {
 		}
 	}
 
-	// write OHIP file to it
 	public void writeFile(String value1) {
+		String year = Integer.toString(GregorianCalendar.getInstance().get(java.util.Calendar.YEAR));
+		writeFile(value1, year);
+	}
+	public void writeFile(String value1, String year) {
 		try {
-			String home_dir;
-			home_dir = OscarProperties.getInstance().getProperty("HOME_DIR");
+			String home_dir = getOHIPBillingFolder(year);
+			File directory = new File(home_dir);
+			if (!directory.exists()) { directory.mkdir(); }
+
 			FileOutputStream out = new FileOutputStream(home_dir + ohipFilename);
 			PrintStream p = new PrintStream(out);
 			p.print(value1);
@@ -977,19 +987,20 @@ public class JdbcBillingCreateBillingFile {
 		}
 	}
 
-	// get path from the property file, e.g.
-	// OscarDocument/.../billing/download/, and then write to it
-	public void writeHtml(String htmlvalue1) {
+	public void writeHtml(String htmlValue) {
+		String year = Integer.toString(GregorianCalendar.getInstance().get(java.util.Calendar.YEAR));
+		writeHtml(htmlValue, year);
+	}
+	public void writeHtml(String htmlValue, String year) {
 		try {
-			String home_dir1;
-			home_dir1 = OscarProperties.getInstance().getProperty("HOME_DIR");
+			String home_dir = getOHIPBillingFolder(year);
 
-			FileOutputStream out1 = new FileOutputStream(home_dir1 + htmlFilename);
-			PrintStream p1 = new PrintStream(out1);
-			p1.println(htmlvalue1);
+			FileOutputStream out = new FileOutputStream(home_dir + htmlFilename);
+			PrintStream printStream = new PrintStream(out);
+            printStream.println(htmlValue);
 
-			p1.close();
-			out1.close();
+            printStream.close();
+			out.close();
 		} catch (Exception e) {
 			_logger.error("Write HTML File Error!!!",e);
 		}
@@ -1086,4 +1097,52 @@ public class JdbcBillingCreateBillingFile {
 		this.htmlContent = htmlContent;
 	}
 
+    public static String getOHIPBillingFolder() {
+        return getOHIPBillingFolder(String.valueOf(GregorianCalendar.getInstance().get(java.util.Calendar.YEAR)));
+    }
+	public static String getOHIPBillingFolder(String year) {
+        return OscarProperties.getInstance().getProperty("HOME_DIR") + year + "/";
+    }
+	
+    public static void migrateOHIPFilesToYearFolders() {
+        if (!new File(OscarProperties.getInstance().getProperty("HOME_DIR") + "filesMigrated").exists()) {
+            BillingONFilenameDao billingONFilenameDao = SpringUtils.getBean(BillingONFilenameDao.class);
+            BillingONDiskNameDao billingONDiskNameDao = SpringUtils.getBean(BillingONDiskNameDao.class);
+            File downloadFolder = new File(OscarProperties.getInstance().getProperty("HOME_DIR"));
+            File[] files = downloadFolder.listFiles();
+            for (File file : files) {
+                try {
+                    if (file.isFile()) {
+                        if (file.getName().endsWith(".html")) {
+                            BillingONFilename matchedFile = billingONFilenameDao.findByFilename(file.getName());
+                            if (matchedFile != null) {
+                                String fileYear = matchedFile.getTimestamp().toString().substring(0, 4);
+                                File directory = new File(downloadFolder.getPath() + "/" + fileYear);
+                                Files.createDirectories(directory.toPath());
+                                directory.setReadable(true, false);
+                                directory.setWritable(true, false);
+                                directory.setExecutable(true, false);
+                                File newLocation = new File(directory.getPath() + "/" + matchedFile.getHtmlFilename());
+                                Files.move(file.toPath(), newLocation.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                            }
+                        } else {
+                            BillingONDiskName matchedFile = billingONDiskNameDao.findLatestByOhipFilename(file.getName());
+                            if (matchedFile != null) {
+                                String fileYear = matchedFile.getTimestamp().toString().substring(0, 4);
+                                File directory = new File(downloadFolder.getPath() + "/" + fileYear);
+                                Files.createDirectories(directory.toPath());
+                                directory.setReadable(true, false);
+                                directory.setWritable(true, false);
+                                directory.setExecutable(true, false);
+                                File newLocation = new File(directory.getPath() + "/" + matchedFile.getOhipFilename());
+                                Files.move(file.toPath(), newLocation.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                            }
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 }

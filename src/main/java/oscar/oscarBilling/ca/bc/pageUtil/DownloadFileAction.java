@@ -36,6 +36,7 @@ import org.apache.struts.actions.DownloadAction;
 import org.oscarehr.util.MiscUtils;
 
 import oscar.OscarProperties;
+import oscar.oscarBilling.ca.on.data.JdbcBillingCreateBillingFile;
 
 
 /**
@@ -56,7 +57,7 @@ public class DownloadFileAction extends DownloadAction{
         //TODO:NEED TO CHECK TO SEE IF THEY HAVE admin or admin.billing privies
         
         String contentType = "application/octet-stream";
-        String home_dir = OscarProperties.getInstance().getProperty("HOME_DIR");
+        String home_dir = JdbcBillingCreateBillingFile.getOHIPBillingFolder();
         String fileName = request.getParameter("filename");
         
         response.setHeader("Content-disposition", 

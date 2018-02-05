@@ -45,6 +45,7 @@ import ca.ontario.health.edt.DetailData;
 import ca.ontario.health.edt.EDTDelegate;
 import ca.ontario.health.edt.ResourceStatus;
 import ca.ontario.health.edt.TypeListResult;
+import oscar.oscarBilling.ca.on.data.JdbcBillingCreateBillingFile;
 
 
 public class ResourceAction extends DispatchAction {
@@ -54,6 +55,8 @@ public class ResourceAction extends DispatchAction {
 	@Override
 	public ActionForward unspecified(ActionMapping mapping, ActionForm form, HttpServletRequest request, 
 			HttpServletResponse response) throws Exception {
+        // Migrate generated OHIP files if they have not already
+        JdbcBillingCreateBillingFile.migrateOHIPFilesToYearFolders();
 		
 		//functions needed for the upload page
 		ActionUtils.removeSuccessfulUploads(request);
