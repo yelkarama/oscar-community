@@ -127,6 +127,8 @@ import oscar.SxmlMisc;
 import oscar.appt.ApptStatusData;
 import oscar.dms.EDoc;
 import oscar.dms.EDocUtil;
+import oscar.log.LogAction;
+import oscar.log.LogConst;
 import oscar.oscarClinic.ClinicData;
 import oscar.oscarDemographic.data.DemographicData;
 import oscar.oscarDemographic.data.DemographicRelationship;
@@ -192,6 +194,7 @@ public class DemographicExportAction4 extends Action {
 	Integer exportNo = 0;
 	ArrayList<String> exportError = null;
 	HashMap<String, Integer> entries = new HashMap<String, Integer>();
+	List<String> auditLog = new ArrayList<String>();
 	OscarProperties oscarProperties = OscarProperties.getInstance();
 
 	@Override
@@ -207,6 +210,10 @@ public class DemographicExportAction4 extends Action {
 		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_demographicExport", "r", null)) {
 			throw new SecurityException("missing required security object (_demographicExport)");
 		}
+		auditLog.add("PROVIDER providerNo=" + loggedInInfo.getLoggedInProviderNo() 
+				+ ", lastName=" + loggedInInfo.getLoggedInProvider().getLastName() 
+				+ ", firstName=" + loggedInInfo.getLoggedInProvider().getFirstName()
+				+ " PERFORMING EXPORT");
 		
 		DemographicExportForm defrm = (DemographicExportForm)form;
 		String demographicNo = defrm.getDemographicNo();
@@ -315,11 +322,13 @@ public class DemographicExportAction4 extends Action {
 
 			// DEMOGRAPHICS
 			DemographicData d = new DemographicData();
-
+			auditLog.add("\r\n");
+			auditLog.add("READ demographic: demographicNo=" + demoNo + ", lastName=" + demographic.getLastName() + ", firstName=" + demographic.getFirstName());
 			if (demographic.getPatientStatus()!=null && demographic.getPatientStatus().equals("Contact-only")) continue;
 
 			HashMap<String,String> demoExt = new HashMap<String,String>();
 			demoExt.putAll(demographicExtDao.getAllValuesForDemo(Integer.parseInt(demoNo)));
+			auditLog.add("READ demographicExt: demographicNo=" + demoNo);
 
 			OmdCdsDocument omdCdsDoc = OmdCdsDocument.Factory.newInstance();
 			OmdCdsDocument.OmdCds omdCds = omdCdsDoc.addNewOmdCds();
@@ -440,6 +449,7 @@ public class DemographicExportAction4 extends Action {
 
 			//Enrolment Status history
 			List<DemographicArchive> DAs = demoArchiveDao.findRosterStatusHistoryByDemographicNo(Integer.valueOf(demoNo));
+			auditLog.add("READ demographicArchive: demographicNo=" + demoNo);
 			String historyRS, historyRS1, historyProviderNo;
 			Date historyRD, historyRD1, historyTD, historyTD1;
 			for (int i=0; i<DAs.size(); i++) {
@@ -631,12 +641,15 @@ public class DemographicExportAction4 extends Action {
 			}
 
 			List<CaseManagementNote> lcmn = cmm.getNotes(demoNo);
+			auditLog.add("READ casemgmt_note: demographicNo=" + demoNo);
 
 			//find all "header"; cms4 only
 			List<CaseManagementNote> headers = new ArrayList<CaseManagementNote>();
 			for (CaseManagementNote cmn : lcmn) {
-				if (cmn.getNote()!=null && cmn.getNote().startsWith("imported.cms5.2017.06") && cmm.getLinkByNote(cmn.getId()).isEmpty())
+				if (cmn.getNote()!=null && cmn.getNote().startsWith("imported.cms5.2017.06") && cmm.getLinkByNote(cmn.getId()).isEmpty()) {
+					auditLog.add("READ CaseManagementNoteLink: noteId=" + cmn.getId());
 					headers.add(cmn);
+				}
 			}
 
 			for (CaseManagementNote cmn : lcmn) {
@@ -678,6 +691,7 @@ public class DemographicExportAction4 extends Action {
 
 				annotation = getNonDumpNote(CaseManagementNoteLink.CASEMGMTNOTE, cmn.getId(), null);
 				List<CaseManagementNoteExt> cmeList = cmm.getExtByNote(cmn.getId());
+				auditLog.add("READ CaseManagementNoteExt: noteId=" + cmn.getId());
 
 				if (exPersonalHistory) {
 					// PERSONAL HISTORY (SocHistory)
@@ -1053,6 +1067,7 @@ public class DemographicExportAction4 extends Action {
 						}
 
 						List<CaseManagementNote> cmn_same = cmm.getNotesByUUID(cmn.getUuid());
+						auditLog.add("READ CaseManagementNote: uuid=" + cmn.getUuid());
 						for (CaseManagementNote cm_note : cmn_same) {
 
 							//participating providers
@@ -1598,9 +1613,11 @@ public class DemographicExportAction4 extends Action {
 				
 				//get lab readings from hl7 tables
 				List<Object[]> infos = hl7TxtInfoDao.findByDemographicId(Integer.valueOf(demoNo));
+				auditLog.add("READ hl7TextInfo: demographicNo=" + demoNo);
 				for (Object[] info : infos) {
 					Hl7TextInfo hl7TxtInfo = (Hl7TextInfo)info[0];
 					Hl7TextMessage hl7TextMessage = hl7TxtMssgDao.find(hl7TxtInfo.getLabNumber());
+					auditLog.add("READ hl7TextMessage: lab_id=" + hl7TxtInfo.getLabNumber());
 					if (hl7TextMessage==null) continue;
 					
 					String hl7Body = new String(Base64.decodeBase64(hl7TextMessage.getBase64EncodedeMessage()));
@@ -1699,6 +1716,7 @@ public class DemographicExportAction4 extends Action {
 				// APPOINTMENTS
 				OscarAppointmentDao appointmentDao = SpringUtils.getBean(OscarAppointmentDao.class);
 				List<Object[]> results = appointmentDao.export_appt(Integer.parseInt(demoNo));
+				auditLog.add("READ appointment: demographicNo=" + demoNo);
 				Appointment ap = null;
 				for (int j=0; j<results.size(); j++) {
 					ap = (Appointment)results.get(j)[0];
@@ -1841,9 +1859,11 @@ public class DemographicExportAction4 extends Action {
 
 				//HRM reports
 				List<HRMDocumentToDemographic> hrmDocToDemographics = hrmDocToDemographicDao.findByDemographicNo(demoNo);
+				auditLog.add("READ HRMDocumentToDemographic: demographicNo=" + demoNo);
 				for (HRMDocumentToDemographic hrmDocToDemographic : hrmDocToDemographics) {
 					String hrmDocumentId = String.valueOf(hrmDocToDemographic.getHrmDocumentId());
 					List<HRMDocument> hrmDocs = hrmDocDao.findById(Integer.valueOf(hrmDocumentId));
+					auditLog.add("READ HRMDocument: id=" + hrmDocumentId);
 					for (HRMDocument hrmDoc : hrmDocs) {
 						String reportFile = hrmDoc.getReportFile();
 						if (StringUtils.empty(reportFile)) continue;
@@ -1970,6 +1990,7 @@ public class DemographicExportAction4 extends Action {
 
 							//Notes
 							List<HRMDocumentComment> comments = hrmDocCommentDao.getCommentsForDocument(Integer.parseInt(hrmDocumentId));
+							auditLog.add("READ HRMDocumentComment: hrmDocumentId=" + hrmDocumentId);
 							String notes = null;
 							for (HRMDocumentComment comment : comments) {
 								notes = Util.addLine(notes, comment.getComment());
@@ -2014,6 +2035,7 @@ public class DemographicExportAction4 extends Action {
 			if (exCareElements) {
 				//CARE ELEMENTS
 				List<Measurements> measList = ImportExportMeasurements.getMeasurements(demoNo);
+				auditLog.add("READ measurements: demographicId=" + demoNo);
 				CareElements careElm = null;
 				if (measList.size()>0) careElm = patientRec.addNewCareElements();
 				for (Measurements meas : measList) {
@@ -2225,6 +2247,15 @@ public class DemographicExportAction4 extends Action {
 	//create ReadMe.txt & ExportEvent.log
 		files.add(makeReadMe(files));
 		files.add(makeExportLog(files.get(0).getParentFile()));
+		File auditLogFile = new File(files.get(0).getParentFile(), "AuditLog.log");
+		BufferedWriter auditWriter = new BufferedWriter(new FileWriter(auditLogFile));
+		for (String line : auditLog) {
+			auditWriter.write(line);
+			auditWriter.write("\r\n");
+		}
+		auditWriter.newLine();
+		auditWriter.close();
+		files.add(auditLogFile);
 
 	//zip all export files
 		String zipName = files.get(0).getName().replace(".xml", ".zip");
@@ -2286,6 +2317,7 @@ public class DemographicExportAction4 extends Action {
 			
 			DemographicExport export = demographicExportDao.saveEntity(demographicExport);
 			documentExportId = export.getId();
+			auditLog.add("WRITE sharing_document_export: id=" + documentExportId);
 		}
 
 		//Remove zip & export files from temp dir
@@ -2592,13 +2624,17 @@ public class DemographicExportAction4 extends Action {
 		String note = null;
 
 		List<CaseManagementNoteLink> cmll;
-		if (StringUtils.empty(otherId))
+		if (StringUtils.empty(otherId)) {
 			cmll = cmm.getLinkByTableIdDesc(tableName, tableId);
-		else
+			auditLog.add("READ CaseManagementNoteLink: tableName=" + tableName + ", tableId=" + tableId);
+		} else {
 			cmll = cmm.getLinkByTableIdDesc(tableName, tableId, otherId);
+			auditLog.add("READ CaseManagementNoteLink: tableName=" + tableName + ", tableId=" + tableId + ", tableId=" + otherId);
+		}
 
 		for (CaseManagementNoteLink cml : cmll) {
 			CaseManagementNote n = cmm.getNote(cml.getNoteId().toString());
+			auditLog.add("READ CaseManagementNote: noteId=" + cml.getNoteId());
 			if (n.getNote()!=null && !n.getNote().startsWith("imported.cms5.2017.06")) {//not from dumpsite
 				note = n.getNote();
 				break;
@@ -2628,6 +2664,7 @@ public class DemographicExportAction4 extends Action {
 
 	private void addDemographicContacts(LoggedInInfo loggedInInfo, String demoNo, Demographics demo) {
 		List<DemographicContact> demoContacts = contactDao.findByDemographicNo(Integer.valueOf(demoNo));
+		auditLog.add("READ DemographicContact: demographicNo=" + demoNo + ", deleted=false");
 		DemographicContact demoContact;
 
 	LoopContacts:
@@ -2753,6 +2790,7 @@ public class DemographicExportAction4 extends Action {
 		org.oscarehr.common.model.Demographic relDemo = new DemographicData().getDemographic(loggedInInfo, contactId);
 		HashMap<String,String> relDemoExt = new HashMap<String,String>();
 		relDemoExt.putAll(demographicExtDao.getAllValuesForDemo(Integer.parseInt(contactId)));
+		auditLog.add("READ DemographicExt: demographicNo=" + contactId);
 
 		Util.writeNameSimple(contact.addNewName(), relDemo.getFirstName(), relDemo.getLastName());
 		if (StringUtils.empty(relDemo.getFirstName())) {
@@ -3078,19 +3116,22 @@ public class DemographicExportAction4 extends Action {
 				labRoutingInfo.putAll(ProviderLabRouting.getInfo(lab_no, "HL7"));
 			else
 				labRoutingInfo.putAll(ProviderLabRouting.getInfo(lab_no, "CML"));
+			if (!labRoutingInfo.isEmpty()) {
+				String timestamp = labRoutingInfo.get("timestamp").toString();
+				if (UtilDateUtilities.StringToDate(timestamp, "yyyy-MM-dd HH:mm:ss") != null) {
+					LaboratoryResults.ResultReviewer reviewer = labResults.addNewResultReviewer();
+					reviewer.addNewDateTimeResultReviewed().setFullDateTime(Util.calDate(timestamp));
 
-			String timestamp = labRoutingInfo.get("timestamp").toString();
-			if (UtilDateUtilities.StringToDate(timestamp,"yyyy-MM-dd HH:mm:ss")!=null) {
-				LaboratoryResults.ResultReviewer reviewer = labResults.addNewResultReviewer();
-				reviewer.addNewDateTimeResultReviewed().setFullDateTime(Util.calDate(timestamp));
-
-				//reviewer name
-				cdsDt.PersonNameSimple reviewerName = reviewer.addNewName();
-				String lab_provider_no = (String)labRoutingInfo.get("provider_no");
-				if (!"0".equals(lab_provider_no)) {
-					ProviderData pvd = new ProviderData(lab_provider_no);
-					Util.writeNameSimple(reviewerName, pvd.getFirst_name(), pvd.getLast_name());
-					if (StringUtils.noNull(pvd.getOhip_no()).length()<=6) reviewer.setOHIPPhysicianId(pvd.getOhip_no());
+					//reviewer name
+					cdsDt.PersonNameSimple reviewerName = reviewer.addNewName();
+					String lab_provider_no = (String) labRoutingInfo.get("provider_no");
+					if (!"0".equals(lab_provider_no)) {
+						ProviderData pvd = new ProviderData(lab_provider_no);
+						Util.writeNameSimple(reviewerName, pvd.getFirst_name(), pvd.getLast_name());
+						if (StringUtils.noNull(pvd.getOhip_no()).length() <= 6) {
+                            reviewer.setOHIPPhysicianId(pvd.getOhip_no());
+                        }
+					}
 				}
 			}
 		}
