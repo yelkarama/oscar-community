@@ -57,9 +57,11 @@ import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.FaxConfigDao;
 import org.oscarehr.common.dao.FaxJobDao;
 import org.oscarehr.common.dao.RxManageDao;
+import org.oscarehr.common.dao.UserPropertyDAO;
 import org.oscarehr.common.model.FaxConfig;
 import org.oscarehr.common.model.FaxJob;
 import org.oscarehr.common.model.RxManage;
+import org.oscarehr.common.model.UserProperty;
 import org.oscarehr.common.printing.FontSettings;
 import org.oscarehr.common.printing.PdfWriterFactory;
 import org.oscarehr.util.LocaleUtils;
@@ -138,30 +140,32 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 			                FaxConfigDao faxConfigDao = SpringUtils.getBean(FaxConfigDao.class);
 			                List<FaxConfig> faxConfigs = faxConfigDao.findAll(null, null);
 			                String provider_no = LoggedInInfo.getLoggedInInfoFromSession(req).getLoggedInProviderNo();
-			                FaxJob faxJob;
+			                UserPropertyDAO userPropertyDAO = SpringUtils.getBean(UserPropertyDAO.class);
+			                UserProperty faxPreference = userPropertyDAO.getProp(provider_no, "faxnumber");
+			                FaxJob faxJob = new FaxJob();
+			                faxJob.setDestination(faxNo);
+			                faxJob.setFax_line(faxNumber);
+			                faxJob.setFile_name(pdfFile);
+			                PdfReader pdfReader = new PdfReader(path+pdfFile);
+			                faxJob.setNumPages(pdfReader.getNumberOfPages());
+			                faxJob.setStamp(new Date());
+			                faxJob.setStatus(FaxJob.STATUS.SENT);
+			                faxJob.setOscarUser(provider_no);
+			                faxJob.setDemographicNo(Integer.parseInt(demo));
 			                boolean validFaxNumber = false;
 			                
-			                for( FaxConfig faxConfig : faxConfigs ) {
-			                	
-			                	if( faxConfig.getFaxNumber().equals(faxNumber) ) {
-			                		
-			                		PdfReader pdfReader = new PdfReader(path+pdfFile);
-			                		
-			                		faxJob = new FaxJob();
-			                		faxJob.setDestination(faxNo);
-			                		faxJob.setFax_line(faxNumber);
-			                		faxJob.setFile_name(pdfFile);
-			                		faxJob.setUser(faxConfig.getFaxUser());
-			                		faxJob.setNumPages(pdfReader.getNumberOfPages());
-			                		faxJob.setStamp(new Date());
-			                		faxJob.setStatus(FaxJob.STATUS.SENT);
-			                		faxJob.setOscarUser(provider_no);
-			                		faxJob.setDemographicNo(Integer.parseInt(demo));
-			                		
-			                		faxJobDao.persist(faxJob);
-			                		validFaxNumber = true;
-			                		break;
-			                		
+			                if (faxPreference != null && faxPreference.getValue().replaceAll("-", "").equals(faxNumber)) {
+			                	faxJob.setUser(LoggedInInfo.getLoggedInInfoFromSession(req).getLoggedInProvider().getFormattedName());
+			                	faxJobDao.persist(faxJob);
+			                	validFaxNumber = true;
+			                } else {
+			                	for (FaxConfig faxConfig : faxConfigs) {
+			                		if (faxConfig.getFaxNumber().equals(faxNumber)) {
+			                			faxJob.setUser(faxConfig.getFaxUser());
+			                			faxJobDao.persist(faxJob);
+			                			validFaxNumber = true;
+			                			break;
+			                		}
 			                	}
 			                }
 			                

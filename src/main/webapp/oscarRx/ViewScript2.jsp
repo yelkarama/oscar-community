@@ -87,6 +87,7 @@
 <c:set var="ctx" value="${pageContext.request.contextPath}" />
 <%
 oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBean)pageContext.findAttribute("bean");
+UserProperty preferenceFaxNo = userPropertyDAO.getProp(bean.getProviderNo(), "faxnumber");
 
 Vector vecPageSizes=new Vector();
 vecPageSizes.add("A4 page");
@@ -148,7 +149,16 @@ if(bMultisites) {
 	for (int i=0;i<sites.size();i++) {
 		Site s = sites.get(i);
         vecAddressName.add(s.getName());
-        vecAddress.add("<b>"+doctorName+"</b><br>"+s.getFullName()+"<br>"+s.getAddress() + "<br>" + s.getCity() + ", " + s.getProvince() + " " + s.getPostal() + "<br>"+rb.getString("RxPreview.msgTel")+": " + s.getPhone() + "<br>"+rb.getString("RxPreview.msgFax")+": " + s.getFax());
+        String faxNo = s.getFax();
+        if (preferenceFaxNo != null && !preferenceFaxNo.getValue().isEmpty()) {
+            faxNo = preferenceFaxNo.getValue().replaceAll("-", "");
+		}
+		String phoneNo = s.getPhone();
+		UserProperty userPhoneNo = userPropertyDAO.getProp(provider.getProviderNo(), "rxPhone");
+		if (userPhoneNo != null && !userPhoneNo.getValue().isEmpty()) {
+			phoneNo = userPhoneNo.getValue().replaceAll("-", "");
+		}
+        vecAddress.add("<b>"+doctorName+"</b><br>"+s.getFullName()+"<br>"+s.getAddress() + "<br>" + s.getCity() + ", " + s.getProvince() + " " + s.getPostal() + "<br>"+rb.getString("RxPreview.msgTel")+": " + phoneNo + "<br>"+rb.getString("RxPreview.msgFax")+": " + faxNo);
         if (s.getName().equals(location))
         	session.setAttribute("RX_ADDR",String.valueOf(i));
 	}
@@ -727,13 +737,12 @@ function toggleView(form) {
                                     
                                  <span>
                                  	<select id="faxNumber" name="faxNumber">
-                                 	<%
-                                 		for( FaxConfig faxConfig : faxConfigs ) {
-                                 	%>
+                                 	<%	if (preferenceFaxNo != null && !preferenceFaxNo.getValue().isEmpty()) { %>
+                                 			<option value="<%=preferenceFaxNo.getValue().replaceAll("-", "")%>">Preferred Fax Number</option>
+                                 	<%	}
+                                 		for( FaxConfig faxConfig : faxConfigs ) { %>
                                  			<option value="<%=faxConfig.getFaxNumber()%>"><%=faxConfig.getFaxUser()%></option>
-                                 	<%	    
-                                 		}                                 	
-                                 	%>
+                                 	<%	} %>
                                  	</select>
                                  </span>
                            </td>
