@@ -241,6 +241,7 @@
 			String family_doctor = "";
 			String roster_status = "";
 			String referSpet = "";
+			String demoFullHIN = "";
 			// last_name,first_name,dob,hin,ver,hc_type,sex,family_doctor
 			JdbcBillingPageUtil tdbObj = new JdbcBillingPageUtil();
 			List demoL = tdbObj.getPatientCurBillingDemographic(loggedInInfo, demo_no);
@@ -253,6 +254,10 @@
 				demoDOB = (String)demoL.get(2);
 				demoHIN = (String)demoL.get(3); //rs.getString("hin");
 				demoVer = (String)demoL.get(4); //rs.getString("ver");
+				demoFullHIN = demoHIN;
+				if (demoVer != null && !demoVer.trim().isEmpty()) {
+				    demoFullHIN +=  " " + demoVer;
+				}
 				demoHCTYPE = (String)demoL.get(5); //rs.getString("hc_type") == null ? "" : rs.getString("hc_type");
 				demoSex = (String)demoL.get(6); //rs.getString("sex");
 				family_doctor = (String)demoL.get(7);
@@ -1486,6 +1491,8 @@ if(checkFlag == null) checkFlag = "0";
 									<input type="text" name="service_date" readonly size="10" maxlength="10" style="width: 80px;"
 										   value="<%=standardDateFormat.format(standardDateFormat.parse(request.getParameter("appointment_date")))%>"/> 
 								<%}%>
+								<br/>
+								<a href="#" onclick="popup(500, 500, '/CardSwipe/?hc=<%=demoFullHIN.replace("null", "")%>&providerNo=<%=StringUtils.trimToEmpty(loggedInInfo.getLoggedInProviderNo())%>', 'Card Swipe'); return false;" style="float:left; font-weight: bold; padding-right: 5px;"><%=demoFullHIN%></a>
 							</td>
 							<%
                                                               String warningStyle = "";
