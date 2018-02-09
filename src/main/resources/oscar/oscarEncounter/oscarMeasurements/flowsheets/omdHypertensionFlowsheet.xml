@@ -222,4 +222,9 @@
     <measurement type="WAIS" typeDesc="Waist" typeDisplayName="Waist" measuringInstrc="Waist Circum in cm">
         <validationRule name="Numeric Value: 0 to 300" maxValue="300" minValue="0" isNumeric="1" />
     </measurement>
+
+    <item measurement_type="UMS" display_name="Urinary Microalbumin Screen" guideline="" graphable="no" value_name="UMS" />
+    <measurement type="UMS" typeDesc="Records the value of the Urinary Microalbumin test" typeDisplayName="Urinary Microalbumin Screen" measuringInstrc="mg/L">
+        <validationRule name="Numeric Value: 0 to 500" maxValue="500" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
+    </measurement>
 </flowsheet>

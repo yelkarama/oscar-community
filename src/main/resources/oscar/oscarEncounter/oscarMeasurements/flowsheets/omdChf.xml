@@ -345,6 +345,10 @@
     <item measurement_type="CASA" display_name="Consider ASA" guideline="" graphable="no" value_name="Considered" />
     <measurement type="CASA" typeDesc="Consider ASA" typeDisplayName="Consider ASA" measuringInstrc="">
         <validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
-    </measurement> 
- 
+    </measurement>
+
+    <item measurement_type="WHEZ" display_name="Wheezing" guideline="Records whether the patient is wheezing or not, record location in comments" graphable="no" value_name="Wheezing" />
+    <measurement type="WHEZ" typeDesc="Records whether the patient is wheezing or not, record location in comments" typeDisplayName="Wheezing" measuringInstrc="Record location in comments">
+        <validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
+    </measurement>
 </flowsheet>
