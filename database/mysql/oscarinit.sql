@@ -12550,7 +12550,7 @@ CREATE TABLE form_drawing_tool_image (
   PRIMARY KEY (`ID`)
 );
 
-CREATE TABLE IF NOT EXISTS systemPreferences
+CREATE TABLE IF NOT EXISTS SystemPreferences
 (
   id         INT AUTO_INCREMENT
     PRIMARY KEY,
