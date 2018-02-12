@@ -1171,13 +1171,14 @@ if(wLReadonly.equals("")){
 			</tr>
     <% UserProperty enhancedOrClassic = pref.getProp(curProvider_no, UserProperty.ENHANCED_OR_CLASSIC); %>
 	<security:oscarSec roleName="<%=roleName$%>" objectName="_billing,_demographic.createInvoice" rights="w" reverse="false">
+		<% if (enhancedOrClassic != null && enhancedOrClassic.getValue() != null && enhancedOrClassic.getValue().equals("C")) { %>
 			<tr>
 				<td><a
 					href="javascript: function myFunction() {return false; }"
 					onClick="popupPage(700, 1000, '../billing.do?billRegion=<%=URLEncoder.encode(prov)%>&billForm=<%=URLEncoder.encode(oscarVariables.getProperty("default_view"))%>&hotclick=&appointment_no=<%=(appointment!=null?appointment:"0")%>&demographic_name=<%=URLEncoder.encode(demographic.getLastName())%>%2C<%=URLEncoder.encode(demographic.getFirstName())%>&demographic_no=<%=demographic.getDemographicNo()%>&providerview=<%=demographic.getProviderNo()%>&user_no=<%=curProvider_no%>&apptProvider_no=none&appointment_date=<%=dateString%>&start_time=00:00:00&bNewForm=1&status=t');return false;"
 					title="<bean:message key="demographic.demographiceditdemographic.msgBillPatient"/>"><bean:message key="demographic.demographiceditdemographic.msgCreateInvoice"/></a></td>
 			</tr>
-<%
+<% 		}
 	if (OscarProperties.getInstance().getBooleanProperty("new_billing", "true") && enhancedOrClassic != null && enhancedOrClassic.getValue() != null && enhancedOrClassic.getValue().equals("E")) { %>
 	<tr>
 		<td>
