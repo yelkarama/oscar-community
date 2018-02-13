@@ -1323,8 +1323,15 @@ function changeLt(drugId, isLongTerm){
     }
 
     function showSpecialInstructionResults(rand){
-        var ss = $('siInput_' + rand).value;
-        if(ss.length === 0 || trim(ss).length === 0) {
+        var hideContainer = false;
+        for (var i in $('siContainer_' + rand).children) {
+            if ($('siContainer_' + rand).children[i].className === "yui-ac-content" && $('siContainer_' + rand).children[i].style.display === "none") {
+                hideContainer = true;
+                break;
+            }
+        }
+
+        if(hideContainer) {
             $('siContainer_' + rand).setStyle({height:'0%'});
         } else {
             $('siContainer_' + rand).setStyle({height: '100%'});
