@@ -73,6 +73,8 @@ public class HRMModifyDocumentAction extends DispatchAction {
 				return deleteComment(mapping, form, request, response);
 			else if (method.equalsIgnoreCase("setDescription"))
 				return setDescription(mapping, form, request, response);
+			else if (method.equalsIgnoreCase("updateCategory"))
+				return updateCategory(mapping, form, request, response);
 		}
 
 		return mapping.findForward("ajax");
@@ -407,6 +409,33 @@ public class HRMModifyDocumentAction extends DispatchAction {
 			request.setAttribute("success", false);
 		}
 		
+		return mapping.findForward("ajax");
+	}
+
+	public ActionForward updateCategory(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+		String hrmDocumentId = request.getParameter("reportId");
+
+		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_hrm", "w", null)) {
+			throw new SecurityException("missing required security object (_hrm)");
+		}
+
+		try {
+			try {
+				Integer categoryId = Integer.valueOf(request.getParameter("categoryId"));
+				HRMDocument document = hrmDocumentDao.find(Integer.parseInt(hrmDocumentId));
+				if(document != null) {
+					document.setHrmCategoryId(categoryId);
+					hrmDocumentDao.merge(document);
+				}
+			} catch (Exception e) {
+				// Do nothing
+			}
+			request.setAttribute("success", true);
+		} catch (Exception e) {
+			MiscUtils.getLogger().error("Tried to assign HRM document to category but failed.", e);
+			request.setAttribute("success", false);
+		}
+
 		return mapping.findForward("ajax");
 	}
 	

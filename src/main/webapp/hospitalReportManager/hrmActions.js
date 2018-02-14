@@ -176,3 +176,31 @@ function signOffHrm(reportId, view) {
 function revokeSignOffHrm(reportId) {
     doSignOff(reportId, false);
 }
+
+function editCategory(reportId) {
+    $('chooseCategory_' + reportId).show();
+    $('showCategory_' + reportId).hide();
+}
+
+function updateCategory(reportId) {
+    var categoryId = $('selectedCategory_' + reportId).value;
+    var categoryName = $('selectedCategory_' + reportId).options[$('selectedCategory_' + reportId).selectedIndex].text;
+    if (categoryId) {
+        jQuery.ajax({
+            type: "POST",
+            url:  contextpath +"/hospitalReportManager/Modify.do",
+            data: "method=updateCategory&reportId=" + reportId + "&categoryId=" + categoryId,
+            success: function(data) {
+                if (data != null) {
+                    if (data.indexOf('Success') !== -1) {
+                        $('hrmCategory_' + reportId).innerHTML = $('selectedCategory_' + reportId).innerHTML = categoryName;
+                        $('chooseCategory_' + reportId).hide();
+                        $('showCategory_' + reportId).show();
+                        toggleButtonBar(false, reportId);
+                    }
+                }
+            }
+        });
+    }
+
+}

@@ -61,6 +61,7 @@ Map<Integer,Date> dupReportDates = new HashMap<Integer,Date>();
 Map<Integer,Date> dupTimeReceived = new HashMap<Integer,Date>();
 HRMDocumentToDemographic demographicLink = null;
 List<HRMDocumentToDemographic> demographicLinkList =null;
+List<HRMCategory> hrmCategories = null;
 List<HRMDocumentToProvider> providerLinkList =null;
 List<HRMDocumentSubClass> subClassList;
 HRMDocumentToProvider thisProviderLink;
@@ -75,6 +76,7 @@ String confidentialityStatement = null;
 		 hrmReport = HRMReportParser.parseReport(loggedInInfo, document.getReportFile());
 
 		if (hrmReport != null) {
+			hrmCategories = hrmCategoryDao.findAll();
 			hrmReportTime = document.getTimeReceived().toString();
 			hrmDuplicateNum = document.getNumDuplicatesReceived();
 
@@ -108,8 +110,12 @@ String confidentialityStatement = null;
 				}
 			}
 
-
-			if (hrmDocumentSubClass != null) {
+			if (document.getHrmCategoryId() != null) {
+			    List<HRMCategory> categoryResults = hrmCategoryDao.findById(document.getHrmCategoryId());
+			    if (categoryResults != null && !categoryResults.isEmpty()) {
+			        category = categoryResults.get(0);
+				}
+			} else if (hrmDocumentSubClass != null) {
 				String subClassName = hrmDocumentSubClass.getSubClass();
 				String subClasMnemonic = hrmDocumentSubClass.getSubClassMnemonic();
 				category = hrmCategoryDao.findBySubClassNameMnemonic(hrmDocumentSubClass.getSendingFacilityId(),subClassName+':'+subClasMnemonic);
@@ -118,8 +124,7 @@ String confidentialityStatement = null;
 					HRMSubClass subClass = hrmSubClassDao.findApplicableSubClassMapping(document.getReportType(),subClassName, subClasMnemonic, hrmDocumentSubClass.getSendingFacilityId());
 					category = (subClass != null)?subClass.getHrmCategory():null;
 				}
-			}
-			else
+			} else
 			{
 				category=hrmCategoryDao.findBySubClassNameMnemonic("DEFAULT");
 			}
@@ -504,11 +509,25 @@ function popupPatientTickler(height, width, url, windowName,docId,d,n) {
 		<tr>
 			<th>Categorization</th>
 			<td>
-				<%
-					if (category != null){
-				%>
-				<%=StringEscapeUtils.escapeHtml(category.getCategoryName())%>
-				<%  }%> 
+				<span id="chooseCategory_<%=hrmReportId%>" onchange="updateCategory('<%=hrmReportId %>');" style="display:none">
+					<select id="selectedCategory_<%=hrmReportId%>" style="max-width: 200px">
+						<% for (HRMCategory hrmCategory : hrmCategories) { %>
+						<option value="<%=hrmCategory.getId()%>" <%=(category != null && category.getId().equals(hrmCategory.getId())) ? "selected" : ""%>><%=hrmCategory.getCategoryName()%></option>
+						<%}%>
+					</select>
+				</span>
+
+				<span id="showCategory_<%=hrmReportId%>">
+					<span id="hrmCategory_<%=hrmReportId%>">
+						<%
+							if (category != null){
+						%>
+						<%=StringEscapeUtils.escapeHtml(category.getCategoryName())%>
+						<%  }%>
+					</span>
+
+					<a href="javascript:void(0)" onclick="editCategory('<%=hrmReportId %>');">(edit)</a>
+				</span>
 			</td>
 		</tr>
 		<tr>
