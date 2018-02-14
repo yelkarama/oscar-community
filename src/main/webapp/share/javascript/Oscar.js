@@ -265,3 +265,37 @@ function createStandardDatepicker(jQueryElement, buttonId) {
 		);
 	}
 }
+
+function enableEdit(providerNo) {
+	jQuery('#dayNoteLink_' + providerNo).hide();
+	jQuery('#dayNoteInputDiv_' + providerNo).show();
+	var noteInputElem = jQuery('#dayNoteInput_' + providerNo);
+	noteInputElem.focus();
+	if (noteInputElem.val() === 'Click to add note') {
+		noteInputElem.val('');
+	}
+	jQuery('#dayNoteInputOkDiv_' + providerNo).click(function() { updateDayNote(providerNo); });
+}
+
+function updateDayNote(providerNo) {
+	var noteText = jQuery('#dayNoteInput_' + providerNo).val();
+	var noteDate = jQuery('#dayNoteDate_' + providerNo).val();
+	var data = { providerNo: providerNo, date: noteDate, note: noteText };
+	jQuery.ajax({
+		type: 'POST',
+		url: 'scheduleNote.do?method=updateDayNote',
+		data: data,
+		dataType: 'JSON',
+		async: true,
+		success: function (data) {
+			jQuery('#dayNoteInputDiv_' + providerNo).hide();
+			jQuery('#dayNoteInput_' + providerNo).val(data);
+			var linkTextEle = jQuery('#dayNoteLink_' + providerNo);
+			linkTextEle.text(data);
+			linkTextEle.show();
+		},
+		error: function (data) {
+			console.log(data);
+		}
+	});
+}

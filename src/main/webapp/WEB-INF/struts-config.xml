@@ -2499,6 +2499,9 @@
 		<action path="/provider/UserPreference" type="org.oscarehr.provider.web.UserPreferenceAction" parameter="method" scope="request" validate="false" input="/provider/UserPreferences.jsp">
 			<forward name="form" path="/provider/UserPreferences.jsp" />
 		</action>
+        <action path="/provider/scheduleNote" parameter="method" type="org.oscarehr.common.web.ProviderScheduleNoteAction" scope="request">
+            <forward name="ajax" path="/provider/providerScheduleNoteAjax.jsp"/>
+        </action>
 
 		<action path="/provider/CppPreferences" type="org.oscarehr.provider.web.CppPreferencesAction" parameter="method" scope="request" validate="false" input="/provider/cpp_preferences.jsp">
 			<forward name="form" path="/provider/cpp_preferences.jsp" />

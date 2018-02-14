@@ -96,6 +96,7 @@
 	DemographicCustDao demographicCustDao = SpringUtils.getBean(DemographicCustDao.class);
 	ProgramManager2 programManager = SpringUtils.getBean(ProgramManager2.class);
 	AppManager appManager = SpringUtils.getBean(AppManager.class);
+	ProviderScheduleNoteDao providerScheduleNoteDao = SpringUtils.getBean(ProviderScheduleNoteDao.class);
 	
 	LookupListManager lookupListManager = SpringUtils.getBean(LookupListManager.class);
 	LookupList reasonCodes = lookupListManager.findLookupListByName(loggedInInfo1, "reasonCode");
@@ -477,7 +478,10 @@ if (apptDate.before(minDate)) {
 <%@page import="org.oscarehr.web.admin.ProviderPreferencesUIBean"%>
 <%@page import="org.oscarehr.common.model.ProviderPreference"%>
 <%@page import="org.oscarehr.web.AppointmentProviderAdminDayUIBean"%>
-<%@page import="org.oscarehr.common.model.EForm"%><html:html locale="true">
+<%@page import="org.oscarehr.common.model.EForm"%>
+<%@ page import="org.oscarehr.common.dao.ProviderScheduleNoteDao" %>
+<%@ page import="org.oscarehr.common.model.ProviderScheduleNote" %>
+<html:html locale="true">
 <head>
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/global.js"></script>
 <title><%=WordUtils.capitalize(userlastname + ", " +  org.apache.commons.lang.StringUtils.substring(userfirstname, 0, 1)) + "-"%><bean:message key="provider.appointmentProviderAdminDay.title"/></title>
@@ -1880,6 +1884,33 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
 										%>
 									</logic:iterate>
 								</logic:equal>
+								<% if (!isWeekView && oscarProperties.isPropertyActive("provider_schedule_note")) { %>
+								<div id="dayNote_<%=curProvider_no[nProvider]%>" style="padding-top: 5px; height: 16px;">
+									<%
+										ProviderScheduleNote note = null;
+										try { 
+										    note = providerScheduleNoteDao.findByProviderNoAndDate(curProvider_no[nProvider], strYear + "-" + strMonth + "-" + strDay);
+										} catch (ParseException e) {
+											MiscUtils.getLogger().error("ProviderScheduleNote date note parsable (" + strYear + "-" + strMonth + "-" + strDay + ")", e);
+										}
+										String noteText = "Click to add note";
+										if (note != null) {
+											noteText = StringEscapeUtils.escapeHtml(note.getNote());
+										}
+									%>
+									<a href="#" id="dayNoteLink_<%=curProvider_no[nProvider]%>" class="note-link-text" onclick="enableEdit('<%=curProvider_no[nProvider]%>')">
+										<%=noteText%>
+									</a>
+									<div id="dayNoteInputDiv_<%=curProvider_no[nProvider]%>" style="display: none">
+										<input id="dayNoteProviderNo_<%=curProvider_no[nProvider]%>" 
+											   type="hidden" value="<%=curProvider_no[nProvider]%>"/>
+										<input id="dayNoteDate_<%=curProvider_no[nProvider]%>"
+											   type="hidden" value="<%=strYear + "-" + strMonth + "-" + strDay%>"/>
+										<input id="dayNoteInput_<%=curProvider_no[nProvider]%>" type="text" value="<%=noteText.equals("Click to add note")?"":noteText%>"/>
+										<input type="button" id="dayNoteInputOkDiv_<%=curProvider_no[nProvider]%>" value="OK"/>
+									</div>
+								</div>
+								<% } %>
 							</td>
 						</tr>
 					</table>

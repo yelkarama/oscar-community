@@ -253,3 +253,10 @@ p {
 	color: white;
 	text-align:center;
 }
+
+.note-link-text {
+	color:#333;
+	font-size: 14px;
+	font-weight: normal;
+	font-style: italic;
+}

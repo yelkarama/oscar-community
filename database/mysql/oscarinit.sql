@@ -12562,3 +12562,10 @@ ALTER TABLE hl7TextInfo MODIFY discipline VARCHAR(300);
 ALTER TABLE appointmentType ADD COLUMN template_id INT DEFAULT NULL;
 ALTER TABLE appointmentType ADD COLUMN provider_no VARCHAR(6) DEFAULT NULL;
 ALTER TABLE appointmentType ADD COLUMN enabled BOOLEAN DEFAULT TRUE NOT NULL;
+
+CREATE TABLE provider_schedule_note (
+	provider_no VARCHAR(6),
+    `date` DATE,
+    note TEXT NOT NULL,
+    PRIMARY KEY (provider_no, `date`)
+);
