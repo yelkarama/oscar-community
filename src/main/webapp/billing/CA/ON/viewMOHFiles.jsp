@@ -36,7 +36,15 @@
 function viewMOHFile (filename) {
 	var form = document.getElementById("form");
 	document.getElementById("filename").value = filename;
-	var fileType = filename.substring(0,1).toUpperCase();
+
+    var selected = document.getElementsByClassName("info");
+    if (selected && selected[0]) {
+        selected[0].removeAttribute("class", "info");
+    };
+    var row = document.getElementById(filename);
+    row.setAttribute("class", "info");
+
+    var fileType = filename.substring(0,1).toUpperCase();
 	if (filename.substring(filename.length-4).toLowerCase() == ".zip") {
  		var r=alert("Please unzip "+filename+" before processing.");
 		location.href="viewMOHFiles.jsp";
@@ -55,7 +63,6 @@ function viewMOHFile (filename) {
     if (fileType == "P" || fileType == "S" || fileType == "L") {
 	    form.submit()
     }
-
 }
 
 function toggleCheckboxes(el) {
@@ -149,7 +156,7 @@ function checkForm() {
       if (contents[i].getName().endsWith(".sh")) continue;
       String archiveElement = "<td ><input type='checkbox' name='mohFile' value='"+URLEncoder.encode(contents[i].getName())+"' title='select to archive'/></td>";
       if (folder == EDTFolder.INBOX || folder == EDTFolder.ARCHIVE) {
-          out.println("<tr>"+(folder == EDTFolder.INBOX ? archiveElement : "")+"<td><a HREF='javascript:void(0)' onclick='viewMOHFile(\""+URLEncoder.encode(contents[i].getName())+"\")'>"+contents[i].getName()+unzipMSG+"</a></td>") ;
+          out.println("<tr id='" + URLEncoder.encode(contents[i].getName()) + "'>"+(folder == EDTFolder.INBOX ? archiveElement : "")+"<td><a HREF='javascript:void(0)' onclick='viewMOHFile(\""+URLEncoder.encode(contents[i].getName())+"\")'>"+contents[i].getName()+unzipMSG+"</a></td>") ;
           out.println("<td><a HREF='../../../servlet/BackupDownload?filename="+URLEncoder.encode(contents[i].getName())+"'>Download</a></td>") ;
       } else {
           out.println("<tr><td>"+contents[i].getName()+"</td>") ;
