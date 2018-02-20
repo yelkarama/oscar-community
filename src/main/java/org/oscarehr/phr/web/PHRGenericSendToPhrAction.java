@@ -126,7 +126,7 @@ public class PHRGenericSendToPhrAction extends DispatchAction {
 			boolean printCPP  = request.getParameter("printCPP") != null && request.getParameter("printCPP").equalsIgnoreCase("true");
 			boolean printRx   = request.getParameter("printRx") != null && request.getParameter("printRx").equalsIgnoreCase("true");
 			boolean printLabs = request.getParameter("printLabs") != null && request.getParameter("printLabs").equalsIgnoreCase("true");
-            boolean printMeasurements = "true".equalsIgnoreCase(request.getParameter("printLabs"));
+            boolean printMeasurements = "true".equalsIgnoreCase(request.getParameter("printMeasurements"));
 		
 			CaseManagementPrint cmp = new CaseManagementPrint();
 			cmp.doPrint(loggedInInfo,demographicNo, printAllNotes,noteIds,printCPP,printRx,printLabs, printMeasurements,null,null,request, response.getOutputStream());
@@ -211,7 +211,7 @@ public class PHRGenericSendToPhrAction extends DispatchAction {
     			boolean printCPP  = request.getParameter("printCPP") != null && request.getParameter("printCPP").equalsIgnoreCase("true");
     			boolean printRx   = request.getParameter("printRx") != null && request.getParameter("printRx").equalsIgnoreCase("true");
     			boolean printLabs = request.getParameter("printLabs") != null && request.getParameter("printLabs").equalsIgnoreCase("true");
-                boolean printMeasurements = "true".equalsIgnoreCase(request.getParameter("printLabs"));
+                boolean printMeasurements = "true".equalsIgnoreCase(request.getParameter("printMeasurements"));
     			Calendar startDate = null;
     			try{
     				startDate = Calendar.getInstance();

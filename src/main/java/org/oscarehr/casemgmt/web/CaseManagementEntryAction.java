@@ -2950,7 +2950,7 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 		boolean printCPP = request.getParameter("printCPP").equalsIgnoreCase("true");
 		boolean printRx = request.getParameter("printRx").equalsIgnoreCase("true");
 		boolean printLabs = request.getParameter("printLabs") != null && request.getParameter("printLabs").equalsIgnoreCase("true");
-		boolean printMeasurements = "true".equalsIgnoreCase(request.getParameter("printLabs"));
+		boolean printMeasurements = "true".equalsIgnoreCase(request.getParameter("printMeasurements"));
 		boolean printNotes = request.getParameter("printNotes").equalsIgnoreCase("true");
 		if(!printNotes){
 			printAllNotes = false;
@@ -3027,7 +3027,7 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 		boolean printCPP  = request.getParameter("printCPP").equalsIgnoreCase("true");
 		boolean printRx   = request.getParameter("printRx").equalsIgnoreCase("true");
 		boolean printLabs = request.getParameter("printLabs") != null && request.getParameter("printLabs").equalsIgnoreCase("true");
-		boolean printMeasurements = "true".equalsIgnoreCase(request.getParameter("printLabs"));
+		boolean printMeasurements = "true".equalsIgnoreCase(request.getParameter("printMeasurements"));
 		boolean printNotes = request.getParameter("printNotes").equalsIgnoreCase("true");
 		if(!printNotes){
 			printAllNotes = false;
