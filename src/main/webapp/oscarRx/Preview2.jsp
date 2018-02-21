@@ -611,7 +611,9 @@ if(prop!=null && prop.getValue().equalsIgnoreCase("yes")){
 																			imageUrl=request.getContextPath()+"/eform/displayImage.do?imagefile="+signatureProperty.getValue();
 																			startimageUrl=imageUrl;
 																			statusUrl = request.getContextPath()+"/PMmodule/ClientManager/check_signature_status.jsp?" + DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY+"="+signatureRequestId;
-																			imgFile = OscarProperties.getInstance().getProperty("eform_image") + signatureProperty.getValue();
+																			String eFormImagePath = OscarProperties.getInstance().getProperty("eform_image");
+																			eFormImagePath = eFormImagePath.endsWith("/") ? eFormImagePath : eFormImagePath + "/";
+																			imgFile = eFormImagePath + signatureProperty.getValue();
 																		} else {
 																			signatureRequestId = loggedInInfo.getLoggedInProviderNo();
 																			imageUrl = request.getContextPath() + "/imageRenderingServlet?source=" + ImageRenderingServlet.Source.signature_preview.name() + "&" + DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY + "=" + signatureRequestId;
