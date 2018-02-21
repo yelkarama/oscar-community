@@ -126,7 +126,7 @@ public class BillingReviewPrep {
 		Vector vecCodeFee = new Vector();
 		for (int i = 0; i < vecReviewCodeItem.size(); i++) {
 			vecCodeFee.add(((BillingReviewCodeItem) vecReviewCodeItem.get(i))
-					.getCodeFee());
+					.getCodeTotal());
 		}
 		for (int i = 0; i < vecCode.size(); i++) {   //LOOP thru all the billing codes from for submission
 			if (((String) vecCode.get(i)).equals(""))
