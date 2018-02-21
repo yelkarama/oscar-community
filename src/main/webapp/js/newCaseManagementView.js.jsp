@@ -596,7 +596,10 @@ function navBarLoader() {
 
             var rightNavBarTitles = [ "allergies", "Rx", "OMeds", "RiskFactors", "FamHistory", "unresolvedIssues", "resolvedIssues", "Guidelines","episode","pregnancy","contacts"];
 
-        <%
+        <%	if (OscarProperties.getInstance().isPropertyActive("echart_show_relations")) { %>
+			rightNavBar.push(ctx + "/oscarEncounter/displayRelations.do?hC=FF9933");
+			rightNavBarTitles.push("Relations")
+		<%	}
             if (OscarProperties.getInstance().getBooleanProperty("enable_document_consent_module", "true")) { %>
                 rightNavBar.push(ctx + '/oscarEncounter/displayDocuments.do?hC=' + Colour.documents + '&type=Consent');
                 rightNavBarTitles.push('consent')

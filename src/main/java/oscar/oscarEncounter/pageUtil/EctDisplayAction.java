@@ -96,6 +96,7 @@ public class EctDisplayAction extends Action {
 			Actions.put("eaaps", "/eaaps/displayEctEaaps.do");
 			Actions.put("progressSheet", "/oscarEncounter/displayProgressSheet.do");
 			Actions.put("consent", "/oscarEncounter/displayDocuments.do?type=Consent");
+            Actions.put("Relations", "/oscarEncounter/displayRelations.do");
 
 			if (logger.isDebugEnabled()) {
 				logger.debug("Instantiated encounter display actions: " + Actions);
