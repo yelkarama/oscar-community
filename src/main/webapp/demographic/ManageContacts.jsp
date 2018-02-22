@@ -60,6 +60,7 @@
 
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
+<script type="text/javascript" src="<%= request.getContextPath() %>/share/javascript/Oscar.js"></script>
 <title>Demographic Contact Manager</title>
 <!--I18n-->
 <link rel="stylesheet" type="text/css"
@@ -163,72 +164,32 @@ function updTklrList() {
 
 function search_demographic(keyword, nameEl, valueEl) {
     var url = '../ticklerPlus/demographicSearch2.jsp?outofdomain=false&form=contactForm&query='+keyword+'&elementName='+nameEl+'&elementId='+valueEl;
-    var popup = window.open(url,'demographic_search');
+    var popupWindow = popup(700,960,url,'demographic_search');
     demo_no_orig = document.contactForm.elements[valueEl].value;
-    //check_demo_no = setInterval("if (demo_no_orig != document.contactForm.elements[valueEl].value) updTklrList()",100);
-
-		if (popup != null) {
-		if (popup.opener == null) {
-				popup.opener = self;
-		}
-		popup.focus();
-		}
 }
 
 function search_provider(nameEl, valueEl) {
     var url = '../provider/receptionistfindprovider.jsp?custom=true&form=contactForm&elementName='+nameEl+'&elementId='+valueEl;
-    var popup = window.open(url,'demographic_search');
+    var popupWindow = popup(700,960,url,'demographic_search');
     demo_no_orig = document.contactForm.elements[valueEl].value;
-    //check_demo_no = setInterval("if (demo_no_orig != document.contactForm.elements[valueEl].value) updTklrList()",100);
-
-		if (popup != null) {
-		if (popup.opener == null) {
-				popup.opener = self;
-		}
-		popup.focus();
-		}
 }
 
 function search_contact(nameEl, idEl) {
     var url = 'contactSearch.jsp?form=contactForm&elementName='+nameEl.id+'&elementId='+idEl.id+'&keyword='+nameEl.value;
-    var popup = window.open(url,'demographic_search');
+    var popupWindow = popup(700,960,url,'demographic_search');
     demo_no_orig = document.contactForm.elements[idEl.id].value;
-    //check_demo_no = setInterval("if (demo_no_orig != document.contactForm.elements[valueEl].value) updTklrList()",100);
-
-		if (popup != null) {
-		if (popup.opener == null) {
-				popup.opener = self;
-		}
-		popup.focus();
-		}
 }
 
 function search_procontact(nameEl, valueEl) {
     var url = 'procontactSearch.jsp?form=contactForm&elementName='+nameEl+'&elementId='+valueEl;
-    var popup = window.open(url,'demographic_search');
+    var popupWindow = popup(700,960,url,'demographic_search');
     demo_no_orig = document.contactForm.elements[valueEl].value;
-    //check_demo_no = setInterval("if (demo_no_orig != document.contactForm.elements[valueEl].value) updTklrList()",100);
-
-		if (popup != null) {
-		if (popup.opener == null) {
-				popup.opener = self;
-		}
-		popup.focus();
-		}
 }
 
 function search_professionalSpecialist(nameEl, valueEl) {
     var url = 'professionalSpecialistSearch.jsp?form=contactForm&elementName='+nameEl+'&elementId='+valueEl;
-    var popup = window.open(url,'demographic_search');
+    var popupWindow = popup(700,960,url,'demographic_search');
     demo_no_orig = document.contactForm.elements[valueEl].value;
-    //check_demo_no = setInterval("if (demo_no_orig != document.contactForm.elements[valueEl].value) updTklrList()",100);
-
-		if (popup != null) {
-		if (popup.opener == null) {
-				popup.opener = self;
-		}
-		popup.focus();
-		}
 }
 
 
