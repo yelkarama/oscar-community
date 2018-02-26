@@ -1726,9 +1726,14 @@ if(oscarProps.getProperty("new_label_print") != null && oscarProps.getProperty("
 								String ec = (dContact.getEc()!=null && dContact.getEc().equals("true"))?"<span title=\"Emergency Contact\" >/EC</span>":"";
 						%>
 
-								<li><span class="label"><%=dContact.getRole()%>:</span>
-                                                            <span class="info"><%=dContact.getContactName() %><%=sdm%><%=ec%></span>
-                                                        </li>
+								<li>
+									<span class="label"><%=dContact.getRole()%>:</span>
+                                    <span class="info"><%=dContact.getContactName() %><%=sdm%><%=ec%></span>
+									<% if (dContact.getType() == DemographicContact.TYPE_DEMOGRAPHIC) { %>
+										<a href="javascript: return false;" onClick="popupPage(710, 1024, '<%=request.getContextPath()%>/demographic/demographiccontrol.jsp?demographic_no=<%=dContact.getContactId()%>&displaymode=edit&dboperation=search_detail')">M</a>
+										<a href="javascript: return false;" onClick="popupEChart(710,1024,'<%=request.getContextPath()%>/oscarEncounter/IncomingEncounter.do?demographicNo=<%=dContact.getContactId()%>&providerNo=<%=loggedInInfo.getLoggedInProviderNo()%>&appointmentNo=&curProviderNo=&reason=&appointmentDate=&startTime=&status=&userName=<%=URLEncoder.encode( userfirstname + " " + userlastname)%>&curDate=<%=curYear%>-<%=curMonth%>-<%=curDay%>')">E</a>
+									<% } %>
+                                </li>
 
 						<%  } %>
 
