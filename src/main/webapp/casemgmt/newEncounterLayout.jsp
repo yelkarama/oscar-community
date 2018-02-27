@@ -1096,7 +1096,7 @@ window.onbeforeunload = onClosing;
 					<td style="font-size: 14px;"><img style="cursor: pointer;"
 							 title="<bean:message key="oscarEncounter.print.title"/>"
 							 id='imgPrintMeasurements'
-							 alt="<bean:message key="oscarEncounter.togglePrintLabs.title"/>"
+							 alt="Toggle Print Measurements"
 							 onclick="return printInfo(this, 'printMeasurements');"
 							 src='<c:out value="${ctx}"/>/oscarEncounter/graphics/printer.png'>&nbsp;Measurements
 					</td>
