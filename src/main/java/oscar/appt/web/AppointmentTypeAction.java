@@ -100,7 +100,6 @@ public class AppointmentTypeAction extends OscarAction  {
 		    	}	
 
 		    	AppointmentTypeDao appDao = (AppointmentTypeDao) SpringUtils.getBean("appointmentTypeDao");
-				LookupListDao lookupListDao = SpringUtils.getBean(LookupListDao.class);
 				LookupListManager lookupListManager = SpringUtils.getBean(LookupListManager.class);
 				LookupList reasonCodes = lookupListManager.findLookupListByName(loggedInInfo, "reasonCode");
 				List<LookupListItem> reasonCodesItems = reasonCodes.getItems();
@@ -209,8 +208,40 @@ public class AppointmentTypeAction extends OscarAction  {
 		    		request.setAttribute("selectedProvider", formBean.getProviderNo());
 		    	} else if (sOper.equals("del")) {
 		    		appDao.remove(typeNo);
-		    	}	
-
+		    	} else if (sOper.equals("toggleEnable") && typeNo > 0) {
+                    AppointmentType bean = appDao.find(typeNo);
+                    if (bean != null) {
+                        if (bean.getTemplateId() == null && selectedProviderNo != null) {
+                            AppointmentType newType = new AppointmentType(bean);
+                            newType.setTemplateId(bean.getId());
+                            newType.setProviderNo(selectedProviderNo);
+                            newType.setEnabled(!bean.isEnabled());
+                            appDao.persist(newType);
+                        } else {
+                            bean.setEnabled(!bean.isEnabled());
+                            appDao.merge(bean);
+                        }
+                    } else {
+                        errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("appointment.type.notfound.error"));
+                        saveErrors(request,errors);
+                        return mapping.findForward("failure");
+                    }
+                } else if ((sOper.equals("enableAll") || sOper.equals("disableAll")) && selectedProviderNo != null) {
+				    boolean setEnable = sOper.equals("enableAll"); 
+                    List<AppointmentType> types = appDao.findAllForProvider(selectedProviderNo, false);
+                    for (AppointmentType a : types) {
+                        if (a.getTemplateId() == null) {
+                            AppointmentType newType = new AppointmentType(a);
+                            newType.setTemplateId(a.getId());
+                            newType.setProviderNo(selectedProviderNo);
+                            newType.setEnabled(setEnable);
+                            appDao.persist(newType);
+                        } else {
+                            a.setEnabled(setEnable);
+                            appDao.merge(a);
+                        }
+                    }
+                }
 		    }
 		  	
 		    if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) {

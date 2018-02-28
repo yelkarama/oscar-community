@@ -46,7 +46,21 @@ public class AppointmentType extends AbstractModel<Integer> {
     private String providerNo;
     @Column(name = "enabled")
     private Boolean enabled;
-      
+
+    public AppointmentType() {}
+    public AppointmentType(AppointmentType oldType) {
+        this.name = oldType.getName();
+        this.notes = oldType.getNotes();
+        this.reasonCode = oldType.getReasonCode();
+        this.reason = oldType.getReason();
+        this.location = oldType.getLocation();
+        this.resources = oldType.getResources();
+        this.duration = oldType.getDuration();
+        this.templateId = oldType.getTemplateId();
+        this.providerNo = oldType.getProviderNo();
+        this.enabled = oldType.isEnabled();
+    }
+
 	@Override
     public Integer getId() {
 		return id;

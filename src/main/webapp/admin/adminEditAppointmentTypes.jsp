@@ -88,6 +88,9 @@
 				window.location = url;
 			}
 		}
+		function setEnabled(url) {
+			window.location = url;
+		}
 
 		function selectProvider(selectedProviderNo) {
 			var selectProviderUrl = '../appointment/appointmentTypeAction.do?selectedProvider=' + selectedProviderNo;
@@ -217,6 +220,13 @@
 			</option>
 			<% } %>
 		</select>
+		<% if (selectedProviderNo != null) { %>
+		<div style="float: right;">
+			<a href="../appointment/appointmentTypeAction.do?oper=enableAll&selectedProvider=<%=selectedProviderNo%>">Enable All</a>
+			&nbsp;&nbsp;
+			<a href="../appointment/appointmentTypeAction.do?oper=disableAll&selectedProvider=<%=selectedProviderNo%>">Disable All</a>
+		</div>
+		<% } %>
 	</div>
 	<table class="table table-condensed table-bordered">
 		<thead>
@@ -227,7 +237,7 @@
 				<th nowrap>Notes</th>
 				<th width="15%" nowrap>Location</th>
 				<th width="8%" nowrap>Resources</th>
-				<th width="5%" nowrap>Status</th>
+				<th width="5%" nowrap>Enabled</th>
 				<th width="10%" nowrap></th>
 			</tr>
 		</thead>
@@ -246,9 +256,12 @@
 				<td><%=type.getNotes() %></td>
 				<td><%= type.getLocation() %></td>
 				<td><%= type.getResources() %></td>
-				<td><label style="text-align: center">
-					<%=type.isEnabled()?"Enabled":"Disabled"%>
-				</label></td>
+				<td>
+					<label>
+						<input type="checkbox" <%=type.isEnabled()?"checked=\"checked\"":""%> 
+							onclick="setEnabled('../appointment/appointmentTypeAction.do?oper=toggleEnable&no=<%=type.getId()%><%=(selectedProviderNo != null?"&selectedProvider=" + selectedProviderNo:"")%>')">
+					</label>
+				</td>
 				<td>
 					<a href="../appointment/appointmentTypeAction.do?oper=edit&no=<%=type.getId()%><%=(selectedProviderNo != null?"&selectedProvider=" + selectedProviderNo:"")%>">edit</a>&nbsp;&nbsp;
 					<a href="javascript:delType('../appointment/appointmentTypeAction.do?oper=del&no=<%= type.getId() %>')">delete</a>
