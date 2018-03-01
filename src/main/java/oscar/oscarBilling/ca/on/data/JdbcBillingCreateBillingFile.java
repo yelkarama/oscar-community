@@ -388,7 +388,8 @@ public class JdbcBillingCreateBillingFile {
 
 
 	private void checkItem() {
-		if (itemObj.getService_code().trim().length() != 5) errorPartMsg = ch1Obj.getId() + " - Item: Service Code wrong!<br>";
+        	String serviceCode = itemObj.getService_code() != null ? itemObj.getService_code().trim() : "";
+		if (serviceCode.length() != 5) errorPartMsg = ch1Obj.getId() + " - Item: Service Code (" + serviceCode + ") wrong!<br>";
 		errorMsg += errorPartMsg;
 	}
 
