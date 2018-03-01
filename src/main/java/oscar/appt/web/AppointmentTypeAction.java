@@ -149,7 +149,7 @@ public class AppointmentTypeAction extends OscarAction  {
                         if (dbBean.getTemplateId() == null) {
                             formBean.setId(null);
                             formBean.setTemplateId(dbBean.getId());
-                            formBean.setProviderNo(dbBean.getProviderNo());
+                            formBean.setProviderNo(selectedProviderNo);
                         } else {
                             formBean.setId(dbBean.getId());
                             formBean.setTemplateId(dbBean.getTemplateId());
