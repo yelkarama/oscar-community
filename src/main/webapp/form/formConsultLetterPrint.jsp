@@ -32,6 +32,7 @@
 	import="org.oscarehr.casemgmt.service.CaseManagementManager, org.oscarehr.casemgmt.model.CaseManagementNote, org.oscarehr.casemgmt.model.Issue, org.oscarehr.common.model.UserProperty, org.oscarehr.common.dao.UserPropertyDAO, org.springframework.web.context.support.*,org.springframework.web.context.*,java.text.DecimalFormat,
 	oscar.form.FrmConsultLetterPrintUtil,oscar.oscarClinic.ClinicData"%>
 <%@ page import="oscar.form.*, oscar.OscarProperties"%>
+<%@ page import="org.oscarehr.util.LoggedInInfo" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
@@ -44,12 +45,13 @@
 <link rel="stylesheet" type="text/css" href="formConsultLetterPrintStyle.css">
 </head> 
 <%
+	LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
 	String formClass = "ConsultLetter";
 	FrmRecord rec = (new FrmRecordFactory()).factory(formClass);
 	int demoNo = Integer.parseInt(request.getParameter("demographic_no"));
 	int formId = Integer.parseInt(request.getParameter("formId"));
 	System.out.println("print new id " + formId);
-	java.util.Properties props = rec.getFormRecord(demoNo, formId);
+	java.util.Properties props = rec.getFormRecord(loggedInInfo, demoNo, formId);
 	FrmConsultLetterPrintUtil printutil = new FrmConsultLetterPrintUtil(props);
 	
 	//Clinic data

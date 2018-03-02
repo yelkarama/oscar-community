@@ -52,6 +52,7 @@
 <%@page import="java.util.ArrayList"%>
 <%@page import="oscar.form.FrmRecordFactory"%>
 <%@page import="oscar.form.FrmRecord"%>
+<%@ page import="org.oscarehr.util.LoggedInInfo" %>
 <HTML>
 	<HEAD>
 		<TITLE>OFC-Male Consult Print Preview</TITLE>
@@ -241,22 +242,24 @@ System.out.println("int print jsp");
 String formClass = "MaleConsultLetter";
 String formLink = "maleconsultletter.jsp";
 
+LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+
 boolean readOnly = false;
 String demographicNo = request.getParameter("demographic_no");
 String formId = request.getParameter("formId");
 String providerNo = (String) session.getAttribute("user");
 FrmRecord rec = (new FrmRecordFactory()).factory(formClass);
-java.util.Properties props = rec.getFormRecord(Integer.parseInt(demographicNo), Integer.parseInt(formId));
+java.util.Properties props = rec.getFormRecord(loggedInInfo, Integer.parseInt(demographicNo), Integer.parseInt(formId));
 
 String demo = request.getParameter("demographic_no");
 oscar.oscarDemographic.data.DemographicData demoData = null;
 Demographic demographic = null;
 demoData = new oscar.oscarDemographic.data.DemographicData();
-demographic = demoData.getDemographic(demo);
+demographic = demoData.getDemographic(loggedInInfo, demo);
 
 ArrayList<String> users = (ArrayList<String>)session.getServletContext().getAttribute("CaseMgmtUsers");
 boolean useNewCmgmt = false;
-WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
+WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(request.getSession().getServletContext());
 CaseManagementManager cmgmtMgr = null;
 if( users != null && users.size() > 0 && (users.get(0).equalsIgnoreCase("all") || Collections.binarySearch(users, providerNo)>=0)) {
 useNewCmgmt = true;
@@ -268,13 +271,13 @@ oscar.oscarDemographic.data.DemographicData partnerDemoData = null;
 Demographic partnerDemographic = null;
 if(partner != null && !"".equals(partner)){
 partnerDemoData = new oscar.oscarDemographic.data.DemographicData();
-partnerDemographic = partnerDemoData.getDemographic(partner);
+partnerDemographic = partnerDemoData.getDemographic(loggedInInfo, partner);
 
 RxInformation rxInfo = new RxInformation();
 
 //partner medication and allergies
 props.setProperty("partner_allergies",
-	org.apache.commons.lang.StringEscapeUtils.escapeJavaScript(rxInfo.getAllergies(partner)));
+	org.apache.commons.lang.StringEscapeUtils.escapeJavaScript(rxInfo.getAllergies(loggedInInfo, partner)));
 props.setProperty("partner_medication",
 	org.apache.commons.lang.StringEscapeUtils.escapeJavaScript(rxInfo.getCurrentMedication(partner)));
 props.setProperty("partner_medhistory",
@@ -291,13 +294,13 @@ oscar.oscarDemographic.data.DemographicData spouseDemoData = null;
 Demographic spouseDemographic = null;
 if(spouse != null && !"".equals(spouse)){
 spouseDemoData = new oscar.oscarDemographic.data.DemographicData();
-spouseDemographic = spouseDemoData.getDemographic(spouse);
+spouseDemographic = spouseDemoData.getDemographic(loggedInInfo, spouse);
 
 RxInformation rxInfo = new RxInformation();
 
 //spouse medication and allergies
 props.setProperty("spouse_allergies",
-	org.apache.commons.lang.StringEscapeUtils.escapeJavaScript(rxInfo.getAllergies(spouse)));
+	org.apache.commons.lang.StringEscapeUtils.escapeJavaScript(rxInfo.getAllergies(loggedInInfo, spouse)));
 props.setProperty("spouse_medication",
 	org.apache.commons.lang.StringEscapeUtils.escapeJavaScript(rxInfo.getCurrentMedication(spouse)));
 props.setProperty("spouse_medhistory",
@@ -313,14 +316,14 @@ Demographic husbandDemographic = null;
 if(husband != null && !"".equals(husband)){
 
 husbandDemoData = new oscar.oscarDemographic.data.DemographicData();
-husbandDemographic = husbandDemoData.getDemographic(husband);
+husbandDemographic = husbandDemoData.getDemographic(loggedInInfo, husband);
 
 RxInformation rxInfo = new RxInformation();
 
 //husband medication and allergies
-System.out.println("husband is:555" + rxInfo.getAllergies(husband));
+System.out.println("husband is:555" + rxInfo.getAllergies(loggedInInfo, husband));
 props.setProperty("husband_allergies",
-	org.apache.commons.lang.StringEscapeUtils.escapeJavaScript(rxInfo.getAllergies(husband)));
+	org.apache.commons.lang.StringEscapeUtils.escapeJavaScript(rxInfo.getAllergies(loggedInInfo, husband)));
 props.setProperty("husband_medication",
 	org.apache.commons.lang.StringEscapeUtils.escapeJavaScript(rxInfo.getCurrentMedication(husband)));
 props.setProperty("husband_medhistory",
@@ -416,7 +419,7 @@ function importFromEnct(reqInfo,txtAreaId)
                     }
                     else {
                     //family history was used as bucket for Other Meds in old encounter
-                    EctInformation ectInfo = new EctInformation(demo);
+                    EctInformation ectInfo = new EctInformation(loggedInInfo, demo);
                         value = ectInfo.getFamilyHistory();
                     }
 				  }
@@ -438,7 +441,7 @@ function importFromEnct(reqInfo,txtAreaId)
                     }
                     else {
                     //family history was used as bucket for Other Meds in old encounter
-                    EctInformation ectInfo = new EctInformation(demo);
+                    EctInformation ectInfo = new EctInformation(loggedInInfo, demo);
                     value = ectInfo.getFamilyHistory();
                     }
 				  }
@@ -460,7 +463,7 @@ function importFromEnct(reqInfo,txtAreaId)
                     }
                     else {
                     //family history was used as bucket for Other Meds in old encounter
-                    EctInformation ectInfo = new EctInformation(demo);
+                    EctInformation ectInfo = new EctInformation(loggedInInfo, demo);
                         value = ectInfo.getFamilyHistory();
                     }
 				  }
@@ -473,7 +476,7 @@ function importFromEnct(reqInfo,txtAreaId)
 			 case "Allergies":
               <%
 				RxInformation rxInfo = new RxInformation();
-              value = rxInfo.getAllergies(demo);
+              value = rxInfo.getAllergies(loggedInInfo, demo);
 				value = org.apache.commons.lang.StringEscapeUtils.escapeJavaScript(value);
                 out.println("info = '" + value + "'");
              %>
@@ -490,7 +493,7 @@ function importFromEnct(reqInfo,txtAreaId)
                     }
                     else {
                     //family history was used as bucket for Other Meds in old encounter
-                    EctInformation ectInfo = new EctInformation(demo);
+                    EctInformation ectInfo = new EctInformation(loggedInInfo, demo);
                         value = ectInfo.getFamilyHistory();
                     }
 				  }
