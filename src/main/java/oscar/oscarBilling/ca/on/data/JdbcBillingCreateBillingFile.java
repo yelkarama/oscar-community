@@ -1118,24 +1118,14 @@ public class JdbcBillingCreateBillingFile {
                             BillingONFilename matchedFile = billingONFilenameDao.findByFilename(file.getName());
                             if (matchedFile != null) {
                                 String fileYear = matchedFile.getTimestamp().toString().substring(0, 4);
-                                File directory = new File(downloadFolder.getPath() + "/" + fileYear + "/");
-                                directory.mkdir();
-                                directory.setReadable(true, false);
-                                directory.setWritable(true, false);
-                                directory.setExecutable(true, false);
-                                File newLocation = new File(directory.getPath() + matchedFile.getHtmlFilename());
+                                File newLocation = new File(downloadFolder.getPath() + "/" + fileYear + "/" + matchedFile.getHtmlFilename());
                                 Files.move(file.toPath(), newLocation.toPath(), StandardCopyOption.REPLACE_EXISTING);
                             }
                         } else {
                             BillingONDiskName matchedFile = billingONDiskNameDao.findLatestByOhipFilename(file.getName());
                             if (matchedFile != null) {
                                 String fileYear = matchedFile.getTimestamp().toString().substring(0, 4);
-                                File directory = new File(downloadFolder.getPath() + "/" + fileYear + "/");
-                                directory.mkdir();
-                                directory.setReadable(true, false);
-                                directory.setWritable(true, false);
-                                directory.setExecutable(true, false);
-                                File newLocation = new File(directory.getPath() + matchedFile.getOhipFilename());
+                                File newLocation = new File(downloadFolder.getPath() + "/" + fileYear + "/" + matchedFile.getOhipFilename());
                                 Files.move(file.toPath(), newLocation.toPath(), StandardCopyOption.REPLACE_EXISTING);
                             }
                         }
