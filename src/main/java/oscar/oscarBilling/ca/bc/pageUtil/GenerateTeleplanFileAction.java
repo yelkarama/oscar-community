@@ -45,7 +45,6 @@ import oscar.oscarBilling.ca.bc.MSP.TeleplanFileWriter;
 import oscar.oscarBilling.ca.bc.MSP.TeleplanSubmission;
 import oscar.oscarBilling.ca.bc.data.BillActivityDAO;
 import oscar.oscarBilling.ca.bc.data.BillingmasterDAO;
-import oscar.oscarBilling.ca.on.data.JdbcBillingCreateBillingFile;
 import oscar.oscarProvider.data.ProviderData;
 import oscar.util.UtilDateUtilities;
 
@@ -71,7 +70,7 @@ public class GenerateTeleplanFileAction extends Action{
                                HttpServletResponse response) throws Exception{
         MiscUtils.getLogger().debug("SimulateTeleplanAction2 action jackson");
     
-        String home_dir = JdbcBillingCreateBillingFile.getOHIPBillingFolder();
+        String home_dir = OscarProperties.getInstance().getProperty("HOME_DIR");
         String dataCenterId = OscarProperties.getInstance().getProperty("dataCenterId");
         
         String batchCount = "0";

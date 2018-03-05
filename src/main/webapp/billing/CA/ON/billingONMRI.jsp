@@ -93,9 +93,6 @@ if (isSiteAccessPrivacy || isTeamAccessPrivacy) {
 <link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
 
 <%
-			// Migrate generated OHIP files if they have not already
-			JdbcBillingCreateBillingFile.migrateOHIPFilesToYearFolders();
-
 			GregorianCalendar now = new GregorianCalendar();
 			int curYear = now.get(Calendar.YEAR);
 			int curMonth = (now.get(Calendar.MONTH) + 1);
@@ -120,7 +117,7 @@ if (isSiteAccessPrivacy || isTeamAccessPrivacy) {
 			}
 
 			String monthCode = BillingDataHlp.propMonthCode.getProperty("" + curMonth);
-			String ohipdownload = JdbcBillingCreateBillingFile.getOHIPBillingFolder(thisyear);
+			String ohipdownload = oscarVariables.getProperty("HOME_DIR");
 			session.setAttribute("ohipdownload", ohipdownload);
 
 			//			 get the current year's billing disk filenames
@@ -148,7 +145,7 @@ function recreate(si) {
 	if(ret) {
 		ss=document.forms[0].billcenter[document.forms[0].billcenter.selectedIndex].value;
 		var su = document.forms[0].useProviderMOH.checked;
-		location.href="onregenreport.jsp?diskId="+si+"&billcenter="+ss+"&useProviderMOH="+su+"&year=<%=thisyear%>";
+		location.href="onregenreport.jsp?diskId="+si+"&billcenter="+ss+"&useProviderMOH="+su;		
 	}
 }
 
@@ -161,7 +158,7 @@ function recreate(si) {
 	if(ret) {
 		ss=document.forms[0].billcenter[document.forms[0].billcenter.selectedIndex].value;
 		var su = document.forms[0].useProviderMOH.checked;
-		location.href="onregenreport.jsp?diskId="+si+"&billcenter="+ss+"&useProviderMOH="+su+"&year=<%=thisyear%>";
+		location.href="onregenreport.jsp?diskId="+si+"&billcenter="+ss+"&useProviderMOH="+su;		
 	}
 }
 

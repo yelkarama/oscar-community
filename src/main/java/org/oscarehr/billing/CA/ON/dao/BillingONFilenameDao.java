@@ -84,12 +84,4 @@ public class BillingONFilenameDao extends AbstractDao<BillingONFilename>{
 		
 		return results;
 	}
-	
-	public BillingONFilename findByFilename(String filename) {
-        String q = "SELECT b FROM BillingONFilename b WHERE b.htmlFilename = :filename";
-        Query query = entityManager.createQuery(q);
-        query.setParameter("filename", filename);
-        query.setMaxResults(1);
-        return getSingleResultOrNull(query);
-    }
 }

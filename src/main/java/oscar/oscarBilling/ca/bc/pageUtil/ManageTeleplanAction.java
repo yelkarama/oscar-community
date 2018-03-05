@@ -61,7 +61,6 @@ import oscar.oscarBilling.ca.bc.Teleplan.TeleplanService;
 import oscar.oscarBilling.ca.bc.Teleplan.TeleplanUserPassDAO;
 import oscar.oscarBilling.ca.bc.data.BillActivityDAO;
 import oscar.oscarBilling.ca.bc.data.BillingCodeData;
-import oscar.oscarBilling.ca.on.data.JdbcBillingCreateBillingFile;
 import oscar.util.UtilDateUtilities;
 
 /**
@@ -362,7 +361,7 @@ public class ManageTeleplanAction extends DispatchAction {
            String filename = b.getOhipfilename();
 
            OscarProperties prop = OscarProperties.getInstance();
-           String datacenter = JdbcBillingCreateBillingFile.getOHIPBillingFolder();
+           String datacenter = prop.getProperty("HOME_DIR","");
 
            File f = new File(datacenter,filename);
 

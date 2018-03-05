@@ -60,7 +60,6 @@ import org.oscarehr.util.MiscUtils;
 
 import org.oscarehr.util.SpringUtils;
 import oscar.OscarProperties;
-import oscar.oscarBilling.ca.on.data.JdbcBillingCreateBillingFile;
 import oscar.util.ConversionUtils;
 import ca.ontario.health.edt.Detail;
 import ca.ontario.health.edt.DetailData;
@@ -312,6 +311,7 @@ public class ActionUtils {
 	public static void moveOhipToOutBox(Date startDate, Date endDate) {
 		try {
 			OscarProperties props = OscarProperties.getInstance();
+			File generatedFiles = new File(props.getProperty("HOME_DIR", ""));
 			File outbox = new File(props.getProperty("ONEDT_OUTBOX", ""));
 			File sent = new File(props.getProperty("ONEDT_SENT", ""));
 			FileFilter fileFilter = new FileFilter() {
@@ -319,19 +319,7 @@ public class ActionUtils {
 					return (file.isFile() && !file.isHidden() && ActionUtils.isOHIPFile(file.getName()));
 				}
 			};
-			Calendar startCal = Calendar.getInstance();
-            startCal.setTime(startDate);
-            Calendar endCal = Calendar.getInstance();
-            endCal.setTime(endDate);
-            List<File> generatedFiles = new ArrayList<File>();
-			for (int year = startCal.get(Calendar.YEAR); year <= endCal.get(Calendar.YEAR); year++) {
-                File filesDirectory = new File(JdbcBillingCreateBillingFile.getOHIPBillingFolder(String.valueOf(year)));
-                File[] filesInDirectory = filesDirectory.listFiles(fileFilter);
-                if (filesInDirectory != null) {
-                    generatedFiles.addAll(Arrays.asList(filesInDirectory));
-                }
-            }
-			File[] toOutbox = generatedFiles.toArray(new File[0]);
+			File[] toOutbox = generatedFiles.listFiles(fileFilter);
 			if (toOutbox != null) {
 				Arrays.sort(toOutbox, new Comparator<File>() {
 					public int compare(File f1, File f2) {
