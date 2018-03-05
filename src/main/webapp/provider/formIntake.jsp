@@ -32,6 +32,8 @@
 %>
 
 <%@page import="oscar.OscarProperties" %>
+<%@ page import="oscar.log.LogAction" %>
+<%@ page import="oscar.log.LogConst" %>
 
 
 <%!
@@ -543,10 +545,16 @@ if (selfSubmit) {
 				newNote.setAppointmentNo(appointmentNo);
 				
 				cmm.saveNoteSimple(newNote);
+				LogAction.addLog(providerNo, LogConst.ADD, LogConst.CON_CME_NOTE, "" + newNote.getId().intValue(), 
+						request.getRemoteAddr(), newNote.getDemographic_no(), newNote.getAuditString());
+
 			} else {
 				String oldNote = lastNote.getNote();
 				lastNote.setNote(oldNote + note);
 				cmm.saveNoteSimple(lastNote);
+				LogAction.addLog(providerNo, LogConst.UPDATE, LogConst.CON_CME_NOTE, "" + lastNote.getId().intValue(), 
+						request.getRemoteAddr(), lastNote.getDemographic_no(), lastNote.getAuditString());
+
 			}
 		} else {
 			request.setAttribute("textOnEncounter", StringEscapeUtils.escapeJavaScript(note));

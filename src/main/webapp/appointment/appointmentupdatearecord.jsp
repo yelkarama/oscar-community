@@ -100,8 +100,8 @@
 			 	appt.setDemographicNo(0);
 		 	}
 			appt.setAppointmentDate(ConversionUtils.fromDateString(request.getParameter("appointment_date")));
-			appt.setStartTime(ConversionUtils.fromTimeString(MyDateFormat.getTimeXX_XX_XX(request.getParameter("start_time"))));
-			appt.setEndTime(ConversionUtils.fromTimeString(MyDateFormat.getTimeXX_XX_XX(request.getParameter("end_time"))));
+			appt.setStartTime(new java.sql.Time(ConversionUtils.fromTimeString(MyDateFormat.getTimeXX_XX_XX(request.getParameter("start_time"))).getTime()));
+			appt.setEndTime(new java.sql.Time(ConversionUtils.fromTimeString(MyDateFormat.getTimeXX_XX_XX(request.getParameter("end_time"))).getTime()));
 			appt.setName(request.getParameter("keyword"));
 			appt.setNotes(request.getParameter("notes"));
 			appt.setReason(request.getParameter("reason"));
