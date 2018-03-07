@@ -334,7 +334,14 @@ function printIframe(){
 				}
 				preview.print();
 				frames['preview'].document.getElementById('pwTable').style.width = oldPageSize;
-				self.parent.close();
+
+				self.onfocus = function () {
+                    self.setTimeout(
+                        function(){
+                        self.parent.close();
+                    }, 1000);
+                };
+				self.focus();
 			}
 	}
 
