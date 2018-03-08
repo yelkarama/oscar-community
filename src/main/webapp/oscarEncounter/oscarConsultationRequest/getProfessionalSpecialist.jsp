@@ -8,7 +8,7 @@
 	ProfessionalSpecialist professionalSpecialist = null;			
 	String id = request.getParameter("id")==null?"":request.getParameter("id");
 				
-	if (id.length() > 0)
+	if (!id.equals("null") && id.length() > 0)
 	{
 		professionalSpecialist=professionalSpecialistDao.find(Integer.parseInt(id));
 	}
