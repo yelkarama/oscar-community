@@ -345,9 +345,30 @@ function referralScriptAttach2(refDoctorNoElement, refDoctorNameElement, refDoct
     rs('att',('../billing/CA/ON/searchRefDoc.jsp?refDoctorNo='+refDoctorNo+'&refDoctorName='+refDoctorName + '&param=' + t0 + '&param2=' + t1 + '&paramId=' + t2 + '&searchType=' + searchType),600,600,1);
 	 }
 
+<%
+	SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
+	SystemPreferences systemPreferences = systemPreferencesDao.findPreferenceByName("referring_physician_mandatory");
+	boolean refPhysicianMandatory = false;
+	if (systemPreferences != null && Boolean.parseBoolean(systemPreferences.getValue())) {
+	    refPhysicianMandatory = true;
+	}
+%>
+
+function checkRefPhysician() {
+    var valid = false;
+
+    if (document.adddemographic.r_doctor.value.trim() !== "") {
+        valid = true;
+	} else {
+        alert ("You must type in the following fields: Referral Doctor")
+	}
+
+	return valid;
+}
+
 function checkName() {
 	var typeInOK = false;
-	if(document.adddemographic.last_name.value!="" && document.adddemographic.first_name.value!="" && document.adddemographic.last_name.value!=" " && document.adddemographic.first_name.value!=" ") {
+	if(document.adddemographic.last_name.value.trim() !== "" && document.adddemographic.last_name.value.trim() !== "") {
 	    typeInOK = true;
 	} else {
 		alert ("You must type in the following fields: Last Name, First Name.");
@@ -493,6 +514,9 @@ function checkAllDate() {
 
 function checkFormTypeIn() {
 	if(document.getElementById("eform_iframe")!=null)document.getElementById("eform_iframe").contentWindow.document.forms[0].submit();
+	<% if (refPhysicianMandatory) { %>
+		if ( !checkRefPhysician() ) return false;
+	<% } %>
 	if ( !checkName() ) return false;
 	if ( !checkDob() ) return false;
 	if ( !checkHin() ) return false;
@@ -1216,7 +1240,7 @@ function ignoreDuplicates() {
                                           	  vecRef.add(prop);
                                     	  }
                                       }
-                                  %> <select name="r_doctor"
+                                  %> <select name="r_doctor" id="r_doctor"
 					onChange="changeRefDoc()" style="width: 200px">
 					<option value=""></option>
 					<% for(int k=0; k<vecRef.size(); k++) {
