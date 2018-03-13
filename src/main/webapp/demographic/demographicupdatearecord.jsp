@@ -303,6 +303,15 @@
 	String familyDoctorId = "";
 	String familyPhysicianId = "";
 	List<DemographicExt> extensions = new ArrayList<DemographicExt>();
+	Map<String, String> demoExt = demographicExtDao.getAllValuesForDemo(demographicNo);
+
+	if (!StringUtils.trimToEmpty(demoExt.get("insurance_company")).equals(StringUtils.trimToEmpty(request.getParameter("insurance_company")))) {
+		extensions.add(new DemographicExt(request.getParameter("insurance_company_id"), proNo, demographicNo, "insurance_company", request.getParameter("insurance_company")));
+	}
+
+	if (!StringUtils.trimToEmpty(demoExt.get("insurance_number")).equals(StringUtils.trimToEmpty(request.getParameter("insurance_number")))) {
+		extensions.add(new DemographicExt(request.getParameter("insurance_number_id"), proNo, demographicNo, "insurance_number", request.getParameter("insurance_number")));
+	}
 
 	if (request.getParameter("r_doctor")!=null && !request.getParameter("r_doctor").isEmpty()){
 		familyDoctorId = request.getParameter("r_doctor_id");
@@ -312,33 +321,110 @@
 		familyPhysicianId = request.getParameter("f_doctor_id");
 	}
 
-    extensions.add(new DemographicExt(request.getParameter("insurance_company_id"), proNo, demographicNo, "insurance_company", request.getParameter("insurance_company")));
-    extensions.add(new DemographicExt(request.getParameter("insurance_number_id"), proNo, demographicNo, "insurance_number", request.getParameter("insurance_number")));
-	extensions.add(new DemographicExt(request.getParameter("demo_cell_id"), proNo, demographicNo, "demo_cell", request.getParameter("demo_cell")));
-	extensions.add(new DemographicExt(request.getParameter("aboriginal_id"), proNo, demographicNo, "aboriginal", request.getParameter("aboriginal")));
-	extensions.add(new DemographicExt(request.getParameter("hPhoneExt_id"), proNo, demographicNo, "hPhoneExt", request.getParameter("hPhoneExt")));
-	extensions.add(new DemographicExt(request.getParameter("wPhoneExt_id"), proNo, demographicNo, "wPhoneExt", request.getParameter("wPhoneExt")));
-	extensions.add(new DemographicExt(request.getParameter("cytolNum_id"), proNo, demographicNo, "cytolNum",  request.getParameter("cytolNum")));
-	extensions.add(new DemographicExt(request.getParameter("ethnicity_id"), proNo, demographicNo, "ethnicity",  request.getParameter("ethnicity")));
-	extensions.add(new DemographicExt(request.getParameter("area_id"), proNo, demographicNo, "area", request.getParameter("area")));
-	extensions.add(new DemographicExt(request.getParameter("statusNum_id"), proNo, demographicNo, "statusNum",  request.getParameter("statusNum")));
-	extensions.add(new DemographicExt(request.getParameter("fNationCom_id"), proNo, demographicNo, "fNationCom", request.getParameter("fNationCom")));
-    extensions.add(new DemographicExt(request.getParameter("fNationFamilyNumber_id"), proNo, demographicNo, "fNationFamilyNumber", request.getParameter("fNationFamilyNumber")));
-    extensions.add(new DemographicExt(request.getParameter("fNationFamilyPosition_id"), proNo, demographicNo, "fNationFamilyPosition", request.getParameter("fNationFamilyPosition")));
-	extensions.add(new DemographicExt(request.getParameter("given_consent_id"), proNo, demographicNo, "given_consent", request.getParameter("given_consent")));
-	extensions.add(new DemographicExt(request.getParameter("rxInteractionWarningLevel_id"), proNo, demographicNo, "rxInteractionWarningLevel", request.getParameter("rxInteractionWarningLevel")));
-	extensions.add(new DemographicExt(request.getParameter("primaryEMR_id"), proNo, demographicNo, "primaryEMR", request.getParameter("primaryEMR")));
-	extensions.add(new DemographicExt(request.getParameter("phoneComment_id"), proNo, demographicNo, "phoneComment", request.getParameter("phoneComment")));
-	extensions.add(new DemographicExt(request.getParameter("usSigned_id"), proNo, demographicNo, "usSigned", request.getParameter("usSigned")));
-	extensions.add(new DemographicExt(request.getParameter("privacyConsent_id"), proNo, demographicNo, "privacyConsent", request.getParameter("privacyConsent")));
-	extensions.add(new DemographicExt(request.getParameter("informedConsent_id"), proNo, demographicNo, "informedConsent", request.getParameter("informedConsent")));
-	extensions.add(new DemographicExt(request.getParameter("paper_chart_archived_id"), proNo, demographicNo, "paper_chart_archived", request.getParameter("paper_chart_archived")));
-	extensions.add(new DemographicExt(request.getParameter("paper_chart_archived_date_id"), proNo, demographicNo, "paper_chart_archived_date", request.getParameter("paper_chart_archived_date")));
-	extensions.add(new DemographicExt(request.getParameter("paper_chart_archived_program_id"), proNo, demographicNo, "paper_chart_archived_program", request.getParameter("paper_chart_archived_program")));
-	extensions.add(new DemographicExt(request.getParameter("familyDoctorId_id"), proNo, demographicNo, "familyDoctorId", familyDoctorId));
-	extensions.add(new DemographicExt(request.getParameter("familyPhysicianId_id"), proNo, demographicNo, "familyPhysicianId", familyPhysicianId));
-	extensions.add(new DemographicExt(request.getParameter("includeEmailOnConsults_id"), proNo, demographicNo, "includeEmailOnConsults", request.getParameter("includeEmailOnConsults") != null ? request.getParameter("includeEmailOnConsults") : "false"));
-	extensions.add(new DemographicExt(request.getParameter("patientEmailConsent_id"), proNo, demographicNo, "patientEmailConsent", request.getParameter("patientEmailConsent")==null?"":request.getParameter("patientEmailConsent")));
+	if (!StringUtils.trimToEmpty(demoExt.get("demo_cell")).equals(StringUtils.trimToEmpty(request.getParameter("demo_cell")))) {
+		extensions.add(new DemographicExt(request.getParameter("demo_cell_id"), proNo, demographicNo, "demo_cell", request.getParameter("demo_cell")));
+	}
+
+	if (!StringUtils.trimToEmpty(demoExt.get("aboriginal")).equals(StringUtils.trimToEmpty(request.getParameter("aboriginal")))) {
+		extensions.add(new DemographicExt(request.getParameter("aboriginal_id"), proNo, demographicNo, "aboriginal", request.getParameter("aboriginal")));
+	}
+
+	if (!StringUtils.trimToEmpty(demoExt.get("hPhoneExt")).equals(StringUtils.trimToEmpty(request.getParameter("hPhoneExt")))) {
+		extensions.add(new DemographicExt(request.getParameter("hPhoneExt_id"), proNo, demographicNo, "hPhoneExt", request.getParameter("hPhoneExt")));
+	}
+
+	if (!StringUtils.trimToEmpty(demoExt.get("wPhoneExt")).equals(StringUtils.trimToEmpty(request.getParameter("wPhoneExt")))) {
+		extensions.add(new DemographicExt(request.getParameter("wPhoneExt_id"), proNo, demographicNo, "wPhoneExt", request.getParameter("wPhoneExt")));
+	}
+
+	if (!StringUtils.trimToEmpty(demoExt.get("cytolNum")).equals(StringUtils.trimToEmpty(request.getParameter("cytolNum")))) {
+		extensions.add(new DemographicExt(request.getParameter("cytolNum_id"), proNo, demographicNo, "cytolNum", request.getParameter("cytolNum")));
+	}
+
+	if (!StringUtils.trimToEmpty(demoExt.get("ethnicity")).equals(StringUtils.trimToEmpty(request.getParameter("ethnicity")))) {
+		extensions.add(new DemographicExt(request.getParameter("ethnicity_id"), proNo, demographicNo, "ethnicity", request.getParameter("ethnicity")));
+	}
+
+	if (!StringUtils.trimToEmpty(demoExt.get("area")).equals(StringUtils.trimToEmpty(request.getParameter("area")))) {
+		extensions.add(new DemographicExt(request.getParameter("area_id"), proNo, demographicNo, "area", request.getParameter("area")));
+	}
+
+	if (!StringUtils.trimToEmpty(demoExt.get("statusNum")).equals(StringUtils.trimToEmpty(request.getParameter("statusNum")))) {
+		extensions.add(new DemographicExt(request.getParameter("statusNum_id"), proNo, demographicNo, "statusNum", request.getParameter("statusNum")));
+	}
+
+	if (!StringUtils.trimToEmpty(demoExt.get("fNationCom")).equals(StringUtils.trimToEmpty(request.getParameter("fNationCom")))) {
+		extensions.add(new DemographicExt(request.getParameter("fNationCom_id"), proNo, demographicNo, "fNationCom", request.getParameter("fNationCom")));
+	}
+
+	if (!StringUtils.trimToEmpty(demoExt.get("fNationFamilyNumber")).equals(StringUtils.trimToEmpty(request.getParameter("fNationFamilyNumber")))) {
+		extensions.add(new DemographicExt(request.getParameter("fNationFamilyNumber_id"), proNo, demographicNo, "fNationFamilyNumber", request.getParameter("fNationFamilyNumber")));
+	}
+
+	if (!StringUtils.trimToEmpty(demoExt.get("fNationFamilyPosition")).equals(StringUtils.trimToEmpty(request.getParameter("fNationFamilyPosition")))) {
+		extensions.add(new DemographicExt(request.getParameter("fNationFamilyPosition_id"), proNo, demographicNo, "fNationFamilyPosition", request.getParameter("fNationFamilyPosition")));
+	}
+
+	if (!StringUtils.trimToEmpty(demoExt.get("given_consent")).equals(StringUtils.trimToEmpty(request.getParameter("given_consent")))) {
+		extensions.add(new DemographicExt(request.getParameter("given_consent_id"), proNo, demographicNo, "given_consent", request.getParameter("given_consent")));
+	}
+
+	if (!StringUtils.trimToEmpty(demoExt.get("rxInteractionWarningLevel")).equals(StringUtils.trimToEmpty(request.getParameter("rxInteractionWarningLevel")))) {
+		extensions.add(new DemographicExt(request.getParameter("rxInteractionWarningLevel_id"), proNo, demographicNo, "rxInteractionWarningLevel", request.getParameter("rxInteractionWarningLevel")));
+	}
+
+	if (!StringUtils.trimToEmpty(demoExt.get("primaryEMR")).equals(StringUtils.trimToEmpty(request.getParameter("primaryEMR")))) {
+		extensions.add(new DemographicExt(request.getParameter("primaryEMR_id"), proNo, demographicNo, "primaryEMR", request.getParameter("primaryEMR")));
+	}
+
+	if (!StringUtils.trimToEmpty(demoExt.get("phoneComment")).equals(StringUtils.trimToEmpty(request.getParameter("phoneComment")))) {
+		extensions.add(new DemographicExt(request.getParameter("phoneComment_id"), proNo, demographicNo, "phoneComment", request.getParameter("phoneComment")));
+	}
+
+	if (!StringUtils.trimToEmpty(demoExt.get("usSigned")).equals(StringUtils.trimToEmpty(request.getParameter("usSigned")))) {
+		extensions.add(new DemographicExt(request.getParameter("usSigned_id"), proNo, demographicNo, "usSigned", request.getParameter("usSigned")));
+	}
+
+	if (!StringUtils.trimToEmpty(demoExt.get("privacyConsent")).equals(StringUtils.trimToEmpty(request.getParameter("privacyConsent")))) {
+		extensions.add(new DemographicExt(request.getParameter("privacyConsent_id"), proNo, demographicNo, "privacyConsent", request.getParameter("privacyConsent")));
+	}
+
+	if (!StringUtils.trimToEmpty(demoExt.get("informedConsent")).equals(StringUtils.trimToEmpty(request.getParameter("informedConsent")))) {
+		extensions.add(new DemographicExt(request.getParameter("informedConsent_id"), proNo, demographicNo, "informedConsent", request.getParameter("informedConsent")));
+	}
+
+	if (!StringUtils.trimToEmpty(demoExt.get("paper_chart_archived")).equals(StringUtils.trimToEmpty(request.getParameter("paper_chart_archived")))) {
+		extensions.add(new DemographicExt(request.getParameter("paper_chart_archived_id"), proNo, demographicNo, "paper_chart_archived", request.getParameter("paper_chart_archived")));
+	}
+
+	if (!StringUtils.trimToEmpty(demoExt.get("paper_chart_archived_date")).equals(StringUtils.trimToEmpty(request.getParameter("paper_chart_archived_date")))) {
+		extensions.add(new DemographicExt(request.getParameter("paper_chart_archived_date_id"), proNo, demographicNo, "paper_chart_archived_date", request.getParameter("paper_chart_archived_date")));
+	}
+
+	if (!StringUtils.trimToEmpty(demoExt.get("paper_chart_archived_program")).equals(StringUtils.trimToEmpty(request.getParameter("paper_chart_archived_program")))) {
+		extensions.add(new DemographicExt(request.getParameter("paper_chart_archived_program_id"), proNo, demographicNo, "paper_chart_archived_program", request.getParameter("paper_chart_archived_program")));
+	}
+
+	if (!StringUtils.trimToEmpty(demoExt.get("familyDoctorId")).equals(StringUtils.trimToEmpty(familyDoctorId))) {
+		extensions.add(new DemographicExt(request.getParameter("familyDoctorId_id"), proNo, demographicNo, "familyDoctorId", familyDoctorId));
+	}
+
+	if (!StringUtils.trimToEmpty(demoExt.get("familyPhysicianId")).equals(StringUtils.trimToEmpty(familyPhysicianId))) {
+		extensions.add(new DemographicExt(request.getParameter("familyPhysicianId_id"), proNo, demographicNo, "familyPhysicianId", familyPhysicianId));
+	}
+
+	String includeEmailOnConsults = request.getParameter("includeEmailOnConsults");
+	if (StringUtils.trimToNull(includeEmailOnConsults) == null) {
+		includeEmailOnConsults = "false";
+	}
+
+	if (!StringUtils.trimToEmpty(demoExt.get("includeEmailOnConsults")).equals(StringUtils.trimToEmpty(includeEmailOnConsults))) {
+		extensions.add(new DemographicExt(request.getParameter("includeEmailOnConsults_id"), proNo, demographicNo, "includeEmailOnConsults", includeEmailOnConsults));
+	}
+
+	if (!StringUtils.trimToEmpty(demoExt.get("patientEmailConsent")).equals(StringUtils.trimToEmpty(request.getParameter("patientEmailConsent")))) {
+		extensions.add(new DemographicExt(request.getParameter("patientEmailConsent_id"), proNo, demographicNo, "patientEmailConsent", request.getParameter("patientEmailConsent") == null ? "" : request.getParameter("patientEmailConsent")));
+	}
 	// Demographic Groups
 	int demographicNoAsInt = 0;
 	try {
