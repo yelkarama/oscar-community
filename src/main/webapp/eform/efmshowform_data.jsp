@@ -23,10 +23,14 @@
     Ontario, Canada
 
 --%>
+<%@page import="org.oscarehr.util.MiscUtils"%>
+<%@page import="java.util.regex.Matcher"%>
+<%@page import="java.util.regex.Pattern"%>
 <%@ page import="java.sql.*, oscar.eform.data.*"%>
 <%
 	String id = request.getParameter("fid");
 	String messageOnFailure = "No eform or appointment is available";
+    		
   if (id == null) {  // form exists in patient
       id = request.getParameter("fdid");
       String appointmentNo = request.getParameter("appointment");
@@ -40,6 +44,13 @@
 
       String parentAjaxId = request.getParameter("parentAjaxId");
       if( parentAjaxId != null ) eForm.setAction(parentAjaxId);
+      
+      if( "true".equalsIgnoreCase(((String)request.getAttribute("PrintPDF"))) ) {
+    	  MiscUtils.getLogger().info("HERE WE ARE!!!");
+ 		  String html = mkLocalURI(eForm.getFormHtml());
+ 		  eForm.setFormHtml(html);
+      }
+      
       out.print(eForm.getFormHtml());
   } else {  //if form is viewed from admin screen
       EForm eForm = new EForm(id, "-1"); //form cannot be submitted, demographic_no "-1" indicate this specialty
@@ -58,3 +69,20 @@ if(iframeResize !=null && "true".equalsIgnoreCase(iframeResize)){ %>
     var pymChild = new pym.Child({ polling: 500 });
 </script>
 <%}%>
+
+
+<%!
+private String mkLocalURI(String html) {
+	String regex = "https?://(.+?):?(\\d+)?/";		
+	Pattern pattern = Pattern.compile(regex);
+	Matcher matcher = pattern.matcher(html);
+	String host;
+	
+	while( matcher.find() ) {			
+		host = matcher.group(1);					
+		html = html.replace(host, "127.0.0.1");
+	}
+	
+	return html;
+}
+%>
