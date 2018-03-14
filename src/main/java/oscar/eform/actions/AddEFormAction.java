@@ -248,6 +248,7 @@ public class AddEFormAction extends Action {
 			
 			else if (print) {
 				request.setAttribute("fdid", prev_fdid);
+				request.setAttribute("PrintPDF", "true");
 				return(mapping.findForward("print"));
 			}
 		}

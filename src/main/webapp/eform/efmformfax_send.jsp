@@ -8,6 +8,7 @@
     and "gnu.org/licenses/gpl-2.0.html".
 
 --%>
+<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="org.oscarehr.util.WebUtilsOld"%>
 <%@page import="oscar.eform.actions.FaxAction"%>
 <%@ page language="java"%>
@@ -56,7 +57,7 @@ function finishPage(secs){
 					
 				String id  = (String)request.getAttribute("fdid");
 				String[] s = request.getParameterValues("faxRecipients");
-				String providerId = request.getParameter("providerId");
+				String providerId = LoggedInInfo.getLoggedInInfoFromSession(session).getLoggedInProviderNo();
 				FaxAction bean=new FaxAction(request);
 				try { 
 					bean.faxForms(s,id,providerId);
