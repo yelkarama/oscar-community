@@ -39,5 +39,7 @@ public interface NoteService {
 	 * 		Returns all notes satisfying the search criteria.
 	 */
 	NoteSelectionResult findNotes(LoggedInInfo loggedInInfo, NoteSelectionCriteria criteria);
+	
+	NoteSelectionResult findArchivedNotes(LoggedInInfo loggedInInfo, NoteSelectionCriteria criteria);
 
 }

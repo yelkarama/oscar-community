@@ -1989,6 +1989,7 @@ public class CaseManagementViewAction extends BaseCaseManagementViewAction {
 			request.setAttribute("moreNotes", true);
 		}
 		request.setAttribute("notesToDisplay", result.getNotes());
+		request.setAttribute("hasArchived", result.hasArchived());
 		return mapping.findForward("ajaxDisplayNotes");
 	}
 

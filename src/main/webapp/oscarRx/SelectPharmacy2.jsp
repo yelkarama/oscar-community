@@ -577,7 +577,7 @@ $(function() {
 							</td>
 						<td style="text-align:right;padding-right:250px;" colspan="2">
 						<input type="button" value="Reset" onclick="return resetForm();"/>&nbsp;
-						<security:oscarSec roleName="<%=roleName$%>" objectName="_rx" rights="w" reverse="<%=false%>">
+						<security:oscarSec roleName="<%=roleName$%>" objectName="_admin" rights="w" reverse="<%=false%>">
 						<input type="button" value="Save" onclick="return savePharmacy();"/>&nbsp;&nbsp;
 <!-- 							<input type="button" value="<bean:message key="SelectPharmacy.deleteLink" />" onclick="return deletePharmacy($('#preferedPharmacy>option:selected').val())"/> -->
 						</security:oscarSec>

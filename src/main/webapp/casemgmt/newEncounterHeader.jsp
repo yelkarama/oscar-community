@@ -54,6 +54,13 @@
 
     String demoNo = bean.demographicNo;
     EctPatientData.Patient pd = new EctPatientData().getPatient(loggedInInfo, demoNo);
+    DemographicExtDao demographicExtDao = SpringUtils.getBean(DemographicExtDao.class);
+    DemographicExt demographicExt = demographicExtDao.getLatestDemographicExt(Integer.valueOf(demoNo), "givenName");
+    String givenName = null;
+    if( demographicExt != null ) {
+    	givenName = demographicExt.getValue();
+    }
+    
     String famDocName, famDocSurname, famDocColour, inverseUserColour, userColour;
     String user = (String) session.getAttribute("user");
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -62,7 +69,7 @@
     
 	String privateConsentEnabledProperty = OscarProperties.getInstance().getProperty("privateConsentEnabled");
 	boolean privateConsentEnabled = privateConsentEnabledProperty != null && privateConsentEnabledProperty.equals("true");
-	DemographicExtDao demographicExtDao = SpringUtils.getBean(DemographicExtDao.class);
+
     DemographicExt infoExt = demographicExtDao.getDemographicExt(Integer.parseInt(demoNo), "informedConsent");
     boolean showPopup = infoExt == null || StringUtils.isBlank(infoExt.getValue());
  
@@ -116,7 +123,7 @@
             String winName = "Master" + bean.demographicNo;
             String url = "/demographic/demographiccontrol.jsp?demographic_no=" + bean.demographicNo + "&amp;displaymode=edit&amp;dboperation=search_detail&appointment="+appointmentNo;
         %>
-        <a href="#" onClick="popupPage(700,1000,'<%=winName%>','<c:out value="${ctx}"/><%=url%>'); return false;" title="<bean:message key="provider.appointmentProviderAdminDay.msgMasterFile"/>"><%=bean.patientLastName %>, <%=bean.patientFirstName%></a> <%=bean.patientSex%> <%=bean.patientAge%>  
+        <a href="#" onClick="popupPage(700,1000,'<%=winName%>','<c:out value="${ctx}"/><%=url%>'); return false;" title="<bean:message key="provider.appointmentProviderAdminDay.msgMasterFile"/>"><%=bean.patientLastName %>, <%=bean.patientFirstName%> <%=(givenName == null ? "" : " (" + givenName + ")")%></a> <%=bean.patientSex%> <%=bean.patientAge%>  
         &nbsp;<oscar:phrverification demographicNo="<%=demoNo%>"><bean:message key="phr.verification.link"/></oscar:phrverification> &nbsp;<%=bean.phone%> 
 		<span id="encounterHeaderExt"></span>
 		<security:oscarSec roleName="<%=roleName$%>" objectName="_newCasemgmt.apptHistory" rights="r">

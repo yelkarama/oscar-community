@@ -134,7 +134,19 @@ int maxId = 0;
 
 //We determine the lock status of the note
 CasemgmtNoteLock casemgmtNoteLock = (CasemgmtNoteLock)session.getAttribute("casemgmtNoteLock"+demographicNo);
+
+
+if( ((Boolean)request.getAttribute("hasArchived")) ) {
+
 %>
+<script type="text/javascript">
+	if( !jQuery('#archivedToView').is(':visible') ) {		
+		jQuery('#archivedToView').show("slow");
+	}
+
+</script>
+
+<%} %>
 
 <c:if test="${not empty notesToDisplay}">
 	<%

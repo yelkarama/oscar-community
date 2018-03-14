@@ -88,7 +88,6 @@ public class DefaultNoteService implements NoteService {
 
 	@Autowired
 	private CaseManagementIssueNotesDao cmeIssueNotesDao;
-
 	@Override
 	public NoteSelectionResult findNotes(LoggedInInfo loggedInInfo, NoteSelectionCriteria criteria) {
 		logger.debug("LOOKING UP NOTES: " + criteria);
@@ -100,8 +99,12 @@ public class DefaultNoteService implements NoteService {
 		long startTime = System.currentTimeMillis();
 		long intTime = System.currentTimeMillis();
 
+		List<Map<String, Object>> notes;
 		//Gets some of the note data, no relationships, not the note/history..just enough
-		List<Map<String, Object>> notes = caseManagementNoteDao.getRawNoteInfoMapByDemographic(demoNo);
+		
+		notes = caseManagementNoteDao.getRawNoteInfoMapByDemographicNotArchived(demoNo);
+		
+		
 		Map<String, Object> filteredNotes = new LinkedHashMap<String, Object>();
 
 		//This gets rid of old revisions (better than left join on a computed subset of itself
@@ -349,6 +352,99 @@ public class DefaultNoteService implements NoteService {
 		}
 		logger.debug("Total Time to load the notes=" + (System.currentTimeMillis() - startTime) + "ms.");
 		result.getNotes().addAll(notesToDisplay);
+		Boolean hasArchived = caseManagementNoteDao.hasDemographicArchived(demoNo);
+		result.setHasArchived(hasArchived);
+		return result;
+	}
+	
+	@Override
+	public NoteSelectionResult findArchivedNotes(LoggedInInfo loggedInInfo, NoteSelectionCriteria criteria) {
+		logger.debug("LOOKING UP NOTES: " + criteria);
+
+		List<EChartNoteEntry> entries = new ArrayList<EChartNoteEntry>();
+
+		int demographicId = criteria.getDemographicId();
+		String demoNo = "" + demographicId;
+		
+
+		List<Map<String, Object>> notes;
+		//Gets some of the note data, no relationships, not the note/history..just enough
+		
+		notes = caseManagementNoteDao.getRawNoteInfoMapByDemographicArchived(demoNo);
+		
+		Map<String, Object> filteredNotes = new LinkedHashMap<String, Object>();
+
+		//This gets rid of old revisions (better than left join on a computed subset of itself
+		for (Map<String, Object> note : notes) {
+			if (filteredNotes.get(note.get("uuid")) != null) {
+				continue;
+			}
+			filteredNotes.put((String) note.get("uuid"), true);
+			
+			EChartNoteEntry e = new EChartNoteEntry();
+			e.setId(note.get("id"));
+			e.setDate((Date) note.get("observation_date"));
+			e.setProviderNo((String) note.get("providerNo"));
+			e.setProgramId(ConversionUtils.fromIntString(note.get("program_no")));
+			e.setRole((String) note.get("reporter_caisi_role"));
+			e.setType("local_note");
+			entries.add(e);
+		}
+
+		//we now have this huge list
+		//sort it by date or whatever
+		if (criteria.isNoteSortSpecified()) {
+			String sort = criteria.getNoteSort();
+			if ("observation_date_desc".equals(sort)) {
+				Collections.sort(entries, EChartNoteEntry.getDateComparatorDesc());
+			} else if ("observation_date_asc".equals(sort)) {
+				Collections.sort(entries, EChartNoteEntry.getDateComparator());
+			}
+		} else {
+			Collections.sort(entries, EChartNoteEntry.getDateComparator());
+		}
+
+		
+
+		String programId = criteria.getProgramId();
+
+		//apply CAISI permission filter - local notes
+		entries = caseManagementManager.filterNotes1(loggedInInfo.getLoggedInProviderNo(), entries, programId);		
+
+		NoteSelectionResult result = new NoteSelectionResult();
+		
+		List<EChartNoteEntry> slice = null;
+		if(criteria.isSliceFromEndOfList()){
+			slice = sliceFromEndOfList(criteria,entries,result);
+		}else{
+			slice = sliceFromStartOfList(criteria,entries,result);
+		}
+		
+
+		//we now have the slice we want to return
+		ArrayList<NoteDisplay> notesToDisplay = new ArrayList<NoteDisplay>();
+
+		if (slice.size() > 0) {
+			//figure out what we need to retrieve
+			List<Long> localNoteIds = new ArrayList<Long>();
+			for (EChartNoteEntry entry : slice) {
+				localNoteIds.add((Long) entry.getId());				
+			}
+
+			List<CaseManagementNote> localNotes = caseManagementNoteDao.getNotes(localNoteIds);
+		
+			caseManagementManager.getEditors(localNotes);
+
+			for (EChartNoteEntry entry : slice) {
+
+					notesToDisplay.add(new NoteDisplayLocal(loggedInInfo, findNote((Long) entry.getId(), localNotes)));
+			}
+
+		}
+		
+		result.getNotes().addAll(notesToDisplay);
+		Boolean hasArchived = caseManagementNoteDao.hasDemographicArchived(demoNo);
+		result.setHasArchived(hasArchived);
 		return result;
 	}
 	
@@ -371,7 +467,7 @@ public class DefaultNoteService implements NoteService {
 			slice.add(entries.get(x));
 		}
 		logger.error("slice "+slice.size() +" max size "+ criteria.getMaxResults());
-		if(slice.size() == criteria.getMaxResults() ){
+		if(slice.size() >= criteria.getMaxResults() ){
 			result.setMoreNotes(true);
 		}
 		return slice;

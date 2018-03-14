@@ -35,8 +35,23 @@ import org.oscarehr.casemgmt.web.NoteDisplay;
 public class NoteSelectionResult {
 
 	private boolean moreNotes;
+	private boolean hasArchived;
 	private List<NoteDisplay> notes = new ArrayList<NoteDisplay>();
+	
+	/**
+	 * Gets flag indicating chart has archived notes available to view
+	 */
+	public boolean hasArchived() {
+		return hasArchived;
+	}
 
+	/**
+	 * Sets flag indicating if archived notes are available to view
+	 */
+	public void setHasArchived(boolean archived) {
+		this.hasArchived = archived;
+	}
+	
 	/**
 	 * Gets flag indicating that there are more notes that actually
 	 * being provided in the {@link #getNotes()} list. This is usually set when
@@ -47,7 +62,7 @@ public class NoteSelectionResult {
 	 */
 	public boolean isMoreNotes() {
 		return moreNotes;
-	}
+	}			
 
 	/**
 	 * Sets flag indicating that there are more notes that actually

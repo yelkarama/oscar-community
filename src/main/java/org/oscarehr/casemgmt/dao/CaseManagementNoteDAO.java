@@ -44,6 +44,7 @@ import javax.persistence.PersistenceException;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
+import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.criterion.Expression;
@@ -240,6 +241,25 @@ public class CaseManagementNoteDAO extends HibernateDaoSupport {
 		}
 	    
 	@SuppressWarnings("unchecked")
+	public List<Map<String,Object>> getRawNoteInfoMapByDemographicNotArchived(String demographic_no) {
+		String hql = "select new map(cmn.id as id,cmn.observation_date as observation_date,cmn.providerNo as providerNo,cmn.program_no as program_no,cmn.reporter_caisi_role as reporter_caisi_role,cmn.uuid as uuid, cmn.update_date as update_date) from CaseManagementNote cmn where cmn.demographic_no = ? and cmn.archived = 0 order by cmn.update_date DESC";
+		return getHibernateTemplate().find(hql, demographic_no);			
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<Map<String,Object>> getRawNoteInfoMapByDemographicArchived(String demographic_no) {
+		String hql = "select new map(cmn.id as id,cmn.observation_date as observation_date,cmn.providerNo as providerNo,cmn.program_no as program_no,cmn.reporter_caisi_role as reporter_caisi_role,cmn.uuid as uuid, cmn.update_date as update_date) from CaseManagementNote cmn where cmn.demographic_no = ? and cmn.archived = 1 order by cmn.update_date DESC";
+		return getHibernateTemplate().find(hql, demographic_no);			
+	}
+	
+	
+	public Boolean hasDemographicArchived(String demographic_no) {		
+		String hql = "select count(*) from CaseManagementNote cmn where cmn.demographic_no = ? and cmn.archived = 1 order by cmn.update_date DESC";
+		return ((Long)getHibernateTemplate().find(hql, demographic_no).get(0)).longValue() > 0;
+		
+	}
+	
+	@SuppressWarnings("unchecked")
 	public List<Map<String,Object>> getRawNoteInfoMapByDemographic(String demographic_no) {
 		String hql = "select new map(cmn.id as id,cmn.observation_date as observation_date,cmn.providerNo as providerNo,cmn.program_no as program_no,cmn.reporter_caisi_role as reporter_caisi_role,cmn.uuid as uuid, cmn.update_date as update_date) from CaseManagementNote cmn where cmn.demographic_no = ? order by cmn.update_date DESC";
 		return getHibernateTemplate().find(hql, demographic_no);			
@@ -272,6 +292,26 @@ public class CaseManagementNoteDAO extends HibernateDaoSupport {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+    public List<CaseManagementNote> getArchivedNotesByDemographic(String demographic_no, Integer offset, Integer maxNotes) {
+		
+		Session session = getSession();
+		String hql = "select cmn from CaseManagementNote cmn where cmn.demographic_no = ? and cmn.archived = 1 order by cmn.observation_date desc";
+		Query query = session.createQuery(hql);
+		
+		if( maxNotes != -1 ) {
+			query.setMaxResults(maxNotes);
+		}
+		
+		if( offset > -1 ) {
+			query.setFirstResult(offset);
+		}
+		
+		query.setInteger(1, Integer.valueOf(demographic_no));
+		return  query.list();
+	}
+	
+	
 	// This is the original method. It was created by CAISI, to get all notes for each client.
 	/*
 	 * public List getNotesByDemographic(String demographic_no) { return
@@ -483,7 +523,7 @@ public class CaseManagementNoteDAO extends HibernateDaoSupport {
 			note.setUuid(uuid.toString());
 		}
 		note.setUpdate_date(new Date());
-		this.getHibernateTemplate().saveOrUpdate(note);
+		this.getHibernateTemplate().save(note);
 	}
 
 	public Object saveAndReturn(CaseManagementNote note) {

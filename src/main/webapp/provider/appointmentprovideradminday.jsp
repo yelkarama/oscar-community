@@ -23,6 +23,8 @@
     Ontario, Canada
 
 --%>
+<%@page import="org.oscarehr.common.dao.DemographicExtDao"%>
+<%@page import="org.oscarehr.common.model.DemographicExt"%>
 <%@page import="org.apache.commons.lang.StringUtils"%>
 <%@ page import="org.oscarehr.phr.util.MyOscarUtils"%>
 <%@ page import="org.oscarehr.common.model.Appointment.BookingSource"%>
@@ -93,6 +95,7 @@
 	SiteDao siteDao = SpringUtils.getBean(SiteDao.class);
 	MyGroupDao myGroupDao = SpringUtils.getBean(MyGroupDao.class);
 	DemographicDao demographicDao = (DemographicDao)SpringUtils.getBean("demographicDao");
+	DemographicExtDao demographicExtDao = SpringUtils.getBean(DemographicExtDao.class);
 	ScheduleTemplateCodeDao scheduleTemplateCodeDao = SpringUtils.getBean(ScheduleTemplateCodeDao.class);
 	ScheduleDateDao scheduleDateDao = SpringUtils.getBean(ScheduleDateDao.class);
 	ProviderSiteDao providerSiteDao = SpringUtils.getBean(ProviderSiteDao.class);
@@ -990,9 +993,11 @@ java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.stru
 						<c:out value="${ dashboard.name }" />
 					</a>
 				</c:forEach>
-				<a href="javascript:void(0)" onclick="newWindow('<%=request.getContextPath()%>/web/dashboard/display/sharedOutcomesDashboard.jsp','shared_dashboard')"> 
+				<security:oscarSec roleName="<%=roleName$%>" objectName="_dashboardCommonLink" rights="r">
+					<a href="javascript:void(0)" onclick="newWindow('<%=request.getContextPath()%>/web/dashboard/display/sharedOutcomesDashboard.jsp','shared_dashboard')"> 
 						Common Provider Dashboard
 					</a>
+				</security:oscarSec>
 			</div>
 			
 		</div>
@@ -1650,10 +1655,15 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
                   //Otherwise get the name associated with the appointment from the appointment information
                   StringBuilder nameSb = new StringBuilder();
                   if ((demographic_no != 0)&& (demographicDao != null)) {
-                        Demographic demo = demographicDao.getDemographic(String.valueOf(demographic_no));
-                        nameSb.append(demo.getLastName())
-                              .append(",")
-                              .append(demo.getFirstName());
+                	  Demographic demo = demographicDao.getDemographic(String.valueOf(demographic_no));
+                	  String givenName = demographicExtDao.getValueForDemoKey(demographic_no, "givenName");
+                	  nameSb.append(demo.getLastName()).append(",");
+                	  if( givenName == null ) {                       	                       	
+                             nameSb.append(demo.getFirstName());
+                	  	}
+                	  	else {
+                	  		nameSb.append(givenName);
+                	  	}
                   }
                   else {
                         nameSb.append(String.valueOf(appointment.getName()));
@@ -1790,7 +1800,7 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
 							}else{
 				    %>
 					
-				    			<img src="../images/<%=as.getImageName()%>" border="0" height="10" title="<%=as.getTitleString(request.getLocale())%>">
+				    			<img src="../images/<%=as.getImageName()%>" border="0" height="10" title="<%=(as.getTitleString(request.getLocale()).length()>0)?as.getTitleString(request.getLocale()):as.getTitle()%>">
 					
             <%
 							}

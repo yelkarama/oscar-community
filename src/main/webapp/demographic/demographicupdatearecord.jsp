@@ -288,6 +288,7 @@
 	
 	extensions.add(new DemographicExt(request.getParameter("HasPrimaryCarePhysician_id"), proNo, demographicNo, "HasPrimaryCarePhysician", request.getParameter("HasPrimaryCarePhysician")));
 	extensions.add(new DemographicExt(request.getParameter("EmploymentStatus_id"), proNo, demographicNo, "EmploymentStatus", request.getParameter("EmploymentStatus")));
+	extensions.add(new DemographicExt(request.getParameter("given_name_id"), proNo, demographicNo, "givenName", StringUtils.trimToNull(request.getParameter("given_name"))));
 	
 	// customized key
 	if(oscarVariables.getProperty("demographicExt") != null) {
@@ -300,7 +301,8 @@
         for (DemographicExt extension : extensions) {
 	    demographicExtDao.saveEntity(extension);
 	}
-	
+        
+    
 	// for the IBD clinic
 	OtherIdManager.saveIdDemographic(demographicNo, "meditech_id", request.getParameter("meditech_id"));
 	
@@ -333,7 +335,19 @@
 	        }
 	    }
 	}
+     
+    if(demographic.getMyOscarUserName() != null && !demographic.getMyOscarUserName().trim().isEmpty()){ 
+     	Demographic myoscarDemographic = demographicDao.getDemographicByMyOscarUserName(demographic.getMyOscarUserName());
+     	if(!myoscarDemographic.getDemographicNo().equals(demographic.getDemographicNo())){
 
+%>
+			***<font color='red'><bean:message key="demographic.demographicaddarecord.msgDuplicatedPHR" /></font>
+			***<br><br><a href=# onClick="history.go(-1);return false;"><b>&lt;-<bean:message key="global.btnBack" /></b></a> 
+<% 
+			return;
+     	}
+
+    } 
     Long archiveId = demographicArchiveDao.archiveRecord(demographic);
 	for (DemographicExt extension : extensions) {
 		DemographicExtArchive archive = new DemographicExtArchive(extension);

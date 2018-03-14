@@ -638,6 +638,15 @@ function ignoreDuplicates() {
       </td>
     </tr>
     <tr>
+		<td align="right"><b>Preferred Name</b></td>
+		<td colspan="3" align="left"><input type="text" name="given_name"
+		size="30" value=""
+		onBlur="upCaseCtrl(this)"/>
+		
+		
+		</td>	
+	</tr>
+    <tr>
 	<td id="languageLbl" align="right"><b><bean:message key="demographic.demographicaddrecordhtm.msgDemoLanguage"/><font color="red">:</font></b></td>
 	<td id="languageCell" align="left">
 	    <select id="official_lang" name="official_lang">

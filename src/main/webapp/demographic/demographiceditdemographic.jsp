@@ -852,7 +852,7 @@ jQuery(document).ready(function() {
                                                	dob_date = Integer.parseInt(birthDate);
                                                 if(dob_year!=0) age=MyDateFormat.getAge(dob_year,dob_month,dob_date);
                         %> <%=demographic.getLastName()%>,
-				<%=demographic.getFirstName()%> <%=demographic.getSex()%>
+				<%=demographic.getFirstName()%>&nbsp; <%=demoExt.get("givenName") != null ? ((String)demoExt.get("givenName")).toUpperCase() : ""%><%=demographic.getSex()%>
 				<%=age%> years &nbsp;
 				<oscar:phrverification demographicNo='<%=demographic.getDemographicNo().toString()%>' ><bean:message key="phr.verification.link"/></oscar:phrverification>
 
@@ -1414,9 +1414,15 @@ if(oscarProps.getProperty("new_label_print") != null && oscarProps.getProperty("
                                                         <span class="info"><%=demographic.getLastName()%></span>
                                                     </li>
                                                     <li><span class="label">
-							<bean:message
-                                                                key="demographic.demographiceditdemographic.formFirstName" />:</span>
+							
+                                                        <bean:message key="demographic.demographiceditdemographic.formFirstName" />:</span>
                                                         <span class="info"><%=demographic.getFirstName()%></span>
+							</li>
+							<li>
+														<span class="label">
+							
+                                                        Preferred Name:</span>
+                                                        <span class="info"><%=demoExt.get("givenName") != null ? ((String)demoExt.get("givenName")).toUpperCase() : ""%></span>
 							</li>
                                                     <li><span class="label"><bean:message key="demographic.demographiceditdemographic.msgDemoTitle"/>:</span>
                                                         <span class="info"><%=StringUtils.trimToEmpty(demographic.getTitle())%></span>
@@ -2143,7 +2149,7 @@ if ( Dead.equals(PatStat) ) {%>
 						<h3>&nbsp;<bean:message
 							key="demographic.demographiceditdemographic.formNotes" /></h3>
 
-                                                    <%=notes%>&nbsp;
+                                                    <%=StringEscapeUtils.escapeHtml(notes)%>&nbsp;
 <%if (hasImportExtra) { %>
 		                <a href="javascript:void(0);" title="Extra data from Import" onclick="window.open('../annotation/importExtra.jsp?display=<%=annotation_display %>&amp;table_id=<%=demographic_no %>&amp;demo=<%=demographic_no %>','anwin','width=400,height=250');">
 		                    <img src="../images/notes.gif" align="right" alt="Extra data from Import" height="16" width="13" border="0"> </a>
@@ -2238,6 +2244,15 @@ if ( Dead.equals(PatStat) ) {%>
 								<td align="left"><input type="text" name="first_name" <%=getDisabled("first_name")%>
 									size="30" value="<%=StringEscapeUtils.escapeHtml(demographic.getFirstName())%>"
 									onBlur="upCaseCtrl(this)"></td>
+							</tr>
+							<tr>
+								<td align="right"><b>Preferred Name</b></td>
+								<td colspan="3" align="left"><input type="text" name="given_name" <%=getDisabled("first_name")%>
+								size="30" value="<%=demoExt.get("givenName") != null ? StringEscapeUtils.escapeHtml((String)demoExt.get("givenName")) : ""%>"
+								onBlur="upCaseCtrl(this)">
+								<input type="hidden" name="given_name_id" value="<%=demoExt.get("givenName_id") != null ? (String)demoExt.get("givenName_id") : ""%>"/>
+								
+								</td>	
 							</tr>
 							<tr>
 							  <td align="right"><b><bean:message key="demographic.demographiceditdemographic.msgDemoLanguage"/>: </b> </td>

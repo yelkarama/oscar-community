@@ -40,6 +40,7 @@ public class NoteSelectionCriteria {
 	private String userName;
 	private String noteSort;
 	private String programId;
+	private Boolean archivedOnly = false;
 	private List<String> roles = new ArrayList<String>();
 	private List<String> providers = new ArrayList<String>();
 	private List<String> issues = new ArrayList<String>();
@@ -248,5 +249,13 @@ public class NoteSelectionCriteria {
     public String toString() {
 	    return "NoteSelectionCriteria [maxResults=" + maxResults + ", firstResult=" + firstResult + ", demographicId=" + demographicId + ", userRole=" + userRole + ", userName=" + userName + ", noteSort=" + noteSort + ", programId=" + programId + ", roles=" + roles + ", providers=" + providers + ", issues=" + issues + "]";
     }
+
+	public Boolean getArchivedOnly() {
+		return archivedOnly;
+	}
+
+	public void setArchivedOnly(Boolean archivedOnly) {
+		this.archivedOnly = archivedOnly;
+	}
 
 }
