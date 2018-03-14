@@ -29,6 +29,10 @@
 <%@ page import="org.oscarehr.common.model.Contact"%>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
 <%@ page import="org.apache.commons.lang.WordUtils"%>
+<%@ page import="net.sf.json.JSONObject" %>
+<%@ page import="javax.servlet.jsp.jstl.core.LoopTagStatus" %>
+<%@ page import="oscar.SxmlMisc" %>
+<%@ page import="oscar.OscarProperties" %>
 
 <%@ include file="/taglibs.jsp"%>
 
@@ -55,6 +59,7 @@
 <script type="text/javascript" >
 
 <!--
+var contactResults = [];
 		function setfocus() {
 		  this.focus();
 		  document.forms[0].keyword.focus();
@@ -64,6 +69,22 @@
 		  document.forms[0].submit.value="Search";
 		  return true;
 		}
+
+
+function selectContactJson(index) {
+    var contact = contactResults[index];
+
+    if (contact) {
+        opener.document.contactForm.elements['contact_contactName'].value = contact.name;
+        opener.document.contactForm.elements['contact_contactId'].value = contact.contactId;
+        opener.document.contactForm.elements['contact_phone'].value = contact.phone ? contact.phone : '';
+        opener.document.contactForm.elements['contact_cell'].value = contact.cell ? contact.cell : '';
+        opener.document.contactForm.elements['contact_work'].value = contact.work ? contact.work : '';
+        opener.document.contactForm.elements['contact_email'].value = contact.email ? contact.email : '';
+        self.close();
+    }
+}
+
 		function selectResult(data1,data2) {
 			
 			try {
@@ -125,6 +146,8 @@
 
 	if( "all".equalsIgnoreCase(list) ) {
 		contacts = ContactAction.searchAllContacts("search_name", "c.lastName, c.firstName", keyword);
+	} else if("personal".equalsIgnoreCase(list)) {
+		contacts = ContactAction.searchPersonalContacts("search_name", "c.lastName, c.firstName", keyword);
 	} else {
 		contacts = ContactAction.searchContacts("search_name", "c.lastName, c.firstName", keyword);
 	}
@@ -144,11 +167,29 @@
 	<c:forEach var="contact" items="${ contacts }" varStatus="i">
 		<%
 			Contact contact = (Contact)pageContext.getAttribute("contact");
-			javax.servlet.jsp.jstl.core.LoopTagStatus i = (javax.servlet.jsp.jstl.core.LoopTagStatus) pageContext.getAttribute("i");
+			JSONObject contactJson = new JSONObject();
+			contactJson = new JSONObject();
+			contactJson.put("name", contact.getFormattedName());
+			contactJson.put("contactId", contact.getId());
+			contactJson.put("cell", contact.getCellPhone());
+			contactJson.put("phone", contact.getResidencePhone());
+			contactJson.put("work", contact.getWorkPhone());
+			contactJson.put("email", contact.getEmail());
+		%>
+		<script type="text/javascript">
+			contactResults.push(<%=contactJson.toString()%>);
+		</script>
+		<%
+			LoopTagStatus i = (LoopTagStatus) pageContext.getAttribute("i");
 			String bgColor = i.getIndex()%2==0?"#EEEEFF":"ivory";	
 			
-			String strOnClick; 
-            strOnClick = "selectResult('" + contact.getId() + "','"+StringEscapeUtils.escapeJavaScript(contact.getLastName()+ "," + contact.getFirstName()) + "')";
+			String strOnClick;
+			if (OscarProperties.getInstance().isPropertyActive("NEW_CONTACTS_UI") && "contactForm".equals(form)) {
+			    strOnClick = "selectContactJson('" + i.getIndex() + "')";
+			} else {
+				strOnClick = "selectResult('" + contact.getId() + "','"+StringEscapeUtils.escapeJavaScript(contact.getLastName()+ "," + contact.getFirstName()) + "')";
+			}
+
                         
 		%>
 		<tr bgcolor="<%=bgColor%>"

@@ -67,6 +67,18 @@ public class Contact extends AbstractModel<Integer> {
 	private String note;
 	boolean deleted=false;
 
+	public Contact() {
+	}
+
+	public Contact(String lastName, String firstName, String residencePhone, String cellPhone, String workPhone, String email) {
+		this.lastName = lastName;
+		this.firstName = firstName;
+		this.residencePhone = residencePhone;
+		this.cellPhone = cellPhone;
+		this.workPhone = workPhone;
+		this.email = email;
+	}
+
 	@Override
 	public Integer getId() {
 		return this.id;

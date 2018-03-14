@@ -1709,37 +1709,9 @@ if(oscarProps.getProperty("new_label_print") != null && oscarProps.getProperty("
 						</div>
 
 						<% } else { %>
-
-						<div class="demographicSection" id="otherContacts2">
-						<h3>&nbsp;<bean:message key="demographic.demographiceditdemographic.msgOtherContacts"/>: <b><a
-							href="javascript: function myFunction() {return false; }"
-							onClick="popup(700,960,'Contact.do?method=manage&demographic_no=<%=demographic.getDemographicNo()%>','ManageContacts')">
-						<bean:message key="demographic.demographiceditdemographic.msgManageContacts"/><!--i18n--></a></b></h3>
-						<ul>
-						<%
-							ContactDao contactDao = (ContactDao)SpringUtils.getBean("contactDao");
-							DemographicContactDao dContactDao = (DemographicContactDao)SpringUtils.getBean("demographicContactDao");
-							List<DemographicContact> dContacts = dContactDao.findByDemographicNo(demographic.getDemographicNo());
-							dContacts = ContactAction.fillContactNames(dContacts);
-							for(DemographicContact dContact:dContacts) {
-								String sdm = (dContact.getSdm()!=null && dContact.getSdm().equals("true"))?"<span title=\"SDM\" >/SDM</span>":"";
-								String ec = (dContact.getEc()!=null && dContact.getEc().equals("true"))?"<span title=\"Emergency Contact\" >/EC</span>":"";
-						%>
-
-								<li>
-									<span class="label"><%=dContact.getRole()%>:</span>
-                                    <span class="info"><%=dContact.getContactName() %><%=sdm%><%=ec%></span>
-									<% if (dContact.getType() == DemographicContact.TYPE_DEMOGRAPHIC) { %>
-										<a href="javascript: return false;" onClick="popupPage(710, 1024, '<%=request.getContextPath()%>/demographic/demographiccontrol.jsp?demographic_no=<%=dContact.getContactId()%>&displaymode=edit&dboperation=search_detail')">M</a>
-										<a href="javascript: return false;" onClick="popupEChart(710,1024,'<%=request.getContextPath()%>/oscarEncounter/IncomingEncounter.do?demographicNo=<%=dContact.getContactId()%>&providerNo=<%=loggedInInfo.getLoggedInProviderNo()%>&appointmentNo=&curProviderNo=&reason=&appointmentDate=&startTime=&status=&userName=<%=URLEncoder.encode( userfirstname + " " + userlastname)%>&curDate=<%=curYear%>-<%=curMonth%>-<%=curDay%>')">E</a>
-									<% } %>
-                                </li>
-
-						<%  } %>
-
-						</ul>
-						</div>
-
+							<jsp:include page="displayOtherContacts2.jsp">
+								<jsp:param name="demographicNo" value="<%= demographic_no %>" />
+							</jsp:include>
 						<% } %>
 						<div class="demographicSection" id="clinicStatus">
 						<h3>&nbsp;<bean:message key="demographic.demographiceditdemographic.msgClinicStatus"/> (<a href="#" onclick="popup(1000, 650, 'EnrollmentHistory.jsp?demographicNo=<%=demographic_no%>', 'enrollmentHistory'); return false;"><bean:message key="demographic.demographiceditdemographic.msgEnrollmentHistory"/></a>)</h3>

@@ -66,7 +66,8 @@ div#healthCareTeam li {
   background-color: inherit;
 }
 
-div#healthCareTeam li:hover {
+div#healthCareTeam li:hover,
+div#otherContacts2 tbody tr:hover{
   background-color: yellow;
   cursor: default;
 }
@@ -201,8 +202,8 @@ table.MainTable {
    background-color: #A9A9A9;
 }
 
-body#detachedView 
-table.healthCareTeamMemberDetailTable {
+body#detachedView
+.healthCareTeamMemberDetailTable {
   border-top:#CCCCFF 1px solid;
     border-bottom:#CCCCFF 1px solid;
   width:100%;

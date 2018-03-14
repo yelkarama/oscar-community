@@ -43,6 +43,11 @@ TH {
 	font-weight: bold;
 }
 
+thead.header-xs TH,
+TH.header-xs {
+	font-size: x-small;
+}
+
 A IMG {
 	border: 0px;
 }
@@ -87,6 +92,14 @@ H3 {
 	font-variant: small-caps;
 	font: bold;
         background-color: #CCCCFF;
+}
+
+.text-danger {
+	color: #b94a48;
+}
+
+.text-warning {
+	color: #c09853;
 }
 
 .ControlPushButton {

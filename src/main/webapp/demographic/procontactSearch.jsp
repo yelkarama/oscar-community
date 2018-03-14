@@ -51,6 +51,8 @@
 <%@ page import="org.apache.commons.lang.WordUtils"%>
 <%@ page import="org.oscarehr.common.dao.ConsultationServiceDao" %>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
+<%@ page import="net.sf.json.JSONObject" %>
+<%@ page import="oscar.OscarProperties" %>
 
 <%@ include file="/taglibs.jsp"%>
 
@@ -109,6 +111,7 @@
 <script type="text/javascript">
 
 //<!--
+var contactResults = [];
 		function setfocus() {
 		  var toggleSearchTool = "<c:out value="${ toggleSearchTool }" />"; 
 		  if( toggleSearchTool ) {
@@ -124,6 +127,21 @@
 		  document.forms[0].submit.value="Search";
 		  return true;
 		}
+
+function selectContactJson(index) {
+    var contact = contactResults[index];
+
+    if (contact) {
+        opener.document.contactForm.elements['contact_contactName'].value = contact.name;
+        opener.document.contactForm.elements['contact_contactId'].value = contact.contactId;
+        opener.document.contactForm.elements['contact_phone'].value = contact.phone ? contact.phone : '';
+        opener.document.contactForm.elements['contact_cell'].value = contact.cell ? contact.cell : '';
+        opener.document.contactForm.elements['contact_work'].value = contact.work ? contact.work : '';
+        opener.document.contactForm.elements['contact_email'].value = contact.email ? contact.email : '';
+        self.close();
+    }
+
+}
 		
 		function selectResult(data1,data2) {
 
@@ -234,10 +252,27 @@
 	<c:forEach var="contact" items="${contacts}" varStatus="i">
 		<%
 			ProfessionalContact contact = (ProfessionalContact)pageContext.getAttribute("contact");
+			JSONObject contactJson = new JSONObject();
+			contactJson = new JSONObject();
+			contactJson.put("name", contact.getFormattedName());
+			contactJson.put("contactId", contact.getId());
+			contactJson.put("cell", contact.getCellPhone());
+			contactJson.put("phone", contact.getResidencePhone());
+			contactJson.put("work", contact.getWorkPhone());
+			contactJson.put("email", contact.getEmail());
+		%>
+		<script type="text/javascript">
+            contactResults.push(<%=contactJson.toString()%>);
+		</script>
+		<%
 			javax.servlet.jsp.jstl.core.LoopTagStatus i = (javax.servlet.jsp.jstl.core.LoopTagStatus) pageContext.getAttribute("i");
 			String bgColor = i.getIndex()%2==0?"#EEEEFF":"ivory";	
-			String strOnClick; 
-            strOnClick = "selectResult('" + contact.getSystemId() + "_" + contact.getId() + "','"+StringEscapeUtils.escapeJavaScript(contact.getLastName()+ "," + contact.getFirstName()) + "')";
+			String strOnClick;
+			if (OscarProperties.getInstance().isPropertyActive("NEW_CONTACTS_UI") && "contactForm".equals(form)) {
+				strOnClick = "selectContactJson('" + i.getIndex() + "')";
+			} else {
+				strOnClick = "selectResult('" + contact.getSystemId() + "_" + contact.getId() + "','" + StringEscapeUtils.escapeJavaScript(contact.getLastName() + "," + contact.getFirstName()) + "')";
+			}
                         
 		%>
 		<tr bgcolor="<%=bgColor%>" 

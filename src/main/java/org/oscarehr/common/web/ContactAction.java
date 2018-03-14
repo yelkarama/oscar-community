@@ -40,6 +40,7 @@ import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionRedirect;
 import org.apache.struts.actions.DispatchAction;
 import org.apache.struts.validator.DynaValidatorForm;
 import org.oscarehr.PMmodule.dao.ProviderDao;
@@ -50,6 +51,7 @@ import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 import org.springframework.beans.BeanUtils;
+import oscar.SxmlMisc;
 import oscar.util.ParameterActionForward;
 
 import oscar.OscarProperties;
@@ -61,68 +63,183 @@ public class ContactAction extends DispatchAction {
 	static ProfessionalContactDao proContactDao = (ProfessionalContactDao)SpringUtils.getBean("professionalContactDao");
 	static DemographicContactDao demographicContactDao = (DemographicContactDao)SpringUtils.getBean("demographicContactDao");
 	static DemographicDao demographicDao= (DemographicDao)SpringUtils.getBean("demographicDao");
+	static DemographicExtDao demographicExtDao = SpringUtils.getBean(DemographicExtDao.class);
 	static ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
 	static ProfessionalSpecialistDao professionalSpecialistDao = SpringUtils.getBean(ProfessionalSpecialistDao.class);
 	static ConsultationServiceDao consultationServiceDao = SpringUtils.getBean(ConsultationServiceDao.class);
 	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	 
+
 	@Override
 	protected ActionForward unspecified(ActionMapping mapping, ActionForm form, 
 			HttpServletRequest request, HttpServletResponse response) {
 		return manage(mapping,form,request,response);
 	}
 
-	public ActionForward manage(ActionMapping mapping, ActionForm form, 
-			HttpServletRequest request, HttpServletResponse response) {
-		String demographicNo = request.getParameter("demographic_no");
-		
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_demographic", "r", demographicNo)) {
-        	throw new SecurityException("missing required security object (_demographic)");
+	public ActionForward manage(ActionMapping mapping, ActionForm form,
+								HttpServletRequest request, HttpServletResponse response) {
+        String demographicNo = request.getParameter("demographic_no");
+
+        if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_demographic", "r", demographicNo)) {
+            throw new SecurityException("missing required security object (_demographic)");
         }
-		
-		List<DemographicContact> dcs = demographicContactDao.findByDemographicNoAndCategory(Integer.parseInt(demographicNo),DemographicContact.CATEGORY_PERSONAL);
-		for(DemographicContact dc:dcs) {
-			if(dc.getType() == (DemographicContact.TYPE_DEMOGRAPHIC)) {
-				dc.setContactName(demographicDao.getClientByDemographicNo(Integer.parseInt(dc.getContactId())).getFormattedName());
-			}
-			if(dc.getType() == (DemographicContact.TYPE_CONTACT)) {
-				dc.setContactName(contactDao.find(Integer.parseInt(dc.getContactId())).getFormattedName());
-			}
-		}
 
-		request.setAttribute("contacts", dcs);
-		request.setAttribute("contact_num", dcs.size());
+        String sortColumn = StringUtils.trimToNull(request.getParameter("sortColumn")) != null ? request.getParameter("sortColumn") : "category";
+        Boolean sortAscending = !StringUtils.trimToEmpty(request.getParameter("sortOrder")).equals("desc");
 
-		List<DemographicContact> pdcs = demographicContactDao.findByDemographicNoAndCategory(Integer.parseInt(demographicNo),DemographicContact.CATEGORY_PROFESSIONAL);
-		for(DemographicContact dc:pdcs) {
-			// workaround: UI allows to enter specialist with  a type that is not set, prevent NPE and display 'Unknown' as name
-			// user then can choose to delete this entry
-			String contactName = null;
-			if(dc.getType() == (DemographicContact.TYPE_PROVIDER)) {
-				Provider provider = providerDao.getProvider(dc.getContactId()); 
-				contactName = (provider == null)?"Unknown":provider.getFormattedName();
-			}
-			if(dc.getType() == (DemographicContact.TYPE_CONTACT)) {
-				Contact contact = contactDao.find(Integer.parseInt(dc.getContactId()));
-				contactName = (contact == null)?"Unknown":contact.getFormattedName();
-			}
-			if(dc.getType() == (DemographicContact.TYPE_PROFESSIONALSPECIALIST)) {
-				ProfessionalSpecialist profSpecialist = professionalSpecialistDao.find(Integer.parseInt(dc.getContactId()));
-				contactName = (profSpecialist == null)?"Unknown":profSpecialist.getFormattedName();
-			}
-			StringUtils.trimToEmpty(contactName);
-			dc.setContactName(contactName);
-		}
-		request.setAttribute("procontacts", pdcs);
-		request.setAttribute("procontact_num", pdcs.size());
+        List<DemographicContact> dcs = demographicContactDao.findActiveByDemographicNo(Integer.parseInt(demographicNo));
+        dcs = fillContactInfo(dcs);
+        dcs = sortContacts(dcs, sortAscending, sortColumn);
 
-		if(request.getParameter("demographic_no") != null && request.getParameter("demographic_no").length()>0)
-			request.setAttribute("demographic_no", request.getParameter("demographic_no"));
+        request.setAttribute("contacts", dcs);
+        request.setAttribute("contact_num", dcs.size());
+        request.setAttribute("sortColumn", sortColumn);
+        request.setAttribute("sortOrder", sortAscending ? "asc" : "desc");
 
+        if(request.getParameter("demographic_no") != null && request.getParameter("demographic_no").length()>0) {
+            request.setAttribute("demographic_no", request.getParameter("demographic_no"));
+        }
 		return mapping.findForward("manage");
 	}
 
-	public ActionForward saveManage(ActionMapping mapping, ActionForm form, 
+	public ActionForward save(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+
+		Integer demographicNo = StringUtils.trimToNull(request.getParameter("demographic_no")) != null ? Integer.parseInt(request.getParameter("demographic_no")) : null;
+
+		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_demographic", "w", String.valueOf(demographicNo))) {
+			throw new SecurityException("missing required security object (_demographic)");
+		}
+
+		Integer demographicContactId = StringUtils.trimToNull(request.getParameter("contact_id")) != null ? Integer.parseInt(request.getParameter("contact_id")) : null;
+		String category = StringUtils.trimToEmpty(request.getParameter("contact_category"));
+		Integer type = StringUtils.trimToNull(request.getParameter("contact_type")) != null ? Integer.parseInt(request.getParameter("contact_type")) : null;
+		String contactId = StringUtils.trimToNull(request.getParameter("contact_contactId"));
+
+		DemographicContact demographicContact = demographicContactId != null ? demographicContactDao.find(demographicContactId) : null;
+
+		String errorMessage = "";
+        String successMessage = "";
+
+		if (demographicNo != null) {
+			if (demographicContact == null) {
+			    // Try to create a new demographic contact
+			    try {
+                    if (contactId == null && type != null && type == DemographicContact.TYPE_CONTACT) {
+
+                        String formattedName = StringUtils.trimToEmpty(request.getParameter("contact_contactName"));
+                        String lastName = formattedName.contains(",") ? StringUtils.trimToEmpty(formattedName.split(",")[0]) : StringUtils.trimToEmpty(formattedName);
+                        String firstName = formattedName.contains(",") && formattedName.split(",").length > 1 ? StringUtils.trimToEmpty(formattedName.split(",")[1]) : "";
+
+                        Contact externalContact = new Contact(
+                                lastName,
+                                firstName,
+                                StringUtils.trimToEmpty(request.getParameter("contact_phone")),
+                                StringUtils.trimToEmpty(request.getParameter("contact_cell")),
+                                StringUtils.trimToEmpty(request.getParameter("contact_work")),
+                                StringUtils.trimToEmpty(request.getParameter("contact_email"))
+                        );
+                        if (category.equals("professional")) {
+                        	ProfessionalContact professionalContact = new ProfessionalContact();
+                        	professionalContact.setLastName(externalContact.getLastName());
+                        	professionalContact.setFirstName(externalContact.getFirstName());
+                        	professionalContact.setResidencePhone(externalContact.getResidencePhone());
+							professionalContact.setCellPhone(externalContact.getCellPhone());
+							professionalContact.setWorkPhone(externalContact.getWorkPhone());
+							professionalContact.setEmail(externalContact.getEmail());
+							contactId = proContactDao.saveEntity(professionalContact).getId().toString();
+                        } else {
+							contactId = contactDao.saveEntity(externalContact).getId().toString();
+						}
+                    }
+
+                    if (contactId != null && type != null && type == DemographicContact.TYPE_DEMOGRAPHIC) {
+						// Create current contact as a related contact in the other demographic's contact list
+						saveRelation(demographicNo, Integer.valueOf(contactId), loggedInInfo.getLoggedInProviderNo(), request);
+					}
+
+                    if (contactId != null) {
+                        demographicContact = new DemographicContact(
+                                demographicNo,
+                                contactId,
+                                StringUtils.trimToEmpty(request.getParameter("contact_role")),
+                                type,
+                                request.getParameter("contact_category"),
+                                StringUtils.trimToEmpty(request.getParameter("contact_sdm")),
+                                StringUtils.trimToEmpty(request.getParameter("contact_ec")),
+                                StringUtils.trimToEmpty(request.getParameter("contact_note")),
+                                loggedInInfo.getCurrentFacility().getId(),
+                                loggedInInfo.getLoggedInProviderNo(),
+                                !"0".equals(request.getParameter("contact_consentToContact")),
+                                StringUtils.trimToEmpty(request.getParameter("contact_bestContact")),
+                                !"0".equals(request.getParameter("contact_active"))
+                        );
+                    } else {
+                        throw new NullPointerException();
+                    }
+
+                    demographicContactDao.saveEntity(demographicContact);
+                    successMessage = "Contact created.";
+                } catch (Exception e) {
+                    errorMessage = "An error occurred while trying to create the contact";
+                    logger.error(errorMessage, e);
+                }
+			} else {
+			    // Update existing demographic contact
+                try {
+                    if (type != null && type == DemographicContact.TYPE_CONTACT) {
+                        Contact externalContact = contactDao.find(Integer.valueOf(contactId));
+
+                        externalContact.setCellPhone(StringUtils.trimToEmpty(request.getParameter("contact_cell")));
+                        externalContact.setResidencePhone( StringUtils.trimToEmpty(request.getParameter("contact_phone")));
+                        externalContact.setWorkPhone(StringUtils.trimToEmpty(request.getParameter("contact_work")));
+                        externalContact.setEmail(StringUtils.trimToEmpty(request.getParameter("contact_email")));
+
+                        if (category.equals("personal")) {
+                            contactDao.saveEntity(externalContact);
+                        } else if (category.equals("professional")) {
+                            proContactDao.saveEntity((ProfessionalContact)externalContact);
+                        }
+                    }
+
+                    if (contactId != null && type != null && type == DemographicContact.TYPE_DEMOGRAPHIC && !demographicContact.getRole().equalsIgnoreCase(request.getParameter("contact_role"))) {
+						// Create current contact as a related contact in the other demographic's contact list
+						saveRelation(demographicNo, Integer.valueOf(contactId), loggedInInfo.getLoggedInProviderNo(), request);
+					}
+
+                    demographicContact.setRole(StringUtils.trimToEmpty(request.getParameter("contact_role")));
+                    demographicContact.setSdm(StringUtils.trimToEmpty(request.getParameter("contact_sdm")));
+                    demographicContact.setEc(StringUtils.trimToEmpty(request.getParameter("contact_ec")));
+                    demographicContact.setNote(StringUtils.trimToEmpty(request.getParameter("contact_note")));
+                    demographicContact.setConsentToContact(!"0".equals(request.getParameter("contact_consentToContact")));
+                    demographicContact.setActive(!"0".equals(request.getParameter("contact_active")));
+                    demographicContact.setBestContact(StringUtils.trimToEmpty(request.getParameter("contact_bestContact")));
+
+                    demographicContactDao.saveEntity(demographicContact);
+                    successMessage = "Contact updated";
+                } catch (Exception e) {
+                    errorMessage = "An error occurred while trying to update the contact";
+                    logger.error(errorMessage, e);
+                }
+            }
+            request.setAttribute("demographic_no", String.valueOf(demographicNo));
+		} else {
+            errorMessage = "No demographic defined";
+        }
+
+        if (StringUtils.trimToNull(errorMessage) != null) {
+            request.getSession().setAttribute("errorMessage", errorMessage);
+        } else {
+            request.getSession().setAttribute("success", successMessage);
+        }
+
+		ActionRedirect ar = new ActionRedirect("/demographic/Contact.do");
+		ar.addParameter("method", "manage");
+		ar.addParameter("demographic_no", demographicNo);
+
+		return ar;
+	}
+
+	public ActionForward saveManage(ActionMapping mapping, ActionForm form,
 			HttpServletRequest request, HttpServletResponse response) {
 		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 
@@ -307,6 +424,31 @@ public class ContactAction extends DispatchAction {
 		return mapping.findForward( forward );
 	}
 
+	private void saveRelation(Integer demographicNo, Integer contactId,String providerNo, HttpServletRequest request) {
+		List<DemographicContact> contactResults = demographicContactDao.find(contactId, demographicNo);
+
+		DemographicContact relatedContact = new DemographicContact();
+		String reverseRole = null;
+
+		if (!contactResults.isEmpty()) {
+			relatedContact = contactResults.get(0);
+			reverseRole = getReverseRole(StringUtils.trimToEmpty(request.getParameter("contact_role")), demographicNo);
+		} else {
+			relatedContact.setType(DemographicContact.TYPE_DEMOGRAPHIC);
+			relatedContact.setNote("");
+			relatedContact.setContactId(demographicNo.toString());
+			relatedContact.setCategory(DemographicContact.CATEGORY_PERSONAL);
+			relatedContact.setSdm("");
+			relatedContact.setEc("");
+			relatedContact.setCreator(providerNo);
+		}
+
+		if (StringUtils.trimToNull(reverseRole) != null) {
+			relatedContact.setRole(reverseRole);
+			demographicContactDao.saveEntity(relatedContact);
+		}
+	}
+
 	private String getReverseRole(String roleName, int targetDemographicNo) {
 		Demographic demographic = demographicDao.getDemographicById(targetDemographicNo);
 
@@ -317,18 +459,23 @@ public class ContactAction extends DispatchAction {
 				return "Daughter";
 			}
 
-		} else if(roleName.equals("Wife")) {
-			return "Husband";
-
-		} else if(roleName.equals("Husband")) {
-			return "Wife";
+		} else if(roleName.equals("Wife") || roleName.equals("Husband")) {
+			if(demographic.getSex().equalsIgnoreCase("M")) {
+				return "Husband";
+			} else if(demographic.getSex().equalsIgnoreCase("F")){
+				return "Wife";
+			} else {
+				return "Partner";
+			}
 		} else if(roleName.equals("Partner")) {
 			return "Partner";
 		} else if(roleName.equals("Son") || roleName.equals("Daughter")) {
 			if(demographic.getSex().equalsIgnoreCase("M")) {
 				return "Father";
-			} else {
+			} else if(demographic.getSex().equalsIgnoreCase("F")){
 				return "Mother";
+			} else {
+				return "Parent";
 			}
 
 		} else if(roleName.equals("Brother") || roleName.equals("Sister")) {
@@ -608,7 +755,21 @@ public class ContactAction extends DispatchAction {
 		
 	   return mapping.findForward("pForm");
 	}
-	
+
+
+	public static DemographicContact getContactInformation(String demographicContactId) {
+		DemographicContact demographicContact = null;
+
+		if (StringUtils.trimToNull(demographicContactId) != null) {
+			demographicContact = demographicContactDao.find(Integer.parseInt(demographicContactId));
+			if (demographicContact != null) {
+				setContactInformation(demographicContact);
+			}
+		}
+
+		return demographicContact;
+	}
+
 	/**
 	 * Return a list of of all the contacts in Oscar's database.
 	 * Contact, Professional Contact, and Professional Specialists
@@ -637,6 +798,19 @@ public class ContactAction extends DispatchAction {
 		return contacts;
 	}
 
+	public static List<Contact> searchPersonalContacts(String searchMode, String orderBy, String keyword) {
+		List<Contact> contacts = contactDao.search(searchMode, orderBy, keyword);
+		Iterator<Contact> i = contacts.iterator();
+		while (i.hasNext()) {
+			Contact contact = i.next();
+			if (contact instanceof ProfessionalContact){
+				i.remove();
+			}
+		}
+
+		return contacts;
+	}
+
 	public static List<ProfessionalContact> searchProContacts(String searchMode, String orderBy, String keyword) {
 		List<ProfessionalContact> contacts = proContactDao.search(searchMode, orderBy, keyword);
 		return contacts;
@@ -657,6 +831,76 @@ public class ContactAction extends DispatchAction {
 
 		return contacts;
 	}
+
+	private static void setContactInformation(DemographicContact c) {
+		Contact details;
+		c.setContactName("Unknown");
+
+		if(c.getType() == DemographicContact.TYPE_PROVIDER) {
+			Provider provider = providerDao.getProvider(c.getContactId());
+			if(provider != null){
+				c.setContactName(provider.getFormattedName());
+				String cell = SxmlMisc.getXmlContent(provider.getComments(),"xml_p_cell")==null ? "" : SxmlMisc.getXmlContent(provider.getComments(),"xml_p_cell");
+
+				details = new ProfessionalContact();
+				details.setCellPhone(StringUtils.trimToNull(cell));
+				details.setEmail(StringUtils.trimToNull(provider.getEmail()));
+				details.setResidencePhone(StringUtils.trimToNull(provider.getPhone()));
+				details.setWorkPhone(StringUtils.trimToNull(provider.getWorkPhone()));
+				c.setDetails(details);
+			}
+		} else if(c.getType() == DemographicContact.TYPE_DEMOGRAPHIC) {
+			Demographic demographic = demographicDao.getClientByDemographicNo(Integer.parseInt(c.getContactId()));
+
+			if (demographic != null) {
+				c.setContactName(demographic.getFormattedName());
+				String cell = demographicExtDao.getValueForDemoKey(demographic.getDemographicNo(), "demo_cell");
+
+				details = new Contact();
+				details.setCellPhone(StringUtils.trimToNull(cell));
+				details.setEmail(StringUtils.trimToNull(demographic.getEmail()));
+				details.setResidencePhone(StringUtils.trimToNull(demographic.getPhone()));
+				details.setWorkPhone(StringUtils.trimToNull(demographic.getPhone2()));
+				c.setDetails(details);
+			}
+		} else if(c.getType() == DemographicContact.TYPE_CONTACT) {
+			Contact contact = contactDao.find(Integer.parseInt(c.getContactId()));
+
+			if (contact != null) {
+				c.setContactName(contact.getFormattedName());
+				details = contact;
+				c.setDetails(details);
+			}
+		} else if(c.getType() == DemographicContact.TYPE_PROFESSIONALSPECIALIST) {
+			ProfessionalSpecialist professionalSpecialist = professionalSpecialistDao.find(Integer.parseInt(c.getContactId()));
+
+			if (professionalSpecialist != null) {
+				c.setContactName(professionalSpecialist.getFormattedName());
+				details = new ProfessionalContact();
+				details.setCellPhone(StringUtils.trimToNull(professionalSpecialist.getCellPhoneNumber()));
+				details.setEmail(StringUtils.trimToNull(professionalSpecialist.getEmailAddress()));
+				details.setResidencePhone(StringUtils.trimToNull(professionalSpecialist.getPrivatePhoneNumber()));
+				details.setWorkPhone(StringUtils.trimToNull(professionalSpecialist.getPhoneNumber()));
+				c.setDetails(details);
+			}
+		}
+	}
+
+	public static List<DemographicContact> sortContacts(List<DemographicContact> contacts, Boolean sortAscending, String sortColumn) {
+		if (sortColumn.equals("category")) {
+			Collections.sort(contacts, DemographicContact.CategoryComparator);
+		} else if (sortColumn.equals("name")) {
+			Collections.sort(contacts, DemographicContact.NameComparator);
+		} else if (sortColumn.equals("role")) {
+			Collections.sort(contacts, DemographicContact.RoleComparator);
+		}
+
+		if (!sortAscending) {
+			Collections.reverse(contacts);
+		}
+
+		return contacts;
+	}
 	
 	public static List<DemographicContact> getDemographicContacts(Demographic demographic) {
 		List<DemographicContact> contacts = demographicContactDao.findByDemographicNo(demographic.getDemographicNo());	
@@ -666,6 +910,14 @@ public class ContactAction extends DispatchAction {
 	public static List<DemographicContact> getDemographicContacts(Demographic demographic, String category) {
 		List<DemographicContact> contacts = demographicContactDao.findByDemographicNoAndCategory(demographic.getDemographicNo(),category);	
 		return fillContactNames(contacts);
+	}
+
+	public static List<DemographicContact> fillContactInfo(List<DemographicContact> contacts) {
+		for(DemographicContact c : contacts) {
+			setContactInformation(c);
+		}
+
+		return contacts;
 	}
 
 	public static List<DemographicContact> fillContactNames(List<DemographicContact> contacts) {

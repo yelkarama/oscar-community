@@ -66,6 +66,8 @@
 <%@page import="org.oscarehr.common.dao.DemographicDao" %>
 <%@ page import="oscar.oscarDemographic.data.DemographicMerged" %>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
+<%@ page import="net.sf.json.JSONObject" %>
+<%@ page import="org.oscarehr.common.dao.DemographicExtDao" %>
 
 <jsp:useBean id="providerBean" class="java.util.Properties" scope="session" />
 
@@ -92,6 +94,7 @@
 
 	List<Demographic> demoList = null;  
 	DemographicDao demographicDao = (DemographicDao)SpringUtils.getBean("demographicDao");
+	DemographicExtDao demographicExtDao = SpringUtils.getBean(DemographicExtDao.class);
 	
 	String providerNo = loggedInInfo.getLoggedInProviderNo();
 	boolean outOfDomain = true;
@@ -289,7 +292,7 @@ function searchAll() {
 </table>
 
 <script language="JavaScript">
-
+    var contactResults = [];
 var fullname="";
 <%-- RJ 07/10/2006 Need to pass doctor of patient back to referrer --%>
 function addName(demographic_no, lastname, firstname, chartno, messageID, doctorNo, remoteFacilityId) {  
@@ -301,13 +304,28 @@ function addName(demographic_no, lastname, firstname, chartno, messageID, doctor
    }
    else
    {
-	   document.addform.action="<%=request.getContextPath()%>/appointment/copyRemoteDemographic.jsp?originalPage=<%=URLEncoder.encode(request.getParameter("originalpage"))%>&";	  
+	   document.addform.action="<%=request.getContextPath()%>/appointment/copyRemoteDemographic.jsp?originalPage=<%=URLEncoder.encode(request.getParameter("originalpage") != null ? request.getParameter("originalpage") : "")%>&";
    }	  
   
   document.addform.action=document.addform.action+"demographic_no="+demographic_no+"&name="+fullname+"&chart_no="+chartno+"&bFirstDisp=false"+"&messageID="+messageID+"&doctor_no="+doctorNo+"&remoteFacilityId="+remoteFacilityId; 
   
   document.addform.submit();
   return true;
+}
+
+function selectContactJson(index) {
+    var contact = contactResults[index];
+
+    if (contact) {
+        opener.document.contactForm.elements['contact_contactName'].value = contact.name;
+        opener.document.contactForm.elements['contact_contactId'].value = contact.contactId;
+        opener.document.contactForm.elements['contact_phone'].value = contact.phone ? contact.phone : 'Not Set';
+        opener.document.contactForm.elements['contact_cell'].value = contact.cell ? contact.cell : 'Not Set';
+        opener.document.contactForm.elements['contact_work'].value = contact.work ? contact.work : 'Not Set';
+        opener.document.contactForm.elements['contact_email'].value = contact.email ? contact.email : 'Not Set';
+        self.close();
+    }
+
 }
 
 <%if(caisi) {%>
@@ -362,8 +380,9 @@ function addNameCaisi(demographic_no,lastname,firstname,chartno,messageID) {
 
 
 <%
+	JSONObject contactJson = new JSONObject();
 	String ptstatus = request.getParameter("ptstatus") == null ? "active" : request.getParameter("ptstatus");
-	org.oscarehr.util.MiscUtils.getLogger().debug("PSTATUS " + ptstatus);
+	MiscUtils.getLogger().debug("PSTATUS " + ptstatus);
 
 	int rowCounter=0;
 	String bgColor = rowCounter%2==0?"#EEEEFF":"white";
@@ -446,8 +465,17 @@ function addNameCaisi(demographic_no,lastname,firstname,chartno,messageID) {
 
 			String dem_no = demo.getDemographicNo().toString();
 			String head = dmDAO.getHead(dem_no);
-			
-			if (head != null && !head.equals(dem_no)) {
+			contactJson = new JSONObject();
+			contactJson.put("name", demo.getFormattedName());
+			contactJson.put("contactId", demo.getDemographicNo());
+			contactJson.put("cell", demographicExtDao.getValueForDemoKey(demo.getDemographicNo(), "demo_cell"));
+			contactJson.put("phone", demo.getPhone());
+			contactJson.put("work", demo.getPhone2());
+			contactJson.put("email", demo.getEmail()); %>
+	<script type="text/javascript">
+		contactResults.push(<%=contactJson%>)
+	</script>
+<%			if (head != null && !head.equals(dem_no)) {
 				//skip non head records
 				continue;
 			}
@@ -457,10 +485,22 @@ function addNameCaisi(demographic_no,lastname,firstname,chartno,messageID) {
 
 %>
 <tr style="background-color: <%=bgColor%>" onMouseOver="this.style.cursor='hand';this.style.backgroundColor='pink';" onMouseout="this.style.backgroundColor='<%=bgColor%>';"
-		onClick="document.forms[0].demographic_no.value=<%=demo.getDemographicNo()%>;<% if(caisi) { out.print("addNameCaisi");} else { out.print("addName");} %>('<%=demo.getDemographicNo()%>','<%=URLEncoder.encode(demo.getLastName())%>','<%=URLEncoder.encode(demo.getFirstName())%>','<%=URLEncoder.encode(demo.getChartNo() == null ? "" : demo.getChartNo())%>','<%=request.getParameter("messageId")%>','<%=demo.getProviderNo()%>','')">
-
+		onClick="document.forms[0].demographic_no.value=<%=demo.getDemographicNo()%>;
+			<% if(caisi){ %>
+				addNameCaisi('<%=demo.getDemographicNo()%>','<%=URLEncoder.encode(demo.getLastName())%>','<%=URLEncoder.encode(demo.getFirstName())%>','<%=URLEncoder.encode(demo.getChartNo() == null ? "" : demo.getChartNo())%>','<%=request.getParameter("messageId")%>','<%=demo.getProviderNo()%>','')">
+			<% } else if (!caisi && OscarProperties.getInstance().isPropertyActive("NEW_CONTACTS_UI") && "contactForm".equals(request.getParameter("formName"))) { %>
+				selectContactJson('<%=demoList.indexOf(demo)%>')">
+			<% } else { %>
+				addName('<%=demo.getDemographicNo()%>','<%=URLEncoder.encode(demo.getLastName())%>','<%=URLEncoder.encode(demo.getFirstName())%>','<%=URLEncoder.encode(demo.getChartNo() == null ? "" : demo.getChartNo())%>','<%=request.getParameter("messageId")%>','<%=demo.getProviderNo()%>','')">
+			<% } %>
 		<td class="demoId"><input type="submit" class="mbttn" name="demographic_no" value="<%=demo.getDemographicNo()%>"
-			onClick="<% if(caisi) {out.print("addNameCaisi");} else {out.print("addName");} %>('<%=demo.getDemographicNo()%>','<%=URLEncoder.encode(demo.getLastName())%>','<%=URLEncoder.encode(demo.getFirstName())%>','<%=URLEncoder.encode(demo.getChartNo() == null ? "" : demo.getChartNo())%>','<%=request.getParameter("messageId")%>','<%=demo.getProviderNo()%>','')">
+			onClick="<% if(caisi){ %>
+					addNameCaisi('<%=demo.getDemographicNo()%>','<%=URLEncoder.encode(demo.getLastName())%>','<%=URLEncoder.encode(demo.getFirstName())%>','<%=URLEncoder.encode(demo.getChartNo() == null ? "" : demo.getChartNo())%>','<%=request.getParameter("messageId")%>','<%=demo.getProviderNo()%>','')">
+					<% } else if (!caisi && OscarProperties.getInstance().isPropertyActive("NEW_CONTACTS_UI") && "contactForm".equals(request.getParameter("formName"))) { %>
+					selectContactJson('<%=demoList.indexOf(demo)%>')">
+					<% } else { %>
+					addName('<%=demo.getDemographicNo()%>','<%=URLEncoder.encode(demo.getLastName())%>','<%=URLEncoder.encode(demo.getFirstName())%>','<%=URLEncoder.encode(demo.getChartNo() == null ? "" : demo.getChartNo())%>','<%=request.getParameter("messageId")%>','<%=demo.getProviderNo()%>','')">
+					<% } %>
         </td>
 		<td class="lastName"><%=Misc.toUpperLowerCase(demo.getLastName())%></td>
 		<td class="firstName"><%=Misc.toUpperLowerCase(demo.getFirstName())%></td>
@@ -548,7 +588,7 @@ function addNameCaisi(demographic_no,lastname,firstname,chartno,messageID) {
 <%
 	if(rowCounter==0 && nLastPage<=0) {	 
 	  	     
-      	java.util.HashMap<String, String> params = new java.util.HashMap<String, String>();
+      	HashMap<String, String> params = new HashMap<String, String>();
       	params.put("originalPage", request.getParameter("originalPage"));
       	params.put("provider_no", request.getParameter("provider_no"));
 		params.put("bFirstDisp", request.getParameter("bFirstDisp"));
@@ -639,9 +679,12 @@ function addNameCaisi(demographic_no,lastname,firstname,chartno,messageID) {
 			<script language="JavaScript">
 				addNameCaisi('<%=demo.getDemographicNo()%>','<%=URLEncoder.encode(demo.getLastName())%>','<%=URLEncoder.encode(demo.getFirstName())%>','<%=URLEncoder.encode(demo.getChartNo() == null ? "" : demo.getChartNo())%>','<%=request.getParameter("messageId")%>','<%=demo.getProviderNo()%>','');
 			</script>
-	<%		}
-			else {
-	%>
+	<%		} else if (OscarProperties.getInstance().isPropertyActive("NEW_CONTACTS_UI") && "contactForm".equals(request.getParameter("formName"))) { %>
+        <script type="text/javascript">
+            document.forms[0].demographic_no.value = <%=demo.getDemographicNo()%>;
+            selectContactJson('<%=demoList.indexOf(demo)%>');
+        </script>
+		<% } else {%>
 				<script language="JavaScript">
 					document.forms[0].demographic_no.value = <%=demo.getDemographicNo()%>;
 					addName('<%=demo.getDemographicNo()%>','<%=URLEncoder.encode(demo.getLastName())%>','<%=URLEncoder.encode(demo.getFirstName())%>','<%=URLEncoder.encode(demo.getChartNo() == null ? "" : demo.getChartNo())%>','<%=request.getParameter("messageId")%>','<%=demo.getProviderNo()%>','');
