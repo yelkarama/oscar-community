@@ -24,6 +24,7 @@
 
 --%>
 
+<%@page import="org.oscarehr.util.MiscUtils"%>
 <%@ taglib uri="/WEB-INF/caisi-tag.tld" prefix="caisi"%>
 
 <%@ include file="/casemgmt/taglibs.jsp" %>
@@ -733,8 +734,17 @@ function init() {
     showIssueNotes();
 
     var navBars = new navBarLoader();
-    navBars.load();
-
+    //navBars.load();
+<%
+	if( MiscUtils.getLogger().isDebugEnabled() ) {
+		String STARTTIME = request.getParameter("STARTTIME");
+		Long startTime = Long.valueOf(STARTTIME);
+		Long elapsedTime = System.currentTimeMillis() - startTime;
+%>
+		alert("<%=elapsedTime%>");
+<%
+	}
+%>
     monitorNavBars(null);
 
     Element.observe(window, "resize", monitorNavBars);

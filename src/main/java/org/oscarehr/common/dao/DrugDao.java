@@ -473,7 +473,7 @@ public class DrugDao extends AbstractDao<Drug> {
 
 	@SuppressWarnings("unchecked")
     public List<String> findSpecialInstructions() {
-		Query query = entityManager.createQuery("SELECT DISTINCT d.special_instruction from Drug d where d.special_instruction IS NOT NULL");
+		Query query = entityManager.createQuery("SELECT d.special_instruction from Drug d where d.special_instruction IS NOT NULL GROUP BY d.special_instruction");
 	    return query.getResultList();
     }
 	

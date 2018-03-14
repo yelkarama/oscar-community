@@ -80,6 +80,11 @@
 	if(!authed) {
 		return;
 	}
+
+Long STARTTIME = 0L;
+if( MiscUtils.getLogger().isDebugEnabled() ) {
+	STARTTIME = System.currentTimeMillis();
+}
 %>
 
 
@@ -620,6 +625,11 @@ try
 catch (Exception e)
 {
 	MiscUtils.getLogger().error("Unexpected error.", e);
+}
+
+if( MiscUtils.getLogger().isDebugEnabled() ) {
+	Long elapsed = System.currentTimeMillis() - STARTTIME;
+	MiscUtils.getLogger().debug("STARTING MAIN CONTENT " + String.valueOf(elapsed));
 }
 %>
 

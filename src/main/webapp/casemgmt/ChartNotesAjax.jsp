@@ -79,6 +79,11 @@
 %>
 
 <%
+Long STARTTIME = 0L;
+if( MiscUtils.getLogger().isDebugEnabled() ) {
+	STARTTIME = System.currentTimeMillis();
+}
+
 String ctx = request.getContextPath();
 
 LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
@@ -1085,5 +1090,14 @@ if( ((Boolean)request.getAttribute("hasArchived")) ) {
 		}
 
 		return isLarge;
+	}
+	
+	
+%>
+<%
+	if( MiscUtils.getLogger().isDebugEnabled() ) {
+		
+		Long elapsed = System.currentTimeMillis() - STARTTIME;
+		MiscUtils.getLogger().debug("CONTENT ELAPSED TIME " + String.valueOf(elapsed));
 	}
 %>

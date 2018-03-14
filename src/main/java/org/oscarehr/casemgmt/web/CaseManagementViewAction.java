@@ -1912,6 +1912,7 @@ public class CaseManagementViewAction extends BaseCaseManagementViewAction {
 
 	public ActionForward viewNotesOpt(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		// response.setCharacterEncoding("UTF-8");
+		Long STARTTIME = System.currentTimeMillis();
 		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
 		CaseManagementViewFormBean caseForm = (CaseManagementViewFormBean) form;
 
@@ -1983,6 +1984,8 @@ public class CaseManagementViewAction extends BaseCaseManagementViewAction {
 			for (NoteDisplay nd : result.getNotes()) {
 				logger.debug("   " + nd.getClass().getSimpleName() + " " + nd.getNoteId() + " " + nd.getNote());
 			}
+			Long elapsed = System.currentTimeMillis() - STARTTIME;
+			logger.debug("CASEMGMTVIEW NOTES AJAX " + String.valueOf(elapsed));
 		}
 
 		if (result.isMoreNotes()) {

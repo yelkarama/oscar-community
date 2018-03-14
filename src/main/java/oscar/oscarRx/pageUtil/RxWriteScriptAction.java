@@ -513,6 +513,7 @@ public final class RxWriteScriptAction extends DispatchAction {
 	}
 
 	public ActionForward createNewRx(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException {
+		Long start = System.currentTimeMillis();
 		logger.debug("=============Start createNewRx RxWriteScriptAction.java===============");
 		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
 		checkPrivilege(loggedInInfo, PRIVILEGE_WRITE);
@@ -646,7 +647,7 @@ public final class RxWriteScriptAction extends DispatchAction {
 		} catch (Exception e) {
 			logger.error("Error", e);
 		}
-		logger.debug("=============END createNewRx RxWriteScriptAction.java===============");
+		logger.debug("=============END createNewRx RxWriteScriptAction.java in " + String.valueOf((System.currentTimeMillis()-start)) + "===============");
 
 //		Place holder for new Medication Module proposal.
 //		if( OscarProperties.getInstance().getBooleanProperty("ENABLE_RX4", "yes") && 

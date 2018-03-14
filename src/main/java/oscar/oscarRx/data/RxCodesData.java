@@ -51,6 +51,17 @@ public class RxCodesData {
 
         return arr;
     }
+    
+    
+    public List<String> getSpecialInstructionsAsList() {
+    	List<String> resultList = new ArrayList<String>();
+    	List<CtlSpecialInstructions> ctlSpecialInstructionsList = ctlSpecialInstructionsDao.findAll();
+    	for(CtlSpecialInstructions ctlSpecialInstructions:ctlSpecialInstructionsList) {
+    		resultList.add(ctlSpecialInstructions.getDescription());
+    	}
+    	
+    	return resultList;
+    }
 
     public String[] getSpecialInstructions() {
     	List<String> resultList = new ArrayList<String>();

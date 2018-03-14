@@ -60,6 +60,7 @@ public final class EFormViewForPdfGenerationServlet extends HttpServlet {
 			if (value.getVarName().equals("Letter")) {
 				String html = value.getVarValue();
 				html = html.replace("/imageRenderingServlet", "/EFormSignatureViewForPdfGenerationServlet");
+				
 				if (prepareForFax) {
 					html = "<div style=\"position:relative\"><div style=\"position:absolute; margin-top:35px;\">" + html + "</div></div>";
 				}
@@ -77,6 +78,7 @@ public final class EFormViewForPdfGenerationServlet extends HttpServlet {
 				if (matchFound && matcher.groupCount() == 4) {
 					String sign = value.getVarValue();
 					sign = sign.replace("/imageRenderingServlet", "/EFormSignatureViewForPdfGenerationServlet");
+					
 					String left = matcher.group(4), top = matcher.group(3), width = matcher.group(2), height = matcher.group(1);
 					eForm.setFormHtml(html.replace("<div id=\"signatureDisplay\"></div>", String.format("<div id=\"signatureDisplay\"><img src=\"%s\" style=\"position:absolute;left:%s;top:%s;width:%s;height:%s;\" /> </div>", sign, left, top, width, height)));
 				}
@@ -89,8 +91,25 @@ public final class EFormViewForPdfGenerationServlet extends HttpServlet {
 		eForm.setFormHtml(eForm.getFormHtml().replace("<div class=\"DoNotPrint\" style=\"", "<div class=\"DoNotPrint\" style=\"display:none;"));
 		eForm.setImagePath();
 		eForm.setNowDateTime();
+		String tempHTML = mkLocalURI(eForm.getFormHtml());
+		eForm.setFormHtml(tempHTML);
 
 		response.setContentType("text/html");
 		response.getOutputStream().write(eForm.getFormHtml().getBytes(Charset.forName("UTF-8")));		
+	}
+	
+	
+	private String mkLocalURI(String html) {
+		String regex = "https?://(.+?):?(\\d+)?/";		
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(html);
+		String host;
+		
+		while( matcher.find() ) {			
+			host = matcher.group(1);					
+			html = html.replace(host, "127.0.0.1");
+		}
+		
+		return html;
 	}
 }

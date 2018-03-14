@@ -1761,6 +1761,7 @@ import oscar.util.UtilDateUtilities;
                     immExtra = Util.addLine(immExtra, getResidual(immuArray[i].getResidualInfo()));
 
                     Integer preventionId = PreventionData.insertPreventionData(admProviderNo, demographicNo, prevDate, defaultProviderNo(), "", preventionType, refused, null, "", preventionExt);
+
                     addOneEntry(IMMUNIZATION);
 
                     //to dumpsite: Extra immunization data

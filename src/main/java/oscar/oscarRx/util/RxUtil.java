@@ -26,7 +26,6 @@ package oscar.oscarRx.util;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -1436,22 +1435,26 @@ public class RxUtil {
 	}
 
 	public static String getSpecialInstructions() {
-		String retStr = "";
+		StringBuilder retStr = new StringBuilder();
 		RxCodesData codesData = new RxCodesData();
-		String[] specArr = codesData.getSpecialInstructions();
-		List<String> specList = Arrays.asList(specArr);
+		List<String> specList = codesData.getSpecialInstructionsAsList();
+		
 		// get all past record spec inst from drugs table
 		
 		DrugDao dao = SpringUtils.getBean(DrugDao.class);
 		List<String> resultSpecInst = dao.findSpecialInstructions();
 		resultSpecInst.addAll(specList);
 		Set<String> specIntSet = new HashSet<String>(resultSpecInst);//remove duplicates
-		specArr = specIntSet.toArray(specArr);
-		for (int i = 0; i < specArr.length; i++) {
-			retStr += specArr[i];
-			if (i < specArr.length - 1) retStr += "*"; //use * as a delimiter
+		//specArr = specIntSet.toArray(specArr);
+		int i = 0;
+		int numElems = specIntSet.size();
+		for (String specInst : specIntSet) {
+			retStr.append(specInst);
+			if (i <  numElems - 1) retStr.append("*"); //use * as a delimiter
+			
+			++i;
 		}
-		return retStr;
+		return retStr.toString();
 
 	}
 

@@ -91,14 +91,16 @@ public class ChildImmunizationReport implements PreventionReport{
 			PreventionData.addRemotePreventions(loggedInInfo, prevs2, demo,"Hib",null);
 			ArrayList<Map<String, Object>> prevs4 = PreventionData.getPreventionData(loggedInInfo, "MMR",demo);
 			PreventionData.addRemotePreventions(loggedInInfo, prevs4, demo,"MMR",null);
-			prevs4.addAll(PreventionData.getPreventionData(loggedInInfo, "MMRV", demo));
+			ArrayList<Map<String, Object>> prevs7 = PreventionData.getPreventionData(loggedInInfo, "MMRV", demo);
 			PreventionData.addRemotePreventions(loggedInInfo, prevs4, demo,"MMRV",null);
 			ArrayList<Map<String, Object>> prevs5 = PreventionData.getPreventionData(loggedInInfo, "Pneu-C", demo);
 			PreventionData.addRemotePreventions(loggedInInfo, prevs5, demo,"Pneu-C",null);
 			ArrayList<Map<String, Object>> prevs6 = PreventionData.getPreventionData(loggedInInfo, "MenC-C", demo);
-			PreventionData.addRemotePreventions(loggedInInfo, prevs5, demo,"MenC-C",null);
-			prevs4.addAll(PreventionData.getPreventionData(loggedInInfo, "VZ", demo));
-			PreventionData.addRemotePreventions(loggedInInfo, prevs4, demo,"VZ",null);
+
+			PreventionData.addRemotePreventions(loggedInInfo, prevs6, demo,"MenC-C",null);
+			prevs7.addAll(PreventionData.getPreventionData(loggedInInfo, "VZ", demo));
+			PreventionData.addRemotePreventions(loggedInInfo, prevs7, demo,"VZ",null);
+
 
              //need to compile accurate dtap numbers
 			 
@@ -111,6 +113,7 @@ public class ChildImmunizationReport implements PreventionReport{
              int numMMR  = prevs4.size() ;  //1
              int numPneuC = prevs5.size();
              int numMenc = prevs6.size();
+             int numVZMMRV = prevs7.size();
              
              
 
@@ -119,7 +122,9 @@ public class ChildImmunizationReport implements PreventionReport{
              DemographicData dd = new DemographicData();
              org.oscarehr.common.model.Demographic demoData = dd.getDemographic(loggedInInfo, demo.toString());
              // This a kludge to get by conformance testing in ontario -- needs to be done in a smarter way
-             int totalImmunizations = numDtap + numDtapIpvHib +  numMMR ;
+
+             int totalImmunizations = numDtap + numDtapIpvHib + numMMR;
+
              int recommTotal = 5; //9;NOT SURE HOW HIB WORKS
              int ageInMonths = DemographicData.getAgeInMonthsAsOf(demoData,asofDate);
              PreventionReportDisplay prd = new PreventionReportDisplay();
@@ -132,7 +137,9 @@ public class ChildImmunizationReport implements PreventionReport{
                 prd.state = "No Info";
                 prd.numMonths = "------";
                 prd.color = "Magenta";
-             }else if(  (  prevsDtapIPVHIB.size()> 0 &&  ineligible(prevsDtapIPVHIB.get(prevsDtapIPVHIB.size()-1))) || (  prevs1.size()> 0 &&  ineligible(prevs1.get(prevs1.size()-1))) || (  prevs2.size()> 0 && ineligible(prevs2.get(prevs2.size()-1))) || (  prevs4.size()> 0 && ineligible(prevs4.get(prevs4.size()-1))) || ( prevs5.size() > 0 && ineligible(prevs5.get(prevs5.size()-1))) || ( prevs6.size() > 0 && ineligible(prevs6.get(prevs6.size()-1)))){
+
+             }else if(  (  prevsDtapIPVHIB.size()> 0 &&  ineligible(prevsDtapIPVHIB.get(prevsDtapIPVHIB.size()-1))) || (  prevs1.size()> 0 &&  ineligible(prevs1.get(prevs1.size()-1))) || (  prevs2.size()> 0 && ineligible(prevs2.get(prevs2.size()-1))) || (  prevs4.size()> 0 && ineligible(prevs4.get(prevs4.size()-1))) || ( prevs5.size() > 0 && ineligible(prevs5.get(prevs5.size()-1))) || ( prevs6.size() > 0 && ineligible(prevs6.get(prevs6.size()-1))) || ( prevs7.size() > 0 && ineligible(prevs7.get(prevs7.size()-1)))){
+
                 prd.rank = 5;
                 prd.lastDate = "------";
                 prd.state = "Ineligible";
@@ -169,7 +176,9 @@ public class ChildImmunizationReport implements PreventionReport{
                    Date prevDate = null;
                    try{
                       prevDate = formatter.parse(DtapIpvHibDateStr);
-                      if (prevDate.after(lastDate)){
+
+                      if (lastDate == null || prevDate.after(lastDate)){
+
                          lastDate = prevDate;
                          prevDateStr = DtapIpvHibDateStr;
                       }
@@ -178,7 +187,7 @@ public class ChildImmunizationReport implements PreventionReport{
 
 
                 if(prevs4.size() > 0){
-                	Map<String, Object> hMMR  = prevs4.get(0);  //Changed to get first MMR value instead of last value
+                	Map<String, Object> hMMR  = prevs4.get(numMMR-1);  
                    if ( hMMR.get("refused") != null && ((String) hMMR.get("refused")).equals("1")){
                       refused = true;
                    }
@@ -187,7 +196,7 @@ public class ChildImmunizationReport implements PreventionReport{
                    Date prevDate = null;
                    try{
                       prevDate = formatter.parse(mmrDateStr);
-                      if (prevDate.after(lastDate)){
+                      if ( lastDate == null || prevDate.after(lastDate)){
                          lastDate = prevDate;
                          prevDateStr = mmrDateStr;
                       }
@@ -201,7 +210,9 @@ public class ChildImmunizationReport implements PreventionReport{
                      }
                     String pneuCDateStr = (String) pneuC.get("prevention_date");
                     try{
-                       oneYearimm = formatter.parse(prevDateStr);
+
+                       oneYearimm = formatter.parse(pneuCDateStr);
+
                        if( lastDate == null || oneYearimm.after(lastDate) ) {
                     	   prevDateStr = pneuCDateStr;
                     	   lastDate = oneYearimm;
@@ -220,7 +231,10 @@ public class ChildImmunizationReport implements PreventionReport{
                     Date prevDate = null;
                     try{
                        prevDate = formatter.parse(menCDateStr);
-                       if (prevDate.after(oneYearimm)){
+
+                       MiscUtils.getLogger().debug("1yr " + oneYearimm + " lastDate " + lastDate + " prevDate " + prevDate);
+                       if (oneYearimm == null || prevDate.after(oneYearimm)){
+
                           oneYearimm = prevDate;
                           if( lastDate == null || oneYearimm.after(lastDate) ) {
                         	  prevDateStr = menCDateStr;
@@ -233,6 +247,26 @@ public class ChildImmunizationReport implements PreventionReport{
 
                 }                
 
+
+                if( prevs7.size() > 0 ) {
+                	Map<String, Object> vzMMRV = prevs7.get(numVZMMRV-1);
+                    if ( vzMMRV.get("refused") != null && ((String) vzMMRV.get("refused")).equals("1")){
+                        refused = true;
+                     }
+                    String vzMMRVDateStr = (String) vzMMRV.get("prevention_date");
+                    Date prevDate = null;
+                    try{
+                       prevDate = formatter.parse(vzMMRVDateStr);
+                       if (lastDate == null || prevDate.after(lastDate)){
+                    	   prevDateStr = vzMMRVDateStr;
+                    	   lastDate = prevDate;
+                       	 }
+                    }
+                    catch (Exception e){MiscUtils.getLogger().error("Error", e);}
+
+
+                }
+                
                 String numMonths = "------";
                 if ( lastDate != null){
                    int num = UtilDateUtilities.getNumMonths(lastDate,asofDate);
@@ -246,20 +280,26 @@ public class ChildImmunizationReport implements PreventionReport{
                 Date twoYearsAfterDOB = cal.getTime();
                 int numberOfPneuC = 3;
                 int numberOfMenC = 1;
+
+                cal = Calendar.getInstance();
                 cal.setTime(dob);
-                cal.add(Calendar.MONTH, 16);
+                cal.add(Calendar.MONTH, 18);
                 Date oneYearAfterDob = cal.getTime();
 
                 if( lastDate != null && oneYearimm != null ) {
-                    log.debug("twoYearsAfterDOB date "+twoYearsAfterDOB+ " "+lastDate.before(twoYearsAfterDOB) );
-                    if (!refused && (totalImmunizations >= recommTotal  ) && numMMR >= 1 && numDtapIpvHib >= 4 && lastDate.before(twoYearsAfterDOB) && ( ageInMonths >= 18 ) && oneYearimm.before(oneYearAfterDob)){//&& endOfYear.after(prevDate)){
+                    log.info("twoYearsAfterDOB date "+twoYearsAfterDOB+ " "+lastDate.before(twoYearsAfterDOB) );
+                    log.info("oneYearAfterDOB " + oneYearAfterDob + " " + oneYearimm.before(oneYearAfterDob));
+                    if (!refused && (totalImmunizations >= recommTotal  ) && numMMR >= 1 && numDtapIpvHib >= 4 &&  numVZMMRV >= 1 &&  prevs5.size() >= numberOfPneuC && prevs6.size() >= numberOfMenC && lastDate.before(twoYearsAfterDOB) && ( ageInMonths >= 18 ) && oneYearimm.before(oneYearAfterDob)){//&& endOfYear.after(prevDate)){
+
                        prd.bonusStatus = "Y";
                        prd.billStatus = "Y";
                        done++;
                     }
                 }
                 //outcomes
-                if (!refused && (( totalImmunizations < recommTotal && (numMMR < 1 || numDtapIpvHib < 4) && ageInMonths >= 18 && ageInMonths <= 23 ) || ( prevs5.size() < numberOfPneuC  && ageInMonths >= 12 && ageInMonths <= 15 ) || ( prevs6.size() < numberOfMenC  && ageInMonths >= 12 && ageInMonths <= 15 )) ){ // less < 9
+
+                if (!refused && ((( totalImmunizations < recommTotal || numMMR < 1 || numDtapIpvHib < 4 || numVZMMRV < 1 ) && ageInMonths >= 18 && ageInMonths <= 23 ) || ( prevs5.size() < numberOfPneuC  && ageInMonths >= 12 && ageInMonths <= 18 ) || ( prevs6.size() < numberOfMenC  && ageInMonths >= 12 && ageInMonths <= 18 ))) { // less < 9
+
                    prd.rank = 2;
                    prd.lastDate = prevDateStr;
                    prd.state = "due";
@@ -267,7 +307,9 @@ public class ChildImmunizationReport implements PreventionReport{
                    prd.numShots = ""+totalImmunizations;
                    prd.color = "yellow"; //FF00FF
 
-                } else if (!refused && ((totalImmunizations < recommTotal && (numMMR < 1 || numDtapIpvHib < 4) && ageInMonths > 23) || (prevs5.size() < numberOfPneuC && ageInMonths > 15) || (prevs6.size() < numberOfMenC && ageInMonths > 15)) ){ // overdue
+
+                } else if (!refused && (((totalImmunizations < recommTotal || numMMR < 1 || numDtapIpvHib < 4) && ageInMonths > 23) || (prevs5.size() < numberOfPneuC && ageInMonths > 18) || (prevs6.size() < numberOfMenC && ageInMonths > 18) || (numVZMMRV < 1 && ageInMonths > 18)) ){ // overdue
+
                    prd.rank = 2;
                    prd.lastDate = prevDateStr;
                    prd.state = "Overdue";
@@ -282,7 +324,9 @@ public class ChildImmunizationReport implements PreventionReport{
                    prd.numMonths = numMonths;
                    prd.numShots = ""+totalImmunizations;
                    prd.color = "orange"; //FF9933
-                } else if (totalImmunizations >= recommTotal && numMMR >= 1 && numDtapIpvHib >= 4 && prevs5.size() >= numPneuC && prevs6.size() >= numMenc ){  // recorded done
+
+                } else if (totalImmunizations >= recommTotal && numMMR >= 1 && numDtapIpvHib >= 4 && prevs5.size() >= numPneuC && prevs6.size() >= numMenc && numVZMMRV >= 1){  // recorded done
+
                    prd.rank = 4;
                    prd.lastDate = prevDateStr;
                    prd.state = "Up to date";
