@@ -9,25 +9,30 @@
 package oscar.eform.actions;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.EFormDataDao;
+import org.oscarehr.common.dao.FaxConfigDao;
+import org.oscarehr.common.dao.FaxJobDao;
 import org.oscarehr.common.model.EFormData;
+import org.oscarehr.common.model.FaxConfig;
+import org.oscarehr.common.model.FaxJob;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 import org.oscarehr.util.WKHtmlToPdfUtils;
 
 import oscar.OscarProperties;
 
+import com.itextpdf.text.pdf.PdfReader;
 import com.lowagie.text.DocumentException;
 
 public final class FaxAction {
@@ -76,7 +81,7 @@ public final class FaxAction {
 	 * This method will take eforms and send them to a PHR.
 	 * @throws DocumentException 
 	 */
-	public void faxForms(String[] numbers, String formId, String providerId) throws DocumentException {
+	public void faxForms(String[] numbers, String formId, String providerId) throws DocumentException, Exception {
 		
 		File tempFile = null;
 
@@ -99,34 +104,61 @@ public final class FaxAction {
 			
 			// Removing duplicate phone numbers.
 			recipients = new ArrayList<String>(new HashSet<String>(recipients));
-			String tempPath = OscarProperties.getInstance().getProperty(
-				"fax_file_location", System.getProperty("java.io.tmpdir"));
-			FileOutputStream fos;
+			String tempPath = OscarProperties.getInstance().getProperty("DOCUMENT_DIR");
+			
+			FaxJob faxJob = null;
+			FaxJobDao faxJobDao = SpringUtils.getBean(FaxJobDao.class);				
+			FaxConfigDao faxConfigDao = SpringUtils.getBean(FaxConfigDao.class);
+			
+			List<FaxConfig> faxConfigs = faxConfigDao.findAll(null, null);
+			if( faxConfigs.isEmpty() ) {
+				throw new Exception("OSCaR FAX IS NOT CONFIGURED");
+			}
+			
+			String outFaxNo = faxConfigs.get(0).getFaxNumber();
+			String faxUser = faxConfigs.get(0).getFaxUser();
+			
 			for (int i = 0; i < recipients.size(); i++) {					
 			    String faxNo = recipients.get(i).trim().replaceAll("\\D", "");
 			    if (faxNo.length() < 7) { throw new DocumentException("Document target fax number '"+faxNo+"' is invalid."); }
 			    String tempName = "EForm-" + formId + "." + System.currentTimeMillis();
 				
 				String tempPdf = String.format("%s%s%s.pdf", tempPath, File.separator, tempName);
-				String tempTxt = String.format("%s%s%s.txt", tempPath, File.separator, tempName);
+				
 				
 				// Copying the fax pdf.
 				FileUtils.copyFile(tempFile, new File(tempPdf));
 				
-				// Creating text file with the specialists fax number.
-				fos = new FileOutputStream(tempTxt);				
-				PrintWriter pw = new PrintWriter(fos);
-				pw.println(faxNo);
-				pw.close();
-				fos.close();
-				
 				// A little sanity check to ensure both files exist.
-				if (!new File(tempPdf).exists() || !new File(tempTxt).exists()) {
+				if (!new File(tempPdf).exists() ) {
 					throw new DocumentException("Unable to create files for fax of eform " + formId + ".");
 				}		
+				
+				
+				faxJob = new FaxJob();
+				faxJob.setDestination(faxNo);
+				faxJob.setFile_name(tempName+".pdf");
+				
+				PdfReader pdfReader = new PdfReader(tempPdf);
+				int numPages = pdfReader.getNumberOfPages();
+				pdfReader.close();
+				
+				faxJob.setNumPages(numPages);
+				faxJob.setFax_line(outFaxNo);
+				faxJob.setStamp(new Date());
+				faxJob.setOscarUser(providerId);
+				
+				EFormDataDao eFormDataDao=(EFormDataDao) SpringUtils.getBean("EFormDataDao");
+	        	EFormData eFormData=eFormDataDao.find(Integer.parseInt(formId));
+				
+	        	faxJob.setDemographicNo(eFormData.getDemographicId());
+				faxJob.setStatus(FaxJob.STATUS.SENT);
+				faxJob.setUser(faxUser);
+				faxJobDao.persist(faxJob);
+				
+				
 				if (skipSave) {
-		        	 EFormDataDao eFormDataDao=(EFormDataDao) SpringUtils.getBean("EFormDataDao");
-		        	 EFormData eFormData=eFormDataDao.find(Integer.parseInt(formId));
+		        	 
 		        	 eFormData.setCurrent(false);
 		        	 eFormDataDao.merge(eFormData);
 				}
