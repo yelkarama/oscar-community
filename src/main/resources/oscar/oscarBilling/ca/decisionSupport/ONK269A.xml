@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<guideline title="K269AMessage" >
+    <conditions>
+        <condition type="billedFor" all="K269A">
+            <param key="payer" value="MSP"/>
+            <param key="ageMin" value="12"/>
+            <param key="ageMax" value="17"/>
+            <param key="inDays" value="365"/>
+        </condition>
+    </conditions>
+    <consequence>
+        <warning strength="warning">Not eligible to bill K269A</warning>
+        <warning strength="recommendation">Not eligible for annual physical billing</warning>
+    </consequence>
+</guideline>

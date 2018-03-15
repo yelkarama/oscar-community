@@ -60,7 +60,7 @@ public class BillingGuidelines  {
     private static String region;
 
     private static final String[] filenamesBC= {"BC250.xml","BC401a.xml","BC401b.xml","BC428.xml"};
-    private static final String[] filenamesON= {"ON250.xml","ON428.xml","ONA003A.xml","ONK017A.xml","ONK130A.xml","ONK131A.xml","ONK132A.xml"};
+    private static final String[] filenamesON= {"ON250.xml","ON428.xml","ONA003A.xml","ONK017A.xml","ONK130A.xml","ONK131A.xml","ONK132A.xml", "ONK267A.xml", "ONK269A.xml"};
 
     private static final Boolean DEFAULT_LOCATION = true;
 

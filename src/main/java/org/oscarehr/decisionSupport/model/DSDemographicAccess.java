@@ -38,6 +38,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Logger;
 import org.oscarehr.casemgmt.dao.CaseManagementNoteDAO;
 import org.oscarehr.casemgmt.model.CaseManagementNote;
@@ -104,7 +105,9 @@ public class DSDemographicAccess {
             this.accessMethod = accessMethod;
         }
 
-        public String getAccessMethod() { return accessMethod; }
+        public String getAccessMethod() {
+            return accessMethod;
+        }
     }
 
     private String demographicNo;
@@ -749,14 +752,52 @@ public class DSDemographicAccess {
         return intval;
     }
 
-    public boolean billedForAll(String searchStrings,Hashtable options) throws DecisionSupportException { throw new DecisionSupportException("NOT IMPLEMENTED");  }
+
+    public boolean billedForAll(String searchStrings, Map<String,String> options) {
+        boolean billedFor = false;
+        BillingONCHeader1Dao billingONCHeader1Dao = SpringUtils.getBean(BillingONCHeader1Dao.class);
+        if(options.containsKey("payer") && options.get("payer").equals("MSP")){
+
+            String[] codes = searchStrings.replaceAll("\'","" ).split(",");
+
+            boolean inAgeRange = true;
+            if (options.containsKey("ageMin") && NumberUtils.isNumber(getAge())) {
+                inAgeRange = getAsInt(options,"ageMin") <= Integer.parseInt(getAge());
+            }
+
+            if (options.containsKey("ageMax") && inAgeRange && NumberUtils.isNumber(getAge())) {
+                inAgeRange = getAsInt(options,"ageMax") >= Integer.parseInt(getAge());
+            }
+
+            if(options.containsKey("notInDays") || options.containsKey("inDays")){
+                if (inAgeRange){
+                    int days = options.containsKey("notInDays") ? getAsInt(options,"notInDays") : getAsInt(options,"inDays");
+                    billedFor = true;
+
+                    for (String code: codes){
+                        int numDays = billingONCHeader1Dao.getDaysSinceBilled(code, Integer.parseInt(demographicNo));
+
+                        if ((options.containsKey("notInDays") && numDays < days) || (options.containsKey("inDays") && (numDays > days || numDays == -1))) {
+                            billedFor = false;
+                            break;
+                        }
+                    }
+                }
+                else {
+                    billedFor = false;
+                }
+            }
+        }
+
+        return billedFor;
+    }
+
     public boolean billedForNot(String searchStrings,Hashtable options) throws DecisionSupportException { throw new DecisionSupportException("NOT IMPLEMENTED");  }
     public boolean billedForNotall(String searchStrings,Hashtable options) throws DecisionSupportException { throw new DecisionSupportException("NOT IMPLEMENTED"); }
     public boolean billedForNotany(String searchStrings,Hashtable options) throws DecisionSupportException { throw new DecisionSupportException("NOT IMPLEMENTED"); }
 
 
     public boolean billedForAny(String searchStrings) throws DecisionSupportException { throw new DecisionSupportException("NOT IMPLEMENTED");  }
-    public boolean billedForAll(String searchStrings) throws DecisionSupportException { throw new DecisionSupportException("NOT IMPLEMENTED");  }
     public boolean billedForNot(String searchStrings) throws DecisionSupportException { throw new DecisionSupportException("NOT IMPLEMENTED"); }
     public boolean billedForNotall(String searchStrings) throws DecisionSupportException { throw new DecisionSupportException("NOT IMPLEMENTED");  }
     public boolean billedForNotany(String searchStrings) throws DecisionSupportException { throw new DecisionSupportException("NOT IMPLEMENTED");  }
