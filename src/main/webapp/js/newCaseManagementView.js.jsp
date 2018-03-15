@@ -25,6 +25,8 @@
 <%@page contentType="application/javascript"%>
 <%@page import="org.oscarehr.casemgmt.common.Colour"%>
 <%@page import=" oscar.OscarProperties" %>
+<%@ page import="java.util.List"%>
+<%@ page import="java.util.Collections"%>
 
 	var numNotes = 0;   //How many saved notes do we have?
     var ctx;        //url context
@@ -574,12 +576,19 @@ function navBarLoader() {
             if (OscarProperties.getInstance().getBooleanProperty("MY_OSCAR", "yes")) { %>
                 leftNavBar.push(ctx + '/oscarEncounter/displayMyOscar.do?hC=');
                 leftNavBarTitles.push('PHR')
-            <%}%>
-            <%
+            <%}
             if (OscarProperties.getInstance().getBooleanProperty("echart_show_progress_sheet", "true")) { %>
         		leftNavBar.unshift(ctx + '/oscarEncounter/displayProgressSheet.do?hC=003468');
         		leftNavBarTitles.unshift('progressSheet');
-            <% } %>
+            <% }
+            List<String> propertyNoteCodes = OscarProperties.getInstance().getCommaSeparatedProperty("leftnav_notes_issue_codes");
+        	Collections.reverse(propertyNoteCodes); // Reverse List to add to the javascript array in the entered order
+            for (String code : propertyNoteCodes) { %>
+				leftNavBar.unshift(ctx + "/CaseManagementView.do?method=listNotes&providerNo=" + providerNo + 
+					"&demographicNo=" + demographicNo + "&issue_code=<%=code%>&title=<%=code%>" + 
+					"&cmd=<%=code%>" + "&appointment_no=" + appointmentNo);
+				leftNavBarTitles.unshift('<%=code%>');
+			<% } %>
             var rightNavBar = [
                   ctx + "/oscarEncounter/displayAllergy.do?hC=" + Colour.allergy,
                   ctx + "/oscarEncounter/displayRx.do?hC=" + Colour.rx + "&numToDisplay=12",
@@ -603,7 +612,15 @@ function navBarLoader() {
             if (OscarProperties.getInstance().getBooleanProperty("enable_document_consent_module", "true")) { %>
                 rightNavBar.push(ctx + '/oscarEncounter/displayDocuments.do?hC=' + Colour.documents + '&type=Consent');
                 rightNavBarTitles.push('consent')
-            <%}%>
+            <% }
+			propertyNoteCodes = OscarProperties.getInstance().getCommaSeparatedProperty("rightnav_notes_issue_codes");
+        	Collections.reverse(propertyNoteCodes); // Reverse List to add to the javascript array in the entered order
+			for (String code : propertyNoteCodes) { %>
+				rightNavBar.unshift(ctx + "/CaseManagementView.do?method=listNotes&providerNo=" + providerNo +
+					"&demographicNo=" + demographicNo + "&issue_code=<%=code%>&title=<%=code%>" +
+					"&cmd=<%=code%>" + "&appointment_no=" + appointmentNo);
+				rightNavBarTitles.unshift('<%=code%>');
+			<% } %>
 
 
           var navbar = "leftNavBar";

@@ -40,6 +40,11 @@
 <%@page import="org.oscarehr.common.model.PartialDate"%>
 <%@page import="org.oscarehr.util.SpringUtils"%>
 <%@page import="org.oscarehr.util.LoggedInInfo"%>
+<%@ page import="java.util.ResourceBundle" %>
+<%@ page import="java.util.Locale" %>
+<%@ page import="java.util.MissingResourceException" %>
+<%@ page import="org.oscarehr.casemgmt.model.Issue" %>
+<%@ page import="org.oscarehr.casemgmt.service.CaseManagementManager" %>
 <%
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
     boolean authed=true;
@@ -63,9 +68,31 @@
 <%
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 	com.quatro.service.security.SecurityManager securityManager = new com.quatro.service.security.SecurityManager();
+	ResourceBundle props = ResourceBundle.getBundle("oscarResources", Locale.ENGLISH);
+	String title = null;
+	try {
+	    if (request.getParameter("title") != null) {
+			title = props.getString(request.getParameter("title"));
+		}
+	} catch (MissingResourceException e) {} // ignore, title is missing
+	// Try to get title from db as a issue code
+	if (title == null) {
+		CaseManagementManager caseManagementMgr = SpringUtils.getBean(CaseManagementManager.class);
+		List<Issue> issues = caseManagementMgr.getIssueInfoByCode(loggedInInfo.getLoggedInProviderNo(), request.getParameter("title"));
+		if (!issues.isEmpty()) {
+		    for (Issue issue : issues) {
+		        if (!issue.getDescription().isEmpty()) {
+		            title = issue.getDescription();
+					title = title.replace("as a part of cpp", "").trim();
+					title = title.replace("as part of cpp", "").trim(); // remove "as a part of cpp" string from title
+					break;
+				}
+			}
+		}
+	} 
 	if(securityManager.hasWriteAccess("_" + request.getParameter("issue_code"),roleName$)) {
 %>
-<a href="#" title='Add Item' onclick="return showEdit(event,'<bean-el:message key="${param.title}" />','',0,'','','','<%=request.getAttribute("addUrl")%>0', '<c:out value="${param.cmd}"/>','<%=request.getAttribute("identUrl")%>','<%=request.getAttribute("cppIssue")%>','','<c:out value="${param.demographicNo}"/>');">+</a>
+<a href="#" title='Add Item' onclick="return showEdit(event,'<%=title%>','',0,'','','','<%=request.getAttribute("addUrl")%>0', '<c:out value="${param.cmd}"/>','<%=request.getAttribute("identUrl")%>','<%=request.getAttribute("cppIssue")%>','','<c:out value="${param.demographicNo}"/>');">+</a>
 <% } else { %>
 	&nbsp;
 <% } %>
@@ -74,7 +101,7 @@
 <div style="clear: left; float: left; width: 90%;">
 <h3 style="width:100%; background-color:#<c:out value="${param.hc}"/>"><a
 	href="#"
-        onclick="return showIssueHistory('<c:out value="${param.demographicNo}"/>','<%=request.getAttribute("issueIds")%>');"><bean-el:message key="${param.title}" /></a></h3>
+        onclick="return showIssueHistory('<c:out value="${param.demographicNo}"/>','<%=request.getAttribute("issueIds")%>');"><%=title%></a></h3>
 </div>
         
         <c:choose>
@@ -144,10 +171,10 @@
 			
 			<c:choose>
             <c:when test='${param.title == "oscarEncounter.oMeds.title" || param.title == "oscarEncounter.riskFactors.title" || param.title == "oscarEncounter.famHistory.title"|| param.noheight == "true"}'>
-                <a class="links" onmouseover="this.className='linkhover'"	onmouseout="this.className='links'" title="Rev:<nested:write name="note" property="revision"/> - Last update:<nested:write name="note" property="update_date" format="dd-MMM-yyyy"/>" id="listNote<nested:write name="note" property="id"/>" href="#" onclick="showEdit(event,'<bean-el:message key="${param.title}" />','<nested:write name="note" property="id"/>','<%=StringEscapeUtils.escapeJavaScript(editors.toString())%>','<nested:write name="note" property="observation_date" format="dd-MMM-yyyy"/>','<nested:write name="note" property="revision"/>','<%=noteTxt%>', '<%=request.getAttribute("addUrl")%><nested:write name="note" property="id"/>', '<c:out value="${param.cmd}"/>','<%=request.getAttribute("identUrl")%>','<%=strNoteIssues.toString()%>','<%=strNoteExts%>','<c:out value="${param.demographicNo}"/>');return false;"  style="width:100%;overflow:scroll;" >			 			
+                <a class="links" onmouseover="this.className='linkhover'"	onmouseout="this.className='links'" title="Rev:<nested:write name="note" property="revision"/> - Last update:<nested:write name="note" property="update_date" format="dd-MMM-yyyy"/>" id="listNote<nested:write name="note" property="id"/>" href="#" onclick="showEdit(event,'<%=title%>','<nested:write name="note" property="id"/>','<%=StringEscapeUtils.escapeJavaScript(editors.toString())%>','<nested:write name="note" property="observation_date" format="dd-MMM-yyyy"/>','<nested:write name="note" property="revision"/>','<%=noteTxt%>', '<%=request.getAttribute("addUrl")%><nested:write name="note" property="id"/>', '<c:out value="${param.cmd}"/>','<%=request.getAttribute("identUrl")%>','<%=strNoteIssues.toString()%>','<%=strNoteExts%>','<c:out value="${param.demographicNo}"/>');return false;"  style="width:100%;overflow:scroll;" >			 			
             </c:when>
             <c:otherwise>
-                <a class="topLinks" onmouseover="this.className='topLinkhover'"	onmouseout="this.className='topLinks'" title="Rev:<nested:write name="note" property="revision"/> - Last update:<nested:write name="note" property="update_date" format="dd-MMM-yyyy"/>" id="listNote<nested:write name="note" property="id"/>" href="#" onclick="showEdit(event,'<bean-el:message key="${param.title}" />','<nested:write name="note" property="id"/>','<%=StringEscapeUtils.escapeJavaScript(editors.toString())%>','<nested:write name="note" property="observation_date" format="dd-MMM-yyyy"/>','<nested:write name="note" property="revision"/>','<%=noteTxt%>', '<%=request.getAttribute("addUrl")%><nested:write name="note" property="id"/>', '<c:out value="${param.cmd}"/>','<%=request.getAttribute("identUrl")%>','<%=strNoteIssues.toString()%>','<%=strNoteExts%>','<c:out value="${param.demographicNo}"/>');return false;"  style="width:100%;overflow:scroll;" >			 			
+                <a class="topLinks" onmouseover="this.className='topLinkhover'"	onmouseout="this.className='topLinks'" title="Rev:<nested:write name="note" property="revision"/> - Last update:<nested:write name="note" property="update_date" format="dd-MMM-yyyy"/>" id="listNote<nested:write name="note" property="id"/>" href="#" onclick="showEdit(event,'<%=title%>','<nested:write name="note" property="id"/>','<%=StringEscapeUtils.escapeJavaScript(editors.toString())%>','<nested:write name="note" property="observation_date" format="dd-MMM-yyyy"/>','<nested:write name="note" property="revision"/>','<%=noteTxt%>', '<%=request.getAttribute("addUrl")%><nested:write name="note" property="id"/>', '<c:out value="${param.cmd}"/>','<%=request.getAttribute("identUrl")%>','<%=strNoteIssues.toString()%>','<%=strNoteExts%>','<c:out value="${param.demographicNo}"/>');return false;"  style="width:100%;overflow:scroll;" >			 			
             </c:otherwise>
         	</c:choose>                 
 			
@@ -173,7 +200,7 @@
 				    <%
 				}
 				%>
-					<a class="links" onmouseover="this.className='linkhover'"	onmouseout="this.className='links'" title="<%=remoteNote.getLocation()%> by <%=remoteNote.getProviderName()%> on <%=ConversionUtils.toTimestampString(remoteNote.getObservationDate())%>" href="javascript:void(0)" onclick="showIntegratedNote('<bean-el:message key="${param.title}" />',<%=htmlText%>,<%=remoteNote.getLocation()%>, <%=remoteNote.getProviderName()%>, <%=ConversionUtils.toTimestampString(remoteNote.getObservationDate())%>);">					
+					<a class="links" onmouseover="this.className='linkhover'"	onmouseout="this.className='links'" title="<%=remoteNote.getLocation()%> by <%=remoteNote.getProviderName()%> on <%=ConversionUtils.toTimestampString(remoteNote.getObservationDate())%>" href="javascript:void(0)" onclick="showIntegratedNote('<%=title%>',<%=htmlText%>,<%=remoteNote.getLocation()%>, <%=remoteNote.getProviderName()%>, <%=ConversionUtils.toTimestampString(remoteNote.getObservationDate())%>);">					
 					<%=htmlText%>
 					</a>
 				</li>

@@ -28,9 +28,11 @@ package oscar;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
@@ -132,6 +134,23 @@ public class OscarProperties extends Properties {
 		key = key==null ? null : key.trim();
 		return activeMarkers.contains(getProperty(key, "").trim().toLowerCase());
 	}
+
+    /**
+     * get the property stored as a comma separated list and returns the items as a String List
+     * @param key key of property
+     * @return List of strings between commas
+     */
+    public List<String> getCommaSeparatedProperty(String key) {
+        List<String> items = new ArrayList<String>();
+        String property = getProperty(key);
+        if (property != null) {
+            String[] itemsArr = property.split(",");
+            for (String item : itemsArr) {
+                items.add(item.trim());
+            }
+        }
+        return items;
+    }
 
 	/*
 	 * Comma delimited spring configuration modules Options: Caisi,Indivo Caisi - Required to run the Caisi Shelter Management System Indivo - Indivo PHR record. Required for integration with Indivo.
