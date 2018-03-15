@@ -812,6 +812,7 @@ function sendMRP(ele){
                             <%
                             ArrayList ackList = AcknowledgementData.getAcknowledgements("DOC",docId);
 							String curAckStatus = "N";
+                            String documentComment = "";
                                             if (ackList.size() > 0){%>
                                             <fieldset>
                                                 <table width="100%" height="20" cellpadding="2" cellspacing="2">
@@ -820,7 +821,11 @@ function sendMRP(ele){
                                                             <div class="FieldData">
                                                                 <!--center-->
                                                                     <% for (int i=0; i < ackList.size(); i++) {
-                                                                        ReportStatus report = (ReportStatus) ackList.get(i); %>
+                                                                        ReportStatus report = (ReportStatus) ackList.get(i);
+                                                                        if (report.getOscarProviderNo() != null && report.getOscarProviderNo().equals(providerNo) && report.getComment() != null) {
+                                                                            documentComment = report.getComment();
+                                                                        }
+                                                                    %>
                                                                         <%= report.getProviderName() %> :
 
                                                                         <% String ackStatus = report.getStatus();
@@ -884,7 +889,7 @@ function sendMRP(ele){
                                                         <input type="hidden" name="status" value="A" id="ackStatus"/>
                                                         <input type="hidden" name="labType" value="DOC"/>
                                                         <input type="hidden" name="ajaxcall" value="yes"/>
-                                                        <textarea  tabindex="<%=tabindex++%>" name="comment" cols="40" rows="4"></textarea>
+                                                        <textarea  tabindex="<%=tabindex++%>" name="comment" cols="40" rows="4"><%=documentComment%></textarea>
                                                     </td>
                                                 </tr>
                                                 <tr>
