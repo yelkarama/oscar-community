@@ -89,7 +89,7 @@
   AppointmentReminderStatusDao appointmentReminderStatusDao = SpringUtils.getBean(AppointmentReminderStatusDao.class);
 
   //Did the appt status change ?
-  if(!appt.getStatus().equals(request.getParameter("status"))){
+  if(!appt.getStatus().equals(request.getParameter("status")) && request.getParameter("status") != null){
 	  changedStatus = request.getParameter("status");
 	  if (appointmentRemindersEnabled) {
 		  if (changedStatus.equals("C")) {
