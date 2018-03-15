@@ -35,6 +35,11 @@
 <%@ page import="oscar.log.LogAction" %>
 <%@ page import="org.oscarehr.util.LoggedInInfo" %>
 <%@ page import="oscar.log.LogConst" %>
+<%@ page import="org.oscarehr.common.model.AppointmentReminder" %>
+<%@ page import="org.oscarehr.common.dao.AppointmentReminderDao" %>
+<%@ page import="org.oscarehr.common.model.AppointmentReminderStatus" %>
+<%@ page import="org.oscarehr.common.dao.AppointmentReminderStatusDao" %>
+<%@ page import="oscar.OscarProperties" %>
 <%
 	AppointmentArchiveDao appointmentArchiveDao = (AppointmentArchiveDao)SpringUtils.getBean("appointmentArchiveDao");
 	OscarAppointmentDao appointmentDao = (OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
@@ -52,14 +57,36 @@
 	</tr>
 </table>
 <%
+	AppointmentReminderDao appointmentReminderDao = SpringUtils.getBean(AppointmentReminderDao.class);
+	AppointmentReminderStatusDao appointmentReminderStatusDao = SpringUtils.getBean(AppointmentReminderStatusDao.class);
 	Appointment appt = appointmentDao.find(Integer.parseInt(request.getParameter("appointment_no")));
 	appointmentArchiveDao.archiveAppointment(appt);
 	int rowsAffected=0;
 	if(appt != null) {
 		appointmentDao.remove(appt.getId());
-		LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.DELETE, LogConst.CON_APPT, 
+		LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.DELETE, LogConst.CON_APPT,
 				"appointment_no=" + appt.getId(), String.valueOf(appt.getDemographicNo()), (String)null);
 		rowsAffected=1;
+
+		boolean appointmentRemindersEnabled = false;
+		String appointmentReminderProperties = OscarProperties.getInstance().getProperty("enable_appointment_reminders");
+		if (appointmentReminderProperties != null && appointmentReminderProperties.equals("true")) {
+			appointmentRemindersEnabled = true;
+		}
+
+		if (appointmentRemindersEnabled) {
+			AppointmentReminder appointmentReminder = appointmentReminderDao.getByAppointmentNo(appt.getId());
+			if (appointmentReminder != null) {
+				appointmentReminder.setCancelled(true);
+				appointmentReminderDao.merge(appointmentReminder);
+
+				AppointmentReminderStatus appointmentReminderStatus = appointmentReminderStatusDao.getByAppointmentReminderNo(appointmentReminder.getId());
+				if (appointmentReminderStatus != null) {
+					appointmentReminderStatus.setAllDelivered(true);
+					appointmentReminderStatusDao.merge(appointmentReminderStatus);
+				}
+			}
+		}
 	}
 	if (rowsAffected == 1) {
 %>
