@@ -77,7 +77,7 @@ public class EctDisplayRelationsAction extends EctDisplayAction {
                     NavBarDisplayDAO.Item item = NavBarDisplayDAO.Item();
                     winName = relationship.getRelation() + ": " + demographic.getLastName() + ", " + demographic.getFirstName();
                     hash = Math.abs(winName.hashCode());
-                    url = "popupPage(700,1000,'" + hash + "','" + request.getContextPath() + "/demographic/demographiccontrol.jsp?demographic_no=" + demographic.getDemographicNo() + "&amp;displaymode=edit&amp;dboperation=search_detail" + "'); return false;";
+                    url = "popupPage(700,1000,'" + hash + "','" + request.getContextPath() + "/oscarEncounter/IncomingEncounter.do?providerNo=" + providerNo + "&demographicNo=" + demographic.getDemographicNo() + "&reason=Tel-Progress+Note&encType=&curDate=2018-3-15');return false;";
                     item.setTitle(winName);
                     item.setLinkTitle(winName);
                     item.setURL(url);
