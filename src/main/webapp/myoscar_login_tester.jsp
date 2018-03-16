@@ -37,7 +37,7 @@
 		<form method="post">
 			user name : <input type="text" name="userName" />
 			<br />
-			password : <input type="password" name="password" />
+			password : <input type="password" name="password" autocomplete="off" />
 			<br />
 			<input type="submit" />
 		</form>

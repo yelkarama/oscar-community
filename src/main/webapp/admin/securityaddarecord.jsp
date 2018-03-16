@@ -206,7 +206,7 @@
 			key="admin.securityrecord.formPassword" />:
 		</div>
 		</td>
-		<td><input type="password" name="password" size="20" maxlength="32"> <font size="-2">(<bean:message
+		<td><input type="password" name="password" size="20" maxlength="32" autocomplete="off"> <font size="-2">(<bean:message
 			key="admin.securityrecord.msgAtLeast" />
 			<%=op.getProperty("password_min_length")%> <bean:message
 			key="admin.securityrecord.msgSymbols" />)</font></td>
@@ -216,7 +216,7 @@
 		<div align="right"><bean:message
 			key="admin.securityrecord.formConfirm" />:</div>
 		</td>
-		<td><input type="password" name="conPassword" size="20" maxlength="32"></td>
+		<td><input type="password" name="conPassword" size="20" maxlength="32" autocomplete="off"></td>
 	</tr>
 	<tr>
 		<td width="50%" align="right"><bean:message
@@ -286,7 +286,7 @@
 		<div align="right"><bean:message
 			key="admin.securityrecord.formPIN" />:</div>
 		</td>
-		<td><input type="password" name="pin" size="6" maxlength="6" /> <font size="-2">(<bean:message
+		<td><input type="password" name="pin" size="6" maxlength="6" autocomplete="off"/> <font size="-2">(<bean:message
 			key="admin.securityrecord.msgAtLeast" />
 			<%=op.getProperty("password_pin_min_length")%> <bean:message
 			key="admin.securityrecord.msgDigits" />)</font>
@@ -297,7 +297,7 @@
 		<div align="right"><bean:message
 			key="admin.securityrecord.formConfirm" />:</div>
 		</td>
-		<td><input type="password" name="conPin" size="6" maxlength="6" /></td>
+		<td><input type="password" name="conPin" size="6" maxlength="6" autocomplete="off"/></td>
 	</tr>
 	
 	<%

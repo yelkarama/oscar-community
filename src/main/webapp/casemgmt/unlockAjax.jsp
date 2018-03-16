@@ -140,7 +140,7 @@
 	<c:out value="${provName}" /></span>
 	<p id="passwdError" style="color: red;">Incorrect password</p>
 	<p id='passwdPara' class="passwd">Password:&nbsp;<input
-		onkeypress="return grabEnter('btnUnlock', event);" type='password'
+		onkeypress="return grabEnter('btnUnlock', event);" type='password' autocomplete="off"
 		id='passwd' size='16'>&nbsp; <input id='btnUnlock'
 		type='button'
 		onclick="return unlock_ajax('<c:out value="n${Note.id}"/>');"

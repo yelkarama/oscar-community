@@ -123,7 +123,7 @@ pageContext.setAttribute("phrTechLoginErrorMsg", request.getAttribute("phrTechLo
 		                    Login Required.  
 		                </logic:notPresent>
 		                Status: <b>Not logged in</b><br/>
-		                <%=providerName%> password: <input type="password" id="phrPassword" name="phrPassword" style="font-size: 8px; width: 40px;"> <a href="javascript: document.forms['phrLogin'].submit()">Login</a>
+		                <%=providerName%> password: <input type="password" id="phrPassword" name="phrPassword" style="font-size: 8px; width: 40px;" autocomplete="off"> <a href="javascript: document.forms['phrLogin'].submit()">Login</a>
 		                <script type="text/javascript" language="JavaScript">document.getElementById('phrPassword').focus()</script>
 		                <input type="hidden" name="forwardto" value="<%=request.getParameter("forwardto")%>">
 		            </form>

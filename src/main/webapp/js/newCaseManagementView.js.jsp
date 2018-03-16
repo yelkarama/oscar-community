@@ -2056,7 +2056,7 @@ function unlockNote(e) {
     var nId = txt.substr(1);
     var img = "<img id='quitImg" + nId + "' onclick='resetView(true, false, event)' style='float:right; margin-right:5px;' src='" + ctx + "/oscarEncounter/graphics/triangle_up.gif'>";
     new Insertion.Top(txt,img);
-    var lockForm = "<p id='passwdPara' class='passwd'>" + msgPasswd + ":&nbsp;<input onkeypress=\"return grabEnter('btnUnlock', event);\" type='password' id='" + passwd + "' size='16'>&nbsp;<input id='btnUnlock' type='button' onclick=\"return unlock_ajax('" + txt + "');\" value='" + btnMsgUnlock + "'><\/p>";
+    var lockForm = "<p id='passwdPara' class='passwd'>" + msgPasswd + ":&nbsp;<input onkeypress=\"return grabEnter('btnUnlock', event);\" type='password' id='" + passwd + "' size='16' autocomplete='off'>&nbsp;<input id='btnUnlock' type='button' onclick=\"return unlock_ajax('" + txt + "');\" value='" + btnMsgUnlock + "'><\/p>";
     new Insertion.Bottom(txt, lockForm);
 
     $(txt).style.height = "auto";
@@ -2223,8 +2223,8 @@ function editNote(e) {
     Element.observe(caseNote, 'click', getActiveText);
 
     if( passwordEnabled ) {
-           input = "<p style='background-color:#CCCCFF; display:none; margin:0px;' id='notePasswd'>Password:&nbsp;<input type='password' name='caseNote.password' value=''/>" +
-               "Confirmation:&nbsp;<input type='password' name='caseNote.passwordConfirm' value=''/><\/p>";
+           input = "<p style='background-color:#CCCCFF; display:none; margin:0px;' id='notePasswd'>Password:&nbsp;<input type='password' name='caseNote.password' value='' autocomplete='off'/>" +
+               "Confirmation:&nbsp;<input type='password' name='caseNote.passwordConfirm' value='' autocomplete='off' /><\/p>";
            new Insertion.Bottom(txt, input);
     }
 
@@ -3176,8 +3176,8 @@ function newNote(e) {
     var input = "<textarea tabindex='7' cols='84' rows='1' wrap='hard' class='txtArea' style='line-height:1.0em;' name='caseNote_note' id='caseNote_note" + newNoteIdx + "'>" + reason + "<\/textarea>";
     var passwd = "";
     if( passwordEnabled ) {
-        passwd = "<p style='background-color:#CCCCFF; display:none; margin:0px;' id='notePasswd'>Password:&nbsp;<input type='password' name='caseNote.password' value=''/>" +
-            "Confirmation:&nbsp;<input type='password' name='caseNote.passwordConfirm' value=''/><\/p>";
+        passwd = "<p style='background-color:#CCCCFF; display:none; margin:0px;' id='notePasswd'>Password:&nbsp;<input type='password' name='caseNote.password' value='' autocomplete='off' />" +
+            "Confirmation:&nbsp;<input type='password' name='caseNote.passwordConfirm' value='' autocomplete='off' /><\/p>";
     }
 
     // the extra BR NBSP at the ends are for IE fix for selection box is out of scrolling pane view.

@@ -190,9 +190,9 @@ function dxScriptAttach(name2) {
 						<div style="float:left;clear:left;width:48%">
 						<table border="0">
 							<tr><td colspan="2"><b><bean:message key="provider.pref.changepw.title" /></b></td></tr>
-							<tr><td nowrap="nowrap"><bean:message key="provider.pref.changepw.current" />:</td><td><input type="password" name="current_password" size="12"/></td></tr>
-							<tr><td nowrap="nowrap"><bean:message key="provider.pref.changepw.new" />: </td><td><input name="new_password" type="password" size="12"/></td></tr>
-							<tr><td nowrap="nowrap"><bean:message key="provider.pref.changepw.confirm" />: </td><td><input name="confirm_password" type="password" size="12"/></td></tr>
+							<tr><td nowrap="nowrap"><bean:message key="provider.pref.changepw.current" />:</td><td><input type="password" name="current_password" size="12" autocomplete="off" /></td></tr>
+							<tr><td nowrap="nowrap"><bean:message key="provider.pref.changepw.new" />: </td><td><input name="new_password" type="password" size="12" autocomplete="off" /></td></tr>
+							<tr><td nowrap="nowrap"><bean:message key="provider.pref.changepw.confirm" />: </td><td><input name="confirm_password" type="password" size="12" autocomplete="off" /></td></tr>
 							<tr style="height:20px"><td colspan="2"></td></tr>													
 							<tr><td><bean:message key="provider.pref.general.fax" />: </td><td><input type="text" size="25" <%=UserPreferenceAction.getTextData(prefs,"pref."+UserProperty.FAX)%>/></td></tr>		
 							<tr><td><bean:message key="provider.pref.general.drugrefid" />: </td><td><input type="text" size="25" <%=UserPreferenceAction.getTextData(prefs,"pref."+UserProperty.MYDRUGREF_ID)%> /></td></tr>

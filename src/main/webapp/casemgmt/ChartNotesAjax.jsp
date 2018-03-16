@@ -411,7 +411,7 @@ CasemgmtNoteLock casemgmtNoteLock = (CasemgmtNoteLock)session.getAttribute("case
 						</div>
 
 						<c:if test="${sessionScope.passwordEnabled=='true'}">
-							<p style='background-color: #CCCCFF; display: none; margin: 0px;' id='notePasswd'>Password:&nbsp;<input type="password" name="caseNote.password" value="" />&nbsp;Confirmation:&nbsp;<input type='password' name='caseNote.passwordConfirm' value=""/></p>
+							<p style='background-color: #CCCCFF; display: none; margin: 0px;' id='notePasswd'>Password:&nbsp;<input type="password" name="caseNote.password" value="" autocomplete="off" />&nbsp;Confirmation:&nbsp;<input type='password' name='caseNote.passwordConfirm' value="" autocomplete="off" /></p>
 						</c:if>
 					<%
 		 		}
@@ -841,8 +841,8 @@ CasemgmtNoteLock casemgmtNoteLock = (CasemgmtNoteLock)session.getAttribute("case
 
 			<c:if test="${sessionScope.passwordEnabled=='true'}">
 				<p style='background-color: #CCCCFF; display: none; margin: 0px;' id='notePasswd'>Password:&nbsp;
-				<input type="password" name="caseNote.password" value="" />&nbsp;Confirmation:&nbsp;
-				<input type='password' name='caseNote.passwordConfirm' value=""/>
+				<input type="password" name="caseNote.password" value="" autocomplete="off" />&nbsp;Confirmation:&nbsp;
+				<input type='password' name='caseNote.passwordConfirm' value="" autocomplete="off" />
 				</p>
 			</c:if>
 		</div> <!-- end of div n<%=savedId%>  -->

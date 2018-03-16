@@ -379,7 +379,7 @@ if(!authed) {
 					
 				%>
 						
-				<input class="span3" id="faxServicePasswd" type="password" name="sitePasswd" value="<%=faxServicePassword%>" />
+				<input class="span3" id="faxServicePasswd" type="password" name="sitePasswd" value="<%=faxServicePassword%>" autocomplete="off" />
 			</div>
 		</div>
 			<div id="content">
@@ -405,7 +405,7 @@ if(!authed) {
 						}
 						
 						%>
-						<input class="span2" type="password" id="faxPasswd<%=count == 0 ? "" : count%>" name="faxPassword" value="<%=faxPassword%>"/>
+						<input class="span2" type="password" id="faxPasswd<%=count == 0 ? "" : count%>" name="faxPassword" value="<%=faxPassword%>" autocomplete="off" />
 					</div>
 					<div class="span5">
 						<select class="span3" id="inBoxQueue<%=count == 0 ? "" : count%>" name="inboxQueue">

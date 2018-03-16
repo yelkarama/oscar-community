@@ -1093,7 +1093,7 @@ String clinicNo = OscarProperties.getInstance().getProperty("clinic_no");
                         </tr>
                         <tr>
                           	<td><bean:message key="provider.eRx.labelPassword"/>:</td>
-                          	<td><input name="erx_password" type="password" value="<%=eRxPassword%>" title="Password to access the External Prescriber" /></td>
+                          	<td><input name="erx_password" type="password" value="<%=eRxPassword%>" title="Password to access the External Prescriber" autocomplete="off"/></td>
                         <tr>
                         </tr>
                           	<td><bean:message key="provider.eRx.labelFacility"/>:</td>

@@ -86,7 +86,7 @@
 	        <html:form action="/billing/CA/BC/ManageTeleplan">
 	             <input type="hidden" name="method" value="setUserName"/>
 	             Username: <input type="text" name="user"/>
-	             Password: <input type="password" name="pass" />
+	             Password: <input type="password" name="pass" autocomplete="off" />
 	             <input class="btn" type="submit" value="save" />
 	        </html:form>
 	   </oscar:oscarPropertiesCheck>
@@ -122,17 +122,17 @@
       	<h4>Change Teleplan Password</h4>
         <html:form action="/billing/CA/BC/ManageTeleplan">
              <input type="hidden" name="method" value="changePass"/>
-             Current Password: <input type="password" name="oldpass" />
+             Current Password: <input type="password" name="oldpass" autocomplete="off"/>
              <br>
-             New Password:     <input type="password" name="newpass" />
-             Confirm Password: <input type="password" name="confpass" />
+             New Password:     <input type="password" name="newpass" autocomplete="off" />
+             Confirm Password: <input type="password" name="confpass" autocomplete="off" />
              <input class="btn" type="submit" value="save" />
         </html:form>
 	   
       	<h4>Set Teleplan Password</h4>
         <html:form action="/billing/CA/BC/ManageTeleplan">
              <input type="hidden" name="method" value="setPass"/>
-             New Password:     <input type="password" name="newpass" />
+             New Password:     <input type="password" name="newpass" autocomplete="off" />
              <input class="btn" type="submit" value="save" />
         </html:form>
 	   

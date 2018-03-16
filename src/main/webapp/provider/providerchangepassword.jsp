@@ -164,14 +164,14 @@ function checkPwdPolicy() {
 		<td align="right" width="50%"><font face="arial"><bean:message
 			key="provider.providerchangepassword.msgEnterOld" /> &nbsp;<b><bean:message
 			key="provider.providerchangepassword.formCurrPassword" />:</b></font></td>
-		<td><input type=password name="oldpassword" value="" size=20
+		<td><input type="password" name="oldpassword" value="" size=20 autocomplete="off"
 			maxlength=32></td>
 	</tr>
 	<tr>
 		<td width="50%" align="right"><font face="arial"><bean:message
 			key="provider.providerchangepassword.msgChooseNew" /> &nbsp;<b><bean:message
 			key="provider.providerchangepassword.formNewPassword" />:</b></font></td>
-		<td><input type=password name="mypassword" value="" size=20
+		<td><input type="password" name="mypassword" value="" size=20 autocomplete="off"
 			maxlength=32> <font size="-2">(<bean:message
 			key="provider.providerchangepassword.msgAtLeast" />
 			<%=op.getProperty("password_min_length")%> <bean:message
@@ -181,7 +181,7 @@ function checkPwdPolicy() {
 		<td width="50%" align="right"><font face="arial"><bean:message
 			key="provider.providerchangepassword.msgConfirm" /> &nbsp;<b><bean:message
 			key="provider.providerchangepassword.formNewPassword" />:</b></font></td>
-		<td><input type=password name="confirmpassword" value="" size=20
+		<td><input type="password" name="confirmpassword" value="" size=20 autocomplete="off"
 			maxlength=32> <font size="-2">(<bean:message
 			key="provider.providerchangepassword.msgAtLeast" />
 			<%=op.getProperty("password_min_length")%> <bean:message
@@ -194,14 +194,14 @@ function checkPwdPolicy() {
 			<td align="right" width="50%"><font face="arial"><bean:message
 				key="provider.providerchangepassword.msgEnterOld" />&nbsp;<b><bean:message
 				key="provider.providerchangepassword.currentPIN" />:</b></font></td>
-			<td><input type=password name="pin" value="" size=20
+			<td><input type="password" name="pin" value="" size=20 autocomplete="off"
 				maxlength=32></td>
 		</tr>
 			<tr>
 			<td width="50%" align="right"><font face="arial"><bean:message
 				key="provider.providerchangepassword.msgChooseNew" />&nbsp;<b><bean:message
 				key="provider.providerchangepassword.newPIN" />:</b></font></td>
-			<td><input type=password name="newpin" value="" size=20
+			<td><input type="password" name="newpin" value="" size=20 autocomplete="off"
 				maxlength=32> <font size="-2">(<bean:message
 				key="provider.providerchangepassword.msgAtLeast" />
 				<%=op.getProperty("password_pin_min_length")%> <bean:message
@@ -211,7 +211,7 @@ function checkPwdPolicy() {
 			<td width="50%" align="right"><font face="arial"><bean:message
 				key="provider.providerchangepassword.msgConfirm" />&nbsp;<b><bean:message
 				key="provider.providerchangepassword.newPIN" />:</b></font></td>
-			<td><input type=password name="confirmpin" value="" size=20
+			<td><input type="password" name="confirmpin" value="" size=20 autocomplete="off"
 				maxlength=32> <font size="-2">(<bean:message
 				key="provider.providerchangepassword.msgAtLeast" />
 				<%=op.getProperty("password_pin_min_length")%> <bean:message

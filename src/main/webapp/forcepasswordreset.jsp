@@ -169,14 +169,14 @@ function validatePassword(pwd) {
 		<td align="right" width="50%"><font face="arial"><bean:message
 			key="provider.providerchangepassword.msgEnterOld" /> &nbsp; <b><bean:message
 			key="provider.providerchangepassword.formOldPassword" />:</b></font></td>
-		<td><input type=password name="oldPassword" value="" size=20
+		<td><input type=password name="oldPassword" value="" size=20 autocomplete="off"
 			maxlength=32></td>
 	</tr>
 	<tr>
 		<td width="50%" align="right"><font face="arial"><bean:message
 			key="provider.providerchangepassword.msgChooseNew" /> &nbsp; <b><bean:message
 			key="provider.providerchangepassword.formNewPassword" />:</b></font></td>
-		<td><input type=password name="newPassword" value="" size=20
+		<td><input type=password name="newPassword" value="" size=20 autocomplete="off"
 			maxlength=32> <font size="-2">(<bean:message
 			key="provider.providerchangepassword.msgAtLeast" />
 			<%=op.getProperty("password_min_length")%> <bean:message
@@ -186,7 +186,7 @@ function validatePassword(pwd) {
 		<td width="50%" align="right"><font face="arial"><bean:message
 			key="provider.providerchangepassword.msgConfirm" /> &nbsp; <b><bean:message
 			key="provider.providerchangepassword.formNewPassword" />:</b></font></td>
-		<td><input type=password name="confirmPassword" value="" size=20
+		<td><input type=password name="confirmPassword" value="" size=20 autocomplete="off"
 			maxlength=32> <font size="-2">(<bean:message
 			key="provider.providerchangepassword.msgAtLeast" />
 			<%=op.getProperty("password_min_length")%> <bean:message

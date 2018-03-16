@@ -207,7 +207,7 @@ request.setAttribute("forwardto", request.getRequestURI());
 		                                                        </logic:present>
 		                                                    </logic:present>
 		                                                    Status: <b>Not logged in</b><br/>
-		                                                    <%=providerName%> password: <input type="password" id="phrPassword" name="phrPassword" style="font-size: 8px; width: 40px;"> <a href="javascript: document.forms['phrLogin'].submit()">Login</a>
+		                                                    <%=providerName%> password: <input type="password" id="phrPassword" name="phrPassword" style="font-size: 8px; width: 40px;" autocomplete="off"> <a href="javascript: document.forms['phrLogin'].submit()">Login</a>
 		                                                    <input type="hidden" name="forwardto" value="<%=request.getServletPath()%>?method=<%=request.getParameter("method")%>">
 		                                                </form>
 		                                            </div>

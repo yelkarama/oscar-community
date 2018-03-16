@@ -131,7 +131,7 @@
 						</tr>
 						<tr>
 							<td>Confirm Password: </td>
-							<td><input name="conPassword" type="password" id="conPassword" ></td>
+							<td><input name="conPassword" type="password" id="conPassword" autocomplete="off"></td>
 						</tr>
 						<tr>
 						<td colspan=2>
