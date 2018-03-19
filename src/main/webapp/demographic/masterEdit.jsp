@@ -168,6 +168,7 @@
 	boolean phoneReminders = true;
 	boolean cellReminders = true;
 	boolean emailReminders = true;
+	String currentReferralSource = null;
 	DemographicExt demographicExt = demographicExtDao.getDemographicExt(Integer.parseInt(demographic_no), "allow_appointment_reminders");
 	if (demographicExt != null && demographicExt.getValue() != null) {
 	    allowAppointmentReminders = Boolean.parseBoolean(demographicExt.getValue());
@@ -184,6 +185,12 @@
 	if (demographicExt != null && demographicExt.getValue() != null) {
 		emailReminders = Boolean.parseBoolean(demographicExt.getValue());
 	}
+	demographicExt = demographicExtDao.getDemographicExt(Integer.parseInt(demographic_no), "referral_source");
+	if (demographicExt != null && demographicExt.getValue() != null) {
+		currentReferralSource = demographicExt.getValue();
+	}
+	List<String> referralSources = demographicExtDao.findAllDistinctValuesByKey("referral_source");
+	
 	
 %>
 <%!
@@ -966,6 +973,27 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 		<jsp:include page="./familyPhysicianModule.jsp">
 			<jsp:param name="family_doc" value="<%=family_doc%>" />
 		</jsp:include>
+		<% if (oscarProps.isPropertyActive("masterfile_referral_source")) { %>
+		<tr valign="top">
+			<td align="right" nowrap>
+				<b>Referral Source: </b>
+			</td>
+			<td>
+				<select name="referral_source" style="width: 200px">
+					<option value=""></option>
+					<%  for (String rs : referralSources) { %>
+					<option value="<%=rs%>"<%=rs.equals(currentReferralSource)?" selected=\"selected\"":""%>>
+						<%=rs%>
+					</option>
+					<%  } %>
+				</select>
+				<input type="button" onClick="newReferralSource();" 
+					   value="<bean:message key="demographic.demographiceditdemographic.btnAddNew"/>">
+			</td>
+			<td align="right" nowrap></td>
+			<td></td>
+		</tr>
+		<% } %>
 		<tr valign="top">
 			<td align="right" nowrap><b><bean:message
 						key="demographic.demographiceditdemographic.formRosterStatus" />:

@@ -493,6 +493,11 @@
 		}
 
 	}
+	String referralSourceString = request.getParameter("referral_source");
+	if (OscarProperties.getInstance().isPropertyActive("masterfile_referral_source") &&
+			!StringUtils.trimToEmpty(demoExt.get("referral_source")).equals(referralSourceString)) {
+	    extensions.add(new DemographicExt(request.getParameter("referral_source_id"), proNo, demographicNo, "referral_source", referralSourceString));
+	}
 
 	// Demographic Groups
 	int demographicNoAsInt = 0;

@@ -643,6 +643,17 @@ function newStatus1() {
         alert("<bean:message key="demographic.demographiceditdemographic.msgInvalidEntry"/>");
     }
 }
+function newReferralSource() {
+	newOpt = prompt("Please enter the new referral source::", "");
+	if (newOpt == null) {
+		return;
+	} else if(newOpt != "") {
+		document.updatedelete.referral_source.options[document.updatedelete.referral_source.length] = new Option(newOpt, newOpt);
+		document.updatedelete.referral_source.options[document.updatedelete.referral_source.length-1].selected = true;
+	} else {
+		alert("<bean:message key="demographic.demographiceditdemographic.msgInvalidEntry"/>");
+	}
+}
 
 </script>
 <script language="JavaScript">

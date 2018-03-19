@@ -322,4 +322,12 @@ public class DemographicExtDao extends AbstractDao<DemographicExt>{
 	 		return results;
 	 	 }
 	 	 
+     public List<String> findAllDistinctValuesByKey(String key) {
+         Query query = entityManager.createQuery("SELECT DISTINCT d.value from DemographicExt d where d.key = ? order by d.dateCreated DESC");
+         query.setParameter(1, key);
+         @SuppressWarnings("unchecked")
+         List<String> results = query.getResultList();
+         return results;
+     }
+	 	 
 }
