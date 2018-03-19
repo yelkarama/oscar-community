@@ -60,6 +60,7 @@
 <%@ page import="org.oscarehr.common.dao.AppointmentReminderDao" %>
 <%@ page import="org.oscarehr.common.dao.AppointmentReminderStatusDao" %>
 <%@ page import="org.oscarehr.common.dao.DemographicExtDao" %>
+<%@ page import="oscar.OscarProperties" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <html:html locale="true">
@@ -168,37 +169,50 @@ if (request.getParameter("demographic_no") != null && !(request.getParameter("de
 			";\n endTime=" + sdf.format(a.getEndTimeAsFullDate()) + ";\n status=" + a.getStatus();
 	LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.ADD, LogConst.CON_APPT, "appointment_no=" + a.getId(), String.valueOf(a.getDemographicNo()), logData);
 
-	AppointmentReminder ar = new AppointmentReminder();
-	String reminderEmail = "";
-	String reminderCell = "";
-	String reminderPhone = "";
-	ar.setAppointmentId(a.getId());
-	if (demo != null) {
-		reminderEmail = demo.getEmail();
-		if (!demo.getPhone().isEmpty()) {
-			reminderPhone = demo.getPhone().substring(0, 1).equals("1") ? "+" + demo.getPhone().replaceAll("-", "") : "+1" + demo.getPhone().replaceAll("-", "");
-		}
-	}
+	if (OscarProperties.getInstance().getBooleanProperty("enable_appointment_reminders", "true")) {
+		DemographicExtDao demographicExtDao = SpringUtils.getBean(DemographicExtDao.class);
+		DemographicExt allowReminders = demographicExtDao.getDemographicExt(a.getDemographicNo(), "allow_appointment_reminders");
+		DemographicExt allowPhoneReminders = demographicExtDao.getDemographicExt(a.getDemographicNo(), "reminder_phone");
+		DemographicExt allowCellReminders = demographicExtDao.getDemographicExt(a.getDemographicNo(), "reminder_cell");
+		DemographicExt allowEmailReminders = demographicExtDao.getDemographicExt(a.getDemographicNo(), "reminder_email");
+		boolean allowPhone = allowPhoneReminders == null || Boolean.parseBoolean(allowPhoneReminders.getValue());
+		boolean allowCell = allowCellReminders == null || Boolean.parseBoolean(allowCellReminders.getValue());
+		boolean allowEmail = allowEmailReminders == null || Boolean.parseBoolean(allowEmailReminders.getValue());
+
+		if (allowReminders != null && allowReminders.getValue().equals("true")) {
+			AppointmentReminder ar = new AppointmentReminder();
+			String reminderEmail = "";
+			String reminderCell = "";
+			String reminderPhone = "";
+			ar.setAppointmentId(a.getId());
+			if (demo != null) {
+				reminderEmail = demo.getEmail();
+				if (!demo.getPhone().isEmpty()) {
+					reminderPhone = demo.getPhone().substring(0, 1).equals("1") ? "+" + demo.getPhone().replaceAll("-", "") : "+1" + demo.getPhone().replaceAll("-", "");
+				}
+			}
 
 	if (demographicExt != null && !demographicExt.getValue().isEmpty())
 	{
-	    reminderCell = demographicExt.getValue().substring(0, 1).equals("1")?"+" + demographicExt.getValue().replaceAll("-", ""):"+1" + demographicExt.getValue().replaceAll("-", "");
+		reminderCell = demographicExt.getValue().substring(0, 1).equals("1")?"+" + demographicExt.getValue().replaceAll("-", ""):"+1" + demographicExt.getValue().replaceAll("-", "");
 	}
-	ar.setReminderEmail(reminderEmail);
-	ar.setReminderCell(reminderCell);
-	ar.setReminderPhone(reminderPhone);
+	ar.setReminderEmail(allowEmail ?reminderEmail: "");
+	ar.setReminderCell(allowCell ?reminderCell: "");
+	ar.setReminderPhone(allowPhone ?reminderPhone: "");
 	ar.setCancelled(false);
 	ar.setConfirmed(false);
 	ar.setUniqueCancellationKey(UUID.randomUUID().toString());
 	appointmentReminderDao.persist(ar);
 
 	AppointmentReminderStatus ars = new AppointmentReminderStatus();
-    ars.setApptReminderId(ar.getId());
-    ars.setProviderNo(request.getParameter("provider_no"));
-    ars.setRemindersSent(0);
-    ars.setAllDelivered(false);
-    ars.setDeliveryTime(null);
-    appointmentReminderStatusDao.persist(ars);
+	ars.setApptReminderId(ar.getId());
+	ars.setProviderNo(request.getParameter("provider_no"));
+	ars.setRemindersSent(0);
+	ars.setAllDelivered(false);
+	ars.setDeliveryTime(null);
+	appointmentReminderStatusDao.persist(ars);
+}
+	}
 	int rowsAffected=1;
 	
 	if (rowsAffected == 1) {

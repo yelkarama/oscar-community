@@ -425,6 +425,31 @@
 	if (!StringUtils.trimToEmpty(demoExt.get("patientEmailConsent")).equals(StringUtils.trimToEmpty(request.getParameter("patientEmailConsent")))) {
 		extensions.add(new DemographicExt(request.getParameter("patientEmailConsent_id"), proNo, demographicNo, "patientEmailConsent", request.getParameter("patientEmailConsent") == null ? "" : request.getParameter("patientEmailConsent")));
 	}
+
+	if (OscarProperties.getInstance().getBooleanProperty("enable_appointment_reminders", "true")) {
+
+		if (!StringUtils.trimToEmpty(demoExt.get("allow_appointment_reminders")).equals(StringUtils.trimToEmpty(request.getParameter("allow_appointment_reminders")))) {
+			extensions.add(new DemographicExt(request.getParameter("allow_appointment_reminders_id"), "CLINIC", demographicNo, "allow_appointment_reminders", request.getParameter("allow_appointment_reminders") == null ? "" : request.getParameter("allow_appointment_reminders")));
+		}
+
+		String phoneReminderComparison = request.getParameter("reminder_phone") != null ? request.getParameter("reminder_phone").equals("on") ? "true" : "false" : "false";
+		String cellReminderComparison = request.getParameter("reminder_cell") != null ? request.getParameter("reminder_cell").equals("on") ? "true" : "false" : "false";
+		String emailReminderComparison = request.getParameter("reminder_email") != null ? request.getParameter("reminder_email").equals("on") ? "true" : "false" : "false";
+
+		if (!StringUtils.trimToEmpty(demoExt.get("reminder_phone")).equals(phoneReminderComparison)) {
+			extensions.add(new DemographicExt(request.getParameter("reminder_phone_id"), "CLINIC", demographicNo, "reminder_phone", request.getParameter("reminder_phone") == null ? "false" : request.getParameter("reminder_phone").equals("on") ? "true" : "false"));
+		}
+
+		if (!StringUtils.trimToEmpty(demoExt.get("reminder_cell")).equals(cellReminderComparison)) {
+			extensions.add(new DemographicExt(request.getParameter("reminder_cell_id"), "CLINIC", demographicNo, "reminder_cell", request.getParameter("reminder_cell") == null ? "false" : request.getParameter("reminder_cell").equals("on") ? "true" : "false"));
+		}
+
+		if (!StringUtils.trimToEmpty(demoExt.get("reminder_email")).equals(emailReminderComparison)) {
+			extensions.add(new DemographicExt(request.getParameter("reminder_email_id"), "CLINIC", demographicNo, "reminder_email", request.getParameter("reminder_email") == null ? "false" : request.getParameter("reminder_email").equals("on") ? "true" : "false"));
+		}
+
+	}
+
 	// Demographic Groups
 	int demographicNoAsInt = 0;
 	try {

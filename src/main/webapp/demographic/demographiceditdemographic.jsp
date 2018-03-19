@@ -804,6 +804,37 @@ function addToPatientSet(demoNo, patientSet) {
 
 var demographicNo='<%=demographic_no%>';
 
+<oscar:oscarPropertiesCheck property="enable_appointment_reminders" value="true">
+function checkApptReminderSelect() {
+    var reminderSelect = document.getElementById("allow_appointment_reminders");
+    if (reminderSelect.value === "true") {
+        jQuery(".reminderContactMethods").show();
+    } else {
+        jQuery(".reminderContactMethods").hide();
+    }
+}
+
+function checkReminderContactMethod(contactType) {
+	var contactMethod = document.getElementById(contactType);
+	var contactName = contactMethod.id.substring(contactMethod.id.indexOf("_") + 1);
+	if (contactMethod.checked) {
+	    if (contactName === "cell") {
+	        contactName = "demo_" + contactName;
+        }
+	    var element = document.getElementById(contactName);
+	    if (contactName === "demo_cell") {
+	        contactName = "Cell Phone";
+        }
+		if (!element || element.value.length < 1) {
+			alert('You must enter a value in the ' + contactName.substring(0, 1).toUpperCase() + contactName.substring(1) + ' field to enable this contact method!');
+			jQuery('#' + contactType).attr('checked', false)
+		} else {
+	        jQuery('#' + contactType).value = true;
+        }
+	}
+}
+</oscar:oscarPropertiesCheck>
+
 function checkRosterStatus2(){
 	var rosterSelect = document.getElementById("roster_status");
 	<oscar:oscarPropertiesCheck property="FORCED_ROSTER_INTEGRATOR_LOCAL_STORE" value="yes">
@@ -917,7 +948,7 @@ jQuery(document).ready(function() {
 </script>
 
 </head>
-<body onLoad="setfocus(); checkONReferralNo(); checkONFamilyNo(); formatPhoneNum(); checkRosterStatus2();"
+<body onLoad="setfocus(); checkONReferralNo(); checkONFamilyNo(); formatPhoneNum(); checkRosterStatus2(); checkApptReminderSelect();"
 	topmargin="0" leftmargin="0" rightmargin="0" id="demographiceditdemographic">
 <%
        Demographic demographic = demographicDao.getDemographic(demographic_no);

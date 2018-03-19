@@ -163,6 +163,27 @@
 	List<DemographicGroup> demographicGroups = demographicGroupDao.getAll();
 	
 	GregorianCalendar dateCal = new GregorianCalendar();
+
+	boolean allowAppointmentReminders = true;
+	boolean phoneReminders = true;
+	boolean cellReminders = true;
+	boolean emailReminders = true;
+	DemographicExt demographicExt = demographicExtDao.getDemographicExt(Integer.parseInt(demographic_no), "allow_appointment_reminders");
+	if (demographicExt != null && demographicExt.getValue() != null) {
+	    allowAppointmentReminders = Boolean.parseBoolean(demographicExt.getValue());
+	}
+	demographicExt = demographicExtDao.getDemographicExt(Integer.parseInt(demographic_no), "reminder_phone");
+	if (demographicExt != null && demographicExt.getValue() != null) {
+		phoneReminders = Boolean.parseBoolean(demographicExt.getValue());
+	}
+	demographicExt = demographicExtDao.getDemographicExt(Integer.parseInt(demographic_no), "reminder_cell");
+	if (demographicExt != null && demographicExt.getValue() != null) {
+		cellReminders = Boolean.parseBoolean(demographicExt.getValue());
+	}
+	demographicExt = demographicExtDao.getDemographicExt(Integer.parseInt(demographic_no), "reminder_email");
+	if (demographicExt != null && demographicExt.getValue() != null) {
+		emailReminders = Boolean.parseBoolean(demographicExt.getValue());
+	}
 	
 %>
 <%!
@@ -427,10 +448,39 @@
 			value="<%=StringUtils.trimToEmpty(demographic.getPostal())%>"
 			onBlur="upCaseCtrl(this)" onChange="isPostalCode()"></td>
 	</tr>
+	<%
+		if (OscarProperties.getInstance().getBooleanProperty("enable_appointment_reminders", "true")) {
+	%>
+	<tr valign="top">
+		<td align="right" nowrap>
+			<b><bean:message key="demographic.demographiceditdemographic.AllowAppointmentReminders" />:</b>
+		</td>
+		<td align="left">
+			<select name="allow_appointment_reminders" id="allow_appointment_reminders" onchange="checkApptReminderSelect();">
+				<option value="true" <%=allowAppointmentReminders ? "selected=\"selected\"" : ""%>>Yes</option>
+				<option value="false" <%=!allowAppointmentReminders ? "selected=\"selected\"" : ""%>>No</option>
+			</select>
+		</td>
+	</tr>
+	<tr valign="top" class="reminderContactMethods">
+		<td align="right" nowrap></td>
+		<td align="left">
+			<label>Phone:
+				<input type="checkbox" id="reminder_phone" name="reminder_phone" onclick="checkReminderContactMethod('reminder_phone')" <%=phoneReminders ? "checked" : ""%>/>
+			</label>
+			<label>Cell:
+				<input type="checkbox" id="reminder_cell" name="reminder_cell" onclick="checkReminderContactMethod('reminder_cell')" <%=cellReminders ? "checked" : ""%>/>
+			</label>
+			<label>Email:
+				<input type="checkbox" id="reminder_email" name="reminder_email" onclick="checkReminderContactMethod('reminder_email')" <%=emailReminders ? "checked" : ""%>/>
+			</label>
+		</td>
+	</tr>
+	<% } %>
 	<tr valign="top">
 		<td align="right"><b><bean:message
 					key="demographic.demographiceditdemographic.formPhoneH" />: </b></td>
-		<td align="left"><input type="text" name="phone"
+		<td align="left"><input type="text" name="phone" id="phone"
 			onblur="formatPhoneNum();" <%=getDisabled("phone")%>
 			style="display: inline; width: auto;"
 			value="<%=StringUtils.trimToEmpty(StringUtils.trimToEmpty(demographic.getPhone()))%>">
@@ -457,7 +507,7 @@
 	<tr valign="top">
 		<td align="right"><b><bean:message
 					key="demographic.demographiceditdemographic.formPhoneC" />: </b></td>
-		<td align="left"><input type="text" name="demo_cell"
+		<td align="left"><input type="text" name="demo_cell" id="demo_cell"
 			onblur="formatPhoneNum();" style="display: inline; width: auto;"
 			<%=getDisabled("demo_cell")%>
 			value="<%=StringUtils.trimToEmpty(demoExt.get("demo_cell"))%>">
@@ -507,7 +557,7 @@
 	<tr valign="top">
 		<td align="right"><b><bean:message
 					key="demographic.demographiceditdemographic.formEmail" />: </b></td>
-		<td align="left"><input type="text" name="email" size="30"
+		<td align="left"><input type="text" name="email" id="email" size="30"
 			<%=getDisabled("email")%>
 			value="<%=demographic.getEmail()!=null? demographic.getEmail() : ""%>">
 		<input type="checkbox" name="includeEmailOnConsults" <%=Boolean.parseBoolean(demoExt.get("includeEmailOnConsults")) ? "checked='checked'" : ""%> value="true"/> Include on Consults
