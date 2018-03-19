@@ -154,6 +154,10 @@ temp = "";
     function onPrintPDF() {
          
         var ret = checkAllDates();
+		if (document.forms[0].letterhead.value == '') {
+			alert("You must select a letterhead provider.");
+			return false;
+		}
         if(ret==true)
         {            
             
@@ -171,6 +175,10 @@ temp = "";
         document.forms[0].target="_self";        
         document.forms[0].submit.value="save";
         var ret = checkAllDates();
+		if (document.forms[0].letterhead.value == '') {
+			alert("You must select a letterhead provider.");
+			return false;
+		}
         return ret;
     }
     
@@ -179,6 +187,10 @@ temp = "";
         document.forms[0].target="_self";
         document.forms[0].submit.value="exit";
         var ret = checkAllDates();
+		if (document.forms[0].letterhead.value == '') {
+			alert("You must select a letterhead provider.");
+			return false;
+		}
         if(ret == true)
         {
             ret = confirm("Are you sure you wish to save and close this window?");
@@ -379,7 +391,25 @@ var maxYear=3100;
     <%	}
 	}
 
+	//get default clinic info
+	oscar.oscarRx.data.RxProviderData.Provider rxp = rxProviderData.getProvider(null);
+	%>
+	providerData[''] = new Object(); //{};
+	providerData[''].providerNo = "";
+	providerData[''].clinic_name = "<%=clinicName%>";
+	providerData[''].address = "<%=rxp.getClinicAddress() %>";
+	providerData[''].city = "<%=rxp.getClinicCity() %>";
+	providerData[''].province = "<%=rxp.getClinicProvince() %>";
+	providerData[''].postal = "<%=rxp.getClinicPostal() %>";
+	providerData[''].first_name = "";
+	providerData[''].last_name = "";
+	providerData[''].formatted_name = "";
+	providerData[''].prac_no = "";
+	providerData[''].cpso = "";
+	providerData[''].ohip_no = "";
+	providerData[''].specialty = "";
 
+<%
 if (OscarProperties.getInstance().getBooleanProperty("consultation_program_letterhead_enabled", "true")) {
 	if (programList != null) {
 		for (Program p : programList) {
@@ -430,7 +460,10 @@ if (OscarProperties.getInstance().getBooleanProperty("consultation_program_lette
             $("#cpsoNo").html(providerData[value]['cpso']);
 
 
-            if (providerData[value]['ohip_no'] != "" && !providerData[value]['specialty'].toUpperCase().startsWith('NP')) {
+			if (value == "") {
+				$("#pracNo").html('');
+				$("input[name='practitionerNo']").val('');
+			} else if (providerData[value]['ohip_no'] != "" && !providerData[value]['specialty'].toUpperCase().startsWith('NP')) {
 				$("#pracNo").html(providerData[value]['prac_no']);
 				$("input[name='practitionerNo']").val(providerData[value]['prac_no']);
 			} else if ("<%=props.getProperty("mrp", "")%>" != "") { // If the requesting physician does not have a billing number, use MRP's
@@ -567,9 +600,18 @@ if (OscarProperties.getInstance().getBooleanProperty("consultation_program_lette
 						    //Else it gets the demographics MRP
 							providerNumber = props.getProperty("demoProvider", "-1");
 						}
+						if ("".equals(providerNumber)) {
+						    providerNumber = null;
+						    props.setProperty("reqProvName", "");
+							props.setProperty("practitionerNo", "");
+							props.setProperty("cpso", "");
+						}
 					}
-
-					for (Provider p : prList) {
+				%>
+				<option value="" <%= providerNumber == null ? "selected=\"selected\"" : "" %>>
+					Select Requisitioning Physician
+				</option>
+				<%	for (Provider p : prList) {
 						if (p.getProviderNo().compareTo("-1") != 0 && (p.getFirstName() != null || p.getLastName() != null) && p.getProviderType().equals("doctor")) {
 				%>
 				<option value="<%=p.getProviderNo() %>" <%= p.getProviderNo().equals(providerNumber) ? "selected=\"selected\"" : "" %>>
