@@ -56,6 +56,25 @@ public class DemographicContactDao extends AbstractDao<DemographicContact>{
 		List<DemographicContact> dContacts = query.getResultList();
 		return dContacts;
 	}
+
+	public List<DemographicContact> findAllByDemographicNo(Integer demographicNo) {
+		String sql = "select x from " + this.modelClass.getName() + " x where x.demographicNo=? and x.deleted = false";
+		Query query = entityManager.createQuery(sql);
+		query.setParameter(1, demographicNo);
+		@SuppressWarnings("unchecked")
+		List<DemographicContact> dContacts = query.getResultList();
+		return dContacts;
+	}
+
+
+	public List<DemographicContact> findInactiveByDemographicNo(Integer demographicNo) {
+		String sql = "select x from " + this.modelClass.getName() + " x where x.demographicNo=? and x.deleted = false and x.active = 0";
+		Query query = entityManager.createQuery(sql);
+		query.setParameter(1, demographicNo);
+		@SuppressWarnings("unchecked")
+		List<DemographicContact> dContacts = query.getResultList();
+		return dContacts;
+	}
 	
 	public List<DemographicContact> findByDemographicNoAndCategory(int demographicNo,String category) {
 		String sql = "select x from " + this.modelClass.getName() + " x where x.demographicNo=? and x.category=? and x.deleted=false";

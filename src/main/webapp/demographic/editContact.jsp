@@ -17,7 +17,8 @@
 </script>
 <div class="modal-header">
     <h3 class="modal-title">
-        <input type="text" class="form-control" name="contact_contactName" id="contact_contactName" size="20"/>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <input type="text" class="form-control" name="contact_contactName" id="contact_contactName" size="20" />
     </h3>
     <label id="contactCategoryType" class="label label-info" style="text-transform: uppercase">
         <span id="contactCategory"></span> / <span id="contactType"></span>
@@ -50,7 +51,7 @@
     <div id="bestContact" class="row">
         <div class="col-sm-12">
             <label>Contact Method</label> <label style="float: right">Best?</label>
-            <ul class="list-group list-link" >
+            <ul id="contactMethods" class="list-group list-link" >
                 <li class="list-group-item">
                     <span class="label label-default">Main</span> &nbsp;&nbsp;&nbsp;
                     <input type="text" id="contact_phone" name="contact_phone" class="form-control input-sm" disabled="disabled" />
@@ -117,6 +118,6 @@
     </div>
 </div>
 <div class="modal-footer">
-    <button class="btn btn-secondary" style="float: left" onclick="delete(<%=id%>)">Delete</button>
+    <button class="btn btn-secondary" style="float: left" onclick="return deleteContact(<%=id%>)">Delete</button>
     <input type="submit" class="btn btn-primary" value="Save" onclick="return saveContact();"/>
 </div>

@@ -84,7 +84,8 @@ function contactSearch(url) {
 }
 
 function deleteContact(id) {
-    if (confirm("Are you sure you wish to delete this contact?")) {
+    if (confirm("Are you sure you wish to fully delete this contact? \n" +
+            "If you wish it inactivate this contact instead, click Cancel, and edit the contact's status by clicking View.")) {
         $.ajax({
             url:'../demographic/Contact.do',
             async:false,
@@ -94,6 +95,8 @@ function deleteContact(id) {
                 self.opener.refresh();
             }
         });
+    } else {
+        return false;
     }
 }
 
@@ -173,7 +176,7 @@ function searchContacts() {
 }
 
 function setBestContactMethod(contactMethod) {
-    $('li.list-group-item.active').removeClass('active');
+    $('#contactMethods li.list-group-item.active').removeClass('active');
 
     if (contactMethod) {
         $('#contact_'+contactMethod).parent().addClass('active');
@@ -315,6 +318,18 @@ function setValues(contact) {
     }
 
     setConsent();
+}
+
+function updateList(listType) {
+
+    var current = $('#contactListNav li.active')[0];
+
+    if (current && !current.getAttribute('id').startsWith(listType)){
+        current.removeAttribute('class');
+        $('#contactListNav li#' + listType + 'Contacts').addClass('active');
+        $("#list").val(listType);
+        document.contactList.submit();
+    }
 }
 
 function updateSort(column) {

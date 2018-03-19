@@ -59,6 +59,7 @@
 
 	String sortColumn = request.getAttribute("sortColumn") != null ? request.getAttribute("sortColumn").toString() : "category";
 	String sortOrder = request.getAttribute("sortOrder") != null ? request.getAttribute("sortOrder").toString() : "asc";
+	String list = request.getAttribute("list") != null ? request.getAttribute("list").toString() : "active";
 
 	GregorianCalendar now = new GregorianCalendar();
 	int curYear = now.get(Calendar.YEAR);
@@ -112,6 +113,9 @@
                 } else {
                     $("#" + sortColumn).append("<i class='icon icon-caret-up' style='float:right;'></i>")
                 }
+
+                var list = '<%=list%>';
+                $('#' + list + 'Contacts').addClass('active');
             });
 
 		</script>
@@ -136,7 +140,22 @@
 			</td>
 		</tr>
 		<tr>
-			<td class="MainTableLeftColumn" valign="top" style="font-size: small;">&nbsp; <a href="javascript:window.close();">Close Window</a></td>
+			<td class="MainTableLeftColumn" valign="top" style="font-size: small;">
+				&nbsp;
+				<ul id="contactListNav" class="nav nav-pills nav-stacked nav-list">
+					<li id="activeContacts" onclick="updateList('active')">
+						<a href="javascript:void(0)">Active</a>
+					</li>
+					<li id="allContacts" onclick="updateList('all')">
+						<a href="javascript:void(0)">All</a>
+					</li>
+					<li id="inactiveContacts" onclick="updateList('inactive')">
+						<a href="javascript:void(0)">Inactive</a>
+					</li>
+					<li class="divider"><hr></li>
+					<li><a href="javascript:window.close();">Close Window</a></li>
+				</ul>
+			</td>
 			<td valign="top" class="MainTableRightColumn">
 				<% if (request.getSession().getAttribute("success") != null) { %>
 				<div id="success" class="alert alert-success" role="alert">
@@ -165,10 +184,13 @@
 
 					<input type="hidden" id="sortColumn" name="sortColumn" value="<%=sortColumn%>"/>
 					<input type="hidden" id="sortOrder" name="sortOrder" value="<%=sortOrder%>"/>
+					<input type="hidden" id="list" name="list" value="<%=list%>"/>
 					<input type="hidden" id="demographicNo" name="demographic_no" value="<%=demographic_no%>"/>
 
 					<br/>
+					<% if (!"inactive".equals(list)) { %>
 					<button class="btn btn-primary btn-sm" onclick="return addContact();">ADD</button>
+					<%}%>
 					<br/>
 
 					<table class="table table-hover" id="bListTable">
@@ -190,24 +212,30 @@
 
 						<tbody style="font-size: 11px;">
 						<%
-							if(dcs != null) {
+							if(dcs != null && !dcs.isEmpty()) {
 								for(DemographicContact dc:dcs) {
 									Gson gson = new Gson();
 									String contact = gson.toJson(dc);
 									Integer id = dc.getId();
 									String contactId = dc.getContactId();
 									String category = dc.getCategory();
+
+									String contactClass = "contact";
+
+									if (!dc.isActive()) {
+									    contactClass += " inactive";
+									}
 						%>
 						<script type="text/javascript">
                             contacts.push(<%=contact%>);
 						</script>
-						<tr id="contact_<%=id%>" class="contact">
+						<tr id="contact_<%=id%>" class="<%=contactClass%>">
 							<td onclick="setContactView(<%=id%>)" style="text-transform: capitalize">
 								<%=category%>
 							</td>
 
-							<td onclick="setContactView(<%=id%>)" style="text-transform: uppercase">
-								<%=dc.getContactName()%>
+							<td style="text-transform: uppercase">
+								<span onclick="setContactView(<%=id%>)"><%=dc.getContactName()%></span>
 
 								<%
 									if (dc.getCategory().equals("personal") && dc.getType() == DemographicContact.TYPE_DEMOGRAPHIC) {
@@ -273,13 +301,18 @@
 
 						<%
 								}
-							}
+							} else { %>
+						<tr class="text-center">
+							<td colspan="5">No contacts to display</td>
+						</tr>
 
-						%>
+						<%	} %>
 
 						</tbody>
 					</table>
+					<% if (!"inactive".equals(list)) { %>
 					<button class="btn btn-primary btn-sm" onclick="return addContact();">ADD</button>
+					<% } %>
 				</form>
 
 			</td>
@@ -297,6 +330,7 @@
 				<input type="hidden" name="demographic_no" value="<%=demographic_no%>"/>
 				<input type="hidden" name="sortColumn" value="<%=sortColumn%>"/>
 				<input type="hidden" name="sortOrder" value="<%=sortOrder%>"/>
+				<input type="hidden" name="list" value="<%=list%>"/>
 
 				<div id="contactContainer" class="modal-content">
 

@@ -65,7 +65,7 @@
         if (!StringUtils.isBlank(demographicNoString)) {
             demographicDao = SpringUtils.getBean(DemographicDao.class);
             demographic = demographicDao.getClientByDemographicNo( Integer.parseInt(demographicNoString) );
-            demographicContacts = demographicContactDao.findByDemographicNo(demographic.getDemographicNo());
+            demographicContacts = demographicContactDao.findActiveByDemographicNo(demographic.getDemographicNo());
             demographicContacts = ContactAction.fillContactInfo(demographicContacts);
         }
 

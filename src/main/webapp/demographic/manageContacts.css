@@ -16,6 +16,10 @@ tr.contact {
     cursor: pointer;
 }
 
+tr.inactive {
+    background-color: #ededed;
+}
+
 .list-link>li{
     cursor: pointer;
 }

@@ -85,13 +85,23 @@ public class ContactAction extends DispatchAction {
 
         String sortColumn = StringUtils.trimToNull(request.getParameter("sortColumn")) != null ? request.getParameter("sortColumn") : "category";
         Boolean sortAscending = !StringUtils.trimToEmpty(request.getParameter("sortOrder")).equals("desc");
+        String list = StringUtils.trimToNull(request.getParameter("list")) != null ? request.getParameter("list") : "active";
 
-        List<DemographicContact> dcs = demographicContactDao.findActiveByDemographicNo(Integer.parseInt(demographicNo));
+        List<DemographicContact> dcs = null;
+        if ("all".equalsIgnoreCase(list)) {
+        	dcs = demographicContactDao.findAllByDemographicNo(Integer.parseInt(demographicNo));
+		} else if ("inactive".equalsIgnoreCase(list)) {
+        	dcs = demographicContactDao.findInactiveByDemographicNo(Integer.parseInt(demographicNo));
+		} else {
+			dcs = demographicContactDao.findActiveByDemographicNo(Integer.parseInt(demographicNo));
+		}
+
         dcs = fillContactInfo(dcs);
         dcs = sortContacts(dcs, sortAscending, sortColumn);
 
         request.setAttribute("contacts", dcs);
         request.setAttribute("contact_num", dcs.size());
+		request.setAttribute("list", list);
         request.setAttribute("sortColumn", sortColumn);
         request.setAttribute("sortOrder", sortAscending ? "asc" : "desc");
 
