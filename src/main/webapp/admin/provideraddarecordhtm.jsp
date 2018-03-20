@@ -42,6 +42,7 @@
 
 <%@page import="org.oscarehr.common.Gender" %>
 <%@ page import="org.oscarehr.common.dao.PropertyDao" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <%
 
   String curProvider_no,userfirstname,userlastname;
@@ -434,7 +435,7 @@ for (int i=0; i<sites.size(); i++) {
                         
                         codeDesc=billCenter.getAllBillCenter().getProperty(billCode);
                 %>
-				<option value=<%= billCode %> <%=selectedBillCenter%>><%= codeDesc%></option>
+				<option value=<%=Encode.forHtmlAttribute(billCode) %> <%=selectedBillCenter%>><%= Encode.forHtmlContent(codeDesc)%></option>
 				<%
                     }
                 %>

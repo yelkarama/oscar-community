@@ -210,7 +210,9 @@ if (isOk) {
 	LogAction.addLog(curUser_no, LogConst.ADD, "adminAddUser", proId, ip);
 
 	ProviderBillCenter billCenter = new ProviderBillCenter();
-	billCenter.addBillCenter(request.getParameter("provider_no"),request.getParameter("billcenter"));
+	if (request.getParameter("provider_no") != null && request.getParameter("billcenter") != null) {
+		billCenter.addBillCenter(request.getParameter("provider_no"),request.getParameter("billcenter"));
+	}
 
 %>
 <h1><bean:message key="admin.provideraddrecord.msgAdditionSuccess" />
