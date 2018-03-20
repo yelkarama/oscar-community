@@ -39,7 +39,6 @@ function addContact() {
         success: function(data) {
             $("#contactContainer").html(data);
             $('#contactView').modal('show');
-            self.opener.refresh();
         }
     });
 
@@ -97,6 +96,27 @@ function deleteContact(id) {
         });
     } else {
         return false;
+    }
+}
+
+function displayName(){
+    var formattedName = $('#contact_contactName').val();
+    var lastName = formattedName.indexOf(",") !== -1 ? formattedName.split(",")[0] : formattedName;
+    var firstName = formattedName.indexOf(",") !== -1 && formattedName.split(",").length > 1 ? formattedName.split(",")[1] : "";
+
+    $('#last_name').val(lastName);
+    $('#first_name').val(firstName);
+}
+
+function editName() {
+    var lastName =  $('#last_name').val();
+    var firstName =  $('#first_name').val();
+    var type = $('#contact_typeSelect').val();
+
+    if (type === 'external') {
+        $('#contact_contactName').val(lastName + ", " + firstName);
+    } else {
+        displayName();
     }
 }
 
@@ -199,6 +219,8 @@ function setConsent() {
 function setContactCategoryType(category, typeSelect) {
     $('#contact_contactId').val('');
     $('#contact_contactName').val('');
+    $('#last_name').val('');
+    $('#first_name').val('');
 
     if (!category) {
         category = $('input[type=radio][name=contact_category]:checked').val();
@@ -270,7 +292,8 @@ function setContactView(id) {
 function setValues(contact) {
     buildContactRoles(contact.category);
     $('#contact_id').val(contact.id);
-    $('#contact_contactName').val(contact.contactName).attr('disabled', 'disabled');
+    $('#contact_contactName').val(contact.contactName);
+    $('#contactName').text(contact.contactName);
     $('#contact_role').val(contact.role);
     $('#contact_consentToContact').val(contact.consentToContact ? '1' : '0');
     $('#contact_active').val(contact.active ? '1' : '0');

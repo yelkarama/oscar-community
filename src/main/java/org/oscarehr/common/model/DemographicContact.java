@@ -279,22 +279,27 @@ public class DemographicContact extends AbstractModel<Integer> {
 	public static final Comparator<DemographicContact> CategoryComparator = new Comparator<DemographicContact>() {
 		@Override
 		public int compare(DemographicContact dc1, DemographicContact dc2) {
-
-			return dc1.getCategory().compareToIgnoreCase(dc2.getCategory());
+			String category = dc1.getCategory() != null ? dc1.getCategory() : "";
+			String category2 = dc2.getCategory() != null ? dc2.getCategory() : "";
+			return category.compareToIgnoreCase(category2);
 		}
 	};
 
 	public static final Comparator<DemographicContact> NameComparator = new Comparator<DemographicContact>() {
 		@Override
 		public int compare(DemographicContact dc1, DemographicContact dc2) {
-			return dc1.getContactName().compareToIgnoreCase(dc2.getContactName());
+			String name = dc1.getContactName() != null ? dc1.getContactName() : "";
+			String name2 = dc2.getContactName() != null ? dc2.getContactName() : "";
+			return name.compareToIgnoreCase(name2);
 		}
 	};
 
 	public static final Comparator<DemographicContact> RoleComparator = new Comparator<DemographicContact>() {
 		@Override
 		public int compare(DemographicContact dc1, DemographicContact dc2) {
-			return dc1.getRole().compareToIgnoreCase(dc2.getRole());
+			String role = dc1.getRole() != null ? dc1.getRole() : "";
+			String role2 = dc2.getRole() != null ? dc2.getRole() : "";
+			return role.compareToIgnoreCase(role2);
 		}
 	};
 }

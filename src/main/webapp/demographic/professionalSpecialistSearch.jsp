@@ -115,6 +115,8 @@
 				opener.document.contactForm.elements['contact_cell'].value = selectedContact.cell ? selectedContact.cell : 'Not Set';
 				opener.document.contactForm.elements['contact_work'].value = selectedContact.work ? selectedContact.work : 'Not Set';
 				opener.document.contactForm.elements['contact_email'].value = selectedContact.email ? selectedContact.email : 'Not Set';
+
+                opener.document.contactForm.elements['contact_contactName'].onchange();
 				self.close();
 			}
 
@@ -244,6 +246,6 @@ function next() {
 %>
 </form>
 <br>
-<a href="<%=request.getContextPath() %>/oscarEncounter/oscarConsultationRequest/config/EditSpecialists.jsp">Add/Edit Professional Specialist</a></center>
+<a href="<%=request.getContextPath() %>/oscarEncounter/oscarConsultationRequest/config/AddSpecialist.jsp">Add/Edit Professional Specialist</a></center>
 </body>
 </html:html>

@@ -18,7 +18,8 @@
 <div class="modal-header">
     <h3 class="modal-title">
         <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <input type="text" class="form-control" name="contact_contactName" id="contact_contactName" size="20" />
+        <input type="hidden" class="form-control" name="contact_contactName" id="contact_contactName" size="20" />
+        <span id="contactName"></span>
     </h3>
     <label id="contactCategoryType" class="label label-info" style="text-transform: uppercase">
         <span id="contactCategory"></span> / <span id="contactType"></span>
@@ -52,31 +53,34 @@
         <div class="col-sm-12">
             <label>Contact Method</label> <label style="float: right">Best?</label>
             <ul id="contactMethods" class="list-group list-link" >
-                <li class="list-group-item">
-                    <span class="label label-default">Main</span> &nbsp;&nbsp;&nbsp;
-                    <input type="text" id="contact_phone" name="contact_phone" class="form-control input-sm" disabled="disabled" />
+            <li class="list-group-item">
+                <span class="label label-default">Main</span> &nbsp;&nbsp;&nbsp;
+                <input type="tel" id="contact_phone" name="contact_phone" class="form-control input-sm" disabled="disabled"
+                       pattern="^[0-9\-\s\(\)]*$" maxlength="16" title="Phone number can only contain numbers, dashes, and parentheses" />
 
-                    <input type="radio" name="contact_bestContact" value="phone" title="Set as best contact method" ondblclick="setBestContactMethod();" style="float: right" />
-                </li>
-                <li class="list-group-item">
-                    <span class="label label-default">Cell</span>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <input type="text" id="contact_cell" name="contact_cell" class="form-control input-sm" disabled="disabled" />
+                <input type="radio" name="contact_bestContact" value="phone" title="Set as best contact method" ondblclick="setBestContactMethod();" style="float: right"/>
+            </li>
+            <li class="list-group-item">
+                <span class="label label-default">Cell</span>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <input type="tel" id="contact_cell" name="contact_cell" class="form-control input-sm" disabled="disabled"
+                       pattern="^[0-9\-\s\(\)]*$" maxlength="16" title="Phone number can only contain numbers, dashes, and parentheses" />
 
-                    <input type="radio" name="contact_bestContact" value="cell" title="Set as best contact method" ondblclick="setBestContactMethod();" style="float: right" />
-                </li>
-                <li class="list-group-item">
-                    <span class="label label-default">Work</span> &nbsp;&nbsp;
-                    <input type="text" id="contact_work" name="contact_work" class="form-control input-sm" disabled="disabled" />
+                <input type="radio" name="contact_bestContact" value="cell" title="Set as best contact method" ondblclick="setBestContactMethod();" style="float: right" />
+            </li>
+            <li class="list-group-item">
+                <span class="label label-default">Work</span> &nbsp;&nbsp;
+                <input type="tel" id="contact_work" name="contact_work" class="form-control input-sm" disabled="disabled"
+                       pattern="^[0-9\-\s\(\)]*$" maxlength="16" title="Phone number can only contain numbers, dashes, and parentheses" />
 
-                    <input type="radio" name="contact_bestContact" value="work" title="Set as best contact method" ondblclick="setBestContactMethod();" style="float: right" />
-                </li>
-                <li class="list-group-item">
-                    <span class="label label-default">Email</span> &nbsp;&nbsp;
-                    <input type="text" id="contact_email" name="contact_email" class="form-control input-sm" disabled="disabled" />
+                <input type="radio" name="contact_bestContact" value="work" title="Set as best contact method" ondblclick="setBestContactMethod();" style="float: right" />
+            </li>
+            <li class="list-group-item">
+                <span class="label label-default">Email</span> &nbsp;&nbsp;
+                <input type="email" id="contact_email" name="contact_email" class="form-control input-sm" disabled="disabled" />
 
-                    <input type="radio" name="contact_bestContact" value="email" title="Set as best contact method" ondblclick="setBestContactMethod();" style="float: right" />
-                </li>
-            </ul>
+                <input type="radio" name="contact_bestContact" value="email" title="Set as best contact method" ondblclick="setBestContactMethod();" style="float: right"  />
+            </li>
+        </ul>
         </div>
     </div>
 

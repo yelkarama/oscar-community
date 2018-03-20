@@ -97,6 +97,7 @@
 		<!--I18n-->
 		<link rel="stylesheet" href="<%=request.getContextPath() %>/library/bootstrap/3.0.0/css/bootstrap.min.css" />
 		<link rel="stylesheet" type="text/css" href="../share/css/OscarStandardLayout.css" />
+		<link rel="stylesheet" type="text/css" href="../css/main-kai.css" />
 		<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css" />
 		<link rel="stylesheet" type="text/css" href="<%=request.getContextPath() %>/demographic/manageContacts.css" />
 		<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css" />
@@ -131,9 +132,9 @@
 						<td><oscar:nameage demographicNo="<%=demographic_no%>" /></td>
 						<td>&nbsp;</td>
 						<td style="text-align: right">
-							<oscar:help keywords="contact" key="app.top1" style="color: #005580;"/> |
-							<a href="javascript:popup(300,400,'<%=request.getContextPath()%>/oscarEncounter/About.jsp')" style="color: #005580;"><bean:message key="global.about" /></a> |
-							<a href="javascript:popup(300,400,'<%=request.getContextPath()%>/oscarEncounter/License.jsp')" style="color: #005580;"><bean:message key="global.license" /></a>
+							<oscar:help keywords="contact" key="app.top1"/> |
+							<a href="javascript:popup(300,400,'<%=request.getContextPath()%>/oscarEncounter/About.jsp')" ><bean:message key="global.about" /></a> |
+							<a href="javascript:popup(300,400,'<%=request.getContextPath()%>/oscarEncounter/License.jsp')"><bean:message key="global.license" /></a>
 						</td>
 					</tr>
 				</table>
@@ -188,14 +189,10 @@
 					<input type="hidden" id="demographicNo" name="demographic_no" value="<%=demographic_no%>"/>
 
 					<br/>
-					<% if (!"inactive".equals(list)) { %>
-					<button class="btn btn-primary btn-sm" onclick="return addContact();">ADD</button>
-					<%}%>
-					<br/>
 
 					<table class="table table-hover" id="bListTable">
 						<thead>
-						<th id="category">
+						<th id="category" style="min-width: 100px;">
 							<a href="javascript:void(0)" onclick="updateSort('category')">Category</a>
 						</th>
 						<th id="name">
@@ -234,8 +231,8 @@
 								<%=category%>
 							</td>
 
-							<td style="text-transform: uppercase">
-								<span onclick="setContactView(<%=id%>)"><%=dc.getContactName()%></span>
+							<td style="text-transform: uppercase" onclick="setContactView(<%=id%>)">
+								<%=dc.getContactName()%>
 
 								<%
 									if (dc.getCategory().equals("personal") && dc.getType() == DemographicContact.TYPE_DEMOGRAPHIC) {
@@ -293,7 +290,7 @@
 							</td>
 
 							<td>
-								<a href="javascript:void(0)" onclick="setContactView(<%=id%>)">View</a>
+								<a href="javascript:void(0)" onclick="setContactView(<%=id%>)">Edit</a>
 								|
 								<a href="javascript:void(0)" onclick="deleteContact(<%=id%>)">Delete</a>
 							</td>

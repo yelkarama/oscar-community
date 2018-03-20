@@ -137,6 +137,7 @@ public class ContactAction extends DispatchAction {
                     if (contactId == null && type != null && type == DemographicContact.TYPE_CONTACT) {
 
                         String formattedName = StringUtils.trimToEmpty(request.getParameter("contact_contactName"));
+                        
                         String lastName = formattedName.contains(",") ? StringUtils.trimToEmpty(formattedName.split(",")[0]) : StringUtils.trimToEmpty(formattedName);
                         String firstName = formattedName.contains(",") && formattedName.split(",").length > 1 ? StringUtils.trimToEmpty(formattedName.split(",")[1]) : "";
 
@@ -845,6 +846,8 @@ public class ContactAction extends DispatchAction {
 	private static void setContactInformation(DemographicContact c) {
 		Contact details;
 		c.setContactName("Unknown");
+		c.setRole(StringUtils.trimToEmpty(c.getRole()));
+		c.setCategory(StringUtils.trimToEmpty(c.getCategory()));
 
 		if(c.getType() == DemographicContact.TYPE_PROVIDER) {
 			Provider provider = providerDao.getProvider(c.getContactId());

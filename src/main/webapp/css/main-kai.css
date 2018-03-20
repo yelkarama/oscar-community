@@ -250,3 +250,30 @@ body {
 ::-webkit-scrollbar-corner {
     background-color: black;
 }
+
+/**
+Overwrite colours from OscarStandardLayout.css
+ */
+.MainTableTopRowLeftColumn {
+    background-color: #259145;
+}
+
+.MainTableTopRowRightColumn {
+    background-color: #259145;
+    color: #ffffff;
+}
+
+.TopStatusBar {
+    background-color: #259145;
+
+    color: #ffffff;
+}
+
+.TopStatusBar a {
+    color: #ffffff;
+}
+
+.TopStatusBarShort {
+    background-color: #259145;
+    color: #ffffff;
+}

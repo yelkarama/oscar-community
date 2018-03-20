@@ -137,6 +137,8 @@ function selectContactJson(index) {
         opener.document.contactForm.elements['contact_cell'].value = contact.cell ? contact.cell : 'Not Set';
         opener.document.contactForm.elements['contact_work'].value = contact.work ? contact.work : 'Not Set';
         opener.document.contactForm.elements['contact_email'].value = contact.email ? contact.email : 'Not Set';
+
+        opener.document.contactForm.elements['contact_contactName'].onchange();
         self.close();
 	}
 

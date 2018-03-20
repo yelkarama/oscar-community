@@ -24,7 +24,8 @@ tr.inactive {
     cursor: pointer;
 }
 
-.list-group-item input[type="text"],
+.list-group-item input[type="email"],
+.list-group-item input[type="tel"],
 .list-group-item input[type="text"] {
     width: 50%;
     display: inline;
@@ -48,8 +49,15 @@ tr.inactive {
     width: auto;
 }
 
-.list-link>li:hover {
-    background-color: #428bca;
+.list-link>li:hover,
+.nav-pills>li.active>a:hover,
+.nav-pills>li.active>a:focus {
+    background-color: #38AF49;
+    color: #ffffff;
+}
+
+.nav-pills>li.active>a {
+    background-color: #53B848;
     color: #ffffff;
 }
 

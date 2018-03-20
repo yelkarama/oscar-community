@@ -138,6 +138,8 @@ function selectContactJson(index) {
         opener.document.contactForm.elements['contact_cell'].value = contact.cell ? contact.cell : '';
         opener.document.contactForm.elements['contact_work'].value = contact.work ? contact.work : '';
         opener.document.contactForm.elements['contact_email'].value = contact.email ? contact.email : '';
+
+        opener.document.contactForm.elements['contact_contactName'].onchange();
         self.close();
     }
 

@@ -47,16 +47,23 @@
     </div>
 
 
-    <div class="row">
+    <div class="row" style="margin-top: 5px">
         <div class="col-sm-6">
+            <input type="hidden" class="form-control input-sm" id="contact_contactName" name="contact_contactName" onchange="displayName()" />
+
             <div class="input-group" id="admissionDate">
-                <input type="text" class="form-control input-sm" id="contact_contactName" name="contact_contactName" placeholder="Last Name, First Name" />
+                <input type="text" class="form-control input-sm" id="last_name" placeholder="Last Name" onchange="editName()" />
                 <div class="input-group-btn">
                     <button class="btn btn-default btn-sm" type="button" onclick="searchContacts();return false;">
                         <i class="glyphicon glyphicon-search"></i>
                     </button>
                 </div>
             </div>
+
+        </div>
+
+        <div class="col-sm-6">
+            <input type="text" class="form-control input-sm" id="first_name" placeholder="First Name" onchange="editName()" />
         </div>
     </div>
 
@@ -83,25 +90,26 @@
             <ul class="list-group list-link" >
                 <li class="list-group-item">
                     <span class="label label-default">Main</span> &nbsp;&nbsp;&nbsp;
-                    <input type="text" id="contact_phone" name="contact_phone" class="form-control input-sm" />
+                    <input type="tel" id="contact_phone" name="contact_phone" class="form-control input-sm" disabled="disabled"
+                           pattern="^[0-9\-\s\(\)]*$" maxlength="16" title="Phone number can only contain numbers, dashes, and parentheses"title="Phone number can only contain numbers, dashes, and parentheses"/>
 
                     <input type="radio" name="contact_bestContact" value="phone" title="Set as best contact method" ondblclick="$(this).prop('checked', false);" style="float: right"/>
                 </li>
                 <li class="list-group-item">
                     <span class="label label-default">Cell</span>  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <input type="text" id="contact_cell" name="contact_cell" class="form-control input-sm" />
+                    <input type="tel" id="contact_cell" name="contact_cell" class="form-control input-sm" disabled="disabled" />
 
                     <input type="radio" name="contact_bestContact" value="cell" title="Set as best contact method" ondblclick="$(this).prop('checked', false);" style="float: right"/>
                 </li>
                 <li class="list-group-item">
                     <span class="label label-default">Work</span> &nbsp;&nbsp;
-                    <input type="text" id="contact_work" name="contact_work" class="form-control input-sm" />
+                    <input type="tel" id="contact_work" name="contact_work" class="form-control input-sm" disabled="disabled" />
 
                     <input type="radio" name="contact_bestContact" value="work" title="Set as best contact method" ondblclick="$(this).prop('checked', false);" style="float: right"/>
                 </li>
                 <li class="list-group-item">
                     <span class="label label-default">Email</span> &nbsp;&nbsp;
-                    <input type="text" id="contact_email" name="contact_email" class="form-control input-sm" />
+                    <input type="email" id="contact_email" name="contact_email" class="form-control input-sm" disabled="disabled" />
 
                     <input type="radio" name="contact_bestContact" value="email" title="Set as best contact method" ondblclick="$(this).prop('checked', false);" style="float: right"/>
                 </li>
