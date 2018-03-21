@@ -105,7 +105,11 @@
 		prevention_type="Pneumovax" display_name="Pneumococcal vaccine"
 		guideline="" graphable="no"/>
 	-->
-
+    <item measurement_type="PHYS" display_name="Comprehensive Physical Examination" guideline=""
+          graphable="no" value_name="Discussed" possible_answer="Yes"/>
+    <measurement type="PHYS" typeDesc="Comprehensive Physical Examination" typeDisplayName="Comprehensive Physical Examination" measuringInstrc="Discussed">
+        <validationRule name="Yes/No" regularExp="YES|yes|Yes|Y|NO|no|No|N"/>
+    </measurement>
 	<measurement type="SOHF" typeDesc="Symptoms of Heart Failure"
 		typeDisplayName="Symptoms of Heart Failure" measuringInstrc="">
 		<validationRule name="Yes/No" regularExp="YES|yes|Yes|Y|NO|no|No|N" />
