@@ -285,6 +285,8 @@ ds_rules="diab.drl"
               </rule>
             </ruleset>
           </item>
+          <item measurement_type="TCHL" display_name="Total Cholestorol"
+                guideline="" graphable="yes" value_name="T. Chol" />
           <item measurement_type="MCCN" display_name="Motivation Counselling - Nutrition" guideline="" graphable="no" value_name="Completed"  >
             <rules>
               <recommendation strength="recommendation" >
@@ -673,6 +675,10 @@ ds_rules="diab.drl"
     <validationRule name="Blood Pressure" maxValue="" minValue="" isDate="" isNumeric="" regularExp="[0-9]{2,3}/{1}[0-9]{2,3}" maxLength="" minLength="" />
   </measurement>
   
+  <measurement type="TCHL" typeDesc="Total Cholestorol" typeDisplayName="Total Cholestorol" measuringInstrc="in mmol/L (nn.n) Range:2.0-12.0">
+      <validationRule name="Numeric Value: 2.0 to 12.0"
+                      maxValue="12" minValue="2" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
+  </measurement>
   
   <measurement type="HT" typeDesc="Height" typeDisplayName="Ht" measuringInstrc="in cm (nnn) Range:0-300">
     <validationRule name="Numeric Value: 0 to 300" maxValue="300" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
