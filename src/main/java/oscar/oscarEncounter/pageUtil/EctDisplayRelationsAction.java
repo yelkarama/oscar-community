@@ -26,9 +26,11 @@ package oscar.oscarEncounter.pageUtil;
 
 import org.apache.log4j.Logger;
 import org.apache.struts.util.MessageResources;
+import org.oscarehr.common.dao.DemographicContactDao;
 import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.RelationshipsDao;
 import org.oscarehr.common.model.Demographic;
+import org.oscarehr.common.model.DemographicContact;
 import org.oscarehr.common.model.Relationships;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
@@ -42,47 +44,31 @@ public class EctDisplayRelationsAction extends EctDisplayAction {
 	private static Logger logger = MiscUtils.getLogger();
 
 	private static final String cmd = "Relations";
+    private String contextPath;
 
 	public boolean getInfo(EctSessionBean bean, HttpServletRequest request, NavBarDisplayDAO displayDAO, MessageResources messages) {
 		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
         OscarProperties oscarProperties = OscarProperties.getInstance();
 		
     	if (!securityInfoManager.hasPrivilege(loggedInInfo, "_edoc", "r", null)) {
-    		return true; // documents link won't show up on new CME screen.
+    		return true;
     	}
 
+    	contextPath = request.getContextPath();
         String demographicNo = bean.getDemographicNo();
         String providerNo = LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo();
 
         if (demographicNo != null && !demographicNo.isEmpty()) {
-            RelationshipsDao relationshipsDao = SpringUtils.getBean(RelationshipsDao.class);
-            DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
             if (displayDAO == null) {
                 displayDAO = new NavBarDisplayDAO();
             }
 
-            String headingColour = "#FF9933";
-            String winName;
-            Integer hash;
-            String url = "return false;";
-//            displayDAO.setRightURL(url);
-//            displayDAO.setLeftURL(url);
             displayDAO.setLeftHeading(messages.getMessage(request.getLocale(), "oscarEncounter.LeftNavBar.Relations"));
             displayDAO.setRightHeadingID("blank"); // no menu so set div id to unique id for this action
-//            request.setAttribute("DAO", displayDAO);
-            List<Relationships> relationships = relationshipsDao.findByDemographicNumber(Integer.parseInt(demographicNo));
-            for (Relationships relationship : relationships) {
-                Demographic demographic = demographicDao.getDemographic(String.valueOf(relationship.getRelationDemographicNo()));
-                if (demographic != null) {
-                    NavBarDisplayDAO.Item item = NavBarDisplayDAO.Item();
-                    winName = relationship.getRelation() + ": " + demographic.getLastName() + ", " + demographic.getFirstName();
-                    hash = Math.abs(winName.hashCode());
-                    url = "popupPage(700,1000,'" + hash + "','" + request.getContextPath() + "/oscarEncounter/IncomingEncounter.do?providerNo=" + providerNo + "&demographicNo=" + demographic.getDemographicNo() + "&reason=Tel-Progress+Note&encType=&curDate=2018-3-15');return false;";
-                    item.setTitle(winName);
-                    item.setLinkTitle(winName);
-                    item.setURL(url);
-                    displayDAO.addItem(item);
-                }
+            if (oscarProperties.isPropertyActive("NEW_CONTACTS_UI")) {
+                addDemographicContactsEntries(displayDAO, demographicNo, providerNo);
+            } else {
+                addRelationshipsEntries(displayDAO, demographicNo, providerNo);
             }
             return true;
         } else {
@@ -93,4 +79,50 @@ public class EctDisplayRelationsAction extends EctDisplayAction {
 	public String getCmd() {
 		return cmd;
 	}
+	
+    private void addRelationshipsEntries(NavBarDisplayDAO displayDAO, String demographicNo, String providerNo) {
+        RelationshipsDao relationshipsDao = SpringUtils.getBean(RelationshipsDao.class);
+        DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
+        String winName;
+        Integer hash;
+	    
+        List<Relationships> relationships = relationshipsDao.findByDemographicNumber(Integer.parseInt(demographicNo));
+        for (Relationships relationship : relationships) {
+            Demographic demographic = demographicDao.getDemographic(String.valueOf(relationship.getRelationDemographicNo()));
+            if (demographic != null) {
+                NavBarDisplayDAO.Item item = NavBarDisplayDAO.Item();
+                winName = relationship.getRelation() + ": " + demographic.getLastName() + ", " + demographic.getFirstName();
+                item.setTitle(winName);
+                item.setLinkTitle(winName);
+                hash = Math.abs(winName.hashCode());
+                String url = "popupPage(700,1000,'" + hash + "','" + contextPath + "/oscarEncounter/IncomingEncounter.do?providerNo=" + providerNo + "&demographicNo=" + demographic.getDemographicNo() + "&reason=Tel-Progress+Note&encType=&curDate=2018-3-15');return false;";
+                item.setURL(url);
+                displayDAO.addItem(item);
+            }
+        }
+    }
+
+    private void addDemographicContactsEntries(NavBarDisplayDAO displayDAO, String demographicNo, String providerNo) {
+        DemographicContactDao demographicContactDao = SpringUtils.getBean(DemographicContactDao.class);
+        DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
+        String winName;
+        Integer hash;
+
+        List<DemographicContact> relationships =
+                demographicContactDao.findActiveByDemographicNoAndCategoryAndType(Integer.parseInt(demographicNo),
+                        DemographicContact.CATEGORY_PERSONAL, DemographicContact.TYPE_DEMOGRAPHIC);
+        for (DemographicContact relationship : relationships) {
+            Demographic demographic = demographicDao.getDemographic(String.valueOf(relationship.getContactId()));
+            if (demographic != null) {
+                NavBarDisplayDAO.Item item = NavBarDisplayDAO.Item();
+                winName = relationship.getRole() + ": " + demographic.getLastName() + ", " + demographic.getFirstName();
+                item.setTitle(winName);
+                item.setLinkTitle(winName);
+                hash = Math.abs(winName.hashCode());
+                String url = "popupPage(700,1000,'" + hash + "','" + contextPath + "/oscarEncounter/IncomingEncounter.do?providerNo=" + providerNo + "&demographicNo=" + demographic.getDemographicNo() + "&reason=Tel-Progress+Note&encType=&curDate=2018-3-15');return false;";
+                item.setURL(url);
+                displayDAO.addItem(item);
+            }
+        }
+    }
 }
