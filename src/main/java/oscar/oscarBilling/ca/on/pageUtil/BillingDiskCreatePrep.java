@@ -249,8 +249,15 @@ public class BillingDiskCreatePrep {
 	private Vector getGrpHtmlfilename(List ohipNo, String groupNo, String monthCode, String batchNum) {
 		Vector ret = new Vector();
 		for (int i = 0; i < ohipNo.size(); i++) {
-			String diskName = "H" + monthCode + groupNo + "_" + ohipNo.get(i) + "_"
-					+ getDefaultRightJust("0", 3, batchNum) + ".html";
+			String diskName = "H" + monthCode + groupNo + "_" + ohipNo.get(i) + "_" + getDefaultRightJust("0", 3, batchNum) + ".html";
+			int fileCount = 1;
+			if (ret.contains(diskName)) {
+				while (ret.contains(diskName)) {
+					fileCount += 1;
+					diskName = "H" + monthCode + groupNo + "_" + ohipNo.get(i) + "_" + getDefaultRightJust("0", 3, batchNum) + "(" + String.valueOf(fileCount) + ").html";
+				}
+			}
+
 			ret.add(diskName);
 		}
 		return ret;
