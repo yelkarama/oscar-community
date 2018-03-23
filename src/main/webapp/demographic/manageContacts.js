@@ -56,6 +56,39 @@ function buildContactRoles(category) {
     });
 }
 
+function checkContactMethodField(field) {
+    var valid = true;
+    var fieldElement = $('#contact_'+field);
+
+    if (fieldElement.val().trim() && $('#contact_typeSelect').val() === 'external') {
+        if (field === 'phone' || field === 'cell' || field === 'work') {
+            valid = validatePhoneNumber(fieldElement.val());
+
+            if (valid) {
+                fieldElement.parent().removeClass('has-error');
+                if (!$('#contact_phone').parent().hasClass('has-error') && !$('#contact_cell').parent().hasClass('has-error') && !$('#contact_work').parent().hasClass('has-error')) {
+                    $('#phoneError').hide();
+                }
+            } else {
+                fieldElement.parent().addClass('has-error');
+                $('#phoneError').show();
+            }
+        } else if (field === 'email') {
+            valid = validateEmail(fieldElement.val());
+
+            if (valid) {
+                fieldElement.parent().removeClass('has-error');
+                $('#emailError').hide();
+            } else {
+                fieldElement.parent().addClass('has-error');
+                $('#emailError').show();
+            }
+        }
+    }
+
+    return valid;
+}
+
 function contactSearch(url) {
     var results = [];
     $.ajax({
@@ -115,18 +148,19 @@ function editName() {
 
     if (type === 'external') {
         $('#contact_contactName').val(lastName + ", " + firstName);
-    } else {
+    } else if ($('#contact_contactId').val()) {
         displayName();
     }
 }
 
 function isValid() {
     var valid = true;
-    if ($('#contact_contactId').val())
-        if (!$('#contact_contactName').val() || $('#contact_contactName').val().trim().length <= 0) {
-            $returnMessage = "Missing contact name \n";
-            valid = false;
-        }
+    $returnMessage = "";
+
+    if (!$('#contact_contactName').val() || $('#contact_contactName').val().trim().length <= 0) {
+        $returnMessage += "Missing contact name \n";
+        valid = false;
+    }
 
     return valid;
 }
@@ -166,9 +200,11 @@ function saveContact(id) {
 function searchContacts() {
     var category = $('input[type=radio][name=contact_category]:checked').val();
     var type = $('#contact_typeSelect').val();
-    var keyword = $('#contact_contactName').val();
-    var name = "contact_contactName";
-    var id = "contact_contactId";
+    var keyword = $('#last_name').val();
+
+    if ($('#first_name').val().trim() && $('#last_name').val().indexOf(",") === -1) {
+        keyword += ", " + $('#first_name').val().trim();
+    }
 
     var url = null;
     var columns = {
@@ -185,7 +221,7 @@ function searchContacts() {
         url = '../provider/receptionistfindprovider.jsp?custom=true&providername=' + keyword + '&form=contactForm';
         columns.contactId = 'providerNo';
     } else if (category === 'professional' && type === 'specialist') {
-        url = '../demographic/professionalSpecialistSearch.jsp?form=contactForm&keyword=' + keyword + '&submit=Search&elementName=' + name + '&elementId=' + id;
+        url = '../demographic/professionalSpecialistSearch.jsp?form=contactForm&keyword=' + keyword + '&submit=Search';
     } else if (category === 'professional' && type === 'external') {
         url = '../demographic/procontactSearch.jsp?form=contactForm&submit=Search&keyword=' + keyword;
     }
@@ -197,9 +233,11 @@ function searchContacts() {
 
 function setBestContactMethod(contactMethod) {
     $('#contactMethods li.list-group-item.active').removeClass('active');
+    $('#contactMethods input[required="required"]').removeAttr('required');
 
     if (contactMethod) {
         $('#contact_'+contactMethod).parent().addClass('active');
+        $('#contact_'+contactMethod).attr('required', 'required');
     } else {
         $('input[type=radio][name=contact_bestContact]:checked').parent().removeClass('active');
         $('input[type=radio][name=contact_bestContact]:checked').prop('checked', false);
@@ -221,6 +259,11 @@ function setContactCategoryType(category, typeSelect) {
     $('#contact_contactName').val('');
     $('#last_name').val('');
     $('#first_name').val('');
+    $('#phoneError').hide();
+    $('#emailError').hide();
+    $('#contactMethods input[required="required"]').removeAttr('required');
+    $('#contactMethods li.list-group-item.has-error').removeClass('has-error');
+
 
     if (!category) {
         category = $('input[type=radio][name=contact_category]:checked').val();
@@ -374,4 +417,25 @@ function updateSort(column) {
     $("#sortOrder").val(sortOrder);
 
     document.contactList.submit();
+}
+
+function validateEmail(email) {
+    var validEmail = true;
+    var validEmailPattern = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/;
+
+    if (email && email.trim()) {
+        validEmail = email.match(validEmailPattern);
+    }
+
+    return validEmail;
+}
+
+function validatePhoneNumber(phoneNumber) {
+    var validPhone = true;
+    var validPhoneNumberPattern = /^\s*(?:\+?(\d{1,3}))?[-.]{0,1}[(]{0,1}(\d{3})[)]{0,1}[-.]{0,1}(\d{3})[-. ]{0,1}(\d{4})$/;
+    if (phoneNumber && phoneNumber.trim()) {
+        validPhone = phoneNumber.match(validPhoneNumberPattern);
+    }
+
+    return validPhone;
 }

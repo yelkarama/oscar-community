@@ -97,7 +97,7 @@
 		<!--I18n-->
 		<link rel="stylesheet" href="<%=request.getContextPath() %>/library/bootstrap/3.0.0/css/bootstrap.min.css" />
 		<link rel="stylesheet" type="text/css" href="../share/css/OscarStandardLayout.css" />
-		<link rel="stylesheet" type="text/css" href="../css/main-kai.css" />
+		<link rel="stylesheet" type="text/css" href="../css/main-kai.min.css" />
 		<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css" />
 		<link rel="stylesheet" type="text/css" href="<%=request.getContextPath() %>/demographic/manageContacts.css" />
 		<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css" />
@@ -198,7 +198,7 @@
 						<th id="name">
 							<a href="javascript:void(0)" onclick="updateSort('name')">Name</a>
 						</th>
-						<th>Best Contact</th>
+						<th>Preferred Contact</th>
 						<th id="role">
 							<a href="javascript:void(0)" onclick="updateSort('role')">Relationship</a>
 

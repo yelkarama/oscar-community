@@ -243,7 +243,7 @@ public class Contact extends AbstractModel<Integer> {
 	}
 	
 	public String getFormattedName() {
-		return getLastName() + "," + getFirstName();
+		return getLastName() + ", " + getFirstName();
 	}
 	
 	public String getCpso() {

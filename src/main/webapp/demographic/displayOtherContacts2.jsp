@@ -166,7 +166,7 @@
             <thead class="header-xs" style="text-align: left">
             <th style="width: 83px;">Relationship</th>
             <th>Name</th>
-            <th>Best Contact</th>
+            <th>Preferred Contact</th>
             <th style="width: 83px;">Responsibility</th>
             <th>Notes</th>
             </thead>
@@ -239,7 +239,7 @@
                 </div>
 
                 <div class="smallText role">
-                    Best Contact:
+                    Preferred Contact:
                     <%if (dContact.isConsentToContact()) {%>
                     <span class="alignRight"><%=StringUtils.trimToNull(dContact.getBestContact()) != null ? dContact.getBestContact() : "Not Set"%></span>
                     <%} else {%>
