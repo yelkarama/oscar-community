@@ -35,6 +35,8 @@
 ForwardingRules fr = new ForwardingRules();
 String providerNo = request.getParameter("providerNo");
 ArrayList frwdProviders = fr.getProviders(providerNo);
+
+String errorMessage = (String) request.getAttribute("errorMessage");
 %>
 
 <link rel="stylesheet" type="text/css" href="encounterStyles.css">
@@ -236,5 +238,10 @@ ArrayList frwdProviders = fr.getProviders(providerNo);
 	</tr>
 </table>
 </form>
+<script type="text/javascript">
+<% if (errorMessage != null && !errorMessage.isEmpty()) { %>
+alert('<%=StringEscapeUtils.escapeJavaScript(errorMessage)%>');
+<% } %>
+</script>
 </body>
 </html>

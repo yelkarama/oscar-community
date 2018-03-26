@@ -58,6 +58,8 @@ if (providerNo == null)
     providerNo = "0";
 
 ArrayList frwdProviders = fr.getProviders(providerNo);
+
+String errorMessage = (String) request.getAttribute("errorMessage");
 %>
 
 <html>
@@ -135,7 +137,7 @@ ArrayList frwdProviders = fr.getProviders(providerNo);
 
 <div class="well">
 <h5>Select Provider</h5>
-Please Select the provider to set fowarding rules for:
+Please Select the provider to set forwarding rules for:
 
 <select name="providerNo" id="provider-selection">
 	<option value="0">None Selected</option>
@@ -275,6 +277,9 @@ $("#provider-selection").change(function(e) {
 });
 
 
+<% if (errorMessage != null && !errorMessage.isEmpty()) { %>
+alert('<%=StringEscapeUtils.escapeJavaScript(errorMessage)%>');
+<% } %>
 
 
 </script>

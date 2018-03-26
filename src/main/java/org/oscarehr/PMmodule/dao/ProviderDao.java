@@ -362,7 +362,11 @@ public class ProviderDao extends HibernateDaoSupport {
 		return results;
 	}
 
-	
+    public List<Provider> getActiveProvidersByType(String type) {
+        List<Provider> results = this.getHibernateTemplate().find(
+                "from Provider p where p.ProviderType = ? AND p.Status = '1' order by last_name", type);
+        return results;
+    }
 	public List<Provider> getProvidersByType(String type) {
 		
 		List<Provider> results = this.getHibernateTemplate().find(

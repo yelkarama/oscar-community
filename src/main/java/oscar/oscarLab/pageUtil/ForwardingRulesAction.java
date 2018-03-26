@@ -37,6 +37,7 @@ package oscar.oscarLab.pageUtil;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -47,6 +48,7 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.dao.IncomingLabRulesDao;
 import org.oscarehr.common.model.IncomingLabRules;
 import org.oscarehr.util.SpringUtils;
@@ -86,11 +88,25 @@ public class ForwardingRulesAction extends Action{
             	providerNums = new String[0];
             }
             String status = request.getParameter("status");
+
+            List<IncomingLabRules> circularForwardRules = findCircularForwardRules(providerNo, Arrays.asList(providerNums));
+            if (!circularForwardRules.isEmpty()) {
+                ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
+                StringBuilder errorMessage = new StringBuilder();
+                errorMessage.append("Circular forwarding detected for new forwarding rule, " +
+                        "provider(s) that forwards back to source: \n");
+                for (IncomingLabRules rule : circularForwardRules) {
+                    String name = providerDao.getProviderNameLastFirst(rule.getProviderNo());
+                    errorMessage.append(name).append("\n");
+                }
+                request.setAttribute("errorMessage", errorMessage.toString());
+                return mapping.findForward("success");
+            }
             
             logger.info("Updating Rules for providers " + Arrays.toString(providerNums) + "; Status is " + status);
             try{
                 // insert forwarding rules
-                if (providerNums != null && providerNums.length > 0) {
+                if (providerNums.length > 0) {
                 	for(IncomingLabRules result:dao.findCurrentByProviderNoAndFrwdProvider(providerNo, "0")) {
                 		result.setArchive("1");
                 		dao.merge(result);
@@ -196,5 +212,24 @@ public class ForwardingRulesAction extends Action{
             return false;
         }
         return true;
+    }
+    
+    private List<IncomingLabRules> findCircularForwardRules(String sourceProviderNo, List<String> forwardToProviderNos) {
+        List<IncomingLabRules> circularForwards = new ArrayList<IncomingLabRules>();
+        for (String forwardProviderNo : forwardToProviderNos) {
+            List<IncomingLabRules> rules = dao.findCurrentByProviderNo(forwardProviderNo);
+            List<String> rulesForwardProviderNos = new ArrayList<String>();
+            for (IncomingLabRules rule : rules) {
+                if (sourceProviderNo.equals(rule.getFrwdProviderNo())) {
+                    circularForwards.add(rule);
+                } else {
+                    rulesForwardProviderNos.add(rule.getFrwdProviderNo());
+                }
+            }
+            if (!rulesForwardProviderNos.isEmpty()) {
+                circularForwards.addAll(findCircularForwardRules(sourceProviderNo, rulesForwardProviderNos));
+            }
+        }
+        return circularForwards;
     }
 }
