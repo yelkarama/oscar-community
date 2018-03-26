@@ -33,19 +33,20 @@
  */
 package oscar.oscarLab.ca.all.upload.handlers;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.Hl7TextInfoDao;
 import org.oscarehr.common.model.Hl7TextInfo;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.OscarAuditLogger;
 import org.oscarehr.util.SpringUtils;
 
+import oscar.oscarDB.DBHandler;
 import oscar.oscarLab.ca.all.parsers.Factory;
 import oscar.oscarLab.ca.all.upload.MessageUploader;
-import oscar.oscarLab.ca.all.upload.RouteReportResults;
 import oscar.oscarLab.ca.all.util.Utilities;
 
 public class GDMLHandler implements MessageHandler {
@@ -53,46 +54,27 @@ public class GDMLHandler implements MessageHandler {
 	Logger logger = Logger.getLogger(GDMLHandler.class);	
 	Hl7TextInfoDao hl7TextInfoDao = (Hl7TextInfoDao)SpringUtils.getBean("hl7TextInfoDao");
 	
-	private Integer labNo = null;
-	
-	public Integer getLastLabNo() {
-		return labNo;
-	}
 
-	public String parse(LoggedInInfo loggedInInfo, String serviceName, String fileName, int fileId, String ipAddr) {
+	public String parse(String serviceName, String fileName, int fileId) {
 
 		int i = 0;
-		RouteReportResults routeResults;
 		try {
 			ArrayList<String> messages = Utilities.separateMessages(fileName);
 			for (i = 0; i < messages.size(); i++) {
 
 				String msg = messages.get(i);
-				/*if(isDuplicate(loggedInInfo, msg)) {
-					continue;
-				}*/
-				
-				routeResults = new RouteReportResults();
-				MessageUploader.routeReport(loggedInInfo, serviceName, "GDML", msg, fileId, routeResults);
-				
-				oscar.oscarLab.ca.all.parsers.MessageHandler msgHandler = Factory.getHandler(String.valueOf(routeResults.segmentId));
-				
-				if( msgHandler == null ) {
-					MessageUploader.clean(fileId);
-					logger.error("Saved lab but could not parse base64 value");
-					return null;
+				if(isDuplicate(msg)) {
+					return ("success");
 				}
-				
-				labNo = routeResults.segmentId;
-								
+				MessageUploader.routeReport(serviceName, "GDML", msg, fileId);
+
 			}
 
 			// Since the gdml labs show more than one lab on the same page when grouped
 			// by accession number their abnormal status must be updated to reflect the
 			// other labs that they are grouped with aswell
 			updateLabStatus(messages.size());
-			
-			logger.debug("Parsed OK");
+			logger.info("Parsed OK");
 		} catch (Exception e) {
 			MessageUploader.clean(fileId);
 			logger.error("Could not upload message", e);
@@ -103,18 +85,16 @@ public class GDMLHandler implements MessageHandler {
 	}
 
 	// recheck the abnormal status of the last 'n' labs
-	//this is a very weird method, and needs to be refactored or better yet, removed, and rethought out.
-	private void updateLabStatus(int n) {
-		Hl7TextInfoDao dao = SpringUtils.getBean(Hl7TextInfoDao.class);
+	private void updateLabStatus(int n) throws SQLException {
+		String sql = "SELECT lab_no, result_status FROM hl7TextInfo ORDER BY lab_no DESC";
 		
-		List<Hl7TextInfo> infos = dao.findAll();
-		
-		for(int k = 0; k < infos.size() && n > 0; k++) {
-			Hl7TextInfo info = infos.get(k);
+
+		ResultSet rs = DBHandler.GetSQL(sql);
+		while (rs.next() && n > 0) {
 
 			// only recheck the result status if it is not already set to abnormal
-			if (info.getResultStatus() == null ||  !info.getResultStatus().equals("A")) {
-				oscar.oscarLab.ca.all.parsers.MessageHandler h = Factory.getHandler("" + info.getLabNumber());
+			if (!oscar.Misc.getString(rs, "result_status").equals("A")) {
+				oscar.oscarLab.ca.all.parsers.MessageHandler h = Factory.getHandler(oscar.Misc.getString(rs, "lab_no"));
 				int i = 0;
 				int j = 0;
 				String resultStatus = "";
@@ -124,11 +104,8 @@ public class GDMLHandler implements MessageHandler {
 						logger.info("obr(" + i + ") obx(" + j + ") abnormal ? : " + h.getOBXAbnormalFlag(i, j));
 						if (h.isOBXAbnormal(i, j)) {
 							resultStatus = "A";
-							 Hl7TextInfo obj = hl7TextInfoDao.findLabId(info.getLabNumber());
-	                            if(obj != null) {
-	                            	obj.setResultStatus("A");
-	                            	hl7TextInfoDao.merge(obj);
-	                            }
+							sql = "UPDATE hl7TextInfo SET result_status='A' WHERE lab_no='" + oscar.Misc.getString(rs, "lab_no") + "'";
+							DBHandler.RunSQL(sql);
 						}
 						j++;
 					}
@@ -140,19 +117,32 @@ public class GDMLHandler implements MessageHandler {
 		}
 	}
 
-	private boolean isDuplicate(LoggedInInfo loggedInInfo, String msg) {
+	private boolean isDuplicate(String msg) {
 		//OLIS requirements - need to see if this is a duplicate
 		oscar.oscarLab.ca.all.parsers.MessageHandler h = Factory.getHandler("GDML", msg);
 		//if final		
-		if(h.getOrderStatus().equals("F")) {			
+		if(h.getOrderStatus().equals("F")) {
+			String fullAcc = h.getAccessionNum();
 			String acc = h.getAccessionNum();
-			
+			if(acc.indexOf("-")!=-1) {
+				acc = acc.substring(acc.indexOf("-")+1);
+			}
 			//do we have this?
 			List<Hl7TextInfo> dupResults = hl7TextInfoDao.searchByAccessionNumber(acc);
-			if( !dupResults.isEmpty() ) {
-                            OscarAuditLogger.getInstance().log(loggedInInfo, "Lab", "Skip", "Duplicate lab skipped - accession " + acc + "\n" + msg);
-                            return true;
-                        }
+			for(Hl7TextInfo dupResult:dupResults) {
+				if(dupResult.equals(fullAcc)) {
+					//if(h.getHealthNum().equals(dupResult.getHealthNumber())) {
+					OscarAuditLogger.getInstance().log("Lab", "Skip", "Duplicate lab skipped - accession " + fullAcc + "\n" + msg);
+					return true;
+					//}
+				}
+				if(dupResult.getAccessionNumber().length()>4 && dupResult.getAccessionNumber().substring(4).equals(acc)) {
+					//if(h.getHealthNum().equals(dupResult.getHealthNumber())) {
+					OscarAuditLogger.getInstance().log("Lab", "Skip", "Duplicate lab skipped - accession " + fullAcc + "\n" + msg);
+					return true;
+					//}
+				}
+			}		
 		}
 		return false;	
 	}

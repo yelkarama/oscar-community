@@ -4,12 +4,13 @@ package oscar.oscarBilling.ca.bc.MSP;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Enumeration;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Vector;
 
-import org.oscarehr.util.LoggedInInfo;
-import org.oscarehr.util.MiscUtilsOld;
+import org.oscarehr.util.MiscUtils;
 
 import oscar.oscarTickler.TicklerCreator;
 import oscar.util.SqlUtils;
@@ -27,8 +28,12 @@ public class CDMReminderHlp {
     return ret;
   }
 
- 
-  public void manageCDMTicklers(LoggedInInfo loggedInInfo,String providerNo, String[] alertCodes) throws Exception {
+  /**
+   * Adds CDM Counselling reminders to the tickler list if the specified provider
+   * has patients that need counselling
+   * @param provNo String
+   */
+  public void manageCDMTicklers(String[] alertCodes) throws Exception {
     //get all demographics with a problem that falls within CDM category
     TicklerCreator crt = new TicklerCreator();
     ServiceCodeValidationLogic lgc = new ServiceCodeValidationLogic();
@@ -38,10 +43,10 @@ public class CDMReminderHlp {
     final String remString = "SERVICE CODE";
     List cdmPatients = this.getCDMPatients(alertCodes);
     List cdmPatientNos = extractPatientNos(cdmPatients);
-    crt.resolveTicklers(loggedInInfo, providerNo, cdmPatientNos, remString);
+    crt.resolveTicklers(cdmPatientNos, remString);
 
     for (Iterator iter = cdmPatients.iterator(); iter.hasNext(); ) {
-    	MiscUtilsOld.checkShutdownSignaled();
+    	MiscUtils.checkShutdownSignaled();
 
       String[] dxRecord = (String[]) iter.next();
       String demoNo = dxRecord[0];
@@ -64,12 +69,12 @@ public class CDMReminderHlp {
             SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yy");
             String newfmt = formatter.format(dateLastBilled);
             String message = remString + " " + cdmServiceCode + " - Last Billed On: " + newfmt;
-            crt.createTickler(loggedInInfo, demoNo, provNo, message);
+            crt.createTickler(demoNo, provNo, message);
           }
           else if (daysPast < 0) {
             String message =
                 remString + " " + cdmServiceCode + " - Never billed for this patient";
-            crt.createTickler(loggedInInfo, demoNo, provNo, message);
+            crt.createTickler(demoNo, provNo, message);
           }
         }
       }
@@ -81,6 +86,14 @@ public class CDMReminderHlp {
     for (Iterator<String[]> iter = cdmPatients.iterator(); iter.hasNext(); ) {
       String[] item = iter.next();
       cdmPatientNos.add(item[0]);
+    }
+    return cdmPatientNos;
+  }
+
+  private Vector getCDMDemoNos(Enumeration demoNos) {
+    Vector cdmPatientNos = new Vector();
+    while (demoNos.hasMoreElements()) {
+      cdmPatientNos.add(demoNos.nextElement());
     }
     return cdmPatientNos;
   }

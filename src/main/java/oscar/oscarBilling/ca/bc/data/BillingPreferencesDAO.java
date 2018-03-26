@@ -24,48 +24,75 @@
 
 package oscar.oscarBilling.ca.bc.data;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
-import javax.persistence.Query;
+import org.oscarehr.util.MiscUtils;
 
-import org.oscarehr.common.dao.AbstractDao;
-import org.springframework.stereotype.Repository;
-
-import oscar.util.ConversionUtils;
+import oscar.oscarDB.DBHandler;
+import oscar.util.SqlUtils;
 
 /**
- * 
  * Responsible for CRUD operation a user Billing Module Preferences
- * 
  * @author not attributable
  * @version 1.0
  */
-@Repository
-public class BillingPreferencesDAO extends AbstractDao<BillingPreference> {
+public class BillingPreferencesDAO {
+  public BillingPreferencesDAO() {
+  }
 
-	public BillingPreferencesDAO() {
-		super(BillingPreference.class);
-	}
+  public BillingPreference getUserBillingPreference(String providerNo) {
+    BillingPreference pref = null;
+    List res = SqlUtils.getBeanList(
+        "select * from billing_preferences where providerNo = " +
+        providerNo, BillingPreference.class);
+    if (!res.isEmpty()) {
+      pref = (BillingPreference) res.get(0);
+    }
+    return pref;
+  }
 
-	@SuppressWarnings("unchecked")
-	public BillingPreference getUserBillingPreference(String providerNo) {
-		Query query = createQuery("bp", "bp.providerNo = :providerNo");
-		query.setParameter("providerNo", ConversionUtils.fromIntString(providerNo));
+  /**
+   * Saves the preferences for a specific user, if a record exists for the specific user,
+   * the values in that record are updated otherwise a new record is created
+   * @param demographicNo String
+   * @return List
+   */
+  public void saveUserPreferences(BillingPreference pref) {
+    
+    ResultSet rs = null;
+    String recordExistsQRY =
+        "SELECT * from billing_preferences where providerNo = " +
+        pref.getProviderNo();
+    try {
+      
+      rs = DBHandler.GetSQL(recordExistsQRY);
+      if (rs.next()) {
+        String updateSQL = "update billing_preferences set referral = " +
+            pref.getReferral() + ",defaultPayeeNo = " + pref.getDefaultPayeeNo() +
+            " where providerNo = " + pref.getProviderNo();
+        DBHandler.RunSQL(updateSQL);
+      }
+      else {
+        String insertSQL =
+            "insert into billing_preferences(referral,providerNo,defaultPayeeNo) values(" +
+            pref.getReferral() + "," + pref.getProviderNo() + "," + pref.getDefaultPayeeNo() + ")";
+        DBHandler.RunSQL(insertSQL);
+      }
+    }
+    catch (SQLException ex) {MiscUtils.getLogger().error("Error", ex);
+    }
+    finally {
+      if (rs != null) {
+        try {
+          rs.close();
+        }
+        catch (SQLException ex2) {MiscUtils.getLogger().error("Error", ex2);
+        }
+      }
+    }
 
-		List<BillingPreference> prefs = query.getResultList();
-		if (prefs.isEmpty()) return null;
-		return prefs.get(0);
-	}
-
-	/**
-	 * Saves the preferences for a specific user, if a record exists for the specific user,
-	 * the values in that record are updated otherwise a new record is created
-	 * @param pref the preferences
-	 * 
-	 * @deprecated 
-	 */
-	public void saveUserPreferences(BillingPreference pref) {
-		saveEntity(pref);
-	}
+  }
 
 }

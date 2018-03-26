@@ -24,9 +24,6 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.oscarehr.common.dao.EFormDataDao;
 import org.oscarehr.common.model.EFormData;
-import org.oscarehr.common.printing.HtmlToPdfServlet;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 import org.oscarehr.util.WKHtmlToPdfUtils;
@@ -45,16 +42,9 @@ public class PrintAction extends Action {
 	private boolean skipSave = false;
 	
 	private HttpServletResponse response;
-	
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
 
 	public ActionForward execute(ActionMapping mapping, ActionForm form,
             HttpServletRequest request, HttpServletResponse response) {
-		
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_eform", "r", null)) {
-			throw new SecurityException("missing required security object (_eform)");
-		}
-		
 		localUri = getEformRequestUrl(request);
 		this.response = response;
 		String id  = (String)request.getAttribute("fdid");
@@ -126,24 +116,13 @@ public class PrintAction extends Action {
 				bos.write(buffer,0, read);
 			}
 			
-			bos.flush();
-			// byte[] pdf = HtmlToPdfServlet.appendFooter(bos.getBytes());
-			byte[] pdf;
-            try {
-	            pdf = HtmlToPdfServlet.stamp(bos.getBytes());
-            } catch (Exception e) {
-            	throw new RuntimeException(e);
-            }
-			
 			//while (fos.read() != -1)
 			response.setContentType("application/pdf");  //octet-stream
             response.setHeader("Content-Disposition", "attachment; filename=\"EForm-"
             				+ formId + "-"
 							+ UtilDateUtilities.getToday("yyyy-mm-dd.hh.mm.ss")
 							+ ".pdf\"");
-			// response.getOutputStream().write(bos.getBytes(), 0, bos.getCount());
-            HtmlToPdfServlet.stream(response, pdf, false);
-            // response.getOutputStream().write(pdf);
+			response.getOutputStream().write(bos.getBytes(), 0, bos.getCount());
 			
 			// Removing the consulation pdf.
 			tempFile.delete();	

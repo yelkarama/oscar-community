@@ -29,24 +29,24 @@ package oscar.oscarEncounter.pageUtil;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.struts.util.MessageResources;
+import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.OscarAppointmentDao;
 import org.oscarehr.common.model.Appointment;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.Provider;
-import org.oscarehr.managers.DemographicManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
 import oscar.OscarProperties;
 import oscar.oscarBilling.ca.bc.MSP.MSPReconcile;
-import oscar.oscarBilling.ca.bc.MSP.MSPReconcile.Bill;
 import oscar.oscarBilling.ca.on.data.BillingClaimHeader1Data;
 import oscar.oscarBilling.ca.on.data.BillingItemData;
 import oscar.oscarBilling.ca.on.data.JdbcBillingReviewImpl;
@@ -54,15 +54,10 @@ import oscar.oscarBilling.ca.on.data.JdbcBillingReviewImpl;
 public class EctDisplayBillingAction extends EctDisplayAction {
 
     private static final String cmd = "Billing";
-    DemographicManager demographicManager = SpringUtils.getBean(DemographicManager.class);
-    
+
     @SuppressWarnings("unchecked")
     public boolean getInfo(EctSessionBean bean, HttpServletRequest request, NavBarDisplayDAO Dao, MessageResources messages) {
 
-    	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-    	if(!securityInfoManager.hasPrivilege(loggedInInfo, "_billing", "r", null)) {
-    		throw new SecurityException("missing required security object (_billing)");
-    	}
     	String appointmentNo = request.getParameter("appointment_no");
 
 
@@ -88,12 +83,13 @@ public class EctDisplayBillingAction extends EctDisplayAction {
 
                 if(appointmentNo != null && appointmentNo.length()>0) {
                 	OscarAppointmentDao appointmentDao = (OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
-                	Demographic d = demographicManager.getDemographic(loggedInInfo, Integer.parseInt(bean.demographicNo));
+                	DemographicDao demographicDao = (DemographicDao)SpringUtils.getBean("demographicDao");
+                	Demographic d = demographicDao.getClientByDemographicNo(Integer.parseInt(bean.demographicNo));
                     Appointment appt = appointmentDao.find(Integer.parseInt(appointmentNo));
                     String billform = OscarProperties.getInstance().getProperty("default_view");
                     SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
                     SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm");
-                    Provider p = loggedInInfo.getLoggedInProvider();
+                    Provider p = LoggedInInfo.loggedInInfo.get().loggedInProvider;
                     if(appt != null) {
                     	url = "popupPage(755,1200,'"+winName+"','../billing.do?billRegion=ON&billForm="+billform+"&hotclick=&appointment_no="+appointmentNo+"&demographic_name="+d.getFormattedName()+"&status="+appt.getStatus()+"&demographic_no="+bean.demographicNo+"&providerview="+p.getProviderNo()+"&user_no="+p.getProviderNo()+"&apptProvider_no="+appt.getProviderNo()+"&appointment_date="+dateFormatter.format(appt.getAppointmentDate())+"&start_time="+timeFormatter.format(appt.getStartTime())+"&bNewForm=1');return false;";
                     	Dao.setRightURL(url);
@@ -103,7 +99,7 @@ public class EctDisplayBillingAction extends EctDisplayAction {
                 JdbcBillingReviewImpl dbObj = new JdbcBillingReviewImpl();
                 List<Object> aL = null;
                 try{
-                     aL   = dbObj.getBillingHist(loggedInInfo, bean.demographicNo, 10, 0, null);
+                     aL   = dbObj.getBillingHist(bean.demographicNo, 10, 0, null);
                 }catch(Exception e){
 
                     MiscUtils.getLogger().error("Error", e);
@@ -156,9 +152,9 @@ public class EctDisplayBillingAction extends EctDisplayAction {
                 ////
                 MSPReconcile msp = new MSPReconcile();              //"ALL", "1999-01-01" ,"9999-99-99"
                 MSPReconcile.BillSearch bSearch = msp.getBills("%", null, null ,null,bean.demographicNo);//,true,true,true,true);
-               // ArrayList<MSPReconcile.Bill> list = bSearch.list;
+                ArrayList<MSPReconcile.Bill> list = bSearch.list;
 
-                MiscUtils.getLogger().debug( "list size for bills is "+ bSearch.list.size() );
+                MiscUtils.getLogger().debug("list size for bills is "+list.size());
 
 //                JdbcBillingReviewImpl dbObj = new JdbcBillingReviewImpl();
 //                List aL = null;
@@ -169,11 +165,11 @@ public class EctDisplayBillingAction extends EctDisplayAction {
 //                    MiscUtils.getLogger().error("Error", e);
 //                }
 
-                for(int i=0; i < bSearch.list.size(); i++) {
+                for(int i=0; i<list.size(); i++) {
 
                         Date date = null;
 
-                        MSPReconcile.Bill b = (Bill) bSearch.list.get(i);
+                        MSPReconcile.Bill b = list.get(i);
 
 
                         if (b != null && !b.reason.equals("D")){

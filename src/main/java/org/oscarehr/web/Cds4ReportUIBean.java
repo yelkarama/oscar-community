@@ -35,9 +35,9 @@ import java.util.List;
 import org.apache.commons.collections.map.MultiValueMap;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
+import org.oscarehr.PMmodule.dao.AdmissionDao;
 import org.oscarehr.PMmodule.dao.ProgramDao;
 import org.oscarehr.PMmodule.model.Program;
-import org.oscarehr.common.dao.AdmissionDao;
 import org.oscarehr.common.dao.CdsClientFormDao;
 import org.oscarehr.common.dao.CdsClientFormDataDao;
 import org.oscarehr.common.dao.CdsFormOptionDao;
@@ -45,7 +45,6 @@ import org.oscarehr.common.dao.CdsHospitalisationDaysDao;
 import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.FunctionalCentreAdmissionDao;
 import org.oscarehr.common.dao.FunctionalCentreDao;
-import org.oscarehr.common.model.Admission;
 import org.oscarehr.common.model.CdsClientForm;
 import org.oscarehr.common.model.CdsClientFormData;
 import org.oscarehr.common.model.CdsFormOption;
@@ -53,10 +52,10 @@ import org.oscarehr.common.model.CdsHospitalisationDays;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.FunctionalCentre;
 import org.oscarehr.common.model.FunctionalCentreAdmission;
-import org.oscarehr.util.AccumulatorMap;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
+import org.oscarehr.utils.AccumulatorMap;
 
 import oscar.util.DateUtils;
 
@@ -92,7 +91,7 @@ public final class Cds4ReportUIBean {
 		public HashMap<Integer, CdsClientForm> multipleAdmissionsLatestForms = new HashMap<Integer, CdsClientForm>();
 		
 		public ArrayList<CdsClientForm> multipleAdmissionsAllForms = new ArrayList<CdsClientForm>();
-
+		
 		// this is a map where key=0-10 representing each cohort bucket., value is a collection of CdsClientForms
 		public MultiValueMap multipleAdmissionCohortBuckets = new MultiValueMap();
 		
@@ -102,7 +101,8 @@ public final class Cds4ReportUIBean {
 			{
 				if (tempForm.getCdsFormVersion().equals(cdsClientForm.getCdsFormVersion()) && tempForm.getAdmissionId().equals(cdsClientForm.getAdmissionId()))
 				{
-					if (cdsClientForm.getCreated().after(tempForm.getCreated()))
+					//if (cdsClientForm.getCreated().after(tempForm.getCreated()))
+					if(cdsClientForm.getId().intValue() > tempForm.getId().intValue())
 					{
 						multipleAdmissionsAllForms.remove(tempForm);
 						multipleAdmissionsAllForms.add(cdsClientForm);
@@ -122,14 +122,12 @@ public final class Cds4ReportUIBean {
 	private GregorianCalendar endDateExclusive=new GregorianCalendar();
 	private HashSet<String> providerIdsToReportOn=null;
 	private HashSet<Integer> programIdsToReportOn=null;
-	private LoggedInInfo loggedInInfo=null;
 	
 	/**
 	 * End dates should be treated as inclusive.
 	 */
-	public Cds4ReportUIBean(LoggedInInfo loggedInInfo, String functionalCentreId, Date startDate, Date endDateInclusive, String[] providerIdList, HashSet<Integer> programIds) {
+	public Cds4ReportUIBean(String functionalCentreId, Date startDate, Date endDateInclusive, String[] providerIdList, HashSet<Integer> programIds) {
 
-		this.loggedInInfo=loggedInInfo;
 		this.startDate.setTime(startDate);
 		this.endDateExclusive.setTime(endDateInclusive);
 		this.endDateExclusive.add(GregorianCalendar.DAY_OF_YEAR, 1); // add 1 to make exclusive
@@ -174,9 +172,10 @@ public final class Cds4ReportUIBean {
 	private SingleMultiAdmissions getAdmissionsSortedSingleMulti() {
 		SingleMultiAdmissions singleMultiAdmissions = new SingleMultiAdmissions();
 
-		List<CdsClientForm> cdsForms = cdsClientFormDao.findSignedCdsForms(loggedInInfo.getCurrentFacility().getId(), "4", startDate.getTime(), endDateExclusive.getTime());
-		logger.debug("valid cds form count, "+loggedInInfo.getCurrentFacility().getId()+", 4, "+startDate.getTime()+", "+endDateExclusive.getTime()+", "+cdsForms.size());
-		
+		LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
+		List<CdsClientForm> cdsForms = cdsClientFormDao.findSignedCdsForms(loggedInInfo.currentFacility.getId(), "4", startDate.getTime(), endDateExclusive.getTime());
+		logger.debug("valid cds form count, "+loggedInInfo.currentFacility.getId()+", 4, "+startDate.getTime()+", "+endDateExclusive.getTime()+", "+cdsForms.size());
+				
 		// sort into single and multiple admissions
 		for (CdsClientForm form : cdsForms) {
 			logger.debug("valid cds form, id="+form.getId());
@@ -205,7 +204,11 @@ public final class Cds4ReportUIBean {
 			// if this person already has multiple admissions
 			if (existingForm != null) {
 				logger.debug("multiple admissions 3+ forms. formId="+form.getId()+", otherFormId="+existingForm.getId());
-				singleMultiAdmissions.multipleAdmissionsLatestForms.put(clientId, getNewerForm(existingForm, form));
+				if(form.getId() > existingForm.getId()) {
+					singleMultiAdmissions.multipleAdmissionsLatestForms.remove(clientId);
+					singleMultiAdmissions.multipleAdmissionsLatestForms.put(clientId,form);
+				}
+				//singleMultiAdmissions.multipleAdmissionsLatestForms.put(clientId, getNewerForm(existingForm, form));
 				singleMultiAdmissions.addUniqueCdsProgramFormToMultipleAdmissionsAllForms(form);
 			} else // this person either has one previous or no previous admissions
 			{
@@ -218,16 +221,21 @@ public final class Cds4ReportUIBean {
 					// they are the same, just pick the newer form
 					if (existingForm.getAdmissionId().equals(form.getAdmissionId()))
 					{
-						if (form.getCreated().after(existingForm.getCreated()))
+						// created time was null sometimes and updated with any random date.
+						// so do not use created date. Instead use id.
+						//if (form.getCreated().after(existingForm.getCreated())) 
+						if(form.getId().intValue() > existingForm.getId().intValue())
 						{
+							singleMultiAdmissions.singleAdmissions.remove(clientId);
 							singleMultiAdmissions.singleAdmissions.put(clientId, form);
-						}
+						} 
 					}
 					else
 					{
 						logger.debug("multiple admissions, 2 forms : formId="+form.getId()+", otherFormId="+existingForm.getId());
 						
-						singleMultiAdmissions.multipleAdmissionsLatestForms.put(clientId, getNewerForm(existingForm, form));
+						//singleMultiAdmissions.multipleAdmissionsLatestForms.put(clientId, getNewerForm(existingForm, form));						
+						singleMultiAdmissions.multipleAdmissionsLatestForms.put(clientId,form);
 						singleMultiAdmissions.singleAdmissions.remove(clientId);
 	
 						singleMultiAdmissions.addUniqueCdsProgramFormToMultipleAdmissionsAllForms(existingForm);
@@ -267,8 +275,9 @@ public final class Cds4ReportUIBean {
 		// put admissions into map so it's easier to retrieve by id.
 		HashMap<Integer, FunctionalCentreAdmission> admissionMap = new HashMap<Integer, FunctionalCentreAdmission>();
 
-		List<Program> programs=programDao.getProgramsByFacilityIdAndFunctionalCentreId(loggedInInfo.getCurrentFacility().getId(), functionalCentre.getId());
-		
+		LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+		List<Program> programs=programDao.getProgramsByFacilityIdAndFunctionalCentreId(loggedInInfo.currentFacility.getId(), functionalCentre.getId());
+
 		for (Program program : programs) {
 			if (programIdsToReportOn!=null && !programIdsToReportOn.contains(program.getId())) continue;
 			
@@ -276,20 +285,13 @@ public final class Cds4ReportUIBean {
 			//Instead use functaionalCentreAdmission
 			List<FunctionalCentreAdmission> fcAdmissions = functionalCentreAdmissionDao.getAllAdmissionsByFunctionalCentreIdAndDates(program.getFunctionalCentreId(), startDate.getTime(), endDateExclusive.getTime());
 			logger.debug("corresponding cds admissions count (before provider filter) :"+fcAdmissions.size());
-
+			
 			for (FunctionalCentreAdmission admission : fcAdmissions) {
 				admissionMap.put(admission.getId().intValue(), admission);
 			}
 		}
 
 		return admissionMap;
-	}
-	
-	private boolean isAdmissionForSelectedProviders(Admission admission)
-	{
-		if (providerIdsToReportOn==null) return(true);
-		
-		return(providerIdsToReportOn.contains(admission.getProviderNo()));
 	}
 
 	private static int getCohortBucket(FunctionalCentreAdmission admission) {
@@ -301,13 +303,21 @@ public final class Cds4ReportUIBean {
 		//The cohort dates should be based on service initiation date
 		int years = DateUtils.yearDifference(admission.getServiceInitiationDate(), dischargeDate);
 		if (years > 10) years = 10; // limit everything above 10 years to the 10 year bucket.
-
+		
+		
+		
+		
 		return(years);
 	}
 
 	private static CdsClientForm getNewerForm(CdsClientForm form1, CdsClientForm form2) {
-		if (form1.getCreated().after(form2.getCreated())) return(form1);
-		else return(form2);
+		// created time was null sometimes and updated with any random date.
+		// so do not use created date. Instead use id.
+		//if (form1.getCreated().after(form2.getCreated())) return(form1);
+		if(form1.getId().intValue() > form2.getId().intValue())
+			return (form1);
+		else 
+			return(form2);
 	}
 
 	
@@ -321,7 +331,8 @@ public final class Cds4ReportUIBean {
 		else if (cdsFormOption.getCdsDataCategory().startsWith("10b-")) return(getGenericLatestAnswerDataLine(cdsFormOption));
 		else if (cdsFormOption.getCdsDataCategory().startsWith("011-")) return(getGenericLatestAnswerDataLine(cdsFormOption));
 		else if (cdsFormOption.getCdsDataCategory().startsWith("012-")) return(getGenericLatestAnswerDataLine(cdsFormOption));
-		else if (cdsFormOption.getCdsDataCategory().startsWith("013-")) return(getGenericAllAnswersDataLine(cdsFormOption));
+		else if (cdsFormOption.getCdsDataCategory().startsWith("013-")) 
+			return(getGenericAllAnswersDataLine(cdsFormOption));
 		else if (cdsFormOption.getCdsDataCategory().startsWith("014-")) return(getGenericLatestAnswerDataLine(cdsFormOption));
 		else if (cdsFormOption.getCdsDataCategory().startsWith("015-")) return(getGenericLatestAnswerDataLine(cdsFormOption));
 		else if (cdsFormOption.getCdsDataCategory().startsWith("016-")) return(getGenericLatestAnswerDataLine(cdsFormOption));
@@ -523,7 +534,7 @@ public final class Cds4ReportUIBean {
 	private int countWaitingForService(Collection<CdsClientForm> bucket) {
 	//days wated for service inititaion = service initiation date - assessment date
 		int count=0;
-
+   
 		if (bucket!=null)
 		{
 			for (CdsClientForm form : bucket)
@@ -899,7 +910,9 @@ public final class Cds4ReportUIBean {
 	{
 		FunctionalCentreAdmission admission=admissionMap.get(form.getAdmissionId());
 		
-		GregorianCalendar startBound=(GregorianCalendar) admission.getAdmissionCalendar().clone();
+		//GregorianCalendar startBound=(GregorianCalendar) admission.getAdmissionCalendar().clone();						
+		GregorianCalendar startBound=(GregorianCalendar) admission.getAdmissionCalendar().clone(); 
+
 		startBound.add(GregorianCalendar.YEAR, -2); // 2 years prior to admission
 		// materialise results
 		startBound.getTimeInMillis(); 
@@ -1060,6 +1073,7 @@ public final class Cds4ReportUIBean {
 	private List<CdsHospitalisationDays> getHopitalisationDaysDuringAdmission(CdsClientForm form)
 	{
 		FunctionalCentreAdmission admission=admissionMap.get(form.getAdmissionId());
+	
 		return(getHopitalisationDaysDuringPeriod(form, admission.getAdmissionCalendar(), admission.getDischargeCalendar()));
 	}
 	

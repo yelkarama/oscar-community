@@ -31,7 +31,6 @@ package oscar.oscarReport.reportByTemplate.actions;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -51,14 +50,9 @@ public class GenerateOutFilesAction extends Action {
     public ActionForward execute(ActionMapping mapping, ActionForm form,
                                  HttpServletRequest request, HttpServletResponse response) {
 
-    	String roleName$ = (String)request.getSession().getAttribute("userrole") + "," + (String) request.getSession().getAttribute("user");
-    	if(!com.quatro.service.security.SecurityManager.hasPrivilege("_admin", roleName$)  && !com.quatro.service.security.SecurityManager.hasPrivilege("_report", roleName$)) {
-    		throw new SecurityException("Insufficient Privileges");
-    	}
-    	
         String csv = (String) request.getSession().getAttribute("csv");
         if (csv ==null){
-            csv = StringEscapeUtils.escapeJavaScript(request.getParameter("csv"));
+            csv = request.getParameter("csv");
         }
         String action = request.getParameter("getCSV");
         if (action != null) {

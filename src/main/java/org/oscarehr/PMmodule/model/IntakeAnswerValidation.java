@@ -35,6 +35,7 @@ public class IntakeAnswerValidation implements Serializable {
 
     // constructors
     public IntakeAnswerValidation() {
+        initialize();
     }
 
     /**
@@ -42,6 +43,7 @@ public class IntakeAnswerValidation implements Serializable {
      */
     public IntakeAnswerValidation(Integer id) {
         this.setId(id);
+        initialize();
     }
 
     /**
@@ -51,6 +53,7 @@ public class IntakeAnswerValidation implements Serializable {
 
         this.setId(id);
         this.setType(type);
+        initialize();
     }
 
 
@@ -60,10 +63,13 @@ public class IntakeAnswerValidation implements Serializable {
         return new StringBuilder(REF).append("(").append(getId()).append(", ").append(getType()).append(")").toString();
     }
 
+    protected void initialize() {
+    }
+
     /**
      * Return the unique identifier of this class
      *
-     *  generator-class="native" column="intake_answer_validation_id"
+     * @hibernate.id generator-class="native" column="intake_answer_validation_id"
      */
     public Integer getId() {
         return id;

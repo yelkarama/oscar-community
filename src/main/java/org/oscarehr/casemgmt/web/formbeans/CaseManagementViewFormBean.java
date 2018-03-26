@@ -26,7 +26,7 @@ package org.oscarehr.casemgmt.web.formbeans;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.upload.FormFile;
 import org.oscarehr.casemgmt.model.CaseManagementCPP;
-import org.oscarehr.common.model.EncounterWindow;
+import org.oscarehr.casemgmt.model.EncounterWindow;
 
 public class CaseManagementViewFormBean extends ActionForm {
 	private String demographicNo;
@@ -54,8 +54,8 @@ public class CaseManagementViewFormBean extends ActionForm {
 	
 	private String note_sort = null;
 	private String filter_provider = "";
-    private String filter_providers[];
-    private String filter_roles[];
+        private String filter_providers[];
+        private String filter_roles[];
 	
 	private long formId;
 	

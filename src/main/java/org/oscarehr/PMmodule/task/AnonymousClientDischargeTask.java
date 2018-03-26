@@ -28,9 +28,10 @@ import java.util.List;
 import java.util.TimerTask;
 
 import org.apache.log4j.Logger;
+import org.oscarehr.PMmodule.model.Admission;
 import org.oscarehr.PMmodule.service.AdmissionManager;
-import org.oscarehr.common.model.Admission;
 import org.oscarehr.util.DbConnectionFilter;
+import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
@@ -40,6 +41,7 @@ public class AnonymousClientDischargeTask extends TimerTask {
 
 	public void run() {
 		try {
+			LoggedInInfo.setLoggedInInfoToCurrentClassAndMethod();
 			AdmissionManager admissionManager = (AdmissionManager) SpringUtils.getBean("admissionManager");
 
 			List<Admission> admissions = admissionManager.getActiveAnonymousAdmissions();

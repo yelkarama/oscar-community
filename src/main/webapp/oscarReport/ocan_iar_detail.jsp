@@ -22,23 +22,6 @@
     Toronto, Ontario, Canada
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_report,_admin.reporting" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_report&type=_admin.reporting");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="java.util.*"%>
 <%@page import="org.caisi.dao.*"%>
 <%@page import="org.caisi.model.*"%>
@@ -51,17 +34,14 @@ if(!authed) {
 <%@page import="org.apache.commons.lang.StringEscapeUtils"%>
 <%@page import="org.oscarehr.web.*"%>
 
-<%@ include file="/taglibs.jsp"%>
-<c:set var="ctx" value="${pageContext.request.contextPath}" scope="request"/>
+<%@include file="/layouts/caisi_html_top.jspf"%>
 
 <%
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-
 	String submissionId = request.getParameter("submissionId");
 	OcanSubmissionLog log = null;
 	
 	if(submissionId != null) {
-		log = OcanReportUIBean.getOcanSubmissionLog(loggedInInfo.getCurrentFacility().getId(), submissionId);	
+		log = OcanReportUIBean.getOcanSubmissionLog(submissionId);	
 	}
 	
 	java.text.SimpleDateFormat formatter = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -69,33 +49,44 @@ if(!authed) {
 	
 %>
 
-	<div class="page-header">
-		<h4>OCAN IAR Detail Report</h4>
-	</div>
+<h1>OCAN IAR Detail Report</h1>
 
-	<h5>IAR Submission</h5>
-	<table class="table table-bordered table-striped table-hover">
-	<thead>
-		<tr>				
-			<th>Submission Id</th>
-			<th>Submission Date</th>
-			<th>Transaction ID</th>
-			<th>Result</th>
-			<th>Result Message</th>
-		</tr>
-	</thead>		
+				
+	<table class="borderedTableAndCells">
 		<tr>
+			<td colspan="2" align="center">IAR Submission</td>
+		</tr>
+		<tr>
+			<td>Submission Id</td>
 			<td><%=log.getId() %></td>
+		</tr>
+		
+		<tr>
+			<td>Submission Date</td>
 			<td><%=formatter.format(log.getSubmitDateTime())%></td>
-			<td><%=log.getTransactionId()%></td>
-			<td><%=log.getResult() %></td>
-			<td><%=log.getResultMessage()%></td>
 		</tr>			
+		
+		<tr>
+			<td>Transaction ID</td>
+			<td><%=log.getTransactionId()%></td>
+		</tr>
+		
+		<tr>
+			<td>Result</td>
+			<td><%=log.getResult() %></td>
+		</tr>
+		
+		<tr>
+			<td>Result Message</td>
+			<td><%=log.getResultMessage()%></td>
+		</tr>
+		
 	</table>	
 
-	<h5>Records</h5>
-	<table class="table table-bordered table-striped table-hover">
-	<thead>
+	<table class="borderedTableAndCells">
+		<tr>
+			<td colspan="5" align="center">Records</td>
+		</tr>
 		<tr>
 			<td>Form Id</td>
 			<td>Date Started</td>
@@ -103,7 +94,6 @@ if(!authed) {
 			<td>Client</td>
 			<td>Provider</td>			
 		</tr>
-	</thead>
 		<%for(OcanStaffForm form:log.getRecords()) { %>
 			<tr>
 				<td><%=form.getId()%></td>
@@ -114,3 +104,8 @@ if(!authed) {
 			</tr>
 		<%} %>
 	</table>
+	<br/><br/>
+	
+	
+
+<%@include file="/layouts/caisi_html_bottom.jspf"%>

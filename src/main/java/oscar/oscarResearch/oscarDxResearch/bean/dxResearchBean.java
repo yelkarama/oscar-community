@@ -40,7 +40,6 @@ public class dxResearchBean{
        String start_date;      
        String status;        
        String type;
-       String providerNo;
        
        
        public dxResearchBean(){
@@ -52,8 +51,7 @@ public class dxResearchBean{
                                String end_date,
                                String start_date,
                                String status,    
-                               String type,
-                               String providerNo){
+                               String type){
             this.description = description;
             this.dxResearchNo = dxResearchNo;
             this.dxSearchCode = dxSearchCode;
@@ -61,7 +59,6 @@ public class dxResearchBean{
             this.start_date = start_date;
             this.status = status;
             this.type = type;
-            this.providerNo = providerNo;
        }
       
        public String getDescription(){
@@ -113,15 +110,7 @@ public class dxResearchBean{
            this.type = type;
        }
        
-       public String getProviderNo() {
-		return providerNo;
-	}
-
-	public void setProviderNo(String providerNo) {
-		this.providerNo = providerNo;
-	}
-
-	public boolean equals( Object o ) {
+       public boolean equals( Object o ) {
            if( o instanceof dxCodeSearchBean ) {
                 dxCodeSearchBean bean = (dxCodeSearchBean)o;                
                 return (dxSearchCode.equals(bean.getDxSearchCode()) && type.equals(bean.getType()));

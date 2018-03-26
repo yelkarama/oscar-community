@@ -40,17 +40,12 @@ import java.util.Map;
 
 import org.apache.commons.collections.OrderedMapIterator;
 import org.apache.commons.collections.map.ListOrderedMap;
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.drools.RuleBase;
 import org.drools.WorkingMemory;
 import org.drools.io.RuleBaseLoader;
 import org.jdom.Element;
-import org.oscarehr.common.dao.DxDao;
-import org.oscarehr.drools.RuleBaseFactory;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.OscarProperties;
 import oscar.oscarEncounter.oscarMeasurements.bean.EctMeasurementsDataBean;
@@ -148,28 +143,6 @@ public class MeasurementFlowSheet {
        return sb.toString();
     }
 
-    public String getDxTriggersQueryBuilder(String demo, String provider){
-        StringBuilder sb = new StringBuilder();
-        String query="";
-        String desc="";
-        
-        DxDao dao = SpringUtils.getBean(DxDao.class);
-        
-        if (dxTriggers != null){
-            for(String s:dxTriggers){
-                 if (!s.equals("OscarCode:CKDSCREEN")){
-                	 String[] type = s.split(":");
-                 desc=dao.getCodeDescription(type[0], type[1]);
-                 sb.append("<li><a href='javascript:void(0);' id='dxlink"+type[1]+"' rel='selectedCodingSystem="+type[0]+"&forward="+type[1]+"&demographicNo="+demo+"&providerNo="+provider+"'>"+s+ " " + desc +"</a></li>");
-                 }
-            }
-            
-            query=sb.toString();
-            query="<ul>"+query+"</ul>";
-        }
-        return query;
-     }
-    
     public String getProgramTriggersString(){
     	StringBuilder sb = new StringBuilder();
         boolean firstElement = true;
@@ -288,46 +261,6 @@ public class MeasurementFlowSheet {
         }
         return sb.toString();
     }
-    
-    public static String getDSHTMLStream(String dsHTML) {
-        StringBuilder sb = new StringBuilder();
-        InputStream is = null;
-        BufferedReader bReader = null;
-            try {
-                String measurementDirPath = OscarProperties.getInstance().getProperty("MEASUREMENT_DS_HTML_DIRECTORY");
-                
-                if (measurementDirPath != null) {
-                    File file = new File(OscarProperties.getInstance().getProperty("MEASUREMENT_DS_HTML_DIRECTORY") + dsHTML);
-                    if (file.isFile() || file.canRead()) {
-                        log.debug("Loading from file " + file.getName());
-                        is = new FileInputStream(file);
-                    }
-                }
-
-                if (is == null) {
-                   is = MeasurementFlowSheet.class.getResourceAsStream("/oscar/oscarEncounter/oscarMeasurements/flowsheets/html/" + dsHTML);
-                   log.debug("loading from stream " );
-                }
-
-                if (is != null){
-                    bReader = new BufferedReader(new InputStreamReader(is));
-                    String str;
-                    while ((str = bReader.readLine()) != null) {
-                        sb.append(str);
-                    }
-                    bReader.close();
-                }
-                
-            } catch (Exception e) {
-                MiscUtils.getLogger().error("Error", e);
-            }
-            finally {
-                IOUtils.closeQuietly(is);
-                IOUtils.closeQuietly(bReader);
-            }
-      
-        return sb.toString();
-    }
 
 
     public void loadRuleBase(){
@@ -381,32 +314,18 @@ public class MeasurementFlowSheet {
             if (measurementDirPath != null) {
                 //if (measurementDirPath.charAt(measurementDirPath.length()) != /)
                 File file = new File(OscarProperties.getInstance().getProperty("MEASUREMENT_DS_DIRECTORY") + string);
-                
-                ruleBase=RuleBaseFactory.getRuleBase(file.getCanonicalPath());
-                
-                if (ruleBase==null && (file.isFile() || file.canRead())) {
+                if (file.isFile() || file.canRead()) {
                     log.debug("Loading from file " + file.getName());
                     FileInputStream fis = new FileInputStream(file);
-                    try {
-	                    ruleBase = RuleBaseLoader.loadFromInputStream(fis);
-	                    fileFound = true;
-	                    RuleBaseFactory.putRuleBase(file.getCanonicalPath(), ruleBase);
-                    }
-                    finally {
-                    	IOUtils.closeQuietly(fis);
-                    }
+                    ruleBase = RuleBaseLoader.loadFromInputStream(fis);
+                    fileFound = true;
                 }
             }
 
             if (!fileFound) {
-                String urlString = "/oscar/oscarEncounter/oscarMeasurements/flowsheets/" + string;
-                ruleBase=RuleBaseFactory.getRuleBase(urlString);
-                if (ruleBase==null) {
-	                URL url = MeasurementFlowSheet.class.getResource(urlString);  //TODO: change this so it is configurable;
-	                log.debug("loading from URL " + url.getFile());
-	                ruleBase = RuleBaseLoader.loadFromUrl(url);
-	                RuleBaseFactory.putRuleBase(urlString, ruleBase);
-                }
+                URL url = MeasurementFlowSheet.class.getResource("/oscar/oscarEncounter/oscarMeasurements/flowsheets/" + string);  //TODO: change this so it is configurable;
+                log.debug("loading from URL " + url.getFile());
+                ruleBase = RuleBaseLoader.loadFromUrl(url);
             }
         } catch (Exception e) {
             MiscUtils.getLogger().error("Error", e);
@@ -457,32 +376,18 @@ public class MeasurementFlowSheet {
             if (measurementDirPath != null) {
                 //if (measurementDirPath.charAt(measurementDirPath.length()) != /)
                 File file = new File(OscarProperties.getInstance().getProperty("MEASUREMENT_DS_DIRECTORY") + string);
-                ruleBase=RuleBaseFactory.getRuleBase(file.getCanonicalPath());
-                
-                if (ruleBase==null && (file.isFile() || file.canRead())) {
+                if (file.isFile() || file.canRead()) {
                     log.debug("Loading from file " + file.getName());
                     FileInputStream fis = new FileInputStream(file);
-                    try {
-	                    ruleBase = RuleBaseLoader.loadFromInputStream(fis);
-	                    fileFound = true;
-	                    RuleBaseFactory.putRuleBase(file.getCanonicalPath(), ruleBase);
-                    }
-                    finally {
-                    	IOUtils.closeQuietly(fis);
-                    }
+                    ruleBase = RuleBaseLoader.loadFromInputStream(fis);
+                    fileFound = true;
                 }
             }
 
             if (!fileFound) {
-            	String urlString="/oscar/oscarEncounter/oscarMeasurements/flowsheets/decisionSupport/" + string;
-                measurementRuleBase=RuleBaseFactory.getRuleBase(urlString);
-                
-                if (measurementRuleBase==null) {
-	                URL url = MeasurementFlowSheet.class.getResource(urlString);  //TODO: change this so it is configurable;
-	                log.debug("loading from URL " + url.getFile());
-	                measurementRuleBase = RuleBaseLoader.loadFromUrl(url);
-	                RuleBaseFactory.putRuleBase(urlString, measurementRuleBase);
-                }
+                URL url = MeasurementFlowSheet.class.getResource("/oscar/oscarEncounter/oscarMeasurements/flowsheets/decisionSupport/" + string);  //TODO: change this so it is configurable;
+                log.debug("loading from URL " + url.getFile());
+                measurementRuleBase = RuleBaseLoader.loadFromUrl(url);
             }
         } catch (Exception e) {
             MiscUtils.getLogger().error("Error", e);
@@ -491,7 +396,7 @@ public class MeasurementFlowSheet {
     }
 
 
-    public void runRulesForMeasurement(LoggedInInfo loggedInInfo, EctMeasurementsDataBean mdb) {
+    public void runRulesForMeasurement(EctMeasurementsDataBean mdb) {
 
         String type = mdb.getType();
         log.debug("GETTING RULES FOR TYPE "+type);
@@ -503,7 +408,7 @@ public class MeasurementFlowSheet {
 
             try {
                 WorkingMemory workingMemory = rb.newWorkingMemory();
-                workingMemory.assertObject(new MeasurementDSHelper(loggedInInfo, mdb));
+                workingMemory.assertObject(new MeasurementDSHelper(mdb));
                 workingMemory.fireAllRules();
             } catch (Exception e) {
                 MiscUtils.getLogger().error("Error", e);

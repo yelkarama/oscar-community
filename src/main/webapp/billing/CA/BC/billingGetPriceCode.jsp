@@ -24,21 +24,21 @@
 
 --%>
 <% 
+  if(session.getValue("user") == null)
+    response.sendRedirect("../../../logout.jsp");
   String user_no = (String) session.getAttribute("user");
 %>
 <%@ page import="java.util.*, java.sql.*, oscar.*, java.net.*"%>
-<%@page import="org.oscarehr.util.SpringUtils" %>
-<%@page import="org.oscarehr.common.dao.BillingServiceDao" %>
-<%@page import="org.oscarehr.common.model.BillingService" %>
 
-
-<%
-	BillingServiceDao billingServiceDao = SpringUtils.getBean(BillingServiceDao.class);
-%>
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean"
+	scope="session" />
+<%@ include file="dbBilling.jspf"%>
 <% String search = "search_service_price";      
    String formName = request.getParameter("formName");
    String formElementCode = request.getParameter("formElementCode");
    String formElementPrice = request.getParameter("formElementPrice");      
+   String[] param =new String[1];
+   param[0] = formElementCode;
 %>
 <html>
 <head>
@@ -63,10 +63,9 @@ function CodeAttach(cost) {
 </table>
 <table width="800" border="1">
 	<%
-	List<BillingService> bss = billingServiceDao.findByServiceCode(formElementCode);
-   
-   if(bss.size()>0){      
-      String cost  = bss.get(0).getValue(); %>
+   ResultSet rslocal = apptMainBean.queryResults(param, search);
+   if(rslocal.next()){      
+      String cost  = rslocal.getString("value"); %>
 	<script LANGUAGE="JavaScript">
        <!--
           CodeAttach('<%=cost%>'); 

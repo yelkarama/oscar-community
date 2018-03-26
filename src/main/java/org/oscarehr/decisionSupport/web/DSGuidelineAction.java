@@ -46,7 +46,6 @@ import org.oscarehr.decisionSupport.model.DSDemographicAccess;
 import org.oscarehr.decisionSupport.model.DSGuideline;
 import org.oscarehr.decisionSupport.model.DSGuidelineFactory;
 import org.oscarehr.decisionSupport.service.DSService;
-import org.oscarehr.util.LoggedInInfo;
 
 import oscar.oscarDemographic.data.DemographicData;
 
@@ -83,8 +82,6 @@ public class DSGuidelineAction extends DispatchAction {
     }
 
     public ActionForward detail(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
-    	LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
-    	
         String guidelineId = request.getParameter("guidelineId");
         String demographicNo = request.getParameter("demographic_no");
         if (guidelineId == null) {
@@ -92,7 +89,7 @@ public class DSGuidelineAction extends DispatchAction {
             return null;
         }
         DSGuidelineFactory factory = new DSGuidelineFactory();
-        DSGuideline dsGuideline = dsService.findGuideline(Integer.parseInt(guidelineId));
+        DSGuideline dsGuideline = dsService.getDsGuidelineDAO().getDSGuideline(guidelineId);
         if (demographicNo == null) { //if just viewing details about guideline.
             request.setAttribute("guideline", dsGuideline);
             List<DSCondition> dsConditions = dsGuideline.getConditions();
@@ -114,19 +111,19 @@ public class DSGuidelineAction extends DispatchAction {
             testGuideline.setConsequences(new ArrayList<DSConsequence>());
             testGuideline.setTitle(dsGuideline.getTitle());
             testGuideline.setParsed(true); //supress parsing of xml, othewrise would overwrite the condition
-            boolean result = testGuideline.evaluateBoolean(loggedInInfo, demographicNo);
-            DSDemographicAccess demographicAccess = new DSDemographicAccess(loggedInInfo, demographicNo);
+            boolean result = testGuideline.evaluateBoolean(demographicNo);
+            DSDemographicAccess demographicAccess = new DSDemographicAccess(demographicNo);
             String actualValues = demographicAccess.getDemogrpahicValues(dsCondition.getConditionType());
             conditionResults.add(new ConditionResult(dsCondition, result, actualValues));
         }
         DemographicData demographicData = new DemographicData();
-        org.oscarehr.common.model.Demographic demographic = demographicData.getDemographic(LoggedInInfo.getLoggedInInfoFromSession(request), demographicNo);
+        org.oscarehr.common.model.Demographic demographic = demographicData.getDemographic(demographicNo);
 
         request.setAttribute("patientName", demographic.getFirstName() + " " + demographic.getLastName());
         request.setAttribute("guideline", dsGuideline);
-        request.setAttribute("consequences", dsGuideline.evaluate(loggedInInfo, demographicNo));
+        request.setAttribute("consequences", dsGuideline.evaluate(demographicNo));
         request.setAttribute("conditionResults", conditionResults);
-        request.setAttribute("demographicAccess", new DSDemographicAccess(loggedInInfo, demographicNo));
+        request.setAttribute("demographicAccess", new DSDemographicAccess(demographicNo));
         return mapping.findForward("guidelineDetail");
 
     }

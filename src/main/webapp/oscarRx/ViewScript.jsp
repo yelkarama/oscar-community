@@ -23,38 +23,17 @@
     Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_rx" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_rx");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%@ page import="oscar.oscarProvider.data.*, oscar.OscarProperties, oscar.oscarClinic.ClinicData, java.util.*"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
 <%! boolean bMultisites = org.oscarehr.common.IsPropertiesOn.isMultisitesEnable(); %>
-
+<%@ include file="/common/webAppContextAndSuperMgr.jsp"%>
 
 <%@page import="org.oscarehr.common.dao.SiteDao"%>
 <%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
 <%@page import="org.oscarehr.common.model.Site"%>
-<%@page import="org.oscarehr.util.SpringUtils"%>
-<%@page import="org.oscarehr.common.model.Appointment"%>
-<%@page import="org.oscarehr.common.dao.OscarAppointmentDao"%>
-<%
-	OscarAppointmentDao appointmentDao = SpringUtils.getBean(OscarAppointmentDao.class);
-%>
-<html:html locale="true">
+<%@page import="oscar.service.OscarSuperManager"%><html:html locale="true">
 
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
@@ -95,8 +74,8 @@ if(bMultisites) {
 	String appt_no=(String)session.getAttribute("cur_appointment_no");
 	String location = null;
 	if (appt_no!=null) {
-		Appointment result = appointmentDao.find(Integer.parseInt(appt_no));
-		if (result!=null) location = result.getLocation();
+		List<Map<String,Object>> resultList = oscarSuperManager.find("appointmentDao", "search", new Object[] {appt_no});
+		if (resultList!=null) location = (String) resultList.get(0).get("location");
 	}
 
     oscar.oscarRx.data.RxProviderData.Provider provider = new oscar.oscarRx.data.RxProviderData().getProvider(bean.getProviderNo());

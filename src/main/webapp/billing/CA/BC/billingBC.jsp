@@ -23,33 +23,19 @@
     Ontario, Canada
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
+  if (session.getValue("user") == null)
+    response.sendRedirect("../../../logout.jsp");
 %>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_billing" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../../securityError.jsp?type=_billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
-
 <%@taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
 <%@taglib uri="/WEB-INF/rewrite-tag.tld" prefix="rewrite"%>
+<%@ taglib uri="/WEB-INF/security.tld" prefix="security" %>
 <%@ page import="org.springframework.web.context.WebApplicationContext"%>
 <%@ page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
 <%@page import="oscar.oscarDemographic.data.*"%>
 <%@page import="java.text.*, java.util.*, oscar.oscarBilling.ca.bc.data.*,oscar.oscarBilling.ca.bc.pageUtil.*,oscar.*,oscar.entities.*"%>
-<%@page import="org.oscarehr.util.SpringUtils"%>
 <%!
   public void fillDxcodeList(BillingFormData.BillingService[] servicelist, Map dxcodeList) {
     for (int i = 0; i < servicelist.length; i++) {
@@ -93,7 +79,7 @@ if(!authed) {
   String color = "", colorflag = "";
   BillingSessionBean bean = (BillingSessionBean) pageContext.findAttribute("billingSessionBean");
   oscar.oscarDemographic.data.DemographicData demoData = new oscar.oscarDemographic.data.DemographicData();
-  org.oscarehr.common.model.Demographic demo = demoData.getDemographic(LoggedInInfo.getLoggedInInfoFromSession(request), bean.getPatientNo());
+  org.oscarehr.common.model.Demographic demo = demoData.getDemographic(bean.getPatientNo());
   oscar.oscarBilling.ca.bc.MSP.ServiceCodeValidationLogic lgc = new oscar.oscarBilling.ca.bc.MSP.ServiceCodeValidationLogic();
   BillingFormData billform = new BillingFormData();
   BillingFormData.BillingService[] billlist1 = lgc.filterServiceCodeList(billform.getServiceList("Group1", bean.getBillForm(), bean.getBillRegion(),new Date()), demo);
@@ -107,7 +93,7 @@ if(!authed) {
   BillingFormData.Location[] billlocation = billform.getLocationList(bean.getBillRegion());
   BillingFormData.Diagnostic[] diaglist = billform.getDiagnosticList(bean.getBillForm(), bean.getBillRegion());
   BillingFormData.BillingForm[] billformlist = billform.getFormList();
-  SupServiceCodeAssocDAO supDao = SpringUtils.getBean(SupServiceCodeAssocDAO.class);
+  SupServiceCodeAssocDAO supDao = new SupServiceCodeAssocDAO();
   HashMap assocCodeMap = new HashMap();
   fillDxcodeList(billlist1, assocCodeMap);
   fillDxcodeList(billlist2, assocCodeMap);
@@ -767,7 +753,7 @@ if(wcbneeds != null){%>
       thisForm.setDependent("66");
     }
     thisForm.setCorrespondenceCode(bean.getCorrespondenceCode());
-    oscar.oscarBilling.ca.bc.data.BillingPreferencesDAO dao = SpringUtils.getBean(oscar.oscarBilling.ca.bc.data.BillingPreferencesDAO.class);
+    oscar.oscarBilling.ca.bc.data.BillingPreferencesDAO dao = new oscar.oscarBilling.ca.bc.data.BillingPreferencesDAO();
     oscar.oscarBilling.ca.bc.data.BillingPreference pref = null;
     //checking for a bug where the passed in provider number is actually "none" rather than numeral 0
     if (oscar.util.StringUtils.isNumeric(thisForm.getXml_provider())) {

@@ -26,30 +26,15 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
    "http://www.w3.org/TR/html4/loose.dtd">
 <%-- This JSP is the page that allows users to add templates by XML --%>
-
+<%
+  if(session.getValue("user") == null) response.sendRedirect("../../logout.jsp");
+%>
 
 <%@ page
 	import="oscar.oscarReport.reportByTemplate.*, java.sql.*, org.apache.commons.lang.StringUtils"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_report,_admin.reporting,_admin" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../securityError.jsp?type=_report&type=_admin.reporting&type=_admin");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
 <html:html locale="true">
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
@@ -61,15 +46,6 @@ if(!authed) {
 	src="../../share/javascript/prototype.js"></script>
 <script type="text/javascript" language="JavaScript"
 	src="../../share/javascript/Oscar.js"></script>
-
-<link rel="stylesheet" type="text/css" href="../../js/jquery_css/smoothness/jquery-ui-1.10.2.custom.min.css"/>
-<script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery-1.9.1.js"></script>
-<script type="text/javascript" src="../../jquery-ui-1.10.2.custom.min.js"></script>
-<script>
-$(function() {
-    $( document ).tooltip();
-  });
-</script>
 
 </head>
 
@@ -134,8 +110,6 @@ $(function() {
 			enctype="multipart/form-data">
                   Upload Templates: <input type="file"
 				name="templateFile">
-				<span title="<bean:message key="global.uploadWarningBody"/>" style="vertical-align:middle;font-family:arial;font-size:20px;font-weight:bold;color:#ABABAB;cursor:pointer"><img border="0" src="../../images/icon_alertsml.gif"/></span></span>
-        
 			<input type="hidden" name="action" value="<%=action%>">
 			<input type="hidden" name="opentext" value="<%=openText%>">
 			<input type="hidden" name="templateid" value="<%=templateid%>">
@@ -153,15 +127,14 @@ $(function() {
 			<input type="hidden" name="opentext" value="<%=openText%>">
 			<input type="hidden" name="templateid" value="<%=templateid%>">
 			<br />
-			<input type="button" onclick="this.form.submit()" value="<%if (action.equals("edit")){out.print("Save");}else{ out.print(StringUtils.capitalize(action));}%>">
-			
-			<%if (action.equals("edit")) {%> 
-			<input type="button" name="done" value="Done" onclick="document.location='reportConfiguration.jsp?templateid=<%=templateid%>'">
-			<%} else {%> 
-			<input type="button" name="cancel" value="Cancel" onclick="document.location='homePage.jsp'"> 
-			<%}%>
+			<input type="button" onclick="document.forms[1].submit()"
+				value="<%=StringUtils.capitalize(action)%>">
 		</html:form></div>
-
+		<%if (action.equals("edit")) {%> <input type="button" name="done"
+			value="Done"
+			onclick="document.location='reportConfiguration.jsp?templateid=<%=templateid%>'">
+		<%} else {%> <input type="button" name="cancel" value="Cancel"
+			onclick="document.location='homePage.jsp'"> <%}%>
 		</td>
 	</tr>
 	<tr>

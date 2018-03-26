@@ -24,29 +24,12 @@
 
 --%>
 
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
 <%@ page import="org.w3c.dom.*"%>
 <%@ page import="oscar.oscarMessenger.util.Msgxml"%>
 <%@ page import="oscar.oscarDemographic.data.*"%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-	  boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_msg" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_msg");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
 
 <logic:notPresent name="msgSessionBean" scope="session">
 	<logic:redirect href="index.jsp" />
@@ -74,45 +57,21 @@ if (request.getParameter("bFirstDisp")!=null) bFirstDisp= (request.getParameter(
 
 String demographic_no = (String) request.getAttribute("demographic_no");
 
-String subjectText = request.getParameter("subject");
-if(subjectText == null) {
-	if (request.getAttribute("ReSubject") != null){
-		bean.setSubject((String)request.getAttribute("ReSubject"));
-	}
-}
-else if (subjectText != null) {
-	bean.setSubject(subjectText);
-}
-
-String messageText = request.getParameter("message");
-if(messageText == null) {
-	if (request.getAttribute("ReText") != null){
-		bean.setMessage((String)request.getAttribute("ReText"));
-	}
-}
-else if (messageText != null) {
-	bean.setMessage(messageText);
-}
 %>
+
+
+
+<link rel="stylesheet" type="text/css" href="encounterStyles.css">
+
 <%@page import="org.oscarehr.util.MiscUtils"%><html:html locale="true">
 <head>
-<script type="text/javascript" src="../js/jquery-1.7.1.min.js"></script>
-<script src="<%=request.getContextPath()%>/js/jquery-ui-1.8.18.custom.min.js"></script>
-<script src="<%=request.getContextPath()%>/js/fg.menu.js"></script>
-
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="oscarMessenger.CreateMessage.title" />
 </title>
 
-<link rel="stylesheet" type="text/css" href="encounterStyles.css">
 <link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
 
-<style>
-.TopStatusBar{
-width:100% !important;
-height:100% !important;
-}
-</style>
+<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
 
 <script language="javascript">
 
@@ -137,8 +96,11 @@ height:100% !important;
     function checkGroup(tblName,event)
     {
         var chk = event.srcElement;
+
         var newValue = chk.checked;
+
         var td = chk.parentNode;
+
         checkTD(td);
 
         function checkTD(element){
@@ -158,7 +120,9 @@ height:100% !important;
     function showTbl(tblName,event)
     {
         var i;
+
         var span;
+
         if(event.srcElement.tagName=='SPAN')
         {
             span = event.srcElement;
@@ -296,26 +260,7 @@ function BackToOscar()
         window.close();
     }
 }
-
-function XMLHttpRequestSendnArch() {
-	var oRequest = new XMLHttpRequest();
-	var theLink=document.referrer;
-	var theLinkComponents=theLink.split('?');
-	var theQueryComponents=theLinkComponents[1].split('&');
-
-	for (index = 0; index < theQueryComponents.length; ++index) {
-    		var theKeyValue=theQueryComponents[index].split('=');
-		if(theKeyValue[0]=='messageID'){
-			var theArchiveLink=theLinkComponents[0].substring(0,theLinkComponents[0].lastIndexOf('/'))+'/DisplayMessages.do?btnDelete=archive&messageNo='+theKeyValue[1];
-		}
-	}
-
-	oRequest.open('GET', theArchiveLink, false);
-	oRequest.send();
-	document.forms[0].submit();
-}
-
-
+//-->
 </script>
 
 <script type="text/javascript">
@@ -335,21 +280,6 @@ function popupSearchDemo(keyword){ // open a new popup window
 }
 
 function popupAttachDemo(demographic){ // open a new popup window
-    var subject = document.forms[0].subject.value;
-    var message = document.forms[0].message.value;
-    var formData = "subject=" + subject + "&message=" + message;
-
-    $.ajax({
-    	type: "post",
-    	data : formData,
-    	success: function(data){
-    		console.log(data);
-    	},
-    	error: function (jqXHR, textStatus, errorThrown){
- 			alert("Error: " + textStatus);
-    	}
-	});
-
     var vheight = 700;
     var vwidth = 900;  
     windowprops = "height="+vheight+",width="+vwidth+",location=0,scrollbars=1,menubar=0,toolbar=1,resizable=1,screenX=0,screenY=0,top=0,left=0";    
@@ -384,21 +314,22 @@ function popupAttachDemo(demographic){ // open a new popup window
 
 <body class="BodyStyle" vlink="#0000FF">
 
+<!--  -->
 <table class="MainTable" id="scrollNumber1" name="encounterTable">
 	<tr class="MainTableTopRow">
-		<td class="MainTableTopRowLeftColumn">
-		<bean:message key="oscarMessenger.CreateMessage.msgMessenger" />
-		</td>
+		<td class="MainTableTopRowLeftColumn"><bean:message
+			key="oscarMessenger.CreateMessage.msgMessenger" /></td>
 		<td class="MainTableTopRowRightColumn">
 		<table class="TopStatusBar">
 			<tr>
 				<td><bean:message key="oscarMessenger.CreateMessage.msgCreate" />
 				</td>
 				<td>&nbsp;</td>
-				<td style="text-align: right">
-				<oscar:help keywords="message" key="app.top1"/> | 
-				<a href="javascript:void(0)" onclick="javascript:popupPage(600,700,'../oscarEncounter/About.jsp')"><bean:message key="global.about" /></a>
-			   </td>
+				<td style="text-align: right"><oscar:help keywords="message" key="app.top1"/> | <a
+					href="javascript:popupStart(300,400,'About.jsp')"><bean:message
+					key="global.about" /></a> | <a
+					href="javascript:popupStart(300,400,'License.jsp')"><bean:message
+					key="global.license" /></a></td>
 			</tr>
 		</table>
 		</td>
@@ -463,15 +394,11 @@ function popupAttachDemo(demographic){ // open a new popup window
 								key="oscarMessenger.CreateMessage.msgMessage" /></th>
 						</tr>
 						<tr>
-						
 							<td bgcolor="#EEEEFF" valign=top>
 							<table>
 								<tr>
 									<td><input type="submit" class="ControlPushButton"
 										value="<bean:message key="oscarMessenger.CreateMessage.btnSendMessage"/>">
-									</td>
-									<td><input type="button" class="ControlPushButton"
-										value="<bean:message key="oscarMessenger.CreateMessage.btnSendnArchiveMessage"/>" onClick="XMLHttpRequestSendnArch()">
 									</td>
 								</tr>
 							</table>
@@ -566,20 +493,17 @@ function popupAttachDemo(demographic){ // open a new popup window
 							<td bgcolor="#EEEEFF" valign=top><!--Message and Subject Cell-->
 							<bean:message key="oscarMessenger.CreateMessage.formSubject" /> :
 							<html:text name="msgCreateMessageForm" property="subject"
-								size="67" value="${bean.subject}"/> <br>
+								size="67" /> <br>
 							<br>
 							<html:textarea name="msgCreateMessageForm" property="message"
-								cols="60" rows="18" value="${bean.message}"/> <%
+								cols="60" rows="18" /> <%
                                                 String att = bean.getAttachment();
                                                 String pdfAtt = bean.getPDFAttachment();
                                                 if (att != null || pdfAtt != null){ %>
 							<br>
 							<bean:message key="oscarMessenger.CreateMessage.msgAttachments" />
 
-							<% 
-							bean.setSubject(null);
-							bean.setMessage(null);
-							}
+							<% }
 
                                                 %>
 							</td>
@@ -607,7 +531,7 @@ function popupAttachDemo(demographic){ // open a new popup window
 
                                     
                                     DemographicData demoData = new  DemographicData();
-                                    org.oscarehr.common.model.Demographic demo =  demoData.getDemographic(LoggedInInfo.getLoggedInInfoFromSession(request), demographic_no);
+                                    org.oscarehr.common.model.Demographic demo =  demoData.getDemographic(demographic_no);
                                     String demoName = "";
                                     if ( demo != null ) {
                                         demoName = demo.getLastName()+", "+demo.getFirstName();

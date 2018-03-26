@@ -38,7 +38,6 @@ import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 import org.oscarehr.util.DbConnectionFilter;
-import org.oscarehr.util.LoggedInInfo;
 
 import oscar.oscarLab.ca.all.parsers.Factory;
 import oscar.oscarLab.ca.all.upload.MessageUploader;
@@ -55,7 +54,7 @@ public class HL7Handler implements MessageHandler {
 		logger.info("NEW HL7Handler UPLOAD HANDLER instance just instantiated. ");
 	}
 
-	public String parse(LoggedInInfo loggedInInfo, String serviceName,String fileName, int fileId, String ipAddr) {
+	public String parse(String serviceName,String fileName, int fileId) {
 		logger.info("ABOUT TO PARSE!");
 
 		int i = 0;
@@ -64,7 +63,7 @@ public class HL7Handler implements MessageHandler {
 			for (i = 0; i < messages.size(); i++) {
 
 				String msg =  messages.get(i);
-				MessageUploader.routeReport(loggedInInfo, "","HL7", msg, fileId); //Setting serviceName="" for now
+				MessageUploader.routeReport("","HL7", msg, fileId); //Setting serviceName="" for now
 
 			}
 

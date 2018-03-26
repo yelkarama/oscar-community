@@ -25,25 +25,24 @@
 
 package oscar.oscarEncounter.oscarMeasurements.bean;
 
-import java.util.List;
-import java.util.ArrayList;
+import java.util.Vector;
 
 public class EctMeasuringInstructionBeanHandler {
     
-    List<EctMeasuringInstructionBean> measuringInstructionList = new ArrayList<EctMeasuringInstructionBean>();
+    Vector measuringInstructionVector = new Vector();
  
     public EctMeasuringInstructionBeanHandler() {        
     }
     
-    public EctMeasuringInstructionBeanHandler(List<EctMeasuringInstructionBean> measuringInstructionList) {        
-        this.measuringInstructionList=measuringInstructionList;
+    public EctMeasuringInstructionBeanHandler(Vector measuringInstructionVector) {        
+        this.measuringInstructionVector=measuringInstructionVector;
     }
         
-    public List<EctMeasuringInstructionBean> getMeasuringInstructionList(){
-        return measuringInstructionList;
+    public Vector getMeasuringInstructionVector(){
+        return measuringInstructionVector;
     }
     
-    public void setMeasuringInstructionList(List<EctMeasuringInstructionBean> measuringInstructionList){
-        this.measuringInstructionList=measuringInstructionList;
+    public void setMeasuringInstructionVector(Vector measuringInstructionVector){
+        this.measuringInstructionVector=measuringInstructionVector;
     }
 }

@@ -95,8 +95,7 @@ public class OcanReportingAction extends DispatchAction {
 		String strClientId = request.getParameter("clientId");
 		SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
 
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		Integer facilityId = loggedInInfo.getCurrentFacility().getId();
+		Integer facilityId = LoggedInInfo.loggedInInfo.get().currentFacility.getId();
 		List<OcanStaffForm> staffForms = ocanStaffFormDao.findLatestSignedOcanForms(facilityId,Integer.parseInt(strClientId));
 		Collections.reverse(staffForms);
 
@@ -169,8 +168,6 @@ public class OcanReportingAction extends DispatchAction {
 	}
 
 	public ActionForward generateIndividualNeedRatingOverTimeReport(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)   {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-
 		String clientId = request.getParameter("client");
 		String[] assessments = request.getParameterValues("assessment");
 		String needsMet = request.getParameter("needs_met");
@@ -190,7 +187,7 @@ public class OcanReportingAction extends DispatchAction {
 		//bean which will feed our generator
 		OcanIndividualNeedsOverTimeBean bean = new OcanIndividualNeedsOverTimeBean();
 		bean.setConsumerName(demographicDao.getClientByDemographicNo(Integer.parseInt(clientId)).getFormattedName());
-		bean.setStaffName(loggedInInfo.getLoggedInProvider().getFormattedName());
+		bean.setStaffName(LoggedInInfo.loggedInInfo.get().loggedInProvider.getFormattedName());
 		bean.setReportDate(new Date());
 		bean.setShowUnmetNeeds(needsUnmet!=null);
 		bean.setShowMetNeeds(needsMet!=null);
@@ -349,8 +346,6 @@ public class OcanReportingAction extends DispatchAction {
 	}
 
 	public ActionForward generateNeedRatingOverTimeReport(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)  {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-
 		String clientId = request.getParameter("client");
 		String[] assessments = request.getParameterValues("assessment");
 		String[] domains = request.getParameterValues("domains");
@@ -366,7 +361,7 @@ public class OcanReportingAction extends DispatchAction {
 		NeedRatingOverTimeReportGenerator reportGen = new NeedRatingOverTimeReportGenerator();
 
 		reportGen.setConsumerName(demographicDao.getClientByDemographicNo(Integer.parseInt(clientId)).getFormattedName());
-		reportGen.setStaffName(loggedInInfo.getLoggedInProvider().getFormattedName());
+		reportGen.setStaffName(LoggedInInfo.loggedInInfo.get().loggedInProvider.getFormattedName());
 		reportGen.setReportDate(new Date());
 
 		//get need rating for each domain selected, and add them up.
@@ -611,8 +606,6 @@ public class OcanReportingAction extends DispatchAction {
 	}
 
 	public ActionForward generateSummaryOfActionsAndCommentsReport(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)  {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-
 		String clientId = request.getParameter("client");
 		String[] assessments = request.getParameterValues("assessment");
 		String[] domains = request.getParameterValues("domains");
@@ -700,7 +693,7 @@ public class OcanReportingAction extends DispatchAction {
 		SummaryOfActionsAndCommentsReportGenerator reportGen = new SummaryOfActionsAndCommentsReportGenerator();
 		reportGen.setReportBean(reportBean);
 		reportGen.setConsumerName(demographicDao.getClientByDemographicNo(Integer.parseInt(clientId)).getFormattedName());
-		reportGen.setStaffName(loggedInInfo.getLoggedInProvider().getFormattedName());
+		reportGen.setStaffName(LoggedInInfo.loggedInInfo.get().loggedInProvider.getFormattedName());
 		reportGen.setReportDate(new Date());
 		reportGen.setIncludeComments(includeComments);
 

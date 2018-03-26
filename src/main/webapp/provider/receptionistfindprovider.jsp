@@ -23,7 +23,6 @@
     Ontario, Canada
 
 --%>
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="org.oscarehr.util.SessionConstants"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -31,28 +30,16 @@
 <%@ taglib uri="/WEB-INF/caisi-tag.tld" prefix="caisi"%>
 
 <%
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-	String providerNo=loggedInInfo.getLoggedInProviderNo();
-
+  if(session.getValue("user") == null ) response.sendRedirect("../logout.jsp");
   String providername = request.getParameter("providername")!=null?request.getParameter("providername"):"";
   String year = request.getParameter("pyear")!=null?request.getParameter("pyear"):"2002";
   String month = request.getParameter("pmonth")!=null?request.getParameter("pmonth"):"5";
   String day = request.getParameter("pday")!=null?request.getParameter("pday"):"8";
 %>
-<%@ page import="java.util.*, java.sql.*, oscar.*, java.text.*, java.lang.*,java.net.*" errorPage="../appointment/errorpage.jsp"%>
-
-<%@page import="org.oscarehr.util.SpringUtils" %>
-<%@page import="org.oscarehr.common.dao.MyGroupDao" %>
-<%@page import="org.oscarehr.common.model.MyGroup" %>
-<%@page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
-<%@page import="org.oscarehr.common.model.Provider" %>
-<%@page import="org.oscarehr.common.dao.MyGroupAccessRestrictionDao" %>
-<%@page import="org.oscarehr.common.model.MyGroupAccessRestriction" %>
-<%
-	MyGroupDao myGroupDao = SpringUtils.getBean(MyGroupDao.class);
-	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
-	MyGroupAccessRestrictionDao myGroupAccessRestrictionDao = SpringUtils.getBean(MyGroupAccessRestrictionDao.class);
-%>
+<%@ page
+	import="java.util.*, java.sql.*, oscar.*, java.text.*, java.lang.*,java.net.*"
+	errorPage="../appointment/errorpage.jsp"%>
+<%@ include file="/common/webAppContextAndSuperMgr.jsp"%>
 
 <%
   String curUser_no = (String) session.getAttribute("user");
@@ -64,7 +51,7 @@
 
   String defaultServiceType = (String) session.getAttribute("default_servicetype");
   if( defaultServiceType == null ) {
-	ProviderPreference providerPreferenceInDb=ProviderPreferencesUIBean.getProviderPreference(providerNo);
+	ProviderPreference providerPreferenceInDb=ProviderPreferencesUIBean.getLoggedInProviderPreference();
       if (providerPreferenceInDb!=null) {
         defaultServiceType = providerPreference.getDefaultServiceType();
       }
@@ -90,8 +77,6 @@
 	  elementName = request.getParameter("elementName");
 	  elementId = request.getParameter("elementId");
   }
-  
-  List<MyGroupAccessRestriction> restrictions = myGroupAccessRestrictionDao.findByProviderNo(curUser_no);
  
 %>
 
@@ -99,7 +84,8 @@
 <%@page import="org.oscarehr.web.admin.ProviderPreferencesUIBean"%><html>
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
-<title><bean:message key="receptionist.receptionistfindprovider.title" /></title>
+<title><bean:message
+	key="receptionist.receptionistfindprovider.title" /></title>
 <link rel="stylesheet" href="../web.css">
 <script language="JavaScript">
 
@@ -114,8 +100,8 @@ function selectProvider(p,pn) {
 }
 
 function selectProviderCaisi(p,pn) {	
-	opener.document.ticklerForm.elements['tickler.taskAssignedToName'].value=pn;
-	opener.document.ticklerForm.elements['tickler.taskAssignedTo'].value=p;
+	opener.document.ticklerForm.elements['tickler.task_assigned_to_name'].value=pn;
+	opener.document.ticklerForm.elements['tickler.task_assigned_to'].value=p;
 	self.close();
 }
 
@@ -159,7 +145,7 @@ function selectProviderCustom(p,pn) {
 	</tr>
 <%
   boolean bGrpSearch = providername.startsWith(".")?true:false ;
-  String dboperation = bGrpSearch?"search_providersgroup":"search_provider" ;
+  String dboperation = bGrpSearch?"search_providersgroup":"search_active_provider" ;
   String field1 = bGrpSearch?"mygroup_no":"provider_no" ;
   providername = bGrpSearch?providername.substring(1):providername ;
 
@@ -176,41 +162,12 @@ function selectProviderCustom(p,pn) {
   
   int nItems = 0;
   String sp =null, spnl =null, spnf =null;
-  
-  Collection results = null;
-  if(bGrpSearch) {
-	  results = myGroupDao.search_providersgroup(param[0],param[1]);
-  } else {
-	  results = providerDao.getActiveProviderLikeFirstLastName(param[1],param[0]);
-  }
-  
-  Iterator iter = results.iterator();
-  
-  while(iter.hasNext()) {
-	  Object o = iter.next();
-	  Provider p = null;
-	  MyGroup g = null;
-	  if(bGrpSearch) {
-		  g = (MyGroup)o;
-		  sp = String.valueOf(g.getId().getMyGroupNo());
-		  spnl = String.valueOf(p.getLastName());
-		  spnf = String.valueOf(p.getFirstName());
-		  if(checkRestriction(restrictions,g.getId().getMyGroupNo())) {
-			  continue;
-		  }
-  
-	  }
-	  else {
-		  p = (Provider)o;
-		  sp = String.valueOf(p.getProviderNo());
-		  spnl = String.valueOf(p.getLastName());
-		  spnf = String.valueOf(p.getFirstName());
-		  if(checkRestriction(restrictions,p.getProviderNo())) {
-			  continue;
-		  }
-	  }
-     bColor = bColor?false:true ;
-   
+  List<Map<String,Object>> resultList = oscarSuperManager.find("providerDao", dboperation, param);
+  for (Map provider : resultList) {
+    bColor = bColor?false:true ;
+    sp = String.valueOf(provider.get(field1));
+    spnl = String.valueOf(provider.get("last_name"));
+    spnf = String.valueOf(provider.get("first_name"));
 %>
 	<tr bgcolor="<%=bColor?bgcolordef:"white"%>">
 		<td>
@@ -236,13 +193,9 @@ function selectProviderCustom(p,pn) {
   
   //find a group name only if there is no ',' in the search word 
   if(providername.indexOf(',') == -1 ) {
-	for(MyGroup mg:myGroupDao.search_mygroup(providername+"%")) {
-	
-		if(checkRestriction(restrictions,mg.getId().getMyGroupNo())) {
-			  continue;
-		  }
-		
-      sp = String.valueOf(mg.getId().getMyGroupNo());
+	resultList = oscarSuperManager.find("providerDao", "search_mygroup", new Object[] {providername+"%"});
+	for (Map group : resultList) {
+      sp = String.valueOf(group.get("mygroup_no"));
 %>
 	<tr bgcolor="#CCCCFF">
 		<td colspan='3'>
@@ -286,14 +239,3 @@ function selectProviderCustom(p,pn) {
 </center>
 </body>
 </html>
-
-<%!public boolean checkRestriction(List<MyGroupAccessRestriction> restrictions, String name) {
-     for(MyGroupAccessRestriction restriction:restrictions) {
-             if(restriction.getMyGroupNo().equals(name))
-                     return true;
-     }
-     return false;
-  }
-%>
-
-        

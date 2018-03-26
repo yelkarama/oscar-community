@@ -85,9 +85,9 @@ public class ERxApplicationPreferences {
      *            this instance of this object.
      * @param softwareName
      *            The name of the software.
-     * @param softwareVendor
+     * @param vendor
      *            The name of the organization that produced the software.
-     * @param softwareVersion
+     * @param version
      *            The version of the software.
      */
     public ERxApplicationPreferences(boolean isERxEnabled, String softwareName,
@@ -165,8 +165,8 @@ public class ERxApplicationPreferences {
      * @param vendor
      *            The new vendor.
      */
-    public void setVendor(String vendor) {
-        this.vendor = vendor;
+    public void setVendor(String softwareVendor) {
+        this.vendor = softwareVendor;
     }
 
     /**
@@ -175,7 +175,7 @@ public class ERxApplicationPreferences {
      * @param version
      *            The new version.
      */
-    public void setVersion(String version) {
-        this.version = version;
+    public void setVersion(String softwareVersion) {
+        this.version = softwareVersion;
     }
 }

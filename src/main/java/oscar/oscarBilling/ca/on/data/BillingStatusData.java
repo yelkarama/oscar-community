@@ -18,16 +18,13 @@
 
 package oscar.oscarBilling.ca.on.data;
 
+import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Hashtable;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
-import org.oscarehr.common.dao.BillingONCHeader1Dao;
-import org.oscarehr.common.model.BillingONCHeader1;
-import org.oscarehr.util.SpringUtils;
-
-import oscar.util.ConversionUtils;
+import org.oscarehr.util.MiscUtils;
 
 public class BillingStatusData {
 	private static final Logger _logger = Logger.getLogger(BillingStatusData.class);
@@ -37,44 +34,48 @@ public class BillingStatusData {
 
 	public ArrayList<Hashtable<String,Object>> getBills(String statusType, String providerNo, String startDate, String endDate, String demoNo) {
 		ArrayList<Hashtable<String,Object>> list = new ArrayList<Hashtable<String,Object>>();
-		
-		String providerParam = "";
-		Date startDateParam = null;
-		Date endDateParam = null;
-		Integer demoNoParam = null;
-		
+
+		String providerQuery = "";
+		String startDateQuery = "";
+		String endDateQuery = "";
+		String demoQuery = "";
+
 		if (providerNo != null && !providerNo.trim().equalsIgnoreCase("all")) {
-			providerParam = providerNo;
+			providerQuery = " and provider_no = '" + providerNo + "'";
 		}
 
 		if (startDate != null && !startDate.trim().equalsIgnoreCase("")) {
-			startDateParam = ConversionUtils.fromDateString(startDate);
+			startDateQuery = " and billing_date >= '" + startDate + "' ";
 		}
 
 		if (endDate != null && !endDate.trim().equalsIgnoreCase("")) {
-			endDateParam = ConversionUtils.fromDateString(endDate);
+			endDateQuery = " and billing_date <= '" + endDate + "' ";
 		}
 		if (demoNo != null && !demoNo.trim().equalsIgnoreCase("")) {
-			demoNoParam = ConversionUtils.fromIntString(demoNo);
+			demoQuery = " and demographic_no = '" + demoNo + "' ";
 		}
 
+		String sql = "select * from billing_on_cheader1 where status = '" + StringEscapeUtils.escapeSql(statusType)
+				+ "' " + providerQuery + startDateQuery + endDateQuery + demoQuery;
+		MiscUtils.getLogger().debug("bill status query " + sql);
 		try {
-			BillingONCHeader1Dao dao = SpringUtils.getBean(BillingONCHeader1Dao.class);
-			for(BillingONCHeader1 hh : dao.findBillingsByManyThings(statusType, providerParam, startDateParam, endDateParam, demoNoParam)) {
+			BillingONDataHelp db = new BillingONDataHelp();
+			ResultSet rs = db.searchDBRecord(sql);
+			while (rs.next()) {
 				Hashtable<String,Object> h = new Hashtable<String,Object>();
-				h.put("billing_no", "" + hh.getId());
-				h.put("demographic_no", "" + hh.getDemographicNo());
-				h.put("status", hh.getStatus());
-				h.put("provider_no", hh.getProviderNo());
-				h.put("demographic_name", hh.getDemographicName());
-				h.put("billing_date", ConversionUtils.toTimeString(hh.getBillingDate()));
-				h.put("billing_time", ConversionUtils.toTimeString(hh.getBillingTime()));
-				h.put("total", hh.getTotal());
-				h.put("clinic", hh.getClinic());
+				h.put("billing_no", "" + rs.getInt("id"));
+				h.put("demographic_no", rs.getString("demographic_no"));
+				h.put("status", rs.getString("status"));
+				h.put("provider_no", rs.getString("provider_no"));
+				h.put("demographic_name", rs.getString("demographic_name"));
+				h.put("billing_date", rs.getString("billing_date"));
+				h.put("billing_time", rs.getString("billing_time"));
+				h.put("total", rs.getString("total"));
+				h.put("clinic", rs.getString("clinic"));
 				list.add(h);
 			}
 		} catch (Exception e) {
-			_logger.error("Error",e);
+			_logger.error("getBills(sql = " + sql + ")");
 		}
 		return list;
 	}

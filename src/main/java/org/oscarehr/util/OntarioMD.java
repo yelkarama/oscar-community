@@ -82,7 +82,7 @@ public class OntarioMD {
         HttpClient httpclient = new HttpClient();
         // Execute request
         try{
-                httpclient.executeMethod(post);
+                int result = httpclient.executeMethod(post);
                 h = parseReturn(post.getResponseBodyAsStream());
         }catch(Exception e ){
             MiscUtils.getLogger().error("Error", e);

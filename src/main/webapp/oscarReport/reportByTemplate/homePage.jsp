@@ -26,28 +26,14 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
    "http://www.w3.org/TR/html4/loose.dtd">
 <%-- This JSP is the first page you see when you enter 'report by template' --%>
-
+<%
+  if(session.getValue("user") == null) response.sendRedirect("../../logout.jsp");
+%>
 
 <%@ page import="java.util.*,oscar.oscarReport.reportByTemplate.*"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_report,_admin.reporting,_admin" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../securityError.jsp?type=_report&type=_admin.reporting&type=_admin");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-
 <html:html locale="true">
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
@@ -76,15 +62,12 @@ if(!authed) {
 		</td>
 	</tr>
 	<tr>
-		<td class="MainTableLeftColumn" valign="top" width="160px;">
-		<a href="javascript:void(0)" onclick="newWindow('<%=request.getContextPath()%>/oscarReport/reportByTemplate/k2aTemplates.jsp','templates')" title="<bean:message key='oscarReport.oscarReportByTemplate.msgK2ATemplate' />"><bean:message key="oscarReport.oscarReportByTemplate.msgDownloadFromK2A" /></a>
-		<jsp:include
+		<td class="MainTableLeftColumn" valign="top" width="160px;"><jsp:include
 			page="listTemplates.jsp">
 			<jsp:param name="templateviewid" value="" />
-		</jsp:include>
-		</td>
+		</jsp:include></td>
 		<td class="MainTableRightColumn" valign="top">
-		<%ArrayList templates = (new ReportManager()).getReportTemplatesNoParam(roleName$);
+		<%ArrayList templates = (new ReportManager()).getReportTemplatesNoParam();
             String templateViewId = request.getParameter("templateviewid");
             if (templateViewId == null) templateViewId = "";
             %>
@@ -92,14 +75,7 @@ if(!authed) {
 		Select a template:
 		<div class="templatelistdivHP">
 		<ul class="templatelistHP">
-			<%
-				class CustomComparator implements Comparator<ReportObject>{
-                	public int compare(ReportObject r1, ReportObject r2){
-                    	return r1.getTitle().compareTo(r2.getTitle());
-            		}
-    			}
-				Collections.sort(templates,new CustomComparator());
-			for (int i=0; i<templates.size(); i++) {
+			<%for (int i=0; i<templates.size(); i++) {
                     ReportObject curReport = (ReportObject) templates.get(i);%>
 			<li><%=String.valueOf(i+1)%>. <a
 				href="reportConfiguration.jsp?templateid=<%=curReport.getTemplateId()%>"><%=curReport.getTitle()%></a></li>

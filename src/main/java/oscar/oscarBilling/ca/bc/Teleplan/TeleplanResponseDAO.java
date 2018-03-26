@@ -25,29 +25,49 @@
 
 package oscar.oscarBilling.ca.bc.Teleplan;
 
-import org.oscarehr.billing.CA.BC.dao.TeleplanResponseLogDao;
-import org.oscarehr.billing.CA.BC.model.TeleplanResponseLog;
-import org.oscarehr.util.SpringUtils;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 
-/**  
+import org.oscarehr.util.DbConnectionFilter;
+import org.oscarehr.util.MiscUtils;
+
+/**
+ 
+    CREATE TABLE `teleplan_response_log` (
+    `id` int(10) NOT NULL auto_increment,
+    `transaction_no` varchar(255),
+    `result` varchar(255),
+    `filename` varchar(255),
+    `real_filename` varchar(255),
+    `msgs`  varchar(255),
+     PRIMARY KEY  (`id`)
+    ) ;
+     
  *
+ *  Deals with storing the teleplan sequence #
  * @author jay
  */
 public class TeleplanResponseDAO {
     
-	private TeleplanResponseLogDao dao = SpringUtils.getBean(TeleplanResponseLogDao.class);
-	
+    /** Creates a new instance of TeleplanSequenceDAO */
     public TeleplanResponseDAO() {
     }
     
     public void save(TeleplanResponse tr){
-    	TeleplanResponseLog t = new TeleplanResponseLog();
-    	t.setTransactionNo(tr.getTransactionNo());
-    	t.setResult(tr.getResult());
-    	t.setFilename(tr.getFilename());
-    	t.setMsgs(tr.getMsgs());
-    	t.setRealFilename(tr.getRealFilename());
-    	dao.persist(t);
-    	
+        try{
+            
+            String query = "insert into teleplan_response_log (transaction_no,result,filename,msgs,real_filename) values (?,?,?,?,?)" ;
+            Connection conn = DbConnectionFilter.getThreadLocalDbConnection();
+            PreparedStatement pstat = conn.prepareStatement(query);
+            pstat.setString(1,tr.getTransactionNo());
+            pstat.setString(2,tr.getResult());
+            pstat.setString(3,tr.getFilename());
+            pstat.setString(4,tr.getMsgs());
+            pstat.setString(5,tr.getRealFilename());
+            pstat.executeUpdate();
+            pstat.close();
+        }catch(Exception e){
+            MiscUtils.getLogger().error("Error", e);
+        }
     }
 }

@@ -47,18 +47,17 @@ public class HRMDocumentToProviderDao extends AbstractDao<HRMDocumentToProvider>
 	}
 
 	public List<HRMDocumentToProvider> findByProviderNoLimit(String providerNo, Date newestDate, Date oldestDate, Integer viewed, Integer signedOff) {
-		String sql = "select x from " + this.modelClass.getName() + " x, HRMDocument h where x.hrmDocumentId=h.id and x.providerNo like ?";
+		String sql = "select x from " + this.modelClass.getName() + " x, HRMDocument h where x.hrmDocumentId=h.id and x.providerNo like ? and x.signedOff=?";
 		if (newestDate != null)
 			sql += " and h.reportDate <= :newest";
 		if (oldestDate != null)
 			sql += " and h.reportDate >= :oldest";
 		if (viewed != 2)
 			sql += " and x.viewed = :viewed";
-		if (signedOff != 2)
-			sql += " and x.signedOff = :signedOff";
 
 		Query query = entityManager.createQuery(sql);
 		query.setParameter(1, providerNo);
+		query.setParameter(2, signedOff);
 
 		if (newestDate != null)
 			query.setParameter("newest", newestDate);
@@ -69,8 +68,6 @@ public class HRMDocumentToProviderDao extends AbstractDao<HRMDocumentToProvider>
 		if (viewed != 2)
 			query.setParameter("viewed", viewed);
 
-		if (signedOff != 2)
-			query.setParameter("signedOff", signedOff);
 		@SuppressWarnings("unchecked")
 		List<HRMDocumentToProvider> documentToProviders = query.getResultList();
 		return documentToProviders;
@@ -106,24 +103,4 @@ public class HRMDocumentToProviderDao extends AbstractDao<HRMDocumentToProvider>
 			return null;
 		}
 	}
-	
-	public List<HRMDocumentToProvider> findByHrmDocumentIdAndProviderNoList(String hrmDocumentId, String providerNo) {
-		String sql = "select x from " + this.modelClass.getName() + " x where x.hrmDocumentId=? and x.providerNo=?";
-		Query query = entityManager.createQuery(sql);
-		query.setParameter(1, hrmDocumentId);
-		query.setParameter(2, providerNo);
-		@SuppressWarnings("unchecked")
-		List<HRMDocumentToProvider> documentToProviders = query.getResultList();
-		return documentToProviders;
-	}
-	
-	public List<HRMDocumentToProvider> findNonViewedByProviderNo(String providerNo) {
-		String sql = "select x from " + this.modelClass.getName() + " x where x.providerNo=? and x.viewed = 0";
-		Query query = entityManager.createQuery(sql);
-		query.setParameter(1, providerNo);
-		@SuppressWarnings("unchecked")
-		List<HRMDocumentToProvider> documentToProviders = query.getResultList();
-		return documentToProviders;
-	}
-	
 }

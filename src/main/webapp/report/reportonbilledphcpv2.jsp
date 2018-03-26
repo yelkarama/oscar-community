@@ -24,23 +24,10 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_report,_admin.reporting" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_report&type=_admin.reporting");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%
-
+  if (session.getAttribute("user") == null) {
+    response.sendRedirect("../logout.jsp");
+  }
 
   String   curUser_no   = (String)session.getAttribute("user");
   String   tdTitleColor = "#CCCC99";
@@ -66,6 +53,7 @@ if(!authed) {
 <%@ page errorPage="../errorpage.jsp"%>
 <%@ page import="java.util.*"%>
 <%@ page import="java.sql.*"%>
+<%@ page import="oscar.oscarBilling.data.BillingONDataHelp"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%
@@ -103,7 +91,7 @@ if(!authed) {
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>PHCP Report</title>
-<link rel="stylesheet" href="../css/receptionistapptstyle.css">
+<link rel="stylesheet" href="../receptionist/receptionistapptstyle.css">
 <!-- calendar stylesheet -->
 <link rel="stylesheet" type="text/css" media="all"
 	href="../share/calendar/calendar.css" title="win2k-cold-1" />

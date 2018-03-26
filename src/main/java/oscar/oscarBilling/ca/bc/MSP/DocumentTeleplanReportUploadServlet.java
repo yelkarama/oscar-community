@@ -57,7 +57,7 @@ public class DocumentTeleplanReportUploadServlet extends HttpServlet{
         byte enddata[] = new byte[2];
         
         
-        HttpSession session = request.getSession();
+        HttpSession session = request.getSession(true);
         String backupfilepath = ((String) session.getAttribute("homepath"))!=null?((String) session.getAttribute("homepath")):"null" ;
         
         

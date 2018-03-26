@@ -39,13 +39,14 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 import org.apache.struts.action.DynaActionForm;
-import org.apache.struts.actions.DispatchAction;
 import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.PMmodule.model.Program;
 import org.oscarehr.PMmodule.model.ProgramProvider;
 import org.oscarehr.PMmodule.model.ProgramTeam;
+import org.oscarehr.PMmodule.service.LogManager;
 import org.oscarehr.PMmodule.service.ProgramManager;
 import org.oscarehr.PMmodule.service.ProviderManager;
+import org.oscarehr.PMmodule.web.BaseAction;
 import org.oscarehr.PMmodule.web.formbean.StaffEditProgramContainer;
 import org.oscarehr.common.dao.FacilityDao;
 import org.oscarehr.common.dao.SecRoleDao;
@@ -53,17 +54,13 @@ import org.oscarehr.common.model.Facility;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
-import oscar.log.LogAction;
-
-public class StaffManagerAction extends DispatchAction {
+public class StaffManagerAction extends BaseAction {
 	private static Logger log = MiscUtils.getLogger();
-	
-	private ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
-    
 
 	private FacilityDao facilityDao=null;
+
+    private LogManager logManager;
 
     private ProgramManager programManager;
 
@@ -102,8 +99,7 @@ public class StaffManagerAction extends DispatchAction {
     }
 
     public void setEditAttributes(HttpServletRequest request, Provider provider) {
-    	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-    	request.setAttribute("id",provider.getProviderNo());
+		request.setAttribute("id",provider.getProviderNo());
 		request.setAttribute("providerName",provider.getFormattedName());
 
 		/* programs the provider is already a staff member of */
@@ -119,7 +115,8 @@ public class StaffManagerAction extends DispatchAction {
 		}
 		request.setAttribute("programs",sortProgramProviders(pp));
 
-		List<Program> allPrograms = programManager.getCommunityPrograms(loggedInInfo.getCurrentFacility().getId());
+		LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+		List<Program> allPrograms = programManager.getCommunityPrograms(loggedInInfo.currentFacility.getId());
 		List<StaffEditProgramContainer> allProgramsInContainer = new ArrayList<StaffEditProgramContainer>();
 		for(Program p : allPrograms) {
 			StaffEditProgramContainer container = new StaffEditProgramContainer(p,programManager.getProgramTeams(String.valueOf(p.getId())));
@@ -132,7 +129,7 @@ public class StaffManagerAction extends DispatchAction {
 		List<Facility> allFacilities=facilityDao.findAll(true);
         request.setAttribute("all_facilities",allFacilities);
 
-        List<Integer> providerFacilities=providerDao.getFacilityIds(provider.getProviderNo());
+        List<Integer> providerFacilities=ProviderDao.getFacilityIds(provider.getProviderNo());
         request.setAttribute("providerFacilities",providerFacilities);
 	}
 
@@ -166,7 +163,7 @@ public class StaffManagerAction extends DispatchAction {
         //show programs which can be assigned to the provider
         request.setAttribute("programs",programManager.getAllPrograms("Any", "Any", 0));
 
-		LogAction.log("read","full provider list","",request);
+		logManager.log("read","full provider list","",request);
 		return mapping.findForward("list");
 	}
 
@@ -187,7 +184,7 @@ public class StaffManagerAction extends DispatchAction {
 
 		request.setAttribute("providers",providerManager.getActiveProviders(facilityId, programId));
 
-		LogAction.log("read","full provider list","",request);
+		logManager.log("read","full provider list","",request);
 		return mapping.findForward("list");
 	}
 
@@ -228,7 +225,7 @@ public class StaffManagerAction extends DispatchAction {
 		ProgramTeam team = programManager.getProgramTeam(teamId);
 		if(existingPP != null && team != null) {
 			existingPP.getTeams().add(team);
-			programManager.saveProgramProvider(LoggedInInfo.getLoggedInInfoFromSession(request),existingPP);
+			programManager.saveProgramProvider(existingPP);
 		}
 
 		setEditAttributes(request,providerManager.getProvider(provider.getProviderNo()));
@@ -253,7 +250,7 @@ public class StaffManagerAction extends DispatchAction {
 					break;
 				}
 			}
-			programManager.saveProgramProvider(LoggedInInfo.getLoggedInInfoFromSession(request),existingPP);
+			programManager.saveProgramProvider(existingPP);
 		}
 
 		setEditAttributes(request,providerManager.getProvider(provider.getProviderNo()));
@@ -272,11 +269,11 @@ public class StaffManagerAction extends DispatchAction {
 				programManager.deleteProgramProvider(String.valueOf(existingPP.getId()));
 			} else {
 				existingPP.setRoleId(pp.getRoleId());
-				programManager.saveProgramProvider(LoggedInInfo.getLoggedInInfoFromSession(request),existingPP);
+				programManager.saveProgramProvider(existingPP);
 			}
 		} else {
 			pp.setProviderNo(provider.getProviderNo());
-			programManager.saveProgramProvider(LoggedInInfo.getLoggedInInfoFromSession(request),pp);
+			programManager.saveProgramProvider(pp);
 		}
 
 		setEditAttributes(request,providerManager.getProvider(provider.getProviderNo()));
@@ -295,6 +292,10 @@ public class StaffManagerAction extends DispatchAction {
 		providerForm.set("program_provider",new ProgramProvider());
 		return mapping.findForward("edit");
 	}
+
+    public void setLogManager(LogManager mgr) {
+    	this.logManager = mgr;
+    }
 
     public void setProgramManager(ProgramManager mgr) {
     	this.programManager = mgr;

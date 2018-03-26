@@ -31,14 +31,12 @@ import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
 
 import org.oscarehr.common.model.Provider;
-import org.oscarehr.common.model.Security;
 import org.oscarehr.util.LoggedInInfo;
 
+import com.quatro.model.security.Security;
 
 public abstract class AbstractWs
 {
-	protected static final int GZIP_THRESHOLD = 0;
-
 	@Resource
     protected WebServiceContext context;
 	
@@ -51,18 +49,13 @@ public abstract class AbstractWs
 	
 	protected Security getLoggedInSecurity()
 	{
-		LoggedInInfo loggedInInfo=getLoggedInInfo();
-		return(loggedInInfo.getLoggedInSecurity());
+		LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+		return(loggedInInfo.loggedInSecurity);
 	}
 	
 	protected Provider getLoggedInProvider()
 	{
-		LoggedInInfo loggedInInfo=getLoggedInInfo();
-		return(loggedInInfo.getLoggedInProvider());
-	}
-	
-	protected LoggedInInfo getLoggedInInfo()
-	{
-		return(LoggedInInfo.getLoggedInInfoFromRequest(getHttpServletRequest()));
+		LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+		return(loggedInInfo.loggedInProvider);
 	}
 }

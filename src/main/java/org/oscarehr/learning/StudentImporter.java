@@ -38,16 +38,16 @@ import org.oscarehr.PMmodule.model.ProgramProvider;
 import org.oscarehr.PMmodule.model.SecUserRole;
 import org.oscarehr.PMmodule.service.ProgramManager;
 import org.oscarehr.common.dao.SecRoleDao;
-import org.oscarehr.common.dao.SecurityDao;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.model.SecRole;
-import org.oscarehr.common.model.Security;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
 import oscar.oscarDB.DBPreparedHandler;
 
+import com.quatro.dao.security.SecurityDao;
+import com.quatro.model.security.Security;
 
 public class StudentImporter {
 
@@ -61,7 +61,7 @@ public class StudentImporter {
 	static ProgramManager programManager = (ProgramManager) SpringUtils.getBean("programManager");
 	   
 	
-	public static int importStudentInfo(Integer currentFacilityId, List<StudentInfo> dataList) {
+	public static int importStudentInfo(List<StudentInfo> dataList) {
 		
 		//create provider record
 		DBPreparedHandler dbObj = new DBPreparedHandler();
@@ -125,7 +125,7 @@ public class StudentImporter {
 				secRecord.setProviderNo(providerNo);
 				secRecord.setUserName(data.getUsername());
 				
-				securityDao.persist(secRecord);
+				securityDao.save(secRecord);
 				
 				//assign student role			
 				SecUserRole userRole = new SecUserRole();
@@ -143,11 +143,12 @@ public class StudentImporter {
 				
 				
 				//create student's "personal" program
+				int facilityId = LoggedInInfo.loggedInInfo.get().currentFacility.getId();
 				Program p = new Program();
 				try {					
 					p.setName("program"+providerNo);
 					p.setMaxAllowed(999);
-					p.setFacilityId(currentFacilityId);
+					p.setFacilityId(facilityId);
 					p.setSiteSpecificField("student");
 					p.setAddress("");
 					p.setAbstinenceSupport("");
@@ -174,11 +175,7 @@ public class StudentImporter {
 				pp.setProgramId(new Long(p.getId()));
 				pp.setProviderNo(providerNo);
 				pp.setRoleId(new Long(studentRole.getId()));
-				LoggedInInfo l = new LoggedInInfo();
-				Provider prov = new Provider();
-				l.setLoggedInProvider(prov);
-				
-				programManager.saveProgramProvider(l,pp);
+				programManager.saveProgramProvider(pp);
 				
 				total ++ ;
 			}catch(Exception e) {

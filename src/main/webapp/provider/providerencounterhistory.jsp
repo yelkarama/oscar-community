@@ -23,32 +23,15 @@
     Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_demographic" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_demographic");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-<%@ page import="java.sql.*, java.util.*, oscar.MyDateFormat" errorPage="errorpage.jsp"%>
-
-<%@page import="org.oscarehr.util.SpringUtils" %>
-<%@page import="org.oscarehr.common.dao.EncounterDao" %>
-<%@page import="org.oscarehr.common.model.Encounter" %>
-<%@page import="oscar.util.ConversionUtils" %>
 
 <%
-	EncounterDao encounterDao = SpringUtils.getBean(EncounterDao.class);
-
+  if(session.getValue("user") == null)
+    response.sendRedirect("../logout.htm");
 %>
+<%@ page import="java.sql.*, java.util.*, oscar.MyDateFormat"
+	errorPage="errorpage.jsp"%>
+<%@ include file="/common/webAppContextAndSuperMgr.jsp"%>
+
 <html>
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
@@ -78,12 +61,11 @@
 	<tr>
 		<td width="95%">
 <%
-   List<Encounter> encs = encounterDao.findByDemographicNo(Integer.parseInt(request.getParameter("demographic_no")));
-
-    for (Encounter enc : encs) {
-%> &nbsp;<%=ConversionUtils.toDateString(enc.getEncounterDate())%> <%=ConversionUtils.toTimeString(enc.getEncounterTime())%><font
+   List<Map<String,Object>> resultList = oscarSuperManager.find("providerDao", "search_encounter", new Object[] {request.getParameter("demographic_no")});
+   for (Map enc : resultList) {
+%> &nbsp;<%=enc.get("encounter_date")%> <%=enc.get("encounter_time")%><font
 			color="yellow"> <%
-     String historysubject = enc.getSubject()==null?"NULL":(enc.getSubject()).equals("")?"Unknown":enc.getSubject();
+     String historysubject = enc.get("subject")==null?"NULL":((String)enc.get("subject")).equals("")?"Unknown":(String)enc.get("subject");
      StringTokenizer st=new StringTokenizer(historysubject,":");
      String strForm="", strTemplateURL="";
      while (st.hasMoreTokens()) {
@@ -94,12 +76,12 @@
      if(strForm.toLowerCase().compareTo("form")==0 && st.hasMoreTokens()) {
        strTemplateURL = "template" + (new String(st.nextToken())).trim().toLowerCase()+".jsp";
 %> <a href=#
-			onClick="popupPage(600,800,'providercontrol.jsp?encounter_no=<%=enc.getId()%>&demographic_no=<%=request.getParameter("demographic_no")%>&dboperation=search_encountersingle&displaymodevariable=<%=strTemplateURL%>&displaymode=vary&bNewForm=0')"><%=historysubject %>
+			onClick="popupPage(600,800,'providercontrol.jsp?encounter_no=<%=enc.get("encounter_no")%>&demographic_no=<%=request.getParameter("demographic_no")%>&dboperation=search_encountersingle&displaymodevariable=<%=strTemplateURL%>&displaymode=vary&bNewForm=0')"><%=historysubject %>
 		</a></font><br>
 		<%
      } else if(strForm.compareTo("")!=0) {
 %> <a href=#
-			onClick="popupPage(400,600,'providercontrol.jsp?encounter_no=<%=enc.getId()%>&demographic_no=<%=request.getParameter("demographic_no")%>&template=<%=strForm%>&dboperation=search_encountersingle&displaymode=encountersingle')"><%=historysubject %>
+			onClick="popupPage(400,600,'providercontrol.jsp?encounter_no=<%=enc.get("encounter_no")%>&demographic_no=<%=request.getParameter("demographic_no")%>&template=<%=strForm%>&dboperation=search_encountersingle&displaymode=encountersingle')"><%=historysubject %>
 		</a></font><br>
 		<%
      }

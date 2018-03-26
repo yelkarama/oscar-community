@@ -24,26 +24,11 @@
 
 --%>
 
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic" %>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar" %>
 <%@ page import="oscar.oscarDemographic.data.DemographicData"%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-	  boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_msg" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_msg");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
 
 <%
 int pageType = 0;
@@ -64,11 +49,12 @@ String demographic_no = request.getParameter("demographic_no");
 String demographic_name = "";
 if ( demographic_no != null ) {
     DemographicData demographic_data = new DemographicData();
-    org.oscarehr.common.model.Demographic demographic = demographic_data.getDemographic(LoggedInInfo.getLoggedInInfoFromSession(request), demographic_no);    
+    org.oscarehr.common.model.Demographic demographic = demographic_data.getDemographic(demographic_no);    
     if (demographic != null){
        demographic_name = demographic.getLastName() + ", " + demographic.getFirstName();
     }
 }
+
 
 
 pageContext.setAttribute("pageType",""+pageType);
@@ -83,7 +69,11 @@ if (request.getParameter("orderby") != null){
 }
 String orderby = (String) session.getAttribute("orderby");
 
-int pageNum = request.getParameter("page")==null ? 1 : Integer.parseInt(request.getParameter("page"));
+String moreMessages="false";
+if (request.getParameter("moreMessages") != null){
+   moreMessages=request.getParameter("moreMessages");
+   }
+final int INITIAL_DISPLAY=20;
 %>
 
 <logic:notPresent name="msgSessionBean" scope="session">
@@ -104,6 +94,9 @@ bean.nullAttachment();
 %>
 <jsp:setProperty name="DisplayMessagesBeanId" property="*" />
 <jsp:useBean id="ViewMessageForm" scope="session" class="oscar.oscarMessenger.pageUtil.MsgViewMessageForm"/>
+
+
+
 
 
 <html:html locale="true">
@@ -152,9 +145,6 @@ tr.newMessage td {
      font-weight: bold;
 }
 
-.TopStatusBar{
-width:100% !important;
-}
 </style>
 
 <script type="text/javascript">
@@ -189,6 +179,7 @@ function checkAll(formId){
 </head>
 
 <body class="BodyStyle" vlink="#0000FF" onload="window.focus()" onunload="return uload()">
+<!--  -->
     <table  class="MainTable" id="scrollNumber1" name="encounterTable">
         <tr class="MainTableTopRow">
             <td class="MainTableTopRowLeftColumn">
@@ -224,15 +215,15 @@ function checkAll(formId){
                             <!-- edit 2006-0811-01 by wreby -->
                             <html:form action="/oscarMessenger/DisplayMessages">
                             <input name="boxType" type="hidden" value="<%=pageType%>">
+                            <input name="moreMessages" type="hidden" value="<%=moreMessages%>">
                             <input name="searchString" type="text" size="20" value="<jsp:getProperty name="DisplayMessagesBeanId" property="filter"/>">
                             <input name="btnSearch" type="submit" value="<bean:message key="oscarMessenger.DisplayMessages.btnSearch"/>">
                             <input name="btnClearSearch" type="submit" value="<bean:message key="oscarMessenger.DisplayMessages.btnClearSearch"/>">
                             </html:form>
                             <!-- end edit 2006-0811-01 by wreby -->
                         </td>
-                        <td style="text-align:right">	
-									<oscar:help keywords="&Title=Messenger&portal_type%3Alist=Document" key="app.top1"/>&nbsp;|
-        							<a href="<%=request.getContextPath()%>/oscarEncounter/About.jsp" target="_new"><bean:message key="global.about" /></a>
+                        <td style="text-align:right">
+                                <oscar:help keywords="message" key="app.top1"/> | <a href="javascript:popupStart(300,400,'About.jsp')" ><bean:message key="global.about"/></a> | <a href="javascript:popupStart(300,400,'License.jsp')" ><bean:message key="global.license"/></a>
                         </td>
                     </tr>
                 </table>
@@ -293,30 +284,25 @@ function checkAll(formId){
                     %>
 
                          <html:form action="<%=strutsAction%>" styleId="msgList" >
-                    <%
+                    <% //java.util.Vector theMessages = new java.util.Vector() ;
                            java.util.Vector theMessages2 = new java.util.Vector() ;
                         switch(pageType){
                             case 0:
-                                theMessages2 = DisplayMessagesBeanId.estInbox(orderby,pageNum);
+                                theMessages2 = DisplayMessagesBeanId.estInbox(orderby,moreMessages,INITIAL_DISPLAY);
                             break;
                             case 1:
-                                theMessages2 = DisplayMessagesBeanId.estSentItemsInbox(orderby,pageNum);
+                                theMessages2 = DisplayMessagesBeanId.estSentItemsInbox(orderby);
                             break;
                             case 2:
-                                theMessages2 = DisplayMessagesBeanId.estDeletedInbox(orderby,pageNum);
+                                theMessages2 = DisplayMessagesBeanId.estDeletedInbox(orderby);
                             break;
                             case 3:
                                 theMessages2 = DisplayMessagesBeanId.estDemographicInbox(orderby,demographic_no);
                             break;
                         }   //messageid
-%>
 
-                    <tr>
-                        <td>
-                            <table border="0" width="90%" cellspacing="1">
-
-                    <tr><td colspan="6">
-                    <table style="width:100%;">
+                        if( theMessages2.size() >= INITIAL_DISPLAY ) {
+                    %>
                     <tr>
                         <td>
                             <%if (pageType == 0){%>
@@ -326,75 +312,88 @@ function checkAll(formId){
                             <%}%>
                             &nbsp;
                         </td>
-                        <td align="right">
-		                    <%
-		                    int recordsToDisplay = 25;
-		                    
-		                    String previous = "";
-		                    String next = "";
-		                    String path = request.getContextPath()+"/oscarMessenger/DisplayMessages.jsp?boxType=" + pageType + "&page=";
-		                    Boolean search = false;
-		                    if(request.getParameter("searchString")!=null){
-		                    	search = true;
-		                    }
-		                    
-		                    if (pageType != 3){
-		                    
-		                    int totalMsgs = DisplayMessagesBeanId.getTotalMessages(pageType);
-		                    
-		                    int totalPages = totalMsgs / recordsToDisplay + (totalMsgs % recordsToDisplay == 0 ? 0 : 1);
-
-		                    if(pageNum>1){
-		                    	previous = "<a href='" + path + (pageNum-1) + "' title='previous page'><< Previous</a> ";
-		                    	out.print(previous);
-							}
-		                    
-		                    if(pageNum<totalPages){
-		                    	next = "<a href='" + path + (pageNum+1) + "' title='next page'>Next >></a>";
-		                    	out.print(next);
-		                    }
-		                    }%>
-                        </td>
                    </tr>
-                   </table>
-                   </td></tr>
-                   
+                   <%}%>
+                    <tr>
+                        <td>
+                            <table border="0" width="90%" cellspacing="1">
                                 <tr>
                                     <th align="left" bgcolor="#DDDDFF" width="75">
-                                    <%if( pageType!=1 ) {%>
                                        <input type="checkbox" name="checkAll2" onclick="checkAll('msgList')" id="checkA" />
-                                    <%} %>   
                                     </th>
                                     <th align="left" bgcolor="#DDDDFF">
-                                        <html:link page="/oscarMessenger/DisplayMessages.jsp?orderby=status"  paramId="boxType" paramName="pageType">
+                                      <% if (moreMessages.equals("true")){%>
+                                        <html:link page="/oscarMessenger/DisplayMessages.jsp?orderby=status&moreMessages=true"  paramId="boxType" paramName="pageType">
                                         <bean:message key="oscarMessenger.DisplayMessages.msgStatus"/>
                                         </html:link>
+                                      <%}else{%>
+                                        <html:link page="/oscarMessenger/DisplayMessages.jsp?orderby=status&moreMessages=false"  paramId="boxType" paramName="pageType">
+                                        <bean:message key="oscarMessenger.DisplayMessages.msgStatus"/>
+                                        </html:link>
+                                      <%}%>
                                     </th>
                                     <th align="left" bgcolor="#DDDDFF">
-                                      <%if( pageType == 1 ) {%>
-                                                <html:link page="/oscarMessenger/DisplayMessages.jsp?orderby=sentto" paramId="boxType" paramName="pageType">
+                                      <%
+                                        if( pageType == 1 ) {
+                                            if (moreMessages.equals("true")){%>
+                                                <html:link page="/oscarMessenger/DisplayMessages.jsp?orderby=sentto&moreMessages=true" paramId="boxType" paramName="pageType">
                                                 <bean:message key="oscarMessenger.DisplayMessages.msgTo"/>
                                                 </html:link>
-                                       <%} else {%>
-                                                <html:link page="/oscarMessenger/DisplayMessages.jsp?orderby=from" paramId="boxType" paramName="pageType">
+                                            <%}else{%>
+                                                <html:link page="/oscarMessenger/DisplayMessages.jsp?orderby=sentto&moreMessages=false" paramId="boxType" paramName="pageType">
+                                                <bean:message key="oscarMessenger.DisplayMessages.msgTo"/>
+                                                </html:link>
+                                       <%   
+                                            }
+                                        }
+                                        else {
+                                     
+                                            if (moreMessages.equals("true")){%>
+                                                <html:link page="/oscarMessenger/DisplayMessages.jsp?orderby=from&moreMessages=true" paramId="boxType" paramName="pageType">
                                                 <bean:message key="oscarMessenger.DisplayMessages.msgFrom"/>
                                                 </html:link>
-                                       <% } %>   
+                                            <%}else{%>
+                                                <html:link page="/oscarMessenger/DisplayMessages.jsp?orderby=from&moreMessages=false" paramId="boxType" paramName="pageType">
+                                                <bean:message key="oscarMessenger.DisplayMessages.msgFrom"/>
+                                                </html:link>
+                                       <%   
+                                            }
+                                    
+                                        }
+                                     %>   
                                     </th>
                                     <th align="left" bgcolor="#DDDDFF">
-                                            <html:link page="/oscarMessenger/DisplayMessages.jsp?orderby=subject" paramId="boxType" paramName="pageType">
+                                        <% if (moreMessages.equals("true")){%>
+                                            <html:link page="/oscarMessenger/DisplayMessages.jsp?orderby=subject&moreMessages=true" paramId="boxType" paramName="pageType">
                                             <bean:message key="oscarMessenger.DisplayMessages.msgSubject"/>
                                             </html:link>
+                                        <%}else{%>
+                                            <html:link page="/oscarMessenger/DisplayMessages.jsp?orderby=subject&moreMessages=false" paramId="boxType" paramName="pageType">
+                                            <bean:message key="oscarMessenger.DisplayMessages.msgSubject"/>
+                                            </html:link>
+                                        <%}%>
                                     </th>
                                     <th align="left" bgcolor="#DDDDFF">
-                                            <html:link page="/oscarMessenger/DisplayMessages.jsp?orderby=date" paramId="boxType" paramName="pageType">
+                                        <% if (moreMessages.equals("true")){%>
+                                            <html:link page="/oscarMessenger/DisplayMessages.jsp?orderby=date&moreMessages=true" paramId="boxType" paramName="pageType">
                                             <bean:message key="oscarMessenger.DisplayMessages.msgDate"/>
                                             </html:link>
+                                        <%}else{%>
+                                            <html:link page="/oscarMessenger/DisplayMessages.jsp?orderby=date&moreMessages=false" paramId="boxType" paramName="pageType">
+                                            <bean:message key="oscarMessenger.DisplayMessages.msgDate"/>
+                                            </html:link>
+                                        <%}%>
                                     </th>
                                     <th align="left" bgcolor="#DDDDFF">
-                                            <html:link page="/oscarMessenger/DisplayMessages.jsp?orderby=linked" paramId="boxType" paramName="pageType">
+                                        <% if (moreMessages.equals("true")){%>
+                                            <html:link page="/oscarMessenger/DisplayMessages.jsp?orderby=linked&moreMessages=true" paramId="boxType" paramName="pageType">
                                             <bean:message key="oscarMessenger.DisplayMessages.msgLinked"/>
                                             </html:link>
+                                        <%}else{%>
+                                            <html:link page="/oscarMessenger/DisplayMessages.jsp?orderby=linked&moreMessages=false" paramId="boxType" paramName="pageType">
+                                            <bean:message key="oscarMessenger.DisplayMessages.msgLinked"/>
+                                            </html:link>
+                                        <%}%>
                                     </th>
                                 </tr>
                                 
@@ -451,20 +450,16 @@ function checkAll(formId){
 
                                     </td>
                                     <td bgcolor="#EEEEFF">
-                                    	<%= dm.thedate %>
-                                    	&nbsp;&nbsp;
-                                    	<%= dm.theime %>
+                                    <%= dm.thedate  %>
+                                    <%= dm.theime %>
                                     </td>
                                     <td bgcolor="#EEEEFF">
-                                    <%if(dm.demographic_no != null  && !dm.demographic_no.equalsIgnoreCase("null")) {%>
                                         <oscar:nameage demographicNo="<%=dm.demographic_no%>"></oscar:nameage>
-                                    <%} %>
                                     </td>
                                 </tr>
                             <%}%>
-                            
-                            <tr><td colspan="6">
-                               <table width="100%">
+                            </table>  
+                            <table width="80%">
                                 <tr>
                                     <td>
                                          <%if (pageType == 0){%>
@@ -473,19 +468,18 @@ function checkAll(formId){
                                             <input type="submit" value="<bean:message key="oscarMessenger.DisplayMessages.formUnarchive"/>">
                                             <%}%>  
                                     </td>
-
-                                    <td align="right">
-                                    <%                                    	
-                                    if(pageType!=3){
-                                    	out.print(previous + next);
-                                    }
-                                    %>    
+                                    <%
+                                       if (moreMessages.equals("false") && pageType==0 && theMessages2.size()>=INITIAL_DISPLAY){
+                                    %>
+                                    <td width="60%"></td>
+                                    <td  align="left">
+                                        <html:link page="/oscarMessenger/DisplayMessages.jsp?moreMessages=true" paramId="boxType" paramName="pageType">
+                                        <bean:message key="oscarMessenger.DisplayMessages.msgAllMessage"/>
+                                        </html:link>
                                     </td>
+                                    <%}%>
                                 </tr>
                               </table>
-                            </td></tr>
-                            </table>  
-
                                     
                          </html:form>
                         </td>

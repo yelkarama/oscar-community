@@ -23,28 +23,12 @@
     Ontario, Canada
 
 --%>
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_eChart" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_eChart");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
 <%@ page
 	import="oscar.util.UtilMisc,oscar.oscarEncounter.data.*,java.net.*,java.util.*"%>
 <%
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+	
 	String provNo = request.getParameter("provider_no");
 	String demoNo = request.getParameter("demographic_no");
     String deepcolor = "#CCCCFF", weakcolor = "#EEEEFF", tableTitle = "#99ccff";
@@ -134,7 +118,7 @@ function popupPageK(page) {
                     pforms = new EctFormData.PatientForm[0];
                 }
                 else {
-                    pforms = EctFormData.getPatientFormsFromLocalAndRemote(loggedInInfo, demoNo, table);
+                    pforms = EctFormData.getPatientFormsFromLocalAndRemote(demoNo, table);
                 }
 		int nItems = 0;
 

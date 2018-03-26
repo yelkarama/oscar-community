@@ -48,7 +48,6 @@ import org.oscarehr.common.model.Clinic;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.ProfessionalSpecialist;
 import org.oscarehr.common.model.Provider;
-import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
@@ -58,19 +57,14 @@ import oscar.util.DateUtils;
 import ca.uhn.hl7v2.model.v26.message.ORU_R01;
 
 public class OruR01UploadAction extends Action {
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
     private static Logger logger = MiscUtils.getLogger();
 
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException  {
-    	if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_lab", "w", null)) {
-    		throw new SecurityException("missing required security object (_lab)");
-    	}
-    	
     	try {
 	        OruR01UploadForm oruR01UploadForm = (OruR01UploadForm) form;
 	        FormFile formFile=oruR01UploadForm.getUploadFile();
-	        LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+	        LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
 	        
 	        Demographic demographic=getDemographicObject(oruR01UploadForm); 
 	        
@@ -80,7 +74,7 @@ public class OruR01UploadAction extends Action {
 	        observationData.binaryDataFileName=formFile.getFileName();
 	        observationData.binaryData=formFile.getFileData();
 	        
-	    	Provider sendingProvider=loggedInInfo.getLoggedInProvider();
+	    	Provider sendingProvider=loggedInInfo.loggedInProvider;
 
 	    	ProfessionalSpecialistDao professionalSpecialistDao=(ProfessionalSpecialistDao)SpringUtils.getBean("professionalSpecialistDao");
 	    	ProfessionalSpecialist professionalSpecialist=professionalSpecialistDao.find(oruR01UploadForm.getProfessionalSpecialistId());
@@ -90,7 +84,7 @@ public class OruR01UploadAction extends Action {
 	    	
 	        ORU_R01 hl7Message=OruR01.makeOruR01(clinic, demographic, observationData, sendingProvider, professionalSpecialist);
 	        
-	        int statusCode=SendingUtils.send(loggedInInfo, hl7Message, professionalSpecialist);
+	        int statusCode=SendingUtils.send(hl7Message, professionalSpecialist);
 	        
 	        if (HttpServletResponse.SC_OK==statusCode) WebUtils.addInfoMessage(request.getSession(), "Data successfully send.");
 	        else throw(new ServletException("Error sending data. response code="+statusCode));

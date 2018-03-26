@@ -24,20 +24,18 @@
 
 package oscar.oscarReport.reportByTemplate;
 
-import java.util.List;
+import java.sql.ResultSet;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.oscarehr.common.dao.OscarAppointmentDao;
-import org.oscarehr.common.dao.ScheduleTemplateDao;
-import org.oscarehr.common.model.Appointment;
-import org.oscarehr.common.model.ScheduleDate;
-import org.oscarehr.common.model.ScheduleTemplate;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
-import oscar.util.ConversionUtils;
+import oscar.oscarDB.DBHandler;
 
+/**
+ *
+ * @author rjonasz
+ */
 public class UnusedMinutesReporter implements Reporter{
     
     /**
@@ -61,60 +59,57 @@ public class UnusedMinutesReporter implements Reporter{
             return false;
         }
         
-        // String scheduleSQL = "select scheduletemplate.timecode, scheduledate.sdate from scheduletemplate, scheduledate where scheduletemplate.name=scheduledate.hour and scheduledate.sdate >= '" + date_from + "' and scheduledate.sdate <= '" + date_to + "' and  scheduledate.provider_no='" + provider_no + "' and scheduledate.status = 'A' and (scheduletemplate.provider_no=scheduledate.provider_no or scheduletemplate.provider_no='Public') order by scheduledate.sdate";
-        // String apptSQL = "select start_time, end_time from appointment where provider_no = '" + provider_no + "' and appointment_date = '";
+        String scheduleSQL = "select scheduletemplate.timecode, scheduledate.sdate from scheduletemplate, scheduledate where scheduletemplate.name=scheduledate.hour and scheduledate.sdate >= '" + date_from + "' and scheduledate.sdate <= '" + date_to + "' and  scheduledate.provider_no='" + provider_no + "' and scheduledate.status = 'A' and (scheduletemplate.provider_no=scheduledate.provider_no or scheduletemplate.provider_no='Public') order by scheduledate.sdate";
+        String apptSQL = "select start_time, end_time from appointment where provider_no = '" + provider_no + "' and appointment_date = '";
+        ResultSet rs = null;
+        ResultSet rs2 = null;
         int booked, unbooked;
         booked = unbooked = 0;
         
         try {
+            
+            rs = DBHandler.GetSQL(scheduleSQL);
             int duration;
             String timecodes, code;
-                       
+            String schedDate, tmpApptSQL;           
             String apptTime;
             int dayMins = 24*60;
             int iHours,iMins,apptHour_s,apptMin_s,apptHour_e,apptMin_e;
             int codePos;            
-            int latestApptHour, latestApptMin;
-            
-            ScheduleTemplateDao dao = SpringUtils.getBean(ScheduleTemplateDao.class);
-            OscarAppointmentDao apptDao = SpringUtils.getBean(OscarAppointmentDao.class);
-            for(Object[] o : dao.findSchedules(ConversionUtils.fromDateString(date_from), ConversionUtils.fromDateString(date_to), provider_no)) {
-            	ScheduleTemplate st = (ScheduleTemplate) o[0];
-            	ScheduleDate sd = (ScheduleDate) o[1];
+            int latestApptHour, latestApptMin;            
+            while(rs.next()) {
+                timecodes = rs.getString("timecode"); 
 
-                timecodes = st.getTimecode(); 
                 duration = dayMins/timecodes.length();
 
-                List<Appointment> appts = apptDao.findByDateAndProvider(sd.getDate(), provider_no);
-                
+                schedDate = rs.getString("sdate");
+                tmpApptSQL = apptSQL + schedDate + "' order by start_time asc";
+
+                rs2 = DBHandler.GetSQL(tmpApptSQL);
                 codePos = 0;
                 latestApptHour = latestApptMin = 0;
-                int i = 0;
                 for(int iTotalMin = 0; iTotalMin < dayMins; iTotalMin+=duration) {
                     code = timecodes.substring(codePos,codePos+1);
                     ++codePos;
                     iHours = iTotalMin/60;
                     iMins = iTotalMin % 60;
-                    
-                    while( i < appts.size()) {
-                    	Appointment appt = appts.get(i);
-                        apptTime = ConversionUtils.toTimeString(appt.getStartTime());
+                    while( rs2.next() ) {
+                        apptTime = rs2.getString("start_time");
                         apptHour_s = Integer.parseInt(apptTime.substring(0,2));
                         apptMin_s = Integer.parseInt(apptTime.substring(3,5));
 
                         if( iHours == apptHour_s && iMins == apptMin_s ) {
-                            apptTime = ConversionUtils.toTimeString(appt.getEndTime());
+                            apptTime = rs2.getString("end_time");
                             apptHour_e = Integer.parseInt(apptTime.substring(0,2));
                             apptMin_e = Integer.parseInt(apptTime.substring(3,5));
                             
                             if( apptHour_e > latestApptHour || (apptHour_e == latestApptHour && apptMin_e > latestApptMin) ) {
                                 latestApptHour = apptHour_e;
                                 latestApptMin = apptMin_e;
-                            }
-                            i++;
+                            }                    
                         }
                         else {
-                           	i--;                            
+                            rs2.previous();                            
                             break;
                         }
                         
@@ -138,11 +133,11 @@ public class UnusedMinutesReporter implements Reporter{
         }
         rsHtml = makeHTML(booked,unbooked);
         csv = makeCSV(booked,unbooked);
-        // String sql = scheduleSQL + ";\n " + apptSQL;
+        String sql = scheduleSQL + ";\n " + apptSQL;
         request.setAttribute("reportobject", curReport);
         request.setAttribute("resultsethtml", rsHtml);
         request.setAttribute("csv", csv);
-        request.setAttribute("sql", " -- MIGRATED TO JPA -- "); // it's ok here - as it's only used for display in resultReport.jsp
+        request.setAttribute("sql", sql);
         return true;
     }
 

@@ -83,7 +83,7 @@ var _hc_newDemographicHandler = function(args) {
             jQuery("input[name='hc_type']").css({'background-color' : 'yellow'});
             jQuery("input[name='hc_type']").val("ON");
         }
-        if (jQuery("input[name='last_name']").val() != args["lastName"]){
+        if (jQuery("input[name='last_name']").val() != args["lastName"]){  
             jQuery("input[name='last_name']").css({'background-color' : 'yellow'});
             jQuery("input[name='last_name']").val(args["lastName"]);
         }
@@ -127,7 +127,7 @@ var _hc_newDemographicHandler = function(args) {
             jQuery("input[name='eff_date_year']").css({'background-color' : 'yellow'});
             jQuery("input[name='eff_date_year']").val(issueDate.substring(0,4));
         }
-        showEdit();
+   	 	showEdit();
 		
    	 	_hc_windowTimeout = setTimeout(function() {
 			jQuery("#_hc_window").css("display", "none");
@@ -138,7 +138,7 @@ var _hc_newDemographicHandler = function(args) {
 }
 
 jQuery(document).ready(function() {
-	jQuery("#_hc_window #_hc_matchSearch img").attr("src", "/images/DMSLoader.gif");
+	jQuery("#_hc_window #_hc_matchSearch img").attr("src", window.pageContext + "/images/DMSLoader.gif");
 
 	jQuery("#_hc_window #_hc_closeBtn").click(function() {
 		jQuery("#_hc_window").hide();

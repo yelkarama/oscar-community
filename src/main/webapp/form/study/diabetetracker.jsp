@@ -24,42 +24,35 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-    String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_form" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../securityError.jsp?type=_form");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
+if(session.getAttribute("user") == null || !( ((String) session.getAttribute("userprofession")).equalsIgnoreCase("doctor") ))
+	response.sendRedirect("../../logout.jsp");
 %>
 
+
 <%@ page contentType="text/xml"%>
-<%@ page import="java.util.*, java.sql.*,  org.w3c.dom.*, oscar.util.*,java.io.*" errorPage="../../appointment/errorpage.jsp"%>
-<%@page import="oscar.oscarDB.DBHandler"%>
+<%@ page
+	import="java.util.*, java.sql.*,  org.w3c.dom.*, oscar.util.*,java.io.*"
+	errorPage="../../appointment/errorpage.jsp"%>
+
+
 <%@page import="org.oscarehr.common.dao.AllergyDao"%>
 <%@page import="org.oscarehr.common.model.Allergy"%>
 <%@page import="org.oscarehr.util.SpringUtils" %>
-<%@page import="org.oscarehr.util.MiscUtils"%>
-<%@page import="org.oscarehr.common.dao.DemographicDao"%>
-<%@page import="org.oscarehr.common.model.Demographic"%>
-<%@page import="org.oscarehr.common.dao.EChartDao"%>
-<%@page import="org.oscarehr.common.model.EChart"%>
-<%
-	DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
-    EChartDao eChartDao = SpringUtils.getBean(EChartDao.class);
-%>
 
-<jsp:useBean id="studyMapping" class="java.util.Properties" scope="page" />
-
+<%@page import="org.oscarehr.util.MiscUtils"%><jsp:useBean id="studyMapping" class="java.util.Properties" scope="page" />
+<jsp:useBean id="studyBean" class="oscar.AppointmentMainBean"
+	scope="page" />
 <%--database command part  --%>
 <%@ include file="../../admin/dbconnection.jsp"%>
-
+<%
+  String [][] dbQueries=new String[][] {
+    {"search_demographic", "select * from demographic where demographic_no=? "},
+    {"search_formtype2diabete", "select * from formType2Diabetes where demographic_no= ? order by formEdited desc, ID desc limit 0,1"},
+    {"search_echart", "select ongoingConcerns from eChart where demographicNo=? order by timeStamp desc limit 1"},
+  };
+  studyBean.doConfigure(dbQueries);
+%>
 <%
     String demoNo = request.getParameter("demographic_no");
     Properties demo = new Properties();
@@ -78,20 +71,19 @@
     }
 
 	//take data from demographic
-	Demographic d = demographicDao.getDemographic(demoNo);
-    
-    if (d != null) {
-        demo.setProperty("demographic.first_name", d.getFirstName());
-        demo.setProperty("demographic.last_name", d.getLastName());
-        demo.setProperty("demographic.sex", d.getSex());
-        demo.setProperty("demographic.phone", d.getPhone());
-        demo.setProperty("demographic.hin", d.getHin());
+    ResultSet rsdemo = studyBean.queryResults(demoNo, "search_demographic");
+    while (rsdemo.next()) {
+        demo.setProperty("demographic.first_name", rsdemo.getString("first_name"));
+        demo.setProperty("demographic.last_name", rsdemo.getString("last_name"));
+        demo.setProperty("demographic.sex", rsdemo.getString("sex"));
+        demo.setProperty("demographic.phone", rsdemo.getString("phone"));
+        demo.setProperty("demographic.hin", rsdemo.getString("hin"));
 
-        demo.setProperty("demographic.postal", d.getPostal()!=null?d.getPostal().replaceAll(" ", ""):"");
+        demo.setProperty("demographic.postal", rsdemo.getString("postal")!=null?rsdemo.getString("postal").replaceAll(" ", ""):"");
 	}
 
     //take data from form
-    ResultSet rsdemo = DBHandler.GetSQL("select * from formType2Diabetes where demographic_no= "+ demoNo +" order by formEdited desc, ID desc limit 0,1");
+    rsdemo = studyBean.queryResults(demoNo, "search_formtype2diabete");
     while (rsdemo.next()) {
         form.setProperty("formType2Diabetes.birthDate", rsdemo.getString("birthDate"));
 		//get the column number
@@ -122,10 +114,9 @@
 
     //take data from eChart
 	String health_condition_name = null;
-    EChart ec = eChartDao.getLatestChart(Integer.parseInt(demoNo));
-    
-    if (ec != null) {
-        health_condition_name = ec.getOngoingConcerns();
+    rsdemo = studyBean.queryResults(demoNo, "search_echart");
+    while (rsdemo.next()) {
+        health_condition_name = rsdemo.getString("ongoingConcerns");
 	}
 	if (health_condition_name != null) {
         StringTokenizer st = new StringTokenizer(health_condition_name, "\n");

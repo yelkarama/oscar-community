@@ -1,3 +1,14 @@
+CREATE TABLE billingperclimit (
+  service_code varchar(10) NOT NULL ,
+  min varchar(8) default '0',
+  max varchar(8) default '0',
+  effective_date date default '1970-01-01',
+  id int auto_increment,
+  PRIMARY KEY  (id)
+) ;
+
+
+
 create table labReportInformation(
   id  int(10) NOT NULL auto_increment primary key,
   location_id  varchar(255),
@@ -6,6 +17,50 @@ create table labReportInformation(
   total_BType varchar(5),
   total_CType varchar(5),
   total_DType  varchar(5)
+);
+
+create table labPatientPhysicianInfo(
+  id int(10) NOT NULL auto_increment primary key,
+  labReportInfo_id int(10),
+  accession_num varchar(64),
+  physician_account_num varchar(30),
+  service_date varchar(10),
+  patient_first_name varchar(100),
+  patient_last_name varchar(100),
+  patient_sex char(1),
+  patient_health_num varchar(20),
+  patient_dob varchar(15),
+  lab_status char(1),
+  doc_num varchar(50),
+  doc_name varchar(100),
+  doc_addr1 varchar(100),
+  doc_addr2 varchar(100),
+  doc_addr3 varchar(100),
+  doc_postal varchar(15),
+  doc_route varchar(50),
+  comment1 text,
+  comment2 text,
+  patient_phone varchar(20),
+  doc_phone varchar(20),
+  collection_date varchar(20)
+);
+
+create table labTestResults(
+  id int(10) NOT NULL auto_increment primary key,
+  labPatientPhysicianInfo_id int(10),
+  line_type char (1),
+  title varchar(255),
+  notUsed1 varchar(255),
+  notUsed2 varchar(255),
+  test_name varchar(255),
+  abn char(1),
+  minimum varchar(65),
+  maximum varchar(65),
+  units varchar(65),
+  result varchar(65),
+  description text,
+  location_id  varchar(255),
+  last char(1)
 );
 
 CREATE TABLE formONAR(
@@ -903,7 +958,7 @@ CREATE TABLE `formovulation` (
   `ID` bigint(11) NOT NULL auto_increment,
   `demographic_no` bigint(11) NOT NULL default '0',
   `provider_no` bigint(11) default '0',
-  `formCreated` date default NULL,
+  `formCreated` date default '0000-00-00',
   `formEdited` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
   `clientFirstName` varchar(30) default '',
   `clientLastName` varchar(30) default '',
@@ -1365,10 +1420,10 @@ CREATE TABLE billing_on_cheader1 (
   province char(2) default 'ON',
   billing_date date default NULL,
   billing_time time default NULL,
-  total decimal(10,2),
-  paid decimal(10,2),
+  total varchar(7) default NULL,
+  paid varchar(7) default NULL,
   status char(1) default NULL,
-  comment1 text,
+  comment1 varchar(255) default NULL,
   visittype char(2) default NULL,
   provider_ohip_no varchar(20) default NULL,
   provider_rma_no varchar(20) default NULL,
@@ -1377,10 +1432,10 @@ CREATE TABLE billing_on_cheader1 (
   creator varchar(6) default NULL,
   timestamp1 timestamp,
   clinic varchar(30) default NULL,
-  programNo int(10),
+
   PRIMARY KEY  (id),
   KEY appointment_no (appointment_no,demographic_no),
-  KEY dem_stat_date_Index (demographic_no, status, billing_date),
+  KEY demographic_no (demographic_no),
   KEY billing_date (billing_date),
   KEY provider_no (provider_no),
   KEY provider_ohip_no (provider_ohip_no),
@@ -1412,7 +1467,7 @@ CREATE TABLE billing_on_item (
   rec_id char(1) default 'T',
   service_code char(20) default NULL,
   fee varchar(7) default '',
-  ser_num char(5),
+  ser_num char(2) default '01',
   service_date date,
   dx char(4) default '',
   dx1 char(4) default '',
@@ -1453,7 +1508,7 @@ CREATE TABLE billing_on_eareport (
   billing_no int(6),
   ref_no varchar(6),
   facility varchar(4),
-  admitted_date date,
+  admitted_date varchar(8),
   claim_error varchar(20),
   code varchar(5),
   fee varchar(10), 
@@ -1482,8 +1537,7 @@ CREATE TABLE billing_on_ext (
   status char(1) default '1',
   PRIMARY KEY  (id),
   key (key_val),
-  key (billing_no),
-  payment_id int(10)
+  key (billing_no)
 ) ;
 
 CREATE TABLE ctl_billingtype (
@@ -1613,7 +1667,6 @@ CREATE TABLE `formLabReq07` (
 	`v_immune_HepatitisC` tinyint(1) default NULL,
 	`v_immune_HepatitisB` tinyint(1) default NULL,
 	`v_immune_HepatitisA` tinyint(1) default NULL,
-        `patientChartNo` varchar(20),
 	PRIMARY KEY  (`ID`)
 ) ;
 
@@ -2985,10 +3038,7 @@ CREATE TABLE `formLabReq10` (
   `hcType` varchar(4),
   `male` tinyint(1),
   `female` tinyint(1),
-  `patientChartNo` varchar(20),
-  `letterhead` varchar(25),
-  PRIMARY KEY (`ID`),
-  KEY `demographic_noIndex` (`demographic_no`)
+  PRIMARY KEY (`ID`)
 );
 
 CREATE TABLE `batch_billing` (
@@ -3002,124 +3052,4 @@ CREATE TABLE `batch_billing` (
   `create_date` timestamp,
   `creator` varchar(6),
   PRIMARY KEY (`id`)
-);
-
-create table billing_on_premium (
-    premium_id int (10) NOT NULL auto_increment primary key, 
-    raheader_no int(6) NOT NULL, provider_no varchar(6), 
-    providerohip_no varchar(6) NOT NULL, 
-    pay_date date NOT NULL, 
-    amount_pay varchar(10) NOT NULL, 
-    status tinyint(1) NOT NULL, 
-    create_date timestamp NOT NULL, 
-    creator varchar(6) NOT NULL
-);
-
-
-CREATE TABLE `formPositionHazard` (
-  `ID` int(10) NOT NULL AUTO_INCREMENT,
-  `demographic_no` int(11),
-  `formCreated` date,
-  `formEdited`  timestamp NOT NULL,
-  `supervisor` varchar(100),
-  `formCreatedBy` varchar(6),
-  `Acrylonitrile` varchar(1),
-  `JobReclassify` tinyint(1),
-  `NewHire` tinyint(1),
-  `ProcedureChange` tinyint(1),
-  `staffName` varchar(500),
-  `staffPosition` varchar(500),
-  `staffPhone` varchar(500),
-  `staffJobSite` varchar(500),
-  `staffDept` varchar(500),
-  `staffEmail` varchar(500),
-  `supervisorName` varchar(500),
-  `supervisorEmail` varchar(500),
-  `supervisorCampusAddress` varchar(500),
-  `supervisorPhone` varchar(500),
-  `staffFaculty` varchar(500),
-  `Asbestos` varchar(1),
-  `EthyleneOxide` varchar(1),
-  `Lead` varchar(1),
-  `Silica` varchar(1),
-  `Arsenic` varchar(1),
-  `Benzene` varchar(1),
-  `Isocyanates` varchar(1),
-  `Mercury` varchar(1),
-  `VinylChloride` varchar(1),
-  `CompressedGases` varchar(1),
-  `MaterialsSeriousEffects` varchar(1),
-  `ReactiveMaterials` varchar(1),
-  `FlammableCombustible` varchar(1),
-  `CorrosiveMaterials` varchar(1),
-  `MaterialsOtherToxicEffects` varchar(1),
-  `OxidizingMaterials` varchar(1),
-  `AgricultureChemicals` varchar(1),
-  `ChemicalNames` varchar(500),
-  `ChemicalHowItsUsed` varchar(500),
-  `ContainmentLevel1` varchar(1),
-  `ContainmentLevel2` varchar(1),
-  `ContainmentLevel3` varchar(1),
-  `AnimalCareFacility` varchar(1),
-  `SheepContainmentUnit` varchar(1),
-  `NonHumanPrimate` varchar(1),
-  `ContainmentLevel3Area` varchar(1),
-  `PrimaryCulture` varchar(1),
-  `Cadavers` varchar(1),
-  `BloodProducts` varchar(1),
-  `PrimaryPatientCare` varchar(1),
-  `OtherHumanBiohazard` text,
-  `Primates` varchar(1),
-  `DogsCats` varchar(1),
-  `Sheep` varchar(1),
-  `WildMammals` varchar(1),
-  `Rodents` varchar(1),
-  `OtherAnimalBiohazard` varchar(500),
-  `OtherBiohazard` varchar(500),
-  `PathogenicParasites` varchar(500),
-  `UltravioletEmitter` varchar(1),
-  `InfraredEmitter` varchar(1),
-  `Irradiators` varchar(1),
-  `Vibration` varchar(1),
-  `ExtremeHeat` varchar(1),
-  `RadioactiveSubstance` varchar(1),
-  `MicrowaveEmittingDevice` varchar(1),
-  `XrayEmittingDevice` varchar(1),
-  `RadioFrequency` varchar(1),
-  `ExtremeCold` varchar(1),
-  `Ultrasound` varchar(1),
-  `Infrasound` varchar(1),
-  `Gamma` varchar(1),
-  `HighNoiseLevels` varchar(1),
-  `Laser3B` varchar(1),
-  `Laser4` varchar(1),
-  `MagneticField` varchar(1),
-  `Nanotechnology` text,
-  `Driving` varchar(1),
-  `HighVoltage` varchar(1),
-  `ConfinedSpaceEntry` varchar(1),
-  `Heights` varchar(1),
-  `ComputerWork` varchar(1),
-  `RepetitiveWork` varchar(1),
-  `AwkwardPositions` varchar(1),
-  `WasteManagement` tinyint(1),
-  `RadiationSafety` tinyint(1),
-  `EmployeeSafety` tinyint(1),
-  `XrayTraining` tinyint(1),
-  `AnimalHandling` tinyint(1),
-  `BiosafetyTraining` tinyint(1),
-  `FormCompletedBy` varchar(500),
-  `AdditionalNotes` text,
-  `WHIMS` tinyint(1),
-  `OtherCode` varchar(500),
-  `ProcedureName` text,
-  `SubstanceForm` text,
-  PRIMARY KEY (`ID`));
-
-create table frm_labreq_preset (
-	preset_id int (10) NOT NULL auto_increment primary key,
-	lab_type varchar(255)  NOT NULL,
-	prop_name varchar(255) NOT NULL,
-	prop_value varchar(255) NOT NULL,
-	status int (1) NOT NULL
 );

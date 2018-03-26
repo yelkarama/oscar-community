@@ -36,22 +36,13 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.util.UtilDateUtilities;
 
 public class EctViewConsultationRequestsAction extends Action {
-	private static SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
 
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException {
-    	
-        if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_con", "r", null)) {
-			throw new SecurityException("missing required security object (_con)");
-		}
-    	
         EctViewConsultationRequestsForm frm = (EctViewConsultationRequestsForm) form;
         
         String defaultPattern = "yyyy-MM-dd";   
@@ -69,10 +60,10 @@ public class EctViewConsultationRequestsAction extends Action {
         }                        
         try{
            startDate = UtilDateUtilities.getDateFromString(frm.getStartDate(),defaultPattern);            
-        }catch(Exception e){/*ignore*/}        
+        }catch(Exception e){}        
         try{
            endDate = UtilDateUtilities.getDateFromString(frm.getEndDate(),defaultPattern);            
-        }catch(Exception e){/*ignore*/}
+        }catch(Exception e){}
                                 
         request.setAttribute("startDate",startDate);               
         request.setAttribute("endDate",endDate);               

@@ -25,33 +25,16 @@
 --%>
 
 <%@ page import="java.math.*, java.util.*, java.io.*, java.sql.*, oscar.*, java.net.*,oscar.MyDateFormat"%>
-
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean" scope="session" />
+<%@ include file="dbTicker.jspf"%>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
-<%@ page import="org.oscarehr.util.LoggedInInfo" %>
-<%@ page import="org.oscarehr.common.model.Tickler" %>
-<%@ page import="org.oscarehr.managers.TicklerManager" %>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
+<%@ page import="org.caisi.model.Tickler" %>
+<%@ page import="org.caisi.dao.TicklerDAO" %>
 <%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_tickler" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_tickler");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-<%
-	TicklerManager ticklerManager = SpringUtils.getBean(TicklerManager.class);
-   	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+	TicklerDAO ticklerDao = (TicklerDAO)SpringUtils.getBean("ticklerDAOT");
 %>
 <%
-	String demoview = request.getParameter("demoview")==null?"all":request.getParameter("demoview") ;
+ String demoview = request.getParameter("demoview")==null?"all":request.getParameter("demoview") ;
  String parentAjaxId = request.getParameter("parentAjaxId")==null?"":request.getParameter("parentAjaxId");
  String updateParent = request.getParameter("updateParent")==null?"false":request.getParameter("updateParent");
 
@@ -64,26 +47,19 @@ if (temp== null){
          <jsp:param name="parentAjaxId" value="<%=parentAjaxId%>" />
          <jsp:param name="updateParent" value="<%=updateParent%>" />
 </jsp:forward>
-<%
-	}else{
+<%}else{
 	for (int i=0; i<temp.length; i++){
 		param[0] = request.getParameter("submit_form").substring(0,1);
 		param[1] = temp[i];
-		Tickler t = ticklerManager.getTickler(loggedInInfo,Integer.parseInt(temp[i]));
+		Tickler t = ticklerDao.getTickler(Long.parseLong(temp[i]));
 		if(t != null) {
-	Tickler.STATUS status = Tickler.STATUS.A;
-        	char tmp = request.getParameter("submit_form").toCharArray()[0];
-        	if(tmp == 'C' || tmp == 'c') {
-        		status = Tickler.STATUS.C;
-        	}
-        	if(tmp == 'D' || tmp == 'd') {
-        		status = Tickler.STATUS.D;
-        	}
-        	ticklerManager.updateStatus(loggedInInfo, t.getId(),loggedInInfo.getLoggedInProviderNo(),status);
+			t.setStatus(request.getParameter("submit_form").toCharArray()[0]);
+			ticklerDao.saveTickler(t);
 		}
 
 	} //end for
 }
+
 %>
 <jsp:forward page='ticklerDemoMain.jsp'>
     <jsp:param name="demoview" value='<%=demoview%>' />

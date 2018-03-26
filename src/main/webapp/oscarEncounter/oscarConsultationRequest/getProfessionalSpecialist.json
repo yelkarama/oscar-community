@@ -8,9 +8,7 @@
 
 	ProfessionalSpecialist professionalSpecialist=professionalSpecialistDao.find(Integer.parseInt(request.getParameter("id")));
 
-	if(professionalSpecialist != null) {
-		response.setContentType("text/x-json");
-	    JSONObject jsonArray = (JSONObject) JSONSerializer.toJSON(professionalSpecialist);
-	    jsonArray.write(out);
-	}
+	response.setContentType("text/x-json");
+    JSONObject jsonArray = (JSONObject) JSONSerializer.toJSON(professionalSpecialist);
+    jsonArray.write(out);
 %>

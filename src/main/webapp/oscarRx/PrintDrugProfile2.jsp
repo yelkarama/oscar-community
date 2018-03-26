@@ -23,7 +23,6 @@
     Ontario, Canada
 
 --%>
-<%@page import="org.oscarehr.common.model.PharmacyInfo"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
@@ -44,22 +43,6 @@
         <logic:redirect href="error.html" />
     </logic:equal>
 </logic:present>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_rx" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_rx");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%
 oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBean) pageContext.findAttribute("bean");
 
@@ -68,11 +51,11 @@ String userlastname = (String) session.getAttribute("userlastname");
 %>
 
 <% RxPharmacyData pharmacyData = new RxPharmacyData();
-            
-            List<PharmacyInfo>pharmacyList = pharmacyData.getPharmacyFromDemographic(Integer.toString(bean.getDemographicNo()));
+            org.oscarehr.common.model.PharmacyInfo pharmacy;
+            pharmacy = pharmacyData.getPharmacyFromDemographic(Integer.toString(bean.getDemographicNo()));
             String prefPharmacy = "";
-            if (pharmacyList != null && !pharmacyList.isEmpty()) {
-                prefPharmacy = pharmacyList.get(0).getName();
+            if (pharmacy != null) {
+                prefPharmacy = pharmacy.getName();
             }
 %>
 <html:html locale="true">

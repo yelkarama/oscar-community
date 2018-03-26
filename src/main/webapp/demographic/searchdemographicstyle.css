@@ -17,16 +17,17 @@
  *
  * This software was written for the
  * Department of Family Medicine
- * McMaster University
+ * McMaster Unviersity
  * Hamilton
  * Ontario, Canada
  */
 
 body {
     font-family: Verdana, helvetica, sans-serif;
-    font-size: 14px;
+    font-size: 100%;
     margin: 0px;
     padding: 0px;
+    background-image: url("../images/gray_bg.jpg");
     padding-top:17px; /* push everything down, since the element with class title is at top */
 }
 
@@ -56,27 +57,37 @@ a:visited {
 }
 
 a:hover {
-	color:#000;
+	COLOR: red;
 	TEXT-DECORATION: underline;
 }
 
-.deep { /*background-color: #B7B18D; */}
+.deep { background-color: #CCCCFF; }
 .weak { background-color: #EEEEFF; }
 
 .title {
-    text-align:left;
+    text-align:center;
     font-weight: bold;
-    height:12px
+    height:17px;
 }
 
-#cancelButton, #backButton, #searchPopUpButton {
+li.tableHeadings {
+    height: 35px;
+    border-bottom: 1px solid #c0c0c0;
+}
+
+li#searchlist {
+    height:20px;
+    border-bottom: 1px solid #c0c0c0;
+}
+
+#demographicSearch .header, #cancelButton, #backButton, #searchPopUpButton {
     display:none;
 }
 
-#searchResults table {
-	background-color: white;
-	width:100%;
-	border-collapse:collapse;
+#searchResults ul {
+    background-color: white;
+    display: table;
+    width:100%;
 }
 
 .header {
@@ -86,33 +97,39 @@ a:hover {
     width:100%;
 }
 
-#searchResults table td {
-	text-align:left;
-	vertical-align:middle;
-	border: thin solid #BDBDBD;
+#searchResults li {
+    display: table-row;
 }
 
-
-.odd{background-color:#fff;}
-.even{background-color:#EEEEFF;}
-
-.odd:hover {background-color:#FACC2E;}
-.even:hover {background-color:#FACC2E;}
-
+#searchResults li div {
+    border: 1px solid white;
+    text-align:center;
+    vertical-align:middle;
+    display: table-cell;
+    padding: 0px;
+    margin:0px;
+}
 #searchResults {
     clear:both;
 }
 
-#searchResults tr.tableHeadings {
+#searchResults li.tableHeadings {
     font-weight:bold;
+    vertical-align:middle;
+    border-top: 2px solid white;
 }
 
 .demoId {
     border-left: 1px solid #c0c0c0;
 }
+#searchResults li div.name, #searchResults li div.links { text-align: left; }
+#searchResults li.tableHeadings div.name { text-align: center; }
 
-.createNew{font-size:16px;font-weight:bold;text-align:right;}
-.goBackToSchedule{font-size:16px;font-weight:bold;text-align:left;}
-
-
-.dateFormat{font-size:12px;font-weight:normal;}
+.name, .doctor, .lastName { width:20%; }
+.firstName { width: 15%; }
+.age { width:5%; }
+.sex { width:2%; }
+.phone, .chartNo { width: 10%; }
+.dob { width: 10%; }
+.demoIdSearch, .demoId, .links { width:10%; }
+.rosterStatus, .patientStatus { width: 3%; }

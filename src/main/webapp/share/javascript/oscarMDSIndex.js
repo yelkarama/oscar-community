@@ -25,14 +25,6 @@
 /************init global data methods*****************/
 var oldestLab = null;
 
-function  updateDocStatusInQueue(docid){//change status of queue document link row to I=inactive
-    //console.log('in updateDocStatusInQueue, docid '+docid);
-          var url="../dms/inboxManage.do",data="docid="+docid+"&method=updateDocStatusInQueue";
-          new Ajax.Request(url,{method:'post',parameters:data,onSuccess:function(transport){}});
-
-
-}
-
 function saveNext(docid) {
 	updateDocumentAndNext('forms_'+docid);
 }
@@ -313,43 +305,30 @@ function forwardDocument(docId) {
 
 function rotate180(id) {
 	jQuery("#rotate180btn_" + id).attr('disabled', 'disabled');
-        var displayDocumentAs=$('displayDocumentAs_'+id).value;
 
 	new Ajax.Request(contextpath + "/dms/SplitDocument.do", {method: 'post', parameters: "method=rotate180&document=" + id, onSuccess: function(data) {
 		jQuery("#rotate180btn_" + id).removeAttr('disabled');
-                if(displayDocumentAs=="PDF") {
-                    showPDF(id,contextpath);
-                } else {
-                    jQuery("#docImg_" + id).attr('src', contextpath + "/dms/ManageDocument.do?method=viewDocPage&doc_no=" + id + "&curPage=1&rand=" + (new Date().getTime()));
-                }
+		jQuery("#docImg_" + id).attr('src', contextpath + "/dms/ManageDocument.do?method=viewDocPage&doc_no=" + id + "&curPage=1&rand=" + (new Date().getTime()));
+
 	}});
 }
 
 function rotate90(id) {
 	jQuery("#rotate90btn_" + id).attr('disabled', 'disabled');
-        var displayDocumentAs=$('displayDocumentAs_'+id).value;
 
 	new Ajax.Request(contextpath + "/dms/SplitDocument.do", {method: 'post', parameters: "method=rotate90&document=" + id, onSuccess: function(data) {
 		jQuery("#rotate90btn_" + id).removeAttr('disabled');
-                if(displayDocumentAs=="PDF") {
-                    showPDF(id,contextpath);
-                } else {
-                    jQuery("#docImg_" + id).attr('src', contextpath + "/dms/ManageDocument.do?method=viewDocPage&doc_no=" + id + "&curPage=1&rand=" + (new Date().getTime()));
-                }
+		jQuery("#docImg_" + id).attr('src', contextpath + "/dms/ManageDocument.do?method=viewDocPage&doc_no=" + id + "&curPage=1&rand=" + (new Date().getTime()));
+
 	}});
 }
 
 function removeFirstPage(id) {
 	jQuery("#removeFirstPagebtn_" + id).attr('disabled', 'disabled');
-        var displayDocumentAs=$('displayDocumentAs_'+id).value;
-
 	new Ajax.Request(contextpath + "/dms/SplitDocument.do", {method: 'post', parameters: "method=removeFirstPage&document=" + id, onSuccess: function(data) {
 		jQuery("#removeFirstPagebtn_" + id).removeAttr('disabled');
-                if(displayDocumentAs=="PDF") {
-                    showPDF(id,contextpath);
-                } else {
-                    jQuery("#docImg_" + id).attr('src', contextpath + "/dms/ManageDocument.do?method=viewDocPage&doc_no=" + id + "&curPage=1&rand=" + (new Date().getTime()));
-                }
+		jQuery("#docImg_" + id).attr('src', contextpath + "/dms/ManageDocument.do?method=viewDocPage&doc_no=" + id + "&curPage=1&rand=" + (new Date().getTime()));
+
 		var numPages = parseInt(jQuery("#numPages_" + id).text())-1;
 		jQuery("#numPages_" + id).text("" + numPages);
 
@@ -363,11 +342,6 @@ function removeFirstPage(id) {
 	}});
 }
 
-function split(id) {
-        	var loc = contextpath+"/oscarMDS/Split.jsp?document=" + id;
-        	popupStart(1400, 1400, loc, "Splitter");
-        }
-        
 function hideTopBtn(){
 	$('topFRBtn').hide();
 	if($('topFBtn') && $('topFileBtn')){
@@ -437,14 +411,14 @@ function popupStart(vheight,vwidth,varpage,windowname) {
 	var popup=window.open(varpage, windowname, windowprops);
 }
 
-function reportWindow(page,height,width) {	
+function reportWindow(page,height,width) {
 	//console.log(page);
 	if(height && width){
-		windowprops="height="+height+", width="+width+", location=no, scrollbars=yes, menubars=no, toolbars=no, resizable=yes, top=0, left=0" ;
+		windowprops="height="+660+", width="+width+", location=no, scrollbars=yes, menubars=no, toolbars=no, resizable=yes, top=0, left=0" ;
 	}else{
 		windowprops="height=660, width=960, location=no, scrollbars=yes, menubars=no, toolbars=no, resizable=yes, top=0, left=0";
 	}
-	var popup = window.open(encodeURI(page), "labreport", windowprops);
+	var popup = window.open(page, "labreport", windowprops);
 	popup.focus();
 }
 
@@ -481,7 +455,7 @@ function isRowShown(rowid){
 	else
 		return true;
 }
-function checkAllLabs(formId){
+function checkAll(formId){
 	var val = document.getElementsByName("checkA")[0].checked;
 	var labs = document.getElementsByName("flaggedLabs");
 	for (i =0; i < labs.length; i++){
@@ -1578,10 +1552,10 @@ function updateDocumentAndNext(eleId){//save doc info
 						num=num.replace(/\s/g,'');
 						$("saveSucessMsg_"+num).show();
 						$('saved'+num).value='true';
-						$("msgBtn_"+num).onclick = function() { popup(700,960, contextpath +'/oscarMessenger/SendDemoMessage.do?demographic_no='+patientId,'msg'); };
+						$("msgBtn_"+num).onclick = function() { popup(700,960,'/oscar/oscarMessenger/SendDemoMessage.do?demographic_no='+patientId,'msg'); };
 						//Hide document						
-						Effect.BlindUp('labdoc_'+num);											
-						updateDocStatusInQueue(num);
+						Effect.BlindUp('labdoc_'+num);
+
 						var success= updateGlobalDataAndSideNav(num,patientId);
 						if(success){
 						
@@ -1589,7 +1563,6 @@ function updateDocumentAndNext(eleId){//save doc info
 							if(success){
 								//disable demo input
 								$('autocompletedemo'+num).disabled=true;
-								
 								
 								//console.log('updated by save');
 								//console.log(patientDocs);
@@ -1602,11 +1575,7 @@ function updateDocumentAndNext(eleId){//save doc info
 	return false;
 }
 
-function updateDocument(eleId){
-	if (!checkObservationDate(eleId)) {
-		return false;
-	}
-	//save doc info
+function updateDocument(eleId){//save doc info
 	var url="../dms/ManageDocument.do",data=$(eleId).serialize(true);
 	new Ajax.Request(url,{method:'post',parameters:data,onSuccess:function(transport){
 		var json=transport.responseText.evalJSON();
@@ -1620,17 +1589,13 @@ function updateDocument(eleId){
 			num=num.replace(/\s/g,'');
 			$("saveSucessMsg_"+num).show();
 			$('saved'+num).value='true';
-			$("msgBtn_"+num).onclick = function() { popup(700,960,contextpath +'/oscarMessenger/SendDemoMessage.do?demographic_no='+patientId,'msg'); };
-			
-			updateDocStatusInQueue(num);
+			$("msgBtn_"+num).onclick = function() { popup(700,960,'/oscar/oscarMessenger/SendDemoMessage.do?demographic_no='+patientId,'msg'); };
 			var success= updateGlobalDataAndSideNav(num,patientId);
-			
 			if(success){
 				success=updatePatientDocLabNav(num,patientId);
 				if(success){
 					//disable demo input
 					$('autocompletedemo'+num).disabled=true;
-					
 					//console.log('updated by save');
 					//console.log(patientDocs);
 				}
@@ -1639,50 +1604,6 @@ function updateDocument(eleId){
 	}});
 	return false;
 }
-
-function checkObservationDate(formid) {
-    // regular expression to match required date format
-    re = /^\d{4}\-\d{1,2}\-\d{1,2}$/;
-    re2 = /^\d{4}\/\d{1,2}\/\d{1,2}$/;
-
-    var form = document.getElementById(formid);
-    if(form.elements["observationDate"].value == "") {
-    	alert("Blank Date: " + form.elements["observationDate"].value);
-		form.elements["observationDate"].focus();
-		return false;
-    }
-    
-    if(!form.elements["observationDate"].value.match(re)) {
-    	if(!form.elements["observationDate"].value.match(re2)) {
-    		alert("Invalid date format: " + form.elements["observationDate"].value);
-    		form.elements["observationDate"].focus();
-    		return false;
-    	} else if(form.elements["observationDate"].value.match(re2)) {
-    		form.elements["observationDate"].value=form.elements["observationDate"].value.replace("/","-");
-    		form.elements["observationDate"].value=form.elements["observationDate"].value.replace("/","-");
-    	}
-    }
-    regs= form.elements["observationDate"].value.split("-");
-    // day value between 1 and 31
-    if(regs[2] < 1 || regs[2] > 31) {
-      alert("Invalid value for day: " + regs[2]);
-      form.elements["observationDate"].focus();
-      return false;
-    }
-    // month value between 1 and 12
-    if(regs[1] < 1 || regs[1] > 12) {
-      alert("Invalid value for month: " + regs[1]);
-      form.elements["observationDate"].focus();
-      return false;
-    }
-    // year value between 1902 and 2015
-    if(regs[0] < 1902 || regs[0] > (new Date()).getFullYear()) {
-      alert("Invalid value for year: " + regs[0] + " - must be between 1902 and " + (new Date()).getFullYear());
-      form.elements["observationDate"].focus();
-      return false;
-    }
-    return true;
-  }
 
 function updateStatus(formid){//acknowledge
 	var num=formid.split("_");
@@ -1700,7 +1621,6 @@ function updateStatus(formid){//acknowledge
 
 				if(doclabid){
 					Effect.BlindUp('labdoc_'+doclabid);
-					updateDocStatusInQueue(doclabid);
 					//updateDocLabData(doclabid);
 				}
 
@@ -1734,7 +1654,6 @@ function fileDoc(docId){
 					var url='../oscarMDS/FileLabs.do';
 					var data='method=fileLabAjax&flaggedLabId='+docId+'&labType='+type;
 					new Ajax.Request(url, {method: 'post',parameters:data,onSuccess:function(transport){
-						updateDocStatusInQueue(docId);
 						if (docId) {
 							Effect.Fade('labdoc_'+docId);
 						}
@@ -1753,15 +1672,6 @@ function fileDoc(docId){
 	}
 }
 
-function refileDoc(id) {
-    var queueId=document.getElementById('queueList_'+id).options[document.getElementById('queueList_'+id).selectedIndex].value;
-    var url=contextpath +"/dms/ManageDocument.do";
-    var data='method=refileDocumentAjax&documentId='+id+"&queueId="+queueId;
-    new Ajax.Request(url,{method:'post',parameters:data,onSuccess:function(transport){
-        fileDoc(id);
-    }});
- }
- 
 function addDocToList(provNo, provName, docId) {
 	var bdoc = document.createElement('a');
 	bdoc.setAttribute("onclick", "removeProv(this);");
@@ -1876,67 +1786,11 @@ function refreshView() {
 	}
 }
 
-function getWidth() {
-    var myWidth = 0;
-    if( typeof( window.innerWidth ) == 'number' ) {
-        //Non-IE
-        myWidth = window.innerWidth;
-    } else if( document.documentElement &&  document.documentElement.clientWidth  ) {
-        //IE 6+ in 'standards compliant mode'
-        myWidth = document.documentElement.clientWidth;
-    } else if( document.body && document.body.clientHeight  ) {
-        //IE 4 compatible
-        myWidth = document.body.clientWidth;
-    }
-    return myWidth;
-}
-
-
-function getHeight() {
-    var myHeight = 0;
-    if( typeof( window.innerHeight ) == 'number' ) {
-        //Non-IE
-        myHeight = window.innerHeight;
-    } else if( document.documentElement && document.documentElement.clientHeight  ) {
-        //IE 6+ in 'standards compliant mode'
-        myHeight = document.documentElement.clientHeight;
-    } else if( document.body && (document.body.clientHeight ) ) {
-        //IE 4 compatible
-        myHeight = document.body.clientHeight;
-    }
-    return myHeight;
-}
-
-function showPDF(docid,cp) {
-
-    var height=700;
-    if(getHeight()>750) {
-        height=getHeight()-50;
-    }
-
-    var width=700;
-    if(getWidth()>1350)
-    {
-        width=getWidth()-650;
-    }
-
-    var url=cp+'/dms/ManageDocument.do?method=display&doc_no='+docid+'&rand='+Math.random()+'#view=fitV&page=1';
-
-    document.getElementById('docDispPDF_'+docid).innerHTML='<object width="'+(width)+'" height="'+(height)+'" type="application/pdf" data="'+url+'" id="docPDF_'+docid+'"></object>';
-}
-
 function showPageImg(docid,pn,cp){
-    var displayDocumentAs=$('displayDocumentAs_'+docid).value;
-    if(displayDocumentAs=="PDF") {
-        showPDF(docid,cp);
-    }
-    else
-    {
-        if(docid&&pn&&cp){
-            var e=$('docImg_'+docid);
-            var url=cp+'/dms/ManageDocument.do?method=viewDocPage&doc_no='+docid+'&curPage='+pn;
-            e.setAttribute('src',url);
-        }
+    if(docid&&pn&&cp){
+        var e=$('docImg_'+docid);
+        var url=cp+'/dms/ManageDocument.do?method=viewDocPage&doc_no='+docid+'&curPage='+pn;
+        e.setAttribute('src',url);
     }
 }
 
@@ -2002,102 +1856,20 @@ function hidePrev(docid){
     //disable previous link
     $("prevP_"+docid).setStyle({display:'none'});
     $("firstP_"+docid).setStyle({display:'none'});
-    $("prevP2_"+docid).setStyle({display:'none'});
-    $("firstP2_"+docid).setStyle({display:'none'});
 }
 function hideNext(docid){
     //disable next link
     $("nextP_"+docid).setStyle({display:'none'});
     $("lastP_"+docid).setStyle({display:'none'});
-    $("nextP2_"+docid).setStyle({display:'none'});
-    $("lastP2_"+docid).setStyle({display:'none'});
-
 }
 function showPrev(docid){
     //disable previous link
     $("prevP_"+docid).setStyle({display:'inline'});
     $("firstP_"+docid).setStyle({display:'inline'});
-    $("prevP2_"+docid).setStyle({display:'inline'});
-    $("firstP2_"+docid).setStyle({display:'inline'});
-
 }
 function showNext(docid){
 
     //disable next link
     $("nextP_"+docid).setStyle({display:'inline'});
     $("lastP_"+docid).setStyle({display:'inline'});
-    $("nextP2_"+docid).setStyle({display:'inline'});
-    $("lastP2_"+docid).setStyle({display:'inline'});
-
 }
-
-function addDocComment(docId, providerNo,sync) {
-	
-	var ret = true;
-    var comment = "";
-    var text = jQuery("#comment_"+docId + "_" + providerNo);
-    if( text.length > 0 ) {
-        comment = jQuery("#comment_"+docId + "_" + providerNo).html();
-        if( comment == null || comment == "no comment" ) {
-        	comment = "";
-        }
-    }
-    var commentVal = prompt("Please enter a comment (max. 255 characters)", comment);
-
-    if( commentVal == null ) {
-    	ret = false;
-    }
-    else if( commentVal != null && commentVal.length > 0 )
-    	jQuery("#" + "comment_" + docId).val(commentVal);                
-    else
-    	jQuery("#" + "comment_" + docId).val(comment);            	
-
-    if( ret ) {
-    	$("status_"+docId).value = 'N';
-    	var url=contextpath+"/oscarMDS/UpdateStatus.do";
-    	var formid = "acknowledgeForm_" + docId;
-    	var data=$(formid).serialize();
-    	data += "&method=addComment";
-
-    	new Ajax.Request(url,{method:'post',parameters:data,asynchronous:sync,onSuccess:function(transport){
-    				var json=transport.responseText.evalJSON();
-    				if(json!=null ){
-    					var date = json.date;
-    					$("timestamp_"+docId+"_"+providerNo).update(date);
-    				}
-					$("status_"+docId).value = "A";
-					$("comment_"+docId+"_"+providerNo).update($("comment_"+docId).value);
-					$("comment_"+docId).update("");
-				}
-			}
-    	);
-    }
-}
-
-function getDocComment(docId, providerNo, inQueueB) {
-	
-	var ret = true;
-    var comment = "";
-    var text = jQuery("#comment_"+docId + "_" + providerNo);
-    if( text.length > 0 ) {
-        comment = jQuery("#comment_"+docId + "_" + providerNo).html();
-        if( comment == null || comment == "no comment" ) {
-        	comment = "";
-        }
-    }
-    var commentVal = prompt("Please enter a comment (max. 255 characters)", comment);
-
-    if( commentVal == null ) {
-    	ret = false;
-    }
-    else if( commentVal != null && commentVal.length > 0 )
-    	jQuery("#" + "comment_" + docId).val(commentVal);                
-    else
-    	jQuery("#" + "comment_" + docId).val(comment);            	
-
-   if(ret) {	   
-	   updateStatus("acknowledgeForm_" + docId ,inQueueB);
-   }                    	
-	
-}
-

@@ -22,113 +22,119 @@
  * Ontario, Canada
  */
 
+
 package oscar.oscarEncounter.oscarConsultationRequest.pageUtil;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
-import org.oscarehr.common.dao.ConsultationRequestDao;
-import org.oscarehr.common.model.ConsultationRequest;
-import org.oscarehr.util.LoggedInInfo;
-import org.oscarehr.util.SpringUtils;
+import org.oscarehr.util.MiscUtils;
 
 import oscar.OscarProperties;
 import oscar.dms.EDoc;
 import oscar.dms.EDocUtil;
-import oscar.util.ConversionUtils;
+import oscar.oscarDB.DBHandler;
 
 /**
  *
  * Handles logic of attaching documents to a specified consultation
  */
 public class ConsultationAttachDocs {
+    private String reqId; //consultation id
+    private String demoNo;
+    private String providerNo;
+    private ArrayList<String> docs;  //document ids
 
-	private String reqId; //consultation id
-	private String demoNo;
-	private String providerNo;
-	private ArrayList<String> docs; //document ids
+    /** Creates a new instance of ConsultationAttachDocs */
+    public ConsultationAttachDocs(String req) {
+        reqId = req;
+        demoNo = "";
+        docs = new ArrayList<String>();
+    }
+    /**
+     * @params demographic id, consultation id and array of document ids with prepended 'D' for each id as doc type
+     */
+    public ConsultationAttachDocs(String prov, String demo, String req, String[] d) {
+        providerNo = prov;
+        demoNo = demo;
+        reqId = req;
+        docs = new ArrayList<String>(d.length);
 
-	/** Creates a new instance of ConsultationAttachDocs */
-	public ConsultationAttachDocs(String req) {
-		reqId = req;
-		demoNo = "";
-		docs = new ArrayList<String>();
-	}
+        if (OscarProperties.getInstance().isPropertyActive("consultation_indivica_attachment_enabled")) {
+	        for(int idx = 0; idx < d.length; ++idx ) {
+	            docs.add(d[idx]);
+	        }
+        }
+        else {
+        //if dummy entry skip
+        
+	        if( !d[0].equals("0") ) {
+	            for(int idx = 0; idx < d.length; ++idx ) {
+	                if( d[idx].charAt(0) == 'D')
+	                    docs.add(d[idx].substring(1));
+	            }
+	        }
+        }
+    }
 
-	/**
-	 * 
-	 * @param prov
-	 * @param demo
-	 * @param req
-	 * @param d
-	 */
-	public ConsultationAttachDocs(String prov, String demo, String req, String[] d) {
-		providerNo = prov;
-		demoNo = demo;
-		reqId = req;
-		docs = new ArrayList<String>(d.length);
+    public String getDemoNo() {
+        String demo;
+        if( !demoNo.equals(""))
+            demo = demoNo;
+        else {
+            String sql = "SELECT demographicNo FROM consultationRequests WHERE requestId = " + reqId;
+            try {
 
-		if (OscarProperties.getInstance().isPropertyActive("consultation_indivica_attachment_enabled")) {
-			for (int idx = 0; idx < d.length; ++idx) {
-				docs.add(d[idx]);
-			}
-		} else {
-			//if dummy entry skip
+                ResultSet rs = DBHandler.GetSQL(sql);
+                if( rs.next() ) {
+                    demo = oscar.Misc.getString(rs, "demographicNo");
+                    demoNo = demo;
+                }
+                else
+                    demo = "";
 
-			if (!d[0].equals("0")) {
-				for (int idx = 0; idx < d.length; ++idx) {
-					if (d[idx].charAt(0) == 'D') docs.add(d[idx].substring(1));
-				}
-			}
-		}
-	}
+            }catch( SQLException e ) {
+              MiscUtils.getLogger().error("Error", e);
+              demo = "";
+            }
+        }
 
-	public String getDemoNo() {
-		String demo;
-		if (!demoNo.equals("")) demo = demoNo;
-		else {
-			ConsultationRequestDao dao = SpringUtils.getBean(ConsultationRequestDao.class);
-			ConsultationRequest req = dao.find(ConversionUtils.fromIntString(reqId));
-			if (req != null) {
-				demo = req.getId().toString();
-				demoNo = demo;
-			} else {
-				demo = "";
-			}
-		}
+        return demo;
+    }
 
-		return demo;
-	}
+    public void attach() {
 
-	public void attach(LoggedInInfo loggedInInfo) {
+        //first we get a list of currently attached docs
+        ArrayList<EDoc> oldlist = EDocUtil.listDocs(demoNo,reqId,EDocUtil.ATTACHED);
+        ArrayList<String> newlist = new ArrayList<String>();
+        ArrayList<EDoc> keeplist = new ArrayList<EDoc>();
+        boolean alreadyAttached;
+        //add new documents to list and get ids of docs to keep attached
+        for(int i = 0; i < docs.size(); ++i) {
+            alreadyAttached = false;
+            for(int j = 0; j < oldlist.size(); ++j) {
+                if( (oldlist.get(j)).getDocId().equals(docs.get(i)) ) {
+                    alreadyAttached = true;
+                    keeplist.add(oldlist.get(j));
+                    break;
+                }
+            }
+            if( !alreadyAttached )
+                newlist.add(docs.get(i));
+        }
 
-		//first we get a list of currently attached docs
-		ArrayList<EDoc> oldlist = EDocUtil.listDocs(loggedInInfo, demoNo, reqId, EDocUtil.ATTACHED);
-		ArrayList<String> newlist = new ArrayList<String>();
-		ArrayList<EDoc> keeplist = new ArrayList<EDoc>();
-		boolean alreadyAttached;
-		//add new documents to list and get ids of docs to keep attached
-		for (int i = 0; i < docs.size(); ++i) {
-			alreadyAttached = false;
-			for (int j = 0; j < oldlist.size(); ++j) {
-				if ((oldlist.get(j)).getDocId().equals(docs.get(i))) {
-					alreadyAttached = true;
-					keeplist.add(oldlist.get(j));
-					break;
-				}
-			}
-			if (!alreadyAttached) newlist.add(docs.get(i));
-		}
+        //now compare what we need to keep with what we have and remove association
+        for(int i = 0; i < oldlist.size(); ++i) {
+            if( keeplist.contains(oldlist.get(i)))
+                continue;
 
-		//now compare what we need to keep with what we have and remove association
-		for (int i = 0; i < oldlist.size(); ++i) {
-			if (keeplist.contains(oldlist.get(i))) continue;
+            EDocUtil.detachDocConsult((oldlist.get(i)).getDocId(), reqId);
+        }
 
-			EDocUtil.detachDocConsult((oldlist.get(i)).getDocId(), reqId);
-		}
+        //now we can add association to new list
+        for(int i = 0; i < newlist.size(); ++i)
+            EDocUtil.attachDocConsult(providerNo, newlist.get(i), reqId);
 
-		//now we can add association to new list
-		for (int i = 0; i < newlist.size(); ++i)
-			EDocUtil.attachDocConsult(providerNo, newlist.get(i), reqId);
-
-	} //end attach
+    } //end attach
 }

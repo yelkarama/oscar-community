@@ -31,25 +31,8 @@
 <%@ page import="java.util.*,oscar.oscarRx.data.*,oscar.oscarRx.pageUtil.*,oscar.oscarRx.util.*"%>
 <%@page import="org.oscarehr.util.MiscUtils"%>
 <%@page import="org.apache.commons.lang.StringEscapeUtils"%>
-<%@ page import="org.oscarehr.util.LoggedInInfo" %>
 
 <%long start = System.currentTimeMillis();%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_rx" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_rx");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <html:html locale="true">
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
@@ -88,7 +71,6 @@ String annotation_display = org.oscarehr.casemgmt.model.CaseManagementNoteLink.D
 Long now = new Date().getTime();
 String annotation_attrib = "";// = "anno"+now;
 
-LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
 %>
 
 <script language=javascript>
@@ -864,7 +846,6 @@ if(bean.getStashIndex() > -1){ //new way
     thisForm.setDuration(rx.getDuration());
     thisForm.setDurationUnit(rx.getDurationUnit());
     thisForm.setQuantity(rx.getQuantity());
-    thisForm.setDispensingUnits(rx.getDispensingUnits());
 
     thisForm.setDosage(rx.getDosage());
     thisForm.setRepeat(rx.getRepeat());
@@ -878,7 +859,6 @@ if(bean.getStashIndex() > -1){ //new way
     thisForm.setSpecial(rx.getSpecial());
     thisForm.setLongTerm(rx.getLongTerm());
     thisForm.setPastMed(rx.getPastMed());
-    thisForm.setDispenseInternal(rx.getDispenseInternal());
     thisForm.setPatientComplianceY(rx.getPatientCompliance("Y"));
     thisForm.setPatientComplianceN(rx.getPatientCompliance("N"));
     thisForm.setAtcCode(rx.getAtcCode());
@@ -913,7 +893,6 @@ FrequencyCode:   <%= thisForm.getFrequencyCode() %><br>
 Duration:        <%= thisForm.getDuration() %><br>
 DurationUnit:    <%= thisForm.getDurationUnit() %><br>
 Quantity:        <%= thisForm.getQuantity() %><br>
-DispensingUnits: <%= thisForm.getDispensingUnits() %><br>
 Repeat:          <%= thisForm.getRepeat() %><br>
 Nosubs:          <%= String.valueOf(thisForm.getNosubs()) %><br>
 Prn:             <%= String.valueOf(thisForm.getPrn()) %><br>
@@ -934,7 +913,7 @@ Outside ProOhip: <%= thisForm.getOutsideProviderOhip() %><br>
 	<%
 
 // set patient info
-RxPatientData.Patient patient = RxPatientData.getPatient(loggedInInfo, thisForm.getDemographicNo());
+RxPatientData.Patient patient = RxPatientData.getPatient(thisForm.getDemographicNo());
 
 RxDrugData drug = new RxDrugData();
 
@@ -1279,7 +1258,6 @@ int i;
 			    <tr>
 				<td colspan=4>
 				    <bean:message key="WriteScript.msgLongTermMedication"/>:<html:checkbox property="longTerm" onchange="javascript:writeScriptDisplay();" />&nbsp;&nbsp;
-				    <bean:message key="WriteScript.msgDispenseInternal"/>:<html:checkbox property="dispenseInternal" onchange="javascript:writeScriptDisplay();" />&nbsp;&nbsp;
 				    <bean:message key="WriteScript.msgPastMedication"/>:<html:checkbox property="pastMed" onchange="javascript:writeScriptDisplay();" />&nbsp;&nbsp;
 				    <bean:message key="WriteScript.msgPatientCompliance"/>:
                                                 <bean:message key="WriteScript.msgYes"/><html:checkbox property="patientComplianceY" onchange="javascript:checkPatientCompliance('Y');" />
@@ -1379,7 +1357,7 @@ int i;
                          <input type=button class="ControlPushButton" style="width:200px" onclick="javascript:addWarning();" value="FillWarning" /-->
 					<br>
 					<!-- peice Went Here --> <%//RxPatientData.Patient.Allergy[] allerg = (RxPatientData.Patient.Allergy[]) request.getAttribute("ALLERGIES");
-                          org.oscarehr.common.model.Allergy[] allerg = bean.getAllergyWarnings(loggedInInfo, atcCode);
+                          org.oscarehr.common.model.Allergy[] allerg = bean.getAllergyWarnings(atcCode);
                           if (allerg != null && allerg.length > 0){
                             for (int i = 0 ; i < allerg.length; i++){  %>
 					<div

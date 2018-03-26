@@ -1,18 +1,3 @@
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_report,_admin.reporting,_admin" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_report&type=_admin.reporting&type=_admin");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
 <table width="100%" border="2" valign="top">
 	<% 
 String dateBegin = request.getParameter("xml_vdate");
@@ -20,13 +5,16 @@ String dateEnd = request.getParameter("xml_appointment_date");
 if (dateEnd.compareTo("") == 0) dateEnd = MyDateFormat.getMysqlStandardDate(curYear, curMonth, curDay);
 if (dateBegin.compareTo("") == 0) dateBegin="2001-01-01";
 
-List<Appointment> bs = appointmentDao.search_unbill_history_daterange(request.getParameter("providerview"),ConversionUtils.fromDateString(dateBegin),ConversionUtils.fromDateString(dateEnd));
-
+String[] param =new String[3];
+param[0] = request.getParameter("providerview");
+param[1] = dateBegin;
+param[2] = dateEnd;
+ResultSet rs = apptMainBean.queryResults(param, "search_unbill_history_daterange");
 
 boolean bodd=false;
 nItems=0;
 String apptNo="", demoNo = "", demoName="", userno="", apptDate="", apptTime="", reason="";
-if(bs==null) {
+if(rs==null) {
 	out.println("failed!!!"); 
 } else {
 %>
@@ -43,16 +31,16 @@ if(bs==null) {
 			face="Arial, Helvetica, sans-serif">COMMENTS</font></b></TH>
 	</tr>
 	<%
-	for (Appointment a:bs) {
+	while (rs.next()) {
 		bodd=bodd?false:true; //for the color of rows
 		nItems++; //to calculate if it is the end of records
-		apptNo = a.getId().toString();
-		demoNo = String.valueOf(a.getDemographicNo());
-		demoName = a.getName();
-		userno=a.getProviderNo();
-		apptDate = ConversionUtils.toDateString(a.getAppointmentDate());
-		apptTime =  ConversionUtils.toDateString(a.getStartTime());
-		reason = a.getReason();
+		apptNo = rs.getString("appointment_no");
+		demoNo = rs.getString("demographic_no");
+		demoName = rs.getString("name");
+		userno=rs.getString("provider_no");
+		apptDate = rs.getString("appointment_date");
+		apptTime = rs.getString("start_time");
+		reason = rs.getString("reason");
 %>
 	<tr bgcolor="<%=bodd?"#EEEEFF":"white"%>" align="center">
 		<TD width="20%"><b><font size="2"

@@ -24,33 +24,9 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_demographic" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_demographic");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-<%@ page import="java.sql.*, java.util.*, oscar.MyDateFormat" errorPage="errorpage.jsp"%>
-
-<%@page import="org.oscarehr.util.SpringUtils" %>
-<%@page import="org.oscarehr.common.dao.EncounterTemplateDao" %>
-<%@page import="org.oscarehr.common.model.EncounterTemplate" %>
-<%@page import="org.oscarehr.common.dao.EncounterDao" %>
-<%@page import="org.oscarehr.common.model.Encounter" %>
-<%@page import="oscar.util.ConversionUtils" %>
-<%
-	EncounterTemplateDao encounterTemplateDao = SpringUtils.getBean(EncounterTemplateDao.class);
-    EncounterDao encounterDao = SpringUtils.getBean(EncounterDao.class);
-%>
+<%@ page import="java.sql.*, java.util.*, oscar.MyDateFormat"
+	errorPage="errorpage.jsp"%>
+<%@ include file="/common/webAppContextAndSuperMgr.jsp"%>
 
 <html>
 <head>
@@ -72,17 +48,22 @@ function start(){
 	</tr>
 </table>
 <%
+  //if bNewForm is false (0), then it should be able to display xml data.
+  //boolean bNew = true;
+  //if( request.getParameter("bNewForm")!=null && request.getParameter("bNewForm").compareTo("0")==0 ) 
+  //  bNew = false;
 
+  //if( bNew ) {
    String content="";
    String encounterattachment="";
    String temp="";
-   Encounter enc = encounterDao.find(Integer.parseInt(request.getParameter("encounter_no")));
-   if(enc != null) {
-     content = enc.getContent();
-     encounterattachment = enc.getEncounterAttachment();
+   List<Map<String,Object>> resultList = oscarSuperManager.find("providerDao", request.getParameter("dboperation"), new Object[] {request.getParameter("encounter_no")});
+   for (Map enc : resultList) {
+     content = (String)enc.get("content");
+     encounterattachment = (String)enc.get("encounterattachment");
 %>
-<font size="-1"><%=ConversionUtils.toDateString(enc.getEncounterDate())%> <%=ConversionUtils.toTimeString(enc.getEncounterTime())%>
-&nbsp;<font color="green"><%=enc.getSubject().equals("")?"Unknown":enc.getSubject()%></font></font>
+<font size="-1"><%=enc.get("encounter_date")%> <%=enc.get("encounter_time")%>
+&nbsp;<font color="green"><%=((String)enc.get("subject")).equals("")?"Unknown":enc.get("subject")%></font></font>
 <br>
 <xml id="xml_list">
 <encounter>
@@ -112,12 +93,10 @@ function start(){
 </table>
 <%
   if(request.getParameter("template")!=null && !(request.getParameter("template").equals(".")) ) {
-	  
-     for(EncounterTemplate template : encounterTemplateDao.findByName(request.getParameter("template"))) {
-    	 out.println(template.getEncounterTemplateValue());
+	 resultList = oscarSuperManager.find("providerDao", "search_template", new Object[] {request.getParameter("template")});
+	 for (Map t: resultList) {
+       out.println((String)t.get("encountertemplate_displayvalue"));
      }
-     
-	
   } else {
      out.println("<table datasrc='#xml_list' border='0'><tr><td><font color='blue'>Content:</font></td></tr><tr><td><div datafld='xml_content'></td></tr></table>");
   }

@@ -78,7 +78,6 @@ int i, j;
 	<html:hidden property="duration" />
 	<html:hidden property="durationUnit" />
 	<html:hidden property="quantity" />
-	<html:hidden property="dispensingUnits" />
 	<html:hidden property="repeat" />
 	<html:hidden property="nosubs" />
 	<html:hidden property="prn" />
@@ -104,16 +103,11 @@ int i, j;
         var duration         = eval('get.fldDuration' + rowId).value;
         var durationUnit     = eval('get.fldDurationUnit' + rowId).value;
         var quantity         = eval('get.fldQuantity' + rowId).value;
-		var dispensingUnits  = eval('get.fldDispensingUnits' + rowId).value;
         var repeat           = eval('get.fldRepeat' + rowId).value;
         var nosubs           = eval('get.fldNosubs' + rowId).checked;
         var prn              = eval('get.fldPrn' + rowId).checked;
         var customInstr      = eval('get.customInstr' + rowId).checked;
         var special          = eval('get.fldSpecial' + rowId).value;
-        var dispenseInternal = eval('get.dispenseInternal'+rowId).value;
-        customName			= encodeURI(customName);
-        special				= encodeURI(special); 
-        
         if(favoriteName==null || favoriteName.length < 1) {
             alert('Please enter a favorite name.');
             err = true;
@@ -141,7 +135,7 @@ int i, j;
 
         if(err == false) {
             var data="favoriteId="+favoriteId+"&favoriteName="+favoriteName+"&customName="+customName+"&takeMin="+takeMin+"&takeMax="+takeMax+"&frequencyCode="+frequencyCode+
-                "&duration="+duration+"&durationUnit="+durationUnit+"&quantity="+quantity+"&dispensingUnits="+dispensingUnits+"&repeat="+repeat+"&nosubs="+nosubs+"&prn="+prn+"&customInstr="+customInstr+"&special="+special+"&dispenseInternal="+dispenseInternal;
+                "&duration="+duration+"&durationUnit="+durationUnit+"&quantity="+quantity+"&repeat="+repeat+"&nosubs="+nosubs+"&prn="+prn+"&customInstr="+customInstr+"&special="+special;
             var url="<c:out value="${ctx}"/>" + "/oscarRx/updateFavorite2.do?method=ajaxEditFavorite";
             new Ajax.Request(url,{method:'post',postBody:data,onSuccess:function(transport){
                     $("saveSuccess_"+rowId).show();
@@ -268,16 +262,13 @@ int i, j;
                                                 %>><%=freq[j].getFreqCode()%></option>
 							<%
                                             }
-                                            
-                                            String duration = f.getDuration() == null ? "" : f.getDuration();
-                                            
                                             %>
 						</select> <b>For:</b> <input type=text name="fldDuration<%= i%>"
-							class=tblRow size=3 value="<%= duration %>" /> <select
+							class=tblRow size=3 value="<%= f.getDuration() %>" /> <select
 							name="fldDurationUnit<%= i%>" class=tblRow>
 							<option
 								<%
-                                                if(duration.equals("D"))
+                                                if(f.getDurationUnit().equals("D"))
                                                 { %>
 								selected="selected"
 								<% }
@@ -285,7 +276,7 @@ int i, j;
 								value="D">Day(s)</option>
 							<option
 								<%
-                                                if(duration.equals("W"))
+                                                if(f.getDurationUnit().equals("W"))
                                                 { %>
 								selected="selected"
 								<% }
@@ -293,7 +284,7 @@ int i, j;
 								value="W">Week(s)</option>
 							<option
 								<%
-                                                if(duration.equals("M"))
+                                                if(f.getDurationUnit().equals("M"))
                                                 { %>
 								selected="selected"
 								<% }
@@ -306,10 +297,6 @@ int i, j;
 							name="fldQuantity<%= i%>" class=tblRow size=5
 							value="<%= f.getQuantity() %>" /></td>
 						<td></td>
-						<td nowrap><b>Units:</b> <input type=text
-														name="fldDispensingUnits<%= i%>" class=tblRow size=5
-														value="<%= f.getDispensingUnits() %>" />
-						</td>
 						<td><b>Repeats:</b><input type=text name="fldRepeat<%= i%>"
 							class=tblRow size=3 value="<%= f.getRepeat() %>" /></td>
 
@@ -328,24 +315,24 @@ int i, j;
 								Custom Instructions:&nbsp;<input type="checkbox"
 									name="customInstr<%=i%>" <% if(f.getCustomInstr()) { %> checked
 									<%}%>></td>
-								<td width="100%">
-								<% 
-									String s = f.getSpecial();
-									if (s == null || s.equals("null")) 
-										s = "";
-								%>
-								<textarea name="fldSpecial<%= i%>" style="width: 100%" rows=5 ><%=s.trim()%></textarea></td>
+								<td width="100%"><textarea name="fldSpecial<%= i%>"
+									style="width: 100%" rows=5>
+								<%
+                                                        String s = f.getSpecial();
+                                                        if(s!=null)
+                                                        {
+                                                            if(! s.equals("null"))
+                                                            {
+                                                                %><%= s.trim()%>
+								<%
+                                                            }
+                                                        }
+                                                    %>
+								</textarea></td>
 							</tr>
 						</table>
 						</td>
 					</tr>
-					
-					<tr <%= style %>>
-						<td colspan=7>
-							Dispense Internally:&nbsp;<input type="checkbox" name="dispenseInternal<%=i%>" <% if(f.getDispenseInternal() != null && f.getDispenseInternal().booleanValue()) { %> checked <%}%>>
-						</td>
-					</tr>
-			
 					<tr>
 						<td colspan=7 valign=center>
 						<hr width=100%>

@@ -31,15 +31,12 @@
 
 package oscar.oscarRx.data;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.oscarehr.common.dao.DemographicPharmacyDao;
 import org.oscarehr.common.dao.PharmacyInfoDao;
 import org.oscarehr.common.model.DemographicPharmacy;
 import org.oscarehr.common.model.PharmacyInfo;
-import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
 /**
@@ -91,7 +88,7 @@ public class RxPharmacyData {
     * @param notes
     */
    public void updatePharmacy(String ID,String name,String address,String city,String province,String postalCode, String phone1, String phone2, String fax, String email, String serviceLocationIdentifier, String notes){
-		pharmacyInfoDao.updatePharmacy(Integer.parseInt(ID), name, address, city, province, postalCode, phone1, phone2, fax, email, serviceLocationIdentifier, notes);
+		pharmacyInfoDao.updatePharmacy(ID, name, address, city, province, postalCode, phone1, phone2, fax, email, serviceLocationIdentifier, notes);
    }
 
    /**
@@ -99,14 +96,7 @@ public class RxPharmacyData {
     * @param ID
     */
    public void deletePharmacy(String ID){
-	   
-	   List<DemographicPharmacy> demographicPharmacies = demographicPharmacyDao.findAllByPharmacyId(Integer.parseInt(ID));
-	   
-	   for( DemographicPharmacy demographicPharmacy : demographicPharmacies ) {
-		   demographicPharmacyDao.unlinkPharmacy(Integer.parseInt(ID), demographicPharmacy.getDemographicNo());
-	   }
-	   
-	   pharmacyInfoDao.deletePharmacy(Integer.parseInt(ID));
+	   pharmacyInfoDao.deletePharmacy(ID);
    }
 
    /**
@@ -115,7 +105,7 @@ public class RxPharmacyData {
     * @return returns a pharmacy class corresponding latest data from the pharmacy ID
     */
    public PharmacyInfo getPharmacy(String ID){
-      PharmacyInfo pharmacyInfo = pharmacyInfoDao.getPharmacy(Integer.parseInt(ID));
+      PharmacyInfo pharmacyInfo = pharmacyInfoDao.getPharmacy(ID);
       return pharmacyInfo;
    }
 
@@ -125,7 +115,7 @@ public class RxPharmacyData {
     * @return Pharmacy data class
     */
    public PharmacyInfo getPharmacyByRecordID(String recordID){
-      return pharmacyInfoDao.getPharmacyByRecordID(Integer.parseInt(recordID));
+      return pharmacyInfoDao.getPharmacyByRecordID(recordID);
    }
 
 
@@ -142,81 +132,21 @@ public class RxPharmacyData {
     * @param pharmacyId Id of the pharmacy
     * @param demographicNo Patient demographic number
     */
-   public PharmacyInfo addPharmacyToDemographic(String pharmacyId,String demographicNo, String preferredOrder){
-      demographicPharmacyDao.addPharmacyToDemographic(Integer.parseInt(pharmacyId), Integer.parseInt(demographicNo), Integer.parseInt(preferredOrder));
-      
-      PharmacyInfo pharmacyInfo = pharmacyInfoDao.find(Integer.parseInt(pharmacyId));
-      pharmacyInfo.setPreferredOrder(Integer.parseInt(preferredOrder));
-      
-      return pharmacyInfo;
-      
+   public void addPharmacyToDemographic(String pharmacyId,String demographicNo){
+      demographicPharmacyDao.addPharmacyToDemographic(pharmacyId, demographicNo);
    }
 
-	/**
-	 * Used to get the most recent pharmacy associated with this patient.  Returns a Pharmacy object with the latest data about that pharmacy.
-	 * @param demographicNo patients demographic number
-	 *
-	 * @return Pharmacy data object
-	 */
-	public List<PharmacyInfo> getPharmacyFromDemographic(String demographicNo) {
-		List<DemographicPharmacy> dpList = demographicPharmacyDao.findByDemographicId(Integer.parseInt(demographicNo));
-		if (dpList.isEmpty()) {
-			return null;
-		}
-
-		List<Integer> pharmacyIds = new ArrayList<Integer>(); 
-		for( DemographicPharmacy demoPharmacy : dpList ) {
-			pharmacyIds.add(demoPharmacy.getPharmacyId());
-			MiscUtils.getLogger().debug("ADDING ID " + demoPharmacy.getPharmacyId());
-		}
-		
-		List<PharmacyInfo> pharmacyInfos = pharmacyInfoDao.getPharmacies(pharmacyIds);
-		
-		for( DemographicPharmacy demographicPharmacy : dpList ) {
-			for( PharmacyInfo pharmacyInfo : pharmacyInfos ) {
-				if( demographicPharmacy.getPharmacyId() == pharmacyInfo.getId() ) {
-					pharmacyInfo.setPreferredOrder(demographicPharmacy.getPreferredOrder());
-					break;
-				}
-			}
-		}
-		
-		Collections.sort(pharmacyInfos);
-		return pharmacyInfos;
-	}
-	
-	public List<String> searchPharmacyCity( String searchTerm ) {
-		
-		return pharmacyInfoDao.searchPharmacyByCity(searchTerm);
-		
-	}
-	
-	public List<PharmacyInfo> searchPharmacy( String searchTerm ) {
-		
-		String[] terms;
-		String name = "", city = "";
-		
-		if( searchTerm.indexOf(",") > -1 ) {
-			terms = searchTerm.split(",",-1);
-			
-			switch(terms.length) {						
-			case 2:
-				city = terms[1];
-			case 1:
-				name = terms[0];
-			}
-		}
-		else {
-			name = searchTerm;
-		}
-		
-		return pharmacyInfoDao.searchPharmacyByNameAddressCity(name, city);
-		
-	}
-	
-	public void unlinkPharmacy( String pharmacyId, String demographicNo ) {
-		
-		demographicPharmacyDao.unlinkPharmacy(Integer.parseInt(pharmacyId), Integer.parseInt(demographicNo));
-		
-	}
+   /**
+    * Used to get the most recent pharmacy associated with this patient.  Returns a Pharmacy object with the latest data about that pharmacy.
+    * @param demographicNo patients demographic number
+    *
+    * @return Pharmacy data object
+    */
+   public PharmacyInfo getPharmacyFromDemographic(String demographicNo){
+	   DemographicPharmacy dp = demographicPharmacyDao.findByDemographicId(demographicNo);
+	   if(dp != null) {
+		   return pharmacyInfoDao.getPharmacy(String.valueOf(dp.getPharmacyId()));
+	   }
+	   return null;
+   }
 }

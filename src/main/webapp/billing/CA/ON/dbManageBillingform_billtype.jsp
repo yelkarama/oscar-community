@@ -23,24 +23,17 @@
     Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
+
 <%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin.billing,_admin" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_admin&type=_admin.billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
+if(session.getValue("user") == null) response.sendRedirect("../../../logout.jsp");
 %>
 
-<%@ page import="java.math.*, java.util.*, java.io.*, java.sql.*, oscar.*, java.net.*,oscar.MyDateFormat"%>
+<%@ page
+	import="java.math.*, java.util.*, java.io.*, java.sql.*, oscar.*, java.net.*,oscar.MyDateFormat"%>
 
-
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean"
+	scope="session" />
+<%@ include file="dbBilling.jspf"%>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.model.CtlBillingType" %>
 <%@ page import="org.oscarehr.common.dao.CtlBillingTypeDao" %>
@@ -56,8 +49,7 @@ billtype = request.getParameter("billtype");
 billtype_old = request.getParameter("billtype_old");
 
 if (billtype.equals("no")) {
-    ctlBillingTypeDao.remove(servicetype);
-    
+    int recordAffected = apptMainBean.queryExecuteUpdate(servicetype,"delete_ctlbilltype");
 }
 else if (billtype_old.equals("no")) {
     CtlBillingType cbt = new CtlBillingType();
@@ -65,11 +57,9 @@ else if (billtype_old.equals("no")) {
     cbt.setBillType(billtype);
     ctlBillingTypeDao.persist(cbt);
 } else {
-    CtlBillingType cbt = ctlBillingTypeDao.find(servicetype);
-    if(cbt != null) {
-    	cbt.setBillType(billtype);
-    	ctlBillingTypeDao.merge(cbt);
-    }
+    param[0]=billtype;
+    param[1]=servicetype;
+    int recordAffected = apptMainBean.queryExecuteUpdate(param,"update_ctlbilltype");
 }
 %>
 

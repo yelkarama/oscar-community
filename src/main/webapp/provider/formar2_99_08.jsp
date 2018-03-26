@@ -24,39 +24,20 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_form" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_form");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%
   String user_no = (String) session.getAttribute("user");
   String form_name="ar2_99_08";
   String username = (String) session.getAttribute("userlastname")+","+ (String) session.getAttribute("userfirstname");
 %>
-<%@ page import="java.util.*, java.sql.*, java.net.*, oscar.*, oscar.util.UtilDateUtilities, oscar.form.graphic.*" errorPage="errorpage.jsp"%>
-
+<%@ page
+	import="java.util.*, java.sql.*, java.net.*, oscar.*, oscar.util.UtilDateUtilities, oscar.form.graphic.*"
+	errorPage="errorpage.jsp"%>
+<%@ include file="/common/webAppContextAndSuperMgr.jsp"%>
 <%@page import="org.oscarehr.util.SpringUtils" %>
 <%@page import="org.oscarehr.common.dao.DemographicAccessoryDao" %>
 <%@page import="org.oscarehr.common.model.DemographicAccessory" %>
-<%@page import="org.oscarehr.common.dao.FormDao" %>
-<%@page import="org.oscarehr.common.model.Form" %>
-<%@page import="org.oscarehr.common.dao.DemographicDao" %>
-<%@page import="org.oscarehr.common.model.Demographic" %>
 <%
 	DemographicAccessoryDao demographicAccessoryDao = (DemographicAccessoryDao)SpringUtils.getBean("demographicAccessoryDao");
-	FormDao formDao = SpringUtils.getBean(FormDao.class);
-	DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
 %>
 
 <jsp:useBean id="checklist" class="oscar.OBChecklist_99_12" scope="page" />
@@ -144,17 +125,19 @@ function onSubmitForm() {
 
   if(!bNew ) { //not new form
     bNewList = false;
-    Form f = formDao.find(Integer.parseInt(request.getParameter("form_no")));
-    if(f != null) {
-    	content = f.getContent();
-    	%> <xml id="xml_list"><encounter><%=content%></encounter></xml> <%
+    List<Map<String, Object>> resultList = oscarSuperManager.find("providerDao", "search_form", new Object[] {request.getParameter("form_no")});
+    for (Map form : resultList) {
+      content = (String)form.get("content");
+%> <xml id="xml_list"><encounter><%=content%></encounter></xml> <%
     }
   } else {
 
 	//get the data from the latest version of artenatal record 1 or 2
-    Form f =  formDao.search_form_no(Integer.parseInt(request.getParameter("demographic_no")), "ar%");
-    if (f != null) {
-      content = f.getContent();
+    param2[0]=request.getParameter("demographic_no");
+    param2[1]="ar%";
+    List<Map<String, Object>> resultList = oscarSuperManager.find("providerDao", "compare_form", param2);
+    for (Map form : resultList) {
+      content = (String)form.get("content");
       birthAttendants = SxmlMisc.getXmlContent(content, "<xml_ba>","</xml_ba>");
 	  birthAttendants = birthAttendants==null?"":birthAttendants;
       newbornCare = SxmlMisc.getXmlContent(content, "<xml_nc>","</xml_nc>");
@@ -184,24 +167,24 @@ function onSubmitForm() {
       if( request.getParameter("bNext")!=null && request.getParameter("bNext").compareTo("1")==0 ) pageno++;
 	}
 
-    f = formDao.search_form_no(Integer.parseInt(request.getParameter("demographic_no")), "ar2%");	
-    
-    if (f != null) {
+    param2[0]=request.getParameter("demographic_no");
+    param2[1]="ar2%";  //form_name;
+    resultList = oscarSuperManager.find("providerDao", "compare_form", param2);
+    for (Map form : resultList) {
       bNew = false;
-      content = f.getContent();
+      content = (String)form.get("content");
 %> <xml id="xml_list"> <encounter> <%=content%> </encounter> </xml> <%
     }
 
-    Demographic d = demographicDao.getDemographic(request.getParameter("demographic_no"));
-    
-    if(d != null) {
-      demoname=d.getFormattedName();
-      address=d.getAddress() +",  "+d.getCity() +",  "+ d.getProvince() +"  "+ d.getPostal();
-      dob=d.getYearOfBirth()+"/"+d.getMonthOfBirth()+"/"+d.getDateOfBirth();
-      homephone=d.getPhone();
-      workphone=d.getPhone2();   
-      familydoc=d.getFamilyDoctor();
-      age=MyDateFormat.getAge(Integer.parseInt(d.getYearOfBirth()),Integer.parseInt(d.getMonthOfBirth()),Integer.parseInt(d.getDateOfBirth()));
+    resultList = oscarSuperManager.find("providerDao", "search_demograph", new Object[] {request.getParameter("demographic_no")});
+    for (Map demo : resultList) {
+      demoname=demo.get("last_name")+", "+demo.get("first_name");
+      address=demo.get("address") +",  "+demo.get("city") +",  "+ demo.get("province") +"  "+ demo.get("postal");
+      dob=demo.get("year_of_birth")+"/"+demo.get("month_of_birth")+"/"+demo.get("date_of_birth");
+      homephone=(String)demo.get("phone");
+      workphone=(String)demo.get("phone2");
+      familydoc=(String)demo.get("family_doctor");
+      age=MyDateFormat.getAge(Integer.parseInt((String)demo.get("year_of_birth")),Integer.parseInt((String)demo.get("month_of_birth")),Integer.parseInt((String)demo.get("date_of_birth")));
     }
 
     DemographicAccessory da = demographicAccessoryDao.find(Integer.parseInt(request.getParameter("demographic_no")));
@@ -1339,12 +1322,13 @@ Properties savedar1risk = new Properties();
 if(finalEDB==null || finalEDB=="") out.println("************No EDB, no check list!**************");
 else {
    savedar1risk.setProperty("finalEDB", finalEDB);
-   
-    Form f = formDao.search_form_no(Integer.parseInt(request.getParameter("demographic_no")), "ar%");	
+    param2[0] = request.getParameter("demographic_no");
+    param2[1] = "ar1%";  //form_name;
+    List<Map<String, Object>> resultList = oscarSuperManager.find("providerDao", "compare_form", param2);
     String temp = "";
 	StringBuffer tt;
-    if (f != null) {
-      temp = f.getContent();
+    for (Map form : resultList) {
+      temp = (String)form.get("content");
       Properties savedar1risk1 = risks.getRiskName("../webapps/"+oscarVariables.getProperty("project_home")+"/provider/obarrisks_99_12.xml");
       for (Enumeration e = savedar1risk1.propertyNames() ; e.hasMoreElements() ;) {
         tt = new StringBuffer().append(e.nextElement());

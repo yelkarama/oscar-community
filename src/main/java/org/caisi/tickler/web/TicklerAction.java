@@ -23,12 +23,7 @@
 
 package org.caisi.tickler.web;
 
-import java.io.IOException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -36,7 +31,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
@@ -45,654 +39,424 @@ import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 import org.apache.struts.action.DynaActionForm;
 import org.apache.struts.actions.DispatchAction;
+import org.caisi.model.CustomFilter;
+import org.caisi.model.EChart;
+import org.caisi.model.Tickler;
 import org.caisi.service.DemographicManagerTickler;
+import org.caisi.service.EChartManager;
+import org.caisi.service.TicklerManager;
 import org.caisi.tickler.prepared.PreparedTickler;
 import org.caisi.tickler.prepared.PreparedTicklerManager;
 import org.oscarehr.PMmodule.model.Program;
-import org.oscarehr.PMmodule.model.ProgramProvider;
-import org.oscarehr.PMmodule.service.AdmissionManager;
 import org.oscarehr.PMmodule.service.ProgramManager;
 import org.oscarehr.PMmodule.service.ProviderManager;
-import org.oscarehr.common.dao.EChartDao;
-import org.oscarehr.common.model.CustomFilter;
-import org.oscarehr.common.model.Demographic;
-import org.oscarehr.common.model.EChart;
+import org.oscarehr.common.dao.ConsultationRequestDao;
 import org.oscarehr.common.model.Provider;
-import org.oscarehr.common.model.Tickler;
-import org.oscarehr.common.model.TicklerComment;
-import org.oscarehr.common.model.TicklerLink;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.managers.TicklerManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SessionConstants;
 import org.oscarehr.util.SpringUtils;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 import oscar.OscarProperties;
 
+/*
+ * Updated by Eugene Petruhin on 11 dec 2008 while fixing #2356548 & #2393547
+ * Updated by Eugene Petruhin on 19 dec 2008 while fixing #2422864 & #2317933 & #2379840
+ */
 public class TicklerAction extends DispatchAction {
-	private static Logger log = MiscUtils.getLogger();
-	private TicklerManager ticklerManager = SpringUtils.getBean(TicklerManager.class);
-	private ProviderManager providerMgr = null;
-	private PreparedTicklerManager preparedTicklerMgr = null;
-	private DemographicManagerTickler demographicMgr = null;
-	private EChartDao echartDao = null;
-	private ProgramManager programMgr = null;
+    private static Logger log = MiscUtils.getLogger();
+    private TicklerManager ticklerMgr = null;
+    private ProviderManager providerMgr = null;
+    private PreparedTicklerManager preparedTicklerMgr = null;
+    private DemographicManagerTickler demographicMgr = null;
+    private EChartManager chartMgr = null;
+    private ProgramManager programMgr = null;
+    private ConsultationRequestDao consultationRequestDao = (ConsultationRequestDao)SpringUtils.getBean("consultationRequestDao");
 
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	private ProviderManager providerManager = SpringUtils.getBean(ProviderManager.class);
-	
-	
-	public void setDemographicManager(DemographicManagerTickler demographicManager) {
-		this.demographicMgr = demographicManager;
-	}
+    public void setTicklerManager(TicklerManager ticklerManager) {
+        this.ticklerMgr = ticklerManager;
+    }
 
-	public void setProviderManager(ProviderManager providerMgr) {
-		this.providerMgr = providerMgr;
-	}
+    public void setDemographicManager(DemographicManagerTickler demographicManager) {
+        this.demographicMgr = demographicManager;
+    }
 
-	public void setPreparedTicklerManager(PreparedTicklerManager preparedTicklerMgr) {
-		this.preparedTicklerMgr = preparedTicklerMgr;
-	}
+    public void setProviderManager(ProviderManager providerMgr) {
+        this.providerMgr = providerMgr;
+    }
 
-	public void setProgramManager(ProgramManager programMgr) {
+    public void setPreparedTicklerManager(PreparedTicklerManager preparedTicklerMgr) {
+        this.preparedTicklerMgr = preparedTicklerMgr;
+    }
+
+    public void setChartManager(EChartManager eChartManager) {
+        this.chartMgr = eChartManager;
+    }
+
+    public void setProgramManager(ProgramManager programMgr) {
 		this.programMgr = programMgr;
 	}
 
 	String getProviderNo(HttpServletRequest request) {
-		return (String) request.getSession().getAttribute("user");
-	}
+        return (String) request.getSession().getAttribute("user");
+    }
 
-	/* default to 'list' */
-	public ActionForward unspecified(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		log.debug("unspecified");
-		return filter(mapping, form, request, response);
-	}
+    /* default to 'list' */
+    public ActionForward unspecified(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        log.debug("unspecified");
+        return filter(mapping, form, request, response);
+    }
 
-	public String getFrom(HttpServletRequest request) {
-		String from = request.getParameter("from");
-		if (from == null) {
-			from = (String) request.getAttribute("from");
-		}
-		return from;
-	}
+    public String getFrom(HttpServletRequest request) {
+        String from = request.getParameter("from");
+        if (from == null) {
+            from = (String) request.getAttribute("from");
+        }
+        return from;
+    }
 
-	/* show a tickler */
-	public ActionForward view(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		log.debug("view");
-		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
 
-		String tickler_id = request.getParameter("id");
-		Tickler tickler = ticklerManager.getTickler(loggedInInfo, tickler_id);
-		request.setAttribute("tickler", tickler);
+    /* show a tickler */
+    public ActionForward view(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)  {
+        log.debug("view");
+        String tickler_id = request.getParameter("id");
+        Tickler tickler = ticklerMgr.getTickler(tickler_id);
+        request.setAttribute("tickler", tickler);
+        // only active providers listed in the program stuff can be assigned
+        if (tickler.getProgram_id()!=null) request.setAttribute("providers", providerMgr.getActiveProviders(null, tickler.getProgram_id().toString()));
+        else request.setAttribute("providers", providerMgr.getActiveProviders());
+        request.setAttribute("from", getFrom(request));
 
-		// only active providers listed in the program stuff can be assigned
-		if (tickler.getProgramId() != null) request.setAttribute("providers", providerMgr.getActiveProviders(null, tickler.getProgramId().toString()));
-		else request.setAttribute("providers", providerMgr.getActiveProviders());
+        return mapping.findForward("view");
+    }
 
-		request.setAttribute("from", getFrom(request));
+    /* run a filter */
+    /* show all ticklers */
+    public ActionForward filter(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+        log.debug("filter");
+        DynaActionForm ticklerForm = (DynaActionForm) form;
+        CustomFilter filter = (CustomFilter) ticklerForm.get("filter");
 
-		return mapping.findForward("view");
-	}
+        //view tickler from CME
+        String filter_clientId = filter.getDemographic_no();
+        String filter_clientName = filter.getDemographic_webName();
+        if (filter_clientId != null && !"".equals(filter_clientId)) {
+        	if (filter_clientName == null || "".equals(filter_clientName)) {
+        		filter.setDemographic_webName(demographicMgr.getDemographic(filter_clientId).getFormattedName());
+        	}
+        } else {
+        	filter_clientName = "";
+        	filter.setDemographic_webName("");
+        }
 
-	/* run a filter */
-	/* show all ticklers */
-	public ActionForward filter(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		log.debug("filter");
+        String providerId = (String)request.getSession().getAttribute("user");
+        String programId = "";
 
-		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+        List<Program> programs=programMgr.getProgramDomainInCurrentFacilityForCurrentProvider(true);
+        request.setAttribute("programs", programs);
 
-		DynaActionForm ticklerForm = (DynaActionForm) form;
-		CustomFilter filter = (CustomFilter) ticklerForm.get("filter");
+        // if program selected default to first
+        //if (filter.getProgramId()==null || filter.getProgramId().length()==0)
+        //{
+        //    if (programs.size()>0) filter.setProgramId(String.valueOf(programs.get(0).getId()));
+        //}
 
-		//view tickler from CME
-		String filter_clientId = filter.getDemographicNo();
-		String filter_clientName = filter.getDemographic_webName();
-		if (filter_clientId != null && !"".equals(filter_clientId)) {
-			if (filter_clientName == null || "".equals(filter_clientName)) {
-				filter.setDemographic_webName(demographicMgr.getDemographic(filter_clientId).getFormattedName());
-			}
-		} else {
-			filter_clientName = "";
-			filter.setDemographic_webName("");
-		}
+        List<Tickler> ticklers = ticklerMgr.getTicklers(filter,providerId, programId);
 
-		String providerId = (String) request.getSession().getAttribute("user");
-		String programId = "";
+        List cf = ticklerMgr.getCustomFilters(this.getProviderNo(request));
+        // make my tickler filter
+        boolean myticklerexisted = false;
+        for (int i = 0; i < cf.size(); i++) {
+            if ((((CustomFilter) (cf.get(i))).getName()).equals("*Myticklers*")) {
+                myticklerexisted = true;
+            }
+        }
+        if (!myticklerexisted) {
 
-		List<Program> programs = programMgr.getProgramDomainInCurrentFacilityForCurrentProvider(loggedInInfo, true);
-		request.setAttribute("programs", programs);
+            CustomFilter myfilter = new CustomFilter();
+            myfilter.setName("*Myticklers*");
+            myfilter.setStartDate("");
+            // myfilter.setEnd_date(new Date(System.currentTimeMillis()));
+            myfilter.setEndDate("");
+            myfilter.setProviderNo(this.getProviderNo(request));
+            myfilter.setStatus("A");
+            myfilter.setPriority("");
+            myfilter.setClient("");
+            myfilter.setAssignee((String) request.getSession().getAttribute("user"));
+            myfilter.setDemographic_webName("");
+            myfilter.setDemographic_no("");
+            myfilter.setProgramId("");
+            ticklerMgr.saveCustomFilter(myfilter);
+        }
 
-		List<Tickler> ticklers = ticklerManager.getTicklers(loggedInInfo, filter, providerId, programId);
+        String filter_order = (String) request.getSession().getAttribute("filter_order");
+        request.getSession().setAttribute("ticklers", ticklers);
+        request.setAttribute("providers", providerMgr.getProviders());
+        if( OscarProperties.getInstance().getBooleanProperty("clientdropbox","on") ) {
+            request.setAttribute("demographics", demographicMgr.getDemographics());
+        }
 
-		List<CustomFilter> cf = ticklerManager.getCustomFilters(this.getProviderNo(request));
-		// make my tickler filter
-		boolean myticklerexisted = false;
-		for (int i = 0; i < cf.size(); i++) {
-			if ((cf.get(i).getName()).equals("*Myticklers*")) {
-				myticklerexisted = true;
-			}
-		}
-		if (!myticklerexisted) {
+		request.setAttribute("customFilters", ticklerMgr.getCustomFilters(this.getProviderNo(request)));
+        request.setAttribute("from", getFrom(request));
+        request.getSession().setAttribute("filter_order", filter_order);
+        return mapping.findForward("list");
+    }
 
-			CustomFilter myfilter = new CustomFilter();
-			myfilter.setName("*Myticklers*");
-			myfilter.setStartDateWeb("");
-			// myfilter.setEnd_date(new Date(System.currentTimeMillis()));
-			myfilter.setEndDateWeb("");
-			myfilter.setProviderNo(this.getProviderNo(request));
-			myfilter.setStatus("A");
-			myfilter.setPriority("");
-			myfilter.setClient("");
-			myfilter.setAssignee((String) request.getSession().getAttribute("user"));
-			myfilter.setDemographic_webName("");
-			myfilter.setDemographicNo("");
-			myfilter.setProgramId("");
-			ticklerManager.saveCustomFilter(myfilter);
-		}
+    /* run myfilter */
+    /* show myticklers */
+    public ActionForward my_tickler_filter(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+        log.debug("my_tickler_filter");
+        DynaActionForm ticklerForm = (DynaActionForm) form;
+        CustomFilter filter = (CustomFilter) ticklerForm.get("filter");
+        filter.setStartDate(null);
+        filter.setEnd_date(new Date(System.currentTimeMillis()));
+        filter.setProvider(null);
+        filter.setStatus("A");
+        filter.setPriority(null);
+        filter.setClient(null);
+        filter.setAssignee((String) request.getSession().getAttribute("user"));
+        filter.setDemographic_webName(null);
+        filter.setProgramId(null);
+        String providerId = (String)request.getSession().getAttribute("user");
+        String programId = "";
+        List<Tickler> ticklers = ticklerMgr.getTicklers(filter,providerId,programId);
+        request.getSession().setAttribute("ticklers", ticklers);
+        request.setAttribute("providers", providerMgr.getProviders());
+        if( OscarProperties.getInstance().getBooleanProperty("clientdropbox","on") ) {
+            request.setAttribute("demographics", demographicMgr.getDemographics());
+        }
 
-		String filter_order = (String) request.getSession().getAttribute("filter_order");
-		request.getSession().setAttribute("ticklers", ticklers);
-		request.setAttribute("providers", providerMgr.getProviders());
-		if (OscarProperties.getInstance().getBooleanProperty("clientdropbox", "on")) {
-			request.setAttribute("demographics", demographicMgr.getDemographics());
-		}
+		request.setAttribute("programs", programMgr.getProgramDomainInCurrentFacilityForCurrentProvider(true));
 
-		request.setAttribute("customFilters", ticklerManager.getCustomFilters(this.getProviderNo(request)));
-		request.setAttribute("from", getFrom(request));
-		request.getSession().setAttribute("filter_order", filter_order);
-		return mapping.findForward("list");
-	}
+		request.setAttribute("customFilters", ticklerMgr.getCustomFilters(this.getProviderNo(request)));
+        request.setAttribute("from", getFrom(request));
+        return mapping.findForward("list");
+    }
 
-	/* run myfilter */
-	/* show myticklers */
-	public ActionForward my_tickler_filter(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		log.debug("my_tickler_filter");
+    public ActionForward run_custom_filter(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+        log.debug("run_custom_filter");
+        DynaActionForm ticklerForm = (DynaActionForm) form;
+        CustomFilter filter = (CustomFilter) ticklerForm.get("filter");
+        String name = filter.getName();
+        // CustomFilter newFilter = ticklerMgr.getCustomFilter(name);
+        CustomFilter newFilter = ticklerMgr.getCustomFilter(name, this.getProviderNo(request));
 
-		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+        /*
+         * String filterId = Long.toString(filter.getId()); CustomFilter newFilter = ticklerMgr.getCustomFilterById(Integer.valueOf(filterId));
+         */
+        if (newFilter == null) {
+            newFilter = new CustomFilter();
+        }
+        ticklerForm.set("filter", newFilter);
+        return filter(mapping, form, request, response);
+    }
 
-		DynaActionForm ticklerForm = (DynaActionForm) form;
-		CustomFilter filter = (CustomFilter) ticklerForm.get("filter");
-		filter.setStartDate(null);
-		filter.setEndDate(new Date(System.currentTimeMillis()));
-		filter.setProvider(null);
-		filter.setStatus("A");
-		filter.setPriority(null);
-		filter.setClient(null);
-		filter.setAssignee((String) request.getSession().getAttribute("user"));
-		filter.setDemographic_webName(null);
-		filter.setProgramId(null);
-		String providerId = (String) request.getSession().getAttribute("user");
-		String programId = "";
-		List<Tickler> ticklers = ticklerManager.getTicklers(loggedInInfo, filter, providerId, programId);
-		request.getSession().setAttribute("ticklers", ticklers);
-		request.setAttribute("providers", providerMgr.getProviders());
-		if (OscarProperties.getInstance().getBooleanProperty("clientdropbox", "on")) {
-			request.setAttribute("demographics", demographicMgr.getDemographics());
-		}
+    /* ningys-reassign a ticker */
+    public ActionForward reassign(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+        log.debug("reassign");
 
-		request.setAttribute("programs", programMgr.getProgramDomainInCurrentFacilityForCurrentProvider(loggedInInfo, true));
+        String id = request.getParameter("id");
+        String reassignee = request.getParameter("tickler.task_assigned_to");
+        log.debug("reassign by" + id);
 
-		request.setAttribute("customFilters", ticklerManager.getCustomFilters(this.getProviderNo(request)));
-		request.setAttribute("from", getFrom(request));
-		return mapping.findForward("list");
-	}
+        ticklerMgr.reassign(id, getProviderNo(request), reassignee);
 
-	public ActionForward run_custom_filter(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		log.debug("run_custom_filter");
-		DynaActionForm ticklerForm = (DynaActionForm) form;
-		CustomFilter filter = (CustomFilter) ticklerForm.get("filter");
-		String name = filter.getName();
-		// CustomFilter newFilter = ticklerMgr.getCustomFilter(name);
-		CustomFilter newFilter = ticklerManager.getCustomFilter(name, this.getProviderNo(request));
+        DynaActionForm ticklerForm = (DynaActionForm) form;
+        ticklerForm.set("tickler", new Tickler());
 
-		/*
-		 * String filterId = Long.toString(filter.getId()); CustomFilter newFilter = ticklerMgr.getCustomFilterById(Integer.valueOf(filterId));
-		 */
-		if (newFilter == null) {
-			newFilter = new CustomFilter();
-		}
-		ticklerForm.set("filter", newFilter);
-		return filter(mapping, form, request, response);
-	}
+        return view(mapping, form, request, response);
+    }
 
-	/* ningys-reassign a ticker */
-	public ActionForward reassign(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		log.debug("reassign");
-		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+    /* delete a tickler */
+    public ActionForward delete(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+        log.debug("delete");
+        String[] checks = request.getParameterValues("checkbox");
 
-		String id = request.getParameter("id");
-		String reassignee = request.getParameter("tickler.taskAssignedTo");
-		log.debug("reassign by" + id);
+        for (int x = 0; x < checks.length; x++) {
+            ticklerMgr.deleteTickler(checks[x], getProviderNo(request));
+        }
+        return filter(mapping, form, request, response);
+    }
 
-		ticklerManager.reassign(loggedInInfo, Integer.parseInt(id), getProviderNo(request), reassignee);
+    /* add a comment to a tickler */
+    public ActionForward add_comment(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+        log.debug("add_comment");
 
-		DynaActionForm ticklerForm = (DynaActionForm) form;
-		ticklerForm.set("tickler", new Tickler());
+        String id = request.getParameter("id");
+        String message = request.getParameter("comment");
+        log.debug("add_comment:" + id + "," + message);
 
-		return view(mapping, form, request, response);
-	}
+        ticklerMgr.addComment(id, getProviderNo(request), message);
 
-	/* delete a tickler */
-	public ActionForward delete(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		log.debug("delete");
-		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+        return view(mapping, form, request, response);
+    }
 
-		String[] checks = request.getParameterValues("checkbox");
+    /* complete a tickler */
+    public ActionForward complete(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)  {
+        log.debug("complete");
+        String[] checks = request.getParameterValues("checkbox");
 
-		for (int x = 0; x < checks.length; x++) {
-			ticklerManager.deleteTickler(loggedInInfo, Integer.parseInt(checks[x]), getProviderNo(request));
-		}
-		return filter(mapping, form, request, response);
-	}
+        for (int x = 0; x < checks.length; x++) {
+            ticklerMgr.completeTickler(checks[x], getProviderNo(request));
+        }
+        return filter(mapping, form, request, response);
+    }
 
-	/* add a comment to a tickler */
-	public ActionForward add_comment(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		log.debug("add_comment");
-		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+    /* edit a tickler */
+    public ActionForward edit(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+        log.debug("edit");
+        String programId = (String) request.getSession().getAttribute(SessionConstants.CURRENT_PROGRAM_ID);
+        if(programId == null) {
+        	programId = String.valueOf(programMgr.getProgramIdByProgramName("OSCAR"));
+        }
+        request.setAttribute("providers", providerMgr.getActiveProviders(null, programId));
+        request.setAttribute("program_name", programMgr.getProgramName(programId));
+        request.setAttribute("from", getFrom(request));
+        return mapping.findForward("edit");
+    }
 
-		String id = request.getParameter("id");
-		String message = request.getParameter("comment");
-		log.debug("add_comment:" + id + "," + message);
+    /* save a tickler */
+    public ActionForward save(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        log.debug("save");
+        Provider user = providerMgr.getProvider(getProviderNo(request));
+        DynaActionForm ticklerForm = (DynaActionForm) form;
+        Tickler tickler = (Tickler) ticklerForm.get("tickler");
 
-		ticklerManager.addComment(loggedInInfo, Integer.parseInt(id), getProviderNo(request), message);
+        // set the program which the tickler was written in if there is a program.
+        String programIdStr = (String) request.getSession().getAttribute(SessionConstants.CURRENT_PROGRAM_ID);
+        if (programIdStr != null) tickler.setProgram_id(Integer.valueOf(programIdStr));
 
-		return view(mapping, form, request, response);
-	}
+        /* get service time */
+        String service_hour = request.getParameter("tickler.service_hour");
+        String service_minute = request.getParameter("tickler.service_minute");
+        String service_ampm = request.getParameter("tickler.service_ampm");
+        tickler.setServiceTime(service_hour + ":" + service_minute + " " + service_ampm);
 
-	/* complete a tickler */
-	public ActionForward complete(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		log.debug("complete");
-		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+        tickler.setUpdate_date(new java.util.Date());
 
-		String[] checks = request.getParameterValues("checkbox");
+        ticklerMgr.addTickler(tickler);
 
-		for (int x = 0; x < checks.length; x++) {
-			ticklerManager.completeTickler(loggedInInfo, Integer.parseInt(checks[x]), getProviderNo(request));
-		}
-		return filter(mapping, form, request, response);
-	}
+        String echart = request.getParameter("echart");
+        if (echart != null && echart.equals("true")) {
+            Provider assignee = providerMgr.getProvider(tickler.getTask_assigned_to());
 
-	/* edit a tickler */
-	public ActionForward edit(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		log.debug("edit");
-		String programId = (String) request.getSession().getAttribute(SessionConstants.CURRENT_PROGRAM_ID);
-		if (programId == null) {
-			programId = String.valueOf(programMgr.getProgramIdByProgramName("OSCAR"));
-		}
-		//request.setAttribute("providers", providerMgr.getActiveProviders(null, programId));
-		request.setAttribute("program_name", programMgr.getProgramName(programId));
-		request.setAttribute("from", getFrom(request));
-		
-		
-		//using the current program (or the user selected one by priority) , filter the provider list by that providers
-		//that are staff of that program.
-		List<ProgramProvider> pps = programMgr.getProgramProviders(programId);
-		List<Provider> providers = new ArrayList<Provider>();
-		for(ProgramProvider pp:pps) {
-			Provider provider = providerManager.getProvider(pp.getProviderNo()); 
-			if("1".equals(provider.getStatus())) {
-				providers.add(provider);
-			}
-		}
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            SimpleDateFormat formatter2 = new SimpleDateFormat("MM/dd/yy : hh:mm a");
 
-		String demographicNo = request.getParameter("tickler.demographicNo");
-		if(!StringUtils.isEmpty(demographicNo)) {
-			Demographic demo = demographicMgr.getDemographic(demographicNo);
-			if(demo != null) {
-				request.setAttribute("demographicName", demo.getFormattedName());
-			}
-		}
-		
-		List<Program> programDomain = programMgr.getProgramDomain(LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo());
-		//further filter by patient admissions.
-		AdmissionManager admissionManager = SpringUtils.getBean(AdmissionManager.class);
-		if(demographicNo != null) {
-			programDomain = admissionManager.filterProgramListByCurrentPatientAdmissions(programDomain,Integer.parseInt(demographicNo));
-		}
-		
-		//is the set program in the available domain? if not, choose the first one
-		boolean found=false;
-		for(Program p:programDomain) {
-			if(p.getId().intValue() == Integer.parseInt(programId)) {
-				found=true;
-				break;
-			}
-		}
-		
-		if(!found) {
-			programId = programDomain.get(0).getId().toString();
-		}
+            /* get current chart */
+            EChart tempChart = chartMgr.getLatestChart(tickler.getDemographic_no());
+            String postedDate = "";
+            if (tempChart != null) {
+                postedDate = formatter.format(tempChart.getTimeStamp());
+            }
 
-		Collections.sort(providers,  new Provider().ComparatorName());
-		
-		request.setAttribute("programDomain",programDomain);
-		request.setAttribute("currentProgramId", programId);
-		request.setAttribute("program_name", programMgr.getProgramName(programId));
+            /* create new object */
+            EChart chart = new EChart();
+            if (tempChart != null) {
+                BeanUtils.copyProperties(chart, tempChart);
+            }
+            else {
+                String curUser_no = (String) request.getSession().getAttribute("user");
+                chart.setProviderNo(curUser_no);
+            }
+            String today = formatter.format(new Date());
 
-		request.setAttribute("providers", providers);
-		
-		return mapping.findForward("edit");
-	}
+            String e = chart.getEncounter();
+            StringBuilder buf;
+            if (e != null) {
+                buf = new StringBuilder(e);
+            }
+            else {
+                buf = new StringBuilder();
+            }
+            buf.append("\n\n");
+            if (!today.equals(postedDate)) {
+                buf.append("__________________________________________________\n");
+                buf.append("[" + today + " .: ]");
+                buf.append("\n");
+            }
+            buf.append("Message from  [" + user.getFormattedName() + "] to [" + assignee.getFormattedName() + "] [assigned " + formatter2.format(tickler.getUpdate_date()) + "]\n");
+            buf.append("'" + tickler.getMessage() + "'");
+            chart.setEncounter(buf.toString());
+            chart.setId(null);
+            chartMgr.saveEncounter(chart);
+        }
 
-	/* save a tickler */
-	public ActionForward save(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		log.debug("save");
-		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
-
-		Provider user = providerMgr.getProvider(getProviderNo(request));
-		DynaActionForm ticklerForm = (DynaActionForm) form;
-		Tickler tickler = (Tickler) ticklerForm.get("tickler");
-
-		//Set the document if it's coming from the inbox
-		String docType = request.getParameter("docType");
-		String docId = request.getParameter("docId"); 
-		
-		// set the program which the tickler was written in if there is a program.
-		//String programIdStr = (String) request.getSession().getAttribute(SessionConstants.CURRENT_PROGRAM_ID);
-		//if (programIdStr != null) tickler.setProgramId(Integer.valueOf(programIdStr));
-
-		String programNo = request.getParameter("tickler.program_no");
-		if(!StringUtils.isEmpty(programNo)) {
-			tickler.setProgramId(Integer.valueOf(programNo));
-		}
-			
-		
-		/* get service time */
-		String service_date = request.getParameter("tickler.serviceDateWeb");
-		Date serviceDateDt = null;
-		try {
-			serviceDateDt = new SimpleDateFormat("yyyy-MM-dd").parse(service_date);
-		}catch(ParseException e) {
-			serviceDateDt = new Date();
-		}
-		tickler.setServiceDate(serviceDateDt);
-		
-		String service_hour = request.getParameter("tickler.service_hour");
-		String service_minute = request.getParameter("tickler.service_minute");
-		String service_ampm = request.getParameter("tickler.service_ampm");
-		tickler.setServiceTime(service_hour + ":" + service_minute + " " + service_ampm);
-
-		tickler.setUpdateDate(new java.util.Date());
-		tickler.setId(null);
-		
-		ticklerManager.addTickler(loggedInInfo, tickler);
-		
-
-	   if (docType != null && docId != null && !docType.trim().equals("") && !docId.trim().equals("") && !docId.equalsIgnoreCase("null") ){
-
-		   		 int ticklerNo = tickler.getId();
-		   		 if (ticklerNo >0){
-		   			 try{
-			             TicklerLink tLink = new TicklerLink();
-			             tLink.setTableId(Long.parseLong(docId));
-			             tLink.setTableName(docType);
-			             tLink.setTicklerNo(new Long(ticklerNo).intValue());
-			      
-			             ticklerManager.addTicklerLink(loggedInInfo,tLink);
-		   			 }catch(Exception e){	
-			   			 MiscUtils.getLogger().error("No link with this tickler",e);
-		   			 }
-		   		 }
-	             	
-	   }		
-		
-
-		String echart = request.getParameter("echart");
-		if (echart != null && echart.equals("true")) {
-			Provider assignee = providerMgr.getProvider(tickler.getTaskAssignedTo());
-
-			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-			SimpleDateFormat formatter2 = new SimpleDateFormat("MM/dd/yy : hh:mm a");
-
-			/* get current chart */
-			EChart tempChart = echartDao.getLatestChart(tickler.getDemographicNo());
-			String postedDate = "";
-			if (tempChart != null) {
-				postedDate = formatter.format(tempChart.getTimestamp());
-			}
-
-			/* create new object */
-			EChart chart = new EChart();
-			if (tempChart != null) {
-				BeanUtils.copyProperties(chart, tempChart);
-			} else {
-				String curUser_no = (String) request.getSession().getAttribute("user");
-				chart.setProviderNo(curUser_no);
-			}
-			String today = formatter.format(new Date());
-
-			String e = chart.getEncounter();
-			StringBuilder buf;
-			if (e != null) {
-				buf = new StringBuilder(e);
-			} else {
-				buf = new StringBuilder();
-			}
-			buf.append("\n\n");
-			if (!today.equals(postedDate)) {
-				buf.append("__________________________________________________\n");
-				buf.append("[" + today + " .: ]");
-				buf.append("\n");
-			}
-			buf.append("Message from  [" + user.getFormattedName() + "] to [" + assignee.getFormattedName() + "] [assigned " + formatter2.format(tickler.getUpdateDate()) + "]\n");
-			buf.append("'" + tickler.getMessage() + "'");
-			chart.setEncounter(buf.toString());
-			chart.setId(null);
-			echartDao.persist(chart);
-		}
-
-		ActionMessages messages = new ActionMessages();
-		messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("tickler.saved"));
-		saveMessages(request, messages);
+        ActionMessages messages = new ActionMessages();
+        messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("tickler.saved"));
+        saveMessages(request, messages);
 
 		CustomFilter filter = new CustomFilter();
-		filter.setDemographicNo(tickler.getDemographicNo().toString());
-		filter.setDemographic_webName(tickler.getDemographic_webName());
-		filter.setEndDate(null);
+        filter.setDemographic_no(tickler.getDemographic_no());
+        filter.setDemographic_webName(tickler.getDemographic_webName());
+        filter.setEnd_date(null);
 		ticklerForm.set("filter", filter);
 		ticklerForm.set("tickler", new Tickler());
-		//  return filter(mapping, form, request, response);
-		ActionForward af = new ActionForward();
-		af.setRedirect(true);
-		af.setPath("/Tickler.do?tickler.demographic_webName=" + tickler.getDemographic_webName() + "&tickler.demographicNo=" + tickler.getDemographicNo());
-		return af;
+      //  return filter(mapping, form, request, response);
+        ActionForward af = new ActionForward();
+        af.setRedirect(true);
+        af.setPath("/Tickler.do?tickler.demographic_webName="+tickler.getDemographic_webName()+"&tickler.demographic_no="+tickler.getDemographic_no());
+        return af;
 
-	}
+    }
 
-	/* get a list of prepared ticklers */
-	public ActionForward prepared_tickler_list(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		log.debug("prepared_tickler_list");
-		String path = this.getServlet().getServletContext().getRealPath("/");
-		preparedTicklerMgr.setPath(path);
-		request.setAttribute("preparedTicklers", preparedTicklerMgr.getTicklers());
-		request.setAttribute("from", getFrom(request));
-		return mapping.findForward("preparedTicklerList");
-	}
+    /* get a list of prepared ticklers */
+    public ActionForward prepared_tickler_list(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+        log.debug("prepared_tickler_list");
+        String path = this.getServlet().getServletContext().getRealPath("/");
+        preparedTicklerMgr.setPath(path);
+        request.setAttribute("preparedTicklers", preparedTicklerMgr.getTicklers());
+        request.setAttribute("from", getFrom(request));
+        return mapping.findForward("preparedTicklerList");
+    }
 
-	public ActionForward prepared_tickler_edit(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		log.debug("prepared_tickler_edit");
+    public ActionForward prepared_tickler_edit(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        log.debug("prepared_tickler_edit");
 
-		String name = request.getParameter("id");
-		PreparedTickler pt = preparedTicklerMgr.getTickler(name);
+        String name = request.getParameter("id");
+        PreparedTickler pt = preparedTicklerMgr.getTickler(name);
 
-		if (pt != null) {
-			pt.setDependency("ticklerManager", ticklerManager);
-			pt.setDependency("providerManager", providerMgr);
-			ActionForward af = pt.execute(mapping, form, request, response);
-			if (af != null) {
-				return af;
-			}
-		}
-
-		return prepared_tickler_list(mapping, form, request, response);
-	}
-
-	/* complete a tickler */
-	public ActionForward update_status(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		log.debug("update_status");
-		char status = request.getParameter("status").charAt(0);
-		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
-
-		String id = request.getParameter("id");
-
-		switch (status) {
-		case 'A':
-			ticklerManager.activateTickler(loggedInInfo, Integer.parseInt(id), getProviderNo(request));
-			break;
-		case 'C':
-			ticklerManager.completeTickler(loggedInInfo, Integer.parseInt(id), getProviderNo(request));
-			break;
-		case 'D':
-			ticklerManager.deleteTickler(loggedInInfo, Integer.parseInt(id), getProviderNo(request));
-			break;
-		}
-		return this.view(mapping, form, request, response);
-	}
-
-	public boolean isModuleLoaded(HttpServletRequest request, String moduleName) {
-
-		OscarProperties proper = OscarProperties.getInstance();
-
-		if (proper.getProperty(moduleName, "").equalsIgnoreCase("yes") || proper.getProperty(moduleName, "").equalsIgnoreCase("true") || proper.getProperty(moduleName, "").equalsIgnoreCase("on")) {
-			return true;
-		}
-
-		return false;
-	}
-
-	public ActionForward print(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
-
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_tickler", "r", null)) {
-			throw new RuntimeException("Access Denied");
-		}
-		
-		Tickler t = ticklerManager.getTickler(LoggedInInfo.getLoggedInInfoFromSession(request), request.getParameter("id"));
-		if (t != null) {
-			response.setHeader("Content-Disposition", "inline; filename=\"" + t.getDemographic().getLastName() + t.getDemographic().getFirstName() + t.getId() + ".pdf\"");
-			response.setHeader("Expires", "0");
-			response.setHeader("Cache-Control", "must-revalidate, post-check=0, pre-check=0");
-			response.setHeader("Pragma", "public");
-			response.setContentType("application/pdf");
-
-			TicklerPrinter tp = new TicklerPrinter(t, response.getOutputStream());
-			tp.start();
-			tp.printDocHeaderFooter();
-			tp.printTicklerInfo();
-			tp.finish();
-		}
-
-		return null;
-	}
-	
-	public ActionForward getProgramDomain(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String providerNo = request.getParameter("providerNo");
-		
-		List<Program> programs = programMgr.getProgramDomain(providerNo);
-		List<Integer> programIds = new ArrayList<Integer>();
-		for(Program p:programs) {
-			programIds.add(p.getId());
-		}
-		
-		JSONArray jsonArray = JSONArray.fromObject( programIds );
-		response.getWriter().print(jsonArray);
-		
-		return null;
-	}
-	
-	public ActionForward getProvidersByProgram(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String programNo = request.getParameter("programNo");
-		
-		List<ProgramProvider> pps = programMgr.getProgramProviders(programNo);
-		List<LightProvider> providers = new ArrayList<LightProvider>();
-		for(ProgramProvider pp:pps) {
-			Provider provider = providerManager.getProvider(pp.getProviderNo()); 
-			if("1".equals(provider.getStatus())) {
-				providers.add(new LightProvider(provider.getProviderNo(),provider.getFormattedName()));
-				
-			}
-		}
-		//sort
-		Collections.sort(providers,  TicklerAction.NameComparator);
-		
-		JSONArray jsonArray = JSONArray.fromObject( providers );
-		response.getWriter().print(jsonArray);
-		
-		return null;
-	}
-	
-	public ActionForward getTicklerSummaryForSearchPageTooltip(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException {
-		
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_tickler", "r", null)) {
-			throw new RuntimeException("Access Denied");
-		}
-		
-		String demographicNo = request.getParameter("demographic_no");
-		String limit = request.getParameter("limit");
-		
-		int nLimit = limit != null ? Integer.parseInt(limit) : 5;
-		
-		
-		CustomFilter cf = new CustomFilter();
-		cf.setDemographicNo(demographicNo);
-		
-		List<Tickler> ticklers = ticklerManager.getTicklers(LoggedInInfo.getLoggedInInfoFromSession(request), cf,0,nLimit);
-		
-		JSONArray arr = new JSONArray();
-		for(Tickler t:ticklers) {
-			JSONObject o = new JSONObject();
-			o.put("id", t.getId());
-			o.put("message", t.getMessage());
-			o.put("serviceDate", t.getServiceDateWeb());
-			if(!t.getComments().isEmpty()) {
-				TicklerComment comment = null;
-				for(TicklerComment c:t.getComments()) {
-					comment = c;
-				}
-				o.put("latestComment", comment.getMessage());
-				o.put("latestCommentAuthor", comment.getProvider().getFormattedName());
-			}
-			arr.add(o);
-		}
-		
-		arr.write(response.getWriter());
-		
-		return null;
-	}
-	
-	public static final Comparator<LightProvider> NameComparator = new Comparator<LightProvider>() {
-        public int compare(LightProvider dm1, LightProvider dm2) {
-        	return dm1.getName().compareTo(dm2.getName());
+        if (pt != null) {
+            pt.setDependency("ticklerManager", ticklerMgr);
+            pt.setDependency("providerManager", providerMgr);
+            ActionForward af = pt.execute(mapping, form, request, response);
+            if (af != null) {
+                return af;
+            }
         }
-    }; 
-	
-	public class LightProvider {
-		private String providerNo;
-		private String name;
-		
-		public LightProvider(String providerNo, String name) {
-			this.providerNo = providerNo;
-			this.name = name;
-			
-		}
 
-		public String getProviderNo() {
-			return providerNo;
-		}
-	
-		public void setProviderNo(String providerNo) {
-			this.providerNo = providerNo;
-		}
-	
-		public String getName() {
-			return name;
-		}
-	
-		public void setName(String name) {
-			this.name = name;
-		}
-		
-	}
+        return prepared_tickler_list(mapping, form, request, response);
+    }
+
+    /* complete a tickler */
+    public ActionForward update_status(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)  {
+        log.debug("update_status");
+        char status = request.getParameter("status").charAt(0);
+
+        String id = request.getParameter("id");
+
+        switch (status) {
+            case 'A':
+                ticklerMgr.activateTickler(id, getProviderNo(request));
+                break;
+            case 'C':
+                ticklerMgr.completeTickler(id, getProviderNo(request));
+                break;
+            case 'D':
+                ticklerMgr.deleteTickler(id, getProviderNo(request));
+                break;
+        }
+        return this.view(mapping, form, request, response);
+    }
+
+    public boolean isModuleLoaded(HttpServletRequest request, String moduleName) {
+
+
+        OscarProperties proper = OscarProperties.getInstance();
+
+        if (proper.getProperty(moduleName, "").equalsIgnoreCase("yes") || proper.getProperty(moduleName, "").equalsIgnoreCase("true") || proper.getProperty(moduleName, "").equalsIgnoreCase("on")) {
+            return true;
+        }
+
+        return false;
+    }
 }

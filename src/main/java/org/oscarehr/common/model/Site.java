@@ -31,7 +31,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
 @Entity
 @Table(name="site")
@@ -82,21 +81,7 @@ public class Site extends AbstractModel<Integer> implements java.io.Serializable
 	@Column(name="providerId_to")
 	private Integer providerIdTo;
 	private byte status;
-	private Integer siteLogoId=null;
-	@Column(name="siteUrl", length=100)
-	private String siteUrl = "";
-	
-	public String getSiteUrl() {
-		return siteUrl;
-	}
 
-	public void setSiteUrl(String siteUrl) {
-		this.siteUrl = siteUrl;
-	}
-
-	@Transient
-	private String siteLogoDesc = null;
-	
 	/**
 	 *     <set name="providers" table="providersite" cascade="all" lazy="false" fetch="join" inverse="true">
            <key column="site_id"/>
@@ -258,22 +243,4 @@ public class Site extends AbstractModel<Integer> implements java.io.Serializable
 	public void setProviders(Set<Provider> providers) {
 		this.providers = providers;
 	}
-
-	public Integer getSiteLogoId() {
-		return siteLogoId;
-	}
-
-	public void setSiteLogoId(Integer siteLogoId) {
-		this.siteLogoId = siteLogoId;
-	}
-
-	public String getSiteLogoDesc() {
-		return siteLogoDesc;
-	}
-
-	public void setSiteLogoDesc(String siteLogoDesc) {
-		this.siteLogoDesc = siteLogoDesc;
-	} 
-	
-	
 }

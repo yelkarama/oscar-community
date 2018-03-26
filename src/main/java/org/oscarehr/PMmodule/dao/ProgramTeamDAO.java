@@ -23,12 +23,10 @@
 
 package org.oscarehr.PMmodule.dao;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
-import org.hibernate.Session;
 import org.oscarehr.PMmodule.model.ProgramTeam;
 import org.oscarehr.util.MiscUtils;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -62,17 +60,12 @@ public class ProgramTeamDAO extends HibernateDaoSupport {
         if (teamName == null || teamName.length() <= 0) {
             throw new IllegalArgumentException();
         }
-        Session session = getSession();
-        Query query = session.createQuery("select pt.id from ProgramTeam pt where pt.programId = ? and pt.name = ?");
+
+        Query query = getSession().createQuery("select pt.id from ProgramTeam pt where pt.programId = ? and pt.name = ?");
         query.setLong(0, programId.longValue());
         query.setString(1, teamName);
 
-        List teams = new ArrayList();
-        try {
-        	teams = query.list();
-        }finally{
-        	this.releaseSession(session);
-        }
+        List teams = query.list();
 
         if (log.isDebugEnabled()) {
             log.debug("teamNameExists: programId = " + programId + ", teamName = " + teamName + ", result = " + !teams.isEmpty());

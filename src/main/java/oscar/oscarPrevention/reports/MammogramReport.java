@@ -38,7 +38,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 
 import oscar.oscarEncounter.oscarMeasurements.bean.EctMeasurementsDataBean;
@@ -57,18 +56,18 @@ public class MammogramReport implements PreventionReport{
     public MammogramReport() {
     }
 
-    public Hashtable runReport(LoggedInInfo loggedInInfo,ArrayList<ArrayList<String>> list,Date asofDate){
+    public Hashtable runReport(ArrayList<ArrayList<String>> list,Date asofDate){
         int inList = 0;
         double done= 0,doneWithGrace = 0;
         ArrayList<PreventionReportDisplay> returnReport = new ArrayList<PreventionReportDisplay>();
 
         for (int i = 0; i < list.size(); i ++){//for each  element in arraylist
              ArrayList<String> fieldList = list.get(i);
-             Integer demo =Integer.valueOf(fieldList.get(0));
+             String demo = fieldList.get(0);
 
              //search   prevention_date prevention_type  deleted   refused
-             ArrayList<Map<String,Object>>  prevs = PreventionData.getPreventionData(loggedInInfo, "MAM",demo);
-             PreventionData.addRemotePreventions(loggedInInfo, prevs, demo,"MAM",null);
+             ArrayList<Map<String,Object>>  prevs = PreventionData.getPreventionData("MAM",demo);
+             PreventionData.addRemotePreventions(prevs, Integer.parseInt(demo),"MAM",null);
              ArrayList<Map<String,Object>> noFutureItems =  removeFutureItems(prevs, asofDate);
              PreventionReportDisplay prd = new PreventionReportDisplay();
              prd.demographicNo = demo;
@@ -198,7 +197,7 @@ public class MammogramReport implements PreventionReport{
           String percentWithGraceStr = "0";
           double eligible = list.size() - inList;
           log.debug("eligible "+eligible+" done "+done);
-          if ((int)eligible != 0){
+          if (eligible != 0){
              double percentage = ( done / eligible ) * 100;
              double percentageWithGrace =  (done+doneWithGrace) / eligible  * 100 ;
              log.debug("in percentage  "+percentage   +" "+( done / eligible));

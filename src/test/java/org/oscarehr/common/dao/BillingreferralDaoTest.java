@@ -35,7 +35,7 @@ import org.oscarehr.util.SpringUtils;
 
 public class BillingreferralDaoTest extends DaoTestFixtures {
 
-	protected BillingreferralDao dao = (BillingreferralDao)SpringUtils.getBean("BillingreferralDAO");
+	private BillingreferralDao dao = (BillingreferralDao)SpringUtils.getBean("BillingreferralDAO");
 
 	public BillingreferralDaoTest() {
 	}

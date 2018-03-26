@@ -24,31 +24,8 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin,_admin.userAdmin" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_admin&type=_admin.userAdmin");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-<%@page import="org.oscarehr.common.model.Security"%>
-<%@page import="org.oscarehr.common.model.Provider"%>
-<%@page import="org.oscarehr.util.SpringUtils"%>
-<%@ page import="org.oscarehr.util.LoggedInInfo" %>
-<%@ page import="org.oscarehr.managers.SecurityManager" %>
-<%
-	LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
-	org.oscarehr.managers.SecurityManager securityManager = SpringUtils.getBean(org.oscarehr.managers.SecurityManager.class);
-%>
-<%@page import="java.util.Collections, java.util.Arrays, java.util.ArrayList"%>
+<%@page
+	import="java.util.Collections, java.util.Arrays, java.util.ArrayList, java.sql.ResultSet, java.sql.SQLException, oscar.oscarDB.DBHandler"%>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
    "http://www.w3.org/TR/html4/strict.dtd">
@@ -87,24 +64,30 @@
 <form method="post" action="newCaseManagement.jsp" id="sbForm"><input
 	type="checkbox" name="checkAll2" onclick="checkAll('sbForm')"
 	id="checkA" /> Check All<br>
-<%
-	for(Object[] o : securityManager.findProviders(loggedInInfo)) {
-		Security s = (Security) o[0];
-		Provider p = (Provider) o[1];
-
-		String provNo = p.getProviderNo();
+<%            
+            try {
+                String sql = "SELECT provider.provider_no, last_name, first_name from provider, security where provider.provider_no = security.provider_no order by last_name";
+                
+                ResultSet rs = DBHandler.GetSQL(sql);                            
+                
+                while(rs.next()) {
+                    String provNo = oscar.Misc.getString(rs,"provider_no");
                     if( newDocArr.contains("all") || newDocArr.contains(provNo)) {
-%> <input type="checkbox" name="encTesters" value="<%=provNo%>" checked><%=p.getLastName()%>,
-<%=p.getFirstName()%><br>
+%> <input type="checkbox" name="encTesters" value="<%=provNo%>" checked><%=oscar.Misc.getString(rs,"last_name")%>,
+<%=oscar.Misc.getString(rs,"first_name")%><br>
 <%
                     }
                     else {
-%> <input type="checkbox" name="encTesters" value="<%=provNo%>"><%=p.getLastName()%>,
-<%=p.getFirstName()%><br>
+%> <input type="checkbox" name="encTesters" value="<%=provNo%>"><%=oscar.Misc.getString(rs,"last_name")%>,
+<%=oscar.Misc.getString(rs,"first_name")%><br>
 <%                   
                     }                
                 }
-%> <input type="submit" value="Update">
+%> <input type="submit" value="Update"> <%                
+            }catch(SQLException ex ) {
+                MiscUtils.getLogger().error("SQL Error " + ex.getMessage());
+            }
+%>
 </form>
 <%
         }

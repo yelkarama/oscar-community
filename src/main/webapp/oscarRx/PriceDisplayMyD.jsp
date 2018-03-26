@@ -24,21 +24,6 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_rx" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_rx");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%@ page
 	import="java.util.*,oscar.oscarRx.data.*,oscar.oscarRx.pageUtil.*,java.io.*,org.apache.xmlrpc.*"%>
 <%
@@ -138,16 +123,10 @@ Retailer:<%=ht.get("reference")%></div>
    
    private Object callWebserviceLite(String procedureName,Vector params) throws Exception{
         Object object = null;
-        String server_url = "http://know2act.org/backend/api";
+        String server_url = "http://dev2.mydrugref.org/backend/api";
         try{
-            if (!System.getProperty("http.proxyHost","").isEmpty()) {
-                //The Lite client won't recgonize JAVA_OPTS as it uses a customized http
-                XmlRpcClient server = new XmlRpcClient(server_url);
-                object = (Object) server.execute(procedureName, params);
-            } else {
-                XmlRpcClientLite server = new XmlRpcClientLite(server_url);
-                object = (Object) server.execute(procedureName, params);
-            }
+            XmlRpcClientLite server = new XmlRpcClientLite(server_url);
+            object = (Object) server.execute(procedureName, params);
         }catch (XmlRpcException exception) {
             MiscUtils.getLogger().error("JavaClient: XML-RPC Fault #" + exception.code, exception);
             

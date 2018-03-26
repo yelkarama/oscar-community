@@ -23,8 +23,6 @@
 
 package org.oscarehr.PMmodule.web;
 
-import java.io.IOException;
-import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -51,21 +49,18 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 import org.apache.struts.action.RedirectingActionForward;
-import org.apache.struts.actions.DispatchAction;
 import org.oscarehr.PMmodule.caisi_integrator.CaisiIntegratorManager;
 import org.oscarehr.PMmodule.exception.AdmissionException;
 import org.oscarehr.PMmodule.exception.FunctionalCentreDischargeException;
 import org.oscarehr.PMmodule.exception.ProgramFullException;
 import org.oscarehr.PMmodule.exception.ServiceRestrictionException;
+import org.oscarehr.PMmodule.model.Admission;
 import org.oscarehr.PMmodule.model.Agency;
 import org.oscarehr.PMmodule.model.Intake;
 import org.oscarehr.PMmodule.model.IntakeNode;
 import org.oscarehr.PMmodule.model.IntakeNodeJavascript;
+import org.oscarehr.PMmodule.model.JointAdmission;
 import org.oscarehr.PMmodule.model.Program;
-import org.oscarehr.PMmodule.service.AdmissionManager;
-import org.oscarehr.PMmodule.service.ClientManager;
-import org.oscarehr.PMmodule.service.GenericIntakeManager;
-import org.oscarehr.PMmodule.service.ProgramManager;
 import org.oscarehr.PMmodule.service.SurveyManager;
 import org.oscarehr.PMmodule.web.formbean.DemographicExtra;
 import org.oscarehr.PMmodule.web.formbean.GenericIntakeEditFormBean;
@@ -79,76 +74,30 @@ import org.oscarehr.caisi_integrator.ws.ReferralWs;
 import org.oscarehr.casemgmt.dao.ClientImageDAO;
 import org.oscarehr.casemgmt.model.ClientImage;
 import org.oscarehr.common.dao.OcanStaffFormDao;
-import org.oscarehr.casemgmt.service.CaseManagementManager;
-import org.oscarehr.common.model.Admission;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.Demographic.PatientStatus;
 import org.oscarehr.common.model.OcanStaffForm;
-import org.oscarehr.common.model.JointAdmission;
-//import org.oscarehr.match.IMatchManager;
-//import org.oscarehr.match.MatchManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SessionConstants;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.OscarProperties;
 import oscar.log.LogAction;
 import oscar.log.LogConst;
 
-
-public class GenericIntakeEditAction extends DispatchAction {
+public class GenericIntakeEditAction extends BaseGenericIntakeAction {
 
 	private static Logger LOG = MiscUtils.getLogger();
 	// Forwards
 	private static final String EDIT = "edit";
 	private static final String PRINT = "print";
 	private static final String CLIENT_EDIT = "clientEdit";
-	private static final String EFORM_ADD = "eformAdd";
 	private static final String APPT = "appointment";
-	protected static final String CLIENT_EDIT_ID = "id";
 	
 	private ClientImageDAO clientImageDAO = null;
-	private SurveyManager surveyManager = (SurveyManager)SpringUtils.getBean("surveyManager2");
+	private SurveyManager surveyManager;
 	private OcanStaffFormDao ocanStaffFormDao;
 	
-	protected static final String PROGRAM_ID = "programId";
-	protected static final String TYPE = "type";
-	protected static final String CLIENT = "client";
-	protected static final String CLIENT_EXTRA = "clientExtra";
-	protected static final String APPOINTMENT = "appointment";
-	protected static final String DEMOGRAPHIC_NO = "demographic_no";
-	protected static final String FORM_ID = "fid";
-	protected static final String CLIENT_ID = "clientId";
-	protected static final String INTAKE_ID = "intakeId";
-	
-	
-	private GenericIntakeManager genericIntakeManager;
-	protected ClientManager clientManager;
-	protected ProgramManager programManager;
-	protected AdmissionManager admissionManager;
-	protected CaseManagementManager caseManagementManager;
-
-	
-	 public void setGenericIntakeManager(GenericIntakeManager genericIntakeManager) {
-	        this.genericIntakeManager = genericIntakeManager;
-	    }
-	 
-	    protected Integer getProgramId(HttpServletRequest request) {
-			Integer programId = null;
-			
-			String programIdParam = request.getParameter(PROGRAM_ID);
-			
-			if (programIdParam != null) {
-				try {
-					programId = Integer.valueOf(programIdParam);
-				} catch (NumberFormatException e) {
-					LOG.error("Error", e);
-				}
-			}
-			
-			return programId;
-		}
 	public void setOscarSurveyManager(SurveyManager mgr) {
 		this.surveyManager = mgr;
 	}
@@ -169,12 +118,11 @@ public class GenericIntakeEditAction extends DispatchAction {
 		formBean.setGenders(genders);
 		// end of change
 
-		String intakeType = request.getParameter(TYPE);
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		String providerNo=loggedInInfo.getLoggedInProviderNo();
+		String intakeType = getType(request);
+		String providerNo = getProviderNo(request);
 
 		Intake intake = null;
-		MiscUtils.getLogger().debug("INTAKE TYPE " + intakeType);
+
 		if (Intake.QUICK.equalsIgnoreCase(intakeType)) {
 			intake = genericIntakeManager.createQuickIntake(providerNo);
 		}
@@ -185,8 +133,9 @@ public class GenericIntakeEditAction extends DispatchAction {
 			intake = genericIntakeManager.createProgramIntake(getProgramId(request), providerNo);
 		}
 
-		MiscUtils.getLogger().debug("INTAKE IS NULL " + String.valueOf(intake == null));
 		List<IntakeNodeJavascript> jsLocation = genericIntakeManager.getIntakeNodeJavascriptLocation(intake.getNode().getQuestionId());
+		
+		LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
 		
 		Integer defaultCommunityProgramId = null;
 		
@@ -194,12 +143,12 @@ public class GenericIntakeEditAction extends DispatchAction {
 			defaultCommunityProgramId = getOscarClinicDefaultCommunityProgramId(oscar.OscarProperties.getInstance().getProperty("oscarClinicDefaultProgram"));
 		}
 						
-		setBeanProperties(loggedInInfo,formBean, intake, getClientExtra(request), getClient(request), providerNo, Agency.getLocalAgency().areHousingProgramsVisible(intakeType), Agency.getLocalAgency()
-				.areServiceProgramsVisible(intakeType), Agency.getLocalAgency().areExternalProgramsVisible(intakeType), defaultCommunityProgramId, null, null, loggedInInfo.getCurrentFacility().getId(), null,jsLocation, Agency.getLocalAgency().areCommunityProgramsVisible(intakeType), null);
+		setBeanProperties(formBean, intake, getClientExtra(request), getClient(request), providerNo, Agency.getLocalAgency().areHousingProgramsVisible(intakeType), Agency.getLocalAgency()
+				.areServiceProgramsVisible(intakeType), Agency.getLocalAgency().areExternalProgramsVisible(intakeType), defaultCommunityProgramId, null, null, loggedInInfo.currentFacility.getId(), null,jsLocation, Agency.getLocalAgency().areCommunityProgramsVisible(intakeType), null);
 
 		request.getSession().setAttribute(SessionConstants.INTAKE_CLIENT_IS_DEPENDENT_OF_FAMILY, false);
 
-		request.getSession().setAttribute("intakeCurrentBedCommunityId", null);
+		request.getSession().setAttribute("intakeCurrentBedId", null);
 		request.getSession().setAttribute("intakeCurrentCommunityId", null);
 		
 		//set up appointment's attributes here: request.getSession().getAttribute("appointment_date");
@@ -212,7 +161,7 @@ public class GenericIntakeEditAction extends DispatchAction {
 		
 		if( fromAppt!=null && "1".equals(fromAppt)) {
 			
-	      //  String originalPage2 = request.getParameter("originalPage");
+	        String originalPage2 = request.getParameter("originalPage");
 	        String provider_no2 = request.getParameter("provider_no");
 	        String bFirstDisp2 = request.getParameter("bFirstDisp");
 	        String year2 = request.getParameter("year");
@@ -237,25 +186,24 @@ public class GenericIntakeEditAction extends DispatchAction {
 	public ActionForward blank(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		GenericIntakeEditFormBean formBean = (GenericIntakeEditFormBean) form;
 
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		String providerNo=loggedInInfo.getLoggedInProviderNo();
-		Integer facilityId = loggedInInfo.getCurrentFacility().getId();
+		LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+		Integer facilityId = loggedInInfo.currentFacility.getId();
 
 		// [ 1842774 ] RFQ Feature: link reg intake gender to list editor table;
 		List genders = GenericIntakeSearchAction.getGenders();
 		formBean.setGenders(genders);
 		// end of change
 
-		String intakeType = request.getParameter(TYPE);
+		String intakeType = getType(request);
+		//Integer clientId = getClientIdAsInteger(request);
+		String providerNo = getProviderNo(request);
 
 		Integer nodeId = null;
 		try {
-			String strNodeId = request.getParameter("nodeId");
+			String strNodeId = getParameter(request,"nodeId");
 			if(strNodeId != null)
 				nodeId = Integer.valueOf(strNodeId);
-		} catch(NumberFormatException e) {
-			MiscUtils.getLogger().warn("error",e);
-		}
+		} catch(NumberFormatException e) {}
 		
 		
 		Intake intake = null;
@@ -294,14 +242,13 @@ public class GenericIntakeEditAction extends DispatchAction {
 
 		Demographic client = new Demographic();
 		DemographicExtra clientExtra = new DemographicExtra();
-		
 
-		setBeanProperties(loggedInInfo,formBean, intake, clientExtra, client, providerNo, Agency.getLocalAgency().areHousingProgramsVisible(intakeType), Agency.getLocalAgency()
+		setBeanProperties(formBean, intake, clientExtra, client, providerNo, Agency.getLocalAgency().areHousingProgramsVisible(intakeType), Agency.getLocalAgency()
 				.areServiceProgramsVisible(intakeType), Agency.getLocalAgency().areExternalProgramsVisible(intakeType), null,
 				null,null, facilityId, nodeId, jsLocation, Agency.getLocalAgency().areCommunityProgramsVisible(intakeType), null);
 
 		// UCF -- intake accessment : please don't remove the following lines
-		List allForms = surveyManager.getAllFormsForCurrentProviderAndCurrentFacility(loggedInInfo);
+		List allForms = surveyManager.getAllFormsForCurrentProviderAndCurrentFacility();
 		request.getSession().setAttribute("survey_list", allForms);
 
 		String oldBedProgramId = null;
@@ -320,26 +267,24 @@ public class GenericIntakeEditAction extends DispatchAction {
 	public ActionForward update(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		GenericIntakeEditFormBean formBean = (GenericIntakeEditFormBean) form;
 
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		String providerNo=loggedInInfo.getLoggedInProviderNo();
-		Integer facilityId = loggedInInfo.getCurrentFacility().getId();
+		LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+		Integer facilityId = loggedInInfo.currentFacility.getId();
 
 		// [ 1842774 ] RFQ Feature: link reg intake gender to list editor table;
 		List genders = GenericIntakeSearchAction.getGenders();
 		formBean.setGenders(genders);
 		// end of change
 
-		String intakeType = request.getParameter(TYPE);
+		String intakeType = getType(request);
 		Integer clientId = getClientIdAsInteger(request);
+		String providerNo = getProviderNo(request);
 
 		Integer nodeId = null;
 		try {
-			String strNodeId = request.getParameter("nodeId");
+			String strNodeId = getParameter(request,"nodeId");
 			if(strNodeId != null)
 				nodeId = Integer.valueOf(strNodeId);
-		} catch(NumberFormatException e) {
-			MiscUtils.getLogger().warn("error",e);
-		}
+		} catch(NumberFormatException e) {}
 		
 		
 		Intake intake = null;
@@ -382,12 +327,12 @@ public class GenericIntakeEditAction extends DispatchAction {
 		
 		
 
-		setBeanProperties(loggedInInfo, formBean, intake, getClientExtra(clientId), getClient(clientId), providerNo, Agency.getLocalAgency().areHousingProgramsVisible(intakeType), Agency.getLocalAgency()
+		setBeanProperties(formBean, intake, getClientExtra(clientId), getClient(clientId), providerNo, Agency.getLocalAgency().areHousingProgramsVisible(intakeType), Agency.getLocalAgency()
 				.areServiceProgramsVisible(intakeType), Agency.getLocalAgency().areExternalProgramsVisible(intakeType), getCurrentBedProgramId(clientId),
-				getCurrentServiceProgramIds(loggedInInfo, clientId, providerNo, facilityId), getCurrentExternalProgramId(clientId), facilityId, nodeId, jsLocation, Agency.getLocalAgency().areCommunityProgramsVisible(intakeType), getCurrentCommunityProgramId(clientId));
+				getCurrentServiceProgramIds(clientId, providerNo, facilityId), getCurrentExternalProgramId(clientId), facilityId, nodeId, jsLocation, Agency.getLocalAgency().areCommunityProgramsVisible(intakeType), getCurrentCommunityProgramId(clientId));
 
 		// UCF -- intake accessment : please don't remove the following lines
-		List allForms = surveyManager.getAllFormsForCurrentProviderAndCurrentFacility(loggedInInfo);
+		List allForms = surveyManager.getAllFormsForCurrentProviderAndCurrentFacility();
 		request.getSession().setAttribute("survey_list", allForms);
 
 		String oldBedProgramId = String.valueOf(getCurrentBedProgramId(clientId));
@@ -412,11 +357,11 @@ public class GenericIntakeEditAction extends DispatchAction {
 	public ActionForward print(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		GenericIntakeEditFormBean formBean = (GenericIntakeEditFormBean) form;
 
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		String providerNo=loggedInInfo.getLoggedInProviderNo();
-		Integer facilityId = loggedInInfo.getCurrentFacility().getId();
+		LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+		Integer facilityId = loggedInInfo.currentFacility.getId();
 
-		String intakeType = request.getParameter(TYPE);
+		String intakeType = getType(request);
+		String providerNo = getProviderNo(request);
 		Integer clientId = getClientIdAsInteger(request);
 		Integer intakeId = getIntakeId(request);
 
@@ -441,30 +386,32 @@ public class GenericIntakeEditAction extends DispatchAction {
 		
 		
 		
-		setBeanProperties(loggedInInfo, formBean, intake, getClientExtra(clientId), getClient(clientId), providerNo, false, false, false, null, null, null, facilityId,null,jsLocation, false, null);
+		setBeanProperties(formBean, intake, getClientExtra(clientId), getClient(clientId), providerNo, false, false, false, null, null, null, facilityId,null,jsLocation, false, null);
 
 		return mapping.findForward(PRINT);
 	}
 
 	public ActionForward save_all(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response, String saveWhich) throws FunctionalCentreDischargeException {
 		GenericIntakeEditFormBean formBean = (GenericIntakeEditFormBean) form;
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		String providerNo=loggedInInfo.getLoggedInProviderNo();
+		LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+		
 		Intake intake = formBean.getIntake();
 		String intakeType = intake.getType();
 		Demographic client = formBean.getClient();
 		DemographicExtra clientExtra = formBean.getClientExtra();
+		String providerNo = getProviderNo(request);
 		Integer nodeId = formBean.getNodeId();
 		Integer oldId = null;
 		LogAction.addLog((String)request.getSession().getAttribute("user"), LogConst.UPDATE, LogConst.CON_CAISI_INTAKE, String.valueOf(intake.getId()), request.getRemoteAddr(), String.valueOf(client.getDemographicNo()), "");
+			
 		String formattedAdmissionDate = request.getParameter("admissionDate");
 		Date admissionDate;
 		if(StringUtils.isBlank(formattedAdmissionDate)) {
 			admissionDate = new Date();
-		} else {      
+		} else {			
 			admissionDate = oscar.util.DateUtils.toDate(formattedAdmissionDate);
-		}	
-
+		}
+					 
 		/* for repeating elements */
 		String[] repeatSizes= request.getParameterValues("repeat_size");
 		if(repeatSizes != null) {
@@ -499,14 +446,13 @@ public class GenericIntakeEditAction extends DispatchAction {
 				}
 			}			
 			
+			// save client information.
 			if(StringUtils.isBlank(client.getPatientStatus())) {
 				client.setPatientStatus(PatientStatus.AC.name());
 			}
-
-			// save client information.
 			saveClient(client, providerNo);
 			saveClientExtra(clientExtra, client.getDemographicNo());		
-			saveCbiForm(loggedInInfo, client, clientExtra);
+			saveCbiForm(client, clientExtra);
 			
 					// for RFQ:
 					if (OscarProperties.getInstance().isTorontoRFQ()) {
@@ -515,7 +461,7 @@ public class GenericIntakeEditAction extends DispatchAction {
 							oldId = getCurrentBedCommunityProgramId(client.getDemographicNo());
 
 							// Save 'external' program for RFQ.
-							admitExternalProgram(loggedInInfo, client.getDemographicNo(), providerNo, formBean.getSelectedExternalProgramId());
+							admitExternalProgram(client.getDemographicNo(), providerNo, formBean.getSelectedExternalProgramId());
 						}
 						// get and set intake location
 						// client.setChildren(formBean.getProgramInDomainId());
@@ -540,22 +486,22 @@ public class GenericIntakeEditAction extends DispatchAction {
 						intake.setIntakeLocation(intakeLocationId);
 					}
 
-					intake.setFacilityId(loggedInInfo.getCurrentFacility().getId());
+					intake.setFacilityId(loggedInInfo.currentFacility.getId());
 
 					String admissionText = null;
 					String remoteReferralId = StringUtils.trimToNull(request.getParameter("remoteReferralId"));
 					if (remoteReferralId != null) {
-						admissionText = getAdmissionText(loggedInInfo,admissionText, remoteReferralId);
+						admissionText = getAdmissionText(admissionText, remoteReferralId);
 					}
 
-					admitBedCommunityProgram(loggedInInfo, client.getDemographicNo(), providerNo, formBean.getSelectedBedProgramId(), saveWhich, admissionText, admissionDate);
-					admitBedCommunityProgram(loggedInInfo, client.getDemographicNo(), providerNo, formBean.getSelectedCommunityProgramId(), saveWhich, admissionText, admissionDate);
+					admitBedCommunityProgram(client.getDemographicNo(), providerNo, formBean.getSelectedBedProgramId(), saveWhich, admissionText, admissionDate);
+					admitBedCommunityProgram(client.getDemographicNo(), providerNo, formBean.getSelectedCommunityProgramId(), saveWhich, admissionText, admissionDate);
 
 					if (remoteReferralId != null) {
 						// doing this after the admit is about as transactional as this is going to get for now.
 						ReferralWs referralWs;
 						try {
-							referralWs = CaisiIntegratorManager.getReferralWs(loggedInInfo, loggedInInfo.getCurrentFacility());
+							referralWs = CaisiIntegratorManager.getReferralWs();
 							referralWs.removeReferral(Integer.parseInt(remoteReferralId));
 						}
 						catch (Exception e) {
@@ -565,7 +511,7 @@ public class GenericIntakeEditAction extends DispatchAction {
 
 					// if (!formBean.getSelectedServiceProgramIds().isEmpty() && "RFQ_admit".endsWith(saveWhich)) {
 					//if (!formBean.getSelectedServiceProgramIds().isEmpty()) { //should be able to discharge from all service programs.
-						admitServicePrograms(loggedInInfo, client.getDemographicNo(), providerNo, formBean.getSelectedServiceProgramIds(), null, admissionDate, loggedInInfo.getCurrentFacility().getId());
+						admitServicePrograms(client.getDemographicNo(), providerNo, formBean.getSelectedServiceProgramIds(), null, admissionDate, loggedInInfo.currentFacility.getId());
 					//}
 
 					if ("normal".equals(saveWhich) || "appointment".equals(saveWhich)) {
@@ -619,9 +565,9 @@ public class GenericIntakeEditAction extends DispatchAction {
 				List<IntakeNodeJavascript> jsLocation = genericIntakeManager.getIntakeNodeJavascriptLocation(intake.getNode().getQuestionId());
 				
 				
-				setBeanProperties(loggedInInfo,formBean, intake, clientExtra, client, providerNo, Agency.getLocalAgency().areHousingProgramsVisible(intakeType), Agency.getLocalAgency().areServiceProgramsVisible(
+				setBeanProperties(formBean, intake, clientExtra, client, providerNo, Agency.getLocalAgency().areHousingProgramsVisible(intakeType), Agency.getLocalAgency().areServiceProgramsVisible(
 						intakeType), Agency.getLocalAgency().areExternalProgramsVisible(intakeType), getCurrentBedProgramId(client.getDemographicNo()),
-						getCurrentServiceProgramIds(loggedInInfo, client.getDemographicNo(), providerNo, loggedInInfo.getCurrentFacility().getId()), getCurrentExternalProgramId(client.getDemographicNo()), loggedInInfo.getCurrentFacility().getId(), nodeId, jsLocation, Agency.getLocalAgency().areCommunityProgramsVisible(intakeType), getCurrentCommunityProgramId(client.getDemographicNo()));
+						getCurrentServiceProgramIds(client.getDemographicNo(), providerNo, loggedInInfo.currentFacility.getId()), getCurrentExternalProgramId(client.getDemographicNo()), loggedInInfo.currentFacility.getId(), nodeId, jsLocation, Agency.getLocalAgency().areCommunityProgramsVisible(intakeType), getCurrentCommunityProgramId(client.getDemographicNo()));
 
 				String oldBedProgramId = String.valueOf(getCurrentBedProgramId(client.getDemographicNo()));
 				request.getSession().setAttribute("intakeCurrentBedId", oldBedProgramId);
@@ -635,7 +581,7 @@ public class GenericIntakeEditAction extends DispatchAction {
 					try {
 						int remoteFacilityId = Integer.parseInt(remoteFacilityIdStr);
 						int remoteDemographicId = Integer.parseInt(remoteDemographicIdStr);
-						DemographicWs demographicWs = CaisiIntegratorManager.getDemographicWs(loggedInInfo, loggedInInfo.getCurrentFacility());
+						DemographicWs demographicWs = CaisiIntegratorManager.getDemographicWs();
 
 						// link the clients
 						demographicWs.linkDemographics(providerNo, client.getDemographicNo(), remoteFacilityId, remoteDemographicId);
@@ -673,8 +619,8 @@ public class GenericIntakeEditAction extends DispatchAction {
 				else if( "appointment".equals(saveWhich)) {
 					ActionForward forward = mapping.findForward(APPT);
 					StringBuilder path = new StringBuilder(forward.getPath());
-					//String fromAppt = request.getParameter("fromAppt");
-			        //String originalPage2 = request.getParameter("originalPage");
+					String fromAppt = request.getParameter("fromAppt");
+			        String originalPage2 = request.getParameter("originalPage");
 			        String provider_no2 = request.getParameter("provider_no");
 			        String bFirstDisp2 = request.getParameter("bFirstDisp");
 			        String year2 = request.getParameter("year");
@@ -698,20 +644,20 @@ public class GenericIntakeEditAction extends DispatchAction {
 				}			
 	}
 
-	private String getAdmissionText(LoggedInInfo loggedInInfo, String admissionText, String remoteReferralId) {
+	private String getAdmissionText(String admissionText, String remoteReferralId) {
 		try {
-			ReferralWs referralWs = CaisiIntegratorManager.getReferralWs(loggedInInfo, loggedInInfo.getCurrentFacility());
+			ReferralWs referralWs = CaisiIntegratorManager.getReferralWs();
 			Referral remoteReferral = referralWs.getReferral(Integer.parseInt(remoteReferralId));
 			StringBuilder sb = new StringBuilder();
 
-			CachedFacility cachedFacility = CaisiIntegratorManager.getRemoteFacility(loggedInInfo, loggedInInfo.getCurrentFacility(),remoteReferral.getSourceIntegratorFacilityId());
+			CachedFacility cachedFacility = CaisiIntegratorManager.getRemoteFacility(remoteReferral.getSourceIntegratorFacilityId());
 			sb.append("Referred from : ");
 			sb.append(cachedFacility.getName());
 
 			FacilityIdStringCompositePk facilityProviderPrimaryKey = new FacilityIdStringCompositePk();
 			facilityProviderPrimaryKey.setIntegratorFacilityId(remoteReferral.getSourceIntegratorFacilityId());
 			facilityProviderPrimaryKey.setCaisiItemId(remoteReferral.getSourceCaisiProviderId());
-			CachedProvider cachedProvider = CaisiIntegratorManager.getProvider(loggedInInfo, loggedInInfo.getCurrentFacility(),facilityProviderPrimaryKey);
+			CachedProvider cachedProvider = CaisiIntegratorManager.getProvider(facilityProviderPrimaryKey);
 			sb.append(" by ");
 			sb.append(cachedProvider.getLastName());
 			sb.append(", ");
@@ -741,7 +687,7 @@ public class GenericIntakeEditAction extends DispatchAction {
 	public ActionForward save(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws FunctionalCentreDischargeException {
 		
 		String fromAppt = request.getParameter("fromAppt");
-		/*
+		
         String originalPage2 = request.getParameter("originalPage");
         String provider_no2 = request.getParameter("provider_no");
         String bFirstDisp2 = request.getParameter("bFirstDisp");
@@ -751,7 +697,7 @@ public class GenericIntakeEditAction extends DispatchAction {
         String start_time2 = request.getParameter("start_time");
         String end_time2 = request.getParameter("end_time");
         String duration2 = request.getParameter("duration");
-        */
+        
 		if(fromAppt!=null && fromAppt.equals("1")) {
 			return save_all(mapping, form, request, response, "appointment");
 		} else {
@@ -778,51 +724,13 @@ public class GenericIntakeEditAction extends DispatchAction {
 
 	public ActionForward clientEdit(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		GenericIntakeEditFormBean formBean = (GenericIntakeEditFormBean) form;
-		String forward = null;
+
 		Integer clientEditId = formBean.getClient().getDemographicNo();
 
-		StringBuilder parameters = new StringBuilder("?");
+		StringBuilder parameters = new StringBuilder(PARAM_START);
+		parameters.append(CLIENT_EDIT_ID).append(PARAM_EQUALS).append(clientEditId);
 
-		Set<Integer> serviceProgramIds = formBean.getSelectedServiceProgramIds();
-		if (!serviceProgramIds.isEmpty()) {
-			Integer serviceProgramId = serviceProgramIds.iterator().next(); //assumption: there is only one item in this set at a time. Take the 1st one.
-			if (serviceProgramId == Integer.parseInt(OscarProperties.getIntakeProgramAccessServiceId())) {
-				parameters.append(FORM_ID).append("=").append(OscarProperties.getIntakeProgramAccessFId());
-				forward = EFORM_ADD;
-			} else if (serviceProgramId == Integer.parseInt(OscarProperties.getIntakeProgramCashServiceId())) {
-				parameters.append(FORM_ID).append("=").append(OscarProperties.getIntakeProgramCashFId());
-				forward = EFORM_ADD;
-			}
-		}
-		if (EFORM_ADD.equals(forward)) {
-			parameters.append("&");
-			parameters.append(DEMOGRAPHIC_NO).append("=").append(clientEditId);
-			parameters.append("&");
-			parameters.append(APPOINTMENT).append("=").append(0); // appointment code is always 0
-		} else {
-			parameters.append(CLIENT_EDIT_ID).append("=").append(clientEditId);
-			forward = CLIENT_EDIT;
-		}
-
-		return createRedirectForward(mapping, forward, parameters);
-	}
-
-	
-	public ActionForward save_proxy(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		GenericIntakeEditFormBean formBean = (GenericIntakeEditFormBean) form;
-		try {
-			save(mapping, formBean, request, response);
-			int clientEditId = formBean.getClient().getDemographicNo();
-			OutputStream os = response.getOutputStream();
-			os.write((""+clientEditId).getBytes());
-        } catch (IOException e) {
-	        //ignore
-	        LOG.error(e.getMessage(), e);
-        } catch (FunctionalCentreDischargeException e2) {
-        	LOG.error(e2.getMessage(), e2);
-        }
-
-		return null;
+		return createRedirectForward(mapping, CLIENT_EDIT, parameters);
 	}
 
 	// Adapt
@@ -847,7 +755,7 @@ public class GenericIntakeEditAction extends DispatchAction {
 		return activeProviderPrograms;
 	}
 
-	public List<Program> getBedPrograms(Set<Program> providerPrograms, String providerNo) {
+	private List<Program> getBedPrograms(Set<Program> providerPrograms, String providerNo) {
 		List<Program> bedPrograms = new ArrayList<Program>();
 
 		for (Program program : programManager.getBedPrograms()) {
@@ -866,7 +774,7 @@ public class GenericIntakeEditAction extends DispatchAction {
 		return bedPrograms;
 	}
 
-	public List<Program> getCommunityPrograms() {
+	private List<Program> getCommunityPrograms() {
 		List<Program> communityPrograms = new ArrayList<Program>();
 
 		for (Program program : programManager.getCommunityPrograms()) {
@@ -876,22 +784,27 @@ public class GenericIntakeEditAction extends DispatchAction {
 		return communityPrograms;
 	}
 
-	public List<Program> getServicePrograms(Set<Program> providerPrograms, String providerNo) {
+	private List<Program> getServicePrograms(Set<Program> providerPrograms, String providerNo) {
 		List<Program> servicePrograms = new ArrayList<Program>();
 
 		for (Object o : programManager.getServicePrograms()) {
 			Program program = (Program) o;
 
 			if (providerPrograms.contains(program)) {
-				servicePrograms.add(program);
+				if (OscarProperties.getInstance().isTorontoRFQ()) {
+					if (caseManagementManager.hasAccessRight("perform admissions", "access", providerNo, "", String.valueOf(program.getId()))) {
+						servicePrograms.add(program);
+					}
+				}
+				else {
+					servicePrograms.add(program);
+				}
 			}
 		}
 
 		return servicePrograms;
 	}
 
-
-	
 	private List<Program> getExternalPrograms(Set<Program> providerPrograms) {
 		List<Program> externalPrograms = new ArrayList<Program>();
 
@@ -968,9 +881,9 @@ public class GenericIntakeEditAction extends DispatchAction {
 		return currentProgramId;
 	}
 
-	private SortedSet<Integer> getCurrentServiceProgramIds(LoggedInInfo loggedInInfo, Integer clientId, String providerNo, Integer facilityId) {
+	private SortedSet<Integer> getCurrentServiceProgramIds(Integer clientId, String providerNo, Integer facilityId) {
 		SortedSet<Integer> currentProgramIds = new TreeSet<Integer>();
-		Set<Program> providerPrograms = getActiveProviderProgramsInFacility(loggedInInfo, providerNo, facilityId);
+		Set<Program> providerPrograms = getActiveProviderProgramsInFacility(providerNo, facilityId);
 		List<Program> programsInDomain = getServicePrograms(providerPrograms, providerNo);
 		List<?> admissions = admissionManager.getCurrentServiceProgramAdmission(clientId);
 		if (admissions != null) {
@@ -987,22 +900,9 @@ public class GenericIntakeEditAction extends DispatchAction {
 	}
 
 	private void saveClient(Demographic client, String providerNo) {
-		
-		String strSaveMrp = OscarProperties.getInstance().getProperty("caisi.registration_intake.updateMRPOnSave", "true");
-		if("true".equals(strSaveMrp)) {
-			client.setProviderNo(providerNo);
-		}
+		//client.setProviderNo(providerNo);
 
 		clientManager.saveClient(client);
-		//this is slowing things down, and AFAIK waitlist isn't being used anywhere
-		/*
-		try {
-			log.info("Processing client creation event with MatchManager..." + 
-					matchManager.<Demographic>processEvent(client, IMatchManager.Event.CLIENT_CREATED));
-		} catch (Exception e) {
-			MiscUtils.getLogger().error("Error while processing MatchManager.processEvent(Client)",e);
-		}
-		*/
 	}
 
 	private void saveClientExtra(DemographicExtra clientExtra, Integer demographicNo) {
@@ -1013,15 +913,16 @@ public class GenericIntakeEditAction extends DispatchAction {
 		clientManager.saveDemographicExt(demographicNo.intValue(), "maritalStatus",clientExtra.getMaritalStatus()==null?"":clientExtra.getMaritalStatus());
 		clientManager.saveDemographicExt(demographicNo.intValue(), "recipientLocation",clientExtra.getRecipientLocation()==null?"":clientExtra.getRecipientLocation());
 		clientManager.saveDemographicExt(demographicNo.intValue(), "lhinConsumerResides",clientExtra.getLhinConsumerResides()==null?"":clientExtra.getLhinConsumerResides());
+		clientManager.saveDemographicExt(demographicNo.intValue(), "lhinServiceDelivery",clientExtra.getLhinServiceDelivery()==null?"":clientExtra.getLhinServiceDelivery());
 		clientManager.saveDemographicExt(demographicNo.intValue(), "address2",clientExtra.getAddress2()==null?"":clientExtra.getAddress2());
 				
 	}
 	
-	private void saveCbiForm(LoggedInInfo loggedInInfo, Demographic client, DemographicExtra clientExtra) {
+	private void saveCbiForm(Demographic client, DemographicExtra clientExtra) {
 		
-		//LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
-		Integer facilityId = loggedInInfo.getCurrentFacility().getId();
-		  
+		LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+		Integer facilityId = loggedInInfo.currentFacility.getId();
+		
 		//When update registration intake, update demographic info in existing cbi form.
 		OcanStaffForm cbiForm = ocanStaffFormDao.findLatestByFacilityClient(facilityId, client.getDemographicNo(), "CBI");
 		if(cbiForm == null) {
@@ -1050,12 +951,11 @@ public class GenericIntakeEditAction extends DispatchAction {
 		OcanFormAction.addOcanStaffFormData(cbiForm.getId(), "marital_status" , clientExtra.getMaritalStatus()==null?"":clientExtra.getMaritalStatus());
 		OcanFormAction.addOcanStaffFormData(cbiForm.getId(), "service_recipient_location" , clientExtra.getRecipientLocation()==null?"":clientExtra.getRecipientLocation());
 		OcanFormAction.addOcanStaffFormData(cbiForm.getId(), "service_recipient_lhin" , clientExtra.getLhinConsumerResides()==null?"":clientExtra.getLhinConsumerResides());
-		
 	}
 	
 	
-
-	private void admitExternalProgram(LoggedInInfo loggedInInfo, Integer clientId, String providerNo, Integer externalProgramId) throws ProgramFullException, AdmissionException, ServiceRestrictionException, FunctionalCentreDischargeException {
+	
+	private void admitExternalProgram(Integer clientId, String providerNo, Integer externalProgramId) throws ProgramFullException, AdmissionException, ServiceRestrictionException, FunctionalCentreDischargeException {
 		Program externalProgram = null;
 		Integer currentExternalProgramId = getCurrentExternalProgramId(clientId);
 
@@ -1065,20 +965,20 @@ public class GenericIntakeEditAction extends DispatchAction {
 
 		if (externalProgram != null) {
 			if (currentExternalProgramId == null) {
-				admissionManager.processAdmission(loggedInInfo, clientId, providerNo, externalProgram, "intake external discharge", "intake external admit");
+				admissionManager.processAdmission(clientId, providerNo, externalProgram, "intake external discharge", "intake external admit");
 			}
 			else if (!currentExternalProgramId.equals(externalProgramId)) {
 				/*
 				 * if (programManager.getProgram(externalProgramId).isExternal()) { if (externalProgram.isExternal()) { admissionManager.processAdmission(clientId, providerNo,
 				 * externalProgram, "intake external discharge", "intake external admit"); } }
 				 */
-				admissionManager.processDischarge(loggedInInfo, currentExternalProgramId, clientId, "intake external discharge", "0");
-				admissionManager.processAdmission(loggedInInfo, clientId, providerNo, externalProgram, "intake external discharge", "intake external admit");
+				admissionManager.processDischarge(currentExternalProgramId, clientId, "intake external discharge", "0");
+				admissionManager.processAdmission(clientId, providerNo, externalProgram, "intake external discharge", "intake external admit");
 			}
 		}
 	}
 
-	public void admitBedCommunityProgram(LoggedInInfo loggedInInfo, Integer clientId, String providerNo, Integer bedCommunityProgramId, String saveWhich, String admissionText, Date admissionDate) throws ProgramFullException,
+	private void admitBedCommunityProgram(Integer clientId, String providerNo, Integer bedCommunityProgramId, String saveWhich, String admissionText, Date admissionDate) throws ProgramFullException,
 			AdmissionException, ServiceRestrictionException, FunctionalCentreDischargeException {
 		Program bedCommunityProgram = null;
 		Integer currentBedCommunityProgramId = getCurrentBedCommunityProgramId(clientId);
@@ -1102,8 +1002,8 @@ public class GenericIntakeEditAction extends DispatchAction {
 		Integer[] dependentIds = null;
 
 		if (clientManager != null && clientId != null) {
-			dependentList = clientManager.getDependents(Integer.valueOf(clientId));
-			clientsJadm = clientManager.getJointAdmission(Integer.valueOf(clientId));
+			dependentList = clientManager.getDependents(Long.valueOf(clientId));
+			clientsJadm = clientManager.getJointAdmission(Long.valueOf(clientId));
 		}
 		if (clientsJadm != null && clientsJadm.getHeadClientId() != null) {
 			isFamilyDependent = true;
@@ -1132,24 +1032,24 @@ public class GenericIntakeEditAction extends DispatchAction {
 				Integer familyId = familyIds[i];
 				if (bedCommunityProgram != null) {
 					if (currentBedCommunityProgramId == null) {
-						admissionManager.processAdmission(loggedInInfo, familyId, providerNo, bedCommunityProgram, "intake discharge", admissionText, admissionDate);
+						admissionManager.processAdmission(familyId, providerNo, bedCommunityProgram, "intake discharge", admissionText, admissionDate);
 					}
 					else if (!currentBedCommunityProgramId.equals(bedCommunityProgramId)) {
 						if (programManager.getProgram(currentBedCommunityProgramId).isBed()) {
 							if (bedCommunityProgram.isBed()) {
-								admissionManager.processAdmission(loggedInInfo, familyId, providerNo, bedCommunityProgram, "intake discharge", admissionText, admissionDate);
+								admissionManager.processAdmission(familyId, providerNo, bedCommunityProgram, "intake discharge", admissionText, admissionDate);
 							}
 							else {
-								admissionManager.processDischargeToCommunity(loggedInInfo,bedCommunityProgramId, familyId, providerNo, "intake discharge", "0", admissionDate, false);
+								admissionManager.processDischargeToCommunity(bedCommunityProgramId, familyId, providerNo, "intake discharge", "0", admissionDate, false);
 							}
 						}
 						else {
 							if (bedCommunityProgram.isCommunity()) {
-								admissionManager.processDischargeToCommunity(loggedInInfo,bedCommunityProgramId, familyId, providerNo, "intake discharge", "0", admissionDate, false);
+								admissionManager.processDischargeToCommunity(bedCommunityProgramId, familyId, providerNo, "intake discharge", "0", admissionDate, false);
 							}
 							else {
-								admissionManager.processDischarge(loggedInInfo, currentBedCommunityProgramId, familyId, "intake discharge", "0", admissionDate);
-								admissionManager.processAdmission(loggedInInfo, familyId, providerNo, bedCommunityProgram, "intake discharge", admissionText, admissionDate);
+								admissionManager.processDischarge(currentBedCommunityProgramId, familyId, "intake discharge", "0", admissionDate);
+								admissionManager.processAdmission(familyId, providerNo, bedCommunityProgram, "intake discharge", admissionText, admissionDate);
 							}
 						}
 					}
@@ -1164,25 +1064,25 @@ public class GenericIntakeEditAction extends DispatchAction {
 
 			if (bedCommunityProgram != null) {
 				if (currentBedCommunityProgramId == null) {
-					admissionManager.processAdmission(loggedInInfo, clientId, providerNo, bedCommunityProgram, "intake discharge", admissionText, admissionDate);
+					admissionManager.processAdmission(clientId, providerNo, bedCommunityProgram, "intake discharge", admissionText, admissionDate);
 				}
 				else if (!currentBedCommunityProgramId.equals(bedCommunityProgramId)) {
 					if (programManager.getProgram(currentBedCommunityProgramId).isBed()) {
 						if (bedCommunityProgram.isBed()) {
 							// automatic discharge from one bed program to another bed program.
-							admissionManager.processAdmission(loggedInInfo, clientId, providerNo, bedCommunityProgram, "intake discharge", admissionText, admissionDate);
+							admissionManager.processAdmission(clientId, providerNo, bedCommunityProgram, "intake discharge", admissionText, admissionDate);
 						}
 						else {
-							admissionManager.processDischargeToCommunity(loggedInInfo,bedCommunityProgramId, clientId, providerNo, "intake discharge", "0", admissionDate, false);
+							admissionManager.processDischargeToCommunity(bedCommunityProgramId, clientId, providerNo, "intake discharge", "0", admissionDate, false);
 						}
 					}
 					else {
 						if (bedCommunityProgram.isCommunity()) {
-							admissionManager.processDischargeToCommunity(loggedInInfo,bedCommunityProgramId, clientId, providerNo, "intake discharge", "0", admissionDate, false);
+							admissionManager.processDischargeToCommunity(bedCommunityProgramId, clientId, providerNo, "intake discharge", "0", admissionDate, false);
 						}
 						else {
-							admissionManager.processDischarge(loggedInInfo, currentBedCommunityProgramId, clientId, "intake discharge", "0", admissionDate);
-							admissionManager.processAdmission(loggedInInfo, clientId, providerNo, bedCommunityProgram, "intake discharge", admissionText, admissionDate);
+							admissionManager.processDischarge(currentBedCommunityProgramId, clientId, "intake discharge", "0", admissionDate);
+							admissionManager.processAdmission(clientId, providerNo, bedCommunityProgram, "intake discharge", admissionText, admissionDate);
 						}
 					}
 				}
@@ -1190,44 +1090,35 @@ public class GenericIntakeEditAction extends DispatchAction {
 		}
 	}
 
-	public void admitServicePrograms(LoggedInInfo loggedInInfo, Integer clientId, String providerNo, Set<Integer> serviceProgramIds, String admissionText, Date admissionDate, Integer facilityId) throws ProgramFullException, AdmissionException,
+	private void admitServicePrograms(Integer clientId, String providerNo, Set<Integer> serviceProgramIds, String admissionText, Date admissionDate, Integer facilityId) throws ProgramFullException, AdmissionException,
 			ServiceRestrictionException, FunctionalCentreDischargeException {
-		SortedSet<Integer> currentServicePrograms = getCurrentServiceProgramIds(loggedInInfo, clientId, providerNo, facilityId);
+		SortedSet<Integer> currentServicePrograms = getCurrentServiceProgramIds(clientId, providerNo, facilityId);
 
 		if (admissionText == null) admissionText = "intake admit";
 		
-		//only allow to discharge the programs for which you are staff of.
-		Set<Program> programsInDomain = getActiveProviderPrograms(providerNo);
-		List<Integer> programDomainIds = new ArrayList<Integer>();
-		for(Program p:programsInDomain) {
-			programDomainIds.add(p.getId());
-		}
-		
-		//discharge from all
-		if( serviceProgramIds.isEmpty()) {
-			for(Object programId : currentServicePrograms) {
-				if(programDomainIds.contains(programId)) {
-					admissionManager.processDischarge(loggedInInfo, (Integer) programId, clientId, "intake discharge", "0", admissionDate);
-				} 
-			}
+		if( serviceProgramIds.isEmpty()) {			
+			for(Object programId : currentServicePrograms) 	{			
+				try {
+	                admissionManager.processDischarge((Integer) programId, clientId, "intake discharge", "0", admissionDate);
+                } catch (Exception e) {	                    
+                	LOG.error("Unexpected error", e);
+                }
+				
+			}			
 			return;
 		}
 		
-		//remove the ones selected, and discharge the ones not selected
 		Collection<?> discharge = CollectionUtils.subtract(currentServicePrograms, serviceProgramIds);
 
 		for (Object programId : discharge) {
-			if(programDomainIds.contains(programId)) {
-				admissionManager.processDischarge(loggedInInfo, (Integer) programId, clientId, "intake discharge", "0", admissionDate);
-			}
+			admissionManager.processDischarge((Integer) programId, clientId, "intake discharge", "0", admissionDate);
 		}
-		
 
 		Collection<?> admit = CollectionUtils.subtract(serviceProgramIds, currentServicePrograms);
 
 		for (Object programId : admit) {
 			Program program = programManager.getProgram((Integer) programId);
-			admissionManager.processAdmission(loggedInInfo, clientId, providerNo, program, "intake discharge", admissionText, admissionDate);
+			admissionManager.processAdmission(clientId, providerNo, program, "intake discharge", admissionText, admissionDate);
 		}
 	}
 
@@ -1242,12 +1133,12 @@ public class GenericIntakeEditAction extends DispatchAction {
 		genericIntakeManager.saveUpdateIntake(intake);
 	}
 
-	public Set<Program> getActiveProviderProgramsInFacility(LoggedInInfo loggedInInfo, String providerNo, Integer facilityId) {
+	private Set<Program> getActiveProviderProgramsInFacility(String providerNo, Integer facilityId) {
 		Set<Program> programs = new HashSet<Program>();
 		Set<Program> programsInDomain = getActiveProviderPrograms(providerNo);
 		if (facilityId == null) return programs;
 
-		for (Program p : programManager.getProgramDomainInCurrentFacilityForCurrentProvider(loggedInInfo, false)) {
+		for (Program p : programManager.getProgramDomainInCurrentFacilityForCurrentProvider(false)) {
 			if (programsInDomain.contains(p)) {
 				programs.add(p);
 			}
@@ -1258,7 +1149,7 @@ public class GenericIntakeEditAction extends DispatchAction {
 
 	// Bean
 
-	private void setBeanProperties(LoggedInInfo loggedInInfo, GenericIntakeEditFormBean formBean, Intake intake, DemographicExtra clientExtra, Demographic client, String providerNo, boolean bedProgramsVisible,
+	private void setBeanProperties(GenericIntakeEditFormBean formBean, Intake intake, DemographicExtra clientExtra, Demographic client, String providerNo, boolean bedProgramsVisible,
 			boolean serviceProgramsVisible, boolean externalProgramsVisible, Integer currentBedProgramId, SortedSet<Integer> currentServiceProgramIds,
 			Integer currentExternalProgramId, Integer facilityId, Integer nodeId, List<IntakeNodeJavascript> javascriptLocation, boolean communityProgramsVisible, Integer currentCommunityProgramId) {
 		formBean.setIntake(intake);
@@ -1268,7 +1159,7 @@ public class GenericIntakeEditAction extends DispatchAction {
 		formBean.setJsLocation(javascriptLocation);
 		
 		if (bedProgramsVisible || communityProgramsVisible || serviceProgramsVisible || externalProgramsVisible) {
-			Set<Program> providerPrograms = getActiveProviderProgramsInFacility(loggedInInfo, providerNo, facilityId);
+			Set<Program> providerPrograms = getActiveProviderProgramsInFacility(providerNo, facilityId);
 
 			if (bedProgramsVisible) {
 				formBean.setBedPrograms(getBedPrograms(providerPrograms, providerNo));
@@ -1305,75 +1196,5 @@ public class GenericIntakeEditAction extends DispatchAction {
 		}
 
 	}
-	
-    protected ActionForward createRedirectForward(ActionMapping mapping, String forwardName, StringBuffer parameters) {
-        ActionForward forward = mapping.findForward(forwardName);
-        StringBuilder path = new StringBuilder(forward.getPath());
-        path.append(parameters);
-        
-        return new RedirectingActionForward(path.toString());
-    }
 
-    protected ActionForward createRedirectForward(ActionMapping mapping, 
-        String forwardName, StringBuilder parameters) {
-	    ActionForward forward = mapping.findForward(forwardName);
-	    StringBuilder path = new StringBuilder(forward.getPath());
-	    path.append(parameters);
-	
-	    return new RedirectingActionForward(path.toString());
-    }
-
-    protected Demographic getClient(HttpServletRequest request) {
-		Demographic client = (Demographic) getSessionAttribute(request,CLIENT);
-		return (client != null) ? client : new Demographic();
-	}
-    
-    protected DemographicExtra getClientExtra(HttpServletRequest request) {
-		DemographicExtra client = (DemographicExtra) getSessionAttribute(request,CLIENT_EXTRA);
-		return (client != null) ? client : new DemographicExtra();
-	}
-    
-    public void setClientManager(ClientManager mgr) {
-    	this.clientManager = mgr;
-    }
-    
-    public void setProgramManager(ProgramManager mgr) {
-    	this.programManager = mgr;
-    }
-
-    public void setAdmissionManager(AdmissionManager mgr) {
-    	this.admissionManager = mgr;
-    }
-    
-    public void setCaseManagementManager(CaseManagementManager caseManagementManager) {
-    	this.caseManagementManager = caseManagementManager;
-    }
-    
-	protected Integer getClientIdAsInteger(HttpServletRequest request) {
-		Integer clientId = null;
-		String clientId_str = request.getParameter(CLIENT_ID);
-		if(clientId_str!=null) {
-			try {
-				clientId = Integer.valueOf(clientId_str);
-			} catch (NumberFormatException e) {
-				LOG.error("Error", e);
-			}
-		}
-		return clientId;
-		
-	}
-
-	protected Integer getIntakeId(HttpServletRequest request) {
-		return Integer.valueOf(request.getParameter(INTAKE_ID));
-	}
-	
-	protected Object getSessionAttribute(HttpServletRequest request, String attributeName) {
-		Object attribute = request.getSession().getAttribute(attributeName);
-		
-		if (attribute != null) {
-			request.getSession().removeAttribute(attributeName);
-		}
-		
-		return attribute;
-	}
 }

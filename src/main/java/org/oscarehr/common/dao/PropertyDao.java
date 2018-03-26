@@ -27,7 +27,6 @@ package org.oscarehr.common.dao;
 
 import java.util.List;
 
-import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
 import org.oscarehr.common.model.Property;
@@ -41,8 +40,8 @@ public class PropertyDao extends AbstractDao<Property> {
 	}
 
 	/**
-     * Find by name.
-     * @param name
+     * Find all ordered by name.
+     * @param active, null is find all, true is find only active, false is find only inactive.
      */
     public List<Property> findByName(String name)
 	{
@@ -57,45 +56,12 @@ public class PropertyDao extends AbstractDao<Property> {
 		return(results);
 	}
     
-    @SuppressWarnings("unchecked")
-    public List<Property> findByNameAndProvider(String propertyName, String providerNo) {
-       	Query query = createQuery("p", "p.name = :name AND p.providerNo = :pno");
-   		query.setParameter("name", propertyName);
-   		query.setParameter("pno", providerNo);
-   		return query.getResultList();
-   	}
-    
-    @SuppressWarnings("unchecked")
-    public List<Property> findByProvider(String providerNo) {
-       	Query query = createQuery("p", "p.providerNo = :pno");
-   		query.setParameter("pno", providerNo);
-   		return query.getResultList();
-   	}
-    
     public Property checkByName(String name) {
     	
 		String sql = " select x from " + this.modelClass.getName() + " x where x.name='"+name+"'";
 		Query query = entityManager.createQuery(sql);		
 
-		try {
-			return (Property)query.getSingleResult();
-		} catch (NoResultException ex) {
-			return null;
-		}
+		return (Property)query.getSingleResult();
 		
 	}
-    
-    public List<Property> findByNameAndValue(String name, String value)
- 	{
-     	String sqlCommand="select x from "+modelClass.getSimpleName()+" x where x.name=?1 and x.value=?2";
- 		Query query = entityManager.createQuery(sqlCommand);
-
- 		query.setParameter(1, name);
- 		query.setParameter(2, value);
- 		
- 		@SuppressWarnings("unchecked")
- 		List<Property> results = query.getResultList();
-
- 		return(results);
- 	}
 }

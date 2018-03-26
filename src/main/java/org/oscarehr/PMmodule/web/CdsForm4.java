@@ -31,29 +31,36 @@ import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
+import org.oscarehr.PMmodule.dao.AdmissionDao;
 import org.oscarehr.PMmodule.dao.ProgramDao;
+import org.oscarehr.PMmodule.model.Admission;
 import org.oscarehr.PMmodule.model.Program;
 import org.oscarehr.common.Gender;
-import org.oscarehr.common.dao.AdmissionDao;
 import org.oscarehr.common.dao.CdsClientFormDao;
 import org.oscarehr.common.dao.CdsClientFormDataDao;
 import org.oscarehr.common.dao.CdsFormOptionDao;
 import org.oscarehr.common.dao.CdsHospitalisationDaysDao;
 import org.oscarehr.common.dao.DemographicDao;
-import org.oscarehr.common.model.Admission;
+import org.oscarehr.common.dao.DemographicExtDao;
+import org.oscarehr.common.dao.FunctionalCentreAdmissionDao;
+import org.oscarehr.common.dao.OcanFormOptionDao;
 import org.oscarehr.common.model.CdsClientForm;
 import org.oscarehr.common.model.CdsClientFormData;
 import org.oscarehr.common.model.CdsFormOption;
 import org.oscarehr.common.model.CdsHospitalisationDays;
 import org.oscarehr.common.model.Demographic;
+import org.oscarehr.common.model.DemographicExt;
+import org.oscarehr.common.model.OcanFormOption;
 import org.oscarehr.common.model.OcanStaffForm;
-import org.oscarehr.common.dao.FunctionalCentreAdmissionDao;
+import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.SpringUtils;
+
 import oscar.util.CBIUtil;
 
 public class CdsForm4 {
 
 	private static DemographicDao demographicDao = (DemographicDao) SpringUtils.getBean("demographicDao");
+	private static DemographicExtDao demographicExtDao = (DemographicExtDao) SpringUtils.getBean("demographicExtDao");
 	private static AdmissionDao admissionDao = (AdmissionDao) SpringUtils.getBean("admissionDao");
 	private static CdsFormOptionDao cdsFormOptionDao = (CdsFormOptionDao) SpringUtils.getBean("cdsFormOptionDao");
 	private static CdsClientFormDao cdsClientFormDao = (CdsClientFormDao) SpringUtils.getBean("cdsClientFormDao");
@@ -61,11 +68,15 @@ public class CdsForm4 {
 	private static CdsHospitalisationDaysDao cdsHospitalisationDaysDao = (CdsHospitalisationDaysDao) SpringUtils.getBean("cdsHospitalisationDaysDao");
 	private static ProgramDao programDao = (ProgramDao) SpringUtils.getBean("programDao");
 	private static FunctionalCentreAdmissionDao fcAdmissionDao = (FunctionalCentreAdmissionDao)SpringUtils.getBean("functionalCentreAdmissionDao");;
+	private static OcanFormOptionDao ocanFormOptionDao = (OcanFormOptionDao) SpringUtils.getBean("ocanFormOptionDao");
 
+	
 	private static final int MAX_DISPLAY_NAME_LENGTH = 60;
 
-	public static CdsClientForm getCdsClientFormByClientId(Integer facilityId, Integer clientId) {
-		List<Admission> admissions=admissionDao.getCurrentAdmissionsByFacility(clientId, facilityId);
+	public static CdsClientForm getCdsClientFormByClientId(Integer clientId) {
+		LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
+
+		List<Admission> admissions=admissionDao.getCurrentAdmissionsByFacility(clientId, loggedInInfo.currentFacility.getId());
 		
 		Admission admission=null;
 		// find service program
@@ -95,14 +106,14 @@ public class CdsForm4 {
 		
 		if (admission==null)
 		{
-			admissions=admissionDao.getAdmissionsByFacility(clientId, facilityId);
+			admissions=admissionDao.getAdmissionsByFacility(clientId, loggedInInfo.currentFacility.getId());
 			if (admissions.size()>0) admission=admissions.get(0);
 		}
 			
 		if (admission!=null)
 		{
 			// at this point we're in a program, try to find existing cds form.
-			List<CdsClientForm> cdsClientForms = cdsClientFormDao.findByFacilityClient(facilityId, clientId);
+			List<CdsClientForm> cdsClientForms = cdsClientFormDao.findByFacilityClient(loggedInInfo.currentFacility.getId(), clientId);
 	
 			for (CdsClientForm cdsClientForm : cdsClientForms)
 			{
@@ -123,7 +134,7 @@ public class CdsForm4 {
 		//and this CBI form should have same program (functional centre).
 		Integer programId = admission.getProgramId();
 		CBIUtil cbiUtil = new CBIUtil();
-		OcanStaffForm cbiForm = cbiUtil.getLatestCbiFormByDemographicNoAndProgramId(facilityId, clientId, programId);		
+		OcanStaffForm cbiForm = cbiUtil.getLatestCbiFormByDemographicNoAndProgramId(clientId, programId);		
 		if(cbiForm!=null) {
 			newForm.setInitialContactDate(cbiForm.getReferralDate());
 			newForm.setAssessmentDate(cbiForm.getAdmissionDate());
@@ -137,8 +148,10 @@ public class CdsForm4 {
 		return (cdsClientForm);
 	}
 
-	public static List<Admission> getAdmissions(Integer facilityId, Integer clientId) {
-		return (admissionDao.getAdmissionsByFacility(clientId, facilityId));
+	public static List<Admission> getAdmissions(Integer clientId) {
+		LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
+
+		return (admissionDao.getAdmissionsByFacility(clientId, loggedInInfo.currentFacility.getId()));
 	}
 
 	public static String getEscapedClientName(Integer clientId) {
@@ -172,6 +185,31 @@ public class CdsForm4 {
 		}
 	}
 
+	public static String getDefaultLhinCodeAsCdsOption(Integer clientId, String LHIN_code, String key, String cdsDataCategory) {
+		//demographicExt'value is from OcanFormOption, we need to convert to CdsFormOption by comparing the category name
+		DemographicExt demographicExt = demographicExtDao.getLatestDemographicExt(clientId, key);
+		if (demographicExt != null && demographicExt.getValue() != null) {
+			String LHIN_code1 = demographicExt.getValue();	
+			if(key!=null && key.equalsIgnoreCase("recipientLocation") ) {  //This is the actual CdsFormOption value
+				return LHIN_code1;
+			}
+			OcanFormOption ocanFormOption = ocanFormOptionDao.findByCategoryAndValue(LHIN_code, LHIN_code1);
+			if(ocanFormOption != null) {
+				// get ocanDataCategoryName from ocanFormOption, then get cdsDataCategory from CdsFormOption based on cdsDataCategoryName
+				CdsFormOption cdsFormOption = cdsFormOptionDao.findByCategoryAndName(cdsDataCategory, ocanFormOption.getOcanDataCategoryName());
+				if(cdsFormOption != null) {
+					return cdsFormOption.getCdsDataCategory();
+				} else {
+					return null;
+				}
+			} else {
+				return null;
+			}
+		} else {
+			return null;
+		}
+	}
+	
 	public static String getEscapedAdmissionSelectionDisplay(Integer admissionId) {
 		Admission admission = admissionDao.getAdmission(admissionId);
 		return (getEscapedAdmissionSelectionDisplay(admission));
@@ -205,7 +243,7 @@ public class CdsForm4 {
 			return (sb.toString());
 			
 		} else if(disabled){			
-			sb.append("<select disabled=\"disabled\" " + (multiple ? "multiple=\"multiple\" " : "") + "id=\"" + question + "\" " + "name=\"" + question + "\" " + (!dropDown ? "style=\"height:8em\" " : "") + classStyle + "  >");
+			sb.append("<select " + (multiple ? "multiple=\"multiple\" " : "") + "id=\"" + question + "\" " + "name=\"" + question + "\" " + (!dropDown ? "style=\"height:8em\" " : "") + classStyle + "  >");
 			sb.append(renderAsSelectOptions(cdsClientFormId, question, options));
 			sb.append("</select>");
 			return (sb.toString());
@@ -224,6 +262,40 @@ public class CdsForm4 {
 		}
 	}
 
+	public static String renderSelectQuestionWithDefaultValue(boolean disabled, boolean multiple, boolean dropDown, boolean forPrint, Integer cdsClientFormId, String optionQuestion, List<CdsFormOption> options, String classStyle, Integer demographicNo, String realQuestion, String LHIN_code, String cdsDataCategory) {
+		StringBuilder sb = new StringBuilder();
+		//The question key in the table of demographicExt is different from the question in the table of CdsDataOption.
+		//recipientLocation -> serviceRecipientLocation
+		//lhinConsumerResides -> serviceRecipientLhin
+		//lhinServiceDelivery -> serviceDeliveryLhin
+		String defaultSelected = getDefaultLhinCodeAsCdsOption(demographicNo, LHIN_code, realQuestion, cdsDataCategory);
+
+		if (!forPrint && !disabled) {			
+			sb.append("<select " + (multiple ? "multiple=\"multiple\" " : "") + "id=\"" + optionQuestion + "\" " + "name=\"" + optionQuestion + "\" " + (!dropDown ? "style=\"height:8em\" " : "") + classStyle + "  >");
+			sb.append(renderAsSelectOptionsWithDefaultValue(cdsClientFormId, optionQuestion, options,defaultSelected ));
+			sb.append("</select>");
+			return (sb.toString());
+			
+		} else if(disabled){			
+			sb.append("<select " + (multiple ? "multiple=\"multiple\" " : "") + "id=\"" + optionQuestion + "\" " + "name=\"" + optionQuestion + "\" " + (!dropDown ? "style=\"height:8em\" " : "") + classStyle + "  >");
+			sb.append(renderAsSelectOptionsWithDefaultValue(cdsClientFormId, optionQuestion, options, defaultSelected));
+			sb.append("</select>");
+			return (sb.toString());
+			
+		} else {			
+			List<CdsClientFormData> existingAnswers = getAnswers(cdsClientFormId, optionQuestion);
+			for (CdsClientFormData answer : existingAnswers) {
+				CdsFormOption option = getOptionFromAnswerId(options, answer.getAnswer());
+				if (option != null) {
+					if (sb.length() != 0) sb.append("<br />");
+					sb.append(StringEscapeUtils.escapeHtml(option.getCdsDataCategoryName()));
+				}
+			}
+
+			return (sb.toString());
+		}
+	}
+	
 	private static CdsFormOption getOptionFromAnswerId(List<CdsFormOption> options, String cdsDataCategory) {
 		for (CdsFormOption option : options) {
 			if (option.getCdsDataCategory().equals(cdsDataCategory)) return (option);
@@ -252,7 +324,32 @@ public class CdsForm4 {
 
 		return (sb.toString());
 	}
+	public static String renderAsSelectOptionsWithDefaultValue(Integer cdsClientFormId, String question, List<CdsFormOption> options, String defaultValue) {
+		List<CdsClientFormData> existingAnswers = getAnswers(cdsClientFormId, question);
+		StringBuilder sb = new StringBuilder();
+		sb.append("<option value=\"\" title=\"\">--- no selection ---</option>");
 
+		boolean alreadyHaveOneChecked = false;
+		for (CdsFormOption option : options) {
+			String htmlEscapedName = StringEscapeUtils.escapeHtml(option.getCdsDataCategoryName());
+			String lengthLimitedEscapedName = limitLengthAndEscape(option.getCdsDataCategoryName());			
+			String selected =(CdsClientFormData.containsAnswer(existingAnswers, option.getCdsDataCategory()) ? "selected=\"selected\"" : "");	
+			
+
+			if (CdsClientFormData.containsAnswer(existingAnswers, option.getCdsDataCategory()))
+			{
+				selected="selected=\"selected\"";
+				alreadyHaveOneChecked = true;
+			} 
+			else if(!alreadyHaveOneChecked && option.getCdsDataCategory().equals(defaultValue)) {
+				selected="selected=\"selected\"";
+			}
+			sb.append("<option " + selected + " value=\"" + StringEscapeUtils.escapeHtml(option.getCdsDataCategory()) + "\" title=\"" + htmlEscapedName + "\">" + lengthLimitedEscapedName + "</option>");
+
+		}
+
+		return (sb.toString());
+	}
 	/**
 	 * This method is meant to return a bunch of html <option> tags for each list element.
 	 */
@@ -384,4 +481,6 @@ public class CdsForm4 {
 
 		return (result);
 	}
+	
+	
 }

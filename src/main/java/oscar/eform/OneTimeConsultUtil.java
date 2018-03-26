@@ -53,7 +53,6 @@ public class OneTimeConsultUtil{
 		boolean clientPass = false;
 		List<EFormData> eformdata = eFormDataDao.findByFormIdProviderNo(Arrays.asList(providerNo),Integer.parseInt(formId));
 
-	
 		Date sDate = UtilDateUtilities.StringToDate(startStr);
 		Date eDate = UtilDateUtilities.StringToDate(endStr);
 
@@ -61,7 +60,6 @@ public class OneTimeConsultUtil{
 			List<EFormValue> eformValues = eFormValueDao.findByFormDataId(data.getId());	
 			try{
 				for(EFormValue value : eformValues){
-					
 					if(value.getVarName().equals("txtDate")){
 						Date myDate = UtilDateUtilities.StringToDate(value.getVarValue());
 						if(myDate.compareTo(sDate)>=0 && myDate.compareTo(eDate)<0)
@@ -74,18 +72,14 @@ public class OneTimeConsultUtil{
 					
 				
 					if(value.getVarName().equals("gender") || value.getVarName().equals("isAboriginal") || value.getVarName().equals("cboAge") || value.getVarName().equals("hasCto") || value.getVarName().equals("diagnosticCategories") || value.getVarName().equals("sourceOfReferral") || value.getVarName().equals("highestLevelEducation")){	
-					
 						if(value.getVarValue().equals(cdsValue)){
 							valuePass=true;
 						}else if(value.getVarValue().equals("")){
-							if(value.getVarName().equals("cboAge"))
-								if(cdsValue.equals("Unknown"))
-									valuePass=true;
-
+							
 							if(value.getVarName().equals("gender"))
 								if(cdsValue.equals("008-04"))
-									valuePass=true;					
-					
+									valuePass=true;
+							
 							if(value.getVarName().equals("isAboriginal"))
 								if(cdsValue.equals("011-03"))
 									valuePass=true;
@@ -132,22 +126,17 @@ public class OneTimeConsultUtil{
 				
 				if(issuePass){
 					if(datePass && !valuePass){
-						if(clientPass){
+						if(clientPass)
 							count[0]++;
-						}
-						else{
-							
-							count[1]++;	
-						}
+						else
+							count[1]++;
 					}					
 				}else{				
 					if(datePass && valuePass){
-						if(clientPass){
+						if(clientPass)
 							count[0]++;
-						}
-						else{
+						else
 							count[1]++;
-						}
 					}
 				}
 

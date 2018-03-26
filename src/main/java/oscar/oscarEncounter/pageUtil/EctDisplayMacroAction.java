@@ -35,20 +35,18 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.struts.util.MessageResources;
 import org.oscarehr.eyeform.dao.MacroDao;
 import org.oscarehr.eyeform.model.Macro;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
 import oscar.util.OscarRoleObjectPrivilege;
 import oscar.util.StringUtils;
 
+//import oscar.oscarSecurity.CookieSecurity;
+
 public class EctDisplayMacroAction extends EctDisplayAction {
     private static final String cmd = "macro";
     
  public boolean getInfo(EctSessionBean bean, HttpServletRequest request, NavBarDisplayDAO Dao, MessageResources messages) {
-	if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_eyeform", "r", null)) {
-		throw new SecurityException("missing required security object (_eyeform)");
-	}
      
 	 boolean a = true;
  	Vector v = OscarRoleObjectPrivilege.getPrivilegeProp("_newCasemgmt.macro");

@@ -26,7 +26,6 @@
 package org.oscarehr.common.model;
 
 import java.io.Serializable;
-import java.util.Comparator;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -40,6 +39,38 @@ import javax.persistence.TemporalType;
 @Entity
 @Table(name = "provider")
 public class ProviderData extends AbstractModel<String> implements Serializable {
+/*
++------------------------+--------------+------+-----+------------+-------+
+| Field                  | Type         | Null | Key | Default    | Extra |
++------------------------+--------------+------+-----+------------+-------+
+| provider_no            | varchar(6)   | NO   | PRI |            |       |
+| last_name              | varchar(30)  | NO   |     |            |       |
+| first_name             | varchar(30)  | NO   |     |            |       |
+| provider_type          | varchar(15)  | NO   |     |            |       |
+| specialty              | varchar(40)  | NO   |     |            |       |
+| team                   | varchar(20)  | YES  |     |            |       |
+| sex                    | char(1)      | NO   |     |            |       |
+| dob                    | date         | YES  |     | NULL       |       |
+| address                | varchar(40)  | YES  |     | NULL       |       |
+| phone                  | varchar(20)  | YES  |     | NULL       |       |
+| work_phone             | varchar(50)  | YES  |     | NULL       |       |
+| ohip_no                | varchar(20)  | YES  |     | NULL       |       |
+| rma_no                 | varchar(20)  | YES  |     | NULL       |       |
+| billing_no             | varchar(20)  | YES  |     | NULL       |       |
+| hso_no                 | varchar(10)  | YES  |     | NULL       |       |
+| status                 | char(1)      | YES  |     | NULL       |       |
+| comments               | text         | YES  |     | NULL       |       |
+| provider_activity      | char(3)      | YES  |     | NULL       |       |
+| practitionerNo         | varchar(20)  | YES  |     | NULL       |       |
+| init                   | varchar(10)  | YES  |     | NULL       |       |
+| job_title              | varchar(100) | YES  |     | NULL       |       |
+| email                  | varchar(60)  | YES  |     | NULL       |       |
+| title                  | varchar(20)  | YES  |     | NULL       |       |
+| lastUpdateUser         | varchar(6)   | YES  |     | NULL       |       |
+| lastUpdateDate         | date         | YES  |     | NULL       |       |
+| signed_confidentiality | date         | YES  |     | 0001-01-01 |       |
++------------------------+--------------+------+-----+------------+-------+ 	
+ */
 
 	@Id
 	@Column(name = "provider_no")
@@ -97,12 +128,9 @@ public class ProviderData extends AbstractModel<String> implements Serializable 
 	@Column(name = "signed_confidentiality")
 	@Temporal(TemporalType.DATE)
 	private Date signedConfidentiality = null;
-        @Column(name = "supervisor")
-        private String supervisor;
-      
+	
 	public ProviderData() {}
 	
-        @Override
 	public String getId() {
 		return id;
 	}
@@ -180,10 +208,9 @@ public class ProviderData extends AbstractModel<String> implements Serializable 
 		workPhone = s;
 	}
 
-	public String getOhipNo() {
+	public String setOhipNo() {
 		return ohipNo;
 	}
-	
 	public void setOhipNo(String s) {
 		ohipNo = s;
 	}
@@ -285,38 +312,4 @@ public class ProviderData extends AbstractModel<String> implements Serializable 
 	public void setSignedConfidentiality(Date d) {
 		signedConfidentiality = d;
 	}
-	 
-        public String getSupervisor() {
-            return supervisor;
-        }
-        
-        public void setSupervisor(String supervisor) {
-            this.supervisor = supervisor;
-        }
-        
-        public boolean equals(Object object) {
-            if( !(object instanceof ProviderData) ) {
-                return false;
-            }
-            
-            ProviderData other = (ProviderData) object;
-            return ProviderData.ProviderNoComparator.compare(this, other) == 0;
-        }
-        
-	public static final Comparator<ProviderData> LastNameComparator = new Comparator<ProviderData>() {
-        public int compare(ProviderData pd1, ProviderData pd2) {
-        	return pd1.getLastName().compareTo(pd2.getLastName());
-        }
-    }; 
-	public static final Comparator<ProviderData> FirstNameComparator = new Comparator<ProviderData>() {
-        public int compare(ProviderData pd1, ProviderData pd2) {
-        	return pd1.getFirstName().compareTo(pd2.getFirstName());
-        }
-    }; 
-	public static final Comparator<ProviderData> ProviderNoComparator = new Comparator<ProviderData>() {
-        public int compare(ProviderData pd1, ProviderData pd2) {
-        	return pd1.getId().compareTo(pd2.getId());
-        }
-    };
-	
 }

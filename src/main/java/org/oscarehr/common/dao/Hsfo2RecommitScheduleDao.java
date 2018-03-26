@@ -33,7 +33,6 @@ import javax.persistence.Query;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.Hsfo2Patient;
 import org.oscarehr.common.model.Hsfo2RecommitSchedule;
-import org.oscarehr.util.LoggedInInfo;
 import org.springframework.stereotype.Repository;
 
 import oscar.form.study.hsfo2.HSFODAO;
@@ -81,7 +80,7 @@ public class Hsfo2RecommitScheduleDao extends AbstractDao<Hsfo2RecommitSchedule>
 		 }
 	 }
 	 
-	 public String SynchronizeDemoInfo(LoggedInInfo loggedInInfo) {
+	 public String SynchronizeDemoInfo() {
 		 HSFODAO hsfoDao=new HSFODAO();
 		 List idList=hsfoDao.getAllPatientId();
 		 Iterator itr=idList.iterator();
@@ -89,7 +88,7 @@ public class Hsfo2RecommitScheduleDao extends AbstractDao<Hsfo2RecommitSchedule>
 		 while (itr.hasNext()){
 			 String pid=(String)itr.next();
 			 Hsfo2Patient pd=hsfoDao.retrievePatientRecord(pid);
-			 Demographic demo=demoData.getDemographic(loggedInInfo, pid);
+			 Demographic demo=demoData.getDemographic(pid);
 			 if(demo!=null) {
 				 String internalId=demo.getProviderNo();
 				 if(internalId==null || internalId.length()==0){
@@ -113,14 +112,14 @@ public class Hsfo2RecommitScheduleDao extends AbstractDao<Hsfo2RecommitSchedule>
 		 return null;
 	 }
 	 
-	 public String checkProvider(LoggedInInfo loggedInInfo) {
+	 public String checkProvider() {
 		 HSFODAO hsfoDao=new HSFODAO();
 		 List idList=hsfoDao.getAllPatientId();
 		 Iterator itr=idList.iterator();
 		 DemographicData demoData = new DemographicData();
 		 while (itr.hasNext()){
 			 String pid=(String)itr.next();
-			 Demographic demo=demoData.getDemographic(loggedInInfo, pid);
+			 Demographic demo=demoData.getDemographic(pid);
 			 String internalId=demo.getProviderNo();
 			 if(internalId==null || internalId.length()==0){
 				 return demo.getLastName()+","+demo.getFirstName();

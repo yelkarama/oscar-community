@@ -31,13 +31,7 @@
 %>
 <%@ page import="java.util.*,java.sql.*"
 	errorPage="../provider/errorpage.jsp"%>
-<%@ page import="org.oscarehr.util.SpringUtils"%>
-<%@ page import="org.oscarehr.common.model.MyGroup"%>
-<%@ page import="org.oscarehr.common.dao.MyGroupDao"%>
-
-<%
-	MyGroupDao dao = SpringUtils.getBean(MyGroupDao.class);
-%>
+<%@ include file="/common/webAppContextAndSuperMgr.jsp"%>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -56,7 +50,8 @@ function setfocus() {
 </script>
 </head>
 
-<body onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0">
+<body background="../images/gray_bg.jpg" bgproperties="fixed"
+	onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0">
 <FORM NAME="UPDATEPRE" METHOD="post" ACTION="providercontrol.jsp">
 <table border=0 cellspacing=0 cellpadding=0 width="100%">
 	<tr bgcolor="#486ebd">
@@ -72,12 +67,11 @@ function setfocus() {
 			key="provider.providerchangemygroup.msgChangeGroup" />:</TD>
 		<TD align="right"><select name="mygroup_no">
 <%
-	List<MyGroup> myGroups = dao.findAll();
-	Collections.sort(myGroups,MyGroup.MyGroupNoComparator);
-	for(MyGroup myGroup:myGroups) {
+	List<Map<String, Object>> resultList = oscarSuperManager.find("providerDao", "searchmygroupno", new Object[] {});
+	for (Map group : resultList) {
 %>
-			<option value="<%=myGroup.getId().getMyGroupNo()%>"
-				<%=oldGroup_no.equals(myGroup.getId().getMyGroupNo())?"selected":""%>><%=myGroup.getId().getMyGroupNo()%></option>
+			<option value="<%=group.get("mygroup_no")%>"
+				<%=oldGroup_no.equals(group.get("mygroup_no"))?"selected":""%>><%=group.get("mygroup_no")%></option>
 <%
  	 }
 %>
@@ -103,16 +97,15 @@ function setfocus() {
 <%
    boolean bNewNo=false;
    String oldNo="";
-   myGroups = dao.findAll();
-	Collections.sort(myGroups,MyGroup.MyGroupNoComparator);
-	for(MyGroup myGroup:myGroups) {
-     if(!(oldNo.equals(myGroup.getId().getMyGroupNo())) ) {
-       bNewNo=bNewNo?false:true; oldNo=String.valueOf(myGroup.getId().getMyGroupNo());
+   resultList = oscarSuperManager.find("providerDao", "searchmygroupall", new Object[] {});
+   for (Map group : resultList) {
+     if(!(oldNo.equals(group.get("mygroup_no"))) ) {
+       bNewNo=bNewNo?false:true; oldNo=String.valueOf(group.get("mygroup_no"));
      }
 %>
 			<tr BGCOLOR="<%=bNewNo?"white":"ivory"%>">
-				<td ALIGN="center"><font face="arial"> <%=myGroup.getId().getMyGroupNo()%></font></td>
-				<td><font face="arial"> &nbsp;<%=myGroup.getLastName()+", "+myGroup.getFirstName()%></font>
+				<td ALIGN="center"><font face="arial"> <%=group.get("mygroup_no")%></font></td>
+				<td><font face="arial"> &nbsp;<%=group.get("last_name")+", "+group.get("first_name")%></font>
 				</td>
 			</tr>
 			<%

@@ -23,21 +23,7 @@
     Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-	String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_allergy" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_allergy");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
+<%@ page language="java"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
@@ -90,18 +76,6 @@ oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBea
             alert(name);
             window.location="addReaction2.do?ID=0&type=0&name="+name;
         }
-    }
-    
-    function addPenicillinAllergy(){
-            window.location="addReaction2.do?ID=44452&name=PENICILLINS&type=10";
-    }
-    
-    function addSulfonamideAllergy(){
-            window.location="addReaction2.do?ID=44159&name=SULFONAMIDES&type=10";
-    }
-    
-    function addCustomNKDA(){
-            window.location="addReaction2.do?ID=0&type=0&name=NKDA";
     }
 
     function toggleSection(typecode) {
@@ -166,10 +140,8 @@ oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBea
 							<td><input type=button class="ControlPushButton"
 								onclick="javascript:document.forms.RxSearchAllergyForm.searchString.value='';document.forms.RxSearchAllergyForm.searchString.focus();"
 								value="Reset" />
-                               <input type=button class="ControlPushButton" onclick="javascript:addCustomAllergy();" value="Custom Allergy" />
-                               <input type=button class="ControlPushButton" onclick="javascript:addCustomNKDA();" value="NKDA" />
-                               <input type=button class="ControlPushButton" onclick="javascript:addPenicillinAllergy();" value="Penicillin" />
-                               <input type=button class="ControlPushButton" onclick="javascript:addSulfonamideAllergy();" value="Sulfa" />
+                                                             <input type=button class="ControlPushButton" onclick="javascript:addCustomAllergy();" value="Custom Allergy" />
+
                                                         </td>
 						</tr>
 					</table>
@@ -217,9 +189,6 @@ oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBea
 					</table>
 				</html:form></td>
 			</tr>
-			<tr>
-			<td id="searchResultsContainer" >
-			<table>
 			<tr>
 				<td>
 				<div class="DivContentSectionHead"><bean:message
@@ -362,14 +331,13 @@ oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBea
 					</logic:present>
 				</div>
 
+				<br>
+				<br>
 				<%
                         String sBack="ShowAllergies2.jsp";
                       %> <input type=button class="ControlPushButton"
 					onclick="javascript:window.location.href='<%=sBack%>';"
 					value="Back to View Allergies" /></td>
-			</tr>
-			</table>
-			</td>
 			</tr>
 			<!----End new rows here-->
 			<tr height="100%">

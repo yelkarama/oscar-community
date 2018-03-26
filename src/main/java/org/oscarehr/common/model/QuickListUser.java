@@ -44,7 +44,7 @@ public class QuickListUser extends AbstractModel<Integer> implements Serializabl
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id = null;
 
-	private String providerNo;
+	private int providerNo;
 
 	private String quickListName;
 
@@ -59,11 +59,11 @@ public class QuickListUser extends AbstractModel<Integer> implements Serializabl
     	this.id = id;
     }
 
-	public String getProviderNo() {
+	public int getProviderNo() {
     	return providerNo;
     }
 
-	public void setProviderNo(String providerNo) {
+	public void setProviderNo(int providerNo) {
     	this.providerNo = providerNo;
     }
 

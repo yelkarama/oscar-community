@@ -33,6 +33,7 @@
 <%@ taglib uri="/WEB-INF/caisi-tag.tld" prefix="caisi" %>
 <%@ taglib uri="/WEB-INF/oscarProperties-tag.tld" prefix="oscarProp" %>
 <%
+    if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
 
     boolean showResolved=false;
@@ -286,7 +287,7 @@ if (pId==null) pId="";
 	<input type="hidden" name="addIssue" value="null" />
 	<input type="hidden" name="deleteId" value="0" />
 
-<b><bean:message key="casemanagementEntry.clientname" /> 
+<b>Client name: 
 <I>
 <logic:notEmpty name="demoName" scope="request">
 <c:out value="${requestScope.demoName}" />
@@ -317,18 +318,18 @@ if (pId==null) pId="";
 </I></b>
 <br><br>
 
-	<b><bean:message key="casemanagementEntry.issueassociationview" /></b>
+	<b>Issue Association View:</b>
 
 	<table width="90%" border="0" cellpadding="0" cellspacing="1"
 		bgcolor="#C0C0C0">
 		<tr class="title">
 			<td></td>
-			<td><bean:message key="casemanagementEntry.Issue" /></td>
-			<td><bean:message key="casemanagementEntry.Acute" /></td>
-			<td><bean:message key="casemanagementEntry.Certain" /></td>
-			<td><bean:message key="casemanagementEntry.Major" /></td>
-			<td><bean:message key="casemanagementEntry.Resolved" /></td>
-			<td><bean:message key="casemanagementEntry.Type" /></td>
+			<td>Issue</td>
+			<td>Acute</td>
+			<td>Certain</td>
+			<td>Major</td>
+			<td>Resolved</td>
+			<td>Type</td>
 			<td></td>
 		</tr>
 
@@ -407,7 +408,7 @@ if (pId==null) pId="";
 				</security:oscarSec>
 	<%}
 	else{%>
-						<bean:message key="casemanagementEntry.activecommunityissue" />
+						Active Community Issue
 	<%}%>
 					</td>
 				</tr>
@@ -438,9 +439,9 @@ if (pId==null) pId="";
 		<nested:submit value="add new issue" onclick="this.form.method.value='addNewIssue';" />
 	</security:oscarSec>
 
-	<p><b><bean:message key="casemanagementEntry.progressnoteentryview" /> </b></p>
+	<p><b>Progress Note Entry View </b></p>
 	<%if ("true".equalsIgnoreCase((String)request.getAttribute("change_flag"))) {%>
-	<span id="spanMsg" style="color:red"><bean:message key="casemanagementEntry.notenotsavedyet" /></span>
+	<span id="spanMsg" style="color:red">this note has not been saved yet!</span>
 	<%}else{%>
 	<span id="spanMsg" style="color:blue">
 	<logic:messagesPresent message="true">
@@ -451,7 +452,7 @@ if (pId==null) pId="";
 	</span>
 	<%} %>
 	
-	<br>  <button type="button" onclick="javascript:spellCheck();"><bean:message key="casemanagementEntry.spellcheck" /></button>
+	<br>  <button type="button" onclick="javascript:spellCheck();">Spell Check</button>
 	
 	<p>
 	<table width="90%" border="1">
@@ -464,19 +465,19 @@ if (pId==null) pId="";
 		</tr>
 
 		<tr>    
-			<td class="fieldTitle"><bean:message key="casemanagementEntry.encountertype" /></td>
+			<td class="fieldTitle">Encounter Type:</td>
 			<td class="fieldValue"><html:select
 				property="caseNote.encounter_type" onchange="setChangeFlag(true);">
 				<html:option value=""></html:option>>
-				<html:option value="face to face encounter with client"><bean:message key="casemanagementEntry.facetofaceencounterwithclient" /></html:option>>
+				<html:option value="face to face encounter with client">face to face encounter with client</html:option>>
 				<oscarProp:oscarPropertiesCheck property="oncall" value="yes" reverse="true">
-					<html:option value="telephone encounter with client"><bean:message key="casemanagementEntry.telephoneencounterwithclient" /></html:option>
+					<html:option value="telephone encounter with client">telephone encounter with client</html:option>
 				</oscarProp:oscarPropertiesCheck>
 				<oscarProp:oscarPropertiesCheck property="oncall" value="yes">
-					<html:option value="telephone encounter weekdays 8am-6pm"><bean:message key="casemanagementEntry.telephoneencounterweekdays" /></html:option>
-					<html:option value="telephone encounter weekends or 6pm-8am"><bean:message key="casemanagementEntry.telephoneencounterweekends" /></html:option>
+					<html:option value="telephone encounter weekdays 8am-6pm">Telephone encounter weekdays 8am-6pm</html:option>
+					<html:option value="telephone encounter weekends or 6pm-8am">Telephone encounter weekends or 6pm-8am</html:option>
 				</oscarProp:oscarPropertiesCheck>
-				<html:option value="encounter without client"><bean:message key="casemanagementEntry.encounterwithoutclient" /></html:option>
+				<html:option value="encounter without client">encounter without client</html:option>
 			</html:select></td>
 		</tr>
 
@@ -486,12 +487,12 @@ if (pId==null) pId="";
 	</tr -->
 
 		<tr>
-			<td class="fieldTitle"><bean:message key="casemanagementEntry.Sign" /></td>
+			<td class="fieldTitle">Sign</td>
 			<td class="fieldValue"><html:checkbox property="sign" onchange="setChangeFlag(true);" /></td>
 		</tr>
 
 		<tr>
-			<td class="fieldTitle"><bean:message key="casemanagementEntry.includecheckedissuesinnote" /></td>
+			<td class="fieldTitle">include checked issues in note</td>
 			<td class="fieldValue"><html:checkbox property="includeIssue" onchange="setChangeFlag(true);" /></td>
 		</tr>
 <!-- commented out on Oct 4, 2010
@@ -505,7 +506,7 @@ if (pId==null) pId="";
 		<c:url value="${sessionScope.billing_url}" var="url"/>
 		<caisirole:SecurityAccess accessName="billing" accessType="access" providerNo='<%=request.getParameter("providerNo")%>' demoNo='<%=request.getParameter("demographicNo")%>' programId="<%=pId%>">
 			<tr>
-				<td class="fieldTitle"><bean:message key="casemanagementEntry.billing" /></td>
+				<td class="fieldTitle">Billing:</td>
 				
 				<td class="fieldValue"><nested:text property="caseNote.billing_code" />
 				<input type="button" value="add billing"
@@ -517,7 +518,7 @@ if (pId==null) pId="";
 		
 		<caisi:isModuleLoad moduleName="casemgmt.note.password.enabled">
 		<tr>
-			<td class="fieldTitle"><bean:message key="casemanagementEntry.password" /></td>
+			<td class="fieldTitle">Password:</td>
 			<td class="fieldValue"><html:password property="caseNote.password"/></td>
 		</tr>
 		</caisi:isModuleLoad>
@@ -538,7 +539,7 @@ if (pId==null) pId="";
 
 </security:oscarSec>
 <security:oscarSec roleName="<%=roleName$%>" objectName="_casemgmt.notes" rights="u" reverse="true">
-<b><bean:message key="casemanagementEntry.encounterwithoutclient" />You do not have permission to edit this note.</b>
+<b>You do not have permission to edit this note.</b>
 </security:oscarSec>
 </body>
 </html>

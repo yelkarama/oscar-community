@@ -27,11 +27,11 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
 import org.apache.tools.ant.util.DateUtils;
-import org.oscarehr.common.dao.AdmissionDao;
+import org.oscarehr.PMmodule.dao.AdmissionDao;
 import org.oscarehr.PMmodule.dao.ProgramAccessDAO;
 import org.oscarehr.PMmodule.dao.ProgramDao;
 import org.oscarehr.PMmodule.dao.ProgramProviderDAO;
-import org.oscarehr.common.model.Admission;
+import org.oscarehr.PMmodule.model.Admission;
 import org.oscarehr.PMmodule.model.DefaultRoleAccess;
 import org.oscarehr.PMmodule.model.Program;
 import org.oscarehr.PMmodule.model.ProgramAccess;
@@ -148,10 +148,8 @@ public class NotePermissionsAction extends DispatchAction {
 
 		hashMap.put("noteId", noteId);
 
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		String providerNo=loggedInInfo.getLoggedInProviderNo();
-		Provider provider = loggedInInfo.getLoggedInProvider();
-
+		Provider provider = LoggedInInfo.loggedInInfo.get().loggedInProvider;
+		String providerNo = provider.getProviderNo();
 		if (canNoteBeModified(providerNo, noteId)) {
 			CaseManagementNote note = noteDao.getNote(Long.parseLong(noteId));
 
@@ -199,8 +197,7 @@ public class NotePermissionsAction extends DispatchAction {
 	}
 
 	public ActionForward getDefaultProgramAndRole(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		String providerNo=loggedInInfo.getLoggedInProviderNo();
+		String providerNo = LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo();
 		String demoNo = request.getParameter("demoNo");
 
 		ProgramProviderDAO programProviderDao = (ProgramProviderDAO) SpringUtils.getBean("programProviderDAO");
@@ -253,9 +250,7 @@ public class NotePermissionsAction extends DispatchAction {
 	}
 
 	public ActionForward visibleProgramsAndRoles(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		String providerNo=loggedInInfo.getLoggedInProviderNo();
-
+		String providerNo = LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo();
 		String demoNo = request.getParameter("demoNo");
 		HashMap<Program, List<Secrole>> visibleMap = getAllProviderAccessibleRolesForDemo(providerNo, demoNo);
 
@@ -437,5 +432,22 @@ public class NotePermissionsAction extends DispatchAction {
 			map.put(pa.getAccessType().getName().toLowerCase(), pa);
 		}
 		return map;
+	}
+
+	private List<HashMap<String, String>> getDischargedPrograms(String demoNo) {
+		AdmissionDao admissionDao = (AdmissionDao) SpringUtils.getBean("admissionDao");
+		List<Admission> admissions = admissionDao.getDischargedAdmissions(Integer.parseInt(demoNo));
+
+		List<HashMap<String, String>> discharged = new ArrayList<HashMap<String, String>>();
+
+		for (Admission a : admissions) {
+			HashMap<String, String> d = new HashMap<String, String>();
+			d.put("programName", a.getProgramName());
+			d.put("programNo", a.getProgramId() + "");
+
+			discharged.add(d);
+		}
+
+		return discharged;
 	}
 }

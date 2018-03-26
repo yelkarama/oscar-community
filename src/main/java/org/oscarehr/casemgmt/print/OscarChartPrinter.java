@@ -32,40 +32,41 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.ResourceBundle;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.log4j.Logger;
+import org.caisi.dao.TicklerDAO;
+import org.caisi.model.CustomFilter;
+import org.caisi.model.Tickler;
+import org.oscarehr.PMmodule.dao.AdmissionDao;
 import org.oscarehr.PMmodule.dao.ProgramDao;
 import org.oscarehr.PMmodule.dao.ProviderDao;
+import org.oscarehr.PMmodule.model.Admission;
 import org.oscarehr.casemgmt.dao.CaseManagementIssueDAO;
 import org.oscarehr.casemgmt.dao.IssueDAO;
 import org.oscarehr.casemgmt.model.CaseManagementIssue;
 import org.oscarehr.casemgmt.model.CaseManagementNote;
 import org.oscarehr.casemgmt.model.Issue;
-import org.oscarehr.common.dao.AdmissionDao;
 import org.oscarehr.common.dao.DemographicCustDao;
 import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.DemographicExtDao;
 import org.oscarehr.common.dao.DxresearchDAO;
 import org.oscarehr.common.dao.OscarAppointmentDao;
 import org.oscarehr.common.dao.PreventionDao;
-import org.oscarehr.common.model.Admission;
 import org.oscarehr.common.model.Allergy;
 import org.oscarehr.common.model.Appointment;
-import org.oscarehr.common.model.CustomFilter;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.DemographicCust;
 import org.oscarehr.common.model.DemographicExt;
 import org.oscarehr.common.model.Dxresearch;
 import org.oscarehr.common.model.Prevention;
 import org.oscarehr.common.model.Provider;
-import org.oscarehr.common.model.Tickler;
-import org.oscarehr.managers.TicklerManager;
-import org.oscarehr.util.LoggedInInfo;
+import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
 import oscar.OscarProperties;
@@ -98,12 +99,15 @@ import com.lowagie.text.pdf.PdfWriter;
  */
 public class OscarChartPrinter {
 
+	private static Logger logger = MiscUtils.getLogger();
+
     public final int LINESPACING = 1;
     public final float LEADING = 12;
     public final float FONTSIZE = 10;
     public final int NUMCOLS = 2;
 
     private Demographic demographic;
+    private Appointment appointment;
     private String signingProvider;
 
     private PdfWriter writer;
@@ -124,16 +128,12 @@ public class OscarChartPrinter {
     private OscarAppointmentDao appointmentDao = (OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
     private PreventionDao preventionDao = (PreventionDao)SpringUtils.getBean("preventionDao");
     private DemographicExtDao demographicExtDao = SpringUtils.getBean(DemographicExtDao.class);
-    private TicklerManager ticklerManager = SpringUtils.getBean(TicklerManager.class);
-    
 
 	public OscarChartPrinter(HttpServletRequest request, OutputStream os) throws DocumentException,IOException {
 		this.request = request;
 		this.os = os;
 
 		document = new Document();
-		// writer = PdfWriterFactory.newInstance(document, os, FontSettings.HELVETICA_10PT);
-		
 	    writer = PdfWriter.getInstance(document,os);
 		writer.setPageEvent(new EndPage());
 		document.setPageSize(PageSize.LETTER);
@@ -155,6 +155,10 @@ public class OscarChartPrinter {
 
     public void setDemographic(Demographic demographic) {
     	this.demographic=demographic;
+    }
+
+    public void setAppointment(Appointment appointment) {
+    	this.appointment=appointment;
     }
 
     public Font getFont() {
@@ -277,6 +281,8 @@ public class OscarChartPrinter {
             newPage=false;
         }
 
+        Font obsfont = new Font(bf, FONTSIZE, Font.UNDERLINE);
+
         Paragraph p = null;
         Phrase phrase = null;
 
@@ -398,10 +404,10 @@ public class OscarChartPrinter {
         phrase = new Phrase(LEADING, "", font);
 
         DemographicRelationship demoRel = new DemographicRelationship();
-        
-		List<Map<String,String>> demoR = demoRel.getDemographicRelationships(String.valueOf(demographic.getDemographicNo()));
+        @SuppressWarnings("unchecked")
+		ArrayList<HashMap<String,String>> demoR = demoRel.getDemographicRelationships(String.valueOf(demographic.getDemographicNo()));
 		for (int j=0; j<demoR.size(); j++) {
-		    Map<String,String> r = demoR.get(j);
+		    HashMap<String,String> r = demoR.get(j);
 		    String relationDemographicNo = r.get("demographic_no");
 		    Demographic relationDemographic = demographicDao.getClientByDemographicNo(Integer.parseInt(relationDemographicNo));
 		    String relation = r.get("relation");
@@ -550,9 +556,24 @@ public class OscarChartPrinter {
 	}
 
 
-    public void printAllergies(List<Allergy> allergies) throws DocumentException {
 
+
+
+
+
+
+
+    public void printAllergies(List<Allergy> allergies) throws DocumentException {
+    	ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
+
+ /*
+		if( getNewPage() )
+            getDocument().newPage();
+        else
+            setNewPage(true);
+ */
         Font obsfont = new Font(getBaseFont(), FONTSIZE, Font.UNDERLINE);
+
 
         Paragraph p = new Paragraph();
         p.setAlignment(Paragraph.ALIGN_LEFT);
@@ -655,10 +676,11 @@ public class OscarChartPrinter {
 
     }
 
-    public void printTicklers(LoggedInInfo loggedInInfo) throws DocumentException {
+    public void printTicklers() throws DocumentException {
+    	TicklerDAO ticklerDao = (TicklerDAO)SpringUtils.getBean("ticklerDAOT");
     	CustomFilter filter = new CustomFilter();
-    	filter.setDemographicNo(String.valueOf(demographic.getDemographicNo()));
-    	List<Tickler> ticklers = ticklerManager.getTicklers(loggedInInfo, filter);
+    	filter.setDemographic_no(String.valueOf(demographic.getDemographicNo()));
+    	List<Tickler> ticklers = ticklerDao.getTicklers(filter);
 
     	if(ticklers.size()==0) {
     		return;
@@ -675,9 +697,9 @@ public class OscarChartPrinter {
         for(Tickler tickler:ticklers) {
         	String providerName = tickler.getProvider().getFormattedName();
         	String assigneeName = tickler.getAssignee().getFormattedName();
-        	String serviceDate = tickler.getServiceDateWeb();
-        	String priority = tickler.getPriority().toString();
-        	char status = tickler.getStatus().toString().charAt(0);
+        	String serviceDate = tickler.getServiceDate();
+        	String priority = tickler.getPriority();
+        	char status = tickler.getStatus();
         	String message = tickler.getMessage();
 
 
@@ -843,6 +865,7 @@ public class OscarChartPrinter {
         document.add(p);
 
         for(CaseManagementIssue issue:issues) {
+        	String type = issue.getType();
         	String description = issue.getIssue().getDescription();
 
         	p = new Paragraph();

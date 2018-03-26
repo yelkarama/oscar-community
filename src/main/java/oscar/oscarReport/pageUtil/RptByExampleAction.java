@@ -25,60 +25,37 @@
 
 package oscar.oscarReport.pageUtil;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Collection;
-import java.util.Date;
-import java.util.List;
 import java.util.Properties;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.oscarehr.PMmodule.dao.SecUserRoleDao;
-import org.oscarehr.PMmodule.model.SecUserRole;
-import org.oscarehr.common.dao.ReportByExamplesDao;
-import org.oscarehr.common.model.ReportByExamples;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.OscarProperties;
+import oscar.oscarDB.DBHandler;
 import oscar.oscarReport.bean.RptByExampleQueryBeanHandler;
 
 
 public class RptByExampleAction extends Action {
-	
-	private ReportByExamplesDao dao = SpringUtils.getBean(ReportByExamplesDao.class);
-
     
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException
     {   
         RptByExampleForm frm = (RptByExampleForm) form;        
         
-        String roleName$ = (String)request.getSession().getAttribute("userrole") + "," + (String) request.getSession().getAttribute("user");
-    	if(!com.quatro.service.security.SecurityManager.hasPrivilege("_admin", roleName$)  && !com.quatro.service.security.SecurityManager.hasPrivilege("_report", roleName$)) {
-    		throw new SecurityException("Insufficient Privileges");
-    	}
-    	
         if(request.getSession().getAttribute("user") == null)
-            response.sendRedirect("../logout.htm");     
-        
-        LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-        String providerNo=loggedInInfo.getLoggedInProviderNo();
-
-        SecUserRoleDao secUserRoleDao = SpringUtils.getBean(SecUserRoleDao.class);
-        
-        List<SecUserRole> userRoles = secUserRoleDao.findByRoleNameAndProviderNo("admin", providerNo);
-        if(userRoles.isEmpty()) {
-        	MiscUtils.getLogger().warn("provider "  + providerNo + " does not have admin privileges to run query by example");
-        	return new ActionForward("/oscarReport/RptByExample.jsp");
-        }
-        
+            response.sendRedirect("../logout.htm");        
+               
+        String providerNo = (String) request.getSession().getAttribute("user");
         RptByExampleQueryBeanHandler hd = new RptByExampleQueryBeanHandler();  
         Collection favorites = hd.getFavoriteCollection(providerNo);       
         request.setAttribute("favorites", favorites);        
@@ -107,22 +84,22 @@ public class RptByExampleAction extends Action {
     
     public void write2Database(String query, String providerNo){
         if (query!=null && query.compareTo("")!=0){
-            
+            try {
                 
-       // StringEscapeUtils strEscUtils = new StringEscapeUtils();
-        
-        //query = exampleData.replaceSQLString (";","",query);
-        //query = exampleData.replaceSQLString("\"", "\'", query);            
+                
+                StringEscapeUtils strEscUtils = new StringEscapeUtils();
+                
+                //query = exampleData.replaceSQLString (";","",query);
+                //query = exampleData.replaceSQLString("\"", "\'", query);            
 
-       // query = StringEscapeUtils.escapeSql(query);
-        
-        ReportByExamples r = new ReportByExamples();
-        r.setProviderNo(providerNo);
-        r.setQuery(query);
-        r.setDate(new Date());
-        dao.persist(r);
-       
-           
+                query = StringEscapeUtils.escapeSql(query);
+                
+                String sql = "INSERT INTO reportByExamples(providerNo, query, date) VALUES('" + providerNo + "','" + query + "', NOW())";
+                DBHandler.RunSQL(sql);
+            }
+            catch(SQLException e) {
+                MiscUtils.getLogger().error("Error", e);            
+            }
         }
     }
 }

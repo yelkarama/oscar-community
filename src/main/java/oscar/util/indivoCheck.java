@@ -26,10 +26,11 @@
 package oscar.util;
 
 
+import java.sql.SQLException;
+
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.TagSupport;
 
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 
 import oscar.oscarDemographic.data.DemographicData;
@@ -65,10 +66,10 @@ public class indivoCheck extends TagSupport {
 
         boolean conditionMet = false ;
        
-          try {     
+        try {            
             if( ProviderMyOscarIdData.idIsSet(providerNo) ) {
                 if( demoNo != null ) {
-                   org.oscarehr.common.model.Demographic demo = new DemographicData().getDemographic(LoggedInInfo.getLoggedInInfoFromSession(this.pageContext.getSession()), demoNo); 
+                   org.oscarehr.common.model.Demographic demo = new DemographicData().getDemographic(demoNo); 
                    String myOscarUserName = demo.getMyOscarUserName();
                    if( myOscarUserName != null ) 
                         conditionMet = true;
@@ -77,7 +78,9 @@ public class indivoCheck extends TagSupport {
                     conditionMet = true;                                       
             }                         
              
-          }
+        }catch(SQLException e) {
+            MiscUtils.getLogger().error("Error", e);
+        }
         catch(NullPointerException e) {
             MiscUtils.getLogger().debug("INVALID provider or demographic no");
             MiscUtils.getLogger().error("Error", e);

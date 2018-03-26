@@ -15,15 +15,12 @@
 package oscar.oscarLab.ca.all.upload.handlers;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.ListIterator;
 
 import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.Hl7TextInfoDao;
 import org.oscarehr.common.model.Hl7TextInfo;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.SpringUtils;
 
 import oscar.oscarLab.ca.all.parsers.Factory;
@@ -41,7 +38,7 @@ public class TDISHandler implements MessageHandler {
 		logger.info("NEW TDISHandler UPLOAD HANDLER instance just instantiated. ");
 	}
 
-	public String parse(LoggedInInfo loggedInInfo, String serviceName, String fileName, int fileId, String ipAddr) {
+	public String parse(String serviceName, String fileName, int fileId) {
 		logger.info("ABOUT TO PARSE!");
 
 
@@ -54,7 +51,7 @@ public class TDISHandler implements MessageHandler {
 				String msg = (String) messages.get(i);
 
 
-				MessageUploader.routeReport(loggedInInfo, serviceName, "TDIS", msg, fileId);
+				MessageUploader.routeReport(serviceName, "TDIS", msg, fileId);
 
 			}
 
@@ -78,17 +75,11 @@ public class TDISHandler implements MessageHandler {
 	private void updateLabStatus(int n)  {
 		Hl7TextInfoDao hl7TextInfoDao = (Hl7TextInfoDao) SpringUtils.getBean("hl7TextInfoDao");
 		 List<Hl7TextInfo> labList = hl7TextInfoDao.getAllLabsByLabNumberResultStatus();
-		 Collections.sort(labList, Collections.reverseOrder(new Comparator<Hl7TextInfo>() {
-			 public int compare(Hl7TextInfo o1, Hl7TextInfo o2) {
-				 return o1.getId().compareTo(o2.getId());
-				 }
-			 }));
 		 ListIterator<Hl7TextInfo> iter = labList.listIterator();
 
 		 while (iter.hasNext() && n>0) {
-			 Hl7TextInfo lab = iter.next();
-			 if (!oscar.Misc.getString(lab.getResultStatus()).equals("A")) {
-				 oscar.oscarLab.ca.all.parsers.MessageHandler h = Factory.getHandler(((Integer)lab.getLabNumber()).toString());
+			 if (!iter.next().getResultStatus().equals("A")) {
+				 oscar.oscarLab.ca.all.parsers.MessageHandler h = Factory.getHandler(((Integer)iter.next().getLabNumber()).toString());
 
 	                int i=0;
 	                int j=0;
@@ -99,7 +90,7 @@ public class TDISHandler implements MessageHandler {
 	                        logger.info("obr("+i+") obx("+j+") abnormal ? : "+h.getOBXAbnormalFlag(i, j));
 	                        if(h.isOBXAbnormal(i, j)){
 	                            resultStatus = "A";
-	                            hl7TextInfoDao.updateResultStatusByLabId("A", lab.getLabNumber());
+	                            hl7TextInfoDao.updateResultStatusByLabId("A", iter.next().getLabNumber());
 
 	                        }
 	                        j++;

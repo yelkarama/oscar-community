@@ -25,10 +25,6 @@
 
 package org.oscarehr.billing.CA.BC.dao;
 
-import java.util.List;
-
-import javax.persistence.Query;
-
 import org.oscarehr.billing.CA.BC.model.TeleplanS21;
 import org.oscarehr.common.dao.AbstractDao;
 import org.springframework.stereotype.Repository;
@@ -38,28 +34,5 @@ public class TeleplanS21Dao extends AbstractDao<TeleplanS21>{
 
 	public TeleplanS21Dao() {
 		super(TeleplanS21.class);
-	}
-	
-	public List<TeleplanS21> findByFilenamePaymentPayeeNo(String filename, String payment, String payeeNo) {
-		Query q = entityManager.createQuery("SELECT t from TeleplanS21 t WHERE t.fileName=? AND t.payment=? AND t.payeeNo=? ORDER BY t.payment");
-		q.setParameter(1, filename);
-		q.setParameter(2, payment);
-		q.setParameter(3, payeeNo);
-		
-		@SuppressWarnings("unchecked")
-		List<TeleplanS21> results = q.getResultList();
-		
-		return results;
-	}
-	
-	public List<TeleplanS21> search_all_tahd(String excludeStatus) {
-		Query q = entityManager.createQuery("SELECT t from TeleplanS21 t WHERE t.status <> ? ORDER BY t.payment desc");
-		q.setParameter(1, excludeStatus);
-		
-		
-		@SuppressWarnings("unchecked")
-		List<TeleplanS21> results = q.getResultList();
-		
-		return results;
 	}
 }

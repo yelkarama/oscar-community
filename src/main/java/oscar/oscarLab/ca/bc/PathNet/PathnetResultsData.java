@@ -22,36 +22,18 @@
  * Ontario, Canada
  */
 
+
 package oscar.oscarLab.ca.bc.PathNet;
 
+import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.oscarehr.billing.CA.BC.dao.Hl7MessageDao;
-import org.oscarehr.billing.CA.BC.dao.Hl7MshDao;
-import org.oscarehr.billing.CA.BC.dao.Hl7ObrDao;
-import org.oscarehr.billing.CA.BC.dao.Hl7ObxDao;
-import org.oscarehr.billing.CA.BC.dao.Hl7OrcDao;
-import org.oscarehr.billing.CA.BC.dao.Hl7PidDao;
-import org.oscarehr.billing.CA.BC.model.Hl7Message;
-import org.oscarehr.billing.CA.BC.model.Hl7Msh;
-import org.oscarehr.billing.CA.BC.model.Hl7Obr;
-import org.oscarehr.billing.CA.BC.model.Hl7Orc;
-import org.oscarehr.billing.CA.BC.model.Hl7Pid;
-import org.oscarehr.common.dao.ConsultDocsDao;
-import org.oscarehr.common.dao.ConsultResponseDocDao;
-import org.oscarehr.common.dao.PatientLabRoutingDao;
-import org.oscarehr.common.model.ConsultDocs;
-import org.oscarehr.common.model.PatientLabRouting;
-import org.oscarehr.common.model.ProviderLabRoutingModel;
-import org.oscarehr.util.SpringUtils;
 
+import oscar.oscarDB.DBHandler;
 import oscar.oscarLab.ca.on.LabResultData;
-import oscar.util.ConversionUtils;
 import oscar.util.UtilDateUtilities;
 
 /**
@@ -59,282 +41,335 @@ import oscar.util.UtilDateUtilities;
  * @author Jay Gallagher
  */
 public class PathnetResultsData {
-	private ConsultDocsDao consultDocsDao = SpringUtils.getBean(ConsultDocsDao.class);
-	private ConsultResponseDocDao consultResponseDocDao = SpringUtils.getBean(ConsultResponseDocDao.class);
-	private Hl7MessageDao hl7MsgDao = SpringUtils.getBean(Hl7MessageDao.class);
-	private Hl7MshDao hl7MshDao = SpringUtils.getBean(Hl7MshDao.class);
-	private Hl7ObrDao hl7ObrDao = SpringUtils.getBean(Hl7ObrDao.class);
-	private Hl7ObxDao hl7ObxDao = SpringUtils.getBean(Hl7ObxDao.class);
-	private Hl7OrcDao hl7OrcDao = SpringUtils.getBean(Hl7OrcDao.class);
-	private Hl7PidDao hl7PidDao = SpringUtils.getBean(Hl7PidDao.class);
 
-	Logger logger = Logger.getLogger(PathnetResultsData.class);
+    Logger logger = Logger.getLogger(PathnetResultsData.class);
 
-	/**
-	 * Populates ArrayList with labs attached to a consultation
-	 */
-	// Populates labs for consult request
-	public ArrayList<LabResultData> populatePathnetResultsData(String demographicNo, String consultationId, boolean attached) {
-		List<LabResultData> attachedLabs = new ArrayList<LabResultData>();
-		for (Object[] o : consultDocsDao.findLabs(ConversionUtils.fromIntString(consultationId))) {
-			ConsultDocs c = (ConsultDocs) o[0];
-			LabResultData lbData = new LabResultData(LabResultData.EXCELLERIS);
-			lbData.labPatientId = "" + c.getDocumentNo();
-			attachedLabs.add(lbData);
-		}
-		List<Object[]> labsBCP = hl7MsgDao.findByDemographicAndLabType(ConversionUtils.fromIntString(demographicNo), "BCP");
-		return populatePathnetResultsData(attachedLabs, labsBCP, attached);
-	}
-	
-	// Populates labs for consult response
-	public ArrayList<LabResultData> populatePathnetResultsDataConsultResponse(String demographicNo, String consultationId, boolean attached) {
-		List<LabResultData> attachedLabs = new ArrayList<LabResultData>();
-		for (Object[] o : consultResponseDocDao.findLabs(ConversionUtils.fromIntString(consultationId))) {
-			ConsultDocs c = (ConsultDocs) o[0];
-			LabResultData lbData = new LabResultData(LabResultData.EXCELLERIS);
-			lbData.labPatientId = "" + c.getDocumentNo();
-			attachedLabs.add(lbData);
-		}
-		List<Object[]> labsBCP = hl7MsgDao.findByDemographicAndLabType(ConversionUtils.fromIntString(demographicNo), "BCP");
-		return populatePathnetResultsData(attachedLabs, labsBCP, attached);
-	}
-	
-	// Populates labs private shared method
-	private ArrayList<LabResultData> populatePathnetResultsData(List<LabResultData> attachedLabs, List<Object[]> labsBCP, boolean attached) {
-		ArrayList<LabResultData> labResults = new ArrayList<LabResultData>();
-		try {
-			LabResultData lbData = new LabResultData(LabResultData.EXCELLERIS);
-			LabResultData.CompareId c = lbData.getComparatorId();
+    public PathnetResultsData() {
+    }
 
-			for (Object[] o : labsBCP) {
-				Hl7Message m = (Hl7Message) o[0];
-				PatientLabRouting r = (PatientLabRouting) o[1];
+    /**
+     *Populates ArrayList with labs attached to a consultation request
+     */
+    public ArrayList<LabResultData> populatePathnetResultsData(String demographicNo, String consultationId, boolean attached) {
+        String sql = "SELECT m.message_id, patientLabRouting.id " +
+                "FROM hl7_message m, patientLabRouting " +
+                "WHERE patientLabRouting.lab_no = m.message_id "+
+                "AND patientLabRouting.lab_type = 'BCP' AND patientLabRouting.demographic_no=" + demographicNo+" GROUP BY m.message_id";
 
-				lbData.labType = LabResultData.EXCELLERIS;
-				lbData.segmentID = "" + m.getId();
-				lbData.labPatientId = "" + r.getId();
-				lbData.dateTime = findPathnetObservationDate(lbData.segmentID);
-				lbData.discipline = findPathnetDisipline(lbData.segmentID);
+        String attachQuery = "SELECT consultdocs.document_no FROM consultdocs, patientLabRouting " +
+                "WHERE patientLabRouting.id = consultdocs.document_no AND " +
+                "consultdocs.requestId = " + consultationId + " AND consultdocs.doctype = 'L' AND consultdocs.deleted IS NULL ORDER BY consultdocs.document_no";
 
-				if (attached && Collections.binarySearch(attachedLabs, lbData, c) >= 0) labResults.add(lbData);
-				else if (!attached && Collections.binarySearch(attachedLabs, lbData, c) < 0) labResults.add(lbData);
+        ArrayList<LabResultData> labResults = new ArrayList<LabResultData>();
+        ArrayList<LabResultData> attachedLabs = new ArrayList<LabResultData>();
+        try {
 
-				lbData = new LabResultData(LabResultData.EXCELLERIS);
-			}
-		} catch (Exception e) {
-			logger.error("exception in CMLPopulate:", e);
-		}
-		return labResults;
-	}
-	/**
-	 * End Populates labs attached to consultation
-	 */
-	
 
-	public ArrayList<LabResultData> populatePathnetResultsData(String providerNo, String demographicNo, String patientFirstName, String patientLastName, String patientHealthNumber, String status, Integer labNo) {
-		if (providerNo == null) {
-			providerNo = "";
-		}
-		if (patientFirstName == null) {
-			patientFirstName = "";
-		}
-		if (patientLastName == null) {
-			patientLastName = "";
-		}
-		if (patientHealthNumber == null) {
-			patientHealthNumber = "";
-		}
-		if (status == null) {
-			status = "";
-		}
+            ResultSet rs = DBHandler.GetSQL(attachQuery);
+            while(rs.next()) {
+                LabResultData lbData = new LabResultData(LabResultData.EXCELLERIS);
+                lbData.labPatientId = oscar.Misc.getString(rs, "document_no");
+                attachedLabs.add(lbData);
+            }
+            rs.close();
 
-		ArrayList<LabResultData> labResults = new ArrayList<LabResultData>();
-		try {
-			List<Object[]> pathnetResultsData = null;
+            LabResultData lbData = new LabResultData(LabResultData.EXCELLERIS);
+            LabResultData.CompareId c = lbData.getComparatorId();
+            rs = DBHandler.GetSQL(sql);
 
-			if(labNo != null && labNo.intValue()>0) {
-				pathnetResultsData  = hl7MshDao.findPathnetResultsByLabNo(labNo);
-			} else {
-				if (demographicNo == null) {
-					pathnetResultsData = hl7MshDao.findPathnetResultsDataByPatientNameHinStatusAndProvider(patientLastName + "%^" + patientFirstName + "%", "%" + patientHealthNumber + "%", "%" + status + "%", providerNo.equals("") ? "%" : providerNo, "BCP");
-				} else {
-					pathnetResultsData = hl7MshDao.findPathnetResultsDeomgraphicNo(ConversionUtils.fromIntString(demographicNo), "BCP");
-				}
-			}
+            while(rs.next()){
 
-			for (Object[] o : pathnetResultsData) {
-				Hl7Msh msh = (Hl7Msh) o[0];
-				Hl7Pid pid = (Hl7Pid) o[1];
-				Hl7Orc orc = (Hl7Orc) o[2];
-				ProviderLabRoutingModel p = (ProviderLabRoutingModel) o[4];
-				Long stat = (Long) o[5];
+                lbData.labType = LabResultData.EXCELLERIS;
+                lbData.segmentID = oscar.Misc.getString(rs, "message_id");
+                lbData.labPatientId = oscar.Misc.getString(rs, "id");
+                lbData.dateTime = findPathnetObservationDate(lbData.segmentID);
+                lbData.discipline = findPathnetDisipline(lbData.segmentID);
 
-				LabResultData lbData = new LabResultData(LabResultData.EXCELLERIS);
-				lbData.labType = LabResultData.EXCELLERIS;
-				lbData.segmentID = "" + pid.getMessageId();
+                if( attached && Collections.binarySearch(attachedLabs, lbData, c) >= 0 )
+                    labResults.add(lbData);
+                else if( !attached && Collections.binarySearch(attachedLabs, lbData, c) < 0 )
+                    labResults.add(lbData);
 
-				if (demographicNo == null && !providerNo.equals("0")) {
-					lbData.acknowledgedStatus = p.getStatus();
-				} else {
-					lbData.acknowledgedStatus = "U";
-				}
+                lbData = new LabResultData(LabResultData.EXCELLERIS);
+            }
+            rs.close();
+        }catch(Exception e){
+            logger.error("exception in CMLPopulate:",e);
+        }
+        return labResults;
+    }
+    /////
+    public ArrayList<LabResultData> populatePathnetResultsData(String providerNo, String demographicNo, String patientFirstName, String patientLastName, String patientHealthNumber, String status) {
+        if ( providerNo == null) { providerNo = ""; }
+        if ( patientFirstName == null) { patientFirstName = ""; }
+        if ( patientLastName == null) { patientLastName = ""; }
+        if ( patientHealthNumber == null) { patientHealthNumber = ""; }
+        if ( status == null ) { status = ""; }
 
-				lbData.accessionNumber = justGetAccessionNumber(orc.getFillerOrderNumber());
 
-				lbData.healthNumber = pid.getExternalId();
-				lbData.patientName = pid.getPatientName();
-				if (lbData.patientName != null) {
-					lbData.patientName = lbData.patientName.replaceAll("\\^", " ");
-				}
-				lbData.sex = pid.getSex();
-				lbData.resultStatus = "0"; //TODO
-				// solve lbData.resultStatus.add(oscar.Misc.getString(rs,"abnormalFlag"));
-				lbData.dateTime = ConversionUtils.toTimestampString(msh.getDateTime());
+        ArrayList<LabResultData> labResults =  new ArrayList<LabResultData>();
+        String sql = "";
+        try {
 
-				//priority
-				lbData.priority = "----";
-				lbData.requestingClient = justGetDocName(orc.getOrderingProvider());
-				lbData.reportStatus = "" + stat;
+            if ( demographicNo == null) {
 
-				if (lbData.reportStatus != null && lbData.reportStatus.equals("F")) {
-					lbData.finalRes = true;
-				} else {
-					lbData.finalRes = false;
-				}
+                sql  ="select pid.message_id, pid.external_id as patient_health_num,  pid.patient_name as patientName, pid.sex as patient_sex ,pid.pid_id, orc.filler_order_number as accessionNum, orc.ordering_provider, msh.date_time_of_message as date, min(obr.result_status) as stat, providerLabRouting.status " +
+                        "from hl7_msh msh, hl7_pid pid, hl7_orc orc, hl7_obr obr, providerLabRouting " +
+                        "where providerLabRouting.lab_no = pid.message_id and pid.message_id = msh.message_id and pid.pid_id = orc.pid_id and pid.pid_id = obr.pid_id  "+
+                        " AND providerLabRouting.status like '%"+status+"%' AND providerLabRouting.provider_no like '"+(providerNo.equals("")?"%":providerNo)+"'" +
+                        " AND providerLabRouting.lab_type = 'BCP' " +
+                        " AND pid.patient_name like '"+patientLastName+"%^"+patientFirstName+"%' AND pid.external_id like '%"+patientHealthNumber+"%'" +
+                        " GROUP BY pid.message_id";
 
-				labResults.add(lbData);
-			}
-		} catch (Exception e) {
-			logger.error("exception in pathnetPopulate", e);
-		}
-		return labResults;
-	}
+            } else {
 
-	public String findPathnetObservationDate(String labId) {
-		Date date = hl7PidDao.findObservationDateByMessageId(ConversionUtils.fromIntString(labId));
-		if (date != null) {
-			return ConversionUtils.toDateString(date);
-		}
-		return "";
-	}
+                sql= "select pid.message_id, pid.external_id as patient_health_num,  pid.patient_name as patientName, pid.sex as patient_sex,pid.pid_id, orc.filler_order_number as accessionNum, orc.ordering_provider, msh.date_time_of_message as date, min(obr.result_status) as stat "+
+                        "from hl7_msh msh, hl7_pid pid, hl7_orc orc, hl7_obr obr, patientLabRouting "+
+                        "where patientLabRouting.lab_no = pid.message_id   and pid.pid_id = orc.pid_id and pid.pid_id = obr.pid_id and msh.message_id = pid.message_id "+
+                        "and patientLabRouting.lab_type = 'BCP' and patientLabRouting.demographic_no='"+demographicNo+"'" +
+                        " group by pid.message_id";
+            }
 
-	public int findNumOfFinalResults(String labId) {
-		Hl7PidDao dao = SpringUtils.getBean(Hl7PidDao.class);
-		return dao.findByObservationResultStatusAndMessageId("F", ConversionUtils.fromIntString(labId)).size();
-	}
+            logger.info("s: "+sql);
+            ResultSet rs = DBHandler.GetSQL(sql);
+            logger.debug("after sql statement");
+            while(rs.next()){
+                LabResultData lbData = new LabResultData(LabResultData.EXCELLERIS);
+                lbData.labType = LabResultData.EXCELLERIS;
+                lbData.segmentID = oscar.Misc.getString(rs, "message_id");
 
-	public boolean isLabLinkedWithPatient(String labId) {
-		PatientLabRoutingDao dao = SpringUtils.getBean(PatientLabRoutingDao.class);
-		for (PatientLabRouting p : dao.findByLabNoAndLabType(ConversionUtils.fromIntString(labId), "BCP")) {
-			String demo = "" + p.getDemographicNo();
-			if (demo != null && !demo.trim().equals("0")) {
-				return true;
-			}
-		}
-		return false;
-	}
+                if (demographicNo == null && !providerNo.equals("0")) {
+                    lbData.acknowledgedStatus = oscar.Misc.getString(rs, "status");
+                } else {
+                    lbData.acknowledgedStatus ="U";
+                }
 
-	public String justGetAccessionNumber(String s) {
-		String[] nums = s.split("-");
-		if (nums.length == 3) {
-			return nums[0];
-		} else if (nums.length == 5) {
-			return nums[0] + "-" + nums[1] + "-" + nums[2];
-		} else {
-			return nums[1];
-		}
-	}
+                ///if (findPathnetAdnormalResults(lbData.segmentID) > 0){
+                ///   lbData.abn= true;
+                ///}
 
-	public String getMatchingLabs(String labId) {
-		String ret = "";
-		String accessionNum = "";
-		String labDate = "";
-		int monthsBetween = 0;
+                lbData.accessionNumber = justGetAccessionNumber(oscar.Misc.getString(rs, "accessionNum"));
 
-		try {
-			// find the accession number
-			for (Object[] o : hl7OrcDao.findFillerAndStatusChageByMessageId(ConversionUtils.fromIntString(labDate))) {
-				String fillerOrderNumber = String.valueOf(o[0]);
-				Date date = (Date) o[1];
-				accessionNum = justGetAccessionNumber(fillerOrderNumber);
-				labDate = ConversionUtils.toDateString(date);
-			}
+                lbData.healthNumber = oscar.Misc.getString(rs, "patient_health_num");
+                lbData.patientName = oscar.Misc.getString(rs, "patientName");
+                if(lbData.patientName != null){
+                    lbData.patientName = lbData.patientName.replaceAll("\\^", " ");
+                }
+                lbData.sex = oscar.Misc.getString(rs, "patient_sex");
+                lbData.resultStatus = "0"; //TODO
+                // solve lbData.resultStatus.add(oscar.Misc.getString(rs,"abnormalFlag"));
 
-			Hl7PidDao pidDao = SpringUtils.getBean(Hl7PidDao.class);
+                lbData.dateTime = oscar.Misc.getString(rs, "date");
 
-			for (Object[] o : pidDao.findByFillerOrderNumber("%" + accessionNum + "%")) {
-				String messageId = String.valueOf(o[0]);
-				Date resultsReportStatusChange = (Date) o[1];
+                //priority
+                lbData.priority = "----";
+                lbData.requestingClient = justGetDocName(oscar.Misc.getString(rs, "ordering_provider"));
+                lbData.reportStatus =  oscar.Misc.getString(rs, "stat");
 
-				Date dateA = resultsReportStatusChange;
-				Date dateB = UtilDateUtilities.StringToDate(labDate, "yyyy-MM-dd HH:mm:ss");
-				if (dateA.before(dateB)) {
-					monthsBetween = UtilDateUtilities.getNumMonths(dateA, dateB);
-				} else {
-					monthsBetween = UtilDateUtilities.getNumMonths(dateB, dateA);
-				}
+                if (lbData.reportStatus != null && lbData.reportStatus.equals("F")){
+                    lbData.finalRes = true;
+                }else{
+                    lbData.finalRes = false;
+                }
+                //lbData.discipline = "Hem/Chem/Other";
+                ///lbData.discipline = findPathnetDisipline(lbData.segmentID);
+                //lbData.finalResultsCount = findNumOfFinalResults(lbData.segmentID);
+                labResults.add(lbData);
+            }
+            rs.close();
+        }catch(Exception e){
+            logger.error("exception in pathnetPopulate", e);
+        }
+        return labResults;
+    }
 
-				if (monthsBetween < 4) {
+    public String findPathnetObservationDate(String labId){
+        String  ret = "";
+        try {
 
-					if (ret.equals("")) ret = messageId;
-					else ret = ret + "," + messageId;
+            //String sql = "select min(obr.observation_date_time) as d from hl7_pid pid, hl7_obr obr where obr.pid_id = pid.pid_id and pid.message_id = '"+labId+"'";
+            String sql = "select max(obr.results_report_status_change) as d from hl7_pid pid, hl7_obr obr where obr.pid_id = pid.pid_id and pid.message_id = '"+labId+"'";
+            ResultSet rs = DBHandler.GetSQL(sql);
+            while(rs.next()){
+                ret = oscar.Misc.getString(rs, "d");
+            }
+            rs.close();
+        }catch(Exception e){
+            logger.error("exception in pathnetResultsData",e);
+        }
+        return ret;
+    }
 
-				}
-			}
-		} catch (Exception e) {
-			logger.error("exception in PathnetResultsData", e);
-			return labId;
-		}
-		return ret;
-	}
+    public int findNumOfFinalResults(String labId){
+        int ret = 0;
+        try {
 
-	public String justGetDocName(String s) {
-		String ret = s;
-		int i = s.indexOf("^");
-		if (i != -1) {
-			ret = s.substring(i + 1).replaceAll("\\^", " ");
-		}
-		return ret;
-	}
+            String sql ="SELECT COUNT(*) FROM hl7_pid pid, hl7_obr obr, hl7_obx obx WHERE obx.observation_result_status = 'F' AND obx.obr_id = obr.obr_id AND obr.pid_id = pid.pid_id AND pid.message_id = '"+labId+"'";
+            ResultSet rs = DBHandler.GetSQL(sql);
+            while(rs.next()){
+                ret = (rs.getInt(1));
+            }
+            rs.close();
+        }catch(Exception e){
+            logger.error("exception in MDSResultsData:",e);
+        }
+        return ret;
+    }
 
-	public String findPathnetOrderingProvider(String labId) {
-		Hl7OrcDao dao = SpringUtils.getBean(Hl7OrcDao.class);
-		for (Object[] o : dao.findOrcAndPidByMessageId(ConversionUtils.fromIntString(labId))) {
-			Hl7Orc orc = (Hl7Orc) o[0];
-			return justGetDocName(orc.getOrderingProvider());
-		}
+    public boolean isLabLinkedWithPatient(String labId){
+        boolean ret = false;
+        try {
 
-		return "";
-	}
+            //String sql = "select min(obr.observation_date_time) as d from hl7_pid pid, hl7_obr obr, hl7_obx obx where obr.pid_id = pid.pid_id and obx.obr_id = obr.obr_id and pid.message_id = '"+labId+"'";
+            String sql = "select demographic_no from patientLabRouting where lab_no = '"+labId+"' and lab_type  = 'BCP' ";
+            ResultSet rs = DBHandler.GetSQL(sql);
+            if(rs.next()){
+                String demo =  oscar.Misc.getString(rs, "demographic_no");
+                if(demo != null && !demo.trim().equals("0") ){
+                    ret = true;
+                }
+            }
+            rs.close();
+        }catch(Exception e){
+            logger.error("exception in isLabLinkedWithPatient",e);
 
-	public String findPathnetStatus(String labId) {
-		for (Object[] o : hl7ObrDao.findMinResultStatusByMessageId(ConversionUtils.fromIntString(labId))) {
-			return String.valueOf(o[0]);
-		}
-		return "";
-	}
+        }
+        return ret;
+    }
 
-	public String findPathnetDisipline(String labId) {
-		StringBuilder ret = new StringBuilder();
-		try {
-			Hl7ObrDao dao = SpringUtils.getBean(Hl7ObrDao.class);
-			boolean first = true;
-			for (Object[] o : dao.findByMessageId(ConversionUtils.fromIntString(labId))) {
-				Hl7Obr obr = (Hl7Obr) o[1];
-				if (!first) {
-					ret.append("/");
-				}
-				ret.append(obr.getDiagnosticServiceSectId());
-				first = false;
-			}
 
-		} catch (Exception e) {
-			logger.error("exception in MDSResultsData", e);
-		}
-		return ret.toString();
-	}
+    public String justGetAccessionNumber(String s){
+        String[] nums = s.split("-");
+        if (nums.length == 3){
+            return nums[0];
+        }else if (nums.length == 5){
+            return nums[0]+"-"+nums[1]+"-"+nums[2];
+        }else{
+            return nums[1];
+        }
+    }
 
-	public int findPathnetAdnormalResults(String labId) {
-		return hl7ObxDao.findByMessageIdAndAbnormalFlags(ConversionUtils.fromIntString(labId), Arrays.asList(new String[] { "A", "H", "HH", "L" })).size();
-	}
+    public String getMatchingLabs(String labId){
+        String  ret = "";
+        String accessionNum ="";
+        String labDate = "";
+        int monthsBetween = 0;
+
+        try {
+
+
+            // find the accession number
+            String sql = "select orc.filler_order_number, max(results_report_status_change) as date from hl7_orc orc, hl7_pid pid, hl7_obr obr where obr.pid_id=pid.pid_id and orc.pid_id = pid.pid_id and pid.message_id = '"+labId+"' GROUP BY pid.message_id";
+            ResultSet rs = DBHandler.GetSQL(sql);
+            if(rs.next()){
+                accessionNum = justGetAccessionNumber(oscar.Misc.getString(rs, "filler_order_number"));
+                labDate = oscar.Misc.getString(rs, "date");
+            }
+
+            //String sql = "select filler_order_number from hl7_orc orc, hl7_pid pid where orc.pid_id = pid.pid_id and pid.message_id = '"+labId+"'";
+            sql = "SELECT DISTINCT pid.message_id, max(results_report_status_change) as date FROM  hl7_pid pid, hl7_orc orc, hl7_obr obr WHERE orc.filler_order_number like '%"+accessionNum+"%' AND orc.pid_id = pid.pid_id AND obr.pid_id = pid.pid_id GROUP BY pid.message_id ORDER BY obr.results_report_status_change";
+            rs = DBHandler.GetSQL(sql);
+            while (rs.next()){
+                Date dateA = UtilDateUtilities.StringToDate(oscar.Misc.getString(rs, "date"), "yyyy-MM-dd HH:mm:ss");
+                Date dateB = UtilDateUtilities.StringToDate(labDate, "yyyy-MM-dd HH:mm:ss");
+                if (dateA.before(dateB)){
+                    monthsBetween = UtilDateUtilities.getNumMonths(dateA, dateB);
+                }else{
+                    monthsBetween = UtilDateUtilities.getNumMonths(dateB, dateA);
+                }
+
+                if (monthsBetween < 4){
+
+                    if (ret.equals(""))
+                        ret = oscar.Misc.getString(rs, "message_id");
+                    else
+                        ret = ret+","+oscar.Misc.getString(rs, "message_id");
+
+                }
+            }
+            rs.close();
+
+        }catch(Exception e){
+            logger.error("exception in PathnetResultsData",e);
+            return labId;
+        }
+        return ret;
+    }
+
+    public String justGetDocName(String s){
+        String ret = s;
+        int i = s.indexOf("^");
+        if (i != -1){
+            ret = s.substring(i+1).replaceAll("\\^", " ");
+        }
+        return ret;
+    }
+
+    public String findPathnetOrderingProvider(String labId){
+        String  ret = "";
+        try {
+
+            String sql = "select ordering_provider from hl7_orc orc, hl7_pid pid where orc.pid_id = pid.pid_id and pid.message_id = '"+labId+"'";
+            ResultSet rs = DBHandler.GetSQL(sql);
+            while(rs.next()){
+                ret = justGetDocName(oscar.Misc.getString(rs, "ordering_provider"));
+            }
+            rs.close();
+        }catch(Exception e){
+            logger.error("exception in MDSResultsData",e);
+        }
+        return ret;
+    }
+    public String findPathnetStatus(String labId){
+        String ret = "";
+        try {
+
+            String sql = "select min(obr.result_status) as stat from hl7_pid pid, hl7_obr obr, hl7_obx obx where obr.pid_id = pid.pid_id and obx.obr_id = obr.obr_id and pid.message_id = '"+labId+"'";
+            ResultSet rs = DBHandler.GetSQL(sql);
+            while(rs.next()){
+                ret = oscar.Misc.getString(rs, "stat");
+            }
+            rs.close();
+        }catch(Exception e){
+            logger.error("exception in MDSResultsData",e);
+        }
+        return ret;
+    }
+
+
+    public String findPathnetDisipline(String labId){
+        StringBuilder ret = new StringBuilder();
+        try {
+
+            String sql = "select distinct diagnostic_service_sect_id from hl7_pid pid, hl7_obr obr where obr.pid_id = pid.pid_id and pid.message_id = '"+labId+"'";
+            ResultSet rs = DBHandler.GetSQL(sql);
+            boolean first = true;
+            while(rs.next()){
+                if (!first){ ret.append("/"); }
+                ret.append(oscar.Misc.getString(rs, "diagnostic_service_sect_id"));
+                first = false;
+            }
+            rs.close();
+        }catch(Exception e){
+            logger.error("exception in MDSResultsData",e);
+        }
+        return ret.toString();
+    }
+
+
+    public int findPathnetAdnormalResults(String labId){
+        int count = 0;
+        try {
+
+            String sql = "select abnormal_flags from hl7_pid pid, hl7_obr obr, hl7_obx obx where obr.pid_id = pid.pid_id and obx.obr_id = obr.obr_id and ( obx.abnormal_flags = 'A' or obx.abnormal_flags = 'H' or obx.abnormal_flags = 'HH' or obx.abnormal_flags = 'L' )     and pid.message_id ='"+labId+"'";
+            ResultSet rs = DBHandler.GetSQL(sql);
+            while(rs.next()){
+                count++;
+            }
+            rs.close();
+        }catch(Exception e){
+            logger.error("exception in MDSResultsData",e);
+        }
+        return count;
+    }
 }

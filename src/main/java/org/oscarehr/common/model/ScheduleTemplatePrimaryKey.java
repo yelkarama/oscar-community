@@ -80,7 +80,7 @@ public class ScheduleTemplatePrimaryKey implements Serializable {
 	public boolean equals(Object o) {
 		try {
 			ScheduleTemplatePrimaryKey o1 = (ScheduleTemplatePrimaryKey) o;
-			return ((name.equals(o1.name)) && (providerNo.equals(o1.providerNo)));
+			return ((name == o1.name) && (providerNo == o1.providerNo));
 		} catch (RuntimeException e) {
 			return (false);
 		}

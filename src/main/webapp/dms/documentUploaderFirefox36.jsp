@@ -8,21 +8,6 @@
     and "gnu.org/licenses/gpl-2.0.html".
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_edoc" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_edoc");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%@page contentType="text/html" %>
 <%@page import="oscar.dms.data.*,java.util.*,oscar.oscarLab.ca.on.CommonLabResultData,org.oscarehr.util.SpringUtils,org.oscarehr.common.dao.QueueDao, oscar.oscarMDS.data.ProviderData" %>
 <%@page import="oscar.OscarProperties"%>
@@ -72,7 +57,7 @@ String resourcePath = context + "/share/documentUploader/";
 <div id="fileupload">
 
     <div class="file_upload_buttons fileupload-buttonbar ui-widget-header ui-corner-top">
-	    <form action="<%=context%>/dms/documentUpload.do?method=executeUpload" method="POST" enctype="multipart/form-data">
+	    <form action="<%=context%>/dms/documentUpload.do" method="POST" enctype="multipart/form-data">
 	        <input type="hidden" id="provider" name="provider" value="<%=provider%>" />
 			<input type="hidden" name="queue" value="<%=queueId%>"/>
 	        <input type="file" name="filedata" multiple>

@@ -22,26 +22,8 @@
     Toronto, Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_form" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_form");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%@ page
 	import="oscar.form.*, oscar.OscarProperties, java.util.Date, oscar.util.UtilDateUtilities"%>
-<%@page import="org.oscarehr.common.dao.FrmLabReqPreSetDao, org.oscarehr.util.SpringUtils"%>
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
-
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
@@ -70,16 +52,15 @@
    int formId = Integer.parseInt(request.getParameter("formId"));
 	String provNo = (String) session.getAttribute("user");
 	FrmRecord rec = (new FrmRecordFactory()).factory(formClass);
-   java.util.Properties props = rec.getFormRecord(LoggedInInfo.getLoggedInInfoFromSession(request),demoNo, formId);
+   java.util.Properties props = rec.getFormRecord(demoNo, formId);
         
 	props = ((FrmMentalHealthForm14Record) rec).getFormCustRecord(props, provNo);
    OscarProperties oscarProps = OscarProperties.getInstance();
 
    if (request.getParameter("labType") != null){
       if (formId == 0 ){
-         FrmLabReqPreSetDao preSetDao = (FrmLabReqPreSetDao) SpringUtils.getBean("frmLabReqPreSetDao");
          String labPreSet = request.getParameter("labType");
-         props = preSetDao.fillPropertiesByLabType(labPreSet,props);
+         props = FrmLabReqPreSet.set(labPreSet,props);
       }
    }
    

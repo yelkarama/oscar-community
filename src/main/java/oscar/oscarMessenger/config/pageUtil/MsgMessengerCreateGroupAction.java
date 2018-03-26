@@ -22,7 +22,9 @@
  * Ontario, Canada
  */
 
+
 package oscar.oscarMessenger.config.pageUtil;
+
 
 import java.io.IOException;
 
@@ -34,52 +36,53 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.oscarehr.common.dao.GroupsDao;
-import org.oscarehr.common.model.Groups;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
-import org.oscarehr.util.SpringUtils;
+import org.oscarehr.util.MiscUtils;
 
+import oscar.oscarDB.DBHandler;
 import oscar.oscarMessenger.data.MsgAddressBookMaker;
 
 public class MsgMessengerCreateGroupAction extends Action {
 
-	private GroupsDao dao = SpringUtils.getBean(GroupsDao.class);
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	
-	public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    public ActionForward execute(ActionMapping mapping,
+				 ActionForm form,
+				 HttpServletRequest request,
+				 HttpServletResponse response)
+	throws IOException, ServletException {
 
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_admin", "w", null)) {
-			throw new SecurityException("missing required security object (_admin)");
-		}
-		
-		String grpName = ((MsgMessengerCreateGroupForm) form).getGroupName();
-		String parentID = ((MsgMessengerCreateGroupForm) form).getParentID();
-		String type = ((MsgMessengerCreateGroupForm) form).getType2();
 
-		grpName = grpName.trim();
+       String grpName = ((MsgMessengerCreateGroupForm)form).getGroupName();
+       String parentID = ((MsgMessengerCreateGroupForm)form).getParentID();
+       String type = ((MsgMessengerCreateGroupForm)form).getType2();
 
-		if (!grpName.equals("")) {
-			if (type.equals("1")) {
-				GroupsDao gd = SpringUtils.getBean(GroupsDao.class);
-				Groups g = new Groups();
-				g.setParentId(Integer.parseInt(parentID));
-				g.setGroupDesc(grpName);
-				gd.persist(g);
+       grpName = grpName.trim();
 
-				MsgAddressBookMaker addMake = new MsgAddressBookMaker();
-				addMake.updateAddressBook();
-			} else if (type.equals("2")) {
-				Groups g = dao.find(Integer.parseInt(parentID));
-				if (g != null) {
-					g.setGroupDesc(grpName);
-					dao.merge(g);
-				}
-				MsgAddressBookMaker addMake = new MsgAddressBookMaker();
-				addMake.updateAddressBook();
-			}
-		}
-		request.setAttribute("groupNo", parentID);
-		return (mapping.findForward("success"));
-	}
+       if (!grpName.equals("")){
+           if (type.equals("1")){
+              try{
+                 
+                 java.sql.ResultSet rs;
+                 String sql = "insert into groups_tbl (parentID,groupDesc) values ('"+parentID+"','"+grpName+"')";
+                 DBHandler.RunSQL(sql);
+
+                 
+                 MsgAddressBookMaker addMake = new MsgAddressBookMaker();
+                 addMake.updateAddressBook();
+
+               }catch (java.sql.SQLException e){ MiscUtils.getLogger().debug("Update of address book didn't happen when updating groups");MiscUtils.getLogger().error("Error", e); }
+           }else if (type.equals("2")){
+                try{
+                 
+                 java.sql.ResultSet rs;
+                 String sql = "update groups_tbl set groupDesc = '"+grpName+"' where groupID = '"+parentID+"'";
+                 DBHandler.RunSQL(sql);
+
+                 MsgAddressBookMaker addMake = new MsgAddressBookMaker();
+                 addMake.updateAddressBook();
+
+               }catch (java.sql.SQLException e){ MiscUtils.getLogger().debug("Update of address book didn't happen when deleting group");MiscUtils.getLogger().error("Error", e); }
+           }
+        }
+      request.setAttribute("groupNo",parentID);
+      return (mapping.findForward("success"));
+    }
 }

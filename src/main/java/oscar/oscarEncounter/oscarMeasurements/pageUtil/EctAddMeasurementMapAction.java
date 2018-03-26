@@ -35,6 +35,7 @@
 package oscar.oscarEncounter.oscarMeasurements.pageUtil;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -45,9 +46,6 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.oscarEncounter.oscarMeasurements.data.MeasurementMapConfig;
 
@@ -58,8 +56,6 @@ import oscar.oscarEncounter.oscarMeasurements.data.MeasurementMapConfig;
 public class EctAddMeasurementMapAction extends Action{
     
     Logger logger = Logger.getLogger(EctAddMeasurementMapAction.class);
-    private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-    
     
     /** Creates a new instance of EctEditMeasurementMapAction */
     public EctAddMeasurementMapAction() {
@@ -67,14 +63,14 @@ public class EctAddMeasurementMapAction extends Action{
     
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
         
-    	if( securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_admin", "w", null) || securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_admin.measurements", "w", null) )  {
-    	
         String identifier = request.getParameter("identifier");
         String loinc_code = request.getParameter("loinc_code");
         String outcome = "continue";
         
         if (loinc_code != null && identifier != null){
             
+            try{
+                
                 String[] measurement = identifier.split(",");
                 MeasurementMapConfig mmc = new MeasurementMapConfig();
                 if (!mmc.checkLoincMapping(loinc_code, measurement[1])){
@@ -84,13 +80,13 @@ public class EctAddMeasurementMapAction extends Action{
                     outcome = "failedcheck";
                 }
                 
+            }catch(SQLException e){
+                logger.error("Failed to create new measurement mapping", e);
+                outcome = "failure";
+            }
+            
         }
         return mapping.findForward(outcome);
-        
-    	}else{
-			throw new SecurityException("Access Denied!"); //missing required security object (_admin)
-		
-    	} 
     }
     
 }

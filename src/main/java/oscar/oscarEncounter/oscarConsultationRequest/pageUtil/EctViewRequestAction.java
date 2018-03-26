@@ -27,9 +27,9 @@ package oscar.oscarEncounter.oscarConsultationRequest.pageUtil;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Calendar;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -41,10 +41,9 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.apache.xml.security.exceptions.Base64DecodingException;
-import org.apache.xml.security.utils.Base64;
 import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.dao.ConsultationRequestDao;
+import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.Hl7TextMessageDao;
 import org.oscarehr.common.hl7.v2.oscar_to_oscar.DataTypeUtils;
 import org.oscarehr.common.hl7.v2.oscar_to_oscar.OscarToOscarUtils;
@@ -54,9 +53,6 @@ import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.Hl7TextMessage;
 import org.oscarehr.common.model.ProfessionalSpecialist;
 import org.oscarehr.common.model.Provider;
-import org.oscarehr.managers.DemographicManager;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
@@ -69,11 +65,9 @@ import ca.uhn.hl7v2.model.v26.segment.PRD;
 public class EctViewRequestAction extends Action {
 	
 	private static final Logger logger=MiscUtils.getLogger();
-	private static SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
 	
 	@Override
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse  response)	throws ServletException, IOException {
-		checkPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request));
 
 		EctViewRequestForm frm = (EctViewRequestForm) form;
 
@@ -85,45 +79,55 @@ public class EctViewRequestAction extends Action {
 		return mapping.findForward("success");
 	}
 	
-	private static void setAppointmentDateTime(EctConsultationFormRequestForm thisForm, ConsultationRequest consult) {
-		Calendar cal = Calendar.getInstance();
-		Date date1 = consult.getAppointmentDate();
-		Date date2 = consult.getAppointmentTime();
-		
-		if( date1 == null || date2 == null ) {
-			thisForm.setAppointmentDate("");
-		}
-		else {
-            thisForm.setAppointmentDate(DateFormatUtils.ISO_DATE_FORMAT.format(date1));
-			cal.setTime(date2);
+		private static Calendar setAppointmentDateTime(EctConsultationFormRequestForm thisForm, ConsultationRequest consult) {
+			Calendar cal = Calendar.getInstance();
 			
-			int hour = cal.get(Calendar.HOUR_OF_DAY);
-			if(cal.get(Calendar.AM_PM) == Calendar.AM) {
-				if( hour == 0 ) {
-					hour = 12;
-				}
-				thisForm.setAppointmentPm("AM");				
+			Date date1 = consult.getAppointmentDate();
+			Date date2 = consult.getAppointmentTime();
+			
+			if( date1 == null || date2 == null ) {
+				cal.set(1970, 0, 1, 1, 0, 0);
+				thisForm.setAppointmentDay(String.valueOf(cal.get(Calendar.DAY_OF_MONTH)));
+				thisForm.setAppointmentMonth(String.valueOf(cal.get(Calendar.MONTH)+1));
+				thisForm.setAppointmentYear(String.valueOf(cal.get(Calendar.YEAR)));
+				Integer hr = cal.get(Calendar.HOUR_OF_DAY);
+	            hr = hr == 0 ? 12 : hr;
+	            hr = hr > 12 ? hr - 12: hr;
+	            thisForm.setAppointmentHour(String.valueOf(hr));
+	            thisForm.setAppointmentMinute(String.valueOf(cal.get(Calendar.MINUTE)));
+	            String appointmentPm;            
+	            if (cal.get(Calendar.HOUR_OF_DAY) > 11) {
+	                appointmentPm = "PM";
+	            } else {
+	                appointmentPm = "AM";
+	            }
+	            thisForm.setAppointmentPm(appointmentPm);
 			}
 			else {
-				if( hour > 12 ) {
-					hour -= 12;
-				}
-				thisForm.setAppointmentPm("PM");
+				cal.setTime(date1);
+				thisForm.setAppointmentDay(String.valueOf(cal.get(Calendar.DAY_OF_MONTH)));
+				thisForm.setAppointmentMonth(String.valueOf(cal.get(Calendar.MONTH)+1));
+				thisForm.setAppointmentYear(String.valueOf(cal.get(Calendar.YEAR)));
+				
+				cal.setTime(date2);
+				Integer hr = cal.get(Calendar.HOUR_OF_DAY);
+				hr = hr == 0 ? 12 : hr;
+	            hr = hr > 12 ? hr - 12: hr;
+	            thisForm.setAppointmentHour(String.valueOf(hr));
+	            thisForm.setAppointmentMinute(String.valueOf(cal.get(Calendar.MINUTE)));
+	            
+	            String appointmentPm;            
+	            if (cal.get(Calendar.HOUR_OF_DAY) > 11) {
+	                appointmentPm = "PM";
+	            } else {
+	                appointmentPm = "AM";
+	            }
+	            thisForm.setAppointmentPm(appointmentPm);
 			}
-
-			if(cal.get(Calendar.HOUR)==0)
-				thisForm.setAppointmentHour("12");
-			else
-				thisForm.setAppointmentHour(String.valueOf(cal.get(Calendar.HOUR)));
-			
-            thisForm.setAppointmentMinute(String.valueOf(cal.get(Calendar.MINUTE)));
+			return cal;
 		}
-	}
 
-
-        public static void fillFormValues(LoggedInInfo loggedInInfo, EctConsultationFormRequestForm thisForm, Integer requestId) {
-        	checkPrivilege(loggedInInfo);
-        	
+        public static void fillFormValues(EctConsultationFormRequestForm thisForm, Integer requestId) {
             ConsultationRequestDao consultDao = (ConsultationRequestDao)SpringUtils.getBean("consultationRequestDao");
             ConsultationRequest consult = consultDao.find(requestId);
 
@@ -142,8 +146,6 @@ public class EctViewRequestAction extends Action {
             thisForm.setConcurrentProblems(consult.getConcurrentProblems());
             thisForm.setAppointmentNotes(consult.getStatusText());
             thisForm.setUrgency(consult.getUrgency());
-            thisForm.setAppointmentInstructions(consult.getAppointmentInstructions());
-
             thisForm.setPatientWillBook(String.valueOf(consult.isPatientWillBook()));
             
             date = consult.getFollowUpDate();
@@ -154,8 +156,8 @@ public class EctViewRequestAction extends Action {
                 thisForm.setFollowUpDate("");
             }
 
-            DemographicManager demographicManager = SpringUtils.getBean(DemographicManager.class);
-            Demographic demo = demographicManager.getDemographic(loggedInInfo, consult.getDemographicId());
+            DemographicDao demoDao = (DemographicDao)SpringUtils.getBean("demographicDao");
+            Demographic demo = demoDao.getDemographicById(consult.getDemographicId());
 
             thisForm.setPatientAddress(demo.getAddress());
             thisForm.setPatientDOB(demo.getFormattedDob());
@@ -167,7 +169,6 @@ public class EctViewRequestAction extends Action {
             thisForm.setPatientPhone(demo.getPhone());
             thisForm.setPatientSex(demo.getSex());
             thisForm.setPatientWPhone(demo.getPhone2());
-            thisForm.setPatientEmail(demo.getEmail());
             thisForm.setPatientAge(demo.getAge());
 
             ProviderDao provDao = (ProviderDao)SpringUtils.getBean("providerDao");
@@ -175,7 +176,6 @@ public class EctViewRequestAction extends Action {
             thisForm.setProviderName(prov.getFormattedName());
 
             thisForm.seteReferral(false);
-            thisForm.setFdid(consult.getFdid());
         }
 
 	public static void fillFormValues(EctConsultationFormRequestForm thisForm, EctConsultationFormRequestUtil consultUtil)
@@ -188,15 +188,15 @@ public class EctViewRequestAction extends Action {
         thisForm.setSendTo(consultUtil.sendTo);
         thisForm.setService(consultUtil.service);
         thisForm.setStatus(consultUtil.status);
-        thisForm.setAppointmentDate(consultUtil.appointmentDate);
+        thisForm.setAppointmentDay(consultUtil.appointmentDay);
+        thisForm.setAppointmentMonth(consultUtil.appointmentMonth);
+        thisForm.setAppointmentYear(consultUtil.appointmentYear);
         thisForm.setAppointmentHour(consultUtil.appointmentHour);
         thisForm.setAppointmentMinute(consultUtil.appointmentMinute);
         thisForm.setAppointmentPm(consultUtil.appointmentPm);
         thisForm.setConcurrentProblems(consultUtil.concurrentProblems);
         thisForm.setAppointmentNotes(consultUtil.appointmentNotes);
         thisForm.setUrgency(consultUtil.urgency);
-        thisForm.setAppointmentInstructions(consultUtil.getAppointmentInstructions());
-        thisForm.setAppointmentInstructionsLabel( consultUtil.getAppointmentInstructionsLabel() );
         thisForm.setPatientWillBook(consultUtil.pwb);
 
         if( consultUtil.sendTo != null && !consultUtil.teamVec.contains(consultUtil.sendTo) ) {
@@ -215,25 +215,21 @@ public class EctViewRequestAction extends Action {
         thisForm.setPatientPhone(consultUtil.patientPhone);
         thisForm.setPatientSex(consultUtil.patientSex);
         thisForm.setPatientWPhone(consultUtil.patientWPhone);
-        thisForm.setPatientEmail(consultUtil.patientEmail);
         thisForm.setPatientAge(consultUtil.patientAge);
         
         thisForm.setProviderName(consultUtil.getProviderName(consultUtil.providerNo));
         
         thisForm.seteReferral(false);
-        
-        thisForm.setFdid(consultUtil.fdid);
-        
 	}
 	
-	public static void fillFormValues(EctConsultationFormRequestForm thisForm, String segmentId) throws HL7Exception, UnsupportedEncodingException, Base64DecodingException
+	public static void fillFormValues(EctConsultationFormRequestForm thisForm, String segmentId) throws HL7Exception, UnsupportedEncodingException
 	{
 		Hl7TextMessageDao hl7TextMessageDao=(Hl7TextMessageDao) SpringUtils.getBean("hl7TextMessageDao");
 		Hl7TextMessage hl7TextMessage=hl7TextMessageDao.find(Integer.parseInt(segmentId));
 		
 		String encodedMessage=hl7TextMessage.getBase64EncodedeMessage();
-		byte[] decodedMessage=Base64.decode(encodedMessage);
-		String decodedMessageString=new String(decodedMessage, MiscUtils.DEFAULT_UTF8_ENCODING);
+		byte[] decodedMessage=MiscUtils.decodeBase64(encodedMessage);
+		String decodedMessageString=new String(decodedMessage, MiscUtils.ENCODING);
 		
 		REF_I12 refI12=(REF_I12) OscarToOscarUtils.pipeParserParse(decodedMessageString);
 		
@@ -280,7 +276,6 @@ public class EctViewRequestAction extends Action {
         thisForm.setPatientPhone(demographic.getPhone());
         thisForm.setPatientSex(demographic.getSex());
 //        thisForm.setPatientWPhone(patientAddress);
-        thisForm.setPatientEmail(demographic.getEmail());
         
         // referring provider
         PRD referringPrd=RefI12.getPrdByRoleId(refI12, "RP");
@@ -296,12 +291,5 @@ public class EctViewRequestAction extends Action {
         thisForm.setProfessionalSpecialistAddress(professionalSpecialist.getStreetAddress());
         thisForm.setProfessionalSpecialistPhone(professionalSpecialist.getPhoneNumber());
 
-	}
-	
-	
-	private static void checkPrivilege(LoggedInInfo loggedInInfo) {
-        if(!securityInfoManager.hasPrivilege(loggedInInfo, "_con", "r", null)) {
-			throw new SecurityException("missing required security object (_con)");
-		}
-	}
+	}	
 }

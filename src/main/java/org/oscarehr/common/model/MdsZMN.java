@@ -49,7 +49,6 @@ public class MdsZMN extends AbstractModel<Integer>{
 
 	private String units;
 
-	@Column(name="cumulativeSequence")
 	private String cummulativeSequence;
 
 	private String referenceRange;

@@ -69,10 +69,7 @@ import javax.xml.soap.SOAPHeaderElement;
 import javax.xml.soap.SOAPMessage;
 import javax.xml.soap.SOAPPart;
 
-import org.oscarehr.common.dao.StudyDataDao;
-import org.oscarehr.common.model.StudyData;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.oscarDB.DBHandler;
 
@@ -132,13 +129,10 @@ public class FrmStudyXMLClientSend {
         rs.close();
 	}
 
-	private synchronized void updateStatus (String studyDataNo)   {
-		StudyDataDao dao = SpringUtils.getBean(StudyDataDao.class);
-		StudyData s = dao.find(Integer.parseInt(studyDataNo));
-		if(s != null) {
-			s.setStatus("sent");
-			dao.merge(s);
-		}
+	private synchronized void updateStatus (String studyDataNo) throws java.sql.SQLException  {
+        sql = "update studydata set status='sent' where studydata_no=" + studyDataNo ;
+		if (DBHandler.RunSQL(sql)) throw new java.sql.SQLException();
+        rs.close();
 	}
 
 
@@ -173,7 +167,7 @@ public class FrmStudyXMLClientSend {
 			SOAPMessage reply = connection.call(message, endPoint);
 
 			connection.close();
-		} catch (Exception e)	{
+		} catch (Throwable e)	{
 			MiscUtils.getLogger().error("Error", e);
 		}
 	}

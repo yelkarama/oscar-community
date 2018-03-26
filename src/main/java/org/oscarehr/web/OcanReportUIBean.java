@@ -50,15 +50,17 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.ws.security.WSPasswordCallback;
 import org.apache.xmlbeans.XmlOptions;
+import org.oscarehr.PMmodule.dao.AdmissionDao;
 import org.oscarehr.PMmodule.dao.OcanSubmissionLogDao;
+import org.oscarehr.PMmodule.model.Admission;
 import org.oscarehr.PMmodule.model.OcanSubmissionLog;
 import org.oscarehr.PMmodule.web.OcanForm;
-import org.oscarehr.common.dao.AdmissionDao;
 import org.oscarehr.common.dao.FacilityDao;
+import org.oscarehr.common.dao.OcanClientFormDao;
+import org.oscarehr.common.dao.OcanClientFormDataDao;
 import org.oscarehr.common.dao.OcanConnexOptionDao;
 import org.oscarehr.common.dao.OcanStaffFormDao;
 import org.oscarehr.common.dao.OcanStaffFormDataDao;
-import org.oscarehr.common.model.Admission;
 import org.oscarehr.common.model.Facility;
 import org.oscarehr.common.model.OcanClientForm;
 import org.oscarehr.common.model.OcanClientFormData;
@@ -179,7 +181,8 @@ import org.oscarehr.ocan.SymptomDocument.Symptom;
 import org.oscarehr.ocan.SymptomListDocument.SymptomList;
 import org.oscarehr.ocan.TimeLivedInCanadaDocument.TimeLivedInCanada;
 import org.oscarehr.ocan.VisitEmergencyDepartmentDocument.VisitEmergencyDepartment;
-import org.oscarehr.util.CxfClientUtilsOld;
+import org.oscarehr.util.CxfClientUtils;
+import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
@@ -216,6 +219,8 @@ public class OcanReportUIBean implements CallbackHandler {
 
 	private static OcanStaffFormDao ocanStaffFormDao = (OcanStaffFormDao) SpringUtils.getBean("ocanStaffFormDao");
 	private static OcanStaffFormDataDao ocanStaffFormDataDao = (OcanStaffFormDataDao) SpringUtils.getBean("ocanStaffFormDataDao");
+	private static OcanClientFormDao ocanClientFormDao = (OcanClientFormDao) SpringUtils.getBean("ocanClientFormDao");
+	private static OcanClientFormDataDao ocanClientFormDataDao = (OcanClientFormDataDao) SpringUtils.getBean("ocanClientFormDataDao");
 	private static FacilityDao facilityDao = (FacilityDao)SpringUtils.getBean("facilityDao");
 	private static AdmissionDao admissionDao = (AdmissionDao)SpringUtils.getBean("admissionDao");
 
@@ -224,10 +229,10 @@ public class OcanReportUIBean implements CallbackHandler {
 	private static OcanSubmissionLogDao logDao = (OcanSubmissionLogDao)SpringUtils.getBean("ocanSubmissionLogDao");
 
 
-	public static List<OcanStaffForm> getAllUnsubmittedOcanForms(Integer facilityId) {
-
+	public static List<OcanStaffForm> getAllUnsubmittedOcanForms() {
+		LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
 		//get all completed ones
-		List<OcanStaffForm> ocanStaffForms = ocanStaffFormDao.findUnsubmittedOcanForms(facilityId);
+		List<OcanStaffForm> ocanStaffForms = ocanStaffFormDao.findUnsubmittedOcanForms(loggedInInfo.currentFacility.getId());
 
 		List<OcanStaffForm> forms = new ArrayList<OcanStaffForm>();
 		int assessmentId_0=0;
@@ -249,24 +254,24 @@ public class OcanReportUIBean implements CallbackHandler {
 		return forms;
 	}
 
-	public static List<OcanSubmissionLog> getAllOcanSubmissions(Integer facilityId) {
-
+	public static List<OcanSubmissionLog> getAllOcanSubmissions() {
+		LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
 		List<OcanSubmissionLog> logs = logDao.findAllByType(OcanStaffForm.FORM_TYPE_OCAN);
 		for(OcanSubmissionLog log:logs) {
-			List<OcanStaffForm> recs = ocanStaffFormDao.findBySubmissionId(facilityId,log.getId());
+			List<OcanStaffForm> recs = ocanStaffFormDao.findBySubmissionId(loggedInInfo.currentFacility.getId(),log.getId());
 			log.getRecords().addAll(recs);
 		}
 		return logs;
-	}
+	}	
 
-	public static OcanSubmissionLog getOcanSubmissionLog(Integer facilityId, String submissionId) {
-
+	public static OcanSubmissionLog getOcanSubmissionLog(String submissionId) {
+		LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
 		OcanSubmissionLog log = logDao.find(Integer.parseInt(submissionId));
-		List<OcanStaffForm> recs = ocanStaffFormDao.findBySubmissionId(facilityId,log.getId());
+		List<OcanStaffForm> recs = ocanStaffFormDao.findBySubmissionId(loggedInInfo.currentFacility.getId(),log.getId());
 		log.getRecords().addAll(recs);
 		return log;
 	}
-
+	
 	public void handle(Callback[] callbacks) throws IOException, UnsupportedCallbackException {
         WSPasswordCallback pc = (WSPasswordCallback) callbacks[0];
         // set the password for our message - need a better way to do this.
@@ -275,10 +280,11 @@ public class OcanReportUIBean implements CallbackHandler {
     }
 
 
-	public static OCANv2SubmissionFileDocument generateOCANSubmission(Integer facilityId, String ocanType,String assessmentid) {
+	public static OCANv2SubmissionFileDocument generateOCANSubmission(String ocanType) {
 		int increment = 1;
+		LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
 
-	 	List<OcanStaffForm> ocanStaffForms = ocanStaffFormDao.findUnsubmittedOcanFormsByOcanType(facilityId, ocanType);
+		List<OcanStaffForm> ocanStaffForms = ocanStaffFormDao.findUnsubmittedOcanFormsByOcanType(loggedInInfo.currentFacility.getId(), ocanType);
 		logger.info("# of staff forms found for submission = " + ocanStaffForms.size());
 
 		OCANv2SubmissionFileDocument submissionFileDoc = OCANv2SubmissionFileDocument.Factory.newInstance();
@@ -309,9 +315,10 @@ public class OcanReportUIBean implements CallbackHandler {
 		return submissionFileDoc;
 	}
 
-	public static OCANv2SubmissionFileDocument generateOCANSubmission(Integer facilityId, int startYear, int startMonth, int endYear, int endMonth, int increment,String ocanType) {
+	public static OCANv2SubmissionFileDocument generateOCANSubmission(int startYear, int startMonth, int endYear, int endMonth, int increment,String ocanType) {
+		LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
 
-		List<OcanStaffForm> ocanStaffForms = ocanStaffFormDao.findLatestSignedOcanForms(facilityId, "1.2", getStartDate(startYear,startMonth), getEndDate(endYear,endMonth),ocanType);
+		List<OcanStaffForm> ocanStaffForms = ocanStaffFormDao.findLatestSignedOcanForms(loggedInInfo.currentFacility.getId(), "1.2", getStartDate(startYear,startMonth), getEndDate(endYear,endMonth),ocanType);
 		logger.info("# of staff forms found for time period = " + ocanStaffForms.size());
 
 		OCANv2SubmissionFileDocument submissionFileDoc = OCANv2SubmissionFileDocument.Factory.newInstance();
@@ -340,7 +347,7 @@ public class OcanReportUIBean implements CallbackHandler {
 
 		return submissionFileDoc;
 	}
-	public static int prepareSubmissionToIAR(Facility facility, OCANv2SubmissionFileDocument submissionDoc, boolean autoSubmit, OutputStream out ) {
+	public static int prepareSubmissionToIAR(OCANv2SubmissionFileDocument submissionDoc, boolean autoSubmit, OutputStream out ) {
 		if(submissionDoc.getOCANv2SubmissionFile().getOCANv2SubmissionRecordArray().length == 0) {
 			logger.info("No records to send");
 			return 0;
@@ -377,9 +384,9 @@ public class OcanReportUIBean implements CallbackHandler {
 
 		Organization org = new Organization();
 		//String orgId = OscarProperties.getInstance().getProperty("ocan.iar.org.id");
-		String orgId = facility.getOcanServiceOrgNumber();
+		String orgId = LoggedInInfo.loggedInInfo.get().currentFacility.getOcanServiceOrgNumber();
 		org.setId(orgId);
-		org.setName(facility.getName());
+		org.setName(LoggedInInfo.loggedInInfo.get().currentFacility.getName());
 
 		XMLGregorianCalendar cal = null;
 
@@ -426,7 +433,7 @@ public class OcanReportUIBean implements CallbackHandler {
 				assessmentId_noPrefix = assessmentId.replace(idPrefix,"");
 			}
 			
-			OcanStaffForm staffForm = ocanStaffFormDao.findLatestByAssessmentId(facility.getId(),Integer.parseInt(assessmentId_noPrefix));
+			OcanStaffForm staffForm = ocanStaffFormDao.findLatestByAssessmentId(LoggedInInfo.loggedInInfo.get().currentFacility.getId(),Integer.parseInt(assessmentId_noPrefix));
 			//addConsentDirective(ConsentSubmisison cs, String assessmentId, Application application, String orgId, OcanStaff)
 			ConsentDirective cd = cs.addNewConsentDirective();
 			cd.setId(assessmentId);
@@ -438,7 +445,7 @@ public class OcanReportUIBean implements CallbackHandler {
 			ss.setType(SourceSystem.Type.APPLICATION_ID);
 			PersonIdentificationDocument.PersonIdentification.Organization o = pi.addNewOrganization();
 			o.setId(orgId);
-			o.setName(facility.getName());
+			o.setName(LoggedInInfo.loggedInInfo.get().currentFacility.getName());
 			pi.setPersonId(submissionRecord.getClientRecord().getClientID().getOrgClientID());
 			cd.setPersonIdentification(pi);
 
@@ -508,13 +515,14 @@ public class OcanReportUIBean implements CallbackHandler {
 				//validation environment
 				url = "https://iarvt.ccim.on.ca/iarws-2.0/services/SubmissionService";
 			}
+			System.setProperty("https.protocols", "TLSv1.2");
 			SubmissionService service = new SubmissionService();
 			SubmissionPortType port =  service.getSubmissionPort();
 			((BindingProvider)port).getRequestContext().put(
 				    BindingProvider.ENDPOINT_ADDRESS_PROPERTY,url);
-			CxfClientUtilsOld.configureClientConnection(port);
-			CxfClientUtilsOld.configureWSSecurity(port,user,new OcanReportUIBean());
-			CxfClientUtilsOld.configureLogging(port);
+			CxfClientUtils.configureClientConnection(port);
+			CxfClientUtils.configureWSSecurity(port,user,new OcanReportUIBean());
+			CxfClientUtils.configureLogging(port);
 
 			SubmissionResultType result=port.submitAssessment(is);
 			Result res = result.getResult();
@@ -561,7 +569,7 @@ public class OcanReportUIBean implements CallbackHandler {
 					assessmentId_noPrefix = id.replace(idPrefix,"");
 				}
 				
-				OcanStaffForm staffForm = ocanStaffFormDao.findLatestByAssessmentId(facility.getId(), Integer.valueOf(assessmentId_noPrefix));
+				OcanStaffForm staffForm = ocanStaffFormDao.findLatestByAssessmentId(LoggedInInfo.loggedInInfo.get().currentFacility.getId(), Integer.valueOf(assessmentId_noPrefix));
 
 				staffForm.setSubmissionId(log.getId());
 				ocanStaffFormDao.merge(staffForm);
@@ -570,31 +578,32 @@ public class OcanReportUIBean implements CallbackHandler {
 
 		return log.getId();
 	}
-	public static int sendSubmissionToIAR(Facility facility, OCANv2SubmissionFileDocument submissionDoc) {
-		return prepareSubmissionToIAR(facility, submissionDoc, true, null) ;
+	public static int sendSubmissionToIAR(OCANv2SubmissionFileDocument submissionDoc) {
+		return prepareSubmissionToIAR(submissionDoc, true, null) ;
 	}		
 
-	public static void writeExportIar(Facility facility, OutputStream out, String assessmentid) {
+	public static void writeExportIar(OutputStream out) {
 
-		writeExportIar_forOneOcanType(facility, out, "FULL", assessmentid);
+		writeExportIar_forOneOcanType(out, "FULL");
 
-		writeExportIar_forOneOcanType(facility, out, "SELF", assessmentid);
+		writeExportIar_forOneOcanType(out, "SELF");
 
-		writeExportIar_forOneOcanType(facility, out, "CORE", assessmentid);
+		writeExportIar_forOneOcanType(out, "CORE");
 	}
 
-	public static void writeExportIar_forOneOcanType(Facility facility, OutputStream out, String ocanType, String assessmentid) {
+	public static void writeExportIar_forOneOcanType(OutputStream out, String ocanType) {
 
-		OCANv2SubmissionFileDocument submissionDoc = generateOCANSubmission(facility.getId(),ocanType,assessmentid);
-		prepareSubmissionToIAR(facility, submissionDoc, false, out );
+		OCANv2SubmissionFileDocument submissionDoc = generateOCANSubmission(ocanType);
+		prepareSubmissionToIAR(submissionDoc, false, out );
 					
 	}	
 
-	public static void writeXmlExportData(Integer facilityId,int startYear, int startMonth, int endYear, int endMonth, int increment, OutputStream out, String ocanType) {
+	public static void writeXmlExportData(int startYear, int startMonth, int endYear, int endMonth, int increment, OutputStream out, String ocanType) {
 
 		//get all submitted/completed forms where the completion date is in the year/month specified
+		LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
 
-		List<OcanStaffForm> ocanStaffForms = ocanStaffFormDao.findLatestSignedOcanForms(facilityId, "1.2", getStartDate(startYear,startMonth), getEndDate(endYear,endMonth),ocanType);
+		List<OcanStaffForm> ocanStaffForms = ocanStaffFormDao.findLatestSignedOcanForms(loggedInInfo.currentFacility.getId(), "1.2", getStartDate(startYear,startMonth), getEndDate(endYear,endMonth),ocanType);
 		logger.info("# of staff forms found for time period = " + ocanStaffForms.size());
 
 		OCANv2SubmissionFileDocument submissionFileDoc = OCANv2SubmissionFileDocument.Factory.newInstance();
@@ -625,7 +634,7 @@ public class OcanReportUIBean implements CallbackHandler {
 
 			//check for a clientform
 			//merge clientform with staffform, so remove the following code.
-			//OcanClientForm clientForm = ocanClientFormDao.findLatestSignedOcanForm(loggedInInfo.getCurrentFacility().getId(),staffForm.getClientId(), "1.2", getStartDate(year,month), getEndDate(year,month));
+			//OcanClientForm clientForm = ocanClientFormDao.findLatestSignedOcanForm(loggedInInfo.currentFacility.getId(),staffForm.getClientId(), "1.2", getStartDate(year,month), getEndDate(year,month));
 			//List<OcanClientFormData> clientFormData = null;
 			//if(clientForm != null) {
 			//	clientFormData = ocanClientFormDataDao.findByForm(clientForm.getId());
@@ -676,7 +685,7 @@ public class OcanReportUIBean implements CallbackHandler {
 				oos.close();
 
 
-				OcanClientForm clientForm = ocanClientFormDao.findLatestSignedOcanForm(loggedInInfo.getCurrentFacility().getId(),ocanStaffForm.getClientId(), "1.2", getStartDate(year,month), getEndDate(year,month));
+				OcanClientForm clientForm = ocanClientFormDao.findLatestSignedOcanForm(loggedInInfo.currentFacility.getId(),ocanStaffForm.getClientId(), "1.2", getStartDate(year,month), getEndDate(year,month));
 				List<OcanClientFormData> clientFormData = null;
 				if(clientForm != null) {
 					clientFormData = ocanClientFormDataDao.findByForm(clientForm.getId());
@@ -2056,8 +2065,8 @@ public class OcanReportUIBean implements CallbackHandler {
 	}
 
 
-	public static String getFilename(Facility facility, int year, int month, int increment) {
-
+	public static String getFilename(int year, int month, int increment) {
+		LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
 		GregorianCalendar cal=new GregorianCalendar();
 		year = cal.get(GregorianCalendar.YEAR);
 		month = cal.get(GregorianCalendar.MONTH)+1;
@@ -2065,7 +2074,7 @@ public class OcanReportUIBean implements CallbackHandler {
 		int hour = cal.get(GregorianCalendar.HOUR_OF_DAY);
 		int min = cal.get(GregorianCalendar.MINUTE);
 
-		return "OCAN" +  year + ( (month<10)?("0"+month):(month) )+ ((date<10)?("0"+date):(date)) + ((hour<10)?("0"+hour):(hour))+ ((min<10)?("0"+min):(min))+facility.getOcanServiceOrgNumber() +  ( (increment<10)?(".00"+increment):(increment) ) + ".xml";
+		return OcanStaffForm.FORM_TYPE_OCAN +  year + ( (month<10)?("0"+month):(month) )+ ((date<10)?("0"+date):(date)) + ((hour<10)?("0"+hour):(hour))+ ((min<10)?("0"+min):(min))+LoggedInInfo.loggedInInfo.get().currentFacility.getOcanServiceOrgNumber() +  ( (increment<10)?(".00"+increment):(increment) ) + ".xml";
 	}
 
 	private static Date getStartDate(int year, int month) {

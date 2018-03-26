@@ -39,12 +39,15 @@ import org.oscarehr.common.dao.PreventionExtDao;
 import org.oscarehr.common.dao.SentToPHRTrackingDao;
 import org.oscarehr.common.model.Prevention;
 import org.oscarehr.common.model.SentToPHRTracking;
-import org.oscarehr.myoscar.commons.MedicalDataType;
-import org.oscarehr.myoscar.utils.MyOscarLoggedInInfo;
-import org.oscarehr.myoscar_server.ws.InvalidRequestException_Exception;
-import org.oscarehr.myoscar_server.ws.MedicalDataTransfer4;
+import org.oscarehr.myoscar_server.ws.ItemAlreadyExistsException_Exception;
+import org.oscarehr.myoscar_server.ws.ItemCompletedException_Exception;
+import org.oscarehr.myoscar_server.ws.MedicalDataTransfer3;
+import org.oscarehr.myoscar_server.ws.MedicalDataType;
+import org.oscarehr.myoscar_server.ws.NoSuchItemException_Exception;
 import org.oscarehr.myoscar_server.ws.NotAuthorisedException_Exception;
 import org.oscarehr.myoscar_server.ws.UnsupportedEncodingException_Exception;
+import org.oscarehr.phr.PHRAuthentication;
+import org.oscarehr.phr.util.MyOscarServerWebServicesManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
@@ -58,7 +61,7 @@ public final class ImmunizationsManager {
 	
 	private static HashMap<String,String> preventionExtLabels = null; 
 
-	public static void sendImmunizationsToMyOscar(LoggedInInfo loggedInInfo, MyOscarLoggedInInfo myOscarLoggedInInfo, Integer demographicId) throws ClassCastException, ClassNotFoundException, InstantiationException, IllegalAccessException, ParserConfigurationException, NotAuthorisedException_Exception, UnsupportedEncodingException_Exception, InvalidRequestException_Exception {
+	public static void sendImmunizationsToMyOscar(PHRAuthentication auth, Integer demographicId) throws ClassCastException, ClassNotFoundException, InstantiationException, IllegalAccessException, ParserConfigurationException, NotAuthorisedException_Exception, NoSuchItemException_Exception, ItemCompletedException_Exception, UnsupportedEncodingException_Exception {
 		// get last synced info
 
 		// get the items for the person which are changed since last sync
@@ -66,7 +69,7 @@ public final class ImmunizationsManager {
 		// send the item or update it
 
 		Date startSyncTime = new Date();
-		SentToPHRTracking sentToPHRTracking = MyOscarMedicalDataManagerUtils.getExistingOrCreateInitialSentToPHRTracking(demographicId, OSCAR_IMMUNIZATIONS_DATA_TYPE, MyOscarLoggedInInfo.getMyOscarServerBaseUrl());
+		SentToPHRTracking sentToPHRTracking = MyOscarMedicalDataManagerUtils.getExistingOrCreateInitialSentToPHRTracking(demographicId, OSCAR_IMMUNIZATIONS_DATA_TYPE, MyOscarServerWebServicesManager.getMyOscarServerBaseUrl());
 		logger.debug("sendImmunizationsToMyOscar : demographicId=" + demographicId + ", lastSyncTime=" + sentToPHRTracking.getSentDatetime());
 
 		PreventionDao preventionDao = (PreventionDao) SpringUtils.getBean("preventionDao");
@@ -77,9 +80,13 @@ public final class ImmunizationsManager {
 			if (preventionExt.containsKey("result")) continue; //prevention tests are filtered out
 			
 			logger.debug("sendImmunizationsToMyOscar : preventionId=" + prevention.getId());
-			MedicalDataTransfer4 medicalDataTransfer = toMedicalDataTransfer(loggedInInfo, myOscarLoggedInInfo, prevention, preventionExt);
+			MedicalDataTransfer3 medicalDataTransfer = toMedicalDataTransfer(auth, prevention, preventionExt);
 
-			MyOscarMedicalDataManagerUtils.addMedicalData(loggedInInfo.getLoggedInProviderNo(), myOscarLoggedInInfo, medicalDataTransfer, OSCAR_IMMUNIZATIONS_DATA_TYPE, prevention.getId(), true, true);
+			try {
+				MyOscarMedicalDataManagerUtils.addMedicalData(auth, medicalDataTransfer, OSCAR_IMMUNIZATIONS_DATA_TYPE, prevention.getId());
+			} catch (ItemAlreadyExistsException_Exception e) {
+				MyOscarMedicalDataManagerUtils.updateMedicalData(auth, medicalDataTransfer, OSCAR_IMMUNIZATIONS_DATA_TYPE, prevention.getId());
+			}
 		}
 
 		sentToPHRTracking.setSentDatetime(startSyncTime);
@@ -124,12 +131,12 @@ public final class ImmunizationsManager {
 	}
 	
 
-	private static MedicalDataTransfer4 toMedicalDataTransfer(LoggedInInfo loggedInInfo, MyOscarLoggedInInfo myOscarLoggedInInfo, Prevention prevention, HashMap<String,String> preventionExt) throws ClassCastException, ClassNotFoundException, InstantiationException, IllegalAccessException, ParserConfigurationException {
+	private static MedicalDataTransfer3 toMedicalDataTransfer(PHRAuthentication auth, Prevention prevention, HashMap<String,String> preventionExt) throws ClassCastException, ClassNotFoundException, InstantiationException, IllegalAccessException, ParserConfigurationException {
 
 		String providerNo = prevention.getProviderNo();
 
 		if (providerNo != null) {
-			MedicalDataTransfer4 medicalDataTransfer = MyOscarMedicalDataManagerUtils.getEmptyMedicalDataTransfer(myOscarLoggedInInfo, prevention.getPreventionDate(), providerNo, prevention.getDemographicId());
+			MedicalDataTransfer3 medicalDataTransfer = MyOscarMedicalDataManagerUtils.getEmptyMedicalDataTransfer3(auth, prevention.getPreventionDate(), providerNo, prevention.getDemographicId());
 			medicalDataTransfer.setCompleted(false); // preventions are changeable, therefore, they're never completed
 
 			Document doc = toXml(prevention, preventionExt);
@@ -137,7 +144,8 @@ public final class ImmunizationsManager {
 
 			medicalDataTransfer.setMedicalDataType(MedicalDataType.IMMUNISATION.name());
 
-			medicalDataTransfer.setOriginalSourceId(MyOscarMedicalDataManagerUtils.generateSourceId(loggedInInfo.getCurrentFacility().getName(), OSCAR_IMMUNIZATIONS_DATA_TYPE, prevention.getId()));
+			LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
+			medicalDataTransfer.setOriginalSourceId(MyOscarMedicalDataManagerUtils.generateSourceId(loggedInInfo.currentFacility.getName(), OSCAR_IMMUNIZATIONS_DATA_TYPE, prevention.getId()));
 
 			boolean active = true;
 			if (prevention.isDeleted()) active = false;

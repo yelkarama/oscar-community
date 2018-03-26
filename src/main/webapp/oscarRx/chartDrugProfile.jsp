@@ -23,22 +23,6 @@
     Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_rx" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_rx");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@ page
     import="java.util.*,oscar.oscarLab.ca.on.*,oscar.oscarDemographic.data.*"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
@@ -55,7 +39,7 @@
 
             DemographicData dData = new DemographicData();
 
-            org.oscarehr.common.model.Demographic demographic = dData.getDemographic(LoggedInInfo.getLoggedInInfoFromSession(request), demographicNo);
+            org.oscarehr.common.model.Demographic demographic = dData.getDemographic(demographicNo);
 
 
             oscar.oscarRx.data.RxPrescriptionData prescriptData = new oscar.oscarRx.data.RxPrescriptionData();
@@ -72,12 +56,10 @@
                     h.put(d,"drug");
                 }
             }else{
-                for(int idx = 0; idx < arr.length; ++idx ) {             	
+                for(int idx = 0; idx < arr.length; ++idx ) {
                     oscar.oscarRx.data.RxPrescriptionData.Prescription drug = arr[idx];
-                    if(!drug.isCustom()) {
-                   	 sb.append("&drug="+drug.getRegionalIdentifier());
-                    	h.put(drug.getRegionalIdentifier(),"drug");
-                    }
+                    sb.append("&drug="+drug.getRegionalIdentifier());
+                    h.put(drug.getRegionalIdentifier(),"drug");
                 }
             }
             drugForGraph = sb.toString();
@@ -150,7 +132,7 @@
                         
         
                         if (arr != null){
-                        	MiscUtils.getLogger().debug("ARR "+arr.length);
+                        	MiscUtils.getLogger().error("ARR "+arr.length);
                         }
         
                         long now = System.currentTimeMillis();
@@ -161,9 +143,6 @@
                                 continue;
                             }
 
-                            if(drug.isCustom()) {
-                            	continue;
-                            }
                             String styleColor = "";            
                             if (drug.isCurrent() && (drug.getEndDate().getTime() - now <= month)) {
                                 styleColor="style=\"color:orange;font-weight:bold;\"";
@@ -182,15 +161,12 @@
                     </td>
                 </tr>
             </table>
-        <h5>Note: This tool does not chart custom drugs</h5>
+        
     </body>
 </html>
 
 <%!
 String getChecked(Hashtable h,String reg){
-	if(reg == null || reg.isEmpty()) {
-		return "";
-	}
     if (h != null && h.containsKey(reg)){
         return "checked";
     }

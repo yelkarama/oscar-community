@@ -39,38 +39,12 @@
 <%@ page import="org.oscarehr.util.LoggedInInfo"%>
 <%@ page import="org.oscarehr.ui.servlet.ImageRenderingServlet"%>
 <%! boolean bMultisites = org.oscarehr.common.IsPropertiesOn.isMultisitesEnable(); %>
-<%@ page import="java.util.*"%>
-<%@ page import="org.oscarehr.common.model.Document"%>
-<%@ page import="org.oscarehr.common.dao.DocumentDao"%>
+<%@ include file="/common/webAppContextAndSuperMgr.jsp"%>
 
 <%@page import="org.oscarehr.common.dao.SiteDao"%>
 <%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
 <%@page import="org.oscarehr.common.model.Site"%>
-<%@page import="org.oscarehr.util.SpringUtils"%>
-<%@page import="org.oscarehr.common.model.Appointment"%>
-<%@page import="org.oscarehr.common.dao.OscarAppointmentDao"%>
-<%@ page import="org.oscarehr.common.dao.FaxConfigDao, org.oscarehr.common.model.FaxConfig" %>
-<%
-	OscarAppointmentDao appointmentDao = SpringUtils.getBean(OscarAppointmentDao.class);
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-%>
-
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_rx" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_rx");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-
-<html:html locale="true">
+<%@page import="oscar.service.OscarSuperManager"%><html:html locale="true">
 
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
@@ -94,11 +68,9 @@ oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBea
 Vector vecPageSizes=new Vector();
 vecPageSizes.add("A4 page");
 vecPageSizes.add("A6 page");
-vecPageSizes.add("Letter page");
 Vector vecPageSizeValues=new Vector();
 vecPageSizeValues.add("PageSize.A4");
 vecPageSizeValues.add("PageSize.A6");
-vecPageSizeValues.add("PageSize.Letter");
 //are we printing in the past?
 //String reprint = (String)request.getAttribute("rePrint") != null ? (String)request.getAttribute("rePrint") : "false";
 
@@ -122,8 +94,8 @@ if(bMultisites) {
 	String appt_no=(String)session.getAttribute("cur_appointment_no");
 	String location = null;
 	if (appt_no!=null) {
-		Appointment result = appointmentDao.find(Integer.parseInt(appt_no));
-		if (result!=null) location = result.getLocation();
+		List<Map<String,Object>> resultList = oscarSuperManager.find("appointmentDao", "search", new Object[] {appt_no});
+		if (resultList!=null) location = (String) resultList.get(0).get("location");
 	}
 
     oscar.oscarRx.data.RxProviderData.Provider provider = new oscar.oscarRx.data.RxProviderData().getProvider(bean.getProviderNo());
@@ -188,20 +160,16 @@ if(bMultisites) {
     }
 }
 String comment = (String) request.getSession().getAttribute("comment");
-String pharmacyId = request.getParameter("pharmacyId");
 RxPharmacyData pharmacyData = new RxPharmacyData();
-PharmacyInfo pharmacy = null;
-
+PharmacyInfo pharmacy;
+pharmacy = pharmacyData.getPharmacyFromDemographic(Integer.toString(bean.getDemographicNo()));
 String prefPharmacy = "";
 String prefPharmacyId="";
-if (pharmacyId != null && !"null".equalsIgnoreCase(pharmacyId)) {
-	pharmacy = pharmacyData.getPharmacy(pharmacyId);    
-	if( pharmacy != null ) {
-    	prefPharmacy = pharmacy.getName().replace("'", "\\'");
-    	prefPharmacyId=String.valueOf(pharmacy.getId());
-    	prefPharmacy=prefPharmacy.trim();
-    	prefPharmacyId=prefPharmacyId.trim();
-	}
+if (pharmacy != null) {
+    prefPharmacy = pharmacy.getName().replace("'", "\\'");
+    prefPharmacyId=String.valueOf(pharmacy.getId2());
+    prefPharmacy=prefPharmacy.trim();
+    prefPharmacyId=prefPharmacyId.trim();
 }
 
 String userAgent = request.getHeader("User-Agent");
@@ -213,14 +181,6 @@ if (userAgent != null) {
 		browserType = "ALL";
 	}
 }
-
-DocumentDao docdao = (DocumentDao) WebApplicationContextUtils.getWebApplicationContext(pageContext.getServletContext()).getBean("documentDao");
-List<Document> doc_list = docdao.findByDoctypeAndProviderNo("signature", bean.getProviderNo(), 0);
-boolean showwritesignature = true;
-if(doc_list.size() > 0){
-	showwritesignature = false;
-}
-
 %>
 <link rel="stylesheet" type="text/css" href="styles.css" />
 <link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
@@ -330,7 +290,9 @@ function printIframe(){
 			}
 	}
 
+
 function printPaste2Parent(print){
+
     //console.log("in printPaste2Parent");
    try{
       text =""; // "****<%=oscar.oscarProvider.data.ProviderData.getProviderName(bean.getProviderNo())%>********************************************************************************";
@@ -347,24 +309,18 @@ function printPaste2Parent(print){
       //oscarLog(text);
 
       //we support pasting into orig encounter and new casemanagement
-      demographicNo = <%=bean.getDemographicNo()%>;
-      noteEditor = "noteEditor"+demographicNo;
       if( window.parent.opener.document.forms["caseManagementEntryForm"] != undefined ) {
           //oscarLog("3");
         window.parent.opener.pasteToEncounterNote(text);
-      }else if( window.parent.opener.document.encForm != undefined ){
+      }
+      else if( window.parent.opener.document.encForm != undefined ){
           //oscarLog("4");
         window.parent.opener.document.encForm.enTextarea.value = window.parent.opener.document.encForm.enTextarea.value + text;
-      }else if( window.parent.opener.document.getElementById(noteEditor) != undefined ){
-    	window.parent.opener.document.getElementById(noteEditor).value = window.parent.opener.document.getElementById(noteEditor).value + text; 
       }
-      
    }catch (e){
       alert ("ERROR: could not paste to EMR");
    }
-   
    if (print) { printIframe(); }
-   
 }
 
 
@@ -410,7 +366,7 @@ function resizeFrame(height) {
 <%
 String signatureRequestId = "";
 String imageUrl = "";
-signatureRequestId = DigitalSignatureUtils.generateSignatureRequestId(loggedInInfo.getLoggedInProviderNo());
+signatureRequestId = DigitalSignatureUtils.generateSignatureRequestId(LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo());
 imageUrl = request.getContextPath()+"/imageRenderingServlet?source="+ImageRenderingServlet.Source.signature_preview.name()+"&"+DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY+"="+signatureRequestId;
 %>
 <script type="text/javascript">
@@ -426,8 +382,6 @@ function refreshImage()
 
 function sendFax()
 {
-	var faxNumber = document.getElementById('faxNumber');
-	frames['preview'].document.getElementById('finalFax').value = faxNumber.options[faxNumber.selectedIndex].value;
 	frames['preview'].document.getElementById('pdfId').value='<%=signatureRequestId%>';	
 	frames['preview'].onPrint2('oscarRxFax');
 	frames['preview'].document.FrmForm.submit();	
@@ -445,7 +399,7 @@ var isSignatureDirty = false;
 var isSignatureSaved = false;
 function signatureHandler(e) {
 	<% if (OscarProperties.getInstance().isRxFaxEnabled()) { %>
-	var hasFaxNumber = <%= pharmacy != null && pharmacy.getFax().trim().length() > 0 ? "true" : "false" %>;
+	var hasFaxNumber = <%= pharmacy != null && pharmacy.fax.trim().length() > 0 ? "true" : "false" %>;
 	<% } %>
 	isSignatureDirty = e.isDirty;
 	isSignatureSaved = e.isSave;
@@ -542,7 +496,7 @@ function toggleView(form) {
 				<td width=420px>
 				<div class="DivContentPadding"><!-- src modified by vic, hsfo -->
 				<iframe id='preview' name='preview' width=420px height=1000px
-					src="<%= dx<0?"Preview2.jsp?scriptId="+request.getParameter("scriptId")+"&rePrint="+reprint+"&pharmacyId="+request.getParameter("pharmacyId"):dx==7?"HsfoPreview.jsp?dxCode=7":"about:blank" %>"
+					src="<%= dx<0?"Preview2.jsp?scriptId="+request.getParameter("scriptId")+"&rePrint="+reprint:dx==7?"HsfoPreview.jsp?dxCode=7":"about:blank" %>"
 					align=center border=0 frameborder=0></iframe></div>
 				</td>
 
@@ -579,17 +533,17 @@ function toggleView(form) {
 
                                 }
                                 function expandPreview(text){
-                                    parent.document.getElementById('lightwindow_container').style.width="1140px";
-                                    parent.document.getElementById('lightwindow_contents').style.width="1120px";
-                                    //document.getElementById('preview').style.width="580px";
+                                    parent.document.getElementById('lightwindow_container').style.width="840px";
+                                    parent.document.getElementById('lightwindow_contents').style.width="820px";
+                                    document.getElementById('preview').style.width="580px";
                                     frames['preview'].document.getElementById('pharmInfo').innerHTML=text;
                                     //frames['preview'].document.getElementById('removePharm').show();
                                     $("selectedPharmacy").innerHTML='<bean:message key="oscarRx.printPharmacyInfo.paperSizeWarning"/>';
 
                                 }
                                 function reducePreview(){
-                                    parent.document.getElementById('lightwindow_container').style.width="980px";
-                                    parent.document.getElementById('lightwindow_contents').style.width="960px";
+                                    parent.document.getElementById('lightwindow_container').style.width="680px";
+                                    parent.document.getElementById('lightwindow_contents').style.width="660px";
                                     document.getElementById('preview').style.width="420px";
                                     frames['preview'].document.getElementById('pharmInfo').innerHTML="";
                                     $("selectedPharmacy").innerHTML="";
@@ -658,28 +612,11 @@ function toggleView(form) {
 							class="ControlPushButton" style="width: 150px"
 							onClick="javascript:printPaste2Parent(true);" /></span></td>
 					</tr>
-					<% if (OscarProperties.getInstance().isRxFaxEnabled()) {
-					    	FaxConfigDao faxConfigDao = SpringUtils.getBean(FaxConfigDao.class);
-					    	List<FaxConfig> faxConfigs = faxConfigDao.findAll(null, null);
-					    
-					    %>
+					<% if (OscarProperties.getInstance().isRxFaxEnabled()) { %>
 					<tr>                            
                             <td><span><input type=button value="Fax & Paste into EMR"
                                     class="ControlPushButton" id="faxButton" style="width: 150px"
-                                    onClick="printPaste2Parent(false);sendFax();" <%=(pharmacy != null && pharmacy.getFax().trim().length() > 0 && !showwritesignature) ? "": "disabled" %>/></span>
-                                    
-                                 <span>
-                                 	<select id="faxNumber" name="faxNumber">
-                                 	<%
-                                 		for( FaxConfig faxConfig : faxConfigs ) {
-                                 	%>
-                                 			<option value="<%=faxConfig.getFaxNumber()%>"><%=faxConfig.getFaxUser()%></option>
-                                 	<%	    
-                                 		}                                 	
-                                 	%>
-                                 	</select>
-                                 </span>
-                           </td>
+                                    onClick="printPaste2Parent(false);sendFax();" disabled/></span></td>
                     </tr>
                     <% } %>
 					<tr>
@@ -723,20 +660,18 @@ function toggleView(form) {
                                         </tr>
 
                                         <%}%>
-					<% if (OscarProperties.getInstance().isRxSignatureEnabled() && !OscarProperties.getInstance().getBooleanProperty("signature_tablet", "yes")) { 
-						if(showwritesignature){
-					%>               
+					<% if (OscarProperties.getInstance().isRxSignatureEnabled() && !OscarProperties.getInstance().getBooleanProperty("signature_tablet", "yes")) { %>
+                                        
                     <tr>
 						<td colspan=2 style="font-weight: bold"><span>Signature</span></td>
 					</tr>               
 					<tr>
                         <td>
                             <input type="hidden" name="<%=DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY%>" value="<%=signatureRequestId%>" />
-                            <iframe style="width:350px; height:132px;"id="signatureFrame" src="<%= request.getContextPath() %>/signature_pad/tabletSignature.jsp?inWindow=true&<%=DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY%>=<%=signatureRequestId%>" ></iframe>
+                            <iframe style="width:500px; height:132px;"id="signatureFrame" src="<%= request.getContextPath() %>/signature_pad/tabletSignature.jsp?inWindow=true&<%=DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY%>=<%=signatureRequestId%>" ></iframe>
                         </td>
 					</tr>
-		            <%}
-		            }%>
+		            <%}%>
                     <tr>
 						<td colspan=2 style="font-weight: bold"><span><bean:message key="ViewScript.msgDrugInfo"/></span></td>
 					</tr>

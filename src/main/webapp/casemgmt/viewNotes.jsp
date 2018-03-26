@@ -24,11 +24,7 @@
 
 --%>
 
-<%@page import="org.apache.commons.lang.StringEscapeUtils"%>
-<%@page import="oscar.util.ConversionUtils"%>
-<%@page import="org.oscarehr.casemgmt.web.NoteDisplay"%>
-<%  long start = System.currentTimeMillis(); %>
-<%@include file="/casemgmt/taglibs.jsp"%>
+<%  long start = System.currentTimeMillis(); %><%@include file="/casemgmt/taglibs.jsp"%>
 <%@page
 	import="java.util.List, java.util.Set, java.util.Iterator, org.oscarehr.casemgmt.model.CaseManagementIssue, org.oscarehr.casemgmt.model.CaseManagementNoteExt"%>
 <%@page import="org.oscarehr.common.model.Provider"%>
@@ -40,19 +36,7 @@
 <%@page import="org.oscarehr.common.model.PartialDate"%>
 <%@page import="org.oscarehr.util.SpringUtils"%>
 <%@page import="org.oscarehr.util.LoggedInInfo"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_casemgmt.notes" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_casemgmt.notes");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
+
 
 <c:set var="ctx" value="${pageContext.request.contextPath}"
 	scope="request" />
@@ -61,7 +45,7 @@
 <div style="width: 10%; float: right; text-align: center;">
 <h3 style="padding:0px; background-color:#<c:out value="${param.hc}"/>">
 <%
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+	String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
 	com.quatro.service.security.SecurityManager securityManager = new com.quatro.service.security.SecurityManager();
 	if(securityManager.hasWriteAccess("_" + request.getParameter("issue_code"),roleName$)) {
 %>
@@ -91,13 +75,14 @@
 		type="org.oscarehr.casemgmt.model.CaseManagementNote">
                 <input type="hidden" id="<c:out value="${param.cmd}"/><nested:write name="note" property="id"/>" value="<nested:write name="noteIdx"/>">
 		<% if( noteIdx % 2 == 0 ) { %>
-		<li class="cpp"	style="clear: both; whitespace: nowrap; background-color: #F3F3F3;">
+		<li class="cpp"
+			style="clear: both; whitespace: nowrap; background-color: #F3F3F3;">
 		<%}else {%>
 		
 		<li class="cpp" style="clear: both; whitespace: nowrap;">
 		<%}
                 //load up the prefs once
-                CppPreferencesUIBean prefsBean = new CppPreferencesUIBean(loggedInInfo.getLoggedInProviderNo());
+                CppPreferencesUIBean prefsBean = new CppPreferencesUIBean(LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo());
                 prefsBean.loadValues();
 				String addlData = CaseManagementViewAction.getCppAdditionalData(note.getId(),(String)request.getAttribute("cppIssue"),noteExts,prefsBean);
 				
@@ -113,7 +98,7 @@
                 //single line or 'normal' view.
                 boolean singleLine = Boolean.valueOf(oscar.OscarProperties.getInstance().getProperty("echart.cpp.single_line","false"));
                 UserPropertyDAO userPropertyDao = (UserPropertyDAO)SpringUtils.getBean("UserPropertyDAO");
-                UserProperty prop = userPropertyDao.getProp(loggedInInfo.getLoggedInProviderNo(),UserProperty.CPP_SINGLE_LINE);
+                UserProperty prop = userPropertyDao.getProp(LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo(),UserProperty.CPP_SINGLE_LINE);
                 if(prop != null) {
                 	singleLine = Boolean.valueOf((prop.getValue().equals("yes")?true:false));
                 }
@@ -140,50 +125,23 @@
                         strNoteIssues.append(";");
                     }
                 }
-                %> <span id="spanListNote<nested:write name="note" property="id"/>">
+                %> <span
+			id="spanListNote<nested:write name="note" property="id"/>">
 			
 			<c:choose>
             <c:when test='${param.title == "oscarEncounter.oMeds.title" || param.title == "oscarEncounter.riskFactors.title" || param.title == "oscarEncounter.famHistory.title"|| param.noheight == "true"}'>
-                <a class="links" onmouseover="this.className='linkhover'"	onmouseout="this.className='links'" title="Rev:<nested:write name="note" property="revision"/> - Last update:<nested:write name="note" property="update_date" format="dd-MMM-yyyy"/>" id="listNote<nested:write name="note" property="id"/>" href="#" onclick="showEdit(event,'<bean-el:message key="${param.title}" />','<nested:write name="note" property="id"/>','<%=StringEscapeUtils.escapeJavaScript(editors.toString())%>','<nested:write name="note" property="observation_date" format="dd-MMM-yyyy"/>','<nested:write name="note" property="revision"/>','<%=noteTxt%>', '<%=request.getAttribute("addUrl")%><nested:write name="note" property="id"/>', '<c:out value="${param.cmd}"/>','<%=request.getAttribute("identUrl")%>','<%=strNoteIssues.toString()%>','<%=strNoteExts%>','<c:out value="${param.demographicNo}"/>');return false;"  style="width:100%;overflow:scroll;" >			 			
+                <a class="links" onmouseover="this.className='linkhover'"	onmouseout="this.className='links'" title="Rev:<nested:write name="note" property="revision"/> - Last update:<nested:write name="note" property="update_date" format="dd-MMM-yyyy"/>" id="listNote<nested:write name="note" property="id"/>" href="#" onclick="showEdit(event,'<c:out value="${param.title}"/>','<nested:write name="note" property="id"/>','<%=editors.toString()%>','<nested:write name="note" property="observation_date" format="dd-MMM-yyyy"/>','<nested:write name="note" property="revision"/>','<%=noteTxt%>', '<%=request.getAttribute("addUrl")%><nested:write name="note" property="id"/>', '<c:out value="${param.cmd}"/>','<%=request.getAttribute("identUrl")%>','<%=strNoteIssues.toString()%>','<%=strNoteExts%>','<c:out value="${param.demographicNo}"/>');return false;"  style="width:100%;overflow:scroll;" >			 			
             </c:when>
             <c:otherwise>
-                <a class="topLinks" onmouseover="this.className='topLinkhover'"	onmouseout="this.className='topLinks'" title="Rev:<nested:write name="note" property="revision"/> - Last update:<nested:write name="note" property="update_date" format="dd-MMM-yyyy"/>" id="listNote<nested:write name="note" property="id"/>" href="#" onclick="showEdit(event,'<bean-el:message key="${param.title}" />','<nested:write name="note" property="id"/>','<%=StringEscapeUtils.escapeJavaScript(editors.toString())%>','<nested:write name="note" property="observation_date" format="dd-MMM-yyyy"/>','<nested:write name="note" property="revision"/>','<%=noteTxt%>', '<%=request.getAttribute("addUrl")%><nested:write name="note" property="id"/>', '<c:out value="${param.cmd}"/>','<%=request.getAttribute("identUrl")%>','<%=strNoteIssues.toString()%>','<%=strNoteExts%>','<c:out value="${param.demographicNo}"/>');return false;"  style="width:100%;overflow:scroll;" >			 			
+                <a class="topLinks" onmouseover="this.className='topLinkhover'"	onmouseout="this.className='topLinks'" title="Rev:<nested:write name="note" property="revision"/> - Last update:<nested:write name="note" property="update_date" format="dd-MMM-yyyy"/>" id="listNote<nested:write name="note" property="id"/>" href="#" onclick="showEdit(event,'<c:out value="${param.title}"/>','<nested:write name="note" property="id"/>','<%=editors.toString()%>','<nested:write name="note" property="observation_date" format="dd-MMM-yyyy"/>','<nested:write name="note" property="revision"/>','<%=noteTxt%>', '<%=request.getAttribute("addUrl")%><nested:write name="note" property="id"/>', '<c:out value="${param.cmd}"/>','<%=request.getAttribute("identUrl")%>','<%=strNoteIssues.toString()%>','<%=strNoteExts%>','<c:out value="${param.demographicNo}"/>');return false;"  style="width:100%;overflow:scroll;" >			 			
             </c:otherwise>
         	</c:choose>                 
 			
 			<%=htmlNoteTxt%></a>
 		</span></li>
 	</nested:iterate>
-	<%
-		List<NoteDisplay>remoteNotes = (List<NoteDisplay>)request.getAttribute("remoteNotes");
-		String htmlText;
-		int noteIdx = 0;
-		if( remoteNotes != null ) {
-		    for( NoteDisplay remoteNote : remoteNotes) {
-				htmlText = remoteNote.getNote();
-				htmlText = htmlText.replaceAll("\n", "<br>");
-				if( noteIdx % 2 == 0 ) {
-				%>				
-				<li class="cpp" style="clear: both; whitespace: nowrap; background-color: #FFCCCC;">
-				<%
-				}
-				else {
-				    %>
-				    <li class="cpp" style="clear: both; whitespace: nowrap; background-color: #CCA3A3">
-				    <%
-				}
-				%>
-					<a class="links" onmouseover="this.className='linkhover'"	onmouseout="this.className='links'" title="<%=remoteNote.getLocation()%> by <%=remoteNote.getProviderName()%> on <%=ConversionUtils.toTimestampString(remoteNote.getObservationDate())%>" href="javascript:void(0)" onclick="showIntegratedNote('<bean-el:message key="${param.title}" />',<%=htmlText%>,<%=remoteNote.getLocation()%>, <%=remoteNote.getProviderName()%>, <%=ConversionUtils.toTimestampString(remoteNote.getObservationDate())%>);">					
-					<%=htmlText%>
-					</a>
-				</li>
-				<%
-		    }
-		    
-		}
-	%>
 </ul>
-<br>
+</div>
 <input type="hidden" id="<c:out value="${param.cmd}"/>num"
 	value="<nested:write name="num"/>">
 <input type="hidden" id="<c:out value="${param.cmd}"/>threshold"

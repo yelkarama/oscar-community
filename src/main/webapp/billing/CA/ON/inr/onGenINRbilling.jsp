@@ -17,40 +17,19 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
+<%//
+			if (session.getAttribute("user") == null)
+				response.sendRedirect("../../../../logout.jsp");
+			String user_no = "";
+			user_no = (String) session.getAttribute("user");
 %>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_billing" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../../../securityError.jsp?type=_billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
+<%@ page
+	import="java.util.*,java.sql.*,oscar.util.*,oscar.*,oscar.oscarBilling.ca.on.data.*"
+	errorPage="../../../errorpage.jsp"%>
 
-
-<%
-	String user_no = (String) session.getAttribute("user");
-%>
-<%@ page import="java.util.*,java.sql.*,oscar.util.*,oscar.*,oscar.oscarBilling.ca.on.data.*" errorPage="../../../errorpage.jsp"%>
-
-<%@page import="org.oscarehr.billing.CA.model.BillingInr" %>
-<%@page import="org.oscarehr.common.model.Demographic" %>
-<%@page import="org.oscarehr.billing.CA.dao.BillingInrDao" %>
-<%@page import="org.oscarehr.util.SpringUtils" %>
-<%@page import="oscar.util.ConversionUtils" %>
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
-
-<%
-	BillingInrDao billingInrDao = SpringUtils.getBean(BillingInrDao.class);
-LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
-
-%>
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean"
+	scope="session" />
+<%@ include file="dbINR.jspf"%>
 <%//
 			JdbcBillingClaimImpl dbObj = new JdbcBillingClaimImpl();
 			String temp = "";
@@ -76,29 +55,33 @@ LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
 				//////////////////////////////////////////////////////////////////////////////////////  	
 
 				ResultSet rsdemo = null;
-				List<Object[]> results = billingInrDao.search_inrbilling_dt_billno(Integer.parseInt(temp.substring(10)));
-				for (Object[] result : results) {
+				rsdemo = apptMainBean.queryResults(temp.substring(10), "search_inrbilling_dt_billno");
+				while (rsdemo.next()) {
 
-					BillingInr b = (BillingInr)result[0];
-					Demographic d = (Demographic)result[1];
-					
-					demono = d.getDemographicNo().toString();
-					demo_name = b.getDemographicName();
-					demo_hin = d.getHin() + d.getVer();
-					demo_dob = d.getYearOfBirth() +d.getMonthOfBirth() + d.getDateOfBirth();
-					provider_no = String.valueOf(b.getProviderNo());
-					provider_ohip_no = b.getProviderOhipNo();
-					provider_rma_no = b.getProviderRmaNo();
-					diagnostic_code = b.getDiagnosticCode();
-					service_code = b.getServiceCode();
-					service_desc = b.getServiceDesc();
-					billing_amount = b.getBillingAmount();
-					billing_unit = b.getBillingUnit();
+					demono = rsdemo.getString("demographic_no");
+					demo_name = rsdemo.getString("demographic_name");
+					demo_hin = rsdemo.getString("hin") + rsdemo.getString("ver");
+					demo_dob = rsdemo.getString("year_of_birth") + rsdemo.getString("month_of_birth")
+							+ rsdemo.getString("date_of_birth");
+					provider_no = rsdemo.getString("provider_no");
+					provider_ohip_no = rsdemo.getString("provider_ohip_no");
+					provider_rma_no = rsdemo.getString("provider_rma_no");
+					diagnostic_code = rsdemo.getString("diagnostic_code");
+					service_code = rsdemo.getString("service_code");
+					service_desc = rsdemo.getString("service_desc");
+					billing_amount = rsdemo.getString("billing_amount");
+					billing_unit = rsdemo.getString("billing_unit");
 
-					String hcType = d.getHcType();
-					String sex = d.getSex();
-					String last_name = d.getLastName();
-					String first_name = d.getFirstName();
+					String hcType = rsdemo.getString("hc_type");
+					String sex = rsdemo.getString("sex");
+					String last_name = rsdemo.getString("last_name");
+					String first_name = rsdemo.getString("first_name");
+
+					//StringBuffer sotherBuffer = new StringBuffer(billing_amount);
+					//int f = billing_amount.indexOf('.');
+					//sotherBuffer.deleteCharAt(f);
+					//sotherBuffer.insert(f, "");
+					//billing_amount = sotherBuffer.toString();
 
 					String[] param = new String[23];
 					param[0] = clinic_no;
@@ -129,8 +112,8 @@ LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
 
 					claim1Header.setTransc_id(BillingDataHlp.CLAIMHEADER1_TRANSACTIONIDENTIFIER);
 					claim1Header.setRec_id(BillingDataHlp.CLAIMHEADER1_REORDIDENTIFICATION);
-					claim1Header.setHin(d.getHin());
-					claim1Header.setVer(d.getVer());
+					claim1Header.setHin(rsdemo.getString("hin"));
+					claim1Header.setVer(rsdemo.getString("ver"));
 					claim1Header.setDob(demo_dob);
 					// acc_num - billing no
 					String payProg = hcType.equals("ON") ? "HCP" : "RMB";
@@ -169,17 +152,15 @@ LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
 					claim1Header.setAsstProvider_no("");
 					claim1Header.setCreator(creator);
 
-					int nNo = dbObj.addOneClaimHeaderRecord(loggedInInfo, claim1Header);
+					int nNo = dbObj.addOneClaimHeaderRecord(claim1Header);
 					String billNo = "" + nNo;
 
 					int recordAffected = 0;
-					BillingInr bi = billingInrDao.find(Integer.parseInt(temp.substring(10)));
-					if(bi != null && !bi.getStatus().equals("D")) {
-						bi.setStatus("A");
-						bi.setCreateDateTime(ConversionUtils.fromDateString(request.getParameter("xml_appointment_date")));
-						billingInrDao.merge(bi);
-						recordAffected++;
-					}
+					String[] param3 = new String[3];
+					param3[0] = "A";
+					param3[1] = request.getParameter("xml_appointment_date");
+					param3[2] = temp.substring(10);
+					recordAffected = apptMainBean.queryExecuteUpdate(param3, "update_inrbilling_dt_billno");
 
 					int recordCount = Integer.parseInt("1");
 					for (int i = 0; i < recordCount; i++) {
@@ -220,8 +201,6 @@ LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
 
 		%>
 <script LANGUAGE="JavaScript">
-      //self.close();
+      self.close();
      // self.opener.refresh();
-     location.href='reportINR.jsp?provider_no=all';
-     
 </script>

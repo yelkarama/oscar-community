@@ -23,19 +23,6 @@
 
 --%>
 <%@ include file="/taglibs.jsp"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_search" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_search");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
 <%@ include file="/common/messages.jsp"%>
 <%@page import="oscar.OscarProperties"%>
 <%@page import="org.oscarehr.PMmodule.web.utils.UserRoleUtils"%>
@@ -44,7 +31,11 @@
 <%@page import="org.oscarehr.PMmodule.model.Program"%>
 
 <%@ taglib uri="/WEB-INF/caisi-tag.tld" prefix="caisi"%>
-
+<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
+<%
+    if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
+    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
+%>
 
 <script>
 	function resetClientFields() {
@@ -61,8 +52,7 @@
 		// form.elements['criteria.dateFrom'].value=''; 
 		// form.elements['criteria.dateTo'].value=''; 
 		// form.elements['criteria.bedProgramId'].selectedIndex = 0;
-		// form.elements['criteria.active'].selectedIndex = 0;
-		form.elements['criteria.active'].value='';
+		form.elements['criteria.active'].selectedIndex = 0;
 		form.elements['criteria.gender'].selectedIndex = 0;
 	}
 
@@ -150,10 +140,11 @@
 		</caisi:isModuleLoad>
 		<tr>
 			<th>Status</th>
-			<td><html:select property="criteria.active" value="">
+			<td><html:select property="criteria.active">
 				<html:option value="">ALL</html:option>
 				<html:option value="1">Admitted</html:option>
 				<html:option value="0">Discharged</html:option>
+				
 			</html:select></td>
 		</tr>
 		<tr>

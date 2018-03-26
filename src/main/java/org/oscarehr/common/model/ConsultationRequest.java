@@ -37,12 +37,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.Transient;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -50,22 +47,20 @@ import org.apache.commons.lang.StringUtils;
 @Table(name = "consultationRequests")
 public class ConsultationRequest extends AbstractModel<Integer> implements Serializable {
 
-	private static final String ACTIVE_MARKER = "1";
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "requestId")
 	private Integer id;
-
+	
 	@Column(name = "referalDate")
-	@Temporal(TemporalType.DATE)
+        @Temporal(TemporalType.DATE)
 	private Date referralDate;
-
+	
 	private Integer serviceId;
 
-	@ManyToOne(fetch=FetchType.EAGER, cascade=CascadeType.ALL)
-	@JoinColumn(name="specId")
-	private ProfessionalSpecialist professionalSpecialist;
+        @ManyToOne(fetch=FetchType.EAGER, cascade=CascadeType.ALL)
+        @JoinColumn(name="specId")
+        private ProfessionalSpecialist professionalSpecialist;
 
 	@Temporal(TemporalType.DATE)
 	private Date appointmentDate;	
@@ -74,7 +69,7 @@ public class ConsultationRequest extends AbstractModel<Integer> implements Seria
 
 	@Column(name = "reason")
 	private String reasonForReferral;
-
+	
 	private String clinicalInfo;
 	private String currentMeds;
 	private String allergies;
@@ -83,12 +78,11 @@ public class ConsultationRequest extends AbstractModel<Integer> implements Seria
 	@Column(name = "demographicNo")
 	private Integer demographicId;
 
-	private String status = ACTIVE_MARKER;
+	private String status;
 	private String statusText;
 	private String sendTo;
 	private String concurrentProblems;
 	private String urgency;
-	private String appointmentInstructions;
 	private boolean patientWillBook;	
 	
 	@Column(name = "site_name")
@@ -102,16 +96,6 @@ public class ConsultationRequest extends AbstractModel<Integer> implements Seria
     private String letterheadAddress;
     private String letterheadPhone;
     private String letterheadFax;
-    
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date lastUpdateDate;
-    
-    private Integer fdid = null;
-    private String source;
-    
-    @ManyToOne(fetch=FetchType.EAGER, targetEntity=LookupListItem.class)
-    @JoinColumn(name="appointmentInstructions", referencedColumnName="value", insertable = false, updatable = false)
-    private LookupListItem lookupListItem;
     
 	@Override
     public Integer getId() {
@@ -283,10 +267,7 @@ public class ConsultationRequest extends AbstractModel<Integer> implements Seria
     }
 
     public Integer getSpecialistId() {
-    	if(professionalSpecialist != null)
-    		return this.professionalSpecialist.getId();
-    	else
-    		return null;
+        return this.professionalSpecialist.getId();
     }
 
 	public String getSignatureImg() {
@@ -328,72 +309,4 @@ public class ConsultationRequest extends AbstractModel<Integer> implements Seria
 	public void setLetterheadFax(String letterheadFax) {
 	    this.letterheadFax = letterheadFax;
     }
-	
-	
-	public Integer getFdid() {
-		return fdid;
-	}
-
-	public void setFdid(Integer fdid) {
-		this.fdid = fdid;
-	}
-	
-	
-
-	public String getSource() {
-		return source;
-	}
-
-	public void setSource(String source) {
-		this.source = source;
-	}
-
-	@PrePersist
-	@PreUpdate
-	protected void jpa_updateLastDateUpdated() {
-		lastUpdateDate = new Date();
-	}
-	
-	/**
-	 * returns the appointment instructions value. 
-	 * This can be a display value or select list value 
-	 * if the Lookup List interface is used. 
-	 * If the table contains a hash key it most likely is a 
-	 * primary key association in the LookupListItem table.
-	 */
-	public String getAppointmentInstructions() {
-		return appointmentInstructions;
-	}
-
-	public void setAppointmentInstructions(String appointmentInstructions) {
-		this.appointmentInstructions = appointmentInstructions;
-	}
-
-	/**
-	 * Returns the display label of the Appointment Instruction if
-	 * the Lookup List interface is being used.
-	 * Empty string otherwise.
-	 */
-	@Transient
-	public String getAppointmentInstructionsLabel() {
-		if( lookupListItem != null ) {
-			return lookupListItem.getLabel();
-		}
-		return "";
-	}
-
-	/**
-	 * This will be bound if the Appointment Instructions
-	 * value is found as a unique match in the LookupListItem
-	 * table. 
-	 */
-	public LookupListItem getLookupListItem() {
-		return lookupListItem;
-	}
-
-	public void setLookupListItem(LookupListItem lookupListItem) {
-		this.lookupListItem = lookupListItem;
-	}
-
-
 }

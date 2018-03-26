@@ -30,7 +30,6 @@ import java.io.File;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.oscarehr.common.hl7.v2.oscar_to_oscar.OscarToOscarUtils;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 
 import oscar.oscarLab.ca.all.upload.MessageUploader;
@@ -41,22 +40,22 @@ import ca.uhn.hl7v2.model.v26.message.ADT_A09;
 public class OscarToOscarHl7V2Handler implements MessageHandler {
 	private Logger logger = MiscUtils.getLogger();
 
-	public String parse(LoggedInInfo loggedInInfo, String serviceName, String fileName, int fileId, String ipAddr) {
+	public String parse(String serviceName, String fileName, int fileId) {
 		
 		try {
 	        byte[] dataBytes=FileUtils.readFileToByteArray(new File(fileName));
-	        String dataString=new String(dataBytes, MiscUtils.DEFAULT_UTF8_ENCODING);
+	        String dataString=new String(dataBytes, MiscUtils.ENCODING);
 	        logger.debug("Incoming HL7 Message : \n"+dataString);
 	        
 			AbstractMessage message=OscarToOscarUtils.pipeParserParse(dataString);
 
 			if (message instanceof ADT_A09) 
 			{
-				AdtA09Handler.handle(loggedInInfo, (ADT_A09) message);
+				AdtA09Handler.handle((ADT_A09) message);
 			}
 			else
 			{
-				MessageUploader.routeReport(loggedInInfo, serviceName, OscarToOscarUtils.UPLOAD_MESSAGE_TYPE, dataString, fileId);
+				MessageUploader.routeReport(serviceName, OscarToOscarUtils.UPLOAD_MESSAGE_TYPE, dataString, fileId);
 			}
 			
 			return("success");

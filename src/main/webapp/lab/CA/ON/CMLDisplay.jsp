@@ -23,25 +23,6 @@
     Ontario, Canada
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-	  boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_lab" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../../securityError.jsp?type=_lab");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%@page import="org.oscarehr.common.model.PatientLabRouting"%>
-<%@page import="oscar.util.ConversionUtils"%>
-<%@page import="org.oscarehr.common.dao.PatientLabRoutingDao"%>
 <%@page errorPage="../provider/errorpage.jsp"%>
 <%@ page
 	import="java.util.*, oscar.oscarMDS.data.*,oscar.oscarLab.ca.on.CML.*,oscar.oscarLab.LabRequestReportLink,oscar.oscarDB.*,java.sql.*,oscar.log.*,org.oscarehr.util.SpringUtils,org.oscarehr.casemgmt.service.CaseManagementManager,org.oscarehr.casemgmt.model.*"%>
@@ -68,14 +49,15 @@ CaseManagementManager caseManagementManager = (CaseManagementManager) SpringUtil
 %>
 <oscar:oscarPropertiesCheck property="SPEC3" value="yes">
     <%
-    
-    PatientLabRoutingDao dao = SpringUtils.getBean(PatientLabRoutingDao.class);
-    PatientLabRouting routing = dao.findByLabNo(ConversionUtils.fromIntString(segmentID));
-	
-    String demographicID = "";
-    if (routing != null) {
-	    demographicID = ConversionUtils.toIntString(routing.getDemographicNo());
-    }    
+    String sql = "SELECT demographic_no FROM patientLabRouting WHERE lab_no='"+segmentID+"';";
+
+ResultSet rs = DBHandler.GetSQL(sql);
+String demographicID = "";
+
+while(rs.next()){
+    demographicID = oscar.Misc.getString(rs,"demographic_no");
+}
+rs.close();
     
 if(lab.demographicNo != null && !lab.demographicNo.equals("null")){
     LogAction.addLog((String) session.getAttribute("user"), LogConst.READ, LogConst.CON_HL7_LAB, segmentID, request.getRemoteAddr(),lab.demographicNo);

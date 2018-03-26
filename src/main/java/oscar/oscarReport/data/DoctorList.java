@@ -9,30 +9,40 @@
 
 package oscar.oscarReport.data;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.List;
 
-import org.oscarehr.PMmodule.dao.ProviderDao;
-import org.oscarehr.common.model.Provider;
-import org.oscarehr.util.SpringUtils;
+import org.oscarehr.util.MiscUtils;
 
+import oscar.oscarDB.DBHandler;
 import oscar.oscarProvider.bean.ProviderNameBean;
 
 public class DoctorList {
-	
-	public ArrayList<ProviderNameBean> getDoctorNameList() {
+    public DoctorList() {
+    }
 
-		ArrayList<ProviderNameBean> dnl = new ArrayList<ProviderNameBean>();
+    public ArrayList<ProviderNameBean> getDoctorNameList(){
 
-		ProviderDao dao = SpringUtils.getBean(ProviderDao.class);
-		List<Provider> docs = dao.getProvidersByType("doctor");
+        ArrayList<ProviderNameBean> dnl = new ArrayList<ProviderNameBean>();
+        try{
 
-		for (Provider doc : docs) {
-			ProviderNameBean pb = new ProviderNameBean();
-			pb.setProviderID(doc.getProviderNo());
-			pb.setProviderName(doc.getFullName());
-			dnl.add(pb);
-		}
-		return dnl;
-	}
+
+            java.sql.ResultSet rs;
+            String sql = "select last_name, first_name, provider_no from provider where provider_type='doctor'";
+            rs = DBHandler.GetSQL(sql);
+
+            while(rs.next()){
+                ProviderNameBean pb = new ProviderNameBean();
+                pb.setProviderID(oscar.Misc.getString(rs, 3));
+                pb.setProviderName(oscar.Misc.getString(rs, 2)+ " " +oscar.Misc.getString(rs, 1));
+                dnl.add(pb);
+
+            }
+        }
+        catch(SQLException e)
+        {
+            MiscUtils.getLogger().error("Error", e);
+        }
+        return dnl;
+    }
 }

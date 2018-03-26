@@ -24,17 +24,11 @@
 
 --%>
 <%@page import="oscar.oscarRx.data.RxPatientData"%>
-<%@ page import="org.oscarehr.util.LoggedInInfo" %>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-%>
-
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%
         oscar.oscarRx.pageUtil.RxSessionBean bean2 = (oscar.oscarRx.pageUtil.RxSessionBean)request.getSession().getAttribute("RxSessionBean");
 
-        org.oscarehr.common.model.Allergy[] allergies = RxPatientData.getPatient(LoggedInInfo.getLoggedInInfoFromSession(request), bean2.getDemographicNo()).getActiveAllergies();
+        org.oscarehr.common.model.Allergy[] allergies = RxPatientData.getPatient(bean2.getDemographicNo()).getActiveAllergies();
         String alle = "";
         if (allergies.length > 0 ){ alle = "Red"; }
 
@@ -43,9 +37,6 @@
 
 <td width="10%" height="100%" valign="top">
 <div class="PropSheetMenu">
-
-<security:oscarSec roleName="<%=roleName$%>" objectName="_allergy" rights="r" reverse="<%=false%>">
-
 <p class="PropSheetLevel1CurrentItem<%=alle%>"><bean:message key="oscarRx.sideLinks.msgAllergies"/></p>
 <p class="PropSheetMenuItemLevel1">
 <%for (int j=0; j<allergies.length; j++){%>
@@ -55,8 +46,6 @@
 <%=allergies[j].getShortDesc(13,8,"...")%> </a></p>
 <%}%>
 </p>
-
-</security:oscarSec>
 
 <p class="PropSheetLevel1CurrentItem"><bean:message key="oscarRx.sideLinks.msgFavorites"/></p>
 <p class="PropSheetMenuItemLevel1">

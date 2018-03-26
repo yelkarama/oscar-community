@@ -44,21 +44,25 @@ public class OcanFormAction {
 	private static OcanClientFormDataDao ocanClientFormDataDao = (OcanClientFormDataDao) SpringUtils.getBean("ocanClientFormDataDao");
 
 	
-	public static OcanStaffForm createOcanStaffForm(LoggedInInfo loggedInInfo, Integer admissionId, Integer clientId, boolean signed)
+	public static OcanStaffForm createOcanStaffForm(Integer admissionId, Integer clientId, boolean signed)
 	{
+		LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+		
 		OcanStaffForm ocanStaffForm=new OcanStaffForm();
 		ocanStaffForm.setAdmissionId(admissionId);
 		ocanStaffForm.setOcanFormVersion("1.2");		
 		ocanStaffForm.setClientId(clientId);
-		ocanStaffForm.setFacilityId(loggedInInfo.getCurrentFacility().getId());
-		ocanStaffForm.setProviderNo(loggedInInfo.getLoggedInProviderNo());
+		ocanStaffForm.setFacilityId(loggedInInfo.currentFacility.getId());
+		ocanStaffForm.setProviderNo(loggedInInfo.loggedInProvider.getProviderNo());
 		ocanStaffForm.setSigned(signed);
+		
 		
 		return(ocanStaffForm);
 	}
 	
-	public static OcanStaffForm createOcanStaffForm(LoggedInInfo loggedInInfo,String ocanStaffFormId, Integer clientId, boolean signed)
+	public static OcanStaffForm createOcanStaffForm(String ocanStaffFormId, Integer clientId, boolean signed)
 	{
+		LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
 		OcanStaffForm ocanStaffForm=new OcanStaffForm();
 		if(ocanStaffFormId==null || "".equals(ocanStaffFormId) || "null".equals(ocanStaffFormId) || "0".equals(ocanStaffFormId)) {
 			
@@ -66,7 +70,7 @@ public class OcanFormAction {
 			ocanStaffForm.setAssessmentId(ocanStaffForm.getId());
 			ocanStaffForm.setOcanFormVersion("1.2");		
 			ocanStaffForm.setClientId(clientId);
-			ocanStaffForm.setFacilityId(loggedInInfo.getCurrentFacility().getId());			
+			ocanStaffForm.setFacilityId(loggedInInfo.currentFacility.getId());			
 			ocanStaffForm.setSigned(signed);
 		} else {
 			ocanStaffForm = OcanForm.getOcanStaffForm(Integer.valueOf(ocanStaffFormId));
@@ -104,6 +108,7 @@ public class OcanFormAction {
 			ocanStaffFormData.setAnswer(answer);			
 			ocanStaffFormDataDao.merge(ocanStaffFormData); //update
 		}
+		
 	}
 	
 	public static void addOcanStaffFormDataMultipleAnswers(Integer ocanStaffFormId, String question, String answer)
@@ -119,21 +124,45 @@ public class OcanFormAction {
 			ocanStaffFormDataDao.persist(ocanStaffFormData); //create
 				
 	}
-	public static OcanClientForm createOcanClientForm(LoggedInInfo loggedInInfo, Integer clientId)
+/*	
+	public static void updateOcanStaffFormData(Integer ocanStaffFormId, String question, String answer)
 	{
+		OcanStaffFormData ocanStaffFormData;
+		
+		ocanStaffFormData=new OcanStaffFormData();
+		ocanStaffFormData.setOcanStaffFormId(ocanStaffFormId);
+		ocanStaffFormData.setQuestion(question);
+		ocanStaffFormData.setAnswer(answer);
+		
+		if(ocanStaffFormDataDao.findByQuestion(ocanStaffFormId, question).size()<=0) {
+			ocanStaffFormDataDao.persist(ocanStaffFormData); //create	
+		} else {
+			ocanStaffFormData.setId(ocanStaffFormDataDao.findByQuestion(ocanStaffFormId, question).get(0).getId());
+			ocanStaffFormDataDao.merge(ocanStaffFormData); //update	
+		}
+	}
+*/	
+	
+	
+	
+	public static OcanClientForm createOcanClientForm(Integer clientId)
+	{
+		LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+		
 		OcanClientForm ocanClientForm=new OcanClientForm();		
 		ocanClientForm.setOcanFormVersion("1.2");		
 		ocanClientForm.setClientId(clientId);
-		ocanClientForm.setFacilityId(loggedInInfo.getCurrentFacility().getId());
-		ocanClientForm.setProviderNo(loggedInInfo.getLoggedInProviderNo());
+		ocanClientForm.setFacilityId(loggedInInfo.currentFacility.getId());
+		ocanClientForm.setProviderNo(loggedInInfo.loggedInProvider.getProviderNo());
 		
 		
 		return(ocanClientForm);
 	}
 	
-	public static void saveOcanClientForm(LoggedInInfo loggedInInfo, OcanClientForm ocanClientForm) {
-		ocanClientForm.setProviderNo(loggedInInfo.getLoggedInProviderNo());
-		ocanClientForm.setProviderName(loggedInInfo.getLoggedInProvider().getFormattedName());
+	public static void saveOcanClientForm(OcanClientForm ocanClientForm) {
+		LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+		ocanClientForm.setProviderNo(loggedInInfo.loggedInProvider.getProviderNo());
+		ocanClientForm.setProviderName(loggedInInfo.loggedInProvider.getFormattedName());
 		
 		ocanClientFormDao.persist(ocanClientForm);
 	}

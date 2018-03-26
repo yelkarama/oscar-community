@@ -19,7 +19,6 @@ package oscar.oscarEncounter.oscarConsultationRequest.pageUtil;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,17 +28,7 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.oscarehr.hospitalReportManager.HrmPDFCreator;
-import org.oscarehr.hospitalReportManager.model.HRMDocument;
-import org.oscarehr.managers.HRMManager;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
-
-import com.lowagie.text.DocumentException;
-import com.sun.xml.messaging.saaj.util.ByteInputStream;
-import com.sun.xml.messaging.saaj.util.ByteOutputStream;
 
 import oscar.OscarProperties;
 import oscar.dms.EDoc;
@@ -50,6 +39,10 @@ import oscar.oscarLab.ca.on.LabResultData;
 import oscar.util.ConcatPDF;
 import oscar.util.UtilDateUtilities;
 
+import com.lowagie.text.DocumentException;
+import com.sun.xml.messaging.saaj.util.ByteInputStream;
+import com.sun.xml.messaging.saaj.util.ByteOutputStream;
+
 /**
  *
  * Convert submitted preventions into pdf and return file
@@ -57,25 +50,16 @@ import oscar.util.UtilDateUtilities;
 public class EctConsultationFormRequestPrintAction2 extends Action {
     
     private static final Logger logger = MiscUtils.getLogger();
-    private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-    private HRMManager hrmManager = SpringUtils.getBean(HRMManager.class);
     
     public EctConsultationFormRequestPrintAction2() {
     }
     
     @Override
     public ActionForward execute(ActionMapping mapping,ActionForm form,HttpServletRequest request,HttpServletResponse response){
-    	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-    	
-    	if(!securityInfoManager.hasPrivilege(loggedInInfo, "_con", "r", null)) {
-			throw new SecurityException("missing required security object (_con)");
-		}
-    	
+        
     	String reqId = (String) request.getAttribute("reqId");
-    	if (request.getParameter("reqId")!=null) reqId = request.getParameter("reqId");
-    	
 		String demoNo = request.getParameter("demographicNo");
-		ArrayList<EDoc> docs = EDocUtil.listDocs(loggedInInfo, demoNo, reqId, EDocUtil.ATTACHED);
+		ArrayList<EDoc> docs = EDocUtil.listDocs(demoNo, reqId, EDocUtil.ATTACHED);
 		String path = OscarProperties.getInstance().getProperty("DOCUMENT_DIR");
 		ArrayList<Object> alist = new ArrayList<Object>();
 		byte[] buffer;
@@ -84,17 +68,14 @@ public class EctConsultationFormRequestPrintAction2 extends Action {
 		CommonLabResultData consultLabs = new CommonLabResultData();
 		ArrayList<InputStream> streams = new ArrayList<InputStream>();
 
-		ArrayList<LabResultData> labs = consultLabs.populateLabResultsData(loggedInInfo, demoNo, reqId, CommonLabResultData.ATTACHED);
-		
-		List<HRMDocument> hrmDocuments = hrmManager.findAttached(loggedInInfo, Integer.parseInt(demoNo), Integer.parseInt(reqId));
-		
+		ArrayList<LabResultData> labs = consultLabs.populateLabResultsData(demoNo, reqId, CommonLabResultData.ATTACHED);
 		String error = "";
 		Exception exception = null;
 		try {
 
 			bos = new ByteOutputStream();
 			ConsultationPDFCreator cpdfc = new ConsultationPDFCreator(request,bos);
-			cpdfc.printPdf(loggedInInfo);
+			cpdfc.printPdf();
 			
 			buffer = bos.getBytes();
 			bis = new ByteInputStream(buffer, bos.getCount());
@@ -144,18 +125,6 @@ public class EctConsultationFormRequestPrintAction2 extends Action {
 				streams.add(bis);
 				alist.add(bis);
 
-			}
-			
-			// Iterating over requested HRM documents
-			for(HRMDocument hrmDocument: hrmDocuments) {
-				bos = new ByteOutputStream();
-				HrmPDFCreator lpdfc = new HrmPDFCreator(loggedInInfo, bos, hrmDocument, loggedInInfo.getLoggedInProviderNo());
-				lpdfc.printPdf();
-				buffer = bos.getBytes();
-				bis = new ByteInputStream(buffer, bos.getCount());
-				bos.close();
-				streams.add(bis);
-				alist.add(bis);
 			}
 			
 			if (alist.size() > 0) {

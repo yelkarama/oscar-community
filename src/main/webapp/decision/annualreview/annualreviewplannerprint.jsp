@@ -24,21 +24,6 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_eChart" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_eChart");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%
 
   String demographic_no = request.getParameter("demographic_no")!=null?request.getParameter("demographic_no"):("null") ;
@@ -48,7 +33,8 @@
 <%@ page
 	import="java.util.*, java.sql.*, oscar.*, oscar.util.*, java.text.*, java.lang.*,java.net.*"
 	errorPage="../../appointment/errorpage.jsp"%>
-
+<jsp:useBean id="plannerBean" class="oscar.AppointmentMainBean"
+	scope="page" />
 <jsp:useBean id="riskDataBean" class="java.util.Properties" scope="page" />
 <jsp:useBean id="risks"
 	class="oscar.decision.DesAntenatalPlannerRisks_99_12" scope="page" />
@@ -61,11 +47,12 @@
 <%
 	DesAnnualReviewPlanDao desAnnualReviewPlanDao = SpringUtils.getBean(DesAnnualReviewPlanDao.class);
 %>
-<%@page import="org.oscarehr.common.model.Demographic" %>           
-<%@page import="org.oscarehr.common.dao.DemographicDao" %>     
 <%
-	DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
-%>                                                  
+String [][] dbQueries=new String[][] {
+{"search_demographic", "select last_name,first_name,sex,year_of_birth,month_of_birth,date_of_birth from demographic where demographic_no = ?" },
+};
+plannerBean.doConfigure(dbQueries);
+%>
 
 <html>
 <head>
@@ -102,13 +89,13 @@
   }
 
   //find the age and sex of the patient from demographic table
-  Demographic d = demographicDao.getDemographic(demographic_no);
+  ResultSet rsdemo = plannerBean.queryResults(demographic_no, "search_demographic");
   int age = 0;
   String sex = null, patientName =null;
-  if (d != null) {
-    age = UtilDateUtilities.calcAge(d.getYearOfBirth(), d.getMonthOfBirth(),d.getDateOfBirth());
-    sex = d.getSex();
-	patientName = d.getFormattedName();
+  while (rsdemo.next()) {
+    age = UtilDateUtilities.calcAge(rsdemo.getString("year_of_birth"), rsdemo.getString("month_of_birth"),rsdemo.getString("date_of_birth"));
+    sex = rsdemo.getString("sex");
+	patientName = rsdemo.getString("last_name") + ", "+ rsdemo.getString("first_name");
   }
   if (age>=65 && age <=85){
     riskDataBean.setProperty("999", "checked" );

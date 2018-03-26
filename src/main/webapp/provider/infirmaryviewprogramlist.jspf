@@ -30,9 +30,8 @@ session.setAttribute("infirmaryView_OscarQue",questr);
 %>
 
 <script>
-function submitProgram(ctrl,isOscar) {
-	var url = "<%=providerurlString%>"+"&infirmaryView_programId="+ctrl.value+"&GoToCaisiViewFromOscarView=true";
-	url = url.replace('infirmaryView_isOscar='+(!isOscar),'infirmaryView_isOscar='+isOscar);
+function submitProgram(ctrl) {
+	var url = "<%=providerurlString%>"+"&infirmaryView_programId="+ctrl.value+"&GoToCaisiViewFromOscarView=true";	
 	document.location.href = url;
 }
 function submitStatus(ctrl) {// only place other than infirmaction.java to set infirmaryView_clientStatusId
@@ -45,7 +44,7 @@ function submitStatus(ctrl) {// only place other than infirmaction.java to set i
 	<br>
 	<b>Program:</b>
 	<select id="bedprogram_no" name="bedprogram_no"
-		onchange="submitProgram(this,false)">
+		onchange="submitProgram(this)">
 		<%java.util.List programBean=(java.util.List)session.getAttribute("infirmaryView_programBeans");
 	String programId=(String)session.getAttribute(SessionConstants.CURRENT_PROGRAM_ID);
 	if (programBean.size()==0 || programId.equalsIgnoreCase("0")){%>
@@ -69,7 +68,7 @@ function submitStatus(ctrl) {// only place other than infirmaction.java to set i
 	<br>
 		<b>Program:</b>
 		<select id="bedprogram_no" name="bedprogram_no"
-			onchange="submitProgram(this,true)">
+			onchange="changeGroup()">
 			<%java.util.List programBean=(java.util.List)session.getAttribute("infirmaryView_programBeans");
 	String programId=(String)session.getAttribute(SessionConstants.CURRENT_PROGRAM_ID);
 	if (programBean.size()==0 || programId.equalsIgnoreCase("0")){%>
@@ -119,7 +118,7 @@ function submitStatus(ctrl) {// only place other than infirmaction.java to set i
 		</c:forEach>
 	</select>
 	<caisi:isModuleLoad moduleName="TORONTO_RFQ" reverse="true">
-		<caisi:ProgramExclusiveView providerNo="<%=((LoggedInInfo)LoggedInInfo.getLoggedInInfoFromSession(request)).getLoggedInProviderNo()%>" value="no">
+		<caisi:ProgramExclusiveView providerNo="<%=curUser_no%>" value="no">
 			<a href='providercontrol.jsp?infirmaryView_isOscar=true&GoToCaisiViewFromOscarView=false&<%=session.getAttribute("infirmaryView_OscarQue") %>'>|
 			Oscar View</a>
 		</caisi:ProgramExclusiveView>
@@ -127,7 +126,7 @@ function submitStatus(ctrl) {// only place other than infirmaction.java to set i
 </logic:notEqual>
 
 <logic:equal name="infirmaryView_isOscar" value="true">
-	<caisi:ProgramExclusiveView providerNo="<%=((LoggedInInfo)LoggedInInfo.getLoggedInInfoFromSession(request)).getLoggedInProviderNo()%>" value="no">
+	<caisi:ProgramExclusiveView providerNo="<%=curUser_no%>" value="no">
 		<caisi:isModuleLoad moduleName="oscarClinic" reverse="true">
 		<div align="right"><a
 			href='providercontrol.jsp?infirmaryView_isOscar=false&GoToCaisiViewFromOscarView=true&<%=session.getAttribute("infirmaryView_OscarQue") %>'>|

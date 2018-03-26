@@ -25,26 +25,46 @@
 				<value>classpath:oscar/oscarEncounter/oscarMeasurements/flowsheets/housingFlowsheet.xml</value>
 				<value>classpath:oscar/oscarEncounter/oscarMeasurements/flowsheets/socialLegalFlowsheet.xml</value>
 				<value>classpath:oscar/oscarEncounter/oscarMeasurements/flowsheets/diabetesQueensFlowsheet.xml</value>
-				<value>classpath:oscar/oscarEncounter/oscarMeasurements/flowsheets/ckdFlowsheet.xml</value>
-				<value>classpath:oscar/oscarEncounter/oscarMeasurements/flowsheets/periodicHealthVisit.xml</value>
-				<value>classpath:oscar/oscarEncounter/oscarMeasurements/flowsheets/healthTracker.xml</value>
 			</list>
 		</property>
 	</bean>
 
 	<!-- DAO -->
+	<bean id="issueAdminDAO" class="org.caisi.dao.IssueAdminDAO" autowire="byName" />
+	<bean id="bedCheckTimeDAO" class="org.oscarehr.PMmodule.dao.BedCheckTimeDAO" autowire="byName" />
+	<bean id="ratePageDao" class="org.oscarehr.PMmodule.dao.RatePageDao" autowire="byName" />
 	<bean id="genericIntakeNodeDAO" class="org.oscarehr.PMmodule.dao.GenericIntakeNodeDAO" autowire="byName" />
 	<bean id="genericIntakeDAO" class="org.oscarehr.PMmodule.dao.GenericIntakeDAO" autowire="byName" />
+	<bean id="intakeADao" class="org.oscarehr.PMmodule.dao.IntakeADao" autowire="byName" />
+	<bean id="intakeCDao" class="org.oscarehr.PMmodule.dao.IntakeCDao" autowire="byName" />
 	<bean id="healthSafetyDao" class="org.oscarehr.PMmodule.dao.HealthSafetyDao" autowire="byName" />
+	<bean id="logDAO" class="org.oscarehr.PMmodule.dao.LogDAO" autowire="byName" />
 	<bean id="formsDAO" class="org.oscarehr.PMmodule.dao.FormsDAO" autowire="byName" />
+	<bean id="surveyDAO" class="org.oscarehr.survey.dao.hibernate.SurveyDAOHibernate" autowire="byName" />
+	<bean id="surveyTestDAO" class="org.oscarehr.survey.dao.hibernate.SurveyTestDAOHibernate" autowire="byName" />
+	<bean id="oscarFormDAO" class="org.oscarehr.survey.dao.oscar.hibernate.OscarFormDAOHibernate" autowire="byName" />
 	<bean id="populationReportDao" class="org.oscarehr.common.dao.PopulationReportDao" autowire="byName" />
 
 
 	<!-- managers  -->
 	<bean id="issueAdminManager" class="org.caisi.service.IssueAdminManager" autowire="byName" />
 
+	<bean id="bedCheckTimeManager" class="org.oscarehr.PMmodule.service.impl.BedCheckTimeManagerImpl" autowire="byName" />
+	<bean id="ratePageManager" class="org.oscarehr.PMmodule.service.impl.RatePageManagerImpl" autowire="byName" />
 	<!-- Generic Intake -->
 	<bean id="genericIntakeManager" class="org.oscarehr.PMmodule.service.GenericIntakeManager" autowire="byName" />
+	<bean id="intakeAManager" class="org.oscarehr.PMmodule.service.impl.IntakeAManagerImpl">
+		<property name="intakeADao" ref="intakeADao" />
+		<property name="demographicDao" ref="demographicDao" />
+		<property name="enabled" value="${intakea.enabled}" />
+		<property name="newClientForm" value="${intakea.newForm}" />
+	</bean>
+	<bean id="intakeCManager" class="org.oscarehr.PMmodule.service.impl.IntakeCManagerImpl">
+		<property name="intakeCDao" ref="intakeCDao" />
+		<property name="demographicDao" ref="demographicDao" />
+		<property name="enabled" value="${intakec.enabled}" />
+		<property name="newClientForm" value="${intakec.newForm}" />
+	</bean>
 	<bean id="streetHealthReportManager" class="org.oscarehr.PMmodule.service.impl.StreetHealthReportManagerImpl">
 		<property name="demographicDao" ref="demographicDao" />
 		<property name="genericIntakeManager" ref="genericIntakeManager" />
@@ -54,8 +74,17 @@
 		<property name="healthSafetyDao" ref="healthSafetyDao" />
 	</bean>
 
+	<bean id="logManager" class="org.oscarehr.PMmodule.service.LogManager" autowire="byName" />
 	<bean id="oscarSecurityManager" class="org.oscarehr.PMmodule.service.impl.OscarSecurityManagerImpl" autowire="byName" />
-	<bean id="formsManagerCaisi" class="org.oscarehr.PMmodule.service.impl.FormsManagerImpl" autowire="byName" />
+	<bean id="formsManager" class="org.oscarehr.PMmodule.service.impl.FormsManagerImpl" autowire="byName" />
+	<bean id="surveyManager" class="org.oscarehr.survey.service.impl.SurveyManagerImpl">
+		<property name="surveyDAO" ref="surveyDAO" />
+	</bean>
+	<bean id="oscarFormManager" class="org.oscarehr.survey.service.impl.OscarFormManagerImpl">
+		<property name="oscarFormDAO" ref="oscarFormDAO" />
+	</bean>
+	<bean id="surveyTestManager" class="org.oscarehr.survey.service.impl.SurveyTestManagerImpl" autowire="byName" />
+	<bean id="surveyLaunchManager" class="org.oscarehr.survey.service.impl.SurveyLaunchManagerOscar" autowire="byName" />
 	<bean id="surveyUserManager" class="org.oscarehr.survey.service.impl.UserManagerOscar" autowire="byName" />
 	<bean id="populationReportManager" class="org.oscarehr.common.service.PopulationReportManager" autowire="byName">
 		<property name="issueDAO" ref="IssueDAO" />
@@ -64,8 +93,10 @@
 	<!-- ========================= SCHEDULED JOBS ========================= -->
 	<bean id="scheduledBedProgramDischargeTask" class="org.springframework.scheduling.timer.ScheduledTimerTask">
 		<property name="timerTask">
-			<bean class="org.oscarehr.PMmodule.task.BedProgramDischargeTask" autowire="byType">
+			<bean class="org.oscarehr.PMmodule.task.BedProgramDischargeTask">
 				<property name="programManager" ref="programManager" />
+				<property name="bedManager" ref="bedManager" />
+				<property name="bedDemographicManager" ref="bedDemographicManager" />
 			</bean>
 		</property>
 		<property name="delay" value="120000" />
@@ -116,7 +147,7 @@
                 <property name="period" value="86400000" />
     </bean>
 
-	<bean id="schedulerCaisi" class="org.springframework.scheduling.timer.TimerFactoryBean">
+	<bean id="scheduler" class="org.springframework.scheduling.timer.TimerFactoryBean">
 		<property name="scheduledTimerTasks">
 			<list>
 				<ref bean="scheduledBedProgramDischargeTask" />

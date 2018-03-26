@@ -36,25 +36,15 @@ import java.text.SimpleDateFormat;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
-import org.oscarehr.billing.CA.BC.dao.LogTeleplanTxDao;
-import org.oscarehr.billing.CA.BC.model.LogTeleplanTx;
-import org.oscarehr.common.dao.BillingDao;
-import org.oscarehr.common.model.Billing;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.OscarProperties;
-import oscar.entities.Billingmaster;
-import oscar.oscarBilling.ca.bc.data.BillingmasterDAO;
+import oscar.oscarDB.DBHandler;
 
 
 public class ExtractBean extends Object implements Serializable {
     private static Logger logger=MiscUtils.getLogger(); 
-    private LogTeleplanTxDao logTeleplanTxDao = SpringUtils.getBean(LogTeleplanTxDao.class);
-    private BillingDao billingDao = SpringUtils.getBean(BillingDao.class);
-    private BillingmasterDAO billingmasterDao =  SpringUtils.getBean(BillingmasterDAO.class);
 
-    
     private String ohipRecord;
     private String ohipClaim;
     private String ohipReciprocal;
@@ -273,7 +263,7 @@ public class ExtractBean extends Object implements Serializable {
                         logValue =  dataLine;
                         if (eFlag.equals("1")) setLog(logNo,logValue);
                         dFee = Double.parseDouble(rs2.getString("bill_amount"));
-                        bdFee = BigDecimal.valueOf(dFee).setScale(2, BigDecimal.ROUND_HALF_UP);
+                        bdFee = new BigDecimal(dFee).setScale(2, BigDecimal.ROUND_HALF_UP);
                         BigTotal = BigTotal.add(bdFee);
                         
                         if (invCount == 0) {                            
@@ -330,46 +320,69 @@ public class ExtractBean extends Object implements Serializable {
         
     }
     
-
-    public void setAsBilled(String newInvNo){
-        if (eFlag.equals("1")){
-      	  Billing b = billingDao.find(Integer.parseInt(newInvNo));
-      	  if(b != null) {
-      		  b.setStatus("B");
-      		  billingDao.merge(b);
-      	  }
+    
+    public void setAsBilled(String newInvNo){               
+        String query30 = "update billing set status='B' where billing_no='" + newInvNo + "'";               
+        try {            
+            
+        	DBHandler.RunSQL(query30);
         }
-      }
-
-      public void setAsBilledMaster(String newInvNo){
-        if (eFlag.equals("1")){
-      	  Billingmaster b = billingmasterDao.getBillingmaster(Integer.parseInt(newInvNo));
-      	  if(b != null) {
-      		  b.setBillingstatus("B");
-      		  billingmasterDao.update(b);
-      	  }
+        catch (SQLException e) {
+            MiscUtils.getLogger().error("Error", e);
         }
-      }
-
+    }
+    
+    public void setAsBilledMaster(String newInvNo){               
+        String query30 = "update billingmaster set billingstatus='B' where billingmaster_no='" + newInvNo + "'";               
+        try {            
+            
+        	DBHandler.RunSQL(query30);
+        }
+        catch (SQLException e) {
+            MiscUtils.getLogger().error("Error", e);
+        }
+    }
     
     public void setLog(String x, String logValue){
-        if (eFlag.equals("1")){
-      	  LogTeleplanTx l = this.logTeleplanTxDao.find(Integer.parseInt(x));
-      	  if(l != null) {
-      		  l.setClaim(logValue.getBytes());
-      		  logTeleplanTxDao.merge(l);
-      	  }
+        String nsql ="";
+        
+        nsql = "update log_teleplantx ";
+        nsql = nsql + " set claim='" +logValue + "' where log_no='" + x +"'";
+
+        try {
+            
+            
+        	DBHandler.RunSQL(nsql);
         }
-      }
+        catch (SQLException e) {
+            MiscUtils.getLogger().error("Error", e);
+        }
+    }
+    
     
     public String getSequence(){
-       LogTeleplanTx l = new LogTeleplanTx();
-       l.setClaim("New Log".getBytes());
-       logTeleplanTxDao.persist(l);
-       return l.getId().toString();      
-      }
-    
+        String n="0";
+        String nsql ="";
+        
+        nsql = "insert into log_teleplantx (log_no, claim)";
+        nsql = nsql + " values('\\N','" + "New Log" + "')";
+        try {            
+            
+        	DBHandler.RunSQL(nsql);
+            ResultSet  rs = DBHandler.GetSQL("SELECT LAST_INSERT_ID()");
 
+            if (rs.next()){
+                n = rs.getString(1);
+            }
+            rs.close();
+        }
+        catch (SQLException e) {
+            MiscUtils.getLogger().error("Error", e);
+        }
+
+        return n;
+    }
+    
     public void writeFile(String value1){                       
         try{
             String home_dir;

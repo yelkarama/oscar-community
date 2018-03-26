@@ -242,7 +242,7 @@ public class IntakeNode implements Serializable {
     /**
      * Return the unique identifier of this class
      *
-     *  generator-class="native" column="intake_node_id"
+     * @hibernate.id generator-class="native" column="intake_node_id"
      */
     public Integer getId() {
         return id;

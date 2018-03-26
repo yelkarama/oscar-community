@@ -22,28 +22,13 @@
     Toronto, Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_form" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_form");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%@page import="org.oscarehr.common.model.OcanStaffForm"%>
-<%@page import="org.oscarehr.common.model.Admission"%>
 <%@page import="org.oscarehr.common.model.Demographic"%>
+<%@page import="org.oscarehr.PMmodule.model.Program"%>
 <%@page import="org.oscarehr.PMmodule.web.OcanForm"%>
 <%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="org.oscarehr.util.SpringUtils"%>
-<%@page import="org.oscarehr.common.dao.AdmissionDao"%>
+<%@page import="org.oscarehr.PMmodule.dao.ProgramDao"%>
 <%@page import="org.oscarehr.PMmodule.model.ClientReferral"%>
 <%@page import="org.oscarehr.PMmodule.dao.ClientReferralDAO"%>
 <%@page import="java.util.List"%>
@@ -55,6 +40,7 @@
 
 
 <% FunctionalCentreAdmissionDao admissionDao = (FunctionalCentreAdmissionDao) SpringUtils.getBean("functionalCentreAdmissionDao");
+   ProgramDao ProgramDao = (ProgramDao) SpringUtils.getBean("programDao");
    String currentDemographicId= (String)request.getParameter("demographicId");
    String currentAdmissionId=(String)request.getParameter("admissionId");
    String programId = (String)request.getParameter("programId");
@@ -81,7 +67,7 @@
 		   ocanStaffForm.setReferralDate(ocanStaffForm2.getReferralDate());	 
 		   
 		   // The admission may have new discharge date as the client may be discharged from the program.
-		   ad = admissionDao.find(Integer.valueOf(ocanStaffForm2.getAdmissionId()));
+		   ad = admissionDao.find(ocanStaffForm2.getAdmissionId());
 		   if(ad!=null) {			    
 		   		ocanStaffForm.setDischargeDate(ad.getDischargeDate());
 		   }

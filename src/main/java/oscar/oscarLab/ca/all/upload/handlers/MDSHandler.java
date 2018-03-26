@@ -39,13 +39,11 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.Hl7TextInfoDao;
 import org.oscarehr.common.model.Hl7TextInfo;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.OscarAuditLogger;
 import org.oscarehr.util.SpringUtils;
 
 import oscar.oscarLab.ca.all.parsers.Factory;
 import oscar.oscarLab.ca.all.upload.MessageUploader;
-import oscar.oscarLab.ca.all.upload.RouteReportResults;
 import oscar.oscarLab.ca.all.util.Utilities;
 
 public class MDSHandler implements MessageHandler {
@@ -54,37 +52,24 @@ public class MDSHandler implements MessageHandler {
 	Hl7TextInfoDao hl7TextInfoDao = (Hl7TextInfoDao)SpringUtils.getBean("hl7TextInfoDao");
 	
 
-	public String parse(LoggedInInfo loggedInInfo, String serviceName, String fileName, int fileId, String ipAddr) {
+	public String parse(String serviceName, String fileName, int fileId) {
 
 		int i = 0;
-		RouteReportResults routeResults;
 		try {
 
 			StringBuilder audit = new StringBuilder();
 			ArrayList<String> messages = Utilities.separateMessages(fileName);
 			for (i = 0; i < messages.size(); i++) {
 				String msg = messages.get(i);
-				/*if(isDuplicate(loggedInInfo,msg)) {
+				if(isDuplicate(msg)) {
 					continue;
-				}*/
-				routeResults = new RouteReportResults();
-				String auditLine = MessageUploader.routeReport(loggedInInfo, serviceName, "MDS", msg, fileId, routeResults) + "\n";
-				
-				oscar.oscarLab.ca.all.parsers.MessageHandler msgHandler = Factory.getHandler(String.valueOf(routeResults.segmentId));
-				if( msgHandler == null ) {
-					MessageUploader.clean(fileId);
-					logger.error("Saved lab but could not parse base64 value");
-					return null;
 				}
-				
+				String auditLine = MessageUploader.routeReport(serviceName, "MDS", msg, fileId) + "\n";
 				audit.append(auditLine);
 
 			}
 			logger.info("Parsed OK");
 
-                        if( audit.length() == 0 ) {
-                            return ("success");
-                        }
 			return (audit.toString());
 
 		} catch (Exception e) {
@@ -95,7 +80,7 @@ public class MDSHandler implements MessageHandler {
 
 	}
 
-	private boolean isDuplicate(LoggedInInfo loggedInInfo,String msg) {
+	private boolean isDuplicate(String msg) {
 		//OLIS requirements - need to see if this is a duplicate
 		oscar.oscarLab.ca.all.parsers.MessageHandler h = Factory.getHandler("MDS", msg);
 		//if final		
@@ -104,15 +89,15 @@ public class MDSHandler implements MessageHandler {
 			
 			//do we have this?
 			List<Hl7TextInfo> dupResults = hl7TextInfoDao.searchByAccessionNumber(fullAcc);
-			
-                        if(!dupResults.isEmpty()) {
-                                //if(h.getHealthNum().equals(dupResult.getHealthNumber())) {
-                                OscarAuditLogger.getInstance().log(loggedInInfo, "Lab", "Skip", "Duplicate lab skipped - accession " + fullAcc + "\n" + msg);
-                                        return true;
-                                //}
-                        }
+			for(Hl7TextInfo dupResult:dupResults) {				
+				if(dupResult.getAccessionNumber().substring(5).equals(fullAcc)) {
+					//if(h.getHealthNum().equals(dupResult.getHealthNumber())) {
+					OscarAuditLogger.getInstance().log("Lab", "Skip", "Duplicate lab skipped - accession " + fullAcc + "\n" + msg);
+						return true;
+					//}
+				}
 				
-			
+			}		
 		}
 		return false;	
 	}

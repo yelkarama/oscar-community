@@ -24,7 +24,6 @@
 package org.oscarehr.PMmodule.model;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -38,7 +37,6 @@ public class SecUserRole implements Serializable {
     private String _providerNo;
     private boolean _active;
     private String orgCd;
-    private Date lastUpdateDate;
 
 
 
@@ -59,10 +57,13 @@ public class SecUserRole implements Serializable {
         initialize();
     }
 
-    protected void initialize () {
-    	//empty
-    }
+    protected void initialize () {}
 
+    /**
+     * @hibernate.property
+     *  column=role_name
+     * not-null=true
+     */
     public String getRoleName () {
         return this._roleName;
     }
@@ -76,6 +77,11 @@ public class SecUserRole implements Serializable {
         this.hashCode = Integer.MIN_VALUE;
     }
 
+    /**
+     * @hibernate.property
+     *  column=activeyn
+     * not-null=true
+     */
     public boolean getActive () {
         return this._active;
     }
@@ -89,6 +95,11 @@ public class SecUserRole implements Serializable {
         this.hashCode = Integer.MIN_VALUE;
     }
 
+    /**
+     * @hibernate.property
+     *  column=provider_no
+     * not-null=true
+     */
     public String getProviderNo () {
         return this._providerNo;
     }
@@ -178,14 +189,6 @@ public class SecUserRole implements Serializable {
 	public void setOrgCd(String orgCd) {
     	this.orgCd = orgCd;
     }
-
-	public Date getLastUpdateDate() {
-		return lastUpdateDate;
-	}
-
-	public void setLastUpdateDate(Date lastUpdateDate) {
-		this.lastUpdateDate = lastUpdateDate;
-	}
 
 
 }

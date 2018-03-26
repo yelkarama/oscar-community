@@ -23,9 +23,8 @@
     Ontario, Canada
 
 --%>
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
-<%@page import="org.oscarehr.myoscar.utils.MyOscarLoggedInInfo"%>
 <%@page import="org.oscarehr.util.LocaleUtils"%>
+<%@page import="org.oscarehr.phr.PHRAuthentication"%>
 <%@page import="org.oscarehr.phr.util.MyOscarUtils"%>
 <%@page import="org.apache.commons.lang.StringEscapeUtils"%>
 <%@page import="oscar.oscarRx.pageUtil.AllergyHelperBean"%>
@@ -37,24 +36,15 @@
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-   String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-   boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_allergy" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_allergy");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-<%
 	OscarProperties props = OscarProperties.getInstance();
-   	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-%>
 
+    if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
+    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
+%>
+<security:oscarSec roleName="<%=roleName$%>" objectName="_rx" rights="r"
+	reverse="<%=true%>">
+	<%response.sendRedirect("../noRights.html");%>
+</security:oscarSec>
 <logic:notPresent name="RxSessionBean" scope="session">
 	<logic:redirect href="error.html" />
 </logic:notPresent>
@@ -267,20 +257,20 @@ padding-right:6;
 				%>
 				</span>
 				<%
-                  	  if (MyOscarUtils.isMyOscarEnabled((String) session.getAttribute("user")))
+                  	  if (MyOscarUtils.isVisibleMyOscarSendButton())
                   	  {
-                  		  MyOscarLoggedInInfo myOscarLoggedInInfo=MyOscarLoggedInInfo.getLoggedInInfo(session);
-                  		  	boolean enabledMyOscarButton=MyOscarUtils.isMyOscarSendButtonEnabled(myOscarLoggedInInfo, Integer.valueOf(demoNo));
+							PHRAuthentication auth=MyOscarUtils.getPHRAuthentication(session);
+                  		  	boolean enabledMyOscarButton=MyOscarUtils.isMyOscarSendButtonEnabled(auth, Integer.valueOf(demoNo));
 							if (enabledMyOscarButton) 
 							{
 								%>
-									| <a href="send_allergies_to_myoscar_action.jsp?demographicId=<%=demoNo%>"><%=LocaleUtils.getMessage(request, "SendToPHR")%></a>
+									| <a href="send_allergies_to_myoscar_action.jsp?demographicId=<%=demoNo%>"><%=LocaleUtils.getMessage(request, "SendToMyOscar")%></a>
 								<%
 							}
 							else
 							{
 								%>
-									| <span style="color:grey;text-decoration:underline"><%=LocaleUtils.getMessage(request, "SendToPHR")%></span>
+									| <span style="color:grey;text-decoration:underline"><%=LocaleUtils.getMessage(request, "SendToMyOscar")%></span>
 								<%
 							}
                   	  }
@@ -326,7 +316,7 @@ padding-right:6;
 							int intSOR;
 
 								Integer demographicId=bean.getDemographicNo();
-								List<AllergyDisplay> displayAllergies=AllergyHelperBean.getAllergiesToDisplay(loggedInInfo, demographicId, request.getLocale());
+								List<AllergyDisplay> displayAllergies=AllergyHelperBean.getAllergiesToDisplay(demographicId, request.getLocale());
 								for (AllergyDisplay displayAllergy : displayAllergies)
 								{
 
@@ -398,7 +388,7 @@ boolean filterOut=false;
 											</td>
 										<td>
 									<%									
-									if (displayAllergy.getRemoteFacilityId()==null && securityManager.hasDeleteAccess("_allergies",roleName2$)) {
+									if (displayAllergy.getRemoteFacilityId()==null && securityManager.hasDeleteAccess("_allergies",roleName$)) {
 									%>
 									<a href="deleteAllergy.do?ID=<%= String.valueOf(displayAllergy.getId()) %>&demographicNo=<%=demoNo %>&action=<%=actionPath %>" onClick="return confirm('Are you sure you want to set the allergy <%=displayAllergy.getDescription() %> to <%=labelConfirmAction%>?');"><%=labelAction%></a>
 									<% } %>
@@ -415,7 +405,7 @@ boolean filterOut=false;
 				</table>
 				</td>
 			</tr>
-			<%if(securityManager.hasWriteAccess("_allergies",roleName2$)) {%>
+			<%if(securityManager.hasWriteAccess("_allergies",roleName$)) {%>
 			<tr> 
 				<td>
 				<div class="DivContentSectionHead"><bean:message
@@ -514,10 +504,6 @@ boolean filterOut=false;
 				<br>
 				<%
                         String sBack="SearchDrug.jsp";
-				
-						if("yes".equalsIgnoreCase(OscarProperties.getInstance().getProperty("RX3"))) {
-							sBack="SearchDrug3.jsp";
-						}
                       %> <input type=button class="ControlPushButton"
 					onclick="javascript:window.location.href='<%=sBack%>';"
 					value="Back to Search Drug" /></td>

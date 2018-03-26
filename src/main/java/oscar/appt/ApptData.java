@@ -31,7 +31,6 @@ public class ApptData {
 	String name;
 	String demographic_no;
 	String notes;
-	String reasonCode;
 	String reason;
 	String location;
 	String resources;
@@ -41,7 +40,6 @@ public class ApptData {
 	String status;
 	String createdatetime;
 	String creator;
-	String program;
 	String remarks;
 	String duration;
 	String chart_no;
@@ -259,22 +257,6 @@ public class ApptData {
 	public void setUrgency(String urgency) {
     	this.urgency = urgency;
     }
-
-	public String getReasonCode() {
-		return reasonCode;
-	}
-
-	public void setReasonCode(String reasonCode) {
-		this.reasonCode = reasonCode;
-	}
-
-	public String getProgram() {
-		return program;
-	}
-
-	public void setProgram(String program) {
-		this.program = program;
-	}
 	
 	
 }

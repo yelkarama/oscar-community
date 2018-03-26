@@ -24,21 +24,6 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin,_admin.consult" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../../securityError.jsp?type=_admin&type=_admin.consult");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
 <%@ page import="java.util.ResourceBundle"%>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
@@ -50,7 +35,7 @@ if(!authed) {
 <%
 displayServiceUtil.estSpecialistVector();
 String serviceId = (String) request.getAttribute("serviceId");
-String serviceDesc = displayServiceUtil.getServiceDesc(serviceId);
+String serviceDesc = (String) displayServiceUtil.getServiceDesc(serviceId);
 %>
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
@@ -128,13 +113,13 @@ function BackToOscar()
 							<td><!--<div class="ChooseRecipientsBox1">--> <%
                                  java.util.Vector  specialistInField = displayServiceUtil.getSpecialistInField(serviceId);
                                  for(int i=0;i < displayServiceUtil.specIdVec.size(); i++){
-                                 String  specId     = displayServiceUtil.specIdVec.elementAt(i);
-                                 String  fName      = displayServiceUtil.fNameVec.elementAt(i);
-                                 String  lName      = displayServiceUtil.lNameVec.elementAt(i);
-                                 String  proLetters = displayServiceUtil.proLettersVec.elementAt(i);
-                                 String  address    = displayServiceUtil.addressVec.elementAt(i);
-                                 String  phone      = displayServiceUtil.phoneVec.elementAt(i);
-                                 String  fax        = displayServiceUtil.faxVec.elementAt(i);
+                                 String  specId     = (String) displayServiceUtil.specIdVec.elementAt(i);
+                                 String  fName      = (String) displayServiceUtil.fNameVec.elementAt(i);
+                                 String  lName      = (String) displayServiceUtil.lNameVec.elementAt(i);
+                                 String  proLetters = (String) displayServiceUtil.proLettersVec.elementAt(i);
+                                 String  address    = (String) displayServiceUtil.addressVec.elementAt(i);
+                                 String  phone      = (String) displayServiceUtil.phoneVec.elementAt(i);
+                                 String  fax        = (String) displayServiceUtil.faxVec.elementAt(i);
 
                               %>
 							
@@ -146,7 +131,7 @@ function BackToOscar()
 							<%}%>
 							</td>
 							<td>
-							<% out.print(lName+" "+fName + (proLetters == null ? "" : " " + proLetters)); %>
+							<% out.print(lName+" "+fName+" "+proLetters); %>
 							</td>
 							<td><%=address %></td>
 							<td><%=phone%></td>

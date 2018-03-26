@@ -24,31 +24,40 @@
 
 --%>
 
-<%@ page import="java.math.*, java.util.*, java.io.*, java.sql.*, oscar.*, java.net.*,oscar.MyDateFormat"%>
+<%@ page
+	import="java.math.*, java.util.*, java.io.*, java.sql.*, oscar.*, java.net.*,oscar.MyDateFormat"%>
 
-<%@page import="org.oscarehr.common.model.CtlBillingService" %>
-<%@page import="org.oscarehr.common.dao.CtlBillingServiceDao" %>
-<%@page import="org.oscarehr.common.model.CtlDiagCode" %>
-<%@page import="org.oscarehr.common.dao.CtlDiagCodeDao" %>
-<%@page import="org.oscarehr.util.SpringUtils" %>
-
-
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean"
+	scope="session" />
+<%@ include file="dbBilling.jspf"%>
 <%
-	CtlBillingServiceDao billingServiceDao = SpringUtils.getBean(CtlBillingServiceDao.class);
-	CtlDiagCodeDao diagCodeDao = SpringUtils.getBean(CtlDiagCodeDao.class);
 
-	String typeid = request.getParameter("servicetype");
-	
-	for(CtlBillingService b : billingServiceDao.findByServiceType(typeid)) {
-		billingServiceDao.remove(b.getId());
-	}
-	
-	for(CtlDiagCode d: diagCodeDao.findByServiceType(typeid)) {
-		diagCodeDao.remove(d.getId());
-	}
+
+String group1="",group2="", group3="";
+String typeid = "", type="";
+
+typeid = request.getParameter("servicetype");
+
+
+             
+             
+
+
+	  int rowsAffected0 = apptMainBean.queryExecuteUpdate(typeid,"delete_ctlbillservice");	    
+		          	    	  
+		 	          
+		 	     
+		 	           
+	        int   recordAffected = apptMainBean.queryExecuteUpdate(typeid,"delete_ctldiagcode");
+	           
+	    
+	    
+
+
+
+
 %>
 <script LANGUAGE="JavaScript">
       self.close();
  	self.opener.refresh();
 </script>
-

@@ -24,23 +24,6 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_eChart" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../securityError.jsp?type=_eChart");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@ page import="oscar.oscarEncounter.immunization.data.*, oscar.util.*, oscar.oscarDemographic.data.*" %>
 <%@ page import="oscar.oscarEncounter.immunization.pageUtil.*, java.util.*, org.w3c.dom.*" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
@@ -63,7 +46,7 @@ String sex = "";
 String age = "";
 if( demoNo != null ) {
     DemographicData dData = new DemographicData();
-    org.oscarehr.common.model.Demographic demographic = dData.getDemographic(LoggedInInfo.getLoggedInInfoFromSession(request), demoNo);
+    org.oscarehr.common.model.Demographic demographic = dData.getDemographic(demoNo);
     last_name = demographic.getLastName();
     first_name = demographic.getFirstName();
     sex = demographic.getSex();

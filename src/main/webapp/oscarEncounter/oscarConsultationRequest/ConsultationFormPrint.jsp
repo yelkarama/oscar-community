@@ -24,23 +24,8 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_con" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../securityError.jsp?type=_con");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%! boolean bMultisites = org.oscarehr.common.IsPropertiesOn.isMultisitesEnable(); %>
+<%@ include file="/common/webAppContextAndSuperMgr.jsp"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic" %>
@@ -69,7 +54,7 @@ if(!authed) {
 
     oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctConsultationFormRequestUtil reqFrm;
     reqFrm = new oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctConsultationFormRequestUtil ();
-    reqFrm.estRequestFromId(LoggedInInfo.getLoggedInInfoFromSession(request), (String)request.getAttribute("reqId"));
+    reqFrm.estRequestFromId((String)request.getAttribute("reqId"));
 
 	String selectedSite = reqFrm.siteName;
 
@@ -180,7 +165,7 @@ if(!authed) {
 	        clinic.setClinic_fax(temp6[0]);
 	    } else {
 	    	//is letterhead different?
-	    	if(!reqFrm.letterheadName.equals(clinic.getClinicName())) {
+	    	if(!reqFrm.letterheadName.equals(clinic.getClinicName()) && !reqFrm.letterheadName.equals("-1")) {
 	    		Provider p = providerDao.getProvider(reqFrm.letterheadName);
 	    		if(p != null) {
 		    		//why, yes it is
@@ -343,7 +328,7 @@ if(!authed) {
                 <input type=button value="<bean:message key="oscarEncounter.oscarConsultationRequest.consultationFormPrint.msgPrint"/>" onclick="javascript: PrintWindow();"/>
             </td>
             <td align="center">
-                <input type="submit" style="width:130px" value="<bean:message key="oscarEncounter.oscarConsultationRequest.consultationFormPrint.msgPrintAttached"/>" />
+                <input type="submit" value="<bean:message key="oscarEncounter.oscarConsultationRequest.consultationFormPrint.msgPrintAttached"/>" />
             </td>
             <td align="center">
                 <input type=button value="<bean:message key="global.btnClose"/>" onclick="javascript: CloseWindow();"/>
@@ -406,10 +391,10 @@ if(!authed) {
                                 &nbsp;&nbsp;  <%-- blank column for spacing --%>
                             </td>
                             <td colspan="2" class="title4" id="clinicName">
-                            	<c:if test="${empty infirmaryView_programAddress}">                            	
+                            	<c:if test="${empty infirmaryView_programAddress}">
 	                                <b><%=clinic.getClinicName()%></b>
                                 </c:if>
-                            </td>	
+                            </td>
 <% if(vecAddressBillingNo != null) {%>
                             <td rowspan=3 align="right">
 		                    <table name="innerTable1" border="0" cellspacing="0">
@@ -462,14 +447,19 @@ if(!authed) {
             <tr>
                 <td align="center">
                     <bean:message key="oscarEncounter.oscarConsultationRequest.consultationFormPrint.msgConsReq"/>
-               	</td>
-            </tr>
-            <tr>
-            	<td align="center"> 
-            		<strong>        	
-            		<%= reqFrm.getAppointmentInstructionsLabel() %>
-            		</strong>
-            	</td>
+                    <br>
+                    <font size="-1">
+                        <b>
+                    <% if (bMultisites) {
+							out.print("Please reply");
+                    } else { %>
+                        <bean:message key="oscarEncounter.oscarConsultationRequest.consultationFormPrint.msgPleaseReplyPart1"/>
+               			<%=reqFrm.getClinicName()%>
+               		<% } %>
+                        <bean:message key="oscarEncounter.oscarConsultationRequest.consultationFormPrint.msgPleaseReplyPart2"/>
+                        </b>
+                    </font>
+                </td>
             </tr>
             <tr>
                 <td>
@@ -618,7 +608,7 @@ for(ConsultationRequestExt ext:exts) {
                                         <td class="fillLine">
                                 <%=reqFrm.patientSex %>
                                         </td>
-                                    </tr>                                         
+                                    </tr>                                    
                                     <tr>
                                         <td class="subTitles">
                                             <bean:message key="oscarEncounter.oscarConsultationRequest.consultationFormPrint.msgCard"/>
@@ -626,14 +616,22 @@ for(ConsultationRequestExt ext:exts) {
                                         <td class="fillLine">
                              (<%=reqFrm.patientHealthCardType%>)&nbsp;<%=reqFrm.patientHealthNum %>&nbsp;<%=reqFrm.patientHealthCardVersionCode%>&nbsp;
                                         </td>
-                                    </tr>                                                                           
+                                    </tr>
+                                    <tr>
+                                        <td class="subTitles">
+                                            <bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.formAppointmentNotes"/>:
+                                        </td>
+                                        <td class="fillLine">
+                                <%=reqFrm.appointmentNotes %>
+                                        </td>
+                                    </tr>                                     
                                     <tr>
                                         <td class="subTitles">
                                             <bean:message key="oscarEncounter.oscarConsultationRequest.consultationFormPrint.msgappDate"/>:
                                         </td>
                                         <td class="fillLine">
                             <%if (Integer.parseInt(reqFrm.status) > 2 ){%>
-                             <%=reqFrm.appointmentDate %>  (y/m/d)
+                             <%=reqFrm.appointmentYear %>/<%=reqFrm.appointmentMonth %>/<%=reqFrm.appointmentDay %>  (y/m/d)
                             <%}else{%>
                                             &nbsp;
                 			    <%}%>
@@ -656,7 +654,7 @@ for(ConsultationRequestExt ext:exts) {
                                             <bean:message key="oscarEncounter.oscarConsultationRequest.consultationFormPrint.msgChart"/>
                                         </td>
                                         <td class="fillLine">
-                                <%=reqFrm.patientChartNo == null || "null".equalsIgnoreCase(reqFrm.patientChartNo) ? "" : reqFrm.patientChartNo%>
+                                <%=reqFrm.patientChartNo%>
                                         </td>
                                     </tr>
                                 </table>
@@ -676,7 +674,7 @@ for(ConsultationRequestExt ext:exts) {
                     &nbsp;<br>
                 </td>
             </tr>
-            <% if(getlen(reqFrm.clinicalInformation) > 0) {%>
+            <% if(getlen(reqFrm.clinicalInformation) > 1) {%>
             <tr>
                 <td class="subTitles">
                     <bean:message key="oscarEncounter.oscarConsultationRequest.consultationFormPrint.msgClinicalInfom"/>:
@@ -688,7 +686,7 @@ for(ConsultationRequestExt ext:exts) {
                 </td>
             </tr>
             <%}%>
-            <% if(getlen(reqFrm.concurrentProblems) > 0) {%>
+            <% if(getlen(reqFrm.concurrentProblems) > 1) {%>
             <tr>
                 <td class="subTitles">
 	            <% if(props.getProperty("significantConcurrentProblemsTitle", "").length() > 1) {
@@ -742,7 +740,7 @@ for(ConsultationRequestExt ext:exts) {
 
 
 
-            <% if(getlen(reqFrm.currentMedications) > 0) {%>
+            <% if(getlen(reqFrm.currentMedications) > 1) {%>
             <tr>
                 <td class="subTitles">
 		            <% if(props.getProperty("currentMedicationsTitle", "").length() > 1) {
@@ -759,7 +757,7 @@ for(ConsultationRequestExt ext:exts) {
                 </td>
             </tr>
             <%}%>
-            <% if(getlen(reqFrm.allergies) > 0) {%>
+            <% if(getlen(reqFrm.allergies) > 1) {%>
             <tr>
                 <td class="subTitles">
                     <bean:message key="oscarEncounter.oscarConsultationRequest.consultationFormPrint.msgAllergies"/>
@@ -772,14 +770,12 @@ for(ConsultationRequestExt ext:exts) {
                 </td>
             </tr>
             <%}%>
-            
-	    <tr>		
-		<td class="subTitles">		
-		<bean:message key="oscarEncounter.oscarConsultationRequest.consultationFormPrint.msgAssociated"/> : <%=reqFrm.getFamilyDoctor() %>		
-		&nbsp;<br>		
-		</td>		
-	    </tr>           
-
+            <tr>
+                <td class="subTitles">
+                    <bean:message key="oscarEncounter.oscarConsultationRequest.consultationFormPrint.msgAssociated"/> : <%=reqFrm.getProviderName(reqFrm.providerNo) %>
+                    &nbsp;<br>
+                </td>
+            </tr>
             <tr>
             <td class="subTitles">
                 <%-- A more permanent, but I will not say elegant, implemenation of this "Physician indicator by a new property and other language support. --%>
@@ -791,11 +787,10 @@ for(ConsultationRequestExt ext:exts) {
 	   <% } else { %>
                 <bean:message key="oscarEncounter.oscarConsultationRequest.consultationFormPrint.msgFamilyDoc"/>
        <% } %>
-                : <%=reqFrm.getProviderName(reqFrm.providerNo) %>
+                : <%=reqFrm.getFamilyDoctor() %>
                         &nbsp;<br>
                     </td>
                 </tr>
-
                 <tr>
                     <td id="faxFooter">
 
@@ -845,7 +840,7 @@ public String wrap(String in,int len) {
 		return x + "\n" + wrap(in.substring(in.indexOf("\n") + 1), len);
 	}
 	int place=Math.max(Math.max(in.lastIndexOf(" ",len),in.lastIndexOf("\t",len)),in.lastIndexOf("-",len));
-	if( place <= 0 ) {
+	if( place == 0 ) {
 		place = len;
 	}
 	return in.substring(0,place).trim()+"\n"+wrap(in.substring(place),len);

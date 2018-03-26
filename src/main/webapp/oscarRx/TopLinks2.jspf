@@ -1,8 +1,3 @@
-<%@page import="java.io.StringWriter"%>
-<%@page import="org.codehaus.jackson.map.ObjectMapper"%>
-<%@page import="org.apache.commons.lang.StringEscapeUtils"%>
-<%@page import="net.sf.json.JSONObject"%>
-<%@page import="org.oscarehr.common.model.PharmacyInfo"%>
 <%@ page import="oscar.oscarRx.data.*,oscar.oscarProvider.data.ProviderMyOscarIdData,oscar.oscarDemographic.data.DemographicData,oscar.OscarProperties,oscar.log.*"%>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar" %>
 <%/*
@@ -47,61 +42,24 @@ function newWindow(url) {
 			
 <% 
 if (rx_enhance!=null && rx_enhance.equals("true")) { %>
+	<span class="ScreenTitle" >oscarRx</span>
                    --<b><bean:message key="SearchDrug.nameText" /></b> <jsp:getProperty name="patient" property="firstName" /> <jsp:getProperty name="patient" property="surname" /> &nbsp;
 		     <b><bean:message key="SearchDrug.ageText" /></b> <jsp:getProperty name="patient" property="age" />
                      <b>
                      <oscar:phrverification styleId="verificationLink" demographicNo="<%=Integer.toString(demoNo)%>"><bean:message key="phr.verification.link"/></oscar:phrverification> &nbsp;
-                     <a style="color:white; "href="SelectPharmacy2.jsp" onclick="return newWindow('SelectPharmacy2.jsp')"><bean:message key="SearchDrug.PreferedPharmacy"/></a>:</b> 
-                     <select id="Calcs" name="pharmacyId" onchange="populatePharmacy(this.options[this.selectedIndex].value);showpic('Layer1');"> 
-                    <%
-                    	if( pharmacyList != null ) {
-                    	    ObjectMapper mapper = new ObjectMapper();
-                    	    StringWriter jsonObject;
-	        				for( PharmacyInfo pharmacyInfo : pharmacyList ) {
-	        				    jsonObject = new StringWriter();
-	        					mapper.writeValue(jsonObject, pharmacyInfo);
-	        					
-	        						
-					%>
-								<option value='<%=jsonObject.toString().replaceAll("'", "")%>'><%=pharmacyInfo.getName() + " " + pharmacyInfo.getCity()%></option>
-					<%
-	        				}
-	       		 		}
-					%>
-				
-                    </select>                     
-                    
+                     <a style="color:white; "href="SelectPharmacy2.jsp" onclick="return newWindow('SelectPharmacy2.jsp')"><bean:message key="SearchDrug.PreferedPharmacy"/></a>:</b> <a  style="color:white;" href="javascript: function myFunction() {return false; }" onClick="showpic('Layer1');" id="Calcs" ><%=prefPharmacy%></a>
 <%}else {%>					
 					<b><bean:message key="SearchDrug.nameText" /></b> <jsp:getProperty name="patient" property="firstName" /> <jsp:getProperty name="patient" property="surname" />
 		     		<b><bean:message key="SearchDrug.ageText" /></b> <jsp:getProperty name="patient" property="age" />
-                    <b><a style="color:white; "href="SelectPharmacy2.jsp">Preferred Pharmacy</a>:</b>
-                    <select id="Calcs" name="pharmacyId" onchange="populatePharmacy(this.options[this.selectedIndex].value);showpic('Layer1');"> 
-                    <%
-                    	if( pharmacyList != null ) {
-                    	    ObjectMapper mapper = new ObjectMapper();
-                    	    StringWriter jsonObject;
-	        				for( PharmacyInfo pharmacyInfo : pharmacyList ) {
-	        					
-	        				    jsonObject = new StringWriter();
-	        					mapper.writeValue(jsonObject, pharmacyInfo);
-	        					
-	        						
-					%>
-								<option value='<%=jsonObject.toString().replaceAll("'", "")%>'><%=pharmacyInfo.getName() + " " + pharmacyInfo.getCity()%></option>
-					<%
-	        				}
-	       		 		}
-					%>
-                    </select>
-                    
+                    <b><a style="color:white; "href="SelectPharmacy2.jsp"><bean:message key="SearchDrug.PreferedPharmacy"/></a>:</b> <a  style="color:white;" href="javascript: function myFunction() {return false; }" onClick="showpic('Layer1');" id="Calcs" ><%=prefPharmacy%></a>
 <%} %>
                   
                     </td>
                     <td valign="top" align="right">
                         <span class="HelpAboutLogout" style="color:white;">
 							<a style="color:white;" href="javascript: popupFocusPage(200,700,'./drugrefInfo.jsp','Drugref Info');" >Drugref Info</a> |
-							<oscar:help keywords="&Title=Writing+Prescriptions&portal_type%3Alist=Document" key="app.top1" style="color:white;"/> |
-                            <a style="color:white;" href="<%=request.getContextPath()%>/oscarEncounter/About.jsp" target="_new"><bean:message key="global.about" /></a>
+							<oscar:help keywords="2.2.4" key="app.top1" style="color:white;"/> |
+                            <a style="color:white;" href="<%=request.getContextPath()%>/oscarEncounter/About.jsp" target="_new">About</a>
                             <!-- is this needed? 
                             <a style="color:white;" href="Disclaimer.htm">Disclaimer</a> 
                             -->

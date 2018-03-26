@@ -24,171 +24,167 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_report" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_report");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
+<%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
+<%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@page import="oscar.oscarSurveillance.*,java.util.*"%>
 
-<%@ include file="/taglibs.jsp"%>
-<c:set var="ctx" value="${pageContext.request.contextPath}"
-	scope="request" />
+
 
 <%
-	String surveyId = request.getParameter("surveyId");
-	SurveillanceMaster sMaster = SurveillanceMaster.getInstance();
-	Survey survey = sMaster.getSurveyById(surveyId);
+String surveyId = request.getParameter("surveyId");
+SurveillanceMaster sMaster = SurveillanceMaster.getInstance();
+Survey survey = sMaster.getSurveyById(surveyId);
 
-	ArrayList answerList = survey.getAnswerCount(surveyId);
-	ArrayList statusList = survey.getStatusCount(surveyId);
+ArrayList answerList = survey.getAnswerCount(surveyId);
+ArrayList statusList = survey.getStatusCount(surveyId);
 
-	SurveyInfo surveyInfo = new SurveyInfo();
+SurveyInfo surveyInfo = new SurveyInfo();
 
-	ArrayList fileList = surveyInfo.getFileNames(surveyId);
-	int total = 0;
+ArrayList fileList = surveyInfo.getFileNames(surveyId);
+int total = 0;
 %>
+
+<html:html locale="true">
+
+
+
 <head>
-<link href="/oscar/css/bootstrap.css" rel="stylesheet" type="text/css">
-<link href="/oscar/css/datepicker.css" rel="stylesheet" type="text/css">
-<link href="/oscar/css/DT_bootstrap.css" rel="stylesheet" type="text/css">
-<link href="/oscar/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
+<html:base />
+<title><bean:message key="oscarSurveillance.Surveillance.title" />
+</title>
+<link rel="stylesheet" type="text/css"
+	href="../share/css/OscarStandardLayout.css">
+
+
+
+<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
 </head>
-<div class="page-header">
-	<h4>
-		<bean:message key="oscarSurveillance.Surveillance.msgSurveillance" />
-	</h4>
-</div>
 
-
-<ul class="nav nav-pills">
-	<!--tab menus-->
-	<li class="active"><a data-toggle="tab" href="#ans-details">Files
-			<span class="badge badge-important"><%=survey.hasExport() ? fileList.size() + "" : ""%></span>
-	</a></li>
-	<li class=""><a data-toggle="tab" href="#qstn-details">Question
-			details</a></li>
-	<li class=""><a data-toggle="tab" href="#ans-details">Answer
-			details <span class="badge badge-important"><%=answerList.size()%></span>
-	</a></li>
-	<li class=""><a data-toggle="tab" href="#st-details">Status
-			details <span class="badge badge-important"><%=statusList.size()%></span>
-	</a></li>
-	<!--/tab menus-->
-</ul>
-
-<div class="tab-content">
-	<div class="tab-pane fade active in" id="file-details">
-		<%
-			if (survey.hasExport()) {
-		%>
-		<div class="pull-right">
-			<a
-				href="CreateSurveillanceFile.do?surveyId=<%=survey.getSurveyId()%>"
-				class="btn btn-primary contentLink">Create File</a>
-		</div>
-
-		<table class="table table-bordered table-striped table-hover">
-			<tbody>
-				<tr>
-
-					<%
-						for (int i = 0; i < fileList.size(); i++) {
-								String[] file = (String[]) fileList.get(i);
-					%>
-					<th><a
-						href="../Download?dir_property=surveillance_directory&filename=<%=file[0]%>"
-						target="_blank" title="<%=file[0]%> create on :<%=file[1]%>">
-							<%=file[0]%>
-					</a></th>
-					<%
-						}
-					%>
-				
-			</tbody>
+<body class="BodyStyle" vlink="#0000FF">
+<!--  -->
+<table class="MainTable" id="scrollNumber1" name="encounterTable">
+	<tr class="MainTableTopRow">
+		<td class="MainTableTopRowLeftColumn"><bean:message
+			key="oscarSurveillance.Surveillance.msgSurveillance" /></td>
+		<td class="MainTableTopRowRightColumn">
+		<table class="TopStatusBar">
+			<tr>
+				<td><%=survey.getSurveyTitle()%></td>
+				<td>&nbsp;</td>
+				<td style="text-align: right"><oscar:help keywords="survey" key="app.top1"/> | <a
+					href="javascript:popupStart(300,400,'About.jsp')"><bean:message
+					key="global.about" /></a> | <a
+					href="javascript:popupStart(300,400,'License.jsp')"><bean:message
+					key="global.license" /></a></td>
+			</tr>
 		</table>
-		<%
-			} else {
-		%>
-		<strong>No Export </strong>
-		<%
-			}
-		%>
-	</div>
-	<div class="tab-pane fade in" id="qstn-details">
-		<dl class="dl-horizontal">
-			<dt>Survey Question</dt>
-			<dd><%=survey.getSurveyQuestion()%></dd>
-			<dt>Randomness</dt>
-			<dd><%=survey.getRandomness()%></dd>
-			<dt>Period</dt>
-			<dd><%=survey.getPeriod()%></dd>
-		</dl>
-	</div>
-</div>
-
-<div class="tab-pane fade in" id="ans-details">
-
-	<table class="table table-bordered table-striped table-hover">
-		<thead>
+		</td>
+	</tr>
+	<tr>
+		<td class="MainTableLeftColumn" valign="top"><a
+			href="ReportSurveillance.jsp">Menu</a> <br />
+		<br />
+		&nbsp; <%if (survey.hasExport()){ %> <a
+			href="CreateSurveillanceFile.do?surveyId=<%=survey.getSurveyId()%>">Create
+		File</a> <br />
+		<br />
+		<%for (int i = 0; i < fileList.size(); i++){ 
+                   String[] file = (String[]) fileList.get(i);   %> <a
+			href="../Download?dir_property=surveillance_directory&filename=<%=file[0]%>"
+			target="_blank" title="<%=file[0]%> create on :<%=file[1]%>"> <%=file[0]%>
+		</a> </br>
+		<%}%> <%}else{%> No Export <%}%>
+		</td>
+		<td class="MainTableRightColumn">
+		<table>
 			<tr>
-				<th>Answer</th>
-				<th>Count</th>
-			</tr>
-		</thead>
-		<tbody>
-			<%
-				for (int i = 0; i < answerList.size(); i++) {
-					String[] s = (String[]) answerList.get(i);
-			%>
-			<tr>
-				<td><%=survey.getAnswerStringById(s[0])%></td>
-				<td><%=s[1]%></td>
-			</tr>
-			<%
-				}
-			%>
+				<td style="text-align: center">
+				<table>
+					<tr>
+						<td>Survey Question:</td>
+						<td><%=survey.getSurveyQuestion()%>
+					</tr>
+					<tr>
+						<td>Randomness:</td>
+						<td><%=survey.getRandomness()%>
+					</tr>
+					<tr>
+						<td>Period:</td>
+						<td><%=survey.getPeriod()%>
+					</tr>
+				</table>
+				<table>
+					<tr>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
 
-		</tbody>
-	</table>
-</div>
-<div class="tab-pane fade in" id="st-details">
+					</tr>
+					<tr>
+						<td colspan="2">
+						<table border=1>
+							<tr>
+								<td>Answer</td>
+								<td>&nbsp;</td>
+								<td>Count</td>
+							</tr>
+							<%for (int i = 0; i < answerList.size(); i++){ 
+                              String[] s = (String[]) answerList.get(i);   %>
+							<tr>
+								<td><%=survey.getAnswerStringById(s[0])%></td>
+								<td>&nbsp;</td>
+								<td><%=s[1]%></td>
+							</tr>
+							<%}%>
 
-	<table class="table table-bordered table-striped table-hover">
-		<thead>
-			<tr>
-				<th>Status</th>
-				<th>Value</th>
-			</tr>
-		</thead>
-		<tbody>
-			<%
-				for (int i = 0; i < statusList.size(); i++) {
-					String[] s = (String[]) statusList.get(i);
-					total += Integer.parseInt(s[1]);
-			%>
-			<tr>
-				<td><%=s[0]%></td>
-				<td><%=s[1]%></td>
-			</tr>
-			<%
-				}
-			%>
-			<tr>
-				<td>Total</td>
-				<td><%=total%></td>
-			</tr>
-		</tbody>
-	</table>
-</div>
+						</table>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="2">
+						<table border=1>
+							<tr>
+								<td>Status</td>
+								<td>&nbsp;</td>
+								<td>Value</td>
+							</tr>
+							<%for (int i = 0; i < statusList.size(); i++){ 
+                               String[] s = (String[]) statusList.get(i);   
+                               total += Integer.parseInt(s[1]);
+                          %>
+							<tr>
+								<td><%=s[0]%></td>
+								<td>&nbsp;</td>
+								<td><%=s[1]%></td>
+							</tr>
+							<%}%>
+							<tr>
+								<td>Total</td>
+								<td>&nbsp;</td>
+								<td><%=total%></td>
+							</tr>
+						</table>
+						</td>
+					</tr>
 
+				</table>
+				</td>
+			</tr>
+			<tr>
+				<td style="text-align: center">&nbsp;</td>
+			</tr>
+			<tr>
+				<td style="text-align: center">&nbsp;</td>
+			</tr>
+		</table>
+		</td>
+	</tr>
+	<tr>
+		<td class="MainTableBottomRowLeftColumn"></td>
+		<td class="MainTableBottomRowRightColumn"></td>
+	</tr>
+</table>
+</body>
+
+
+</html:html>

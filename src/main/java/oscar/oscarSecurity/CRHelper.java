@@ -140,7 +140,7 @@ public class CRHelper implements RolesProvider {
 				list.add(oscar.Misc.getString(rs,1));
 			}
 			return true;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			return false;
 		}
 	}

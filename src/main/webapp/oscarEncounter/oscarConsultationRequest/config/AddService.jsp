@@ -29,21 +29,6 @@
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin,_admin.consult" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../../securityError.jsp?type=_admin&type=_admin.consult");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
 <html:html locale="true">
 
 
@@ -59,18 +44,6 @@ if(!authed) {
 function BackToOscar()
 {
        window.close();
-}
-
-function checkServiceName()
-{
-        var service = document.forms[0].service;
-        if (service.value.trim()=="")
-        {
-                alert("<bean:message key="oscarEncounter.oscarConsultationRequest.config.AddService.serviceNameEmpty"/>");
-                service.focus();
-                return false;
-        }
-        else return true;
 }
 </script>
 
@@ -120,7 +93,7 @@ function checkServiceName()
 				<td>
 
 				<table>
-					<html:form action="/oscarEncounter/AddService" onsubmit="return checkServiceName();">
+					<html:form action="/oscarEncounter/AddService">
 						<tr>
 							<td><bean:message
 								key="oscarEncounter.oscarConsultationRequest.config.AddService.service" />

@@ -42,9 +42,6 @@ public class OLISAddToInboxAction extends DispatchAction {
 	@Override
 	public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		String providerNo=loggedInInfo.getLoggedInProviderNo();
-		
 		String uuidToAdd = request.getParameter("uuid");
 		String pFile = request.getParameter("file");
 		String pAck = request.getParameter("ack");
@@ -55,7 +52,7 @@ public class OLISAddToInboxAction extends DispatchAction {
 		if (pAck != null && pAck.equals("true")) {
 			doAck = true;
 		}
-		
+
 		String fileLocation = System.getProperty("java.io.tmpdir") + "/olis_" + uuidToAdd + ".response";
 		File file = new File(fileLocation);
 		OLISHL7Handler msgHandler = (OLISHL7Handler) HandlerClassFactory.getHandler("OLIS_HL7");
@@ -63,21 +60,22 @@ public class OLISAddToInboxAction extends DispatchAction {
 		InputStream is = null;
 		try {
 			is = new FileInputStream(fileLocation);
-			int check = FileUploadCheck.addFile(file.getName(), is, providerNo);
+			String provNo = LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo();
+			int check = FileUploadCheck.addFile(file.getName(), is, provNo);
 
 			if (check != FileUploadCheck.UNSUCCESSFUL_SAVE) {
-				if (msgHandler.parse(loggedInInfo, "OLIS_HL7", fileLocation, check, true) != null) {
+				if (msgHandler.parse("OLIS_HL7", fileLocation, check, true) != null) {
 					request.setAttribute("result", "Success");
 					if (doFile) {
 						ArrayList<String[]> labsToFile = new ArrayList<String[]>();
 						String item[] = new String[] { String.valueOf(msgHandler.getLastSegmentId()), "HL7" };
 						labsToFile.add(item);
-						CommonLabResultData.fileLabs(labsToFile, providerNo);
+						CommonLabResultData.fileLabs(labsToFile, provNo);
 					}
 					if (doAck) {
 						String demographicID = getDemographicIdFromLab("HL7", msgHandler.getLastSegmentId());
 						LogAction.addLog((String) request.getSession().getAttribute("user"), LogConst.ACK, LogConst.CON_HL7_LAB, "" + msgHandler.getLastSegmentId(), request.getRemoteAddr(), demographicID);
-						CommonLabResultData.updateReportStatus(msgHandler.getLastSegmentId(), providerNo, 'A', "comment", "HL7");
+						CommonLabResultData.updateReportStatus(msgHandler.getLastSegmentId(), provNo, 'A', "comment", "HL7");
 
 					}
 				} else {

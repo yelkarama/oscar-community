@@ -42,11 +42,10 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
+import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.DiagnosticCodeDao;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.DiagnosticCode;
-import org.oscarehr.managers.DemographicManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
@@ -466,8 +465,9 @@ public class ManageTeleplanAction extends DispatchAction {
            log.debug("checkElig");
            String demographicNo = request.getParameter("demographic");
            OscarProperties prop = OscarProperties.getInstance();
-           DemographicManager demographicManager = SpringUtils.getBean(DemographicManager.class);
-           Demographic demo = demographicManager.getDemographic(LoggedInInfo.getLoggedInInfoFromSession(request), demographicNo);
+           DemographicDao dDao = (DemographicDao) SpringUtils.getBean("demographicDao");
+           dDao.getDemographic(demographicNo);
+           Demographic demo = dDao.getDemographic(demographicNo);
 
            Date billingDate = new Date();
 

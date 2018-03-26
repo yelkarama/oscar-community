@@ -22,22 +22,6 @@
     Toronto, Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_pmm" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_pmm");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="org.oscarehr.util.MiscUtils"%><%@page import="org.oscarehr.common.model.Facility"%>
 <%@page import="org.oscarehr.PMmodule.web.ManageLinkedClientsAction"%><%@page import="org.oscarehr.common.model.Provider"%>
 <%@page import="java.util.Arrays"%>
@@ -49,7 +33,6 @@
 
 <%
 	int currentDemographicId=Integer.parseInt(request.getParameter("demographicId"));
-   	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 	Facility currentFacility=(Facility)request.getSession().getAttribute(SessionConstants.CURRENT_FACILITY);
 	ManageLinkedClientsAction manageLinkedClientsAction=new ManageLinkedClientsAction();
 
@@ -70,7 +53,7 @@
 	}
 
 	Provider provider=(Provider)session.getAttribute(SessionConstants.LOGGED_IN_PROVIDER);
-	manageLinkedClientsAction.saveLinkedIds(loggedInInfo, currentFacility, provider, currentDemographicId);
+	manageLinkedClientsAction.saveLinkedIds(currentFacility, provider, currentDemographicId);
 
 	response.sendRedirect("../ClientManager.do?id="+currentDemographicId);
 %>

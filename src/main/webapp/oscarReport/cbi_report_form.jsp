@@ -22,22 +22,6 @@
     Toronto, Ontario, Canada
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_report" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_report");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
 <%@page import="oscar.util.DateUtils"%>
 <%@page import="org.oscarehr.PMmodule.model.Program"%>
 <%@page import="org.oscarehr.PMmodule.service.ProgramManager"%>
@@ -56,16 +40,15 @@ if(!authed) {
 
 <%
 CBIUtil cbiUtil = new CBIUtil();
-LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-   		 
+
 List<Date> submissionDateList = cbiUtil.getSubmissionDateList();
 StringBuffer treeDataStr = cbiUtil.generateTree(submissionDateList);
 
 FunctionalCentreDao functionalCentreDao = (FunctionalCentreDao) SpringUtils.getBean("functionalCentreDao");
 ProviderManager2 providerManager = (ProviderManager2) SpringUtils.getBean("providerManager2");
 ProgramManager programManager = (ProgramManager) SpringUtils.getBean("programManager");
-
-List<FunctionalCentre> functionalCentres=functionalCentreDao.findInUseByFacility(loggedInInfo.getCurrentFacility().getId());
+LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+List<FunctionalCentre> functionalCentres=functionalCentreDao.findInUseByFacility(loggedInInfo.currentFacility.getId());
 %>
 
 <%@include file="/layouts/html_top.jspf"%>
@@ -206,7 +189,7 @@ List<FunctionalCentre> functionalCentres=functionalCentreDao.findInUseByFacility
 						<option value=""></option>
 					<%
 						// null for both active and inactive because the report might be for a provider who's just left in the current reporting period.
-						List<Provider> providers=providerManager.getProviders(loggedInInfo, null);
+						List<Provider> providers=providerManager.getProviders(null);
 					
 						for (Provider provider : providers)
 						{
@@ -224,7 +207,7 @@ List<FunctionalCentre> functionalCentres=functionalCentreDao.findInUseByFacility
 					<select multiple="multiple" name="programIds">
 						<option value=""></option>
 					<%
-						List<Program> programs=programManager.getPrograms(loggedInInfo.getCurrentFacility().getId());
+						List<Program> programs=programManager.getPrograms(loggedInInfo.currentFacility.getId());
 					
 						for (Program program : programs)
 						{

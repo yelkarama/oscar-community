@@ -36,27 +36,11 @@ Used to monitor:
 2. Status of mysql db connections
 3. Current db connections in the thread (with stack traces back to the relevant
 classes)
-Note: If a connection is opened independently of the spring dataSource,
+Note: If a connection is openened independently of the spring dataSource,
 then it will not show up in section #3. Will have to use sections #1 and #2 to
 detect those and search the source.
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_admin");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
    "http://www.w3.org/TR/html4/loose.dtd">
 
@@ -111,7 +95,7 @@ if(!authed) {
         <table border="1" style="border-collapse: collapse; border: 1px solid grey; font-size: 12px;">
             <tr>
                 <th>ConnID</th>
-                <th>User</th>
+                <th>Usre</th>
                 <th>Host</th>
                 <th>Database</th>
                 <th>Status</th>
@@ -136,7 +120,6 @@ if(!authed) {
 
     <h3>----- JVM Memory Monitor -----</h3>
         Free Memory: <%=String.valueOf(Runtime.getRuntime().freeMemory()/1000000)%> MB<br/>
-        Used Memory: <%=String.valueOf((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory())/1000000)%> MB<br/>
         Total Memory: <%=String.valueOf(Runtime.getRuntime().totalMemory()/1000000)%> MB<br/>
         Max Memory: <%=String.valueOf(Runtime.getRuntime().maxMemory()/1000000)%> MB  (Maximum memory JVM will attempt to use.)
 
@@ -191,8 +174,8 @@ if(!authed) {
 
     <h3>----- Thread Monitor -----</h3>
 
-	Thread Format: <%=VmStat.getThreadFormat() %><br />
-	Thread Info: <%=VmStat.getThreadInfo()%>
+	Thread Format: <%=VMStat.getThreadFormat() %><br />
+	Thread Info: <%=VMStat.getThreadInfo()%>
 
 	<br /><br />
 	<%
@@ -205,8 +188,7 @@ if(!authed) {
 				<a href="javascript: showDiv('threadStacktrace<%=i%>');">Show FULL Stacktrace</a><br/>
 				<div id="threadStacktrace<%=i%>" style="border: 1px solid grey; height: 70px; overflow: hidden;">
 				<%
-					Thread t=entry.getKey();
-					String key=StringEscapeUtils.escapeHtml(t.hashCode()+":"+t.toString()+":"+t.isDaemon()+":"+t.getName());
+					String key=StringEscapeUtils.escapeHtml(entry.getKey().hashCode()+":"+entry.getKey().toString());
 					String value=StringEscapeUtils.escapeHtml(Arrays.toString(entry.getValue())).replace(",", "<br />");
 				%>
 				<%=key%> : <%=value%>
@@ -268,25 +250,7 @@ if(!authed) {
                 <div id="sessionStacktrace<%=i%>" style="border: 1px solid grey; height: 70px; overflow: hidden;">
                 	<%
                 		org.hibernate.classic.Session hs=entry.getKey();
-                	
-                		Integer hashCode=null;
-                		Boolean isOpen=null;
-                		Boolean isConnected=null;
-                		Boolean isDirty=null;
-                		
-                		try
-                		{
-                			hashCode=hs.hashCode();
-                			isOpen=hs.isOpen();
-                			isConnected=hs.isConnected();
-                			isDirty=hs.isDirty();
-                		}
-                		catch (Exception e)
-                		{
-                			// it's okay during debugging, the session state is unstable
-                		}
-                		
-                		String key=StringEscapeUtils.escapeHtml(hashCode+"("+isOpen+","+isConnected+","+isDirty+")");
+                		String key=StringEscapeUtils.escapeHtml(hs.hashCode()+"("+hs.isOpen()+","+hs.isConnected()+","+hs.isDirty()+")");
                 		String value=StringEscapeUtils.escapeHtml(Arrays.toString(entry.getValue())).replace(",", "<br />");
                 	%>
                     <%=key%> : <%=value%>

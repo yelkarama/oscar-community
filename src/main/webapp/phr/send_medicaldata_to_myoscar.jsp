@@ -24,33 +24,11 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_phr" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_phr");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
-<%@page import="org.oscarehr.util.SpringUtils"%>
-<%@page import="org.oscarehr.managers.DemographicManager"%>
 <%@page import="org.oscarehr.common.service.myoscar.MyOscarMedicalDataManagerUtils"%>
 <%@page import="org.oscarehr.util.WebUtils"%>
 <%@page import="org.oscarehr.util.LocaleUtils"%>
 <%@page import="org.oscarehr.util.MiscUtils"%>
 <%
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-	DemographicManager demographicManager=(DemographicManager)SpringUtils.getBean("demographicManager");
-
 	String medicalDataType = request.getParameter("medicalDataType");
 	String parentPage = request.getParameter("parentPage");
 	String demographicNoString=request.getParameter("demographicId");
@@ -62,7 +40,7 @@
 
 	try
 	{
-		String verificationLevel = demographicManager.getPhrVerificationLevelByDemographicId(loggedInInfo, Integer.parseInt(demographicNoString));
+		String verificationLevel = MyOscarMedicalDataManagerUtils.getVerificationLevel(Integer.parseInt(demographicNoString));
 		
 		if ("+3".equals(verificationLevel)) {
 			response.sendRedirect(sendDataPath);
@@ -79,13 +57,13 @@
 <html>
 <head>
 	<title>
-		<%=LocaleUtils.getMessage(request, "ConfirmSending")%>&nbsp;<%=LocaleUtils.getMessage(request, medicalDataType)%>&nbsp;<%=LocaleUtils.getMessage(request, "ToPHR")%>
+		<%=LocaleUtils.getMessage(request, "ConfirmSending")%>&nbsp;<%=LocaleUtils.getMessage(request, medicalDataType)%>&nbsp;<%=LocaleUtils.getMessage(request, "ToMyOscar")%>
 	</title>
 </head>
 <body>
 	<p>
 	<h3><%=LocaleUtils.getMessage(request, "WarningNotLevel3")%></h3>
-	<h3><%=LocaleUtils.getMessage(request, "AreYouSureYouWantToSend")%>&nbsp;<%=LocaleUtils.getMessage(request, medicalDataType)%>&nbsp;<%=LocaleUtils.getMessage(request, "ToPHR")%>?</h3>
+	<h3><%=LocaleUtils.getMessage(request, "AreYouSureYouWantToSend")%>&nbsp;<%=LocaleUtils.getMessage(request, medicalDataType)%>&nbsp;<%=LocaleUtils.getMessage(request, "ToMyOscar")%>?</h3>
 	<p>
 	<input type="button" value="Yes" onclick="window.location.href='<%=sendDataPath%>'" />
 	<p>

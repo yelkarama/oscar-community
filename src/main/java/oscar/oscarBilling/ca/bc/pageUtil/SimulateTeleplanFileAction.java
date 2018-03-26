@@ -34,8 +34,7 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.oscarehr.managers.DemographicManager;
-import org.oscarehr.util.LoggedInInfo;
+import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.util.MiscUtils;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
@@ -63,25 +62,21 @@ public class SimulateTeleplanFileAction extends Action{
             ActionForm form,
             HttpServletRequest request,
             HttpServletResponse response) throws Exception{
+        String dataCenterId = OscarProperties.getInstance().getProperty("dataCenterId");
 
-    	String dataCenterId = OscarProperties.getInstance().getProperty("dataCenterId");
-
+        
         String provider = request.getParameter("provider");
         String providerBillingNo = request.getParameter("provider");
         if(provider != null && provider.equals("all")){
             providerBillingNo = "%";
         }
-        @SuppressWarnings("deprecation")
         ProviderData pd = new ProviderData();
-     
-        @SuppressWarnings("deprecation")
-        List<String> list = pd.getProviderListWithInsuranceNo(providerBillingNo);
+        List list = pd.getProviderListWithInsuranceNo(providerBillingNo);
 
-        @SuppressWarnings("deprecation")
         ProviderData[] pdArr = new ProviderData[list.size()];
 
         for (int i=0;i < list.size(); i++){
-            String provNo = list.get(i);
+            String provNo = (String) list.get(i);
             pdArr[i] = new ProviderData(provNo);
         }
         //This needs to be replaced for sim
@@ -91,21 +86,17 @@ public class SimulateTeleplanFileAction extends Action{
             try {
                 WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(request.getSession().getServletContext());
                 BillingmasterDAO billingmasterDAO = (BillingmasterDAO) ctx.getBean("BillingmasterDAO");
-                DemographicManager demographicManager =  ctx.getBean(DemographicManager.class);
+                DemographicDao demographicDao = (DemographicDao) ctx.getBean("demographicDao");
              
                 TeleplanFileWriter teleplanWr = new TeleplanFileWriter();
                 teleplanWr.setBillingmasterDAO(billingmasterDAO);
-                teleplanWr.setDemographicManager(demographicManager);
-                TeleplanSubmission submission = teleplanWr.getSubmission(LoggedInInfo.getLoggedInInfoFromSession(request), testRun, pdArr, dataCenterId);
-
-                //response.getWriter().print(submission.getHtmlFile());
-                request.setAttribute("TeleplanHtmlFile", submission.getHtmlFile());
-                
+                teleplanWr.setDemographicDao(demographicDao);
+                TeleplanSubmission submission = teleplanWr.getSubmission(testRun, pdArr, dataCenterId);
+                response.getWriter().print(submission.getHtmlFile());
             }catch(Exception e){
-                MiscUtils.getLogger().debug("Error: Teleplan Html File", e);
+                MiscUtils.getLogger().error("Error", e);
             }
         }
-        return mapping.findForward("success");
-        //return null;
+        return null;
     }
 }

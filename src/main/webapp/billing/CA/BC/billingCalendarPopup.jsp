@@ -38,12 +38,8 @@ Use returnForm and returnItem request params and this page will fill in that inp
 <%
   //to prepare calendar display  
   String type = request.getParameter("type");
-  if (type == null) {
-	  type = "";
-  }
-  
-  int year = request.getParameter("year") != null ? Integer.parseInt(request.getParameter("year")) : 0;
-  int month = request.getParameter("month") != null ? Integer.parseInt(request.getParameter("month")) : 0;
+  int year = Integer.parseInt(request.getParameter("year"));
+  int month = Integer.parseInt(request.getParameter("month"));
   String returnForm = request.getParameter("returnForm");
   if(returnForm == null){
     returnForm = "anyThing";

@@ -35,7 +35,27 @@ String service_form="", service_name="";
 <link rel="stylesheet" href="billing.css">
 
 <link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
+<script language="JavaScript">
+<!--
 
+function selectprovider(s) {
+  if(self.location.href.lastIndexOf("&providerview=") > 0 ) a = self.location.href.substring(0,self.location.href.lastIndexOf("&providerview="));
+  else a = self.location.href;
+	self.location.href = a + "&providerview=" +s.options[s.selectedIndex].value ;
+}
+
+function refresh() {
+  var u = self.location.href;
+  if(u.lastIndexOf("view=1") > 0) {
+    self.location.href = u.substring(0,u.lastIndexOf("view=1")) + "view=0" + u.substring(eval(u.lastIndexOf("view=1")+6));
+  } else {
+    history.go(0);
+  }
+}
+
+
+//-->
+</script>
 </head>
 
 <body leftmargin="0" topmargin="5" rightmargin="0">
@@ -57,7 +77,7 @@ String service_form="", service_name="";
 
 
 <pre>
-<%=request.getParameter("textfield")==null?"":request.getParameter("textfield").replaceAll("\r[^\n]|[^\r]\n]", "\r\n")%>
+<%=request.getParameter("textfield")==null?"":request.getParameter("textfield")%>
 </pre>
 
 <pre>
@@ -65,11 +85,11 @@ String service_form="", service_name="";
 String tmp1 = "";
 String tmp =request.getParameter("textfield1")==null?"":request.getParameter("textfield1");
 tmp1 = tmp;
-while (tmp1.length() > 80){
+while (tmp1.length() > 70){
 %>
-<%=tmp1.substring(0,80)%>
+<%=tmp1.substring(0,70)%>
 <%
-tmp1 = tmp1.substring(80);
+tmp1 = tmp1.substring(70);
 
 }
 

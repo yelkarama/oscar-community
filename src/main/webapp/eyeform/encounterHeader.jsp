@@ -29,25 +29,7 @@
  <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar" %>
  <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
  <%@ page import="oscar.oscarEncounter.data.*, oscar.oscarProvider.data.*, oscar.util.UtilDateUtilities" %>
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_eChart" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_eChart");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-
-<%@page import="oscar.OscarProperties"%>
-<%@page import="org.oscarehr.common.model.Appointment"%>
+<%@ taglib uri="/WEB-INF/security.tld" prefix="security" %>
 <%
     oscar.oscarEncounter.pageUtil.EctSessionBean bean = null;
     if((bean=(oscar.oscarEncounter.pageUtil.EctSessionBean)request.getSession().getAttribute("EctSessionBean"))==null) {
@@ -56,7 +38,7 @@ if(!authed) {
     }
 
     String demoNo = bean.demographicNo;
-    EctPatientData.Patient pd = new EctPatientData().getPatient(LoggedInInfo.getLoggedInInfoFromSession(request) , demoNo);
+    EctPatientData.Patient pd = new EctPatientData().getPatient(demoNo);
     String famDocName, famDocSurname, famDocColour, inverseUserColour, userColour;
     String user = (String) session.getAttribute("user");
     ProviderColourUpdater colourUpdater = new ProviderColourUpdater(user);
@@ -105,9 +87,12 @@ if(!authed) {
 	String apptNo = request.getParameter("appointmentNo");
 	String reason = new String();
 	if(apptNo != null && apptNo.length()>0) {
-		org.oscarehr.common.dao.OscarAppointmentDao appointmentDao = (org.oscarehr.common.dao.OscarAppointmentDao)org.oscarehr.util.SpringUtils.getBean("oscarAppointmentDao");
-		Appointment appt = appointmentDao.find(Integer.valueOf(apptNo));
-		reason = appt.getReason();		
+		oscar.dao.AppointmentDao appointmentDao = (oscar.dao.AppointmentDao)org.oscarehr.util.SpringUtils.getBean("appointmentSuperDao");
+		java.util.List<java.util.Map<String,Object>> result = appointmentDao.executeSelectQuery("search", new Object[] {apptNo});
+		if(result.size()>0) {
+			java.util.Map mresult = result.get(0);
+			reason = (String)mresult.get("reason");
+		}
 	}
     %>
 
@@ -119,19 +104,8 @@ if(!authed) {
             String url = "/demographic/demographiccontrol.jsp?demographic_no=" + bean.demographicNo + "&amp;displaymode=edit&amp;dboperation=search_detail";
         %>
         <span style="font-weight:bold;">
-        	<a href="#" onClick="popupPage(700,1000,'<%=winName%>','<c:out value="${ctx}"/><%=url%>'); return false;" title="<bean:message key="provider.appointmentProviderAdminDay.msgMasterFile"/>"><%=bean.patientLastName %>, <%=bean.patientFirstName%></a> <%=bean.patientSex%> <%=bean.patientAge%> DOB: <%=bean.yearOfBirth%>-<%=bean.monthOfBirth%>-<%=bean.dateOfBirth%>
+        	<a href="#" onClick="popupPage(700,1000,'<%=winName%>','<c:out value="${ctx}"/><%=url%>'); return false;" title="<bean:message key="provider.appointmentProviderAdminDay.msgMasterFile"/>"><%=bean.patientLastName %>, <%=bean.patientFirstName%></a> <%=bean.patientSex%> <%=bean.patientAge%>
        	</span>  
-	<%
-		if(OscarProperties.getInstance().getBooleanProperty("SHOW_ROSTER_STATUS_ON_ECHART_AND_SCHEDULER","yes")){
-			String roster_status = "";
-			roster_status = pd.getRosterStatus();
-			if(null != roster_status && roster_status.contains("RO")){
-	%>
-	<%=pd.getRosterStatus()%>:&nbsp;
-	<%
-		}
-	}
-	%>
 	<bean:message key="oscarEncounter.Index.msgMRP"/>:&nbsp;<span style="font-weight:bold;"><%=famDocName%> <%=famDocSurname%></span> 
 	REF:&nbsp;<span style="font-weight:bold;"><%=rd%></span>  
  	REASON:&nbsp;<span style="font-weight:bold;"><%=reason%></span>

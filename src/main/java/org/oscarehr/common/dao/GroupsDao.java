@@ -25,10 +25,6 @@
 
 package org.oscarehr.common.dao;
 
-import java.util.List;
-
-import javax.persistence.Query;
-
 import org.oscarehr.common.model.Groups;
 import org.springframework.stereotype.Repository;
 
@@ -38,15 +34,4 @@ public class GroupsDao extends AbstractDao<Groups>{
 	public GroupsDao() {
 		super(Groups.class);
 	}
-
-	@SuppressWarnings("unchecked")
-    public List<Groups> findByParentId(int groupId) {
-		Query query = createQuery("g", "g.parentId = :id");
-		query.setParameter("id", groupId);
-		return query.getResultList();
-    }
-	
-	
-	
-	
 }

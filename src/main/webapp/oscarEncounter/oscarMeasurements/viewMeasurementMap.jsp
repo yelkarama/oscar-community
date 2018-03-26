@@ -24,22 +24,6 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin.measurements" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../securityError.jsp?type=_admin.measurements");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
@@ -191,10 +175,10 @@ window.onload = stripe;
 	<tr>
 		<td valign="top">
 
-		<table>
+		<table >
 			<tr>
                                 <th valign="bottom" class="Header">MEAS</th>
-								<th valign="bottom" class="Header">Loinc Code</th>
+				<th valign="bottom" class="Header">Loinc Code</th>
                                 <th valign="bottom" class="Header">Desc</th>
                                 <th valign="bottom" class="Header">--</th>
                                 <%
@@ -249,20 +233,16 @@ window.onload = stripe;
                         <%
                         odd = !odd;
                         }%>
-					</tbody>
+
                         <tfoot>
                             <tr>
-                                <td colspan="<%=4+types.size()%>" style="background-color:black;color:white" align="center"> Unmapped Codes</td>
+                                <td colspan="<%=4+types.size()%>" style="background-color:black;color:white"align="center"> Unmapped Codes</td>
                             </tr>
                             <tr>
                                 <td colspan="4">&nbsp;</td>
                                 <%for(String type:types){%>
-                                
-                                <td valign="top" style="border: 1px solid black;">
-                                
-                                <h4 class="Header" style="text-align:center"><%=type%></h4>
+                                <td class="Cell" >
                                     <ul>
-                                    <li>test</li>
                                     <%
                                     ArrayList<Hashtable<String,Object>> unList = map.getUnmappedMeasurements(type);
                                     for (Hashtable<String,Object> h:unList){
@@ -274,6 +254,9 @@ window.onload = stripe;
                                 <%}%>
                             </tr>
                         </tfoot>
+
+                        </tbody>
+
 		</table>
 
 		</td>

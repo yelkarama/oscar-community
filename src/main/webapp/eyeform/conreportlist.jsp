@@ -24,36 +24,7 @@
 
 --%>
 
-<%@page import="org.oscarehr.PMmodule.dao.ProviderDao"%>
-<%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
-<%@page import="java.util.ArrayList"%>
-<%@page import="org.oscarehr.PMmodule.dao.ProgramDao"%>
-<%@page import="org.oscarehr.PMmodule.model.Program"%>
-<%@page import="oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctConsultationFormRequestUtil"%>
-<%@page import="oscar.OscarProperties"%>
-<%@page import="oscar.oscarRx.data.RxProviderData"%>
-<%@page import="oscar.oscarRx.data.RxProviderData.Provider"%>
-<%@page import="oscar.oscarClinic.ClinicData"%>
-<%@page import="org.oscarehr.common.model.Site"%>
-<%@page import="java.util.List"%>
-<%@page import="org.oscarehr.util.SpringUtils"%>
-<%@page import="org.oscarehr.common.dao.SiteDao"%>
 <%@ include file="/taglibs.jsp"%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_con" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_con");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
 
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
@@ -144,7 +115,7 @@ function doSubmit() {
 </script>
 </head>
 
-<body onload="setLetterhead();">
+<body>
 
 <html:form action="/eyeform/ConsultationReportList">
 	<input type="hidden" name="method" value="list"/>
@@ -168,8 +139,13 @@ function doSubmit() {
 				<html:option value="Completed,not sent">Completed,not sent</html:option>
 				<html:option value="Completed,and sent">Completed,and sent</html:option>
 			</html:select></td>
+			<td>Internal Doctor:</td>
+			<td><html:select property="cr.providerNo">
+				<html:option value="">All</html:option>
+				<html:optionsCollection property="cr.providerList" label="formattedName" value="providerNo"/>
+			</html:select></td>
 			<td>Demographic:</td>
-			<td style="float: left;" colspan="2">
+			<td>
 			<%
 				String dmname = (String)request.getAttribute("dmname");
 				if(dmname==null) {
@@ -179,9 +155,9 @@ function doSubmit() {
 					}
 				}
 			%>
-				<input style="float: left; width: 140px;" type="text" name="dmname" disabled="disabled" value="<%=dmname%>"/>
-	  			<input style="float: left;" type="button" value="Clear" onclick="clear_demographic();"/>
-	  			<input style="float: left;  vertical-align: top; width: 140px;" width="140px" type="button" value="Search Demographic" onclick="search_demographic();"/>
+			<input type="text" name="dmname" disabled="disabled" value="<%=dmname%>"/>
+  			<input type="button" value="Clear" onclick="clear_demographic();"/>
+  			<input type="button" value="Search Demographic" onclick="search_demographic();"/>
   			</td>
 		</tr>
 		<tr>
@@ -199,18 +175,10 @@ function doSubmit() {
 				Calendar.setup({ inputField : "sdate", ifFormat : "%Y-%m-%d", showsTime :false, button : "sdate_cal", singleClick : true, step : 1 });
 				Calendar.setup({ inputField : "edate", ifFormat : "%Y-%m-%d", showsTime :false, button : "edate_cal", singleClick : true, step : 1 });
 	   </script>
-	
-		</tr>
-		<tr>
-		<%if(bMultisites){ %>		
-		<%@include file="conreportlist_multisite.jsp" %>
-		<%} %>		
-		<td>Internal Doctor:</td>
-		<td colspan="1"><html:select property="cr.providerNo">
-			<html:option value="">All</html:option>
-			<html:optionsCollection property="cr.providerList" label="formattedName" value="providerNo"/>
-		</html:select></td>
-		<td colspan="1">
+	<td></td>
+
+			<td>
+
 			<html:submit onclick="return doSubmit();">List Consultation Reports</html:submit>
 
 			</td>
@@ -225,7 +193,7 @@ function doSubmit() {
 	</c:if>
 
 
-	<display:table name="conReportList" requestURI="/eyeform/ConsultationReportList.do" defaultsort="2" sort="list" defaultorder="descending"
+	<display:table name="conReportList" requestURI="/eyeform/conreportlist.jsp" defaultsort="2" sort="list" defaultorder="descending"
 		id="conreport" pagesize="15">
 
 		<c:url var="thisURL" value="/eyeform/Eyeform.do">

@@ -41,17 +41,21 @@ public final class EctConsultationFormRequestForm extends ActionForm {
 
 	String allergies;
 
-	String appointmentDate;
+	String appointmentDay;
 
 	String appointmentHour;
 
 	String appointmentMinute;
+
+	String appointmentMonth;
 
 	String appointmentNotes;
 
 	String appointmentPm;
 
 	String appointmentTime;
+
+	String appointmentYear;
 
 	String clinicalInformation;
 
@@ -96,7 +100,6 @@ public final class EctConsultationFormRequestForm extends ActionForm {
 	private String patientAddress;
 	private String patientPhone;
 	private String patientWPhone;
-        private String patientEmail;
 	private String patientDOB;
 	private String patientSex;
 	private String patientHealthNum;
@@ -112,12 +115,6 @@ public final class EctConsultationFormRequestForm extends ActionForm {
 	private Integer hl7TextMessageId;
 
 	private String letterheadName, letterheadAddress, letterheadPhone, letterheadFax;
-	
-	private Integer fdid;
-	private String source;
-	
-	private String appointmentInstructions;
-	private String appointmentInstructionsLabel;
 	
 	public String getProfessionalSpecialistName() {
 		return (StringUtils.trimToEmpty(professionalSpecialistName));
@@ -171,8 +168,8 @@ public final class EctConsultationFormRequestForm extends ActionForm {
 		return (StringUtils.trimToEmpty(allergies));
 	}
 
-	public String getAppointmentDate() {
-		return (StringUtils.trimToEmpty(appointmentDate));
+	public String getAppointmentDay() {
+		return (StringUtils.trimToEmpty(appointmentDay));
 	}
 
 	public String getAppointmentHour() {
@@ -181,6 +178,10 @@ public final class EctConsultationFormRequestForm extends ActionForm {
 
 	public String getAppointmentMinute() {
 		return (StringUtils.trimToEmpty(appointmentMinute));
+	}
+
+	public String getAppointmentMonth() {
+		return (StringUtils.trimToEmpty(appointmentMonth));
 	}
 
 	public String getAppointmentNotes() {
@@ -193,6 +194,10 @@ public final class EctConsultationFormRequestForm extends ActionForm {
 
 	public String getAppointmentTime() {
 		return (StringUtils.trimToEmpty(appointmentTime));
+	}
+
+	public String getAppointmentYear() {
+		return (StringUtils.trimToEmpty(appointmentYear));
 	}
 
 	public String getClinicalInformation() {
@@ -259,13 +264,16 @@ public final class EctConsultationFormRequestForm extends ActionForm {
 		return (StringUtils.trimToEmpty(urgency));
 	}
 
+	@Override
+	public void reset(ActionMapping mapping, HttpServletRequest request) {
+	}
 
 	public void setAllergies(String str) {
 		allergies = str;
 	}
 
-	public void setAppointmentDate(String str) {
-		appointmentDate = str;
+	public void setAppointmentDay(String str) {
+		appointmentDay = str;
 	}
 
 	public void setAppointmentHour(String str) {
@@ -274,6 +282,10 @@ public final class EctConsultationFormRequestForm extends ActionForm {
 
 	public void setAppointmentMinute(String str) {
 		appointmentMinute = str;
+	}
+
+	public void setAppointmentMonth(String str) {
+		appointmentMonth = str;
 	}
 
 	public void setAppointmentNotes(String str) {
@@ -286,6 +298,10 @@ public final class EctConsultationFormRequestForm extends ActionForm {
 
 	public void setAppointmentTime(String str) {
 		appointmentTime = str;
+	}
+
+	public void setAppointmentYear(String str) {
+		appointmentYear = str;
 	}
 
 	public void setClinicalInformation(String str) {
@@ -420,14 +436,6 @@ public final class EctConsultationFormRequestForm extends ActionForm {
 		this.patientWPhone = patientWPhone;
 	}
 
-        public void setPatientEmail(String patientEmail) {
-            this.patientEmail = patientEmail;
-        }
-        
-        public String getPatientEmail() {
-            return (StringUtils.trimToEmpty(patientEmail));
-        }
-        
 	public String getPatientDOB() {
 		return (StringUtils.trimToEmpty(patientDOB));
 	}
@@ -581,38 +589,6 @@ public final class EctConsultationFormRequestForm extends ActionForm {
 	public void setLetterheadFax(String letterheadFax) {
 	    this.letterheadFax = letterheadFax;
     }
-
-	public Integer getFdid() {
-		return fdid;
-	}
-
-	public void setFdid(Integer fdid) {
-		this.fdid = fdid;
-	}
-
-	public String getSource() {
-		return source;
-	}
-
-	public void setSource(String source) {
-		this.source = source;
-	}
-	
-	public String getAppointmentInstructions() {
-		return appointmentInstructions;
-	}
-
-	public void setAppointmentInstructions(String appointmentInstructions) {
-		this.appointmentInstructions = appointmentInstructions;
-	}
-
-	public String getAppointmentInstructionsLabel() {
-		return appointmentInstructionsLabel;
-	}
-
-	public void setAppointmentInstructionsLabel(String appointmentInstructionsLabel) {
-		this.appointmentInstructionsLabel = appointmentInstructionsLabel;
-	}
-
+  
 
 }

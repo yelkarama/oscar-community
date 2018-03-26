@@ -22,22 +22,6 @@
     Toronto, Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed2=true;
-%>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_pmm" rights="w" reverse="<%=true%>">
-	<%authed2=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_pmm");%>
-</security:oscarSec>
-<%
-	if(!authed2) {
-		return;
-	}
-%>
-
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="org.oscarehr.PMmodule.web.ManageLinkedClients.LinkedDemographicHolder"%>
 <%@page import="org.oscarehr.util.SpringUtils"%>
 <%@page import="org.oscarehr.common.dao.DemographicDao"%>
@@ -47,13 +31,12 @@
 <%@include file="/layouts/caisi_html_top2.jspf"%>
 
 <%
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 	DemographicDao demographicDao=(DemographicDao)SpringUtils.getBean("demographicDao");
 
 	int currentDemographicId=Integer.parseInt(request.getParameter("demographicId"));
 	
 	Demographic demographic=demographicDao.getDemographicById(currentDemographicId);
-	ArrayList<ManageLinkedClients.LinkedDemographicHolder> demographicsToDisplay=ManageLinkedClients.getDemographicsToDisplay(loggedInInfo, loggedInInfo.getCurrentFacility(), currentDemographicId);
+	ArrayList<ManageLinkedClients.LinkedDemographicHolder> demographicsToDisplay=ManageLinkedClients.getDemographicsToDisplay(currentDemographicId);
 %>
 
 <h3>Manage Linked Clients</h3>

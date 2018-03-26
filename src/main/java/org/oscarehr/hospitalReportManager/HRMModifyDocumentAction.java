@@ -29,7 +29,6 @@ import org.oscarehr.hospitalReportManager.model.HRMDocumentComment;
 import org.oscarehr.hospitalReportManager.model.HRMDocumentSubClass;
 import org.oscarehr.hospitalReportManager.model.HRMDocumentToDemographic;
 import org.oscarehr.hospitalReportManager.model.HRMDocumentToProvider;
-import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
@@ -41,15 +40,10 @@ public class HRMModifyDocumentAction extends DispatchAction {
 	HRMDocumentToProviderDao hrmDocumentToProviderDao = (HRMDocumentToProviderDao) SpringUtils.getBean("HRMDocumentToProviderDao");
 	HRMDocumentSubClassDao hrmDocumentSubClassDao = (HRMDocumentSubClassDao) SpringUtils.getBean("HRMDocumentSubClassDao");
 	HRMDocumentCommentDao hrmDocumentCommentDao = (HRMDocumentCommentDao) SpringUtils.getBean("HRMDocumentCommentDao");
-	 private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	 
+
 	public ActionForward undefined(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		String method = request.getParameter("method");
 
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_hrm", "w", null)) {
-        	throw new SecurityException("missing required security object (_hrm)");
-        }
-		
 		if (method != null) {
 			if (method.equalsIgnoreCase("makeIndependent"))
 				return makeIndependent(mapping, form, request, response);
@@ -69,8 +63,6 @@ public class HRMModifyDocumentAction extends DispatchAction {
 				return addComment(mapping, form, request, response);
 			else if (method.equalsIgnoreCase("deleteComment"))
 				return deleteComment(mapping, form, request, response);
-			else if (method.equalsIgnoreCase("setDescription"))
-				return setDescription(mapping, form, request, response);
 		}
 
 		return mapping.findForward("ajax");
@@ -79,10 +71,6 @@ public class HRMModifyDocumentAction extends DispatchAction {
 	public ActionForward makeIndependent(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		String reportId = request.getParameter("reportId");
 
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_hrm", "w", null)) {
-        	throw new SecurityException("missing required security object (_hrm)");
-        }
-		
 		try {
 			HRMDocument document = hrmDocumentDao.find(Integer.parseInt(reportId));
 			if (document.getParentReport() != null) {
@@ -115,25 +103,12 @@ public class HRMModifyDocumentAction extends DispatchAction {
 
 	public ActionForward signOff(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		String reportId = request.getParameter("reportId");
-
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_hrm", "w", null)) {
-        	throw new SecurityException("missing required security object (_hrm)");
-        }
-		
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		String providerNo=loggedInInfo.getLoggedInProviderNo();
+		String providerNo = LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo();
 
 		try {
 			String signedOff = request.getParameter("signedOff");
 			HRMDocumentToProvider providerMapping = hrmDocumentToProviderDao.findByHrmDocumentIdAndProviderNo(reportId, providerNo);
-			if(providerMapping == null) {
-				//check for unclaimed record, if that exists..update that one
-				providerMapping = hrmDocumentToProviderDao.findByHrmDocumentIdAndProviderNo(reportId, "-1");
-				if(providerMapping != null) {
-					providerMapping.setProviderNo(providerNo);
-				}
-			}
-			
+
 			if (providerMapping != null) {
 				providerMapping.setSignedOff(Integer.parseInt(signedOff));
 				providerMapping.setSignedOffTimestamp(new Date());
@@ -161,11 +136,6 @@ public class HRMModifyDocumentAction extends DispatchAction {
 	public ActionForward assignProvider(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		String hrmDocumentId = request.getParameter("reportId");
 		String providerNo = request.getParameter("providerNo");
-		
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_hrm", "w", null)) {
-        	throw new SecurityException("missing required security object (_hrm)");
-        }
-		
 
 		try {
 			HRMDocumentToProvider providerMapping = new HRMDocumentToProvider();
@@ -176,13 +146,6 @@ public class HRMModifyDocumentAction extends DispatchAction {
 
 			hrmDocumentToProviderDao.merge(providerMapping);
 
-			
-			//we want to remove any unmatched entries when we do a manual match like this. -1 means unclaimed in this table.
-			HRMDocumentToProvider existingUnmatched = hrmDocumentToProviderDao.findByHrmDocumentIdAndProviderNo(hrmDocumentId, "-1");
-			if(existingUnmatched != null) {
-				hrmDocumentToProviderDao.remove(existingUnmatched.getId());
-			}
-			
 			request.setAttribute("success", true);
 		} catch (Exception e) {
 			MiscUtils.getLogger().error("Tried to assign HRM document to provider but failed.", e); 
@@ -195,10 +158,6 @@ public class HRMModifyDocumentAction extends DispatchAction {
 	public ActionForward removeDemographic(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		String hrmDocumentId = request.getParameter("reportId");
 
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_hrm", "w", null)) {
-        	throw new SecurityException("missing required security object (_hrm)");
-        }
-		
 		try {
 			List<HRMDocumentToDemographic> currentMappingList = hrmDocumentToDemographicDao.findByHrmDocumentId(hrmDocumentId);
 
@@ -222,10 +181,6 @@ public class HRMModifyDocumentAction extends DispatchAction {
 		String hrmDocumentId = request.getParameter("reportId");
 		String demographicNo = request.getParameter("demographicNo");
 
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_hrm", "w", null)) {
-        	throw new SecurityException("missing required security object (_hrm)");
-        }
-		
 		try {
 			try {
 				List<HRMDocumentToDemographic> currentMappingList = hrmDocumentToDemographicDao.findByHrmDocumentId(hrmDocumentId);
@@ -260,10 +215,6 @@ public class HRMModifyDocumentAction extends DispatchAction {
 		String hrmDocumentId = request.getParameter("reportId");
 		String subClassId = request.getParameter("subClassId");
 
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_hrm", "w", null)) {
-        	throw new SecurityException("missing required security object (_hrm)");
-        }
-		
 		try {
 			hrmDocumentSubClassDao.setAllSubClassesForDocumentAsInactive(Integer.parseInt(hrmDocumentId));
 
@@ -288,10 +239,6 @@ public class HRMModifyDocumentAction extends DispatchAction {
 	public ActionForward removeProvider(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		String providerMappingId = request.getParameter("providerMappingId");
 
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_hrm", "w", null)) {
-        	throw new SecurityException("missing required security object (_hrm)");
-        }
-		
 		try {
 			hrmDocumentToProviderDao.remove(Integer.parseInt(providerMappingId));
 
@@ -307,21 +254,16 @@ public class HRMModifyDocumentAction extends DispatchAction {
 
 	public ActionForward addComment(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		String documentId = request.getParameter("reportId");
+
 		String commentString = request.getParameter("comment");
 
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_hrm", "w", null)) {
-        	throw new SecurityException("missing required security object (_hrm)");
-        }
-		
 		try {
 			HRMDocumentComment comment = new HRMDocumentComment();
 
 			comment.setHrmDocumentId(Integer.parseInt(documentId));
 			comment.setComment(commentString);
 			comment.setCommentTime(new Date());
-			comment.setProviderNo(loggedInInfo.getLoggedInProviderNo());
+			comment.setProviderNo(LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo());
 
 			hrmDocumentCommentDao.merge(comment);
 			request.setAttribute("success", true);
@@ -336,12 +278,8 @@ public class HRMModifyDocumentAction extends DispatchAction {
 	public ActionForward deleteComment(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		String commentId = request.getParameter("commentId");
 		
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_hrm", "w", null)) {
-        	throw new SecurityException("missing required security object (_hrm)");
-        }
-		
 		try {
-			hrmDocumentCommentDao.deleteComment(Integer.parseInt(commentId));
+			hrmDocumentCommentDao.deleteComment(commentId);
 			request.setAttribute("success", true);
 		} catch (Exception e) {
 			MiscUtils.getLogger().error("Couldn't delete comment on HRM document", e);
@@ -351,33 +289,7 @@ public class HRMModifyDocumentAction extends DispatchAction {
 		return mapping.findForward("ajax");
 	}
 
-	public ActionForward setDescription(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		String documentId = request.getParameter("reportId");
-		String descriptionString = request.getParameter("description");
 
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_hrm", "w", null)) {
-        	throw new SecurityException("missing required security object (_hrm)");
-        }
-		
-		try {
-			boolean updated=false;
-			HRMDocument document = hrmDocumentDao.find(Integer.parseInt(documentId));
-			if(document != null) {
-				document.setDescription(descriptionString);
-				hrmDocumentDao.merge(document);
-				updated=true;
-			}
-			request.setAttribute("success", updated);
-		} catch (Exception e) {
-			MiscUtils.getLogger().error("Couldn't set description for HRM document", e);
-			request.setAttribute("success", false);
-		}
-		
-		return mapping.findForward("ajax");
-	}
-	
 
 
 }

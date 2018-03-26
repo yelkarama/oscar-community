@@ -24,30 +24,22 @@
 --%>
 <%-- Updated by Eugene Petruhin on 20 feb 2009 while fixing check_date() error --%>
 
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="org.oscarehr.PMmodule.caisi_integrator.ConformanceTestHelper"%>
 <%@page import="java.util.Properties"%>
 <%@page import="oscar.OscarProperties"%>
 <%@ include file="/taglibs.jsp"%>
 <%@ page
-	import="org.oscarehr.PMmodule.model.*,org.springframework.context.*,org.springframework.web.context.support.*"%>
+	import="org.caisi.model.*,org.oscarehr.PMmodule.model.*,org.springframework.context.*,org.springframework.web.context.support.*"%>
 <%@ page import="java.util.Date"%>
-
-<%@page import="org.oscarehr.common.model.Tickler" %>
-<%@page import="org.oscarehr.common.model.TicklerComment" %>
-<%@page import="org.oscarehr.common.model.TicklerUpdate" %>
-<%@page import="org.oscarehr.common.model.CustomFilter" %>
 
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
     if(session.getAttribute("userrole") == null )  response.sendRedirect("logout.jsp");
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
 
-   	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(session);
-   		 
 	if (ConformanceTestHelper.enableConformanceOnlyTestFeatures)
 	{
-		ConformanceTestHelper.populateLocalTicklerWithRemoteProviderMessageFollowUps(loggedInInfo);
+		ConformanceTestHelper.populateLocalTicklerWithRemoteProviderMessageFollowUps();
 	}
 %>
 <security:oscarSec roleName="<%=roleName$%>" objectName="_tasks"

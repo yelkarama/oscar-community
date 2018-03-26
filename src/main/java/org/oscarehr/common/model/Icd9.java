@@ -22,14 +22,12 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Transient;
+
 
 @Entity
 @Table(name="icd9")
-public class Icd9 extends AbstractCodeSystemModel<Integer> {
+public class Icd9 extends AbstractCodeSystemModel<Integer> implements java.io.Serializable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,10 +35,6 @@ public class Icd9 extends AbstractCodeSystemModel<Integer> {
      private String icd9;
      private String description;
 
- 	@OneToOne(optional=true)
-    @JoinColumn(name = "icd9", referencedColumnName="dxCode", insertable=false, updatable=false) 
-    private Icd9Synonym synonym;
-     
     public Icd9() {
     }
 
@@ -71,28 +65,6 @@ public class Icd9 extends AbstractCodeSystemModel<Integer> {
         this.description = description;
     }
 
-    @Transient
-    public String getSynonym() {
-    	String synonym = "";
-    	if( getSynonymData() != null ) {
-    		synonym = getSynonymData().getPatientFriendly();
-    	}
-    	if( synonym == null ) {
-    		return ""; 
-    	}
-    	return synonym;
-    }
-
-    @Transient
-	public Icd9Synonym getSynonymData() {
-		return synonym;
-	}
-
-    @Transient
-	public void setSynonymData(Icd9Synonym synonym) {
-		this.synonym = synonym;
-	}
-
 	@Override
     public String getCode() {
 	    return getIcd9();
@@ -103,9 +75,7 @@ public class Icd9 extends AbstractCodeSystemModel<Integer> {
 	    return "icd9";
     }
 
-	@Override
-	public void setCode(String code) {
-		this.setIcd9(code);
-	}
+
+
 
 }

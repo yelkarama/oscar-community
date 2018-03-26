@@ -25,8 +25,6 @@
 
 package org.oscarehr.common.dao;
 
-import javax.persistence.Query;
-
 import org.oscarehr.common.model.MdsZMC;
 import org.springframework.stereotype.Repository;
 
@@ -36,13 +34,4 @@ public class MdsZMCDao extends AbstractDao<MdsZMC>{
 	public MdsZMCDao() {
 		super(MdsZMC.class);
 	}
-
-	public MdsZMC findByIdAndSetId(Integer id, String setId) {
-	    String sql = "FROM MdsZMC zmc WHERE zmc.id = :id " +
-	    		"AND zmc.setId like :setId";
-		Query query = entityManager.createQuery(sql);
-		query.setParameter("id", id);
-		query.setParameter("setId", setId);
-		return getSingleResultOrNull(query);
-    }
 }

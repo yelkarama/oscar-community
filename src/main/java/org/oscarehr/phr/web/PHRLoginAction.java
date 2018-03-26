@@ -37,11 +37,8 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
 import org.oscarehr.common.dao.ProviderPreferenceDao;
 import org.oscarehr.common.model.ProviderPreference;
-import org.oscarehr.myoscar.client.ws_manager.AccountManager;
-import org.oscarehr.myoscar.utils.MyOscarLoggedInInfo;
-import org.oscarehr.myoscar_server.ws.LoginResultTransfer3;
-import org.oscarehr.myoscar_server.ws.NotAuthorisedException_Exception;
-import org.oscarehr.phr.util.MyOscarUtils;
+import org.oscarehr.phr.PHRAuthentication;
+import org.oscarehr.phr.service.PHRService;
 import org.oscarehr.util.EncryptionUtils;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
@@ -50,7 +47,7 @@ import org.oscarehr.util.WebUtils;
 
 public class PHRLoginAction extends DispatchAction
 {
-	private static Logger logger = MiscUtils.getLogger();
+	private static Logger log = MiscUtils.getLogger();
 
 	public PHRLoginAction()
 	{
@@ -60,15 +57,14 @@ public class PHRLoginAction extends DispatchAction
 	{
 		HttpSession session = request.getSession();
 
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		String providerNo=loggedInInfo.getLoggedInProviderNo();
-
+		String providerNo = (String)session.getAttribute("user");
+		PHRAuthentication phrAuth = null;
 		String forwardTo = request.getParameter("forwardto");
 
 		ActionForward ar = new ActionForward(forwardTo);
 		request.setAttribute("forwardToOnSuccess", request.getParameter("forwardToOnSuccess"));
 
-		if (MyOscarUtils.getMyOscarUserNameFromOscar(providerNo)==null)
+		if (!PHRService.canAuthenticate(providerNo))
 		{
 			request.setAttribute("phrUserLoginErrorMsg", "You have not registered for MyOSCAR");
 			request.setAttribute("phrTechLoginErrorMsg", "No MyOSCAR information in the database");
@@ -78,60 +74,44 @@ public class PHRLoginAction extends DispatchAction
 		String myoscarPassword=request.getParameter("phrPassword");
 		try
 		{
-			String myOscarUserName=MyOscarUtils.getMyOscarUserNameFromOscar(providerNo);
+			phrAuth = PHRService.authenticate(providerNo, myoscarPassword);
 
-			LoginResultTransfer3 loginResultTransfer=AccountManager.login(MyOscarLoggedInInfo.getMyOscarServerBaseUrl(), myOscarUserName, myoscarPassword);
-
-			if (loginResultTransfer == null)
+			if (phrAuth == null)
 			{
 				request.setAttribute("phrUserLoginErrorMsg", "Incorrect user/password");
 				return ar;
 			}
-			else
-			{
-				
-				if(loginResultTransfer.getPerson().getRole() != null && !loginResultTransfer.getPerson().getRole().equals("PATIENT")){
-				
-					MyOscarLoggedInInfo myOscarLoggedInInfo=new MyOscarLoggedInInfo(loginResultTransfer.getPerson().getId(), loginResultTransfer.getSecurityTokenKey(), request.getSession().getId(), request.getLocale());
-					MyOscarLoggedInInfo.setLoggedInInfo(request.getSession(), myOscarLoggedInInfo);
-				
-					boolean saveMyOscarPassword=WebUtils.isChecked(request, "saveMyOscarPassword");
-					if (saveMyOscarPassword) saveMyOscarPassword(session, providerNo, myoscarPassword);
-				}else{
-					logger.error("ERROR :"+loginResultTransfer.getPerson().getUserName()+" can not login with role "+loginResultTransfer.getPerson().getRole());
-					request.setAttribute("phrUserLoginErrorMsg", "Invalid Role: Patient Account can not be used");
-				}
-			}
-		}
-		catch (NotAuthorisedException_Exception e)
-		{
-			logger.error("Error", e);
-			request.setAttribute("phrUserLoginErrorMsg", "Invalid user/password.");
-			return(ar);
 		}
 		catch (Exception e)
 		{
-			logger.error("Error", e);
+			MiscUtils.getLogger().error("Error", e);
 			request.setAttribute("phrUserLoginErrorMsg", "Error contacting MyOSCAR server, please try again later");
 			request.setAttribute("phrTechLoginErrorMsg", e.getMessage());
 			return ar;
 		}
-						
-		logger.debug("Correct user/pass, auth success");
+		
+		session.setAttribute(PHRAuthentication.SESSION_PHR_AUTH, phrAuth);
+
+		boolean saveMyOscarPassword=WebUtils.isChecked(request, "saveMyOscarPassword");
+		if (saveMyOscarPassword) saveMyOscarPassword(session, myoscarPassword);
+				
+		log.debug("Correct user/pass, auth success");
 		return ar;
 	}
 
-	private void saveMyOscarPassword(HttpSession session, String providerNo, String myoscarPassword) {
+	private void saveMyOscarPassword(HttpSession session, String myoscarPassword) {
 		try {
-	        SecretKeySpec key=MyOscarUtils.getDeterministicallyMangledPasswordSecretKeyFromSession(session);
+	        SecretKeySpec key=EncryptionUtils.getDeterministicallyMangledPasswordSecretKeyFromSession(session);
 	        byte[] encryptedMyOscarPassword=EncryptionUtils.encrypt(key, myoscarPassword.getBytes("UTF-8"));
 
+	        LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+	        
 	        ProviderPreferenceDao providerPreferenceDao=(ProviderPreferenceDao) SpringUtils.getBean("providerPreferenceDao");
-	        ProviderPreference providerPreference=providerPreferenceDao.find(providerNo);
+	        ProviderPreference providerPreference=providerPreferenceDao.find(loggedInInfo.loggedInProvider.getProviderNo());
 	        providerPreference.setEncryptedMyOscarPassword(encryptedMyOscarPassword);
 	        providerPreferenceDao.merge(providerPreference);
         } catch (Exception e) {
-	        logger.error("Error saving myoscarPassword.", e);
+	        log.error("Error saving myoscarPassword.", e);
         }	    
     }
 }

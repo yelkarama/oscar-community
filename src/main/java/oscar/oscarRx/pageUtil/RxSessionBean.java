@@ -35,7 +35,6 @@ import java.util.Vector;
 import org.apache.log4j.Logger;
 import org.oscarehr.common.model.Allergy;
 import org.oscarehr.phr.model.PHRMedication;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 
 import oscar.OscarProperties;
@@ -212,7 +211,7 @@ public class RxSessionBean  implements java.io.Serializable {
         stash.set(index, item);
     }
 
-    public int addStashItem(LoggedInInfo loggedInInfo, RxPrescriptionData.Prescription item) {
+    public int addStashItem(RxPrescriptionData.Prescription item) {
 
         int ret = -1;
 
@@ -252,7 +251,7 @@ public class RxSessionBean  implements java.io.Serializable {
         else {
             stash.add(item);
             preloadInteractions();
-            preloadAllergyWarnings(loggedInInfo, item.getAtcCode());
+            preloadAllergyWarnings(item.getAtcCode());
 
 
             return this.getStashSize()-1;
@@ -295,14 +294,14 @@ public class RxSessionBean  implements java.io.Serializable {
     }
 
 
-    private void preloadAllergyWarnings(LoggedInInfo loggedInInfo, String atccode){
+    private void preloadAllergyWarnings(String atccode){
        try{
-         Allergy[] allergies = RxPatientData.getPatient(loggedInInfo, getDemographicNo()).getActiveAllergies();
+         Allergy[] allergies = RxPatientData.getPatient(getDemographicNo()).getActiveAllergies();
          RxAllergyWarningWorker worker = new RxAllergyWarningWorker(this,atccode,allergies);
          addToWorkingAllergyWarnings(atccode,worker);
          worker.start();
        }catch( Exception e ){
-      	 logger.error("Error for demographic " + getDemographicNo(), e);
+      	 logger.error("Error", e);
        }
     }
 
@@ -318,7 +317,7 @@ public class RxSessionBean  implements java.io.Serializable {
     }
 
 
-    public Allergy[] getAllergyWarnings(LoggedInInfo loggedInInfo, String atccode){
+    public Allergy[] getAllergyWarnings(String atccode){
       Allergy[] allergies = null;
 
       //Check to see if Allergy checking property is on and if atccode is not null and if atccode is not "" or "null"
@@ -350,7 +349,7 @@ public class RxSessionBean  implements java.io.Serializable {
          	 logger.debug("NEW ATC CODE for allergy");
              try{
                 RxDrugData drugData = new RxDrugData();
-                Allergy[]  allAllergies = RxPatientData.getPatient(loggedInInfo, getDemographicNo()).getActiveAllergies();
+                Allergy[]  allAllergies = RxPatientData.getPatient(getDemographicNo()).getActiveAllergies();
                 allergies = drugData.getAllergyWarnings(atccode,allAllergies);
                     if (allergies != null){
                        addAllergyWarnings(atccode,allergies);
@@ -376,17 +375,6 @@ public class RxSessionBean  implements java.io.Serializable {
        return atcCodes;
     }
 
-    public List getRegionalIdentifier(){
-    	RxPrescriptionData rxData = new RxPrescriptionData();
-        List regionalIdentifierCodes = rxData.getCurrentRegionalIdentifiersCodesByPatient(this.getDemographicNo());
-        RxPrescriptionData.Prescription rx;
-        for(int i=0;i<this.getStashSize(); i++) {
-           rx = this.getStashItem(i);
-           regionalIdentifierCodes.add(rx.getRegionalIdentifier());
-        }
-        return regionalIdentifierCodes;
-    }
-    
     public RxDrugData.Interaction[] getInteractions(){
        RxDrugData.Interaction[] interactions = null;
        long start = System.currentTimeMillis();

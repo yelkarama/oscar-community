@@ -24,28 +24,13 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_report" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_report");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
-<%@page import="org.oscarehr.common.model.Admission"%>
-<%@page import="org.oscarehr.common.dao.AdmissionDao"%>
+<%@page import="org.oscarehr.PMmodule.model.Admission"%>
+<%@page import="org.oscarehr.PMmodule.dao.AdmissionDao"%>
 <%@page import="org.oscarehr.common.model.FunctionalCentre"%>
 <%@page import="org.oscarehr.common.dao.FunctionalCentreDao"%>
 <%@page import="org.oscarehr.common.model.OcanStaffForm"%>
 <%@page import="org.oscarehr.PMmodule.web.OcanForm"%>
+<%@page import="org.apache.jasper.tagplugins.jstl.core.ForEach"%>
 <%@page import="org.oscarehr.PMmodule.model.OcanSubmissionLog"%>
 <%@page import="java.util.List"%>
 <%@page import="java.util.ArrayList"%>
@@ -73,9 +58,6 @@ if(!authed) {
 <%
 	CBIUtil cbiUtil = new CBIUtil();
 	
- 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-   	Integer currentFacilityId=loggedInInfo.getCurrentFacility().getId();	
-   		 
 	AdmissionDao admissionDao = (AdmissionDao) SpringUtils.getBean("admissionDao");
     ProgramDao programDao = (ProgramDao) SpringUtils.getBean("programDao");
 	FunctionalCentreDao functionalCentreDao = (FunctionalCentreDao) SpringUtils.getBean("functionalCentreDao");
@@ -121,7 +103,7 @@ if(!authed) {
 	if(providerIdsToReportOn!=null) { 
 		if(allSubmissionLogList!=null) {		
 			for(OcanSubmissionLog log : allSubmissionLogList) {
-				OcanStaffForm form = cbiUtil.getCBIFormDataBySubmissionId(currentFacilityId, log.getId()); //one cbi form has one submissionLog				
+				OcanStaffForm form = cbiUtil.getCBIFormDataBySubmissionId(log.getId()); //one cbi form has one submissionLog				
 				if(form!=null && form.getProviderNo()!=null) {
 					if (providerIdsToReportOn.contains(form.getProviderNo())) { 
 						submissionLogListFilteredByProivders.add(log);
@@ -138,7 +120,7 @@ if(!authed) {
 	if(!StringUtils.isBlank(functionalCentreId)) {
 		if(submissionLogListFilteredByProivders!=null) {
 			for(OcanSubmissionLog log : submissionLogListFilteredByProivders) {
-				OcanStaffForm form = cbiUtil.getCBIFormDataBySubmissionId(currentFacilityId, log.getId());
+				OcanStaffForm form = cbiUtil.getCBIFormDataBySubmissionId(log.getId());				
 				if(form!=null && form.getAdmissionId()!=null) {
 					FunctionalCentreAdmission fc_admission = fc_admissionDao.find(form.getAdmissionId());
 					if(fc_admission.getFunctionalCentreId()!=null && fc_admission.getFunctionalCentreId().trim().length()>0) {
@@ -159,7 +141,7 @@ if(!authed) {
 	if(programIdsToReportOn!=null) {
 		if(submissionLogListFilteredByFunctionalCentre!=null) {
 			for(OcanSubmissionLog log : submissionLogListFilteredByFunctionalCentre) {
-				OcanStaffForm form = cbiUtil.getCBIFormDataBySubmissionId(currentFacilityId, log.getId());
+				OcanStaffForm form = cbiUtil.getCBIFormDataBySubmissionId(log.getId());
 				if(form!=null) {					
 					Admission admission = admissionDao.getAdmission(form.getAdmissionId());	
 					if(admission!=null)	{
@@ -181,7 +163,7 @@ if(!authed) {
 		{			
 			for(OcanSubmissionLog ocanSubmissionLog : submissionLogList)
 			{
-				OcanStaffForm form = cbiUtil.getCBIFormDataBySubmissionId(currentFacilityId, ocanSubmissionLog.getId()); //one cbi form has one submissionLog
+				OcanStaffForm form = cbiUtil.getCBIFormDataBySubmissionId(ocanSubmissionLog.getId()); //one cbi form has one submissionLog
 				if(form!=null) {
 					totalCount ++;
 					if(ocanSubmissionLog.getResult()!=null && (ocanSubmissionLog.getResult().equalsIgnoreCase("success") || 
@@ -235,7 +217,7 @@ if(!authed) {
 							if(ocanSubmissionLog!=null)
 							{
 								//get form record based on the submission id 
-								OcanStaffForm ocanStaffForm = cbiUtil.getCBIFormDataBySubmissionId(currentFacilityId, ocanSubmissionLog.getId());
+								OcanStaffForm ocanStaffForm = cbiUtil.getCBIFormDataBySubmissionId(ocanSubmissionLog.getId());
 								
 								if(ocanStaffForm!=null)
 								{	

@@ -71,6 +71,17 @@ public class DesAntenatalPlannerChecklistHandler_99_12 extends DefaultHandler {
 		results += "</td></tr></table></center>\n";
 	}
 
+	public void processingInstruction(String target, String data) throws SAXException {
+
+	}
+
+	public void startPrefixMapping(String prefix, String uri) {
+
+	}
+
+	public void endPrefixMapping(String prefix) {
+
+	}
 
         public void startElement(String namespaceURI, String localName, String rawName, Attributes atts) throws SAXException {
             if (rawName.equals("recommendations")) {
@@ -211,7 +222,6 @@ public class DesAntenatalPlannerChecklistHandler_99_12 extends DefaultHandler {
 		try {
 			now.setTime(df.parse(savedar1params.getProperty("finalEDB")) ); 
 		} catch (java.text.ParseException pe) {
-			//ignore
 		}
 		now.add(Calendar.DATE, -280);
 	}

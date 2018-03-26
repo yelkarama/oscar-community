@@ -33,22 +33,20 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.oscarRx.data.RxPrescriptionData;
 import oscar.oscarRx.util.RxUtil;
 
 
 public final class RxUseFavoriteAction extends DispatchAction {
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
 
+    private static final Logger logger = MiscUtils.getLogger();
     public ActionForward unspecified(ActionMapping mapping,
     ActionForm form,
     HttpServletRequest request,
@@ -56,12 +54,7 @@ public final class RxUseFavoriteAction extends DispatchAction {
     throws IOException, ServletException {
 
 
-    	LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
-		if (!securityInfoManager.hasPrivilege(loggedInInfo, "_rx", "r", null)) {
-			throw new RuntimeException("missing required security object (_rx)");
-		}
-    	
-    	
+
         // Setup variables
         oscar.oscarRx.pageUtil.RxSessionBean bean =
         (oscar.oscarRx.pageUtil.RxSessionBean)request.getSession().getAttribute("RxSessionBean");
@@ -85,7 +78,7 @@ public final class RxUseFavoriteAction extends DispatchAction {
 
             bean.addAttributeName(rx.getAtcCode() + "-" + String.valueOf(bean.getStashIndex()));
 
-            bean.setStashIndex(bean.addStashItem(loggedInInfo, rx));
+            bean.setStashIndex(bean.addStashItem(rx));
             request.setAttribute("BoxNoFillFirstLoad", "true");
         }
         catch (Exception e) {
@@ -101,11 +94,6 @@ public final class RxUseFavoriteAction extends DispatchAction {
     HttpServletResponse response)
     throws IOException {
 
-    	LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
-		if (!securityInfoManager.hasPrivilege(loggedInInfo, "_rx", "r", null)) {
-			throw new RuntimeException("missing required security object (_rx)");
-		}
-    	
         // Setup variables
         oscar.oscarRx.pageUtil.RxSessionBean bean =
         (oscar.oscarRx.pageUtil.RxSessionBean)request.getSession().getAttribute("RxSessionBean");
@@ -140,7 +128,7 @@ public final class RxUseFavoriteAction extends DispatchAction {
             if(RxUtil.isRxUniqueInStash(bean, rx)){
                 listRxDrugs.add(rx);
             }
-            int rxStashIndex=bean.addStashItem(loggedInInfo, rx);
+            int rxStashIndex=bean.addStashItem(rx);
             bean.setStashIndex(rxStashIndex);
 
 

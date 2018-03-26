@@ -39,7 +39,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 
 import oscar.oscarEncounter.oscarMeasurements.bean.EctMeasurementsDataBean;
@@ -58,7 +57,7 @@ public class PapReport implements PreventionReport {
     public PapReport() {
     }
 
-    public Hashtable runReport(LoggedInInfo loggedInInfo,ArrayList list,Date asofDate){
+    public Hashtable runReport(ArrayList list,Date asofDate){
         int inList = 0;
         double done= 0,doneWithGrace = 0;
         ArrayList<PreventionReportDisplay> returnReport = new ArrayList<PreventionReportDisplay>();
@@ -66,10 +65,10 @@ public class PapReport implements PreventionReport {
         /////
         for (int i = 0; i < list.size(); i ++){//for each  element in arraylist
              ArrayList<String> fieldList = (ArrayList<String>) list.get(i);
-             Integer demo = Integer.valueOf(fieldList.get(0));
+             String demo = fieldList.get(0);
              //search   prevention_date prevention_type  deleted   refused
-             ArrayList<Map<String,Object>>  prevs = PreventionData.getPreventionData(loggedInInfo, "PAP",demo);
-             PreventionData.addRemotePreventions(loggedInInfo, prevs, demo,"PAP",null);
+             ArrayList<Map<String,Object>>  prevs = PreventionData.getPreventionData("PAP",demo);
+             PreventionData.addRemotePreventions(prevs, Integer.parseInt(demo),"PAP",null);
              ArrayList<Map<String,Object>> noFutureItems =  removeFutureItems(prevs, asofDate);
              PreventionReportDisplay prd = new PreventionReportDisplay();
              prd.demographicNo = demo;
@@ -125,14 +124,14 @@ public class PapReport implements PreventionReport {
 
 
 
-                Calendar cal = Calendar.getInstance();
-                cal.add(Calendar.YEAR, -3);
+                    Calendar cal = Calendar.getInstance();
+                cal.add(Calendar.YEAR, -2);
                 Date dueDate = cal.getTime();
                 cal.add(Calendar.MONTH,-6);
                 Date cutoffDate = cal.getTime();
 
                 Calendar cal2 = GregorianCalendar.getInstance();
-                cal2.add(Calendar.YEAR, -3);
+                cal2.add(Calendar.YEAR, -2);
 
                 //cal2.roll(Calendar.YEAR, -1);
                 cal2.add(Calendar.MONTH,-6);
@@ -150,7 +149,7 @@ public class PapReport implements PreventionReport {
                 // if prevDate is less than as of date and greater than 2 years prior
                 Calendar bonusEl = Calendar.getInstance();
                 bonusEl.setTime(asofDate);
-                bonusEl.add(Calendar.MONTH,-42);
+                bonusEl.add(Calendar.MONTH,-30);
                 //bonusEl.add(Calendar.YEAR,-2);
                 Date bonusStartDate = bonusEl.getTime();
 
@@ -211,7 +210,7 @@ public class PapReport implements PreventionReport {
           String percentWithGraceStr = "0";
           double eligible = list.size() - inList;
           log.debug("eligible "+eligible+" done "+done+" doneWithGrace "+doneWithGrace);
-          if ((int)eligible != 0){
+          if (eligible != 0){
              double percentage = ( done / eligible ) * 100;
              double percentageWithGrace =  (done+doneWithGrace) / eligible  * 100 ;
              log.debug("in percentage  "+percentage   +" "+( done / eligible));

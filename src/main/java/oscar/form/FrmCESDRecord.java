@@ -28,10 +28,8 @@ package oscar.form;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.Properties;
 
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 
 import oscar.oscarDB.DBHandler;
@@ -40,7 +38,7 @@ import oscar.util.UtilDateUtilities;
 public class FrmCESDRecord extends FrmRecord {
 	private String _dateFormat = "yyyy/MM/dd";
 
-	public Properties getFormRecord(LoggedInInfo loggedInInfo, int demographicNo, int existingID)
+	public Properties getFormRecord(int demographicNo, int existingID)
 		throws SQLException {
 		Properties props = new Properties();
                 
@@ -54,7 +52,7 @@ public class FrmCESDRecord extends FrmRecord {
 			rs = DBHandler.GetSQL(sql);
 			if (rs.next()) {                                
 				props.setProperty("demographic_no",oscar.Misc.getString(rs, "demographic_no"));
-				props.setProperty("formCreated",UtilDateUtilities.DateToString(new Date(),_dateFormat));
+				props.setProperty("formCreated",UtilDateUtilities.DateToString(UtilDateUtilities.Today(),_dateFormat));
 			}
 			rs.close();
                         sql = "SELECT studyID FROM rehabStudy2004 WHERE demographic_no='"+demographicNo + "'";

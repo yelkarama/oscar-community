@@ -28,10 +28,8 @@ package oscar.form;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.Properties;
 
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 
 import oscar.oscarDB.DBHandler;
@@ -40,7 +38,7 @@ import oscar.util.UtilDateUtilities;
 public class FrmInternetAccessRecord extends FrmRecord {
 	private String _dateFormat = "yyyy/MM/dd";
 
-	public Properties getFormRecord(LoggedInInfo loggedInInfo, int demographicNo, int existingID)
+	public Properties getFormRecord(int demographicNo, int existingID)
 		throws SQLException {
 		Properties props = new Properties();
                 
@@ -60,7 +58,7 @@ public class FrmInternetAccessRecord extends FrmRecord {
 				props.setProperty(
 					"formCreated",
 					UtilDateUtilities.DateToString(
-						new Date(),
+						UtilDateUtilities.Today(),
 						_dateFormat));	
                                 props.setProperty("dob", UtilDateUtilities.DateToString(dob,"yyyy/MM/dd"));
                                 props.setProperty("sex", oscar.Misc.getString(rs, "sex"));

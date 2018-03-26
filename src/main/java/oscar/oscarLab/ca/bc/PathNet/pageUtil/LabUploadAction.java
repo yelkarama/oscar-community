@@ -43,10 +43,7 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.upload.FormFile;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.OscarProperties;
 import oscar.oscarLab.FileUploadCheck;
@@ -59,14 +56,9 @@ import oscar.oscarLab.ca.bc.PathNet.HL7.Message;
  * @author Jay Gallagher
  */
 public class LabUploadAction extends Action {
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	Logger _logger = Logger.getLogger(this.getClass());
+   Logger _logger = Logger.getLogger(this.getClass());
 
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)  {
-  	   if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_lab", "w", null)) {
-  			throw new SecurityException("missing required security object (_lab)");
-  		}
-  	   
        LabUploadForm frm = (LabUploadForm) form;
        FormFile importFile = frm.getImportFile();
        String filename = "";
@@ -84,6 +76,7 @@ public class LabUploadAction extends Action {
              Connection connection = new Connection();
              ArrayList<String> messages = connection.Retrieve(is);
              if (messages != null) {
+                boolean success = true;
                 try {
                    int size = messages.size();
 
@@ -124,13 +117,14 @@ public class LabUploadAction extends Action {
    }
 
 
- /**
-  * Save a Jakarta FormFile to a preconfigured place.
-  * @param stream
-  * @param filename
-  * @return boolean
-  */
-    private static boolean saveFile(InputStream stream,String filename ){
+   /**
+     *
+     * Save a Jakarta FormFile to a preconfigured place.
+     *
+     * @param file
+     * @return
+     */
+    public static boolean saveFile(InputStream stream,String filename ){
         String retVal = null;
         boolean isAdded = true;
 

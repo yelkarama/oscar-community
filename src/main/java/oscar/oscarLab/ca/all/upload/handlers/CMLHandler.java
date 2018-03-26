@@ -39,14 +39,12 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.Hl7TextInfoDao;
 import org.oscarehr.common.model.Hl7TextInfo;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.OscarAuditLogger;
 import org.oscarehr.util.SpringUtils;
 
 import oscar.oscarLab.ca.all.parsers.Factory;
 import oscar.oscarLab.ca.all.upload.MessageUploader;
-import oscar.oscarLab.ca.all.upload.RouteReportResults;
 import oscar.oscarLab.ca.all.util.Utilities;
 
 public class CMLHandler implements MessageHandler {
@@ -54,27 +52,17 @@ public class CMLHandler implements MessageHandler {
 	Logger logger = Logger.getLogger(CMLHandler.class);
 	Hl7TextInfoDao hl7TextInfoDao = (Hl7TextInfoDao)SpringUtils.getBean("hl7TextInfoDao");
 	
-	public String parse(LoggedInInfo loggedInInfo, String serviceName, String fileName, int fileId, String ipAddr) {
+	public String parse(String serviceName, String fileName, int fileId) {
 
 		int i = 0;
-		RouteReportResults routeResults;
 		try {
 			ArrayList<String> messages = Utilities.separateMessages(fileName);
 			for (i = 0; i < messages.size(); i++) {
 				String msg = messages.get(i);
-				/*if(isDuplicate(loggedInInfo, msg)) {
-					continue;
-				}*/
-				
-				routeResults = new RouteReportResults();
-				MessageUploader.routeReport(loggedInInfo, serviceName, "CML", msg, fileId, routeResults);
-				
-				oscar.oscarLab.ca.all.parsers.MessageHandler msgHandler = Factory.getHandler(String.valueOf(routeResults.segmentId));
-				if( msgHandler == null ) {
-					MessageUploader.clean(fileId);
-					logger.error("Saved lab but could not parse base64 value");
-					return null;
+				if(isDuplicate(msg)) {
+					return ("success");
 				}
+				MessageUploader.routeReport(serviceName, "CML", msg, fileId);
 
 			}
 		} catch (Exception e) {
@@ -87,24 +75,32 @@ public class CMLHandler implements MessageHandler {
 
 	}
 	
-	private boolean isDuplicate(LoggedInInfo loggedInInfo, String msg) {
+	private boolean isDuplicate(String msg) {
 		//OLIS requirements - need to see if this is a duplicate
 		oscar.oscarLab.ca.all.parsers.MessageHandler h = Factory.getHandler("CML", msg);
 		//if final
 		if(h.getOrderStatus().equals("CM")) {
-			String acc = h.getAccessionNum();
+			String acc = h.getAccessionNum().substring(3);
 			//do we have this?
 			List<Hl7TextInfo> dupResults = hl7TextInfoDao.searchByAccessionNumber(acc);
-			
-			if( !dupResults.isEmpty()) {
-                                //if(h.getHealthNum().equals(dupResult.getHealthNumber())) {
-                                        OscarAuditLogger.getInstance().log(loggedInInfo, "Lab", "Skip", "Duplicate lab skipped - accession " + acc + "\n" + msg);
-                                        return true;
-                                //}					
-
-                        }
-			
+			for(Hl7TextInfo dupResult:dupResults) {
+				if(("CML"+dupResult.getAccessionNumber()).equals(acc)) {
+					//if(h.getHealthNum().equals(dupResult.getHealthNumber())) {
+						OscarAuditLogger.getInstance().log("Lab", "Skip", "Duplicate lab skipped - accession " + acc + "\n" + msg);
+						return true;
+					//}					
 					
+				}
+				if(dupResult.getAccessionNumber().indexOf("-")!= -1) {
+					if(dupResult.getAccessionNumber().substring(0,dupResult.getAccessionNumber().indexOf("-")).equals(acc) ) {
+						//olis match								
+						//if(h.getHealthNum().equals(dupResult.getHealthNumber())) {
+						OscarAuditLogger.getInstance().log("Lab", "Skip", "Duplicate lab skipped - accession " + acc + "\n" + msg);
+						return true;
+						//}
+					}
+				}
+			}		
 		}
 		return false;	
 	}

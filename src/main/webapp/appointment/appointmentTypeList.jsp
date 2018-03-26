@@ -22,9 +22,11 @@
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic" %>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security" %>
-<%@ include file="../admin/dbconnection.jsp" %>
+<jsp:useBean id="addApptBean" class="oscar.AppointmentMainBean" scope="page" /><%@ include file="../admin/dbconnection.jsp" %>
 <%--RJ 07/07/2006 --%>
-<%  
+<%
+  if(session.getAttribute("user") == null)    response.sendRedirect("../logout.jsp");
+  
   String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
   
   String sError = "";
@@ -110,7 +112,7 @@
 	}
 </script>
     </head>
-    <body topmargin="0" leftmargin="0" rightmargin="0">
+    <body background="../images/gray_bg.jpg" bgproperties="fixed" topmargin="0" leftmargin="0" rightmargin="0">
 	<table width="100%">
 	  <tr><td colspan="3" height="30"></td></tr>
 	  <tr>	

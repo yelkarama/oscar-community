@@ -24,21 +24,9 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
+  if(session.getValue("user") == null) response.sendRedirect("../../logout.jsp");
 %>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_demographic" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_demographic");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%@ page import="java.util.*,oscar.oscarReport.pageUtil.*"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -100,7 +88,7 @@ function removePatient(demographicNo, waitingList){
 						<td align="left" class="Header" width="100"></td>
 					</tr>
 					<logic:iterate id="waitingListBean" name="patientWaitingList"
-						property="patientWaitingList">
+						property="patientWaitingListVector">
 						<tr class="data">
 							<td width="100"><bean:write name="waitingListBean"
 								property="waitingList" /></td>

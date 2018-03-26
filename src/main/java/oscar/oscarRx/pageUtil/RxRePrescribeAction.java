@@ -39,8 +39,6 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
 import org.oscarehr.common.dao.DrugDao;
 import org.oscarehr.common.model.Drug;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
@@ -51,18 +49,11 @@ import oscar.oscarRx.data.RxPrescriptionData.Prescription;
 import oscar.oscarRx.util.RxUtil;
 
 public final class RxRePrescribeAction extends DispatchAction {
-	
-	private static final String PRIVILEGE_READ = "r"; 
-	private static final String PRIVILEGE_WRITE = "w";
 
 	private static final Logger logger = MiscUtils.getLogger();
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
 
 	public ActionForward reprint(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		checkPrivilege(loggedInInfo, PRIVILEGE_READ);
-		
 		oscar.oscarRx.pageUtil.RxSessionBean sessionBeanRX = (oscar.oscarRx.pageUtil.RxSessionBean) request.getSession().getAttribute("RxSessionBean");
 		if (sessionBeanRX == null) {
 			response.sendRedirect("error.html");
@@ -79,18 +70,18 @@ public final class RxRePrescribeAction extends DispatchAction {
 		String ip = request.getRemoteAddr();
 
 		RxPrescriptionData rxData = new RxPrescriptionData();
-		List<Prescription> list = rxData.getPrescriptionsByScriptNo(Integer.parseInt(script_no), sessionBeanRX.getDemographicNo());
+		ArrayList<RxPrescriptionData.Prescription> list = rxData.getPrescriptionsByScriptNo(Integer.parseInt(script_no), sessionBeanRX.getDemographicNo());
 		RxPrescriptionData.Prescription p = null;
 		StringBuilder auditStr = new StringBuilder();
 		for (int idx = 0; idx < list.size(); ++idx) {
 			p = list.get(idx);
-			beanRX.setStashIndex(beanRX.addStashItem(loggedInInfo, p));
+			beanRX.setStashIndex(beanRX.addStashItem(p));
 			auditStr.append(p.getAuditString() + "\n");
 		}
 
 		// save print date/time to prescription table
 		if (p != null) {
-			p.Print(loggedInInfo);
+			p.Print();
 		}
 
 		String comment = rxData.getScriptComment(script_no);
@@ -106,9 +97,6 @@ public final class RxRePrescribeAction extends DispatchAction {
 
 	public ActionForward reprint2(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		checkPrivilege(loggedInInfo, PRIVILEGE_READ);
-
 		oscar.oscarRx.pageUtil.RxSessionBean sessionBeanRX = (oscar.oscarRx.pageUtil.RxSessionBean) request.getSession().getAttribute("RxSessionBean");
 		if (sessionBeanRX == null) {
 			response.sendRedirect("error.html");
@@ -123,18 +111,18 @@ public final class RxRePrescribeAction extends DispatchAction {
 		String script_no = request.getParameter("scriptNo");
 		String ip = request.getRemoteAddr();
 		RxPrescriptionData rxData = new RxPrescriptionData();
-		List<Prescription> list = rxData.getPrescriptionsByScriptNo(Integer.parseInt(script_no), sessionBeanRX.getDemographicNo());
+		ArrayList<RxPrescriptionData.Prescription> list = rxData.getPrescriptionsByScriptNo(Integer.parseInt(script_no), sessionBeanRX.getDemographicNo());
 		RxPrescriptionData.Prescription p = null;
 		StringBuilder auditStr = new StringBuilder();
 		for (int idx = 0; idx < list.size(); ++idx) {
 			p = list.get(idx);
-			beanRX.setStashIndex(beanRX.addStashItem(loggedInInfo, p));
+			beanRX.setStashIndex(beanRX.addStashItem(p));
 			auditStr.append(p.getAuditString() + "\n");
 		}
 		// p("auditStr "+auditStr.toString());
 		// save print date/time
 		if (p != null) {
-			p.Print(loggedInInfo);
+			p.Print();
 		}
 
 		String comment = rxData.getScriptComment(script_no);
@@ -147,9 +135,7 @@ public final class RxRePrescribeAction extends DispatchAction {
 	}
 
 	public ActionForward represcribe(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException {
-		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
-		checkPrivilege(loggedInInfo, PRIVILEGE_WRITE);
-		
+
 		oscar.oscarRx.pageUtil.RxSessionBean beanRX = (oscar.oscarRx.pageUtil.RxSessionBean) request.getSession().getAttribute("RxSessionBean");
 		if (beanRX == null) {
 			response.sendRedirect("error.html");
@@ -181,7 +167,7 @@ public final class RxRePrescribeAction extends DispatchAction {
 				// create copy of Prescription
 				RxPrescriptionData.Prescription rx = rxData.newPrescription(beanRX.getProviderNo(), beanRX.getDemographicNo(), oldRx);
 
-				beanRX.setStashIndex(beanRX.addStashItem(loggedInInfo, rx));
+				beanRX.setStashIndex(beanRX.addStashItem(rx));
 				auditStr.append(rx.getAuditString() + "\n");
 
 				// allocate space for annotation
@@ -193,13 +179,15 @@ public final class RxRePrescribeAction extends DispatchAction {
 			logger.error("Unexpected error occurred.", e);
 		}
 
+		String script_no = beanRX.getStashItem(beanRX.getStashIndex()).getScript_no();
+
+		LogAction.addLog((String) request.getSession().getAttribute("user"), LogConst.REPRESCRIBE, LogConst.CON_PRESCRIPTION, script_no, request.getRemoteAddr(), "" + beanRX.getDemographicNo(), auditStr.toString());
+
 		return (mapping.findForward("success"));
 	}
 
 	public ActionForward saveReRxDrugIdToStash(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException {
 		MiscUtils.getLogger().debug("================in saveReRxDrugIdToStash  of RxRePrescribeAction.java=================");
-		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
-		
 		oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBean) request.getSession().getAttribute("RxSessionBean");
 		if (bean == null) {
 			response.sendRedirect("error.html");
@@ -240,14 +228,16 @@ public final class RxRePrescribeAction extends DispatchAction {
 				listReRx.add(rx);
 			}
 			// save rx to stash
-			int rxStashIndex = bean.addStashItem(loggedInInfo, rx);
+			int rxStashIndex = bean.addStashItem(rx);
 			bean.setStashIndex(rxStashIndex);
 
 			auditStr.append(rx.getAuditString() + "\n");
-			bean.addAttributeName(rx.getAtcCode() + "-" + String.valueOf(bean.getStashIndex()));		
+			bean.addAttributeName(rx.getAtcCode() + "-" + String.valueOf(bean.getStashIndex()));
+			String script_no = bean.getStashItem(bean.getStashIndex()).getScript_no();
 			// p("brandName saved in stash", rx.getBrandName());
 			// p("stashIndex becomes", "" + beanRX.getStashIndex());
-			
+
+			LogAction.addLog((String) request.getSession().getAttribute("user"), LogConst.REPRESCRIBE, LogConst.CON_PRESCRIPTION, script_no, request.getRemoteAddr(), "" + bean.getDemographicNo(), auditStr.toString());
 			// RxUtil.printStashContent(beanRX);
 		} catch (Exception e) {
 			MiscUtils.getLogger().error("Error", e);
@@ -258,15 +248,11 @@ public final class RxRePrescribeAction extends DispatchAction {
 
 	public ActionForward represcribe2(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException {
 		MiscUtils.getLogger().debug("================in represcribe2 of RxRePrescribeAction.java=================");
-		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
-		checkPrivilege(loggedInInfo, PRIVILEGE_WRITE);
-		
 		oscar.oscarRx.pageUtil.RxSessionBean beanRX = (oscar.oscarRx.pageUtil.RxSessionBean) request.getSession().getAttribute("RxSessionBean");
 		if (beanRX == null) {
 			response.sendRedirect("error.html");
 			return null;
 		}
-		request.setAttribute("action", "represcribe");
 		StringBuilder auditStr = new StringBuilder();
 
 		RxPrescriptionData rxData = new RxPrescriptionData();
@@ -304,14 +290,16 @@ public final class RxRePrescribeAction extends DispatchAction {
 				listReRx.add(rx);
 			}
 			// save rx to stash
-			int rxStashIndex = beanRX.addStashItem(loggedInInfo, rx);
+			int rxStashIndex = beanRX.addStashItem(rx);
 			beanRX.setStashIndex(rxStashIndex);
 
 			auditStr.append(rx.getAuditString() + "\n");
-			beanRX.addAttributeName(rx.getAtcCode() + "-" + String.valueOf(beanRX.getStashIndex()));	
+			beanRX.addAttributeName(rx.getAtcCode() + "-" + String.valueOf(beanRX.getStashIndex()));
+			String script_no = beanRX.getStashItem(beanRX.getStashIndex()).getScript_no();
 			// p("brandName saved in stash", rx.getBrandName());
 			// p("stashIndex becomes", "" + beanRX.getStashIndex());
 
+			LogAction.addLog((String) request.getSession().getAttribute("user"), LogConst.REPRESCRIBE, LogConst.CON_PRESCRIPTION, script_no, request.getRemoteAddr(), "" + beanRX.getDemographicNo(), auditStr.toString());
 			// RxUtil.printStashContent(beanRX);
 			request.setAttribute("listRxDrugs", listReRx);
 		} catch (Exception e) {
@@ -322,15 +310,12 @@ public final class RxRePrescribeAction extends DispatchAction {
 	}
 
 	public ActionForward repcbAllLongTerm(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException {
-		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
-		checkPrivilege(loggedInInfo, PRIVILEGE_WRITE);
-		
+
 		oscar.oscarRx.pageUtil.RxSessionBean beanRX = (oscar.oscarRx.pageUtil.RxSessionBean) request.getSession().getAttribute("RxSessionBean");
 		if (beanRX == null) {
 			response.sendRedirect("error.html");
 			return null;
 		}
-		request.setAttribute("action", "represcribe");
 		StringBuilder auditStr = new StringBuilder();
 		// String idList = request.getParameter("drugIdList");
 
@@ -358,21 +343,13 @@ public final class RxRePrescribeAction extends DispatchAction {
 			}
 		}
 
-
-        oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBean) request.getSession().getAttribute("RxSessionBean");
-        
-        List<String> reRxDrugIdList=bean.getReRxDrugIdList();
-        
+		// p("here2");
 		List<RxPrescriptionData.Prescription> listLongTerm = new ArrayList<Prescription>();
 		for (int i = 0; i < listLongTermMed.size(); i++) {
 			Long rand = Math.round(Math.random() * 1000000);
 
 			// loop this
 			int drugId = listLongTermMed.get(i);
-			
-            //add drug to re-prescribe drug list
-            reRxDrugIdList.add(Integer.toString(drugId));
-			
 			// get original drug
 			RxPrescriptionData rxData = new RxPrescriptionData();
 			RxPrescriptionData.Prescription oldRx = rxData.getPrescription(drugId);
@@ -398,7 +375,7 @@ public final class RxRePrescribeAction extends DispatchAction {
 			if (RxUtil.isRxUniqueInStash(beanRX, rx)) {
 				listLongTerm.add(rx);
 			}
-			int rxStashIndex = beanRX.addStashItem(loggedInInfo, rx);
+			int rxStashIndex = beanRX.addStashItem(rx);
 			beanRX.setStashIndex(rxStashIndex);
 			auditStr.append(rx.getAuditString() + "\n");
 
@@ -413,16 +390,12 @@ public final class RxRePrescribeAction extends DispatchAction {
 
 	public ActionForward represcribeMultiple(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException {
 		MiscUtils.getLogger().debug("================in represcribeMultiple of RxRePrescribeAction.java=================");
-		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
-		checkPrivilege(loggedInInfo, PRIVILEGE_WRITE);
-		
 		oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBean) request.getSession().getAttribute("RxSessionBean");
 		if (bean == null) {
 			response.sendRedirect("error.html");
 			return null;
 		}
 		List<String> reRxDrugList = new ArrayList<String>();
-		request.setAttribute("action", "represcribe");
 		reRxDrugList = bean.getReRxDrugIdList();
 		MiscUtils.getLogger().debug(reRxDrugList);
 		List<RxPrescriptionData.Prescription> listReRxDrug = new ArrayList<Prescription>();
@@ -445,7 +418,7 @@ public final class RxRePrescribeAction extends DispatchAction {
 			if (RxUtil.isRxUniqueInStash(bean, rx)) {
 				listReRxDrug.add(rx);
 			}
-			int rxStashIndex = bean.addStashItem(loggedInInfo, rx);
+			int rxStashIndex = bean.addStashItem(rx);
 			bean.setStashIndex(rxStashIndex);
 			bean.addAttributeName(rx.getAtcCode() + "-" + String.valueOf(bean.getStashIndex()));
 		}
@@ -463,10 +436,4 @@ public final class RxRePrescribeAction extends DispatchAction {
 		MiscUtils.getLogger().debug(s + "=" + s1);
 	}
 
-	
-	private void checkPrivilege(LoggedInInfo loggedInInfo, String privilege) {
-		if (!securityInfoManager.hasPrivilege(loggedInInfo, "_rx", privilege, null)) {
-			throw new RuntimeException("missing required security object (_rx)");
-		}
-	}
 }

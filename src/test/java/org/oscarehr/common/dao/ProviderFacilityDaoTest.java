@@ -34,7 +34,7 @@ import org.oscarehr.util.SpringUtils;
 
 public class ProviderFacilityDaoTest {
 
-	protected ProviderFacilityDao dao = SpringUtils.getBean(ProviderFacilityDao.class);
+	private ProviderFacilityDao dao = SpringUtils.getBean(ProviderFacilityDao.class);
 
 	public ProviderFacilityDaoTest() {
 	}

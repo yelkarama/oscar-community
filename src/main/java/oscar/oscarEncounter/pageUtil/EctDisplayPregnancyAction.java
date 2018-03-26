@@ -36,7 +36,6 @@ import org.oscarehr.common.model.Episode;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
-import oscar.OscarProperties;
 import oscar.oscarEncounter.data.EctFormData;
 import oscar.util.OscarRoleObjectPrivilege;
 import oscar.util.StringUtils;
@@ -90,16 +89,14 @@ public class EctDisplayPregnancyAction extends EctDisplayAction {
 		        Dao.addPopUpText("Ectopic");
 		   	    
 		        //check to see if they have an onar2005 form
-		        if(OscarProperties.getInstance().getProperty("billregion", "ON").equals("ON")) {
-			        EctFormData.PatientForm[] pforms = EctFormData.getPatientForms(bean.demographicNo, "formONAR");
-			        EctFormData.PatientForm[] eforms = EctFormData.getPatientForms(bean.demographicNo, "formONAREnhancedRecord");
-					
-			        if(pforms.length>0 && eforms.length == 0) {
-						Dao.addPopUpUrl("popupPage(700,1000,'"+winName+"', '"+ request.getContextPath() +"/Pregnancy.do?method=migrate&demographicNo="+bean.demographicNo+"')");
-				        Dao.addPopUpText("Migration tool");
-				   	    
-					}
-		        }
+		        EctFormData.PatientForm[] pforms = EctFormData.getPatientForms(bean.demographicNo, "formONAR");
+		        EctFormData.PatientForm[] eforms = EctFormData.getPatientForms(bean.demographicNo, "formONAREnhanced");
+				
+		        if(pforms.length>0 && eforms.length == 0) {
+					Dao.addPopUpUrl("popupPage(700,1000,'"+winName+"', '"+ request.getContextPath() +"/Pregnancy.do?method=migrate&demographicNo="+bean.demographicNo+"')");
+			        Dao.addPopUpText("Migration tool");
+			   	    
+				}
 		        
 		        
 		        //check for an existing pregnancy

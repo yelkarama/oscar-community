@@ -39,9 +39,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -64,9 +62,6 @@ public class PATHL7Handler implements MessageHandler {
     Logger logger = Logger.getLogger(PATHL7Handler.class);
     ORU_R01 msg = null;
 
-	private static List<String> labDocuments = Arrays.asList("BCCACSP","BCCASMP","BLOODBANKT","CELLPATH","CELLPATHR","DIAG IMAGE","MICRO3T", "MICROGCMT","MICROGRT", "MICROBCT","TRANSCRIP", "NOTIF");
-	public static final String VIHARTF = "CELLPATHR";
-
     /** Creates a new instance of CMLHandler */
     public PATHL7Handler(){
     }
@@ -74,7 +69,7 @@ public class PATHL7Handler implements MessageHandler {
     public void init(String hl7Body) throws HL7Exception {
         Parser p = new PipeParser();
         p.setValidationContext(new NoValidation());
-        msg = (ORU_R01) p.parse(hl7Body.replaceAll( "\n", "\r\n" ).replace("\\.Zt\\", "\t"));
+        msg = (ORU_R01) p.parse(hl7Body.replaceAll( "\n", "\r\n" ));
     }
 
     public String getMsgType(){
@@ -101,16 +96,13 @@ public class PATHL7Handler implements MessageHandler {
      *  PID METHODS
      */
     public String getPatientName(){
-        return(getFirstName()+" "+getMiddleName()+" "+getLastName());
+        return(getFirstName()+" "+getLastName());
     }
 
     public String getFirstName(){
         return(getString(msg.getRESPONSE().getPATIENT().getPID().getPatientName().getGivenName().getValue()));
     }
 
-    public String getMiddleName(){
-    	return (getString(msg.getRESPONSE().getPATIENT().getPID().getPatientName().getXpn3_MiddleInitialOrName().getValue()));
-    }
     public String getLastName(){
         return(getString(msg.getRESPONSE().getPATIENT().getPID().getPatientName().getFamilyName().getValue()));
     }
@@ -126,13 +118,11 @@ public class PATHL7Handler implements MessageHandler {
     public String getAge(){
         String age = "N/A";
         String dob = getDOB();
-        String service = getServiceDate(); 
         try {
             // Some examples
             DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-            java.util.Date birthDate = formatter.parse(dob);
-            java.util.Date serviceDate = formatter.parse(service);
-            age = UtilDateUtilities.calcAgeAtDate(birthDate, serviceDate);
+            java.util.Date date = formatter.parse(dob);
+            age = UtilDateUtilities.calcAge(date);
         } catch (ParseException e) {
             logger.error("Could not get age", e);
 
@@ -211,7 +201,7 @@ public class PATHL7Handler implements MessageHandler {
 
 
                 if(nums.length>1)
-                    return nums[0]+"-"+nums[1];
+                    return nums[1];
                 else
                     return "";
             }
@@ -285,24 +275,7 @@ public class PATHL7Handler implements MessageHandler {
 
     public String getOrderStatus(){
         try{
-            String orderStatus = getString(msg.getRESPONSE().getORDER_OBSERVATION(0).getOBR().getResultStatus().getValue());
-            int obrCount = getOBRCount();
-            int obxCount;
-            int count = 0;
-            for (int i=0; i < obrCount; i++){
-                obxCount = getOBXCount(i);
-                for (int j=0; j < obxCount; j++){
-                    String obxStatus = getOBXResultStatus(i, j);
-                    if (obxStatus.equalsIgnoreCase("C"))
-                        count++;
-                }
-            }
-            if(count >= 1){//if any of the OBX's have been corrected, mark the entire report as corrected
-            	orderStatus = "C";
-            	return orderStatus;
-            }else{
-            	return orderStatus;
-            }
+            return(getString(msg.getRESPONSE().getORDER_OBSERVATION(0).getOBR().getResultStatus().getValue()));
         }catch(Exception e){
             return("");
         }
@@ -650,19 +623,4 @@ public class PATHL7Handler implements MessageHandler {
     	return "";
     }
 
-	/*
-	 * Checks to see if the PATHL7 lab is an unstructured document or a VIHA RTF pathology report
-	 * labs that fall into any of these categories have certain requirements per Excelleris
-	*/
-	public boolean unstructuredDocCheck(String header){
-		return (labDocuments.contains(header));
-	}
-	public boolean vihaRtfCheck(String header){
-		return (header.equals(VIHARTF));
-	}
-
-    public String getNteForPID(){
-    	
-    	return "";
-    }
 }

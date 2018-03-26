@@ -39,14 +39,11 @@ import org.oscarehr.common.dao.BillingServiceDao;
 import org.oscarehr.common.dao.CSSStylesDAO;
 import org.oscarehr.common.model.BillingService;
 import org.oscarehr.common.model.CssStyle;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.SpringUtils;
 
 public class ManageCSSAction extends DispatchAction {
 	private CSSStylesDAO cssStylesDao = (CSSStylesDAO) SpringUtils.getBean("CSSStylesDAO");
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	   
+	
 	public ActionForward unspecified(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		List<CssStyle>styles = cssStylesDao.findAll();
 		
@@ -59,12 +56,6 @@ public class ManageCSSAction extends DispatchAction {
 	}
 	
 	public ActionForward save(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		
-		
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_admin", "w", null)) {
-        	throw new SecurityException("missing required security object (_admin)");
-        }
-
 		DynaValidatorForm frm = (DynaValidatorForm)form;
 		String style = (String)frm.get("editStyle");
 		String selectedStyle = (String)frm.get("selectedStyle");
@@ -106,11 +97,6 @@ public class ManageCSSAction extends DispatchAction {
 	
 
 	public ActionForward delete(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_admin", "w", null)) {
-        	throw new SecurityException("missing required security object (_admin)");
-        }
-
 		DynaValidatorForm frm = (DynaValidatorForm)form;
 		String style = (String)frm.get("editStyle");		
 		List<CssStyle>styles = cssStylesDao.findAll();;

@@ -30,18 +30,21 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Properties;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.struts.util.MessageResources;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 
 import oscar.dms.EDoc;
 import oscar.dms.EDocUtil;
-import oscar.dms.EDocUtil.EDocSort;
 import oscar.util.DateUtils;
+import oscar.util.OscarRoleObjectPrivilege;
 import oscar.util.StringUtils;
+
+//import oscar.oscarSecurity.CookieSecurity;
 
 public class EctDisplayPhotosAction extends EctDisplayAction {
     //private static final String BGCOLOUR = "476BB3";
@@ -49,8 +52,12 @@ public class EctDisplayPhotosAction extends EctDisplayAction {
 
  public boolean getInfo(EctSessionBean bean, HttpServletRequest request, NavBarDisplayDAO Dao, MessageResources messages) {
 
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-	if(!securityInfoManager.hasPrivilege(loggedInInfo, "_edoc", "r", null)) {
+	 boolean a = true;
+ 	 ArrayList<Object> v = OscarRoleObjectPrivilege.getPrivilegePropAsArrayList("_newCasemgmt.documents");
+     String roleName = (String)request.getSession().getAttribute("userrole") + "," + (String) request.getSession().getAttribute("user");
+     a = OscarRoleObjectPrivilege.checkPrivilege(roleName, (Properties) v.get(0), (ArrayList) v.get(1));
+     a=true;
+ 	if(!a) {
  		return true; //The link of tickler won't show up on new CME screen.
  	} else {
 
@@ -87,7 +94,7 @@ public class EctDisplayPhotosAction extends EctDisplayAction {
 
     StringBuilder javascript = new StringBuilder("<script type=\"text/javascript\">");
     String js = new String();
-    ArrayList<EDoc> docList = EDocUtil.listDocs(loggedInInfo, "demographic", bean.demographicNo, null, EDocUtil.PRIVATE, EDocSort.OBSERVATIONDATE, "active");
+    ArrayList<EDoc> docList = EDocUtil.listDocs("demographic", bean.demographicNo, null, EDocUtil.PRIVATE, EDocUtil.SORT_OBSERVATIONDATE, "active");
     String dbFormat = "yyyy-MM-dd";
     String serviceDateStr = new String();
     String key;

@@ -38,27 +38,15 @@ public class CaseloadDao {
 
 	private static void initializeSearchQueries() {
 		caseloadSearchQueries = new HashMap<String, String>();
-		caseloadSearchQueries.put("search_notes", "select distinct Z.demographic_no, Z.last_name, Z.first_name FROM (select distinct demographic_no, first_name, last_name, year_of_birth, month_of_birth, date_of_birth, sex from demographic left join demographiccust using (demographic_no) where (provider_no='%s' or cust1='%s' or cust2='%s' or cust4='%s') and patient_status not in ('FI','MO','DE','IN')) as Z INNER JOIN casemgmt_note using (demographic_no) where note like '%s' and locked <> '1'");		
-		
-		caseloadSearchQueries.put("search_allpg_alldemo_rodxfilter", "select distinct d.demographic_no, d.last_name, d.first_name from dxresearch dx left join demographic d using (demographic_no) left join admission ad on (ad.client_id=d.demographic_no) where dx.dxresearch_code='%s' and dx.status='A' and d.patient_status not in ('FI','MO','DE','IN') and d.roster_status='%s' and ad.program_id in (select distinct pg.id from program pg, program_provider pp where pp.program_id=pg.id and pg.facilityId=%d)");
-		caseloadSearchQueries.put("search_allpg_alldemo_dxfilter", "select distinct d.demographic_no, d.last_name, d.first_name from dxresearch dx left join demographic d using (demographic_no) left join admission ad on (ad.client_id=d.demographic_no) where dx.dxresearch_code='%s' and dx.status='A' and d.patient_status not in ('FI','MO','DE','IN') and ad.program_id in (select distinct pg.id from program pg, program_provider pp where pp.program_id=pg.id and pg.facilityId=%d)");
-		caseloadSearchQueries.put("search_allpg_alldemo_rofilter", "select distinct d.demographic_no, d.last_name, d.first_name from demographic d left join admission ad on (ad.client_id=d.demographic_no) where d.patient_status not in ('FI','MO','DE','IN') and d.roster_status='%s' and ad.program_id in (select distinct pg.id from program pg, program_provider pp where pp.program_id=pg.id and pg.facilityId=%d)");
-		caseloadSearchQueries.put("search_allpg_alldemo_nofilter", "select distinct d.demographic_no, d.last_name, d.first_name from demographic d left join admission ad on (ad.client_id=d.demographic_no) where d.patient_status not in ('FI','MO','DE','IN') and ad.program_id in (select distinct pg.id from program pg, program_provider pp where pp.program_id=pg.id and pg.facilityId=%d)");
-
-		caseloadSearchQueries.put("search_allpg_provdemo_rodxfilter", "select distinct d.demographic_no, d.last_name, d.first_name from dxresearch dx left join demographic d using (demographic_no) left join demographiccust dc using (demographic_no) left join admission ad on (ad.client_id=d.demographic_no) where (d.provider_no='%s' or dc.cust1='%s' or dc.cust2='%s' or dc.cust4='%s') and d.patient_status not in ('FI','MO','DE','IN') and d.roster_status='%s' and dx.dxresearch_code='%s' and dx.status='A' and ad.program_id in (select distinct pg.id from program pg, program_provider pp where pp.program_id=pg.id and pg.facilityId=%d)");
-		caseloadSearchQueries.put("search_allpg_provdemo_dxfilter", "select distinct d.demographic_no, d.last_name, d.first_name from dxresearch dx left join demographic d using (demographic_no) left join demographiccust dc using (demographic_no) left join admission ad on (ad.client_id=d.demographic_no) where (d.provider_no='%s' or dc.cust1='%s' or dc.cust2='%s' or dc.cust4='%s') and d.patient_status not in ('FI','MO','DE','IN') and dx.dxresearch_code='%s' and dx.status='A' and ad.program_id in (select distinct pg.id from program pg, program_provider pp where pp.program_id=pg.id and pg.facilityId=%d)");
-		caseloadSearchQueries.put("search_allpg_provdemo_rofilter", "select distinct d.demographic_no, d.last_name, d.first_name from demographic d left join demographiccust dc using (demographic_no)  left join admission ad on (ad.client_id=d.demographic_no) where (d.provider_no='%s' or dc.cust1='%s' or dc.cust2='%s' or dc.cust4='%s') and d.patient_status not in ('FI','MO','DE','IN') and d.roster_status='%s' and ad.program_id in (select distinct pg.id from program pg, program_provider pp where pp.program_id=pg.id and pg.facilityId=%d)");
-		caseloadSearchQueries.put("search_allpg_provdemo_nofilter", "select distinct d.demographic_no, d.last_name, d.first_name from demographic d left join demographiccust dc using (demographic_no) left join admission ad on (ad.client_id=d.demographic_no) where (d.provider_no='%s' or dc.cust1='%s' or dc.cust2='%s' or dc.cust4='%s') and d.patient_status not in ('FI','MO','DE','IN') and ad.program_id in (select distinct pg.id from program pg, program_provider pp where pp.program_id=pg.id and pg.facilityId=%d)");
-		
-		caseloadSearchQueries.put("search_alldemo_rodxfilter", "select distinct d.demographic_no, d.last_name, d.first_name from dxresearch dx left join demographic d using (demographic_no) left join admission ad on (ad.client_id=d.demographic_no) where dx.dxresearch_code='%s' and dx.status='A' and d.patient_status not in ('FI','MO','DE','IN') and d.roster_status='%s' and ad.program_id=%d");
-		caseloadSearchQueries.put("search_alldemo_dxfilter", "select distinct d.demographic_no, d.last_name, d.first_name from dxresearch dx left join demographic d using (demographic_no) left join admission ad on (ad.client_id=d.demographic_no) where dx.dxresearch_code='%s' and dx.status='A' and d.patient_status not in ('FI','MO','DE','IN') and ad.program_id=%d");
-		caseloadSearchQueries.put("search_alldemo_rofilter", "select distinct d.demographic_no, d.last_name, d.first_name from demographic d left join admission ad on (ad.client_id=d.demographic_no) where d.patient_status not in ('FI','MO','DE','IN') and d.roster_status='%s' and ad.program_id=%d");
-		caseloadSearchQueries.put("search_alldemo_nofilter", "select distinct d.demographic_no, d.last_name, d.first_name from demographic d left join admission ad on (ad.client_id=d.demographic_no) where d.patient_status not in ('FI','MO','DE','IN') and ad.program_id=%d");
-		
-		caseloadSearchQueries.put("search_provdemo_rodxfilter", "select distinct d.demographic_no, d.last_name, d.first_name from dxresearch dx left join demographic d using (demographic_no) left join demographiccust dc using (demographic_no) left join admission ad on (ad.client_id=d.demographic_no ) where (d.provider_no='%s' or dc.cust1='%s' or dc.cust2='%s' or dc.cust4='%s') and d.patient_status not in ('FI','MO','DE','IN') and d.roster_status='%s' and dx.dxresearch_code='%s' and dx.status='A' and ad.program_id=%d");
-		caseloadSearchQueries.put("search_provdemo_dxfilter", "select distinct d.demographic_no, d.last_name, d.first_name from dxresearch dx left join demographic d using (demographic_no) left join demographiccust dc using (demographic_no) left join admission ad on (ad.client_id=d.demographic_no) where (d.provider_no='%s' or dc.cust1='%s' or dc.cust2='%s' or dc.cust4='%s')  and d.patient_status not in ('FI','MO','DE','IN') and dx.dxresearch_code='%s' and dx.status='A' and ad.program_id=%d");
-		caseloadSearchQueries.put("search_provdemo_rofilter", "select distinct d.demographic_no, d.last_name, d.first_name from demographic d left join demographiccust dc using (demographic_no) left join admission ad on (ad.client_id = d.demographic_no) where (d.provider_no='%s' OR dc.cust1='%s' OR dc.cust2='%s' OR dc.cust4='%s') and d.patient_status not in ('FI','MO','DE','IN') and d.roster_status='%s' and ad.program_id=%d");
-		caseloadSearchQueries.put("search_provdemo_nofilter", "SELECT DISTINCT d.demographic_no, d.last_name, d.first_name FROM demographic d LEFT JOIN demographiccust dc USING (demographic_no) left join admission ad on (ad.client_id = d.demographic_no) WHERE (d.provider_no='%s' OR dc.cust1='%s' OR dc.cust2='%s' OR dc.cust4='%s') AND d.patient_status NOT IN ('FI','MO','DE','IN') AND ad.program_id=%d");
+		caseloadSearchQueries.put("search_notes", "select distinct Z.demographic_no, Z.last_name, Z.first_name FROM (select distinct demographic_no, first_name, last_name, year_of_birth, month_of_birth, date_of_birth, sex from demographic left join demographiccust using (demographic_no) where (provider_no='%s' or cust1='%s' or cust2='%s' or cust4='%s') and patient_status not in ('FI','MO','DE','IN')) as Z INNER JOIN casemgmt_note using (demographic_no) where note like '%s' and locked <> '1'");
+		caseloadSearchQueries.put("search_alldemo_rodxfilter", "select distinct demographic_no, last_name, first_name from dxresearch left join demographic using (demographic_no) where dxresearch_code='%s' and status='A' and patient_status not in ('FI','MO','DE','IN') and roster_status='%s'");
+		caseloadSearchQueries.put("search_alldemo_dxfilter", "select distinct demographic_no, last_name, first_name from dxresearch left join demographic using (demographic_no) where dxresearch_code='%s' and status='A' and patient_status not in ('FI','MO','DE','IN')");
+		caseloadSearchQueries.put("search_alldemo_rofilter", "select demographic_no, last_name, first_name from demographic where patient_status not in ('FI','MO','DE','IN') and roster_status='%s'");
+		caseloadSearchQueries.put("search_alldemo_nofilter", "select demographic_no, last_name, first_name from demographic where patient_status not in ('FI','MO','DE','IN')");
+		caseloadSearchQueries.put("search_provdemo_rodxfilter", "select distinct demographic_no, last_name, first_name from dxresearch left join demographic using (demographic_no) left join demographiccust using (demographic_no)  where (provider_no='%s' or cust1='%s' or cust2='%s' or cust4='%s')  and patient_status not in ('FI','MO','DE','IN')  and roster_status='%s' and dxresearch_code='%s' and status='A'");
+		caseloadSearchQueries.put("search_provdemo_dxfilter", "select distinct demographic_no, last_name, first_name from dxresearch left join demographic using (demographic_no) left join demographiccust using (demographic_no)  where (provider_no='%s' or cust1='%s' or cust2='%s' or cust4='%s')  and patient_status not in ('FI','MO','DE','IN') and dxresearch_code='%s' and status='A'");
+		caseloadSearchQueries.put("search_provdemo_rofilter", "select distinct demographic_no, last_name, first_name from demographic left join demographiccust using (demographic_no) where (provider_no='%s' or cust1='%s' or cust2='%s' or cust4='%s') and patient_status not in ('FI','MO','DE','IN') and roster_status='%s'");
+		caseloadSearchQueries.put("search_provdemo_nofilter", "select distinct demographic_no, last_name, first_name from demographic left join demographiccust using (demographic_no) where (provider_no='%s' or cust1='%s' or cust2='%s' or cust4='%s') and patient_status not in ('FI','MO','DE','IN')");
 	}
 
 	private static HashMap<String,String> caseloadSortQueries;
@@ -72,13 +60,8 @@ public class CaseloadDao {
 		caseloadSortQueries.put("cl_search_new_labs", "select demographic_no, count(1) as count from providerLabRouting left join patientLabRouting using (lab_no) where providerLabRouting.lab_type='HL7' and status='N' and provider_no='%s' group by demographic_no");
 		caseloadSortQueries.put("cl_search_new_docs", "select demographic_no, count(1) as count from providerLabRouting left join patientLabRouting using (lab_no) where providerLabRouting.lab_type='DOC' and status='N' and provider_no='%s' group by demographic_no");
 		caseloadSortQueries.put("cl_search_new_ticklers", "select demographic_no, count(1) as count from tickler where status='A' group by demographic_no");
-		caseloadSortQueries.put("cl_search_new_msgs", "select demographic_no, count(1) as count from msgDemoMap left join messagelisttbl on message = messageID where status='new' group by demographic_no");		
+		caseloadSortQueries.put("cl_search_new_msgs", "select demographic_no, count(1) as count from msgDemoMap left join messagelisttbl on message = messageID where status='new' group by demographic_no");
 		caseloadSortQueries.put("cl_search_measurement", "SELECT m.demographicNo as demographic_no, dataField FROM measurements m JOIN (SELECT demographicNo as demographic_no, max(dateObserved) max_date FROM measurements WHERE type='%s' GROUP BY demographic_no) m2 ON m.demographicNo = m2.demographic_no AND m.dateObserved = m2.max_date WHERE type='%s'");
-		
-		caseloadSortQueries.put("cl_search_lastencdate", "select demographic_no, update_date FROM casemgmt_note AS c WHERE NOT EXISTS (SELECT * FROM casemgmt_note WHERE update_date > c.update_date)");
-		caseloadSortQueries.put("cl_search_lastenctype", "select demographic_no, encounter_type from casemgmt_note AS c where NOT EXISTS (SELECT * FROM casemgmt_note WHERE update_date > c.update_date)");
-		caseloadSortQueries.put("cl_search_cashaddate", "select cr.client_id as demographic_no, cr.referral_date from client_referral cr where cr.program_id in (select id from program where name = '%s') and not exists (select * from client_referral where cr.program_id=program_id and cr.client_id=client_id and referral_date>cr.referral_date)");
-		caseloadSortQueries.put("cl_search_access1addate", "select cr.client_id as demographic_no, cr.referral_date from client_referral cr where cr.program_id in (select id from program where name = '%s') and not exists (select * from client_referral where cr.program_id=program_id and cr.client_id=client_id and referral_date>cr.referral_date)");
 	}
 
 	private static HashMap<String, String> caseloadDemoQueries;
@@ -86,7 +69,7 @@ public class CaseloadDao {
 	private static void initializeDemoQueries() {
 		caseloadDemoQueries = new HashMap<String, String>();
 		caseloadDemoQueries.put("search_rsstatus", "select distinct roster_status from demographic where roster_status not in ('', 'RO', 'NR', 'TE', 'FS')");
-		caseloadDemoQueries.put("cl_demographic_query", "select last_name, first_name, sex, CAST(month_of_birth AS UNSIGNED INTEGER), CAST(date_of_birth AS UNSIGNED INTEGER), CAST((DATE_FORMAT(NOW(), '%Y') - DATE_FORMAT(concat(year_of_birth,month_of_birth,date_of_birth), '%Y') - (DATE_FORMAT(NOW(), '00-%m-%d') < DATE_FORMAT(concat(year_of_birth,month_of_birth,date_of_birth), '00-%m-%d'))) as UNSIGNED INTEGER) as age from demographic where demographic_no=?");
+		caseloadDemoQueries.put("cl_demographic_query", "select last_name, first_name, sex, month_of_birth, date_of_birth, CAST((DATE_FORMAT(NOW(), '%Y') - DATE_FORMAT(concat(year_of_birth,month_of_birth,date_of_birth), '%Y') - (DATE_FORMAT(NOW(), '00-%m-%d') < DATE_FORMAT(concat(year_of_birth,month_of_birth,date_of_birth), '00-%m-%d'))) as UNSIGNED INTEGER) as age from demographic where demographic_no=?");
 		caseloadDemoQueries.put("cl_demographic_query_roster", "select last_name, first_name, sex, month_of_birth, date_of_birth, CAST((DATE_FORMAT(NOW(), '%Y') - DATE_FORMAT(concat(year_of_birth,month_of_birth,date_of_birth), '%Y') - (DATE_FORMAT(NOW(), '00-%m-%d') < DATE_FORMAT(concat(year_of_birth,month_of_birth,date_of_birth), '00-%m-%d'))) as UNSIGNED INTEGER) as age from demographic where demographic_no=? AND roster_status=?");
 		caseloadDemoQueries.put("cl_last_appt", "select max(appointment_date) from appointment where addtime(appointment_date, start_time) < now() and demographic_no=?");
 		caseloadDemoQueries.put("cl_next_appt", "select min(appointment_date) from appointment where addtime(appointment_date, start_time) > now() and demographic_no=?");
@@ -96,11 +79,6 @@ public class CaseloadDao {
 		caseloadDemoQueries.put("cl_new_ticklers", "select count(*) from tickler where status='A' and demographic_no=?");
 		caseloadDemoQueries.put("cl_new_msgs", "select count(*) from msgDemoMap left join messagelisttbl on message = messageID where demographic_no=? and status='new'");
 		caseloadDemoQueries.put("cl_measurement", "select dataField from measurements where type=? and demographicNo=? order by dateObserved desc limit 1");
-		
-		caseloadDemoQueries.put("LastEncounterDate", "select max(update_date) from casemgmt_note where update_date < now() and demographic_no=?");
-		caseloadDemoQueries.put("LastEncounterType", "SELECT encounter_type FROM casemgmt_note AS c WHERE demographic_no=? AND NOT EXISTS (SELECT * FROM casemgmt_note WHERE update_date > c.update_date)");
-		caseloadDemoQueries.put("CashAdmissionDate", "SELECT MAX(referral_date) FROM client_referral WHERE client_id=? AND program_id IN (SELECT id FROM program WHERE name=?)");
-		caseloadDemoQueries.put("Access1AdmissionDate", "SELECT MAX(referral_date) FROM client_referral WHERE client_id=? AND program_id IN (SELECT id FROM program WHERE name=?)");
 
 		initializeDemoQueryColumns();
 	}
@@ -120,45 +98,27 @@ public class CaseloadDao {
 		caseloadDemoQueryColumns.put("cl_new_ticklers", new String[] { "count(*)" } );
 		caseloadDemoQueryColumns.put("cl_new_msgs", new String[] { "count(*)" } );
 		caseloadDemoQueryColumns.put("cl_measurement", new String[] { "dataField" } );
-		
-		caseloadDemoQueryColumns.put("LastEncounterDate", new String[] { "update_date" } );
-		caseloadDemoQueryColumns.put("LastEncounterType", new String[] { "encounter_type" } );
-		caseloadDemoQueryColumns.put("CashAdmissionDate", new String[] { "referral_date" } );
-		caseloadDemoQueryColumns.put("Access1AdmissionDate", new String[] { "referral_date" } );
 	}
 
-	private String getFormatedSearchQuery(String searchQuery, String[] searchParams) {
-		if ("search_notes".equals(searchQuery)){
-			return String.format(caseloadSearchQueries.get(searchQuery), (Object[])searchParams);
-		} else {
-			if (searchParams.length > 1) {
-				Object[] tempParms = new Object[searchParams.length];
-				System.arraycopy(searchParams, 0, tempParms, 0, searchParams.length - 1);
-				tempParms[searchParams.length - 1] = Integer.parseInt(searchParams[searchParams.length - 1]);
-				return String.format(caseloadSearchQueries.get(searchQuery), tempParms);
-			} else {
-				return String.format(caseloadSearchQueries.get(searchQuery), Integer.parseInt(searchParams[0]));
-			}
-		}
-	}
-	
-	
 	@SuppressWarnings("unchecked")
 	public List<Integer> getCaseloadDemographicSet(String searchQuery, String[] searchParams, String[] sortParams, CaseloadCategory category, String sortDir, int page, int pageSize) {
 
 		String demoQuery = "";
 		String sortQuery = "";
 		String query = "";
-		demoQuery = getFormatedSearchQuery(searchQuery,searchParams);
 		if (category == CaseloadCategory.Demographic) {
+			demoQuery = String.format(caseloadSearchQueries.get(searchQuery), (Object[])searchParams);
 			query = demoQuery + String.format(" ORDER BY last_name %s, first_name %s LIMIT %d, %d", sortDir, sortDir, page * pageSize, pageSize);
 		} else if (category == CaseloadCategory.Age) {
+			demoQuery = String.format(caseloadSearchQueries.get(searchQuery), (Object[])searchParams);
 			int split = demoQuery.indexOf(",", demoQuery.indexOf("demographic_no"));
 			query = demoQuery.substring(0,split) + ", CAST((DATE_FORMAT(NOW(), '%Y') - DATE_FORMAT(concat(year_of_birth,month_of_birth,date_of_birth), '%Y') - (DATE_FORMAT(NOW(), '00-%m-%d') < DATE_FORMAT(concat(year_of_birth,month_of_birth,date_of_birth), '00-%m-%d'))) as UNSIGNED INTEGER) as age " + demoQuery.substring(split) + String.format(" ORDER BY ISNULL(age) ASC, age %s, last_name %s, first_name %s LIMIT %d, %d", sortDir, sortDir, sortDir, page * pageSize, pageSize);
 		} else if (category == CaseloadCategory.Sex) {
+			demoQuery = String.format(caseloadSearchQueries.get(searchQuery), (Object[])searchParams);
 			int split = demoQuery.indexOf(",", demoQuery.indexOf("demographic_no"));
 			query = demoQuery.substring(0,split) + ", sex " + demoQuery.substring(split) + String.format(" ORDER BY sex = '' ASC, sex %s, last_name %s, first_name %s LIMIT %d, %d", sortDir, sortDir, sortDir, page * pageSize, pageSize);
 		} else {
+			demoQuery = String.format(caseloadSearchQueries.get(searchQuery), (Object[])searchParams);
 			sortQuery = sortParams != null ? String.format(caseloadSortQueries.get(category.getQuery()), (Object[])sortParams) : caseloadSortQueries.get(category.getQuery());
 			if (category.isMeasurement()) {
 				query = String.format("SELECT Y.demographic_no, Y.last_name, Y.first_name, X.%s FROM (%s) as Y LEFT JOIN (%s) as X on Y.demographic_no = X.demographic_no ORDER BY ISNULL(X.%s) ASC, CAST(X.%s as DECIMAL(10,4)) %s, Y.last_name %s, Y.first_name %s LIMIT %d, %d",
@@ -215,7 +175,7 @@ public class CaseloadDao {
 		String demoQuery ="";
 		String query = "";
 
-		demoQuery = getFormatedSearchQuery(searchQuery,searchParams);
+		demoQuery = String.format(caseloadSearchQueries.get(searchQuery), (Object[])searchParams);
 		query = String.format("SELECT count(1) AS count FROM (%s) AS X", demoQuery);
 
 		Query q = entityManager.createNativeQuery(query);

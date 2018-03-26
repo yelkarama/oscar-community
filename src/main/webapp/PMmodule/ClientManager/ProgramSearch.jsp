@@ -24,35 +24,16 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_pmm" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_pmm");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
 
 
 <%-- Updated by Eugene Petruhin on 10 dec 2008 while fixing #2389527 --%>
 
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@ include file="/taglibs.jsp"%>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <%@page import="org.oscarehr.util.SpringUtils"%>
 
 <%@page import="org.oscarehr.PMmodule.caisi_integrator.CaisiIntegratorManager"%>
-<%@page import="org.oscarehr.caisi_integrator.ws.CachedFacility"%>
-<%
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-%>
-<html:html locale="true">
+<%@page import="org.oscarehr.caisi_integrator.ws.CachedFacility"%><html:html locale="true">
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>Program Search</title>
@@ -213,7 +194,7 @@ if (!Array.prototype.indexOf)
 			<c:set var="integratorFacilityId" value="${program.facilityIdIntegerCompositePk.integratorFacilityId}" scope="request" />
 			<%
 				Integer integratorFacilityId=(Integer)request.getAttribute("integratorFacilityId");
-				CachedFacility cachedFacility=CaisiIntegratorManager.getRemoteFacility(loggedInInfo, loggedInInfo.getCurrentFacility(),integratorFacilityId);
+				CachedFacility cachedFacility=CaisiIntegratorManager.getRemoteFacility(integratorFacilityId);
 			%>
 			<%=cachedFacility.getName()%>
 		</display:column>

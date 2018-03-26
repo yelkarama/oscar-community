@@ -35,7 +35,8 @@ import javax.servlet.http.HttpSession;
 import org.apache.log4j.Logger;
 import org.oscarehr.common.model.Facility;
 import org.oscarehr.common.model.Provider;
-import org.oscarehr.common.model.Security;
+
+import com.quatro.model.security.Security;
 
 public class LoggedInUserFilter implements javax.servlet.Filter {
 	private static final Logger logger = MiscUtils.getLogger();
@@ -47,31 +48,36 @@ public class LoggedInUserFilter implements javax.servlet.Filter {
 	public void doFilter(ServletRequest tmpRequest, ServletResponse tmpResponse, FilterChain chain) throws IOException, ServletException {
 		logger.debug("Entering LoggedInUserFilter.doFilter()");
 
-		// set new / current data
-		HttpServletRequest request = (HttpServletRequest) tmpRequest;
-		LoggedInInfo x = generateLoggedInInfoFromSession(request);
-		LoggedInInfo.setLoggedInInfoIntoSession(request.getSession(), x);
+		try {
+			LoggedInInfo.checkForLingeringData();
 
-		logger.debug("LoggedInUserFilter chainning");
-		chain.doFilter(tmpRequest, tmpResponse);
+			// set new / current data
+			HttpServletRequest request = (HttpServletRequest) tmpRequest;
+			LoggedInInfo x = generateLoggedInInfoFromSession(request);
+			LoggedInInfo.loggedInInfo.set(x);
+
+			logger.debug("LoggedInUserFilter chainning");
+			chain.doFilter(tmpRequest, tmpResponse);
+		} finally {
+			LoggedInInfo.loggedInInfo.remove();
+		}
 	}
 
 	public void destroy() {
 		// can't think of anything to do right now.
 	}
-
-	public static LoggedInInfo generateLoggedInInfoFromSession(HttpServletRequest request) {
-		HttpSession session = request.getSession();
-
-		LoggedInInfo loggedInInfo = new LoggedInInfo();
-		loggedInInfo.setSession(session);
-		loggedInInfo.setCurrentFacility((Facility) session.getAttribute(SessionConstants.CURRENT_FACILITY));
-		loggedInInfo.setLoggedInProvider((Provider) session.getAttribute(SessionConstants.LOGGED_IN_PROVIDER));
-		loggedInInfo.setLoggedInSecurity((Security) session.getAttribute(SessionConstants.LOGGED_IN_SECURITY));
-		loggedInInfo.setInitiatingCode(request.getRequestURI());
-		loggedInInfo.setLocale(request.getLocale());
-		loggedInInfo.setIp(request.getRemoteAddr());
-
-		return (loggedInInfo);
+	
+	public static LoggedInInfo generateLoggedInInfoFromSession(HttpServletRequest request)
+	{
+		HttpSession session=request.getSession();
+		
+		LoggedInInfo x = new LoggedInInfo();
+		x.session = session;
+		x.currentFacility = (Facility) session.getAttribute(SessionConstants.CURRENT_FACILITY);
+		x.loggedInProvider = (Provider) session.getAttribute(SessionConstants.LOGGED_IN_PROVIDER);
+		x.loggedInSecurity = (Security) session.getAttribute(SessionConstants.LOGGED_IN_SECURITY);
+		x.initiatingCode = request.getRequestURI();
+	
+		return(x);
 	}
 }

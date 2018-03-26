@@ -24,7 +24,6 @@ import java.util.Vector;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
-import org.oscarehr.util.LoggedInInfo;
 
 import oscar.oscarBilling.ca.on.data.BillingClaimHeader1Data;
 import oscar.oscarBilling.ca.on.data.BillingDataHlp;
@@ -38,10 +37,10 @@ public class BillingSpecPrep {
 	JdbcBillingClaimImpl dbObj = new JdbcBillingClaimImpl();
 
 	// save a billing record
-	public boolean addABillingRecord(LoggedInInfo loggedInInfo, Vector val) {
+	public boolean addABillingRecord(Vector val) {
 		boolean ret = false;
 		BillingClaimHeader1Data claim1Obj = (BillingClaimHeader1Data) val.get(0);
-		int billingNo = dbObj.addOneClaimHeaderRecord(loggedInInfo, claim1Obj);
+		int billingNo = dbObj.addOneClaimHeaderRecord(claim1Obj);
 		if (billingNo == 0)
 			return false;
 		if (val.size() > 1) {
@@ -132,13 +131,13 @@ public class BillingSpecPrep {
 		double runningTotal = 0.0;
 		String[] codes = val.getParameter("svcCode").split(",");
 		List tL;
-		for(int idx = 0; idx < codes.length; idx++  ) {
+		for(int idx = 0; idx < codes.length; ++idx  ) {
 			tL = tObj.getBillingCodeAttr(codes[idx].trim());
-			total = (tL != null && tL.size()>0) ? (String) tL.get(2) : "0.0";
+			total = tL != null ? (String) tL.get(2) : "0.0";
 			runningTotal += Double.parseDouble(total);
 		}
 		
-		if( (int)runningTotal == 0 ) {
+		if( runningTotal == 0.0 ) {
 			total = "";
 		}
 		else {

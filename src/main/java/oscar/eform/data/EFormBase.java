@@ -26,7 +26,6 @@
 package oscar.eform.data;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Properties;
 
 import oscar.util.StringBuilderUtils;
@@ -36,7 +35,6 @@ public class EFormBase {
     protected final String imageMarker = "${oscar_image_path}";
 	protected final String jsMarker = "${oscar_javascript_path}";
 	protected final String signatureMarker = "${oscar_signature_code}";
-	protected final String sourceMarker = "${source}";
     protected String fdid;
     protected String fid;
     protected String formName;
@@ -48,13 +46,9 @@ public class EFormBase {
     protected String providerNo;
     protected String formDate;
     protected String formTime;
-    protected boolean showLatestFormOnly=false;
     protected boolean patientIndependent=false;
     protected String roleType;
-    protected String programNo;
-    protected boolean restrictByProgram = false;
-    protected Boolean disableUpdate = false;
-    
+
     protected ArrayList<String> updateFields = new ArrayList<String>();
 
     public EFormBase() {
@@ -73,17 +67,14 @@ public class EFormBase {
     }
 
     public EFormBase(String fid, String formName, String formSubject,
-            String formFileName, String formHtml, boolean showLatestFormOnly, boolean patientIndependent, String roleType, String programNo, boolean restrictByProgram) {
+            String formFileName, String formHtml, boolean patientIndependent, String roleType) {
         this.fid = fid;
         this.formName = formName;
         this.formSubject = formSubject;
         this.formHtml = formHtml;
         this.formFileName = formFileName;
-        this.showLatestFormOnly = showLatestFormOnly;
         this.patientIndependent = patientIndependent;
         this.roleType = roleType;
-        this.programNo = programNo;
-        this.restrictByProgram = restrictByProgram;
         dateTimeStamp();
     }
 
@@ -170,8 +161,8 @@ public class EFormBase {
     }
 
     private void dateTimeStamp() {
-       formDate = UtilDateUtilities.DateToString(new Date(), "yyyy-MM-dd");
-       formTime = UtilDateUtilities.DateToString(new Date(), "HH:mm:ss");
+       formDate = UtilDateUtilities.DateToString(UtilDateUtilities.now(), "yyyy-MM-dd");
+       formTime = UtilDateUtilities.DateToString(UtilDateUtilities.now(), "HH:mm:ss");
     }
 
     public void setFormCreator(String formCreator) {
@@ -182,44 +173,11 @@ public class EFormBase {
         return this.formCreator;
     }
 
-    public boolean isShowLatestFormOnly() {
-        return this.showLatestFormOnly;
-    }
-
-    public void setShowLatestFormOnly(boolean showLatestFormOnly) {
-        this.showLatestFormOnly = showLatestFormOnly;
-    }
-
-    public boolean isPatientIndependent() {
+    public boolean getPatientIndependent() {
         return this.patientIndependent;
     }
 
     public void setPatientIndependent(boolean patientIndependent) {
         this.patientIndependent = patientIndependent;
     }
-
-	public String getProgramNo() {
-		return programNo;
-	}
-
-	public void setProgramNo(String programNo) {
-		this.programNo = programNo;
-	}
-
-	public boolean isRestrictByProgram() {
-		return restrictByProgram;
-	}
-
-	public void setRestrictByProgram(boolean restrictByProgram) {
-		this.restrictByProgram = restrictByProgram;
-	}
-
-	public Boolean getDisableUpdate() {
-		return disableUpdate;
-	}
-
-	public void setDisableUpdate(Boolean disableUpdate) {
-		this.disableUpdate = disableUpdate;
-	}
-    
 }

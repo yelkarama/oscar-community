@@ -27,21 +27,6 @@
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_rx" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_rx");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%
 String id = request.getParameter("id");
 
@@ -134,7 +119,6 @@ Drug drug = drugDao.find(drugId);
 									<%}%>
 									<br>
 									Long Term: <%= drug.getLongTerm()%><br>
-									Short Term: <%= drug.getShortTerm()%><br>
 									Past Med: <%= drug.getPastMed()%><br>
 									Patient Compliance: <%= drug.getPatientCompliance()%><br>
 									Last Refill: <%= drug.getLastRefillDate()%><br>

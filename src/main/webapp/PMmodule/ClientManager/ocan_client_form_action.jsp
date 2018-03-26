@@ -22,21 +22,6 @@
     Toronto, Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_form" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_form");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="org.oscarehr.common.model.OcanStaffForm"%>
 <%@page import="org.oscarehr.common.model.OcanStaffFormData"%>
@@ -50,8 +35,6 @@
 <%@page import="java.util.List"%>
 <%@page import="org.apache.commons.lang.StringUtils"%>
 <%
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-
 	@SuppressWarnings("unchecked")
 	HashMap<String,String[]> parameters=new HashMap(request.getParameterMap());
 
@@ -67,7 +50,7 @@
 	//String assessmentStatus = parameters.get("assessment_status")[0];
 	String ocanStaffFormId = parameters.get("ocanStaffFormId")[0];
 
-	OcanStaffForm ocanClientForm=OcanFormAction.createOcanStaffForm(loggedInInfo,ocanStaffFormId,clientId,signed);
+	OcanStaffForm ocanClientForm=OcanFormAction.createOcanStaffForm(ocanStaffFormId,clientId,signed);
 	ocanClientForm.setLastName(request.getParameter("lastName")==null?"":request.getParameter("lastName"));
 	ocanClientForm.setFirstName(request.getParameter("firstName")==null?"":request.getParameter("firstName"));	
 	
@@ -101,8 +84,9 @@
 	}catch(java.text.ParseException e){}
 	
 	ocanClientForm.setClientFormCreated(new Date());
-	ocanClientForm.setClientFormProviderNo(loggedInInfo.getLoggedInProviderNo());
-	ocanClientForm.setClientFormProviderName(loggedInInfo.getLoggedInProvider().getFormattedName());		
+	LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+	ocanClientForm.setClientFormProviderNo(loggedInInfo.loggedInProvider.getProviderNo());
+	ocanClientForm.setClientFormProviderName(loggedInInfo.loggedInProvider.getFormattedName());		
 
 	OcanFormAction.saveOcanStaffForm(ocanClientForm);
 	

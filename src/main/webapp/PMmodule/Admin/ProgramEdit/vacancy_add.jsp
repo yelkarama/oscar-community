@@ -23,25 +23,11 @@
     Toronto, Ontario, Canada
 
 --%>
-<%@ include file="/taglibs.jsp"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin.pmm" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_admin.pmm");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
 
 <%@page import="org.oscarehr.PMmodule.model.Vacancy"%>
 <%@page import="org.oscarehr.PMmodule.model.VacancyTemplate"%>
 <%@page import="org.oscarehr.PMmodule.model.Criteria"%>
-<%@page import="org.oscarehr.PMmodule.dao.CriteriaDao"%>
+<%@page import="org.oscarehr.PMmodule.dao.CriteriaDAO"%>
 <%@page import="org.oscarehr.PMmodule.model.CriteriaType"%>
 <%@page import="org.oscarehr.PMmodule.service.VacancyTemplateManager"%>
 <%@page import="org.apache.commons.lang.StringUtils"%>
@@ -54,18 +40,17 @@
 <%@page import="java.util.ResourceBundle"%>
 <%@page import="java.text.SimpleDateFormat"%>
 
-
+<%@ include file="/taglibs.jsp"%>
 
 <%
-	CriteriaDao criteriaDAO = SpringUtils.getBean(CriteriaDao.class);
+	CriteriaDAO criteriaDAO = (CriteriaDAO) SpringUtils.getBean("criteriaDAO");
 	List<Criteria> criterias = new ArrayList<Criteria>();
 	Vacancy vacancy = null;
 	Integer templateId = null, vacancyId_int = null;
 	String reasonClosed = "", dateClosed = "";
 	String vacancyId = (String) request.getAttribute("vacancyOrTemplateId");
-	String vacancyName = "";
 	boolean dontSave = false;
-	String vacancyStatus = "";
+	
 	if (!StringUtils.isBlank(vacancyId) && !vacancyId.equalsIgnoreCase("null"))	{	
 		dontSave = true;
 		vacancyId_int = Integer.valueOf(vacancyId);	
@@ -79,7 +64,7 @@
 			if(reasonClosed == null) 
 				reasonClosed = "";
 			Date dc = vacancy.getDateClosed();
-			vacancyName = vacancy.getName();
+			
 			SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy H:mm", request.getLocale());
 			ResourceBundle props = ResourceBundle.getBundle("oscarResources", request.getLocale());
 			if (dc !=null ) {			
@@ -93,7 +78,7 @@
 						
 		}
 		criterias = VacancyTemplateManager.getCriteriasByVacancyId(Integer.valueOf(vacancyId));
-		vacancyStatus = vacancy.getStatus();
+		
 	}	else	{	
 		vacancyId = "";		
 		vacancy= new Vacancy();	
@@ -102,7 +87,6 @@
 			templateId = selectedTemplate.getId();
 			criterias = VacancyTemplateManager.getRefinedCriteriasByTemplateId(templateId);				
 		}
-		vacancyStatus = "Active";
 	}
 	
 	
@@ -110,28 +94,19 @@
 <script type="text/javascript">
 
 	function save() {
-		document.programManagerForm.elements['view.tab'].value="vacancies";
-		document.programManagerForm.elements['view.subtab'].value="vacancies";
 		document.programManagerForm.method.value='save_vacancy';
-		document.programManagerForm.submit();
+		document.programManagerForm.submit()
 	}  
 	
 	function chooseTemplate(selectBox) {
-		var template_id = selectBox.options[selectBox.selectedIndex].value;		
+		var template_id = selectBox.options[selectBox.selectedIndex].value;
+		document.programManagerForm.elements['view.tab'].value="vacancy_add";
 		document.programManagerForm.elements['requiredVacancyTemplateId'].value=template_id;	
 		document.programManagerForm.elements['vacancyOrTemplateId'].value="";
-		document.programManagerForm.method.value='chooseTemplate';				
-		document.programManagerForm.submit();
-	}
-	
-	function cancel2() {
-		document.programManagerForm.elements['view.tab'].value="vacancies";
-		document.programManagerForm.elements['view.subtab'].value="vacancies";
-		document.programManagerForm.method.value='edit';
+		document.programManagerForm.method.value='chooseTemplate';
 		document.programManagerForm.submit();
 	}
 	    
-	
 </script>
 <div class="tabs" id="tabs">
 	<table cellpadding="3" cellspacing="0" border="0">
@@ -140,13 +115,13 @@
 		</tr>
 	</table>
 </div>
-<input type="hidden" name="id" id="id" value="<%=request.getAttribute("id")%>" />
 <input type="hidden" name="programId" id="programId" value="<%=request.getAttribute("id")%>" />
 <input type="hidden" name="vacancyId" id="vacancyId" value="<%=vacancyId%>" />
+<input type="hidden" name="view.tab" id="view.tab" value="<%=request.getAttribute("view.tab")%>" />
 <table width="100%" border="1" cellspacing="2" cellpadding="3">
 	<tr class="b">
 		<td width="30%" class="beright">Requirement Template:</td>
-		<td><select name="requiredVacancyTemplateId" onchange="chooseTemplate(this);" <%= (dontSave==true)?"disabled":"" %>>
+		<td><select name="requiredVacancyTemplateId" onchange="chooseTemplate(this);">
 			<option value="0">&nbsp;</option>
 		<% 				
 			Integer programId_int = null;
@@ -163,11 +138,10 @@
 		<%} %>
 		</select></td>
 	</tr>
-	<tr class="b">
-		<td class="beright">Vacancy Name:</td>
-		<td><input type="text" name="vacancyName" value="<%= vacancyName %>" size="40" <%=(dontSave==true)?"disabled":"" %>/></td>
-	</tr>
-	<legend>Additional Criteria For this Vacancy/Service Opening</legend>
+</table>
+<br>
+<fieldset>
+	<legend>Additional Criteria For this Vavancy/Service Opening</legend>
 	
 	<% 
 		
@@ -192,10 +166,10 @@
 <table width="100%" border="1" cellspacing="2" cellpadding="3">
 	<tr class="b">
 		<td width="30%" class="beright">Status:</td>
-		<td><select name="vacancyStatus">		
-				<option value="Active" <%=(vacancyStatus.equalsIgnoreCase("Active"))?"selected":"" %> >Active</option>
-				<option value="Withdrawn" <%=(vacancyStatus.equalsIgnoreCase("Withdrawn"))?"selected":"" %> >Withdrawn</option>
-				<option value="Filled" <%=(vacancyStatus.equalsIgnoreCase("Filled"))?"selected":"" %>>Filled</option>
+		<td><select name="vacancyStatus">
+				<option value="Active">Active</option>
+				<option value="Withdrawn">Withdrawn</option>
+				<option value="Filled">Filled</option>
 		</td>
 	</tr>
 	<tr class="b">
@@ -215,9 +189,9 @@
 <table width="100%" border="1" cellspacing="2" cellpadding="3">
 	<tr>
 	<td colspan="2">
-	
+	<% if(!dontSave) {%>
 		 <input type="button" value="Save" onclick="return save()" /> 
-	
-		 <input type="button" value="Cancel" onclick="return cancel2()" /></td>
+	<% } %>
+		 <html:cancel /></td>
 	</tr>
 </table>

@@ -25,15 +25,12 @@
 package org.oscarehr.common.model;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -43,10 +40,6 @@ import javax.persistence.Transient;
 @Table(name="demographicExt")
 public class DemographicExt extends AbstractModel<Integer> implements Serializable {
 
-	public static enum FIRST_NATION_KEY {
-		statusNum, ethnicity, aboriginal, fNationCom, fNationFamilyNumber, fNationFamilyPosition
-	}
-	
 	@Transient
     private int hashCode = Integer.MIN_VALUE;// primary key
 	@Id
@@ -63,13 +56,7 @@ public class DemographicExt extends AbstractModel<Integer> implements Serializab
     @Temporal(TemporalType.TIMESTAMP)
     private java.util.Date dateCreated;
     private boolean hidden;
-	
-	@PrePersist
-	@PreUpdate
-	protected void prePersist() {
-		this.dateCreated = new Date();
-	}
-	
+
     // constructors
     public DemographicExt () {
         // do nothing
@@ -82,45 +69,9 @@ public class DemographicExt extends AbstractModel<Integer> implements Serializab
         this.setId(id);
     }
 
-	/**
-	 * Constructor for primary key
-	 */
-	public DemographicExt(String providerNo, Integer demographicNo, String key, String value) {
-		this.providerNo = providerNo;
-		this.demographicNo = demographicNo;
-		this.key = key;
-		this.value = value;
-	}
-	
-	/**
-	 * Constructor for primary key
-	 */
-	public DemographicExt(Integer id, String providerNo, Integer demographicNo, String key, String value) {
-		this.id = id;
-		this.providerNo = providerNo;
-		this.demographicNo = demographicNo;
-		this.key = key;
-		this.value = value;
-	}
-	
-	/**
-	 * Constructor for primary key
-	 */
-	public DemographicExt(String strId, String providerNo, Integer demographicNo, String key, String value) {
-		try {
-			this.id = Integer.parseInt(strId);
-		} catch (NumberFormatException e) {
-			this.id = null;
-		}
-		this.providerNo = providerNo;
-		this.demographicNo = demographicNo;
-		this.key = key;
-		this.value = value;
-	}
-	
     /**
      * Return the unique identifier of this class
-     * 
+     * @hibernate.id
      *  generator-class="native"
      *  column="id"
      */
@@ -227,7 +178,7 @@ public class DemographicExt extends AbstractModel<Integer> implements Serializab
         this.hidden = hidden;
     }
 
-	public boolean equals (Object obj) {
+    public boolean equals (Object obj) {
         if (null == obj) return false;
         if (!(obj instanceof DemographicExt)) return false;
         else {
@@ -249,6 +200,6 @@ public class DemographicExt extends AbstractModel<Integer> implements Serializab
     }
 
     public String toString () {
-        return "DemographicExt: id=" + getId() + ",key=" + this.getKey() + ",value=" + this.getValue() + ",providerNo=" + this.getProviderNo() + ",demographicNo=" + this.getDemographicNo();
+        return super.toString();
     }
 }

@@ -101,8 +101,6 @@ public class FacilityManagerAction extends DispatchAction {
 	}
 
 	public ActionForward save(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-
 		oscar.facility.FacilityManagerForm mform = (oscar.facility.FacilityManagerForm) form;
 		Facility facility = mform.getFacility();
 		
@@ -120,11 +118,11 @@ public class FacilityManagerAction extends DispatchAction {
 		facility.setEnableDigitalSignatures(WebUtils.isChecked(request, "facility.enableDigitalSignatures"));
 		if (facility.getId() == null || facility.getId() == 0) facilityDao.persist(facility);
 		else facilityDao.merge(facility);
-
+		LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
 		// if we just updated our current facility, refresh local cached data in the session / thread local variable
-		if (loggedInInfo.getCurrentFacility().getId().intValue() == facility.getId().intValue()) {
+		if (loggedInInfo.currentFacility.getId().intValue() == facility.getId().intValue()) {
 			request.getSession().setAttribute(SessionConstants.CURRENT_FACILITY, facility);
-			loggedInInfo.setCurrentFacility(facility);
+			loggedInInfo.currentFacility = facility;
 		}
 		ActionMessages mssgs = new ActionMessages();
 		mssgs.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("facility.saved", facility.getName()));

@@ -21,10 +21,10 @@
 <%@page import="java.util.List"%>
 <%@page import="org.oscarehr.common.dao.Icd9Dao"%>
 <%@page import="org.oscarehr.common.model.Icd9"%>
-<%@page import="org.oscarehr.util.SpringUtils"%>
+<%@ include file="/common/webAppContextAndSuperMgr.jsp"%>
 <%
 
-            Icd9Dao icd9dao = (Icd9Dao) SpringUtils.getBean("Icd9DAO");
+            Icd9Dao icd9dao = (Icd9Dao) webApplicationContext.getBean("Icd9DAO");
 
 
             String query = request.getParameter("q");
@@ -34,7 +34,7 @@
             if (Icd9List != null && Icd9List.size() > 0) {
                 Iterator<Icd9> iterator = Icd9List.iterator();
                 while (iterator.hasNext()) {
-                    Icd9 icd9 = iterator.next();
+                    Icd9 icd9 = (Icd9) iterator.next();
                     String code = icd9.getIcd9();
                     String description = icd9.getDescription();
                     out.println(code + " --> " + description);

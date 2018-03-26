@@ -23,16 +23,7 @@ public class BillingReviewCodeItem {
 	String codeUnit;
 	String codeFee;
 	String codeTotal;
-	String codeAt;
 	String msg;
-	String codeDescription;
-	
-	public String getCodeAt() {
-		return codeAt;
-	}
-	public void setCodeAt(String codeAt) {
-		this.codeAt = codeAt;
-	}
 	public String getCodeFee() {
 		return codeFee;
 	}
@@ -63,11 +54,4 @@ public class BillingReviewCodeItem {
 	public void setCodeTotal(String codeTotal) {
 		this.codeTotal = codeTotal;
 	}
-	public String getCodeDescription() {
-		return codeDescription;
-	}
-	public void setCodeDescription(String codeDescription) {
-		this.codeDescription = codeDescription;
-	}
-	
 }

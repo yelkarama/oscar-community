@@ -30,11 +30,9 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EntityResult;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.SqlResultSetMapping;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 
@@ -50,22 +48,6 @@ import oscar.util.UtilDateUtilities;
  */
 @Entity
 @Table(name = "billingmaster")
-@SqlResultSetMapping(name = "select_user_bill_report_wcb_mapping",
-	entities={
-		@EntityResult(entityClass=Billingmaster.class)
-		/*
-		@EntityResult(entityClass=Demographic.class)
-	,fields={
-			 @FieldResult(name="billingmasterNo", column = "billingmaster_no")
-		}
-		,
-		@EntityResult(entityClass=Wcb.class),
-		,
-		@EntityResult(entityClass=TeleplanC12.class),
-*/
-}
-)
-
 public class Billingmaster {
 
     /**
@@ -1316,6 +1298,13 @@ public class Billingmaster {
         this.oinPostalcode = oinPostalcode;
     }
 
+    public void setPractitioner_no(String practitioner_no) {
+        this.practitionerNo = practitioner_no;
+    }
+
+    public void setPayee_no(String payee_no) {
+        this.payeeNo = payee_no;
+    }
 
     public int getPaymentMethod() {
         return paymentMethod;
@@ -1335,9 +1324,9 @@ public class Billingmaster {
         BigDecimal bdFee = null;
         try {
             double dFee = Double.parseDouble(getBillAmount());
-            bdFee = new BigDecimal(getBillAmount()).setScale(2, BigDecimal.ROUND_HALF_UP);
+            bdFee = new BigDecimal(dFee).setScale(2, BigDecimal.ROUND_HALF_UP);
         } catch (Exception e) {
-            bdFee = new BigDecimal("0").setScale(2, BigDecimal.ROUND_HALF_UP);
+            bdFee = new BigDecimal(0.00).setScale(2, BigDecimal.ROUND_HALF_UP);
         }
         return bdFee;
     }
@@ -1355,13 +1344,11 @@ public class Billingmaster {
         return retval;
     }
 
-    
-    public Integer getWcbId() {
-		return wcbId;
-	}
+    public int getWcbId() {
+        return wcbId;
+    }
 
-	public void setWcbId(Integer wcbId) {
-		this.wcbId = wcbId;
-	}
-
+    public void setWcbId(Integer wcbId) {
+        this.wcbId = wcbId;
+    }
 }

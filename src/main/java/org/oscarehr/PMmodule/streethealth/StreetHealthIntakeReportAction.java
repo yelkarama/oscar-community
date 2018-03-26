@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -42,29 +43,25 @@ import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.apache.struts.actions.DispatchAction;
 import org.oscarehr.PMmodule.model.Intake;
 import org.oscarehr.PMmodule.model.IntakeAnswer;
 import org.oscarehr.PMmodule.service.StreetHealthReportManager;
+import org.oscarehr.PMmodule.web.BaseAction;
 import org.oscarehr.common.model.Demographic;
-import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
 /**
  * 
  * @author Marc Dumontier (marc@mdumontier.com)
  *
  */
-public class StreetHealthIntakeReportAction extends DispatchAction {
+public class StreetHealthIntakeReportAction extends BaseAction {
 	
 	private static Logger log = MiscUtils.getLogger();
 	
 	private static final String SDF_PATTERN = "yyyy-MM-dd";
 	private static final String COHORT_CRITICAL_YM = "-03-31";
-	
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
 	
 	/*
 	 * 	these values must be retrieved by node id because they are not mapped to a label
@@ -390,14 +387,9 @@ public class StreetHealthIntakeReportAction extends DispatchAction {
 		}catch(NumberFormatException e) {log.warn(e);}
 	}
 	
-	public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)  {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_report", "r", null)) {
-        	throw new SecurityException("missing required security object (_report)");
-        }
-		
-		String target = "success";   
+    @SuppressWarnings("unchecked")
+	public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        String target = "success";   
         
         if(request.getParameter("action") != null && request.getParameter("action").equalsIgnoreCase("download")) {
         	target="download";
@@ -409,7 +401,7 @@ public class StreetHealthIntakeReportAction extends DispatchAction {
         loadNodeIdsWithNoLabels();
         
         //initialize business manager
-        this.mgr = (StreetHealthReportManager) SpringUtils.getBean("streetHealthReportManager");
+        this.mgr = (StreetHealthReportManager) getAppContext().getBean("streetHealthReportManager");
         
       
         //check to make sure use is logged in
@@ -434,11 +426,14 @@ public class StreetHealthIntakeReportAction extends DispatchAction {
         //based on the start date, return the "cohorts".
         List<DateRange> dates = getDates(startDate);        
         request.setAttribute("dates",dates);
-                  
+    
+        //get current facility Id
+        LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+              
         //for each cohort, extract the values from the intakes
         for(int x=0;x<dates.size();x++) {
         	DateRange dr = dates.get(x);       
-        	List cohort = mgr.getCohort(dr.getStartDate(), dr.getEndDate(), loggedInInfo.getCurrentFacility().getId());
+        	List cohort = mgr.getCohort(dr.getStartDate(), dr.getEndDate(), loggedInInfo.currentFacility.getId());
         	if (cohort != null) {          
         		getCohortCount(results,cohort,x);
             }
@@ -455,6 +450,7 @@ public class StreetHealthIntakeReportAction extends DispatchAction {
      * For each intake in the cohort, pull out the values, and add to the results map 
      * 
      */
+    @SuppressWarnings("unchecked")
 	public void getCohortCount(Map<StreetHealthReportKey,Integer> results, List cohortList, int idx) {
         int minAge=0;
         int maxAge=0;
@@ -792,9 +788,7 @@ public class StreetHealthIntakeReportAction extends DispatchAction {
 	            		if(hospitalization.getDeclined().equalsIgnoreCase("T")) {
 	            			numDeclined++;
 	            		}
-	            	} catch(NumberFormatException e) {
-	            		MiscUtils.getLogger().warn("warning",e);
-	            	}
+	            	} catch(NumberFormatException e) {}
 	            }
 	           
 	            addToResults(results,idx,"Current Psychiatric Hospitalizations","Total Number of Episodes",numPsychHospitalizations);
@@ -958,6 +952,11 @@ public class StreetHealthIntakeReportAction extends DispatchAction {
     
     public HospitalizationBean getHospitalizationInfo(Intake intake, String label, int date, int length, int psych, int phys, int declined) {
     	HospitalizationBean bean = new HospitalizationBean();
+    	//bean.setDate(getIntakeAnswerByNodeId(intake, label + " year",date));
+    	//bean.setLength(getIntakeAnswerByNodeId(intake, label + " length",length));
+    	//bean.setPsychiatric(getIntakeAnswerByNodeId(intake, label + " psychiatric",psych));
+    	//bean.setPhysical(getIntakeAnswerByNodeId(intake, label + " physical",phys));
+    	//bean.setDeclined(getIntakeAnswerByNodeId(intake, label + " declined",declined));    
     	
     	bean.setDate(getIntakeAnswerByNodeId(intake,date));
     	bean.setLength(getIntakeAnswerByNodeId(intake,length));

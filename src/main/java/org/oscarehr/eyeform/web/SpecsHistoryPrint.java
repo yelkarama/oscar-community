@@ -36,7 +36,7 @@ import org.apache.log4j.Logger;
 import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.casemgmt.service.CaseManagementPrintPdf;
 import org.oscarehr.casemgmt.util.ExtPrint;
-import org.oscarehr.eyeform.dao.EyeformSpecsHistoryDao;
+import org.oscarehr.eyeform.dao.SpecsHistoryDao;
 import org.oscarehr.eyeform.model.EyeformSpecsHistory;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
@@ -51,20 +51,21 @@ public class SpecsHistoryPrint implements ExtPrint {
 
 	private static Logger logger = MiscUtils.getLogger();
 	
+	
 	@Override
 	public void printExt(CaseManagementPrintPdf engine, HttpServletRequest request) throws IOException, DocumentException{
-		logger.debug("specs history print!!!!");
+		logger.info("specs history print!!!!");
 		String startDate = request.getParameter("pStartDate");
 		String endDate = request.getParameter("pEndDate");
 		String demographicNo = request.getParameter("demographicNo");
 		
-		logger.debug("startDate = "+startDate);
-		logger.debug("endDate = "+endDate);
-		logger.debug("demographicNo = "+demographicNo);
+		logger.info("startDate = "+startDate);
+		logger.info("endDate = "+endDate);
+		logger.info("demographicNo = "+demographicNo);
 		
 		ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
-		EyeformSpecsHistoryDao dao = (EyeformSpecsHistoryDao)SpringUtils.getBean(EyeformSpecsHistoryDao.class);
-		
+		SpecsHistoryDao dao = (SpecsHistoryDao)SpringUtils.getBean("SpecsHistoryDAO");
+    	
     	
 		List<EyeformSpecsHistory> specs = null;
 		
@@ -76,10 +77,7 @@ public class SpecsHistoryPrint implements ExtPrint {
 				Date dStartDate = formatter.parse(startDate);
 				Date dEndDate = formatter.parse(endDate);
 				specs = dao.getByDateRange(Integer.parseInt(demographicNo),dStartDate,dEndDate);
-			}catch(Exception e)
-			{
-				logger.error("Error", e);
-				}
+			}catch(Exception e){logger.error(e);}
 			
 		}
 		

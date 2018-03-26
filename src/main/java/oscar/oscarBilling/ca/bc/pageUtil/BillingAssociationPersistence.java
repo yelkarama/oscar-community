@@ -24,16 +24,18 @@
 
 package oscar.oscarBilling.ca.bc.pageUtil;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.oscarehr.billing.CA.BC.dao.CtlServiceCodesDxCodesDao;
-import org.oscarehr.billing.CA.BC.model.CtlServiceCodesDxCodes;
-import org.oscarehr.common.dao.BillingServiceDao;
 import org.oscarehr.common.dao.DiagnosticCodeDao;
 import org.oscarehr.common.model.DiagnosticCode;
+import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
+
+import oscar.oscarDB.DBHandler;
 
 /**
  *
@@ -52,9 +54,7 @@ public class BillingAssociationPersistence {
 
 
 	private DiagnosticCodeDao diagnosticCodeDao = SpringUtils.getBean(DiagnosticCodeDao.class);
-	private CtlServiceCodesDxCodesDao dao = SpringUtils.getBean(CtlServiceCodesDxCodesDao.class);
-	private BillingServiceDao billingServiceDao = (BillingServiceDao)SpringUtils.getBean(BillingServiceDao.class);
-	
+
 
   public BillingAssociationPersistence() {
 
@@ -63,7 +63,7 @@ public class BillingAssociationPersistence {
   /**
    * Saves a ServiceCodeAssociation object to the database
    * @param assoc ServiceCodeAssociation
-   * @param mode
+   * @return boolean
    */
   public void saveServiceCodeAssociation(ServiceCodeAssociation assoc,
                                          String mode) {
@@ -87,26 +87,40 @@ public class BillingAssociationPersistence {
    * @return boolean
    */
   private boolean newServiceCodeAssoc(String svc, String dx) {
-	  
-	  CtlServiceCodesDxCodes c = new CtlServiceCodesDxCodes();
-	  c.setServiceCode(svc);
-	  c.setDxCode(dx);
-	  dao.persist(c);
-	 
-	  return true;
+    boolean ret = false;
+    String qry =
+        "insert into ctl_servicecodes_dxcodes(service_code,dxcode) values('" +
+        svc + "','" + dx + "')";
+
+    try {
+
+      ret = DBHandler.RunSQL(qry);
+
+    }
+    catch (SQLException ex) {MiscUtils.getLogger().error("Error", ex);
+    }
+    return ret;
   }
 
   /**
    * Deletes a service code association from the database
-   * @param svcCode String
+   * @param id String
    * @return boolean
    */
   public boolean deleteServiceCodeAssoc(String svcCode) {
-	  List<CtlServiceCodesDxCodes> results = dao.findByServiceCode(svcCode);
-	  for(CtlServiceCodesDxCodes c:results) {
-		  dao.remove(c.getId());
-	  }
-	  return true;
+    boolean ret = false;
+    String qry = "delete from ctl_servicecodes_dxcodes where service_code = '" +
+        svcCode + "'";
+
+    try {
+
+      ret = DBHandler.RunSQL(qry);
+    }
+    catch (SQLException ex) {MiscUtils.getLogger().error("Error", ex);
+
+    }
+    return ret;
+
   }
 
   /**
@@ -116,25 +130,40 @@ public class BillingAssociationPersistence {
   public List<ServiceCodeAssociation> getServiceCodeAssocs() {
     ArrayList<ServiceCodeAssociation> list = new ArrayList<ServiceCodeAssociation>();
 
-   List<CtlServiceCodesDxCodes> results =  dao.findAll();
-   String curSvcCode = "";
-   ServiceCodeAssociation assoc = new ServiceCodeAssociation();
-   
-   for(CtlServiceCodesDxCodes c:results) {
-	   String svcCode = c.getServiceCode();
-       String dxcode = c.getDxCode();
-       if (!svcCode.equals(curSvcCode)) {
-         assoc = new ServiceCodeAssociation();
-         assoc.addDXCode(dxcode);
-         assoc.setServiceCode(svcCode);
-         list.add(assoc);
-       }
-       else {
-         assoc.addDXCode(dxcode);
-       }
-       curSvcCode = svcCode;
-   }
-   
+    ResultSet rs = null;
+    try {
+      String qry = "select * from ctl_servicecodes_dxcodes";
+
+      rs = DBHandler.GetSQL(qry);
+      String curSvcCode = "";
+      ServiceCodeAssociation assoc = new ServiceCodeAssociation();
+      //create the first object to establish an initial reference service code
+      while (rs.next()) {
+
+        String svcCode = rs.getString(2);
+        String dxcode = rs.getString(3);
+        if (!svcCode.equals(curSvcCode)) {
+          assoc = new ServiceCodeAssociation();
+          assoc.addDXCode(dxcode);
+          assoc.setServiceCode(svcCode);
+          list.add(assoc);
+        }
+        else {
+          assoc.addDXCode(dxcode);
+        }
+        curSvcCode = svcCode;
+      }
+    }
+    catch (SQLException ex) {MiscUtils.getLogger().error("Error", ex);
+
+    }
+    finally {
+      try {
+        rs.close();
+      }
+      catch (SQLException ex1) {MiscUtils.getLogger().error("Error", ex1);
+      }
+    }
     return list;
   }
 
@@ -144,10 +173,10 @@ public class BillingAssociationPersistence {
    * @return boolean
    */
   public boolean assocExists(String code) {
-	  if(dao.findByServiceCode(code).size()>0) {
-		  return true;
-	  }
-	  return false;
+    String qry =
+        "select * from ctl_servicecodes_dxcodes where service_code = '" +
+        code + "'";
+    return recordExists(qry);
   }
 
   /**
@@ -170,9 +199,41 @@ public class BillingAssociationPersistence {
    * @return boolean
    */
   public boolean serviceCodeExists(String code) {
-	  if(billingServiceDao.findByServiceCode(code).size()>0) 
-		  return true;
-    return false;
+    String qry =
+        "select service_code from billingservice where service_code = '" + code +
+        "'";
+    return recordExists(qry);
+  }
+
+
+  /**
+   * Returns true if the specified select query returns a result
+   * @param qry String
+   * @return boolean
+   */
+  public boolean recordExists(String qry) {
+    boolean ret = false;
+
+    ResultSet rs = null;
+    try {
+
+      rs = DBHandler.GetSQL(qry);
+      if (rs.next()) {
+        ret = true;
+      }
+    }
+    catch (SQLException ex) {MiscUtils.getLogger().error("Error", ex);
+
+    }
+    finally {
+        try {
+          rs.close();
+        }
+        catch (SQLException ex1) {MiscUtils.getLogger().error("Error", ex1);
+        }
+      }
+
+    return ret;
   }
 
   /**
@@ -183,12 +244,31 @@ public class BillingAssociationPersistence {
   public ServiceCodeAssociation getServiceCodeAssocByCode(String svcCode) {
     ServiceCodeAssociation assoc = new ServiceCodeAssociation();
 
-    List<CtlServiceCodesDxCodes> results = dao.findByServiceCode(svcCode);
-    for(CtlServiceCodesDxCodes c:results) {
-    	String dxcode = c.getDxCode();
+    ResultSet rs = null;
+    try {
+      String qry =
+          "select * from ctl_servicecodes_dxcodes where service_code = '" +
+          svcCode + "'";
+
+      rs = DBHandler.GetSQL(qry);
+
+      while (rs.next()) {
+
+        String dxcode = rs.getString(3);
         assoc.addDXCode(dxcode);
         assoc.setServiceCode(svcCode);
+      }
     }
+    catch (SQLException ex) {MiscUtils.getLogger().error("Error", ex);
+    }
+    finally {
+        try {
+          rs.close();
+        }
+        catch (SQLException ex1) {MiscUtils.getLogger().error("Error", ex1);
+        }
+      }
+
     return assoc;
   }
 }

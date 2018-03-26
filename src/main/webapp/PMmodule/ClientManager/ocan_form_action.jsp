@@ -22,21 +22,6 @@
     Toronto, Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_form" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_form");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="org.oscarehr.common.model.OcanStaffForm"%>
 <%@page import="org.oscarehr.common.model.OcanStaffFormData"%>
@@ -56,7 +41,6 @@
 <%@page import="org.oscarehr.util.SpringUtils"%>
 
 <%
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 	@SuppressWarnings("unchecked")
 	HashMap<String,String[]> parameters=new HashMap(request.getParameterMap());
 
@@ -113,8 +97,7 @@
 	String ocanStaffFormId = parameters.get("ocanStaffFormId")!=null ? parameters.get("ocanStaffFormId")[0] : "";
 	String consent = parameters.get("consent")!=null ? parameters.get("consent")[0] : "";
 	
-	OcanStaffForm ocanStaffForm=OcanFormAction.createOcanStaffForm(loggedInInfo, ocanStaffFormId, clientId, signed);
-	
+	OcanStaffForm ocanStaffForm=OcanFormAction.createOcanStaffForm(ocanStaffFormId, clientId, signed);
 	ocanStaffForm.setSigned(signed);
 	int prepopulate = 0;
 	prepopulate = Integer.parseInt(request.getParameter("prepopulate")==null?"0":request.getParameter("prepopulate"));
@@ -190,8 +173,9 @@
 	}catch(java.text.ParseException e){}
 	
 	ocanStaffForm.setCreated(new Date());
-	ocanStaffForm.setProviderNo(loggedInInfo.getLoggedInProviderNo());
-	ocanStaffForm.setProviderName(loggedInInfo.getLoggedInProvider().getFormattedName());		
+	LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+	ocanStaffForm.setProviderNo(loggedInInfo.loggedInProvider.getProviderNo());
+	ocanStaffForm.setProviderName(loggedInInfo.loggedInProvider.getFormattedName());		
 	
 	OcanFormAction.saveOcanStaffForm(ocanStaffForm);	
 	
@@ -237,7 +221,7 @@
 	
 		for (Map.Entry<String, String[]> entry : parameters.entrySet())
 		{
-			if (entry.getValue()!=null)
+			if (entry.getValue()!=null && !entry.getValue().equals(""))
 			{
 				for (String value : entry.getValue())
 				{

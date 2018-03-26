@@ -24,27 +24,9 @@
 
 --%>
 
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
-<%@page import="org.oscarehr.util.MiscUtils"%>
 <%@page %><%@page import="oscar.oscarDemographic.data.*,org.oscarehr.common.model.Demographic"%>
 <%@page import="oscar.oscarEncounter.oscarMeasurements.bean.EctMeasurementsDataBeanHandler,java.util.*,oscar.oscarRx.util.*" %>
 <%@page import="oscar.oscarLab.ca.on.*,oscar.util.*,oscar.oscarLab.*" %>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_rx" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_rx");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%
 String atc = request.getParameter("atcCode");
 String demographicNo = request.getParameter("demographicNo");
@@ -55,7 +37,7 @@ if (rd == null){  // No data so don't continue
 }
 
 DemographicData demoData = new DemographicData();
-Demographic demographic = demoData.getDemographic(LoggedInInfo.getLoggedInInfoFromSession(request), demographicNo);
+Demographic demographic = demoData.getDemographic(demographicNo);
 
 int age = demographic.getAgeInYears();
 boolean female = DemographicData.isFemale(demographic);
@@ -82,7 +64,7 @@ if (measurementHash != null && measurementHash.get("value") != null){
 double sCr = -1;
 Date sCrDate = null;
 
-List labs = CommonLabTestValues.findValuesForTest("CML",Integer.valueOf(demographicNo), "CREATININE");
+List labs = CommonLabTestValues.findValuesForTest("CML",demographicNo, "CREATININE");
 if(labs != null && labs.size() >0 ){
 //SortHashtable sorter = ;
     Collections.sort(labs,new SortHashtable());
@@ -91,9 +73,7 @@ if(labs != null && labs.size() >0 ){
     sCrDate = (Date) hash.get("collDateDate");
     try{
         sCr = Double.parseDouble(sCrStr);
-    }catch(Exception e){
-   	 MiscUtils.getLogger().debug("No idea if this is ok or not, some one else left the block blank", e);
-    }
+    }catch(Exception e){}
 }
 
 

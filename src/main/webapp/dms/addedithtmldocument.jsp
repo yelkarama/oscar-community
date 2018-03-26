@@ -23,22 +23,9 @@
     Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_edoc" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_edoc");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
 
 <%
+if(session.getValue("user") == null) response.sendRedirect("../logout.htm");
 String user_no = (String) session.getAttribute("user");
 String userfirstname = (String) session.getAttribute("userfirstname");
 String userlastname = (String) session.getAttribute("userlastname");
@@ -106,7 +93,6 @@ if (request.getAttribute("completedForm") != null) {
     formdata.setObservationDate(currentDoc.getObservationDate());
     formdata.setReviewerId(currentDoc.getReviewerId());
     formdata.setReviewDateTime(currentDoc.getReviewDateTime());
-    formdata.setContentDateTime(UtilDateUtilities.DateToString(currentDoc.getContentDateTime(),EDocUtil.CONTENT_DATETIME_FORMAT));
     formdata.setHtml(UtilMisc.htmlEscape(currentDoc.getHtml()));
     lastUpdate = currentDoc.getDateTimeStamp();
     fileName = currentDoc.getFileName();
@@ -116,12 +102,12 @@ if (request.getAttribute("completedForm") != null) {
     formdata.setDocType(defaultType);
     formdata.setDocDesc(defaultType.equals("")?defaultDesc:defaultType);
     formdata.setDocCreator(user_no);
-    formdata.setObservationDate(UtilDateUtilities.DateToString(new Date(), "yyyy/MM/dd"));
+    formdata.setObservationDate(UtilDateUtilities.DateToString(UtilDateUtilities.now(), "yyyy/MM/dd"));
     lastUpdate = "--";
     oldDoc = false;
 }
 
-List<Map<String,String>> pdList = new ProviderData().getProviderList();
+ArrayList<Hashtable<String,String>> pdList = new ProviderData().getProviderList();
 ArrayList<String> doctypes = EDocUtil.getDoctypes(module);
 String annotation_display = org.oscarehr.casemgmt.model.CaseManagementNoteLink.DISP_DOCUMENT;
 String annotation_tableid = editDocumentNo;
@@ -331,7 +317,7 @@ for (String reportClass : reportClasses) {
 			<td>
 			    <select name="responsibleId">
 				<option value="">---</option>
-		<% for (Map pd : pdList) {
+		<% for (Hashtable pd : pdList) {
 			String selected = "";
 			if (formdata.getResponsibleId().equals(pd.get("providerNo"))) selected = "selected";
 			%>
@@ -343,10 +329,6 @@ for (String reportClass : reportClasses) {
 		<tr>
 			<td>Date Added/Updated:</td>
 			<td><%=lastUpdate%></td>
-		</tr>
-                <tr>
-			<td><bean:message key="dms.addDocument.formContentAddedUpdated"/>:</td>
-			<td><%=formdata.getContentDateTime()%></td>
 		</tr>
 		<tr>
 			<td>Source Author:</td>

@@ -23,23 +23,6 @@
     Ontario, Canada
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-	  boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_lab" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../../securityError.jsp?type=_lab");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@ page
     import="java.util.*,oscar.oscarLab.ca.on.*,oscar.oscarDemographic.data.*"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
@@ -57,7 +40,7 @@ if(!authed) {
 
             DemographicData dData = new DemographicData();
 
-            org.oscarehr.common.model.Demographic demographic = dData.getDemographic(LoggedInInfo.getLoggedInInfoFromSession(request), demographicNo);
+            org.oscarehr.common.model.Demographic demographic = dData.getDemographic(demographicNo);
 
             StringBuffer sb = new StringBuffer();
             Hashtable h = new Hashtable();
@@ -264,7 +247,7 @@ if(!authed) {
 
 <%!
 String getChecked(Hashtable h,String reg){
-    if (h != null && reg != null && h.containsKey(reg)){
+    if (h != null && h.containsKey(reg)){
         return "checked";
     }
     return "";

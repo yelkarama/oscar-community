@@ -24,32 +24,29 @@
 
 --%>
 
+
+
+
 <%@ include file="/taglibs.jsp"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_report" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_report");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
 
-<h4>Summary</h4>
+<html:html>
+<head>
+<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
+<title>Program Activity Report Generator</title>
+</head>
 
-<table class="table table-bordered table-striped table-condensed table-hover">
-	<thead>
+<body>
+<br />
+<br />
+
+<h1>Summary</h1>
+
+<table class="b" width="100%">
 	<tr>
-		<th>Program</th>
-		<th>Total Admissions</th>
-		<th>Total Referrals</th>
+		<th style="color: black" bgcolor="grey">Program</th>
+		<th style="color: black" bgcolor="grey">Total Admissions</th>
+		<th style="color: black" bgcolor="grey">Total Referrals</th>
 	</tr>
-	</thead>
-	<tbody>
 	<c:forEach var="stat" items="${summary}">
 		<tr>
 			<td><c:out value="${stat.key}" /></td>
@@ -58,5 +55,9 @@
 			</c:forEach>
 		</tr>
 	</c:forEach>
-	</tbody>
 </table>
+
+
+</body>
+
+</html:html>

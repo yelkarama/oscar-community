@@ -25,62 +25,40 @@
 --%>
 
 <%@ page import="java.math.*, java.util.*, java.io.*, java.sql.*, oscar.*, java.net.*,oscar.MyDateFormat,oscar.log.*"%>
-
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean" scope="session" />
+<%@ include file="dbTicker.jspf"%>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
-<%@ page import="org.oscarehr.util.LoggedInInfo" %>
-<%@ page import="org.oscarehr.common.model.Tickler" %>
-<%@ page import="org.oscarehr.managers.TicklerManager" %>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
+<%@ page import="org.caisi.model.Tickler" %>
+<%@ page import="org.caisi.dao.TicklerDAO" %>
 <%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
+	TicklerDAO ticklerDao = (TicklerDAO)SpringUtils.getBean("ticklerDAOT");
 %>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_tickler" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_tickler");%>
-</security:oscarSec>
 <%
-	if(!authed) {
-		return;
-	}
-%>
-
-<%
-	TicklerManager ticklerManager = SpringUtils.getBean(TicklerManager.class);
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-
-	String[] param = new String[2];
+String[] param = new String[2];
 String[] temp = request.getParameterValues("checkbox");
 if (temp == null){
-    String sortColumn = request.getParameter("sort_column");
-    String sortOrder = request.getParameter("sort_order");
-    
-    if (sortColumn == null) {
-	sortColumn = TicklerManager.SERVICE_DATE;
-    }
-
-    if (sortOrder == null) {
-        sortOrder = TicklerManager.SORT_ASC;
-    }
-	response.sendRedirect("ticklerMain.jsp?sort_column="+sortColumn+"&sort_order="+sortOrder);
-	}else{
-	
+%>
+<% response.sendRedirect("ticklerMain.jsp"); %>
+<%}else{
+		//temp=e.nextElement().toString();
     for (int i=0; i<temp.length; i++){
         param[0] = request.getParameter("submit_form").substring(0,1);
         param[1] = temp[i];
 
-        Tickler t = ticklerManager.getTickler(loggedInInfo, Integer.parseInt(temp[i]));
+        Tickler t = ticklerDao.getTickler(Long.parseLong(temp[i]));
         if(t != null) {
-        	Tickler.STATUS status = Tickler.STATUS.A;
-        	char tmp = request.getParameter("submit_form").toCharArray()[0];
-        	if(tmp == 'C' || tmp == 'c') {
-        		status = Tickler.STATUS.C;
-        	}
-        	if(tmp == 'D' || tmp == 'd') {
-        		status = Tickler.STATUS.D;
-        	}
-        	ticklerManager.updateStatus(loggedInInfo, t.getId(),loggedInInfo.getLoggedInProviderNo(),status);
+        	t.setStatus(request.getParameter("submit_form").toCharArray()[0]);
+        	ticklerDao.saveTickler(t);
         }
+
+        String ip = request.getRemoteAddr();
+
+        if (param[0] != null && param[0].equals("D") ){
+			LogAction.addLog((String) session.getAttribute("user"), LogConst.DELETE, LogConst.CON_TICKLER, temp[i], ip);
+        }else{
+        	LogAction.addLog((String) session.getAttribute("user"), LogConst.UPDATE, LogConst.CON_TICKLER, temp[i], ip);
+        }
+
 
     }
     response.sendRedirect("ticklerMain.jsp");

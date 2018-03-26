@@ -97,7 +97,7 @@ public class MeasurementType extends AbstractModel<Integer> implements Serializa
     }
 
 	public void setMeasuringInstruction(String measuringInstruction) {
-    	this.measuringInstruction = StringUtils.trimToEmpty(measuringInstruction);
+    	this.measuringInstruction = StringUtils.trimToNull(measuringInstruction);
     }
 
 	public String getValidation() {

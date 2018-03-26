@@ -24,23 +24,10 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_con" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../securityError.jsp?type=_con");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
+if(session.getValue("user") == null) response.sendRedirect("../logout.htm");
 
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
-
+%>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -52,14 +39,12 @@ if(!authed) {
 <%
 //preliminary JSP code
 
-LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-   		 
 // "Module" and "function" is the same thing (old dms module)
 String module = "demographic";
 String demoNo= request.getParameter("demographicNo");
 String reqId = request.getParameter("reqId");
 String provNo = request.getParameter("providerNo");
-String demoName = EDocUtil.getDemographicName(loggedInInfo, demoNo);
+String demoName = EDocUtil.getDemographicName(demoNo);
 
 ArrayList doctypes = EDocUtil.getDoctypes(module);
 
@@ -162,7 +147,7 @@ function popup1(height, width, url, windowName){
 			onsubmit="return verifyChecks(this);">
 
 			<div class="documentLists"><%-- STUFF TO DISPLAY --%> <%
-                ArrayList consultdocs = EDocUtil.listDocs(loggedInInfo, demoNo, reqId, EDocUtil.ATTACHED);
+                ArrayList consultdocs = EDocUtil.listDocs(demoNo, reqId, EDocUtil.ATTACHED);
              %>
 			<div class="doclist">
 			<div class="headerline">
@@ -221,7 +206,7 @@ function popup1(height, width, url, windowName){
 
 				<%}
                 CommonLabResultData consultLabs = new CommonLabResultData();
-                ArrayList attachedLabs = consultLabs.populateLabResultsData(loggedInInfo, demoNo, reqId, CommonLabResultData.ATTACHED);
+                ArrayList attachedLabs = consultLabs.populateLabResultsData(demoNo, reqId, CommonLabResultData.ATTACHED);
 
                 LabResultData result;
                 String labURL;

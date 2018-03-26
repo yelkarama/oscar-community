@@ -3,10 +3,7 @@ package oscar.form;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.Properties;
-
-import org.oscarehr.util.LoggedInInfo;
 
 import oscar.oscarDB.DBHandler;
 import oscar.util.UtilDateUtilities;
@@ -14,7 +11,7 @@ import oscar.util.UtilDateUtilities;
 public class FrmAdfV2Record extends FrmRecord {
 	private String _dateFormat = "yyyy/MM/dd";
 
-	public Properties getFormRecord(LoggedInInfo loggedInInfo, int demographicNo, int existingID)
+	public Properties getFormRecord(int demographicNo, int existingID)
 	throws SQLException {
 		Properties props = new Properties();
 
@@ -36,10 +33,10 @@ public class FrmAdfV2Record extends FrmRecord {
 				props.setProperty(
 						"formCreated",
 						UtilDateUtilities.DateToString(
-								new Date(),
+								UtilDateUtilities.Today(),
 								_dateFormat));
 				//props.setProperty("formEdited",
-				// UtilDateUtilities.DateToString(new Date(),_dateFormat));
+				// UtilDateUtilities.DateToString(UtilDateUtilities.Today(),_dateFormat));
 				props.setProperty("c_patientname", oscar.Misc.getString(rs, "last_name") + ", " + oscar.Misc.getString(rs, "first_name"));
 				props.setProperty(
 						"c_address",
@@ -61,7 +58,7 @@ public class FrmAdfV2Record extends FrmRecord {
 				props.setProperty(
 						"sigDate",
 						UtilDateUtilities.DateToString(
-								new Date(),
+								UtilDateUtilities.Today(),
 								_dateFormat));
 			}
 			rs.close();

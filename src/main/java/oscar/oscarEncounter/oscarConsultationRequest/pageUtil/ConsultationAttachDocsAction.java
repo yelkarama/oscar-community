@@ -36,30 +36,20 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.OscarProperties;
 
 public class ConsultationAttachDocsAction
     extends Action {
 
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	
   public ActionForward execute(ActionMapping mapping, ActionForm form,
                                HttpServletRequest request,
                                HttpServletResponse response)
 
       throws ServletException, IOException {    
 
-	  	if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_con", "u", null)) {
-			throw new SecurityException("missing required security object (_con)");
-		}
-	  
         DynaActionForm frm = (DynaActionForm)form;
-        LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-        
+
         String requestId = frm.getString("requestId");
         String demoNo = frm.getString("demoNo");
         String provNo = frm.getString("providerNo");
@@ -68,11 +58,11 @@ public class ConsultationAttachDocsAction
 	        String[] arrDocs = frm.getStrings("attachedDocs");
 	                
 	        ConsultationAttachDocs Doc = new ConsultationAttachDocs(provNo,demoNo,requestId,arrDocs);
-	        Doc.attach(loggedInInfo);
+	        Doc.attach();
 	        
 	        ConsultationAttachLabs Lab = new ConsultationAttachLabs(provNo,demoNo,requestId,arrDocs);
-	        Lab.attach(loggedInInfo);
-	        return mapping.findForward("success");
+	        Lab.attach();
+	        return null;
         }
         else { 
         	String[] labs = request.getParameterValues("labNo");
@@ -81,10 +71,10 @@ public class ConsultationAttachDocsAction
             if (docs == null) { docs = new String[] { }; }
             
             ConsultationAttachDocs Doc = new ConsultationAttachDocs(provNo,demoNo,requestId,docs);
-            Doc.attach(loggedInInfo);
+            Doc.attach();
             
             ConsultationAttachLabs Lab = new ConsultationAttachLabs(provNo,demoNo,requestId,labs);
-            Lab.attach(loggedInInfo);
+            Lab.attach();
             return mapping.findForward("success");	
         }
     }  

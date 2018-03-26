@@ -30,20 +30,6 @@
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
 <%@ taglib uri="/WEB-INF/rewrite-tag.tld" prefix="rewrite"%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-	  boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_lab" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_lab");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
 
 <%
   
@@ -212,7 +198,7 @@ function addLabToList(req){
                       //TEMPORARY
                       String labType = (String) h.get("labType");
    
-                      ArrayList list   = CommonLabTestValues.findValuesForTest(labType, Integer.valueOf(demographic_no), prevName);
+                      ArrayList list   = CommonLabTestValues.findValuesForTest(labType, demographic_no, prevName);
                       Hashtable labsBasedOnDate = new Hashtable();
                       for (int g = 0; g < list.size(); g++){
                           Hashtable hdata = (Hashtable) list.get(g);

@@ -35,7 +35,7 @@ import org.oscarehr.util.SpringUtils;
 
 public class DemographicAccessoryDaoTest extends DaoTestFixtures {
 
-	protected DemographicAccessoryDao dao = (DemographicAccessoryDao)SpringUtils.getBean("demographicAccessoryDao");
+	private DemographicAccessoryDao dao = (DemographicAccessoryDao)SpringUtils.getBean("demographicAccessoryDao");
 
 	@Before
 	public void before() throws Exception {

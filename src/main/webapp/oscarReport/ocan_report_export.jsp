@@ -22,23 +22,6 @@
     Toronto, Ontario, Canada
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_report,_admin.reporting" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_report&type=_admin.reporting");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="java.util.HashMap"%>
 <%@page import="org.oscarehr.util.WebUtils"%>
 <%@page import="java.io.PrintWriter"%>
@@ -46,18 +29,16 @@ if(!authed) {
 <%@page import="org.oscarehr.web.OcanReportUIBean"%>
 <%@page contentType="application/octet-stream"%>
 <%
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-
 	int startYear = Integer.parseInt(request.getParameter("startYear"));
 	int startMonth = Integer.parseInt(request.getParameter("startMonth"));
 	int endYear = Integer.parseInt(request.getParameter("endYear"));
 	int endMonth = Integer.parseInt(request.getParameter("endMonth"));
 	String ocanType = request.getParameter("ocanType");
 	
-	response.setHeader("Content-Disposition", "attachment; filename="+OcanReportUIBean.getFilename(loggedInInfo.getCurrentFacility(), startYear,startMonth,1));
+	response.setHeader("Content-Disposition", "attachment; filename="+OcanReportUIBean.getFilename(startYear,startMonth,1));
 	
 	
-	OcanReportUIBean.writeXmlExportData(loggedInInfo.getCurrentFacility().getId(), startYear, startMonth,endYear, endMonth, 1,response.getOutputStream(),ocanType);
+	OcanReportUIBean.writeXmlExportData(startYear, startMonth,endYear, endMonth, 1,response.getOutputStream(),ocanType);
 	
 	response.getOutputStream().flush();
 %>

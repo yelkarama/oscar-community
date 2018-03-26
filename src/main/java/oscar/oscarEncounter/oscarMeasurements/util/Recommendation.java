@@ -97,35 +97,35 @@ public class Recommendation {
     }
 
     public Element getRuleBaseElement(String ruleName,String measurement){
-    	
+
         log.debug("LOADING RULES - getRuleBaseElement"+measurement);
         ArrayList<DSCondition> list = new ArrayList<DSCondition>();
-        
-        for(RecommendationCondition cond: getRecommendationCondition()){
-            cond.getRuleBaseElement(list,measurement);
-        }
-        
-        String consequence = "";
+        //String toParse = monthrange;
+        String consequenceType = "Recommendation";
         if( strength != null){
-        	if ("hidden".equals(strength)){
-        		consequence = "m.addHidden(\""+measurement+"\",true);";
-        	}else{
-                String consequenceType = "Recommendation";
-	            if ("warning".equals(strength)){
-	                consequenceType = "Warning";
-	            }
-	            if (text == null || text.trim().equals("")){
-	                consequence ="m.add"+consequenceType+"(\""+measurement+"\",\""+measurement+"  \"+m.getLastDateRecordedInMonthsMsg(\""+measurement+"\")+\" \");";
-	            }else if( text != null){
-	               String txt = text;
-	               String NUMMONTHS = "\"+m.getLastDateRecordedInMonths(\""+measurement+"\")+\"";
-	               log.debug("TRY TO REPLACE $NUMMONTHS:"+txt.indexOf("$NUMMONTHS")+" WITH "+NUMMONTHS+  " "+txt);
+            if ("warning".equals(strength)){
+                consequenceType = "Warning";
+            }
+        }
+        String consequence = "";
 
-	               txt = txt.replaceAll("\\$NUMMONTHS", NUMMONTHS);
-	               log.debug("TEXT "+txt);
-	               consequence ="m.add"+consequenceType+"(\""+measurement+"\",\""+txt+"\");";
-	           }
-        	}
+        String NUMMONTHS = "\"+m.getLastDateRecordedInMonths(\""+measurement+"\")+\"";
+
+
+        for(RecommendationCondition cond: getRecommendationCondition()){
+             cond.getRuleBaseElement(list,measurement);
+        }
+
+        ////////88888
+        if (text == null || text.trim().equals("")){
+             consequence ="m.add"+consequenceType+"(\""+measurement+"\",\""+measurement+" hasn't been reviewed in \"+m.getLastDateRecordedInMonths(\""+measurement+"\")+\" months\");";
+        }else if( text != null){
+            String txt = text;
+            log.debug("TRY TO REPLACE $NUMMONTHS:"+txt.indexOf("$NUMMONTHS")+" WITH "+NUMMONTHS+  " "+txt);
+
+            txt = txt.replaceAll("\\$NUMMONTHS", NUMMONTHS);
+            log.debug("TEXT "+txt);
+            consequence ="m.add"+consequenceType+"(\""+measurement+"\",\""+txt+"\");";
         }
 
         RuleBaseCreator rcb = new RuleBaseCreator();
@@ -143,7 +143,7 @@ public class Recommendation {
 //        this.monthrange = monthrange;
 //    }
 
-	public String getStrength() {
+    public String getStrength() {
         return strength;
     }
 

@@ -30,11 +30,11 @@ import java.util.GregorianCalendar;
 import java.util.Properties;
 import java.util.Vector;
 
-import org.oscarehr.common.model.Security;
 import org.oscarehr.util.MiscUtils;
 
 import oscar.OscarProperties;
 
+import com.quatro.model.security.Security;
 
 public final class LoginCheckLogin {
 	boolean bWAN = true;
@@ -89,6 +89,7 @@ public final class LoginCheckLogin {
 		// judge the local network
 		if (ip.startsWith(p.getProperty("login_local_ip"))) bWAN = false;
 
+		new GregorianCalendar();
 		while (llist == null) {
 			llist = LoginList.getLoginListInstance();
 		}
@@ -109,7 +110,7 @@ public final class LoginCheckLogin {
 	/**
 	 * only works after you call auth successfully
 	 * 
-	 * @return the Security object
+	 * @return
 	 */
 	public Security getSecurity() {
 		return (lb.getSecurity());

@@ -39,15 +39,10 @@ public class WKHtmlToPdfUtils {
 	private static final int PROCESS_COMPLETION_CYCLE_CHECK_PERIOD = 250;
 	private static final int MAX_NO_CHANGE_COUNT = 40000 / PROCESS_COMPLETION_CYCLE_CHECK_PERIOD;
 	private static final String CONVERT_COMMAND;
-	private static final String CONVERT_ARGS;
 	static {
 		String convertCommand = OscarProperties.getInstance().getProperty("WKHTMLTOPDF_COMMAND");
 		if (convertCommand != null) CONVERT_COMMAND = convertCommand;
 		else throw (new RuntimeException("Properties file is missing property : WKHTMLTOPDF_COMMAND"));
-		
-		String convertParameters = OscarProperties.getInstance().getProperty("WKHTMLTOPDF_ARGS");
-		if (convertParameters != null) CONVERT_ARGS = convertParameters;
-		else CONVERT_ARGS = null;
 	}
 
 	private WKHtmlToPdfUtils() {
@@ -83,7 +78,6 @@ public class WKHtmlToPdfUtils {
 	/**
 	 * This method should convert the html page at the sourceUrl into a pdf written to the outputFile. This method requires wkhtmltopdf to be installed on the machine. In general the outputFile should be a unique temp file. If you're not sure what you're
 	 * doing don't call this method as you will leave lingering data everywhere or you may overwrite important files...
-	 * @throws Exception 
 	 */
 	public static void convertToPdf(String sourceUrl, File outputFile) throws IOException {
 		String outputFilename = outputFile.getCanonicalPath();
@@ -91,14 +85,10 @@ public class WKHtmlToPdfUtils {
 		// example command : wkhtmltopdf-i386 "https://127.0.0.1:8443/oscar/eformViewForPdfGenerationServlet?fdid=2&parentAjaxId=eforms" /tmp/out.pdf
 		ArrayList<String> command = new ArrayList<String>();
 		command.add(CONVERT_COMMAND);
-		if (CONVERT_ARGS != null) {
-			for(String arg : CONVERT_ARGS.split("\\s"))
-				command.add(arg);
-		}
 		command.add(sourceUrl);
 		command.add(outputFilename);
 
-		logger.info(command);
+		logger.debug(command);
 		runtimeExec(command, outputFilename);
 	}
 
@@ -107,7 +97,6 @@ public class WKHtmlToPdfUtils {
 	 * This method will run the command and it has 2 stopping conditions, 1) normal completion as per the process.exitValue() or if the process does not appear to be doing anything. As a result there's a polling thread to check the out put file to see if
 	 * anything is happening. The example is if you're doing image processing and you're scaling an image with say imagemagick it could take 5 minutes to finish. You don't want to set a time out that long, but you don't want to stop if it it's proceeding
 	 * normally. Normal proceeding is defined by the out put file is still changing. If the out put file isn't changing, and it's taking "a while" then we would assume it's failed some how or hung or stalled at which point we'll terminate it.
-	 * @throws Exception 
 	 */
 	private static void runtimeExec(ArrayList<String> command, String outputFilename) throws IOException {
 		File f = new File(outputFilename);
@@ -128,24 +117,20 @@ public class WKHtmlToPdfUtils {
 					int exitValue = process.exitValue();
 
 					if (exitValue != 0) {
-						logger.error("Error running command : " + command);
+						logger.debug("Error running command : " + command);
 
 						String errorMsg = StringUtils.trimToNull(IOUtils.toString(process.getInputStream()));
-						if (errorMsg != null) logger.error(errorMsg);
+						if (errorMsg != null) logger.debug(errorMsg);
 
 						errorMsg = StringUtils.trimToNull(IOUtils.toString(process.getErrorStream()));
-						if (errorMsg != null) logger.error(errorMsg);
-						
-						//404 error returns code 2 but file is still converted if file passed and not url so we check before throwing exception
-						if( exitValue != 2 )
-							throw new IOException("Cannot convert html file to pdf");
+						if (errorMsg != null) logger.debug(errorMsg);
 					}
 
 					return;
 				} catch (IllegalThreadStateException e) {
 					long tempSize = f.length();
 
-					logger.error("Progress output filename=" + outputFilename + ", filesize=" + tempSize);
+					logger.debug("Progress output filename=" + outputFilename + ", filesize=" + tempSize);
 
 					if (tempSize != previousFileSize) noFileSizeChangeCounter = 0;
 					else {
@@ -158,7 +143,7 @@ public class WKHtmlToPdfUtils {
 
 			logger.error("Error, process appears stalled. command=" + command);
 		} finally {
-			process.destroy();			
+			process.destroy();
 		}
 	}
 

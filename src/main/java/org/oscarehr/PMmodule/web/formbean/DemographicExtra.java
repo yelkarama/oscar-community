@@ -31,6 +31,7 @@ public class DemographicExtra {
 	private String maritalStatus="";
 	private String recipientLocation="";
 	private String lhinConsumerResides="";
+	private String lhinServiceDelivery="";
 	private String address2="";
 	
 	public String getMiddleName() {
@@ -68,6 +69,13 @@ public class DemographicExtra {
     }
 	public void setLhinConsumerResides(String lhinConsumerResides) {
     	this.lhinConsumerResides = lhinConsumerResides;
+    }
+	
+	public String getLhinServiceDelivery() {
+    	return lhinServiceDelivery;
+    }
+	public void setLhinServiceDelivery(String lhinServiceDelivery) {
+    	this.lhinServiceDelivery = lhinServiceDelivery;
     }
 	public String getAddress2() {
     	return address2;

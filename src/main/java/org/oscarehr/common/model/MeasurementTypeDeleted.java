@@ -36,7 +36,7 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 @Entity
-@Table(name="measurementTypeDeleted")
+@Table(name="measurementCSSLocation")
 public class MeasurementTypeDeleted extends AbstractModel<Integer> {
 
 	@Id

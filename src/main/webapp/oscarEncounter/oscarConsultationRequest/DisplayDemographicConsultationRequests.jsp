@@ -24,22 +24,6 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_con" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../securityError.jsp?type=_con");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
@@ -47,6 +31,7 @@ if(!authed) {
 	import="oscar.oscarEncounter.pageUtil.*,oscar.oscarEncounter.data.*"%>
 
 <%
+if(session.getAttribute("user") == null) response.sendRedirect("../../logout.jsp");
 String demo = request.getParameter("de");
 String proNo = (String) session.getAttribute("user");
 oscar.oscarDemographic.data.DemographicData demoData=null;
@@ -57,18 +42,18 @@ String team = pdata.getTeam();
 
 if (demo != null ){ 
     demoData = new oscar.oscarDemographic.data.DemographicData();
-    demographic = demoData.getDemographic(LoggedInInfo.getLoggedInInfoFromSession(request), demo);    
+    demographic = demoData.getDemographic(demo);    
 }
 else
     response.sendRedirect("../error.jsp");
 
 oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctConsultationFormRequestUtil consultUtil;
 consultUtil = new  oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctConsultationFormRequestUtil();
-consultUtil.estPatient(LoggedInInfo.getLoggedInInfoFromSession(request), demo);
+consultUtil.estPatient(demo);
 
 oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctViewConsultationRequestsUtil theRequests;
 theRequests = new  oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctViewConsultationRequestsUtil();
-theRequests.estConsultationVecByDemographic(LoggedInInfo.getLoggedInInfoFromSession(request), demo);
+theRequests.estConsultationVecByDemographic(demo);
 %>
 
 <html:html locale="true">

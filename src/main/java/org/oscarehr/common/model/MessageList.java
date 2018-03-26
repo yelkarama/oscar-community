@@ -22,6 +22,7 @@
  * Ontario, Canada
  */
 
+
 package org.oscarehr.common.model;
 
 import javax.persistence.Column;
@@ -35,11 +36,6 @@ import javax.persistence.Table;
 @Table(name="messagelisttbl")
 public class MessageList extends AbstractModel<Integer> {
 
-	public static final String STATUS_DELETED = "del";
-	public static final String STATUS_NEW = "new";
-	public static final String STATUS_READ = "read";
-	
-	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
@@ -91,14 +87,6 @@ public class MessageList extends AbstractModel<Integer> {
 
 	public void setRemoteLocation(int remoteLocation) {
     	this.remoteLocation = remoteLocation;
-    }
-
-	public void setDeleted(boolean isDeleted) {
-		if (isDeleted) {
-			setStatus(STATUS_DELETED);
-		} else {
-			setStatus(null);
-		}
     }
 
 

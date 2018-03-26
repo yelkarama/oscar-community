@@ -27,8 +27,6 @@ package oscar.oscarDemographic.data;
 
 import java.util.Hashtable;
 
-import org.oscarehr.util.LoggedInInfo;
-
 /**
  * 
  * @author Jay Gallagher
@@ -59,25 +57,26 @@ public class DemographicNameAgeString {
     * @return returns a String containing name age sex ie "Last, First M 2 weeks"
     *
     */   
-   public String getNameAgeString(LoggedInInfo loggedInInfo,  Integer demoNo){
+   public String getNameAgeString(String demoNo){
 
       String retval = "";      
       if (demoNo != null){                     
-      //  if (!hashtable.containsKey(demoNo)){        
+         if (!hashtable.containsKey(demoNo)){        
 
             DemographicData dData = new DemographicData();
-            String[] dArray = dData.getNameAgeSexArray(loggedInInfo, demoNo);
+            String[] dArray = dData.getNameAgeSexArray(demoNo);
             if (dArray != null){
-            	if (dArray != null){
-                    retval = nameAgeSexString(dArray);
-                 } 
+               hashtable.put(demoNo,dArray);
             }        
-        // }//else{MiscUtils.getLogger().debug("name age in buffer "+demoNo);}
-       //  String[] nameage =  (String[]) hashtable.get(demoNo);      
-                    
+         }//else{MiscUtils.getLogger().debug("name age in buffer "+demoNo);}
+         String[] nameage =  (String[]) hashtable.get(demoNo);      
+         if (nameage != null){
+            retval = nameAgeSexString(nameage);
+         }            
       }
       return  retval;
-   }   
+   }
+   
    /**
     * Removes demographic number from hashtable. Used if you update the demographic information
     * @param demoNo Demoraphic Number
@@ -101,14 +100,14 @@ public class DemographicNameAgeString {
     *   "sex"
     *   "age"
     */   
-   public Hashtable getNameAgeSexHashtable(LoggedInInfo loggedInInfo, String demoNo){
+   public Hashtable getNameAgeSexHashtable(String demoNo){
       Hashtable h = null;      
 
       if ( demoNo != null){
          if (!hashtable.containsKey(demoNo)){
 
             DemographicData dData = new DemographicData();
-            String[] dArray = dData.getNameAgeSexArray(loggedInInfo, Integer.valueOf(demoNo));
+            String[] dArray = dData.getNameAgeSexArray(demoNo);
             if (dArray != null){
                hashtable.put(demoNo,dArray);
             }                                

@@ -28,44 +28,21 @@
 	import="oscar.oscarMessenger.docxfer.send.*,oscar.oscarMessenger.docxfer.util.*, 
                 oscar.oscarEncounter.data.*, oscar.oscarEncounter.pageUtil.EctSessionBean, oscar.oscarRx.pageUtil.RxSessionBean,
                 oscar.oscarRx.data.RxPatientData, oscar.oscarMessenger.pageUtil.MsgSessionBean, oscar.oscarDemographic.data.*"%>
-    
-<%@ page import=" java.util.*, org.w3c.dom.*, java.sql.*, oscar.*, java.text.*, java.lang.*,java.net.*" errorPage="../appointment/errorpage.jsp"%>
-<%@ page import="org.oscarehr.util.SpringUtils" %>
-<%@ page import="org.oscarehr.common.dao.EChartDao" %>
-<%@ page import="org.oscarehr.common.model.EChart" %>
-<%@ page import="org.oscarehr.util.LoggedInInfo" %>
-<%
-	EChartDao eChartDao = SpringUtils.getBean(EChartDao.class);
-%>
-
+<%@  page
+	import=" java.util.*, org.w3c.dom.*, java.sql.*, oscar.*, java.text.*, java.lang.*,java.net.*"
+	errorPage="../appointment/errorpage.jsp"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-	  boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_msg" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_msg");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
 <%@ page import="oscar.util.*"%>
 
 
 <%
 String demographic_no = request.getParameter("demographic_no");
 
-LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-    		
+
 DemographicData demoData = new  DemographicData();
-org.oscarehr.common.model.Demographic demo =  demoData.getDemographic(loggedInInfo, demographic_no);
+org.oscarehr.common.model.Demographic demo =  demoData.getDemographic(demographic_no);
 String demoName = "";
 if ( demo != null ) {
     demoName = demo.getLastName()+", "+demo.getFirstName();
@@ -75,9 +52,17 @@ if ( demo != null ) {
 int indexCount = 0;
 %>
 
+<jsp:useBean id="daySheetBean" class="oscar.AppointmentMainBean"
+	scope="page" />
+
 
 <% 
+  String [][] dbQueries=new String[][] { 
+        {"search_ect","select eChartId, timeStamp, subject, encounter from eChart where demographicNo=? order by timeStamp desc" },   };
+  daySheetBean.doConfigure(dbQueries);
+  
 
+oscar.oscarSecurity.CookieSecurity cs   = new oscar.oscarSecurity.CookieSecurity();
 EctSessionBean bean = new EctSessionBean();
 bean.demographicNo = demographic_no;
 
@@ -284,7 +269,7 @@ request.getSession().setAttribute("EctSessionBean",bean);
 							<td><%=demoName%> Information</td>
 							<td>
 							<% if ( request.getParameter("isAttaching") == null ) { %> <input
-								type="button" value=Preview onclick="PreviewPDF( '<%=currentURI%>')" />
+								type=button value=Preview onclick=PreviewPDF( '<%=currentURI%>') />
 							<% } %> &nbsp;</td>
 						</tr>
 
@@ -295,27 +280,29 @@ request.getSession().setAttribute("EctSessionBean",bean);
 
 						</tr>
 						<%
-                                      
+                                      ResultSet rsdemo = null ;
+
+                                      String[] param =new String[1];
+                                      param[0]=demographic_no; 
                                       String datetime = null;
 
-                                      EChart ec = eChartDao.getLatestChart(Integer.parseInt(demographic_no));
-                                      
-                                      if (ec != null) {
+                                      rsdemo = daySheetBean.queryResults(param, "search_ect");
+                                      while (rsdemo.next()) {
 
                                     %>
 						<tr>
 							<td>
-							<% currentURI = "../oscarEncounter/echarthistoryprint.jsp?echartid=" + ec.getId() + "&demographic_no=" + demographic_no;  %>
+							<% currentURI = "../oscarEncounter/echarthistoryprint.jsp?echartid=" + rsdemo.getString("eChartId") + "&demographic_no=" + demographic_no;  %>
 							<html:checkbox property="uriArray" value="<%=currentURI%>"
 								style="display:none" /> <html:multibox property="indexArray"
 								value="<%= Integer.toString(indexCount++) %>" /> <input
 								type=checkbox name="titleArray"
-								value='Encounter: <%=ec.getTimestamp().toString()%>'
+								value='Encounter: <%=rsdemo.getString("timeStamp")%>'
 								style="display: none" /></td>
-							<td><%=ec.getTimestamp().toString()%></td>
+							<td><%=rsdemo.getString("timeStamp")%></td>
 							<td>
 							<% if ( request.getParameter("isAttaching") == null ) { %> <input
-								type=button value="Preview" onclick="PreviewPDF( '<%=currentURI%>')" />
+								type=button value=Preview onclick=PreviewPDF( '<%=currentURI%>') />
 							<% } %> &nbsp;</td>
 						</tr>
 
@@ -346,7 +333,7 @@ request.getSession().setAttribute("EctSessionBean",bean);
 
                                             request.getSession().setAttribute("RxSessionBean", Rxbean);
 
-                                            RxPatientData.Patient patient = RxPatientData.getPatient(loggedInInfo, demographic_no);
+                                            RxPatientData.Patient patient = RxPatientData.getPatient(demographic_no);
 
                                             if(patient!=null) {
                                                 request.getSession().setAttribute("Patient", patient);
@@ -365,7 +352,7 @@ request.getSession().setAttribute("EctSessionBean",bean);
 							<td>Current prescriptions</td>
 							<td>
 							<% if ( request.getParameter("isAttaching") == null ) { %> <input
-								type="button" value=Preview onclick="PreviewPDF( '<%=currentURI%>')" />
+								type=button value=Preview onclick=PreviewPDF( '<%=currentURI%>') />
 							<% } %> &nbsp;</td>
 						</tr>
 

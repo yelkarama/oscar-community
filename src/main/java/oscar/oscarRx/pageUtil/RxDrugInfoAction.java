@@ -26,7 +26,6 @@
 package oscar.oscarRx.pageUtil;
 
 import java.io.IOException;
-import java.net.URLEncoder;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -36,16 +35,12 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.oscarRx.data.RxDrugData;
 
 
 
 public final class RxDrugInfoAction extends Action {
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
 
 
     public ActionForward execute(ActionMapping mapping,
@@ -54,9 +49,6 @@ public final class RxDrugInfoAction extends Action {
 				 HttpServletResponse response)
 	throws IOException, ServletException {
 
-		if (!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_rx", "r", null)) {
-			throw new RuntimeException("missing required security object (_rx)");
-		}
             
             
             String GN = null;
@@ -65,7 +57,7 @@ public final class RxDrugInfoAction extends Action {
             if(request.getParameter("GN") != null){
                 if(! request.getParameter("GN").equals("null")){
                     GN = request.getParameter("GN");                    
-                    response.sendRedirect("http://resource.oscarmcmaster.org/oscarResource/OSCAR_search/OSCAR_search_results?title="+URLEncoder.encode(GN,"UTF-8"));
+                    response.sendRedirect("http://resource.oscarmcmaster.org/oscarResource/OSCAR_search/OSCAR_search_results?title="+GN);
                 }
             }
 
@@ -79,7 +71,7 @@ public final class RxDrugInfoAction extends Action {
                     }catch(Exception e){
                      genName = BN   ;
                     }
-                    response.sendRedirect("http://resource.oscarmcmaster.org/oscarResource/OSCAR_search/OSCAR_search_results?title="+URLEncoder.encode(genName,"UTF-8"));
+                    response.sendRedirect("http://resource.oscarmcmaster.org/oscarResource/OSCAR_search/OSCAR_search_results?title="+genName);
                 }
             }
             

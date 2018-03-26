@@ -25,8 +25,6 @@
 
 package org.oscarehr.common.model;
 
-import java.util.Comparator;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -101,9 +99,4 @@ public class ScheduleTemplateCode extends AbstractModel<Integer> {
     }
 	
 	
-    public static final Comparator<ScheduleTemplateCode> CodeComparator = new Comparator<ScheduleTemplateCode>() {
-        public int compare(ScheduleTemplateCode o1, ScheduleTemplateCode o2) {
-        	return o1.getCode().compareTo(o2.getCode());
-        }
-    }; 
 }

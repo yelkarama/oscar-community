@@ -104,8 +104,6 @@ public class EFormData extends AbstractModel<Integer> implements Serializable {
 	@Column(name = "form_data")
 	private String formData;
 
-	private boolean showLatestFormOnly;
-
 	@Column(name = "patient_independent")
 	private boolean patientIndependent;
 
@@ -114,10 +112,6 @@ public class EFormData extends AbstractModel<Integer> implements Serializable {
 	@Override
 	public Integer getId() {
 		return (id);
-	}
-	
-	public void setId(Integer id) {
-		this.id = id;
 	}
 
 	public Integer getFormId() {
@@ -192,15 +186,7 @@ public class EFormData extends AbstractModel<Integer> implements Serializable {
 		this.formData = formData;
 	}
 
-	public boolean isShowLatestFormOnly() {
-		return showLatestFormOnly;
-	}
-
-	public void setShowLatestFormOnly(boolean showLatestFormOnly) {
-		this.showLatestFormOnly = showLatestFormOnly;
-	}
-
-	public boolean isPatientIndependent() {
+	public boolean getPatientIndependent() {
 		return patientIndependent;
 	}
 

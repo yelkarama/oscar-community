@@ -22,21 +22,6 @@
     Toronto, Ontario, Canada
 
 --%>
-<%@ include file="/taglibs.jsp"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_demographic" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_demographic");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%@page import="org.oscarehr.common.model.Demographic"%>
 <%@page import="org.oscarehr.common.model.Provider"%>
 <%@page import="org.oscarehr.util.LoggedInInfo"%>
@@ -46,7 +31,6 @@
  
 -->
 <%
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 	Demographic demographic = null;
 
 	String strProgramId = request.getParameter("programId");
@@ -59,10 +43,10 @@
 	if(programId == 0) {
 		//error has occured
 	} else {
-		demographic = org.oscarehr.PMmodule.web.CreateAnonymousClientAction.generateAnonymousClient(loggedInInfo.getLoggedInProviderNo(), programId);
+		demographic = org.oscarehr.PMmodule.web.CreateAnonymousClientAction.generateAnonymousClient(programId);
 	}
 	
-	Provider provider = loggedInInfo.getLoggedInProvider();
+	Provider provider = LoggedInInfo.loggedInInfo.get().loggedInProvider;
 	java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
 	String curDate = sdf.format(new java.util.Date());
 	java.text.SimpleDateFormat sdf2 = new java.text.SimpleDateFormat("kk:mm");

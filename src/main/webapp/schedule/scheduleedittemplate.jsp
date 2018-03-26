@@ -34,17 +34,14 @@
 <%@ page import="oscar.OscarProperties"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
-
+<jsp:useBean id="scheduleMainBean" class="oscar.AppointmentMainBean" scope="session" />
 <jsp:useBean id="myTempBean" class="oscar.ScheduleTemplateBean"	scope="page" />
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.model.ScheduleTemplate" %>
 <%@ page import="org.oscarehr.common.model.ScheduleTemplatePrimaryKey" %>
 <%@ page import="org.oscarehr.common.dao.ScheduleTemplateDao" %>
-<%@ page import="org.oscarehr.common.model.ScheduleTemplateCode" %>
-<%@ page import="org.oscarehr.common.dao.ScheduleTemplateCodeDao" %>
 <%
 	ScheduleTemplateDao scheduleTemplateDao = SpringUtils.getBean(ScheduleTemplateDao.class);
-	ScheduleTemplateCodeDao scheduleTemplateCodeDao = SpringUtils.getBean(ScheduleTemplateCodeDao.class);
 %>
 <% //save or delete the settings
   int rowsAffected = 0;
@@ -103,7 +100,7 @@ function checkInput() {
 function changeGroup(s) {
 	var newGroupNo = s.options[s.selectedIndex].value;
 	newGroupNo = s.options[s.selectedIndex].value;
-	self.location.href = "scheduleedittemplate.jsp?providerid=<%=request.getParameter("providerid")%>&providername=<%=java.net.URLEncoder.encode(StringEscapeUtils.escapeJavaScript(request.getParameter("providername")),"UTF-8")%>&step=" + newGroupNo;
+	self.location.href = "scheduleedittemplate.jsp?providerid=<%=request.getParameter("providerid")%>&providername=<%=StringEscapeUtils.escapeJavaScript(request.getParameter("providername"))%>&step=" + newGroupNo;
 
 }
 //-->
@@ -129,18 +126,21 @@ function changeGroup(s) {
 				</td>
 				<td align='right'><select name="name">
 					<%
+   ResultSet rsdemo = null;
    boolean bEdit=request.getParameter("dboperation")!=null&&request.getParameter("dboperation").equals(" Edit ")?true:false;
-  
+   String[] param =new String[2];
+   param[0]=request.getParameter("providerid");
+   param[1]=request.getParameter("name");
    if(bEdit) {
-	   for(ScheduleTemplate st:scheduleTemplateDao.findByProviderNoAndName(request.getParameter("providerid"), request.getParameter("name"))) {
-     	 myTempBean.setScheduleTemplateBean(st.getId().getProviderNo(),st.getId().getName(),st.getSummary(),st.getTimecode() );
+     rsdemo = scheduleMainBean.queryResults(param, "search_scheduletemplatesingle");
+     while (rsdemo.next()) {
+       myTempBean.setScheduleTemplateBean(rsdemo.getString("provider_no"),rsdemo.getString("name"),rsdemo.getString("summary"),rsdemo.getString("timecode") );
      }
    }
-   
-   for(ScheduleTemplate st:scheduleTemplateDao.findByProviderNo(request.getParameter("providerid"))) {
-   
+   rsdemo = scheduleMainBean.queryResults(param[0], "search_scheduletemplate");
+   while (rsdemo.next()) {
 	%>
-					<option value="<%=st.getId().getName()%>"><%=st.getId().getName()+" |"+st.getSummary()%></option>
+					<option value="<%=rsdemo.getString("name")%>"><%=rsdemo.getString("name")+" |"+rsdemo.getString("summary")%></option>
 					<%
      }
 	%>
@@ -200,12 +200,9 @@ function changeGroup(s) {
 					<%=bEdit?("value='"+myTempBean.getSummary()+"'"):"value=''"%>></td>
 				<td nowrap><a href=#
 					title="	<%
-					
-					List<ScheduleTemplateCode> stcs = scheduleTemplateCodeDao.findAll();
-					Collections.sort(stcs,ScheduleTemplateCode.CodeComparator);
-					
-   for (ScheduleTemplateCode stc:stcs) {   %>
- <%=String.valueOf(stc.getCode())+" - "+stc.getDescription()%>  <%}	%>
+   rsdemo = scheduleMainBean.queryResults("search_scheduletemplatecode");
+   while (rsdemo.next()) {   %>
+ <%=rsdemo.getString("code")+" - "+rsdemo.getString("description")%>  <%}	%>
              "><bean:message
 					key="schedule.scheduleedittemplate.formTemplateCode" /></a></td>
 			</tr>

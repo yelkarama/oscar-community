@@ -24,21 +24,6 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-	  boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_lab" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_lab");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
 <%@page contentType="text/html" %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
    "http://www.w3.org/TR/html4/loose.dtd">
@@ -157,7 +142,7 @@ if(!authed) {
         
 
 <script>
-Calendar.setup({ inputField : "lab_req_date", ifFormat : "%Y-%m-%d %H:%M", showsTime :true, button : "lab_req_date_cal" });
+Calendar.setup({ inputField : "lab_req_date", ifFormat : "%Y-%m-%d %H:%m", showsTime :true, button : "lab_req_date_cal" });
 Calendar.setup({ inputField : "dob", ifFormat : "%Y-%m-%d", showsTime :true, button : "dob_cal" });
 
 </script>

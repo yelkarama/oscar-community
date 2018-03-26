@@ -22,158 +22,109 @@
  * Ontario, Canada
  */
 
+
 package oscar.dms;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.security.MessageDigest;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.oscarehr.PMmodule.caisi_integrator.CaisiIntegratorManager;
 import org.oscarehr.PMmodule.caisi_integrator.IntegratorFallBackManager;
 import org.oscarehr.PMmodule.dao.ProviderDao;
-import org.oscarehr.PMmodule.model.ProgramProvider;
 import org.oscarehr.PMmodule.service.ProgramManager;
 import org.oscarehr.caisi_integrator.ws.CachedDemographicDocument;
-import org.oscarehr.casemgmt.dao.CaseManagementNoteDAO;
+import org.oscarehr.caisi_integrator.ws.DemographicWs;
 import org.oscarehr.casemgmt.dao.CaseManagementNoteLinkDAO;
-import org.oscarehr.casemgmt.model.CaseManagementNote;
 import org.oscarehr.casemgmt.model.CaseManagementNoteLink;
 import org.oscarehr.common.dao.ConsultDocsDao;
 import org.oscarehr.common.dao.CtlDocTypeDao;
-import org.oscarehr.common.dao.CtlDocumentDao;
+import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.DocumentDao;
-import org.oscarehr.common.dao.DocumentDao.Module;
 import org.oscarehr.common.dao.IndivoDocsDao;
-import org.oscarehr.common.dao.TicklerLinkDao;
 import org.oscarehr.common.model.ConsultDocs;
 import org.oscarehr.common.model.CtlDocType;
-import org.oscarehr.common.model.CtlDocument;
-import org.oscarehr.common.model.CtlDocumentPK;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.Document;
 import org.oscarehr.common.model.IndivoDocs;
 import org.oscarehr.common.model.Provider;
-import org.oscarehr.common.model.Tickler;
-import org.oscarehr.common.model.TicklerLink;
-import org.oscarehr.managers.DemographicManager;
-import org.oscarehr.managers.ProgramManager2;
-import org.oscarehr.managers.TicklerManager;
-import org.oscarehr.util.LoggedInInfo;
+import org.oscarehr.util.DbConnectionFilter;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
 import oscar.MyDateFormat;
 import oscar.OscarProperties;
-import oscar.oscarLab.ca.all.AcknowledgementData;
-import oscar.oscarMDS.data.ReportStatus;
-import oscar.util.ConversionUtils;
+import oscar.oscarDB.DBHandler;
 import oscar.util.DateUtils;
+import oscar.util.SqlUtilBaseS;
 import oscar.util.UtilDateUtilities;
 
 // all SQL statements here
-public final class EDocUtil {
+public final class EDocUtil extends SqlUtilBaseS {
 
-	private static ConsultDocsDao consultDocsDao = (ConsultDocsDao) SpringUtils.getBean("consultDocsDao");
-	private static DocumentDao documentDao = (DocumentDao) SpringUtils.getBean(DocumentDao.class);
-	private static IndivoDocsDao indivoDocsDao = (IndivoDocsDao) SpringUtils.getBean(IndivoDocsDao.class);
+	private static ConsultDocsDao consultDocsDao = (ConsultDocsDao)SpringUtils.getBean("consultDocsDao");
+	private static DocumentDao documentDao = (DocumentDao)SpringUtils.getBean(DocumentDao.class);
+	private static IndivoDocsDao indivoDocsDao = (IndivoDocsDao)SpringUtils.getBean(IndivoDocsDao.class);
+
 	private static Logger logger = MiscUtils.getLogger();
-	private static ProgramManager2 programManager2 = SpringUtils.getBean(ProgramManager2.class);
-	
-	
+
 	public static final String PUBLIC = "public";
 	public static final String PRIVATE = "private";
-	
-	public enum EDocSort {
-		DATE("d.updatedatetime DESC, d.updatedatetime DESC"),
-		DESCRIPTION("d.docdesc, d.updatedatetime DESC"),
-		DOCTYPE("d.doctype, d.updatedatetime DESC"),
-		CREATOR("d.doccreator, d.updatedatetime DESC"),
-		RESPONSIBLE("d.responsible, d.updatedatetime DESC"),
-		OBSERVATIONDATE("d.observationdate DESC, d.updatedatetime DESC"),
-                CONTENTDATE("d.contentdatetime DESC, d.updatedatetime DESC"),
-		CONTENTTYPE("d.contenttype, d.updatedatetime DESC"),
-		REVIEWER("d.reviewer, d.updatedatetime DESC");
-		
-		private String value;
-		
-		private EDocSort(String value) {
-			this.value = value;
-		}
-		
-		public String getValue() {
-			return value;
-		}
-		
-	}
-	
 	public static final String SORT_DATE = "d.updatedatetime DESC, d.updatedatetime DESC";
 	public static final String SORT_DESCRIPTION = "d.docdesc, d.updatedatetime DESC";
 	public static final String SORT_DOCTYPE = "d.doctype, d.updatedatetime DESC";
 	public static final String SORT_CREATOR = "d.doccreator, d.updatedatetime DESC";
 	public static final String SORT_RESPONSIBLE = "d.responsible, d.updatedatetime DESC";
 	public static final String SORT_OBSERVATIONDATE = "d.observationdate DESC, d.updatedatetime DESC";
-        public static final String SORT_CONTENTDATE = "d.contentdatetime DESC, d.updatedatetime DESC";
 	public static final String SORT_CONTENTTYPE = "d.contenttype, d.updatedatetime DESC";
 	public static final String SORT_REVIEWER = "d.reviewer, d.updatedatetime DESC";
-	
 	public static final boolean ATTACHED = true;
 	public static final boolean UNATTACHED = false;
 
 	public static final String DMS_DATE_FORMAT = "yyyy/MM/dd";
 	public static final String REVIEW_DATETIME_FORMAT = "yyyy/MM/dd HH:mm:ss";
-        public static final String CONTENT_DATETIME_FORMAT ="yyyy-MM-dd HH:mm:ss";
 
 	private static ProgramManager programManager = (ProgramManager) SpringUtils.getBean("programManager");
 	private static CaseManagementNoteLinkDAO caseManagementNoteLinkDao = (CaseManagementNoteLinkDAO) SpringUtils.getBean("CaseManagementNoteLinkDAO");
-        private static CaseManagementNoteDAO caseManagementNoteDao = (CaseManagementNoteDAO) SpringUtils.getBean("CaseManagementNoteDAO");
-        private static TicklerLinkDao ticklerLinkDao = (TicklerLinkDao) SpringUtils.getBean("ticklerLinkDao");
-        private static TicklerManager ticklerManager = SpringUtils.getBean(TicklerManager.class);
 	private static ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
 	private static CtlDocTypeDao ctldoctypedao = (CtlDocTypeDao) SpringUtils.getBean("ctlDocTypeDao");
-	private static DemographicManager demographicManager = SpringUtils.getBean(DemographicManager.class);
-	private static CtlDocumentDao ctlDocumentDao = (CtlDocumentDao) SpringUtils.getBean("ctlDocumentDao");
-	
+	private static DemographicDao demographicDao = (DemographicDao)SpringUtils.getBean("demographicDao");
+
 	public static String getProviderName(String providerNo) {
-		if (providerNo == null || providerNo.length() == 0) {
+		if(providerNo == null || providerNo.length() == 0) {
 			return "";
 		}
 		Provider p = providerDao.getProvider(providerNo);
-		if (p != null) {
+		if(p != null) {
 			return p.getLastName().toUpperCase() + ", " + p.getFirstName().toUpperCase();
 		}
 		return "";
 	}
 
-	public static String getDemographicName(LoggedInInfo loggedInInfo, String demographicNo) {
-		if (demographicNo == null || demographicNo.length() == 0) {
+	public static String getDemographicName(String demographicNo) {
+		if(demographicNo == null || demographicNo.length() == 0) {
 			return "";
 		}
-		Demographic d = demographicManager.getDemographic(loggedInInfo, demographicNo);
-		if (d != null) {
+		Demographic d = demographicDao.getDemographic(demographicNo);
+		if(d != null) {
 			return d.getLastName().toUpperCase() + ", " + d.getFirstName().toUpperCase();
 		}
 		return "";
 	}
 
 	public static Provider getProvider(String providerNo) {
-		if (providerNo == null || providerNo.length() == 0) {
+		if(providerNo == null || providerNo.length() == 0) {
 			return null;
 		}
 		return providerDao.getProvider(providerNo);
@@ -197,14 +148,14 @@ public final class EDocUtil {
 		return getDoctypesByStatus(module,new String[]{"A"});
 	}
 
-	public static String getDocStatus(String module, String doctype) {
+	public static String getDocStatus(String module, String doctype){
 		List<CtlDocType> result = ctldoctypedao.findByDocTypeAndModule(doctype, module);
 		String status = "";
-		for (CtlDocType obj : result) {
+		for(CtlDocType obj:result) {
 			status = obj.getStatus();
 		}
-		return status;
-	}
+        return status;
+   }
 
 	public static void addCaseMgmtNoteLink(CaseManagementNoteLink cmnl) {
 		caseManagementNoteLinkDao.save(cmnl);
@@ -228,78 +179,63 @@ public final class EDocUtil {
 		doc.setResponsible(newDocument.getResponsibleId());
 		doc.setProgramId(newDocument.getProgramId());
 		doc.setUpdatedatetime(newDocument.getDateTimeStampAsDate());
-                doc.setContentdatetime(newDocument.getContentDateTime());
 		doc.setStatus(newDocument.getStatus());
 		doc.setContenttype(newDocument.getContentType());
-		doc.setPublic1(ConversionUtils.fromIntString(newDocument.getDocPublic()));
+		doc.setPublic1(Integer.parseInt(newDocument.getDocPublic()));
 		doc.setObservationdate(MyDateFormat.getSysDate(newDocument.getObservationDate()));
 		doc.setNumberofpages(newDocument.getNumberOfPages());
 		doc.setAppointmentNo(newDocument.getAppointmentNo());
-		doc.setRestrictToProgram(newDocument.isRestrictToProgram());
-		
-		//calculate the File signature
-		try {
-			String parentDir = oscar.OscarProperties.getInstance().getProperty("DOCUMENT_DIR");
-			doc.setFileSignature(EDocUtil.calculateFileSignature(new File(parentDir,doc.getDocfilename())));
-		}catch(Exception e) {
-			MiscUtils.getLogger().warn("File signature not set on Document " + doc.getDocfilename());
-		}
 		documentDao.persist(doc);
 
+
 		Integer document_no = doc.getId();
+		String ctlDocumentSql = "INSERT INTO ctl_document (module,module_id,document_no,status) VALUES ('" + newDocument.getModule() + "', " + newDocument.getModuleId() + ", " + document_no + ", '" + newDocument.getStatus() + "'  )";
 
-		CtlDocumentPK cdpk = new CtlDocumentPK();
-		CtlDocument cd = new CtlDocument();
-		cd.setId(cdpk);
-		cdpk.setModule(newDocument.getModule());
-		cdpk.setDocumentNo(document_no);
-		cd.getId().setModuleId(ConversionUtils.fromIntString(newDocument.getModuleId()));
-		cd.setStatus(String.valueOf(newDocument.getStatus()));
-		ctlDocumentDao.persist(cd);
-
+		logger.debug("in addDocumentSQL ,add ctl_document: " + ctlDocumentSql);
+		runSQL(ctlDocumentSql);
 		return document_no.toString();
 	}
 
 	//new method to let the user add a new DocumentType into the database
-	public static void addDocTypeSQL(String docType, String module, String status) {
-		CtlDocType ctldoctype = new CtlDocType();
-		ctldoctype.setDocType(docType);
-		ctldoctype.setModule(module);
-		ctldoctype.setStatus(status);
-		ctldoctypedao.persist(ctldoctype);
-	}
+    public static void addDocTypeSQL(String docType, String module, String status){
+    	CtlDocType ctldoctype = new CtlDocType();
+    	ctldoctype.setDocType(docType);
+    	ctldoctype.setModule(module);
+    	ctldoctype.setStatus(status);
+    	ctldoctypedao.persist(ctldoctype);
+    }
 
-	public static void changeDocTypeStatusSQL(String docType, String module, String status) {
-		ctldoctypedao.changeDocType(docType, module, status);
-	}
+    public static void changeDocTypeStatusSQL(String docType, String module, String status){
+    	ctldoctypedao.changeDocType(docType, module, status);
+    }
 
-	/** new method to let the user add a new DocumentType into the database */
-	public static void addDocTypeSQL(String docType, String module) {
-		ctldoctypedao.addDocType(docType, module);
-	}
+    /** new method to let the user add a new DocumentType into the database */
+    public static void addDocTypeSQL(String docType, String module){
+    	ctldoctypedao.addDocType(docType, module);
+    }
 
 	public static void detachDocConsult(String docNo, String consultId) {
-		List<ConsultDocs> consultDocs = consultDocsDao.findByRequestIdDocNoDocType(ConversionUtils.fromIntString(consultId), ConversionUtils.fromIntString(docNo), ConsultDocs.DOCTYPE_DOC);
-		for (ConsultDocs consultDoc : consultDocs) {
-			consultDoc.setDeleted("Y");
-			consultDocsDao.merge(consultDoc);
-		}
+		List<ConsultDocs> consultDocs = consultDocsDao.findByRequestIdDocumentNoAndDocumentType(Integer.parseInt(consultId), Integer.parseInt(docNo), "D");
+    	for(ConsultDocs consultDoc:consultDocs) {
+    		consultDoc.setDeleted("Y");
+    		consultDocsDao.merge(consultDoc);
+    	}
 	}
 
 	public static void attachDocConsult(String providerNo, String docNo, String consultId) {
 		ConsultDocs consultDoc = new ConsultDocs();
-		consultDoc.setRequestId(ConversionUtils.fromIntString(consultId));
-		consultDoc.setDocumentNo(ConversionUtils.fromIntString(docNo));
-		consultDoc.setDocType(ConsultDocs.DOCTYPE_DOC);
-		consultDoc.setAttachDate(new Date());
-		consultDoc.setProviderNo(providerNo);
-		consultDocsDao.persist(consultDoc);
+    	consultDoc.setRequestId(Integer.parseInt(consultId));
+    	consultDoc.setDocumentNo(Integer.parseInt(docNo));
+    	consultDoc.setDocType("D");
+    	consultDoc.setAttachDate(new Date());
+    	consultDoc.setProviderNo(providerNo);
+    	consultDocsDao.persist(consultDoc);
 	}
 
 	public static void editDocumentSQL(EDoc newDocument, boolean doReview) {
 
-		Document doc = documentDao.find(ConversionUtils.fromIntString(newDocument.getDocId()));
-		if (doc != null) {
+		Document doc = documentDao.find(Integer.parseInt(newDocument.getDocId()));
+		if(doc != null) {
 			doc.setDoctype(newDocument.getType());
 			doc.setDocClass(newDocument.getDocClass());
 			doc.setDocSubClass(newDocument.getDocSubClass());
@@ -308,20 +244,24 @@ public final class EDocUtil {
 			doc.setSourceFacility(newDocument.getSourceFacility());
 			doc.setDocxml(newDocument.getHtml());
 			doc.setResponsible(newDocument.getResponsibleId());
-			doc.setPublic1(ConversionUtils.fromIntString(newDocument.getDocPublic()));
-			if (doReview) {
+			doc.setPublic1(Integer.parseInt(newDocument.getDocPublic()));
+			if(doReview) {
 				doc.setReviewer(newDocument.getReviewerId());
-				doc.setReviewdatetime(ConversionUtils.fromDateString(newDocument.getReviewDateTime(), "yyyy/MM/dd HH:mm:ss"));
+				SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+				try {
+					doc.setReviewdatetime(sdf.parse(newDocument.getReviewDateTime()));
+				}catch(ParseException e) {
+					logger.warn("error parsing date",e);
+				}
 			} else {
 				doc.setReviewer(null);
 				doc.setReviewdatetime(null);
 				doc.setUpdatedatetime(newDocument.getDateTimeStampAsDate());
 				doc.setObservationdate(MyDateFormat.getSysDate(newDocument.getObservationDate()));
 			}
-			if (newDocument.getFileName().length() > 0) {
+			if(newDocument.getFileName().length()>0) {
 				doc.setDocfilename(newDocument.getFileName());
 				doc.setContenttype(newDocument.getContentType());
-                                doc.setContentdatetime(newDocument.getContentDateTime());
 			}
 			documentDao.merge(doc);
 		}
@@ -329,13 +269,13 @@ public final class EDocUtil {
 
 	public static void indivoRegister(EDoc doc) {
 		IndivoDocs id = new IndivoDocs();
-		id.setOscarDocNo(ConversionUtils.fromIntString(doc.getDocId()));
+		id.setOscarDocNo(Integer.parseInt(doc.getDocId()));
 		id.setIndivoDocIdx(doc.getIndivoIdx());
 		id.setDocType("document");
 		id.setDateSent(new Date());
-		if (doc.isInIndivo()) {
+		if(doc.isInIndivo()) {
 			id.setUpdate("U");
-		} else {
+		}else {
 			id.setUpdate("I");
 		}
 		indivoDocsDao.persist(id);
@@ -344,148 +284,125 @@ public final class EDocUtil {
 	/**
 	 * Fetches all consult documents attached to specific consultation
 	 */
-	//Consultation Request fetch documents
-	public static ArrayList<EDoc> listDocs(LoggedInInfo loggedInInfo, String demoNo, String requestId, boolean attached) {
-		List<Object[]> docs = documentDao.findDocsAndConsultDocsByConsultId(ConversionUtils.fromIntString(requestId));
-		List<Object[]> ctlDocs = null;
-		if (!attached) {
-			ctlDocs = documentDao.findCtlDocsAndDocsByModuleAndModuleId(Module.DEMOGRAPHIC, ConversionUtils.fromIntString(demoNo));
-		}
-		return documentProgramFiltering(loggedInInfo,listDocs(loggedInInfo, attached, docs, ctlDocs));
-	}
-	
-	//Consultation Response fetch documents
-	public static ArrayList<EDoc> listResponseDocs(LoggedInInfo loggedInInfo, String demoNo, String responseId, boolean attached) {
-		List<Object[]> docs = documentDao.findDocsAndConsultResponseDocsByConsultId(ConversionUtils.fromIntString(responseId));
-		List<Object[]> ctlDocs = null;
-		if (!attached) {
-			ctlDocs = documentDao.findCtlDocsAndDocsByModuleAndModuleId(Module.DEMOGRAPHIC, ConversionUtils.fromIntString(demoNo));
-		}
-		return documentProgramFiltering(loggedInInfo,listDocs(loggedInInfo, attached, docs, ctlDocs));
-	}
-	
-	private static ArrayList<EDoc> listDocs(LoggedInInfo loggedInInfo, boolean attached, List<Object[]> docs, List<Object[]> ctlDocs) {
+	public static ArrayList<EDoc> listDocs(String demoNo, String consultationId, boolean attached) {
+		String sql = "SELECT DISTINCT d.document_no, d.doccreator, d.source, d.sourceFacility, d.responsible, d.program_id, d.doctype, d.docdesc, d.observationdate, d.status, d.docfilename, d.contenttype, d.reviewer, d.reviewdatetime, d.appointment_no FROM document d, ctl_document c " + "WHERE d.status=c.status AND d.status != 'D' AND c.document_no=d.document_no AND " + "c.module='demographic' AND c.module_id = " + demoNo;
+
+		String attachQuery = "SELECT d.document_no, d.doccreator, d.source, d.sourceFacility, d.responsible, d.program_id, d.doctype, d.docdesc, d.observationdate, d.status, d.docfilename, d.contenttype, d.reviewer, d.reviewdatetime, d.appointment_no FROM document d, consultdocs cd " + "WHERE d.document_no = cd.document_no AND " + "cd.requestId = " + consultationId + " AND cd.doctype = 'D' AND cd.deleted IS NULL";
+
 		ArrayList<EDoc> resultDocs = new ArrayList<EDoc>();
 		ArrayList<EDoc> attachedDocs = new ArrayList<EDoc>();
 
-		for (Object[] o : docs) {
-			Document d = (Document) o[0];
-
-			EDoc currentdoc = new EDoc();
-			currentdoc.setDocId("" + d.getDocumentNo());
-			currentdoc.setDescription(d.getDocdesc());
-			currentdoc.setFileName(d.getDocfilename());
-			currentdoc.setContentType(d.getContenttype());
-			currentdoc.setCreatorId(d.getDoccreator());
-			currentdoc.setSource(d.getSource());
-			currentdoc.setSourceFacility(d.getSourceFacility());
-			currentdoc.setResponsibleId(d.getResponsible());
-			if (d.getProgramId() != null) {
-				currentdoc.setProgramId(d.getProgramId());
-			}
-			if (d.getAppointmentNo() != null) {
-				currentdoc.setAppointmentNo(d.getAppointmentNo());
-			}
-			currentdoc.setType(d.getDoctype());
-			currentdoc.setStatus(d.getStatus());
-			currentdoc.setObservationDate(d.getObservationdate());
-			currentdoc.setReviewerId(d.getReviewer());
-			currentdoc.setReviewDateTime(ConversionUtils.toTimestampString(d.getReviewdatetime()));
-			currentdoc.setReviewDateTimeDate(d.getReviewdatetime());
-            currentdoc.setContentDateTime(d.getContentdatetime());
-            
-            if(d.isRestrictToProgram() != null){            
-            	currentdoc.setRestrictToProgram(d.isRestrictToProgram());
-            }
-            
-			attachedDocs.add(currentdoc);
-		}
-
-		if (attached) { //listing attached documents only
-			resultDocs = attachedDocs;
-		}
-		else { //remove attached documents from full document list
-			for (Object[] o : ctlDocs) {
-				Document d = (Document) o[1];
-
+		try {
+			ResultSet rs = getSQL(attachQuery);
+			while (rs.next()) {
 				EDoc currentdoc = new EDoc();
-				currentdoc.setDocId("" + d.getDocumentNo());
-				currentdoc.setDescription(d.getDocdesc());
-				currentdoc.setFileName(d.getDocfilename());
-				currentdoc.setContentType(d.getContenttype());
-				currentdoc.setCreatorId(d.getDoccreator());
-				currentdoc.setSource(d.getSource());
-				currentdoc.setSourceFacility(d.getSourceFacility());
-				currentdoc.setResponsibleId(d.getResponsible());
-				if (d.getProgramId() != null) {
-					currentdoc.setProgramId(d.getProgramId());
-				}
-				if (d.getAppointmentNo() != null) {
-					currentdoc.setAppointmentNo(d.getAppointmentNo());
-				}
-				currentdoc.setType(d.getDoctype());
-				currentdoc.setStatus(d.getStatus());
-				currentdoc.setObservationDate(d.getObservationdate());
-				currentdoc.setReviewerId(d.getReviewer());
-				currentdoc.setReviewDateTime(ConversionUtils.toTimestampString(d.getReviewdatetime()));
-				currentdoc.setReviewDateTimeDate(d.getReviewdatetime());
-                                currentdoc.setContentDateTime(d.getContentdatetime());
-                currentdoc.setRestrictToProgram(d.isRestrictToProgram());
-                                
-				if (!attachedDocs.contains(currentdoc)) resultDocs.add(currentdoc);
+				currentdoc.setDocId(rsGetString(rs, "document_no"));
+				currentdoc.setDescription(rsGetString(rs, "docdesc"));
+				currentdoc.setFileName(rsGetString(rs, "docfilename"));
+				currentdoc.setContentType(rsGetString(rs, "contenttype"));
+				currentdoc.setCreatorId(rsGetString(rs, "doccreator"));
+				currentdoc.setSource(rsGetString(rs, "source"));
+				currentdoc.setSourceFacility(rsGetString(rs, "sourceFacility"));
+				currentdoc.setResponsibleId(rsGetString(rs, "responsible"));
+				String temp = rsGetString(rs, "program_id");
+				if (temp != null && temp.length() > 0) currentdoc.setProgramId(Integer.valueOf(temp));
+				temp = rsGetString(rs, "appointment_no");
+				if (temp != null && temp.length() > 0) currentdoc.setAppointmentNo(Integer.valueOf(temp));
+				currentdoc.setType(rsGetString(rs, "doctype"));
+				currentdoc.setStatus(rsGetString(rs, "status").charAt(0));
+				currentdoc.setObservationDate(rsGetString(rs, "observationdate"));
+				currentdoc.setReviewerId(rsGetString(rs, "reviewer"));
+				currentdoc.setReviewDateTime(rsGetString(rs, "reviewdatetime"));
+				currentdoc.setReviewDateTimeDate(rs.getTimestamp("reviewdatetime"));
+				attachedDocs.add(currentdoc);
 			}
+			rs.close();
+
+			if (!attached) {
+				rs = getSQL(sql);
+				while (rs.next()) {
+					EDoc currentdoc = new EDoc();
+					currentdoc.setDocId(rsGetString(rs, "document_no"));
+					currentdoc.setDescription(rsGetString(rs, "docdesc"));
+					currentdoc.setFileName(rsGetString(rs, "docfilename"));
+					currentdoc.setContentType(rsGetString(rs, "contenttype"));
+					currentdoc.setCreatorId(rsGetString(rs, "doccreator"));
+					currentdoc.setSource(rsGetString(rs, "source"));
+					currentdoc.setSourceFacility(rsGetString(rs, "sourceFacility"));
+					currentdoc.setResponsibleId(rsGetString(rs, "responsible"));
+					String temp = rsGetString(rs, "program_id");
+					if (temp != null && temp.length() > 0) currentdoc.setProgramId(Integer.valueOf(temp));
+					temp = rsGetString(rs, "appointment_no");
+					if (temp != null && temp.length() > 0) currentdoc.setAppointmentNo(Integer.valueOf(temp));
+					currentdoc.setType(rsGetString(rs, "doctype"));
+					currentdoc.setStatus(rsGetString(rs, "status").charAt(0));
+					currentdoc.setObservationDate(rsGetString(rs, "observationdate"));
+					currentdoc.setReviewerId(rsGetString(rs, "reviewer"));
+					currentdoc.setReviewDateTime(rsGetString(rs, "reviewdatetime"));
+					currentdoc.setReviewDateTimeDate(rs.getTimestamp("reviewdatetime"));
+
+					if (!attachedDocs.contains(currentdoc)) resultDocs.add(currentdoc);
+				}
+				rs.close();
+			} else resultDocs = attachedDocs;
+
+		} catch (SQLException sqe) {
+			logger.error("Error", sqe);
 		}
 
 		if (OscarProperties.getInstance().getBooleanProperty("FILTER_ON_FACILITY", "true")) {
-			resultDocs = documentFacilityFiltering(loggedInInfo, resultDocs);
+			resultDocs = documentFacilityFiltering(resultDocs);
 		}
 
 		return resultDocs;
 	}
-	/**
-	 * End Fetches consult documents
-	 */
-	
 
-	public static ArrayList<EDoc> listDocs(LoggedInInfo loggedInInfo, String module, String moduleid, String docType, String publicDoc, EDocSort sort) {
-		return listDocs(loggedInInfo, module, moduleid, docType, publicDoc, sort, "active");
+	public static ArrayList<EDoc> listDocs(String module, String moduleid, String docType, String publicDoc, String sort) {
+		return listDocs(module, moduleid, docType, publicDoc, sort, "active");
 	}
 
 	public static EDoc getEDocFromDocId(String docId) {
-		DocumentDao dao = SpringUtils.getBean(DocumentDao.class);
+		String sql = "SELECT DISTINCT c.module, c.module_id, d.doccreator, d.source, d.sourceFacility, d.responsible, d.program_id, "
+                           + "d.status, d.docdesc, d.docfilename, d.doctype, d.document_no, d.updatedatetime, d.contenttype, d.observationdate, "
+                           + "d.docClass, d.docSubClass, d.reviewer, d.reviewdatetime, d.appointment_no " + "FROM document d, ctl_document c "
+                           + "WHERE c.document_no=d.document_no AND c.document_no='" + docId + "'";
+		sql = sql + " ORDER BY " + EDocUtil.SORT_OBSERVATIONDATE;// default sort
+
+		ResultSet rs = getSQL(sql);
 		EDoc currentdoc = new EDoc();
+		try {
+			if (rs.first()) {
 
-		for (Object[] o : dao.findCtlDocsAndDocsByDocNo(ConversionUtils.fromIntString(docId))) {
-			Document d = (Document) o[0];
-			CtlDocument c = (CtlDocument) o[1];
+				currentdoc.setModule(rsGetString(rs, "module"));
+				currentdoc.setModuleId(rsGetString(rs, "module_id"));
+				currentdoc.setDocId(rsGetString(rs, "document_no"));
+				currentdoc.setDescription(rsGetString(rs, "docdesc"));
+				currentdoc.setType(rsGetString(rs, "doctype"));
+				currentdoc.setDocClass(rsGetString(rs, "docClass"));
+				currentdoc.setDocSubClass(rsGetString(rs, "docSubClass"));
+				currentdoc.setCreatorId(rsGetString(rs, "doccreator"));
+				currentdoc.setSource(rsGetString(rs, "source"));
+				currentdoc.setSourceFacility(rsGetString(rs, "sourceFacility"));
+				currentdoc.setResponsibleId(rsGetString(rs, "responsible"));
+				String temp = rsGetString(rs, "program_id");
+				if (temp != null && temp.length() > 0) currentdoc.setProgramId(Integer.valueOf(temp));
+				temp = rsGetString(rs, "appointment_no");
+				if (temp != null && temp.length() > 0) currentdoc.setAppointmentNo(Integer.valueOf(temp));
 
-			currentdoc.setModule(c.getId().getModule());
-			currentdoc.setModuleId("" + c.getId().getModuleId());
-			currentdoc.setDocId("" + d.getDocumentNo());
-			currentdoc.setDescription(d.getDocdesc());
-			currentdoc.setType(d.getDoctype());
-			currentdoc.setDocClass(d.getDocClass());
-			currentdoc.setDocSubClass(d.getDocSubClass());
-			currentdoc.setCreatorId(d.getDoccreator());
-			currentdoc.setSource(d.getSource());
-			currentdoc.setSourceFacility(d.getSourceFacility());
-			currentdoc.setResponsibleId(d.getResponsible());
-			if (d.getProgramId() != null) {
-				currentdoc.setProgramId(d.getProgramId());
+				currentdoc.setDateTimeStampAsDate(rs.getTimestamp("updatedatetime"));
+				currentdoc.setDateTimeStamp(rsGetString(rs, "updatedatetime"));
+				currentdoc.setFileName(rsGetString(rs, "docfilename"));
+				currentdoc.setStatus(rsGetString(rs, "status").charAt(0));
+				currentdoc.setContentType(rsGetString(rs, "contenttype"));
+				currentdoc.setObservationDate(rsGetString(rs, "observationdate"));
+				currentdoc.setReviewerId(rsGetString(rs, "reviewer"));
+				currentdoc.setReviewDateTime(rsGetString(rs, "reviewdatetime"));
+				currentdoc.setReviewDateTimeDate(rs.getTimestamp("reviewdatetime"));
+
+				rs.close();
 			}
-			if (d.getAppointmentNo() != null) {
-				currentdoc.setAppointmentNo(d.getAppointmentNo());
-			}
-			currentdoc.setDateTimeStampAsDate(d.getUpdatedatetime());
-			currentdoc.setDateTimeStamp(ConversionUtils.toTimestampString(d.getUpdatedatetime()));
-			currentdoc.setFileName(d.getDocfilename());
-			currentdoc.setStatus(d.getStatus());
-			currentdoc.setContentType(d.getContenttype());
-			currentdoc.setObservationDate(d.getObservationdate());
-			currentdoc.setReviewerId(d.getReviewer());
-			currentdoc.setReviewDateTime(ConversionUtils.toTimestampString(d.getReviewdatetime()));
-			currentdoc.setReviewDateTimeDate(d.getReviewdatetime());
-                        currentdoc.setContentDateTime(d.getContentdatetime());
+		} catch (SQLException sqe) {
+			logger.error("Error", sqe);
 		}
 
 		return currentdoc;
@@ -502,399 +419,312 @@ public final class EDocUtil {
 		return resultDocs;
 	}
 
-	public static ArrayList<EDoc> listDocs(LoggedInInfo loggedInInfo, String module, String moduleid, String docType, String publicDoc, EDocSort sort, String viewstatus) {
-		
-		boolean includePublic = publicDoc.equals(PUBLIC);
-		boolean includeDeleted = viewstatus.equals("deleted");
-		boolean includeActive = viewstatus.equals("active");
-		List<Object[]> documents = documentDao.findDocuments(module, moduleid, docType, includePublic, includeDeleted, includeActive, sort, null);
+	public static ArrayList<EDoc> listDocs(String module, String moduleid, String docType, String publicDoc, String sort, String viewstatus) {
+		// sort must be not null
+		// docType = null or = "all" to show all doctypes
+		// select publicDoc and sorting from static variables for this class i.e. sort=EDocUtil.SORT_OBSERVATIONDATE
+		// sql base (prefix) to avoid repetition in the if-statements
+		String sql = "SELECT DISTINCT c.module, c.module_id, d.doccreator, d.source, d.sourceFacility, d.docClass, d.docSubClass,d.responsible, d.program_id, d.status, d.docdesc, d.docfilename, d.doctype, d.document_no, d.updatedatetime, d.contenttype, d.observationdate, d.reviewer, d.reviewdatetime, d.appointment_no " + "FROM document d, ctl_document c WHERE c.document_no=d.document_no AND c.module='" + module + "'";
+		// if-statements to select the where condition (suffix)
+		if (publicDoc.equals(PUBLIC)) {
+			if (docType == null || docType.equals("all") || docType.length() == 0) sql = sql + " AND d.public1=1";
+			else sql = sql + " AND d.public1=1 AND d.doctype='" + docType + "'";
+		} else {
+			if (docType == null || docType.equals("all") || docType.length() == 0) sql = sql + " AND c.module_id='" + moduleid + "' AND d.public1=0";
+			else sql = sql + " AND c.module_id='" + moduleid + "' AND d.public1=0 AND d.doctype='" + docType + "'";
+		}
 
+		if (viewstatus.equals("deleted")) {
+			sql += " AND d.status = 'D'";
+		} else if (viewstatus.equals("active")) {
+			sql += " AND d.status != 'D'";
+		}
+
+		sql = sql + " ORDER BY " + sort;
+		ResultSet rs = getSQL(sql);
 		ArrayList<EDoc> resultDocs = new ArrayList<EDoc>();
-		for (Object[] o : documents) {
-			Document d = (Document)o[1];
-			EDoc currentdoc = toEDoc(d);
-			resultDocs.add(currentdoc);
-		}
-
-		if (OscarProperties.getInstance().getBooleanProperty("FILTER_ON_FACILITY", "true")) {
-			resultDocs = documentFacilityFiltering(loggedInInfo, resultDocs);
-		}
-		
-		//filter by program.
-		resultDocs = documentProgramFiltering(loggedInInfo, resultDocs);
-
-		return resultDocs;
-	}
-
-	public static ArrayList<EDoc> listDocsSince(LoggedInInfo loggedInInfo, String module, String moduleid, String docType, String publicDoc, EDocSort sort, String viewstatus, Date since) {
-		
-		boolean includePublic = publicDoc.equals(PUBLIC);
-		boolean includeDeleted = viewstatus.equals("deleted");
-		boolean includeActive = viewstatus.equals("active");
-		
-		
-		List<Object[]> documents = documentDao.findDocuments(module, moduleid, docType, includePublic, includeDeleted, includeActive, sort, since);
-
-		ArrayList<EDoc> resultDocs = new ArrayList<EDoc>();
-		for (Object[] o : documents) {
-			Document d = (Document)o[1];
-			EDoc currentdoc = toEDoc(d);
-			resultDocs.add(currentdoc);
-		}
-
-		if (OscarProperties.getInstance().getBooleanProperty("FILTER_ON_FACILITY", "true")) {
-			resultDocs = documentFacilityFiltering(loggedInInfo, resultDocs);
-		}
-
-		return resultDocs;
-	}
-	
-	public static ArrayList<Integer> listDemographicIdsSince(Date since) {
-		return (ArrayList<Integer>)documentDao.findDemographicIdsSince(since);
-	}
-
-
-	
-	private static EDoc toEDoc(Document d) {
-		EDoc currentdoc = new EDoc();
-		currentdoc.setDocId(d.getId().toString());
-		currentdoc.setDescription(d.getDocdesc());
-		currentdoc.setFileName(d.getDocfilename());
-		currentdoc.setContentType(d.getContenttype());
-		currentdoc.setCreatorId(d.getDoccreator());
-		currentdoc.setSource(d.getSource());
-		currentdoc.setSourceFacility(d.getSourceFacility());
-		currentdoc.setResponsibleId(d.getResponsible());
-		currentdoc.setProgramId(d.getProgramId());
-		currentdoc.setAppointmentNo(d.getAppointmentNo());
-		currentdoc.setType(d.getDoctype());
-		currentdoc.setStatus(d.getStatus());
-		currentdoc.setObservationDate(ConversionUtils.toDateString(d.getObservationdate()));
-		currentdoc.setReviewerId(d.getReviewer());
-		currentdoc.setReviewDateTime(ConversionUtils.toDateString(d.getReviewdatetime()));
-		currentdoc.setReviewDateTimeDate(d.getReviewdatetime());
-        currentdoc.setDateTimeStamp(ConversionUtils.toDateString(d.getUpdatedatetime()));
-        currentdoc.setDateTimeStampAsDate(d.getUpdatedatetime());
-        currentdoc.setDocClass(d.getDocClass());
-        currentdoc.setDocSubClass(d.getDocSubClass());
-        currentdoc.setContentDateTime(d.getContentdatetime());
-        if(d.isRestrictToProgram() != null && d.isRestrictToProgram()) {
-        	currentdoc.setRestrictToProgram(true);
-        }
-	    return currentdoc;
-    }
-	
-	public static String getDocumentFileName(String prefixedFileName) {
-		if(hasSubdir(prefixedFileName))
-			return prefixedFileName.substring(prefixedFileName.indexOf(".")+1, prefixedFileName.length());
-		else return prefixedFileName;
-	}
-
-	public static String getDocumentPrefix(String prefixedFileName) {
-		if(hasSubdir(prefixedFileName))
-			return prefixedFileName.substring(0,prefixedFileName.indexOf("."));
-		else return prefixedFileName;
-	}
-
-	public static String getDocumentPath(String filename) {
-		return EDocUtil.getDocumentDir(filename) + EDocUtil.getDocumentFileName(filename);
-	}
-
-	public static String getDocumentDir(String prefixedFileName) {
-        String rootPath = oscar.OscarProperties.getInstance().getProperty("DOCUMENT_DIR");
-        rootPath = (rootPath.endsWith("\\") || rootPath.endsWith("/") ? rootPath : rootPath + "/");
-
-        if(hasSubdir(prefixedFileName)) {
-        	String prefix = prefixedFileName.substring(0, prefixedFileName.indexOf("."));
-        	return rootPath + prefix.substring(0,4) + "/" + prefix.substring(4,6) + "/";
-        } else return rootPath;
-	}
-
-	public static String getCacheDirectory() {
-//        String filenameWithPrefix = d.getDocfilename();
-
-        String rootPath = oscar.OscarProperties.getInstance().getProperty("DOCUMENT_DIR");
-        rootPath = (rootPath.endsWith("\\") || rootPath.endsWith("/") ? rootPath : rootPath + "/");
-		File rootDir = new File(rootPath);
-        String documentDirName = rootDir.getName();
-		File parentDir = rootDir.getParentFile();
-		File cacheDir = new File(parentDir,documentDirName+"_cache");
-
-        return cacheDir.getAbsolutePath();
-	}
-
-	private static boolean hasSubdir(String fileName) {
-		boolean res = false;
-
 		try {
-        	String prefix = fileName.substring(0, fileName.indexOf("."));
-        	if(prefix.length() == 6) {
-        		SimpleDateFormat format = new SimpleDateFormat("yyyyMM");
-        		format.setLenient(false);
-        		Date test = format.parse(prefix);        		
-        		res = true;
-        	}
-		} catch(Exception ex) {}
+		   if(rs!=null) {
+			while (rs.next()) {
+				EDoc currentdoc = new EDoc();
+				currentdoc.setModule(rsGetString(rs, "module"));
+				currentdoc.setModuleId(rsGetString(rs, "module_id"));
+				currentdoc.setDocId(rsGetString(rs, "document_no"));
+				currentdoc.setDescription(rsGetString(rs, "docdesc"));
+				currentdoc.setType(rsGetString(rs, "doctype"));
+				currentdoc.setCreatorId(rsGetString(rs, "doccreator"));
+				currentdoc.setSource(rsGetString(rs, "source"));
+				currentdoc.setSourceFacility(rsGetString(rs, "sourceFacility"));
+				currentdoc.setResponsibleId(rsGetString(rs, "responsible"));
+                                currentdoc.setDocClass(rsGetString(rs, "docClass"));
+				currentdoc.setDocSubClass(rsGetString(rs, "docSubClass"));
+				String temp = rsGetString(rs, "program_id");
+				if (temp != null && temp.length() > 0) currentdoc.setProgramId(Integer.valueOf(temp));
+				temp = rsGetString(rs, "appointment_no");
+				if (temp != null && temp.length() > 0) currentdoc.setAppointmentNo(Integer.valueOf(temp));
+				currentdoc.setDateTimeStampAsDate(rs.getTimestamp("updatedatetime"));
+				currentdoc.setDateTimeStamp(rsGetString(rs, "updatedatetime"));
+				currentdoc.setFileName(rsGetString(rs, "docfilename"));
+				currentdoc.setStatus(rsGetString(rs, "status").charAt(0));
+				currentdoc.setContentType(rsGetString(rs, "contenttype"));
+				currentdoc.setObservationDate(rsGetString(rs, "observationdate"));
+				currentdoc.setReviewerId(rsGetString(rs, "reviewer"));
+				currentdoc.setReviewDateTime(rsGetString(rs, "reviewdatetime"));
+				currentdoc.setReviewDateTimeDate(rs.getTimestamp("reviewdatetime"));
+				resultDocs.add(currentdoc);
+			}
+		   rs.close();
+		   }
+		} catch (SQLException sqe) {
+			logger.error("Error", sqe);
+		}
 
-		return res;
+		if (OscarProperties.getInstance().getBooleanProperty("FILTER_ON_FACILITY", "true")) {
+			resultDocs = documentFacilityFiltering(resultDocs);
+		}
+
+		return resultDocs;
 	}
 
 	public ArrayList<EDoc> getUnmatchedDocuments(String creator, String responsible, Date startDate, Date endDate, boolean unmatchedDemographics) {
 		ArrayList<EDoc> list = new ArrayList<EDoc>();
-
-		DocumentDao dao = SpringUtils.getBean(DocumentDao.class);
-
-		for (Object[] o : dao.findCtlDocsAndDocsByModuleCreatorResponsibleAndDates(Module.DEMOGRAPHIC, creator, responsible, startDate, endDate, unmatchedDemographics)) {
-			Document d = (Document) o[0];
-			CtlDocument c = (CtlDocument) o[1];
-
-			EDoc currentdoc = new EDoc();
-			currentdoc.setModule(c.getId().getModule());
-			currentdoc.setModuleId("" + c.getId().getModuleId());
-			currentdoc.setDocId("" + d.getDocumentNo());
-			currentdoc.setDescription(d.getDocdesc());
-			currentdoc.setType(d.getDoctype());
-			currentdoc.setCreatorId(d.getDoccreator());
-			currentdoc.setSource(d.getSource());
-			currentdoc.setSourceFacility(d.getSourceFacility());
-			currentdoc.setResponsibleId(d.getResponsible());
-			if (d.getProgramId() != null) {
-				currentdoc.setProgramId(d.getProgramId());
-			}
-			if (d.getAppointmentNo() != null) {
-				currentdoc.setAppointmentNo(d.getAppointmentNo());
-			}
-			currentdoc.setDateTimeStamp(ConversionUtils.toTimestampString(d.getUpdatedatetime()));
-			currentdoc.setFileName(d.getDocfilename());
-			currentdoc.setStatus(d.getStatus());
-			currentdoc.setContentType(d.getContenttype());
-			currentdoc.setObservationDate(d.getObservationdate());
-                        currentdoc.setContentDateTime(d.getContentdatetime());
-
-			list.add(currentdoc);
+		// boolean matchedDemographics = true;
+		String sql = "SELECT DISTINCT c.module, c.module_id, d.doccreator, d.source, d.sourceFacility, d.responsible, d.program_id, d.status, d.docdesc, d.docfilename, d.doctype, d.document_no, d.updatedatetime, d.contenttype, d.observationdate, d.appointment_no FROM document d, ctl_document c WHERE c.document_no=d.document_no AND c.module='demographic' and doccreator = ? and responsible = ? and updatedatetime >= ?  and updatedatetime <= ?";
+		if (unmatchedDemographics) {
+			sql += " and c.module_id = -1 ";
 		}
+		/*
+		 * else if (matchedDemographics){ sql += " and c.module_id != -1 "; }
+		 */
+		try {
+			java.sql.Date sDate = new java.sql.Date(startDate.getTime());
+			java.sql.Date eDate = new java.sql.Date(endDate.getTime());
+			logger.debug("Creator " + creator + " start " + sDate + " end " + eDate);
 
+			Connection c = DbConnectionFilter.getThreadLocalDbConnection();
+			PreparedStatement ps = c.prepareStatement(sql);
+			ps.setString(1, creator);
+			ps.setString(2, responsible);
+			ps.setDate(3, new java.sql.Date(startDate.getTime()));
+			ps.setDate(4, new java.sql.Date(endDate.getTime()));
+			ResultSet rs = ps.executeQuery();
+			while (rs.next()) {
+				logger.debug("DOCFILENAME " + rs.getString("docfilename"));
+				EDoc currentdoc = new EDoc();
+				currentdoc.setModule(rsGetString(rs, "module"));
+				currentdoc.setModuleId(rsGetString(rs, "module_id"));
+				currentdoc.setDocId(rsGetString(rs, "document_no"));
+				currentdoc.setDescription(rsGetString(rs, "docdesc"));
+				currentdoc.setType(rsGetString(rs, "doctype"));
+				currentdoc.setCreatorId(rsGetString(rs, "doccreator"));
+				currentdoc.setSource(rsGetString(rs, "source"));
+				currentdoc.setSourceFacility(rsGetString(rs, "sourceFacility"));
+				currentdoc.setResponsibleId(rsGetString(rs, "responsible"));
+				String temp = rsGetString(rs, "program_id");
+				if (temp != null && temp.length() > 0) currentdoc.setProgramId(Integer.valueOf(temp));
+				temp = rsGetString(rs, "appointment_no");
+				if (temp != null && temp.length() > 0) currentdoc.setAppointmentNo(Integer.valueOf(temp));
+				currentdoc.setDateTimeStamp(rsGetString(rs, "updatedatetime"));
+				currentdoc.setFileName(rsGetString(rs, "docfilename"));
+				currentdoc.setStatus(rsGetString(rs, "status").charAt(0));
+				currentdoc.setContentType(rsGetString(rs, "contenttype"));
+				currentdoc.setObservationDate(rsGetString(rs, "observationdate"));
+
+				list.add(currentdoc);
+			}
+			rs.close();
+		} catch (Exception e) {
+			logger.error("Error", e);
+		}
+		// mysql> SELECT DISTINCT c.module, c.module_id, d.doccreator, d.source, d.program_id, d.status, d.docdesc, d.docfilename, d.doctype, d.document_no, d.updatedatetime, d.contenttype, d.observationdate FROM document d, ctl_document c WHERE
+		// c.document_no=d.document_no AND c.module='demographic' and module_id = -1
 		return list;
 	}
 
-	private static ArrayList<EDoc> documentFacilityFiltering(LoggedInInfo loggedInInfo, List<EDoc> eDocs) {
+	private static ArrayList<EDoc> documentFacilityFiltering(List<EDoc> eDocs) {
 		ArrayList<EDoc> results = new ArrayList<EDoc>();
 
 		for (EDoc eDoc : eDocs) {
 			Integer programId = eDoc.getProgramId();
-			if (programManager.hasAccessBasedOnCurrentFacility(loggedInInfo, programId)) results.add(eDoc);
+			if (programManager.hasAccessBasedOnCurrentFacility(programId)) results.add(eDoc);
 		}
 
 		return results;
 	}
 
-	/*
-	 * 1) is the patient in my program domain
-	 */
-	private static ArrayList<EDoc> documentProgramFiltering(LoggedInInfo loggedInInfo, List<EDoc> eDocs) {		
-		ArrayList<EDoc> results = new ArrayList<EDoc>();
+	public static ArrayList<EDoc> listDemoDocs(String moduleid) {
+		String sql = "SELECT d.*, p.first_name, p.last_name FROM document d, provider p, ctl_document c " + "WHERE d.doccreator=p.provider_no AND d.document_no = c.document_no " + "AND c.module='demographic' AND c.module_id=" + moduleid;
 
-		List<ProgramProvider> ppList = programManager2.getProgramDomain(loggedInInfo, loggedInInfo.getLoggedInProviderNo());
-			
-		for (EDoc eDoc : eDocs) {
-			
-			if(!eDoc.isRestrictToProgram() || eDoc.getProgramId() == null || eDoc.getProgramId().intValue() == -1) {
-				results.add(eDoc);
-				continue;
-			}
-			
-			for(ProgramProvider pp:ppList){
-				if(pp.getProgramId().intValue() == eDoc.getProgramId().intValue()) {
-					results.add(eDoc);
-					continue;
-				}
-			}
-		}
-
-		return results;
-	}
-
-	public static ArrayList<EDoc> listDemoDocs(LoggedInInfo loggedInInfo, String moduleid) {
-		DocumentDao dao = SpringUtils.getBean(DocumentDao.class);
+		logger.debug("sql list: " + sql);
+		ResultSet rs = getSQL(sql);
 		ArrayList<EDoc> resultDocs = new ArrayList<EDoc>();
-		for (Object[] o : dao.findConstultDocsDocsAndProvidersByModule(Module.DEMOGRAPHIC, ConversionUtils.fromIntString(moduleid))) {
-			Document d = (Document) o[0];
-
-			EDoc currentdoc = new EDoc();
-			currentdoc.setDocId("" + d.getDocumentNo());
-			currentdoc.setType(d.getDoctype());
-			currentdoc.setFileName(d.getDocfilename());
-			currentdoc.setCreatorId(d.getDoccreator());
-			currentdoc.setSource(d.getSource());
-			currentdoc.setSourceFacility(d.getSourceFacility());
-			currentdoc.setResponsibleId(d.getResponsible());
-			currentdoc.setDocClass(d.getDocClass());
-			currentdoc.setDocSubClass(d.getDocSubClass());
-			if (d.getProgramId() != null) {
-				currentdoc.setProgramId(d.getProgramId());
+		try {
+			while (rs.next()) {
+				EDoc currentdoc = new EDoc();
+				currentdoc.setDocId(rsGetString(rs, "document_no"));
+				currentdoc.setType(rsGetString(rs, "doctype"));
+				currentdoc.setFileName(rsGetString(rs, "docfilename"));
+				currentdoc.setCreatorId(rsGetString(rs, "doccreator"));
+				currentdoc.setSource(rsGetString(rs, "source"));
+				currentdoc.setSourceFacility(rsGetString(rs, "sourceFacility"));
+				currentdoc.setResponsibleId(rsGetString(rs, "responsible"));
+				currentdoc.setDocClass(rsGetString(rs, "docClass"));
+				currentdoc.setDocSubClass(rsGetString(rs, "docSubClass"));
+				String temp = rsGetString(rs, "program_id");
+				if (temp != null && temp.length() > 0) currentdoc.setProgramId(Integer.valueOf(temp));
+				temp = rsGetString(rs, "appointment_no");
+				if (temp != null && temp.length() > 0) currentdoc.setAppointmentNo(Integer.valueOf(temp));
+				currentdoc.setDateTimeStamp(rsGetString(rs, "updatedatetime"));
+				currentdoc.setContentType(rsGetString(rs, "contenttype"));
+				currentdoc.setObservationDate(rsGetString(rs, "observationdate"));
+				currentdoc.setReviewerId(rsGetString(rs, "reviewer"));
+				currentdoc.setReviewDateTime(rsGetString(rs, "reviewdatetime"));
+				currentdoc.setReviewDateTimeDate(rs.getTimestamp("reviewdatetime"));
+				resultDocs.add(currentdoc);
 			}
-			if (d.getAppointmentNo() != null) {
-				currentdoc.setAppointmentNo(d.getAppointmentNo());
-			}
-			currentdoc.setDateTimeStamp(ConversionUtils.toTimestampString(d.getUpdatedatetime()));
-			currentdoc.setContentType(d.getContenttype());
-			currentdoc.setObservationDate(d.getObservationdate());
-			currentdoc.setReviewerId(d.getReviewer());
-			currentdoc.setReviewDateTime(ConversionUtils.toTimestampString(d.getReviewdatetime()));
-			currentdoc.setReviewDateTimeDate(d.getReviewdatetime());
-                        currentdoc.setContentDateTime(d.getContentdatetime());
-			resultDocs.add(currentdoc);
+			rs.close();
+		} catch (SQLException sqe) {
+			logger.error("Error", sqe);
 		}
 
 		if (OscarProperties.getInstance().getBooleanProperty("FILTER_ON_FACILITY", "true")) {
-			resultDocs = documentFacilityFiltering(loggedInInfo, resultDocs);
+			resultDocs = documentFacilityFiltering(resultDocs);
 		}
 
 		return resultDocs;
 	}
 
-	public static List<String> listModules() {
-		CtlDocTypeDao dao = SpringUtils.getBean(CtlDocTypeDao.class);
-		return dao.findModules();
+	public static ArrayList<String> listModules() {
+		String sql = "SELECT DISTINCT module FROM ctl_doctype";
+		ResultSet rs = getSQL(sql);
+		ArrayList<String> modules = new ArrayList<String>();
+		try {
+			while (rs.next()) {
+				modules.add(rsGetString(rs, "module"));
+			}
+		} catch (SQLException sqe) {
+			logger.error("Error", sqe);
+		}
+		return modules;
 	}
 
 	public static EDoc getDoc(String documentNo) {
-		
-		DocumentDao dao = SpringUtils.getBean(DocumentDao.class);
-		IndivoDocsDao iDao = SpringUtils.getBean(IndivoDocsDao.class);
+		String sql = "SELECT DISTINCT c.module, c.module_id, d.* FROM document d, ctl_document c WHERE d.status=c.status AND d.status != 'D' AND " + "c.document_no=d.document_no AND c.document_no='" + documentNo + "' ORDER BY d.updatedatetime DESC";
 
+		String indivoSql = "SELECT indivoDocIdx FROM indivoDocs i WHERE i.oscarDocNo = ? and i.docType = 'document' limit 1";
+		boolean myOscarEnabled = OscarProperties.getInstance().getProperty("MY_OSCAR", "").trim().equalsIgnoreCase("YES");
+		ResultSet rs2;
+
+		ResultSet rs = getSQL(sql);
 		EDoc currentdoc = new EDoc();
+		try {
+			while (rs.next()) {
+				currentdoc.setModule(rsGetString(rs, "module"));
+				currentdoc.setModuleId(rsGetString(rs, "module_id"));
+				currentdoc.setDocId(rsGetString(rs, "document_no"));
+				currentdoc.setDescription(rsGetString(rs, "docdesc"));
+				currentdoc.setType(rsGetString(rs, "doctype"));
+                                currentdoc.setDocClass(rsGetString(rs, "docClass"));
+                                currentdoc.setDocSubClass(rsGetString(rs, "docSubClass"));
+				currentdoc.setCreatorId(rsGetString(rs, "doccreator"));
+				currentdoc.setResponsibleId(rsGetString(rs, "responsible"));
+				currentdoc.setSource(rsGetString(rs, "source"));
+				currentdoc.setSourceFacility(rsGetString(rs, "sourceFacility"));
+				currentdoc.setDateTimeStampAsDate(rs.getTimestamp("updatedatetime"));
+				currentdoc.setDateTimeStamp(rsGetString(rs, "updatedatetime"));
+				currentdoc.setFileName(rsGetString(rs, "docfilename"));
+				currentdoc.setDocPublic(rsGetString(rs, "public1"));
+				currentdoc.setObservationDate(rs.getDate("observationdate"));
+				currentdoc.setReviewerId(rsGetString(rs, "reviewer"));
+				currentdoc.setReviewDateTime(rsGetString(rs, "reviewdatetime"));
+				currentdoc.setReviewDateTimeDate(rs.getTimestamp("reviewdatetime"));
+				currentdoc.setHtml(rsGetString(rs, "docxml"));
+				currentdoc.setStatus(rsGetString(rs, "status").charAt(0));
+				currentdoc.setContentType(rsGetString(rs, "contenttype"));
+				currentdoc.setNumberOfPages(rs.getInt("number_of_pages"));
 
-		for (Object[] o : dao.findCtlDocsAndDocsByDocNo(ConversionUtils.fromIntString(documentNo))) {
-			Document d = (Document) o[0];
-			CtlDocument c = (CtlDocument) o[1];
+				if (myOscarEnabled) {
+					String tmp = indivoSql.replaceFirst("\\?", oscar.Misc.getString(rs, "document_no"));
+					rs2 = getSQL(tmp);
 
-			currentdoc.setModule("" + c.getId().getModule());
-			currentdoc.setModuleId("" + c.getId().getModuleId());
-			currentdoc.setDocId("" + d.getDocumentNo());
-			currentdoc.setDescription(d.getDocdesc());
-			currentdoc.setType(d.getDoctype());
-			currentdoc.setDocClass(d.getDocClass());
-			currentdoc.setDocSubClass(d.getDocSubClass());
-			currentdoc.setCreatorId(d.getDoccreator());
-			currentdoc.setResponsibleId(d.getResponsible());
-			currentdoc.setSource(d.getSource());
-			currentdoc.setSourceFacility(d.getSourceFacility());
-			currentdoc.setDateTimeStampAsDate(d.getUpdatedatetime());
-			currentdoc.setDateTimeStamp(ConversionUtils.toTimestampString(d.getUpdatedatetime()));
-			currentdoc.setFileName(d.getDocfilename());
-			currentdoc.setDocPublic("" + d.getPublic1());
-			currentdoc.setObservationDate(d.getObservationdate());
-			currentdoc.setReviewerId(d.getReviewer());
-			currentdoc.setReviewDateTime(ConversionUtils.toTimestampString(d.getReviewdatetime()));
-			currentdoc.setReviewDateTimeDate(d.getReviewdatetime());
-			currentdoc.setHtml(d.getDocxml());
-			currentdoc.setStatus(d.getStatus());
-			currentdoc.setContentType(d.getContenttype());
-			currentdoc.setNumberOfPages(d.getNumberofpages());
-            currentdoc.setContentDateTime(d.getContentdatetime());
-            
-            if(d.isRestrictToProgram() != null){
-            	currentdoc.setRestrictToProgram(d.isRestrictToProgram());
-            }
-            currentdoc.setProgramId(d.getProgramId());
-            
-			IndivoDocs id = iDao.findByOscarDocNo(d.getDocumentNo(), "document");
-			if (id != null) {
-				currentdoc.setIndivoIdx(id.getIndivoDocIdx());
-				if (currentdoc.getIndivoIdx().length() > 0) {
-					currentdoc.registerIndivo();
+					if (rs2.next()) {
+						currentdoc.setIndivoIdx(rsGetString(rs2, "indivoDocIdx"));
+						if (currentdoc.getIndivoIdx().length() > 0) currentdoc.registerIndivo();
+					}
+					rs2.close();
 				}
 			}
-			
+			rs.close();
+		} catch (SQLException sqe) {
+			logger.error("Error", sqe);
 		}
-
 		return currentdoc;
 	}
 
 	public String getDocumentName(String id) {
-		Document d = documentDao.find(ConversionUtils.fromIntString(id));
-		if (d != null) {
+		Document d = documentDao.find(Integer.parseInt(id));
+		if(d != null) {
 			return d.getDocfilename();
 		}
 		return null;
 	}
 
 	public static void undeleteDocument(String documentNo) {
-		CtlDocument cd = ctlDocumentDao.getCtrlDocument(ConversionUtils.fromIntString(documentNo));
-		String status = "";
-		if (cd != null) {
-			status = cd.getStatus();
-		}
 
-		Document d = documentDao.find(ConversionUtils.fromIntString(documentNo));
-		if (d != null) {
-			d.setStatus(status.toCharArray()[0]);
-			d.setUpdatedatetime(MyDateFormat.getSysDate(getDmsDateTime()));
-			documentDao.merge(d);
+		try {
+			String sql = "select status from ctl_document where document_no=" + documentNo;
+			String status = "";
+			ResultSet rs = DBHandler.GetSQL(sql);
+			if (rs.next()) {
+				status = rs.getString("status");
+			}
+			rs.close();
+
+			Document d = documentDao.find(Integer.parseInt(documentNo));
+			if(d != null) {
+				d.setStatus(status.toCharArray()[0]);
+				d.setUpdatedatetime( MyDateFormat.getSysDate(getDmsDateTime()));
+				documentDao.merge(d);
+			}
+
+		} catch (SQLException e) {
+			logger.error("Error", e);
 		}
 	}
 
 	public static void deleteDocument(String documentNo) {
-		Document d = documentDao.find(ConversionUtils.fromIntString(documentNo));
-		if (d != null) {
+		Document d = documentDao.find(Integer.parseInt(documentNo));
+		if(d != null) {
 			d.setStatus('D');
 			d.setUpdatedatetime(MyDateFormat.getSysDate(getDmsDateTime()));
 			documentDao.merge(d);
 		}
 	}
 
-       public static void refileDocument(String documentNo, String queueId) throws Exception {
-
-            String sourceDocDir = oscar.OscarProperties.getInstance().getProperty("DOCUMENT_DIR");
-            Document d = documentDao.find(ConversionUtils.fromIntString(documentNo));
-            File sourceFile = new File(sourceDocDir, d.getDocfilename());
-
-            String destFileName = sourceFile.getName();
-            if (destFileName.length() > 18) {
-                destFileName = destFileName.substring(14, destFileName.length());
-            }
-
-            String destPath = IncomingDocUtil.getIncomingDocumentFilePath(queueId, "Refile");
-            File destFile = new File(destPath, "R" + destFileName);
-
-            try {
-                if (destFile.exists()) {
-                    throw new IOException("Cannot refile document #"+documentNo+ " "+d.getDocdesc()+". Destination File " + destFile.getAbsolutePath() + " already exists");
-                } else {
-                    FileUtils.copyFile(sourceFile, destFile);
-                    EDocUtil.deleteDocument(documentNo);
-                }
-            } catch (IOException e) {
-                logger.error("Error", e);
-                throw new Exception(e);
-            }
-        }
-
 	public static String getDmsDateTime() {
-		String nowDateR = UtilDateUtilities.DateToString(new Date(), "yyyy/MM/dd");
-		String nowTimeR = UtilDateUtilities.DateToString(new Date(), "HH:mm:ss");
+		String nowDateR = UtilDateUtilities.DateToString(UtilDateUtilities.now(), "yyyy/MM/dd");
+		String nowTimeR = UtilDateUtilities.DateToString(UtilDateUtilities.now(), "HH:mm:ss");
 		String dateTimeStamp = nowDateR + " " + nowTimeR;
 		return dateTimeStamp;
 	}
 
 	public static Date getDmsDateTimeAsDate() {
-		return new Date();
+		return UtilDateUtilities.now();
 	}
 
-	public static int addDocument(String demoNo, String docFileName, String docDesc, String docType, String docClass, String docSubClass, String contentType, String contentDateTime, String observationDate, String updateDateTime, String docCreator, String responsible) {
-		return addDocument(demoNo, docFileName, docDesc, docType, docClass, docSubClass, contentType, contentDateTime, observationDate, updateDateTime, docCreator, responsible, null, null, null);
+	public static int addDocument(String demoNo, String docFileName, String docDesc, String docType, String docClass, String docSubClass, String contentType, String observationDate, String updateDateTime, String docCreator, String responsible) throws SQLException {
+		return addDocument(demoNo, docFileName, docDesc, docType, docClass, docSubClass, contentType, observationDate, updateDateTime, docCreator, responsible, null, null, null);
 	}
 
-	public static int addDocument(String demoNo, String docFileName, String docDesc, String docType, String docClass, String docSubClass, String contentType, String contentDateTime, String observationDate, String updateDateTime, String docCreator, String responsible, String reviewer, String reviewDateTime) {
-		return addDocument(demoNo, docFileName, docDesc, docType, docClass, docSubClass, contentType, contentDateTime, observationDate, updateDateTime, docCreator, responsible, reviewer, reviewDateTime, null, null);
+	public static int addDocument(String demoNo, String docFileName, String docDesc, String docType, String docClass, String docSubClass, String contentType, String observationDate, String updateDateTime, String docCreator, String responsible, String reviewer, String reviewDateTime) throws SQLException {
+		return addDocument(demoNo, docFileName, docDesc, docType, docClass, docSubClass, contentType, observationDate, updateDateTime, docCreator, responsible, reviewer, reviewDateTime, null, null);
 	}
 
-	public static int addDocument(String demoNo, String docFileName, String docDesc, String docType, String docClass, String docSubClass, String contentType, String contentDateTime, String observationDate, String updateDateTime, String docCreator, String responsible, String reviewer, String reviewDateTime, String source) {
-		return addDocument(demoNo, docFileName, docDesc, docType, docClass, docSubClass, contentType, contentDateTime, observationDate, updateDateTime, docCreator, responsible, reviewer, reviewDateTime, source, null);
+	public static int addDocument(String demoNo, String docFileName, String docDesc, String docType, String docClass, String docSubClass, String contentType, String observationDate, String updateDateTime, String docCreator, String responsible, String reviewer, String reviewDateTime, String source) throws SQLException {
+		return addDocument(demoNo, docFileName, docDesc, docType, docClass, docSubClass, contentType, observationDate, updateDateTime, docCreator, responsible, reviewer, reviewDateTime, source, null);
 	}
 
-	public static int addDocument(String demoNo, String docFileName, String docDesc, String docType, String docClass, String docSubClass, String contentType, String contentDateTime, String observationDate, String updateDateTime, String docCreator, String responsible, String reviewer, String reviewDateTime, String source, String sourceFacility) {
+	public static int addDocument(String demoNo, String docFileName, String docDesc, String docType, String docClass, String docSubClass, String contentType, String observationDate, String updateDateTime, String docCreator, String responsible, String reviewer, String reviewDateTime, String source, String sourceFacility) throws SQLException {
 
 		Document doc = new Document();
 		doc.setDoctype(docType);
@@ -911,53 +741,82 @@ public final class EDocUtil {
 		doc.setObservationdate(MyDateFormat.getSysDate(observationDate));
 		doc.setReviewer(reviewer);
 		doc.setReviewdatetime(MyDateFormat.getSysDate(reviewDateTime));
-                doc.setContentdatetime(MyDateFormat.getSysDate(contentDateTime));
 		doc.setSource(source);
 		doc.setSourceFacility(sourceFacility);
-		doc.setNumberofpages(1);
-		
-		try {
-			doc.setFileSignature(EDocUtil.calculateFileSignature(new File(doc.getDocfilename())));
-		}catch(Exception e) {
-			MiscUtils.getLogger().warn("File signature not set on Document " + doc.getDocfilename());
-		}
-		
 		documentDao.persist(doc);
 
-		int key = 0;
+
+		int key=0;
 		if (doc.getDocumentNo() > 0) {
-			CtlDocumentPK cdpk = new CtlDocumentPK();
-			CtlDocument cd = new CtlDocument();
-			cd.setId(cdpk);
-			cdpk.setModule("demographic");
-			cdpk.setDocumentNo(doc.getDocumentNo());
-			cd.getId().setModuleId(ConversionUtils.fromIntString(demoNo));
-			cd.setStatus(String.valueOf('A'));
-			ctlDocumentDao.persist(cd);
-			key = 1;
+			String add_record_string2 = "insert into ctl_document values ('demographic',?,?,'A')";
+			Connection conn = DbConnectionFilter.getThreadLocalDbConnection();
+			PreparedStatement add_record = conn.prepareStatement(add_record_string2);
+
+			add_record.setString(1, demoNo);
+			add_record.setString(2, doc.getDocumentNo().toString());
+
+			add_record.executeUpdate();
+			ResultSet rs = add_record.getGeneratedKeys();
+			if (rs.next()) key = rs.getInt(1);
+			add_record.close();
+			rs.close();
 		}
 		return key;
 	}
 
 	// private static String getLastDocumentNo() {
 	public static String getLastDocumentNo() {
-		DocumentDao dao = SpringUtils.getBean(DocumentDao.class);
-		return "" + dao.findMaxDocNo();
+		String documentNo = null;
+		try {
+			String sql = "select max(document_no) from document";
+			ResultSet rs = DBHandler.GetSQL(sql);
+			if (rs.next()) {
+				documentNo = oscar.Misc.getString(rs, 1);
+			}
+			rs.close();
+		} catch (SQLException e) {
+			logger.error("Error", e);
+		}
+		return documentNo;
 	}
 
 	public static String getLastDocumentDesc() {
-		String docNumber = EDocUtil.getLastDocumentNo();
-		DocumentDao dao = SpringUtils.getBean(DocumentDao.class);
-		Document d = dao.find(ConversionUtils.fromIntString(docNumber));
-		if (d != null) {
-			return d.getDocdesc();
+		String docDesc = null;
+		try {
+			String docNumber = EDocUtil.getLastDocumentNo();
+
+			String sql = "select docdesc from document where document_no=" + docNumber;
+			ResultSet rs = DBHandler.GetSQL(sql);
+			if (rs.next()) {
+				docDesc = oscar.Misc.getString(rs, 1);
+			}
+			rs.close();
+		} catch (SQLException e) {
+			logger.error("Error", e);
 		}
-		return null;
+
+		return docDesc;
+	}
+
+	public static String getLastNoteId() {
+		String noteId = null;
+		try {
+
+			String sql = "select max(note_id) from casemgmt_note";
+			ResultSet rs = DBHandler.GetSQL(sql);
+			if (rs.next()) {
+				noteId = oscar.Misc.getString(rs, 1);
+			}
+			rs.close();
+		} catch (SQLException e) {
+			logger.error("Error", e);
+		}
+		return noteId;
 	}
 
 	public static byte[] getFile(String fpath) {
 		byte[] fdata = null;
-		FileInputStream fis = null;
+		FileInputStream fis=null;
 		try {
 			// first we get length of file and allocate mem for file
 			File file = new File(fpath);
@@ -974,12 +833,14 @@ public final class EDocUtil {
 			logger.error("Error", ex);
 		} catch (IOException ex) {
 			logger.error("Error", ex);
-		} finally {
+		}
+		finally
+		{
 			try {
-				if (fis != null) fis.close();
-			} catch (IOException e) {
-				logger.error("error", e);
-			}
+	            if (fis!=null) fis.close();
+            } catch (IOException e) {
+	            logger.error("error", e);
+            }
 		}
 
 		return fdata;
@@ -1021,39 +882,42 @@ public final class EDocUtil {
 		Long docIdL = getTableIdFromNoteId(noteId);
 		if (docIdL > 0L) {
 			Integer docId = docIdL.intValue();
-
-			DocumentDao dao = SpringUtils.getBean(DocumentDao.class);
-			Document d = dao.find(docId);
-			if (d != null) {
-				doc.setDocId("" + d.getDocumentNo());
-				doc.setFileName(d.getDocfilename());
-				doc.setStatus(d.getStatus());
+			String getDocSql = "select document_no, docfilename, status from document where document_no=" + docId;
+			ResultSet rs = getSQL(getDocSql);
+			try {
+				if (rs.first()) {
+					doc.setDocId(rs.getString("document_no"));
+					doc.setFileName(rs.getString("docfilename"));
+					doc.setStatus(rs.getString("status").charAt(0));
+				}
+			} catch (SQLException ex) {
+				logger.error("Error", ex);
 			}
-
 		}
 		return doc;
 	}
 
-	public static ArrayList<EDoc> getRemoteDocuments(LoggedInInfo loggedInInfo, Integer demographicId) {
+	public static ArrayList<EDoc> getRemoteDocuments(Integer demographicId) {
 		ArrayList<EDoc> results = new ArrayList<EDoc>();
 
 		try {
 
-			List<CachedDemographicDocument> remoteDocuments = null;
+			List<CachedDemographicDocument> remoteDocuments  = null;
 			try {
-				if (!CaisiIntegratorManager.isIntegratorOffline(loggedInInfo.getSession())) {
-					CaisiIntegratorManager.getDemographicWs(loggedInInfo, loggedInInfo.getCurrentFacility());
-					remoteDocuments = CaisiIntegratorManager.getDemographicWs(loggedInInfo, loggedInInfo.getCurrentFacility()).getLinkedCachedDemographicDocuments(demographicId);
+				if (!CaisiIntegratorManager.isIntegratorOffline()){
+					DemographicWs demographicWs = CaisiIntegratorManager.getDemographicWs();
+					remoteDocuments = CaisiIntegratorManager.getDemographicWs().getLinkedCachedDemographicDocuments(demographicId);
 				}
 			} catch (Exception e) {
 				MiscUtils.getLogger().error("Unexpected error.", e);
-				CaisiIntegratorManager.checkForConnectionError(loggedInInfo.getSession(),e);
+				CaisiIntegratorManager.checkForConnectionError(e);
 			}
 
-			if (CaisiIntegratorManager.isIntegratorOffline(loggedInInfo.getSession())) {
-				MiscUtils.getLogger().debug("getting fall back documents for " + demographicId);
-				remoteDocuments = IntegratorFallBackManager.getRemoteDocuments(loggedInInfo,demographicId);
+			if(CaisiIntegratorManager.isIntegratorOffline()){
+				MiscUtils.getLogger().debug("getting fall back documents for "+demographicId);
+				remoteDocuments = IntegratorFallBackManager.getRemoteDocuments(demographicId);
 			}
+
 
 			for (CachedDemographicDocument remoteDocument : remoteDocuments) {
 				results.add(toEDoc(remoteDocument));
@@ -1062,13 +926,13 @@ public final class EDocUtil {
 			logger.error("Error retriving integrated documents.", e);
 		}
 
-		logger.debug("retreived remote documents, document count=" + results.size());
+		logger.debug("retreived remote documents, document count="+results.size());
 
-		return (results);
+		return(results);
 	}
 
 	private static EDoc toEDoc(CachedDemographicDocument remoteDocument) {
-		EDoc eDoc = new EDoc();
+		EDoc eDoc=new EDoc();
 
 		eDoc.setRemoteFacilityId(remoteDocument.getFacilityIntegerPk().getIntegratorFacilityId());
 
@@ -1076,213 +940,32 @@ public final class EDocUtil {
 		eDoc.setContentType(remoteDocument.getContentType());
 		eDoc.setCreatorId(remoteDocument.getDocCreator());
 		eDoc.setDateTimeStamp(DateUtils.formatDate(remoteDocument.getUpdateDateTime(), null));
-		eDoc.setDateTimeStampAsDate(DateUtils.toDate(remoteDocument.getUpdateDateTime()));
+		eDoc.setDateTimeStampAsDate(MiscUtils.toDate(remoteDocument.getUpdateDateTime()));
 		eDoc.setDescription(remoteDocument.getDescription());
 		eDoc.setDocId(remoteDocument.getFacilityIntegerPk().getCaisiItemId().toString());
-		eDoc.setDocPublic("" + remoteDocument.getPublic1());
+		eDoc.setDocPublic(""+remoteDocument.getPublic1());
 		eDoc.setFileName(remoteDocument.getDocFilename());
 		eDoc.setHtml(remoteDocument.getDocXml());
 		eDoc.setModule("demographic");
-		eDoc.setModuleId("" + remoteDocument.getCaisiDemographicId());
+		eDoc.setModuleId(""+remoteDocument.getCaisiDemographicId());
 		eDoc.setNumberOfPages(remoteDocument.getNumberOfPages());
-		eDoc.setObservationDate(DateUtils.toDate(remoteDocument.getObservationDate()));
+		eDoc.setObservationDate(MiscUtils.toDate(remoteDocument.getObservationDate()));
 		eDoc.setProgramId(remoteDocument.getProgramId());
 		eDoc.setResponsibleId(remoteDocument.getResponsible());
-		eDoc.setReviewDateTimeDate(DateUtils.toDate(remoteDocument.getReviewDateTime()));
+		eDoc.setReviewDateTimeDate(MiscUtils.toDate(remoteDocument.getReviewDateTime()));
 		eDoc.setReviewDateTime(DateUtils.formatDate(remoteDocument.getReviewDateTime(), null));
 		eDoc.setReviewerId(remoteDocument.getReviewer());
 		eDoc.setSource(remoteDocument.getSource());
-		eDoc.setStatus(remoteDocument.getStatus() != null && remoteDocument.getStatus().length() > 0 ? remoteDocument.getStatus().charAt(0) : ' ');
+		eDoc.setStatus(remoteDocument.getStatus()!=null&&remoteDocument.getStatus().length()>0?remoteDocument.getStatus().charAt(0):' ');
 		eDoc.setType(remoteDocument.getContentType());
 
-		return (eDoc);
-	}
+	    return(eDoc);
+    }
 
 	public static void subtractOnePage(String docId) {
-		Document doc = documentDao.find(ConversionUtils.fromIntString(docId));
-		doc.setNumberofpages(doc.getNumberofpages() - 1);
+		Document doc = documentDao.find(Integer.parseInt(docId));
+		doc.setNumberofpages(doc.getNumberofpages()-1);
 
 		documentDao.merge(doc);
 	}
-        
-	public static String getHtmlTicklers(LoggedInInfo loggedInInfo,String docId ) {
-                                      
-            Long table_id=Long.valueOf(docId);
-            List<TicklerLink> linkList = ticklerLinkDao.getLinkByTableId("DOC",table_id );
-            String HtmlTickler="";
-            Integer ticklerNo;
-        
-            if (linkList != null){
-                for(TicklerLink tl : linkList){
-                    ticklerNo = tl.getTicklerNo();
-                    Tickler t = ticklerManager.getTickler(loggedInInfo,ticklerNo.intValue());
-                      if( org.oscarehr.common.IsPropertiesOn.isTicklerPlusEnable() ) {  
-                        HtmlTickler+="<br><a href='#' onclick=\"window.open('../Tickler.do?method=view&id="+ticklerNo.toString()+"','viewtickler"+ticklerNo.toString()+"','height=700,width=600,location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=0,screenY=0,top=0,left=0');\" >"+t.getMessage()+"</a>";
-                     } else
-                     {
-                        HtmlTickler+="<br>"+t.getMessage();
-                     }
-                }
-            }
-            return HtmlTickler;
-        }
-                   
-        public static String getHtmlAcknowledgement(Locale locale,String docId ) {
-  
-            ArrayList<ReportStatus> ackList = AcknowledgementData.getAcknowledgements( "DOC",docId);
-            String HtmlAcknowledgement="";
-            String comment="";
-            ResourceBundle props = ResourceBundle.getBundle("oscarResources", locale);
-            for (int i=0; i < ackList.size(); i++) {
-                    ReportStatus report = ackList.get(i);
-                    HtmlAcknowledgement+=report.getProviderName()+": ";
-                    String ackStatus = report.getStatus();
-                    if(ackStatus.equals("A")){
-                        ackStatus= props.getString("dms.documentBrowser.msgAcknowledgedOn");
-                    }else if(ackStatus.equals("F")){
-                        ackStatus= props.getString("dms.documentBrowser.msgFileButNotAcknowledgedOn");
-                    }else{
-                        ackStatus= props.getString("dms.documentBrowser.msgNotAcknowledgeSince");
-                    }
-                                                                        
-                    HtmlAcknowledgement+=ackStatus;
-                    HtmlAcknowledgement+=" "+report.getTimestamp()+ " ";
-                                                                        
-                    comment=report.getComment();
-                    if(comment!=null) {
-                        HtmlAcknowledgement+= comment; }
-                    HtmlAcknowledgement+="<br>";
-                                                                   
-            }
-            
-            return HtmlAcknowledgement;
-        }
-        
-        public static String getHtmlAnnotation(String docId) {
-    
-            Long tableId = 0L;
-            String note="";
-                
-            if (docId!=null && docId.trim().length()>0)  {
-                tableId = Long.valueOf(docId);
-            }
-            
-            CaseManagementNoteLink cmnLink = caseManagementNoteLinkDao.getLastLinkByTableId(CaseManagementNoteLink.DOCUMENT, tableId);
-            CaseManagementNote p_cmn = null;
-            if (cmnLink!=null) {
-                p_cmn = caseManagementNoteDao.getNote(cmnLink.getNoteId());
-                //get the most recent previous note from uuid.
-                p_cmn=caseManagementNoteDao.getMostRecentNote(p_cmn.getUuid());
-            }
-    
-            //if get provider no is -1 , it's a document note.
-            if (p_cmn!=null && p_cmn.getProviderNo().equals("-1") ) { p_cmn=null;}  //don't use document note as annotation.
-    
-            if(p_cmn!=null) {
-                note=p_cmn.getNote();
-            }
-            return note;
-        }
-     
-        /**
-		 * Reads content of the specified file with.
-		 * 
-		 * @param fileName
-		 * 		Name of the file to use for saving the content
-		 * @param content
-		 * 		Content to be saved into the file
-		 * @return
-		 * 		Returns the content of the file
-		 * @throws IOException
-		 * 		IOException is thrown in case file can not be read  
-		 */
-        public static byte[] readContent(String fileName) throws IOException {
-    		InputStream is = null;
-    		try {
-    			is = new BufferedInputStream(new FileInputStream(new File(fileName)));
-    			return IOUtils.toByteArray(is);
-    		} finally {
-    			try {
-	                is.close();
-                } catch (IOException e) {
-                	logger.error("Unable to close output stream", e);
-                }
-    		}
-        }
-        
-		/**
-		 * Saves content to the OSCAR document directory as a file with the specified name.
-		 * File with the same name will be overwritten.
-		 * 
-		 * @param fileName
-		 * 		Name of the file to use for saving the content
-		 * @param content
-		 * 		Content to be saved into the file
-		 * @throws IOException
-		 * 		IOException is thrown in case of any save errors  
-		 */
-        public static void writeDocContent(String fileName, byte[] content) throws IOException {
-        	String docDir = OscarProperties.getInstance().getProperty("DOCUMENT_DIR");
-        	File file = new File(docDir, fileName);
-        	writeContent(file.getAbsolutePath(), content);        	
-        }
-        
-        /**
-         * Resolves file name for the specified OSCAR file into the absolute path on the file system.
-         * 
-         * @param fileName
-         * 		OSCAR file name.
-         * @return
-         * 		Returns the absolute path on the file system.
-         */
-        public static String resovePath(String fileName) {
-        	String docDir = OscarProperties.getInstance().getProperty("DOCUMENT_DIR");
-        	File file = new File(docDir, fileName);
-        	return file.getAbsolutePath();
-        }
-        
-        public static void writeContent(String fileName, byte[] content) throws IOException {
-        	OutputStream os = null;
-    		try {
-    			File file = new File(fileName);
-    			if (!file.exists()) {
-    				file.createNewFile();
-    			}
-    			os = new BufferedOutputStream(new FileOutputStream(file));
-    			os.write(content);
-    			os.flush();
-    		} finally {
-    			if (os != null) {
-    				try {
-    					os.close();
-    				} catch (IOException e) {
-    					logger.error("Unable to close output stream", e);
-    				}
-    			}
-    		}
-        }
-
-        public static String calculateFileSignature(File file) throws Exception {
-        	String result = null;
-        	InputStream fis = null;
-        	
-        	MessageDigest digest = MessageDigest.getInstance("SHA-1");
-        	try {
-	            fis = new FileInputStream(file);
-	            int n = 0;
-	            byte[] buffer = new byte[8192];
-	            while (n != -1) {
-	                n = fis.read(buffer);
-	                if (n > 0) {
-	                    digest.update(buffer, 0, n);
-	                }
-	            }
-	            result =  Base64.encodeBase64String(digest.digest());
-        	}finally {
-        		IOUtils.closeQuietly(fis);
-        	}
-            
-            return result;
-        }
-
 }

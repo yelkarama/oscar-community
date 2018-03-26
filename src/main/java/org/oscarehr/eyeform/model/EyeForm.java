@@ -46,16 +46,11 @@ public class EyeForm extends AbstractModel<Integer>{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 	
-	@Column(name="appointment_no", length=11)
-	private Integer appointmentNo;
+	@Column(name="appointment_no")
+	private int appointmentNo;
 	
-	@Column(length=20)
 	private String discharge;
-	
-	@Column(length=20)
 	private String stat;
-	
-	@Column(length=20)
 	private String opt;
 	
 	@Temporal(TemporalType.TIMESTAMP)
@@ -67,10 +62,10 @@ public class EyeForm extends AbstractModel<Integer>{
 	public void setId(Integer id) {
 		this.id = id;
 	}
-	public Integer getAppointmentNo() {
+	public int getAppointmentNo() {
 		return appointmentNo;
 	}
-	public void setAppointmentNo(Integer appointmentNo) {
+	public void setAppointmentNo(int appointmentNo) {
 		this.appointmentNo = appointmentNo;
 	}
 	public String getDischarge() {

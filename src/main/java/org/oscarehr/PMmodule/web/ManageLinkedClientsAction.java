@@ -37,7 +37,6 @@ import org.oscarehr.common.model.ClientLink;
 import org.oscarehr.common.model.Facility;
 import org.oscarehr.common.model.FacilityDemographicPrimaryKey;
 import org.oscarehr.common.model.Provider;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
@@ -65,14 +64,14 @@ public class ManageLinkedClientsAction {
 		}
 	}
 
-	public void saveLinkedIds(LoggedInInfo loggedInInfo, Facility facility, Provider provider, Integer demographicId) {
+	public void saveLinkedIds(Facility facility, Provider provider, Integer demographicId) {
 		saveHnrLinkedIds(facility, provider, demographicId);
-		saveCaisiLinkedIds(loggedInInfo, facility,provider, demographicId);
+		saveCaisiLinkedIds(provider, demographicId);
 	}
 
-	private void saveCaisiLinkedIds(LoggedInInfo loggedInInfo, Facility facility,Provider provider, Integer demographicId) {
+	private void saveCaisiLinkedIds(Provider provider, Integer demographicId) {
 		try {
-			DemographicWs demographicWs = CaisiIntegratorManager.getDemographicWs(loggedInInfo, facility);
+			DemographicWs demographicWs = CaisiIntegratorManager.getDemographicWs();
 			List<DemographicTransfer> tempLinks = demographicWs.getDirectlyLinkedDemographicsByDemographicId(demographicId);
 			HashSet<FacilityDemographicPrimaryKey> currentLinks = new HashSet<FacilityDemographicPrimaryKey>();
 

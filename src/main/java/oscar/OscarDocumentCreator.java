@@ -1,7 +1,6 @@
 
 package oscar;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.Connection;
@@ -10,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import net.sf.jasperreports.engine.JRDataSource;
-import net.sf.jasperreports.engine.JREmptyDataSource;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JRExporterParameter;
 import net.sf.jasperreports.engine.JRResultSetDataSource;
@@ -40,29 +38,15 @@ public class OscarDocumentCreator {
     return reportInstream;
   }
 
-  @SuppressWarnings("rawtypes")
   public void fillDocumentStream(HashMap parameters, OutputStream sos,
                                  String docType, InputStream xmlDesign,
                                  Object dataSrc) {
-     fillDocumentStream(parameters, sos, docType, xmlDesign, dataSrc,null); 
-  }
-  
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  public void fillDocumentStream(HashMap parameters, OutputStream sos,
-                                 String docType, InputStream xmlDesign,
-                                 Object dataSrc, String exportPdfJavascript) {
     try {
       JasperReport jasperReport = null;
       JasperPrint print = null;
       jasperReport = getJasperReport(xmlDesign);
-      if (docType.equals(OscarDocumentCreator.PDF) && exportPdfJavascript!=null) {
-        jasperReport.setProperty("net.sf.jasperreports.export.pdf.javascript",exportPdfJavascript);
-      }
-      if (dataSrc==null) {
-        print = JasperFillManager.fillReport(jasperReport, parameters,new JREmptyDataSource());  
-      }
-      else if (dataSrc instanceof List) {
-        JRDataSource ds = new JRBeanCollectionDataSource( (List<?>) dataSrc);
+      if (dataSrc instanceof List) {
+        JRDataSource ds = new JRBeanCollectionDataSource( (List) dataSrc);
         print = JasperFillManager.fillReport(jasperReport, parameters,
                                              ds);
       }
@@ -110,17 +94,6 @@ public class OscarDocumentCreator {
     }
     return jasperReport;
   }
-  
-  public JasperReport getJasperReport(byte[] xmlDesign) {
-	    JasperReport jasperReport = null;
-	    try {
-	      jasperReport = JasperCompileManager.compileReport(
-	          new ByteArrayInputStream(xmlDesign));
-	    }
-	    catch (JRException ex) {MiscUtils.getLogger().error("Error", ex);
-	    }
-	    return jasperReport;
-	  }
 
   /**
    * Fills a servletoutout stream with data from a JasperReport

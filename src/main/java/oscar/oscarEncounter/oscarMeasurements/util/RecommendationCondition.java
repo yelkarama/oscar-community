@@ -27,7 +27,9 @@ package oscar.oscarEncounter.oscarMeasurements.util;
 
 import java.util.ArrayList;
 
+import org.apache.log4j.Logger;
 import org.jdom.Element;
+import org.oscarehr.util.MiscUtils;
 
 /**
  * Stores Conditions for target Colours
@@ -46,6 +48,7 @@ import org.jdom.Element;
  * @author jaygallagher
  */
 public class RecommendationCondition {
+     private static final Logger log=MiscUtils.getLogger();
 
     private String type = null;
     private String value = null;
@@ -82,6 +85,8 @@ public class RecommendationCondition {
             if (toParse.indexOf("-") != -1 && toParse.indexOf("-") != 0 ){ //between style
                 String[] betweenVals = toParse.split("-");
                 if (betweenVals.length == 2 ){
+                    //int lower = Integer.parseInt(betweenVals[0]);
+                    //int upper = Integer.parseInt(betweenVals[1]);
                     list.add(new DSCondition("getLastDateRecordedInMonths", param, ">=", betweenVals[0]));
                     list.add(new DSCondition("getLastDateRecordedInMonths", param, "<=", betweenVals[1]));
                 }
@@ -107,6 +112,8 @@ public class RecommendationCondition {
             if (toParse.indexOf("-") != -1 && toParse.indexOf("-") != 0 ){ //between style
                 String[] betweenVals = toParse.split("-");
                 if (betweenVals.length == 2 ){
+                    //int lower = Integer.parseInt(betweenVals[0]);
+                    //int upper = Integer.parseInt(betweenVals[1]);
                     list.add(new DSCondition("getLastValueAsInt", param, ">=", betweenVals[0]));
                     list.add(new DSCondition("getLastValueAsInt", param, "<=", betweenVals[1]));
                 }
@@ -131,45 +138,7 @@ public class RecommendationCondition {
                 int eq = Integer.parseInt(toParse);
                 list.add(new DSCondition("getLastValueAsInt", param, "==", ""+eq));
             }
-        }else if ("patientAge".equals(type)){
-            String toParse = value;
-            if (toParse.indexOf("-") != -1 && toParse.indexOf("-") != 0 ){ //between style
-                String[] betweenVals = toParse.split("-");
-                if (betweenVals.length == 2 ){
-                    list.add(new DSCondition("getAge", "", ">=", betweenVals[0]));
-                    list.add(new DSCondition("getAge", "", "<=", betweenVals[1]));
-                }
-            }else if (toParse.indexOf("&gt;") != -1 ||  toParse.indexOf(">") != -1 ){ // greater than style
-                toParse = toParse.replaceFirst("&gt;","");
-                toParse = toParse.replaceFirst(">","");
-                int gt = Integer.parseInt(toParse);
-                list.add(new DSCondition("getAge", "", ">", ""+gt));
-
-            }else if (toParse.indexOf("&lt;") != -1  ||  toParse.indexOf("<") != -1 ){ // less than style
-                toParse = toParse.replaceFirst("&lt;","");
-                toParse = toParse.replaceFirst("<","");
-
-                int lt = Integer.parseInt(toParse);
-                list.add(new DSCondition("getAge", "", "<=", ""+lt));
-                
-            }else if (toParse.indexOf("!=") != -1 ){ // less than style
-                toParse = toParse.replaceFirst("!=","");
-                int eq = Integer.parseInt(toParse);
-                list.add(new DSCondition("getAge", "", "!=", ""+eq));
-                
-            }else if (!toParse.equals("")){ // less than style
-                int eq = Integer.parseInt(toParse);
-                list.add(new DSCondition("getAge", "", "==", ""+eq));
-            }
-        }else if ("isMale".equals(type)){
-        	list.add(new DSCondition("getGender", "M", "==", "true"));
-        }else if ("isFemale".equals(type)){
-        	list.add(new DSCondition("getGender", "F", "==", "true"));
-	    }else if ("isDataEqualToYes".equals(type)){
-	    	int v = 0;
-	    	if(value.equals("Yes")){ v=1;}
-	        list.add(new DSCondition("isDataEqualToYes",param,"==",""+v)); //change "Yes" to ""+value
-	    }
+        }
 
         /*if ("getDataAsDouble".equals(type)){
             String toParse = value;

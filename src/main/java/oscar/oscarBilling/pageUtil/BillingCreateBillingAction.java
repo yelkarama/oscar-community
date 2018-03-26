@@ -35,7 +35,6 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 
 import oscar.oscarBilling.pageUtil.BillingBillingManager.BillingItem;
@@ -74,7 +73,7 @@ public class BillingCreateBillingAction extends Action {
         MiscUtils.getLogger().debug("GrandTotal" +bmanager.getGrandTotal(billItem));
         oscar.oscarDemographic.data.DemographicData demoData = new oscar.oscarDemographic.data.DemographicData();
 
-        org.oscarehr.common.model.Demographic demo = demoData.getDemographic(LoggedInInfo.getLoggedInInfoFromSession(request), bean.getPatientNo());
+        org.oscarehr.common.model.Demographic demo = demoData.getDemographic(bean.getPatientNo());
         bean.setPatientLastName(demo.getLastName());
         bean.setPatientFirstName(demo.getFirstName());
         bean.setPatientDoB(DemographicData.getDob(demo));

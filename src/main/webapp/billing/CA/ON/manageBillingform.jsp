@@ -17,22 +17,8 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed2=true;
-%>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_admin.billing,_admin" rights="w" reverse="<%=true%>">
-	<%authed2=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_admin&type=_admin.billing");%>
-</security:oscarSec>
-<%
-if(!authed2) {
-	return;
-}
-%>
-
 <%      
+if(session.getValue("user") == null) response.sendRedirect("../../../logout.jsp");
 String user_no = (String) session.getAttribute("user");
 String asstProvider_no = "";
 String color ="";
@@ -42,23 +28,12 @@ String service_form="", service_name="";
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
-
-<%@ page import="java.util.*, java.sql.*, oscar.*, java.net.*" errorPage="errorpage.jsp"%>
+<%@ page import="java.util.*, java.sql.*, oscar.*, java.net.*"
+	errorPage="errorpage.jsp"%>
 <%@ include file="../../../admin/dbconnection.jsp"%>
-<%@ page import="org.oscarehr.util.SpringUtils" %>
-<%@ page import="org.oscarehr.common.model.CtlBillingService" %>
-<%@ page import="org.oscarehr.common.dao.CtlBillingServiceDao" %>
-<%@ page import="org.oscarehr.common.model.CtlDiagCode" %>
-<%@ page import="org.oscarehr.common.dao.CtlDiagCodeDao" %>
-<%@ page import="org.oscarehr.common.model.CtlBillingServicePremium" %>
-<%@ page import="org.oscarehr.common.dao.CtlBillingServicePremiumDao" %>
-<%
-	CtlBillingServiceDao ctlBillingServiceDao = SpringUtils.getBean(CtlBillingServiceDao.class);
-	CtlDiagCodeDao ctlDiagCodeDao = SpringUtils.getBean(CtlDiagCodeDao.class);
-	CtlBillingServicePremiumDao ctlBillingServicePremiumDao = SpringUtils.getBean(CtlBillingServicePremiumDao.class);
-	
-%>
-
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean"
+	scope="session" />
+<%@ include file="dbBilling.jspf"%>
 
 <%
 String clinicview = request.getParameter("billingform")==null?oscarVariables.getProperty("default_view"):request.getParameter("billingform");
@@ -101,15 +76,10 @@ function validateServiceType() {
 	if (document.servicetypeform.typeid.value == "MFP") {
 		alert("<bean:message key="billing.manageBillingform.msgIDExists"/>");
 		return false;
-	}
-	
-	if (document.servicetypeform.typeid.value == '') {
-		alert("<bean:message key="billing.manageBillingform.btnManage.msgRequiredField"/>");
-		return false;
-	}
-	return true;
+	} else{
+		return true;
+	} 
 }
-
 function refresh() {
   var u = self.location.href;
   if(u.lastIndexOf("view=1") > 0) {
@@ -184,18 +154,19 @@ function manageBillType(id,oldtype,newtype) {
 			<option value="***" <%=clinicview.equals("***")?"selected":""%>><bean:message
 				key="billing.manageBillingform.formManagePremium" /></option>
 
-<% 
-String serviceType="";
-String serviceTypeName="";
-List<Object[]> billingServices = ctlBillingServiceDao.findServiceTypes();
+			<% 
+String formDesc="";
+String formID="";
+int Count = 0;  
+ResultSet rslocal = apptMainBean.queryResults("%", "search_billingform");
 
-for(Object[] billingService:billingServices){
-	serviceType = String.valueOf(billingService[0]);
-	serviceTypeName = String.valueOf(billingService[1]);
+while(rslocal.next()){
+	formDesc = rslocal.getString("servicetype_name");
+	formID = rslocal.getString("servicetype"); 
 %>
-			<option value="<%=serviceType%>"
-				<%=clinicview.equals(serviceType)?"selected":""%>><%=serviceTypeName%></option>
-<%
+			<option value="<%=formID%>"
+				<%=clinicview.equals(formID)?"selected":""%>><%=formDesc%></option>
+			<%
 }      
 %>
 		</select></td>
@@ -223,6 +194,7 @@ if (clinicview.compareTo("000") == 0) { %>
 }
 %>
 
+<%@ include file="zfooterbackclose.jsp"%>
 
 </body>
 </html:html>

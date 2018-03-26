@@ -47,8 +47,7 @@ public class Provider {
   private String status= "";
   private String comments= "";
   private String providerActivity= "";
-  private String supervisor = "";
-
+  private String fullName = "";
 
   /**
    * Class constructor with no arguments.
@@ -130,7 +129,7 @@ public class Provider {
   /**
    * Gets the providerType
    * @return String providerType
-   * @deprecated no longer is use 2010-04-23, marked for future removal 
+   * @Deprecated no longer is use 2010-04-23, marked for future removal 
    */
   public String getProviderType() {
     return (providerType != null ? providerType : "");
@@ -246,10 +245,6 @@ public class Provider {
    */
   public String getProviderActivity() {
     return (providerActivity != null ? providerActivity : "");
-  }
-  
-  public String getSupervisor() {
-      return (supervisor != null ? supervisor : "");
   }
 
   /**
@@ -394,11 +389,6 @@ public class Provider {
    */
   public void setProviderActivity(String providerActivity) {
     this.providerActivity = providerActivity;
-  }
-  
-  
-  public void setSupervisor(String supervisor ) {
-      this.supervisor = supervisor;
   }
 
   /**

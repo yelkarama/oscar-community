@@ -24,12 +24,9 @@
 package org.oscarehr.ui.servlet;
 
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.SocketException;
 
 import javax.servlet.http.HttpServlet;
@@ -37,7 +34,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.oscarehr.PMmodule.caisi_integrator.CaisiIntegratorManager;
@@ -48,12 +44,9 @@ import org.oscarehr.common.dao.DigitalSignatureDao;
 import org.oscarehr.common.model.DigitalSignature;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.util.DigitalSignatureUtils;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SessionConstants;
 import org.oscarehr.util.SpringUtils;
-
-import oscar.OscarProperties;
 
 /**
  * This servlet requires a parameter called "source" which should signify where to get the image from. Examples include source=local_client, or source=hnr_client. Depending on the source, you may optionally need more parameters, as examples a local_client
@@ -72,14 +65,14 @@ public final class ImageRenderingServlet extends HttpServlet {
 	private static DigitalSignatureDao digitalSignatureDao = (DigitalSignatureDao) SpringUtils.getBean("digitalSignatureDao");
 
 	public static enum Source {
-		local_client, hnr_client, integrator_client, signature_preview, signature_stored,clinic_logo
+		local_client, hnr_client, integrator_client, signature_preview, signature_stored
 	}
 
 	@Override
     public final void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		try {
 			String source = request.getParameter("source");
-			
+
 			// for the most part each sub renderer is responsible for everything including
 			// security checks. There's actually not too much point in having a shared
 			// servlet except to save a little bit of work on registering servlets
@@ -94,8 +87,6 @@ public final class ImageRenderingServlet extends HttpServlet {
 				renderSignaturePreview(request, response);
 			} else if (Source.signature_stored.name().equals(source)) {
 				renderSignatureStored(request, response);
-			} else if (Source.clinic_logo.name().equals(source)) {
-				renderClinicLogoStored(request, response);
 			} else {
 				throw (new IllegalArgumentException("Unknown source type : " + source));
 			}
@@ -129,8 +120,6 @@ public final class ImageRenderingServlet extends HttpServlet {
 	private static final void renderIntegratorClient(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		// this expects integratorFacilityId and caisiClientId as a parameter
 
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		
 		// security check
 		HttpSession session = request.getSession();
 		Provider provider = (Provider) session.getAttribute(SessionConstants.LOGGED_IN_PROVIDER);
@@ -143,7 +132,7 @@ public final class ImageRenderingServlet extends HttpServlet {
 			// get image
 			Integer integratorFacilityId = Integer.parseInt(request.getParameter("integratorFacilityId"));
 			Integer caisiClientId = Integer.parseInt(request.getParameter("caisiDemographicId"));
-			DemographicWs demographicWs = CaisiIntegratorManager.getDemographicWs(loggedInInfo, loggedInInfo.getCurrentFacility());
+			DemographicWs demographicWs = CaisiIntegratorManager.getDemographicWs();
 			DemographicTransfer demographicTransfer = demographicWs.getDemographicByFacilityIdAndDemographicId(integratorFacilityId, caisiClientId);
 
 			if (demographicTransfer != null && demographicTransfer.getPhoto() != null) {
@@ -160,8 +149,6 @@ public final class ImageRenderingServlet extends HttpServlet {
 	private static final void renderHnrClient(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		// this expects linkingId as a parameter
 
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		
 		// security check
 		HttpSession session = request.getSession();
 		Provider provider = (Provider) session.getAttribute(SessionConstants.LOGGED_IN_PROVIDER);
@@ -173,7 +160,7 @@ public final class ImageRenderingServlet extends HttpServlet {
 		try {
 			// get image
 			Integer linkingId = Integer.parseInt(request.getParameter("linkingId"));
-			org.oscarehr.hnr.ws.Client hnrClient = CaisiIntegratorManager.getHnrClient(loggedInInfo, loggedInInfo.getCurrentFacility(),linkingId);
+			org.oscarehr.hnr.ws.Client hnrClient = CaisiIntegratorManager.getHnrClient(linkingId);
 
 			if (hnrClient != null && hnrClient.getImage() != null) {
 				renderImage(response, hnrClient.getImage(), "jpeg");
@@ -203,31 +190,12 @@ public final class ImageRenderingServlet extends HttpServlet {
 			if (clientImage != null && "jpg".equalsIgnoreCase(clientImage.getImage_type())) {
 				renderImage(response, clientImage.getImage_data(), "jpeg");
 				return;
-			} else {
-				renderImage(response, getDefaultImage(request), "jpeg");
 			}
 		} catch (Exception e) {
 			logger.error("Unexpected error.", e);
 		}
 
 		response.sendError(HttpServletResponse.SC_NOT_FOUND);
-	}
-	
-	private static byte[] getDefaultImage(HttpServletRequest request) {
-		String defaultClientImage = "/images/defaultG_img.jpg";
-
-        ByteArrayOutputStream bais = new ByteArrayOutputStream();
-        try {
-            InputStream is = request.getSession().getServletContext().getResourceAsStream(defaultClientImage);
-            byte[] byteChunk = new byte[1024];
-            int n;
-            while ( (n = is.read(byteChunk)) > 0 ) {
-            	bais.write(byteChunk, 0, n);
-        	}
-        } catch (IOException e) {
-        	logger.error("Error reading default image.", e);
-        }
-		return bais.toByteArray();
 	}
 
 	private void renderSignaturePreview(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -288,36 +256,6 @@ public final class ImageRenderingServlet extends HttpServlet {
 			if (digitalSignature != null) {
 				renderImage(response, digitalSignature.getSignatureImage(), "jpeg");
 				return;
-			}
-		} catch (Exception e) {
-			logger.error("Unexpected error.", e);
-		}
-
-		response.sendError(HttpServletResponse.SC_NOT_FOUND);
-	}
-	
-	private static final void renderClinicLogoStored(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		
-		// security check
-		HttpSession session = request.getSession();
-		Provider provider = (Provider) session.getAttribute(SessionConstants.LOGGED_IN_PROVIDER);
-		if (provider == null) {
-			response.sendError(HttpServletResponse.SC_FORBIDDEN);
-			return;
-		}
-
-		try {
-			String filename = OscarProperties.getInstance().getProperty("CLINIC_LOGO_FILE");
-			if(filename != null ){
-				File f = new File(filename);
-				if(f != null && f.exists()) {
-					byte[] data = FileUtils.readFileToByteArray(f);
-					
-					if(data != null) {
-						renderImage(response, data, "jpeg");
-						return;
-					}
-				}
 			}
 		} catch (Exception e) {
 			logger.error("Unexpected error.", e);

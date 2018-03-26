@@ -24,23 +24,10 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_edoc" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_edoc");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-<%
-
+            if (session.getValue("user") == null) {
+                response.sendRedirect("../logout.htm");
+            }
             String user_no = (String) session.getAttribute("user");
             String userfirstname = (String) session.getAttribute("userfirstname");
             String userlastname = (String) session.getAttribute("userlastname");
@@ -58,7 +45,7 @@
 <%@page import="org.oscarehr.util.SessionConstants"%>
 <%@page import="oscar.oscarProvider.data.*"%>
 <%
-            List providers = ProviderData.getProviderList();
+            ArrayList providers = ProviderData.getProviderList();
             String provider = "";
 
 //if delete request is made
@@ -456,7 +443,7 @@
 			name="provider">
 			<option value="-1" <%= ("-1".equals(provider) ? " selected" : "")%>>None</option>
 			<%for (int i = 0; i < providers.size(); i++) {
-                Map h = (Map) providers.get(i);%>
+                Hashtable h = (Hashtable) providers.get(i);%>
 			<option value="<%= h.get("providerNo")%>"
 				<%= (h.get("providerNo").equals(provider) ? " selected" : "")%>><%= h.get("lastName")%>
 			<%= h.get("firstName")%></option>

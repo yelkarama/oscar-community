@@ -27,7 +27,6 @@ package oscar.oscarEncounter.oscarMeasurements.pageUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,15 +35,11 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.oscarPrevention.reports.FollowupManagement;
 import oscar.util.UtilDateUtilities;
@@ -55,31 +50,25 @@ import oscar.util.UtilDateUtilities;
  */
 public class EctAddShortMeasurementAction extends DispatchAction{
     
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	
     /** Creates a new instance of EctAddShortMeasurementAction */
     public EctAddShortMeasurementAction() {
     }
     
     public ActionForward unspecified(ActionMapping mapping,ActionForm form,HttpServletRequest request,HttpServletResponse response) throws IOException  {
      
-    	if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_measurement", "w", null)) {
-			throw new SecurityException("missing required security object (_measurement)");
-		}
-    	
         //MARK IN MEASUREMENTS????
        String followUpType =  request.getParameter("followupType");//"FLUF";
        String followUpValue = request.getParameter("followupValue"); //"L1";
        String[] demos = request.getParameterValues("demos");
-       Integer id = Integer.parseInt(request.getParameter("id"));
+       String id = request.getParameter("id");
        String providerNo = (String) request.getSession().getAttribute("user");
   
        String comment = request.getParameter("message");
        if ( followUpType != null && followUpValue != null){   
            FollowupManagement fup = new FollowupManagement();
            MiscUtils.getLogger().debug("followUpType:"+followUpType+" followUpValue: "+followUpValue+" demos:"+demos+" providerNo:"+providerNo+" comment:"+comment);
-           fup.markFollowupProcedure(followUpType,followUpValue,demos,providerNo,new Date(),comment);
-           response.getWriter().print("id="+id+"&followupValue="+StringEscapeUtils.escapeJavaScript(followUpValue)+"&Date="+UtilDateUtilities.DateToString(new Date()));        
+           fup.markFollowupProcedure(followUpType,followUpValue,demos,providerNo,UtilDateUtilities.now(),comment);
+           response.getWriter().print("id="+id+"&followupValue="+followUpValue+"&Date="+UtilDateUtilities.DateToString(UtilDateUtilities.now()));        
        }
        return null;
     }
@@ -88,11 +77,6 @@ public class EctAddShortMeasurementAction extends DispatchAction{
      * Add Measurements from prevention report.  Allow multiple values with multiple demos
      */
     public ActionForward addMeasurements(ActionMapping mapping,ActionForm form,HttpServletRequest request,HttpServletResponse response) {
-    	
-    	if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_measurement", "w", null)) {
-			throw new SecurityException("missing required security object (_measurement)");
-		}
-    	
     	String followUpType = request.getParameter("followUpType");
     	String[] arrDemoContactMethods = request.getParameterValues("nsp");
     	String providerNo = (String) request.getSession().getAttribute("user");
@@ -100,13 +84,14 @@ public class EctAddShortMeasurementAction extends DispatchAction{
     	String[] arrDemoMethod = null;
     	List<String> demos;
     	
-    	if( arrDemoContactMethods != null ) {    		
+    	if( arrDemoContactMethods != null ) {
+    		
 	    	for( int idx = 0; idx < arrDemoContactMethods.length; ++idx ) {
-	    		arrDemoMethod = arrDemoContactMethods[idx].split(",");	    		
+	    		arrDemoMethod = arrDemoContactMethods[idx].split(",");
 	    		if( arrDemoMethod.length != 2 ) {
 	    			continue;
 	    		}
-	    	
+	    		
 	    		demos = nextContactMethods.get(arrDemoMethod[1]);
 	    		if( demos == null ) {
 	    			demos = new ArrayList<String>();    			
@@ -124,8 +109,8 @@ public class EctAddShortMeasurementAction extends DispatchAction{
     		Set<String> keys = nextContactMethods.keySet();
     		
     		for( String key : keys ) {
-    			arrDemoMethod = nextContactMethods.get(key).toArray(new String[nextContactMethods.get(key).size()]);
-    			fup.markFollowupProcedure(followUpType,key,arrDemoMethod,providerNo,new Date(),comment);
+    			arrDemoMethod = nextContactMethods.get(key).toArray(arrDemoMethod);
+    			fup.markFollowupProcedure(followUpType,key,arrDemoMethod,providerNo,UtilDateUtilities.now(),comment);
     		}
     	}
     	

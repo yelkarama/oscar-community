@@ -22,19 +22,19 @@
  * Ontario, Canada
  */
 
+
 package oscar.eform;
 
 import java.io.File;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -48,57 +48,31 @@ import javax.persistence.PersistenceException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.log4j.Logger;
-import org.oscarehr.PMmodule.dao.ProgramDao;
-import org.oscarehr.PMmodule.dao.ProviderDao;
-import org.oscarehr.PMmodule.model.Program;
-import org.oscarehr.PMmodule.model.ProgramProvider;
 import org.oscarehr.casemgmt.dao.CaseManagementNoteLinkDAO;
 import org.oscarehr.casemgmt.model.CaseManagementIssue;
 import org.oscarehr.casemgmt.model.CaseManagementNote;
 import org.oscarehr.casemgmt.model.CaseManagementNoteLink;
 import org.oscarehr.casemgmt.model.Issue;
 import org.oscarehr.casemgmt.service.CaseManagementManager;
-import org.oscarehr.common.dao.ConsultationRequestDao;
-import org.oscarehr.common.dao.EFormDao;
-import org.oscarehr.common.dao.EFormDao.EFormSortOrder;
 import org.oscarehr.common.dao.EFormDataDao;
-import org.oscarehr.common.dao.EFormGroupDao;
 import org.oscarehr.common.dao.EFormValueDao;
-import org.oscarehr.common.dao.ProfessionalSpecialistDao;
 import org.oscarehr.common.dao.SecRoleDao;
-import org.oscarehr.common.dao.TicklerDao;
-import org.oscarehr.common.model.ConsultationRequest;
 import org.oscarehr.common.model.EFormData;
-import org.oscarehr.common.model.EFormGroup;
 import org.oscarehr.common.model.EFormValue;
-import org.oscarehr.common.model.Prevention;
-import org.oscarehr.common.model.ProfessionalSpecialist;
 import org.oscarehr.common.model.SecRole;
-import org.oscarehr.common.model.Tickler;
-import org.oscarehr.managers.PreventionManager;
-import org.oscarehr.managers.ProgramManager2;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
-import com.quatro.model.security.Secobjprivilege;
-
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import org.oscarehr.common.model.OscarMsgType;
 import oscar.OscarProperties;
 import oscar.dms.EDoc;
 import oscar.dms.EDocUtil;
 import oscar.eform.actions.DisplayImageAction;
 import oscar.eform.data.EForm;
 import oscar.eform.data.EFormBase;
-import oscar.oscarClinic.ClinicData;
 import oscar.oscarDB.DBHandler;
 import oscar.oscarMessenger.data.MsgMessageData;
-import oscar.util.ConversionUtils;
+import oscar.oscarProvider.data.ProviderData;
 import oscar.util.OscarRoleObjectPrivilege;
 import oscar.util.UtilDateUtilities;
 
@@ -110,121 +84,84 @@ public class EFormUtil {
 	public static final String SUBJECT = "subject";
 	public static final String DATE = "form_date DESC, form_time DESC";
 	public static final String FILE_NAME = "file_name";
-	public static final String PROVIDER = "form_provider";
 	// -----------
 	public static final String DELETED = "deleted";
 	public static final String CURRENT = "current";
 	public static final String ALL = "all";
 
-	private static CaseManagementManager cmm = (CaseManagementManager) SpringUtils.getBean(CaseManagementManager.class);
-	private static CaseManagementNoteLinkDAO cmDao = (CaseManagementNoteLinkDAO) SpringUtils.getBean(CaseManagementNoteLinkDAO.class);
-	private static EFormDataDao eFormDataDao = (EFormDataDao) SpringUtils.getBean(EFormDataDao.class);
-	private static EFormValueDao eFormValueDao = (EFormValueDao) SpringUtils.getBean(EFormValueDao.class);
-	private static EFormGroupDao eFormGroupDao = (EFormGroupDao) SpringUtils.getBean(EFormGroupDao.class);
-	private static EFormDao eFormDao = SpringUtils.getBean(EFormDao.class);
-	private static ProviderDao providerDao = (ProviderDao) SpringUtils.getBean(ProviderDao.class);
-	private static TicklerDao ticklerDao = SpringUtils.getBean(TicklerDao.class);
-	private static PreventionManager preventionManager = SpringUtils.getBean(PreventionManager.class);
-	private static ProgramManager2 programManager2 = SpringUtils.getBean(ProgramManager2.class);
-	private static ConsultationRequestDao consultationRequestDao = SpringUtils.getBean(ConsultationRequestDao.class);
-	private static ProfessionalSpecialistDao professionalSpecialistDao = SpringUtils.getBean(ProfessionalSpecialistDao.class);
-	
+	private static CaseManagementManager cmm = (CaseManagementManager) SpringUtils.getBean("caseManagementManager");
+	private static CaseManagementNoteLinkDAO cmDao = (CaseManagementNoteLinkDAO) SpringUtils.getBean("CaseManagementNoteLinkDAO");
+	private static EFormDataDao eFormDataDao = (EFormDataDao) SpringUtils.getBean("EFormDataDao");
+	private static EFormValueDao eFormValueDao = (EFormValueDao) SpringUtils.getBean("EFormValueDao");
+
 	private EFormUtil() {
 	}
 
 	public static String saveEForm(EForm eForm) {
-		return saveEForm(eForm.getFormName(), eForm.getFormSubject(), eForm.getFormFileName(), eForm.getFormHtml(), eForm.getFormCreator(), eForm.isShowLatestFormOnly(), eForm.isPatientIndependent(), eForm.getRoleType(), eForm.getProgramNo(), eForm.isRestrictByProgram(), eForm.getDisableUpdate());
+		return saveEForm(eForm.getFormName(), eForm.getFormSubject(), eForm.getFormFileName(), eForm.getFormHtml(), eForm.getFormCreator(), eForm.getPatientIndependent(), eForm.getRoleType());
 	}
 
-	public static String saveEForm(String formName, String formSubject, String fileName, String htmlStr, String programNo, boolean restrictByProgram, boolean disableUpdate) {
-		return saveEForm(formName, formSubject, fileName, htmlStr, false, false, null, programNo, restrictByProgram,disableUpdate);
+	public static String saveEForm(String formName, String formSubject, String fileName, String htmlStr) {
+		return saveEForm(formName, formSubject, fileName, htmlStr, false, null);
 	}
 
-	public static String saveEForm(String formName, String formSubject, String fileName, String htmlStr, boolean showLatestFormOnly, boolean patientIndependent, String roleType, String programNo, boolean restrictByProgram,  boolean disableUpdate) {
-		return saveEForm(formName, formSubject, fileName, htmlStr, null, showLatestFormOnly, patientIndependent, roleType, programNo, restrictByProgram,disableUpdate);
+	public static String saveEForm(String formName, String formSubject, String fileName, String htmlStr, boolean patientIndependent, String roleType) {
+		return saveEForm(formName, formSubject, fileName, htmlStr, null, patientIndependent, roleType);
 	}
 
-	public static String saveEForm(String formName, String formSubject, String fileName, String htmlStr, String creator, boolean showLatestFormOnly, boolean patientIndependent, String roleType, String programNo, boolean restrictByProgram,  boolean disableUpdate) {
-		// called by the upload action, puts the uploaded form into DB		
-
-		org.oscarehr.common.model.EForm eform = new org.oscarehr.common.model.EForm();
-		eform.setFormName(formName);
-		eform.setFileName(fileName);
-		eform.setSubject(formSubject);
-		eform.setCreator(creator);
-		eform.setCurrent(true);
-		eform.setFormHtml(htmlStr);
-		eform.setShowLatestFormOnly(showLatestFormOnly);
-		eform.setPatientIndependent(patientIndependent);
-		eform.setRoleType(roleType);
-		if(!StringUtils.isEmpty(programNo)) {
-			eform.setProgramNo(Integer.parseInt(programNo));
-			eform.setRestrictToProgram(restrictByProgram);
-		}
-		eform.setDisableUpdate(disableUpdate);
-		EFormDao dao = SpringUtils.getBean(EFormDao.class);
-		dao.persist(eform);
-
-		return eform.getId().toString();
+	public static String saveEForm(String formName, String formSubject, String fileName, String htmlStr, String creator, boolean patientIndependent, String roleType) {
+		// called by the upload action, puts the uploaded form into DB
+		String nowDate = UtilDateUtilities.DateToString(UtilDateUtilities.now(), "yyyy-MM-dd");
+		String nowTime = UtilDateUtilities.DateToString(UtilDateUtilities.now(), "HH:mm:ss");
+		htmlStr = "\n" + org.apache.commons.lang.StringEscapeUtils.escapeSql(htmlStr);
+		formName = org.apache.commons.lang.StringEscapeUtils.escapeSql(formName);
+		formSubject = org.apache.commons.lang.StringEscapeUtils.escapeSql(formSubject);
+		fileName = org.apache.commons.lang.StringEscapeUtils.escapeSql(fileName);
+		roleType = org.apache.commons.lang.StringEscapeUtils.escapeSql(roleType);
+		if (creator == null) creator = "NULL";
+		else creator = "'" + creator + "'";
+		if (roleType == null) roleType = "NULL";
+		else roleType = "'" + roleType + "'";
+		String sql = "INSERT INTO eform (form_name, file_name, subject, form_date, form_time, form_creator, status, form_html, patient_independent,roleType) VALUES " + "('" + formName + "', '" + fileName + "', '" + formSubject + "', '" + nowDate + "', '" + nowTime + "', " + creator + ", 1, '" + htmlStr + "', " + patientIndependent + "," + roleType + ")";
+		return (runSQLinsert(sql));
 	}
 
-	public static ArrayList<HashMap<String, ? extends Object>> listEForms(LoggedInInfo loggedInInfo, String sortBy, String deleted) {
+	public static ArrayList<HashMap<String, ? extends Object>> listEForms(String sortBy, String deleted) {
 
 		// sends back a list of forms that were uploaded (those that can be added to the patient)
-		EFormDao dao = SpringUtils.getBean(EFormDao.class);
-		List<org.oscarehr.common.model.EForm> eforms = null;
-		Boolean status = null;
+		String sql = "";
 		if (deleted.equals("deleted")) {
-			status = false;
+			sql = "SELECT * FROM eform where status=0 ORDER BY " + sortBy;
 		} else if (deleted.equals("current")) {
-			status = true;
+			sql = "SELECT * FROM eform where status=1 ORDER BY " + sortBy;
 		} else if (deleted.equals("all")) {
-			status = null;
+			sql = "SELECT * FROM eform ORDER BY " + sortBy;
 		}
-
-		EFormSortOrder sortOrder = null;
-		if (NAME.equals(sortBy)) sortOrder = EFormSortOrder.NAME;
-		else if (SUBJECT.equals(sortBy)) sortOrder = EFormSortOrder.SUBJECT;
-		else if (FILE_NAME.equals(sortBy)) sortOrder = EFormSortOrder.FILE_NAME;
-		else if (DATE.equals(sortBy)) sortOrder = EFormSortOrder.DATE;
-
-		eforms = dao.findByStatus(status, sortOrder);
-
-		//filter out the restricted ones that you don't have access to
-		
+		ResultSet rs = getSQL(sql);
 		ArrayList<HashMap<String, ? extends Object>> results = new ArrayList<HashMap<String, ? extends Object>>();
-		for (org.oscarehr.common.model.EForm eform : eforms) {
-			HashMap<String, Object> curht = new HashMap<String, Object>();
-			curht.put("fid", eform.getId().toString());
-			curht.put("formName", eform.getFormName());
-			curht.put("formSubject", eform.getSubject());
-			curht.put("formFileName", eform.getFileName());
-			curht.put("formDate", ConversionUtils.toDateString(eform.getFormDate()));
-			curht.put("formDateAsDate", eform.getFormDate());
-			curht.put("formTime", ConversionUtils.toTimeString(eform.getFormTime()));
-			curht.put("roleType", eform.getRoleType());
-			
-			boolean addIt=true;
-			if(eform.isRestrictToProgram() && eform.getProgramNo() != null && eform.getProgramNo().intValue()>0) {
-				addIt=false;
-				List<ProgramProvider> ppList = programManager2.getProgramDomain(loggedInInfo, loggedInInfo.getLoggedInProviderNo());
-				for(ProgramProvider pp:ppList) {
-					if(pp.getProgramId().intValue() == eform.getProgramNo().intValue()) {
-						addIt=true;
-						break;
-					}
-				}
-			}
-			if(addIt) {
+		try {
+			while (rs.next()) {
+				HashMap<String, Object> curht = new HashMap<String, Object>();
+				curht.put("fid", rsGetString(rs, "fid"));
+				curht.put("formName", rsGetString(rs, "form_name"));
+				curht.put("formSubject", rsGetString(rs, "subject"));
+				curht.put("formFileName", rsGetString(rs, "file_name"));
+				curht.put("formDate", rsGetString(rs, "form_date"));
+				curht.put("formDateAsDate", rs.getDate("form_date"));
+				curht.put("formTime", rsGetString(rs, "form_time"));
+				curht.put("roleType", rsGetString(rs, "roleType"));
 				results.add(curht);
 			}
+			rs.close();
+		} catch (Exception sqe) {
+			logger.error("Error", sqe);
 		}
 		return (results);
 	}
 
-	public static ArrayList<HashMap<String, ? extends Object>> listEForms(LoggedInInfo loggedInInfo, String sortBy, String deleted, String userRoles) {
+	public static ArrayList<HashMap<String, ? extends Object>> listEForms(String sortBy, String deleted, String userRoles) {
 		ArrayList<HashMap<String, ? extends Object>> results = new ArrayList<HashMap<String, ? extends Object>>();
-		ArrayList<HashMap<String, ? extends Object>> eForms = listEForms(loggedInInfo, sortBy, deleted);
+		ArrayList<HashMap<String, ? extends Object>> eForms = listEForms(sortBy, deleted);
 		if (eForms.size() > 0) {
 			for (int i = 0; i < eForms.size(); i++) {
 				HashMap<String, ? extends Object> curForm = eForms.get(i);
@@ -245,139 +182,43 @@ public class EFormUtil {
 	}
 
 	public static ArrayList<String> listSecRole() {
-		SecRoleDao dao = (SecRoleDao) SpringUtils.getBean(SecRoleDao.class);
-		ArrayList<String> results = new ArrayList<String>();
-		for (SecRole role : dao.findAll())
-			results.add(role.getName());
+		// sends back a list of forms that were uploaded (those that can be added to the patient)
+		String sql = "";
+		sql = "SELECT role_name FROM secRole";
 
+		ResultSet rs = getSQL(sql);
+		ArrayList<String> results = new ArrayList<String>();
+		try {
+			while (rs.next()) {
+				results.add(rsGetString(rs, "role_name"));
+			}
+			rs.close();
+		} catch (Exception sqe) {
+			logger.error("Error", sqe);
+		}
 		return (results);
 	}
-	
-	public static List<Program> listPrograms() {
-		ProgramDao dao = (ProgramDao) SpringUtils.getBean(ProgramDao.class);
-		return dao.search(new Program());
-		
-	}
-	
 
 	public static ArrayList<String> listImages() {
 		String imagePath = OscarProperties.getInstance().getProperty("eform_image");
 		logger.debug("Img Path: " + imagePath);
 		File dir = new File(imagePath);
 		String[] files = dir.list();
-		Arrays.sort(files);
 		ArrayList<String> fileList;
 		if (files != null) fileList = new ArrayList<String>(Arrays.asList(files));
 		else fileList = new ArrayList<String>();
 
 		return fileList;
 	}
-	
-	private static List<EFormData> filterByRestricted(LoggedInInfo loggedInInfo, List<EFormData> input) {
-		List<EFormData> results = new ArrayList<EFormData>();
-		
-		Map<Integer,Integer> restrictedEforms = eFormDao.findRestrictedEforms();
-		List<ProgramProvider> ppList = programManager2.getProgramDomain(loggedInInfo, loggedInInfo.getLoggedInProviderNo());
-		
-		for(EFormData efd:input) {
-			boolean addIt=true;
-			
-			if(restrictedEforms.get(efd.getFormId()) != null) {
-				addIt=false;
-				for(ProgramProvider pp:ppList) {
-					if(pp.getProgramId().intValue() == restrictedEforms.get(efd.getFormId())) {
-						addIt=true;
-						break;
-					}
-				}
-			}
-			
-			if(addIt) {
-				results.add(efd);
-			}
-		}
-		return results;
-	}
-	
-	public static List<EFormData> listPatientEformsCurrent(LoggedInInfo loggedInInfo, Integer demographicNo, Boolean current, int startIndex, int numToReturn) {
-		List<EFormData> eds =  eFormDataDao.findByDemographicIdCurrent(demographicNo, current, startIndex, numToReturn);
-		
-		return filterByRestricted(loggedInInfo,eds);
-	}
-	
-	@Deprecated
-	public static ArrayList<HashMap<String, ? extends Object>> listPatientEForms(LoggedInInfo loggedInInfo, String sortBy, String deleted, String demographic_no, String userRoles, int offset, int itemsToReturn, boolean setToWhatever) {
+
+	public static ArrayList<HashMap<String,? extends Object>> listPatientEForms(String sortBy, String deleted, String demographic_no, String userRoles) {
 
 		Boolean current = null;
 		if (deleted.equals("deleted")) current = false;
 		else if (deleted.equals("current")) current = true;
-		
-		List<EFormData> allEformDatas = eFormDataDao.findByDemographicIdCurrent(Integer.parseInt(demographic_no), current, offset, itemsToReturn,sortBy);
-		allEformDatas = filterByRestricted(loggedInInfo, allEformDatas);
-		
-	//	if (NAME.equals(sortBy)) Collections.sort(allEformDatas, EFormData.FORM_NAME_COMPARATOR);
-	//	else if (SUBJECT.equals(sortBy)) Collections.sort(allEformDatas, EFormData.FORM_SUBJECT_COMPARATOR);
-	//	else Collections.sort(allEformDatas, EFormData.FORM_DATE_COMPARATOR);
 
-		ArrayList<HashMap<String, ? extends Object>> results = new ArrayList<HashMap<String, ? extends Object>>();
-		try {
-			for (EFormData eFormData : allEformDatas) {
-				// filter eform by role type
-				String tempRole = StringUtils.trimToNull(eFormData.getRoleType());
-				if (userRoles != null && tempRole != null) {
-					// ojectName: "_admin,_admin.eform"
-					// roleName: "doctor,admin"
-					String objectName = "_eform." + tempRole;
-					Vector v = OscarRoleObjectPrivilege.getPrivilegeProp(objectName);
-					if (!OscarRoleObjectPrivilege.checkPrivilege(userRoles, (Properties) v.get(0), (Vector) v.get(1))) {
-						continue;
-					}
-				}
-				HashMap<String, Object> curht = new HashMap<String, Object>();
-				curht.put("fdid", eFormData.getId().toString());
-				curht.put("fid", eFormData.getFormId().toString());
-				curht.put("formName", eFormData.getFormName());
-				curht.put("formSubject", eFormData.getSubject());
-				curht.put("formDate", eFormData.getFormDate().toString());
-				curht.put("formTime", eFormData.getFormTime().toString());
-				curht.put("formDateAsDate", eFormData.getFormDate());
-				curht.put("roleType", eFormData.getRoleType());
-				curht.put("providerNo", eFormData.getProviderNo());
-				
-				org.oscarehr.common.model.EForm eform = eFormDao.find(eFormData.getFormId());
-				
-				boolean addIt=true;
-				if(eform != null && eform.isRestrictToProgram() && eform.getProgramNo() != null && eform.getProgramNo().intValue()>0) {
-					addIt=false;
-					List<ProgramProvider> ppList = programManager2.getProgramDomain(loggedInInfo, loggedInInfo.getLoggedInProviderNo());
-					for(ProgramProvider pp:ppList) {
-						if(pp.getProgramId().intValue() == eform.getProgramNo().intValue()) {
-							addIt=true;
-							break;
-						}
-					}
-				}
-				if(addIt) {
-					results.add(curht);
-				}
-				
-			}
-		} catch (Exception sqe) {
-			logger.error("Error", sqe);
-		}
-		return (results);
-	}
-	
-	@Deprecated
-	public static ArrayList<HashMap<String, ? extends Object>> listPatientEForms(LoggedInInfo loggedInInfo, String sortBy, String deleted, String demographic_no, String userRoles) {
+		List<EFormData> allEformDatas = eFormDataDao.findByDemographicIdCurrentPatientIndependent(Integer.parseInt(demographic_no), current, false);
 
-		Boolean current = null;
-		if (deleted.equals("deleted")) current = false;
-		else if (deleted.equals("current")) current = true;
-		
-		List<EFormData> allEformDatas = eFormDataDao.findByDemographicIdCurrent(Integer.parseInt(demographic_no), current);
-		allEformDatas = filterByRestricted(loggedInInfo, allEformDatas);
-		
 		if (NAME.equals(sortBy)) Collections.sort(allEformDatas, EFormData.FORM_NAME_COMPARATOR);
 		else if (SUBJECT.equals(sortBy)) Collections.sort(allEformDatas, EFormData.FORM_SUBJECT_COMPARATOR);
 		else Collections.sort(allEformDatas, EFormData.FORM_DATE_COMPARATOR);
@@ -406,25 +247,6 @@ public class EFormUtil {
 				curht.put("formDateAsDate", eFormData.getFormDate());
 				curht.put("roleType", eFormData.getRoleType());
 				curht.put("providerNo", eFormData.getProviderNo());
-				
-				org.oscarehr.common.model.EForm eform = eFormDao.find(eFormData.getFormId());
-				
-				boolean addIt=true;
-				if(eform != null && eform.isRestrictToProgram() && eform.getProgramNo() != null && eform.getProgramNo().intValue()>0) {
-					addIt=false;
-					List<ProgramProvider> ppList = programManager2.getProgramDomain(loggedInInfo, loggedInInfo.getLoggedInProviderNo());
-					for(ProgramProvider pp:ppList) {
-						if(pp.getProgramId().intValue() == eform.getProgramNo().intValue()) {
-							addIt=true;
-							break;
-						}
-					}
-				}
-				if(addIt) {
-					results.add(curht);
-				}
-				
-				
 				results.add(curht);
 			}
 		} catch (Exception sqe) {
@@ -433,18 +255,16 @@ public class EFormUtil {
 		return (results);
 	}
 
-	public static ArrayList<HashMap<String, ? extends Object>> listPatientIndependentEForms(LoggedInInfo loggedInInfo, String sortBy, String deleted) {
+	public static ArrayList<HashMap<String,? extends Object>> listPatientIndependentEForms(String sortBy, String deleted) {
 
 		Boolean current = null;
 		if (deleted.equals("deleted")) current = false;
 		else if (deleted.equals("current")) current = true;
 
 		List<EFormData> allEformDatas = eFormDataDao.findPatientIndependent(current);
-		allEformDatas = filterByRestricted(loggedInInfo, allEformDatas);
-		
+
 		if (NAME.equals(sortBy)) Collections.sort(allEformDatas, EFormData.FORM_NAME_COMPARATOR);
 		else if (SUBJECT.equals(sortBy)) Collections.sort(allEformDatas, EFormData.FORM_SUBJECT_COMPARATOR);
-		else if (PROVIDER.equals(sortBy)) sortByProviderName(allEformDatas);
 		else Collections.sort(allEformDatas, EFormData.FORM_DATE_COMPARATOR);
 
 		ArrayList<HashMap<String, ? extends Object>> results = new ArrayList<HashMap<String, ? extends Object>>();
@@ -460,25 +280,6 @@ public class EFormUtil {
 				curht.put("formDateAsDate", eFormData.getFormDate());
 				curht.put("roleType", eFormData.getRoleType());
 				curht.put("providerNo", eFormData.getProviderNo());
-				
-				org.oscarehr.common.model.EForm eform = eFormDao.find(eFormData.getFormId());
-				
-				boolean addIt=true;
-				if(eform != null && eform.isRestrictToProgram() && eform.getProgramNo() != null && eform.getProgramNo().intValue()>0) {
-					addIt=false;
-					List<ProgramProvider> ppList = programManager2.getProgramDomain(loggedInInfo, loggedInInfo.getLoggedInProviderNo());
-					for(ProgramProvider pp:ppList) {
-						if(pp.getProgramId().intValue() == eform.getProgramNo().intValue()) {
-							addIt=true;
-							break;
-						}
-					}
-				}
-				if(addIt) {
-					results.add(curht);
-				}
-				
-				
 				results.add(curht);
 			}
 		} catch (Exception sqe) {
@@ -486,18 +287,19 @@ public class EFormUtil {
 		}
 		return (results);
 	}
-
-	public static ArrayList<HashMap<String, ? extends Object>> listPatientEFormsNoData(LoggedInInfo loggedInInfo, String demographic_no, String userRoles) {
+	
+	public static ArrayList<HashMap<String,? extends Object>> listPatientEFormsNoData(String demographic_no, String userRoles) {
 
 		Boolean current = true;
-
-		List<Map<String, Object>> allEformDatas = eFormDataDao.findByDemographicIdCurrentNoData(Integer.parseInt(demographic_no), current);
 		
+		List<Map<String,Object>> allEformDatas = eFormDataDao.findByDemographicIdCurrentPatientIndependentNoData(Integer.parseInt(demographic_no), current, false);
+		
+
 		ArrayList<HashMap<String, ? extends Object>> results = new ArrayList<HashMap<String, ? extends Object>>();
 		try {
-			for (Map<String, Object> eFormData : allEformDatas) {
+			for (Map<String,Object> eFormData : allEformDatas) {
 				// filter eform by role type
-				String tempRole = StringUtils.trimToNull((String) eFormData.get("roleType"));
+				String tempRole = StringUtils.trimToNull((String)eFormData.get("roleType"));
 				if (userRoles != null && tempRole != null) {
 					// ojectName: "_admin,_admin.eform"
 					// roleName: "doctor,admin"
@@ -509,46 +311,29 @@ public class EFormUtil {
 				}
 				HashMap<String, Object> curht = new HashMap<String, Object>();
 				curht.put("fdid", String.valueOf(eFormData.get("id")));
-				curht.put("fid", String.valueOf(eFormData.get("formId")));
+				curht.put("fid",  String.valueOf(eFormData.get("formId")));
 				curht.put("formName", eFormData.get("formName"));
 				curht.put("formSubject", eFormData.get("subject"));
-				curht.put("formDate", String.valueOf(eFormData.get("formDate")));
-				curht.put("formTime", String.valueOf(eFormData.get("formTime")));
+				curht.put("formDate",  String.valueOf(eFormData.get("formDate")));
+				curht.put("formTime",  String.valueOf(eFormData.get("formTime")));
 				curht.put("formDateAsDate", eFormData.get("formDate"));
 				curht.put("roleType", eFormData.get("roleType"));
 				curht.put("providerNo", eFormData.get("providerNo"));
-				
-				org.oscarehr.common.model.EForm eform = eFormDao.find(Integer.parseInt((String)curht.get("fid")));
-				
-				boolean addIt=true;
-				if(eform != null && eform.isRestrictToProgram() && eform.getProgramNo() != null && eform.getProgramNo().intValue()>0) {
-					addIt=false;
-					List<ProgramProvider> ppList = programManager2.getProgramDomain(loggedInInfo, loggedInInfo.getLoggedInProviderNo());
-					for(ProgramProvider pp:ppList) {
-						if(pp.getProgramId().intValue() == eform.getProgramNo().intValue()) {
-							addIt=true;
-							break;
-						}
-					}
-				}
-				if(addIt) {
-					results.add(curht);
-				}
-				
+				results.add(curht);
 			}
 		} catch (Exception sqe) {
 			logger.error("Error", sqe);
 		}
 		return (results);
 	}
-
-	public static ArrayList<HashMap<String, ? extends Object>> loadEformsByFdis(List<Integer> ids) {
+	
+	public static ArrayList<HashMap<String,? extends Object>> loadEformsByFdis(List<Integer> ids) {
 
 		List<EFormData> allEformDatas = eFormDataDao.findByFdids(ids);
 
 		ArrayList<HashMap<String, ? extends Object>> results = new ArrayList<HashMap<String, ? extends Object>>();
 		try {
-			for (EFormData eFormData : allEformDatas) {
+			for (EFormData eFormData : allEformDatas) {				
 				HashMap<String, Object> curht = new HashMap<String, Object>();
 				curht.put("fdid", eFormData.getId().toString());
 				curht.put("fid", eFormData.getFormId().toString());
@@ -567,129 +352,99 @@ public class EFormUtil {
 		return (results);
 	}
 
-	public static HashMap<String, Object> loadEForm(String fid) {
-		EFormDao dao = SpringUtils.getBean(EFormDao.class);
-		Integer id = Integer.valueOf(fid);
-		org.oscarehr.common.model.EForm eform = dao.find(id);
-		HashMap<String, Object> curht = new HashMap<String, Object>();
-		if (eform == null) {
-			logger.error("Unable to find EForm with ID = " + fid);
+	public static Hashtable<String,Object> loadEForm(String fid) {
+		// opens an eform that was uploaded (used to fill out patient data)
+		String sql = "SELECT * FROM eform where fid=" + fid + " LIMIT 1";
+		ResultSet rs = getSQL(sql);
+		Hashtable<String,Object> curht = new Hashtable<String,Object>();
+		try {
+			rs.next();
+			// must have FID and form_name otherwise throws null pointer on the hashtable
+			curht.put("fid", rsGetString(rs, "fid"));
+			curht.put("formName", rsGetString(rs, "form_name"));
+			curht.put("formSubject", rsGetString(rs, "subject"));
+			curht.put("formFileName", rsGetString(rs, "file_name"));
+			curht.put("formDate", rsGetString(rs, "form_date"));
+			curht.put("formTime", rsGetString(rs, "form_time"));
+			curht.put("formCreator", rsGetString(rs, "form_creator"));
+			curht.put("formHtml", rsGetString(rs, "form_html"));
+			curht.put("patientIndependent", rs.getBoolean("patient_independent"));
+			curht.put("roleType", rsGetString(rs, "roleType"));
+			rs.close();
+		} catch (SQLException sqe) {
 			curht.put("formName", "");
 			curht.put("formHtml", "No Such Form in Database");
-			return curht;
+			logger.error("Error", sqe);
 		}
-
-		// must have FID and form_name otherwise throws null pointer on the hashtable
-		curht.put("fid", eform.getId());
-		curht.put("formName", eform.getFormName());
-		curht.put("formSubject", eform.getSubject());
-		curht.put("formFileName", eform.getFileName());
-		curht.put("formDate", eform.getFormDate().toString());
-		curht.put("formTime", eform.getFormTime().toString());
-		curht.put("formCreator", eform.getCreator());
-		curht.put("formHtml", eform.getFormHtml());
-		curht.put("showLatestFormOnly", eform.isShowLatestFormOnly());
-		curht.put("patientIndependent", eform.isPatientIndependent());
-		curht.put("roleType", eform.getRoleType());
-		curht.put("programNo", eform.getProgramNo()!=null?eform.getProgramNo().toString():"");
-		curht.put("restrictByProgram",eform.isRestrictToProgram());
-		curht.put("disableUpdate", eform.isDisableUpdate());
 		return (curht);
 	}
 
 	public static void updateEForm(EFormBase updatedForm) {
 		// Updates the form - used by editForm
-	
-		EFormDao dao = SpringUtils.getBean(EFormDao.class);
-		org.oscarehr.common.model.EForm eform = dao.find(Integer.parseInt(updatedForm.getFid()));
-		if (eform == null) {
-			logger.error("Unable to find eform for update: " + updatedForm);
-			return;
-		}
-		
-		eform.setFormName(updatedForm.getFormName());
-		eform.setFileName(updatedForm.getFormFileName());
-		eform.setSubject(updatedForm.getFormSubject());
-		eform.setFormDate(ConversionUtils.fromDateString(updatedForm.getFormDate()));
-		eform.setFormTime(ConversionUtils.fromTimeString(updatedForm.getFormTime()));
-		eform.setFormHtml(updatedForm.getFormHtml());
-		eform.setShowLatestFormOnly(updatedForm.isShowLatestFormOnly());
-		eform.setPatientIndependent(updatedForm.isPatientIndependent());
-		eform.setRoleType(updatedForm.getRoleType());
-		eform.setProgramNo((!StringUtils.isEmpty(updatedForm.getProgramNo()))?Integer.parseInt(updatedForm.getProgramNo()):null);
-		eform.setRestrictToProgram(updatedForm.isRestrictByProgram());
-		eform.setDisableUpdate(updatedForm.getDisableUpdate());
-		
-		dao.merge(eform);
+		String formHtml = "\n" + org.apache.commons.lang.StringEscapeUtils.escapeSql(updatedForm.getFormHtml());
+		String formName = org.apache.commons.lang.StringEscapeUtils.escapeSql(updatedForm.getFormName());
+		String formSubject = org.apache.commons.lang.StringEscapeUtils.escapeSql(updatedForm.getFormSubject());
+		String fileName = org.apache.commons.lang.StringEscapeUtils.escapeSql(updatedForm.getFormFileName());
+		String roleType = org.apache.commons.lang.StringEscapeUtils.escapeSql(updatedForm.getRoleType());
+
+		String sql = "UPDATE eform SET " + "form_name='" + formName + "', " + "file_name='" + fileName + "', " + "subject='" + formSubject + "', " + "form_date='" + updatedForm.getFormDate() + "', " + "form_time='" + updatedForm.getFormTime() + "', " + "form_html='" + formHtml + "', " + "patient_independent=" + updatedForm.getPatientIndependent() + ", " + "roleType='" + roleType + "' " + "WHERE fid=" + updatedForm.getFid() + ";";
+		runSQL(sql);
 	}
 
 	/*
-	 * +--------------+--------------+------+-----+---------+----------------+ 
-	 * | Field        | Type         | Null | Key | Default | Extra          | 
-	 * +--------------+--------------+------+-----+---------+----------------+ 
-	 * | fid          | int(8)       |      | PRI | NULL    | auto_increment | 
-	 * | form_name    | varchar(255) | YES  |     | NULL    |                | 
-	 * | file_name    | varchar(255) | YES  |     | NULL    |                | 
-	 * | subject      | varchar(255) | YES  |     | NULL    |                | 
-	 * | form_date    | date         | YES  |     | NULL    |                | 
-	 * | form_time    | time         | YES  |     | NULL    |                | 
-	 * | form_creator | varchar(255) | YES  |     | NULL    |                | 
-	 * | status       | tinyint(1)   |      |     | 1       |                | 
-	 * | form_html    | text         | YE S |     | NULL    |                | 
-	 * +--------------+--------------+------+-----+---------+----------------+
+	 * +--------------+--------------+------+-----+---------+----------------+ | Field | Type | Null | Key | Default | Extra | +--------------+--------------+------+-----+---------+----------------+ | fid | int(8) | | PRI | NULL | auto_increment | |
+	 * form_name | varchar(255) | YES | | NULL | | | file_name | varchar(255) | YES | | NULL | | | subject | varchar(255) | YES | | NULL | | | form_date | date | YES | | NULL | | | form_time | time | YES | | NULL | | | form_creator | varchar(255) | YES | |
+	 * NULL | | | status | tinyint(1) | | | 1 | | | form_html | text | YES | | NULL | | +--------------+--------------+------+-----+---------+----------------+
 	 */
 
-	public static String getEFormParameter(String fid, String fieldName) {
-		EFormDao dao = SpringUtils.getBean(EFormDao.class); 
-		org.oscarehr.common.model.EForm eform = dao.find(ConversionUtils.fromIntString(fid));
-		if (eform == null) {
-			logger.error("Unable to find EForm for ID = " + fid);
-			return "";
+	public static String getEFormParameter(String fid, String Column) {
+		String dbColumn = "";
+		if (Column.equalsIgnoreCase("formName")) dbColumn = "form_name";
+		else if (Column.equalsIgnoreCase("formSubject")) dbColumn = "subject";
+		else if (Column.equalsIgnoreCase("formFileName")) dbColumn = "file_name";
+		else if (Column.equalsIgnoreCase("formDate")) dbColumn = "form_date";
+		else if (Column.equalsIgnoreCase("formTime")) dbColumn = "form_time";
+		else if (Column.equalsIgnoreCase("formStatus")) dbColumn = "status";
+		else if (Column.equalsIgnoreCase("formHtml")) dbColumn = "form_html";
+		else if (Column.equalsIgnoreCase("patientIndependent")) dbColumn = "patient_independent";
+		else if (Column.equalsIgnoreCase("roleType")) dbColumn = "roleType";
+		String sql = "SELECT " + dbColumn + " FROM eform WHERE fid=" + fid;
+		ResultSet rs = getSQL(sql);
+		try {
+			while (rs.next()) {
+				return rsGetString(rs, dbColumn);
+			}
+		} catch (SQLException sqe) {
+			logger.error("Error", sqe);
 		}
-		
-		if (fieldName.equalsIgnoreCase("formName"))
-			return eform.getFormName();
-		else if (fieldName.equalsIgnoreCase("formSubject"))
-			return eform.getSubject();
-		else if (fieldName.equalsIgnoreCase("formFileName"))
-			return eform.getFileName();
-		else if (fieldName.equalsIgnoreCase("formDate"))
-			return ConversionUtils.toDateString(eform.getFormDate());
-		else if (fieldName.equalsIgnoreCase("formTime"))
-			return ConversionUtils.toTimeString(eform.getFormTime());
-		else if (fieldName.equalsIgnoreCase("formStatus"))
-			return ConversionUtils.toBoolString(eform.isCurrent());
-		else if (fieldName.equalsIgnoreCase("formHtml"))
-			return eform.getFormHtml();
-		else if (fieldName.equalsIgnoreCase("showLatestFormOnly"))
-			return ConversionUtils.toBoolString(eform.isShowLatestFormOnly());
-		else if (fieldName.equalsIgnoreCase("patientIndependent")) 
-			return ConversionUtils.toBoolString(eform.isPatientIndependent());
-		else if (fieldName.equalsIgnoreCase("roleType"))
-			return eform.getRoleType();
-		
-		logger.warn("Invalid field name: " + fieldName + ". Please use one of formName, formSubject, formFileName, formDate, formTime, formStatus, formHtml, showLatestFormOnly, patientIndependent or roleType.");
-		
 		return null;
 	}
 
-	public static String getEFormIdByName(String name) {		
-		EFormDao dao = SpringUtils.getBean(EFormDao.class);		
-		logger.debug("EFORM NAME '" + name + "'");
-		Integer maxId = dao.findMaxIdForActiveForm(name);
-		
-		return (maxId == null ? null : maxId.toString());
+	public static String getEFormIdByName(String name) {
+		// opens an eform that was uploaded (used to fill out patient data)
+		String sql = "SELECT MAX(fid) FROM eform WHERE form_name='" + name + "' AND status=1";
+		ResultSet rs = getSQL(sql);
+		try {
+			if (rs.next()) {
+				return rsGetString(rs, "MAX(fid)");
+			}
+		} catch (SQLException sqe) {
+			logger.error("Error", sqe);
+		}
+		return null;
 	}
-	
+
 	public static void delEForm(String fid) {
-		setFormStatus(fid, false);
+		// deletes the form so no one can add it to the patient (sets status to deleted)
+		String sql = "UPDATE eform SET status=0 WHERE fid=" + fid;
+		runSQL(sql);
 	}
 
 	public static void restoreEForm(String fid) {
-		setFormStatus(fid, true);
+		String sql = "UPDATE eform SET status=1 WHERE fid=" + fid;
+		runSQL(sql);
 	}
 
-	@Deprecated
 	public static ArrayList<String> getValues(ArrayList<String> names, String sql) {
 		// gets the values for each column name in the sql (used by DatabaseAP)
 		ResultSet rs = getSQL(sql);
@@ -712,30 +467,6 @@ public class EFormUtil {
 			logger.error("Error", sqe);
 		}
 		return (values);
-	}
-	
-	public static JSONArray getJsonValues(ArrayList<String> names, String sql) {
-		// gets the values for each column name in the sql (used by DatabaseAP)
-		ResultSet rs = getSQL(sql);
-		JSONArray values = new JSONArray();
-		try {
-			while (rs.next()) {
-				JSONObject value = new JSONObject();
-				for (int i = 0; i < names.size(); i++) {
-					try {
-						value.element(names.get(i), oscar.Misc.getString(rs, names.get(i)));
-					} catch (Exception sqe) {
-						value.element(names.get(i), "<(" + names.get(i) + ")NotFound>");
-						logger.error("Error", sqe);
-					}
-				}
-				values.add(value);
-			}
-			rs.close();
-		} catch (SQLException sqe) {
-			logger.error("Error", sqe);
-		}
-		return values;
 	}
 
 	// used by addEForm for escaping characters
@@ -779,28 +510,47 @@ public class EFormUtil {
 	}
 
 	public static boolean formExistsInDB(String eFormName) {
-		EFormDao dao = SpringUtils.getBean(EFormDao.class);
-		org.oscarehr.common.model.EForm eform = dao.findByName(eFormName);
-		return eform != null;
+		String sql = "SELECT * FROM eform WHERE status=1 AND form_name='" + eFormName + "'";
+		try {
+			ResultSet rs = getSQL(sql);
+			if (rs.next()) {
+				rs.close();
+				return true;
+			} else {
+				rs.close();
+				return false;
+			}
+		} catch (SQLException sqe) {
+			logger.error("Error", sqe);
+		}
+		return false;
 	}
 
 	public static int formExistsInDBn(String formName, String fid) {
-		EFormDao dao = SpringUtils.getBean(EFormDao.class);
-		Long result = dao.countFormsOtherThanSpecified(formName, ConversionUtils.fromIntString(fid));
-		return result.intValue();
-	}
-
-	// --------------eform groups---------
-	public static ArrayList<HashMap<String, String>> getEFormGroups() {
-		String sql;
-		sql = "SELECT DISTINCT eform_groups.group_name, count(*)-1 AS 'count' FROM eform_groups " 
-				+ "LEFT JOIN eform ON eform.fid=eform_groups.fid WHERE eform.status=1 OR eform_groups.fid=0 " 
-				+ "GROUP BY eform_groups.group_name;";
-		ArrayList<HashMap<String, String>> al = new ArrayList<HashMap<String, String>>();
+		// returns # of forms in the DB with that name other than itself
+		String sql = "SELECT count(*) AS count FROM eform WHERE status=1 AND form_name='" + formName + "' AND fid!=" + fid;
 		try {
 			ResultSet rs = getSQL(sql);
 			while (rs.next()) {
-				HashMap<String, String> curhash = new HashMap<String, String>();
+				int numberRecords = rs.getInt("count");
+				rs.close();
+				return numberRecords;
+			}
+		} catch (SQLException sqe) {
+			logger.error("Error", sqe);
+		}
+		return 0;
+	}
+
+	// --------------eform groups---------
+	public static ArrayList<Hashtable<String,String>> getEFormGroups() {
+		String sql;
+		sql = "SELECT DISTINCT eform_groups.group_name, count(*)-1 AS 'count' FROM eform_groups " + "LEFT JOIN eform ON eform.fid=eform_groups.fid WHERE eform.status=1 OR eform_groups.fid=0 " + "GROUP BY eform_groups.group_name;";
+		ArrayList<Hashtable<String,String>> al = new ArrayList<Hashtable<String,String>>();
+		try {
+			ResultSet rs = getSQL(sql);
+			while (rs.next()) {
+				Hashtable<String,String> curhash = new Hashtable<String,String>();
 				curhash.put("groupName", oscar.Misc.getString(rs, "group_name"));
 				curhash.put("count", oscar.Misc.getString(rs, "count"));
 				al.add(curhash);
@@ -811,17 +561,14 @@ public class EFormUtil {
 		return al;
 	}
 
-	public static ArrayList<HashMap<String, String>> getEFormGroups(String demographic_no) {
+	public static ArrayList<Hashtable<String,String>> getEFormGroups(String demographic_no) {
 		String sql;
-		sql = "SELECT eform_groups.group_name, count(*)-1 AS 'count' FROM eform_groups " 
-				+ "LEFT JOIN eform_data ON eform_data.fid=eform_groups.fid " 
-				+ "WHERE (eform_data.status=1 AND eform_data.demographic_no=" + demographic_no 
-				+ ") OR eform_groups.fid=0 " + "GROUP BY eform_groups.group_name";
-		ArrayList<HashMap<String, String>> al = new ArrayList<HashMap<String, String>>();
+		sql = "SELECT eform_groups.group_name, count(*)-1 AS 'count' FROM eform_groups " + "LEFT JOIN eform_data ON eform_data.fid=eform_groups.fid " + "WHERE (eform_data.status=1 AND eform_data.demographic_no=" + demographic_no + ") OR eform_groups.fid=0 " + "GROUP BY eform_groups.group_name";
+		ArrayList<Hashtable<String,String>> al = new ArrayList<Hashtable<String,String>>();
 		try {
 			ResultSet rs = getSQL(sql);
 			while (rs.next()) {
-				HashMap<String, String> curhash = new HashMap<String, String>();
+				Hashtable<String,String> curhash = new Hashtable<String,String>();
 				curhash.put("groupName", oscar.Misc.getString(rs, "group_name"));
 				curhash.put("count", oscar.Misc.getString(rs, "count"));
 				al.add(curhash);
@@ -833,21 +580,18 @@ public class EFormUtil {
 	}
 
 	public static void delEFormGroup(String name) {
-		EFormGroupDao dao = SpringUtils.getBean(EFormGroupDao.class);
-		dao.deleteByName(name);
+		String sql = "DELETE FROM eform_groups WHERE group_name='" + name + "'";
+		runSQL(sql);
 	}
 
 	public static void addEFormToGroup(String groupName, String fid) {
 		try {
 
-			String sql1 = "SELECT eform_groups.fid FROM eform_groups, eform WHERE eform_groups.fid=" + fid 
-					+ " AND eform_groups.fid=eform.fid AND eform.status=1 AND eform_groups.group_name='" + groupName + "'";
+			String sql1 = "SELECT eform_groups.fid FROM eform_groups, eform WHERE eform_groups.fid=" + fid + " AND eform_groups.fid=eform.fid AND eform.status=1 AND eform_groups.group_name='" + groupName + "'";
 			ResultSet rs = DBHandler.GetSQL(sql1);
 			if (!rs.next()) {
-				EFormGroup eg = new EFormGroup();
-				eg.setFormId(Integer.parseInt(fid));
-				eg.setGroupName(groupName);
-				eFormGroupDao.persist(eg);	
+				String sql = "INSERT INTO eform_groups (fid, group_name) " + "VALUES (" + fid + ", '" + groupName + "')";
+				DBHandler.RunSQL(sql);
 			}
 		} catch (SQLException sqe) {
 			logger.error("Error", sqe);
@@ -855,11 +599,11 @@ public class EFormUtil {
 	}
 
 	public static void remEFormFromGroup(String groupName, String fid) {
-		EFormGroupDao dao = SpringUtils.getBean(EFormGroupDao.class);
-		dao.deleteByNameAndFormId(groupName, ConversionUtils.fromIntString(fid));
+		String sql = "DELETE FROM eform_groups WHERE group_name='" + groupName + "' and fid=" + fid + ";";
+		runSQL(sql);
 	}
 
-	public static ArrayList<HashMap<String, ? extends Object>> listEForms(LoggedInInfo loggedInInfo, String sortBy, String deleted, String group, String userRoles) {
+	public static ArrayList<HashMap<String,? extends Object>> listEForms(String sortBy, String deleted, String group, String userRoles) {
 		// sends back a list of forms that were uploaded (those that can be added to the patient)
 		String sql = "";
 		if (deleted.equals("deleted")) {
@@ -873,7 +617,7 @@ public class EFormUtil {
 		ArrayList<HashMap<String, ? extends Object>> results = new ArrayList<HashMap<String, ? extends Object>>();
 		try {
 			while (rs.next()) {
-				HashMap<String, String> curht = new HashMap<String, String>();
+				HashMap<String,String> curht = new HashMap<String,String>();
 				curht.put("fid", rsGetString(rs, "fid"));
 				curht.put("formName", rsGetString(rs, "form_name"));
 				curht.put("formSubject", rsGetString(rs, "subject"));
@@ -881,36 +625,7 @@ public class EFormUtil {
 				curht.put("formDate", rsGetString(rs, "form_date"));
 				curht.put("formTime", rsGetString(rs, "form_time"));
 				curht.put("roleType", rsGetString(rs, "roleType"));
-                                
-                                // filter eform by role type
-				if (curht.get("roleType") != null && !curht.get("roleType").equals("")) {
-					// ojectName: "_admin,_admin.eform"
-					// roleName: "doctor,admin"
-					String objectName = "_eform." + curht.get("roleType");
-					Vector v = OscarRoleObjectPrivilege.getPrivilegeProp(objectName);
-					if (!OscarRoleObjectPrivilege.checkPrivilege(userRoles, (Properties) v.get(0), (Vector) v.get(1))) {
-						continue;
-					}
-				}
-				
-				boolean restrictToProgram = rs.getBoolean("restrictToProgram");
-				Integer programNo = rs.getInt("programNo");
-				
-				//TODO filter out based on restrictions
-				boolean addIt=true;
-				if(restrictToProgram && programNo != null && programNo.intValue() > 0) {
-					addIt=false;
-					List<ProgramProvider> ppList = programManager2.getProgramDomain(loggedInInfo, loggedInInfo.getLoggedInProviderNo());
-					for(ProgramProvider pp:ppList) {
-						if(pp.getProgramId().intValue() == programNo) {
-							addIt=true;
-							break;
-						}
-					}
-				}
-				if(addIt) {
-					results.add(curht);
-				}
+				results.add(curht);
 			}
 			rs.close();
 		} catch (Exception sqe) {
@@ -919,47 +634,7 @@ public class EFormUtil {
 		return (results);
 	}
 
-	public static ArrayList<HashMap<String, ? extends Object>> listPatientEForms(LoggedInInfo loggedInInfo, String sortBy, String deleted, String demographic_no, String groupName, int offset, int numToReturn) {		
-
-		SecurityInfoManager secInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-		List<String> privs = new ArrayList<String>();
-		for(Secobjprivilege p: secInfoManager.getSecurityObjects(loggedInInfo)) {
-			if(p.getObjectname_code().startsWith("_eform.")) {
-				privs.add(p.getObjectname_code());
-			}
-		}
-		
-		Boolean current = true;
-		if(deleted.equals("deleted")) {
-			current=false;
-		} else if(deleted.equals("all")) {
-			current=null;
-		}
-		
-		
-		List<EFormData> results1 = eFormDataDao.findInGroups(current, Integer.valueOf(demographic_no), groupName, sortBy, offset, numToReturn, privs);
-		results1 = filterByRestricted(loggedInInfo,results1);
-		
-		
-		ArrayList<HashMap<String, ? extends Object>> results = new ArrayList<HashMap<String, ? extends Object>>();
-		
-		for(EFormData x:results1) {
-			HashMap<String, String> curht = new HashMap<String, String>();
-			curht.put("fdid", String.valueOf(x.getId()));
-			curht.put("fid", x.getId().toString());
-			curht.put("formName",x.getFormName());
-			curht.put("formSubject", x.getSubject());
-			curht.put("formDate",DateFormatUtils.ISO_DATE_FORMAT.format(x.getFormDate()));
-			curht.put("formTime",DateFormatUtils.ISO_TIME_NO_T_FORMAT.format(x.getFormTime()));
-			curht.put("roleType", x.getRoleType());
-			results.add(curht);
-		}
-		
-		return (results);
-	}
-	
-	@Deprecated
-	public static ArrayList<HashMap<String, ? extends Object>> listPatientEForms(LoggedInInfo loggedInInfo, String sortBy, String deleted, String demographic_no, String groupName, String userRoles) {
+	public static ArrayList<HashMap<String,? extends Object>> listPatientEForms(String sortBy, String deleted, String demographic_no, String groupName, String userRoles) {
 		// sends back a list of forms added to the patient
 		String sql = "";
 		if (deleted.equals("deleted")) {
@@ -970,30 +645,7 @@ public class EFormUtil {
 			sql = "SELECT * FROM eform_data, eform_groups WHERE eform_data.patient_independent=0 AND eform_data.demographic_no=" + demographic_no + " AND eform_data.fid=eform_groups.fid AND eform_groups.group_name='" + groupName + "' ORDER BY " + sortBy;
 		}
 		ResultSet rs = getSQL(sql);
-		ArrayList<HashMap<String, ? extends Object>> results = new ArrayList<HashMap<String, ? extends Object>>();
-		
-		Map<Integer,Integer> restrictedEforms = eFormDao.findRestrictedEforms();
-		List<ProgramProvider> ppList = programManager2.getProgramDomain(loggedInInfo, loggedInInfo.getLoggedInProviderNo());
-		
-		/*
-		for(EFormData efd:input) {
-			boolean addIt=true;
-			
-			if(restrictedEforms.get(efd.getFormId()) != null) {
-				addIt=false;
-				for(ProgramProvider pp:ppList) {
-					if(pp.getProgramId().intValue() == restrictedEforms.get(efd.getFormId())) {
-						addIt=true;
-						break;
-					}
-				}
-			}
-			
-			if(addIt) {
-				results.add(efd);
-			}
-		}*/
-		
+		ArrayList<HashMap<String,? extends Object>> results = new ArrayList<HashMap<String,? extends Object>>();
 		try {
 			while (rs.next()) {
 				// filter eform by role type
@@ -1006,22 +658,7 @@ public class EFormUtil {
 						continue;
 					}
 				}
-				boolean addIt=true;
-				int fid = rs.getInt("fid");
-				if(restrictedEforms.get(fid) != null) {
-					for(ProgramProvider pp:ppList) {
-						if(pp.getProgramId().intValue() == restrictedEforms.get(fid)) {
-							addIt=true;
-							break;
-						}
-					}
-					
-				}
-				if(!addIt) {
-					continue;
-				}
-				
-				HashMap<String, String> curht = new HashMap<String, String>();
+				HashMap<String,String> curht = new HashMap<String,String>();
 				curht.put("fdid", oscar.Misc.getString(rs, "fdid"));
 				curht.put("fid", rsGetString(rs, "fid"));
 				curht.put("formName", rsGetString(rs, "form_name"));
@@ -1029,306 +666,77 @@ public class EFormUtil {
 				curht.put("formDate", rsGetString(rs, "form_date"));
 				curht.put("formTime", rsGetString(rs, "form_time"));
 				curht.put("roleType", rsGetString(rs, "roleType"));
-				
 				results.add(curht);
 			}
 			rs.close();
 		} catch (Exception sqe) {
 			logger.error("Error", sqe);
 		}
-		
-		
 		return (results);
 	}
 
-	public static void writeEformTemplate(LoggedInInfo loggedInInfo, ArrayList<String> paramNames, ArrayList<String> paramValues, EForm eForm, String fdid, String programNo, String context_path) {
+	public static void writeEformTemplate(ArrayList<String> paramNames, ArrayList<String> paramValues, EForm eForm, String fdid, String programNo, String context_path) {
 		String text = eForm != null ? eForm.getTemplate() : null;
-		if (StringUtils.isBlank(text)) return;
+		if (blank(text)) return;
 
 		text = putTemplateValues(paramNames, paramValues, text);
 		text = putTemplateEformValues(eForm, fdid, context_path, text);
 		String[] template_echart = { "EncounterNote", "SocialHistory", "FamilyHistory", "MedicalHistory", "OngoingConcerns", "RiskFactors", "Reminders", "OtherMeds" };
 		String[] code = { "", "SocHistory", "FamHistory", "MedHistory", "Concerns", "RiskFactors", "Reminders", "OMeds" };
 		ArrayList<String> templates = new ArrayList<String>();
-		
-		/* write to echart
-		 * <EncounterNote {or another template_echart}>
-		 * 		content to write to echart
-		 * </EncounterNote>
-		 */
+
+		// write to echart
 		for (int i = 0; i < template_echart.length; i++) {
 			templates = getWithin(template_echart[i], text);
 			for (String template : templates) {
-				if (StringUtils.isBlank(template)) continue;
+				if (blank(template)) continue;
 
 				template = putTemplateEformHtml(eForm.getFormHtml(), template);
 				saveCMNote(eForm, fdid, programNo, code[i], template);
 			}
 		}
 
-		/* write to document
-		 * <document {optional:belong=provider/patient}>
-		 * 		<docdesc>{optional:documentDescription}</docdesc>
-		 * 		<docowner>{optional:provider_no/demographic_no}</docowner>
-		 * 		<content>
-		 * 			content to write to document
-		 * 		</content>
-		 * </document>
-		 */
+		// write to document
 		templates = getWhole("document", text);
 		for (String template : templates) {
-			if (StringUtils.isBlank(template)) continue;
+			if (blank(template)) continue;
 
+			String docDesc = getInfo("docdesc", template, eForm.getFormName());
 			String belong = getAttribute("belong", getBeginTag("document", template));
-			if (!"patient".equalsIgnoreCase(belong)) belong = "provider";
-			else belong = "demographic";
-			
-			String docOwner = getContent("docowner", template, null);
-			if (docOwner == null) {
-				if (belong.equals("demographic")) docOwner = eForm.getDemographicNo();
-				else docOwner = eForm.getProviderNo(); 
-			}
-			
-			String docDesc = getContent("docdesc", template, eForm.getFormName());
-			String docText = getContent("content", template, "");
+			if (blank(belong)) belong = "provider";
+			String docOwner = getInfo("docowner", template, eForm.getProviderNo());
+			if (belong.equalsIgnoreCase("patient")) docOwner = getInfo("docowner", template, eForm.getDemographicNo());
+			String docText = getContent(template);
 			docText = putTemplateEformHtml(eForm.getFormHtml(), docText);
 
-			if (NumberUtils.isDigits(docOwner)) {
-				EDoc edoc = new EDoc(docDesc, "forms", "html", docText, docOwner, eForm.getProviderNo(), "", 'H', eForm.getFormDate().toString(), "", null, belong, docOwner);
-				edoc.setContentType("text/html");
-				edoc.setDocPublic("0");
-				EDocUtil.addDocumentSQL(edoc);
-			}
-		}
-		
-		/* write to prevention
-		 * <prevention>
-		 * 		<type>{preventionType: must be identical to Oscar prevention types}</type>
-		 * 		<provider>{optional:providerNo}</provider>
-		 * 		<date>{optional:preventionDate}</date>
-		 * 		<status>{optional:completed/refused/ineligible}</status>
-		 * 		<name>{optional}</name>
-		 * 		<dose>{optional}</dose>
-		 * 		<manufacture>{optional}</manufacture>
-		 * 		<route>{optional}</route>
-		 * 		<lot>{optional}</lot>
-		 * 		<location>{optional}</location>
-		 * 		<comments>{optional}</comments>
-		 * 		<reason>{optional}</reason>
-		 * 		<result>{optional:pending/normal/abnormal/other}</result>
-		 * </prevention>
-		 */
-		
-		templates = getWithin("prevention", text);
-		for (String template : templates) {
-			if (StringUtils.isBlank(template)) continue;
-
-			String preventionType = getEqualIgnoreCase(preventionManager.getPreventionTypeList(loggedInInfo), getContent("type", template, null));
-			if (preventionType == null) continue;
-			
-			String preventionProvider = getContent("provider", template, eForm.getProviderNo());
-			String preventionDate = getContent("date", template, eForm.getFormDate());
-			String preventionStatus = getContent("status", template, "completed"); //completed(0)/refused(1)/ineligible(2)
-			
-			Prevention prevention = new Prevention();
-			prevention.setPreventionType(preventionType);
-			prevention.setPreventionDate(UtilDateUtilities.StringToDate(preventionDate, "yyyy-MM-dd"));
-			prevention.setProviderNo(preventionProvider);
-			prevention.setDemographicId(Integer.valueOf(eForm.getDemographicNo()));
-			prevention.setCreatorProviderNo(eForm.getProviderNo());
-			if (preventionStatus.equalsIgnoreCase("refused")) prevention.setRefused(true);
-			else if (preventionStatus.equalsIgnoreCase("ineligible")) prevention.setIneligible(true);
-			
-			ProgramProvider pp = programManager2.getCurrentProgramInDomain(loggedInInfo, loggedInInfo.getLoggedInProviderNo());
-			if(pp != null && pp.getProgramId() != null) {
-				prevention.setProgramNo(pp.getProgramId().intValue());
-			}
-			
-			HashMap<String, String> extHash = new HashMap<String, String>();
-			String extData = null;
-			if ((extData = getContent("name", template, null)) != null) extHash.put("name", extData);
-			if ((extData = getContent("dose", template, null)) != null) extHash.put("dose", extData);
-			if ((extData = getContent("manufacture", template, null)) != null) extHash.put("manufacture", extData);
-			if ((extData = getContent("route", template, null)) != null) extHash.put("route", extData);
-			if ((extData = getContent("lot", template, null)) != null) extHash.put("lot", extData);
-			if ((extData = getContent("location", template, null)) != null) extHash.put("location", extData);
-			if ((extData = getContent("comments", template, null)) != null) extHash.put("comments", extData);
-			if ((extData = getContent("reason", template, null)) != null) extHash.put("reason", extData);
-			if ((extData = getContent("result", template, null)) != null) {
-				extData = extData.toLowerCase();
-				if (extData.equals("pending") || extData.equals("normal") || extData.equals("abnormal") || extData.equals("other")) {
-					extHash.put("result", extData);
-				}
-			}
-			preventionManager.addPreventionWithExts(prevention, extHash);
+                        if (NumberUtils.isDigits(docOwner)) {
+                            EDoc edoc = new EDoc(docDesc,"forms","html",docText,docOwner,eForm.getProviderNo(),"",'H',eForm.getFormDate().toString(),"",null,belong,docOwner);
+                            edoc.setContentType("text/html");
+                            edoc.setDocPublic("0");
+                            EDocUtil.addDocumentSQL(edoc);
+                        }
 		}
 
-		/* write to message
-		 * <message>
-		 * 		<subject>{optional}</subject>
-		 * 		<sendto>{list of providerNo to receive message, separated by comma}</sendto>
-		 * 		<content>
-		 * 			content of message
-		 * 		</content>
-		 * </message>
-		 */
+		// write to message
 		templates = getWithin("message", text);
 		for (String template : templates) {
-			if (StringUtils.isBlank(template)) continue;
+			if (blank(template)) continue;
 
-			String subject = getContent("subject", template, eForm.getFormName());
+			String subject = getInfo("subject", template, eForm.getFormName());
 			String sentWho = getSentWho(template);
 			String[] sentList = getSentList(template);
 			String userNo = eForm.getProviderNo();
-			String userName = providerDao.getProviderName(eForm.getProviderNo());
-			String message = getContent("content", template, "");
+			String userName = getProviderName(eForm.getProviderNo());
+			String message = getContent(template);
 			message = putTemplateEformHtml(eForm.getFormHtml(), message);
 
 			MsgMessageData msg = new MsgMessageData();
-			msg.sendMessage2(message, subject, userName, sentWho, userNo, msg.getProviderStructure(sentList), null, null, OscarMsgType.GENERAL_TYPE);
+			msg.sendMessage2(message, subject, userName, sentWho, userNo, msg.getProviderStructure(sentList), null, null);
 		}
-		
-		/* write to ticklers
-		 * <tickler>
-		 * 		<taskAssignedTo>{providerNo}</taskAssignedTo>
-		 * 		<tickMsg>
-		 * 			message of the tickler
-		 * 		</tickMsg>
-		 * </tickler>
-		 */
-		templates = getWithin("tickler", text);
-		for (String template : templates) {
-			if (StringUtils.isBlank(template)) continue;
-			
-			String taskAssignedTo = getContent("taskAssignedTo", template, null);
-			if (taskAssignedTo==null) continue; //no assignee
-			if (providerDao.getProvider(taskAssignedTo.trim())==null) continue; //assignee provider no not exists
-			
-			String message = getContent("tickMsg", template, "");
-			Tickler tickler = new Tickler();
-			tickler.setTaskAssignedTo(taskAssignedTo);
-			tickler.setMessage(message);
-			tickler.setDemographicNo(Integer.valueOf(eForm.getDemographicNo()));
-			tickler.setCreator(eForm.getProviderNo());
-			
-			ProgramManager2 programManager = SpringUtils.getBean(ProgramManager2.class);
-			ProgramProvider pp = programManager.getCurrentProgramInDomain(loggedInInfo,loggedInInfo.getLoggedInProviderNo());
-			
-			if(pp != null) {
-				tickler.setProgramId(pp.getProgramId().intValue());
-			}
-			
-			ticklerDao.persist(tickler);
-		}
-		
-		/* write to consult request
-		 * <consultRequest>
-		 * 		<referredToService></referredToService>
-		 * 		<referredToSpecialist></referredToSpecialist>
-		 * 		<urgency></urgency>
-		 * 		<referredBy></referredBy>
-		 * 		<referralDate></referralDate>
-		 * 		<reason>
-		 * 			reason
-		 * 		</reason>
-		 * 		<clinicalInfo>
-		 * 			clinicalInfo
-		 * 		</clinicalInfo>
-		 * 		<currentMeds>
-		 * 			currentMeds
-		 * 		</currentMeds>
-		 * 		<allergies>
-		 * 			allergies
-		 * 		</allergies>
-		 * 		<concurrentProblems>
-		 * 			concurrentProblems
-		 * 		</concurrentProblems>
-		 *		<patientWillBook></patientWillBook>
-		 *		<letterheadName></letterheadName>
-		 *		<letterheadAddresss></letterheadAddresss>
-		 *		<letterheadPhone></letterheadPhone>
-		 *		<letterheadFax></letterheadFax>
-		 *		<status></status>
-		 *		<source></source>
-		 * </consultRequest>
-		 */
-		templates = getWithin("consultRequest", text);
-		for (String template : templates) {
-			if (StringUtils.isBlank(template)) continue;
-			
-			String referredToService = getContent("referredToService", template, null);
-			String referredToSpecialist = getContent("referredToSpecialist", template, null);
-			String referredBy = getContent("referredBy", template, null);
-			
-			String urgency = getContent("urgency", template, null);
-			String referralDate = getContent("referralDate", template, null);
-			String reason = getContent("reason", template, "");
-			String clinicalInfo = getContent("clinicalInfo", template, "");
-			String currentMeds = getContent("currentMeds", template, "");
-			String allergies = getContent("allergies", template, "");
-			String concurrentProblems = getContent("concurrentProblems", template, "");
-			
-			String patientWillBook = getContent("patientWillBook", template, null);
-			String letterheadName = getContent("letterheadName", template, null);
-			String letterheadAddress = getContent("letterheadAddress", template, null);
-			String letterheadPhone = getContent("letterheadPhone", template, null);
-			String letterheadFax = getContent("letterheadFax", template, null);
-			String status = getContent("urgency", template, null);
-			String source = getContent("source",template,"");
-			
-			ConsultationRequest consult = new ConsultationRequest();
-			
-			ProfessionalSpecialist ps = professionalSpecialistDao.find(Integer.parseInt(referredToSpecialist));
-			if(ps == null) continue;
-			if(referredToService == null || referredBy == null) continue;
-			
-			consult.setServiceId(Integer.parseInt(referredToService));
-			consult.setDemographicId(Integer.parseInt(eForm.getDemographicNo()));
-			consult.setProviderNo(referredBy);
-			consult.setFdid(Integer.parseInt(fdid));
-			
-			if(referralDate != null) {
-				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-				try {
-					consult.setReferralDate(sdf.parse(referralDate));
-				}catch(ParseException e) {}
-			} else {
-				consult.setReferralDate(new Date());
-			}
-			
-			consult.setReasonForReferral(reason);
-			consult.setClinicalInfo(clinicalInfo);
-			consult.setCurrentMeds(currentMeds);
-			consult.setAllergies(allergies);
-			consult.setConcurrentProblems(concurrentProblems);
-			
-			consult.setUrgency(urgency!=null?urgency:"2");
-			consult.setStatus(status != null?status:"1");
-			consult.setSendTo("-1");
-			consult.setPatientWillBook(patientWillBook!=null?Boolean.valueOf(patientWillBook):false);
-	
-			consult.setSource(source);
-			
-			ClinicData clinic = new ClinicData();
-			
-			consult.setLetterheadName(letterheadName!=null?letterheadName:clinic.getClinicName());
-			consult.setLetterheadAddress(letterheadAddress!=null?letterheadAddress:clinic.getClinicAddress() + " " + clinic.getClinicCity() + " " + clinic.getClinicProvince() + " " + clinic.getClinicPostal());
-			consult.setLetterheadPhone(letterheadPhone!=null?letterheadPhone:clinic.getClinicPhone());
-			consult.setLetterheadFax(letterheadFax!=null?letterheadFax:clinic.getClinicFax());
-			
-			
-			consultationRequestDao.persist(consult);
-			
-			consult.setProfessionalSpecialist(ps);
-			consultationRequestDao.merge(consult);
-			
-			
-		}
-		
 	}
 
 	public static int findIgnoreCase(String phrase, String text, int start) {
-		if (StringUtils.isBlank(phrase) || StringUtils.isBlank(text)) return -1;
+		if (blank(phrase) || blank(text)) return -1;
 
 		text = text.toLowerCase();
 		phrase = phrase.toLowerCase();
@@ -1336,15 +744,15 @@ public class EFormUtil {
 	}
 
 	public static String removeQuotes(String s) {
-		if (StringUtils.isBlank(s)) return s;
+		if (blank(s)) return s;
 
 		s = s.trim();
-		if (StringUtils.isBlank(s)) return s;
+		if (blank(s)) return s;
 
-		if (s.charAt(0) == '"' && s.charAt(s.length() - 1) == '"') s = s.substring(1, s.length() - 1);
-		if (StringUtils.isBlank(s)) return s;
+                if (s.charAt(0)=='"' && s.charAt(s.length()-1)=='"') s = s.substring(1, s.length()-1);
+		if (blank(s)) return s;
 
-		if (s.charAt(0) == '\'' && s.charAt(s.length() - 1) == '\'') s = s.substring(1, s.length() - 1);
+                if (s.charAt(0)=='\'' && s.charAt(s.length()-1)=='\'') s = s.substring(1, s.length()-1);
 		return s.trim();
 	}
 
@@ -1353,7 +761,7 @@ public class EFormUtil {
 	}
 
 	public static String getAttribute(String key, String htmlTag, boolean startsWith) {
-		if (StringUtils.isBlank(key) || StringUtils.isBlank(htmlTag)) return null;
+		if (blank(key) || blank(htmlTag)) return null;
 
 		Matcher m = getAttributeMatcher(key, htmlTag, startsWith);
 		if (m == null) return null;
@@ -1367,7 +775,7 @@ public class EFormUtil {
 
 	public static int getAttributePos(String key, String htmlTag) {
 		int pos = -1;
-		if (StringUtils.isBlank(key) || StringUtils.isBlank(htmlTag)) return pos;
+		if (blank(key) || blank(htmlTag)) return pos;
 
 		Matcher m = getAttributeMatcher(key, htmlTag, false);
 		if (m == null) return pos;
@@ -1375,86 +783,36 @@ public class EFormUtil {
 		return m.start();
 	}
 
-	public static ArrayList<String> listRichTextLetterTemplates() {
-		String imagePath = OscarProperties.getInstance().getProperty("eform_image");
-		MiscUtils.getLogger().debug("Img Path: " + imagePath);
-		File dir = new File(imagePath);
-		String[] files = DisplayImageAction.getRichTextLetterTemplates(dir);
-		ArrayList<String> fileList;
-		if (files != null) fileList = new ArrayList<String>(Arrays.asList(files));
-		else fileList = new ArrayList<String>();
-
-		return fileList;
+	public static boolean blank(String s) {
+		return (s == null || s.trim().equals(""));
 	}
-	
-	public static ArrayList<HashMap<String, ? extends Object>> getFormsSameFidSamePatient(String fdid, String sortBy, String userRoles)
-	{
-		List<EFormData> allEformDatas =  eFormDataDao.getFormsSameFidSamePatient(Integer.valueOf(fdid));
 
-		if (SUBJECT.equals(sortBy)) Collections.sort(allEformDatas, EFormData.FORM_SUBJECT_COMPARATOR);
-		else Collections.sort(allEformDatas, EFormData.FORM_DATE_COMPARATOR);
-
-		ArrayList<HashMap<String, ? extends Object>> results = new ArrayList<HashMap<String, ? extends Object>>();
+	// ------------------private
+	private static void runSQL(String sql) {
 		try {
-			for (EFormData eFormData : allEformDatas) {
-				// filter eform by role type
-				String tempRole = StringUtils.trimToNull(eFormData.getRoleType());
-				if (userRoles != null && tempRole != null) {
-					// ojectName: "_admin,_admin.eform"
-					// roleName: "doctor,admin"
-					String objectName = "_eform." + tempRole;
-					Vector v = OscarRoleObjectPrivilege.getPrivilegeProp(objectName);
-					if (!OscarRoleObjectPrivilege.checkPrivilege(userRoles, (Properties) v.get(0), (Vector) v.get(1))) {
-						continue;
-					}
-				}
-				HashMap<String, Object> curht = new HashMap<String, Object>();
-				curht.put("fdid", eFormData.getId().toString());
-				curht.put("fid", eFormData.getFormId().toString());
-				curht.put("formName", eFormData.getFormName());
-				curht.put("formSubject", eFormData.getSubject());
-				curht.put("formDate", eFormData.getFormDate().toString());
-				curht.put("formTime", eFormData.getFormTime().toString());
-				curht.put("formDateAsDate", eFormData.getFormDate());
-				curht.put("roleType", eFormData.getRoleType());
-				curht.put("providerNo", eFormData.getProviderNo());
-				results.add(curht);
-			}
-		} catch (Exception sqe) {
+
+			DBHandler.RunSQL(sql);
+		} catch (SQLException sqe) {
 			logger.error("Error", sqe);
 		}
-		return (results);
 	}
 
+	private static String runSQLinsert(String sql) {
+		try {
 
-	public static List<EFormData> listPatientEFormsShowLatestOnly(String demographicNo) {
-		//return all current eforms belonging to patient
-		//if eform is showLatestFormOnly, return only the latest one
-		
-		List<EFormData> list = new ArrayList<EFormData>();
-		List<EFormData> currentEForms = eFormDataDao.findByDemographicIdCurrent(NumberUtils.toInt(demographicNo), true);
-		if (currentEForms==null) return list;
-		
-		for (EFormData eform : currentEForms) {
-			if (eform.isShowLatestFormOnly()) {
-				if (EFormUtil.isLatestShowLatestFormOnlyPatientForm(eform.getId())) {
-					list.add(eform);
-				}
-			} else {
-				list.add(eform);
-			}
+			DBHandler.RunSQL(sql);
+			sql = "SELECT LAST_INSERT_ID()";
+			ResultSet rs = DBHandler.GetSQL(sql);
+			rs.next();
+			String lastID = oscar.Misc.getString(rs, "LAST_INSERT_ID()");
+			rs.close();
+			return (lastID);
+		} catch (SQLException sqe) {
+			logger.error("Error", sqe);
 		}
-		return list;
+		return "";
 	}
-	
-    public static boolean isLatestShowLatestFormOnlyPatientForm(Integer fdid)
-    {
-    	return eFormDataDao.isLatestShowLatestFormOnlyPatientForm(fdid);
-    }
 
-	
-	
-	@Deprecated
 	private static ResultSet getSQL(String sql) {
 		ResultSet rs = null;
 		try {
@@ -1466,17 +824,6 @@ public class EFormUtil {
 		return (rs);
 	}
 
-	private static void setFormStatus(String fid, boolean status) {
-		EFormDao dao = SpringUtils.getBean(EFormDao.class);
-		org.oscarehr.common.model.EForm eform = dao.find(ConversionUtils.fromIntString(fid));
-		if (eform == null) {
-			logger.error("Unable to find EForm for " + fid);
-			return;
-		}
-		eform.setCurrent(status);
-		dao.merge(eform);
-	}
-
 	private static String rsGetString(ResultSet rs, String column) throws SQLException {
 		// protects agianst null values;
 		String thisStr = oscar.Misc.getString(rs, column);
@@ -1486,7 +833,7 @@ public class EFormUtil {
 
 	private static Matcher getAttributeMatcher(String key, String htmlTag, boolean startsWith) {
 		Matcher m_return = null;
-		if (StringUtils.isBlank(key) || StringUtils.isBlank(htmlTag)) return m_return;
+		if (blank(key) || blank(htmlTag)) return m_return;
 
 		Pattern p = Pattern.compile("\\b[^\\s'\"=>]+[ ]*=[ ]*\"[^\"]*\"|\\b[^\\s'\"=>]+[ ]*=[ ]*'[^']*'|\\b[^\\s'\"=>]+[ ]*=[ ]*[^ >]*|\\b[^\\s>]+", Pattern.CASE_INSENSITIVE);
 		Matcher m = p.matcher(htmlTag);
@@ -1506,7 +853,7 @@ public class EFormUtil {
 	}
 
 	private static String putTemplateValues(ArrayList<String> paramNames, ArrayList<String> paramValues, String template) {
-		if (StringUtils.isBlank(template)) return template;
+		if (blank(template)) return template;
 
 		String tag = "$t{";
 		String nwTemplate = "";
@@ -1518,10 +865,10 @@ public class EFormUtil {
 			pointer = fieldEnd + 1;
 			String field = template.substring(fieldBegin + tag.length(), fieldEnd);
 			if (paramNames.contains(field)) {
-				nwTemplate += paramValues.get(paramNames.indexOf(field));
+				nwTemplate +=  paramValues.get(paramNames.indexOf(field));
 			} else {
-				nwTemplate += "";
-				logger.debug("Cannot find input name {" + field + "} in eform");
+				nwTemplate += "{" + field + "}";
+				logger.error("EForm Template Error! Cannot find input name {" + field + "} in eform");
 			}
 		}
 		nwTemplate += template.substring(pointer, template.length());
@@ -1529,7 +876,7 @@ public class EFormUtil {
 	}
 
 	private static String putTemplateEformValues(EForm eForm, String fdid, String path, String template) {
-		if (eForm == null || StringUtils.isBlank(template)) return template;
+		if (eForm == null || blank(template)) return template;
 
 		String[] efields = { "name", "subject", "patient", "provider", "link" };
 		String[] eValues = { eForm.getFormName(), eForm.getFormSubject(), eForm.getDemographicNo(), eForm.getProviderNo(), "<a href='" + path + "/eform/efmshowform_data.jsp?fdid=" + fdid + "' target='_blank'>" + eForm.getFormName() + "</a>" };
@@ -1556,8 +903,8 @@ public class EFormUtil {
 				}
 			}
 			if (!match) {
-				nwTemplate += "";
-				logger.debug("Cannot find input name {" + field + "} in eform");
+				nwTemplate += "{" + field + "}";
+				logger.error("EForm Template Error! Cannot find input name {" + field + "} in eform");
 			}
 		}
 		nwTemplate += template.substring(pointer, template.length());
@@ -1565,7 +912,7 @@ public class EFormUtil {
 	}
 
 	private static String putTemplateEformHtml(String html, String template) {
-		if (StringUtils.isBlank(html) || StringUtils.isBlank(template)) return "";
+		if (blank(html) || blank(template)) return "";
 
 		html = removeAction(html);
 		String tag = "$te{eform.html}";
@@ -1582,7 +929,7 @@ public class EFormUtil {
 	}
 
 	private static String removeAction(String html) {
-		if (StringUtils.isBlank(html)) return html;
+		if (blank(html)) return html;
 
 		Pattern p = Pattern.compile("<form[^<>]*>", Pattern.CASE_INSENSITIVE);
 		Matcher m = p.matcher(html);
@@ -1601,10 +948,10 @@ public class EFormUtil {
 	}
 
 	private static void saveCMNote(EForm eForm, String fdid, String programNo, String code, String note) {
-		if (StringUtils.isBlank(note)) return;
+		if (blank(note)) return;
 
 		CaseManagementNote cNote = createCMNote(eForm.getDemographicNo(), eForm.getProviderNo(), programNo, note);
-		if (!StringUtils.isBlank(code)) {
+		if (!blank(code)) {
 			Set<CaseManagementIssue> scmi = createCMIssue(eForm.getDemographicNo(), code);
 			cNote.setIssues(scmi);
 		}
@@ -1622,11 +969,11 @@ public class EFormUtil {
 		cmNote.setSigning_provider_no(providerNo);
 		cmNote.setSigned(true);
 		cmNote.setHistory("");
-
+		
 		SecRoleDao secRoleDao = (SecRoleDao) SpringUtils.getBean("secRoleDao");
-		SecRole doctorRole = secRoleDao.findByName("doctor");
-		cmNote.setReporter_caisi_role(doctorRole.getId().toString());
-
+		SecRole doctorRole = secRoleDao.findByName("doctor");		
+		cmNote.setReporter_caisi_role(doctorRole.getId().toString());		
+		
 		cmNote.setReporter_program_team("0");
 		cmNote.setProgram_no(programNo);
 		cmNote.setUuid(UUID.randomUUID().toString());
@@ -1640,7 +987,7 @@ public class EFormUtil {
 		CaseManagementIssue cmIssu = cmm.getIssueById(demographicNo, isu.getId().toString());
 		if (cmIssu == null) {
 			cmIssu = new CaseManagementIssue();
-			cmIssu.setDemographic_no(Integer.valueOf(demographicNo));
+			cmIssu.setDemographic_no(demographicNo);
 			cmIssu.setIssue_id(isu.getId());
 			cmIssu.setType(isu.getType());
 			cmm.saveCaseIssue(cmIssu);
@@ -1653,7 +1000,7 @@ public class EFormUtil {
 
 	private static ArrayList<Integer> getFieldIndices(String fieldtag, String s) {
 		ArrayList<Integer> fieldIndexList = new ArrayList<Integer>();
-		if (StringUtils.isBlank(fieldtag) || StringUtils.isBlank(s)) return fieldIndexList;
+		if (blank(fieldtag) || blank(s)) return fieldIndexList;
 
 		fieldtag = fieldtag.toLowerCase();
 		s = s.toLowerCase();
@@ -1668,26 +1015,29 @@ public class EFormUtil {
 		return fieldIndexList;
 	}
 
-	private static String getContent(String tag, String template, String dflt) {
-		ArrayList<String> contents = getWithin(tag, template);
-		if (contents.isEmpty()) return dflt;
+	private static String getInfo(String tag, String template, String deflt) {
+		if (blank(tag) || blank(template)) return deflt;
+
+		ArrayList<String> infos = getWithin(tag, template);
+		if (infos.isEmpty()) return deflt;
+
+		String info = infos.get(0).replaceAll("\\s", "");
+		return blank(info) ? deflt : info;
+	}
+
+	private static String getContent(String template) {
+		ArrayList<String> contents = getWithin("content", template);
+		if (contents.isEmpty()) return "";
 
 		String content = contents.get(0).trim();
-		
-		while (content.length()>0 && Character.isWhitespace(content.charAt(0))) {
-			content = content.substring(1);
-			content = content.trim();
-		}
-		while (content.length()>0 && Character.isWhitespace(content.charAt(content.length()-1))) {
-			content = content.substring(0, content.length()-1);
-			content = content.trim();
-		}
+		if (content.startsWith("\n")) content = content.substring(1); // remove 1st line break, UNIX style
+		else if (content.startsWith("\r\n")) content = content.substring(2); // remove 1st line break, WINDOWS style
 		return content;
 	}
 
 	private static ArrayList<String> getWithin(String tag, String s) {
 		ArrayList<String> within = new ArrayList<String>();
-		if (StringUtils.isBlank(tag) || StringUtils.isBlank(s)) return within;
+		if (blank(tag) || blank(s)) return within;
 
 		ArrayList<String> w = getWhole(tag, s);
 		for (String whole : w) {
@@ -1700,7 +1050,7 @@ public class EFormUtil {
 
 	private static ArrayList<String> getWhole(String tag, String s) {
 		ArrayList<String> whole = new ArrayList<String>();
-		if (StringUtils.isBlank(tag) || StringUtils.isBlank(s)) return whole;
+		if (blank(tag) || blank(s)) return whole;
 
 		String sBegin = "<" + tag;
 		String sEnd = "</" + tag + ">";
@@ -1736,15 +1086,26 @@ public class EFormUtil {
 	}
 
 	private static String getBeginTag(String tag, String template) {
-		if (StringUtils.isBlank(tag) || StringUtils.isBlank(template)) return "";
+		if (blank(tag) || blank(template)) return "";
 
 		Pattern p = Pattern.compile("<" + tag + "[^<>]*>", Pattern.CASE_INSENSITIVE);
 		Matcher m = p.matcher(template);
 		return m.find() ? m.group() : "";
 	}
 
+	private static String getProviderName(String providerNo) {
+                if (blank(providerNo)) return null;
+
+		ProviderData pd = new ProviderData(providerNo);
+		String firstname = pd.getFirst_name();
+		String lastname = pd.getLast_name();
+		String name = blank(firstname) ? "" : firstname;
+		name += blank(lastname) ? "" : " " + lastname;
+		return name;
+	}
+
 	private static String[] getSentList(String msgtxt) {
-		String sentListTxt = getContent("sendto", msgtxt, "");
+		String sentListTxt = getInfo("sendto", msgtxt, "");
 		String[] sentList = sentListTxt.split(",");
 		for (int i = 0; i < sentList.length; i++) {
 			sentList[i] = sentList[i].trim();
@@ -1756,74 +1117,28 @@ public class EFormUtil {
 		String[] sentList = getSentList(msgtxt);
 		String sentWho = "";
 		for (String sent : sentList) {
-			sent = providerDao.getProviderName(sent);
-			if( !StringUtils.isBlank(sent) ) {
-				if (!StringUtils.isBlank(sentWho) ) {
-					sentWho += ", " + sent;
-				} else {
-					sentWho += sent;
-				}
+			sent = getProviderName(sent);
+			if (!blank(sentWho) && !blank(sent)) {
+				sentWho += ", " + sent;
+			} else {
+				sentWho += sent;
 			}
 		}
 		return sentWho;
 	}
+	
+	public static ArrayList<String> listRichTextLetterTemplates() {
+		String imagePath = OscarProperties.getInstance().getProperty("eform_image");
+		MiscUtils.getLogger().debug("Img Path: " + imagePath);
+		File dir = new File(imagePath);
+		String[] files = DisplayImageAction.getRichTextLetterTemplates(dir);
+		ArrayList<String> fileList;
+		if( files != null )
+			fileList = new ArrayList<String>(Arrays.asList(files));
+		else
+			fileList = new ArrayList<String>();
 
-	private static void sortByProviderName(List<EFormData> allEformDatas) {
-		if (allEformDatas == null || allEformDatas.isEmpty()) return;
-		
-		for (int i=allEformDatas.size()-1; i>0; i--) {
-			
-			boolean swapped = false;
-			for (int j=0; j<i; j++) {
-				String providerName = providerDao.getProviderNameLastFirst(allEformDatas.get(j).getProviderNo());
-				String providerNamePlus = providerDao.getProviderNameLastFirst(allEformDatas.get(j+1).getProviderNo());
-				
-				if (providerName.compareToIgnoreCase(providerNamePlus)>0) {
-					EFormData tmp = allEformDatas.get(j);
-					allEformDatas.set(j, allEformDatas.get(j+1));
-					allEformDatas.set(j+1, tmp);
-					swapped = true;
-				}
-			}
-			if (!swapped) break;
-		}
+		return fileList;
 	}
-	
-	private static String getEqualIgnoreCase(ArrayList<String> lst, String str) {
-		if (lst==null || lst.isEmpty() || StringUtils.isBlank(str)) return null;
-		
-		for (String strLst : lst) {
-			if (str.trim().equalsIgnoreCase(strLst.trim())) return strLst.trim();
-		}
-		return null;
-	}
-	
-	/** 
-	 * Local EFormData Factory
-	 */
-	public static EFormData toEFormData( EForm eForm ) {
-		EFormData eFormData=new EFormData();
-		eFormData.setFormId(Integer.parseInt(eForm.getFid()));
-		eFormData.setFormName(eForm.getFormName());
-		eFormData.setSubject(eForm.getFormSubject());
-		eFormData.setDemographicId(Integer.parseInt(eForm.getDemographicNo()));
-		eFormData.setCurrent(true);
-		eFormData.setFormDate(new Date());
-		eFormData.setFormTime(eFormData.getFormDate());
-		eFormData.setProviderNo(eForm.getProviderNo());
-		eFormData.setFormData(eForm.getFormHtml());
-		eFormData.setShowLatestFormOnly(eForm.isShowLatestFormOnly());
-		eFormData.setPatientIndependent(eForm.isPatientIndependent());
-		eFormData.setRoleType(eForm.getRoleType());
 
-		return(eFormData);
-	}
-	
-	public static boolean shouldDisableUpdateForEForm(Integer fid) {
-		org.oscarehr.common.model.EForm eform = eFormDao.find(fid);
-		if(eform != null) {
-			return eform.isDisableUpdate();
-		}
-		return false;
-	}
 }

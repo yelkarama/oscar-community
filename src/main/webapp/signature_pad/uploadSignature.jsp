@@ -31,17 +31,17 @@
 <%
 	String signatureId = "";
 	try {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+		LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
 		String filename = DigitalSignatureUtils
 				.getTempFilePath(request
 						.getParameter(DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY));
-		
+		FileOutputStream fos = new FileOutputStream(filename);
+
 		String uploadSource = request.getParameter("source");
 
 		if (uploadSource != null
 				&& uploadSource.equalsIgnoreCase("IPAD")) {
-                    
-			FileOutputStream fos = new FileOutputStream(filename);
+			
 			String imageString = request.getParameter("signatureImage");
 			imageString = imageString.substring(imageString.indexOf(",")+1);
 			
@@ -58,9 +58,8 @@
 			fos.close();
 			
 			MiscUtils.getLogger().debug("Signature uploaded: " + filename + ", size=" + imageData.length);
-		} else if (uploadSource == null){
+		} else {
 
-                        FileOutputStream fos = new FileOutputStream(filename);
 			int i = 0;
 			int counter = 0;
 			InputStream is = request.getInputStream();
@@ -79,8 +78,8 @@
 		
 		boolean saveToDB = "true".equals(request.getParameter("saveToDB")); 
 		if (saveToDB) {
-			
 			Integer demo; 
+			
 			try {
 				demo = Integer.parseInt(request.getParameter("demographicNo"));
 			}

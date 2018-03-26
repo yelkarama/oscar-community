@@ -24,11 +24,13 @@
 
 --%>
 
-<%@page import="org.oscarehr.util.WebUtilsOld"%>
-<%@page import="org.oscarehr.myoscar.utils.MyOscarLoggedInInfo"%>
 <%@page import="org.oscarehr.util.LocaleUtils"%>
+<%@page import="org.oscarehr.phr.PHRAuthentication"%>
 <%@page import="org.oscarehr.phr.util.MyOscarUtils"%>
 <%@page import="org.oscarehr.util.WebUtils"%>
+<%
+  if(session.getValue("user") == null) response.sendRedirect("../../logout.jsp");
+%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
@@ -41,21 +43,6 @@
 <%
     EctSessionBean bean = (EctSessionBean)request.getSession().getAttribute("EctSessionBean");
     MeasurementMapConfig measurementMapConfig = new MeasurementMapConfig();
-%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_measurement" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../securityError.jsp?type=_measurement");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
 %>
 
 <html:html locale="true">
@@ -79,17 +66,17 @@ if(!authed) {
 <body topmargin="0" leftmargin="0" vlink="#0000FF"
 	onload="window.focus();">
 <html:errors />
-<%=WebUtilsOld.popErrorAndInfoMessagesAsHtml(session)%>
+<%=WebUtils.popErrorAndInfoMessagesAsHtml(session)%>
 
 <div style="display:inline-block; text-align:center">
-	<bean:message key="oscarEncounter.oscarMeasurements.oldmesurementindex"/>
+	Old Measurements Index
 	
 	<table>
 		<tr>
 			<th align="left" class="Header" width="20"><bean:message
 				key="oscarEncounter.oscarMeasurements.displayHistory.headingType" />
 			</th>
-			<th align="left" class="Header" width="200"><bean:message key="oscarEncounter.oscarMeasurements.typedescription"/></th>
+			<th align="left" class="Header" width="200">Type Description</th>
 			<th align="left" class="Header" width="50"></th>
 		</tr>
 		<logic:present name="measurementsData">
@@ -114,17 +101,17 @@ if(!authed) {
 	</logic:present>
 	
 	<%
-		if (MyOscarUtils.isMyOscarEnabled((String) session.getAttribute("user")))
+		if (MyOscarUtils.isVisibleMyOscarSendButton())
 		{
-			MyOscarLoggedInInfo myOscarLoggedInInfo=MyOscarLoggedInInfo.getLoggedInInfo(session);
-			boolean enabledMyOscarButton=MyOscarUtils.isMyOscarSendButtonEnabled(myOscarLoggedInInfo, Integer.valueOf(bean.getDemographicNo()));
+			PHRAuthentication auth=MyOscarUtils.getPHRAuthentication(session);
+			boolean enabledMyOscarButton=MyOscarUtils.isMyOscarSendButtonEnabled(auth, Integer.valueOf(bean.getDemographicNo()));
 
 			String sendDataPath = request.getContextPath() + "/phr/send_medicaldata_to_myoscar.jsp?"
 					+ "demographicId=" + bean.getDemographicNo() + "&"
 					+ "medicalDataType=Measurements" + "&"
 					+ "parentPage=" + request.getRequestURI(); 
 			%>
-				<input type="button" name="Button" <%=WebUtils.getDisabledString(enabledMyOscarButton)%> value="<%=LocaleUtils.getMessage(request, "SendToPHR")%>" onclick="document.location.href='<%=sendDataPath%>'">
+				<input type="button" name="Button" <%=WebUtils.getDisabledString(enabledMyOscarButton)%> value="<%=LocaleUtils.getMessage(request, "SendToMyOscar")%>" onclick="document.location.href='<%=sendDataPath%>'">
 			<%
 		}
 	%>

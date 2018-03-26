@@ -34,6 +34,7 @@
 
 package oscar.oscarDemographic.pageUtil;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -45,9 +46,6 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.oscarDemographic.data.DemographicMerged;
 
@@ -58,19 +56,12 @@ import oscar.oscarDemographic.data.DemographicMerged;
 public class DemographicMergeRecordAction  extends Action {
 
     Logger logger = Logger.getLogger(DemographicMergeRecordAction.class);
-    private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-    
+
     public DemographicMergeRecordAction() {
 
     }
     public ActionForward execute(ActionMapping mapping,ActionForm form,HttpServletRequest request,HttpServletResponse response) {
 
-    	LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
-    	
-    	if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_demographic", "w", null)) {
-			throw new SecurityException("missing required security object (_demographic)");
-		}
-    	
         if (request.getParameterValues("records")==null) {
             return mapping.findForward("failure");
         }
@@ -85,16 +76,24 @@ public class DemographicMergeRecordAction  extends Action {
 
             for (int i=0; i < records.size(); i++){
                 if (!( records.get(i)).equals(head))
-                     dmDAO.Merge( loggedInInfo, records.get(i), head);
-                    
+                    try{
+                        dmDAO.Merge( records.get(i), head);
+                    }catch(SQLException e){
+                        logger.error("Could not merged records: "+records.get(i)+","+head, e);
+                        outcome = "failure";
+                    }
             }
 
         }else if(action.equals("unmerge") && records.size() > 0){
             outcome = "successUnMerge";
             for (int i=0; i < records.size(); i++){
                 String demographic_no = records.get(i);
-                dmDAO.UnMerge(loggedInInfo, demographic_no, provider_no);
-               
+                try{
+                    dmDAO.UnMerge(demographic_no, provider_no);
+                }catch(SQLException e){
+                    logger.error("Could not unmerge the record: "+records.get(i), e);
+                    outcome = "failureUnMerge";
+                }
             }
 
         }else{

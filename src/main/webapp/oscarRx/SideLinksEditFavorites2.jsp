@@ -23,35 +23,17 @@
     Ontario, Canada
 
 --%>
-<%@page import="org.oscarehr.common.dao.DxresearchDAO"%>
-<%@page import="org.oscarehr.common.model.Dxresearch"%>
 <%@page import="oscar.oscarRx.data.RxPatientData"%>
-<%@page import="org.oscarehr.util.SpringUtils" %>
-<%@page import="org.oscarehr.managers.CodingSystemManager" %>
-<%@page import="org.apache.commons.lang.StringEscapeUtils"%>
-<%@page import="org.oscarehr.casemgmt.service.CaseManagementManager" %>
-<%@page import="org.oscarehr.casemgmt.model.Issue"%>
-<%@page import="org.oscarehr.casemgmt.model.CaseManagementNote"%>
-<%@page import="java.util.List" %>
-<%@ page import="org.oscarehr.util.LoggedInInfo" %>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-%>
-
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%
         oscar.oscarRx.pageUtil.RxSessionBean bean2 = (oscar.oscarRx.pageUtil.RxSessionBean)request.getSession().getAttribute("RxSessionBean");
 
-        org.oscarehr.common.model.Allergy[] allergies = RxPatientData.getPatient(LoggedInInfo.getLoggedInInfoFromSession(request),bean2.getDemographicNo()).getActiveAllergies();
+        org.oscarehr.common.model.Allergy[] allergies = RxPatientData.getPatient(bean2.getDemographicNo()).getActiveAllergies();
         String alle = "";
         if (allergies.length > 0 ){ alle = "Red"; }
         %>
-
+<td width="10%" height="100%" valign="top">
 <div class="PropSheetMenu">
-
-<security:oscarSec roleName="<%=roleName$%>" objectName="_allergy" rights="r" reverse="<%=false%>">
-
 <p class="PropSheetLevel1CurrentItem<%=alle%>">
     <bean:message key="oscarRx.sideLinks.msgAllergies"/>
     <a href="javascript:void(0);" name="cmdAllergies"   onclick="javascript:window.location.href='ShowAllergies2.jsp?demographicNo=<%=request.getParameter("demographicNo")%>';" style="width: 200px" >+</a>
@@ -66,63 +48,6 @@
 <%=allergies[j].getShortDesc(13,8,"...")%> </a></p>
 <%}%>
 </p>
-
-</security:oscarSec>
-
-<security:oscarSec roleName="<%=roleName$%>" objectName="_rxresearch" rights="r" reverse="<%=false%>">
-
-<p class="PropSheetLevel1CurrentItem">
-	<bean:message key="oscarRx.sideLinks.msgDiseases"/>
-</p>
-<%	
-DxresearchDAO dxreasearchDao = SpringUtils.getBean(DxresearchDAO.class);
-CodingSystemManager codingSystemManager = SpringUtils.getBean(CodingSystemManager.class);
-
-for (Dxresearch dx:dxreasearchDao.getByDemographicNo(bean2.getDemographicNo())){
-	String codeDescr = null;
-
-	try{
-		if(!dx.getDxresearchCode().equals("CKDSCREEN")){
-			codeDescr = codingSystemManager.getCodeDescription(dx.getCodingSystem(),dx.getDxresearchCode());
-		}
-	}
-	catch (Exception e){
-	    out.println("Please report error to support: " + e.getMessage());
-	}
-
-	if(codeDescr != null) {
-%>
-<p class="PropSheetMenuItemLevel1"><%=StringEscapeUtils.escapeHtml(codeDescr)%></p>
-<%
-	} 
-}
-%>
-</p>
-
-</security:oscarSec>
-
-<security:oscarSec roleName="<%=roleName$%>" objectName="_rx" rights="r" reverse="<%=false%>">
-
-<p class="PropSheetLevel1CurrentItem">
-	<bean:message key="oscarRx.sideLinks.msgMedHistory"/>
-</p>
-<%	
-	CaseManagementManager cmgmtMgr1 = SpringUtils.getBean(CaseManagementManager.class);
-	List<Issue> issues1 = cmgmtMgr1.getIssueInfoByCode(bean2.getProviderNo(), "MedHistory");
-	String[] issueIds1 = new String[] {String.valueOf(issues1.get(0).getId())};
-	List<CaseManagementNote> notes1 = cmgmtMgr1.getNotes(bean2.getDemographicNo()+"", issueIds1);
-	for(CaseManagementNote note:notes1) {
-		 if (!note.isLocked() && !note.isArchived()) {
-			 
-%>
-<p class="PropSheetMenuItemLevel1"><%=StringEscapeUtils.escapeHtml(note.getNote()) %></p>
-<%
-	} }
-%>
-</p>
-
-</security:oscarSec>
-
 <p class="PropSheetLevel1CurrentItem"><bean:message key="oscarRx.sideLinks.msgFavorites"/>
 <a href="EditFavorites2.jsp">edit</a>
 <a href="CopyFavorites2.jsp">copy</a>  <%-- <bean:message key="oscarRx.sideLinks.msgCopyFavorites"/> --%>
@@ -142,3 +67,4 @@ for (Dxresearch dx:dxreasearchDao.getByDemographicNo(bean2.getDemographicNo())){
 <%}%>
 </p>
 </div>
+</td>

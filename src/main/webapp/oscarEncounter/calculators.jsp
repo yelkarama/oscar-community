@@ -24,23 +24,6 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_eChart" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_eChart");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
-<%@page import="oscar.util.StringUtils"%>
 <%@ page
 	import="oscar.oscarDemographic.data.*, org.oscarehr.common.model.Demographic"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
@@ -52,11 +35,12 @@ String age=request.getParameter("age");
 String demo=request.getParameter("demo");
 
 
-if(!StringUtils.isNullOrEmpty(demo)){
+if(demo != null){
     DemographicData dd = new DemographicData();
-    Demographic d = dd.getDemographic(LoggedInInfo.getLoggedInInfoFromSession(request), demo);  
+    Demographic d =dd.getDemographic(demo);  
     sex = d.getSex();
     age = d.getAge();
+    
 }
 %>
 
@@ -105,9 +89,6 @@ if(!StringUtils.isNullOrEmpty(demo)){
                 <a href="javascript: function myFunction() {return false; }" onclick="popperup(525,775,'http://cvrisk.mvm.ed.ac.uk/calculator/calc.asp','CVRisk');">CV Risk</a>
             </td>
 	</tr>
-        
-        
-        
 	<tr>
 		<td align="center" class="menuLayer"><a
 			href="javascript: function myFunction() {return false; }"

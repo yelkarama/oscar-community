@@ -32,7 +32,7 @@
 	errorPage="../appointment/errorpage.jsp"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
-
+<jsp:useBean id="scheduleMainBean" class="oscar.AppointmentMainBean" scope="session" />
 <jsp:useBean id="dataBean" class="java.util.Properties" scope="page" />
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.model.ScheduleTemplateCode" %>
@@ -107,10 +107,8 @@ function checkInput() {
 	  return true;
 	}
 }
-
 //-->
 </script>
-<script type="text/javascript" src="../share/javascript/picker.js"></script>
 </head>
 <body bgcolor="ivory" bgproperties="fixed" onLoad="setfocus()"
 	topmargin="0" leftmargin="0" rightmargin="0">
@@ -128,13 +126,11 @@ function checkInput() {
 				</td>
 				<td><select name="code">
 					<%
-					List<ScheduleTemplateCode> stcs = scheduleTemplateCodeDao.findAll();
-					Collections.sort(stcs,ScheduleTemplateCode.CodeComparator);
-	
-					for (ScheduleTemplateCode stc:stcs)
+	ResultSet rsdemo = scheduleMainBean.queryResults("search_scheduletemplatecode");
+	while (rsdemo.next())
 	{
 %>
-					<option value="<%=stc.getCode()%>"><%=stc.getCode()+" |"+stc.getDescription()%></option>
+					<option value="<%=rsdemo.getString("code")%>"><%=rsdemo.getString("code")+" |"+rsdemo.getString("description")%></option>
 					<%
 	}
 %>
@@ -157,15 +153,15 @@ function checkInput() {
 	boolean bEdit = request.getParameter("dboperation")!=null&&request.getParameter("dboperation").equals(" Edit ");
 	if (bEdit)
 	{
-		ScheduleTemplateCode stc = scheduleTemplateCodeDao.findByCode(request.getParameter("code"));
-     	if(stc != null) {
-		
-			dataBean.setProperty("code", String.valueOf(stc.getCode()) );
-			dataBean.setProperty("description", stc.getDescription() );
-			dataBean.setProperty("duration", stc.getDuration()==null?"":stc.getDuration() );
-			dataBean.setProperty("color", stc.getColor()==null?"":stc.getColor() );
-			dataBean.setProperty("confirm", stc.getConfirm()==null?"No":stc.getConfirm() );
-                        dataBean.setProperty("bookinglimit", String.valueOf(stc.getBookinglimit()));
+     	rsdemo = scheduleMainBean.queryResults(request.getParameter("code"), "search_scheduletemplatecodesingle");
+		while (rsdemo.next())
+		{
+			dataBean.setProperty("code", rsdemo.getString("code") );
+			dataBean.setProperty("description", rsdemo.getString("description") );
+			dataBean.setProperty("duration", rsdemo.getString("duration")==null?"":rsdemo.getString("duration") );
+			dataBean.setProperty("color", rsdemo.getString("color")==null?"":rsdemo.getString("color") );
+			dataBean.setProperty("confirm", rsdemo.getString("confirm")==null?"No":rsdemo.getString("confirm") );
+                        dataBean.setProperty("bookinglimit", rsdemo.getString("bookinglimit"));
 		}
 	}
 %>
@@ -197,8 +193,8 @@ function checkInput() {
 			<tr bgcolor='ivory'>
 				<td><font color="red"><bean:message
 					key="schedule.scheduletemplatecodesetting.formColor" />:</font></td>
-				<td><input type="text" name="color" id="color" size="10" maxlength="10"
-					<%=bEdit?("value='"+dataBean.getProperty("color")+"'"):"value=''"%>> <a href="javascript:TCP.popup(document.forms['addtemplatecode'].elements['color']);"><img width="15" height="13" border="0" src="../images/sel.gif"></a>
+				<td><input type="text" name="color" size="10" maxlength="10"
+					<%=bEdit?("value='"+dataBean.getProperty("color")+"'"):"value=''"%>>
 				<bean:message
 					key="schedule.scheduletemplatecodesetting.msgColorExample" /></td>
 			</tr>
@@ -221,9 +217,7 @@ function checkInput() {
 				<input type="radio" name="confirm" value="Day"
 					<%=(bEdit? (dataBean.getProperty("confirm").equals("Day")? "checked" : "") : "checked")%>>Same Day
 				<input type="radio" name="confirm" value="Wk"
-					<%=(bEdit? (dataBean.getProperty("confirm").equals("Wk")? "checked" : "") : "checked")%>>Same Week					
-			   <input type="radio" name="confirm" value="Onc"
-					<%=(bEdit? (dataBean.getProperty("confirm").equals("Onc")? "checked" : "") : "checked")%>>On-Call Urgent
+					<%=(bEdit? (dataBean.getProperty("confirm").equals("Wk")? "checked" : "") : "checked")%>>Same Week
 
 				</td>
 			</tr>
@@ -254,7 +248,8 @@ function checkInput() {
 			key="schedule.scheduletemplatecodesetting.msgColor" /><br>
                 &nbsp; <bean:message
 			key="schedule.scheduletemplatecodesetting.msgBookingLimit" /><br>
-		
+		&nbsp; <bean:message
+			key="schedule.scheduletemplatecodesetting.msgColorLinks" />
                     </p>
 		</td>
 	</tr>

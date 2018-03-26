@@ -42,46 +42,26 @@ public class ContactDao extends AbstractDao<Contact> {
 		super(Contact.class);
 	}
 	
-	public List<Contact> search(String searchMode, String orderBy, String keyword, String programNo, String providerNo, String relatedTo) {
+	public List<Contact> search(String searchMode, String orderBy, String keyword) {
 		StringBuilder where = new StringBuilder();
-		List<Object> paramList = new ArrayList<Object>();
-		int maxIDUsed =1;
-		
+		List<String> paramList = new ArrayList<String>();
+	    
 		if(searchMode.equals("search_name")) {
 			String[] temp = keyword.split("\\,\\p{Space}*");
 			if(temp.length>1) {
 		      where.append("c.lastName like ?1 and c.firstName like ?2");
-		      paramList.add(temp[0].trim()+"%");
-		      paramList.add(temp[1].trim()+"%");
-		      maxIDUsed=2;
+		      paramList.add(temp[0]+"%");
+		      paramList.add(temp[1]+"%");
 		    } else {
 		      where.append("c.lastName like ?1");
-		      paramList.add(temp[0].trim()+"%");
+		      paramList.add(temp[0]+"%");
 		    }
 		}else {		
 			where.append("c." + StringEscapeUtils.escapeSql(searchMode) + " like ?1");
-			paramList.add(keyword.trim()+"%");
+			paramList.add(keyword+"%");
 		}			
-		/*
-		if(programNo != null && !programNo.equals("0")) {
-			where.append(" AND c.programNo = ?" + (maxIDUsed+1));
-			paramList.add(Integer.parseInt(programNo));
-		}*/
-		
-		if(programNo != null && !programNo.equals("") && !programNo.equals("0")) {
-			where.append(" AND c.programNo IN (select pp.ProgramId from ProgramProvider pp where pp.ProviderNo = '"+providerNo+"') ");
-		}
-		
-		//relatedTo is the patient we are searching a contact for
-		//c.programNo (Integer)
-		
-		if(relatedTo != null && relatedTo.length()>0) {
-			where.append(" AND c.programNo IN ( SELECT x.programId FROM Admission x WHERE x.programId IN (SELECT a.programId FROM Admission a WHERE a.clientId = " + Integer.parseInt(relatedTo) +" ) )  ");
-		}
-		
-		
 		String sql = "SELECT c from Contact c where " + where.toString() + " order by " + orderBy;
-		MiscUtils.getLogger().debug(sql);
+		MiscUtils.getLogger().info(sql);
 		Query query = entityManager.createQuery(sql);
 		for(int x=0;x<paramList.size();x++) {
 			query.setParameter(x+1,paramList.get(x));

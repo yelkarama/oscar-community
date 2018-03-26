@@ -24,31 +24,15 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-	  boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_lab" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_lab");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
    "http://www.w3.org/TR/html4/loose.dtd">
 
-<%@page import="oscar.util.ConversionUtils"%>
-<%@page import="org.oscarehr.util.SpringUtils"%>
-<%@page import="org.oscarehr.common.dao.forms.FormsDao"%>
-<%@page	import="
+<%@page	import="java.sql.ResultSet,
+		java.sql.SQLException,
 		java.util.Date,
 		java.util.Hashtable,
 		java.util.Vector,
+		oscar.oscarDB.DBHandler,
 		oscar.oscarLab.LabRequestReportLink,
 		oscar.util.UtilDateUtilities"%>
 <%
@@ -63,35 +47,42 @@ if(!authed) {
     Vector<String> req_id      = new Vector<String>();
     Vector<String> formCreated = new Vector<String>();
     Vector<String> patientName = new Vector<String>();
-    
-    FormsDao dao = SpringUtils.getBean(FormsDao.class);
     if (linkReqId == null || linkReqId.length()==0) {
-		if(reqId != null && reqId.length()>0) {
-	    	reqDateLink = LabRequestReportLink.getRequestDate(reqId);
-		}
-	    for(Object[] f : dao.findIdFormCreatedAndPatientNameFromFormLabReq07()) {
-	   	  	Integer id = (Integer) f[0];
-		  	Date frmCreated = (Date) f[1];
-		   	String name = (String) f[2];
-	    	
-			req_id.add("" + id);
-			patientName.add(name);
-			formCreated.add(UtilDateUtilities.DateToString(frmCreated, "yyyy-MM-dd"));
-	    }		
-    } else { //Make the link
-		
-	    String req_date = "";
-	    for(Object o : dao.findFormCreatedFromFormLabReq07ById(ConversionUtils.fromIntString(linkReqId))) { 
-	    	req_date = UtilDateUtilities.DateToString((Date) o,"yyyy-MM-dd");
-	    }
+		try {
+			if(reqId != null && reqId.length()>0) {
+		    	reqDateLink = LabRequestReportLink.getRequestDate(reqId);
+			}
+		    
+		    sql = "SELECT ID, formCreated, patientName FROM formLabReq07";
+		    
+		    ResultSet rs = DBHandler.GetSQL(sql);
 	
-	    Long id = LabRequestReportLink.getIdByReport(table, Long.valueOf(rptId));
-	    if (id==null) { //new report
-			LabRequestReportLink.save("formLabReq07",Long.valueOf(linkReqId),req_date,table,Long.valueOf(rptId));
-	    } else {
-			LabRequestReportLink.update(id,"formLabReq07",Long.valueOf(linkReqId),req_date);
-	    }
-	    
+		    while (rs.next()) {
+				req_id.add(rs.getString("ID"));
+				patientName.add(rs.getString("patientName"));
+				formCreated.add(UtilDateUtilities.DateToString(rs.getDate("formCreated"),"yyyy-MM-dd"));
+		    }
+		} catch (SQLException ex) {
+			MiscUtils.getLogger().error("Error", ex);
+		}
+    } else { //Make the link
+		try {
+		    sql = "SELECT formCreated FROM formLabReq07 WHERE ID="+linkReqId;
+		    
+		    ResultSet rs = DBHandler.GetSQL(sql);
+		    String req_date = "";
+		    if (rs.next()) 
+		    	req_date = UtilDateUtilities.DateToString(rs.getDate("formCreated"),"yyyy-MM-dd");
+		
+		    Long id = LabRequestReportLink.getIdByReport(table, Long.valueOf(rptId));
+		    if (id==null) { //new report
+				LabRequestReportLink.save("formLabReq07",Long.valueOf(linkReqId),req_date,table,Long.valueOf(rptId));
+		    } else {
+				LabRequestReportLink.update(id,"formLabReq07",Long.valueOf(linkReqId),req_date);
+		    }
+		} catch (SQLException ex) {
+			MiscUtils.getLogger().error("Error", ex);
+		}
 		response.sendRedirect("../close.html");
     }
 %>

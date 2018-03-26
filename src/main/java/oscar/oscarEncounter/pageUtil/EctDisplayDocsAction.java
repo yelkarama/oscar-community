@@ -30,6 +30,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Properties;
+import java.util.Vector;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -40,9 +43,11 @@ import org.oscarehr.util.MiscUtils;
 
 import oscar.dms.EDoc;
 import oscar.dms.EDocUtil;
-import oscar.dms.EDocUtil.EDocSort;
 import oscar.util.DateUtils;
+import oscar.util.OscarRoleObjectPrivilege;
 import oscar.util.StringUtils;
+
+//import oscar.oscarSecurity.CookieSecurity;
 
 public class EctDisplayDocsAction extends EctDisplayAction {
 	private static Logger logger = MiscUtils.getLogger();
@@ -51,10 +56,12 @@ public class EctDisplayDocsAction extends EctDisplayAction {
 
 	public boolean getInfo(EctSessionBean bean, HttpServletRequest request, NavBarDisplayDAO Dao, MessageResources messages) {
     
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		
-    	if (!securityInfoManager.hasPrivilege(loggedInInfo, "_edoc", "r", null)) {
-    		return true; // documents link won't show up on new CME screen.
+    	boolean a = true;
+    	Vector v = OscarRoleObjectPrivilege.getPrivilegeProp("_newCasemgmt.documents");
+    	String roleName = (String) request.getSession().getAttribute("userrole") + "," + (String) request.getSession().getAttribute("user");
+    	a = OscarRoleObjectPrivilege.checkPrivilege(roleName, (Properties) v.get(0), (Vector) v.get(1));
+    	if (!a) {
+    		return true; // Prevention link won't show up on new CME screen.
     	} else {
     
     		String omitTypeStr = request.getParameter("omit");
@@ -87,7 +94,7 @@ public class EctDisplayDocsAction extends EctDisplayAction {
     
     		StringBuilder javascript = new StringBuilder("<script type=\"text/javascript\">");
     		String js = "";
-    		ArrayList<EDoc> docList = EDocUtil.listDocs(loggedInInfo, "demographic", bean.demographicNo, null, EDocUtil.PRIVATE, EDocSort.OBSERVATIONDATE, "active");
+    		ArrayList<EDoc> docList = EDocUtil.listDocs("demographic", bean.demographicNo, null, EDocUtil.PRIVATE, EDocUtil.SORT_OBSERVATIONDATE, "active");
     		String dbFormat = "yyyy-MM-dd";
     		String serviceDateStr = "";
     		String key;
@@ -97,10 +104,10 @@ public class EctDisplayDocsAction extends EctDisplayAction {
     		Date date;
     
     		// --- add remote documents ---
-    		
-    		if (loggedInInfo.getCurrentFacility().isIntegratorEnabled()) {
+    		LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
+    		if (loggedInInfo.currentFacility.isIntegratorEnabled()) {
     			try {
-    				ArrayList<EDoc> remoteDocuments = EDocUtil.getRemoteDocuments(loggedInInfo, Integer.parseInt(bean.demographicNo));
+    				ArrayList<EDoc> remoteDocuments = EDocUtil.getRemoteDocuments(Integer.parseInt(bean.demographicNo));
     				docList.addAll(remoteDocuments);
     			} catch (Exception e) {
     				logger.error("error getting remote documents", e);
@@ -149,15 +156,14 @@ public class EctDisplayDocsAction extends EctDisplayAction {
     			
     			if (inboxflag) {
     				String path = oscar.util.plugin.IsPropertiesOn.getProperty("DOCUMENT_DIR");
-    				url = "popupPage(700,800,'" + hash + "', '" + request.getContextPath() + "/mod/docmgmtComp/FillARForm.do?method=showInboxDocDetails&path=" + path + "&demoNo=" + bean.demographicNo + "&name=" + StringEscapeUtils.escapeHtml(dispFilename) + "'); return false;";
+    				url = "popupPage(700,800,'" + hash + "', '" + request.getContextPath() + "/mod/docmgmtComp/FillARForm.do?method=showInboxDocDetails&path=" + path + "&demoNo=" + bean.demographicNo + "&name=" + StringEscapeUtils.escapeJavaScript(dispFilename) + "'); return false;";
     				isURLjavaScript = true;
     			}
     			else if( curDoc.getRemoteFacilityId()==null && curDoc.isPDF() ) {
-    				url = "popupPage(window.screen.width,window.screen.height,'" + hash + "','" + request.getContextPath() + "/dms/MultiPageDocDisplay.jsp?segmentID=" + dispDocNo + "&providerNo=" + user + "&searchProviderNo=" + user + "&status=A'); return false;";
-    				isURLjavaScript = true;
+    				url = request.getContextPath() + "/dms/MultiPageDocDisplay.jsp?segmentID=" + dispDocNo + "&providerNo=" + user + "&searchProviderNo=" + user + "&status=A&demoName=" + StringEscapeUtils.escapeJavaScript(bean.getPatientLastName()) + ", " + StringEscapeUtils.escapeJavaScript(bean.getPatientFirstName());
     			}
     			else {
-    				url = "popupPage(700,800,'" + hash + "', '" +  request.getContextPath() + "/dms/ManageDocument.do?method=display&doc_no=" + dispDocNo + "&providerNo=" + user + (curDoc.getRemoteFacilityId()!=null?"&remoteFacilityId="+curDoc.getRemoteFacilityId():"") + "'); return false;";
+    				url = request.getContextPath() + "/dms/ManageDocument.do?method=display&doc_no=" + dispDocNo + "&providerNo=" + user + (curDoc.getRemoteFacilityId()!=null?"&remoteFacilityId="+curDoc.getRemoteFacilityId():"");
     			}
     			
     			item.setLinkTitle(title + serviceDateStr);
@@ -171,8 +177,7 @@ public class EctDisplayDocsAction extends EctDisplayAction {
     			js = "itemColours['" + key + "'] = '" + BGCOLOUR + "'; autoCompleted['" + key + "'] = \"" + url + "\"; autoCompList.push('" + key + "');";
     			javascript.append(js);				
     			item.setURL(url);
-    			item.setURLJavaScript(true);
-    			
+    			item.setURLJavaScript(isURLjavaScript);
     			Dao.addItem(item);
     
     		}

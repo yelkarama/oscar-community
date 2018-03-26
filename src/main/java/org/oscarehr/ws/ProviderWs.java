@@ -22,50 +22,31 @@
  * Ontario, Canada
  */
 
+
 package org.oscarehr.ws;
 
 import java.util.List;
 
 import javax.jws.WebService;
 
-import org.apache.cxf.annotations.GZIP;
-import org.oscarehr.common.model.Property;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.managers.ProviderManager2;
-import org.oscarehr.util.LoggedInInfo;
-import org.oscarehr.ws.transfer_objects.ProviderPropertyTransfer;
 import org.oscarehr.ws.transfer_objects.ProviderTransfer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @WebService
 @Component
-@GZIP(threshold = AbstractWs.GZIP_THRESHOLD)
 public class ProviderWs extends AbstractWs {
 	@Autowired
 	private ProviderManager2 providerManager;
 
-	public ProviderTransfer getLoggedInProviderTransfer() {
-		LoggedInInfo loggedInInfo = getLoggedInInfo();
-		return (ProviderTransfer.toTransfer(loggedInInfo.getLoggedInProvider()));
-	}
-
-	/**
-	 * @deprecated 2013-03-27 parameter should have been an object to allow nulls
-	 */
 	public ProviderTransfer[] getProviders(boolean active) {
-		return (getProviders2(active));
-	}
+		List<Provider> tempResults = providerManager.getProviders(active);
 
-	public ProviderTransfer[] getProviders2(Boolean active) {
-		List<Provider> tempResults = providerManager.getProviders(getLoggedInInfo(), active);
 		ProviderTransfer[] results = ProviderTransfer.toTransfers(tempResults);
+
 		return (results);
 	}
 
-	public ProviderPropertyTransfer[] getProviderProperties(String providerNo, String propertyName) {
-		List<Property> tempResults = providerManager.getProviderProperties(getLoggedInInfo(), providerNo, propertyName);
-		ProviderPropertyTransfer[] results = ProviderPropertyTransfer.toTransfers(tempResults);
-		return (results);
-	}
 }

@@ -632,7 +632,7 @@ public class BillingSessionBean implements java.io.Serializable{
   /**
    * setPaymentType
    *
-   * @param type String
+   * @param pmtTypeName String
    */
   public void setPaymentType(String type) {
     this.paymentType = type;
@@ -688,5 +688,18 @@ public class BillingSessionBean implements java.io.Serializable{
     public void setWcbId(String wcbId) {
         this.wcbId = wcbId;
     }
+
+  // public void estUserName(){
+  //     try{
+  //
+  //             java.sql.ResultSet rs;
+  //             String sql = new String("select first_name, last_name from provider where provider_no = '"+providerNo+"'");
+  //             rs = DBHandler.GetSQL(sql);
+  //             if (rs.next()){
+  //                userName =  rs.getString("first_name")+" "+rs.getString("last_name");
+  //             }
+  //             rs.close();
+  //     }catch (java.sql.SQLException e){ MiscUtils.getLogger().error("Error", e); }
+  // }
 
 }

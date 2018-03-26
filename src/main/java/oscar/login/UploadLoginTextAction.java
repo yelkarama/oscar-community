@@ -40,8 +40,6 @@ import org.apache.struts.upload.FormFile;
 import org.oscarehr.common.dao.PropertyDao;
 import org.oscarehr.common.model.Property;
 import org.oscarehr.common.service.AcceptableUseAgreementManager;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
@@ -53,14 +51,8 @@ import oscar.oscarLab.ca.bc.PathNet.pageUtil.LabUploadForm;
  */
 public class UploadLoginTextAction extends Action {
     private static Logger _logger = MiscUtils.getLogger();
-    private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-    
+
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)  {
-    	
-    	if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_admin", "w", null)) {
-			throw new SecurityException("missing required security object (_admin)");
-		}
-    	
        InputStream fis = null;
        FileOutputStream fos = null;
        LabUploadForm frm = (LabUploadForm) form;

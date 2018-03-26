@@ -23,20 +23,6 @@
     Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_tickler" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_tickler");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
 
 <%@ include file="/taglibs.jsp"%>
 <c:set var="ctx" value="${pageContext.request.contextPath}"
@@ -71,7 +57,6 @@
 
 		</td>
 	</tr>
-	<input type="hidden" name="outofdomain" value=""/>
 	<INPUT TYPE="hidden" NAME="orderby" VALUE="last_name">
 	<INPUT TYPE="hidden" NAME="search_mode" VALUE="search_name">
 	<INPUT TYPE="hidden" NAME="originalpage"
@@ -100,7 +85,7 @@
 		height="20" border="0" hspace="2">
 	<INPUT TYPE="hidden" NAME="user_id" readonly VALUE='oscardoc, doctor'
 		WIDTH="25" HEIGHT="20" border="0" hspace="2">
-	<INPUT TYPE="hidden" NAME="dboperation" VALUE="search_demorecord">
+	<INPUT TYPE="hidden" NAME="dboperation" VALUE="add_apptrecord">
 	<INPUT TYPE="hidden" NAME="createdatetime" readonly
 		VALUE="2002-10-1 17:53:50" WIDTH="25" HEIGHT="20" border="0"
 		hspace="2">

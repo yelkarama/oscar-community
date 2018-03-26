@@ -111,14 +111,16 @@ public class PFHTUtilities {
     }
     
     
-	/**
-	 * 
-	 * @param stream
-	 * @param filename
-	 * @return String
-	 */
+    /**
+     *
+     * Save a Jakarta FormFile to a preconfigured place.
+     *
+     * @param file
+     * @return
+     */
     public static String saveFile(InputStream stream,String filename ){
         String retVal = null;
+        boolean isAdded = true;
         
         
         try {

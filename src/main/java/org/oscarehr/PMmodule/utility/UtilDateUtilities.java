@@ -33,9 +33,6 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-/**
- * @deprecated 2013-04-28 use org.oscarehr.util.DateUtils instead 
- */
 public class UtilDateUtilities {
 
     public static Date StringToDate(String s)    {
@@ -73,6 +70,13 @@ public class UtilDateUtilities {
         } else {
             return "";
         }
+    }
+
+    public static Date now()    {    //Today()    
+        return GregorianCalendar.getInstance().getTime();
+    }
+    public static Date  Today()  {       
+        return GregorianCalendar.getInstance().getTime();
     }
 
     public static Date calcDate(String s, String s1, String s2)    {
@@ -169,7 +173,7 @@ public class UtilDateUtilities {
 
     public static String getToday(String datePattern){
        Format formatter = new SimpleDateFormat(datePattern);
-       return formatter.format(new Date());       
+       return formatter.format(Today());       
     }
     
     /**

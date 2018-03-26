@@ -26,7 +26,6 @@
 package oscar.oscarWaitingList.pageUtil;
 
 import java.util.Collection;
-import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -38,9 +37,7 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.validator.LazyValidatorForm;
-import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.model.ProviderPreference;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.SessionConstants;
 
 import oscar.oscarProvider.bean.ProviderNameBean;
@@ -62,8 +59,6 @@ public final class WLSetupDisplayWaitingListAction extends Action {
         
     	
         log.debug("\n\nWLSetupDisplayWaitingListAction/execute(): just entering.");
-        
-        LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
         
         String update = request.getParameter("update");
         String remove = request.getParameter("remove");//actually not used for now, may in future?
@@ -171,11 +166,6 @@ public final class WLSetupDisplayWaitingListAction extends Action {
         if(groupNo != null){
         	phd.setThisGroupProviderVector(groupNo);
         	allProviders = phd.getThisGroupProviderVector();
-        	if(allProviders.size()==0 && groupNo.equals(".default")) {
-        		Provider p = loggedInInfo.getLoggedInProvider();
-        		ProviderNameBean pNameBean = new ProviderNameBean(p.getFormattedName(),p.getProviderNo());
-        		allProviders.add(pNameBean);
-        	}
         	log.debug("WLSetupDisplayWaitingListAction/execute(): allProviders.size() = "+ allProviders.size());
                 if (allProviders.size()<=0){
                     ProviderData proData = new ProviderData();
@@ -187,14 +177,14 @@ public final class WLSetupDisplayWaitingListAction extends Action {
                 }
                     
         	if(hd != null){
-        		nbPatients = Integer.toString(hd.getWaitingList().size());
+        		nbPatients = Integer.toString(hd.getWaitingListArrayList().size());
         	}else{
         		nbPatients = "0";
         	}
         	
         }
         
-        today = UtilDateUtilities.DateToString(new Date(), "yyyy-MM-dd");
+        today = UtilDateUtilities.DateToString(UtilDateUtilities.Today(), "yyyy-MM-dd");
         
         request.setAttribute("WLId", waitingListId);
         session.setAttribute( "waitingList", hd );     

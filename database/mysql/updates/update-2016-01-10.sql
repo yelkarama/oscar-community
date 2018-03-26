@@ -1,22 +1,7 @@
-
-create table functionalCentreAdmission
-(
-        id int(11) NOT NULL auto_increment,
-        demographicNo int(11) NOT NULL,
-        functionalCentreId varchar(64) NOT NULL,
-        referralDate date,
-        admissionDate date,
-        serviceInitiationDate date,
-        dischargeDate date,
-        discharged tinyint(1) NOT NULL,
-        providerNo varchar(6) NOT NULL,
-        updateDate datetime NOT NULL,
-	dischargeReason varchar(200),
-        PRIMARY KEY  (id)
-);
-
 alter table FunctionalCentre add enableCbiForm tinyint(1);
 update FunctionalCentre set enableCbiForm=1;
+
+alter table functionalCentreAdmission add dischargeReason varchar(200);
 
 alter table CdsClientForm add serviceInitiationDate date;
 

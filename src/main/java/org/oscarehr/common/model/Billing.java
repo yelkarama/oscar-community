@@ -36,8 +36,6 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import oscar.util.ConversionUtils;
-
 @Entity
 @Table(name="billing")
 public class Billing extends AbstractModel<Integer>{
@@ -122,6 +120,10 @@ public class Billing extends AbstractModel<Integer>{
 	public Integer getId() {
     	return id;
     }
+
+	//public void setId(Integer id) {
+    //	this.id = id;
+    //}
 
 	public int getClinicNo() {
     	return clinicNo;
@@ -238,10 +240,6 @@ public class Billing extends AbstractModel<Integer>{
 	public String getStatus() {
     	return status;
     }
-	
-	public boolean getStatusAsBoolean() {
-		return ConversionUtils.fromBoolString(getStatus());
-	}
 
 	public void setStatus(String status) {
     	this.status = status;

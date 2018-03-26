@@ -24,45 +24,24 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-	  boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_lab" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../../securityError.jsp?type=_lab");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%@page import="java.util.Date"%>
-<%@page import="oscar.util.ConversionUtils"%>
-<%@page import="org.oscarehr.util.SpringUtils" %>
-<%@page import="org.oscarehr.billing.CA.BC.dao.Hl7LinkDao" %>
-<%@page import="org.oscarehr.billing.CA.BC.model.Hl7Link" %>
-<%
-	Hl7LinkDao linkDao = SpringUtils.getBean(Hl7LinkDao.class);
-
+	if(session.getAttribute("user") == null || !session.getAttribute("userprofession").equals("doctor")){
+    	response.sendRedirect("../../../logout.jsp");
+    }
     String demo_no = request.getParameter("demo_no"),
     pid = request.getParameter("pid");
 	if(null != request.getParameter("unlink")){
-		Hl7Link h = linkDao.find(Integer.parseInt(pid));
-		if(h != null) {
-			h.setStatus("P");
-			linkDao.merge(h);
-		}
+		String update_link = "UPDATE hl7_link SET hl7_link.status = 'P' WHERE hl7_link.pid_id='@pid';";
+		DBHandler.RunSQL(update_link.replaceAll("@pid", pid));
 	}
 	if(null == demo_no){
 		out.println("<script language=\"JavaScript\">javascript:window.close();</SCRIPT>");
 		return;
 	}
+	String select_lab_reports = "SELECT DISTINCT hl7_link.pid_id, hl7_obr.requested_date_time, hl7_obr.diagnostic_service_sect_id FROM hl7_link, hl7_obr WHERE hl7_link.demographic_no='@demo_no' AND hl7_link.pid_id=hl7_obr.pid_id AND (hl7_link.status='N' OR hl7_link.status='A' OR hl7_link.status='S') ORDER BY hl7_obr.requested_date_time DESC";
 %>
 
-<html>
+<%@page import="oscar.oscarDB.DBHandler"%><html>
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>OSCAR PathNET - View Lab Reports</title>
@@ -90,31 +69,31 @@ function PopupLab(pid)
 <form action="viewreports.jsp" method="post">
 <table width="100%">
 	<%
+	java.sql.ResultSet rs = DBHandler.GetSQL(select_lab_reports.replaceAll("@demo_no", demo_no));
+	if(rs.isBeforeFirst()){
 		String dpid = "",
 		diagnostic = "";
 		java.text.SimpleDateFormat format = null;
 		java.util.Date date = null;
 		boolean other = false;
-		for(Object[] o : linkDao.findLinksAndRequestDates(ConversionUtils.fromIntString(demo_no))) {
-			Integer linkId = (Integer) o[0];
-			Date obrRequestedDateTime = (Date) o[1];
-			String obrDiagnosticServiceSectId = (String) o[2];
-			
+		while(rs.next()){
 			format = new java.text.SimpleDateFormat("yyyy-MM-d HH:mm:ss");
-			date = obrRequestedDateTime;
+			date = (format.parse(oscar.Misc.getString(rs,"requested_date_time")));
 			format.applyPattern("MMM d, yyyy");
-			if(dpid.equals(linkId.toString())){
-				diagnostic += ", " + obrDiagnosticServiceSectId;
-			} else {
+			if(dpid.equals(oscar.Misc.getString(rs,"pid_id"))){
+				diagnostic += ", " + oscar.Misc.getString(rs,"diagnostic_service_sect_id");
+			}else{
 				if(!dpid.equals("")){
 					out.println("<tr bgcolor='" + (other? "F6F6F6" : "WHITE") + "'><td class=\"Text\"><a href=\"#\" onclick=\"return PopupLab('" + dpid + "');\">" + format.format(date) + " (" + diagnostic + ")</a></td><td class=\"Text\"><a onclick=\"return confirm('Are you sure you want to unlink this lab report?');\" href=\"viewreports.jsp?unlink=true&demo_no=" + demo_no + "&pid=" + dpid + "\">unlink</a></td></tr>");
 				}
-				dpid = "" + linkId;
-				diagnostic = "" + obrDiagnosticServiceSectId;
+				dpid = oscar.Misc.getString(rs,"pid_id");
+				diagnostic = oscar.Misc.getString(rs,"diagnostic_service_sect_id");
 				other = !other;
 			}
 		}
-		out.println("<tr bgcolor='" + (other? "F6F6F6" : "WHITE") + "'><td class=\"Text\"><a href=\"#\" onclick=\"return PopupLab('" + dpid + "');\">" + format.format(date) + " (" + diagnostic + ")</a></td><td class=\"Text\"><a onclick=\"return confirm('Are you sure you want to unlink this lab report?');\" href=\"viewreports.jsp?unlink=true&demo_no=" + demo_no + "&pid=" + dpid + "\">unlink</a></td></tr>");	
+		out.println("<tr bgcolor='" + (other? "F6F6F6" : "WHITE") + "'><td class=\"Text\"><a href=\"#\" onclick=\"return PopupLab('" + dpid + "');\">" + format.format(date) + " (" + diagnostic + ")</a></td><td class=\"Text\"><a onclick=\"return confirm('Are you sure you want to unlink this lab report?');\" href=\"viewreports.jsp?unlink=true&demo_no=" + demo_no + "&pid=" + dpid + "\">unlink</a></td></tr>");
+		rs.close();
+	}
 %>
 </table>
 </form>

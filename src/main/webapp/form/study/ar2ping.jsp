@@ -1,9 +1,13 @@
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
-<%@page import="oscar.oscarDB.DBHandler"%>
-<%@ page import="java.lang.reflect.*, java.sql.*"%>
-<%@page import="org.oscarehr.util.MiscUtils"%>
-<jsp:useBean id="studyMapping" class="java.util.Properties" scope="page" />
+<%
+if(session.getAttribute("user") == null) response.sendRedirect("../../logout.jsp");
+%>
 
+
+<%@ page import="java.lang.reflect.*, java.sql.*"%>
+
+<%@page import="org.oscarehr.util.MiscUtils"%><jsp:useBean id="studyMapping" class="java.util.Properties" scope="page" />
+<jsp:useBean id="studyBean" class="oscar.AppointmentMainBean"
+	scope="page" />
 <%@ taglib uri="/WEB-INF/oscarProperties-tag.tld" prefix="oscarProp"%>
 <%@ page import="java.util.*,oscar.ping.xml.*"%>
 <%@ page import="org.chip.ping.xml.*"%>
@@ -13,25 +17,15 @@
 <%@page import="org.oscarehr.util.SpringUtils" %>
 <%@page import="org.oscarehr.common.model.Desaprisk" %>
 <%@page import="org.oscarehr.common.dao.DesapriskDao" %>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_form" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../securityError.jsp?type=_form");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%
 	DesapriskDao desapriskDao = SpringUtils.getBean(DesapriskDao.class);
 %>
-
+<%
+String [][] dbQueries=new String[][] {
+    {"search_formar", "select * from formAR where demographic_no= ? order by formEdited desc, ID desc limit 0,1"},
+};
+studyBean.doConfigure(dbQueries);
+%>
 <%
 out.println("Please wait ...<br>");
 out.flush();
@@ -41,7 +35,7 @@ String actorTicket = null;
 String actor = "clinic@iampregnant.org"; //"clinic@citizenhealth.ca"; // marcelle@citizenhealth.ca
 String actorPassword = "password";
 DemographicData demoData = new DemographicData();
-String patientPingId = demoData.getDemographic(LoggedInInfo.getLoggedInInfoFromSession(request), request.getParameter("demographic_no")).getEmail();
+String patientPingId = demoData.getDemographic(request.getParameter("demographic_no")).getEmail();
 
 OscarPingTalk ping = new OscarPingTalk();
 boolean connected = true;
@@ -73,7 +67,7 @@ Object obj = null ;
 
 //take data from form
 String demoNo = request.getParameter("demographic_no");
-ResultSet rsdemo = DBHandler.GetSQL("select * from formAR where demographic_no= "+demoNo+" order by formEdited desc, ID desc limit 0,1");
+ResultSet rsdemo = studyBean.queryResults(demoNo, "search_formar");
 ResultSetMetaData md = rsdemo.getMetaData();
 if (rsdemo.next()) {
 	for(int i = 1; i <= md.getColumnCount(); i++)  {

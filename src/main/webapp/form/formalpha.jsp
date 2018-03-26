@@ -23,26 +23,11 @@
     Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_form" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_form");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
 <%@ page import="oscar.form.*"%>
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <html:html locale="true">
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
@@ -59,7 +44,7 @@
     int formId = Integer.parseInt(request.getParameter("formId"));
     int provNo = Integer.parseInt((String) session.getAttribute("user"));
     FrmRecord rec = (new FrmRecordFactory()).factory(formClass);
-    java.util.Properties props = rec.getFormRecord(LoggedInInfo.getLoggedInInfoFromSession(request),demoNo, formId);
+    java.util.Properties props = rec.getFormRecord(demoNo, formId);
 %>
 
 <script type="text/javascript" language="Javascript">
@@ -81,7 +66,8 @@
 </head>
 
 
-<body topmargin="0" leftmargin="0" rightmargin="0">
+<body background="../images/gray_bg.jpg" bgproperties="fixed"
+	topmargin="0" leftmargin="0" rightmargin="0">
 <html:form action="/form/formname">
 
 	<input type="hidden" name="demographic_no"

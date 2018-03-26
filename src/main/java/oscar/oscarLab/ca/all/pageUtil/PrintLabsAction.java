@@ -42,9 +42,6 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.oscarLab.ca.all.parsers.Factory;
 import oscar.oscarLab.ca.all.parsers.MessageHandler;
@@ -58,7 +55,6 @@ import com.lowagie.text.DocumentException;
 public class PrintLabsAction extends Action{
     
     Logger logger = Logger.getLogger(PrintLabsAction.class);
-    private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
     
     /** Creates a new instance of PrintLabsAction */
     public PrintLabsAction() {
@@ -66,23 +62,12 @@ public class PrintLabsAction extends Action{
     
     public ActionForward execute(ActionMapping mapping,ActionForm form,HttpServletRequest request,HttpServletResponse response){
         
-    	if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_lab", "r", null)) {
-			throw new SecurityException("missing required security object (_lab)");
-		}
-    	
         try {
             MessageHandler handler = Factory.getHandler(request.getParameter("segmentID"));
-            if(handler.getHeaders().get(0).equals("CELLPATHR")){//if it is a VIHA RTF lab
-                response.setContentType("text/rtf");  //octet-stream
-                response.setHeader("Content-Disposition", "attachment; filename=\""+handler.getPatientName().replaceAll("\\s", "_")+"_LabReport.rtf\"");
-                LabPDFCreator pdf = new LabPDFCreator(request, response.getOutputStream());
-                pdf.printRtf();
-            } else {
-	            response.setContentType("application/pdf");  //octet-stream
-	            response.setHeader("Content-Disposition", "attachment; filename=\""+handler.getPatientName().replaceAll("\\s", "_")+"_LabReport.pdf\"");
-	            LabPDFCreator pdf = new LabPDFCreator(request, response.getOutputStream());
-	            pdf.printPdf();
-            }
+            response.setContentType("application/pdf");  //octet-stream
+            response.setHeader("Content-Disposition", "attachment; filename=\""+handler.getPatientName().replaceAll("\\s", "_")+"_LabReport.pdf\"");
+            LabPDFCreator pdf = new LabPDFCreator(request, response.getOutputStream());
+            pdf.printPdf();
         }catch(DocumentException de) {
             logger.error("DocumentException occured insided PrintLabsAction", de);
             request.setAttribute("printError", new Boolean(true));

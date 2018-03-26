@@ -82,21 +82,9 @@ public class ProfessionalSpecialist extends AbstractModel<Integer> implements Se
 
     private String referralNo;
 
-    private Integer institutionId = 0;
-    private Integer departmentId = 0;
-
-    private String privatePhoneNumber;
-    private String cellPhoneNumber;
-    private String pagerNumber;
-    private String salutation;
-
-    private boolean hideFromView=false;
-    
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date lastUpdated=new Date();
 
-	private Integer eformId;
-	
 	@PreUpdate
 	protected void jpaUpdateLastUpdateTime() {
 		lastUpdated = new Date();
@@ -106,7 +94,6 @@ public class ProfessionalSpecialist extends AbstractModel<Integer> implements Se
     public Integer getId() {
 	    return(id);
     }
-	
 
 	public String getFirstName() {
     	return firstName;
@@ -242,130 +229,10 @@ public class ProfessionalSpecialist extends AbstractModel<Integer> implements Se
 	public String getReferralNo() {
 	    return referralNo;
     }
-	
-	
-
-	public Integer getInstitutionId() {
-		return institutionId;
-	}
-
-	public void setInstitutionId(Integer institutionId) {
-		this.institutionId = institutionId;
-	}
-
-	public Integer getDepartmentId() {
-		return departmentId;
-	}
-
-	public void setDepartmentId(Integer departmentId) {
-		this.departmentId = departmentId;
-	}
 
 	public String getFormattedName() {
     	return getLastName() + "," + getFirstName();
     }
 
-	/**
-	 * Gets a comma-separated first and last names, 
-	 * suffixed by the professional title letters
-	 * 
-	 * @return
-	 * 		Returns the formatted title
-	 */
-	public String getFormattedTitle() {
-		StringBuilder buf = new StringBuilder();
-		boolean isAppended = false;
-		
-		if (getLastName() != null && !getLastName().isEmpty()) {
-			buf.append(getLastName());
-			isAppended = true;
-		}
-		
-		if (getFirstName() != null && !getFirstName().isEmpty()) {
-			if (isAppended) {
-				buf.append(", ");
-			}
-			buf.append(getFirstName());
-			isAppended = true;
-		}
-		
-		if (getProfessionalLetters() != null && !getProfessionalLetters().isEmpty()) {
-			if (isAppended) {
-				buf.append(" ");
-			}
-			buf.append(getProfessionalLetters());
-		}
-		return buf.toString();
-	}
-
-	public String getPrivatePhoneNumber() {
-		return privatePhoneNumber;
-	}
-
-	public void setPrivatePhoneNumber(String privatePhoneNumber) {
-		this.privatePhoneNumber = privatePhoneNumber;
-	}
-
-	public String getCellPhoneNumber() {
-		return cellPhoneNumber;
-	}
-
-	public void setCellPhoneNumber(String cellPhoneNumber) {
-		this.cellPhoneNumber = cellPhoneNumber;
-	}
-
-	public String getPagerNumber() {
-		return pagerNumber;
-	}
-
-	public void setPagerNumber(String pagerNumber) {
-		this.pagerNumber = pagerNumber;
-	}
-
-	public String getSalutation() {
-		return salutation;
-	}
-
-	public void setSalutation(String salutation) {
-		this.salutation = salutation;
-	}
-
-	@Override
-    public int hashCode() {
-	    final int prime = 31;
-	    int result = super.hashCode();
-	    result = prime * result + ((id == null) ? 0 : id.hashCode());
-	    return result;
-    }
-
-	@Override
-    public boolean equals(Object obj) {
-	    if (this == obj) return true;
-	    if (!super.equals(obj)) return false;
-	    if (getClass() != obj.getClass()) return false;
-	    ProfessionalSpecialist other = (ProfessionalSpecialist) obj;
-	    if (id == null) {
-		    if (other.id != null) return false;
-	    } else if (!id.equals(other.id)) return false;
-	    return true;
-    }
-
-	public boolean getHideFromView() {
-		return hideFromView;
-	}
-
-	public void setHideFromView(boolean hideFromView) {
-		this.hideFromView = hideFromView;
-	}
-
-	public Integer getEformId() {
-		return eformId;
-	}
-
-	public void setEformId(Integer eformId) {
-		this.eformId = eformId;
-	}
-
-	
 
 }

@@ -45,6 +45,7 @@ import javax.persistence.TemporalType;
 @DiscriminatorColumn(name="type")
 public class Contact extends AbstractModel<Integer> {
 
+		
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;	
@@ -66,15 +67,15 @@ public class Contact extends AbstractModel<Integer> {
 	private String fax;
 	private String note;
 	boolean deleted=false;
-	private Integer programNo;
+	
+	
+	public void setId(Integer id) {
+    	this.id = id;
+    }
 
 	@Override
 	public Integer getId() {
 		return this.id;
-	}
-
-	public void setId(Integer id) {
-		this.id = id;
 	}
 
 	public String getLastName() {
@@ -234,14 +235,4 @@ public class Contact extends AbstractModel<Integer> {
 	public String getFormattedName() {
 		return getLastName() + "," + getFirstName();
 	}
-
-	public Integer getProgramNo() {
-		return programNo;
-	}
-
-	public void setProgramNo(Integer programNo) {
-		this.programNo = programNo;
-	}
-	
-	
 }

@@ -25,8 +25,6 @@
 package oscar.oscarBilling.ca.bc.administration;
 
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -36,23 +34,13 @@ import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.oscarehr.billing.CA.BC.dao.WcbDao;
-import org.oscarehr.billing.CA.BC.model.Wcb;
-import org.oscarehr.common.dao.BillingDao;
-import org.oscarehr.common.dao.BillingServiceDao;
-import org.oscarehr.common.model.Billing;
-import org.oscarehr.common.model.BillingService;
-import org.oscarehr.common.model.Demographic;
-import org.oscarehr.managers.DemographicManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
+import oscar.AppointmentMainBean;
 import oscar.oscarBilling.ca.bc.MSP.MSPReconcile;
 import oscar.oscarBilling.ca.bc.data.BillingHistoryDAO;
-import oscar.oscarBilling.ca.bc.data.BillingmasterDAO;
+import oscar.oscarDB.DBHandler;
 import oscar.oscarProvider.data.ProviderData;
-import oscar.util.ConversionUtils;
 import oscar.util.StringUtils;
 
 /*
@@ -65,13 +53,13 @@ import oscar.util.StringUtils;
  * Created on Mar 10, 2004
  */
 
-public class TeleplanCorrectionActionWCB extends org.apache.struts.action.Action {
-	
-	static Logger log=MiscUtils.getLogger();
-	
-	private BillingDao billingDao = SpringUtils.getBean(BillingDao.class);
-	private WcbDao wcbDao = SpringUtils.getBean(WcbDao.class);
-	private DemographicManager demographicManager = SpringUtils.getBean(DemographicManager.class);
+public class TeleplanCorrectionActionWCB
+        extends org.apache.struts.action.Action {
+
+    static Logger log=MiscUtils.getLogger();
+    private static final String sql_biling = "update_wcb_billing", //set it to be billed again in billing
+             sql_wcb = "update_wcb_wcb", //updates wcb form
+             provider_wcb = "update_provider_wcb",  CLOSE_RECONCILIATION = "close_reconciliation"; //closes c12 record
 
     public ActionForward execute(ActionMapping mapping, ActionForm form,
             HttpServletRequest request,
@@ -84,6 +72,7 @@ public class TeleplanCorrectionActionWCB extends org.apache.struts.action.Action
 
         try {
 
+            AppointmentMainBean bean = (AppointmentMainBean) request.getSession().getAttribute("apptMainBean");
             MSPReconcile msp = new MSPReconcile();
             String status = data.getStatus();
 
@@ -114,72 +103,15 @@ public class TeleplanCorrectionActionWCB extends org.apache.struts.action.Action
             }
             updateUnitValue(data.getBillingUnit(), data.getBillingNo());
 
-           
-            Billing billing = billingDao.find(Integer.parseInt(data.getBillingNo()));
-            if(billing != null) {
-            	billing.setStatus(data.getStatus());
-            	billingDao.merge(billing);
-            }
-           
+            log.debug("sql_biling " + sql_biling + " ");
+            bean.queryExecuteUpdate(data.getBillingForStatus(), sql_biling);
             String feeItem = data.getW_feeitem();
             String extraFeeItem = data.getW_extrafeeitem();
             String getItemAmt = this.GetFeeItemAmount(feeItem, extraFeeItem);
             log.debug("fee " + feeItem + " extra " + extraFeeItem + " item amt " + getItemAmt);
-          
-            Demographic d = demographicManager.getDemographic(LoggedInInfo.getLoggedInInfoFromSession(request), data.getDemographicNumber());
-            
-            for(Wcb w : wcbDao.findByBillingNo(Integer.parseInt(data.getBillingNo()))) {
-            	w.setFormEdited(new Date());
-            	w.setStatus("O");
-            	w.setReportType(data.getW_reporttype());
-            	w.setBillAmount(getItemAmt);
-            	w.setfName(d.getFirstName());
-            	w.setlName(d.getLastName());
-            	w.setmName("");
-            	w.setGender(d.getSex());
-            	w.setDob(ConversionUtils.fromDateString(d.getYearOfBirth() + "-" + d.getMonthOfBirth() + "-" + d.getDateOfBirth()));
-            	w.setAddress(d.getAddress());
-            	w.setCity(d.getCity());
-            	w.setPostal(d.getPostal());
-            	w.setArea(oscar.Misc.areaCode(d.getPhone2()));
-            	w.setPhone(oscar.Misc.phoneNumber(d.getPhone2()));
-            	w.setPhn(d.getHin()+d.getVer());
-            	w.setEmpName(data.getW_empname());
-            	w.setEmpArea(data.getW_emparea());
-            	w.setEmpPhone(data.getW_empphone());
-            	w.setWcbNo(data.getW_wcbno());
-            	w.setOpAddress(data.getW_opaddress());
-            	w.setOpCity(data.getW_opcity());
-            	w.setrPhysician(data.getW_rphysician());
-            	w.setDuration(Integer.parseInt(data.getW_duration()));
-            	w.setProblem(data.getW_problem());
-            	w.setServiceDate(ConversionUtils.fromDateString(data.getW_servicedate()));
-            	w.setDiagnosis(data.getW_diagnosis());
-            	w.setIcd9(data.getW_icd9());
-            	w.setBp(data.getW_bp());
-            	w.setSide(data.getW_side());
-            	w.setNoi(data.getW_noi());
-            	w.setWork(data.getW_work());
-            	w.setWorkDate(ConversionUtils.fromDateString(data.getW_workdate()));
-            	w.setClinicInfo(data.getW_clinicinfo());
-            	w.setCapability(data.getW_capability());
-            	w.setCapReason(data.getW_capreason());
-            	w.setEstimate(data.getW_estimate());
-            	w.setRehab(data.getW_rehab());
-            	w.setRehabType(data.getW_rehabtype());
-            	w.setWcbAdbvisor(data.getW_wcbadvisor());
-            	w.setfTreatment(data.getW_ftreatment());
-            	w.setEstimateDate(ConversionUtils.fromDateString(data.getW_estimate()));
-            	w.setToFollow(data.getW_tofollow());
-            	w.setPracNo(data.getW_pracno());
-            	w.setDoi(ConversionUtils.fromDateString(data.getW_doi()));
-            	w.setServiceLocation(data.getServiceLocation());
-            	w.setFeeItem(data.getW_feeitem());
-            	w.setExtraFeeItem(data.getW_extrafeeitem());
-            	
-            	wcbDao.merge(w);
-            }
-            
+            String[] wcbParams = data.getWcb(getItemAmt);
+            bean.queryExecuteUpdate(wcbParams, sql_wcb);
+
             String providerNo = data.getProviderNo();
 
             ProviderData pd = new ProviderData(providerNo);
@@ -187,14 +119,9 @@ public class TeleplanCorrectionActionWCB extends org.apache.struts.action.Action
             String pracno = pd.getOhip_no();
             String billingNo = data.getBillingNo();
 
-            
-            for(Wcb wcb : wcbDao.findByBillingNo(Integer.parseInt(billingNo))) {
-            	//TODO: This has to be eventually changed to a string
-            	wcb.setProviderNo(Integer.parseInt(providerNo));
-            	wcb.setPayeeNo(payee);
-            	wcb.setPracNo(pracno);
-            	wcbDao.merge(wcb);
-            }
+            String s[] = {providerNo, payee, pracno, billingNo};
+
+            bean.queryExecuteUpdate(s, provider_wcb);
 
         } catch (Exception ex) {
             log.error("WCB Teleplan Correction Query Error: " +ex.getMessage() + " - ", ex);
@@ -210,15 +137,28 @@ public class TeleplanCorrectionActionWCB extends org.apache.struts.action.Action
         return actionForward;
     }
     private void updateUnitValue(String i, String billingno) {
-    	BillingmasterDAO dao = (BillingmasterDAO) SpringUtils.getBean("BillingmasterDAO");
-    	dao.updateBillingUnitForBillingNumber(i, Integer.parseInt(billingno));
+        try {
+
+        	DBHandler.RunSQL("update billingmaster set billing_unit = '" + i + "' WHERE billing_no ='" + billingno + "'");
+        } catch (java.sql.SQLException e) {
+            log.error("", e);
+        }
     }
 
     private String GetFeeItemAmount(String fee1, String fee2) {
-        BillingServiceDao dao = SpringUtils.getBean(BillingServiceDao.class);
-        List<BillingService> services = dao.findByServiceCode(fee1);
-        for(BillingService service : services)
-        	return service.getValue(); 
-        return "0.00";
+        String billamt = "0.00";
+
+        try {
+
+            java.sql.ResultSet rs;
+            rs = DBHandler.GetSQL("SELECT value FROM billingservice WHERE service_code='" +
+                    fee1 + "'");
+            if (rs.next()) {
+                billamt = rs.getString("value");
+            }
+        } catch (java.sql.SQLException e) {
+            log.error("", e);
+        }
+        return billamt;
     }
 }

@@ -42,7 +42,7 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
 import org.apache.struts.validator.DynaValidatorForm;
 import org.oscarehr.PMmodule.dao.ProviderDao;
-import org.oscarehr.eyeform.dao.EyeformOcularProcedureDao;
+import org.oscarehr.eyeform.dao.OcularProcDao;
 import org.oscarehr.eyeform.model.EyeformOcularProcedure;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
@@ -50,8 +50,6 @@ import org.oscarehr.util.SpringUtils;
 
 public class OcularProcAction extends DispatchAction {
 
-	EyeformOcularProcedureDao dao = SpringUtils.getBean(EyeformOcularProcedureDao.class);
-	
 	public ActionForward unspecified(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
         return form(mapping, form, request, response);
     }
@@ -61,6 +59,7 @@ public class OcularProcAction extends DispatchAction {
     }
 
     public ActionForward list(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+    	OcularProcDao dao = (OcularProcDao)SpringUtils.getBean("OcularProcDAO");
     	String demographicNo = request.getParameter("demographicNo");
 
     	List<EyeformOcularProcedure> procs = dao.getByDemographicNo(Integer.parseInt(demographicNo));
@@ -71,7 +70,8 @@ public class OcularProcAction extends DispatchAction {
 
     public ActionForward form(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
     	ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
-    	
+    	OcularProcDao dao = (OcularProcDao)SpringUtils.getBean("OcularProcDAO");
+
     	request.setAttribute("providers",providerDao.getActiveProviders());
 
     	if(request.getParameter("proc.id") != null) {
@@ -110,10 +110,8 @@ public class OcularProcAction extends DispatchAction {
     	DynaValidatorForm f = (DynaValidatorForm)form;
     	EyeformOcularProcedure procedure = (EyeformOcularProcedure)f.get("proc");
 
-    	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-
-    	EyeformOcularProcedureDao dao = (EyeformOcularProcedureDao)SpringUtils.getBean("ocularProcDao");
-		procedure.setProvider(loggedInInfo.getLoggedInProviderNo());
+    	OcularProcDao dao = (OcularProcDao)SpringUtils.getBean("ocularProcDao");
+    	procedure.setProvider(LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo());
 
     	if(request.getParameter("proc.id") != null && request.getParameter("proc.id").length()>0) {
     		procedure.setId(Integer.parseInt(request.getParameter("proc.id")));

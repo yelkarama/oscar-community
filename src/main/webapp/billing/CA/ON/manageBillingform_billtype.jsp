@@ -24,41 +24,25 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin.billing,_admin" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_admin&type=_admin.billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
+<%      
+if(session.getValue("user") == null) response.sendRedirect("../../../logout.jsp");
 %>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
-<%@ page import="java.math.*, java.util.*, java.io.*, java.sql.*, oscar.*, java.net.*,oscar.MyDateFormat"%>
-<%@ page import="org.oscarehr.util.SpringUtils" %>
-<%@ page import="org.oscarehr.common.model.CtlBillingType" %>
-<%@ page import="org.oscarehr.common.dao.CtlBillingTypeDao" %>
+<%@ page
+	import="java.math.*, java.util.*, java.io.*, java.sql.*, oscar.*, java.net.*,oscar.MyDateFormat"%>
 
-<%
-	CtlBillingTypeDao ctlBillingTypeDao = SpringUtils.getBean(CtlBillingTypeDao.class);
-%>
-
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean"
+	scope="session" />
+<%@ include file="dbBilling.jspf"%>
 
 <%
 String type_id = "", type_name="", billtype="no";
 type_id = request.getParameter("type_id");
 type_name = request.getParameter("type_name");
 
-for(CtlBillingType cbt:ctlBillingTypeDao.findByServiceType(type_id)) {
-	billtype = cbt.getBillType();
-}
-
+ResultSet rslocal = apptMainBean.queryResults(type_id, "search_ctlbilltype");
+if (rslocal.next()) billtype = rslocal.getString("billtype");
 %>
 
 <table width=95%>

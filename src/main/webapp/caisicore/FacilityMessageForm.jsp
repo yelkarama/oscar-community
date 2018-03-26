@@ -27,20 +27,6 @@
 
 
 <%@ include file="/taglibs.jsp"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_admin");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%@page import="java.util.Calendar"%>
 <html>
 <head>
@@ -50,19 +36,17 @@
 
 <title>Facility Messages</title>
 </head>
-
 <script>
 function openBrWindow(theURL,winName,features) { 
   window.open(theURL,winName,features);
 }
-
 </script>
 <body>
 <body>
 <table border="0" cellspacing="0" cellpadding="0" width="100%"
 	bgcolor="#CCCCFF">
 	<tr class="subject">
-		<th colspan="4">OSCAR</th>
+		<th colspan="4">CAISI</th>
 	</tr>
 
 	<tr>
@@ -112,12 +96,12 @@ function openBrWindow(theURL,winName,features) {
 		</tr>
 
 		<tr>
-			<td class="fieldTitle">Facility&nbsp;</td>
+			<td class="fieldTitle">Facilities&nbsp;</td>
 			<td>
 			<%
 						String role = (String)request.getAttribute("issueRole");
 						pageContext.setAttribute("issue_role",role);
-					%> <select name="facility_message.facilityId" id="facilityId">
+					%> <select name="facility_message.facilityId">
 				<option value="0">&nbsp;</option>
 				<c:forEach var="facility" items="${facilities}" varStatus="status">
 					<c:choose>
@@ -133,29 +117,6 @@ function openBrWindow(theURL,winName,features) {
 					</c:choose>
 				</c:forEach>
 			</select></td>
-		</tr>
-		
-				<tr>
-			<td class="fieldTitle">Program&nbsp;</td>
-			<td>
-				<select name="facility_message.programId" id="programId">
-					<option value=""></option>
-					<c:forEach var="program" items="${programs}" varStatus="status">
-					<c:choose>
-						<c:when
-							test="${program.id == facilityMessageForm.map.facility_message.programId}">
-							<option value="<c:out value="${program.id}"/>" selected><c:out
-								value="${program.name}" /></option>
-						</c:when>
-						<c:otherwise>
-							<option value="<c:out value="${program.id}"/>"><c:out
-								value="${program.name}" /></option>
-						</c:otherwise>
-					</c:choose>
-
-				</c:forEach>
-				</select>
-			</td>
 		</tr>
 
 

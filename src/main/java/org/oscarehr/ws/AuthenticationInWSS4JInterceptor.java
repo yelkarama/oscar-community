@@ -25,6 +25,7 @@
 
 package org.oscarehr.ws;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.security.auth.callback.Callback;
@@ -53,6 +54,8 @@ public class AuthenticationInWSS4JInterceptor extends WSS4JInInterceptor impleme
 {
 	private static final Logger logger = MiscUtils.getLogger();
 
+	private ArrayList<String> excludes = null;
+
 	public AuthenticationInWSS4JInterceptor()
 	{
 		HashMap<String, Object> properties = new HashMap<String, Object>();
@@ -72,14 +75,16 @@ public class AuthenticationInWSS4JInterceptor extends WSS4JInInterceptor impleme
 
 		try
 		{
+			// if excluded from authentication
+			String basePath = (String)message.get(SoapMessage.BASE_PATH);
+			if (isExcluded(basePath)) return;
+
 			super.handleMessage(message);
 
 			// if it gets here that means it succeeded
-			LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromRequest(request);
-
-
+			LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
 			OscarLog oscarLog=new OscarLog();
-			oscarLog.setProviderNo(loggedInInfo.getLoggedInProviderNo());
+			oscarLog.setProviderNo(loggedInInfo.loggedInProvider.getProviderNo());
 			oscarLog.setAction("WS_LOGIN_SUCCESS");
 			oscarLog.setIp(ip);
 			LogAction.addLogSynchronous(oscarLog);
@@ -87,6 +92,7 @@ public class AuthenticationInWSS4JInterceptor extends WSS4JInInterceptor impleme
 		catch (SoapFault e)
 		{
 			logger.debug("exception thrown", e);
+			
 			// this means wrong user/password
 			OscarLog oscarLog=new OscarLog();
 			oscarLog.setAction("WS_LOGIN_FAILURE");
@@ -95,6 +101,24 @@ public class AuthenticationInWSS4JInterceptor extends WSS4JInInterceptor impleme
 
 			throw(e);
 		}
+	}
+
+	public void setExcludes(ArrayList<String> excludes)
+	{
+		this.excludes = excludes;
+	}
+
+	private boolean isExcluded(String s)
+	{
+		// this means it's a response to my request - still registers as in bound even though it's just an in bound response.  
+		if (s == null) return(true);
+
+		for (String x : excludes)
+		{
+			if (s.endsWith(x)) return(true);
+		}
+
+		return(false);
 	}
 
 	@Override

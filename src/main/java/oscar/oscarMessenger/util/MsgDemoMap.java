@@ -31,100 +31,102 @@
 
 package oscar.oscarMessenger.util;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.sql.ResultSet;
 import java.util.Hashtable;
-import java.util.List;
+import java.util.Vector;
 
-import org.oscarehr.common.dao.MsgDemoMapDao;
-import org.oscarehr.common.model.Demographic;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
-import oscar.util.ConversionUtils;
+import oscar.oscarDB.DBHandler;
 /**
  *
  * @author root
  */
 public class MsgDemoMap {
     
-	private MsgDemoMapDao dao = SpringUtils.getBean(MsgDemoMapDao.class);
-	
+    /** Creates a new instance of MsgDemoMap */
     public MsgDemoMap() {
     }
     
+    
+    /*  Structure of the msgDemoMap table
+     *  +----------------+--------------+------+-----+---------+-------+
+     *  | Field          | Type         | Null | Key | Default | Extra |
+     *  +----------------+--------------+------+-----+---------+-------+
+     *  | messageID      | mediumint(9) |      | PRI | 0       |       |
+     *  | demographic_no | int(10)      |      | PRI | 0       |       |
+     *  +----------------+--------------+------+-----+---------+-------+
+     */
     public void linkMsg2Demo(String msgId, String demographic_no){
 
-    	org.oscarehr.common.model.MsgDemoMap mdm = new org.oscarehr.common.model.MsgDemoMap();
-    	mdm.setMessageID(Integer.valueOf(msgId));
-        mdm.setDemographic_no(Integer.valueOf(demographic_no));
-    	    	
-    	dao.persist(mdm);
-    	
-    }
-    
-    public HashMap<String,List<String> > getDemoMap2 (String msgId){
-        HashMap<String,List<String> > demoMap = new HashMap<String,List<String> >();
-        List<String> list = null;
-        
-        MsgDemoMapDao dao = SpringUtils.getBean(MsgDemoMapDao.class);
-        dao.getMessagesAndDemographicsByMessageId(ConversionUtils.fromIntString(msgId));
-        for(Object[] o : dao.getMessagesAndDemographicsByMessageId(ConversionUtils.fromIntString(msgId))) {
-        	org.oscarehr.common.model.MsgDemoMap m = (org.oscarehr.common.model.MsgDemoMap) o[0];
-        	Demographic d = (Demographic) o[1];
-                if( demoMap.containsKey(String.valueOf(d.getDemographicNo())) ) {
-                    demoMap.get(String.valueOf(d.getDemographicNo())).add(d.getFormattedName());
-                }
-                else {
-                    list = new ArrayList<String>();
-                    list.add(d.getFormattedName());
-                    demoMap.put(String.valueOf(d.getDemographicNo()), list);
-                }
-        	
+        //both msgId + demographic_no is the the primary key
+        //if the combination of both msgId and demographic_no value exsit in the table, new data will not be added
+        try{            
+            
+            String sql = "";                   
+            sql = "insert into msgDemoMap values ('"+msgId+"','"+demographic_no+"')";
+            MiscUtils.getLogger().debug(sql);
+            DBHandler.RunSQL(sql);
         }
-
-        return demoMap;
+        catch (java.sql.SQLException e){ 
+           MiscUtils.getLogger().error("Error", e); 
+        }
     }
-    
     
     public Hashtable getDemoMap (String msgId){
         Hashtable demoMap = new Hashtable();
-        
-        MsgDemoMapDao dao = SpringUtils.getBean(MsgDemoMapDao.class);
-        dao.getMessagesAndDemographicsByMessageId(ConversionUtils.fromIntString(msgId));
-        for(Object[] o : dao.getMessagesAndDemographicsByMessageId(ConversionUtils.fromIntString(msgId))) {
-        	org.oscarehr.common.model.MsgDemoMap m = (org.oscarehr.common.model.MsgDemoMap) o[0];
-        	Demographic d = (Demographic) o[1];
-        	demoMap.put("" + d.getDemographicNo(), d.getFullName() );
+        try{            
+            
+            String sql = "";                               
+            sql = "select d.last_name, d.first_name, d.demographic_no from msgDemoMap m, demographic d where messageID ='"+msgId + 
+                  "' and d.demographic_no = m.demographic_no order by d.last_name, d.first_name";
+                                
+            ResultSet rs = DBHandler.GetSQL(sql);
+            while(rs.next()){
+                demoMap.put(oscar.Misc.getString(rs, "d.demographic_no"), oscar.Misc.getString(rs, "last_name")+", "+oscar.Misc.getString(rs, "first_name") );
+            }
         }
-
+        catch (java.sql.SQLException e){ 
+            demoMap = null;
+        }  
+        
         return demoMap;
     }
     
-    public List<String> getMsgVector(String demographic_no){
-        List<String> msgVector= new ArrayList<String>();
-        MsgDemoMapDao dao = SpringUtils.getBean(MsgDemoMapDao.class);
-        for(Object[] o : dao.getMapAndMessagesByDemographicNo(ConversionUtils.fromIntString(demographic_no))) {
-        	org.oscarehr.common.model.MsgDemoMap map = (org.oscarehr.common.model.MsgDemoMap) o[0];
-        	msgVector.add("" + map.getMessageID());
+    public Vector getMsgVector(String demographic_no){
+        Vector msgVector= new Vector();
+        try{            
+            
+            String sql = "";                               
+            //sql = "select tbl.thedate, tbl.thesubject from msgDemoMap map, messagetbl tbl where demographic_no ='"+ demographic_no 
+            //        + "' and tbl.messageid = map.messageID order by tbl.thedate";
+            sql = "select map.messageID from msgDemoMap map, messagetbl m where m.messageid=map.messageID and demographic_no='"+demographic_no+"' order by m.thedate desc , m.messageid desc ";
+            
+            ResultSet rs = DBHandler.GetSQL(sql);
+            while(rs.next()){
+                msgVector.add(oscar.Misc.getString(rs, "messageID"));
+            }
+        }
+        catch (java.sql.SQLException e){ 
+            msgVector = null;
         }
         return msgVector;
     }
     
-    public List<String> getMsgList(String demographic_no, Integer type) {
-        List<String> msgList= new ArrayList<String>();
-        MsgDemoMapDao dao = SpringUtils.getBean(MsgDemoMapDao.class);
-        for(Object[] o : dao.getMapAndMessagesByDemographicNoAndType(Integer.valueOf(demographic_no), type)) {
-        	org.oscarehr.common.model.MsgDemoMap map = (org.oscarehr.common.model.MsgDemoMap) o[0];
-        	msgList.add("" + map.getMessageID());
+    public void unlinkMsg (String demographic_no, String messageID){
+        Vector msgVector= new Vector();
+        try{          
+            MiscUtils.getLogger().debug("input msgId: " + messageID + "  input demographic_no: " + demographic_no);
+            
+            String sql = "";                               
+            //sql = "select tbl.thedate, tbl.thesubject from msgDemoMap map, messagetbl tbl where demographic_no ='"+ demographic_no 
+            //        + "' and tbl.messageid = map.messageID order by tbl.thedate";
+            sql = "delete from msgDemoMap where demographic_no='"+demographic_no+"' and messageID='"+messageID+"'";
+            
+            DBHandler.RunSQL(sql);
         }
-        return msgList;
-    }
-    
-    public void unlinkMsg (String demographic_no, String messageID){        
-        MiscUtils.getLogger().debug("input msgId: " + messageID + "  input demographic_no: " + demographic_no);
-        
-    	dao.remove(Integer.parseInt(messageID),Integer.parseInt(demographic_no));
-       
+        catch (java.sql.SQLException e){ 
+            msgVector = null;
+        }
     }
 }

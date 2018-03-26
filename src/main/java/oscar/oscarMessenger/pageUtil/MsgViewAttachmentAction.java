@@ -22,6 +22,7 @@
  * Ontario, Canada
  */
 
+
 package oscar.oscarMessenger.pageUtil;
 
 import java.io.IOException;
@@ -34,37 +35,39 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.oscarehr.common.dao.MessageTblDao;
-import org.oscarehr.common.model.MessageTbl;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
-import org.oscarehr.util.SpringUtils;
+import org.oscarehr.util.MiscUtils;
 
-import oscar.util.ConversionUtils;
+import oscar.oscarDB.DBHandler;
 
 public class MsgViewAttachmentAction extends Action {
 
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	
-	public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-		
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_msg", "r", null)) {
-			throw new SecurityException("missing required security object (_msg)");
-		}
-		
-		MsgViewAttachmentForm frm = (MsgViewAttachmentForm) form;
-		String attachId;
-		String att = null;
-		attachId = frm.getAttachId();
+    public ActionForward execute(ActionMapping mapping,
+				 ActionForm form,
+				 HttpServletRequest request,
+				 HttpServletResponse response)
+	throws IOException, ServletException {
 
-		MessageTblDao dao = SpringUtils.getBean(MessageTblDao.class);
-		MessageTbl m = dao.find(ConversionUtils.fromIntString(attachId));
-		if (m != null) {
-			att = m.getAttachment();
-		}
-		request.setAttribute("Attachment", att);
-		request.setAttribute("attId", attachId);
+    MsgViewAttachmentForm frm = (MsgViewAttachmentForm) form;
+    String attachId;
+    String att = null;
 
-		return (mapping.findForward("success"));
-	}
+    attachId = frm.getAttachId();
+
+    try{
+        
+        java.sql.ResultSet rs;
+
+        String sql = new String("select attachment from messagetbl where messageid ="+attachId);
+        rs = DBHandler.GetSQL(sql);
+        while (rs.next()) {
+              att = oscar.Misc.getString(rs, "attachment");
+        }//while
+        rs.close();
+    }catch (java.sql.SQLException e){MiscUtils.getLogger().error("Error", e); }
+
+    request.setAttribute("Attachment",att);
+    request.setAttribute("attId",attachId);
+
+    return (mapping.findForward("success"));
+    }
 }

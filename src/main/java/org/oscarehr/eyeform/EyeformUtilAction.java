@@ -9,7 +9,6 @@
 
 package org.oscarehr.eyeform;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -26,9 +25,9 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
+import org.caisi.dao.TicklerDAO;
+import org.caisi.model.Tickler;
 import org.oscarehr.PMmodule.dao.ProviderDao;
-import org.oscarehr.PMmodule.dao.SecUserRoleDao;
-import org.oscarehr.PMmodule.model.SecUserRole;
 import org.oscarehr.common.dao.BillingServiceDao;
 import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.DiagnosticCodeDao;
@@ -40,10 +39,7 @@ import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.DiagnosticCode;
 import org.oscarehr.common.model.EyeformMacro;
 import org.oscarehr.common.model.Provider;
-import org.oscarehr.common.model.Tickler;
 import org.oscarehr.eyeform.model.EyeformMacroBillingItem;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.managers.TicklerManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.SpringUtils;
 
@@ -52,10 +48,6 @@ import oscar.util.StringUtils;
 
 public class EyeformUtilAction extends DispatchAction {
 
-	private TicklerManager ticklerManager = SpringUtils.getBean(TicklerManager.class);
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	
-	
 	public ActionForward getProviders(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao");
 		List<Provider> activeProviders = providerDao.getActiveProviders();
@@ -74,19 +66,14 @@ public class EyeformUtilAction extends DispatchAction {
 
 
 	public ActionForward getTickler(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_tickler", "r", null)) {
-        	throw new SecurityException("missing required security object (_demographic)");
-        }
-		
-		Tickler t = ticklerManager.getTickler(loggedInInfo,Integer.parseInt(request.getParameter("tickler_no")));
+		TicklerDAO ticklerDao = (TicklerDAO) SpringUtils.getBean("ticklerDAOT");
+		Tickler t = ticklerDao.getTickler(Long.parseLong(request.getParameter("tickler_no")));
 
 		HashMap<String, HashMap<String, Object>> hashMap = new HashMap<String, HashMap<String, Object>>();
 		HashMap<String, Object> ticklerMap = new HashMap<String, Object>();
 
 		ticklerMap.put("message", t.getMessage());
-		ticklerMap.put("updateDate", t.getUpdateDate());
+		ticklerMap.put("updateDate", t.getUpdate_date());
 		ticklerMap.put("provider", t.getProvider().getFormattedName());
 		ticklerMap.put("providerNo", t.getProvider().getProviderNo());
 		ticklerMap.put("toProvider", t.getAssignee().getFormattedName());
@@ -211,19 +198,10 @@ public class EyeformUtilAction extends DispatchAction {
 	}
 
 	public ActionForward sendPlan(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 		HashMap<String, Object> hashMap = new HashMap<String, Object>();
 
 		ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao");
-		SecUserRoleDao secUserRoleDao = (SecUserRoleDao) SpringUtils.getBean("secUserRoleDao");
-		
-		List<Provider> activeReceptionists = new ArrayList<Provider>();
-		for(SecUserRole sur:secUserRoleDao.getSecUserRolesByRoleName("receptionist")) {
-			Provider p = providerDao.getProvider(sur.getProviderNo());
-			if(p != null && p.getStatus().equals("1")) {
-				activeReceptionists.add(p);
-			}
-		}
+		List<Provider> activeReceptionists = providerDao.getActiveProvidersByType("receptionist");
 
 		TicklerCreator tc = new TicklerCreator();
 		String demographicNo = request.getParameter("demographicNo");
@@ -232,7 +210,7 @@ public class EyeformUtilAction extends DispatchAction {
 
 		if (demographicNo != null && message != null && message.trim().length() > 0 && activeReceptionists != null) {
 			for (Provider p : activeReceptionists) {
-				tc.createTickler(loggedInInfo, demographicNo, p.getProviderNo(), message);
+				tc.createTickler(demographicNo, p.getProviderNo(), message);
 			}
 
 			hashMap.put("sentToReceptionists", activeReceptionists.size());
@@ -243,8 +221,6 @@ public class EyeformUtilAction extends DispatchAction {
 
 	public ActionForward getBillingArgs(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		HashMap<String, Object> hashMap = new HashMap<String, Object>();
-
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 
 		DemographicDao demographicDao = (DemographicDao) SpringUtils.getBean("demographicDao");
 		OscarAppointmentDao appointmentDao = (OscarAppointmentDao) SpringUtils.getBean("oscarAppointmentDao");
@@ -285,7 +261,7 @@ public class EyeformUtilAction extends DispatchAction {
 			hashMap.put("appointment_date", appointment.getAppointmentDate().getTime());
 		}
 
-		hashMap.put("current_provider_no", loggedInInfo.getLoggedInProviderNo());
+		hashMap.put("current_provider_no", LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo());
 		hashMap.put("demo_mrp_provider_no", demographic.getProviderNo());
 
 

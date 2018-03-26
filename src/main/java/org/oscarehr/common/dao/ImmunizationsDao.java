@@ -25,10 +25,6 @@
 
 package org.oscarehr.common.dao;
 
-import java.util.List;
-
-import javax.persistence.Query;
-
 import org.oscarehr.common.model.Immunizations;
 import org.springframework.stereotype.Repository;
 
@@ -38,15 +34,5 @@ public class ImmunizationsDao extends AbstractDao<Immunizations>{
 
 	public ImmunizationsDao() {
 		super(Immunizations.class);
-	}
-	
-	public List<Immunizations> findCurrentByDemographicNo(Integer demographicNo) {
-		Query q = entityManager.createQuery("SELECT i FROM Immunizations i WHERE i.demographicNo=?1 AND i.archived=0");
-		q.setParameter(1, demographicNo);
-		
-		@SuppressWarnings("unchecked")
-		List<Immunizations> results = q.getResultList();
-		
-		return results;
 	}
 }

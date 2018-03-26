@@ -43,8 +43,6 @@ public class HRMDocument extends AbstractModel<Integer> {
 
 	private Integer hrmCategoryId;
 
-	private String description = "";
-	
 	@Override
 	public Integer getId() {
 		return id;
@@ -153,16 +151,6 @@ public class HRMDocument extends AbstractModel<Integer> {
 	public void setHrmCategoryId(Integer hrmCategoryId) {
 		this.hrmCategoryId = hrmCategoryId;
 	}
-
-	
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
 
 	/**
 	 * This comparator sorts HRM Docs ascending based on the time received

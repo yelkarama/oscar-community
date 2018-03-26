@@ -24,23 +24,8 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_pmm" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_pmm");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
 
 
-<%@page import="org.oscarehr.util.WebUtilsOld"%>
 <%@page import="org.oscarehr.common.model.Provider"%>
 <%@page import="org.oscarehr.util.SpringUtils"%>
 <%@page import="org.oscarehr.PMmodule.dao.ProviderDao"%>
@@ -110,7 +95,7 @@
 	}
 </script>
 
-<%=WebUtilsOld.popErrorMessagesAsHtml(session)%>
+<%=WebUtils.popErrorMessagesAsHtml(session)%>
 
 <div class="tabs" id="tabs">
 <table cellpadding="3" cellspacing="0" border="0">
@@ -315,7 +300,7 @@
 			<td width="20%">Presenting Problems:</td>
 			<td><html:textarea cols="50" rows="7"
 				property="referral.presentProblems" /></td>
-		</tr>
+		</tr>		
 		<tr> <td>Referral Date:</td>
 			<td><input type="text" id="referralDate" name="referralDate" value="" readonly ><img titltype="text"e="Calendar" id="cal_referralDate" 
                 src="<%=request.getContextPath()%>/images/cal.gif" alt="Calendar" border="0">
@@ -330,8 +315,8 @@
 					<td width="20%">Request Temporary Admission:</td>
 					<td><html:checkbox property="referral.temporaryAdmission" /></td>
 				</tr>
-			</caisi:isModuleLoad>
-			<!-- </c:if> -->
+			</caisi:isModuleLoad>	
+			<!-- </c:if> -->		
 		</c:if>
 		<tr class="b">
 			<td colspan="2"><input type="button" value="Process Referral"

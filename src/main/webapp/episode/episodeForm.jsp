@@ -28,18 +28,13 @@
 
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-    String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed2=true;
+    if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
+    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
 %>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_eChart" rights="w" reverse="<%=true%>">
-	<%authed2=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_eChart");%>
+<security:oscarSec roleName="<%=roleName$%>"
+	objectName="_admin" rights="r" reverse="<%=true%>">
+	<%response.sendRedirect("../logout.jsp");%>
 </security:oscarSec>
-<%
-	if(!authed2) {
-		return;
-	}
-%>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -111,12 +106,12 @@
 			return false;
 		}
 		if($("#startDate").val().length == 0) {
-			alert("Start Date Required");
+			alert("Description Required");
 			return false;
 		}
 		
 		if($("#endDate").val().length == 0 && $('select[name="episode.status"]').val() == 'Completed') {
-			alert("End Date Required");
+			alert("Please select an End Date");
 			return false;
 		}
 		return true;

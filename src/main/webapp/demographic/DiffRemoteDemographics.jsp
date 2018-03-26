@@ -23,22 +23,6 @@
     Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_demographic" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_demographic");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page
 	import="org.oscarehr.common.dao.DemographicDao,org.oscarehr.caisi_integrator.ws.DemographicWs,org.oscarehr.util.SpringUtils,org.oscarehr.common.model.Demographic"%>
 <%@page
@@ -46,9 +30,9 @@
 <%@page
 	import="org.oscarehr.PMmodule.caisi_integrator.*,java.util.*,oscar.util.*"%>
 <%
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-	Integer localDemographicId = Integer.parseInt(request.getParameter("demographicId"));
-	DemographicWs demographicWs = CaisiIntegratorManager.getDemographicWs(loggedInInfo, loggedInInfo.getCurrentFacility());
+
+Integer localDemographicId = Integer.parseInt(request.getParameter("demographicId"));
+	DemographicWs demographicWs = CaisiIntegratorManager.getDemographicWs();
 	List<DemographicTransfer> directLinks=demographicWs.getDirectlyLinkedDemographicsByDemographicId(localDemographicId);
 	DemographicTransfer demographicTransfer = null;	
 		
@@ -63,13 +47,13 @@
 	FacilityIdStringCompositePk providerPk=new FacilityIdStringCompositePk();
 	providerPk.setIntegratorFacilityId(demographicTransfer.getIntegratorFacilityId());
 	providerPk.setCaisiItemId(demographicTransfer.getLastUpdateUser());
-	CachedProvider p = CaisiIntegratorManager.getProvider(loggedInInfo, loggedInInfo.getCurrentFacility(), providerPk);
+	CachedProvider p = CaisiIntegratorManager.getProvider(providerPk);
 	String remoteProvider = "Unknown"; // i18n
 	if(p != null){
 		remoteProvider = p.getFirstName() +" "+p.getLastName();
 	}
 	
-	List<Role> roles = CaisiIntegratorManager.getProviderWs(loggedInInfo, loggedInInfo.getCurrentFacility()).getProviderRoles(providerPk);
+	List<Role> roles = CaisiIntegratorManager.getProviderWs().getProviderRoles(providerPk);
 	StringBuilder remoteRoles = new StringBuilder();
 	boolean first = true;
 	for(Role role: roles){
@@ -84,6 +68,13 @@
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 "http://www.w3.org/TR/html4/loose.dtd">
+<%-- This JSP is the first page you see when you enter 'report by template' --%>
+<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
+<%
+    if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
+    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
+%>
+
 
 <%@ page import="java.util.*,oscar.oscarReport.reportByTemplate.*"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
@@ -130,9 +121,9 @@
 						<td>Remote:
 						<% if(demographicTransfer!= null){ %>
 				
-							<%=CaisiIntegratorManager.getRemoteFacility(loggedInInfo, loggedInInfo.getCurrentFacility(), demographicTransfer.getIntegratorFacilityId()).getName()     %>
+							<%=CaisiIntegratorManager.getRemoteFacility(demographicTransfer.getIntegratorFacilityId()).getName()     %>
 							-
-							<%=CaisiIntegratorManager.getRemoteFacility(loggedInInfo, loggedInInfo.getCurrentFacility(), demographicTransfer.getIntegratorFacilityId()).getDescription()    %>
+							<%=CaisiIntegratorManager.getRemoteFacility(demographicTransfer.getIntegratorFacilityId()).getDescription()    %>
 							<br>
 							By: <%=remoteProvider %> -- Role : <%=remoteRoles.toString() %>
 						<%} %>

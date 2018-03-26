@@ -58,25 +58,26 @@ public class FluReport implements PreventionReport {
     public FluReport() {
     }
 
-    public Hashtable<String,Object> runReport(LoggedInInfo loggedInInfo, ArrayList<ArrayList<String>> list,Date asofDate){
+    public Hashtable<String,Object> runReport(ArrayList<ArrayList<String>> list,Date asofDate){
         int inList = 0;
         double done= 0;
         ArrayList<PreventionReportDisplay> returnReport = new ArrayList<PreventionReportDisplay>();
 
         for (int i = 0; i < list.size(); i ++){//for each  element in arraylist
              ArrayList<String> fieldList = list.get(i);
-             Integer demo = Integer.valueOf(fieldList.get(0));
+             String demo = fieldList.get(0);
 
              log.debug("processing patient : "+demo);
 
              //search   prevention_date prevention_type  deleted   refused
 
-             ArrayList<Map<String,Object>>  prevs = PreventionData.getPreventionData(loggedInInfo, "Flu",demo);
-             PreventionData.addRemotePreventions(loggedInInfo, prevs, demo,"Flu",null);
+             ArrayList<Map<String,Object>>  prevs = PreventionData.getPreventionData("Flu",demo);
+             PreventionData.addRemotePreventions(prevs, Integer.parseInt(demo),"Flu",null);
 
-             if (loggedInInfo.getCurrentFacility().isIntegratorEnabled()) {
+             LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+             if (loggedInInfo.currentFacility.isIntegratorEnabled()) {
             	 try {
-	                ArrayList<HashMap<String,Object>> remotePreventions=PreventionData.getLinkedRemotePreventionData(loggedInInfo, "Flu", demo);
+	                ArrayList<HashMap<String,Object>> remotePreventions=PreventionData.getLinkedRemotePreventionData("Flu", Integer.parseInt(demo));
 	                prevs.addAll(remotePreventions);
 
 	                Collections.sort(prevs, new PreventionData.PreventionsComparator());
@@ -101,7 +102,7 @@ public class FluReport implements PreventionReport {
                 Date dueDate = cal.getTime();
                 //cal.add(Calendar.MONTH,-6);
                 Date cutoffDate =  dueDate;//asofDate ; //cal.getTime();
-             if(!isOfAge(loggedInInfo, demo.toString(),asofDate)){
+             if(!isOfAge(demo,asofDate)){
                 prd.rank = 5;
                 prd.lastDate = "------";
                 prd.state = "Ineligible";
@@ -182,7 +183,7 @@ public class FluReport implements PreventionReport {
                 log.debug("bonusEl start date "+beginingOfYear+ " "+beginingOfYear.before(prevDate));
                 log.debug("bonusEl end date "+endOfYear+ " "+endOfYear.after(prevDate));
                 log.debug("ASOFDATE "+asofDate);
-                if (beginingOfYear.before(prevDate) && endOfYear.after(prevDate) && isOfAge(loggedInInfo, demo.toString(),asofDate)){
+                if (beginingOfYear.before(prevDate) && endOfYear.after(prevDate) && isOfAge(demo,asofDate)){
                     if( refused ) {
                         prd.billStatus = "Y";
                     }
@@ -254,7 +255,7 @@ public class FluReport implements PreventionReport {
           String percentStr = "0";
           double eligible = list.size() - inList;
           log.debug("eligible "+eligible+" done "+done);
-          if ((int)eligible != 0){
+          if (eligible != 0){
              double percentage = ( done / eligible ) * 100;
              log.debug("in percentage  "+percentage   +" "+( done / eligible));
              percentStr = ""+Math.round(percentage);
@@ -300,10 +301,10 @@ public class FluReport implements PreventionReport {
        return false;
    }
 
-   boolean isOfAge(LoggedInInfo loggedInInfo, String d,Date asofDate){
+   boolean isOfAge(String d,Date asofDate){
         boolean isAge = true;
         DemographicData demoData= new DemographicData();
-        org.oscarehr.common.model.Demographic demo = demoData.getDemographic(loggedInInfo, d);
+        org.oscarehr.common.model.Demographic demo = demoData.getDemographic(d);
         Date demoDOB = DemographicData.getDOBObj(demo);
 
         Calendar bonusEl = Calendar.getInstance();

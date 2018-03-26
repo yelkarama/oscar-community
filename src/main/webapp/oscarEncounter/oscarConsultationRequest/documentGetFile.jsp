@@ -24,35 +24,14 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_con" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../securityError.jsp?type=_con");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
 <%@taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@page
 	import="java.math.*, java.util.*, java.io.*, java.sql.*, oscar.*, java.net.*,oscar.MyDateFormat"%>
 
-<%@page import="org.oscarehr.util.SpringUtils" %>
-<%@page import="org.oscarehr.common.dao.DocumentDao" %>
-<%@page import="org.oscarehr.common.model.Document" %>
-
-<%
-	DocumentDao documentDao = SpringUtils.getBean(DocumentDao.class);
-%>
-
-
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean"
+	scope="session" />
+<%@include file="../../dms/dbDMS.jspf"%>
 <%
   String filename = "", filetype = "", doc_no = "";
   String docdownload = oscar.OscarProperties.getInstance().getProperty("DOCUMENT_DIR");
@@ -85,9 +64,11 @@ if(!authed) {
          outs.close();
         
      } else {
-    	 for(Document d: documentDao.findActiveByDocumentNo(Integer.parseInt(doc_no))) {
-    			out.print(d.getDocxml());
-    		}
+    ResultSet rslocal2 = null;
+    rslocal2 = apptMainBean.queryResults(doc_no, "search_document_content");
+    while (rslocal2.next()) {
+      out.print(rslocal2.getString("docxml"));
+    }
   } 
   
   } else {

@@ -41,14 +41,14 @@ public class BeanUtilHlp {
   public BeanUtilHlp() {
   }
 
-/**
+  /**
  * A convenience method used to retrieve the field value of a specified JavaBean
- * @param bean
- * @param fieldName
- * @return the property value
+ * @param bill Object
+ * @param fieldName String
+ * @return String
  */
 public String getPropertyValue(Object bean, String fieldName) {
-
+  BeanUtils ut = new BeanUtils();
   String value = "";
   try {
     value = BeanUtils.getProperty(bean, fieldName);

@@ -26,112 +26,97 @@ package oscar.oscarBilling.ca.bc.data;
 
 import java.util.Date;
 
-import org.oscarehr.billing.CA.BC.model.BillRecipients;
 import org.oscarehr.util.MiscUtils;
 
-import oscar.util.ConversionUtils;
 
 public class BillRecipient {
-	
-	private Integer id;
-	private String name;
-	private String address;
-	private String city;
-	private String province;
-	private String postal;
-	private Date creationTime;
-	private Date updateTime;
-	private String billingNo;
+  private Integer id;
+  private String name;
+  private String address;
+  private String city;
+  private String province;
+  private String postal;
+  private Date creationTime;
+  private Date updateTime;
+  private String billingNo;
+  public BillRecipient() {
+  }
 
-	public BillRecipient() {
-	}
+  
+  public void setId(int id){
+      MiscUtils.getLogger().debug("int id");
+      this.id = new Integer(id);
+  }
 
-	public BillRecipient(BillRecipients b) {
-		id = b.getId();
-		name = b.getName();
-		address = b.getAddress();
-		city = b.getCity();
-		province = b.getProvince();
-		postal = b.getPostal();
-		creationTime = b.getCreationTime();
-		updateTime = b.getUpdateTime();
-		billingNo = ConversionUtils.toIntString(b.getBillingNo());
-	}
+  public void setName(String name) {
+    this.name = name;
+  }
 
-	public void setId(int id) {
-		MiscUtils.getLogger().debug("int id");
-		this.id = new Integer(id);
-	}
+  public void setAddress(String address) {
+    this.address = address;
+  }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+  public void setCity(String city) {
+    this.city = city;
+  }
 
-	public void setAddress(String address) {
-		this.address = address;
-	}
+  public void setProvince(String province) {
+    this.province = province;
+  }
 
-	public void setCity(String city) {
-		this.city = city;
-	}
+  public void setPostal(String postal) {
+    this.postal = postal;
+  }
 
-	public void setProvince(String province) {
-		this.province = province;
-	}
+  public void setCreationTime(Date creationTime) {
+    this.creationTime = creationTime;
+  }
 
-	public void setPostal(String postal) {
-		this.postal = postal;
-	}
+  public void setUpdateTime(Date updateTime) {
+    this.updateTime = updateTime;
+  }
+ 
+  public void setBillingNo(Integer billingNo) {
+    this.billingNo = billingNo.toString();
+  }
+  
+  public void setBillingNoString(String billingNo) {
+    this.billingNo = billingNo;
+  }
 
-	public void setCreationTime(Date creationTime) {
-		this.creationTime = creationTime;
-	}
+  public Integer getId() {
+    return id;
+  }
 
-	public void setUpdateTime(Date updateTime) {
-		this.updateTime = updateTime;
-	}
+  public String getName() {
+    return name;
+  }
 
-	public void setBillingNo(Integer billingNo) {
-		this.billingNo = billingNo.toString();
-	}
+  public String getAddress() {
+    return address;
+  }
 
-	public void setBillingNoString(String billingNo) {
-		this.billingNo = billingNo;
-	}
+  public String getCity() {
+    return city;
+  }
 
-	public Integer getId() {
-		return id;
-	}
+  public String getProvince() {
+    return province;
+  }
 
-	public String getName() {
-		return name;
-	}
+  public String getPostal() {
+    return postal;
+  }
 
-	public String getAddress() {
-		return address;
-	}
+  public Date getCreationTime() {
+    return creationTime;
+  }
 
-	public String getCity() {
-		return city;
-	}
+  public Date getUpdateTime() {
+    return updateTime;
+  }
 
-	public String getProvince() {
-		return province;
-	}
-
-	public String getPostal() {
-		return postal;
-	}
-
-	public Date getCreationTime() {
-		return creationTime;
-	}
-
-	public Date getUpdateTime() {
-		return updateTime;
-	}
-
-	public String getBillingNo() {
-		return billingNo;
-	}
+  public String getBillingNo() {
+    return billingNo;
+  }
 }

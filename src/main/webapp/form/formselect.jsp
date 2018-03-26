@@ -24,28 +24,45 @@
 
 --%>
 
-
+<%
+  if(session.getValue("user") == null) response.sendRedirect("../../logout.jsp");
+%>
 <%@ page import="java.util.*,oscar.oscarReport.pageUtil.*"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
-
+<link rel="stylesheet" type="text/css"
+	href="../oscarEncounter/encounterStyles.css">
 <html:html locale="true">
 <head>
-
+<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="admin.admin.btnSelectForm" /></title>
+<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
 
+<script type="text/javascript">
+    function set(target) {
+     document.forms[0].forward.value=target;
+};    
+</script>
 
 </head>
 
-<body>
-
-<h3><bean:message key="admin.admin.btnSelectForm" /></h3>
-
-<div class="well">
-
-<html:form action="/form/select.do" styleId="selectForm">
-	<table id="scrollNumber1" name="encounterTable">
+<body class="BodyStyle" vlink="#0000FF"
+	onload="window.resizeTo(1000,500)">
+<!--  -->
+<html:form action="/form/select.do">
+	<table class="MainTable" id="scrollNumber1" name="encounterTable">
+		<tr class="MainTableTopRow">
+			<td class="MainTableTopRowLeftColumn"><bean:message
+				key="admin.admin.btnSelectForm" /></td>
+			<td class="MainTableTopRowRightColumn" width="400">
+			<table class="TopStatusBar">
+				<tr>
+					<td></td>
+				</tr>
+			</table>
+			</td>
+		</tr>
 		<tr>
 			<td class="MainTableLeftColumn"></td>
 			<td class="MainTableRightColumn">
@@ -68,14 +85,14 @@
 						<td>
 						<table>
 							<tr>
-								<td><input type="button" name="button" id="add" class="btn function" style="width:80px"
+								<td><input type="button" name="button" style='width: 75'
 									value="<bean:message key="oscarEncounter.oscarMeasurements.MeasurementsAction.addBtn"/> >>"
-									/></td>
+									onclick="set('add');submit();" /></td>
 							</tr>
 							<tr>
-								<td>
-<input type="button" name="button" class="btn function" id="delete" style="width:80px" value="<< <bean:message key="oscarEncounter.oscarMeasurements.MeasurementsAction.deleteBtn"/>"/>
-								</td>
+								<td><input type="button" name="button" style='width: 75'
+									value="<< <bean:message key="oscarEncounter.oscarMeasurements.MeasurementsAction.deleteBtn"/>"
+									onclick="set('delete');submit();" /></td>
 							</tr>
 						</table>
 						</td>
@@ -86,47 +103,29 @@
 						</html:select></td>
 						</tr>
 						<tr>
-							
+							<input type="hidden" name="forward" value="error" />
 						</tr>
 						<tr>
-							<td></td>
+							<td><input type="button" name="Button"
+								value="<bean:message key="global.btnClose"/>"
+								onClick="window.close()"></td>
 							<td></td>
 						</tr>
 					</table>
 					</td>
-					<td>
-					<input type="button" name="button" class="btn function" value="Move Up" style="width:100px" id="up"/> <br>
-					<input type="button" name="button" class="btn function" value="Move Down" style="width:100px" id="down" /></td>
+					<td><input type="button" name="button" style="width: 80"
+						value="Move Up" onclick="set('up');submit();" /> <br>
+					<input type="button" name="button" style="width: 80"
+						value="Move Down" onclick="set('down');submit();" /></td>
 				</tr>
 			</table>
 			</td>
 		</tr>
-
+		<tr>
+			<td class="MainTableBottomRowLeftColumn"></td>
+			<td class="MainTableBottomRowRightColumn"></td>
+		</tr>
 	</table>
-
-<input type="hidden" name="forward" id="forward" value="error" />
 </html:form>
-
-</div>
-
-<script>
-registerFormSubmit('selectForm', 'dynamic-content');
-
-$( document ).ready(function() {
-
-$(".function").click(function() {
-$("#forward").val($(this).attr("id"));
-
-
-$("#selectForm").submit();
-});
-
-});
-
-
-
-
-</script>
-
 </body>
 </html:html>

@@ -32,6 +32,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -53,13 +54,11 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 import org.apache.struts.action.DynaActionForm;
-import org.apache.struts.actions.DispatchAction;
 import org.oscarehr.PMmodule.caisi_integrator.CaisiIntegratorManager;
 import org.oscarehr.PMmodule.caisi_integrator.IntegratorFallBackManager;
+import org.oscarehr.PMmodule.dao.AdmissionDao;
 import org.oscarehr.PMmodule.dao.ProgramDao;
 import org.oscarehr.PMmodule.dao.ProviderDao;
-import org.oscarehr.PMmodule.dao.VacancyDao;
-import org.oscarehr.PMmodule.dao.VacancyTemplateDao;
 import org.oscarehr.PMmodule.exception.AdmissionException;
 import org.oscarehr.PMmodule.exception.AlreadyAdmittedException;
 import org.oscarehr.PMmodule.exception.AlreadyQueuedException;
@@ -67,30 +66,36 @@ import org.oscarehr.PMmodule.exception.ClientAlreadyRestrictedException;
 import org.oscarehr.PMmodule.exception.FunctionalCentreDischargeException;
 import org.oscarehr.PMmodule.exception.ProgramFullException;
 import org.oscarehr.PMmodule.exception.ServiceRestrictionException;
+import org.oscarehr.PMmodule.model.Admission;
+import org.oscarehr.PMmodule.model.Bed;
+import org.oscarehr.PMmodule.model.BedDemographic;
 import org.oscarehr.PMmodule.model.ClientReferral;
 import org.oscarehr.PMmodule.model.HealthSafety;
 import org.oscarehr.PMmodule.model.Intake;
+import org.oscarehr.PMmodule.model.JointAdmission;
 import org.oscarehr.PMmodule.model.Program;
 import org.oscarehr.PMmodule.model.ProgramClientRestriction;
 import org.oscarehr.PMmodule.model.ProgramProvider;
 import org.oscarehr.PMmodule.model.ProgramQueue;
-import org.oscarehr.PMmodule.model.Vacancy;
+import org.oscarehr.PMmodule.model.Room;
+import org.oscarehr.PMmodule.model.RoomDemographic;
 import org.oscarehr.PMmodule.service.AdmissionManager;
+import org.oscarehr.PMmodule.service.BedDemographicManager;
+import org.oscarehr.PMmodule.service.BedManager;
 import org.oscarehr.PMmodule.service.ClientManager;
 import org.oscarehr.PMmodule.service.ClientRestrictionManager;
 import org.oscarehr.PMmodule.service.GenericIntakeManager;
 import org.oscarehr.PMmodule.service.HealthSafetyManager;
+import org.oscarehr.PMmodule.service.LogManager;
 import org.oscarehr.PMmodule.service.ProgramManager;
 import org.oscarehr.PMmodule.service.ProgramQueueManager;
 import org.oscarehr.PMmodule.service.ProviderManager;
+import org.oscarehr.PMmodule.service.RoomDemographicManager;
+import org.oscarehr.PMmodule.service.RoomManager;
 import org.oscarehr.PMmodule.service.SurveyManager;
 import org.oscarehr.PMmodule.web.formbean.ClientManagerFormBean;
 import org.oscarehr.PMmodule.web.formbean.ErConsentFormBean;
 import org.oscarehr.PMmodule.web.utils.UserRoleUtils;
-import org.oscarehr.PMmodule.wlmatch.MatchBO;
-import org.oscarehr.PMmodule.wlmatch.MatchingManager;
-import org.oscarehr.PMmodule.wlmatch.VacancyDisplayBO;
-import org.oscarehr.PMmodule.wlservice.WaitListService;
 import org.oscarehr.caisi_integrator.ws.CachedAdmission;
 import org.oscarehr.caisi_integrator.ws.CachedFacility;
 import org.oscarehr.caisi_integrator.ws.CachedProgram;
@@ -99,35 +104,22 @@ import org.oscarehr.caisi_integrator.ws.Gender;
 import org.oscarehr.caisi_integrator.ws.Referral;
 import org.oscarehr.caisi_integrator.ws.ReferralWs;
 import org.oscarehr.casemgmt.service.CaseManagementManager;
-import org.oscarehr.common.dao.AdmissionDao;
 import org.oscarehr.common.dao.CdsClientFormDao;
 import org.oscarehr.common.dao.FunctionalCentreAdmissionDao;
 import org.oscarehr.common.dao.FunctionalCentreDao;
 import org.oscarehr.common.dao.IntegratorConsentDao;
 import org.oscarehr.common.dao.OcanStaffFormDao;
-import org.oscarehr.common.dao.OscarLogDao;
 import org.oscarehr.common.dao.RemoteReferralDao;
-import org.oscarehr.common.model.Admission;
-import org.oscarehr.common.model.Bed;
-import org.oscarehr.common.model.BedDemographic;
-import org.oscarehr.common.model.CaisiFormInstance;
 import org.oscarehr.common.model.CdsClientForm;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.Facility;
 import org.oscarehr.common.model.FunctionalCentre;
 import org.oscarehr.common.model.FunctionalCentreAdmission;
 import org.oscarehr.common.model.IntegratorConsent;
-import org.oscarehr.common.model.JointAdmission;
 import org.oscarehr.common.model.OcanStaffForm;
-import org.oscarehr.common.model.OscarLog;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.model.RemoteReferral;
-import org.oscarehr.common.model.Room;
-import org.oscarehr.common.model.RoomDemographic;
-import org.oscarehr.managers.BedDemographicManager;
-import org.oscarehr.managers.BedManager;
-import org.oscarehr.managers.RoomDemographicManager;
-import org.oscarehr.managers.RoomManager;
+import org.oscarehr.survey.model.oscar.OscarFormInstance;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
@@ -140,46 +132,45 @@ import oscar.oscarDemographic.data.DemographicRelationship;
 
 import com.quatro.service.LookupManager;
 
-public class ClientManagerAction extends DispatchAction {
+public class ClientManagerAction extends BaseAction {
 
 	private static final Logger logger = MiscUtils.getLogger();
 
 	private HealthSafetyManager healthSafetyManager;
 	private ClientRestrictionManager clientRestrictionManager;
-	private SurveyManager surveyManager = (SurveyManager)SpringUtils.getBean("surveyManager2");
+	private SurveyManager surveyManager;
 	private LookupManager lookupManager;
 	private CaseManagementManager caseManagementManager;
 	private AdmissionManager admissionManager;
 	private GenericIntakeManager genericIntakeManager;
-	private BedDemographicManager bedDemographicManager = SpringUtils.getBean(BedDemographicManager.class);
-	private BedManager bedManager = SpringUtils.getBean(BedManager.class);
+	private RoomDemographicManager roomDemographicManager;
+	private BedDemographicManager bedDemographicManager;
+	private BedManager bedManager;
 	private ClientManager clientManager;
+	private LogManager logManager;
 	private ProgramManager programManager;
 	private ProviderManager providerManager;
 	private ProgramQueueManager programQueueManager;
+	private RoomManager roomManager;
 	private IntegratorConsentDao integratorConsentDao;
 	private CdsClientFormDao cdsClientFormDao;
 	private static AdmissionDao admissionDao = (AdmissionDao) SpringUtils.getBean("admissionDao");
 	private static ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao");
 	private static ProgramDao programDao = (ProgramDao) SpringUtils.getBean("programDao");
 	private OcanStaffFormDao ocanStaffFormDao = (OcanStaffFormDao) SpringUtils.getBean("ocanStaffFormDao");
+	// private OcanClientFormDao ocanClientFormDao = (OcanClientFormDao)SpringUtils.getBean("ocanClientFormDao");
 	private RemoteReferralDao remoteReferralDao = (RemoteReferralDao) SpringUtils.getBean("remoteReferralDao");
-    
+
 	private static FunctionalCentreAdmissionDao functionalCentreAdmissionDao = (FunctionalCentreAdmissionDao) SpringUtils.getBean("functionalCentreAdmissionDao");
 	private static FunctionalCentreDao functionalCentreDao = (FunctionalCentreDao) SpringUtils.getBean("functionalCentreDao");
-
-	private VacancyDao vacancyDao = (VacancyDao) SpringUtils.getBean(VacancyDao.class);
-    private VacancyTemplateDao vacancyTemplateDao = (VacancyTemplateDao) SpringUtils.getBean(VacancyTemplateDao.class);
-	private MatchingManager matchingManager = new MatchingManager();
 	
-	private RoomDemographicManager roomDemographicManager = SpringUtils.getBean(RoomDemographicManager.class);
-	private RoomManager roomManager = SpringUtils.getBean(RoomManager.class);
-	
-
 	public void setIntegratorConsentDao(IntegratorConsentDao integratorConsentDao) {
 		this.integratorConsentDao = integratorConsentDao;
 	}
 
+	public void setSurveyManager(SurveyManager mgr) {
+		this.surveyManager = mgr;
+	}
 
 	public void setCdsClientFormDao(CdsClientFormDao cdsClientFormDao) {
 		this.cdsClientFormDao = cdsClientFormDao;
@@ -193,7 +184,6 @@ public class ClientManagerAction extends DispatchAction {
 	}
 
 	public ActionForward admit(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws NumberFormatException {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 		DynaActionForm clientForm = (DynaActionForm) form;
 
 		Admission admission = (Admission) clientForm.get("admission");
@@ -203,7 +193,7 @@ public class ClientManagerAction extends DispatchAction {
 		Program fullProgram = programManager.getProgram(String.valueOf(program.getId()));
 
 		try {
-			admissionManager.processAdmission(loggedInInfo, Integer.valueOf(demographicNo), loggedInInfo.getLoggedInProviderNo(), fullProgram, admission.getDischargeNotes(), admission.getAdmissionNotes(), admission.isTemporaryAdmission());
+			admissionManager.processAdmission(Integer.valueOf(demographicNo), getProviderNo(request), fullProgram, admission.getDischargeNotes(), admission.getAdmissionNotes(), admission.isTemporaryAdmission());
 		} catch (ProgramFullException e) {
 			ActionMessages messages = new ActionMessages();
 			messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("admit.error", "Program is full."));
@@ -222,7 +212,7 @@ public class ClientManagerAction extends DispatchAction {
 			saveMessages(request, messages);
 		} 
 
-		LogAction.log("write", "admit", demographicNo, request);
+		logManager.log("write", "admit", demographicNo, request);
 
 		setEditAttributes(form, request, demographicNo);
 		return mapping.findForward("edit");
@@ -264,12 +254,11 @@ public class ClientManagerAction extends DispatchAction {
 
 	public ActionForward discharge(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		DynaActionForm clientForm = (DynaActionForm) form;
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 
 		Admission admission = (Admission) clientForm.get("admission");
 		Program p = (Program) clientForm.get("program");
 		String id = request.getParameter("id");
-		List<Integer> dependents = clientManager.getDependentsList(new Integer(id));
+		List<Long> dependents = clientManager.getDependentsList(new Long(id));
 		String formattedDischargeDate = request.getParameter("dischargeDate");
 		Date  dischargeDate = oscar.util.DateUtils.toDate(formattedDischargeDate);
 		String dischargedFromFunctionalCentre_str = request.getParameter("dischargedFromFunctionalCentre");
@@ -278,9 +267,9 @@ public class ClientManagerAction extends DispatchAction {
 			dischargedFromFunctionalCentre = true;
 		
 		boolean success = true;
-
+		
 		try {
-			admissionManager.processDischarge(loggedInInfo, p.getId(), new Integer(id), admission.getDischargeNotes(), admission.getRadioDischargeReason(), dischargeDate, dependents, false, false, dischargedFromFunctionalCentre);
+			admissionManager.processDischarge(p.getId(), new Integer(id), admission.getDischargeNotes(), admission.getRadioDischargeReason(), dischargeDate, dependents, false, false, dischargedFromFunctionalCentre);
 			LogAction.addLog((String)request.getSession().getAttribute("user"), LogConst.ADD, LogConst.CON_CAISI_CLIENT_DISCHARGE, p.getName(), request.getRemoteAddr(), id, "caisi client discharge success");
 
 		} catch (AdmissionException e) {
@@ -295,11 +284,11 @@ public class ClientManagerAction extends DispatchAction {
 			success = false;
 		}
 
-		if (success) {
+		if (success) {	
 			ActionMessages messages = new ActionMessages();
 			messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("discharge.success"));
 			saveMessages(request, messages);
-			LogAction.log("write", "discharge", id, request);
+			logManager.log("write", "discharge", id, request);
 		}
 
 		setEditAttributes(form, request, id);
@@ -310,15 +299,13 @@ public class ClientManagerAction extends DispatchAction {
 	}
 
 	public ActionForward discharge_community(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		
 		DynaActionForm clientForm = (DynaActionForm) form;
 
 		Admission admission = (Admission) clientForm.get("admission");
 		Program program = (Program) clientForm.get("program");
-		String clientId = request.getParameter("id");
-		List<Integer> dependents = clientManager.getDependentsList(new Integer(clientId));
-
+		String clientId = request.getParameter("id");		
+		List<Long> dependents = clientManager.getDependentsList(new Long(clientId));
+		
 		String formattedDischargeDate = request.getParameter("dischargeDate");
 		Date  dischargeDate = oscar.util.DateUtils.toDate(formattedDischargeDate);
 		String dischargedFromFunctionalCentre_str = request.getParameter("dischargedFromFunctionalCentre");
@@ -327,10 +314,10 @@ public class ClientManagerAction extends DispatchAction {
 			dischargedFromFunctionalCentre = true;
 		ActionMessages messages = new ActionMessages();
 
-		try {
-			admissionManager.processDischargeToCommunity(loggedInInfo, program.getId(), new Integer(clientId), loggedInInfo.getLoggedInProvider().getProviderNo(), admission.getDischargeNotes(), admission.getRadioDischargeReason(), dependents, dischargeDate, dischargedFromFunctionalCentre);
-			LogAction.log("write", "discharge", clientId, request);
-
+		try {							
+			admissionManager.processDischargeToCommunity(program.getId(), new Integer(clientId), getProviderNo(request), admission.getDischargeNotes(), admission.getRadioDischargeReason(), dependents, dischargeDate, dischargedFromFunctionalCentre);
+			logManager.log("write", "discharge", clientId, request);
+	
 			messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("discharge.success"));
 			saveMessages(request, messages);
 			LogAction.addLog((String)request.getSession().getAttribute("user"), LogConst.ADD, LogConst.CON_CAISI_CLIENT_DISCHARGE, program.getName(), request.getRemoteAddr(), clientId, "caisi client discharge success");
@@ -340,24 +327,27 @@ public class ClientManagerAction extends DispatchAction {
 			saveMessages(request, messages);
 		} catch (FunctionalCentreDischargeException e) {			
 			messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("discharge.failure", e.getMessage()));
-			saveMessages(request, messages);
+			saveMessages(request, messages);			
 		}
-
+		
 		setEditAttributes(form, request, clientId);
 		admission.setDischargeNotes("");
 		admission.setRadioDischargeReason("");
-
+		
 		return mapping.findForward("edit");
 	}
 
 	public ActionForward discharge_community_select_program(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		String id = request.getParameter("id");
 		
-		setEditAttributes(form, request, id);
-
-		Admission admission = admissionDao.getCurrentBedProgramAdmission(programDao, Integer.parseInt(id));
-		if(admission != null) {
-			request.setAttribute("admissionDate",admission.getAdmissionDate("yyyy-MM-dd"));
+		DynaActionForm clientForm = (DynaActionForm) form;
+		
+		//get current bed program		
+		Admission currentBedAdmission = admissionDao.getCurrentBedProgramAdmission(programDao, Integer.valueOf(id));
+		if(currentBedAdmission!=null) {
+			Date admissionDate = currentBedAdmission.getAdmissionDate();
+			String admissionDateString = oscar.util.DateUtils.getDate(admissionDate,"yyyy-MM-dd");				
+			request.setAttribute("admissionDate",admissionDateString);
 		}
 	
 		setEditAttributes(form, request, id);
@@ -375,18 +365,19 @@ public class ClientManagerAction extends DispatchAction {
 	public ActionForward discharge_select_program(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		String id = request.getParameter("id");
 		DynaActionForm clientForm = (DynaActionForm) form;
+		
 		Program program = (Program) clientForm.get("program");
 		request.setAttribute("programId", String.valueOf(program.getId()));
 		
 		Admission admission = (Admission) clientForm.get("admission");
-		Integer am_id = admission.getId();
+		Long am_id = admission.getId();
 		Admission am = admissionDao.getAdmission(am_id);
 		Date admissionDate = am.getAdmissionDate();
 		String admissionDateString = oscar.util.DateUtils.getDate(admissionDate,"yyyy-MM-dd");				
 		request.setAttribute("admissionDate",admissionDateString);
 		
 		setEditAttributes(form, request, id);
-
+		
 		request.setAttribute("do_discharge", new Boolean(true));
 
 		return mapping.findForward("edit");
@@ -422,7 +413,7 @@ public class ClientManagerAction extends DispatchAction {
 
 		setEditAttributes(form, request, id);
 
-		LogAction.log("read", "pmm client record", id, request);
+		logManager.log("read", "pmm client record", id, request);
 
 		String roles = (String) request.getSession().getAttribute("userrole");
 
@@ -467,48 +458,20 @@ public class ClientManagerAction extends DispatchAction {
 		Date referralDate = oscar.util.DateUtils.toDate(formattedReferralDate);		
 		
 		int clientId = Integer.parseInt(request.getParameter("id"));
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+		LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
 
-		Program p1 = (Program) clientForm.get("program");
-		
-		Integer selectVacancyId = p1.getVacancyId();
-		int programId = p1.getId();
+		Program p = (Program) clientForm.get("program");
+		int programId = p.getId();
 		// if it's local
 		if (programId != 0) {
-            Program p = programManager.getProgram(programId);
 			referral.setClientId((long) clientId);
 			referral.setProgramId((long) programId);
-			referral.setProviderNo(loggedInInfo.getLoggedInProviderNo());
+			referral.setProviderNo(loggedInInfo.loggedInProvider.getProviderNo());
 
-			referral.setFacilityId(loggedInInfo.getCurrentFacility().getId());
+			referral.setFacilityId(loggedInInfo.currentFacility.getId());
 
 			referral.setReferralDate(referralDate);
 			referral.setProgramType(p.getType());
-            ClientManagerFormBean tabBean = (ClientManagerFormBean) clientForm.get("view");
-            if (tabBean.getTab().equals("Refer to vacancy")) {
-                //p = getMatchVacancy(p); //???????
-                if(selectVacancyId!=null) {
-            		referral.setVacancyId(selectVacancyId);
-            		referral.setSelectVacancy(vacancyDao.getVacancyById(selectVacancyId).getName());
-            	}
-                
-            }else{
-                String vacancyId = request.getParameter("vacancyId");
-                if(vacancyId==null||vacancyId.trim().length()==0){
-                    referral.setSelectVacancy("none");
-                }else{
-                    Vacancy v = null;
-                    try{
-                        v = vacancyDao.getVacancyById(Integer.parseInt(vacancyId.trim()));
-                    }catch (Exception e){
-                    	MiscUtils.getLogger().error("error",e);
-                    }
-                    if(v!=null){
-                        referral.setVacancyId(Integer.parseInt(vacancyId.trim()));
-                        referral.setSelectVacancy(v.getName());
-                    }
-                }
-            }
 
 			referToLocalAgencyProgram(request, clientForm, referral, p);
 		}
@@ -524,29 +487,29 @@ public class ClientManagerAction extends DispatchAction {
 				integratorReferral.setPresentingProblem(referral.getPresentProblems());
 				integratorReferral.setReasonForReferral(referral.getNotes());
 				integratorReferral.setSourceCaisiDemographicId(clientId);
-				integratorReferral.setSourceCaisiProviderId(loggedInInfo.getLoggedInProviderNo());
+				integratorReferral.setSourceCaisiProviderId(loggedInInfo.loggedInProvider.getProviderNo());
 
-				ReferralWs referralWs = CaisiIntegratorManager.getReferralWs(loggedInInfo, loggedInInfo.getCurrentFacility());
+				ReferralWs referralWs = CaisiIntegratorManager.getReferralWs();
 				referralWs.makeReferral(integratorReferral);
 
 				// save local copy
 				RemoteReferral remoteReferral = new RemoteReferral();
-				remoteReferral.setFacilityId(loggedInInfo.getCurrentFacility().getId());
+				remoteReferral.setFacilityId(loggedInInfo.currentFacility.getId());
 				remoteReferral.setDemographicId(clientId);
 				remoteReferral.setPresentingProblem(referral.getPresentProblems());
 				remoteReferral.setReasonForReferral(referral.getNotes());
 				remoteReferral.setReferalDate(new GregorianCalendar());
 
-				CachedFacility cachedFacility = CaisiIntegratorManager.getRemoteFacility(loggedInInfo, loggedInInfo.getCurrentFacility(),remoteFacilityId);
+				CachedFacility cachedFacility = CaisiIntegratorManager.getRemoteFacility(remoteFacilityId);
 				remoteReferral.setReferredToFacilityName(cachedFacility.getName());
 
 				FacilityIdIntegerCompositePk remoteProgramCompositeKey = new FacilityIdIntegerCompositePk();
 				remoteProgramCompositeKey.setIntegratorFacilityId(remoteFacilityId);
 				remoteProgramCompositeKey.setCaisiItemId(remoteProgramId);
-				CachedProgram cachedProgram = CaisiIntegratorManager.getRemoteProgram(loggedInInfo, loggedInInfo.getCurrentFacility(),remoteProgramCompositeKey);
+				CachedProgram cachedProgram = CaisiIntegratorManager.getRemoteProgram(remoteProgramCompositeKey);
 				remoteReferral.setReferredToProgramName(cachedProgram.getName());
 
-				remoteReferral.setReferringProviderNo(loggedInInfo.getLoggedInProviderNo());
+				remoteReferral.setReferringProviderNo(loggedInInfo.loggedInProvider.getProviderNo());
 				remoteReferralDao.persist(remoteReferral);
 			} catch (Exception e) {
 				WebUtils.addErrorMessage(request.getSession(), "Error processing referral : " + e.getMessage());
@@ -562,8 +525,6 @@ public class ClientManagerAction extends DispatchAction {
 	}
 
 	private void referToLocalAgencyProgram(HttpServletRequest request, DynaActionForm clientForm, ClientReferral referral, Program p) {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		
 		Program program = programManager.getProgram(p.getId());
 
 		referral.setStatus(ClientReferral.STATUS_ACTIVE);
@@ -593,7 +554,7 @@ public class ClientManagerAction extends DispatchAction {
 			clientForm.set("referral", referral);
 
 			// store permission
-			request.setAttribute("hasOverridePermission", caseManagementManager.hasAccessRight("Service restriction override on referral", "access", loggedInInfo.getLoggedInProviderNo(), String.valueOf(referral.getClientId()), "" + program.getId()));
+			request.setAttribute("hasOverridePermission", caseManagementManager.hasAccessRight("Service restriction override on referral", "access", getProviderNo(request), String.valueOf(referral.getClientId()), "" + program.getId()));
 
 			// jump to service restriction error page to allow overrides, etc.
 			// return mapping.findForward("service_restriction_error");
@@ -607,11 +568,10 @@ public class ClientManagerAction extends DispatchAction {
 
 		}
 
-		LogAction.log("write", "referral", String.valueOf(referral.getClientId()), request);
+		logManager.log("write", "referral", String.valueOf(referral.getClientId()), request);
 	}
 
 	public ActionForward refer_select_program(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 		DynaActionForm clientForm = (DynaActionForm) form;
 		Program p = (Program) clientForm.get("program");
 		ClientReferral r = (ClientReferral) clientForm.get("referral");
@@ -631,7 +591,7 @@ public class ClientManagerAction extends DispatchAction {
 				FacilityIdIntegerCompositePk pk = new FacilityIdIntegerCompositePk();
 				pk.setIntegratorFacilityId(Integer.parseInt(r.getRemoteFacilityId()));
 				pk.setCaisiItemId(Integer.parseInt(r.getRemoteProgramId()));
-				CachedProgram cachedProgram = CaisiIntegratorManager.getRemoteProgram(loggedInInfo, loggedInInfo.getCurrentFacility(),pk);
+				CachedProgram cachedProgram = CaisiIntegratorManager.getRemoteProgram(pk);
 
 				p.setName(cachedProgram.getName());
 
@@ -649,54 +609,8 @@ public class ClientManagerAction extends DispatchAction {
 
 		return mapping.findForward("edit");
 	}
-	
-	public ActionForward vacancy_refer_select_program(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		DynaActionForm clientForm = (DynaActionForm) form;
-		Program p = (Program) clientForm.get("program");
-		ClientReferral r = (ClientReferral) clientForm.get("referral");
-		r.setSelectVacancy(request.getParameter("vacancyName"));
-		clientForm.set("referral",r);
-		String id = request.getParameter("id");
-		setEditAttributes(form, request, id);
 
-		// if it's a local referral
-		long programId = p.getId();
-		if (programId != 0) {
-			Program program = programManager.getProgram(programId);
-			p.setName(program.getName());
-			p.setVacancyName(request.getParameter("vacancyName"));
-			p.setVacancyId(Integer.valueOf(request.getParameter("vacancyId")));
-			request.setAttribute("program", program);
-		}
-		// if it's a remote referal
-		else if (r.getRemoteFacilityId() != null && r.getRemoteProgramId() != null) {
-			try {
-				FacilityIdIntegerCompositePk pk = new FacilityIdIntegerCompositePk();
-				pk.setIntegratorFacilityId(Integer.parseInt(r.getRemoteFacilityId()));
-				pk.setCaisiItemId(Integer.parseInt(r.getRemoteProgramId()));
-				CachedProgram cachedProgram = CaisiIntegratorManager.getRemoteProgram(loggedInInfo, loggedInInfo.getCurrentFacility(),pk);
-
-				p.setName(cachedProgram.getName());
-
-				Program program = new Program();
-				BeanUtils.copyProperties(program, cachedProgram);
-
-				request.setAttribute("program", program);
-			} catch (Exception e) {
-				MiscUtils.getLogger().error("Error", e);
-			}
-		}
-
-		request.setAttribute("do_refer", true);
-		request.setAttribute("temporaryAdmission", programManager.getEnabled());
-
-		//return mapping.findForward("edit");
-		return mapping.findForward("refer_vacancy");
-	}
-	
 	public ActionForward service_restrict(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 		DynaActionForm clientForm = (DynaActionForm) form;
 		ProgramClientRestriction restriction = (ProgramClientRestriction) clientForm.get("serviceRestriction");
 		Integer days = (Integer) clientForm.get("serviceRestrictionLength");
@@ -707,7 +621,7 @@ public class ClientManagerAction extends DispatchAction {
 		restriction.setProgramId(p.getId());
 		restriction.setDemographicNo(Integer.valueOf(id));
 		restriction.setStartDate(new Date());
-		restriction.setProviderNo(loggedInInfo.getLoggedInProviderNo());
+		restriction.setProviderNo(getProviderNo(request));
 		Calendar cal = new GregorianCalendar();
 		cal.setTime(new Date());
 		cal.set(Calendar.HOUR, 23);
@@ -745,13 +659,12 @@ public class ClientManagerAction extends DispatchAction {
 		}
 
 		setEditAttributes(form, request, id);
-		LogAction.log("write", "service_restriction", id, request);
+		logManager.log("write", "service_restriction", id, request);
 
 		return mapping.findForward("edit");
 	}
 
 	public ActionForward restrict_select_program(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 		DynaActionForm clientForm = (DynaActionForm) form;
 		Program p = (Program) clientForm.get("program");
 		String id = request.getParameter("id");
@@ -761,7 +674,7 @@ public class ClientManagerAction extends DispatchAction {
 		p.setName(program.getName());
 
 		request.setAttribute("do_restrict", true);
-		request.setAttribute("can_restrict", caseManagementManager.hasAccessRight("Create service restriction", "access", loggedInInfo.getLoggedInProviderNo(), id, "" + p.getId()));
+		request.setAttribute("can_restrict", caseManagementManager.hasAccessRight("Create service restriction", "access", getProviderNo(request), id, "" + p.getId()));
 		request.setAttribute("program", program);
 
 		return mapping.findForward("edit");
@@ -770,8 +683,8 @@ public class ClientManagerAction extends DispatchAction {
 	public ActionForward terminate_early(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 
 		int programClientRestrictionId = Integer.parseInt(request.getParameter("restrictionId"));
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		clientRestrictionManager.terminateEarly(programClientRestrictionId, loggedInInfo.getLoggedInProviderNo());
+		Provider provider = getProvider(request);
+		clientRestrictionManager.terminateEarly(programClientRestrictionId, provider.getProviderNo());
 
 		return (edit(mapping, form, request, response));
 	}
@@ -779,11 +692,10 @@ public class ClientManagerAction extends DispatchAction {
 	public ActionForward override_restriction(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		DynaActionForm clientForm = (DynaActionForm) form;
 		ProgramClientRestriction restriction = (ProgramClientRestriction) clientForm.get("serviceRestriction");
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 
 		ClientReferral referral = (ClientReferral) clientForm.get("referral");
 
-		if (isCancelled(request) || !caseManagementManager.hasAccessRight("Service restriction override on referral", "access", loggedInInfo.getLoggedInProviderNo(), "" + restriction.getDemographicNo(), "" + restriction.getProgramId())) {
+		if (isCancelled(request) || !caseManagementManager.hasAccessRight("Service restriction override on referral", "access", getProviderNo(request), "" + restriction.getDemographicNo(), "" + restriction.getProgramId())) {
 			clientForm.set("referral", new ClientReferral());
 			ActionMessages messages = new ActionMessages();
 			messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("refer.cancelled"));
@@ -820,7 +732,7 @@ public class ClientManagerAction extends DispatchAction {
 		clientForm.set("program", new Program());
 		clientForm.set("referral", new ClientReferral());
 		setEditAttributes(form, request, "" + referral.getClientId());
-		LogAction.log("write", "referral", "" + referral.getClientId(), request);
+		logManager.log("write", "referral", "" + referral.getClientId(), request);
 
 		return mapping.findForward("edit");
 	}
@@ -869,7 +781,7 @@ public class ClientManagerAction extends DispatchAction {
 		bedDemographic.setReservationStart(today);
 		bedDemographic.setRoomId(Integer.valueOf(roomId));
 
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+		LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
 
 		Integer bedId = bedDemographic.getBedId();
 		Integer demographicNo = bedDemographic.getId().getDemographicNo();
@@ -891,8 +803,8 @@ public class ClientManagerAction extends DispatchAction {
 		}
 
 		// get dependents to be saved, removed from 'room_demographic' & 'bed_demographic' tables.
-		List<JointAdmission> dependentList = clientManager.getDependents(new Integer(demographicNo));
-		JointAdmission clientsJadm = clientManager.getJointAdmission(new Integer(demographicNo));
+		List<JointAdmission> dependentList = clientManager.getDependents(new Long(demographicNo));
+		JointAdmission clientsJadm = clientManager.getJointAdmission(new Long(demographicNo));
 
 		if (dependentList != null && dependentList.size() > 0) {
 			// condition met then demographicNo must be familyHead
@@ -912,7 +824,7 @@ public class ClientManagerAction extends DispatchAction {
 
 		} else {// check whether client is familyHead or independent client
 			// create roomDemographic from bedDemographic
-			roomDemographic = roomDemographicManager.getRoomDemographicByDemographic(demographicNo, loggedInInfo.getCurrentFacility().getId());
+			roomDemographic = getRoomDemographicManager().getRoomDemographicByDemographic(demographicNo, loggedInInfo.currentFacility.getId());
 			if (roomDemographic == null) {// demographicNo (familyHead or independent) has no record in 'room_demographic'
 				roomDemographic = RoomDemographic.create(demographicNo, bedDemographic.getProviderNo());
 			}
@@ -941,7 +853,7 @@ public class ClientManagerAction extends DispatchAction {
 
 				int roomCapacity = 0;
 				int roomOccupancy = 0;
-				Room room = roomManager.getRoom(bedDemographic.getRoomId());
+				Room room = getRoomManager().getRoom(bedDemographic.getRoomId());
 				Integer[] dependentIds = new Integer[dependentList.size()];
 				List<Integer> unreservedBedIdList = new ArrayList<Integer>();
 				List<Integer> dependentsBedIdList = new ArrayList<Integer>();
@@ -970,23 +882,23 @@ public class ClientManagerAction extends DispatchAction {
 
 				if (bedDemographic.getRoomId().intValue() == 0) {// unassigning whole family
 					// unassign family head first
-					roomDemographicManager.saveRoomDemographic(roomDemographic);
+					getRoomDemographicManager().saveRoomDemographic(roomDemographic);
 					if (isBedSelected) {
 						bedDemographicManager.saveBedDemographic(bedDemographic);
 					} else {
 						// if only select room without bed, delete previous selected bedId in 'bed_demographic' table
-						roomDemographicManager.cleanUpBedTables(roomDemographic);
+						getRoomDemographicManager().cleanUpBedTables(roomDemographic);
 					}
 					// unassigning all dependents
 					for (int i = 0; dependentIds != null && i < dependentIds.length; i++) {
 						roomDemographic.getId().setDemographicNo(dependentIds[i]);
 						bedDemographic.getId().setDemographicNo(dependentIds[i]);
-						roomDemographicManager.saveRoomDemographic(roomDemographic);
+						getRoomDemographicManager().saveRoomDemographic(roomDemographic);
 						if (isBedSelected) {
 							bedDemographicManager.saveBedDemographic(bedDemographic);
 						} else {
 							// if only select room without bed, delete previous selected bedId in 'bed_demographic' table
-							roomDemographicManager.cleanUpBedTables(roomDemographic);
+							getRoomDemographicManager().cleanUpBedTables(roomDemographic);
 						}
 					}
 				} else {
@@ -1073,10 +985,10 @@ public class ClientManagerAction extends DispatchAction {
 						Integer clientId = null;
 
 						// assigning for familyHead only
-						roomDemographicManager.saveRoomDemographic(roomDemographic);
+						getRoomDemographicManager().saveRoomDemographic(roomDemographic);
 
 						if (isBedSelected) {
-							BedDemographic bdHeadDelete = bedDemographicManager.getBedDemographicByDemographic(bedDemographic.getId().getDemographicNo(), loggedInInfo.getCurrentFacility().getId());
+							BedDemographic bdHeadDelete = bedDemographicManager.getBedDemographicByDemographic(bedDemographic.getId().getDemographicNo(), loggedInInfo.currentFacility.getId());
 							if (bdHeadDelete != null) {
 								bedDemographicManager.deleteBedDemographic(bdHeadDelete);
 							}
@@ -1088,7 +1000,7 @@ public class ClientManagerAction extends DispatchAction {
 							bedDemographicManager.saveBedDemographic(bedDemographic);
 						} else {
 							// if only select room without bed, delete previous selected bedId in 'bed_demographic' table
-							roomDemographicManager.cleanUpBedTables(roomDemographic);
+							getRoomDemographicManager().cleanUpBedTables(roomDemographic);
 						}
 						// Assign for each dependent member of family
 						for (int i = 0; i < dependentList.size(); i++) {
@@ -1096,13 +1008,13 @@ public class ClientManagerAction extends DispatchAction {
 							clientId = new Integer(dependentList.get(i).getClientId().intValue());
 
 							if (clientId != null) {
-								roomDemographic = roomDemographicManager.getRoomDemographicByDemographic(clientId, loggedInInfo.getCurrentFacility().getId());
+								roomDemographic = getRoomDemographicManager().getRoomDemographicByDemographic(clientId, loggedInInfo.currentFacility.getId());
 								bedDemographic.getId().setDemographicNo(clientId); // change to dependent member
 
 								// assigning both room & bed (different ones) for all dependents
 								if (isBedSelected && correctedAvailableBedIdList.size() >= dependentList.size()) {
 
-									BedDemographic bdDependent = bedDemographicManager.getBedDemographicByDemographic(bedDemographic.getId().getDemographicNo(), loggedInInfo.getCurrentFacility().getId());
+									BedDemographic bdDependent = bedDemographicManager.getBedDemographicByDemographic(bedDemographic.getId().getDemographicNo(), loggedInInfo.currentFacility.getId());
 									bedDemographic.getId().setBedId(correctedAvailableBedIdList.get(i));
 
 									if (roomDemographic == null) {
@@ -1114,7 +1026,7 @@ public class ClientManagerAction extends DispatchAction {
 										bedDemographic.setLatePass(false);
 									}
 
-									roomDemographicManager.saveRoomDemographic(roomDemographic);
+									getRoomDemographicManager().saveRoomDemographic(roomDemographic);
 									if (bdDependent != null) {
 										bedDemographicManager.deleteBedDemographic(bdDependent);
 									}
@@ -1132,10 +1044,10 @@ public class ClientManagerAction extends DispatchAction {
 									if (request.getParameter("bedDemographic.latePass") == null) {
 										bedDemographic.setLatePass(false);
 									}
-									roomDemographicManager.saveRoomDemographic(roomDemographic);
+									getRoomDemographicManager().saveRoomDemographic(roomDemographic);
 
 									// if only select room without bed, delete previous selected bedId in 'bed_demographic' table
-									roomDemographicManager.cleanUpBedTables(roomDemographic);
+									getRoomDemographicManager().cleanUpBedTables(roomDemographic);
 								}
 
 							}// end of if( clientId != null )
@@ -1174,13 +1086,13 @@ public class ClientManagerAction extends DispatchAction {
 
 			} else { // when client is independent -> just assign/unassign either room/bed or room only.
 
-				roomDemographicManager.saveRoomDemographic(roomDemographic);
+				getRoomDemographicManager().saveRoomDemographic(roomDemographic);
 
 				if (isBedSelected) {
 					bedDemographicManager.saveBedDemographic(bedDemographic);
 				} else {
 					// if only select room without bed, delete previous selected bedId in 'bed_demographic' table
-					roomDemographicManager.cleanUpBedTables(roomDemographic);
+					getRoomDemographicManager().cleanUpBedTables(roomDemographic);
 				}
 			}// end of isIndependentClient
 
@@ -1197,7 +1109,7 @@ public class ClientManagerAction extends DispatchAction {
 
 	public ActionForward save_survey(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		DynaActionForm clientForm = (DynaActionForm) form;
-		CaisiFormInstance formInstance = (CaisiFormInstance) clientForm.get("form");
+		OscarFormInstance formInstance = (OscarFormInstance) clientForm.get("form");
 
 		ClientManagerFormBean formBean = (ClientManagerFormBean) clientForm.get("view");
 
@@ -1220,15 +1132,15 @@ public class ClientManagerAction extends DispatchAction {
 		String headClientId = request.getParameter("headClientId");
 		String clientId = request.getParameter("dependentClientId");
 		String type = request.getParameter("type");
-		Integer headInteger = new Integer(headClientId);
-		Integer clientInteger = new Integer(clientId);
+		Long headInteger = new Long(headClientId);
+		Long clientInteger = new Long(clientId);
 
 		jadmission.setAdmissionDate(new Date());
 		jadmission.setHeadClientId(headInteger);
 		jadmission.setArchived(false);
 		jadmission.setClientId(clientInteger);
 		jadmission.setProviderNo((String) request.getSession().getAttribute("user"));
-		jadmission.setTypeId(new Integer(type));
+		jadmission.setTypeId(new Long(type));
 		clientManager.saveJointAdmission(jadmission);
 		setEditAttributes(form, request, request.getParameter("clientId"));
 
@@ -1237,22 +1149,21 @@ public class ClientManagerAction extends DispatchAction {
 
 	public ActionForward remove_joint_admission(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		String clientId = request.getParameter("dependentClientId");
-		clientManager.removeJointAdmission(new Integer(clientId), (String) request.getSession().getAttribute("user"));
+		clientManager.removeJointAdmission(new Long(clientId), (String) request.getSession().getAttribute("user"));
 		setEditAttributes(form, request, request.getParameter("clientId"));
 		return mapping.findForward("edit");
 	}
 
 	public ActionForward search_programs(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		
 		DynaActionForm clientForm = (DynaActionForm) form;
-		Program criteria = (Program) clientForm.get("program");
-		List<Program> programs = programManager.search(criteria);
-		request.setAttribute("programs", programs);
 
-		if (CaisiIntegratorManager.isEnableIntegratedReferrals(loggedInInfo.getCurrentFacility())) {
+		Program criteria = (Program) clientForm.get("program");
+
+		request.setAttribute("programs", programManager.search(criteria));
+
+		if (CaisiIntegratorManager.isEnableIntegratedReferrals()) {
 			try {
-				List<CachedProgram> results = CaisiIntegratorManager.getRemoteProgramsAcceptingReferrals(loggedInInfo, loggedInInfo.getCurrentFacility());
+				List<CachedProgram> results = CaisiIntegratorManager.getRemoteProgramsAcceptingReferrals();
 
 				filterResultsByCriteria(results, criteria);
 
@@ -1354,7 +1265,6 @@ public class ClientManagerAction extends DispatchAction {
 	}
 
 	public ActionForward submit_erconsent(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 		DynaActionForm clientForm = (DynaActionForm) form;
 		ErConsentFormBean consentFormBean = (ErConsentFormBean) clientForm.get("erconsent");
 		boolean success = true;
@@ -1371,19 +1281,20 @@ public class ClientManagerAction extends DispatchAction {
 
 		request.getSession().setAttribute("er_consent_map", consentMap);
 
-		List<?> programDomain = providerManager.getProgramDomain(loggedInInfo.getLoggedInProviderNo());
+		List<?> programDomain = providerManager.getProgramDomain(getProviderNo(request));
 		if (programDomain.size() > 0) {
 			boolean doAdmit = true;
 			boolean doRefer = true;
 			ProgramProvider program = (ProgramProvider) programDomain.get(0);
 			// refer/admin client to service program associated with this user
+			LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
 
 			ClientReferral referral = new ClientReferral();
-			referral.setFacilityId(loggedInInfo.getCurrentFacility().getId());
+			referral.setFacilityId(loggedInInfo.currentFacility.getId());
 			referral.setClientId(new Long(demographicNo));
 			referral.setNotes("ER Automated referral\nConsent Type: " + consentFormBean.getConsentType() + "\nReason: " + consentFormBean.getConsentReason());
 			referral.setProgramId(program.getProgramId().longValue());
-			referral.setProviderNo(loggedInInfo.getLoggedInProviderNo());
+			referral.setProviderNo(getProviderNo(request));
 			referral.setReferralDate(new Date());
 			referral.setStatus(ClientReferral.STATUS_ACTIVE);
 
@@ -1409,7 +1320,7 @@ public class ClientManagerAction extends DispatchAction {
 			}
 			if (doRefer) {
 				if (referral.getFacilityId() == null) {
-					referral.setFacilityId(loggedInInfo.getCurrentFacility().getId());
+					referral.setFacilityId(loggedInInfo.currentFacility.getId());
 				}
 				clientManager.saveClientReferral(referral);
 			}
@@ -1417,7 +1328,7 @@ public class ClientManagerAction extends DispatchAction {
 			if (doAdmit) {
 				String admissionNotes = "ER Automated admission\nConsent Type: " + consentFormBean.getConsentType() + "\nReason: " + consentFormBean.getConsentReason();
 				try {
-					admissionManager.processAdmission(loggedInInfo, Integer.valueOf(demographicNo), loggedInInfo.getLoggedInProviderNo(), programManager.getProgram(String.valueOf(program.getProgramId())), null, admissionNotes);
+					admissionManager.processAdmission(Integer.valueOf(demographicNo), getProviderNo(request), programManager.getProgram(String.valueOf(program.getProgramId())), null, admissionNotes);
 				} catch (Exception e) {
 					MiscUtils.getLogger().error("Error", e);
 					ActionMessages messages = new ActionMessages();
@@ -1439,7 +1350,7 @@ public class ClientManagerAction extends DispatchAction {
 
 	public ActionForward survey(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		DynaActionForm clientForm = (DynaActionForm) form;
-		CaisiFormInstance formInstance = (CaisiFormInstance) clientForm.get("form");
+		OscarFormInstance formInstance = (OscarFormInstance) clientForm.get("form");
 
 		if (request.getAttribute("survey_saved") != null) {
 			setEditAttributes(form, request, (String) request.getAttribute("clientId"));
@@ -1471,18 +1382,6 @@ public class ClientManagerAction extends DispatchAction {
 		clientForm.set("client", client);
 
 		clientForm.set("provider", provider);
-		
-		OscarLogDao logDao = SpringUtils.getBean(OscarLogDao.class);
-		List<OscarLog> logs = logDao.findByActionAndData("update_referral_date",referralId);
-		if(logs.size()>0)
-			request.setAttribute("referral_date_updates", logs);
-
-		logs = logDao.findByActionAndData("update_completion_date",referralId);
-		if(logs.size()>0)
-			request.setAttribute("completion_date_updates", logs);
-		
-
-		
 
 		return mapping.findForward("view_referral");
 	}
@@ -1499,16 +1398,6 @@ public class ClientManagerAction extends DispatchAction {
 		clientForm.set("client", client);
 		clientForm.set("provider", provider);
 
-		OscarLogDao logDao = SpringUtils.getBean(OscarLogDao.class);
-		List<OscarLog> logs = logDao.findByActionAndData("update_admission_date",admissionId);
-		if(logs.size()>0)
-			request.setAttribute("admission_date_updates", logs);
-		              
-		logs = logDao.findByActionAndData("update_discharge_date",admissionId);
-		if(logs.size()>0)
-			request.setAttribute("discharge_date_updates", logs);
-		
-		
 		return mapping.findForward("view_admission");
 	}
 	
@@ -1541,44 +1430,17 @@ public class ClientManagerAction extends DispatchAction {
 		return false;
 	}
 
-	/*
-    private Program getMatchVacancy(Program p){
-
-        List<VacancyDisplayBO> vacancyDisplayBOs = matchingManager.listNoOfVacanciesForWaitListProgram();
-
-        Program program = p;
-        for(int j=0;j<vacancyDisplayBOs.size();j++){
-            if(vacancyDisplayBOs.get(j).getProgramId().equals(program.getId())){
-                if(vacancyDisplayBOs.get(j).getNoOfVacancy() != 0){
-                    program.setNoOfVacancy(vacancyDisplayBOs.get(j).getNoOfVacancy());
-                    program.setVacancyName(vacancyDisplayBOs.get(j).getVacancyName());
-                    program.setDateCreated(vacancyDisplayBOs.get(j).getCreated().toString());
-                    int vacancyId = vacancyDisplayBOs.get(j).getVacancyID();
-                    List<MatchBO> matchList= matchingManager.getClientMatches(vacancyId);
-                    double percentageMatch = 0;
-                    for(int k=0;k<matchList.size();k++){
-                        percentageMatch = percentageMatch + matchList.get(k).getPercentageMatch();
-                    }
-                    program.setVacancyId(vacancyId);
-                    program.setMatches(percentageMatch);
-                }
-            }
-        }
-        return program;
-    }
-    */
-
 	private void setEditAttributes(ActionForm form, HttpServletRequest request, String demographicNo) {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		String providerNo=loggedInInfo.getLoggedInProviderNo();
-
 		DynaActionForm clientForm = (DynaActionForm) form;
-		Integer facilityId = loggedInInfo.getCurrentFacility().getId();
+		LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
+		Integer facilityId = loggedInInfo.currentFacility.getId();
 		ClientManagerFormBean tabBean = (ClientManagerFormBean) clientForm.get("view");
 		Integer demographicId = Integer.valueOf(demographicNo);
 
 		request.setAttribute("id", demographicNo);
 		request.setAttribute("client", clientManager.getClientByDemographicNo(demographicNo));
+
+		String providerNo = getProviderNo(request);
 
 		// program domain
 		List<Program> programDomain = new ArrayList<Program>();
@@ -1618,8 +1480,8 @@ public class ClientManagerAction extends DispatchAction {
 
 		if (tabBean.getTab().equals("Summary")) {
 			/* survey module */
-			request.setAttribute("survey_list", surveyManager.getAllFormsForCurrentProviderAndCurrentFacility(loggedInInfo));
-			request.setAttribute("surveys", surveyManager.getFormsForCurrentProviderAndCurrentFacility(loggedInInfo, demographicNo));
+			request.setAttribute("survey_list", surveyManager.getAllFormsForCurrentProviderAndCurrentFacility());
+			request.setAttribute("surveys", surveyManager.getFormsForCurrentProviderAndCurrentFacility(demographicNo));
 
 			// request.setAttribute("admissions", admissionManager.getCurrentAdmissions(Integer.valueOf(demographicNo)));
 			// only allow bed/service programs show up.(not external program)
@@ -1630,7 +1492,7 @@ public class ClientManagerAction extends DispatchAction {
 					bedServiceList.add(new AdmissionForDisplay(admission1));
 				}
 			}
-			addRemoteAdmissions(loggedInInfo,bedServiceList, demographicId);
+			addRemoteAdmissions(bedServiceList, demographicId);
 			request.setAttribute("admissions", bedServiceList);
 
 			Intake mostRecentQuickIntake = genericIntakeManager.getMostRecentQuickIntakeByFacility(Integer.valueOf(demographicNo), facilityId);
@@ -1639,7 +1501,7 @@ public class ClientManagerAction extends DispatchAction {
 			HealthSafety healthsafety = healthSafetyManager.getHealthSafetyByDemographic(Long.valueOf(demographicNo));
 			request.setAttribute("healthsafety", healthsafety);
 
-			request.setAttribute("referrals", getReferralsForSummary(loggedInInfo, Integer.parseInt(demographicNo), facilityId));
+			request.setAttribute("referrals", getReferralsForSummary(Integer.parseInt(demographicNo), facilityId));
 
 			// FULL OCAN Staff/Client Assessment
 			OcanStaffForm ocanStaffForm = ocanStaffFormDao.findLatestByFacilityClient(facilityId, Integer.valueOf(demographicNo), "FULL");
@@ -1684,10 +1546,10 @@ public class ClientManagerAction extends DispatchAction {
 			for (Admission admission : addLocalAdmissions)
 				allResults.add(new AdmissionForDisplay(admission));
 
-			addRemoteAdmissions(loggedInInfo,allResults, demographicId);
+			addRemoteAdmissions(allResults, demographicId);
 
 			request.setAttribute("admissionHistory", allResults);
-			request.setAttribute("referralHistory", getReferralsForHistory(loggedInInfo,demographicId, facilityId));
+			request.setAttribute("referralHistory", getReferralsForHistory(demographicId, facilityId));
 			request.setAttribute("fcAdmissionsHistory", getFcAdmissionsHistory(demographicId));
 		}
 
@@ -1706,13 +1568,13 @@ public class ClientManagerAction extends DispatchAction {
 		BedDemographic bedDemographic = bedDemographicManager.getBedDemographicByDemographic(Integer.valueOf(demographicNo), facilityId);
 		request.setAttribute("bedDemographic", bedDemographic);
 
-		RoomDemographic roomDemographic = roomDemographicManager.getRoomDemographicByDemographic(Integer.valueOf(demographicNo), facilityId);
+		RoomDemographic roomDemographic = getRoomDemographicManager().getRoomDemographicByDemographic(Integer.valueOf(demographicNo), facilityId);
 
 		if (roomDemographic != null) {
 			Integer roomIdInt = roomDemographic.getId().getRoomId();
 			Room room = null;
 			if (roomIdInt != null) {
-				room = roomManager.getRoom(roomIdInt);
+				room = getRoomManager().getRoom(roomIdInt);
 			}
 			if (room != null) {
 				roomDemographic.setRoom(room);
@@ -1765,7 +1627,7 @@ public class ClientManagerAction extends DispatchAction {
 
 			clientForm.set("bedDemographic", bedDemographic);
 
-			Room[] availableRooms = roomManager.getAvailableRooms(facilityId, bedProgramId, Boolean.TRUE, demographicNo);
+			Room[] availableRooms = getRoomManager().getAvailableRooms(facilityId, bedProgramId, Boolean.TRUE, demographicNo);
 
 			request.setAttribute("availableRooms", availableRooms);
 
@@ -1776,7 +1638,7 @@ public class ClientManagerAction extends DispatchAction {
 			} else {
 				request.setAttribute("roomId", "0");
 			}
-			request.setAttribute("isAssignedBed", String.valueOf(roomManager.isAssignedBed((String) request.getAttribute("roomId"), availableRooms)));
+			request.setAttribute("isAssignedBed", String.valueOf(getRoomManager().isAssignedBed((String) request.getAttribute("roomId"), availableRooms)));
 
 			// retrieve an array of beds associated with this roomId
 			Bed[] unreservedBeds = null;
@@ -1809,8 +1671,8 @@ public class ClientManagerAction extends DispatchAction {
 			request.setAttribute("generalIntakeNodes", genericIntakeManager.getIntakeNodesByType(3));
 
 			/* survey module */
-			request.setAttribute("survey_list", surveyManager.getAllFormsForCurrentProviderAndCurrentFacility(loggedInInfo));
-			request.setAttribute("surveys", surveyManager.getFormsForCurrentProviderAndCurrentFacility(loggedInInfo, demographicNo));
+			request.setAttribute("survey_list", surveyManager.getAllFormsForCurrentProviderAndCurrentFacility());
+			request.setAttribute("surveys", surveyManager.getFormsForCurrentProviderAndCurrentFacility(demographicNo));
 
 			/* consent forms */
 			int clientId = Integer.parseInt(demographicNo);
@@ -1851,19 +1713,10 @@ public class ClientManagerAction extends DispatchAction {
 		}
 
 		/* refer */
-		if (tabBean.getTab().equals("Refer") || tabBean.getTab().equals("Refer to vacancy")) {
-			List<ClientReferral> clientReferrals = clientManager.getActiveReferrals(demographicNo, String.valueOf(facilityId));
-			List<ClientReferral> clientReferralDisplay = new ArrayList<ClientReferral>();
-			for(ClientReferral cr : clientReferrals) {				
-				Vacancy v = vacancyDao.getVacancyById(cr.getVacancyId()==null?0:cr.getVacancyId());
-				if(v!=null) {
-					cr.setVacancyTemplateName(vacancyTemplateDao.getVacancyTemplate(v.getTemplateId()).getName());
-				}
-				clientReferralDisplay.add(cr);
-			}
-			request.setAttribute("referrals", clientReferralDisplay);
+		if (tabBean.getTab().equals("Refer")) {
+			request.setAttribute("referrals", clientManager.getActiveReferrals(demographicNo, String.valueOf(facilityId)));
 
-			if (loggedInInfo.getCurrentFacility().isIntegratorEnabled()) {
+			if (loggedInInfo.currentFacility.isIntegratorEnabled()) {
 				try {
 					ArrayList<RemoteReferral> results = new ArrayList<RemoteReferral>();
 
@@ -1872,9 +1725,9 @@ public class ClientManagerAction extends DispatchAction {
 					results.addAll(remoteReferralsFromDB);
 
 					// get remote Data
-					ReferralWs referralWs = CaisiIntegratorManager.getReferralWs(loggedInInfo, loggedInInfo.getCurrentFacility());
+					ReferralWs referralWs = CaisiIntegratorManager.getReferralWs();
 
-					Integer currentRemoteFacilityId = CaisiIntegratorManager.getCurrentRemoteFacility(loggedInInfo, loggedInInfo.getCurrentFacility()).getIntegratorFacilityId();
+					Integer currentRemoteFacilityId = CaisiIntegratorManager.getCurrentRemoteFacility().getIntegratorFacilityId();
 					List<Referral> referrals = referralWs.getLinkedReferrals(Integer.parseInt(demographicNo));
 
 					if (referrals != null) {
@@ -1882,13 +1735,13 @@ public class ClientManagerAction extends DispatchAction {
 							if (currentRemoteFacilityId.equals(remoteReferral.getSourceIntegratorFacilityId())) continue;
 
 							RemoteReferral temp = new RemoteReferral();
-							CachedFacility cachedFacility = CaisiIntegratorManager.getRemoteFacility(loggedInInfo, loggedInInfo.getCurrentFacility(),remoteReferral.getDestinationIntegratorFacilityId());
+							CachedFacility cachedFacility = CaisiIntegratorManager.getRemoteFacility(remoteReferral.getDestinationIntegratorFacilityId());
 							temp.setReferredToFacilityName(cachedFacility.getName());
 
 							FacilityIdIntegerCompositePk pk = new FacilityIdIntegerCompositePk();
 							pk.setIntegratorFacilityId(remoteReferral.getDestinationIntegratorFacilityId());
 							pk.setCaisiItemId(remoteReferral.getDestinationCaisiProgramId());
-							CachedProgram cachedProgram = CaisiIntegratorManager.getRemoteProgram(loggedInInfo, loggedInInfo.getCurrentFacility(),pk);
+							CachedProgram cachedProgram = CaisiIntegratorManager.getRemoteProgram(pk);
 							temp.setReferredToProgramName(cachedProgram.getName());
 
 							temp.setReferalDate(remoteReferral.getReferralDate());
@@ -1920,44 +1773,6 @@ public class ClientManagerAction extends DispatchAction {
 					logger.error("Unexpected Error.", e);
 				}
 			}
-			//Added for refer to Vacancy
-			if(tabBean.getTab().equals("Refer to vacancy")){
-//				Program criteria = (Program) clientForm.get("program");				
-//				List<Program> programs = programManager.search(criteria);
-				
-				//List<Program> programs = programManager.getPrograms(facilityId);				
-				
-				//List<VacancyDisplayBO> vacancyDisplayBOs = matchingManager.listVacanciesForWaitListProgram();	
-				//get all vacancies.
-				WaitListService s = new WaitListService();
-				List<VacancyDisplayBO> vacancyDisplayBOs = s.listVacanciesForAllWaitListPrograms();
-				
-				List<Program> vacancyPrograms = new ArrayList<Program>();
-				
-				for(int j=0;j<vacancyDisplayBOs.size();j++){
-					Program program = programManager.getProgram(vacancyDisplayBOs.get(j).getProgramId());
-					
-					//if(vacancyDisplayBOs.get(j).getNoOfVacancy() != 0){
-					//program.setNoOfVacancy(vacancyDisplayBOs.get(j).getNoOfVacancy());
-					program.setVacancyName(vacancyDisplayBOs.get(j).getVacancyName());
-					program.setDateCreated(vacancyDisplayBOs.get(j).getCreated().toString());
-								
-					int vacancyId = vacancyDisplayBOs.get(j).getVacancyID();
-					List<MatchBO> matchList= matchingManager.getClientMatches(vacancyId);
-					double percentageMatch = 0;
-					for(int k=0;k<matchList.size();k++){
-						percentageMatch = percentageMatch + matchList.get(k).getPercentageMatch();
-					}
-					
-					program.setVacancyId(vacancyId);
-					program.setMatches(percentageMatch);
-					program.setVacancyTemplateName(vacancyDisplayBOs.get(j).getVacancyTemplateName());
-					vacancyPrograms.add(program);
-				}
-				
-				request.setAttribute("programs", vacancyPrograms);
-			}
-			
 		}
 
 		/* service restrictions */
@@ -1976,14 +1791,14 @@ public class ClientManagerAction extends DispatchAction {
 			request.setAttribute("current_bed_program", admissionManager.getCurrentBedProgramAdmission(Integer.valueOf(demographicNo)));
 			request.setAttribute("current_community_program", admissionManager.getCurrentCommunityProgramAdmission(Integer.valueOf(demographicNo)));
 			request.setAttribute("dischargeReasons", lookupManager.LoadCodeList("DRN", true, null, null));
-			request.setAttribute("dischargeReasons2", ""/*lookupManager.LoadCodeList("DR2", true, null, null)*/);
+			request.setAttribute("dischargeReasons2", lookupManager.LoadCodeList("DR2", true, null, null));
 		}
 
 		/* Relations */
 		DemographicRelationship demoRelation = new DemographicRelationship();
-		List<Map<String,Object>> relList = demoRelation.getDemographicRelationshipsWithNamePhone(loggedInInfo, demographicNo, facilityId);
-		List<JointAdmission> list = clientManager.getDependents(new Integer(demographicNo));
-		JointAdmission clientsJadm = clientManager.getJointAdmission(new Integer(demographicNo));
+		ArrayList<Hashtable<String,Object>> relList = demoRelation.getDemographicRelationshipsWithNamePhone(demographicNo, facilityId);
+		List<JointAdmission> list = clientManager.getDependents(new Long(demographicNo));
+		JointAdmission clientsJadm = clientManager.getJointAdmission(new Long(demographicNo));
 		int familySize = list.size() + 1;
 		if (familySize > 1) {
 			request.setAttribute("groupHead", "yes");
@@ -1997,9 +1812,9 @@ public class ClientManagerAction extends DispatchAction {
 		}
 
 		if (relList != null && relList.size() > 0) {
-			for (Map<String, Object> h : relList) {
+			for (Hashtable h : relList) {
 				String demographic = (String) h.get("demographicNo");
-				Integer demoLong = new Integer(demographic);
+				Long demoLong = new Long(demographic);
 				JointAdmission demoJadm = clientManager.getJointAdmission(demoLong);
 
 				// IS PERSON JOINTLY ADMITTED WITH ME, They will either have the same HeadClient or be my headClient
@@ -2069,29 +1884,35 @@ public class ClientManagerAction extends DispatchAction {
 			if (cbiForm!=null) allLatestCbiForms.add(cbiForm);
 		}
 	
+		
 	    request.setAttribute("allLatestCbiForms", allLatestCbiForms);
     }
 	
-	private void addRemoteAdmissions(LoggedInInfo loggedInInfo, ArrayList<AdmissionForDisplay> admissionsForDisplay, Integer demographicId) {
-		if (loggedInInfo.getCurrentFacility().isIntegratorEnabled()) {
+	private void addRemoteAdmissions(ArrayList<AdmissionForDisplay> admissionsForDisplay, Integer demographicId) {
+		LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
+
+		if (loggedInInfo.currentFacility.isIntegratorEnabled()) {
 
 			try {
 				List<CachedAdmission> cachedAdmissions  = null;
 				try {
-					if (!CaisiIntegratorManager.isIntegratorOffline(loggedInInfo.getSession())){
-						cachedAdmissions = CaisiIntegratorManager.getDemographicWs(loggedInInfo, loggedInInfo.getCurrentFacility()).getLinkedCachedAdmissionsByDemographicId(demographicId);
+					if (!CaisiIntegratorManager.isIntegratorOffline()){
+						cachedAdmissions = CaisiIntegratorManager.getDemographicWs().getLinkedCachedAdmissionsByDemographicId(demographicId);
 					}
 				} catch (Exception e) {
 					MiscUtils.getLogger().error("Unexpected error.", e);
-					CaisiIntegratorManager.checkForConnectionError(loggedInInfo.getSession(), e);
+					CaisiIntegratorManager.checkForConnectionError(e);
 				}
 				
-				if(CaisiIntegratorManager.isIntegratorOffline(loggedInInfo.getSession())){
-					cachedAdmissions = IntegratorFallBackManager.getRemoteAdmissions(loggedInInfo,demographicId);	
+				if(CaisiIntegratorManager.isIntegratorOffline()){
+					cachedAdmissions = IntegratorFallBackManager.getRemoteAdmissions(demographicId);	
 				}
+				
+				
+				
 
 				for (CachedAdmission cachedAdmission : cachedAdmissions)
-					admissionsForDisplay.add(new AdmissionForDisplay(loggedInInfo, cachedAdmission));
+					admissionsForDisplay.add(new AdmissionForDisplay(cachedAdmission));
 
 				Collections.sort(admissionsForDisplay, AdmissionForDisplay.ADMISSION_DATE_COMPARATOR);
 			} catch (Exception e) {
@@ -2100,30 +1921,21 @@ public class ClientManagerAction extends DispatchAction {
 		}
 	}
 
-	private List<ReferralSummaryDisplay> getReferralsForSummary(LoggedInInfo loggedInInfo, Integer demographicNo, Integer facilityId) {
+	private List<ReferralSummaryDisplay> getReferralsForSummary(Integer demographicNo, Integer facilityId) {
 		ArrayList<ReferralSummaryDisplay> allResults = new ArrayList<ReferralSummaryDisplay>();
 
 		List<ClientReferral> tempResults = clientManager.getActiveReferrals(String.valueOf(demographicNo), String.valueOf(facilityId));
-		for (ClientReferral clientReferral : tempResults) {
-			String vacancyName = clientReferral.getSelectVacancy();
-			if(vacancyName!=null) {
-				List<Vacancy> vlist = vacancyDao.getVacanciesByName(vacancyName); //assume vacancyName is unique.
-				if(vlist.size()>0) {
-					Integer vacancyTemplateId = vlist.get(0).getTemplateId();
-					clientReferral.setVacancyTemplateName(vacancyTemplateDao.getVacancyTemplate(vacancyTemplateId).getName());
-				}				
-			}
+		for (ClientReferral clientReferral : tempResults)
 			allResults.add(new ReferralSummaryDisplay(clientReferral));
 
-		}
-		
-		if (loggedInInfo.getCurrentFacility().isIntegratorEnabled()) {
+		LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
+		if (loggedInInfo.currentFacility.isIntegratorEnabled()) {
 			try {
-				ReferralWs referralWs = CaisiIntegratorManager.getReferralWs(loggedInInfo, loggedInInfo.getCurrentFacility());
+				ReferralWs referralWs = CaisiIntegratorManager.getReferralWs();
 
 				List<Referral> tempRemoteReferrals = referralWs.getLinkedReferrals(demographicNo);
 				for (Referral referral : tempRemoteReferrals)
-					allResults.add(new ReferralSummaryDisplay(loggedInInfo, referral));
+					allResults.add(new ReferralSummaryDisplay(referral));
 
 				Collections.sort(allResults, ReferralSummaryDisplay.REFERRAL_DATE_COMPARATOR);
 			} catch (Exception e) {
@@ -2134,19 +1946,20 @@ public class ClientManagerAction extends DispatchAction {
 		return (allResults);
 	}
 
-	private List<ReferralHistoryDisplay> getReferralsForHistory(LoggedInInfo loggedInInfo, Integer demographicNo, Integer facilityId) {
+	private List<ReferralHistoryDisplay> getReferralsForHistory(Integer demographicNo, Integer facilityId) {
 		ArrayList<ReferralHistoryDisplay> allResults = new ArrayList<ReferralHistoryDisplay>();
 
 		for (ClientReferral clientReferral : clientManager.getReferralsByFacility(demographicNo, facilityId))
 			allResults.add(new ReferralHistoryDisplay(clientReferral));
 
-		if (loggedInInfo.getCurrentFacility().isIntegratorEnabled()) {
+		LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
+		if (loggedInInfo.currentFacility.isIntegratorEnabled()) {
 			try {
-				ReferralWs referralWs = CaisiIntegratorManager.getReferralWs(loggedInInfo, loggedInInfo.getCurrentFacility());
+				ReferralWs referralWs = CaisiIntegratorManager.getReferralWs();
 
 				List<Referral> tempRemoteReferrals = referralWs.getLinkedReferrals(demographicNo);
 				for (Referral referral : tempRemoteReferrals)
-					allResults.add(new ReferralHistoryDisplay(loggedInInfo, loggedInInfo.getCurrentFacility(),referral));
+					allResults.add(new ReferralHistoryDisplay(referral));
 
 				Collections.sort(allResults, ReferralHistoryDisplay.REFERRAL_DATE_COMPARATOR);
 			} catch (Exception e) {
@@ -2187,8 +2000,8 @@ public class ClientManagerAction extends DispatchAction {
 		FunctionalCentreAdmission fcAdmission = functionalCentreAdmissionDao.find(Integer.valueOf(admissionId));
 
 		StringBuilder sb = new StringBuilder();
-		if(fcAdmission!=null) {
-			FunctionalCentre fc = functionalCentreDao.find(fcAdmission.getFunctionalCentreId());
+        if(fcAdmission!=null) {
+        	FunctionalCentre fc = functionalCentreDao.find(fcAdmission.getFunctionalCentreId());
 			sb.append(fc!=null?fc.getDescription():"");
 			sb.append(" ( ");
 			sb.append(DateFormatUtils.ISO_DATE_FORMAT.format(fcAdmission.getAdmissionDate()));
@@ -2196,7 +2009,7 @@ public class ClientManagerAction extends DispatchAction {
 			if (fcAdmission.getDischargeDate() == null) sb.append("current");
 			else sb.append(DateFormatUtils.ISO_DATE_FORMAT.format(fcAdmission.getDischargeDate()));
 			sb.append(" )");
-		}
+        }
 		return (StringEscapeUtils.escapeHtml(sb.toString()));
 	}
 
@@ -2253,6 +2066,10 @@ public class ClientManagerAction extends DispatchAction {
 		this.clientManager = mgr;
 	}
 
+	public void setLogManager(LogManager mgr) {
+		this.logManager = mgr;
+	}
+
 	public void setProgramManager(ProgramManager mgr) {
 		this.programManager = mgr;
 	}
@@ -2268,50 +2085,15 @@ public class ClientManagerAction extends DispatchAction {
 	public void setRoomManager(RoomManager roomManager) {
 		this.roomManager = roomManager;
 	}
-/*	
-	private void populateCdsData(HttpServletRequest request, Integer demographicNo, Integer facilityId) {
-		List<Admission> admissions = admissionDao.getAdmissions(demographicNo);
-		List<Program> domain = null;
-		
-		
-		ArrayList<CdsClientForm> allLatestCdsForms = new ArrayList<CdsClientForm>();
-		
-		boolean restrict = "true".equals(OscarProperties.getInstance().getProperty("caisi.cds.restrict_by_program_domain", "false"));
-		if(restrict) {
-			domain = programManager.getProgramDomain(LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo());
-		}
 	
-		for (Admission admission : admissions) {
-			CdsClientForm cdsClientForm = cdsClientFormDao.findLatestByFacilityAdmissionId(facilityId, admission.getId().intValue(), null);
-			if (cdsClientForm != null) {
-				if(restrict) {
-					if(isAdmissionInDomain(admission,domain)) {
-						allLatestCdsForms.add(cdsClientForm);
-					}
-				} else {
-					allLatestCdsForms.add(cdsClientForm);
-				}
-			}
-		}
-
-		request.setAttribute("allLatestCdsForms", allLatestCdsForms);
-	}
-*/
-	private boolean isAdmissionInDomain(Admission admission,List<Program> domain) {
-		for(Program p:domain) {
-			if(p.getId().intValue() == admission.getProgramId().intValue()) {
-				return true;
-			}
-		}
-		return false;
-	}
-	public static String getCdsProgramDisplayString(CdsClientForm cdsClientForm) {
-	/*	Admission admission = admissionDao.getAdmission(cdsClientForm.getAdmissionId());
-		Program program = programDao.getProgram(admission.getProgramId());
-
-		String displayString = program.getName() + " : " + DateFormatUtils.ISO_DATE_FORMAT.format(admission.getAdmissionDate());
-		return (StringEscapeUtils.escapeHtml(displayString));
-	*/
+	public static String getCdsProgramDisplayString(CdsClientForm cdsClientForm)
+	{/* Replace admission with functionalCentreAdmission
+		Admission admission=admissionDao.getAdmission(cdsClientForm.getAdmissionId());
+		Program program=programDao.getProgram(admission.getProgramId());
+		
+		String displayString=program.getName()+" : "+DateFormatUtils.ISO_DATE_FORMAT.format(admission.getAdmissionDate());
+		return(StringEscapeUtils.escapeHtml(displayString));
+		*/
 		
 		FunctionalCentreAdmission admission = functionalCentreAdmissionDao.find(cdsClientForm.getAdmissionId());
 		FunctionalCentre fc = functionalCentreDao.find(admission.getFunctionalCentreId());

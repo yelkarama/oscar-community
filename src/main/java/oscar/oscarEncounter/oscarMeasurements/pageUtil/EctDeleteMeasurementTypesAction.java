@@ -26,7 +26,9 @@
 package oscar.oscarEncounter.oscarMeasurements.pageUtil;
 
 import java.io.IOException;
-import java.util.Date;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 import javax.servlet.ServletException;
@@ -37,72 +39,70 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.oscarehr.common.dao.MeasurementGroupDao;
-import org.oscarehr.common.dao.MeasurementTypeDao;
-import org.oscarehr.common.dao.MeasurementTypeDeletedDao;
-import org.oscarehr.common.model.MeasurementType;
-import org.oscarehr.common.model.MeasurementTypeDeleted;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
+import oscar.OscarProperties;
+import oscar.oscarDB.DBHandler;
 import oscar.oscarEncounter.oscarMeasurements.data.MeasurementTypes;
 
 
 public class EctDeleteMeasurementTypesAction extends Action {
 
-	private MeasurementTypeDao measurementTypeDao = SpringUtils.getBean(MeasurementTypeDao.class);
-	private MeasurementGroupDao measurementGroupDao = SpringUtils.getBean(MeasurementGroupDao.class);
-	private MeasurementTypeDeletedDao measurementTypeDeletedDao = SpringUtils.getBean(MeasurementTypeDeletedDao.class);
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException
     {
-    	if( securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_admin", "w", null) || securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_admin.measurements", "w", null) )  {
-    	
         EctDeleteMeasurementTypesForm frm = (EctDeleteMeasurementTypesForm) form;                
         request.getSession().setAttribute("EctDeleteMeasurementTypesForm", frm);
         String[] deleteCheckbox = frm.getDeleteCheckbox();
         GregorianCalendar now=new GregorianCalendar(); 
        
-                                                                                        
+        String dateDeleted = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.get(Calendar.DATE) ;
+                
+        try{
+                                                                                                
             
-        if(deleteCheckbox != null){
-            for(int i=0; i<deleteCheckbox.length; i++){
-                MiscUtils.getLogger().debug(deleteCheckbox[i]);
-                
-                MeasurementType mt = measurementTypeDao.find(Integer.parseInt(deleteCheckbox[i]));
-                if(mt != null) {
-                	MeasurementTypeDeleted mtd = new MeasurementTypeDeleted();
-                	mtd.setType(mt.getType());
-                	mtd.setTypeDisplayName(mt.getTypeDisplayName());
-                	mtd.setTypeDescription(mt.getTypeDescription());
-                	mtd.setMeasuringInstruction(mt.getMeasuringInstruction());
-                	mtd.setValidation(mt.getValidation());
-                	mtd.setDateDeleted(new Date());
-                	measurementTypeDeletedDao.persist(mtd);
-                	
-                	measurementTypeDao.remove(mt.getId());
-                	
-                	measurementGroupDao.remove(measurementGroupDao.findByTypeDisplayName(mt.getTypeDisplayName()));
+            if(deleteCheckbox != null){
+                for(int i=0; i<deleteCheckbox.length; i++){
+                    MiscUtils.getLogger().debug(deleteCheckbox[i]);
+                    String sql = "SELECT * FROM measurementType WHERE id='"+ deleteCheckbox[i] +"'"; 
+                    ResultSet rs;
+                    rs = DBHandler.GetSQL(sql);
+                    if(rs.next()){
+                        sql = "INSERT INTO measurementTypeDeleted(type, typeDisplayName,  typeDescription, measuringInstruction, validation, dateDeleted)" +
+                              "VALUES('"+ oscar.Misc.getString(rs, "type") + "','" + oscar.Misc.getString(rs, "typeDisplayName")+ "','" +oscar.Misc.getString(rs, "typeDescription")+ "','" +
+                              oscar.Misc.getString(rs, "measuringInstruction")+ "','" + oscar.Misc.getString(rs, "validation") + "','" + dateDeleted +"')";
+                        DBHandler.RunSQL(sql);
+                        sql = "DELETE  FROM measurementType WHERE id='"+ deleteCheckbox[i] +"'";                                        
+                        MiscUtils.getLogger().debug(" sql statement "+sql);
+                        DBHandler.RunSQL(sql);
+                        sql = "DELETE FROM measurementGroup WHERE typeDisplayName = '" + oscar.Misc.getString(rs, "typeDisplayName") + "'";
+                        MiscUtils.getLogger().debug("sql Statement " + sql);
+                        DBHandler.RunSQL(sql);
+                    }
                 }
-                
-                
             }
-        }
-        
+            
 
-         
-      
+            /*select the correct db specific command */
+            String db_type = OscarProperties.getInstance().getProperty("db_type").trim();
+            String dbSpecificCommand;
+            if (db_type.equalsIgnoreCase("mysql")) {
+                dbSpecificCommand = "SELECT LAST_INSERT_ID()";
+            } 
+            else if (db_type.equalsIgnoreCase("postgresql")){
+                dbSpecificCommand = "SELECT CURRVAL('consultationrequests_numeric')";
+            }
+            else
+                throw new SQLException("ERROR: Database " + db_type + " unrecognized.");
+        }
+
+        catch(SQLException e)
+        {
+            MiscUtils.getLogger().error("Error", e);
+        }
         MeasurementTypes mt =  MeasurementTypes.getInstance();
         mt.reInit();
         return mapping.findForward("success");
-
-		}else{
-			throw new SecurityException("Access Denied!"); //missing required security object (_admin)
-		}
     }
      
 }

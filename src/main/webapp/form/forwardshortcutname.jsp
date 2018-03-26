@@ -27,22 +27,19 @@
 <%@page import="org.oscarehr.util.MiscUtils"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-    String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
+    if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
+    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
 %>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_echart" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_eChart");%>
+<security:oscarSec roleName="<%=roleName$%>" objectName="_eChart"
+	rights="r" reverse="<%=true%>">
+	<%response.sendRedirect("../logout.jsp");%>
 </security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
 
 <%@ page import="java.net.URLDecoder, oscar.form.data.*" errorPage="../errorpage.jsp"%>
 
 <%
+  //if(session.getValue("user") == null || !( ((String) session.getValue("userprofession")).equalsIgnoreCase("doctor") ))
+  //  response.sendRedirect("../logout.jsp");
 
     // forward to the page 'form_link'
     if(true) {
@@ -53,14 +50,8 @@
         formPath[0] = formPath[0].trim();
         
         String remoteFacilityIdString=request.getParameter("remoteFacilityId");
-        String appointmentNo=request.getParameter("appointmentNo");
-        
-        String nextPage = formPath[0] + 
-        				 request.getParameter("demographic_no")  + 
-        				 ((remoteFacilityIdString!=null)?"&remoteFacilityId="+remoteFacilityIdString:"") + 
-        				 ((appointmentNo!=null)?"&appointmentNo="+appointmentNo:"") + 
-        				 ((request.getParameter("formId") != null)?"&formId="+request.getParameter("formId"):"&formId=" + formPath[1]);
-        MiscUtils.getLogger().info("Forwarding to page : "+nextPage);
+        String nextPage=formPath[0] + request.getParameter("demographic_no")  + (remoteFacilityIdString!=null?"&remoteFacilityId="+remoteFacilityIdString+"&formId="+request.getParameter("formId"):"&formId=" + formPath[1]);
+        MiscUtils.getLogger().debug("Forwarding to page : "+nextPage);
         pageContext.forward(nextPage);
         return;
     }

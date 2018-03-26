@@ -26,6 +26,8 @@
 package oscar.oscarDB;
 
 import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -33,10 +35,11 @@ import java.sql.Statement;
 
 import org.oscarehr.util.DbConnectionFilter;
 
+import oscar.OscarProperties;
+
 /**
  * deprecated Use JPA instead, no new code should be written against this class.
  */
-@Deprecated
 public final class DBPreparedHandler {
     
     ResultSet rs = null;
@@ -63,6 +66,138 @@ public final class DBPreparedHandler {
 	        }
     	}
         stmt.execute();
+    }
+
+    synchronized public void queryExecute(String preparedSQL, String[] param) throws SQLException {
+        preparedStmt = DbConnectionFilter.getThreadLocalDbConnection().prepareStatement(preparedSQL);
+        for (int i = 0; i < param.length; i++) {
+            preparedStmt.setString((i + 1), param[i]);
+
+        }
+        preparedStmt.execute();
+    }
+    synchronized public int queryExecuteUpdate(String preparedSQL) throws SQLException {
+        preparedStmt = DbConnectionFilter.getThreadLocalDbConnection().prepareStatement(preparedSQL);
+        return(preparedStmt.executeUpdate());
+    }
+    synchronized public int queryExecuteInsertReturnId(String preparedSQL) throws SQLException {
+    	return queryExecuteInsertReturnId(preparedSQL, null);
+    }
+    synchronized public int queryExecuteInsertReturnId(String preparedSQL, DBPreparedHandlerParam[] params) throws SQLException {
+    	Connection conn = DbConnectionFilter.getThreadLocalDbConnection();
+    	boolean ac = conn.getAutoCommit();
+		conn.setAutoCommit(false);
+    	try {
+    		if (params == null) {
+    			queryExecuteUpdate(preparedSQL);
+    		}
+    		else 
+    		{
+    			queryExecuteUpdate(preparedSQL,params);
+    		}
+    		OscarProperties prop = OscarProperties.getInstance();
+    		String db_type = prop.getProperty("db_type", "mysql").trim();
+	        String sql = "";
+	        if (db_type.equalsIgnoreCase("mysql")) {
+	               sql= "SELECT LAST_INSERT_ID()";
+	         } else if (db_type.equalsIgnoreCase("postgresql")) {
+	               sql = "SELECT CURRVAL('messagetbl_int_seq')";
+	         } else if (db_type.equalsIgnoreCase("oracle")) {
+	        	   sql = "SELECT HIBERNATE_SEQUENCE.CURRVAL FROM DUAL";
+	         }
+	         else 
+	               throw new java.sql.SQLException("ERROR: Database type: " + db_type + " unrecognized");
+	        ResultSet rs = queryResults(sql);
+	        int id = 0;
+	        if(rs.next()){
+	            id = rs.getInt(1);
+	         }
+	         conn.commit();
+	         rs.close();
+	         return id;
+    	}
+    	catch(SQLException ex) 
+    	{
+    		conn.rollback();
+    		throw ex;
+    	}
+    	finally
+    	{
+    		conn.setAutoCommit(ac);
+    	}
+    }
+
+    synchronized public int queryExecuteUpdate(String preparedSQL, String[] param) throws SQLException {
+        preparedStmt = DbConnectionFilter.getThreadLocalDbConnection().prepareStatement(preparedSQL);
+        for (int i = 0; i < param.length; i++) {
+            preparedStmt.setString((i + 1), param[i]);
+
+        }
+        return(preparedStmt.executeUpdate());
+    }
+
+    synchronized public int queryExecuteUpdate(String preparedSQL, int[] param) throws SQLException {
+        preparedStmt = DbConnectionFilter.getThreadLocalDbConnection().prepareStatement(preparedSQL);
+        for (int i = 0; i < param.length; i++) {
+            preparedStmt.setInt((i + 1), param[i]);
+        }
+        return(preparedStmt.executeUpdate());
+    }
+    synchronized public int queryExecuteUpdate(String preparedSQL, DBPreparedHandlerParam[] params) throws SQLException {
+        preparedStmt = DbConnectionFilter.getThreadLocalDbConnection().prepareStatement(preparedSQL);
+        for (int i = 0; i < params.length; i++) {
+        	DBPreparedHandlerParam param = params[i];
+        	
+        	if (param==null) preparedStmt.setObject(i+1, null);
+        	else if(DBPreparedHandlerParam.PARAM_STRING.equals(param.getParamType())){
+                    preparedStmt.setString(i+1, param.getStringValue());
+        	}else if (DBPreparedHandlerParam.PARAM_DATE.equals(param.getParamType())){
+                    preparedStmt.setDate(i+1, param.getDateValue());
+        	}else if (DBPreparedHandlerParam.PARAM_INT.equals(param.getParamType())){
+                    preparedStmt.setInt(i+1,param.getIntValue());
+        	}else if (DBPreparedHandlerParam.PARAM_TIMESTAMP.equals(param.getParamType())){
+                    preparedStmt.setTimestamp(i+1,param.getTimestampValue());
+                }
+        }
+        return(preparedStmt.executeUpdate());
+    }
+
+    synchronized public int queryExecuteUpdate(String preparedSQL, String[] param, Date[] dtparam,int[] intparam) throws SQLException {
+        preparedStmt = DbConnectionFilter.getThreadLocalDbConnection().prepareStatement(preparedSQL);
+        int idx = 1;
+        for (int i = 0; i < param.length; i++) {
+            preparedStmt.setString((idx++), param[i]);
+        }
+        for (int i = 0; i < dtparam.length; i++) {
+            preparedStmt.setDate((idx++), dtparam[i]);
+        }
+        for (int i = 0; i < intparam.length; i++) {
+            preparedStmt.setInt((idx++), intparam[i]);
+        }
+        return(preparedStmt.executeUpdate());
+    }
+
+    synchronized public int queryExecuteUpdate(String preparedSQL, String[] param, int[] intparam) throws SQLException {
+        preparedStmt = DbConnectionFilter.getThreadLocalDbConnection().prepareStatement(preparedSQL);
+        for (int i = 0; i < param.length; i++) {
+            preparedStmt.setString((i + 1), param[i]);
+        }
+        for (int i = 0; i < intparam.length; i++) {
+            preparedStmt.setInt((param.length + i + 1), intparam[i]);
+        }
+        return(preparedStmt.executeUpdate());
+    }
+
+    synchronized public int queryExecuteUpdate(String preparedSQL, int[] intparam, String[] param) throws SQLException {
+        int i = 0;
+        preparedStmt = DbConnectionFilter.getThreadLocalDbConnection().prepareStatement(preparedSQL);
+        for (i = 0; i < intparam.length; i++) {
+            preparedStmt.setInt((i + 1), intparam[i]);
+        }
+        for (i = 0; i < param.length; i++) {
+            preparedStmt.setString((intparam.length + i + 1), param[i]);
+        }
+        return(preparedStmt.executeUpdate());
     }
 
     synchronized public ResultSet queryResults(String preparedSQL, String[] param, int[] intparam) throws SQLException {

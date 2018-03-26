@@ -37,7 +37,6 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.Hl7TextInfoDao;
 import org.oscarehr.common.model.Hl7TextInfo;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.OscarAuditLogger;
 import org.oscarehr.util.SpringUtils;
@@ -51,17 +50,17 @@ public class SpireHandler implements MessageHandler {
     Logger logger = Logger.getLogger(SpireHandler.class);
 	Hl7TextInfoDao hl7TextInfoDao = (Hl7TextInfoDao)SpringUtils.getBean("hl7TextInfoDao");
 	
-	public String parse(LoggedInInfo loggedInInfo, String serviceName, String fileName, int fileId, String ipAddr) {
+	public String parse(String serviceName, String fileName, int fileId) {
 
 		int i = 0;
 		try {
 			ArrayList<String> messages = Utilities.separateMessages(fileName);
 			for (i = 0; i < messages.size(); i++) {
 				String msg = messages.get(i);
-				if(isDuplicate(loggedInInfo, msg)) {
+				if(isDuplicate(msg)) {
 					return ("success");
 				}
-				MessageUploader.routeReport(loggedInInfo, serviceName, "Spire", msg, fileId);
+				MessageUploader.routeReport(serviceName, "Spire", msg, fileId);
 
 			}
 		} catch (Exception e) {
@@ -74,7 +73,7 @@ public class SpireHandler implements MessageHandler {
 
 	}
 	
-	private boolean isDuplicate(LoggedInInfo loggedInInfo, String msg) {
+	private boolean isDuplicate(String msg) {
 		//OLIS requirements - need to see if this is a duplicate
 		oscar.oscarLab.ca.all.parsers.MessageHandler h = Factory.getHandler("Spire", msg);
 		//if final
@@ -85,7 +84,7 @@ public class SpireHandler implements MessageHandler {
 			for(Hl7TextInfo dupResult:dupResults) {
 				if(("Spire"+dupResult.getAccessionNumber()).equals(acc)) {
 					//if(h.getHealthNum().equals(dupResult.getHealthNumber())) {
-						OscarAuditLogger.getInstance().log(loggedInInfo, "Lab", "Skip", "Duplicate lab skipped - accession " + acc + "\n" + msg);
+						OscarAuditLogger.getInstance().log("Lab", "Skip", "Duplicate lab skipped - accession " + acc + "\n" + msg);
 						return true;
 					//}					
 					
@@ -94,7 +93,7 @@ public class SpireHandler implements MessageHandler {
 					if(dupResult.getAccessionNumber().substring(0,dupResult.getAccessionNumber().indexOf("-")).equals(acc) ) {
 						//olis match								
 						//if(h.getHealthNum().equals(dupResult.getHealthNumber())) {
-						OscarAuditLogger.getInstance().log(loggedInInfo, "Lab", "Skip", "Duplicate lab skipped - accession " + acc + "\n" + msg);
+						OscarAuditLogger.getInstance().log("Lab", "Skip", "Duplicate lab skipped - accession " + acc + "\n" + msg);
 						return true;
 						//}
 					}

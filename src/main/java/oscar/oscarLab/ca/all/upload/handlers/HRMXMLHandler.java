@@ -22,7 +22,6 @@ import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 import org.oscarehr.util.DbConnectionFilter;
-import org.oscarehr.util.LoggedInInfo;
 
 import oscar.oscarLab.ca.all.parsers.Factory;
 import oscar.oscarLab.ca.all.upload.MessageUploader;
@@ -39,7 +38,7 @@ public class HRMXMLHandler implements MessageHandler {
 		logger.info("NEW HRM XML UPLOAD HANDLER instance just instantiated. ");
 	}
 
-	public String parse(LoggedInInfo loggedInInfo, String serviceName,String fileName, int fileId, String ipAddr) {
+	public String parse(String serviceName,String fileName, int fileId) {
 		logger.info("ABOUT TO PARSE HRM XML " + fileName);
 
 		int i = 0;
@@ -48,7 +47,7 @@ public class HRMXMLHandler implements MessageHandler {
 			for (i = 0; i < messages.size(); i++) {
 
 				String msg =  messages.get(i);
-				MessageUploader.routeReport(loggedInInfo, "","HRMXML", msg, fileId);
+				MessageUploader.routeReport("","HRMXML", msg, fileId);
 
 			}
 

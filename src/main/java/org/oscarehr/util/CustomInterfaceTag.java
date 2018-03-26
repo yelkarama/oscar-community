@@ -26,9 +26,7 @@
 package org.oscarehr.util;
 
 import java.io.IOException;
-import java.util.Random;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.TagSupport;
@@ -49,19 +47,13 @@ public class CustomInterfaceTag extends TagSupport {
 		OscarProperties props = OscarProperties.getInstance();
 		String customJs = props.getProperty("cme_js");
 		
-		HttpServletRequest request=(HttpServletRequest)pageContext.getRequest();
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		
-		if(name != null && name.length()>0) {
-			customJs = name;
-		}
 		if(customJs == null || customJs.length() == 0) {
 			customJs="default";
 		}
 		
 		if(customJs.equals("default") && getSection().equals("cme")) {
 			//check preferences
-			CppPreferencesUIBean bean = new CppPreferencesUIBean(loggedInInfo.getLoggedInProviderNo());
+			CppPreferencesUIBean bean = new CppPreferencesUIBean(LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo());
 			bean.loadValues();
 			if(bean.getEnable()!=null&&bean.getEnable().equals("on")) {
 				logger.info("Use preference based echart");
@@ -82,8 +74,7 @@ public class CustomInterfaceTag extends TagSupport {
 				out.println("<link rel=\"stylesheet\" href=\""+contextPath+"/js/custom/global.css\" type=\"text/css\">");
 				out.println("<script src=\""+contextPath+"/js/custom/"+customJs+"/global.js\"></script>");
 				if(getSection()!=null && getSection().length()>0) {
-                    int randomNo = new Random().nextInt();
-					out.println("<script src=\""+contextPath+"/js/custom/"+customJs+"/"+getSection()+".js?no-cache="+randomNo+"\"></script>");
+					out.println("<script src=\""+contextPath+"/js/custom/"+customJs+"/"+getSection()+".js\"></script>");
 				}
 			}catch(IOException e) {
 				logger.error("Error",e);

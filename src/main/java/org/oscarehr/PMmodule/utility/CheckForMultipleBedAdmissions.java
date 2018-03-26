@@ -27,7 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.oscarehr.common.model.Admission;
+import org.oscarehr.PMmodule.model.Admission;
 import org.oscarehr.PMmodule.service.AdmissionManager;
 import org.oscarehr.PMmodule.service.ClientManager;
 import org.oscarehr.common.model.Demographic;
@@ -67,7 +67,9 @@ public class CheckForMultipleBedAdmissions {
 			if(admission.getProgramName() == null) {
 				return;
 			}
-			
+			if(admission.getProgramType().equals("Bed")) {
+				
+			}
 		}
     }
     public static void main(String args[]) throws Exception {

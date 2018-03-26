@@ -22,10 +22,10 @@
  * Ontario, Canada
  */
 
-package oscar.oscarResearch.oscarDxResearch.pageUtil;
 
+package oscar.oscarResearch.oscarDxResearch.pageUtil;
 import java.io.IOException;
-import java.util.Date;
+import java.sql.SQLException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -35,60 +35,59 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.oscarehr.common.dao.DxresearchDAO;
 import org.oscarehr.common.dao.PartialDateDao;
-import org.oscarehr.common.model.Dxresearch;
 import org.oscarehr.common.model.PartialDate;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
+import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
-import oscar.log.LogAction;
-import oscar.log.LogConst;
-import oscar.util.ConversionUtils;
+import oscar.oscarDB.DBHandler;
 import oscar.util.ParameterActionForward;
+import oscar.util.UtilDateUtilities;
+
 
 public class dxResearchUpdateAction extends Action {
 	private static final PartialDateDao partialDateDao = (PartialDateDao) SpringUtils.getBean("partialDateDao");
-	private static SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	
-	public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		if (!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_dxresearch", "u", null)) {
-			throw new RuntimeException("missing required security object (_dxresearch)");
-		}
-		
-		String status = request.getParameter("status");
-		String did = request.getParameter("did");
-		String demographicNo = request.getParameter("demographicNo");
-		String providerNo = request.getParameter("providerNo");
-		String startDate = request.getParameter("startdate");
 
-		partialDateDao.setPartialDate(startDate, PartialDate.DXRESEARCH, Integer.valueOf(did), PartialDate.DXRESEARCH_STARTDATE);
-		startDate = partialDateDao.getFullDate(startDate);
+    public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException
+    {
+        String status = request.getParameter("status");
+        String did = request.getParameter("did");
+        String demographicNo = request.getParameter("demographicNo");        
+        String providerNo = request.getParameter("providerNo");
+        String startDate = request.getParameter("startdate");
+        String nowDate = UtilDateUtilities.DateToString(UtilDateUtilities.now(), "yyyy/MM/dd"); 
 
-		DxresearchDAO dao = SpringUtils.getBean(DxresearchDAO.class);
-		Dxresearch research = dao.find(ConversionUtils.fromIntString(did));
-		if (research != null) {
-			if (status.equals("C") || status.equals("D")) {
-				research.setStatus(status.charAt(0));
-			} else if (status.equals("A") && startDate != null) {
-				research.setStartDate(new Date());
-			}
-			research.setUpdateDate(new Date());
-			
-			dao.merge(research);
-		}
-
-		ParameterActionForward forward = new ParameterActionForward(mapping.findForward("success"));
-		forward.addParameter("demographicNo", demographicNo);
-		forward.addParameter("providerNo", providerNo);
-		forward.addParameter("quickList", "");
-
-		String ip = request.getRemoteAddr();
-        LogAction.addLog((String) request.getSession().getAttribute("user"), LogConst.UPDATE, "DX", ""+research.getId() , ip,"");
-
+        partialDateDao.setPartialDate(startDate, PartialDate.DXRESEARCH, Integer.valueOf(did), PartialDate.DXRESEARCH_STARTDATE);
+        startDate = partialDateDao.getFullDate(startDate);
         
-		return forward;
-	}
+        try{
+                        
+            String sql = "";
+            if (status.equals("C")){
+                sql = "update dxresearch set update_date='"+nowDate + "', status='C' where dxresearch_no='"+did+"'";
+                DBHandler.RunSQL(sql);
+            }
+            else if (status.equals("D")){
+                sql = "update dxresearch set update_date='"+nowDate + "', status='D' where dxresearch_no='"+did+"'";
+                DBHandler.RunSQL(sql);
+            }
+            else if (status.equals("A") && startDate!=null){
+                sql = "update dxresearch set update_datpartialDatee='"+nowDate+"', start_date='"+startDate+"' where dxresearch_no='"+did+"'";
+                DBHandler.RunSQL(sql);
+            }
+        }
 
+        catch(SQLException e){
+            MiscUtils.getLogger().error("Error", e);
+        }                                    
+        
+        ParameterActionForward forward = new ParameterActionForward(mapping.findForward("success"));
+        forward.addParameter("demographicNo", demographicNo);
+        forward.addParameter("providerNo", providerNo);
+        forward.addParameter("quickList", "");        
+        
+        return forward;
+    }
+     
 }

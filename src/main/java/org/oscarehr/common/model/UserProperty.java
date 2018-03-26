@@ -38,38 +38,30 @@ import javax.persistence.Transient;
 @Table(name="property")
 public class UserProperty extends AbstractModel<Integer> implements Serializable {
 
-    public static final String MYOSCAR_ID="MyOscarId";
-    public static final String STALE_NOTEDATE = "cme_note_date";
-    public static final String STALE_FORMAT = "cme_note_format";
-    public static final String MYDRUGREF_ID = "mydrugref_id";
-    public static final String ONTARIO_MD_USERNAME = "ontario_md_username";
-    public static final String ONTARIO_MD_PASSWORD = "ontario_md_password";
-    public static final String CONSULTATION_TIME_PERIOD_WARNING = "consultation_time_period_warning";
-    public static final String CONSULTATION_TEAM_WARNING = "consultation_team_warning";
-    public static final String WORKLOAD_MANAGEMENT = "workload_management";
-    public static final String CONSULTATION_REQ_PASTE_FMT = "consultation_req_paste_fmt";
-    public static final String CONSULTATION_LETTERHEADNAME_DEFAULT = "consultation_letterheadname_default";
-    public static final String RX_PAGE_SIZE = "rx_page_size";
-    public static final String RX_DEFAULT_QUANTITY = "rx_default_quantity";
-    public static final String RX_PROFILE_VIEW = "rx_profile_view";
-    public static final String RX_USE_RX3 = "rx_use_rx3";
-    public static final String USE_MYMEDS = "use_mymeds";
-    public static final String DMFLOW_SHEET_VIEW = "DMFlowsheet_view";
-    public static final String DOC_DEFAULT_QUEUE="doc_default_queue";
-    public static final String HC_TYPE= "HC_Type";
-    public static final String DEFAULT_SEX= "default_sex";
-    public static final String EFORM_REFER_FAX = "eform_refer_fax";
-    public static final String EFORM_FAVOURITE_GROUP = "favourite_eform_group";
-    public static final String RX_SHOW_PATIENT_DOB="rx_show_patient_dob";
-    public static final String PATIENT_NAME_LENGTH="patient_name_length";
-    
-    public static final String OFFICIAL_FIRST_NAME="official_first_name";
-    public static final String OFFICIAL_SECOND_NAME="official_second_name";
-    public static final String OFFICIAL_LAST_NAME="official_last_name";
-    public static final String OFFICIAL_OLIS_IDTYPE="official_olis_idtype";
-    public static final String OSCAR_MSG_RECVD="oscarMsgRecvd";
-    
-    
+    @Transient public final static String MYOSCAR_ID="MyOscarId";
+    @Transient public final static String STALE_NOTEDATE = "cme_note_date";
+    @Transient public final static String STALE_FORMAT = "cme_note_format";
+    @Transient public final static String MYDRUGREF_ID = "mydrugref_id";
+    @Transient public final static String ONTARIO_MD_USERNAME = "ontario_md_username";
+    @Transient public final static String ONTARIO_MD_PASSWORD = "ontario_md_password";
+    @Transient public final static String CONSULTATION_TIME_PERIOD_WARNING = "consultation_time_period_warning";
+    @Transient public final static String CONSULTATION_TEAM_WARNING = "consultation_team_warning";
+    @Transient public final static String WORKLOAD_MANAGEMENT = "workload_management";
+    @Transient public final static String CONSULTATION_REQ_PASTE_FMT = "consultation_req_paste_fmt";
+    @Transient public final static String RX_PAGE_SIZE = "rx_page_size";
+    @Transient public final static String RX_DEFAULT_QUANTITY = "rx_default_quantity";
+    @Transient public final static String RX_PROFILE_VIEW = "rx_profile_view";
+    @Transient public final static String RX_USE_RX3 = "rx_use_rx3";
+    @Transient public final static String USE_MYMEDS = "use_mymeds";
+    @Transient public final static String DMFLOW_SHEET_VIEW = "DMFlowsheet_view";
+    @Transient public final static String DOC_DEFAULT_QUEUE="doc_default_queue";
+    @Transient public final static String HC_TYPE= "HC_Type";
+    @Transient public final static String DEFAULT_SEX= "default_sex";
+    @Transient public final static String EFORM_REFER_FAX = "eform_refer_fax";
+    @Transient public final static String EFORM_FAVOURITE_GROUP = "favourite_eform_group";
+    @Transient public final static String RX_SHOW_PATIENT_DOB="rx_show_patient_dob";
+    @Transient public final static String PATIENT_NAME_LENGTH="patient_name_length";
+
     //added to user properties with new interface
     public static final String FAX = "fax";
     public static final String SIGNATURE = "signature";
@@ -96,36 +88,7 @@ public class UserProperty extends AbstractModel<Integer> implements Serializable
     public static final String LAB_ACK_COMMENT="lab_ack_comment";
     public static final String EDOC_BROWSER_IN_MASTER_FILE="edoc_browser_in_master_file";
     public static final String EDOC_BROWSER_IN_DOCUMENT_REPORT="edoc_browser_in_document_report";
-    public static final String VIEW_DOCUMENT_AS="view_document_as";
-    public static final String INCOMING_DOCUMENT_DEFAULT_QUEUE="incoming_document_default_queue";
-    public static final String INCOMING_DOCUMENT_ENTRY_MODE="incoming_document_entry_mode";
-    public static final String DISPLAY_DOCUMENT_AS="display_document_as";
-    public static final String COBALT="cobalt";
-    public static final String PDF="PDF";
-    public static final String IMAGE="Image";
-    public static final String DOCUMENT_DESCRIPTION_TEMPLATE="document_description_template";
-    public static final String CLINIC="Clinic";
-    public static final String USER="User";
-    public static final String UPLOAD_DOCUMENT_DESTINATION="upload_document_destination";
-    public static final String INCOMINGDOCS="incomingDocs";
-    public static final String PENDINGDOCS="pendingDocs";
-    public static final String UPLOAD_INCOMING_DOCUMENT_FOLDER="upload_incoming_document_folder";
-    public static final String HIDE_OLD_ECHART_LINK_IN_APPT="hide_old_echart_link_in_appointment";
-    public static final String DISABLE_BORN_PROMPTS = "disable_born_prompts";
-
-    
-    public static final String DEFAULT_PRINTER_PDF_LABEL="default_printer_pdf_label";
-    public static final String DEFAULT_PRINTER_PDF_ENVELOPE="default_printer_pdf_envelope";
-    public static final String DEFAULT_PRINTER_APPOINTMENT_RECEIPT="default_printer_appointment_receipt";
-    public static final String DEFAULT_PRINTER_PDF_ADDRESS_LABEL="default_printer_pdf_address_label";
-    public static final String DEFAULT_PRINTER_PDF_CHART_LABEL="default_printer_pdf_chart_label";
-    public static final String DEFAULT_PRINTER_CLIENT_LAB_LABEL="default_printer_client_lab_label";
-    public static final String DEFAULT_PRINTER_PDF_LABEL_SILENT_PRINT="default_printer_pdf_label_silent_print";
-    public static final String DEFAULT_PRINTER_PDF_ENVELOPE_SILENT_PRINT="default_printer_pdf_envelope_silent_print";
-    public static final String DEFAULT_PRINTER_APPOINTMENT_RECEIPT_SILENT_PRINT="default_printer_appointment_receipt_silent_print";
-    public static final String DEFAULT_PRINTER_PDF_ADDRESS_LABEL_SILENT_PRINT="default_printer_pdf_address_label_silent_print";
-    public static final String DEFAULT_PRINTER_PDF_CHART_LABEL_SILENT_PRINT="default_printer_pdf_chart_label_silent_print";
-    public static final String DEFAULT_PRINTER_CLIENT_LAB_LABEL_SILENT_PRINT="default_printer_client_lab_label_silent_print";
+  
 
     public static final String INTEGRATOR_DEMOGRAPHIC_SYNC = "integrator_demographic_sync";
     public static final String INTEGRATOR_DEMOGRAPHIC_ISSUES = "integrator_demographic_issues";
@@ -142,31 +105,16 @@ public class UserProperty extends AbstractModel<Integer> implements Serializable
     public static final String INTEGRATOR_DEMOGRAPHIC_DOCUMENTS = "integrator_demographic_documents";
     public static final String INTEGRATOR_DEMOGRAPHIC_ALLERGIES = "integrator_demographic_allergies";
     public static final String INTEGRATOR_DEMOGRAPHIC_LABREQ = "integrator_demographic_labreq";
+
     public static final String INTEGRATOR_PROGRAMS = "integrator_programs_sync";
     public static final String INTEGRATOR_PROVIDERS = "integrator_providers_sync";
     public static final String INTEGRATOR_FACILITY = "integrator_facility_sync";
+
     public static final String INTEGRATOR_FULL_PUSH = "integrator_full_push";
     public static final String INTEGRATOR_LAST_PUSH = "integrator_last_push";
     public static final String INTEGRATOR_LAST_UPDATED = "integrator_last_updated";
 	public static final String INTEGRATOR_LAST_PULL_PRIMARY_EMR = "integrator_last_pull";
-	public static final String INTEGRATOR_PATIENT_CONSENT = "integrator_patient_consent";	
-	public static final String STUDENT_PARTICIPATION_CONSENT = "student_participation_consent";	
-	public static final String PROVIDER_FOR_TICKLER_WARNING = "provider_for_tickler_warning";
 
-	public static final String MCEDT_ACCOUNT_PASSWORD = "mcedt_account_password";
-	public static final String TICKLER_EMAIL_PROVIDER = "tickler_email_provider";
-
-	public static final String CLINICALCONNECT_ID = "clinicalconnect_username";
-	public static final String CLINICALCONNECT_TYPE = "clinicalconnect_authentication_type";
-	public static final String CLINICALCONNECT_SERVICE_USERNAME = "clinicalconnect_service_username";
-	public static final String CLINICALCONNECT_SERVICE_PASSWORD = "clinicalconnect_service_password";
-	public static final String CLINICALCONNECT_SERVICE_LOCATION = "clinicalconnect_service_location";
-
-	public static final String DASHBOARD_SHARE = "dashboard_share";
-	
-	public static final String CODE_TO_ADD_PATIENTDX = "code_to_add_patientDx";
-	public static final String CODE_TO_MATCH_PATIENTDX = "code_to_match_patientDx";
-	
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

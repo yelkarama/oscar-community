@@ -26,19 +26,15 @@
 package oscar.oscarBilling.ca.bc.MSP;
 
 import java.math.BigDecimal;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.oscarehr.common.dao.BillingDao;
-import org.oscarehr.common.model.Billing;
-import org.oscarehr.managers.DemographicManager;
-import org.oscarehr.util.LoggedInInfo;
+import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.Misc;
 import oscar.entities.Billingmaster;
@@ -46,6 +42,7 @@ import oscar.entities.WCB;
 import oscar.oscarBilling.ca.bc.Teleplan.TeleplanSequenceDAO;
 import oscar.oscarBilling.ca.bc.Teleplan.WCBTeleplanSubmission;
 import oscar.oscarBilling.ca.bc.data.BillingmasterDAO;
+import oscar.oscarDB.DBHandler;
 import oscar.oscarProvider.data.ProviderData;
 
 /**
@@ -61,14 +58,14 @@ public class TeleplanFileWriter {
     StringBuilder mspFileStr = null;
     StringBuilder mspHtmlStr = null;
     int sequenceNum = 0;
-    ArrayList<String> billingToBeMarkedAsBilled = null;
+    ArrayList billingToBeMarkedAsBilled = null;
     ArrayList billingmasterToBeMarkedAsBilled = null;
     private BigDecimal bigTotal = null;
     ArrayList logList = null;
     int totalClaims = 0;
     
     private BillingmasterDAO billingmasterDAO = null;
-    private DemographicManager demographicManager = null;
+    private DemographicDao demographicDAO = null;
     
     public CheckBillingData checkData = new CheckBillingData();
     
@@ -77,7 +74,7 @@ public class TeleplanFileWriter {
         mspFileStr = new StringBuilder();
         mspHtmlStr = new StringBuilder();
         sequenceNum = getLastSequenceNumber();
-        billingToBeMarkedAsBilled = new ArrayList<String>();
+        billingToBeMarkedAsBilled = new ArrayList();
         billingmasterToBeMarkedAsBilled = new ArrayList();
         bigTotal = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);
         logList = new ArrayList();
@@ -94,10 +91,10 @@ public class TeleplanFileWriter {
     private void addToMarkBillingList(String billingNo){
         billingToBeMarkedAsBilled.add(billingNo);
     }
-    /*
+    
     private void increaseClaims(){
         totalClaims++;
-    }*/
+    }
 
     private void increaseClaims(int numClaims){
         totalClaims += numClaims;
@@ -133,7 +130,7 @@ public class TeleplanFileWriter {
         mspHtmlStr.append(str);
     }
     
-    public TeleplanSubmission getSubmission(LoggedInInfo loggedInInfo, boolean testRun,ProviderData[] providers,String dataCenterId ) {
+    public TeleplanSubmission getSubmission(boolean testRun,ProviderData[] providers,String dataCenterId ) throws Exception{
         log.debug("Start getSubmission");
         
         String logNo =  getNextSequenceNumber() ;
@@ -176,7 +173,7 @@ public class TeleplanFileWriter {
                 }else if(billType.equals("WCB")){
                     //TODO:Should pass dataCenterId to WCB but it looks it up in the properties currently, fix in the future
                     log.debug("Billing # :"+billing_no+" Data Center :"+dataCenterId+ " WCB BILL");
-                    c = createWCB2(loggedInInfo, billing_no);            
+                    c = createWCB2(billing_no);            
                 }
                 
                 if(c == null){
@@ -214,7 +211,7 @@ public class TeleplanFileWriter {
         return submission;
     }
     
-    private Claims createWCB2(LoggedInInfo loggedInInfo, String billing_no){
+    private Claims createWCB2(String billing_no){
         
         
             //setMasDAO(new BillingmasterDAO());
@@ -232,7 +229,7 @@ public class TeleplanFileWriter {
            MiscUtils.getLogger().debug("BM "+bm+" WCB "+wcbForm + " for "+billing_no);
            
            WCBTeleplanSubmission wcbSub = new WCBTeleplanSubmission();
-           wcbSub.setDemographicManager(demographicManager);
+           wcbSub.setDemographicDao(demographicDAO);
            //WcbSb sb = new WcbSb(billing_no);
            appendToHTML(wcbSub.getHtmlLine(wcbForm,bm)); //sb.getHtmlLine());
            appendToHTML(wcbSub.validate(wcbForm,bm)); //sb.validate());
@@ -248,7 +245,7 @@ public class TeleplanFileWriter {
            if(wcbSub.isFormNeeded(bm)){
                
                 String logNo = getNextSequenceNumber();
-                String lines = wcbSub.Line1(loggedInInfo, String.valueOf(logNo),bm,wcbForm);
+                String lines = wcbSub.Line1(String.valueOf(logNo),bm,wcbForm);
                 appendToFile("\n"+ lines +"\r");
                 setLog(logNo, lines,""+bm.getBillingmasterNo());
 
@@ -258,7 +255,7 @@ public class TeleplanFileWriter {
                 setLog(logNo, lines,""+bm.getBillingmasterNo());
 
                 logNo = getNextSequenceNumber();
-                lines = wcbSub.Line3(loggedInInfo, String.valueOf(logNo),bm,wcbForm);
+                lines = wcbSub.Line3(String.valueOf(logNo),bm,wcbForm);
                 appendToFile("\n"+ lines +"\r");
                 setLog(logNo, lines,""+bm.getBillingmasterNo());
 
@@ -268,7 +265,7 @@ public class TeleplanFileWriter {
                 setLog(logNo, lines,""+bm.getBillingmasterNo());
 
                 logNo = getNextSequenceNumber();
-                lines = wcbSub.Line5(loggedInInfo, String.valueOf(logNo),bm,wcbForm);
+                lines = wcbSub.Line5(String.valueOf(logNo),bm,wcbForm);
                 appendToFile("\n"+ lines +"\r");
                 setLog(logNo, lines,""+bm.getBillingmasterNo());
 
@@ -278,7 +275,7 @@ public class TeleplanFileWriter {
                 setLog(logNo, lines,""+bm.getBillingmasterNo());
 
                 logNo = getNextSequenceNumber();
-                lines = wcbSub.Line7(loggedInInfo, String.valueOf(logNo),bm,wcbForm);
+                lines = wcbSub.Line7(String.valueOf(logNo),bm,wcbForm);
                 appendToFile("\n"+ lines +"\r");
                 setLog(logNo, lines,""+bm.getBillingmasterNo());
 
@@ -288,7 +285,7 @@ public class TeleplanFileWriter {
                 setLog(logNo, lines,""+bm.getBillingmasterNo());
            }else{
                 String logNo = getNextSequenceNumber();
-                String lines = wcbSub.Line9(loggedInInfo, String.valueOf(logNo),bm,wcbForm);
+                String lines = wcbSub.Line9(String.valueOf(logNo),bm,wcbForm);
                 appendToFile("\n"+ lines +"\r");
                 setLog(logNo, lines,""+bm.getBillingmasterNo());
            }
@@ -307,7 +304,7 @@ public class TeleplanFileWriter {
            Claims claims = new Claims();
            claims.increaseClaims();
            claims.addToTotal(sb.getBillingAmountForFee1BigDecimal());
-           BillingmasterDAO masDAO = SpringUtils.getBean(BillingmasterDAO.class);
+           BillingmasterDAO masDAO = new BillingmasterDAO();
         
            List billMasterList = masDAO.getBillingMasterByBillingNo(billing_no);
            Billingmaster bm = (Billingmaster) billMasterList.get(0);
@@ -427,14 +424,17 @@ public class TeleplanFileWriter {
     
     //Date Range not implemented
     //This should be moved out of this class
-    private List<Map<String, String>> getBilling(String providerInsNo,Date startDate, Date endDate) {
-        ArrayList<Map<String, String>> list = new ArrayList<Map<String, String>>();              
-        BillingDao dao = SpringUtils.getBean(BillingDao.class);
-        for(Billing b : dao.findByProviderStatusForTeleplanFileWriter(providerInsNo)) {
-            Map<String, String> map = new HashMap<String, String>();
-            map.put("billing_no",b.getId().toString());
-            map.put("demographic_name",b.getDemographicName());
-            map.put("billingtype",b.getBillingtype());   
+    private List getBilling(String providerInsNo,Date startDate, Date endDate) throws Exception{
+        ArrayList list = new ArrayList();      
+        
+        String query = "select * from billing where provider_ohip_no='"+ providerInsNo+"' and (status='O' or status='W') and billingtype != 'Pri' ";
+        log.debug("billing query "+query);
+        ResultSet rs = DBHandler.GetSQL(query);
+        while (rs.next()){
+            HashMap map = new HashMap();
+            map.put("billing_no",rs.getString("billing_no"));
+            map.put("demographic_name",rs.getString("demographic_name"));
+            map.put("billingtype",rs.getString("billingtype"));   
             list.add(map);
         }     
         return list;
@@ -513,8 +513,8 @@ public class TeleplanFileWriter {
     }
    
    
-    public void setDemographicManager(DemographicManager demographicManager) {
-        this.demographicManager = demographicManager;
+    public void setDemographicDao(DemographicDao demoDAO) {
+        this.demographicDAO = demoDAO;
     }
    
     

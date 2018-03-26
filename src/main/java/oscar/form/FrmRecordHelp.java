@@ -99,7 +99,7 @@ public class FrmRecordHelp {
             int spaceIndex = sql.indexOf(" ", index);
             ;
             String formClass = sql.substring(index, spaceIndex);
-            Date d = new Date();
+            Date d = UtilDateUtilities.now();
             String now = UtilDateUtilities.DateToString(d, "yyyyMMddHHmmss");
             String place = OscarProperties.getInstance().getProperty("form_record_path", "/root");
 
@@ -167,7 +167,7 @@ public class FrmRecordHelp {
             if (md.getColumnTypeName(i).equalsIgnoreCase("date")) {
             java.util.Date d;
                 if (md.getColumnName(i).equalsIgnoreCase("formEdited")) {
-                    d = new Date();
+                    d = UtilDateUtilities.Today();
                 } else {
                     if ((value == null) || (value.indexOf('/') != -1))
                         d = UtilDateUtilities.StringToDate(value, _dateFormat);
@@ -184,7 +184,7 @@ public class FrmRecordHelp {
             if (md.getColumnTypeName(i).equalsIgnoreCase("timestamp")) {
                 Date d;
                 if (md.getColumnName(i).equalsIgnoreCase("formEdited")) {
-                    d = new Date();
+                    d = UtilDateUtilities.Today();
                 } else {
                     d = UtilDateUtilities.StringToDate(value, "yyyyMMddHHmmss");
                 }
@@ -264,17 +264,6 @@ public class FrmRecordHelp {
         return(p);
     }
 
-    public List<Integer> getDemographicIds(String sql) throws SQLException {
-        List<Integer> results=new ArrayList<Integer>();
-
-        ResultSet rs = DBHandler.GetSQL(sql);
-        while (rs.next()) {
-        	results.add(rs.getInt("demographic_no"));
-        }
-
-        return results;
-    }
-    
     public String findActionValue(String submit)  {
         if (submit != null && submit.equalsIgnoreCase("print")) {
             return "print";
@@ -306,9 +295,7 @@ public class FrmRecordHelp {
             // studyLink; //+
         } else if (action.equalsIgnoreCase("exit")) {
             temp = where;
-        } else if (action.equals("printAll")) {
-            temp = where + "?demographic_no=" + demoId + "&formId=" + formId;
-        }else {
+        } else {
             temp = where;
         }
 

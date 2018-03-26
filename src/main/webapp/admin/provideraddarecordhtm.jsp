@@ -27,7 +27,6 @@
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/caisi-tag.tld" prefix="caisi"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-
 <%@ page import="org.oscarehr.common.model.ClinicNbr"%>
 <%@ page import="org.oscarehr.common.dao.ClinicNbrDao"%>
 <%@ page import="org.oscarehr.util.SpringUtils"%>
@@ -36,13 +35,9 @@
 <%@ page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
 <%@ page import="org.oscarehr.common.dao.SiteDao"%>
 <%@ page import="org.oscarehr.common.model.Site"%>
-<%@ page import="org.oscarehr.common.dao.ProviderDataDao"%>
-<%@page  import="org.oscarehr.common.model.ProviderData"%>
-
-
-<%@page import="org.oscarehr.common.Gender" %>
 <%
-
+	if(session.getAttribute("user") == null)
+    response.sendRedirect("../logout.jsp");
   String curProvider_no,userfirstname,userlastname;
   curProvider_no = (String) session.getAttribute("user");
   userfirstname = (String) session.getAttribute("userfirstname");
@@ -51,15 +46,14 @@
   //includeing the provider name and a month calendar
 
   java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.struts.Globals.LOCALE_KEY);
-  
-  ProviderDataDao providerDataDao = SpringUtils.getBean(ProviderDataDao.class);
-  List<ProviderData> list = providerDataDao.findAll();
-  List<Integer> providerList = new ArrayList<Integer>();
-  for (ProviderData h : list) {
+
+  ArrayList<Hashtable<String,String>> list = ProviderData.getProviderListOfAllTypes(true);
+  ArrayList<Integer> providerList = new ArrayList<Integer>();
+  for (Hashtable<String,String> h : list) {
 	  try{
-      String pn = h.getId();
+      String pn = h.get("providerNo");
       providerList.add(Integer.valueOf(pn));
-	  }catch(Exception e){/*empty*/} /*No need to do anything. Just want to avoid a NumberFormatException from provider numbers with alphanumeric Characters*/
+	  }catch(Exception alphaProviderNumber){} /*No need to do anything. Just want to avoid a NumberFormatException from provider numbers with alphanumeric Characters*/
   }
 
   String suggestProviderNo = "";
@@ -72,22 +66,11 @@
 %>
 
 <%
-   String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
+	if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
+    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
 
     boolean isSiteAccessPrivacy=false;
-    boolean authed=true;
 %>
-
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin,_admin.userAdmin" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_admin&type=_admin.userAdmin");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 
 <security:oscarSec objectName="_site_access_privacy" roleName="<%=roleName$%>" rights="r" reverse="false">
 	<%
@@ -97,7 +80,6 @@
 <html:html locale="true">
 <head>
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/global.js"></script>
-<script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery-1.9.1.js"></script>
 <title><bean:message key="admin.provideraddrecordhtm.title" /></title>
 <link rel="stylesheet" href="../web.css">
 <script LANGUAGE="JavaScript">
@@ -115,7 +97,7 @@ function onsub() {
      alert("<bean:message key="global.msgInputKeyword"/>");
      return false;
   }
-  if(!(document.searchprovider.provider_no.value=="-new-" || document.searchprovider.provider_no.value.match(/^[1-9]\d*$/))){
+  if(!(document.searchprovider.provider_no.value=="-new-" || document.searchprovider.provider_no.value.match(/^\d+$/))){
   		alert("Provider No. must be a number.");
   		return false;
   }
@@ -127,35 +109,12 @@ function onsub() {
 function upCaseCtrl(ctrl) {
   ctrl.value = ctrl.value.toUpperCase();
 }
-
-jQuery(document).ready( function() {
-        jQuery("#provider_type").change(function() {
-            
-            if( jQuery("#provider_type").val() == "resident") {                
-                jQuery(".supervisor").slideDown(600);
-                jQuery("#supervisor").focus();
-               
-            }
-            else {
-                if( jQuery(".supervisor").is(":visible") ) {
-                    jQuery(".supervisor").slideUp(600);
-                }
-            }
-        }
-        )
-        
-    }
-        
-        
- ); 
-        
-        
-    
 //-->
 </script>
 </head>
 
-<body onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0">
+<body background="../images/gray_bg.jpg" bgproperties="fixed"
+	onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0">
 <center>
 <table border="0" cellspacing="0" cellpadding="0" width="100%">
 	<tr bgcolor="#486ebd">
@@ -163,7 +122,8 @@ jQuery(document).ready( function() {
 			key="admin.provideraddrecordhtm.description" /></font></th>
 	</tr>
 </table>
-<form method="post" action="provideraddarecord.jsp" name="searchprovider" onsubmit="return onsub()">
+<form method="post" action="admincontrol.jsp" name="searchprovider"
+	onsubmit="return onsub()">
 <table cellspacing="0" cellpadding="2" width="90%" border="0">
 	<tr>
 		<td width="50%" align="right"><bean:message
@@ -223,11 +183,29 @@ for (int i=0; i<sites.size(); i++) {
 		<td align="right"><bean:message key="admin.provider.formType" /><font
 			color="red">:</font></td>
 		<td><!--input type="text" name="provider_type" --> <%
- 
- %> <select id="provider_type" name="provider_type">
+ 	if (vLocale.getCountry().equals("BR")) {
+ %>
+		<select name="provider_type">
 			<option value="receptionist"><bean:message
 				key="admin.provider.formType.optionReceptionist" /></option>
-			<option value="doctor" selected="selected"><bean:message
+			<option value="doctor"><bean:message
+				key="admin.provider.formType.optionDoctor" /></option>
+			<option value="doctor"><bean:message
+				key="admin.provider.formType.optionNurse" /></option>
+			<option value="doctor"><bean:message
+				key="admin.provider.formType.optionResident" /></option>
+			<option value="admin"><bean:message
+				key="admin.provider.formType.optionAdmin" /></option>
+			<option value="admin_billing"><bean:message
+				key="admin.provider.formType.optionAdminBilling" /></option>
+			<option value="billing"><bean:message
+				key="admin.provider.formType.optionBilling" /></option>
+		</select> <%
+ 	} else {
+ %> <select name="provider_type">
+			<option value="receptionist"><bean:message
+				key="admin.provider.formType.optionReceptionist" /></option>
+			<option value="doctor"><bean:message
 				key="admin.provider.formType.optionDoctor" /></option>
 			<option value="nurse"><bean:message
 				key="admin.provider.formType.optionNurse" /></option>
@@ -241,30 +219,11 @@ for (int i=0; i<sites.size(); i++) {
 				<option value="er_clerk"><bean:message
 					key="admin.provider.formType.optionErClerk" /></option>
 			</caisi:isModuleLoad>
-		</select> 
+		</select> <%
+ 	}
+ %>
 		</td>
 	</tr>
-        <%
-            
-            List<ProviderData>providerL = providerDataDao.findAllBilling("1");
-        %>
-        <tr class="supervisor" style="display:none">
-            <td align="right">
-                Assigned Supervisor
-            </td>
-            <td>
-                <select id="supervisor" name="supervisor">
-                    <option value="">Please Assign Supervisor</option>
-                    <%
-                    for( ProviderData p : providerL ) {
-                    %>
-                    <option value="<%=p.getId()%>"><%=p.getLastName() + ", " + p.getFirstName()%></option>
-                        
-                    <%
-                    }
-                    %>
-            </td>
-        </tr>
 	<caisi:isModuleLoad moduleName="TORONTO_RFQ" reverse="true">
 		<tr>
 			<td align="right"><bean:message
@@ -280,13 +239,8 @@ for (int i=0; i<sites.size(); i++) {
 		<tr>
 			<td align="right"><bean:message key="admin.provider.formSex" />:
 			</td>
-        	<td><select  name="sex" id="sex">
-                <option value=""></option>
-        		<% for(Gender gn : Gender.values()){ %>
-                <option value=<%=gn.name()%>><%=gn.getText()%></option>
-                <% } %>
-                </select>
-            </td>
+			<td><input type="text" name="sex" maxlength="1"
+				onBlur="upCaseCtrl(this)"></td>
 		</tr>
 		<tr>
 			<td align="right"><bean:message key="admin.provider.formDOB" />(<font
@@ -405,27 +359,27 @@ for (int i=0; i<sites.size(); i++) {
                     String billCode = "";
                     String codeDesc = "";
                     Enumeration<?> keys = billCenter.getAllBillCenter().propertyNames();
-                    String defaultBillCenter = OscarProperties.getInstance().getProperty("default_bill_center","");
-                                            
+//                    Enumeration keys = billCenter.getAllBillCenter().propertyNames();
                     for(int i=0;i<billCenter.getAllBillCenter().size();i++){
-                        
                         billCode=(String)keys.nextElement();
-                        
-                        String selectedBillCenter = "";
-                        if (billCode.equalsIgnoreCase(defaultBillCenter))
-                            selectedBillCenter = "selected=\"selected\"";
-                        
                         codeDesc=billCenter.getAllBillCenter().getProperty(billCode);
                 %>
-				<option value=<%= billCode %> <%=selectedBillCenter%>><%= codeDesc%></option>
+				<option value=<%= billCode %>><%= codeDesc%></option>
 				<%
                     }
                 %>
 			</select></td>
 		</tr>
-
+		<% if (vLocale.getCountry().equals("BR")) { %>
+		<tr>
+			<td align="right"><bean:message
+				key="admin.provider.formProviderActivity" />:</td>
+			<td><input type="text" name="provider_activity" size="5"
+				maxlength="3"></td>
+		</tr>
+		<% } else { %>
 		<input type="hidden" name="provider_activity" value="">
-		
+		<% }  %>
 		<tr>
 			<td align="right"><bean:message
 				key="admin.provider.formSlpUsername" />:</td>
@@ -442,12 +396,12 @@ for (int i=0; i<sites.size(); i++) {
 			<td><input type="text" name="status" value='1' maxlength="1">
 			</td>
 		</tr>
-			
 	</caisi:isModuleLoad>
 	<tr>
 		<td colspan="2">
-		<div align="center">
-		
+		<div align="center"><%-- not quite sure why we need both dboperation and displaymode set to the same thing, but
+                 that's the way I found it so that's the way I'll leave it... --%>
+		<input type="hidden" name="displaymode" value="Provider_Add_Record">
 		<input type="submit" name="submitbtn"
 			value="<bean:message key="admin.provideraddrecordhtm.btnProviderAddRecord"/>">
 		</div>
@@ -457,7 +411,15 @@ for (int i=0; i<sites.size(); i++) {
 </form>
 
 <p></p>
-
+<hr width="100%" color="orange">
+<table border="0" cellspacing="0" cellpadding="0" width="100%">
+	<tr>
+		<td><a href="admin.jsp"> <img src="../images/leftarrow.gif"
+			border="0" width="25" height="20" align="absmiddle"><bean:message
+			key="global.btnBack" /></a></td>
+		<!--  td align="right"><a href="../logout.jsp"><bean:message key="global.btnLogout"/><img src="../images/rightarrow.gif"  border="0" width="25" height="20" align="absmiddle"></a></td -->
+	</tr>
+</table>
 
 </center>
 </body>

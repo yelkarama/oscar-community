@@ -25,11 +25,11 @@ package org.oscarehr.PMmodule.service;
 
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
 import org.apache.struts.util.LabelValueBean;
+import org.oscarehr.PMmodule.dao.AdmissionDao;
 import org.oscarehr.PMmodule.dao.DefaultRoleAccessDAO;
 import org.oscarehr.PMmodule.dao.ProgramAccessDAO;
 import org.oscarehr.PMmodule.dao.ProgramClientStatusDAO;
@@ -38,8 +38,9 @@ import org.oscarehr.PMmodule.dao.ProgramFunctionalUserDAO;
 import org.oscarehr.PMmodule.dao.ProgramProviderDAO;
 import org.oscarehr.PMmodule.dao.ProgramSignatureDao;
 import org.oscarehr.PMmodule.dao.ProgramTeamDAO;
-import org.oscarehr.PMmodule.dao.VacancyTemplateDao;
+import org.oscarehr.PMmodule.dao.VacancyTemplateDAO;
 import org.oscarehr.PMmodule.model.AccessType;
+import org.oscarehr.PMmodule.model.Admission;
 import org.oscarehr.PMmodule.model.DefaultRoleAccess;
 import org.oscarehr.PMmodule.model.FunctionalUserType;
 import org.oscarehr.PMmodule.model.Program;
@@ -50,13 +51,6 @@ import org.oscarehr.PMmodule.model.ProgramProvider;
 import org.oscarehr.PMmodule.model.ProgramSignature;
 import org.oscarehr.PMmodule.model.ProgramTeam;
 import org.oscarehr.PMmodule.model.VacancyTemplate;
-import org.oscarehr.common.dao.AdmissionDao;
-import org.oscarehr.common.dao.EncounterTypeDao;
-import org.oscarehr.common.dao.ProgramEncounterTypeDao;
-import org.oscarehr.common.model.Admission;
-import org.oscarehr.common.model.EncounterType;
-import org.oscarehr.common.model.ProgramEncounterType;
-import org.oscarehr.common.model.ProgramEncounterTypePK;
 import org.oscarehr.util.LoggedInInfo;
 
 import oscar.OscarProperties;
@@ -71,9 +65,7 @@ public class ProgramManager {
     private DefaultRoleAccessDAO defaultRoleAccessDAO;
     private ProgramClientStatusDAO clientStatusDAO;
     private ProgramSignatureDao programSignatureDao;
-    private VacancyTemplateDao vacancyTemplateDao;
-    private ProgramEncounterTypeDao programEncounterTypeDao; 
-    private EncounterTypeDao encounterTypeDao;
+    private VacancyTemplateDAO vacancyTemplateDao;
     
     private boolean enabled;
 
@@ -124,18 +116,8 @@ public class ProgramManager {
     public void setProgramClientStatusDAO(ProgramClientStatusDAO dao) {
         this.clientStatusDAO = dao;
     }
-    
-    
 
-    public void setProgramEncounterTypeDao(ProgramEncounterTypeDao programEncounterTypeDao) {
-		this.programEncounterTypeDao = programEncounterTypeDao;
-	}
-
-	public void setEncounterTypeDao(EncounterTypeDao encounterTypeDao) {
-		this.encounterTypeDao = encounterTypeDao;
-	}
-
-	public Program getProgram(String programId) {
+    public Program getProgram(String programId) {
         return programDao.getProgram(Integer.valueOf(programId));
     }
 
@@ -145,17 +127,6 @@ public class ProgramManager {
 
     public Program getProgram(Long programId) {
         return programDao.getProgram(new Integer(programId.intValue()));
-    }
-    
-    public List<Program> getActiveProgramByFacility(String providerNo, Integer facilityId) {
-        List<Program> programs = new ArrayList<Program>();
-        for (ProgramProvider programProvider : programProviderDAO.getProgramDomainByFacility(providerNo, facilityId)) {
-            Program program = this.getProgram(programProvider.getProgramId());
-            if (program.isActive()) {
-                programs.add(program);
-            }
-        }
-        return programs;
     }
 
     public String getProgramName(String programId) {
@@ -186,7 +157,15 @@ public class ProgramManager {
         }
     }
 
- 
+    /**
+      * facilityId can be null, it will return all programs optionally filtering by facility id if filtering is enabled.
+     */
+    public List<Program> getPrograms(String programStatus, String providerNo,Integer shelterId) {
+         return programDao.getAllPrograms(programStatus,null,null,providerNo,shelterId);
+    }
+    public List<Program> getPrograms(Integer clientId,String providerNo,Integer shelterId) {
+        return programDao.getAllPrograms(Program.PROGRAM_STATUS_ACTIVE,null,null,clientId,providerNo,shelterId);
+    }
     public List<Program> getPrograms(Integer facilityId) {
         if (OscarProperties.getInstance().getBooleanProperty("FILTER_ON_FACILITY", "true")) {
             return programDao.getProgramsByFacilityId(facilityId);
@@ -201,19 +180,23 @@ public class ProgramManager {
     }
 
     public Program[] getBedPrograms() {
-        return programDao.getProgramsByType(null, Program.BED_TYPE, null).toArray(new Program[0]);
+        return programDao.getBedPrograms();
     }
 
     public Program[] getBedPrograms(Integer facilityId) {
-        return programDao.getProgramsByType(facilityId, Program.BED_TYPE, null).toArray(new Program[0]);
+        return programDao.getBedPrograms(facilityId);
+    }
+
+	public List<Program> getBedPrograms(String providerNo,Integer shelterId) {
+        return programDao.getAllPrograms(Program.PROGRAM_STATUS_ACTIVE,Program.BED_TYPE,null,providerNo, shelterId);
     }
 
     public List<Program> getServicePrograms() {
-        return programDao.getProgramsByType(null, Program.SERVICE_TYPE, null);
+        return programDao.getServicePrograms();
     }
 
     public Program[] getExternalPrograms() {
-        return programDao.getProgramsByType(null, Program.EXTERNAL_TYPE, true).toArray(new Program[0]);
+        return programDao.getExternalPrograms();
     }
 
     public boolean isBedProgram(String programId) {
@@ -255,9 +238,7 @@ public class ProgramManager {
         return programProviderDAO.getProgramProvider(providerNo, Long.valueOf(programId));
     }
 
-    public void saveProgramProvider(LoggedInInfo loggedInInfo, ProgramProvider pp) {
-    	pp.setLastUpdateUser(loggedInInfo.getLoggedInProviderNo());
-    	pp.setLastUpdateDate(new Date());
+    public void saveProgramProvider(ProgramProvider pp) {
         programProviderDAO.saveProgramProvider(pp);
     }
 
@@ -400,15 +381,17 @@ public class ProgramManager {
         return programDomain;
     }
 
-    public List<Program> getProgramDomainInCurrentFacilityForCurrentProvider(LoggedInInfo loggedInInfo, boolean activeOnly) {
+    public List<Program> getProgramDomainInCurrentFacilityForCurrentProvider(boolean activeOnly) {
+    	LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+
     	List<Program> programs = null;
 
-    	if (activeOnly) programs=getActiveProgramDomain(loggedInInfo.getLoggedInProviderNo());
-    	else programs=getProgramDomain(loggedInInfo.getLoggedInProviderNo());
+    	if (activeOnly) programs=getActiveProgramDomain(loggedInInfo.loggedInProvider.getProviderNo());
+    	else programs=getProgramDomain(loggedInInfo.loggedInProvider.getProviderNo());
 
     	List<Program> results = new ArrayList<Program>();
     	for(Program program : programs) {
-    		if(program.getFacilityId()==loggedInInfo.getCurrentFacility().getId().intValue()) {
+    		if(program.getFacilityId()==loggedInInfo.currentFacility.getId().intValue()) {
     			results.add(program);
     		}
     	}
@@ -416,15 +399,15 @@ public class ProgramManager {
     }
 
     public Program[] getCommunityPrograms() {
-        return programDao.getProgramsByType(null, Program.COMMUNITY_TYPE, null).toArray(new Program[0]);
+        return programDao.getCommunityPrograms();
     }
 
     public List<LabelValueBean> getProgramBeans(String providerNo) {
         if (providerNo == null || "".equalsIgnoreCase(providerNo.trim())) return new ArrayList<LabelValueBean>();
         ArrayList<LabelValueBean> pList = new ArrayList<LabelValueBean>();
-        List<Program> programs = programDao.getProgramsByType(null, Program.COMMUNITY_TYPE, null);
-        for (Program program : programs) {
-            pList.add(new LabelValueBean(program.getName(), program.getId().toString()));
+        Program[] program = programDao.getCommunityPrograms();
+        for (int i = 0; i < program.length; i++) {
+            pList.add(new LabelValueBean(program[i].getName(), program[i].getId().toString()));
         }
         return pList;
         /*
@@ -494,18 +477,20 @@ public class ProgramManager {
     	return vacancyTemplateDao.getVacancyTemplate(templateId);
     }
 
-	public void setVacancyTemplateDao(VacancyTemplateDao vacancyTemplateDao) {
+	public void setVacancyTemplateDao(VacancyTemplateDAO vacancyTemplateDao) {
     	this.vacancyTemplateDao = vacancyTemplateDao;
     }
 
-	public boolean hasAccessBasedOnCurrentFacility(LoggedInInfo loggedInInfo, Integer programId) {
+	public boolean hasAccessBasedOnCurrentFacility(Integer programId) {
+    	LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+
     	// if no program restrictions are defined.
         if (programId == null) return(true);
 
         // check the providers facilities against the programs facilities
         Program program = getProgram(programId);
         if(program!=null) {
-        	return(program.getFacilityId() == loggedInInfo.getCurrentFacility().getId().intValue());
+        	return(program.getFacilityId() == loggedInInfo.currentFacility.getId().intValue());
         } else {
         	return false;
         }
@@ -522,31 +507,4 @@ public class ProgramManager {
     	}
     	return results;
     }
-    
-
-    public List<ProgramEncounterType> getCustomEncounterTypes(LoggedInInfo loggedInInfo, Integer programId) {
-    	List<ProgramEncounterType> types =  programEncounterTypeDao.findByProgramId(programId);
-    	for(ProgramEncounterType type:types) {
-    		type.setEncounterType(encounterTypeDao.find(type.getId().getEncounterTypeId()));
-    	}
-    	return types;
-    }
-    
-    public void deleteCustomEncounterType(ProgramEncounterTypePK id) {
-    	programEncounterTypeDao.remove(id);
-    }
-    
-    public void saveCustomEncounterType(ProgramEncounterType encounterType) {
-    	programEncounterTypeDao.persist(encounterType);
-    }
-    
-    public ProgramEncounterType findCustomEncounterType(ProgramEncounterTypePK id) {
-    	return programEncounterTypeDao.find(id);
-    }
-    
-    public List<EncounterType> getNonGlobalEncounterTypes(LoggedInInfo loggedInInfo) {
-    	List<EncounterType> types = encounterTypeDao.findNonGlobal();
-    	return types;
-    }
-    
 }

@@ -23,6 +23,7 @@
     Ontario, Canada
 
 --%>
+<%-- Updated by Eugene Petruhin on 09 dec 2008 while fixing #2392669 --%>
 
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security" %>
 <%@ page errorPage="../errorpage.jsp" %>
@@ -44,37 +45,30 @@
 <%@ page import="com.quatro.dao.security.SecuserroleDao" %>
 <%@ page import="org.oscarehr.common.model.RecycleBin" %>
 <%@ page import="org.oscarehr.common.dao.RecycleBinDao" %>
-<%@ page import="org.oscarehr.common.dao.ProviderDataDao" %>
-
 <%
 	ProgramDao programDao = SpringUtils.getBean(ProgramDao.class);
 	SecRoleDao secRoleDao = SpringUtils.getBean(SecRoleDao.class);
-	ProviderDataDao providerDao = SpringUtils.getBean(ProviderDataDao.class);
-	
 	SecuserroleDao secUserRoleDao = (SecuserroleDao)SpringUtils.getBean("secuserroleDao");
 	RecycleBinDao recycleBinDao = SpringUtils.getBean(RecycleBinDao.class);
 	ProgramProviderDAO programProviderDao = (ProgramProviderDAO) SpringUtils.getBean("programProviderDAO");
-
-	
-	String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-	String curUser_no = (String)session.getAttribute("user");
-
-	boolean isSiteAccessPrivacy=false;
-	boolean authed=true;
 %>
-
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin,_admin.userAdmin" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_admin&type=_admin.userAdmin");%>
-</security:oscarSec>
 <%
-	if(!authed) {
-		return;
-	}
+if(session.getAttribute("user") == null )
+	response.sendRedirect("../logout.jsp");
+String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
+String curUser_no = (String)session.getAttribute("user");
+%>
+<security:oscarSec roleName="<%=roleName$%>" objectName="_admin,_admin.userAdmin,_admin.torontoRfq" rights="r" reverse="<%=true%>" >
+<%response.sendRedirect("../logout.jsp");%>
+</security:oscarSec>
+
+<%
+    boolean isSiteAccessPrivacy=false;
 %>
 
-
-<security:oscarSec objectName="_site_access_privacy" roleName="<%=roleName$%>" rights="r" reverse="false"><%isSiteAccessPrivacy=true; %></security:oscarSec>
+<security:oscarSec objectName="_site_access_privacy" roleName="<%=roleName$%>" rights="r" reverse="false">
+	<%isSiteAccessPrivacy=true; %>
+</security:oscarSec>
 
 <%
 //check to see if new case management is request
@@ -90,7 +84,10 @@ if(!org.oscarehr.common.IsPropertiesOn.isCaisiEnable()) {
 }
 
 String ip = request.getRemoteAddr();
+
 String msg = "";
+DBHelp dbObj = new DBHelp();
+
 String caisiProgram = null;
 
 //get caisi programid for oscar
@@ -106,35 +103,17 @@ Vector vecRoleName = new Vector();
 String	sql;
 String adminRoleName = "";
 
+
 String omit="";
 if (isSiteAccessPrivacy) {
 	omit = OscarProperties.getInstance().getProperty("multioffice.admin.role.name", "");
 }
-
 List<SecRole> secRoles = secRoleDao.findAllOrderByRole();
 for(SecRole secRole:secRoles) {
 	if(!secRole.getName().equals(omit)) {
 		vecRoleName.add(secRole.getName());
 	}
-}
 
-//set the primary role
-if (request.getParameter("buttonSetPrimaryRole") != null && request.getParameter("buttonSetPrimaryRole").length() > 0) {
-      String providerNo = request.getParameter("primaryRoleProvider");
-      String roleName = request.getParameter("primaryRoleRole");
-      SecRole secRole = secRoleDao.findByName(roleName);
-      Long roleId = secRole.getId().longValue();
-      ProgramProvider pp = programProviderDao.getProgramProvider(providerNo, Long.valueOf(caisiProgram));
-      if(pp != null) {
-              pp.setRoleId(roleId);
-              programProviderDao.saveProgramProvider(pp);
-      } else {
-              pp = new ProgramProvider();
-              pp.setProgramId(Long.valueOf(caisiProgram));
-              pp.setProviderNo(providerNo);
-              pp.setRoleId(roleId);
-              programProviderDao.saveProgramProvider(pp);
-      }
 }
 
 
@@ -167,7 +146,6 @@ if (request.getParameter("buttonUpdate") != null && request.getParameter("button
                 if(programProvider == null) {
                 	programProvider = new ProgramProvider();
                 }
-                
                 programProvider.setProgramId( Long.valueOf(caisiProgram));
                 programProvider.setProviderNo(number);
                 programProvider.setRoleId(Long.valueOf(secRoleDao.findByName(roleNew).getId()));
@@ -246,72 +224,14 @@ if (request.getParameter("submit") != null && request.getParameter("submit").equ
 
 String keyword = request.getParameter("keyword")!=null?request.getParameter("keyword"):"";
 %>
-<%
-String lastName = "";
-String firstName = "";
-String[] temp = keyword.split("\\,");
-if(temp.length>1) {
-	lastName = temp[0] + "%";
-	firstName = temp[1] + "%";
-} else {
-	lastName = keyword + "%";
-	firstName = "%";
-}
 
-List<Object[]> providerList = null;
-providerList = providerDao.findProviderSecUserRoles(lastName, firstName);
-
-Vector<Properties> vec = new Vector<Properties>();
-for (Object[] providerSecUser : providerList) {
-	
-	String id = String.valueOf(providerSecUser[0]);
-	String role_name = String.valueOf(providerSecUser[1]);
-	String provider_no = String.valueOf(providerSecUser[2]);
-	String first_name = String.valueOf(providerSecUser[3]);
-	String last_name = String.valueOf(providerSecUser[4]);
-
-	Properties prop = new Properties();
-	prop.setProperty("provider_no", provider_no=="null"?"":provider_no);
-	prop.setProperty("first_name", first_name);
-	prop.setProperty("last_name", last_name);
-	prop.setProperty("role_id", id!="null"?id:"");
-	prop.setProperty("role_name", role_name!="null"?role_name:"");
-	vec.add(prop);
-}
-
-List<Boolean> primaries = new ArrayList<Boolean>();
-
-//when caisi is off, we need to show which role is the one in the program_provider table for each provider.
-if(newCaseManagement) {
-	for(Properties prop:vec) {
-	      boolean res = false;
-	      String providerNo = prop.getProperty("provider_no");
-	      String secUserRoleId = prop.getProperty("role_id");
-	      String roleName = prop.getProperty("role_name");
-	      if(!roleName.equals("")) {
-	              SecRole secRole = secRoleDao.findByName(roleName);
-	              if(secRole != null) {
-	                      ProgramProvider pp = programProviderDao.getProgramProvider(providerNo, Long.valueOf(caisiProgram), secRole.getId().longValue());
-	                      res = (pp != null);
-	              }
-	      } else {
-	              res = false;
-	      }
-	      primaries.add(res);
-	}
-}
-
-
-%>
   <html>
     <head>
       <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
       <title>
         PROVIDER
       </title>
-      <link rel="stylesheet" href="../css/receptionistapptstyle.css">
-       <script src="../js/jquery-1.7.1.min.js"></script>
-      
+      <link rel="stylesheet" href="../receptionist/receptionistapptstyle.css">
       <script language="JavaScript">
 <!--
 function setfocus() {
@@ -323,45 +243,6 @@ function submit(form) {
 }
 //-->
       </script>
-      
-        <script>
-        var items = new Array();
-        <%
-                for(Properties prop:vec) {
-                        %>
-                                item={providerNo:"<%=prop.get("provider_no")%>",role_id:"<%=prop.get("role_id")%>",roleName:"<%=prop.get("role_name")%>"};
-                                items.push(item);
-                        <%
-                }
-        %>
-        </script>
-        <script>
-        $(document).ready(function(){
-                $("#primaryRoleProvider").val("");
-        });
-
-        function primaryRoleChooseProvider() {
-            $("#primaryRoleRole").find('option').remove();
-            var provider = $("#primaryRoleProvider").val();
-            for(var i=0;i<items.length;i++) {
-                    if(items[i].providerNo == provider && items[i].role_id != "") {
-                            $("#primaryRoleRole").append('<option value="'+items[i].roleName+'">'+items[i].roleName+'</option>');
-                    }
-            }
-    }
-
-    function setPrimaryRole() {
-            var providerNo = $("#primaryRoleProvider").val();
-            var roleName = $("#primaryRoleRole").val();
-            if(providerNo != '' && roleName != '') {
-                    return true;
-            } else {
-                    alert('Please enter in a provider and a corresponding role');
-                    return false;
-            }
-    }
-    </script>
-
     </head>
     <body bgproperties="fixed" bgcolor="ivory" onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0">
       <form name="myform" action="providerRole.jsp" method="POST">
@@ -384,33 +265,68 @@ function submit(form) {
         </tr>
       </table>
       </form>
+<%
+String lastName = "";
+String firstName = "";
+String[] temp = keyword.split("\\,");
+if(temp.length>1) {
+	lastName = temp[0] + "%";
+	firstName = temp[1] + "%";
+} else {
+	lastName = keyword + "%";
+	firstName = "%";
+}
 
+
+String query;
+
+if (isSiteAccessPrivacy){
+	//multisites: only select providers have same site with current user
+	query = "select u.id, u.role_name, p.provider_no, p.first_name, p.last_name from provider p LEFT JOIN secUserRole u ON ";
+	query += " p.provider_no=u.provider_no LEFT JOIN providersite ps ON p.provider_no = ps.provider_no ";
+	query += " where p.last_name like '" + lastName + "' and p.first_name like '" + firstName + "' and p.status='1' ";
+	query += " and not exists(select * from secUserRole scr where scr.provider_no =  p.provider_no and scr.role_name = '" + adminRoleName + "') " ;
+	query += " and ps.site_id in (select site_id from providersite where provider_no = " + curUser_no + ")  order by p.first_name, p.last_name, u.role_name";
+}
+else {
+	query = "select u.id, u.role_name, p.provider_no, p.first_name, p.last_name from provider p LEFT JOIN secUserRole u ON ";
+	query += " p.provider_no=u.provider_no where p.last_name like '" + lastName + "' and p.first_name like '" + firstName + "' and p.status='1' order by p.first_name, p.last_name, u.role_name";
+}
+
+ResultSet rs = DBHelp.searchDBRecord(query);
+Vector<Properties> vec = new Vector<Properties>();
+while (rs.next()) {
+	Properties prop = new Properties();
+	prop.setProperty("provider_no", DBHelp.getString(rs,"provider_no")==null?"":DBHelp.getString(rs,"provider_no"));
+	prop.setProperty("first_name", DBHelp.getString(rs,"first_name"));
+	prop.setProperty("last_name", DBHelp.getString(rs,"last_name"));
+	prop.setProperty("role_id", DBHelp.getString(rs,"id")!=null?DBHelp.getString(rs,"id"):"");
+	prop.setProperty("role_name", DBHelp.getString(rs,"role_name")!=null?DBHelp.getString(rs,"role_name"):"");
+	vec.add(prop);
+}
+%>
         <table width="100%" border="0" bgcolor="ivory" cellspacing="1" cellpadding="1">
           <tr bgcolor="mediumaquamarine">
-          <% if( newCaseManagement ) { %>
-            <th colspan="6" align="left">
-          <%} else { %>
-           <th colspan="5" align="left">
-          <%} %>
+            <th colspan="5" align="left">
+              Provider-Role List
+            </th>
           </tr>
           <tr bgcolor="silver">
-            <th width="10%" nowrap>ID</th>
-            <th width="20%" nowrap><b>First Name</b></th>
-            <th width="20%" nowrap><b>Last Name</b></th>
-			<% if( newCaseManagement ) { %>
             <th width="10%" nowrap>
+              ID
+            </th>
+            <th width="20%" nowrap>
+              <b>First Name</b>
+            </th>
+            <th width="20%" nowrap>
+              <b>Last Name</b>
+            </th>
+            <th width="20%" nowrap>
               Role
             </th>
-           <th width="10%" nowrap>
-              Primary Role
+            <th nowrap>
+              Action
             </th>
-			<% } else {%>
-           <th width="20%" nowrap>
-              Role
-            </th>
-			<%} %>
-            
-            <th nowrap>Action</th>
           </tr>
 <%
         String[] colors = { "#ccCCFF", "#EEEEFF" };
@@ -420,11 +336,17 @@ function submit(form) {
 %>
       <form name="myform<%= providerNo %>" action="providerRole.jsp" method="POST">
             <tr bgcolor="<%=colors[i%2]%>">
-              <td><%= providerNo %></td>
-              <td><%= item.getProperty("first_name", "") %></td>
-              <td><%= item.getProperty("last_name", "") %></td>
+              <td>
+                <%= providerNo %>
+              </td>
+              <td>
+                <%= item.getProperty("first_name", "") %>
+              </td>
+              <td>
+                <%= item.getProperty("last_name", "") %>
+              </td>
               <td align="center">
-              <select name="roleNew">
+                  <select name="roleNew">
                       <option value="-" >-</option>
 <%
                     for (int j = 0; j < vecRoleName.size(); j++) {
@@ -435,14 +357,8 @@ function submit(form) {
 <%
                     }
 %>
-            </select>
+                  </select>
             </td>
-			<% if( newCaseManagement ) { %>
-            <td align="center">
-             <%=(primaries.get(i)!=null && (primaries.get(i)).booleanValue()==true)?"Yes":"" %>
-            </td>
-			<% } %>
-            
             <td align="center">
               <input type="hidden" name="keyword" value="<%=keyword%>" />
               <input type="hidden" name="providerId" value="<%=providerNo%>">
@@ -461,51 +377,5 @@ function submit(form) {
 %>
         </table>
       <hr>
-
-      <% if( newCaseManagement ) { %>
-
-       <form name="myform" action="providerRole.jsp" method="POST">
-      <table>
-      <tr>
-        <td colspan="2">Set primary role</td>
-      </tr>
-      <tr>
-        <td>Provider:</td>
-        <td>
-                <select id="primaryRoleProvider" name="primaryRoleProvider" onChange="primaryRoleChooseProvider()">
-                        <option value="">Select Below</option>
-                        <%
-                                List<String> temp1 = new ArrayList<String>();
-                                for(Properties prop:vec) {
-                                        String providerNo = prop.getProperty("provider_no");
-                                        if(!temp1.contains(providerNo)) {
-                                                %>
-                                                        <option value="<%=providerNo%>"><%=prop.getProperty("last_name") + "," + prop.getProperty("first_name") %></option>
-                                                <%
-                                                temp1.add(providerNo);
-                                        }
-                                }
-                        %>
-                </select>
-        </td>
-        </tr>
-      </tr>
-      <tr>
-        <td>Role:</td>
-        <td>
-                <select id="primaryRoleRole" name="primaryRoleRole">
-                </select>
-        </td>
-      </tr>
-      <tr>
-        <td colspan="2">
-                <input type="submit" name="buttonSetPrimaryRole" value="Set Primary Role" onClick="return setPrimaryRole();"/>
-        </td>
-      </tr>
-      </table>
-       </form>
-       <% } %>
-      
-      
       </body>
     </html>

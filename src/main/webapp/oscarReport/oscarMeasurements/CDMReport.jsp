@@ -24,27 +24,14 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
+  if(session.getValue("user") == null) response.sendRedirect("../../logout.jsp");
 %>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_report" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../securityError.jsp?type=_report");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
 <%@ page import="oscar.oscarReport.oscarMeasurements.pageUtil.*"%>
-<%@ page import="java.util.*, java.sql.*, java.text.*, java.net.*"%>
+<%@ page import="java.util.*, java.sql.*, java.text.*, java.net.*;"%>
 <%
     GregorianCalendar now=new GregorianCalendar(); 
     int curYear = now.get(Calendar.YEAR);

@@ -23,43 +23,30 @@
     Ontario, Canada
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_eform" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_eform");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
    "http://www.w3.org/TR/html4/loose.dtd">
 <%
 //Lists forms available to add to patient
+  if(session.getValue("user") == null) response.sendRedirect("../logout.jsp");
   String demographic_no = request.getParameter("demographic_no"); 
   String deepColor = "#CCCCFF" , weakColor = "#EEEEFF" ;
   String country = request.getLocale().getCountry();
   String parentAjaxId = request.getParameter("parentAjaxId");
   String appointment = request.getParameter("appointment");
   
-  LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+  LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
 %>  
 
 <%@ page import = "java.util.*, java.sql.*, oscar.eform.*"%>
-<%@ page import="org.oscarehr.util.SpringUtils"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security" %>
 <%@page import="org.oscarehr.common.dao.UserPropertyDAO, org.oscarehr.common.model.UserProperty" %>
+<%@include file="/common/webAppContextAndSuperMgr.jsp" %>
 <%
 String user = (String) session.getAttribute("user");
+if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
+    String roleName$ = (String)session.getAttribute("userrole") + "," + user;
     
 String orderByRequest = request.getParameter("orderby");
 String orderBy = "";
@@ -69,7 +56,7 @@ else if (orderByRequest.equals("form_date")) orderBy = EFormUtil.DATE;
 
 String groupView = request.getParameter("group_view");
 if (groupView == null) {
-    UserPropertyDAO userPropDAO = (UserPropertyDAO)SpringUtils.getBean("UserPropertyDAO");
+    UserPropertyDAO userPropDAO = (UserPropertyDAO)webApplicationContext.getBean("UserPropertyDAO");
     UserProperty usrProp = userPropDAO.getProp(user, UserProperty.EFORM_FAVOURITE_GROUP);
     if( usrProp != null ) {
         groupView = usrProp.getValue();
@@ -140,9 +127,11 @@ function updateAjax() {
         </tr>
         <tr>
             <td class="MainTableLeftColumn" valign="top">
-                
+                <%  if (country.equals("BR")) { %>
+                    <a href="../demographic/demographiccontrol.jsp?demographic_no=<%=demographic_no%>&appointment=<%=appointment%>&displaymode=edit&dboperation=search_detail_ptbr"><bean:message key="demographic.demographiceditdemographic.btnMasterFile" /></a>
+                <%}else{%>
                     <a href="../demographic/demographiccontrol.jsp?demographic_no=<%=demographic_no%>&appointment=<%=appointment%>&displaymode=edit&dboperation=search_detail"><bean:message key="demographic.demographiceditdemographic.btnMasterFile" /></a>
-               
+                <%}%>
                 <br>
                 <a href="efmformslistadd.jsp?demographic_no=<%=demographic_no%>&appointment=<%=appointment%>&parentAjaxId=<%=parentAjaxId%>" class="current"> <bean:message key="eform.showmyform.btnAddEForm"/></a><br/>
                 <a href="efmpatientformlist.jsp?demographic_no=<%=demographic_no%>&appointment=<%=appointment%>&parentAjaxId=<%=parentAjaxId%>"><bean:message key="eform.calldeletedformdata.btnGoToForm"/></a><br/>
@@ -150,7 +139,7 @@ function updateAjax() {
                 
                 <security:oscarSec roleName="<%=roleName$%>" objectName="_admin,_admin.eform" rights="w" reverse="<%=false%>" >
                 <br/>
-                <a href="#" onclick="javascript: return popup(600, 1200, '../administration/?show=Forms', 'manageeforms');" style="color: #835921;"><bean:message key="eform.showmyform.msgManageEFrm"/></a>
+                <a href="#" onclick="javascript: return popup(600, 750, '../eform/efmformmanager.jsp', 'manageeforms');" style="color: #835921;"><bean:message key="eform.showmyform.msgManageEFrm"/></a>
                 </security:oscarSec>
 <jsp:include page="efmviewgroups.jsp">
     <jsp:param name="url" value="../eform/efmformslistadd.jsp"/>
@@ -172,9 +161,9 @@ function updateAjax() {
 <%
   ArrayList<HashMap<String, ? extends Object>> eForms;
   if (groupView.equals("") || groupView.equals("default")) {
-      eForms = EFormUtil.listEForms(LoggedInInfo.getLoggedInInfoFromSession(request), orderBy, EFormUtil.CURRENT, roleName$);
+      eForms = EFormUtil.listEForms(orderBy, EFormUtil.CURRENT, roleName$);
   } else {
-      eForms = EFormUtil.listEForms(LoggedInInfo.getLoggedInInfoFromSession(request), orderBy, EFormUtil.CURRENT, groupView, roleName$);
+      eForms = EFormUtil.listEForms(orderBy, EFormUtil.CURRENT, groupView, roleName$);
   }
   if (eForms.size() > 0) {
       for (int i=0; i<eForms.size(); i++) {
@@ -182,7 +171,7 @@ function updateAjax() {
 %>
       <tr bgcolor="<%= ((i%2) == 1)?"#F2F2F2":"white"%>">
 	    <td width="30%" style="padding-left: 7px">
-	    <a HREF="#" ONCLICK ="javascript: popupPage('efmformadd_data.jsp?fid=<%=curForm.get("fid")%>&demographic_no=<%=demographic_no%>&appointment=<%=appointment%>','<%=curForm.get("fid") + "_" + demographic_no %>'); return true;"  TITLE='Add This eForm' OnMouseOver="window.status='Add This eForm' ; return true">
+	    <a HREF="#" ONCLICK ="javascript: popupPage('efmformadd_data.jsp?fid=<%=curForm.get("fid")%>&demographic_no=<%=demographic_no%>&appointment=<%=appointment%>','<%="FormA"+i%>'); return true;"  TITLE='Add This eForm' OnMouseOver="window.status='Add This eForm' ; return true">
             <%=curForm.get("formName")%>
         </a></td>
                 <td style="padding-left: 7px"><%=curForm.get("formSubject")%></td>

@@ -24,7 +24,10 @@
 
 --%>
 
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
+<%
+  if(session.getValue("user") == null) response.sendRedirect("../logout.jsp");
+%>
+
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -32,9 +35,8 @@
 
 
 <%
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 	//get list of courses for the drop down
-	List<Program> courses = org.oscarehr.learning.web.CourseManagerAction.getCoursesByModerator(loggedInInfo.getLoggedInProviderNo());
+	List<Program> courses = org.oscarehr.learning.web.CourseManagerAction.getCoursesByModerator();
 %>
 <html:html locale="true">
 

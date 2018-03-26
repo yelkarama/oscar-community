@@ -39,9 +39,6 @@ import org.oscarehr.util.MiscUtils;
 
 import oscar.OscarProperties;
 
-/**
- * @deprecated 2013-12-09 use org.oscarehr.util.DateUtils instead
- */
 public final class DateUtils {
 
 	private static Logger logger = MiscUtils.getLogger();
@@ -79,9 +76,7 @@ public final class DateUtils {
 	 */
 	public static Date parseDate(String s, Locale locale) throws ParseException
 	{
-		if (s==null || s.trim().isEmpty()) {
-			return null;
-		}
+		if (s==null) return(null);
 		
 		SimpleDateFormat dateFormatter=null;
 		
@@ -89,23 +84,6 @@ public final class DateUtils {
 		else dateFormatter=new SimpleDateFormat(dateFormatString, locale);
 
 		return(dateFormatter.parse(s));
-	}
-        
-        /**
-	 * @param locale can be null
-	 * @return if String is null will return null.
-	 * @throws ParseException 
-	 */
-	public static Date parseDateTime(String s, Locale locale) throws ParseException
-	{
-		if (s==null) return(null);
-		
-		SimpleDateFormat dateTimeFormatter=null;
-		
-		if (locale==null) dateTimeFormatter=new SimpleDateFormat(dateFormatString + " " + timeFormatString);
-		else dateTimeFormatter=new SimpleDateFormat(dateFormatString+ " " + timeFormatString, locale);
-
-		return(dateTimeFormatter.parse(s));
 	}
 	
 	/**
@@ -154,19 +132,14 @@ public final class DateUtils {
 	
 	/**
 	 * sets hours/minutes/seconds/milliseconds to 0
-	 * @deprecated use apache commons DateUtils.truncate()
 	 */
 	public static void zeroTimeFields(Calendar cal)
 	{
-		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.HOUR, 0);
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);
 		cal.getTimeInMillis();
-	}
-	
-	public static String format(String format, Date date) {
-		return format(format, date, null);
 	}
 	
 	/**
@@ -186,12 +159,12 @@ public final class DateUtils {
 	}
 	
 	/**
-	 * @deprecated use formatDate() parseDate() instead
+	 * @Deprecated use formatDate() parseDate() instead
 	 */
 	private static SimpleDateFormat sdf;
 
 	/**
-	 * @deprecated use formatDate() parseDate() instead
+	 * @Deprecated use formatDate() parseDate() instead
 	 */
 	private static String formatDate = "dd/MM/yyyy";
 
@@ -319,18 +292,6 @@ public final class DateUtils {
 
 	}
 
-        public static String sumDate(Date startDate, int numDaysAdded, Locale locale) {
-            String sumDateStr = "INVALID DATE";
-            if (startDate != null) {
-                Calendar calendar = new GregorianCalendar();          
-                calendar.setTime(startDate);
-                calendar.add(Calendar.DATE,numDaysAdded);
-                Date sumDate = calendar.getTime();
-                sumDateStr = formatDate(sumDate, locale);
-            }
-            return sumDateStr;
-        }
-        
 	public static String sumDate(String format, String pSum) {
 
 		int iSum = new Integer(pSum).intValue();
@@ -768,13 +729,12 @@ public final class DateUtils {
 
 	public static Integer calculateDayDifference(Calendar date1, Date date2)
 	{
-		
-		return(calculateDayDifference(date1, toCalendar(date2)));
+		return(calculateDayDifference(date1, MiscUtils.toCalendar(date2)));
 	}
 
 	public static Integer calculateDayDifference(Date date1, Calendar date2)
 	{
-		return(calculateDayDifference(toCalendar(date1), date2));
+		return(calculateDayDifference(MiscUtils.toCalendar(date1), date2));
 	}
 
 	/**
@@ -784,7 +744,7 @@ public final class DateUtils {
 	 */
 	public static Integer calculateDayDifference(Date date1, Date date2)
 	{
-		return(calculateDayDifference(toCalendar(date1), toCalendar(date2)));
+		return(calculateDayDifference(MiscUtils.toCalendar(date1), MiscUtils.toCalendar(date2)));
 	}
 	
 	
@@ -795,7 +755,7 @@ public final class DateUtils {
    
 		if (d1.equals(d2)) return 0;
 		if (d1.before(d2)) return 1;
-		if (d1.after(d2)) return -1;
+		if (d2.after(d2)) return -1;
    
 		return null; //should never happen
 	}
@@ -824,47 +784,5 @@ public final class DateUtils {
 		cal.getTime();
 		
 		return(cal);
-	}
-	
-	/**
-	 * This method will set the calendar to the beginning of the month, i.e. day=1, hour=0, minute=0, sec=0, ms=0. It will return the same instance passed in (not a clone of it).
-	 */
-	public static Calendar setToBeginningOfMonth(Calendar cal) {
-		cal.set(Calendar.DAY_OF_MONTH, 1);
-		return (setToBeginningOfDay(cal));
-	}
-
-	/**
-	 * This method will set the calenders hour/min/sec//milliseconds all to 0.
-	 */
-	public static Calendar setToBeginningOfDay(Calendar cal) {
-		cal.set(Calendar.HOUR_OF_DAY, 0);
-		cal.set(Calendar.MINUTE, 0);
-		cal.set(Calendar.SECOND, 0);
-		cal.set(Calendar.MILLISECOND, 0);
-
-		// force calculation / materialisation of actual time.
-		cal.getTimeInMillis();
-
-		return (cal);
-	}
-	
-	public static GregorianCalendar toCalendar(Date date)
-	{
-		if (date==null) return(null);
-		
-		GregorianCalendar cal=new GregorianCalendar();
-		cal.setTime(date);
-		return(cal);
-	}
-	
-	/**
-	 * Null safe toDate
-	 */
-	public static Date toDate(Calendar cal)
-	{
-		if (cal==null) return(null);
-		
-		return(cal.getTime());
 	}
 }

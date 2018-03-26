@@ -39,7 +39,7 @@ import org.oscarehr.casemgmt.model.CaseManagementNote;
 import org.oscarehr.casemgmt.model.ClientImage;
 import org.oscarehr.casemgmt.service.CaseManagementManager;
 import org.oscarehr.casemgmt.service.ClientImageManager;
-import org.oscarehr.util.SpringUtils;
+import org.oscarehr.casemgmt.service.TicklerManager;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -48,11 +48,12 @@ import com.quatro.service.security.RolesManager;
 public class BaseCaseManagementViewAction extends DispatchAction {
 
 	protected CaseManagementManager caseManagementMgr;
+	protected TicklerManager ticklerManager;
 	protected ClientImageManager clientImageMgr;
 	protected RolesManager roleMgr;
 	protected ProgramManager programMgr;
 	protected AdmissionManager admissionMgr;
-	protected SurveyManager surveyMgr = (SurveyManager)SpringUtils.getBean("surveyManager2");
+	protected SurveyManager surveyMgr;
 
 
 	public ApplicationContext getAppContext() {
@@ -71,6 +72,10 @@ public class BaseCaseManagementViewAction extends DispatchAction {
 		this.caseManagementMgr = caseManagementMgr;
 	}
 
+	public void setTicklerManager(TicklerManager mgr) {
+		this.ticklerManager = mgr;
+	}
+
 	public void setClientImageManager(ClientImageManager mgr) {
 		this.clientImageMgr = mgr;
 	}
@@ -83,6 +88,9 @@ public class BaseCaseManagementViewAction extends DispatchAction {
 		this.programMgr = mgr;
 	}
 
+	public void setSurveyManager(SurveyManager mgr) {
+		this.surveyMgr = mgr;
+	}
 
 	public String getDemographicNo(HttpServletRequest request) {
 		String demono= request.getParameter("demographicNo");
@@ -119,6 +127,13 @@ public class BaseCaseManagementViewAction extends DispatchAction {
     public int getProviderId(HttpServletRequest request){
         return(Integer.parseInt(getProviderNo(request)));
     }
+
+	public String getProviderName(HttpServletRequest request){
+		String providerNo=getProviderNo(request);
+		if (providerNo==null)
+			return "";
+		return caseManagementMgr.getProviderName(providerNo);
+	}
 
 	protected String getImageFilename(String demoNo, HttpServletRequest request) {
 		ClientImage img = clientImageMgr.getClientImage(Integer.parseInt(demoNo));

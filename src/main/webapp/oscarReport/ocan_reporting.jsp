@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <%--
 
 
@@ -23,24 +22,6 @@
     Toronto, Ontario, Canada
 
 --%>
-
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_report,_admin.reporting" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_report&type=_admin.reporting");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="java.util.*"%>
 <%@page import="org.caisi.dao.*"%>
 <%@page import="org.caisi.model.*"%>
@@ -55,24 +36,21 @@ if(!authed) {
 <%@page import="org.oscarehr.common.model.Demographic" %>
 
 <%@ include file="/taglibs.jsp"%>
+<%@include file="/layouts/caisi_html_top.jspf"%>
 
 <c:set var="ctx" value="${pageContext.request.contextPath}" scope="request"/>
 
 <%
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-	List<Demographic> clients = OcanReportingBean.getOCANClients(loggedInInfo.getCurrentFacility().getId());
+	List<Demographic> clients = OcanReportingBean.getOCANClients();
 %>
 
-<html>
-<head>
-<title><bean:message key="admin.admin.ocanReporting"/></title>
-<link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
+<h1>OCAN Reporting - 2.0.1</h1>
 
 <script>
 	var ctx = '<%=request.getContextPath()%>';
 </script>
 
-<script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery-1.9.1.js"></script>
+<script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery.js"></script>
 <script>
 	function generateIndividualNeedRatingOverTimeReport() {
 		//check to make sure a client is selected
@@ -292,10 +270,6 @@ if(!authed) {
 
 	}
 </script>
-</head>
-
-<body>
-<h3>OCAN Reporting - 2.0.1</h3>
 
 <form method="post" id="ocanForm" action="../OcanReporting.do">
 	<input type="hidden" name="method" value=""/>
@@ -438,6 +412,6 @@ if(!authed) {
 		</tr>
 	</table>
 </form>
-</body>
-</html>
 
+
+<%@include file="/layouts/caisi_html_bottom.jspf"%>

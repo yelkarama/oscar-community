@@ -24,22 +24,6 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_report,_admin.reporting" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_report&type=_admin.reporting");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@ page
 	import="java.util.*,oscar.oscarReport.data.*,oscar.util.*,oscar.oscarDB.*,java.sql.*,oscar.oscarDemographic.data.*,oscar.oscarPrevention.*"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
@@ -48,6 +32,8 @@ if(!authed) {
 <link rel="stylesheet" type="text/css"
 	href="../oscarEncounter/encounterStyles.css">
 <%  //This could be done alot better.
+if(session.getValue("user") == null)
+    response.sendRedirect("../logout.htm");
   String curUser_no,userfirstname,userlastname;
   curUser_no = (String) session.getAttribute("user");
 
@@ -187,7 +173,7 @@ table.ele {
 	<% for (int i = 0; i < report.size(); i++){
 				Map<String,Object> h = report.get(i);
                 String demo = (String) h.get("demographic_no");
-                org.oscarehr.common.model.Demographic demog = demoData.getDemographic(LoggedInInfo.getLoggedInInfoFromSession(request), demo);
+                org.oscarehr.common.model.Demographic demog = demoData.getDemographic(demo);
                 String comments = PreventionData.getPreventionComment((String)h.get("preventions_id"));
                 if( comments == null ) {
                     comments = "";

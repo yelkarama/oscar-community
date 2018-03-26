@@ -28,14 +28,10 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import org.apache.log4j.Logger;
-import org.oscarehr.PMmodule.dao.ProviderDao;
-import org.oscarehr.common.model.Provider;
-import org.oscarehr.common.model.Security;
 import org.oscarehr.util.DbConnectionFilter;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.ShutdownException;
-import org.oscarehr.util.SpringUtils;
 
 /**
  *
@@ -75,18 +71,9 @@ public class AlertTimer {
      */
     class ReminderClass extends TimerTask {
         public void run() {
-    		// LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoAsCurrentClassAndMethod();
-        	// work around for the security object.
-        	String providerNo = "-1";
-        	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
-        	LoggedInInfo loggedInInfo = new LoggedInInfo();
-        	Security security = new Security();
-            security.setSecurityNo(0);
-            Provider provider = providerDao.getProvider( providerNo) ;
-            loggedInInfo.setLoggedInSecurity(security);
-            loggedInInfo.setLoggedInProvider(provider);
+    		LoggedInInfo.setLoggedInInfoToCurrentClassAndMethod();
             try {
-                hlp.manageCDMTicklers(loggedInInfo, providerNo, alertCodes);
+                hlp.manageCDMTicklers(alertCodes);
             }
             catch (ShutdownException e) {
             	logger.debug("AlertTimer noticed shutdown signaled.");
@@ -95,6 +82,7 @@ public class AlertTimer {
                 logger.error("unexpected error", e);
             }
             finally {
+        		LoggedInInfo.loggedInInfo.remove();
                 DbConnectionFilter.releaseAllThreadDbResources();
             }
         }

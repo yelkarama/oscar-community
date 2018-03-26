@@ -25,45 +25,56 @@
 
 package oscar.oscarBilling.ca.bc.Teleplan;
 
-import java.util.List;
+import java.sql.ResultSet;
 
 import org.apache.log4j.Logger;
-import org.oscarehr.common.dao.PropertyDao;
-import org.oscarehr.common.model.Property;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
+
+import oscar.oscarDB.DBHandler;
 
 /**
- *  Deals with storing the teleplan response 
+ *  Deals with storing the teleplan sequence #
  * @author jay
  */
 public class TeleplanMessagesDAO {
     static Logger log=MiscUtils.getLogger();
-    private PropertyDao propertyDao = SpringUtils.getBean(PropertyDao.class);
     
+    /** Creates a new instance of TeleplanSequenceDAO */
     public TeleplanMessagesDAO() {
     }
     
     private void setMessage(String sequenceNum){
-    	Property p = new Property();
-    	p.setName("teleplan_message");
-    	p.setValue(sequenceNum);
-    	propertyDao.persist(p);
+        try{
+            
+            String query = "insert into property (name,value) values ('teleplan_message','"+sequenceNum+"') " ;
+            DBHandler.RunSQL(query);           
+        }catch(Exception e){
+            MiscUtils.getLogger().error("Error", e);
+        }
     }
     
     private void updateMessage(String sequenceNum){
-    	List<Property> ps = propertyDao.findByName("teleplan_message");
-    	for(Property p:ps) {
-    		p.setValue(String.valueOf(sequenceNum));
-    		propertyDao.merge(p);
-    	}
+        try{
+            
+            String query = "update property set value = '"+sequenceNum+"' where name = 'teleplan_message' " ;
+            DBHandler.RunSQL(query);            
+        }catch(Exception e){
+            MiscUtils.getLogger().error("Error", e);
+        }
     }
     
     private boolean hasMessage(){
         boolean hasSequence = false;
-        List<Property> ps = propertyDao.findByName("teleplan_message");
-        if(!ps.isEmpty())
-        	hasSequence=true;
+        try{
+            
+            String query = "select value from property where name = 'teleplan_message' " ;
+            ResultSet rs = DBHandler.GetSQL(query); 
+            if(rs.next()){
+                hasSequence = true;
+            }
+        }catch(Exception e){
+            MiscUtils.getLogger().error("Error", e);
+        }
         return hasSequence;
     }
     
@@ -74,4 +85,8 @@ public class TeleplanMessagesDAO {
             setMessage(sequenceNum);
         }  
     }
+    
+     
+  
+    
 }

@@ -22,36 +22,15 @@
     Toronto, Ontario, Canada
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_tickler"
-	rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_tickler");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%-- Updated by Eugene Petruhin on 18 dec 2008 while fixing #2422864 & #2317933 & #2379840 --%>
 <%-- Updated by Eugene Petruhin on 20 feb 2009 while fixing check_date() error --%>
 
-<%@include file="/ticklerPlus/header.jsp"%>
+	<%@include file="/ticklerPlus/header.jsp"%>
+	
+	<%@page import="java.util.GregorianCalendar"%>
+	<%@page import="java.util.Calendar"%>
 
-<%@page import="java.util.GregorianCalendar"%>
-<%@page import="java.util.Calendar"%>
-<%@page import="java.util.List"%>
-<%@page import="org.oscarehr.PMmodule.model.Program"%>
-<%@page import="org.oscarehr.common.model.Tickler"%>
-<%@page import="org.oscarehr.util.SpringUtils"%>
-<%@page import="org.oscarehr.PMmodule.service.AdmissionManager"%>
-<%
+	<%
 		GregorianCalendar now = new GregorianCalendar();
 	
 		int curYear = now.get(Calendar.YEAR);
@@ -62,16 +41,10 @@
 		
 		boolean curAm = (now.get(Calendar.HOUR_OF_DAY) <= 12) ? true : false;
 	%>
-<script type="text/javascript" src="../js/jquery-1.7.1.min.js"></script>
-
-<script type="text/javascript" src="../js/checkDate.js"></script>
-<script type="text/javascript">
-		$(document).ready(function(){
-		  changeProgram();
-		});
-
+	<script type="text/javascript" src="../js/checkDate.js"></script>
+	<script type="text/javascript">
 		function check_tickler_service_date() {
-			return check_date('tickler.serviceDateWeb');
+			return check_date('tickler.serviceDate');
 		}
 
 <%--
@@ -89,16 +62,16 @@
 		function search_provider() {
 			url = '<c:out value="${ctx}"/>/provider/receptionistfindprovider.jsp';
 			url += '?caisi=true&pyear=<%=curYear%>&pmonth=<%=curMonth%>&pday=<%=curDay%>&providername=';
-			var popup = window.open(url + document.ticklerForm.elements['tickler.taskAssignedToName'].value,'provider_search');
+			var popup = window.open(url + document.ticklerForm.elements['tickler.task_assigned_to_name'].value,'provider_search');
 		}
 --%>		
 		function validateTicklerForm(form) {
-			if (form.elements['tickler.taskAssignedTo'].value == 'none') {
+			if (form.elements['tickler.task_assigned_to'].value == 'none') {
 				alert('You must assign the task to a valid provider');
 				return false;
 			}
 			
-			if (form.elements['tickler.serviceDateWeb'].value == '') {
+			if (form.elements['tickler.serviceDate'].value == '') {
 				alert('You must provide a valid service date');
 				return false;
 			}
@@ -108,33 +81,8 @@
 				return false;
 			}
 			
-			
-			
 			return check_tickler_service_date();
 		}
-		
-		
-	
-		function changeProgram() {
-			//reset the assigned_to list
-			var programNo = $("#program_no").val();
-			
-			$.ajax({url:'../Tickler.do?method=getProvidersByProgram&programNo='+programNo,async:true,dataType:'json', success:function(data) {
-
-			$('#taskAssignedTo')
-				    .find('option')
-				    .remove()
-				    .end()
-				    .append(' <option value="none">- select -</option>');				
-
-            for(var x=0;x<data.length;x++) {
-            	$('#taskAssignedTo').find('option').end().append('<option value="'+data[x].providerNo+'">'+data[x].name+'</option>');
-	        }
-          },error:function() {
-          	alert('Failed to load providers for program ' + programNo);
-          }});
-		}
-		
 	</script>
 
 	<tr>
@@ -142,49 +90,27 @@
 	</tr>
 </table>
 
-<%
-	String demographicName = request.getParameter("tickler.demographic_webName");
-	if(demographicName  == null || "undefined".equals(demographicName)) {
-		demographicName = (String)request.getAttribute("demographicName");
-	}
-%>
 <%@ include file="/common/messages.jsp"%>
 
 <table width="60%" border="0" cellpadding="0" cellspacing="1" bgcolor="#C0C0C0">
-	<html:form action="/Tickler" focus="tickler.demographicNo" onsubmit="return validateTicklerForm(this);">
+	<html:form action="/Tickler" focus="tickler.demographic_no" onsubmit="return validateTicklerForm(this);">
 	
 		<input type="hidden" name="method" value="save" />
 		<html:hidden property="tickler.creator" value='<%=(String) session.getAttribute("user")%>' />
-		<html:hidden property="tickler.id" />
+		<html:hidden property="tickler.tickler_no" />
 		
 		<tr>
 			<td class="fieldTitle">
 				Demographic:
 			</td>
 			<td class="fieldValue">
-				<html:hidden property="tickler.demographicNo" />
-				<%=demographicName%>
+				<html:hidden property="tickler.demographic_no" />
+				<%=request.getParameter("tickler.demographic_webName")%>
 			</td>
 		</tr>
 		<tr>
 			<td class="fieldTitle">Program:</td>
-			<td class="fieldValue">
-				<select name="tickler.program_no" id="program_no" onChange="changeProgram()">
-				<%
-					String demographicNo = request.getParameter("tickler.demographicNo");
-					
-					List<Program> programs = (List<Program>)request.getAttribute("programDomain");
-					
-					String currentProgramId = (String)request.getAttribute("currentProgramId");
-					
-					for(Program p:programs) {
-						String selected = (p.getId().toString().equals(currentProgramId))?" selected=\"selected\" ":"";
-				%>
-					<option value="<%=p.getId()%>" <%=selected%>><%=p.getName() %></option>
-					
-				<% } %>
-				</select>
-			</td>
+			<td class="fieldValue"><c:out value="${requestScope.program_name}"/></td>
 		</tr>
 		<tr>
 			<td class="fieldTitle">Service Date:</td>
@@ -196,8 +122,8 @@
 				String formattedDate = year + "-" + month + "-" + day;
 			%>
 			<td class="fieldValue">
-				<html:text property="tickler.serviceDateWeb" value="<%=formattedDate%>" maxlength="10"/>
-				<span onClick="openBrWindow('calendar/oscarCalendarPopup.jsp?type=caisi&openerForm=ticklerForm&amp;openerElement=tickler.serviceDateWeb&amp;year=<%=year%>&amp;month=<%=month%>','','width=300,height=300')">
+				<html:text property="tickler.serviceDate" value="<%=formattedDate%>" maxlength="10"/>
+				<span onClick="openBrWindow('calendar/oscarCalendarPopup.jsp?type=caisi&openerForm=ticklerForm&amp;openerElement=tickler.serviceDate&amp;year=<%=year%>&amp;month=<%=month%>','','width=300,height=300')">
 					<img border="0" src="images/calendar.jpg" />
 				</span>
 			</td>
@@ -260,7 +186,7 @@
 				Priority:
 			</td>
 			<td class="fieldValue">
-				<html:select property="tickler.priorityWeb">
+				<html:select property="tickler.priority">
 					<option value="Normal">Normal</option>
 					<option value="High">High</option>
 					<option value="Low">Low</option>
@@ -272,14 +198,14 @@
 				Task Assigned To:
 			</td>
 			<td class="fieldValue">
-				<html:hidden property="tickler.taskAssignedToName" />
-	            <html:select property="tickler.taskAssignedTo" styleId="taskAssignedTo" value="none">
+				<html:hidden property="tickler.task_assigned_to_name" />
+	            <html:select property="tickler.task_assigned_to" value="none">
         		    <option value="none">- select -</option>
         		    <html:options collection="providers" property="providerNo" labelProperty="formattedName"/>
             	</html:select>
-				<%--html:hidden property="tickler.taskAssignedTo" />
-				<html:text property="tickler.taskAssignedToName" />
-				<input type="button" value="Search" onclick="search_provider();" /--%> 
+				<%--html:hidden property="tickler.task_assigned_to" />
+				<html:text property="tickler.task_assigned_to_name" />
+				<input type="button" value="Search" onclick="search_provider();" /--%>
 			</td>
 		</tr>
 		<tr>
@@ -287,7 +213,7 @@
 				Status:
 			</td>
 			<td class="fieldValue">
-				<html:select property="tickler.statusWeb">
+				<html:select property="tickler.status">
 					<option value="A">Active</option>
 					<option value="C">Completed</option>
 					<option value="D">Deleted</option>
@@ -314,8 +240,6 @@
 		-->
 		<tr>
 			<td class="fieldValue" colspan="3" align="left">
-			    	<input type="hidden" name="docType" value="<%=request.getParameter("docType")%>"/>
-           			<input type="hidden" name="docId" value="<%=request.getParameter("docId")%>"/>
 				<html:submit styleClass="button">Save</html:submit>
 				<input type="button" value="Cancel" onclick="window.close()"/>
 			</td>

@@ -37,36 +37,30 @@
 <%@page import="java.util.regex.Pattern" %>
 <%@page import="java.util.regex.*" %>
 <%@page import="java.util.*" %>
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
+
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
 <%@ taglib uri="/WEB-INF/rewrite-tag.tld" prefix="rewrite"%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-	  boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_prevention" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_prevention");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
 
 <%
-LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+/*
+@page import="org.oscarehr.util.SessionConstants"
+oscar.oscarDemographic.data.*
+@page import="org.oscarehr.phr.PHRAuthentication, org.oscarehr.phr.util.MyOscarUtils"
+org.oscarehr.common.dao.DemographicDao, org.oscarehr.common.model.Demographic
+@page import="org.oscarehr.util.LocaleUtils"
+@page import="org.oscarehr.util.WebUtils"
+*/
 %>
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
 <html:html locale="true">
 <head>
 
-<title><bean:message key="oscarprevention.index.oscarpreventiontitre" /> - <bean:message key="admin.admin.preventionNotification.title" /></title>
+<title>oscarPrevention - <bean:message key="admin.admin.preventionNotification.title" /></title>
 
 <script type="text/javascript">
 <!--
@@ -137,8 +131,8 @@ String setPropValue;
 String vProp="hide_prevention_stop_signs";
 
 //create preventions list
-PreventionDisplayConfig pdc = PreventionDisplayConfig.getInstance(loggedInInfo);
-ArrayList<HashMap<String,String>> prevList = pdc.getPreventions(loggedInInfo);
+PreventionDisplayConfig pdc = PreventionDisplayConfig.getInstance();
+ArrayList<HashMap<String,String>> prevList = pdc.getPreventions();
 
 	
 	PropertyDao propDao = (PropertyDao)SpringUtils.getBean("propertyDao");
@@ -347,12 +341,6 @@ if(getStatus!=null && getStatus.equals("master")){
 </tr>
 </table>		
 	
-<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-1.9.1.min.js"></script>
-<script>
-$( document ).ready(function() {	
-    parent.parent.resizeIframe($('html').height());	
-	
-});
-</script>		
+		
 </body>
 </html:html>

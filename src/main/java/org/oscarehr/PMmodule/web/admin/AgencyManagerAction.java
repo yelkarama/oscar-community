@@ -31,13 +31,12 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessages;
 import org.apache.struts.action.DynaActionForm;
-import org.apache.struts.actions.DispatchAction;
 import org.oscarehr.PMmodule.model.Agency;
 import org.oscarehr.PMmodule.service.AgencyManager;
+import org.oscarehr.PMmodule.service.LogManager;
+import org.oscarehr.PMmodule.web.BaseAction;
 
-import oscar.log.LogAction;
-
-public class AgencyManagerAction extends DispatchAction {
+public class AgencyManagerAction extends BaseAction {
 
     private static final String FORWARD_EDIT = "edit";
     private static final String FORWARD_VIEW = "view";
@@ -45,7 +44,8 @@ public class AgencyManagerAction extends DispatchAction {
     private static final String BEAN_AGENCY = "agency";
 
     private AgencyManager agencyManager;
-  
+    private LogManager logManager;
+
     public ActionForward unspecified(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
         return view(mapping, form, request, response);
     }
@@ -88,7 +88,7 @@ public class AgencyManagerAction extends DispatchAction {
 
         request.setAttribute("id", agency.getId());
 
-        LogAction.log("write", "agency", agency.getId().toString(), request);
+        logManager.log("write", "agency", agency.getId().toString(), request);
 
         return mapping.findForward(FORWARD_EDIT);
     }
@@ -97,4 +97,7 @@ public class AgencyManagerAction extends DispatchAction {
     	this.agencyManager = mgr;
     }
 
+    public void setLogManager(LogManager mgr) {
+    	this.logManager = mgr;
+    }
 }

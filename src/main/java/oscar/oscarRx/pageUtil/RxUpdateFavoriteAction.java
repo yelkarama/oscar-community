@@ -35,16 +35,12 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.oscarRx.data.RxPrescriptionData;
 import oscar.oscarRx.util.RxUtil;
 
 
 public final class RxUpdateFavoriteAction extends DispatchAction {
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
 
 
     public ActionForward unspecified(ActionMapping mapping,
@@ -53,9 +49,6 @@ public final class RxUpdateFavoriteAction extends DispatchAction {
 				 HttpServletResponse response)
 	throws IOException, ServletException {
 
-		if (!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_rx", "u", null)) {
-			throw new RuntimeException("missing required security object (_rx)");
-		}
 
 
             // Setup variables
@@ -72,7 +65,6 @@ public final class RxUpdateFavoriteAction extends DispatchAction {
             fav.setDuration(frm.getDuration());
             fav.setDurationUnit(frm.getDurationUnit());
             fav.setQuantity(frm.getQuantity());
-            fav.setDispensingUnits(frm.getDispensingUnits());
             fav.setRepeat(Integer.parseInt(frm.getRepeat()));
             fav.setNosubs(frm.getNosubs());
             fav.setPrn(frm.getPrn());
@@ -89,10 +81,6 @@ public final class RxUpdateFavoriteAction extends DispatchAction {
 				 HttpServletRequest request,
 				 HttpServletResponse response)
 	{
-		if (!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_rx", "u", null)) {
-			throw new RuntimeException("missing required security object (_rx)");
-		}
-		
             // Setup variables
             int favId = Integer.parseInt(request.getParameter("favoriteId"));
 
@@ -105,7 +93,6 @@ public final class RxUpdateFavoriteAction extends DispatchAction {
             String duration=request.getParameter("duration");
             String durationUnit=request.getParameter("durationUnit");
             String quantity=request.getParameter("quantity");
-            String dispensingUnits=request.getParameter("dispensingUnits");
             String repeat=request.getParameter("repeat");
             String noSubs=request.getParameter("nosubs");
             String prn=request.getParameter("prn");
@@ -119,7 +106,6 @@ public final class RxUpdateFavoriteAction extends DispatchAction {
             fav.setDuration(duration);
             fav.setDurationUnit(durationUnit);
             fav.setQuantity(quantity);
-            fav.setDispensingUnits(dispensingUnits);
             fav.setRepeat(Integer.parseInt(repeat));
             if(noSubs.equalsIgnoreCase("true"))
                 fav.setNosubs(true);
@@ -135,10 +121,6 @@ public final class RxUpdateFavoriteAction extends DispatchAction {
             else
                 fav.setCustomInstr(false);
 
-            if(request.getParameter("dispenseInternal") != null && request.getParameter("dispenseInternal").length()>0) { 
-            	fav.setDispenseInternal(true);
-            }
-            
             fav.Save();
 
             return null;

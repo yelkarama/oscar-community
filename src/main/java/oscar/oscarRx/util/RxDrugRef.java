@@ -35,14 +35,15 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Vector;
+
 import org.apache.log4j.Logger;
 import org.apache.xmlrpc.Base64;
 import org.apache.xmlrpc.XmlRpcClient;
 import org.apache.xmlrpc.XmlRpcClientLite;
 import org.apache.xmlrpc.XmlRpcException;
 import org.oscarehr.util.MiscUtils;
+
 import oscar.OscarProperties;
 
 /**
@@ -50,31 +51,16 @@ import oscar.OscarProperties;
  * @author  Jay
  */
 public class RxDrugRef {
-
-	
-	// DRUG CATEGORIES FOR THE DRUG REF SEARCH TABLE.
-	public static final int CAT_BRAND = 13;
-	public static final int CAT_COMPOSITE_GENERIC = 12;
-	public static final int CAT_GENERIC = 11;
-	public static final int CAT_ATC = 8;
-	public static final int CAT_AHFS = 10;
-	public static final int CAT_ACTIVE_INGREDIENT = 14;
-	public static final int CAT_AI_COMPOSITE_GENERIC = 19;
-	public static final int CAT_AI_GENERIC = 18;
-
     private static Logger logger=MiscUtils.getLogger(); 
 
-    private String server_url = null;
-    		//"http://localhost:8080/drugref2/DrugrefService";
+    private String server_url =
            // "http://www.hherb.com:8001";
-           //"http://24.141.82.168:8001";
+           "http://24.141.82.168:8001";
            //"http://192.168.42.3:8001";
-    		
     /** Creates a new instance of DrugRef */
     public RxDrugRef() {
         server_url = OscarProperties.getInstance().getProperty("drugref_url");
         //server_url = System.getProperty("drugref_url");
-  
     }
     
     public RxDrugRef(String url){
@@ -83,15 +69,6 @@ public class RxDrugRef {
     
     public String getDrugRefURL(){
        return server_url;
-    }
-    
-    public Hashtable<String, Object> getDrugByDIN(String DIN, Boolean boolVal) throws Exception {
-    	Vector params = new Vector();
-        params.addElement(DIN);
-        params.addElement(boolVal);
-    	Vector<Hashtable<String, Object>> vec = (Vector<Hashtable<String, Object>>) callWebserviceLite("get_drug_by_DIN", params);
-    	Hashtable<String, Object> returnVal = vec.get(0);
-    	return returnVal;
     }
     
     /**
@@ -167,14 +144,6 @@ public class RxDrugRef {
          params.addElement(atclist);
          params.addElement(new Integer(minimum_significance));         
          Vector vec = (Vector) callWebservice("interaction",params);         
-         return vec;         
-     }
-     
-     public Vector interactionByRegionalIdentifier(List regionalIdentifierList,int minimum_significance){
-         Vector params = new Vector();
-         params.addElement(new Vector(regionalIdentifierList));
-         params.addElement(new Integer(minimum_significance));
-         Vector vec = (Vector) callWebservice("interaction_by_regional_identifier",params); 
          return vec;         
      }
      
@@ -316,7 +285,6 @@ public class RxDrugRef {
          return vec;		         
      }
      
-     @Deprecated
      public Vector listComponents(String drugId){
         Vector params = new Vector();
         params.addElement(drugId);
@@ -338,7 +306,9 @@ public class RxDrugRef {
          Vector vec = (Vector) callWebservice("getDrugInfoPage",params);             
          return vec;		         
      }	
-         
+     
+     
+     
      public Vector list_search_element_select_categories(String searchStr,Vector catVec){
          return list_search_element_select_categories(searchStr,catVec,false);
       }
@@ -435,14 +405,9 @@ public class RxDrugRef {
 
          Object object = null;
          try{
-            if (!System.getProperty("http.proxyHost","").isEmpty()) {
-                //The Lite client won't recgonize JAVA_OPTS as it uses a customized http
-                XmlRpcClient server = new XmlRpcClient(server_url);
-                object = server.execute(procedureName, params);
-            } else {
-                XmlRpcClientLite server = new XmlRpcClientLite(server_url);
-                object = server.execute(procedureName, params);
-            }                        
+
+            XmlRpcClientLite server = new XmlRpcClientLite(server_url);
+            object = server.execute(procedureName, params);
          }catch (XmlRpcException exception) {
                 
              logger.error("JavaClient: XML-RPC Fault #" +exception.code, exception);
@@ -477,7 +442,6 @@ public class RxDrugRef {
       * <B>last_change</B>: string (date in ISO format yyyy-mm-dd)
       * <B>deprecated</B>: boolean. True if this source is deprecated and should no longer be used
       */
-     @Deprecated
      public Vector list_sources(String searchexpr,Hashtable tags){
         return new Vector();
      }
@@ -487,15 +451,14 @@ public class RxDrugRef {
       *@param  pkey primary key.
       *@return tags: see [tags].
       */
-     @Deprecated
      public Hashtable get_source_tag(int pkey){
          return new Hashtable();
      }
 
      /**returns basic identifiers of all drugs, drug products and drug classes available in the database which names match searchexpr, and which other criteria match the constraints in tags
       *
-      *@param searchexpr (Partial) name of a drug (generic, brand name, composite drug) Case insensitive, partial match possible if using % as wild card
-      *@param tags see [tags] Additional optional keys:
+      *@param searchexpr: (Partial) name of a drug (generic, brand name, composite drug) Case insensitive, partial match possible if using % as wild card
+      *@tags: see [tags] Additional optional keys:
       *       classes : boolean. If true, class names (ATC) are listed
       *       generics : boolean. If true, generic names are listed
       *       branded : boolean. If true, branded product names are listed
@@ -541,9 +504,7 @@ public class RxDrugRef {
            retHash.put("authors", new Integer(authors));
            try{
            retHash.put("modified_after", new SimpleDateFormat("yyyy-MM-dd").parse(modified_after.toString()));            
-           }catch (Exception e){
-        	   MiscUtils.getLogger().error("error",e);
-           }
+           }catch (Exception e){}
            retHash.put("return_tags",Boolean.toString(return_tags));      //If true, the values returned by a query will include applicable tag bitstrings for each returned value (will slow down query considerably, but allows client-side sub-filtering)
            return retHash;
      }
@@ -565,12 +526,12 @@ public class RxDrugRef {
      
      
      /**For Creating tags 
-      *@param source Primary key of the referenced information source (Drugref, MIMS, MULTUM, AMIS, Manufacturer, Inhouse, ...)
-      *@param language  string. Three character ISO language code
-      *@param country  string. Two character ISO country code
-      *@param author  integer. Primary key of the submitter of the referenced information
-      *@param modified_after  string. ISO date (yyyy-mm-dd). If set, records older than this date will be ignored.
-      *@param return_tags  boolean. If true, the values returned by a query will include applicable tag bitstrings for each returned value (will slow down query considerably, but allows client-side sub-filtering)
+      *@param source: Primary key of the referenced information source (Drugref, MIMS, MULTUM, AMIS, Manufacturer, Inhouse, ...)
+      *@param language:  string. Three character ISO language code
+      *@param country:  string. Two character ISO country code
+      *@param author : integer. Primary key of the submitter of the referenced information
+      *@param modified_after : string. ISO date (yyyy-mm-dd). If set, records older than this date will be ignored.
+      *@param return_tags:  boolean. If true, the values returned by a query will include applicable tag bitstrings for each returned value (will slow down query considerably, but allows client-side sub-filtering)
       *@return Hashtable with values set from input for tags
       */
      public Hashtable tagCreator(int source,String language,String country,int author,Date  modified_after,boolean return_tags ){
@@ -581,20 +542,19 @@ public class RxDrugRef {
             retHash.put("author", new Integer(author));
             try{
             retHash.put("modified_after", new SimpleDateFormat("yyyy-MM-dd").parse(modified_after.toString()));            
-            }catch (Exception e){
-            	 MiscUtils.getLogger().error("error",e);
-            }
+            }catch (Exception e){}
             retHash.put("return_tags",Boolean.toString(return_tags));      //If true, the values returned by a query will include applicable tag bitstrings for each returned value (will slow down query considerably, but allows client-side sub-filtering)
             return retHash;
      }
      
      
      /**For Creating tags 
-      *@param source Primary key of the referenced information source (Drugref, MIMS, MULTUM, AMIS, Manufacturer, Inhouse, ...)
-      *@param language  string. Three character ISO language code
-      *@param country  string. Two character ISO country code
-      *@param author  integer. Primary key of the submitter of the referenced information
-      *@param return_tags  boolean. If true, the values returned by a query will include applicable tag bitstrings for each returned value (will slow down query considerably, but allows client-side sub-filtering)
+      *@param source: Primary key of the referenced information source (Drugref, MIMS, MULTUM, AMIS, Manufacturer, Inhouse, ...)
+      *@param language:  string. Three character ISO language code
+      *@param country:  string. Two character ISO country code
+      *@param author : integer. Primary key of the submitter of the referenced information
+      *@param modified_after : string. ISO date (yyyy-mm-dd). If set, records older than this date will be ignored.
+      *@param return_tags:  boolean. If true, the values returned by a query will include applicable tag bitstrings for each returned value (will slow down query considerably, but allows client-side sub-filtering)
       *@return Hashtable with values set from input for tags
       */
      public Hashtable tagCreator(int source,String language,String country,int author,boolean return_tags ){
@@ -611,12 +571,104 @@ public class RxDrugRef {
      
 
      
+     /**highest level API function to retrieve a complete drug monograph (except for packaging, pricing and subsidy information)
+      *
+      *@param pkey: primary key
+      *
+      *@return struct with at least the following keys:
+      *
+      *     name: string. International nonproprietary name (INPN) of this drug (=generic)
+      *     atc: string. ATC code
+      *     generics : struct. Lists all generic components (usually just one). Key (string) is the generic name, value (integer) is the repective primary key
+      *     essential: True if this drug is on the WHO essential drug list
+      *     product: string. If this drug is not a generic, the product brand name is listed under this key, else this key is not available
+      *     action: string. Description of mode of action.
+      *     indications: array of structs. Each struct has indication as key, and a struct as value containing the following keys:
+      *         code : integer. Drugref condition code primary key
+      *         firstline : boolean. True if for this indication this drug is considered a first line treatment.
+      *         comment : string
+      *     contraindications: array of structs. Each struct has contraindication as key, and a struct as value containing the following keys:
+      *         code : integer. Drugref condition code primary key.
+      *         severity : integer (1-3, 3 being absolute contraindication)
+      *         comment : string
+      *     practice_points: array of strings
+      *     paediatric_use:  string. Describing special considerations in paediatric use
+      *     pregnancy_use: struct with following keys:
+      *         code : character. ADEC category
+      *         comment : string
+      *     lactation_use: struct with following keys:
+      *         code : integer. 1=compatible, 2=restricted, 3=dangerous
+      *         comment : string
+      *     renal_impairment: struct with following keys:
+      *         code : integer. 1=compatible, 2=restricted, 3=dangerous
+      *         comment : string
+      *     hepatic_impairment: struct with following keys:
+      *         code : integer. 1=compatible, 2=restricted, 3=dangerous
+      *         comment : string
+      *     common_adverse_effects: array of strings
+      *     rare_adverse_effects: array of strings
+      *     dosage: array of structs with following keys:
+      *         text: string. If this key is available, only free text dosage information is available, as described in this string.
+      *         indication : integer. Drugref condition code primary key. 0 is wild card, indicating general dosage recommendation.
+      *         units: string. SI unit for this dosage
+      *         calculation_base_units: integer. 0=not applicable, 1=age in months, 2=age in years, 3=kg body weight, 4=cm2 body surface
+      *         calculation_base : real. Meaning depends on calculation_base_units
+      *         starting_range : real. Usual mimimal recommended dosage
+      *         upper_range : real. Usual maximal recommended dosage
+      *         frequency_units : integer. 0=not applicable, 1=seconds, 2=minutes, 3=hours, 4=days, 5=weeks, 6=months, 7=years
+      *         frequency : integer. How often this drug should be administered
+      *         duration_units: integer. Same as frequency_units, additional value 8='times'
+      *         duration_minimum ; integer. How long a usual course of this drug should be given. -1 is permanent, -2=p.r.n.
+      *         duration_maximum : integer. -1 is permanent, -2=p.r.n.
+      *         constrained: boolean. If true, no automazied dosage suggestion must be generated, prescriber must read comment. (e.g. dosage per body surface etc.)
+      *         comment
+      */         
+      /*public Hashtable get_drug(int pkey, boolean html){
+          Hashtable retHash = new Hashtable();
+          Vector params = new Vector();
+          params.add(new Integer(pkey));
+          params.add(new Boolean(html));
+          Vector vec = (Vector) callWebservice("get_drug",params);  
+          Vector retVec = new Vector();
+          for (int i = 0 ; i <  vec.size(); i++){
+             Hashtable h = (Hashtable) vec.get(i);
+             FullDrug fd = new FullDrug();
+             fd.name                     = (String)    h.get("name");
+             fd.atc                      = (String)    h.get("atc");
+             fd.essential                = ((Boolean)   h.get("essential")).booleanValue();
+             fd.product                  = (String)    h.get("product");
+             fd.action                   = (String)    h.get("action");
+             fd.practice_points          = (String[])  h.get("practice_points");
+             fd.paediatric_use           = (String)    h.get("paediatric_use");
+             fd.common_adverse_effects   = (String[])  h.get("common_adverse_effects");
+             fd.rare_adverse_effects     = (String[])  h.get("rare_adverse_effects");
+             
+          
+          //
+          //Vector indications; 
+          //Vector contraindications; 
+          // Vector dosage; 
+          //PregnancyUse pregnancyUse;
+          //LactationUse lactationUse;
+          //RenalImpairment renalImpairment;
+          //HepaticImpairment hepaticImpairment;
+          // 
+             retVec.add(fd);
+          }          
+          
+          return retHash;         
+          
+      }
+      
+      */
+      
+      
+      
       /**returns a fuill drug monograph formatted as HTML page, with all headings (= keys returned by get_drug) implemented as anchors.
-       *@param pkeye4 primary key.
-       *@param css CSS style sheet used to format the retunred HTML page. Details not finalized yet.
+       *@param pkey: primary key.
+       *@param css: CSS style sheet used to format the retunred HTML page. Details not finalized yet.
        *@return base64 encoded HTML page
        */
-     	@Deprecated
        public Base64 get_drug_html(int pkeye4,Base64 css){ //returns base64
            return  new Base64();
        }
@@ -624,9 +676,9 @@ public class RxDrugRef {
 
 
        /**returns all available products for a given drug as identified by pkey and constrained by tags
-        *@param pkey primary key of a drug.
-        *@param tags see [tags].
-        *@return list of structs containing the following minimum keys:
+        *@param pkey: primary key of a drug.
+        *@param tags: see [tags].
+        *return list of structs containing the following minimum keys:
         *           brandname : string
         *           form : string. (tablets, capsules, ...)
         *           strength : string. Brief human readable format
@@ -634,15 +686,14 @@ public class RxDrugRef {
         *           subsidies : string. Brief human readable format
         *           manufacturer : string. Company name
         */
-       @Deprecated
        public Vector list_products(int pkey, Hashtable tags ){
            return new Vector();
        }
 
        /**returns product specific information for a given drug as identified by pkey and constrained by tags, including available package sizes and strengths, manufacturers, prices and available subsidies as well as legal / subsidy access restrictions.
         *
-        *@param pkey primary key of a specific drug product
-        *@param tags see [tags]
+        *@param pkey: primary key of a specific drug product
+        *@param tags: see [tags]
         *
         *@return returns the same struct as get_drug(), but with the following additional keys:
         *           form : integer. Primary key of drug forms tablets, capsules, syrup ...)
@@ -661,7 +712,6 @@ public class RxDrugRef {
         *           prices : struct. Key is price category (retail, wholesale, subsidized), value (Real) is the price
         *           currency : string. Currency the stated price / gap / premium is based on
         */
-       @Deprecated
        public Hashtable get_product(int pkey,Hashtable tags){
            return new Hashtable();
        }
@@ -670,18 +720,17 @@ public class RxDrugRef {
 
 
        /**returns the Consumer Product Information formatted as HTML, base64 encoded
-        *@param pkey primary key of a drug product.
-        *@param css CSS style sheet used to format the returned HTML page. Details not finalized yet.
+        *@param pkey: primary key of a drug product.
+        *@param css: CSS style sheet used to format the returned HTML page. Details not finalized yet.
         *@return base64 encoded HTML page
         */
-       @Deprecated
        public Base64 get_product_CPI(int pkey,Base64 css){
            return new Base64();
        }
 
        /**returns an array of structs describing the possible interactions between any two drugs contained in drugs. Information used for interaction checking constrained by tags.
-        *@param drugs array of integers. Primary keys of drugs
-        *@param tags see [tags].
+        *@param drugs: array of integers. Primary keys of drugs
+        *@param tags: see [tags].
         *@return array of structs with the following minimum keys:
         *       affecting_drug : integer. Primary Key
         *       affected_drug : integer. Primary key.
@@ -695,7 +744,6 @@ public class RxDrugRef {
         *       evidence : integer. Level of evidence graded 1-3, 1=poor, 2=fair, 3=good
         *       reference : integer. Primary key of reference
         */
-       @Deprecated
        public Vector list_interactions(Vector drugs,Hashtable tags){
             return new Vector();
        }
@@ -704,7 +752,6 @@ public class RxDrugRef {
        /**List all conditions and their codes / coding systems known to drugref, constrained by searchexpr as welll as by tags. Searchexpr accepts % as wildcard.
         *
         */
-       @Deprecated
        public Vector list_conditions(String searchexpr,Hashtable tags){           
            return new Vector();
        }
@@ -712,21 +759,19 @@ public class RxDrugRef {
        /**
         *@param indication : integer. Primary key.
         */
-       @Deprecated
        public Vector list_drugs_for_indication(int indication ,Hashtable tags){
            return new Vector();
        }
        
        
        /**List all references this drugref database is based on. 
-        *@param tags see [tags].
+        *@param tags: see [tags].
         *@return array of structs with following minimum keys:
         *           name : string. short name of reference source
         *           full title : string.
         *           authors : string
         *           publ_year : string
         */ 
-       @Deprecated
        public Vector list_references(Hashtable tags){
            return new Vector();
        }

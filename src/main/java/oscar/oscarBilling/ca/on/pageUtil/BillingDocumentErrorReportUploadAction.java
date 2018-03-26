@@ -35,6 +35,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URLEncoder;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -53,11 +55,10 @@ import org.apache.struts.action.ActionMessages;
 import org.apache.struts.upload.FormFile;
 import org.oscarehr.common.dao.BatchEligibilityDao;
 import org.oscarehr.common.dao.DemographicCustDao;
+import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.model.BatchEligibility;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.DemographicCust;
-import org.oscarehr.managers.DemographicManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
@@ -67,12 +68,13 @@ import oscar.oscarBilling.ca.on.bean.BillingClaimsErrorReportBeanHandler;
 import oscar.oscarBilling.ca.on.bean.BillingEDTOBECOutputSpecificationBean;
 import oscar.oscarBilling.ca.on.bean.BillingEDTOBECOutputSpecificationBeanHandler;
 import oscar.oscarBilling.ca.on.data.BillingClaimsErrorReportBeanHandlerSave;
+import oscar.oscarDB.DBHandler;
 
 public class BillingDocumentErrorReportUploadAction extends Action {
 
 	private BatchEligibilityDao batchEligibilityDao = (BatchEligibilityDao)SpringUtils.getBean("batchEligibilityDao");
 	private DemographicCustDao demographicCustDao = (DemographicCustDao)SpringUtils.getBean("demographicCustDao");
-	private DemographicManager demographicManager =  SpringUtils.getBean(DemographicManager.class);
+	private DemographicDao demographicDao = (DemographicDao) SpringUtils.getBean("demographicDao");
 
 	public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
@@ -80,7 +82,6 @@ public class BillingDocumentErrorReportUploadAction extends Action {
 		request.getSession().setAttribute("BillingDocumentErrorReportUploadForm", frm);
 		FormFile file1 = frm.getFile1();
 		ActionMessages errors = new ActionMessages();
-		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
 
 		String filename = request.getParameter("filename") == null ? "null" : request.getParameter("filename");
 		
@@ -90,7 +91,7 @@ public class BillingDocumentErrorReportUploadAction extends Action {
 				saveErrors(request, errors);
 				return (new ActionForward(mapping.getInput()));
 			} else {
-				if (getData(loggedInInfo, file1.toString(), "DOCUMENT_DIR", request))
+				if (getData(file1.getFileName(), "DOCUMENT_DIR", request))
 					return file1.getFileName().startsWith("L") ? mapping.findForward("outside") : mapping.findForward("success");
 				else {
 					errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("errors.incorrectFileFormat"));
@@ -99,9 +100,9 @@ public class BillingDocumentErrorReportUploadAction extends Action {
 				}
 			}
 		} else {
-			if (getData(loggedInInfo, filename, "ONEDT_INBOX", request)) {
+			if (getData(filename, "ONEDT_INBOX", request)) {
 				return filename.startsWith("L") ? mapping.findForward("outside") : mapping.findForward("success");
-			} else if (getData(loggedInInfo, filename, "ONEDT_ARCHIVE", request)) {
+			} else if (getData(filename, "ONEDT_ARCHIVE", request)) {
 				return filename.startsWith("L") ? mapping.findForward("outside") : mapping.findForward("success");
 			} else {
 				errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("errors.incorrectFileFormat"));
@@ -116,7 +117,7 @@ public class BillingDocumentErrorReportUploadAction extends Action {
 	 * Save a Jakarta FormFile to a preconfigured place.
 	 *
 	 * @param file
-	 * @return boolean
+	 * @return
 	 */
 	public static boolean saveFile(FormFile file) {
 		String retVal = null;
@@ -168,7 +169,7 @@ public class BillingDocumentErrorReportUploadAction extends Action {
 	 * @param file
 	 * @return
 	 */
-	private boolean getData(LoggedInInfo loggedInInfo, String fileName, String pathDir, HttpServletRequest request) {
+	private boolean getData(String fileName, String pathDir, HttpServletRequest request) {
 		boolean isGot = false;
 
 		try {
@@ -178,13 +179,13 @@ public class BillingDocumentErrorReportUploadAction extends Action {
 			boolean bNewBilling = props.getProperty("isNewONbilling", "").equals("true") ? true : false;
 			if (!filepath.endsWith("/"))
 				filepath = new StringBuilder(filepath).insert(filepath.length(), "/").toString();
-
 			FileInputStream file = new FileInputStream(filepath + fileName);
 			MiscUtils.getLogger().debug("file path: " + filepath + fileName);
 			// Assign associated report Name
 			ArrayList<String> messages = new ArrayList<String>();
 			String ReportName = "";
-			
+			String ReportFlag = "";
+
 			if (fileName.substring(0, 1).compareTo("E") == 0 || fileName.substring(0, 1).compareTo("F") == 0) {
 				ReportName = "Claims Error Report";
 				BillingClaimsErrorReportBeanHandler hd = generateReportE(file, bNewBilling, fileName);
@@ -205,7 +206,7 @@ public class BillingDocumentErrorReportUploadAction extends Action {
 			}
 			else if (fileName.substring(0, 1).compareTo("R") == 0) {
 				ReportName = "EDT OBEC Output Specification";
-				BillingEDTOBECOutputSpecificationBeanHandler hd = generateReportR(loggedInInfo, file);
+				BillingEDTOBECOutputSpecificationBeanHandler hd = generateReportR(file);
 				request.setAttribute("outputSpecs", hd);
 				isGot = hd.verdict;
 			}
@@ -215,7 +216,6 @@ public class BillingDocumentErrorReportUploadAction extends Action {
 				request.setAttribute("filename", fileName);
 				isGot = true;
 			}
-			
 			request.setAttribute("ReportName", ReportName);
 		} catch (FileNotFoundException fnfe) {
 
@@ -316,46 +316,52 @@ public class BillingDocumentErrorReportUploadAction extends Action {
 	 * @param file
 	 * @return BillingEDTOBECOutputSpecificationBeanHandler
 	 */
-	@SuppressWarnings("unchecked")
-    private BillingEDTOBECOutputSpecificationBeanHandler generateReportR(LoggedInInfo loggedInInfo, FileInputStream file) {
-		BillingEDTOBECOutputSpecificationBeanHandler hd = new BillingEDTOBECOutputSpecificationBeanHandler(loggedInInfo, file);
+	private BillingEDTOBECOutputSpecificationBeanHandler generateReportR(FileInputStream file) {
+		BillingEDTOBECOutputSpecificationBeanHandler hd = new BillingEDTOBECOutputSpecificationBeanHandler(file);
 		Vector<BillingEDTOBECOutputSpecificationBean> outputSpecVector = hd.getEDTOBECOutputSecifiationBeanVector();
+		try {
 
-		for (int i = 0; i < outputSpecVector.size(); i++) {
-			BillingEDTOBECOutputSpecificationBean bean = outputSpecVector.elementAt(i);
-			String hin = bean.getHealthNo();
-			String responseCode = bean.getResponseCode();
-			int responseCodeNum = -1;
-			try {
-				responseCodeNum = Integer.parseInt(responseCode);
-			} catch (Exception e) {
-				MiscUtils.getLogger().error("Error",e);
-			}
 
-			if (responseCodeNum < 50 || responseCodeNum > 59) {
+			for (int i = 0; i < outputSpecVector.size(); i++) {
+				BillingEDTOBECOutputSpecificationBean bean = outputSpecVector.elementAt(i);
+				String hin = bean.getHealthNo();
+				String responseCode = bean.getResponseCode();
+				int responseCodeNum = -1;
+				try {
+					responseCodeNum = Integer.parseInt(responseCode);
+				} catch (Exception e) {
+					MiscUtils.getLogger().error("Error",e);
+				}
 
-				BatchEligibility batchEligibility = batchEligibilityDao.find(Integer.parseInt(responseCode));
-				
-				List<Demographic> ds = demographicManager.searchByHealthCard(loggedInInfo, hin);
-				
-				if (!ds.isEmpty()) {
-					Demographic d = ds.get(0);
-					if (d.getVer().trim().compareTo(bean.getVersion().trim()) == 0) {
-						for(Demographic demographic:ds) {
-							demographic.setVer("##");
-							demographicManager.updateDemographic(loggedInInfo, demographic);
+				if (responseCodeNum < 50 || responseCodeNum > 59) {
+
+					BatchEligibility batchEligibility = batchEligibilityDao.find(Integer.parseInt(responseCode));
+
+					String sqlDemo = "SELECT * FROM demographic WHERE hin='" + hin + "'";
+					ResultSet rsDemo = DBHandler.GetSQL(sqlDemo);
+
+					if (rsDemo.next()) {
+						if (rsDemo.getString("ver").compareTo(bean.getVersion()) == 0) {
+							List<Demographic> demographics = demographicDao.searchByHealthCard(hin);
+							for(Demographic demographic:demographics) {
+								demographic.setVer("##");
+								demographicDao.save(demographic);
+							}
+							DemographicCust demographicCust = demographicCustDao.find(Integer.parseInt(rsDemo.getString("demographic_no")));
+							if(demographicCust != null && batchEligibility != null) {
+								String newAlert =  demographicCust.getAlert() + "\n" + "Invalid old version code: "
+										+ bean.getVersion() + "\nReason: " + batchEligibility.getMOHResponse() + "- "
+										+ batchEligibility.getReason() + "\nResponse Code: " + responseCode;
+								demographicCust.setAlert(newAlert);
+								demographicCustDao.merge(demographicCust);
+							}
 						}
-						DemographicCust demographicCust = demographicCustDao.find(d.getDemographicNo());
-						if(demographicCust != null && batchEligibility != null) {
-							String newAlert =  demographicCust.getAlert() + "\n" + "Invalid old version code: "
-									+ bean.getVersion() + "\nReason: " + batchEligibility.getMOHResponse() + "- "
-									+ batchEligibility.getReason() + "\nResponse Code: " + responseCode;
-							demographicCust.setAlert(newAlert);
-							demographicCustDao.merge(demographicCust);
-						}
+						rsDemo.close();
 					}
 				}
 			}
+		} catch (SQLException e) {
+			MiscUtils.getLogger().error("Error", e);
 		}
 
 		return hd;

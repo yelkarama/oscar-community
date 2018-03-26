@@ -27,20 +27,6 @@
 
 
 <%@ include file="/taglibs.jsp"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_pmm" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_pmm");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%@ page import="java.util.*"%>
 <%@ page import="org.oscarehr.PMmodule.model.*"%>
 <%@ taglib uri="/WEB-INF/caisi-tag.tld" prefix="caisi" %>
@@ -53,10 +39,7 @@
 
 <%@page import="org.oscarehr.PMmodule.web.AdmissionForDisplay"%>
 <%@page import="org.oscarehr.PMmodule.web.FunctionalCentreAdmissionDisplay"%>
-<%@page import="org.oscarehr.util.MiscUtils"%>
-<%@page import="org.oscarehr.PMmodule.web.ReferralHistoryDisplay" %>
-
-<script type="text/javascript">
+<%@page import="org.oscarehr.util.MiscUtils"%><script type="text/javascript">
     function popupAdmissionInfo(admissionId) {
         url = '<html:rewrite page="/PMmodule/ClientManager.do?method=view_admission&admissionId="/>';
         window.open(url + admissionId, 'admission', 'width=600,height=600');
@@ -66,66 +49,10 @@
         url = '<html:rewrite page="/PMmodule/ClientManager.do?method=view_referral&referralId="/>';
         window.open(url + referralId, 'referral', 'width=500,height=600');
     }
-
+    
     function popupFcAdmissionInfo(fcId) {
         url = '<html:rewrite page="/PMmodule/ClientManager.do?method=view_fcAdmission&fcAdmissionId="/>';
         window.open(url + fcId, 'fcAdmission', 'width=650,height=400');
-    }
-
-    function changeDate(admissionId) {
-    	var newDate = prompt('Please enter a new Admission Date (yyyy-MM-dd HH:mm)');
-    	if(newDate != null && newDate.length>0) {
-    		$.ajax({url:'ClientManager/ClientManager.json?method=save_admission_date&admissionId='+admissionId + '&date='+newDate,async:true,dataType:'json', success:function(data) {
-    			if(!data.success) {
-    				alert(data.error);
-    			} else {
-    				location.href='<%=request.getContextPath()%>/PMmodule/ClientManager.do?id=<%=((Demographic)request.getAttribute("client")).getDemographicNo()%>&view.tab=History&method=edit';
-    			}
-    		}});	
-    	}
-    	
-    }
-    
-    function changeDischargeDate(admissionId) {
-    	var newDate = prompt('Please enter a new Discharge Date (yyyy-MM-dd HH:mm)');
-    	if(newDate != null && newDate.length>0) {
-    		$.ajax({url:'ClientManager/ClientManager.json?method=save_discharge_date&admissionId='+admissionId + '&date='+newDate,async:true,dataType:'json', success:function(data) {
-    			if(!data.success) {
-    				alert(data.error);
-    			} else {
-    				location.href='<%=request.getContextPath()%>/PMmodule/ClientManager.do?id=<%=((Demographic)request.getAttribute("client")).getDemographicNo()%>&view.tab=History&method=edit';
-    			}
-    		}});	
-    	}
-    	
-    }
-    
-    function changeReferralDate(referralId) {
-    	var newDate = prompt('Please enter a new Referral Date (yyyy-MM-dd HH:mm)');
-    	if(newDate != null && newDate.length>0) {
-    		$.ajax({url:'ClientManager/ClientManager.json?method=save_referral_date&referralId='+referralId + '&date='+newDate,async:true,dataType:'json', success:function(data) {
-    			if(!data.success) {
-    				alert(data.error);
-    			} else {
-    				location.href='<%=request.getContextPath()%>/PMmodule/ClientManager.do?id=<%=((Demographic)request.getAttribute("client")).getDemographicNo()%>&view.tab=History&method=edit';
-    			}
-    		}});	
-    	}
-    	
-    }
-    
-    function changeCompletionDate(referralId) {
-    	var newDate = prompt('Please enter a new Completion Date (yyyy-MM-dd HH:mm)');
-    	if(newDate != null && newDate.length>0) {
-    		$.ajax({url:'ClientManager/ClientManager.json?method=save_completion_date&referralId='+referralId + '&date='+newDate,async:true,dataType:'json', success:function(data) {
-    			if(!data.success) {
-    				alert(data.error);
-    			} else {
-    				location.href='<%=request.getContextPath()%>/PMmodule/ClientManager.do?id=<%=((Demographic)request.getAttribute("client")).getDemographicNo()%>&view.tab=History&method=edit';
-    			}
-    		}});	
-    	}
-    	
     }
 </script>
 <%
@@ -150,7 +77,7 @@
 		
 	%>
 	<% boolean bShowEncounterLink = false; 
-	
+	String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
 	%>
 	<security:oscarSec roleName="<%=roleName$%>" objectName="_eChart" rights="r">
 	<% bShowEncounterLink = true; %>

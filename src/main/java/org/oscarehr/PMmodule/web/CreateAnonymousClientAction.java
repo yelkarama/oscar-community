@@ -50,20 +50,19 @@ public class CreateAnonymousClientAction {
 
 	private static Logger logger = MiscUtils.getLogger();
 	
-	public static Demographic generateAnonymousClient(String creatorProviderNo, int programId) {
+	public static Demographic generateAnonymousClient(int programId) {
 		logger.info("Create Anonymous Client!");
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoAsCurrentClassAndMethod();
 		ClientManager clientManager = (ClientManager)SpringUtils.getBean("clientManager");
 		AdmissionManager admissionManager = (AdmissionManager)SpringUtils.getBean("admissionManager");
 		ProgramManager programManager = (ProgramManager)SpringUtils.getBean("programManager");
 		//create and save client record.
-		Demographic d = createDemographic(creatorProviderNo);
+		Demographic d = createDemographic();
 		clientManager.saveClient(d);
 
 		//admit client to program
 		Program externalProgram = programManager.getProgram(programId);
 		try {
-			admissionManager.processAdmission(loggedInInfo, d.getDemographicNo(), creatorProviderNo, externalProgram, "anonymous discharge", "anonymous admission");
+			admissionManager.processAdmission(d.getDemographicNo(), LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo(), externalProgram, "anonymous discharge", "anonymous admission");
 		}catch(Exception e) {
 			logger.error("Error", e);
 			return d;
@@ -71,32 +70,8 @@ public class CreateAnonymousClientAction {
 		
 		return d;
 	}
-
-    public static Demographic generatePEClient(String creatorProviderNo, int programId){
-        logger.info("Create PE temporary Client!");
-        LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoAsCurrentClassAndMethod();
-        ClientManager clientManager = (ClientManager)SpringUtils.getBean("clientManager");
-        AdmissionManager admissionManager = (AdmissionManager)SpringUtils.getBean("admissionManager");
-        ProgramManager programManager = (ProgramManager)SpringUtils.getBean("programManager");
-        //create and save client record.
-        Demographic d = createDemographic(creatorProviderNo);
-        d.setFirstName("phone encounter");
-        d.setYearOfBirth("1900");
-        clientManager.saveClient(d);
-
-        //admit client to program
-        Program externalProgram = programManager.getProgram(programId);
-        try {
-            admissionManager.processAdmission(loggedInInfo, d.getDemographicNo(), creatorProviderNo, externalProgram, "anonymous discharge", "anonymous admission");
-        }catch(Exception e) {
-            logger.error("Error", e);
-            return d;
-        }
-
-        return d;
-    }
 	
-	public static Demographic createDemographic(String creatorProviderNo) {
+	public static Demographic createDemographic() {
 		Demographic d = new Demographic();
 		d.setAnonymous("one-time-anonymous");
 		d.setYearOfBirth("1800");
@@ -106,7 +81,7 @@ public class CreateAnonymousClientAction {
 		d.setFirstName("Anonymous");
 		d.setLastName("["+new Date()+"]");
 		d.setPatientStatus("AC");
-		d.setProviderNo(creatorProviderNo);
+		d.setProviderNo(LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo());
 		d.setSex("M");
 		
 		return d;

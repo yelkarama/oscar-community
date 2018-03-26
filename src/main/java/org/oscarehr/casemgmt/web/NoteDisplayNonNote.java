@@ -28,19 +28,19 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.oscarehr.PMmodule.dao.ProviderDao;
+import org.oscarehr.billing.CA.ON.model.BillingClaimHeader1;
+import org.oscarehr.billing.CA.ON.model.BillingItem;
 import org.oscarehr.casemgmt.model.CaseManagementNoteLink;
-import org.oscarehr.common.model.BillingONCHeader1;
-import org.oscarehr.common.model.BillingONItem;
 import org.oscarehr.common.model.Provider;
-import org.oscarehr.common.service.BillingONService;
 import org.oscarehr.util.SpringUtils;
 
 import oscar.oscarEncounter.data.EctFormData.PatientForm;
 import oscar.oscarRx.data.RxPrescriptionData.Prescription;
+
 /**
  * The echart seems to have non-note items in the note list. As a result this class will hold non-note items. A constructor can be made for each type of non-note item.
  */
@@ -53,18 +53,12 @@ public class NoteDisplayNonNote implements NoteDisplay {
 	private Date date;
 	private String note;
 	private Provider provider;
-	private boolean isFreeDraw = false;
 	private boolean isEformData = false;
 	private boolean isEncounterForm = false;
 	private boolean isInvoice = false;
 	private String linkInfo;
-	
-	@Override
-    public Integer getAppointmentNo() {
-		return null;
-	}
 
-	public NoteDisplayNonNote(Map<String, ? extends Object> eform) {
+	public NoteDisplayNonNote(HashMap<String, ? extends Object> eform) {
 		try {
 			date = (formatter.parse((String)eform.get("formDate") + " " + (String)eform.get("formTime")));
 		}catch(ParseException e) {
@@ -90,48 +84,40 @@ public class NoteDisplayNonNote implements NoteDisplay {
 		isEncounterForm = true;
 	}
 
-	public NoteDisplayNonNote(BillingONCHeader1 h1) {
+	public NoteDisplayNonNote(BillingClaimHeader1 h1) {
 		Calendar cal1 = Calendar.getInstance();
 		Calendar cal2 = Calendar.getInstance();
 		date = null;
-		Date billDate = null;
-
-                    
-	   billDate = h1.getBillingDate();
-                    
-      if(  billDate != null ) {
+		
+		if( h1.getBilling_date() != null ) {
+			cal1.setTime(h1.getBilling_date());
 			
-	        cal1.setTime(h1.getBillingDate());
-           
-			
-	        if( h1.getBillingTime() != null ) {
-	            	cal2.setTime(h1.getBillingTime());
-	            	cal1.set(Calendar.HOUR_OF_DAY, cal2.get(Calendar.HOUR_OF_DAY));
-	            	cal1.set(Calendar.MINUTE, cal2.get(Calendar.MINUTE));
-	            	cal1.set(Calendar.SECOND, cal2.get(Calendar.SECOND));
-	        }
-            
+			if( h1.getBilling_time() != null ) {
+				cal2.setTime(h1.getBilling_time());
+				cal1.set(Calendar.HOUR_OF_DAY, cal2.get(Calendar.HOUR_OF_DAY));
+				cal1.set(Calendar.MINUTE, cal2.get(Calendar.MINUTE));
+				cal1.set(Calendar.SECOND, cal2.get(Calendar.SECOND));
+			}
 			
 			date = cal1.getTime();
-      }                    
-                
-		StringBuilder tmpNote = new StringBuilder();
-                BillingONService billingONService = (BillingONService) SpringUtils.getBean("billingONService");
-		List<BillingONItem>items = billingONService.getNonDeletedInvoices(h1.getId());
-		BillingONItem item;
+		}
 
+		StringBuilder tmpNote = new StringBuilder();
+
+		List<BillingItem>items = h1.getNonDeletedInvoices();
+		BillingItem item;
 		int size = items.size();
 		for(int idx = 0; idx < size; ++idx) {
 			item = items.get(idx);
-			tmpNote.append(item.getServiceCode());
+			tmpNote.append(item.getService_code());
 			if( idx < size - 1 ) {
 				tmpNote.append("; ");
 			}
 		}
 		
 		String pname, creator;
-		if( h1.getProviderNo() != null && h1.getProviderNo().length() > 0 ) {
-			provider = providerDao.getProvider(h1.getProviderNo());
+		if( h1.getProvider_no() != null && h1.getProvider_no().length() > 0 ) {
+			provider = providerDao.getProvider(h1.getProvider_no());
 			pname = provider == null ? "Not Set" : provider.getFormattedName();
 		}
 		else {
@@ -256,10 +242,6 @@ public class NoteDisplayNonNote implements NoteDisplay {
 	public boolean isEformData() {
 		return isEformData;
 	}
-	
-	public boolean isFreeDraw() {
-		return isFreeDraw;
-	}
 
 	public boolean isGroupNote() {
 		return false;
@@ -308,9 +290,5 @@ public class NoteDisplayNonNote implements NoteDisplay {
 	public void setInvoice(boolean isInvoice) {
     	this.isInvoice = isInvoice;
     }
-	
-	public boolean isTicklerNote() {
-		return false;
-	}
 
 }

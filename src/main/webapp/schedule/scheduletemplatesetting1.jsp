@@ -28,18 +28,16 @@
   
   String weekdaytag[] = {"SUN","MON","TUE","WED","THU","FRI","SAT"};
 %>
-<%@ page import="java.util.*, java.sql.*, oscar.*, java.text.*, java.lang.*" errorPage="../appointment/errorpage.jsp"%>
-<%@page import="org.oscarehr.util.SpringUtils" %>
-<%@page import="org.oscarehr.common.model.RSchedule" %>
-<%@page import="org.oscarehr.common.dao.RScheduleDao" %>
-<%@page import="oscar.util.ConversionUtils" %>
-
-<%
-	RScheduleDao rScheduleDao = SpringUtils.getBean(RScheduleDao.class);
-%>
-
-<jsp:useBean id="scheduleRscheduleBean" class="oscar.RscheduleBean" scope="session" />
-
+<%@ page
+	import="java.util.*, java.sql.*, oscar.*, java.text.*, java.lang.*"
+	errorPage="../appointment/errorpage.jsp"%>
+<jsp:useBean id="scheduleMainBean" class="oscar.AppointmentMainBean"
+	scope="session" />
+<jsp:useBean id="scheduleRscheduleBean" class="oscar.RscheduleBean"
+	scope="session" />
+<%  if(!scheduleMainBean.getBDoConfigure()) { %>
+<%@ include file="scheduleMainBeanConn.jspf"%>
+<% } %>
 
 <% scheduleRscheduleBean.clear(); %>
 
@@ -49,6 +47,97 @@
 <title>SCHEDULE SETTING</title>
 <link rel="stylesheet" href="../web.css" />
 
+<script language="JavaScript">
+<!--
+function setfocus() {
+  this.focus();
+  //document.schedule.keyword.focus();
+  //document.schedule.keyword.select();
+}
+function selectrschedule(s) {
+  if(self.location.href.lastIndexOf("&sdate=") > 0 ) a = self.location.href.substring(0,self.location.href.lastIndexOf("&sdate="));
+  else a = self.location.href;
+	self.location.href = a + "&sdate=" +s.options[s.selectedIndex].value ;
+}
+function upCaseCtrl(ctrl) {
+	ctrl.value = ctrl.value.toUpperCase();
+}
+function addDataString() {
+  var str="";
+  var str1="";
+  if(document.schedule.checksun.checked) {
+    str += "1 ";
+    str1 += "<SUN>"+document.schedule.sunfrom.value+"-"+document.schedule.sunto.value+"</SUN>"; 
+  }
+  if(document.schedule.checksun.unchecked) {
+    str = str.replace("1 ","");
+//	str1 = str1.replace();
+  }
+  if(document.schedule.checkmon.checked) {
+    str += "2 ";
+	str1 += "<MON>"+document.schedule.monfrom.value+"-"+document.schedule.monto.value+"</MON>";
+  }
+  if(document.schedule.checkmon.unchecked) {    str = str.replace("2 ","");  }
+  if(document.schedule.checktue.checked) {
+    str += "3 ";  
+	str1 += "<TUE>"+document.schedule.tuefrom.value+"-"+document.schedule.tueto.value+"</TUE>";
+  }
+  if(document.schedule.checktue.unchecked) {
+    str = str.replace("3 ","");
+  }
+  if(document.schedule.checkwed.checked) {
+    str += "4 ";
+	str1 += "<WED>"+document.schedule.wedfrom.value+"-"+document.schedule.wedto.value+"</WED>";
+  }
+  if(document.schedule.checkwed.unchecked) {    str = str.replace("4 ","");  }
+  if(document.schedule.checkthu.checked) {
+    str += "5 ";
+	str1 += "<THU>"+document.schedule.thufrom.value+"-"+document.schedule.thuto.value+"</THU>";
+  }
+  if(document.schedule.checkthu.unchecked) {    str = str.replace("5 ","");  }
+  if(document.schedule.checkfri.checked) {
+    str += "6 ";
+	str1 += "<FRI>"+document.schedule.frifrom.value+"-"+document.schedule.frito.value+"</FRI>";
+  }
+  if(document.schedule.checkfri.unchecked) {    str = str.replace("6 ","");  }
+  if(document.schedule.checksat.checked) {
+    str += "7 ";
+	str1 += "<SAT>"+document.schedule.satfrom.value+"-"+document.schedule.satto.value+"</SAT>";
+  }
+  if(document.schedule.checksat.unchecked) {    str = str.replace("7 ","");  }
+
+	document.schedule.day_of_week.value = str; 
+	document.schedule.avail_hour.value = str1; 
+	
+	if(document.schedule.syear.value=="" || document.schedule.smonth.value=="" || document.schedule.sday.value=="") {
+//	  alert("Please input a Date!!!"); return false;
+	} else {
+	  return true;
+	}
+}
+function addDataString1() {
+  var str="";
+  str += document.schedule.day_of_month1.value +" ";
+  str += document.schedule.day_of_month2.value +" ";
+  str += document.schedule.day_of_month3.value +" ";
+  str += document.schedule.day_of_month4.value +" ";
+  str += document.schedule.day_of_month5.value +" ";
+  str += document.schedule.day_of_month6.value +" ";
+  str += document.schedule.day_of_month7.value +" ";
+  str += document.schedule.day_of_month8.value +" ";
+  str += document.schedule.day_of_month9.value +" ";
+  str += document.schedule.day_of_month10.value;
+
+  document.schedule.day_of_month.value = str; 
+	if(document.schedule.syear.value=="" || document.schedule.smonth.value=="" || document.schedule.sday.value=="" || document.schedule.eyear.value=="" || document.schedule.emonth.value=="" || document.schedule.eday.value=="") {
+	  alert("Please input a Date!!!");
+	  return false;
+	} else {
+	  return true;
+	}
+}
+//-->
+</script>
 </head>
 <body bgcolor="ivory" bgproperties="fixed" onLoad="setfocus()"
 	topmargin="0" leftmargin="0" rightmargin="0">
@@ -95,12 +184,16 @@
   int month = now.get(Calendar.MONTH)+1;
   int day = now.get(Calendar.DATE);
   String today = now.get(Calendar.YEAR)+"-"+MyDateFormat.getDigitalXX((now.get(Calendar.MONTH)+1))+"-"+MyDateFormat.getDigitalXX(now.get(Calendar.DATE));
-  
-
-  RSchedule r = rScheduleDao.search_rschedule_current(request.getParameter("provider_no"), "1", ConversionUtils.fromDateString(request.getParameter("sdate")!=null?request.getParameter("sdate"):today));
-  if(r != null) {
-  	scheduleRscheduleBean.setRscheduleBean(r.getProviderNo(),ConversionUtils.toDateString(r.getsDate()),ConversionUtils.toDateString(r.geteDate()),r.getAvailable(),r.getDayOfWeek(), null, r.getAvailHour(), r.getCreator());
-  } 
+  String[] param1 =new String[3];
+  param1[0]=request.getParameter("provider_no");
+  param1[1]="1";
+  param1[2]=request.getParameter("sdate")!=null?request.getParameter("sdate"):today;
+  ResultSet rsgroup = scheduleMainBean.queryResults(param1,"search_rschedule_current");
+   
+  while (rsgroup.next()) { 
+    scheduleRscheduleBean.setRscheduleBean(rsgroup.getString("provider_no"),rsgroup.getString("sdate"),rsgroup.getString("edate"), rsgroup.getString("available"),rsgroup.getString("day_of_week"), rsgroup.getString("day_of_month"), rsgroup.getString("avail_hour"), rsgroup.getString("creator"));
+    break;
+  }
 
   String syear = "",smonth="",sday="",eyear="",emonth="",eday="";
   String[] param2 =new String[7];
@@ -152,13 +245,13 @@
 						<%=request.getParameter("sdate")!=null?(today.equals(request.getParameter("sdate"))?"selected":""):""%>>Current
 					R Schedule</option>
 					<%
- 
-  for(RSchedule rs: rScheduleDao.search_rschedule_future(request.getParameter("provider_no"),"1",ConversionUtils.fromDateString(today))) {
-  
+  param1[2]=today; //query for the future date
+  rsgroup = scheduleMainBean.queryResults(param1,"search_rschedule_future");
+ 	while (rsgroup.next()) { 
 %>
-					<option value="<%=ConversionUtils.toDateString(rs.getsDate())%>"
-						<%=request.getParameter("sdate")!=null?(ConversionUtils.toDateString(rs.getsDate()).equals(request.getParameter("sdate"))?"selected":""):""%>>
-					<%=ConversionUtils.toDateString(rs.getsDate())+" ~ "+ConversionUtils.toDateString(rs.geteDate())%></option>
+					<option value="<%=rsgroup.getString("sdate")%>"
+						<%=request.getParameter("sdate")!=null?(rsgroup.getString("sdate").equals(request.getParameter("sdate"))?"selected":""):""%>>
+					<%=rsgroup.getString("sdate")+" ~ "+rsgroup.getString("edate")%></option>
 					<%
  	}
 %>

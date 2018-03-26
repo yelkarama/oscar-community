@@ -26,45 +26,42 @@ package org.oscarehr.survey.service.impl;
 import java.util.Iterator;
 
 import org.apache.log4j.Logger;
-import org.oscarehr.common.dao.SurveyTestDataDao;
-import org.oscarehr.common.dao.SurveyTestInstanceDao;
-import org.oscarehr.common.model.SurveyTestData;
-import org.oscarehr.common.model.SurveyTestInstance;
+import org.oscarehr.survey.dao.SurveyTestDAO;
+import org.oscarehr.survey.model.SurveyTestData;
+import org.oscarehr.survey.model.SurveyTestInstance;
 import org.oscarehr.survey.service.SurveyTestManager;
 import org.oscarehr.util.MiscUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
-@Component(value="surveyTestManager")
 public class SurveyTestManagerImpl implements SurveyTestManager {
 
 	private static Logger log = MiscUtils.getLogger();
 
-	@Autowired
-	private SurveyTestInstanceDao surveyTestDAO;
-	@Autowired
-	private SurveyTestDataDao surveyTestDataDAO;
+	private SurveyTestDAO surveyTestDAO;
+	
+	public void setSurveyTestDAO(SurveyTestDAO dao) {
+		this.surveyTestDAO = dao;
+	}
 	
 	public SurveyTestInstance getSurveyInstance(String id) {
-		return this.surveyTestDAO.find(Integer.valueOf(id));
+		return this.surveyTestDAO.getSurveyInstance(Long.valueOf(id));
 	}
 
 	public SurveyTestInstance getSurveyInstance(String surveyId, String clientId) {
-		return this.surveyTestDAO.getSurveyInstance(Integer.valueOf(surveyId),Integer.valueOf(clientId));
+		return this.surveyTestDAO.getSurveyInstance(Long.valueOf(surveyId),Long.valueOf(clientId));
 	}
 
 	public void saveSurveyInstance(SurveyTestInstance instance) {
 		log.debug("Saving a test instance");
 		for(Iterator iter=instance.getData().iterator();iter.hasNext();) {
 			SurveyTestData data = (SurveyTestData)iter.next();
-			surveyTestDataDAO.persist(data);
+			this.surveyTestDAO.saveSurveyData(data);
 		}
-		this.surveyTestDAO.persist(instance);
+		this.surveyTestDAO.saveSurveyInstance(instance);
 	}
 
 	public void clearTestData(String surveyId) {
-		this.surveyTestDAO.clearTestData(Integer.valueOf(surveyId));
+		this.surveyTestDAO.clearTestData(Long.valueOf(surveyId));
 	}
 }

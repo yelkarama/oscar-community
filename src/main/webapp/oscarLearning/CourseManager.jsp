@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <%--
 
     Copyright (c) 2001-2002. Department of Family Medicine, McMaster University. All Rights Reserved.
@@ -25,11 +24,14 @@
 
 --%>
 
+<%
+  if(session.getValue("user") == null) response.sendRedirect("../logout.jsp");
+%>
+
+
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
-<%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar" %>
-
-<%@ page import="java.util.*,org.oscarehr.learning.web.CourseManagerAction,org.oscarehr.common.model.SecRole"%>
+<%@page import="java.util.*,org.oscarehr.learning.web.CourseManagerAction,org.oscarehr.common.model.SecRole"%>
 
 
 <%
@@ -52,10 +54,17 @@
 
 
 <head>
-<title><bean:message key="oscarLearning.courseManager.title" /></title>
-<link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
+<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
+<script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery.js"></script>
+<html:base />
+<title><bean:message key="oscarLearning.courseManager.title" />
+</title>
+<link rel="stylesheet" type="text/css"
+	href="../share/css/OscarStandardLayout.css">
 
-<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-1.9.1.js"></script>
+
+
+<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
 
 <script type="text/javascript">
 $(document).ready(function() {
@@ -223,40 +232,64 @@ function validateForm() {
 </script>
 </head>
 
-<body>
-
-<!--
-removed for now since "course" provides no usefule results that I can see
-<small><oscar:help keywords="course" key="app.top1"/></small>
--->
-
-<h3><bean:message key="admin.admin.learning.manageCourses"/></h3>
-<div class="container-fluid">
-
-	<div class="well form-inline">				
-	Current Courses:<br>
-	<select id="course_list" onchange="chooseCourse()"><option value="0">Select a Course</option></select>
-	<a href="#" id="new_course_link" class="btn">Create New Course</a>
-	</div>		
+<body class="BodyStyle" vlink="#0000FF">
+<!--  -->
+<table class="MainTable" id="scrollNumber1" name="encounterTable">
+	<tr class="MainTableTopRow">
+		<td class="MainTableTopRowLeftColumn"><bean:message
+			key="oscarLearning.courseManager.msgManager" /></td>
+		<td class="MainTableTopRowRightColumn">
+		<table class="TopStatusBar">
+			<tr>
+				<td></td>
+				<td>&nbsp;</td>
+				<td style="text-align: right"><oscar:help keywords="course" key="app.top1"/> | <a
+					href="javascript:popupStart(300,400,'About.jsp')"><bean:message
+					key="global.about" /></a> | <a
+					href="javascript:popupStart(300,400,'License.jsp')"><bean:message
+					key="global.license" /></a></td>
+			</tr>
+		</table>
+		</td>
+	</tr>
+	<tr>
+		<td class="MainTableLeftColumn" valign="top">&nbsp;</td>
+		<td class="MainTableRightColumn">
+			<table>
+				<tr>
+					<td>Current Courses:</td>
+					<td>
+						<select id="course_list" onchange="chooseCourse()"><option value="0">Select a Course</option></select>
+						&nbsp;&nbsp;<a href="#" id="new_course_link">Create New Course</a>
+					</td>
+				</tr>
+			</table>
 			
-	<div id="create_course_form" style="display:none" class="well form-inline">
-		<h4>Create new Course</h4>
-
-				Course Name: <br>
-				<input id="new_course_name" name="new_course_name" type="text" size="40"/>
-				<input id="new_course_btn" type="button" value="Create Course" class="btn" />
-	
-	</div>
-
-	<div id="messages" style="display:none">				
-	</div>
-
-	<div id="course_details" style="display:none">
-
-	</div>
+			<div id="create_course_form" style="display:none">
+				<h4>Create new Course</h4><br/>
+				<table>
+					<tr>
+						<td>Course Name: </td>
+						<td><input id="new_course_name" name="new_course_name" type="text" size="40"/></td>
+						<td><input id="new_course_btn" type="button" value="Create Course"/></td>
+					</tr>
+				</table>
+			</div>
 			
-
-</div><!--container-->
+			<div id="messages" style="display:none">				
+			</div>
+			
+			<div id="course_details" style="display:none">
+			
+			</div>
+			
+		</td>
+	</tr>
+	<tr>
+		<td class="MainTableBottomRowLeftColumn"></td>
+		<td class="MainTableBottomRowRightColumn"></td>
+	</tr>
+</table>
 </body>
 
 

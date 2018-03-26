@@ -24,22 +24,6 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_con" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../securityError.jsp?type=_con");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@ page
 	import="java.util.*, org.w3c.dom.*, oscar.oscarEncounter.oscarConsultationRequest.pageUtil.*"%>
 <%@ page import="oscar.oscarClinic.*"%>
@@ -48,6 +32,8 @@ if(!authed) {
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
 
 <%
+if(session.getValue("user") == null)
+    response.sendRedirect("../../logout.htm");
    String curUser_no, requestId;
    curUser_no =  (String) session.getAttribute("user");
    requestId  =  (String) request.getAttribute("reqId");
@@ -55,11 +41,11 @@ if(!authed) {
    //if (requestId == null) { return "bad"; }
    oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctConsultationFormRequestUtil reqFrm;
    reqFrm = new oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctConsultationFormRequestUtil ();
-   reqFrm.estRequestFromId(LoggedInInfo.getLoggedInInfoFromSession(request), requestId);
+   reqFrm.estRequestFromId(requestId);
    ClinicData clinic = new ClinicData();
 
-   String strPhones = clinic.getClinicDelimPhone() == null ? "" : clinic.getClinicDelimPhone();
-   String strFaxes  = clinic.getClinicDelimFax() == null ? "" : clinic.getClinicDelimFax();
+   String strPhones = clinic.getClinicDelimPhone();
+   String strFaxes  = clinic.getClinicDelimFax();
    Vector vecPhones = new Vector();
    Vector vecFaxes  = new Vector();
    StringTokenizer st = new StringTokenizer(strPhones,"|");

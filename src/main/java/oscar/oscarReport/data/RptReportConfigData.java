@@ -33,19 +33,19 @@ import java.sql.SQLException;
 import java.util.Properties;
 import java.util.Vector;
 
-import org.oscarehr.common.dao.ReportConfigDao;
-import org.oscarehr.common.model.ReportConfig;
-import org.oscarehr.util.SpringUtils;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.log4j.Logger;
 
 import oscar.login.DBHelp;
 
 /**
- * @author yilee18 
+ * @author yilee18 `id` int(7) NOT NULL auto_increment, `report_id` int(5), `name` varchar(80) NOT
+ *         NULL default '', `caption` varchar(80) NOT NULL default '', `order_no` int(3),
+ *         `table_name` varchar(80) NOT NULL default '',
  */
 public class RptReportConfigData {
+    private static final Logger _logger = Logger.getLogger(RptReportConfigData.class);
 
-    private static ReportConfigDao dao = SpringUtils.getBean(ReportConfigDao.class);
-    
     int report_id;
     String name;
     String caption;
@@ -66,39 +66,45 @@ public class RptReportConfigData {
     }
 
     public boolean insertRecord() {
-    	ReportConfig r = new ReportConfig();
-    	r.setReportId(report_id);
-    	r.setName(name);
-    	r.setCaption(caption);
-    	r.setOrderNo(order);
-    	r.setTableName(table_name);
-    	r.setSave(save);
-    	dao.persist(r);
-    	
-        return true;
+        boolean ret = false;
+        String sql = "insert into reportConfig (report_id, name, caption, order_no, table_name, save) values ("
+                + report_id + ", '" + StringEscapeUtils.escapeSql(name) + "', '"
+                + StringEscapeUtils.escapeSql(caption) + "', " + order + ", '"
+                + StringEscapeUtils.escapeSql(table_name) + "', '" + StringEscapeUtils.escapeSql(save) + "')";
+        ret = DBHelp.updateDBRecord(sql);
+
+        return ret;
     }
 
     public boolean deleteRecord()  {
-    	
-    	for(ReportConfig r:dao.findByReportIdAndNameAndCaptionAndTableNameAndSave(report_id,name,caption,table_name,save)) {
-    		dao.remove(r.getId());
-    	}
-    	return true;
+        boolean ret = false;
+        String sql = "delete from reportConfig where report_id=" + report_id + " and name='"
+                + StringEscapeUtils.escapeSql(name) + "' and caption='" + StringEscapeUtils.escapeSql(caption)
+                + "' and table_name='" + StringEscapeUtils.escapeSql(table_name) + "' and save='"
+                + StringEscapeUtils.escapeSql(save) + "'";
+        ret = DBHelp.updateDBRecord(sql);
+        return ret;
     }
 
     public boolean updateRecordOrder(String saveAs, String reportId, String id, String newPos)  {
-    	for(ReportConfig r:dao.findByReportIdAndSaveAndGtOrderNo(Integer.parseInt(reportId), saveAs, Integer.parseInt(newPos))) {
-    		r.setOrderNo(r.getOrderNo()+1);
-    		dao.merge(r);  	
-    		dao.remove(Integer.parseInt(id));
-    	}
-       
-    	return true;
+        boolean ret = false;
+        String sql = "update reportConfig set order_no=order_no+1 where report_id=" + reportId + " and save='"
+                + StringEscapeUtils.escapeSql(saveAs) + "' and order_no >=" + newPos + " order by order_no desc";
+
+        if (DBHelp.updateDBRecord(sql)) {
+            sql = "update reportConfig set order_no=" + newPos + " where id=" + id;
+            ret = DBHelp.updateDBRecord(sql);
+        }
+
+        return ret;
     }
 
     public boolean deleteRecord(int recordId) {
-    	dao.remove(recordId);
-    	return true;
+        boolean ret = false;
+        String sql = "delete from reportConfig where id=" + recordId;
+        ret = DBHelp.updateDBRecord(sql);
+
+        return ret;
     }
 
     // 0 - name; 1 - caption

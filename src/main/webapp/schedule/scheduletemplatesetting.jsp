@@ -27,18 +27,23 @@
 <%
   
 %>
-<%@ page import="java.util.*, java.sql.*, oscar.*, java.text.*, java.lang.*" errorPage="../appointment/errorpage.jsp"%>
-<%@page import="org.oscarehr.common.model.Provider" %>
-<%@page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
-<%@page import="org.oscarehr.util.SpringUtils" %>
+<%@ page
+	import="java.util.*, java.sql.*, oscar.*, java.text.*, java.lang.*"
+	errorPage="../appointment/errorpage.jsp"%>
+
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 
-
+<jsp:useBean id="scheduleMainBean" class="oscar.AppointmentMainBean"
+	scope="session" />
+<%@ include file="scheduleMainBeanConn.jspf"%>
 <%
+    if(session.getAttribute("user") == null ) response.sendRedirect("../logout.jsp");
     String curProvider_no = (String) session.getAttribute("user");
-	String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
+
+    if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
+    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
 %>
 
 <%  
@@ -52,18 +57,18 @@
 <%
     boolean isSiteAccessPrivacy=false;
     boolean isTeamAccessPrivacy=false; 
-    
+    String dboperation = "search_provider";
 %>
 <security:oscarSec objectName="_site_access_privacy" roleName="<%=roleName$%>" rights="r" reverse="false">
 	<%
 		isSiteAccessPrivacy=true;
-		
+		dboperation = "site_search_provider";
 	%>
 </security:oscarSec>
 <security:oscarSec objectName="_team_access_privacy" roleName="<%=roleName$%>" rights="r" reverse="false">
 	<%
 		isTeamAccessPrivacy=true; 
-		
+		dboperation = "team_search_provider";
 	%>
 </security:oscarSec>
 
@@ -79,9 +84,13 @@
 <!--
 function setfocus() {
   this.focus();
+  //document.schedule.keyword.focus();
+  //document.schedule.keyword.select();
 }
-
 function selectprovider(s) {
+  //for a small clinic
+	//self.location.href = "scheduletemplatesetting1.jsp?provider_no="+s.options[s.selectedIndex].value+"&provider_name="+urlencode(s.options[s.selectedIndex].text);
+	//for a large clinic&hospital
 	self.location.href = "scheduletemplateapplying.jsp?provider_no="+s.options[s.selectedIndex].value+"&provider_name="+urlencode(s.options[s.selectedIndex].text);
 }
 function urlencode(str) {
@@ -163,18 +172,25 @@ function go() {
 					onChange="selectprovider(this)">
 					<option value=""><bean:message
 						key="schedule.scheduletemplatesetting.msgNoProvider" /></option>
-						
-						<%
-							ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
-							List<Provider> providers = providerDao.getActiveProviders();
-							//TODO: filter by site/team if necessary
-							
-							for(Provider p:providers) {
-						%>
-							<option value="<%=p.getProviderNo()%>"><%=p.getFormattedName()%></option>
-							
-						<% } %>
-				
+					<%
+   String param = "doctor";
+   ResultSet rsgroup = scheduleMainBean.queryResults(param, dboperation);
+ 	 while (rsgroup.next()) { 
+%>
+					<option value="<%=rsgroup.getString("provider_no")%>"><%=rsgroup.getString("last_name")+", "+rsgroup.getString("first_name")%></option>
+					<% } 
+   param = "receptionist";
+   rsgroup = scheduleMainBean.queryResults(param, dboperation);
+ 	 while (rsgroup.next()) { 
+%>
+					<option value="<%=rsgroup.getString("provider_no")%>"><%=rsgroup.getString("last_name")+", "+rsgroup.getString("first_name")%></option>
+					<% } 
+   param = "admin";
+   rsgroup = scheduleMainBean.queryResults(param, dboperation);
+ 	 while (rsgroup.next()) { 
+%>
+					<option value="<%=rsgroup.getString("provider_no")%>"><%=rsgroup.getString("last_name")+", "+rsgroup.getString("first_name")%></option>
+					<% } %>
 				</select></td>
 			</tr>
 			<tr>
@@ -214,13 +230,25 @@ function go() {
 					name="providerid">
 					<option value="Public"><bean:message
 						key="schedule.scheduletemplatesetting.msgPublic" /></option>
-<%
-							for(Provider p:providers) {
-						%>
-							<option value="<%=p.getProviderNo()%>"><%=p.getFormattedName()%></option>
-							
-						<% } %>
-						
+					<%
+   param = "doctor";
+   rsgroup = scheduleMainBean.queryResults(param, dboperation);
+ 	 while (rsgroup.next()) { 
+%>
+					<option value="<%=rsgroup.getString("provider_no")%>"><%=rsgroup.getString("last_name")+", "+rsgroup.getString("first_name")%></option>
+					<% } 
+   param = "receptionist";
+   rsgroup = scheduleMainBean.queryResults(param, dboperation);
+ 	 while (rsgroup.next()) { 
+%>
+					<option value="<%=rsgroup.getString("provider_no")%>"><%=rsgroup.getString("last_name")+", "+rsgroup.getString("first_name")%></option>
+					<% } 
+   param = "admin";
+   rsgroup = scheduleMainBean.queryResults(param, dboperation);
+ 	 while (rsgroup.next()) { 
+%>
+					<option value="<%=rsgroup.getString("provider_no")%>"><%=rsgroup.getString("last_name")+", "+rsgroup.getString("first_name")%></option>
+					<% } %>
 				</select></td>
 			</tr>
 			<tr>
@@ -230,7 +258,9 @@ function go() {
 			</tr>
 			<tr>
 				<td>
-				<div align="right"></div>
+				<div align="right"><input type="button" name="Button"
+					value='<bean:message key="schedule.scheduletemplatesetting.btnCancel"/>'
+					onClick="window.close()"></div>
 				</td>
 			</tr>
 			<tr>

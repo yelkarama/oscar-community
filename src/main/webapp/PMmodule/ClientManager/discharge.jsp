@@ -24,19 +24,6 @@
 --%>
 <%@ page import="org.oscarehr.PMmodule.model.DischargeReason"%>
 <%@ include file="/taglibs.jsp"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_pmm" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_pmm");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
 
 <script>
 	function select_program(id,admissionId) {
@@ -46,10 +33,10 @@
 		document.clientManagerForm.submit();
 	}
 	
-	function select_program_community(admissionId) {
+	function select_program_community() {
 		var communityCtl = document.getElementById('community_id');
 		var id = communityCtl.options[communityCtl.selectedIndex].value;
-		document.clientManagerForm.elements['program.id'].value = id;
+		document.clientManagerForm.elements['program.id'].value = id;		
 		document.clientManagerForm.method.value = 'discharge_community_select_program';
 		document.clientManagerForm.submit();
 	}
@@ -118,11 +105,12 @@
 			document.clientManagerForm.submit();
 		</c:if>					
 	}
+	
+	//false: date2 > date1
 	//true: date2 <= date1
 	function compareDates(date1, date2) {	
 		
 		var aDateString = date1.split('-') ;	
-		
 		
 		if(aDateString[1]=='01') aDateString[1]=1;
 		if(aDateString[1]=='02') aDateString[1]=2;
@@ -143,7 +131,6 @@
 		if(aDateString[2]=='07') aDateString[2]=7;
 		if(aDateString[2]=='08') aDateString[2]=8;
 		if(aDateString[2]=='09') aDateString[2]=9;	
-		
 		
 		var sDateString ;
 		if(date2 && typeof date2 != 'undefined') {
@@ -272,7 +259,7 @@ Community Program:&nbsp;
 	<caisi:isModuleLoad moduleName="TORONTO_RFQ" reverse="true">
 		<display:column sortable="false">
 			<input type="button" value="Discharge"
-				onclick="select_program('<c:out value="${admission.programId}"/>','<c:out value="${admission.id}"/>')" />
+				onclick="select_program('<c:out value="${admission.programId}"/>', '<c:out value="${admission.id}"/>')" />
 		</display:column>
 	</caisi:isModuleLoad>
 
@@ -280,7 +267,7 @@ Community Program:&nbsp;
 		<c:if test="${sessionScope.performDischargeService=='true'}">
 			<display:column sortable="false">
 				<input type="button" value="Discharge"
-					onclick="select_program('<c:out value="${admission.programId}"/>','<c:out value="${admission.id}"/>')" />
+					onclick="select_program('<c:out value="${admission.programId}"/>', '<c:out value="${admission.id}"/>')" />
 			</display:column>
 		</c:if>
 	</caisi:isModuleLoad>
@@ -311,7 +298,7 @@ Community Program:&nbsp;
 
 	<display:column sortable="false">
 		<input type="button" value="Discharge"
-			onclick="select_program('<c:out value="${admission.programId}"/>',,'<c:out value="${admission.id}"/>')" />
+			onclick="select_program('<c:out value="${admission.programId}"/>', '<c:out value="${admission.id}"/>')" />
 	</display:column>
 	<display:column sortable="true" title="Program Name">
 		<c:out value="${admission.programName}" />
@@ -326,25 +313,26 @@ Community Program:&nbsp;
 	<br />
 	<br />
 	<table width="100%" border="1" cellspacing="2" cellpadding="3">
-		 <tr><td>Discharge Reason</td>
-                        <td><html:select property="admission.radioDischargeReason">
-                                <html:option value='<%="" + DischargeReason.ADMITTED_TO_LTC_FACILITY.ordinal()%>'><bean:message bundle="pmm" key="discharge.reason.ADMITTED_TO_LTC_FACILITY" /></html:option>
-                                <html:option value='<%="" + DischargeReason.DOES_NOT_FIT_CRITERIA.ordinal()%>'><bean:message bundle="pmm" key="discharge.reason.DOES_NOT_FIT_CRITERIA" /></html:option>
-                                <html:option value='<%="" + DischargeReason.REQUIRES_ACUTE_CARE.ordinal()%>'><bean:message bundle="pmm" key="discharge.reason.REQUIRES_ACUTE_CARE" /></html:option>
-                                <html:option value='<%="" + DischargeReason.COMPLETION_WITH_REFERRAL.ordinal()%>'><bean:message bundle="pmm" key="discharge.reason.COMPLETION_WITH_REFERRAL" /></html:option>
-                                <html:option value='<%="" + DischargeReason.COMPLETION_WITHOUT_REFERRAL.ordinal()%>'><bean:message bundle="pmm" key="discharge.reason.COMPLETION_WITHOUT_REFERRAL" /></html:option>
-                                <html:option value='<%="" + DischargeReason.DEATH.ordinal()%>'><bean:message bundle="pmm" key="discharge.reason.DEATH" /></html:option>
-                                <html:option value='<%="" + DischargeReason.NO_SPACE_AVAILABLE.ordinal()%>'><bean:message bundle="pmm" key="discharge.reason.NO_SPACE_AVAILABLE" /></html:option>
-                                <html:option value='<%="" + DischargeReason.RELOCATION.ordinal()%>'><bean:message bundle="pmm" key="discharge.reason.RELOCATION" /></html:option>
-                                <html:option value='<%="" + DischargeReason.SERVICE_PLAN_COMPLETED.ordinal()%>'><bean:message bundle="pmm" key="discharge.reason.SERVICE_PLAN_COMPLETED" /></html:option>
-                                <html:option value='<%="" + DischargeReason.SUICIDE.ordinal()%>'><bean:message bundle="pmm" key="discharge.reason.SUICIDE" /></html:option>
-                                <html:option value='<%="" + DischargeReason.WITHDRAWL_CLIENT_PREFERENCE.ordinal()%>'><bean:message bundle="pmm" key="discharge.reason.WITHDRAWL_CLIENT_PREFERENCE" /></html:option>
-                                <html:option value='<%="" + DischargeReason.OTHER.ordinal()%>'><bean:message bundle="pmm" key="discharge.reason.OTHER" /></html:option>
+		<tr><td>Discharge Reason</td>
+			<td><html:select property="admission.radioDischargeReason">
+				<html:option value='<%="" + DischargeReason.ADMITTED_TO_LTC_FACILITY.ordinal()%>'><bean:message bundle="pmm" key="discharge.reason.ADMITTED_TO_LTC_FACILITY" /></html:option>
+				<html:option value='<%="" + DischargeReason.DOES_NOT_FIT_CRITERIA.ordinal()%>'><bean:message bundle="pmm" key="discharge.reason.DOES_NOT_FIT_CRITERIA" /></html:option>
+				<html:option value='<%="" + DischargeReason.REQUIRES_ACUTE_CARE.ordinal()%>'><bean:message bundle="pmm" key="discharge.reason.REQUIRES_ACUTE_CARE" /></html:option>
+				<html:option value='<%="" + DischargeReason.COMPLETION_WITH_REFERRAL.ordinal()%>'><bean:message bundle="pmm" key="discharge.reason.COMPLETION_WITH_REFERRAL" /></html:option>
+				<html:option value='<%="" + DischargeReason.COMPLETION_WITHOUT_REFERRAL.ordinal()%>'><bean:message bundle="pmm" key="discharge.reason.COMPLETION_WITHOUT_REFERRAL" /></html:option>
+				<html:option value='<%="" + DischargeReason.DEATH.ordinal()%>'><bean:message bundle="pmm" key="discharge.reason.DEATH" /></html:option>
+				<html:option value='<%="" + DischargeReason.NO_SPACE_AVAILABLE.ordinal()%>'><bean:message bundle="pmm" key="discharge.reason.NO_SPACE_AVAILABLE" /></html:option>
+				<html:option value='<%="" + DischargeReason.RELOCATION.ordinal()%>'><bean:message bundle="pmm" key="discharge.reason.RELOCATION" /></html:option>
+				<html:option value='<%="" + DischargeReason.SERVICE_PLAN_COMPLETED.ordinal()%>'><bean:message bundle="pmm" key="discharge.reason.SERVICE_PLAN_COMPLETED" /></html:option>
+				<html:option value='<%="" + DischargeReason.SUICIDE.ordinal()%>'><bean:message bundle="pmm" key="discharge.reason.SUICIDE" /></html:option>
+				<html:option value='<%="" + DischargeReason.WITHDRAWL_CLIENT_PREFERENCE.ordinal()%>'><bean:message bundle="pmm" key="discharge.reason.WITHDRAWL_CLIENT_PREFERENCE" /></html:option>
+				<html:option value='<%="" + DischargeReason.OTHER.ordinal()%>'><bean:message bundle="pmm" key="discharge.reason.OTHER" /></html:option>
+				
+				</html:select>
+			</td>
+		</tr>
+		
 
-                                </html:select>
-                        </td>
-                </tr>
-	
 		<tr class="b">
 			<td width="20%">Discharge Notes:</td>
 			<td><html:textarea cols="50" rows="7"
@@ -352,8 +340,8 @@ Community Program:&nbsp;
 		</tr>
 		<tr>
 			<td width="20%">Discharge Date:</td>
-			<td><input id="dischargeDate" name="dischargeDate" onfocus="this.blur()" readonly="readonly" type="text" value='<c:out value="${admission.formattedDischargeDate}"/>'> <img title="Calendar" id="cal_dischargeDate" src="<%=request.getContextPath()%>/images/cal.gif" alt="Calendar" border="0"><script type="text/javascript">Calendar.setup({inputField:'dischargeDate',ifFormat :'%Y-%m-%d',button :'cal_dischargeDate',align :'cr',singleClick :true,firstDay :1});</script>
-			</td>
+			<td><input id="dischargeDate" name="dischargeDate" onfocus="this.blur()" readonly="readonly" type="text" value='<c:out value="${admission.formattedDischargeDate}"/>'> <img title="Calendar" id="cal_dischargeDate" src="<%=request.getContextPath()%>/images/cal.gif" alt="Calendar" border="0"><script type="text/javascript">Calendar.setup({inputField:'dischargeDate',ifFormat :'%Y-%m-%d',button :'cal_dischargeDate',align :'cr',singleClick :true,firstDay :1});</script>		
+			</td>			
 		</tr>
 		
 		<tr>
@@ -369,4 +357,5 @@ Community Program:&nbsp;
 				onclick="document.clientManagerForm.submit()" /></td>
 		</tr>
 	</table>
+	
 </c:if>

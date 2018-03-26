@@ -24,21 +24,6 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_demographic" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_demographic");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%@page import="java.util.GregorianCalendar"%>
 <%@page import="java.sql.ResultSet"%>
 <%@page import="org.oscarehr.caisi_integrator.ws.DemographicWs"%>
@@ -51,62 +36,41 @@
 <%@page import="org.oscarehr.PMmodule.caisi_integrator.CaisiIntegratorManager"%>
 <%@page import="org.oscarehr.util.WebUtils"%>
 <%@page import="org.oscarehr.util.MiscUtils"%>
-<%@ page import="org.oscarehr.common.model.Admission" %>
-<%@ page import="org.oscarehr.common.dao.AdmissionDao" %>
-<%@page import="org.oscarehr.PMmodule.dao.ProgramDao" %>
-<%@page import="org.oscarehr.PMmodule.model.Program" %>
-<%@page import="org.oscarehr.managers.PatientConsentManager" %>
-<%@page import="org.oscarehr.common.model.ConsentType" %>
-<%@page import="org.oscarehr.common.model.Facility" %>
-<%@page import="org.oscarehr.caisi_integrator.ws.GetConsentTransfer"%>
-<%@page import="org.oscarehr.common.model.UserProperty"%>
+<%@ page import="org.oscarehr.PMmodule.model.Admission" %>
+<%@ page import="org.oscarehr.PMmodule.dao.AdmissionDao" %>
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean" scope="session" />
 <%
 	AdmissionDao admissionDao = (AdmissionDao)SpringUtils.getBean("admissionDao");
-	ProgramDao programDao = SpringUtils.getBean(ProgramDao.class);
-
-   	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-   		 
-   	int remoteFacilityId = Integer.parseInt(request.getParameter("remoteFacilityId"));
+%>
+<%
+	int remoteFacilityId = Integer.parseInt(request.getParameter("remoteFacilityId"));
 	int remoteDemographicId = Integer.parseInt(request.getParameter("demographic_no"));
 
 	//--- make new local demographic record ---
-	Demographic demographic=CaisiIntegratorManager.makeUnpersistedDemographicObjectFromRemoteEntry(loggedInInfo, loggedInInfo.getCurrentFacility(), remoteFacilityId, remoteDemographicId);
+	Demographic demographic=CaisiIntegratorManager.makeUnpersistedDemographicObjectFromRemoteEntry(remoteFacilityId, remoteDemographicId);
 	DemographicDao demographicDao=(DemographicDao)SpringUtils.getBean("demographicDao");
 	demographicDao.saveClient(demographic);
 	Integer demoNoRightNow = demographic.getDemographicNo(); // temp use for debugging
-	
-	//--- set the local patient consent based on the Integrator consent state for this demographic. ---
-	GetConsentTransfer consentTransfer = CaisiIntegratorManager.getConsentState( loggedInInfo, loggedInInfo.getCurrentFacility(), remoteFacilityId, remoteDemographicId );
-	Boolean consented = null;
-			
-	if( consentTransfer != null ) {
-		consented = ( "ALL".equals( consentTransfer.getConsentState().value() ) );
-	}
-	
-	if( consented != null ) {
-		PatientConsentManager patientConsentManager = SpringUtils.getBean( PatientConsentManager.class );
-		ConsentType consentType = patientConsentManager.getConsentType( UserProperty.INTEGRATOR_PATIENT_CONSENT );
-		patientConsentManager.setConsent( loggedInInfo, demographic.getDemographicNo(), consentType.getId(), consented );
-	}
-	
+
 	//--- link the demographic on the integrator so associated data shows up ---
-	DemographicWs demographicWs=CaisiIntegratorManager.getDemographicWs(loggedInInfo, loggedInInfo.getCurrentFacility());
-	
-	String providerNo=loggedInInfo.getLoggedInProviderNo();
+	DemographicWs demographicWs=CaisiIntegratorManager.getDemographicWs();
+	LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+	String providerNo=loggedInInfo.loggedInProvider.getProviderNo();
 	demographicWs.linkDemographics(providerNo, demographic.getDemographicNo(), remoteFacilityId, remoteDemographicId);
 
 
-	MiscUtils.getLogger().info("LINK DEMOGRAPHIC #### ProviderNo :"+providerNo+" ,demo No :"+ demographic.getDemographicNo()+" , remoteFacilityId :"+ remoteFacilityId+" ,remoteDemographicId "+ remoteDemographicId+" orig demo "+demoNoRightNow);
+	MiscUtils.getLogger().error("LINK DEMOGRAPHIC #### ProviderNo :"+providerNo+" ,demo No :"+ demographic.getDemographicNo()+" , remoteFacilityId :"+ remoteFacilityId+" ,remoteDemographicId "+ remoteDemographicId+" orig demo "+demoNoRightNow);
 
 
 	//--- add to program so the caisi program access filtering doesn't cause a security problem ---
 	oscar.oscarEncounter.data.EctProgram program = new oscar.oscarEncounter.data.EctProgram(request.getSession());
     String progId = program.getProgram(providerNo);
     if (progId.equals("0")) {
-    	Program p = programDao.getProgramByName("OSCAR");
-    	if(p != null) {
-    		progId = p.getId().toString();
-    	}
+       ResultSet rsProg = apptMainBean.queryResults("OSCAR", "search_program");
+       if (rsProg.next())
+       {
+          progId = rsProg.getString("id");
+       }
     }
     GregorianCalendar cal=new GregorianCalendar();
 	String admissionDate=""+cal.get(GregorianCalendar.YEAR)+'-'+(cal.get(GregorianCalendar.MONTH)+1)+'-'+cal.get(GregorianCalendar.DAY_OF_MONTH);
@@ -117,46 +81,76 @@
 	admission.setProviderNo(providerNo);
 	admission.setAdmissionDate(oscar.MyDateFormat.getSysDate(admissionDate));
 	admission.setAdmissionStatus("current");
-	admission.setTeamId(null);
+	admission.setTeamId(0);
 	admission.setTemporaryAdmission(false);
 	admission.setAdmissionFromTransfer(false);
 	admission.setDischargeFromTransfer(false);
 	admission.setRadioDischargeReason("0");
-	admission.setClientStatusId(null);
+	admission.setClientStatusId(0);
     admissionDao.saveAdmission(admission);
 
-    StringBuilder redirect=new StringBuilder();
-	
-    if(request.getParameter("originalPage") != null) {
+    //--- build redirect request ---
 
-		redirect.append(request.getParameter("originalPage"));
-		redirect.append("?");
-	
-		redirect.append("demographic_no=");
-		redirect.append(demographic.getDemographicNo());
-	
-		redirect.append("&doctor_no=");
-		redirect.append(request.getParameter("provider_no"));
-	
-		@SuppressWarnings("unchecked")
-		Enumeration<String> e = request.getParameterNames();
-		while (e.hasMoreElements()) {
-			String key = e.nextElement();
-	
-			if (key.equals("demographic_no") || key.equals("doctor_no") || key.equals("originalPage"))
-			{
-				// ignore these parameters
-			}
-			else
-			{
-				redirect.append("&");
-				redirect.append(key);
-				redirect.append("=");
-				redirect.append(URLEncoder.encode(request.getParameter(key)));
-			}
+    // WebUtils.dumpParameters(request);
+	// --- Dump Request Parameters Start ---
+	// duration=15
+	// messageID=null
+	// location=
+	// user_id=oscardoc, doctor
+	// createdatetime=2011-6-13 13:36:24
+	// type=
+	// remarks=
+	// creator=oscardoc, doctor
+	// search_mode=search_name
+	// orderby=last_name, first_name
+	// originalpage=../appointment/addappointment.jsp
+	// doctor_no=000000
+	// bFirstDisp=false
+	// notes=
+	// end_time=09:14
+	// start_time=09:00
+	// ptstatus=active
+	// demographic_no=1
+	// status=t
+	// originalPage=../appointment/addappointment.jsp
+	// appointment_date=2011-06-13
+	// limit2=5
+	// limit1=0
+	// resources=
+	// provider_no=999998
+	// reason=
+	// chart_no=
+	// remoteFacilityId=1
+	// name=ASDF,ASDF
+	// --- Dump Request Parameters End ---
+
+	StringBuilder redirect=new StringBuilder();
+	redirect.append(request.getParameter("originalPage"));
+	redirect.append("?");
+
+	redirect.append("demographic_no=");
+	redirect.append(demographic.getDemographicNo());
+
+	redirect.append("&doctor_no=");
+	redirect.append(request.getParameter("provider_no"));
+
+	@SuppressWarnings("unchecked")
+	Enumeration<String> e = request.getParameterNames();
+	while (e.hasMoreElements()) {
+		String key = e.nextElement();
+
+		if (key.equals("demographic_no") || key.equals("doctor_no") || key.equals("originalPage"))
+		{
+			// ignore these parameters
 		}
-    } else {
-    	redirect.append("../close.html");
-    }
+		else
+		{
+			redirect.append("&");
+			redirect.append(key);
+			redirect.append("=");
+			redirect.append(URLEncoder.encode(request.getParameter(key)));
+		}
+	}
+
 	response.sendRedirect(redirect.toString());
 %>

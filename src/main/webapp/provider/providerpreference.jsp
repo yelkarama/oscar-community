@@ -24,10 +24,11 @@
 
 --%>
 <%
- String deepcolor = "#CCCCFF", weakcolor = "#EEEEFF" ;
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-	String providerNo=loggedInInfo.getLoggedInProviderNo();
-   			
+  if(session.getValue("user") == null) response.sendRedirect("../logout.jsp");
+  String provider_name = (String) session.getAttribute("userlastname")+", "+(String) session.getAttribute("userfirstname");
+  String deepcolor = "#CCCCFF", weakcolor = "#EEEEFF" ;
+  LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+  String providerNo=loggedInInfo.loggedInProvider.getProviderNo();
 
   String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
 %>
@@ -43,27 +44,14 @@
 <%@ page import="org.oscarehr.common.dao.UserPropertyDAO"%>
 <%@ page import="org.oscarehr.common.model.UserProperty"%>
 <%@ page import="org.oscarehr.util.SpringUtils"%>
-
+<%@ include file="/common/webAppContextAndSuperMgr.jsp"%>
 <%@page import="org.oscarehr.common.model.ProviderPreference"%>
 <%@page import="org.oscarehr.web.admin.ProviderPreferencesUIBean"%>
 <%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="org.oscarehr.web.PrescriptionQrCodeUIBean"%>
 <%@page import="org.oscarehr.common.model.EForm"%>
 <%@page import="org.apache.commons.lang.StringEscapeUtils"%>
-<%@page import="org.oscarehr.common.model.EncounterForm"%>
-<%@page import="org.oscarehr.common.dao.CtlBillingServiceDao" %>
-<%@page import="org.oscarehr.common.model.CtlBillingService" %>
-<%@page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
-<%@page import="java.util.List" %>
-<%@page import="java.util.ArrayList" %>
-<%@page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
-<%@page import="org.oscarehr.common.model.Provider" %>
-
-<%
-	CtlBillingServiceDao ctlBillingServiceDao = SpringUtils.getBean(CtlBillingServiceDao.class);
-%>
-
-<html:html locale="true">
+<%@page import="org.oscarehr.common.model.EncounterForm"%><html:html locale="true">
 
 <head>
 <c:set var="ctx" value="${pageContext.request.contextPath}" />
@@ -173,7 +161,7 @@ function showHideBillPref() {
 }
 
 function showHideERxPref() {
-    //$("eRxPref").toggle();
+    $("eRxPref").toggle();
 }
 </script>
 <style type="text/css">
@@ -214,21 +202,11 @@ function showHideERxPref() {
 </head>
 
 <%
-	ProviderPreference providerPreference=ProviderPreferencesUIBean.getProviderPreference(providerNo);
+	ProviderPreference providerPreference=ProviderPreferencesUIBean.getLoggedInProviderPreference();
 
 	if (providerPreference == null) {
 	    providerPreference = new ProviderPreference();
 	}
-	
-	String startHour = request.getParameter("start_hour")!=null?request.getParameter("start_hour"):providerPreference.getStartHour().toString();	
-	String endHour = request.getParameter("end_hour")!=null?request.getParameter("end_hour"):providerPreference.getEndHour().toString();
-	String everyMin = request.getParameter("every_min")!=null?request.getParameter("every_min"):providerPreference.getEveryMin().toString();
-	String myGroupNo = request.getParameter("mygroup_no")!=null?request.getParameter("mygroup_no"):providerPreference.getMyGroupNo();
-	String newTicklerWarningWindow =request.getParameter("new_tickler_warning_window")!=null?request.getParameter("new_tickler_warning_window"):providerPreference.getNewTicklerWarningWindow();
-	String ticklerProviderNo = request.getParameter("tklerproviderno");
-	String defaultPMM = request.getParameter("default_pmm")!=null?request.getParameter("default_pmm"):providerPreference.getDefaultCaisiPmm();
-	String caisiBillingNotDelete = request.getParameter("caisiBillingPreferenceNotDelete")!=null?request.getParameter("caisiBillingPreferenceNotDelete"):String.valueOf(providerPreference.getDefaultDoNotDeleteBilling());
-	
 %>
 
 <body bgproperties="fixed"  onLoad="setfocus();showHideBillPref();showHideERxPref();" topmargin="0"leftmargin="0" rightmargin="0" style="font-family:sans-serif">
@@ -245,7 +223,7 @@ function showHideERxPref() {
 					<span class="preferenceUnits">(0-23)</span>
 				</td>
 				<td class="preferenceValue">
-					<INPUT TYPE="TEXT" NAME="start_hour" VALUE='<%=startHour%>' size="2" maxlength="2">
+					<INPUT TYPE="TEXT" NAME="start_hour" VALUE='<%=request.getParameter("start_hour")%>' size="2" maxlength="2">
 				</td>
 			</tr>
 			<tr>
@@ -254,7 +232,7 @@ function showHideERxPref() {
 					<span class="preferenceUnits">(0-23)</span>
 				</td>
 				<td class="preferenceValue">
-					<INPUT TYPE="TEXT" NAME="end_hour" VALUE='<%=endHour%>' size="2" maxlength="2">
+					<INPUT TYPE="TEXT" NAME="end_hour" VALUE='<%=request.getParameter("end_hour")%>' size="2" maxlength="2">
 				</td>
 			</tr>
 			<tr>
@@ -263,7 +241,7 @@ function showHideERxPref() {
 					<span class="preferenceUnits"><bean:message key="provider.preference.min" /></span>
 				</td>
 				<td class="preferenceValue">
-					<INPUT TYPE="TEXT" NAME="every_min" VALUE='<%=everyMin%>' size="2" maxlength="2">
+					<INPUT TYPE="TEXT" NAME="every_min" VALUE='<%=request.getParameter("every_min")%>' size="2" maxlength="2">
 				</td>
 			</tr>
 			<tr>
@@ -271,12 +249,12 @@ function showHideERxPref() {
 					<bean:message key="provider.preference.formGroupNo" />
 				</td>
 				<td class="preferenceValue">
-					<INPUT TYPE="TEXT" NAME="mygroup_no" VALUE='<%=myGroupNo%>' size="12" maxlength="10">
-					<input type="button" value="<bean:message key="provider.providerpreference.viewedit" />" onClick="popupPage(360,680,'providerdisplaymygroup.jsp' );return false;" />
+					<INPUT TYPE="TEXT" NAME="mygroup_no" VALUE='<%=request.getParameter("mygroup_no")%>' size="12" maxlength="10">
+					<input type="button" value="<bean:message key="provider.providerpreference.viewedit" />" onClick="popupPage(360,680,'providercontrol.jsp?displaymode=displaymygroup&dboperation=searchmygroupall' );return false;" />
 				</td>
 			</tr>
 			<caisi:isModuleLoad moduleName="ticklerplus">
-				<tr id="ticklerPlus">
+				<tr>
 					<!-- check box of new-tickler-warnning-windows -->
 					<td class="preferenceLabel">
 						New Tickler Warning Window
@@ -286,7 +264,7 @@ function showHideERxPref() {
 							String myCheck1 = "";
 							String myCheck2 = "";
 							String myValue ="";
-							if("enabled".equals(newTicklerWarningWindow)) {
+							if("enabled".equals(request.getParameter("new_tickler_warning_window"))) {
 								myCheck1 = "checked";
 								myCheck2 = "unchecked";
 							}
@@ -295,57 +273,9 @@ function showHideERxPref() {
 								myCheck2 = "checked";
 							}
 						%>
-						
-						<script type="text/javascript">
-						function ticklerwarningchange(){
-							var tickRadios = document.getElementsByName("new_tickler_warning_window");
-							for (var i=0;i<tickRadios.length;i++) {
-								if (tickRadios[i].checked==true) {
-									if (tickRadios[i].value=="enabled") {
-										// hidden ticklerforprovider row 
-										document.getElementById("ticklerProvider").style.display="table-row";
-									} else {
-										// show ticklerforprovider row
-										document.getElementById("ticklerProvider").style.display="none";
-									}
-								}									
-							}
-						}
-						</script>
-			            
-			            <input type="radio" name="new_tickler_warning_window" value="enabled" <%= myCheck1 %> onchange="ticklerwarningchange()"> Enabled </input>
+			            <input type="radio" name="new_tickler_warning_window" value="enabled" <%= myCheck1 %>> Enabled
 			            <br>
-						<input type="radio" name="new_tickler_warning_window" value="disabled" <%= myCheck2 %> onchange="ticklerwarningchange()"> Disabled </input>
-					</td>
-				</tr>
-				
-				<tr id="ticklerProvider" style=<%=myCheck1=="checked"?"display:table-row;":"display:none" %>>
-					<td class="preferenceLabel">
-						Tickler Warning Window for which provider?
-					</td>
-					<td class="preferenceValue">
-						<select id="ticklerforprovider" name="ticklerforproviderno">
-						<%
-								String ticklerforproviderNo = ticklerProviderNo;
-								if (ticklerforproviderNo == null) {
-									ticklerforproviderNo = loggedInInfo.getLoggedInProviderNo();
-								}
-								ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
-								List<Provider> listProvider = new ArrayList<Provider>();
-								if (providerDao != null) {
-									listProvider = providerDao.getProviders();
-								}							
-								for (Provider provider : listProvider) {
-									String selected = "";
-									if (ticklerforproviderNo.equals(provider.getProviderNo())) {
-										selected ="selected";
-									}
-									String strOption = String.format("<option value=\"%s\" %s>%s</option>"
-											, provider.getProviderNo(), selected, provider.getFormattedName());
-									out.print(strOption);
-								}
-						%>
-						</select>
+						<input type="radio" name="new_tickler_warning_window" value="disabled" <%= myCheck2 %>> Disabled
 					</td>
 				</tr>
 
@@ -358,7 +288,7 @@ function showHideERxPref() {
 						<%
 							String myCheck3 = "";
 							String myCheck4 = "";
-							if("enabled".equals(defaultPMM)) {
+							if("enabled".equals(request.getParameter("default_pmm"))) {
 								myCheck3 = "checked";
 								myCheck4 = "unchecked";
 							}
@@ -372,7 +302,7 @@ function showHideERxPref() {
 						<input type="radio" name="default_pmm" value="disabled" <%= myCheck4 %>> Disabled
 					</td>
 				</tr>
-				
+
 				 <tr>
 		            <td class="preferenceLabel">
 		            <bean:message key="provider.btnCaisiBillPreferenceNotDelete"/>
@@ -381,7 +311,7 @@ function showHideERxPref() {
 
 		             <%  String myCheck5 = "";
 		                 String myCheck6 = "";
-		                 String value1 = caisiBillingNotDelete;
+		                 String value1 = request.getParameter("caisiBillingPreferenceNotDelete");
 		                  if(value1!=null && value1.equals("1"))
 		                  { 	myCheck5 = "checked";
 		                        myCheck6 = "unchecked";}
@@ -407,7 +337,7 @@ function showHideERxPref() {
 				</td>
 				<td class="preferenceValue">
 					<%
-	            		boolean checked=PrescriptionQrCodeUIBean.isPrescriptionQrCodeEnabledForProvider(providerNo);
+	            		boolean checked=PrescriptionQrCodeUIBean.isPrescriptionQrCodeEnabledForCurrentProvider();
 	            	%>
 	            	<input type="checkbox" name="prescriptionQrCodes" <%=checked?"checked=\"checked\"":""%> />
 	            </td>
@@ -430,7 +360,7 @@ function showHideERxPref() {
 					<div style="height:10em;border:solid grey 1px;overflow:auto;white-space:nowrap;width:45em">
 					<%
 						List<EncounterForm> encounterForms=ProviderPreferencesUIBean.getAllEncounterForms();
-						Collection<String> checkedEncounterFormNames=ProviderPreferencesUIBean.getCheckedEncounterFormNames(providerNo);
+						Collection<String> checkedEncounterFormNames=ProviderPreferencesUIBean.getCheckedEncounterFormNames();
 						for(EncounterForm encounterForm : encounterForms)
 						{
 							String nameEscaped=StringEscapeUtils.escapeHtml(encounterForm.getFormName());
@@ -452,7 +382,7 @@ function showHideERxPref() {
 					<div style="height:10em;border:solid grey 1px;overflow:auto;white-space:nowrap;width:45em">
 					<%
 						List<EForm> eforms=ProviderPreferencesUIBean.getAllEForms();
-						Collection<Integer> checkedEFormIds=ProviderPreferencesUIBean.getCheckedEFormIds(providerNo);
+						Collection<Integer> checkedEFormIds=ProviderPreferencesUIBean.getCheckedEFormIds();
 						for(EForm eform : eforms)
 						{
 							String checkedString=(checkedEFormIds.contains(eform.getId())?"checked=\"checked\"":"");
@@ -472,7 +402,7 @@ function showHideERxPref() {
 				<td class="preferenceValue">
 					<div style="height:10em;border:solid grey 1px;overflow:auto;white-space:nowrap;width:45em">
 					<%
-						Collection<ProviderPreference.QuickLink> quickLinks=ProviderPreferencesUIBean.getQuickLinks(providerNo);
+						Collection<ProviderPreference.QuickLink> quickLinks=ProviderPreferencesUIBean.getQuickLinks();
 						for(ProviderPreference.QuickLink quickLink : quickLinks)
 						{
 							%>
@@ -549,47 +479,7 @@ Event.observe('rxInteractionWarningLevel', 'change', function(event) {
 </script>
 			</tr>
 
- <tr>
-     <%
-         Integer h = 0;
-         Integer mins = 0;
-         prop = propertyDao.getProp(providerNo,UserProperty.OSCAR_MSG_RECVD);
-         if( prop != null ) {
-            String[] tmp = prop.getValue().split(":");
-            h = Integer.valueOf(tmp[0]);
-            mins = Integer.valueOf(tmp[1]);
-         }
-     %>
-        <td class="preferenceLabel">
-            Select when you want to receive Review Messages
-            
-         </td>
-         <td preferenceValue>
-             <select id="reviewMsg" name="reviewMsg">                 
-                 <%
-                     for( int hr = 0; hr < 24; ++hr ) {
-                         for( int min = 0; min < 60; min+=30 ) {
-                 %>
-                 <option value="<%=String.valueOf(hr)+":"+String.valueOf(min) %>" <%= hr == h && min == mins ? "selected" : ""%> ><%=String.valueOf(hr) + " : " + String.valueOf(min) + (min == 0 ? "0" :"") %></option>
-                 <%
-                        }
-                    }
-                 %>
-             </select>                          
-         </td>
-        </tr>
-        <script>
-        Event.observe('reviewMsg', 'change', function(event) {
-	var value = $('reviewMsg').getValue();
 
-	new Ajax.Request('<c:out value="${ctx}"/>/setProviderStaleDate.do?method=OscarMsgRecvd&value='+value+'&provider_no=<%=providerNo%>', {
-		  method: 'get',
-		  onSuccess: function(transport) {
-		  }
-		});
-
-});
-        </script>
 		</table>
 
 		<div style="background-color:<%=deepcolor%>;text-align:center;font-weight:bold">
@@ -615,7 +505,11 @@ Event.observe('rxInteractionWarningLevel', 'change', function(event) {
 	</tr>
   <tr>
 
-    <TD align="center"><a href=# onClick ="popupPage(370,700,'providerchangepassword.jsp');return false;"><bean:message key="provider.btnChangePassword"/></a> &nbsp;&nbsp;&nbsp;</td>
+    <TD align="center"><a href=# onClick ="popupPage(230,600,'providerchangepassword.jsp');return false;"><bean:message key="provider.btnChangePassword"/></a> &nbsp;&nbsp;&nbsp; <!--| a href=# onClick ="popupPage(350,500,'providercontrol.jsp?displaymode=savedeletetemplate');return false;"><bean:message key="provider.btnAddDeleteTemplate"/></a> | <a href=# onClick ="popupPage(200,500,'providercontrol.jsp?displaymode=savedeleteform');return false;"><bean:message key="provider.btnAddDeleteForm"/></a></td>
+  </tr>
+   <tr>
+    <TD align="center">  <a href="#" ONCLICK ="popupPage(550,800,'../schedule/scheduletemplatesetting1.jsp?provider_no=<%=providerNo%>&provider_name=<%=URLEncoder.encode(provider_name)%>');return false;" title="Holiday and Schedule Setting" ><bean:message key="provider.btnScheduleSetting"/></a>
+      &nbsp;&nbsp;&nbsp; | <a href="#" ONCLICK ="popupPage(550,800,'http://oscar1.mcmaster.ca:8888/oscarResource/manage?username=oscarfp&pw=oscarfp');return false;" title="Resource Management" ><bean:message key="provider.btnManageClinicalResource"/></a--> </td>
   </tr>
   <tr>
       <td align="center"><a href=# onClick ="popupPage(230,860,'../setProviderStaleDate.do?method=viewDefaultSex');return false;"><bean:message key="provider.btnSetDefaultSex" /></a></td>
@@ -645,18 +539,19 @@ Event.observe('rxInteractionWarningLevel', 'change', function(event) {
 <%
 	if (providerPreference!=null) {
 		String def = providerPreference.getDefaultServiceType();
-		for(Object[] result : ctlBillingServiceDao.getUniqueServiceTypes("A")) {
-
+		List<Map<String,Object>> resultList = oscarSuperManager.find("providerDao", "list_bills_servicetype", new Object[] {});
+		for (Map bill : resultList) {
 %>
-				<option value="<%=(String)result[0]%>"
-					<%=((String)result[0]).equals(def)?"selected":""%>>
-					<%=(String)result[1]%></option>
+				<option value="<%=bill.get("servicetype")%>"
+					<%=bill.get("servicetype").equals(def)?"selected":""%>>
+					<%=bill.get("servicetype_name")%></option>
 <%
 		}
 	} else {
-		for(Object[] result : ctlBillingServiceDao.getUniqueServiceTypes("A")) {
+		List<Map<String,Object>> resultList = oscarSuperManager.find("providerDao", "list_bills_servicetype", new Object[] {});
+		for (Map bill : resultList) {
 %>
-		<option value="<%=(String)result[0]%>"><%=(String)result[1]%></option>
+		<option value="<%=bill.get("servicetype")%>"><%=bill.get("servicetype_name")%></option>
 <%
 		}
 	}
@@ -677,9 +572,6 @@ Event.observe('rxInteractionWarningLevel', 'change', function(event) {
       </tr>
       <tr>
           <td align="center"><a href=# onClick ="popupPage(230,860,'providerColourPicker.jsp');return false;"><bean:message key="provider.btnEditColour"/></a></td>
-      </tr>
-      <tr>
-          <td align="center"><a href=# onClick ="popupPage(500,860,'providerPrinter.jsp');return false;"><bean:message key="provider.btnSetDefaultPrinter"/></a></td>
       </tr>
       <tr>
           <td align="center"><a href=# onClick ="popupPage(230,860,'../setProviderStaleDate.do?method=viewRxPageSize');return false;"><bean:message key="provider.btnSetRxPageSize"/></a></td>
@@ -728,13 +620,14 @@ Event.observe('rxInteractionWarningLevel', 'change', function(event) {
       </tr>
       <%}%>
   </oscar:oscarPropertiesCheck>
+  <oscar:oscarPropertiesCheck property="MY_OSCAR" value="yes">
         <tr>
             <td align="center"><a href=# onClick ="popupPage(230,860,'providerIndivoIdSetter.jsp');return false;"><bean:message key="provider.btnSetIndivoId"/></a></td>
         </tr>
         <tr>
             <td align="center"><a href=# onClick ="popupPage(230,860,'../setProviderStaleDate.do?method=viewUseMyMeds');return false;"><bean:message key="provider.btnSetUseMyMeds"/></a></td>
         </tr>
-  
+  </oscar:oscarPropertiesCheck>
   		<tr>
           <td align="center"><a href=# onClick ="popupPage(400,860,'../provider/CppPreferences.do');return false;"><bean:message key="provider.cppPrefs" /></a></td>
       	</tr>
@@ -760,31 +653,8 @@ Event.observe('rxInteractionWarningLevel', 'change', function(event) {
       <tr>
           <td align="center"><a href=# onClick ="popupPage(230,860,'../setProviderStaleDate.do?method=viewPatientNameLength');return false;"><bean:message key="provider.btnEditSetPatientNameLength"/></a></td>
       </tr>
-       <tr>
-          <td align="center"><a href=# onClick ="popupPage(230,860,'../admin/displayDocumentDescriptionTemplate.jsp');return false;"><bean:message key="provider.btnSetDocumentDescriptionTemplate"/></a></td>
-      </tr>
-	  <tr>
-          <td align="center"><a href=# onClick ="popupPage(500,900,'clients.jsp');return false;"><bean:message key="provider.btnEditClients"/></a></td>
-      </tr>
-    <tr>
-        <td align="center"><a href=# onClick ="popupPage(230,860,'../setProviderStaleDate.do?method=viewDisplayDocumentAs');return false;"><bean:message key="provider.btnSetDisplayDocumentAs"/></a></td>
-    </tr>
-     <tr>
-        <td align="center"><a href=# onClick ="popupPage(230,860,'../setProviderStaleDate.do?method=viewCobalt');return false;"><bean:message key="provider.btnSetCobalt"/></a></td>
-    </tr>
-    <% if(OscarProperties.getInstance().isPropertyActive("SINGLE_PAGE_CHART")){%>
-    <tr>
-    	<td align="center"><a href=# onClick ="popupPage(230,860,'../setProviderStaleDate.do?method=viewHideOldEchartLinkInAppt');return false;"><bean:message key="provider.btnHideOldEchartLinkInAppt"/></a></td>
-    </tr>
-    <% } %>
-    
-	<tr>
-          <td align="center"><a href=# onClick ="popupPage(230,860,'../setProviderStaleDate.do?method=viewAppointmentCardPrefs');return false;"><bean:message key="provider.btnEditSetAppointmentCardPrefs"/></a></td>
-      </tr>
-<tr>
-    	<td align="center"><a href=# onClick ="popupPage(230,860,'../setProviderStaleDate.do?method=viewBornPrefs');return false;"><bean:message key="provider.btnViewBornPrefs"/></a></td>
-    </tr>
-    
+
+
 	 <oscar:oscarPropertiesCheck property="util.erx.enabled" value="true">
 	 	<security:oscarSec roleName="<%=roleName$%>" objectName="_rx" rights="r">
         <tr>
@@ -849,7 +719,6 @@ Event.observe('rxInteractionWarningLevel', 'change', function(event) {
                           	<td><bean:message key="provider.eRx.labelURL"/>:</td>
                           	<td><input name="erx_sso_url" type="text" value="<%=eRx_SSO_URL%>" title="The URL to access the Web Interface from OSCAR Rx" /></td>
                         </tr>
-                        
                      </table>
                   </div>
               </td>
@@ -857,15 +726,6 @@ Event.observe('rxInteractionWarningLevel', 'change', function(event) {
         </security:oscarSec>
   </oscar:oscarPropertiesCheck>
 
-<oscar:oscarPropertiesCheck property="tickler_email_provider_enabled" value="true">
-		<tr>
-        	<td align="center"><a href=# onClick ="popupPage(230,860,'../setProviderStaleDate.do?method=viewTicklerProviderEmailPrefs');return false;"><bean:message key="provider.btnTicklerEmailProviderPrefs"/></a></td>
-        </tr>
-</oscar:oscarPropertiesCheck>
-      
- <tr>
-    	<td align="center"><a href=# onClick ="popupPage(230,860,'../setProviderStaleDate.do?method=viewDashboardPrefs');return false;"><bean:message key="provider.btnViewDashboardPrefs"/></a></td>
-    </tr>
 
 </table>
 </FORM>

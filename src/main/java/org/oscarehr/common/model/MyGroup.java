@@ -25,9 +25,6 @@
 
 package org.oscarehr.common.model;
 
-import java.io.Serializable;
-import java.util.Comparator;
-
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
@@ -35,7 +32,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name="mygroup")
-public class MyGroup  extends AbstractModel<MyGroupPrimaryKey> implements Serializable {
+public class MyGroup  extends AbstractModel<MyGroupPrimaryKey> {
 
 	@EmbeddedId     
 	private MyGroupPrimaryKey id;
@@ -46,9 +43,6 @@ public class MyGroup  extends AbstractModel<MyGroupPrimaryKey> implements Serial
     private String firstName;
 	@Column(name="vieworder")
     private String viewOrder;
-
-    @Column(name="default_billing_form")
-    private String defaultBillingForm;
 
     public MyGroup() {
     	//empty
@@ -98,43 +92,6 @@ public class MyGroup  extends AbstractModel<MyGroupPrimaryKey> implements Serial
     }
 
 
-    public String getDefaultBillingForm() {
-        return this.defaultBillingForm;
-    }
-    
-    public void setDefaultBillingForm(String defaultBillingForm) {
-        this.defaultBillingForm = defaultBillingForm;
-    }
-    
-    
-    public static final Comparator<MyGroup> MyGroupNoComparator = new Comparator<MyGroup>() {
-        public int compare(MyGroup o1, MyGroup o2) {
-        	if(o1.getId()!=null && o2.getId() != null) {
-        		return o1.getId().getMyGroupNo().compareTo(o2.getId().getMyGroupNo());
-        	}
-        	return 0;
-        }
-    };
 
-    public static final Comparator<MyGroup> LastNameComparator = new Comparator<MyGroup>() {
-        public int compare(MyGroup o1, MyGroup o2) {
-        	return o1.getLastName().compareTo(o2.getLastName());
-        }
-    }; 
-    
-    public static final Comparator<MyGroup> MyGroupNoViewOrderComparator = new Comparator<MyGroup>() {
-        public int compare(MyGroup o1, MyGroup o2) {
-        	if(o1.getViewOrder() !=null && o2.getViewOrder() != null) {
-        		int result =  o1.getViewOrder().compareTo(o2.getViewOrder());
-        		if(result == 0) {
-        			return o1.getId().getProviderNo().compareTo(o2.getId().getProviderNo());
-        		} else {
-        			return result;
-        		}
-        	} else {
-        		return o1.getId().getProviderNo().compareTo(o2.getId().getProviderNo());
-        	}
-        }
-    };
 
 }

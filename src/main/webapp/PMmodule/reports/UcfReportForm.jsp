@@ -22,21 +22,6 @@
     Toronto, Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_report" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_report");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%@page import="java.util.*"%>
 <%@page import="org.springframework.web.context.WebApplicationContext"%>
 <%@page
@@ -45,14 +30,9 @@
 <%@page import="org.caisi.model.*"%>
 <%@page import="org.oscarehr.PMmodule.model.*"%>
 <%@page import="org.oscarehr.PMmodule.dao.*"%>
-<%@page import="org.oscarehr.common.model.CaisiForm"%>
-<%@page import="org.oscarehr.common.dao.CaisiFormDao"%>
-<%@page import="org.oscarehr.util.SpringUtils" %>
-<%@page import="org.oscarehr.survey.service.OscarFormManager" %>
-<%
-CaisiFormDao caisiFormDao = SpringUtils.getBean(CaisiFormDao.class);	
-
-%>
+<%@page
+	import="org.oscarehr.survey.dao.oscar.hibernate.OscarFormDAOHibernate"%>
+<%@page import="org.oscarehr.survey.model.oscar.OscarForm"%>
 <script>
 	function getReport() {
 		var formId = document.ucfForm.formId.value;	 
@@ -67,8 +47,9 @@ CaisiFormDao caisiFormDao = SpringUtils.getBean(CaisiFormDao.class);
 	}
 </script>
 <%
-	
-	List<CaisiForm> forms = caisiFormDao.getCaisiForms();
+	WebApplicationContext applicationContext = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
+	OscarFormDAOHibernate caisiForms = (OscarFormDAOHibernate) applicationContext.getBean("oscarFormDAO");
+	List<OscarForm> forms = caisiForms.getOscarForms();
 	
 %>
 
@@ -88,9 +69,9 @@ CaisiFormDao caisiFormDao = SpringUtils.getBean(CaisiFormDao.class);
 	<tr>
 		<td><select name="formId">
 			<% 
-					for(CaisiForm form : forms) {
+					for(OscarForm form : forms) {
 						%>
-			<option value="<%=form.getId() %>"><%=form.getDescription() %></option>
+			<option value="<%=form.getFormId() %>"><%=form.getDescription() %></option>
 			<% 
 					}
 					%>

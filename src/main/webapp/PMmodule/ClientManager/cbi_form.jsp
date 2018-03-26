@@ -22,32 +22,17 @@
     Toronto, Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed2=true;
-%>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_form" rights="r" reverse="<%=true%>">
-	<%authed2=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_form");%>
-</security:oscarSec>
-<%
-	if(!authed2) {
-		return;
-	}
-%>
-
 <%@page import="org.oscarehr.common.model.OcanStaffFormData"%>
 <%@page import="org.oscarehr.common.model.OcanStaffForm"%>
-<%@page import="org.oscarehr.common.model.Admission"%>
+<%@page import="org.oscarehr.PMmodule.model.Admission"%>
 <%@page import="org.oscarehr.common.model.Demographic"%>
 <%@page import="org.oscarehr.common.model.DemographicExt"%>
 <%@page import="org.oscarehr.PMmodule.web.OcanForm"%>
 <%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="java.util.List"%>
 <%@page import="org.oscarehr.common.dao.DemographicDao"%>
-<%@page import="org.oscarehr.common.dao.AdmissionDao"%>
 <%@page import="org.oscarehr.common.dao.DemographicExtDao"%>
+<%@page import="org.oscarehr.PMmodule.dao.AdmissionDao"%>
 <%@page import="org.oscarehr.PMmodule.web.CdsForm4"%>
 <%@page import="org.oscarehr.util.SessionConstants"%>
 <%@page import="org.oscarehr.util.SpringUtils"%>
@@ -62,7 +47,6 @@
 
 
 <%
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 	String currentProgramId = (String)session.getAttribute(SessionConstants.CURRENT_PROGRAM_ID);
 	int currentDemographicId=Integer.parseInt(request.getParameter("demographicId"));
     String view = (String) request.getParameter("view");
@@ -87,17 +71,19 @@
 		ocanStaffForm = OcanForm.getCbiInitForm(currentDemographicId,OcanForm.PRE_POPULATION_LEVEL_DEMOGRAPHIC,ocanType, Integer.valueOf(currentProgramId));		
 		if(ocanStaffForm!=null) {
 			ocanStaffFormId = ocanStaffForm.getId()==null?0:ocanStaffForm.getId().intValue();
-		}
+		}		
 	}
 
 	//No matter if it's a new cbi form or not, always pre-populate phone extension.
 	String phoneExt = "";
 	DemographicExtDao demographicExtDao = (DemographicExtDao) SpringUtils.getBean("demographicExtDao");
-	DemographicExt de = demographicExtDao.getDemographicExt(Integer.valueOf(currentDemographicId), "hPhoneExt");
+	DemographicExt de = demographicExtDao.getLatestDemographicExt(Integer.valueOf(currentDemographicId), "hPhoneExt");
 	if(de!=null) {
 		if(de.getValue()==null || de.getValue().equals("null"))
+			//ocanStaffForm.setPhoneExt("");
 			phoneExt = "";
 		else
+			//ocanStaffForm.setPhoneExt(de.getValue());
 			phoneExt = de.getValue();
 	} else {
 		//ocanStaffForm.setPhoneExt("");
@@ -173,7 +159,8 @@ $("document").ready(function() {
 
 	$.validator.addMethod('digitalNumber', function(value) {
 		 return /^((\d|\d{2}|\d{3}|\d{4}|()))$/.test(value);		  
-	}, 'Digits only');
+	}, 'Digits only');	
+	
 });
 
 function checkHin() {
@@ -211,6 +198,7 @@ function checkDates() {
 		} 
 	}
 	return true;
+	
 	
 }
 
@@ -343,19 +331,19 @@ function changeFunctionalCentre(selectBox) {
 
 .systemData
 {
-       background-color:rgb(254,254,184);
-}	
-	
-.userInputedData	
-{	
-       background-color:rgb(0,254,254);	
-}	
-	
-.mandatoryData	
-{	
-       border-color:rgb(233,75,68);	
-       border-width:2px;	
-       border-style:solid;	
+	background-color:rgb(254,254,184);
+}
+
+.userInputedData
+{
+	background-color:rgb(0,254,254);
+}
+
+.mandatoryData
+{
+	border-color:rgb(233,75,68);
+	border-width:2px;
+	border-style:solid;
 }
 
 </style>			
@@ -507,7 +495,7 @@ function changeFunctionalCentre(selectBox) {
 						for (FunctionalCentreAdmission admission : admissionDao.getDistinctAdmissionsByDemographicNo(Integer.valueOf(currentDemographicId)) )
 						{	
 							FunctionalCentre functionalCentre = functionalCentreDao.find(admission.getFunctionalCentreId());
-							OcanStaffForm existingCbiForm = OcanForm.findLatestCbiFormsByFacilityAdmissionId(loggedInInfo.getCurrentFacility().getId(), Integer.valueOf(admission.getId()), null);
+							OcanStaffForm existingCbiForm = OcanForm.findLatestCbiFormsByFacilityAdmissionId(Integer.valueOf(admission.getId()), null);
 							if(existingCbiForm!=null) 
 								continue;                                       
 									                                                   

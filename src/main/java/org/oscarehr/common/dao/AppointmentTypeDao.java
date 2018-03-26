@@ -36,7 +36,7 @@ public class AppointmentTypeDao extends AbstractDao<AppointmentType>{
 	}
 	  
    public List<AppointmentType> listAll() {
-	   	String sqlCommand = "select x from AppointmentType x order by x.name";
+	   	String sqlCommand = "select x from AppointmentType x order by x.name desc";
 		Query query = entityManager.createQuery(sqlCommand);
 						
 		@SuppressWarnings("unchecked")
@@ -48,7 +48,7 @@ public class AppointmentTypeDao extends AbstractDao<AppointmentType>{
     
    public AppointmentType findByAppointmentTypeByName(String name) {
 	   Query query = entityManager.createQuery("from AppointmentType atype where atype.name = :_name").setParameter("_name", name);
-	   return this.getSingleResultOrNull(query);
+	   return (AppointmentType)query.getSingleResult();
    }
 
 }

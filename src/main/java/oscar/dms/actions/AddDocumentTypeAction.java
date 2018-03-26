@@ -19,17 +19,12 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionRedirect;
 import org.apache.struts.actions.DispatchAction;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.dms.EDocUtil;
 import oscar.dms.data.AddDocumentTypeForm;
 
 public class AddDocumentTypeAction extends DispatchAction {
-	
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
 	
 	
 	public ActionForward execute(ActionMapping mapping, ActionForm form,
@@ -38,10 +33,6 @@ public class AddDocumentTypeAction extends DispatchAction {
 		AddDocumentTypeForm fm = (AddDocumentTypeForm) form;
 		HashMap<String,String> errors = new HashMap<String,String>();
         
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_admin,_admin.document", "r", null)) {
-			throw new SecurityException("missing required security object (_admin,_admin.document)");
-		}
-		
 		boolean doctypeadded =false;
 		
 		if (fm.getDocType().length() == 0) {

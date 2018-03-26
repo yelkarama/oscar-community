@@ -22,6 +22,7 @@
  * Ontario, Canada
  */
 
+
 package oscar.oscarMessenger.pageUtil;
 
 import java.io.IOException;
@@ -34,38 +35,39 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.oscarehr.common.dao.MessageTblDao;
-import org.oscarehr.common.model.MessageTbl;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
-import org.oscarehr.util.SpringUtils;
+import org.oscarehr.util.MiscUtils;
 
-import oscar.util.ConversionUtils;
+import oscar.oscarDB.DBHandler;
 
 public class MsgViewPDFAttachmentAction extends Action {
 
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	
-	public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    public ActionForward execute(ActionMapping mapping,
+				 ActionForm form,
+				 HttpServletRequest request,
+				 HttpServletResponse response)
+	throws IOException, ServletException {
 
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_msg", "r", null)) {
-			throw new SecurityException("missing required security object (_msg)");
-		}
-		
-		MsgViewPDFAttachmentForm frm = (MsgViewPDFAttachmentForm) form;
-		String attachId;
-		String pdfAtt = null;
+    MsgViewPDFAttachmentForm frm = (MsgViewPDFAttachmentForm) form;
+    String attachId;
+    String pdfAtt = null;
 
-		attachId = frm.getAttachId();
+    attachId = frm.getAttachId();
 
-		MessageTblDao dao = SpringUtils.getBean(MessageTblDao.class);
-		MessageTbl m = dao.find(ConversionUtils.fromIntString(attachId));
-		if (m != null) {
-			pdfAtt = new String(m.getPdfAttachment());
-		}
-		request.setAttribute("PDFAttachment", pdfAtt);
-		request.setAttribute("attId", attachId);
+    try{
+        
+        java.sql.ResultSet rs;
 
-		return (mapping.findForward("success"));
-	}
+        String sql = new String("select pdfattachment from messagetbl where messageid ="+attachId);
+        rs = DBHandler.GetSQL(sql);
+        while (rs.next()) {
+              pdfAtt = oscar.Misc.getString(rs, "pdfattachment");
+        }//while
+        rs.close();
+    }catch (java.sql.SQLException e){MiscUtils.getLogger().error("Error", e); }
+
+    request.setAttribute("PDFAttachment", pdfAtt);
+    request.setAttribute("attId",attachId);
+
+    return (mapping.findForward("success"));
+    }
 }

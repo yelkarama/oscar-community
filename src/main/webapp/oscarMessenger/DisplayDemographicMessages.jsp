@@ -24,26 +24,11 @@
 
 --%>
 
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
 <%@ page import="oscar.oscarDemographic.data.DemographicData"%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-	  boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_msg" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_msg");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
 
 <%
 
@@ -80,19 +65,15 @@ final int INITIAL_DISPLAY=20;
 </logic:present>
 <%
 oscar.oscarMessenger.pageUtil.MsgSessionBean bean = (oscar.oscarMessenger.pageUtil.MsgSessionBean)pageContext.findAttribute("bean");
-String demographic_no = "";
-if(request.getParameter("demographic_no")!=null){
-	demographic_no = request.getParameter("demographic_no");
-}else{
-	demographic_no = bean.getDemographic_no();
-}
-
+String demographic_no = bean.getDemographic_no();
 String demographic_name = "";
 if ( demographic_no != null ) {   
     DemographicData demographic_data = new DemographicData();
-    org.oscarehr.common.model.Demographic demographic = demographic_data.getDemographic(LoggedInInfo.getLoggedInInfoFromSession(request), demographic_no);
+    org.oscarehr.common.model.Demographic demographic = demographic_data.getDemographic(demographic_no);
     demographic_name = demographic.getLastName() + ", " + demographic.getFirstName();
 }
+
+
 
 %>
 <jsp:useBean id="DisplayMessagesBeanId" scope="session"
@@ -115,13 +96,6 @@ bean.nullAttachment();%>
 <title><bean:message key="oscarMessenger.DisplayMessages.title" />
 </title>
 <link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
-
-<style>
-.TopStatusBar{
-width:100% !important;
-height:100% !important;
-}
-</style>
 
 <script type="text/javascript">
 function BackToOscar()
@@ -154,10 +128,11 @@ function unlink(){
 				</div>
 				</td>
 				<td></td>
-				<td style="text-align: right">
-				  <oscar:help keywords="message" key="app.top1"/> | 
-				  <a href="javascript:void(0)" onclick="javascript:popupPage(600,700,'../oscarEncounter/About.jsp')"><bean:message key="global.about" /></a>
-			    </td>
+				<td style="text-align: right"><oscar:help keywords="message" key="app.top1"/> | <a
+					href="javascript:popupStart(300,400,'About.jsp')"><bean:message
+					key="global.about" /></a> | <a
+					href="javascript:popupStart(300,400,'License.jsp')"><bean:message
+					key="global.license" /></a></td>
 			</tr>
 		</table>
 		</td>

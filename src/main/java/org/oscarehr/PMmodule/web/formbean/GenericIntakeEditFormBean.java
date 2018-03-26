@@ -57,7 +57,8 @@ public class GenericIntakeEditFormBean extends ActionForm {
 	private LabelValueBean[] maritalStatus;
 	private LabelValueBean[] recipientLocation;
 	private LabelValueBean[] lhinConsumerResides;
-			
+	private LabelValueBean[] lhinServiceDelivery;
+	
 	private List<LabelValueBean> bedPrograms;
 	private String bedProgramId;
 	private String bedProgramLabel;
@@ -90,6 +91,7 @@ public class GenericIntakeEditFormBean extends ActionForm {
 		maritalStatus = GenericIntakeConstants.MARITAL_STATUS;
 		recipientLocation = GenericIntakeConstants.RECIPIENT_LOCATION;
 		lhinConsumerResides = GenericIntakeConstants.LHIN_CONSUMER_RESIDES;
+		lhinServiceDelivery = GenericIntakeConstants.LHIIN_SERVICE_DELIVERY;
 	}
 
 	public String getMethod() {
@@ -115,7 +117,7 @@ public class GenericIntakeEditFormBean extends ActionForm {
 	public void setClient(Demographic client) {
 		this.client = client;
 	}
-
+	
 	public List getGenders() {
 		return genders;
 	}
@@ -162,6 +164,14 @@ public class GenericIntakeEditFormBean extends ActionForm {
 
 	public void setLhinConsumerResides(LabelValueBean[] lhinConsumerResides) {
     	this.lhinConsumerResides = lhinConsumerResides;
+    }
+	
+	public LabelValueBean[] getLhinServiceDelivery() {
+    	return lhinServiceDelivery;
+    }
+
+	public void setLhinServiceDelivery(LabelValueBean[] lhinServiceDelivery) {
+    	this.lhinServiceDelivery = lhinServiceDelivery;
     }
 	
 //	 programs in provider's domain --------------------
@@ -347,6 +357,7 @@ public class GenericIntakeEditFormBean extends ActionForm {
 	public void setCommunityProgramId(String communityProgramId) {
 		this.communityProgramId = communityProgramId;
 	}
+	/////////////////////////////////////////
 	
 	// Service programs
 

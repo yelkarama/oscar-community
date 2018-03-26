@@ -31,6 +31,7 @@
 	errorPage="errorpage.jsp"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
+<%@ include file="/common/webAppContextAndSuperMgr.jsp"%>
 <%@page import="org.oscarehr.common.dao.AppointmentArchiveDao" %>
 <%@page import="org.oscarehr.common.dao.OscarAppointmentDao" %>
 <%@page import="org.oscarehr.common.model.Appointment" %>
@@ -44,7 +45,7 @@
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 </head>
 
-<body>
+<body background="../images/gray_bg.jpg" bgproperties="fixed">
 <center>
 <table border="0" cellspacing="0" cellpadding="0" width="90%">
 	<tr bgcolor="#486ebd">
@@ -56,11 +57,7 @@
 	ApptUtil.copyAppointmentIntoSession(request);
 	Appointment appt = appointmentDao.find(Integer.parseInt(request.getParameter("appointment_no")));
 	appointmentArchiveDao.archiveAppointment(appt);
-	int rowsAffected=0;
-	if(appt != null) {
-		appointmentDao.remove(appt.getId());
-		rowsAffected=1;
-	}
+	int rowsAffected = oscarSuperManager.update("appointmentDao", "delete", new Object [] {request.getParameter("appointment_no")});
 	if (rowsAffected == 1) {
 %>
 <p>

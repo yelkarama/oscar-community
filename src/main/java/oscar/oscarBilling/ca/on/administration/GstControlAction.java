@@ -28,7 +28,8 @@
 package oscar.oscarBilling.ca.on.administration;
 
 import java.io.IOException;
-import java.math.BigDecimal;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Properties;
 
 import javax.servlet.ServletException;
@@ -39,15 +40,12 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.oscarehr.billing.CA.dao.GstControlDao;
-import org.oscarehr.billing.CA.model.GstControl;
-import org.oscarehr.util.SpringUtils;
+import org.oscarehr.util.MiscUtils;
+
+import oscar.oscarDB.DBHandler;
 
 public class GstControlAction extends Action{
     
-	private GstControlDao dao = SpringUtils.getBean(GstControlDao.class);
-
-	
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
         GstControlForm gstForm = (GstControlForm) form;
         writeDatabase( gstForm.getGstPercent() );
@@ -56,17 +54,27 @@ public class GstControlAction extends Action{
     }
     
     public void writeDatabase( String percent){
-    	for(GstControl g:dao.findAll()) {
-    		g.setGstPercent(BigDecimal.valueOf(Double.valueOf(percent)));
-    		dao.merge(g);
-    	}
+        try {
+                String sql;
+                
+                sql = "Update gstControl set gstPercent = " + percent + ";";
+                DBHandler.RunSQL(sql);   
+            }
+        catch(SQLException e) {
+                MiscUtils.getLogger().error("Error", e);            
+        }
     }
     
-    public Properties readDatabase() {
+    public Properties readDatabase() throws SQLException{
+        
         Properties props = new Properties();
-        for(GstControl g:dao.findAll()) {
-        	props.setProperty("gstPercent",g.getGstPercent().toString());
+        String sql = "Select gstPercent from gstControl;";
+        
+        ResultSet rs = DBHandler.GetSQL(sql);
+        if(rs.next()){
+            props.setProperty("gstPercent", rs.getString("gstPercent"));
         }
+        rs.close();
         return props;   
     }
 }

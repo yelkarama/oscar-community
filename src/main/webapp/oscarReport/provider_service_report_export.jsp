@@ -22,22 +22,6 @@
     Toronto, Ontario, Canada
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_report,_admin.reporting" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_report&type=_admin.reporting");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
 <%@page import="oscar.util.SqlUtils"%>
 <%@page import="org.oscarehr.web.ProviderServiceReportUIBean"%>
 <%@page import="java.util.*"%>
@@ -49,10 +33,10 @@ if(!authed) {
 <%@page import="java.text.*"%>
 <%@page import="org.apache.commons.lang.StringEscapeUtils"%>
 <%
-	String agencyName = oscar.OscarProperties.getInstance().getProperty("db_name","");
+	String agencyName = SqlUtils.getCurrentDatabaseName();
 	String startDateString = request.getParameter("startDate");
 	String endDateString = request.getParameter("endDate");
-	SimpleDateFormat dateFormatter = new SimpleDateFormat("MM/yyyy");
+	SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM");
 	Date startDate = new Date();
 	Date endDate = new Date();
 

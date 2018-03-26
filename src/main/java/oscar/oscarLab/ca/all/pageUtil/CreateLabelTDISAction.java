@@ -19,32 +19,26 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.oscarehr.common.dao.Hl7TextInfoDao;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.SpringUtils;
 
 
 public class CreateLabelTDISAction extends Action{
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
 	Logger logger = Logger.getLogger(CreateLabelTDISAction.class);
 	
 	public ActionForward execute (ActionMapping mapping,ActionForm form, HttpServletRequest request, HttpServletResponse response){
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_lab", "w", null)) {
-			throw new SecurityException("missing required security object (_lab)");
-		}
 		
 		CreateLabelTDISForm frm = (CreateLabelTDISForm) form;
 		String label = frm.getLabel();//request.getParameter("label");
 		logger.info("Label before db insert ="+label);
 		String lab_no = frm.getLab_no();//request.getParameter("lab_no");
-		
+		String accessionNum = frm.getAccessionNum();//request.getParameter("accessionNum");
 		String ajaxcall=request.getParameter("ajaxcall");
 		
 		if (label==null || label.equals("")) {
 			request.setAttribute("error", "Please enter a label");
 			
 		}
-		//response.setContentType("application/json");
+		response.setContentType("application/json");
 		Hl7TextInfoDao hl7dao = (Hl7TextInfoDao) SpringUtils.getBean("hl7TextInfoDao");
 
 		try {
@@ -63,9 +57,6 @@ public class CreateLabelTDISAction extends Action{
 		
 		logger.info("Label ="+label);
 		label = StringEscapeUtils.escapeJavaScript(label);
-		if( ajaxcall != null && !"null".equalsIgnoreCase(ajaxcall)) {
-			return null;
-		}
 		return mapping.findForward("complete");
 	}
 

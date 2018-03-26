@@ -6,10 +6,7 @@ package oscar.form;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.Properties;
-
-import org.oscarehr.util.LoggedInInfo;
 
 import oscar.oscarDB.DBHandler;
 import oscar.util.UtilDateUtilities;
@@ -17,7 +14,7 @@ import oscar.util.UtilDateUtilities;
 public class FrmInvoiceRecord extends FrmRecord {
     private String _dateFormat = "yyyy/MM/dd";
 
-    public Properties getFormRecord(LoggedInInfo loggedInInfo, int demographicNo, int existingID) throws SQLException {
+    public Properties getFormRecord(int demographicNo, int existingID) throws SQLException {
         Properties props = new Properties();
 
         if (existingID <= 0) {
@@ -29,7 +26,7 @@ public class FrmInvoiceRecord extends FrmRecord {
                 java.util.Date date = UtilDateUtilities.calcDate(oscar.Misc.getString(rs, "year_of_birth"), rs
                         .getString("month_of_birth"), oscar.Misc.getString(rs, "date_of_birth"));
                 props.setProperty("demographic_no", oscar.Misc.getString(rs, "demographic_no"));
-                props.setProperty("formCreated", UtilDateUtilities.DateToString(new Date(),
+                props.setProperty("formCreated", UtilDateUtilities.DateToString(UtilDateUtilities.Today(),
                         _dateFormat));
                 props.setProperty("patientName", oscar.Misc.getString(rs, "first_name") + " " + oscar.Misc.getString(rs, "last_name"));
                 props.setProperty("patientSex", oscar.Misc.getString(rs, "sex"));
@@ -43,9 +40,9 @@ public class FrmInvoiceRecord extends FrmRecord {
                 props.setProperty("c_phn", oscar.Misc.getString(rs, "hin") + oscar.Misc.getString(rs, "ver") + "(" + oscar.Misc.getString(rs, "hc_type")
                         + ")");
                 props.setProperty("c_phone", oscar.Misc.getString(rs, "phone") + "  " + oscar.Misc.getString(rs, "phone2"));
-                props.setProperty("date_invoice", UtilDateUtilities.DateToString(new Date(),
+                props.setProperty("date_invoice", UtilDateUtilities.DateToString(UtilDateUtilities.Today(),
                         _dateFormat));
-                props.setProperty("date_signature", UtilDateUtilities.DateToString(new Date(),
+                props.setProperty("date_signature", UtilDateUtilities.DateToString(UtilDateUtilities.Today(),
                         _dateFormat));
             }
             rs.close();

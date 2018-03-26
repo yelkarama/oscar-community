@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <%--
 
     Copyright (c) 2001-2002. Department of Family Medicine, McMaster University. All Rights Reserved.
@@ -27,21 +26,6 @@
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin.billing,_admin" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../../securityError.jsp?type=_admin&type=_admin.billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
 <%@ page
 	import="java.util.*,oscar.oscarBilling.ca.bc.data.*,oscar.oscarBilling.ca.bc.pageUtil.*,org.apache.commons.beanutils.*"%>
 <%@page import="org.oscarehr.util.SpringUtils" %>
@@ -54,9 +38,10 @@ if(!authed) {
 <%@page import="org.oscarehr.util.MiscUtils"%><html:html locale="true">
 
 <head>
-<title><bean:message key="admin.admin.ManageReferralDoc"/></title>
-
-
+<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
+<title>Manage Referral Docs</title>
+<link rel="stylesheet" type="text/css"
+	href="../../../oscarEncounter/encounterStyles.css">
 <script type="text/javascript">
 
 function isNumeric(strString){
@@ -115,20 +100,38 @@ function forwardZero(str, len) {
     }
 
 </script>
+
+<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
 </head>
 
-<body>
-	<h3><bean:message key="admin.admin.ManageReferralDoc"/></h3>
-
-	<div class="container-fluid well">
-		<% if (request.getAttribute("Error") != null){ %> 
-		<div class="alert alert-error">
-		 <button type="button" class="close" data-dismiss="alert">&times;</button>
-		 <%=request.getAttribute("Error") %>
-		</div>
-		<% }%> 
-
-	<html:form action="/billing/CA/BC/AddReferralDoc" onsubmit="return checkBillingNumber();" styleId="addReferralDocform">
+<body class="BodyStyle" vlink="#0000FF">
+<!--  -->
+<table class="MainTable" id="scrollNumber1" name="encounterTable">
+	<tr class="MainTableTopRow">
+		<td class="MainTableTopRowLeftColumn">billing</td>
+		<td class="MainTableTopRowRightColumn">
+		<table class="TopStatusBar">
+			<tr>
+				<td>Manage Referral Billing</td>
+				<td>&nbsp;</td>
+				<td style="text-align: right"><a
+					href="javascript:popupStart(300,400,'Help.jsp')"><bean:message
+					key="global.help" /></a> | <a
+					href="javascript:popupStart(300,400,'About.jsp')"><bean:message
+					key="global.about" /></a> | <a
+					href="javascript:popupStart(300,400,'License.jsp')"><bean:message
+					key="global.license" /></a></td>
+			</tr>
+		</table>
+		</td>
+	</tr>
+	<tr>
+		<td class="MainTableLeftColumn" valign="top">&nbsp; &nbsp;</td>
+		<td class="MainTableRightColumn">
+		<% if (request.getAttribute("Error") != null){ %> <span
+			style="font: bold 15pt sans-serif; color: red;"><%=request.getAttribute("Error") %></span>
+		<% }%> <html:form action="/billing/CA/BC/AddReferralDoc"
+			onsubmit="return checkBillingNumber();">
 
 			<%
             String id = request.getParameter("id");
@@ -157,24 +160,36 @@ function forwardZero(str, len) {
             }
            %>
 
-			<fieldset>
-				<legend><%=(id == null)?"Add":"Update"%> Referral Doctor</legend> 
-				Billing #:<html:text property="referral_no" /><br>
-				Last Name:<html:text property="last_name"/>	First Name:<html:text property="first_name" /><br />
-				Specialty:<html:text property="specialty" /></br>
-				Address 1:<html:text property="address1" size="30" /><br />
-				Address 2:<html:text property="address2" size="30" /><br />
-				City:<html:text property="city" />
-				Province:<html:text property="province" /><br />
-				Postal:<html:text property="postal" /><br />
-				Phone:<html:text property="phone" />
-				Fax:<html:text property="fax" /><br />
-				<input class="btn btn-primary" type="submit" value="Save" />
-			</fieldset>
-		</html:form>
-	</div>
-<script>
-registerFormSubmit('addReferralDocform', 'dynamic-content');
-</script>
+			<fieldset><legend><%=(id == null)?"Add":"Update"%>
+			Referral Doctor</legend> <label for="referral_no">Billing #:</label> <html:text
+				property="referral_no" /><br>
+			<label for="last_name">Last Name:</label><html:text
+				property="last_name" /><b>First Name:</b><html:text
+				property="first_name" /> <br />
+			<label for="specialty">Specialty:</label> <html:text
+				property="specialty" /></br>
+			<label for="address1">Address 1:</label> <html:text
+				property="address1" size="30" /><br />
+			<label for="address2">Address 2:</label> <html:text
+				property="address2" size="30" /><br />
+			<label for="city">City:</label> <html:text property="city" /><b>Province:</b><html:text
+				property="province" /><br />
+			<label for="postal">Postal:</label><html:text property="postal" /><br />
+			<label for="phone">Phone:</label> <html:text property="phone" /><b>Fax:<b /><html:text
+				property="fax" /><br />
+
+
+
+
+			<input type="submit" value="Save" /> <input type="button"
+				value="Cancel"
+				onclick="window.location = 'billingManageReferralDoc.jsp';" /></fieldset>
+		</html:form></td>
+	</tr>
+	<tr>
+		<td class="MainTableBottomRowLeftColumn"></td>
+		<td class="MainTableBottomRowRightColumn"></td>
+	</tr>
+</table>
 </body>
 </html:html>

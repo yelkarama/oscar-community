@@ -39,12 +39,9 @@ import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.apache.struts.action.RedirectingActionForward;
-import org.apache.struts.actions.DispatchAction;
 import org.oscarehr.PMmodule.caisi_integrator.CaisiIntegratorManager;
 import org.oscarehr.PMmodule.dao.ProgramProviderDAO;
 import org.oscarehr.PMmodule.model.Intake;
-import org.oscarehr.PMmodule.service.ClientManager;
 import org.oscarehr.PMmodule.service.SurveyManager;
 import org.oscarehr.PMmodule.web.formbean.ClientSearchFormBean;
 import org.oscarehr.PMmodule.web.formbean.GenericIntakeSearchFormBean;
@@ -66,37 +63,15 @@ import org.oscarehr.util.SessionConstants;
 import org.oscarehr.util.SpringUtils;
 
 import oscar.OscarProperties;
-import oscar.util.DateUtils;
 
 import com.quatro.model.LookupCodeValue;
 
-public class GenericIntakeSearchAction extends DispatchAction {
+public class GenericIntakeSearchAction extends BaseGenericIntakeAction {
 
 	private static Logger LOG = MiscUtils.getLogger();
 
 	private static final List<LookupCodeValue> genders = new ArrayList<LookupCodeValue>();
-	protected ClientManager clientManager;
 
-	// Parameters
-		protected static final String METHOD = "method";
-		protected static final String TYPE = "type";
-		protected static final String CLIENT_ID = "clientId";
-		protected static final String INTAKE_ID = "intakeId";
-	    protected static final String CLIENT_EDIT_ID = "id";
-		protected static final String PROGRAM_ID = "programId";
-		protected static final String START_DATE = "startDate";
-		protected static final String END_DATE = "endDate";
-		protected static final String INCLUDE_PAST = "includePast";
-
-		// Method Names
-		protected static final String EDIT_CREATE = "create";
-
-	    protected static final String EDIT_UPDATE = "update";
-		
-		// Session Attributes
-		protected static final String CLIENT = "client";
-		protected static final String CLIENT_EXTRA = "clientExtra";
-		
 	static {
 		LookupCodeValue lv1 = new LookupCodeValue();
 		lv1.setCode("M");
@@ -126,8 +101,11 @@ public class GenericIntakeSearchAction extends DispatchAction {
 		this.clientImageDAO = clientImageDAO;
 	}
 	
-	private SurveyManager surveyManager = (SurveyManager)SpringUtils.getBean("surveyManager2");
-	
+	private SurveyManager surveyManager;
+
+	public void setSurveyManager(SurveyManager mgr) {
+		this.surveyManager = mgr;
+	}
 
 	@Override
 	protected ActionForward unspecified(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -136,15 +114,13 @@ public class GenericIntakeSearchAction extends DispatchAction {
 	}
 
 	public ActionForward searchFromRemoteAdmit(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-
 		try {
 			Integer remoteReferralId = Integer.parseInt(request.getParameter("remoteReferralId"));
 
-			ReferralWs referralWs = CaisiIntegratorManager.getReferralWs(loggedInInfo, loggedInInfo.getCurrentFacility());
+			ReferralWs referralWs = CaisiIntegratorManager.getReferralWs();
 			Referral remoteReferral = referralWs.getReferral(remoteReferralId);
 
-			DemographicWs demographicWs = CaisiIntegratorManager.getDemographicWs(loggedInInfo, loggedInInfo.getCurrentFacility());
+			DemographicWs demographicWs = CaisiIntegratorManager.getDemographicWs();
 			DemographicTransfer demographicTransfer = demographicWs.getDemographicByFacilityIdAndDemographicId(remoteReferral.getSourceIntegratorFacilityId(), remoteReferral.getSourceCaisiDemographicId());
 
 			GenericIntakeSearchFormBean intakeSearchBean = (GenericIntakeSearchFormBean) form;
@@ -171,18 +147,16 @@ public class GenericIntakeSearchAction extends DispatchAction {
 	public ActionForward search(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		GenericIntakeSearchFormBean intakeSearchBean = (GenericIntakeSearchFormBean) form;
 
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		
 		// UCF
-		request.getSession().setAttribute("survey_list", surveyManager.getAllFormsForCurrentProviderAndCurrentFacility(loggedInInfo));
+		request.getSession().setAttribute("survey_list", surveyManager.getAllFormsForCurrentProviderAndCurrentFacility());
 
-		List<Demographic> localMatches = localSearch(intakeSearchBean, loggedInInfo.getLoggedInProviderNo());
+		List<Demographic> localMatches = localSearch(intakeSearchBean);
 		intakeSearchBean.setLocalMatches(localMatches);
 
 		intakeSearchBean.setSearchPerformed(true);
 		request.setAttribute("genders", getGenders());
 
-		if (loggedInInfo.getCurrentFacility().isIntegratorEnabled()) {
+		if (LoggedInInfo.loggedInInfo.get().currentFacility.isIntegratorEnabled()) {
 			createRemoteList(request, intakeSearchBean);
 		}
 
@@ -203,10 +177,8 @@ public class GenericIntakeSearchAction extends DispatchAction {
 	}
 
 	private void createRemoteList(HttpServletRequest request, GenericIntakeSearchFormBean intakeSearchBean) {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		
 		try {
-			DemographicWs demographicWs = CaisiIntegratorManager.getDemographicWs(loggedInInfo, loggedInInfo.getCurrentFacility());
+			DemographicWs demographicWs = CaisiIntegratorManager.getDemographicWs();
 
 			MatchingDemographicParameters parameters = new MatchingDemographicParameters();
 			parameters.setMaxEntriesToReturn(10);
@@ -223,7 +195,7 @@ public class GenericIntakeSearchAction extends DispatchAction {
 
 			GregorianCalendar cal = new GregorianCalendar();
 			{
-				DateUtils.setToBeginningOfDay(cal);
+				MiscUtils.setToBeginningOfDay(cal);
 
 				temp = StringUtils.trimToNull(intakeSearchBean.getYearOfBirth());
 				if (temp != null) cal.set(Calendar.YEAR, Integer.parseInt(temp));
@@ -240,7 +212,7 @@ public class GenericIntakeSearchAction extends DispatchAction {
 			List<MatchingDemographicTransferScore> integratedMatches = demographicWs.getMatchingDemographics(parameters);
 			request.setAttribute("remoteMatches", integratedMatches);
 
-			List<CachedFacility> allFacilities = CaisiIntegratorManager.getRemoteFacilities(loggedInInfo, loggedInInfo.getCurrentFacility());
+			List<CachedFacility> allFacilities = CaisiIntegratorManager.getRemoteFacilities();
 			HashMap<Integer, String> facilitiesNameMap = new HashMap<Integer, String>();
 			for (CachedFacility cachedFacility : allFacilities)
 				facilitiesNameMap.put(cachedFacility.getIntegratorFacilityId(), cachedFacility.getName());
@@ -264,6 +236,7 @@ public class GenericIntakeSearchAction extends DispatchAction {
 	public ActionForward updateLocal(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		GenericIntakeSearchFormBean intakeSearchBean = (GenericIntakeSearchFormBean) form;
 
+		//TODO: Erclerk - go to their consent.
 		String roleName$ = (String)request.getSession().getAttribute("userrole") + "," + (String) request.getSession().getAttribute("user");
 	    if(roleName$.indexOf(UserRoleUtils.Roles.er_clerk.name()) != -1) {
 	    	request.setAttribute("demographicNo", new Long(intakeSearchBean.getDemographicId()));
@@ -278,21 +251,21 @@ public class GenericIntakeSearchAction extends DispatchAction {
 	 * This method is run from at least 2 locations, 1 is from "new client" and a remote client is found. 2 is from admitting remote referrals.
 	 */
 	public ActionForward copyRemote(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		
 		try {
 			int remoteFacilityId = Integer.parseInt(request.getParameter("remoteFacilityId"));
 			int remoteDemographicId = Integer.parseInt(request.getParameter("remoteDemographicId"));
 
-			Demographic demographic=CaisiIntegratorManager.makeUnpersistedDemographicObjectFromRemoteEntry(loggedInInfo, loggedInInfo.getCurrentFacility(), remoteFacilityId, remoteDemographicId);
+			Demographic demographic=CaisiIntegratorManager.makeUnpersistedDemographicObjectFromRemoteEntry(remoteFacilityId, remoteDemographicId);
 						
-			
+			//TODO: if this is ER clerk, go to their consent form.
+			//client.setProviderNo(providerNo);
+			//clientManager.saveClient(client);
 			String roleName$ = (String)request.getSession().getAttribute("userrole") + "," + (String) request.getSession().getAttribute("user");
 		    if(roleName$.indexOf(UserRoleUtils.Roles.er_clerk.name()) != -1) {
 		    	clientManager.saveClient(demographic);
 		    	request.setAttribute("demographicNo", new Long(demographic.getDemographicNo()));
 		    	String providerNo = ((Provider) request.getSession().getAttribute(SessionConstants.LOGGED_IN_PROVIDER)).getProviderNo();		    	
-		    	this.erClerklinkRemoteDemographic(loggedInInfo, remoteFacilityId, remoteDemographicId, providerNo, demographic);
+		    	this.erClerklinkRemoteDemographic(remoteFacilityId, remoteDemographicId, providerNo, demographic);
 		    	return mapping.findForward("clientEdit");
 		    }
 		    
@@ -303,7 +276,7 @@ public class GenericIntakeSearchAction extends DispatchAction {
 		}
 	}
 
-	private List<Demographic> localSearch(GenericIntakeSearchFormBean intakeSearchBean, String providerNo) {
+	private List<Demographic> localSearch(GenericIntakeSearchFormBean intakeSearchBean) {
 		String strictSearch = OscarProperties.getInstance().getProperty("caisi.new_client.strict_search", "false");
 
 		ClientSearchFormBean clientSearchBean = new ClientSearchFormBean();
@@ -313,7 +286,7 @@ public class GenericIntakeSearchAction extends DispatchAction {
 		if(strictSearch.equalsIgnoreCase("true")) {
 			ProgramProviderDAO ppDao = (ProgramProviderDAO) SpringUtils.getBean("programProviderDAO");
 			clientSearchBean.setSearchOutsideDomain(false);
-			clientSearchBean.setProgramDomain(ppDao.getProgramDomain(providerNo));
+			clientSearchBean.setProgramDomain(ppDao.getProgramDomain(LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo()));
 		} else {
 			clientSearchBean.setSearchOutsideDomain(true);
 		}
@@ -325,9 +298,9 @@ public class GenericIntakeSearchAction extends DispatchAction {
 	protected ActionForward forwardIntakeEditCreate(ActionMapping mapping, HttpServletRequest request, Demographic client) {
 		request.getSession().setAttribute(CLIENT, client);
 
-		StringBuilder parameters = new StringBuilder("?");
-		parameters.append(METHOD).append("=").append(EDIT_CREATE).append("&");
-		parameters.append(TYPE).append("=").append(Intake.QUICK);
+		StringBuilder parameters = new StringBuilder(PARAM_START);
+		parameters.append(METHOD).append(PARAM_EQUALS).append(EDIT_CREATE).append(PARAM_AND);
+		parameters.append(TYPE).append(PARAM_EQUALS).append(Intake.QUICK);
 
 		copyParameter(request, "remoteReferralId", parameters);
 		copyParameter(request, "remoteFacilityId", parameters);
@@ -341,12 +314,10 @@ public class GenericIntakeSearchAction extends DispatchAction {
 	}
 
 	private void addDestinationProgramId(HttpServletRequest request, StringBuilder parameters) {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		
 		String remoteReferralId = StringUtils.trimToNull(request.getParameter("remoteReferralId"));
 		if (remoteReferralId != null) {
 			try {
-				ReferralWs referralWs = CaisiIntegratorManager.getReferralWs(loggedInInfo, loggedInInfo.getCurrentFacility());
+				ReferralWs referralWs = CaisiIntegratorManager.getReferralWs();
 				Referral remoteReferral = referralWs.getReferral(Integer.parseInt(remoteReferralId));
 				parameters.append("&destinationProgramId=");
 				parameters.append(remoteReferral.getDestinationCaisiProgramId());
@@ -370,10 +341,10 @@ public class GenericIntakeSearchAction extends DispatchAction {
 	}
 
 	protected ActionForward forwardIntakeEditUpdate(ActionMapping mapping, Integer clientId, HttpServletRequest request) {
-		StringBuilder parameters = new StringBuilder("?");
-		parameters.append(METHOD).append("=").append(EDIT_UPDATE).append("&");
-		parameters.append(TYPE).append("=").append(Intake.QUICK).append("&");
-		parameters.append(CLIENT_ID).append("=").append(clientId);
+		StringBuilder parameters = new StringBuilder(PARAM_START);
+		parameters.append(METHOD).append(PARAM_EQUALS).append(EDIT_UPDATE).append(PARAM_AND);
+		parameters.append(TYPE).append(PARAM_EQUALS).append(Intake.QUICK).append(PARAM_AND);
+		parameters.append(CLIENT_ID).append(PARAM_EQUALS).append(clientId);
 
 		copyParameter(request, "remoteReferralId", parameters);
 		addDestinationProgramId(request, parameters);
@@ -385,10 +356,10 @@ public class GenericIntakeSearchAction extends DispatchAction {
 		return genders;
 	}
 	
-	private void erClerklinkRemoteDemographic(LoggedInInfo loggedInInfo, int remoteFacilityId, int remoteDemographicId, String providerNo, Demographic client) {
+	private void erClerklinkRemoteDemographic(int remoteFacilityId, int remoteDemographicId, String providerNo, Demographic client) {
 		
 		try {			
-			DemographicWs demographicWs = CaisiIntegratorManager.getDemographicWs(loggedInInfo, loggedInInfo.getCurrentFacility());
+			DemographicWs demographicWs = CaisiIntegratorManager.getDemographicWs();
 
 			// link the clients
 			demographicWs.linkDemographics(providerNo, client.getDemographicNo(), remoteFacilityId, remoteDemographicId);
@@ -413,26 +384,5 @@ public class GenericIntakeSearchAction extends DispatchAction {
 			LOG.error("Error", e);
 		}
 	}
-	
-    protected ActionForward createRedirectForward(ActionMapping mapping, String forwardName, StringBuffer parameters) {
-        ActionForward forward = mapping.findForward(forwardName);
-        StringBuilder path = new StringBuilder(forward.getPath());
-        path.append(parameters);
-        
-        return new RedirectingActionForward(path.toString());
-    }
-
-    protected ActionForward createRedirectForward(ActionMapping mapping, 
-        String forwardName, StringBuilder parameters) {
-	    ActionForward forward = mapping.findForward(forwardName);
-	    StringBuilder path = new StringBuilder(forward.getPath());
-	    path.append(parameters);
-	
-	    return new RedirectingActionForward(path.toString());
-    }
-    
-    public void setClientManager(ClientManager mgr) {
-    	this.clientManager = mgr;
-    }
 
 }

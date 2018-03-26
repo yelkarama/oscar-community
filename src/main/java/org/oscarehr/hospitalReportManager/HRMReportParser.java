@@ -42,45 +42,29 @@ import org.oscarehr.hospitalReportManager.model.HRMDocumentSubClass;
 import org.oscarehr.hospitalReportManager.model.HRMDocumentToDemographic;
 import org.oscarehr.hospitalReportManager.model.HRMDocumentToProvider;
 import org.oscarehr.hospitalReportManager.xsd.OmdCds;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 import org.xml.sax.SAXException;
-
-import oscar.OscarProperties;
 
 
 public class HRMReportParser {
 
 	private static Logger logger = MiscUtils.getLogger();
-	
+	private static OmdCds root = null;
+
 	private HRMReportParser() {}
 
 
-	public static HRMReport parseReport(LoggedInInfo loggedInInfo, String hrmReportFileLocation) {
-		OmdCds root = null;
-		
-		logger.debug("Parsing the Report in the location:"+hrmReportFileLocation);
-		
+	public static HRMReport parseReport(String hrmReportFileLocation) {
+
 		String fileData = null;
 		if (hrmReportFileLocation != null) {
-			
 			try {
 				//a lot of the parsers need to refer to a file and even when they provide functions like parse(String text)
 				//it will not parse the same way because it will treat the text as a URL
 				//so we take the lab and store them temporarily in a random filename in /tmp/oscar-sftp/
 				File tmpXMLholder = new File(hrmReportFileLocation);
-				
-				//check the DOCUMENT_DIR
-				if(!tmpXMLholder.exists()) {
-					String place= OscarProperties.getInstance().getProperty("DOCUMENT_DIR");
-					tmpXMLholder = new File(place + File.separator + hrmReportFileLocation);
-				}
 
-				if(!tmpXMLholder.exists()) {
-					logger.warn("unable to find the HRM report. checked " + hrmReportFileLocation + ", and in the document_dir");
-					return null;
-				}
 				if (tmpXMLholder.exists()) fileData = FileUtils.getStringFromFile(tmpXMLholder);
 				// Parse an XML document into a DOM tree.
 				DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -96,8 +80,6 @@ public class HRMReportParser {
 
 				JAXBContext jc = JAXBContext.newInstance("org.oscarehr.hospitalReportManager.xsd");
 				Unmarshaller u = jc.createUnmarshaller();
-				u.setSchema(schema);
-				
 				root = (OmdCds) u.unmarshal(tmpXMLholder);
 
 				tmpXMLholder = null;
@@ -109,12 +91,6 @@ public class HRMReportParser {
 			} catch (JAXBException e) {
 				// TODO Auto-generated catch block
 				logger.error("error",e);
-				if(e.getLinkedException() != null) {
-					SFTPConnector.notifyHrmError(loggedInInfo, e.getLinkedException().getMessage());
-				} else {
-					SFTPConnector.notifyHrmError(loggedInInfo, e.getMessage());
-				}
-				
 			}
 
                         if (root!=null && hrmReportFileLocation!=null && fileData!=null)
@@ -124,20 +100,10 @@ public class HRMReportParser {
 		return null;
 	}
 
-	public static void addReportToInbox(LoggedInInfo loggedInInfo, HRMReport report) {
-		
-		if(report == null) {
-			logger.info("addReportToInbox cannot continue, report parameter is null");
-			return;
-		}
-
-		logger.debug("Adding Report to Inbox, for file:"+report.getFileLocation());
-		
+	public static void addReportToInbox(HRMReport report) {
 		HRMDocument document = new HRMDocument();
 
-		File fileLocation = new File(report.getFileLocation());
-
-		document.setReportFile(fileLocation.getName());
+		document.setReportFile(report.getFileLocation());
 		document.setReportStatus(report.getResultStatus());
 		document.setReportType(report.getFirstReportClass());
 		document.setTimeReceived(new Date());
@@ -158,8 +124,6 @@ public class HRMReportParser {
 
 		document.setReportDate(HRMReportParser.getAppropriateDateFromReport(report));
 
-		document.setDescription("");
-		
 		// We're going to check to see if there's a match in the database already for either of these
 		// report hash matches = duplicate report for same recipient
 		// no transaction info hash matches = duplicate report, but different recipient
@@ -170,7 +134,6 @@ public class HRMReportParser {
 			List<HRMDocument> sameReportDifferentRecipientReportList = hrmDocumentDao.findByNoTransactionInfoHash(noTransactionInfoHash);
 
 			if (sameReportDifferentRecipientReportList != null && sameReportDifferentRecipientReportList.size() > 0) {
-				logger.info("Same Report Different Recipient, for file:"+report.getFileLocation());
 				HRMReportParser.routeReportToProvider(sameReportDifferentRecipientReportList.get(0), report);
 			} else {
 				// New report
@@ -179,15 +142,12 @@ public class HRMReportParser {
 
 
 				HRMReportParser.routeReportToDemographic(report, document);
-				HRMReportParser.doSimilarReportCheck(loggedInInfo, report, document);
+				HRMReportParser.doSimilarReportCheck(report, document);
 				// Attempt a route to the provider listed in the report -- if they don't exist, note that in the record
 				Boolean routeSuccess = HRMReportParser.routeReportToProvider(report, document.getId());
 				if (!routeSuccess) {
-					
-					logger.info("Adding the provider name to the list of unidentified providers, for file:"+report.getFileLocation());
-					
 					// Add the provider name to the list of unidentified providers for this report
-					document.setUnmatchedProviders((document.getUnmatchedProviders() != null ? document.getUnmatchedProviders() : "") + "|" + ((report.getDeliverToUserIdLastName()!=null)?report.getDeliverToUserIdLastName() + ", " + report.getDeliverToUserIdFirstName():report.getDeliverToUserId()) + " (" + report.getDeliverToUserId() + ")");
+					document.setUnmatchedProviders((document.getUnmatchedProviders() != null ? document.getUnmatchedProviders() : "") + "|" + report.getDeliverToUserIdLastName() + ", " + report.getDeliverToUserIdFirstName() + " (" + report.getDeliverToUserId() + ")");
 					hrmDocumentDao.merge(document);
 					// Route this report to the "system" user so that a search for "all" in the inbox will come up with them
 					HRMReportParser.routeReportToProvider(document.getId().toString(), "-1");
@@ -197,9 +157,6 @@ public class HRMReportParser {
 			}
 		} else if (exactMatchList != null && exactMatchList.size() > 0) {
 			// We've seen this one before.  Increment the counter on how many times we've seen it before
-			
-			logger.debug("We've seen this report before. Increment the counter on how many times we've seen it before, for file:"+report.getFileLocation());
-			
 			HRMDocument existingDocument = hrmDocumentDao.findById(exactMatchList.get(0)).get(0);
 			existingDocument.setNumDuplicatesReceived((existingDocument.getNumDuplicatesReceived() != null ? existingDocument.getNumDuplicatesReceived() : 0) + 1);
 
@@ -208,15 +165,6 @@ public class HRMReportParser {
 	}
 
 	private static void routeReportToDemographic(HRMReport report, HRMDocument mergedDocument) {
-		
-		if(report == null) {
-			logger.info("routeReportToDemographic cannot continue, report parameter is null");
-			return;
-		}
-		
-
-		logger.debug("Routing Report To Demographic, for file:"+report.getFileLocation());
-		
 		// Search the demographics on the system for a likely match and route it to them automatically
 		DemographicDao demographicDao = (DemographicDao) SpringUtils.getBean("demographicDao");
 
@@ -240,21 +188,7 @@ public class HRMReportParser {
 	}
 
 
-	private static boolean hasSameStatus(HRMReport report, HRMReport loadedReport) {
-		if(report.getResultStatus() != null) {
-			return report.getResultStatus().equalsIgnoreCase(loadedReport.getResultStatus());
-		}
-		 
-		return true;
-	}
-	private static void doSimilarReportCheck(LoggedInInfo loggedInInfo, HRMReport report, HRMDocument mergedDocument) {
-		
-		if(report == null) {
-			logger.info("doSimilarReportCheck cannot continue, report parameter is null");
-			return;
-		}
-		logger.debug("Identifying if this is a report that we received before, but was sent to the wrong demographic, for file:"+report.getFileLocation());
-		
+	private static void doSimilarReportCheck(HRMReport report, HRMDocument mergedDocument) {
 		HRMDocumentDao hrmDocumentDao = (HRMDocumentDao) SpringUtils.getBean("HRMDocumentDao");
 
 		// Check #1: Identify if this is a report that we received before, but was sent to the wrong demographic
@@ -270,11 +204,11 @@ public class HRMReportParser {
 		}
 
 		// Load all the reports for this demographic into memory -- check by name only
-		List<HRMReport> thisDemoHrmReportList = HRMReportParser.loadAllReportsRoutedToDemographic(loggedInInfo, report.getLegalName());
+		List<HRMReport> thisDemoHrmReportList = HRMReportParser.loadAllReportsRoutedToDemographic(report.getLegalName());
 
 		for (HRMReport loadedReport : thisDemoHrmReportList) {
 			boolean hasSameReportContent = report.getFirstReportTextContent().equalsIgnoreCase(loadedReport.getFirstReportTextContent());
-			boolean hasSameStatus = hasSameStatus(report,loadedReport);
+			boolean hasSameStatus = report.getResultStatus().equalsIgnoreCase(loadedReport.getResultStatus());
 			boolean hasSameClass = report.getFirstReportClass().equalsIgnoreCase(loadedReport.getFirstReportClass());
 			boolean hasSameDate = false;
 
@@ -318,7 +252,7 @@ public class HRMReportParser {
 	}
 
 
-	private static List<HRMReport> loadAllReportsRoutedToDemographic(LoggedInInfo loggedInInfo, String legalName) {
+	private static List<HRMReport> loadAllReportsRoutedToDemographic(String legalName) {
 		DemographicDao demographicDao = (DemographicDao) SpringUtils.getBean("demographicDao");
 		HRMDocumentToDemographicDao hrmDocumentToDemographicDao = (HRMDocumentToDemographicDao) SpringUtils.getBean("HRMDocumentToDemographicDao");
 		HRMDocumentDao hrmDocumentDao = (HRMDocumentDao) SpringUtils.getBean("HRMDocumentDao");
@@ -332,7 +266,7 @@ public class HRMReportParser {
 			for (HRMDocumentToDemographic matchingHrmDocument : matchingHrmDocumentList) {
 				HRMDocument hrmDocument = hrmDocumentDao.find(Integer.parseInt(matchingHrmDocument.getHrmDocumentId()));
 
-				HRMReport hrmReport = HRMReportParser.parseReport(loggedInInfo, hrmDocument.getReportFile());
+				HRMReport hrmReport = HRMReportParser.parseReport(hrmDocument.getReportFile());
 				hrmReport.setHrmDocumentId(hrmDocument.getId());
 				hrmReport.setHrmParentDocumentId(hrmDocument.getParentReport());
 				allRoutedReports.add(hrmReport);
@@ -345,13 +279,6 @@ public class HRMReportParser {
 
 
 	public static void routeReportToSubClass(HRMReport report, Integer reportId) {
-		if(report == null) {
-			logger.info("routeReportToSubClass cannot continue, report parameter is null");
-			return;
-		}
-		
-		logger.debug("Routing Report To SubClass, for file:"+report.getFileLocation());
-		
 		HRMDocumentSubClassDao hrmDocumentSubClassDao = (HRMDocumentSubClassDao) SpringUtils.getBean("HRMDocumentSubClassDao");
 
 		if (report.getFirstReportClass().equalsIgnoreCase("Diagnostic Imaging Report") || report.getFirstReportClass().equalsIgnoreCase("Cardio Respiratory Report")) {
@@ -390,13 +317,6 @@ public class HRMReportParser {
 	}
 
 	public static boolean routeReportToProvider(HRMReport report, Integer reportId) {
-		if(report == null) {
-			logger.info("routeReportToProvider cannot continue, report parameter is null");
-			return false;
-		}
-		
-		logger.debug("Routing Report to Provider, for file:"+report.getFileLocation());
-		
 		HRMDocumentToProviderDao hrmDocumentToProviderDao = (HRMDocumentToProviderDao) SpringUtils.getBean("HRMDocumentToProviderDao");
 		ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao"); 
 
@@ -420,18 +340,13 @@ public class HRMReportParser {
 		//		}
 
 		for (Provider p : sendToProviderList) {
-						
-			List<HRMDocumentToProvider> existingHRMDocumentToProviders =  hrmDocumentToProviderDao.findByHrmDocumentIdAndProviderNoList(reportId.toString(), p.getProviderNo());
-			
-			if (existingHRMDocumentToProviders == null || existingHRMDocumentToProviders.size() == 0) {	
-				HRMDocumentToProvider providerRouting = new HRMDocumentToProvider();
-				providerRouting.setHrmDocumentId(reportId.toString());
-	
-				providerRouting.setProviderNo(p.getProviderNo());
-				providerRouting.setSignedOff(0);
-	
-				hrmDocumentToProviderDao.merge(providerRouting);
-			}	
+			HRMDocumentToProvider providerRouting = new HRMDocumentToProvider();
+			providerRouting.setHrmDocumentId(reportId.toString());
+
+			providerRouting.setProviderNo(p.getProviderNo());
+			providerRouting.setSignedOff(0);
+
+			hrmDocumentToProviderDao.merge(providerRouting);
 		}
 
 		return sendToProviderList.size() > 0;

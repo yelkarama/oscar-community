@@ -27,20 +27,6 @@
 
 
 <%@ include file="/casemgmt/taglibs.jsp"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_tickler" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_tickler");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%@ page
 	import="java.util.Date,org.caisi.model.*,org.oscarehr.casemgmt.model.*, org.oscarehr.common.model.*,
 org.oscarehr.PMmodule.model.*,org.springframework.context.*,org.springframework.web.context.support.*"%>
@@ -74,35 +60,35 @@ org.oscarehr.PMmodule.model.*,org.springframework.context.*,org.springframework.
 			<tr bgcolor="<%=bgcolor %>" align="center">
 				<%
 					String provider_name="";
-							String assignee_name="";
-							String status = "Active";
-							String late_status = "b";
-							
-							Tickler temp = (Tickler)pageContext.getAttribute("tickler");
-							if(temp != null) {
-								Provider provider = temp.getProvider();
-								if(provider != null) {
-									provider_name = provider.getLastName() + "," + provider.getFirstName();
-								}
-								Provider assignee = temp.getAssignee();
-								if(assignee != null) {
-									assignee_name = assignee.getLastName() + "," + assignee.getFirstName();
-								}
-								status = "Active";
-								if(temp.getStatus().equals(Tickler.STATUS.C))
-									status="Completed";
-								if(temp.getStatus().equals(Tickler.STATUS.D))
-									status="Deleted";
-								
-								// add by PINE_SOFT
-								// get system date
-								Date sysdate = new java.util.Date();
-								Date service_date = temp.getServiceDate();
-								
-								if (!sysdate.before(service_date)) {
-									late_status = "a";
-								}
-							}
+					String assignee_name="";
+					String status = "Active";
+					String late_status = "b";
+					
+					Tickler temp = (Tickler)pageContext.getAttribute("tickler");
+					if(temp != null) {
+						Provider provider = (Provider)temp.getProvider();
+						if(provider != null) {
+							provider_name = provider.getLastName() + "," + provider.getFirstName();
+						}
+						Provider assignee = (Provider)temp.getAssignee();
+						if(assignee != null) {
+							assignee_name = assignee.getLastName() + "," + assignee.getFirstName();
+						}
+						switch(temp.getStatus()) {
+						case 'A': status="Active";break;
+						case 'D': status="Deleted";break;
+						case 'C': status="Completed";break;
+						}
+						// add by PINE_SOFT
+						// get system date
+						Date sysdate = new java.util.Date();
+						Date service_date = (Date)temp.getService_date();
+						
+						if (!sysdate.before(service_date)) {
+							late_status = "a";
+						}
+					}
+				
 				%>
 				<%
 					String style = "";
@@ -112,7 +98,7 @@ org.oscarehr.PMmodule.model.*,org.springframework.context.*,org.springframework.
 				%>
 				<td style="<%=style%>"><%=provider_name %></td>
 				<td style="<%=style%>"><fmt:formatDate
-					pattern="MM/dd/yy : hh:mm a" value="${tickler.serviceDate}" /></td>
+					pattern="MM/dd/yy : hh:mm a" value="${tickler.service_date}" /></td>
 				<td style="<%=style%>"><c:out value="${tickler.priority}" /></td>
 				<td style="<%=style%>"><%=assignee_name %></td>
 				<td style="<%=style%>"><%=status %></td>

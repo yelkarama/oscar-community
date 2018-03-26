@@ -30,17 +30,18 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
+import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.struts.util.MessageResources;
-import org.oscarehr.util.LoggedInInfo;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.oscarPrevention.Prevention;
 import oscar.oscarPrevention.PreventionDS;
 import oscar.oscarPrevention.PreventionData;
 import oscar.oscarPrevention.PreventionDisplayConfig;
+import oscar.util.OscarRoleObjectPrivilege;
 import oscar.util.StringUtils;
 
 /**
@@ -49,11 +50,15 @@ import oscar.util.StringUtils;
  */
 public class EctDisplayPreventionAction extends EctDisplayAction {
     private static final String cmd = "preventions";
+    private long startTime = System.currentTimeMillis();
 
     public boolean getInfo(EctSessionBean bean, HttpServletRequest request, NavBarDisplayDAO Dao, MessageResources messages) {
-    	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		
-		if (!securityInfoManager.hasPrivilege(loggedInInfo, "_prevention", "r", null)) {
+
+    	boolean a = true;
+    	Vector v = OscarRoleObjectPrivilege.getPrivilegeProp("_newCasemgmt.preventions");
+        String roleName = (String)request.getSession().getAttribute("userrole") + "," + (String) request.getSession().getAttribute("user");
+        a = OscarRoleObjectPrivilege.checkPrivilege(roleName, (Properties) v.get(0), (Vector) v.get(1));
+    	if(!a) {
     		return true; //Prevention link won't show up on new CME screen.
     	} else {
 
@@ -69,8 +74,8 @@ public class EctDisplayPreventionAction extends EctDisplayAction {
         Dao.setRightHeadingID(cmd);  //no menu so set div id to unique id for this action
 
         //list warnings first as module items
-        Prevention p = PreventionData.getPrevention(loggedInInfo, Integer.valueOf(bean.demographicNo));
-        PreventionDS pf = SpringUtils.getBean(PreventionDS.class);//PreventionDS.getInstance();
+        Prevention p = PreventionData.getPrevention(bean.demographicNo);
+        PreventionDS pf = PreventionDS.getInstance();
 
         try{
             pf.getMessages(p);
@@ -79,17 +84,15 @@ public class EctDisplayPreventionAction extends EctDisplayAction {
         }
 
         //now we list prevention modules as items
-        PreventionDisplayConfig pdc = PreventionDisplayConfig.getInstance(loggedInInfo);
-        ArrayList<HashMap<String,String>> prevList = pdc.getPreventions(loggedInInfo);
+        PreventionDisplayConfig pdc = PreventionDisplayConfig.getInstance();
+        ArrayList<HashMap<String,String>> prevList = pdc.getPreventions();
         Map warningTable = p.getWarningMsgs();
 
-        String highliteColour 	= "#FF0000";
-        //String inelligibleColour = "#FF6600";
-        String refusedColour 	= "#EAACAC";	//light pink 
-        String ineligibleColour	= "#FFCC24";	//orange
-        String pendingColour 	= "#FF00FF";	//dark pink
-        String abnormalColor 	= "#FF4D4D";	//dark salmon
-        
+
+
+        String highliteColour = "#FF0000";
+        String inelligibleColour = "#FF6600";
+        String pendingColour = "#FF00FF";
         Date date = null;
         //Date defaultDate = new Date(System.currentTimeMillis());
         url += "; return false;";
@@ -100,10 +103,10 @@ public class EctDisplayPreventionAction extends EctDisplayAction {
             NavBarDisplayDAO.Item item = NavBarDisplayDAO.Item();
             HashMap<String,String> h = prevList.get(i);
             String prevName = h.get("name");
-            ArrayList<Map<String,Object>> alist = PreventionData.getPreventionData(loggedInInfo, prevName, Integer.valueOf(bean.demographicNo));
-            Date demographicDateOfBirth=PreventionData.getDemographicDateOfBirth(loggedInInfo, Integer.valueOf(bean.demographicNo));
-            PreventionData.addRemotePreventions(loggedInInfo, alist, Integer.valueOf(bean.demographicNo),prevName,demographicDateOfBirth);
-            boolean show = pdc.display(loggedInInfo, h, bean.demographicNo,alist.size());
+            ArrayList<Map<String,Object>> alist = PreventionData.getPreventionData(prevName, bean.demographicNo);
+            Date demographicDateOfBirth=PreventionData.getDemographicDateOfBirth(bean.demographicNo);
+            PreventionData.addRemotePreventions(alist, Integer.valueOf(bean.demographicNo),prevName,demographicDateOfBirth);
+            boolean show = pdc.display(h, bean.demographicNo,alist.size());
             if( show ) {
                 if( alist.size() > 0 ) {
                     Map<String,Object> hdata = alist.get(alist.size()-1);
@@ -120,15 +123,8 @@ public class EctDisplayPreventionAction extends EctDisplayAction {
                     
                     item.setDate(date);
 
-                    if( hdata.get("refused") != null && hdata.get("refused").equals("1") ) { // 1 for refused
-                        item.setColour(refusedColour);
-                    }
-                    else if( hdata.get("refused") != null && hdata.get("refused").equals("2") ) {	// 2 for ineligible 
-                        item.setColour(ineligibleColour);
-                    }
-
-                    else if( result != null && result.equalsIgnoreCase("abnormal") ) {
-                        item.setColour(abnormalColor);
+                    if( hdata.get("refused") != null && hdata.get("refused").equals("2") ) {
+                        item.setColour(inelligibleColour);
                     }
                     else if( result != null && result.equalsIgnoreCase("pending") ) {
                         item.setColour(pendingColour);

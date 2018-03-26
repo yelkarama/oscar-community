@@ -25,20 +25,17 @@
 
 package oscar.form.pdfservlet;
 
-import java.io.ByteArrayOutputStream;
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Properties;
 
 import javax.servlet.ServletContext;
@@ -47,32 +44,17 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.FileUtils;
-
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperRunManager;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
-import org.apache.tika.io.IOUtils;
-import org.oscarehr.common.dao.FaxConfigDao;
-import org.oscarehr.common.dao.FaxJobDao;
-import org.oscarehr.common.model.FaxConfig;
-import org.oscarehr.common.model.FaxJob;
-import org.oscarehr.common.printing.FontSettings;
-import org.oscarehr.common.printing.PdfWriterFactory;
 import org.oscarehr.util.LocaleUtils;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 import org.oscarehr.web.PrescriptionQrCodeUIBean;
 
 import oscar.OscarProperties;
-import oscar.log.LogAction;
-import oscar.log.LogConst;
 
-import com.itextpdf.text.pdf.PdfReader;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.Element;
@@ -88,6 +70,9 @@ import com.lowagie.text.pdf.PdfContentByte;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfPageEventHelper;
 import com.lowagie.text.pdf.PdfWriter;
+import java.util.Locale;
+
+
 
 public class FrmCustomedPDFServlet extends HttpServlet {
 
@@ -111,73 +96,18 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 					writer.println("<script>alert('Error: No fax number found!');window.close();</script>");
 				} else {
 		                	// write to file
-		                	String pdfFile = "prescription_"+Integer.parseInt(req.getParameter("pdfId"))+".pdf";
-		                	String path = OscarProperties.getInstance().getProperty("DOCUMENT_DIR") + "/";
+		                	String pdfFile = System.getProperty("java.io.tmpdir")+"/prescription_"+req.getParameter("pdfId")+".pdf";
+		                	FileOutputStream fos = new FileOutputStream(pdfFile);
+		                	baosPDF.writeTo(fos);
+		                	fos.close();
 
-		                	FileOutputStream fos = null;
-		                	try {
-		                		fos = new FileOutputStream(path+pdfFile);
-		                		baosPDF.writeTo(fos);
-		                	} finally {
-		                		IOUtils.closeQuietly(fos);
-		                	}
-
-					String tempPath = OscarProperties.getInstance().getProperty(
-								"fax_file_location", System.getProperty("java.io.tmpdir"));
-		                	// write to file
-		                	String tempPdf = tempPath + "/prescription_" + req.getParameter("pdfId") + ".pdf";
-		                	// Copying the fax pdf.
-							FileUtils.copyFile(new File(path+pdfFile), new File(tempPdf));
-
-			                String txtFile = tempPath + "/prescription_" + req.getParameter("pdfId") + ".txt";
-		                	FileWriter fstream = new FileWriter(txtFile);
+			                String txtFile = System.getProperty("java.io.tmpdir")+"/prescription_"+req.getParameter("pdfId")+".txt";
+			                FileWriter fstream = new FileWriter(txtFile);
 		                	BufferedWriter out = new BufferedWriter(fstream);
-			                try {
-			                	out.write(faxNo);
-		                    } finally {
-		                    	if (out != null) out.close();
-		                	}		                	
-		                	
-		                	
-			                String faxNumber = req.getParameter("clinicFax");
-			                String demo = req.getParameter("demographic_no");
-			                FaxJobDao faxJobDao = SpringUtils.getBean(FaxJobDao.class);
-			                FaxConfigDao faxConfigDao = SpringUtils.getBean(FaxConfigDao.class);
-			                List<FaxConfig> faxConfigs = faxConfigDao.findAll(null, null);
-			                String provider_no = LoggedInInfo.getLoggedInInfoFromSession(req).getLoggedInProviderNo();
-			                FaxJob faxJob;
-			                boolean validFaxNumber = false;
-			                
-			                for( FaxConfig faxConfig : faxConfigs ) {
-			                	
-			                	if( faxConfig.getFaxNumber().equals(faxNumber) ) {
-			                		
-			                		PdfReader pdfReader = new PdfReader(path+pdfFile);
-			                		
-			                		faxJob = new FaxJob();
-			                		faxJob.setDestination(faxNo);
-			                		faxJob.setFax_line(faxNumber);
-			                		faxJob.setFile_name(pdfFile);
-			                		faxJob.setUser(faxConfig.getFaxUser());
-			                		faxJob.setNumPages(pdfReader.getNumberOfPages());
-			                		faxJob.setStamp(new Date());
-			                		faxJob.setStatus(FaxJob.STATUS.SENT);
-			                		faxJob.setOscarUser(provider_no);
-			                		faxJob.setDemographicNo(Integer.parseInt(demo));
-			                		
-			                		faxJobDao.persist(faxJob);
-			                		validFaxNumber = true;
-			                		break;
-			                		
-			                	}
-			                }
-			                
-			        if( validFaxNumber ) {
-			        	
-			        	LogAction.addLog(provider_no, LogConst.SENT, LogConst.CON_FAX, "PRESCRIPTION " + pdfFile );
-			        	writer.println("<script>alert('Fax sent to: " + StringEscapeUtils.escapeJavaScript(req.getParameter("pharmaName")) + " (" + faxNo + ")');window.close();</script>");
-			        	
-			        }
+		                	out.write(faxNo);
+		                	out.close();
+
+					writer.println("<script>alert('Fax sent to: " + req.getParameter("pharmaName") + " (" + req.getParameter("pharmaFax") + ")');window.close();</script>");
 				}
 			} else {
 				StringBuilder sbFilename = new StringBuilder();
@@ -209,7 +139,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 				sos = res.getOutputStream();
 
 				baosPDF.writeTo(sos);
-				
+
 				sos.flush();
 			}
 		} catch (DocumentException dex) {
@@ -267,7 +197,6 @@ public class FrmCustomedPDFServlet extends HttpServlet {
         private String patientDOB;
         private String patientHIN;
         private String patientChartNo;
-        private String bandNumber;
         private String pracNo;
 		private String sigDoctorName;
 		private String rxDate;
@@ -280,20 +209,17 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 		public EndPage() {
 		}
 
-
-		public EndPage(String clinicName, String clinicTel, String clinicFax, String patientPhone, String patientCityPostal, String patientAddress,
-                String patientName,String patientDOB, String sigDoctorName, String rxDate,String origPrintDate,String numPrint, String imgPath, 
-                String patientHIN, String patientChartNo, String bandNumber, String pracNo, Locale locale) {
-
-			this.clinicName = clinicName==null ? "" : clinicName;
-			this.clinicTel = clinicTel==null ? "" : clinicTel;
-			this.clinicFax = clinicFax==null ? "" : clinicFax;
-			this.patientPhone = patientPhone==null ? "" : patientPhone;
-			this.patientCityPostal = patientCityPostal==null ? "" : patientCityPostal;
-			this.patientAddress = patientAddress==null ? "" : patientAddress;	
+        public EndPage(String clinicName, String clinicTel, String clinicFax, String patientPhone, String patientCityPostal, String patientAddress,
+                String patientName,String patientDOB, String sigDoctorName, String rxDate,String origPrintDate,String numPrint, String imgPath, String patientHIN, String patientChartNo,String pracNo, Locale locale) {
+			this.clinicName = clinicName;
+			this.clinicTel = clinicTel;
+			this.clinicFax = clinicFax;
+			this.patientPhone = patientPhone;
+			this.patientCityPostal = patientCityPostal;
+			this.patientAddress = patientAddress;
 			this.patientName = patientName;
             this.patientDOB=patientDOB;
-			this.sigDoctorName = sigDoctorName==null ? "" : sigDoctorName;
+			this.sigDoctorName = sigDoctorName;
 			this.rxDate = rxDate;
 			this.promoText = OscarProperties.getInstance().getProperty("FORMS_PROMOTEXT");
 			this.origPrintDate = origPrintDate;
@@ -302,12 +228,10 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 				promoText = "";
 			}
 			this.imgPath = imgPath;
-			this.patientHIN = patientHIN==null ? "" : patientHIN;
-			this.patientChartNo = patientChartNo==null ? "" : patientChartNo;
-			this.pracNo = pracNo==null ? "" : pracNo;
-			this.locale = locale;
-            this.bandNumber = bandNumber;            
-
+			this.patientHIN = patientHIN;
+                        this.patientChartNo = patientChartNo;
+			this.pracNo = pracNo;     
+                        this.locale = locale;
 		}
 
 		@Override
@@ -321,11 +245,10 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 			cb.showTextAligned(alignment, text, x, y, rotation);
 			cb.endText();
 		}
-		
-		private String geti18nTagValue(Locale locale, String tag) {
-			return LocaleUtils.getMessage(locale,tag);
-		}
-		
+public String geti18nTagValue(Locale locale, String tag) {
+	return LocaleUtils.getMessage(locale,tag);
+}
+
 		public void renderPage(PdfWriter writer, Document document) {
 			Rectangle page = document.getPageSize();
 			PdfContentByte cb = writer.getDirectContent();
@@ -344,22 +267,20 @@ public class FrmCustomedPDFServlet extends HttpServlet {
                                                 String newline = System.getProperty("line.separator");
                                 StringBuilder hStr = new StringBuilder(this.patientName);
                                 if(showPatientDOB){
-                                     hStr.append("   "+geti18nTagValue(locale, "RxPreview.msgDOB")+":").append(this.patientDOB);
+                                     hStr.append("   DOB:").append(this.patientDOB).append(newline);}
+                                else{
+                                    hStr.append(newline);
                                 }
-                                hStr.append(newline).append(this.patientAddress).append(newline).append(this.patientCityPostal).append(newline).append(this.patientPhone);
+
+                                hStr.append(this.patientAddress).append(newline).append(this.patientCityPostal).append(newline).append(this.patientPhone);
                                 
                                 if (patientHIN != null && patientHIN.trim().length() > 0) { 
-                                    hStr.append(newline).append(geti18nTagValue(locale, "oscar.oscarRx.hin")+" ").append(patientHIN); 
+                                    hStr.append(newline).append("Health Ins #. ").append(patientHIN); 
                                 }
 
                                 if (patientChartNo != null && !patientChartNo.isEmpty()) {
-                                    String chartNoTitle = geti18nTagValue(locale, "oscar.oscarRx.chartNo") ;
+                                    String chartNoTitle = org.oscarehr.util.LocaleUtils.getMessage(locale, "oscar.oscarRx.chartNo");
                                     hStr.append(newline).append(chartNoTitle).append(patientChartNo);
-                                }
-                                
-                                if( bandNumber != null && ! bandNumber.isEmpty() ) {
-                                	String bandNumberTitle = org.oscarehr.util.LocaleUtils.getMessage(locale, "oscar.oscarRx.bandNumber");
-                                	 hStr.append(newline).append(bandNumberTitle).append(bandNumber);
                                 }
                                 
 				BaseFont bf = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
@@ -379,17 +300,22 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 
 				bf = BaseFont.createFont(BaseFont.HELVETICA_BOLD, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
 				writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, this.sigDoctorName, 80, (page.getHeight() - 25), 0);
-				writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, this.rxDate, 188, (page.getHeight() - 90), 0);
-				
+				writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, this.rxDate, 188, (page.getHeight() - 112), 0);
+
 				bf = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
 				int fontFlags = Font.NORMAL;
 				Font font = new Font(bf, 10, fontFlags);
 				ColumnText ct = new ColumnText(cb);
 				ct.setSimpleColumn(80, (page.getHeight() - 25), 280, (page.getHeight() - 90), 11, Element.ALIGN_LEFT);
 				// p("value of clinic name", this.clinicName);
-				ct.setText(new Phrase(12, clinicName+(pracNo.trim().length()>0 ? "\r\n"+geti18nTagValue(locale, "RxPreview.PractNo")+": "+ pracNo : ""), font));ct.go();
+				ct.setText(new Phrase(12, clinicName+(pracNo != null && pracNo.trim().length() >0 ? "\r\n"+geti18nTagValue(locale, "RxPreview.PractNo")+": "+ pracNo : ""), font));
+				ct.go();
 				// render clnicaTel;
+				// bf = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+				//bf = BaseFont.createFont(BaseFont.COURIER, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
 				if (this.clinicTel.length() <= 13) {
+//RxPreview.msgTel
+
 					writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, geti18nTagValue(locale, "RxPreview.msgTel")+":" + this.clinicTel, 188, (page.getHeight() - 70), 0);
 					// render clinicFax;
 					writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, geti18nTagValue(locale, "RxPreview.msgFax")+":" + this.clinicFax, 188, (page.getHeight() - 80), 0);
@@ -434,7 +360,8 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 				cb.lineTo(285f, endPara - 60);
 				cb.stroke();
 				// Render "Signature:"
-				writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, geti18nTagValue(locale, "RxPreview.msgSignature"), 20f, endPara - 30f, 0);// Render line for Signature 75, 55, 280, 55, 0.5
+				writeDirectContent(cb, bf, 10, PdfContentByte.ALIGN_LEFT, geti18nTagValue(locale, "RxPreview.msgSignature"), 20f, endPara - 30f, 0);
+				// Render line for Signature 75, 55, 280, 55, 0.5
 				cb.setRGBColorStrokeF(0f, 0f, 0f);
 				cb.setLineWidth(0.5f);
 				// cb.moveTo(75f, 50f);
@@ -447,7 +374,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 					Image img = Image.getInstance(this.imgPath);
 					// image, image_width, 0, 0, image_height, x, y
 					//         131, 55, 375, 75, 0
-					cb.addImage(img, 157, 0, 0, 40, 150f, endPara-30f);
+					cb.addImage(img, 207, 0, 0, 20, 75f, endPara-30f);
 				}
 
 				// Render doctor name
@@ -455,7 +382,8 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 				// public void writeDirectContent(PdfContentByte cb, BaseFont bf, float fontSize, int alignment, String text, float x, float y, float rotation)
 				// render reprint origPrintDate and numPrint
 				if (origPrintDate != null && numPrint != null) {
-					String rePrintStr = geti18nTagValue(locale, "RxPreview.msgReprintBy")+" " + this.sigDoctorName + "; "+geti18nTagValue(locale, "RxPreview.msgOrigPrinted")+": " + origPrintDate + "; "+geti18nTagValue(locale, "RxPreview.msgTimesPrinted") +": " + numPrint;writeDirectContent(cb, bf, 6, PdfContentByte.ALIGN_LEFT, rePrintStr, 50, endPara - 48, 0);
+					String rePrintStr = geti18nTagValue(locale, "RxPreview.msgReprintBy")+" " + this.sigDoctorName + "; "+geti18nTagValue(locale, "RxPreview.msgOrigPrinted")+": " + origPrintDate + "; "+geti18nTagValue(locale, "RxPreview.msgTimesPrinted") +": " + numPrint;
+					writeDirectContent(cb, bf, 6, PdfContentByte.ALIGN_LEFT, rePrintStr, 50, endPara - 48, 0);
 				}
 				// print promoText
 				writeDirectContent(cb, bf, 6, PdfContentByte.ALIGN_LEFT, this.promoText, 70, endPara - 57, 0);
@@ -492,9 +420,6 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 
 	protected ByteArrayOutputStream generatePDFDocumentBytes(final HttpServletRequest req, final ServletContext ctx) throws DocumentException {
 		logger.debug("***in generatePDFDocumentBytes2 FrmCustomedPDFServlet.java***");
-
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(req);
-		
 		// added by vic, hsfo
 		Enumeration<String> em = req.getParameterNames();
 		while (em.hasMoreElements()) {
@@ -552,20 +477,8 @@ public class FrmCustomedPDFServlet extends HttpServlet {
         String imgFile=req.getParameter("imgFile");
         String patientHIN=req.getParameter("patientHIN");
         String patientChartNo = req.getParameter("patientChartNo");
-        String patientBandNumber = req.getParameter("bandNumber");
         String pracNo=req.getParameter("pracNo");
         Locale locale = req.getLocale();
-        
-		if (clinicName==null) clinicName = "";
-		if (clinicTel==null) clinicTel = "";
-		if (clinicFax==null) clinicFax = "";
-		if (patientPhone==null) patientPhone = "";
-		if (patientCityPostal==null) patientCityPostal = "";
-		if (patientAddress==null) patientAddress = "";
-		if (sigDoctorName==null) sigDoctorName = "";
-        if (patientHIN==null) patientHIN = "";
-        if (patientChartNo==null) patientChartNo = "";
-        if (pracNo==null) pracNo = "";
         
         boolean isShowDemoDOB=false;
         if(showPatientDOB!=null&&showPatientDOB.equalsIgnoreCase("true")){
@@ -655,13 +568,8 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 			// 285=left margin+width of box, 5f is space for looking nice
 			document.setMargins(15, pageSize.getWidth() - 285f + 5f, 170, 60);// left, right, top , bottom
 
-			// writer = PdfWriter.getInstance(document, baosPDF);
-			writer = PdfWriterFactory.newInstance(document, baosPDF, FontSettings.HELVETICA_10PT);
-			writer.setPageEvent(new EndPage(clinicName, clinicTel, clinicFax, patientPhone, patientCityPostal, 
-					patientAddress, patientName,patientDOB, sigDoctorName, rxDate, origPrintDate, numPrint, 
-					imgFile, patientHIN, patientChartNo, patientBandNumber, pracNo, 
-					locale));
-
+			writer = PdfWriter.getInstance(document, baosPDF);
+			writer.setPageEvent(new EndPage(clinicName, clinicTel, clinicFax, patientPhone, patientCityPostal, patientAddress, patientName,patientDOB, sigDoctorName, rxDate, origPrintDate, numPrint, imgFile, patientHIN, patientChartNo, pracNo, locale));
 			document.addTitle(title);
 			document.addSubject("");
 			document.addKeywords("pdf, itext");
@@ -676,26 +584,10 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 			BaseFont bf; // = normFont;
 
 			cb.setRGBColorStroke(0, 0, 255);
-			// add water mark
-			if (OscarProperties.getInstance().getBooleanProperty("enable_rx_watermark", "true")) {
-				Image image = null;
-				if (!"oscarRxFax".equals(req.getParameter("__method"))) {
-					if(OscarProperties.getInstance().getProperty("rx_watermark_file_name") !=null ) {
-						image = Image.getInstance(req.getSession().getServletContext().getRealPath("/") + "images/" + OscarProperties.getInstance().getProperty("rx_watermark_file_name"));
-					} else {
-						image = Image.getInstance(req.getSession().getServletContext().getRealPath("/") + "images/watermark.png");
-					}
-					image.setAbsolutePosition(0, 0);
-					image.setAlignment(Image.MIDDLE | Image.UNDERLYING);
-					image.scaleToFit(pageSize.getWidth(), pageSize.getHeight());
-					cb.addImage(image);
-				}
-			}
-			
 			// render prescriptions
 			for (String rxStr : listRx) {
-				bf = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
 				//bf = BaseFont.createFont(BaseFont.COURIER, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+				bf = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
 				Paragraph p = new Paragraph(new Phrase(rxStr, new Font(bf, 10)));
 				p.setKeepTogether(true);
 				p.setSpacingBefore(5f);
@@ -711,7 +603,7 @@ public class FrmCustomedPDFServlet extends HttpServlet {
 			}
 
 			// render QrCode
-			if (PrescriptionQrCodeUIBean.isPrescriptionQrCodeEnabledForProvider(loggedInInfo.getLoggedInProviderNo()))
+			if (PrescriptionQrCodeUIBean.isPrescriptionQrCodeEnabledForCurrentProvider())
 			{
 				Integer scriptId=Integer.parseInt(req.getParameter("scriptId"));
 				byte[] qrCodeImage=PrescriptionQrCodeUIBean.getPrescriptionHl7QrCodeImage(scriptId);

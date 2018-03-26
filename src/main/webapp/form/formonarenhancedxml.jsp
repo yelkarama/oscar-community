@@ -23,22 +23,6 @@
     Ontario, Canada
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_form" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_form");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%@page import="org.oscarehr.integration.born.ONAREnhancedFormToXML" %>
 <%@page import="org.oscarehr.util.LoggedInInfo" %>
 <%@ page trimDirectiveWhitespaces="true" %>
@@ -48,14 +32,11 @@
 	String formId = request.getParameter("formId");
     String episodeId = request.getParameter("episodeId");
 
-    LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-	String providerNo=loggedInInfo.getLoggedInProviderNo();
-		
 	response.setContentType ("text/xml");
 	response.setHeader ("Content-Disposition", "attachment; filename=\"ar.xml\"");
 
 	ONAREnhancedFormToXML gen = new ONAREnhancedFormToXML();
-	gen.generateXMLAndValidate(loggedInInfo, response.getOutputStream(),providerNo,demographicNo, Integer.parseInt(formId),Integer.parseInt(episodeId));
+	gen.generateXMLAndValidate(response.getOutputStream(),LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo(),demographicNo, Integer.parseInt(formId),Integer.parseInt(episodeId));
 	response.getOutputStream().flush();
 	response.getOutputStream().close();
 	%>

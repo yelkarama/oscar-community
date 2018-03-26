@@ -36,7 +36,7 @@ import org.apache.struts.action.ActionRedirect;
 import org.apache.struts.actions.DispatchAction;
 import org.oscarehr.common.dao.ProviderPreferenceDao;
 import org.oscarehr.common.model.ProviderPreference;
-import org.oscarehr.myoscar.utils.MyOscarLoggedInInfo;
+import org.oscarehr.phr.PHRAuthentication;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
@@ -48,23 +48,22 @@ public class PHRLogoutAction extends DispatchAction {
 	}
 
 	public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		String providerNo=loggedInInfo.getLoggedInProviderNo();
-
 		HttpSession session = request.getSession();
-		MyOscarLoggedInInfo.setLoggedInInfo(session, null);
+		session.removeAttribute(PHRAuthentication.SESSION_PHR_AUTH);
 
-		clearSavedMyOscarPassword(providerNo);
+		clearSavedMyOscarPassword();
 
 		String forwardTo = request.getParameter("forwardto");
 		ActionRedirect ar = new ActionRedirect(forwardTo);
 		return ar;
 	}
 
-	private void clearSavedMyOscarPassword(String providerNo) {
+	private void clearSavedMyOscarPassword() {
 		try {
+			LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
+
 			ProviderPreferenceDao providerPreferenceDao = (ProviderPreferenceDao) SpringUtils.getBean("providerPreferenceDao");
-			ProviderPreference providerPreference = providerPreferenceDao.find(providerNo);
+			ProviderPreference providerPreference = providerPreferenceDao.find(loggedInInfo.loggedInProvider.getProviderNo());
 			if (providerPreference.getEncryptedMyOscarPassword() != null) {
 				providerPreference.setEncryptedMyOscarPassword(null);
 				providerPreferenceDao.merge(providerPreference);

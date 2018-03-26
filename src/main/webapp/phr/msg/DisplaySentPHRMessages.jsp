@@ -24,23 +24,6 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_phr" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_phr");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-
-<%@page import="org.oscarehr.phr.util.MyOscarUtils"%>
 <%@ page import="java.util.ArrayList"%>
 <%@ page import="java.net.URLEncoder"%>
 
@@ -51,12 +34,16 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
-<%@ page import="oscar.oscarDemographic.data.DemographicData"%>
+<%@ page import="oscar.oscarDemographic.data.DemographicData"%><%@ page import="org.oscarehr.phr.PHRAuthentication"%>
 <%@ page import="oscar.oscarProvider.data.ProviderData"%>
 <%@ page import="java.util.*"%>
 <%
 String providerName = request.getSession().getAttribute("userfirstname") + " " + 
         request.getSession().getAttribute("userlastname");
+String providerNo = (String) request.getSession().getAttribute("user");
+ProviderData providerData = new ProviderData();
+providerData.setProviderNo(providerNo);
+String providerPhrId = providerData.getMyOscarId();
 request.setAttribute("forwardto", request.getRequestURI());
 %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
@@ -67,7 +54,7 @@ request.setAttribute("forwardto", request.getRequestURI());
         <html:base />
         <link rel="stylesheet" type="text/css" href="../../oscarMessenger/encounterStyles.css">
         <title>
-        	myOSCAR
+        <%-- bean:message key="indivoMessenger.DisplayMessages.title"/ --%>  myOSCAR
         </title>
         <style type="text/css">
         td.messengerButtonsA{
@@ -191,46 +178,40 @@ request.setAttribute("forwardto", request.getRequestURI());
                                                     <a href="javascript:window.close()" class="messengerButtons">Exit MyOscar Messenges</a>
                                         </td></tr></table>
                                     </td>
-                                    <%
-                                    	if (MyOscarUtils.isMyOscarEnabled((String) session.getAttribute("user")))
-                                    	{
-                                    		%>
-		                                        <td class="myoscarLoginElementAuth">
-		                                            <div>
-		                                                Status: <b>Logged in as <%=providerName%></b>
-		                                                <form action="../../phr/Logout.do" name="phrLogout" method="POST"  style="margin: 0px; padding: 0px;">
-		                                                    <input type="hidden" name="forwardto" value="<%=request.getServletPath()%>?method=<%=request.getParameter("method")%>">
-		                                                    <center><a href="javascript: document.forms['phrLogout'].submit()">Logout</a></center>
-		                                                </form>
-		                                            </div>
-		                                        </td>
-		                                    <%
-										}
-                                    	else
-                                    	{
-                                    		%>
-		                                        <td class="myoscarLoginElementNoAuth">
-		                                            <div>
-		                                                <form action="../../phr/Login.do" name="phrLogin" method="POST"  style="margin-bottom: 0px;">
-		                                                    <%--=request.getParameter("phrUserLoginErrorMsg")%>
-		                                                    <%=request.getAttribute("phrUserLoginErrorMsg")--%>
-		                                                  <%request.setAttribute("phrUserLoginErrorMsg", request.getParameter("phrUserLoginErrorMsg"));
-		                                                    request.setAttribute("phrTechLoginErrorMsg", request.getParameter("phrTechLoginErrorMsg"));%>
-		                                                    <logic:present name="phrUserLoginErrorMsg">
-		                                                        <div class="phrLoginErrorMsg"><font color="red"><bean:write name="phrUserLoginErrorMsg"/>.</font>  
-		                                                        <logic:present name="phrTechLoginErrorMsg">
-		                                                            <a href="javascript:;" title="fade=[on] requireclick=[off] cssheader=[moreInfoBoxoverHeader] cssbody=[moreInfoBoxoverBody] singleclickstop=[on] header=[MyOSCAR Server Response:] body=[<bean:write name="phrTechLoginErrorMsg"/> </br>]">More Info</a></div>
-		                                                        </logic:present>
-		                                                    </logic:present>
-		                                                    Status: <b>Not logged in</b><br/>
-		                                                    <%=providerName%> password: <input type="password" id="phrPassword" name="phrPassword" style="font-size: 8px; width: 40px;"> <a href="javascript: document.forms['phrLogin'].submit()">Login</a>
-		                                                    <input type="hidden" name="forwardto" value="<%=request.getServletPath()%>?method=<%=request.getParameter("method")%>">
-		                                                </form>
-		                                            </div>
-		                                        </td>
-                                    		<%
-                                    	}
-                                    %>
+                                    <%PHRAuthentication phrAuth = (PHRAuthentication) session.getAttribute(PHRAuthentication.SESSION_PHR_AUTH);%>
+                                    <logic:present name="<%=PHRAuthentication.SESSION_PHR_AUTH%>">
+                                        <td class="myoscarLoginElementAuth">
+                                            <div>
+                                                Status: <b>Logged in as <%=providerName%></b> (<%=phrAuth.getUserId()%>)
+                                                <form action="../../phr/Logout.do" name="phrLogout" method="POST"  style="margin: 0px; padding: 0px;">
+                                                    <input type="hidden" name="forwardto" value="<%=request.getServletPath()%>?method=<%=request.getParameter("method")%>">
+                                                    <center><a href="javascript: document.forms['phrLogout'].submit()">Logout</a></center>
+                                                </form>
+                                            </div>
+                                        </td>
+                                      <!--<p style="background-color: #E00000"  title="fade=[on] requireclick=[on] header=[Diabetes Med Changes] body=[<span style='color:red'>no DM Med changes have been recorded</span> </br>]">dsfsdfsdfsdfgsdgsdg</p>-->
+                                    </logic:present>
+                                    <logic:notPresent name="<%=PHRAuthentication.SESSION_PHR_AUTH%>">
+                                        <td class="myoscarLoginElementNoAuth">
+                                            <div>
+                                                <form action="../../phr/Login.do" name="phrLogin" method="POST"  style="margin-bottom: 0px;">
+                                                    <%--=request.getParameter("phrUserLoginErrorMsg")%>
+                                                    <%=request.getAttribute("phrUserLoginErrorMsg")--%>
+                                                  <%request.setAttribute("phrUserLoginErrorMsg", request.getParameter("phrUserLoginErrorMsg"));
+                                                    request.setAttribute("phrTechLoginErrorMsg", request.getParameter("phrTechLoginErrorMsg"));%>
+                                                    <logic:present name="phrUserLoginErrorMsg">
+                                                        <div class="phrLoginErrorMsg"><font color="red"><bean:write name="phrUserLoginErrorMsg"/>.</font>  
+                                                        <logic:present name="phrTechLoginErrorMsg">
+                                                            <a href="javascript:;" title="fade=[on] requireclick=[off] cssheader=[moreInfoBoxoverHeader] cssbody=[moreInfoBoxoverBody] singleclickstop=[on] header=[MyOSCAR Server Response:] body=[<bean:write name="phrTechLoginErrorMsg"/> </br>]">More Info</a></div>
+                                                        </logic:present>
+                                                    </logic:present>
+                                                    Status: <b>Not logged in</b><br/>
+                                                    <%=providerName%> password: <input type="password" id="phrPassword" name="phrPassword" style="font-size: 8px; width: 40px;"> <a href="javascript: document.forms['phrLogin'].submit()">Login</a>
+                                                    <input type="hidden" name="forwardto" value="<%=request.getServletPath()%>?method=<%=request.getParameter("method")%>">
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </logic:notPresent>
                                 </tr>
                             </table><!--cell spacing=3-->
                         </td>

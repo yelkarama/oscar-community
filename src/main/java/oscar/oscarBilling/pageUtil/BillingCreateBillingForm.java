@@ -52,6 +52,7 @@ public final class BillingCreateBillingForm extends ActionForm {
     
     /**
      *The set method for the message String
+     * @param msg String, The text of a message
      */
     public void setXml_provider(String xml_provider){
         this.xml_provider = xml_provider;
@@ -67,6 +68,7 @@ public final class BillingCreateBillingForm extends ActionForm {
     
     /**
      *The set method for the message String
+     * @param msg String, The text of a message
      */
     public void setXml_location(String xml_location){
         this.xml_location = xml_location;
@@ -83,6 +85,7 @@ public final class BillingCreateBillingForm extends ActionForm {
     
     /**
      *The set method for the message String
+     * @param msg String, The text of a message
      */
     public void setXml_billtype(String xml_billtype){
         this.xml_billtype = xml_billtype;
@@ -98,6 +101,7 @@ public final class BillingCreateBillingForm extends ActionForm {
     
     /**
      *The set method for the message String
+     * @param msg String, The text of a message
      */
     public void setXml_endtime(String xml_endtime){
         this.xml_endtime = xml_endtime;
@@ -113,6 +117,7 @@ public final class BillingCreateBillingForm extends ActionForm {
     
     /**
      *The set method for the message String
+     * @param msg String, The text of a message
      */
     public void setXml_starttime(String xml_starttime){
         this.xml_starttime = xml_starttime;
@@ -128,6 +133,7 @@ public final class BillingCreateBillingForm extends ActionForm {
     
     /**
      *The set method for the message String
+     * @param msg String, The text of a message
      */
     public void setXml_appointment_date(String xml_appointment_date){
         this.xml_appointment_date = xml_appointment_date;
@@ -143,6 +149,7 @@ public final class BillingCreateBillingForm extends ActionForm {
     
     /**
      *The set method for the message String
+     * @param msg String, The text of a message
      */
     public void setXml_visittype(String xml_visittype){
         this.xml_visittype = xml_visittype;
@@ -158,6 +165,7 @@ public final class BillingCreateBillingForm extends ActionForm {
     
     /**
      *The set method for the message String
+     * @param msg String, The text of a message
      */
     public void setXml_vdate(String xml_vdate){
         this.xml_vdate = xml_vdate;
@@ -173,6 +181,7 @@ public final class BillingCreateBillingForm extends ActionForm {
     
     /**
      *The set method for the message String
+     * @param msg String, The text of a message
      */
     public void setXml_refer1(String xml_refer1){
         this.xml_refer1 = xml_refer1;
@@ -191,6 +200,7 @@ public final class BillingCreateBillingForm extends ActionForm {
     
     /**
      *The set method for the message String
+     * @param msg String, The text of a message
      */
     public void setXml_refer2(String xml_refer2){
         this.xml_refer2 = xml_refer2;
@@ -207,6 +217,7 @@ public final class BillingCreateBillingForm extends ActionForm {
     
     /**
      *The set method for the message String
+     * @param msg String, The text of a message
      */
     public void setRefertype1(String refertype1){
         this.refertype1 = refertype1;
@@ -225,6 +236,7 @@ public final class BillingCreateBillingForm extends ActionForm {
     
     /**
      *The set method for the message String
+     * @param msg String, The text of a message
      */
     public void setRefertype2(String refertype2){
         this.refertype2 = refertype2;
@@ -241,6 +253,7 @@ public final class BillingCreateBillingForm extends ActionForm {
     
     /**
      *The set method for the message String
+     * @param msg String, The text of a message
      */
     public void setXml_other1(String xml_other1){
         this.xml_other1 = xml_other1;
@@ -259,6 +272,7 @@ public final class BillingCreateBillingForm extends ActionForm {
     
     /**
      *The set method for the message String
+     * @param msg String, The text of a message
      */
     public void setXml_other2(String xml_other2){
         this.xml_other2 = xml_other2;
@@ -274,6 +288,7 @@ public final class BillingCreateBillingForm extends ActionForm {
     
     /**
      *The set method for the message String
+     * @param msg String, The text of a message
      */
     public void setXml_other3(String xml_other3){
         this.xml_other3 = xml_other3;
@@ -294,6 +309,7 @@ public final class BillingCreateBillingForm extends ActionForm {
     
     /**
      *The set method for the message String
+     * @param msg String, The text of a message
      */
     public void setXml_other1_unit(String xml_other1_unit){
         this.xml_other1_unit = xml_other1_unit;
@@ -312,6 +328,7 @@ public final class BillingCreateBillingForm extends ActionForm {
     
     /**
      *The set method for the message String
+     * @param msg String, The text of a message
      */
     public void setXml_other2_unit(String xml_other2_unit){
         this.xml_other2_unit = xml_other2_unit;
@@ -327,6 +344,7 @@ public final class BillingCreateBillingForm extends ActionForm {
     
     /**
      *The set method for the message String
+     * @param msg String, The text of a message
      */
     public void setXml_other3_unit(String xml_other3_unit){
         this.xml_other3_unit = xml_other3_unit;
@@ -345,6 +363,7 @@ public final class BillingCreateBillingForm extends ActionForm {
     
     /**
      *The set method for the message String
+     * @param msg String, The text of a message
      */
     public void setXml_diagnostic_detail1(String xml_diagnostic_detail1){
         this.xml_diagnostic_detail1 = xml_diagnostic_detail1;
@@ -363,6 +382,7 @@ public final class BillingCreateBillingForm extends ActionForm {
     
     /**
      *The set method for the message String
+     * @param msg String, The text of a message
      */
     public void setXml_diagnostic_detail2(String xml_diagnostic_detail2){
         this.xml_diagnostic_detail2 = xml_diagnostic_detail2;
@@ -378,6 +398,7 @@ public final class BillingCreateBillingForm extends ActionForm {
     
     /**
      *The set method for the message String
+     * @param msg String, The text of a message
      */
     public void setXml_diagnostic_detail3(String xml_diagnostic_detail3){
         this.xml_diagnostic_detail3 = xml_diagnostic_detail3;
@@ -398,8 +419,8 @@ public final class BillingCreateBillingForm extends ActionForm {
     }
     
     /**
-     * The set method for an Array of Strings that contains services
-     * @param service
+     * The set method for an Array of Strings that contains provider numbers
+     * @param prov
      */
     public void setService(String[] service){
         this.service = service;

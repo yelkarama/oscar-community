@@ -17,33 +17,16 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_billing" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../../../securityError.jsp?type=_billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
+<% 
+if(session.getAttribute("user") == null)    response.sendRedirect("../../../../logout.jsp");
 %>
 
+<%@ page
+	import="java.math.*, java.util.*, java.io.*, java.sql.*, oscar.*, java.net.*,oscar.MyDateFormat"%>
 
-
-<%@ page import="java.math.*, java.util.*, java.io.*, java.sql.*, oscar.*, java.net.*,oscar.MyDateFormat"%>
-<%@ page import="org.oscarehr.util.SpringUtils" %>
-<%@ page import="org.oscarehr.common.model.BillingService" %>
-<%@ page import="org.oscarehr.common.dao.BillingServiceDao" %>
-<%
-	BillingServiceDao billingServiceDao= SpringUtils.getBean(BillingServiceDao.class);
-%>
-
-
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean"
+	scope="session" />
+<%@ include file="dbINR.jspf"%>
 <%
 
 GregorianCalendar now=new GregorianCalendar();
@@ -72,14 +55,20 @@ if (service_code.trim().compareTo("") == 0){
 errorCode = errorCode + "Please input a service code.<br>"; }else{
 service_code = service_code.substring(0,5);
 
+   ResultSet rsother = null;  
 
-for(BillingService bs:billingServiceDao.getBillingCodeAttr(service_code)) {
-	service_desc = bs.getDescription();
-	service_code = bs.getServiceCode();
-	service_amount = bs.getValue();
-}
-
+ rsother = null;
+ String[] params = new String[2];
+ params[0] = service_code;
+ params[1] = "now()";
+ rsother = apptMainBean.queryResults(params, "search_servicecode_detail");
+ while(rsother.next()){
+  service_desc = rsother.getString("description");
+  service_code = rsother.getString("service_code");
+  service_amount = rsother.getString("value");
+  // otherperc1 = rsother.getString("percentage");
  
+   }
 }
 diag_code = request.getParameter("xml_diagnostic_detail");
 
@@ -164,7 +153,8 @@ function OtherScriptAttach() {
 <link rel="stylesheet" href="../../web.css" />
 </head>
 
-<body onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0">
+<body background="../images/gray_bg.jpg" bgproperties="fixed"
+	onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0">
 <table border="0" cellspacing="0" cellpadding="0" width="100%">
 	<tr bgcolor="#486ebd">
 		<th align=CENTER NOWRAP><font face="Helvetica" color="#FFFFFF">REVIEW

@@ -30,23 +30,21 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.caisi.model.Role;
 import org.oscarehr.PMmodule.dao.ProgramDao;
+import org.oscarehr.PMmodule.dao.RoleDAO;
 import org.oscarehr.PMmodule.model.Program;
 import org.oscarehr.casemgmt.dao.CaseManagementNoteDAO;
 import org.oscarehr.casemgmt.dao.CaseManagementNoteDAO.EncounterCounts;
-import org.oscarehr.common.dao.SecRoleDao;
-import org.oscarehr.common.model.SecRole;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
-
-import oscar.util.DateUtils;
 
 public class ProviderServiceReportUIBean {
 
 	private static Logger logger = MiscUtils.getLogger();
 
 	private ProgramDao programDao = (ProgramDao) SpringUtils.getBean("programDao");
-	private SecRoleDao secRoleDao = SpringUtils.getBean(SecRoleDao.class);
+	private RoleDAO roleDao = (RoleDAO) SpringUtils.getBean("roleDAO");
 
 	private Date startDate = null;
 	private Date endDate = null;
@@ -67,17 +65,16 @@ public class ProviderServiceReportUIBean {
 	public List<DataRow> getDataRows() {
 		Calendar startCal = Calendar.getInstance();
 		startCal.setTimeInMillis(startDate.getTime());
-		DateUtils.setToBeginningOfMonth(startCal);
-
+		MiscUtils.setToBeginningOfMonth(startCal);
 
 		Calendar endCal = Calendar.getInstance();
 		endCal.setTimeInMillis(endDate.getTime());
 		endCal.add(Calendar.MONTH, 1);
-		DateUtils.setToBeginningOfMonth(endCal);
+		MiscUtils.setToBeginningOfMonth(endCal);
 
 		List<Program> activePrograms = programDao.getAllActivePrograms();
-		SecRole doctorRole = null;
-		for (SecRole role : secRoleDao.findAll()) if ("doctor".equals(role.getName())) doctorRole = role;
+		Role doctorRole = null;
+		for (Role role : roleDao.getRoles()) if ("doctor".equals(role.getName())) doctorRole = role;
 		if (doctorRole == null) 
 		{
 			logger.error("Error, no caisi role named 'doctor' found in database.");
@@ -98,7 +95,7 @@ public class ProviderServiceReportUIBean {
 		return (results);
 	}
 
-	private Collection<? extends DataRow> getEntireAgencyNumbers(Calendar startCal, Calendar endCal, SecRole doctorRole) {
+	private Collection<? extends DataRow> getEntireAgencyNumbers(Calendar startCal, Calendar endCal, Role doctorRole) {
 		ArrayList<DataRow> results = new ArrayList<DataRow>();
 
 		Calendar tempStart = (Calendar) startCal.clone();
@@ -130,7 +127,7 @@ public class ProviderServiceReportUIBean {
 		return(results);
 	}
 
-	private ArrayList<DataRow> getProgramNumbers(Calendar startCal, Calendar endCal, SecRole doctorRole, Program program) {
+	private ArrayList<DataRow> getProgramNumbers(Calendar startCal, Calendar endCal, Role doctorRole, Program program) {
 		ArrayList<DataRow> results = new ArrayList<DataRow>();
 
 		Calendar tempStart = (Calendar) startCal.clone();

@@ -25,29 +25,50 @@
 
 package oscar.oscarBilling.ca.bc.MSP;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
 
-import org.oscarehr.billing.CA.BC.dao.TeleplanSubmissionLinkDao;
-import org.oscarehr.billing.CA.BC.model.TeleplanSubmissionLink;
-import org.oscarehr.util.SpringUtils;
+import org.oscarehr.util.DbConnectionFilter;
+import org.oscarehr.util.MiscUtils;
 
+/**
+  CREATE TABLE `teleplan_submission_link` (
+     `id` int(10) NOT NULL auto_increment,
+     `bill_activity_id` int(10),
+     `billingmaster_no` int(10) default NULL,
+     PRIMARY KEY  (`id`),
+     KEY (`bill_activity_id`),
+     KEY (`billingmaster_no`)
+    ) 
+ * @author jay
+ */
 public class TeleplanSubmissionLinkDAO {
     
-	private TeleplanSubmissionLinkDao dao = SpringUtils.getBean(TeleplanSubmissionLinkDao.class);
-	
-   
-	public TeleplanSubmissionLinkDAO() {
+    /** Creates a new instance of TeleplanSubmissionLinkDAO */
+    public TeleplanSubmissionLinkDAO() {
     }
     
+    String nsql ="insert into teleplan_submission_link (bill_activity_id,billingmaster_no) values (?,?)";
     public void save(int billActId,List billingMasterList ){
-    	for (int i =0; i < billingMasterList.size(); i++){
-    		String bi = (String) billingMasterList.get(i);
-            int b = Integer.parseInt(bi);
-    		TeleplanSubmissionLink t = new TeleplanSubmissionLink();
-        	t.setBillActivityId(billActId);
-        	t.setBillingMasterNo(b);
-        	dao.persist(t);
-    	}
+         try {
+            
+            PreparedStatement pstmt = DbConnectionFilter.getThreadLocalDbConnection().prepareStatement(nsql);
+            for (int i =0; i < billingMasterList.size(); i++){
+               String bi = (String) billingMasterList.get(i);
+               int b = Integer.parseInt(bi);
+               executeUpdate(pstmt,billActId,b);
+            }
+            pstmt.close();
+         }catch (SQLException e) {
+            MiscUtils.getLogger().error("Error", e);
+         }
     }
     
+    private void executeUpdate(PreparedStatement pstmt, int billActId, int billingmasterNo) throws SQLException{
+        pstmt.setInt(1,billActId);
+        pstmt.setInt(2,billingmasterNo);    
+        pstmt.executeUpdate();   
+        pstmt.clearParameters();
+    }
 }

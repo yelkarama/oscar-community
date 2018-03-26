@@ -24,25 +24,22 @@
 
 --%>
 
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="org.oscarehr.web.admin.ProviderPreferencesUIBean"%>
 <%@page import="org.oscarehr.util.WebUtils"%>
 <%@page import="org.oscarehr.util.MiscUtils"%>
 <%
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-	String providerNo=loggedInInfo.getLoggedInProviderNo();
    String action=request.getParameter("action");
 	
 	if ("add".equals(action))
 	{
 	   String name=request.getParameter("name");
 	   String url=request.getParameter("url");
-	   ProviderPreferencesUIBean.addQuickLink(providerNo,name,url);
+	   ProviderPreferencesUIBean.addQuickLink(name,url);
 	}
 	else if ("remove".equals(action))
 	{
 	   String name=request.getParameter("name");
-	   ProviderPreferencesUIBean.removeQuickLink(providerNo,name);		
+	   ProviderPreferencesUIBean.removeQuickLink(name);		
 	}
 	else
 	{

@@ -43,6 +43,7 @@ import org.apache.cxf.ws.security.wss4j.WSS4JOutInterceptor;
 import org.apache.ws.security.WSConstants;
 import org.apache.ws.security.WSPasswordCallback;
 import org.apache.ws.security.handler.WSHandlerConstants;
+import org.oscarehr.util.LoggedInInfo;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -51,11 +52,9 @@ public class AuthenticationOutWSS4JInterceptorForIntegrator extends WSS4JOutInte
 	private static QName REQUESTING_CAISI_PROVIDER_NO_QNAME = new QName("http://oscarehr.org/caisi", REQUESTING_CAISI_PROVIDER_NO_KEY, "caisi");
 
 	private String password = null;
-	private String oscarProviderNo=null;
 
-	public AuthenticationOutWSS4JInterceptorForIntegrator(String user, String password, String oscarProviderNo) {
+	public AuthenticationOutWSS4JInterceptorForIntegrator(String user, String password) {
 		this.password = password;
-		this.oscarProviderNo=oscarProviderNo;
 
 		HashMap<String, Object> properties = new HashMap<String, Object>();
 		properties.put(WSHandlerConstants.ACTION, WSHandlerConstants.USERNAME_TOKEN);
@@ -77,16 +76,17 @@ public class AuthenticationOutWSS4JInterceptorForIntegrator extends WSS4JOutInte
 		}
 	}
 
-	public void handleMessage(SoapMessage message) throws Fault {		
-		addRequestingCaisiProviderNo(message, oscarProviderNo);
+	public void handleMessage(SoapMessage message) throws Fault {
+		addRequestionCaisiProviderNo(message);
 		super.handleMessage(message);
 	}
 
-	private static void addRequestingCaisiProviderNo(SoapMessage message, String providerNo) {
+	private static void addRequestionCaisiProviderNo(SoapMessage message) {
 		List<Header> headers = message.getHeaders();
 
-		if (providerNo != null) {
-			headers.add(createHeader(REQUESTING_CAISI_PROVIDER_NO_QNAME, REQUESTING_CAISI_PROVIDER_NO_KEY, providerNo));
+		LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
+		if (loggedInInfo.loggedInProvider != null) {
+			headers.add(createHeader(REQUESTING_CAISI_PROVIDER_NO_QNAME, REQUESTING_CAISI_PROVIDER_NO_KEY, loggedInInfo.loggedInProvider.getProviderNo()));
 		}
 	}
 

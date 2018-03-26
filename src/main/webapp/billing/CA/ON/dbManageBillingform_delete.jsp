@@ -17,49 +17,22 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin.billing,_admin" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_admin&type=_admin.billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
+<%      
+if(session.getValue("user") == null) response.sendRedirect("../../../logout.jsp");
 %>
 
+<%@ page
+	import="java.math.*, java.util.*, java.io.*, java.sql.*, oscar.*, java.net.*,oscar.MyDateFormat"%>
 
-<%@ page import="java.math.*, java.util.*, java.io.*, java.sql.*, oscar.*, java.net.*,oscar.MyDateFormat"%>
-
-<%@page import="org.oscarehr.common.model.CtlBillingType" %>
-<%@page import="org.oscarehr.common.dao.CtlBillingTypeDao" %>
-<%@page import="org.oscarehr.common.model.CtlBillingService" %>
-<%@page import="org.oscarehr.common.dao.CtlBillingServiceDao" %>
-<%@page import="org.oscarehr.common.model.CtlDiagCode" %>
-<%@page import="org.oscarehr.common.dao.CtlDiagCodeDao" %>
-<%@page import="org.oscarehr.util.SpringUtils" %>
-
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean"
+	scope="session" />
+<%@ include file="dbBilling.jspf"%>
 
 <%
-	CtlBillingTypeDao billingTypeDao = SpringUtils.getBean(CtlBillingTypeDao.class);
-	CtlBillingServiceDao billingServiceDao = SpringUtils.getBean(CtlBillingServiceDao.class);
-	CtlDiagCodeDao diagCodeDao = SpringUtils.getBean(CtlDiagCodeDao.class);
-
-	String typeid = request.getParameter("servicetype");
-	
-	for(CtlBillingService b : billingServiceDao.findByServiceType(typeid)) {
-		billingServiceDao.remove(b.getId());
-	}
-	
-	for(CtlDiagCode d: diagCodeDao.findByServiceType(typeid)) {
-		diagCodeDao.remove(d.getId());
-	}
-	
-	billingTypeDao.remove(typeid);
+String typeid = request.getParameter("servicetype");
+int rowsAffected0 = apptMainBean.queryExecuteUpdate(typeid,"delete_ctlbillservice");	    
+int recordAffected = apptMainBean.queryExecuteUpdate(typeid,"delete_ctldiagcode");
+int recordAffected1 = apptMainBean.queryExecuteUpdate(typeid,"delete_ctlbilltype");
 %>
 
 <script LANGUAGE="JavaScript">

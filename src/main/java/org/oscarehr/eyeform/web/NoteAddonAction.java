@@ -26,7 +26,6 @@
 package org.oscarehr.eyeform.web;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -38,18 +37,18 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
+import org.caisi.model.Tickler;
+import org.caisi.service.TicklerManager;
 import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.dao.DemographicDao;
-import org.oscarehr.common.model.Tickler;
 import org.oscarehr.eyeform.dao.EyeFormDao;
-import org.oscarehr.eyeform.dao.EyeformFollowUpDao;
-import org.oscarehr.eyeform.dao.EyeformProcedureBookDao;
-import org.oscarehr.eyeform.dao.EyeformTestBookDao;
+import org.oscarehr.eyeform.dao.FollowUpDao;
+import org.oscarehr.eyeform.dao.ProcedureBookDao;
+import org.oscarehr.eyeform.dao.TestBookRecordDao;
 import org.oscarehr.eyeform.model.EyeForm;
 import org.oscarehr.eyeform.model.EyeformFollowUp;
 import org.oscarehr.eyeform.model.EyeformProcedureBook;
 import org.oscarehr.eyeform.model.EyeformTestBook;
-import org.oscarehr.managers.TicklerManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.SpringUtils;
 
@@ -58,11 +57,6 @@ public class NoteAddonAction extends DispatchAction {
 	static Logger logger = Logger.getLogger(NoteAddonAction.class);
 	
 	private static ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao");
-	protected EyeformProcedureBookDao procedureBookDao = SpringUtils.getBean(EyeformProcedureBookDao.class);
-	protected EyeformTestBookDao testDao = SpringUtils.getBean(EyeformTestBookDao.class);
-	protected EyeFormDao eyeformDao = SpringUtils.getBean(EyeFormDao.class);
-	protected TicklerManager ticklerManager = SpringUtils.getBean(TicklerManager.class);
-	
 	
 	public ActionForward getCurrentNoteData(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		String demographicNo = request.getParameter("demographicNo");
@@ -72,34 +66,29 @@ public class NoteAddonAction extends DispatchAction {
 		request.setAttribute("internalList", providerDao.getActiveProviders());
 
 		//load up tests/procedures and extra info
-		EyeformFollowUpDao followUpDao = SpringUtils.getBean(EyeformFollowUpDao.class);
-		
-		
+		FollowUpDao followUpDao = (FollowUpDao)SpringUtils.getBean("FollowUpDAO");
+		TestBookRecordDao testDao = (TestBookRecordDao)SpringUtils.getBean("TestBookDAO");
+		ProcedureBookDao procedureBookDao = (ProcedureBookDao)SpringUtils.getBean("ProcedureBookDAO");
+		EyeFormDao eyeformDao = (EyeFormDao)SpringUtils.getBean("eyeFormDao");
 		ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
 		DemographicDao demographicDao = (DemographicDao)SpringUtils.getBean("demographicDao");
 		
-		List<EyeformFollowUp> followUps = followUpDao.getByAppointmentNo((appointmentNo!=null && !appointmentNo.equalsIgnoreCase("null") )? Integer.parseInt(appointmentNo) : 0);
+		List<EyeformFollowUp> followUps = followUpDao.getByAppointmentNo(Integer.parseInt(appointmentNo));
 		for(EyeformFollowUp fu:followUps) {
-			if(fu.getFollowupProvider()!=null && fu.getFollowupProvider().length() >0)
-				fu.setProvider(providerDao.getProvider(fu.getFollowupProvider()));
+			fu.setProvider(providerDao.getProvider(fu.getFollowupProvider()));
 			fu.setDemographic(demographicDao.getDemographic(String.valueOf(fu.getDemographicNo())));			
 		}		
 		request.setAttribute("followUps",followUps);
 		
-		List<EyeformTestBook> testBookRecords = new ArrayList<EyeformTestBook>();
-		List<EyeformProcedureBook> procedures = new ArrayList<EyeformProcedureBook>();
-		EyeForm eyeform = new EyeForm();
-		
-		if(appointmentNo!=null && !"null".equalsIgnoreCase(appointmentNo)) {
-			testBookRecords = testDao.getByAppointmentNo(Integer.parseInt(appointmentNo));
-			procedures = procedureBookDao.getByAppointmentNo(Integer.parseInt(appointmentNo));
-			eyeform = eyeformDao.getByAppointmentNo(Integer.parseInt(appointmentNo));
-		}
+		List<EyeformTestBook> testBookRecords = testDao.getByAppointmentNo(Integer.parseInt(appointmentNo));
 		request.setAttribute("testBookRecords",testBookRecords);
 		
+		List<EyeformProcedureBook> procedures = procedureBookDao.getByAppointmentNo(Integer.parseInt(appointmentNo));
 		request.setAttribute("procedures",procedures);
 		
+		EyeForm eyeform = eyeformDao.getByAppointmentNo(Integer.parseInt(appointmentNo));
 		request.setAttribute("eyeform", eyeform);
+		
 		
 		return mapping.findForward("current_note");
 	}
@@ -123,8 +112,9 @@ public class NoteAddonAction extends DispatchAction {
 		String ack3Checked = request.getParameter("ack3_checked");
 		
 		
+		EyeFormDao dao = (EyeFormDao)SpringUtils.getBean("EyeFormDao");
 		
-		EyeForm eyeform = eyeformDao.getByAppointmentNo(Integer.parseInt(appointmentNo));
+		EyeForm eyeform = dao.getByAppointmentNo(Integer.parseInt(appointmentNo));
 	
 		if(eyeform == null) {
 			eyeform = new EyeForm();
@@ -136,7 +126,7 @@ public class NoteAddonAction extends DispatchAction {
 		eyeform.setStat(ack2Checked);
 		eyeform.setOpt(ack3Checked);
 		
-		eyeformDao.save(eyeform);
+		dao.save(eyeform);
 		
 		return null;
 	}
@@ -144,8 +134,9 @@ public class NoteAddonAction extends DispatchAction {
 	public ActionForward getNoteText(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
     	String appointmentNo = request.getParameter("appointmentNo");
     	
+    	EyeFormDao dao = (EyeFormDao)SpringUtils.getBean("EyeFormDao");
     	
-    	EyeForm eyeform = eyeformDao.getByAppointmentNo(Integer.parseInt(appointmentNo));
+    	EyeForm eyeform = dao.getByAppointmentNo(Integer.parseInt(appointmentNo));
     	StringBuilder sb = new StringBuilder();
     	
     	if(eyeform != null) {
@@ -184,26 +175,24 @@ public class NoteAddonAction extends DispatchAction {
 		String recipient = request.getParameter("recip");
 		String demographicNo = request.getParameter("demographicNo");
 				
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 		
 		Tickler t = new Tickler();
-		t.setCreator(loggedInInfo.getLoggedInProviderNo());
+		t.setCreator(LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo());
 		t.setAssignee(providerDao.getProvider(recipient));
 		//t.setDemographic(demographic)
-		t.setDemographicNo(Integer.valueOf(demographicNo));
+		t.setDemographic_no(demographicNo);
 		t.setMessage(text);
-		t.setPriorityAsString("Normal");
-		t.setProvider(loggedInInfo.getLoggedInProvider());
+		t.setPriority("Normal");
+		t.setProvider(LoggedInInfo.loggedInInfo.get().loggedInProvider);
 		//t.setProgram(program);
-		t.setProgramId(Integer.valueOf((String)request.getSession().getAttribute("programId_oscarView")));
-		t.setServiceDate(new Date());
-		t.setStatusAsChar('A');
-		t.setTaskAssignedTo(recipient);
-		t.setUpdateDate(new Date());
+		t.setProgram_id(Integer.valueOf((String)request.getSession().getAttribute("programId_oscarView")));
+		t.setService_date(new Date());
+		t.setStatus('A');
+		t.setTask_assigned_to(recipient);
+		t.setUpdate_date(new Date());
 		
 		TicklerManager ticklerMgr = (TicklerManager)SpringUtils.getBean("ticklerManagerT");
-		ticklerMgr.addTickler(loggedInInfo, t);
-		
+		ticklerMgr.addTickler(t);
 		
 		
 		

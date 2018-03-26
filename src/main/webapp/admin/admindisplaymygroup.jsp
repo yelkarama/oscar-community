@@ -28,16 +28,16 @@
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 
-<%@ page import="java.util.*" %>
-<%@ page import="org.oscarehr.util.SpringUtils" %>
-<%@ page import="org.oscarehr.common.model.MyGroup" %>
-<%@ page import="org.oscarehr.common.model.MyGroupPrimaryKey" %>
-<%@ page import="org.oscarehr.common.dao.MyGroupDao" %>
+<%
+  if(session.getValue("user") == null)
+    response.sendRedirect("../login.htm");
+%>
 
 <%
-	MyGroupDao myGroupDao = SpringUtils.getBean(MyGroupDao.class);
-
+    if(session.getAttribute("user") == null ) response.sendRedirect("../logout.jsp");
     String curProvider_no = (String) session.getAttribute("user");
+
+    if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
     
     boolean isSiteAccessPrivacy=false;
@@ -47,15 +47,19 @@
 	<%isSiteAccessPrivacy=true; %>
 </security:oscarSec>
 
-<%@ page import="java.util.*,java.sql.*" errorPage="../provider/errorpage.jsp"%>
 
-<!DOCTYPE html>
+
+<%@ page import="java.util.*,java.sql.*"
+	errorPage="../provider/errorpage.jsp"%>
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean"
+	scope="session" />
+
 <html:html locale="true">
 <head>
-
+<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="admin.admindisplaymygroup.title" /></title>
-
-<script>
+</head>
+<script language="javascript">
 <!-- start javascript ---- check to see if it is really empty in database
 
 //function upCaseCtrl(ctrl) {
@@ -65,101 +69,79 @@
 // stop javascript -->
 </script>
 
-<link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
-</head>
+<body background="../images/gray_bg.jpg" bgproperties="fixed"
+	onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0">
+<FORM NAME="UPDATEPRE" METHOD="post" ACTION="admincontrol.jsp">
+<table border=0 cellspacing=0 cellpadding=0 width="100%">
+	<tr bgcolor="#486ebd">
+		<th align=CENTER NOWRAP><font face="Helvetica" color="#FFFFFF"><bean:message
+			key="admin.admindisplaymygroup.description" /></font></th>
+	</tr>
+</table>
 
+<center>
+<table border="0" cellpadding="0" cellspacing="0" width="80%">
+	<tr>
+		<td width="100%">
 
-<body>
-<FORM NAME="UPDATEPRE" id="groupForm"  METHOD="post" ACTION="adminnewgroup.jsp">
-
-<h3><bean:message key="admin.admin.btnSearchGroupNoRecords" /></h3>
-			
-
-		<table class="table table-condensed table-hover">
-		<thead>
-			<tr class="btn-inverse">
-				<th></th>
-				<th>
-					<bean:message key="admin.adminmygroup.formGroupNo" />
-				</th>
-				<th>
-					<bean:message key="admin.admindisplaymygroup.formProviderName" />
-				</th>
+		<table BORDER="0" CELLPADDING="0" CELLSPACING="1" WIDTH="100%"
+			BGCOLOR="#C0C0C0">
+			<tr BGCOLOR="#CCFFFF">
+				<td ALIGN="center" colspan="2"><font face="arial"><bean:message
+					key="admin.adminmygroup.formGroupNo" /></font></td>
+				<td ALIGN="center"><font face="arial"><bean:message
+					key="admin.admindisplaymygroup.formProviderName" /></font></td>
 			</tr>
-		</thead>
-			
-		<tbody>		
-<%
-
-String oldNumber="";
-boolean toggleLine=false;
-
-List<MyGroup> groupList = myGroupDao.findAll();
-Collections.sort(groupList, MyGroup.MyGroupNoComparator);
-
-if(isSiteAccessPrivacy) {
-	groupList = myGroupDao.getProviderGroups(curProvider_no);
-}
-
-
-for(MyGroup myGroup : groupList) {
-
-	if(!myGroup.getId().getMyGroupNo().equals(oldNumber)) {
-		toggleLine = !toggleLine;
-		oldNumber = myGroup.getId().getMyGroupNo();
-	}
+			<%
+   ResultSet rsgroup = null;
+   boolean bNewNo=false;
+   String oldNo="";
+   if (isSiteAccessPrivacy)
+   {
+	   rsgroup = apptMainBean.queryResults(curProvider_no,"site_searchmygroupall");
+   }
+   else
+   {
+   		rsgroup = apptMainBean.queryResults("searchmygroupall");
+   }
+   while (rsgroup.next()) { 
+     if(!(rsgroup.getString("mygroup_no").equals(oldNo)) ) {
+       bNewNo=bNewNo?false:true; oldNo=rsgroup.getString("mygroup_no");
+     }
 %>
-			<tr class="<%=toggleLine?"":"info"%>">
-				<td width="20px">
-					<input type="checkbox"
-					name="<%=myGroup.getId().getMyGroupNo() + myGroup.getId().getProviderNo()%>"
-					value="<%=myGroup.getId().getMyGroupNo()%>">
-				</td>
-				<td><%=myGroup.getId().getMyGroupNo()%></td>
-				<td> <%=myGroup.getLastName()+","+ myGroup.getFirstName()%>
+			<tr BGCOLOR="<%=bNewNo?"white":"ivory"%>">
+				<td width="10%" align="center"><input type="checkbox"
+					name="<%=rsgroup.getString("mygroup_no")+rsgroup.getString("provider_no")%>"
+					value="<%=rsgroup.getString("mygroup_no")%>"></td>
+				<td ALIGN="center"><font face="arial"> <%=rsgroup.getString("mygroup_no")%></font></td>
+				<td ALIGN="center"><font face="arial"> <%=rsgroup.getString("last_name")+","+rsgroup.getString("first_name")%></font>
 				</td>
 			</tr>
-<%
+			<%
    }
 %>
-		</tbody>
+			<INPUT TYPE="hidden" NAME="displaymode" VALUE='newgroup'>
+
 		</table>
 
+		</td>
+	</tr>
+</table>
+</center>
 
-
-			<INPUT TYPE="submit" name="submit" class="btn btn-danger"
+<table width="100%" BGCOLOR="#486ebd">
+	<tr>
+		<TD align="center"><INPUT TYPE="submit" name="submit"
 			VALUE="<bean:message key="admin.admindisplaymygroup.btnSubmit1"/>"
-			SIZE="7"> 
-					
-			<a href="adminnewgroup.jsp" class="btn btn-primary"><bean:message key="admin.admindisplaymygroup.btnSubmit2"/></a>
+			SIZE="7"> <INPUT TYPE="submit" name="submit"
+			VALUE="<bean:message key="admin.admindisplaymygroup.btnSubmit2"/>"
+			SIZE="7"> <INPUT TYPE="RESET"
+			VALUE='<bean:message key="global.btnClose"/>'
+			onClick="window.close();"></TD>
+	</tr>
+</TABLE>
 
 </FORM>
 
-<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-1.9.1.min.js"></script>
-
-<script>
-function anyChecks(){
-    if ($("#groupForm input:checkbox:checked").length > 0)
-    {
-        // any one is checked
-    	return true;
-    }
-    else
-    {
-       // none is checked
-        alert('please select provider(s)');
-    	return false;
-    }
-}
-
-$('#groupForm').submit(anyChecks);
-
-
-$( document ).ready(function() {
-parent.parent.resizeIframe($('html').height());      
-
-});
-
-</script>
 </body>
 </html:html>

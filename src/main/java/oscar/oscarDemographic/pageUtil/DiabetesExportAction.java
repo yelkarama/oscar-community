@@ -67,8 +67,6 @@ import org.oscarehr.common.dao.DemographicExtDao;
 import org.oscarehr.common.dao.PartialDateDao;
 import org.oscarehr.common.model.Dxresearch;
 import org.oscarehr.common.model.PartialDate;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
@@ -84,7 +82,6 @@ import oscar.oscarPrevention.PreventionDisplayConfig;
 import oscar.oscarProvider.data.ProviderData;
 import oscar.oscarReport.data.DemographicSets;
 import oscar.oscarRx.data.RxPrescriptionData;
-import oscar.util.ConversionUtils;
 import oscar.util.StringUtils;
 import oscar.util.UtilDateUtilities;
 import cdsdiabetes.CareElementsDocument.CareElements;
@@ -105,8 +102,6 @@ import cdsdiabetes.ReportInformationDocument.ReportInformation;
  * @author jaygallagher
  */
 public class DiabetesExportAction extends Action {
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	
     Date startDate;
     Date endDate;
     ArrayList<String> errors;
@@ -122,11 +117,6 @@ public DiabetesExportAction(){}
 
     @Override
 public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
-    	
-    	if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_demographic", "r", null)) {
-			throw new SecurityException("missing required security object (_demographic)");
-		}
-    	
     DiabetesExportForm defrm = (DiabetesExportForm)form;
     String setName = defrm.getPatientSet();
     this.startDate = UtilDateUtilities.StringToDate(defrm.getstartDate());
@@ -144,7 +134,7 @@ public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServlet
     } else {
         tmpDir = Util.fixDirName(tmpDir);
     }
-    ArrayList<File> exportFiles = this.make(LoggedInInfo.getLoggedInInfoFromSession(request) , patientList, tmpDir);
+    ArrayList<File> exportFiles = this.make(patientList, tmpDir);
 
     //Create & put error.log into the file list
     File errorLog = makeErrorLog("error.log", tmpDir);
@@ -164,12 +154,12 @@ public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServlet
     return null;
 }
 
-    boolean fillPatientRecord(LoggedInInfo loggedInInfo, PatientRecord patientRecord,String demoNo) throws SQLException, Exception{
+    boolean fillPatientRecord(PatientRecord patientRecord,String demoNo) throws SQLException, Exception{
 	if (setProblemList(patientRecord, demoNo)) {
 	    setReportInformation(patientRecord);
-	    setDemographicDetails(loggedInInfo, patientRecord, demoNo);
+	    setDemographicDetails(patientRecord, demoNo);
 	    setCareElements(patientRecord, demoNo);
-	    setImmunizations(loggedInInfo, patientRecord, Integer.valueOf(demoNo));
+	    setImmunizations(patientRecord, demoNo);
 	    setLaboratoryResults(patientRecord, demoNo);
 	    setMedicationsAndTreatments(patientRecord, demoNo);
             return true;
@@ -178,7 +168,7 @@ public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServlet
     }
 
 
-    ArrayList<File> make(LoggedInInfo loggedInInfo, List<String> demographicNos, String tmpDir) throws Exception{
+    ArrayList<File> make(List<String> demographicNos, String tmpDir) throws Exception{
 	XmlOptions options = new XmlOptions();
 	options.put( XmlOptions.SAVE_PRETTY_PRINT );
 	options.put( XmlOptions.SAVE_PRETTY_PRINT_INDENT, 3 );
@@ -197,7 +187,7 @@ public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServlet
 	    OmdCdsDiabetesDocument.OmdCdsDiabetes omdcdsdiabetes = omdCdsDiabetesDoc.addNewOmdCdsDiabetes();
 
 	    PatientRecord patientRecord = omdcdsdiabetes.addNewPatientRecord();
-	    if (!fillPatientRecord(loggedInInfo, patientRecord, demoNo)) continue;
+	    if (!fillPatientRecord(patientRecord, demoNo)) continue;
 
 
             //export file to temp directory
@@ -279,7 +269,7 @@ public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServlet
             errors.add("Error loading schema file! Cannot obtain DIN list!");
     }
 
-    void setCareElements(PatientRecord patientRecord, String demoNo)  {
+    void setCareElements(PatientRecord patientRecord, String demoNo) throws SQLException {
     	List<Measurements> measList = ImportExportMeasurements.getMeasurements(demoNo);
         for (Measurements meas : measList) {
             Date dateObserved = meas.getDateObserved();
@@ -464,9 +454,9 @@ public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServlet
         }
     }
 
-    void setDemographicDetails(LoggedInInfo loggedInInfo, PatientRecord patientRec, String demoNo){
+    void setDemographicDetails(PatientRecord patientRec, String demoNo){
 	Demographics demo = patientRec.addNewDemographics();
-        org.oscarehr.common.model.Demographic demographic = new DemographicData().getDemographic(loggedInInfo, demoNo);
+        org.oscarehr.common.model.Demographic demographic = new DemographicData().getDemographic(demoNo);
 
         cdsDt.PersonNameStandard.LegalName legalName = demo.addNewNames().addNewLegalName();
         cdsDt.PersonNameStandard.LegalName.FirstName firstName = legalName.addNewFirstName();
@@ -547,7 +537,7 @@ public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServlet
         if (StringUtils.filled(data)) demo.setEmail(data);
 
         HashMap<String,String> demoExt = new HashMap<String,String>();
-        demoExt.putAll(demographicExtDao.getAllValuesForDemo(Integer.parseInt(demoNo)));
+        demoExt.putAll(demographicExtDao.getAllValuesForDemo(demoNo));
 
         String phoneNo = Util.onlyNum(demographic.getPhone());
         if (StringUtils.filled(phoneNo) && phoneNo.length()>=7) {
@@ -565,9 +555,9 @@ public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServlet
         }
     }
 
-    void setImmunizations(LoggedInInfo loggedInInfo, PatientRecord patientRecord, Integer demoNo) {
+    void setImmunizations(PatientRecord patientRecord, String demoNo) {
         ArrayList<String> inject = new ArrayList<String>();
-        ArrayList<? extends Map<String,? extends Object>> preventionList = PreventionDisplayConfig.getInstance(loggedInInfo).getPreventions(loggedInInfo);
+        ArrayList<? extends Map<String,? extends Object>> preventionList = PreventionDisplayConfig.getInstance().getPreventions();
         for (int i=0; i<preventionList.size(); i++){
             HashMap<String,Object> h = new HashMap<String,Object>();
             h.putAll(preventionList.get(i));
@@ -575,7 +565,7 @@ public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServlet
                 inject.add((String) h.get("name"));
             }
         }
-        preventionList = PreventionData.getPreventionData(loggedInInfo, demoNo);
+        preventionList = PreventionData.getPreventionData(demoNo);
         for (int i=0; i<preventionList.size(); i++){
             HashMap<String,Object> h = new HashMap<String,Object>();
             h.putAll(preventionList.get(i));
@@ -613,7 +603,7 @@ public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServlet
         }
     }
 
-    void setLaboratoryResults(PatientRecord patientRecord, String demoNo) {
+    void setLaboratoryResults(PatientRecord patientRecord, String demoNo) throws SQLException {
 	List<LabMeasurements> labMeaList = ImportExportMeasurements.getLabMeasurements(demoNo);
 	for (LabMeasurements labMea : labMeaList) {
 	    String data = StringUtils.noNull(labMea.getExtVal("identifier"));
@@ -629,6 +619,7 @@ public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServlet
 	    LaboratoryResults labResults = patientRecord.addNewLaboratoryResults();
 	    labResults.setTestName(testName); //LOINC code
 	    labResults.setLabTestCode(data);
+
 
 	    cdsDt.DateFullOrPartial collDate = labResults.addNewCollectionDateTime();
         String sDateTime = labMea.getExtVal("datetime");
@@ -713,7 +704,7 @@ public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServlet
 	    			Util.writeNameSimple(reviewer.addNewName(), pd.getFirst_name(), pd.getLast_name());
     			}
 	    	}
-	    	String timestamp = ConversionUtils.toTimestampString((java.sql.Timestamp)labRoutingInfo.get("timestamp"));
+	    	String timestamp = (String)labRoutingInfo.get("timestamp");
     		if (StringUtils.filled(timestamp)) {
     			labResults.addNewDateTimeResultReviewed().setFullDate(Util.calDate(timestamp));
     		}
@@ -787,7 +778,7 @@ public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServlet
             	} else {//amount & unit not separated, probably e.g. 50mg / 2tablet
             		if (strength.length>1 && strength[1].equals("/")) {
             			if (strength.length>2) {
-            				//String unit1 = Util.leadingNum(strength[2]).equals("") ? "1" : Util.leadingNum(strength[2]);
+            				String unit1 = Util.leadingNum(strength[2]).equals("") ? "1" : Util.leadingNum(strength[2]);
             				String unit2 = Util.trailingTxt(strength[2]).equals("") ? "unit" : Util.trailingTxt(strength[2]);
 
                     		drugM.setAmount(Util.leadingNum(strength[0])+"/"+Util.leadingNum(strength[2]));

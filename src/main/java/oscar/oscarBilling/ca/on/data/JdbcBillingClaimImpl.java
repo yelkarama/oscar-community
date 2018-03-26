@@ -18,606 +18,222 @@
 
 package oscar.oscarBilling.ca.on.data;
 
-import java.math.BigDecimal;
-import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.oscarehr.PMmodule.model.ProgramProvider;
-import org.oscarehr.billing.CA.ON.dao.BillingONDiskNameDao;
-import org.oscarehr.billing.CA.ON.dao.BillingONFilenameDao;
-import org.oscarehr.billing.CA.ON.dao.BillingONHeaderDao;
-import org.oscarehr.billing.CA.ON.model.BillingONDiskName;
-import org.oscarehr.billing.CA.ON.model.BillingONFilename;
-import org.oscarehr.billing.CA.ON.model.BillingONHeader;
-import org.oscarehr.common.dao.BillingONCHeader1Dao;
-import org.oscarehr.common.dao.BillingONExtDao;
-import org.oscarehr.common.dao.BillingONItemDao;
-import org.oscarehr.common.dao.BillingONPaymentDao;
-import org.oscarehr.common.dao.BillingONRepoDao;
-import org.oscarehr.common.dao.BillingOnItemPaymentDao;
-import org.oscarehr.common.dao.BillingOnTransactionDao;
-import org.oscarehr.common.dao.BillingPaymentTypeDao;
-import org.oscarehr.common.model.BillingONCHeader1;
-import org.oscarehr.common.model.BillingONExt;
-import org.oscarehr.common.model.BillingONItem;
-import org.oscarehr.common.model.BillingONPayment;
-import org.oscarehr.common.model.BillingONRepo;
-import org.oscarehr.common.model.BillingOnItemPayment;
-import org.oscarehr.common.model.BillingOnTransaction;
-import org.oscarehr.common.model.BillingPaymentType;
-import org.oscarehr.managers.ProgramManager2;
-import org.oscarehr.util.LoggedInInfo;
-import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.util.UtilDateUtilities;
 
 public class JdbcBillingClaimImpl {
 	private static final Logger _logger = Logger.getLogger(JdbcBillingClaimImpl.class);
-	private BillingONHeaderDao dao = SpringUtils.getBean(BillingONHeaderDao.class);
-	private BillingONCHeader1Dao cheaderDao = SpringUtils.getBean(BillingONCHeader1Dao.class);
-	private BillingONItemDao itemDao = SpringUtils.getBean(BillingONItemDao.class);
-	private BillingONExtDao extDao = (BillingONExtDao)SpringUtils.getBean(BillingONExtDao.class);
-	private BillingONDiskNameDao diskNameDao = SpringUtils.getBean(BillingONDiskNameDao.class);
-	private BillingONFilenameDao filenameDao = SpringUtils.getBean(BillingONFilenameDao.class);
-	private BillingONRepoDao repoDao = SpringUtils.getBean(BillingONRepoDao.class);
-	private ProgramManager2 programManager2 = SpringUtils.getBean(ProgramManager2.class);
-	
+	BillingONDataHelp dbObj = new BillingONDataHelp();
 
-	SimpleDateFormat dateformatter = new SimpleDateFormat("yyyy-MM-dd");
-	SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm:ss");
-	SimpleDateFormat tsFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-	
 	public int addOneBatchHeaderRecord(BillingBatchHeaderData val) {
-		BillingONHeader b = new BillingONHeader();
-		b.setDiskId(Integer.parseInt(val.disk_id));
-		b.setTransactionId(val.transc_id);
-		b.setRecordId(val.rec_id);
-		b.setSpecId(val.spec_id);
-		b.setMohOffice(val.moh_office);
-		b.setBatchId(val.batch_id);
-		b.setOperator(val.operator);
-		b.setGroupNum(val.group_num);
-		b.setProviderRegNum(val.provider_reg_num);
-		b.setSpecialty(val.specialty);
-		b.sethCount(val.h_count);
-		b.setrCount(val.r_count);
-		b.settCount(val.t_count);
-		b.setBatchDate(new Date());
-		b.setCreateDateTime(new Date());
-		b.setUpdateDateTime(new Date());
-		b.setCreator(val.creator);
-		b.setAction(val.action);
-		b.setComment(val.comment);
-		
-		dao.persist(b);
-		
-		return b.getId();
-	}
-
-	public int addOneClaimHeaderRecord(LoggedInInfo loggedInInfo, BillingClaimHeader1Data val) {
-		BillingONCHeader1 b = new BillingONCHeader1();
-		b.setHeaderId(0);
-		b.setTranscId(val.transc_id);
-		b.setRecId(val.rec_id);
-		b.setHin(val.hin);
-		b.setVer(val.ver);
-		b.setDob(val.dob);
-		b.setPayProgram(val.pay_program);
-		b.setPayee(val.payee);
-		b.setRefNum(val.ref_num);
-		b.setFaciltyNum(val.facilty_num);
-		if(val.admission_date.length()>0)
-			try{
-				b.setAdmissionDate(dateformatter.parse(val.admission_date));
-			}catch(ParseException e){/*empty*/}
-		
-		b.setRefLabNum(val.ref_lab_num);
-		b.setManReview(val.man_review);
-		b.setLocation(val.location);
-		b.setDemographicNo(Integer.parseInt(val.demographic_no));
-		b.setProviderNo(val.provider_no);
-		String apptNo = StringUtils.trimToNull(val.appointment_no);
-		
-		if( apptNo != null ) {
-			b.setAppointmentNo(Integer.parseInt(val.appointment_no));
-		}
-		else {
-			b.setAppointmentNo(null);
-		}
-		
-		b.setDemographicName(StringEscapeUtils.escapeSql(val.demographic_name));
-		b.setSex(val.sex);
-		b.setProvince(val.province);
-		if(val.billing_date.length()>0)
-			try {
-				b.setBillingDate(dateformatter.parse(val.billing_date));
-			}catch(ParseException e){/*empty*/}
-		if(val.billing_time.length()>0)
-			try {
-				b.setBillingTime(timeFormatter.parse(val.billing_time));
-			}catch(ParseException e){MiscUtils.getLogger().error("Invalid time", e);}
-
-		
-		b.setTotal(new BigDecimal(val.total==null?"0.00":val.total));
-				
-		if(val.paid == null || val.paid.isEmpty()){
-			b.setPaid(new BigDecimal("0.00"));
-		}else{
-			b.setPaid(new BigDecimal(val.paid));
-		}
-		
-		b.setStatus(val.status);
-		b.setComment(StringEscapeUtils.escapeSql(val.comment));
-		b.setVisitType(val.visittype);
-		b.setProviderOhipNo(val.provider_ohip_no);
-		b.setProviderRmaNo(val.provider_rma_no);
-		b.setApptProviderNo(val.apptProvider_no);
-		b.setAsstProviderNo(val.asstProvider_no);
-		b.setCreator(val.creator);
-		b.setClinic(val.clinic);
-		
-		ProgramProvider pp = programManager2.getCurrentProgramInDomain(loggedInInfo,loggedInInfo.getLoggedInProviderNo());
-		
-		if(pp != null) {
-			b.setProgramNo(pp.getProgramId().intValue());
-		}
-		
-		cheaderDao.persist(b);
-		
-		return b.getId();
-	}
-	
-	public int addOneClaimHeaderRecord(BillingClaimHeader1Data val) {
-		BillingONCHeader1 b = new BillingONCHeader1();
-		b.setHeaderId(0);
-		b.setTranscId(val.transc_id);
-		b.setRecId(val.rec_id);
-		b.setHin(val.hin);
-		b.setVer(val.ver);
-		b.setDob(val.dob);
-		b.setPayProgram(val.pay_program);
-		b.setPayee(val.payee);
-		b.setRefNum(val.ref_num);
-		b.setFaciltyNum(val.facilty_num);
-		if(val.admission_date.length()>0)
-			try{
-				b.setAdmissionDate(dateformatter.parse(val.admission_date));
-			}catch(ParseException e){/*empty*/}
-		
-		b.setRefLabNum(val.ref_lab_num);
-		b.setManReview(val.man_review);
-		b.setLocation(val.location);
-		b.setDemographicNo(Integer.parseInt(val.demographic_no));
-		b.setProviderNo(val.provider_no);
-		String apptNo = StringUtils.trimToNull(val.appointment_no);
-		
-		if( apptNo != null ) {
-			b.setAppointmentNo(Integer.parseInt(val.appointment_no));
-		}
-		else {
-			b.setAppointmentNo(null);
-		}
-		
-		b.setDemographicName(val.demographic_name);
-		b.setSex(val.sex);
-		b.setProvince(val.province);
-		if(val.billing_date.length()>0)
-			try {
-				b.setBillingDate(dateformatter.parse(val.billing_date));
-			}catch(ParseException e){/*empty*/}
-		if(val.billing_time.length()>0)
-			try {
-				b.setBillingTime(timeFormatter.parse(val.billing_time));
-			}catch(ParseException e){MiscUtils.getLogger().error("Invalid time", e);}
-
-		
-		b.setTotal(new BigDecimal(val.total==null?"0.00":val.total));
-				
-		if(val.paid == null || val.paid.isEmpty()){
-			b.setPaid(new BigDecimal("0.00"));
-		}else{
-			b.setPaid(new BigDecimal(val.paid));
-		}
-		
-		b.setStatus(val.status);
-		b.setComment(val.comment);
-		b.setVisitType(val.visittype);
-		b.setProviderOhipNo(val.provider_ohip_no);
-		b.setProviderRmaNo(val.provider_rma_no);
-		b.setApptProviderNo(val.apptProvider_no);
-		b.setAsstProviderNo(val.asstProvider_no);
-		b.setCreator(val.creator);
-		b.setClinic(val.clinic);
-		
-		cheaderDao.persist(b);
-		
-		return b.getId();
-	}
-
-	public boolean addItemRecord(List lVal, int id) {
-	
-		boolean retval = true;
-		for (int i = 0; i < lVal.size(); i++) {
-			BillingItemData val = (BillingItemData) lVal.get(i);
-			
-			BillingONItem b = new BillingONItem();
-			b.setCh1Id(id);
-			b.setTranscId(val.transc_id);
-			b.setRecId(val.rec_id);
-			b.setServiceCode(val.service_code);
-			b.setFee(val.fee);
-			b.setServiceCount(val.ser_num);
-			if(val.service_date.length()>0)
-				try {
-					b.setServiceDate(dateformatter.parse(val.service_date));
-				}catch(ParseException e){/*empty*/}
-			b.setDx(val.dx);
-			b.setDx1(val.dx1);
-			b.setDx2(val.dx2);
-			b.setStatus(val.status);
-			
-			itemDao.persist(b);
-			val.setId(b.getId().toString());
-		}
-		return retval;
-	}
-
-	public boolean addItemPaymentRecord(List lVal, int id, int paymentId, int paymentType, Date paymentDate) {
 		int retval = 0;
-		BillingOnItemPayment billOnItemPayment = null;
-		Timestamp ts = new Timestamp(paymentDate.getTime());
-		BillingOnItemPaymentDao billOnItemPaymentDao = (BillingOnItemPaymentDao)SpringUtils.getBean(BillingOnItemPaymentDao.class);
-		for (int i = 0; i < lVal.size(); i++) {
-			BillingItemData val = (BillingItemData) lVal.get(i);
-			billOnItemPayment = new BillingOnItemPayment();
-			billOnItemPayment.setBillingOnItemId(Integer.parseInt(val.getId()));
-			billOnItemPayment.setBillingOnPaymentId(paymentId);
-			billOnItemPayment.setCh1Id(id);
-			try {
-				billOnItemPayment.setDiscount(new BigDecimal(val.getDiscount()).setScale(2, BigDecimal.ROUND_HALF_UP));
-			} catch (Exception e) {
-				billOnItemPayment.setDiscount(new BigDecimal("0.00"));
-			}
-			try {
-				billOnItemPayment.setPaid(new BigDecimal(val.getPaid()).setScale(2, BigDecimal.ROUND_HALF_UP));
-			} catch (Exception e) {
-				billOnItemPayment.setPaid(new BigDecimal("0.00"));
-			}
-			billOnItemPayment.setPaymentTimestamp(ts);
-			try {
-				billOnItemPayment.setRefund(new BigDecimal(val.getRefund()).setScale(2, BigDecimal.ROUND_HALF_UP));
-			} catch (Exception e) {
-				billOnItemPayment.setRefund(new BigDecimal("0.00"));
-			}
-			billOnItemPaymentDao.persist(billOnItemPayment);
-			val.setId(billOnItemPayment.getId().toString());
-		}
-		return (retval != 0);
-	}
+		String sql = "insert into billing_on_header values(\\N, " + "'" + val.disk_id + "'," + "'" + val.transc_id
+				+ "'," + "'" + val.rec_id + "'," + "'" + val.spec_id + "'," + "'" + val.moh_office + "'," + "'"
+				+ val.batch_id + "'," + "'" + val.operator + "'," + "'" + val.group_num + "'," + "'"
+				+ val.provider_reg_num + "'," + "'" + val.specialty + "'," + "'" + val.h_count + "'," + "'"
+				+ val.r_count + "'," + "'" + val.t_count + "'," + "'" + val.batch_date + "'," + "'"
+				+ val.createdatetime + "'," + "'" + val.updatedatetime + "'," + "'" + val.creator + "'," + "'"
+				+ val.action + "'," + "'" + val.comment + "')";
+		_logger.info("addOneBatchHeaderRecord(sql = " + sql + ")");
+		retval = dbObj.saveBillingRecord(sql);
 
-	private void addCreate3rdInvoiceTrans(BillingClaimHeader1Data billHeader, List<BillingItemData> billItemList, BillingONPayment billOnPayment) {
-		if (billItemList.size() < 1) {
-			return;
+		if (retval == 0) {
+			_logger.error("addOneBatchHeaderRecord(sql = " + sql + ")");
 		}
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		Timestamp updateTs = new Timestamp(new Date().getTime());
-		BillingOnTransaction billTrans = null;
-		BillingOnTransactionDao billTransDao = (BillingOnTransactionDao)SpringUtils.getBean(BillingOnTransactionDao.class);
-		for (BillingItemData billItem : billItemList) {
-			billTrans = new BillingOnTransaction();
-			billTrans.setActionType(BillingDataHlp.ACTION_TYPE.C.name());
-			try {
-				billTrans.setAdmissionDate(sdf.parse(billHeader.getAdmission_date()));
-			} catch (Exception e) {
-				billTrans.setAdmissionDate(null);
-			}
-			try {
-				billTrans.setBillingDate(sdf.parse(billHeader.getBilling_date()));
-			} catch (Exception e) {
-				billTrans.setBillingDate(null);
-			}
-			
-			billTrans.setBillingNotes(billHeader.getComment());
-			billTrans.setBillingOnItemPaymentId(Integer.parseInt(billItem.getId()));
-			billTrans.setCh1Id(Integer.parseInt(billHeader.getId()));
-			billTrans.setClinic(billHeader.getClinic());
-			billTrans.setCreator(billHeader.getCreator());
-			billTrans.setDemographicNo(Integer.parseInt(billHeader.getDemographic_no()));
-			billTrans.setDxCode(billItem.getDx());
-			billTrans.setFacilityNum(billHeader.getFacilty_num());
-			billTrans.setManReview(billHeader.getMan_review());
-			billTrans.setPaymentDate(billOnPayment.getPaymentDate());
-			billTrans.setPaymentId(billOnPayment.getId());
-			billTrans.setPaymentType(billOnPayment.getPaymentTypeId());
-			billTrans.setPayProgram(billHeader.getPay_program());
-			billTrans.setProviderNo(billHeader.getProviderNo());
-			billTrans.setProvince(billHeader.getProvince());
-			billTrans.setRefNum(billHeader.getRef_num());
-			billTrans.setServiceCode(billItem.getService_code());
-			billTrans.setServiceCodeInvoiced(billItem.getFee());
-			try {
-				billTrans.setServiceCodeDiscount(new BigDecimal(billItem.getDiscount()));
-			} catch (Exception e) {
-				billTrans.setServiceCodeDiscount(BigDecimal.ZERO);
-			}
-			billTrans.setServiceCodeNum(billItem.getSer_num());
-			try {
-				billTrans.setServiceCodePaid(new BigDecimal(billItem.getPaid()));
-			} catch (Exception e) {
-				billTrans.setServiceCodePaid(BigDecimal.ZERO);
-			}
-			try {
-				billTrans.setServiceCodeRefund(new BigDecimal(billItem.getRefund()));
-			} catch (Exception e) {
-				billTrans.setServiceCodeRefund(BigDecimal.ZERO);
-			}
-			billTrans.setStatus(billHeader.getStatus());
-			billTrans.setSliCode(billHeader.getLocation());
-			billTrans.setUpdateDatetime(updateTs);
-			billTrans.setUpdateProviderNo(billHeader.getCreator());
-			billTrans.setVisittype(billHeader.getVisittype());
-			billTransDao.persist(billTrans);
-		}
-	}
-	
-	public void addCreateOhipInvoiceTrans(BillingClaimHeader1Data billHeader, List<BillingItemData> billItemList) {
-		if (billItemList.size() < 1) {
-			return;
-		}
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		Timestamp updateTs = new Timestamp(new Date().getTime());
-		BillingOnTransaction billTrans = null;
-		BillingOnTransactionDao billTransDao = (BillingOnTransactionDao)SpringUtils.getBean(BillingOnTransactionDao.class);
-		for (BillingItemData billItem : billItemList) {
-			billTrans = new BillingOnTransaction();
-			billTrans.setActionType(BillingDataHlp.ACTION_TYPE.C.name());
-			try {
-				billTrans.setAdmissionDate(sdf.parse(billHeader.getAdmission_date()));
-			} catch (Exception e) {
-				billTrans.setAdmissionDate(null);
-			}
-			try {
-				billTrans.setBillingDate(sdf.parse(billHeader.getBilling_date()));
-			} catch (Exception e) {
-				billTrans.setBillingDate(null);
-			}
-			
-			billTrans.setBillingNotes(billHeader.getComment());
-			billTrans.setBillingOnItemPaymentId(Integer.parseInt(billItem.getId()));
-			billTrans.setCh1Id(Integer.parseInt(billHeader.getId()));
-			billTrans.setClinic(billHeader.getClinic());
-			billTrans.setCreator(billHeader.getCreator());
-			billTrans.setDemographicNo(Integer.parseInt(billHeader.getDemographic_no()));
-			billTrans.setDxCode(billItem.getDx());
-			billTrans.setFacilityNum(billHeader.getFacilty_num());
-			billTrans.setManReview(billHeader.getMan_review());
-			billTrans.setPaymentDate(null);
-			billTrans.setPaymentId(0);
-			billTrans.setPaymentType(0);
-			billTrans.setPayProgram(billHeader.getPay_program());
-			billTrans.setProviderNo(billHeader.getProviderNo());
-			billTrans.setProvince(billHeader.getProvince());
-			billTrans.setRefNum(billHeader.getRef_num());
-			billTrans.setServiceCode(billItem.getService_code());
-			billTrans.setServiceCodeInvoiced(billItem.getFee());
-			billTrans.setServiceCodeDiscount(BigDecimal.ZERO);
-			billTrans.setServiceCodePaid(BigDecimal.ZERO);
-			billTrans.setServiceCodeRefund(BigDecimal.ZERO);
-			billTrans.setServiceCodeNum(billItem.getSer_num());
-			billTrans.setStatus(billHeader.getStatus());
-			billTrans.setSliCode(billHeader.getLocation());
-			billTrans.setUpdateDatetime(updateTs);
-			billTrans.setUpdateProviderNo(billHeader.getCreator());
-			billTrans.setVisittype(billHeader.getVisittype());
-			billTransDao.persist(billTrans);
-		}		
-	}
-
-
-	@SuppressWarnings("unchecked")
-	public boolean add3rdBillExt(Map<String,String>mVal, int id, Vector vecObj) {
-		BillingClaimHeader1Data claim1Obj = (BillingClaimHeader1Data) vecObj.get(0);
-		boolean retval = true;
-		String[] temp = { "billTo", "remitTo", "total", "payment", "discount", "provider_no", "gst", "payDate", "payMethod"};
-		String demoNo = mVal.get("demographic_no");
-		String dateTime = UtilDateUtilities.getToday("yyyy-MM-dd HH:mm:ss");
-                mVal.put("payDate", dateTime);
-		String paymentSumParam = null;
-		String paymentDateParam = null;
-		String paymentTypeParam = null;
-		String provider_no=mVal.get("provider_no");
-		for (int i = 0; i < temp.length; i++) {
-			String val = mVal.get(temp[i]);
-			if ("discount".equals(temp[i])) {
-				val = mVal.get("total_discount"); // 'refund' stands for write off, here totoal_discount is write off
-			}
-			if ("payment".equals(temp[i])) {
-				val = mVal.get("total_payment");
-			}
-			BillingONExt billingONExt = new BillingONExt();
-			billingONExt.setBillingNo(id);
-			billingONExt.setDemographicNo(Integer.parseInt(demoNo));
-			billingONExt.setKeyVal(StringEscapeUtils.escapeSql(temp[i]));
-			billingONExt.setValue(StringEscapeUtils.escapeSql(val));
-			billingONExt.setDateTime(new Date());
-			billingONExt.setStatus('1');
-			extDao.persist(billingONExt);			
-			
-			if(i == 3) paymentSumParam = mVal.get("total_payment"); // total_payment
-			else if(i == 7) paymentDateParam = mVal.get(temp[i]); // paymentDate
-			else if(i == 8) paymentTypeParam = mVal.get(temp[i]); // paymentMethod
-			
-		}
-        
-        if(paymentSumParam!=null) {
-			BillingONPaymentDao billingONPaymentDao =(BillingONPaymentDao) SpringUtils.getBean("billingONPaymentDao");			
-			BillingPaymentTypeDao billingPaymentTypeDao =(BillingPaymentTypeDao) SpringUtils.getBean("billingPaymentTypeDao");
-			BillingONCHeader1 ch1 = cheaderDao.find(id);
-			Date paymentDate = null;
-			try {
-	    		paymentDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(paymentDateParam);
-	    	} catch(ParseException ex) {
-				_logger.error("add3rdBillExt wrong date format " + paymentDateParam);
-				return retval;
-	    	}
-			
-			//allow user to override with the text box added
-			String paymentDateOverride = mVal.get("payment_date");
-			if(paymentDateOverride != null && paymentDateOverride.length()>0) {
-				try {
-		    		paymentDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(paymentDateOverride + " 00:00:00");
-		    	} catch(ParseException ex) {
-					_logger.error("add3rdBillExt wrong date format " + paymentDateOverride);
-					return retval;
-		    	}
-			}
-			
-	    	if(paymentTypeParam==null || paymentTypeParam.equals("")) {
-	    		paymentTypeParam="1";
-	    	}
-    		BillingPaymentType type = billingPaymentTypeDao.find(Integer.parseInt(paymentTypeParam));
-    		BillingONPayment payment = null;
-    		
-    		if(paymentSumParam != null) {
-		    	payment = new BillingONPayment();
-	    		payment.setTotal_payment(BigDecimal.valueOf(Double.parseDouble(paymentSumParam)));
-	    		payment.setTotal_discount(BigDecimal.valueOf(Double.parseDouble(mVal.get("total_discount"))));
-	    		payment.setTotal_refund(new BigDecimal(0));
-				payment.setPaymentDate(paymentDate);
-		    	payment.setBillingOnCheader1(ch1);
-				payment.setBillingNo(id);
-		    	payment.setCreator(claim1Obj.getCreator());
-		    	payment.setPaymentTypeId(Integer.parseInt(paymentTypeParam));
-		    	
-		    	//payment.setBillingPaymentType(type);
-		    	billingONPaymentDao.persist(payment);
-		    	addItemPaymentRecord((List) vecObj.get(1), id , payment.getId(), Integer.parseInt(paymentTypeParam), paymentDate);
-		    	addCreate3rdInvoiceTrans((BillingClaimHeader1Data) vecObj.get(0), (List<BillingItemData>)vecObj.get(1), payment);
-	    	}
-        }
 		return retval;
 	}
 
+	public int addOneClaimHeaderRecord(BillingClaimHeader1Data val) {
+		int retval = 0;
+		String sql = "insert into billing_on_cheader1 values(\\N, 0," + "'" + val.transc_id + "'," + "'" + val.rec_id
+				+ "'," + "'" + val.hin
+				+ "',"
+				+ "'"
+				+ val.ver
+				+ "',"
+				+ "'"
+				+ val.dob
+				+ "',"
+				+
+				// "'" + val.acc_num + "'," +
+				"'" + val.pay_program + "'," + "'" + val.payee + "'," + "'" + val.ref_num + "'," + "'"
+				+ val.facilty_num + "'," + "'" + val.admission_date + "'," + "'" + val.ref_lab_num + "'," + "'"
+				+ val.man_review + "'," + "'" + val.location + "'," + "'" + val.demographic_no + "'," + "'"
+				+ val.provider_no + "'," + "'" + val.appointment_no + "'," + "'"
+				+ StringEscapeUtils.escapeSql(val.demographic_name) + "'," + "'" + val.sex + "'," + "'" + val.province
+				+ "'," + "'" + val.billing_date + "'," + "'" + val.billing_time + "'," + "'" + val.total + "'," + "'"
+				+ val.paid + "'," + "'" + val.status + "'," + "'" + StringEscapeUtils.escapeSql(val.comment) + "',"
+				+ "'" + val.visittype + "'," + "'" + val.provider_ohip_no + "'," + "'" + val.provider_rma_no + "',"
+				+ "'" + val.apptProvider_no + "'," + "'" + val.asstProvider_no + "'," + "'" + val.creator + "', \\N, "
+				+ (val.clinic==null?"null":"'"+val.clinic+"'")+" )";
 
-	public int addOneItemRecord(BillingItemData val) throws ParseException {
-		BillingONItem item = new BillingONItem();
-		item.setCh1Id(Integer.parseInt(val.ch1_id));
-		item.setTranscId(val.transc_id);
-		item.setRecId(val.rec_id);
-		item.setServiceCode(val.service_code);
-		item.setFee(val.fee);
-		item.setServiceCount(val.ser_num);
-		item.setServiceDate(dateformatter.parse(val.service_date));
-		item.setDx(val.dx);
-		item.setDx1(val.dx1);
-		item.setDx2(val.dx2);
-		item.setStatus(val.status);	
-		BillingONItem returnItem = itemDao.saveEntity(item); 
-		return returnItem.getId(); //return ID
-		
-	}
-		
-	public boolean add3rdBillExt(Map<String,String>mVal, int id) {
-		boolean retval = true;
-		String[] temp = { "billTo", "remitTo", "total", "payment", "refund", "provider_no", "gst", "payDate", "payMethod"};
-		String demoNo = mVal.get("demographic_no");
-		String dateTime = UtilDateUtilities.getToday("yyyy-MM-dd HH:mm:ss");
-        mVal.put("payDate", dateTime);
-        
-        BillingONPaymentDao billingONPaymentDao = SpringUtils.getBean(BillingONPaymentDao.class);
-        BillingONPayment newPayment = new BillingONPayment();
-        BillingONCHeader1 ch1 = cheaderDao.find(id);
-        newPayment.setBillingOnCheader1(ch1);
-        newPayment.setPaymentDate(UtilDateUtilities.StringToDate(dateTime));
-        
-		for (int i = 0; i < temp.length; i++) {
-				BillingONExt b = new BillingONExt();
-				b.setBillingNo(id);
-				b.setDemographicNo(Integer.valueOf(demoNo));
-				b.setKeyVal(temp[i]);
-				b.setValue(mVal.get(temp[i]));
-				b.setDateTime(new Date());
-				b.setStatus('1');
-				b.setPaymentId(0);
-				newPayment.getBillingONExtItems().add(b);
-		}
-		
-		billingONPaymentDao.persist(newPayment);
-		
-		return retval;
-	}
+		_logger.info("addOneClaimHeaderRecord(sql = " + sql + ")");
+		retval = dbObj.saveBillingRecord(sql);
 
-	// add disk file
-	public int addBillingDiskName(BillingDiskNameData val) {
-		BillingONDiskName b = new BillingONDiskName();
-		b.setMonthCode(val.monthCode);
-		b.setBatchCount(Integer.parseInt(val.batchcount));
-		b.setOhipFilename(val.ohipfilename);
-		b.setGroupNo(val.groupno);
-		b.setCreator(val.creator);
-		b.setClaimRecord(val.claimrecord);
-		b.setCreateDateTime(new Date());
-		b.setStatus(val.status);
-		b.setTotal(val.total);
-		
-		diskNameDao.persist(b);
-		
-		int retval = b.getId();
-		
-		if (b.getId() > 0) {
-			// add filenames, if needed
-			for (int i = 0; i < val.providerohipno.size(); i++) {
-				BillingONFilename f = new BillingONFilename();
-				f.setDiskId(b.getId());
-				f.setHtmlFilename((String)val.htmlfilename.get(i));
-				f.setProviderOhipNo((String)val.providerohipno.get(i));
-				f.setProviderNo((String)val.providerno.get(i));
-				f.setClaimRecord((String)val.vecClaimrecord.get(0));
-				f.setStatus((String)val.vecStatus.get(0));
-				f.setTotal((String)val.vecTotal.get(0));
-				filenameDao.persist(f);
+		if (retval > 0) {
+			// add claim header 2 record, if needed
+			if ("RMB".equals(val.pay_program)) {
+				sql = "insert into billing_on_cheader2 values(\\N, " + retval + " ," + "'" + val.transc_id + "',"
+						+ "'R'," + "'" + val.hin + "'," + "'" + val.last_name + "'," + "'" + val.first_name + "',"
+						+ "'" + val.sex + "'," + "'" + val.province + "', \\N )";
+				_logger.info("addOneClaimHeaderRecord2(sql = " + sql + ")");
+				dbObj.saveBillingRecord(sql);
 			}
-
 		} else {
+			_logger.error("addOneClaimHeaderRecord(sql = " + sql + ")");
 			retval = 0;
 		}
 
 		return retval;
 	}
 
-	public String[] getLatestSoloMonthCodeBatchNum(String providerOhipNo) {
-		String[] retval = null;
-		
-		BillingONDiskName b = diskNameDao.getLatestSoloMonthCodeBatchNum(providerOhipNo);
-		if(b != null) {
-			retval = new String[2];
-			retval[0] = b.getMonthCode();
-			retval[1] = "" + b.getBatchCount();
-		} else {
-			retval=null;
+	public boolean addItemRecord(List lVal, int id) {
+		boolean retval = true;
+		for (int i = 0; i < lVal.size(); i++) {
+			BillingItemData val = (BillingItemData) lVal.get(i);
+			String sql = "insert into billing_on_item values(\\N, " + id + ", '" + val.transc_id + "', '" + val.rec_id
+					+ "', '" + val.service_code + "', '" + val.fee + "', '" + val.ser_num + "', '" + val.service_date
+					+ "', '" + val.dx + "', '" + val.dx1 + "', '" + val.dx2 + "', '" + val.status + "', \\N )";
+			retval = dbObj.updateDBRecord(sql);
+			if (!retval) {
+				_logger.error("addItemRecord(sql = " + sql + ")");
+				return retval;
+			}
 		}
-			
+		return retval;
+	}
+
+	public boolean add3rdBillExt(Map<String,String>mVal, int id) {
+		boolean retval = true;
+		String[] temp = { "billTo", "remitTo", "total", "payment", "refund", "provider_no", "gst", "payDate", "payMethod"};
+		String demoNo = mVal.get("demographic_no");
+		String dateTime = UtilDateUtilities.getToday("yyyy-MM-dd HH:mm:ss");
+                mVal.put("payDate", dateTime);
+		for (int i = 0; i < temp.length; i++) {
+			String sql = "insert into billing_on_ext values(\\N, " + id + "," + demoNo + ", '" + temp[i] + "', '"
+					+ mVal.get(temp[i]) + "', '" + dateTime + "', '1' )";
+			retval = dbObj.updateDBRecord(sql);
+			if (!retval) {
+				_logger.error("add3rdBillExt(sql = " + sql + ")");
+				return retval;
+			}
+		}
+		return retval;
+	}
+
+	public int addOneItemRecord(BillingItemData val) {
+		int retval = 0;
+		String sql = "insert into billing_on_item values(\\N, " + val.ch1_id + ", '" + val.transc_id + "', '"
+				+ val.rec_id + "', '" + val.service_code + "', '" + val.fee + "', '" + val.ser_num + "', '"
+				+ val.service_date + "', '" + val.dx + "', '" + val.dx1 + "', '" + val.dx2 + "', '" + val.status
+				+ "', \\N )";
+		retval = dbObj.saveBillingRecord(sql);
+		if (retval == 0) {
+			_logger.error("addOneItemRecord(sql = " + sql + ")");
+		}
+		return retval;
+	}
+
+	// add disk file
+	public int addBillingDiskName(BillingDiskNameData val) {
+		int retval = 0;
+		String sql = "insert into billing_on_diskname values(\\N, " + "'" + val.monthCode + "'," + " " + val.batchcount
+				+ " ," + "'" + val.ohipfilename + "'," + "'" + val.groupno + "'," + "'" + val.creator + "'," + "'"
+				+ val.claimrecord + "'," + "'" + val.createdatetime + "'," + "'" + val.status + "'," + "'" + val.total
+				+ "', \\N )";
+		_logger.info("addBillingDiskName(sql = " + sql + ")");
+		retval = dbObj.saveBillingRecord(sql);
+
+		if (retval > 0) {
+			// add filenames, if needed
+			for (int i = 0; i < val.providerohipno.size(); i++) {
+				sql = "insert into billing_on_filename values(\\N, " + retval + " ," + "'" + val.htmlfilename.get(i)
+						+ "'," + "'" + val.providerohipno.get(i) + "'," + "'" + val.providerno.get(i) + "'," + "'"
+						+ val.vecClaimrecord.get(0) + "'," + "'" + val.vecStatus.get(0) + "'," + "'"
+						+ val.vecTotal.get(0) + "', \\N )";
+				_logger.info("addBillingDiskName2(sql = " + sql + ")");
+				dbObj.saveBillingRecord(sql);
+			}
+
+		} else {
+			_logger.error("addBillingDiskName(sql = " + sql + ")");
+			retval = 0;
+		}
+
+		return retval;
+	}
+
+	/*
+	 * // add disk file public List addBillingDiskName(BillingDiskNameData val) {
+	 * List ret = new Vector(); int retval = 0; Vector ohipName =
+	 * val.getOhipfilename();
+	 * 
+	 * for (int j = 0; j < ohipName.size(); j++) { String sql = "insert into
+	 * billing_on_diskname values(\\N, 0," + "'" + val.monthCode + "'," + " " +
+	 * val.batchcount + " ," + "'" + val.ohipfilename.get(j) + "'," + "'" +
+	 * val.groupno + "'," + "'" + val.creator + "'," + "'" + val.claimrecord +
+	 * "'," + "'" + val.createdatetime + "'," + "'" + val.status + "'," + "'" +
+	 * val.total + "', \\N )"; _logger.info("addBillingDiskName(sql = " + sql +
+	 * ")"); retval = dbObj.saveBillingRecord(sql);
+	 * 
+	 * if (retval > 0) { // add filenames, if needed for (int i = 0; i <
+	 * val.providerohipno.size(); i++) { sql = "insert into billing_on_filename
+	 * values(\\N, " + retval + " ," + "'" + val.htmlfilename.get(i) + "'," +
+	 * "'" + val.providerohipno.get(i) + "'," + "'" + val.vecClaimrecord.get(i) +
+	 * "'," + "'" + val.vecStatus.get(i) + "'," + "'" + val.vecTotal.get(i) +
+	 * "', \\N )"; _logger.info("addOneClaimHeaderRecord2(sql = " + sql + ")");
+	 * dbObj.saveBillingRecord(sql); }
+	 * 
+	 * ret.add("" + retval); } else { _logger.error("addBillingDiskName(sql = " +
+	 * sql + ")"); retval = 0; } }
+	 * 
+	 * return ret; }
+	 */
+	// get monthCode, batchcount
+	public String[] getLatestSoloMonthCodeBatchNum(String providerNo) {
+		String[] retval = null;
+		String sql = "select monthCode, batchcount from billing_on_diskname d, billing_on_filename f where f.providerohipno='"
+				+ providerNo + "' and d.id=f.disk_id order by d.id desc limit 1";
+		// _logger.info("getLatestSoloMonthCodeBatchNum(sql = " + sql + ")");
+		ResultSet rs = dbObj.searchDBRecord(sql);
+
+		try {
+			if (rs.next()) {
+				retval = new String[2];
+				retval[0] = rs.getString("monthCode");
+				retval[1] = "" + rs.getInt("batchcount");
+			}
+		} catch (SQLException e) {
+			_logger.error("getLatestSoloMonthCodeBatchNum(sql = " + sql + ")");
+			retval = null;
+		}
+
 		return retval;
 	}
 
 	public String[] getLatestGrpMonthCodeBatchNum(String groupNo) {
 		String[] retval = null;
-		BillingONDiskName b = diskNameDao.findByGroupNo(groupNo);
-		if(b != null) {
-			retval = new String[2];
-			retval[0] = b.getMonthCode();
-			retval[1] = "" +b.getBatchCount();
-		}else {
+		String sql = "select monthCode, batchcount from billing_on_diskname where groupNo='" + groupNo
+				+ "' order by createdatetime desc limit 1";
+		// _logger.info("getLatestGrpMonthCodeBatchNum(sql = " + sql + ")");
+		ResultSet rs = dbObj.searchDBRecord(sql);
+
+		try {
+			if (rs.next()) {
+				retval = new String[2];
+				retval[0] = rs.getString("monthCode");
+				retval[1] = "" + rs.getInt("batchcount");
+			}
+		} catch (SQLException e) {
+			_logger.error("getLatestGrpMonthCodeBatchNum(sql = " + sql + ")");
 			retval = null;
 		}
 
@@ -626,58 +242,76 @@ public class JdbcBillingClaimImpl {
 
 	public String getPrevDiskCreateDate(String diskId) {
 		String retval = null;
-		Date curDate =null;
+		String curDate = "";
 		String groupNo = "";
-		
-		
-		BillingONDiskName b= diskNameDao.find(Integer.valueOf(diskId));
-		if(b != null) {
-			curDate = b.getCreateDateTime();
-			groupNo = b.getGroupNo();
+		String sql = "select createdatetime, groupno from billing_on_diskname where id=" + diskId;
+		ResultSet rs = dbObj.searchDBRecord(sql);
 
-			BillingONDiskName x = diskNameDao.getPrevDiskCreateDate(curDate,groupNo);
-			if(x != null) {
-				Date tmp = x.getCreateDateTime();
-				retval = dateformatter.format(tmp);
+		try {
+			if (rs.next()) {
+				curDate = rs.getString("createdatetime");
+				groupNo = rs.getString("groupno");
+
+				sql = "select createdatetime from billing_on_diskname where createdatetime<'" + curDate
+						+ "' and groupno='" + groupNo + "' order by createdatetime desc limit 1";
+				rs = dbObj.searchDBRecord(sql);
+				if (rs.next()) {
+					retval = rs.getString("createdatetime");
+					retval = retval.substring(0, 10);
+				}
 			}
+		} catch (SQLException e) {
+			_logger.error("getPrevDiskCreateDate(sql = " + sql + ")");
+			retval = null;
 		}
+
 		return retval;
 	}
-	
 
 	public String getDiskCreateDate(String diskId) {
 		String retval = null;
-		
-		BillingONDiskName b = diskNameDao.find(Integer.parseInt(diskId));
-		if(b != null) {
-			Date tmp = b.getCreateDateTime();
-			retval = dateformatter.format(tmp);
+		String sql = "select createdatetime from billing_on_diskname where id=" + diskId;
+		ResultSet rs = dbObj.searchDBRecord(sql);
+
+		try {
+			if (rs.next()) {
+				retval = rs.getString("createdatetime");
+				retval = retval.substring(0, 10);
+			}
+		} catch (SQLException e) {
+			_logger.error("getDiskCreateDate(sql = " + sql + ")");
+			retval = null;
 		}
+
 		return retval;
 	}
-	
 
 	public List getMRIList(String sDate, String eDate, String status) {
 		List retval = new Vector();
 		BillingDiskNameData obj = null;
-		
+		String sql = "select * from billing_on_diskname where createdatetime>='" + sDate + "' and createdatetime<='"
+				+ eDate + "' and status in (" + status + ") order by createdatetime desc ";
+		// _logger.info("getMRIList(sql = " + sql + ")");
+		ResultSet rs = dbObj.searchDBRecord(sql);
+
 		try {
-			List<BillingONDiskName> results = diskNameDao.findByCreateDateRangeAndStatus(dateformatter.parse(sDate),dateformatter.parse(eDate),status);
-	
-			for(BillingONDiskName b : results) {
+			while (rs.next()) {
 				obj = new BillingDiskNameData();
-				obj.setId("" + b.getId());
-				obj.setMonthCode(b.getMonthCode());
-				obj.setBatchcount("" + b.getBatchCount());
-				obj.setOhipfilename(b.getOhipFilename());
-				obj.setGroupno(b.getGroupNo());
-				obj.setClaimrecord(b.getClaimRecord());
-				obj.setCreatedatetime(tsFormatter.format(b.getCreateDateTime()));
-				obj.setUpdatedatetime(tsFormatter.format(b.getTimestamp()));
-				obj.setStatus(b.getStatus());
-				obj.setTotal(b.getTotal());
-				
-				List<BillingONFilename> ff = filenameDao.findByDiskIdAndStatus(b.getId(),status);
+				obj.setId("" + rs.getInt("id"));
+				obj.setMonthCode(rs.getString("monthCode"));
+				obj.setBatchcount("" + rs.getInt("batchcount"));
+				obj.setOhipfilename(rs.getString("ohipfilename"));
+				obj.setGroupno(rs.getString("groupno"));
+				obj.setClaimrecord(rs.getString("claimrecord"));
+				obj.setCreatedatetime(rs.getString("createdatetime"));
+				obj.setUpdatedatetime(rs.getString("timestamp"));
+				obj.setStatus(rs.getString("status"));
+				obj.setTotal(rs.getString("total"));
+
+				sql = "select * from billing_on_filename where disk_id =" + rs.getInt("id") + " and status in ("
+						+ status + ") order by id desc ";
+				// _logger.info("getMRIList(sql = " + sql + ")");
+				ResultSet rs1 = dbObj.searchDBRecord(sql);
 				Vector vecHtmlfilename = new Vector();
 				Vector vecProviderohipno = new Vector();
 				Vector vecProviderno = new Vector();
@@ -685,16 +319,16 @@ public class JdbcBillingClaimImpl {
 				Vector vecStatus = new Vector();
 				Vector vecTotal = new Vector();
 				Vector vecFilenameId = new Vector();
-					
-				for(BillingONFilename f:ff) {	
-					vecFilenameId.add("" + f.getId());
-					vecHtmlfilename.add(f.getHtmlFilename());
-					vecProviderohipno.add(f.getProviderOhipNo());
-					vecProviderno.add(f.getProviderNo());
-					vecClaimrecord.add(f.getClaimRecord());
-					vecStatus.add(f.getStatus());
-					vecTotal.add(f.getTotal());
+				while (rs1.next()) {
+					vecFilenameId.add("" + rs1.getInt("id"));
+					vecHtmlfilename.add(rs1.getString("htmlfilename"));
+					vecProviderohipno.add(rs1.getString("providerohipno"));
+					vecProviderno.add(rs1.getString("providerno"));
+					vecClaimrecord.add(rs1.getString("claimrecord"));
+					vecStatus.add(rs1.getString("status"));
+					vecTotal.add(rs1.getString("total"));
 				}
+
 				obj.setVecFilenameId(vecFilenameId);
 				obj.setHtmlfilename(vecHtmlfilename);
 				obj.setProviderohipno(vecProviderohipno);
@@ -702,74 +336,103 @@ public class JdbcBillingClaimImpl {
 				obj.setVecClaimrecord(vecClaimrecord);
 				obj.setVecStatus(vecStatus);
 				obj.setVecTotal(vecTotal);
-				retval.add(obj);	
+				retval.add(obj);
 			}
-		} catch(Exception e) {
-			MiscUtils.getLogger().error("Error",e);
-			retval=null;
+		} catch (SQLException e) {
+			_logger.error("getMRIList(sql = " + sql + ")");
+			retval = null;
 		}
+
 		return retval;
 	}
 
 	public String getOhipfilename(int diskId) {
-		BillingONDiskName b = diskNameDao.find(diskId);
-		if(b != null) {
-			return b.getOhipFilename();
+		String obj = "";
+		String sql = "select ohipfilename from billing_on_diskname where id=" + diskId;
+		ResultSet rs = dbObj.searchDBRecord(sql);
+
+		try {
+			while (rs.next()) {
+				obj = rs.getString("ohipfilename");
+			}
+		} catch (SQLException e) {
+			_logger.error("getOhipfilename(sql = " + sql + ")");
+			obj = null;
 		}
-		return "";
+
+		return obj;
 	}
 
 	public String getHtmlfilename(int diskId, String providerNo) {
-		String obj="";
-		List<BillingONFilename> results = filenameDao.findByDiskIdAndProvider(diskId, providerNo);
-		for(BillingONFilename result:results) {
-			obj = result.getHtmlFilename();
+		String obj = "";
+		String sql = "select htmlfilename from billing_on_filename where disk_id=" + diskId + " and providerno='"
+				+ providerNo + "'";
+		ResultSet rs = dbObj.searchDBRecord(sql);
+
+		try {
+			while (rs.next()) {
+				obj = rs.getString("htmlfilename");
+			}
+		} catch (SQLException e) {
+			_logger.error("getHtmlfilename(sql = " + sql + ")");
+			obj = null;
 		}
+
 		return obj;
 	}
 
 	public BillingDiskNameData getDisknameObj(String diskId) {
 		BillingDiskNameData obj = new BillingDiskNameData();
-		
-		BillingONDiskName b = diskNameDao.find(Integer.valueOf(diskId));
-		if(b != null) {
-			obj.setId("" + b.getId());
-			obj.setMonthCode(b.getMonthCode());
-			obj.setBatchcount("" + b.getBatchCount());
-			obj.setOhipfilename(b.getOhipFilename());
-			obj.setGroupno(b.getGroupNo());
-			obj.setClaimrecord(b.getCreator());
-			obj.setClaimrecord(b.getClaimRecord());
-			obj.setCreatedatetime(tsFormatter.format(b.getCreateDateTime()));
-			obj.setStatus(b.getStatus());
-			obj.setTotal(b.getTotal());
-			obj.setUpdatedatetime(tsFormatter.format(b.getTimestamp()));
-			
-			List<BillingONFilename> ff = filenameDao.findCurrentByDiskId(b.getId());
-			Vector vecHtmlfilename = new Vector();
-			Vector vecProviderohipno = new Vector();
-			Vector vecProviderno = new Vector();
-			Vector vecClaimrecord = new Vector();
-			Vector vecStatus = new Vector();
-			Vector vecTotal = new Vector();
-			Vector vecFilenameId = new Vector();
-			for(BillingONFilename f:ff) {
-				vecFilenameId.add("" + f.getId());
-				vecHtmlfilename.add(f.getHtmlFilename());
-				vecProviderohipno.add(f.getProviderOhipNo());
-				vecProviderno.add(f.getProviderNo());
-				vecClaimrecord.add(f.getClaimRecord());
-				vecStatus.add(f.getStatus());
-				vecTotal.add(f.getTotal());
-			}
+		String sql = "select * from billing_on_diskname where id=" + diskId;
+		// _logger.info("BillingDiskNameData(sql = " + sql + ")");
+		ResultSet rs = dbObj.searchDBRecord(sql);
 
-			obj.setVecFilenameId(vecFilenameId);
-			obj.setHtmlfilename(vecHtmlfilename);
-			obj.setProviderohipno(vecProviderohipno);
-			obj.setProviderno(vecProviderno);
-			obj.setVecClaimrecord(vecClaimrecord);
-			obj.setVecStatus(vecStatus);
-			obj.setVecTotal(vecTotal);
+		try {
+			while (rs.next()) {
+				obj.setId("" + rs.getInt("id"));
+				obj.setMonthCode(rs.getString("monthCode"));
+				obj.setBatchcount("" + rs.getInt("batchcount"));
+				obj.setOhipfilename(rs.getString("ohipfilename"));
+				obj.setGroupno(rs.getString("groupno"));
+				obj.setClaimrecord(rs.getString("creator"));
+				obj.setClaimrecord(rs.getString("claimrecord"));
+				obj.setCreatedatetime(rs.getString("createdatetime"));
+				obj.setStatus(rs.getString("status"));
+				obj.setTotal(rs.getString("total"));
+				obj.setUpdatedatetime(rs.getString("timestamp"));
+
+				sql = "select * from billing_on_filename where disk_id =" + rs.getInt("id")
+						+ " and status !='D' order by id desc ";
+				// _logger.info("getMRIList(sql = " + sql + ")");
+				ResultSet rs1 = dbObj.searchDBRecord(sql);
+				Vector vecHtmlfilename = new Vector();
+				Vector vecProviderohipno = new Vector();
+				Vector vecProviderno = new Vector();
+				Vector vecClaimrecord = new Vector();
+				Vector vecStatus = new Vector();
+				Vector vecTotal = new Vector();
+				Vector vecFilenameId = new Vector();
+				while (rs1.next()) {
+					vecFilenameId.add("" + rs1.getInt("id"));
+					vecHtmlfilename.add(rs1.getString("htmlfilename"));
+					vecProviderohipno.add(rs1.getString("providerohipno"));
+					vecProviderno.add(rs1.getString("providerno"));
+					vecClaimrecord.add(rs1.getString("claimrecord"));
+					vecStatus.add(rs1.getString("status"));
+					vecTotal.add(rs1.getString("total"));
+				}
+
+				obj.setVecFilenameId(vecFilenameId);
+				obj.setHtmlfilename(vecHtmlfilename);
+				obj.setProviderohipno(vecProviderohipno);
+				obj.setProviderno(vecProviderno);
+				obj.setVecClaimrecord(vecClaimrecord);
+				obj.setVecStatus(vecStatus);
+				obj.setVecTotal(vecTotal);
+			}
+		} catch (SQLException e) {
+			_logger.error("BillingDiskNameData(sql = " + sql + ")");
+			obj = null;
 		}
 
 		return obj;
@@ -777,109 +440,126 @@ public class JdbcBillingClaimImpl {
 
 	public int addRepoDiskName(BillingDiskNameData val) {
 		int retval = 0;
-		BillingONRepo b = new BillingONRepo();
-		b.sethId(Integer.parseInt(val.id));
-		b.setCategory("billing_on_diskname");
-		b.setContent(val.monthCode + "|" + val.batchcount + "|" + val.ohipfilename + "|" + val.groupno + "|" + val.creator
+		String sql = "insert into billing_on_repo values(\\N, " + " " + val.id + " ," + "'billing_on_diskname'," + "'"
+				+ val.monthCode + "|" + val.batchcount + "|" + val.ohipfilename + "|" + val.groupno + "|" + val.creator
 				+ "|" + val.claimrecord + "|" + val.createdatetime + "|" + val.status + "|" + val.total + "|"
-				+ val.updatedatetime);
-		b.setCreateDateTime(new Date());
-		
-		repoDao.persist(b);
-		retval = b.getId();
-		
-		if (b.getId() > 0) {
+				+ val.updatedatetime + "', '" + val.updatedatetime + "')";
+		_logger.info("addRepoDiskName(sql = " + sql + ")");
+		retval = dbObj.saveBillingRecord(sql);
+
+		if (retval > 0) {
 			// add filenames, if needed
 			for (int i = 0; i < val.providerohipno.size(); i++) {
-				BillingONRepo r = new BillingONRepo();
-				r.sethId(Integer.valueOf((String)val.vecFilenameId.get(i)));
-				r.setCategory("billing_on_filename");
-				r.setContent(val.id + "|" + val.htmlfilename.get(i) + "|"
+				sql = "insert into billing_on_repo values(\\N, " + val.vecFilenameId.get(i) + " ,"
+						+ "'billing_on_filename'," + "'" + val.id + "|" + val.htmlfilename.get(i) + "|"
 						+ val.providerohipno.get(i) + "|" + val.providerno.get(i) + "|" + val.vecClaimrecord.get(0)
-						+ "|" + val.vecStatus.get(0) + "|" + val.vecTotal.get(0) + "|" + val.updatedatetime);
-				
-				r.setCreateDateTime(new Date());
-				
-				repoDao.persist(r);
+						+ "|" + val.vecStatus.get(0) + "|" + val.vecTotal.get(0) + "|" + val.updatedatetime + "', '"
+						+ val.updatedatetime + "')";
+				_logger.info("addRepoDiskName2(sql = " + sql + ")");
+				dbObj.saveBillingRecord(sql);
 			}
 		} else {
+			_logger.error("addRepoDiskName(sql = " + sql + ")");
 			retval = 0;
 		}
 		return retval;
 	}
 
 	public boolean updateDiskName(BillingDiskNameData val) {
-		BillingONDiskName b = diskNameDao.find(Integer.parseInt(val.getId()));
-		if(b != null) {
-			b.setCreator(val.creator);
-			diskNameDao.merge(b);
+		boolean retval = false;
+		String sql = "update billing_on_diskname set creator='" + val.creator + "' where id=" + val.getId();
+		_logger.info("updateDiskName(sql = " + sql + ")");
+		retval = dbObj.updateDBRecord(sql);
+
+		if (retval) {
+			// for (int i = 0; i < val.providerohipno.size(); i++) {
+			// sql = "update billing_on_filename creator='" + val.creator + "'
+			// where id=" + val.vecFilenameId.get(i);
+			// _logger.info("updateDiskName2(sql = " + sql + ")");
+			// dbObj.updateDBRecord(sql);
+			// }
+		} else {
+			_logger.error("updateDiskName(sql = " + sql + ")");
+			retval = false;
 		}
-		return true;
+		return retval;
 	}
 
 	public BillingBatchHeaderData getBatchHeaderObj(BillingProviderData providerData, String disk_id) {
 		BillingBatchHeaderData obj = new BillingBatchHeaderData();
-		
-		List<BillingONHeader> bs = dao.findByDiskIdAndProviderRegNum(Integer.parseInt(disk_id),providerData.getOhipNo());
-		
-		for(BillingONHeader b:bs) {
-			obj.setId("" +b.getId());
-			obj.setDisk_id(disk_id);
-			obj.setTransc_id(b.getTransactionId());
-			obj.setRec_id(b.getRecordId());
-			obj.setSpec_id(b.getSpecId());
-			obj.setMoh_office(b.getMohOffice());
+		String sql = "select * from billing_on_header where disk_id='" + disk_id + "' and provider_reg_num='"
+				+ providerData.getOhipNo() + "'";
+		// _logger.info("getBatchHeaderObj(sql = " + sql + ")");
+		ResultSet rs = dbObj.searchDBRecord(sql);
 
-			obj.setBatch_id(b.getBatchId());
-			obj.setOperator(b.getOperator());
-			obj.setGroup_num(b.getGroupNum());
-			obj.setProvider_reg_num(b.getProviderRegNum());
-			obj.setSpecialty(b.getSpecialty());
-			obj.setH_count(b.gethCount());
-			obj.setR_count(b.getrCount());
-			obj.setT_count(b.gettCount());
-			obj.setBatch_date(dateformatter.format(b.getBatchDate()));
+		try {
+			while (rs.next()) {
+				obj.setId("" + rs.getInt("id"));
+				obj.setDisk_id(disk_id);
+				obj.setTransc_id(rs.getString("transc_id"));
+				obj.setRec_id(rs.getString("rec_id"));
+				obj.setSpec_id(rs.getString("spec_id"));
+				obj.setMoh_office(rs.getString("moh_office"));
 
-			obj.setCreatedatetime(tsFormatter.format(b.getCreateDateTime()));
-			obj.setUpdatedatetime(tsFormatter.format(b.getUpdateDateTime()));
-			obj.setCreator(b.getCreator());
-			obj.setAction(b.getAction());
-			obj.setComment(b.getComment());
+				obj.setBatch_id(rs.getString("batch_id"));
+				obj.setOperator(rs.getString("operator"));
+				obj.setGroup_num(rs.getString("group_num"));
+				obj.setProvider_reg_num(rs.getString("provider_reg_num"));
+				obj.setSpecialty(rs.getString("specialty"));
+				obj.setH_count(rs.getString("h_count"));
+				obj.setR_count(rs.getString("r_count"));
+				obj.setT_count(rs.getString("t_count"));
+				obj.setBatch_date(rs.getString("batch_date"));
+
+				obj.setCreatedatetime(rs.getString("createdatetime"));
+				obj.setUpdatedatetime(rs.getString("updatedatetime"));
+				obj.setCreator(rs.getString("creator"));
+				obj.setAction(rs.getString("action"));
+				obj.setComment(rs.getString("comment"));
+			}
+		} catch (SQLException e) {
+			_logger.error("getBatchHeaderObj(sql = " + sql + ")");
+			obj = null;
 		}
-
 		return obj;
 	}
 
 	public int addRepoBatchHeader(BillingBatchHeaderData val) {
-		BillingONRepo b = new BillingONRepo();
-		b.sethId(Integer.parseInt(val.id));
-		b.setCategory("billing_on_header");
-		b.setContent(val.disk_id + "|" + val.transc_id + "|" + val.rec_id + "|" + val.spec_id + "|" + val.moh_office + "|"
+		int retval = 0;
+		String sql = "insert into billing_on_repo values(\\N, " + " " + val.id + " ," + "'billing_on_header'," + "'"
+				+ val.disk_id + "|" + val.transc_id + "|" + val.rec_id + "|" + val.spec_id + "|" + val.moh_office + "|"
 				+ val.batch_id + "|" + val.operator + "|" + val.group_num + "|" + val.provider_reg_num + "|"
 				+ val.specialty + "|" + val.h_count + "|" + val.r_count + "|" + val.t_count + "|" + val.batch_date
 				+ "|" + val.createdatetime + "|" + val.updatedatetime + "|" + val.creator + "|" + val.action + "|"
-				+ val.comment);
-		b.setCreateDateTime(new Date());
-		repoDao.persist(b);
-		
-		return b.getId();
+				+ val.comment + "', '" + val.updatedatetime + "')";
+		_logger.info("addRepoBatchHeader(sql = " + sql + ")");
+		retval = dbObj.saveBillingRecord(sql);
+
+		if (retval > 0) {
+		} else {
+			_logger.error("addRepoBatchHeader(sql = " + sql + ")");
+			retval = 0;
+		}
+		return retval;
 	}
 
 	// TODO more update data
 	public boolean updateBatchHeaderRecord(BillingBatchHeaderData val) {
-		BillingONHeader b = dao.find(Integer.parseInt(val.getId()));
-		if(b != null) {
-			b.setMohOffice(val.moh_office);
-			b.setBatchId(val.batch_id);
-			b.setSpecialty(val.specialty);
-			b.setCreator(val.creator);
-			b.setUpdateDateTime(new Date());
-			b.setAction(val.action);
-			b.setComment(val.comment);
-			dao.merge(b);
+		boolean retval = false;
+
+		String sql = "update billing_on_header set moh_office='" + val.moh_office + "', batch_id='" + val.batch_id
+				+ "', specialty='" + val.specialty + "', creator='" + val.creator + "', updatedatetime='"
+				+ val.getUpdatedatetime() + "', action='" + val.getAction() + "', comment='" + val.getComment()
+				+ "' where id=" + val.getId();
+		_logger.info("updateBatchHeaderRecord(sql = " + sql + ")");
+		retval = dbObj.updateDBRecord(sql);
+		if (retval) {
+		} else {
+			_logger.error("updateBatchHeaderRecord(sql = " + sql + ")");
+			retval = false;
 		}
-		
-		return true;
+		return retval;
 	}
         
+
 }

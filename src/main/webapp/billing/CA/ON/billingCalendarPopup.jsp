@@ -51,13 +51,9 @@ function typeSrvDate(year1,month1,day1) {
 <%
 //to prepare calendar display  
 String type = request.getParameter("type");
-if (type == null) {
-	type = "";
-}
-
-int year = request.getParameter("year") != null ? Integer.parseInt(request.getParameter("year")) : 0;
-int month = request.getParameter("month") != null ? Integer.parseInt(request.getParameter("month")) : 0;
-int delta = request.getParameter("delta")==null ? 0 : Integer.parseInt(request.getParameter("delta")); //add or minus month
+int year = Integer.parseInt(request.getParameter("year"));
+int month = Integer.parseInt(request.getParameter("month"));
+int delta = request.getParameter("delta")==null?0:Integer.parseInt(request.getParameter("delta")); //add or minus month
 
 GregorianCalendar now = new GregorianCalendar(year,month-1,1);
 now.add(now.MONTH, delta);
@@ -67,32 +63,29 @@ month = now.get(Calendar.MONTH)+1;
 now.add(now.DATE, -1); 
 DateInMonthTable aDate = new DateInMonthTable(year, month-1, 1);
 int [][] dateGrid = aDate.getMonthDateGrid();
-
-String locationPrefix = request.getContextPath() + "/billing/CA/ON/";
-
 %>
 
 <table BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="100%">
 	<tr BGCOLOR="#FFD7C4">
 		<td width="5%" nowrap><a
 			href="billingCalendarPopup.jsp?year=<%=year-1%>&month=<%=month%>&delta=0&type=<%=type%>">
-		<img src="<%= locationPrefix %>images/previous.gif" WIDTH="10" HEIGHT="9" BORDER="0"
-			ALT="Last Year" vspace="2"> <img src="<%= locationPrefix %>images/previous.gif"
+		<img src="images/previous.gif" WIDTH="10" HEIGHT="9" BORDER="0"
+			ALT="Last Year" vspace="2"> <img src="images/previous.gif"
 			WIDTH="10" HEIGHT="9" BORDER="0" ALT="Last Year" vspace="2"></a></td>
 		<td align="center"><a
 			href="billingCalendarPopup.jsp?year=<%=year%>&month=<%=month%>&delta=-1&type=<%=type%>">
-		<img src="<%= locationPrefix %>images/previous.gif" WIDTH="10" HEIGHT="9" BORDER="0"
+		<img src="images/previous.gif" WIDTH="10" HEIGHT="9" BORDER="0"
 			ALT="View Last Month" vspace="2"> <bean:message
 			key="billing.billingCalendarPopup.btnLast" /></a> <b><span
 			CLASS=title><%=year%>-<%=month%></span></b> <a
 			href="billingCalendarPopup.jsp?year=<%=year%>&month=<%=month%>&delta=1&type=<%=type%>">
 		<bean:message key="billing.billingCalendarPopup.btnNext" /> <img
-			src="<%= locationPrefix %>images/next.gif" WIDTH="10" HEIGHT="9" BORDER="0"
+			src="images/next.gif" WIDTH="10" HEIGHT="9" BORDER="0"
 			ALT="View Next Month" vspace="2">&nbsp;&nbsp;</a></td>
 		<td width="5%" align="right" nowrap><a
 			href="billingCalendarPopup.jsp?year=<%=year+1%>&month=<%=month%>&delta=0&type=<%=type%>">
-		<img src="<%= locationPrefix %>images/next.gif" WIDTH="10" HEIGHT="9" BORDER="0"
-			ALT="Next Year" vspace="2"> <img src="<%= locationPrefix %>images/next.gif"
+		<img src="images/next.gif" WIDTH="10" HEIGHT="9" BORDER="0"
+			ALT="Next Year" vspace="2"> <img src="images/next.gif"
 			WIDTH="10" HEIGHT="9" BORDER="0" ALT="Next Year" vspace="2"></a></td>
 	</tr>
 </table>

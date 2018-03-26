@@ -38,20 +38,11 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.oscarehr.common.dao.ProfessionalSpecialistDao;
 import org.oscarehr.common.model.ProfessionalSpecialist;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.SpringUtils;
 
 public class EctConEditSpecialistsAction extends Action {
-	private static SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	
 	@Override
 	public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_con", "u", null)) {
-			throw new SecurityException("missing required security object (_con)");
-		}
-		
 		ProfessionalSpecialistDao professionalSpecialistDao=(ProfessionalSpecialistDao)SpringUtils.getBean("professionalSpecialistDao");
 
 		EctConEditSpecialistsForm editSpecialistsForm = (EctConEditSpecialistsForm) form;
@@ -95,15 +86,7 @@ public class EctConEditSpecialistsAction extends Action {
 		request.setAttribute("eDataServiceName", professionalSpecialist.geteDataServiceName());
 		request.setAttribute("annotation", professionalSpecialist.getAnnotation());
         request.setAttribute("referralNo", professionalSpecialist.getReferralNo());
-        request.setAttribute("institution", professionalSpecialist.getInstitutionId().toString());
-        request.setAttribute("department", professionalSpecialist.getDepartmentId().toString());
-        request.setAttribute("privatePhoneNumber",professionalSpecialist.getPrivatePhoneNumber());
-        request.setAttribute("cellPhoneNumber",professionalSpecialist.getCellPhoneNumber());
-        request.setAttribute("pagerNumber",professionalSpecialist.getPagerNumber());
-        request.setAttribute("salutation",professionalSpecialist.getSalutation());
-        request.setAttribute("hideFromView",professionalSpecialist.getHideFromView());
-        request.setAttribute("eformId", professionalSpecialist.getEformId());
-        
+
 		request.setAttribute("upd", new Integer(updater));
 		EctConConstructSpecialistsScriptsFile constructSpecialistsScriptsFile = new EctConConstructSpecialistsScriptsFile();
 		request.setAttribute("verd", constructSpecialistsScriptsFile.makeFile());

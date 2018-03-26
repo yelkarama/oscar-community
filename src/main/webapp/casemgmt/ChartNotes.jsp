@@ -24,7 +24,6 @@
 
 --%>
 
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="oscar.Misc"%>
 <%@page import="oscar.util.UtilMisc"%>
 <%@include file="/casemgmt/taglibs.jsp"%>
@@ -37,11 +36,11 @@
 <%@page import="org.oscarehr.casemgmt.web.formbeans.*"%>
 <%@page import="org.oscarehr.PMmodule.model.*"%>
 <%@page import="org.oscarehr.common.model.*"%>
-<%@page import="org.oscarehr.common.dao.EFormDao"%>
 <%@page import="oscar.util.DateUtils"%>
 <%@page import="oscar.dms.EDocUtil"%>
 <%@page import="org.springframework.web.context.WebApplicationContext"%>
 <%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
+<%@page import="org.caisi.model.Role"%>
 <%@page import="org.oscarehr.casemgmt.common.Colour"%>
 <%@page import="oscar.dms.EDoc"%>
 <%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
@@ -62,58 +61,13 @@
 <%@page import="org.oscarehr.casemgmt.web.NoteDisplayNonNote"%>
 <%@page import="org.oscarehr.common.dao.EncounterTemplateDao"%>
 <%@page import="org.oscarehr.casemgmt.web.CheckBoxBean"%>
-<%@page import="org.oscarehr.common.dao.DemographicExtDao" %>
-<%@page import="org.oscarehr.managers.ProgramManager2" %>
 
 <c:set var="ctx" value="${pageContext.request.contextPath}" scope="request" />
 
-
 <%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_casemgmt.notes" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_casemgmt.notes");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-
-<%
-LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-
-
-String demoNo = request.getParameter("demographicNo");
-String privateConsentEnabledProperty = OscarProperties.getInstance().getProperty("privateConsentEnabled");
-boolean privateConsentEnabled = privateConsentEnabledProperty != null && privateConsentEnabledProperty.equals("true");
-DemographicExtDao demographicExtDao = SpringUtils.getBean(DemographicExtDao.class);
-DemographicExt infoExt = demographicExtDao.getDemographicExt(Integer.parseInt(demoNo), "informedConsent");
-boolean showPopup = false;
-if(infoExt == null || !"yes".equalsIgnoreCase(infoExt.getValue())) {
-	showPopup=true;
-}
-
-ProgramManager2 programManager2 = SpringUtils.getBean(ProgramManager2.class);
-
-boolean showConsentsThisTime=false;
-String[] privateConsentPrograms = OscarProperties.getInstance().getProperty("privateConsentPrograms","").split(",");
-ProgramProvider pp = programManager2.getCurrentProgramInDomain(loggedInInfo,loggedInInfo.getLoggedInProviderNo());
-if(pp != null) {
-	for(int x=0;x<privateConsentPrograms.length;x++) {
-		if(privateConsentPrograms[x].equals(pp.getProgramId().toString())) {
-			showConsentsThisTime=true;
-		}
-	}
-}
-
-
 try
 {
-	Facility facility = loggedInInfo.getCurrentFacility();
+	Facility facility = org.oscarehr.util.LoggedInInfo.loggedInInfo.get().currentFacility;
 
     String pId = (String)session.getAttribute("case_program_id");
     if (pId == null) {
@@ -163,18 +117,22 @@ try
     oscar.OscarProperties props = oscar.OscarProperties.getInstance();
     String requireIssue = props.getProperty("caisi.require_issue","true");
     if(requireIssue != null && requireIssue.equals("false")) {
-    //require issue is false%>
+    %>
     	requireIssue = false;
     <% } %>
 
 <%
     String requireObsDate = props.getProperty("caisi.require_observation_date","true");
     if(requireObsDate != null && requireObsDate.equals("false")) {
-    //do not need observation date%>
+    %>
     	requireObsDate = false;
     <% } %>
 
-    
+    <c:if test="${sessionScope.passwordEnabled=='true'}">
+
+        passwordEnabled = true;
+    </c:if>
+
     strToday = "<%=strToday%>";
 
 	notesIncrement = parseInt("<%=OscarProperties.getInstance().getProperty("num_loaded_notes", "20") %>");
@@ -184,10 +142,6 @@ try
     	notesScrollCheckInterval = setInterval('notesIncrementAndLoadMore()', 2000);
     });
 
-    <% if( request.getAttribute("NoteLockError") != null ) { %>
-		alert("<%=request.getAttribute("NoteLockError")%>");
-	<%}%>
-	
 </script>
 
  <html:form action="/CaseManagementView" method="post">
@@ -202,8 +156,8 @@ try
 	<input type="hidden" id="check_issue" name="check_issue">
 	<input type="hidden" id="serverDate" value="<%=strToday%>">
 	<input type="hidden" id="resetFilter" name="resetFilter" value="false">
-	<div id="topContent" style="float: left; width: 100%; margin-right: -2px; padding-bottom: 1px; background-color: #CCCCFF; font-size: 10px;">
-    		<nested:notEmpty name="caseManagementViewForm" property="filter_providers">
+	<div id="topContent" style="float: left; width: 100%; margin-right: -2px; padding-bottom: 10px; background-color: #CCCCFF; font-size: 10px;">
+		<nested:notEmpty name="caseManagementViewForm" property="filter_providers">
 			<div style="float: left; margin-left: 10px; margin-top: 0px;"><u><bean:message key="oscarEncounter.providers.title" />:</u><br>
 				<nested:iterate type="String" id="filter_provider" property="filter_providers">
 					<c:choose>
@@ -366,7 +320,7 @@ try
 			</table>
 		</div>
 
-		<div style="float: left; clear: both; margin-top: 5px; margin-bottom: 3px; width: 100%; text-align: center;">
+		<div style="float: left; clear: both; margin-top: 5px; margin-bottom: 5px; width: 100%; text-align: center;">
 			<div style="display:inline-block">
 				<img alt="<bean:message key="oscarEncounter.msgFind"/>" src="<c:out value="${ctx}/oscarEncounter/graphics/edit-find.png"/>">
 				<input id="enTemplate" tabindex="6" size="16" type="text" value="" onkeypress="return grabEnterGetTemplate(event)">
@@ -375,37 +329,20 @@ try
 
 				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
-
-				
-
-				<input type="text" id="keyword" name="keyword" value="" onkeypress="return grabEnter('searchButton',event)">
-				<input type="button" id="searchButton" name="button" value="<bean:message key="oscarEncounter.Index.btnSearch"/>" onClick="popupPage(600,800,'<bean:message key="oscarEncounter.Index.popupSearchPageWindow"/>',$('channel').options[$('channel').selectedIndex].value+urlencode($F('keyword')) ); return false;">
-
-				<div style="display:inline-block; text-align: left;">
-					<%
-						if (privateConsentEnabled && showPopup && showConsentsThisTime) {
-					%>				
-					<div id="informedConsentDiv" style="background-color: orange; padding: 5px; font-weight: bold;">
-						<input type="checkbox" value="ic" name="informedConsentCheck" id="informedConsentCheck" onClick="return doInformedConsent('<%=demoNo%>');"/>&nbsp;Please ensure that Informed Consent has been obtained!
-					</div>
-					<%
-						}
-					%>
-					
-					<!-- channel -->
-					<select id="channel">
-					<option value="http://resource.oscarmcmaster.org/oscarResource/OSCAR_search?query="><bean:message key="oscarEncounter.Index.oscarSearch" /></option>
+				<select id="channel">
+					<option value="http://resource.oscarmcmaster.org/oscarResource/OSCAR_search/OSCAR_search_results?title="><bean:message key="oscarEncounter.Index.oscarSearch" /></option>
 					<option value="http://www.google.com/search?q="><bean:message key="global.google" /></option>
 					<option value="http://www.ncbi.nlm.nih.gov/entrez/query.fcgi?SUBMIT=y&amp;CDM=Search&amp;DB=PubMed&amp;term="><bean:message key="global.pubmed" /></option>
 					<option value="http://search.nlm.nih.gov/medlineplus/query?DISAMBIGUATION=true&amp;FUNCTION=search&amp;SERVER2=server2&amp;SERVER1=server1&amp;PARAMETER="><bean:message key="global.medlineplus" /></option>
                     <option value="tripsearch.jsp?searchterm=">Trip Database</option>
                     <option value="macplussearch.jsp?searchterm=">MacPlus Database</option>
     	        </select>
-				</div>				
 
+				<input type="text" id="keyword" name="keyword" value="" onkeypress="return grabEnter('searchButton',event)">
+				<input type="button" id="searchButton" name="button" value="<bean:message key="oscarEncounter.Index.btnSearch"/>" onClick="popupPage(600,800,'<bean:message key="oscarEncounter.Index.popupSearchPageWindow"/>',$('channel').options[$('channel').selectedIndex].value+urlencode($F('keyword')) ); return false;">
 			</div>
 			&nbsp;&nbsp;
-			<div style="display:inline-block;text-align: left;" id="toolbar">
+			<div style="display:inline-block">
 				<input type="button" value="<bean:message key="oscarEncounter.Filter.title"/>" onclick="showFilter();" />
 				<%
 					String roleName = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -414,15 +351,12 @@ try
 				<security:oscarSec roleName="<%=roleName%>" objectName="_newCasemgmt.calculators" rights="r" reverse="false">
 					<%@include file="calculatorsSelectList.jspf" %>
 				</security:oscarSec>
-				<%--<security:oscarSec roleName="<%=roleName%>" objectName="_admin.templates" rights="r"> --%>
-				<security:oscarSec roleName="<%=roleName%>" objectName="_newCasemgmt.templates" rights="r">
-					<select style="width:100px;" onchange="javascript:popupPage(700,700,'Templates',this.value);">
-						<option value="-1"><bean:message key="oscarEncounter.Header.Templates"/></option>
-						<option value="-1">------------------</option>
-						<security:oscarSec roleName="<%=roleName%>" objectName="_newCasemgmt.templates" rights="w">
-						<option value="<%=request.getContextPath()%>/admin/providertemplate.jsp">New / Edit Template</option>
-						<option value="-1">------------------</option>
-						</security:oscarSec>
+				<security:oscarSec roleName="<%=roleName%>" objectName="_newCasemgmt.templates" rights="r" reverse="false">
+					<select onchange="javascript:popupPage(700,700,'Templates',this.value);">
+						<option><bean:message key="oscarEncounter.Header.Templates"/></option>
+						<option>------------------</option>
+						<option value="<%=request.getContextPath()%>/admin/providertemplate.jsp">New Template</option>
+						<option>------------------</option>
 						<%
 							EncounterTemplateDao encounterTemplateDao=(EncounterTemplateDao)SpringUtils.getBean("encounterTemplateDao");
 							List<EncounterTemplate> allTemplates=encounterTemplateDao.findAll();
@@ -437,48 +371,31 @@ try
 						%>
 					</select>
 				</security:oscarSec>
-				
-				<security:oscarSec roleName="<%=roleName%>" objectName="_newCasemgmt.clearTempNotes" rights="r" reverse="false">
-					<input type="button" value="Clear Temp Notes" onClick="clearTempNotes('<%=demographicNo%>')"/>
-				</security:oscarSec>
-				
-				<script>
-				function updateMYOSCAR(){
-					jQuery.getScript('phrLinks.jsp?demographicNo=<%=demographicNo%>');
-				}
-				updateMYOSCAR();
-				</script>
-				
-			</div>	
+			</div>
 		</div>
 	</div>
 </html:form>
-        <%
-            String oscarMsgType = (String)request.getParameter("msgType");   
-            String OscarMsgTypeLink = (String)request.getParameter("OscarMsgTypeLink");
-         %>
+
 <nested:form action="/CaseManagementEntry" style="display:inline; margin-top:0; margin-bottom:0; position: relative;">
 	<html:hidden property="demographicNo" value="<%=demographicNo%>" />
 	<html:hidden property="includeIssue" value="off" />
-        <input type="hidden" name="OscarMsgType" value="<%=oscarMsgType%>"/>        
-        <input type="hidden" name="OscarMsgTypeLink" value="<%=OscarMsgTypeLink%>"/>
 	<%
 		String apptNo = request.getParameter("appointmentNo");
-		if (apptNo == null || apptNo.equals("") || apptNo.equals("null"))
+		if (apptNo == null || apptNo.equals(""))
 		{
 			apptNo = "0";
 		}
 
 		String apptDate = request.getParameter("appointmentDate");
-		if (apptDate == null || apptDate.equals("") || apptDate.equals("null"))
+		if (apptDate == null || apptDate.equals(""))
 		{
 			apptDate = oscar.util.UtilDateUtilities.getToday("yyyy-MM-dd");
 		}
 
 		String startTime = request.getParameter("start_time");
-		if (startTime == null || startTime.equals("") || startTime.equals("null"))
+		if (startTime == null || startTime.equals(""))
 		{
-			startTime = "00:00:00";
+			startTime = "0:00";
 		}
 
 		String apptProv = request.getParameter("apptProvider");
@@ -490,14 +407,13 @@ try
 		String provView = request.getParameter("providerview");
 		if (provView == null || provView.equals("") || provView.equals("null"))
 		{
-			provView = provNo;
+			provView = "1";
 		}
 	%>
-        
 	<html:hidden property="appointmentNo" value="<%=apptNo%>" />
 	<html:hidden property="appointmentDate" value="<%=apptDate%>" />
 	<html:hidden property="start_time" value="<%=startTime%>" />
-	<html:hidden property="billRegion" value="<%=(OscarProperties.getInstance().getProperty(\"billregion\",\"\")).trim().toUpperCase()%>" />
+	<html:hidden property="billRegion" value="<%=((String )OscarProperties.getInstance().getProperty(\"billregion\",\"\")).trim().toUpperCase()%>" />
 	<html:hidden property="apptProvider" value="<%=apptProv%>" />
 	<html:hidden property="providerview" value="<%=provView%>" />
 	<input type="hidden" name="toBill" id="toBill" value="false">
@@ -568,22 +484,17 @@ try
 
 	<div id='save' style="width: 99%; background-color: #CCCCFF; padding-top: 5px; margin-left: 2px; border-left: thin solid #000000; border-right: thin solid #000000; border-bottom: thin solid #000000;">
 		<span style="float: right; margin-right: 5px;">
-			<button type="button" onclick="pasteTimer()" id="aTimer" title="<bean:message key="oscarEncounter.Index.pasteTimer"/>">00:00</button>
-			<button type="button" id="toggleTimer" onclick="toggleATimer()"  title='<bean:message key="oscarEncounter.Index.toggleTimer"/>'>&#8741;</button>
 		<%
 
 			if(facility.isEnableGroupNotes()) {
 		%>
 			<input tabindex="16" type='image' src="<c:out value="${ctx}/oscarEncounter/graphics/group-gnote.png"/>" id="groupNoteImg" onclick="Event.stop(event);return selectGroup(document.forms['caseManagementEntryForm'].elements['caseNote.program_no'].value,document.forms['caseManagementEntryForm'].elements['demographicNo'].value);" title='<bean:message key="oscarEncounter.Index.btnGroupNote"/>'>&nbsp;
-		<%  }
-			if(facility.isEnablePhoneEncounter()) {
-		%>
-			<input tabindex="25" type='image' src="<c:out value="${ctx}/oscarEncounter/graphics/attach.png"/>" id="attachNoteImg" onclick="Event.stop(event);return assign(document.forms['caseManagementEntryForm'].elements['caseNote.program_no'].value,document.forms['caseManagementEntryForm'].elements['demographicNo'].value);" title='<bean:message key="oscarEncounter.Index.btnAttachNote"/>'>&nbsp;
 		<%  } %>
 			<input tabindex="17" type='image' src="<c:out value="${ctx}/oscarEncounter/graphics/media-floppy.png"/>" id="saveImg" onclick="Event.stop(event);return saveNoteAjax('save', 'list');" title='<bean:message key="oscarEncounter.Index.btnSave"/>'>&nbsp;
 			<input tabindex="18" type='image' src="<c:out value="${ctx}/oscarEncounter/graphics/document-new.png"/>" id="newNoteImg" onclick="newNote(event); return false;" title='<bean:message key="oscarEncounter.Index.btnNew"/>'>&nbsp;
 			<input tabindex="19" type='image' src="<c:out value="${ctx}/oscarEncounter/graphics/note-save.png"/>" id="signSaveImg" onclick="document.forms['caseManagementEntryForm'].sign.value='on';Event.stop(event);return savePage('saveAndExit', '');" title='<bean:message key="oscarEncounter.Index.btnSignSave"/>'>&nbsp;
 			<input tabindex="20" type='image' src="<c:out value="${ctx}/oscarEncounter/graphics/verify-sign.png"/>" id="signVerifyImg" onclick="document.forms['caseManagementEntryForm'].sign.value='on';document.forms['caseManagementEntryForm'].verify.value='on';Event.stop(event); return savePage('save', 'list');" title='<bean:message key="oscarEncounter.Index.btnSign"/>'>&nbsp;
+			
 			<%
 				if(bean.source == null)  {
 				%>
@@ -592,7 +503,9 @@ try
 				}
 			%>
 
-			
+			<c:if test="${sessionScope.passwordEnabled=='true'}">
+				<input tabindex="22" type='image' src="<c:out value="${ctx}/oscarEncounter/graphics/lock-note.png"/>" onclick="return toggleNotePasswd();" title='<bean:message key="oscarEncounter.Index.btnLock"/>'>&nbsp;
+	    	</c:if>
 
 	    	<input tabindex="23" type='image' src="<c:out value="${ctx}/oscarEncounter/graphics/system-log-out.png"/>" onclick='closeEnc(event);return false;' title='<bean:message key="global.btnExit"/>'>&nbsp;
 	    	<input tabindex="24" type='image' src="<c:out value="${ctx}/oscarEncounter/graphics/document-print.png"/>" onclick="return printSetup(event);" title='<bean:message key="oscarEncounter.Index.btnPrint"/>' id="imgPrintEncounter">
@@ -609,7 +522,6 @@ try
     		<button type="button" onclick="return showHideIssues(event, 'noteIssues-unresolved');"><bean:message key="oscarEncounter.Index.btnDisplayUnresolvedIssues"/></button> &nbsp;
     		<button type="button" onclick="javascript:spellCheck();">Spell Check</button> &nbsp;
     		<button type="button" onclick="javascript:toggleFullViewForAll(this.form);"><bean:message key="eFormGenerator.expandAll"/> <bean:message key="Appointment.formNotes"/></button>
-                <button type="button" onclick="javascript:popupPage(500,200,'noteBrowser<%=bean.demographicNo%>','noteBrowser.jsp?demographic_no=<%=bean.demographicNo%>&FirstTime=1');"><bean:message key="oscarEncounter.Index.BrowseNotes"/></button> &nbsp;
     	</div>
     </div>
 

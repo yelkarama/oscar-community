@@ -23,15 +23,12 @@
 
 --%>
 <%@ include file="/taglibs.jsp"%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <script>
     function popupHelp(topic) {
         url = '<html:rewrite page="/common/help.jsp?topic="/>';
         window.open(url + topic,'help','width=450, height=200');
     }
 </script>
-<% String roleName$ = (String) session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-%>
 
 <br />
 <!-- remove all info about agency because table agency has been truncated -->
@@ -56,24 +53,17 @@ includes:
 			href="<html:rewrite action="/PMmodule/ProgramManagerView"/>?id=<c:out value="${program.programId}"/>"><c:out
 			value="${program.program.name}" />
 		</a>
-	</display:column>
-	
-	<security:oscarSec roleName="<%=roleName$%>" objectName="_pmm_editProgram.vacancies" rights="r">
+		</display:column>
 		<display:column title="">
 		<a href="<html:rewrite action="/PMmodule/ProgramManager.do"/>?method=edit&view.tab=vacancy_add&newVacancy=true&id=<c:out value="${program.programId}" />">
 			New Vacancy </a>
-		</display:column>
-	</security:oscarSec>
+	</display:column>
 	
 	<display:column property="role.name" sortable="true" title="Role" />
 	<display:column property="program.type" sortable="true"
 		title="Program Type" />
-	<display:column sortable="true" title="Clients in Queue" >
-                        <a
-                        href="<html:rewrite action="/PMmodule/ProgramManagerView.do"/>?method=view&tab=queue&id=<c:out value="${program.programId}"/>">
-                        <c:out value="${program.program.queueSize}"/></a>
-        </display:column>
-
+	<display:column property="program.queueSize" sortable="true"
+		title="Clients in Queue" />
 </display:table>
 <br />
 You belong to the following facilities:

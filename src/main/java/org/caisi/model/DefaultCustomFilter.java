@@ -23,10 +23,8 @@
 
 package org.caisi.model;
 
-import org.oscarehr.common.model.CustomFilter;
-
 
 public class DefaultCustomFilter extends CustomFilter {
 	
-	// not sure what this is here for, some one will figure it out some day... sounds like an interface may have been better *shrugs*
+
 }

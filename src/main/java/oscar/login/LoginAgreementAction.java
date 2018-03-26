@@ -39,7 +39,6 @@ import org.apache.struts.actions.DispatchAction;
 import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.service.AcceptableUseAgreementManager;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.log.LogAction;
 import oscar.log.LogConst;
@@ -51,19 +50,27 @@ import oscar.log.LogConst;
 public class LoginAgreementAction extends DispatchAction {
     private static final Logger _logger = Logger.getLogger(LoginAgreementAction.class);
 
-    private ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
-    
+    private ProviderDao providerDao;
+
+    public void setProviderDao(ProviderDao providerDao) {
+        this.providerDao = providerDao;
+    }
+
+    public ProviderDao getProviderDao() {
+        return this.providerDao;
+    }
+
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws ServletException {
 
         String userAgreement = request.getParameter("submit");
         String user = (String)request.getSession().getAttribute("user");
         if( userAgreement.equalsIgnoreCase("refuse") ) {
-            _logger.debug(user + " refused agreement");
+            _logger.info(user + " refused agreement");
             LogAction.addLog(user, LogConst.REFUSED, LogConst.CON_LOGIN_AGREEMENT, userAgreement, request.getRemoteAddr(),null,AcceptableUseAgreementManager.getAUAText());
             return mapping.findForward("Logout");
             
         }else if( userAgreement.equalsIgnoreCase("accept") ) {
-            _logger.debug(user + " accepted agreement");
+            _logger.info(user + " accepted agreement");
             Provider provider = providerDao.getProvider(user);
             Date now = new Date();
             provider.setSignedConfidentiality(now);

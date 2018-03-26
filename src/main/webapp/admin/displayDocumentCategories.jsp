@@ -13,28 +13,21 @@
 <%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-	boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin,_admin.document" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_admin,_admin.document");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
 <c:set var="ctx" value="${pageContext.request.contextPath}" scope="request" />
 
 <% 
 ArrayList<String> doctypesD = EDocUtil.getDoctypes("demographic");
 ArrayList<String> doctypesP = EDocUtil.getDoctypes("provider");
+
+
+//String status = EDocUtil.getDocStatus(module,doctype);
 %>
 <script>
-
+// function updateStatus(){
+//	if (document.getElementById(statusChangeD)!=null){
+	
+//	}
+//} 
 
 function popupPage(vheight,vwidth,varpage) { //open a new popup window
 	  var page = "" + varpage;

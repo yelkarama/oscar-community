@@ -51,18 +51,6 @@ public class UserPropertyDAO extends AbstractDao<UserProperty> {
     public void delete(UserProperty prop) {
         remove(prop.getId());
     }
-    
-    public void saveProp(String provider, String userPropertyName, String value){
-    	UserProperty prop = getProp(provider, userPropertyName);
-        if( prop == null ) {
-           prop = new UserProperty();
-           prop.setProviderNo(provider);
-           prop.setName(userPropertyName);
-        }
-	    prop.setValue(value);     
-		saveProp(prop);
-    }
-    
 
     public void saveProp(UserProperty prop) {
         if(prop.getId() != null && prop.getId().intValue()>0) {
@@ -85,30 +73,6 @@ public class UserPropertyDAO extends AbstractDao<UserProperty> {
         }
     }
 
-    public String getStringValue(String provider,String propertyName){
-    	try {
-    		return getProp(provider,propertyName).getValue();
-        } catch (Exception e) {
-        	return null;
-        }
-    }
-    
-    public List<UserProperty> getAllProperties(String name, List<String> list) {
-        Query query = entityManager.createQuery("select p from UserProperty p where p.name = :name and p.provider_no in :list");
-        query.setParameter("name", name);
-        query.setParameter("list", list);
-        
-        return query.getResultList();
-    }
-    
-    public List<UserProperty> getPropValues(String name, String value) {
-        Query query = entityManager.createQuery("select p from UserProperty p where p.name = :name and p.value = :value");
-        query.setParameter("name", name);
-        query.setParameter("value", value);
-        
-        return query.getResultList();
-    }
-    
     public UserProperty getProp(String prov, String name) {
     	Query query = entityManager.createQuery("select p from UserProperty p where p.providerNo = ? and p.name = ?");
     	query.setParameter(1, prov);

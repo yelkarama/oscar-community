@@ -50,7 +50,7 @@ public class ManageConsent {
 	private static IntegratorConsentDao integratorConsentDao = (IntegratorConsentDao) SpringUtils.getBean("integratorConsentDao");
 	private static ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao");
 
-	private LoggedInInfo loggedInInfo;
+	private LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
 	private int clientId = -1;
 	/**
 	 * consentToView is null if editing consent, if viewing consent it should have the consent to view.
@@ -59,8 +59,7 @@ public class ManageConsent {
 	
 	private boolean integratorServerError=false;
 
-	public ManageConsent(LoggedInInfo loggedInInfo, int clientId) {
-		this.loggedInInfo=loggedInInfo;
+	public ManageConsent(int clientId) {
 		this.clientId = clientId;
 	}
 
@@ -73,10 +72,10 @@ public class ManageConsent {
 		}
 	}
 
-	public Collection<CachedFacility> getAllFacilitiesToDisplay(LoggedInInfo loggedInInfo) {
+	public Collection<CachedFacility> getAllFacilitiesToDisplay() {
 		try {
 			if (previousConsentToView == null) return (getAllRemoteFacilities());
-			else return (getPreviousConsentFacilities(loggedInInfo));
+			else return (getPreviousConsentFacilities());
 		} catch (Exception e) {
 			integratorServerError=true;
 			logger.error("unexpected error", e);
@@ -84,11 +83,11 @@ public class ManageConsent {
 		}
 	}
 
-	private Collection<CachedFacility> getPreviousConsentFacilities(LoggedInInfo loggedInInfo) throws MalformedURLException {
+	private Collection<CachedFacility> getPreviousConsentFacilities() throws MalformedURLException {
 		ArrayList<CachedFacility> results = new ArrayList<CachedFacility>();
 
 		for (Integer remoteFacilityId : previousConsentToView.getConsentToShareData().keySet()) {
-			CachedFacility cachedFacility = CaisiIntegratorManager.getRemoteFacility(loggedInInfo, loggedInInfo.getCurrentFacility(), remoteFacilityId);
+			CachedFacility cachedFacility = CaisiIntegratorManager.getRemoteFacility(remoteFacilityId);
 			results.add(cachedFacility);
 		}
 
@@ -96,13 +95,13 @@ public class ManageConsent {
 	}
 
 	private Collection<CachedFacility> getAllRemoteFacilities() throws MalformedURLException {
-		List<CachedFacility> results = CaisiIntegratorManager.getRemoteFacilities(loggedInInfo, loggedInInfo.getCurrentFacility());
+		List<CachedFacility> results = CaisiIntegratorManager.getRemoteFacilities();
 		return (results);
 	}
 
 	public boolean displayAsCheckedExcludeFacility(int remoteFacilityId) {
 		if (previousConsentToView == null) {
-			IntegratorConsent result = integratorConsentDao.findLatestByFacilityDemographic(loggedInInfo.getCurrentFacility().getId(), clientId);
+			IntegratorConsent result = integratorConsentDao.findLatestByFacilityDemographic(loggedInInfo.currentFacility.getId(), clientId);
 			if (result != null) {
 				Boolean checked = result.getConsentToShareData().get(remoteFacilityId);
 				if (checked == null) return (false);
@@ -117,7 +116,7 @@ public class ManageConsent {
 
 	public boolean displayAsCheckedExcludeMentalHealthData() {
 		if (previousConsentToView == null) {
-			IntegratorConsent result = integratorConsentDao.findLatestByFacilityDemographic(loggedInInfo.getCurrentFacility().getId(), clientId);
+			IntegratorConsent result = integratorConsentDao.findLatestByFacilityDemographic(loggedInInfo.currentFacility.getId(), clientId);
 			if (result != null) {
 				return (result.isExcludeMentalHealthData());
 			}
@@ -129,7 +128,7 @@ public class ManageConsent {
 	}
 
 	public boolean useDigitalSignatures() {
-		return (loggedInInfo.getCurrentFacility().isEnableDigitalSignatures());
+		return (loggedInInfo.currentFacility.isEnableDigitalSignatures());
 	}
 
 	public Integer getPreviousConsentDigitalSignatureId() {

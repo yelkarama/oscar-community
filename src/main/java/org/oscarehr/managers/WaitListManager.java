@@ -36,14 +36,14 @@ import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.mail.EmailException;
 import org.apache.log4j.Logger;
 import org.apache.velocity.VelocityContext;
+import org.oscarehr.PMmodule.dao.AdmissionDao;
 import org.oscarehr.PMmodule.dao.ProgramDao;
+import org.oscarehr.PMmodule.model.Admission;
 import org.oscarehr.PMmodule.model.Program;
 import org.oscarehr.PMmodule.model.Vacancy;
-import org.oscarehr.common.dao.AdmissionDao;
 import org.oscarehr.common.dao.DemographicDao;
-import org.oscarehr.common.model.Admission;
 import org.oscarehr.common.model.Demographic;
-import org.oscarehr.util.EmailUtilsOld;
+import org.oscarehr.util.EmailUtils;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.VelocityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +57,6 @@ public class WaitListManager {
 
 	private static final String WAIT_LIST_EMAIL_PROPERTIES_FILE = "/wait_list_email.properties";
 	private static final String WAIT_LIST_URGENT_ADMISSION_EMAIL_TEMPLATE_FILE = "/wait_list_immediate_admission_email_template.txt";
-	private static final String WAIT_LIST_A_NEW_APP_TEMPLATE_FILE = "/wait_list_received_a_new_app_template.txt";
 	private static final String WAIT_LIST_DAILY_ADMISSION_EMAIL_TEMPLATE_FILE = "/wait_list_daily_admission_email_notification_template.txt";
 	private static final String WAIT_LIST_VACANCY_EMAIL_TEMPLATE_FILE = "/wait_list_immediate_vacancy_email_template.txt";
 
@@ -140,42 +139,6 @@ public class WaitListManager {
 
 		sendAdmissionNotification(emailSubject, emailTemplate, program, notes, null, null, admissionDemographicPairs);
 	}
-	
-	public void sendProxyEformNotification(Program program, String app_ctx_path, String fid) throws IOException, EmailException {
-		if (!enableEmailNotifications) return;
-		
-		InputStream is = null;
-		String emailTemplate = null;
-		try {
-			is = WaitListManager.class.getResourceAsStream(WAIT_LIST_A_NEW_APP_TEMPLATE_FILE);
-			emailTemplate = IOUtils.toString(is);
-		} finally {
-			if (is != null) is.close();
-		}
-
-		String emailSubject = waitListProperties.getProperty("proxy_eform_notification_subject");
-
-		String temp = StringUtils.trimToNull(program.getEmailNotificationAddressesCsv());
-		if (temp != null) {
-			String fromAddress = waitListProperties.getProperty("from_address");
-			VelocityContext velocityContext = VelocityUtils.createVelocityContextWithTools();
-			if (null != app_ctx_path) velocityContext.put("app_ctx_path", app_ctx_path);
-			if (null != fid) velocityContext.put("fid", fid);
-
-			String mergedSubject = VelocityUtils.velocityEvaluate(velocityContext, emailSubject);
-			String mergedBody = VelocityUtils.velocityEvaluate(velocityContext, emailTemplate);
-
-			String[] splitEmailAddresses = temp.split(",");
-			for (String emailAddress : splitEmailAddresses) {
-				try {
-					EmailUtilsOld.sendEmail(emailAddress, emailAddress, fromAddress, fromAddress, mergedSubject, mergedBody, null);
-				} catch (EmailException e) {
-					logger.error("Unexpected error.", e);
-					throw new EmailException(e.toString());
-				}
-			}
-		}
-	}
 
 	/**
 	 * This method will check the given program for admissions/referrals 
@@ -239,7 +202,7 @@ public class WaitListManager {
 			String[] splitEmailAddresses = temp.split(",");
 			for (String emailAddress : splitEmailAddresses) {
 				try {
-					EmailUtilsOld.sendEmail(emailAddress, emailAddress, fromAddress, fromAddress, mergedSubject, mergedBody, null);
+					EmailUtils.sendEmail(emailAddress, emailAddress, fromAddress, fromAddress, mergedSubject, mergedBody, null);
 				} catch (EmailException e) {
 					logger.error("Unexpected error.", e);
 				}
@@ -295,7 +258,7 @@ public class WaitListManager {
 			String[] splitEmailAddresses = temp.split(",");
 			for (String emailAddress : splitEmailAddresses) {
 				try {
-					EmailUtilsOld.sendEmail(emailAddress, emailAddress, fromAddress, fromAddress, mergedSubject, mergedBody, null);
+					EmailUtils.sendEmail(emailAddress, emailAddress, fromAddress, fromAddress, mergedSubject, mergedBody, null);
 				} catch (EmailException e) {
 					logger.error("Unexpected error.", e);
 				}

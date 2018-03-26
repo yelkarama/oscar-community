@@ -23,23 +23,9 @@
     Ontario, Canada
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
+  if(session.getValue("user") == null) response.sendRedirect("../../logout.jsp");
 %>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_measurement" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../securityError.jsp?type=_measurement");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-
 <%@page contentType="text/xml"%>
 <%@page
 	import="oscar.oscarEncounter.oscarMeasurements.bean.*,oscar.oscarEncounter.oscarMeasurements.data.*"%>

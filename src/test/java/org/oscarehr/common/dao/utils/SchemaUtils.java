@@ -151,11 +151,7 @@ public class SchemaUtils
 
 	public static void restoreTable(String... tableNames) throws SQLException, InstantiationException, IllegalAccessException, ClassNotFoundException
 	{
-		restoreTable(true,tableNames);
-	}
-
-	public static void dropTable(String... tableNames) throws SQLException, InstantiationException, IllegalAccessException, ClassNotFoundException
-	{
+		long start = System.currentTimeMillis();
 		String schema=ConfigUtils.getProperty("db_schema");
 
 		Connection c=getConnection();
@@ -165,64 +161,9 @@ public class SchemaUtils
 			s.executeUpdate("use "+schema);
 			for (int i = 0; i < tableNames.length; i++) {
 				s.executeUpdate("drop table if exists " + tableNames[i]);
+				s.executeUpdate(createTableStatements.get(tableNames[i]));
+				s.executeUpdate("insert into " + tableNames[i] + " select * from " + tableNames[i] + "_maventest");
             }
-			s.close();
-
-		}
-		finally
-		{
-			c.close();
-		}
-	}
-	
-	private static boolean isWindows() {
-		String osName = System.getProperty("os.name");
-		return osName.toLowerCase().contains("windows");
-	}
-
-    public static String removeFKs(String s)
-    {
-        String r = s.replaceAll(",\\s+CONSTRAINT `\\w+` FOREIGN KEY .`\\w+`. REFERENCES `\\w+` .`\\w+`.","");
-        r = r.replaceAll("ON DELETE CASCADE","");
-        r = r.replaceAll("ON UPDATE CASCADE","");
-        r = r.replaceAll("ON UPDATE NO ACTION","");
-        r = r.replaceAll("ON DELETE NO ACTION","");
-        return r;
-
-    }
-
-
-
-	public static void restoreTable(boolean includeInitData, String... tableNames) throws SQLException, InstantiationException, IllegalAccessException, ClassNotFoundException
-	{
-		long start = System.currentTimeMillis();
-		String schema=ConfigUtils.getProperty("db_schema");
-
-		Connection c=getConnection();
-		try
-		{
-			Statement s=c.createStatement();
-			s.executeUpdate("use "+schema);
-			s.executeUpdate("set foreign_key_checks = 0");
-			for (int i = 0; i < tableNames.length; i++) {
-				String tableName = tableNames[i];
-				if (isWindows()) {
-					tableName = tableName.toLowerCase(); // make it case insensitive by default
-				}
-				s.executeUpdate("drop table if exists " + tableName);
-				
-				String createTableStatement = createTableStatements.get(tableName);
-				if (createTableStatement == null) {
-					throw new IllegalStateException("Unable to locate create table statement for " + tableName + ". Please make sure that the table exists in the schema.");
-				}
-                // remove FK constraints as they cause errors during test with random data
-                String sql= removeFKs(createTableStatement);
-				s.executeUpdate(sql.replaceAll("_maventest", ""));
-				
-				if(includeInitData)
-					s.executeUpdate("insert into " + tableName + " select * from " + tableName + "_maventest");
-            }
-			s.executeUpdate("set foreign_key_checks = 1");
 			s.close();
 
 		}
@@ -237,7 +178,6 @@ public class SchemaUtils
 		}
 	}
 
-	
 	public static void restoreAllTables() throws SQLException, InstantiationException, IllegalAccessException, ClassNotFoundException
 	{
 		long start = System.currentTimeMillis();
@@ -250,8 +190,7 @@ public class SchemaUtils
 			s.executeUpdate("use "+schema);
 			for (String tableName:createTableStatements.keySet()) {
 				s.executeUpdate("drop table if exists " + tableName);
-                String sql= removeFKs(createTableStatements.get(tableName));
-                s.executeUpdate(sql);
+				s.executeUpdate(createTableStatements.get(tableName));
 				s.executeUpdate("insert into " + tableName + " select * from " + tableName + "_maventest");
             }
 			s.close();
@@ -290,12 +229,12 @@ public class SchemaUtils
         // read the output from the command
         String s= null;
         while ((s = stdInput.readLine()) != null) {
-            MiscUtils.getLogger().info(s);
+            System.out.println(s);
         }
 
         // read any errors from the attempted command
         while ((s = stdError.readLine()) != null) {
-        	 MiscUtils.getLogger().info(s);
+            System.out.println(s);
         }
 
         int exitValue = -1;
@@ -345,8 +284,7 @@ public class SchemaUtils
 			try {
 				ResultSet rs = c.getMetaData().getTables(ConfigUtils.getProperty("db_schema"), null, "%", null);
 				while(rs.next()) {
-					String tableName = rs.getString("TABLE_NAME");	
-					
+					String tableName = rs.getString("TABLE_NAME");				
 					Statement stmt2 = c.createStatement();
 					ResultSet rs2 = stmt2.executeQuery("show create table " + tableName + ";");
 					if(rs2.next()) {
@@ -372,9 +310,7 @@ public class SchemaUtils
 			try {
 				ResultSet rs = c.getMetaData().getTables(ConfigUtils.getProperty("db_schema"), null, "%", null);
 				while(rs.next()) {
-					String tableName = rs.getString("TABLE_NAME");		
-					if(!tableName.endsWith("_maventest"))
-						continue;
+					String tableName = rs.getString("TABLE_NAME");				
 					Statement stmt2 = c.createStatement();
 					ResultSet rs2 = stmt2.executeQuery("show create table " + tableName + ";");
 					if(rs2.next()) {
@@ -392,11 +328,6 @@ public class SchemaUtils
 			}
 		}
 				
-		try {
-			restoreTable(false,"ResourceStorage");
-		} catch (Exception e) {
-			MiscUtils.getLogger().error("Error:",e);
-		}
 		inited=true;
 	}
 

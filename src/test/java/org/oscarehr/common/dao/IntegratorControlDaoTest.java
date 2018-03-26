@@ -35,7 +35,7 @@ import org.oscarehr.util.SpringUtils;
 
 public class IntegratorControlDaoTest extends DaoTestFixtures {
 
-	protected IntegratorControlDao dao = SpringUtils.getBean(IntegratorControlDao.class);
+	private IntegratorControlDao dao = SpringUtils.getBean(IntegratorControlDao.class);
 
 	public IntegratorControlDaoTest() {
 	}

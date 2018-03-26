@@ -22,43 +22,53 @@
  * Ontario, Canada
  */
 
+
 package oscar.oscarWaitingList.bean;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Vector;
 
-import org.oscarehr.common.dao.WaitingListDao;
-import org.oscarehr.common.model.WaitingList;
-import org.oscarehr.common.model.WaitingListName;
-import org.oscarehr.util.SpringUtils;
+import org.oscarehr.util.MiscUtils;
 
-import oscar.util.ConversionUtils;
+import oscar.oscarDB.DBHandler;
 
 public class WLPatientWaitingListBeanHandler {
+    
+    Vector patientWaitingListVector = new Vector();
+    
+    public WLPatientWaitingListBeanHandler(String demographicNo) {
+        init(demographicNo);
+    }
 
-	List<WLPatientWaitingListBean> patientWaitingList = new ArrayList<WLPatientWaitingListBean>();
+    public boolean init(String demographicNo) {
+        
+        boolean verdict = true;
+        try {
+            
+            ResultSet rs; 
+            String sql = "SELECT wn.ID, wn.name, w.position, w.note, w.onListSince FROM waitingListName wn, waitingList w WHERE wn.ID = w.ListID AND demographic_no ='"+ demographicNo + "'" + "and w.is_history<>'Y'";
+            for(rs = DBHandler.GetSQL(sql); rs.next(); )
+            {                
+                WLPatientWaitingListBean wLBean = new WLPatientWaitingListBean( demographicNo,
+                                                                                oscar.Misc.getString(rs, "ID"),
+                                                                                oscar.Misc.getString(rs, "name"),
+                                                                                oscar.Misc.getString(rs, "position"), 
+                                                                                oscar.Misc.getString(rs, "note"),
+                                                                                oscar.Misc.getString(rs, "onListSince"));   
+                patientWaitingListVector.add(wLBean);
+            }
+                            
+            rs.close();
+        }
+        catch(SQLException e) {
+            MiscUtils.getLogger().error("Error", e);
+            verdict = false;
+        }
+        return verdict;
+    }
 
-	public WLPatientWaitingListBeanHandler(String demographicNo) {
-		init(demographicNo);
-	}
-
-	public boolean init(String demographicNo) {
-		WaitingListDao dao = SpringUtils.getBean(WaitingListDao.class);
-		List<Object[]> lists = dao.findByDemographic(ConversionUtils.fromIntString(demographicNo));
-
-		boolean verdict = true;
-		for (Object[] l : lists) {
-			WaitingListName name = (WaitingListName) l[0];
-			WaitingList list = (WaitingList) l[1];
-			
-			WLPatientWaitingListBean wLBean = new WLPatientWaitingListBean(demographicNo, name.getId().toString(), name.getName(), String.valueOf(list.getPosition()), list.getNote(), ConversionUtils.toDateString(list.getOnListSince()));
-			patientWaitingList.add(wLBean);
-		}
-
-		return verdict;
-	}
-
-	public List<WLPatientWaitingListBean> getPatientWaitingList() {
-		return patientWaitingList;
-	}
+    public Vector getPatientWaitingListVector(){
+        return patientWaitingListVector;
+    }    
 }

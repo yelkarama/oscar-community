@@ -44,18 +44,13 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.oscarehr.common.model.Allergy;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.OscarProperties;
-import oscar.form.pharmaForms.formBPMH.util.JsonUtil;
 import oscar.oscarRx.data.RxAllergyData;
 import oscar.oscarRx.util.RxDrugRef;
 
 public final class RxSearchAllergyAction extends Action {
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
 
 
     public ActionForward execute(ActionMapping mapping,
@@ -64,9 +59,6 @@ public final class RxSearchAllergyAction extends Action {
     HttpServletResponse response)
     throws IOException, ServletException {
 
-		if (!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_allergy", "r", null)) {
-			throw new RuntimeException("missing required security object (_allergy)");
-		}
 
 
         // Setup variables
@@ -74,13 +66,7 @@ public final class RxSearchAllergyAction extends Action {
         // execute search
 
         RxSearchAllergyForm frm = (RxSearchAllergyForm)form;
-        
-        // JSON overrides the form.
- 		String jsondata = request.getParameter("jsonData");
- 		if( jsondata != null ) {			
- 			frm = (RxSearchAllergyForm) JsonUtil.jsonToPojo(jsondata, RxSearchAllergyForm.class);
- 		}
- 		
+
         RxAllergyData aData = new RxAllergyData();
         //RxAllergyData.Allergy[] arr =
         //    aData.AllergySearch(frm.getSearchString(), frm.getType5(),

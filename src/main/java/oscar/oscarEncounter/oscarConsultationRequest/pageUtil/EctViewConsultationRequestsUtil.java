@@ -34,35 +34,37 @@ import org.apache.commons.lang.time.DateFormatUtils;
 import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.dao.ConsultationRequestDao;
 import org.oscarehr.common.dao.ConsultationServiceDao;
+import org.oscarehr.common.dao.DemographicDao;
+import org.oscarehr.common.dao.ProfessionalSpecialistDao;
 import org.oscarehr.common.model.ConsultationRequest;
 import org.oscarehr.common.model.ConsultationServices;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.ProfessionalSpecialist;
 import org.oscarehr.common.model.Provider;
-import org.oscarehr.managers.DemographicManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
 public class EctViewConsultationRequestsUtil {         
    
-   public boolean estConsultationVecByTeam(LoggedInInfo loggedInInfo,String team) {   
-      return estConsultationVecByTeam(loggedInInfo,team,false,null,null);
+   public boolean estConsultationVecByTeam(String team) {   
+      return estConsultationVecByTeam(team,false,null,null);
    }
-   public boolean estConsultationVecByTeam(LoggedInInfo loggedInInfo,String team,boolean showCompleted) {   
-      return estConsultationVecByTeam(loggedInInfo,team,showCompleted,null,null);
+   public boolean estConsultationVecByTeam(String team,boolean showCompleted) {   
+      return estConsultationVecByTeam(team,showCompleted,null,null);
    }   
-   public boolean estConsultationVecByTeam(LoggedInInfo loggedInInfo, String team,boolean showCompleted,Date startDate, Date endDate) {
-      return estConsultationVecByTeam(loggedInInfo,team,showCompleted,null,null,null);
+   public boolean estConsultationVecByTeam(String team,boolean showCompleted,Date startDate, Date endDate) {
+      return estConsultationVecByTeam(team,showCompleted,null,null,null);
    }   
-   public boolean estConsultationVecByTeam(LoggedInInfo loggedInInfo, String team,boolean showCompleted,Date startDate, Date endDate,String orderby) {   
-      return estConsultationVecByTeam(loggedInInfo,team,showCompleted,null,null,null,null);
+   public boolean estConsultationVecByTeam(String team,boolean showCompleted,Date startDate, Date endDate,String orderby) {   
+      return estConsultationVecByTeam(team,showCompleted,null,null,null,null);
    }   
-   public boolean estConsultationVecByTeam(LoggedInInfo loggedInInfo, String team,boolean showCompleted,Date startDate, Date endDate,String orderby,String desc) { 
-      return estConsultationVecByTeam(loggedInInfo,team,showCompleted,null,null,null,null,null,null,null);
+   public boolean estConsultationVecByTeam(String team,boolean showCompleted,Date startDate, Date endDate,String orderby,String desc) { 
+      return estConsultationVecByTeam(team,showCompleted,null,null,null,null,null);
    }  
             
-   public boolean estConsultationVecByTeam(LoggedInInfo loggedInInfo, String team,boolean showCompleted,Date startDate, Date endDate,String orderby,String desc,String searchDate, Integer offset, Integer limit) {       
+   private boolean bMultisites=org.oscarehr.common.IsPropertiesOn.isMultisitesEnable();
+   
+   public boolean estConsultationVecByTeam(String team,boolean showCompleted,Date startDate, Date endDate,String orderby,String desc,String searchDate) {       
       ids = new Vector<String>();
       status = new Vector<String>();
       patient = new Vector<String>();
@@ -82,8 +84,9 @@ public class EctViewConsultationRequestsUtil {
 
       try {
           ConsultationRequestDao consultReqDao = (ConsultationRequestDao) SpringUtils.getBean("consultationRequestDao");
-          DemographicManager demographicManager = SpringUtils.getBean(DemographicManager.class);
+          DemographicDao demoDao = (DemographicDao) SpringUtils.getBean("demographicDao");
           ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao");
+          ProfessionalSpecialistDao specialistDao = (ProfessionalSpecialistDao) SpringUtils.getBean("professionalSpecialistDao");
           ConsultationServiceDao serviceDao = (ConsultationServiceDao) SpringUtils.getBean("consultationServiceDao");
           ConsultationRequest consult;
           Demographic demo;
@@ -93,11 +96,11 @@ public class EctViewConsultationRequestsUtil {
           Calendar cal = Calendar.getInstance();
           Date date1, date2;
           String providerId, providerName, specialistName;
-          List consultList = consultReqDao.getConsults(team, showCompleted, startDate, endDate, orderby, desc, searchDate, offset, limit);
+          List consultList = consultReqDao.getConsults(team, showCompleted, startDate, endDate, orderby, desc, searchDate);
 
           for( int idx = 0; idx < consultList.size(); ++idx ) {
               consult = (ConsultationRequest)consultList.get(idx);
-              demo = demographicManager.getDemographic(loggedInInfo, consult.getDemographicId());
+              demo = demoDao.getDemographicById(consult.getDemographicId());
               services = serviceDao.find(consult.getServiceId());
 
               providerId = demo.getProviderNo();
@@ -133,17 +136,12 @@ public class EctViewConsultationRequestsUtil {
               
               date1 = consult.getAppointmentDate();
               date2 = consult.getAppointmentTime();
+              if( date1 == null || date2 == null ) {
+            	  cal.set(1970, 0, 1, 1, 0, 0);
+            	  date1 = date2 = cal.getTime();
+              }              
               
-              String apptDateStr = "";
-              if( date1 == null ) {
-            	  apptDateStr = "N/A";
-              } else if( date1 != null && date2 == null ) {
-            	  apptDateStr = DateFormatUtils.ISO_DATE_FORMAT.format(date1) + " T00:00:00";
-              } else {
-            	  apptDateStr = DateFormatUtils.ISO_DATE_FORMAT.format(date1) + " " +  DateFormatUtils.ISO_TIME_FORMAT.format(date2);
-              }
-              
-              apptDate.add(apptDateStr);
+              apptDate.add(DateFormatUtils.ISO_DATE_FORMAT.format(date1) + " " +  DateFormatUtils.ISO_TIME_FORMAT.format(date2));
               patientWillBook.add(""+consult.isPatientWillBook());
               
               date1 = consult.getFollowUpDate();
@@ -162,7 +160,7 @@ public class EctViewConsultationRequestsUtil {
    }      
    
       
-   public boolean estConsultationVecByDemographic(LoggedInInfo loggedInInfo, String demoNo) {      
+   public boolean estConsultationVecByDemographic(String demoNo) {      
       ids = new Vector<String>();
       status = new Vector<String>();
       patient = new Vector<String>();
@@ -178,7 +176,8 @@ public class EctViewConsultationRequestsUtil {
           ConsultationRequestDao consultReqDao = (ConsultationRequestDao) SpringUtils.getBean("consultationRequestDao");
 
           ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao");
-          DemographicManager demoManager = SpringUtils.getBean(DemographicManager.class);
+          DemographicDao demoDao = (DemographicDao) SpringUtils.getBean("demographicDao");
+          ProfessionalSpecialistDao specialistDao = (ProfessionalSpecialistDao) SpringUtils.getBean("professionalSpecialistDao");
           ConsultationServiceDao serviceDao = (ConsultationServiceDao) SpringUtils.getBean("consultationServiceDao");
           ConsultationRequest consult;
           Provider prov;
@@ -186,10 +185,10 @@ public class EctViewConsultationRequestsUtil {
           ConsultationServices services;
           String providerId, providerName;
 
-          List consultList = consultReqDao.getConsults(Integer.parseInt(demoNo));
+          List consultList = consultReqDao.getConsults(demoNo);
           for( int idx = 0; idx < consultList.size(); ++idx ) {
               consult = (ConsultationRequest)consultList.get(idx);
-              demo = demoManager.getDemographic(loggedInInfo, consult.getDemographicId());
+              demo = demoDao.getDemographicById(consult.getDemographicId());
               providerId = demo.getProviderNo();
               if( providerId != null && !providerId.equals("")) {
               prov = providerDao.getProvider(demo.getProviderNo());

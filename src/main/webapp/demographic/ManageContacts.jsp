@@ -28,21 +28,11 @@
 <%@ page import="org.oscarehr.common.model.Contact"%>
 <%@page import="org.oscarehr.common.model.DemographicContact"%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
+  if (session.getAttribute("user") == null) {
+    response.sendRedirect("../logout.jsp");
+  }
 %>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_demographic" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_demographic");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%
   String demographic_no = request.getParameter("demographic_no");
   if(demographic_no == null) {
@@ -86,20 +76,10 @@ function addContact() {
 	var total = jQuery("#contact_num").val();
 	total++;
 	jQuery("#contact_num").val(total);
-	jQuery.ajax({url:'contact.jsp?search=Search&id='+total,async:false, success:function(data) {
+	jQuery.ajax({url:'contact.jsp?id='+total,async:false, success:function(data) {
 		  jQuery("#contact_container").append(data);
 	}});
 }
-
-function addContactExisting() {
-    var total = jQuery("#contact_num").val();
-    total++;
-    jQuery("#contact_num").val(total);
-    jQuery.ajax({url:'contact.jsp?search=&id='+total,async:false, success:function(data) {
-    jQuery("#contact_container").append(data);
-    }});
-}
-
 
 function deleteContact(id) {
 	var contactId = jQuery("input[name='contact_"+id+".id']").val();
@@ -112,20 +92,10 @@ function addProContact() {
 	var total = jQuery("#procontact_num").val();
 	total++;
 	jQuery("#procontact_num").val(total);
-	jQuery.ajax({url:'procontact.jsp?search=Search&id='+total,async:false, success:function(data) {
+	jQuery.ajax({url:'procontact.jsp?id='+total,async:false, success:function(data) {
 		  jQuery("#procontact_container").append(data);
 	}});
 }
-
-function addProContactExisting() {
-    var total = jQuery("#procontact_num").val();
-    total++;
-    jQuery("#procontact_num").val(total);
-    jQuery.ajax({url:'procontact.jsp?search=&id='+total,async:false, success:function(data) {
-              jQuery("#procontact_container").append(data);
-    }});
-}
-
 
 function deleteProContact(id) {
 	var contactId = jQuery("input[name='procontact_"+id+".id']").val();
@@ -152,9 +122,6 @@ function doProfessionalSearch(id) {
 	if(type == '<%=DemographicContact.TYPE_CONTACT%>') {
 		search_procontact('procontact_'+id+'.contactName','procontact_'+id+'.contactId');
 	}
-	if(type == '<%=DemographicContact.TYPE_PROFESSIONALSPECIALIST%>') {
-		search_professionalSpecialist('procontact_'+id+'.contactName','procontact_'+id+'.contactId');
-	}
 }
 
 function updTklrList() {
@@ -162,7 +129,7 @@ function updTklrList() {
 }
 
 function search_demographic(nameEl, valueEl) {
-    var url = '../ticklerPlus/demographicSearch2.jsp?outofdomain=false&form=contactForm&elementName='+nameEl+'&elementId='+valueEl;
+    var url = '../ticklerPlus/demographicSearch2.jsp?form=contactForm&elementName='+nameEl+'&elementId='+valueEl;
     var popup = window.open(url,'demographic_search');
     demo_no_orig = document.contactForm.elements[valueEl].value;
     //check_demo_no = setInterval("if (demo_no_orig != document.contactForm.elements[valueEl].value) updTklrList()",100);
@@ -217,31 +184,10 @@ function search_procontact(nameEl, valueEl) {
 		}
 }
 
-function search_professionalSpecialist(nameEl, valueEl) {
-    var url = 'professionalSpecialistSearch.jsp?form=contactForm&elementName='+nameEl+'&elementId='+valueEl;
-    var popup = window.open(url,'demographic_search');
-    demo_no_orig = document.contactForm.elements[valueEl].value;
-    //check_demo_no = setInterval("if (demo_no_orig != document.contactForm.elements[valueEl].value) updTklrList()",100);
-
-		if (popup != null) {
-		if (popup.opener == null) {
-				popup.opener = self;
-		}
-		popup.focus();
-		}
-}
-
-
 function setSelect(id,type,name,val) {
 	jQuery("select[name='"+type+"_"+id+"."+name+"']").each(function() {
 		jQuery(this).val(val);
 	});
-}
-
-function setSelectExisting(id,type,name,val) {
-    jQuery("select[name='"+type+"_"+id+"."+name+"']").attr('disabled', 'disabled').each(function() {
-            jQuery(this).val(val);
-    });
 }
 
 function setInput(id,type,name,val) {
@@ -269,14 +215,11 @@ jQuery(document).ready(function() {
 		if(dcs != null) {
 			for(DemographicContact dc:dcs) {
 				%>
-					addContactExisting();
+					addContact();
 					var num = jQuery("#contact_num").val();
 					setInput(num,'contact','id','<%=dc.getId()%>');
 					setSelect(num,'contact','role','<%=dc.getRole()%>');
-					setSelectExisting(num,'contact','type','<%=dc.getType()%>');
-					setSelect(num,'contact','consentToContact','<%=dc.isConsentToContact()?"1":"0"%>');
-					setSelect(num,'contact','active','<%=dc.isActive()?"1":"0"%>');
-					setSelect(num,'contact','programId','<%=dc.getProgramNo()!=null?dc.getProgramNo():"0"%>');
+					setSelect(num,'contact','type','<%=dc.getType()%>');
 					setInput(num,'contact','contactId','<%=dc.getContactId()%>');
 					setInput(num,'contact','contactName','<%=dc.getContactName()%>');
 					setTextarea(num,'contact','note','<%=dc.getNote()!=null?dc.getNote():""%>');
@@ -291,14 +234,11 @@ jQuery(document).ready(function() {
 		if(pdcs != null) {
 			for(DemographicContact dc:pdcs) {
 				%>
-					addProContactExisting();
+					addProContact();
 					var num = jQuery("#procontact_num").val();
 					setInput(num,'procontact','id','<%=dc.getId()%>');
 					setSelect(num,'procontact','role','<%=dc.getRole()%>');
-					setSelect(num,'procontact','consentToContact','<%=dc.isConsentToContact()?"1":"0"%>');
-					setSelect(num,'procontact','programId','<%=dc.getProgramNo()!=null?dc.getProgramNo():"0"%>');
-					setSelect(num,'procontact','active','<%=dc.isActive()?"1":"0"%>');
-					setSelectExisting(num,'procontact','type','<%=dc.getType()%>');
+					setSelect(num,'procontact','type','<%=dc.getType()%>');
 					setInput(num,'procontact','contactId','<%=dc.getContactId()%>');
 					setInput(num,'procontact','contactName','<%=dc.getContactName()%>');
 			    <%

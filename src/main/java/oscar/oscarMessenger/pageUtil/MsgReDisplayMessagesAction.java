@@ -35,27 +35,18 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.oscarehr.common.dao.MessageListDao;
-import org.oscarehr.common.model.MessageList;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
-import org.oscarehr.util.SpringUtils;
+import org.oscarehr.util.MiscUtils;
+
+import oscar.oscarDB.DBHandler;
 
 public class MsgReDisplayMessagesAction extends Action {
 
-	private MessageListDao dao = SpringUtils.getBean(MessageListDao.class);
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	
+
     public ActionForward execute(ActionMapping mapping,
 				 ActionForm form,
 				 HttpServletRequest request,
 				 HttpServletResponse response)
 	throws IOException, ServletException {
-    	
-    	if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_msg", "r", null)) {
-			throw new SecurityException("missing required security object (_msg)");
-		}
-    	
     oscar.oscarMessenger.pageUtil.MsgSessionBean bean = null;
     bean = (oscar.oscarMessenger.pageUtil.MsgSessionBean)request.getSession().getAttribute("msgSessionBean");
 
@@ -68,11 +59,13 @@ public class MsgReDisplayMessagesAction extends Action {
     String[] messageNo = ((MsgDisplayMessagesForm)form).getMessageNo();
             //This will go through the array of message Numbers and set them
             //to del.which stands for deleted. but you prolly could have figured that out
-            for (int i =0 ; i < messageNo.length ; i++){   
-        	  for(MessageList ml:dao.findByProviderNoAndMessageNo(providerNo, Long.valueOf(messageNo[i]))) {
-        		  ml.setStatus("read");
-        		  dao.merge(ml);
-        	  }         
+            for (int i =0 ; i < messageNo.length ; i++){
+              try{
+                
+                
+                String sql = new String("update messagelisttbl set status = \'read\' where provider_no = \'"+providerNo+"\' and message = \'"+messageNo[i]+"\'");
+                DBHandler.RunSQL(sql);
+              }catch (java.sql.SQLException e){MiscUtils.getLogger().error("Error", e); }
             }//for
 
     return (mapping.findForward("success"));

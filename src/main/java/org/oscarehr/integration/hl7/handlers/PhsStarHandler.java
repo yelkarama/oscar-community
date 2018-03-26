@@ -39,16 +39,16 @@ import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
+import org.oscarehr.PMmodule.dao.AdmissionDao;
 import org.oscarehr.PMmodule.dao.ProgramDao;
 import org.oscarehr.PMmodule.dao.ProviderDao;
+import org.oscarehr.PMmodule.model.Admission;
 import org.oscarehr.PMmodule.model.Program;
 import org.oscarehr.common.OtherIdManager;
-import org.oscarehr.common.dao.AdmissionDao;
 import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.OscarAppointmentDao;
 import org.oscarehr.common.dao.OscarLogDao;
 import org.oscarehr.common.dao.ProfessionalSpecialistDao;
-import org.oscarehr.common.model.Admission;
 import org.oscarehr.common.model.Appointment;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.OscarLog;
@@ -89,7 +89,7 @@ public class PhsStarHandler extends BasePhsStarHandler {
 	 * This method uses the internal ids and matches based on (in order) MRN, Temporary MRN, Health Card.
 	 *
 	 * @param internalIds
-	 * @return Integer
+	 * @return
 	 * @throws HL7Exception Usually for bad data, or missing internal id segment.
 	 */
 	protected Integer doKeyMatching(Map<String,PatientId> internalIds) throws HL7Exception {
@@ -404,7 +404,7 @@ public class PhsStarHandler extends BasePhsStarHandler {
 		admission.setProgram(p);
 		admission.setProgramId(p.getId());
 		admission.setProviderNo(providerNo);
-		admission.setClientStatusId(null);
+		admission.setClientStatusId(0);
 		admission.setTeamId(0);
 		admission.setRadioDischargeReason("0");
 		admissionDao.saveAdmission(admission);
@@ -1288,6 +1288,54 @@ public class PhsStarHandler extends BasePhsStarHandler {
         }
         return null;
 	}
+
+	private String findProgram(String resourceUnit, String procedure) {
+		String filename = OscarProperties.getInstance().getProperty("phs_star.program_file");
+		if(filename == null) {
+        	logger.warn("Cannot lookup program. Config file not found - " + filename);
+        	return null;
+        }
+        InputStream is = null;
+
+        try {
+        	is = new FileInputStream(new File(filename));
+
+	        if(is != null) {
+		        SAXBuilder parser = new SAXBuilder();
+		        Document doc = null;
+		        try {
+		        	doc = parser.build(is);
+		        }catch(Exception e) {
+		        	logger.error("Error",e);
+		        	return null;
+		        }
+
+		        Element root = doc.getRootElement();
+		        @SuppressWarnings("unchecked")
+		        List<Element> items = root.getChildren();
+		        for (int i = 0; i < items.size(); i++){
+		            Element e = items.get(i);
+		            String resUnit = e.getAttributeValue("resUnit");
+		            String serviceCode = e.getAttributeValue("serviceCode");
+		            if(resUnit.equals(resourceUnit) && serviceCode.equals(procedure)) {
+		            	return e.getAttributeValue("programId");
+		            }
+		        }
+	        }
+        }catch(Exception e) {
+        	logger.error("error",e);
+        } finally {
+        	if(is != null) {
+        		try {
+        			is.close();
+        		}catch(IOException e) {
+        			logger.error("error",e);
+        		}
+        	}
+        }
+        return null;
+	}
+
 
 	public String getValueAndTryGroup(String path, String group) {
 		try {

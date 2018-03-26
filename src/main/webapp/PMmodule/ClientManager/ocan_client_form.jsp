@@ -22,23 +22,8 @@
     Toronto, Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed2=true;
-%>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_form" rights="w" reverse="<%=true%>">
-	<%authed2=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_form");%>
-</security:oscarSec>
-<%
-	if(!authed2) {
-		return;
-	}
-%>
-
 <%@page import="org.oscarehr.common.model.OcanStaffForm"%>
-<%@page import="org.oscarehr.common.model.Admission"%>
+<%@page import="org.oscarehr.PMmodule.model.Admission"%>
 <%@page import="org.oscarehr.common.model.Demographic"%>
 <%@page import="org.oscarehr.PMmodule.web.OcanForm"%>
 <%@page import="org.oscarehr.util.LoggedInInfo"%>
@@ -46,7 +31,6 @@
 
 
 <%
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 	int currentDemographicId=Integer.parseInt(request.getParameter("demographicId"));	
 	String ocanType = request.getParameter("ocanType");
 	int prepopulationLevel = OcanForm.PRE_POPULATION_LEVEL_ALL;
@@ -61,11 +45,11 @@
 	if(ocanStaffFormId != 0) {
 		ocanStaffForm=OcanForm.getOcanStaffForm(Integer.valueOf(request.getParameter("ocanStaffFormId")));
 	}else {
-		ocanStaffForm=OcanForm.getOcanStaffForm(loggedInInfo.getCurrentFacility().getId(),currentDemographicId,prepopulationLevel,ocanType);	
+		ocanStaffForm=OcanForm.getOcanStaffForm(currentDemographicId,prepopulationLevel,ocanType);	
 		
 		if(ocanStaffForm.getAssessmentId()==null) {
 			
-			OcanStaffForm lastCompletedForm = OcanForm.getLastCompletedOcanFormByOcanType(loggedInInfo.getCurrentFacility().getId(),currentDemographicId,ocanType);
+			OcanStaffForm lastCompletedForm = OcanForm.getLastCompletedOcanFormByOcanType(currentDemographicId,ocanType);
 			if(lastCompletedForm!=null) {
 				
 				// prepopulate the form from last completed assessment

@@ -86,21 +86,25 @@
 
 			<% 
 
-			List<CtlBillingService> cbss1 = ctlBillingServiceDao.findByServiceTypeId("%");
+ ResultSet rs=null ;
+  ResultSet rs2=null ;
+
+    
+  rs = apptMainBean.queryResults("%", "search_ctlbillservice");
 int rCount = 0;
   boolean bodd=false;
 
-  if(cbss1==null) {
+  if(rs==null) {
     out.println("failed!!!"); 
   } else {
   %>
 			<% 
-    for (CtlBillingService cbs:cbss1) {
+    while (rs.next()) {
 %><tr>
 				<td width="23%" valign="top" class="black"><a href=#
-					onClick='onUnbilled("dbManageBillingform_delete.jsp?servicetype=<%=cbs.getServiceType()%>");return false;'
-					title="Delete Billing Form"><%=cbs.getServiceType()%></a></td>
-				<td width="77%" class="black"><%=cbs.getServiceTypeName()%></td>
+					onClick='onUnbilled("dbManageBillingform_delete.jsp?servicetype=<%=rs.getString("servicetype")%>");return false;'
+					title="Delete Billing Form"><%=rs.getString("servicetype")%></a></td>
+				<td width="77%" class="black"><%=rs.getString("servicetype_name")%></td>
 			</tr>
 			<%
 }}%>

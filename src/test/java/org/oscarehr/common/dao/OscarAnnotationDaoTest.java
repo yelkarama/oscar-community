@@ -34,7 +34,7 @@ import org.oscarehr.util.SpringUtils;
 
 public class OscarAnnotationDaoTest extends DaoTestFixtures {
 
-	protected OscarAnnotationDao dao = SpringUtils.getBean(OscarAnnotationDao.class);
+	private OscarAnnotationDao dao = SpringUtils.getBean(OscarAnnotationDao.class);
 
 	public OscarAnnotationDaoTest() {
 	}

@@ -18,8 +18,6 @@
 
 package oscar.oscarWaitingList.pageUtil;
 
-import java.util.Date;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -164,7 +162,7 @@ public final class WLEditWaitingListNameAction extends Action {
 			//msgs.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("oscar.waitinglistname.removeSuccess"));
         }
         else{
-        	// no idea if this is good or bad, original author didn't document
+        	
         }
 
         MiscUtils.getLogger().debug("WLEditWaitingListNameAction/execute(): groupNo = "+ groupNo);
@@ -174,7 +172,7 @@ public final class WLEditWaitingListNameAction extends Action {
 
         WLWaitingListNameBeanHandler wlNameHd = new WLWaitingListNameBeanHandler(groupNo, providerNo);
         
-        String today = UtilDateUtilities.DateToString(new Date(), "yyyy-MM-dd");
+        String today = UtilDateUtilities.DateToString(UtilDateUtilities.Today(), "yyyy-MM-dd");
         
         session.setAttribute("waitingListNames", wlNameHd.getWaitingListNameList());
         

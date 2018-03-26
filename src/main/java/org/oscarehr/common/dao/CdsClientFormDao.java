@@ -44,28 +44,29 @@ public class CdsClientFormDao extends AbstractDao<CdsClientForm> {
 		Query query = entityManager.createNativeQuery(sqlCommand, modelClass);
 		query.setParameter(1, facilityId);
 		query.setParameter(2, clientId);
-		query.setMaxResults(1);
 		
 		return getSingleResultOrNull(query);
 	}
 
-	/**	
-	* will return the latest cds form or null if none match the criteria	
-	* @param signed can be null for either signed or unsigned	
-	*/
-	public CdsClientForm findLatestByFacilityAdmissionId(Integer facilityId, Integer admissionId, Boolean signed) {
-		String sqlCommand = "select x from CdsClientForm x where x.facilityId=?1 and x.admissionId=?2" + (signed != null ? " and signed=?3" : "") + " order by x.created desc";
+	/**
+	 * will return the latest cds form or null if none match the criteria
+	 * @param signed can be null for either signed or unsigned
+	 */
+	public CdsClientForm findLatestByFacilityAdmissionId(Integer facilityId, Integer admissionId, Boolean signed)
+	{
+		String sqlCommand = "select x from CdsClientForm x where x.facilityId=?1 and x.admissionId=?2"+(signed!=null?" and signed=?3":"")+" order by x.created desc";
 
 		Query query = entityManager.createQuery(sqlCommand);
 		query.setParameter(1, facilityId);
 		query.setParameter(2, admissionId);
-		if (signed != null) query.setParameter(3, signed);
-
+		if (signed!=null) query.setParameter(3, signed);
+		
 		@SuppressWarnings("unchecked")
-		List<CdsClientForm> results = query.getResultList();
-		if (results.size() > 0) return (results.get(0));
+		List<CdsClientForm> results=query.getResultList();
+		if (results.size()>0) return(results.get(0));
 		else return (null);
 	}
+
 	
     public List<CdsClientForm> findByFacilityClient(Integer facilityId, Integer clientId) {
 
@@ -85,7 +86,7 @@ public class CdsClientFormDao extends AbstractDao<CdsClientForm> {
 		
 		//String sqlCommand="select x from CdsClientForm x where x.facilityId=?1 and x.signed=?2 and x.cdsFormVersion=?3 and x.created>=?4 and x.created<?5";
     	//do not need to use date range here as it will be considered in admissionMap in Cds4ReportUIBean.java
-		String sqlCommand="select x from CdsClientForm x where x.facilityId=?1 and x.signed=?2 and x.cdsFormVersion=?3 ";
+		String sqlCommand="select x from CdsClientForm x where x.facilityId=?1 and x.signed=?2 and x.cdsFormVersion=?3 order by id desc ";
 		
 		Query query = entityManager.createQuery(sqlCommand);
 		query.setParameter(1, facilityId);
@@ -102,7 +103,7 @@ public class CdsClientFormDao extends AbstractDao<CdsClientForm> {
     
     public CdsClientForm findLatestByClientIdAndAdmisionId(Integer clientId, Integer admissionId) {
 
-  		String sqlCommand = "select x from CdsClientForm x where x.clientId=?1 and x.admissionId=?2 order by x.created desc";
+  		String sqlCommand = "select x from CdsClientForm x where x.clientId=?1 and x.admissionId=?2 order by x.id desc";
 
   		Query query = entityManager.createQuery(sqlCommand);
   		query.setParameter(1, clientId);
@@ -125,7 +126,7 @@ public class CdsClientFormDao extends AbstractDao<CdsClientForm> {
 		Query query = entityManager.createQuery(sqlCommand);
 		query.setParameter(1, admissionId);
 		query.setParameter(2, clientId);
-		query.setMaxResults(1);
+		
 		return getSingleResultOrNull(query);				
     }
     

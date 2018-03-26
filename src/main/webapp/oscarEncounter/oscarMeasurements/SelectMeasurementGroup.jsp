@@ -24,24 +24,9 @@
 
 --%>
 
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
+  if(session.getValue("user") == null) response.sendRedirect("../../logout.jsp");
 %>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin.measurements" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../securityError.jsp?type=_admin.measurements");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-
-
 <%@ page import="java.util.*,oscar.oscarReport.pageUtil.*"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -93,7 +78,7 @@ function confirmDelete(target) {
 		<tr>
 			<td class="MainTableLeftColumn"></td>
 			<td class="MainTableRightColumn">
-			<table border=0 cellspacing=4 width=800>
+			<table border=0 cellspacing=4 width=400>
 				<tr>
 					<td>
 					<table>
@@ -121,9 +106,6 @@ function confirmDelete(target) {
 									<td><input type="button" name="Button"
 										value="<bean:message key="oscarEncounter.oscarMeasurements.MeasurementsAction.modifyMeasurementStyleBtn"/>"
 										onclick="set('style');submit();" /></td>
-									<td><input type="button" name="Button"
-										value="Modify Decision Support for Group"
-										onclick="set('dsHTML');submit();" /></td>
 									<td><input type="button" name="Button"
 										value="<bean:message key="oscarEncounter.oscarMeasurements.MeasurementsAction.deleteBtn"/>"
 										onclick="confirmDelete('delete');" /></td>

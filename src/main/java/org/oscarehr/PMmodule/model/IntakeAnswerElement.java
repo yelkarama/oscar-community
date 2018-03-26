@@ -42,6 +42,7 @@ public class IntakeAnswerElement  implements Comparable<IntakeAnswerElement>, Se
 
     // constructors
 	public IntakeAnswerElement() {
+		initialize();
 	}
 
 	/**
@@ -49,6 +50,7 @@ public class IntakeAnswerElement  implements Comparable<IntakeAnswerElement>, Se
 	 */
 	public IntakeAnswerElement(Integer id) {
 		this.setId(id);
+		initialize();
 	}
 
 	/**
@@ -59,6 +61,7 @@ public class IntakeAnswerElement  implements Comparable<IntakeAnswerElement>, Se
 		this.setId(id);
 		this.setNodeTemplate(nodeTemplate);
 		this.setElement(element);
+		initialize();
 	}
 
 
@@ -84,10 +87,13 @@ public class IntakeAnswerElement  implements Comparable<IntakeAnswerElement>, Se
 		return new StringBuilder(REF).append("(").append(getId()).append(", ").append(getElement()).append(", ").append(getValidation()).append(")").toString();
 	}
 
+    protected void initialize() {
+    }
+
     /**
 	 * Return the unique identifier of this class
      *
-     *  generator-class="native" column="intake_answer_element_id"
+     * @hibernate.id generator-class="native" column="intake_answer_element_id"
      */
     public Integer getId() {
         return id;

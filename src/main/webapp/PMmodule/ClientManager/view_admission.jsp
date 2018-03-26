@@ -1,8 +1,7 @@
 <%@ page import="org.apache.struts.validator.DynaValidatorForm"%>
-<%@ page import="org.oscarehr.common.model.Admission"%>
+<%@ page import="org.oscarehr.PMmodule.model.Admission"%>
 <%@ page import="org.oscarehr.PMmodule.model.DischargeReason"%>
-<%@ page import="org.oscarehr.common.model.OscarLog"%>
-<%@ page import="java.util.List"%>
+
 <%--
 
 
@@ -30,45 +29,15 @@
 
 
 <%@ include file="/taglibs.jsp"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_pmm" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_pmm");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <html:html locale="true">
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>Admission Details</title>
-<script>
-function popupPage(vheight,vwidth,varpage) {
-	var page = "" + varpage;
-	windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=50,screenY=50,top=0,left=0";
-	var popup=window.open(page, "apptDateHistory", windowprops);
-	if (popup != null) {
-	if (popup.opener == null) {
-	popup.opener = self;
-	}
-	popup.focus();
-	}
-	}
-	
-</script>
+
 <link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
 <body>
 <html:form action="/PMmodule/ClientManager.do">
-	<%
-    DynaValidatorForm form = (DynaValidatorForm)session.getAttribute("clientManagerForm");
-    Admission admission = (Admission) form.get("admission");
-	%>
+
 	<html:hidden property="admission.id" />
 
 	<table width="100%" border="1" cellspacing="2" cellpadding="3">
@@ -114,12 +83,8 @@ function popupPage(vheight,vwidth,varpage) {
 		</tr>
 		<tr class="b">
 			<td width="20%">Admission date:</td>
-			<td>
-				<bean:write name="clientManagerForm" property="admission.admissionDate" />
-				<%if(request.getAttribute("admission_date_updates") != null) { %>
-					<sup><a href="javascript:void(0)" onclick="popupPage(600,400,'<%=request.getContextPath()%>/PMmodule/ClientManager/showHistory.jsp?type=update_admission_date&title=Admission Date Updates&id=<%=admission.getId()%>');return false;"><%=((List<OscarLog>)request.getAttribute("admission_date_updates")).size() %></a></sup>
-				<%} %>
-			</td>
+			<td><bean:write name="clientManagerForm"
+				property="admission.admissionDate" /></td>
 		</tr>
 		<tr class="b">
 			<td width="20%">Temporary admission?</td>
@@ -128,19 +93,16 @@ function popupPage(vheight,vwidth,varpage) {
 		</tr>
 		<tr class="b">
 			<td width="20%">Discharge date:</td>
-			<td>
-				<bean:write name="clientManagerForm" property="admission.dischargeDate" />
-				<%if(request.getAttribute("discharge_date_updates") != null) { %>
-					<sup><a href="javascript:void(0)" onclick="popupPage(600,400,'<%=request.getContextPath()%>/PMmodule/ClientManager/showHistory.jsp?type=update_discharge_date&title=Discharge Date Updates&id=<%=admission.getId()%>');return false;"><%=((List<OscarLog>)request.getAttribute("discharge_date_updates")).size() %></a></sup>
-				<%} %>
-			
-			</td>
+			<td><bean:write name="clientManagerForm"
+				property="admission.dischargeDate" /></td>
 		</tr>
 		<tr class="b">
 			<td width="20%">Discharge reason:</td>
 			<td>
 			<%
-  
+                        DynaValidatorForm form = (DynaValidatorForm)session.getAttribute("clientManagerForm");
+
+                        Admission admission = (Admission) form.get("admission");
                         String dischargeReason = admission.getRadioDischargeReason();
                         if(dischargeReason==null || dischargeReason=="" || "".equals(dischargeReason) || "NULL".equals(dischargeReason)) 
                         	dischargeReason="0";
@@ -153,6 +115,7 @@ function popupPage(vheight,vwidth,varpage) {
 			<td><bean:write name="clientManagerForm"
 				property="admission.dischargeNotes" /></td>
 		</tr>
+
 	</table>
 
 

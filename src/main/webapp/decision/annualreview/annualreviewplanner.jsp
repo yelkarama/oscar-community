@@ -24,23 +24,10 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_eChart" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_eChart");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-<%
-
+  if (session.getAttribute("user") == null) {
+    response.sendRedirect("../logout.jsp");
+  }
 
   String demographic_no = request.getParameter("demographic_no") != null
                           ? request.getParameter("demographic_no")
@@ -55,13 +42,8 @@
                                                               java.sql.*,
                                                               oscar.*,
                                                               oscar.util.*"%>
-<%@page import="org.oscarehr.util.SpringUtils" %>
-<%@page import="org.oscarehr.common.model.Demographic" %>           
-<%@page import="org.oscarehr.common.dao.DemographicDao" %>     
-<%
-	DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
-%>                                                  
-
+<jsp:useBean id="plannerBean" class="oscar.AppointmentMainBean"
+	scope="page" />
 <jsp:useBean id="riskDataBean" class="java.util.Properties" scope="page" />
 <!--jsp:useBean id="risks" class="oscar.decision.DesAnnualReviewPlannerRisk" scope="page" /-->
 <jsp:useBean id="risks"
@@ -75,7 +57,13 @@
 <%
 	DesAnnualReviewPlanDao desAnnualReviewPlanDao = SpringUtils.getBean(DesAnnualReviewPlanDao.class);
 %>
+<%
+  String[][] dbQueries = new String[][]{
+		{"search_demographic", "select sex,year_of_birth,month_of_birth,date_of_birth from demographic where demographic_no = ?"},
+  };
 
+  plannerBean.doConfigure(dbQueries);
+%>
 <html><head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>ANNUAL HEALTH REVIEW PLANNER</title>
@@ -157,13 +145,15 @@
         }
       }
       //find the age and sex of the patient from demographic table
-	  Demographic d = demographicDao.getDemographic(demographic_no);
+      ResultSet rsdemo = plannerBean.queryResults(demographic_no, "search_demographic");
+
       int    age = 0;
       String sex = null;
 
-      if (d != null) {
-        age = UtilDateUtilities.calcAge(d.getYearOfBirth(),d.getMonthOfBirth(),d.getDateOfBirth());
-        sex =d.getSex();
+      while (rsdemo.next()) {
+        age = UtilDateUtilities.calcAge(rsdemo.getString("year_of_birth"), rsdemo.getString("month_of_birth"),
+                rsdemo.getString("date_of_birth"));
+        sex = rsdemo.getString("sex");
       }
 
       if (age >= 65 && age <= 85) {

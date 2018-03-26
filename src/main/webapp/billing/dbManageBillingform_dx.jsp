@@ -27,7 +27,9 @@
 <%@ page
 	import="java.math.*, java.util.*, java.io.*, java.sql.*, oscar.*, java.net.*,oscar.MyDateFormat"%>
 
-
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean"
+	scope="session" />
+<%@ include file="dbBilling.jspf"%>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.model.CtlDiagCode" %>
 <%@ page import="org.oscarehr.common.dao.CtlDiagCodeDao" %>
@@ -42,10 +44,7 @@ String typeid = "", type="";
 
 typeid = request.getParameter("typeid");
 
-for(CtlDiagCode d:ctlDiagCodeDao.findByServiceType(typeid)) {
-	ctlDiagCodeDao.remove(d.getId());
-}
-
+  int rowsAffected0 = apptMainBean.queryExecuteUpdate(typeid,"delete_ctldiagcode");
 %>
 
 <%

@@ -30,24 +30,19 @@
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-	  boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_msg" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../securityError.jsp?type=_msg");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
+
 
 
 
 <%
+
+        oscar.oscarSecurity.CookieSecurity cs   = new oscar.oscarSecurity.CookieSecurity();
+
+        if(!cs.FindThisCookie(request.getCookies(),cs.providerCookie)){
+        response.sendRedirect("error.jsp");
+        return;
+        }
+
 String demoNo   = request.getParameter("val2");
 String prov     = request.getParameter("val1");
 

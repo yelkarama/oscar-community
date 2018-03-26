@@ -26,23 +26,17 @@
 
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
+    if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    		boolean authed=true;
 %>
 <security:oscarSec roleName="<%=roleName$%>"
-	objectName="_admin,_admin.userAdmin" rights="r"
+	objectName="_admin,_admin.userAdmin,_admin.torontoRfq" rights="r"
 	reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_admin&type=_admin.userAdmin");%>
+	<%response.sendRedirect("../logout.jsp");%>
 </security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 
 <%
+    if(session.getAttribute("user") == null ) response.sendRedirect("../logout.jsp");
     String curProvider_no = (String) session.getAttribute("user");
 
     boolean isSiteAccessPrivacy=false;
@@ -58,36 +52,15 @@
 <%@ page
 	import="java.lang.*, java.util.*, java.text.*,java.sql.*, oscar.*"
 	errorPage="errorpage.jsp"%>
-<%@page import="org.oscarehr.util.SpringUtils" %>
-<%@page import="org.oscarehr.common.model.Provider" %>
-<%@page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
-<%@page import="org.oscarehr.common.model.Security" %>
-<%@ page import="org.oscarehr.util.LoggedInInfo" %>
-<%@ page import="org.oscarehr.managers.SecurityManager" %>
-<%
-	LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
-	org.oscarehr.managers.SecurityManager securityManager = SpringUtils.getBean(org.oscarehr.managers.SecurityManager.class);
+<%@ include file="/common/webAppContextAndSuperMgr.jsp"%>
 
-	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
-	
+<%!
 	OscarProperties op = OscarProperties.getInstance();
 %>
 
 <html:html locale="true">
 <head>
-<style type="text/css">
-	/* Style for providers with security records */
-	.providerSecurity1 {
-		color: gray;
-	}
-	
-	/* Style for providers without security records */
-	.providerSecurity0 {
-		color: black;
-	}
-</style>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
-<script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery.js"></script>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/checkPassword.js.jsp"></script>
 <title><bean:message key="admin.securityaddarecord.title" /></title>
 <!-- calendar stylesheet -->
@@ -113,15 +86,6 @@
 		document.searchprovider.elements[el].select();
 	}
 	function onsub() {
-		var selectedOption = jQuery('#provider_no option:selected');
-		if (selectedOption) {
-			var optionClass = selectedOption.attr("class");
-			if (optionClass == "providerSecurity1") {
-				alert('<bean:message key="admin.securityrecord.msgProviderAlreadyHasSecurityRec" />');
-				return false;
-			}
-		}
-		
 		if (document.searchprovider.user_name.value=="") {
 			alert('<bean:message key="admin.securityrecord.formUserName" /> <bean:message key="admin.securityrecord.msgIsRequired"/>');
 			setfocus('user_name');
@@ -181,7 +145,8 @@
 </script>
 </head>
 
-<body onLoad="setfocus('user_name')" topmargin="0" leftmargin="0" rightmargin="0">
+<body background="../images/gray_bg.jpg" bgproperties="fixed"
+	onLoad="setfocus('user_name')" topmargin="0" leftmargin="0" rightmargin="0">
 <center>
 <table border="0" cellspacing="0" cellpadding="0" width="100%">
 	<tr bgcolor="#486ebd">
@@ -189,7 +154,7 @@
 			key="admin.securityaddarecord.description" /></font></th>
 	</tr>
 </table>
-<form method="post" action="securityaddsecurity.jsp" name="searchprovider"
+<form method="post" action="admincontrol.jsp" name="searchprovider"
 	onsubmit="return onsub()">
 
 <table cellspacing="0" cellpadding="2" width="90%" border="0">
@@ -224,30 +189,23 @@
 		<td width="50%" align="right"><bean:message
 			key="admin.securityrecord.formProviderNo" />:
 		</td>
-		<td><select name="provider_no" id="provider_no">
+		<td><select name="provider_no">
 			<option value="">-- select one --</option>
 <%
 	List<Map<String,Object>> resultList ;
     if (isSiteAccessPrivacy) {
-    	for(Provider p : providerDao.getActiveProviders()) {
-    		Security s = securityManager.findByProviderNo(loggedInInfo, p.getProviderNo());
-    		if(s != null) {
-    			%>
-    			<option value="<%=p.getProviderNo()%>"><%=p.getFormattedName()%></option>    			
-    			<%
-    		}
-    	}
-    	
-  
-    		
+    	Object[] param =new Object[1];
+    	param[0] = curProvider_no;
+    	resultList = oscarSuperManager.find("adminDao", "site_provider_search_providerno", param);
     }
     else {
-    	for(Provider p : providerDao.getActiveProviders()) {
-    		%>
-			<option value="<%=p.getProviderNo()%>"><%=p.getFormattedName()%></option>    	
-			<%
-    	}
+    	resultList = oscarSuperManager.find("adminDao", "provider_search_providerno", new Object[] {});
     }
+	for (Map provider : resultList) {
+%>
+			<option value="<%=provider.get("provider_no")%>"><%=provider.get("last_name")+", "+provider.get("first_name")%></option>
+<%
+	}
 %>
 		</select></td>
 	</tr>
@@ -301,26 +259,10 @@
 		</td>
 		<td><input type="password" name="conPin" size="6" maxlength="6" /></td>
 	</tr>
-	
-	<%
-		if (!OscarProperties.getInstance().getBooleanProperty("mandatory_password_reset", "false")) {
-	%>		  
-			<tr>		
-				<td align="right"><bean:message key="admin.provider.forcePasswordReset" />:
-				</td>
-				<td>
-						<select name="forcePasswordReset">
-								<option value="1">true</option>
-								<option value="0">false</option>
-						</select>	
-				</td>
-			</tr>
-   <%} %>
-	
 	<tr>
 		<td colspan="2">
 		<div align="center">
-		
+		<input type="hidden" name="displaymode" value="Security_Add_Record">
 		<input type="submit" name="subbutton" value='<bean:message key="admin.securityaddarecord.btnSubmit"/>'>
 		</div>
 		</td>
@@ -328,9 +270,18 @@
 </table>
 </form>
 
-
-
-
+<p></p>
+<hr width="100%" color="orange">
+<table border="0" cellspacing="0" cellpadding="0" width="100%">
+	<tr>
+		<td><a href="admin.jsp"> <img src="../images/leftarrow.gif"
+			border="0" width="25" height="20" align="absmiddle"><bean:message
+			key="global.btnBack" /></a></td>
+		<td align="right"><a href="../logout.jsp"><bean:message
+			key="global.btnLogout" /><img src="../images/rightarrow.gif"
+			border="0" width="25" height="20" align="absmiddle"></a></td>
+	</tr>
+</table>
 
 </center>
 <script type="text/javascript">

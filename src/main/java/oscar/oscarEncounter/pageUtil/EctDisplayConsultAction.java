@@ -30,16 +30,19 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Properties;
+import java.util.Vector;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.struts.util.MessageResources;
 import org.oscarehr.common.dao.UserPropertyDAO;
 import org.oscarehr.common.model.UserProperty;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import oscar.util.DateUtils;
+import oscar.util.OscarRoleObjectPrivilege;
 import oscar.util.StringUtils;
 
 
@@ -51,16 +54,19 @@ public class EctDisplayConsultAction extends EctDisplayAction {
     private String cmd = "consultation";
  
     public boolean getInfo(EctSessionBean bean, HttpServletRequest request, NavBarDisplayDAO Dao, MessageResources messages) {
-    	LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
 
     	String appointmentNo = bean.appointmentNo;
     	
-       if(!securityInfoManager.hasPrivilege(loggedInInfo, "_con", "r", null)) {
+       boolean a = true;
+       Vector v = OscarRoleObjectPrivilege.getPrivilegeProp("_newCasemgmt.consultations");
+       String roleName = (String)request.getSession().getAttribute("userrole") + "," + (String) request.getSession().getAttribute("user");
+       a = OscarRoleObjectPrivilege.checkPrivilege(roleName, (Properties) v.get(0), (Vector) v.get(1));
+       if(!a) {
             return true; //Consultations link won't show up on new CME screen.
        } else {
             //set lefthand module heading and link
             String winName = "Consultation" + bean.demographicNo;
-            String url = "popupPage(700,960,'" + winName + "','" + request.getContextPath() + "/oscarEncounter/oscarConsultationRequest/DisplayDemographicConsultationRequests.jsp?de=" + bean.demographicNo + "&appNo=" + appointmentNo + "')";            
+            String url = "popupPage(700,960,'" + winName + "','" + request.getContextPath() + "/oscarEncounter/oscarConsultationRequest/DisplayDemographicConsultationRequests.jsp?de=" + bean.demographicNo + "')";            
             Dao.setLeftHeading(messages.getMessage(request.getLocale(), "oscarEncounter.LeftNavBar.Consult"));
             Dao.setLeftURL(url);
             
@@ -73,7 +79,7 @@ public class EctDisplayConsultAction extends EctDisplayAction {
             //grab all consultations for patient and add list item for each
             oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctViewConsultationRequestsUtil theRequests;
             theRequests = new  oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctViewConsultationRequestsUtil();
-            theRequests.estConsultationVecByDemographic(loggedInInfo, bean.demographicNo);
+            theRequests.estConsultationVecByDemographic(bean.demographicNo);
             
             //determine cut off period for highlighting
             UserPropertyDAO pref = (UserPropertyDAO) WebApplicationContextUtils.getWebApplicationContext(request.getSession().getServletContext()).getBean("UserPropertyDAO");     
@@ -117,7 +123,7 @@ public class EctDisplayConsultAction extends EctDisplayAction {
                     serviceDateStr = "Error";
                     date = null;
                 }
-                url = "popupPage(700,960,'" + winName + "','" + request.getContextPath() + "/oscarEncounter/ViewRequest.do?de=" + bean.demographicNo + "&requestId=" + theRequests.ids.get(idx) + "&appNo=" + appointmentNo + "'); return false;";
+                url = "popupPage(700,960,'" + winName + "','" + request.getContextPath() + "/oscarEncounter/ViewRequest.do?de=" + bean.demographicNo + "&requestId=" + theRequests.ids.get(idx) + "'); return false;";
                 
                 item.setLinkTitle(service + " " + serviceDateStr);
                 service = StringUtils.maxLenString(service, MAX_LEN_TITLE, CROP_LEN_TITLE, ELLIPSES);
@@ -126,10 +132,6 @@ public class EctDisplayConsultAction extends EctDisplayAction {
                 item.setDate(date);
                 Dao.addItem(item);
             } 
-            
-            //Display consultation requests order by by date
-			Dao.setInternalDateSort(false);
-			Dao.sortItems(NavBarDisplayDAO.DATESORT_ASC);
             
             return true;
          }

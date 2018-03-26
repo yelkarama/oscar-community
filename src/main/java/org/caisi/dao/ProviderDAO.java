@@ -35,8 +35,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
  */
 public class ProviderDAO extends HibernateDaoSupport {
 
-    @SuppressWarnings("unchecked")
-    public List<Provider> getProviders() {
+    public List getProviders() {
         return getHibernateTemplate().find("from Provider p order by p.lastName");
     }
 

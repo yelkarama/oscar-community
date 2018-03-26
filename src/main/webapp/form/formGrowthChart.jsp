@@ -1,23 +1,8 @@
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_form" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_form");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%@ page import="oscar.form.*, oscar.form.data.*"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
+
 <%
 	String formClass = "GrowthChart";
 	String formLink = "formGrowthChart.jsp";
@@ -26,7 +11,7 @@
     int formId = Integer.parseInt(request.getParameter("formId"));
 	int provNo = Integer.parseInt((String) session.getAttribute("user"));
 	FrmRecord rec = (new FrmRecordFactory()).factory(formClass);
-    java.util.Properties props = rec.getFormRecord(LoggedInInfo.getLoggedInInfoFromSession(request),demoNo, formId);
+    java.util.Properties props = rec.getFormRecord(demoNo, formId);
 
     FrmData fd = new FrmData();
 
@@ -43,7 +28,7 @@
 <html:html locale="true">
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
-<title>WHO Growth Charts</title>
+<title>CDC US Growth Charts</title>
 <link rel="stylesheet" type="text/css" href="bcArStyle.css">
 <!-- calendar stylesheet -->
 <link rel="stylesheet" type="text/css" media="all"
@@ -352,7 +337,7 @@ function calcBMIMetric(source) {
 				bgcolor="<%= bGirl? girlColor:boyColor%>">
 				<tr>
 					<th align="left"><%= bGirl? "GIRLS:" : "BOYS:"%> 2 TO 20 YEARS<br>
-					WHO GROWTH CHARTS</th>
+					CDC US GROWTH CHARTS</th>
 				</tr>
 			</table>
 

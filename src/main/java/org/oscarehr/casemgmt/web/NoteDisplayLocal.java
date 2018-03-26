@@ -51,24 +51,18 @@ public class NoteDisplayLocal implements NoteDisplay {
 
 	private List<CaseManagementIssue> caseManagementIssues;
 
-	public NoteDisplayLocal(LoggedInInfo loggedInInfo, CaseManagementNote caseManagementNote) {
+	public NoteDisplayLocal(CaseManagementNote caseManagementNote) {
 		this.caseManagementNote = caseManagementNote;
-		if(caseManagementNote.getId() != null){
-			this.caseManagementIssues=caseManagementIssueNotesDao.getNoteIssues(getNoteId());
-			this.isCpp=calculateIsCpp();
-		}
-		if (loggedInInfo != null) editable = !caseManagementNote.isSigned() || (loggedInInfo.getLoggedInProviderNo().equals(caseManagementNote.getProviderNo()) && !caseManagementNote.isLocked());
+		this.caseManagementIssues=caseManagementIssueNotesDao.getNoteIssues(getNoteId());
 
-		
+		LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
+		if (loggedInInfo != null) editable = !caseManagementNote.isSigned() || (loggedInInfo.loggedInProvider.getProviderNo().equals(caseManagementNote.getProviderNo()) && !caseManagementNote.isLocked());
+
+		this.isCpp=calculateIsCpp();
 
 	}
 
 	public boolean containsIssue(String issueCode) {
-		if(this.caseManagementIssues == null){
-			return false;
-		}
-			
-			
 		for (CaseManagementIssue caseManagementIssue : this.caseManagementIssues) {
 			if (caseManagementIssue.getIssue().getCode().equals(issueCode)) {
 					return(true);
@@ -77,11 +71,8 @@ public class NoteDisplayLocal implements NoteDisplay {
 		return false;
 	}
 
-	private boolean calculateIsCpp(){
-		if(this.caseManagementIssues == null){
-			return false;
-		}
-		
+	private boolean calculateIsCpp()
+	{
 		for (CaseManagementIssue caseManagementIssue : this.caseManagementIssues)
 		{
 			for (int cppIdx = 0; cppIdx < CppUtils.cppCodes.length; cppIdx++)
@@ -118,9 +109,6 @@ public class NoteDisplayLocal implements NoteDisplay {
 	}
 
 	public Integer getNoteId() {
-		if(caseManagementNote.getId() == null){
-			return null;
-		}
 		return (caseManagementNote.getId().intValue());
 	}
 
@@ -274,17 +262,5 @@ public class NoteDisplayLocal implements NoteDisplay {
 
 	public boolean isInvoice() {
 	    return false;
-    }
-	public boolean isFreeDraw() {
-		return false;
-	}
-	
-	public boolean isTicklerNote() {
-		return containsIssue("TicklerNote");
-	}
-
-	@Override
-    public Integer getAppointmentNo() {
-		return caseManagementNote.getAppointmentNo();
     }
 }

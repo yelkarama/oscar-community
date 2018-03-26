@@ -24,21 +24,6 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_eform" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_eform");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%@ page import="oscar.util.*, oscar.eform.data.*"%>
 <%@ page import="java.util.*"%>
 <%@taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -71,8 +56,6 @@ function hideDiv() {
   String appointment_no = request.getParameter("appointment");
   String fid = request.getParameter("fid");
   String eform_link = request.getParameter("eform_link");
-  String source = request.getParameter("source");
-  
 
   EForm thisEForm = null;
   if (fid == null || demographic_no == null) {
@@ -92,14 +75,5 @@ function hideDiv() {
   thisEForm.setDatabaseAPs();
   thisEForm.setOscarOPEN(request.getRequestURI());
   thisEForm.setAction();
-  thisEForm.setSource(source);
   out.print(thisEForm.getFormHtml());
 %>
-<%
-String iframeResize = (String) session.getAttribute("useIframeResizing");
-if(iframeResize !=null && "true".equalsIgnoreCase(iframeResize)){ %>
-<script src="<%=request.getContextPath() %>/library/pym.js"></script>
-<script>
-    var pymChild = new pym.Child({ polling: 500 });
-</script>
-<%}%>

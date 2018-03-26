@@ -17,15 +17,16 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 --%>
-<%@page import="org.oscarehr.common.dao.Billing3rdPartyAddressDao"%>
-<%@page import="org.oscarehr.billing.CA.ON.model.Billing3rdPartyAddress"%>
-<%@page import="org.oscarehr.util.SpringUtils"%>
 <%//
 			if (session.getAttribute("user") == null) {
 				response.sendRedirect("../logout.jsp");
 			}
-			String strLimit1 = request.getParameter("limit1") == null ? "1" : request.getParameter("limit1");
-			String strLimit2 = request.getParameter("limit2") == null ? "25" : request.getParameter("limit2");
+			String strLimit1 = "0";
+			String strLimit2 = "20";
+			if (request.getParameter("limit1") != null)
+				strLimit1 = request.getParameter("limit1");
+			if (request.getParameter("limit2") != null)
+				strLimit2 = request.getParameter("limit2");
 
 			int nItems = 0;
 			Vector vec = new Vector();
@@ -33,32 +34,49 @@
 			String param = request.getParameter("param") == null ? "" : request.getParameter("param");
 			String param2 = request.getParameter("param2") == null ? "" : request.getParameter("param2");
 			String keyword = request.getParameter("keyword");
-			
+
 			if (request.getParameter("submit") != null
 					&& (request.getParameter("submit").equals("Search")
 							|| request.getParameter("submit").equals("Next Page") || request.getParameter("submit")
 							.equals("Last Page"))) {
-				String searchModeParam = request.getParameter("search_mode"); 
-				String orderByParam = request.getParameter("orderby");
-				
-				Billing3rdPartyAddressDao dao = SpringUtils.getBean(Billing3rdPartyAddressDao.class);
-				for(Billing3rdPartyAddress ba : dao.findAddresses(searchModeParam, orderByParam, keyword, strLimit1, strLimit2)) {
+				BillingONDataHelp dbObj = new BillingONDataHelp();
+				String search_mode = request.getParameter("search_mode") == null ? "search_name" : request
+						.getParameter("search_mode");
+				String orderBy = request.getParameter("orderby") == null ? "company_name" : request
+						.getParameter("orderby");
+				String where = "";
+				if ("search_name".equals(search_mode)) {
+					String[] temp = keyword.split("\\,\\p{Space}*");
+					if (temp.length > 1) {
+						where = "company_name like '" + StringEscapeUtils.escapeSql(temp[0]) + "%' and company_name like '"
+								+ StringEscapeUtils.escapeSql(temp[1]) + "%'";
+					} else {
+						where = "company_name like '" + StringEscapeUtils.escapeSql(temp[0]) + "%'";
+					}
+				} else {
+					where = search_mode + " like '" + StringEscapeUtils.escapeSql(keyword) + "%'";
+				}
+				String sql = "select * from billing_on_3rdPartyAddress where " + where + " order by " + orderBy + " limit "
+						+ strLimit1 + "," + strLimit2;
+				ResultSet rs = dbObj.searchDBRecord(sql);
+				while (rs.next()) {
 					prop = new Properties();
-					prop.setProperty("id", "" + ba.getId());
-					prop.setProperty("attention", ba.getAttention());
-					prop.setProperty("company_name", ba.getCompanyName());
-					prop.setProperty("address", ba.getAddress());
-					prop.setProperty("city", ba.getCity());
-					prop.setProperty("province", ba.getProvince());
-					prop.setProperty("postcode", ba.getPostalCode());
-					prop.setProperty("telephone", ba.getTelephone());
-					prop.setProperty("fax", ba.getFax());
+					prop.setProperty("id", rs.getString("id"));
+					prop.setProperty("attention", rs.getString("attention"));
+					prop.setProperty("company_name", rs.getString("company_name"));
+					prop.setProperty("address", rs.getString("address"));
+					prop.setProperty("city", rs.getString("city"));
+					prop.setProperty("province", rs.getString("province"));
+					prop.setProperty("postcode", rs.getString("postcode"));
+					prop.setProperty("telephone", rs.getString("telephone"));
+					prop.setProperty("fax", rs.getString("fax"));
 					vec.add(prop);
 				}
 			}
 %>
 <%@ page errorPage="../../../appointment/errorpage.jsp"
 	import="java.util.*,java.sql.*,java.net.*"%>
+<%@ page import="oscar.oscarBilling.ca.on.data.BillingONDataHelp"%>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
 <%@ page import="org.apache.commons.lang.WordUtils"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
@@ -70,6 +88,7 @@
 <link rel="stylesheet" type="text/css" href="billingON.css" />
 <script language="JavaScript">
 
+<!--
 		function setfocus() {
 		  this.focus();
 		  document.forms[0].keyword.focus();
@@ -81,14 +100,8 @@
 		}
 		<%if(param.length()>0) {%>
 		function typeInData1(data) {
-			if( opener.updateElement != undefined ) {
-				opener.updateElement("<%=param%>", data);
-			}
-			else {
-	   	  		opener.<%=param%> = data;
-			}
-	   	  
-		  	self.close();		 
+		  self.close();
+		  opener.<%=param%> = data;
 		}
 		<%if(param2.length()>0) {%>
 		function typeInData2(data1, data2) {
@@ -97,14 +110,16 @@
 		  self.close();
 		}
 		<%}}%>
-
+-->
 
       </script>
 </head>
-<body bgcolor="white" bgproperties="fixed" onload="setfocus()" topmargin="0" leftmargin="0" rightmargin="0">
-	
-<form method="post" name="titlesearch" action="onSearch3rdBillAddr.jsp" onSubmit="return check();">	
-<table border="0" cellpadding="1" cellspacing="0" width="100%" class="myDarkGreen">
+<body bgcolor="white" bgproperties="fixed" onload="setfocus()"
+	topmargin="0" leftmargin="0" rightmargin="0">
+<table border="0" cellpadding="1" cellspacing="0" width="100%"
+	class="myDarkGreen">
+	<form method="post" name="titlesearch" action="onSearch3rdBillAddr.jsp"
+		onSubmit="return check();">
 	<tr>
 		<td class="searchTitle" colspan="4"><font color="white">Search
 		Address</font></td>
@@ -133,20 +148,20 @@
 	<tr>
 		<td align="left">Results based on keyword(s): <%=keyword == null ? "" : keyword%></td>
 	</tr>
+	</form>
 </table>
-</form>
 <center>
-<table width="100%" border="0" cellpadding="0" cellspacing="2" class="myYellow">
+<table width="100%" border="0" cellpadding="0" cellspacing="2"
+	class="myYellow">
 	<tr class="title">
-		<th width="20%">Attention</th>
-		<th width="20%">Company name</th>
-		<th width="25%">Address</th>
-		<th width="10%">City</th>
-		<th width="10%">Postcode</th>
-		<th>Phone</th>
+		<th width="20%">Attention</b></th>
+		<th width="20%">Company name</b></th>
+		<th width="25%">Address</b></th>
+		<th width="10%">City</b></th>
+		<th width="10%">Postcode</b></th>
+		<th>Phone</b></th>
 		<!--  >th width="20%">Fax</b></th-->
 	</tr>
-	
 	<%for (int i = 0; i < vec.size(); i++) {
 					prop = (Properties) vec.get(i);
 					String bgColor = i % 2 == 0 ? "#EEEEFF" : "ivory";
@@ -163,8 +178,8 @@
 							+ prop.getProperty("city", "") + "')";
 
 					%>
-	<tr align="center" bgcolor="<%=bgColor%>"
-		onMouseOver="this.style.cursor='pointer';this.style.backgroundColor='pink';"
+	<tr align="center" bgcolor="<%=bgColor%>" align="center"
+		onMouseOver="this.style.cursor='hand';this.style.backgroundColor='pink';"
 		onMouseout="this.style.backgroundColor='<%=bgColor%>';"
 		onClick="<%=StringEscapeUtils.escapeHtml(strOnClick)%>">
 		<td><%=prop.getProperty("attention", "")%></td>

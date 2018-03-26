@@ -17,36 +17,20 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 --%>
+<%
+if(session.getValue("user") == null) response.sendRedirect("../logout.htm");
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_billing" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
+String curUser_no = (String) session.getAttribute("user");String userfirstname = (String) session.getAttribute("userfirstname");String userlastname = (String) session.getAttribute("userlastname");
 %>
 
-<%
-String curUser_no = (String) session.getAttribute("user");
-%>
-
-<%@ page import="java.sql.*, java.util.*,java.net.*, oscar.*" errorPage="errorpage.jsp"%>
+<%@ page import="java.sql.*, java.util.*,java.net.*, oscar.*"
+	errorPage="errorpage.jsp"%>
 <%@ page import="oscar.oscarBilling.ca.on.pageUtil.*"%>
 <%@ page import="oscar.oscarBilling.ca.on.data.*"%>
 
-<%@page import="org.oscarehr.util.SpringUtils" %>
-<%@page import="org.oscarehr.common.dao.BillingDao" %>
-<%@page import="org.oscarehr.common.model.Billing" %>
-<%
-	BillingDao billingDao = SpringUtils.getBean(BillingDao.class);
-%>
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean"
+	scope="session" />
+<%@ include file="dbBilling.jspf"%>
 
 <html>
 <head>
@@ -87,11 +71,7 @@ if (billCode.substring(0,1).compareTo("B") == 0) {
 		BillingCorrectionPrep dbObj = new BillingCorrectionPrep();
 		rowsAffected = dbObj.deleteBilling(request.getParameter("billing_no"),"D", curUser_no)? 1 : 0;
 	} else {
-		 Billing b = billingDao.find(Integer.parseInt(request.getParameter("billing_no")));
-		   if(b != null) {
-			   b.setStatus("D");
-			   billingDao.merge(b);
-		   }
+		rowsAffected = apptMainBean.queryExecuteUpdate(request.getParameter("billing_no"),"delete_bill");
 	}
 %>
 

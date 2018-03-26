@@ -50,15 +50,11 @@ public final class RxAddReactionAction extends Action {
             String id = request.getParameter("ID");
             String name = request.getParameter("name");
             String type = request.getParameter("type");
-            String allergyToArchive = request.getParameter("allergyToArchive");
-            String nkdaId = request.getParameter("nkdaId");
             
             
-            request.setAttribute("drugrefId",id);
+            request.setAttribute("allergyId",id);
             request.setAttribute("name",name);
             request.setAttribute("type", type);
-            request.setAttribute("allergyToArchive", allergyToArchive);
-            request.setAttribute("nkdaId", nkdaId);
             
 
             return (mapping.findForward("success"));

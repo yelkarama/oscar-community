@@ -23,21 +23,6 @@
     Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_form" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_form");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
@@ -55,41 +40,32 @@
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="admin.admin.btnImportFormData" /></title>
-<link rel="stylesheet" type="text/css" href="<%= request.getContextPath() %>/js/jquery_css/smoothness/jquery-ui-1.10.2.custom.min.css"/>
-<script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery-1.9.1.js"></script>
-<script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery-ui-1.10.2.custom.min.js"></script>
-<script>
-$(function() {
-    $( document ).tooltip();
-  });
-</script>
 </head>
 
-<body>
-
-
-
-<div class="well">
-
-<h3><bean:message key="admin.admin.btnImportFormData" /></h3>
-
-<html:form action="/form/xmlUpload.do" method="POST" enctype="multipart/form-data">
-
+<body bgcolor="#FFFFFF" text="#000000">
+<p><font face="Arial, Helvetica, sans-serif" size="2"><b><bean:message
+	key="admin.admin.btnImportFormData" /></b></font></p>
+<html:form action="/form/xmlUpload.do" method="POST"
+	enctype="multipart/form-data">
+	<font face="Arial, Helvetica, sans-serif" size="2"> </font>
 	<html:errors />
+	<table width="400" border="0">
+		<tr>
+			<td width="181"><b><font face="Arial, Helvetica, sans-serif"
+				size="2">Select Data (in zip format)</font></b></td>
+			<td width="209"><font face="Arial, Helvetica, sans-serif"
+				size="2"> <input type="file" name="file1" value=""></font></td>
+		</tr>
+		<tr>
+			<td width="181"><input type="submit" name="Submit"
+				value="<bean:message key="admin.admin.btnImportFormData"/>">
+			</td>
+			<td width="209">&nbsp;</td>
+		</tr>
+	</table>
 
-
-
-Select data in zip format:<br /> 
-
-<input type="file" name="file1" value="">
-<span title="<bean:message key="global.uploadWarningBody"/>" style="vertical-align:middle;font-family:arial;font-size:20px;font-weight:bold;color:#ABABAB;cursor:pointer"><img border="0" src="../images/icon_alertsml.gif"/></span></span>
-        
- <input type="submit" name="Submit" class="btn btn-primary" value="Import">
-
-<p><i class="icon-info-sign"></i> Use this function to import data for a specific form into the OSCAR database</p>
-		
+	<p><font face="Arial, Helvetica, sans-serif" size="2"> </font></p>
+	<p>&nbsp;</p>
 </html:form>
-
-</div>
 </body>
 </html:html>

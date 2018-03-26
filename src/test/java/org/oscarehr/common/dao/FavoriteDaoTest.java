@@ -34,7 +34,11 @@ import org.oscarehr.util.SpringUtils;
 
 public class FavoriteDaoTest extends DaoTestFixtures {
 
-	protected FavoriteDao dao = SpringUtils.getBean(FavoriteDao.class);
+	private FavoriteDao dao = SpringUtils.getBean(FavoriteDao.class);
+
+	public FavoriteDaoTest() {
+	}
+
 
 	@Before
 	public void before() throws Exception {
@@ -49,12 +53,4 @@ public class FavoriteDaoTest extends DaoTestFixtures {
 
 		assertNotNull(entity.getId());
 	}
-	
-	@Test
-	public void testAll() {
-		dao.findByProviderNo("999");
-		dao.findByEverything(null, null, null, 0, null, 0, 0, null, null, null, null, 0, false, false, null, null, null, false);
-	}
-	
-	
 }

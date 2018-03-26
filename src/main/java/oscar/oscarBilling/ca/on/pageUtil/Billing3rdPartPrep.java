@@ -17,6 +17,7 @@
  */
 package oscar.oscarBilling.ca.on.pageUtil;
 
+import java.sql.SQLException;
 import java.util.Properties;
 
 import oscar.oscarBilling.ca.on.data.JdbcBilling3rdPartImpl;
@@ -51,11 +52,11 @@ public class Billing3rdPartPrep {
 		return ret;
 	}
         
-    public Properties getGst(String invNo) {
-         Properties ret = new Properties();
-         ret = dbObj.getGstTotal(invNo);
-         return ret;
-    }
+        public Properties getGst(String invNo) throws SQLException{
+                Properties ret = new Properties();
+                ret = dbObj.getGstTotal(invNo);
+                return ret;
+        }
 
 	public boolean updateKeyValue(String billingNo, String demoNo, String key,
 			String value) {

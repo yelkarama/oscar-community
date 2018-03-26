@@ -24,7 +24,6 @@
 package org.oscarehr.PMmodule.model;
 
 import java.io.Serializable;
-import java.util.Date;
 
 public class ProgramSignature implements Serializable {
 	public Integer id;
@@ -33,7 +32,7 @@ public class ProgramSignature implements Serializable {
 	public String providerId;
 	public String providerName;
 	public String caisiRoleName;
-	public java.util.Date updateDate = new Date();
+	public java.util.Date updateDate;
 	private int hashCode = Integer.MIN_VALUE;
 	
 	public ProgramSignature() {
@@ -86,9 +85,9 @@ public class ProgramSignature implements Serializable {
 	
 	public boolean equals (Object obj) {
 		if (null == obj) return false;
-		if (!(obj instanceof ProgramSignature)) return false;
+		if (!(obj instanceof org.oscarehr.PMmodule.model.Bed)) return false;
 		else {
-			ProgramSignature bed = (ProgramSignature) obj;
+			org.oscarehr.PMmodule.model.Bed bed = (org.oscarehr.PMmodule.model.Bed) obj;
 			if (null == this.getId() || null == bed.getId()) return false;
 			else return (this.getId().equals(bed.getId()));
 		}

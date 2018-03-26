@@ -23,26 +23,11 @@
     Ontario, Canada
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_report,_admin.reporting" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_report&type=_admin.reporting");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%
   
 
+  //String orderby = request.getParameter("orderby")!=null?request.getParameter("orderby"):("appointment_date") ;
   String demographic_no = request.getParameter("demographic_no")!=null?request.getParameter("demographic_no"):"0" ;
   String deepcolor = "#CCCCFF", weakcolor = "#EEEEFF" ;
   String strLimit1="0";
@@ -50,15 +35,20 @@ if(!authed) {
   if(request.getParameter("limit1")!=null) strLimit1 = request.getParameter("limit1");
   if(request.getParameter("limit2")!=null) strLimit2 = request.getParameter("limit2");
 %>
-<%@ page import="java.util.*, java.sql.*, oscar.*, java.text.*, java.lang.*,java.net.*,oscar.oscarProvider.data.*" errorPage="../appointment/errorpage.jsp"%>
-<%@ page import="org.oscarehr.util.SpringUtils" %>
-<%@ page import="org.oscarehr.common.dao.EChartDao" %>
-<%@ page import="org.oscarehr.common.model.EChart" %>
+<%@ page
+	import="java.util.*, java.sql.*, oscar.*, java.text.*, java.lang.*,java.net.*,oscar.oscarProvider.data.*"
+	errorPage="../appointment/errorpage.jsp"%>
+<jsp:useBean id="daySheetBean" class="oscar.AppointmentMainBean"
+	scope="page" />
 
 <%
-	EChartDao eChartDao = SpringUtils.getBean(EChartDao.class);
+  String [][] dbQueries=new String[][] {
+//{"search_appt","select appointment_no, appointment_date,start_time, end_time, reason from appointment where demographic_no=? order by ? desc limit ? offset ?" },
+{"search_ect","select eChartId, providerNo, timeStamp, subject, encounter from eChart where demographicNo=? order by timeStamp desc limit ? offset ?" },
+//{"search_splitectsize","select encounter from eChart where demographicNo=? and timeStamp > ? order by timeStamp limit 1" },
+  };
+  daySheetBean.doConfigure(dbQueries);
 %>
-
 <html>
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
@@ -106,6 +96,9 @@ function setfocus() {
 		<th>Provider</th>
 	</tr>
 	<%
+  ResultSet rsdemo = null ;
+  ResultSet rsdemo1 = null ;
+  //boolean bodd = false;
   boolean bfirsttime = true;
   int nItems=0;
   int ectsize=0;
@@ -119,25 +112,36 @@ function setfocus() {
   itemp1[1] = Integer.parseInt(strLimit1);
   itemp1[0] = Integer.parseInt(strLimit2);
 
-  for(EChart eChart : eChartDao.getChartsForDemographic(Integer.parseInt(demographic_no))) {
-  
+  rsdemo = daySheetBean.queryResults(param,itemp1, "search_ect");
+  while (rsdemo.next()) {
     //bodd = bodd?false:true;
 	nItems++;
 	bgcolor = nItems%2==0?"#EEEEFF":"white";
-	datetime = eChart.getTimestamp().toString();
-    ectsize = eChart.getEncounter().length() / 1024;
+	if(rsdemo.getString("timeStamp").length() == 19) {
+		datetime = rsdemo.getString("timeStamp");
+	} else {
+		datetime = rsdemo.getString("timeStamp").substring(0,4) +"-"+ rsdemo.getString("timeStamp").substring(4,6) +"-"+ rsdemo.getString("timeStamp").substring(6,8)+" "+ rsdemo.getString("timeStamp").substring(8,10)+":"+ rsdemo.getString("timeStamp").substring(10,12);
+	}
+    ectsize = rsdemo.getString("encounter").length() / 1024;
 
-	if (eChart.getSubject() != null && eChart.getSubject().equals("SPLIT CHART")) {
+	//if (bfirsttime && splitectsize.equals("-")) {
+		//get the split ect size
+    //    rsdemo1 = daySheetBean.queryResults(new String[] {demographic_no, rsdemo.getString("timeStamp")}, "search_splitectsize");
+    //    while (rsdemo1.next()) {
+    //        splitectsize="" + rsdemo1.getString("encounter").length() / 1024;;
+    //    }
+	//}
+	if (rsdemo.getString("subject") != null && rsdemo.getString("subject").equals("SPLIT CHART")) {
 		splitectsize="" + ectsize;
 		bgcolor = "gold";
 	}
 %>
 	<tr bgcolor="<%=bgcolor%>">
 		<td align="center"><a
-			href="../oscarEncounter/echarthistoryprint.jsp?echartid=<%=eChart.getId()%>&demographic_no=<%=demographic_no%>"><%=datetime%></a></td>
-		<td><%=eChart.getSubject()!=null?eChart.getSubject():""%></td>
+			href="../oscarEncounter/echarthistoryprint.jsp?echartid=<%=rsdemo.getString("eChartId")%>&demographic_no=<%=demographic_no%>"><%=datetime%></a></td>
+		<td><%=rsdemo.getString("subject")!=null?rsdemo.getString("subject"):""%></td>
 		<!--td align="center"><%--=ectsize + "KB" --%></td-->
-		<td><%=ProviderData.getProviderName(eChart.getProviderNo())%></td>
+		<td><%=ProviderData.getProviderName(rsdemo.getString("providerNo"))%></td>
 	</tr>
 	<%
   }

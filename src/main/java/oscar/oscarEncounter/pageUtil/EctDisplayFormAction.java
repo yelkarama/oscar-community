@@ -25,6 +25,7 @@
 
 package oscar.oscarEncounter.pageUtil;
 
+import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -32,6 +33,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
+import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -40,14 +43,13 @@ import org.apache.log4j.Logger;
 import org.apache.struts.util.MessageResources;
 import org.oscarehr.common.dao.EncounterFormDao;
 import org.oscarehr.common.model.EncounterForm;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
-import oscar.OscarProperties;
 import oscar.oscarEncounter.data.EctFormData;
 import oscar.oscarLab.LabRequestReportLink;
 import oscar.util.DateUtils;
+import oscar.util.OscarRoleObjectPrivilege;
 import oscar.util.StringUtils;
 
 public class EctDisplayFormAction extends EctDisplayAction {
@@ -59,26 +61,17 @@ public class EctDisplayFormAction extends EctDisplayAction {
 
 	@Override
     public boolean getInfo(EctSessionBean bean, HttpServletRequest request, NavBarDisplayDAO Dao, MessageResources messages) {
-		long timer=System.currentTimeMillis();
-		
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		
-		String appointmentNo = bean.appointmentNo;
-		if(appointmentNo == null  && request.getSession().getAttribute("cur_appointment_no") != null) {
-			appointmentNo = (String)request.getSession().getAttribute("cur_appointment_no");
-	   
-		}
-    	
-		
-		if (!securityInfoManager.hasPrivilege(loggedInInfo, "_form", "r", null)) {
+
+		boolean a = true;
+		Vector v = OscarRoleObjectPrivilege.getPrivilegeProp("_newCasemgmt.forms");
+		String roleName = (String) request.getSession().getAttribute("userrole") + "," + (String) request.getSession().getAttribute("user");
+		a = OscarRoleObjectPrivilege.checkPrivilege(roleName, (Properties) v.get(0), (Vector) v.get(1));
+		if (!a) {
 			return true; // The link of form won't show up on new CME screen.
 		} else {
 			try {
 
-		        logger.debug("getInfo part1 TimeMs : "+(System.currentTimeMillis()-timer));
-		        timer=System.currentTimeMillis();
-
-		        String winName = "Forms" + bean.demographicNo;
+				String winName = "Forms" + bean.demographicNo;
 				StringBuilder url = new StringBuilder("popupPage(600, 700, '" + winName + "', '" + request.getContextPath() + "/oscarEncounter/formlist.jsp?demographic_no=" + bean.demographicNo + "')");
 
 				// set text for lefthand module title
@@ -103,28 +96,14 @@ public class EctDisplayFormAction extends EctDisplayAction {
 				List<EncounterForm> encounterForms = encounterFormDao.findAll();
 				Collections.sort(encounterForms, EncounterForm.BC_FIRST_COMPARATOR);
 				
-				logger.debug("getInfo part2 TimeMs : "+(System.currentTimeMillis()-timer));
-		        timer=System.currentTimeMillis();
-
 				String BGCOLOUR = request.getParameter("hC");
 				for (EncounterForm encounterForm : encounterForms) {
-					if (encounterForm.getFormName().equalsIgnoreCase("Discharge Summary")) {
-						String caisiProperty = OscarProperties.getInstance().getProperty("caisi");
-						if (caisiProperty != null && (caisiProperty.equalsIgnoreCase("yes")
-								||caisiProperty.equalsIgnoreCase("true")
-								||caisiProperty.equalsIgnoreCase("on"))) {
-							; // form in
-						}
-						else {	
-							continue; //form out
-						}
-					}
 					winName = encounterForm.getFormName() + bean.demographicNo;
 
 					String table = encounterForm.getFormTable();
 					if (!table.equalsIgnoreCase("")) {
 						new EctFormData();
-						EctFormData.PatientForm[] pforms = EctFormData.getPatientFormsFromLocalAndRemote(loggedInInfo, bean.demographicNo, table);
+						EctFormData.PatientForm[] pforms = EctFormData.getPatientFormsFromLocalAndRemote(bean.demographicNo, table);
 						// if a form has been started for the patient, create a module item for it
 						if (pforms.length > 0) {	
 														
@@ -152,10 +131,12 @@ public class EctDisplayFormAction extends EctDisplayAction {
 
 							if(table.equals("formLabReq07")) {
 								Long reportId = null;
-								
-								HashMap<String,Object> res = LabRequestReportLink.getLinkByRequestId("formLabReq07",Long.valueOf(pfrm.getFormId()));
-								reportId = (Long)res.get("report_id");
-								
+								try {
+									HashMap<String,Object> res = LabRequestReportLink.getLinkByRequestId("formLabReq07",Long.valueOf(pfrm.getFormId()));
+									reportId = (Long)res.get("report_id");
+								}catch(SQLException e) {
+									logger.error("error",e);
+								}
 								if(reportId == null) {
 									strTitle.insert(0,"*");
 									strTitle.append("*");
@@ -163,17 +144,7 @@ public class EctDisplayFormAction extends EctDisplayAction {
 							}
 							
 							hash = Math.abs(winName.hashCode());
-							url = new StringBuilder(
-									"popupPage(700,960,'" + hash + "started', '" +
-							        request.getContextPath() +
-							        "/form/forwardshortcutname.jsp?formname="
-							        + encounterForm.getFormName() +
-							        "&demographic_no=" + bean.demographicNo +
-							        (pfrm.getRemoteFacilityId()!=null?"&remoteFacilityId="+pfrm.getRemoteFacilityId():"") +
-							        (appointmentNo!=null?"&appointmentNo="+appointmentNo:"")
-										        
-							        +"&formId="+pfrm.getFormId() + "');");
-
+							url = new StringBuilder("popupPage(700,960,'" + hash + "started', '" + request.getContextPath() + "/form/forwardshortcutname.jsp?formname=" + encounterForm.getFormName() + "&demographic_no=" + bean.demographicNo + (pfrm.getRemoteFacilityId()!=null?"&remoteFacilityId="+pfrm.getRemoteFacilityId()+"&formId="+pfrm.getFormId():"")+"');");
 							key = StringUtils.maxLenString(fullTitle, MAX_LEN_KEY, CROP_LEN_KEY, ELLIPSES) + "(" + serviceDateStr + ")";
 							key = StringEscapeUtils.escapeJavaScript(key);
 
@@ -197,7 +168,7 @@ public class EctDisplayFormAction extends EctDisplayAction {
 							boolean dontAdd=false;
 							if(table.equals("formONAR")) {
 								//check to see if we have an enhanced one
-								EctFormData.PatientForm[] pf = EctFormData.getPatientFormsFromLocalAndRemote(loggedInInfo, bean.demographicNo, "formONAREnhancedRecord");
+								EctFormData.PatientForm[] pf = EctFormData.getPatientFormsFromLocalAndRemote(bean.demographicNo, "formONAREnhanced");
 								if(pf.length>0) {
 									dontAdd=true;
 								}
@@ -210,7 +181,7 @@ public class EctDisplayFormAction extends EctDisplayAction {
 					// we add all unhidden forms to the pop up menu
 					if (!encounterForm.isHidden()) {
 						hash = Math.abs(winName.hashCode());
-						url = new StringBuilder("popupPage(700,960,'" + hash + "new', '" + encounterForm.getFormValue() + bean.demographicNo + "&formId=0&provNo=" + bean.providerNo + "&parentAjaxId=" + cmd + ((appointmentNo!=null)?"&appointmentNo="+ appointmentNo:"") +"')");
+						url = new StringBuilder("popupPage(700,960,'" + hash + "new', '" + encounterForm.getFormValue() + bean.demographicNo + "&formId=0&provNo=" + bean.providerNo + "&parentAjaxId=" + cmd + "')");
 						Dao.addPopUpUrl(url.toString());
 						key = StringUtils.maxLenString(encounterForm.getFormName(), MAX_LEN_KEY, CROP_LEN_KEY, ELLIPSES) + " (new)";
 						Dao.addPopUpText(encounterForm.getFormName());
@@ -221,10 +192,6 @@ public class EctDisplayFormAction extends EctDisplayAction {
 						javascript.append(js);
 					}
 				}
-				
-				logger.debug("getInfo part3 TimeMs : "+(System.currentTimeMillis()-timer));
-		        timer=System.currentTimeMillis();
-
 				url = new StringBuilder("return !showMenu('" + menuId + "', event);");
 				Dao.setRightURL(url.toString());
 
@@ -237,8 +204,6 @@ public class EctDisplayFormAction extends EctDisplayAction {
 				logger.error("EctDisplayFormAction SQL ERROR:", e);
 				return false;
 			}
-
-			logger.debug("getInfo part4 TimeMs : "+(System.currentTimeMillis()-timer));
 
 			return true;
 		}

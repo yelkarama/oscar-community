@@ -66,7 +66,6 @@ import org.oscarehr.common.dao.OscarKeyDao;
 import org.oscarehr.common.dao.PublicKeyDao;
 import org.oscarehr.common.model.OscarKey;
 import org.oscarehr.common.model.OtherId;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
@@ -78,16 +77,10 @@ import oscar.oscarLab.ca.all.upload.handlers.MessageHandler;
 import oscar.oscarLab.ca.all.util.Utilities;
 
 public class LabUploadAction extends Action {
-	private static Logger logger = MiscUtils.getLogger();
+	protected static Logger logger = Logger.getLogger(LabUploadAction.class);
 
 	@Override
 	public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		/*
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_lab", "w", null)) {
-			throw new SecurityException("missing required security object (_lab)");
-		}*/
-		
 		LabUploadForm frm = (LabUploadForm) form;
 		FormFile importFile = frm.getImportFile();
 
@@ -106,19 +99,14 @@ public class LabUploadAction extends Action {
 
 			InputStream is = decryptMessage(importFile.getInputStream(), key, clientKey);
 			String fileName = importFile.getFileName();
-                        String filePath = null;
-                        if (type.equals("PDFDOC")) {
-                            filePath = Utilities.savePdfFile(is,fileName);
-                        } else {
-                            filePath = Utilities.saveFile(is, fileName);
-                        }
+			String filePath = Utilities.saveFile(is, fileName);
 			importFile.getInputStream().close();
 			File file = new File(filePath);
 
 			if (validateSignature(clientKey, signature, file)) {
 				logger.debug("Validated Successfully");
 				MessageHandler msgHandler = HandlerClassFactory.getHandler(type);
-                                
+
 				if(type.equals("HHSEMR") && OscarProperties.getInstance().getProperty("lab.hhsemr.filter_ordering_provider", "false").equals("true")) {
                 	logger.info("Applying filter to HHS EMR lab");
                 	String hl7Data = FileUtils.readFileToString(file, "UTF-8");
@@ -138,7 +126,7 @@ public class LabUploadAction extends Action {
 				try {
 					int check = FileUploadCheck.addFile(file.getName(), is, "0");
 					if (check != FileUploadCheck.UNSUCCESSFUL_SAVE) {
-						if ((audit = msgHandler.parse(loggedInInfo, service, filePath, check, request.getRemoteAddr())) != null) {
+						if ((audit = msgHandler.parse(service, filePath, check)) != null) {
 							outcome = "uploaded";
 							httpCode = HttpServletResponse.SC_OK;
 						} else {
@@ -183,6 +171,8 @@ public class LabUploadAction extends Action {
 	 */
 	public static InputStream decryptMessage(InputStream is, String skey, PublicKey pkey) {
 
+		Base64 base64 = new Base64(0);
+
 		// Decrypt the secret key and the message
 		try {
 
@@ -192,7 +182,7 @@ public class LabUploadAction extends Action {
 			// Decrypt the secret key using the servers private key
 			Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
 			cipher.init(Cipher.DECRYPT_MODE, key);
-			byte[] newSecretKey = cipher.doFinal(Base64.decodeBase64(skey));
+			byte[] newSecretKey = cipher.doFinal(base64.decode(skey.getBytes(MiscUtils.ENCODING)));
 
 			// Decrypt the message using the secret key
 			SecretKeySpec skeySpec = new SecretKeySpec(newSecretKey, "AES");
@@ -214,6 +204,7 @@ public class LabUploadAction extends Action {
 	 * Check that the signature 'sigString' matches the message InputStream 'msgIS' thus verifying that the message has not been altered.
 	 */
 	public static boolean validateSignature(PublicKey key, String sigString, File input) {
+		Base64 base64 = new Base64(0);
 		byte[] buf = new byte[1024];
 
 		try {
@@ -229,7 +220,7 @@ public class LabUploadAction extends Action {
 			}
 			msgIs.close();
 
-			return (sig.verify(Base64.decodeBase64(sigString)));
+			return (sig.verify(base64.decode(sigString.getBytes(MiscUtils.ENCODING))));
 
 		} catch (Exception e) {
 			logger.debug("Could not validate signature: " + e);
@@ -244,6 +235,7 @@ public class LabUploadAction extends Action {
 	public static ArrayList<Object> getClientInfo(String service) {
 
 		PublicKey Key = null;
+		Base64 base64 = new Base64(0);
 		String keyString = "";
 		String type = "";
 		byte[] publicKey;
@@ -258,7 +250,7 @@ public class LabUploadAction extends Action {
 				type = publicKeyObject.getType();
 			}
 
-			publicKey = Base64.decodeBase64(keyString);
+			publicKey = base64.decode(keyString.getBytes(MiscUtils.ENCODING));
 			X509EncodedKeySpec pubKeySpec = new X509EncodedKeySpec(publicKey);
 			KeyFactory keyFactory = KeyFactory.getInstance("RSA");
 			Key = keyFactory.generatePublic(pubKeySpec);
@@ -278,6 +270,7 @@ public class LabUploadAction extends Action {
 	private static PrivateKey getServerPrivate() {
 
 		PrivateKey Key = null;
+		Base64 base64 = new Base64(0);
 		byte[] privateKey;
 
 		try {
@@ -285,7 +278,7 @@ public class LabUploadAction extends Action {
 			OscarKey oscarKey = oscarKeyDao.find("oscar");
 			logger.info("oscar key: " + oscarKey);
 
-			privateKey = Base64.decodeBase64(oscarKey.getPrivateKey());
+			privateKey = base64.decode(oscarKey.getPrivateKey().getBytes(MiscUtils.ENCODING));
 			PKCS8EncodedKeySpec privKeySpec = new PKCS8EncodedKeySpec(privateKey);
 			KeyFactory keyFactory = KeyFactory.getInstance("RSA");
 			Key = keyFactory.generatePrivate(privKeySpec);

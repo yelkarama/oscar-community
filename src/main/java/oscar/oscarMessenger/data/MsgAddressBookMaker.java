@@ -26,51 +26,50 @@
 package oscar.oscarMessenger.data;
 
 
-import java.util.List;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
-import org.oscarehr.common.dao.GroupMembersDao;
-import org.oscarehr.common.dao.GroupsDao;
-import org.oscarehr.common.dao.OscarCommLocationsDao;
-import org.oscarehr.common.model.Groups;
-import org.oscarehr.common.model.OscarCommLocations;
-import org.oscarehr.common.model.Provider;
-import org.oscarehr.util.SpringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import oscar.oscarDB.DBHandler;
 import oscar.oscarMessenger.docxfer.util.MsgCommxml;
+import oscar.oscarMessenger.docxfer.util.MsgUtil;
 
 // This is a modified version of oscar.comm.client.AddressBook
 public class MsgAddressBookMaker
 {
-	private OscarCommLocationsDao oscarCommLocationsDao = SpringUtils.getBean(OscarCommLocationsDao.class);
-
-	
     // Update the local address book and return true if changed
-    public boolean updateAddressBook() {
+    public boolean updateAddressBook() throws SQLException
+    {
         Document doc = MsgCommxml.newDocument();
 
         Element addressBook = doc.createElement("addressBook");
 
         addressBook.appendChild(this.getChildren(doc, 0, ""));
 
-        if(!oscarCommLocationsDao.findByCurrent1(1).isEmpty())
+        ResultSet rs = DBHandler.GetSQL("SELECT addressBook FROM oscarcommlocations WHERE current1 = 1");
+        if(rs.next())
         {
             String newAddressBook = MsgCommxml.toXML(addressBook);
-            
-            List<OscarCommLocations> ls = oscarCommLocationsDao.findByCurrent1(1);
-            for(OscarCommLocations l:ls) {
-            	l.setAddressBook(newAddressBook);
-            	oscarCommLocationsDao.merge(l);
-            }
-       
+
+            //if((oscar.Misc.getString(rs,"addressBook")==null) /*|| (oscar.Misc.getString(rs,"addressBook").equals(newAddressBook)==false)*/)
+            //{
+                DBHandler.RunSQL("UPDATE oscarcommlocations SET addressBook = '" + MsgUtil.replaceQuote(newAddressBook) + "' WHERE current1 = 1");
+            //}
+            //else
+            //{
+            //    addressBook = null;
+            //}
         }
+        rs.close();
 
         return (addressBook != null);
     }
 
     // Recursive function to get the children in a group
-    private Element getChildren(Document doc, int groupId, String desc) {
+    private Element getChildren(Document doc, int groupId, String desc) throws SQLException
+    {
         Element group = doc.createElement("group");
         if(desc.length()>0)
         {
@@ -78,25 +77,35 @@ public class MsgAddressBookMaker
             group.setAttribute("desc", desc);
         }
 
-        GroupsDao dao = SpringUtils.getBean(GroupsDao.class);
-        for(Groups g : dao.findByParentId(groupId))
+        String sql = "SELECT * FROM groups_tbl WHERE parentID = " + groupId;
+
+        ResultSet rs = DBHandler.GetSQL(sql);
+
+        while(rs.next())
         {
-            Element subGrp = getChildren(doc, g.getId(), g.getGroupDesc());
+            Element subGrp = getChildren(doc, rs.getInt("groupID"), oscar.Misc.getString(rs, "groupDesc"));
 
             if(subGrp.hasChildNodes())
             {
                 group.appendChild(subGrp);
             }
         }
-        
-        GroupMembersDao gDao = SpringUtils.getBean(GroupMembersDao.class);
-        for(Object[] g : gDao.findMembersByGroupId(groupId)) {
-        	Provider p = (Provider) g[1]; 
-        	
+        rs.close();
+
+        sql = "SELECT p.provider_no, p.last_name, p.first_name "
+            + "FROM groupMembers_tbl g INNER JOIN provider p ON g.provider_No = p.provider_no "
+            + "WHERE groupID = " + groupId + " ORDER BY p.last_name, p.first_name";
+
+        rs = DBHandler.GetSQL(sql);
+
+        while(rs.next())
+        {
             Element address = MsgCommxml.addNode(group, "address");
-            address.setAttribute("id", p.getProviderNo());
-            address.setAttribute("desc", p.getFormattedName());
+            address.setAttribute("id", oscar.Misc.getString(rs, "provider_no"));
+            address.setAttribute("desc", new String(oscar.Misc.getString(rs, "last_name") + ", " + oscar.Misc.getString(rs, "first_name")));
         }
+        rs.close();
+
         return group;
     }
 

@@ -35,14 +35,14 @@ import org.oscarehr.util.SpringUtils;
 
 public class TeleplanC12DaoTest extends DaoTestFixtures {
 
-	public TeleplanC12Dao dao = SpringUtils.getBean(TeleplanC12Dao.class);
+	private TeleplanC12Dao dao = SpringUtils.getBean(TeleplanC12Dao.class);
 
 	public TeleplanC12DaoTest() {
 	}
 
 	@Before
 	public void before() throws Exception {
-		SchemaUtils.restoreTable("teleplanC12", "teleplanS21");
+		SchemaUtils.restoreTable("teleplanC12");
 	}
 
 	@Test
@@ -51,20 +51,5 @@ public class TeleplanC12DaoTest extends DaoTestFixtures {
 		EntityDataGenerator.generateTestDataForModelClass(entity);
 		dao.persist(entity);
 		assertNotNull(entity.getId());
-	}
-	
-	@Test
-	public void testFindCurrent() {
-		assertNotNull(dao.findCurrent());
-	}
-	
-	@Test
-	public void testFindByOfficeClaimNo() {
-		assertNotNull(dao.findByOfficeClaimNo("100"));
-	}
-	
-	@Test
-	public void testFindRejected() {
-		assertNotNull(dao.findRejected());
 	}
 }

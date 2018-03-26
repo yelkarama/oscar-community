@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <%--
 
     Copyright (c) 2001-2002. Department of Family Medicine, McMaster University. All Rights Reserved.
@@ -25,25 +24,6 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_demographic,_demographicExport" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_demographic&type=_demographicExport");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-<%@page import="org.oscarehr.util.SpringUtils"%>
-<%@page import="org.oscarehr.sharingcenter.SharingCenterUtil"%>
-<%@page import="org.oscarehr.sharingcenter.dao.AffinityDomainDao"%>
-<%@page import="org.oscarehr.sharingcenter.model.AffinityDomainDataObject"%>
 <%@page
 	import="java.util.*,oscar.oscarDemographic.data.*,oscar.oscarPrevention.*,oscar.oscarProvider.data.*,oscar.util.*,oscar.oscarReport.data.*,oscar.oscarPrevention.pageUtil.*,oscar.oscarDemographic.pageUtil.*"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
@@ -53,6 +33,7 @@
 <c:set var="ctx" value="${pageContext.request.contextPath}" scope="request" />
 
 <%
+  if(session.getAttribute("user") == null) response.sendRedirect("../logout.jsp");
 
   oscar.OscarProperties op = oscar.OscarProperties.getInstance();
   String tmp_dir = op.getProperty("TMP_DIR");
@@ -74,20 +55,26 @@
 //  ArrayList queryArray = searchData.getQueryTypes();
 
   String userRole = (String)session.getAttribute("userrole");
-
-// MARC-HI's Sharing Center
-boolean isSharingCenterEnabled = SharingCenterUtil.isEnabled();
-
-//get all installed affinity domains
-AffinityDomainDao affDao = SpringUtils.getBean(AffinityDomainDao.class);
-List<AffinityDomainDataObject> affinityDomains = affDao.getAllAffinityDomains();
 %>
 
 <html:html locale="true">
+
 <head>
-<title><bean:message key="demographic.demographicexport.title" /></title>
-	
-<link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
+<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
+<!--I18n-->
+<title>Demographic Export</title>
+<script src="../share/javascript/Oscar.js"></script>
+<link rel="stylesheet" type="text/css"
+	href="../share/css/OscarStandardLayout.css">
+<link rel="stylesheet" type="text/css" media="all"
+	href="../share/calendar/calendar.css" title="win2k-cold-1" />
+
+<script type="text/javascript" src="../share/calendar/calendar.js"></script>
+<script type="text/javascript"
+	src="../share/calendar/lang/<bean:message key="global.javascript.calendar"/>"></script>
+<script type="text/javascript" src="../share/calendar/calendar-setup.js"></script>
+
+<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
 
 <SCRIPT LANGUAGE="JavaScript">
 
@@ -167,153 +154,124 @@ function checkAll(all) {
 	frm.exCareElements.checked = false;
     }
 }
-
-function toggle(source) {
-	var c = new Array();
-	c = document.getElementsByTagName('input');
-	for (var i = 0; i < c.length; i++)
-	{
-	    if (c[i].type == 'checkbox')
-	    {
-			c[i].checked = source.checked;
-	    }
-	}
-}
 </SCRIPT>
 
-<style type="text/css">
-	input[type="checkbox"] {
-	    line-height: normal;
-	    margin: 4px 4px 4px;
-	}
-</style>
 
+
+
+<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
 </head>
 
-<body>
+<body class="BodyStyle" vlink="#0000FF">
 <%
 if (!userRole.toLowerCase().contains("admin")) { %>
-    <div class="alert alert-block alert-error">
-    <button type="button" class="close" data-dismiss="alert">&times;</button>
-     <bean:message key="demographic.demographicexport.msgsorry" />
-    </div>
+<p>
+<h2>Sorry! Only administrators can export demographics.</h2>
+
 <%
 } else if (!tmp_dir_ready) { %>
-    <div class="alert alert-block alert-error">
-    <button type="button" class="close" data-dismiss="alert">&times;</button>
-     <bean:message key="demographic.demographicexport.msgerror" />
-    </div>
+<p>
+<h2>Error! Cannot perform demographic export. Please contact support.</h2>
+
 <%
 } else {
 %>
 
-<div class="container-fluid well">
-<h3><bean:message key="demographic.demographicexport.title" /> <small><oscar:help keywords="export demographic" key="app.top1"/></small></h3>
+<table class="MainTable" id="scrollNumber1" name="encounterTable">
+	<tr class="MainTableTopRow">
+		<td style="max-width:200px;" class="MainTableTopRowLeftColumn">
+		Demographic Export</td>
+		<td class="MainTableTopRowRightColumn">
+		<table class="TopStatusBar">
+			<tr>
+				<td>Export Demographic(s)</td>
+				<td>&nbsp;</td>
+				<td style="text-align: right"><oscar:help keywords="export demographic" key="app.top1"/> | <a
+					href="javascript:popupStart(300,400,'About.jsp')"><bean:message
+					key="global.about" /></a> | <a
+					href="javascript:popupStart(300,400,'License.jsp')"><bean:message
+					key="global.license" /></a></td>
+			</tr>
+		</table>
+		</td>
+	</tr>
+	<tr>
+		<td class="MainTableLeftColumn" valign="top" nowrap="nowrap">
+		    <% if (demographicNo== null) { %>
+		    <a href="diabetesExport.jsp">Diabetes Export</a><br>
+            <a href='<c:out value="${ctx}/demographic/cihiExportOMD4.do"></c:out>'>CIHI Export</a><br>
+            <a href='<c:out value="${ctx}/demographic/eRourkeExport.do"></c:out>'>Rourke 2009 Export</a>
+		    <%} %>
+		</td>
+		<td valign="top" class="MainTableRightColumn">
+		    <html:form action="/demographic/DemographicExport" method="get" onsubmit="return checkSelect(patientSet.value);">
+		    <div>
+		    <% if (demographicNo!= null) { %>
+                            <html:hidden property="demographicNo" value="<%=demographicNo%>" />
+                            Exporting Demographic No. <%=demographicNo%>
+		    <%} else {%>
+			    Patient Set: <html:select property="patientSet">
+				    <html:option value="-1">--Select Set--</html:option>
+<%
+/*			    for (int i =0 ; i < queryArray.size(); i++){
+				RptSearchData.SearchCriteria sc = (RptSearchData.SearchCriteria) queryArray.get(i);
+				String qId = sc.id;
+				String qName = sc.queryName;
+*/
+			    for (int i=0; i<sets.size(); i++) {
+				String setName = sets.get(i);
+%>
+				<html:option value="<%=setName%>"><%=setName%></html:option>
+			    <%}%>
+			    </html:select>
+		    <%}%>
+		    </div>
+                    <p><table border="1"><tr><td>
+		       Export Categories:
+		       <table cellpadding="10"><tr><td>
+		       <html:checkbox property="exPersonalHistory">Personal History</html:checkbox><br>
+		       <html:checkbox property="exFamilyHistory">Family History</html:checkbox><br>
+		       <html:checkbox property="exPastHealth">Past Health</html:checkbox><br>
+		       <html:checkbox property="exProblemList">Problem List</html:checkbox><br>
+		       <html:checkbox property="exRiskFactors">Risk Factors</html:checkbox><br>
+		       <html:checkbox property="exAllergiesAndAdverseReactions">Allergies & Adverse Reactions</html:checkbox><br>
+		       <html:checkbox property="exMedicationsAndTreatments">Medications & Treatments</html:checkbox><br>
+		       </td><td>
+		       <html:checkbox property="exImmunizations">Immunizations</html:checkbox><br>
+		       <html:checkbox property="exLaboratoryResults">Laboratory Results</html:checkbox><br>
+		       <html:checkbox property="exAppointments">Appointments</html:checkbox><br>
+		       <html:checkbox property="exClinicalNotes">Clinical Notes</html:checkbox><br>
+		       <html:checkbox property="exReportsReceived">Reports Received</html:checkbox><br>
+		       <html:checkbox property="exCareElements">Care Elements</html:checkbox><br>
+		       <html:checkbox property="exAlertsAndSpecialNeeds">Alerts And Special Needs</html:checkbox>
+		       </td><td>
+			   <input type="button" value="Check All" onclick="checkAll(true);"/><p>
+			   <input type="button" value="Check None" onclick="checkAll(false);"/>
+		       </td></tr></table>
+		   </td></tr></table>
+                       <html:hidden property="pgpReady" value="<%=pgp_ready%>" />
 
-<div class="span2">
-	<% if (demographicNo== null) { %>
-	<a href="diabetesExport.jsp"><bean:message key="demographic.demographicexport.diabetesexport" /></a><br>
-	<a href='<c:out value="${ctx}/demographic/cihiExportOMD4.do"></c:out>'><bean:message key="demographic.demographicexport.cihiexport" /></a><br>
-	<a href='<c:out value="${ctx}/demographic/eRourkeExport.do"></c:out>'><bean:message key="demographic.demographicexport.rourke2009export" /></a>
-	<%} %>
-</div><!--span2-->
-
-<div class="span4">
-
-<html:form action="/demographic/DemographicExport" method="get" onsubmit="return checkSelect(patientSet.value);">
-
-	<% if (demographicNo!= null) { %>
-	<html:hidden property="demographicNo" value="<%=demographicNo%>" />
-	<bean:message key="demographic.demographicexport.exportingdemographicno" /><%=demographicNo%>
-	<%} else {%>
-	<bean:message key="demographic.demographicexport.patientset" /><br>
-	<html:select style="width: 189px" property="patientSet">
-	    <html:option value="-1"><bean:message key="demographic.demographicexport.selectset" /></html:option>
-	<%
-	/*			    for (int i =0 ; i < queryArray.size(); i++){
-	RptSearchData.SearchCriteria sc = (RptSearchData.SearchCriteria) queryArray.get(i);
-	String qId = sc.id;
-	String qName = sc.queryName;
-	*/
-	for (int i=0; i<sets.size(); i++) {
-	String setName = sets.get(i);
-	%>
-	<html:option value="<%=setName%>"><%=setName%></html:option>
-	<%}%>
-	</html:select>
-	<%}%>
-
-	<br>	   
-
-	<bean:message key="demographic.demographicexport.exporttemplate" /><br>
-	<html:select style="width: 189px" property="template">
-		<html:option value="<%=(new Integer(DemographicExportAction4.CMS4)).toString() %>">CMS Spec 4.0</html:option>
-		<html:option value="<%=(new Integer(DemographicExportAction4.E2E)).toString() %>">E2E</html:option>
-	</html:select>
-	   
-<br>
-
-<bean:message key="demographic.demographicexport.exportcategories" /><br>
-
-<input type="checkbox" onClick="toggle(this)" />Select All<br/>
-
-<html:checkbox property="exPersonalHistory"><bean:message key="demographic.demographicexport.personalhistory" /></html:checkbox><br>
-<html:checkbox property="exFamilyHistory"><bean:message key="demographic.demographicexport.familyhistory" /></html:checkbox><br>
-<html:checkbox property="exPastHealth"><bean:message key="demographic.demographicexport.pasthealth" /></html:checkbox><br>
-<html:checkbox property="exProblemList"><bean:message key="demographic.demographicexport.problemlist" /></html:checkbox><br>
-<html:checkbox property="exRiskFactors"><bean:message key="demographic.demographicexport.riskfactors" /></html:checkbox><br>
-<html:checkbox property="exAllergiesAndAdverseReactions"><bean:message key="demographic.demographicexport.allergiesadversereaction" /></html:checkbox><br>
-<html:checkbox property="exMedicationsAndTreatments"><bean:message key="demographic.demographicexport.medicationstreatments" /></html:checkbox><br>
-
-<html:checkbox property="exImmunizations"><bean:message key="demographic.demographicexport.immunization" /></html:checkbox><br>
-<html:checkbox property="exLaboratoryResults"><bean:message key="demographic.demographicexport.laboratoryresults" /></html:checkbox><br>
-<html:checkbox property="exAppointments"><bean:message key="demographic.demographicexport.appointments" /></html:checkbox><br>
-<html:checkbox property="exClinicalNotes"><bean:message key="demographic.demographicexport.clinicalnotes" /></html:checkbox><br>
-<html:checkbox property="exReportsReceived"><bean:message key="demographic.demographicexport.reportsreceived" /></html:checkbox><br>
-<html:checkbox property="exCareElements"><bean:message key="demographic.demographicexport.careelements" /></html:checkbox><br>
-<html:checkbox property="exAlertsAndSpecialNeeds"><bean:message key="demographic.demographicexport.alertsandspecialneeds" /></html:checkbox>                    
-
-<br>
-<html:hidden property="pgpReady" value="<%=pgp_ready%>" />
-		
+		    <p>&nbsp;</p>
 <%  boolean pgpReady = pgp_ready.equals("Yes") ? true : false;
     pgpReady = true; //To be removed after CMS4
     if (!pgpReady) { %>
-                   
-    <div class="alert alert-block alert-error">
-    <button type="button" class="close" data-dismiss="alert">&times;</button>
-     <bean:message key="demographic.demographicexport.msgwarning" />
-    </div>
-
+                    WARNING: PGP Encryption NOT available - cannot export!<br>
 <%  } %>
+                    <input type="submit" value="Export (CMS spec 4.0)" <%=pgpReady?"":"disabled"%> />
+		</html:form></td>
+	</tr>
+	<tr>
+		<td class="MainTableBottomRowLeftColumn">&nbsp;</td>
+		<td class="MainTableBottomRowRightColumn" valign="top">&nbsp;</td>
+	</tr>
+</table>
+<script type="text/javascript">
+    //Calendar.setup( { inputField : "asofDate", ifFormat : "%Y-%m-%d", showsTime :false, button : "date", singleClick : true, step : 1 } );
+</script>
 
-<input class="btn btn-primary" type="submit" value="<bean:message key="export" />"<%=pgpReady?"":"disabled"%> />
-
-<%	if (isSharingCenterEnabled) { %>
-	<!-- Sharing Center Submission -->
-    <br />
-    <br />
-    <div class="pull-left">
-      <select name="affinityDomain" class="pull-left">
-
-        <% for(AffinityDomainDataObject domain : affinityDomains) { %>
-          <option value="<%=domain.getId()%>"><%=domain.getName()%></option>
-        <% } %>
-
-      </select>
-      <input type="submit" class="btn btn-info" id="SendToAffinityDomain" name="SendToAffinityDomain" value="Share">
-    </div>
-<% } %>
-
-</html:form>
-
-</div><!--span4-->
-
-</div><!--container-->
 <%}%>
-
-<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-1.9.1.min.js"></script>
-<script src="<%=request.getContextPath() %>/js/bootstrap.min.js"></script>
-
 </body>
 </html:html>
+<%!
+
+%>

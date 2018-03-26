@@ -33,7 +33,6 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.oscarBilling.ca.bc.MSP.MSPReconcile;
 import oscar.oscarBilling.ca.bc.data.BillingPreference;
@@ -51,7 +50,7 @@ public class ViewBillingPreferencesAction
                                HttpServletResponse servletResponse) {
     BillingPreferencesActionForm frm = (
         BillingPreferencesActionForm) actionForm;
-    BillingPreferencesDAO dao = SpringUtils.getBean(BillingPreferencesDAO.class);
+    BillingPreferencesDAO dao = new BillingPreferencesDAO();
     BillingPreference pref = dao.getUserBillingPreference(frm.getProviderNo());
     //If the user doesn't have a BillingPreference record create one
     if (pref == null) {

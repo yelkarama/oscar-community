@@ -30,15 +30,17 @@ import java.util.List;
 import javax.persistence.Query;
 
 import org.oscarehr.common.model.Allergy;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class AllergyDao extends AbstractDao<Allergy> {
 
 	public AllergyDao() {
 		super(Allergy.class);
 	}
-    
+
     public List<Allergy> findAllergies(Integer demographic_no) {
-    	String sql = "select x from "+modelClass.getSimpleName()+" x where x.demographicNo=?1 order by x.archived,x.severityOfReaction desc";
+    	String sql = "select x from Allergy x where x.demographicNo=?1 order by x.archived,x.severityOfReaction desc";
     	Query query = entityManager.createQuery(sql);
     	query.setParameter(1,demographic_no);
 
@@ -48,7 +50,7 @@ public class AllergyDao extends AbstractDao<Allergy> {
     }
 
     public List<Allergy> findActiveAllergies(Integer demographic_no) {
-    	String sql = "select x from "+modelClass.getSimpleName()+" x where x.demographicNo=?1 and x.archived = 0 order by x.position, x.severityOfReaction";
+    	String sql = "select x from Allergy x where x.demographicNo=?1 and (x.archived = '0' or x.archived is NULL) order by x.position, x.severityOfReaction";
     	Query query = entityManager.createQuery(sql);
     	query.setParameter(1,demographic_no);
 
@@ -58,7 +60,7 @@ public class AllergyDao extends AbstractDao<Allergy> {
     }
 
     public List<Allergy> findActiveAllergiesOrderByDescription(Integer demographic_no) {
-    	String sql = "select x from "+modelClass.getSimpleName()+" x where x.demographicNo=?2 and x.archived = 0 order by x.description";
+    	String sql = "select x from Allergy x where x.demographicNo=?2 and (x.archived = '0' or x.archived is NULL) order by x.description";
     	Query query = entityManager.createQuery(sql);
     	query.setParameter(2,demographic_no);
 
@@ -68,7 +70,7 @@ public class AllergyDao extends AbstractDao<Allergy> {
     }
 
 	public List<Allergy> findByDemographicIdUpdatedAfterDate(Integer demographicId, Date updatedAfterThisDate) {
-		String sqlCommand = "select x from "+modelClass.getSimpleName()+" x where x.demographicNo=?1 and x.lastUpdateDate>?2";
+		String sqlCommand = "select x from Allergy x where x.demographicNo=?1 and x.lastUpdateDate>?2";
 
 		Query query = entityManager.createQuery(sqlCommand);
 		query.setParameter(1, demographicId);
@@ -79,51 +81,15 @@ public class AllergyDao extends AbstractDao<Allergy> {
 
 		return (results);
 	}
-	
-	//for integrator
-	public List<Integer> findDemographicIdsUpdatedAfterDate(Date updatedAfterThisDate) {
-		String sqlCommand = "select x.demographicNo from Allergy x where x.lastUpdateDate>?1";
+
+	public Integer getMaxPosition() {
+		String sqlCommand = "select MAX(position) from Allergy ";
 
 		Query query = entityManager.createQuery(sqlCommand);
-		query.setParameter(1, updatedAfterThisDate);
 
-		@SuppressWarnings("unchecked")
-		List<Integer> results = query.getResultList();
+		Integer pos = (Integer)query.getSingleResult();
 
-		return (results);
+		return pos;
 	}
 
-	/**
-	 * @return results ordered by lastUpdateDate
-	 */
-	public List<Allergy> findByUpdateDate(Date updatedAfterThisDateInclusive, int itemsToReturn) {
-		String sqlCommand = "select x from "+modelClass.getSimpleName()+" x where x.lastUpdateDate>=?1 order by x.lastUpdateDate";
-
-		Query query = entityManager.createQuery(sqlCommand);
-		query.setParameter(1, updatedAfterThisDateInclusive);
-		setLimit(query, itemsToReturn);
-		
-		@SuppressWarnings("unchecked")
-		List<Allergy> results = query.getResultList();
-		return (results);
-	}
-
-	/**
-	 * @return results ordered by lastUpdateDate asc
-	 */
-	public List<Allergy> findByProviderDemographicLastUpdateDate(String providerNo, Integer demographicId, Date updatedAfterThisDateExclusive, int itemsToReturn) {
-		// the providerNo field is always blank right now... we have no idea which provider did the allery entry
-		// String sqlCommand = "select x from "+modelClass.getSimpleName()+" x where x.demographicNo=?1 and x.providerNo=?2 and x.lastUpdateDate>?3 order by x.lastUpdateDate";
-
-		String sqlCommand = "select x from "+modelClass.getSimpleName()+" x where x.demographicNo=?1 and x.lastUpdateDate>?2 order by x.lastUpdateDate";
-
-		Query query = entityManager.createQuery(sqlCommand);
-		query.setParameter(1, demographicId);
-		query.setParameter(2, updatedAfterThisDateExclusive);
-		setLimit(query, itemsToReturn);
-		
-		@SuppressWarnings("unchecked")
-		List<Allergy> results = query.getResultList();
-		return (results);
-	}
 }

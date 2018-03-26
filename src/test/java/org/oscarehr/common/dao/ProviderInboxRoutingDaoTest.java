@@ -40,14 +40,14 @@ import oscar.oscarLab.ca.on.LabResultData;
 
 public class ProviderInboxRoutingDaoTest extends DaoTestFixtures {
 
-	protected ProviderInboxRoutingDao dao = SpringUtils.getBean(ProviderInboxRoutingDao.class);
+	private ProviderInboxRoutingDao dao = SpringUtils.getBean(ProviderInboxRoutingDao.class);
 
 	public ProviderInboxRoutingDaoTest() {
 	}
 
 	@Before
 	public void before() throws Exception {
-		SchemaUtils.restoreTable("providerLabRouting", "incomingLabRules","table_modification");
+		SchemaUtils.restoreTable("providerLabRouting", "incomingLabRules");
 	}
 
 	@Test
@@ -62,7 +62,7 @@ public class ProviderInboxRoutingDaoTest extends DaoTestFixtures {
 	@Test
 	public void testAddToProviderRoutingBox() {
 		try {
-			dao.addToProviderInbox("1", 1, LabResultData.DOCUMENT);
+			dao.addToProviderInbox("1", "1", LabResultData.DOCUMENT);
 		} catch (PersistenceException e) {
 			fail("Error related to JPA configuration");
 		} catch (HibernateException e) {

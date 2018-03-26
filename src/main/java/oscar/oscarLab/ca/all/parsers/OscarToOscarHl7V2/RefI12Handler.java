@@ -127,11 +127,5 @@ public final class RefI12Handler extends ChainnedMessageAdapter<REF_I12> {
 	    // TODO Auto-generated method stub
 	    return null;
     }
-	
-	@Override
-    public String getNteForPID(){
-		// TODO Auto-generated method stub
-	    return null;
-    }
 
 }

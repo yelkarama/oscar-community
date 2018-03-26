@@ -29,23 +29,14 @@
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 
 <%
+    if(session.getAttribute("user") == null ) response.sendRedirect("../logout.jsp");
     String curProvider_no = (String) session.getAttribute("user");
+
+    if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
     
     boolean isSiteAccessPrivacy=false;
-    boolean authed=true;
 %>
-
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin,_admin.userAdmin" rights="*" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_admin&type=_admin.userAdmin");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 
 <security:oscarSec objectName="_site_access_privacy" roleName="<%=roleName$%>" rights="r" reverse="false">
 	<%isSiteAccessPrivacy=true; %>
@@ -66,6 +57,17 @@
 		}
 
     function onsub() {
+    //  if(document.searchprovider.provider_no.value=="" ||
+	  //   document.searchprovider.last_name.value=="" ||
+		// document.searchprovider.first_name.value=="" ||
+	  //   document.searchprovider.provider_type.value=="" 
+		//) {
+    //    alert("<bean:message key="global.msgInputKeyword"/>");
+    //    return false;Added 2 checkboxes for listing provider's in/active status
+    //  } else return true;
+      // do nothing at the moment
+      // check input data in the future 
+      
       // make keyword lower case
       var keyword = document.searchprovider.keyword.value; 
       var keywordLowerCase = keyword.toLowerCase();
@@ -79,8 +81,8 @@
     </script>
 </head>
 
-<body onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0">
-
+<body background="../images/gray_bg.jpg" bgproperties="fixed"
+	onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0">
 <center>
 <table border="0" cellspacing="0" cellpadding="0" width="100%">
 	<tr bgcolor="#486ebd">
@@ -92,29 +94,61 @@
 <table cellspacing="0" cellpadding="2" width="100%" border="0"
 	BGCOLOR="#C4D9E7">
 
-	<form method="post" action="providersearchresults.jsp" name="searchprovider"	onsubmit="return onsub()">
+	<form method="post" action="admincontrol.jsp" name="searchprovider"
+		onsubmit="return onsub()">
 	<tr valign="top">
-		<td rowspan="2" align="right" valign="middle"><font	face="Verdana" color="#0000FF">
-			<b><i><bean:message key="admin.search.formSearchCriteria" /></i></b></font></td>
+		<td rowspan="2" align="right" valign="middle"><font
+			face="Verdana" color="#0000FF"><b><i><bean:message
+			key="admin.search.formSearchCriteria" /></i></b></font></td>
 		<td nowrap><font size="1" face="Verdana" color="#0000FF">
-			<input type="radio" checked name="search_mode" value="search_name" onclick="document.forms['searchprovider'].keyword.focus();">
-			<bean:message key="admin.providersearch.formLastName" /></font></td>
-		<td nowrap><font size="1" face="Verdana" color="#0000FF">
-			<input type="radio" name="search_mode" value="search_providerno" onclick="document.forms['searchprovider'].keyword.focus();">
-			<bean:message key="admin.providersearch.formNo" /></font></td>
-		<td nowrap><font size="1" face="Verdana" color="#0000FF">
-			<input type="checkbox" name="search_status" value="1">
-			<bean:message key="admin.providersearch.formActiveStatus" /><br />
-			<input type="checkbox" name="search_status" value="0">
-			<bean:message key="admin.providersearch.formInactiveStatus" /> </font></td>
-		<td valign="middle" rowspan="2" ALIGN="left"><input type="text"	NAME="keyword" SIZE="17" MAXLENGTH="100"> 
-			<INPUT TYPE="hidden" NAME="orderby" VALUE="last_name"> 
+		<input type="radio" checked name="search_mode" value="search_name"
+			onclick="document.forms['searchprovider'].keyword.focus();"><bean:message
+			key="admin.providersearch.formLastName" /></font></td>
 
-			<INPUT TYPE="hidden" NAME="limit1" VALUE="0"> <INPUT TYPE="hidden" NAME="limit2" VALUE="10"> 
+		<td nowrap><font size="1" face="Verdana" color="#0000FF">
+		<input type="radio" name="search_mode" value="search_providerno"
+			onclick="document.forms['searchprovider'].keyword.focus();"><bean:message
+			key="admin.providersearch.formNo" /></font></td>
+		<td nowrap><font size="1" face="Verdana" color="#0000FF">
+		<input type="checkbox" name="search_status" value="1"><bean:message
+			key="admin.providersearch.formActiveStatus" /><br />
+		<input type="checkbox" name="search_status" value="0"><bean:message
+			key="admin.providersearch.formInactiveStatus" /> </font></td>
+
+		<td valign="middle" rowspan="2" ALIGN="left"><input type="text"
+			NAME="keyword" SIZE="17" MAXLENGTH="100"> <INPUT
+			TYPE="hidden" NAME="orderby" VALUE="last_name"> 
+			<%if (isSiteAccessPrivacy)  {%>	 
+				<INPUT	TYPE="hidden" NAME="dboperation" VALUE="site_provider_search_titlename">
+			<%}
+			  else	  {
+			 %>
+				<INPUT	TYPE="hidden" NAME="dboperation" VALUE="provider_search_titlename">
+			 <%
+			  }
+			%>				
 			
-			<INPUT TYPE="SUBMIT" NAME="button" VALUE=<bean:message key="admin.search.btnSubmit"/> SIZE="17"></td>
+		<INPUT TYPE="hidden" NAME="limit1" VALUE="0"> <INPUT
+			TYPE="hidden" NAME="limit2" VALUE="10"> <INPUT TYPE="hidden"
+			NAME="displaymode" VALUE="Provider_Search"> <INPUT
+			TYPE="SUBMIT" NAME="button"
+			VALUE=<bean:message key="admin.search.btnSubmit"/> SIZE="17"></td>
 	</tr>
 	</form>
+</table>
+
+<p><bean:message
+	key="admin.providersearchrecordshtm.msgInstructions" /></p>
+<hr width="100%" color="orange">
+<table border="0" cellspacing="0" cellpadding="0" width="100%">
+	<tr>
+		<td><a href="admin.jsp"> <img src="../images/leftarrow.gif"
+			border="0" width="25" height="20" align="absmiddle"><bean:message
+			key="global.btnBack" /></a></td>
+		<td align="right"><a href="../logout.jsp"><bean:message
+			key="global.btnLogout" /><img src="../images/rightarrow.gif"
+			border="0" width="25" height="20" align="absmiddle"></a></td>
+	</tr>
 </table>
 
 </center>

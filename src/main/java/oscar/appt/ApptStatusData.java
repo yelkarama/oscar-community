@@ -28,14 +28,12 @@
  */
 package oscar.appt;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
-import org.oscarehr.common.model.AppointmentStatus;
+import org.oscarehr.util.MiscUtils;
 
-import oscar.appt.status.service.impl.AppointmentStatusMgrImpl;
-
+import oscar.oscarBilling.ca.on.data.BillingONDataHelp;
 
 /**
  * Class ApptStatusData : set appt status and get the icon name and link
@@ -105,53 +103,12 @@ public final class ApptStatusData {
             return getStr(aStatus, aTitle);
     }
     
-    /**
-     * Converts the title which is the reference to the resource file to the actual value for this locale
-     * 
-     * @return
-     */
-    public String getTitleString(Locale locale) {
-    	ResourceBundle bundle = ResourceBundle.getBundle("oscarResources",locale);
-    	
-    	String value = "";
-    	if(bundle != null) {
-    		String keyName = getStr(aStatus, aTitle);
-    		if(keyName != null && !keyName.isEmpty()) {
-    			value = bundle.getString(keyName);
-    		}
-    	}
-    
-        return value;
-    }
-    
     public String getBgColor() {
         if (strEditable!=null&&strEditable.equalsIgnoreCase("yes"))
                 return getStr("color");
         else
             return getStr(aStatus, aBgColor);
     }
-
-	/**
-	 *  Pulls in the short letters which represent the appointment status.
-	 *  
-	 *	@Author Trimara Corp.
-	 *	@Return Short letters or null
-	 *
-	 **/
-	public String getShortLetters(){
-		return getStr("short_letters");
-	}
-
-	/**
-	 * Pulls in the colour for the short letters of the appointment.
-	 *
-	 * @Author Trimara Corp.
-	 * @Return An integer representing the hex code for the colour. Null if there is no colour.
-	 *
-	 **/
-	public String getShortLetterColour(){
-		return getStr("short_letter_colour");
-	}
 
     private String getStr(String[] str, String[] tar) {
         String rstr = null;
@@ -189,143 +146,102 @@ public final class ApptStatusData {
         return this.aTitle;
     }
 
-	private String appendStatus(String status, String s) {
-		String temp = "";
-		if (status != null) {
-			if (status.length() == 1) {
-				temp = status + s;
-			} else {
-				temp = status.substring(0, 1) + s;
-			}
-		}
-		return temp;
-	}
+    private String appendStatus(String status, String s) {
+        String temp = null;
+        if (status.length() == 1) {
+            temp = status + s;
+        } else {
+            temp = status.substring(0, 1) + s;
+        }
+        return temp;
+    }
 
-	private String preStatus(String status, String s) {
-		String temp = "";
-		if (status != null) {
-			if (status.length() == 1) {
-				temp = s;
-			} else {
-				temp = s + status.substring(1, 2);
-			}
-		}
-		return temp;
-	}
+    private String preStatus(String status, String s) {
+        String temp = null;
+        if (status.length() == 1) {
+            temp = s;
+        } else {
+            temp = s + status.substring(1, 2);
+        }
+        return temp;
+    }
 
     private String getStr(String kind) {
         String rstr = null;
         String strOtherIcon = "";
         String strStatus = "";
-        
-        
-        List<AppointmentStatus> apptStatuses = AppointmentStatusMgrImpl.getCachedActiveStatuses();
-        
 
-       // Collections.sort(apptStatuses, new BeanComparator("id"));
+        BillingONDataHelp dbObj = new BillingONDataHelp();
+
+        String sql = "select * from appointment_status where active='1' order by id asc";
+        ResultSet rs = dbObj.searchDBRecord(sql);
         
         if (apptStatus.length()>=2){
             strOtherIcon = apptStatus.substring(1,2);
             strStatus = apptStatus.substring(0,1);
         }
-        else {
+        else
             strStatus = apptStatus;
-        }
             
-	    int i = 0;
-	    while(i < apptStatuses.size()) {
-	    	AppointmentStatus s = apptStatuses.get(i); 
-	    	
-	        if (kind.equals("nextstatus")) {
-	            if (strStatus.equals("C")){
-	                i = 0;
-	                s = apptStatuses.get(i);
-	                
-	                rstr = s.getStatus();
-	                if (strOtherIcon.length()==1)
-	                    return rstr + strOtherIcon;
-	                else
-	                    return rstr;
-	            }
-	            
-	            if (strStatus.equals("B")){
-	                return "";
-	            }
-	            
-	            if (strStatus.equals(s.getStatus())){
-	                i++;
-	                s = apptStatuses.get(i);
-	                
-	                while (s.getActive() == 0 && i < apptStatuses.size()) {
-	                	i++;
-	                	s = apptStatuses.get(i);
-	                }
-	                
-	                rstr = s.getStatus();
-	                
-	                if (strOtherIcon.length()==1) {
-	                    return rstr + strOtherIcon;
-	                } else {
-	                    return rstr;
-	                }
-	            }
-	                 
-	        }
 
-	        if (kind.equals("desc")) {
-	            if (strStatus.equals(s.getStatus())){
-	                rstr = s.getDescription();
-	                if (strOtherIcon.length()==1)
-	                    return rstr + "/" + (strOtherIcon.equals("S")?"Signed":"Verified") ;
-	                else   
-	                    return rstr;
-	            }
-	        }
-	        
-	        if (kind.equals("icon")) {
-	            if (strStatus.equals(s.getStatus())){
-	                rstr = s.getIcon();
-	                if (strOtherIcon.length()==1)
-	                    return strOtherIcon + rstr;
-	                else
-	                    return rstr;
-	            }
-	        }
-			// get the short letters, they're just a string
-			if (kind.equals("short_letters")) {
-	            if (strStatus.equals(s.getStatus())){
-	                rstr = s.getShortLetters();
-	                return rstr;
-	            }
-			}
+        try {
+            while (rs.next()) {
+                if (kind.equals("nextstatus")) {
+                    if (strStatus.equals("C")){
+                        rs.first();
+                        rstr = rs.getString("status");
+                        if (strOtherIcon.length()==1)
+                            return rstr + strOtherIcon;
+                        else
+                            return rstr;
+                    }
+                    if (strStatus.equals("B")){
+                        return "";
+                    }
+                    if (strStatus.equals(rs.getString("status"))){
+                        rs.next();
+                        while (Integer.parseInt(rs.getString("active"))==0)
+                            rs.next();
+                        rstr = rs.getString("status");
+                        if (strOtherIcon.length()==1)
+                            return rstr + strOtherIcon;
+                        else
+                            return rstr;
+                    }
+                         
+                }
 
-			// get the short letter colour.  It comes back as an int.
-			if (kind.equals("short_letter_colour")) {
-	            if (strStatus.equals(s.getStatus())){
-	                Integer colour = Integer.valueOf(s.getShortLetterColour());
-			
-					// return null if it's null
-	                if(colour == null){
-						return null;
-					}
+                if (kind.equals("desc")) {
+                    if (strStatus.equals(rs.getString("status"))){
+                        rstr = rs.getString("description");
+                        if (strOtherIcon.length()==1)
+                            return rstr + "/" + (strOtherIcon.equals("S")?"Signed":"Verified") ;
+                        else   
+                            return rstr;
+                    }
+                }
+                
+                if (kind.equals("icon")) {
+                    if (strStatus.equals(rs.getString("status"))){
+                        rstr = rs.getString("icon");
+                        if (strOtherIcon.length()==1)
+                            return strOtherIcon + rstr;
+                        else
+                            return rstr;
+                    }
+                }
 
-					// convert it to a hex number and add a hex code in front
-					return "#" + Integer.toHexString(colour).toUpperCase();
-			
-	            }
-			}
-			if (kind.equals("color")) {
-			    if (strStatus.equals(s.getStatus())){
-			        rstr = s.getColor();
-			        return rstr;
-			    }
-			} 
-            i++;
+                if (kind.equals("color")) {
+                    if (strStatus.equals(rs.getString("status"))){
+                        rstr = rs.getString("color");
+                        return rstr;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+             MiscUtils.getLogger().error("Error", e);
         }
-        
 
         return rstr;
     }
-    
-
 }

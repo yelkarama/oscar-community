@@ -26,7 +26,6 @@
 package oscar.eform.actions;
 
 import java.io.File;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 
 import javax.activation.MimetypesFileTypeMap;
@@ -47,7 +46,6 @@ import oscar.OscarProperties;
  */
 public class DisplayImageAction extends DownloadAction{
 
-	
     /** Creates a new instance of DisplayImageAction */
     public DisplayImageAction() {
     }
@@ -56,13 +54,11 @@ public class DisplayImageAction extends DownloadAction{
                                        HttpServletRequest request,
                                        HttpServletResponse response)
             throws Exception {
-    	
-    	   	
         String fileName = request.getParameter("imagefile");
         //if (fileName.indexOf('/') != -1) return null;  //prevents navigating away from the page.
         String home_dir = OscarProperties.getInstance().getProperty("eform_image");
 
-        response.setHeader("Content-disposition","inline; filename=" + URLEncoder.encode(fileName,"UTF-8"));
+        response.setHeader("Content-disposition","inline; filename=" + fileName);
 
         File file = null;
         try{
@@ -151,7 +147,7 @@ public class DisplayImageAction extends DownloadAction{
 
    /**
      *
-     * @param f String <filename e.g example.jpeg>
+     * @String <filename e.g example.jpeg>
      * This method used to get file extension from a given filename
      * @return String <file extension>
      *

@@ -38,7 +38,7 @@ public enum DischargeReason {
     SOCIAL_BEHAVIOUR_NEEDS_EXCEED_PROVISION,
     WITHDRAWAL_NEEDS_EXCEED_PROVISION,
     MENTAL_HEALTH_NEEDS_EXCEED_PROVISION,
-    OTHER_NEEDS_EXCEED_PROVISION,
+    OTHER_NEEDS_EXCEED_PROVISION,       
     ADMITTED_TO_LTC_FACILITY,
     COMPLETION_WITHOUT_REFERRAL,
     COMPLETION_WITH_REFERRAL,
@@ -47,7 +47,7 @@ public enum DischargeReason {
     SERVICE_PLAN_COMPLETED,
     SUICIDE,
     WITHDRAWL_CLIENT_PREFERENCE
-
+    
     /**
      * See MessageResources_program.properties for string constant explanations for discharge reasons
      */

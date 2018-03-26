@@ -22,24 +22,6 @@
     Toronto, Ontario, Canada
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_report,_admin.reporting" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_report&type=_admin.reporting");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%@page import="org.oscarehr.common.model.Facility"%>
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="java.util.HashMap"%>
 <%@page import="org.oscarehr.util.WebUtils"%>
 <%@page import="java.io.PrintWriter"%>
@@ -47,9 +29,6 @@ if(!authed) {
 <%@page import="java.util.ArrayList"%>
 <%@page import="org.oscarehr.web.OcanReportUIBean"%>
 <%
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-	Facility facility=loggedInInfo.getCurrentFacility();
-   		 
 	int startYear = Integer.parseInt(request.getParameter("startYear"));
 	int startMonth = Integer.parseInt(request.getParameter("startMonth"));
 	int endYear = Integer.parseInt(request.getParameter("endYear"));
@@ -59,7 +38,7 @@ if(!authed) {
 	//response.setHeader("Content-Disposition", "attachment; filename="+OcanReportUIBean.getFilename(startYear,startMonth,1));
 	
 	//ByteArrayOutputStream sos = new ByteArrayOutputStream();
-	OcanReportUIBean.sendSubmissionToIAR(facility,OcanReportUIBean.generateOCANSubmission(facility.getId(), startYear, startMonth,endYear, endMonth, 1,ocanType));
+	OcanReportUIBean.sendSubmissionToIAR(OcanReportUIBean.generateOCANSubmission(startYear, startMonth,endYear, endMonth, 1,ocanType));
 	//String data = sos.toString();
 	
 //	OcanReportUIBean.writeIARExportData(data,response.getOutputStream());

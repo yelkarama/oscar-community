@@ -26,6 +26,8 @@
 package oscar.oscarEncounter.oscarMeasurements.pageUtil;
 
 import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -38,24 +40,17 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
-import org.oscarehr.common.dao.MeasurementGroupStyleDao;
-import org.oscarehr.common.model.MeasurementGroupStyle;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
-import org.oscarehr.util.SpringUtils;
+import org.oscarehr.util.MiscUtils;
+
+import oscar.oscarDB.DBHandler;
 
 
 public class EctDefineNewMeasurementGroupAction extends Action {
 
-	private MeasurementGroupStyleDao dao = SpringUtils.getBean(MeasurementGroupStyleDao.class);
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException
     {
  
-    	if( securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_admin", "w", null) || securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_admin.measurements", "w", null) )  {
-    	
         EctDefineNewMeasurementGroupForm frm = (EctDefineNewMeasurementGroupForm) form;                
         request.getSession().setAttribute("EctDefineNewMeasurementGroupForm", frm);
         
@@ -85,10 +80,7 @@ public class EctDefineNewMeasurementGroupAction extends Action {
         session.setAttribute( "groupName", groupName);
         
         return mapping.findForward("continue");
-        
-		}else{
-			throw new SecurityException("Access Denied!"); //missing required security object (_admin)
-		} 
+
     }
     
     /*****************************************************************************************
@@ -98,27 +90,29 @@ public class EctDefineNewMeasurementGroupAction extends Action {
      ******************************************************************************************/
     private boolean write2Database(String inputGroupName, String styleSheet){
         boolean isWrite2Database = true;
-        
-        for(MeasurementGroupStyle mgs:dao.findAll()) {
-        	String groupName = mgs.getGroupName();
-            if (inputGroupName.compareTo(groupName)==0){
-                isWrite2Database = false;
-                break;
+        try {
+            
+            String sql = "SELECT groupName from measurementGroupStyle ORDER BY groupName";
+            MiscUtils.getLogger().debug("Sql Statement: " + sql);
+            ResultSet rs;
+            for(rs = DBHandler.GetSQL(sql); rs.next(); )
+            {
+                String groupName = oscar.Misc.getString(rs, "groupName");
+                if (inputGroupName.compareTo(groupName)==0){
+                    isWrite2Database = false;
+                    break;
+                }
+            }
+            rs.close();
+            
+            if (isWrite2Database){
+                sql = "INSERT INTO measurementGroupStyle(groupName, cssID) VALUES ('" + inputGroupName + "','" + styleSheet + "')";
+                DBHandler.RunSQL(sql);
             }
         }
-        
-        if (isWrite2Database){
-        	MeasurementGroupStyle mgs = new MeasurementGroupStyle();
-        	mgs.setGroupName(inputGroupName);
-        	try {
-        		mgs.setCssId(Integer.parseInt(styleSheet));
-        	}catch(NumberFormatException e) {
-        		//nothing
-        	}
-        	dao.persist(mgs);
-           
+        catch(SQLException e) {
+            MiscUtils.getLogger().error("Error", e);            
         }
-       
         return isWrite2Database;
     }
 }

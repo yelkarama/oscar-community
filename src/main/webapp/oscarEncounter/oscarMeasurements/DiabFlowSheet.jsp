@@ -8,10 +8,9 @@
     and "gnu.org/licenses/gpl-2.0.html".
 
 --%>
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <% long startTime = System.currentTimeMillis(); %>
 <%@page contentType="text/html"%>
-<%@page import="oscar.oscarDemographic.data.*,java.util.*,oscar.oscarPrevention.*,oscar.oscarEncounter.oscarMeasurements.*,oscar.oscarEncounter.oscarMeasurements.bean.*,java.net.*, oscar.oscarRx.util.*"%>
+<%@page  import="oscar.oscarDemographic.data.*,java.util.*,oscar.oscarPrevention.*,oscar.oscarEncounter.oscarMeasurements.*,oscar.oscarEncounter.oscarMeasurements.bean.*,java.net.*, oscar.oscarRx.util.*"%>
 <%@page import="org.springframework.web.context.support.WebApplicationContextUtils,oscar.log.*"%>
 <%@page import="org.springframework.web.context.WebApplicationContext,oscar.oscarResearch.oscarDxResearch.bean.*"%>
 <%@page import="org.oscarehr.common.dao.FlowSheetCustomizationDao,org.oscarehr.common.model.FlowSheetCustomization"%>
@@ -28,31 +27,28 @@
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar" %>
 <%@ taglib uri="/WEB-INF/rewrite-tag.tld" prefix="rewrite" %>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
 
 <%
-     //int demographic_no = Integer.parseInt(request.getParameter("demographic_no"));
+    if(session.getValue("user") == null) response.sendRedirect("../../logout.jsp");
+    //int demographic_no = Integer.parseInt(request.getParameter("demographic_no"));
+    if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
     String project = request.getContextPath();
-   String demographic_no = request.getParameter("demographic_no");
+    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
+    String demographic_no = request.getParameter("demographic_no");
     String providerNo = (String) session.getAttribute("user");
     String temp = "diab3";
 
     AllergyDao allergyDao = (AllergyDao)SpringUtils.getBean("allergyDao");
 %>
+<oscar:oscarPropertiesCheck property="SPEC3" value="yes">
+    <security:oscarSec roleName="<%=roleName$%>" objectName="_flowsheet" rights="r" reverse="<%=true%>">
+        "You have no right to access this page!"
+        <%
+         LogAction.addLog((String) session.getAttribute("user"), LogConst.NORIGHT+LogConst.READ, LogConst.CON_FLOWSHEET,  temp , request.getRemoteAddr(),demographic_no);
+        response.sendRedirect("../../noRights.html"); %>
+    </security:oscarSec>
+</oscar:oscarPropertiesCheck>
 
-<security:oscarSec roleName="<%=roleName$%>" objectName="_flowsheet" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../securityError.jsp?type=_flowsheet");%>
-	 LogAction.addLog((String) session.getAttribute("user"), LogConst.NORIGHT+LogConst.READ, LogConst.CON_FLOWSHEET,  "diab3" , request.getRemoteAddr(),demographic_no);
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
 
 <%
 boolean dsProblems = false;
@@ -63,7 +59,7 @@ WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplication
 FlowSheetCustomizationDao flowSheetCustomizationDao = (FlowSheetCustomizationDao) ctx.getBean("flowSheetCustomizationDao");
 FlowSheetDrugDao flowSheetDrugDao = (FlowSheetDrugDao) ctx.getBean("flowSheetDrugDao");
 
-List<FlowSheetCustomization> custList = flowSheetCustomizationDao.getFlowSheetCustomizations( temp,(String) session.getAttribute("user"),Integer.parseInt(demographic_no));
+List<FlowSheetCustomization> custList = flowSheetCustomizationDao.getFlowSheetCustomizations( temp,(String) session.getAttribute("user"),demographic_no);
 
 ////Start
 MeasurementTemplateFlowSheetConfig templateConfig = MeasurementTemplateFlowSheetConfig.getInstance();
@@ -124,17 +120,6 @@ ArrayList<String> recomendations = mi.getRecommendations();
     		$('.xsparkline').sparkline(vals2,{type:"line", lineColor:"#f00", fillColor:"", spotRadius:"0", spotColor:"", composite:"true"});
     	});
     </script>
-    
-<script>
-	function getDemographicNo() {
-		return '<%=demographic_no%>';
-	}
-	function getContextPath() {
-		return '<%=request.getContextPath()%>';
-	}
-</script>
-
-	<oscar:customInterface name="renal" section="indicators"/>
 
 	<script type="text/javascript">
 
@@ -209,47 +194,6 @@ ArrayList<String> recomendations = mi.getRecommendations();
 		});
 
 		$("#highlightSliderLength").text(Object.keys(dateRange)[0]);
-
-
-		$("#close-message").click(function() {
-			$("#measurement-view").hide();
-			$("#deleteId").val("");
-		});
-
-
-		$("[id^=mView]").click(function() {
-
-		id=this.id;
-		measId=id.replace('mView-','');
-		msg=$("#mMessage-"+measId).html();
-
-		$("#deleteId").val(measId);
-
-		$("#measurement-view-message").html(msg);
-		$("#measurement-view").show();
-		
-		});
-
-	    $("#deleteButton").click(function(){
-		var link = "<%=request.getContextPath()%>/oscarEncounter/oscarMeasurements/DeleteData2.do";
-		
-		var deletevalue = "id="+$("#deleteId").val()+"&deleteCheckbox="+$("#deleteId").val();
-
-	    	//get scroll position
-	    	var ycoord = $('input[name=ycoord]').val();
-	    	
-		$.ajax({
-		    url: link,
-		    method: 'POST',
-		    data: deletevalue,
-		    success: function(returnData){
-		    	window.location = "<%=request.getContextPath()%>/oscarEncounter/oscarMeasurements/TemplateFlowSheet.jsp?ycoord="+ycoord+"&demographic_no=<%=demographic_no%>&template=diab3";
-
-		    }
-		});
-
-    	});
-	    
 	});
 
 
@@ -269,54 +213,8 @@ ArrayList<String> recomendations = mi.getRecommendations();
             }
     }
 
-    function isNumber(ss){
-		var s = ss.value;
-        var i;
-        for (i = 0; i < s.length; i++){
-            // Check that current character is number.
-            var c = s.charAt(i);
-			if (c == '.') {
-				continue;
-			} else if (((c < "0") || (c > "9"))) {
-                alert('Invalid '+s+' in field ' + ss.name);
-                ss.focus();
-                return false;
-			}
-        }
-        // All characters are numbers.
-        return true;
-    }
-	
-    function wtEnglish2Metric(obj) {
-		if(isNumber(obj) ) {
-			weight = obj.value;
-			weightM = Math.round(weight * 10 * 0.4536) / 10 ;
-			if(confirm("Are you sure you want to change " + weight + " pounds to " + weightM +"kg?") ) {
-				obj.value = weightM;
-			}
-		}
-    }
-
-    function htEnglish2Metric(obj) {
-		height = obj.value;
-		if(height.length > 1 && height.indexOf("'") > 0 ) {
-			feet = height.substring(0, height.indexOf("'"));
-			inch = height.substring(height.indexOf("'"));
-			if(inch.length == 1) {
-				inch = 0;
-			} else {
-				inch = inch.charAt(inch.length-1)=='"' ? inch.substring(0, inch.length-1) : inch;
-				inch = inch.substring(1);
-			}
-			height = Math.round((feet * 30.48 + inch * 2.54) * 10) / 10 ;
-			if(confirm("Are you sure you want to change " + feet + " feet " + inch + " inch(es) to " + height +"cm?") ) {
-				obj.value = height;
-			}
-		}
-    }
-
     function calcBMI() {
-    	if (isNumeric(document.getElementsByName("Weight")[0].value) && isNumeric(document.getElementsByName("Height")[0].value) && document.getElementById("Weight").value!=="" && document.getElementById("Height").value!=="" ) {
+    	if (isNumeric(document.getElementsByName("Weight")[0].value) && isNumeric(document.getElementsByName("Height")[0].value)) {
     		if (document.getElementsByName("Height")[0].value > 0) {
     			document.getElementsByName("BMI")[0].value = (document.getElementsByName("Weight")[0].value/Math.pow(document.getElementsByName("Height")[0].value/100,2)).toFixed(1);
     		}
@@ -346,9 +244,6 @@ ArrayList<String> recomendations = mi.getRecommendations();
 			var y = document.mainForm.ycoord.value;
 
 			window.scrollTo(x, y);
-
-			//if scroll to position then page is being reloaded due to saving so refresh encounter
-			self.opener.location.reload();
 		}
 
 		window.onload = setScrollPos;
@@ -357,6 +252,19 @@ ArrayList<String> recomendations = mi.getRecommendations();
 		window.onclick = getScrollCoords;
 
 	</script>
+
+	<script LANGUAGE="JavaScript">
+
+	<%if (session.getAttribute("textOnEncounter")!=null) {%>
+		if( opener.opener.document.forms["caseManagementEntryForm"] != undefined ){
+	        opener.opener.pasteToEncounterNote('<%=session.getAttribute("textOnEncounter")%>');
+	    }else if( opener.document.forms["caseManagementEntryForm"] != undefined ){
+	        opener.pasteToEncounterNote('<%=session.getAttribute("textOnEncounter")%>');
+		}
+	<%}%>
+
+	</script>
+
 
 	<link rel="stylesheet" type="text/css" href="<%=request.getContextPath() %>/share/css/jquery-ui-1.8.15.custom.draggable.slider.css" />
 	<style type="text/css" media="all">
@@ -518,163 +426,6 @@ ArrayList<String> recomendations = mi.getRecommendations();
     		font-weight: bold;
     		text-decoration: underline;
 		}
-
-
-
-#measurement-view{
-display:none;
-position:fixed;
-top:80px;
-width:600px;
-
-text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
-padding:10px;
-left: 50%;
-margin-left: -300px;
-
-color: #333;
-background-color: #f5f5f5;
-border-color: #eed3d7;
-font-family:"Arial";
-
-border: 1px solid #fbeed5;
--webkit-border-radius: 4px;
--moz-border-radius: 4px;
-border-radius: 4px;
-
--moz-box-shadow: 3px 3px 4px #444;
--webkit-box-shadow: 3px 3px 4px #444;
-box-shadow: 3px 3px 4px #444;
--ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=135, Color='#444444')";
-filter: progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=135, Color='#444444');
-}
-
-#measurement-view{
-
-}
-
-.btn {
-  display: inline-block;
-  padding: 6px 12px;
-  margin-bottom: 0;
-  font-size: 14px;
-  font-weight: normal;
-  line-height: 1.428571429;
-  text-align: center;
-  white-space: nowrap;
-  vertical-align: middle;
-  cursor: pointer;
-  border: 1px solid transparent;
-  border-radius: 4px;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-      -ms-user-select: none;
-       -o-user-select: none;
-          user-select: none;
-}
-
-.btn:focus {
-  outline: thin dotted #333;
-  outline: 5px auto -webkit-focus-ring-color;
-  outline-offset: -2px;
-}
-
-.btn:hover,
-.btn:focus {
-  color: #333333;
-  text-decoration: none;
-}
-
-.btn:active,
-.btn.active {
-  background-image: none;
-  outline: 0;
-  -webkit-box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
-          box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
-}
-
-.btn-danger {
-  color: #ffffff;
-  background-color: #d9534f;
-  border-color: #d43f3a;
-}
-
-.btn-danger:hover,
-.btn-danger:focus,
-.btn-danger:active,
-.btn-danger.active,
-.open .dropdown-toggle.btn-danger {
-  color: #ffffff;
-  background-color: #d2322d;
-  border-color: #ac2925;
-}
-
-.btn-danger:active,
-.btn-danger.active,
-.open .dropdown-toggle.btn-danger {
-  background-image: none;
-}
-
-.btn-danger.disabled,
-.btn-danger[disabled],
-fieldset[disabled] .btn-danger,
-.btn-danger.disabled:hover,
-.btn-danger[disabled]:hover,
-fieldset[disabled] .btn-danger:hover,
-.btn-danger.disabled:focus,
-.btn-danger[disabled]:focus,
-fieldset[disabled] .btn-danger:focus,
-.btn-danger.disabled:active,
-.btn-danger[disabled]:active,
-fieldset[disabled] .btn-danger:active,
-.btn-danger.disabled.active,
-.btn-danger[disabled].active,
-fieldset[disabled] .btn-danger.active {
-  background-color: #d9534f;
-  border-color: #d43f3a;
-}
-
-.btn-primary {
-  color: #ffffff;
-  background-color: #428bca;
-  border-color: #357ebd;
-}
-
-.btn-primary:hover,
-.btn-primary:focus,
-.btn-primary:active,
-.btn-primary.active,
-.open .dropdown-toggle.btn-primary {
-  color: #ffffff;
-  background-color: #3276b1;
-  border-color: #285e8e;
-}
-
-.btn-primary:active,
-.btn-primary.active,
-.open .dropdown-toggle.btn-primary {
-  background-image: none;
-}
-
-.btn-primary.disabled,
-.btn-primary[disabled],
-fieldset[disabled] .btn-primary,
-.btn-primary.disabled:hover,
-.btn-primary[disabled]:hover,
-fieldset[disabled] .btn-primary:hover,
-.btn-primary.disabled:focus,
-.btn-primary[disabled]:focus,
-fieldset[disabled] .btn-primary:focus,
-.btn-primary.disabled:active,
-.btn-primary[disabled]:active,
-fieldset[disabled] .btn-primary:active,
-.btn-primary.disabled.active,
-.btn-primary[disabled].active,
-fieldset[disabled] .btn-primary.active {
-  background-color: #428bca;
-  border-color: #357ebd;
-}
-
 	</style>
 
 </head>
@@ -760,7 +511,9 @@ if (!medicationsResult.isEmpty()) {
 		}
 	}
 }
+%>
 
+<%
 java.util.Calendar calender = java.util.Calendar.getInstance();
 String day =  Integer.toString(calender.get(java.util.Calendar.DAY_OF_MONTH));
 String month =  Integer.toString(calender.get(java.util.Calendar.MONTH)+1);
@@ -795,9 +548,7 @@ String date = year+"-"+month+"-"+day;
 	<table class="formTable" id="headTable">
 		<tr><th colspan="8"><oscar:nameage demographicNo="<%=demographic_no%>"/></th></tr>
 		<tr>
-
 			<td class="rowheader"><a class="header" href="#" onclick="popupPage('700', '1000', '<%=project%>/CaseManagementEntry.do?method=issuehistory&demographicNo=<%=demographic_no%>&issueIds=38'); return false;">Reminders</a></td>
-
 			<td width="650px"><%=remindersList%></td>
 			<td>
 			<div class="highlightBox">
@@ -817,16 +568,12 @@ String date = year+"-"+month+"-"+day;
 		</tr>
 
 		<tr>
-
 			<td class="rowheader"><a class="header" href="#" onclick="popupPage('700', '1000', '<%=project%>/oscarRx/showAllergy.do?demographicNo=<%=demographic_no%>'); return false;">Allergies</a></td>
-
 			<td width="650px"><%=allergiesList%></td>
 		</tr>
 
 		<tr>
-
 			<td class="rowheader"><a class="header" href="#" onclick="popupPage('700', '1000', '<%=project%>/oscarRx/choosePatient.do?providerNo=<%=curUser_no%>&demographicNo=<%=demographic_no%>'); return false;">Medications</a></td>
-
 			<td width="650px"><%=medicationsList%></td>
 			<td>
    			</td>
@@ -846,7 +593,6 @@ String date = year+"-"+month+"-"+day;
     for (int i = 0; i < nodes.size(); i++) {
     	MeasurementTemplateFlowSheetConfig.Node node = nodes.get(i);
     	FlowSheetItem item = node.flowSheetItem;
-    	FlowSheetItem header = item;
 	%>
     	<tr>
     	<th>
@@ -882,7 +628,7 @@ String date = year+"-"+month+"-"+day;
 	    			<%//This part here grabs the field name %>
 	    			<tr class="dataRow <%=currentSection%>" >
 					<td class="field">
-					<a style="color: black; text-decoration : underline;" href="javascript: function myFunction() {return false; }"  onclick="javascript:popup(465,635,'<%=project%>/oscarEncounter/oscarMeasurements/AddMeasurementData.jsp?measurement=<%= response.encodeURL( measure) %>&amp;demographic_no=<%=demographic_no%>&amp;template=<%= URLEncoder.encode(temp,"UTF-8") %>','addMeasurementData<%=Math.abs(h.get("name").hashCode()) %>')">
+					<a style="color: black; text-decoration : underline;" href="javascript: function myFunction() {return false; }"  onclick="javascript:popup(465,635,'<%=project%>/oscarEncounter/oscarMeasurements/AddMeasurementData.jsp?measurement=<%= response.encodeURL(measure) %>&amp;demographic_no=<%=demographic_no%>&amp;template=<%= URLEncoder.encode(temp,"UTF-8") %>','addMeasurementData<%=Math.abs(h.get("name").hashCode()) %>')">
 					<b><%=child.flowSheetItem.getDisplayName()%></b>
 					</a>
 					</td>
@@ -901,10 +647,7 @@ String date = year+"-"+month+"-"+day;
 	                           <input type="button" onclick="document.mainForm.<%=name%>[2].checked = true;" value="Clear">
 	                 <%}else{%>
 	                       <input type="text" id="<%=name%>" name="<%=name%>" size="14"
-	                       	<% if (name.equals("Weight") || name.equals("Height") ){ %> onchange="calcBMI();" onkeyup="calcBMI();"<%}%>
-	                       	<% if (name.equals("Weight")){ %> title="Double click to automatically convert from lbs to kg" onDblClick="wtEnglish2Metric(this); calcBMI();"<%}%>
-	                       	<% if (name.equals("Height")){ %> title="Double click to automatically convert from feet and inches to cm" onDblClick="htEnglish2Metric(this); calcBMI();"<%}%>
-	                       	<% if (name.equals("BMI")){ %> title="Double click to automatically calculate BMI from height and weight" onDblClick="calcBMI();"<%}%>
+	                       	<% if (name.equals("Weight") || name.equals("Height") ){ %> onchange="calcBMI()"<%}%>
 	                       />
 	                       <%=child.flowSheetItem.getValueName()%>
 
@@ -913,7 +656,6 @@ String date = year+"-"+month+"-"+day;
 
 					<td class="comments">
 						<input type="text" size="15" name="<%=name + "_comments"%>" />
-						<input type="hidden" name="<%=name%>_note" id="<%=name%>_note" value="addtonote">
 					</td>
 
 					<%
@@ -927,24 +669,8 @@ String date = year+"-"+month+"-"+day;
 					<%if(h2.get("graphable") != null && ((String) h2.get("graphable")).equals("yes")){%>
 			            <%if (alist != null && alist.size() > 1) {
 			            boolean sep = false;
-			            	String mInstr = null;
-			            	boolean differentInstr=false;
-			            	for(int x=0;x<alist.size();x++) {
-			            		String tmp = alist.get(x).getMeasuringInstrc();
-			            		if(mInstr==null)
-			            			mInstr = tmp;
-			            		if(mInstr != null && !mInstr.equals(tmp)) {
-			            			differentInstr=true;
-			            			break;
-			            		}
-			            	}
-			            	
-			            	String onclick="";
-			            	if(!differentInstr) {
-			            		onclick="onclick=\"popup(465,635,'../../servlet/oscar.oscarEncounter.oscarMeasurements.pageUtil.ScatterPlotChartServlet?type="+h2.get("measurement_type")+"&mInstrc="+mInstr+"&demographicNo="+demographic_no+"');\"";
-			            	}
 			            %>
-			               	<span  <%=onclick %> class="inlinesparkline" values="
+			               	<span class="inlinesparkline" values="
 			               	 <%=alist.get(alist.size()-1).getDataField()%>
 			               	 <%for (int x=alist.size()-2; x>=0; x--){
 			               	 %>
@@ -968,24 +694,6 @@ String date = year+"-"+month+"-"+day;
 		           		}
 		           	} else if (name.equals("BP")) {
 		           		if (alist != null && alist.size() > 1) {
-		           			
-		           			String mInstr = null;
-			            	boolean differentInstr=false;
-			            	for(int x=0;x<alist.size();x++) {
-			            		String tmp = alist.get(x).getMeasuringInstrc();
-			            		if(mInstr==null)
-			            			mInstr = tmp;
-			            		if(mInstr != null && !mInstr.equals(tmp)) {
-			            			differentInstr=true;
-			            			break;
-			            		}
-			            	}
-			            	
-			            	String onclick="";
-			            	if(!differentInstr) {
-			            		onclick="onclick=\"popup(465,635,'../../servlet/oscar.oscarEncounter.oscarMeasurements.pageUtil.ScatterPlotChartServlet?type="+h2.get("measurement_type")+"&mInstrc="+mInstr+"&demographicNo="+demographic_no+"');\"";
-			            	}
-		           			
 		           			List<String> first = new ArrayList<String>();
 		           			List<String> second = new ArrayList<String>();
 		           			for (int x=alist.size()-1; x>=0; x--){
@@ -998,7 +706,7 @@ String date = year+"-"+month+"-"+day;
 		           					second.add("null");
 		           				}
 		           			} %>
-		           			<span <%=onclick %> class="bpline"></span>
+		           			<span class="bpline"></span>
 		           			<script type="text/javascript">
 		           				var first = new Array();
 		           				var second = new Array();
@@ -1019,7 +727,7 @@ String date = year+"-"+month+"-"+day;
    						<%
    						if (alistIterator.hasNext()) {
    							mdb = alistIterator.next();
-   							mFlowsheet.runRulesForMeasurement(LoggedInInfo.getLoggedInInfoFromSession(request), mdb);
+   							mFlowsheet.runRulesForMeasurement(mdb);
    							hdata = new HashMap<String,String>();
    							hdata.put("id",""+mdb.getId());
    							hdata.put("data",mdb.getDataField());
@@ -1027,27 +735,18 @@ String date = year+"-"+month+"-"+day;
    							hdata.put("comments",mdb.getComments());
    							hdata.put("unixTime", Long.toString(mdb.getDateEnteredAsDate().getTime()));
    						%>
+   							<div itemtime="<%=hdata.get("unixTime")%>" class="recentBlock measurements" onclick="javascript:popup(465,635,'<%=project%>/oscarEncounter/oscarMeasurements/AddMeasurementData.jsp?measurement=<%= response.encodeURL( measure) %>&amp;id=<%=hdata.get("id")%>&amp;demographic_no=<%=demographic_no%>&amp;template=<%= URLEncoder.encode(temp,"UTF-8")%>','addMeasurementData')" >
+		   		               		<b><%=hdata.get("data")%></b>; <%=hdata.get("prevention_date")%> <br>
+		   		               <b>
+		   		                    <%=hdata.get("comments")%>
+		   		               </b>
+		   		            </div>
+   						<%
+   						}
+   						%>
+    					</td>
 
-					<div itemtime="<%=hdata.get("unixTime")%>" class="recentBlock measurements" id="mView-<%=hdata.get("id")%>">
 
-					<b><%=hdata.get("data")%></b>; <%=hdata.get("prevention_date")%> <br>
-					<b>
-					<%=hdata.get("comments")%>
-					</b>
-					</div>
-					
-					<div id="mMessage-<%=hdata.get("id")%>" style="display:none;">
-					
-					<h1><%=name%>: <%=hdata.get("data")%></h1>
-					Date Observed: <%=hdata.get("prevention_date")%><br>
-					<%=hdata.get("comments")%><br>
-					
-
-					</div>
-					<%
-					}
-					%>
-					</td>
 
 					<td class="data" align="left">
 					<%
@@ -1057,7 +756,7 @@ String date = year+"-"+month+"-"+day;
 		            	if (counter >= numPrev) break;
 		            	counter++;
 		            	mdb = alistIterator.next();
-		            	mFlowsheet.runRulesForMeasurement(LoggedInInfo.getLoggedInInfoFromSession(request), mdb);
+		            	mFlowsheet.runRulesForMeasurement(mdb);
 		                hdata = new HashMap<String,String>();
 		                hdata.put("data",mdb.getDataField());
 		                hdata.put("prevention_date",mdb.getDateObserved());
@@ -1066,13 +765,12 @@ String date = year+"-"+month+"-"+day;
 		            	hdata.put("unixTime", Long.toString(mdb.getDateEnteredAsDate().getTime()));
 		                %>
 
-			        <div itemtime="<%=hdata.get("unixTime")%>" id="mView-<%=hdata.get("id")%>"  <%if (mdb.getIndicationColour()!=null) {%> <%}%> class="block measurements <%=name%>" >
+			            	<div itemtime="<%=hdata.get("unixTime")%>" <%if (mdb.getIndicationColour()!=null) {%> <%}%> class="block measurements <%=name%>" onclick="javascript:popup(465,635,'<%=project%>/oscarEncounter/oscarMeasurements/AddMeasurementData.jsp?measurement=<%= response.encodeURL( measure) %>&amp;id=<%=hdata.get("id")%>&amp;demographic_no=<%=demographic_no%>&amp;template=<%= URLEncoder.encode(temp,"UTF-8") %>','addMeasurementData')" >
 			                <%if (!hdata.get("data").equals("")) { %>
 			                <b><%=hdata.get("data")%></b>, <%=hdata.get("prevention_date")%><br>
 			                <%}else{ %>
 			                <%=hdata.get("prevention_date")%><br>
-			                <%}%>
-			                
+			                <%} %>
 			              	<%
 			              	if (hdata.get("comments")!= null) {
 
@@ -1086,15 +784,7 @@ String date = year+"-"+month+"-"+day;
 			              		}
 			              	}
 			              	%>
-			          </div>
-			          
-			        <div id="mMessage-<%=hdata.get("id")%>" style="display:none;">
-					
-					<h1><%=name%>: <%=hdata.get("data")%></h1>
-					Date Observed: <%=hdata.get("prevention_date")%><br>
-					<%=hdata.get("comments")%><br>
-					
-					</div>
+			            	</div>
 		            <%}
 		 			if (increaseHeight) {
 		 			String className = "\".block.measurements." + name + "\"";
@@ -1108,14 +798,13 @@ String date = year+"-"+month+"-"+day;
     	<%	}
 
     	}%>
-    	
-    	<tr id="<%=header.getDisplayName()%>_update">
-    	<td><input style="font-size:12;" type="submit" name="submit" value="Add" /></td>
+    	<tr>
+    	<td><input style="font-size:12;" type="submit" name="submit" value="Update" /></td>
     	<td></td>
     	<td></td>
     	<td></td>
     	<td></td>
-    	<td id="<%=header.getDisplayName()%>_update_comments" align="right" style="border-top: 1px solid #9d9d9d;">
+    	<td align="right" style="border-top: 1px solid #9d9d9d;">
     	</td></tr>
     <%
     	node = node.getNextSibling();
@@ -1129,15 +818,6 @@ String date = year+"-"+month+"-"+day;
 
 	</table>
 	</form>
-
-
-<div id="measurement-view">
-<div id="measurement-view-message"> </div>
-<input type="hidden" name="deleteId" id="deleteId" value="">
-<p align='right'><button type='button' id="deleteButton" name='deleteButton' class='btn btn-danger'>Delete</button> <button type='button' id='close-message' name='close' class='btn btn-primary'>Close</button></p>
-</div>
-
-
 
 </body>
 

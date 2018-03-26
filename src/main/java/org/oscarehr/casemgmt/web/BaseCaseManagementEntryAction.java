@@ -44,6 +44,7 @@ import org.oscarehr.casemgmt.service.CaseManagementManager;
 import org.oscarehr.casemgmt.service.ClientImageManager;
 import org.oscarehr.casemgmt.web.formbeans.CaseManagementEntryFormBean;
 import org.oscarehr.common.dao.DxDao;
+import org.oscarehr.common.model.Provider;
 import org.oscarehr.util.SpringUtils;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
@@ -102,6 +103,27 @@ public class BaseCaseManagementEntryAction extends DispatchAction {
 	protected String getDemoDOB(String demoNo){
 		if (demoNo==null) return "";
 		return caseManagementMgr.getDemoDOB(demoNo);
+	}
+
+
+	protected String getProviderNo(HttpServletRequest request) {
+		String providerNo = request.getParameter("providerNo");
+		if (providerNo == null) {
+			providerNo = (String) request.getSession().getAttribute("user");
+		}
+		return providerNo;
+	}
+
+	protected String getProviderName(HttpServletRequest request) {
+		String providerNo = getProviderNo(request);
+		if (providerNo == null)	return "";
+		return caseManagementMgr.getProviderName(providerNo);
+	}
+
+        protected Provider getProvider(HttpServletRequest request) {
+		String providerNo = getProviderNo(request);
+		if (providerNo == null)	return null;
+		return providerMgr.getProvider(providerNo);
 	}
 
 
@@ -213,7 +235,7 @@ public class BaseCaseManagementEntryAction extends DispatchAction {
 		// cIssue.setActive(true);
 		cIssue.setAcute(false);
 		cIssue.setCertain(false);
-		cIssue.setDemographic_no(Integer.valueOf(demoNo));
+		cIssue.setDemographic_no(demoNo);
 
 		cIssue.setIssue_id(iss.getId().longValue());
 

@@ -22,22 +22,6 @@
     Toronto, Ontario, Canada
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-	  boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_prevention" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_prevention");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
 <%@page import="java.util.Map"%>
 <%@page import="java.util.HashMap"%>
 <%@page import="org.oscarehr.PMmodule.caisi_integrator.RemotePreventionHelper"%>
@@ -75,8 +59,6 @@ if(!authed) {
 	</head>
 	<body>
 		<%
-			LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		
 		    Integer demographicId = Integer.valueOf(request.getParameter("demographic_no"));
 			Integer remoteFacilityId=Integer.valueOf(request.getParameter("remoteFacilityId"));
 			Integer remotePreventionId=Integer.valueOf(request.getParameter("remotePreventionId"));
@@ -87,16 +69,16 @@ if(!authed) {
 			CachedDemographicPrevention remotePrevention  = null;
 			
 			try {
-				if (!CaisiIntegratorManager.isIntegratorOffline(loggedInInfo.getSession())){
-					remotePrevention = CaisiIntegratorManager.getDemographicWs(loggedInInfo, loggedInInfo.getCurrentFacility()).getCachedDemographicPreventionsByPreventionId(pk);
+				if (!CaisiIntegratorManager.isIntegratorOffline()){
+					remotePrevention = CaisiIntegratorManager.getDemographicWs().getCachedDemographicPreventionsByPreventionId(pk);
 				}
 			} catch (Exception e) {
 				MiscUtils.getLogger().error("Unexpected error.", e);
-				CaisiIntegratorManager.checkForConnectionError(loggedInInfo.getSession(),e);
+				CaisiIntegratorManager.checkForConnectionError(e);
 			}
 				
-			if(CaisiIntegratorManager.isIntegratorOffline(loggedInInfo.getSession())){
-				List<CachedDemographicPrevention> remotePreventions = IntegratorFallBackManager.getRemotePreventions(loggedInInfo, demographicId);
+			if(CaisiIntegratorManager.isIntegratorOffline()){
+				List<CachedDemographicPrevention> remotePreventions = IntegratorFallBackManager.getRemotePreventions(demographicId);
 				for(CachedDemographicPrevention prev:remotePreventions){
 					if ( prev.getFacilityPreventionPk().getIntegratorFacilityId() == remoteFacilityId && prev.getFacilityPreventionPk().getCaisiItemId() == remotePreventionId){
 						remotePrevention = prev;
@@ -107,11 +89,11 @@ if(!authed) {
 		
 			
 			
-			CachedFacility cachedFacility=CaisiIntegratorManager.getRemoteFacility(loggedInInfo, loggedInInfo.getCurrentFacility(),remoteFacilityId);
+			CachedFacility cachedFacility=CaisiIntegratorManager.getRemoteFacility(remoteFacilityId);
 			FacilityIdStringCompositePk providerPk=new FacilityIdStringCompositePk();
 			providerPk.setIntegratorFacilityId(remotePrevention.getFacilityPreventionPk().getIntegratorFacilityId());
 			providerPk.setCaisiItemId(remotePrevention.getCaisiProviderId());
-			CachedProvider cachedProvider=CaisiIntegratorManager.getProvider(loggedInInfo, loggedInInfo.getCurrentFacility(), providerPk);
+			CachedProvider cachedProvider=CaisiIntegratorManager.getProvider(providerPk);
 		%>
 		<table style="border-collapse:collapse">
 			<tr>

@@ -17,22 +17,13 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin.billing,_admin" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_admin&type=_admin.billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
+<% 
+    if(session.getAttribute("user") == null) response.sendRedirect("../../../logout.jsp");
 %>
 
-<%@ page import="java.math.*, java.util.*, java.io.*, java.sql.*, oscar.*, java.net.*,oscar.MyDateFormat" errorPage="errorpage.jsp"%>
+<%@ page
+	import="java.math.*, java.util.*, java.io.*, java.sql.*, oscar.*, java.net.*,oscar.MyDateFormat"
+	errorPage="errorpage.jsp"%>
 <%@ page import="oscar.oscarBilling.ca.on.pageUtil.*"%>
 
 <html>
@@ -104,7 +95,33 @@ if (proNo.compareTo("") == 0 || proNo.compareTo("all") == 0){
 	</tr>
 
 	<%
+/*
+	String[] param = new String[3];
+	param[0] = raNo;
+	param[1] = "I2";
+	param[2] = "%";
 
+	while (rsdemo.next()) {   
+		account = rsdemo.getString("billing_no");
+		param0[0]=raNo;
+		param0[1]=account;
+		demoLast = "";
+		rsdemo3 =apptMainBean.queryResults(param0[1],"search_bill_short");
+		while (rsdemo3.next()) {
+			demoLast = rsdemo3.getString("demographic_name");
+		}
+		rsdemo2 = apptMainBean.queryResults(param0,"search_rabillno");
+		while (rsdemo2.next()) {   
+			servicecode = rsdemo2.getString("service_code");
+			servicedate = rsdemo2.getString("service_date");
+			serviceno = rsdemo2.getString("service_count");
+			explain = rsdemo2.getString("error_code");
+			amountsubmit = rsdemo2.getString("amountclaim");
+			amountpay = rsdemo2.getString("amountpay");
+			if (explain == null || explain.compareTo("") == 0){
+				explain = "**";
+			}    
+*/
 %>
 	<tr>
 		<td><%=account%></td>
@@ -118,7 +135,8 @@ if (proNo.compareTo("") == 0 || proNo.compareTo("all") == 0){
 	</tr>
 
 	<%
-
+//		}
+//	} 
 } else {
 %>
 
@@ -136,7 +154,7 @@ if (proNo.compareTo("") == 0 || proNo.compareTo("all") == 0){
 		</tr>
 
 		<%//	
-	aL = obj.getRAErrorReport(raNo, proNo, new String[] {"I2"});
+	aL = obj.getRAErrorReport(raNo, proNo, "'I2'");
 	for(int i=0; i<aL.size(); i++) {
 		Properties prop = (Properties) aL.get(i);
 		account = prop.getProperty("account", "");

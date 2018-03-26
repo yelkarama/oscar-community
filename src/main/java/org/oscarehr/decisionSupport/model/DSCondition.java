@@ -106,7 +106,7 @@ public class DSCondition {
     }
 
     /**
-     * @param listOperator
+     * @param type the type to set
      */
     public void setListOperator(ListOperator listOperator) {
         this.listOperator = listOperator;

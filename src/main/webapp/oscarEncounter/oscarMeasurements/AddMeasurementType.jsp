@@ -24,22 +24,9 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
+  if(session.getValue("user") == null) response.sendRedirect("../../logout.jsp");
 %>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin.measurements" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../securityError.jsp?type=_admin.measurements");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-
 <%@ page import="java.util.*,oscar.oscarReport.pageUtil.*"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -63,12 +50,14 @@ if(!authed) {
 <body class="BodyStyle" vlink="#0000FF">
 <!--  -->
 <html:errors />
-<html:form 	action="/oscarEncounter/oscarMeasurements/AddMeasurementType.do" onsubmit="return validateForm()">
+<html:form
+	action="/oscarEncounter/oscarMeasurements/AddMeasurementType.do"
+	onsubmit="return validateLogonForm(this);">
 	<table class="MainTable" id="scrollNumber1" name="encounterTable">
 		<tr class="MainTableTopRow">
 			<td class="MainTableTopRowLeftColumn"><bean:message
 				key="oscarEncounter.Measurements.msgMeasurements" /></td>
-			<td class="MainTableTopRowRightColumn">
+			<td class="MainTableTopRowRightColumn" width="400">
 			<table class="TopStatusBar">
 				<tr>
 					<td><bean:message
@@ -97,7 +86,8 @@ if(!authed) {
 						<tr>
 							<th align="left" class="td.tite" width="5"><bean:message
 								key="oscarEncounter.oscarMeasurements.Measurements.headingType" />
-							
+							(<bean:message
+								key="oscarEncounter.oscarMeasurements.Measurements.headingMax4Characters" />)
 							</th>
 							<td><html:text property="type" /></td>
 						</tr>
@@ -135,8 +125,9 @@ if(!authed) {
 									<td><input type="button" name="Button"
 										value="<bean:message key="global.btnClose"/>"
 										onClick="window.close()"></td>
-									<td><input type="submit" name="submit"
-										value="<bean:message key="oscarEncounter.oscarMeasurements.MeasurementsAction.addBtn"/>"/></td>
+									<td><input type="button" name="Button"
+										value="<bean:message key="oscarEncounter.oscarMeasurements.MeasurementsAction.addBtn"/>"
+										onclick="submit();" /></td>
 								</tr>
 							</table>
 							</td>
@@ -159,25 +150,5 @@ if(!authed) {
 		</tr>
 	</table>
 </html:form>
-
-<script type="text/javascript">
-function validateForm()
-{
-  var a=document.forms[0]["type"].value;
-  var b=document.forms[0]["typeDesc"].value;
-  var c=document.forms[0]["typeDisplayName"].value;
-  
-  if (a==null || a==""){	
-  	alert("Please enter a type");
-  	return false;
-  }else if(b==null || b==""){
-  	alert("Please enter a type description");
-  	return false;	  
-  }else if(c==null || c==""){
-  	alert("Please enter a display name");
-  	return false;	  
-  }
-}
-</script>
 </body>
 </html:html>

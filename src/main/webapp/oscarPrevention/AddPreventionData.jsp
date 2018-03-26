@@ -24,38 +24,19 @@
 
 --%>
 
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
-<%@page import="oscar.oscarProvider.data.ProviderData"%>
-<%@ page import="oscar.oscarDemographic.data.DemographicData,java.text.SimpleDateFormat, java.util.*,oscar.oscarPrevention.*,oscar.oscarProvider.data.*,oscar.util.*"%>
+<%@page import="oscar.oscarDemographic.data.DemographicData,java.text.SimpleDateFormat, java.util.*,oscar.oscarPrevention.*,oscar.oscarProvider.data.*,oscar.util.*"%>
 <%@ page import="org.oscarehr.casemgmt.model.CaseManagementNoteLink" %>
 <%@ page import="org.oscarehr.casemgmt.service.CaseManagementManager" %>
 <%@ page import="org.oscarehr.util.SpringUtils"%>
 <%@page import="org.oscarehr.common.dao.DemographicExtDao" %>
-<%@page import="org.oscarehr.common.dao.PreventionsLotNrsDao" %>
-<%@page import="org.oscarehr.common.model.PreventionsLotNrs" %>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar" %>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-	  boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_prevention" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_prevention");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
 
 <%
-  LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
   DemographicExtDao demographicExtDao = SpringUtils.getBean(DemographicExtDao.class);
-      		
+
   if(session.getValue("user") == null) response.sendRedirect("../logout.jsp");
   //int demographic_no = Integer.parseInt(request.getParameter("demographic_no"));
   String demographic_no = request.getParameter("demographic_no");
@@ -63,15 +44,12 @@ if(!authed) {
   Map<String,Object> existingPrevention = null;
 
   String providerName ="";
-  String lot ="";
   String provider = (String) session.getValue("user");
-  String dateFmt = "yyyy-MM-dd HH:mm";
+  String dateFmt = "yyyy-MM-dd";
   String prevDate = UtilDateUtilities.getToday(dateFmt);
   String completed = "0";
   String nextDate = "";
   String summary = "";
-  String creatorProviderNo = "";
-  String creatorName = "";
   boolean never = false;
   Map<String,String> extraData = new HashMap<String,String>();
 	boolean hasImportExtra = false;
@@ -84,8 +62,7 @@ if(!authed) {
      prevDate = (String) existingPrevention.get("preventionDate");
      providerName = (String) existingPrevention.get("providerName");
      provider = (String) existingPrevention.get("provider_no");
-     creatorProviderNo = (String) existingPrevention.get("creator");
-     
+
      if ( existingPrevention.get("refused") != null && ((String)existingPrevention.get("refused")).equals("1") ){
         completed = "1";
      }else if ( existingPrevention.get("refused") != null && ((String)existingPrevention.get("refused")).equals("2") ){
@@ -100,8 +77,7 @@ if(!authed) {
      }
      summary = (String) existingPrevention.get("summary");
      extraData = PreventionData.getPreventionKeyValues(id);
-     lot = (String) extraData.get("lot");
-     
+
 	CaseManagementManager cmm = (CaseManagementManager) SpringUtils.getBean("caseManagementManager");
 	List<CaseManagementNoteLink> cml = cmm.getLinkByTableId(CaseManagementNoteLink.PREVENTIONS, Long.valueOf(id));
 	hasImportExtra = (cml.size()>0);
@@ -112,39 +88,25 @@ if(!authed) {
       prevention = (String) existingPrevention.get("preventionType");
   }
 
-  PreventionsLotNrsDao PreventionsLotNrsDao = (PreventionsLotNrsDao)SpringUtils.getBean(PreventionsLotNrsDao.class);
-  List<String> lotNrList = PreventionsLotNrsDao.findLotNrs(prevention, false);
-  
   String prevResultDesc = request.getParameter("prevResultDesc");
 
-  PreventionDisplayConfig pdc = PreventionDisplayConfig.getInstance(loggedInInfo);
-  HashMap<String,String> prevHash = pdc.getPrevention(loggedInInfo,prevention);
+  PreventionDisplayConfig pdc = PreventionDisplayConfig.getInstance();
+  HashMap<String,String> prevHash = pdc.getPrevention(prevention);
 
   String layoutType = prevHash.get("layout");
   if ( layoutType == null){
       layoutType = "default";
   }
 
-  List<Map<String, String>>  providers = ProviderData.getProviderList();
-  if (creatorProviderNo == "")
-  { 
-	  creatorProviderNo = provider;
-  }
-  for (int i=0; i < providers.size(); i++) {
-       Map<String,String> h = providers.get(i);
-	   if (h.get("providerNo").equals(creatorProviderNo))
-	   {
-	   		creatorName = h.get("lastName") + " " +  h.get("firstName");
-	   }
-  }
-  
+  ArrayList providers = ProviderData.getProviderList();
+
   //calc age at time of prevention
-  Date dob = PreventionData.getDemographicDateOfBirth(loggedInInfo, Integer.valueOf(demographic_no));
+  Date dob = PreventionData.getDemographicDateOfBirth(demographic_no);
   SimpleDateFormat fmt = new SimpleDateFormat(dateFmt);
   Date dateOfPrev = fmt.parse(prevDate);
   String age = UtilDateUtilities.calcAgeAtDate(dob, dateOfPrev);
   DemographicData demoData = new DemographicData();
-  String[] demoInfo = demoData.getNameAgeSexArray(loggedInInfo, Integer.valueOf(demographic_no));
+  String[] demoInfo = demoData.getNameAgeSexArray(demographic_no);
   String nameage = demoInfo[0] + ", " + demoInfo[1] + " " + demoInfo[2] + " " + age;
 
   HashMap<String,String> genders = new HashMap<String,String>();
@@ -158,7 +120,7 @@ if(!authed) {
 
 <head>
 <title>
-<bean:message key="oscarprevention.index.oscarpreventiontitre" />
+oscarPrevention
 </title><!--I18n-->
 <link rel="stylesheet" type="text/css" href="../share/css/OscarStandardLayout.css">
 <link rel="stylesheet" type="text/css" media="all" href="../share/calendar/calendar.css" title="win2k-cold-1" />
@@ -314,87 +276,6 @@ clear: left;
     }
   }
 </script>
-
-<script type="text/javascript">
-  function updateLotNr(elem){
-	if (elem.options[elem.selectedIndex].value != -1)
-	{
-		hideItem('lot');
-	}
-   //show "other" in drop-down
-   else if (elem.options[elem.selectedIndex].value == -1) 
-   {
-	    document.getElementById('lot').value = "";
-   		showItem('lot');
-      	document.getElementById('lot').focus();
-   }
-  }
-  </script>
-  <script type="text/javascript">
-  function hideLotDrop(elem){
-	  var bFound = 0;
-	  var LotNr = document.getElementById('lot').value;
-	  var summary =  document.getElementById('summary');
-	  //existing prevention record
-	  if (typeof(summary) != 'undefined' && summary != null)
-	  { 
-	     if (LotNr.length == 0)
-	     {
-	    	 if (elem.options[0].value != -1) //table exists
-	    	 {
-	    		 elem.options[elem.options.length-1].selected = true;
-	    		 return;
-	    	 }	    	 
-	    	 else
-	    	 {
-	  	       hideItem('lotDrop');
-	  		   showItem('lot');
-	  	       return;
-	  	    }
-	     }	  
-	  }	  
-	  if (LotNr.length >0)
-	  {
-		  for (var i = 0; i < elem.length; i++) {
-		        if (elem.options[i].value == LotNr){
-		        	bFound = 1;
-					break;
-				}
-		    }
-	  }
-	  if (elem.options[0].value == -1)
-	  //no preventionslotnrs table
-	  {
-		   hideItem('lotDrop');
-		   showItem('lot');	
-	  }
-	 // not in drop-down
-	 else if (!bFound && LotNr.length >0)
-	 {
-		 elem.options[elem.options.length-1].selected = true;
-	 }
-	  //exists in dd
-	  else if (elem.options[elem.selectedIndex].value != -1)
-	  {
-	   		hideItem('lot');
-	  }
-	  }
-
-
-var warnOnWindowClose=true;
-
-function cancelCloseWarning(){
-warnOnWindowClose=false;
-}
-
-window.onbeforeunload = displayCloseWarning;
-
-function displayCloseWarning(){
-	if(warnOnWindowClose){
-		return 'Are you sure you want to close this window?';
-	}
-}
-</script>
 </head>
 
 <body class="BodyStyle" vlink="#0000FF" onload="disableifchecked(document.getElementById('neverWarn'),'nextDate');">
@@ -402,7 +283,7 @@ function displayCloseWarning(){
     <table  class="MainTable" id="scrollNumber1" name="encounterTable">
         <tr class="MainTableTopRow">
             <td class="MainTableTopRowLeftColumn" width="100" >
-               <bean:message key="oscarprevention.index.oscarpreventiontitre" />
+               oscarPrevention
             </td>
             <td class="MainTableTopRowRightColumn">
                 <table class="TopStatusBar">
@@ -440,7 +321,7 @@ function displayCloseWarning(){
 -->
             </td>
             <td valign="top" class="MainTableRightColumn">
-               <html:form action="/oscarPrevention/AddPrevention" onsubmit="return cancelCloseWarning()">
+               <html:form action="/oscarPrevention/AddPrevention" >
                <input type="hidden" name="prevention" value="<%=prevention%>"/>
                <input type="hidden" name="demographic_no" value="<%=demographic_no%>"/>
                <% if ( id != null ) { %>
@@ -467,23 +348,15 @@ function displayCloseWarning(){
                             <input name="given" type="radio" value="ineligible" <%=checked(completed,"2")%>>Ineligible</input>
                          </div>
                          <div style="float:left;margin-left:30px;">
-                            <label for="prevDate" class="fields" >Date:</label>    <input readonly='readonly' type="text" name="prevDate" id="prevDate" value="<%=prevDate%>" size="15" > <a id="date"><img title="Calendar" src="../images/cal.gif" alt="Calendar" border="0" /></a> <br>
+                            <label for="prevDate" class="fields" >Date:</label>    <input type="text" name="prevDate" id="prevDate" value="<%=prevDate%>" size="9" > <a id="date"><img title="Calendar" src="../images/cal.gif" alt="Calendar" border="0" /></a> <br>
                             <label for="provider" class="fields">Provider:</label> <input type="text" name="providerName" id="providerName" value="<%=providerName%>"/>
                                   <select onchange="javascript:hideExtraName(this);" id="providerDrop" name="provider">
-                                      <%
-										boolean provInList=false;
-										for (int i=0; i < providers.size(); i++) {
-                                           Map<String,String> h = providers.get(i);String sel = "";
-                                           if(h.get("providerNo").equals(provider)){
-											   sel = " selected";
-											   provInList=true;
-										   }%>
-                                        <option value="<%= h.get("providerNo")%>" <%= sel %>><%= h.get("lastName") %> <%= h.get("firstName") %></option>
+                                      <%for (int i=0; i < providers.size(); i++) {
+                                           Hashtable h = (Hashtable) providers.get(i);%>
+                                        <option value="<%= h.get("providerNo")%>" <%= ( h.get("providerNo").equals(provider) ? " selected" : "" ) %>><%= h.get("lastName") %> <%= h.get("firstName") %></option>
                                       <%}%>
-                                      <option value="-1" <%= ( !provInList ? " selected" : "" ) %> >Other</option>
+                                      <option value="-1" <%= ( "-1".equals(provider) ? " selected" : "" ) %> >Other</option>
                                   </select>
-                                  <br/>
-                             <label for="creator" class="fields" >Creator:</label> <input type="text" name="creator" value="<%=creatorName%>" readonly/> <br/>
                          </div>
                    </fieldset>
                    <fieldset >
@@ -491,16 +364,9 @@ function displayCloseWarning(){
              			 <label for="name">Name:</label> <input type="text" name="name" value="<%=str((extraData.get("name")),"")%>"/> <br/>
                          <label for="location">Location:</label> <input type="text" name="location" value="<%=str((extraData.get("location")),"")%>"/> <br/>
                          <label for="route">Route:</label> <input type="text" name="route"   value="<%=str((extraData.get("route")),"")%>"/><br/>
-                         <label for="dose">Dose:</label> <input type="text" name="dose"  value="<%=str((extraData.get("dose")),"")%>"/><br/>
-                         <label for="lot">Lot:</label>  <input type="text" name="lot" id="lot" value="<%=str(lot,"")%>" />
-                        <select onchange="javascript:updateLotNr(this);" id="lotDrop" name="lotItem" >
-                             <%for(String lotnr:lotNrList) {
-							 %>
-                               <option value="<%=lotnr%>" <%= ( lotnr.equals(lot) ? " selected" : "" ) %>><%=lotnr%> </option>
-                             <%}%>
-                             <option value="-1"  >Other</option>
-                         </select><br/>
-                         <label for="manufacture">Manufacture:</label> <input type="text" name="manufacture" id="manufacture"  value="<%=str((extraData.get("manufacture")),"")%>"/><br/>
+			 <label for="dose">Dose:</label> <input type="text" name="dose"  value="<%=str((extraData.get("dose")),"")%>"/><br/>
+                         <label for="lot">Lot:</label> <input type="text" name="lot"  value="<%=str((extraData.get("lot")),"")%>"/><br/>
+                         <label for="manufacture">Manufacture:</label> <input type="text" name="manufacture"   value="<%=str((extraData.get("manufacture")),"")%>"/><br/>
                    </fieldset>
                    <fieldset >
                       <legend >Comments</legend>
@@ -509,9 +375,6 @@ function displayCloseWarning(){
                </div>
                <script type="text/javascript">
                   hideExtraName(document.getElementById('providerDrop'));
-               </script>
-               <script type="text/javascript">
-               hideLotDrop(document.getElementById('lotDrop'));
                </script>
                <%} else if(layoutType.equals("h1n1")) {%>
                <div class="prevention">
@@ -526,20 +389,12 @@ function displayCloseWarning(){
                             <label for="prevDate" class="fields" >Date:</label>    <input type="text" name="prevDate" id="prevDate" value="<%=prevDate%>" size="9" > <a id="date"><img title="Calendar" src="../images/cal.gif" alt="Calendar" border="0" /></a> <br>
                             <label for="provider" class="fields">Provider:</label> <input type="text" name="providerName" id="providerName" value="<%=providerName%>"/>
                                   <select onchange="javascript:hideExtraName(this);" id="providerDrop" name="provider">
-                                      <%
-										boolean provInList=false;
-										for (int i=0; i < providers.size(); i++) {
-                                           Map<String,String> h = providers.get(i);String sel = "";
-                                           if(h.get("providerNo").equals(provider)){
-											   sel = " selected";
-											   provInList=true;
-										   }%>
-                                        <option value="<%= h.get("providerNo")%>" <%= sel %>><%= h.get("lastName") %> <%= h.get("firstName") %></option>
+                                      <%for (int i=0; i < providers.size(); i++) {
+                                           Hashtable h = (Hashtable) providers.get(i);%>
+                                        <option value="<%= h.get("providerNo")%>" <%= ( h.get("providerNo").equals(provider) ? " selected" : "" ) %>><%= h.get("lastName") %> <%= h.get("firstName") %></option>
                                       <%}%>
-                                      <option value="-1" <%= ( !provInList ? " selected" : "" ) %> >Other</option>
+                                      <option value="-1" <%= ( "-1".equals(provider) ? " selected" : "" ) %> >Other</option>
                                   </select>
-                                  <br/>
-                             <label for="creator" class="fields" >Creator:</label> <input type="text" name="creator" value="<%=creatorName%>" readonly/> <br/>
                          </div>
                    </fieldset>
                    <fieldset>
@@ -627,30 +482,21 @@ function displayCloseWarning(){
                             <label for="prevDate" class="fields" >Date:</label>    <input type="text" name="prevDate" id="prevDate" value="<%=prevDate%>" size="9" > <a id="date"><img title="Calendar" src="../images/cal.gif" alt="Calendar" border="0" /></a> <br>
                             <label for="provider" class="fields">Provider:</label> <input type="text" name="providerName" id="providerName"/>
                                   <select onchange="javascript:hideExtraName(this);" id="providerDrop" name="provider">
-                                      <%
-										boolean provInList=false;
-										for (int i=0; i < providers.size(); i++) {
-                                           Map<String,String> h = providers.get(i);String sel = "";
-                                           if(h.get("providerNo").equals(provider)){
-											   sel = " selected";
-											   provInList=true;
-										   }%>
-                                        <option value="<%= h.get("providerNo")%>" <%= sel %>><%= h.get("lastName") %> <%= h.get("firstName") %></option>
+                                      <%for (int i=0; i < providers.size(); i++) {
+                                           Hashtable h = (Hashtable) providers.get(i);%>
+                                        <option value="<%= h.get("providerNo")%>" <%= ( h.get("providerNo").equals(provider) ? " selected" : "" ) %>><%= h.get("lastName") %> <%= h.get("firstName") %></option>
                                       <%}%>
-                                      <option value="-1" <%= ( !provInList ? " selected" : "" ) %> >Other</option>
+                                      <option value="-1" >Other</option>
                                   </select>
-                                  <br/>
-                                  <label for="creator" class="fields" >Creator:</label> <input type="text" name="creator" value="<%=creatorName%>" readonly/> <br/>
                          </div>
                    </fieldset>
                    <fieldset >
                       <legend >Result</legend>
                       <% if (extraData.get("result") == null ){ extraData.put("result","pending");} %>
-                      <%=str(prevResultDesc,"")%><br />
+			<%=prevResultDesc%><br />
                       <input type="radio" name="result" value="pending" <%=checked( (extraData.get("result")) ,"pending")%> >Pending</input><br/>
                       <input type="radio" name="result" value="normal"  <%=checked((extraData.get("result")),"normal")%> >Normal</input><br/>
-                      <input type="radio" name="result" value="abnormal" <%=checked((extraData.get("result")),"abnormal")%> >Abnormal</input><br/>
-                      <input type="radio" name="result" value="other" <%=checked((extraData.get("result")),"other")%> >Other</input> &nbsp; &nbsp; Reason: <input type="text" name="reason" value="<%=str((extraData.get("reason")),"")%>"/>
+                      <input type="radio" name="result" value="abnormal" <%=checked((extraData.get("result")),"abnormal")%> >Abnormal</input> &nbsp;&nbsp;&nbsp;  Reason: <input type="text" name="reason" value="<%=str((extraData.get("reason")),"")%>"/>
                    </fieldset>
                    <fieldset >
                       <legend >Comments</legend>
@@ -660,33 +506,7 @@ function displayCloseWarning(){
                <script type="text/javascript">
                   hideExtraName(document.getElementById('providerDrop'));
                </script>
-               <%} else if(layoutType.equals("history")) {%>
-               		 <div class="prevention">
-                   <fieldset>
-                      <legend>Prevention : <%=prevention%></legend>
-                         <div style="float:left;">
-                            <input name="given" type="radio" value="yes"      <%=checked(completed,"0")%>>Yes</input><br/>
-                            <input name="given" type="radio" value="never"    <%=checked(completed,"1")%>>Never</input><br/>
-                            <input name="given" type="radio" value="previous" <%=checked(completed,"2")%>>Previous</input>
-                         </div>
-                         <div style="float:left;margin-left:30px;">
-                            <label for="prevDate" class="fields" >Date:</label>    <input type="text" name="prevDate" id="prevDate" value="<%=prevDate%>" size="9" > <a id="date"><img title="Calendar" src="../images/cal.gif" alt="Calendar" border="0" /></a> <br>
-                            <label for="provider" class="fields">Provider:</label> <input type="hidden" name="providerName" id="providerName" value="<%=providerName%>"/>
-                                  <select onchange="javascript:hideExtraName(this);" id="providerDrop" name="provider">
-                                      <%for (int i=0; i < providers.size(); i++) {
-                                           Map<String,String> h = providers.get(i);%>
-                                        <option value="<%= h.get("providerNo")%>" <%= ( h.get("providerNo").equals(provider) ? " selected" : "" ) %>><%= h.get("lastName") %> <%= h.get("firstName") %></option>
-                                      <%}%>
-                                      <option value="-1" <%= ( "-1".equals(provider) ? " selected" : "" ) %> >Other</option>
-                                  </select>
-                         </div>
-                   </fieldset>
-                   <fieldset >
-                      <legend >Comments</legend>
-                      <textarea name="comments" ><%=str((extraData.get("comments")),"")%></textarea>
-                   </fieldset>
-                   </div>
-               <%} %>
+               <%}%>
 
 
                <div class="prevention">
@@ -720,7 +540,7 @@ function displayCloseWarning(){
         </tr>
     </table>
 <script type="text/javascript">
-Calendar.setup( { inputField : "prevDate", ifFormat : "%Y-%m-%d %H:%M", showsTime :true, button : "date", singleClick : true, step : 1 } );
+Calendar.setup( { inputField : "prevDate", ifFormat : "%Y-%m-%d", showsTime :false, button : "date", singleClick : true, step : 1 } );
 Calendar.setup( { inputField : "nextDate", ifFormat : "%Y-%m-%d", showsTime :false, button : "nextDateCal", singleClick : true, step : 1 } );
 </script>
 </body>

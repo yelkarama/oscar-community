@@ -25,24 +25,10 @@
 --%>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
-<%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
 <%@ page import="java.util.*,java.io.*,oscar.oscarLab.ca.all.util.KeyPairGen"%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-	String roleName$ = (String) session.getAttribute("userrole") + ","
-			+ (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_admin");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
 <% 
 String name = request.getParameter("name");
 String type = request.getParameter("type");
@@ -192,7 +178,26 @@ if (message != null){
 			<tr>
 				<td>Lab type:</td>
 				<td><select name="type" id="selection" onClick="selectOther()">
-					<%@ include file="../../lab/CA/ALL/labOptions.jspf"%>
+					<option value="ALPHA">ALPHA</option>
+					<option value="CML">CML</option>
+					<option value="EPSILON">EPSILON/MHL</option>
+					<option value="PATHL7"
+					<oscar:oscarPropertiesCheck property="PATHNET_LABS" value="yes">Selected</oscar:oscarPropertiesCheck>>EXCELLERIS</option>
+					<option value="GDML">GDML</option>
+					<option value="HHSEMR">HHSEMR</option>
+					<option value="HRMXML">HRM XML</option>
+					<option value="ICL">ICL</option>
+					<option value="IHA">IHA</option>
+					<option value="MDS">MDS/Lifelabs</option>
+					<option value="MEDVUE">MEDVUE</option>
+					<!-- <option value="HL7">HL7</option> -->
+					<option value="OLIS_HL7">OLIS HL7</option>
+					<option value="OSCAR_TO_OSCAR_HL7_V2">OSCAR_TO_OSCAR_HL7_V2</option>
+					<option value="PFHT">PFHT</option>
+					<option value="SIOUX">SIOUX</option>
+					<option value="TDIS">TDIS</option>
+					<option value="Spire">Spire</option>
+					<option value="OTHER">Other</option>
 				</select></td>
 			</tr>
 			<tr id="OTHER" style="visibility: hidden;">

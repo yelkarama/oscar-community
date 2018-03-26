@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <%--
 
     Copyright (c) 2001-2002. Department of Family Medicine, McMaster University. All Rights Reserved.
@@ -27,60 +26,59 @@
 
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
+    if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
 %>
 <security:oscarSec roleName="<%=roleName$%>"
 	objectName="_admin,_admin.backup" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_admin&type=_admin.backup");%>
+	<%response.sendRedirect("../logout.jsp");%>
 </security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-<%
-  boolean bodd = false;
-%>
 
-<%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
+<%
+  //if(session.getValue("user") == null || !((String) session.getValue("userprofession")).equalsIgnoreCase("admin"))
+  //  response.sendRedirect("../logout.jsp");
+  boolean bodd = false;
+  String deepcolor = "#CCCCFF", weakcolor = "#EEEEFF" ;
+%>
 <%@ page import="java.util.*,oscar.*,java.io.*,java.net.*,oscar.util.*,org.apache.commons.io.FileUtils"
 	errorPage="errorpage.jsp"%>
 <% java.util.Properties oscarVariables = OscarProperties.getInstance(); %>
 
 <html>
 <head>
-
+<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>ADMIN PAGE</title>
-
-<link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
+<link rel="stylesheet" href="../web.css">
+<script LANGUAGE="JavaScript">
+    <!--
+		
+    //-->
+</script>
 </head>
-<body>
 
-<h3><bean:message key="admin.admin.btnAdminBackupDownload" /></h3>
-
-<%
-String backuppath = oscarVariables.getProperty("backup_path"); 
-
-File dir = new File(backuppath);
-boolean exists = dir.exists();
-
-if(exists){
-%>
-<div class="well">
-<table class="table table-striped  table-condensed">
-<thead>
+<body background="../images/gray_bg.jpg" bgproperties="fixed"
+	onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0">
+<center>
+<table cellspacing="0" cellpadding="2" width="100%" border="0">
 	<tr>
+		<th align="CENTER" bgcolor="<%=deepcolor%>">BACKUP DOWNLOAD PAGE</th>
+	</tr>
+</table>
+<table border="0" cellspacing="0" cellpadding="0" width="90%">
+	<tr>
+		<td></td>
+		<td align="right"><a href="#" onClick='window.close()'> Close
+		</a></td>
+	</tr>
+</table>
+
+<table cellspacing="1" cellpadding="2" width="90%" border="0">
+	<tr bgcolor='<%=deepcolor%>'>
 		<th>File Name</th>
 		<th>Size</th>
 	</tr>
-</thead>
-
-<tbody>
 	<%
-
+    String backuppath = oscarVariables.getProperty("backup_path") ; //"c:\\root";
     if ( backuppath == null || backuppath.equals("") ) {
         Exception e = new Exception("Unable to find the key backup_path in the properties file.  Please check the value of this key or add it if it is missing.");
         throw e;
@@ -98,22 +96,13 @@ if(exists){
     for(int i=0; i<contents.length; i++) {
       bodd = bodd?false:true ;
       if(contents[i].isDirectory() || contents[i].getName().equals("BackupClient.class")  || contents[i].getName().startsWith(".")) continue;
-      out.println("<tr><td><a HREF='../servlet/BackupDownload?filename="+URLEncoder.encode(contents[i].getName())+"'>"+contents[i].getName()+"</a></td>") ;
+      out.println("<tr bgcolor='"+ (bodd?weakcolor:"white") +"'><td><a HREF='../servlet/BackupDownload?filename="+URLEncoder.encode(contents[i].getName())+"'>"+contents[i].getName()+"</a></td>") ;
       long bytes = contents[i].length( );
       String display = FileUtils.byteCountToDisplaySize( bytes );
 
       out.println("<td align='right' title=\""+bytes+" by\">"+display+"</td></tr>"); //+System.getProperty("file.separator")
     }
 %>
-</tbody>
 </table>
-</div>
-<%}else{%>
-
-    <div class="alert alert-error">
-    <strong>Warning!</strong> It appears that your backup directory does not exist or there is a problem with the path. Please check <i>backup_path</i> in your properties file.      
-    </div>
-
-<%}%>
 </body>
 </html>

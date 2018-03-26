@@ -29,7 +29,6 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
-import org.hibernate.Session;
 import org.oscarehr.util.MiscUtils;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -74,22 +73,19 @@ public class SecobjprivilegeDao extends HibernateDaoSupport {
 	}
     public int update(Secobjprivilege instance) {
 		logger.debug("update Secobjprivilege instance");
-		Session session = getSession();
 		try {
 			String queryString = "update Secobjprivilege as model set model.providerNo ='" + instance.getProviderNo() + "'"
 				+ " where model.objectname_code ='" + instance.getObjectname_code() + "'"
 				+ " and model.privilege_code ='" + instance.getPrivilege_code() + "'"
 				+ " and model.roleusergroup ='" + instance.getRoleusergroup() + "'";
 			
-			Query queryObject = session.createQuery(queryString);
+			Query queryObject = getSession().createQuery(queryString);
 			
 			return queryObject.executeUpdate();
 						
 		} catch (RuntimeException re) {
 			logger.error("Update failed", re);
 			throw re;
-		} finally {
-			this.releaseSession(session);
 		}
 	}
     public int deleteByRoleName(String roleName) {
@@ -106,6 +102,7 @@ public class SecobjprivilegeDao extends HibernateDaoSupport {
     public void delete(Secobjprivilege persistentInstance) {
 		logger.debug("deleting Secobjprivilege instance");
 		try {
+			//getSession().delete(persistentInstance);
 			getHibernateTemplate().delete(persistentInstance);
 			logger.debug("delete successful");
 		} catch (RuntimeException re) {
@@ -155,18 +152,15 @@ public class SecobjprivilegeDao extends HibernateDaoSupport {
     public List findByProperty(String propertyName, Object value) {
 		logger.debug("finding Secobjprivilege instance with property: " + propertyName
 				+ ", value: " + value);
-		Session session = getSession();
 		try {
 			String queryString = "from Secobjprivilege as model where model."
 					+ propertyName + "= ? order by objectname_code";
-			Query queryObject = session.createQuery(queryString);
+			Query queryObject = getSession().createQuery(queryString);
 			queryObject.setParameter(0, value);
 			return queryObject.list();
 		} catch (RuntimeException re) {
 			logger.error("find by property name failed", re);
 			throw re;
-		} finally {
-			this.releaseSession(session);
 		}
 	}
     
@@ -184,26 +178,4 @@ public class SecobjprivilegeDao extends HibernateDaoSupport {
 		}
 		return results;
     }
-    
-    public List<Secobjprivilege> getByRoles(List<String> roles) {    	
-		String queryString = "from Secobjprivilege obj where obj.roleusergroup IN (:roles)";
-		List<Secobjprivilege> results = new ArrayList<Secobjprivilege>();
-		
-		
-		Session session = getSession();
-		try {
-			Query q = session.createQuery(queryString);
-			
-			
-			q.setParameterList("roles", roles);
-
-			results = q.list();
-		}finally {
-			this.releaseSession(session);
-		}
-		
-		return results;
-    }
 }
-
-

@@ -19,18 +19,14 @@ import org.oscarehr.util.DbConnectionFilter;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
-/**
-* This job is set to run every minute, and the thing that really controls it is hrm_interval in the property table.
-**/
 public class SchedulerJob extends TimerTask {
 	private static Logger logger=MiscUtils.getLogger();
 	
-	private static Date lastRun = new Date();
+	private static long lastRun = new Date().getTime();
 	private static boolean firstRun = true;
 
 	@Override
 	public void run() {
-		Date startTime = new Date();
 		try {
 			UserPropertyDAO userPropertyDao = (UserPropertyDAO) SpringUtils.getBean("UserPropertyDAO");
 
@@ -46,28 +42,18 @@ public class SchedulerJob extends TimerTask {
 				intervalTime = 1800000;
 			}
 
-
 			if (!firstRun) {
-				long tmp = lastRun.getTime() + intervalTime;
-				Date nowDt = new Date();
-				long now= nowDt.getTime();
-
-				if ((tmp/1000) <= ((now/1000)+1)) {
-					logger.info("Starting HRM fetch");
+				if (lastRun + intervalTime <= new Date().getTime()) {
 					// Run now
-					new SFTPConnector().startAutoFetch(null);
-					//I want the last run to be when the job started, not the random point it ended.
-					//so that I can have consistent polling required for conformance.
-					lastRun = startTime;
+					SFTPConnector.startAutoFetch();
 				}
 			} else {
-				logger.info("first run");
-				new SFTPConnector().startAutoFetch(null);
+				SFTPConnector.startAutoFetch();
 				SchedulerJob.firstRun = false;
-				lastRun = startTime;
 			}
 
-			logger.debug("===== HRM JOB DONE RUNNING....");
+			lastRun = new Date().getTime();
+			logger.debug("===== HRM JOB RUNNING....");
 		} catch (Exception e) {
 			logger.error("Error", e);
 		} finally {

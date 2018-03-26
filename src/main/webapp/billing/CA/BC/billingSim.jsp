@@ -17,44 +17,27 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin.billing,_admin" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../../securityError.jsp?type=_admin&type=_admin.billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
 <% 
-
+if(session.getValue("user") == null) response.sendRedirect("../../../logout.jsp");
 String user_no = (String) session.getAttribute("user");
 %>
 
-<%@ page import="java.util.*, java.sql.*, oscar.*, oscar.util.*, java.net.*" errorPage="../../../errorpage.jsp"%>
+<%@ page
+	import="java.util.*, java.sql.*, oscar.*, oscar.util.*, java.net.*"
+	errorPage="../../../errorpage.jsp"%>
 <%@ include file="../../../admin/dbconnection.jsp"%>
-<%@ page import="org.oscarehr.util.SpringUtils" %>
-<%@ page import="org.oscarehr.common.model.Provider" %>
-<%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean"
+	scope="session" />
+<jsp:useBean id="SxmlMisc" class="oscar.SxmlMisc" scope="session" />
+<%@ include file="dbBilling.jspf"%>
 
-
-<%
-	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
-%>
 <%
 GregorianCalendar now=new GregorianCalendar();
 int curYear = now.get(Calendar.YEAR);
 int curMonth = (now.get(Calendar.MONTH)+1);
 int curDay = now.get(Calendar.DAY_OF_MONTH);
 
-String nowDate = UtilDateUtilities.DateToString(new java.util.Date(), "yyyy-MM-dd"); //"yyyy/MM/dd HH:mm"
+String nowDate = UtilDateUtilities.DateToString(UtilDateUtilities.now(), "yyyy-MM-dd"); //"yyyy/MM/dd HH:mm"
 String monthCode = "";
 if (curMonth == 1) monthCode = "A";
 else if (curMonth == 2) monthCode = "B";
@@ -149,21 +132,20 @@ String proOHIP="";
 String specialty_code; 
 String billinggroup_no;
 int Count = 0;
-
-for(Provider p : providerDao.getActiveProviders()){
-	if(p.getOhipNo() != null && !p.getOhipNo().isEmpty()) {
-	proFirst = p.getFirstName();
-	proLast = p.getLastName();
-	proOHIP = p.getOhipNo();
-	billinggroup_no= p.getBillingNo(); 
-	specialty_code = SxmlMisc.getXmlContent(p.getComments(),"<xml_p_specialty_code>","</xml_p_specialty_code>");
+ResultSet rslocal = apptMainBean.queryResults("%", "search_provider_dt");
+while(rslocal.next()){
+	proFirst = rslocal.getString("first_name");
+	proLast = rslocal.getString("last_name");
+	proOHIP = rslocal.getString("ohip_no"); 
+	billinggroup_no= rslocal.getString("billing_no"); //SxmlMisc.getXmlContent(rslocal.getString("comments"),"<xml_p_billinggroup_no>","</xml_p_billinggroup_no>");
+	specialty_code = SxmlMisc.getXmlContent(rslocal.getString("comments"),"<xml_p_specialty_code>","</xml_p_specialty_code>");
 %>
 			<option value="<%=proOHIP%>"
 				<%=providerview.equals(proOHIP)?"selected":""%>><%=proLast%>,<%=proFirst%></option>
 
 			<% 
-} }
-
+}
+rslocal.close();
 %>
 
 		</select></td>

@@ -24,37 +24,17 @@
 
 --%>
 
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@ page
 	import="org.oscarehr.casemgmt.web.formbeans.CaseManagementEntryFormBean, org.oscarehr.common.model.Facility"%>
 <%@page import="org.apache.commons.lang.StringEscapeUtils"%>
 <%@page import="org.oscarehr.PMmodule.model.Program"%>
 <%@page import="org.oscarehr.PMmodule.dao.ProgramDao"%>
 <%@page import="org.oscarehr.util.SpringUtils"%>
-<%@page import="org.oscarehr.common.model.EncounterType"%>
-<%@page import="org.oscarehr.common.dao.EncounterTypeDao"%>
-
 <%@ include file="/casemgmt/taglibs.jsp"%>
-
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_casemgmt.notes" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_casemgmt.notes");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 
 <c:set var="ctx" value="${pageContext.request.contextPath}"
 	scope="request" />
 <%
-	LoggedInInfo loggedInInfo73557=LoggedInInfo.getLoggedInInfoFromSession(request);
 	String noteIndex = "";
 	String encSelect = "encTypeSelect";
 	String demoNo = request.getParameter("demographicNo");
@@ -64,10 +44,7 @@
 	{
 		frm = (CaseManagementEntryFormBean)session.getAttribute(caseMgmtEntryFrm);
 		request.setAttribute("caseManagementEntryForm", frm);
-	}
-	
-	EncounterTypeDao encounterTypeDao = SpringUtils.getBean(EncounterTypeDao.class);
-	
+	} 
 %>
 <nested:empty name="caseManagementEntryForm" property="caseNote.id">
 	<nested:notEmpty name="newNoteIdx">
@@ -121,9 +98,7 @@
 </nested:empty>
 </div>
 
-<div style="margin-left: 3px; font-size: 11px;"><span style="float: left;">
-<bean:message key="oscarEncounter.editors.title"/>:</span> 
-<nested:equal
+<div style="margin-left: 3px; font-size: 11px;"><span style="float: left;"><bean:message key="oscarEncounter.editors.title"/>:</span> <nested:equal
 	name="newNote" value="false">
 	<ul style="list-style: none inside none; margin: 0px;">
 		<nested:iterate indexId="eIdx" id="editor" property="caseNote.editors"
@@ -147,14 +122,14 @@
 </div>
 
 <%
-Facility currentFacility = loggedInInfo73557.getCurrentFacility();
+Facility currentFacility = org.oscarehr.util.LoggedInInfo.loggedInInfo.get().currentFacility;
 String programId = (String)request.getSession().getAttribute("case_program_id");
 Program currentProgram = null;
 if (programId != null) {
     ProgramDao programDao=(ProgramDao)SpringUtils.getBean("programDao");
     currentProgram = programDao.getProgram(Integer.valueOf(programId));
 }
-if(currentFacility.isEnableEncounterTime() || (currentProgram != null && currentProgram.getEnableEncounterTime())) {  
+if(currentFacility.isEnableEncounterTime() || (currentProgram != null && currentProgram.isEnableEncounterTime())) {  
 %>
 <div style="clear: right; margin: 0px 30px 0px 0px; font-size: 11px; float: right;"><span>
 <nested:notEmpty name="ajaxsave">
@@ -206,18 +181,30 @@ if(currentFacility.isEnableEncounterTransportationTime() || (currentProgram != n
 <%
 	encSelect += noteIndex;
 %>
-<div style="clear: right; margin: 0px 3px 0px 0px; font-size: 11px; float: right;">
-<bean:message key="oscarEncounter.encType.title"/>:&nbsp;
+<div style="clear: right; margin: 0px 3px 0px 0px; font-size: 11px; float: right;"><bean:message key="oscarEncounter.encType.title"/>:&nbsp;
 <span id="encType<%=noteIndex%>">
 	<nested:empty name="ajaxsave">
 	<html:select styleId="<%=encSelect%>" styleClass="encTypeCombo"
 		name="caseManagementEntryForm" property="caseNote.encounter_type">
 		<html:option value=""></html:option>
+		<html:option value="face to face encounter with client"><bean:message key="oscarEncounter.faceToFaceEnc.title"/></html:option>
+		<html:option value="telephone encounter with client"><bean:message key="oscarEncounter.telephoneEnc.title"/></html:option>
+		<html:option value="email encounter with client"><bean:message key="oscarEncounter.emailEnc.title"/></html:option>
+		<html:option value="encounter without client"><bean:message key="oscarEncounter.noClientEnc.title"/></html:option>
+		<html:option value="telephone encounter without client"><bean:message key="oscarEncounter.telephoneEncWithoutClient.title"/></html:option>
+		
 		<%
-			for(EncounterType encType : encounterTypeDao.findAll()) {
+			if(org.oscarehr.util.LoggedInInfo.loggedInInfo.get().currentFacility.isEnableGroupNotes()) {
 		%>
-				<html:option value="<%=encType.getValue() %>"><%=encType.getValue() %></html:option>
-		<% } %>
+		
+		<html:option value="group face to face encounter"><bean:message key="oscarEncounter.groupFaceEnc.title"/></html:option>
+		<html:option value="group telephone encounter"><bean:message key="oscarEncounter.groupTelephoneEnc.title"/></html:option>
+		<html:option value="group encounter with client"><bean:message key="oscarEncounter.emailEnc.title"/></html:option>
+		<html:option value="group encounter without group"><bean:message key="oscarEncounter.groupNoClientEnc.title"/></html:option>
+		
+		<%
+			}
+		%>
 	</html:select>
 	</nested:empty> <nested:notEmpty name="ajaxsave">
             &quot;<nested:write name="caseManagementEntryForm"
@@ -334,8 +321,6 @@ if(currentFacility.isEnableEncounterTransportationTime() || (currentProgram != n
 </table>
 </div>
 
-<!-- end of div noteIssues-resolved -->
-
 <% int countUnresolvedIssue = -1; %>
 <div id="noteIssues-unresolved" style="margin: 0px; background-color: #CCCCFF; font-size: 11px; display: none;">
 <b><bean:message key="oscarEncounter.referenceUnresolvedIssues.title"/></b>
@@ -354,8 +339,10 @@ if(currentFacility.isEnableEncounterTransportationTime() || (currentProgram != n
 	countUnresolvedIssue ++;
 	if (countUnresolvedIssue % 2 == 0)
 	{
-		%> <tr> <% 
-	} 
+	%>
+	<tr>
+	<%
+	}
 	%>
 	<td style="width: 50%; font-size: 11px; background-color: #CCCCFF;">
 		<%
@@ -395,18 +382,24 @@ if(currentFacility.isEnableEncounterTransportationTime() || (currentProgram != n
 		<div style="width: 50%; float: left; display: inline; clear: right;"><nested:radio indexed="true" name="issueCheckList" property="issue.major" disabled="<%=disabled%>" value="false" onchange="<%=submitString%>">not major</nested:radio></div>
 		<div style="width: 50%; float: left; display: inline;"><nested:radio indexed="true" name="issueCheckList" property="issue.resolved" value="true" onchange="<%=submitString%>">resolved</nested:radio></div>
 		<div style="width: 50%; float: left; display: inline; clear: right;"><nested:radio indexed="true" name="issueCheckList" property="issue.resolved" value="false" onchange="<%=submitString%>">unresolved</nested:radio></div>
-		<div style="text-align: center;"><nested:text indexed="true" name="issueCheckList" property="issueDisplay.role" size="10" disabled="<%=disabled%>" /></div>
+		 <div style="text-align: center;"><nested:text indexed="true" name="issueCheckList" property="issueDisplay.role" size="10" disabled="<%=disabled%>" /></div>
 		</div>
 		</div>
 	</td>
- 	<% if (countUnresolvedIssue % 2 != 0) { %>
+ 	<%
+	if (countUnresolvedIssue % 2 != 0)
+ 	{
+	%>
 	</tr>
-	<% } %>
+	<%
+ 	}
+	 %>
 	</nested:equal>
 	</nested:iterate>
 </table>
-</div> <!-- end of div noteIssues-unresolved -->
-</div> <!-- end of div noteIssues -->	
+</div>
+</div>
+	
 			
 <div id='autosaveTime' class='sig' style='text-align:center; margin:0px;'></div>
 <script type="text/javascript">   
@@ -502,4 +495,3 @@ if(currentFacility.isEnableEncounterTransportationTime() || (currentProgram != n
         Calendar.setup({ inputField : "observationDate", ifFormat : "%d-%b-%Y %H:%M ", showsTime :true, button : "observationDate_cal", singleClick : true, step : 1 });    
    }
 </script>
-</div>

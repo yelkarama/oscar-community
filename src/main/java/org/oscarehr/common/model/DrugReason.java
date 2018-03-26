@@ -85,7 +85,7 @@ public class DrugReason extends AbstractModel<Integer> implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id = null;
 	private Integer drugId = null;
-	private String codingSystem = null;    // (icd9,icd10,etc...) OR protocol	
+	private String codingSystem = null;    // (icd9,icd10,etc...) OR protocol
 	private String code = null;   // (250 (for icd9) or could be the protocol identifier )
 	private String comments = null;
 	private Boolean primaryReasonFlag;
@@ -97,7 +97,8 @@ public class DrugReason extends AbstractModel<Integer> implements Serializable {
 	@Column(name = "dateCoded")
 	@Temporal(TemporalType.DATE)
 	private Date dateCoded = null;
-
+			        
+  
 	@Override
     public Integer getId() {
     	return id;
@@ -209,5 +210,4 @@ public class DrugReason extends AbstractModel<Integer> implements Serializable {
 		}
 		return auditStr.toString();
 	}
-
 }

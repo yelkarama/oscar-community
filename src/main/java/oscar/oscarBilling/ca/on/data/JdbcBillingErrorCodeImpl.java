@@ -18,19 +18,42 @@
 
 package oscar.oscarBilling.ca.on.data;
 
-import org.oscarehr.common.dao.BillingONErrorCodeDao;
-import org.oscarehr.common.model.BillingONErrorCode;
-import org.oscarehr.util.SpringUtils;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Properties;
+
+import org.apache.log4j.Logger;
 
 public class JdbcBillingErrorCodeImpl {
+	private static final Logger _logger = Logger.getLogger(JdbcBillingErrorCodeImpl.class);
+	BillingONDataHelp dbObj = new BillingONDataHelp();
+
+	public Properties getBillingErrorCodeProp(String strServiceCode) {
+		Properties ret = new Properties();
+		String sql = "select * from billing_on_errorCode where code in (" + strServiceCode + ")";
+		ResultSet rs = dbObj.searchDBRecord(sql);
+		try {
+			while (rs.next()) {
+				ret.setProperty(rs.getString("code"), rs.getString("description"));
+			}
+		} catch (SQLException e) {
+			_logger.error("getBillingErrorCodeProp(sql = " + sql + ")");
+		}
+		return ret;
+	}
 
 	public String getCodeDesc(String strServiceCode) {
-		BillingONErrorCodeDao dao = SpringUtils.getBean(BillingONErrorCodeDao.class);
-		BillingONErrorCode code = dao.find(strServiceCode);
-		if (code != null) {
-			return code.getDescription();
+		String ret = null;
+		String sql = "select * from billing_on_errorCode where code ='" + strServiceCode + "'";
+		ResultSet rs = dbObj.searchDBRecord(sql);
+		try {
+			while (rs.next()) {
+				ret = rs.getString("description");
+			}
+		} catch (SQLException e) {
+			_logger.error("getCodeDesc(sql = " + sql + ")");
 		}
-		return null;
+		return ret;
 	}
 
 }

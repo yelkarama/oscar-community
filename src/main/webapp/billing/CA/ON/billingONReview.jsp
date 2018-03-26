@@ -17,38 +17,12 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 --%>
-<%@page import="org.apache.commons.lang.time.DateFormatUtils"%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_billing" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-
-<%@page import="org.oscarehr.common.dao.BillingServiceDao"%>
-<%@page import="org.oscarehr.common.dao.DemographicDao"%>
-<%@page import="org.oscarehr.common.dao.DxresearchDAO" %>
-<%@page import="org.oscarehr.common.model.Dxresearch" %>
-<%@page import="org.oscarehr.common.model.Demographic"%>
-<%@page import="org.oscarehr.common.model.Provider"%>
-<%@page import="org.oscarehr.PMmodule.dao.ProviderDao"%>
 <%! boolean bMultisites = org.oscarehr.common.IsPropertiesOn.isMultisitesEnable(); %>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
-<%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-
+<%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar" %>
 <%@ page errorPage="errorpage.jsp"
 	import="java.util.*,java.math.*,java.net.*,java.sql.*,oscar.util.*,oscar.*,oscar.appt.*"%>
 <%@ page import="oscar.oscarBilling.ca.on.administration.*"%>
@@ -60,20 +34,13 @@ if(!authed) {
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.model.DiagnosticCode" %>
 <%@ page import="org.oscarehr.common.dao.DiagnosticCodeDao" %>
-<%@ page import="org.oscarehr.common.dao.BillingONCHeader1Dao, org.oscarehr.common.model.BillingONCHeader1" %>
-
-<script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery.js"></script>
-<script>
-    jQuery.noConflict();
-</script>
-
-
 <%
 	DiagnosticCodeDao diagnosticCodeDao = SpringUtils.getBean(DiagnosticCodeDao.class);
-        BillingONCHeader1Dao billingONCHeader1Dao = (BillingONCHeader1Dao) SpringUtils.getBean("billingONCHeader1Dao");
 %>
 <%//
-	
+	if (session.getAttribute("user") == null) {
+		response.sendRedirect("../../../logout.jsp");
+	}
 
 			String user_no = (String) session.getAttribute("user");
 			String providerview = request.getParameter("providerview") == null ? "" : request
@@ -82,10 +49,6 @@ if(!authed) {
 			String color = "";
 			String premiumFlag = "";
 			String service_form = "";
-			String prevId = "";
-            if (request.getParameter("prevId") != null) {
-            	prevId = request.getParameter("prevId");
-            }
 %>
 
 <%
@@ -158,17 +121,12 @@ boolean dupServiceCode = false;
         }
         ///////--------
 
-    String warningMsg = "";
-	String errorFlag = "";
-	String errorMsg = "";
-        
 	Vector vecCodeItem = prepObj.getServiceCodeReviewVec(vecServiceParam[0], vecServiceParam[1],vecServiceParam[2],billReferalDate);
 	Vector vecPercCodeItem = prepObj.getPercCodeReviewVec(vecServiceParam[0], vecServiceParam[1], vecCodeItem,billReferalDate);  //LINE CAUSING ERROR
 
 
         Properties propCodeDesc = (new JdbcBillingCodeImpl()).getCodeDescByNames(vecServiceParam[0]);
-			String dxCode = request.getParameter("dxCode");
-			String dxDesc = prepObj.getDxDescription(dxCode);
+			String dxDesc = prepObj.getDxDescription(request.getParameter("dxCode"));
 			String clinicview = oscarVariables.getProperty("clinic_view", "");
 			String clinicNo = oscarVariables.getProperty("clinic_no", "");
 			String visitType = oscarVariables.getProperty("visit_type", "");
@@ -178,7 +136,7 @@ boolean dupServiceCode = false;
 			String apptProvider_no = request.getParameter("apptProvider_no");
 			String ctlBillForm = request.getParameter("billForm");
 			String assgProvider_no = request.getParameter("assgProvider_no");
-			String billType = request.getParameter("xml_billtype").substring(0,((String)request.getParameter("xml_billtype")).indexOf("|")).trim();
+			//String            dob               = request.getParameter("dob");
 			String demoSex = request.getParameter("DemoSex");
 			GregorianCalendar now = new GregorianCalendar();
 			int curYear = now.get(Calendar.YEAR);
@@ -187,87 +145,77 @@ boolean dupServiceCode = false;
 			int dob_year = 0, dob_month = 0, dob_date = 0, age = 0;
 			String content = "";
 			String total = "";
-			
-			//add to patientDx (or not)
-			if ("yes".equals(request.getParameter("addToPatientDx"))) {
-				String dxCodeMatch = request.getParameter("codeMatchToPatientDx");
-				String dxCodeAdd = dxCodeMatch.isEmpty() ? dxCode : dxCodeMatch;
-				
-				DxresearchDAO dxresearchDao = SpringUtils.getBean(DxresearchDAO.class);
-				java.util.Date d = new java.util.Date();
-				Dxresearch dx = new Dxresearch(Integer.valueOf(demo_no), d, d, 'A', dxCodeAdd, "icd9", (byte)0, user_no);
-				dxresearchDao.save(dx);
-			}
 
+			BillingONDataHelp dbObj = new BillingONDataHelp();
 			String msg = "<tr><td colspan='2'>Calculation</td></tr>";
 			String action = "edit";
 			Properties propHist = null;
 			Vector vecHist = new Vector();
 			// get provider's detail
 			String proOHIPNO = "", proRMA = "";
-			
-			ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
-			Provider ppp = providerDao.getProvider(request.getParameter("xml_provider"));
-			if (ppp != null) {
-				proOHIPNO = ppp.getOhipNo(); 
-				proRMA = ppp.getRmaNo();
+			String sql = "select * from provider where provider_no='" + request.getParameter("xml_provider") + "'";
+			ResultSet rs = dbObj.searchDBRecord(sql);
+			while (rs.next()) {
+				proOHIPNO = rs.getString("ohip_no");
+				proRMA = rs.getString("rma_no");
 			}
 			if (request.getParameter("xml_provider") != null)
 				providerview = request.getParameter("xml_provider");
 			// get patient's detail
+			String errorFlag = "";
+			String warningMsg = "", errorMsg = "";
 			String r_doctor = "", r_doctor_ohip = "";
 			String demoFirst = "", demoLast = "", demoHIN = "", demoVer = "", demoDOB = "", demoDOBYY = "", demoDOBMM = "", demoDOBDD = "", demoHCTYPE = "";
 			String strPatientAddr = "";
-			
-			DemographicDao demoDao = SpringUtils.getBean(DemographicDao.class);
-			Demographic demo = demoDao.getDemographic(demo_no);
-			if (demo != null) {
-				strPatientAddr = demo.getFirstName() + " " + demo.getLastName() + "\n"
-				+ demo.getAddress() + "\n"
-				+ demo.getCity() + ", " + demo.getProvince() + "\n"
-				+ demo.getPostal() + "\n"
-				+ "Tel: " + demo.getPhone();
+			sql = "select * from demographic where demographic_no=" + demo_no;
+			rs = dbObj.searchDBRecord(sql);
+			while (rs.next()) {
+				strPatientAddr = rs.getString("first_name") + " " + rs.getString("last_name") + "\n"
+				+ rs.getString("address") + "\n"
+				+ rs.getString("city") + ", " + rs.getString("province") + "\n"
+				+ rs.getString("postal") + "\n"
+				+ "Tel: " + rs.getString("phone") ;
 
-				assgProvider_no = demo.getProviderNo();
-				demoFirst = demo.getFirstName();
-				demoLast = demo.getLastName();
-				demoHIN = demo.getHin();
-				demoVer = demo.getVer();
-				demoSex = demo.getSex();
+				assgProvider_no = rs.getString("provider_no");
+				demoFirst = rs.getString("first_name");
+				demoLast = rs.getString("last_name");
+				demoHIN = rs.getString("hin");
+				demoVer = rs.getString("ver");
+				demoSex = rs.getString("sex");
 				if (demoSex.compareTo("M") == 0)
 					demoSex = "1";
 				if (demoSex.compareTo("F") == 0)
 					demoSex = "2";
 
-				demoHCTYPE = demo.getHcType() == null ? "" : demo.getHcType();
+				demoHCTYPE = rs.getString("hc_type") == null ? "" : rs.getString("hc_type");
 				if (demoHCTYPE.compareTo("") == 0 || demoHCTYPE == null || demoHCTYPE.length() < 2) {
 					demoHCTYPE = "ON";
 				} else {
 					demoHCTYPE = demoHCTYPE.substring(0, 2).toUpperCase();
 				}
-				demoDOBYY = demo.getYearOfBirth();
-				demoDOBMM = demo.getMonthOfBirth();
-				demoDOBDD = demo.getDateOfBirth();
+				demoDOBYY = rs.getString("year_of_birth");
+				demoDOBMM = rs.getString("month_of_birth");
+				demoDOBDD = rs.getString("date_of_birth");
 
-				if (demo.getFamilyDoctor() == null) {
+				if (rs.getString("family_doctor") == null) {
 					r_doctor = "N/A";
 					r_doctor_ohip = "000000";
 				} else {
-					r_doctor = SxmlMisc.getXmlContent(demo.getFamilyDoctor(), "rd") == null ? "" : SxmlMisc
-							.getXmlContent(demo.getFamilyDoctor(), "rd");
-					r_doctor_ohip = SxmlMisc.getXmlContent(demo.getFamilyDoctor(), "rdohip") == null ? ""
-							: SxmlMisc.getXmlContent(demo.getFamilyDoctor(), "rdohip");
+					r_doctor = SxmlMisc.getXmlContent(rs.getString("family_doctor"), "rd") == null ? "" : SxmlMisc
+							.getXmlContent(rs.getString("family_doctor"), "rd");
+					r_doctor_ohip = SxmlMisc.getXmlContent(rs.getString("family_doctor"), "rdohip") == null ? ""
+							: SxmlMisc.getXmlContent(rs.getString("family_doctor"), "rdohip");
 				}
 
 				demoDOBMM = demoDOBMM.length() == 1 ? ("0" + demoDOBMM) : demoDOBMM;
 				demoDOBDD = demoDOBDD.length() == 1 ? ("0" + demoDOBDD) : demoDOBDD;
 				demoDOB = demoDOBYY + demoDOBMM + demoDOBDD;
 
-				if (demo.getHin() == null) {
+				if (rs.getString("hin") == null) {
 					errorFlag = "1";
 					errorMsg = errorMsg
 							+ "<br><div class='myError'>Error: The patient does not have a valid HIN. </div><br>";
-				} else if (demo.getHin().equals("")) {
+				} else if (rs.getString("hin").equals("")) {
 					warningMsg += "<br><div class='myError'>Warning: The patient does not have a valid HIN. </div><br>";
 				}
 				if (r_doctor_ohip != null && r_doctor_ohip.length() > 0 && r_doctor_ohip.length() != 6) {
@@ -285,9 +233,7 @@ boolean dupServiceCode = false;
 			String wrongMsg = errorMsg + warningMsg;
 
 			%>
-<c:set var="ctx" value="${pageContext.request.contextPath}" scope="request"/>
-<c:set var="demographicNo" value="${param.demographic_no}" scope="request"/>
-<oscar:customInterface section="billingreview"/>
+
 
 <%@page import="org.oscarehr.common.dao.SiteDao"%>
 <%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
@@ -301,25 +247,23 @@ boolean dupServiceCode = false;
    </script>
 <oscar:customInterface section="billingReview"/>
 <script language="JavaScript">
-        ctx = "<c:out value="${ctx}"/>";
-    	demographicNo = "<c:out value="${demographicNo}"/>";
-    
-		var bClick = false;
-	    
-		function onSave() {
-		var value=jQuery("#payee").val();
-		jQuery("#payeename").val(value);
-            var ret = checkTotal();
+
+	var bClick = false;
+	    function onSave() {
+
+            var ret = true;
+
+
+
+
             bClick = false;
 
-            return ret;
-        }
-	    
+                return ret;
+            }
 	    function onClickSave() {
 			bClick = true;
 	    }
-		
-	    function popupPage(vheight,vwidth,varpage) {
+		function popupPage(vheight,vwidth,varpage) {
 		  var page = "" + varpage;
 		  windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=0,screenY=0,top=0,left=0";
 		  var popup=window.open(page, "billcorrection", windowprops);
@@ -336,160 +280,16 @@ boolean dupServiceCode = false;
 
 		function scriptAttach(elementName) {
 		     var d = elementName;
-		     //t0 = escape("document.forms[0].elements[\'"+d+"\'].value");
-		     t0 = d;
+		     t0 = escape("document.forms[0].elements[\'"+d+"\'].value");
 		     popupPage('600', '700', 'onSearch3rdBillAddr.jsp?param='+t0);
 		}
                 function showtotal(){
-                	document.getElementById('payMethod_0').checked=true;
                     var subtotal = document.getElementById("total").value;
                     //subtotal = subtotal * 1 + document.getElementById("gst").value * 1;
                     var element = document.getElementById("stotal");
                     if( element != null )
                         element.value = subtotal;
                 }
-                
-                function validatePaymentNumberic(idx) {
-                	var oldVal = document.getElementById("percCodeSubtotal_" + idx).value;
-                	var val = document.getElementById("paid_" + idx).value;
-                	/* if (val.length == 0) {
-                		document.getElementById("paid_" + idx).value = "0.00";
-                		oldVal = "0.00";
-                		return;
-                	} */
-                	//var regexNumberic = /^([1-9]\d*|0)(\.\d{1,2})?$/;
-                	var regexNumberic = /^([1-9]\d{0,9}|0)(\.\d{1,2})?$/;
-                	if (!regexNumberic.test(val)) {
-                		document.getElementById("paid_" + idx).value = oldVal;
-                		alert("Please enter digital numbers !");
-                		return;
-                	}
-                	oldVal = val;
-		}
-
-
-                function validateDiscountNumberic(idx) {
-                	var oldVal = "0.00";
-                	var val = document.getElementById("discount_" + idx).value;
-                	if (val.length == 0) {
-                		document.getElementById("discount_" + idx).value = "0.00";
-                		oldVal = "0.00";
-                		return;
-                	}
-                	//var regexNumberic = /^([1-9]\d*|0)(\.\d{1,2})?$/;
-                	var regexNumberic = /^([1-9]\d{0,9}|0)(\.\d{1,2})?$/;
-                	if (!regexNumberic.test(val)) {
-                		document.getElementById("discount_" + idx).value = oldVal;
-                		alert("Please enter digital numbers !");
-                		return;
-                	}
-                	oldVal = val;
-                }
-                
-                function validateFeeNumberic(idx) {
-                	var oldVal = "0.00";
-                	var val = document.getElementById("percCodeSubtotal_" + idx).value;
-                	if (val.length == 0) {
-                		document.getElementById("percCodeSubtotal_" + idx).value = "0.00";
-                		oldVal = "0.00";
-                		return;
-                	}
-                	//var regexNumberic = /^([1-9]\d*|0)(\.\d{1,2})?$/;
-                	var regexNumberic = /^([1-9]\d{0,9}|0)(\.\d{1,2})?$/;
-                	if (!regexNumberic.test(val)) {
-                		document.getElementById("percCodeSubtotal_" + idx).value = oldVal;
-                		alert("Please enter digital numbers !");
-                		return;
-                	}
-                	oldVal = val;
-                }
-
-
-                
-       function updateElement(eId, data) {
-    	   jQuery("#"+eId).val(data);
-       }
-       
-       function checkTotal() {
-    	   var totValue = document.getElementById("total").value;
-    	   if(isNaN(totValue)) {
-    		   alert("Please enter a valid fee");
-    		   return false;
-    	   }
-    	   return true;
-       }
-       
-       function updateTotal(e) {
-    	   var editedValue = e.value;
-    	   if( isNaN(editedValue) ) {
-    		   alert("Please enter a valid fee");
-    		   e.focus();
-    	   }
-    	   else {
-    			var codeFees;
-    			var unit;
-    			var total = 0.0;
-    			var idx = 0;
-    			var displayTotal = "0.00";
-    			
-    			while( (codeFees = document.getElementById("percCodeSubtotal_" + idx)) ) {    				    			
-    				total += parseInt(codeFees.value);
-    				++idx;
-    			}
-    		    			
-    			updateElement("total", formatTotal(total));    			    			
-    			total += new Number(jQuery("#gst").val());    			
-    			updateElement("gstBilledTotal", formatTotal(total));
-    			
-    	   }
-    	   
-       }
-       
-       function formatTotal(total) {
-    	   var displayTotal = "0.00";
-    	   var decimal = total % 1;
-    	   
-    	   if( decimal == 0 ) {
-				displayTotal = total + ".00";
-			}
-			else if( (decimal*10) % 1 < 0.1 ) {
-				displayTotal = total + "0";
-			}
-			else {
-				displayTotal = total;
-			}
-    	   
-    	   return displayTotal;
-       }
-       
-       function checkPaymentMethod(settle) {
-    	   var payMethods = document.getElementsByName("payMethod");
-    	   var checkedMethod = false;
-    	   
-    	   if( settle != "Settle" && document.forms[0].payment.value == 0 ) {
-    		   return true;
-    	   }
-    	   
-    	   
-    	   for( var idx = 0; idx < payMethods.length; ++idx ) {
-    		   if( payMethods[idx].checked ) {
-    			   checkedMethod = true;
-    			   break;
-    		   }
-    	   }
-    	   
-    	   if( !checkedMethod ) {
-    		   alert("Please select a payment method");
-    	   }
-    	   else if( settle == "Settle") {
-    		   document.forms['titlesearch'].btnPressed.value='Settle';
-    		   document.forms['titlesearch'].submit();
-    		   popupPage(700,720,'billingON3rdInv.jsp');
-    	   }
-    	   
-    	   return checkedMethod;
-    	   
-       }
 
 	//-->
 
@@ -582,15 +382,14 @@ window.onload=function(){
 
 </head>
 
-<body topmargin="0" onload="showtotal(),calculatePayment()">
+<body topmargin="0" onload="showtotal()">
 
 <form method="post" name="titlesearch" action="billingONSave.jsp" onsubmit="return onSave();">
     <input type="hidden" name="url_back" value="<%=request.getParameter("url_back")%>">
     <input type="hidden" name="billNo_old" id="billNo_old" value="<%=request.getParameter("billNo_old")%>" />
 	<input type="hidden" name="billStatus_old" id="billStatus_old" value="<%=request.getParameter("billStatus_old")%>" />
 	<input type="hidden" name="billForm" id="billForm" value="<%=request.getParameter("billForm")%>" />
-    <input type="hidden" name="payeename" id="payeename" value="" />
-    <input type="hidden" name="prevId" id="prevId" value="<%=prevId %>"/>
+
 <table border="0" cellpadding="0" cellspacing="2" width="100%" class="myIvory">
 	<tr>
 		<td>
@@ -625,7 +424,7 @@ window.onload=function(){
 						<td nowrap width="30%" align="center" ><b>Service Date</b><br>
 						<%=request.getParameter("service_date").replaceAll("\\n", "<br>")%></td>
 						<td align="center" width="33%"><b>Diagnostic Code</b><br>
-						<%=dxCode%></br>
+						<%=request.getParameter("dxCode")%></br>
 						<%=dxDesc%>
 						</td>
 						<td valign="top"><b>Refer. Doctor</b><br>
@@ -696,58 +495,16 @@ window.onload=function(){
 		<table border="1" width="100%" bordercolorlight="#99A005" bordercolordark="#FFFFFF">
 <%  boolean codeValid = true;
 
-    //validation that user hasn't already had billed to OHIP an annual physical this year
+    //validation of user entered service codes
     String serviceCodeValue = null;
-    int srvCodeIdx = 0;
-    while (codeValid && (srvCodeIdx < BillingDataHlp.FIELD_SERVICE_NUM)) {
-         
-         serviceCodeValue = request.getParameter("serviceCode" + srvCodeIdx);
-         //Only worry about this check if we are billing OHIP for A003
-         if (serviceCodeValue.equals("A003A") && request.getParameter("xml_billtype").matches("ODP.*")) {
-            BillingONCHeader1 bCh1 = billingONCHeader1Dao.getLastOHIPBillingDateForServiceCode(Integer.parseInt(demo_no),"A003A");
-            if (bCh1 != null) {                
-                Calendar serviceDateCal = Calendar.getInstance();                
-                java.util.Date serviceDate = null;               
-                try {                   
-                    serviceDate = oscar.util.DateUtils.parseDate(request.getParameter("service_date"),request.getLocale()); 
-                    serviceDateCal.setTime(serviceDate);                    
-                } catch (java.text.ParseException e) {}
-                
-                Calendar nextBillDateCal = Calendar.getInstance();               
-                nextBillDateCal.setTime(bCh1.getBillingDate());
-                //year plus a day
-                nextBillDateCal.add(Calendar.YEAR,1); 
-                nextBillDateCal.add(Calendar.DATE,1);
-                if (nextBillDateCal.after(serviceDateCal)) {
-                      codeValid = false;
-    %>
-                       <tr style="color:white">
-                            <td align=center>
-                                <div class='myError'>
-                                  (<bean:message key="oscar.billing.ca.on.billingON.review.invoiceNo"/><%=String.valueOf(bCh1.getId())%>) A003A - <bean:message key="oscar.billing.ca.on.billingON.review.msgServiceCodeAlreadyBilled"/>                                
-                                </div>
-                            </td>
-                       </tr>
-    <%               
-                }
-            }
-        }
-        srvCodeIdx++;
-    }
-    
-    //validation of user entered service codes    
-    serviceCodeValue = null;
     for (int i = 0; i < BillingDataHlp.FIELD_SERVICE_NUM; i++) {
 	serviceCodeValue = request.getParameter("serviceCode" + i);
 
 	if (!serviceCodeValue.equals("")) {
-		BillingServiceDao billingServiceDao = SpringUtils.getBean(BillingServiceDao.class); 
-		
-		List<Object> svcCodes = billingServiceDao.findBillingCodesByCodeAndTerminationDate(serviceCodeValue.trim().replaceAll("_","\\_"),
-				ConversionUtils.fromDateString(billReferalDate));
-	    
-	    if (svcCodes.isEmpty()) {
-			codeValid = false;
+	    sql = "select distinct(service_code) from billingservice where  service_code='" + serviceCodeValue.trim().replaceAll("_","\\_") + "' and termination_date > '" + billReferalDate + "'";
+            rs = dbObj.searchDBRecord(sql);
+	    if (!rs.next()) {
+		codeValid = false;
 		%>
 		<tr class="myErrorText"><td align=center>
 		    &nbsp;<br>
@@ -761,7 +518,7 @@ window.onload=function(){
     //validation of diagnostic code (dxcode)
     String dxCodeValue = null;
     for (int i = 0; i < 3; i++) {
-	if (i==0) dxCodeValue=dxCode;
+	if (i==0) dxCodeValue=request.getParameter("dxCode");
 	else dxCodeValue=request.getParameter("dxCode" + i);
 	if (!dxCodeValue.equals("")) {
 		List<DiagnosticCode> dcodes = diagnosticCodeDao.findByDiagnosticCode(dxCodeValue.trim());
@@ -782,11 +539,7 @@ window.onload=function(){
 			<%--= msg --%>
 			<tr class="myYellow">
 				<td colspan='3'>Calculation</td>
-				<%if(!"PAT".equals(billType)){%>
 				<td>Description</td>
-				<%}else{%>
-				<td width="14%">Description</td><td width="3%">Payment</td><td width="3%">Discount</td>
-				<%}%>
 			</tr>
 <%  }
 			//Vector[] vecServiceParam = prepObj.getRequestCodeVec(request, "serviceDate", "serviceUnit", "serviceAt", 8);
@@ -801,15 +554,13 @@ window.onload=function(){
 				Vector vecPercMin = new Vector();
 				Vector vecPercMax = new Vector();
 				for(int i=0; i<vecServiceParam[0].size(); i++) {
-					String codeName = vecServiceParam[0].get(i);
-					if(nCode<vecCodeItem.size() && codeName.equals( ((BillingReviewCodeItem)vecCodeItem.get(nCode)).getCodeName())) {
+					String codeName = (String)vecServiceParam[0].get(i);
+					if(nCode<vecCodeItem.size() && codeName.equals((String) ((BillingReviewCodeItem)vecCodeItem.get(nCode)).getCodeName())) {
 						n++;
-						String codeDescription = ((BillingReviewCodeItem)vecCodeItem.get(nCode)).getCodeDescription();
-						String codeUnit = ((BillingReviewCodeItem)vecCodeItem.get(nCode)).getCodeUnit();
-						String codeFee = ((BillingReviewCodeItem)vecCodeItem.get(nCode)).getCodeFee();
-						String codeTotal = ((BillingReviewCodeItem)vecCodeItem.get(nCode)).getCodeTotal();
-                        String strWarning = ((BillingReviewCodeItem)vecCodeItem.get(nCode)).getMsg();
-                        String codeAt = ((BillingReviewCodeItem)vecCodeItem.get(nCode)).getCodeAt();
+						String codeUnit = (String)((BillingReviewCodeItem)vecCodeItem.get(nCode)).getCodeUnit();
+						String codeFee = (String)((BillingReviewCodeItem)vecCodeItem.get(nCode)).getCodeFee();
+						String codeTotal = (String)((BillingReviewCodeItem)vecCodeItem.get(nCode)).getCodeTotal();
+                        String strWarning = (String)((BillingReviewCodeItem)vecCodeItem.get(nCode)).getMsg();
                                                 gstFlag = gstRep.getGstFlag(codeName,billReferalDate);  // Retrieve whether the code has gst involved
                                                 BigDecimal cTotal = new BigDecimal(codeTotal);
                                                 if ( gstFlag.equals("1") ){   // If it does, update the total with the gst calculated
@@ -837,29 +588,18 @@ window.onload=function(){
                     <span style="color:red; float:left;"><%=strWarning%></span>
                     <%}%>
                     <span style="float:right;"> <%=codeFee %> x <%=codeUnit %><% if (gstFlag.equals("1")){%> + <%=percent%>% GST<%}%> =
-				<input type="text" name="percCodeSubtotal_<%=i %>" size="5" value="<%=codeTotal %>" id="percCodeSubtotal_<%=i %>" onBlur="calculateTotal();" onchange="validateFeeNumberic(<%=i%>)"/>
+				<input type="text" name="percCodeSubtotal_<%=i %>" size="5" value="<%=codeTotal %>" />
 				<input type="hidden" name="xserviceCode_<%=i %>" value="<%=codeName %>" />
-				<input type="hidden" id="xserviceUnit_<%=i %>" name="xserviceUnit_<%=i %>" value="<%=codeUnit %>" />
+				<input type="hidden" name="xserviceUnit_<%=i %>" value="<%=codeUnit %>" />
                     </span>
 				</td>
-				<%if(!"PAT".equals(billType)){%>
-					<td width='25%'><%=propCodeDesc.getProperty(codeName, "") %></td>
-				<%}else{
-				String paid_value = "0.00";
-				%>
-				<oscar:oscarPropertiesCheck property="BILLING_REVIEW_AUTO_PAYMENT" value="yes">
-				<%paid_value = codeTotal; %>
-				</oscar:oscarPropertiesCheck>
-				<td nowrap width='14%'><pre><%=codeDescription%></pre></td>
-				<td nowrap width='3%'><input type="text" id="paid_<%=i%>" name="paid_<%=i %>" value="<%=paid_value%>" onBlur="calculatePayment();" onchange="validatePaymentNumberic(<%=i %>)"/></td>
-				<td nowrap width='3%'><input type="text" id="discount_<%=i%>" name="discount_<%=i %>" value="0.00" onBlur="calculateDiscount();" onchange="validateDiscountNumberic(<%=i %>)"/></td>
-				<%}%>
+				<td width='25%'><%=propCodeDesc.getProperty(codeName, "") %></td>
 			</tr>
 			<%
                         }
 						nCode++;
 					}
-					else if(nPerc<vecPercCodeItem.size() && codeName.equals( ((BillingReviewPercItem)vecPercCodeItem.get(nPerc)).getCodeName())) {
+					else if(nPerc<vecPercCodeItem.size() && codeName.equals((String) ((BillingReviewPercItem)vecPercCodeItem.get(nPerc)).getCodeName())) {
 			if (codeValid) {
                                             %>
 			<tr class="myPink">
@@ -873,7 +613,7 @@ window.onload=function(){
 						String percFee = percItem.getCodeFee();
 						Vector vecPercFee = percItem.getVecCodeFee();
 						Vector vecPercTotal = percItem.getVecCodeTotal();
-						String codeUnit = percItem.getCodeUnit();
+						String codeUnit = (String)percItem.getCodeUnit();
 						for(int j=0; j<vecPercTotal.size(); j++) {
 							String percTotal = (Float.parseFloat((String)vecPercTotal.get(j)) )*Integer.parseInt(codeUnit) + "";
 				if (codeValid) {
@@ -905,7 +645,7 @@ window.onload=function(){
                         if (codeValid) {
 			%>
 			<tr>
-				<td align='right' colspan='3' class="myGreen">Total: <input type="text" id="total" name="total" size="5" value="0.00" onchange="onTotalChanged();"/>
+				<td align='right' colspan='3' class="myGreen">Total: <input type="text" id="total" name="total" size="5" value="0.00" />
 				<input type="hidden" name="totalItem" value="<%=vecServiceParam[0].size() %>" /></td>
 <script Language="JavaScript">
 <!--
@@ -991,12 +731,12 @@ function onCheckMaster() {
 
 				<td colspan='3' align='center' bgcolor="silver">
 				    <input type="submit" name="button" value="Back to Edit" style="width: 120px;" />
-                                    <% if (codeValid && !dupServiceCode) { %>
+                                    <% if (codeValid & !dupServiceCode) { %>
                                     <input type="submit" name="submit" value="Save" style="width: 120px;" onClick="onClickSave();"/>
 				    <input type="submit" name="submit" value="Save & Add Another Bill" onClick="onClickSave();"/>
-                                    <% }else if (dupServiceCode){%>
+                                    <% }else {%>
                                     <td><div class='myError'>Warning: Duplicated service codes. </div></td>
-                                    <% }
+                                    <%    }
                                     %>
                                     </td>
 			</tr>
@@ -1015,8 +755,6 @@ function onCheckMaster() {
             boolean bMoreAddr = props.getProperty("scheduleSiteID", "").equals("") ? false : true;
             if(bMoreAddr) {
             	tempLoc = request.getParameter("siteId").trim();
-            } else {
-            	tempLoc = props.getProperty("BILLING_NOTE","");
             }
 		} else {
 			tempLoc = request.getParameter("site");
@@ -1051,6 +789,7 @@ if(request.getParameter("xml_billtype")!=null && !request.getParameter("xml_bill
                              + "Fax: "+provider.getClinicFax() ;
 
 if (codeValid) { %>
+%>
 
 <%
 // for satellite clinics
@@ -1091,8 +830,6 @@ if (bMultisites) {
 		clinicAddress = strClinicAddr;
 	}
 }
-	OscarProperties props = OscarProperties.getInstance();
-	String tempLoc = props.getProperty("BILLING_NOTE","");
 %>
 <tr><td>
 		<table border="1" width="100%" bordercolorlight="#99A005" bordercolordark="#FFFFFF">
@@ -1101,76 +838,41 @@ if (bMultisites) {
 			</tr>
 			<tr><td width="80%">
 
-			<table id="privateBillInfo" border="0" width="100%" >
-			<tr><td>Bill To [<a href=# onclick="scriptAttach('billTo'); return false;">Search</a>]<br>
-			<textarea name="billto" id="billTo" cols=30 rows=6><%=strPatientAddr %></textarea></td>
-			<td>Remit To [<a href=# onclick="scriptAttach('remitTo'); return false;">Search</a>]<br>
-			<textarea name="remitto" id="remitTo" value="" cols=30 rows=6><%=clinicAddress%></textarea></td>
-			<td>Payee<br>
-             <% 
-             String  providerNo= request.getParameter("xml_provider");
-             int indexnumber=providerNo.indexOf("|");
-             if(indexnumber!=-1)
-             {
-             providerNo=providerNo.substring(0,indexnumber);
-             }
-             
-             String payeename="";
-             String lname="";
-             String fname="";
-             Provider p = providerDao.getProvider(providerNo);
-             lname = p.getLastName();
-             fname = p.getFirstName();   
-             payeename=fname+" "+lname;
-             	  
-Properties prop = oscar.OscarProperties.getInstance();
-   String payee = prop.getProperty("PAYEE", "");
-   payee = payee.trim();
-   if( payee.length() > 0 ) {
-%>
-   <textarea id="payee" name="payee" value="" cols=20 rows=6><%=payee%></textarea></td>
-<% } else { %>
-   <textarea id="payee"  name="payee" value="" cols=20 rows=6><%=payeename%></textarea></td>
-   <input type="hidden" name="payeename1" id="payeename1" value="<%=payeename%>" />
-<% } %>
+			<table border="0" width="100%" >
+			<tr><td>Bill To [<a href=# onclick="scriptAttach('billto'); return false;">Search</a>]<br>
+			<textarea name="billto" value="" cols=30 rows=6><%=strPatientAddr %></textarea></td>
+			<td>Remit To [<a href=# onclick="scriptAttach('remitto'); return false;">Search</a>]<br>
+			<textarea name="remitto" value="" cols=30 rows=6><%=clinicAddress%></textarea></td>
 			</tr>
 			</table>
 			<table border="0" width="100%" >
 			<tr>
 			<td >
 			Billing Notes:<br>
-			<textarea name="comment" cols=100 rows=6><%=tempLoc %></textarea>
+			<textarea name="comment" value="" cols=60 rows=4></textarea>
 			</td>
 			<td align="right">
                         <input type="hidden" name="provider_no" value="<%=request.getParameter("xml_provider").substring(0,request.getParameter("xml_provider").indexOf("|"))%>"/>
                         GST Billed:<input type="text" id="gst" name="gst" value="<%=gstTotal%>" size="6"/><br>
                         <input type="hidden" id="gstBilledTotal" name="gstBilledTotal" value="<%=gstbilledtotal%>" size="6" />
                         Total:<input type="text" id="stotal" disabled name = "stotal" value="0.00" size="6" /><br>
-			Payments:<input type="text"  disabled name="payment1" id="payment"value="0.00" size="6" onDblClick="settlePayment();" /><br/>
-			Discount:<input type="text" disabled name="discount2" id="discount"value="0.00" size="6"/>
+			Payments:<input type="text" name="payment" value="0.00" size="6" onDblClick="settlePayment();" /><br/>
+			Refunds:<input type="text" name="refund" value="0.00" size="6"/>
 			</td>
 			</tr>
 			</table>
 
 			<td class="myGreen">
-			Payment Date:<br/>
-			<input type="text" name="payment_date" id="payment_date" value="<%=DateFormatUtils.format(new java.util.Date(), "yyyy-MM-dd")%>" size="10"/>
-			<br/>
-			<br/>
-			
 			Payment Method:<br/>
 			<% for(int i=0; i<al.size(); i=i+2) { %>
-			<input type="radio" name="payMethod" value="<%=al.get(i) %>" id="payMethod_<%=i %>"/><%=al.get(i+1) %><br/>
+			<input type="radio" name="payMethod" value="<%=al.get(i) %>"/><%=al.get(i+1) %><br/>
 			<% } %>
 			</td></tr>
 			<tr>
 				<td colspan='2' align='center' bgcolor="silver"><input type="submit" name="submit" value="Save & Print Invoice"
-					style="width: 150px;" /><input type="submit" name="submit" id="settlePrintBtn"
-					value="Settle & Print Invoice" onClick="document.forms['titlesearch'].btnPressed.value='Settle'; document.forms['titlesearch'].submit();javascript:popupPage(700,720,'billingON3rdInv.jsp');" style="width: 160px;" />
+					style="width: 120px;" /><input type="submit" name="submit"
+					value="Settle & Print Invoice" onClick="document.forms['titlesearch'].btnPressed.value='Settle'; document.forms['titlesearch'].submit();javascript:popupPage(700,720,'billingON3rdInv.jsp');" style="width: 120px;" />
 				<input type="hidden"  name="btnPressed" value="">
-				<input type="hidden" name="total_payment" id="total_payment" value="0.00"/>
-				<input type="hidden" name="total_discount" id="total_discount" value="0.00"/>
-				<input type="hidden" name="refund" id="refund" value="0.00"/>
 				</td>
 			</tr>
 		</table>
@@ -1192,81 +894,31 @@ Properties prop = oscar.OscarProperties.getInstance();
 
 
 <script language="JavaScript">
-function calculatePayment(){
-    var payment = 0.00;
-    jQuery("input[id^='paid_']").each(function(index) {
-    	if (this != null && this.value.length > 0) {
-    		payment = parseFloat(payment) + parseFloat(this.value);
-    		payment = payment.toFixed(2);
-    	}
-    });
-
-	document.getElementById("payment").value=payment;
-	document.getElementById("total_payment").value=payment;
-}
-
-function calculateDiscount(){
-	var discount = 0.00;
-	jQuery("input[id^='discount_']").each(function(index) {
-		if (this != null && this.value.length > 0) {
-			discount = parseFloat(discount) + parseFloat(this.value);
-			discount = discount.toFixed(2);
-		}
-	});
-	
-	document.getElementById("discount").value = discount;
-	document.getElementById("total_discount").value = discount;
-}
-
-function calculateTotal() {
-	var total = 0.00;
-	jQuery("input[id^='percCodeSubtotal_']").each(function (index) {
-		if (this != null && this.value.length > 0) {
-			total = parseFloat(total) + parseFloat(this.value);
-			total = total.toFixed(2);
-		}
-	});
-	jQuery("#total").val(total);
-	jQuery("#gstBilledTotal").val(total);
-	jQuery("#stotal").val(total);
-}
-
-function onTotalChanged() {
-	var val = document.getElementById("total").value;
-	var regexNumberic = /^([1-9]\d{0,9}|0)(\.\d{1,2})?$/;
-	if (!regexNumberic.test(val)) {
-		calculateTotal();
-		alert("Please enter digital numbers !");
-		return;
-	}
-	
-	var total = jQuery("#total").val();
-	jQuery("#gstBilledTotal").val(total);
-	jQuery("#stotal").val(total);
-}
 
 function addToDiseaseRegistry(){
-	if ( validateItems() ) {
-		var url = "../../../oscarResearch/oscarDxResearch/dxResearch.do";
-		var data = Form.serialize(dxForm);
-		
-		new Ajax.Updater('dxListing',url, {method: 'post',postBody: data,asynchronous:true,onComplete: getNewCurrentDxCodeList});
-	}
+    if ( validateItems() ) {
+	var url = "../../../oscarResearch/oscarDxResearch/dxResearch.do";
+	var data = Form.serialize(dxForm);
+	//alert ( data);
+	new Ajax.Updater('dxListing',url, {method: 'post',postBody: data,asynchronous:true,onComplete: getNewCurrentDxCodeList});
+    }else{
+       alert("Error: Nothing was selected");
+    }
 }
 
-function validateItems(){
-	var ret = false;
-	
-	dxChecks = document.getElementsByName("xml_research");
-	for( idx = 0; idx < dxChecks.length; ++idx ) {
-		if( dxChecks[idx].checked ) {
-			ret = true;
-			break;
-		}
-	}
-	if (!ret) alert("Error: Nothing was selected");
-	else ret = confirm("Are you sure to add to the patient's disease registry?");
-	return ret;
+function validateItems(form){
+    var dxChecks;
+    var ret = false;
+
+    dxChecks = document.getElementsByName("xml_research");
+
+     for( idx = 0; idx < dxChecks.length; ++idx ) {
+        if( dxChecks[idx].checked ) {
+            ret = true;
+            break;
+        }
+     }
+    return ret;
 }
 
 
@@ -1280,22 +932,14 @@ function getNewCurrentDxCodeList(origRequest){
    //alert(origRequest.responseText);
 }
 
+
 </script>
 
 
 <oscar:oscarPropertiesCheck property="DX_QUICK_LIST_BILLING_REVIEW" value="yes">
 
 <div class="dxBox">
-    <h3>&nbsp;Current Patient Dx List &nbsp;<a href="#" onclick="Element.toggle('dxFullListing'); return false;" style="font-size:small;" >show/hide</a></h3>
-       <div class="wrapper" id="dxFullListing">
-       <jsp:include page="../../../oscarResearch/oscarDxResearch/currentCodeList.jsp">
-          <jsp:param name="demographicNo" value="<%=demo_no%>"/>
-       </jsp:include>
-       </div>
-</div>
-
-<div class="dxBox">
-    <h3>&nbsp;Dx Quick Pick Add Lists</h3>
+    <h3>&nbsp;Dx Quick Pick Add List</h3>
        <form id="dxForm">
        <input type="hidden" name="demographicNo" value="<%=demo_no%>" />
        <input type="hidden" name="providerNo" value="<%=session.getAttribute("user")%>" />
@@ -1307,9 +951,20 @@ function getNewCurrentDxCodeList(origRequest){
        </jsp:include>
        </div>
        <input type="button" value="Add To Disease Registry" onclick="addToDiseaseRegistry()"/>
+       <!--input type="button" value="check" onclick="getNewCurrentDxCodeList()"/>
+<input type="button" value="check" onclick="validateItems()"/-->
        </form>
 </div>
 
+
+<div class="dxBox">
+    <h3>&nbsp;Current Patient Dx List  <a href="#" onclick="Element.toggle('dxFullListing'); return false;" style="font-size:small;" >show/hide</a></h3>
+       <div class="wrapper" id="dxFullListing"  style="display:none;">
+       <jsp:include page="../../../oscarResearch/oscarDxResearch/currentCodeList.jsp">
+          <jsp:param name="demographicNo" value="<%=demo_no%>"/>
+       </jsp:include>
+       </div>
+</div>
 </oscar:oscarPropertiesCheck>
 
 </body>

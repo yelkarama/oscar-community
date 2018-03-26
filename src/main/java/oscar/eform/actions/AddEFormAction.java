@@ -27,7 +27,7 @@ package oscar.eform.actions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -42,13 +42,11 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
-import org.oscarehr.common.model.Demographic;
-import org.oscarehr.managers.DemographicManager;
-import org.oscarehr.managers.EformDataManager;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.match.IMatchManager;
-import org.oscarehr.match.MatchManager;
-import org.oscarehr.match.MatchManagerException;
+import org.oscarehr.common.dao.DatabaseAPDao;
+import org.oscarehr.common.dao.DemographicArchiveDao;
+import org.oscarehr.common.dao.DemographicDao;
+import org.oscarehr.common.dao.EFormDataDao;
+import org.oscarehr.common.model.EFormData;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
@@ -64,25 +62,18 @@ import oscar.util.StringUtils;
 public class AddEFormAction extends Action {
 
 	private static final Logger logger=MiscUtils.getLogger();
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	private EformDataManager eformDataManager = SpringUtils.getBean( EformDataManager.class );
-	
+
+	private DemographicArchiveDao demographicArchiveDao = (DemographicArchiveDao)SpringUtils.getBean("demographicArchiveDao");
+	private DemographicDao demographicDao = (DemographicDao)SpringUtils.getBean("demographicDao");
+
+
 	public ActionForward execute(ActionMapping mapping, ActionForm form,
 			HttpServletRequest request, HttpServletResponse response) {
-		
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_eform", "w", null)) {
-			throw new SecurityException("missing required security object (_eform)");
-		}
-		
 		logger.debug("==================SAVING ==============");
 		HttpSession se = request.getSession();
 
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		String providerNo=loggedInInfo.getLoggedInProviderNo();
-
 		boolean fax = "true".equals(request.getParameter("faxEForm"));
 		boolean print = "true".equals(request.getParameter("print"));
-		boolean saveAsEdoc = "true".equals( request.getParameter("saveAsEdoc") );
 
 		@SuppressWarnings("unchecked")
 		Enumeration<String> paramNamesE = request.getParameterNames();
@@ -93,6 +84,7 @@ public class AddEFormAction extends Action {
 		String demographic_no = request.getParameter("efmdemographic_no");
 		String eform_link = request.getParameter("eform_link");
 		String subject = request.getParameter("subject");
+		String provider_no = LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo();
 
 		boolean doDatabaseUpdate = false;
 
@@ -128,6 +120,7 @@ public class AddEFormAction extends Action {
 			}
 
 			if (!validationError) {
+				DatabaseAPDao databaseApDao = (DatabaseAPDao) SpringUtils.getBean("databaseApDao");
 				for (String field : oscarUpdateFields) {
 					EFormLoader.getInstance();
 					DatabaseAP currentAP = EFormLoader.getAP(field);
@@ -136,18 +129,17 @@ public class AddEFormAction extends Action {
 						String inSQL = currentAP.getApInSQL();
 
 						inSQL = DatabaseAP.parserReplace("demographic", demographic_no, inSQL);
-						inSQL = DatabaseAP.parserReplace("provider", providerNo, inSQL);
+						inSQL = DatabaseAP.parserReplace("provider", provider_no, inSQL);
 						inSQL = DatabaseAP.parserReplace("fid", fid, inSQL);
 
 						inSQL = DatabaseAP.parserReplace("value", request.getParameter(field), inSQL);
 
-						//if(currentAP.getArchive() != null && currentAP.getArchive().equals("demographic")) {
-						//	demographicArchiveDao.archiveRecord(demographicManager.getDemographic(loggedInInfo,demographic_no));
-						//}
+						if(currentAP.getArchive() != null && currentAP.getArchive().equals("demographic")) {
+							demographicArchiveDao.archiveRecord(demographicDao.getDemographic(demographic_no));
+						}
 
 						// Run the SQL query against the database
-						//TODO: do this a different way.
-						MiscUtils.getLogger().error("Error",new Exception("EForm is using disabled functionality for updating fields..update not performed"));
+						databaseApDao.executeUpdate(inSQL, currentAP.getApName(), Integer.parseInt(demographic_no), fid, request.getRemoteAddr());
 					}
 				}
 			}
@@ -159,21 +151,17 @@ public class AddEFormAction extends Action {
 			curField = paramNamesE.nextElement();
 			if( curField.equalsIgnoreCase("parentAjaxId"))
 				continue;
-			if(request.getParameter(curField) != null && (!request.getParameter(curField).trim().equals("")) )
-			{
-				paramNames.add(curField);
-				paramValues.add(request.getParameter(curField));
-			}
-			
+			paramNames.add(curField);
+			paramValues.add(request.getParameter(curField));
 		}
 
-		EForm curForm = new EForm(fid, demographic_no, providerNo);
+		EForm curForm = new EForm(fid, demographic_no, provider_no);
 
 		//add eform_link value from session attribute
 		ArrayList<String> openerNames = curForm.getOpenerNames();
 		ArrayList<String> openerValues = new ArrayList<String>();
 		for (String name : openerNames) {
-			String lnk = providerNo+"_"+demographic_no+"_"+fid+"_"+name;
+			String lnk = provider_no+"_"+demographic_no+"_"+fid+"_"+name;
 			String val = (String)se.getAttribute(lnk);
 			openerValues.add(val);
 			if (val!=null) se.removeAttribute(lnk);
@@ -205,13 +193,11 @@ public class AddEFormAction extends Action {
 				sameform = curForm.getFormHtml().equals(prevForm.getFormHtml());
 			}			
 		}
-		if (!sameform) { //save eform data
-
-			String fdid = eformDataManager.saveEformData( loggedInInfo, curForm ) + "";
-
-			if( saveAsEdoc ) {
-				eformDataManager.saveEformDataAsEDoc( loggedInInfo, fdid ); 
-			}
+		if (!sameform) {
+			EFormDataDao eFormDataDao=(EFormDataDao)SpringUtils.getBean("EFormDataDao");
+			EFormData eFormData=toEFormData(curForm);
+			eFormDataDao.persist(eFormData);
+			String fdid = eFormData.getId().toString();
 
 			EFormUtil.addEFormValues(paramNames, paramValues, new Integer(fdid), new Integer(fid), new Integer(demographic_no)); //adds parsed values
 
@@ -232,13 +218,13 @@ public class AddEFormAction extends Action {
 
 			else {
 				//write template message to echart
-				String program_no = new EctProgram(se).getProgram(providerNo);
+				String program_no = new EctProgram(se).getProgram(provider_no);
 				String path = request.getRequestURL().toString();
 				String uri = request.getRequestURI();
 				path = path.substring(0, path.indexOf(uri));
 				path += request.getContextPath();
 	
-				EFormUtil.writeEformTemplate(LoggedInInfo.getLoggedInInfoFromSession(request),paramNames, paramValues, curForm, fdid, program_no, path);
+				EFormUtil.writeEformTemplate(paramNames, paramValues, curForm, fdid, program_no, path);
 			}
 			
 		}
@@ -253,43 +239,27 @@ public class AddEFormAction extends Action {
 				request.setAttribute("fdid", prev_fdid);
 				return(mapping.findForward("print"));
 			}
-			
-			if( saveAsEdoc ) {
-				eformDataManager.saveEformDataAsEDoc( loggedInInfo, prev_fdid ); 
-			}
 		}
 		
-		if (demographic_no != null) {
-			IMatchManager matchManager = new MatchManager();
-			DemographicManager demographicManager = SpringUtils.getBean(DemographicManager.class);
-			Demographic client = demographicManager.getDemographic(loggedInInfo,demographic_no);
-			try {
-	            matchManager.<Demographic>processEvent(client, IMatchManager.Event.CLIENT_CREATED);
-            } catch (MatchManagerException e) {
-            	MiscUtils.getLogger().error("Error while processing MatchManager.processEvent(Client)",e);
-            }
-		}
 		
 
 		return(mapping.findForward("close"));
 	}
 
-	// MOVED TO MANAGER.
-//	private EFormData toEFormData(EForm eForm) {
-//		EFormData eFormData=new EFormData();
-//		eFormData.setFormId(Integer.parseInt(eForm.getFid()));
-//		eFormData.setFormName(eForm.getFormName());
-//		eFormData.setSubject(eForm.getFormSubject());
-//		eFormData.setDemographicId(Integer.parseInt(eForm.getDemographicNo()));
-//		eFormData.setCurrent(true);
-//		eFormData.setFormDate(new Date());
-//		eFormData.setFormTime(eFormData.getFormDate());
-//		eFormData.setProviderNo(eForm.getProviderNo());
-//		eFormData.setFormData(eForm.getFormHtml());
-//		eFormData.setShowLatestFormOnly(eForm.isShowLatestFormOnly());
-//		eFormData.setPatientIndependent(eForm.isPatientIndependent());
-//		eFormData.setRoleType(eForm.getRoleType());
-//
-//		return(eFormData);
-//	}
+	private EFormData toEFormData(EForm eForm) {
+		EFormData eFormData=new EFormData();
+		eFormData.setFormId(Integer.parseInt(eForm.getFid()));
+		eFormData.setFormName(eForm.getFormName());
+		eFormData.setSubject(eForm.getFormSubject());
+		eFormData.setDemographicId(Integer.parseInt(eForm.getDemographicNo()));
+		eFormData.setCurrent(true);
+		eFormData.setFormDate(new Date());
+		eFormData.setFormTime(eFormData.getFormDate());
+		eFormData.setProviderNo(eForm.getProviderNo());
+		eFormData.setFormData(eForm.getFormHtml());
+		eFormData.setPatientIndependent(eForm.getPatientIndependent());
+		eFormData.setRoleType(eForm.getRoleType());
+
+		return(eFormData);
+	}
 }

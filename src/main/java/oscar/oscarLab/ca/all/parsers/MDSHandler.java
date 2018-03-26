@@ -73,8 +73,8 @@ public class MDSHandler implements MessageHandler {
     		return;
     	}
 
+
     	try {
-    	
 	        msg=DynamicHapiLoaderUtils.parseMdsMsg(hl7Body.replace( "\n", "\r\n"));
 	        terser = DynamicHapiLoaderUtils.getMdsTerser(msg);
 
@@ -130,7 +130,7 @@ public class MDSHandler implements MessageHandler {
 	        }
 	         */
         } catch (Exception e) {
-        	throw new HL7Exception(e);
+        	logger.error("Unexpected error", e);
         }
     }
 
@@ -459,13 +459,7 @@ public class MDSHandler implements MessageHandler {
 	              return(comment);
 
 	            }else{
-	                //return(getString(DynamicHapiLoaderUtils.terserGet(terser,"/."+segments[l]+"-3-2")));
-	            	String comment = null;
-					for (int x=0; x < nteSegs.length; x++){
-						String commentCode = getString(DynamicHapiLoaderUtils.terserGet(terser,nteSegs[x],3,0,2,1));
-						comment = (comment==null) ? commentCode : comment+"<br/>"+commentCode;
-					}
-					return comment;
+	                return(getString(DynamicHapiLoaderUtils.terserGet(terser,"/."+segments[l]+"-3-2")));
 	            }
 	        }catch(Exception e){
 	            logger.error("Could not retrieve OBX comments", e);
@@ -589,10 +583,9 @@ public class MDSHandler implements MessageHandler {
         }
     }
 
-    //should be from the 1st OBR always.
     public String getServiceDate(){
         try{
-        	Date mshDate = UtilDateUtilities.StringToDate(getRequestDate(0), "yyyy-MM-dd hh:mm:ss");
+            Date mshDate = UtilDateUtilities.StringToDate(getMsgDate(), "yyyy-MM-dd hh:mm:ss");
             return( UtilDateUtilities.DateToString(mshDate, "dd-MMM-yyyy") );
         }catch(Exception e){
             return("");
@@ -935,9 +928,6 @@ public class MDSHandler implements MessageHandler {
 
     public String getNteForOBX(int i, int j){
 
-    	return "";
-    }
-    public String getNteForPID() {
     	return "";
     }
 

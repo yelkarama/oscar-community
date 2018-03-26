@@ -94,7 +94,7 @@ public class OscarProperties extends Properties {
 	 */
 	public boolean hasProperty(String key) {
 		boolean prop = false;
-		String propertyValue = getProperty(key.trim());
+		String propertyValue = getProperty(key);
 		if (propertyValue != null) {
 			prop = true;
 		}
@@ -102,35 +102,29 @@ public class OscarProperties extends Properties {
 	}
 
 	/**
-	 * Will check the properties to see if that property is set and if it's set to the given value. 
-	 * If it is method returns true if not method returns false. 
-	 * This method returns positive response on any "true", "yes" or "on" values.
+	 * Will check the properties to see if that property is set and if it's set to the given value. If it is method returns true if not method returns false. This method was improved to ensure positive response on any "true", "yes" or "on" property value.
 	 * 
 	 * @param key key of property
 	 * @param val value that will cause a true value to be returned
 	 * @return boolean
 	 */
 	public boolean getBooleanProperty(String key, String val) {
-		key = key==null ? null : key.trim();
-		val = val==null ? null : val.trim();
 		// if we're checking for positive value, any "active" one will do
 		if (val != null && activeMarkers.contains(val.toLowerCase())) {
 			return isPropertyActive(key);
 		}
-		
-		return getProperty(key, "").trim().equalsIgnoreCase(val);
+
+		return getProperty(key, "").equalsIgnoreCase(val);
 	}
 
 	/**
-	 * Will check the properties to see if that property is set and if it's set to "true", "yes" or "on". 
-	 * If it is method returns true if not method returns false.
+	 * Will check the properties to see if that property is set and if it's set to "true", "yes" or "on" value. If it is method returns true if not method returns false.
 	 * 
 	 * @param key key of property
 	 * @return boolean whether the property is active
 	 */
 	public boolean isPropertyActive(String key) {
-		key = key==null ? null : key.trim();
-		return activeMarkers.contains(getProperty(key, "").trim().toLowerCase());
+		return activeMarkers.contains(getProperty(key, "").toLowerCase());
 	}
 
 	/*
@@ -181,18 +175,6 @@ public class OscarProperties extends Properties {
 
 	public boolean isAccountLockingEnabled() {
 		return isPropertyActive("ENABLE_ACCOUNT_LOCKING");
-	}
-	
-	public boolean isOntarioBillingRegion() {
-		return ( "ON".equals( getProperty("billregion") ) );
-	}
-	
-	public boolean isBritishColumbiaBillingRegion() {
-		return ( "BC".equals( getProperty("billregion") ) );
-	}
-	
-	public boolean isAlbertaBillingRegion() {
-		return ( "AB".equals( getProperty("billregion") ) );
 	}
 
 	public boolean isCaisiLoaded() {
@@ -333,34 +315,4 @@ public class OscarProperties extends Properties {
 		return Integer.parseInt(prop);
 	}
 
-	public static String getIntakeProgramAccessServiceId() {
-		return oscarProperties.getProperty("form_intake_program_access_service_id");
-	}
-	
-	public static String getIntakeProgramCashServiceId() {
-		return oscarProperties.getProperty("form_intake_program_cash_service_id");
-	}
-	
-	public static String getIntakeProgramAccessFId() {
-		return oscarProperties.getProperty("form_intake_program_access_fid");
-	}
-	
-	public static String getConfidentialityStatement() {
-		String result = null;
-		int count = 1;
-		String statement = null;
-		while ((statement = oscarProperties.getProperty("confidentiality_statement.v" + count)) != null) {
-			count++;
-			result = statement;
-		}
-		return result;
-	}
-	
-	public static String getIntakeProgramCashFId() {
-		return oscarProperties.getProperty("form_intake_program_cash_fid");
-	}
-	
-	public static boolean isLdapAuthenticationEnabled() {
-		return Boolean.parseBoolean(oscarProperties.getProperty("ldap.enabled"));
-	}
 }

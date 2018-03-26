@@ -22,49 +22,75 @@
  * Ontario, Canada
  */
 
+
 package oscar.oscarReport.oscarMeasurements.data;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
-import org.oscarehr.common.dao.MeasurementDao;
-import org.oscarehr.util.SpringUtils;
+import org.oscarehr.util.MiscUtils;
 
-import oscar.util.ConversionUtils;
-
-
+import oscar.oscarDB.DBHandler;
 /**
- * This classes main function ConsultReportGenerate collects a group of patients with consults in the last specified date
- */
-public class RptMeasurementsData {
+*This classes main function ConsultReportGenerate collects a group of patients with consults in the last specified date
+*/
+public class RptMeasurementsData {    
 
-	/**
- 	 * Gets the number of Patient seen during aspecific time period
-	 *
-	 * @return 
-	 * 		number or Patients seen in Integer
-	 */
-	public int getNbPatientSeen(String startDateA, String endDateA) {
-		int nbPatient = 0;
-		MeasurementDao dao = SpringUtils.getBean(MeasurementDao.class);
-		for (Object o : dao.findByCreateDate(ConversionUtils.fromDateString(startDateA), ConversionUtils.fromDateString(endDateA))) {
-			nbPatient = (Integer) o;
-		}
-		return nbPatient;
-	}
+      /*****************************************************************************************
+     * get the number of Patient seen during aspecific time period
+     *
+     * @return number or Patients seen in Integer
+     ******************************************************************************************/  
+    public int getNbPatientSeen(String startDateA, String endDateA){
+        
+        int nbPatient = 0;
+        
+        try{
+            String sql = "SELECT DISTINCT demographicNo FROM measurements WHERE dateObserved >= '" + startDateA + "' AND dateObserved <= '" + endDateA + "'";
+            ResultSet rs;
+            rs = DBHandler.GetSQL(sql);
+            MiscUtils.getLogger().debug("SQL Statement: " + sql);
+            rs.last();
+            nbPatient = rs.getRow();
 
-	/**
-	 * get the number of patients during a specific time period
-	 *
-	 * @return 
-	 * 		ArrayList which contain the result in String format
-	 */
-	public ArrayList getPatientsSeen(String startDate, String endDate) {
-		ArrayList patients = new ArrayList();
-		MeasurementDao dao = SpringUtils.getBean(MeasurementDao.class);
-		for (Object[] o : dao.findByCreateDate(ConversionUtils.fromDateString(startDate), ConversionUtils.fromDateString(endDate))) {
-			Integer i = (Integer) o[0];
-			patients.add("" + i);
-		}
-		return patients;
-	}
+            rs.close();
+
+        }
+        catch(SQLException e)
+        {
+            MiscUtils.getLogger().error("Error", e);
+        }
+
+        return nbPatient;
+    }
+    
+    
+     /*****************************************************************************************
+     * get the number of patients during aspecific time period
+     *
+     * @return ArrayList which contain the result in String format
+     ******************************************************************************************/      
+    public ArrayList getPatientsSeen(String startDate, String endDate){
+
+        ArrayList patients = new ArrayList();
+        
+        try{
+            String sql = "SELECT DISTINCT demographicNo  FROM measurements WHERE dateObserved >= '" + startDate + "' AND dateObserved <= '" + endDate + "'";
+            MiscUtils.getLogger().debug("SQL Statement: " + sql);
+            ResultSet rs;
+            
+            for(rs=DBHandler.GetSQL(sql); rs.next();){            
+                String patient = rs.getString("demographicNo");
+                patients.add(patient);                
+            }
+            rs.close();
+        }
+        catch(SQLException e)
+        {
+            MiscUtils.getLogger().error("Error", e);
+        }
+       
+        return patients;
+    }        
 }

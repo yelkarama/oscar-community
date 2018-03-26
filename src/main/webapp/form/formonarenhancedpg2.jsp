@@ -24,22 +24,8 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_form" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_form");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-<%@ page import="oscar.form.graphic.*, oscar.util.*, oscar.form.*, oscar.form.data.*"%>
+<%@ page
+	import="oscar.form.graphic.*, oscar.util.*, oscar.form.*, oscar.form.data.*"%>
 <%@ page import="org.oscarehr.common.web.PregnancyAction"%>
 <%@ page import="java.util.List"%>
 <%@ page import="org.apache.struts.util.LabelValueBean"%>
@@ -47,10 +33,9 @@
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
-<%@ page import="org.oscarehr.util.LoggedInInfo"%>
+
 
 <%
-    String ctx = request.getContextPath();
     String formClass = "ONAREnhanced";
     String formLink = "formonarenhancedpg2.jsp";
 
@@ -58,7 +43,7 @@
     int formId = Integer.parseInt(request.getParameter("formId"));
     int provNo = Integer.parseInt((String) session.getAttribute("user"));
     FrmRecord rec = (new FrmRecordFactory()).factory(formClass);
-    java.util.Properties props = rec.getFormRecord(LoggedInInfo.getLoggedInInfoFromSession(request), demoNo, formId);
+    java.util.Properties props = rec.getFormRecord(demoNo, formId);
 
     FrmData fd = new FrmData();
     String resource = fd.getResource();
@@ -66,33 +51,33 @@
     props.setProperty("c_lastVisited", "pg2");
 
     //get project_home
-    String project_home = ctx.substring(1);   
+    String project_home = request.getContextPath().substring(1);   
     
     //load eform groups
     List<LabelValueBean> cytologyForms = PregnancyAction.getEformsByGroup("Cytology");
     List<LabelValueBean> ultrasoundForms = PregnancyAction.getEformsByGroup("Ultrasound");
-    
-    String customEformGroup = oscar.OscarProperties.getInstance().getProperty("prenatal_screening_eform_group");
-    String prenatalScreenName = oscar.OscarProperties.getInstance().getProperty("prenatal_screening_name");
-    String prenatalScreen = oscar.OscarProperties.getInstance().getProperty("prenatal_screening_abbrv");
-
-    List<LabelValueBean> customForms = PregnancyAction.getEformsByGroup(customEformGroup);
+    List<LabelValueBean> ipsForms = PregnancyAction.getEformsByGroup("IPS");
  
+    
     if(props.getProperty("rf_num", "0").equals("")) {props.setProperty("rf_num","0");}
     if(props.getProperty("sv_num", "0").equals("")) {props.setProperty("sv_num","0");}
     if(props.getProperty("us_num", "0").equals("")) {props.setProperty("us_num","0");}
     
     String labReqVer = oscar.OscarProperties.getInstance().getProperty("onare_labreqver","07");
     if(labReqVer.equals("")) {labReqVer="07";}
+%>
+<%
+  boolean bView = false;
+  if (request.getParameter("view") != null && request.getParameter("view").equals("1")) bView = true; 
+  %>
 
-	boolean bView = false;
-  	if (request.getParameter("view") != null && request.getParameter("view").equals("1")) bView = true; 
-
+<% 
     FrmAREnhancedBloodWorkTest ar1BloodWorkTest = new FrmAREnhancedBloodWorkTest(demoNo, formId); 
     java.util.Properties ar1Props = ar1BloodWorkTest.getAr1Props(); 
     int ar1BloodWorkTestListSize = ar1BloodWorkTest.getAr1BloodWorkTestListSize(); 
     String ar1CompleteSignal = "AR1 labs Complete"; 
-
+  %>
+<%
 	String abo = "";
 	String rh ="";
 	if(UtilMisc.htmlEscape(props.getProperty("ar2_bloodGroup", "")).equals("") ){
@@ -113,21 +98,21 @@
 <head>
 <title>Antenatal Record 2</title>
 <html:base />
-<script type="text/javascript" src="<%= ctx %>/js/global.js"></script>
+<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <link rel="stylesheet" type="text/css" href="<%=bView?"arStyleView.css" : "arStyle.css"%>">
 <link rel="stylesheet" type="text/css" media="all" href="../share/calendar/calendar.css" title="win2k-cold-1" />
 <script type="text/javascript" src="../share/calendar/calendar.js"></script>
 <script type="text/javascript" src="../share/calendar/lang/<bean:message key="global.javascript.calendar"/>"></script>
 <script type="text/javascript" src="../share/calendar/calendar-setup.js"></script>
 <script type="text/javascript" src="../js/jquery-1.7.1.min.js"></script>
-<script src="<%=ctx%>/js/jquery-ui-1.8.18.custom.min.js"></script>
-<script src="<%=ctx%>/js/fg.menu.js"></script>
-<script type="text/javascript" src="<%=ctx%>/js/fancybox/jquery.fancybox-1.3.4.pack.js"></script>
-<link rel="stylesheet" type="text/css" href="<%=ctx%>/js/fancybox/jquery.fancybox-1.3.4.css" media="screen" />
+<script src="<%=request.getContextPath()%>/js/jquery-ui-1.8.18.custom.min.js"></script>
+<script src="<%=request.getContextPath()%>/js/fg.menu.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath()%>/js/fancybox/jquery.fancybox-1.3.4.pack.js"></script>
+<link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/js/fancybox/jquery.fancybox-1.3.4.css" media="screen" />
 
 
-<link rel="stylesheet" href="<%=ctx%>/css/cupertino/jquery-ui-1.8.18.custom.css">
-<link rel="stylesheet" href="<%=ctx%>/css/fg.menu.css">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/cupertino/jquery-ui-1.8.18.custom.css">
+<link rel="stylesheet" href="<%=request.getContextPath()%>/css/fg.menu.css">
 
 <script>
 	$(document).ready(function(){	
@@ -137,6 +122,7 @@
 </script>
 
 <style type="text/css">
+
 body{
 margin: 0;
 padding: 0;
@@ -181,12 +167,11 @@ height: 100%;
 width: 100%; 
 }
 
-#bottomContent td,th,input,select{font-size:12px}
 </style>
 
 <script>
-	$(document).ready(function(){
 	<%if(bView) { %>
+	$(document).ready(function(){
 		$('input[type="text"],input[type="checkbox"],select').each(function(){
 			$(this).attr("disabled", "disabled");
 		});		
@@ -195,35 +180,10 @@ width: 100%;
 		$("#sv_badd_btn").hide();
 		$("#us_add_btn").hide();
 		$("#lock_req_btn").hide();
+	});
+	
 	<% } %>
 
-	    $(".limit-text").on('keypress keyup', function() {
-			mlength = $(this).attr('maxlength');
-			msg = $(this).attr('data-msg');
-			limitCharacters($(this),mlength,msg);
-		});
-
-		$('.limit-text').each(function(i, obj) {
-		    mlength = $(obj).attr('maxlength');
-			msg = $(obj).attr('data-msg');
-			length = mlength - parseInt($(obj).val().length);
-			if(length<0) {
-				length=0;
-			}
-			$("#"+msg).html(length + ' Characters left');
-		});
-
-	});
-
-	function limitCharacters( el, mlength, lbl ){	
-		length = mlength - parseInt($(el).val().length);
-		if(length<0) {
-			length=0;
-			$(el).val($(el).val().substring(0,150));
-		}
-		$("#"+lbl).html(length + ' Characters left');
-		$(el).val( $(el).val().replace( /\r?\n/gi, '' ) );
-	}
 
 	function loadCytologyForms() {
 	<%
@@ -234,7 +194,7 @@ width: 100%;
 				<%
 			} else if(cytologyForms.size() == 1) {
 				%>
-				popPage('<%=ctx%>/eform/efmformadd_data.jsp?fid=<%=cytologyForms.get(0).getValue()%>&demographic_no=<%=demoNo%>&appointment=0','cytology');			
+				popPage('<%=request.getContextPath()%>/eform/efmformadd_data.jsp?fid=<%=cytologyForms.get(0).getValue()%>&demographic_no=<%=demoNo%>&appointment=0','cytology');			
 				<%
 			} else {
 				%>$( "#cytology-eform-form" ).dialog( "open" );<%
@@ -252,7 +212,7 @@ width: 100%;
 					<%
 				} else if(ultrasoundForms.size() == 1) {
 					%>
-					popPage('<%=ctx%>/eform/efmformadd_data.jsp?fid=<%=ultrasoundForms.get(0).getValue()%>&demographic_no=<%=demoNo%>&appointment=0','ultrasound');			
+					popPage('<%=request.getContextPath()%>/eform/efmformadd_data.jsp?fid=<%=ultrasoundForms.get(0).getValue()%>&demographic_no=<%=demoNo%>&appointment=0','ultrasound');			
 					<%
 				} else {
 					%>$( "#ultrasound-eform-form" ).dialog( "open" );<%
@@ -262,23 +222,23 @@ width: 100%;
 		}
 		
 		
-function loadCustomForms() {
-	<%
-		if(customForms != null) {
-			if(customForms.size()==0) {
-				%>
-					alert('No <%=customEformGroup%> Forms configured');
-				<%
-			} else if(customForms.size() == 1) {
-				%>
-				popPage('<%=ctx%>/eform/efmformadd_data.jsp?fid=<%=customForms.get(0).getValue()%>&demographic_no=<%=demoNo%>&appointment=0','<%=customEformGroup%>form');			
-				<%
-			} else {
-				%>$( "#custom-eform-form" ).dialog( "open" );<%
+	function loadIPSForms() {
+		<%
+			if(ipsForms != null) {
+				if(ipsForms.size()==0) {
+					%>
+						alert('No IPS Forms configured');
+					<%
+				} else if(ipsForms.size() == 1) {
+					%>
+					popPage('<%=request.getContextPath()%>/eform/efmformadd_data.jsp?fid=<%=ipsForms.get(0).getValue()%>&demographic_no=<%=demoNo%>&appointment=0','ipsform');			
+					<%
+				} else {
+					%>$( "#ips-eform-form" ).dialog( "open" );<%
+				}
 			}
+		%>
 		}
-	%>
-	}
 	
 	function validate() {
 		for(var x=1;x<=70;x++) {
@@ -308,7 +268,7 @@ function loadCustomForms() {
 				
 			}
 		}
-
+		
 		for(var x=1;x<=12;x++) {
 			if($('#us_'+ x).length>0) {
 				var patt1=new RegExp("^(\\d{4}/\\d{2}/\\d{2})?$");
@@ -324,7 +284,6 @@ function loadCustomForms() {
 				}
 			}
 		}
-		
 		return true;
 	}
 
@@ -444,7 +403,10 @@ function loadCustomForms() {
 		}	
 		return total;
 	}
+</script>
 
+
+<script>
 function addRiskFactor() {
 	if(adjustDynamicListTotalsRF("rf_",20,false) >= 20) {
 		alert('Maximum number of rows is 20');
@@ -520,18 +482,7 @@ function addUltraSound() {
 	jQuery.ajax({url:'onarenhanced_us.jsp?n='+total,async:false, success:function(data) {
 		  jQuery("#us_container tbody").append(data);
 	}});
-	
-	Calendar.setup({ inputField : "ar2_uDate"+total, ifFormat : "%Y/%m/%d", showsTime :false, button : "ar2_uDate"+total+"_cal", singleClick : true, step : 1 });
 }
-
-
-function createCalendarSetupOnLoad(){
-	var numItems = $('.ar2uDate').length;
-	for(var x=1;x<=numItems;x++) {	
-		Calendar.setup({ inputField : "ar2_uDate"+x, ifFormat : "%Y/%m/%d", showsTime :false, button : "ar2_uDate"+x+"_cal", singleClick : true, step : 1 });
-	}
-}
-
 
 function deleteUltraSound(id) {
 	var followUpId = jQuery("input[name='us_"+id+"']").val();
@@ -541,7 +492,6 @@ function deleteUltraSound(id) {
 }
 
 jQuery(document).ready(function() {
-
 	<%
 		String rf = props.getProperty("rf_num", "0");
 		if(rf.length() == 0)
@@ -639,9 +589,6 @@ if(bView) {
 	<%
 }
 %>
-
-createCalendarSetupOnLoad();
-
 });
 
 
@@ -666,8 +613,8 @@ function updatePageLock(lock) {
 	   haveLock=false;
 		$.ajax({
 		   type: "POST",
-		   url: "<%=ctx%>/PageMonitoringService.do",
-		   data: { method: "update", page: "formonarenhanced", pageId: "<%=demoNo%>", lock: lock },
+		   url: "<%=request.getContextPath()%>/PageMonitoringService.do",
+		   data: { method: "update", page: "formonarenhanced<%=demoNo%>", lock: lock },
 		   dataType: 'json',
 		   success: function(data,textStatus) {
 			   lockData=data;
@@ -721,8 +668,11 @@ function onPrint2() {
 	$( "#print-dialog" ).dialog( "open" );
 	return false;
 }
+</script>
 
+</head>
 
+<script type="text/javascript" language="Javascript">
     function reset() {        
         document.forms[0].target = "";
         document.forms[0].action = "/<%=project_home%>/form/formname.do" ;
@@ -895,7 +845,7 @@ function onPrint2() {
         }
 
     }
-    function onSave() {
+    function onSave() {    	
         document.forms[0].submit.value="save";
         var ret = checkAllDates();
         var ret1 = validate();
@@ -918,7 +868,6 @@ function onPrint2() {
         adjustDynamicListTotals();
         return ret && ret1;
     }
-
     function onPageChange(url) {
     	var result = false;
     	var newID = 0;
@@ -933,7 +882,7 @@ function onPrint2() {
 	            window.onunload=null;
 	            adjustDynamicListTotals();
 	            jQuery.ajax({
-	            	url:'<%=ctx%>/Pregnancy.do?method=saveFormAjax',
+	            	url:'<%=request.getContextPath()%>/Pregnancy.do?method=saveFormAjax',
 	            	data: $("form").serialize(),
 	            	async:false, 
 	            	dataType:'json', 
@@ -973,7 +922,7 @@ function onPrint2() {
         	return false;
         <% } %>
     }
-    function popupRequisitionPage(varpage) {
+    function popupPage(varpage) {
         windowprops = "height=700,width=960"+
             ",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=no,screenX=50,screenY=50,top=20,left=20";
         var popup = window.open(varpage, "ar1", windowprops);
@@ -1421,7 +1370,7 @@ $(document).ready(function(){
 		}
 	});
 	
-	$( "#custom-eform-form" ).dialog({
+	$( "#ips-eform-form" ).dialog({
 		autoOpen: false,
 		height: 300,
 		width: 450,
@@ -1462,9 +1411,9 @@ $(document).ready(function(){
 				var penicillin = $("#penicillin").attr('checked');	
 				var demographic = '<%=props.getProperty("demographic_no", "0")%>';
 				var user = '<%=session.getAttribute("user")%>';
-				url = '<%=ctx%>/form/formlabreq<%=labReqVer %>.jsp?demographic_no='+demographic+'&formId=0&provNo='+user + '&fromSession=true';
-				jQuery.ajax({url:'<%=ctx%>/Pregnancy.do?method=createGBSLabReq&demographicNo='+demographic + '&penicillin='+penicillin,async:false, success:function(data) {
-					popupRequisitionPage(url);
+				url = '<%=request.getContextPath()%>/form/formlabreq<%=labReqVer %>.jsp?demographic_no='+demographic+'&formId=0&provNo='+user + '&fromSession=true';
+				jQuery.ajax({url:'<%=request.getContextPath()%>/Pregnancy.do?method=createGBSLabReq&demographicNo='+demographic + '&penicillin='+penicillin,async:false, success:function(data) {
+					popupPage(url);
 				}});								
 			},
 			Cancel: function() {
@@ -1505,7 +1454,7 @@ $(document).ready(function(){
 				
 				   
 				if(printLocation.length>0) {
-					jQuery.ajax({type:"POST",url:'<%=ctx%>/Pregnancy.do?method=recordPrint',data: {printLocation:printLocation,printMethod:printMethod,resourceName:'ONAREnhanced',resourceId:$('#episodeId').val()},async:true, success:function(data) {
+					jQuery.ajax({type:"POST",url:'<%=request.getContextPath()%>/Pregnancy.do?method=recordPrint',data: {printLocation:printLocation,printMethod:printMethod,resourceName:'ONAREnhanced',resourceId:$('#episodeId').val()},async:true, success:function(data) {
 						//do nothing at this time
 					}});					
 				}
@@ -1589,9 +1538,11 @@ $(document).ready(function(){
 	});
 });
 
-    $(function(){
+</script>
 
-<% if(!bView) { %>     			
+<% if(!bView) { %>
+<script type="text/javascript">    
+    $(function(){    			
 		$('#gbs_menu').bind('click',function(){gbsReq();});
 		$("#gd_menu").bind('click',function(){popPage('http://www.diabetes.ca/diabetes-and-you/what/gestational/','resource')});
 		$("#gct_menu").bind('click',function(){gctReq();});
@@ -1606,8 +1557,12 @@ $(document).ready(function(){
 			}			
 		});
 		
+		if(isFundalHeightOffTarget()) {
+			$("#fundal_graph_text").css('color','red');
+		}
+		
 		$("#print_log_menu").bind('click',function(){
-			jQuery.ajax({type:"POST",url:'<%=ctx%>/Pregnancy.do?method=getPrintData',data: {resourceName:'ONAREnhanced',resourceId:$('#episodeId').val()},dataType:'json',async:true, success:function(data) {
+			jQuery.ajax({type:"POST",url:'<%=request.getContextPath()%>/Pregnancy.do?method=getPrintData',data: {resourceName:'ONAREnhanced',resourceId:$('#episodeId').val()},dataType:'json',async:true, success:function(data) {
 				$("#print_log_table tbody").html("");
 				$.each(data, function(key, val) {
 					$("#print_log_table tbody").append('<tr><td>'+val.formattedDateString+'</td><td>'+val.providerName+'</td><td>'+val.externalLocation+'</td><td>'+val.externalMethod+'</td></tr>');					
@@ -1615,6 +1570,26 @@ $(document).ready(function(){
 				$( "#print-log-dialog" ).dialog("open");
 			}});
 		});
+		
+		$('#graph_menu').bind('click',function(){
+			
+			//gest,ht
+			var params="";
+			for(var x=1;x<=70;x++) {
+				var gest = $("input[name='pg2_gest"+x+"']").val();
+				var ht = $("input[name='pg2_ht"+x+"']").val();
+				if(gest != undefined && gest.length>0 && ht != undefined && ht.length>0) {					
+					params = params + "&ga"+x+"="+escape(gest)+"&fh"+x+"="+escape(ht);
+				}
+			}
+			
+			
+			$("#fundal_link").attr('href','<%=request.getContextPath()%>/Pregnancy.do?method=getFundalImage'+params);
+			$("#fundal_link").fancybox({type:'image'});
+			$("#fundal_link").click();			
+			
+		});
+		
 		
 		$('#lab_menu').menu({ 
 			content: $('#lab_menu_div').html(), 
@@ -1625,81 +1600,11 @@ $(document).ready(function(){
 			content: $('#forms_menu_div').html(), 
 			showSpeed: 400 
 		});
-
-<% } %>
-
-		$('#graph_menu').bind('click',function(){
-			fancyBoxFundal();
-		});
 		
-		function fancyBoxFundal(){
-			$("#fundal_link").attr('href',getFundalImageUrl('1'));
-			$("#fundal_link").fancybox({type:'image'});
-			$("#fundal_link").click();	
-		}
-		
-		function getFundalImageUrl(c){
-			var url="<%=ctx%>/Pregnancy.do?method=getFundalImage";
-			//gest,ht
-			var params="";
-			var n = getGestHtVal();
-			for(var x=1;x<=n;x++) {
-
-				var gest = $("input[name='pg2_gest"+x+"']").val();
-				var ht = $("input[name='pg2_ht"+x+"']").val();
-				
-				//if gest or ht are empty and the params not added the index breaks so change to 0 to not break the index which is the number that follows ga or ht
-				if(gest==""){
-					gest = "0";
-				}
-				
-				if(ht==""){
-					ht="0";
-				}
-					if(gest != undefined && gest.length>0 && ht != undefined && ht.length>0) {					
-						params = params + "&ga"+x+"="+escape(gest)+"&fh"+x+"="+escape(ht);
-					}
-					
-					
-			}
-			
-			url += params;
-
-			if(c=="1"){
-				return url;
-			}else{
-				$("#fundalImage").attr('src',url);
-			}
-			
-		}
-		
-	    $(document).on("change","input[name^='pg2_gest']", function(){   
-	         getFundalImageUrl();
-	    });
-	    
-	    $(document).on("change","input[name^='pg2_ht']", function(){
-	         getFundalImageUrl();
-	    });
-
-				
-		function getGestHtVal(){
-			var n = $(":input[name^='pg2_gest']").length;
-			return n;
-		}
-		
-		$("#fundalImageLink").click(function(){
-			getFundalImageUrl();
-			fancyBoxFundal();
-		});
-		
-		getFundalImageUrl();
-		
-		if(isFundalHeightOffTarget()) {
-			$("#fundal_graph_text").css('color','red');
-		}
-    
     });
-
+</script>
+<% } %>
+<script>
 	function wk24VisitTool() {
 		$( "#24wk-visit-form" ).dialog( "open" );	
 	}
@@ -1733,10 +1638,10 @@ $(document).ready(function(){
 					var gct_ab = $("#gct_ab").attr('checked');
 					var gct_glu = $("#gct_glu").attr('checked');
 					var user = '<%=session.getAttribute("user")%>';
-					url = '<%=ctx%>/form/formlabreq<%=labReqVer %>.jsp?demographic_no=<%=demoNo%>&formId=0&provNo='+user + '&fromSession=true';
-					var pregUrl = '<%=ctx%>/Pregnancy.do?method=createGCTLabReq&demographicNo=<%=demoNo%>&hb='+gct_hb+'&urine='+gct_urine+'&antibody='+gct_ab+'&glucose='+gct_glu;
+					url = '<%=request.getContextPath()%>/form/formlabreq<%=labReqVer %>.jsp?demographic_no=<%=demoNo%>&formId=0&provNo='+user + '&fromSession=true';
+					var pregUrl = '<%=request.getContextPath()%>/Pregnancy.do?method=createGCTLabReq&demographicNo=<%=demoNo%>&hb='+gct_hb+'&urine='+gct_urine+'&antibody='+gct_ab+'&glucose='+gct_glu;
 					jQuery.ajax({url:pregUrl,async:false, success:function(data) {
-						popupRequisitionPage(url);
+						popupPage(url);
 					}});
 				},
 				Cancel: function() {
@@ -1758,10 +1663,10 @@ $(document).ready(function(){
 					$( this ).dialog( "close" );			
 					var gtt_glu = $("#gtt_glu").attr('checked');
 					var user = '<%=session.getAttribute("user")%>';
-					url = '<%=ctx%>/form/formlabreq<%=labReqVer %>.jsp?demographic_no=<%=demoNo%>&formId=0&provNo='+user + '&fromSession=true';
-					var pregUrl = '<%=ctx%>/Pregnancy.do?method=createGTTLabReq&demographicNo=<%=demoNo%>&glucose='+gtt_glu;
+					url = '<%=request.getContextPath()%>/form/formlabreq<%=labReqVer %>.jsp?demographic_no=<%=demoNo%>&formId=0&provNo='+user + '&fromSession=true';
+					var pregUrl = '<%=request.getContextPath()%>/Pregnancy.do?method=createGTTLabReq&demographicNo=<%=demoNo%>&glucose='+gtt_glu;
 					jQuery.ajax({url:pregUrl,async:false, success:function(data) {
-						popupRequisitionPage(url);
+						popupPage(url);
 					}});
 				},
 				Cancel: function() {
@@ -1939,10 +1844,8 @@ $(document).ready(function(){
 	
 	function parseDate(input) {
 		  var parts = input.match(/(\d+)/g);
-		  if(parts!=null){
 		  // new Date(year, month [, date [, hours[, minutes[, seconds[, ms]]]]])
 		  return new Date(parts[0], parts[1]-1, parts[2]); // months are 0-based
-		  }
 		}
 
 	
@@ -2089,11 +1992,8 @@ $(document).ready(function(){
             -moz-opacity: 0.7;
             filter: alpha(opacity=70);
         }
-
-#content_bar{background-color:#c4e9f6;}
-.Head{width:100%;background-color:#ccc !important;}
 </style>
-</head>
+
 <body bgproperties="fixed" topmargin="0" leftmargin="0" rightmargin="0">
 <div id="framecontent">
 <div class="innertube">
@@ -2221,7 +2121,7 @@ $(document).ready(function(){
 
 
 <div id="maincontent">
-<div id="content_bar" class="innertube">
+<div id="content_bar" class="innertube" style="background-color: #c4e9f6">
 
 <html:form action="/form/formname">
 
@@ -2253,14 +2153,14 @@ $(document).ready(function(){
 	}
 %>
 
-	<table class="Head hidePrint">
+	<table class="Head" class="hidePrint">
 		<tr>
 			<td align="left">
 			<%
   if (!bView) {
 %> <input type="submit" value="Save" id="saveBtn"
 				onclick="javascript:return onSave();" /> <input type="submit"
-				value="Save & Exit" onclick="javascript:return onSaveExit();" /> <%
+				value="Save and Exit" onclick="javascript:return onSaveExit();" /> <%
   }
 %> <input type="submit" value="Exit"
 				onclick="javascript:return onExit();" /> <input type="submit"
@@ -2290,7 +2190,6 @@ $(document).ready(function(){
 			RECORD 2 </th>
 		</tr>
 	</table>
-	
 	<table width="50%" border="1" cellspacing="0" cellpadding="0">
 		<tr>
 			<td valign="top" width="50%">Patient's Last Name<br>
@@ -2329,13 +2228,9 @@ $(document).ready(function(){
 			</td>
 			<td valign="top" rowspan="4" width="25%">Allergies or
 			Sensitivities<br/>
-			<textarea name="c_allergies" style="width: 100%" cols="30" rows="3" maxlength="150" class="limit-text" data-msg="allergies_size"><%= UtilMisc.htmlEscape(props.getProperty("c_allergies", "")) %></textarea>
-			<span id="allergies_size">150 Characters left</span>
-			</td>
+			<textarea name="c_allergies" style="width: 100%" cols="30" rows="3"><%= UtilMisc.htmlEscape(props.getProperty("c_allergies", "")) %></textarea></td>
 			<td valign="top" rowspan="4">Medications / Herbals<br/>
-			<textarea name="c_meds" style="width: 100%" cols="30" rows="3" maxlength="146" class="limit-text" data-msg="meds_size"><%= UtilMisc.htmlEscape(props.getProperty("c_meds", "")) %></textarea>
-			<span id="meds_size">146 Characters left</span>
-			</td>
+			<textarea name="c_meds" style="width: 100%" cols="30" rows="3"><%= UtilMisc.htmlEscape(props.getProperty("c_meds", "")) %></textarea></td>
 		</tr>
 		<tr>
 			<td bgcolor="#CCCCCC" width="5%">G<br/>
@@ -2497,15 +2392,10 @@ $(document).ready(function(){
 	
 	<input type="hidden" id="us_num" name="us_num" value="<%= props.getProperty("us_num", "0") %>"/>
 	
-	<table width="100%" border="0" cellspacing="0" cellpadding="0" id="bottomContent">
+	<table width="100%" border="0" cellspacing="0" cellpadding="0">
 		<tr>
-			<td>
-			
-			<br>
-			<a href="javascript:void(0)" id="fundalImageLink"><img id="fundalImage" src="" width="98%" style="max-width:340px;min-width:170px"></a>
-			
-			</td>
-			<td valign="top">
+			<td width="20%">&nbsp;</td>
+			<td width="80%" valign="top">
 			<table width="100%" border="1" cellspacing="0" cellpadding="0">
 				<tr>
 					<th colspan="3" align="center" bgcolor="#CCCCCC">Ultrasound</th>
@@ -2513,16 +2403,17 @@ $(document).ready(function(){
 					Lab Investigations</th>
 				</tr>
 				
+				
 				<tr>
 					<td colspan="3" align="center">
-					<div style="height:10em;overflow-y:auto;width:100%">
+					<div style="height:10em;overflow-y:scroll;width:100%">
 						<table width="100%" id="us_container">
 						<thead>
 							<tr>
-								<td width="5px"></td>
-								<td align="center" width="110px">Date</td>
-								<td align="center" width="60px">GA</td>
-								<td align="center">Result</td>
+								<td width="5"></td>
+								<td align="center" width="12%">Date</td>
+								<td align="center" width="8%">GA</td>
+								<td width="50%" align="center">Result</td>
 							</tr>
 						</thead>
 						<tbody></tbody>							
@@ -2738,7 +2629,7 @@ $(document).ready(function(){
   if (!bView) {
 %> <input type="submit" value="Save"
 				onclick="javascript:return onSave();" /> <input type="submit"
-				value="Save & Exit" onclick="javascript:return onSaveExit();" /> <%
+				value="Save and Exit" onclick="javascript:return onSaveExit();" /> <%
   }
 %> <input type="submit" value="Exit"
 				onclick="javascript:return onExit();" /> <input type="submit"
@@ -2747,7 +2638,7 @@ $(document).ready(function(){
   if (!bView) {
 %>
 	&nbsp;&nbsp;&nbsp;
-			<font><b>View:</b> <a
+			<font size="-1"><b>View:</b> <a
 				href="javascript:void(0);" onclick="popupPage(960,700,'formonarenhancedpg1.jsp?demographic_no=<%=demoNo%>&formId=<%=formId%>&provNo=<%=provNo%>&view=1');">
 			AR1</a> </font>
 			&nbsp;&nbsp;&nbsp;
@@ -2871,7 +2762,7 @@ $(document).ready(function(){
 <div id="forms_menu_div" class="hidden">
 <ul>
 	<li><a href="javascript:void(0)" onclick="loadUltrasoundForms();">Ultrasound</a></li>
-	<li><a href="javascript:void(0)" onclick="loadCustomForms();"><%=customEformGroup%></a></li></ul>
+	<li><a href="javascript:void(0)" onclick="loadIPSForms();">IPS</a></li></ul>
 </div>
 
 <div id="ips-form" title="IPS Support Tool">
@@ -2905,7 +2796,7 @@ $(document).ready(function(){
 						for(LabelValueBean bean:cytologyForms) {
 							%>
 							<tr>
-								<td><button onClick="popPage('<%=ctx%>/eform/efmformadd_data.jsp?fid=<%=bean.getValue()%>&demographic_no=<%=demoNo%>&appointment=0','cytology');return false;">Open</button></td>
+								<td><button onClick="popPage('<%=request.getContextPath()%>/eform/efmformadd_data.jsp?fid=<%=bean.getValue()%>&demographic_no=<%=demoNo%>&appointment=0','cytology');return false;">Open</button></td>
 								<td><%=bean.getLabel() %></td>
 							</tr>
 							<%
@@ -2930,7 +2821,7 @@ $(document).ready(function(){
 						for(LabelValueBean bean:ultrasoundForms) {
 							%>
 							<tr>
-								<td><button onClick="popPage('<%=ctx%>/eform/efmformadd_data.jsp?fid=<%=bean.getValue()%>&demographic_no=<%=demoNo%>&appointment=0','ultrasound');return false;">Open</button></td>
+								<td><button onClick="popPage('<%=request.getContextPath()%>/eform/efmformadd_data.jsp?fid=<%=bean.getValue()%>&demographic_no=<%=demoNo%>&appointment=0','ultrasound');return false;">Open</button></td>
 								<td><%=bean.getLabel() %></td>
 							</tr>
 							<%
@@ -2944,17 +2835,19 @@ $(document).ready(function(){
 </div>
 
 
-<div id="custom-eform-form" title="<%=customEformGroup%> Forms">
+
+
+<div id="ips-eform-form" title="IPS Forms">
 	<form>
 		<fieldset>
 			<table>
 				<tbody>
 				<%
-					if(customForms != null) {
-						for(LabelValueBean bean:customForms) {
+					if(ipsForms != null) {
+						for(LabelValueBean bean:ipsForms) {
 							%>
 							<tr>
-								<td><button onClick="popPage('<%=ctx%>/eform/efmformadd_data.jsp?fid=<%=bean.getValue()%>&demographic_no=<%=demoNo%>&appointment=0','<%=customEformGroup%>form');return false;">Open</button></td>
+								<td><button onClick="popPage('<%=request.getContextPath()%>/eform/efmformadd_data.jsp?fid=<%=bean.getValue()%>&demographic_no=<%=demoNo%>&appointment=0','ipsform');return false;">Open</button></td>
 								<td><%=bean.getLabel() %></td>
 							</tr>
 							<%
@@ -3035,8 +2928,8 @@ $(document).ready(function(){
 	</table>
 </div>
 
+</body>
 <script type="text/javascript">
 Calendar.setup({ inputField : "ar2_rhIG", ifFormat : "%Y/%m/%d", showsTime :false, button : "ar2_rhIG_cal", singleClick : true, step : 1 });
 </script>
-</body>
 </html:html>

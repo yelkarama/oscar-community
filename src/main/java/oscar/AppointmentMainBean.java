@@ -25,8 +25,10 @@
 
 package oscar;
 
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -35,7 +37,7 @@ import oscar.oscarDB.DBPreparedHandlerParam;
 import oscar.util.UtilDict;
 
 public class AppointmentMainBean {
-	
+
   private DBPreparedHandler dbPH=null;
   private UtilDict toFile=null;
   private UtilDict dbSQL=null;
@@ -81,6 +83,64 @@ public class AppointmentMainBean {
   public String whereTo(String displaymode) {
   	targetType=requestUtilDict.getDef(displaymode,"");
   	return toFile.getDef(targetType,"");
+  }
+
+  public int queryExecuteUpdate(String[] param, String dboperation) throws Exception{
+	  String sqlExec = dbSQL.getDef(dboperation,"");
+  	return (dbPH.queryExecuteUpdate(sqlExec, param));
+  }
+  public int queryExecuteUpdate(String aKeyword, String dboperation) throws Exception{
+	  String sqlExec = dbSQL.getDef(dboperation,"");
+	  String[] param =new String[] {aKeyword};
+  	return (dbPH.queryExecuteUpdate(sqlExec, param));
+  }
+  public int queryExecuteUpdate(String[] param,Date[] dtParam, int[] intparam, String dboperation) throws Exception{
+	  String sqlExec = dbSQL.getDef(dboperation,"");
+     return (dbPH.queryExecuteUpdate(sqlExec, param, dtParam,intparam));
+  }
+  public int queryExecuteUpdate(DBPreparedHandlerParam[] params, String dboperation) throws SQLException
+  {
+	  String sqlExec = dbSQL.getDef(dboperation,"");
+	  return (dbPH.queryExecuteUpdate(sqlExec, params));
+  }
+  public int queryExecuteUpdate(String[] param, int[] intparam, String dboperation) throws Exception{
+	  String sqlExec = dbSQL.getDef(dboperation,"");
+  	return (dbPH.queryExecuteUpdate(sqlExec, param, intparam));
+  }
+  public int queryExecuteUpdate(int[] intparam, String[] param, String dboperation) throws Exception{
+	  String sqlExec = dbSQL.getDef(dboperation,"");
+  	return (dbPH.queryExecuteUpdate(sqlExec, intparam, param));
+  }
+  public int queryExecuteUpdate(String[] param, int intparam, String dboperation) throws Exception{
+	  String sqlExec = dbSQL.getDef(dboperation,"");
+	  int [] intKeyword =new int [] {intparam};
+  	return (dbPH.queryExecuteUpdate(sqlExec, param, intKeyword));
+  }
+  public int queryExecuteUpdate(int[] intparam, String dboperation) throws Exception{
+	  String sqlExec = dbSQL.getDef(dboperation,"");
+  	return (dbPH.queryExecuteUpdate(sqlExec, intparam));
+  }
+
+  public boolean isPINEncrypted() throws Exception{
+	  ResultSet rs =null;
+  	  rs = dbPH.queryResults("select value from property where name='IS_PIN_ENCRYPTED'");
+  	  if(rs.next()==false) return true;
+  	  return rs.getInt(1)>0;
+  }
+
+  public void encryptPIN() throws Exception{
+  	  dbPH.queryExecuteUpdate("update property set value=1 where name='IS_PIN_ENCRYPTED'");
+	  ResultSet rs =null;
+  	  rs = dbPH.queryResults("select SECURITY_NO, PIN from SECURITY");
+  	  ArrayList<String> lst= new ArrayList<String>();
+  	  while(rs.next()){
+  		 String str= "update SECURITY set PIN='" + Misc.encryptPIN(rs.getString("PIN")) + "' where SECURITY_NO=" + String.valueOf(rs.getInt("SECURITY_NO"));
+  		 lst.add(str);
+  	  }
+  	  rs.close();
+      for(int i=0;i<lst.size();i++){
+    	  dbPH.queryExecuteUpdate(lst.get(i));
+      }
   }
 
   public ResultSet queryResults(String[] aKeyword, String dboperation) throws Exception{

@@ -35,6 +35,20 @@ import oscar.dao.OscarSuperDao;
  * class that extends OscarSuperDao. Use methods of this manager in JSP/Action
  * code to perform database access: <br>
  * <br>
+ * <code>
+	<%@ include file="/common/webAppContextAndSuperMgr.jsp"%>
+
+	// update
+	int rowsAffected = oscarSuperManager.update("appointmentDao", "delete",
+		new Object[] {request.getParameter("appointment_no")});
+
+	// select
+	List<Map> resultList = oscarSuperManager.find("appointmentDao", "search_waitinglist",
+		new Object[] {request.getParameter("demographic_no")});
+	for (Map wl : resultList) {
+		out.print(wl.get("name"));
+	}
+ * </code>
  *
  * @author Eugene Petruhin
  *
@@ -43,12 +57,28 @@ public class OscarSuperManager {
 
 	private Map<String, OscarSuperDao> oscarDaoMap = new TreeMap<String, OscarSuperDao>();
 
-	
+	private OscarSuperDao appointmentSuperDao;
+
+	private OscarSuperDao receptionistSuperDao;
+
 	private OscarSuperDao providerSuperDao;
 
-	
+	private OscarSuperDao adminSuperDao;
+
+	public void setAppointmentSuperDao(OscarSuperDao appointmentDao) {
+		this.appointmentSuperDao = appointmentDao;
+	}
+
+	public void setReceptionistSuperDao(OscarSuperDao receptionistDao) {
+		this.receptionistSuperDao = receptionistDao;
+	}
+
 	public void setProviderSuperDao(OscarSuperDao providerDao) {
 		this.providerSuperDao = providerDao;
+	}
+
+	public void setAdminSuperDao(OscarSuperDao adminDao) {
+		this.adminSuperDao = adminDao;
 	}
 
 	/**
@@ -56,8 +86,11 @@ public class OscarSuperManager {
 	 * Don't forget to update this function then you add a dao field.
 	 */
 	public void init() {
+		oscarDaoMap.put("appointmentDao", appointmentSuperDao);
+		oscarDaoMap.put("receptionistDao", receptionistSuperDao);
 		oscarDaoMap.put("providerDao", providerSuperDao);
-		
+		oscarDaoMap.put("adminDao", adminSuperDao);
+
 		// making sure all daos have been injected properly
 		for (String daoName : oscarDaoMap.keySet()) {
 			if (oscarDaoMap.get(daoName) == null) {
@@ -101,6 +134,22 @@ public class OscarSuperManager {
 	 */
 	public List<Object> populate(String daoName, String queryName, Object[] params) {
 		return getDao(daoName).executeRowMappedSelectQuery(queryName, params);
+	}
+
+	/**
+	 * Directs a call to a specified dao object that executes a parameterized
+	 * insert/update/delete query identified by a query name.<br>
+	 *
+	 * @param daoName
+	 *            dao class key
+	 * @param queryName
+	 *            sql query key
+	 * @param params
+	 *            sql query parameters
+	 * @return number of affected rows
+	 */
+	public int update(String daoName, String queryName, Object[] params) {
+		return getDao(daoName).executeUpdateQuery(queryName, params);
 	}
 
 	/**

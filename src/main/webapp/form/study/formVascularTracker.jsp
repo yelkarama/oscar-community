@@ -23,25 +23,13 @@
     Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_form" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../securityError.jsp?type=_form");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
 
 <%@ page
 	import="java.util.*, java.sql.*, java.net.*,java.text.DecimalFormat, oscar.oscarProvider.data.* "%>
 
 <%
+if(session.getAttribute("user") == null || !( ((String) session.getAttribute("userprofession")).equalsIgnoreCase("doctor") ))
+    response.sendRedirect("../../logout.jsp");
 
 GregorianCalendar now=new GregorianCalendar();
 int curYear = now.get(Calendar.YEAR);

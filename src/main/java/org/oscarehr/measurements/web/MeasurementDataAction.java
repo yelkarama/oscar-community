@@ -39,25 +39,26 @@ import javax.servlet.http.HttpServletResponse;
 
 import net.sf.json.JSONObject;
 
+import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
-import org.oscarehr.common.dao.MeasurementDao;
 import org.oscarehr.common.dao.OscarAppointmentDao;
 import org.oscarehr.common.model.Appointment;
-import org.oscarehr.common.model.Measurement;
-import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
+import oscar.oscarEncounter.oscarMeasurements.dao.MeasurementsDao;
+import oscar.oscarEncounter.oscarMeasurements.model.Measurements;
+
 public class MeasurementDataAction extends DispatchAction {
 
-	private static MeasurementDao measurementDao = SpringUtils.getBean(MeasurementDao.class);
+	private static Logger logger = MiscUtils.getLogger();
+	private static MeasurementsDao measurementsDao = (MeasurementsDao) SpringUtils.getBean("measurementsDao");
 	OscarAppointmentDao appointmentDao = (OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	 
+
 	public ActionForward getLatestValues(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String demographicNo = request.getParameter("demographicNo");
 		String typeStr = request.getParameter("types");
@@ -67,10 +68,6 @@ public class MeasurementDataAction extends DispatchAction {
 			apptNo = Integer.parseInt(appointmentNo);
 		}
 
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_demographic", "r", demographicNo)) {
-        	throw new SecurityException("missing required security object (_demographic)");
-        }
-		
 		int prevApptNo = 0;
 		if(apptNo > 0) {
 			List<Appointment> appts = appointmentDao.getAppointmentHistory(Integer.parseInt(demographicNo));
@@ -98,16 +95,16 @@ public class MeasurementDataAction extends DispatchAction {
 		}
 		String[] types = typeStr.split(",");
 
-		Map<String,Measurement> measurementMap = measurementDao.getMeasurements(Integer.parseInt(demographicNo),types);
+		Map<String,Measurements> measurementMap = measurementsDao.getMeasurements(demographicNo,types);
 
 		Date nctTs = null;
 		Date applanationTs=null;
 
 		StringBuilder script = new StringBuilder();
 		for(String key:measurementMap.keySet()) {
-			Measurement value = measurementMap.get(key);
+			Measurements value = measurementMap.get(key);
 			if((freshMap.get(key)==null) ||(freshMap.get(key) != null && value.getAppointmentNo() == Integer.parseInt(appointmentNo))) {
-				script.append("jQuery(\"[measurement='"+key+"']\").val(\""+value.getDataField().replace("\n", "\\n")+"\").attr({itemtime: \"" + value.getCreateDate().getTime() + "\", appointment_no: \"" + value.getAppointmentNo() + "\"});\n");
+				script.append("jQuery(\"[measurement='"+key+"']\")val(\""+value.getDataField().replace("\n", "\\n")+"\").attr({itemtime: \"" + value.getDateEntered().getTime() + "\", appointment_no: \"" + value.getAppointmentNo() + "\"});\n");
 				if(apptNo>0 && apptNo == value.getAppointmentNo()) {
 					script.append("jQuery(\"[measurement='"+key+"']\").addClass('examfieldwhite');\n");
 				}
@@ -148,12 +145,8 @@ public class MeasurementDataAction extends DispatchAction {
 		String demographicNo = request.getParameter("demographicNo");
 		String[] types = (request.getParameter("types") != null ? request.getParameter("types") : "").split(",");
 
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_demographic", "r", demographicNo)) {
-        	throw new SecurityException("missing required security object (_demographic)");
-        }
-		
-		List<Date> measurementDates = measurementDao.getDatesForMeasurements(Integer.parseInt(demographicNo), types);
-		HashMap<String, HashMap<String, Measurement>> measurementsMap = new HashMap<String, HashMap<String, Measurement>>();
+		List<Date> measurementDates = measurementsDao.getDatesForMeasurements(demographicNo, types);
+		HashMap<String, HashMap<String, Measurements>> measurementsMap = new HashMap<String, HashMap<String, Measurements>>();
 
 		for (Date d : measurementDates) {
 			Calendar c = Calendar.getInstance();
@@ -162,7 +155,7 @@ public class MeasurementDataAction extends DispatchAction {
 			Date outDate = c.getTime();
 
 			if (!measurementsMap.keySet().contains(outDate.getTime() + ""))
-				measurementsMap.put(outDate.getTime() + "", measurementDao.getMeasurementsPriorToDate(Integer.parseInt(demographicNo), d));
+				measurementsMap.put(outDate.getTime() + "", measurementsDao.getMeasurementsPriorToDate(demographicNo, d));
 		}
 
 		boolean isJsonRequest = request.getParameter("json") != null && request.getParameter("json").equalsIgnoreCase("true");
@@ -176,19 +169,13 @@ public class MeasurementDataAction extends DispatchAction {
 
 
 	public ActionForward saveValues(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		String providerNo=loggedInInfo.getLoggedInProviderNo();
-		
 		String demographicNo = request.getParameter("demographicNo");
+		String providerNo = LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo();
 		String strAppointmentNo = request.getParameter("appointmentNo");
 		int appointmentNo = Integer.parseInt(strAppointmentNo);
 
 		boolean isJsonRequest = request.getParameter("json") != null && request.getParameter("json").equalsIgnoreCase("true");
 
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_demographic", "w", demographicNo)) {
-        	throw new SecurityException("missing required security object (_demographic)");
-        }
-		
 		try {
 
 			Enumeration e = request.getParameterNames();
@@ -201,16 +188,17 @@ public class MeasurementDataAction extends DispatchAction {
 					continue;
 				if(values.length>0 && values[0]!=null && values[0].length()>0) {
 					measurements.put(key,values[0]);
-					Measurement m = new Measurement();
+					Measurements m = new Measurements();
 					m.setComments("");
 					m.setDataField(values[0]);
+					m.setDateEntered(new Date());
 					m.setDateObserved(new Date());
-					m.setDemographicId(Integer.parseInt(demographicNo));
+					m.setDemographicNo(Integer.parseInt(demographicNo));
 					m.setMeasuringInstruction("");
 					m.setProviderNo(providerNo);
 					m.setType(key);
 					m.setAppointmentNo(appointmentNo);
-					measurementDao.persist(m);
+					measurementsDao.addMeasurements(m);
 				}
 			}
 

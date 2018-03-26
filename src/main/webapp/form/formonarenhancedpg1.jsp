@@ -24,21 +24,6 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_form" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_form");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%@ page import="oscar.util.*, oscar.form.*, oscar.form.data.*"%>
 <%@ page import="org.oscarehr.common.web.PregnancyAction"%>
 <%@ page import="java.util.List"%>
@@ -47,7 +32,7 @@
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
-<%@ page import="org.oscarehr.util.LoggedInInfo"%>
+
 
 
 <%
@@ -58,7 +43,7 @@
     int formId = Integer.parseInt(request.getParameter("formId"));
     int provNo = Integer.parseInt((String) session.getAttribute("user"));
     FrmRecord rec = (new FrmRecordFactory()).factory(formClass);
-    java.util.Properties props = rec.getFormRecord(LoggedInInfo.getLoggedInInfoFromSession(request),demoNo, formId);
+    java.util.Properties props = rec.getFormRecord(demoNo, formId);
 
     FrmData fd = new FrmData();
     String resource = fd.getResource();
@@ -71,20 +56,16 @@
     //load eform groups
     List<LabelValueBean> cytologyForms = PregnancyAction.getEformsByGroup("Cytology");
     List<LabelValueBean> ultrasoundForms = PregnancyAction.getEformsByGroup("Ultrasound");
-
-    String customEformGroup = oscar.OscarProperties.getInstance().getProperty("prenatal_screening_eform_group");
-    String prenatalScreenName = oscar.OscarProperties.getInstance().getProperty("prenatal_screening_name");
-    String prenatalScreen =  oscar.OscarProperties.getInstance().getProperty("prenatal_screening_abbrv");
-
-    List<LabelValueBean> customForms = PregnancyAction.getEformsByGroup(customEformGroup);
-
+    List<LabelValueBean> ipsForms = PregnancyAction.getEformsByGroup("IPS");
+    
     if(props.getProperty("obxhx_num", "0").equals("")) {props.setProperty("obxhx_num","0");}
     
     String labReqVer = oscar.OscarProperties.getInstance().getProperty("onare_labreqver","07");
     if(labReqVer.equals("")) {labReqVer="07";}
-
-  	boolean bView = false;
-  	if (request.getParameter("view") != null && request.getParameter("view").equals("1")) bView = true; 
+%>
+<%
+  boolean bView = false;
+  if (request.getParameter("view") != null && request.getParameter("view").equals("1")) bView = true; 
 %>
 
 <html:html locale="true">
@@ -107,24 +88,6 @@
 
 
 <script>
-
-function bornResourcesDisplay(selected) {
-		
-	var url = '';
-	if (selected.selectedIndex == 1) {
-		url = 'http://sogc.org/wp-content/uploads/2013/01/gui261CPG1107E.pdf';
- 	} else if (selected.selectedIndex == 2) {
- 		url = 'http://sogc.org/wp-content/uploads/2013/01/gui217CPG0810.pdf';
- 	} else if (selected.selectedIndex == 3) {
- 		url = 'http://sogc.org/wp-content/uploads/2013/01/gui239ECPG1002.pdf';
- 	}
-
-	if (url != '') {
-		var win=window.open(url, '_blank');
-		win.focus();
-    }	
-}
-
 
 function loadCytologyForms() {
 <%
@@ -163,25 +126,25 @@ function loadUltrasoundForms() {
 	}
 	
 	
-function loadCustomForms() {
+function loadIPSForms() {
 	<%
-		if(customForms != null) {
-			if(customForms.size()==0) {
+		if(ipsForms != null) {
+			if(ipsForms.size()==0) {
 				%>
-					alert('No <%=customEformGroup%> Forms configured');
+					alert('No IPS Forms configured');
 				<%
-			} else if(customForms.size() == 1) {
+			} else if(ipsForms.size() == 1) {
 				%>
-				popPage('<%=request.getContextPath()%>/eform/efmformadd_data.jsp?fid=<%=customForms.get(0).getValue()%>&demographic_no=<%=demoNo%>&appointment=0','<%=customEformGroup%>form');			
+				popPage('<%=request.getContextPath()%>/eform/efmformadd_data.jsp?fid=<%=ipsForms.get(0).getValue()%>&demographic_no=<%=demoNo%>&appointment=0','ipsform');			
 				<%
 			} else {
-				%>$( "#custom-eform-form" ).dialog( "open" );<%
+				%>$( "#ips-eform-form" ).dialog( "open" );<%
 			}
 		}
 	%>
 	}
 	
-	$(document).ready(function(){
+	$(document).ready(function(){	
 		window.moveTo(0, 0);
 		window.resizeTo(screen.availWidth, screen.availHeight);
 	});
@@ -339,10 +302,7 @@ width: 100%;
 		$("select[name='pg1_labSickle']").val('<%= UtilMisc.htmlEscape(props.getProperty("pg1_labSickle", "")) %>');
 		$("select[name='pg1_labRubella']").val('<%= UtilMisc.htmlEscape(props.getProperty("pg1_labRubella", "")) %>');
 	
-		$("select[name='pg1_geneticA_riskLevel']").val('<%= UtilMisc.htmlEscape(props.getProperty("pg1_geneticA_riskLevel", "")) %>');
-		$("select[name='pg1_geneticB_riskLevel']").val('<%= UtilMisc.htmlEscape(props.getProperty("pg1_geneticB_riskLevel", "")) %>');
-		$("select[name='pg1_geneticC_riskLevel']").val('<%= UtilMisc.htmlEscape(props.getProperty("pg1_geneticC_riskLevel", "")) %>');
-		$("select[name='pg1_labCustom3Result_riskLevel']").val('<%= UtilMisc.htmlEscape(props.getProperty("pg1_labCustom3Result_riskLevel", "")) %>');
+
 
 		
 		rhWarning();
@@ -429,7 +389,9 @@ width: 100%;
 		}
 		
 	});
+</script>
 
+<script>
 	function validate() {		
 		if($("input[name='c_lastName']").val().length == 0) {
 			alert('Must include last name');
@@ -722,7 +684,10 @@ width: 100%;
 		}	
 		return total;
 	}
+	
+</script>
 
+<script>
 function addObxHx() {
 	if(adjustDynamicListTotalsOH("obxhx_",12,false) >= 12) {
 		alert('Maximum number of rows is 12');
@@ -840,7 +805,7 @@ function updatePageLock(lock) {
 		$.ajax({
 		   type: "POST",
 		   url: "<%=request.getContextPath()%>/PageMonitoringService.do",
-		   data: { method: "update", page: "formonarenhanced", pageId: "<%=demoNo%>", lock: lock },
+		   data: { method: "update", page: "formonarenhanced<%=demoNo%>", lock: lock },
 		   dataType: 'json',
 		   success: function(data,textStatus) {
 			   lockData=data;
@@ -922,8 +887,10 @@ $(document).ready(function() {
 function updateGeneticD() {
 	$("input[name='pg1_geneticD']").val($("input[name='pg1_geneticD1']").attr('checked') + "/" + $("input[name='pg1_geneticD2']").attr('checked'));	
 }
+
 </script>
 <html:base />
+</head>
 
 <script type="text/javascript" language="Javascript">
     function reset() {        
@@ -958,7 +925,6 @@ function updateGeneticD() {
 		}	
     }
     window.onunload=refreshOpener;
-
     function onSave() {
         document.forms[0].submit.value="save";
         var ret1 = validate();
@@ -973,7 +939,6 @@ function updateGeneticD() {
         adjustDynamicListTotals();
         return ret && ret1;
     }
-
     function onPageChange(url) {
     	var result = false;
     	var newID = 0;
@@ -1288,14 +1253,16 @@ function calByLMP(obj) {
         var yyyy = str_date.substring(0, str_date.indexOf("/"));
         var mm = eval(str_date.substring(eval(str_date.indexOf("/")+1), str_date.lastIndexOf("/")) - 1);
         var dd  = str_date.substring(eval(str_date.lastIndexOf("/")+1));
-		var calDate=new Date(yyyy,mm,dd);		
-		
-		calDate.setTime(eval(calDate.getTime() + (280 * 86400000)));
-		
-		varMonth1 = calDate.getMonth()+1;
+		var calDate=new Date();
+		calDate.setFullYear(yyyy);
+		calDate.setMonth(mm);
+		calDate.setDate(dd);
+		calDate.setHours("8");
+		var odate = new Date(calDate.getTime() + (280 * 86400000));
+		varMonth1 = odate.getMonth()+1;
 		varMonth1 = varMonth1>9? varMonth1 : ("0"+varMonth1);
-		varDate1 = calDate.getDate()>9? calDate.getDate(): ("0"+calDate.getDate());
-		obj.value = calDate.getFullYear() + '/' + varMonth1 + '/' + varDate1;
+		varDate1 = odate.getDate()>9? odate.getDate(): ("0"+odate.getDate());
+		obj.value = odate.getFullYear() + '/' + varMonth1 + '/' + varDate1;
 	}
 }
 
@@ -1362,37 +1329,21 @@ function getGA() {
 	return parseInt(week) + "w+" + offset;
 }
 
-function confirmUpdateText(e,dv){
-	var ev = e.val();
-	var dvl = dv.length;
-	var el = ev.length;
-	length = parseInt(dvl) + parseInt(el);
-	if(el == 0){ 
-		e.val(dv);
-	} else if(length>150) {
-		
-		var r = confirm("Data is too long for this textbox and may not display when printed. Are you sure you would like to import this data?");
-		if (r == true) {
-			e.val(ev + "\n" + dv);
-		} else {
-		    return false;
-		}
-	} else if(dvl==0) {
-		alert("No data in chart");
-	} else {	
-		e.val(ev + "\n" + dv);
-	}
-}
-
 function updateAllergies() {
 	jQuery.ajax({url:'<%=request.getContextPath()%>/Pregnancy.do?method=getAllergies&demographicNo=<%=demoNo%>',async:true, dataType:'json', success:function(data) {
-		confirmUpdateText($("textarea[name='c_allergies']"),data.value)	
+		if($("textarea[name='c_allergies']").val().length == 0) 
+			$("textarea[name='c_allergies']").val(data.value);
+		else 
+			$("textarea[name='c_allergies']").val($("textarea[name='c_allergies']").val() + "\n" + data.value);
 	}});
 }
 
 function updateMeds() {
 	jQuery.ajax({url:'<%=request.getContextPath()%>/Pregnancy.do?method=getMeds&demographicNo=<%=demoNo%>',async:true, dataType:'json', success:function(data) {
-		confirmUpdateText($("textarea[name='c_meds']"),data.value)
+		if($("textarea[name='c_meds']").val().length == 0)
+			$("textarea[name='c_meds']").val(data.value);
+		else 
+			$("textarea[name='c_meds']").val($("textarea[name='c_meds']").val() + "\n" + data.value);
 	}});
 }
 
@@ -1565,7 +1516,7 @@ $(document).ready(function(){
 		}
 	});
 	
-	$( "#custom-eform-form" ).dialog({
+	$( "#ips-eform-form" ).dialog({
 		autoOpen: false,
 		height: 300,
 		width: 450,
@@ -1725,7 +1676,72 @@ function firstVisitTool() {
 function wk16VisitTool() {
 	$( "#16wk-visit-form" ).dialog( "open" );
 }
-
+//limit size of textareas
+$(document).ready(function(){
+	$('textarea[name="pg1_commentsAR1"]').bind('keypress',function(){
+		var length = 885 - parseInt($('textarea[name="pg1_commentsAR1"]').val().length);
+		if(length<0) {
+			length=0;
+			$('textarea[name="pg1_commentsAR1"]').val($('textarea[name="pg1_commentsAR1"]').val().substring(0,885));
+		}
+		$('#comment_size').html(length + ' Characters left');
+	});
+	
+	var length = 885 - parseInt($('textarea[name="pg1_commentsAR1"]').val().length);
+	if(length<0) {
+		length=0;
+	}
+	$('#comment_size').html(length + ' Characters left');
+	
+	$('textarea[name="pg1_comments2AR1"]').bind('keypress',function(){
+		var length = 4160 - parseInt($('textarea[name="pg1_comments2AR1"]').val().length);
+		if(length<0) {
+			length=0;
+			$('textarea[name="pg1_comments2AR1"]').val($('textarea[name="pg1_comments2AR1"]').val().substring(0,4160));
+		}
+		$('#comment2_size').html(length + ' Characters left');
+	});
+	
+	length = 4160 - parseInt($('textarea[name="pg1_comments2AR1"]').val().length);
+	if(length<0) {
+		length=0;
+	}
+	$('#comment2_size').html(length + ' Characters left');
+	
+	
+	//meds
+	$('textarea[name="c_meds"]').bind('keypress',function(){
+		var length = 146 - parseInt($('textarea[name="c_meds"]').val().length);
+		if(length<0) {
+			length=0;
+			$('textarea[name="c_meds"]').val($('textarea[name="c_meds"]').val().substring(0,146));
+		}
+		$('#meds_size').html(length + ' Characters left');
+	});
+	
+	length = 146 - parseInt($('textarea[name="c_meds"]').val().length);
+	if(length<0) {
+		length=0;
+	}
+	$('#meds_size').html(length + ' Characters left');
+	
+	//allergies
+	$('textarea[name="c_allergies"]').bind('keypress',function(){
+		var length = 150 - parseInt($('textarea[name="c_allergies"]').val().length);
+		if(length<0) {
+			length=0;
+			$('textarea[name="c_allergies"]').val($('textarea[name="c_allergies"]').val().substring(0,150));
+		}
+		$('#allergies_size').html(length + ' Characters left');
+	});
+	
+	length = 150 - parseInt($('textarea[name="c_allergies"]').val().length);
+	if(length<0) {
+		length=0;
+	}
+	$('#allergies_size').html(length + ' Characters left');
+	
+});
 </script>
 
 <% if(!bView) { %>
@@ -1795,12 +1811,7 @@ function wk16VisitTool() {
             -moz-opacity: 0.7;
             filter: alpha(opacity=70);
         }
-
-#content_bar{background-color:#c4e9f6;}        
-.Head{width:100%;background-color:#ccc !important;}   
-    
 </style>
-</head>
 <body bgproperties="fixed" topmargin="0" leftmargin="1" rightmargin="1">
 <div id="framecontent">
 <div class="innertube">
@@ -1944,7 +1955,7 @@ function wk16VisitTool() {
 
 
 <div id="maincontent">
-<div id="content_bar" class="innertube">
+<div id="content_bar" class="innertube" style="background-color: #c4e9f6">
 <html:form action="/form/formname">
 	<input type="hidden" name="c_lastVisited"
 		value=<%=props.getProperty("c_lastVisited", "pg1")%> />
@@ -1965,14 +1976,14 @@ function wk16VisitTool() {
 		value="<%= request.getParameter("provNo") %>" />
 	<input type="hidden" name="submit" value="exit" />
 
-	<table class="Head hidePrint">
+	<table class="Head" class="hidePrint">
 		<tr>
 			<td align="left">
 			<%
   if (!bView) {
 %> 
 	<input type="submit" value="Save" onclick="javascript:return onSave();" /> 
-	<input type="submit" value="Save & Exit" onclick="javascript:return onSaveExit();" /> <%
+	<input type="submit" value="Save and Exit" onclick="javascript:return onSaveExit();" /> <%
   }
 %> 
 	<input type="submit" value="Exit" onclick="javascript:return onExit();" /> 
@@ -1984,11 +1995,13 @@ function wk16VisitTool() {
   if (!bView) {
 %>
 &nbsp;&nbsp;&nbsp;
-			<b>View:</b> <a	href="javascript:void(0)" onclick="popupPage(960,700,'formonarenhancedpg2.jsp?demographic_no=<%=demoNo%>&formId=<%=formId%>&provNo=<%=provNo%>&view=1');">AR2</a>
-&nbsp;&nbsp;&nbsp;
-			<b>Edit:</b> <a href="javascript:void(0)" onclick="onPageChange('formonarenhancedpg2.jsp?demographic_no=<%=demoNo%>&formId=#id&provNo=<%=provNo%>');">AR2</a>			
-&nbsp;&nbsp;&nbsp;
-			<b>Download:</b> <a href="formonarenhancedxml.jsp?demographic_no=<%=demoNo%>&formId=<%=formId%>&provNo=<%=provNo%>&episodeId=<%=props.getProperty("episodeId","0")%>">XML</a>
+			<b>View:</b> <a
+				href="javascript:void(0)" onclick="popupPage(960,700,'formonarenhancedpg2.jsp?demographic_no=<%=demoNo%>&formId=<%=formId%>&provNo=<%=provNo%>&view=1');">AR2
+				</a>&nbsp;&nbsp;&nbsp;
+			<b>Edit:</b> <a
+				href="javascript:void(0)" onclick="onPageChange('formonarenhancedpg2.jsp?demographic_no=<%=demoNo%>&formId=#id&provNo=<%=provNo%>');">AR2</a>			
+			&nbsp;
+			<a href="formonarenhancedxml.jsp?demographic_no=<%=demoNo%>&formId=<%=formId%>&provNo=<%=provNo%>&episodeId=<%=props.getProperty("episodeId","0")%>">XML</a>
 			</td>
 			
 			
@@ -2375,7 +2388,7 @@ function wk16VisitTool() {
 					</select>					
 			</td>
 			<td colspan="3" width="50%" valign="top">Ethnic or Racial backgrounds<br>
-				Mother
+				Mother:
 				<select name="pg1_ethnicBgMother" >
 					<option value="UN">Select</option>					
 					<option value="ANC001">Aboriginal</option>
@@ -2398,13 +2411,12 @@ function wk16VisitTool() {
 		</tr>
 		<tr>
 			<td colspan="2" width="20%" valign="top">
-			OHIP No.<br>
 				<select name="c_hinType">
 					<option value="OHIP">OHIP</option>
 					<option value="RAMQ">RAMQ</option>
 					<option value="OTHER">OTHER</option>
 				</select>
-			<input type="text" name="c_hin" size="10" style="width:60%"
+			<input type="text" name="c_hin" size="10" style="width: 100%"
 				maxlength="20"
 				value="<%= UtilMisc.htmlEscape(props.getProperty("c_hin", "")) %>" />
 			</td>
@@ -2443,7 +2455,7 @@ function wk16VisitTool() {
 				name="pg1_ncMidwife" <%= props.getProperty("pg1_ncMidwife", "") %> />Midwife<br>
 			</font> <input type="text" name="c_nc" size="10" style="width: 100%"
 				maxlength="25" value="<%= UtilMisc.htmlEscape(props.getProperty("c_nc", "")) %>" /></td>
-			<td><br>Family physician<br>
+			<td>Family physician<br>
 			<input type="text" name="c_famPhys" size="30" maxlength="80"
 				style="width: 100%"
 				value="<%= UtilMisc.htmlEscape(props.getProperty("c_famPhys", "")) %>" /></td>
@@ -2451,17 +2463,17 @@ function wk16VisitTool() {
 	</table>
 	<table width="100%" border="1" cellspacing="0" cellpadding="0">
 		<tr>
-			<td width="50%">Allergies or Sensitivities &nbsp;<a id="update_allergies_link" href="javascript:void(0)" class="edit-feature" onclick="updateAllergies();">Update from Chart</a><br>
-			<div align="center"><textarea name="c_allergies" class="limit-text"
-				style="width: 100%" cols="30" rows="4" maxlength="150" data-msg="allergies_size" data-new-line="true"><%= UtilMisc.htmlEscape(props.getProperty("c_allergies", "")) %></textarea></div>			
+			<td width="50%">Allergies or Sensitivities &nbsp;<a id="update_allergies_link" href="javascript:void(0)" onclick="updateAllergies();">Update from Chart</a><br>
+			<div align="center"><textarea name="c_allergies"
+				style="width: 100%" cols="30" rows="4"><%= UtilMisc.htmlEscape(props.getProperty("c_allergies", "")) %></textarea></div>			
 			<%if(!bView) {%>
 				<span id="allergies_size">150 Characters left</span>		
 			<% } %>
 			</td>
 			
-			<td width="50%">Medications/Herbals&nbsp;<a id="update_meds_link" href="javascript:void(0)" class="edit-feature" onclick="updateMeds();">Update from Chart</a><br>
-			<div align="center"><textarea name="c_meds" class="limit-text" style="width: 100%"
-				cols="30" rows="4" maxlength="146" data-msg="meds_size" data-new-line="true"><%= UtilMisc.htmlEscape(props.getProperty("c_meds", "")) %></textarea></div>
+			<td width="50%">Medications/Herbals&nbsp;<a id="update_meds_link" href="javascript:void(0)" onclick="updateMeds();">Update from Chart</a><br>
+			<div align="center"><textarea name="c_meds" style="width: 100%"
+				cols="30" rows="4"><%= UtilMisc.htmlEscape(props.getProperty("c_meds", "")) %></textarea></div>
 				<%if(!bView) {%>
 				<span id="meds_size">146 Characters left</span>		
 				<% } %>
@@ -3347,11 +3359,12 @@ function wk16VisitTool() {
 			</table>
 			<br/>
 			
+			
+			<br>
 			<table width="100%" border="1" cellspacing="0" cellpadding="0">
 				<tr>
 					<th><u>Prenatal Genetic Investigations</u></th>
 					<th>Result</th>
-					<th>Risk Level</th>
 				</tr>
 				<tr>
 					<td>a) All ages-MSS, IPS, FTS</td>
@@ -3359,61 +3372,24 @@ function wk16VisitTool() {
 						maxlength="20"
 						value="<%= UtilMisc.htmlEscape(props.getProperty("pg1_geneticA", "")) %>"></td>
 					</td>
-					
-					<!-- Added for the item-35 in the  BORN-RFP-->
-					<td>
-						<select name="pg1_geneticA_riskLevel">
-							<option value=""></option>
-							<option value="NORMAL">Normal</option>
-							<option value="HIGH-RISK">High Risk</option>
-						</select>					
-					</td>
 				</tr>
 				<tr>
 					<td>b) Age &gt;= 35 at EDB-CVS/amnio</td>
 					<td><input type="text" name="pg1_geneticB" size="10"
 						maxlength="20"
-						value="<%= UtilMisc.htmlEscape(props.getProperty("pg1_geneticB", "")) %>">
-					</td>
-					
-					<!-- Added for the item-35 in the  BORN-RFP-->
-					<td>
-						<select name="pg1_geneticB_riskLevel">
-							<option value=""></option>
-							<option value="NORMAL">Normal</option>
-							<option value="HIGH-RISK">High Risk</option>
-						</select>					
+						value="<%= UtilMisc.htmlEscape(props.getProperty("pg1_geneticB", "")) %>"></td>
 					</td>
 				</tr>
 				<tr>
 					<td>c) If a or b declined, or twins, then MSAFP</td>
 					<td><input type="text" name="pg1_geneticC" size="10"
 						maxlength="20"
-						value="<%= UtilMisc.htmlEscape(props.getProperty("pg1_geneticC", "")) %>">
+						value="<%= UtilMisc.htmlEscape(props.getProperty("pg1_geneticC", "")) %>"></td>
 					</td>
-					
-					<!-- Added for the item-35 in the  BORN-RFP-->
-					<td>
-						<select name="pg1_geneticC_riskLevel">
-							<option value=""></option>
-							<option value="NORMAL">Normal</option>
-							<option value="HIGH-RISK">High Risk</option>
-						</select>					
-					</td>	
 				</tr>
 				<tr>
 					<td><input type="text" size="10" name="pg1_labCustom3Label" value="<%= UtilMisc.htmlEscape(props.getProperty("pg1_labCustom3Label", "")) %>"/></td>
-					<td><input type="text"  size="10" name="pg1_labCustom3Result" value="<%= UtilMisc.htmlEscape(props.getProperty("pg1_labCustom3Result", "")) %>"/></td>
-					
-					<!-- Added for the item-35 in the  BORN-RFP-->
-					<td>
-						<select name="pg1_labCustom3Result_riskLevel">
-							<option value=""></option>
-							<option value="NORMAL">Normal</option>
-							<option value="HIGH-RISK">High Risk</option>
-						</select>					
-					</td>
-										
+					<td><input type="text"  size="10" name="pg1_labCustom3Result" value="<%= UtilMisc.htmlEscape(props.getProperty("pg1_labCustom3Result", "")) %>"/></td>					
 				</tr>
 				
 				<tr>
@@ -3422,35 +3398,13 @@ function wk16VisitTool() {
 						<input type="hidden" name="pg1_geneticD" value="<%= UtilMisc.htmlEscape(props.getProperty("pg1_geneticD", "")) %>"/>
 						<input type="checkbox" name="pg1_geneticD1" <%= props.getProperty("pg1_geneticD1", "") %>>
 					</td>
-					<td>&nbsp;</td>
 				</tr>
 				<tr>
 					<td>d) test declined, or too late</td>
 					<td align="center">
 						<input type="checkbox" name="pg1_geneticD2" <%= props.getProperty("pg1_geneticD2", "") %>>
 					</td>
-					<td>&nbsp;</td>
 				</tr>
-				
-			    <tr>
-			    	<td>
-					   e) Born Resources
-					</td>
-			    
-					<td>
-			            <select name="bornresources" onchange="bornResourcesDisplay(this);">
-							<option value=""></option>
-							<option value="A">Fetal Aneuploidy</option>
-							<option value="B">Obstetrical Complications</option>
-							<option value="C">Obesity in Pregnancy</option>
-						</select>	
-			        </td>
-			
-
-					<td>&nbsp;</td>
-				</tr>				
-			
-				
 			</table>
 
 			</td>
@@ -3466,8 +3420,8 @@ function wk16VisitTool() {
 			<th colspan="4"><b>Comments</b></th>
 		</tr>
 		<tr>
-			<td colspan="4"><textarea name="pg1_commentsAR1" class="limit-text"
-				style="width: 100%" cols="80" rows="5" maxlength="885" data-msg="comment_size"><%= UtilMisc.htmlEscape(props.getProperty("pg1_commentsAR1", "")) %></textarea>
+			<td colspan="4"><textarea name="pg1_commentsAR1"
+				style="width: 100%" cols="80" rows="5"><%= UtilMisc.htmlEscape(props.getProperty("pg1_commentsAR1", "")) %></textarea>
 			</td>
 		</tr>
 		<%if(!bView) {%>
@@ -3480,8 +3434,8 @@ function wk16VisitTool() {
 			<th colspan="4"><b>Extra Comments (Will print on a separate page)</b></th>
 		</tr>
 		<tr>
-			<td colspan="4"><textarea id="pg1_comments2AR1" name="pg1_comments2AR1" class="limit-text"
-				style="width: 100%" cols="80" rows="15" maxlength="4160" data-msg="comment2_size"><%= UtilMisc.htmlEscape(props.getProperty("pg1_comments2AR1", "")) %></textarea>
+			<td colspan="4"><textarea id="pg1_comments2AR1" name="pg1_comments2AR1"
+				style="width: 100%" cols="80" rows="15"><%= UtilMisc.htmlEscape(props.getProperty("pg1_comments2AR1", "")) %></textarea>
 			</td>
 		</tr>
 		<%if(!bView) {%>
@@ -3514,14 +3468,14 @@ function wk16VisitTool() {
 
 	</table>
 
-	<table class="Head hidePrint">
+	<table class="Head" class="hidePrint">
 		<tr>
 			<td align="left">
 			<%
   if (!bView) {
 %> <input type="submit" value="Save"
 				onclick="javascript:return onSave();" /> <input type="submit"
-				value="Save & Exit" onclick="javascript:return onSaveExit();" /> <%
+				value="Save and Exit" onclick="javascript:return onSaveExit();" /> <%
   }
 %> <input type="submit" value="Exit"
 				onclick="javascript:return onExit();" /> <input type="submit"
@@ -3530,13 +3484,14 @@ function wk16VisitTool() {
   if (!bView) {
 %>
 &nbsp;&nbsp;&nbsp;
-			<b>View:</b> <a	href="javascript:void(0)" onclick="popupPage(960,700,'formonarenhancedpg2.jsp?demographic_no=<%=demoNo%>&formId=<%=formId%>&provNo=<%=provNo%>&view=1');">AR2</a>
-&nbsp;&nbsp;&nbsp;
-			<b>Edit:</b> <a href="javascript:void(0)" onclick="onPageChange('formonarenhancedpg2.jsp?demographic_no=<%=demoNo%>&formId=#id&provNo=<%=provNo%>');">AR2</a>			
-&nbsp;&nbsp;&nbsp;
-			<b>Download:</b> <a href="formonarenhancedxml.jsp?demographic_no=<%=demoNo%>&formId=<%=formId%>&provNo=<%=provNo%>&episodeId=<%=props.getProperty("episodeId","0")%>">XML</a>
-			</td>
-<%
+			<b>View:</b> <a
+				href="javascript:void(0)" onClick="popupPage(960,700,'formonarenhancedpg2.jsp?demographic_no=<%=demoNo%>&formId=<%=formId%>&provNo=<%=provNo%>&view=1');">AR2
+			</a> 
+			&nbsp;&nbsp;&nbsp;
+			<b>Edit:</b> 
+			<a
+				href="javascript:void(0)" onclick="onPageChange('formonarenhancedpg2.jsp?demographic_no=<%=demoNo%>&formId=#id&provNo=<%=provNo%>');">AR2</a> </td>
+			<%
   }
 %>
 		</tr>
@@ -3545,73 +3500,17 @@ function wk16VisitTool() {
 </html:form>
 </div>
 </div>
+</body>
 
-<script>
-window.onload = function () { 
-	if ( self !== top ) {
-		var body = document.body,
-		html = document.documentElement;
-		//var height = Math.max( body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight ) + 60;
-		var height = 2000;
-		parent.parent.document.getElementById('formInViewFrame').firstChild.style.height = height+"px";
-	}
-};
-
+<script type="text/javascript">
 Calendar.setup({ inputField : "pg1_menLMP", ifFormat : "%Y/%m/%d", showsTime :false, button : "pg1_menLMP_cal", singleClick : true, step : 1 });
 Calendar.setup({ inputField : "pg1_lastUsed", ifFormat : "%Y/%m/%d", showsTime :false, button : "pg1_lastUsed_cal", singleClick : true, step : 1 });
 Calendar.setup({ inputField : "pg1_menEDB", ifFormat : "%Y/%m/%d", showsTime :false, button : "pg1_menEDB_cal", singleClick : true, step : 1 });
 Calendar.setup({ inputField : "c_finalEDB", ifFormat : "%Y/%m/%d", showsTime :false, button : "c_finalEDB_cal", singleClick : true, step : 1 });
 Calendar.setup({ inputField : "pg1_labLastPapDate", ifFormat : "%Y/%m/%d", showsTime :false, button : "pg1_labLastPapDate_cal", singleClick : true, step : 1 });
 
-//limit size of textareas
-$(document).ready(function(){
-
-	    $(".limit-text").on('keypress keyup', function() {
-		mlength = $(this).attr('maxlength');
-		msg = $(this).attr('data-msg');
-		disableNewLine = $(this).attr('data-new-line');
-		limitCharacters($(this),mlength,msg,disableNewLine);
-		});
-
-		$(".limit-text").bind('paste', function(e){ 
-		var pasteData = e.originalEvent.clipboardData.getData('text');
-		pasteLength = pasteData.length;
-		textLength = $(this).val().length;
-		length = parseInt(pasteLength) + parseInt(textLength);
-		mlength = $(this).attr('maxlength');
-			if(length>mlength) {
-				alert("Copy/Paste data is too long for this textbox.");
-				return false;
-			}
-		});
-		
-		$('.limit-text').each(function(i, obj) {
-		    mlength = $(obj).attr('maxlength');
-			msg = $(obj).attr('data-msg');
-			length = mlength - parseInt($(obj).val().length);
-			if(length<0) {
-				length=0;
-			}
-			$("#"+msg).html(length + ' Characters left');
-		});
-});
-
-
-function limitCharacters( el, mlength, lbl, disableNewLine ){	
-	length = mlength - parseInt($(el).val().length);
-	if(length<0) {
-		length=0;
-		$(el).val($(el).val().substring(0,150));
-	}
-	$("#"+lbl).html(length + ' Characters left');
-	
-	if(disableNewLine){
-	 $(el).val( $(el).val().replace( /\r?\n/gi, '' ) );
-	}
-}
-
 </script>
-</body>
+
 
 <div id="mcv-req-form" title="Create Lab Requisition">
 	<p class="validateTips"></p>
@@ -3651,7 +3550,6 @@ function limitCharacters( el, mlength, lbl, disableNewLine ){
 
 <div id="lab_menu_div" class="hidden">
 <ul>
-	<li><a href="javascript:void(0)" onclick="popPage('formlabreq<%=labReqVer%>.jsp?demographic_no=<%=demoNo%>&formId=0&provNo=<%=provNo%>&labType=eFTS','LabReq')">MOH&amp;LTC eFTS</a></li>
 	<li><a href="javascript:void(0)" onclick="popPage('formlabreq<%=labReqVer %>.jsp?demographic_no=<%=demoNo%>&formId=0&provNo=<%=provNo%>&labType=AnteNatal','LabReq')">Routine Prenatal</a></li>
 	<li><a href="javascript:void(0)" onclick="loadCytologyForms();">Cytology</a></li>
 </ul>
@@ -3660,7 +3558,7 @@ function limitCharacters( el, mlength, lbl, disableNewLine ){
 <div id="forms_menu_div" class="hidden">
 <ul>
 	<li><a href="javascript:void(0)" onclick="loadUltrasoundForms();">Ultrasound</a></li>
-	<li><a href="javascript:void(0)" onclick="loadCustomForms();"><%=customEformGroup%></a></li>
+	<li><a href="javascript:void(0)" onclick="loadIPSForms();">IPS</a></li>
 </ul>
 </div>
 
@@ -3686,7 +3584,7 @@ function limitCharacters( el, mlength, lbl, disableNewLine ){
 <ul>
 	<li><a href="http://www.sogc.org/guidelines/documents/gui217CPG0810.pdf" target="sogc">SOGC Guidelines</a></li>
 	<li><a href="<%=request.getContextPath()%>/pregnancy/genetics-provider-guide-e.pdf" target="sogc">Guide</a></li>	
-	<li><a href="javascript:void(0)" onclick="loadCustomForms();"><%=customEformGroup%> Forms</a></li>
+	<li><a href="javascript:void(0)" onclick="loadIPSForms();">IPS Forms</a></li>
 </ul>
 </div>
 
@@ -3788,8 +3686,8 @@ function limitCharacters( el, mlength, lbl, disableNewLine ){
 					</tr>
 					<tr>
 						<td>
-							Order <%=prenatalScreenName%> (<%=prenatalScreen%>)
-							<a href="javascript:void(0);" onclick="return false;" title="Click on 'Forms' menu item under Prompts, and choose <%=customEformGroup%>"><img border="0" src="../images/icon_help_sml.gif"/></a>		
+							Order Integrated Prenatal Screening (IPS)
+							<a href="javascript:void(0);" onclick="return false;" title="Click on 'Forms' menu item under Prompts, and choose IPS"><img border="0" src="../images/icon_help_sml.gif"/></a>		
 						</td>
 					</tr>
 					<tr>
@@ -3881,17 +3779,17 @@ function limitCharacters( el, mlength, lbl, disableNewLine ){
 
 
 
-<div id="custom-eform-form" title="<%=customEformGroup%> Forms">
+<div id="ips-eform-form" title="IPS Forms">
 	<form>
 		<fieldset>
 			<table>
 				<tbody>
 				<%
-					if(customForms != null) {
-						for(LabelValueBean bean:customForms) {
+					if(ipsForms != null) {
+						for(LabelValueBean bean:ipsForms) {
 							%>
 							<tr>
-								<td><button onClick="popPage('<%=request.getContextPath()%>/eform/efmformadd_data.jsp?fid=<%=bean.getValue()%>&demographic_no=<%=demoNo%>&appointment=0','<%=customEformGroup%>form');return false;">Open</button></td>
+								<td><button onClick="popPage('<%=request.getContextPath()%>/eform/efmformadd_data.jsp?fid=<%=bean.getValue()%>&demographic_no=<%=demoNo%>&appointment=0','ipsform');return false;">Open</button></td>
 								<td><%=bean.getLabel() %></td>
 							</tr>
 							<%

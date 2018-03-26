@@ -22,30 +22,15 @@
     Toronto, Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed2=true;
-%>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_form" rights="w" reverse="<%=true%>">
-	<%authed2=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_form");%>
-</security:oscarSec>
-<%
-	if(!authed2) {
-		return;
-	}
-%>
-
 <%@page import="org.oscarehr.common.model.OcanStaffFormData"%>
 <%@page import="org.oscarehr.common.model.OcanStaffForm"%>
-<%@page import="org.oscarehr.common.model.Admission"%>
+<%@page import="org.oscarehr.PMmodule.model.Admission"%>
 <%@page import="org.oscarehr.common.model.Demographic"%>
 <%@page import="org.oscarehr.PMmodule.web.OcanForm"%>
 <%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="java.util.List"%>
 <%@page import="org.oscarehr.common.dao.DemographicDao"%>
-<%@page import="org.oscarehr.common.dao.AdmissionDao"%>
+<%@page import="org.oscarehr.PMmodule.dao.AdmissionDao"%>
 
 <%@page import="org.oscarehr.util.SpringUtils"%>
 <%@page import="org.apache.commons.lang.time.DateFormatUtils" %>
@@ -53,7 +38,6 @@
 
 
 <%
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 	int currentDemographicId=Integer.parseInt(request.getParameter("demographicId"));
 	String ocanType = request.getParameter("ocanType");
 	int prepopulate = 0;
@@ -68,12 +52,12 @@
 	if(ocanStaffFormId != 0) {
 		ocanStaffForm=OcanForm.getOcanStaffForm(Integer.valueOf(request.getParameter("ocanStaffFormId")));
 	}else {		
-		ocanStaffForm=OcanForm.getOcanStaffForm(loggedInInfo.getCurrentFacility().getId(),currentDemographicId,prepopulationLevel,ocanType);		
+		ocanStaffForm=OcanForm.getOcanStaffForm(currentDemographicId,prepopulationLevel,ocanType);		
 		
 		//If this is a new form, prepopulate referral from last completed assessment.
 		if(ocanStaffForm.getAssessmentId()==null) {
 			newForm = true;
-			OcanStaffForm lastCompletedForm = OcanForm.getLastCompletedOcanFormByOcanType(loggedInInfo.getCurrentFacility().getId(),currentDemographicId,ocanType);
+			OcanStaffForm lastCompletedForm = OcanForm.getLastCompletedOcanFormByOcanType(currentDemographicId,ocanType);
 			if(lastCompletedForm!=null) {
 				List<OcanStaffFormData> existingAnswers = OcanForm.getStaffAnswers(lastCompletedForm.getId(),"referrals_count",prepopulationLevel);
 				if(existingAnswers.size()>0)
@@ -303,20 +287,21 @@ $("document").ready(function() {
 	$("#generate_summary_of_actions").click(function(){ 
 		$("#summary_of_actions_block").innerHTML='';
 		var count=0;
-		var domains = '';
+		var domains = '';		
 		var actionsArray =[];
 		actionsArray.push("");
 		for(var x=1;x<=24;x++) {
 			var actionVal = $("#"+x+"_actions").val();			
-			if(actionVal.length > 0) {
+			if(actionVal.length > 0) {				
 				count++;
 				if(domains.length>0) {
 					domains += ',';
 				} 	
 				domains += x;
+				
 			}
 			actionsArray.push(actionVal);
-		}		
+		}	
 		
 		var less = false;
 		if($("#summary_of_actions_count").val() > count)

@@ -23,30 +23,13 @@
     Ontario, Canada
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_phr" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_phr");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="org.oscarehr.common.dao.PHRVerificationDao,org.oscarehr.common.model.PHRVerification,org.oscarehr.util.SpringUtils,java.util.*" %>
 
 <%@ page import="oscar.oscarDemographic.data.DemographicData"%>
 <%@ page import="java.util.Enumeration"%>
 <%@ page import="oscar.util.DateUtils"%>
 <%@ page import="org.oscarehr.PMmodule.dao.ProviderDao,oscar.util.UtilDateUtilities" %>
-<%@ page import="org.oscarehr.phr.util.MyOscarServerRelationManager,org.oscarehr.phr.util.MyOscarUtils" %>
+<%@ page import="org.oscarehr.phr.util.MyOscarServerRelationManager,org.oscarehr.phr.util.MyOscarUtils,org.oscarehr.phr.PHRAuthentication" %>
 
 <%@ taglib uri="/WEB-INF/phr-tag.tld" prefix="phr"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
@@ -56,6 +39,15 @@
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar" %>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <c:set var="ctx" value="${pageContext.request.contextPath}" scope="request" />
+<%
+    if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
+    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
+%>
+<%-- security:oscarSec roleName="<%=roleName$%>"
+	objectName="_admin,_admin.misc" rights="r" reverse="<%=true%>">
+	<%response.sendRedirect("../logout.jsp");%>
+</security:oscarSec --%>
+
 
 
 
@@ -65,16 +57,17 @@
 <%
 String demographicNo = request.getParameter("demographic_no");
 if (demographicNo == null) demographicNo = request.getParameter("demographicNo");
-if (demographicNo == null) demographicNo = (String) request.getAttribute("demographicNo");
 Integer demoNo = Integer.parseInt(demographicNo);
 
 PHRVerificationDao phrVerificationDao = (PHRVerificationDao)SpringUtils.getBean("PHRVerificationDao");
 ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao");
 
-List<PHRVerification> phrVerifications = phrVerificationDao.findByDemographic(demoNo, true);
+List<PHRVerification> phrVerifications = phrVerificationDao.getForDemographic(demoNo);
 
-org.oscarehr.common.model.Demographic demo = new DemographicData().getDemographic(LoggedInInfo.getLoggedInInfoFromSession(request), demographicNo); 
+org.oscarehr.common.model.Demographic demo = new DemographicData().getDemographic(demographicNo); 
 String myOscarUserName = demo.getMyOscarUserName();
+
+PHRAuthentication phrAuthentication= MyOscarUtils.getPHRAuthentication(session);
 
 %>
 
@@ -191,7 +184,7 @@ br {
 					<div id="relationshipMessage"></div>    
 					<script type="text/javascript">
 					$.ajax({
-					    url: '<c:out value="${ctx}"/>/phr/PatientRelationship.jsp?demoNo=<%=demographicNo%>&myOscarUserName=<%=myOscarUserName%>',
+					    url: '<c:out value="${ctx}"/>/phr/PatientRelationship.jspf?demoNo=<%=demographicNo%>&myOscarUserName=<%=myOscarUserName%>',
 					    dataType: 'html',
 					    timeout: 5000,
 					    cache: false,
@@ -209,26 +202,20 @@ br {
 	</tr>
 	<tr>
 		<td class="MainTableRightColumn" valign="top">
-			<%if(request.getAttribute("forwardToOnSuccess") != null ){ %>
-			<span style="color:red">Patient Has not been verified in person.  Verify and Continue</span>
-			<%}%>	
 			<fieldset>
 		    	<legend><bean:message key="phr.verification.add.fieldset.legend"/></legend>
 		    	<html:form action="/demographic/viewPhrRecord" onsubmit="return checkLevel(verificationLevel.value);" >
 			    	<input type="hidden" name="method" value="saveNewVerification"/>
 			    	<input type="hidden" name="demographic_no" value="<%=demographicNo%>"/>
-			    	<%if(request.getAttribute("forwardToOnSuccess") != null ){ %>
-			    	<input type="hidden" name="forwardToOnSuccess" value="<%=request.getAttribute("forwardToOnSuccess")%>" />
-			    	<%}%>
 			    	<label><bean:message key="phr.verification.add.fieldset.method"/>:</label> 
 				    	<select name="verificationLevel">
 				    		<option value="">--</option>
-				    		<option value="<%=PHRVerification.VERIFICATION_METHOD_FAX%>"><bean:message key="phr.verification.add.fieldset.method.option.fax"/></option>
-				    		<option value="<%=PHRVerification.VERIFICATION_METHOD_MAIL%>"><bean:message key="phr.verification.add.fieldset.method.option.mail"/></option>
-				    		<option value="<%=PHRVerification.VERIFICATION_METHOD_EMAIL%>"><bean:message key="phr.verification.add.fieldset.method.option.email"/></option>
-				    		<option value="<%=PHRVerification.VERIFICATION_METHOD_TEL%>"><bean:message key="phr.verification.add.fieldset.method.option.tel"/></option>
-				    		<option value="<%=PHRVerification.VERIFICATION_METHOD_VIDEOPHONE%>"><bean:message key="phr.verification.add.fieldset.method.option.videophone"/></option>
-				    		<option value="<%=PHRVerification.VERIFICATION_METHOD_INPERSON%>"><bean:message key="phr.verification.add.fieldset.method.option.inperson"/></option>
+				    		<option value="FAX"><bean:message key="phr.verification.add.fieldset.method.option.fax"/></option>
+				    		<option value="MAIL"><bean:message key="phr.verification.add.fieldset.method.option.mail"/></option>
+				    		<option value="EMAIL"><bean:message key="phr.verification.add.fieldset.method.option.email"/></option>
+				    		<option value="TEL"><bean:message key="phr.verification.add.fieldset.method.option.tel"/></option>
+				    		<option value="VIDEOPHONE"><bean:message key="phr.verification.add.fieldset.method.option.videophone"/></option>
+				    		<option value="INPERSON"><bean:message key="phr.verification.add.fieldset.method.option.inperson"/></option>
 				    	</select>
 		    	
 			    	<label><bean:message key="phr.verification.add.date"/>:</label><input type="text" name="verificationDate"  value="<%=UtilDateUtilities.getToday("yyyy-MM-dd")%>" size="10"/>  

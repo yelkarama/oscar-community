@@ -26,6 +26,9 @@
 package org.oscarehr.integration.born;
 
 import java.io.File;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
 
 /**
  * This class will determine which ONAREnhanced forms need to be sent to
@@ -45,10 +48,23 @@ public class AR2005BornConnector {
 	}
 
 	public void updateBorn() throws Exception {
-		File file = File.createTempFile("born", ".xml");		
+
+		Connection conn = org.oscarehr.util.DbConnectionFilter.getThreadLocalDbConnection();
+		Statement st = conn.createStatement();
+		ResultSet rs = st.executeQuery("select * from formONAR");
+
+		//AR2005Form2XML ar2005Form2XML = new AR2005Form2XML();
+		File file = File.createTempFile("born", ".xml");
+		//ar2005Form2XML.generateXML(rs, new FileOutputStream(file));
+
+		BornFtpManager ftpManager = new BornFtpManager();
 		String path = file.getPath();
 		path = path.substring(0,path.lastIndexOf(File.separator));
-		BornFtpManager.uploadONAREnhancedDataToRepository(path, file.getName());
+		ftpManager.uploadDataToRepository(path, file.getName());
+
+		rs.close();
+		st.close();
+		conn.close();
 	}
 
 }

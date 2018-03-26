@@ -24,56 +24,44 @@
 
 package oscar.oscarTickler.pageUtil;
 
-import java.io.IOException;
 import java.util.Date;
-import java.util.ResourceBundle;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.mail.EmailException;
-import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.apache.struts.action.ActionMessage;
-import org.apache.struts.action.ActionMessages;
 import org.apache.struts.actions.DispatchAction;
 import org.apache.struts.validator.DynaValidatorForm;
-import org.oscarehr.common.dao.TicklerTextSuggestDao;
-import org.oscarehr.common.model.Tickler;
-import org.oscarehr.common.model.TicklerComment;
-import org.oscarehr.common.model.TicklerTextSuggest;
-import org.oscarehr.common.model.TicklerUpdate;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.managers.TicklerManager;
+import org.caisi.dao.TicklerDAO;
+import org.caisi.model.Tickler;
+import org.caisi.model.TicklerComment;
+import org.caisi.model.TicklerUpdate;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
-
-import oscar.OscarProperties;
+import org.oscarehr.common.dao.TicklerTextSuggestDao;
+import org.oscarehr.common.model.TicklerTextSuggest;
+import org.apache.commons.mail.EmailException;
+import java.io.IOException;
+import java.util.ResourceBundle;
+import org.apache.log4j.Logger;
+import org.apache.struts.action.*;
+import org.caisi.service.TicklerManager;
 import oscar.util.DateUtils;
+import oscar.OscarProperties;
 
 public class EditTicklerAction extends DispatchAction{
     
     private static final Logger logger=MiscUtils.getLogger();
-    private TicklerManager ticklerManager = SpringUtils.getBean(TicklerManager.class);
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
     
     public ActionForward editTickler(ActionMapping mapping,ActionForm form,HttpServletRequest request,HttpServletResponse response){
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		
-		if (!securityInfoManager.hasPrivilege(loggedInInfo, "_tickler", "u", null)) {
-			throw new RuntimeException("missing required security object (_tickler)");
-		}
-		
-		String providerNo=loggedInInfo.getLoggedInProviderNo();
-		
+        
         ActionMessages errors = this.getErrors(request);
         DynaValidatorForm editForm = (DynaValidatorForm)form;
         
         String ticklerNoStr = request.getParameter("ticklerNo");
-        Integer ticklerNo = Integer.parseInt(ticklerNoStr);
+        Long ticklerNo = Long.parseLong(ticklerNoStr);
                 
         String status = request.getParameter("status"); 
         String priority = request.getParameter("priority");
@@ -91,7 +79,8 @@ public class EditTicklerAction extends DispatchAction{
             return mapping.findForward("failure");
         }
         
-        Tickler t = ticklerManager.getTickler(loggedInInfo,ticklerNo);
+        TicklerDAO ticklerDao = (TicklerDAO)SpringUtils.getBean("ticklerDAOT");
+        Tickler t = ticklerDao.getTickler(ticklerNo);
         
         if (t == null) {
             errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("tickler.ticklerEdit.arg.error"));
@@ -110,9 +99,10 @@ public class EditTicklerAction extends DispatchAction{
 
             if (emailDemographic) {
 
-               
+                TicklerManager ticklerMgr = (TicklerManager)SpringUtils.getBean("ticklerManagerT");
+
                 try {
-                	ticklerManager.sendNotification(loggedInInfo,t);     
+                    ticklerMgr.sendNotification(t);     
 
                     //add tickler comment noting patient was emailed
                     TicklerComment tc = new TicklerComment();
@@ -125,9 +115,9 @@ public class EditTicklerAction extends DispatchAction{
                         emailedMsg = "Emailed Demographic";
                     }
                     tc.setMessage(emailedMsg);
-                    tc.setTicklerNo(ticklerNo);
-                    tc.setUpdateDate(now);
-                    tc.setProviderNo(providerNo);
+                    tc.setTickler_no(ticklerNo);
+                    tc.setUpdate_date(now);
+                    tc.setProviderNo(LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo());
 
                     t.getComments().add(tc);
                     isComment = true;
@@ -155,9 +145,9 @@ public class EditTicklerAction extends DispatchAction{
 
             TicklerComment tc = new TicklerComment();
             tc.setMessage(newMessage);
-            tc.setTicklerNo(ticklerNo);
-            tc.setUpdateDate(now);
-            tc.setProviderNo(providerNo);
+            tc.setTickler_no(ticklerNo);
+            tc.setUpdate_date(now);
+            tc.setProviderNo(LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo());
 
             t.getComments().add(tc);
             isComment = true;
@@ -170,41 +160,41 @@ public class EditTicklerAction extends DispatchAction{
         TicklerUpdate tuOriginal = new TicklerUpdate();
 
         if (t.getUpdates().isEmpty()) {                                                              
-            tuOriginal.setTicklerNo(t.getId());
+            tuOriginal.setTickler_no(t.getTickler_no());
             tuOriginal.setProviderNo(t.getCreator());
-            tuOriginal.setUpdateDate(t.getUpdateDate());
+            tuOriginal.setUpdate_date(t.getUpdate_date());
 
             tuOriginal.setStatus(t.getStatus());
-            tuOriginal.setPriority(t.getPriority().toString());
-            tuOriginal.setAssignedTo(t.getTaskAssignedTo());                                
-            tuOriginal.setServiceDate(t.getServiceDate()); 
+            tuOriginal.setPriority(t.getPriority());
+            tuOriginal.setAssignedTo(t.getTask_assigned_to());                                
+            tuOriginal.setServiceDate(t.getService_date()); 
             
             t.getUpdates().add(tuOriginal);
         }
 
         TicklerUpdate tu = new TicklerUpdate();
-        tu.setTicklerNo(t.getId());
-        tu.setUpdateDate(now);            
-        tu.setProviderNo(providerNo);
+        tu.setTickler_no(t.getTickler_no());
+        tu.setUpdate_date(now);            
+        tu.setProviderNo(LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo());
 
         boolean isUpdate = false;                        
 
         if (!status.equals(String.valueOf(t.getStatus()))){
-            tu.setStatusAsChar(status.charAt(0));
-            t.setStatusAsChar(status.charAt(0));
+            tu.setStatus(status.charAt(0));
+            t.setStatus(status.charAt(0));
             isUpdate = true;            
         }
 
         if (!priority.equals(t.getPriority())) {
             tu.setPriority(priority);
-            t.setPriorityAsString(priority);
+            t.setPriority(priority);
             isUpdate = true;
         }
 
 
-        if (!assignedTo.equals(t.getTaskAssignedTo())){                
+        if (!assignedTo.equals(t.getTask_assigned_to())){                
             tu.setAssignedTo(assignedTo);
-            t.setTaskAssignedTo(assignedTo);
+            t.setTask_assigned_to(assignedTo);
             isUpdate = true;
         }
 
@@ -212,7 +202,7 @@ public class EditTicklerAction extends DispatchAction{
            try {
                Date serviceDateAsDate = DateUtils.parseDate(serviceDate, request.getLocale());
                tu.setServiceDate(serviceDateAsDate);
-               t.setServiceDate(serviceDateAsDate);
+               t.setServiceDate(serviceDate);
                isUpdate = true;
            }
            catch (java.text.ParseException e) {
@@ -226,7 +216,7 @@ public class EditTicklerAction extends DispatchAction{
         }
 
         if (isComment || isUpdate) {            
-            ticklerManager.updateTickler(loggedInInfo,t);
+            ticklerDao.saveTickler(t);
         }                                    
                 
         if (emailFailed) {
@@ -241,10 +231,7 @@ public class EditTicklerAction extends DispatchAction{
     
      public ActionForward updateTextSuggest(ActionMapping mapping,ActionForm form,HttpServletRequest request,HttpServletResponse response){
          
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		String providerNo=loggedInInfo.getLoggedInProviderNo();
-
-		ActionMessages errors = this.getErrors(request);
+         ActionMessages errors = this.getErrors(request);
          DynaValidatorForm tsForm = (DynaValidatorForm)form;
          
          String[] activeText = (String[])tsForm.get("activeText");  
@@ -280,7 +267,7 @@ public class EditTicklerAction extends DispatchAction{
                  ts = new TicklerTextSuggest();
                  ts.setActive(true);
                  ts.setCreateDate(new Date());
-                 ts.setCreator(providerNo);
+                 ts.setCreator(LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo());
                  ts.setSuggestedText(activeTextStr);
                  ticklerTextSuggestDao.persist(ts);
              } else {
@@ -306,7 +293,7 @@ public class EditTicklerAction extends DispatchAction{
                  ts = new TicklerTextSuggest();
                  ts.setActive(false);
                  ts.setCreateDate(new Date());
-                 ts.setCreator(providerNo);
+                 ts.setCreator(LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo());
                  ts.setSuggestedText(inactiveTextStr); 
                  ticklerTextSuggestDao.persist(ts);
              } else {

@@ -56,27 +56,8 @@ public class ProgramQueue implements Serializable {
     private String presentProblems;
     private Long headClientId = null;
 
-    private String _vacancyName;    
-    private String vacancyTemplateName;
 
-    public String getVacancyName() {
-        return _vacancyName;
-    }
-
-    public void setVacancyName(String _vacancyName) {
-        this._vacancyName = _vacancyName;
-    }
-
-    
-    public String getVacancyTemplateName() {
-    	return vacancyTemplateName;
-    }
-
-	public void setVacancyTemplateName(String vacancyTemplateName) {
-    	this.vacancyTemplateName = vacancyTemplateName;
-    }
-
-	// constructors
+    // constructors
     public ProgramQueue () {
         initialize();
     }
@@ -113,13 +94,11 @@ public class ProgramQueue implements Serializable {
         return getClientLastName() + "," + getClientFirstName();
     }
 
-    protected void initialize () {
-    	//empty
-    }
+    protected void initialize () {}
 
     /**
      * Return the unique identifier of this class
-     * 
+     * @hibernate.id
      *  generator-class="native"
      *  column="queue_id"
      */

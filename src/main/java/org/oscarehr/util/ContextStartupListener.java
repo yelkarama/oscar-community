@@ -23,8 +23,6 @@
 
 package org.oscarehr.util;
 
-import java.util.Date;
-
 import org.apache.log4j.Logger;
 import org.oscarehr.PMmodule.caisi_integrator.CaisiIntegratorUpdateTask;
 import org.oscarehr.PMmodule.dao.ProgramDao;
@@ -33,18 +31,15 @@ import org.oscarehr.PMmodule.model.Program;
 import org.oscarehr.PMmodule.model.ProgramProvider;
 import org.oscarehr.PMmodule.utility.ProgramAccessCache;
 import org.oscarehr.PMmodule.utility.RoleCache;
-import org.oscarehr.common.jobs.OscarJobUtils;
-import org.oscarehr.hospitalReportManager.HRMFixMissingReportHelper;
 import org.oscarehr.threads.WaitListEmailThread;
-import org.quartz.SchedulerException;
-import org.quartz.impl.StdSchedulerFactory;
-
-import com.quatro.dao.security.SecroleDao;
 
 import oscar.OscarProperties;
 
+import com.quatro.dao.security.SecroleDao;
+
 public class ContextStartupListener implements javax.servlet.ServletContextListener {
 	private static final Logger logger = MiscUtils.getLogger();
+	private static String contextPath = null;
 
 	@Override
 	public void contextInitialized(javax.servlet.ServletContextEvent sce) {
@@ -52,41 +47,35 @@ public class ContextStartupListener implements javax.servlet.ServletContextListe
 			// ensure cxf uses log4j
 			System.setProperty("org.apache.cxf.Logger", "org.apache.cxf.common.logging.Log4jLogger");
 
-			String contextPath=sce.getServletContext().getContextPath();
+			// need tc6 for this?
+			// String contextPath=sce.getServletContext().getContextPath();
+
+			// hack to get context path until tc6 is our standard.
+			// /data/cvs/caisi_utils/apache-tomcat-5.5.27/webapps/oscar
+			contextPath = sce.getServletContext().getRealPath("");
+			int lastSlash = contextPath.lastIndexOf('/');
+			contextPath = contextPath.substring(lastSlash + 1);
 
 			logger.info("Server processes starting. context=" + contextPath);
-			
+
 			MiscUtils.addLoggingOverrideConfiguration(contextPath);
 
-			LocaleUtils.BASE_NAME="oscarResources";
-			
 			OscarProperties properties = OscarProperties.getInstance();
 			String vmstatLoggingPeriod = properties.getProperty("VMSTAT_LOGGING_PERIOD");
-			VmStat.startContinuousLogging(Long.parseLong(vmstatLoggingPeriod));
+			VMStat.startContinuousLogging(Long.parseLong(vmstatLoggingPeriod));
 
-			MiscUtilsOld.setShutdownSignaled(false);
-			MiscUtilsOld.registerShutdownHook();
+			MiscUtils.setShutdownSignaled(false);
+			MiscUtils.registerShutdownHook();
 
 			createOscarProgramIfNecessary();
 			
 			CaisiIntegratorUpdateTask.startTask();
 
-			OscarJobUtils.initializeJobExecutionFramework();
-			
 			WaitListEmailThread.startTaskIfEnabled();
-						
+			
 			//Run some optimizations
 			loadCaches();
 			logger.info("Server processes starting completed. context=" + contextPath);
-			
-			//bug 4195 - only runs once so long as it finishes..if you want it to not run, add entry
-			//try your property table called "HRMFixMissingReportHelper.Run" with value = 1
-			HRMFixMissingReportHelper hrmFixer = new HRMFixMissingReportHelper();
-			try {
-				hrmFixer.fixIt();
-			}catch(Exception e) {
-				logger.error("Error running HRM fixer",e);
-			}
 		} catch (Exception e) {
 			logger.error("Unexpected error.", e);
 			throw (new RuntimeException(e));
@@ -103,7 +92,7 @@ public class ContextStartupListener implements javax.servlet.ServletContextListe
 	
 
 	private void createOscarProgramIfNecessary() {
-		ProgramDao programDao = SpringUtils.getBean(ProgramDao.class);
+		ProgramDao programDao = (ProgramDao)SpringUtils.getBean("programDao");
 		SecroleDao secRoleDao = (SecroleDao)SpringUtils.getBean("secroleDao");
 		ProgramProviderDAO programProviderDao = (ProgramProviderDAO)SpringUtils.getBean("programProviderDAO");
 		
@@ -122,28 +111,23 @@ public class ContextStartupListener implements javax.servlet.ServletContextListe
 		pp.setProviderNo("999998");
 		pp.setProgramId(p.getId().longValue());
 		pp.setRoleId(secRoleDao.getRoleByName("doctor").getId());
-		pp.setLastUpdateDate(new Date());
-		pp.setLastUpdateUser("system");
 		programProviderDao.saveProgramProvider(pp);
 		
 	}
 	@Override
     public void contextDestroyed(javax.servlet.ServletContextEvent sce) {
-		logger.info("Server processes stopping. context=" + sce.getServletContext().getContextPath());
+		// need tc6 for this?
+		// logger.info("Server processes stopping. context=" + sce.getServletContext().getContextPath());
+		logger.info("Server processes stopping. context=" + contextPath);
 
 		WaitListEmailThread.stopTask();
 		CaisiIntegratorUpdateTask.stopTask();
-		VmStat.stopContinuousLogging();
+		VMStat.stopContinuousLogging();
 
 		try {
-			 StdSchedulerFactory.getDefaultScheduler().shutdown();
-		 } catch(SchedulerException e) {
-			 logger.error("Error",e);
-		 }
-		try {
-			MiscUtilsOld.checkShutdownSignaled();
-			MiscUtilsOld.deregisterShutdownHook();
-			MiscUtilsOld.setShutdownSignaled(true);
+			MiscUtils.checkShutdownSignaled();
+			MiscUtils.deregisterShutdownHook();
+			MiscUtils.setShutdownSignaled(true);
 		} catch (ShutdownException e) {
 			// do nothing it's okay.
 		}

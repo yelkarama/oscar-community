@@ -12,120 +12,21 @@
 		<param-name>contextConfigLocation</param-name>
 		<param-value>classpath:applicationContext*.xml</param-value>
 	</context-param>
-	
-	<error-page>
-	    <exception-type>org.oscarehr.common.exception.InternalServerException</exception-type>
-	    <location>/500.jsp</location>
-	</error-page>
-	
-	<error-page>
-	    <exception-type>org.oscarehr.common.exception.XMLValidationException</exception-type>
-	    <location>/412.jsp</location>
-	</error-page>
 
-	<error-page>
-	    <exception-type>org.oscarehr.common.exception.CDAValidationException</exception-type>
-	    <location>/412.jsp</location>
-	</error-page>
-
-	<error-page>
-	    <exception-type>org.oscarehr.common.exception.ValidationException</exception-type>
-	    <location>/412.jsp</location>
-	</error-page>
-
-	<error-page>
-	    <exception-code>412</exception-code>
-	    <location>/412.jsp</location>
-	</error-page>
-	<error-page>
-	    <exception-type>org.oscarehr.common.exception.NotFoundException</exception-type>
-	    <location>/404.jsp</location>
-	</error-page>
-	<error-page>
-	    <exception-code>404</exception-code>
-	    <location>/404.jsp</location>
-	</error-page>
-	<error-page>
-		<exception-type>org.oscarehr.common.exception.AccessDeniedException</exception-type>
-		<location>/403.jsp</location>
-	</error-page>
-    <filter>
-	    <filter-name>monitoring</filter-name>
-	    <filter-class>net.bull.javamelody.MonitoringFilter</filter-class>
-	    <init-param>
-	             <param-name>system-actions-enabled</param-name>
-	             <param-value>true</param-value>
-		</init-param>
-		<init-param>
-			<param-name>disabled</param-name>
-			<param-value>true</param-value>
-		</init-param>               
-    </filter>
-    <filter-mapping>
-            <filter-name>monitoring</filter-name>
-            <url-pattern>/*</url-pattern>
-    </filter-mapping>
-        
-    <filter>
-            <filter-name>WebServiceSessionInvalidatingFilter</filter-name>
-            <filter-class>org.oscarehr.ws.WebServiceSessionInvalidatingFilter</filter-class>
-    </filter>
-    <filter-mapping>
-            <filter-name>WebServiceSessionInvalidatingFilter</filter-name>
-            <url-pattern>/ws/*</url-pattern>
-    </filter-mapping>
- 
 	<filter>
 		<filter-name>ProblemCheckFilter</filter-name>
 		<filter-class>org.oscarehr.util.ProblemCheckFilter</filter-class>
 	</filter>
-	
-    <filter>
-        <filter-name>ResponseDefaultsFilter</filter-name>
-        <filter-class>org.oscarehr.util.ResponseDefaultsFilter</filter-class>
-		<init-param>
-			<param-name>noCacheEndings</param-name>
-			<param-value>.jsp,.jsf,.json,.do</param-value>
-		</init-param>
-    </filter>
-    <filter-mapping>
-		<filter-name>ResponseDefaultsFilter</filter-name>
-		<url-pattern>/*</url-pattern>
-	</filter-mapping>
-
-	<filter>
-		<filter-name>PrivacyStatementAppendingFilter</filter-name>
-		<filter-class>org.oscarehr.common.printing.PrivacyStatementAppendingFilter</filter-class>
-		<init-param>
-			<param-name>exclusions</param-name>
-			<param-value>/oscarMessenger,/demographic/demographiccontrol.jsp,/demographic/demographiceditdemographic.js.jsp,/demographic/demographicprintdemographic.jsp, /provider/schedulePage.js.jsp</param-value>
-		</init-param>
-	</filter>
 
     <filter-mapping>
 		<filter-name>ProblemCheckFilter</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
-	
-	<filter-mapping>
-		<filter-name>PrivacyStatementAppendingFilter</filter-name>
-		<url-pattern>*.jsp</url-pattern>
-	</filter-mapping>
-	
-	<filter-mapping>
-		<filter-name>PrivacyStatementAppendingFilter</filter-name>
-		<url-pattern>*.do</url-pattern>
-	</filter-mapping>
-	
-	<filter-mapping>
-		<filter-name>PrivacyStatementAppendingFilter</filter-name>
-		<url-pattern>*.html</url-pattern>
-	</filter-mapping>
-	
-	<filter-mapping>
-		<filter-name>PrivacyStatementAppendingFilter</filter-name>
-		<url-pattern>*.htm</url-pattern>
-	</filter-mapping>
+
+    <filter>
+        <filter-name>ResponseDefaultsFilter</filter-name>
+        <filter-class>org.oscarehr.util.ResponseDefaultsFilter</filter-class>
+    </filter>
 
 	<filter>
 		<filter-name>ComponentFilter</filter-name>
@@ -189,6 +90,11 @@
 		<filter-class>org.oscarehr.PMmodule.web.PMMFilter</filter-class>
 	</filter>
 
+    <filter-mapping>
+		<filter-name>ResponseDefaultsFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
 	<filter-mapping>
 		<filter-name>ComponentFilter</filter-name>
 		<url-pattern>/mod/*</url-pattern>
@@ -222,11 +128,6 @@
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
 
-
-	<listener>
-       	<listener-class>net.bull.javamelody.SessionListener</listener-class>
-    </listener>
-	
 	<listener>
 		<listener-class>oscar.login.Startup</listener-class>
 	</listener>
@@ -235,9 +136,6 @@
 	</listener>
 	<listener>
 		<listener-class>org.oscarehr.util.ContextStartupListener</listener-class>
-	</listener>
-	<listener>
-		<listener-class>org.oscarehr.web.OscarSessionListener</listener-class>
 	</listener>
 
 	<!-- CXF -->
@@ -275,18 +173,6 @@
 		</init-param>
 		<load-on-startup>2</load-on-startup>
 	</servlet>
-	
-	<servlet>
-		<servlet-name>Html2Pdf</servlet-name>
-		<servlet-class> org.oscarehr.common.printing.HtmlToPdfServlet</servlet-class>
-		<load-on-startup>1</load-on-startup>
-	</servlet>
-	
-	<servlet-mapping>
-		<servlet-name>Html2Pdf</servlet-name>
-		<url-pattern>/html2pdf</url-pattern>
-	</servlet-mapping>
-
 	<servlet>
 		<servlet-name>UploadDocument</servlet-name>
 		<servlet-class>oscar.DocumentMgtUploadServlet</servlet-class>
@@ -300,11 +186,6 @@
 	<servlet>
 		<servlet-name>pdfCustomedCreator</servlet-name>
 		<servlet-class>oscar.form.pdfservlet.FrmCustomedPDFServlet</servlet-class>
-		<load-on-startup>1</load-on-startup>
-	</servlet>
-	<servlet>
-		<servlet-name>pdfCreatorEform</servlet-name>
-		<servlet-class>oscar.eform.util.EFormPDFServlet</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 	<servlet>
@@ -341,22 +222,22 @@
 		<servlet-class>oscar.DocumentUploadServlet</servlet-class>
 		<load-on-startup>0</load-on-startup>
 	</servlet>
-	<!--<servlet>-->
-		<!--<servlet-name>FileUpload</servlet-name>-->
-		<!--<servlet-class>FileUpload</servlet-class>-->
-	<!--</servlet>-->
-	<!--<servlet>-->
-		<!--<servlet-name>FileUpload2</servlet-name>-->
-		<!--<servlet-class>FileUpload2</servlet-class>-->
-	<!--</servlet>-->
-	<!--<servlet>-->
-		<!--<servlet-name>Uploader</servlet-name>-->
-		<!--<servlet-class>Uploader</servlet-class>-->
-	<!--</servlet>-->
-	<!--<servlet>-->
-		<!--<servlet-name>newUploader</servlet-name>-->
-		<!--<servlet-class>oscar.newOscarLab.Uploader</servlet-class>-->
-	<!--</servlet>-->
+	<servlet>
+		<servlet-name>FileUpload</servlet-name>
+		<servlet-class>FileUpload</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>FileUpload2</servlet-name>
+		<servlet-class>FileUpload2</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>Uploader</servlet-name>
+		<servlet-class>Uploader</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>newUploader</servlet-name>
+		<servlet-class>oscar.newOscarLab.Uploader</servlet-class>
+	</servlet>
 	<servlet>
 		<servlet-name>HsfoQuartzSchedulerServlet</servlet-name>
 		<servlet-class>oscar.form.study.hsfo2.pageUtil.HsfoQuartzServlet</servlet-class>
@@ -366,10 +247,10 @@
 		<servlet-name>PatientListByAppointment</servlet-name>
 		<servlet-class>oscar.oscarReport.data.PatientListByAppt</servlet-class>
 	</servlet>
-	<!--<servlet>-->
-		<!--<servlet-name>RxCloneService</servlet-name>-->
-		<!--<servlet-class>oscar.oscarRx.server.service.RxCloneServiceImpl</servlet-class>-->
-	<!--</servlet>-->
+	<servlet>
+		<servlet-name>RxCloneService</servlet-name>
+		<servlet-class>oscar.oscarRx.server.service.RxCloneServiceImpl</servlet-class>
+	</servlet>
 	<servlet>
 		<servlet-name>ImageRenderingServlet</servlet-name>
 		<servlet-class>org.oscarehr.ui.servlet.ImageRenderingServlet</servlet-class>
@@ -383,46 +264,27 @@
 		<servlet-class>org.oscarehr.web.eform.EformViewForPdfGenerationServlet</servlet-class>
 	</servlet>
 
-	<!--<servlet>-->
-		<!--<servlet-name>LabViewForPdfGenerationServlet</servlet-name>-->
-		<!--<servlet-class>oscar.oscarLab.ca.all.pageUtil.LabViewForPdfGenerationServlet</servlet-class>-->
-	<!--</servlet>-->
+	<servlet>
+		<servlet-name>LabViewForPdfGenerationServlet</servlet-name>
+		<servlet-class>oscar.oscarLab.ca.all.pageUtil.LabViewForPdfGenerationServlet</servlet-class>
+	</servlet>
 
-	<!--<servlet-mapping>-->
-		<!--<servlet-name>LabViewForPdfGenerationServlet</servlet-name>-->
-		<!--<url-pattern>/LabViewForPdfGenerationServlet</url-pattern>-->
-	<!--</servlet-mapping>-->
+	<servlet-mapping>
+		<servlet-name>LabViewForPdfGenerationServlet</servlet-name>
+		<url-pattern>/LabViewForPdfGenerationServlet</url-pattern>
+	</servlet-mapping>
 
 	<servlet>
 		<servlet-name>EFormViewForPdfGenerationServlet</servlet-name>
 		<servlet-class>oscar.eform.util.EFormViewForPdfGenerationServlet</servlet-class>
 	</servlet>
-	
-	<servlet>
-        <servlet-name>jsp</servlet-name>
-        <servlet-class>org.apache.jasper.servlet.JspServlet</servlet-class>
-
-        <init-param>
-    <param-name>mappedfile</param-name>
-    <param-value>false</param-value>
-</init-param> 
-       
-</servlet>
 
 	<servlet-mapping>
 		<servlet-name>EFormViewForPdfGenerationServlet</servlet-name>
 		<url-pattern>/EFormViewForPdfGenerationServlet</url-pattern>
 	</servlet-mapping>
 
-	<servlet>
-		<servlet-name>ProxyEformNotification</servlet-name>
-		<servlet-class>org.oscarehr.PMmodule.notification.EmailTriggerServlet</servlet-class>
-	</servlet>
-	
-	<servlet-mapping>
-		<servlet-name>ProxyEformNotification</servlet-name>
-		<url-pattern>/ProxyEformNotification</url-pattern>
-	</servlet-mapping>
+
 
 	<servlet>
 		<servlet-name>EFormSignatureViewForPdfGenerationServlet</servlet-name>
@@ -481,10 +343,6 @@
 		<url-pattern>/form/createcustomedpdf</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
-		<servlet-name>pdfCreatorEform</servlet-name>
-		<url-pattern>/eform/createpdf</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
 		<servlet-name>reportDownload</servlet-name>
 		<url-pattern>/report/reportDownload</url-pattern>
 	</servlet-mapping>
@@ -516,26 +374,26 @@
 		<servlet-name>PatientListByAppointment</servlet-name>
 		<url-pattern>/patientlistbyappt</url-pattern>
 	</servlet-mapping>
-	<!--<servlet-mapping>-->
-		<!--<servlet-name>FileUpload</servlet-name>-->
-		<!--<url-pattern>/FileUpload</url-pattern>-->
-	<!--</servlet-mapping>-->
-	<!--<servlet-mapping>-->
-		<!--<servlet-name>FileUpload2</servlet-name>-->
-		<!--<url-pattern>/FileUpload2</url-pattern>-->
-	<!--</servlet-mapping>-->
-	<!--&lt;!&ndash;<servlet-mapping>&ndash;&gt;-->
-		<!--&lt;!&ndash;<servlet-name>Uploader</servlet-name>&ndash;&gt;-->
-		<!--&lt;!&ndash;<url-pattern>/Uploader</url-pattern>&ndash;&gt;-->
-	<!--</servlet-mapping>-->
-	<!--<servlet-mapping>-->
-		<!--<servlet-name>newUploader</servlet-name>-->
-		<!--<url-pattern>/newUploader</url-pattern>-->
-	<!--</servlet-mapping>-->
-	<!--<servlet-mapping>-->
-		<!--<servlet-name>RxCloneService</servlet-name>-->
-		<!--<url-pattern>/oscar.oscarRx.CloneRx/service/rxcloneservice</url-pattern>-->
-	<!--</servlet-mapping>-->
+	<servlet-mapping>
+		<servlet-name>FileUpload</servlet-name>
+		<url-pattern>/FileUpload</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>FileUpload2</servlet-name>
+		<url-pattern>/FileUpload2</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Uploader</servlet-name>
+		<url-pattern>/Uploader</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>newUploader</servlet-name>
+		<url-pattern>/newUploader</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>RxCloneService</servlet-name>
+		<url-pattern>/oscar.oscarRx.CloneRx/service/rxcloneservice</url-pattern>
+	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>ImageRenderingServlet</servlet-name>
 		<url-pattern>/imageRenderingServlet</url-pattern>
@@ -555,35 +413,9 @@
 		<url-pattern>*.json</url-pattern>
 	</servlet-mapping>
 
-
-
 	<session-config>
 		<session-timeout>120</session-timeout> <!-- 120minutes -->
 	</session-config>
-	 <login-config>
-        <auth-method>BASIC</auth-method>
-    	<realm-name>Monitoring</realm-name>
-    </login-config>
-	
-	<security-role>
-    	<role-name>monitoring</role-name>
-    </security-role>
-
-	 <security-constraint>
-	     <web-resource-collection>
-	             <web-resource-name>Monitoring</web-resource-name>
-	             <url-pattern>/monitoring</url-pattern>
-	     </web-resource-collection>
-	     <auth-constraint>
-	             <role-name>monitoring</role-name>
-	     </auth-constraint>
-	     <!-- if SSL enabled (SSL and certificate must then be configured in the server) -->
-	     <user-data-constraint>
-	             <transport-guarantee>CONFIDENTIAL</transport-guarantee>
-	     </user-data-constraint>
-    </security-constraint>
-	
-
 
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>

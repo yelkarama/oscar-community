@@ -47,7 +47,7 @@ if (bMultisites) {
   String user_no = (String) session.getAttribute("user");
   String user_name = (String) session.getAttribute("userlastname")+","+ (String) session.getAttribute("userfirstname");
   boolean bAlternate =(request.getParameter("alternate")!=null&&request.getParameter("alternate").equals("checked") )?true:false;
-  int yearLimit = Integer.parseInt(session.getAttribute("schedule_yearlimit") != null ? ((String)session.getAttribute("schedule_yearlimit")) : "10");
+  int yearLimit = Integer.parseInt(session.getAttribute("schedule_yearlimit") != null ? ((String)session.getAttribute("schedule_yearlimit")) : "2");
   boolean scheduleOverlaps = false;
 %>
 <%@ page
@@ -55,6 +55,7 @@ if (bMultisites) {
 	errorPage="../appointment/errorpage.jsp"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
+<jsp:useBean id="scheduleMainBean" class="oscar.AppointmentMainBean" scope="session" />
 <jsp:useBean id="scheduleRscheduleBean" class="oscar.RscheduleBean"	scope="session" />
 <jsp:useBean id="scheduleDateBean" class="java.util.Hashtable"	scope="session" />
 <jsp:useBean id="scheduleHolidayBean" class="java.util.Hashtable" scope="session" />
@@ -63,13 +64,9 @@ if (bMultisites) {
 <%@ page import="org.oscarehr.common.dao.ScheduleDateDao" %>
 <%@ page import="org.oscarehr.common.model.RSchedule" %>
 <%@ page import="org.oscarehr.common.dao.RScheduleDao" %>
-<%@ page import="org.oscarehr.common.model.ScheduleHoliday" %>
-<%@ page import="org.oscarehr.common.dao.ScheduleHolidayDao" %>
-<%@page import="oscar.util.ConversionUtils" %>
 <%
 	ScheduleDateDao scheduleDateDao = SpringUtils.getBean(ScheduleDateDao.class);
 	RScheduleDao rScheduleDao = (RScheduleDao)SpringUtils.getBean("rScheduleDao");
-	ScheduleHolidayDao scheduleHolidayDao = SpringUtils.getBean(ScheduleHolidayDao.class);
 %>
 <%
   String provider_name = URLDecoder.decode(request.getParameter("provider_name"));
@@ -124,23 +121,44 @@ if(request.getParameter("bFirstDisp")==null || request.getParameter("bFirstDisp"
 		rScheduleDao.merge(rs);
 	}
   }
+  //This code is for maintaining one schedule/person
+  String[] searchParams = new String[15];
+  searchParams[0] = request.getParameter("provider_no");
+  searchParams[1] = sdate;
+  searchParams[2] = edate;
+  searchParams[3] = sdate;
+  searchParams[4] = edate;
+  searchParams[5] = sdate;
+  searchParams[6] = edate;
+  searchParams[7] = sdate;
+  searchParams[8] = edate;
+  searchParams[9] = sdate;
+  searchParams[10] = edate;
+  searchParams[11] = sdate;
+  searchParams[12] = edate;
+  searchParams[13] = sdate;
+  searchParams[14] = edate;
 
+  //check if existing schedule covers part or all of new schedule's time period
+  ResultSet rset = scheduleMainBean.queryResults(searchParams, "search_rschedule_overlaps");
 
-  Long overLapResult = rScheduleDao.search_rschedule_overlaps(request.getParameter("provider_no"), ConversionUtils.fromDateString(sdate), ConversionUtils.fromDateString(edate), 
-		ConversionUtils.fromDateString(sdate), ConversionUtils.fromDateString(edate),  ConversionUtils.fromDateString(sdate), ConversionUtils.fromDateString(edate), 
-		ConversionUtils.fromDateString(sdate), ConversionUtils.fromDateString(edate),  ConversionUtils.fromDateString(sdate), ConversionUtils.fromDateString(edate), 
-		ConversionUtils.fromDateString(sdate), ConversionUtils.fromDateString(edate),  ConversionUtils.fromDateString(sdate), ConversionUtils.fromDateString(edate));
-  
-  
-  scheduleOverlaps = overLapResult > 0;
-  
+  if( rset.next() ) {
+      scheduleOverlaps = rset.getInt(1) > 0;
+  }
+  rset.close();
+
 
   //if the schedule is the same we are editing instead
-  
-  Long existsResult = rScheduleDao.search_rschedule_exists(request.getParameter("provider_no"), ConversionUtils.fromDateString(sdate), ConversionUtils.fromDateString(edate));
+  String[] searchParams1 = new String[3];
+  searchParams1[0] = request.getParameter("provider_no");
+  searchParams1[1] = sdate;
+  searchParams1[2] = edate;
+  rset = scheduleMainBean.queryResults(searchParams1, "search_rschedule_exists");
   boolean editingSchedule = false;
-  editingSchedule = existsResult > 0;
-  
+  if( rset.next() ) {
+    editingSchedule = rset.getInt(1) > 0;
+  }
+  rset.close();
 
   //save rschedule data
   if(bAlternate)
@@ -155,7 +173,6 @@ if(request.getParameter("bFirstDisp")==null || request.getParameter("bFirstDisp"
 		rs.setAvailHourB(scheduleRscheduleBean.avail_hourB);
 		rs.setAvailHour(scheduleRscheduleBean.avail_hour);
 		rs.setCreator(scheduleRscheduleBean.creator);
-		rs.setStatus(scheduleRscheduleBean.active);
 		rScheduleDao.merge(rs);
 	}
   }
@@ -175,14 +192,16 @@ if(request.getParameter("bFirstDisp")==null || request.getParameter("bFirstDisp"
 
   //create scheduledate record and initial scheduleDateBean
   scheduleDateBean.clear();
-  for(ScheduleDate sd:scheduleDateDao.search_scheduledate_c(request.getParameter("provider_no"))) {
-    scheduleDateBean.put(ConversionUtils.toDateString(sd.getDate()), new HScheduleDate(String.valueOf(sd.getAvailable()), String.valueOf(sd.getPriority()),sd.getReason(),sd.getHour(), sd.getCreator() ));
+  ResultSet rsgroup = scheduleMainBean.queryResults(request.getParameter("provider_no"),"search_scheduledate_c");
+  while (rsgroup.next()) {
+    scheduleDateBean.put(rsgroup.getString("sdate"), new HScheduleDate(rsgroup.getString("available"), rsgroup.getString("priority"), rsgroup.getString("reason"), rsgroup.getString("hour"), rsgroup.getString("creator") ));
   }
 
   //initial scheduleHolidayBean record
   if(scheduleHolidayBean.isEmpty() ) {
-	for(ScheduleHoliday sh : scheduleHolidayDao.findAll()) {
-      scheduleHolidayBean.put(ConversionUtils.toDateString(sh.getId()), new HScheduleHoliday(sh.getHolidayName() ));
+    rsgroup = scheduleMainBean.queryResults("%","search_scheduleholiday");
+    while (rsgroup.next()) {
+      scheduleHolidayBean.put(rsgroup.getString("sdate"), new HScheduleHoliday(rsgroup.getString("holiday_name") ));
     }
   }
 
@@ -387,7 +406,7 @@ function refresh() {
 
             %>
 			<td bgcolor='<%=bgcolor.toString()%>'><a href="#"
-				onclick="popupPage(260,720,'scheduledatepopup.jsp?provider_no=<%=provider_no%>&year=<%=year%>&month=<%=month%>&day=<%=dateGrid[i][j]%>&bFistDisp=1')">
+				onclick="popupPage(260,500,'scheduledatepopup.jsp?provider_no=<%=provider_no%>&year=<%=year%>&month=<%=month%>&day=<%=dateGrid[i][j]%>&bFistDisp=1')">
 			<font color="red"><%= dateGrid[i][j] %></font> <font size="-3"
 				color="blue"><%=strHolidayName.toString()%></font> <br>
 			<font size="-2">&nbsp;<%=strHour.toString()%> <br>
@@ -411,7 +430,9 @@ function refresh() {
 				<input type="hidden" name="Submit" value=" Next "> <input
 					type="submit"
 					value='<bean:message key="schedule.schedulecreatedate.btnNext"/>'>
-				</div>
+				<input type="button"
+					value='<bean:message key="schedule.schedulecreatedate.btnCancel"/>'
+					onclick="window.close()"></div>
 				</td>
 			</tr>
 		</table>

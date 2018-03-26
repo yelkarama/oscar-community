@@ -23,60 +23,44 @@
     Ontario, Canada
 
 --%>
-<%@page import="org.oscarehr.util.SpringUtils"%>
+<%@page import="org.springframework.web.context.WebApplicationContext, org.springframework.web.context.support.WebApplicationContextUtils, org.oscarehr.util.SpringUtils"%>
 <%@page import="java.util.Set, java.util.List,org.oscarehr.util.LocaleUtils, java.util.Calendar, java.util.GregorianCalendar"%>
-<%@page import="org.oscarehr.common.dao.TicklerTextSuggestDao"%>
-<%@page import="org.oscarehr.PMmodule.dao.ProviderDao"  %>
-<%@page import="org.oscarehr.common.model.Provider"  %>
-<%@page import="org.oscarehr.common.model.Demographic"  %>
-<%@page import="org.oscarehr.common.model.TicklerTextSuggest"  %>
-<%@ page import="org.oscarehr.common.model.Tickler" %>
-<%@ page import="org.oscarehr.common.model.TicklerComment" %>
-<%@ page import="org.oscarehr.common.model.TicklerUpdate" %>
-<%@ page import="org.oscarehr.common.model.TicklerLink" %>
-<%@ page import="org.oscarehr.common.dao.TicklerLinkDao" %>
-<%@ page import="oscar.util.UtilDateUtilities" %>
-<%@page import="org.oscarehr.util.MiscUtils"%>
-<%@ page import="org.oscarehr.util.LoggedInInfo" %>
-<%@ page import="org.oscarehr.managers.TicklerManager" %>
+<%@page import="org.caisi.model.TicklerComment,org.caisi.model.Tickler, org.caisi.dao.TicklerDAO,org.caisi.model.CustomFilter"%>
+<%@page import="org.oscarehr.common.model.Demographic, org.oscarehr.PMmodule.dao.ProviderDao, org.oscarehr.common.model.Provider, org.oscarehr.common.model.TicklerTextSuggest, org.oscarehr.common.dao.TicklerTextSuggestDao"%>
 
-<%
-	TicklerManager ticklerManager = SpringUtils.getBean(TicklerManager.class);
-   	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-%>
-
+<%@ taglib uri="/WEB-INF/security.tld" prefix="security" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
+    if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_tickler" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_tickler");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
 %>
 
+<security:oscarSec roleName="<%=roleName$%>" objectName="_tasks" rights="r" reverse="<%=true%>" >
+    <%response.sendRedirect("../noRights.html");%>
+</security:oscarSec>
+
 <%
-	String ticklerNoStr = request.getParameter("tickler_no");    
+    if(session.getAttribute("user") == null) {
+        response.sendRedirect("../logout.jsp");
+    }
     
-    Integer ticklerNo = null;
+    WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
+    
+    String ticklerNoStr = request.getParameter("tickler_no");    
+    
+    Long ticklerNo = null;
     try {
-        ticklerNo = Integer.valueOf(ticklerNoStr);
+        ticklerNo = Long.valueOf(ticklerNoStr);
     }catch (NumberFormatException e) {}
     
     
+    TicklerDAO ticklerDao = (TicklerDAO)SpringUtils.getBean("ticklerDAOT");
     Tickler t = null;
     Demographic d = null;
     if (ticklerNo != null) {
-        t = ticklerManager.getTickler(loggedInInfo, ticklerNo);
+        t = ticklerDao.getTickler(ticklerNo);
         d = t.getDemographic();
     }
     else {
@@ -99,7 +83,7 @@
     int curMonth = (now.get(Calendar.MONTH)+1);
 %>
 
-<html:html locale="true">
+<html:html>
     <head>
         <style type="text/css">
             td,th{
@@ -203,9 +187,7 @@
                     <th style="background-color: #336666;color:white;"><bean:message key="tickler.ticklerEdit.updateDate"/>
                 </tr>
                 
-                <%
-                                	String cellColour = "lilac";
-                                %>
+                <% String cellColour = "lilac";%>
                 
                 <tr>
                     <td colspan="2" class="<%=cellColour%>" style="font-weight: bold"><%=t.getMessage()%></td>
@@ -213,15 +195,15 @@
                     <td class="<%=cellColour%>" style="font-weight: bold"><%=t.getUpdateDate()%></td>
                 </tr>
                 
-                    <%
-                                    	Set<TicklerComment> tComments = t.getComments(); 
-                                                          for (TicklerComment tc : tComments) { 
-                                                               if (cellColour.equals("lilac")) {
-                                                                    cellColour = "white";
-                                                                }else{
-                                                                    cellColour = "lilac"; 
-                                                                }
-                                    %>
+                    <%                     
+                      Set<TicklerComment> tComments = t.getComments(); 
+                      for (TicklerComment tc : tComments) { 
+                           if (cellColour.equals("lilac")) {
+                                cellColour = "white";
+                            }else{
+                                cellColour = "lilac"; 
+                            }
+                    %>
                <tr>
                     <td colspan="2" class="<%=cellColour%>"><%=tc.getMessage()%></td>
                     <td class="<%=cellColour%>"><%=tc.getProvider().getLastName()%>,<%=tc.getProvider().getFirstName()%></td>
@@ -242,7 +224,7 @@
                         <select name="suggestedText">
                             <option value="">---</option>
                             <%   
-                                TicklerTextSuggestDao ticklerTextSuggestDao = (TicklerTextSuggestDao) SpringUtils.getBean("ticklerTextSuggestDao");
+                                TicklerTextSuggestDao ticklerTextSuggestDao = (TicklerTextSuggestDao) ctx.getBean("ticklerTextSuggestDao");
                                 for (TicklerTextSuggest tTextSuggest : ticklerTextSuggestDao. getActiveTicklerTextSuggests()) { %>
                                 <option><%=tTextSuggest.getSuggestedText()%></option>
                             <% } %>

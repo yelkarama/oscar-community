@@ -35,9 +35,6 @@ import org.apache.commons.codec.binary.Base64;
 import org.oscarehr.util.MiscUtils;
 
 public class UtilMisc {
-  /**
-   * @deprecated use apache's StringEscapeUtils instead.
-   */
   public static String htmlEscape(String S) {
 
     if (null == S) {
@@ -139,9 +136,6 @@ public class UtilMisc {
     return sb.toString();
   }
 
-  /**
-   * @deprecated use apache's StringEscapeUtils instead.
-   */
   public static String htmlJsEscape(String S) {
     if (null == S) {
       return S;
@@ -208,9 +202,6 @@ public class UtilMisc {
     return sb.toString();
   }
 
-  /**
-   * @deprecated use apache's StringEscapeUtils instead.
-   */
   public static String JSEscape(String S) {
     if (null == S) {
       return S;
@@ -426,7 +417,7 @@ public class UtilMisc {
    * @return double
    */
   public static double toCurrencyDouble(double value){
-    BigDecimal bd = BigDecimal.valueOf(value );
+    BigDecimal bd = new BigDecimal(value );
     bd = bd.setScale(2,BigDecimal.ROUND_HALF_UP);
     return bd.doubleValue();
   }

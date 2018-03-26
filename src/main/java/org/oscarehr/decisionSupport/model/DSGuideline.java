@@ -33,79 +33,44 @@ package org.oscarehr.decisionSupport.model;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.DiscriminatorColumn;
-import javax.persistence.DiscriminatorType;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
-
 import org.apache.log4j.Logger;
-import org.oscarehr.common.model.AbstractModel;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 
 /**
  *
  * @author apavel
  */
-@Entity
-@Table(name="dsGuidelines")
-@DiscriminatorColumn(name="engine", discriminatorType=DiscriminatorType.STRING,length=60)
-public abstract class DSGuideline extends AbstractModel<Integer> {
-   
+public abstract class DSGuideline {
+    /*
+    enum Status {
+        ACTIVE('A'),
+        INACTIVE('I'),
+        FAILED('F');
+
+        private char statusChar;
+        private Status(char statusChar) { this.statusChar = statusChar; }
+        private char getStatusChar() { return this.statusChar; }
+    }*/
+
     private static Logger _log = MiscUtils.getLogger();
-    
-    @Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-    protected Integer id;
-    
-    @Column(length=60,nullable=false)
+    protected int id;
     protected String uuid;
-    
-    @Column(length=100,nullable=false)
-    protected String title;
-    
-    @Column(nullable=true)
     protected Integer version;
-    
-    @Column(length=60,nullable=false)
     protected String author;
-    
-    @Lob
-    @Column(nullable=true)
     protected String xml;
-    
-    @Column(length=60,nullable=false)
     protected String source;
-    
-    @Column(nullable=true)
-    @Temporal(TemporalType.TIMESTAMP)
+    protected String engine;
     protected Date dateStart;
-    
-    @Column(nullable=true)
-    @Temporal(TemporalType.TIMESTAMP)
     protected Date dateDecomissioned;
-    
-    @Column(nullable=true)
-    protected char status = 'A';
+    protected char status;
 
 
     //following are populated by parsing
-    @Transient
+    private String title;
     private List<DSParameter> parameters;
-    @Transient
     private List<DSCondition> conditions;
-    @Transient
     private List<DSConsequence> consequences;
 
-    @Transient
     private boolean parsed = false;
 
     public String getTitle() {
@@ -134,14 +99,12 @@ public abstract class DSGuideline extends AbstractModel<Integer> {
         this.consequences = consequences;
     }
 
-    public abstract List<DSConsequence> evaluate(LoggedInInfo loggedInInfo, String demographicNo) throws DecisionSupportException;
+    public abstract List<DSConsequence> evaluate(String demographicNo) throws DecisionSupportException;
 
-    public abstract List<DSConsequence> evaluate(LoggedInInfo loggedInInfo, String demographicNo, String providerNo) throws DecisionSupportException;
-    
-    public abstract List<DSConsequence> evaluate(LoggedInInfo loggedInInfo, String demographicNo, String providerNo, List<Object>dynamicArgs) throws DecisionSupportException;
+    public abstract List<DSConsequence> evaluate(String demographicNo, String providerNo) throws DecisionSupportException;
 
-    public boolean evaluateBoolean(LoggedInInfo loggedInInfo, String demographicNo) throws DecisionSupportException {
-        if (evaluate(loggedInInfo, demographicNo) == null) return false;
+    public boolean evaluateBoolean(String demographicNo) throws DecisionSupportException {
+        if (evaluate(demographicNo) == null) return false;
         return true;
     }
 
@@ -176,14 +139,14 @@ public abstract class DSGuideline extends AbstractModel<Integer> {
     /**
      * @return the id
      */
-    public Integer getId() {
+    public int getId() {
         return id;
     }
 
     /**
      * @param id the id to set
      */
-    public void setId(Integer id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -255,6 +218,20 @@ public abstract class DSGuideline extends AbstractModel<Integer> {
      */
     public void setSource(String source) {
         this.source = source;
+    }
+
+    /**
+     * @return the engine
+     */
+    public String getEngine() {
+        return engine;
+    }
+
+    /**
+     * @param engine the engine to set
+     */
+    public void setEngine(String engine) {
+        this.engine = engine;
     }
 
     /**

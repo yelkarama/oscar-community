@@ -22,45 +22,36 @@
  * Ontario, Canada
  */
 
+
 package org.oscarehr.ws;
 
 import java.util.List;
 
 import javax.jws.WebService;
 
-import org.apache.cxf.annotations.GZIP;
 import org.apache.log4j.Logger;
-import org.oscarehr.PMmodule.dao.ProviderDao;
-import org.oscarehr.common.dao.SecurityDao;
-import org.oscarehr.common.model.Provider;
-import org.oscarehr.common.model.Security;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.NotAuthorisedException;
 import org.oscarehr.ws.transfer_objects.LoginResultTransfer;
-import org.oscarehr.ws.transfer_objects.LoginResultTransfer2;
-import org.oscarehr.ws.transfer_objects.ProviderTransfer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.quatro.dao.security.SecurityDao;
+import com.quatro.model.security.Security;
+
 @WebService
 @Component
-@GZIP(threshold = AbstractWs.GZIP_THRESHOLD)
 public class LoginWs extends AbstractWs {
 	private static final Logger logger = MiscUtils.getLogger();
 
 	@Autowired
 	private SecurityDao securityDao = null;
 
-	@Autowired
-	private ProviderDao providerDao = null;
-
 	/**
-	 * @deprecated 2015-01-28 
-	 * 
 	 * Returns LoginResultTransfer on valid login, will be provided with a security token too.
 	 * @throws NotAuthorisedException if password is incorrect
 	 */
-	public LoginResultTransfer login(String userName, String password) throws NotAuthorisedException {
+	public org.oscarehr.ws.transfer_objects.LoginResultTransfer login(String userName, String password) throws NotAuthorisedException {
 		logger.info("Login attempt : user=" + userName);
 		logger.debug("Login attempt : p =" + password);
 
@@ -69,44 +60,12 @@ public class LoginWs extends AbstractWs {
 
 		if (securities.size() > 0) security = securities.get(0);
 
-		if (WsUtils.checkAuthenticationAndSetLoggedInInfo(getHttpServletRequest(), security, password)) {
+		if (WsUtils.checkAuthenticationAndSetLoggedInInfo(security, password)) {
 			LoginResultTransfer result = new LoginResultTransfer();
 			result.setSecurityId(security.getSecurityNo());
 
-			String securityToken = WsUtils.generateSecurityToken(security);
-			result.setSecurityTokenKey(securityToken);
-
-			return (result);
-		}
-
-		throw (new NotAuthorisedException("Invalid Username/Password"));
-	}
-
-	/**
-	 * @param password can be the users password or a valid token
-	 * @return LoginResultTransfer2 on valid login, will be provided with a security token too.
-	 * @throws NotAuthorisedException if password is incorrect
-	 */
-	public LoginResultTransfer2 login2(String userName, String password) throws NotAuthorisedException {
-		logger.info("Login attempt : user=" + userName);
-		logger.debug("Login attempt : p =" + password);
-
-		List<Security> securities = securityDao.findByUserName(userName);
-		Security security = null;
-
-		if (securities.size() > 0) security = securities.get(0);
-
-		if (WsUtils.checkAuthenticationAndSetLoggedInInfo(getHttpServletRequest(), security, password)) {
-			LoginResultTransfer2 result = new LoginResultTransfer2();
-			result.setSecurityId(security.getSecurityNo());
-
-			String securityToken = WsUtils.generateSecurityToken(security);
-			result.setSecurityTokenKey(securityToken);
-
-			if (security.getProviderNo() != null) {
-				Provider provider = providerDao.getProvider(security.getProviderNo());
-				result.setProvider(ProviderTransfer.toTransfer(provider));
-			}
+			// we haven't sorted out the token framework so we'll just return the pw for now
+			result.setSecurityTokenKey(password);
 
 			return (result);
 		}

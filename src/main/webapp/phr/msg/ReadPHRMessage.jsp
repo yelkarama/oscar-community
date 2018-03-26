@@ -24,33 +24,9 @@
 
 --%>
 
-<%@page import="org.apache.commons.codec.binary.Base64"%>
-<%@page import="org.w3c.dom.Node"%>
-<%@page import="org.oscarehr.util.XmlUtils"%>
-<%@page import="org.w3c.dom.Document"%>
-<%@page import="org.oscarehr.myoscar_server.ws.Message2DataTransfer"%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_phr" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_phr");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-<%@page import="org.oscarehr.myoscar.utils.MyOscarLoggedInInfo"%>
-<%@page import="org.oscarehr.myoscar.client.ws_manager.MessageManager"%>
-<%@page import="org.oscarehr.myoscar.client.ws_manager.AccountManager"%>
-<%@page import="org.oscarehr.myoscar_server.ws.MinimalPersonTransfer2"%>
-<%@page import="org.oscarehr.myoscar_server.ws.MessageTransfer3"%>
 <%@page import="oscar.util.DateUtils"%>
-<%@page import="org.apache.commons.lang.StringEscapeUtils,java.net.URLEncoder"%>
+<%@page import="org.apache.commons.lang.StringEscapeUtils"%>
+<%@page import="org.oscarehr.myoscar_server.ws.MessageTransfer"%>
 <%@page import="org.oscarehr.phr.web.MyOscarMessagesHelper"%>
 <%@page import="oscar.oscarDemographic.data.*, java.util.Enumeration" %>
 <%@page import="oscar.util.UtilDateUtilities,java.util.*" %>
@@ -64,33 +40,7 @@
 <%
 	Long messageId=new Long(request.getParameter("messageId"));
 	String demographicNo = request.getParameter("demographicNo");
-	MessageTransfer3 messageTransfer=MyOscarMessagesHelper.readMessage(session, messageId);
-	String subject=MessageManager.getSubject(messageTransfer);
-	String messageBody=MessageManager.getMessageBody(messageTransfer);
-	
- 	MyOscarLoggedInInfo myOscarLoggedInInfo=MyOscarLoggedInInfo.getLoggedInInfo(session);
-	Long senderPersonId=messageTransfer.getSenderPersonId();
-	MinimalPersonTransfer2 minimalPersonSender=AccountManager.getMinimalPerson(myOscarLoggedInInfo, senderPersonId);
-	
-	Message2DataTransfer messageDataTransfer=MyOscarMessagesHelper.getFileAttachment(messageTransfer);
-	String filename=null;
-	String mimeType=null;
-	int fileSize=0;
-	if (messageDataTransfer!=null)
-	{
-		// filename / mimeType / bytes
-		
-		Document doc=XmlUtils.toDocument(messageDataTransfer.getContents());
-		Node rootNode=doc.getFirstChild();
-		filename=XmlUtils.getChildNodeTextContents(rootNode, "filename");
-		mimeType=XmlUtils.getChildNodeTextContents(rootNode, "mimeType");
-		String tempString=XmlUtils.getChildNodeTextContents(rootNode, "bytes");
-		byte[] tempBytes=Base64.decodeBase64(tempString);
-		fileSize=tempBytes.length;
-	}
-
-	String myOscarUserName=minimalPersonSender.getUserName();
-	Demographic demographic=MyOscarUtils.getDemographicByMyOscarUserName(myOscarUserName);
+	MessageTransfer messageTransfer=MyOscarMessagesHelper.readMessage(session, messageId);
 %>
 
 <html:html locale="true">
@@ -99,7 +49,7 @@
 <link rel="stylesheet" type="text/css" href="../oscarMessenger/printable.css" media="print">    
 
 <title>
-	View Message
+<%-- bean:message key="indivoMessenger.ViewIndivoMessage.title"/--%>View Message
 </title>
 
 <script type="text/javascript" src="../share/javascript/Oscar.js"></script>
@@ -114,12 +64,6 @@ function gotoEchart3(demoNo) {
     openedWindow = popup(755,1048,url,'apptProvider');
 }
 
-function gotoMSG(demoNo){
-	var url = '<%=request.getContextPath()%>/oscarMessenger/SendDemoMessage.do?demographic_no='+demoNo+'&subject=<%=URLEncoder.encode("PHR:"+subject,"UTF-8")%>&message=<%=URLEncoder.encode("\n\n\n---Message From PHR----\n"+messageBody,"UTF-8")%>';   
-	openedWindow = popup(755,1048,url,'msg');
-}
-
-
 </script>
 
 </head>
@@ -129,7 +73,7 @@ function gotoMSG(demoNo){
     <table  class="MainTable" id="scrollNumber1" name="encounterTable">
         <tr class="MainTableTopRow">
             <td class="MainTableTopRowLeftColumn">
-                View Message
+                <%-- bean:message key="indivoMessenger.ViewIndivoMessage.msgMessenger"/ --%>View Message
             </td>
             <td class="MainTableTopRowRightColumn">
                 <table class="TopStatusBar">
@@ -171,7 +115,7 @@ function gotoMSG(demoNo){
                                     </td>                                    
                                     <td>
                                         <table class=messButtonsA cellspacing=0 cellpadding=3 ><tr><td class="messengerButtonsA">
-                                            <a href="javascript:BackToOscar()" class="messengerButtons">Exit</a>
+                                            <a href="javascript:BackToOscar()" class="messengerButtons"><%-- bean:message key="indivoMessenger.ViewMessage.btnExit"/ --%>Exit</a>
                                         </td></tr></table>
                                     </td>                                    
                                 </tr>
@@ -186,15 +130,7 @@ function gotoMSG(demoNo){
                                     <bean:message key="oscarMessenger.ViewMessage.msgFrom"/>:
                                     </td>
                                     <td class="Printable" bgcolor="#CCCCFF">
-                                    	<%
-                                    		StringBuilder displayName=new StringBuilder();
-                                    		if (minimalPersonSender.getLastName()!=null) displayName.append(minimalPersonSender.getLastName()).append(", ");
-                                    		if (minimalPersonSender.getFirstName()!=null) displayName.append(minimalPersonSender.getFirstName());
-                                    		displayName.append(" (");
-                                    		displayName.append(minimalPersonSender.getUserName());
-                                    		displayName.append(")");
-                                    	%>
-                                    	<%=StringEscapeUtils.escapeHtml(displayName.toString())%>
+                                    	<%=StringEscapeUtils.escapeHtml(messageTransfer.getSenderPersonLastName()+", "+messageTransfer.getSenderPersonFirstName())%>
                                     </td>
                                 </tr>
                                 <tr>
@@ -202,15 +138,7 @@ function gotoMSG(demoNo){
                                     <bean:message key="oscarMessenger.ViewMessage.msgTo"/>:
                                     </td>
                                     <td class="Printable" bgcolor="#BFBFFF">
-                                    	<%
-                                    		for (Long recipientId : messageTransfer.getRecipientPeopleIds())
-                                    		{
-                                    			MinimalPersonTransfer2 recipient=AccountManager.getMinimalPerson(myOscarLoggedInInfo, recipientId);
-                                    			%>
-			                                    	<%=StringEscapeUtils.escapeHtml(recipient.getLastName()+", "+recipient.getFirstName()+" ("+recipient.getUserName()+"); ")%>
-                                    			<%
-                                    		}
-                                    	%>
+                                    	<%=StringEscapeUtils.escapeHtml(messageTransfer.getRecipientPersonLastName()+", "+messageTransfer.getRecipientPersonFirstName())%>
                                     </td>
                                 </tr>
                                 <tr>
@@ -218,7 +146,7 @@ function gotoMSG(demoNo){
                                         <bean:message key="oscarMessenger.ViewMessage.msgSubject"/>:
                                     </td>
                                     <td class="Printable" bgcolor="#BBBBFF">
-                                    	<%=StringEscapeUtils.escapeHtml(subject)%>
+                                    	<%=StringEscapeUtils.escapeHtml(messageTransfer.getSubject())%>
                                     </td>
                                 </tr>
                                 <tr>
@@ -226,59 +154,26 @@ function gotoMSG(demoNo){
                                       <bean:message key="oscarMessenger.ViewMessage.msgDate"/>:
                                   </td>
                                   <td  class="Printable" bgcolor="#B8B8FF">
-                                   	<%=StringEscapeUtils.escapeHtml(DateUtils.formatDateTime(messageTransfer.getSentDate(), request.getLocale()))%>
+                                   	<%=StringEscapeUtils.escapeHtml(DateUtils.formatDateTime(messageTransfer.getSendDate(), request.getLocale()))%>
                                   </td>
                                 </tr>
                                 <tr>
                                     
                                     <td bgcolor="#EEEEFF" ></td>
                                     <td bgcolor="#EEEEFF" >
-                                        <textarea name="msgBody" wrap="hard" readonly="true" rows="18" cols="60" ><%=StringEscapeUtils.escapeHtml(messageBody)%></textarea><br>
+                                        <textarea name="msgBody" wrap="hard" readonly="true" rows="18" cols="60" ><%=StringEscapeUtils.escapeHtml(messageTransfer.getContents())%></textarea><br>
+                                        <input class="ControlPushButton" type="button" value="<bean:message key="oscarMessenger.ViewMessage.btnReply"/>" onclick="window.location.href='<%=request.getContextPath()%>/phr/msg/CreatePHRMessage.jsp?replyToMessageId=<%=messageId%>&demographicNo=<%=demographicNo%>'"/>
+                                        <%String myOscarUserName=messageTransfer.getSenderPersonUserName();
+		                                Demographic demographic=MyOscarUtils.getDemographicByMyOscarUserName(myOscarUserName);
+		                                %>
                                         
-                                        <%
-                                        	if (filename!=null)
-                                        	{
-                                        		%>
-			                                        <div style="padding-top:0.5em;padding-bottom:0.5em">
-				                                        <%=StringEscapeUtils.escapeHtml(filename)%>
-				                                    	&nbsp;
-				                                    	(<%=StringEscapeUtils.escapeHtml(mimeType)%> <%=fileSize%> bytes)
-				                                    	&nbsp;
-				                                    	<a href="msg/attachment_retriever.jsp?messageId=<%=messageId%>&amp;download=false">open</a>
-				                                    	&nbsp;
-				                                    	<a href="msg/attachment_retriever.jsp?messageId=<%=messageId%>&amp;download=true" download="<%=StringEscapeUtils.escapeHtml(filename)%>">download</a>
-				                                    	<%
-				                                    		if (demographic !=null)
-				                                    		{
-				                                    			%>
-							                                    	&nbsp;
-							                                    	<a href="msg/save_to_echart_documents_action.jsp?messageId=<%=messageId%>&demographicNo=<%=demographicNo%>">save to echart documents</a>
-				                                    			<%
-				                                    		}
-				                                    	%> 
-			                                        </div>
-                                        		<%
-                                        	}
-                                        %>
                                         
-                                        <input class="ControlPushButton" type="button" value="<bean:message key="oscarMessenger.ViewMessage.btnReply"/>" onclick="window.location.href='<%=request.getContextPath()%>/phr/msg/CreatePHRMessage.jsp?replyToMessageId=<%=messageId%>&amp;demographicNo=<%=demographicNo%>'"/>
-                                        <input class="ControlPushButton" type="button" value="<bean:message key="oscarMessenger.ViewMessage.btnReplyAll"/>" onclick="window.location.href='<%=request.getContextPath()%>/phr/msg/CreatePHRMessage.jsp?replyAll=true&amp;replyToMessageId=<%=messageId%>&amp;demographicNo=<%=demographicNo%>'"/>
- 
                                     	<input 
                                     	<%if (demographic == null){%>
 		                                   disabled="disabled"
-		                                   title="<bean:message key="global.no.phr.account.registered"/>"
+		                                   title="<bean:message key="global.no.myoscar.account.registered"/>"
 		                                <%}%> 
                                     	class="ControlPushButton" type="button" onclick="gotoEchart3('<%=demographicNo%>');" value="<bean:message key="oscarMessenger.CreateMessage.btnOpenEchart"/>" >
-                                    	
-                                    	<input 
-                                    	<%if (demographic == null){%>
-		                                   disabled="disabled"
-		                                   title="<bean:message key="global.no.phr.account.registered"/>"
-		                                <%}%> 
-                                    	class="ControlPushButton" type="button" onclick="gotoMSG('<%=demographicNo%>');" value="<bean:message key="oscarMessenger.CreateMessage.btnOpenInOscarMsg"/>" >
-                                    	
-                                    	
                                     </td>
                                 </tr>
                                 <tr>

@@ -59,8 +59,8 @@ var _hc_apptScreenHandler = function(args) {
 		var issueDate = (args["issueDate"].substring(0,2) <= 30 ? "20" : "19") + args["issueDate"];
 		jQuery(hcwindow).find("#_hc_layout_valid_from").text(issueDate.substring(0,4) + "/" + issueDate.substring(4,6) + "/" + issueDate.substring(6,8));
 		
-        var hinExpNil = args["hinExp"].substring(0,4);
-        if (hinExpNil != "0000") {
+		var hinExpNil = args["hinExp"].substring(0,4);
+		if (hinExpNil != "0000") {
 			var hinExp = (args["hinExp"].substring(0,2) <= 30 ? "20" : "19") + args["hinExp"] + args["dob"].substring(6,8);
 			jQuery(hcwindow).find("#_hc_layout_valid_to").text(hinExp.substring(0,4) + "/" + hinExp.substring(4,6) + "/" + hinExp.substring(6,8));
 		
@@ -114,7 +114,7 @@ var _hc_apptScreenHandler = function(args) {
 						if (error)
 							jQuery(win).find("#_hc_action_present").hide();
 						else {
-							jQuery(win).find("#_hc_action_present").hide();
+							jQuery(win).find("#_hc_action_present").show();
 							jQuery("td[demo_no=" + data.demoNo + "]").addClass("_hc_appointmentMatch");
 						}
 							
@@ -129,12 +129,12 @@ var _hc_apptScreenHandler = function(args) {
 						
 						(function(appointmentNo) {
 							jQuery(win).find("#_hc_action_present").click(function() {
-								document.location.href = "providercontrol.jsp?appointment_no=" + appointmentNo + "&year=" + getURLParameter("year") + "&month=" + getURLParameter("month") + "&day=" + getURLParameter("day") + "&status=&statusch=H&displaymode=addstatus&dboperation=updateapptstatus";
+								document.location.href = "providercontrol.jsp?appointment_no=" + appointmentNo + "&year=" + getURLParameter("year") + "&month=" + getURLParameter("month") + "&day=" + getURLParameter("day") + "&status=&statusch=H&displaymode=addstatus&dboperation=updateapptstatus&viewall=1";
 								jQuery(win).hide();
 							});
 						})(jQuery(".apptLink[demographic_no="+data.demoNo+"]" ).first().attr("appointment_no"));
 						
-						jQuery(win).find("#_hc_action_present").hide();
+						//jQuery(win).find("#_hc_action_present").hide();
 					} else {
 						jQuery(win).find("#_hc_noMatch").show();
 						jQuery(win).find("#_hc_match").hide();
@@ -153,7 +153,8 @@ var _hc_apptScreenHandler = function(args) {
 }
 
 jQuery(document).ready(function() {
-	jQuery("#_hc_window #_hc_matchSearch img").attr("src", "../images/DMSLoader.gif");
+
+	jQuery("#_hc_window #_hc_matchSearch img").attr("src", + "../images/DMSLoader.gif");
 
 	jQuery("#_hc_window #_hc_closeBtn").click(function() {
 		jQuery("#_hc_window").hide();

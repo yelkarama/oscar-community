@@ -21,86 +21,79 @@ package oscar.oscarBilling.ca.on.data;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
+import java.util.Vector;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
-import org.oscarehr.common.dao.BillingONCHeader1Dao;
-import org.oscarehr.common.dao.RaDetailDao;
-import org.oscarehr.common.dao.RaHeaderDao;
-import org.oscarehr.common.model.BillingONCHeader1;
-import org.oscarehr.common.model.Demographic;
-import org.oscarehr.common.model.Provider;
-import org.oscarehr.common.model.RaDetail;
-import org.oscarehr.common.model.RaHeader;
-import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
-import oscar.util.ConversionUtils;
 import oscar.util.UtilDateUtilities;
 
 public class JdbcBillingRAImpl {
 	private static final Logger _logger = Logger.getLogger(JdbcBillingRAImpl.class);
-
-	private RaDetailDao raDetailDao = SpringUtils.getBean(RaDetailDao.class);
-	private RaHeaderDao raHeaderDao = SpringUtils.getBean(RaHeaderDao.class);
-	private BillingONCHeader1Dao cheader1Dao = SpringUtils.getBean(BillingONCHeader1Dao.class);
+	BillingONDataHelp dbObj = new BillingONDataHelp();
 
 	public int addOneRADtRecord(BillingRAData val) {
-		RaDetail r = new RaDetail();
-		r.setRaHeaderNo(Integer.parseInt(val.raheader_no));
-		r.setProviderOhipNo(val.providerohip_no);
-		r.setBillingNo(Integer.parseInt(val.billing_no));
-		r.setServiceCode(val.service_code);
-		r.setServiceCount(val.service_count);
-		r.setHin(val.hin);
-		r.setAmountClaim(val.amountclaim);
-		r.setAmountPay(val.amountpay);
-		r.setServiceDate(val.service_date);
-		r.setErrorCode(val.error_code);
-		r.setBillType(val.billtype);
-		r.setClaimNo(val.claim_no);
+		int retval = 0;
+		String sql = "insert into radetail values(\\N, " + " " + val.raheader_no + " ," + "'" + val.providerohip_no
+				+ "'," + "'" + val.billing_no + "'," + "'" + val.service_code + "'," + "'" + val.service_count + "',"
+				+ "'" + val.hin + "'," + "'" + val.amountclaim + "'," + "'" + val.amountpay + "'," + "'"
+				+ val.service_date + "'," + "'" + val.error_code + "'," + "'" + val.billtype + "','" + val.claim_no + "')";
+		_logger.info("addOneRADtRecord(sql = " + sql + ")");
+		retval = dbObj.saveBillingRecord(sql);
 
-		raDetailDao.persist(r);
-
-		return r.getId();
+		if (retval == 0) {
+			_logger.error("addOneRADtRecord(sql = " + sql + ")");
+		}
+		return retval;
 	}
 
+	// property: billingNo - raHeaderNo
 	public Properties getPropBillNoRAHeaderNo(String raheader_no) {
 		Properties retval = new Properties();
+		String sql = "select billing_no from radetail where raheader_no=" + raheader_no;
+		// _logger.info("getPropBillNoRAHeaderNo(sql = " + sql + ")");
+		ResultSet rs = dbObj.searchDBRecord(sql);
 
-		List<RaDetail> rr = raDetailDao.findByRaHeaderNo(Integer.parseInt(raheader_no));
-		for (RaDetail r : rr) {
-			retval.setProperty(String.valueOf(r.getBillingNo()), raheader_no);
+		try {
+			if (rs.next()) {
+				retval.setProperty(rs.getString("billing_no"), raheader_no);
+			}
+			rs.close();
+		} catch (SQLException e) {
+			_logger.error("getPropBillNoRAHeaderNo(sql = " + sql + ")");
+			retval = null;
 		}
 
 		return retval;
 	}
 
 	public boolean importRAFile(String filePathName) throws Exception {
-		String filename = "", header = "", headerCount = "", total = "", paymentdate = "", payable = "", totalStatus = "";
-		String providerno = "", account = "", newhin = "", hin = "", ver = "", billtype = "";
+		String filename = "", header = "", headerCount = "", total = "", paymentdate = "", payable = "", totalStatus = "", deposit = "";
+		String transactiontype = "", providerno = "", specialty = "", account = "", patient_last = "", patient_first = "", newhin = "", hin = "", ver = "", billtype = "", location = "";
 		String servicedate = "", serviceno = "", servicecode = "", amountsubmit = "", amountpay = "", amountpaysign = "", explain = "";
 		String balancefwd = "", abf_ca = "", abf_ad = "", abf_re = "", abf_de = "";
 		String transaction = "", trans_code = "", cheque_indicator = "", trans_date = "", trans_amount = "", trans_message = "";
-		String message_txt = "";
-		String claimno = "";
+		String message = "", message_txt = "";
+                String claimno = "";
 		String xml_ra = "";
 
 		int accountno = 0, totalsum = 0, recFlag = 0, count = 0, tCount = 0, amountPaySum = 0, amountSubmitSum = 0;
 		String raNo = "";
 
+		String sql = "";
 		if (filePathName.indexOf("/") >= 0) {
 			filename = filePathName.substring(filePathName.lastIndexOf("/") + 1);
 		} else if (filePathName.indexOf("\\") >= 0) {
 			filename = filePathName.substring(filePathName.lastIndexOf("\\") + 1);
 		}
-
+		// String url=request.getRequestURI();
+		// url = url.substring(1);
+		// url = url.substring(0,url.indexOf("/"));
+		// filepath = "/usr/local/OscarDocument/" + url +"/document/";
 		FileInputStream file = new FileInputStream(filePathName);
 		InputStreamReader reader = new InputStreamReader(file);
 		BufferedReader input = new BufferedReader(reader);
@@ -117,6 +110,7 @@ public class JdbcBillingRAImpl {
 					payable = nextline.substring(29, 59);
 					total = nextline.substring(59, 68);
 					totalStatus = nextline.substring(68, 69);
+					deposit = nextline.substring(69, 77);
 
 					totalsum = Integer.parseInt(total);
 					total = String.valueOf(totalsum);
@@ -124,16 +118,32 @@ public class JdbcBillingRAImpl {
 					total = getPointNum(total);
 					total += totalStatus;
 
-					List<RaHeader> headers = raHeaderDao.findCurrentByFilenamePaymentDate(filename, paymentdate);
-					for (RaHeader h : headers) {
-						raNo = "" + h.getId();
-					}
+					// String[] param2 = new String[2];
+					// param2[0] = filename;
+					// param2[1] = paymentdate;
 
+					sql = "select raheader_no from raheader where filename='" + filename + "' and paymentdate='"
+							+ paymentdate + "' and status <> 'D' order by paymentdate";
+					ResultSet rsdemo = dbObj.searchDBRecord(sql);
+					// ResultSet rsdemo = apptMainBean.queryResults(param2,
+					// "search_rahd");
+					while (rsdemo.next()) {
+						raNo = "" + rsdemo.getInt("raheader_no");
+					}
+					rsdemo.close();
+					
 					// judge if it is empty in table radt
 					int radtNum = 0;
 					if (raNo != null && raNo.length() > 0) {
 						// can't make sure the record has only one result here
-						radtNum = raDetailDao.findByRaHeaderNo(Integer.parseInt(raNo)).size();
+						sql = "select count(raheader_no) from radetail where raheader_no= " + raNo;
+						rsdemo = dbObj.searchDBRecord(sql);
+						// rsdemo = apptMainBean.queryResults(new String[] {
+						// raNo }, "search_radt");
+						while (rsdemo.next()) {
+							radtNum = rsdemo.getInt("count(raheader_no)");
+						}
+						rsdemo.close();
 
 						// if there is no radt record for the rahd, update the
 						// rahd status to "D"
@@ -143,30 +153,36 @@ public class JdbcBillingRAImpl {
 					if (raNo.compareTo("") == 0 || raNo == null || radtNum == 0) {
 						recFlag = 1;
 
-						RaHeader h = new RaHeader();
-						h.setFilename(filename);
-						h.setPaymentDate(paymentdate);
-						h.setPayable(payable);
-						h.setTotalAmount(total);
-						h.setRecords("0");
-						h.setClaims("0");
-						h.setStatus("N");
-						h.setReadDate(UtilDateUtilities.DateToString(new Date(), "yyyy/MM/dd"));
-						h.setContent("<xml_cheque>" + total + "</xml_cheque>");
-
-						raHeaderDao.persist(h);
-
-						raNo = h.getId().toString();
+						// String[] param = new String[9];
+						// param[0] = filename;
+						// param[1] = paymentdate;
+						// param[2] = payable;
+						// param[3] = total;
+						// param[4] = "0";
+						// param[5] = "0";
+						// param[6] = "N";
+						// param[7] = nowDate;
+						// param[8] = "<xml_cheque>" + total + "</xml_cheque>";
+						sql = "insert into raheader values('\\N','" + filename + "','" + paymentdate + "','"
+								+ StringEscapeUtils.escapeSql(payable) + "','" + total + "','0','0','N', '"
+								+ UtilDateUtilities.DateToString(UtilDateUtilities.now(), "yyyy/MM/dd") + "','"
+								+ "<xml_cheque>" + total + "</xml_cheque>" + "')";
+						raNo = "" + dbObj.saveBillingRecord(sql);
 					}
 				} // ends with "1"
 
 				if (headerCount.compareTo("4") == 0) {
-					claimno = nextline.substring(3, 14);
+                                        claimno = nextline.substring(3,14);
+					transactiontype = nextline.substring(14, 15);
 					providerno = nextline.substring(15, 21);
+					specialty = nextline.substring(21, 23);
 					account = nextline.substring(23, 31);
+					patient_last = nextline.substring(31, 45);
+					patient_first = nextline.substring(45, 50);
 					hin = nextline.substring(52, 64);
 					ver = nextline.substring(64, 66);
 					billtype = nextline.substring(66, 69);
+					location = nextline.substring(69, 73);
 
 					count = count + 1;
 
@@ -181,7 +197,7 @@ public class JdbcBillingRAImpl {
 					}
 
 					if (valid) {
-						if ("".equals(account.trim())) {
+						if("".equals(account.trim())) {
 							accountno = 0;
 							account = "0";
 						} else {
@@ -195,7 +211,8 @@ public class JdbcBillingRAImpl {
 				}
 
 				if (headerCount.compareTo("5") == 0) {
-					claimno = nextline.substring(3, 14);
+                                        claimno = nextline.substring(3,14);
+					transactiontype = nextline.substring(14, 15);
 					servicedate = nextline.substring(15, 23);
 					serviceno = nextline.substring(23, 25);
 					servicecode = nextline.substring(25, 30);
@@ -204,12 +221,15 @@ public class JdbcBillingRAImpl {
 					amountpaysign = nextline.substring(43, 44);
 					explain = nextline.substring(44, 46);
 
+					
 					tCount = tCount + 1;
 					amountPaySum = Integer.parseInt(amountpay);
 					amountpay = String.valueOf(amountPaySum);
-					if (amountpay.compareTo("0") == 0) amountpay = "000";
+					if (amountpay.compareTo("0") == 0)
+						amountpay = "000";
 					if (amountpay.length() > 2) {
-						amountpay = amountpay.substring(0, amountpay.length() - 2) + "." + amountpay.substring(amountpay.length() - 2);
+						amountpay = amountpay.substring(0, amountpay.length() - 2) + "."
+								+ amountpay.substring(amountpay.length() - 2);
 					} else {
 						if (amountpay.length() == 2) {
 							amountpay = "0." + amountpay;
@@ -220,32 +240,37 @@ public class JdbcBillingRAImpl {
 
 					amountSubmitSum = Integer.parseInt(amountsubmit);
 					amountsubmit = String.valueOf(amountSubmitSum);
-					if (amountsubmit.compareTo("0") == 0) amountsubmit = "000";
+					if (amountsubmit.compareTo("0") == 0)
+						amountsubmit = "000";
 
-					if (amountsubmit.length() == 1) {
-						amountsubmit = "0.0" + amountsubmit;
-					} else {
-						amountsubmit = amountsubmit.substring(0, amountsubmit.length() - 2) + "." + amountsubmit.substring(amountsubmit.length() - 2);
-					}
+                                        if( amountsubmit.length() == 1 ) {
+                                            amountsubmit = "0.0" + amountsubmit;
+                                        }
+                                        else {
+                                            amountsubmit = amountsubmit.substring(0, amountsubmit.length() - 2) + "."
+							+ amountsubmit.substring(amountsubmit.length() - 2);
+                                        }
 					newhin = hin + ver;
 
 					// if it needs to write a radt record for the rahd record
 					if (recFlag > 0) {
-						RaDetail r = new RaDetail();
-						r.setRaHeaderNo(Integer.parseInt(raNo));
-						r.setProviderOhipNo(providerno);
-						r.setBillingNo(Integer.parseInt(account));
-						r.setServiceCode(servicecode);
-						r.setServiceCount(serviceno);
-						r.setHin(newhin);
-						r.setAmountClaim(amountsubmit);
-						r.setAmountPay((amountpaysign + amountpay).trim());
-						r.setServiceDate(servicedate);
-						r.setErrorCode(explain);
-						r.setBillType(billtype);
-						r.setClaimNo(claimno);
-
-						raDetailDao.persist(r);
+						// String[] param4 = new String[11];
+						// param4[0] = raNo;
+						// param4[1] = providerno;
+						// param4[2] = account;
+						// param4[3] = servicecode;
+						// param4[4] = serviceno;
+						// param4[5] = newhin;
+						// param4[6] = amountsubmit;
+						// param4[7] = amountpaysign + amountpay;
+						// param4[8] = servicedate;
+						// param4[9] = explain;
+						// param4[10] = billtype;
+						sql = "insert into radetail values('\\N'," + raNo + ",'" + providerno + "'," + account + ",'"
+								+ servicecode + "','" + serviceno + "','" + newhin + "','" + amountsubmit + "','"
+								+ amountpaysign + amountpay + "','" + servicedate + "','" + explain + "','" + billtype + "','" + claimno
+								+ "')";
+						int rowsAffected3 = dbObj.saveBillingRecord(sql);
 					}
 				}
 
@@ -263,22 +288,33 @@ public class JdbcBillingRAImpl {
 
 				if (headerCount.compareTo("7") == 0) {
 					trans_code = nextline.substring(3, 5);
-					if (trans_code.compareTo("10") == 0) trans_code = "Advance";
-					if (trans_code.compareTo("20") == 0) trans_code = "Reduction";
-					if (trans_code.compareTo("30") == 0) trans_code = "Unused";
-					if (trans_code.compareTo("40") == 0) trans_code = "Advance repayment";
-					if (trans_code.compareTo("50") == 0) trans_code = "Accounting adjustment";
-					if (trans_code.compareTo("70") == 0) trans_code = "Attachments";
+					if (trans_code.compareTo("10") == 0)
+						trans_code = "Advance";
+					if (trans_code.compareTo("20") == 0)
+						trans_code = "Reduction";
+					if (trans_code.compareTo("30") == 0)
+						trans_code = "Unused";
+					if (trans_code.compareTo("40") == 0)
+						trans_code = "Advance repayment";
+					if (trans_code.compareTo("50") == 0)
+						trans_code = "Accounting adjustment";
+					if (trans_code.compareTo("70") == 0)
+						trans_code = "Attachments";
 					cheque_indicator = nextline.substring(5, 6);
-					if (cheque_indicator.compareTo("M") == 0) cheque_indicator = "Manual Cheque issued";
-					if (cheque_indicator.compareTo("C") == 0) cheque_indicator = "Computer Cheque issued";
-					if (cheque_indicator.compareTo("I") == 0) cheque_indicator = "Interim payment Cheque/Direct Bank Deposit issued";
+					if (cheque_indicator.compareTo("M") == 0)
+						cheque_indicator = "Manual Cheque issued";
+					if (cheque_indicator.compareTo("C") == 0)
+						cheque_indicator = "Computer Cheque issued";
+					if (cheque_indicator.compareTo("I") == 0)
+						cheque_indicator = "Interim payment Cheque/Direct Bank Deposit issued";
 
 					trans_date = nextline.substring(6, 14);
 					trans_amount = nextline.substring(14, 20) + "." + nextline.substring(20, 23);
 					trans_message = nextline.substring(23, 73);
 
-					transaction = transaction + "<tr><td width='14%'>" + trans_code + "</td><td width='12%'>" + trans_date + "</td><td width='17%'>" + cheque_indicator + "</td><td width='13%'>" + trans_amount + "</td><td width='44%'>" + trans_message + "</td></tr>";
+					transaction = transaction + "<tr><td width='14%'>" + trans_code + "</td><td width='12%'>"
+							+ trans_date + "</td><td width='17%'>" + cheque_indicator + "</td><td width='13%'>"
+							+ trans_amount + "</td><td width='44%'>" + trans_message + "</td></tr>";
 				}
 
 				if (headerCount.compareTo("8") == 0) {
@@ -292,81 +328,125 @@ public class JdbcBillingRAImpl {
 		input.close();
 
 		if (transaction.compareTo("") != 0) {
-			transaction = "<xml_transaction><table width='100%' border='0' cellspacing='0' cellpadding='0'><tr><td colspan='5'>Accounting Transaction Record</td></tr><tr><td width='14%'>Transaction</td><td width='12%'>Transaction Date</td><td width='17%'>Cheque Issued</td><td width='13%'>Amount</td><td width='44%'>Message</td></tr>" + transaction + "</table></xml_transaction>";
+			transaction = "<xml_transaction><table width='100%' border='0' cellspacing='0' cellpadding='0'><tr><td colspan='5'>Accounting Transaction Record</td></tr><tr><td width='14%'>Transaction</td><td width='12%'>Transaction Date</td><td width='17%'>Cheque Issued</td><td width='13%'>Amount</td><td width='44%'>Message</td></tr>"
+					+ transaction + "</table></xml_transaction>";
 		}
 
-		balancefwd = "<xml_balancefwd><table width='100%' border='0' cellspacing='0' cellpadding='0'><tr><td colspan='4'>Balance Forward Record - Amount Brought Forward (ABF)</td></tr><tr><td>Claims Adjustment</td><td>Advances</td><td>Reductions</td><td>Deductions</td></tr><tr><td>" + abf_ca + "</td><td>" + abf_ad + "</td><td>" + abf_re + "</td><td>" + abf_de + "</td></tr></table></xml_balancefwd>";
+		balancefwd = "<xml_balancefwd><table width='100%' border='0' cellspacing='0' cellpadding='0'><tr><td colspan='4'>Balance Forward Record - Amount Brought Forward (ABF)</td></tr><tr><td>Claims Adjustment</td><td>Advances</td><td>Reductions</td><td>Deductions</td></tr><tr><td>"
+				+ abf_ca
+				+ "</td><td>"
+				+ abf_ad
+				+ "</td><td>"
+				+ abf_re
+				+ "</td><td>"
+				+ abf_de
+				+ "</td></tr></table></xml_balancefwd>";
+		message = "<xml_message><tr><td>Message Facility Record</td></tr><tr><td>" + message_txt
+				+ "</td></tr></table></xml_message>";
+
 		xml_ra = transaction + balancefwd + "<xml_cheque>" + total + "</xml_cheque>";
 
-		List<RaHeader> headers = raHeaderDao.findByFilenamePaymentDate(filename, paymentdate);
-		for (RaHeader h : headers) {
-			h.setTotalAmount(total);
-			h.setRecords(String.valueOf(count));
-			h.setClaims(String.valueOf(tCount));
-			h.setContent(xml_ra);
-			raHeaderDao.merge(h);
-		}
+		// String[] param3 = new String[6];
+		// param3[0] = total;
+		// param3[1] = String.valueOf(count);
+		// param3[2] = String.valueOf(tCount);
+		// param3[3] = xml_ra;
+		// param3[4] = paymentdate;
+		// param3[5] = filename;
+		// only one? for paymentdate, filename
+		sql = "update raheader set totalamount='" + total + "', records='" + count + "',claims='" + tCount
+				+ "', content='" + StringEscapeUtils.escapeSql(xml_ra) + "' where paymentdate='" + paymentdate
+				+ "' and filename='" + filename + "'";
+		boolean bd3 = dbObj.updateDBRecord(sql);
+		// {"update_rahd", "update raheader set totalamount=?,
+		// records=?,claims=?, content=? where paymentdate=? and filename=?"},
+		// int rowsAffected1 = apptMainBean.queryExecuteUpdate(param3,
+		// "update_rahd");
 
-		return true;
+		return bd3;
 	}
 
-	public List<Properties> getAllRahd(String status) {
-		List<Properties> ret = new ArrayList<Properties>();
-
-		List<RaHeader> headers = raHeaderDao.findAllExcludeStatus(status);
-		for (RaHeader h : headers) {
-			Properties prop = new Properties();
-			prop.setProperty("raheader_no", h.getId().toString());
-			prop.setProperty("readdate", h.getReadDate());
-			prop.setProperty("paymentdate", h.getPaymentDate());
-			prop.setProperty("payable", h.getPayable());
-			prop.setProperty("claims", h.getClaims());
-			prop.setProperty("records", h.getRecords());
-			prop.setProperty("totalamount", h.getTotalAmount());
-			prop.setProperty("status", h.getStatus());
-			ret.add(prop);
-		}
-
-		return ret;
-	}
-
-	public List<Properties> getTeamRahd(String status, String provider_no) {
-		List<Properties> ret = new ArrayList<Properties>();
-		RaHeaderDao dao = SpringUtils.getBean(RaHeaderDao.class);
-		for (RaHeader r : dao.findByHeaderDetailsAndProviderMagic(status, provider_no)) {
-			Properties prop = new Properties();
-			prop.setProperty("raheader_no", "" + r.getId());
-			prop.setProperty("readdate", r.getReadDate());
-			prop.setProperty("paymentdate", r.getPaymentDate());
-			prop.setProperty("payable", r.getPayable());
-			prop.setProperty("claims", r.getClaims());
-			prop.setProperty("records", r.getRecords());
-			prop.setProperty("totalamount", r.getTotalAmount());
-			prop.setProperty("status", r.getStatus());
-			ret.add(prop);
-		}
-
-		return ret;
-	}
-
-	public List<Properties> getSiteRahd(String status, String provider_no) {
-		List<Properties> ret = new ArrayList<Properties>();
-		RaHeaderDao dao = SpringUtils.getBean(RaHeaderDao.class);
-		for (RaHeader r : dao.findByStatusAndProviderMagic(status, provider_no)) {
-			Properties prop = new Properties();
-			prop.setProperty("raheader_no", "" + r.getId());
-			prop.setProperty("readdate", r.getReadDate());
-			prop.setProperty("paymentdate", r.getPaymentDate());
-			prop.setProperty("payable", r.getPayable());
-			prop.setProperty("claims", r.getClaims());
-			prop.setProperty("records", r.getRecords());
-			prop.setProperty("totalamount", r.getTotalAmount());
-			prop.setProperty("status", r.getStatus());
-			ret.add(prop);
+	public List getAllRahd(String status) {
+		List ret = new Vector();
+		String sql = "select raheader_no, totalamount, status, paymentdate, payable, records, claims, readdate "
+				+ "from raheader where status <> '" + status + "' order by paymentdate desc, readdate desc";
+		ResultSet rsdemo = dbObj.searchDBRecord(sql);
+		try {
+			while (rsdemo.next()) {
+				Properties prop = new Properties();
+				prop.setProperty("raheader_no", rsdemo.getString("raheader_no"));
+				prop.setProperty("readdate", rsdemo.getString("readdate"));
+				prop.setProperty("paymentdate", rsdemo.getString("paymentdate"));
+				prop.setProperty("payable", rsdemo.getString("payable"));
+				prop.setProperty("claims", rsdemo.getString("claims"));
+				prop.setProperty("records", rsdemo.getString("records"));
+				prop.setProperty("totalamount", rsdemo.getString("totalamount"));
+				prop.setProperty("status", rsdemo.getString("status"));
+				ret.add(prop);
+			}
+			rsdemo.close();
+		} catch (SQLException e) {
+			_logger.error("getAllRahd(sql = " + sql + ")");
 		}
 		return ret;
 	}
 
+	public List getTeamRahd(String status, String provider_no) {
+		List ret = new Vector();
+		String sql = "select r.raheader_no, r.totalamount, r.status, r.paymentdate, r.payable, r.records, r.claims, r.readdate "
+				+ "from raheader r, radetail t, provider p where r.raheader_no=t.raheader_no and p.ohip_no=t.providerohip_no and r.status <> '" + status + "' "
+				+ " and (p.provider_no='"+provider_no+"' or p.team=(select team from provider where provider_no='"+provider_no+"') )"
+				+ " group by r.raheader_no"
+				+ " order by r.paymentdate desc, r.readdate desc";
+		ResultSet rsdemo = dbObj.searchDBRecord(sql);
+		try {
+			while (rsdemo.next()) {
+				Properties prop = new Properties();
+				prop.setProperty("raheader_no", rsdemo.getString("raheader_no"));
+				prop.setProperty("readdate", rsdemo.getString("readdate"));
+				prop.setProperty("paymentdate", rsdemo.getString("paymentdate"));
+				prop.setProperty("payable", rsdemo.getString("payable"));
+				prop.setProperty("claims", rsdemo.getString("claims"));
+				prop.setProperty("records", rsdemo.getString("records"));
+				prop.setProperty("totalamount", rsdemo.getString("totalamount"));
+				prop.setProperty("status", rsdemo.getString("status"));
+				ret.add(prop);
+			}
+			rsdemo.close();
+		} catch (SQLException e) {
+			_logger.error("getAllRahd(sql = " + sql + ")");
+		}
+		return ret;
+	}
+	
+	public List getSiteRahd(String status, String provider_no) {
+		List ret = new Vector();
+		String sql = "select r.raheader_no, r.totalamount, r.status, r.paymentdate, r.payable, r.records, r.claims, r.readdate "
+				+ "from raheader r, radetail t, provider p where r.raheader_no=t.raheader_no and p.ohip_no=t.providerohip_no and r.status <> '" + status + "' "
+				+ " and exists(select * from providersite s where p.provider_no = s.provider_no and s.site_id IN (SELECT site_id from providersite where provider_no='"+provider_no+"'))"
+				+ " group by r.raheader_no"
+				+ " order by r.paymentdate desc, r.readdate desc";
+		ResultSet rsdemo = dbObj.searchDBRecord(sql);
+		try {
+			while (rsdemo.next()) {
+				Properties prop = new Properties();
+				prop.setProperty("raheader_no", rsdemo.getString("raheader_no"));
+				prop.setProperty("readdate", rsdemo.getString("readdate"));
+				prop.setProperty("paymentdate", rsdemo.getString("paymentdate"));
+				prop.setProperty("payable", rsdemo.getString("payable"));
+				prop.setProperty("claims", rsdemo.getString("claims"));
+				prop.setProperty("records", rsdemo.getString("records"));
+				prop.setProperty("totalamount", rsdemo.getString("totalamount"));
+				prop.setProperty("status", rsdemo.getString("status"));
+				ret.add(prop);
+			}
+			rsdemo.close();
+		} catch (SQLException e) {
+			_logger.error("getAllRahd(sql = " + sql + ")");
+		}
+		return ret;
+	}	
+	
 	private String getPointNum(String strNum) {
 		String ret = null;
 		if (strNum.length() > 2) {
@@ -377,116 +457,175 @@ public class JdbcBillingRAImpl {
 		return ret;
 	}
 
-	public List<Properties> getProviderListFromRAReport(String id) {
-		List<Properties> ret = new ArrayList<Properties>();
-		RaHeaderDao dao = SpringUtils.getBean(RaHeaderDao.class);
-		for (Object[] o : dao.findHeadersAndProvidersById(ConversionUtils.fromIntString(id))) {
-			RaDetail r = (RaDetail) o[0];
-			Provider p = (Provider) o[1];
-
-			Properties prop = new Properties();
-			prop.setProperty("providerohip_no", r.getProviderOhipNo());
-			prop.setProperty("last_name", p.getLastName());
-			prop.setProperty("first_name", p.getFirstName());
-			ret.add(prop);
+	public List getProviderListFromRAReport(String id) {
+		List ret = new Vector();
+		String sql = "select r.providerohip_no, p.last_name,p.first_name from radetail r, provider p "
+				+ "where p.ohip_no=r.providerohip_no and r.raheader_no=" + id + " group by r.providerohip_no";
+		ResultSet rsdemo = dbObj.searchDBRecord(sql);
+		try {
+			while (rsdemo.next()) {
+				Properties prop = new Properties();
+				prop.setProperty("providerohip_no", rsdemo.getString("providerohip_no"));
+				prop.setProperty("last_name", rsdemo.getString("last_name"));
+				prop.setProperty("first_name", rsdemo.getString("first_name"));
+				ret.add(prop);
+			}
+			rsdemo.close();
+		} catch (SQLException e) {
+			_logger.error("getProviderListFromRAReport(sql = " + sql + ")");
 		}
-
 		return ret;
 	}
 
-	public List<Properties> getRAErrorReport(String raNo, String providerOhipNo, String[] notErrorCode) {
-		List<Properties> ret = new ArrayList<Properties>();
-
-		RaDetailDao dao = SpringUtils.getBean(RaDetailDao.class);
-		BillingONCHeader1Dao billingDao = SpringUtils.getBean(BillingONCHeader1Dao.class);
-
+	public List getRAErrorReport(String raNo, String providerOhipNo, String notErrorCode) {
+		List ret = new Vector();
+		String sql = "select * from radetail where raheader_no=" + raNo + " and providerohip_no='" + providerOhipNo
+				+ "' and error_code<>'' and error_code not in(" + notErrorCode + ") ";
+		// _logger.info("getRAErrorReport(sql = " + sql + ")");
+		ResultSet rsdemo = dbObj.searchDBRecord(sql);
 		try {
-			for (Integer billingNo : dao.findDistinctIdOhipWithError(ConversionUtils.fromIntString(raNo), providerOhipNo, Arrays.asList(notErrorCode))) {
-				String account = "" + billingNo;
+			while (rsdemo.next()) {
+				String account = "" + rsdemo.getInt("billing_no");
 				String demoLast = "";
 				String billingDate = "";
 
-				BillingONCHeader1 billing = billingDao.find(billingNo);
-				if (billing != null) {
-					demoLast = billing.getDemographicName();
-					billingDate = ConversionUtils.toDateString(billing.getBillingDate());
+				sql = "select demographic_name, billing_date from billing_on_cheader1 where id= " + account;
+				ResultSet rsdemo1 = dbObj.searchDBRecord(sql);
+				while (rsdemo1.next()) {
+					demoLast = rsdemo1.getString("demographic_name");
+					billingDate = rsdemo1.getString("billing_date");
 				}
-
-				for (RaDetail rr : dao.findByHeaderAndBillingNos(ConversionUtils.fromIntString(raNo), billingNo)) {
+				rsdemo1.close();
+				
+				sql = "select * from radetail where raheader_no=" + raNo + " and billing_no=" + account;
+				ResultSet rsdemo2 = dbObj.searchDBRecord(sql);
+				while (rsdemo2.next()) {
 					Properties prop = new Properties();
-					String explain = rr.getErrorCode();
+					String explain = rsdemo2.getString("error_code");
 					if (explain == null || explain.compareTo("") == 0) {
 						explain = "**";
 					}
-					String serviceDate = rr.getServiceDate();
-					serviceDate = serviceDate.length() == 8 ? (serviceDate.substring(0, 4) + "-" + serviceDate.substring(4, 6) + "-" + serviceDate.substring(6)) : serviceDate;
-					prop.setProperty("servicecode", rr.getServiceCode());
+					String serviceDate = rsdemo2.getString("service_date");
+					serviceDate = serviceDate.length() == 8 ? (serviceDate.substring(0, 4) + "-"
+							+ serviceDate.substring(4, 6) + "-" + serviceDate.substring(6)) : serviceDate;
+					prop.setProperty("servicecode", rsdemo2.getString("service_code"));
 					prop.setProperty("servicedate", serviceDate);
-					prop.setProperty("serviceno", rr.getServiceCount());
+					prop.setProperty("serviceno", rsdemo2.getString("service_count"));
 					prop.setProperty("explain", explain);
-					prop.setProperty("amountsubmit", rr.getAmountClaim());
-					prop.setProperty("amountpay", rr.getAmountPay());
+					prop.setProperty("amountsubmit", rsdemo2.getString("amountclaim"));
+					prop.setProperty("amountpay", rsdemo2.getString("amountpay"));
 
 					prop.setProperty("account", account);
-					if (!billingDate.equals(serviceDate)) {
+					if (!billingDate.equals(serviceDate))
 						demoLast = "";
-					}
 					prop.setProperty("demoLast", demoLast);
 					ret.add(prop);
 				}
+				rsdemo2.close();
 			}
-		} catch (Exception e) {
-			_logger.error("error", e);
+			rsdemo.close();
+		} catch (SQLException e) {
+			_logger.error("getRAErrorReport(sql = " + sql + ")");
+		}
+		return ret;
+	}
+        
+        public String getRABilllingNo4ClaimNo(String claimno) {
+            String billing_no = "";
+            String sql = "select distinct billing_no from radetail where claim_no = '" + claimno + "'";
+            
+            ResultSet rs = dbObj.searchDBRecord(sql);
+            try {
+                if( rs.next() ) {
+                    billing_no = rs.getString("billing_no");
+                }
+                
+            }
+            catch (SQLException e) {
+                _logger.error("getRABillingNo4ClaimNo(sql = " + sql + ")");
+            }
+            
+            return billing_no;
+        }
+
+	public List getRABillingNo4Code(String id, String codes) {
+		List ret = new Vector();
+		String sql = "select distinct billing_no from radetail where raheader_no=" + id + " and service_code in ( "
+				+ codes + ")";
+		ResultSet rsdemo = dbObj.searchDBRecord(sql);
+		try {
+			while (rsdemo.next()) {
+				ret.add(rsdemo.getString("billing_no"));
+			}
+			rsdemo.close();
+		} catch (SQLException e) {
+			_logger.error("getRABillingNo4Code(sql = " + sql + ")");
 		}
 		return ret;
 	}
 
-	public String getRAClaimNo4BillingNo(String billingNo) {
-		String claim_no = "";
-		RaDetailDao dao = SpringUtils.getBean(RaDetailDao.class);
-		List<RaDetail> claims = dao.findByBillingNo(Integer.parseInt(billingNo));
-		for(RaDetail claim : claims) {
-			claim_no = claim.getClaimNo();			
-		}		
-		
-		return claim_no;
-	}
-
-	public List<String> getRABillingNo4Code(String id, String codes) {
-		Set<String> ret = new HashSet<String>();
-
-		RaDetailDao dao = SpringUtils.getBean(RaDetailDao.class);
-		for (RaDetail r : dao.findByRaHeaderNoAndServiceCodes(ConversionUtils.fromIntString(id), Arrays.asList(codes))) {
-			ret.add("" + r.getBillingNo());
-		}
-
-		return new ArrayList<String>(ret);
-	}
-
-	public List<Properties> getRASummary(String id, String providerOhipNo) {
-		List<Properties> ret = new ArrayList<Properties>();
-
-		RaDetailDao dao = SpringUtils.getBean(RaDetailDao.class);
-		BillingONCHeader1Dao billingDao = SpringUtils.getBean(BillingONCHeader1Dao.class);
+	public List getRABillingNo4OB(String id) {
+		List ret = new Vector();
+		String sql = "select distinct billing_no from radetail where raheader_no=" + id + " and (service_code='P006A' "
+				+ "or service_code='P020A' or service_code='P022A' or service_code='P028A' or service_code='P023A' "
+				+ "or service_code='P007A' or service_code='P009A' or service_code='P011A' or service_code='P008B' "
+				+ "or service_code='P018B' or service_code='E502A' or service_code='C989A' or service_code='E409A' "
+				+ "or service_code='E410A' or service_code='E411A' or service_code='H001A')";
+		ResultSet rsdemo = dbObj.searchDBRecord(sql);
 		try {
-			for (RaDetail r : dao.findByRaHeaderNoAndProviderOhipNo(ConversionUtils.fromIntString(id), providerOhipNo)) {
-				String account = "" + r.getBillingNo();
+			while (rsdemo.next()) {
+				ret.add(rsdemo.getString("billing_no"));
+			}
+			rsdemo.close();
+		} catch (SQLException e) {
+			_logger.error("getRABillingNo4OB(sql = " + sql + ")");
+		}
+		return ret;
+	}
+
+	public List getRABillingNo4Colposcopy(String id) {
+		List ret = new Vector();
+		String sql = "select distinct billing_no from radetail where raheader_no=" + id + " and (service_code='A004A' "
+				+ "or service_code='A005A' or service_code='Z731A' or service_code='Z666A' or service_code='Z730A' "
+				+ "or service_code='Z720A')";
+		ResultSet rsdemo = dbObj.searchDBRecord(sql);
+		try {
+			while (rsdemo.next()) {
+				ret.add(rsdemo.getString("billing_no"));
+			}
+			rsdemo.close();
+		} catch (SQLException e) {
+			_logger.error("getRABillingNo4Colposcopy(sql = " + sql + ")");
+		}
+		return ret;
+	}
+
+	public List getRASummary(String id, String providerOhipNo) {
+		List ret = new Vector();
+		String sql = "select billing_no, claim_no, service_count, error_code, amountclaim, service_code,service_date, "
+				+ "providerohip_no, amountpay, hin from radetail where raheader_no= " + id + " and providerohip_no ="
+				+ providerOhipNo;
+		ResultSet rsdemo = dbObj.searchDBRecord(sql);
+		try {
+			while (rsdemo.next()) {
+				String account = rsdemo.getString("billing_no");
 				String location = "";
 				String demo_name = "";
 				String localServiceDate = "";
-				String demo_hin = r.getHin() != null ? r.getHin() : "";
+				String demo_hin = rsdemo.getString("hin") != null ? rsdemo.getString("hin") : "";
 				demo_hin = demo_hin.trim();
 				String site = "";
-				String famProviderNo = null;
-				for (Object[] o : billingDao.findBillingsAndDemographicsById(ConversionUtils.fromIntString(account))) {
-					BillingONCHeader1 b = (BillingONCHeader1) o[0];
-					Demographic d = (Demographic) o[1];
+				sql = "select b.provider_no, b.demographic_name, b.hin, b.billing_date, b.billing_time, b.visittype,d.provider_no as fdoc, b.clinic as site "
+						+ "from billing_on_cheader1 b, demographic d where b.id= " + account+ " and b.demographic_no = d.demographic_no";
 
-					demo_name = b.getDemographicName();
-					famProviderNo = d.getProviderNo();
-					site = b.getClinic();
-					if (b.getHin() != null) {
-						if (!(b.getHin()).startsWith(demo_hin)) {
+				ResultSet rsdemo3 = dbObj.searchDBRecord(sql);
+                                String famProviderNo =null;
+				while (rsdemo3.next()) {
+					demo_name = rsdemo3.getString("demographic_name");
+                                        famProviderNo = rsdemo3.getString("fdoc");
+                                        site = rsdemo3.getString("site");
+					if (rsdemo3.getString("hin") != null) {
+						if (!(rsdemo3.getString("hin")).startsWith(demo_hin)) {
 							demo_hin = "";
 							demo_name = "";
 						}
@@ -494,29 +633,22 @@ public class JdbcBillingRAImpl {
 						demo_hin = "";
 						demo_name = "";
 					}
-					location = b.getVisitType();
-					localServiceDate = ConversionUtils.toDateString(b.getBillingDate());
+					location = rsdemo3.getString("visittype");
+					localServiceDate = rsdemo3.getString("billing_date");
+					// localServiceDate = localServiceDate.replaceAll("-*", "");
+					// demo_docname = propProvierName.getProperty(("no_" +
+					// rsdemo3.getString("provider_no")), "");
 				}
-
-				if (famProviderNo == null) {
-					famProviderNo = "";
-				}
+				rsdemo3.close();
+                if (famProviderNo == null){famProviderNo = "";}
 				// proName =
-				// propProvierName.getProperty(r.getproviderohip_no());
-				String servicecode = r.getServiceCode();
-				String servicedate = r.getServiceDate();
-				String serviceno = r.getServiceCount();
-				String explain = r.getErrorCode();
-				String amountsubmit = r.getAmountClaim();
-				String amountpay = r.getAmountPay();
-				try {
-						Double.parseDouble(amountpay);					
-				}
-				catch (NumberFormatException e ) {
-						amountpay = "0.00";
-						MiscUtils.getLogger().error("RA HEADER " + id + " had bad amount pay value " + r.getAmountPay());
-				}
-				
+				// propProvierName.getProperty(rsdemo.getString("providerohip_no"));
+				String servicecode = rsdemo.getString("service_code");
+				String servicedate = rsdemo.getString("service_date");
+				String serviceno = rsdemo.getString("service_count");
+				String explain = rsdemo.getString("error_code");
+				String amountsubmit = rsdemo.getString("amountclaim");
+				String amountpay = rsdemo.getString("amountpay");
 				Properties prop = new Properties();
 				prop.setProperty("servicecode", servicecode);
 				prop.setProperty("servicedate", servicedate);
@@ -529,37 +661,60 @@ public class JdbcBillingRAImpl {
 				prop.setProperty("account", account);
 				prop.setProperty("demo_name", demo_name);
 				prop.setProperty("demo_hin", demo_hin);
-				prop.setProperty("demo_doc", famProviderNo);
-				prop.setProperty("claimNo", r.getClaimNo());
-				if (site == null) site = "";
-				prop.setProperty("site", site);
+                prop.setProperty("demo_doc",famProviderNo);
+                prop.setProperty("claimNo",rsdemo.getString("claim_no"));
+                if(site==null) 
+                	site="";
+                prop.setProperty("site", site);
 				ret.add(prop);
 			}
-		} catch (Exception e) {
-			_logger.error("errror", e);
+			rsdemo.close();
+		} catch (SQLException e) {
+			_logger.error("getRASummary(sql = " + sql + ")");
 		}
 		return ret;
 	}
 
-	public List<String> getRAError35(String id, String providerOhipNo, String codes) {
-		List<String> ret = new ArrayList<String>();
-		List<Integer> tmp = raDetailDao.findUniqueBillingNoByRaHeaderNoAndProviderAndNotErrorCode(Integer.parseInt(id), providerOhipNo, codes);
-		for (Integer t : tmp) {
-			ret.add(t.toString());
+	public List getRAError35(String id, String providerOhipNo, String codes) {
+		List ret = new Vector();
+		String sql = "select distinct billing_no from radetail where raheader_no=" + id + " and providerohip_no='"
+				+ providerOhipNo + "' and error_code not in (" + codes + ")";
+		ResultSet rsdemo = dbObj.searchDBRecord(sql);
+		try {
+			while (rsdemo.next()) {
+				ret.add(rsdemo.getString("billing_no"));
+			}
+			rsdemo.close();
+		} catch (SQLException e) {
+			_logger.error("getRAError35(sql = " + sql + ")");
+		}
+		return ret;
+	}
+
+	public List getRANoError35(String id, String providerOhipNo, String codes) {
+		List ret = new Vector();
+		String sql = "select distinct billing_no from radetail where raheader_no=" + id + " and providerohip_no='"
+				+ providerOhipNo + "' and error_code in (" + codes + ")";
+		ResultSet rsdemo = dbObj.searchDBRecord(sql);
+		try {
+			while (rsdemo.next()) {
+				ret.add(rsdemo.getString("billing_no"));
+			}
+			rsdemo.close();
+		} catch (SQLException e) {
+			_logger.error("getRANoError35(sql = " + sql + ")");
 		}
 		return ret;
 	}
 
 	public boolean updateBillingStatus(String id, String status) {
-		BillingONCHeader1 h = cheader1Dao.find(Integer.parseInt(id));
-		if (h != null) {
-			if (!h.getStatus().equals("D")) {
-				h.setStatus(status);
-				cheader1Dao.merge(h);
-			}
-		}
+		String sql = "update billing_on_cheader1 set status='" + status + "' where id=" + id + " and status<>'D'";
+		boolean retval = dbObj.updateDBRecord(sql);
 
-		return true;
+		if (!retval) {
+			_logger.error("updateBillingStatus(sql = " + sql + ")");
+		}
+		return retval;
 	}
 
 }

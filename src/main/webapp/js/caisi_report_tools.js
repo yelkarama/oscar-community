@@ -36,6 +36,24 @@ function getIntakeReport(type) {
 }
 
 
+function createIntakeCReport1()
+{
+    var startDate = "";
+
+    while (startDate.length != 10 || startDate.substring(4, 5) != "-" || startDate.substring(7, 8) != "-")
+    {
+        startDate = prompt("Please enter the date in this format (e.g. 2006-01-01)", "<%=dateStr%>");
+        if (startDate == null) {
+            return false;
+        }
+    }
+
+    alert('Generating report for date ' + startDate);
+
+    //popupPage2('<html:rewrite action="/PMmodule/IntakeCMentalHealthReportAction.do"/>?startDate=' + startDate, "IntakeCReport");
+    popupPage2("../PMmodule/IntakeCMentalHealthReportAction.do?startDate=" + startDate, "IntakeCReport");
+}
+
 
 function createStreetHealthReport()
 {
@@ -47,11 +65,6 @@ function createStreetHealthReport()
         if (startDate == null) {
             return false;
         }
-        if (!dojo.validate.isValidDate(startDate, 'YYYY-MM-DD')) {
-            alert("'" + startDate + "' is not a valid start date");
-            return false;
-        }
-
     }
 
     alert('Generating report for date ' + startDate);

@@ -35,8 +35,7 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 import org.apache.struts.action.DynaActionForm;
-import org.oscarehr.util.LoggedInInfo;
-import org.oscarehr.util.MiscUtilsOld;
+import org.oscarehr.util.MiscUtils;
 
 import oscar.oscarProvider.data.ProviderMyOscarIdData;
 
@@ -48,17 +47,17 @@ public class ProEditMyOscarIdAction extends Action {
         throws Exception
     {
         String forward;
-        String providerNo = LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo();
+        String providerNo = (String) request.getSession().getAttribute("user");
         if ( providerNo == null)
               return mapping.findForward("eject");
 
         DynaActionForm frm = (DynaActionForm)form;
         String loginId = (String)frm.get("myOscarLoginId");
-        loginId=MiscUtilsOld.getUserNameNoDomain(loginId);
+        loginId=MiscUtils.getUserNameNoDomain(loginId);
                 
         if( ProviderMyOscarIdData.getMyOscarId(providerNo).equals(loginId) ) {
             ActionMessages errors = new ActionMessages();
-            errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("provider.setPHRLogin.msgNotUnique"));
+            errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("provider.setMyOscarLogin.msgNotUnique"));
             this.addErrors(request, errors);
             forward = new String("failure");
             

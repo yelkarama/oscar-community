@@ -49,16 +49,13 @@ public final class RxWriteScriptForm extends ActionForm {
     String duration = null;
     String durationUnit = null;
     String quantity = null;
-    String dispensingUnits = null;
     int repeat = 0;
     String lastRefillDate = null;
     boolean nosubs = false;
     boolean prn = false;
     boolean customInstr = false;
     boolean longTerm = false;
-    boolean shortTerm = false;
     boolean pastMed = false;
-    boolean dispenseInternal = false;
     boolean patientComplianceY=false;
     boolean patientComplianceN=false;
     String special = null;
@@ -219,15 +216,7 @@ public final class RxWriteScriptForm extends ActionForm {
     public void setQuantity(String RHS) {
         this.quantity = RHS;
     }
-
-    public String getDispensingUnits() {
-        return (this.dispensingUnits);
-    }
-
-    public void setDispensingUnits(String RHS) {
-        this.dispensingUnits = RHS;
-    }
-
+    
     public int getRepeat() {
         return this.repeat;
     }
@@ -287,32 +276,12 @@ public final class RxWriteScriptForm extends ActionForm {
 	this.longTerm = l;
     }
     
-    public boolean getShortTerm() {
-	return this.shortTerm;
-    }
-    
-    public void setShortTerm(boolean st) {
-	this.shortTerm = st;
-    }
-    
     public boolean getPastMed() {
 	return this.pastMed;
     }
     
     public void setPastMed(boolean p) {
 	this.pastMed = p;
-    }
-    
-    public boolean getDispenseInternal() {	
-    	return dispenseInternal;
-    }
-    	
-    public boolean isDispenseInternal() {
-    	return dispenseInternal;
-    }
-
-    public void setDispenseInternal(boolean dispenseInternal) {
-    	this.dispenseInternal = dispenseInternal;
     }
     
     public boolean getPatientComplianceY() {
@@ -353,7 +322,6 @@ public final class RxWriteScriptForm extends ActionForm {
         this.duration = null;
         this.durationUnit = null;
         this.quantity = null;
-        this.dispensingUnits = null;
         this.repeat = 0;
 	this.lastRefillDate = null;
         this.nosubs = false;
@@ -362,7 +330,6 @@ public final class RxWriteScriptForm extends ActionForm {
         this.unitName = null;
         this.customInstr = false;
 	this.longTerm = false;
-	this.shortTerm = false;
 	this.pastMed = false;
 	this.patientComplianceY = false;
 	this.patientComplianceN = false;

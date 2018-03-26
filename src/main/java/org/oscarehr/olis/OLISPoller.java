@@ -24,14 +24,11 @@ import org.apache.commons.io.FileUtils;
 import org.apache.http.impl.cookie.DateUtils;
 import org.apache.log4j.Logger;
 import org.oscarehr.PMmodule.dao.ProviderDao;
-import org.oscarehr.common.dao.UserPropertyDAO;
 import org.oscarehr.common.model.Provider;
-import org.oscarehr.common.model.UserProperty;
 import org.oscarehr.olis.dao.OLISProviderPreferencesDao;
 import org.oscarehr.olis.dao.OLISSystemPreferencesDao;
 import org.oscarehr.olis.model.OLISProviderPreferences;
 import org.oscarehr.olis.model.OLISSystemPreferences;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
@@ -59,7 +56,7 @@ public class OLISPoller {
 		super();
 	}
 
-	public static void startAutoFetch(LoggedInInfo loggedInInfo) {
+	public static void startAutoFetch() {
 	    OLISPoller olisPoller = new OLISPoller();
 		logger.info("===== OLIS FETCH INITIATED ...");
 
@@ -78,7 +75,7 @@ public class OLISPoller {
 	    String defaultEndTime = oscar.Misc.getStr(olisSystemPreferences.getEndTime(), "").trim();
 	    
 	    Z04Query providerQuery;
-	    UserPropertyDAO userPropertyDAO = (UserPropertyDAO)SpringUtils.getBean("UserPropertyDAO");
+	    
 	    for (Provider provider : allProvidersList) {
 	    	try {
 		    	providerQuery = new Z04Query();
@@ -109,10 +106,7 @@ public class OLISPoller {
 				providerQuery.setStartEndTimestamp(obr22);
 	
 				// Setting HIC for Z04 Request
-				ZRP1 zrp1 = new ZRP1(provider.getPractitionerNo(), userPropertyDAO.getStringValue(provider.getProviderNo(),UserProperty.OFFICIAL_OLIS_IDTYPE), "ON", "HL70347", 
-						userPropertyDAO.getStringValue(provider.getProviderNo(),UserProperty.OFFICIAL_LAST_NAME), 
-						userPropertyDAO.getStringValue(provider.getProviderNo(),UserProperty.OFFICIAL_FIRST_NAME), 
-						userPropertyDAO.getStringValue(provider.getProviderNo(),UserProperty.OFFICIAL_SECOND_NAME));
+				ZRP1 zrp1 = new ZRP1(provider.getBillingNo(), "MDL", "ON", "HL70347", provider.getLastName(), provider.getFirstName(), null);
 				providerQuery.setRequestingHic(zrp1);
 				String response = Driver.submitOLISQuery(null, providerQuery);
 				if (!response.matches("<Request xmlns=\"http://www.ssha.ca/2005/HIAL\"><Content><![CDATA[.*]]></Content></Request>")) {
@@ -120,7 +114,7 @@ public class OLISPoller {
 				}
 				List<String> resultsList = olisPoller.parsePollResults(response);
 				if (resultsList.size() == 0) { continue; }
-				olisPoller.importResults(loggedInInfo, resultsList);
+				olisPoller.importResults(resultsList);
 				
 				Pattern p = Pattern.compile("@OBR\\.22\\^(\\d{14}-\\d{4})~");
 				Matcher matcher = p.matcher(response);
@@ -174,7 +168,7 @@ public class OLISPoller {
 			}
 			List<String> resultsList = olisPoller.parsePollResults(response);
 			if (resultsList.size() == 0) { return; }
-			olisPoller.importResults(loggedInInfo, resultsList);
+			olisPoller.importResults(resultsList);
 			
 			Pattern p = Pattern.compile("@OBR\\.22\\^(\\d{14}-\\d{4})~");
 			Matcher matcher = p.matcher(response);
@@ -225,7 +219,7 @@ public class OLISPoller {
 		return null;
 	}
 
-	private void importResults(LoggedInInfo loggedInInfo, List<String> resultList) {
+	private void importResults(List<String> resultList) {
 		for (String uuidToAdd: resultList) {
 	
 			String fileLocation = System.getProperty("java.io.tmpdir") + "/olis_" + uuidToAdd + ".response";
@@ -236,7 +230,7 @@ public class OLISPoller {
 				InputStream is = new FileInputStream(fileLocation);
 				int check = FileUploadCheck.addFile(file.getName(), is, "0");
 				if (check != FileUploadCheck.UNSUCCESSFUL_SAVE) {
-					if (msgHandler.parse(loggedInInfo, "OLIS_HL7",fileLocation, check,null) != null) {
+					if (msgHandler.parse("OLIS_HL7",fileLocation, check) != null) {
 						logger.info("Lab successfully added.");
 					} else {
 						logger.info("Error adding lab.");

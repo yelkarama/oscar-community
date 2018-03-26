@@ -25,17 +25,12 @@
 --%>
 
 <%
-  if(session.getAttribute("user") == null) response.sendRedirect("../logout.htm");
+  if(session.getValue("user") == null) response.sendRedirect("../logout.htm");
 %>
 <%@ page import="java.util.*,java.sql.*"
 	errorPage="../provider/errorpage.jsp"%>
-<%@ page import="org.oscarehr.util.SpringUtils"%>
-<%@ page import="org.oscarehr.common.model.MyGroup"%>
-<%@ page import="org.oscarehr.common.dao.MyGroupDao"%>
+<%@ include file="/common/webAppContextAndSuperMgr.jsp"%>
 
-<%
-	MyGroupDao dao = SpringUtils.getBean(MyGroupDao.class);
-%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 
@@ -45,7 +40,8 @@
 <title><bean:message key="provider.providerdisplaymygroup.title" /></title>
 </head>
 
-<body onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0">
+<body background="../images/gray_bg.jpg" bgproperties="fixed"
+	onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0">
 <FORM NAME="UPDATEPRE" METHOD="post" ACTION="providercontrol.jsp">
 
 <div id="topMenuDiv" style="position:fixed;width:100%">
@@ -82,21 +78,19 @@
 <%
    boolean bNewNo=false;
    String oldNo="";
-   List<MyGroup> myGroups = dao.findAll();
-   Collections.sort(myGroups, MyGroup.MyGroupNoComparator);
-   for(MyGroup myGroup:myGroups) {
-   
-	 String groupNo = myGroup.getId().getMyGroupNo();
+   List<Map<String,Object>> resultList = oscarSuperManager.find("providerDao", "searchmygroupall", new Object[] {});
+   for (Map group : resultList) {
+	 String groupNo = String.valueOf(group.get("mygroup_no"));
      if(!(groupNo.equals(oldNo)) ) {
        bNewNo=bNewNo?false:true; oldNo=groupNo;
      }
 %>
 			<tr BGCOLOR="<%=bNewNo?"white":"ivory"%>">
 				<td width="10%" align="center"><input type="checkbox"
-					name="<%=groupNo+myGroup.getId().getProviderNo()%>"
+					name="<%=groupNo+group.get("provider_no")%>"
 					value="<%=groupNo%>"></td>
 				<td ALIGN="center"><font face="arial"> <%=groupNo%></font></td>
-				<td ALIGN="center"><font face="arial"> <%=myGroup.getLastName()+", "+myGroup.getFirstName()%></font>
+				<td ALIGN="center"><font face="arial"> <%=group.get("last_name")+", "+group.get("first_name")%></font>
 				</td>
 			</tr>
 			<%

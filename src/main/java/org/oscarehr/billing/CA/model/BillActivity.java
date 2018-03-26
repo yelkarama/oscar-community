@@ -25,7 +25,6 @@
 
 package org.oscarehr.billing.CA.model;
 
-import java.util.Comparator;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -206,11 +205,5 @@ public class BillActivity extends AbstractModel<Integer> {
     	this.sentDate = sentDate;
     }
 
-
-    public static final Comparator<BillActivity> UpdateDateTimeComparator = new Comparator<BillActivity>() {
-        public int compare(BillActivity o1, BillActivity o2) {
-                return o2.getUpdateDateTime().compareTo(o1.getUpdateDateTime());
-        }
-    }; 
 
 }

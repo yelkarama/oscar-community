@@ -22,22 +22,6 @@
     Toronto, Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_pmm" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_pmm");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="org.oscarehr.util.MiscUtils"%><%@page import="org.oscarehr.util.DigitalSignatureUtils"%>
 <%@page import="java.util.Enumeration"%>
 <%@page import="org.oscarehr.PMmodule.web.ManageConsentAction"%>
@@ -48,9 +32,8 @@
 <%@page import="org.oscarehr.util.SessionConstants"%>
 
 <%
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 	Integer currentDemographicId=new Integer(request.getParameter("demographicId"));
-	ManageConsentAction manageConsentAction=new ManageConsentAction(loggedInInfo, currentDemographicId);
+	ManageConsentAction manageConsentAction=new ManageConsentAction(currentDemographicId);
 	manageConsentAction.setSignatureRequestId(request.getParameter(DigitalSignatureUtils.SIGNATURE_REQUEST_ID_KEY));
 	manageConsentAction.setExcludeMentalHealthData(WebUtils.isChecked(request, "excludeMentalHealth"));
 	manageConsentAction.setConsentStatus(request.getParameter("consentStatus"));

@@ -32,7 +32,9 @@
 
 		<% 
   
-
+ ResultSet rs=null ;
+  ResultSet rs2=null ;
+  String[] param =new String[1];
   String[] param2 =new String[10];
 
     String[] service_code = new String[45];
@@ -42,23 +44,22 @@
   service_code[j] = "";
 
   } 
- 
-  List<CtlDiagCode> cdcs = ctlDiagCodeDao.findByServiceType(request.getParameter("billingform"));
-  
+  param[0] = request.getParameter("billingform");
+  rs = apptMainBean.queryResults(param, "search_ctldiagcode_detail");
 int rCount = 0;
   boolean bodd=false;
   
  
   String servicetype_name="";
-  if(cdcs==null) {
+  if(rs==null) {
    out.println("failed!!!"); 
   } else {
   %>
 		<% 
-   for (CtlDiagCode cdc:cdcs) {
+   while (rs.next()) {
      
       bodd=bodd?false:true; //for the color of rows
-        service_code[rCount] = cdc.getDiagnosticCode();
+        service_code[rCount] = rs.getString("diagnostic_code");
      
       rCount = rCount + 1;
    }

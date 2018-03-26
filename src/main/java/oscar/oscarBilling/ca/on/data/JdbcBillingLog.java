@@ -18,25 +18,28 @@
 
 package oscar.oscarBilling.ca.on.data;
 
-import java.util.Date;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.log4j.Logger;
 
-import org.oscarehr.billing.CA.ON.dao.BillingONProcDao;
-import org.oscarehr.billing.CA.ON.model.BillingONProc;
-import org.oscarehr.util.SpringUtils;
+import oscar.util.UtilDateUtilities;
 
 public class JdbcBillingLog {
-	
-	private BillingONProcDao dao = SpringUtils.getBean(BillingONProcDao.class);
+	private static final Logger _logger = Logger.getLogger(JdbcBillingLog.class);
+	BillingONDataHelp dbObj = new BillingONDataHelp();
 
 	public boolean addBillingLog(String providerNo, String action, String comment, String object) {
-		BillingONProc b = new BillingONProc();
-		b.setCreator(providerNo);
-		b.setAction(action);
-		b.setComment(comment);
-		b.setObject(object);
-		b.setCreateDateTime(new Date());
-		dao.persist(b);
-		return true;
+		boolean retval = false;
+		String createdatetime = UtilDateUtilities.getToday("yyyy-MM-dd HH:mm:ss");
+		String sql = "insert into billing_on_proc values(\\N, '" + providerNo + "','" + action + "','"
+				+ StringEscapeUtils.escapeSql(comment) + "','" + object + "','" + createdatetime + "')";
+		_logger.info("addBillingLog(sql = " + sql + ")");
+
+		retval = dbObj.updateDBRecord(sql);
+
+		if (retval) {
+			_logger.error("addBillingLog(sql = " + sql + ")");
+		}
+		return retval;
 	}
 
 }

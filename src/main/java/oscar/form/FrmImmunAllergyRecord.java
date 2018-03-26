@@ -27,10 +27,7 @@ package oscar.form;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.Properties;
-
-import org.oscarehr.util.LoggedInInfo;
 
 import oscar.oscarDB.DBHandler;
 import oscar.util.UtilDateUtilities;
@@ -38,7 +35,7 @@ import oscar.util.UtilDateUtilities;
 public class FrmImmunAllergyRecord extends FrmRecord {
 	//FrmRecordHelp recordHlp = null;
 
-    public Properties getFormRecord(LoggedInInfo loggedInInfo, int demographicNo, int existingID)
+    public Properties getFormRecord(int demographicNo, int existingID)
         throws SQLException  {
         Properties props = new Properties();
 
@@ -50,9 +47,9 @@ public class FrmImmunAllergyRecord extends FrmRecord {
                 props.setProperty("demographic_no", oscar.Misc.getString(rs, "demographic_no"));
                 props.setProperty("c_surname", oscar.Misc.getString(rs, "last_name"));
                 props.setProperty("c_givenName", oscar.Misc.getString(rs, "first_name"));
-                props.setProperty("formDate", UtilDateUtilities.DateToString(new Date(), "yyyy/MM/dd"));
-                props.setProperty("formCreated", UtilDateUtilities.DateToString(new Date(), "yyyy/MM/dd"));
-                //props.setProperty("formEdited", UtilDateUtilities.DateToString(new Date(), "yyyy/MM/dd"));
+                props.setProperty("formDate", UtilDateUtilities.DateToString(UtilDateUtilities.Today(), "yyyy/MM/dd"));
+                props.setProperty("formCreated", UtilDateUtilities.DateToString(UtilDateUtilities.Today(), "yyyy/MM/dd"));
+                //props.setProperty("formEdited", UtilDateUtilities.DateToString(UtilDateUtilities.Today(), "yyyy/MM/dd"));
             }
             rs.close();
         } else {

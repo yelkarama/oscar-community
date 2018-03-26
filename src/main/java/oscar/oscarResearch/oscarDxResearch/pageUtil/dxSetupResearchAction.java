@@ -33,9 +33,6 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.oscarResearch.oscarDxResearch.bean.dxQuickListBeanHandler;
 import oscar.oscarResearch.oscarDxResearch.bean.dxQuickListItemsHandler;
@@ -43,19 +40,13 @@ import oscar.oscarResearch.oscarDxResearch.bean.dxResearchBeanHandler;
 import oscar.oscarResearch.oscarDxResearch.util.dxResearchCodingSystem;
 
 public final class dxSetupResearchAction extends Action {
-	private static SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
 
     public ActionForward execute(ActionMapping mapping,
                                  ActionForm form,
                                  HttpServletRequest request,
                                  HttpServletResponse response)
         throws Exception {
-    	
-    	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-    	if (!securityInfoManager.hasPrivilege(loggedInInfo, "_dxresearch", "r", null)) {
-    		throw new RuntimeException("missing required security object (_dxresearch)");
-    	}
-    	
+            
         dxResearchCodingSystem codingSys = new dxResearchCodingSystem();        
         String demographicNo = request.getParameter("demographicNo");
         String providerNo = request.getParameter("providerNo");
@@ -65,16 +56,11 @@ public final class dxSetupResearchAction extends Action {
         dxQuickListBeanHandler quicklistHd = null;
         dxQuickListItemsHandler quicklistItemsHd = null;
                 
-        if(providerNo == null) {
-        	providerNo = loggedInInfo.getLoggedInProviderNo();
-        }
-        if(selectedQuickList == null) {
-        	selectedQuickList="";
-        }
-        if (selectedQuickList.equals("")){
+        if (selectedQuickList.equals("")||selectedQuickList==null){
             quicklistHd = new dxQuickListBeanHandler(providerNo);
             quicklistItemsHd = new dxQuickListItemsHandler(quicklistHd.getLastUsedQuickList(),providerNo);
-        } else{
+        }
+        else{
             quicklistItemsHd = new dxQuickListItemsHandler(selectedQuickList,providerNo);
             quicklistHd = new dxQuickListBeanHandler(providerNo);
         }

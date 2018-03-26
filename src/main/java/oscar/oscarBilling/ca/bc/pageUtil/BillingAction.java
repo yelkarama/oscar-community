@@ -39,15 +39,12 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
-import org.oscarehr.billing.Clinicaid.util.ClinicaidCommunication;
 import org.oscarehr.decisionSupport.model.DSConsequence;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 
 import oscar.oscarBilling.ca.bc.MSP.ServiceCodeValidationLogic;
 import oscar.oscarBilling.ca.bc.decisionSupport.BillingGuidelines;
 import oscar.util.SqlUtils;
-import oscar.util.SuperSiteUtil;
 
 public final class BillingAction extends Action {
   private static Logger _log = MiscUtils.getLogger();
@@ -57,14 +54,12 @@ public final class BillingAction extends Action {
                                HttpServletRequest request,
                                HttpServletResponse response) throws IOException,
       ServletException {
-	  LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
     // Setup variables
     ActionMessages errors = new ActionMessages();
     oscar.oscarBilling.ca.bc.pageUtil.BillingSessionBean bean = null;
     String encounter = request.getAttribute("encounter") != null ?
         (String) request.getAttribute("encounter") : "";
     String region = request.getParameter("billRegion");
-    SuperSiteUtil.getInstance().checkSuperSiteAccess(request, response, "demographic_no");
     if ("ON".equals(region)) {
       String newURL = mapping.findForward("ON").getPath();
       newURL = newURL + "?" + request.getQueryString();
@@ -72,28 +67,6 @@ public final class BillingAction extends Action {
       ON.setPath(newURL);
       ON.setRedirect(true);
       return ON;
-    }
-	else if ("CLINICAID".equals(region)) {
-
-	  ClinicaidCommunication clinicaid_communicator 
-		  = new ClinicaidCommunication();
-
-	  String action = "";
-	  if( request.getParameter("action") != null) {
-		  action = request.getParameter("action");
-	  }
-	  else {
-		  action = "create_invoice";
-	  }
-
-	  String clinicaidURL = clinicaid_communicator.buildClinicaidURL(request, action);
-      String newURL = mapping.findForward("CLINICAID").getPath();
-      newURL = newURL + "?" + request.getQueryString();
-      ActionForward Clinicaid = new ActionForward();
-      Clinicaid.setPath(clinicaidURL);
-
-      Clinicaid.setRedirect(true);
-      return Clinicaid;
     }
     else {
       BillingCreateBillingForm frm = (BillingCreateBillingForm) form;
@@ -132,7 +105,7 @@ public final class BillingAction extends Action {
  //                                   request.getParameter("demographic_no"));
         try{
             _log.debug("Start of billing rules");
-            List<DSConsequence> list = BillingGuidelines.getInstance().evaluateAndGetConsequences(loggedInInfo, request.getParameter("demographic_no"), (String) request.getSession().getAttribute("user"));
+            List<DSConsequence> list = BillingGuidelines.getInstance().evaluateAndGetConsequences(request.getParameter("demographic_no"), (String) request.getSession().getAttribute("user"));
         
             for (DSConsequence dscon : list){
                 _log.debug("DSTEXT "+dscon.getText());

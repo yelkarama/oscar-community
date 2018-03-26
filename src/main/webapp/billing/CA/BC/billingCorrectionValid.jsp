@@ -24,21 +24,6 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_billing" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../../securityError.jsp?type=_billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
@@ -135,7 +120,7 @@ for(int i=0;i<diagcode.length();i++)
 		billunit = request.getParameter("billingunit" + tempBill.substring(11));
 		billingamount = request.getParameter("billingamount" + tempBill.substring(11));
   	    dbBillingDataBean.setService_code(request.getParameter(tempBill));      
-  	    
+  	    dbBillingDataBean.setVariables(oscarVariables);
   	    strAuth = dbBillingDataBean.ejbLoad();
   	     if(strAuth!=null) { //login successfully
  		 scode = strAuth[0];

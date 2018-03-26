@@ -40,17 +40,17 @@ public class FlowSheetDxDao extends AbstractDao<FlowSheetDx>{
 		super(FlowSheetDx.class);
 	}
 
-    public List<FlowSheetDx> getFlowSheetDx(String flowsheet,Integer demographic){
+    public List<FlowSheetDx> getFlowSheetDx(String flowsheet,String demographic){
     	Query query = entityManager.createQuery("select fd from FlowSheetDx fd where fd.flowsheet = ? and fd.archived=0 and fd.demographicNo=?");
     	query.setParameter(1,flowsheet);
-    	query.setParameter(2, demographic);
+    	query.setParameter(2, Integer.parseInt(demographic));
     	@SuppressWarnings("unchecked")
         List<FlowSheetDx> fds = query.getResultList();
 
     	return fds;
      }
 
-     public HashMap<String,String> getFlowSheetDxMap(String flowsheet,Integer demographic){
+     public HashMap<String,String> getFlowSheetDxMap(String flowsheet,String demographic){
          List<FlowSheetDx> fldx = getFlowSheetDx( flowsheet, demographic);
          HashMap<String,String> hm = new HashMap<String,String>();
 

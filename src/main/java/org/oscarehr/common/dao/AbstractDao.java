@@ -32,46 +32,42 @@ import javax.persistence.Query;
 import org.oscarehr.common.model.AbstractModel;
 import org.springframework.transaction.annotation.Transactional;
 
-import oscar.util.ParamAppender;
-
 @Transactional
 public abstract class AbstractDao<T extends AbstractModel<?>> {
-	public static final int MAX_LIST_RETURN_SIZE = 5000;
-
 	protected Class<T> modelClass;
 
 	@PersistenceContext
 	protected EntityManager entityManager = null;
 
 	protected AbstractDao(Class<T> modelClass) {
-		setModelClass(modelClass);
+		this.modelClass = modelClass;
 	}
 
 	/**
 	 * aka update
 	 */
-	public void merge(AbstractModel<?> o) {
+	public void merge(T o) {
 		entityManager.merge(o);
 	}
 
 	/**
 	 * aka create
 	 */
-	public void persist(AbstractModel<?> o) {
+	public void persist(T o) {
 		entityManager.persist(o);
 	}
 
 	/**
 	 * You can only remove attached instances.
 	 */
-	public void remove(AbstractModel<?> o) {
+	public void remove(T o) {
 		entityManager.remove(o);
 	}
 
 	/**
 	 * You can only refresh attached instances.
 	 */
-	public void refresh(AbstractModel<?> o) {
+	public void refresh(T o) {
 		entityManager.refresh(o);
 	}
 
@@ -79,69 +75,18 @@ public abstract class AbstractDao<T extends AbstractModel<?>> {
 		return (entityManager.find(modelClass, id));
 	}
 
-	/**
-	 * Fetches all instances of the persistent class handled by this DAO. 
-	 * 
-	 * @return
-	 * 		Returns all instances available in the backend  
-	 */
-	@SuppressWarnings("unchecked")
-	public List<T> findAll(Integer offset, Integer limit) {
-		Query query = entityManager.createQuery("FROM " + modelClass.getSimpleName());
-		
-		if (offset != null && offset > 0) {
-			query.setFirstResult(offset);
-		}
-		// mandatory set limit
-		int intLimit = (limit == null) ? getMaxSelectSize() : limit;
-		if (intLimit > getMaxSelectSize()) {
-			throw new MaxSelectLimitExceededException(getMaxSelectSize(), limit);
-		}
-		query.setMaxResults(intLimit);
-		
-		return query.getResultList();
-	}
-	
-	protected int getMaxSelectSize() {
-	    return MAX_LIST_RETURN_SIZE;
-    }
-
-	/** Removes an entity based on the ID
-	 * 
-	 * @param id
-	 * 		ID of the entity to be removed
-	 * @return
-	 * 		Returns true if entity has been removed and false otherwise
-	 */
-	public boolean remove(Object id) {
+	public void remove(Object id) {
 		T abstractModel = find(id);
-		if (abstractModel == null) {
-			return false;
-		}
-
-		remove(abstractModel);
-		return true;
+		if (abstractModel != null) remove(abstractModel);
 	}
 
 	protected T getSingleResultOrNull(Query query) {
 		query.setMaxResults(1);
-
+		
 		@SuppressWarnings("unchecked")
 		List<T> results = query.getResultList();
 		if (results.size() == 1) return (results.get(0));
 		else if (results.size() == 0) return (null);
-		// this should never happen if we set max results to 1 :)
-		else throw (new NonUniqueResultException("SingleResult requested but result was not unique : " + results.size()));
-	}
-	
-	protected Long getCountResult(Query query) {
-		query.setMaxResults(1);
-
-		@SuppressWarnings("unchecked")
-		List<Long> results = query.getResultList();
-		if (results.size() == 1) return (results.get(0));
-		else if (results.size() == 0) return (null);
-		// this should never happen if we set max results to 1 :)
 		else throw (new NonUniqueResultException("SingleResult requested but result was not unique : " + results.size()));
 	}
 
@@ -152,8 +97,8 @@ public abstract class AbstractDao<T extends AbstractModel<?>> {
 		// return((Integer)query.getSingleResult());
 
 		String tableName = modelClass.getSimpleName();
-		javax.persistence.Table t = modelClass.getAnnotation(javax.persistence.Table.class);
-		if (t != null && t.name() != null && t.name().length() > 0) {
+		javax.persistence.Table t= modelClass.getAnnotation(javax.persistence.Table.class);
+		if(t != null && t.name() != null && t.name().length()>0) {
 			tableName = t.name();
 		}
 
@@ -161,194 +106,5 @@ public abstract class AbstractDao<T extends AbstractModel<?>> {
 		String sqlCommand = "select count(*) from " + tableName;
 		Query query = entityManager.createNativeQuery(sqlCommand);
 		return (((Number) query.getSingleResult()).intValue());
-	}
-
-	/**
-	 * Gets base JPQL query for the model class.
-	 * 
-	 * @return
-	 * 		Returns the JPQL clause in the form of <code>"FROM {@link #getModelClassName()} AS e "</code>. <code>e</code> stands for "entity"
-	 */
-	protected String getBaseQuery() {
-		return getBaseQueryBuf(null, null).toString();
-	}
-
-	protected String getBaseQuery(String alias) {
-		return getBaseQueryBuf(null, alias).toString();
-	}
-
-	/**
-	 * Creates new string builder containing the base query with the specified select and alias strings
-	 * 
-	 * @param select
-	 * 		Select clause to be appended to the query. May be null
-	 * @param alias
-	 * 		Alias to be used for referencing the base entity class
-	 * @return
-	 * 		Returns the string buffer containing the base query 
-	 */
-	protected StringBuilder getBaseQueryBuf(String select, String alias) {
-		StringBuilder buf = new StringBuilder();
-		if (select != null) {
-			buf.append(select);
-			buf.append(" ");
-		}
-		buf.append("FROM ");
-		buf.append(getModelClassName());
-		if (alias != null) buf.append(" AS ").append(alias).append(" ");
-		return buf;
-	}
-
-	public Class<T> getModelClass() {
-		return modelClass;
-	}
-
-	protected Query createQuery(String alias, String whereClause) {
-		return createQuery(null, alias, whereClause);
-	}
-
-	/**
-	 * Creates a query with the specified entity alias and where clause
-	 * 
-	 * <p/>
-	 * 
-	 * For example, invoking
-	 * 
-	 * <pre>
-	 * 		createQuery("select entity.id" "entity", "entity.propertyName like :propertyValue");
-	 * </pre>
-	 * 
-	 * would create query:
-	 * 
-	 * <pre>
-	 * 		SELECT entity.id FROM ModelClass AS entity WHERE entity.propertyName like :propertyValue
-	 * </pre>
-	 * 
-	 * @param select
-	 * 		Select clause to be included in the query 
-	 * @param alias
-	 * 		Alias to be included in the query
-	 * @param whereClause
-	 * 		Where clause to be included in the query
-	 * @return
-	 * 		Returns the query
-	 */
-	protected Query createQuery(String select, String alias, String whereClause) {
-		StringBuilder buf = createQueryString(select, alias, whereClause);
-		return entityManager.createQuery(buf.toString());
-	}
-
-	/**
-	 * Creates query string for the specified alias and where clause 
-	 * 
-	 * @param select
-	 * 		Select clause
-	 * @param alias
-	 * 		Alias to be included in the query
-	 * @param whereClause
-	 * 		Where clause to be included in the query
-	 * @return
-	 * 		Returns the query string
-	 * 
-	 * @see #createQuery(String, String)
-	 */
-	protected StringBuilder createQueryString(String select, String alias, String whereClause) {
-		StringBuilder buf = getBaseQueryBuf(select, alias);
-		if (whereClause != null && !whereClause.isEmpty()) {
-			buf.append("WHERE ");
-			buf.append(whereClause);
-		}
-		return buf;
-	}
-
-	protected StringBuilder createQueryString(String alias, String whereClause) {
-		return createQueryString(null, alias, whereClause);
-	}
-
-	/**
-	 * Gets name of the model class.
-	 * 
-	 * @return
-	 * 		Returns the class name without package prefix
-	 */
-	protected String getModelClassName() {
-		return getModelClass().getSimpleName();
-	}
-
-	private void setModelClass(Class<T> modelClass) {
-		this.modelClass = modelClass;
-	}
-
-	/**
-	 * Saves or updates the entity based on depending if it's persistent, as determined by {@link AbstractModel#isPersistent()} 
-	 * 
-	 * @param entity
-	 * 		Entity to be saved or updated
-	 * @return
-	 * 		Returns the entity
-	 */
-	public T saveEntity(T entity) {
-		if (entity.isPersistent()) merge(entity);
-		else persist(entity);
-		return entity;
-	}
-
-	/**
-	 * Runs native SQL query.
-	 * 
-	 * @param sql
-	 * 		SQL query to run.
-	 * @return
-	 * 		Returns list containing query results.
-	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public List<Object[]> runNativeQuery(String sql) {
-		Query query = entityManager.createNativeQuery(sql);
-		List resultList = query.getResultList();
-		return resultList;
-	}
-
-	/**
-	 * Gets parameter appender with default base query set 
-	 * 
-	 * @return
-	 * 		Returns new appender
-	 * 
-	 * @see #getBaseQuery()
-	 */
-	protected ParamAppender getAppender() {
-		return new ParamAppender(getBaseQuery());
-	}
-
-	/**
-	 * Gets parameter appender with default base query set 
-	 * 
-	 * @param alias
-	 * 		Alias to be used in the query
-	 * @return
-	 * 		Returns new appender
-	 * 
-	 * @see #getBaseQuery(String)
-	 */
-	protected ParamAppender getAppender(String alias) {
-		return new ParamAppender(getBaseQuery(alias));
-	}
-	
-	protected final void setDefaultLimit(Query query)
-	{
-		query.setMaxResults(getMaxSelectSize());
-	}
-
-	protected final void setLimit(Query query, int itemsToReturn)
-	{
-		if (itemsToReturn > getMaxSelectSize()) throw(new IllegalArgumentException("Requested too large of a result list size : " + itemsToReturn));
-
-		query.setMaxResults(itemsToReturn);
-	}
-
-	protected final void setLimit(Query query, int startIndex, int itemsToReturn)
-	{
-		query.setFirstResult(startIndex);
-		setLimit(query, itemsToReturn);
 	}
 }

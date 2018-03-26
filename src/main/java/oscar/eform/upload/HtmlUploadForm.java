@@ -39,12 +39,7 @@ public class HtmlUploadForm extends ActionForm {
     private FormFile formHtml = null;
     private String formName;
     private String subject;
-    private String programNo;
-    private boolean showLatestFormOnly = false;
     private boolean patientIndependent = false;
-    private boolean restrictByProgram = false;
-    private boolean disableUpdate = false;
-    
     private String roleType;
     
     public HtmlUploadForm() {
@@ -82,15 +77,7 @@ public class HtmlUploadForm extends ActionForm {
         this.subject = subject;
     }
 
-    public boolean isShowLatestFormOnly() {
-        return showLatestFormOnly;
-    }
-
-    public void setShowLatestFormOnly(boolean showLatestFormOnly) {
-        this.showLatestFormOnly = showLatestFormOnly;
-    }
-
-    public boolean isPatientIndependent() {
+    public boolean getPatientIndependent() {
         return patientIndependent;
     }
 
@@ -98,34 +85,7 @@ public class HtmlUploadForm extends ActionForm {
         this.patientIndependent = patientIndependent;
     }
     
-    
-    public String getProgramNo() {
-		return programNo;
-	}
-
-	public void setProgramNo(String programNo) {
-		this.programNo = programNo;
-	}
-
-	public boolean isRestrictByProgram() {
-		return restrictByProgram;
-	}
-
-	public void setRestrictByProgram(boolean restrictByProgram) {
-		this.restrictByProgram = restrictByProgram;
-	}
-	
-	
-
-	public boolean isDisableUpdate() {
-		return disableUpdate;
-	}
-
-	public void setDisableUpdate(boolean disableUpdate) {
-		this.disableUpdate = disableUpdate;
-	}
-
-	public ActionErrors validate(ActionMapping mapping, HttpServletRequest request) {
+    public ActionErrors validate(ActionMapping mapping, HttpServletRequest request) {
         ActionErrors errors = new ActionErrors();
         if ((formName == null) || (formName.length() == 0)) {
             errors.add("form", new ActionMessage("eform.errors.file_name.missing"));

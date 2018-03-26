@@ -24,29 +24,14 @@
 
 --%>
 <%@page import="org.oscarehr.common.model.DemographicStudyPK"%>
-<%@ page import="java.util.*, java.sql.*, oscar.*, oscar.util.*" errorPage="errorpage.jsp"%>
+<%@ page import="java.util.*, java.sql.*, oscar.*, oscar.util.*"
+	errorPage="errorpage.jsp"%>
 <%@page import="org.oscarehr.util.SpringUtils" %>
 <%@page import="org.oscarehr.common.model.DemographicStudy" %>
 <%@page import="org.oscarehr.common.dao.DemographicStudyDao" %>
-<%@page import="org.oscarehr.common.model.Study" %>
-<%@page import="org.oscarehr.common.dao.StudyDao" %>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-	  boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin,_admin.reporting" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_admin&type=_admin.reporting");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
+
 <%
 	DemographicStudyDao demographicStudyDao = SpringUtils.getBean(DemographicStudyDao.class);
-    StudyDao studyDao = SpringUtils.getBean(StudyDao.class);
 %>
 <%
     //this is a quick independent page to let you add studying patient.
@@ -58,14 +43,21 @@ if(!authed) {
     String deepColor = "#CCCCFF", weakColor = "#EEEEFF", rightColor = "gold" ;
 %>
 
+<jsp:useBean id="studyBean" class="oscar.AppointmentMainBean"
+	scope="page" />
 
-
+<%
+    String [][] dbQueries=new String[][] {
+        {"search_study", "select s.* from study s order by s.study_no" },
+	};
+    studyBean.doConfigure(dbQueries);
+%>
 
 <%
     if (request.getParameter("submit")!=null && request.getParameter("submit").equals("Update")) {
 		//if it is a array, need to have loop to insert the records for study_no
 		String[] study_no = request.getParameterValues("study_no");
-        String datetime = UtilDateUtilities.DateToString(new java.util.Date(), "yyyy-MM-dd HH:mm:ss");
+        String datetime = UtilDateUtilities.DateToString(UtilDateUtilities.now(), "yyyy-MM-dd HH:mm:ss");
 
         int rowsAffected = demographicStudyDao.removeByDemographicNo(Integer.parseInt(demographic_no));
 		if (study_no != null) {
@@ -83,7 +75,6 @@ if(!authed) {
 		out.println("<script language='JavaScript'>window.close();opener.refreshstudy();</script>);");
     }
 %>
-
 <html>
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
@@ -123,24 +114,25 @@ function setfocus() {
 		<TH width="15%">Description</TH>
 	</tr>
 	<%
-    
+    ResultSet rsdemo = null ;
+    ResultSet rs = null ;
     int nItems=0;
     int ectsize=0;
     String datetime =null;
     String bgcolor = null;
 
-    for(Study s : studyDao.findAll()) {
-    
+    rsdemo = studyBean.queryResults("search_study");
+    while (rsdemo.next()) {
     	nItems++;
 	    bgcolor = nItems%2==0?"#EEEEFF":"white";
-        DemographicStudy ds = demographicStudyDao.findByDemographicNoAndStudyNo(Integer.parseInt(demographic_no),s.getId());
+        DemographicStudy ds = demographicStudyDao.findByDemographicNoAndStudyNo(Integer.parseInt(demographic_no),rsdemo.getInt("s.study_no"));
 %>
 	<tr bgcolor="<%=bgcolor%>">
 		<td align='center'><input type="checkbox" name="study_no"
-			value="<%=s.getId()%>"
+			value="<%=rsdemo.getString("s.study_no")%>"
 			<%=demographic_no.equals(ds!=null?ds.getId().getDemographicNo().toString():"0") ? "checked" : "" %>></td>
-		<td><%=s.getStudyName()%></td>
-		<td align="center"><%=s.getDescription()%></td>
+		<td><%=studyBean.getString(rsdemo,"study_name")%></td>
+		<td align="center"><%=studyBean.getString(rsdemo,"description")%></td>
 	</tr>
 	<%
   }

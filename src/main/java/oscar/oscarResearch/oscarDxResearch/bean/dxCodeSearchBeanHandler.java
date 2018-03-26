@@ -22,39 +22,67 @@
  * Ontario, Canada
  */
 
+
 package oscar.oscarResearch.oscarDxResearch.bean;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Vector;
 
-import org.oscarehr.common.dao.DxDao;
-import org.oscarehr.util.SpringUtils;
+import org.oscarehr.util.MiscUtils;
+
+import oscar.oscarDB.DBHandler;
 
 public class dxCodeSearchBeanHandler {
+    
+    Vector dxCodeSearchBeanVector = new Vector();
+ 
+    public dxCodeSearchBeanHandler(String codeType, String[] keywords) {
+        init(codeType,keywords);
+    }
+    
+    public boolean init(String codingSystem,String[] keywords) {
+        //dxResearchCodingSystem codingSys = new dxResearchCodingSystem();
+        //String codingSystem = codingSys.getCodingSystem();        
+        boolean verdict = true;
+        try {
+            ResultSet rs;
+            
+            String sql = "";
+            boolean orFlag = false;
+            for(int i=0; i<keywords.length; i++){
+                if(!keywords[i].equals("")){
+                    if (!orFlag){
+                        sql = "select "+codingSystem+", description from "+codingSystem+" where "+codingSystem+" like '%" + keywords[i] + "%' or description like '%" + keywords[i] +"%' ";
+                        orFlag = true;
+                    }
+                    else
+                        sql = sql + "or "+codingSystem+" like '%" + keywords[i] + "%' or description like '%" + keywords[i] +"%' ";
+                }
+            }
 
-	List<dxCodeSearchBean> dxCodeSearchBeanVector = new ArrayList<dxCodeSearchBean>();
+            rs = DBHandler.GetSQL(sql);
+            while(rs.next()){
+                dxCodeSearchBean bean = new dxCodeSearchBean(oscar.Misc.getString(rs, "description"),                                                                 
+                                                             oscar.Misc.getString(rs, codingSystem));
+                for(int i=0; i<keywords.length; i++){
+                    if(keywords[i].equals(oscar.Misc.getString(rs, codingSystem)))
+                        bean.setExactMatch("checked");                    
+                }
+                
 
-	public dxCodeSearchBeanHandler(String codeType, String[] keywords) {
-		init(codeType, keywords);
-	}
+                dxCodeSearchBeanVector.add(bean);
+            }
+            rs.close();
+        }
+        catch(SQLException e) {
+            MiscUtils.getLogger().error("Error", e);
+            verdict = false;
+        }
+        return verdict;
+    }
 
-	public boolean init(String codingSystem, String[] keywords) {
-		DxDao dao = SpringUtils.getBean(DxDao.class);
-
-		for (Object[] o : dao.findCodingSystemDescription(codingSystem, keywords)) {
-			String cs = String.valueOf(o[0]);
-			String desc = String.valueOf(o[1]);
-			dxCodeSearchBean bean = new dxCodeSearchBean(desc, cs);
-			for (int i = 0; i < keywords.length; i++) {
-				if (keywords[i].equals(cs)) bean.setExactMatch("checked");
-			}
-
-			dxCodeSearchBeanVector.add(bean);
-		}
-		return true;
-	}
-
-	public List<dxCodeSearchBean> getDxCodeSearchBeanVector() {
-		return dxCodeSearchBeanVector;
-	}
+    public Vector getDxCodeSearchBeanVector(){
+        return dxCodeSearchBeanVector;
+    }
 }

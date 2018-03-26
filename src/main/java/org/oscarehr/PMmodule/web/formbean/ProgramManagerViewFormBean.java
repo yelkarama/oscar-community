@@ -24,12 +24,12 @@
 package org.oscarehr.PMmodule.web.formbean;
 
 import org.apache.struts.action.ActionForm;
+import org.oscarehr.PMmodule.model.Bed;
 import org.oscarehr.PMmodule.model.ProgramClientRestriction;
-import org.oscarehr.common.model.Bed;
 
 public class ProgramManagerViewFormBean extends ActionForm {
 
-	public static final String[] tabs = { "General", "Staff", "Teams", "Clients", "Queue", "Access", "Bed Check" , "Client Status", "Service Restrictions", "Vacancies","Schedule","Encounter Types"};
+	public static final String[] tabs = { "General", "Staff", "Teams", "Clients", "Queue", "Access", "Bed Check" , "Client Status", "Service Restrictions", "Vacancies"};
 
 	private String tab;
 	private String subtab;
@@ -38,8 +38,7 @@ public class ProgramManagerViewFormBean extends ActionForm {
 	private Bed[] reservedBeds;
 	private String switchBed1;
 	private String switchBed2;
-	private String vacancyOrTemplateId;
-	
+
 	private String radioRejectionReason;
     private ProgramClientRestriction serviceRestriction;
 
@@ -133,13 +132,4 @@ public class ProgramManagerViewFormBean extends ActionForm {
 	public void setSwitchBed2(String switchBed2) {
 		this.switchBed2 = switchBed2;
 	}
-
-	public String getVacancyOrTemplateId() {
-    	return vacancyOrTemplateId;
-    }
-
-	public void setVacancyOrTemplateId(String vacancyOrTemplateId) {
-    	this.vacancyOrTemplateId = vacancyOrTemplateId;
-    }
-	
 }

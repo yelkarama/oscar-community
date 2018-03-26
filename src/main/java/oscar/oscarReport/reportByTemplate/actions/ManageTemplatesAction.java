@@ -40,7 +40,6 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.oscarehr.util.LoggedInInfo;
 
 import oscar.oscarReport.reportByTemplate.ReportManager;
 
@@ -51,12 +50,6 @@ import oscar.oscarReport.reportByTemplate.ReportManager;
 public class ManageTemplatesAction extends Action {
     public ActionForward execute(ActionMapping mapping, ActionForm form,
                                  HttpServletRequest request, HttpServletResponse response) {
-    	
-    	String roleName$ = (String)request.getSession().getAttribute("userrole") + "," + (String) request.getSession().getAttribute("user");
-    	if(!com.quatro.service.security.SecurityManager.hasPrivilege("_admin", roleName$)  && !com.quatro.service.security.SecurityManager.hasPrivilege("_report", roleName$)) {
-    		throw new SecurityException("Insufficient Privileges");
-    	}
-    	
          String action = request.getParameter("action");
          String templateId = request.getParameter("templateid");
          String xmltext = request.getParameter("xmltext");
@@ -67,9 +60,9 @@ public class ManageTemplatesAction extends Action {
             if (message.equals("")) return mapping.findForward("deleted");
          }
          else if (action.equals("add"))
-            message = reportManager.addTemplate(null, xmltext, LoggedInInfo.getLoggedInInfoFromSession(request));
+            message = reportManager.addTemplate(xmltext);
          else if (action.equals("edit"))
-            message = reportManager.updateTemplate(null, templateId, xmltext, LoggedInInfo.getLoggedInInfoFromSession(request));
+            message = reportManager.updateTemplate(templateId, xmltext);
          request.setAttribute("message", message);
          request.setAttribute("action", action);
          request.setAttribute("templateid", request.getParameter("templateid"));

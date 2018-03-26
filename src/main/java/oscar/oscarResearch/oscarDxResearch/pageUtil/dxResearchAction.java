@@ -25,8 +25,8 @@
 
 package oscar.oscarResearch.oscarDxResearch.pageUtil;
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -38,31 +38,21 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
-import org.oscarehr.common.dao.AbstractCodeSystemDao;
-import org.oscarehr.common.dao.DxresearchDAO;
-import org.oscarehr.common.model.AbstractCodeSystemModel;
-import org.oscarehr.common.model.Dxresearch;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
-import org.oscarehr.util.SpringUtils;
+import org.oscarehr.util.MiscUtils;
 
-import oscar.log.LogAction;
-import oscar.log.LogConst;
-import oscar.util.ConversionUtils;
+import oscar.oscarDB.DBHandler;
 import oscar.util.ParameterActionForward;
+import oscar.util.UtilDateUtilities;
 
 
 public class dxResearchAction extends Action {
-	private static SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
 
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException{
-		if (!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_dxresearch", "w", null)) {
-			throw new RuntimeException("missing required security object (_dxresearch)");
-		}
         
         dxResearchForm frm = (dxResearchForm) form; 
         request.getSession().setAttribute("dxResearchForm", frm);
+        String nowDate = UtilDateUtilities.DateToString(UtilDateUtilities.now(), "yyyy/MM/dd"); 
         String codingSystem = frm.getSelectedCodingSystem();        
         String demographicNo = frm.getDemographicNo();
         String providerNo = frm.getProviderNo();
@@ -99,60 +89,61 @@ public class dxResearchAction extends Action {
         }
         boolean valid = true;
         ActionMessages errors = new ActionMessages();  
-        DxresearchDAO dao = (DxresearchDAO) SpringUtils.getBean("DxresearchDAO");
         
-		for (int i = 0; i < xml_research.length; i++) {
-			int count = 0;
-			if (multipleCodes) codingSystem = codingSystems[i];
-
-			if (xml_research[i].compareTo("") != 0) {
-				List<Dxresearch> research = dao.findByDemographicNoResearchCodeAndCodingSystem(ConversionUtils.fromIntString(demographicNo), xml_research[i], codingSystem);
-
-				for (Dxresearch r : research) {
-					count = count + 1;
-
-					r.setUpdateDate(new Date());
-					r.setStatus('A');
-
-					dao.save(r);
-					
-					String ip = request.getRemoteAddr();
-			        LogAction.addLog((String) request.getSession().getAttribute("user"), LogConst.UPDATE, "DX", ""+r.getId() , ip,"");
-
-				}
-
-				if (count == 0) {
-					String daoName = AbstractCodeSystemDao.getDaoName(AbstractCodeSystemDao.codingSystem.valueOf(codingSystem));
-					@SuppressWarnings("unchecked")
-					AbstractCodeSystemDao<AbstractCodeSystemModel<?>> csDao = (AbstractCodeSystemDao<AbstractCodeSystemModel<?>>) SpringUtils.getBean(daoName);
-
-					AbstractCodeSystemModel<?> codingSystemEntity = csDao.findByCodingSystem(codingSystem);
-					boolean isCodingSystemAvailable = codingSystemEntity == null;
-
-					if (!isCodingSystemAvailable) {
-						valid = false;
-						errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("errors.codeNotFound", xml_research[i], codingSystem));
-						saveErrors(request, errors);
-					} else {
-						Dxresearch dr = new Dxresearch();
-						dr.setDemographicNo(Integer.valueOf(demographicNo));
-						dr.setStartDate(new Date());
-						dr.setUpdateDate(new Date());
-						dr.setStatus('A');
-						dr.setDxresearchCode(xml_research[i]);
-						dr.setCodingSystem(codingSystem);
-						dr.setProviderNo(LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo());
-						dao.persist(dr);
-						
-						String ip = request.getRemoteAddr();
-				        LogAction.addLog((String) request.getSession().getAttribute("user"), LogConst.ADD, "DX", ""+dr.getId() , ip,"");
-
-					}
-				}
-			}
-
-		}
+        try{
             
+            String sql = null;
+            for(int i=0; i<xml_research.length; i++){ 
+                int Count = 0;
+                if( multipleCodes )
+                    codingSystem = codingSystems[i];
+                
+                if (xml_research[i].compareTo("")!=0){
+                        ResultSet rsdemo2 = null;
+
+                        sql = "select dxresearch_no from dxresearch where demographic_no='" + demographicNo +
+                              "' and dxresearch_code='" + xml_research[i] + "' and (status='A' or status='C') and coding_system='"+
+                              codingSystem +"'";
+
+                        rsdemo2 = DBHandler.GetSQL(sql);
+                        if(rsdemo2!=null){
+                            while(rsdemo2.next()){
+                                    Count = Count +1;
+                                    sql = "update dxresearch set update_date='"+nowDate+"', status='A' where dxresearch_no='"+rsdemo2.getString("dxresearch_no")+"'";
+                                    DBHandler.RunSQL(sql);                                        
+
+                            } 
+                        }
+
+                        if (Count == 0){
+                                //need to validate the dxresearch code before write to the database
+                                sql = "select * from "+ codingSystem +" where "+ codingSystem + " like '" + xml_research[i] +"'";
+                                
+                                ResultSet rsCode = DBHandler.GetSQL(sql);
+                          
+                                if(!rsCode.next() || rsCode==null){
+                                    valid = false;
+                                    errors.add(ActionMessages.GLOBAL_MESSAGE,
+                                    new ActionMessage("errors.codeNotFound", xml_research[i], codingSystem));
+                                    saveErrors(request, errors);   
+                                }
+                                else{
+                                    sql = "insert into dxresearch (demographic_no, start_date, update_date, status, dxresearch_code, coding_system) values('"
+                                            + demographicNo +"','" + nowDate + "','" + nowDate + "', 'A','" + xml_research[i]+ "','"+codingSystem+"')";
+
+                                    DBHandler.RunSQL(sql);                                                                     
+                                }
+                        }	    
+                }
+                
+            }
+        }
+
+        catch(SQLException e)
+        {
+            MiscUtils.getLogger().error("Error", e);
+        }                                    
+        
         if(!valid)
             return (new ActionForward(mapping.getInput()));
         

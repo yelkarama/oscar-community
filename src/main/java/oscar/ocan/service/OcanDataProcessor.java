@@ -108,7 +108,7 @@ import oscar.ocan.domain.submission.TimeLivedInCanada;
 
 public class OcanDataProcessor {
 
-	private DateFormat FORMATTER = new SimpleDateFormat("yyyy-MM-dd");
+	public static DateFormat FORMATTER = new SimpleDateFormat("yyyy-MM-dd");
 
 	private String serviceOrganizationNumber;
 	private String submissionFileLocation;

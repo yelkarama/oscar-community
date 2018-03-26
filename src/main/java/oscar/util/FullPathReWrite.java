@@ -62,6 +62,7 @@ public class FullPathReWrite extends TagSupport {
      */
     public int doStartTag() throws JspException {
         HttpServletRequest request = (HttpServletRequest) pageContext.getRequest();
+        String serverName = (this.server == null) ? request.getServerName() : this.server;
         
         String temp = request.getRequestURI();
         int last = temp.lastIndexOf('/');

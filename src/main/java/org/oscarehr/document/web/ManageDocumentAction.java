@@ -35,16 +35,12 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.io.RandomAccessFile;
-import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
@@ -52,8 +48,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import net.sf.json.JSONObject;
+
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
@@ -63,7 +60,6 @@ import org.jpedal.PdfDecoder;
 import org.jpedal.fonts.FontMappings;
 import org.oscarehr.PMmodule.caisi_integrator.CaisiIntegratorManager;
 import org.oscarehr.PMmodule.caisi_integrator.IntegratorFallBackManager;
-import org.oscarehr.PMmodule.model.ProgramProvider;
 import org.oscarehr.caisi_integrator.ws.CachedDemographicDocument;
 import org.oscarehr.caisi_integrator.ws.CachedDemographicDocumentContents;
 import org.oscarehr.caisi_integrator.ws.DemographicWs;
@@ -71,41 +67,30 @@ import org.oscarehr.caisi_integrator.ws.FacilityIdIntegerCompositePk;
 import org.oscarehr.casemgmt.model.CaseManagementNote;
 import org.oscarehr.casemgmt.model.CaseManagementNoteLink;
 import org.oscarehr.casemgmt.service.CaseManagementManager;
-import org.oscarehr.common.dao.CtlDocumentDao;
-import org.oscarehr.common.dao.DocumentDao;
-import org.oscarehr.common.dao.PatientLabRoutingDao;
 import org.oscarehr.common.dao.ProviderInboxRoutingDao;
 import org.oscarehr.common.dao.SecRoleDao;
-import org.oscarehr.common.model.CtlDocument;
-import org.oscarehr.common.model.Document;
-import org.oscarehr.common.model.PatientLabRouting;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.model.SecRole;
-import org.oscarehr.managers.ProgramManager2;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.sharingcenter.SharingCenterUtil;
-import org.oscarehr.sharingcenter.model.DemographicExport;
+import org.oscarehr.document.dao.DocumentDAO;
+import org.oscarehr.document.model.CtlDocument;
+import org.oscarehr.document.model.Document;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import com.lowagie.text.pdf.PdfReader;
-import com.sun.pdfview.PDFFile;
-import com.sun.pdfview.PDFPage;
-
-import net.sf.json.JSONObject;
-import oscar.OscarProperties;
-import oscar.dms.EDoc;
 import oscar.dms.EDocUtil;
-import oscar.dms.IncomingDocUtil;
 import oscar.log.LogAction;
 import oscar.log.LogConst;
 import oscar.oscarDemographic.data.DemographicData;
 import oscar.oscarEncounter.data.EctProgram;
 import oscar.oscarLab.ca.on.LabResultData;
 import oscar.util.UtilDateUtilities;
+
+import com.lowagie.text.pdf.PdfReader;
+import com.sun.pdfview.PDFFile;
+import com.sun.pdfview.PDFPage;
 
 /**
  * @author jaygallagher
@@ -114,11 +99,17 @@ public class ManageDocumentAction extends DispatchAction {
 
 	private static Logger log = MiscUtils.getLogger();
 
-	private DocumentDao documentDao = SpringUtils.getBean(DocumentDao.class);
-	private CtlDocumentDao ctlDocumentDao = SpringUtils.getBean(CtlDocumentDao.class);
-	private ProviderInboxRoutingDao providerInboxRoutingDAO = SpringUtils.getBean(ProviderInboxRoutingDao.class);
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	
+	private DocumentDAO documentDAO = null;
+	private ProviderInboxRoutingDao providerInboxRoutingDAO = null;
+
+	public void setDocumentDAO(DocumentDAO documentDAO) {
+		this.documentDAO = documentDAO;
+	}
+
+	public void setProviderInboxRoutingDAO(ProviderInboxRoutingDao providerInboxRoutingDAO) {
+		this.providerInboxRoutingDAO = providerInboxRoutingDAO;
+	}
+
 	public ActionForward unspecified(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 
 		return null;
@@ -132,14 +123,7 @@ public class ManageDocumentAction extends DispatchAction {
 		String documentDescription = request.getParameter("documentDescription");// :test2<
 		String documentId = request.getParameter("documentId");// :29<
 		String docType = request.getParameter("docType");// :consult<
-		String programNo = request.getParameter("programNo");
-		String restrictToProgram = request.getParameter("restrictProgramNo");
 
-		
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_edoc", "w", null)) {
-        	throw new SecurityException("missing required security object (_edoc)");
-        }
-		
 		LogAction.addLog((String) request.getSession().getAttribute("user"), LogConst.ADD, LogConst.CON_DOCUMENT, documentId, request.getRemoteAddr());
 
 		String demog = request.getParameter("demog");
@@ -153,85 +137,46 @@ public class ManageDocumentAction extends DispatchAction {
 		if (flagproviders != null && flagproviders.length > 0) { // TODO: THIS NEEDS TO RUN THRU THE lab forwarding rules!
 			try {
 				for (String proNo : flagproviders) {
-					providerInboxRoutingDAO.addToProviderInbox(proNo, Integer.parseInt(documentId), LabResultData.DOCUMENT);
+					providerInboxRoutingDAO.addToProviderInbox(proNo, documentId, LabResultData.DOCUMENT);
 				}
 
 				// Removes the link to the "0" provider so that the document no longer shows up as "unclaimed"
-				providerInboxRoutingDAO.removeLinkFromDocument("DOC", Integer.parseInt(documentId), "0");
+				providerInboxRoutingDAO.removeLinkFromDocument("DOC", documentId, "0");
 			} catch (Exception e) {
 				MiscUtils.getLogger().error("Error", e);
 			}
 		}
-		
-		//Check to see if we have to route document to patient
-		PatientLabRoutingDao patientLabRoutingDao = SpringUtils.getBean(PatientLabRoutingDao.class);
-		List<PatientLabRouting>patientLabRoutingList = patientLabRoutingDao.findByLabNoAndLabType(Integer.parseInt(documentId), docType);
-		if( patientLabRoutingList == null || patientLabRoutingList.size() == 0 ) {
-			PatientLabRouting patientLabRouting = new PatientLabRouting();
-			patientLabRouting.setDemographicNo(Integer.parseInt(demog));
-			patientLabRouting.setLabNo(Integer.parseInt(documentId));
-			patientLabRouting.setLabType("DOC");
-			patientLabRoutingDao.persist(patientLabRouting);
-		}
-		
-		
-		Document d = documentDao.getDocument(documentId);
+		Document d = documentDAO.getDocument(documentId);
 
-		if(d != null) {
-			d.setDocdesc(documentDescription);
-			d.setDoctype(docType);
-			Date obDate = UtilDateUtilities.StringToDate(observationDate);
-	
-			if (obDate != null) {
-				d.setObservationdate(obDate);
-			}
-			
-			if(programNo != null && programNo.length()>0) {
-				try {
-					d.setProgramId(Integer.parseInt(programNo));
-				}catch(NumberFormatException e) {
-					d.setProgramId(null);
-				}
-			} else {
-				d.setProgramId(null);
-			}
-	
-			if(restrictToProgram != null && "on".equals(restrictToProgram) && d.getProgramId() != null) {
-				d.setRestrictToProgram(true);
-			} else {
-				d.setRestrictToProgram(false);
-			}
-			
-			documentDao.merge(d);
+		d.setDocdesc(documentDescription);
+		d.setDoctype(docType);
+		Date obDate = UtilDateUtilities.StringToDate(observationDate);
+
+		if (obDate != null) {
+			d.setObservationdate(obDate);
 		}
 
-		
+		documentDAO.save(d);
+
 		try {
 
-			CtlDocument ctlDocument = ctlDocumentDao.getCtrlDocument(Integer.parseInt(documentId));
-			if(ctlDocument != null) {
-				
-				CtlDocument matchedCtlDocument = new CtlDocument();
-				matchedCtlDocument.getId().setDocumentNo(ctlDocument.getId().getDocumentNo());
-				matchedCtlDocument.getId().setModule(ctlDocument.getId().getModule());
-				matchedCtlDocument.getId().setModuleId(Integer.parseInt(demog));
-				matchedCtlDocument.setStatus(ctlDocument.getStatus());
-				
-				ctlDocumentDao.persist(matchedCtlDocument);
-				
-				ctlDocumentDao.remove(ctlDocument.getId());
-				
-				// save a document created note
-				if (ctlDocument.isDemographicDocument()) {
-					// save note
-					saveDocNote(request, d.getDocdesc(), demog, documentId);
-				}
+			CtlDocument ctlDocument = documentDAO.getCtrlDocument(Integer.parseInt(documentId));
+
+			ctlDocument.setModuleId(Integer.parseInt(demog));
+			documentDAO.saveCtlDocument(ctlDocument);
+			// save a document created note
+			if (ctlDocument.isDemographicDocument()) {
+				// save note
+				saveDocNote(request, d.getDocdesc(), demog, documentId);
 			}
 		} catch (Exception e) {
 			MiscUtils.getLogger().error("Error", e);
 		}
-		
-		
+		if (flagproviders != null) {
+			for (String str : flagproviders) {
+
+			}
+		}
 		if (ret != null && !ret.equals("")) {
 			// response.getOutputStream().print(ret);
 		}
@@ -250,13 +195,8 @@ public class ManageDocumentAction extends DispatchAction {
 
 	public ActionForward getDemoNameAjax(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		String dn = request.getParameter("demo_no");
-		
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_demographic", "r", dn)) {
-        	throw new SecurityException("missing required security object (_demographic)");
-        }
-		
 		HashMap hm = new HashMap();
-		hm.put("demoName", getDemoName(LoggedInInfo.getLoggedInInfoFromSession(request), dn));
+		hm.put("demoName", getDemoName(dn));
 		JSONObject jsonObject = JSONObject.fromObject(hm);
 		try {
 			response.getOutputStream().write(jsonObject.toString().getBytes());
@@ -267,70 +207,15 @@ public class ManageDocumentAction extends DispatchAction {
 		return null;
 	}
 
-	public ActionForward documentExistsInChartAjax(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		String demoId = request.getParameter("demo_no");
-		String documentId = request.getParameter("documentId");
-		
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_demographic", "r", demoId)) {
-        	throw new SecurityException("missing required security object (_demographic)");
-        }
-		
-		//get the sha-1 of the document being processed and compare against the documents in patients echart
-		
-		List<Document> existingDocuments = documentDao.findByDemographicId(demoId);
-		
-		Document currentDoc = documentDao.find(Integer.parseInt(documentId));
-		String parentDir = OscarProperties.getInstance().getProperty("DOCUMENT_DIR");
-		
-		String signature = null;
-		try {
-			signature = EDocUtil.calculateFileSignature(new File(parentDir,currentDoc.getDocfilename()));
-		}catch(Exception e) {
-			MiscUtils.getLogger().warn("unable to calculate file signature on " +  currentDoc.getDocfilename());
-		}
-		
-		
-		boolean duplicate=false;
-		for(Document d:existingDocuments) {
-			if(signature.equals(d.getFileSignature())) {
-				duplicate=true;
-				break;
-			}
-		}
-		
-		HashMap hm = new HashMap();
-		if(signature != null) {
-			hm.put("demographicNo", demoId);
-			hm.put("documentId", documentId);
-			hm.put("duplicate", duplicate);
-		} else {
-			hm.put("error", "Unable to calcular file signature");
-		}
-		JSONObject jsonObject = JSONObject.fromObject(hm);
-		try {
-			response.getOutputStream().write(jsonObject.toString().getBytes());
-		} catch (IOException e) {
-			MiscUtils.getLogger().error("Error", e);
-		}
-
-		return null;
-	}
-
-	
 	public ActionForward removeLinkFromDocument(ActionMapping mapping, ActionForm form,
 			HttpServletRequest request, HttpServletResponse response) {
 		String docType = request.getParameter("docType");
 		String docId = request.getParameter("docId");
 		String providerNo = request.getParameter("providerNo");
-		
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_edoc", "w", null)) {
-        	throw new SecurityException("missing required security object (_edoc)");
-        }
-		
 
-		providerInboxRoutingDAO.removeLinkFromDocument(docType, Integer.parseInt(docId), providerNo);
+		providerInboxRoutingDAO.removeLinkFromDocument(docType, docId, providerNo);
 		HashMap hm = new HashMap();
-		hm.put("linkedProviders", providerInboxRoutingDAO.getProvidersWithRoutingForDocument(docType, Integer.parseInt(docId)));
+		hm.put("linkedProviders", providerInboxRoutingDAO.getProvidersWithRoutingForDocument(docType, docId));
 
 		JSONObject jsonObject = JSONObject.fromObject(hm);
 		try {
@@ -340,24 +225,9 @@ public class ManageDocumentAction extends DispatchAction {
 		}
 
 		return null;
-	}	
-        public ActionForward refileDocumentAjax(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-	
-		String documentId = request.getParameter("documentId");
-		String queueId = request.getParameter("queueId");
+	}
 
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_edoc", "w", null)) {
-        	throw new SecurityException("missing required security object (_edoc)");
-                }
-                
-                try {
-                    EDocUtil.refileDocument(documentId,queueId);
-                } catch (Exception e) {
-                    MiscUtils.getLogger().error("Error", e);
-                }
-                return null;
-        }
-        
+
 	public ActionForward documentUpdate(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 
 		String ret = "";
@@ -367,10 +237,6 @@ public class ManageDocumentAction extends DispatchAction {
 		String documentId = request.getParameter("documentId");// :29<
 		String docType = request.getParameter("docType");// :consult<
 
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_edoc", "w", null)) {
-        	throw new SecurityException("missing required security object (_edoc)");
-        }
-		
 		LogAction.addLog((String) request.getSession().getAttribute("user"), LogConst.ADD, LogConst.CON_DOCUMENT, documentId, request.getRemoteAddr());
 
 		String demog = request.getParameter("demog");
@@ -384,37 +250,34 @@ public class ManageDocumentAction extends DispatchAction {
 		if (flagproviders != null && flagproviders.length > 0) { // TODO: THIS NEEDS TO RUN THRU THE lab forwarding rules!
 			try {
 				for (String proNo : flagproviders) {
-					providerInboxRoutingDAO.addToProviderInbox(proNo, Integer.parseInt(documentId), LabResultData.DOCUMENT);
+					providerInboxRoutingDAO.addToProviderInbox(proNo, documentId, LabResultData.DOCUMENT);
 				}
 			} catch (Exception e) {
 				MiscUtils.getLogger().error("Error", e);
 			}
 		}
-		Document d = documentDao.getDocument(documentId);
+		Document d = documentDAO.getDocument(documentId);
 
-		if(d != null) {
-			d.setDocdesc(documentDescription);
-			d.setDoctype(docType);
-			Date obDate = UtilDateUtilities.StringToDate(observationDate);
-	
-			if (obDate != null) {
-				d.setObservationdate(obDate);
-			}
-	
-			documentDao.merge(d);
+		d.setDocdesc(documentDescription);
+		d.setDoctype(docType);
+		Date obDate = UtilDateUtilities.StringToDate(observationDate);
+
+		if (obDate != null) {
+			d.setObservationdate(obDate);
 		}
+
+		documentDAO.save(d);
 
 		try {
 
-			CtlDocument ctlDocument = ctlDocumentDao.getCtrlDocument(Integer.parseInt(documentId));
-			if(ctlDocument != null) {
-				ctlDocument.getId().setModuleId(Integer.parseInt(demog));
-				ctlDocumentDao.merge(ctlDocument);
-				// save a document created note
-				if (ctlDocument.isDemographicDocument()) {
-					// save note
-					saveDocNote(request, d.getDocdesc(), demog, documentId);
-				}
+			CtlDocument ctlDocument = documentDAO.getCtrlDocument(Integer.parseInt(documentId));
+
+			ctlDocument.setModuleId(Integer.parseInt(demog));
+			documentDAO.saveCtlDocument(ctlDocument);
+			// save a document created note
+			if (ctlDocument.isDemographicDocument()) {
+				// save note
+				saveDocNote(request, d.getDocdesc(), demog, documentId);
 			}
 		} catch (Exception e) {
 			MiscUtils.getLogger().error("Error", e);
@@ -423,12 +286,10 @@ public class ManageDocumentAction extends DispatchAction {
 		if (ret != null && !ret.equals("")) {
 			// response.getOutputStream().print(ret);
 		}
-				
-		
 		String providerNo = request.getParameter("providerNo");
 		String searchProviderNo = request.getParameter("searchProviderNo");
 		String ackStatus = request.getParameter("status");
-		String demoName = getDemoName(LoggedInInfo.getLoggedInInfoFromSession(request) , demog);
+		String demoName = getDemoName(demog);
 		request.setAttribute("demoName", demoName);
 		request.setAttribute("segmentID", documentId);
 		request.setAttribute("providerNo", providerNo);
@@ -439,9 +300,9 @@ public class ManageDocumentAction extends DispatchAction {
 
 	}
 
-	private String getDemoName(LoggedInInfo loggedInInfo, String demog) {
+	private String getDemoName(String demog) {
 		DemographicData demoD = new DemographicData();
-		org.oscarehr.common.model.Demographic demo = demoD.getDemographic(loggedInInfo, demog);
+		org.oscarehr.common.model.Demographic demo = demoD.getDemographic(demog);
 		String demoName = demo.getLastName() + ", " + demo.getFirstName();
 		return demoName;
 	}
@@ -484,16 +345,12 @@ public class ManageDocumentAction extends DispatchAction {
 		cmn.setLocked(false);
 		cmn.setHistory(strNote);
 		cmn.setPosition(0);
-
-		Long note_id = cmm.saveNoteSimpleReturnID(cmn);
-		// Debugging purposes on the live server
-		MiscUtils.getLogger().info("Document Note ID: "+note_id.toString());
-		
+		cmm.saveNoteSimple(cmn);
 		// Add a noteLink to casemgmt_note_link
 		CaseManagementNoteLink cmnl = new CaseManagementNoteLink();
 		cmnl.setTableName(CaseManagementNoteLink.DOCUMENT);
 		cmnl.setTableId(Long.parseLong(documentId));
-		cmnl.setNoteId(note_id);
+		cmnl.setNoteId(Long.parseLong(EDocUtil.getLastNoteId()));
 		EDocUtil.addCaseMgmtNoteLink(cmnl);
 	}
 
@@ -524,7 +381,17 @@ public class ManageDocumentAction extends DispatchAction {
 		return outfile;
 	}
 
-	public static void deleteCacheVersion(Document d, int pageNum) {
+	private File hasCacheVersion(Document d) {
+		File documentCacheDir = getDocumentCacheDir(oscar.OscarProperties.getInstance().getProperty("DOCUMENT_DIR"));
+		File outfile = new File(documentCacheDir, d.getDocfilename() + ".png");
+		if (!outfile.exists()) {
+			outfile = null;
+		}
+		return outfile;
+	}
+
+
+	public static void deleteCacheVersion(org.oscarehr.document.model.Document d, int pageNum) {
 		File documentCacheDir = getDocumentCacheDir(oscar.OscarProperties.getInstance().getProperty("DOCUMENT_DIR"));
 		//pageNum=pageNum-1;
 		File outfile = new File(documentCacheDir,d.getDocfilename()+"_"+pageNum+".png");
@@ -533,7 +400,7 @@ public class ManageDocumentAction extends DispatchAction {
 		}
 	}
 
-	private File hasCacheVersion(Document d, int pageNum){
+	private File hasCacheVersion(org.oscarehr.document.model.Document d, int pageNum){
 		File documentCacheDir = getDocumentCacheDir(oscar.OscarProperties.getInstance().getProperty("DOCUMENT_DIR"));
 		//pageNum= pageNum-1;
 		File outfile = new File(documentCacheDir,d.getDocfilename()+"_"+pageNum+".png");
@@ -688,7 +555,7 @@ public class ManageDocumentAction extends DispatchAction {
 	}
 
 	public ActionForward view(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response){
-		return getPage(mapping, form, request, response, 1);
+		return getPage(mapping, form, request, response, 0);
 	}
 
 	// PNG version
@@ -700,7 +567,7 @@ public class ManageDocumentAction extends DispatchAction {
 
 			LogAction.addLog((String) request.getSession().getAttribute("user"), LogConst.READ, LogConst.CON_DOCUMENT, doc_no, request.getRemoteAddr());
 
-			Document d = documentDao.getDocument(doc_no);
+			Document d = documentDAO.getDocument(doc_no);
 			log.debug("Document Name :" + d.getDocfilename());
 
 			File outfile = hasCacheVersion(d, pageNum);
@@ -737,84 +604,62 @@ public class ManageDocumentAction extends DispatchAction {
 	}
 
 	public ActionForward viewDocPage(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_edoc", "r", null)) {
-        	throw new SecurityException("missing required security object (_edoc)");
-        }
-		
 		log.debug("in viewDocPage");
-		ServletOutputStream outs = null;
-		BufferedInputStream bfis = null;
 		try {
 			String doc_no = request.getParameter("doc_no");
 			String pageNum = request.getParameter("curPage");
 			if (pageNum == null) {
 				pageNum = "0";
 			}
+			Integer pn = Integer.parseInt(pageNum);
 			log.debug("Document No :" + doc_no);
 			LogAction.addLog((String) request.getSession().getAttribute("user"), LogConst.READ, LogConst.CON_DOCUMENT, doc_no, request.getRemoteAddr());
 
-			Document d = documentDao.getDocument(doc_no);
+			Document d = documentDAO.getDocument(doc_no);
 			log.debug("Document Name :" + d.getDocfilename());
+			String name = d.getDocfilename() + "_" + pn + ".png";
+			log.debug("name " + name);
 
 			File outfile = null;
-			outs = response.getOutputStream();
 
-			if(d.getContenttype().contains("pdf")) {
-				Integer pn = Integer.parseInt(pageNum);
-				String name = d.getDocfilename() + "_" + pn + ".png";
-				log.debug("name " + name);
-				outfile = hasCacheVersion2(d, pn);
+			outfile = hasCacheVersion2(d, pn);
+			if (outfile != null) {
+				log.debug("got doc from local cache   ");
+			} else {
+				outfile = createCacheVersion2(d, pn);
 				if (outfile != null) {
-					log.debug("got cached doc "+d.getDocfilename()+" from local cache");
-				} else {
-					outfile = createCacheVersion2(d, pn);
-					if (outfile != null) {
-						log.debug("cache doc "+d.getDocfilename());
-					}
+					log.debug("create new doc  ");
 				}
-				response.setContentType("image/png");				
-				bfis = new BufferedInputStream(new FileInputStream(outfile));
-				int count = -1;
-				byte[] buf = new byte[1024];
-				while ((count = bfis.read(buf)) != -1) {
-					outs.write(buf, 0, count);
-					// outs.flush();
-				}
-			} else if (d.getContenttype().contains("image")) {
-				outfile = new File(EDocUtil.getDocumentPath(d.getDocfilename()));
-				response.setContentType(d.getContenttype());
-			    response.setContentLength((int)outfile.length());
-			    response.setHeader("Content-Disposition", "inline; filename=" + d.getDocfilename());
-
-			    bfis = new BufferedInputStream(new FileInputStream(outfile));
-
-			    byte[] buffer = new byte[1024];
-			    int bytesRead = 0;
-			    while ((bytesRead = bfis.read(buffer)) != -1) {
-			        outs.write(buffer, 0, bytesRead);
-			    }					
 			}
+			response.setContentType("image/png");
+			ServletOutputStream outs = response.getOutputStream();
 			response.setHeader("Content-Disposition", "attachment;filename=" + d.getDocfilename());
 
+			BufferedInputStream bfis = null;
+			try {
+				bfis = new BufferedInputStream(new FileInputStream(outfile));
+				int data;
+				while ((data = bfis.read()) != -1) {
+					outs.write(data);
+					// outs.flush();
+				}
+			} finally {
+				if (bfis!=null) bfis.close();
+			}
+
 			outs.flush();
+			outs.close();
 		} catch (java.net.SocketException se) {
 			MiscUtils.getLogger().error("Error", se);
 		} catch (Exception e) {
 			MiscUtils.getLogger().error("Error", e);
-		} finally {
-			if(bfis != null) try { bfis.close(); } catch(IOException e) {}
-			if(outs != null) try { outs.close(); } catch(IOException e) {}		
 		}
 		return null;
 	}
 
 	public ActionForward view2(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_edoc", "r", null)) {
-        	throw new SecurityException("missing required security object (_edoc)");
-        }
-		
+		// TODO: NEED TO CHECK FOR ACCESS
 		String doc_no = request.getParameter("doc_no");
 		log.debug("Document No :" + doc_no);
 
@@ -824,7 +669,7 @@ public class ManageDocumentAction extends DispatchAction {
 		File documentDir = new File(docdownload);
 		log.debug("Document Dir is a dir" + documentDir.isDirectory());
 
-		Document d = documentDao.getDocument(doc_no);
+		Document d = documentDAO.getDocument(doc_no);
 		log.debug("Document Name :" + d.getDocfilename());
 
 		// TODO: Right now this assumes it's a pdf which it shouldn't
@@ -867,14 +712,10 @@ public class ManageDocumentAction extends DispatchAction {
 
 	public ActionForward getDocPageNumber(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_edoc", "r", null)) {
-        	throw new SecurityException("missing required security object (_edoc)");
-        }
-		
 		String doc_no = request.getParameter("doc_no");
 		String docdownload = oscar.OscarProperties.getInstance().getProperty("DOCUMENT_DIR");
 		// File documentDir = new File(docdownload);
-		Document d = documentDao.getDocument(doc_no);
+		Document d = documentDAO.getDocument(doc_no);
 		String filePath = docdownload + d.getDocfilename();
 
 		int numOfPage = 0;
@@ -892,37 +733,9 @@ public class ManageDocumentAction extends DispatchAction {
 
 		return null;// execute2(mapping, form, request, response);
 	}
-	
-	public ActionForward downloadCDS(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_edoc", "r", null)) {
-        	throw new SecurityException("missing required security object (_edoc)");
-        }
-		
-		DemographicExport export = SharingCenterUtil.retrieveDemographicExport(Integer.valueOf(request.getParameter("doc_no")));
-		String contentType = "application/zip";
-		String filename = String.format("%s_%s", export.getDocumentType(), export.getId());
-		byte[] contentBytes = export.getDocument();
-
-		response.setContentType(contentType);
-		response.setContentLength(contentBytes.length);
-		response.setHeader("Content-Disposition", "inline; filename=" + filename);
-		log.debug("about to Print to stream");
-		ServletOutputStream outs = response.getOutputStream();
-		outs.write(contentBytes);
-		outs.flush();
-		outs.close();
-		return null;
-	}
 
 	public ActionForward display(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_edoc", "r", null)) {
-        	throw new SecurityException("missing required security object (_edoc)");
-        }
-		
 		String temp = request.getParameter("remoteFacilityId");
 		Integer remoteFacilityId = null;
 		if (temp != null) remoteFacilityId = Integer.parseInt(temp);
@@ -937,9 +750,9 @@ public class ManageDocumentAction extends DispatchAction {
 
 		// local document
 		if (remoteFacilityId == null) {
-			CtlDocument ctld = ctlDocumentDao.getCtrlDocument(Integer.parseInt(doc_no));
+			CtlDocument ctld = documentDAO.getCtrlDocument(Integer.parseInt(doc_no));
 			if (ctld.isDemographicDocument()) {
-				LogAction.addLog((String) request.getSession().getAttribute("user"), LogConst.READ, LogConst.CON_DOCUMENT, doc_no, request.getRemoteAddr(), "" + ctld.getId().getModuleId());
+				LogAction.addLog((String) request.getSession().getAttribute("user"), LogConst.READ, LogConst.CON_DOCUMENT, doc_no, request.getRemoteAddr(), "" + ctld.getModuleId());
 			} else {
 				LogAction.addLog((String) request.getSession().getAttribute("user"), LogConst.READ, LogConst.CON_DOCUMENT, doc_no, request.getRemoteAddr());
 			}
@@ -949,7 +762,7 @@ public class ManageDocumentAction extends DispatchAction {
 			File documentDir = new File(docdownload);
 			log.debug("Document Dir is a dir" + documentDir.isDirectory());
 
-			Document d = documentDao.getDocument(doc_no);
+			Document d = documentDAO.getDocument(doc_no);
 			log.debug("Document Name :" + d.getDocfilename());
 
 			docxml = d.getDocxml();
@@ -957,43 +770,39 @@ public class ManageDocumentAction extends DispatchAction {
 
 			File file = new File(documentDir, d.getDocfilename());
 			filename = d.getDocfilename();
-                        
-                        if (contentType != null && !contentType.trim().equals("text/html")) {
-                            if (file.exists()) {
-                            	contentBytes = FileUtils.readFileToByteArray(file);
-                            } else {
-                            	throw new IllegalStateException("Local document doesn't exist for eDoc (ID " + d.getId() + "): " + file.getAbsolutePath());
-                            }
-                        }
+
+			if (file.exists()) contentBytes = FileUtils.readFileToByteArray(file);
+
 		} else // remote document
 		{
 			FacilityIdIntegerCompositePk remotePk = new FacilityIdIntegerCompositePk();
 			remotePk.setIntegratorFacilityId(remoteFacilityId);
 			remotePk.setCaisiItemId(Integer.parseInt(doc_no));
 
-			
+			LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
+
 			CachedDemographicDocument remoteDocument = null;
 			CachedDemographicDocumentContents remoteDocumentContents = null;
 
 			try {
-				if (!CaisiIntegratorManager.isIntegratorOffline(request.getSession())){
-					DemographicWs demographicWs = CaisiIntegratorManager.getDemographicWs(loggedInInfo, loggedInInfo.getCurrentFacility());
+				if (!CaisiIntegratorManager.isIntegratorOffline()){
+					DemographicWs demographicWs = CaisiIntegratorManager.getDemographicWs();
 					remoteDocument = demographicWs.getCachedDemographicDocument(remotePk);
 					remoteDocumentContents = demographicWs.getCachedDemographicDocumentContents(remotePk);
 				}
 			} catch (Exception e) {
 				MiscUtils.getLogger().error("Unexpected error.", e);
-				CaisiIntegratorManager.checkForConnectionError(request.getSession(),e);
+				CaisiIntegratorManager.checkForConnectionError(e);
 			}
 
-			if(CaisiIntegratorManager.isIntegratorOffline(request.getSession())){
-				Integer demographicId = IntegratorFallBackManager.getDemographicNoFromRemoteDocument(loggedInInfo,remotePk);
+			if(CaisiIntegratorManager.isIntegratorOffline()){
+				Integer demographicId = IntegratorFallBackManager.getDemographicNoFromRemoteDocument(remotePk);
 				MiscUtils.getLogger().debug("got demographic no from remote document "+demographicId);
-				List<CachedDemographicDocument> remoteDocuments = IntegratorFallBackManager.getRemoteDocuments(loggedInInfo,demographicId);
+				List<CachedDemographicDocument> remoteDocuments = IntegratorFallBackManager.getRemoteDocuments(demographicId);
 				for(CachedDemographicDocument demographicDocument: remoteDocuments){
 					if(demographicDocument.getFacilityIntegerPk().getIntegratorFacilityId() == remotePk.getIntegratorFacilityId() && demographicDocument.getFacilityIntegerPk().getCaisiItemId() == remotePk.getCaisiItemId() ){
 						remoteDocument = demographicDocument;
-						remoteDocumentContents = IntegratorFallBackManager.getRemoteDocument(loggedInInfo,demographicId, remotePk);
+						remoteDocumentContents = IntegratorFallBackManager.getRemoteDocument(demographicId, remotePk);
 						break;
 					}
 					MiscUtils.getLogger().error("End of the loop and didn't find the remoteDocument");
@@ -1031,400 +840,4 @@ public class ManageDocumentAction extends DispatchAction {
 		return null;
 	}
 
-        public ActionForward viewDocumentInfo(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
-                response.setContentType("text/html");
-		doViewDocumentInfo(request, response.getWriter(),true,true);
-		return null;
-	}
-        
-        public ActionForward viewDocumentDescription(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
-                response.setContentType("text/html");
-		doViewDocumentInfo(request, response.getWriter(),false,true);
-		return null;
-	}
-        public ActionForward viewAnnotationAcknowledgementTickler(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
-                response.setContentType("text/html");
-		doViewDocumentInfo(request, response.getWriter(),true,false);
-		return null;
-	}
-     
-        public void doViewDocumentInfo(HttpServletRequest request, PrintWriter out,boolean viewAnnotationAcknowledgementTicklerFlag, boolean viewDocumentDescriptionFlag) {
-        	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-        	
-        	if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_edoc", "r", null)) {
-            	throw new SecurityException("missing required security object (_edoc)");
-            }
-        	
-            String doc_no = request.getParameter("doc_no");
-            Locale locale=request.getLocale();
-                
-            String annotation= "",acknowledgement="",tickler="";
-                if(doc_no!=null && doc_no.length()>0) { 
-                    annotation=EDocUtil.getHtmlAnnotation(doc_no);
-                    acknowledgement=EDocUtil.getHtmlAcknowledgement(locale,doc_no);
-                    if(acknowledgement==null) {acknowledgement="";}
-                    tickler=EDocUtil.getHtmlTicklers(loggedInInfo, doc_no);
-                }
-                
-                out.println("<!DOCTYPE html><html><head><meta http-equiv='Content-Type' content='text/html; charset=UTF-8'></head><body>");
-                
-                if(viewAnnotationAcknowledgementTicklerFlag) {
-                    if(annotation.length()>0)  {
-                        out.println(annotation);
-                    }
-                    if(tickler.length()>0)
-                    {
-                        out.println(tickler+"<br>");
-                    }
-                    if(acknowledgement.length()>0) {
-                        out.println(acknowledgement+"<br>");
-                    }
-                }
-                
-                if(viewDocumentDescriptionFlag) {
-                    EDoc curDoc= EDocUtil.getDoc(doc_no);
-                    ResourceBundle props = ResourceBundle.getBundle("oscarResources", locale);
-                    out.println("<br>"+props.getString("dms.documentBrowser.DocumentUpdated")+": "+curDoc.getDateTimeStamp());
-                    out.println("<br>"+props.getString("dms.documentBrowser.ContentUpdated")+": "+curDoc.getContentDateTime());
-                    out.println("<br>"+props.getString("dms.documentBrowser.ObservationDate")+": "+curDoc.getObservationDate());
-                    out.println("<br>"+props.getString("dms.documentBrowser.Type")+": "+curDoc.getType());
-                    out.println("<br>"+props.getString("dms.documentBrowser.Class")+": "+curDoc.getDocClass());
-                    out.println("<br>"+props.getString("dms.documentBrowser.Subclass")+": "+curDoc.getDocSubClass());
-                    out.println("<br>"+props.getString("dms.documentBrowser.Description")+": "+curDoc.getDescription());
-                    out.println("<br>"+props.getString("dms.documentBrowser.Creator")+": "+curDoc.getCreatorName());
-                    out.println("<br>"+props.getString("dms.documentBrowser.Responsible")+": "+curDoc.getResponsibleName());
-                    out.println("<br>"+props.getString("dms.documentBrowser.Reviewer")+": "+curDoc.getReviewerName());
-                    out.println("<br>"+props.getString("dms.documentBrowser.Source")+": "+curDoc.getSource());
-                }
-                
-                out.println("</body></html>");
-		out.flush();
-                out.close();
-                
-        }
-
-        public ActionForward addIncomingDocument(ActionMapping mapping, ActionForm form,
-            HttpServletRequest request, HttpServletResponse response) throws Exception {
-
-        String pdfDir = request.getParameter("pdfDir");
-        String pdfName = request.getParameter("pdfName");
-        String demographic_no = request.getParameter("demog");
-        String observationDate = request.getParameter("observationDate");
-        String documentDescription = request.getParameter("documentDescription");
-        String docType = request.getParameter("docType");
-        String docClass = request.getParameter("docClass");
-        String docSubClass = request.getParameter("docSubClass");
-        String[] flagproviders = request.getParameterValues("flagproviders");
-        String queueId1 = request.getParameter("queueId");
-        String sourceFilePath = IncomingDocUtil.getIncomingDocumentFilePathName(queueId1, pdfDir, pdfName);
-        String destFilePath;
-
-        if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_edoc", "w", null)) {
-        	throw new SecurityException("missing required security object (_edoc)");
-        }
-        
-        String savePath = oscar.OscarProperties.getInstance().getProperty("DOCUMENT_DIR");
-        if (!savePath.endsWith(File.separator)) {
-            savePath += File.separator;
-        }
-
-        Date obDate = UtilDateUtilities.StringToDate(observationDate);
-        String formattedDate = UtilDateUtilities.DateToString(obDate, EDocUtil.DMS_DATE_FORMAT);
-        String source = "";
-
-
-        int numberOfPages = 0;
-        String fileName = pdfName;
-        String user = (String) request.getSession().getAttribute("user");
-        EDoc newDoc = new EDoc(documentDescription, docType, fileName, "", user, user, source, 'A', formattedDate, "", "", "demographic", demographic_no, 0);
-        
-        // if the document was added in the context of a program
-		ProgramManager2 programManager = SpringUtils.getBean(ProgramManager2.class);
-		LoggedInInfo loggedInInfo  = LoggedInInfo.getLoggedInInfoFromSession(request);
-		ProgramProvider pp = programManager.getCurrentProgramInDomain(loggedInInfo, loggedInInfo.getLoggedInProviderNo());
-		if(pp != null && pp.getProgramId() != null) {
-			newDoc.setProgramId(pp.getProgramId().intValue());
-		}
-		
-        newDoc.setDocClass(docClass);
-        newDoc.setDocSubClass(docSubClass);
-        newDoc.setDocPublic("0");
-        fileName = newDoc.getFileName();
-        destFilePath = savePath + fileName;
-        String doc_no = "";
-
-
-        newDoc.setContentType(docType);
-        File f1 = new File(sourceFilePath);
-        boolean success = f1.renameTo(new File(destFilePath));
-        if (!success) {
-            log.error("Not able to move " + f1.getName() + " to " + destFilePath);
-            // File was not successfully moved
-        } else {
-
-            newDoc.setContentType("application/pdf");
-            if (fileName.endsWith(".PDF") || fileName.endsWith(".pdf")) {
-                newDoc.setContentType("application/pdf");
-                numberOfPages = countNumOfPages(fileName);
-            }
-            newDoc.setNumberOfPages(numberOfPages);
-            doc_no = EDocUtil.addDocumentSQL(newDoc);
-            LogAction.addLog((String) request.getSession().getAttribute("user"), LogConst.ADD, LogConst.CON_DOCUMENT, doc_no, request.getRemoteAddr());
-
-
-            if (flagproviders != null && flagproviders.length > 0) { 
-                try {
-                    for (String proNo : flagproviders) {
-                        providerInboxRoutingDAO.addToProviderInbox(proNo, Integer.parseInt(doc_no), LabResultData.DOCUMENT);
-                    }
-                } catch (Exception e) {
-                    MiscUtils.getLogger().error("Error", e);
-                }
-            }
-
-            //Check to see if we have to route document to patient
-            PatientLabRoutingDao patientLabRoutingDao = SpringUtils.getBean(PatientLabRoutingDao.class);
-            List<PatientLabRouting> patientLabRoutingList = patientLabRoutingDao.findByLabNoAndLabType(Integer.parseInt(doc_no), docType);
-            if (patientLabRoutingList == null || patientLabRoutingList.isEmpty()) {
-                PatientLabRouting patientLabRouting = new PatientLabRouting();
-                patientLabRouting.setDemographicNo(Integer.parseInt(demographic_no));
-                patientLabRouting.setLabNo(Integer.parseInt(doc_no));
-                patientLabRouting.setLabType("DOC");
-                patientLabRoutingDao.persist(patientLabRouting);
-            }
-
-            try {
-
-                CtlDocument ctlDocument = ctlDocumentDao.getCtrlDocument(Integer.parseInt(doc_no));
-
-                ctlDocument.getId().setModuleId(Integer.parseInt(demographic_no));
-                ctlDocumentDao.merge(ctlDocument);
-                //save a document created note
-                if (ctlDocument.isDemographicDocument()) {
-                    //save note
-                    saveDocNote(request, documentDescription, demographic_no, doc_no);
-                }
-            } catch (Exception e) {
-                MiscUtils.getLogger().error("Error", e);
-            }
-        }
-
-        return (mapping.findForward("nextIncomingDoc"));
-    }
-        
-    public ActionForward viewIncomingDocPageAsPdf(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
-
-    	if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_edoc", "r", null)) {
-        	throw new SecurityException("missing required security object (_edoc)");
-        }
-
-        String pageNum = request.getParameter("curPage");
-        String queueId = request.getParameter("queueId");
-        String pdfDir = request.getParameter("pdfDir");
-        String pdfName = request.getParameter("pdfName");
-        String filePath = IncomingDocUtil.getIncomingDocumentFilePathName(queueId, pdfDir, pdfName);
-        Locale locale=request.getLocale();
-        ResourceBundle props = ResourceBundle.getBundle("oscarResources", locale);
-        
-        if (pageNum == null) {
-            pageNum = "0";
-        }
-
-        Integer pn = Integer.parseInt(pageNum);
-
-        response.setContentType("application/pdf");
-        response.setHeader("Content-Disposition", "inline; filename=\"" + URLEncoder.encode(pdfName,"UTF-8") + UtilDateUtilities.getToday("yyyy-MM-dd.hh.mm.ss") + ".pdf\"");
-        
-        com.itextpdf.text.pdf.PdfCopy extractCopy = null;
-        com.itextpdf.text.Document document = null;
-        com.itextpdf.text.pdf.PdfReader reader = null;
-
-        try {
-            reader = new com.itextpdf.text.pdf.PdfReader(filePath);
-            document = new com.itextpdf.text.Document(reader.getPageSizeWithRotation(1));
-            extractCopy = new com.itextpdf.text.pdf.PdfCopy(document, response.getOutputStream());
-
-            document.open();
-            extractCopy.addPage(extractCopy.getImportedPage(reader, pn));
-
-
-        } catch (Exception ex) {
-            response.setContentType("text/html");
-            response.getWriter().print(props.getString("dms.incomingDocs.errorInOpening") + StringEscapeUtils.escapeJavaScript(pdfName));
-            response.getWriter().print("<br>"+props.getString("dms.incomingDocs.PDFCouldBeCorrupted"));
-
-            MiscUtils.getLogger().error("Error", ex);
-        } finally {
-            if (extractCopy != null) {
-                extractCopy.close();
-            }
-            if (document != null) {
-                document.close();
-            }
-            if (reader != null) {
-                reader.close();
-            }
-        }
-
-        return null;
-    }
-
-    public int countNumOfPages(String fileName) { // count number of pages in a pdf file
-        int numOfPage = 0;
-        String docdownload = oscar.OscarProperties.getInstance().getProperty("DOCUMENT_DIR");
-
-        if (!docdownload.endsWith(File.separator)) {
-            docdownload += File.separator;
-        }
-
-        String filePath = docdownload + fileName;
-        PdfReader reader = null;
-
-        try {
-            reader = new PdfReader(filePath);
-            numOfPage = reader.getNumberOfPages();
-
-        } catch (IOException e) {
-            MiscUtils.getLogger().error("Error", e);
-        } finally {
-            if (reader != null) {
-                reader.close();
-            }
-        }
-        return numOfPage;
-    }
-
-    public ActionForward displayIncomingDocs(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
-
-    	if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_edoc", "r", null)) {
-        	throw new SecurityException("missing required security object (_edoc)");
-        }
-    	
-        String queueId = request.getParameter("queueId");
-        String pdfDir = request.getParameter("pdfDir");
-        String pdfName = request.getParameter("pdfName");
-        String filePath = IncomingDocUtil.getIncomingDocumentFilePathName(queueId, pdfDir, pdfName);
-
-        String contentType = "application/pdf";
-        File file = new File(filePath);
-
-        response.setContentType(contentType);
-        response.setContentLength((int) file.length());
-        response.setHeader("Content-Disposition", "inline; filename=" + URLEncoder.encode(pdfName,"UTF-8"));
-
-        BufferedInputStream bfis = null;
-        ServletOutputStream outs = response.getOutputStream();
-
-        try {
-
-            bfis = new BufferedInputStream(new FileInputStream(file));
-
-            org.apache.commons.io.IOUtils.copy(bfis,outs);
-            outs.flush();
-            
-        } catch (Exception e) {
-            MiscUtils.getLogger().error("Error", e);
-        } finally {
-            if (bfis != null) {
-                bfis.close();
-            }
-        }
-
-        return null;
-    }
-        
-    public ActionForward viewIncomingDocPageAsImage(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
-
-
-    	if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_edoc", "r", null)) {
-        	throw new SecurityException("missing required security object (_edoc)");
-        }
-    	
-        String pageNum = request.getParameter("curPage");
-        String queueId = request.getParameter("queueId");
-        String pdfDir = request.getParameter("pdfDir");
-        String pdfName = request.getParameter("pdfName");
-
-        if (pageNum == null) {
-            pageNum = "0";
-        }
-
-        BufferedInputStream bfis = null;
-        ServletOutputStream outs = null;
-
-        try {
-            Integer pn = Integer.parseInt(pageNum);
-            File outfile = createIncomingCacheVersion(queueId, pdfDir, pdfName, pn);
-            outs = response.getOutputStream();
-
-            if (outfile != null) {
-                bfis = new BufferedInputStream(new FileInputStream(outfile));
-
-
-                response.setContentType("image/png");
-                response.setHeader("Content-Disposition", "inline;filename=" + URLEncoder.encode(pdfName,"UTF-8"));
-                org.apache.commons.io.IOUtils.copy(bfis,outs);
-                outs.flush();
-                
-            } else {
-                log.info("Unable to retrieve content for " + queueId + "/" + pdfDir + "/" + pdfName);
-            }
-        } catch (Exception e) {
-            MiscUtils.getLogger().error("Error", e);
-
-        } finally {
-            if (bfis != null) {
-                bfis.close();
-            }
-        }
-        return null;
-    }
-
-    public File createIncomingCacheVersion(String queueId, String pdfDir, String pdfName, Integer pageNum) throws Exception {
-
-
-        String incomingDocPath = IncomingDocUtil.getIncomingDocumentFilePath(queueId, pdfDir);
-        File documentDir = new File(incomingDocPath);
-        File documentCacheDir = getDocumentCacheDir(incomingDocPath);
-        File file = new File(documentDir, pdfName);
-
-        PdfDecoder decode_pdf = new PdfDecoder(true);
-        File ofile = null;
-        FileInputStream is = null;
-        
-        try {
-
-            FontMappings.setFontReplacements();
-
-            decode_pdf.useHiResScreenDisplay(true);
-
-            decode_pdf.setExtractionMode(0, 96, 96 / 72f);
-
-            is = new FileInputStream(file);
-
-            decode_pdf.openPdfFileFromInputStream(is, false);
-
-            BufferedImage image_to_save = decode_pdf.getPageAsImage(pageNum);
-
-            decode_pdf.getObjectStore().saveStoredImage(documentCacheDir.getCanonicalPath() + "/" + pdfName + "_" + pageNum + ".png", image_to_save, true, false, "png");
-
-            decode_pdf.flushObjectValues(true);
-
-        } catch (Exception e) {
-            log.error("Error decoding pdf file " + pdfDir + pdfName);
-        } finally {
-            if (decode_pdf != null) {
-                decode_pdf.closePdfFile();
-            }
-            if (is!=null) {
-                is.close();
-            }
-                
-        }
-        
-        ofile = new File(documentCacheDir, pdfName + "_" + pageNum + ".png");
-        
-        return ofile;
-
-    }
 }

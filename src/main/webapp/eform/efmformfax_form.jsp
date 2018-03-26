@@ -8,29 +8,11 @@
     and "gnu.org/licenses/gpl-2.0.html".
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_demographic" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_demographic");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-
 <%--  
 
 This Page creates the fax form for eforms.
  
 --%>
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@ page import="java.sql.*, java.util.ArrayList, oscar.eform.data.*, oscar.SxmlMisc, org.oscarehr.common.model.Demographic, oscar.oscarDemographic.data.DemographicData,oscar.OscarProperties,org.springframework.web.context.support.WebApplicationContextUtils, org.springframework.web.context.WebApplicationContext"%>
 <%@page import="org.apache.commons.lang.StringUtils"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
@@ -51,7 +33,7 @@ This Page creates the fax form for eforms.
 		if (!"".equals(demo))
 		{
 			demoData = new oscar.oscarDemographic.data.DemographicData();
-			demographic = demoData.getDemographic(LoggedInInfo.getLoggedInInfoFromSession(request), demo);
+			demographic = demoData.getDemographic(demo);
 			rdohip = SxmlMisc.getXmlContent(StringUtils.trimToEmpty(demographic.getFamilyDoctor()),"rdohip");
 			rdohip = SxmlMisc.getXmlContent(demographic.getFamilyDoctor(),"rdohip").trim();
 		}

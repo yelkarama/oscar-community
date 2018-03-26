@@ -35,43 +35,33 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.oscarEncounter.oscarMeasurements.bean.EctMeasurementsDataBean;
 import oscar.oscarEncounter.pageUtil.EctSessionBean;
 
 public final class EctSetupDisplayHistoryAction extends Action {
 
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	
     public ActionForward execute(ActionMapping mapping,
                                  ActionForm form,
                                  HttpServletRequest request,
                                  HttpServletResponse response)
         throws Exception {
 
-    	if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_measurement", "w", null)) {
-			throw new SecurityException("missing required security object (_measurement)");
-		}
-    	
-    	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-    	
         EctSessionBean bean = (EctSessionBean)request.getSession().getAttribute("EctSessionBean");
         request.getSession().setAttribute("EctSessionBean", bean);
         String type = request.getParameter("type");
         MiscUtils.getLogger().debug("Type: " + type);
         oscar.oscarEncounter.oscarMeasurements.bean.EctMeasurementsDataBeanHandler hd = null;
         if (bean!=null){
-            Integer demo = Integer.valueOf( bean.getDemographicNo());
+            String demo = bean.getDemographicNo();
             request.setAttribute("demographicNo",demo);
             if(type!=null){
                 hd = new oscar.oscarEncounter.oscarMeasurements.bean.EctMeasurementsDataBeanHandler(demo, type);
-                if (loggedInInfo.getCurrentFacility().isIntegratorEnabled()) {
+                if (LoggedInInfo.loggedInInfo.get().currentFacility.isIntegratorEnabled()) {
                 	List<EctMeasurementsDataBean> measures = (List<EctMeasurementsDataBean>) hd.getMeasurementsDataVector ();
-                	oscar.oscarEncounter.oscarMeasurements.bean.EctMeasurementsDataBeanHandler.addRemoteMeasurements(loggedInInfo, measures,type,demo);
+                	oscar.oscarEncounter.oscarMeasurements.bean.EctMeasurementsDataBeanHandler.addRemoteMeasurements(measures,type,Integer.parseInt(demo));
                 }
                 request.setAttribute("type", type);
             }            

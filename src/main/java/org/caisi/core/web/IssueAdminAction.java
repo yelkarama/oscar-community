@@ -22,7 +22,6 @@
  */
 
 package org.caisi.core.web;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -37,37 +36,47 @@ import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 import org.apache.struts.action.DynaActionForm;
 import org.apache.struts.actions.DispatchAction;
+import org.caisi.model.IssueAdmin;
 import org.caisi.service.IssueAdminManager;
-import org.oscarehr.casemgmt.model.Issue;
 import org.oscarehr.common.dao.SecRoleDao;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
 // use your IDE to handle imports
 public class IssueAdminAction extends DispatchAction {
     private static Logger log = MiscUtils.getLogger();
-    
-    private IssueAdminManager mgr = SpringUtils.getBean(IssueAdminManager.class);
-   
-    private SecRoleDao secRoleDao = SpringUtils.getBean(SecRoleDao.class);
-    private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-   
-    public ActionForward cancel(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-        
-        return list(mapping, form, request, response);
+    private IssueAdminManager mgr = null;
+   // private CaisiRoleManager caisiRoleMgr = null;
+    private SecRoleDao secRoleDao;
+
+    public void setSecRoleDao(SecRoleDao secRoleDao) {
+    	this.secRoleDao = secRoleDao;
     }
 
-    public ActionForward delete(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+    public void setIssueAdminManager(IssueAdminManager issueAdminManager) {
+        this.mgr = issueAdminManager;
+    }
+    /*
+    public void setCaisiRoleManager(CaisiRoleManager caisiRoleManager) {
+        this.caisiRoleMgr = caisiRoleManager;
+    }
+    */
+    public ActionForward cancel(ActionMapping mapping, ActionForm form,
+                                HttpServletRequest request,
+                                HttpServletResponse response)
+     {
         if (log.isDebugEnabled()) {
             log.debug("entering 'delete' method...");
         }
-        
-        if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_admin", "w", null)) {
-        	throw new SecurityException("missing required security object (_admin)");
+        return list(mapping, form, request, response);
+    }
+
+    public ActionForward delete(ActionMapping mapping, ActionForm form,
+                                HttpServletRequest request,
+                                HttpServletResponse response)
+     {
+        if (log.isDebugEnabled()) {
+            log.debug("entering 'delete' method...");
         }
-        
         mgr.removeIssueAdmin(request.getParameter("issueAdmin.id"));
         ActionMessages messages = new ActionMessages();
         messages.add(ActionMessages.GLOBAL_MESSAGE,
@@ -75,21 +84,18 @@ public class IssueAdminAction extends DispatchAction {
         saveMessages(request, messages);
         return list(mapping, form, request, response);
     }
-   
-    public ActionForward edit(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+    public ActionForward edit(ActionMapping mapping, ActionForm form,
+                              HttpServletRequest request,
+                              HttpServletResponse response)
+     {
         if (log.isDebugEnabled()) {
             log.debug("entering 'edit' method...");
         }
-        
-        if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_admin", "w", null)) {
-        	throw new SecurityException("missing required security object (_admin)");
-        }
-
         DynaActionForm issueAdminForm = (DynaActionForm) form;
         String issueAdminId = request.getParameter("id");
         // null issueAdminId indicates an add
         if (issueAdminId != null) {
-            Issue issueAdmin = mgr.getIssueAdmin(issueAdminId);
+            IssueAdmin issueAdmin = mgr.getIssueAdmin(issueAdminId);
             if (issueAdmin == null) {
                 ActionMessages errors = new ActionMessages();
                 errors.add(ActionMessages.GLOBAL_MESSAGE,
@@ -100,35 +106,26 @@ public class IssueAdminAction extends DispatchAction {
             request.setAttribute("issueRole", issueAdmin.getRole());
             issueAdminForm.set("issueAdmin", issueAdmin);
         }
-        
-        request.setAttribute("caisiRoles", secRoleDao.findAll());
+        //request.setAttribute("caisiRoles", caisiRoleMgr.getRoles());
+	request.setAttribute("caisiRoles", secRoleDao.findAll());
         return mapping.findForward("edit");
     }
-
-    public ActionForward unspecified(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-    	return list(mapping,form,request,response);
-    }
-    
-    public ActionForward list(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+    public ActionForward list(ActionMapping mapping, ActionForm form,
+                              HttpServletRequest request,
+                              HttpServletResponse response)
+     {
         if (log.isDebugEnabled()) {
             log.debug("entering 'list' method...");
         }
-        
-        if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_admin", "r", null)) {
-        	throw new SecurityException("missing required security object (_admin)");
-        }
-        
         request.setAttribute("issueAdmins", mgr.getIssueAdmins());
         return mapping.findForward("list");
     }
-   
-    public ActionForward save(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+    public ActionForward save(ActionMapping mapping, ActionForm form,
+                              HttpServletRequest request,
+                              HttpServletResponse response)
+     {
         if (log.isDebugEnabled()) {
             log.debug("entering 'save' method...");
-        }
-
-        if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_admin", "w", null)) {
-        	throw new SecurityException("missing required security object (_admin)");
         }
 
         // run validation rules on this form
@@ -141,60 +138,28 @@ public class IssueAdminAction extends DispatchAction {
 
         DynaActionForm issueAdminForm = (DynaActionForm) form;
 
-		//issue code cannot be duplicated
-		String newCode = ((Issue)issueAdminForm.get("issueAdmin")).getCode();
-		String newId = String.valueOf(((Issue)issueAdminForm.get("issueAdmin")).getId());
-		List<Issue> issueAdmins = mgr.getIssueAdmins();
-		for(Iterator<Issue> it = issueAdmins.iterator(); it.hasNext();) {
-		    Issue issueAdmin = it.next();
-		    String existCode = issueAdmin.getCode();
-		    String existId = String.valueOf(issueAdmin.getId());
-		    if((existCode.equals(newCode)) && !(existId.equals(newId))) {
-		    	ActionMessages messages = new ActionMessages();
-		    	messages.add(ActionMessages.GLOBAL_MESSAGE,new ActionMessage("issueAdmin.code.exist"));
-		    	saveErrors(request,messages);
+	//issue code cannot be duplicated
+	String newCode = ((IssueAdmin)issueAdminForm.get("issueAdmin")).getCode();
+	String newId = String.valueOf(((IssueAdmin)issueAdminForm.get("issueAdmin")).getId());
+	List issueAdmins = mgr.getIssueAdmins();
+	for(Iterator it = issueAdmins.iterator(); it.hasNext();) {
+	    IssueAdmin issueAdmin = (IssueAdmin)it.next();
+	    String existCode = issueAdmin.getCode();
+	    String existId = String.valueOf(issueAdmin.getId());
+	    if((existCode.equals(newCode)) && !(existId.equals(newId))) {
+		ActionMessages messages = new ActionMessages();
+		messages.add(ActionMessages.GLOBAL_MESSAGE,new ActionMessage("issueAdmin.code.exist"));
+		saveErrors(request,messages);
                 //request.setAttribute("caisiRoles", caisiRoleMgr.getRoles());
                 return mapping.findForward("edit");
-		    }
-		}
+	    }
+	}
 
-        mgr.saveIssueAdmin((Issue)issueAdminForm.get("issueAdmin"));
-        ActionMessages messages = new ActionMessages();
-        messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("issueAdmin.saved"));
-        saveMessages(request, messages);
-        return list(mapping, form, request, response);
-    }
-    
-    public ActionForward archiveIssues(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-        if (log.isDebugEnabled()) {
-            log.debug("entering 'archive' method...");
-        }
-        
-        if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_admin", "w", null)) {
-        	throw new SecurityException("missing required security object (_admin)");
-        }
-        
-        log.info("entering 'archive' method...");
-       
-        List<Integer> ids = new ArrayList<Integer>();
-        
-        String idList = request.getParameter("ids");
-        
-        if(idList != null && idList.length()>0) {
-        	String[] vals = idList.split(",");
-        	for(String v:vals) {
-        		ids.add(Integer.parseInt(v));
-        	}
-        }
-       
-        mgr.archiveIssues(ids);
-        
-      
+        mgr.saveIssueAdmin((IssueAdmin)issueAdminForm.get("issueAdmin"));
         ActionMessages messages = new ActionMessages();
         messages.add(ActionMessages.GLOBAL_MESSAGE,
-                     new ActionMessage("issueAdmin.archived"));
+                     new ActionMessage("issueAdmin.saved"));
         saveMessages(request, messages);
         return list(mapping, form, request, response);
     }
-    
 }

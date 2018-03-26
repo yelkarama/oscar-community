@@ -32,7 +32,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -43,6 +42,7 @@ public class FileUploadCheck extends AbstractModel<Integer>{
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name="encounter_no")
 	private Integer id;
 
 	@Column(name="provider_no")
@@ -96,9 +96,5 @@ public class FileUploadCheck extends AbstractModel<Integer>{
     	this.dateTime = dateTime;
     }
 
-	@PrePersist
-	protected void jpa_setDateTime() {
-		this.dateTime = new Date();
-	}
 
 }

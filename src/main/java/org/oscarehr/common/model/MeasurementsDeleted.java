@@ -45,17 +45,22 @@ public class MeasurementsDeleted extends AbstractModel<Integer> implements Seria
 	@Column(nullable = false)
 	private Integer demographicNo = null;
 	
+	@Column(nullable = false)
 	private String type = null;
-		
+	
+	@Column(nullable = false)
 	private String providerNo = null;
 	
 	@Column(nullable = false)
 	private String dataField = null;
-		
+	
+	@Column(nullable = false)
 	private String measuringInstruction = null;
 	
+	@Column(nullable = false)
 	private String comments = null;
 	
+	@Column(nullable = false)
 	private Date dateObserved = null;
 	
 	@Column(nullable = false)
@@ -67,21 +72,6 @@ public class MeasurementsDeleted extends AbstractModel<Integer> implements Seria
 	@Column(nullable = false)
 	private Integer originalId = null;
 
-	public MeasurementsDeleted() {
-	}
-	
-	public MeasurementsDeleted(Measurement m) {
-    	setType(m.getType());
-    	setDemographicNo(m.getDemographicId());
-    	setProviderNo(m.getProviderNo());
-    	setDataField(m.getDataField());
-    	setMeasuringInstruction(m.getMeasuringInstruction());
-    	setComments(m.getComments());
-    	setDateObserved(m.getDateObserved());
-    	setDateEntered(m.getCreateDate());
-    	setOriginalId(m.getId());
-	}
-	
 	@Override
     public Integer getId() {
 		return id;

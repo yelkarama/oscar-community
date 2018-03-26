@@ -25,6 +25,8 @@
 
 package oscar.oscarEncounter.oscarMeasurements.data;
 
+import java.util.Vector;
+
 import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
@@ -89,6 +91,7 @@ public class ExportMeasurementType {
     
     public Element exportElement (EctMeasurementTypesBean mtb){
         Element measurement = createXMLMeasurement(mtb.getType(),mtb.getTypeDesc(),mtb.getTypeDisplayName(),mtb.getMeasuringInstrc());
+        Vector validationRules = mtb.getValidationRules();
         
         EctValidationsBeanHandler valBeanHandler = new EctValidationsBeanHandler();
         EctValidationsBean v = valBeanHandler.getValidation(mtb.getValidationName());//(EctValidationsBean) validationRules.get(i);
@@ -98,6 +101,7 @@ public class ExportMeasurementType {
     }
     public String export (EctMeasurementTypesBean mtb){
         Element measurement = createXMLMeasurement(mtb.getType(),mtb.getTypeDesc(),mtb.getTypeDisplayName(),mtb.getMeasuringInstrc());
+        Vector validationRules = mtb.getValidationRules();
         
         EctValidationsBeanHandler valBeanHandler = new EctValidationsBeanHandler();
         EctValidationsBean v = valBeanHandler.getValidation(mtb.getValidationName());//(EctValidationsBean) validationRules.get(i);

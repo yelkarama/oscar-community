@@ -27,8 +27,7 @@
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
 <%@ taglib uri="/WEB-INF/oscarProperties-tag.tld" prefix="oscarProp"%>
-<%@ page import="oscar.oscarRx.data.*, org.oscarehr.common.model.PharmacyInfo"%>
-<%@page import="java.util.List"%>
+<%@ page import="oscar.oscarRx.data.*"%>
 <logic:notPresent name="RxSessionBean" scope="session">
 	<logic:redirect href="error.html" />
 </logic:notPresent>
@@ -39,22 +38,6 @@
 		<logic:redirect href="error.html" />
 	</logic:equal>
 </logic:present>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_rx" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_rx");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%
 oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBean)pageContext.findAttribute("bean");
 
@@ -63,12 +46,12 @@ String userlastname = (String) session.getAttribute("userlastname");
 %>
 
 <% RxPharmacyData pharmacyData = new RxPharmacyData();
-  
-List<PharmacyInfo>pharmacyList = pharmacyData.getPharmacyFromDemographic(Integer.toString(bean.getDemographicNo()));
-String prefPharmacy = "";
-if (pharmacyList != null && !pharmacyList.isEmpty()) {
-    prefPharmacy = pharmacyList.get(0).getName();
-}
+  org.oscarehr.common.model.PharmacyInfo pharmacy ;
+  pharmacy = pharmacyData.getPharmacyFromDemographic(Integer.toString(bean.getDemographicNo()));
+  String prefPharmacy = "";
+  if (pharmacy != null){
+     prefPharmacy = pharmacy.getName();
+  }
 %>
 <html:html locale="true">
 <head>

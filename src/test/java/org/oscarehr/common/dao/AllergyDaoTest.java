@@ -23,11 +23,9 @@
  */
 package org.oscarehr.common.dao;
 
-import static org.junit.Assert.*;
-
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.List;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -38,22 +36,22 @@ import org.oscarehr.util.SpringUtils;
 
 public class AllergyDaoTest extends DaoTestFixtures {
 
-	protected AllergyDao dao = (AllergyDao) SpringUtils.getBean("AllergyDao");
+	private AllergyDao dao = (AllergyDao)SpringUtils.getBean("AllergyDao");
 
 	public AllergyDaoTest() {
 	}
 
 	@Before
 	public void before() throws Exception {
-		SchemaUtils.restoreTable(new String[] { "allergies", "demographic_merged" });
+		SchemaUtils.restoreTable(new String[]{"allergies"});
 	}
 
 	@Test
 	public void testCreate() throws Exception {
-		Allergy allergy = new Allergy();
-		EntityDataGenerator.generateTestDataForModelClass(allergy);
-		dao.persist(allergy);
-		assertNotNull(allergy.getId());
+		 Allergy allergy = new Allergy();
+		 EntityDataGenerator.generateTestDataForModelClass(allergy);
+		 dao.persist(allergy);
+		 assertNotNull(allergy.getId());
 	}
 
 	@Test
@@ -61,7 +59,23 @@ public class AllergyDaoTest extends DaoTestFixtures {
 		Allergy allergy = new Allergy();
 		EntityDataGenerator.generateTestDataForModelClass(allergy);
 		dao.persist(allergy);
-		assertEquals(dao.getCountAll(), 1);
+		assertEquals(dao.getCountAll(),1);
+
+	}
+
+	@Test
+	public void testGetNextPosition() throws Exception {
+		Allergy allergy = new Allergy();
+		EntityDataGenerator.generateTestDataForModelClass(allergy);
+		allergy.setPosition(100);
+		dao.persist(allergy);
+
+		assertEquals(dao.getMaxPosition(),(Integer)100);
+
+		dao.remove(allergy.getId());
+
+		assertNull(dao.getMaxPosition());
+
 
 	}
 
@@ -82,17 +96,8 @@ public class AllergyDaoTest extends DaoTestFixtures {
 		allergy.setDemographicNo(2);
 		dao.persist(allergy);
 
-		assertEquals(dao.findAllergies(1).size(), 2);
-		assertEquals(dao.findAllergies(2).size(), 1);
-		
-		Calendar cal=new GregorianCalendar();
-		cal.add(Calendar.DAY_OF_YEAR, -1);
-		List<Allergy> results=dao.findByUpdateDate(cal.getTime(), 99);
-		assertTrue(results.size()>0);
-
-		cal.add(Calendar.DAY_OF_YEAR, 2);
-		results=dao.findByUpdateDate(cal.getTime(), 99);
-		assertEquals(0, results.size());
+		assertEquals(dao.findAllergies(1).size(),2);
+		assertEquals(dao.findAllergies(2).size(),1);
 	}
 
 	@Test
@@ -100,22 +105,22 @@ public class AllergyDaoTest extends DaoTestFixtures {
 		Allergy allergy = new Allergy();
 		EntityDataGenerator.generateTestDataForModelClass(allergy);
 		allergy.setDemographicNo(3);
-		allergy.setArchived(false);
+		allergy.setArchived(null);
 		dao.persist(allergy);
 
 		allergy = new Allergy();
 		EntityDataGenerator.generateTestDataForModelClass(allergy);
 		allergy.setDemographicNo(3);
-		allergy.setArchived(false);
+		allergy.setArchived("0");
 		dao.persist(allergy);
 
 		allergy = new Allergy();
 		EntityDataGenerator.generateTestDataForModelClass(allergy);
 		allergy.setDemographicNo(3);
-		allergy.setArchived(true);
+		allergy.setArchived("1");
 		dao.persist(allergy);
 
-		assertEquals(dao.findActiveAllergies(3).size(), 2);
+		assertEquals(dao.findActiveAllergies(3).size(),2);
 
 	}
 
@@ -126,7 +131,7 @@ public class AllergyDaoTest extends DaoTestFixtures {
 		Integer id = allergy.getId();
 		allergy = dao.find(allergy.getId());
 		assertNotNull(allergy);
-		assertEquals(id, allergy.getId());
+		assertEquals(id,allergy.getId());
 	}
 
 	@Test
@@ -135,7 +140,9 @@ public class AllergyDaoTest extends DaoTestFixtures {
 		EntityDataGenerator.generateTestDataForModelClass(allergy);
 		dao.persist(allergy);
 		dao.remove(allergy.getId());
-		assertEquals(dao.getCountAll(), 0);
+		assertEquals(dao.getCountAll(),0);
 
 	}
+
 }
+

@@ -39,11 +39,9 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
+import org.oscarehr.billing.CA.ON.dao.BillingClaimDAO;
 import org.oscarehr.common.dao.BatchBillingDAO;
-import org.oscarehr.common.dao.BillingONCHeader1Dao;
 import org.oscarehr.common.model.BatchBilling;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
@@ -53,23 +51,13 @@ import org.oscarehr.util.SpringUtils;
  */
 public class BatchBillAction extends DispatchAction {
 
-    private BillingONCHeader1Dao billingONCHeader1Dao = (BillingONCHeader1Dao) SpringUtils.getBean("billingONCHeader1Dao");
-    private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-    
+    private BillingClaimDAO billClaimDAO;
 
-    @Override
     public ActionForward unspecified(ActionMapping actionMapping,
                                ActionForm actionForm,
                                HttpServletRequest request,
                                HttpServletResponse servletResponse) {
 
-    	
-    	if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_billing", "w", null)) {
-        	throw new SecurityException("missing required security object (_billing)");
-        }
-
-    	LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
-    	
         Date billingDate;
         SimpleDateFormat dateFmt = new SimpleDateFormat("yyyy-MM-dd");
         String strDate = request.getParameter("BillDate");
@@ -96,7 +84,7 @@ public class BatchBillAction extends DispatchAction {
             String[] temp;
             for( int idx = 0; idx < billingInfo.length; ++idx ) {
                 temp = billingInfo[idx].split(";");
-                this.billingONCHeader1Dao.createBill(loggedInInfo, temp[2], Integer.parseInt(temp[1]), temp[0], clinic_view, billingDate, curUser);
+                this.billClaimDAO.createBill(temp[2], temp[1], temp[0], clinic_view, billingDate, curUser);
             }
 
         }
@@ -109,12 +97,6 @@ public class BatchBillAction extends DispatchAction {
             HttpServletRequest request,
             HttpServletResponse servletResponse) {
 
-    	if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_billing", "w", null)) {
-        	throw new SecurityException("missing required security object (_billing)");
-        }
-    	LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
-    	
-        
     	ResourceBundle oscarResource = ResourceBundle.getBundle("oscarResources", request.getLocale());    	
 		Date billingDate;
 		SimpleDateFormat dateFmt = new SimpleDateFormat("yyyy-MM-dd");
@@ -148,7 +130,7 @@ public class BatchBillAction extends DispatchAction {
 			for( int idx = 0; idx < billingInfo.length; ++idx ) {
 				temp = billingInfo[idx].split(";");
 				//passed in order is billing provider, demographic no, service code, dx code
-				total = this.billingONCHeader1Dao.createBill(loggedInInfo, temp[3], Integer.parseInt(temp[2]), temp[0], temp[1], clinic_view, billingDate, curUser);
+				total = this.billClaimDAO.createBill(temp[3], temp[2], temp[0], temp[1], clinic_view, billingDate, curUser);
 				
 				batchBillingList = batchBillingDAO.find(Integer.parseInt(temp[2]), temp[0]);
 				batchBilling = batchBillingList.get(0);				
@@ -175,14 +157,11 @@ public class BatchBillAction extends DispatchAction {
             HttpServletResponse servletResponse) {
 
     		
-    	if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_billing", "w", null)) {
-        	throw new SecurityException("missing required security object (_billing)");
-        }
-    	
 		String[] billingInfo = request.getParameterValues("bill");
 		BatchBillingDAO batchBillingDAO = (BatchBillingDAO) SpringUtils.getBean("batchBillingDAO");
 		List<BatchBilling> batchBillingList;
 		BatchBilling batchBilling;
+		String total;
 		
 		//create the invoice and update batch_billing table
 		if( billingInfo != null ) {
@@ -211,10 +190,6 @@ public class BatchBillAction extends DispatchAction {
             HttpServletRequest request,
             HttpServletResponse servletResponse) throws ParseException {
     	
-    	if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_billing", "w", null)) {
-        	throw new SecurityException("missing required security object (_billing)");
-        }
-    	
     		BatchBillingDAO batchBillingDAO = (BatchBillingDAO) SpringUtils.getBean("batchBillingDAO");
     		Integer demographicNo = Integer.parseInt(request.getParameter("demographic_no").trim());
     		String billingProviderNo = request.getParameter("provider").trim();
@@ -234,7 +209,7 @@ public class BatchBillAction extends DispatchAction {
     		List<BatchBilling> batchBillingList = batchBillingDAO.find(demographicNo, service_code);
     		BatchBilling batchBilling;
     		
-    		if( batchBillingList.isEmpty()) {
+    		if( batchBillingList.size() == 0 ) {
     			batchBilling = new BatchBilling();
     	
     			batchBilling.setDemographicNo(demographicNo);
@@ -260,5 +235,21 @@ public class BatchBillAction extends DispatchAction {
     	
     	return actionMapping.findForward("saved");
     	
-    }   
+    }
+
+    /**
+     * @return the billClaimDAO
+     */
+    public BillingClaimDAO getBillClaimDAO() {
+        return billClaimDAO;
+    }
+
+    /**
+     * @param billClaimDAO the billClaimDAO to set
+     */
+    public void setBillClaimDAO(BillingClaimDAO billClaimDAO) {
+        this.billClaimDAO = billClaimDAO;
+    }
+
+
 }

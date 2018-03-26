@@ -30,7 +30,7 @@ var faxControl = {
 				
 				if (data == null || data.trim() == "") {
 					placeholder.html("");
-					console.log("Error loading fax control, please contact an administrator.");
+					alert("Error loading fax control, please contact an administrator.");
 				}
 				else { 
 					placeholder.html(data);					
@@ -140,7 +140,7 @@ function submitFaxButtonAjax(save) {
 	}
 	else {
 		var form = $("form[name='RichTextLetter']");
-		form.attr("target", "_blank");
+		if (!save) { form.attr("target", "_blank"); }
 		document.getElementById('Letter').value=editControlContents('edit');
 		
 		$.ajax({

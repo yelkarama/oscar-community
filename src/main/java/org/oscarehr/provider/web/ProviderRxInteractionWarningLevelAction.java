@@ -36,6 +36,7 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
 import org.oscarehr.common.dao.UserPropertyDAO;
+import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.model.UserProperty;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
@@ -49,13 +50,12 @@ public class ProviderRxInteractionWarningLevelAction extends DispatchAction {
 	
     public ActionForward update(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
     	String value = request.getParameter("value");
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		String providerNo=loggedInInfo.getLoggedInProviderNo();
-    	UserProperty prop = propertyDao.getProp(providerNo, "rxInteractionWarningLevel");
+    	Provider provider = LoggedInInfo.loggedInInfo.get().loggedInProvider;
+    	UserProperty prop = propertyDao.getProp(provider.getProviderNo(), "rxInteractionWarningLevel");
     	if(prop == null) {
     		prop = new UserProperty();
     		prop.setName("rxInteractionWarningLevel");
-    		prop.setProviderNo(providerNo);    		 	
+    		prop.setProviderNo(provider.getProviderNo());    		 	
     	}
     	prop.setValue(value);   
     	propertyDao.saveProp(prop);

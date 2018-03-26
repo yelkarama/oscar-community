@@ -17,25 +17,15 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin.billing,_admin" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_admin&type=_admin.billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
+if(session.getValue("user") == null) response.sendRedirect("../../../logout.jsp");
 %>
 
+<%@ page
+	import="java.math.*, java.util.*, java.io.*, java.sql.*, oscar.*, java.net.*,oscar.MyDateFormat"%>
 
-<%@ page import="java.math.*, java.util.*, java.io.*, java.sql.*, oscar.*, java.net.*,oscar.MyDateFormat"%>
-
-
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean" scope="session" />
+<%@ include file="dbBilling.jspf"%>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.model.CtlBillingService" %>
 <%@ page import="org.oscarehr.common.dao.CtlBillingServiceDao" %>
@@ -60,43 +50,21 @@ group2 = request.getParameter("group2");
 group3 = request.getParameter("group3");
 billtype = request.getParameter("billtype");
 
-String errMessage = null;
-
 if (type.compareTo("") == 0 || group1.compareTo("") == 0 || group2.compareTo("") == 0 || group3.compareTo("") == 0) {
-	errMessage = "Error: Type Description, Groups Descrption must be entered.";
+	String errormsg = "Error: Type Description, Groups Descrption must be entered.";
 %>
 
-<jsp:forward page='manageBillingform.jsp'>
-			<jsp:param name="errorMessage" value='<%=errMessage%>' />
-			<jsp:param name="type" value='<%=type%>' />
-			<jsp:param name="typeid" value='<%=typeid%>' />
-			<jsp:param name="group1" value='<%=group1%>' />
-			<jsp:param name="group2" value='<%=group2%>' />
-			<jsp:param name="group3" value='<%=group3%>' />
-			<jsp:param name="billingform" value='000' />
-		</jsp:forward>
+<jsp:forward page='../../../dms/errorpage.jsp'>
+	<jsp:param name="msg" value='<%=errormsg%>' />
+	<jsp:param name="type" value='<%=type%>' />
+	<jsp:param name="typeid" value='<%=typeid%>' />
+	<jsp:param name="group1" value='<%=group1%>' />
+	<jsp:param name="group2" value='<%=group2%>' />
+	<jsp:param name="group3" value='<%=group3%>' />
+</jsp:forward>
 
 <%
 } else {
-	
-	if (ctlBillingServiceDao.findByServiceTypeId(typeid).size() > 0) {
-		errMessage = "Error: Service Type ID '"+typeid+"' already exists.";
-		%>
-
-		<jsp:forward page='manageBillingform.jsp'>
-			<jsp:param name="errorMessage" value='<%=errMessage%>' />
-			<jsp:param name="type" value='<%=type%>' />
-			<jsp:param name="typeid" value='<%=typeid%>' />
-			<jsp:param name="group1" value='<%=group1%>' />
-			<jsp:param name="group2" value='<%=group2%>' />
-			<jsp:param name="group3" value='<%=group3%>' />
-			<jsp:param name="billingform" value='000' />
-		</jsp:forward>
-
-		<%
-	}
-	
-	
 	CtlBillingService cbs = new CtlBillingService();
 	cbs.setServiceTypeName(type);
 	cbs.setServiceType(typeid);

@@ -17,36 +17,16 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_billing" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../../../securityError.jsp?type=_billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
+<% 
+if(session.getAttribute("user") == null)    response.sendRedirect("../../../../logout.jsp");
 %>
 
+<%@ page
+	import="java.math.*, java.util.*, java.io.*, java.sql.*, oscar.*, java.net.*,oscar.MyDateFormat"%>
 
-
-<%@ page import="java.math.*, java.util.*, java.io.*, java.sql.*, oscar.*, java.net.*,oscar.MyDateFormat"%>
-<%@page import="org.oscarehr.billing.CA.model.BillingInr" %>
-<%@page import="org.oscarehr.common.model.Demographic" %>
-<%@page import="org.oscarehr.common.dao.DemographicDao" %>
-<%@page import="org.oscarehr.billing.CA.dao.BillingInrDao" %>
-<%@page import="org.oscarehr.util.SpringUtils" %>
-<%@page import="oscar.util.ConversionUtils" %>
-<%
-	DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
-%>
-
-
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean"
+	scope="session" />
+<%@ include file="dbINR.jspf"%>
 <%
 
 GregorianCalendar now=new GregorianCalendar();
@@ -66,11 +46,16 @@ billinginr_no = request.getParameter("billinginr_no");
 provider = request.getParameter("provider_name");
 
 
-Demographic d = demographicDao.getDemographicById(Integer.parseInt(demono));
-if(d != null) {
-	demo_dob = MyDateFormat.getStandardDate(Integer.parseInt(d.getYearOfBirth()),Integer.parseInt(d.getMonthOfBirth()),Integer.parseInt(d.getDateOfBirth()));
-	 demo_hin = d.getHin() + d.getVer().toUpperCase();	
-}
+ResultSet rsPatient = apptMainBean.queryResults(demono, "search_demographic_details");
+ while(rsPatient.next()){
+ //DemoSex = rsPatient.getString("sex");
+ //DemoAddress = rsPatient.getString("address");
+ //DemoCity = rsPatient.getString("city");
+ //DemoProvince = rsPatient.getString("province");
+ //DemoPostal = rsPatient.getString("postal");
+ demo_dob = MyDateFormat.getStandardDate(Integer.parseInt(rsPatient.getString("year_of_birth")),Integer.parseInt(rsPatient.getString("month_of_birth")),Integer.parseInt(rsPatient.getString("date_of_birth")));
+ demo_hin = rsPatient.getString("hin") + rsPatient.getString("ver").toUpperCase();
+   }
 
 %>
 <html>
@@ -133,7 +118,8 @@ function OtherScriptAttach() {
 <link rel="stylesheet" href="../../web.css" />
 </head>
 
-<body onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0">
+<body background="../images/gray_bg.jpg" bgproperties="fixed"
+	onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0">
 <table border="0" cellspacing="0" cellpadding="0" width="100%">
 	<tr bgcolor="#486ebd">
 		<th align=CENTER NOWRAP><font face="Helvetica" color="#FFFFFF">UPDATE

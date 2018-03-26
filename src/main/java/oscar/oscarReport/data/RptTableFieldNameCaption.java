@@ -38,9 +38,7 @@ import java.util.Vector;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.EncounterFormDao;
-import org.oscarehr.common.dao.ReportTableFieldCaptionDao;
 import org.oscarehr.common.model.EncounterForm;
-import org.oscarehr.common.model.ReportTableFieldCaption;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
@@ -52,7 +50,6 @@ import oscar.login.DBHelp;
 public class RptTableFieldNameCaption {
     private static final Logger logger = MiscUtils.getLogger();
     private static EncounterFormDao encounterFormDao=(EncounterFormDao)SpringUtils.getBean("encounterFormDao");
-    private ReportTableFieldCaptionDao dao = SpringUtils.getBean(ReportTableFieldCaptionDao.class);
 
     String table_name;
     String name;
@@ -77,22 +74,29 @@ public class RptTableFieldNameCaption {
         return false;
     }
 
-    
+    //`id` int(7) NOT NULL auto_increment,
+    //`table_name` varchar(80) NOT NULL default '',
+    //`name` varchar(80) NOT NULL default '',
+    //`caption` varchar(80) NOT NULL default '',
+
     public boolean insertRecord() {
-    	ReportTableFieldCaption r = new ReportTableFieldCaption();
-    	r.setTableName(table_name);
-    	r.setName(name);
-    	r.setCaption(caption);
-    	dao.persist(r);
-    	return true;
+        boolean ret = false;
+        String sql = "insert into reportTableFieldCaption (table_name, name, caption) values ('"
+                + StringEscapeUtils.escapeSql(table_name) + "', '" + StringEscapeUtils.escapeSql(name) + "', '"
+                + StringEscapeUtils.escapeSql(caption) + "')";
+        ret = DBHelp.updateDBRecord(sql);
+
+        return ret;
     }
 
     public boolean updateRecord() {
-    	for(ReportTableFieldCaption r:dao.findByTableNameAndName(table_name, name)) {
-    		r.setCaption(caption);
-    		dao.merge(r);
-    	}
-       return true;
+        boolean ret = false;
+        String sql = "update reportTableFieldCaption set caption = '" + StringEscapeUtils.escapeSql(caption)
+                + "' where table_name='" + StringEscapeUtils.escapeSql(table_name) + "' and name = '"
+                + StringEscapeUtils.escapeSql(name) + "'";
+        ret = DBHelp.updateDBRecord(sql);
+
+        return ret;
     }
 
     // combine a table meta list and caption from table reportTableFieldCaption

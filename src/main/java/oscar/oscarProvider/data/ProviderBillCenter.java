@@ -18,60 +18,84 @@
 
 package oscar.oscarProvider.data;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
-import org.oscarehr.common.dao.BillCenterDao;
-import org.oscarehr.common.dao.ProviderBillCenterDao;
-import org.oscarehr.common.model.BillCenter;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
+
+import oscar.oscarDB.DBHandler;
 
 /**
  *
  * @author Toby
  */
 public class ProviderBillCenter {
-	
-	Logger log = MiscUtils.getLogger();
-	ProviderBillCenterDao dao = SpringUtils.getBean(ProviderBillCenterDao.class);
-	BillCenterDao bcDao = SpringUtils.getBean(BillCenterDao.class);
-	
     
+    /** Creates a new instance of ProviderBillCenter */
     public ProviderBillCenter() {
     }
     
     public boolean hasBillCenter(String provider_no){
         boolean retval = false;
-        org.oscarehr.common.model.ProviderBillCenter pbc = dao.find(provider_no);
-        if(pbc != null && pbc.getBillCenterCode() != null && pbc.getBillCenterCode().length()>0) {
-        	retval=true;
+        try {
+            
+            String sql = "select billcenter_code from providerbillcenter where provider_no = '"+provider_no+"' ";
+            ResultSet rs = DBHandler.GetSQL(sql);
+            if(rs.next())
+                retval = true;
+            rs.close();
+        } catch(SQLException e) {
+            MiscUtils.getLogger().debug("There has been an error while checking if a provider had a bill center");
+            MiscUtils.getLogger().error("Error", e);
         }
+        
         return retval;
     }
 
     public boolean hasProvider(String provider_no){
-    	boolean retval = false;
-        if(dao.find(provider_no) != null) {
-        	retval=true;
+        boolean retval = false;
+        try {
+            
+            String sql = "select provider_no from providerbillcenter where provider_no = '"+provider_no+"' ";
+            ResultSet rs = DBHandler.GetSQL(sql);
+            if(rs.next())
+                retval = true;
+            rs.close();
+        } catch(SQLException e) {
+            MiscUtils.getLogger().debug("There has been an error while checking if a provider had a bill center");
+            MiscUtils.getLogger().error("Error", e);
         }
+
         return retval;
     }
     
     public void addBillCenter(String provider_no, String billCenterCode){
-    	org.oscarehr.common.model.ProviderBillCenter pbc = new org.oscarehr.common.model.ProviderBillCenter();
-    	pbc.setProviderNo(provider_no);
-    	pbc.setBillCenterCode(billCenterCode);
-    	dao.persist(pbc);
+        
+        try{
+            
+            String sql = "insert into  providerbillcenter (provider_no,billcenter_code) values ('"+provider_no+"' ,'"+billCenterCode+"') ";
+            DBHandler.RunSQL(sql);
+        } catch(SQLException e){
+            MiscUtils.getLogger().debug("There has been an error while adding a provider's bill center");
+            MiscUtils.getLogger().error("Error", e);
+        }
     }
     
     public String getBillCenter(String provider_no){
         String billCenterCode = "";
-        
-        org.oscarehr.common.model.ProviderBillCenter pbc = dao.find(provider_no);
-        if(pbc != null) {
-        	billCenterCode = pbc.getBillCenterCode();
+        try{
+            
+            String sql = "select billcenter_code from providerbillcenter where provider_no = '"+provider_no+"' ";
+            ResultSet rs = DBHandler.GetSQL(sql);
+            if(rs.next())
+                billCenterCode = oscar.Misc.getString(rs, "billcenter_code");
+            rs.close();
+        } catch(SQLException e){
+            MiscUtils.getLogger().debug("There has been an error while retrieving a provider's bill center");
+            MiscUtils.getLogger().error("Error", e);
         }
+        
         return billCenterCode;
     }
     
@@ -79,10 +103,13 @@ public class ProviderBillCenter {
         if (!hasProvider(provider_no)) {
             addBillCenter(provider_no, billCenterCode);
         } else {
-        	org.oscarehr.common.model.ProviderBillCenter pbc = dao.find(provider_no);
-            if(pbc != null) {
-            	pbc.setBillCenterCode(billCenterCode);
-            	dao.merge(pbc);
+            try {
+                
+                String sql = "update providerbillcenter set billcenter_code = '" + billCenterCode + "' where provider_no = '" + provider_no + "' ";
+                DBHandler.RunSQL(sql);
+            } catch (SQLException e) {
+                MiscUtils.getLogger().debug("There has been an error while updating a provider's bill center");
+                MiscUtils.getLogger().error("Error", e);
             }
         }    
     }
@@ -90,10 +117,18 @@ public class ProviderBillCenter {
     public Properties getAllBillCenter(){
         Properties allBillCenter = new Properties();
         
-        for(BillCenter bc:bcDao.findAll()) {
-        	allBillCenter.setProperty(bc.getBillCenterCode(), bc.getBillCenterDesc());
+        try{
+            
+            String sql = "select * from billcenter" ;
+            ResultSet rs = DBHandler.GetSQL(sql);
+            while(rs.next())
+                allBillCenter.setProperty(oscar.Misc.getString(rs, "billcenter_code"),oscar.Misc.getString(rs, "billcenter_desc")) ;
+            rs.close();
+        } catch(SQLException e){
+            MiscUtils.getLogger().debug("There has been an error while retrieving info from table billcenter");
+            MiscUtils.getLogger().error("Error", e);
         }
-   
+        
         return allBillCenter;
     }
     

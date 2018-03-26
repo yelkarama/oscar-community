@@ -24,7 +24,6 @@
 
 --%>
 
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="oscar.oscarRx.data.RxPatientData"%>
 <%@ taglib uri="/WEB-INF/caisi-tag.tld" prefix="caisi"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
@@ -39,24 +38,14 @@
     boolean bPrincipalControl = false;
     boolean bPrincipalDisplay = false;
 
-    LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-    
     String eChart$ = "_eChart$"+demographic$;
 
 %>
-<%
-       boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_eChart" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_eChart");%>
+<security:oscarSec roleName="<%=roleName$%>" objectName="_eChart"
+	rights="r" reverse="<%=true%>">
+"You have no right to access this page!"
+<% response.sendRedirect("../noRights.html"); %>
 </security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
 
 <security:oscarSec roleName="<%=roleName$%>" objectName="<%=eChart$%>"
 	rights="o" reverse="<%=false%>">
@@ -69,7 +58,7 @@ You have no rights to access the data!
 <security:oscarSec roleName="_principal" objectName="_eChart"
 	rights="ow" reverse="<%=false%>">
 	<% 	bPrincipalControl = true;
-	if(EctPatientData.getProviderNo(loggedInInfo, demographic$).equals((String) session.getAttribute("user")) ) {
+	if(EctPatientData.getProviderNo(demographic$).equals((String) session.getAttribute("user")) ) {
 		bPrincipalDisplay = true;
 	}
 %>
@@ -120,9 +109,9 @@ You have no rights to access the data!
 <!-- check to see if new case management is request -->
 <%
     ArrayList<String> users = (ArrayList<String>)session.getServletContext().getAttribute("CaseMgmtUsers");
-    String userNo = (String) request.getSession().getAttribute("user"); 
-    Boolean useNewEchart = (Boolean) request.getSession().getServletContext().getAttribute("useNewEchart");
-    if( userNo != null && (useNewEchart != null && useNewEchart.equals(Boolean.TRUE)) ) {
+	String userNo = (String) request.getSession().getAttribute("user"); 
+	Boolean useNewEchart = (Boolean) request.getSession().getServletContext().getAttribute("useNewEchart");
+	if( userNo != null && (useNewEchart != null && useNewEchart.equals(Boolean.TRUE)) ) {
         session.setAttribute("newCaseManagement", "true");
 %>
 <caisi:isModuleLoad moduleName="caisi" reverse="true">
@@ -133,7 +122,7 @@ You have no rights to access the data!
             String strBeanName = "casemgmt_oscar_bean" + bean.getDemographicNo();
             session.setAttribute(strBeanName, bean);
             session.setAttribute("casemgmt_bean_flag", "true");
-            String hrefurl=request.getContextPath()+"/casemgmt/forward.jsp?action=view&demographicNo="+bean.demographicNo+"&providerNo="+bean.providerNo+"&providerName="+URLEncoder.encode(bean.userName)+"&appointmentNo="+request.getParameter("appointmentNo")+"&reason=" + URLEncoder.encode(request.getParameter("reason")==null?"":request.getParameter("reason")) + "&appointmentDate="+request.getParameter("appointmentDate")+"&start_time="+request.getParameter("startTime")+ "&apptProvider=" + request.getParameter("apptProvider_no")+"&providerview="+ request.getParameter("providerview") + "&msgType="+request.getParameter("msgType")+"&OscarMsgTypeLink="+request.getParameter("OscarMsgTypeLink")+"&noteId="+request.getParameter("noteId")+(request.getParameter("noteId") != null ? "&forceNote=true" :"");
+            String hrefurl=request.getContextPath()+"/casemgmt/forward.jsp?action=view&demographicNo="+bean.demographicNo+"&providerNo="+bean.providerNo+"&providerName="+bean.userName+"&appointmentNo="+request.getParameter("appointmentNo")+"&reason=" + request.getParameter("reason") + "&appointmentDate="+request.getParameter("appointmentDate")+"&start_time="+request.getParameter("startTime")+ "&apptProvider=" + request.getParameter("apptProvider_no")+"&providerview="+ request.getParameter("providerview");
 
             if( request.getParameter("noteBody") != null )
                 hrefurl += "&noteBody=" + request.getParameter("noteBody");
@@ -159,7 +148,7 @@ String strBeanName = "casemgmt_oscar_bean" + bean.getDemographicNo();
 session.setAttribute(strBeanName, bean);
 session.setAttribute("casemgmt_oscar_bean", bean);
 session.setAttribute("casemgmt_bean_flag", "true");
-String hrefurl=request.getContextPath()+"/casemgmt/forward.jsp?action=view&demographicNo="+bean.demographicNo+"&providerNo="+bean.providerNo+"&providerName="+URLEncoder.encode(bean.userName);
+String hrefurl=request.getContextPath()+"/casemgmt/forward.jsp?action=view&demographicNo="+bean.demographicNo+"&providerNo="+bean.providerNo+"&providerName="+bean.userName;
 if (request.getParameter("casetoEncounter")==null)
 {
         if( !response.isCommitted())
@@ -176,7 +165,7 @@ if (request.getParameter("casetoEncounter")==null)
   String demoNo = bean.demographicNo;
   String provNo = bean.providerNo;
   EctFormData.Form[] forms = EctFormData.getForms();
-  EctPatientData.Patient pd = new EctPatientData().getPatient(loggedInInfo, demoNo);
+  EctPatientData.Patient pd = new EctPatientData().getPatient(demoNo);
   String famDocName, famDocSurname;
   if(bean.familyDoctorNo.equals("")) {
     famDocName = "";
@@ -197,11 +186,11 @@ if (request.getParameter("casetoEncounter")==null)
   String pAge = Integer.toString(dateConvert.calcAge(bean.yearOfBirth,bean.monthOfBirth,bean.dateOfBirth));
   java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.struts.Globals.LOCALE_KEY);
 
-  String province = (oscarVariables.getProperty("billregion","")).trim().toUpperCase();
+  String province = ((String ) oscarVariables.getProperty("billregion","")).trim().toUpperCase();
   Properties windowSizes = oscar.oscarEncounter.pageUtil.EctWindowSizes.getWindowSizes(provNo);
 
   MsgDemoMap msgDemoMap = new MsgDemoMap();
-
+  Vector msgVector = msgDemoMap.getMsgVector(demoNo);
   MsgMessageData msgData;
 
   EctSplitChart ectSplitChart = new EctSplitChart();
@@ -293,7 +282,7 @@ if (request.getParameter("casetoEncounter")==null)
    int TruncLen = 22;
    String ellipses = "...";
   for(int j=0; j<bean.templateNames.size(); j++) {
-     String encounterTmp = bean.templateNames.get(j);
+     String encounterTmp = (String)bean.templateNames.get(j);
      encounterTmp = StringUtils.maxLenString(encounterTmp, MaxLen, TruncLen, ellipses);
      encounterTmp = StringEscapeUtils.escapeJavaScript(encounterTmp);
    %>
@@ -1199,7 +1188,11 @@ function grabEnterGetTemplate(event){
 					NOWRAP>
 				<%
                             String winName = "Master" + bean.demographicNo;
-                            String url = "../demographic/demographiccontrol.jsp?demographic_no=" + bean.demographicNo + "&displaymode=edit&dboperation=search_detail";
+                            String url;
+                            if (vLocale.getCountry().equals("BR"))
+                                url = "../demographic/demographiccontrol.jsp?demographic_no=" + bean.demographicNo + "&displaymode=edit&dboperation=search_detail_ptbr";
+                            else
+                                url = "../demographic/demographiccontrol.jsp?demographic_no=" + bean.demographicNo + "&displaymode=edit&dboperation=search_detail";
                         %> <a href="#"
 					style="font-size: 11px; text-decoration: none"
 					onClick="popupPage(700,1000,'<%=winName%>','<%=url%>'); return false;"
@@ -1253,7 +1246,7 @@ function grabEnterGetTemplate(event){
 			style="width: 22%; border-top: 2px solid #A9A9A9; border-right: 2px solid #A9A9A9; vertical-align: top">
 		<div id="leftNavbar" style="height: 100%; width: 100%;"><caisi:isModuleLoad
 			moduleName="caisi">
-			<%String hrefurl2=request.getContextPath()+"/casemgmt/forward.jsp?action=view&demographicNo="+bean.demographicNo+"&providerNo="+bean.providerNo+"&providerName="+URLEncoder.encode(bean.userName);%>
+			<%String hrefurl2=request.getContextPath()+"/casemgmt/forward.jsp?action=view&demographicNo="+bean.demographicNo+"&providerNo="+bean.providerNo+"&providerName="+bean.userName;%>
 			<a href="<%=hrefurl2%>">Case Management Encounter</a>
 		</caisi:isModuleLoad></div>
 		</td>
@@ -1411,7 +1404,7 @@ function grabEnterGetTemplate(event){
 						<div class="presBox" id="allergyBox">
 						<ul>
 							<%
-								org.oscarehr.common.model.Allergy[] allergies =RxPatientData.getPatient(loggedInInfo, Integer.parseInt(demoNo)).getAllergies(loggedInInfo);
+								org.oscarehr.common.model.Allergy[] allergies =RxPatientData.getPatient(Integer.parseInt(demoNo)).getAllergies();
 
                                             for (int j=0; j<allergies.length; j++){%>
 							<li><a

@@ -30,19 +30,8 @@
 <%@ include file="/taglibs.jsp"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-   String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-
-    LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_eChart" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_eChart");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
+    if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
+    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
 %>
 
 <%@page import="java.util.*"%>
@@ -126,7 +115,8 @@ div#demo
 								endDateStr = dateFormatter.format(episode.getEndDate());
 							}
 							Integer formId = org.oscarehr.common.dao.PregnancyFormsDao.getLatestFormIdByPregnancy(episode.getId());
-							String url = request.getContextPath() + "/form/formonarenhancedpg1.jsp?demographic_no="+episode.getDemographicNo()+"&formId="+formId+"&provNo=" + loggedInInfo.getLoggedInProviderNo();
+							String url = request.getContextPath() + "/form/formonarenhancedpg1.jsp?demographic_no="+episode.getDemographicNo()+"&formId="+formId+"&provNo=" +
+								LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo();
 					%>
 					<tr class="gradeB">
 						<td>

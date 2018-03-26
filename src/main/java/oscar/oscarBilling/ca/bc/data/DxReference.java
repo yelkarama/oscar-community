@@ -102,7 +102,7 @@ public class DxReference {
        }catch (SQLException e) {
           MiscUtils.getLogger().error("Error", e);
        }
-       Collections.sort(list,Collections.reverseOrder());
+       Collections.sort(list);
 
        return list;
     }

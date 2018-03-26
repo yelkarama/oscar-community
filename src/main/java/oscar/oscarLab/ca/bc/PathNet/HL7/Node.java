@@ -23,13 +23,13 @@
 
 
 package oscar.oscarLab.ca.bc.PathNet.HL7;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Hashtable;
 
 import org.apache.log4j.Logger;
+
+import oscar.oscarDB.DBHandler;
 
 /*
  * @author Jesse Bank
@@ -40,24 +40,21 @@ import org.apache.log4j.Logger;
 public abstract class Node {
    Logger _logger = Logger.getLogger(this.getClass());
    protected Hashtable data;
-   
+   private static final String last_insert_id = "SELECT LAST_INSERT_ID();";
    protected abstract String[] getProperties();
    public abstract int ToDatabase(int parent)
    throws SQLException;
    public abstract Node Parse(String line);
    protected abstract String getInsertSql(int parent);
-   
-   protected Date convertTSToDate(String input) {
-	   if(input.length()==0) {
-		   return null;
-	   }
-	   SimpleDateFormat f = new SimpleDateFormat("yyyyMMddHHmmss");
-	   try {
-		   return f.parse(input);
-	   }catch(ParseException e) {
-		   //nothing
-	   }
-	   return null;
+   protected int getLastInsertedId() throws SQLException {
+      ResultSet result = DBHandler.GetSQL(last_insert_id);
+      int parent = 0;
+      if (result.next()) {
+         parent = result.getInt(1);
+      }
+      if (parent == 0)
+         throw new SQLException("Could not get last inserted id");
+      return parent;
    }
    
    public int booleanConvert(boolean b){
@@ -87,7 +84,13 @@ public abstract class Node {
       return str
       .replaceAll("\\\\", "\\\\\\\\")
       .replaceAll("\\\'", "\\\\\'");
-     
+      //.replaceAll("\\^", " ");
    }
-  
+   protected void getInsertFieldsAndValues(String fields, String values) {
+      String[] properties = this.getProperties();
+      for (int i = 0; i < properties.length; ++i) {
+         fields += ", " + properties[i];
+         values += ", '" + this.get(properties[i], "") + "'";
+      }
+   }
 }

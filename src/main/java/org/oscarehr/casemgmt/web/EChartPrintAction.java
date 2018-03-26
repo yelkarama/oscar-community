@@ -44,11 +44,7 @@ import org.oscarehr.common.dao.AllergyDao;
 import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.model.Allergy;
 import org.oscarehr.common.model.Demographic;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.SpringUtils;
-
-import oscar.log.LogAction;
 
 import com.lowagie.text.DocumentException;
 
@@ -57,8 +53,6 @@ public class EChartPrintAction extends DispatchAction {
 	CaseManagementNoteDAO caseManagementNoteDao = (CaseManagementNoteDAO)SpringUtils.getBean("CaseManagementNoteDAO");
 	AllergyDao allergyDao = (AllergyDao)SpringUtils.getBean("allergyDao");
 	static String[] cppIssues = {"MedHistory","OMeds","SocHistory","FamHistory","Reminders","Concerns","RiskFactors"};
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	   
 
 
 	public ActionForward unspecified(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -66,16 +60,9 @@ public class EChartPrintAction extends DispatchAction {
 	}
 
 	public ActionForward print(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		Integer demographicNo = Integer.parseInt(request.getParameter("demographicNo"));
+		String demographicNo = request.getParameter("demographicNo");
 		DemographicDao demographicDao = (DemographicDao)SpringUtils.getBean("demographicDao");
-		
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_demographic", "r", demographicNo)) {
-        	throw new SecurityException("missing required security object (_demographic)");
-        }
-
-		
-		Demographic demographic = demographicDao.getClientByDemographicNo(demographicNo);
+		Demographic demographic = demographicDao.getClientByDemographicNo(Integer.parseInt(demographicNo));
 
 		response.setContentType("application/pdf"); // octet-stream
 		response.setHeader("Content-Disposition", "attachment; filename=\""+demographicNo+".pdf\"");
@@ -106,7 +93,7 @@ public class EChartPrintAction extends DispatchAction {
 		printer.printRx(String.valueOf(demographic.getDemographicNo()));
 
 		printer.printPreventions();
-		printer.printTicklers(loggedInInfo);
+		printer.printTicklers();
 		printer.printDiseaseRegistry();
 
 		printer.printCurrentAdmissions();
@@ -122,8 +109,6 @@ public class EChartPrintAction extends DispatchAction {
 
 		printer.finish();
 
-		LogAction.addLogSynchronous(loggedInInfo, "print echart",demographicNo+"");
-		
 		return null;
 	}
 

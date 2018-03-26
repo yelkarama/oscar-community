@@ -34,10 +34,12 @@ public final class AppointmentProviderAdminDayUIBean {
 	private static EFormDao eFormDao=(EFormDao)SpringUtils.getBean("EFormDao");
 	private static ProviderPreferenceDao providerPreferenceDao=(ProviderPreferenceDao)SpringUtils.getBean("providerPreferenceDao");
 	
-	public static String getLengthLimitedLinkName(LoggedInInfo loggedInInfo, String formName) {
+	public static String getLengthLimitedLinkName(String formName) {
 		int maxLength=3;
 
-		ProviderPreference providerPreference=providerPreferenceDao.find(loggedInInfo.getLoggedInProviderNo());
+		LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+		String providerId=loggedInInfo.loggedInProvider.getProviderNo();
+		ProviderPreference providerPreference=providerPreferenceDao.find(providerId);
 		if (providerPreference!=null) maxLength=providerPreference.getAppointmentScreenLinkNameDisplayLength();
 		
 		

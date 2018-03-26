@@ -47,12 +47,9 @@ public class DemographicContact extends AbstractModel<Integer> {
 	public static final int TYPE_DEMOGRAPHIC = 1;
 	//link to the contact table
 	public static final int TYPE_CONTACT = 2;
-	//link to the professional specialists table
-	public static final int TYPE_PROFESSIONALSPECIALIST = 3;
 
 	public static final String CATEGORY_PERSONAL = "personal";
 	public static final String CATEGORY_PROFESSIONAL = "professional";
-	public static final String CATEGORY_OTHER = "other";
 
 
 	private static final long serialVersionUID = 1L;
@@ -76,18 +73,9 @@ public class DemographicContact extends AbstractModel<Integer> {
 	private int facilityId;
 	private String creator;
 
-	private Boolean consentToContact = true;
-	private Boolean active = true;
-	private boolean mrp = Boolean.FALSE;
-	
-	private Integer programNo;
-	
-	private Integer contactTypeId;
-	
+
 	@Transient
 	private String contactName;
-	@Transient
-	private Contact details;
 
 	@Override
 	public Integer getId() {
@@ -159,11 +147,11 @@ public class DemographicContact extends AbstractModel<Integer> {
 	public void setCategory(String category) {
     	this.category = category;
     }
-/*
+
 	public void setId(Integer id) {
     	this.id = id;
     }
-*/
+
 
 	public String getContactName() {
     	return contactName;
@@ -225,53 +213,4 @@ public class DemographicContact extends AbstractModel<Integer> {
 	protected void jpa_updateTimestamp() {
 		this.setUpdateDate(new Date());
 	}
-
-	public boolean isConsentToContact() {
-		return consentToContact;
-	}
-
-	public void setConsentToContact(boolean consentToContact) {
-		this.consentToContact = consentToContact;
-	}
-
-	public boolean isActive() {
-		return active;
-	}
-
-	public void setActive(boolean active) {
-		this.active = active;
-	}
-
-	public boolean isMrp() {
-		return mrp;
-	}
-
-	public void setMrp(boolean mrp) {
-		this.mrp = mrp;
-	}
-
-	public Contact getDetails() {
-	    return details;
-    }
-
-	public void setDetails(Contact details) {
-	    this.details = details;
-    }
-
-	public Integer getProgramNo() {
-		return programNo;
-	}
-
-	public void setProgramNo(Integer programNo) {
-		this.programNo = programNo;
-	}
-
-	public Integer getContactTypeId() {
-		return contactTypeId;
-	}
-
-	public void setContactTypeId(Integer contactTypeId) {
-		this.contactTypeId = contactTypeId;
-	}
-	
 }

@@ -32,10 +32,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.apache.log4j.Logger;
-import org.oscarehr.common.dao.SurveyDataDao;
-import org.oscarehr.common.model.SurveyData;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.OscarProperties;
 import oscar.oscarDB.DBHandler;
@@ -47,20 +44,33 @@ import oscar.oscarDB.DBHandler;
 public class ProcessSurveyFile{
    private static Logger log = MiscUtils.getLogger();
    
-   private SurveyDataDao dao = SpringUtils.getBean(SurveyDataDao.class);
    
    
    private int maxProcessed(String surveyId){
-      SurveyDataDao dao = SpringUtils.getBean(SurveyDataDao.class);
-      return dao.getMaxProcessed(surveyId);
+      int maxprocessed = 0 ;
+      try{
+         
+         String sql = "select max(processed) as maxprocessed from surveyData  where surveyId = '"+surveyId+"'  ";         
+         ResultSet rs = DBHandler.GetSQL(sql);
+         
+         if(rs.next()){
+            maxprocessed = rs.getInt("maxprocessed");            
+         }            
+         rs.close();         
+      }catch(Exception e){
+         MiscUtils.getLogger().error("Error", e);
+      }
+      return maxprocessed;
    }
    
    private void setProcessed(String surveyDataId, int processedId){
-	   SurveyData s = dao.find(Integer.parseInt(surveyDataId));
-	   if(s != null) {
-		   s.setProcessed(processedId);
-		   dao.merge(s);
-	   }
+      try{
+         
+         String sql = "update surveyData set processed = '"+processedId+"' where surveyDataId = '"+surveyDataId+"'  ";         
+         DBHandler.RunSQL(sql);         
+      }catch(Exception e){
+         MiscUtils.getLogger().error("Error", e);
+      }
    }
                
    String replaceAllValues(String guideString,ResultSet rs) throws SQLException{      
@@ -87,12 +97,14 @@ public class ProcessSurveyFile{
    public synchronized String processSurveyFile(String surveyId){
       String sStatus = null;
       int numRecordsToProcess = 0;
-      SurveyDataDao dao = SpringUtils.getBean(SurveyDataDao.class);
       try{
-         ResultSet rs = null;
-         int count = dao.getProcessCount(surveyId);
-         if (count > 0){
-            numRecordsToProcess = count;            
+         
+         String processCount = "select count(surveyDataId) as recordsForProcessing from surveyData  where surveyId = '"+surveyId+"' and processed is null and status = 'A'";
+         
+         ResultSet rs = DBHandler.GetSQL(processCount);
+         
+         if (rs.next()){
+            numRecordsToProcess = rs.getInt("recordsForProcessing");            
             if (numRecordsToProcess > 0){                 
                int processedId = maxProcessed(surveyId);
                processedId++;
@@ -119,13 +131,10 @@ public class ProcessSurveyFile{
                   out.close();
                } catch (IOException e) {
                   MiscUtils.getLogger().error("Error", e);
-               } 
-               if(rs != null){
-            	   rs.close();
-               }
+               }             
             }
          }
-         
+         rs.close();
          
       }catch(Exception e){
          MiscUtils.getLogger().error("Error", e);

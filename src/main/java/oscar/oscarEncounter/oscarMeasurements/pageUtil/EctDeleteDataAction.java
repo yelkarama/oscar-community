@@ -22,9 +22,14 @@
  * Ontario, Canada
  */
 
+
 package oscar.oscarEncounter.oscarMeasurements.pageUtil;
 
 import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -34,54 +39,86 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.oscarehr.common.dao.MeasurementDao;
 import org.oscarehr.common.dao.MeasurementsDeletedDao;
-import org.oscarehr.common.model.Measurement;
 import org.oscarehr.common.model.MeasurementsDeleted;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
-import oscar.util.ConversionUtils;
+import oscar.OscarProperties;
+import oscar.oscarDB.DBHandler;
 import oscar.util.ParameterActionForward;
+import oscar.util.UtilDateUtilities;
 
 public class EctDeleteDataAction extends Action {
-
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
 	
-	public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	private static MeasurementsDeletedDao measurementsDeletedDao = (MeasurementsDeletedDao) SpringUtils.getBean("measurementsDeletedDao");
 
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_measurement", "d", null)) {
-			throw new SecurityException("missing required security object (_measurement)");
-		}
-		
-		EctDeleteDataForm frm = (EctDeleteDataForm) form;
-		request.getSession().setAttribute("EctDeleteDataForm", frm);
-		String[] deleteCheckbox = frm.getDeleteCheckbox();
+    public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException
+    {
+        EctDeleteDataForm frm = (EctDeleteDataForm) form;                
+        request.getSession().setAttribute("EctDeleteDataForm", frm);
+        String[] deleteCheckbox = frm.getDeleteCheckbox();
+ 
+        GregorianCalendar now=new GregorianCalendar(); 
 
-		MeasurementsDeletedDao measurementsDeletedDao = (MeasurementsDeletedDao) SpringUtils.getBean("measurementsDeletedDao");
-		MeasurementDao measurementDao = SpringUtils.getBean(MeasurementDao.class);
-		if (deleteCheckbox != null) {
+        String dateDeleted = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.get(Calendar.DATE) ;
+                
+        try{
+                                                                                                
+            
+            if(deleteCheckbox != null){
+            	MeasurementsDeleted measurementsDeleted = new MeasurementsDeleted();
+            	
+                for(int i=0; i<deleteCheckbox.length; i++){
+                    MiscUtils.getLogger().debug(deleteCheckbox[i]);
+                    String sql = "SELECT * FROM `measurements` WHERE id='"+ deleteCheckbox[i] +"'";                                        
+                    MiscUtils.getLogger().debug(" sql statement "+sql);
+                    ResultSet rs = DBHandler.GetSQL(sql);
+                    if(rs.next()){
+                    	measurementsDeleted.setType(oscar.Misc.getString(rs, "type"));
+                    	measurementsDeleted.setDemographicNo(Integer.valueOf(oscar.Misc.getString(rs, "demographicNo")));
+                    	measurementsDeleted.setProviderNo(oscar.Misc.getString(rs, "providerNo"));
+                    	measurementsDeleted.setDataField(oscar.Misc.getString(rs, "dataField"));
+                    	measurementsDeleted.setMeasuringInstruction(oscar.Misc.getString(rs, "measuringInstruction"));
+                    	measurementsDeleted.setComments(oscar.Misc.getString(rs, "comments"));
+                    	measurementsDeleted.setDateObserved(UtilDateUtilities.StringToDate(oscar.Misc.getString(rs, "dateObserved"), "yyyy-MM-dd hh:mm:ss"));
+                    	measurementsDeleted.setDateEntered(UtilDateUtilities.StringToDate(oscar.Misc.getString(rs, "dateEntered"), "yyyy-MM-dd hh:mm:ss"));
+                    	measurementsDeleted.setOriginalId(Integer.valueOf(deleteCheckbox[i]));
+                    	measurementsDeletedDao.persist(measurementsDeleted);
+                    	
+                        rs.close();
+                        sql = "DELETE FROM `measurements` WHERE id='"+ deleteCheckbox[i] +"'"; 
+                        DBHandler.RunSQL(sql);
+                    }
+                }
+            }
+            
 
-			MeasurementDao dao = SpringUtils.getBean(MeasurementDao.class);
-			for (int i = 0; i < deleteCheckbox.length; i++) {
-				MiscUtils.getLogger().debug(deleteCheckbox[i]);
+            /*select the correct db specific command */
+            String db_type = OscarProperties.getInstance().getProperty("db_type").trim();
+            String dbSpecificCommand;
+            if (db_type.equalsIgnoreCase("mysql")) {
+                dbSpecificCommand = "SELECT LAST_INSERT_ID()";
+            } 
+            else if (db_type.equalsIgnoreCase("postgresql")){
+                dbSpecificCommand = "SELECT CURRVAL('consultationrequests_numeric')";
+            }
+            else
+                throw new SQLException("ERROR: Database " + db_type + " unrecognized.");
+        }
 
-				Measurement m = dao.find(ConversionUtils.fromIntString(deleteCheckbox[i]));
-				if (m != null) {
-					measurementsDeletedDao.persist(new MeasurementsDeleted(m));
-					measurementDao.remove(Integer.parseInt(deleteCheckbox[i]));
-				}
-			}
-		}
-
-		if (frm.getType() != null) {
-			ParameterActionForward forward = new ParameterActionForward(mapping.findForward("success"));
-			forward.addParameter("type", frm.getType());
-			return forward;
-		}
-		return mapping.findForward("success");
-	}
-
+        catch(SQLException e)
+        {
+            MiscUtils.getLogger().error("Error", e);
+        }
+                
+        if(frm.getType()!=null){
+            ParameterActionForward forward = new ParameterActionForward(mapping.findForward("success"));
+            forward.addParameter("type", frm.getType());
+            return forward;
+        }
+        return mapping.findForward("success");
+    }
+     
 }

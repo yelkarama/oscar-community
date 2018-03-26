@@ -27,12 +27,10 @@ package oscar.form;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.Properties;
 
 import org.oscarehr.common.dao.ClinicDAO;
 import org.oscarehr.common.model.Clinic;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
@@ -43,7 +41,7 @@ public class FrmLabReqRecord extends FrmRecord {
 
 	private ClinicDAO clinicDao = (ClinicDAO)SpringUtils.getBean("clinicDAO");
 
-    public Properties getFormRecord(LoggedInInfo loggedInInfo, int demographicNo, int existingID) throws SQLException {
+    public Properties getFormRecord(int demographicNo, int existingID) throws SQLException {
         Properties props = new Properties();
 
         if (existingID <= 0) {
@@ -63,10 +61,10 @@ public class FrmLabReqRecord extends FrmRecord {
                 props.setProperty("patientName", oscar.Misc.getString(rs, "patientName"));
                 props.setProperty("healthNumber", oscar.Misc.getString(rs, "hin"));
                 props.setProperty("version", oscar.Misc.getString(rs, "ver"));
-                props.setProperty("formCreated", UtilDateUtilities.DateToString(new Date(),
+                props.setProperty("formCreated", UtilDateUtilities.DateToString(UtilDateUtilities.Today(),
                         "yyyy/MM/dd"));
                 //props.setProperty("formEdited",
-                // UtilDateUtilities.DateToString(new Date(), "yyyy/MM/dd"));
+                // UtilDateUtilities.DateToString(UtilDateUtilities.Today(), "yyyy/MM/dd"));
                 props.setProperty("birthDate", UtilDateUtilities.DateToString(dob, "yyyy/MM/dd"));
                 props.setProperty("phoneNumber", oscar.Misc.getString(rs, "phone"));
                 props.setProperty("patientAddress", oscar.Misc.getString(rs, "address"));

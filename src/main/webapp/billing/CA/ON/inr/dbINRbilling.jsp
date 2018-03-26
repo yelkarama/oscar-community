@@ -17,24 +17,8 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_billing" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../../../securityError.jsp?type=_billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-
-<%
+if(session.getAttribute("user") == null)    response.sendRedirect("../../../../logout.htm");
 String curUser_no,userfirstname,userlastname;
 curUser_no = (String) session.getAttribute("user");
 userfirstname = (String) session.getAttribute("userfirstname");
@@ -42,6 +26,8 @@ userlastname = (String) session.getAttribute("userlastname");
 %>
 <%@ page import="java.sql.*, java.util.*,java.net.*, oscar.MyDateFormat"%>
 
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean" scope="session" />
+<%@ include file="dbINR.jspf"%>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.billing.CA.model.BillingInr" %>
 <%@ page import="org.oscarehr.billing.CA.dao.BillingInrDao" %>
@@ -77,7 +63,7 @@ bi.setDemographicNo(Integer.parseInt(request.getParameter("demoid").trim()));
 bi.setDemographicName(request.getParameter("demo_name"));
 bi.setHin(request.getParameter("demo_hin"));
 bi.setDob(request.getParameter("demo_dob"));
-bi.setProviderNo(request.getParameter("provider_no"));
+bi.setProviderNo(Integer.parseInt(request.getParameter("provider_no")));
 bi.setProviderOhipNo(request.getParameter("provider_ohip_no"));
 bi.setProviderRmaNo(request.getParameter("provider_rma_no"));
 bi.setCreator(request.getParameter("doccreator"));

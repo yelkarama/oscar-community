@@ -38,9 +38,9 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
 import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.model.Provider;
-import org.oscarehr.eyeform.dao.EyeformFollowUpDao;
-import org.oscarehr.eyeform.dao.EyeformProcedureBookDao;
-import org.oscarehr.eyeform.dao.EyeformTestBookDao;
+import org.oscarehr.eyeform.dao.FollowUpDao;
+import org.oscarehr.eyeform.dao.ProcedureBookDao;
+import org.oscarehr.eyeform.dao.TestBookRecordDao;
 import org.oscarehr.eyeform.model.EyeformFollowUp;
 import org.oscarehr.eyeform.model.EyeformProcedureBook;
 import org.oscarehr.eyeform.model.EyeformTestBook;
@@ -52,9 +52,9 @@ public class PlanAction extends DispatchAction {
 
 	Logger logger = MiscUtils.getLogger();
 
-	protected EyeformFollowUpDao followUpDao = SpringUtils.getBean(EyeformFollowUpDao.class);
-	protected EyeformProcedureBookDao procBookDao = SpringUtils.getBean(EyeformProcedureBookDao.class);
-	protected EyeformTestBookDao testBookDao = SpringUtils.getBean(EyeformTestBookDao.class);
+	protected FollowUpDao followUpDao = (FollowUpDao)SpringUtils.getBean("FollowUpDAO");
+	protected ProcedureBookDao procBookDao = (ProcedureBookDao)SpringUtils.getBean("ProcedureBookDAO");
+	protected TestBookRecordDao testBookDao = (TestBookRecordDao)SpringUtils.getBean("TestBookDAO");
 	static ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
 
 	@Override
@@ -106,10 +106,37 @@ public class PlanAction extends DispatchAction {
     }
 
     public ActionForward save(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+    	/*
+       	DynaValidatorForm f = (DynaValidatorForm)form;
+    	EyeformFollowUp followUp = (FollowUp)f.get("followup");
+    	ProcedureBook proc = (ProcedureBook)f.get("proc");
+    	TestBookRecord test = (TestBookRecord)f.get("test");
 
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+    	int appointmentNo = followUp.getAppointmentNo();
 
-		int demographicNo = Integer.parseInt(request.getParameter("followup.demographicNo"));
+    	followUp.setId(null);
+    	proc.setId(null);
+    	test.setId(null);
+
+
+    	proc.setProvider(LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo());
+    	proc.setAppointmentNo(appointmentNo);
+    	proc.setDemographicNo(followUp.getDemographicNo());
+    	test.setProvider(LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo());
+    	test.setAppointmentNo(appointmentNo);
+    	test.setDemographicNo(followUp.getDemographicNo());
+
+
+    	if(followUp.getTimespan()>0)
+    		followUpDao.save(followUp);
+    	if(proc.getProcedureName().length()>0)
+    		procBookDao.save(proc);
+    	if(test.getTestname().length()>0) {
+    		testBookDao.save(test);
+    	}
+
+    	*/
+    	int demographicNo = Integer.parseInt(request.getParameter("followup.demographicNo"));
     	int appointmentNo = Integer.parseInt(request.getParameter("followup.appointmentNo"));
 
     	int maxFollowUp = Integer.parseInt(request.getParameter("followup_num"));
@@ -120,11 +147,11 @@ public class PlanAction extends DispatchAction {
     			//if(timespan.length() == 0) {
     			//	continue;
     			//}
-//    			try {
-//    				Integer.parseInt(timespan);
-//    			}catch(NumberFormatException e) {
-//    				timespan="0";
-//    			}
+    			try {
+    				Integer.parseInt(timespan);
+    			}catch(NumberFormatException e) {
+    				timespan="0";
+    			}
     			EyeformFollowUp fu = new EyeformFollowUp();
     			if(id.length()>0 && Integer.parseInt(id)>0) {
     				fu = followUpDao.find(Integer.parseInt(id));
@@ -136,8 +163,7 @@ public class PlanAction extends DispatchAction {
     			fu.setComment(request.getParameter("followup_"+x+".comment"));
     			fu.setFollowupProvider(request.getParameter("followup_"+x+".followupProvider"));
     			fu.setTimeframe(request.getParameter("followup_"+x+".timeframe"));
-//    			fu.setTimespan(Integer.parseInt(timespan));
-    			fu.setTimespan(timespan);
+    			fu.setTimespan(Integer.parseInt(timespan));
     			fu.setType(request.getParameter("followup_"+x+".type"));
     			fu.setUrgency(request.getParameter("followup_"+x+".urgency"));
 
@@ -152,10 +178,8 @@ public class PlanAction extends DispatchAction {
     	String[] ids = request.getParameterValues("followup.delete");
     	if(ids != null) {
     		for(String id:ids) {
-    			if(id.length()>0) {
-        			int followUpId = Integer.parseInt(id);
-        			followUpDao.remove(followUpId);    				
-    			}
+    			int followUpId = Integer.parseInt(id);
+    			followUpDao.remove(followUpId);
     		}
     	}
 
@@ -179,7 +203,7 @@ public class PlanAction extends DispatchAction {
     			proc.setProcedureName(request.getParameter("procedure_"+x+".procedureName"));
     			proc.setLocation(request.getParameter("procedure_"+x+".location"));
     			proc.setUrgency(request.getParameter("procedure_"+x+".urgency"));
-    			proc.setProvider(loggedInInfo.getLoggedInProviderNo());
+    			proc.setProvider(LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo());
     			if(proc.getId() == null)
     				procBookDao.persist(proc);
     			else
@@ -191,10 +215,8 @@ public class PlanAction extends DispatchAction {
     	ids = request.getParameterValues("procedure.delete");
     	if(ids != null) {
     		for(String id:ids) {
-    			if(id.length()>0) {
-        			int procedureId = Integer.parseInt(id);
-        			procBookDao.remove(procedureId);    				
-    			}
+    			int procedureId = Integer.parseInt(id);
+    			procBookDao.remove(procedureId);
     		}
     	}
 
@@ -218,7 +240,7 @@ public class PlanAction extends DispatchAction {
     			test.setTestname(request.getParameter("test_"+x+".testname"));
     			test.setUrgency(request.getParameter("test_"+x+".urgency"));
 
-    			test.setProvider(loggedInInfo.getLoggedInProviderNo());
+    			test.setProvider(LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo());
     			if(test.getId() == null)
     				testBookDao.persist(test);
     			else
@@ -230,10 +252,8 @@ public class PlanAction extends DispatchAction {
     	ids = request.getParameterValues("test.delete");
     	if(ids != null) {
     		for(String id:ids) {
-    			if(id.length()>0) {
-    				int testId = Integer.parseInt(id);
-    				testBookDao.remove(testId);
-    			}
+    			int testId = Integer.parseInt(id);
+    			testBookDao.remove(testId);
     		}
     	}
 
@@ -248,14 +268,12 @@ public class PlanAction extends DispatchAction {
 	    	for(String id:ids) {
 	    		EyeformFollowUp followUp = followUpDao.find(Integer.parseInt(id));
 	    		followUp.setType(request.getParameter("followup"+id+".type"));
-//	    		followUp.setTimespan(Integer.parseInt(request.getParameter("followup"+id+".timespan")));
-	    		followUp.setTimespan(request.getParameter("followup"+id+".timespan"));
+	    		followUp.setTimespan(Integer.parseInt(request.getParameter("followup"+id+".timespan")));
 	    		followUp.setFollowupProvider(request.getParameter("followup"+id+".followupProvider"));
 	    		followUp.setUrgency(request.getParameter("followup"+id+".urgency"));
 	    		followUp.setComment(request.getParameter("followup"+id+".comment"));
 	    		followUp.setTimeframe(request.getParameter("followup"+id+".timeframe"));
-//	    		if(followUp.getTimespan()==0) {
-	    		if(followUp.getTimespan().equals("0") || followUp.getTimespan().equals("")) {
+	    		if(followUp.getTimespan()==0) {
 	    			followUpDao.remove(Integer.parseInt(id));
 	    		} else {
 	    			followUpDao.merge(followUp);

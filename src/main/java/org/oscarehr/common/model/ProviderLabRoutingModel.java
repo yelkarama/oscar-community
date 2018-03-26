@@ -17,8 +17,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -62,7 +60,7 @@ public class ProviderLabRoutingModel extends AbstractModel<Integer> implements S
 	}
 	
 	public void setProviderNo(String providerNo) {
-		this.providerNo = StringUtils.trimToEmpty(providerNo);
+		this.providerNo = StringUtils.trimToNull(providerNo);
 	}
 	
 	public Integer getLabNo() {
@@ -78,7 +76,7 @@ public class ProviderLabRoutingModel extends AbstractModel<Integer> implements S
 	}
 	
 	public void setStatus(String status) {
-		this.status = StringUtils.trimToNull(status);
+		this.status = StringUtils.trimToNull(providerNo);
 	}
 	
 	public String getComment() {
@@ -103,12 +101,6 @@ public class ProviderLabRoutingModel extends AbstractModel<Integer> implements S
 	
 	public void setLabType(String labType) {
 		this.labType = StringUtils.trimToNull(labType);
-	}
-	
-	@PrePersist
-	@PreUpdate
-	protected void jpa_setTimestamp() {
-		this.timestamp = new Date();
 	}
 	
 }

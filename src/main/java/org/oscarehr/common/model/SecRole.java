@@ -32,6 +32,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+
 @Entity
 @Table(name = "secRole")
 public class SecRole extends AbstractModel<Integer> implements Serializable, Comparable<SecRole> {
@@ -68,5 +69,5 @@ public class SecRole extends AbstractModel<Integer> implements Serializable, Com
 	public int compareTo(SecRole o) {
 	    return(name.compareTo(o.name));
     }
-
+	
 }

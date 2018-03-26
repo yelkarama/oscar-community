@@ -17,43 +17,6 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_billing" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%@page import="org.oscarehr.common.model.DiagnosticCode"%>
-<%@page import="org.oscarehr.common.dao.DiagnosticCodeDao"%>
-<%@page import="org.oscarehr.common.dao.CtlBillingServiceDao"%>
-<%@page import="org.oscarehr.common.model.CtlBillingServicePremium"%>
-<%@page import="org.oscarehr.common.dao.CtlBillingServicePremiumDao"%>
-<%@page import="org.oscarehr.common.dao.OscarAppointmentDao"%>
-<%@page import="org.oscarehr.common.model.Appointment"%>
-<%@page import="java.util.Date"%>
-<%@page import="org.oscarehr.common.model.BillingService"%>
-<%@page import="org.oscarehr.common.model.CtlBillingService"%>
-<%@page import="org.oscarehr.common.dao.BillingServiceDao"%>
-<%@page import="org.oscarehr.common.model.ClinicLocation"%>
-<%@page import="org.oscarehr.common.dao.ClinicLocationDao"%>
-<%@page import="org.oscarehr.billing.CA.model.BillingDetail"%>
-<%@page import="org.oscarehr.billing.CA.dao.BillingDetailDao"%>
-<%@page import="oscar.util.ConversionUtils"%>
-<%@page import="org.oscarehr.common.model.Billing"%>
-<%@page import="org.oscarehr.common.dao.BillingDao"%>
-<%@page import="org.oscarehr.common.dao.DemographicDao"%>
-<%@page import="org.oscarehr.common.model.Demographic"%>
-<%@page import="org.oscarehr.common.model.Provider" %>
-<%@page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
 <%
   if (session.getAttribute("user") == null) {
     response.sendRedirect("../../../logout.jsp");
@@ -80,18 +43,15 @@ if(!authed) {
 <%@page import="org.oscarehr.common.model.Provider"%>
 <%@page import="org.oscarehr.common.dao.ClinicNbrDao"%>
 <%@page import="org.oscarehr.PMmodule.dao.ProviderDao"%>
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 
 <% java.util.Properties oscarVariables = OscarProperties.getInstance(); %>
 <jsp:useBean id="providerBean" class="java.util.Properties"
 	scope="session" />
 <%@page import="org.oscarehr.util.SpringUtils" %>
-<%@page import="org.oscarehr.common.model.*" %>
-<%@page import="org.oscarehr.common.dao.*" %>
-<%@page import="org.apache.commons.lang.StringUtils" %>
+<%@page import="org.oscarehr.common.model.ProfessionalSpecialist" %>
+<%@page import="org.oscarehr.common.dao.ProfessionalSpecialistDao" %>
 <%
 	ProfessionalSpecialistDao professionalSpecialistDao = (ProfessionalSpecialistDao) SpringUtils.getBean("professionalSpecialistDao");
-	LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
 %>
 <%
   boolean bHospitalBilling = true;
@@ -104,8 +64,7 @@ if(!authed) {
   String            apptProvider_no   = request.getParameter("apptProvider_no");
   String ctlBillForm = request.getParameter("billForm");
   String            assgProvider_no   = request.getParameter("assgProvider_no");
-  if (assgProvider_no==null) assgProvider_no = new String();
-
+  //String            dob               = request.getParameter("dob");
   String            demoSex           = request.getParameter("DemoSex");
   GregorianCalendar now               = new GregorianCalendar();
   int               curYear           = now.get(Calendar.YEAR);
@@ -114,7 +73,7 @@ if(!authed) {
   int               dob_year          = 0, dob_month = 0, dob_date = 0, age = 0;
 
   ResourceBundle res = ResourceBundle.getBundle("oscarResources", request.getLocale());
-  
+  BillingONDataHelp dbObj             = new BillingONDataHelp();
   String            msg               = res.getString("billing.hospitalBilling.msgDates");
   String            action            = "edit";
   Properties        propHist          = null;
@@ -122,14 +81,11 @@ if(!authed) {
 
   // get provider's detail
   String proOHIPNO="", proRMA="";
-  ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
-  Provider prov = null;
-  if(request.getParameter("xml_provider") != null) {
-  	prov = providerDao.getProvider(request.getParameter("xml_provider"));
-  }
-  if (prov != null) {
-	proOHIPNO = prov.getOhipNo();
-	proRMA = prov.getRmaNo();
+  String sql = "select * from provider where provider_no='" + request.getParameter("xml_provider") + "'";
+  ResultSet rs = dbObj.searchDBRecord(sql);
+  while (rs.next()) {
+	proOHIPNO = rs.getString("ohip_no");
+	proRMA = rs.getString("rma_no");
   }
   if(request.getParameter("xml_provider")!=null) providerview = request.getParameter("xml_provider");
   // get patient's detail
@@ -137,42 +93,42 @@ if(!authed) {
   String warningMsg = "", errorMsg = "";
   String r_doctor="", r_doctor_ohip="" ;
   String demoFirst="", demoLast="", demoHIN="", demoDOB="", demoDOBYY="", demoDOBMM="", demoDOBDD="", demoHCTYPE="";
-  
-  DemographicDao demoDao = SpringUtils.getBean(DemographicDao.class);
-  Demographic demo = demoDao.getDemographic(demo_no);
-  if (demo != null) {
-    assgProvider_no = demo.getProviderNo();
-    if (assgProvider_no==null) assgProvider_no = new String();
-    
-	demoFirst = demo.getFirstName();
-	demoLast = demo.getLastName();
-	demoSex = demo.getSex();
-	if (demo.getHin()!=null && demo.getVer()!=null) demoHIN = demo.getHin() + demo.getVer();
+  sql = "select * from demographic where demographic_no=" + demo_no;
+  rs = dbObj.searchDBRecord(sql);
+  while (rs.next()) {
+    assgProvider_no = rs.getString("provider_no");
+	demoFirst = rs.getString("first_name");
+	demoLast = rs.getString("last_name");
+	demoHIN = rs.getString("hin") + rs.getString("ver");
+	demoSex = rs.getString("sex");
 	if (demoSex.compareTo("M")==0) demoSex ="1";
 	if (demoSex.compareTo("F")==0) demoSex ="2";
 
-	demoHCTYPE = demo.getHcType() == null?"":demo.getHcType();
+	demoHCTYPE = rs.getString("hc_type")==null?"":rs.getString("hc_type");
 	if (demoHCTYPE.compareTo("") == 0 || demoHCTYPE == null || demoHCTYPE.length() <2) {
 		demoHCTYPE="ON";
 	}else{
 		demoHCTYPE=demoHCTYPE.substring(0,2).toUpperCase();
 	}
-	demoDOBYY = demo.getYearOfBirth();
-	demoDOBMM = demo.getMonthOfBirth();
-	demoDOBDD = demo.getDateOfBirth();
+	demoDOBYY = rs.getString("year_of_birth");
+	demoDOBMM = rs.getString("month_of_birth");
+	demoDOBDD = rs.getString("date_of_birth");
 
-	if (demo.getFamilyDoctor() == null){
+	if (rs.getString("family_doctor") == null){
 		r_doctor = "N/A"; r_doctor_ohip="000000";
 	}else{
-		r_doctor=SxmlMisc.getXmlContent(demo.getFamilyDoctor(),"rd")==null ? "" : SxmlMisc.getXmlContent(demo.getFamilyDoctor(), "rd");
-		r_doctor_ohip=SxmlMisc.getXmlContent(demo.getFamilyDoctor(),"rdohip")==null ? "" : SxmlMisc.getXmlContent(demo.getFamilyDoctor(), "rdohip");
+		r_doctor=SxmlMisc.getXmlContent(rs.getString("family_doctor"),"rd")==null ? "" : SxmlMisc.getXmlContent(rs.getString("family_doctor"), "rd");
+		r_doctor_ohip=SxmlMisc.getXmlContent(rs.getString("family_doctor"),"rdohip")==null ? "" : SxmlMisc.getXmlContent(rs.getString("family_doctor"), "rdohip");
 	}
 
 	demoDOBMM = demoDOBMM.length() == 1 ? ("0" + demoDOBMM) : demoDOBMM;
 	demoDOBDD = demoDOBDD.length() == 1 ? ("0" + demoDOBDD) : demoDOBDD;
 	demoDOB = demoDOBYY + demoDOBMM + demoDOBDD;
 
-	if (demo.getHin()==null || demo.getHin().equals("")) {
+	if (rs.getString("hin") == null ) {
+		errorFlag = "1";
+		errorMsg = errorMsg + "<br><b><font color='red'>Error: The patient does not have a valid HIN. </font></b><br>";
+	} else if (rs.getString("hin").equals("")) {
 		warningMsg += "<br><b><font color='orange'>Warning: The patient does not have a valid HIN. </font></b><br>";
 	}
 	if (r_doctor_ohip != null && r_doctor_ohip.length()>0 && r_doctor_ohip.length() != 6) {
@@ -192,43 +148,49 @@ if(!authed) {
   OscarProperties props = OscarProperties.getInstance();
   if(!props.getProperty("isNewONbilling", "").equals("true")) {
 
-  BillingDao billingDao = SpringUtils.getBean(BillingDao.class);
-  for(Billing b : billingDao.findActiveBillingsByDemoNo(ConversionUtils.fromIntString(demo_no), 5)) {
+  sql = "select billing_no,billing_date,visitdate,visitType, update_date, clinic_ref_code, content from billing " +
+		" where demographic_no=" + demo_no + " and status!='D' order by billing_date desc, billing_no desc limit 5";
+  rs = dbObj.searchDBRecord(sql);
+
+  while (rs.next()) {
     propHist = new Properties();
 
-    propHist.setProperty("billing_no", "" + b.getId());
-    propHist.setProperty("visitdate", ConversionUtils.toDateString(b.getVisitDate())); // admission date
-    propHist.setProperty("billing_date", ConversionUtils.toDateString(b.getBillingDate())); // service date
-    propHist.setProperty("update_date", ConversionUtils.toDateString(b.getUpdateDate())); // create date
-    propHist.setProperty("visitType", b.getVisitType());
-    propHist.setProperty("clinic_ref_code", b.getClinicRefCode());
+    propHist.setProperty("billing_no", "" + rs.getInt("billing_no"));
+    propHist.setProperty("visitdate", rs.getString("visitdate")); // admission date
+    propHist.setProperty("billing_date", rs.getString("billing_date")); // service date
+    propHist.setProperty("update_date", rs.getString("update_date")); // create date
+    propHist.setProperty("visitType", rs.getString("visitType"));
+    propHist.setProperty("clinic_ref_code", rs.getString("clinic_ref_code"));
     vecHist.add(propHist);
 
     // get the latest ref. doctor number
-    if(bFirst && "checked".equals(SxmlMisc.getXmlContent(b.getContent(),"xml_referral")) ) {
+    if(bFirst && "checked".equals(SxmlMisc.getXmlContent(rs.getString("content"),"xml_referral")) ) {
         bFirst = false;
-		r_doctor_ohip= SxmlMisc.getXmlContent(b.getContent(), "rdohip");
+		r_doctor_ohip= SxmlMisc.getXmlContent(rs.getString("content"), "rdohip");
     }
   }
 
-  BillingDetailDao billingDetailDao = SpringUtils.getBean(BillingDetailDao.class);
   for (int i = 0; i < vecHist.size(); i++) {
     String billingNo = ((Properties)vecHist.get(i)).getProperty("billing_no", "");
+
+    sql = "select service_code,diagnostic_code,billingunit from billingdetail where billing_no=" + billingNo +
+            " and status!='D' order by service_code";
+    rs = dbObj.searchDBRecord(sql);
 
     String dx      = "";
     String serCode = "";
 
-    for(BillingDetail bd : billingDetailDao.findByBillingNo(ConversionUtils.fromIntString(billingNo))) {
-      if (dx.equals("") || !dx.equals(bd.getDiagnosticCode())) {
+    while (rs.next()) {
+      if (dx.equals("") || !dx.equals(rs.getString("diagnostic_code"))) {
         dx += (dx.equals("")
         ? ""
-        : ", ") + bd.getDiagnosticCode();
+        : ", ") + rs.getString("diagnostic_code");
       }
 
-      if (serCode.equals("") || !serCode.equals(bd.getServiceCode())) {
+      if (serCode.equals("") || !serCode.equals(rs.getString("service_code"))) {
         serCode += (serCode.equals("")
         ? ""
-        : ", ") + bd.getServiceCode() + " x " + bd.getBillingUnit();
+        : ", ") + rs.getString("service_code") + " x " + rs.getString("billingunit");
       }
     }
 
@@ -240,14 +202,14 @@ if(!authed) {
   }
   } else {
 		JdbcBillingReviewImpl hdbObj = new JdbcBillingReviewImpl();
-		aL = hdbObj.getBillingHist(loggedInInfo, demo_no, 5,0, null);
+		aL = hdbObj.getBillingHist(demo_no, 5,0, null);
 		if (aL.size()>0) {
 			BillingClaimHeader1Data obj = (BillingClaimHeader1Data) aL.get(0);
 			BillingItemData iobj = (BillingItemData) aL.get(1);
 
 			propHist = new Properties();
 
-			propHist.setProperty("visitdate", obj.getAdmission_date() == null ? "" : obj.getAdmission_date()); // admission date
+			propHist.setProperty("visitdate", obj.getAdmission_date()); // admission date
 			propHist.setProperty("visitType", obj.getVisittype());
 			propHist.setProperty("clinic_ref_code", obj.getFacilty_num());
 			vecHist.add(propHist);
@@ -261,33 +223,32 @@ if(!authed) {
   // Retrieving Provider
   Vector vecProvider = new Vector();
   Properties propT = null;
-  
-  ProviderDao prDao = SpringUtils.getBean(ProviderDao.class);
-  for(Provider pr : prDao.getDoctorsWithOhip()) {
+  sql = "select first_name,last_name,provider_no from provider "
+   + "where provider_type='doctor' and status='1' and ohip_no || null order by last_name, first_name";
+  rs = dbObj.searchDBRecord(sql);
+  while (rs.next()) {
     propT = new Properties();
-    propT.setProperty("last_name", pr.getLastName());
-    propT.setProperty("first_name", pr.getFirstName());
-    propT.setProperty("proOHIP", pr.getProviderNo());
+    propT.setProperty("last_name",rs.getString("last_name"));
+    propT.setProperty("first_name",rs.getString("first_name"));
+    propT.setProperty("proOHIP",rs.getString("provider_no"));
     vecProvider.add(propT);
   }
   // clinic location
   Vector vecLocation = new Vector();
-  
-  ClinicLocationDao clDao = SpringUtils.getBean(ClinicLocationDao.class);
-  for(ClinicLocation cl : clDao.findAll()) {
+  sql = "select * from clinic_location where clinic_no = 1 order by clinic_location_no";
+  rs = dbObj.searchDBRecord(sql);
+  while (rs.next()) {
     propT = new Properties();
-    propT.setProperty("clinic_location_name", cl.getClinicLocationName());
-    propT.setProperty("clinic_location_no", cl.getClinicLocationNo());
+    propT.setProperty("clinic_location_name",rs.getString("clinic_location_name"));
+    propT.setProperty("clinic_location_no",rs.getString("clinic_location_no"));
     vecLocation.add(propT);
   }
 
   // set default value
   // use parameter -> history record
-  if( StringUtils.trimToNull(r_doctor_ohip) != null ) {
-  	ProfessionalSpecialist specialist = professionalSpecialistDao.getByReferralNo(r_doctor_ohip);
-  	if(specialist != null) {
+  ProfessionalSpecialist specialist = professionalSpecialistDao.getByReferralNo(r_doctor_ohip);
+  if(specialist != null) {
   	          	r_doctor = specialist.getLastName() + "," + specialist.getFirstName();
-  	}
   }
 
   String paraName = request.getParameter("dxCode");
@@ -330,84 +291,82 @@ if(!authed) {
 
   //int CountService = 0;
   //int Count2 = 0;
-  BillingServiceDao bsDao = SpringUtils.getBean(BillingServiceDao.class);
-  // "select c.service_group_name, c.service_order,b.service_code, b.description, b.value, b.percentage, b.sliFlag"
-  for(Object[] o : bsDao.findBillingServiceAndCtlBillingServiceByMagic(ctlBillForm, "Group1", new Date())) {
-	BillingService b = (BillingService) o[0];
-	CtlBillingService c = (CtlBillingService) o[1];
-	  
-	propT = new Properties();
-	headerTitle1 = c.getServiceGroupName();
-    propT.setProperty("serviceCode",b.getServiceCode());
-    propT.setProperty("serviceDesc",b.getDescription());
-    propT.setProperty("serviceDisp",b.getValue());
-    propT.setProperty("servicePercentage",Misc.getStr(b.getPercentage(), ""));
-    propT.setProperty("serviceSLI", Misc.getStr("" + b.getSliFlag(), "false"));
-    vecCodeCol1.add(propT);
+  sql = "select c.service_group_name, c.service_order,b.service_code, b.description, b.value, b.percentage, b.sliFlag from billingservice b, ctl_billingservice c where c.service_code=b.service_code and c.status='A' and c.servicetype ='"
+   + ctlBillForm + "' and c.service_group ='" + "Group1" + "' and billingservice_date in (select max(b2.billingservice_date) from billingservice b2 where b2.billingservice_date <= now() and b2.service_code = b.service_code) order by c.service_order";
+  rs = dbObj.searchDBRecord(sql);
+  while (rs.next()) {
+    propT = new Properties();
+	//serviceCode = rs.getString("service_code");
+	//serviceDesc = rs.getString("description");
+	//serviceValue = rs.getString("value");
+	//servicePercentage = rs.getString("percentage");
+	headerTitle1 = rs.getString("service_group_name");
+	//serviceDisp = serviceValue;
+    propT.setProperty("serviceCode",rs.getString("service_code"));
+    propT.setProperty("serviceDesc",rs.getString("description"));
+    propT.setProperty("serviceDisp",rs.getString("value"));
+    propT.setProperty("servicePercentage",Misc.getStr(rs.getString("percentage"), ""));
+    propT.setProperty("serviceSLI", Misc.getStr(rs.getString("sliFlag"), "false"));
+    //propT.setProperty("headerTitle1",rs.getString("service_group_name"));
+	vecCodeCol1.add(propT);
   }
-  
   if(!vecCodeCol1.isEmpty()) {
-	  List<String> svcCodes = new ArrayList<String>();
+	  sql = "select service_code,status from ctl_billingservice_premium where ";
 	  for(int i=0; i<vecCodeCol1.size(); i++) {
-		  svcCodes.add(((Properties)vecCodeCol1.get(i)).getProperty("serviceCode"));
+	  	sql += (i==0?"":" or ") + "service_code='" + ((Properties)vecCodeCol1.get(i)).getProperty("serviceCode") + "'";
 	  }
-	  
-	  CtlBillingServicePremiumDao cprDao = SpringUtils.getBean(CtlBillingServicePremiumDao.class); 
-	  for(CtlBillingServicePremium pr : cprDao.findByServceCodes(svcCodes)) {
-	    propPremium.setProperty(pr.getServiceCode(), "A");
+	  rs = dbObj.searchDBRecord(sql);
+	  while (rs.next()) {
+	    propPremium.setProperty(rs.getString("service_code"), "A");
 	  }
   }
 
-  for(Object[] o : bsDao.findBillingServiceAndCtlBillingServiceByMagic(ctlBillForm, "Group2", new Date())) {
-		BillingService b = (BillingService) o[0];
-		CtlBillingService c = (CtlBillingService) o[1];
-
-		propT = new Properties();
-		headerTitle1 = c.getServiceGroupName();
-	    propT.setProperty("serviceCode",b.getServiceCode());
-	    propT.setProperty("serviceDesc",b.getDescription());
-	    propT.setProperty("serviceDisp",b.getValue());
-	    propT.setProperty("servicePercentage",Misc.getStr(b.getPercentage(), ""));
-	    propT.setProperty("serviceSLI", Misc.getStr("" + b.getSliFlag(), "false"));
-		vecCodeCol2.add(propT);
+  sql = "select c.service_group_name, c.service_order,b.service_code, b.description, b.value, b.percentage, b.sliFlag from billingservice b, ctl_billingservice c where c.service_code=b.service_code and c.status='A' and c.servicetype ='"
+   + ctlBillForm + "' and c.service_group ='" + "Group2" + "' and b.billingservice_date in (select max(b2.billingservice_date) from billingservice b2 where b2.billingservice_date <= now() and b2.service_code = b.service_code) order by c.service_order";
+  rs = dbObj.searchDBRecord(sql);
+  while (rs.next()) {
+    propT = new Properties();
+	headerTitle2 = rs.getString("service_group_name");
+    propT.setProperty("serviceCode",rs.getString("service_code"));
+    propT.setProperty("serviceDesc",rs.getString("description"));
+    propT.setProperty("serviceDisp",rs.getString("value"));
+    propT.setProperty("servicePercentage",Misc.getStr(rs.getString("percentage"), ""));
+    propT.setProperty("serviceSLI", Misc.getStr(rs.getString("sliFlag"), "false"));
+	vecCodeCol2.add(propT);
+  }
+  if( !vecCodeCol2.isEmpty() ) {
+  	sql = "select service_code,status from ctl_billingservice_premium where ";
+  	for(int i=0; i<vecCodeCol2.size(); i++) {
+  		sql += (i==0?"":" or ") + "service_code='" + ((Properties)vecCodeCol2.get(i)).getProperty("serviceCode") + "'";
+  	}
+  	rs = dbObj.searchDBRecord(sql);
+  	while (rs.next()) {
+    	propPremium.setProperty(rs.getString("service_code"), "A");
+  	}
+  }
+  sql = "select c.service_group_name, c.service_order,b.service_code, b.description, b.value, b.percentage, b.sliFlag from billingservice b, ctl_billingservice c where c.service_code=b.service_code and c.status='A' and c.servicetype ='"
+   + ctlBillForm + "' and c.service_group ='" + "Group3" + "' and b.billingservice_date in (select max(b2.billingservice_date) from billingservice b2 where b2.billingservice_date <= now() and b2.service_code = b.service_code) order by c.service_order";
+  rs = dbObj.searchDBRecord(sql);
+  while (rs.next()) {
+    propT = new Properties();
+	headerTitle3 = rs.getString("service_group_name");
+    propT.setProperty("serviceCode",rs.getString("service_code"));
+    propT.setProperty("serviceDesc",rs.getString("description"));
+    propT.setProperty("serviceDisp",rs.getString("value"));
+    propT.setProperty("servicePercentage",Misc.getStr(rs.getString("percentage"), ""));
+    propT.setProperty("serviceSLI", Misc.getStr(rs.getString("sliFlag"), "false"));
+	vecCodeCol3.add(propT);
   }
   
-  if(!vecCodeCol2.isEmpty()) {
-	  List<String> svcCodes = new ArrayList<String>();
-	  for(int i=0; i<vecCodeCol2.size(); i++) {
-		  svcCodes.add(((Properties)vecCodeCol2.get(i)).getProperty("serviceCode"));
-	  }
-	  
-	  CtlBillingServicePremiumDao cprDao = SpringUtils.getBean(CtlBillingServicePremiumDao.class); 
-	  for(CtlBillingServicePremium pr : cprDao.findByServceCodes(svcCodes)) {
-	    propPremium.setProperty(pr.getServiceCode(), "A");
-	  }
-  }
-
-  for(Object[] o : bsDao.findBillingServiceAndCtlBillingServiceByMagic(ctlBillForm, "Group3", new Date())) {
-	BillingService b = (BillingService) o[0];
-	CtlBillingService c = (CtlBillingService) o[1];
-	  
-	propT = new Properties();
-	headerTitle1 = c.getServiceGroupName();
-    propT.setProperty("serviceCode",b.getServiceCode());
-    propT.setProperty("serviceDesc",b.getDescription());
-    propT.setProperty("serviceDisp",b.getValue());
-    propT.setProperty("servicePercentage",Misc.getStr(b.getPercentage(), ""));
-    propT.setProperty("serviceSLI", Misc.getStr("" + b.getSliFlag(), "false"));
-    vecCodeCol3.add(propT);
-  }
-  
-  if(!vecCodeCol3.isEmpty()) {
-	  List<String> svcCodes = new ArrayList<String>();
-	  for(int i=0; i<vecCodeCol3.size(); i++) {
-		  svcCodes.add(((Properties)vecCodeCol3.get(i)).getProperty("serviceCode"));
-	  }
-	  
-	  CtlBillingServicePremiumDao cprDao = SpringUtils.getBean(CtlBillingServicePremiumDao.class); 
-	  for(CtlBillingServicePremium pr : cprDao.findByServceCodes(svcCodes)) {
-	    propPremium.setProperty(pr.getServiceCode(), "A");
-	  }
+  if( !vecCodeCol3.isEmpty() ) {
+  	sql = "select service_code,status from ctl_billingservice_premium where ";
+  	for(int i=0; i<vecCodeCol3.size(); i++) {
+  		sql += (i==0?"":" or ") + "service_code='" + ((Properties)vecCodeCol3.get(i)).getProperty("serviceCode") + "'";
+  	}
+  	rs = dbObj.searchDBRecord(sql);
+  	while (rs.next()) {
+    	propPremium.setProperty(rs.getString("service_code"), "A");
+  	}
   }
   // create msg
   msg += errorMsg + warningMsg;
@@ -474,9 +433,8 @@ function showHideLayers() { //v3.0
     function onNext() {
         //document.forms[0].submit.value="save";
         var ret = checkAllDates();
-        if (!checkSli()) {
+        if (!(ret = checkSli())) {
         	alert("You have selected billing codes that require an SLI code but have not provided an SLI code.");
-		return false;
         }
         return ret;
     }
@@ -484,41 +442,42 @@ function showHideLayers() { //v3.0
 	    document.forms[0].serviceDate0.value = document.forms[0].serviceDate0.value.toUpperCase();
 	    document.forms[0].serviceDate1.value = document.forms[0].serviceDate1.value.toUpperCase();
 	    document.forms[0].serviceDate2.value = document.forms[0].serviceDate2.value.toUpperCase();
+        var b = true;
         if(document.forms[0].billDate.value.length<1){
         	alert("No billing date!");
-            return false;
+            b = false;
         } else if(!isChecked("code_xml_") && document.forms[0].serviceDate0.value.length!=5 || !isServiceCode(document.forms[0].serviceDate0.value)){
         	alert("Need service code!");
-            return false;
+            b = false;
         } else if(document.forms[0].serviceDate1.value.length>0 && document.forms[0].serviceDate1.value.length!=5 || !isServiceCode(document.forms[0].serviceDate1.value)){
         	alert("Wrong service code 2!");
-            return false;
+            b = false;
         } else if(document.forms[0].serviceDate2.value.length>0 && document.forms[0].serviceDate2.value.length!=5 || !isServiceCode(document.forms[0].serviceDate2.value)){
         	alert("Wrong service code 3!");
-            return false;
+            b = false;
         } else if(document.forms[0].serviceDate3.value.length>0 && document.forms[0].serviceDate3.value.length!=5 || !isServiceCode(document.forms[0].serviceDate3.value)){
         	alert("Wrong service code 4!");
-            return false;
+            b = false;
         } else if(document.forms[0].serviceDate4.value.length>0 && document.forms[0].serviceDate4.value.length!=5 || !isServiceCode(document.forms[0].serviceDate4.value)){
         	alert("Wrong service code 5!");
-            return false;
+            b = false;
         } else if(document.forms[0].dxCode.value.length!=3){
         	alert("Wrong dx code!");
-            return false;
+            b = false;
         //} else if(document.forms[0].xml_provider.options[0].selected){
         } else if(document.forms[0].xml_provider.value=="000000"){
         	alert("Please select a provider.");
-            return false;
+            b = false;
         }
         <% if (!OscarProperties.getInstance().getBooleanProperty("rma_enabled", "true")) { %>
         else if(document.forms[0].xml_visittype.options[2].selected && (document.forms[0].xml_vdate.value=="" || document.forms[0].xml_vdate.value=="0000-00-00")){
         	alert("Need an admission date.");
-            return false;
+            b = false;
         }
         <% } %>
 
 		if(document.forms[0].xml_vdate.value.length>0) {
-        	return checkServiceDate(document.forms[0].xml_vdate.value);
+        	b = checkServiceDate(document.forms[0].xml_vdate.value);
         }
         if(document.forms[0].billDate.value.length>0) {
         	var billDateA = document.forms[0].billDate.value.split("\n");
@@ -526,23 +485,23 @@ function showHideLayers() { //v3.0
         		var v = billDateA[i];
         		if (v) {
 					//alert(" !" + v);
-					return checkServiceDate(v);
+					b = checkServiceDate(v);
 				}
 			}
         }
 
         if(!isInteger(document.forms[0].dxCode.value)) {
         	alert("Wrong dx code!");
-            return false;
+            b = false;
         }
         if(document.forms[0].referralCode.value.length>0) {
           if(document.forms[0].referralCode.value.length!=6 || !isInteger(document.forms[0].referralCode.value)) {
         	alert("Wrong referral code!");
-            return false;
+            b = false;
           }
         }
 
-        return true;
+        return b;
     }
 function checkServiceDate(s) {
 	var calDate=new Date();
@@ -566,7 +525,7 @@ function checkServiceDate(s) {
 		bWrongDate = true;
 	}
 	if(bWrongDate) {
-		alert("Warning - Service/Admission Date is future dated!");
+		alert("You may have a wrong Service/admission Date!" + " Wrong " + sMsg);
 		return false;
 	} else {
 		return true;
@@ -674,15 +633,13 @@ function onDblClickServiceCode(item) {
 	<%
 String ctlcode="", ctlcodename="", currentFormName="";
 int ctlCount = 0;
-
-  CtlBillingServiceDao cbsDao = SpringUtils.getBean(CtlBillingServiceDao.class); 
-  for(Object[] o : cbsDao.findServiceTypesByStatus("A")) {
-	ctlcodename = String.valueOf(o[0]);
-	ctlcode = String.valueOf(o[1]);
+  sql = "select distinct servicetype_name, servicetype from ctl_billingservice where status='A'";
+  rs = dbObj.searchDBRecord(sql);
+  while (rs.next()) {
+	ctlcode = rs.getString("servicetype");
+	ctlcodename = rs.getString("servicetype_name");
 	ctlCount++;
-	if(ctlcode.equals(ctlBillForm)) {
-		currentFormName = ctlcodename;
-	}
+	if(ctlcode.equals(ctlBillForm)) currentFormName = ctlcodename;
 %>
 	<tr bgcolor=<%=ctlCount%2==0 ? "#FFFFFF" : "#EEEEFF"%>>
 		<td colspan="2"><b><font size="-2" color="#7A388D"><a
@@ -708,11 +665,11 @@ int ctlCount = 0;
 	<%
 String ctldiagcode="", ctldiagcodename="";
 ctlCount = 0;
-  DiagnosticCodeDao dcDao = SpringUtils.getBean(DiagnosticCodeDao.class);
-  for(Object[] o : dcDao.findDiagnosictsAndCtlDiagCodesByServiceType(ctlBillForm)){
-	  DiagnosticCode dc = (DiagnosticCode) o[0];
-	  ctldiagcode = dc.getDiagnosticCode();
-	  ctldiagcodename = dc.getDescription();
+  sql = "select d.diagnostic_code dcode, d.description des from diagnosticcode d, ctl_diagcode c where c.diagnostic_code=d.diagnostic_code and c.servicetype='" + ctlBillForm + "' order by d.description";
+  rs = dbObj.searchDBRecord(sql);
+  while (rs.next()) {
+	ctldiagcode = rs.getString("dcode");
+	ctldiagcodename = rs.getString("des");
 %>
 	<tr bgcolor=<%=ctlCount%2==0 ? "#FFFFFF" : "#EEEEFF"%>>
 		<td width="18%"><b><font size="-2" color="#7A388D"><a
@@ -841,60 +798,7 @@ ctlCount = 0;
 					<tr>
 						<td nowrap width="30%" align="center"><b><bean:message key="billing.hospitalBilling.frmBillPhysician"/>
 						</b></td>
-						<td width="20%">
-						<% if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable())
-{ // multisite start ==========================================
-        	SiteDao siteDao = (SiteDao)SpringUtils.getBean("siteDao");
-          	List<Site> sites = siteDao.getActiveSitesByProviderNo((String) session.getAttribute("user"));
-
-      %>
-      <script>
-var _providers = [];
-<%	for (int i=0; i<sites.size(); i++) { %>
-	_providers["<%= sites.get(i).getId().toString() %>"]="<% Iterator<Provider> iter = sites.get(i).getProviders().iterator();
-	while (iter.hasNext()) {
-		Provider p=iter.next();
-		if ("1".equals(p.getStatus()) && StringUtils.isNotBlank(p.getOhipNo())) {
-	%><option value='<%= p.getProviderNo() %>|<%= p.getOhipNo() %>' ><%= p.getLastName() %>, <%= p.getFirstName() %></option><% }} %>";
-<% } %>
-function changeSite(sel) {
-	sel.form.xml_provider.innerHTML=sel.value=="none"?"":_providers[sel.value];
-	sel.style.backgroundColor=sel.options[sel.selectedIndex].style.backgroundColor;
-}
-      </script>
-      	<select id="site" name="site" onchange="changeSite(this)" style="width:140px">
-      		<option value="none" style="background-color:white">---select clinic---</option>
-      	<%
-      	String selectedSite = request.getParameter("site");
-      	String xmlp = null;
-      	if (selectedSite==null) {
-      		OscarAppointmentDao apptDao = SpringUtils.getBean(OscarAppointmentDao.class);
-          	Appointment apptModel = apptDao.find(Integer.valueOf(appt_no));
-          	if (apptModel != null) {
-          		selectedSite = apptModel.getLocation();
-          		Provider prov0 = providerDao.getProvider(apptModel.getProviderNo());
-          		if (prov0 != null) {
-          			xmlp = apptModel.getProviderNo()+"|"+prov0.getOhipNo();
-          		}
-          	}
-      	}
-      	for (int i=0; i<sites.size(); i++) {
-      	%>
-      		<option value="<%= sites.get(i).getId().toString() %>" style="background-color:<%= sites.get(i).getBgColor() %>"
-      			 <%=sites.get(i).getId().toString().equals(selectedSite)?"selected":"" %>><%= sites.get(i).getName() %></option>
-      	<% } %>
-      	</select>
-      	<select id="xml_provider" name="xml_provider" style="width:140px"></select>
-      	<script>
-     	changeSite(document.getElementById("site"));
-      	document.getElementById("xml_provider").value='<%=request.getParameter("xml_provider")==null?xmlp:request.getParameter("xml_provider")%>';
-      	</script>
-<% // multisite end ==========================================
-} else {
-%>
-						
-						
-						<select name="xml_provider">
+						<td width="20%"><select name="xml_provider">
 							<%
 				if(vecProvider.size()==1) {
 					propT = (Properties) vecProvider.get(0);
@@ -916,9 +820,7 @@ function changeSite(sel) {
 							<%	}
 				}
 				%>
-						</select>
-<% } %>			
-						</td>
+						</select></td>
 						<td nowrap width="30%" align="center"><b><bean:message key="billing.hospitalBilling.frmAssgnPhysician"/></b></td>
 						<td width="20%"><%=providerBean.getProperty(assgProvider_no, "")%>
 						</td>
@@ -931,7 +833,7 @@ function changeSite(sel) {
 					    <%
 					    ClinicNbrDao cnDao = (ClinicNbrDao) SpringUtils.getBean("clinicNbrDao");
 						ArrayList<ClinicNbr> nbrs = cnDao.findAll();
-			            
+			            ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao");
 			            String providerSearch = apptProvider_no.equalsIgnoreCase("none") ? user_no : apptProvider_no;
 			            Provider p = providerDao.getProvider(providerSearch);
 			            String providerNbr = SxmlMisc.getXmlContent(p.getComments(),"xml_p_nbr");
@@ -993,18 +895,15 @@ function changeSite(sel) {
 						</select></td>
 					</tr>
 						<%
-				
-					String providerNumForQuery = null;
+				sql = "select * from provider where provider_no ='";
                     if( apptProvider_no.equalsIgnoreCase("none") ) {
-                    	providerNumForQuery = user_no;
+                        sql += user_no + "'";
                     }
                     else {
-                    	providerNumForQuery = apptProvider_no;
-                    }
-				Provider pr = providerDao.getProvider(providerNumForQuery);
-				if (pr != null) { 
-					String prComments = pr.getComments();
-				%>
+                        sql += apptProvider_no + "'";
+                    };
+				rs = dbObj.searchDBRecord(sql);
+				if (rs.next()) { %>
 					<tr>
 						<td><b><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode"/></b></td>
 				   	 	<td colspan="3">
@@ -1012,64 +911,52 @@ function changeSite(sel) {
 
 							<option value="<%=clinicNo%>"><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.NA" /></option>
 
-							<%if (SxmlMisc.getXmlContent(prComments,"xml_p_sli").trim().equals("HDS")) {%>
+							<%if (SxmlMisc.getXmlContent(rs.getString("comments"),"xml_p_sli").trim().equals("HDS")) {%>
 								<option selected value="HDS "><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.HDS" /></option>
 							<%} else { %>
 								<option value="HDS "><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.HDS" /></option>
 							<%}%>
 
-							<%if (SxmlMisc.getXmlContent(prComments,"xml_p_sli").trim().equals("HED")) {%>
+							<%if (SxmlMisc.getXmlContent(rs.getString("comments"),"xml_p_sli").trim().equals("HED")) {%>
 								<option selected value="HED "><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.HED" /></option>
 							<%} else { %>
 								<option value="HED "><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.HED" /></option>
 							<%}%>
 
-							<%if (SxmlMisc.getXmlContent(prComments,"xml_p_sli").trim().equals("HIP")) {%>
+							<%if (SxmlMisc.getXmlContent(rs.getString("comments"),"xml_p_sli").trim().equals("HIP")) {%>
 								<option selected value="HIP "><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.HIP" /></option>
 							<%} else { %>
 								<option value="HIP "><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.HIP" /></option>
 							<%}%>
 
-							<%if (SxmlMisc.getXmlContent(prComments,"xml_p_sli").trim().equals("HOP")) {%>
+							<%if (SxmlMisc.getXmlContent(rs.getString("comments"),"xml_p_sli").trim().equals("HOP")) {%>
 								<option selected value="HOP "><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.HOP" /></option>
 							<%} else { %>
 								<option value="HOP "><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.HOP" /></option>
 							<%}%>
 
-							<%if (SxmlMisc.getXmlContent(prComments,"xml_p_sli").trim().equals("HRP")) {%>
+							<%if (SxmlMisc.getXmlContent(rs.getString("comments"),"xml_p_sli").trim().equals("HRP")) {%>
 								<option selected value="HRP "><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.HRP" /></option>
 							<%} else { %>
 								<option value="HRP "><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.HRP" /></option>
 							<%}%>
 
-							<%if (SxmlMisc.getXmlContent(prComments,"xml_p_sli").trim().equals("IHF")) {%>
+							<%if (SxmlMisc.getXmlContent(rs.getString("comments"),"xml_p_sli").trim().equals("IHF")) {%>
 								<option selected value="IHF "><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.IHF" /></option>
 							<%} else { %>
 								<option value="IHF "><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.IHF" /></option>
 							<%}%>
 
-							<%if (SxmlMisc.getXmlContent(prComments,"xml_p_sli").trim().equals("OFF")) {%>
+							<%if (SxmlMisc.getXmlContent(rs.getString("comments"),"xml_p_sli").trim().equals("OFF")) {%>
 								<option selected value="OFF "><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.OFF" /></option>
 							<%} else { %>
 								<option value="OFF "><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.OFF" /></option>
 							<%}%>
 
-							<%if (SxmlMisc.getXmlContent(prComments,"xml_p_sli").trim().equals("OTN")) {%>
+							<%if (SxmlMisc.getXmlContent(rs.getString("comments"),"xml_p_sli").trim().equals("OTN")) {%>
 								<option selected value="OTN "><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.OTN" /></option>
 							<%} else { %>
 								<option value="OTN "><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.OTN" /></option>
-							<%}%>
-
-							<%if (SxmlMisc.getXmlContent(prComments,"xml_p_sli").trim().equals("PDF")) {%>
-								<option selected value="PDF "><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.PDF" /></option>
-							<%} else { %>
-								<option value="PDF "><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.PDF" /></option>
-							<%}%>
-
-							<%if (SxmlMisc.getXmlContent(prComments,"xml_p_sli").trim().equals("RTF")) {%>
-								<option selected value="RTF "><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.RTF" /></option>
-							<%} else { %>
-								<option value="RTF "><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.RTF" /></option>
 							<%}%>
 							</select>
 				   		</td>
@@ -1088,8 +975,6 @@ function changeSite(sel) {
 						<option value="IHF "><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.IHF" /></option>
 						<option value="OFF "><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.OFF" /></option>
 						<option value="OTN "><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.OTN" /></option>
-						<option value="PDF "><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.PDF" /></option>
-						<option value="RTF "><bean:message key="oscar.billing.CA.ON.billingON.OB.SLIcode.RTF" /></option>
 					</select>
 				    </td>
 				</tr>
@@ -1398,35 +1283,21 @@ function changeSite(sel) {
 <script type="text/javascript">//<![CDATA[
     // the default multiple dates selected, first time the calendar is instantiated
     var MA = [];
-    setupServiceDates();
-    
-    function setupServiceDates() {
-		var el = document.titlesearch.billDate.value;
-		
-		var dates = el.split('\n');
-		
-		MA.length = 0;
-		for (var i in dates) {
-			if (dates[i])
-				MA[MA.length] = new Date(dates[i]);
-		}
-	}
-    
     function closed(cal) {
+      //var el = document.getElementById("output");
       var el = document.titlesearch.billDate;
       // reset initial content.
-      el.value = "";
+      el.innerHTML = "";
       MA.length = 0;
       for (var i in cal.multiple) {
         var d = cal.multiple[i];
-        
         if (d) {
+          //el.innerHTML += d.print("%Y-%m-%d") + "<br />";
           el.value += d.print("%Y-%m-%d") + "\n";
           MA[MA.length] = d;
         }
       }
       cal.hide();
-      
       return true;
     };
 

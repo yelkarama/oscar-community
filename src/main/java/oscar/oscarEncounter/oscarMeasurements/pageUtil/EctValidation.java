@@ -25,26 +25,17 @@
 
 package oscar.oscarEncounter.oscarMeasurements.pageUtil;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 import org.apache.commons.validator.GenericValidator;
-import org.oscarehr.common.dao.MeasurementCSSLocationDao;
-import org.oscarehr.common.dao.MeasurementGroupStyleDao;
-import org.oscarehr.common.dao.MeasurementTypeDao;
-import org.oscarehr.common.dao.ValidationsDao;
-import org.oscarehr.common.model.MeasurementCSSLocation;
-import org.oscarehr.common.model.MeasurementGroupStyle;
-import org.oscarehr.common.model.MeasurementType;
-import org.oscarehr.common.model.Validations;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
-import oscar.util.ConversionUtils;
+import oscar.oscarDB.DBHandler;
 
 public class EctValidation{
 
@@ -58,29 +49,32 @@ public class EctValidation{
         return this.regCharacterExp;
     }
               
-    public List<Validations> getValidationType(String inputType, String mInstrc){
-        List<Validations> result = new ArrayList<Validations>();
-        
-    	MeasurementTypeDao dao = SpringUtils.getBean(MeasurementTypeDao.class);
-        List<MeasurementType> types = dao.findByTypeAndMeasuringInstruction(inputType, mInstrc);
-        if (types.isEmpty()) {
-        	return result;
+    public ResultSet getValidationType(String inputType, String mInstrc){
+        ResultSet rs = null;
+        try{
+                                
+                String sql = "SELECT validation FROM measurementType WHERE type = '"+ inputType + "'AND measuringInstruction='" + mInstrc + "'"; 
+                rs = DBHandler.GetSQL(sql);
+                if (rs.next()){
+                    String validation = oscar.Misc.getString(rs, "validation");                
+                    rs.close();
+
+                    sql = "SELECT * FROM validations where id=" + validation;
+                    rs = DBHandler.GetSQL(sql);
+                }
+        }
+        catch(SQLException e){
+            MiscUtils.getLogger().error("Error", e);
         }
         
-        ValidationsDao vDao = SpringUtils.getBean(ValidationsDao.class); 
-        for(MeasurementType type : types) {
-        	Validations vs = vDao.find(ConversionUtils.fromIntString(type.getValidation()));
-		if(vs != null) {
-	        	result.add(vs);
-		}
-        }
-        return result;
+        return rs;
     }
     
     public boolean matchRegExp(String regExp, String inputValue){
 
         boolean validation = true; 
-       
+        org.apache.commons.validator.GenericValidator gValidator = new org.apache.commons.validator.GenericValidator();
+        
         MiscUtils.getLogger().debug("matchRegExp function is called.");
         
         if (!GenericValidator.isBlankOrNull(regExp) && !GenericValidator.isBlankOrNull(inputValue)){
@@ -96,11 +90,12 @@ public class EctValidation{
      }
     
      
-    public boolean isInRange(Double dMax, Double dMin, String inputValue){
+    public boolean isInRange(double dMax, double dMin, String inputValue){
 
         boolean validation = true;
+        org.apache.commons.validator.GenericValidator gValidator = new org.apache.commons.validator.GenericValidator();
         
-        if ((dMax != null && dMax!=0) || (dMin != null && dMin!=0)){
+        if ((dMax!=0) || (dMin!=0)){
             if(GenericValidator.isDouble(inputValue)){
                 double dValue = Double.parseDouble(inputValue);
                 
@@ -116,11 +111,12 @@ public class EctValidation{
     }
     
 
-    public boolean maxLength(Integer iMax, String inputValue){
+    public boolean maxLength(int iMax, String inputValue){
 
         boolean validation = true;
-       
-        if (iMax != null && iMax!=0){            
+        org.apache.commons.validator.GenericValidator gValidator = new org.apache.commons.validator.GenericValidator();
+        
+        if (iMax!=0){            
             if(!GenericValidator.maxLength(inputValue, iMax)){                
                     validation=false;
                 }                       
@@ -128,11 +124,12 @@ public class EctValidation{
         return validation;
     }
 
-    public boolean minLength(Integer iMin, String inputValue){
+    public boolean minLength(int iMin, String inputValue){
 
         boolean validation = true;
-       
-        if (iMin != null && iMin!=0){            
+        org.apache.commons.validator.GenericValidator gValidator = new org.apache.commons.validator.GenericValidator();
+        
+        if (iMin!=0){            
             if(!GenericValidator.minLength(inputValue, iMin)){                
                     validation=false;
                 }                       
@@ -143,6 +140,7 @@ public class EctValidation{
     public boolean isInteger(String inputValue){
 
         boolean validation = true;
+        org.apache.commons.validator.GenericValidator gValidator = new org.apache.commons.validator.GenericValidator();
         
         
         if(!GenericValidator.isInt(inputValue)){                                                 
@@ -174,14 +172,9 @@ public class EctValidation{
     }
 
      public boolean isValidBloodPressure(String regExp, String inputValue){
-
-         boolean validation = true;
-
-         if(inputValue.split("/").length >1 && (regExp==null || regExp.isEmpty())){
-                 // this field is not blood pressure, no need to validate
-                 return validation;
-         }
-
+         
+         boolean validation = true;    
+         
          if(matchRegExp(regExp, inputValue)){
             MiscUtils.getLogger().debug("/");
             int slashIndex = inputValue.indexOf("/");
@@ -191,27 +184,18 @@ public class EctValidation{
                 String diastolic = inputValue.substring(slashIndex+1);
                 MiscUtils.getLogger().debug("The systolic value is " + systolic);
                 MiscUtils.getLogger().debug("The diastolic value is " + diastolic);
-                int iSystolic = 0;
-                int iDiastolic = 0;
-                try {
-                        iSystolic = Integer.parseInt(systolic);
-                        iDiastolic = Integer.parseInt(diastolic);
-                }
-                catch (NumberFormatException e) {
-                        MiscUtils.getLogger().error("Wrong input for blood pressure");
-                        validation =  false;
-                }
-                if( iDiastolic > iSystolic){
-                    validation = false;
+                int iSystolic = Integer.parseInt(systolic);
+                int iDiastolic = Integer.parseInt(diastolic);
+                if( iDiastolic > iSystolic){                    
+                    validation=false;
                 }
                 else if (iDiastolic > 300 || iSystolic > 300){
-                    validation = false;
+                    validation =false;
                 }
             }
         }
         return validation;
      }
-
      
      /*****************************************************************************************
      * find the css path from the database.
@@ -221,32 +205,45 @@ public class EctValidation{
      ******************************************************************************************/
     public String getCssPath(String inputGroupName){
         String cssLocation = null;
-        MeasurementGroupStyleDao dao = SpringUtils.getBean(MeasurementGroupStyleDao.class);
-        MeasurementCSSLocationDao cssDao = SpringUtils.getBean(MeasurementCSSLocationDao.class);
-        List<MeasurementGroupStyle> styles = dao.findByGroupName(inputGroupName);
-        for(MeasurementGroupStyle style : styles) {
-        	MeasurementCSSLocation location = cssDao.find(style.getCssId());
-        	String place = "StreamStyleSheet.do?cssfilename="; // Streams by default
-        	
-            // Use the following commented code in place of the above line to allow the
-            // option of using the oscarMeasurement_css property to form the css path.
-            // If using this code, also uncomment the line in oscar.login.Startup.java
-            // that checks and sets that property.
-            /*
-             * String downloadMethod = OscarProperties.getInstance().getProperty("oscarMeasurement_css_download_method");
-             * String place = "";
-             * if (downloadMethod == null || !(downloadMethod.equalsIgnoreCase("stream"))) {
-             *    place = OscarProperties.getInstance().getProperty("oscarMeasurement_css");
-             *    if(!place.endsWith("/"))
-             *       place = new StringBuilder(place).insert(place.length(),"/").toString();
-             * } else {
-             *    place = "StreamStyleSheet.do?cssfilename=";
-             * }
-             */
-        	if (location != null) {
-        		cssLocation = place + location.getLocation();
-        	}
+        try {
+            
+            String sql = "SELECT * from measurementGroupStyle where groupName = '" + inputGroupName + "'";
+            MiscUtils.getLogger().debug("Sql Statement: " + sql);
+            ResultSet rs;
+            rs = DBHandler.GetSQL(sql);
+            if(rs.next()){
+                String cssId = oscar.Misc.getString(rs, "cssID");
+                rs.close();   
+                
+                sql = "SELECT * from measurementCSSLocation where cssID = '" + cssId + "'";
+                rs = DBHandler.GetSQL(sql);
+                if(rs.next()){
+                    String place = "StreamStyleSheet.do?cssfilename="; // Streams by default
+
+                    // Use the following commented code in place of the above line to allow the
+                    // option of using the oscarMeasurement_css property to form the css path.
+                    // If using this code, also uncomment the line in oscar.login.Startup.java
+                    // that checks and sets that property.
+                    /*
+                     * String downloadMethod = OscarProperties.getInstance().getProperty("oscarMeasurement_css_download_method");
+                     * String place = "";
+                     * if (downloadMethod == null || !(downloadMethod.equalsIgnoreCase("stream"))) {
+                     *    place = OscarProperties.getInstance().getProperty("oscarMeasurement_css");
+                     *    if(!place.endsWith("/"))
+                     *       place = new StringBuilder(place).insert(place.length(),"/").toString();
+                     * } else {
+                     *    place = "StreamStyleSheet.do?cssfilename=";
+                     * }
+                     */
+
+                    cssLocation = place+oscar.Misc.getString(rs, "location");
+                }
+            }
         }
+        catch(SQLException e) {
+            MiscUtils.getLogger().error("Error", e);            
+        }
+
         return cssLocation;
     }
     
@@ -257,17 +254,27 @@ public class EctValidation{
      ******************************************************************************************/
     public String getCssName(String inputGroupName){
         String cssName = null;
-        
-        MeasurementGroupStyleDao dao = SpringUtils.getBean(MeasurementGroupStyleDao.class);
-        MeasurementCSSLocationDao cssDao = SpringUtils.getBean(MeasurementCSSLocationDao.class);
-        List<MeasurementGroupStyle> styles = dao.findByGroupName(inputGroupName);
-        for(MeasurementGroupStyle style : styles) {
-        	MeasurementCSSLocation location = cssDao.find(style.getCssId());
-        	
-            if(location != null){                    
-                cssName = location.getLocation();
+        try {
+            
+            String sql = "SELECT * from measurementGroupStyle where groupName = '" + inputGroupName + "'";
+            MiscUtils.getLogger().debug("Sql Statement: " + sql);
+            ResultSet rs;
+            rs = DBHandler.GetSQL(sql);
+            if(rs.next()){
+                String cssId = oscar.Misc.getString(rs, "cssID");
+                rs.close();   
+                
+                sql = "SELECT * from measurementCSSLocation where cssID = '" + cssId + "'";
+                rs = DBHandler.GetSQL(sql);
+                if(rs.next()){                    
+                    cssName = oscar.Misc.getString(rs, "location");
+                }
             }
         }
+        catch(SQLException e) {
+            MiscUtils.getLogger().error("Error", e);            
+        }
+
         return cssName;
     }
 }

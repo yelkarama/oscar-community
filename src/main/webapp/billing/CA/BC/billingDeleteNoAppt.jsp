@@ -24,38 +24,20 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
+  if(session.getValue("user") == null)
+    response.sendRedirect("../../../logout.htm");
+  String curUser_no,userfirstname,userlastname;
+  curUser_no = (String) session.getAttribute("user");  
+  userfirstname = (String) session.getAttribute("userfirstname");
+  userlastname = (String) session.getAttribute("userlastname");
 %>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_billing" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../../securityError.jsp?type=_billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
+<%@ page import="java.sql.*, java.util.*,java.net.*, oscar.MyDateFormat"
+	errorPage="errorpage.jsp"%>
 
-
-<%
-  String curUser_no = (String) session.getAttribute("user");  
-%>
-<%@ page import="java.sql.*, java.util.*,java.net.*, oscar.MyDateFormat" errorPage="errorpage.jsp"%>
-
-<%@page import="org.oscarehr.util.SpringUtils" %>
-<%@page import="org.oscarehr.common.dao.BillingDao" %>
-<%@page import="org.oscarehr.common.model.Billing" %>
-<%@page import="oscar.oscarBilling.ca.bc.data.BillingmasterDAO" %>
-<%@page import="oscar.entities.Billingmaster" %>
-
-<%
-	BillingDao billingDao = SpringUtils.getBean(BillingDao.class);
-	BillingmasterDAO billingMasterDao =  SpringUtils.getBean(BillingmasterDAO.class);
-%>
-
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean"
+	scope="session" />
+<%@ include file="dbBilling.jspf"%>
 <html>
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
@@ -90,17 +72,13 @@ if(!authed) {
 	onClick="history.go(-1);return false;"></form>
 <% }
    else{
+     
    
-	   Billing b = billingDao.find(Integer.parseInt(request.getParameter("billing_no")));
-	   if(b != null) {
-		   b.setStatus("D");
-		   billingDao.merge(b);
-	   }
-	   
-	   for(Billingmaster m: billingMasterDao.getBillingMasterByBillingNo(request.getParameter("billing_no"))) {
-		   m.setBillingstatus("D");
-		   billingMasterDao.update(m);
-	   }
+  int rowsAffected=0;
+  rowsAffected = apptMainBean.queryExecuteUpdate(request.getParameter("billing_no"),"delete_bill");
+  rowsAffected = apptMainBean.queryExecuteUpdate(request.getParameter("billing_no"),"delete_bill_master");     
+       
+
 %>
 <p>
 <h1>Successful Addition of a billing Record.</h1>

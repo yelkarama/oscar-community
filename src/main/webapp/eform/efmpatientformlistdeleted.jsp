@@ -23,23 +23,12 @@
     Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_eform" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_eform");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
 
-<%@page import="org.oscarehr.util.LoggedInInfo" %>
-<%  
+<%
+if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
+    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
+  
+  //int demographic_no = Integer.parseInt(request.getParameter("demographic_no")); 
   String demographic_no = request.getParameter("demographic_no"); 
   String deepColor = "#CCCCFF" , weakColor = "#EEEEFF" ;
 %>
@@ -121,15 +110,18 @@ function updateAjax() {
 	</tr>
 	<tr>
 		<td class="MainTableLeftColumn" valign="top">
-                <a href="../demographic/demographiccontrol.jsp?demographic_no=<%=demographic_no%>&appointment=<%=appointment%>&displaymode=edit&dboperation=search_detail"><bean:message key="demographic.demographiceditdemographic.btnMasterFile" /></a>
-                
+                <%  if (country.equals("BR")) { %>
+                    <a href="../demographic/demographiccontrol.jsp?demographic_no=<%=demographic_no%>&appointment=<%=appointment%>&displaymode=edit&dboperation=search_detail_ptbr"><bean:message key="demographic.demographiceditdemographic.btnMasterFile" /></a>
+                <%}else{%>
+                    <a href="../demographic/demographiccontrol.jsp?demographic_no=<%=demographic_no%>&appointment=<%=appointment%>&displaymode=edit&dboperation=search_detail"><bean:message key="demographic.demographiceditdemographic.btnMasterFile" /></a>
+                <%}%>
                 <br>
                 <a href="efmformslistadd.jsp?demographic_no=<%=demographic_no%>&appointment=<%=appointment%>&parentAjaxId=<%=parentAjaxId%>" class="current"> <bean:message key="eform.showmyform.btnAddEForm"/></a><br/>
                 <a href="efmpatientformlist.jsp?demographic_no=<%=demographic_no%>&appointment=<%=appointment%>&parentAjaxId=<%=parentAjaxId%>"><bean:message key="eform.calldeletedformdata.btnGoToForm"/></a><br/>
                 <a href="efmpatientformlistdeleted.jsp?demographic_no=<%=demographic_no%>&appointment=<%=appointment%>&parentAjaxId=<%=parentAjaxId%>"><bean:message key="eform.showmyform.btnDeleted"/></a>
                 <security:oscarSec roleName="<%=roleName$%>" objectName="_admin,_admin.eform" rights="r" reverse="<%=false%>" >
                 <br/>
-                <a href="#" onclick="javascript: return popup(600, 1200, '../administration/?show=Forms', 'manageeforms');" style="color: #835921;"><bean:message key="eform.showmyform.msgManageEFrm"/></a>
+                <a href="#" onclick="javascript: return popup(600, 750, '../eform/efmformmanager.jsp', 'manageeforms');" style="color: #835921;"><bean:message key="eform.showmyform.msgManageEFrm"/></a>
                 </security:oscarSec>
 		</td>
 		
@@ -148,7 +140,7 @@ function updateAjax() {
 				<th><bean:message key="eform.showmyform.msgAction" /></th>
 			</tr>
 			<%
-			ArrayList<HashMap<String, ? extends Object>> forms = EFormUtil.listPatientEForms(LoggedInInfo.getLoggedInInfoFromSession(request), orderBy, EFormUtil.DELETED, demographic_no, null);
+			ArrayList<HashMap<String, ? extends Object>> forms = EFormUtil.listPatientEForms(orderBy, EFormUtil.DELETED, demographic_no, null);
 			    for (int i=0; i< forms.size(); i++) {
 			    	HashMap<String, ? extends Object> curform = forms.get(i);
 			%>

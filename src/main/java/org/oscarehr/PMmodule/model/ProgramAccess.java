@@ -42,7 +42,7 @@ public class ProgramAccess implements Serializable {
 
     // constructors
      public ProgramAccess () {
-
+         initialize();
      }
 
      /**
@@ -50,14 +50,15 @@ public class ProgramAccess implements Serializable {
       */
      public ProgramAccess (Long _id) {
          this.setId(_id);
-
+         initialize();
      }
 
 
- 
+    protected void initialize () {}
+
     /**
 	 * Return the unique identifier of this class
-* 
+* @hibernate.id
 *  generator-class="native"
 *  column="id"
 */
@@ -120,7 +121,7 @@ public class ProgramAccess implements Serializable {
     }
 
     /**
-     * 
+     * @hibernate.property
 *  column=access_type_id
      */
     public AccessType getAccessType () {

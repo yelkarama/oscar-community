@@ -28,6 +28,7 @@
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%   
+if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
    
    
@@ -71,7 +72,7 @@ if (patientGroups.equals("1")) {
 	<li><a href="#" onclick="document.forms['groupselect'].submit()"><b><bean:message key="eform.showmyform.msgShowAll"/></b></a></li>
 	<%for (int i=0; i<groups.size(); i++) {        
                 String selected = "";
-                HashMap curhash = (HashMap) groups.get(i);
+                Hashtable curhash = (Hashtable) groups.get(i);
                 String group = (String) curhash.get("groupName");
                 String size = (String) curhash.get("count");
                 if (group.equals(groupView)) selected = "selected";%>
@@ -83,7 +84,7 @@ if (patientGroups.equals("1")) {
 <security:oscarSec roleName="<%=roleName$%>"
 	objectName="_admin,_admin.eform" rights="r" reverse="<%=false%>">
 	<a href="#"
-		onclick="popup(600, 1200, '../administration/?show=Forms&load=Groups', 'editGroups')"
+		onclick="popup(660, 1000, '../eform/efmmanageformgroups.jsp', 'editGroups')"
 		style="color: #835921;"><bean:message key="eform.showmyform.msgEditGroups"/></a>
 </security:oscarSec></div>
 </form>

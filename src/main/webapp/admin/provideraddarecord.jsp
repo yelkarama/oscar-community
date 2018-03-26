@@ -25,22 +25,17 @@
 --%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
+    if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
+
+    if(session.getAttribute("user") == null ) response.sendRedirect("../logout.jsp");
     String curProvider_no = (String) session.getAttribute("user");
 
     boolean isSiteAccessPrivacy=false;
-    boolean authed=true;
 %>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin,_admin.userAdmin" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_admin&type=_admin.userAdmin");%>
+<security:oscarSec roleName="<%=roleName$%>" objectName="_admin,_admin.userAdmin,_admin.torontoRfq" rights="r" reverse="<%=true%>">
+	<%response.sendRedirect("../logout.jsp");%>
 </security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 
 <security:oscarSec objectName="_site_access_privacy" roleName="<%=roleName$%>" rights="r" reverse="false">
 	<%isSiteAccessPrivacy=true; %>
@@ -56,7 +51,8 @@
 <%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
 <%@page import="org.oscarehr.common.model.Site"%>
 
-<%@ page import="org.apache.commons.lang.StringEscapeUtils,oscar.oscarProvider.data.ProviderBillCenter"%>
+<%@ page import="org.apache.commons.lang.StringEscapeUtils,oscar.oscarProvider.data.ProviderBillCenter,oscar.util.SqlUtils"%>
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean" scope="session" />
 
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.model.Provider" %>
@@ -67,7 +63,6 @@
 <%
 	ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
 	ProviderSiteDao providerSiteDao = SpringUtils.getBean(ProviderSiteDao.class);
-	boolean alreadyExists=false;
 %>
 <html:html locale="true">
 <head>
@@ -113,7 +108,6 @@ p.setProviderActivity(request.getParameter("provider_activity"));
 p.setPractitionerNo(request.getParameter("practitionerNo"));
 p.setLastUpdateUser((String)session.getAttribute("user"));
 p.setLastUpdateDate(new java.util.Date());
-p.setSupervisor(request.getParameter("supervisor"));
 
 //multi-office provide id formalize check, can be turn off on properties multioffice.formalize.provider.id
 boolean isProviderFormalize = true;
@@ -182,14 +176,8 @@ DBPreparedHandler dbObj = new DBPreparedHandler();
   {
   	p.setProviderNo(dbObj.getNewProviderNo());
   }
-  
-  if(providerDao.providerExists(p.getProviderNo())) {
-	  isOk=false;
-	  alreadyExists=true;
-  } else {
-  	providerDao.saveProvider(p);
- 	 isOk=true;
-  }
+  providerDao.saveProvider(p);
+  isOk=true;
 
 if (isOk && org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) {
 	String[] sites = request.getParameterValues("sites");
@@ -217,10 +205,6 @@ if (isOk) {
 %>
 <h1><bean:message key="admin.provideraddrecord.msgAdditionFailure" /></h1>
 <%
-	if(alreadyExists) {
-		%><h2><bean:message key="admin.provideraddrecord.msgAlreadyExists" /></h2><%
-	}
-
   }
 }
 else {
@@ -231,7 +215,8 @@ else {
 	<%
 		}
 	}
-%>
-</center>
+  //apptMainBean.closePstmtConn();
+
+%> <%@ include file="footer2htm.jsp"%></center>
 </body>
 </html:html>

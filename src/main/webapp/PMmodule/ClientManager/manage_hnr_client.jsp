@@ -22,22 +22,6 @@
     Toronto, Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed2=true;
-%>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_pmm" rights="w" reverse="<%=true%>">
-	<%authed2=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_pmm");%>
-</security:oscarSec>
-<%
-	if(!authed2) {
-		return;
-	}
-%>
-
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="org.oscarehr.util.SessionConstants"%>
 <%@page import="org.oscarehr.PMmodule.web.ManageHnrClient"%>
 <%@page import="org.oscarehr.common.model.Facility"%>
@@ -49,10 +33,9 @@
 <%@include file="/layouts/caisi_html_top2.jspf"%>
 
 <%
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 	int currentDemographicId=Integer.parseInt(request.getParameter("demographicId"));
 	
-	ManageHnrClient manageHnrClient=new ManageHnrClient(loggedInInfo, currentDemographicId);
+	ManageHnrClient manageHnrClient=new ManageHnrClient(currentDemographicId);
 	Demographic demographic=manageHnrClient.getDemographic();
 	org.oscarehr.hnr.ws.Client hnrClient=manageHnrClient.getHnrClient();
 %>

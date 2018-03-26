@@ -38,18 +38,22 @@ import java.awt.Color;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.oscarehr.common.IsPropertiesOn;
-import org.oscarehr.common.dao.PatientLabRoutingDao;
-import org.oscarehr.common.model.PatientLabRouting;
-import org.oscarehr.common.printing.FontSettings;
-import org.oscarehr.common.printing.PdfWriterFactory;
-import org.oscarehr.util.LoggedInInfo;
-import org.oscarehr.util.SpringUtils;
+import oscar.OscarProperties;
+import oscar.dms.EDoc;
+import oscar.dms.EDocUtil;
+import oscar.oscarClinic.ClinicData;
+import oscar.oscarDB.DBHandler;
+import oscar.oscarLab.ca.all.pageUtil.LabPDFCreator;
+import oscar.oscarLab.ca.all.parsers.Factory;
+import oscar.oscarLab.ca.all.parsers.MessageHandler;
+import oscar.util.ConcatPDF;
+import oscar.util.UtilDateUtilities;
 
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
@@ -63,19 +67,6 @@ import com.lowagie.text.pdf.PdfContentByte;
 import com.lowagie.text.pdf.PdfImportedPage;
 import com.lowagie.text.pdf.PdfReader;
 import com.lowagie.text.pdf.PdfWriter;
-
-import oscar.OscarProperties;
-import oscar.dms.EDoc;
-import oscar.dms.EDocUtil;
-import oscar.oscarClinic.ClinicData;
-import oscar.oscarLab.ca.all.pageUtil.LabPDFCreator;
-import oscar.oscarLab.ca.all.parsers.Factory;
-import oscar.oscarLab.ca.all.parsers.MessageHandler;
-import oscar.oscarRx.data.RxProviderData;
-import oscar.oscarRx.data.RxProviderData.Provider;
-import oscar.util.ConcatPDF;
-import oscar.util.ConversionUtils;
-import oscar.util.UtilDateUtilities;
 /**
  *
  * @author wrighd
@@ -91,6 +82,9 @@ public class EctConsultationFormRequestPrintPdf {
     private PdfContentByte cb;
     private BaseFont bf;
     private float height;
+    private float width;
+
+    private int PAGENUM = 1;
     private final float LINEHEIGHT = 14;
     private final float FONTSIZE = 10;
 
@@ -100,10 +94,14 @@ public class EctConsultationFormRequestPrintPdf {
         this.response = response;
     }
 
-    public void printPdf(LoggedInInfo loggedInInfo) throws IOException, DocumentException{
+    public void printPdf() throws IOException, DocumentException{
 
         EctConsultationFormRequestUtil reqForm = new EctConsultationFormRequestUtil();
-        reqForm.estRequestFromId(loggedInInfo, (String) request.getAttribute("reqId"));
+        reqForm.estRequestFromId((String) request.getAttribute("reqId"));
+
+        //make sure we have data to print
+        if( reqForm == null )
+            throw new DocumentException();
 
         // init req form info
         reqForm.specAddr = request.getParameter("address");
@@ -120,12 +118,12 @@ public class EctConsultationFormRequestPrintPdf {
 
         //Create the document we are going to write to
         document = new Document();
-        // writer = PdfWriter.getInstance(document,out);
-        writer = PdfWriterFactory.newInstance(document, out, FontSettings.HELVETICA_6PT);
+        writer = PdfWriter.getInstance(document,out);
 
         //Use the template located at '/oscar/oscarEncounter/oscarConsultationRequest/props'
         reader = new PdfReader("/oscar/oscarEncounter/oscarConsultationRequest/props/consultationFormRequest.pdf");
         Rectangle pSize = reader.getPageSize(1);
+        width = pSize.getWidth();
         height = pSize.getHeight();
         document.setPageSize(pSize);
 
@@ -143,7 +141,7 @@ public class EctConsultationFormRequestPrintPdf {
         // start writing the pdf document
         PdfImportedPage page1 = writer.getImportedPage(reader, 1);
         cb.addTemplate(page1, 1, 0, 0, 1, 0, 0);
-        // addFooter();
+        addFooter();
         setAppointmentInfo(reqForm);
 
         // add the dynamically positioned text elements
@@ -160,13 +158,13 @@ public class EctConsultationFormRequestPrintPdf {
         out.close();
 
         // combine the recently created pdf with any pdfs that were added to the consultation request form
-        combinePDFs(loggedInInfo, fileName);
+        combinePDFs(fileName);
 
     }
 
 
 
-    private float addDynamicPositionedText(String name, String text, float dynamicHeight, EctConsultationFormRequestUtil reqForm) throws DocumentException {
+    private float addDynamicPositionedText(String name, String text, float dynamicHeight, EctConsultationFormRequestUtil reqForm) throws DocumentException, IOException{
         if (text != null && text.length() > 0){
             Font boldFont = new Font(bf, FONTSIZE, Font.BOLD);
             Font font = new Font(bf, FONTSIZE, Font.NORMAL);
@@ -190,7 +188,7 @@ public class EctConsultationFormRequestPrintPdf {
 
     private void setAppointmentInfo(EctConsultationFormRequestUtil reqForm) throws DocumentException{
 
-        printClinicData(reqForm);
+        printClinicData();
         Font font = new Font(bf, FONTSIZE, Font.NORMAL);
 
         // Set consultant info
@@ -221,37 +219,29 @@ public class EctConsultationFormRequestPrintPdf {
         cb.showTextAligned(PdfContentByte.ALIGN_LEFT, reqForm.patientPhone, 385, height - 166, 0);
         cb.showTextAligned(PdfContentByte.ALIGN_LEFT, reqForm.patientDOB, 385, height - 181, 0);
         cb.showTextAligned(PdfContentByte.ALIGN_LEFT, (reqForm.patientHealthCardType+" "+reqForm.patientHealthNum+" "+reqForm.patientHealthCardVersionCode).trim(), 440, height - 195, 0);
-        cb.showTextAligned(PdfContentByte.ALIGN_LEFT, reqForm.appointmentHour+":"+reqForm.appointmentMinute+" "+reqForm.appointmentPm+" " + reqForm.appointmentDate, 440, height - 208, 0);
+        cb.showTextAligned(PdfContentByte.ALIGN_LEFT, reqForm.appointmentHour+":"+reqForm.appointmentMinute+" "+reqForm.appointmentPm+" " +
+                reqForm.appointmentDay+"/"+reqForm.appointmentMonth+"/"+reqForm.appointmentYear, 440, height - 208, 0);
         cb.showTextAligned(PdfContentByte.ALIGN_LEFT, reqForm.patientChartNo, 385, height - 222, 0);
         cb.endText();
     }
 
-    private void nextPage(EctConsultationFormRequestUtil reqForm) {
+    private void nextPage(EctConsultationFormRequestUtil reqForm) throws DocumentException, IOException{
         PdfImportedPage page2 = writer.getImportedPage(reader, 2);
         document.newPage();
         cb.addTemplate(page2, 1, 0, 0, 1, 0, 0);
 
-        printClinicData(reqForm);
+        printClinicData();
         cb.beginText();
         cb.setFontAndSize(bf, FONTSIZE);
         cb.showTextAligned(PdfContentByte.ALIGN_LEFT, reqForm.patientName, 110, height - 82, 0);
         cb.endText();
+
+        PAGENUM++;
+        addFooter();
+
     }
 
-    private void printClinicData(EctConsultationFormRequestUtil reqForm){
-        cb.beginText();
-        if(IsPropertiesOn.isMultisitesEnable()) {
-			Provider letterheadNameProvider = (reqForm.letterheadName != null ? new RxProviderData().getProvider(reqForm.letterheadName) : null);
-			String letterheadNameParam = (letterheadNameProvider == null ? reqForm.letterheadName : letterheadNameProvider.getFirstName()+" "+letterheadNameProvider.getSurname());
-
-	        cb.setFontAndSize(bf, 16);
-	        cb.showTextAligned(PdfContentByte.ALIGN_LEFT, letterheadNameParam, 90, height - 70, 0);
-
-	        cb.setFontAndSize(bf, FONTSIZE);
-	        cb.showTextAligned(PdfContentByte.ALIGN_RIGHT, reqForm.letterheadAddress, 533, height - 70, 0);
-	        cb.showTextAligned(PdfContentByte.ALIGN_LEFT, reqForm.letterheadPhone, 360, height - 82, 0);
-	        cb.showTextAligned(PdfContentByte.ALIGN_LEFT, reqForm.letterheadFax, 471, height - 82, 0);			
-		} else {
+    private void printClinicData(){
         ClinicData clinic = new ClinicData();
         clinic.refreshClinicData();
 
@@ -265,32 +255,30 @@ public class EctConsultationFormRequestPrintPdf {
         cb.showTextAligned(PdfContentByte.ALIGN_LEFT, clinic.getClinicPhone(), 360, height - 82, 0);
         cb.showTextAligned(PdfContentByte.ALIGN_LEFT, clinic.getClinicFax(), 471, height - 82, 0);
 
-		}
-
         cb.endText();
     }
 
-//    private void addFooter() throws DocumentException, IOException{
-//        cb.beginText();
-//        cb.setFontAndSize(bf, FONTSIZE);
-//        cb.showTextAligned(PdfContentByte.ALIGN_CENTER, "-"+PAGENUM+"-", width/2, 30, 0);
-//        cb.endText();
-//
-//
-//        // add promotext if it is enabled
-//        if ( OscarProperties.getInstance().getProperty("FORMS_PROMOTEXT") != null){
-//            cb.beginText();
-//            cb.setFontAndSize(BaseFont.createFont(BaseFont.HELVETICA,BaseFont.CP1252,BaseFont.NOT_EMBEDDED), 6);
-//            cb.showTextAligned(PdfContentByte.ALIGN_CENTER, OscarProperties.getInstance().getProperty("FORMS_PROMOTEXT"), width/2, 19, 0);
-//            cb.endText();
-//        }
-//    }
+    private void addFooter() throws DocumentException, IOException{
+        cb.beginText();
+        cb.setFontAndSize(bf, FONTSIZE);
+        cb.showTextAligned(PdfContentByte.ALIGN_CENTER, "-"+PAGENUM+"-", width/2, 30, 0);
+        cb.endText();
 
-    private void combinePDFs(LoggedInInfo loggedInInfo, String currentFileName) throws IOException{
+
+        // add promotext if it is enabled
+        if ( OscarProperties.getInstance().getProperty("FORMS_PROMOTEXT") != null){
+            cb.beginText();
+            cb.setFontAndSize(BaseFont.createFont(BaseFont.HELVETICA,BaseFont.CP1252,BaseFont.NOT_EMBEDDED), 6);
+            cb.showTextAligned(PdfContentByte.ALIGN_CENTER, OscarProperties.getInstance().getProperty("FORMS_PROMOTEXT"), width/2, 19, 0);
+            cb.endText();
+        }
+    }
+
+    private void combinePDFs(String currentFileName) throws IOException{
 
         String demoNo = (String) request.getAttribute("demo");
         String reqId = (String) request.getAttribute("reqId");
-        ArrayList<EDoc> consultdocs = EDocUtil.listDocs(loggedInInfo, demoNo, reqId, EDocUtil.ATTACHED);
+        ArrayList<EDoc> consultdocs = EDocUtil.listDocs(demoNo, reqId, EDocUtil.ATTACHED);
         ArrayList<Object> pdfDocs = new ArrayList<Object>();
 
         // add recently created pdf to the list
@@ -301,15 +289,16 @@ public class EctConsultationFormRequestPrintPdf {
             if ( curDoc.isPDF() )
                 pdfDocs.add(curDoc.getFilePath());
         }
-        // TODO:need to do something about the docs that are not PDFs
+        //TODO:need to do something about the docs that are not PDFs
+
         // create pdfs from attached labs
-        PatientLabRoutingDao dao = SpringUtils.getBean(PatientLabRoutingDao.class);
-        
         try {
-            for(Object[] i : dao.findRoutingsAndConsultDocsByRequestId(ConversionUtils.fromIntString(reqId), "L")) {
-            	PatientLabRouting p = (PatientLabRouting) i[0];
-            	
-                String segmentId = "" + p.getLabNo();
+
+            String sql = "SELECT lab_no FROM patientLabRouting p, consultdocs c WHERE p.id = c.document_no AND c.requestId='"+reqId+"' AND c.doctype='L' AND c.deleted IS NULL";
+
+            ResultSet rs = DBHandler.GetSQL(sql);
+            while(rs.next()){
+                String segmentId = oscar.Misc.getString(rs, "lab_no");
                 request.setAttribute("segmentID", segmentId);
                 MessageHandler handler = Factory.getHandler(segmentId);
                 String fileName = OscarProperties.getInstance().getProperty("DOCUMENT_DIR")+"//"+handler.getPatientName().replaceAll("\\s", "_")+"_"+handler.getMsgDate()+"_LabReport.pdf";
@@ -318,6 +307,8 @@ public class EctConsultationFormRequestPrintPdf {
                 pdf.printPdf();
                 pdfDocs.add(fileName);
             }
+            rs.close();
+
         }catch(DocumentException de) {
             request.setAttribute("printError", new Boolean(true));
         }catch(IOException ioe) {

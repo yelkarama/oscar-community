@@ -18,10 +18,17 @@
 
 --%>
 <%
-  String user_no = (String) session.getAttribute("user");
+  if(session.getAttribute("user") == null)
+    response.sendRedirect("../logout.jsp");
+  String user_no;
+  user_no = (String) session.getAttribute("user");
 %>
-<%@ page import="java.util.*, java.sql.*, oscar.*, java.net.*" errorPage="errorpage.jsp"%>
+<%@ page import="java.util.*, java.sql.*, oscar.*, java.net.*"
+	errorPage="errorpage.jsp"%>
 
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean"
+	scope="session" />
+<%@ include file="dbBilling.jspf"%>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.model.DiagnosticCode" %>
 <%@ page import="org.oscarehr.common.dao.DiagnosticCodeDao" %>
@@ -50,13 +57,13 @@
 <!--
 function CodeAttach(File2) {
       if (self.opener.callChangeCodeDesc) self.opener.callChangeCodeDesc();
+      setTimeout("self.close();",100);
 
       <%if(request.getParameter("name2")!=null) {%>
       self.opener.<%=request.getParameter("name2")%> = File2.substring(0,3);
       <%} else {%>
-      self.opener.document.forms[1].xml_diagnostic_detail.value = File2;
+      self.opener.document.serviceform.xml_diagnostic_detail.value = File2;
       <%}%>
-      setTimeout("self.close();",100);
 }
 function setfocus() {
   this.focus();

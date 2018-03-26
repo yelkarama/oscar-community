@@ -28,7 +28,6 @@ import java.util.List;
 import org.oscarehr.PMmodule.model.DefaultRoleAccess;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-@SuppressWarnings("unchecked")
 public class DefaultRoleAccessDAO extends HibernateDaoSupport {
 
     public void deleteDefaultRoleAccess(Long id) {
@@ -58,10 +57,6 @@ public class DefaultRoleAccessDAO extends HibernateDaoSupport {
             return (DefaultRoleAccess)results.get(0);
         }
         return null;
-    }
-    
-    public List<Object[]> findAllRolesAndAccessTypes(){
-    	return getHibernateTemplate().find("FROM DefaultRoleAccess a, AccessType b WHERE a.id = b.Id");
     }
 
 }

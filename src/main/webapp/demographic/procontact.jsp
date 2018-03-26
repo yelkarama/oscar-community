@@ -28,20 +28,10 @@
 <%@page import="org.oscarehr.util.SpringUtils"%>
 <%@page import="org.oscarehr.PMmodule.dao.ProviderDao"%>
 <%@page import="org.oscarehr.common.model.DemographicContact"%>
-<%@page import="org.oscarehr.managers.ProgramManager2" %>
-<%@page import="org.oscarehr.util.LoggedInInfo" %>
-<%@page import="java.util.List" %>
-<%@page import="org.oscarehr.PMmodule.model.ProgramProvider" %>
-
 <%
-	ProgramManager2 programManager2 = SpringUtils.getBean(ProgramManager2.class);
-    LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
-    		
 	String id = request.getParameter("id");
 	ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
 	request.setAttribute("providers",providerDao.getActiveProviders());
-	
-	List<ProgramProvider> ppList = programManager2.getProgramDomain(loggedInInfo, loggedInInfo.getLoggedInProviderNo());
 %>
 
 <div id="procontact_<%=id%>">
@@ -59,46 +49,16 @@
 	            	
 	            	&nbsp;
 	            	
-	            	<select name="procontact_<%=id%>.consentToContact" id="procontact_<%=id%>.consentToContact" title="Consent to Contact">
-	            		<option value="1">Consent</option>
-						<option value="0">No Consent</option>
-	            	</select>
-	            	
-	            	&nbsp;
-	            	
-	            	<select name="procontact_<%=id%>.programId" id="procontact_<%=id%>.programId" title="Restrict to Program">
-	            		<option value="0"></option>
-	            		<%
-	            			for(ProgramProvider pp:ppList) {
-	            		%>
-							<option value="<%=pp.getProgramId()%>"><%=pp.getProgram().getName() %></option>
-						<%
-	            			}
-						%>
-	            	</select>
-	            	
-	            	&nbsp;
-	            	
-	            	<select name="procontact_<%=id%>.active" id="procontact_<%=id%>.active" title="Active">
-	            		<option value="1">Active</option>
-						<option value="0">Inactive</option>
-	            	</select>
-	            	
-	            	&nbsp;
-	            	
 	            	<!--  they can be an internal (Demographic) or external (Contact) contact -->
 	            		             
 		            <select name="procontact_<%=id%>.type" id="procontact_<%=id%>.type">
 		            	<option value="<%=DemographicContact.TYPE_PROVIDER%>">Internal</option>
-		            	<%if(oscar.OscarProperties.getInstance().getProperty("NEW_CONTACTS_UI_EXTERNAL_CONTACT","true").equals("true")) { %>
 		            	<option value="<%=DemographicContact.TYPE_CONTACT%>">External</option>
-		            	<% } %>
-		            	<option value="<%=DemographicContact.TYPE_PROFESSIONALSPECIALIST%>"">Professional Specialist</option>
 					</select>
 				
 	            	&nbsp;
 	            			           
 	            	<input type="hidden" name="procontact_<%=id%>.contactId" value="0"/>
 		             <input type="text" name="procontact_<%=id%>.contactName" id="procontact_<%=id%>.contactName" size="20" readonly="readonly"/>		             
-		             <a href="#" onclick="doProfessionalSearch('<%=id%>');return false;">${param.search}</a>		             
+		             <a href="#" onclick="doProfessionalSearch('<%=id%>');return false;">Search</a>		             
 </div>

@@ -24,22 +24,6 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_demographic" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_demographic");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%
   
   //int demographic_no = Integer.parseInt(request.getParameter("demographic_no")); 
@@ -58,24 +42,17 @@
 
 <%@page import="oscar.oscarDemographic.data.*,java.util.*"%>
 <%@page import="oscar.OscarProperties" %>
-<%@page import="org.oscarehr.common.dao.CtlRelationshipsDao" %>
-<%@page import="org.oscarehr.common.model.CtlRelationships" %>
-<%@page import="org.oscarehr.util.SpringUtils" %>
-
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
 
-<%
-	CtlRelationshipsDao ctlRelationshipsDao = SpringUtils.getBean(CtlRelationshipsDao.class);
-%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html:html locale="true">
 
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
-<title><bean:message key="demographic.demographiceditdemographic.msgAddRelation" />  </title>
-<!--I18n--> 
+<title>Demographic Extention</title>
+<!--I18n-->
 <link rel="stylesheet" type="text/css"
 	href="../share/css/OscarStandardLayout.css" />
 
@@ -98,7 +75,7 @@ function newWindow(file,window) {
 <!--  -->
 <table class="MainTable" id="scrollNumber1">
 	<tr class="MainTableTopRow">
-		<td class="MainTableTopRowLeftColumn"><bean:message key="demographic.demographiceditdemographic.msgAddRelation" /></td>
+		<td class="MainTableTopRowLeftColumn">Add Relation</td>
 		<td class="MainTableTopRowRightColumn">
 		<table class="TopStatusBar">
 			<tr>
@@ -114,14 +91,9 @@ function newWindow(file,window) {
 		</td>
 	</tr>
 	<tr>
-		<td class="MainTableLeftColumn" valign="top">&nbsp; 
-		<%if (org.oscarehr.common.IsPropertiesOn.isCaisiEnable()){ %>
-		
-			<a href="<%=request.getContextPath()%>/PMmodule/ClientManager.do?id=<%=creatorDemo%>">Back to PMM </a>
-		
-		<%} %>
-		
-		</td>
+		<td class="MainTableLeftColumn" valign="top">&nbsp; <a
+			href="<%=request.getContextPath()%>/PMmodule/ClientManager.do?id=<%=creatorDemo%>">Back
+		to PMM </a></td>
 		<td valign="top" class="MainTableRightColumn">
 
 		<form id="ADDAPPT" method="post"
@@ -154,7 +126,7 @@ function newWindow(file,window) {
 			name="location" tabindex="4" value="" /> <input type="hidden"
 			name="resources" tabindex="5" value="" /> <input type="hidden"
 			name="user_id" value="oscardoc, doctor" /> <input type="hidden"
-			name="dboperation" value="search_demorecord" /> <input type="hidden"
+			name="dboperation" value="add_apptrecord" /> <input type="hidden"
 			name="createdatetime" value="2002-10-1 17:53:50" /> <input
 			type="hidden" name="provider_no" value="115" /> <input type="hidden"
 			name="creator" value="oscardoc, doctor" /> <input type="hidden"
@@ -175,16 +147,6 @@ function newWindow(file,window) {
 			<br />
 
 			<label for="relation">Relationship:</label> <select name="relation">
-			
-			<%
-				List<CtlRelationships> results = ctlRelationshipsDao.findAllActive();
-				for(CtlRelationships t : results) {
-					%>
-						<option value="<%=t.getValue() %>"><%=t.getLabel() %></option>
-					<%
-				}
-			%>
-			<!-- 
 				<option value="Mother">Mother</option>
 				<option value="Father">Father</option>
 				<option value="Father">Parent</option>
@@ -208,7 +170,6 @@ function newWindow(file,window) {
 				<option value="Insurance">Insurance</option>
 				<option value="Guarantor">Guarantor</option>
 				<option value="Other">Other</option>
-				-->
 			</select> <input type="checkbox" name="sdm" value="yes"> Substitute
 			Decision Maker</input> <input type="checkbox" name="emergContact" value="yes">
 			Emergency Contact</input> <br />
@@ -237,7 +198,7 @@ function newWindow(file,window) {
                      HashMap h = (HashMap) list.get(i);
                      String relatedDemo = (String) h.get("demographic_no");              
                      DemographicData dd = new DemographicData();
-                     org.oscarehr.common.model.Demographic demographic = dd.getDemographic(LoggedInInfo.getLoggedInInfoFromSession(request), relatedDemo);    %>
+                     org.oscarehr.common.model.Demographic demographic = dd.getDemographic(relatedDemo);    %>
 			<tr>
 				<td><%=demographic.getLastName() +", "+demographic.getFirstName()%></td>
 				<td><%=h.get("relation")%></td>

@@ -24,22 +24,8 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_edoc" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_edoc");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-<%
+if(session.getValue("user") == null) response.sendRedirect("../logout.htm");
 String user_no = (String) session.getAttribute("user");
 String userfirstname = (String) session.getAttribute("userfirstname");
 String userlastname = (String) session.getAttribute("userlastname");
@@ -47,7 +33,7 @@ String userlastname = (String) session.getAttribute("userlastname");
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
-<%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar" %>
+
 <%@ page
 	import="java.util.*, java.io.*, java.sql.*, oscar.*, oscar.util.*, java.net.*,oscar.MyDateFormat, oscar.dms.*, oscar.dms.data.*, oscar.oscarProvider.data.ProviderData, org.oscarehr.util.SpringUtils, org.oscarehr.common.dao.CtlDocClassDao"%><%
 String editDocumentNo = "";
@@ -94,13 +80,11 @@ if (request.getAttribute("completedForm") != null) {
     formdata.setSourceFacility(currentDoc.getSourceFacility());
     formdata.setReviewerId(currentDoc.getReviewerId());
     formdata.setReviewDateTime(currentDoc.getReviewDateTime());
-    formdata.setContentDateTime(UtilDateUtilities.DateToString(currentDoc.getContentDateTime(),EDocUtil.CONTENT_DATETIME_FORMAT));
-    formdata.setRestrictToProgram(currentDoc.isRestrictToProgram());
     lastUpdate = currentDoc.getDateTimeStamp();
     fileName = currentDoc.getFileName();
 }
 
-List<Map<String,String>> pdList = new ProviderData().getProviderList();
+ArrayList<Hashtable<String,String>> pdList = new ProviderData().getProviderList();
 ArrayList doctypes = EDocUtil.getDoctypes(formdata.getFunction());
 String annotation_display = org.oscarehr.casemgmt.model.CaseManagementNoteLink.DISP_DOCUMENT;
 String annotation_tableid = editDocumentNo;
@@ -282,7 +266,7 @@ for (String reportClass : reportClasses) {
 			<td>
 			    <select name="responsibleId">
 				<option value="">---</option>
-		<% for (Map<String,String> pd : pdList) {
+		<% for (Hashtable<String,String> pd : pdList) {
 			String selected = "";
 			if (formdata.getResponsibleId().equals(pd.get("providerNo"))) selected = "selected";
 			%>
@@ -294,10 +278,6 @@ for (String reportClass : reportClasses) {
 		<tr>
 			<td>Date Added/Updated:</td>
 			<td><%=lastUpdate%></td>
-		</tr>
-                <tr>
-			<td><bean:message key="dms.addDocument.formContentAddedUpdated"/>:</td>
-			<td><%=formdata.getContentDateTime()%></td>
 		</tr>
 		<tr>
 			<td>Source Author:</td>
@@ -314,38 +294,18 @@ for (String reportClass : reportClasses) {
 				<%=formdata.getDocPublic() + " "%> value="checked"></td>
 		</tr>
 		<%}%>
-                <tr>
+		<tr>
 			<td>File Name:</td>
 			<td>
 			<div style="width: 300px; overflow: hidden; text-overflow: ellipsis;"><%=fileName%></div>
 		</tr>
 		<tr>
-			<td>Restricted to program:</td>
-			<td>
-				<%=formdata.isRestrictToProgram() %>
-			</td>
+			    <td>File: <font class="comment">(blank to keep file)</font></td>
+			<td><input type="file" name="docFile" size="20"
+				<% if (docerrors.containsKey("uploaderror")) {%> class="warning"
+				<%}%>></td>
 		</tr>
-		
 		<tr>
-                <% boolean updatableContent=false; %>
-                <oscar:oscarPropertiesCheck property="ALLOW_UPDATE_DOCUMENT_CONTENT" value="true" defaultVal="false">
-                    <% updatableContent=true; %>
-                </oscar:oscarPropertiesCheck>
-                    
-                        <td><div style="<%=updatableContent==true?"":"visibility: hidden"%>">
-                                File: <font class="comment">(blank to keep file)</font>
-                            </div>
-                        </td>
-                        <td>
-                            <div style="<%=updatableContent==true?"":"visibility: hidden"%>">
-                                <input type="file" name="docFile" size="20"
-                                   <% if (docerrors.containsKey("uploaderror")) {%> class="warning"
-                                   <%}%>>
-                            </div>        
-                        </td>
-                    
-                </tr>
-                <tr>
 		    <td colspan=2>
 			<% if (formdata.getReviewerId()!=null && !formdata.getReviewerId().equals("")) { %>
 			Reviewed: &nbsp; <%=EDocUtil.getProviderName(formdata.getReviewerId())%>

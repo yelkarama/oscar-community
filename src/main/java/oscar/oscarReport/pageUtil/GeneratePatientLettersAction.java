@@ -27,7 +27,6 @@ package oscar.oscarReport.pageUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Hashtable;
 
@@ -47,12 +46,7 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.oscarehr.PMmodule.model.ProgramProvider;
-import org.oscarehr.managers.ProgramManager2;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.dms.EDoc;
 import oscar.dms.EDocUtil;
@@ -69,8 +63,6 @@ import oscar.util.UtilDateUtilities;
 public class GeneratePatientLettersAction extends Action {
 
     private static Logger log = MiscUtils.getLogger();
-    private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-    
 
     /**
      * Creates a new instance of GeneratePatientLettersAction
@@ -81,10 +73,6 @@ public class GeneratePatientLettersAction extends Action {
 
      public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)  {
 
-    	 if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_report", "r", null)) {
-     		  throw new SecurityException("missing required security object (_report)");
-     	  	}
-    	 
         String classpath = (String) request.getSession().getServletContext().getAttribute("org.apache.catalina.jsp_classpath");
         System.setProperty("jasper.reports.compile.class.path", classpath);
 
@@ -141,21 +129,13 @@ public class GeneratePatientLettersAction extends Action {
                 String fileName = letterData.get("ID")+"-"+StringUtils.replace((String)letterData.get("report_name")," ","-")+"-"+demos[i]+".pdf";
                 String html = "";
                 char status = 'A';
-                String observationDate = UtilDateUtilities.DateToString(new Date());
+                String observationDate = UtilDateUtilities.DateToString(UtilDateUtilities.now());
                 String module = "demographic";
                 String moduleId = demos[i];
 
                 EDoc newDoc = new EDoc(description, type, fileName, "", providerNo, providerNo, "", status, observationDate, "", "", module, moduleId);
                 newDoc.setDocPublic("0");
                 newDoc.setContentType("application/pdf");
-                
-                // if the document was added in the context of a program
-        		ProgramManager2 programManager = SpringUtils.getBean(ProgramManager2.class);
-        		LoggedInInfo loggedInInfo  = LoggedInInfo.getLoggedInInfoFromSession(request);
-        		ProgramProvider pp = programManager.getCurrentProgramInDomain(loggedInInfo, loggedInInfo.getLoggedInProviderNo());
-        		if(pp != null && pp.getProgramId() != null) {
-        			newDoc.setProgramId(pp.getProgramId().intValue());
-        		}
 
                 fileName = newDoc.getFileName();
                 String savePath = oscar.OscarProperties.getInstance().getProperty("DOCUMENT_DIR") + "/" + fileName;
@@ -185,7 +165,7 @@ public class GeneratePatientLettersAction extends Action {
             MiscUtils.getLogger().debug("Follow up type "+followUpType+" follow up value "+followUpValue);
             if ( followUpType != null && followUpValue != null){
                 FollowupManagement fup = new FollowupManagement();
-                fup.markFollowupProcedure(followUpType,followUpValue,demos,providerNo,new Date(),comment);
+                fup.markFollowupProcedure(followUpType,followUpValue,demos,providerNo,UtilDateUtilities.now(),comment);
             }
         }
 

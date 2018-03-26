@@ -40,11 +40,11 @@ public class OscarAnnotationDao extends AbstractDao<OscarAnnotation>{
 		super(OscarAnnotation.class);
 	}
 
-    public OscarAnnotation getAnnotations(String demoNo, String tableName,Long tableId){
+    public OscarAnnotation getAnnotations(String demoNo, String tableName,String tableId){
     	Query query = entityManager.createQuery("select a from OscarAnnotation a where a.demographicNo=? and a.tableName=? and a.tableId=?");
     	query.setParameter(1, demoNo);
     	query.setParameter(2, tableName);
-    	query.setParameter(3, tableId);
+    	query.setParameter(3, Long.parseLong(tableId));
         @SuppressWarnings("unchecked")
         List<OscarAnnotation> codeList = query.getResultList();
         if(codeList.size()>0) {
@@ -64,11 +64,11 @@ public class OscarAnnotationDao extends AbstractDao<OscarAnnotation>{
 
 
 
-   public int getNumberOfNotes(String demoNo, String tableName,Long tableId){
+   public int getNumberOfNotes(String demoNo, String tableName,String tableId){
    	Query query = entityManager.createQuery("select a from OscarAnnotation a where a.demographicNo=? and a.tableName=? and a.tableId=?");
    	query.setParameter(1, demoNo);
    	query.setParameter(2, tableName);
-   	query.setParameter(3,tableId);
+   	query.setParameter(3, Long.parseLong(tableId));
 
    	@SuppressWarnings("unchecked")
     List<OscarAnnotation> codeList = query.getResultList();

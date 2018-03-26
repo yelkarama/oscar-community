@@ -17,39 +17,18 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin.billing,_admin" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_admin&type=_admin.billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
+<%  
+if(session.getValue("user") == null) response.sendRedirect("../../../logout.jsp");
 %>
 
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
-<%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
-<%@taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
-
-<%@page import="oscar.util.DateUtils"%>
-<%@page import="org.oscarehr.util.SpringUtils"%>
-<%@page import="org.oscarehr.common.model.Provider,org.oscarehr.PMmodule.dao.ProviderDao"%>
-<%@page import="org.oscarehr.common.model.BillingONPremium, org.oscarehr.common.dao.BillingONPremiumDao"%>
-
-<%@ page import="java.io.*, java.util.*, java.sql.*, oscar.*, java.net.*" errorPage="errorpage.jsp"%>
+<%@ page
+	import="java.io.*, java.util.*, java.sql.*, oscar.*, java.net.*"
+	errorPage="errorpage.jsp"%>
 <%@ include file="../../../admin/dbconnection.jsp"%>
-
-<%@page import="org.oscarehr.common.model.RaHeader" %>
-<%@page import="org.oscarehr.common.dao.RaHeaderDao" %>
-<%
-	RaHeaderDao dao = SpringUtils.getBean(RaHeaderDao.class);
-%>
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean"
+	scope="session" />
+<jsp:useBean id="SxmlMisc" class="oscar.SxmlMisc" scope="session" />
+<%@ include file="dbBilling.jspf"%>
 
 <% 
 String raNo = "", note="", htmlContent="", transaction="", messages="";
@@ -65,16 +44,16 @@ String message="", message_txt="";
 String xml_ra="", HTMLtransaction="";
 int accountno=0, totalsum=0, txFlag=0, recFlag=0, flag=0, payFlag=0, count = 0, tCount=0, amountPaySum=0, amountSubmitSum=0;
 
-RaHeader rh = dao.find(Integer.parseInt(raNo));
-if(rh != null && !rh.getStatus().equals("D")) {
-	filename=rh.getFilename();
-	HTMLtransaction= SxmlMisc.getXmlContent(rh.getContent(),"<xml_transaction>","</xml_transaction>");
-	htmlContent= SxmlMisc.getXmlContent(rh.getContent(),"<xml_balancefwd>","</xml_balancefwd>");
-	new_total = SxmlMisc.getXmlContent(rh.getContent(),"<xml_total>","</xml_total>");
-	local_total= SxmlMisc.getXmlContent(rh.getContent(),"<xml_local>","</xml_local>");
-	other_total= SxmlMisc.getXmlContent(rh.getContent(),"<xml_other_total>","</xml_other_total>");
-	ob_total= SxmlMisc.getXmlContent(rh.getContent(),"<xml_ob_total>","</xml_ob_total>");
-	co_total= SxmlMisc.getXmlContent(rh.getContent(),"<xml_co_total>","</xml_co_total>");
+ResultSet rslocal = apptMainBean.queryResults(raNo, "search_rahd_content");
+while(rslocal.next()){
+	filename=rslocal.getString("filename");
+	HTMLtransaction= SxmlMisc.getXmlContent(rslocal.getString("content"),"<xml_transaction>","</xml_transaction>");
+	htmlContent= SxmlMisc.getXmlContent(rslocal.getString("content"),"<xml_balancefwd>","</xml_balancefwd>");
+	new_total = SxmlMisc.getXmlContent(rslocal.getString("content"),"<xml_total>","</xml_total>");
+	local_total= SxmlMisc.getXmlContent(rslocal.getString("content"),"<xml_local>","</xml_local>");
+	other_total= SxmlMisc.getXmlContent(rslocal.getString("content"),"<xml_other_total>","</xml_other_total>");
+	ob_total= SxmlMisc.getXmlContent(rslocal.getString("content"),"<xml_ob_total>","</xml_ob_total>");
+	co_total= SxmlMisc.getXmlContent(rslocal.getString("content"),"<xml_co_total>","</xml_co_total>");
 }
 
 filepath = oscarVariables.getProperty("DOCUMENT_DIR").trim();
@@ -141,7 +120,7 @@ while ((nextline=input.readLine())!=null){
 		}
 
 		if (headerCount.compareTo("8") == 0){
-			message_txt = message_txt + nextline.substring(3,73)+"\r\n";                       
+			message_txt = message_txt + nextline.substring(3,73)+"<br>";
 		}
 	}
 }
@@ -155,27 +134,25 @@ balancefwd = "<xml_balancefwd><table width='100%' border='0' cellspacing='0' cel
 xml_ra = transaction + balancefwd +"<xml_local>" + local_total + "</xml_local>" +"<xml_cheque>"+total+"</xml_cheque>" + "<xml_total>"+new_total+"</xml_total>" + "<xml_other_total>"+other_total+"</xml_other_total>" + "<xml_ob_total>"+ob_total+"</xml_ob_total>" +
 "<xml_co_total>"+co_total+"</xml_co_total>";	 
 
-int rowsAffected1 = 0;
+String[] param3 =new String[6];
+param3[0]=total;
+param3[1]=String.valueOf(count);
+param3[2]=String.valueOf(tCount);
+param3[3]=xml_ra;
+param3[4]=paymentdate;
+param3[5]=filename;
+int rowsAffected1 = apptMainBean.queryExecuteUpdate(param3,"update_rahd");
 
-for(RaHeader r:dao.findByFilenamePaymentDate(filename, paymentdate)) {
-		r.setTotalAmount(total);
-		r.setRecords(String.valueOf(count));
-		r.setClaims(String.valueOf(tCount));
-		r.setContent(xml_ra);
-		dao.merge(r);
-		rowsAffected1++;
-	}
-
-rh = dao.find(Integer.parseInt(raNo));
-if(rh != null && !rh.getStatus().equals("D")) {
-	filename=rh.getFilename();
-	HTMLtransaction= SxmlMisc.getXmlContent(rh.getContent(),"<xml_transaction>","</xml_transaction>");
-	htmlContent= SxmlMisc.getXmlContent(rh.getContent(),"<xml_balancefwd>","</xml_balancefwd>");
-	new_total = SxmlMisc.getXmlContent(rh.getContent(),"<xml_total>","</xml_total>");
-	other_total= SxmlMisc.getXmlContent(rh.getContent(),"<xml_other_total>","</xml_other_total>");
-	local_total= SxmlMisc.getXmlContent(rh.getContent(),"<xml_local>","</xml_local>");
-	ob_total= SxmlMisc.getXmlContent(rh.getContent(),"<xml_ob_total>","</xml_ob_total>");
-	co_total= SxmlMisc.getXmlContent(rh.getContent(),"<xml_co_total>","</xml_co_total>");
+rslocal = apptMainBean.queryResults(raNo, "search_rahd_content");
+while(rslocal.next()){
+	filename=rslocal.getString("filename");
+	HTMLtransaction= SxmlMisc.getXmlContent(rslocal.getString("content"),"<xml_transaction>","</xml_transaction>");
+	htmlContent= SxmlMisc.getXmlContent(rslocal.getString("content"),"<xml_balancefwd>","</xml_balancefwd>");
+	new_total = SxmlMisc.getXmlContent(rslocal.getString("content"),"<xml_total>","</xml_total>");
+	other_total= SxmlMisc.getXmlContent(rslocal.getString("content"),"<xml_other_total>","</xml_other_total>");
+	local_total= SxmlMisc.getXmlContent(rslocal.getString("content"),"<xml_local>","</xml_local>");
+	ob_total= SxmlMisc.getXmlContent(rslocal.getString("content"),"<xml_ob_total>","</xml_ob_total>");
+	co_total= SxmlMisc.getXmlContent(rslocal.getString("content"),"<xml_co_total>","</xml_co_total>");
 }
 
 file.close();
@@ -236,74 +213,6 @@ Colposcopy Total :
 <table bgcolor="#EEEEFF" bordercolor="#666666" border="1">
 	<%=transaction%>
 </table>
-
-<%
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-    Integer raHeaderNo = Integer.parseInt(raNo);
-    
-    BillingONPremiumDao bPremiumDao = (BillingONPremiumDao) SpringUtils.getBean("billingONPremiumDao");
-    List<BillingONPremium> bPremiumList = bPremiumDao.getRAPremiumsByRaHeaderNo(raHeaderNo);
-    if (bPremiumList.isEmpty()) {
-        bPremiumDao.parseAndSaveRAPremiums(loggedInInfo, raHeaderNo, request.getLocale());
-        bPremiumList = bPremiumDao.getRAPremiumsByRaHeaderNo(raHeaderNo);
-    }
-    
-            
-    if (!bPremiumList.isEmpty()) {
-%>
-    <html:form action="/billing/CA/ON/ApplyPractitionerPremium">
-        <input type="hidden" name="rano" value="<%=raNo%>"/>
-        <input type="hidden" name="method" value="applyPremium"/>
-        <h3><bean:message key="oscar.billing.on.genRADesc.premiumTitle"/></h3>
-        <table>
-            <thead>
-                <th style="width:30px;font-family: helvetica; background-color: #486ebd; color:white;"><bean:message key="oscar.billing.on.genRADesc.applyPremium"/></th>
-                <th style="font-family: helvetica; background-color: #486ebd; color:white;"><bean:message key="oscar.billing.on.genRADesc.ohipNo"/></th>
-                <th style="font-family: helvetica; background-color: #486ebd; color:white;"><bean:message key="oscar.billing.on.genRADesc.providerName"/></th>
-                <th style="font-family: helvetica; background-color: #486ebd; color:white;"><bean:message key="oscar.billing.on.genRADesc.totalMonthlyPayment"/></th>
-                <th style="font-family: helvetica; background-color: #486ebd; color:white;"><bean:message key="oscar.billing.on.genRADesc.paymentDate"/></th>
-            </thead>
-    <%
-           
-            for (BillingONPremium premium : bPremiumList) {   
-                Integer premiumId = premium.getId();
-                ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
-                List<Provider> pList = providerDao.getBillableProvidersByOHIPNo(premium.getProviderOHIPNo());  
-                if ((pList != null) && !pList.isEmpty()) {
-                    String isChecked = "";
-                    if (premium.getStatus())
-                         isChecked = "checked";   
-    %>
-            <tr>
-                <td><input name="choosePremium<%=premiumId%>" type="checkbox" value="Y" <%=isChecked%>/>
-                <td><%=premium.getProviderOHIPNo()%></td>
-                <td><select name="providerNo<%=premiumId%>">
-    <%                     
-                    for (Provider p : pList) { 
-                        String selectedChoice = "";
-                        String providerNo = p.getProviderNo();
-                        String premiumProviderNo = premium.getProviderNo();
-                        if (premiumProviderNo != null && providerNo.equals(premiumProviderNo)) {
-                            selectedChoice = "selected=\"selected\"";
-                        }
-     %>
-                        <option value="<%=p.getProviderNo()%>" <%=selectedChoice%>><%=p.getFormattedName()%></option>
-    <%              } %>
-                    </select>
-                </td>
-                <td><%=premium.getAmountPay()%></td>
-                <td><%=DateUtils.formatDate(premium.getPayDate(), request.getLocale())%></td>
-            </tr>
-    <%                 
-                }
-            }        
-    %>
-            <tr>
-                <td colspan="5" style="text-align: right"><input type="submit" value="<bean:message key="oscar.billing.on.genRADesc.submitPremium"/>"/></td>
-            </tr>
-        </table>    
-    </html:form>
-<%      } %><%--  --%>
 <pre><%=message_txt%></pre>
 
 </body>

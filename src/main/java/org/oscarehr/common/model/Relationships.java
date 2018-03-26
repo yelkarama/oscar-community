@@ -45,7 +45,7 @@ public class Relationships extends AbstractModel<Integer> {
 	private Integer id;
 
 	@Column(name="facility_id")
-	private Integer facilityId;
+	private int facilityId;
 
 	@Column(name="demographic_no")
 	private int demographicNo;
@@ -79,11 +79,11 @@ public class Relationships extends AbstractModel<Integer> {
     	this.id = id;
     }
 
-	public Integer getFacilityId() {
+	public int getFacilityId() {
     	return facilityId;
     }
 
-	public void setFacilityId(Integer facilityId) {
+	public void setFacilityId(int facilityId) {
     	this.facilityId = facilityId;
     }
 

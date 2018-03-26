@@ -28,21 +28,7 @@
 
 <%-- Updated by Eugene Petruhin on 30 dec 2008 while fixing #2456688 --%>
 
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@ include file="/taglibs.jsp" %>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_pmm" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_pmm");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
 <%@ page import="org.oscarehr.PMmodule.model.Intake" %>
 <%@ page import="org.oscarehr.PMmodule.model.IntakeNodeJavascript" %>
 <%@ page import="org.oscarehr.PMmodule.web.formbean.GenericIntakeEditFormBean" %>
@@ -56,8 +42,6 @@
 <%@ taglib uri="/WEB-INF/caisi-tag.tld" prefix="caisi" %>
 <%@ page import="org.oscarehr.util.SessionConstants" %>
 <%
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-
     GenericIntakeEditFormBean intakeEditForm = (GenericIntakeEditFormBean) session.getAttribute("genericIntakeEditForm");
     Intake intake = intakeEditForm.getIntake();
     String clientId = String.valueOf(intake.getClientId());
@@ -157,6 +141,14 @@
 			var v = $(this).val();			
 			if(v.length == 0) {	
 				$("#lhinConsumerResidesReq").css("display","inline");
+				fail=true;
+			}
+		});
+		
+		$("[name='clientExtra.lhinServiceDelivery']").each(function(){
+			var v = $(this).val();			
+			if(v.length == 0) {	
+				$("#lhinServiceDeliveryReq").css("display","inline");
 				fail=true;
 			}
 		});
@@ -366,8 +358,8 @@
 <input type="hidden" name="remoteFacilityId" value="<%=StringUtils.trimToEmpty(request.getParameter("remoteFacilityId"))%>" />
 <input type="hidden" name="remoteDemographicId" value="<%=StringUtils.trimToEmpty(request.getParameter("remoteDemographicId"))%>" />
 <input type="hidden" name="skip_validate" id="skip_validate" value="false"/>
-<input type="hidden" id="facility_name" name="facility_name" value="<%=loggedInInfo.getCurrentFacility().getName()%>"/>
-<input type="hidden" id="ocan_service_org_number" name="ocan_service_org_number" value="<%=loggedInInfo.getCurrentFacility().getOcanServiceOrgNumber()%>"/>
+<input type="hidden" id="facility_name" name="facility_name" value="<%=org.oscarehr.util.LoggedInInfo.loggedInInfo.get().currentFacility.getName()%>"/>
+<input type="hidden" id="ocan_service_org_number" name="ocan_service_org_number" value="<%=org.oscarehr.util.LoggedInInfo.loggedInInfo.get().currentFacility.getOcanServiceOrgNumber()%>"/>
 
 <!--  If this is from adding appointment screen, save the intake and go back to there -->       
 <input  type="hidden" name="fromAppt" value="<%=request.getParameter("fromAppt")%>">
@@ -591,7 +583,14 @@
         	</label>
         	<span id="lhinConsumerResidesReq" style="display:none;color:red">* Value is required.</span>
         </td>
-        
+        <td>
+    		<label>Service Delivery LHIN<br>
+            	<html:select property="clientExtra.lhinServiceDelivery">
+            		<html:optionsCollection property="lhinConsumerResides" value="value" label="label"/>
+            	</html:select>
+        	</label>
+        	<span id="lhinServiceDeliveryReq" style="display:none;color:red">* Value is required.</span>
+        </td>
        <td><label>Address 2<br><html:text property="clientExtra.address2" size="30" maxlength="30"/></label></td>
     </tr>
 <oscar:oscarPropertiesCheck property="ENABLE_CME_ON_REG_INTAKE" value="true">
@@ -636,7 +635,7 @@
                     <td class="intakeBedCommunityProgramCell"><label><c:out
                             value="${sessionScope.genericIntakeEditForm.communityProgramLabel}"/></label></td>
                 </c:if>
-		<td><label>Admission Date</label></td>
+                <td><label>Admission Date</label></td>
             </tr>
             <tr>
 				<input type="hidden" name="remoteReferralId" value="<%=StringUtils.trimToEmpty(request.getParameter("remoteReferralId"))%>" />
@@ -668,6 +667,7 @@
                 <script type="text/javascript">Calendar.setup({inputField:'admissionDate',ifFormat :'%Y-%m-%d',button :'cal_admissionDate',align :'cr',singleClick :true,firstDay :1});</script>                                     
                 </td>
             </tr>
+           
         </table>
     </div>
 

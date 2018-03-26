@@ -22,22 +22,7 @@
     Toronto, Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_report" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_report");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-<%@page import="oscar.util.DateUtils"%>
+<%@page import="org.apache.commons.lang.time.DateUtils"%>
 <%@page import="oscar.util.SqlUtils"%>
 <%@page import="java.util.*"%>
 <%@page import="org.caisi.model.*"%>
@@ -50,7 +35,6 @@
 <%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="org.oscarehr.PMmodule.dao.ProgramDao"%>
 <%
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 	String[] programIds=request.getParameterValues("programIds");
     String[] functionalCentreIds=request.getParameterValues("functionalCentreIds");	
     
@@ -60,9 +44,10 @@
     	programIdsString.add(programId);
     }
     ProgramDao programDao = (ProgramDao) SpringUtils.getBean("programDao");
+    LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
     if(functionalCentreIds!=null) {
 	    for(String functionalCentreId : functionalCentreIds) {
-	    	List<Program> programList = programDao.getProgramsByFacilityIdAndFunctionalCentreId(loggedInInfo.getCurrentFacility().getId(), functionalCentreId);
+	    	List<Program> programList = programDao.getProgramsByFacilityIdAndFunctionalCentreId(loggedInInfo.currentFacility.getId(), functionalCentreId);
 	    	for(Program p : programList) {
 	    		programIdsString.add(String.valueOf(p.getId()));
 	    	}
@@ -89,7 +74,7 @@
 	{
 		// do nothing, bad input
 	}
-	DateUtils.setToBeginningOfMonth(startCalendar);
+	MiscUtils.setToBeginningOfMonth(startCalendar);
 
 	Calendar endCalendar = Calendar.getInstance();
 	try
@@ -103,13 +88,13 @@
 	{
 		// do nothing, bad input
 	}
-	DateUtils.setToBeginningOfMonth(endCalendar);
+	MiscUtils.setToBeginningOfMonth(endCalendar);
 
 	// for each program...
 	//    for each month...
 	//       print monthly data
 
-	PopulationReportUIBean populationReportUIBean = new PopulationReportUIBean(loggedInInfo);
+	PopulationReportUIBean populationReportUIBean = new PopulationReportUIBean();
 	populationReportUIBean.skipTotalRow=true;
 	
 	// print header
@@ -157,7 +142,7 @@
 		{
 			Calendar tempEndCalendar = (Calendar)tempStartCalendar.clone();
 			tempEndCalendar.add(Calendar.MONTH, 1);
-			DateUtils.setToBeginningOfMonth(tempEndCalendar);
+			MiscUtils.setToBeginningOfMonth(tempEndCalendar);
 			
 			populationReportUIBean.setStartDate(tempStartCalendar.getTime());
 			populationReportUIBean.setEndDate(tempEndCalendar.getTime());

@@ -17,6 +17,7 @@ import java.util.List;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.log4j.Logger;
+import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.hospitalReportManager.HRMReport;
 import org.oscarehr.hospitalReportManager.HRMReportParser;
@@ -26,8 +27,6 @@ import org.oscarehr.hospitalReportManager.dao.HRMDocumentToProviderDao;
 import org.oscarehr.hospitalReportManager.model.HRMDocument;
 import org.oscarehr.hospitalReportManager.model.HRMDocumentToDemographic;
 import org.oscarehr.hospitalReportManager.model.HRMDocumentToProvider;
-import org.oscarehr.managers.DemographicManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
@@ -37,12 +36,12 @@ public class HRMResultsData {
 	private HRMDocumentDao hrmDocumentDao = (HRMDocumentDao) SpringUtils.getBean("HRMDocumentDao");
 	private HRMDocumentToProviderDao hrmDocumentToProviderDao = (HRMDocumentToProviderDao) SpringUtils.getBean("HRMDocumentToProviderDao");
 	private HRMDocumentToDemographicDao hrmDocumentToDemographicDao = (HRMDocumentToDemographicDao) SpringUtils.getBean("HRMDocumentToDemographicDao");
-	private DemographicManager demographicManager = SpringUtils.getBean(DemographicManager.class);
+	private DemographicDao demographicDao = (DemographicDao) SpringUtils.getBean("demographicDao");
 
 	public HRMResultsData() {
 	}
 
-	public Collection<LabResultData> populateHRMdocumentsResultsData(LoggedInInfo loggedInInfo, String providerNo, String status, Date newestDate, Date oldestDate) {
+	public Collection<LabResultData> populateHRMdocumentsResultsData(String providerNo, String status, Date newestDate, Date oldestDate) {
 		if (providerNo == null || "".equals(providerNo)) {
 			providerNo = "%";
 		} else if (providerNo.equalsIgnoreCase("0")) {
@@ -52,14 +51,13 @@ public class HRMResultsData {
 		Integer viewed = 1;
 		Integer signedOff = 0;
 		if (status == null || status.equalsIgnoreCase("N")) {
-			viewed = 2;
+			viewed = 0;
 		} else if (status != null && (status.equalsIgnoreCase("A") || status.equalsIgnoreCase("F"))) {
 			signedOff = 1;
 		}
 
 		if (status != null && status.equalsIgnoreCase("")) {
 			viewed = 2;
-			signedOff = 2;
 		}
 
 		List<HRMDocumentToProvider> hrmDocResultsProvider = hrmDocumentToProviderDao.findByProviderNoLimit(providerNo, newestDate, oldestDate, viewed, signedOff);
@@ -83,13 +81,13 @@ public class HRMResultsData {
 
 			// check if patient is matched
 			List<HRMDocumentToDemographic> hrmDocResultsDemographic = hrmDocumentToDemographicDao.findByHrmDocumentId(hrmDocument.get(0).getId().toString());
-			HRMReport hrmReport = HRMReportParser.parseReport(loggedInInfo, hrmDocument.get(0).getReportFile());
+			HRMReport hrmReport = HRMReportParser.parseReport(hrmDocument.get(0).getReportFile());
 			if (hrmReport == null) continue;
 
 			hrmReport.setHrmDocumentId(id);
 
 			if (hrmDocResultsDemographic.size() > 0) {
-				Demographic demographic = demographicManager.getDemographic(loggedInInfo, hrmDocResultsDemographic.get(0).getDemographicNo());
+				Demographic demographic = demographicDao.getDemographic(hrmDocResultsDemographic.get(0).getDemographicNo());
 				if (demographic != null) {
 					lbData.patientName = demographic.getLastName() + "," + demographic.getFirstName();
 					lbData.sex = demographic.getSex();
@@ -153,17 +151,8 @@ public class HRMResultsData {
 		return labResults.values();
 	}
 
-	public static String getMessageDate(String messageUniqueId) {
-		String[] parts = messageUniqueId.split("\\^");
-		if(parts.length > 5) {
-			return parts[5];
-		}
-		return null;
-	}
 	/**
 	 * @return true if the currentEntry is deemed to be newer than the previousEntry
-	 * <Hospital Report Manager Process Date>^<Accession Number>^<Sending Facility>^<Report Class>^<Report Number>^<Message Date>^<Environment Mode>^<Site Instance>^<Report Status>^<Visit Number>
-	 * 
 	 */
 	public static boolean isNewer(HRMReport currentEntry, HRMReport previousEntry) {
 		// try to parse messageUniqueId for date portion to compare, no gurantees it exists or is well formed.
@@ -171,8 +160,8 @@ public class HRMResultsData {
 		{
 			String currentUid=currentEntry.getMessageUniqueId();
 			String previousUid=previousEntry.getMessageUniqueId();
-			String currentDatePart=getMessageDate(currentUid);
-			String previousDatePart=getMessageDate(previousUid);
+			String currentDatePart=currentUid.substring(0, currentUid.indexOf('^'));
+			String previousDatePart=previousUid.substring(0, previousUid.indexOf('^'));
 			long currentDateNum=Long.parseLong(currentDatePart);
 			long previousDateNum=Long.parseLong(previousDatePart);
 

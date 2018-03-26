@@ -26,9 +26,8 @@ package oscar.form.pageUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
-import java.util.List;
 import java.util.Properties;
 import java.util.Vector;
 
@@ -48,12 +47,7 @@ import org.apache.struts.action.ActionMessages;
 import org.apache.xmlrpc.XmlRpcClient;
 import org.apache.xmlrpc.XmlRpcException;
 import org.oscarehr.common.dao.EncounterFormDao;
-import org.oscarehr.common.dao.MeasurementDao;
-import org.oscarehr.common.dao.MeasurementDao.SearchCriteria;
 import org.oscarehr.common.model.EncounterForm;
-import org.oscarehr.common.model.Measurement;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
@@ -61,6 +55,7 @@ import oscar.OscarProperties;
 import oscar.form.FrmRecordHelp;
 import oscar.form.data.FrmData;
 import oscar.form.util.FrmToXMLUtil;
+import oscar.oscarDB.DBHandler;
 import oscar.oscarDemographic.data.DemographicData;
 import oscar.oscarEncounter.oscarMeasurements.bean.EctMeasurementTypesBean;
 import oscar.oscarEncounter.oscarMeasurements.bean.EctValidationsBean;
@@ -77,7 +72,6 @@ import oscar.util.UtilDateUtilities;
 public class FrmFormAction extends Action {
 
 	private static Logger logger=MiscUtils.getLogger();
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
 
     /**
      * To create a new form which can write to measurement and osdsf, you need to ...
@@ -87,17 +81,13 @@ public class FrmFormAction extends Action {
      * Add the form description to encounterForm table of the database
      **/
 
+
     private String _dateFormat = "yyyy/MM/dd";
+
 
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException{
 
-    	LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
-    	
-    	if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_form", "w", null)) {
-			throw new SecurityException("missing required security object (_form)");
-		}
-    	
         ActionMessages errors = new ActionMessages();
         boolean valid = true;
         logger.debug("FrmFormAction is called "+currentMem());
@@ -111,15 +101,16 @@ public class FrmFormAction extends Action {
 
         String formName = (String) frm.getValue("formName");
         logger.debug("formNme Top "+formName);
-        
-        String dateEntered = UtilDateUtilities.DateToString(new Date(),_dateFormat);
-        //String visitCod = UtilDateUtilities.DateToString(new Date(),"yyyyMMdd");
-        String today = UtilDateUtilities.DateToString(new Date(),"yyyy-MM-dd");
+        String formId = (String) frm.getValue("formId");
+        String dateEntered = UtilDateUtilities.DateToString(UtilDateUtilities.Today(),_dateFormat);
+        String timeStamp = UtilDateUtilities.DateToString(UtilDateUtilities.Today(),"yyyy-MM-dd hh:mm:ss");
+        //String visitCod = UtilDateUtilities.DateToString(UtilDateUtilities.Today(),"yyyyMMdd");
+        String today = UtilDateUtilities.DateToString(UtilDateUtilities.Today(),"yyyy-MM-dd");
 
         logger.debug("current mem 2 "+currentMem());
 
         Properties props = new Properties();
-        
+        EctFormProp formProp = EctFormProp.getInstance();
         Vector measurementTypes = EctFormProp.getMeasurementTypes();
         logger.debug("num measurements "+measurementTypes.size());
         String demographicNo = null;
@@ -170,7 +161,7 @@ public class FrmFormAction extends Action {
 
         if(valid){
             DemographicData demoData = new DemographicData();
-            org.oscarehr.common.model.Demographic demo = demoData.getDemographic(LoggedInInfo.getLoggedInInfoFromSession(request), demographicNo);
+            org.oscarehr.common.model.Demographic demo = demoData.getDemographic(demographicNo);
             logger.debug("is valid, procede write to table");
             //Store form information as properties for saving to form table
             props.setProperty("demographic_no", demographicNo);
@@ -273,7 +264,7 @@ public class FrmFormAction extends Action {
             logger.debug("current mem 9 "+currentMem());
             //Send to Mils thru xml-rpc
             Properties nameProps = convertName(formName);
-            String xmlData = FrmToXMLUtil.convertToXml(loggedInInfo, measurementTypes, nameProps, props);
+            String xmlData = FrmToXMLUtil.convertToXml(measurementTypes, nameProps, props);
             String decisionSupportURL = connect2OSDSF(xmlData);
             request.setAttribute("decisionSupportURL", decisionSupportURL);
             logger.debug("current mem 9 "+currentMem());
@@ -288,6 +279,7 @@ public class FrmFormAction extends Action {
 
         logger.debug("submit value: " + submit);
         if(submit.equalsIgnoreCase("exit")){
+            String toEChart = "[" + timeStamp + ".: Vascular Tracker] \n\n" ;
             request.setAttribute("diagnosisVT", "See Vascular Tracker Template");
             return (new ActionForward("/form/formSaveAndExit.jsp"));
         }
@@ -375,39 +367,34 @@ public class FrmFormAction extends Action {
 
     private boolean write2MeasurementTable(String demographicNo, String providerNo,
                                         EctMeasurementTypesBean mt, String inputValue,
-                                        String dateObservedString, String comments){
+                                        String dateObserved, String comments){
         boolean newDataAdded = false;
-		if (!GenericValidator.isBlankOrNull(inputValue)) {
-			SearchCriteria criteria = new SearchCriteria();
-			criteria.setDemographicNo(demographicNo);
-			criteria.setType(mt.getType());
-			criteria.setDataField(inputValue);
-			criteria.setMeasuringInstrc(mt.getMeasuringInstrc());
-			criteria.setComments(comments);
-			
-			Date dateObserved = UtilDateUtilities.StringToDate(dateObservedString,"yyyy-MM-dd");
-			criteria.setDateObserved(dateObserved);
 
-			//Find if the same data has already been entered into the system
-			MeasurementDao dao = SpringUtils.getBean(MeasurementDao.class);
-			List<Measurement> measurements = dao.find(criteria);
+        try{
 
-			if (measurements.isEmpty()) {
-				newDataAdded = true;
-
-				Measurement measurement = new Measurement();
-				measurement.setType(mt.getType());
-				measurement.setDemographicId(Integer.parseInt(demographicNo));
-				measurement.setProviderNo(providerNo);
-				measurement.setDataField(inputValue);
-				measurement.setMeasuringInstruction(mt.getMeasuringInstrc());
-				measurement.setComments(comments);
-				measurement.setDateObserved(dateObserved);
-
-				dao.persist(measurement);
-			}
-		}
-        
+            org.apache.commons.validator.GenericValidator gValidator = new org.apache.commons.validator.GenericValidator();
+            if(!GenericValidator.isBlankOrNull(inputValue)){
+                //Find if the same data has already been entered into the system
+                String sql = "SELECT * FROM measurements WHERE demographicNo='"+demographicNo
+                            + "' AND type='" + mt.getType() + "' AND dataField='"+inputValue
+                            + "' AND measuringInstruction='" + mt.getMeasuringInstrc() + "' AND comments='" + comments
+                            + "' AND dateObserved='" + dateObserved + "'";
+                ResultSet rs = DBHandler.GetSQL(sql);
+                if(!rs.next()){
+                    newDataAdded = true;
+                    //Write to the Dababase if all input values are valid
+                    sql = "INSERT INTO measurements"
+                            +"(type, demographicNo, providerNo, dataField, measuringInstruction, comments, dateObserved, dateEntered)"
+                            +" VALUES ('"+mt.getType()+"','"+demographicNo+"','"+providerNo+"','"+inputValue+"','"
+                            + mt.getMeasuringInstrc() +"','"+comments+"','"+dateObserved+"', now())";
+                    DBHandler.RunSQL(sql);
+                }
+                rs.close();
+            }
+        }
+        catch(SQLException e){
+            logger.error("Error", e);
+        }
         return newDataAdded;
     }
 

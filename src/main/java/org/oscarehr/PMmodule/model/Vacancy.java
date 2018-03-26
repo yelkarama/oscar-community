@@ -30,7 +30,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
@@ -38,35 +37,25 @@ import org.apache.commons.lang.StringUtils;
 import org.oscarehr.common.model.AbstractModel;
 
 @Entity
-@Table(name = "vacancy")
 public class Vacancy extends AbstractModel<Integer> implements java.io.Serializable {
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
 	private Integer id;
-	@Column(name="vacancyName")
-	private String name;
-	
 	@Column(nullable = false)
 	private Integer templateId;
 	@Column(nullable = false, length = 24)
 	private String status;
-	
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date dateClosed;
-		
 	private String reasonClosed;
-	
     private String emailNotificationAddressesCsv=null;
-        
+    
+    @Column(name = "WL_PROGRAM_ID", nullable = false)
 	private Integer	wlProgramId;
-		
+	
+	@Column(name = "DATE_CREATE", length = 19)
 	private Date dateCreated;
-	
-	private String statusUpdateUser;
-	
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date statusUpdateDate;
 	
 	/**
 	 * @return the id
@@ -94,12 +83,11 @@ public class Vacancy extends AbstractModel<Integer> implements java.io.Serializa
 
 	/** full constructor */
 	public Vacancy(Integer templateId, String status, Timestamp dateClosed,
-			String reasonClosed, String name) {
+			String reasonClosed) {
 		this.templateId = templateId;
 		this.status = status;
 		this.dateClosed = dateClosed;
 		this.reasonClosed = reasonClosed;
-		this.name = name;
 	}
 
 	/**
@@ -181,30 +169,4 @@ public class Vacancy extends AbstractModel<Integer> implements java.io.Serializa
 	public void setWlProgramId(Integer wlProgramId) {
     	this.wlProgramId = wlProgramId;
     }
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getStatusUpdateUser() {
-		return statusUpdateUser;
-	}
-
-	public void setStatusUpdateUser(String statusUpdateUser) {
-		this.statusUpdateUser = statusUpdateUser;
-	}
-
-	public Date getStatusUpdateDate() {
-		return statusUpdateDate;
-	}
-
-	public void setStatusUpdateDate(Date statusUpdateDate) {
-		this.statusUpdateDate = statusUpdateDate;
-	}
-	
-	
 }

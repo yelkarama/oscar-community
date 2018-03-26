@@ -8,30 +8,13 @@
     and "gnu.org/licenses/gpl-2.0.html".
 
 --%>
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="org.apache.commons.lang.StringUtils,oscar.log.*"%>
 <%@page import="org.apache.commons.lang.StringEscapeUtils"%>
-<%@page import="java.util.Map"%>
-<%@page import="java.text.SimpleDateFormat" %>
 <%@ page language="java" contentType="text/html" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_lab" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_lab");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
+    
 <%@page import="java.util.LinkedList, org.oscarehr.hospitalReportManager.*, org.oscarehr.hospitalReportManager.model.*, java.util.List, org.oscarehr.util.SpringUtils, org.oscarehr.PMmodule.dao.ProviderDao, java.util.Date" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 
@@ -43,7 +26,6 @@ Integer hrmReportId = (Integer) request.getAttribute("hrmReportId");
 HRMDocumentToDemographic demographicLink = (HRMDocumentToDemographic) request.getAttribute("demographicLink");
 List<HRMDocumentToProvider> providerLinkList = (List<HRMDocumentToProvider>) request.getAttribute("providerLinkList");
 
-LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao");
 
 if(demographicLink != null){
@@ -58,8 +40,8 @@ if(demographicLink != null){
 <html>
 <head>
 <title>HRM Report</title>
-<script type="text/javascript" src="../js/jquery-1.7.1.min.js"></script>
-<script type="text/javascript" src="../js/jquery-ui-1.8.18.custom.min.js"></script>
+<script type="text/javascript" src="../js/jquery-1.3.2.min.js"></script>
+<script type="text/javascript" src="../js/jquery-ui-1.7.3.custom.min.js"></script>
 <script language="javascript" type="text/javascript" src="../share/javascript/Oscar.js" ></script>
 <script type="text/javascript" src="../share/javascript/prototype.js"></script>
 <script type="text/javascript" src="../share/javascript/effects.js"></script>
@@ -103,10 +85,6 @@ if(demographicLink != null){
 	vertical-align: top;
 }
 
-#hrmHeader {
-    display: none;
-}
-
 #hrmNotice {
 	border-bottom: 1px solid black;
 	padding-bottom: 15px;
@@ -118,7 +96,7 @@ if(demographicLink != null){
 	background-color: red;
 }
 
-#commentBox {
+#metadataBox, #commentBox {
 	clear: both;
 	border: 1px solid black;
 	margin: 20px;
@@ -129,7 +107,6 @@ if(demographicLink != null){
 	margin: 10px;
 }
 
-
 #metadataBox th {
 	text-align: right;
 }
@@ -138,16 +115,6 @@ if(demographicLink != null){
 	#infoBox {
 		display: none;
 	}
-	.boxButton {
-	  display: none;
-    }
-	#hrmHeader {
-	  display: block;
-	}
-}
-.pdfviewer {
-	width: 100%;
-	height: 800px;
 }
 </style>
 
@@ -170,21 +137,10 @@ function addDemoToHrm(reportId) {
 		url: "<%=request.getContextPath() %>/hospitalReportManager/Modify.do",
 		data: "method=assignDemographic&reportId=" + reportId + "&demographicNo=" + demographicNo,
 		success: function(data) {
-			if (data != null) {
+			if (data != null)
 				$("demostatus" + reportId).innerHTML = data;
-				toggleButtonBar(true,reportId);
-			}
 		}
 	});
-}
-
-function toggleButtonBar(show, reportId) {
-	jQuery("#msgBtn_"+reportId).prop('disabled',!show);
-	jQuery("#mainTickler_"+reportId).prop('disabled',!show);
-	jQuery("#mainEchart_"+reportId).prop('disabled',!show);
-	jQuery("#mainMaster_"+reportId).prop('disabled',!show);
-	jQuery("#mainApptHistory_"+reportId).prop('disabled',!show);
-	
 }
 
 function removeDemoFromHrm(reportId) {
@@ -193,10 +149,8 @@ function removeDemoFromHrm(reportId) {
 		url: "<%=request.getContextPath() %>/hospitalReportManager/Modify.do",
 		data: "method=removeDemographic&reportId=" + reportId,
 		success: function(data) {
-			if (data != null) {
+			if (data != null)
 				$("demostatus" + reportId).innerHTML = data;
-				toggleButtonBar(false,reportId);
-			}
 		}
 	});
 }
@@ -290,35 +244,6 @@ function signOffHrm(reportId) {
 function revokeSignOffHrm(reportId) {
 	doSignOff(reportId, false);
 }
-
-function setDescription(reportId) {
-	var comment = jQuery("#descriptionField_" + reportId + "_hrm").val();
-	jQuery.ajax({
-		type: "POST",
-		url: "<%=request.getContextPath() %>/hospitalReportManager/Modify.do",
-		data: "method=setDescription&reportId=" + reportId + "&description=" + comment,
-		success: function(data) {
-			if (data != null)
-				$("descriptionstatus" + reportId).innerHTML = data;
-		}
-	});
-}
-
-function popupEchart(height, width, url, windowName, docId, d, reason) {
-	url += "&reason=" + encodeURIComponent(encodeURIComponent(reason)) + "&demographicNo=";
-	return popupPatient(height, width, url, windowName, docId, d);
-}
-
-function popupPatient(height, width, url, windowName, docId, d) {
-	  urlNew = url + d;	
-	  return popup2(height, width, 0, 0, urlNew, windowName);
-}
-
-function popupPatientTickler(height, width, url, windowName,docId,d,n) {
-	urlNew = url + "method=edit&tickler.demographic_webName=" + n + "&tickler.demographicNo=" +  d + "&docType=HRM&docId="+docId;
-	return popup2(height, width, 0, 0, urlNew, windowName);
-}
-
 </script>
 </head>
 <body>
@@ -327,36 +252,10 @@ function popupPatientTickler(height, width, url, windowName,docId,d,n) {
         <h1>HRM report not found! Please check the file location.</h1>
 <%  return;
    } %>
-   
-<%
-String btnDisabled = "disabled";
-String demographicNo = "";
-if(demographicLink != null) {
-	btnDisabled="";
-	demographicNo = demographicLink.getDemographicNo();
-}
-String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());	
-
-%>
-<div >
-<input type="button" id="msgBtn_<%=hrmReportId%>" value="Msg" onclick="popupPatient(700,960,'<%= request.getContextPath() %>/oscarMessenger/SendDemoMessage.do?demographic_no=','msg', '<%=hrmReportId%>','<%=demographicNo %>')" <%=btnDisabled %>/>
-<!--input type="button" id="ticklerBtn_<%=hrmReportId%>" value="Tickler" onclick="handleDocSave('<%=hrmReportId%>','addTickler')"/-->
-<input type="button" id="mainTickler_<%=hrmReportId%>" value="Tickler" onClick="popupPatientTickler(710, 1024,'<%= request.getContextPath() %>/Tickler.do?', 'Tickler','<%=hrmReportId%>','<%=demographicNo %>')" <%=btnDisabled %>>
-<input type="button" id="mainEchart_<%=hrmReportId%>" value=" <bean:message key="oscarMDS.segmentDisplay.btnEChart"/> " onClick="popupEchart(710, 1024,'<%= request.getContextPath() %>/oscarEncounter/IncomingEncounter.do?curDate=<%=currentDate%>&appointmentNo=&appointmentDate=&startTime=&status=', 'encounter', '<%=hrmReportId%>','<%=demographicNo %>', '<bean:message key="oscarMDS.segmentDisplay.labResults"/>')" <%=btnDisabled %>>
-<input type="button" id="mainMaster_<%=hrmReportId%>" value=" <bean:message key="oscarMDS.segmentDisplay.btnMaster"/>" onClick="popupPatient(710,1024,'<%= request.getContextPath() %>/demographic/demographiccontrol.jsp?displaymode=edit&dboperation=search_detail&demographic_no=','master','<%=hrmReportId%>','<%=demographicNo %>')" <%=btnDisabled %>>
-<input type="button" id="mainApptHistory_<%=hrmReportId%>" value=" <bean:message key="oscarMDS.segmentDisplay.btnApptHist"/>" onClick="popupPatient(710,1024,'<%= request.getContextPath() %>/demographic/demographiccontrol.jsp?orderby=appttime&displaymode=appt_history&dboperation=appt_history&limit1=0&limit2=25&demographic_no=','ApptHist','<%=hrmReportId%>','<%=demographicNo %>')" <%=btnDisabled %>>
-</div>
-                            
 <div id="hrmReportContent">
-	<div id="hrmHeader"><b>Demographic Info:</b><br />
-			<%=hrmReport.getLegalName() %> <br />
-			<%=hrmReport.getHCN() %> &nbsp; <%=hrmReport.getHCNVersion() %> &nbsp; <%=hrmReport.getGender() %><br />
-	       <b>DOB:</b><%=hrmReport.getDateOfBirthAsString() %>
-	</div>
-	<br />
 	<div id="hrmNotice">
 	This report was received from the Hospital Report Manager (HRM) at <%=(String) request.getAttribute("hrmReportTime") %>.
-	<% if (request.getAttribute("hrmDuplicateNum") != null && ((Integer) request.getAttribute("hrmDuplicateNum")) > 0) { %><br /><i>OSCAR has received <%=request.getAttribute("hrmDuplicateNum") %> duplicates of this report.</i><% } %>
+	<% if (request.getAttribute("hrmDuplicateNum") != null && ((Integer) request.getAttribute("hrmDuplicateNum")) > 0) { %><br /><i>OSCAR has received <%=(Integer) request.getAttribute("hrmDuplicateNum") %> duplicates of this report.</i><% } %>
 	<%
 	List<HRMDocument> allDocumentsWithRelationship = (List<HRMDocument>) request.getAttribute("allDocumentsWithRelationship");
 	if (allDocumentsWithRelationship != null && allDocumentsWithRelationship.size() >= 1) {
@@ -372,54 +271,11 @@ String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 		<% 	seenBefore.add(relationshipDocument.getId().intValue());
 			}
 		} %>
-		 <div class="boxButton">
-		   <input type="button" onClick="makeIndependent('<%=hrmReportId %>')" value="Make Independent" />
-		 </div>  
+		 <input type="button" onClick="makeIndependent('<%=hrmReportId %>')" value="Make Independent" />
 	<% } %>
 	</div>
 
-<%
-	if(hrmReport.isBinary()) {
-		String reportFileData = hrmReport.getFileData();
-		String noMessageIdFileData = reportFileData.replaceAll("<MessageUniqueID>.*?</MessageUniqueID>", "<MessageUniqueID></MessageUniqueID>");
-		String noMessageIdHash = org.apache.commons.codec.digest.DigestUtils.md5Hex(noMessageIdFileData);
-		
-		if(hrmReport.getFileExtension() != null && (".gif".equals(hrmReport.getFileExtension()) || ".jpg".equals(hrmReport.getFileExtension()) || ".png".equals(hrmReport.getFileExtension()))) {
-			%><img src="<%=request.getContextPath() %>/hospitalReportManager/HRMDownloadFile.do?hash=<%=noMessageIdHash%>"/><br/><%	
-		}
-		 String downFileName = (hrmReport.getLegalLastName() + "-" + hrmReport.getLegalFirstName() + "-" +  hrmReport.getFirstReportClass() + hrmReport.getFileExtension()).replaceAll("\\s", "_");
-		%>
-		<a href="<%=request.getContextPath() %>/hospitalReportManager/HRMDownloadFile.do?hash=<%=noMessageIdHash%>"><%= downFileName%></a>&nbsp;&nbsp;
-		
-		<br/>
-		<%
-		if(hrmReport.getFileExtension() != null && (".gif".equals(hrmReport.getFileExtension()) || ".jpg".equals(hrmReport.getFileExtension()) || ".png".equals(hrmReport.getFileExtension()))) {
-			%>
-		<span>(Please use the link above to download the attachement.)</span>
-		<%
-		}
-		
-		else {
-		
-		if (hrmReport.getFileExtension() != null && ".pdf".equals(hrmReport.getFileExtension())) {
-				// save pdf attachment and get path
-				HRMUtil.storeAttachment(noMessageIdHash);
-				String pdfFilePath = noMessageIdHash + "-" + downFileName;
- 		%>
-		<iframe src="<%=request.getContextPath()%>/share/pdfjs/viewer.jsp?file=<%=noMessageIdHash %>" class="pdfviewer"></iframe>
-		<%} else {%>
- 		<span style="color:red">(This report contains an attachment which cannot be viewed in your browser. Please use the link above to view/download the content contained within.)</span>
-		<%}
-		}
-		
-		
-	} else {
-
-%>
 	<%=hrmReport.getFirstReportTextContent().replaceAll("\n", "<br />") %>
-	
-	<% } %>
-	
 	<%
 	String confidentialityStatement = (String) request.getAttribute("confidentialityStatement");
 	if (confidentialityStatement != null && confidentialityStatement.trim().length() > 0) {
@@ -440,13 +296,9 @@ String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 			<th>Demographic Info</th>
 			<td>
 				<%=hrmReport.getLegalName() %><br />
-				<% try { %>
-					<%=hrmReport.getAddressLine1() %><br />
-					<%=hrmReport.getAddressLine2() != null ? hrmReport.getAddressLine2() : "" %><br />
-					<%=hrmReport.getAddressCity() %>
-				<% } catch(Exception e) { %>
-					NO ADDRESS IN RECORD<br>
-				<% } %>
+				<%=hrmReport.getAddressLine1() %><br />
+				<%=hrmReport.getAddressLine2() != null ? hrmReport.getAddressLine2() : "" %><br />
+				<%=hrmReport.getAddressCity() %>
 			</td>
 		</tr>
 		<tr>
@@ -552,7 +404,7 @@ String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 				<input type="button" value="Print" onClick="window.print()" />
 				<input type="button" style="display: none;" value="Save" id="save<%=hrmReportId %>hrm" />
 				<% 
-				HRMDocumentToProvider hrmDocumentToProvider = HRMDisplayReportAction.getHRMDocumentFromProvider(loggedInInfo.getLoggedInProviderNo(), hrmReportId);
+				HRMDocumentToProvider hrmDocumentToProvider = HRMDisplayReportAction.getHRMDocumentFromCurrentProvider(hrmReportId);
 				if (hrmDocumentToProvider != null && hrmDocumentToProvider.getSignedOff() != null && hrmDocumentToProvider.getSignedOff() == 1) {
 				%>
 				<input type="button" id="signoff<%=hrmReportId %>" value="Revoke Sign-Off" onClick="revokeSignOffHrm('<%=hrmReportId %>')" />
@@ -570,22 +422,10 @@ String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 </div>
 
 <div id="commentBox">
-Set description to this report:<br />
-<input type="text" id="descriptionField_<%=hrmReportId %>_hrm" size="100" value="<%=StringEscapeUtils.escapeHtml(hrmDocument.getDescription())%>"/><br />
-
- <div class="boxButton">
-   <input type="button" onClick="setDescription('<%=hrmReportId %>')" value="Set Description" /><span id="descriptionstatus<%=hrmReportId %>"></span><br /><br />
- </div>
-
-</div>
-
-<div id="commentBox">
 Add a comment to this report:<br />
 <textarea rows="10" cols="50" id="commentField_<%=hrmReportId %>_hrm"></textarea><br />
+<input type="button" onClick="addComment('<%=hrmReportId %>')" value="Add Comment" /><span id="commentstatus<%=hrmReportId %>"></span><br /><br />
 
- <div class="boxButton">
-   <input type="button" onClick="addComment('<%=hrmReportId %>')" value="Add Comment" /><span id="commentstatus<%=hrmReportId %>"></span><br /><br />
- </div>
 <%
 List<HRMDocumentComment> documentComments = (List<HRMDocumentComment>) request.getAttribute("hrmDocumentComments");
 
@@ -601,7 +441,7 @@ if (documentComments != null) {
 </div>
 
 <div id="metadataBox">
-	<table style="border: 1px solid black;margin: 20px;">
+	<table>
 		<tr>
 			<th>Message Unique ID</th>
 			<td><%=hrmReport.getMessageUniqueId() %></td>
@@ -716,43 +556,21 @@ YAHOO.example.BasicRemote = function() {
 String duplicateLabIdsString=StringUtils.trimToNull(request.getParameter("duplicateLabIds"));
 if (duplicateLabIdsString!=null)
 {
-	Map<Integer,Date> dupReportDates = (Map<Integer,Date>)request.getAttribute("dupReportDates");
-	Map<Integer,Date> dupTimeReceived = (Map<Integer,Date>)request.getAttribute("dupTimeReceived");
-	SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm");
 	%>
 		<hr />
-		Report History:<br />
-		
-		<table border="1">
-			<tr>
-				<th>ID</th>
-				<th>Report Date</th>
-				<th>Date Received</th>
-				<th></th>
-			</tr>
+		Duplicate Labs found : <br />
 	<%
-	//need datetime of report.
 	String[] duplicateLabIdsStringSplit=duplicateLabIdsString.split(",");
 	for (String tempId : duplicateLabIdsStringSplit)
 	{
 		%>
-			<tr>
-				<td><%=tempId %></td>
-				<td><%=formatter.format(dupReportDates.get(Integer.parseInt(tempId))) %></td>
-				<td><%=formatter.format(dupTimeReceived.get(Integer.parseInt(tempId))) %></td>
-			    <td><input type="button" value="Open Report" onclick="window.open('?id=<%=tempId%>&segmentId=<%=tempId%>&providerNo=<%=request.getParameter("providerNo")%>&searchProviderNo=<%=request.getParameter("searchProviderNo")%>&status=<%=request.getParameter("status")%>&demoName=<%=StringEscapeUtils.escapeHtml(request.getParameter("demoName"))%>', null)" /> </td> 
-			</tr>
-			
+			<input type="button" value="View labId=<%=tempId%>" onclick="window.open('?id=<%=tempId%>&segmentId=<%=tempId%>&providerNo=<%=request.getParameter("providerNo")%>&searchProviderNo=<%=request.getParameter("searchProviderNo")%>&status=<%=request.getParameter("status")%>&demoName=<%=StringEscapeUtils.escapeHtml(request.getParameter("demoName"))%>', null)" /> 
+			<br />
 		<%
 	}
-	
-	%></table><%
 }
 %>
 
-<br/>
-
-Duplicates of this report have been received <%=request.getAttribute("hrmDuplicateNum")!=null?request.getAttribute("hrmDuplicateNum"):"0"%> time(s).
 
 </body>
 </html>

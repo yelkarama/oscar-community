@@ -13,7 +13,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -25,10 +24,11 @@ import java.util.logging.Logger;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
+
+import oscar.OscarProperties;
+import oscar.oscarMessenger.data.MsgProviderData;
 
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
@@ -36,10 +36,6 @@ import com.jcraft.jsch.ChannelSftp.LsEntry;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
-import org.oscarehr.common.model.OscarMsgType;
-
-import oscar.OscarProperties;
-import oscar.oscarMessenger.data.MsgProviderData;
 
 /**
  * SFTP Connector to interact with servers and return the server's reply/file data.
@@ -53,15 +49,13 @@ public class SFTPConnector {
 	private Session sess;
 	private Logger fLogger; //file logger
 
-	private static final String TEST_DIRECTORY = "Test";
-
 	private static final String OMD_HRM_USER = OscarProperties.getInstance().getProperty("OMD_HRM_USER");
 	private static final String OMD_HRM_IP = OscarProperties.getInstance().getProperty("OMD_HRM_IP");
 	private static final int OMD_HRM_PORT = Integer.parseInt(OscarProperties.getInstance().getProperty("OMD_HRM_PORT"));
 
 	//this file needs chmod 444 permissions for the connection to go through
-	public static  final String OMD_directory = OscarProperties.getInstance().getProperty("OMD_directory");
-	private static String OMD_keyLocation = OMD_directory + OscarProperties.getInstance().getProperty("OMD_HRM_AUTH_KEY_FILENAME");
+	public static  String OMD_directory = OscarProperties.getInstance().getProperty("OMD_directory");
+	private static  String OMD_keyLocation = OMD_directory + OscarProperties.getInstance().getProperty("OMD_HRM_AUTH_KEY_FILENAME");
 	public static final String XSD_ontariomd = OMD_directory + "ontariomd_cds_dt.xsd";
 	public static final String XSD_reportmanager = OMD_directory + "report_manager_cds.xsd";
 
@@ -118,15 +112,7 @@ public class SFTPConnector {
 		}
 
 		//fetch all files from remote dir
-		String[] localFilePaths = downloadDirectoryContents(remoteDir);
-		
-		String[] paths = null;
-		if(doDecrypt()) {
-			paths = decryptFiles(localFilePaths);
-		} else {
-			paths = localFilePaths;
-		}
-
+		downloadDirectoryContents(remoteDir);
 		//delete all files from remote dir
 		deleteDirectoryContents(remoteDir, files);
 
@@ -146,6 +132,8 @@ public class SFTPConnector {
 	public SFTPConnector(String host, int port, String user, String keyLocation) throws Exception {
 
 		logger.debug("Host "+host+" port "+port+" user "+user+" keyLocation "+keyLocation);	
+		//decryption key
+		decryptionKey = SFTPAuthKeys.OMDdecryptionKey2;
 
 		//daily log file name follows "day month year . log" (with no spaces)
 		String logName = SFTPConnector.getDayMonthYearTimestamp() + ".log";
@@ -161,10 +149,6 @@ public class SFTPConnector {
 		jsch.addIdentity(keyLocation);
 		sess = jsch.getSession(user, host, port);
 
-		/* - Just for Testing. If you need to setup a "fake" sftp to test this
-		UserInfo ui=new MyUserInfo();  
-		sess.setUserInfo(ui);
-		*/
 		java.util.Properties confProp = new java.util.Properties();
 		confProp.put("StrictHostKeyChecking", "no");
 		sess.setConfig(confProp);
@@ -189,7 +173,7 @@ public class SFTPConnector {
 
 	public static String getDownloadsDirectory() {
 		String dd = downloadsDirectory;
-		if (dd == null || dd.equals("")){
+		if (dd.equals("")||dd.equals(null)){
 			dd = "webapps/OscarDocument/hrm/sftp_downloads/";
 			return dd;
 
@@ -217,7 +201,7 @@ public class SFTPConnector {
 	 * 
 	 * @throws Exception
 	 */
-	private static String prepareForDownload(String folder) throws Exception {
+	private String prepareForDownload(String folder) throws Exception {
 
 		//ensure the downloads directory exists
 		String path = checkFolder(downloadsDirectory);
@@ -397,12 +381,10 @@ public class SFTPConnector {
 	 * @param fullPaths
 	 * @throws Exception
 	 */
-	public static String[] decryptFiles(String[] fullPaths) throws Exception {
+	public void decryptFiles(String[] fullPaths) throws Exception {
+
 		if (fullPaths.length == 0)
-			return null;
-					
-		String[] decryptedFilePaths = new String[fullPaths.length];
-		
+			return;
 
 		//placed under each daily's folder for all files needing decryption to store the decrypted version
 		String decryptedFolderName = "decrypted";
@@ -416,11 +398,7 @@ public class SFTPConnector {
 
 		FileWriter handler = null;
 		BufferedWriter out = null;
-		for (int x=0;x<fullPaths.length;x++) {
-			String sfile = fullPaths[x];
-			if(sfile == null)
-				continue;
-			
+		for (String sfile : fullPaths) {
 			try {
 	            decryptedContent = decryptFile(sfile);
 	            filename = sfile.substring(sfile.lastIndexOf("/"));
@@ -428,18 +406,12 @@ public class SFTPConnector {
 	            handler = new FileWriter(newFullPath);
 	            out = new BufferedWriter(handler);
 	            out.write(decryptedContent);
-	            decryptedFilePaths[x] = newFullPath;
-			} catch(Exception e) {
-				//Don't want this to fail on all other files in the directory just because one doesn't decrypt;
-				logger.error("Error decrypting file - " + sfile);
-				decryptedFilePaths[x] = null;
             } finally {
 	            if (out!=null) out.close();
 	            if (handler!=null) handler.close();
             }
 		}
 
-		return decryptedFilePaths;
 	}
 
 	/**
@@ -450,7 +422,7 @@ public class SFTPConnector {
 	 * @return
 	 * @throws Exception
 	 */
-	public static String decryptFile(String fullPath) throws Exception {
+	public String decryptFile(String fullPath) throws Exception {
 		logger.debug("About to decrypt: " + fullPath);
 		File encryptedFile = new File(fullPath);
 		if (!encryptedFile.exists()) {
@@ -468,7 +440,7 @@ public class SFTPConnector {
         }
 
 		//the provided key is 32 characters long string hex representation of a 128 hex key, get the 128-bit hex bytes
-		byte keyBytes[] = toHex( OscarProperties.getInstance().getProperty("OMD_HRM_DECRYPTION_KEY"));
+		byte keyBytes[] = toHex(SFTPConnector.decryptionKey);
 
 		SecretKeySpec key = new SecretKeySpec(keyBytes, "AES");
 
@@ -518,7 +490,7 @@ public class SFTPConnector {
 	 * @param fullPath
 	 * @throws Exception
 	 */
-	private static String checkFolder(String fullPath) throws Exception {
+	private String checkFolder(String fullPath) throws Exception {
 		return SFTPConnector.ensureFolderExists(fullPath);
 	}
 
@@ -542,7 +514,7 @@ public class SFTPConnector {
 		return tmpFolder.getAbsolutePath() + "/";
 	}
 
-	public static byte[] toHex(String encoded) {
+	public byte[] toHex(String encoded) {
 		if ((encoded.length() % 2) != 0)
 			throw new IllegalArgumentException("Input string must contain an even number of characters");
 
@@ -568,71 +540,38 @@ public class SFTPConnector {
 	public static boolean isFetchRunning() {
 		return SFTPConnector.isAutoFetchRunning;
 	}
-	
-	public static boolean doDecrypt() {
-		boolean decrypt = false;
-		String decryptionKey = OscarProperties.getInstance().getProperty("OMD_HRM_DECRYPTION_KEY");
-		
-		if (StringUtils.isNotEmpty(decryptionKey)) {
-			decrypt=true;
-		} 
-		return decrypt;
-	}
 
-	public synchronized void startAutoFetch(LoggedInInfo loggedInInfo) {
+	public static void startAutoFetch() {
 
 		if (!isAutoFetchRunning) {
 			SFTPConnector.isAutoFetchRunning = true;
 			logger.debug("Going into OMD to fetch auto data");
 
-			String remoteDir = OscarProperties.getInstance().getProperty("OMD_HRM_REMOTE_DIR");
-			
-			if (remoteDir == null || remoteDir.isEmpty()) {
-				remoteDir = TEST_DIRECTORY;
-			} 
-			
-			logger.info("SFTPConnector, remoteDir:"+remoteDir);
-			
+			String remoteDir = "Test";
 			try {
 				logger.debug("Instantiating a new SFTP connection.");
 				SFTPConnector sftp = new SFTPConnector();
 				logger.debug("new SFTP connection established");
 
-				String[] files = ls(remoteDir);
-				
 				String[] localFilePaths =null;
 				
 				try {
-			            localFilePaths=sftp.downloadDirectoryContents(remoteDir);
-				} finally {
-		    		    sftp.close();
-				}
-				
-				String[] paths = null;
-				if(doDecrypt()) {
-					paths = decryptFiles(localFilePaths);
-				} else {
-					paths = localFilePaths;
-				}
-		
-				//delete all files from remote dir
-				deleteDirectoryContents(remoteDir, files);
+	                localFilePaths=sftp.downloadDirectoryContents(remoteDir);
+                } finally {
+    				sftp.close();
+                }
 
-				
-				paths = copyFilesToDocumentDir(loggedInInfo, paths);
-								
-				for (String filePath : paths) {
-					HRMReport report = HRMReportParser.parseReport(loggedInInfo, filePath);
-					if (report != null) HRMReportParser.addReportToInbox(loggedInInfo, report);
+				for (String filePath : localFilePaths) {
+					HRMReport report = HRMReportParser.parseReport(filePath);
+					if (report != null) HRMReportParser.addReportToInbox(report);
 				}
-			
 
 				logger.debug("Closed SFTP connection");
 				logger.debug("Clearing doNotSend list");
 				doNotSentMsgForOuttage.clear();
 			} catch (Exception e) {
 				logger.error("Couldn't perform SFTP fetch for HRM - notifying user of failure", e);
-				notifyHrmError(loggedInInfo, e.getMessage());
+				notifyHrmError(e.getMessage());
 			}
 
 			SFTPConnector.isAutoFetchRunning = false;
@@ -640,39 +579,20 @@ public class SFTPConnector {
 			logger.warn("There is currently an HRM fetch running -- will not run another until it has completed or timed out.");
 		}
 	}
-	
-	protected static String[] copyFilesToDocumentDir(LoggedInInfo loggedInInfo, String[] paths) {
-		String destDir = OscarProperties.getInstance().getProperty("DOCUMENT_DIR");
-		List<String> results = new ArrayList<String>();
-		
-		for(int x=0;x<paths.length;x++) {
-			String f = paths[x];
-			if(f != null) {
-				try {
-					FileUtils.copyFileToDirectory(new File(f), new File(destDir));
-					results.add(new File(destDir,new File(f).getName()).getAbsolutePath());
-				}catch(IOException e) {
-					logger.error("Error copying HRM file. Will not be viewable from Inbox!",e);
-					notifyHrmError(loggedInInfo, "Failed to copy HRM file to DOCUMENT_DIR. Please contact admin ("+ f +")");
-				}
-			}
-		}
-		
-		return results.toArray(new String[results.size()]);
-	}
 
-	protected static void notifyHrmError(LoggedInInfo loggedInInfo, String errorMsg) {
+	private static void notifyHrmError(String errorMsg) {
 	    HashSet<String> sendToProviderList = new HashSet<String>();
 
     	String providerNoTemp="999998";
 	    if (!doNotSentMsgForOuttage.contains(providerNoTemp)) sendToProviderList.add(providerNoTemp);
 	    
-	    if (loggedInInfo != null && loggedInInfo.getLoggedInProvider() != null)
+    	LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+	    if (loggedInInfo != null && loggedInInfo.loggedInProvider != null)
 	    {
 	    	// manual prompts always send to admin
 	    	sendToProviderList.add(providerNoTemp);
 	    	
-	    	providerNoTemp=loggedInInfo.getLoggedInProviderNo();
+	    	providerNoTemp=loggedInInfo.loggedInProvider.getProviderNo();
 		    if (!doNotSentMsgForOuttage.contains(providerNoTemp)) sendToProviderList.add(providerNoTemp);
 	    }
 
@@ -692,57 +612,18 @@ public class SFTPConnector {
 	    }
 
     	String sentToString = messageData.createSentToString(sendToProviderListData);
-    	messageData.sendMessage2(message, "HRM Retrieval Error", "System", sentToString, "-1", sendToProviderListData, null, null, OscarMsgType.GENERAL_TYPE);
+    	messageData.sendMessage2(message, "HRM Retrieval Error", "System", sentToString, "-1", sendToProviderListData, null, null);
     }
 
 	/**
 	 * adds the currently logged in user to the do not send anymore messages for this outtage list 
 	 */
-	public static void addMeToDoNotSendList(LoggedInInfo loggedInInfo)
+	public static void addMeToDoNotSendList()
 	{
-	    if (loggedInInfo != null && loggedInInfo.getLoggedInProvider() != null)
+    	LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+	    if (loggedInInfo != null && loggedInInfo.loggedInProvider != null)
 	    {
-	    	doNotSentMsgForOuttage.add(loggedInInfo.getLoggedInProviderNo());
+	    	doNotSentMsgForOuttage.add(loggedInInfo.loggedInProvider.getProviderNo());
 	    }
 	}
 }
-/*
-class MyUserInfo implements UserInfo {
-
-	@Override
-	public String getPassphrase() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getPassword() {
-		return "password";
-	}
-
-	@Override
-	public boolean promptPassword(String message) {
-		// TODO Auto-generated method stub
-		return true;
-	}
-
-	@Override
-	public boolean promptPassphrase(String message) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean promptYesNo(String message) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void showMessage(String message) {
-		// TODO Auto-generated method stub
-		
-	}
-	
-}
-*/

@@ -50,14 +50,19 @@ import oscar.OscarProperties;
 import oscar.oscarTickler.TicklerCreator;
 import oscar.util.DateUtils;
 
+/**
+ * This class should not be used by anyone other than for conformance test only features. i.e. features that no one should ever use and should never be enabled except during conformance testing.
+ */
 public final class ConformanceTestHelper {
 	private static Logger logger = MiscUtils.getLogger();
 	public static boolean enableConformanceOnlyTestFeatures=Boolean.parseBoolean(OscarProperties.getInstance().getProperty("ENABLE_CONFORMANCE_ONLY_FEATURES"));
 	
-	public static void populateLocalTicklerWithRemoteProviderMessageFollowUps(LoggedInInfo loggedInInfo) {
+	public static void populateLocalTicklerWithRemoteProviderMessageFollowUps() {
 		try {
-			ProviderWs providerWs = CaisiIntegratorManager.getProviderWs(loggedInInfo, loggedInInfo.getCurrentFacility());
-			List<ProviderCommunicationTransfer> followUps = providerWs.getProviderCommunications(loggedInInfo.getLoggedInProviderNo(), "FOLLOWUP", true);
+			LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
+
+			ProviderWs providerWs = CaisiIntegratorManager.getProviderWs();
+			List<ProviderCommunicationTransfer> followUps = providerWs.getProviderCommunications(loggedInInfo.loggedInProvider.getProviderNo(), "FOLLOWUP", true);
 
 			if (followUps == null) return;
 
@@ -76,13 +81,13 @@ public final class ConformanceTestHelper {
 				FacilityIdStringCompositePk senderProviderId=new FacilityIdStringCompositePk();
 				senderProviderId.setIntegratorFacilityId(providerCommunication.getSourceIntegratorFacilityId());
 				senderProviderId.setCaisiItemId(providerCommunication.getSourceProviderId());
-				CachedProvider senderProvider=CaisiIntegratorManager.getProvider(loggedInInfo, loggedInInfo.getCurrentFacility(), senderProviderId);
+				CachedProvider senderProvider=CaisiIntegratorManager.getProvider(senderProviderId);
 				if (senderProvider!=null)
 				{
 					note="Sent by remote provider : "+senderProvider.getLastName()+", "+senderProvider.getFirstName()+"<br />--------------------<br />"+note;
 				}
 				
-				t.createTickler(loggedInInfo,demographicId, providerCommunication.getDestinationProviderId(), note);
+				t.createTickler(demographicId, providerCommunication.getDestinationProviderId(), note);
 
 				providerWs.deactivateProviderCommunication(providerCommunication.getId());
 			}
@@ -91,9 +96,9 @@ public final class ConformanceTestHelper {
 		}
 	}
 
-	public static void copyLinkedDemographicsPropertiesToLocal(LoggedInInfo loggedInInfo, Integer localDemographicId) {
+	public static void copyLinkedDemographicsPropertiesToLocal(Integer localDemographicId) {
 		try {
-			DemographicWs demographicWs = CaisiIntegratorManager.getDemographicWs(loggedInInfo, loggedInInfo.getCurrentFacility());
+			DemographicWs demographicWs = CaisiIntegratorManager.getDemographicWs();
 			List<DemographicTransfer> directLinks=demographicWs.getDirectlyLinkedDemographicsByDemographicId(localDemographicId);
 			
 			logger.debug("found linked demographics size:"+directLinks.size());
@@ -118,10 +123,10 @@ public final class ConformanceTestHelper {
 		}
 	}
 
-	public static boolean hasDifferentRemoteDemographics(LoggedInInfo loggedInInfo, Integer localDemographicId) {
+	public static boolean hasDifferentRemoteDemographics(Integer localDemographicId) {
 		boolean ret = false;
 		try {
-			DemographicWs demographicWs = CaisiIntegratorManager.getDemographicWs(loggedInInfo, loggedInInfo.getCurrentFacility());
+			DemographicWs demographicWs = CaisiIntegratorManager.getDemographicWs();
 			List<DemographicTransfer> directLinks=demographicWs.getDirectlyLinkedDemographicsByDemographicId(localDemographicId);
 			
 			logger.debug("found linked demographics size:"+directLinks.size());

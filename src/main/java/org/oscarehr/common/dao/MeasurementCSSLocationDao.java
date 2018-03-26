@@ -25,10 +25,6 @@
 
 package org.oscarehr.common.dao;
 
-import java.util.List;
-
-import javax.persistence.Query;
-
 import org.oscarehr.common.model.MeasurementCSSLocation;
 import org.springframework.stereotype.Repository;
 
@@ -37,21 +33,5 @@ public class MeasurementCSSLocationDao extends AbstractDao<MeasurementCSSLocatio
 
 	public MeasurementCSSLocationDao() {
 		super(MeasurementCSSLocation.class);
-	}
-	
-	@SuppressWarnings("unchecked")
-	public List<MeasurementCSSLocation> findAll() {
-		Query query = createQuery("x", null);
-		return query.getResultList();
-	}
-	
-	public List<MeasurementCSSLocation> findByLocation(String location) {
-		Query q = entityManager.createQuery("select m from MeasurementCSSLocation m where m.location=?");
-		q.setParameter(1, location);
-		
-		@SuppressWarnings("unchecked")
-		List<MeasurementCSSLocation> results = q.getResultList();
-		
-		return results;
 	}
 }

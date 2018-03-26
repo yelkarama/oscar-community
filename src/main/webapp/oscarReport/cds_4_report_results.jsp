@@ -22,29 +22,12 @@
     Toronto, Ontario, Canada
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_report" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_report");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="org.apache.commons.lang.time.DateFormatUtils"%>
 <%@page import="java.text.SimpleDateFormat"%>
-<%@page import="org.oscarehr.PMmodule.model.Program"%>
 <%@page import="java.util.HashSet"%>
-<%@page import="org.apache.commons.lang.StringUtils"%>
+<%@page import="org.oscarehr.PMmodule.model.Program"%>
 <%@page import="org.oscarehr.PMmodule.service.ProgramManager"%>
+<%@page import="org.apache.commons.lang.StringUtils"%>
 <%@page import="org.oscarehr.common.model.Provider"%>
 <%@page import="org.oscarehr.util.SpringUtils"%>
 <%@page import="org.oscarehr.managers.ProviderManager2"%>
@@ -54,19 +37,17 @@ if(!authed) {
 <%@page import="org.oscarehr.web.Cds4ReportUIBean"%>
 <%@page import="org.apache.commons.lang.StringEscapeUtils"%>
 <%
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 	ProviderManager2 providerManager = (ProviderManager2) SpringUtils.getBean("providerManager2");
-	ProgramManager programManager = (ProgramManager) SpringUtils.getBean("programManager");
+    ProgramManager programManager = (ProgramManager) SpringUtils.getBean("programManager");
 
     SimpleDateFormat sdf=new SimpleDateFormat(DateFormatUtils.ISO_DATE_FORMAT.getPattern());
 	Date startDate=sdf.parse(request.getParameter("startDate"));
 	Date endDateInclusive=sdf.parse(request.getParameter("endDate"));
-
 	
 	String functionalCentreId=request.getParameter("functionalCentreId");
 
 	// null for none selected, array of providerIds if selected
-	String[] providerIdList=request.getParameterValues("providerIds");
+	String[] providerIdList=request.getParameterValues("providerIds");       
 	String[] programIdListTemp=request.getParameterValues("programIds");
 	HashSet<Integer> programIds=null;
 	if (programIdListTemp!=null && programIdListTemp.length>0)
@@ -83,8 +64,8 @@ if(!authed) {
 		}
 	}
 			
-	Cds4ReportUIBean cds4ReportUIBean=new Cds4ReportUIBean(loggedInInfo, functionalCentreId, startDate, endDateInclusive, providerIdList, programIds);
-	
+	Cds4ReportUIBean cds4ReportUIBean=new Cds4ReportUIBean(functionalCentreId, startDate, endDateInclusive, providerIdList, programIds);
+			
 	List<CdsFormOption> cdsFormOptions=Cds4ReportUIBean.getCdsFormOptions();
 	
 	StringBuilder providerNamesList=new StringBuilder();
@@ -92,7 +73,7 @@ if(!authed) {
 	{
 		for (String providerId : providerIdList)
 		{
-			Provider provider=providerManager.getProvider(loggedInInfo, providerId);
+			Provider provider=providerManager.getProvider(providerId);
 			providerNamesList.append(provider.getFormattedName()+" ("+provider.getProviderNo()+"), ");
 		}
 	}
@@ -111,8 +92,7 @@ if(!authed) {
 <%@include file="/layouts/caisi_html_top.jspf"%>
 
 
-<%@page import="org.apache.commons.lang.StringEscapeUtils"%>
-<h3>CDS Report</h3>
+<%@page import="org.apache.commons.lang.StringEscapeUtils"%><h3>CDS Report</h3>
 <span style="font-weight:bold">Functional Centre : </span><%=cds4ReportUIBean.getFunctionalCentreDescription()%>
 <br />
 <span style="font-weight:bold">Dates : </span><%=cds4ReportUIBean.getDateRangeForDisplay()%>

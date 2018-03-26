@@ -40,7 +40,7 @@ public class ReportConfig extends AbstractModel<Integer> {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
-	@Column(name="report_id")
+	@Column(name="report-id")
 	private int reportId;
 
 	private String name;

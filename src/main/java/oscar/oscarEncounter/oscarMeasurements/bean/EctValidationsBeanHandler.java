@@ -22,109 +22,192 @@
  * Ontario, Canada
  */
 
+
 package oscar.oscarEncounter.oscarMeasurements.bean;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 import java.util.Vector;
 
-import org.oscarehr.common.dao.ValidationsDao;
-import org.oscarehr.common.model.Validations;
-import org.oscarehr.util.SpringUtils;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.oscarehr.util.MiscUtils;
 
-import oscar.util.ConversionUtils;
+import oscar.oscarDB.DBHandler;
 
 public class EctValidationsBeanHandler {
+    
+    Vector validationsVector = new Vector();
+ 
+    public EctValidationsBeanHandler() {
+        init();
+    }
+    
+    public boolean init() {
+        
+        boolean verdict = true;
+        try {
+            
+            String sql = "SELECT name,id FROM validations ORDER BY name";
+            ResultSet rs;
+            for(rs = DBHandler.GetSQL(sql); rs.next(); )
+            {
+                EctValidationsBean validation = new EctValidationsBean(oscar.Misc.getString(rs, "name"), rs.getInt("id"));
+                validationsVector.add(validation);
+            }
 
-	Vector validationsVector = new Vector();
-	private ValidationsDao dao = SpringUtils.getBean(ValidationsDao.class);
+            rs.close();
+        }
+        catch(SQLException e) {
+            MiscUtils.getLogger().error("Error", e);
+            verdict = false;
+        }
+        return verdict;
+    }
 
-	public EctValidationsBeanHandler() {
-		init();
-	}
+    public Collection getValidationsVector(){
+        return validationsVector;
+    }
+    
+    public int findValidation(EctValidationsBean validation){
+        int validationId = -1;
+        String regularExp = " IS NULL";
+        String minValue = " IS NULL";
+        String maxValue = " IS NULL";
+        String minLength = " IS NULL";
+        String maxLength = " IS NULL";
+        String isNumeric = " IS NULL";
+        String isDate = " IS NULL";
+        
+        if(validation.getRegularExp()!=null)
+            regularExp = "='" + validation.getRegularExp() + "'";
 
-	public boolean init() {
+        if(validation.getMinValue()!=null)
+            minValue = "='" + validation.getMinValue() + "'";
 
-		boolean verdict = true;
+        if(validation.getMaxValue()!=null)
+            maxValue = "='" + validation.getMaxValue() + "'";
 
-		List<Validations> vs = dao.findAll();
-		Collections.sort(vs, Validations.NameComparator);
-		for (Validations v : vs) {
-			EctValidationsBean validation = new EctValidationsBean(v.getName(), v.getId());
-			validationsVector.add(validation);
-		}
+        if(validation.getMinLength()!=null)
+            minLength = "='" + validation.getMinLength() + "'";
 
-		return verdict;
-	}
+        if(validation.getMaxLength()!=null)
+            maxLength = "='" + validation.getMaxLength() + "'";
 
-	public Collection getValidationsVector() {
-		return validationsVector;
-	}
+        if(validation.getIsNumeric()!=null)
+            isNumeric = "='" + validation.getIsNumeric() + "'";
+        
+        if(validation.getIsDate()!=null)
+            isDate = "='" + validation.getIsDate() + "'";
+        
+        try{
+                        
+            String sql ="SELECT * FROM validations WHERE regularExp" + regularExp
+                        + " AND minValue" + minValue 
+                        + " AND maxValue" + maxValue
+                        + " AND minLength" + minLength
+                        + " AND maxLength" + maxLength
+                        + " AND isNumeric" + isNumeric
+                        + " AND isDate" + isDate;
 
-	public int findValidation(EctValidationsBean validation) {
-		String regularExp = validation.getRegularExp() != null ? validation.getRegularExp() : null;
-		Double minValue = validation.getMinValue() != null ? ConversionUtils.fromDoubleString(validation.getMinValue()) : null;
-		Double maxValue = validation.getMaxValue() != null ? ConversionUtils.fromDoubleString(validation.getMaxValue()) : null;
-		Integer minLength = validation.getMinLength() != null ? ConversionUtils.fromIntString(validation.getMinLength()) : null;
-		Integer maxLength = validation.getMaxLength() != null ? ConversionUtils.fromIntString(validation.getMaxLength()) : null;
-		Boolean isNumeric = validation.getIsNumeric() != null ? ConversionUtils.fromBoolString(validation.getIsNumeric()) : null;
-		Boolean isDate = validation.getIsDate() != null ? ConversionUtils.fromBoolString(validation.getIsDate()) : null;
+            ResultSet rs = DBHandler.GetSQL(sql);
+            if(rs.next()){
+                validationId = rs.getInt("id");
 
-		ValidationsDao dao = SpringUtils.getBean(ValidationsDao.class);
-		List<Validations> vs = dao.findByAll(regularExp, minValue, maxValue, minLength, maxLength, isNumeric, isDate);
-		if (vs.isEmpty()) {
-			return -1;
-		}
-		return vs.get(0).getId();
-	}
+            }
+            rs.close();
+        }
+        
+        catch(SQLException e) {
+            MiscUtils.getLogger().error("Error", e);
+            validationId = -1;
+        }
+        
+        return validationId;
+    }
+    
+    public int addValidation(EctValidationsBean validation){
+        int validationId = -1;
+        
+        try{
+                        
+            String regularExp = null;
+            String minValue = null;
+            String maxValue = null;
+            String minLength = null;
+            String maxLength = null;
+            String isNumeric = null;
+            String isDate = null;
+            
+            if(validation.getRegularExp()!=null)
+                regularExp = "'" + validation.getRegularExp() + "'";
+            
+            if(validation.getMinValue()!=null)
+                minValue = "'" + validation.getMinValue() + "'";
 
-	public int addValidation(EctValidationsBean validation) {
-		int validationId = -1;
+            if(validation.getMaxValue()!=null)
+                maxValue = "'" + validation.getMaxValue() + "'";
+            
+            if(validation.getMinLength()!=null)
+                minLength = "'" + validation.getMinLength() + "'";
+            
+            if(validation.getMaxLength()!=null)
+                maxLength = "'" + validation.getMaxLength() + "'";
+            
+            if(validation.getIsNumeric()!=null)
+                isNumeric = "'" + validation.getIsNumeric() + "'";
+            
+            if(validation.getIsDate()!=null)
+                isDate = "'" + validation.getIsDate() + "'";
+            
+            String sql ="INSERT INTO validations(`name`, `regularExp`, `minValue`, `maxValue`, `minLength`, `maxLength`, `isNumeric`, `isDate`) VALUES('"            
+                        + validation.getName() + "', "
+                        + regularExp + "," 
+                        + minValue + "," 
+                        + maxValue + "," 
+                        + minLength + "," 
+                        + maxLength + "," 
+                        + isNumeric + ","
+                        + isDate + ")";
 
-		Validations v = new Validations();
-		if (validation.getName() != null  && !validation.getName().isEmpty()) {
-			v.setName(validation.getName());
-		}
-		if (validation.getRegularExp() != null  && !validation.getRegularExp().isEmpty()) {
-			v.setRegularExp(validation.getRegularExp());
-		}
-		if (validation.getMinValue() != null  && !validation.getMinValue().isEmpty()) {
-			v.setMinValue(Double.parseDouble(validation.getMinValue()));
-		}
-		if (validation.getMaxValue() != null  && !validation.getMaxValue().isEmpty()) {
-			v.setMaxValue(Double.parseDouble(validation.getMaxValue()));
-		}
-		if (validation.getMinLength() != null && !validation.getMinLength().isEmpty()) {
-			v.setMinLength(Integer.parseInt(validation.getMinLength()));
-		}
-		if (validation.getMaxLength() != null  && !validation.getMaxLength().isEmpty()) {
-			v.setMaxLength(Integer.parseInt(validation.getMaxLength()));
-		}
-		if (validation.isNumeric != null) {
-			v.setNumeric(validation.isNumeric.equals("1") ? true : false);
-		}
-		if (validation.isDate != null) {
-			v.setDate(validation.isDate.equals("1") ? true : false);
-		}
+            DBHandler.RunSQL(sql);
+            sql = "SELECT id FROM validations ORDER BY id DESC LIMIT 1";
+            ResultSet rs = DBHandler.GetSQL(sql);
+            if(rs.next()){
+                validationId = rs.getInt("id");
+            }
+        }
+        
+        catch(SQLException e) {
+            MiscUtils.getLogger().error("Error", e);
+            validationId = -1;
+        }
+        
+        return validationId;
+    }
+    
+    public EctValidationsBean getValidation(String val){   
+        EctValidationsBean validation = new EctValidationsBean();
+        try{
+                        
 
-		dao.persist(v);
-
-		validationId = v.getId();
-
-		return validationId;
-	}
-
-	public EctValidationsBean getValidation(String val) {
-		EctValidationsBean validation;
-		ValidationsDao dao = SpringUtils.getBean(ValidationsDao.class);
-		List<Validations> vs = dao.findByName(val);
-		if (vs.isEmpty()) {
-			validation = new EctValidationsBean();
-		} else {
-			validation = new EctValidationsBean(vs.get(0));
-		}
-		return validation;
-		
-	}
+            String sql ="SELECT * FROM  validations WHERE name = '"+StringEscapeUtils.escapeSql(val)+"'";             
+            ResultSet rs = DBHandler.GetSQL(sql);
+            
+            if (rs.next()){
+                validation.setName(val);
+                validation.setRegularExp(oscar.Misc.getString(rs, "regularExp")); 
+                validation.setMinValue(oscar.Misc.getString(rs, "minValue"));
+                validation.setMaxValue(oscar.Misc.getString(rs, "maxValue"));
+                validation.setMinLength(oscar.Misc.getString(rs, "minLength"));
+                validation.setMaxLength(oscar.Misc.getString(rs, "maxLength"));
+                validation.setIsNumeric(oscar.Misc.getString(rs, "isNumeric"));
+                validation.setIsDate(oscar.Misc.getString(rs, "isDate"));
+            }
+        }catch(SQLException e) {
+            MiscUtils.getLogger().error("Error", e);
+        }
+        
+        return validation;
+    }
 }

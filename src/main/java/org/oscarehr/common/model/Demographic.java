@@ -28,12 +28,9 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Set;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
@@ -55,11 +52,6 @@ public class Demographic implements Serializable {
 	private static final String DEFAULT_FUTURE_DATE = "2100-01-01";
 	public static final String ANONYMOUS = "ANONYMOUS";
 	public static final String UNIQUE_ANONYMOUS = "UNIQUE_ANONYMOUS";
-	
-	private final static Pattern FD_LAST_NAME = Pattern.compile(".*<rd>([^,]*),.*</rd>.*");
-	private final static Pattern FD_FIRST_NAME = Pattern.compile(".*<rd>[^,]*,(.*)</rd>.*");
-	private final static Pattern FD_OHIP = Pattern.compile("<rdohip>(.*)</rdohip>.*");
-	
 	
 	private int hashCode = Integer.MIN_VALUE;// primary key
 	private Integer demographicNo;// fields
@@ -97,6 +89,7 @@ public class Demographic implements Serializable {
 	private String rosterTerminationReason;
 	private String links;
 	private DemographicExt[] extras;
+
 	private String alias;
 	private String previousAddress;
 	private String children;
@@ -114,7 +107,7 @@ public class Demographic implements Serializable {
 
 	private Provider provider;
 	private String lastUpdateUser = null;
-	private Date lastUpdateDate = new Date();
+	private Date lastUpdateDate = null;
 
 	private String title;
 	private String officialLanguage;
@@ -197,16 +190,8 @@ public class Demographic implements Serializable {
 	}
 
 	/**
-	 * 
-	 * @param firstName
-	 * @param lastName
-	 * @param gender
-	 * @param monthOfBirth
-	 * @param dateOfBirth
-	 * @param yearOfBirth
-	 * @param hin
-	 * @param ver
-	 * @return Demographic
+	 * @param applyDefaultBirthDate should never be used
+	 * @return
 	 */
 	public static Demographic create(String firstName, String lastName, String gender, String monthOfBirth, String dateOfBirth, String yearOfBirth, String hin, String ver) {
 		Demographic demographic = new Demographic();
@@ -265,6 +250,7 @@ public class Demographic implements Serializable {
 	/**
 	 * Return the unique identifier of this class
 	 *
+	 * @hibernate.id generator-class="native" column="demographic_no"
 	 */
 	public Integer getDemographicNo() {
 		return demographicNo;
@@ -484,12 +470,6 @@ public class Demographic implements Serializable {
 	public Date getDateJoined() {
 		return dateJoined;
 	}
-	
-	public String getFormattedDateJoined() {
-		Date d = getDateJoined();
-		if (d != null) return (DateFormatUtils.ISO_DATE_FORMAT.format(d));
-		else return ("");
-	}
 
 	/**
 	 * Set the value related to the column: date_joined
@@ -504,9 +484,6 @@ public class Demographic implements Serializable {
 	 * Return the value associated with the column: family_doctor
 	 */
 	public String getFamilyDoctor() {
-		if(StringUtils.isBlank(familyDoctor)) {
-			this.familyDoctor = "";
-		}
 		return familyDoctor;
 	}
 
@@ -517,45 +494,6 @@ public class Demographic implements Serializable {
 	 */
 	public void setFamilyDoctor(String familyDoctor) {
 		this.familyDoctor = familyDoctor;
-	}
-
-	/**
-	 * Return the last name as parsed from column: family_doctor
-	 */
-	public String getFamilyDoctorLastName() {
-
-		Matcher m = FD_LAST_NAME.matcher(getFamilyDoctor());
-
-		if( m.find() ) {
-			return m.group(1);
-		}
-		return ""; 
-	}
-
-	/**
-	 * Return the first name as parsed from column: family_doctor
-	 */
-	public String getFamilyDoctorFirstName() {
-		Matcher m = FD_FIRST_NAME.matcher(getFamilyDoctor());
-
-		if( m.find()) {
-			return m.group(1);
-		}
-		return "";
-	}
-
-	/**
-	 * Return the doctor number as parsed from column: family_doctor
-	 */
-	public String getFamilyDoctorNumber() {
-
-		Matcher m = FD_OHIP.matcher(getFamilyDoctor());
-
-		if( m.find() ) {
-			return m.group(1);
-		}
-		
-		return "";
 	}
 
 	/**
@@ -581,16 +519,6 @@ public class Demographic implements Serializable {
 		return firstName;
 	}
 
-	/**
-	 * Gets demographic's full name.
-	 * 
-	 * @return
-	 * 		Returns the last name, first name pair.
-	 */
-	public String getFullName() {
-		return getLastName() + ", " + getFirstName();
-	}
-	
 	/**
 	 * Set the value related to the column: first_name
 	 *
@@ -669,12 +597,6 @@ public class Demographic implements Serializable {
 	 */
 	public Date getEndDate() {
 		return endDate;
-	}
-	
-	public String getFormattedEndDate() {
-		Date d = getEndDate();
-		if (d != null) return (DateFormatUtils.ISO_DATE_FORMAT.format(d));
-		else return ("");
 	}
 
 	/**
@@ -791,9 +713,8 @@ public class Demographic implements Serializable {
 	}
 
 	public void setFormattedEffDate(String formattedDate) {
-		 if(StringUtils.isBlank(formattedDate))
-                        return;
-
+		if(StringUtils.isBlank(formattedDate))
+			return;
 		try {
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 			Date d = sdf.parse(formattedDate);
@@ -811,9 +732,8 @@ public class Demographic implements Serializable {
 	}
 
 	public void setFormattedRenewDate(String formattedDate) {
-	 	if(StringUtils.isBlank(formattedDate))
-                       return;
-
+		if(StringUtils.isBlank(formattedDate))
+			return;
 		try {
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 			Date d = sdf.parse(formattedDate);
@@ -1150,97 +1070,5 @@ public class Demographic implements Serializable {
     	this.newsletter = newsletter;
     }
 
-    public static final Comparator<Demographic> FormattedNameComparator = new Comparator<Demographic>() {	
-        @Override	
-        public int compare(Demographic dm1, Demographic dm2) {	
-            return dm1.getFormattedName().compareToIgnoreCase(dm2.getFormattedName());	
-        }	
-    }; 
-	public static final Comparator<Demographic> LastNameComparator = new Comparator<Demographic>() {
-        public int compare(Demographic dm1, Demographic dm2) {
-        	return dm1.getLastName().compareTo(dm2.getLastName());
-        }
-    }; 
-	public static final Comparator<Demographic> FirstNameComparator = new Comparator<Demographic>() {
-        public int compare(Demographic dm1, Demographic dm2) {
-        	return dm1.getFirstName().compareTo(dm2.getFirstName());
-        }
-    }; 
-	public static final Comparator<Demographic> DemographicNoComparator = new Comparator<Demographic>() {
-        public int compare(Demographic dm1, Demographic dm2) {
-        	return dm1.getDemographicNo().compareTo(dm2.getDemographicNo());
-        }
-    }; 
-	public static final Comparator<Demographic> SexComparator = new Comparator<Demographic>() {
-        public int compare(Demographic dm1, Demographic dm2) {
-        	return dm1.getSex().compareTo(dm2.getSex());
-        }
-    }; 
-	public static final Comparator<Demographic> AgeComparator = new Comparator<Demographic>() {
-        public int compare(Demographic dm1, Demographic dm2) {
-        	return dm1.getAge().compareTo(dm2.getAge());
-        }
-    }; 
-	public static final Comparator<Demographic> DateOfBirthComparator = new Comparator<Demographic>() {
-        public int compare(Demographic dm1, Demographic dm2) {
-        	return dm1.getBirthDayAsString().compareTo(dm2.getBirthDayAsString());
-        }
-    }; 
-	public static final Comparator<Demographic> RosterStatusComparator = new Comparator<Demographic>() {
-        public int compare(Demographic dm1, Demographic dm2) {
-        	return dm1.getRosterStatus().compareTo(dm2.getRosterStatus());
-        }
-    }; 
-	public static final Comparator<Demographic> ChartNoComparator = new Comparator<Demographic>() {
-        public int compare(Demographic dm1, Demographic dm2) {
-        	return dm1.getChartNo().compareTo(dm2.getChartNo());
-        }
-    }; 
-	public static final Comparator<Demographic> ProviderNoComparator = new Comparator<Demographic>() {
-        public int compare(Demographic dm1, Demographic dm2) {
-        	return dm1.getProviderNo().compareTo(dm2.getProviderNo());
-        }
-    }; 
-	public static final Comparator<Demographic> PatientStatusComparator = new Comparator<Demographic>() {
-        public int compare(Demographic dm1, Demographic dm2) {
-        	return dm1.getPatientStatus().compareTo(dm2.getPatientStatus());
-        }
-    }; 
-	public static final Comparator<Demographic> PhoneComparator = new Comparator<Demographic>() {
-        public int compare(Demographic dm1, Demographic dm2) {
-        	return dm1.getPhone().compareTo(dm2.getPhone());
-        }
-    }; 
 
-
-	
-	public String getStandardIdentificationHTML() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("<b>" + getLastName().toUpperCase() + "</b>");
-		sb.append(",");
-		sb.append(getFirstName());
-		if(getTitle() != null && getTitle().length()>0) {
-			sb.append("(" + getTitle() + ")");
-		}
-		sb.append("<br/>");
-		sb.append("Born ");
-		sb.append("<b>" + getFormattedDob() + "</b>");
-		if(getHin() != null && getHin().length()>0) {
-			sb.append("<br/>");
-			sb.append("HC ");
-			sb.append("<b>");
-			sb.append(getHin() + " " + getVer());
-			sb.append("(" + getHcType() + ")");
-			sb.append("</b>");
-		}
-		if(getChartNo() != null && getChartNo().length()>0) {
-			sb.append("<br/>");
-			sb.append("Chart No ");
-			sb.append("<b>");
-			sb.append(getChartNo());
-			sb.append("</b>");
-		}
-		return sb.toString();
-	}
-	
 }

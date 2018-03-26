@@ -25,25 +25,31 @@
 
 package oscar.oscarReport.data;
 
-import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Hashtable;
 
 import net.sf.jasperreports.engine.JRParameter;
 import net.sf.jasperreports.engine.JasperReport;
 
-import org.oscarehr.common.dao.LogLettersDao;
-import org.oscarehr.common.dao.ReportLettersDao;
-import org.oscarehr.common.model.LogLetters;
-import org.oscarehr.common.model.ReportLetters;
+import org.oscarehr.util.DbConnectionFilter;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.OscarDocumentCreator;
 
 /**
+  create table report_letters(
+    ID int(10) auto_increment primary key,
+    provider_no varchar(6),
+    report_name varchar(255),
+    file_name varchar(255),
+    report_file mediumblob,
+    date_time datetime,
+    archive char(1) default 0
+  );
  *
  * @author jay
  */
@@ -51,42 +57,72 @@ import oscar.OscarDocumentCreator;
 
 public class ManageLetters {
 
-	private ReportLettersDao reportLettersDao = SpringUtils.getBean(ReportLettersDao.class);
-	private LogLettersDao logLettersDao = SpringUtils.getBean(LogLettersDao.class);
-
+    /** Creates a new instance of ManageLetters */
     public ManageLetters() {
     }
 
     //method to save a new report
     public void saveReport(String providerNo,String reportName,String fileName, byte[] in){
-    	ReportLetters r = new ReportLetters();
-    	r.setProviderNo(providerNo);
-    	r.setReportName(reportName);
-    	r.setFileName(fileName);
-    	r.setReportFile(in);
-    	r.setDateTime(new Date());
-    	r.setArchive("0");
-    	reportLettersDao.persist(r);
+
+
+        try {
+
+
+            String s = "insert into report_letters (provider_no,report_name, file_name,report_file,date_time,archive) values (?,?,?,?,now(),'0')" ;
+            PreparedStatement pstmt = DbConnectionFilter.getThreadLocalDbConnection().prepareStatement(s);
+            pstmt.setString(1,providerNo);
+            pstmt.setString(2,reportName);
+            pstmt.setString(3,fileName);
+            pstmt.setBytes(4,in);
+            pstmt.executeUpdate();
+            pstmt.close();
+
+        }catch(Exception e){
+            MiscUtils.getLogger().error("Error", e);
+        }
     }
 
     //method to archive an existing report
     public void archiveReport(String id){
-    	ReportLetters r = reportLettersDao.find(Integer.parseInt(id));
-    	if(r != null) {
-    		r.setArchive("1");
-    		reportLettersDao.merge(r);
-    	}
+
+        try {
+
+
+            String s = "update report_letters set archive = '1' where id =  ?" ;
+            PreparedStatement pstmt = DbConnectionFilter.getThreadLocalDbConnection().prepareStatement(s);
+            pstmt.setString(1,id);
+            pstmt.executeUpdate();
+            pstmt.close();
+
+        }catch(Exception e){
+            MiscUtils.getLogger().error("Error", e);
+        }
     }
 
     //method getReport for id
     public JasperReport getReport(String id){
+
         JasperReport  jasperReport = null;
-        
-        ReportLetters r = reportLettersDao.find(Integer.parseInt(id));
-    	if(r != null) {
-    		OscarDocumentCreator osc = new OscarDocumentCreator();
-            jasperReport = osc.getJasperReport(r.getReportFile());
-    	}
+        try {
+
+
+            String s = "select report_file from report_letters where id  = ?" ;
+            PreparedStatement pstmt = DbConnectionFilter.getThreadLocalDbConnection().prepareStatement(s);
+            pstmt.setString(1,id);
+
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()){
+                InputStream is = rs.getBinaryStream("report_file");
+                OscarDocumentCreator osc = new OscarDocumentCreator();
+                jasperReport = osc.getJasperReport(is);
+                is.close();
+            }
+            rs.close();
+            pstmt.close();
+
+        }catch(Exception e){
+            MiscUtils.getLogger().error("Error", e);
+        }
         return jasperReport;
     }
 
@@ -109,14 +145,37 @@ public class ManageLetters {
 
     //method to write file to stream
     public void writeLetterToStream(String id,OutputStream out){
-    	ReportLetters r = reportLettersDao.find(Integer.parseInt(id));
-    	if(r != null) {
-    		try {
-    			out.write(r.getReportFile(), 0, r.getReportFile().length);
-    		}catch(IOException e) {
-    			 MiscUtils.getLogger().error("Error", e);
-    		}
-    	}
+
+
+        try {
+
+
+            String s = "select report_file from report_letters where id  = ?" ;
+            PreparedStatement pstmt = DbConnectionFilter.getThreadLocalDbConnection().prepareStatement(s);
+            pstmt.setString(1,id);
+
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()){
+
+                InputStream in = rs.getBinaryStream("report_file");
+
+                // Transfer bytes from in to out
+                byte[] buf = new byte[1024];
+                int len;
+                while ((len = in.read(buf)) > 0) {
+                    out.write(buf, 0, len);
+                }
+                in.close();
+                out.close();
+            }
+            rs.close();
+            pstmt.close();
+
+        }catch(Exception e){
+            MiscUtils.getLogger().error("Error", e);
+        }
+
+
     }
 
 
@@ -127,40 +186,86 @@ public class ManageLetters {
     public ArrayList<Hashtable<String,Object>> getActiveReportList(){
 
         ArrayList<Hashtable<String,Object>> list = new ArrayList<Hashtable<String,Object>>();
-        
-        for(ReportLetters l:reportLettersDao.findCurrent()) {
-        	 Hashtable<String,Object> h = new Hashtable<String,Object>();
-             h.put("ID",l.getId().toString());
-             h.put("provider_no",l.getProviderNo());
-             h.put("report_name",l.getReportName());
-             h.put("file_name",l.getFileName());
-             h.put("date_time",l.getDateTime());
-             list.add(h);
+        try {
+
+
+            String s = "select ID, provider_no , report_name, file_name, date_time from report_letters where archive = '0' order by date_time,report_name" ;
+            PreparedStatement pstmt = DbConnectionFilter.getThreadLocalDbConnection().prepareStatement(s);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()){
+               list.add(getHashFromResultSet(rs));
+            }
+            rs.close();
+            pstmt.close();
+
+        }catch(Exception e){
+            MiscUtils.getLogger().error("Error", e);
         }
         return list;
     }
 
     public Hashtable<String,Object> getReportData(String id){
+
         Hashtable<String,Object> h = null;
-        ReportLetters l = reportLettersDao.find(Integer.parseInt(id));
-        if(l != null) {
-        	h = new Hashtable<String,Object>();
-            h.put("ID",l.getId().toString());
-            h.put("provider_no",l.getProviderNo());
-            h.put("report_name",l.getReportName());
-            h.put("file_name",l.getFileName());
-            h.put("date_time",l.getDateTime());
+        try {
+
+
+            String s = "select ID, provider_no , report_name, file_name, date_time from report_letters where ID = ?" ;
+            PreparedStatement pstmt = DbConnectionFilter.getThreadLocalDbConnection().prepareStatement(s);
+            pstmt.setString(1,id);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()){
+               h = getHashFromResultSet(rs);
+            }
+            rs.close();
+            pstmt.close();
+        }catch(Exception e){
+            MiscUtils.getLogger().error("Error", e);
         }
         return h;
     }
 
+    private Hashtable<String,Object> getHashFromResultSet(ResultSet rs) throws Exception{
+        Hashtable<String,Object> h = new Hashtable<String,Object>();
+        h.put("ID",oscar.Misc.getString(rs,"ID"));
+        h.put("provider_no",oscar.Misc.getString(rs,"provider_no"));
+        h.put("report_name",oscar.Misc.getString(rs,"report_name"));
+        h.put("file_name",oscar.Misc.getString(rs,"file_name"));
+        h.put("date_time",rs.getDate("date_time"));
+        return h;
+    }
+
+
+    /*
+
+     create table log_letters(
+            ID int(10) primary key auto_increment,
+            date_time datetime,
+            provider_no varchar(6),
+            log text,
+            report_id  int(10)
+         )
+
+         */
     public void logLetterCreated(String providerNo,String reportId,String[] demos){
-    	LogLetters l = new LogLetters();
-    	l.setProviderNo(providerNo);
-    	l.setReportId(Integer.parseInt(reportId));
-    	l.setLog(serializeDemographic(demos));
-    	l.setDateTime(new Date());
-    	logLettersDao.persist(l);
+
+
+        try {
+
+
+            String s = "insert into log_letters (provider_no,report_id, log, date_time) values (?,?,?,now())" ;
+            PreparedStatement pstmt = DbConnectionFilter.getThreadLocalDbConnection().prepareStatement(s);
+            pstmt.setString(1,providerNo);
+            pstmt.setString(2,reportId);
+            pstmt.setString(3,serializeDemographic(demos));
+
+            pstmt.executeUpdate();
+            pstmt.close();
+
+        }catch(Exception e){
+            MiscUtils.getLogger().error("Error", e);
+        }
+
     }
 
     private String serializeDemographic(String[] demos){
@@ -174,6 +279,10 @@ public class ManageLetters {
             }
         }
         return serialString.toString();
+    }
+
+    private String[] deSerializeDemographic(String demo){
+        return demo.split(",");
     }
 
 }

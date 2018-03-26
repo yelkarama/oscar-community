@@ -33,7 +33,9 @@ import java.util.TreeMap;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
-import org.oscarehr.common.dao.AdmissionDao;
+import org.oscarehr.PMmodule.dao.AdmissionDao;
+import org.oscarehr.PMmodule.dao.ProgramDao;
+import org.oscarehr.PMmodule.model.Admission;
 import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.DemographicExtDao;
 import org.oscarehr.common.dao.FunctionalCentreAdmissionDao;
@@ -42,14 +44,15 @@ import org.oscarehr.common.dao.OcanConnexOptionDao;
 import org.oscarehr.common.dao.OcanFormOptionDao;
 import org.oscarehr.common.dao.OcanStaffFormDao;
 import org.oscarehr.common.dao.OcanStaffFormDataDao;
-import org.oscarehr.common.model.Admission;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.OcanClientForm;
 import org.oscarehr.common.model.OcanConnexOption;
 import org.oscarehr.common.model.OcanFormOption;
 import org.oscarehr.common.model.OcanStaffForm;
 import org.oscarehr.common.model.OcanStaffFormData;
+import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.SpringUtils;
+
 
 public class OcanForm {
 	
@@ -63,10 +66,11 @@ public class OcanForm {
 	private static OcanFormOptionDao ocanFormOptionDao = (OcanFormOptionDao) SpringUtils.getBean("ocanFormOptionDao");
 	private static OcanStaffFormDao ocanStaffFormDao = (OcanStaffFormDao) SpringUtils.getBean("ocanStaffFormDao");
 	private static OcanStaffFormDataDao ocanStaffFormDataDao = (OcanStaffFormDataDao) SpringUtils.getBean("ocanStaffFormDataDao");	
-	private static OcanClientFormDao ocanClientFormDao = (OcanClientFormDao) SpringUtils.getBean("ocanClientFormDao");
+	private static OcanClientFormDao ocanClientFormDao = (OcanClientFormDao) SpringUtils.getBean("ocanClientFormDao");	
 	private static OcanConnexOptionDao ocanConnexOptionDao = (OcanConnexOptionDao) SpringUtils.getBean("ocanConnexOptionDao");
+	private static ProgramDao programDao = (ProgramDao) SpringUtils.getBean("programDao");
     private static FunctionalCentreAdmissionDao functionalCentreAdmissionDao = (FunctionalCentreAdmissionDao) SpringUtils.getBean("functionalCentreAdmissionDao");
-		
+	
 	public static Demographic getDemographic(String demographicId)
 	{
 		return demographicDao.getDemographic(demographicId);
@@ -79,12 +83,14 @@ public class OcanForm {
 	}
 	
 		
-	public static OcanStaffForm getOcanStaffForm(Integer facilityId,Integer clientId, int prepopulationLevel,String ocanType)
+	public static OcanStaffForm getOcanStaffForm(Integer clientId, int prepopulationLevel,String ocanType)
 	{
+		LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+		
 		OcanStaffForm ocanStaffForm=null;
 		
 		if(prepopulationLevel != OcanForm.PRE_POPULATION_LEVEL_NONE) {
-			ocanStaffForm=ocanStaffFormDao.findLatestByFacilityClient(facilityId, clientId, ocanType);
+			ocanStaffForm=ocanStaffFormDao.findLatestByFacilityClient(loggedInInfo.currentFacility.getId(), clientId, ocanType);
 		}
 
 		if (ocanStaffForm==null || "Completed".equals(ocanStaffForm.getAssessmentStatus()))			
@@ -192,6 +198,16 @@ public class OcanForm {
 			
 		}
 		*/
+		/*
+		//get admission info
+		Program program = programDao.getProgram(programId);
+		FunctionalCentreAdmission functionalCentreAdmission = functionalCentreAdmissionDao.getLatestAdmissionByDemographicNoAndFunctionalCentreId(clientId, program.getFunctionalCentreId());
+		ocanStaffForm.setAdmissionId(functionalCentreAdmission.getId());
+		ocanStaffForm.setReferralDate(functionalCentreAdmission.getReferralDate());
+		ocanStaffForm.setAdmissionDate(functionalCentreAdmission.getAdmissionDate());
+		ocanStaffForm.setServiceInitDate(functionalCentreAdmission.getServiceInitiationDate());
+		ocanStaffForm.setDischargeDate(functionalCentreAdmission.getDischargeDate());
+		*/
 		
 		if(prepopulationLevel == OcanForm.PRE_POPULATION_LEVEL_DEMOGRAPHIC) {				
 				Demographic demographic=demographicDao.getDemographicById(clientId);		
@@ -208,7 +224,17 @@ public class OcanForm {
 				ocanStaffForm.setDateOfBirth(demographic.getFormattedDob());
 				ocanStaffForm.setClientDateOfBirth(demographic.getFormattedDob()==null?"":demographic.getFormattedDob());
 				ocanStaffForm.setGender(convertGender(demographic.getSex()==null?"":demographic.getSex()));
-				
+				/* Move to jsp
+				DemographicExt de = demographicExtDao.getDemographicExt(demographic.getDemographicNo(), "hPhoneExt");
+				if(de!=null) {
+					if(de.getValue()==null || de.getValue().equals("null"))
+						ocanStaffForm.setPhoneExt("");
+					else
+						ocanStaffForm.setPhoneExt(de.getValue());
+				} else {
+					ocanStaffForm.setPhoneExt("");
+				}
+				*/
 				Calendar rightNow = Calendar.getInstance();
 				int year = rightNow.get(Calendar.YEAR);
 				int month = rightNow.get(Calendar.MONTH)+1;
@@ -352,10 +378,6 @@ public class OcanForm {
 		return "<input type=\"text\" value=\"" + value + "\" id=\""+question+"\" name=\""+question+"\" onfocus=\"this.blur()\" readonly=\"readonly\" class=\""+className+"\"/> <img title=\"Calendar\" id=\"cal_"+question+"\" src=\"../../images/cal.gif\" alt=\"Calendar\" border=\"0\"><script type=\"text/javascript\">Calendar.setup({inputField:'"+question+"',ifFormat :'%Y-%m-%d',button :'cal_"+question+"',align :'cr',singleClick :true,firstDay :1});</script><img src=\"../../images/icon_clear.gif\" border=\"0\"/ onclick=\"clearDate('"+question+"');\">";
 	}	
 	
-	public static List<Admission> getAdmissions(Integer facilityId, Integer clientId) {
-		return(admissionDao.getAdmissionsByFacility(clientId, facilityId));
-	}
-
 	public static String renderAsEstimatedAge(Integer ocanStaffFormId, String question, boolean required, String dob, int prepopulationLevel)
 	{
 		List<OcanStaffFormData> existingAnswers=getStaffAnswers(ocanStaffFormId, question, prepopulationLevel);
@@ -382,6 +404,12 @@ public class OcanForm {
 		if(required) {className="{validate: {required:true}}";}
 		return "<input type=\"text\" value=\"" + value + "\" id=\""+question+"\" name=\""+question+"\" onfocus=\"this.blur()\" readonly=\"readonly\" class=\""+className+"\"/> ";
 	}	
+	
+	public static List<Admission> getAdmissions(Integer clientId) {
+		LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+		
+		return(admissionDao.getAdmissionsByFacility(clientId, loggedInInfo.currentFacility.getId()));
+	}
 	
 	public static String getEscapedAdmissionSelectionDisplay(Admission admission)
 	{
@@ -630,6 +658,8 @@ public class OcanForm {
 			useDefaultValue=true;
 		}
 		StringBuilder sb=new StringBuilder();
+		
+		
 		sb.append("<option value=\"\">Select an answer</option>");
 		for (OcanFormOption option : options)
 		{
@@ -725,7 +755,7 @@ public class OcanForm {
 	{
 		return renderAsTextField(ocanStaffFormId, question, size, prepopulationLevel, false, null);
 	}
-	
+
 	public static String renderAsTextField(Integer ocanStaffFormId, String question, int size, int prepopulationLevel, boolean clientForm, String styleClass)
 	{
 		List<OcanStaffFormData> existingAnswers=getStaffAnswers(ocanStaffFormId, question, prepopulationLevel);
@@ -881,12 +911,14 @@ public class OcanForm {
 	
 	///client form//////
 	
-	public static OcanClientForm getOcanClientForm(Integer facilityId,Integer clientId, int prepopulationLevel)
+	public static OcanClientForm getOcanClientForm(Integer clientId, int prepopulationLevel)
 	{
+		LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+		
 		OcanClientForm ocanClientForm=null;
 		
 		if(prepopulationLevel != OcanForm.PRE_POPULATION_LEVEL_NONE) {
-			ocanClientForm = ocanClientFormDao.findLatestByFacilityClient(facilityId, clientId);
+			ocanClientForm = ocanClientFormDao.findLatestByFacilityClient(loggedInInfo.currentFacility.getId(), clientId);
 		}
 
 		if (ocanClientForm==null)
@@ -1049,13 +1081,15 @@ public class OcanForm {
 			
 	}
 	
-	public static boolean canCreateInitialAssessment(Integer facilityId,Integer clientId) {
+	public static boolean canCreateInitialAssessment(Integer clientId) {
 		
 		boolean result = false;
 		
-		OcanStaffForm ocanStaffForm = ocanStaffFormDao.findLatestCompletedInitialOcan(facilityId,clientId);	
+		LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+		
+		OcanStaffForm ocanStaffForm = ocanStaffFormDao.findLatestCompletedInitialOcan(loggedInInfo.currentFacility.getId(),clientId);	
 		if(ocanStaffForm!=null) {						
-			OcanStaffForm ocanStaffForm1 = ocanStaffFormDao.findLatestCompletedDischargedAssessment(facilityId, clientId);
+			OcanStaffForm ocanStaffForm1 = ocanStaffFormDao.findLatestCompletedDischargedAssessment(loggedInInfo.currentFacility.getId(), clientId);
 			if(ocanStaffForm1!=null) {
 				Date completionDate = getAssessmentCompletionDate(ocanStaffForm1.getCompletionDate(),ocanStaffForm1.getClientCompletionDate());
 				result = afterCurrentDateAddMonth(completionDate, -3);				
@@ -1067,11 +1101,13 @@ public class OcanForm {
 		return result;
 	}
 
-	public static boolean haveInitialAssessment(Integer facilityId,Integer clientId) {
+	public static boolean haveInitialAssessment(Integer clientId) {
 		
 		boolean result = false;
 		
-		OcanStaffForm ocanStaffForm = ocanStaffFormDao.findLatestCompletedInitialOcan(facilityId,clientId);	
+		LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+		
+		OcanStaffForm ocanStaffForm = ocanStaffFormDao.findLatestCompletedInitialOcan(loggedInInfo.currentFacility.getId(),clientId);	
 		if(ocanStaffForm!=null) {						
 			result = true;
 		} 
@@ -1080,11 +1116,13 @@ public class OcanForm {
 	}
 
 	
-	 public static boolean haveReassessment(Integer facilityId,Integer clientId) {
+	 public static boolean haveReassessment(Integer clientId) {
 
          boolean result = false;
 
-         OcanStaffForm ocanStaffForm = ocanStaffFormDao.findLatestCompletedReassessment(facilityId,clientId);
+         LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+
+         OcanStaffForm ocanStaffForm = ocanStaffFormDao.findLatestCompletedReassessment(loggedInInfo.currentFacility.getId(),clientId);
          if(ocanStaffForm!=null) {
                  result = true;
          }
@@ -1096,10 +1134,9 @@ public class OcanForm {
 	 
 	public static String getOcanWarningMessage(Integer facilityId) {
 		boolean appendFailureMessage = true;	
-		StringBuilder messages = new StringBuilder();
+		StringBuilder messages = new StringBuilder();		
 		int doReassessment = 0;
 		
-	
 		List<Integer> demographicList = ocanStaffFormDao.findClientsWithOcan(facilityId);
 		for(Integer clientId: demographicList) {
 			if(isItTimeToDoReassessment(facilityId, clientId)){
@@ -1161,19 +1198,23 @@ public class OcanForm {
 			
 	}
 	
-	public static OcanStaffForm getLastCompletedOcanForm(Integer facilityId,Integer clientId)
+	public static OcanStaffForm getLastCompletedOcanForm(Integer clientId)
 	{
-		OcanStaffForm ocanStaffForm = ocanStaffFormDao.getLastCompletedOcanForm(facilityId, clientId);
+		LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+			
+		OcanStaffForm ocanStaffForm = ocanStaffFormDao.getLastCompletedOcanForm(loggedInInfo.currentFacility.getId(), clientId);
 		
 		return ocanStaffForm;
 	}		
 	
 	
-	 public static OcanStaffForm getLastCompletedOcanFormByOcanType(Integer facilityId,Integer clientId, String ocanType)
+	 public static OcanStaffForm getLastCompletedOcanFormByOcanType(Integer clientId, String ocanType)
      {
-         OcanStaffForm ocanStaffForm = ocanStaffFormDao.getLastCompletedOcanFormByOcanType(facilityId, clientId, ocanType);
+             LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
 
-         return ocanStaffForm;
+             OcanStaffForm ocanStaffForm = ocanStaffFormDao.getLastCompletedOcanFormByOcanType(loggedInInfo.currentFacility.getId(), clientId, ocanType);
+
+             return ocanStaffForm;
      }
 
 
@@ -1182,12 +1223,16 @@ public class OcanForm {
 		return ocanStaffFormDataDao.findByForm(ocanStaffFormId);		
 	}
 	
-	public static List<Admission> getServiceAndBedProgramAdmissions(Integer facilityId,Integer clientId) {
-		return (admissionDao.getServiceAndBedProgramAdmissions(clientId, facilityId));
+	public static List<Admission> getServiceAndBedProgramAdmissions(Integer clientId) {
+		LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
+
+		return (admissionDao.getServiceAndBedProgramAdmissions(clientId, loggedInInfo.currentFacility.getId()));
 	}
 	
-	public static OcanStaffForm findLatestCbiFormsByFacilityAdmissionId(Integer facilityId,Integer admissionId, Boolean signed) {
-		return (ocanStaffFormDao.findLatestCbiFormsByFacilityAdmissionId(facilityId, admissionId, signed));
+	public static OcanStaffForm findLatestCbiFormsByFacilityAdmissionId(Integer admissionId, Boolean signed) {
+		LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
+
+		return (ocanStaffFormDao.findLatestCbiFormsByFacilityAdmissionId(loggedInInfo.currentFacility.getId(), admissionId, signed));
 	}
 	
 }

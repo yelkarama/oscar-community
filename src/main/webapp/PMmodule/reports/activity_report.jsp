@@ -22,21 +22,6 @@
     Toronto, Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_report" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_report");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%@page import="java.util.*"%>
 <%@page import="org.caisi.model.*"%>
 <%@page import="org.oscarehr.PMmodule.model.*"%>
@@ -47,7 +32,6 @@
 <%@page import="org.oscarehr.common.model.FunctionalCentre"%>
 
 <%
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 	String functionalCentreId=request.getParameter("functionalCentreId");
 	int programId=Integer.parseInt(request.getParameter("programId"));
 	String startDateString=request.getParameter("startDate");
@@ -70,9 +54,9 @@
 	catch (Exception e)
 	{
 		// do nothing, bad input
-	}
+	}	
 	
-	PopulationReportUIBean populationReportUIBean=new PopulationReportUIBean(loggedInInfo,functionalCentreId, programId, startDate, endDate);
+	PopulationReportUIBean populationReportUIBean=new PopulationReportUIBean(functionalCentreId, programId, startDate, endDate);
 	Program program=populationReportUIBean.getProgram();
 	FunctionalCentre functionalCentre=populationReportUIBean.getFunctionalCentre();
 	PopulationReportDataObjects.RoleDataGrid roleDataGrid=populationReportUIBean.getRoleDataGrid();

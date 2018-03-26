@@ -23,7 +23,6 @@
  */
 package org.oscarehr.common.dao;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import org.junit.Before;
@@ -35,66 +34,23 @@ import org.oscarehr.util.SpringUtils;
 
 public class ScratchPadDaoTest extends DaoTestFixtures {
 
-	protected ScratchPadDao dao = SpringUtils.getBean(ScratchPadDao.class);
+	private ScratchPadDao dao = SpringUtils.getBean(ScratchPadDao.class);
 
 	public ScratchPadDaoTest() {
 	}
+
 
 	@Before
 	public void before() throws Exception {
 		SchemaUtils.restoreTable("scratch_pad");
 	}
 
-        @Test
-        public void testCreate() throws Exception {
-                ScratchPad entity = new ScratchPad();
-                EntityDataGenerator.generateTestDataForModelClass(entity);
-                dao.persist(entity);
-
-                assertNotNull(entity.getId());
-        }
-
 	@Test
-	public void testIsScratchFilled() throws Exception {
-		
-		String providerNo1 = "111";
-		String providerNo2 = "222";
-		
-		ScratchPad scratchPad1 = new ScratchPad();
-		EntityDataGenerator.generateTestDataForModelClass(scratchPad1);
-		scratchPad1.setProviderNo(providerNo1);
-		dao.persist(scratchPad1);
-		
-		ScratchPad scratchPad2 = new ScratchPad();
-		EntityDataGenerator.generateTestDataForModelClass(scratchPad2);
-		scratchPad2.setProviderNo(providerNo2);
-		dao.persist(scratchPad2);
-		
-		boolean expectedResult = true;
-		boolean result = dao.isScratchFilled(providerNo1);
-		
-		assertEquals(expectedResult, result);
-	}
+	public void testCreate() throws Exception {
+		ScratchPad entity = new ScratchPad();
+		EntityDataGenerator.generateTestDataForModelClass(entity);
+		dao.persist(entity);
 
-	@Test
-	public void testFindByProviderNo() throws Exception {
-		
-		String providerNo1 = "111";
-		String providerNo2 = "222";
-		
-		ScratchPad scratchPad1 = new ScratchPad();
-		EntityDataGenerator.generateTestDataForModelClass(scratchPad1);
-		scratchPad1.setProviderNo(providerNo1);
-		dao.persist(scratchPad1);
-		
-		ScratchPad scratchPad2 = new ScratchPad();
-		EntityDataGenerator.generateTestDataForModelClass(scratchPad2);
-		scratchPad2.setProviderNo(providerNo2);
-		dao.persist(scratchPad2);
-		
-		ScratchPad expectedResult = scratchPad1;
-		ScratchPad result = dao.findByProviderNo(providerNo1);
-		
-		assertEquals(expectedResult, result);
+		assertNotNull(entity.getId());
 	}
 }

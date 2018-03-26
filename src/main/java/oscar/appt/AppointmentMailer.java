@@ -25,32 +25,32 @@
 
 package oscar.appt;
 
-import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Date;
-import java.util.Properties;
-
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-
-import org.apache.log4j.Logger;
-import org.oscarehr.PMmodule.utility.DateUtils;
-import org.oscarehr.common.dao.ClinicDAO;
-import org.oscarehr.common.dao.OscarAppointmentDao;
-import org.oscarehr.common.model.Appointment;
-import org.oscarehr.common.model.Clinic;
-import org.oscarehr.common.model.Demographic;
-import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
+import oscar.service.MessageMailer;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
+import java.util.Properties;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.FileInputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.DataInputStream;
+import java.io.InputStream;
+import org.apache.log4j.Logger;
+import org.oscarehr.util.MiscUtils;
+import org.oscarehr.PMmodule.utility.DateUtils;  
+import oscar.dao.AppointmentDao;
+import org.oscarehr.util.SpringUtils;
+import java.util.Map;
+import java.util.List;
+import java.util.Date;
+import java.sql.Time;
 
-import oscar.service.MessageMailer;
+import org.oscarehr.common.model.Demographic;
+import org.oscarehr.common.dao.ClinicDAO;
+import org.oscarehr.common.model.Clinic;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.AddressException;
 /**
  *
  * @author mweston4
@@ -66,8 +66,7 @@ public class AppointmentMailer implements MessageMailer{
     private Integer apptNo;
     private Demographic demographic;
     
-    OscarAppointmentDao dao=(OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
-
+   
     
     public AppointmentMailer(Integer apptNo, Demographic demographic) {
         this.mailSender = (MailSender) SpringUtils.getBean("asyncMailSender");
@@ -170,19 +169,20 @@ public class AppointmentMailer implements MessageMailer{
                  
             Date today = new Date();
 
-            Appointment a = dao.find(this.apptNo);
-           
+            AppointmentDao apptDao = (AppointmentDao) SpringUtils.getBean("appointmentSuperDao");
+            List<Map<String, Object>> resultList  = apptDao.executeSelectQuery("search", new Object[]{this.apptNo});
+
             ClinicDAO clinicDao = (ClinicDAO)SpringUtils.getBean("clinicDAO");
             Clinic clinic = clinicDao.getClinic();
             
-            if (a == null) {
+            if (resultList.size() < 1) {
               logger.error("Appointment ("+this.apptNo+") not found for demographic no (" + this.demographic.getDemographicNo() +") on Date: " + today);
             } else {
-               
+                Map mAppt = resultList.get(0);        
                 String msgText = msgTextTemplate.toString();
                 msgText = msgText.replaceAll("<today>", DateUtils.getDate());
-                msgText = msgText.replaceAll("<appointment_date>", a.getAppointmentDate().toString());
-                msgText = msgText.replaceAll("<appointment_time>", a.getStartTime().toString());
+                msgText = msgText.replaceAll("<appointment_date>", ((Date)mAppt.get("appointment_date")).toString());
+                msgText = msgText.replaceAll("<appointment_time>", ((Time)mAppt.get("start_time")).toString());
                 msgText = msgText.replaceAll("<first_name>", this.demographic.getFirstName());
                 msgText = msgText.replaceAll("<last_name>", this.demographic.getLastName());
                 
@@ -190,7 +190,7 @@ public class AppointmentMailer implements MessageMailer{
                 msgText = msgText.replaceAll("<clinic_addressLine>", clinic.getClinicAddress());
                 msgText = msgText.replaceAll("<clinic_phone>", clinic.getClinicPhone());
                  
-                msgText = msgText.replaceAll("<appt_reason>", a.getReason());
+                msgText = msgText.replaceAll("<appt_reason>", (String)mAppt.get("reason"));
                 
                 this.message.setText(msgText);
             }
@@ -231,12 +231,9 @@ public class AppointmentMailer implements MessageMailer{
             if (doSend) {
                 mailSender.send(this.message);
                 
-                //Update appt history accordingly      
-                Appointment appt = dao.find(this.apptNo);
-                if(appt != null) {
-                	appt.setRemarks(appt.getRemarks() + "Emailed:" + DateUtils.getCurrentDateOnlyStr("-") +"\n");
-                	dao.merge(appt);
-                }
+                //Update appt history accordingly                 
+                AppointmentDao apptDao = (AppointmentDao) SpringUtils.getBean("appointmentSuperDao");                
+                apptDao.executeUpdateQuery("appendremarks", new Object[]{"Emailed:" + DateUtils.getCurrentDateOnlyStr("-") +"\n",this.apptNo}); 
             }
             else {
                 logger.error("MailSender is not instantiated or MailMessage is not prepared");

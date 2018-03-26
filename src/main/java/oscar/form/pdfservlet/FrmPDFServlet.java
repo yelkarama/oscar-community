@@ -16,6 +16,7 @@ import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
@@ -31,10 +32,7 @@ import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperRunManager;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
-import org.oscarehr.common.printing.FontSettings;
-import org.oscarehr.common.printing.PdfWriterFactory;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 
@@ -43,7 +41,6 @@ import oscar.form.FrmRecord;
 import oscar.form.FrmRecordFactory;
 import oscar.form.graphic.FrmGraphicFactory;
 import oscar.form.graphic.FrmPdfGraphic;
-import oscar.log.LogAction;
 import oscar.util.ConcatPDF;
 
 import com.lowagie.text.Document;
@@ -83,14 +80,13 @@ public class FrmPDFServlet extends HttpServlet {
 
     /**
      * @param req HTTP request object
-     * @param res HTTP response object
+     * @param resp HTTP response object
      */
     public void doPost(HttpServletRequest req, HttpServletResponse res) throws javax.servlet.ServletException,
             java.io.IOException {
 
         ByteArrayOutputStream baosPDF = null;
-        LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(req);
-        
+
         try {        	
             File tmpFile = null;
             
@@ -140,25 +136,18 @@ public class FrmPDFServlet extends HttpServlet {
             
             
             ServletOutputStream sout = res.getOutputStream();  
-            FileInputStream fis = new FileInputStream(tmpFile);
-            try {
-	            byte[] buffer = new byte[64000];  
-	            int bytesRead = 0;  
-	                                
-	            while(true)  
+            FileInputStream fis = new FileInputStream(tmpFile);  
+            byte[] buffer = new byte[64000];  
+            int bytesRead = 0;  
+                                
+            while(true)  
                 {  
                        bytesRead = fis.read(buffer);  
                        if (bytesRead == -1)  
                               break;  
                                     
                        sout.write(buffer,0,bytesRead);  
-                }
-            }
-            finally {
-            	fis.close();
-            }
-            
-            LogAction.addLogSynchronous(loggedInInfo,"FrmPDFServlet", "formID=" + req.getParameter("formId") + ",form_class=" + req.getParameter("form_class"));
+                }  
             
         } catch (DocumentException dex) {
             res.setContentType("text/html");
@@ -182,19 +171,15 @@ public class FrmPDFServlet extends HttpServlet {
         .getAttribute(HSFO_RX_DATA_KEY);
 
         JRBeanCollectionDataSource ds = new JRBeanCollectionDataSource(rx.getOutlines());
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        InputStream is = Thread.currentThread().getContextClassLoader()
+        .getResourceAsStream("/oscar/form/prop/Hsfo_Rx.jasper");
 
-        InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("/oscar/form/prop/Hsfo_Rx.jasper");
-       
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
             JasperRunManager.runReportToPdfStream(is, baos, rx.getParams(), ds);
         } catch (JRException e) {
             throw new RuntimeException(e);
         }
-        finally {
-        	IOUtils.closeQuietly(is);
-        }
-        
         return baos;
     }
 
@@ -219,10 +204,7 @@ public class FrmPDFServlet extends HttpServlet {
      */
     protected ByteArrayOutputStream generatePDFDocumentBytes(final HttpServletRequest req, final ServletContext ctx, ByteArrayOutputStream baosPDF, int multiple)
     throws DocumentException, java.io.IOException {
-
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(req);
-
-    	// added by vic, hsfo
+        // added by vic, hsfo
         if (HSFO_RX_DATA_KEY.equals(req.getParameter("__title")))
             return generateHsfoRxPDF(req);
 
@@ -235,7 +217,7 @@ public class FrmPDFServlet extends HttpServlet {
         PdfWriter writer = null;
 
         try {
-            writer = PdfWriterFactory.newInstance(document, baosPDF, FontSettings.HELVETICA_6PT); 
+            writer = PdfWriter.getInstance(document, baosPDF);
 
             String title = req.getParameter("__title"+suffix) != null ? req.getParameter("__title"+suffix) : "Unknown";
             
@@ -264,7 +246,19 @@ public class FrmPDFServlet extends HttpServlet {
                 }
             }
             
-                    
+            
+            
+
+            //specify the page of the picture using __graphicPage, it may be used multiple times to specify multiple pages
+            //ie. __graphicPage=2&__graphicPage=3
+            //__cfgGraphicFile will be mapped to page 1, __cfgGraphicFile0 will be mapped to page 2 etc.
+            String[] graphicPage = req.getParameterValues("__graphicPage"+suffix);
+            ArrayList<String> graphicPageArray = new ArrayList<String>();
+            
+            
+            if (graphicPage != null){
+                graphicPageArray = new ArrayList<String>(Arrays.asList(graphicPage));                
+            }                       
             
             Properties[][] graphicCfg = new Properties[numPages][];
             String[] cfgGraphicFile;
@@ -298,21 +292,14 @@ public class FrmPDFServlet extends HttpServlet {
 
             //load from DB
             int demoNo = Integer.parseInt(req.getParameter("demographic_no"));
-            String strFormId =req.getParameter("formId");
-            int formId = 0;
-            try {
-            	formId =  Integer.parseInt(strFormId);
-            }catch(NumberFormatException e){/*ignore*/}
-
+            int formId = Integer.parseInt(req.getParameter("formId"));
             String formClass=req.getParameter("form_class");
             FrmRecord record = (new FrmRecordFactory()).factory(formClass);
             java.util.Properties props = new Properties();
-            if(record != null) {
-	            try {
-	            	props = record.getFormRecord(loggedInInfo, demoNo, formId);
-	            }catch(SQLException e) {
-	            	MiscUtils.getLogger().error("Error",e);
-	            }
+            try {
+            	props = record.getFormRecord(demoNo, formId);
+            }catch(SQLException e) {
+            	MiscUtils.getLogger().error("Error",e);
             }
             
             // get the print prop values
@@ -337,7 +324,7 @@ public class FrmPDFServlet extends HttpServlet {
             int totalPages = 1;
             if(req.getParameter("multiple")!=null)
             	totalPages = Integer.parseInt(req.getParameter("multiple"));
-            String currentUser = loggedInInfo.getLoggedInProvider().getFormattedName();
+            String currentUser = LoggedInInfo.loggedInInfo.get().loggedInProvider.getFormattedName();
             String pg = suffix.length()==0||suffix.equals("0")?"0":suffix;                        
             String currentPage = String.valueOf(Integer.parseInt(pg)+1);
             
@@ -424,7 +411,7 @@ public class FrmPDFServlet extends HttpServlet {
             document.addKeywords("pdf, itext");
             document.addCreator("OSCAR");
             document.addAuthor("");
-            //document.addHeader("Expires", "0");
+            document.addHeader("Expires", "0");
 
             // A0-A10, LEGAL, LETTER, HALFLETTER, _11x17, LEDGER, NOTE, B0-B5, ARCH_A-ARCH_E, FLSA
             // and FLSE
@@ -441,38 +428,32 @@ public class FrmPDFServlet extends HttpServlet {
             //String propFilename = "../../OscarDocument/" + getProjectName() + "/form/" + template;
             String propFilename = oscar.OscarProperties.getInstance().getProperty("pdfFORMDIR", "") + "/" + template;
             PdfReader reader = null;
-            float height;
-            int n;
-            try
-            {
-	            try {
-	                reader = new PdfReader(propFilename);
-	                log.info("Found template at " + propFilename);
-	            } catch (Exception dex) {
-	                log.debug("change path to inside oscar from :" + propFilename);
-	                reader = new PdfReader("/oscar/form/prop/" + template);
-	                log.debug("Found template at /oscar/form/prop/" + template);
-	            }
-	
-	            // retrieve the total number of pages
-	            n = reader.getNumberOfPages();
-	            // retrieve the size of the first page
-	            Rectangle pSize = reader.getPageSize(1);
-	            height = pSize.getHeight();
+            try {
+                reader = new PdfReader(propFilename);
+                log.info("Found template at " + propFilename);
+            } catch (Exception dex) {
+                log.debug("change path to inside oscar from :" + propFilename);
+                reader = new PdfReader("/oscar/form/prop/" + template);
+                log.debug("Found template at /oscar/form/prop/" + template);
             }
-            finally {
-            	reader.close();
-            }
+
+            // retrieve the total number of pages
+            int n = reader.getNumberOfPages();
+            // retrieve the size of the first page
+            Rectangle pSize = reader.getPageSize(1);
+            float width = pSize.getWidth();
+            float height = pSize.getHeight();
 
             PdfContentByte cb = writer.getDirectContent();
             ColumnText ct = new ColumnText(cb);
             int i = 0;
+            int p = 0;
             int fontFlags = 0;
             String propValue;
             
             while (i < n) {
                 document.newPage();
-                
+                p++;
                 i++;
                 PdfImportedPage page1 = writer.getImportedPage(reader, i);
                 cb.addTemplate(page1, 1, 0, 0, 1, 0, 0);
@@ -491,10 +472,8 @@ public class FrmPDFServlet extends HttpServlet {
 	                String[] fontType;
 	                for (Enumeration e = printCfg[i - 1].propertyNames(); e.hasMoreElements();) {
 	                    tempName = new StringBuilder(e.nextElement().toString());
-	                    cfgVal = printCfg[i - 1].getProperty(tempName.toString()).split(",");
-	                    for(int x=0;x<cfgVal.length;x++) {
-	                    	cfgVal[x].trim();
-	                    }
+	                    
+	                    cfgVal = printCfg[i - 1].getProperty(tempName.toString()).split(" *, *");
 	
 	                    if( cfgVal[4].indexOf(";") > -1 ) {
 	                        fontType = cfgVal[4].split(";");
@@ -524,7 +503,8 @@ public class FrmPDFServlet extends HttpServlet {
 	                        fontType[0] = BaseFont.COURIER;
 	                        encoding = BaseFont.CP1252;
 	                    }
-
+	
+	
 	                    bf = BaseFont.createFont(fontType[0],encoding,BaseFont.NOT_EMBEDDED);
 	                    propValue = props.getProperty(tempName.toString());
 	                    //if not in regular config then check measurements
@@ -555,53 +535,47 @@ public class FrmPDFServlet extends HttpServlet {
 	                        ct.go();
 	                        continue;
 	                    }
-	                    
-	                    //adapted by DENNIS WARREN June 2012 to allow a colour rectangle
-	                    // handy for covering up parts of a document
-	                    if(tempName.toString().startsWith("__$rectangle")) {
-	                    	
-	                    	float llx = Float.parseFloat(cfgVal[0].trim());
-		                	float lly = Float.parseFloat(cfgVal[1].trim());
-		                	float urx = Float.parseFloat(cfgVal[2].trim());
-		                	float ury = Float.parseFloat(cfgVal[3].trim());
-		                	
-		                    Rectangle rec = new Rectangle(llx, lly, urx, ury);
-		                    rec.setBackgroundColor(java.awt.Color.WHITE);
-		                    cb.rectangle(rec);
-	                    	
-	                    } else if (tempName.toString().startsWith("__$line")) {
+	
+	                    // draw line directly
+	                    if (tempName.toString().startsWith("__$line")) {
 	                        cb.setRGBColorStrokeF(0f, 0f, 0f);
 	                        cb.setLineWidth(Float.parseFloat(cfgVal[4].trim()));
 	                        cb.moveTo(Float.parseFloat(cfgVal[0].trim()), Float.parseFloat(cfgVal[1].trim()));
 	                        cb.lineTo(Float.parseFloat(cfgVal[2].trim()), Float.parseFloat(cfgVal[3].trim()));
+	                        // stroke the lines
 	                        cb.stroke();
+	                        // write text directly
 	
 	                    } else if (tempName.toString().startsWith("__")) {
 	                        cb.beginText();
 	                        cb.setFontAndSize(bf, Integer.parseInt(cfgVal[5].trim()));
-	                        cb.showTextAligned((cfgVal[0].trim().equals("left") ? PdfContentByte.ALIGN_LEFT
+	                        cb
+	                                .showTextAligned((cfgVal[0].trim().equals("left") ? PdfContentByte.ALIGN_LEFT
 	                                : (cfgVal[0].trim().equals("right") ? PdfContentByte.ALIGN_RIGHT
 	                                : PdfContentByte.ALIGN_CENTER)), (cfgVal.length >= 7 ? (cfgVal[6]
 	                                .trim()) : propValue), Integer
-	                                .parseInt(cfgVal[1].trim()), (height - Integer.parseInt(cfgVal[2].trim())), 0);	
+	                                .parseInt(cfgVal[1].trim()), (height - Integer.parseInt(cfgVal[2].trim())), 0);
+	
 	                        cb.endText();
 	                    } else if (tempName.toString().equals("forms_promotext")){
-//	                        if ( OscarProperties.getInstance().getProperty("FORMS_PROMOTEXT") != null ){
-//	                            log.info("adding user placed forms_promotext");
-//	                            cb.beginText();
-//	                            cb.setFontAndSize(bf, Integer.parseInt(cfgVal[5].trim()));
-//	                            cb.showTextAligned((cfgVal[0].trim().equals("left") ? PdfContentByte.ALIGN_LEFT : (cfgVal[0].trim().equals("right") ? PdfContentByte.ALIGN_RIGHT : PdfContentByte.ALIGN_CENTER)),
-//	                                    OscarProperties.getInstance().getProperty("FORMS_PROMOTEXT"),
-//	                                    Integer.parseInt(cfgVal[1].trim()),
-//	                                    (height - Integer.parseInt(cfgVal[2].trim())),
-//	                                    0);
-//	
-//	                            cb.endText();
-//	                        }
+	                        if ( OscarProperties.getInstance().getProperty("FORMS_PROMOTEXT") != null ){
+	                            log.info("adding user placed forms_promotext");
+	                            cb.beginText();
+	                            cb.setFontAndSize(bf, Integer.parseInt(cfgVal[5].trim()));
+	                            cb.showTextAligned((cfgVal[0].trim().equals("left") ? PdfContentByte.ALIGN_LEFT : (cfgVal[0].trim().equals("right") ? PdfContentByte.ALIGN_RIGHT : PdfContentByte.ALIGN_CENTER)),
+	                                    OscarProperties.getInstance().getProperty("FORMS_PROMOTEXT"),
+	                                    Integer.parseInt(cfgVal[1].trim()),
+	                                    (height - Integer.parseInt(cfgVal[2].trim())),
+	                                    0);
+	
+	                            cb.endText();
+	                        }
 	                    } else { // write prop text
+	
 	                        cb.beginText();
 	                        cb.setFontAndSize(bf, Integer.parseInt(cfgVal[5].trim()));
-	                        cb.showTextAligned((cfgVal[0].trim().equals("left") ? PdfContentByte.ALIGN_LEFT
+	                        cb
+	                                .showTextAligned((cfgVal[0].trim().equals("left") ? PdfContentByte.ALIGN_LEFT
 	                                : (cfgVal[0].trim().equals("right") ? PdfContentByte.ALIGN_RIGHT
 	                                : PdfContentByte.ALIGN_CENTER)), (cfgVal.length >= 7 ? ((propValue.equals("") ? "" : cfgVal[6].trim()))
 	                                : propValue), Integer.parseInt(cfgVal[1]
@@ -614,17 +588,17 @@ public class FrmPDFServlet extends HttpServlet {
 	
 	                //----------
 	                if ( OscarProperties.getInstance().getProperty("FORMS_PROMOTEXT") != null && printCfg[i-1].getProperty("forms_promotext") == null){
-//	                    log.info("adding forms_promotext");
-//	
-//	                    // remove elements of the PDF file
-//	                    Rectangle rec = new Rectangle(160, 12, 465, 21);
-//	                    rec.setBackgroundColor(java.awt.Color.WHITE);
-//	                    cb.rectangle(rec);
-//	
-//	                    cb.beginText();
-//	                    cb.setFontAndSize(BaseFont.createFont(BaseFont.HELVETICA,BaseFont.CP1252,BaseFont.NOT_EMBEDDED), 6);
-//	                    cb.showTextAligned(PdfContentByte.ALIGN_CENTER, OscarProperties.getInstance().getProperty("FORMS_PROMOTEXT"), width/2, 16, 0);
-//	                    cb.endText();
+	                    log.info("adding forms_promotext");
+	
+	                    // remove elements of the PDF file
+	                    Rectangle rec = new Rectangle(160, 12, 465, 21);
+	                    rec.setBackgroundColor(java.awt.Color.WHITE);
+	                    cb.rectangle(rec);
+	
+	                    cb.beginText();
+	                    cb.setFontAndSize(BaseFont.createFont(BaseFont.HELVETICA,BaseFont.CP1252,BaseFont.NOT_EMBEDDED), 6);
+	                    cb.showTextAligned(PdfContentByte.ALIGN_CENTER, OscarProperties.getInstance().getProperty("FORMS_PROMOTEXT"), width/2, 16, 0);
+	                    cb.endText();
 	                }
 	                
 	                
@@ -811,35 +785,32 @@ public class FrmPDFServlet extends HttpServlet {
         try {
             log.debug("1Looking for the prop file! " + propFilename);
             InputStream is = new FileInputStream(propFilename); //getServletContext().getResourceAsStream(propFilename);
-            try {
-	            if (is != null) {
-	                log.debug("2Found the prop file! " + cfgFilename);
-	                ret.load(is);
-	                is.close();
-	            }
-            }
-            finally {
-            	is.close();
+            if (is != null) {
+                log.debug("2Found the prop file! " + cfgFilename);
+                ret.load(is);
+                is.close();
             }
         } catch (Exception e) {
             try {
                 String propPath = "/WEB-INF/classes/oscar/form/prop/";
                 InputStream is = getServletContext().getResourceAsStream(propPath + cfgFilename);
-                try {
-	                if (is != null) {
-	                    log.debug("found prop file " + propPath + cfgFilename);
-	                    ret.load(is);
-	                    is.close();
-	                }
-                }
-                finally {
-                	is.close();
+                if (is != null) {
+                    log.debug("found prop file " + propPath + cfgFilename);
+                    ret.load(is);
+                    is.close();
                 }
             } catch (Exception ee) {
                 log.warn("Can't find the prop file! " + cfgFilename);
             }
         }
         return ret;
+    }
+
+    private String getProjectName() {
+        String propPath = "" + this.getClass().getClassLoader().getResource("/");
+        propPath = propPath.substring(0, propPath.lastIndexOf("/WEB-INF"));
+        String propFilename = propPath.substring(propPath.lastIndexOf("/") + 1);
+        return propFilename;
     }
 
 }

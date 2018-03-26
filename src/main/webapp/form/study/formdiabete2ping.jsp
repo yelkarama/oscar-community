@@ -1,23 +1,11 @@
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-    String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
+  if(session.getAttribute("user") == null || !( ((String) session.getAttribute("userprofession")).equalsIgnoreCase("doctor") ))
+    response.sendRedirect("../logout.jsp");
 %>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_form" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../securityError.jsp?type=_form");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
 <%@ page import="oscar.form.study.*"%>
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 
 <html:html locale="true">
 <head>
@@ -36,7 +24,7 @@
     int formId = (pform == null) ? 0: Integer.parseInt(pform.getFormId());
 	String[] studyNameLink = (new oscar.form.data.FrmData()).getStudyNameLink(studyId);
     FrmStudyRecord rec = (new FrmStudyRecordFactory()).factory(studyNameLink[0]);
-    java.util.Properties props = rec.getFormRecord(LoggedInInfo.getLoggedInInfoFromSession(request), Integer.parseInt(demoNo), formId);
+    java.util.Properties props = rec.getFormRecord(Integer.parseInt(demoNo), formId);
 %>
 
 <script type="text/javascript" language="Javascript">

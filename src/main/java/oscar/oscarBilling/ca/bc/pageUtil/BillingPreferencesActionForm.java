@@ -67,5 +67,7 @@ public class BillingPreferencesActionForm
     return null;
   }
 
- 
+  public void reset(ActionMapping actionMapping,
+                    HttpServletRequest servletRequest) {
+  }
 }

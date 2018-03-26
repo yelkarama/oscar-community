@@ -17,13 +17,14 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 --%>
-<%@ page import="java.util.*,org.oscarehr.common.model.*"%>
+<%@ page import="java.util.*,oscar.appt.status.model.*"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar" %>
 
 <%
+    if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
 %>
 <security:oscarSec roleName="<%=roleName$%>"
@@ -31,6 +32,11 @@
 	<%response.sendRedirect("../logout.jsp");%>
 </security:oscarSec>
 
+<%
+if(session.getAttribute("user") == null ) //|| !((String) session.getValue("userprofession")).equalsIgnoreCase("admin"))
+	response.sendRedirect("../logout.jsp");
+  //instatiate/configure the main bean, forward the request to the output file
+%>
 
 <html>
 <head>

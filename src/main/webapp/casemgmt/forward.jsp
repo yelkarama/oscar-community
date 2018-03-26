@@ -27,12 +27,9 @@
 
 <%@ include file="/casemgmt/taglibs.jsp"%>
 <%@ page import="java.util.ArrayList"%>
-<%@page import="oscar.util.SuperSiteUtil" %>
 
 <!--  logic:redirect forward="/admissionListAction.admit"  / -->
-<%
-SuperSiteUtil.getInstance().checkSuperSiteAccess(request, response, "demographicNo");
-%>
+
 <%
     String useNewCaseMgmt;
     if((useNewCaseMgmt = request.getParameter("newCaseManagement")) != null ) {        
@@ -53,9 +50,8 @@ SuperSiteUtil.getInstance().checkSuperSiteAccess(request, response, "demographic
 			<jsp:param name="method" value="setUpMainEncounter" />
 			<jsp:param name="from" value="casemgmt" />
 			<jsp:param name="chain" value="list" />
-			<jsp:param name="demographicNo" value='<%=request.getParameter("demographicNo")%>' />
-                        <jsp:param name="OscarMsgTypeLink" value='<%=request.getParameter("OscarMsgTypeLink")%>'/>
-                        <jsp:param name="msgType" value='<%=request.getParameter("msgType")%>'/>
+			<jsp:param name="demographicNo"
+				value='<%=request.getParameter("demographicNo")%>' />
 		</jsp:forward>
 	<%
     }

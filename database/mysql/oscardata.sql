@@ -4,62 +4,6 @@
 -- -------------------------------------------------------
 -- Server version	4.0.12-standard
 
-INSERT INTO `Icd9Synonym` VALUES ('172', 'Skin Cancer', '1'), ('173', 'basal cell carcinoma', '2'), ('2429', 'Hyperthyroid', '3'), ('2449', 'Hypothyroid', '4'), ('2564', 'polycystic ovarian syndrome', '5'), ('2720', 'Hypercholesterolemia', '6'), ('2722', 'Mixed hyperlipidemia', '7'), ('2724', 'Cholesterol', '8'), ('274', 'Gout', '9'), ('2768', 'hypokalemia', '10'), ('2778', 'Retinitis pigmentosa', '11'), ('2901', 'Dementia', '12'), ('2963', 'Depression/Mood', '13'), ('2967', 'Bipolar', '14'), ('3000', 'Anxiety', '15'), ('3003', 'OCD', '16'), ('30981', 'PTSD', '17'), ('3339', 'Restless leg syndrome', '18'), ('3540', 'carpal tunnel syndrome', '19'), ('356', 'Neuropathy/Neuropathic pain', '20'), ('401', 'Hypertension', '21'), ('4140', 'CAD', '22'), ('4273', 'Atrial Fibrilation', '23'), ('453', 'Deep vein thrombosis', '24'), ('4781', 'Nasal congestion', '25'), ('4912', 'COPD', '26'), ('530', 'Barret\'s esophagus', '27'), ('53081', 'GERD/Reflux', '28'), ('555', 'Cholitis/Crohn\'s', '29'), ('5718', 'Fatty liver', '30'), ('59651', 'Overactive bladder', '31'), ('600', 'Enlarged prostate', '32'), ('607', 'ED/Libido', '33'), ('627', 'Menopause', '34'), ('6929', 'Dermatitis/Eczema', '35'), ('6960', 'Psoriatic arthritis', '36'), ('715', 'Arthritis/Osteoarthritis', '37'), ('722', 'degenerative disc disorder', '38'), ('7245', 'Back Pain', '39'), ('72885', 'Muscle Spasms', '40'), ('7291', 'Fibromyalgia', '41'), ('73390', 'osteopenia', '42'), ('7506', 'Hiatis Hernia', '43'), ('7804', 'Dizziness', '44'), ('7805', 'sleep', '45'), ('78051', 'Sleep apnea', '46'), ('78052', 'insomnia', '47'), ('78605', 'Difficulty breathing', '48'), ('7865', 'Chest pain', '49'), ('78841', 'Frequent Urination', '50'), ('8470', 'whiplash', '51'), ('O54', 'Herpes', '52'), ('V433', 'Aortic valve replacement', '53'), ('V450', 'Cardiac pace maker', '54');
-
---
--- ContactSpecialty Data
--- ----------------------------
-
-INSERT INTO `ContactSpecialty` VALUES ('1', 'DERMATOLOGY', null), ('2', 'NEUROLOGY', null), ('3', 'PSYCHIATRY', null), ('5', 'OBSTETRICS & GYNAECOLOGY', null), ('6', 'OPHTHALMOLOGY', null), ('7', 'OTOLARYNGOLOGY', null), ('8', 'GENERAL SURGERY', null), ('9', 'NEUROSURGERY', null), ('10', 'ORTHOPAEDICS', null), ('11', 'PLASTIC SURGERY', null), ('12', 'CARDIO & THORACIC', null), ('13', 'UROLOGY', null), ('14', 'PAEDIATRICS', null), ('15', 'INTERNAL MEDICINE', null), ('16', 'RADIOLOGY', null), ('17', 'LABORATORY PROCEDURES', null), ('18', 'ANAESTHESIA', null), ('19', 'PAEDIATRIC CARDIOLOGY', null), ('20', 'PHYSICAL MEDICINE AND  REHABILITATION', null), ('21', 'PUBLIC HEALTH', null), ('22', 'PHARMACIST', null), ('23', 'OCCUPATIONAL MEDICINE', null), ('24', 'GERIATRIC MEDICINE', null), ('25', 'UNKNOWN', null), ('26', 'PROCEDURAL CARDIOLOGIST', null), ('28', 'EMERGENCY MEDICINE', null), ('29', 'MEDICAL MICROBIOLOGY', null), ('30', 'CHIROPRACTORS', null), ('31', 'NATUROPATHS', null), ('32', 'PHYSICAL THERAPISTS', null), ('33', 'NUCLEAR MEDICINE', null), ('34', 'OSTEOPATHY', null), ('35', 'ORTHOPTIC', null), ('37', 'ORAL SURGEONS', null), ('38', 'PODIATRISTS', null), ('39', 'OPTOMETRIST', null), ('40', 'DENTAL SURGEONS', null), ('41', 'ORAL MEDICINE', null), ('42', 'ORTHODONTISTS', null), ('43', 'MASSAGE PRACTITIONER', null), ('44', 'RHEUMATOLOGY', null), ('45', 'CLINICAL IMMUNIZATION AND ALLERGY', null), ('46', 'MEDICAL GENETICS', null), ('47', 'VASCULAR SURGERY', null), ('48', 'THORACIC SURGERY', null), ('49', 'FAMILY PHYSICIAN', null), ('50', 'ENDOCRINOLOGIST', null);
-
--- Insert into Specialty Table.
---
-
-INSERT INTO specialty VALUES ('BC','00',' GENERAL PRACTITIONER');
-INSERT INTO specialty VALUES ('BC','01',' DERMATOLOGY');
-INSERT INTO specialty VALUES ('BC','02',' NEUROLOGY');
-INSERT INTO specialty VALUES ('BC','03',' PSYCHIATRY');
-INSERT INTO specialty VALUES ('BC','05',' OBSTETRICS & GYNAECOLOGY');
-INSERT INTO specialty VALUES ('BC','06',' OPHTHALMOLOGY');
-INSERT INTO specialty VALUES ('BC','07',' OTOLARYNGOLOGY');
-INSERT INTO specialty VALUES ('BC','08',' GENERAL SURGERY');
-INSERT INTO specialty VALUES ('BC','09',' NEUROSURGERY');
-INSERT INTO specialty VALUES ('BC','10',' ORTHOPAEDICS');
-INSERT INTO specialty VALUES ('BC','11',' PLASTIC SURGERY');
-INSERT INTO specialty VALUES ('BC','12',' CARDIO & THORACIC');
-INSERT INTO specialty VALUES ('BC','13',' UROLOGY');
-INSERT INTO specialty VALUES ('BC','14',' PAEDIATRICS');
-INSERT INTO specialty VALUES ('BC','15',' INTERNAL MEDICINE');
-INSERT INTO specialty VALUES ('BC','16',' RADIOLOGY');
-INSERT INTO specialty VALUES ('BC','17',' LABORATORY PROCEDURES');
-INSERT INTO specialty VALUES ('BC','18',' ANAESTHESIA');
-INSERT INTO specialty VALUES ('BC','19',' PAEDIATRIC CARDIOLOGY');
-INSERT INTO specialty VALUES ('BC','20',' PHYSICAL MEDICINE AND  REHABILITATION');
-INSERT INTO specialty VALUES ('BC','21',' PUBLIC HEALTH');
-INSERT INTO specialty VALUES ('BC','23',' OCCUPATIONAL MEDICINE');
-INSERT INTO specialty VALUES ('BC','24',' GERIATRIC MEDICINE          SUB-SPECIALTY OF INTERNAL MED');
-INSERT INTO specialty VALUES ('BC','26',' PROCEDURAL CARDIOLOGIST');
-INSERT INTO specialty VALUES ('BC','28',' EMERGENCY MEDICINE');
-INSERT INTO specialty VALUES ('BC','29',' MEDICAL MICROBIOLOGY');
-INSERT INTO specialty VALUES ('BC','30',' CHIROPRACTORS');
-INSERT INTO specialty VALUES ('BC','31',' NATUROPATHS');
-INSERT INTO specialty VALUES ('BC','32',' PHYSICAL THERAPISTS');
-INSERT INTO specialty VALUES ('BC','33',' NUCLEAR MEDICINE');
-INSERT INTO specialty VALUES ('BC','34',' OSTEOPATHY');
-INSERT INTO specialty VALUES ('BC','35',' ORTHOPTIC');
-INSERT INTO specialty VALUES ('BC','37',' ORAL SURGEONS');
-INSERT INTO specialty VALUES ('BC','38',' PODIATRISTS');
-INSERT INTO specialty VALUES ('BC','39',' OPTOMETRIST');
-INSERT INTO specialty VALUES ('BC','40',' DENTAL SURGEONS');
-INSERT INTO specialty VALUES ('BC','41',' ORAL MEDICINE');
-INSERT INTO specialty VALUES ('BC','42',' ORTHODONTISTS');
-INSERT INTO specialty VALUES ('BC','43',' MASSAGE PRACTITIONER');
-INSERT INTO specialty VALUES ('BC','44',' RHEUMATOLOGY');
-INSERT INTO specialty VALUES ('BC','45',' CLINICAL IMMUNIZATION AND ALLERGY');
-INSERT INTO specialty VALUES ('BC','46',' MEDICAL GENETICS');
-INSERT INTO specialty VALUES ('BC','47',' VASCULAR SURGERY');
-INSERT INTO specialty VALUES ('BC','48',' THORACIC SURGERY');
-
 --
 -- Dumping data for table 'clinic'
 --
@@ -101,7 +45,6 @@ INSERT INTO consultationServices VALUES (54,'Dermatology','1');
 INSERT INTO consultationServices VALUES (55,'Neurology','1');
 INSERT INTO consultationServices VALUES (56,'Radiology','1');
 INSERT INTO consultationServices VALUES (57,'SEE NOTES','1');
-INSERT INTO consultationServices VALUES (58,'Referral Doctor','02');
 
 --
 -- Dumping data for table 'ctl_billingservice'
@@ -135,7 +78,6 @@ INSERT INTO ctl_doctype (module,doctype,status) VALUES ('provider','forms','A');
 INSERT INTO ctl_doctype (module,doctype,status) VALUES ('provider','others','A');
 INSERT INTO ctl_doctype (module,doctype,status) VALUES ('provider','share','A');
 INSERT INTO ctl_doctype (module,doctype,status) VALUES ('provider','photo','A');
-INSERT INTO `ctl_doctype` (`module`, `doctype`, `status`, `id`) VALUES('provider','invoice letterhead','A',null);
 
 --
 -- Dumping data for table 'ctl_doc_class'
@@ -424,8 +366,8 @@ INSERT INTO ctl_specialinstructions VALUES (26,'Insert in both eyes');
 -- Dumping data for table 'eform'
 --
 
-INSERT INTO eform VALUES (1,'letter','','letter generator','2010-05-02','10:00:00',NULL,1,'<html><head>\r\n<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\">\r\n\r\n<title>Rich Text Letter</title>\r\n<style type=\"text/css\">\r\n.butn {width: 140px;}\r\n</style>\r\n\r\n<style type=\"text/css\" media=\"print\">\r\n.DoNotPrint {display: none;}\r\n\r\n</style>\r\n\r\n<script language=\"javascript\">\r\nvar needToConfirm = false;\r\n\r\n//keypress events trigger dirty flag for the iFrame and the subject line\r\ndocument.onkeyup=setDirtyFlag\r\n\r\n\r\nfunction setDirtyFlag() {\r\n	needToConfirm = true; \r\n}\r\n\r\nfunction releaseDirtyFlag() {\r\n	needToConfirm = false; //Call this function if dosent requires an alert.\r\n	//this could be called when save button is clicked\r\n}\r\n\r\n\r\nwindow.onbeforeunload = confirmExit;\r\n\r\nfunction confirmExit() {\r\n	if (needToConfirm)\r\n	return \"You have attempted to leave this page. If you have made any changes without clicking the Submit button, your changes will be lost. Are you sure you want to exit this page?\";\r\n}\r\n\r\n</script>\r\n\r\n\r\n\r\n</head><body onload=\"Start()\" bgcolor=\"FFFFFF\">\r\n\r\n\r\n<!-- START OF EDITCONTROL CODE --> \r\n\r\n<script language=\"javascript\" type=\"text/javascript\" src=\"${oscar_image_path}editControl.js\"></script>\r\n      \r\n<script language=\"javascript\">\r\n\r\n    //put any of the optional configuration variables that you want here\r\n    cfg_width = \'640\';                    //editor control width in pixels\r\n    cfg_height = \'520\';                   //editor control height in pixels\r\n    cfg_editorname = \'edit\';                //the handle for the editor                  \r\n    cfg_isrc = \'${oscar_image_path}\';         //location of the button icon files\r\n    cfg_filesrc = \'${oscar_image_path}\';         //location of the html files\r\n    cfg_template = \'blank.html\';	    //default style and content template\r\n    cfg_formattemplate = \'<option value=\"\">&mdash; template &mdash;</option>  <option value=\"blank\">blank</option>  <option value=\"consult\">consult</option> <option value=\"certificate\">work note</option> <option value=\"narcotic\">narcotic contract</option> <option value=\"MissedAppointment\">missed appt</option> <option value=\"custom\">custom</option></select>\';\r\n    //cfg_layout = \'[all]\';             //adjust the format of the buttons here\r\n    cfg_layout = \r\n\'<table style=\"background-color:#ccccff; width:640px\"><tr id=control1><td>[bold][italic][underlined][strike][subscript][superscript]|[left][center][full][right]|[unordered][ordered][rule]|[undo][redo]|[indent][outdent][select-all][clean]|[table]</td></tr><tr id=control2><td>[select-block][select-face][select-size][select-template]|[image][clock][date][spell][help]</td></tr></table>[edit-area]\';\r\n    insertEditControl(); // Initialise the edit control and sets it at this point in the webpage\r\n\r\n    function Start() {\r\n        // set eventlistener for the iframe to flag changes in the text displayed \r\n	var agent=navigator.userAgent.toLowerCase(); //for non IE browsers\r\n        if ((agent.indexOf(\"msie\") == -1) || (agent.indexOf(\"opera\") != -1)){\r\n		document.getElementById(cfg_editorname).contentWindow.addEventListener(\'keypress\',setDirtyFlag, true);\r\n	}\r\n\r\n	if (document.getElementById(\'recent_rx\').value.length<1){\r\n		//document.RichTextLetter.RecentMedications.style.visibility=\"hidden\";\r\n		document.getElementById(\'RecentMedications\').style.display = \"none\";\r\n	}\r\n\r\n        // reformat values of multiline database values from \\n lines to <br>\r\n        htmlLine(\'label\');\r\n        htmlLine(\'reminders\');\r\n        htmlLine(\'ongoingconcerns\');\r\n        htmlLine(\'medical_history\');document.getElementById(\'allergies_des\').value\r\n        htmlLine(\'other_medications_history\');  //family history  ... don\'t ask\r\n        htmlLine(\'social_family_history\');  //social history\r\n        htmlLine(\'address\');\r\n        htmlLine(\'NameAddress\');\r\n        htmlLine(\'clinic_label\');\r\n        htmlLine(\'clinic_address\');\r\n        htmlLine(\'druglist_generic\');\r\n        htmlLine(\'druglist_trade\');\r\n        htmlLine(\'recent_rx\');\r\n\r\n	var gender=document.getElementById(\'sex\').value; \r\n	if (gender==\'F\'){\r\n		document.getElementById(\'he_she\').value=\'she\'; \r\n		document.getElementById(\'his_her\').value=\'her\';\r\n		document.getElementById(\'gender\').value=\'female\';\r\n	}\r\n	var mySplitResult = document.getElementById(\'referral_name\').value.toString().split(\',\'); \r\n	document.getElementById(\'referral_nameL\').value=mySplitResult[0];\r\n\r\n	document.getElementById(\'letterhead\').value= genericLetterhead();\r\n\r\n	\r\n        // set the HTML contents of this edit control from the value saved in Oscar (if any)\r\n	var contents=document.getElementById(\'Letter\').value\r\n	if (contents.length==0){\r\n		parseTemplate();\r\n	} else {\r\n		seteditControlContents(cfg_editorname,contents);\r\n	}\r\n    }\r\n \r\n    function htmlLine(theelement) { \r\n	var temp = new Array();\r\n	if (document.getElementById(theelement).value.length>0){\r\n		temp=document.getElementById(theelement).value.split(\'\\n\'); \r\n		contents=\'\';\r\n		var x;\r\n		for (x in temp) {\r\n			contents += temp[x]+\'<br>\';\r\n			}\r\n		document.getElementById(theelement).value=contents;\r\n		}\r\n    }\r\n\r\n    function genericLetterhead() {\r\n        // set the HTML contents of the letterhead\r\n	var address = \'<table border=0><tbody><tr><td><font size=6>\'+document.getElementById(\'clinic_name\').value+\'</font></td></tr><tr><td><font size=2>\'+ document.getElementById(\'clinic_addressLineFull\').value+ \' Fax: \'+document.getElementById(\'clinic_fax\').value+\' Phone: \'+document.getElementById(\'clinic_phone\').value+\'</font><hr></td></tr></tbody></table><br>\'\r\n	if ((document.getElementById(\'clinic_name\').value.toLowerCase()).indexOf(\'amily health team\',0)>-1){\r\n		address=fhtLetterhead();\r\n	}\r\n	return address;\r\n    }\r\n\r\n    function fhtLetterhead() {\r\n        // set the HTML contents of the letterhead using FHT colours\r\n	var address = document.getElementById(\'clinic_addressLineFull\').value+ \'<br>Fax:\'+document.getElementById(\'clinic_fax\').value+\' Phone:\'+document.getElementById(\'clinic_phone\').value ;\r\n	if (document.getElementById(\'doctor\').value.indexOf(\'zapski\')>0){address=\'293 Meridian Avenue, Haileybury, ON P0J 1K0<br> Tel 705-672-2442 Fax 705-672-2384\'};\r\n	address=\'<table style=\\\'text-align: right;\\\' border=\\\'0\\\'><tbody><tr style=\\\'font-style: italic; color: rgb(71, 127, 128);\\\'><td><font size=\\\'+2\\\'>\'+document.getElementById(\'clinic_name\').value+\'</font> <hr style=\\\'width: 100%; height: 3px; color: rgb(212, 118, 0); background-color: rgb(212, 118, 0);\\\'></td> </tr> <tr style=\\\'color: rgb(71, 127, 128);\\\'> <td><font size=\\\'+1\\\'>Family Health Team<br> &Eacute;quipe Sant&eacute; Familiale</font></td> </tr> <tr style=\\\'color: rgb(212, 118, 0); \\\'> <td><small>\'+address+\'</small></td> </tr> </tbody> </table>\';\r\n	return address;\r\n    }\r\n</script>\r\n\r\n<!-- END OF EDITCONTROL CODE -->\r\n\r\n\r\n<form method=\"post\" action=\"\" name=\"RichTextLetter\" >\r\n\r\n<!-- START OF DATABASE PLACEHOLDERS -->\r\n\r\n<input type=\"hidden\" name=\"clinic_name\" id=\"clinic_name\" oscarDB=clinic_name>\r\n<input type=\"hidden\" name=\"clinic_address\" id=\"clinic_address\" oscarDB=clinic_address>\r\n<input type=\"hidden\" name=\"clinic_addressLine\" id=\"clinic_addressLine\" oscarDB=clinic_addressLine>\r\n<input type=\"hidden\" name=\"clinic_addressLineFull\" id=\"clinic_addressLineFull\" oscarDB=clinic_addressLineFull>\r\n<input type=\"hidden\" name=\"clinic_label\" id=\"clinic_label\" oscarDB=clinic_label>\r\n<input type=\"hidden\" name=\"clinic_fax\" id=\"clinic_fax\" oscarDB=clinic_fax>\r\n<input type=\"hidden\" name=\"clinic_phone\" id=\"clinic_phone\" oscarDB=clinic_phone>\r\n<input type=\"hidden\" name=\"clinic_city\" id=\"clinic_city\" oscarDB=clinic_city>\r\n<input type=\"hidden\" name=\"clinic_province\" id=\"clinic_province\" oscarDB=clinic_province>\r\n<input type=\"hidden\" name=\"clinic_postal\" id=\"clinic_postal\" oscarDB=clinic_postal>\r\n\r\n<input type=\"hidden\" name=\"patient_name\" id=\"patient_name\" oscarDB=patient_name>\r\n<input type=\"hidden\" name=\"first_last_name\" id=\"first_last_name\" oscarDB=first_last_name>\r\n<input type=\"hidden\" name=\"patient_nameF\" id=\"patient_nameF\" oscarDB=patient_nameF >\r\n<input type=\"hidden\" name=\"patient_nameL\" id=\"patient_nameL\" oscarDB=patient_nameL >\r\n<input type=\"hidden\" name=\"label\" id=\"label\" oscarDB=label>\r\n<input type=\"hidden\" name=\"NameAddress\" id=\"NameAddress\" oscarDB=NameAddress>\r\n<input type=\"hidden\" name=\"address\" id=\"address\" oscarDB=address>\r\n<input type=\"hidden\" name=\"addressline\" id=\"addressline\" oscarDB=addressline>\r\n<input type=\"hidden\" name=\"phone\" id=\"phone\" oscarDB=phone>\r\n<input type=\"hidden\" name=\"phone2\" id=\"phone2\" oscarDB=phone2>\r\n<input type=\"hidden\" name=\"province\" id=\"province\" oscarDB=province>\r\n<input type=\"hidden\" name=\"city\" id=\"city\" oscarDB=city>\r\n<input type=\"hidden\" name=\"postal\" id=\"postal\" oscarDB=postal>\r\n<input type=\"hidden\" name=\"dob\" id=\"dob\" oscarDB=dob>\r\n<input type=\"hidden\" name=\"dobc\" id=\"dobc\" oscarDB=dobc>\r\n<input type=\"hidden\" name=\"dobc2\" id=\"dobc2\" oscarDB=dobc2>\r\n<input type=\"hidden\" name=\"hin\" id=\"hin\" oscarDB=hin>\r\n<input type=\"hidden\" name=\"hinc\" id=\"hinc\" oscarDB=hinc>\r\n<input type=\"hidden\" name=\"hinversion\" id=\"hinversion\" oscarDB=hinversion>\r\n<input type=\"hidden\" name=\"ageComplex\" id=\"ageComplex\" oscarDB=ageComplex >\r\n<input type=\"hidden\" name=\"age\" id=\"age\" oscarDB=age >\r\n<input type=\"hidden\" name=\"sex\" id=\"sex\" oscarDB=sex >\r\n<input type=\"hidden\" name=\"chartno\" id=\"chartno\" oscarDB=chartno >\r\n\r\n<input type=\"hidden\" name=\"medical_history\" id=\"medical_history\" oscarDB=medical_history>\r\n<input type=\"hidden\" name=\"recent_rx\" id=\"recent_rx\" oscarDB=recent_rx>\r\n<input type=\"hidden\" name=\"druglist_generic\" id=\"druglist_generic\" oscarDB=druglist_generic>\r\n<input type=\"hidden\" name=\"druglist_trade\" id=\"druglist_trade\" oscarDB=druglist_trade>\r\n<input type=\"hidden\" name=\"druglist_line\" id=\"druglist_line\" oscarDB=druglist_line>\r\n<input type=\"hidden\" name=\"social_family_history\" id=\"social_family_history\" oscarDB=social_family_history>\r\n<input type=\"hidden\" name=\"other_medications_history\" id=\"other_medications_history\" oscarDB=other_medications_history>\r\n<input type=\"hidden\" name=\"reminders\" id=\"reminders\" oscarDB=reminders>\r\n<input type=\"hidden\" name=\"ongoingconcerns\" id=\"ongoingconcerns\" oscarDB=ongoingconcerns >\r\n\r\n<input type=\"hidden\" name=\"provider_name_first_init\" id=\"provider_name_first_init\" oscarDB=provider_name_first_init >\r\n<input type=\"hidden\" name=\"current_user\" id=\"current_user\" oscarDB=current_user >\r\n<input type=\"hidden\" name=\"doctor_work_phone\" id=\"doctor_work_phone\" oscarDB=doctor_work_phone >\r\n<input type=\"hidden\" name=\"doctor\" id=\"doctor\" oscarDB=doctor >\r\n\r\n<input type=\"hidden\" name=\"today\" id=\"today\" oscarDB=today>\r\n\r\n<input type=\"hidden\" name=\"allergies_des\" id=\"allergies_des\" oscarDB=allergies_des >\r\n\r\n<!-- PLACE REFERRAL PLACEHOLDERS HERE WHEN BC APCONFIG FIXED -->\r\n<input type=\"hidden\" name=\"referral_name\" id=\"referral_name\" oscarDB=referral_name>\r\n<input type=\"hidden\" name=\"referral_address\" id=\"referral_address\" oscarDB=referral_address>\r\n<input type=\"hidden\" name=\"referral_phone\" id=\"referral_phone\" oscarDB=referral_phone>\r\n<input type=\"hidden\" name=\"referral_fax\" id=\"referral_fax\" oscarDB=referral_fax>\r\n\r\n<!-- END OF DATABASE PLACEHOLDERS -->\r\n\r\n\r\n<!-- START OF MEASUREMENTS PLACEHOLDERS -->\r\n\r\n<input type=\"hidden\" name=\"BP\" id=\"BP\" oscarDB=m$BP#value>\r\n<input type=\"hidden\" name=\"WT\" id=\"WT\" oscarDB=m$WT#value>\r\n<input type=\"hidden\" name=\"smoker\" id=\"smoker\" oscarDB=m$SMK#value>\r\n<input type=\"hidden\" name=\"dailySmokes\" id=\"dailySmokes\" oscarDB=m$NOSK#value>\r\n<input type=\"hidden\" name=\"A1C\" id=\"A1C\" oscarDB=m$A1C#value>\r\n\r\n<!-- END OF MEASUREMENTS PLACEHOLDERS -->\r\n\r\n\r\n<!-- START OF DERIVED PLACEHOLDERS -->\r\n\r\n<input type=\"hidden\" name=\"he_she\" id=\"he_she\" value=\"he\">\r\n<input type=\"hidden\" name=\"his_her\" id=\"his_her\" value=\"his\">\r\n<input type=\"hidden\" name=\"gender\" id=\"gender\" value=\"male\">\r\n<input type=\"hidden\" name=\"referral_nameL\" id=\"referral_nameL\" value=\"Referring Doctor\">\r\n<input type=\"hidden\" name=\"letterhead\" id=\"letterhead\" value=\"Letterhead\">\r\n\r\n<!-- END OF DERIVED PLACEHOLDERS -->\r\n\r\n\r\n<textarea name=\"Letter\" id=\"Letter\" style=\"width:600px; display: none;\"></textarea>\r\n\r\n<div class=\"DoNotPrint\" id=\"control3\" style=\"position:absolute; top:20px; left: 660px;\">\r\n<input type=\"button\" class=\"butn\" name=\"AddLetterhead\" id=\"AddLetterhead\" value=\"Letterhead\" \r\n	onclick=\"doHtml(document.getElementById(\'letterhead\').value);\">\r\n\r\n<br>\r\n<!--\r\n<input type=\"button\" class=\"butn\" name=\"certificate\" value=\"Work Note\" \r\n	onclick=\"document.RichTextLetter.AddLetterhead.click();\r\n 	doHtml(\'<p>\'+doDate()+\'<p>This is to certify that I have today examined <p>\');\r\n	document.RichTextLetter.AddLabel.click();\r\n	doHtml(\'In my opinion, \'+document.getElementById(\'he_she\').value+\' will be unfit for \'+document.getElementById(\'his_her\').value+\' normal work from today to * inclusive.\');\r\n	document.RichTextLetter.Closing.click();\">\r\n<br>\r\n\r\n<input type=\"button\" class=\"butn\" name=\"consult\" value=\"Consult Letter\" \r\n	onclick=\"  var ref=document.getElementById(\'referral_name\').value.toString(); var mySplitResult = ref.split(\',\');\r\n	var gender=document.getElementById(\'sex\').value; if (gender==\'M\'){gender=\'male\';}; if (gender==\'F\'){gender=\'female\';};\r\n	var years=document.getElementById(\'ageComplex\').value; if (years==\'\'){years=document.getElementById(\'age\').value + \'yo\';};\r\n	document.RichTextLetter.AddLetterhead.click();\r\n	doHtml(\'<p>\'+doDate()+\'<p>\');\r\n	document.RichTextLetter.AddReferral.click();\r\n	doHtml(\'<p>RE:&nbsp\');\r\n	document.RichTextLetter.AddLabel.click();\r\n	doHtml(\'<p>Dear Dr. \'+mySplitResult[0]+\'<p>Thank you for asking me to see this \'+years+ \' \' +gender);\r\n	document.RichTextLetter.Closing.click(); \">\r\n<br>\r\n-->\r\n<input type=\"button\" class=\"butn\" name=\"AddReferral\" id=\"AddReferral\" value=\"Referring Block\" \r\n	onclick=\"doHtml(document.getElementById(\'referral_name\').value+\'<br>\'+ document.getElementById(\'referral_address\').value +\'<br>CANADA<br> Tel: \'+ document.getElementById(\'referral_phone\').value+\'<br>Fax:  \'+document.getElementById(\'referral_fax\').value);\">\r\n\r\n<br>\r\n\r\n<input type=\"button\" class=\"butn\" name=\"AddLabel\" id=\"AddLabel\" value=\"Patient Block\" \r\n	onclick=\"doHtml(document.getElementById(\'label\').value);\">\r\n\r\n<br>\r\n\r\n<br>\r\n<input type=\"button\"  class=\"butn\" name=\"MedicalHistory\" value=\"Recent History\" width=30\r\n	onclick=\"var hist=parseText(document.getElementById(\'medical_history\').value); doHtml(hist);\">\r\n<br>\r\n<input type=\"button\"  class=\"butn\" name=\"AddMedicalHistory\" value=\"Full History\" width=30\r\n	onclick=\"doHtml(document.getElementById(\'medical_history\').value); \">\r\n<br>\r\n<input type=\"button\" class=\"butn\" name=\"RecentMedications\" id=\"RecentMedications\" value=\"Recent Prescriptions\"\r\n	onclick=\"doHtml(document.getElementById(\'recent_rx\').value);\">\r\n<br>\r\n<input type=\"button\" class=\"butn\" name=\"Medlist\" id=\"Medlist\" value=\"Medication List\"\r\n	onclick=\"doHtml(document.getElementById(\'druglist_trade\').value);\">\r\n<br>\r\n<input type=\"button\" class=\"butn\" name=\"Allergies\" id=\"Allergies\" value=\"Meds & Allergies\"\r\n	onclick=\"var allergy=document.getElementById(\'allergies_des\').value; if (allergy.length>0){allergy=\'<br>Allergies: \'+allergy};doHtml(\'Medications: \'+document.getElementById(\'druglist_line\').value+allergy);\">\r\n<br>\r\n<input type=\"button\" class=\"butn\" name=\"OtherMedicationsHistory\" value=\"Family History\"\r\n	onclick=\"var hist=parseText(document.getElementById(\'other_medications_history\').value); doHtml(hist);\">\r\n<br>\r\n<input type=\"button\" class=\"butn\" name=\"AddOtherMedicationsHistory\" value=\"Full Family Hx\"\r\n	onclick=\"doHtml(document.getElementById(\'other_medications_history\').value); \">\r\n\r\n<br>\r\n<input type=\"button\" class=\"butn\" name=\"AddSocialFamilyHistory\" value=\"Social History\" \r\n	onclick=\"var hist=parseText(document.getElementById(\'social_family_history\').value); doHtml(hist);\">\r\n<br>\r\n<input type=\"button\" class=\"butn\" name=\"AddReminders\" value=\"Reminders\"\r\n	onclick=\"var hist=parseText(document.getElementById(\'reminders\').value); doHtml(hist);\">\r\n<br>\r\n<input type=\"button\" class=\"butn\" name=\"AddOngoingConcerns\" value=\"Ongoing Concerns\"\r\n	onclick=\"var hist=parseText(document.getElementById(\'ongoingconcerns\').value); doHtml(hist);\">\r\n<br>\r\n<br>\r\n<input type=\"button\" class=\"butn\" name=\"Patient\" value=\"Patient Name\"\r\n	onclick=\" doHtml(document.getElementById(\'first_last_name\').value);\">\r\n\r\n<br>\r\n<input type=\"button\" class=\"butn\" name=\"PatientAge\" value=\"Patient Age\"\r\n	onclick=\"var hist=document.getElementById(\'ageComplex\').value; if (hist==\'\'){hist=document.getElementById(\'age\').value;}; doHtml(hist);\">\r\n<br>\r\n<input type=\"button\" class=\"butn\" name=\"label\" value=\"Patient Label\"\r\n	onclick=\"var hist=document.getElementById(\'label\').value; doHtml(hist);\">\r\n\r\n\r\n<br>\r\n<input type=\"button\" class=\"butn\" name=\"PatientSex\" value=\"Patient Gender\"\r\n	onclick=\"doHtml(document.getElementById(\'sex\').value);\">\r\n<br>\r\n<br>\r\n<input type=\"button\" class=\"butn\" name=\"Closing\" value=\"Closing Salutation\" \r\n	onclick=\" doHtml(\'<p>Yours Sincerely<p>&nbsp;<p>\'+ document.getElementById(\'provider_name_first_init\').value+\', MD\');\">\r\n \r\n<br>\r\n<input type=\"button\" class=\"butn\" name=\"User\" value=\"Current User\"\r\n	onclick=\"var hist=document.getElementById(\'current_user\').value; doHtml(hist);\">\r\n \r\n<br>\r\n<input type=\"button\" class=\"butn\" name=\"Doctor\" value=\"Attending Doctor\"\r\n	onclick=\"var hist=document.getElementById(\'doctor\').value; doHtml(hist);\">\r\n<br>\r\n<br>\r\n\r\n\r\n<br>\r\n</div>\r\n\r\n\r\n<div class=\"DoNotPrint\" >\r\n<input onclick=\"viewsource(this.checked)\" type=\"checkbox\">\r\nHTML Source\r\n<input onclick=\"usecss(this.checked)\" type=\"checkbox\">\r\nUse CSS\r\n	<table><tr><td>\r\n		 Subject: <input name=\"subject\" id=\"subject\" size=\"40\" type=\"text\">\r\n		 <input value=\"Submit\" name=\"SubmitButton\" type=\"submit\" onclick=\"needToConfirm=false;document.getElementById(\'Letter\').value=editControlContents(\'edit\');  document.RichTextLetter.submit()\">\r\n		 <input value=\"Reset\" name=\"ResetButton\" type=\"reset\">\r\n		 <input value=\"Print\" name=\"PrintButton\" type=\"button\" onclick=\"document.getElementById(\'edit\').contentWindow.print();\">\r\n		 <input value=\"Print & Save\" name=\"PrintSaveButton\" type=\"button\" onclick=\"document.getElementById(\'edit\').contentWindow.print();needToConfirm=false;document.getElementById(\'Letter\').value=editControlContents(\'edit\');  setTimeout(\'document.RichTextLetter.submit()\',1000);\">\r\n	 </td></tr></table>\r\n </div>\r\n </form>\r\n\r\n</body></html>\r\n',0,0,NULL,NULL,0,0);
-INSERT INTO eform VALUES (2,'Rich Text Letter',NULL,'Rich Text Letter Generator','2014-02-01','10:00:00',NULL,0,'<html><head>\r\n<meta http-equiv="content-type" content="text/html; charset=UTF-8">\r\n\r\n<title>Rich Text Letter</title>\r\n<style type="text/css">\r\n.butn {width: 140px;}\r\n</style>\r\n\r\n<style type="text/css" media="print">\r\n.DoNotPrint {display: none;}\r\n\r\n</style>\r\n<script language="javascript" type="text/javascript" src="${oscar_javascript_path}jquery/jquery-1.4.2.js"></script>\r\n\r\n<script language="javascript">\r\nvar needToConfirm = false;\r\n\r\n//keypress events trigger dirty flag for the iFrame and the subject line\r\ndocument.onkeyup=setDirtyFlag\r\n\r\n\r\nfunction setDirtyFlag() {\r\n	needToConfirm = true; \r\n}\r\n\r\nfunction releaseDirtyFlag() {\r\n	needToConfirm = false; //Call this function if dosent requires an alert.\r\n	//this could be called when save button is clicked\r\n}\r\n\r\n\r\nwindow.onbeforeunload = confirmExit;\r\n\r\nfunction confirmExit() {\r\n	if (needToConfirm){\r\n	return "You have attempted to leave this page. If you have made any changes without clicking the Submit button, your changes will be lost. Are you sure you want to exit this page?";\r\n	}\r\n}\r\n\r\n\r\nvar loads=true;\r\n\r\nfunction maximize() {\r\n	window.resizeTo(1030, 865) ;\r\n	loads=false;\r\n}\r\n\r\nfunction saveRTL() {\r\n	needToConfirm=false;\r\n	var theRTL=editControlContents(''edit'');\r\n	var myNewString = theRTL.replace(/"/g, ''&quot;'');\r\n	document.getElementById(''Letter'').value=myNewString.replace(/''/g, "&#39;");\r\n}\r\n</script>\r\n\r\n<!-- START OF EDITCONTROL CODE --> \r\n\r\n<script language="javascript" type="text/javascript" src="${oscar_javascript_path}eforms/editControl.js"></script>\r\n<script language="javascript" type="text/javascript" src="${oscar_javascript_path}eforms/APCache.js"></script>\r\n<script language="javascript" type="text/javascript" src="${oscar_javascript_path}eforms/imageControl.js"></script>\r\n<script language="javascript" type="text/javascript" src="${oscar_javascript_path}eforms/faxControl.js"></script>\r\n<script language="javascript" type="text/javascript" src="${oscar_javascript_path}eforms/signatureControl.jsp"></script>\r\n<script language="javascript" type="text/javascript" src="${oscar_javascript_path}eforms/printControl.js"></script>\r\n\r\n<script language="javascript">\r\n	//put any of the optional configuration variables that you want here\r\n	cfg_width = ''840''; //editor control width in pixels\r\n	cfg_height = ''520''; //editor control height in pixels\r\n	cfg_editorname = ''edit''; //the handle for the editor                  \r\n	cfg_isrc = ''../eform/displayImage.do?imagefile=''; //location of the button icon files\r\n	cfg_filesrc = ''../eform/displayImage.do?imagefile=''; //location of the html files\r\n	cfg_template = ''blank.rtl''; //default style and content template\r\n	cfg_formattemplate = ''<option value=""> loading... </option></select>'';\r\n	//cfg_layout = ''[all]'';             //adjust the format of the buttons here\r\n	//cfg_layout = ''<table style="background-color:ccccff; width:840px"><tr id=control1><td>[bold][italic][underlined][strike][subscript][superscript]|[left][center][full][right]|[unordered][ordered][rule]|[undo][redo]|[indent][outdent][select-all][clean]|[table]</td></tr><tr id=control2><td>[select-block][select-face][select-size][select-template]|[image][clock][date][spell][help]</td></tr></table>[edit-area]'';\r\n	cfg_layout = ''<table style="background-color:ccccff; width:840px"><tr id=control1><td align=center>[bold][italic][underlined][strike][subscript][superscript]|[left][center][full][right]|[unordered][ordered][rule]|[undo][redo]|[indent][outdent][select-all][clean]|[table]\\[text-colour][hilight]</td></tr><tr id=control2><td align=center>[select-block][select-face][select-size][select-template]|[image][link]|[clock][date][spell][cut][copy][paste][help]</td></tr></table>[edit-area]'';\r\n	insertEditControl(); // Initialise the edit control and sets it at this point in the webpage\r\n\r\n	\r\n	function gup(name, url)\r\n	{\r\n		if (url == null) { url = window.location.href; }\r\n		name = name.replace(/[\\[]/,"\\\\\\[").replace(/[\\]]/,"\\\\\\]");\r\n		var regexS = "[\\\\?&]"+name+"=([^&#]*)";\r\n		var regex = new RegExp(regexS);\r\n		var results = regex.exec(url);\r\n		if (results == null) { return ""; }\r\n		else { return results[1]; }\r\n	}\r\n	var demographicNo ="";\r\n\r\n	jQuery(document).ready(function(){\r\n		demographicNo = gup("demographic_no");\r\n		if (demographicNo == "") { demographicNo = gup("efmdemographic_no", jQuery("form").attr(''action'')); }\r\n		if (typeof signatureControl != "undefined") {\r\n			signatureControl.initialize({\r\n				sigHTML:"../signature_pad/tabletSignature.jsp?inWindow=true&saveToDB=true&demographicNo=",\r\n				demographicNo:demographicNo,\r\n				refreshImage: function (e) {\r\n					var html = "<img src=''"+e.storedImageUrl+"&r="+ Math.floor(Math.random()*1001) +"''></img>";\r\n					doHtml(html);		\r\n				},\r\n				signatureInput: "#signatureInput"	\r\n			});\r\n		}		\r\n	});\r\n		\r\n	var cache = createCache({\r\n		defaultCacheResponseHandler: function(type) {\r\n			if (checkKeyResponse(type)) {\r\n				doHtml(cache.get(type));\r\n			}			\r\n			\r\n		},\r\n		cacheResponseErrorHandler: function(xhr, error) {\r\n			alert("Please contact an administrator, an error has occurred.");			\r\n			\r\n		}\r\n	});	\r\n	\r\n	function checkKeyResponse(response) {		\r\n		if (cache.isEmpty(response)) {\r\n			alert("The requested value has no content.");\r\n			return false;\r\n		}\r\n		return true;\r\n	}\r\n	\r\n	function printKey (key) {\r\n		var value = cache.lookup(key); \r\n		if (value != null && checkKeyResponse(key)) { doHtml(cache.get(key)); } 		  \r\n	}\r\n	\r\n	function submitFaxButton() {\r\n		document.getElementById(''faxEForm'').value=true;\r\n		saveRTL();\r\n		setTimeout(''document.RichTextLetter.submit()'',1000);\r\n	}\r\n	\r\n	cache.addMapping({\r\n		name: "_SocialFamilyHistory",\r\n		values: ["social_family_history"],\r\n		storeInCacheHandler: function(key,value) {\r\n			cache.put(this.name, cache.get("social_family_history").replace(/(<br>)+/g,"<br>"));\r\n		},\r\n		cacheResponseHandler:function () {\r\n			if (checkKeyResponse(this.name)) {				\r\n				doHtml(cache.get(this.name));\r\n			}	\r\n		}\r\n	});\r\n	\r\n	\r\n	cache.addMapping({name: "template", cacheResponseHandler: populateTemplate});	\r\n	\r\n	cache.addMapping({\r\n		name: "_ClosingSalutation", \r\n		values: ["provider_name_first_init"],	\r\n		storeInCacheHandler: function (key,value) {\r\n			if (!cache.isEmpty("provider_name_first_init")) {\r\n				cache.put(this.name, "<p>Yours Sincerely<p>&nbsp;<p>" + cache.get("provider_name_first_init") + ", MD");\r\n			}\r\n		},\r\n		cacheResponseHandler:function () {\r\n			if (checkKeyResponse(this.name)) {				\r\n				doHtml(cache.get(this.name));\r\n			}	\r\n		}\r\n	});\r\n	\r\n	cache.addMapping({\r\n		name: "_ReferringBlock", \r\n		values: ["referral_name", "referral_address", "referral_phone", "referral_fax"], 	\r\n		storeInCacheHandler: function (key, value) {\r\n			var text = \r\n				(!cache.isEmpty("referral_name") ? cache.get("referral_name") + "<br>" : "") \r\n			  + (!cache.isEmpty("referral_address") ? cache.get("referral_address") + "<br>" : "")\r\n			  + (!cache.isEmpty("referral_phone") ? "Tel: " + cache.get("referral_phone") + "<br>" : "")\r\n			  + (!cache.isEmpty("referral_fax") ? "Fax: " + cache.get("referral_fax") + "<br>" : "");\r\n			if (text == "") {\r\n				text = \r\n					(!cache.isEmpty("bc_referral_name") ? cache.get("bc_referral_name") + "<br>" : "") \r\n				  + (!cache.isEmpty("bc_referral_address") ? cache.get("bc_referral_address") + "<br>" : "")\r\n				  + (!cache.isEmpty("bc_referral_phone") ? "Tel: " + cache.get("bc_referral_phone") + "<br>" : "")\r\n				  + (!cache.isEmpty("bc_referral_fax") ? "Fax: " + cache.get("bc_referral_fax") + "<br>" : "");\r\n			}						 \r\n			cache.put(this.name, text)\r\n		},\r\n		cacheResponseHandler: function () {\r\n			if (checkKeyResponse(this.name)) {\r\n				doHtml(cache.get(this.name));\r\n			}\r\n		}\r\n	});\r\n	\r\n	cache.addMapping({\r\n		name: "letterhead", \r\n		values: ["clinic_name", "clinic_fax", "clinic_phone", "clinic_addressLineFull", "doctor", "doctor_contact_phone", "doctor_contact_fax", "doctor_contact_addr"], \r\n		storeInCacheHandler: function (key, value) {\r\n			var text = genericLetterhead();\r\n			cache.put("letterhead", text);\r\n		},\r\n		cacheResponseHandler: function () {\r\n			if (checkKeyResponse(this.name)) {\r\n				doHtml(cache.get(this.name));\r\n			}\r\n		}\r\n	});\r\n	\r\n	cache.addMapping({\r\n		name: "referral_nameL", \r\n		values: ["referral_name"], \r\n		storeInCacheHandler: function(_key,_val) { \r\n		if (!cache.isEmpty("referral_name")) {\r\n				var mySplitResult =  cache.get("referral_name").toString().split(",");\r\n				cache.put("referral_nameL", mySplitResult[0]);\r\n			} \r\n		}\r\n	});\r\n\r\n	cache.addMapping({\r\n		name: "medical_historyS", \r\n		values: ["medical_history"], \r\n		storeInCacheHandler: function(_key,_val) { \r\n		if (!cache.isEmpty("medical_history")) {\r\n				var mySplitResult =  cache.get("medical_history").toString().split("]]-----");\r\n				cache.put("medical_historyS", mySplitResult.pop());\r\n			} \r\n		}\r\n	});\r\n\r\n	cache.addMapping({\r\n		name: "stamp", \r\n		values: ["stamp_name", "doctor"], \r\n		storeInCacheHandler: function(_key,_val) { \r\n				var imgsrc=pickStamp();\r\n				cache.put("stamp",imgsrc);\r\n		}\r\n	});\r\n\r\n	\r\n	cache.addMapping({\r\n		name: "complexAge", \r\n		values: ["complexAge"], \r\n		cacheResponseHandler: function() {\r\n			if (cache.isEmpty("complexAge")) { \r\n				printKey("age"); \r\n			}\r\n			else {\r\n				if (checkKeyResponse(this.name)) {\r\n					doHtml(cache.get(this.name));\r\n				}\r\n			}\r\n		}\r\n	});\r\n	\r\n	// Setting up many to one mapping for derived gender keys.\r\n	var genderKeys = ["he_she", "his_her", "gender"];	\r\n	var genderIndex;\r\n	for (genderIndex in genderKeys) {\r\n		cache.addMapping({ name: genderKeys[genderIndex], values: ["sex"]});\r\n	}\r\n	cache.addMapping({name: "sex", values: ["sex"], storeInCacheHandler: populateGenderInfo});\r\n	\r\n	function isGenderLookup(key) {\r\n		var y;\r\n		for (y in genderKeys) { if (genderKeys[y] == key) { return true; } }\r\n		return false;\r\n	}\r\n	\r\n	function populateGenderInfo(key, val){\r\n		if (val == ''F'') {\r\n			cache.put("sex", "F");\r\n			cache.put("he_she", "she");\r\n			cache.put("his_her", "her");\r\n			cache.put("gender", "female");				\r\n		}\r\n		else {\r\n			cache.put("sex", "M");\r\n			cache.put("he_she", "he");\r\n			cache.put("his_her", "him");\r\n			cache.put("gender", "male");				\r\n		}\r\n	}\r\n	\r\n	function Start() {\r\n		\r\n			$.ajax({\r\n				url : "efmformrtl_templates.jsp",\r\n				success : function(data) {\r\n					$("#template").html(data);\r\n					loadDefaultTemplate();\r\n				}\r\n			});\r\n	\r\n			$(".cacheInit").each(function() { \r\n				cache.put($(this).attr(''name''), $(this).val());\r\n				$(this).remove();				\r\n			});\r\n			\r\n			// set eventlistener for the iframe to flag changes in the text displayed \r\n			var agent = navigator.userAgent.toLowerCase(); //for non IE browsers\r\n			if ((agent.indexOf("msie") == -1) || (agent.indexOf("opera") != -1)) {\r\n				document.getElementById(cfg_editorname).contentWindow\r\n						.addEventListener(''keypress'', setDirtyFlag, true);\r\n			}\r\n				\r\n			// set the HTML contents of this edit control from the value saved in Oscar (if any)\r\n			var contents = document.getElementById(''Letter'').value\r\n			if (contents.length == 0) {\r\n				parseTemplate();\r\n			} else {\r\n				seteditControlContents(cfg_editorname, contents);\r\n				document.getElementById(cfg_editorname).contentWindow.document.designMode = ''on'';\r\n			}\r\n			maximize();\r\n	}\r\n\r\n	function htmlLine(text) {\r\n		return text.replace(/\\r?\\n/g,"<br>");\r\n	}\r\n\r\n	function genericLetterhead() {\r\n		// set the HTML contents of the letterhead\r\n		var address = ''<table border=0><tbody><tr><td><font size=6>''\r\n				+ cache.get(''clinic_name'')\r\n				+ ''</font></td></tr><tr><td><font size=2>''\r\n				+ cache.get(''doctor_contact_addr'')\r\n				+ '' Fax: '' + cache.get(''doctor_contact_fax'')\r\n				+ '' Phone: '' + cache.get(''doctor_contact_phone'')\r\n				+ ''</font><hr></td></tr></tbody></table><br>'';\r\n		if ( (cache.get(''clinic_name'').toLowerCase()).indexOf(''amily health team'',0)>-1){\r\n		address=fhtLetterhead(); }\r\n		if ( (cache.get(''clinic_name'').toLowerCase()).indexOf(''fht'',0)>-1){\r\n		address=fhtLetterhead(); }\r\n		return address;\r\n	}\r\n\r\n	function fhtLetterhead() {\r\n		// set the HTML contents of the letterhead using FHT colours\r\n		var address = cache.get(''clinic_addressLineFull'')\r\n				+ ''<br>Fax:'' + cache.get(''clinic_fax'')\r\n				+ '' Phone:'' + cache.get(''clinic_phone'');\r\n		if (cache.contains("doctor") && cache.get(''doctor'').indexOf(''zapski'') > 0) {\r\n			address = ''293 Meridian Avenue, Haileybury, ON P0J 1K0<br> Tel 705-672-2442&nbsp;&nbsp; Fax 866-945-5725'';\r\n		}\r\n		address = ''<table style=\\''text-align: right;\\'' border=\\''0\\''><tbody><tr style=\\''font-style: italic; color: rgb(71, 127, 128);\\''><td><font size=\\''+2\\''>''\r\n				+ cache.get(''clinic_name'')\r\n				+ ''</font> <hr style=\\''width: 100%; height: 3px; color: rgb(212, 118, 0); background-color: rgb(212, 118, 0);\\''></td> </tr> <tr style=\\''color: rgb(71, 127, 128);\\''> <td><font size=\\''+1\\''>Family Health Team<br>Equipe Sante Familiale</font></td> </tr> <tr style=\\''color: rgb(212, 118, 0); \\''> <td><small>''\r\n				+ address + ''</small></td> </tr> </tbody> </table>'';\r\n		return address;\r\n	}\r\n\r\n	function pickStamp() {\r\n		// set the HTML contents of the signature stamp\r\n		var mystamp =''<img src="../eform/displayImage.do?imagefile=stamp.png">'';\r\n		if (cache.contains("doctor")) {\r\n			if (cache.get(''doctor'').indexOf(''zapski'') > 0) {\r\n				mystamp = ''<img src="../eform/displayImage.do?imagefile=PHC.png" width="200" height="100" />'';\r\n				}\r\n			if (cache.get(''doctor'').indexOf(''hurman'') > 0) {\r\n				mystamp = ''<img src="../eform/displayImage.do?imagefile=MCH.png" width="200" height="100" />'';\r\n				}\r\n			if (cache.get(''doctor'').indexOf(''mith'') > 0) {\r\n				mystamp = ''<img src="../eform/displayImage.do?imagefile=PJS.png" width="200" height="100" />'';\r\n				}\r\n			if (cache.get(''doctor'').indexOf(''loko'') > 0) {\r\n				mystamp = ''<img src="../eform/displayImage.do?imagefile=FAO.png" width="200" height="100" />'';\r\n				}\r\n			if (cache.get(''doctor'').indexOf(''urrie'') > 0) {\r\n				mystamp = ''<img src="../eform/displayImage.do?imagefile=LNC.png" width="200" height="100" />'';\r\n				}\r\n			if (cache.get(''doctor'').indexOf(''cdermot'') > 0) {\r\n				mystamp = ''<img src="../eform/displayImage.do?imagefile=TMD.png" width="200" height="100" />'';\r\n				}\r\n		}\r\n		return mystamp;\r\n	}\r\n	var formIsRTL = true;\r\n\r\n</script>\r\n<!-- END OF EDITCONTROL CODE -->\r\n</head><body bgcolor="FFFFFF" onload="Start();">\r\n<form method="post" action="" name="RichTextLetter" ><textarea name="Letter" id="Letter" style="width:600px; display: none;"></textarea>\r\n\r\n<div class="DoNotPrint" id="control3" style="position:absolute; top:20px; left: 860px;">\r\n\r\n<!-- Letter Head -->\r\n<input type="button" class="butn" name="AddLetterhead" id="AddLetterhead" value="Letterhead" onclick="printKey(''letterhead'');">\r\n<br>\r\n\r\n<!-- Referring Block -->\r\n<input type="button" class="butn" name="AddReferral" id="AddReferral" value="Referring Block" onclick="printKey(''_ReferringBlock'');">\r\n<br>\r\n\r\n<!-- Patient Block -->\r\n<input type="button" class="butn" name="AddLabel" id="AddLabel" value="Patient Block" onclick="printKey(''label'');">\r\n<br>\r\n<br> \r\n\r\n<!-- Social History -->\r\n<input type="button" class="butn" name="AddSocialFamilyHistory" value="Social History" onclick="var hist=''_SocialFamilyHistory'';printKey(hist);">\r\n<br>\r\n\r\n<!--  Medical History -->\r\n<input type="button"  class="butn" name="AddMedicalHistory" value="Medical History" width=30 onclick="var hist=''medical_historyS'';printKey(hist);">\r\n<br>\r\n\r\n<!--  Ongoing Concerns -->\r\n<input type="button" class="butn" name="AddOngoingConcerns" value="Ongoing Concerns" onclick="var hist=''ongoingconcerns''; printKey(hist);">\r\n<br>\r\n\r\n<!-- Reminders -->\r\n<input type="button" class="butn" name="AddReminders" value="Reminders"\r\n	onclick="var hist=''reminders''; printKey(hist);">\r\n<br>\r\n\r\n<!-- Allergies -->\r\n<input type="button" class="butn" name="Allergies" id="Allergies" value="Allergies" onclick="printKey(''allergies_des'');">\r\n<br>\r\n\r\n<!-- Prescriptions -->\r\n<input type="button" class="butn" name="Medlist" id="Medlist" value="Prescriptions"	onclick="printKey(''druglist_trade'');">\r\n<br>\r\n\r\n<!-- Other Medications -->\r\n<input type="button" class="butn" name="OtherMedicationsHistory" value="Other Medications" onclick="printKey(''other_medications_history''); ">\r\n\r\n<br>\r\n\r\n<!-- Risk Factors -->\r\n<input type="button" class="butn" name="RiskFactors" value="Risk Factors" onclick="printKey(''riskfactors''); ">\r\n<br>\r\n\r\n<!-- Family History -->\r\n<input type="button" class="butn" name="FamilyHistory" value="Family History" onclick="printKey(''family_history''); ">\r\n<br>\r\n<br>\r\n\r\n<!-- Patient Name --> \r\n<input type="button" class="butn" name="Patient" value="Patient Name" onclick="printKey(''first_last_name'');">\r\n<br>\r\n\r\n<!-- Patient Age -->\r\n<input type="button" class="butn" name="PatientAge" value="Patient Age" onclick="var hist=''ageComplex''; printKey(hist);">\r\n\r\n<br>\r\n\r\n<!-- Patient Label -->\r\n<input type="button" class="butn" name="label" value="Patient Label" onclick="hist=''label'';printKey(hist);">\r\n<br>\r\n\r\n<input type="button" class="butn" name="PatientSex" value="Patient Gender" onclick="printKey(''gender'');">\r\n<br>\r\n<br>\r\n\r\n<!-- Closing Salutation -->\r\n<input type="button" class="butn" name="Closing" value="Closing Salutation" onclick="printKey(''_ClosingSalutation'');">\r\n<br>\r\n\r\n<!-- Signature Stamp -->\r\n<input type="button" class="butn" name="stamp" value="Stamp" onclick="printKey(''stamp'');">\r\n<br>\r\n<!--  Current User -->\r\n<input type="button" class="butn" name="User" value="Current User" onclick="var hist=''current_user''; printKey(hist);">\r\n<br>\r\n\r\n<!-- Attending Doctor -->\r\n<input type="button" class="butn" name="Doctor" value="Doctor (MRP)" onclick="var hist=''doctor''; printKey(hist);">\r\n<br>\r\n<br>\r\n\r\n</div>\r\n\r\n\r\n<div class="DoNotPrint" >\r\n<input onclick="viewsource(this.checked)" type="checkbox">\r\nHTML Source\r\n<input onclick="usecss(this.checked)" type="checkbox">\r\nUse CSS	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Subject: <input name="subject" id="subject" size="40" type="text">		 \r\n\r\n<table><tr id=sig>\r\n<td> <div id="signatureInput">&nbsp;</div></td>\r\n<td> <div id="faxControl">&nbsp;</div></td>\r\n</tr></table>\r\n \r\n \r\n<input value="Submit" name="SubmitButton" type="submit" onclick="saveRTL();  document.RichTextLetter.submit()">\r\n<input value="Print" name="PrintSaveButton" type="button" onclick="document.getElementById(''edit'').contentWindow.print();saveRTL();  setTimeout(''document.RichTextLetter.submit()'',1000);">\r\n<input value="Reset" name="ResetButton" type="reset">\r\n<input value="Print" name="PrintButton" type="button" onclick="document.getElementById(''edit'').contentWindow.print();">\r\n\r\n\r\n    	</div>\r\n\r\n</form>\r\n\r\n</body></html>',0,0,NULL,NULL,0,0);
+INSERT INTO eform VALUES (1,'letter','','letter generator','2010-05-02','10:00:00',NULL,1,'<html><head>\r\n<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\">\r\n\r\n<title>Rich Text Letter</title>\r\n<style type=\"text/css\">\r\n.butn {width: 140px;}\r\n</style>\r\n\r\n<style type=\"text/css\" media=\"print\">\r\n.DoNotPrint {display: none;}\r\n\r\n</style>\r\n\r\n<script language=\"javascript\">\r\nvar needToConfirm = false;\r\n\r\n//keypress events trigger dirty flag for the iFrame and the subject line\r\ndocument.onkeyup=setDirtyFlag\r\n\r\n\r\nfunction setDirtyFlag() {\r\n	needToConfirm = true; \r\n}\r\n\r\nfunction releaseDirtyFlag() {\r\n	needToConfirm = false; //Call this function if dosent requires an alert.\r\n	//this could be called when save button is clicked\r\n}\r\n\r\n\r\nwindow.onbeforeunload = confirmExit;\r\n\r\nfunction confirmExit() {\r\n	if (needToConfirm)\r\n	return \"You have attempted to leave this page. If you have made any changes without clicking the Submit button, your changes will be lost. Are you sure you want to exit this page?\";\r\n}\r\n\r\n</script>\r\n\r\n\r\n\r\n</head><body onload=\"Start()\" bgcolor=\"FFFFFF\">\r\n\r\n\r\n<!-- START OF EDITCONTROL CODE --> \r\n\r\n<script language=\"javascript\" type=\"text/javascript\" src=\"${oscar_image_path}editControl.js\"></script>\r\n      \r\n<script language=\"javascript\">\r\n\r\n    //put any of the optional configuration variables that you want here\r\n    cfg_width = \'640\';                    //editor control width in pixels\r\n    cfg_height = \'520\';                   //editor control height in pixels\r\n    cfg_editorname = \'edit\';                //the handle for the editor                  \r\n    cfg_isrc = \'${oscar_image_path}\';         //location of the button icon files\r\n    cfg_filesrc = \'${oscar_image_path}\';         //location of the html files\r\n    cfg_template = \'blank.html\';	    //default style and content template\r\n    cfg_formattemplate = \'<option value=\"\">&mdash; template &mdash;</option>  <option value=\"blank\">blank</option>  <option value=\"consult\">consult</option> <option value=\"certificate\">work note</option> <option value=\"narcotic\">narcotic contract</option> <option value=\"MissedAppointment\">missed appt</option> <option value=\"custom\">custom</option></select>\';\r\n    //cfg_layout = \'[all]\';             //adjust the format of the buttons here\r\n    cfg_layout = \r\n\'<table style=\"background-color:#ccccff; width:640px\"><tr id=control1><td>[bold][italic][underlined][strike][subscript][superscript]|[left][center][full][right]|[unordered][ordered][rule]|[undo][redo]|[indent][outdent][select-all][clean]|[table]</td></tr><tr id=control2><td>[select-block][select-face][select-size][select-template]|[image][clock][date][spell][help]</td></tr></table>[edit-area]\';\r\n    insertEditControl(); // Initialise the edit control and sets it at this point in the webpage\r\n\r\n    function Start() {\r\n        // set eventlistener for the iframe to flag changes in the text displayed \r\n	var agent=navigator.userAgent.toLowerCase(); //for non IE browsers\r\n        if ((agent.indexOf(\"msie\") == -1) || (agent.indexOf(\"opera\") != -1)){\r\n		document.getElementById(cfg_editorname).contentWindow.addEventListener(\'keypress\',setDirtyFlag, true);\r\n	}\r\n\r\n	if (document.getElementById(\'recent_rx\').value.length<1){\r\n		//document.RichTextLetter.RecentMedications.style.visibility=\"hidden\";\r\n		document.getElementById(\'RecentMedications\').style.display = \"none\";\r\n	}\r\n\r\n        // reformat values of multiline database values from \\n lines to <br>\r\n        htmlLine(\'label\');\r\n        htmlLine(\'reminders\');\r\n        htmlLine(\'ongoingconcerns\');\r\n        htmlLine(\'medical_history\');document.getElementById(\'allergies_des\').value\r\n        htmlLine(\'other_medications_history\');  //family history  ... don\'t ask\r\n        htmlLine(\'social_family_history\');  //social history\r\n        htmlLine(\'address\');\r\n        htmlLine(\'NameAddress\');\r\n        htmlLine(\'clinic_label\');\r\n        htmlLine(\'clinic_address\');\r\n        htmlLine(\'druglist_generic\');\r\n        htmlLine(\'druglist_trade\');\r\n        htmlLine(\'recent_rx\');\r\n\r\n	var gender=document.getElementById(\'sex\').value; \r\n	if (gender==\'F\'){\r\n		document.getElementById(\'he_she\').value=\'she\'; \r\n		document.getElementById(\'his_her\').value=\'her\';\r\n		document.getElementById(\'gender\').value=\'female\';\r\n	}\r\n	var mySplitResult = document.getElementById(\'referral_name\').value.toString().split(\',\'); \r\n	document.getElementById(\'referral_nameL\').value=mySplitResult[0];\r\n\r\n	document.getElementById(\'letterhead\').value= genericLetterhead();\r\n\r\n	\r\n        // set the HTML contents of this edit control from the value saved in Oscar (if any)\r\n	var contents=document.getElementById(\'Letter\').value\r\n	if (contents.length==0){\r\n		parseTemplate();\r\n	} else {\r\n		seteditControlContents(cfg_editorname,contents);\r\n	}\r\n    }\r\n \r\n    function htmlLine(theelement) { \r\n	var temp = new Array();\r\n	if (document.getElementById(theelement).value.length>0){\r\n		temp=document.getElementById(theelement).value.split(\'\\n\'); \r\n		contents=\'\';\r\n		var x;\r\n		for (x in temp) {\r\n			contents += temp[x]+\'<br>\';\r\n			}\r\n		document.getElementById(theelement).value=contents;\r\n		}\r\n    }\r\n\r\n    function genericLetterhead() {\r\n        // set the HTML contents of the letterhead\r\n	var address = \'<table border=0><tbody><tr><td><font size=6>\'+document.getElementById(\'clinic_name\').value+\'</font></td></tr><tr><td><font size=2>\'+ document.getElementById(\'clinic_addressLineFull\').value+ \' Fax: \'+document.getElementById(\'clinic_fax\').value+\' Phone: \'+document.getElementById(\'clinic_phone\').value+\'</font><hr></td></tr></tbody></table><br>\'\r\n	if ((document.getElementById(\'clinic_name\').value.toLowerCase()).indexOf(\'amily health team\',0)>-1){\r\n		address=fhtLetterhead();\r\n	}\r\n	return address;\r\n    }\r\n\r\n    function fhtLetterhead() {\r\n        // set the HTML contents of the letterhead using FHT colours\r\n	var address = document.getElementById(\'clinic_addressLineFull\').value+ \'<br>Fax:\'+document.getElementById(\'clinic_fax\').value+\' Phone:\'+document.getElementById(\'clinic_phone\').value ;\r\n	if (document.getElementById(\'doctor\').value.indexOf(\'zapski\')>0){address=\'293 Meridian Avenue, Haileybury, ON P0J 1K0<br> Tel 705-672-2442 Fax 705-672-2384\'};\r\n	address=\'<table style=\\\'text-align: right;\\\' border=\\\'0\\\'><tbody><tr style=\\\'font-style: italic; color: rgb(71, 127, 128);\\\'><td><font size=\\\'+2\\\'>\'+document.getElementById(\'clinic_name\').value+\'</font> <hr style=\\\'width: 100%; height: 3px; color: rgb(212, 118, 0); background-color: rgb(212, 118, 0);\\\'></td> </tr> <tr style=\\\'color: rgb(71, 127, 128);\\\'> <td><font size=\\\'+1\\\'>Family Health Team<br> &Eacute;quipe Sant&eacute; Familiale</font></td> </tr> <tr style=\\\'color: rgb(212, 118, 0); \\\'> <td><small>\'+address+\'</small></td> </tr> </tbody> </table>\';\r\n	return address;\r\n    }\r\n</script>\r\n\r\n<!-- END OF EDITCONTROL CODE -->\r\n\r\n\r\n<form method=\"post\" action=\"\" name=\"RichTextLetter\" >\r\n\r\n<!-- START OF DATABASE PLACEHOLDERS -->\r\n\r\n<input type=\"hidden\" name=\"clinic_name\" id=\"clinic_name\" oscarDB=clinic_name>\r\n<input type=\"hidden\" name=\"clinic_address\" id=\"clinic_address\" oscarDB=clinic_address>\r\n<input type=\"hidden\" name=\"clinic_addressLine\" id=\"clinic_addressLine\" oscarDB=clinic_addressLine>\r\n<input type=\"hidden\" name=\"clinic_addressLineFull\" id=\"clinic_addressLineFull\" oscarDB=clinic_addressLineFull>\r\n<input type=\"hidden\" name=\"clinic_label\" id=\"clinic_label\" oscarDB=clinic_label>\r\n<input type=\"hidden\" name=\"clinic_fax\" id=\"clinic_fax\" oscarDB=clinic_fax>\r\n<input type=\"hidden\" name=\"clinic_phone\" id=\"clinic_phone\" oscarDB=clinic_phone>\r\n<input type=\"hidden\" name=\"clinic_city\" id=\"clinic_city\" oscarDB=clinic_city>\r\n<input type=\"hidden\" name=\"clinic_province\" id=\"clinic_province\" oscarDB=clinic_province>\r\n<input type=\"hidden\" name=\"clinic_postal\" id=\"clinic_postal\" oscarDB=clinic_postal>\r\n\r\n<input type=\"hidden\" name=\"patient_name\" id=\"patient_name\" oscarDB=patient_name>\r\n<input type=\"hidden\" name=\"first_last_name\" id=\"first_last_name\" oscarDB=first_last_name>\r\n<input type=\"hidden\" name=\"patient_nameF\" id=\"patient_nameF\" oscarDB=patient_nameF >\r\n<input type=\"hidden\" name=\"patient_nameL\" id=\"patient_nameL\" oscarDB=patient_nameL >\r\n<input type=\"hidden\" name=\"label\" id=\"label\" oscarDB=label>\r\n<input type=\"hidden\" name=\"NameAddress\" id=\"NameAddress\" oscarDB=NameAddress>\r\n<input type=\"hidden\" name=\"address\" id=\"address\" oscarDB=address>\r\n<input type=\"hidden\" name=\"addressline\" id=\"addressline\" oscarDB=addressline>\r\n<input type=\"hidden\" name=\"phone\" id=\"phone\" oscarDB=phone>\r\n<input type=\"hidden\" name=\"phone2\" id=\"phone2\" oscarDB=phone2>\r\n<input type=\"hidden\" name=\"province\" id=\"province\" oscarDB=province>\r\n<input type=\"hidden\" name=\"city\" id=\"city\" oscarDB=city>\r\n<input type=\"hidden\" name=\"postal\" id=\"postal\" oscarDB=postal>\r\n<input type=\"hidden\" name=\"dob\" id=\"dob\" oscarDB=dob>\r\n<input type=\"hidden\" name=\"dobc\" id=\"dobc\" oscarDB=dobc>\r\n<input type=\"hidden\" name=\"dobc2\" id=\"dobc2\" oscarDB=dobc2>\r\n<input type=\"hidden\" name=\"hin\" id=\"hin\" oscarDB=hin>\r\n<input type=\"hidden\" name=\"hinc\" id=\"hinc\" oscarDB=hinc>\r\n<input type=\"hidden\" name=\"hinversion\" id=\"hinversion\" oscarDB=hinversion>\r\n<input type=\"hidden\" name=\"ageComplex\" id=\"ageComplex\" oscarDB=ageComplex >\r\n<input type=\"hidden\" name=\"age\" id=\"age\" oscarDB=age >\r\n<input type=\"hidden\" name=\"sex\" id=\"sex\" oscarDB=sex >\r\n<input type=\"hidden\" name=\"chartno\" id=\"chartno\" oscarDB=chartno >\r\n\r\n<input type=\"hidden\" name=\"medical_history\" id=\"medical_history\" oscarDB=medical_history>\r\n<input type=\"hidden\" name=\"recent_rx\" id=\"recent_rx\" oscarDB=recent_rx>\r\n<input type=\"hidden\" name=\"druglist_generic\" id=\"druglist_generic\" oscarDB=druglist_generic>\r\n<input type=\"hidden\" name=\"druglist_trade\" id=\"druglist_trade\" oscarDB=druglist_trade>\r\n<input type=\"hidden\" name=\"druglist_line\" id=\"druglist_line\" oscarDB=druglist_line>\r\n<input type=\"hidden\" name=\"social_family_history\" id=\"social_family_history\" oscarDB=social_family_history>\r\n<input type=\"hidden\" name=\"other_medications_history\" id=\"other_medications_history\" oscarDB=other_medications_history>\r\n<input type=\"hidden\" name=\"reminders\" id=\"reminders\" oscarDB=reminders>\r\n<input type=\"hidden\" name=\"ongoingconcerns\" id=\"ongoingconcerns\" oscarDB=ongoingconcerns >\r\n\r\n<input type=\"hidden\" name=\"provider_name_first_init\" id=\"provider_name_first_init\" oscarDB=provider_name_first_init >\r\n<input type=\"hidden\" name=\"current_user\" id=\"current_user\" oscarDB=current_user >\r\n<input type=\"hidden\" name=\"doctor_work_phone\" id=\"doctor_work_phone\" oscarDB=doctor_work_phone >\r\n<input type=\"hidden\" name=\"doctor\" id=\"doctor\" oscarDB=doctor >\r\n\r\n<input type=\"hidden\" name=\"today\" id=\"today\" oscarDB=today>\r\n\r\n<input type=\"hidden\" name=\"allergies_des\" id=\"allergies_des\" oscarDB=allergies_des >\r\n\r\n<!-- PLACE REFERRAL PLACEHOLDERS HERE WHEN BC APCONFIG FIXED -->\r\n<input type=\"hidden\" name=\"referral_name\" id=\"referral_name\" oscarDB=referral_name>\r\n<input type=\"hidden\" name=\"referral_address\" id=\"referral_address\" oscarDB=referral_address>\r\n<input type=\"hidden\" name=\"referral_phone\" id=\"referral_phone\" oscarDB=referral_phone>\r\n<input type=\"hidden\" name=\"referral_fax\" id=\"referral_fax\" oscarDB=referral_fax>\r\n\r\n<!-- END OF DATABASE PLACEHOLDERS -->\r\n\r\n\r\n<!-- START OF MEASUREMENTS PLACEHOLDERS -->\r\n\r\n<input type=\"hidden\" name=\"BP\" id=\"BP\" oscarDB=m$BP#value>\r\n<input type=\"hidden\" name=\"WT\" id=\"WT\" oscarDB=m$WT#value>\r\n<input type=\"hidden\" name=\"smoker\" id=\"smoker\" oscarDB=m$SMK#value>\r\n<input type=\"hidden\" name=\"dailySmokes\" id=\"dailySmokes\" oscarDB=m$NOSK#value>\r\n<input type=\"hidden\" name=\"A1C\" id=\"A1C\" oscarDB=m$A1C#value>\r\n\r\n<!-- END OF MEASUREMENTS PLACEHOLDERS -->\r\n\r\n\r\n<!-- START OF DERIVED PLACEHOLDERS -->\r\n\r\n<input type=\"hidden\" name=\"he_she\" id=\"he_she\" value=\"he\">\r\n<input type=\"hidden\" name=\"his_her\" id=\"his_her\" value=\"his\">\r\n<input type=\"hidden\" name=\"gender\" id=\"gender\" value=\"male\">\r\n<input type=\"hidden\" name=\"referral_nameL\" id=\"referral_nameL\" value=\"Referring Doctor\">\r\n<input type=\"hidden\" name=\"letterhead\" id=\"letterhead\" value=\"Letterhead\">\r\n\r\n<!-- END OF DERIVED PLACEHOLDERS -->\r\n\r\n\r\n<textarea name=\"Letter\" id=\"Letter\" style=\"width:600px; display: none;\"></textarea>\r\n\r\n<div class=\"DoNotPrint\" id=\"control3\" style=\"position:absolute; top:20px; left: 660px;\">\r\n<input type=\"button\" class=\"butn\" name=\"AddLetterhead\" id=\"AddLetterhead\" value=\"Letterhead\" \r\n	onclick=\"doHtml(document.getElementById(\'letterhead\').value);\">\r\n\r\n<br>\r\n<!--\r\n<input type=\"button\" class=\"butn\" name=\"certificate\" value=\"Work Note\" \r\n	onclick=\"document.RichTextLetter.AddLetterhead.click();\r\n 	doHtml(\'<p>\'+doDate()+\'<p>This is to certify that I have today examined <p>\');\r\n	document.RichTextLetter.AddLabel.click();\r\n	doHtml(\'In my opinion, \'+document.getElementById(\'he_she\').value+\' will be unfit for \'+document.getElementById(\'his_her\').value+\' normal work from today to * inclusive.\');\r\n	document.RichTextLetter.Closing.click();\">\r\n<br>\r\n\r\n<input type=\"button\" class=\"butn\" name=\"consult\" value=\"Consult Letter\" \r\n	onclick=\"  var ref=document.getElementById(\'referral_name\').value.toString(); var mySplitResult = ref.split(\',\');\r\n	var gender=document.getElementById(\'sex\').value; if (gender==\'M\'){gender=\'male\';}; if (gender==\'F\'){gender=\'female\';};\r\n	var years=document.getElementById(\'ageComplex\').value; if (years==\'\'){years=document.getElementById(\'age\').value + \'yo\';};\r\n	document.RichTextLetter.AddLetterhead.click();\r\n	doHtml(\'<p>\'+doDate()+\'<p>\');\r\n	document.RichTextLetter.AddReferral.click();\r\n	doHtml(\'<p>RE:&nbsp\');\r\n	document.RichTextLetter.AddLabel.click();\r\n	doHtml(\'<p>Dear Dr. \'+mySplitResult[0]+\'<p>Thank you for asking me to see this \'+years+ \' \' +gender);\r\n	document.RichTextLetter.Closing.click(); \">\r\n<br>\r\n-->\r\n<input type=\"button\" class=\"butn\" name=\"AddReferral\" id=\"AddReferral\" value=\"Referring Block\" \r\n	onclick=\"doHtml(document.getElementById(\'referral_name\').value+\'<br>\'+ document.getElementById(\'referral_address\').value +\'<br>CANADA<br> Tel: \'+ document.getElementById(\'referral_phone\').value+\'<br>Fax:  \'+document.getElementById(\'referral_fax\').value);\">\r\n\r\n<br>\r\n\r\n<input type=\"button\" class=\"butn\" name=\"AddLabel\" id=\"AddLabel\" value=\"Patient Block\" \r\n	onclick=\"doHtml(document.getElementById(\'label\').value);\">\r\n\r\n<br>\r\n\r\n<br>\r\n<input type=\"button\"  class=\"butn\" name=\"MedicalHistory\" value=\"Recent History\" width=30\r\n	onclick=\"var hist=parseText(document.getElementById(\'medical_history\').value); doHtml(hist);\">\r\n<br>\r\n<input type=\"button\"  class=\"butn\" name=\"AddMedicalHistory\" value=\"Full History\" width=30\r\n	onclick=\"doHtml(document.getElementById(\'medical_history\').value); \">\r\n<br>\r\n<input type=\"button\" class=\"butn\" name=\"RecentMedications\" id=\"RecentMedications\" value=\"Recent Prescriptions\"\r\n	onclick=\"doHtml(document.getElementById(\'recent_rx\').value);\">\r\n<br>\r\n<input type=\"button\" class=\"butn\" name=\"Medlist\" id=\"Medlist\" value=\"Medication List\"\r\n	onclick=\"doHtml(document.getElementById(\'druglist_trade\').value);\">\r\n<br>\r\n<input type=\"button\" class=\"butn\" name=\"Allergies\" id=\"Allergies\" value=\"Meds & Allergies\"\r\n	onclick=\"var allergy=document.getElementById(\'allergies_des\').value; if (allergy.length>0){allergy=\'<br>Allergies: \'+allergy};doHtml(\'Medications: \'+document.getElementById(\'druglist_line\').value+allergy);\">\r\n<br>\r\n<input type=\"button\" class=\"butn\" name=\"OtherMedicationsHistory\" value=\"Family History\"\r\n	onclick=\"var hist=parseText(document.getElementById(\'other_medications_history\').value); doHtml(hist);\">\r\n<br>\r\n<input type=\"button\" class=\"butn\" name=\"AddOtherMedicationsHistory\" value=\"Full Family Hx\"\r\n	onclick=\"doHtml(document.getElementById(\'other_medications_history\').value); \">\r\n\r\n<br>\r\n<input type=\"button\" class=\"butn\" name=\"AddSocialFamilyHistory\" value=\"Social History\" \r\n	onclick=\"var hist=parseText(document.getElementById(\'social_family_history\').value); doHtml(hist);\">\r\n<br>\r\n<input type=\"button\" class=\"butn\" name=\"AddReminders\" value=\"Reminders\"\r\n	onclick=\"var hist=parseText(document.getElementById(\'reminders\').value); doHtml(hist);\">\r\n<br>\r\n<input type=\"button\" class=\"butn\" name=\"AddOngoingConcerns\" value=\"Ongoing Concerns\"\r\n	onclick=\"var hist=parseText(document.getElementById(\'ongoingconcerns\').value); doHtml(hist);\">\r\n<br>\r\n<br>\r\n<input type=\"button\" class=\"butn\" name=\"Patient\" value=\"Patient Name\"\r\n	onclick=\" doHtml(document.getElementById(\'first_last_name\').value);\">\r\n\r\n<br>\r\n<input type=\"button\" class=\"butn\" name=\"PatientAge\" value=\"Patient Age\"\r\n	onclick=\"var hist=document.getElementById(\'ageComplex\').value; if (hist==\'\'){hist=document.getElementById(\'age\').value;}; doHtml(hist);\">\r\n<br>\r\n<input type=\"button\" class=\"butn\" name=\"label\" value=\"Patient Label\"\r\n	onclick=\"var hist=document.getElementById(\'label\').value; doHtml(hist);\">\r\n\r\n\r\n<br>\r\n<input type=\"button\" class=\"butn\" name=\"PatientSex\" value=\"Patient Gender\"\r\n	onclick=\"doHtml(document.getElementById(\'sex\').value);\">\r\n<br>\r\n<br>\r\n<input type=\"button\" class=\"butn\" name=\"Closing\" value=\"Closing Salutation\" \r\n	onclick=\" doHtml(\'<p>Yours Sincerely<p>&nbsp;<p>\'+ document.getElementById(\'provider_name_first_init\').value+\', MD\');\">\r\n \r\n<br>\r\n<input type=\"button\" class=\"butn\" name=\"User\" value=\"Current User\"\r\n	onclick=\"var hist=document.getElementById(\'current_user\').value; doHtml(hist);\">\r\n \r\n<br>\r\n<input type=\"button\" class=\"butn\" name=\"Doctor\" value=\"Attending Doctor\"\r\n	onclick=\"var hist=document.getElementById(\'doctor\').value; doHtml(hist);\">\r\n<br>\r\n<br>\r\n\r\n\r\n<br>\r\n</div>\r\n\r\n\r\n<div class=\"DoNotPrint\" >\r\n<input onclick=\"viewsource(this.checked)\" type=\"checkbox\">\r\nHTML Source\r\n<input onclick=\"usecss(this.checked)\" type=\"checkbox\">\r\nUse CSS\r\n	<table><tr><td>\r\n		 Subject: <input name=\"subject\" id=\"subject\" size=\"40\" type=\"text\">\r\n		 <input value=\"Submit\" name=\"SubmitButton\" type=\"submit\" onclick=\"needToConfirm=false;document.getElementById(\'Letter\').value=editControlContents(\'edit\');  document.RichTextLetter.submit()\">\r\n		 <input value=\"Reset\" name=\"ResetButton\" type=\"reset\">\r\n		 <input value=\"Print\" name=\"PrintButton\" type=\"button\" onclick=\"document.getElementById(\'edit\').contentWindow.print();\">\r\n		 <input value=\"Print & Save\" name=\"PrintSaveButton\" type=\"button\" onclick=\"document.getElementById(\'edit\').contentWindow.print();needToConfirm=false;document.getElementById(\'Letter\').value=editControlContents(\'edit\');  setTimeout(\'document.RichTextLetter.submit()\',1000);\">\r\n	 </td></tr></table>\r\n </div>\r\n </form>\r\n\r\n</body></html>\r\n',0,NULL);
+INSERT INTO eform VALUES (2,'Rich Text Letter',NULL,'Rich Text Letter Generator','2012-06-01','10:00:00',NULL,0,'<html><head>\n<meta http-equiv=\"content-type\" content=\"text/html; charset=UTF-8\">\n\n<title>Rich Text Letter</title>\n<style type=\"text/css\">\n.butn {width: 140px;}\n</style>\n\n<style type=\"text/css\" media=\"print\">\n.DoNotPrint {display: none;}\n\n</style>\n<script language=\"javascript\" type=\"text/javascript\" src=\"${oscar_javascript_path}jquery/jquery-1.4.2.js\"></script>\n\n<script language=\"javascript\">\nvar needToConfirm = false;\n\n//keypress events trigger dirty flag for the iFrame and the subject line\ndocument.onkeyup=setDirtyFlag\n\n\nfunction setDirtyFlag() {\n	needToConfirm = true; \n}\n\nfunction releaseDirtyFlag() {\n	needToConfirm = false; //Call this function if dosent requires an alert.\n	//this could be called when save button is clicked\n}\n\n\nwindow.onbeforeunload = confirmExit;\n\nfunction confirmExit() {\n	if (needToConfirm)\n	return \"You have attempted to leave this page. If you have made any changes without clicking the Submit button, your changes will be lost. Are you sure you want to exit this page?\";\n}\n\n</script>\n\n\n\n</head><body bgcolor=\"FFFFFF\" onload=\"Start();\">\n\n\n<!-- START OF EDITCONTROL CODE --> \n\n<script language=\"javascript\" type=\"text/javascript\" src=\"${oscar_javascript_path}eforms/editControl.js\"></script>\n<script language=\"javascript\" type=\"text/javascript\" src=\"${oscar_javascript_path}eforms/APCache.js\"></script>\n<script language=\"javascript\" type=\"text/javascript\" src=\"${oscar_javascript_path}eforms/imageControl.js\"></script>\n<script language=\"javascript\" type=\"text/javascript\" src=\"${oscar_javascript_path}eforms/faxControl.js\"></script>\n<script language=\"javascript\" type=\"text/javascript\" src=\"${oscar_javascript_path}eforms/signatureControl.jsp\"></script>\n<script language=\"javascript\" type=\"text/javascript\" src=\"${oscar_javascript_path}eforms/printControl.js\"></script>\n\n<script language=\"javascript\">\n	//put any of the optional configuration variables that you want here\n	cfg_width = \'840\'; //editor control width in pixels\n	cfg_height = \'520\'; //editor control height in pixels\n	cfg_editorname = \'edit\'; //the handle for the editor                  \n	cfg_isrc = \'../eform/displayImage.do?imagefile=\'; //location of the button icon files\n	cfg_filesrc = \'../eform/displayImage.do?imagefile=\'; //location of the html files\n	cfg_template = \'blank.rtl\'; //default style and content template\n	cfg_formattemplate = \'<option value=\"\"> loading... </option></select>\';\n	//cfg_layout = \'[all]\';             //adjust the format of the buttons here\n	cfg_layout = \'<table style=\"background-color:ccccff; width:840px\"><tr id=control1><td>[bold][italic][underlined][strike][subscript][superscript]|[left][center][full][right]|[unordered][ordered][rule]|[undo][redo]|[indent][outdent][select-all][clean]|[table]</td></tr><tr id=control2><td>[select-block][select-face][select-size][select-template]|[image][clock][date][spell][help]</td></tr></table>[edit-area]\';\n	insertEditControl(); // Initialise the edit control and sets it at this point in the webpage\n\n	\n	function gup(name, url)\n	{\n		if (url == null) { url = window.location.href; }\n		name = name.replace(/[\\[]/,\"\\\\\\[\").replace(/[\\]]/,\"\\\\\\]\");\n		var regexS = \"[\\\\?&]\"+name+\"=([^&#]*)\";\n		var regex = new RegExp(regexS);\n		var results = regex.exec(url);\n		if (results == null) { return \"\"; }\n		else { return results[1]; }\n	}\n	var demographicNo =\"\";\n\n	jQuery(document).ready(function(){\n		demographicNo = gup(\"demographic_no\");\n		if (demographicNo == \"\") { demographicNo = gup(\"efmdemographic_no\", jQuery(\"form\").attr(\'action\')); }\n		if (typeof signatureControl != \"undefined\") {\n			signatureControl.initialize({\n				sigHTML:\"../signature_pad/tabletSignature.jsp?inWindow=true&saveToDB=true&demographicNo=\",\n				demographicNo:demographicNo,\n				refreshImage: function (e) {\n					var html = \"<img src=\'\"+e.storedImageUrl+\"&r=\"+ Math.floor(Math.random()*1001) +\"\'></img>\";\n					doHtml(html);		\n				},\n				signatureInput: \"#signatureInput\"	\n			});\n		}		\n	});\n		\n	var cache = createCache({\n		defaultCacheResponseHandler: function(type) {\n			if (checkKeyResponse(type)) {\n				doHtml(cache.get(type));\n			}			\n			\n		},\n		cacheResponseErrorHandler: function(xhr, error) {\n			alert(\"Please contact an administrator, an error has occurred.\");			\n			\n		}\n	});	\n	\n	function checkKeyResponse(response) {		\n		if (cache.isEmpty(response)) {\n			alert(\"The requested value has no content.\");\n			return false;\n		}\n		return true;\n	}\n	\n	function printKey (key) {\n		var value = cache.lookup(key); \n		if (value != null && checkKeyResponse(key)) { doHtml(cache.get(key)); } 		  \n	}\n	\n	function submitFaxButton() {\n		document.getElementById(\'faxEForm\').value=true;\n		needToConfirm=false;\n		document.getElementById(\'Letter\').value=editControlContents(\'edit\');\n		setTimeout(\'document.RichTextLetter.submit()\',1000);\n	}\n	\n	cache.addMapping({\n		name: \"_SocialFamilyHistory\",\n		values: [\"social_family_history\"],\n		storeInCacheHandler: function(key,value) {\n			cache.put(this.name, cache.get(\"social_family_history\").replace(/(<br>)+/g,\"<br>\"));\n		},\n		cacheResponseHandler:function () {\n			if (checkKeyResponse(this.name)) {				\n				doHtml(cache.get(this.name));\n			}	\n		}\n	});\n	\n	\n	cache.addMapping({name: \"template\", cacheResponseHandler: populateTemplate});	\n	\n	cache.addMapping({\n		name: \"_ClosingSalutation\", \n		values: [\"provider_name_first_init\"],	\n		storeInCacheHandler: function (key,value) {\n			if (!cache.isEmpty(\"provider_name_first_init\")) {\n				cache.put(this.name, \"<p>Yours Sincerely<p>&nbsp;<p>\" + cache.get(\"provider_name_first_init\") + \", MD\");\n			}\n		},\n		cacheResponseHandler:function () {\n			if (checkKeyResponse(this.name)) {				\n				doHtml(cache.get(this.name));\n			}	\n		}\n	});\n	\n	cache.addMapping({\n		name: \"_ReferringBlock\", \n		values: [\"referral_name\", \"referral_address\", \"referral_phone\", \"referral_fax\"], 	\n		storeInCacheHandler: function (key, value) {\n			var text = \n				(!cache.isEmpty(\"referral_name\") ? cache.get(\"referral_name\") + \"<br>\" : \"\") \n			  + (!cache.isEmpty(\"referral_address\") ? cache.get(\"referral_address\") + \"<br>\" : \"\")\n			  + (!cache.isEmpty(\"referral_phone\") ? \"Tel: \" + cache.get(\"referral_phone\") + \"<br>\" : \"\")\n			  + (!cache.isEmpty(\"referral_fax\") ? \"Fax: \" + cache.get(\"referral_fax\") + \"<br>\" : \"\");						  						 \n			cache.put(this.name, text)\n		},\n		cacheResponseHandler: function () {\n			if (checkKeyResponse(this.name)) {\n				doHtml(cache.get(this.name));\n			}\n		}\n	});\n	\n	cache.addMapping({\n		name: \"letterhead\", \n		values: [\"clinic_name\", \"clinic_fax\", \"clinic_phone\", \"clinic_addressLineFull\", \"doctor\", \"doctor_contact_phone\", \"doctor_contact_fax\", \"doctor_contact_addr\"], \n		storeInCacheHandler: function (key, value) {\n			var text = genericLetterhead();\n			cache.put(\"letterhead\", text);\n		},\n		cacheResponseHandler: function () {\n			if (checkKeyResponse(this.name)) {\n				doHtml(cache.get(this.name));\n			}\n		}\n	});\n	\n	cache.addMapping({\n		name: \"referral_nameL\", \n		values: [\"referral_name\"], \n		storeInCacheHandler: function(_key,_val) { \n		if (!cache.isEmpty(\"referral_name\")) {\n				var mySplitResult =  cache.get(\"referral_name\").toString().split(\",\");\n				cache.put(\"referral_nameL\", mySplitResult[0]);\n			} \n		}\n	});\n	\n	cache.addMapping({\n		name: \"complexAge\", \n		values: [\"complexAge\"], \n		cacheResponseHandler: function() {\n			if (cache.isEmpty(\"complexAge\")) { \n				printKey(\"age\"); \n			}\n			else {\n				if (checkKeyResponse(this.name)) {\n					doHtml(cache.get(this.name));\n				}\n			}\n		}\n	});\n	\n	// Setting up many to one mapping for derived gender keys.\n	var genderKeys = [\"he_she\", \"his_her\", \"gender\"];	\n	var genderIndex;\n	for (genderIndex in genderKeys) {\n		cache.addMapping({ name: genderKeys[genderIndex], values: [\"sex\"]});\n	}\n	cache.addMapping({name: \"sex\", values: [\"sex\"], storeInCacheHandler: populateGenderInfo});\n	\n	function isGenderLookup(key) {\n		var y;\n		for (y in genderKeys) { if (genderKeys[y] == key) { return true; } }\n		return false;\n	}\n	\n	function populateGenderInfo(key, val){\n		if (val == \'F\') {\n			cache.put(\"sex\", \"F\");\n			cache.put(\"he_she\", \"she\");\n			cache.put(\"his_her\", \"her\");\n			cache.put(\"gender\", \"female\");				\n		}\n		else {\n			cache.put(\"sex\", \"M\");\n			cache.put(\"he_she\", \"he\");\n			cache.put(\"his_her\", \"him\");\n			cache.put(\"gender\", \"male\");				\n		}\n	}\n	\n	function Start() {\n		\n			$.ajax({\n				url : \"efmformrtl_templates.jsp\",\n				success : function(data) {\n					$(\"#template\").html(data);\n					loadDefaultTemplate();\n				}\n			});\n	\n			$(\".cacheInit\").each(function() { \n				cache.put($(this).attr(\'name\'), $(this).val());\n				$(this).remove();				\n			});\n			\n			// set eventlistener for the iframe to flag changes in the text displayed \n			var agent = navigator.userAgent.toLowerCase(); //for non IE browsers\n			if ((agent.indexOf(\"msie\") == -1) || (agent.indexOf(\"opera\") != -1)) {\n				document.getElementById(cfg_editorname).contentWindow\n						.addEventListener(\'keypress\', setDirtyFlag, true);\n			}\n				\n			// set the HTML contents of this edit control from the value saved in Oscar (if any)\n			var contents = document.getElementById(\'Letter\').value\n			if (contents.length == 0) {\n				parseTemplate();\n			} else {\n				seteditControlContents(cfg_editorname, contents);\n			}\n	}\n\n	function htmlLine(text) {\n		return text.replace(/\\r?\\n/g,\"<br>\");\n	}\n\n	function genericLetterhead() {\n		// set the HTML contents of the letterhead\n		var address = \'<table border=0><tbody><tr><td><font size=6>\'\n				+ cache.get(\'clinic_name\')\n				+ \'</font></td></tr><tr><td><font size=2>\'\n				+ cache.get(\'doctor_contact_addr\')\n				+ \' Fax: \' + cache.get(\'doctor_contact_fax\')\n				+ \' Phone: \' + cache.get(\'doctor_contact_phone\')\n				+ \'</font><hr></td></tr></tbody></table><br>\';\n		\n		return address;\n	}\n\n	function fhtLetterhead() {\n		// set the HTML contents of the letterhead using FHT colours\n		var address = cache.get(\'clinic_addressLineFull\')\n				+ \'<br>Fax:\' + cache.get(\'clinic_fax\')\n				+ \' Phone:\' + cache.get(\'clinic_phone\');\n		if (cache.contains(\"doctor\") && cache.get(\'doctor\').indexOf(\'zapski\') > 0) {\n			address = \'293 Meridian Avenue, Haileybury, ON P0J 1K0<br> Tel 705-672-2442 Fax 705-672-2384\';\n		}\n		address = \'<table style=\\\'text-align: right;\\\' border=\\\'0\\\'><tbody><tr style=\\\'font-style: italic; color: rgb(71, 127, 128);\\\'><td><font size=\\\'+2\\\'>\'\n				+ cache.get(\'clinic_name\')\n				+ \'</font> <hr style=\\\'width: 100%; height: 3px; color: rgb(212, 118, 0); background-color: rgb(212, 118, 0);\\\'></td> </tr> <tr style=\\\'color: rgb(71, 127, 128);\\\'> <td><font size=\\\'+1\\\'>Family Health Team<br> &Eacute;quipe Sant&eacute; Familiale</font></td> </tr> <tr style=\\\'color: rgb(212, 118, 0); \\\'> <td><small>\'\n				+ address + \'</small></td> </tr> </tbody> </table>\';\n		return address;\n	}\n\n	var formIsRTL = true;\n\n</script>\n\n<!-- END OF EDITCONTROL CODE -->\n\n\n<form method=\"post\" action=\"\" name=\"RichTextLetter\" >\n\n<textarea name=\"Letter\" id=\"Letter\" style=\"width:600px; display: none;\"></textarea>\n\n<div class=\"DoNotPrint\" id=\"control3\" style=\"position:absolute; top:20px; left: 860px;\">\n\n<!-- Letter Head -->\n<input type=\"button\" class=\"butn\" name=\"AddLetterhead\" id=\"AddLetterhead\" value=\"Letterhead\" onclick=\"printKey(\'letterhead\');\">\n<br>\n\n<!-- Referring Block -->\n<input type=\"button\" class=\"butn\" name=\"AddReferral\" id=\"AddReferral\" value=\"Referring Block\" onclick=\"printKey(\'_ReferringBlock\');\">\n<br>\n\n<!-- Patient Block -->\n<input type=\"button\" class=\"butn\" name=\"AddLabel\" id=\"AddLabel\" value=\"Patient Block\" onclick=\"printKey(\'label\');\">\n<br>\n<br> \n\n<!-- Social History -->\n<input type=\"button\" class=\"butn\" name=\"AddSocialFamilyHistory\" value=\"Social History\" onclick=\"var hist=\'_SocialFamilyHistory\';printKey(hist);\">\n<br>\n\n<!--  Medical History -->\n<input type=\"button\"  class=\"butn\" name=\"AddMedicalHistory\" value=\"Medical History\" width=30 onclick=\"printKey(\'medical_history\'); \">\n<br>\n\n<!--  Ongoing Concerns -->\n\n<input type=\"button\" class=\"butn\" name=\"AddOngoingConcerns\" value=\"Ongoing Concerns\" onclick=\"var hist=\'ongoingconcerns\'; printKey(hist);\">\n<br>\n\n<!-- Reminders -->\n<input type=\"button\" class=\"butn\" name=\"AddReminders\" value=\"Reminders\"\n	onclick=\"var hist=\'reminders\'; printKey(hist);\">\n<br>\n\n<!-- Allergies -->\n<input type=\"button\" class=\"butn\" name=\"Allergies\" id=\"Allergies\" value=\"Allergies\" onclick=\"printKey(\'allergies_des\');\">\n<br>\n\n<!-- Prescriptions -->\n<input type=\"button\" class=\"butn\" name=\"Medlist\" id=\"Medlist\" value=\"Prescriptions\"	onclick=\"printKey(\'druglist_trade\');\">\n<br>\n\n<!-- Other Medications -->\n<input type=\"button\" class=\"butn\" name=\"OtherMedicationsHistory\" value=\"Other Medications\" onclick=\"printKey(\'other_medications_history\'); \">\n\n<br>\n\n<!-- Risk Factors -->\n<input type=\"button\" class=\"butn\" name=\"RiskFactors\" value=\"Risk Factors\" onclick=\"printKey(\'riskfactors\'); \">\n<br>\n\n<!-- Family History -->\n<input type=\"button\" class=\"butn\" name=\"FamilyHistory\" value=\"Family History\" onclick=\"printKey(\'family_history\'); \">\n<br>\n<br>\n\n<!-- Patient Name --> \n<input type=\"button\" class=\"butn\" name=\"Patient\" value=\"Patient Name\" onclick=\"printKey(\'first_last_name\');\">\n<br>\n\n<!-- Patient Age -->\n<input type=\"button\" class=\"butn\" name=\"PatientAge\" value=\"Patient Age\" onclick=\"var hist=\'ageComplex\'; printKey(hist);\">\n\n<br>\n\n<!-- Patient Label -->\n<input type=\"button\" class=\"butn\" name=\"label\" value=\"Patient Label\" onclick=\"hist=\'label\';printKey(hist);\">\n<br>\n\n<input type=\"button\" class=\"butn\" name=\"PatientSex\" value=\"Patient Gender\" onclick=\"printKey(\'sex\');\">\n<br>\n<br>\n\n<!-- Closing Salutation -->\n<input type=\"button\" class=\"butn\" name=\"Closing\" value=\"Closing Salutation\" onclick=\"printKey(\'_ClosingSalutation\');\">\n<br>\n\n<!--  Current User -->\n<input type=\"button\" class=\"butn\" name=\"User\" value=\"Current User\" onclick=\"var hist=\'current_user\'; printKey(hist);\">\n<br>\n\n<!-- Attending Doctor -->\n<input type=\"button\" class=\"butn\" name=\"Doctor\" value=\"Doctor (MRP)\" onclick=\"var hist=\'doctor\'; printKey(hist);\">\n<br>\n<br>\n\n</div>\n\n\n<div class=\"DoNotPrint\" >\n<input onclick=\"viewsource(this.checked)\" type=\"checkbox\">\nHTML Source\n<input onclick=\"usecss(this.checked)\" type=\"checkbox\">\nUse CSS\n	<table><tr><td>\n		 Subject: <input name=\"subject\" id=\"subject\" size=\"40\" type=\"text\">		 \n	 </td></tr></table>\n\n \n <div id=\"signatureInput\">&nbsp;</div>\n\n <div id=\"faxControl\">&nbsp;</div>\n \n<br>\n\n<input value=\"Submit\" name=\"SubmitButton\" type=\"submit\" onclick=\"needToConfirm=false;document.getElementById(\'Letter\').value=editControlContents(\'edit\');  document.RichTextLetter.submit()\">\n<input value=\"Print\" name=\"PrintSaveButton\" type=\"button\" onclick=\"document.getElementById(\'edit\').contentWindow.print();needToConfirm=false;document.getElementById(\'Letter\').value=editControlContents(\'edit\');  setTimeout(\'document.RichTextLetter.submit()\',1000);\">\n<input value=\"Reset\" name=\"ResetButton\" type=\"reset\">\n<input value=\"Print\" name=\"PrintButton\" type=\"button\" onclick=\"document.getElementById(\'edit\').contentWindow.print();\">\n\n\n    	</div>\n\n</form>\n\n</body></html>',0,NULL);
 
 --
 -- Dumping data for table 'eform_data'
@@ -483,10 +425,8 @@ INSERT INTO encounterForm VALUES ('Growth 0-36m', '../form/formGrowth0_36.jsp?de
 INSERT INTO encounterForm VALUES ('Letterhead', '../form/formConsultant.jsp?demographic_no=', 'formConsult', 0);
 INSERT INTO `encounterForm`(`form_name`,`form_value`,`form_table`,`hidden`) VALUES ('CHF','../form/formchf.jsp?demographic_no=','formchf',0);
 INSERT INTO `encounterForm`(`form_name`,`form_value`,`form_table`,`hidden`) VALUES ('Health Passport', '../form/formbchp.jsp?demographic_no=', 'formBCHP', 0);
-insert into encounterForm values ('ON AR Enhanced','../form/formonarenhanced.jsp?demographic_no=','formONAREnhancedRecord',0);
+insert into encounterForm values ('ON AR Enhanced','../form/formonarenhanced.jsp?demographic_no=','formONAREnhanced',0);
 INSERT INTO `encounterForm` (`form_name`, `form_value`, `form_table`, `hidden`) VALUES ('HMP Form','../form/HSFOForm2.do?demographic_no=','form_hsfo2_visit',1);
-INSERT INTO encounterForm VALUES ('Student Intake Hx','../form/formIntakeHx.jsp?demographic_no=','formIntakeHx', '0');
-insert into encounterForm (`form_name`, `form_value`, `form_table`, `hidden`) values('Patient Encounter Worksheet','../form/patientEncounterWorksheet.jsp?demographic_no=','',0);
 
 --
 -- Dumping data for table 'encountertemplate'
@@ -1202,27 +1142,21 @@ INSERT INTO `measurementType` (`type`, `typeDisplayName`, `typeDescription`, `me
 ( '5DAA', '5 Day Adherence if on ART', '5 Day Adherence if on ART', 'number', '4', '2013-02-01 00:00:00'),
 ( 'A1C', 'A1C', 'A1C', 'Range:0.040-0.200', '3', '2013-02-01 00:00:00'),
 ( 'AACP', 'Asthma Action Plan ', 'Asthma Action Plan ', 'Yes/No', '7', '2013-02-01 00:00:00'),
-( 'ABO', 'Blood Group', 'ABO RhD blood type group', 'Blood Type', '11', '2014-05-09 00:00:00'),
 ( 'ACOS', 'Asthma Coping Strategies', 'Asthma Coping Strategies', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'ACR', 'Alb creat ratio', 'ACR', 'in mg/mmol', '5', '2013-02-01 00:00:00'),
 ( 'ACS', 'Acute Conronary Syndrome', 'Acute Conronary Syndrome', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'AEDR', 'Asthma Education Referral', 'Asthma Education Referral', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'AELV', 'Exacerbations since last visit requiring clincal evaluation', 'Exacerbations since last visit requiring clincal evaluation', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'AENC', 'Asthma Environmental Control', 'Asthma Environmental Control', 'Yes/No', '7', '2013-02-01 00:00:00'),
-( 'AFP', 'AFP', 'Alpha Fetoprotein', 'ug/L Range under 7', '5', '2014-05-09 00:00:00'),
 ( 'AHGM', 'Anit-hypoglycemic Medication', 'Anit-hypoglycemic Medication', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'AIDU', 'Active Intravenous Drug Use', 'Active Intravenous Drug Use', 'Yes/No', '7', '2013-02-01 00:00:00'),
-( 'ALB', 'Albumin', 'Serum Albumin', 'g/L Range 35-50', '5', '2014-05-09 00:00:00'),
 ( 'ALC', 'Alcohol', 'Alcohol', 'Yes/No/X', '12', '2013-02-01 00:00:00'),
-( 'ALP', 'ALP', 'Alkaline Phosphatase', 'U/L Range 50-300', '14', '2014-05-09 00:00:00'),
 ( 'ALPA', 'Asthma Limits Physical Activity', 'Asthma Limits Physical Activity', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'ALT', 'ALT', 'ALT', 'in U/L', '5', '2013-02-01 00:00:00'),
-( 'ANA', 'ANA', 'Antinuclear Antibodies', 'result', '17', '2014-05-09 00:00:00'),
 ( 'Ang', 'Angina', 'Angina', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'ANR', 'Asthma Needs Reliever   ', 'Asthma Needs Reliever   ', 'frequency per week', '14', '2013-02-01 00:00:00'),
 ( 'ANSY', 'Asthma Night Time Symtoms', 'Asthma Night Time Symtoms', 'frequency per week', '14', '2013-02-01 00:00:00'),
 ( 'AORA', 'ACE-I OR ARB', 'ACE-I OR ARB', 'Yes/No', '7', '2013-02-01 00:00:00'),
-( 'APOB', 'APO B', 'Apolipoprotein B', 'g/L Range 0.5-1.2', '14', '2014-05-09 00:00:00'),
 ( 'ARAD', 'Review Asthma Definition', 'Review Asthma Definition', 'Review Asthma Definition', '7', '2013-02-01 00:00:00'),
 ( 'ARDT', 'Asthma  Review Device Technique optimal', 'Asthma  Review Device Technique optimal', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'ARMA', 'Asthma Review Med Adherence', 'Asthma Review Med Adherence', 'Asthma Review Med Adherence', '7', '2013-02-01 00:00:00'),
@@ -1234,48 +1168,30 @@ INSERT INTO `measurementType` (`type`, `typeDisplayName`, `typeDescription`, `me
 ( 'ASYM', 'Asthma Symptoms', 'Asthma Symptoms', 'frequency per week', '14', '2013-02-01 00:00:00'),
 ( 'BCTR', 'Birth Control', 'Birth Control', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'BG', 'Blood Glucose', 'Blood Glucose', 'in mmol/L (nn.n) Range:1.5-30.0', '7', '2013-02-01 00:00:00'),
-( 'BILI', 'Bilirubin', 'Total Bilirubin', 'umol/L Range under 20', '14', '2014-05-09 00:00:00'),
 ( 'BMED', 'Blood Pressure Medication Changes', 'BP Med Changes', 'Changed', '7', '2013-02-01 00:00:00'),
 ( 'BMI', 'Body Mass Index', 'BMI', 'BMI', '4', '2013-02-01 00:00:00'),
 ( 'BP', 'BP', 'Blood Pressure', 'BP Tru', '6', '2013-02-01 00:00:00'),
 ( 'BP', 'BP', 'Blood Pressure', 'supine', '6', '2013-02-01 00:00:00'),
 ( 'BP', 'BP', 'Blood Pressure', 'standing position', '6', '2013-02-01 00:00:00'),
 ( 'BP', 'BP', 'Blood Pressure', 'sitting position', '6', '2013-02-01 00:00:00'),
-( 'BPII', 'BPI Pain Interference', 'BPI Pain Interference', 'null', '2', '2013-07-25 13:00:00'),
-( 'BPIS', 'BPI Pain Severity', 'BPI Pain Severity', 'null', '2', '2013-07-25 00:00:00'),
-( 'BTFT', 'Brush teeth with fluoride toothpaste', 'NULL', 'Yes/No', '7', '2013-10-25 13:00:00'),
-( 'BUN', 'BUN', 'Blood Urea Nitrogen', 'mmol/L Range 2-9', '14', '2014-05-09 00:00:00'),
-( 'C125', 'CA 125', 'CA 125', 'kU/L Range under 36', '14', '2014-05-09 00:00:00'),
-( 'C153', 'CA 15-3', 'CA 15-3', 'kU/L Range under 23', '14', '2014-05-09 00:00:00'),
-( 'C199', 'CA 19-9', 'CA 19-9', 'kU/L Range under 27', '14', '2014-05-09 00:00:00'),
-( 'C3', 'C3', 'Complement component 3', 'umol/L', '14', '2014-05-09 00:00:00'),
-( 'CA', 'Calcium', 'Calcium', 'mmol/L', '14', '2014-05-09 00:00:00'),
 ( 'CASA', 'Consider ASA', 'Consider ASA', 'Yes/No', '7', '2013-02-01 00:00:00'),
-( 'CAVD', 'Calcium and Vitamin D', 'NULL', 'Review', '16', '2014-01-23 13:00:00'),
 ( 'CD4', 'CD4', 'CD4', 'in x10e9/l', '14', '2013-02-01 00:00:00'),
 ( 'CD4P', 'CD4 Percent', 'CD4 Percent', 'in %', '4', '2013-02-01 00:00:00'),
 ( 'CDMP', 'Attended CDM Self Management Program', 'Attended CDM Self Management Program', 'Yes/No', '7', '2013-02-01 00:00:00'),
-( 'CEA', 'CEA', 'CEA', 'umol/L', '14', '2014-05-09 00:00:00'),
 ( 'CEDE', 'Education Exercise', 'Education Exercise', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'CEDM', 'Education Patient Meds', 'Education Patient Meds', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'CEDS', 'Education Salt fluid ', 'Education Salt fluid ', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'CEDW', 'Education Daily Weight Monitoring', 'Education Daily Weight Monitoring', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'CERV', 'ER visits for HF', 'ER visits for HF', 'integer', '2', '2013-02-01 00:00:00'),
 ( 'CGSD', 'Collaborative Goal Setting', 'Collaborative Goal Setting', 'Yes/No', '7', '2013-02-01 00:00:00'),
-( 'CHLM', 'CHLM', 'Chlamydia', 'test result', '17', '2014-05-09 00:00:00'),
 ( 'CIMF', 'Child Immunization recall', 'Child Immunization Follow up', 'Patient Contacted by Letter or Phone', '11', '2013-02-01 00:00:00'),
-( 'CK', 'CK', 'Creatinine Kinase', 'U/L', '14', '2014-05-09 00:00:00'),
-( 'Clpl', 'Chloride', 'Chloride', 'mmol/L Range 98-106', '5', '2014-05-09 00:00:00'),
-( 'CMBS', 'Coombs', 'Coombs', 'test result', '17', '2014-05-09 00:00:00'),
 ( 'CMVI', 'CMV IgG', 'CMV IgG', 'Positive', '7', '2013-02-01 00:00:00'),
 ( 'CODC', 'COD Classification', 'COD Classification', 'null', '11', '2013-02-01 00:00:00'),
-( 'COGA', 'Cognitive Assessment', 'NULL', 'Yes/No', '7', '2013-10-25 13:00:00'),
 ( 'COPE', 'Provide COP Education Materials ', 'Provide COP Education Materials ', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'COPM', 'Review COP Med use and Side effects', 'Review COP Med use and Side effects', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'COPS', 'COP Specialist Referral', 'COP Specialist Referral', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'COUM', 'Warfarin Weekly Dose', 'WarfarinDose', 'Total mg Warfarin per week', '5', '2013-02-01 00:00:00'),
 ( 'CRCL', 'Creatinine Clearance', 'Creatinine Clearance', 'in ml/h', '5', '2013-02-01 00:00:00'),
-( 'CRP', 'CRP', 'C reactive protein', 'mg/L', '14', '2014-05-09 00:00:00'),
 ( 'CVD', 'CVD', 'Cerebrovascular disease', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'CXR', 'CXR', 'CXR', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'DARB', 'ACE AARB', 'ACE AARB', 'Yes/No', '7', '2013-02-01 00:00:00'),
@@ -1285,16 +1201,11 @@ INSERT INTO `measurementType` (`type`, `typeDisplayName`, `typeDescription`, `me
 ( 'DIER', 'Diet and Exercise', 'Diet and Exercise', 'Reviewed', '7', '2013-02-01 00:00:00'),
 ( 'DIET', 'Diet', 'Diet', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'DIFB', 'Impaired FB', 'Impaired FB', 'Yes/No', '7', '2013-02-01 00:00:00'),
-( 'DIG', 'Digoxin', 'Digoxin Level', 'nmol/L Range 1-2.6', '14', '2014-05-09 00:00:00'),
 ( 'DIGT', 'Impaired GT', 'Impaired Glucose Tolerance', 'Yes/No', '7', '2013-02-01 00:00:00'),
-( 'DIL', 'Dilantin', 'Dilantin (Phenytoin) level', 'umol/L Range 40-80', '14', '2014-05-09 00:00:00'),
-( 'DILY', 'Dentist in the last year', 'NULL', 'Yes/No', '7', '2013-10-25 13:00:00'),
 ( 'DM', 'DM', 'Diabetes', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'DMED', 'Diabetes Medication Changes', 'DM Med Changes', 'Changed', '7', '2013-02-01 00:00:00'),
 ( 'DMME', 'Diabetes Education', 'Diabetes Education', 'Discussed', '7', '2013-02-01 00:00:00'),
-( 'DMOE', 'Daily Morphine Equivalent', 'Daily Morphine Equivalent', 'null', '11', '2014-11-27 13:00:00'),
 ( 'DMSM', 'Diabetes Self Management Goals', 'Diabetes Self Management Goals', 'Discussed', '7', '2013-02-01 00:00:00'),
-( 'DNFS', 'DN4 Questionnaire', 'DN4 Questionnaire', 'null', '2', '2013-05-07 00:00:00'),
 ( 'DOLE', 'Date of last Exacerbation', 'Date of last Exacerbation', 'yyyy-mm-dd', '13', '2013-02-01 00:00:00'),
 ( 'DpSc', 'Depression Screen', 'Feeling Sad, blue or depressed for 2 weeks or more', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'DRCO', 'Drug Coverage', 'Drug Coverage', 'Yes/No', '7', '2013-02-01 00:00:00'),
@@ -1303,24 +1214,19 @@ INSERT INTO `measurementType` (`type`, `typeDisplayName`, `typeDescription`, `me
 ( 'DT2', 'Type II', 'Diabetes Type 2', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'DTYP', 'Diabetes Type', 'Diabetes Type', '1 or 2', '10', '2013-02-01 00:00:00'),
 ( 'ECG', 'ECG', 'ECG', 'Yes/No', '7', '2013-02-01 00:00:00'),
-( 'ECHK', 'Do you have your eyes regularly checked?', 'NULL', 'Yes/No', '7', '2013-12-20 13:00:00'),
 ( 'EDC', 'EDC', 'Expected Date of Confinement', 'yyyy-mm-dd', '13', '2013-02-01 00:00:00'),
 ( 'EDDD', 'Education Diabetes', 'Education Diabetes', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'EDF', 'EDF', 'Erectile Dysfunction', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'EDGI', 'Autonomic Neuropathy', 'Autonomic Neuropathy', 'Present', '7', '2013-02-01 00:00:00'),
 ( 'EDND', 'Education Nutrition Diabetes', 'Education Nutrition Diabetes', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'EDNL', 'Education Nutrition Lipids', 'Education Nutrition Lipids', 'Yes/No', '7', '2013-02-01 00:00:00'),
-( 'EGFR', 'EGFR', 'EGFR', 'in ml/min', '4', '2013-02-01 00:00:00'),
-( 'ENA', 'ENA', 'Extractable Nuclear Antigens', 'result', '11', '2014-05-09 00:00:00'),
+( 'EGFR', 'EGFR', 'EGFR', 'in ml/min', '5', '2013-02-01 00:00:00'),
 ( 'EPR', 'Exacerbation plan in place or reviewed', 'Exacerbation plan in place or reviewed', 'Yes/No', '7', '2013-02-01 00:00:00'),
-( 'ESR', 'ESR', 'Erythrocyte sedimentation rate', 'mm/h Range under 20', '14', '2014-05-09 00:00:00'),
 ( 'EXE', 'Exercise', 'Exercise', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'ExeC', 'Exercise Counseling Given', 'Exercise Counseling Given', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'Exer', 'Exercise', 'Exercise', '[min/week 0-1200]', '14', '2013-02-01 00:00:00'),
 ( 'EYEE', 'Dilated Eye Exam', 'Eye Exam', 'Exam Done', '7', '2013-02-01 00:00:00'),
 ( 'FAHS', 'Risk of Falling', 'Risk of Falling', 'Yes/No', '7', '2013-02-01 00:00:00'),
-( 'FAMR', 'Family/Relationships', 'NULL', 'Review', '16', '2013-12-30 13:00:00'),
-( 'FAS', 'Folic Acid supplementation', 'NULL', 'Yes/No', '7', '2013-10-25 13:00:00'),
 ( 'FBPC', '2 hr PC BG', '2 hr PC BG', 'in mmol/L', '3', '2013-02-01 00:00:00'),
 ( 'FBS', 'FBS', 'Glucose FBS', 'FBS', '3', '2013-02-01 00:00:00'),
 ( 'FEET', 'FEET', 'Feet Check skin', 'sensation (Yes/No)', '7', '2013-02-01 00:00:00'),
@@ -1328,18 +1234,12 @@ INSERT INTO `measurementType` (`type`, `typeDisplayName`, `typeDescription`, `me
 ( 'FEET', 'FEET', 'Feet Check skin', 'reflexes (Yes/No)', '7', '2013-02-01 00:00:00'),
 ( 'FEET', 'FEET', 'Feet Check skin', 'pulses (Yes/No)', '7', '2013-02-01 00:00:00'),
 ( 'FEET', 'FEET', 'Feet Check skin', 'infection (Yes/No)', '7', '2013-02-01 00:00:00'),
-( 'Fer', 'Ferritin', 'Ferritin', 'ug/L Range 15-180', '14', '2014-05-09 00:00:00'),
 ( 'FEV1', 'Forced Expiratory Volume 1 Second', 'Forced Expiratory Volume 1 Second', 'Forced Expiratory Volume 1 Second', '14', '2013-02-01 00:00:00'),
 ( 'FGLC', 'Fasting Glucose meter , lab comparison', 'Fasting glucose meter, lab comparison', 'Within 20 percent', '7', '2013-02-01 00:00:00'),
 ( 'FICO', 'Financial Concerns', 'Financial Concerns', 'Yes/No', '7', '2013-02-01 00:00:00'),
-( 'FIT', 'FIT', 'Fecal Immunochemical Test', 'result', '17', '2014-05-09 00:00:00'),
-( 'FLOS', 'Floss', 'NULL', 'Yes/No', '7', '2013-10-25 13:00:00'),
 ( 'FLUF', 'Flu Recall', 'Flu Recall Documentation', 'Patient Contacted by Letter or Phone', '11', '2013-02-01 00:00:00'),
 ( 'FOBF', 'FOBT prevention recall', 'FOBT Immunization Follow up', 'Patient Contacted by Letter or Phone', '11', '2013-02-01 00:00:00'),
-( 'FOBT', 'FOBT', 'Fecal Occult Blood', 'result', '17', '2014-05-09 00:00:00'),
 ( 'FRAM', 'Framingham 10 year CAD', 'Framingham 10 year CAD', 'percent', '11', '2013-02-01 00:00:00'),
-( 'FT3', 'FT3', 'Free T3', 'pmol/L Range 4-8', '14', '2014-05-09 00:00:00'),
-( 'FT4', 'FT4', 'Free T4', 'pmol/L Range 11-22', '14', '2014-05-09 00:00:00'),
 ( 'FTE', 'Foot Exam', 'Foot Exam', 'Normal', '7', '2013-02-01 00:00:00'),
 ( 'FTEx', 'Foot Exam: Significant Pathology', 'Significant Pathology', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'FTIn', 'Foot Exam: Infection', 'Infection', 'Yes/No', '7', '2013-02-01 00:00:00'),
@@ -1350,21 +1250,10 @@ INSERT INTO `measurementType` (`type`, `typeDisplayName`, `typeDescription`, `me
 ( 'FTRe', 'Foot Exam: Referral made', 'Referral made', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'FTST', 'Free Testost', 'Free Testost', 'in nmol/L', '14', '2013-02-01 00:00:00'),
 ( 'FTUl', 'Foot Exam: Ulcer', 'Ulcer', 'Yes/No', '7', '2013-02-01 00:00:00'),
-( 'FUPP', 'Assessment/Follow-up plans', 'NULL', 'Review', '16', '2013-12-30 13:00:00'),
 ( 'G', 'Gravida', 'Gravida', 'Gravida', '3', '2013-02-01 00:00:00'),
 ( 'G6PD', 'G6PD', 'G6PD', 'Positive', '7', '2013-02-01 00:00:00'),
-( 'GBS', 'GBS', 'Group B Strep', 'test result', '17', '2014-05-09 00:00:00'),
-( 'GC', 'Gonococcus', 'Gonococcus', 'test result', '17', '2014-05-09 00:00:00'),
-( 'GGT', 'GGT', 'Gamma-glutamyl transferase', 'U/L Range 10-58', '14', '2014-05-09 00:00:00'),
-( 'GCT', '50g Glucose Challenge', '1h 50g Glucose Challenge', 'mmol/L Range under 7.8', '4', '2014-05-09 00:00:00'),
-( 'GT1', '75g OGTT 1h', '1h 75g Glucose Tolerance Test', 'mmol/L Range under 10.6', '4', '2014-05-09 00:00:00'),
-( 'GT2', '75g OGTT 2h', '2h 75g Glucose Tolerance Test', 'mmol/L Range under 9', '4', '2014-05-09 00:00:00'),
 ( 'Hb', 'Hb', 'Hb', 'in g/L', '5', '2013-02-01 00:00:00'),
-( 'HCON', 'Do you have any hearing concerns?', 'NULL', 'Yes/No', '7', '2013-12-20 13:00:00'),
-( 'HBEB', 'AntiHBeAg', 'AntiHBeAg', 'result', '17', '2014-05-09 00:00:00'),
-( 'HBEG', 'HBeAg', 'HBeAg', 'result', '17', '2014-05-09 00:00:00'),
-( 'HBVD', 'HBV DNA', 'HBV DNA', 'result', '17', '2014-05-09 00:00:00'),
-( 'HCO3', 'Bicarbonate', 'Bicarbonate', 'mmol/L Range 20-29', '4', '2014-05-09 00:00:00'),
+( 'HIP', 'Hip Circ.', 'Hip Circumference', 'at 2 cm above navel', '14', '2013-02-01 00:00:00'),
 ( 'Hchl', 'Hypercholesterolemia', 'Hypercholesterolemia', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'HDL', 'HDL', 'High Density Lipid', 'in mmol/L (n.n) Range:0.4-4.0', '2', '2013-02-01 00:00:00'),
 ( 'HEAD', 'Head circumference', 'Head circumference', 'in cm (nnn) Range:30-70 Interval:2mo.', '4', '2013-02-01 00:00:00'),
@@ -1375,7 +1264,6 @@ INSERT INTO `measurementType` (`type`, `typeDisplayName`, `typeDescription`, `me
 ( 'HFMO', 'HF Mod Risk Factor Overweight', 'HF Mod Risk Factor Overweight', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'HFMS', 'HF Mod Risk Factor Smoking', 'HF Mod Risk Factor Smoking', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'HFMT', 'HF Mod Risk Factor Hypertension', 'HF Mod Risk Factor Hypertension', 'Yes/No', '7', '2013-02-01 00:00:00'),
-( 'HIP', 'Hip Circ.', 'Hip Circumference', 'at 2 cm above navel', '14', '2013-02-01 00:00:00'),
 ( 'HIVG', 'HIV genotype', 'HIV genotype', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'HLA', 'HLA B5701', 'HLA B5701', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'HpAI', 'Hep A IgG', 'Hep A IgG', 'Positive', '7', '2013-02-01 00:00:00'),
@@ -1386,8 +1274,6 @@ INSERT INTO `measurementType` (`type`, `typeDisplayName`, `typeDescription`, `me
 ( 'HpCA', 'Hep C Ab', 'Hep C Ab', 'Positive', '7', '2013-02-01 00:00:00'),
 ( 'HPCG', 'Hep C Genotype', 'Hep C Genotype', 'integer Range 1-7', '2', '2013-02-01 00:00:00'),
 ( 'HPCP', 'Hep C PCR', 'Hep C PCR', 'Yes/No', '7', '2013-02-01 00:00:00'),
-( 'HPNP', 'Hearing protection/Noise control programs', 'NULL', 'Yes/No', '7', '2013-10-25 13:00:00'),
-( 'HPYL', 'H Pylori', 'H Pylori', 'result', '17', '2014-05-09 00:00:00'),
 ( 'HR', 'P', 'Heart Rate', 'in bpm (nnn) Range:40-180', '5', '2013-02-01 00:00:00'),
 ( 'HRMS', 'Review med use and side effects', 'HTN Review of Medication use and side effects', 'null', '11', '2013-02-01 00:00:00'),
 ( 'HSMC', 'Self Management Challenges', 'HTN Self Management Challenges', 'null', '11', '2013-02-01 00:00:00'),
@@ -1397,16 +1283,13 @@ INSERT INTO `measurementType` (`type`, `typeDisplayName`, `typeDescription`, `me
 ( 'HYPE', 'Hypoglycemic Episodes', 'Number of Hypoglycemic Episodes', 'since last visit', '3', '2013-02-01 00:00:00'),
 ( 'HYPM', 'Hypoglycemic Management', 'Hypoglycemic Management', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'IART', 'Currently On ART', 'Currently On ART', 'Yes/No', '7', '2013-02-01 00:00:00'),
-( 'IBPL', 'Income below poverty line', 'NULL', 'Yes/No', '7', '2013-10-25 13:00:00'),
 ( 'iDia', 'Eye Exam: Diabetic Retinopathy', 'Diabetic Retinopathy', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'iEx', 'Eye Exam: Significant Pathology', 'Significant Pathology', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'iHyp', 'Eye Exam: Hypertensive Retinopathy', 'Hypertensive Retinopathy', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'INR', 'INR', 'INR', 'INR Blood Work', '5', '2013-02-01 00:00:00'),
 ( 'INSL', 'Insulin', 'Insulin', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'iOth', 'Eye Exam: Other Vascular Abnomality', 'Other Vascular Abnormality', 'Yes/No', '7', '2013-02-01 00:00:00'),
-( 'iPTH', 'iPTH', 'intact Parathyroid Hormone', 'pmol/L Range 1-6', '14', '2014-05-09 00:00:00'),
 ( 'iRef', 'Eye Exam: Refferal Made', 'Refferal Made', 'Yes/No', '7', '2013-02-01 00:00:00'),
-( 'KEEL', 'Keele Score', 'Keele Score', 'null', '2', '2013-05-07 00:00:00'),
 ( 'JVPE', 'JPV Elevation', 'JPV Elevation', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'Kpl', 'Potassium', 'Potassium', 'in mmol/L', '2', '2013-02-01 00:00:00'),
 ( 'LcCt', 'Locus of Control Screen', 'Feeling lack of control over daily life', 'Yes/No', '7', '2013-02-01 00:00:00'),
@@ -1414,7 +1297,6 @@ INSERT INTO `measurementType` (`type`, `typeDisplayName`, `typeDescription`, `me
 ( 'LEFP', 'LEFS Pain', 'Lower Extremity Functional Scale - Pain', 'number', '5', '2013-02-01 00:00:00'),
 ( 'LETH', 'Lethargy', 'Lethargic', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'LHAD', 'Lung Related Hospital Admission', 'Lung Related Hospital Admission', 'Yes/No', '7', '2013-02-01 00:00:00'),
-( 'LITH', 'Lithium', 'Lithium', 'mmol/L Range 0.6-0.8', '14', '2014-05-09 00:00:00'),
 ( 'LMED', 'Lipid Lowering Medication Changes', 'Lipid Med Changes', 'Changed', '7', '2013-02-01 00:00:00'),
 ( 'LMP', 'Last Menstral Period', 'LMP', 'date', '13', '2013-02-01 00:00:00'),
 ( 'LUCR', 'Lung Crackles', 'Lung Crackles', 'Yes/No', '7', '2013-02-01 00:00:00'),
@@ -1425,25 +1307,18 @@ INSERT INTO `measurementType` (`type`, `typeDisplayName`, `typeDescription`, `me
 ( 'MCCN', 'Motivation Counseling Compeleted Nutrition', 'Motivation Counseling Compeleted Nutrition', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'MCCO', 'Motivation Counseling Compeleted Other', 'Motivation Counseling Compeleted Other', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'MCCS', 'Motivation Counseling Compeleted Smoking Cessation', 'Motivation Counseling Compeleted Smoking Cessation', 'Yes/No', '7', '2013-02-01 00:00:00'),
-( 'MCV', 'MCV', 'Mean corpuscular volume', 'fL Range 82-98', '14', '2014-05-09 00:00:00'),
 ( 'MedA', 'Medication adherence access barriers', 'Difficulty affording meds or getting refills on time', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'MedG', 'Medication adherence general problem', 'Any missed days or doses of meds', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'MedN', 'Medication adherence negative beliefs', 'Concerns about side effects or medication is not working', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'MedR', 'Medication adherence recall barriers', 'Difficulty remembering to take meds', 'Yes/No', '7', '2013-02-01 00:00:00'),
-( 'MG', 'Mg', 'Magnesium', 'mmol/L Range 0.7-1.2', '14', '2014-05-09 00:00:00'),
 ( 'MI', 'MI', 'MI', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'Napl', 'Sodium', 'Sodium', 'in mmol/L', '5', '2013-02-01 00:00:00'),
 ( 'NDIP', 'CMCC NDI Pain', 'CMCC Neck Disability Index - Pain', 'number', '5', '2013-02-01 00:00:00'),
 ( 'NDIS', 'CMCC NDI Score', 'CMCC Neck Disability Index - Score', 'number', '5', '2013-02-01 00:00:00'),
-( 'NERF', 'Neuropathic Features?', 'Neuropathic Features?', 'null', '15', '2013-05-07 00:00:00'),
 ( 'NOSK', 'Number of Cigarettes per day', 'Smoking', 'Cigarettes per day', '5', '2013-02-01 00:00:00'),
 ( 'NOVS', 'Need for nocturnal ventilated support', 'Need for nocturnal ventilated support', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'NtrC', 'Diet/Nutrition Counseling Given', 'Diet/Nutrition Counseling Given', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'NYHA', 'NYHA Functional Capacity Classification', 'NYHA Functional Capacity Classification', 'Class 1-4', '9', '2013-02-01 00:00:00'),
-( 'OPAE', 'Opioid Adverse Effects', 'Opioid Adverse Effects', 'null', '17', '2014-11-27 13:00:00'),
-( 'OPAB', 'Opioid Aberrant Behaviour', 'Opioid Aberrant Behaviour', 'null', '17', '2014-11-27 13:00:00'),
-( 'OPUS', 'Opioid Urine Drug Screen', 'Opioid Urine Drug Screen', 'null', '17', '2014-11-27 13:00:00'),
-( 'ORSK', 'Opioid Risk', 'NULL', 'Score 0-26', '3', '2013-12-27 13:00:00'),
 ( 'OSWP', 'Oswestry BDI Pain', 'Oswestry Back Disability Index - Pain', 'number', '5', '2013-02-01 00:00:00'),
 ( 'OSWS', 'Oswestry BDI Score', 'Oswestry Back Disability Index - Score', 'number', '5', '2013-02-01 00:00:00'),
 ( 'OTCO', 'Other Concerns', 'Other Concerns', 'Yes/No', '7', '2013-02-01 00:00:00'),
@@ -1452,43 +1327,27 @@ INSERT INTO `measurementType` (`type`, `typeDisplayName`, `typeDescription`, `me
 ( 'P', 'Para', 'Para', 'Para', '3', '2013-02-01 00:00:00'),
 ( 'PANE', 'Painful Neuropathy', 'Painful Neuropathy', 'Present', '7', '2013-02-01 00:00:00'),
 ( 'PAPF', 'Pap Recall', 'Pap Recall Documentation', 'Patient Contacted by Letter or Phone', '11', '2013-02-01 00:00:00'),
-( 'PB19', 'Parvovirus', 'Parvovirus B19', 'result', '11', '2014-05-09 00:00:00'),
 ( 'PEDE', 'Pitting Edema', 'Pitting Edema', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'PEFR', 'PEFR value', 'PEFR value', 'null', '14', '2013-02-01 00:00:00'),
 ( 'PHIN', 'Pharmacological Intolerance', 'Pharmacological Intolerance', 'Yes/No', '7', '2013-02-01 00:00:00'),
-( 'PHOS', 'Phosphate', 'Phosphate', 'mmol/L Range 0.8-1.4', '14', '2014-05-09 00:00:00'),
-( 'PHQS', 'PHQ4 Depression Anxiety Score', 'PHQ4 Depression Anxiety Score', 'null', '3', '2013-05-07 00:00:00'),
 ( 'PIDU', 'Previous Intravenous Drug Use', 'Previous Intravenous Drug Use', 'Yes/No', '7', '2013-02-01 00:00:00'),
-( 'PLT', 'Platelets', 'Platelets', 'x10 9/L Range 150-400', '14', '2014-05-09 00:00:00'),
 ( 'PPD', 'PPD', 'PPD', 'Yes/No', '7', '2013-02-01 00:00:00'),
-( 'PROT', 'Protein', 'Total Protein Serum', 'g/L Range 60-80', '14', '2014-05-09 00:00:00'),
 ( 'PRRF', 'Pulmonary Rehabilitation Referral', 'Pulmonary Rehabilitation Referral', 'Yes/No', '7', '2013-02-01 00:00:00'),
-( 'PSA', 'PSA', 'Prostatic specific antigen', 'ug/L Range under 5', '14', '2014-05-09 00:00:00'),
 ( 'PSPA', 'Patient Sets physical Activity Goal', 'Patient Sets physical Activity Goal', 'Yes/No', '7', '2013-02-01 00:00:00'),
-( 'PSQS', 'PSQ3 Sleep Score', 'PSQ3 Sleep Score', 'null', '5', '2013-05-07 00:00:00'),
 ( 'PSSC', 'Psychosocial Screening', 'Psychosocial Screening', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'PsyC', 'Psychosocial Counseling Given', 'Psychosocial Counseling Given', 'Yes/No', '7', '2013-02-01 00:00:00'),
-( 'PTSD', 'PC PTSD Trauma Score', 'PC PTSD Trauma Score', 'null', '2', '2013-05-07 00:00:00'),
+( 'PULSE', 'P', 'Heart Rate', 'in bpm (nnn) Range:40-180', '5', '2013-02-01 00:00:00'),
 ( 'PVD', 'PVD', 'Peripheral vascular disease', 'Yes/No', '7', '2013-02-01 00:00:00'),
-( 'PXAM', 'Physical Exam', 'NULL', 'Review', '16', '2013-12-30 13:00:00'),
 ( 'QDSH', 'QuickDASH Score', 'Disabilities of the Arm, Shoulder and Hand - Score', 'number', '5', '2013-02-01 00:00:00'),
 ( 'RABG', 'Recommend ABG', 'Recommend ABG', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'REBG', 'Review Blood Glucose Records', 'Review Glucose Records', 'Reviewed', '7', '2013-02-01 00:00:00'),
 ( 'RESP', 'RR', 'Respiratory Rate', 'Breaths per minute', '4', '2013-02-01 00:00:00'),
 ( 'RETI', 'Retinopathy', 'null', 'Discussed', '7', '2013-02-01 00:00:00'),
-( 'RF', 'RF', 'Rheumatoid Factor', 'result', '17', '2014-05-09 00:00:00'),
-( 'Rh', 'Rh', 'RhD blood type group', 'result', '11', '2014-05-09 00:00:00'),
 ( 'RPHR', 'Review PHR', 'Review PHR', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'RPPT', 'Review Pathophysiology, Prognosis, Treatment with Patient', 'Review Pathophysiology, Prognosis, Treatment with Patient', 'Yes/No', '7', '2013-02-01 00:00:00'),
-( 'RUB', 'Rubella', 'Rubella titre', 'titre', '11', '2014-05-09 00:00:00'),
 ( 'RVTN', 'Revascularization', 'Revascularization', 'Yes/No', '7', '2013-02-01 00:00:00'),
-( 'SBLT', 'Seat belts', 'NULL', 'Yes/No', '7', '2013-10-25 13:00:00'),
 ( 'SCR', 'Serum Creatinine', 'Creatinine', 'in umol/L', '14', '2013-02-01 00:00:00'),
-( 'SDET', 'Smoke detector that works', 'NULL', 'Yes/No', '7', '2013-10-25 13:00:00'),
-( 'SDUS', 'Street Drug Use', 'NULL', 'Review', '16', '2013-12-30 13:00:00'),
 ( 'SEXF', 'Sexual Function', 'Sexual Function', 'Yes/No', '7', '2013-02-01 00:00:00'),
-( 'SEXH', 'Sexual History', 'NULL', 'Review', '16', '2013-12-30 13:00:00'),
-( 'SHAB', 'Sleep Habits', 'NULL', 'Review', '16', '2013-12-30 13:00:00'),
 ( 'SKST', 'Smoking Status', 'Smoking Status', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'SMBG', 'Self monitoring BG', 'Self Monitoring Blood Glucose', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'SmCC', 'Smoking Cessation Counseling Given', 'Smoking Cessation Counseling Given', 'Yes/No', '7', '2013-02-01 00:00:00'),
@@ -1506,12 +1365,9 @@ INSERT INTO `measurementType` (`type`, `typeDisplayName`, `typeDescription`, `me
 ( 'SOHF', 'Symptoms of Heart Failure', 'Symptoms of Heart Failure', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'SPIR', 'Spirometry', 'Spirometry', 'null', '14', '2013-02-01 00:00:00'),
 ( 'SSEX', 'Practicing Safe Sex', 'Practicing Safe Sex', 'Yes/No', '7', '2013-02-01 00:00:00'),
-( 'SSXC', 'Safe Sex Counselling', 'NULL', 'Review', '16', '2014-01-23 13:00:00'),
-( 'STIS', 'STI Screening', 'Sexual Transmitted Infections', 'Review', '16', '2014-01-23 13:00:00'),
 ( 'STRE', 'Stress Testing', 'Stress Testing', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'StSc', 'Stress Screen', 'Several periods of irritability, feeling filled with anxiety, or difficulty sleeping b/c of stress', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'SUAB', 'Substance Use', 'Substance Use', 'Yes/No', '7', '2013-02-01 00:00:00'),
-( 'SUNP', 'Sun protection', 'NULL', 'Yes/No', '7', '2013-10-25 13:00:00'),
 ( 'SUO2', 'Need for supplemental oxygen', 'Need for supplemental oxygen', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'TCHD', 'TC/HDL', 'LIPIDS TD/HDL', 'monitor every 1-3 year', '3', '2013-02-01 00:00:00'),
 ( 'TCHL', 'Total Cholestorol', 'Total Cholestorol', 'in mmol/L (nn.n) Range:2.0-12.0', '2', '2013-02-01 00:00:00'),
@@ -1519,30 +1375,21 @@ INSERT INTO `measurementType` (`type`, `typeDisplayName`, `typeDescription`, `me
 ( 'TG', 'TG', 'LIPIDS TG', 'monitor every 1-3 year', '3', '2013-02-01 00:00:00'),
 ( 'TOXP', 'Toxoplasma IgG', 'Toxoplasma IgG', 'Positive', '7', '2013-02-01 00:00:00'),
 ( 'TRIG', 'Triglycerides', 'Triglycerides', 'in mmol/L (nn.n) Range:0.0-12.0', '3', '2013-02-01 00:00:00'),
-( 'TSAT', 'Transferrin Saturation', 'Transferrin Saturation', 'percent Range 20-50', '4', '2014-05-09 00:00:00'),
 ( 'TSH', 'TSH', 'Thyroid Stimulating Hormone', 'null', '4', '2013-02-01 00:00:00'),
 ( 'TUG', 'Timed Up and Go', 'Timed Up and Go', 'Number of Seconds', '14', '2013-02-01 00:00:00'),
+( 'UACR', 'Alb creat ratio', 'UACR', 'in mg/mmol', '5', '2013-02-01 00:00:00'),
 ( 'UAIP', 'Update AIDS defining illness in PMH', 'Update AIDS defining illness in PMH', 'Changed', '7', '2013-02-01 00:00:00'),
+( 'UALB', 'Urine alb: creat ratio', 'Urine alb: creat ratio', 'in mg/mmol (nnn.n) Rnage:0-100 Interval:12mo.', '4', '2013-02-01 00:00:00'),
 ( 'UDUS', 'Update Drug Use', 'Update Drug Use', 'Changed', '7', '2013-02-01 00:00:00'),
 ( 'UHTP', 'Update HIV Test History in PMH', 'Update HIV Test History in PMH', 'Changed', '7', '2013-02-01 00:00:00'),
 ( 'URBH', 'Update Risk Behaviours', 'Update Risk Behaviours', 'Changed', '7', '2013-02-01 00:00:00'),
-( 'URIC', 'Uric Acid', 'Uric Acid', 'umol/L Range 230-530', '14', '2014-05-09 00:00:00'),
 ( 'USSH', 'Update Sexual Identity in Social History', 'Update Sexual Identity in Social History', 'Changed', '7', '2013-02-01 00:00:00'),
 ( 'VB12', 'Vit B12', 'Vitamin B12', 'Range >0 pmol/l', '14', '2013-02-01 00:00:00'),
 ( 'VDRL', 'VDRL', 'VDRL', 'Positive', '7', '2013-02-01 00:00:00'),
 ( 'VLOA', 'Viral Load', 'Viral Load', 'in x10e9/L', '14', '2013-02-01 00:00:00'),
-( 'VZV', 'Zoster', 'Varicella Zoster', 'result', '17', '2014-05-09 00:00:00'),
 ( 'WAIS', 'Waist', 'Waist', 'Waist Circum in cm', '5', '2013-02-01 00:00:00'),
-( 'WBC', 'WBC', 'White Cell Count', 'x10 9/L Range 4-11', '14', '2014-05-09 00:00:00'),
 ( 'WHR', 'Waist:Hip', 'Waist Hip Ratio', 'Range:0.5-2 Interval:3mo.', '2', '2013-02-01 00:00:00'),
-( 'WKED', 'Work/Education', 'NULL', 'Review', '16', '2013-12-30 13:00:00'),
 ( 'WT', 'WT', 'Weight', 'in kg', '5', '2013-02-01 00:00:00');
-
-insert into measurementType VALUES(null, 'PRGT','PRGT','Pregnancy Test','Pregnancy Test','19',now());
-insert into measurementType VALUES(null, 'UDIP','UDIP','Urine Dip Test','Urine Dip Test','19',now());
-insert into measurementType VALUES(null, 'GLMT','GLMT','Glucose Monitor Test','Glucose Monitor Test','19',now());
-insert into measurementType VALUES(null, 'LECM','LECM','Left Eye Check Up Measurement','Left Eye Check Up Measurement','11',now());
-insert into measurementType VALUES(null, 'RECM','RECM','Right Eye Check Up Measurement','Right Eye Check Up Measurement','11',now()); 
 --
 -- Dumping data for table 'measurementCSSLocation'
 --
@@ -1568,7 +1415,7 @@ insert into measurementType VALUES(null, 'RECM','RECM','Right Eye Check Up Measu
 -- Dumping data for table 'mygroup'
 --
 
-INSERT INTO mygroup VALUES ('IT Support','88888','Support','IT',NULL,NULL);
+INSERT INTO mygroup VALUES ('IT Support','88888','Support','IT',NULL);
 
 --
 -- Dumping data for table 'oscarcommlocations'
@@ -1577,13 +1424,13 @@ INSERT INTO mygroup VALUES ('IT Support','88888','Support','IT',NULL,NULL);
 INSERT INTO oscarcommlocations VALUES (145,'Oscar Users',NULL,1,'<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<addressBook><group><group desc=\"doc\" id=\"17\"><address desc=\"Chan, David\" id=\"174\"/><address desc=\"oscardoc, doctor\" id=\"999998\"/></group><group desc=\"receptionist\" id=\"18\"><address desc=\"oscarrep, receptionist\" id=\"999999\"/><address desc=\"Support, IT\" id=\"88888\"/></group><group desc=\"admin\" id=\"19\"><address desc=\"oscaradmin, admin\" id=\"999997\"/></group><address desc=\"Chan, David\" id=\"174\"/><address desc=\"oscaradmin, admin\" id=\"999997\"/><address desc=\"oscardoc, doctor\" id=\"999998\"/><address desc=\"oscarrep, receptionist\" id=\"999999\"/><address desc=\"Support, IT\" id=\"88888\"/></group></addressBook>',NULL);
 
 
-insert into ProviderPreference (providerNo, startHour, endHour, everyMin, myGroupNo, colourTemplate, defaultCaisiPmm, defaultNewOscarCme, printQrCodeOnPrescriptions, lastUpdated, appointmentScreenLinkNameDisplayLength,defaultDoNotDeleteBilling,eRxEnabled,eRxTrainingMode) values ('999998','8','18','15','.default','deepblue','disabled','disabled', 0, now(), 3,0,0,0);
+insert into ProviderPreference (providerNo, startHour, endHour, everyMin, myGroupNo, colourTemplate, defaultCaisiPmm, defaultNewOscarCme, printQrCodeOnPrescriptions, lastUpdated, appointmentScreenLinkNameDisplayLength) values ('999998','8','18','15','.default','deepblue','disabled','disabled', 0, now(), 3);
 
 --
 -- Dumping data for table 'provider'
 --
 
-INSERT INTO provider VALUES ('999998','oscardoc','doctor','doctor',null,'','','','0001-01-01','','','','','','','','1','','','','','','','','',now(),'0001-01-01');
+INSERT INTO provider VALUES ('999998','oscardoc','doctor','doctor','','','','0001-01-01','','','','','','','','1','','','','','','','','',NULL,'0001-01-01');
 
 --
 -- Dumping data for table 'quickList'
@@ -1713,7 +1560,7 @@ INSERT INTO scheduletemplatecode (code,description,duration,color,confirm,bookin
 -- Dumping data for table 'security'
 --
 
-INSERT INTO security(security_no,user_name,password,provider_no,pin,forcePasswordReset,storageVersion) VALUES (128,'oscardoc','-51-282443-97-5-9410489-60-1021-45-127-12435464-32','999998','1117',1,1);
+INSERT INTO security(security_no,user_name,password,provider_no,pin) VALUES (128,'oscardoc','-51-282443-97-5-9410489-60-1021-45-127-12435464-32','999998','1117');
 --
 -- Dumping data for table 'serviceSpecialists'
 --
@@ -1746,7 +1593,7 @@ INSERT INTO specialistsJavascript VALUES (1,'1','function makeSpecialistslist(de
 -- Dumping data for table 'validations'
 --
 
-INSERT INTO `validations` (`id`, `name`, `regularExp`, `maxValue1`, `minValue`, `maxLength`, `minLength`, `isNumeric`, `isTrue`, `isDate`) VALUES
+INSERT INTO `validations` (`id`, `name`, `regularExp`, `maxValue`, `minValue`, `maxLength`, `minLength`, `isNumeric`, `isTrue`, `isDate`) VALUES
 (1, 'Numeric Value: 0 to 1', NULL, 10, 0, NULL, NULL, 1, NULL, NULL),
 (2, 'Numeric Value: 0 to 10', NULL, 10, 0, NULL, NULL, 1, NULL, NULL),
 (3, 'Numeric Value: 0 to 50', NULL, 50, 0, NULL, NULL, 1, NULL, NULL),
@@ -1760,10 +1607,8 @@ INSERT INTO `validations` (`id`, `name`, `regularExp`, `maxValue1`, `minValue`, 
 (11,'No Validations', NULL, 0, 0, 0, 0, 0, NULL, 0),
 (12,'Yes/No/X','YES|yes|Yes|Y|NO|no|No|N|X|x',0,0,0,0,0,NULL,0),
 (13,'Date',NULL,NULL,NULL,NULL,NULL,NULL,NULL,1),
-(14,'Numeric Value greater than or equal to 0',NULL,0,0,0,0,1,NULL,0),
-(15, 'Yes/No/Maybe', 'YES|yes|Yes|Y|NO|no|No|N|MAYBE|maybe|Maybe', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(16, 'Review', 'REVIEWED|reviewed|Reviewed', NULL, NULL, NULL, NULL, NULL, NULL, NULL),
-(17,'pos or neg', 'pos|neg|positive|negative', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+(14,'Numeric Value greater than or equal to 0',NULL,0,0,0,0,1,NULL,0);
+
 
 
 insert into `secRole` values(1, 'receptionist', 'receptionist');
@@ -1793,14 +1638,12 @@ insert into `secRole` (role_name, description) values('Recreation Therapist', 'R
 insert into `secRole` (role_name, description) values('property staff','property staff');
 insert into `secRole` (role_name, description) values('Support Counsellor','Support Counsellor');
 insert into `secRole` (role_name, description) values('Counselling Intern', 'Counselling Intern');
-insert into `secRole` (role_name, description) values('Field Note Admin', 'Field Note Admin');
-INSERT INTO `secRole` (`role_name`, `description` ) VALUES ('student', 'Student (OSCAR Learning)');
-INSERT INTO `secRole` (`role_name`, `description` ) VALUES ('moderator', 'Moderator (OSCAR Learning)');
 
 
-insert into `secUserRole` (`provider_no`,`role_name`,`orgcd`,`activeyn`,lastUpdateDate) values('999998', 'doctor', 'R0000001',1,now());
-insert into `secUserRole` (`provider_no`,`role_name`,`orgcd`,`activeyn`,lastUpdateDate) values('999998', 'admin', 'R0000001',1,now());
-insert into `secUserRole` (`provider_no`,`role_name`,`orgcd`,`activeyn`,lastUpdateDate) values('999997', 'receptionist', 'R0000001',1,now());
+
+insert into `secUserRole` (`provider_no`,`role_name`,`orgcd`,`activeyn`) values('999998', 'doctor', 'R0000001',1);
+insert into `secUserRole` (`provider_no`,`role_name`,`orgcd`,`activeyn`) values('999998', 'admin', 'R0000001',1);
+insert into `secUserRole` (`provider_no`,`role_name`,`orgcd`,`activeyn`) values('999997', 'receptionist', 'R0000001',1);
 
 insert into `secPrivilege` values(1, 'x', 'All rights.');
 insert into `secPrivilege` values(2, 'r', 'Read');
@@ -1824,12 +1667,10 @@ insert into `secObjectName` (`objectName`) values ('_admin.billing');
 insert into `secObjectName` (`objectName`) values ('_admin.resource');
 insert into `secObjectName` (`objectName`) values ('_admin.reporting');
 insert into `secObjectName` (`objectName`) values ('_admin.backup');
-insert into `secObjectName` (`objectName`,`description`,`orgapplicable`) values('_admin.measurements', 'access to customize measurements',0);
 insert into `secObjectName` (`objectName`) values ('_admin.messenger');
 insert into `secObjectName` (`objectName`) values ('_admin.eform');
 insert into `secObjectName` (`objectName`) values ('_admin.encounter');
 insert into `secObjectName` (`objectName`) values ('_admin.misc');
-insert into `secObjectName` (`objectName`) values ('_admin.pmm');
 insert into `secObjectName` (`objectName`,`description`,`orgapplicable`) values('_masterlink', 'Client Master Record',0);
 insert into `secObjectName` (`objectName`) values ('_rx');
 insert into `secObjectName` (`objectName`) values ('_merge');
@@ -1840,7 +1681,6 @@ insert into `secObjectName` (`objectName`,`description`,`orgapplicable`) values(
 
 INSERT INTO `secObjectName` (`objectName`, `description`, `orgapplicable`) VALUES ('_team_schedule_only', 'Restrict schedule to only login provider and his team', '0');
 INSERT INTO `secObjectName` (`objectName`, `description`, `orgapplicable`) VALUES ('_team_billing_only', 'Restrict billing access to only login provider and his team', '0');
-INSERT INTO `secObjectName` (`objectName`, `description`, `orgapplicable`) VALUES ('_admin.fax', 'Configure & Manage Faxes', '0');
 
 insert into `secObjectName` (`objectName`) values ('_newCasemgmt.preventions');
 insert into `secObjectName` (`objectName`) values ('_newCasemgmt.viewTickler');
@@ -1872,6 +1712,7 @@ insert into `secObjectName` (`objectName`) values ('_con');
 insert into `secObjectName` (`objectName`) values ('_pmm_agencyList');
 insert into `secObjectName` (`objectName`) values ('_newCasemgmt.apptHistory');
 insert into `secObjectName` (`objectName`) values ('_newCasemgmt.doctorName');
+insert into `secObjectName` (`objectName`) values ('_newCasemgmt.photo');
 
 insert into `secObjectName` (`objectName`) values ('_day');
 insert into `secObjectName` (`objectName`) values ('_month');
@@ -1880,33 +1721,6 @@ insert into `secObjectName` (`objectName`) values ('_edoc');
 insert into `secObjectName` (`objectName`) values ('_tickler');
 insert into `secObjectName` (`objectName`) values ('_pmm_client.BedRoomReservation');
 insert into `secObjectName` (`objectName`) values('_pmm.functionalCentre');
-insert into `secObjectName` (`objectName`) values ('_pmm_editProgram.vacancies');
-insert into `secObjectName` (`objectName`) values ('_newCasemgmt.pregnancy');
-insert into `secObjectName` (`objectName`) values ('_newCasemgmt.episode');
-insert into `secObjectName` (`objectName`) values ('_newCasemgmt.photo');
-
-insert into `secObjectName` (`objectName`) values ('_hrm');
-insert into `secObjectName` (`objectName`) values ('_eform');
-insert into `secObjectName` (`objectName`) values ('_form');
-insert into `secObjectName` (`objectName`) values ('_measurement');
-insert into `secObjectName` (`objectName`) values ('_lab');
-insert into `secObjectName` (`objectName`) values ('_prevention');
-insert into `secObjectName` (`objectName`) values ('_dxresearch');
-insert into `secObjectName` (`objectName`) values ('_allergy');
-insert into `secObjectName` (`objectName`) values ('_eyeform');
-insert into `secObjectName` (`objectName`) values ('_appDefinition');
-insert into `secObjectName` (`objectName`) values ('_phr');
-
-insert into `secObjectName` (`objectName`) values ('_pmm');
-insert into `secObjectName` (`objectName`) values ('_pmm.editProgram.schedules');
-insert into `secObjectName` (`objectName`) values ('_admin.consult');
-insert into `secObjectName` (`objectName`) values ('_admin.document');
-
-insert into `secObjectName`  (`objectName`,`description`,`orgapplicable`) values('_demographicExport', 'Export Demographic', 0);
-
-insert into `secObjectName` (`objectName`) values ('_dashboardManager');
-insert into `secObjectName` (`objectName`) values ('_dashboardDisplay');
-insert into `secObjectName` (`objectName`) values ('_dashboardDrilldown');
 
 insert into `secObjPrivilege` values('receptionist', '_appointment', 'x', 0, '999998');
 insert into `secObjPrivilege` values('receptionist', '_demographic', 'x', 0, '999998');
@@ -1914,7 +1728,6 @@ insert into `secObjPrivilege` values('receptionist', '_billing', 'x', 0, '999998
 insert into `secObjPrivilege` values('receptionist','_masterLink','x',0,999998);
 insert into `secObjPrivilege` values('receptionist', '_casemgmt.issues', 'x', 0, '999998');
 insert into `secObjPrivilege` values('receptionist', '_casemgmt.notes', 'x', 0, '999998');
-insert into `secObjPrivilege` values('receptionist','_pref','x',0,'999998');
 
 
 insert into `secObjPrivilege` values('doctor','_appointment','x',0,'999998');
@@ -1929,21 +1742,21 @@ insert into `secObjPrivilege` values('doctor','_flowsheet','x',0,'999998');
 insert into `secObjPrivilege` values('doctor','_masterLink','x',0,'999998');
 insert into `secObjPrivilege` values('doctor','_rx','x',0,'999998');
 insert into `secObjPrivilege` values('doctor','_tasks','x',0,'999998');
-insert into `secObjPrivilege` values('doctor','_admin.reporting','o',0,999998);
+insert into `secObjPrivilege` values('doctor','_admin.reporting','x',0,999998);
 
-insert into `secObjPrivilege` values('doctor','_admin.facilityMessage','o',0,999998);
-insert into `secObjPrivilege` values('doctor','_admin.systemMessage','o',0,999998);
+insert into `secObjPrivilege` values('doctor','_admin.facilityMessage','x',0,999998);
+insert into `secObjPrivilege` values('doctor','_admin.systemMessage','x',0,999998);
 
-insert into `secObjPrivilege` values('doctor','_admin.provider','o',0,999998);
-insert into `secObjPrivilege` values('doctor','_admin.security','o',0,999998);
-insert into `secObjPrivilege` values('doctor','_admin.securityLogReport','o',0,999998);
-insert into `secObjPrivilege` values('doctor','_admin.unlockAccount','o',0,999998);
-insert into `secObjPrivilege` values('doctor','_admin.cookieRevolver','o',0,999998);
-insert into `secObjPrivilege` values('doctor','_admin.caisi','o',0,999998);
-insert into `secObjPrivilege` values('doctor','_admin.lookupFieldEditor','o',0,999998);
-insert into `secObjPrivilege` values('doctor','_admin.issueEditor','o',0,999998);
-insert into `secObjPrivilege` values('doctor','_admin.caisiRoles','o',0,999998);
-insert into `secObjPrivilege` values('doctor','_admin.userCreatedForms','o',0,999998);
+insert into `secObjPrivilege` values('doctor','_admin.provider','x',0,999998);
+insert into `secObjPrivilege` values('doctor','_admin.security','x',0,999998);
+insert into `secObjPrivilege` values('doctor','_admin.securityLogReport','x',0,999998);
+insert into `secObjPrivilege` values('doctor','_admin.unlockAccount','x',0,999998);
+insert into `secObjPrivilege` values('doctor','_admin.cookieRevolver','x',0,999998);
+insert into `secObjPrivilege` values('doctor','_admin.caisi','x',0,999998);
+insert into `secObjPrivilege` values('doctor','_admin.lookupFieldEditor','x',0,999998);
+insert into `secObjPrivilege` values('doctor','_admin.issueEditor','x',0,999998);
+insert into `secObjPrivilege` values('doctor','_admin.caisiRoles','x',0,999998);
+insert into `secObjPrivilege` values('doctor','_admin.userCreatedForms','x',0,999998);
 
 insert into `secObjPrivilege` values('doctor','_pmm.clientSearch','x',0,999998);
 insert into `secObjPrivilege` values('doctor','_pmm.newClient','x',0,999998);
@@ -1999,28 +1812,15 @@ insert into `secObjPrivilege` values('doctor','_con','x',0,'999998');
 insert into `secObjPrivilege` values('doctor','_pmm_agencyList','x',0,'999998');
 insert into `secObjPrivilege` values('doctor','_newCasemgmt.apptHistory','x',0,'999998');
 insert into `secObjPrivilege` values('doctor','_newCasemgmt.doctorName','x',0,'999998');
+insert into `secObjPrivilege` values('doctor','_newCasemgmt.photo','x',0,'999998');
 insert into `secObjPrivilege` values('doctor','_day','x',0,'999998');
 insert into `secObjPrivilege` values('doctor','_month','x',0,'999998');
 insert into `secObjPrivilege` values('doctor','_pref','x',0,'999998');
 insert into `secObjPrivilege` values('doctor','_edoc','x',0,'999998');
 insert into `secObjPrivilege` values('doctor','_tickler','x',0,'999998');
 insert into `secObjPrivilege` values('doctor','_pmm_client.BedRoomReservation','x',0,'999998');
-insert into `secObjPrivilege` values('doctor','_pmm_editProgram.vacancies','x',0,'999998');
-insert into `secObjPrivilege` values('doctor','_newCasemgmt.pregnancy','o',0,'999998');
-insert into `secObjPrivilege` values('doctor','_newCasemgmt.episode','o',0,'999998');
-insert into `secObjPrivilege` values('doctor','_newCasemgmt.photo','x',0,'999998');
-insert into `secObjPrivilege` values('doctor','_hrm','x',0,'999998');
-insert into `secObjPrivilege` values('doctor','_eform','x',0,'999998');
-insert into `secObjPrivilege` values('doctor','_form','x',0,'999998');
-insert into `secObjPrivilege` values('doctor','_measurement','x',0,'999998');
-insert into `secObjPrivilege` values('doctor','_lab','x',0,'999998');
-insert into `secObjPrivilege` values('doctor','_prevention','x',0,'999998');
-insert into `secObjPrivilege` values('doctor','_dxresearch','x',0,'999998');
-insert into `secObjPrivilege` values('doctor','_allergy','x',0,'999998');
-insert into `secObjPrivilege` values('doctor','_eyeform','x',0,'999998');
-insert into `secObjPrivilege` values('doctor','_phr','x',0,'999998');
-insert into `secObjPrivilege` values('doctor','_admin.document','x',0,'999998');
-insert into `secObjPrivilege` values('doctor','_pmm','x',0,'999998');
+insert into secObjPrivilege values ('doctor','_pregnancy','o',0,'999998');
+
 
 insert into `secObjPrivilege` values('admin', '_admin', 'x', 0, '999998');
 insert into `secObjPrivilege` values('admin','_masterLink','x',0,999998);
@@ -2038,9 +1838,7 @@ insert into `secObjPrivilege` values('admin','_admin.security','x',0,'999998');
 insert into `secObjPrivilege` values('admin','_admin.securityLogReport','x',0,'999998');
 insert into `secObjPrivilege` values('admin','_admin.systemMessage','x',0,'999998');
 insert into `secObjPrivilege` values('admin','_admin.unlockAccount','x',0,'999998');
-insert into `secObjPrivilege` values('admin','_admin.fax','x',0,'999998');
 insert into `secObjPrivilege` values('admin','_admin.userCreatedForms','x',0,'999998');
-insert into `secObjPrivilege` values('admin','_admin.measurements','x',0,'999998');
 insert into `secObjPrivilege` values('admin','_appointment','x',0,'999998');
 insert into `secObjPrivilege` values('admin','_appointment.doctorLink','x',0,'999998');
 insert into `secObjPrivilege` values('admin','_pmm.addProgram','x',0,'999998');
@@ -2081,8 +1879,6 @@ insert into `secObjPrivilege` values('admin','_newCasemgmt.medicalHistory','x',0
 insert into `secObjPrivilege` values('admin','_newCasemgmt.calculators','x',0,'999998');
 insert into `secObjPrivilege` values('admin','_newCasemgmt.templates','x',0,'999998');
 insert into `secObjPrivilege` values('admin','_newCasemgmt.cpp','x',0,'999998');
-insert into `secObjPrivilege` values('admin','_admin.pmm','x',0,'999998');
-insert into `secObjPrivilege` values('admin','_pref','x',0,'999998');
 
 
 insert into `secObjPrivilege` values('admin','_resource','x',0,'999998');
@@ -2093,15 +1889,7 @@ insert into `secObjPrivilege` values('admin','_con','x',0,'999998');
 insert into `secObjPrivilege` values('admin','_pmm_agencyList','x',0,'999998');
 insert into `secObjPrivilege` values('admin','_newCasemgmt.apptHistory','x',0,'999998');
 insert into `secObjPrivilege` values('admin','_newCasemgmt.doctorName','x',0,'999998');
-
-insert into `secObjPrivilege` values('doctor','_admin.traceability','x',0,'999998');
-insert into `secObjPrivilege` values('admin','_admin.traceability','x',0,'999998');
-insert into `secObjPrivilege` values('admin','_appDefinition','x',0,'999998');
-insert into `secObjPrivilege` values('admin','_demographicExport','x',0,'999998');
-insert into `secObjPrivilege` values('admin', '_pmm.editProgram.schedules', 'x', 0, '999998');
-insert into `secObjPrivilege` values('admin', '_admin.consult', 'x', 0, '999998');
-insert into `secObjPrivilege` values('admin', '_admin.document', 'x', 0, '999998');
-
+insert into `secObjPrivilege` values('admin','_newCasemgmt.photo','x',0,'999998');
 
 
 
@@ -2121,7 +1909,6 @@ insert into `secObjPrivilege` values('locum','_masterLink','x',0,999998);
 insert into `secObjPrivilege` values('locum','_rx','x',0,999998);
 insert into `secObjPrivilege` values('locum', '_casemgmt.issues', 'x', 0, '999998');
 insert into `secObjPrivilege` values('locum', '_casemgmt.notes', 'x', 0, '999998');
-insert into `secObjPrivilege` values('locum','_pref','x',0,'999998');
 
 -- for role nurse
 insert into `secObjPrivilege` values('nurse','_appointment','x',0,'999998');
@@ -2139,9 +1926,6 @@ insert into `secObjPrivilege` values('nurse','_pmm.clientSearch','x',0,'999998')
 insert into `secObjPrivilege` values('nurse','_pmm.mergeRecords','x',0,'999998');
 insert into `secObjPrivilege` values('nurse','_pmm.newClient','x',0,'999998');
 insert into `secObjPrivilege` values('nurse','_tasks','x',0,'999998');
-insert into `secObjPrivilege` values('nurse','_phr','x',0,'999998');
-insert into `secObjPrivilege` values('nurse','_pmm','x',0,'999998');
-insert into `secObjPrivilege` values('nurse','_pref','x',0,'999998');
 
 
 
@@ -2163,8 +1947,6 @@ insert into `secObjPrivilege` values('psychiatrist','_pmm.mergeRecords','x',0,'9
 insert into `secObjPrivilege` values('psychiatrist','_pmm.newClient','x',0,'999998');
 insert into `secObjPrivilege` values('psychiatrist','_rx','x',0,'999998');
 insert into `secObjPrivilege` values('psychiatrist','_tasks','x',0,'999998');
-insert into `secObjPrivilege` values('psychiatrist','_pmm','x',0,'999998');
-insert into `secObjPrivilege` values('psychiatrist','_pref','x',0,'999998');
 
 insert into `secObjPrivilege` values('RN','_appointment','x',0,'999998');
 insert into `secObjPrivilege` values('RN','_casemgmt.issues','x',0,'999998');
@@ -2181,8 +1963,6 @@ insert into `secObjPrivilege` values('RN','_pmm.clientSearch','x',0,'999998');
 insert into `secObjPrivilege` values('RN','_pmm.mergeRecords','x',0,'999998');
 insert into `secObjPrivilege` values('RN','_pmm.newClient','x',0,'999998');
 insert into `secObjPrivilege` values('RN','_tasks','x',0,'999998');
-insert into `secObjPrivilege` values('RN','_pmm','x',0,'999998');
-insert into `secObjPrivilege` values('RN','_pref','x',0,'999998');
 
 
 
@@ -2201,8 +1981,6 @@ insert into `secObjPrivilege` values('RPN','_pmm.clientSearch','x',0,'999998');
 insert into `secObjPrivilege` values('RPN','_pmm.mergeRecords','x',0,'999998');
 insert into `secObjPrivilege` values('RPN','_pmm.newClient','x',0,'999998');
 insert into `secObjPrivilege` values('RPN','_tasks','x',0,'999998');
-insert into `secObjPrivilege` values('RPN','_pmm','x',0,'999998');
-insert into `secObjPrivilege` values('RPN','_pref','x',0,'999998');
 
 
 
@@ -2222,8 +2000,6 @@ insert into `secObjPrivilege` values('Nurse Manager','_pmm.clientSearch','x',0,'
 insert into `secObjPrivilege` values('Nurse Manager','_pmm.mergeRecords','x',0,'999998');
 insert into `secObjPrivilege` values('Nurse Manager','_pmm.newClient','x',0,'999998');
 insert into `secObjPrivilege` values('Nurse Manager','_tasks','x',0,'999998');
-insert into `secObjPrivilege` values('Nurse Manager','_pmm','x',0,'999998');
-insert into `secObjPrivilege` values('Nurse Manager','_pref','x',0,'999998');
 
 
 insert into `secObjPrivilege` values('Clinical Social Worker','_appointment','x',0,'999998');
@@ -2240,8 +2016,7 @@ insert into `secObjPrivilege` values('Clinical Social Worker','_pmm.clientSearch
 insert into `secObjPrivilege` values('Clinical Social Worker','_pmm.mergeRecords','x',0,'999998');
 insert into `secObjPrivilege` values('Clinical Social Worker','_pmm.newClient','x',0,'999998');
 insert into `secObjPrivilege` values('Clinical Social Worker','_tasks','x',0,'999998');
-insert into `secObjPrivilege` values('Clinical Social Worker','_pmm','x',0,'999998');
-insert into `secObjPrivilege` values('Clinical Social Worker','_pref','x',0,'999998');
+
 
 insert into `secObjPrivilege` values('Clinical Case Manager','_appointment','x',0,'999998');
 insert into `secObjPrivilege` values('Clinical Case Manager','_casemgmt.issues','x',0,'999998');
@@ -2257,8 +2032,7 @@ insert into `secObjPrivilege` values('Clinical Case Manager','_pmm.clientSearch'
 insert into `secObjPrivilege` values('Clinical Case Manager','_pmm.mergeRecords','x',0,'999998');
 insert into `secObjPrivilege` values('Clinical Case Manager','_pmm.newClient','x',0,'999998');
 insert into `secObjPrivilege` values('Clinical Case Manager','_tasks','x',0,'999998');
-insert into `secObjPrivilege` values('Clinical Case Manager','_pmm','x',0,'999998');
-insert into `secObjPrivilege` values('Clinical Case Manager','_pref','x',0,'999998');
+
 
 insert into `secObjPrivilege` values('counsellor','_appointment','x',0,'999998');
 insert into `secObjPrivilege` values('counsellor','_casemgmt.issues','x',0,'999998');
@@ -2274,8 +2048,6 @@ insert into `secObjPrivilege` values('counsellor','_pmm.clientSearch','x',0,'999
 insert into `secObjPrivilege` values('counsellor','_pmm.mergeRecords','x',0,'999998');
 insert into `secObjPrivilege` values('counsellor','_pmm.newClient','x',0,'999998');
 insert into `secObjPrivilege` values('counsellor','_tasks','x',0,'999998');
-insert into `secObjPrivilege` values('counsellor','_pmm','x',0,'999998');
-insert into `secObjPrivilege` values('counsellor','_pref','x',0,'999998');
 
 
 insert into `secObjPrivilege` values('Case Manager','_appointment','x',0,'999998');
@@ -2292,8 +2064,6 @@ insert into `secObjPrivilege` values('Case Manager','_pmm.clientSearch','x',0,'9
 insert into `secObjPrivilege` values('Case Manager','_pmm.mergeRecords','x',0,'999998');
 insert into `secObjPrivilege` values('Case Manager','_pmm.newClient','x',0,'999998');
 insert into `secObjPrivilege` values('Case Manager','_tasks','x',0,'999998');
-insert into `secObjPrivilege` values('Case Manager','_pmm','x',0,'999998');
-insert into `secObjPrivilege` values('Case Manager','_pref','x',0,'999998');
 
 
 insert into `secObjPrivilege` values('Housing Worker','_appointment','x',0,'999998');
@@ -2310,8 +2080,6 @@ insert into `secObjPrivilege` values('Housing Worker','_pmm.clientSearch','x',0,
 insert into `secObjPrivilege` values('Housing Worker','_pmm.mergeRecords','x',0,'999998');
 insert into `secObjPrivilege` values('Housing Worker','_pmm.newClient','x',0,'999998');
 insert into `secObjPrivilege` values('Housing Worker','_tasks','x',0,'999998');
-insert into `secObjPrivilege` values('Housing Worker','_pmm','x',0,'999998');
-insert into `secObjPrivilege` values('Housing Worker','_pref','x',0,'999998');
 
 
 insert into `secObjPrivilege` values('Medical Secretary','_appointment','x',0,'999998');
@@ -2326,8 +2094,6 @@ insert into `secObjPrivilege` values('Medical Secretary','_pmm.clientSearch','x'
 insert into `secObjPrivilege` values('Medical Secretary','_pmm.mergeRecords','x',0,'999998');
 insert into `secObjPrivilege` values('Medical Secretary','_pmm.newClient','x',0,'999998');
 insert into `secObjPrivilege` values('Medical Secretary','_tasks','x',0,'999998');
-insert into `secObjPrivilege` values('Medical Secretary','_pmm','x',0,'999998');
-insert into `secObjPrivilege` values('Medical Secretary','_pref','x',0,'999998');
 
 
 insert into `secObjPrivilege` values('Clinical Assistant','_appointment','x',0,'999998');
@@ -2342,8 +2108,6 @@ insert into `secObjPrivilege` values('Clinical Assistant','_pmm.clientSearch','x
 insert into `secObjPrivilege` values('Clinical Assistant','_pmm.mergeRecords','x',0,'999998');
 insert into `secObjPrivilege` values('Clinical Assistant','_pmm.newClient','x',0,'999998');
 insert into `secObjPrivilege` values('Clinical Assistant','_tasks','x',0,'999998');
-insert into `secObjPrivilege` values('Clinical Assistant','_pmm','x',0,'999998');
-insert into `secObjPrivilege` values('Clinical Assistant','_pref','x',0,'999998');
 
 
 insert into `secObjPrivilege` values('secretary','_appointment','x',0,'999998');
@@ -2358,7 +2122,6 @@ insert into `secObjPrivilege` values('secretary','_pmm.clientSearch','x',0,'9999
 insert into `secObjPrivilege` values('secretary','_pmm.mergeRecords','x',0,'999998');
 insert into `secObjPrivilege` values('secretary','_pmm.newClient','x',0,'999998');
 insert into `secObjPrivilege` values('secretary','_tasks','x',0,'999998');
-insert into `secObjPrivilege` values('secretary','_pref','x',0,'999998');
 
 insert into `secObjPrivilege` values('Support Worker','_appointment','x',0,'999998');
 insert into `secObjPrivilege` values('Support Worker','_casemgmt.issues','x',0,'999998');
@@ -2372,8 +2135,6 @@ insert into `secObjPrivilege` values('Support Worker','_pmm.caseManagement','x',
 insert into `secObjPrivilege` values('Support Worker','_pmm.clientSearch','x',0,'999998');
 insert into `secObjPrivilege` values('Support Worker','_pmm.newClient','x',0,'999998');
 insert into `secObjPrivilege` values('Support Worker','_tasks','x',0,'999998');
-insert into `secObjPrivilege` values('Support Worker','_pmm','x',0,'999998');
-insert into `secObjPrivilege` values('Support Worker','_pref','x',0,'999998');
 
 insert into `secObjPrivilege` values('Client Service Worker','_appointment','x',0,'999998');
 insert into `secObjPrivilege` values('Client Service Worker','_casemgmt.issues','x',0,'999998');
@@ -2387,8 +2148,6 @@ insert into `secObjPrivilege` values('Client Service Worker','_pmm.caseManagemen
 insert into `secObjPrivilege` values('Client Service Worker','_pmm.clientSearch','x',0,'999998');
 insert into `secObjPrivilege` values('Client Service Worker','_pmm.newClient','x',0,'999998');
 insert into `secObjPrivilege` values('Client Service Worker','_tasks','x',0,'999998');
-insert into `secObjPrivilege` values('Client Service Worker','_pmm','x',0,'999998');
-insert into `secObjPrivilege` values('Client Service Worker','_pref','x',0,'999998');
 
 insert into `secObjPrivilege` values('Recreation Therapist','_appointment','x',0,'999998');
 insert into `secObjPrivilege` values('Recreation Therapist','_casemgmt.issues','x',0,'999998');
@@ -2404,8 +2163,6 @@ insert into `secObjPrivilege` values('Recreation Therapist','_pmm.clientSearch',
 insert into `secObjPrivilege` values('Recreation Therapist','_pmm.mergeRecords','x',0,'999998');
 insert into `secObjPrivilege` values('Recreation Therapist','_pmm.newClient','x',0,'999998');
 insert into `secObjPrivilege` values('Recreation Therapist','_tasks','x',0,'999998');
-insert into `secObjPrivilege` values('Recreation Therapist','_pmm','x',0,'999998');
-insert into `secObjPrivilege` values('Recreation Therapist','_pref','x',0,'999998');
 
 insert into `secObjPrivilege` values('Counselling Intern','_appointment','x',0,'999998');
 insert into `secObjPrivilege` values('Counselling Intern','_casemgmt.issues','x',0,'999998');
@@ -2421,10 +2178,7 @@ insert into `secObjPrivilege` values('Counselling Intern','_pmm.clientSearch','x
 insert into `secObjPrivilege` values('Counselling Intern','_pmm.mergeRecords','x',0,'999998');
 insert into `secObjPrivilege` values('Counselling Intern','_pmm.newClient','x',0,'999998');
 insert into `secObjPrivilege` values('Counselling Intern','_tasks','x',0,'999998');
-insert into `secObjPrivilege` values('Counselling Intern','_pmm','x',0,'999998');
-insert into `secObjPrivilege` values('Counselling Intern','_pref','x',0,'999998');
 
-insert into `secObjPrivilege` values('Field Note Admin','_admin.fieldnote','x',0,'999998');
 
 insert into lst_orgcd (code, description, activeyn, orderbyindex,codetree) values('R0000001','Shelter Management Information System',1,10,'R000001');
 
@@ -2433,20 +2187,7 @@ insert into lst_orgcd (code, description, activeyn, orderbyindex,codetree) value
 INSERT INTO `country_codes` VALUES (1,'AFGHANISTAN','AF','en'),(2,'LAND ISLANDS','AX','en'),(3,'ALBANIA','AL','en'),(4,'ALGERIA','DZ','en'),(5,'AMERICAN SAMOA','AS','en'),(6,'ANDORRA','AD','en'),(7,'ANGOLA','AO','en'),(8,'ANGUILLA','AI','en'),(9,'ANTARCTICA','AQ','en'),(10,'ANTIGUA AND BARBUDA','AG','en'),(11,'ARGENTINA','AR','en'),(12,'ARMENIA','AM','en'),(13,'ARUBA','AW','en'),(14,'AUSTRALIA','AU','en'),(15,'AUSTRIA','AT','en'),(16,'AZERBAIJAN','AZ','en'),(17,'BAHAMAS','BS','en'),(18,'BAHRAIN','BH','en'),(19,'BANGLADESH','BD','en'),(20,'BARBADOS','BB','en'),(21,'BELARUS','BY','en'),(22,'BELGIUM','BE','en'),(23,'BELIZE','BZ','en'),(24,'BENIN','BJ','en'),(25,'BERMUDA','BM','en'),(26,'BHUTAN','BT','en'),(27,'BOLIVIA','BO','en'),(28,'BOSNIA AND HERZEGOVINA','BA','en'),(29,'BOTSWANA','BW','en'),(30,'BOUVET ISLAND','BV','en'),(31,'BRAZIL','BR','en'),(32,'BRITISH INDIAN OCEAN TERRITORY','IO','en'),(33,'BRUNEI DARUSSALAM','BN','en'),(34,'BULGARIA','BG','en'),(35,'BURKINA FASO','BF','en'),(36,'BURUNDI','BI','en'),(37,'CAMBODIA','KH','en'),(38,'CAMEROON','CM','en'),(39,'CANADA','CA','en'),(40,'CAPE VERDE','CV','en'),(41,'CAYMAN ISLANDS','KY','en'),(42,'CENTRAL AFRICAN REPUBLIC','CF','en'),(43,'CHAD','TD','en'),(44,'CHILE','CL','en'),(45,'CHINA','CN','en'),(46,'CHRISTMAS ISLAND','CX','en'),(47,'COCOS (KEELING) ISLANDS','CC','en'),(48,'COLOMBIA','CO','en'),(49,'COMOROS','KM','en'),(50,'CONGO','CG','en'),(51,'CONGO, THE DEMOCRATIC REPUBLIC OF THE','CD','en'),(52,'COOK ISLANDS','CK','en'),(53,'COSTA RICA','CR','en'),(54,'CïTE D IVOIRE','CI','en'),(55,'CROATIA','HR','en'),(56,'CUBA','CU','en'),(57,'CYPRUS','CY','en'),(58,'CZECH REPUBLIC','CZ','en'),(59,'DENMARK','DK','en'),(60,'DJIBOUTI','DJ','en'),(61,'DOMINICA','DM','en'),(62,'DOMINICAN REPUBLIC','DO','en'),(63,'ECUADOR','EC','en'),(64,'EGYPT','EG','en'),(65,'EL SALVADOR','SV','en'),(66,'EQUATORIAL GUINEA','GQ','en'),(67,'ERITREA','ER','en'),(68,'ESTONIA','EE','en'),(69,'ETHIOPIA','ET','en'),(70,'FALKLAND ISLANDS (MALVINAS)','FK','en'),(71,'FAROE ISLANDS','FO','en'),(72,'FIJI','FJ','en'),(73,'FINLAND','FI','en'),(74,'FRANCE','FR','en'),(75,'FRENCH GUIANA','GF','en'),(76,'FRENCH POLYNESIA','PF','en'),(77,'FRENCH SOUTHERN TERRITORIES','TF','en'),(78,'GABON','GA','en'),(79,'GAMBIA','GM','en'),(80,'GEORGIA','GE','en'),(81,'GERMANY','DE','en'),(82,'GHANA','GH','en'),(83,'GIBRALTAR','GI','en'),(84,'GREECE','GR','en'),(85,'GREENLAND','GL','en'),(86,'GRENADA','GD','en'),(87,'GUADELOUPE','GP','en'),(88,'GUAM','GU','en'),(89,'GUATEMALA','GT','en'),(90,'GUERNSEY','GG','en'),(91,'GUINEA','GN','en'),(92,'GUINEA-BISSAU','GW','en'),(93,'GUYANA','GY','en'),(94,'HAITI','HT','en'),(95,'HEARD ISLAND AND MCDONALD ISLANDS','HM','en'),(96,'HOLY SEE (VATICAN CITY STATE)','VA','en'),(97,'HONDURAS','HN','en'),(98,'HONG KONG','HK','en'),(99,'HUNGARY','HU','en'),(100,'ICELAND','IS','en'),(101,'INDIA','IN','en'),(102,'INDONESIA','ID','en'),(103,'IRAN, ISLAMIC REPUBLIC OF','IR','en'),(104,'IRAQ','IQ','en'),(105,'IRELAND','IE','en'),(106,'ISLE OF MAN','IM','en'),(107,'ISRAEL','IL','en'),(108,'ITALY','IT','en'),(109,'JAMAICA','JM','en'),(110,'JAPAN','JP','en'),(111,'JERSEY','JE','en'),(112,'JORDAN','JO','en'),(113,'KAZAKHSTAN','KZ','en'),(114,'KENYA','KE','en'),(115,'KIRIBATI','KI','en'),(116,'KOREA, DEMOCRATIC PEOPLES REPUBLIC OF','KP','en'),(117,'KOREA, REPUBLIC OF','KR','en'),(118,'KUWAIT','KW','en'),(119,'KYRGYZSTAN','KG','en'),(120,'LAO PEOPLES DEMOCRATIC REPUBLIC','LA','en'),(121,'LATVIA','LV','en'),(122,'LEBANON','LB','en'),(123,'LESOTHO','LS','en'),(124,'LIBERIA','LR','en'),(125,'LIBYAN ARAB JAMAHIRIYA','LY','en'),(126,'LIECHTENSTEIN','LI','en'),(127,'LITHUANIA','LT','en'),(128,'LUXEMBOURG','LU','en'),(129,'MACAO','MO','en'),(130,'MACEDONIA, THE FORMER YUGOSLAV REPUBLIC OF','MK','en'),(131,'MADAGASCAR','MG','en'),(132,'MALAWI','MW','en'),(133,'MALAYSIA','MY','en'),(134,'MALDIVES','MV','en'),(135,'MALI','ML','en'),(136,'MALTA','MT','en'),(137,'MARSHALL ISLANDS','MH','en'),(138,'MARTINIQUE','MQ','en'),(139,'MAURITANIA','MR','en'),(140,'MAURITIUS','MU','en'),(141,'MAYOTTE','YT','en'),(142,'MEXICO','MX','en'),(143,'MICRONESIA, FEDERATED STATES OF','FM','en'),(144,'MOLDOVA','MD','en'),(145,'MONACO','MC','en'),(146,'MONGOLIA','MN','en'),(147,'MONTENEGRO','ME','en'),(148,'MONTSERRAT','MS','en'),(149,'MOROCCO','MA','en'),(150,'MOZAMBIQUE','MZ','en'),(151,'MYANMAR','MM','en'),(152,'NAMIBIA','NA','en'),(153,'NAURU','NR','en'),(154,'NEPAL','NP','en'),(155,'NETHERLANDS','NL','en'),(156,'NETHERLANDS ANTILLES','AN','en'),(157,'NEW CALEDONIA','NC','en'),(158,'NEW ZEALAND','NZ','en'),(159,'NICARAGUA','NI','en'),(160,'NIGER','NE','en'),(161,'NIGERIA','NG','en'),(162,'NIUE','NU','en'),(163,'NORFOLK ISLAND','NF','en'),(164,'NORTHERN MARIANA ISLANDS','MP','en'),(165,'NORWAY','NO','en'),(166,'OMAN','OM','en'),(167,'PAKISTAN','PK','en'),(168,'PALAU','PW','en'),(169,'PALESTINIAN TERRITORY, OCCUPIED','PS','en'),(170,'PANAMA','PA','en'),(171,'PAPUA NEW GUINEA','PG','en'),(172,'PARAGUAY','PY','en'),(173,'PERU','PE','en'),(174,'PHILIPPINES','PH','en'),(175,'PITCAIRN','PN','en'),(176,'POLAND','PL','en'),(177,'PORTUGAL','PT','en'),(178,'PUERTO RICO','PR','en'),(179,'QATAR','QA','en'),(180,'RƒUNION','RE','en'),(181,'ROMANIA','RO','en'),(182,'RUSSIAN FEDERATION','RU','en'),(183,'RWANDA','RW','en'),(184,'SAINT BARTHƒLEMY','BL','en'),(185,'SAINT HELENA','SH','en'),(186,'SAINT KITTS AND NEVIS','KN','en'),(187,'SAINT LUCIA','LC','en'),(188,'SAINT MARTIN','MF','en'),(189,'SAINT PIERRE AND MIQUELON','PM','en'),(190,'SAINT VINCENT AND THE GRENADINES','VC','en'),(191,'SAMOA','WS','en'),(192,'SAN MARINO','SM','en'),(193,'SAO TOME AND PRINCIPE','ST','en'),(194,'SAUDI ARABIA','SA','en'),(195,'SENEGAL','SN','en'),(196,'SERBIA','RS','en'),(197,'SEYCHELLES','SC','en'),(198,'SIERRA LEONE','SL','en'),(199,'SINGAPORE','SG','en'),(200,'SLOVAKIA','SK','en'),(201,'SLOVENIA','SI','en'),(202,'SOLOMON ISLANDS','SB','en'),(203,'SOMALIA','SO','en'),(204,'SOUTH AFRICA','ZA','en'),(205,'SOUTH GEORGIA AND THE SOUTH SANDWICH ISLANDS','GS','en'),(206,'SPAIN','ES','en'),(207,'SRI LANKA','LK','en'),(208,'SUDAN','SD','en'),(209,'SURINAME','SR','en'),(210,'SVALBARD AND JAN MAYEN','SJ','en'),(211,'SWAZILAND','SZ','en'),(212,'SWEDEN','SE','en'),(213,'SWITZERLAND','CH','en'),(214,'SYRIAN ARAB REPUBLIC','SY','en'),(215,'TAIWAN, PROVINCE OF CHINA','TW','en'),(216,'TAJIKISTAN','TJ','en'),(217,'TANZANIA, UNITED REPUBLIC OF','TZ','en'),(218,'THAILAND','TH','en'),(219,'TIMOR-LESTE','TL','en'),(220,'TOGO','TG','en'),(221,'TOKELAU','TK','en'),(222,'TONGA','TO','en'),(223,'TRINIDAD AND TOBAGO','TT','en'),(224,'TUNISIA','TN','en'),(225,'TURKEY','TR','en'),(226,'TURKMENISTAN','TM','en'),(227,'TURKS AND CAICOS ISLANDS','TC','en'),(228,'TUVALU','TV','en'),(229,'UGANDA','UG','en'),(230,'UKRAINE','UA','en'),(231,'UNITED ARAB EMIRATES','AE','en'),(232,'UNITED KINGDOM','GB','en'),(233,'UNITED STATES','US','en'),(234,'UNITED STATES MINOR OUTLYING ISLANDS','UM','en'),(235,'URUGUAY','UY','en'),(236,'UZBEKISTAN','UZ','en'),(237,'VANUATU','VU','en'),(238,'VATICAN CITY STATE','VA','en'),(239,'VENEZUELA','VE','en'),(240,'VIET NAM','VN','en'),(241,'VIRGIN ISLANDS, BRITISH','VG','en'),(242,'VIRGIN ISLANDS, U.S.','VI','en'),(243,'WALLIS AND FUTUNA','WF','en'),(244,'WESTERN SAHARA','EH','en'),(245,'YEMEN','YE','en'),(246,'ZAMBIA','ZM','en'),(247,'ZIMBABWE','ZW','en');
 
 
-INSERT INTO `appointment_status` VALUES 
-(1,'t','To Do','#FDFEC7','starbill.gif',1,0,0,'TODO'),
-(2,'T','Daysheet Printed','#FDFEC7','todo.gif',1,0,0,'DSPrt'),
-(3,'H','Here','#00ee00','here.gif',1,1,0,'HERE'),
-(4,'P','Picked','#FFBBFF','picked.gif',1,1,0,'PICK'),
-(5,'E','Empty Room','#FFFF33','empty.gif',1,1,0,'EmpRm'),
-(11,'N','No Show','#cccccc','noshow.gif',1,0,0,'NOSHO'),
-(12,'C','Cancelled','#999999','cancel.gif',1,0,0,'CAN'),
-(13,'B','Billed','#3ea4e1','billed.gif',1,0,0,'BILL'),
-(6,'a','Customized 1','#897DF8','1.gif',1,1,0,'CUST1'),
-(7,'b','Customized 2','#897DF8','2.gif',1,1,0,'CUST2'),
-(8,'c','Customized 3','#897DF8','3.gif',0,1,0,'CUST3'),
-(9,'d','Customized 4','#897DF8','4.gif',1,1,0,'CUST4'),
-(10,'e','Customized 5','#897DF8','5.gif',1,1,0,'CUST5');
+INSERT INTO `appointment_status` VALUES (1,'t','To Do','#FDFEC7','starbill.gif',1,0),(2,'T','Daysheet Printed','#FDFEC7','todo.gif',1,0),(3,'H','Here','#00ee00','here.gif',1,1),(4,'P','Picked','#FFBBFF','picked.gif',1,1),(5,'E','Empty Room','#FFFF33','empty.gif',1,1),(11,'N','No Show','#cccccc','noshow.gif',1,0),(12,'C','Cancelled','#999999','cancel.gif',1,0),(13,'B','Billed','#3ea4e1','billed.gif',1,0),(6,'a','Customized 1','#897DF8','1.gif',1,1),(7,'b','Customized 2','#897DF8','2.gif',1,1),(8,'c','Customized 3','#897DF8','3.gif',0,1),(9,'d','Customized 4','#897DF8','4.gif',1,1),(10,'e','Customized 5','#897DF8','5.gif',1,1);
 
 insert into gstControl set gstPercent = 5;
 
@@ -2477,19 +2218,19 @@ SELECT
 	,'Partner Doctor' AS `description`;
 
 
-insert into issue (code,description,role,update_date,priority,type,sortOrderId) values ('PastOcularHistory','Past Ocular History','nurse',now(),NULL,'system',0);
-insert into issue (code,description,role,update_date,priority,type,sortOrderId) values ('DiagnosticNotes','Diagnostic Notes','nurse',now(),NULL,'system',0);
-insert into issue (code,description,role,update_date,priority,type,sortOrderId) values ('OcularMedication','Ocular Medication','nurse',now(),NULL,'system',0);
-insert into issue (code,description,role,update_date,priority,type,sortOrderId) values ('PatientLog','Patient Log','nurse',now(),NULL,'system',0);
-insert into issue (`code`,`description`,`role`,`update_date`,type,sortOrderId) Values('CurrentHistory','Current History', 'nurse', now(),'system',0);
+insert into issue (code,description,role,update_date,priority,type) values ('PastOcularHistory','Past Ocular History','nurse',now(),NULL,'system');
+insert into issue (code,description,role,update_date,priority,type) values ('DiagnosticNotes','Diagnostic Notes','nurse',now(),NULL,'system');
+insert into issue (code,description,role,update_date,priority,type) values ('OcularMedication','Ocular Medication','nurse',now(),NULL,'system');
+insert into issue (code,description,role,update_date,priority,type) values ('PatientLog','Patient Log','nurse',now(),NULL,'system');
+insert into issue (`code`,`description`,`role`,`update_date`) Values('CurrentHistory','Current History', 'nurse', now());
 
-INSERT INTO `issue` (`code`, `description`, `role`, `update_date`, `priority`, `type`,sortOrderId)
+INSERT INTO `issue` (`code`, `description`, `role`, `update_date`, `priority`, `type`)
 VALUES
-        ('eyeformFollowUp', 'Follow-Up Item for Eyeform', 'nurse', NOW(), NULL, 'system',0),
-        ('eyeformCurrentIssue', 'Current Presenting Issue Item for Eyeform', 'nurse', NOW(), NULL, 'system',0),
-        ('eyeformPlan', 'Plan Item for Eyeform', 'nurse', NOW(), NULL, 'system',0),
-        ('eyeformImpression', 'Impression History Item for Eyeform', 'nurse', NOW(), NULL, 'system',0),
-        ('eyeformProblem', 'Problem List Item for Eyeform', 'nurse', NOW(), NULL, 'system',0);
+        ('eyeformFollowUp', 'Follow-Up Item for Eyeform', 'nurse', NOW(), NULL, 'system'),
+        ('eyeformCurrentIssue', 'Current Presenting Issue Item for Eyeform', 'nurse', NOW(), NULL, 'system'),
+        ('eyeformPlan', 'Plan Item for Eyeform', 'nurse', NOW(), NULL, 'system'),
+        ('eyeformImpression', 'Impression History Item for Eyeform', 'nurse', NOW(), NULL, 'system'),
+        ('eyeformProblem', 'Problem List Item for Eyeform', 'nurse', NOW(), NULL, 'system');
 
 
 insert into HRMCategory values (null, 'General Oscar Lab', 'DEFAULT');
@@ -2737,156 +2478,3 @@ insert into tickler_text_suggest (creator, suggested_text, create_date, active) 
 insert into tickler_text_suggest (creator, suggested_text, create_date, active) values ("-1", "Re-Booked for followup", now(), "1");
 insert into tickler_text_suggest (creator, suggested_text, create_date, active) values ("-1", "Returned for Lab Work", now(), "1");
 insert into tickler_text_suggest (creator, suggested_text, create_date, active) values ("-1", "Telephone Busy", now(), "1");
-
-INSERT INTO secObjectName VALUES('_caseload.DisplayMode',NULL,0);
-INSERT INTO secObjectName VALUES('_caseload.Age',NULL,0);
-INSERT INTO secObjectName VALUES('_caseload.Sex',NULL,0);
-INSERT INTO secObjectName VALUES('_caseload.LastAppt',NULL,0);
-INSERT INTO secObjectName VALUES('_caseload.NextAppt',NULL,0);
-INSERT INTO secObjectName VALUES('_caseload.ApptsLYTD',NULL,0);
-INSERT INTO secObjectName VALUES('_caseload.Lab',NULL,0);
-INSERT INTO secObjectName VALUES('_caseload.Doc',NULL,0);
-INSERT INTO secObjectName VALUES('_caseload.Tickler',NULL,0);
-INSERT INTO secObjectName VALUES('_caseload.Msg',NULL,0);
-INSERT INTO secObjectName VALUES('_caseload.BMI',NULL,0);
-INSERT INTO secObjectName VALUES('_caseload.BP',NULL,0);
-INSERT INTO secObjectName VALUES('_caseload.WT',NULL,0);
-INSERT INTO secObjectName VALUES('_caseload.SMK',NULL,0);
-INSERT INTO secObjectName VALUES('_caseload.A1C',NULL,0);
-INSERT INTO secObjectName VALUES('_caseload.ACR',NULL,0);
-INSERT INTO secObjectName VALUES('_caseload.SCR',NULL,0);
-INSERT INTO secObjectName VALUES('_caseload.LDL',NULL,0);
-INSERT INTO secObjectName VALUES('_caseload.HDL',NULL,0);
-INSERT INTO secObjectName VALUES('_caseload.TCHD',NULL,0);
-INSERT INTO secObjectName VALUES('_caseload.EGFR',NULL,0);
-INSERT INTO secObjectName VALUES('_caseload.EYEE',NULL,0);
-INSERT INTO secObjectName VALUES('_caseload.LastEncounterDate',NULL,0);
-INSERT INTO secObjectName VALUES('_caseload.LastEncounterType',NULL,0);
-INSERT INTO secObjectName VALUES('_caseload.CashAdmissionDate',NULL,0);
-INSERT INTO secObjectName VALUES('_caseload.Access1AdmissionDate',NULL,0);
-
-insert into `secObjectName`  (`objectName`,`description`,`orgapplicable`) values ('_admin.traceability', 'Right to generate trace and run traceability report',0);
-
-
-
-INSERT INTO secObjPrivilege VALUES('doctor','_caseload.DisplayMode','x',0,'999998');
-INSERT INTO secObjPrivilege VALUES('doctor','_caseload.Age','x',0,'999998');
-INSERT INTO secObjPrivilege VALUES('doctor','_caseload.Sex','x',0,'999998');
-INSERT INTO secObjPrivilege VALUES('doctor','_caseload.LastAppt','x',0,'999998');
-INSERT INTO secObjPrivilege VALUES('doctor','_caseload.NextAppt','x',0,'999998');
-INSERT INTO secObjPrivilege VALUES('doctor','_caseload.ApptsLYTD','x',0,'999998');
-INSERT INTO secObjPrivilege VALUES('doctor','_caseload.Lab','x',0,'999998');
-INSERT INTO secObjPrivilege VALUES('doctor','_caseload.Doc','x',0,'999998');
-INSERT INTO secObjPrivilege VALUES('doctor','_caseload.Tickler','x',0,'999998');
-INSERT INTO secObjPrivilege VALUES('doctor','_caseload.Msg','x',0,'999998');
-INSERT INTO secObjPrivilege VALUES('doctor','_caseload.BMI','x',0,'999998');
-INSERT INTO secObjPrivilege VALUES('doctor','_caseload.BP','x',0,'999998');
-INSERT INTO secObjPrivilege VALUES('doctor','_caseload.WT','x',0,'999998');
-INSERT INTO secObjPrivilege VALUES('doctor','_caseload.SMK','x',0,'999998');
-INSERT INTO secObjPrivilege VALUES('doctor','_caseload.A1C','x',0,'999998');
-INSERT INTO secObjPrivilege VALUES('doctor','_caseload.ACR','x',0,'999998');
-INSERT INTO secObjPrivilege VALUES('doctor','_caseload.LDL','x',0,'999998');
-INSERT INTO secObjPrivilege VALUES('doctor','_caseload.HDL','x',0,'999998');
-INSERT INTO secObjPrivilege VALUES('doctor','_caseload.TCHD','x',0,'999998');
-INSERT INTO secObjPrivilege VALUES('doctor','_caseload.EGFR','x',0,'999998');
-INSERT INTO secObjPrivilege VALUES('doctor','_caseload.EYEE','x',0,'999998');
-INSERT INTO secObjPrivilege VALUES('doctor','_caseload.LastEncounterDate','o',0,'999998');
-INSERT INTO secObjPrivilege VALUES('doctor','_caseload.LastEncounterType','o',0,'999998');
-INSERT INTO secObjPrivilege VALUES('doctor','_caseload.CashAdmissionDate','o',0,'999998');
-INSERT INTO secObjPrivilege VALUES('doctor','_caseload.Access1AdmissionDate','o',0,'999998');
-
-INSERT INTO `OscarCode` VALUES (1,'CKDSCREEN','Ckd Screening');
-
-insert into CtlRelationships (value,label,active,maleInverse,femaleInverse) values ('Mother','Mother',true,'Son','Daughter');
-insert into CtlRelationships (value,label,active,maleInverse,femaleInverse) values ('Father','Father',true,'Son','Daughter');
-insert into CtlRelationships (value,label,active,maleInverse,femaleInverse) values ('Parent','Parent',true,'Son','Daughter');
-insert into CtlRelationships (value,label,active,maleInverse,femaleInverse) values ('Wife','Wife',true,'Husband','Partner');
-insert into CtlRelationships (value,label,active,maleInverse,femaleInverse) values ('Husband','Husband',true,'Partner','Wife');
-insert into CtlRelationships (value,label,active,maleInverse,femaleInverse) values ('Partner','Partner',true,'Partner','Partner');
-insert into CtlRelationships (value,label,active,maleInverse,femaleInverse) values ('Brother','Brother',true,'Brother','Sister');
-insert into CtlRelationships (value,label,active,maleInverse,femaleInverse) values ('Sister','Sister',true,'Brother','Sister');
-insert into CtlRelationships (value,label,active,maleInverse,femaleInverse) values ('Son','Son',true,'Father','Mother');
-insert into CtlRelationships (value,label,active,maleInverse,femaleInverse) values ('Daughter','Daughter',true,'Father','Mother');
-insert into CtlRelationships (value,label,active,maleInverse,femaleInverse) values ('Aunt','Aunt',true,'Nephew','Niece');
-insert into CtlRelationships (value,label,active,maleInverse,femaleInverse) values ('Uncle','Uncle',true,'Nephew','Niece');
-insert into CtlRelationships (value,label,active,maleInverse,femaleInverse) values ('Nephew','Nephew',true,'Uncle','Aunt');
-insert into CtlRelationships (value,label,active,maleInverse,femaleInverse) values ('Niece','Niece',true,'Uncle','Aunt');
-insert into CtlRelationships (value,label,active,maleInverse,femaleInverse) values ('GrandFather','GrandFather',true,'GrandSon','GrandDaughter');
-insert into CtlRelationships (value,label,active,maleInverse,femaleInverse) values ('GrandMother','GrandMother',true,'GrandSon','GrandDaughter');
-insert into CtlRelationships (value,label,active,maleInverse,femaleInverse) values ('Foster Parent','Foster Parent',true,'Foster Son','Foster Daughter');
-insert into CtlRelationships (value,label,active,maleInverse,femaleInverse) values ('Foster Son','Foster Son',true,'Foster Parent','Foster Parent');
-insert into CtlRelationships (value,label,active,maleInverse,femaleInverse) values ('Foster Daughter','Foster Daughter',true,'Foster Parent','Foster Parent');
-insert into CtlRelationships (value,label,active) values ('Guardian','Guardian',true);
-insert into CtlRelationships (value,label,active) values ('Next of Kin','Next of kin',true);
-insert into CtlRelationships (value,label,active) values ('Administrative Staff','Administrative Staff',true);
-insert into CtlRelationships (value,label,active) values ('Care Giver','Care Giver',true);
-insert into CtlRelationships (value,label,active) values ('Power of Attorney','Power of Attorney',true);
-insert into CtlRelationships (value,label,active) values ('Insurance','Insurance',true);
-insert into CtlRelationships (value,label,active) values ('Guarantor','Guarantor',true);
-insert into CtlRelationships (value,label,active) values ('Other','Other',true);
-
-INSERT INTO LookupList(name, description, categoryId, active, createdBy, dateCreated) VALUES('reasonCode', 'Reason Code', null, 1, 'oscar', CURRENT_TIMESTAMP);
-
-SET @lookupListId:=LAST_INSERT_ID();
-
-INSERT INTO LookupListItem(lookupListId, `value`, label, displayOrder, active, createdBy, dateCreated) VALUES(@lookupListId, 'Contraception'                 , 'Contraception'                 , 1 , 1, 'oscar', CURRENT_TIMESTAMP);
-INSERT INTO LookupListItem(lookupListId, `value`, label, displayOrder, active, createdBy, dateCreated) VALUES(@lookupListId, 'Counselling'                   , 'Counselling'                   , 2 , 1, 'oscar', CURRENT_TIMESTAMP);
-INSERT INTO LookupListItem(lookupListId, `value`, label, displayOrder, active, createdBy, dateCreated) VALUES(@lookupListId, 'ECP'                           , 'ECP'                           , 3 , 1, 'oscar', CURRENT_TIMESTAMP);
-INSERT INTO LookupListItem(lookupListId, `value`, label, displayOrder, active, createdBy, dateCreated) VALUES(@lookupListId, 'Follow-Up'                     , 'Follow-Up'                     , 4 , 1, 'oscar', CURRENT_TIMESTAMP);
-INSERT INTO LookupListItem(lookupListId, `value`, label, displayOrder, active, createdBy, dateCreated) VALUES(@lookupListId, 'Genital Warts Treatment'       , 'Genital Warts Treatment'       , 5 , 1, 'oscar', CURRENT_TIMESTAMP);
-INSERT INTO LookupListItem(lookupListId, `value`, label, displayOrder, active, createdBy, dateCreated) VALUES(@lookupListId, 'HIV Testing'                   , 'HIV Testing'                   , 6 , 1, 'oscar', CURRENT_TIMESTAMP);
-INSERT INTO LookupListItem(lookupListId, `value`, label, displayOrder, active, createdBy, dateCreated) VALUES(@lookupListId, 'Immunization'                  , 'Immunization'                  , 7 , 1, 'oscar', CURRENT_TIMESTAMP);
-INSERT INTO LookupListItem(lookupListId, `value`, label, displayOrder, active, createdBy, dateCreated) VALUES(@lookupListId, 'IUD Removal'                   , 'IUD Removal'                   , 8 , 1, 'oscar', CURRENT_TIMESTAMP);
-INSERT INTO LookupListItem(lookupListId, `value`, label, displayOrder, active, createdBy, dateCreated) VALUES(@lookupListId, 'Needle Exchange'               , 'Needle Exchange'               , 9 , 1, 'oscar', CURRENT_TIMESTAMP);
-INSERT INTO LookupListItem(lookupListId, `value`, label, displayOrder, active, createdBy, dateCreated) VALUES(@lookupListId, 'PAP Test'                      , 'PAP Test'                      , 10, 1, 'oscar', CURRENT_TIMESTAMP);
-INSERT INTO LookupListItem(lookupListId, `value`, label, displayOrder, active, createdBy, dateCreated) VALUES(@lookupListId, 'Pregnancy Test'                , 'Pregnancy Test'                , 11, 1, 'oscar', CURRENT_TIMESTAMP);
-INSERT INTO LookupListItem(lookupListId, `value`, label, displayOrder, active, createdBy, dateCreated) VALUES(@lookupListId, 'Repeat PAP Test'               , 'Repeat PAP Test'               , 12, 1, 'oscar', CURRENT_TIMESTAMP);
-INSERT INTO LookupListItem(lookupListId, `value`, label, displayOrder, active, createdBy, dateCreated) VALUES(@lookupListId, 'Results'                       , 'Results'                       , 13, 1, 'oscar', CURRENT_TIMESTAMP);
-INSERT INTO LookupListItem(lookupListId, `value`, label, displayOrder, active, createdBy, dateCreated) VALUES(@lookupListId, 'STI Exam'                      , 'STI Exam'                      , 14, 1, 'oscar', CURRENT_TIMESTAMP);
-INSERT INTO LookupListItem(lookupListId, `value`, label, displayOrder, active, createdBy, dateCreated) VALUES(@lookupListId, 'STI Prescription/Treatment'    , 'STI Prescription/Treatment'    , 15, 1, 'oscar', CURRENT_TIMESTAMP);
-INSERT INTO LookupListItem(lookupListId, `value`, label, displayOrder, active, createdBy, dateCreated) VALUES(@lookupListId, 'Therapeutic Abortion Follow-Up', 'Therapeutic Abortion Follow-Up', 16, 1, 'oscar', CURRENT_TIMESTAMP);
-INSERT INTO LookupListItem(lookupListId, `value`, label, displayOrder, active, createdBy, dateCreated) VALUES(@lookupListId, 'Others'						 , 'Others'						   , 99, 1, 'oscar', CURRENT_TIMESTAMP);
-
-insert into issue (code,description,role,update_date,type,sortOrderId) values ('TicklerNote','Tickler Note', 'nurse',now(),'system', 0);
-
-insert into documentDescriptionTemplate (doctype,description,descriptionShortcut,provider_no) values ('lab','Hematology','Hema',NULL);
-insert into documentDescriptionTemplate (doctype,description,descriptionShortcut,provider_no) values ('lab','Biochemistry','Bio',NULL);
-insert into documentDescriptionTemplate (doctype,description,descriptionShortcut,provider_no) values ('lab','ECG','ECG',NULL);
-insert into documentDescriptionTemplate (doctype,description,descriptionShortcut,provider_no) values ('radiology','Ultrasound','US',NULL);
-insert into documentDescriptionTemplate (doctype,description,descriptionShortcut,provider_no) values ('radiology','MRI','MRI',NULL);
-insert into documentDescriptionTemplate (doctype,description,descriptionShortcut,provider_no) values ('radiology','CT-SCAN','Scan',NULL);
-insert into documentDescriptionTemplate (doctype,description,descriptionShortcut,provider_no) values ('radiology','X-Ray','XRay',NULL);
-
-insert into `secObjectName` (`objectName`) values('_rx.dispense');
-insert into `secObjPrivilege` values('doctor','_rx.dispense','x',0,'999998');
-
-
-insert into ProductLocation (name) values ('Default');
-
-INSERT INTO `consentType` VALUES ('1', 'integrator_patient_consent', 'Sunshiner frailty network', 'Patient Permissions for Integrator enabled sharing of: Chart notes, RXes, eforms, allergies, documents (e.g.photos) Discussed with patient (and/or their representative) and they have consented to integrator enabled sharing of their information with Sunshiners Frailty Network', '1');
-
-insert into EncounterType (value,global) VALUES ('face to face encounter with client',1),('telephone encounter with client',1),('email encounter with client',1),('encounter without client',1),('group face to face encounter',0),('group telephone encounter',0),('group encounter with client',0),('group encounter without group',0);
-
-INSERT INTO `tickler_category` VALUES ('1', 'To Call In', 'Call this patient in for a follow-up visit', b'1'), ('2', 'Reminder Note', 'Send a reminder note to this patient', b'1'), ('3', 'Follow-up Billing', 'Follow-up Additional Billing', b'1');
-
-insert into `secObjectName` (`objectName`) values ('_newCasemgmt.clearTempNotes');
-insert into `secObjPrivilege` values('admin','_newCasemgmt.clearTempNotes','x',0,'999998');
-
-INSERT INTO `LookupList` (`listTitle`,`name`, description, categoryId, active, createdBy, dateCreated) VALUES('Consultation Request Appointment Instructions List', 'consultApptInst', 'Select list for the consultation appointment instruction select list', NULL, '1', 'oscar', NOW() );
-INSERT INTO `LookupListItem` (lookupListId, value, label, displayOrder, active, createdBy, dateCreated)( 
-SELECT id, UUID(), 'Please reply to sending facility by fax or phone with appointment','1', '1','oscar', NOW() FROM `LookupList` WHERE `name` = "consultApptInst" );
-
-insert into scheduletemplate Values('Public','P:OnCallClinic','Weekends/Holidays','________________________________________CCCCCCCCCCCCCCCC________________________________________');
-
-insert into scheduletemplatecode Values(null,'C','On Call Clinic','15','green','Onc',1);
-
-insert into OscarJobType Values(null,'OSCAR ON CALL CLINIC', 'Notifies MRP if patient seen during on-call clinic','org.oscarehr.jobs.OscarOnCallClinic',false,now());
-
-insert into OscarJob Values(null,'OSCAR On-Call Clinic',null,(select id from OscarJobType where name = 'OSCAR ON CALL CLINIC'),'0 0 4 * * *','999998',false,now());
-
-INSERT INTO `OscarJobType` VALUES (null,'OSCAR MSG REVIEW','Sends OSCAR Messages to Residents Supervisors when charts need to be reviewed','org.oscarehr.jobs.OscarMsgReviewSender',0,now());
-INSERT INTO `OscarJob` VALUES (null,'OSCAR Message Review','',(select id from OscarJobType where name = 'OSCAR MSG REVIEW') ,'0 0/30 * * * *','999998',0,now());
-
-INSERT INTO  `secObjectName` (`objectName`) VALUES ('_caisi.documentationWarning ') ON DUPLICATE KEY UPDATE objectName='_caisi.documentationWarning ' ;
-
-

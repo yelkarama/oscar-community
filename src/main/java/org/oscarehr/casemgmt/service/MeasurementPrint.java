@@ -35,10 +35,11 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 import org.oscarehr.casemgmt.util.ExtPrint;
-import org.oscarehr.common.dao.MeasurementDao;
-import org.oscarehr.common.model.Measurement;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
+
+import oscar.oscarEncounter.oscarMeasurements.dao.MeasurementsDao;
+import oscar.oscarEncounter.oscarMeasurements.model.Measurements;
 
 import com.lowagie.text.Chunk;
 import com.lowagie.text.DocumentException;
@@ -55,7 +56,7 @@ public class MeasurementPrint implements ExtPrint {
 	@Override
 	public void printExt(CaseManagementPrintPdf engine,HttpServletRequest request) throws IOException, DocumentException{
 		logger.info("measurement print!!!!");
-		MeasurementDao measurementsDao = SpringUtils.getBean(MeasurementDao.class);
+		MeasurementsDao measurementsDao = (MeasurementsDao) SpringUtils.getBean("measurementsDao");
 		String startDate = request.getParameter("pStartDate");
 		String endDate = request.getParameter("pEndDate");
 		String demographicNo = request.getParameter("demographicNo");
@@ -64,16 +65,16 @@ public class MeasurementPrint implements ExtPrint {
 		logger.info("endDate = "+endDate);
 		logger.info("demographicNo = "+demographicNo);
 		
-		List<Measurement> measurements = null;
+		List<Measurements> measurements = null;
 		
 		if(startDate.equals("") && endDate.equals("")) {
-			measurements = measurementsDao.findByDemographicId(Integer.parseInt(demographicNo));
+			measurements = measurementsDao.getMeasurements(demographicNo);
 		} else {
 			try {
 				SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy");
 				Date dStartDate = formatter.parse(startDate);
 				Date dEndDate = formatter.parse(endDate);
-				measurements = measurementsDao.findByDemographicIdObservedDate(Integer.parseInt(demographicNo),dStartDate,dEndDate);
+				measurements = measurementsDao.getMeasurements(demographicNo,dStartDate,dEndDate);
 			}catch(Exception e){logger.error(e);}
 			
 		}
@@ -97,7 +98,7 @@ public class MeasurementPrint implements ExtPrint {
         //go through each appt in reverge chronological order, and print the measurements
         String lastDate = null;       
         PdfPTable table = null;
-        for(Measurement measurement:measurements) {
+        for(Measurements measurement:measurements) {
         	boolean newDate=false;
         	String date = engine.getFormatter().format(measurement.getDateObserved());
         	if(lastDate==null) {
@@ -127,11 +128,11 @@ public class MeasurementPrint implements ExtPrint {
         //engine.getDocument().add(p);
 	}
 
-	private void printMeasurementEntries(String date, List<Measurement> measurements, PdfPTable table) {
+	private void printMeasurementEntries(String date, List<Measurements> measurements, PdfPTable table) {
 		SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy");
-		Map<String, Measurement> map = new HashMap<String,Measurement>();
+		Map<String, Measurements> map = new HashMap<String,Measurements>();
 		
-		for(Measurement measurement:measurements) {
+		for(Measurements measurement:measurements) {
 			String d = formatter.format(measurement.getDateObserved());
 			if(d.equals(date)) {
 				map.put(measurement.getType(), measurement);
@@ -280,7 +281,7 @@ public class MeasurementPrint implements ExtPrint {
 		
 	}
 	
-	private void printMeasurementEntry(String type,String label, Map<String,Measurement> measurementMap, PdfPTable table) {
+	private void printMeasurementEntry(String type,String label, Map<String,Measurements> measurementMap, PdfPTable table) {
 		if(measurementMap.get(type) == null) {
 			return;
 		}

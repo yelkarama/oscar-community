@@ -28,7 +28,6 @@
 
 <%-- Updated by Eugene Petruhin on 11 dec 2008 while fixing #2356548 & #2393547 --%>
 
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <% long loadPage = System.currentTimeMillis(); %>
 <%@ include file="/casemgmt/taglibs.jsp" %>
 <%@ taglib uri="/WEB-INF/caisi-tag.tld" prefix="caisi" %>
@@ -187,28 +186,34 @@ String backurl=bsurl+"/oscarEncounter/IncomingEncounter.do?";
 <caisi:isModuleLoad moduleName="TORONTO_RFQ" reverse="true">
 <!-- master -->
 <caisirole:SecurityAccess accessName="master file" accessType="access" providerNo="<%=bean.providerNo%>" demoNo="<%=bean.demographicNo%>" programId="<%=pgId%>">
-    
+    <nested:equal name="casemgmt_VlCountry" value="BR">
+        <tr><td><a href="javascript:void(0)" onClick="popupPage('<%=bsurl%>/demographic/demographiccontrol.jsp?demographic_no=<%=bean.demographicNo%>&displaymode=edit&dboperation=search_detail_ptbr');return false;">Master</a></td></tr>
+    </nested:equal>
+    <nested:notEqual name="casemgmt_VlCountry" value="BR">
         <tr><td><a href="javascript:void(0)" onClick="popupPage('<%=bsurl%>/demographic/demographiccontrol.jsp?demographic_no=<%=bean.demographicNo%>&displaymode=edit&dboperation=search_detail');return false;">Master</a></td></tr>
-
+    </nested:notEqual>
 </caisirole:SecurityAccess>
 
 <caisirole:SecurityAccess accessName="billing" accessType="access" providerNo="<%=bean.providerNo%>" demoNo="<%=bean.demographicNo%>" programId="<%=pgId%>">
     <!-- billing -->
-
+    <nested:equal name="casemgmt_VlCountry" value="BR">
+        <tr><td><a href="javascript:void(0)" onClick="popupPage('<%=bsurl%>/oscar/billing/procedimentoRealizado/init.do?appId=<%=bean.appointmentNo%>');return false;">Billing</a></td></tr>
+    </nested:equal>
+    <nested:notEqual name="casemgmt_VlCountry" value="BR">
         <% if(bean.status.indexOf('B')==-1) { %>
         <tr><td><a href="javascript:void(0)" onClick="popupPage('<%=bsurl%>/billing.do?billRegion=<%=java.net.URLEncoder.encode(province)%>&billForm=<%=java.net.URLEncoder.encode(oscarVariables.getProperty("default_view"))%>&hotclick=<%=java.net.URLEncoder.encode("")%>&appointment_no=<%=bean.appointmentNo%>&appointment_date=<%=bean.appointmentDate%>&start_time=<%=Hour+":"+Min%>&demographic_name=<%=java.net.URLEncoder.encode(bean.patientLastName+","+bean.patientFirstName)%>&demographic_no=<%=bean.demographicNo%>&providerview=<%=bean.curProviderNo%>&user_no=<%=bean.providerNo%>&apptProvider_no=<%=bean.curProviderNo%>&bNewForm=1&status=t');return false;">Billing</a></td></tr>
         <%}else{ %>
         <tr><td><a href="javascript:void(0)" onClick="onUnbilled('<%=bsurl%>/billing/CA/<%=province%>/billingDeleteWithoutNo.jsp?appointment_no=<%=bean.appointmentNo%>');return false;">Billing</a></td></tr>
         <%} %>
-    
+    </nested:notEqual>
 </caisirole:SecurityAccess>
 
 <caisirole:SecurityAccess accessName="prescription Write" accessType="access" providerNo="<%=bean.providerNo%>" demoNo="<%=bean.demographicNo%>" programId="<%=pgId%>">
 
     <!-- prescription -->
-   
+    <nested:notEqual name="casemgmt_VlCountry" value="BR">
         <tr><td><a href="javascript:void(0)" onClick="popupPage('<%=bsurl%>/oscarRx/choosePatient.do?providerNo=<%=bean.providerNo%>&demographicNo=<%=bean.demographicNo%>');return false;">Prescriptions</a></td></tr>
- 
+    </nested:notEqual>
 </caisirole:SecurityAccess>
 
 <!-- allergies -->
@@ -242,6 +247,8 @@ String backurl=bsurl+"/oscarEncounter/IncomingEncounter.do?";
 
     <%  if (oscar.OscarProperties.getInstance().getProperty("oscarcomm","").equals("on")) { %>
     <tr><td><a href="javascript:void(0)" onClick="popupPage('<%=bsurl%>/oscarEncounter/RemoteAttachments.jsp');return false;">OscarComm</a></td></tr>
+    <% } else {%>
+    <tr><td><a href="javascript:void(0)" onClick="popupPage('<%=bsurl%>/packageNA.jsp?pkg=oscarComm');return false;">OscarComm</a></td></tr>
     <% } %>
 </caisirole:SecurityAccess>
 
@@ -255,7 +262,7 @@ String backurl=bsurl+"/oscarEncounter/IncomingEncounter.do?";
 
 <!-- add tickler -->
 <caisirole:SecurityAccess accessName="Write Ticklers" accessType="Action" providerNo="<%=bean.providerNo%>" demoNo="<%=bean.demographicNo%>" programId="<%=pgId%>">
-    <tr><td><a href="javascript:void(0)" onClick="popupPage('<%=bsurl%>/Tickler.do?method=edit&tickler.demographic_webName=<%=StringEscapeUtils.escapeJavaScript(bean.getPatientLastName() +"," + bean.getPatientFirstName())%>&tickler.demographicNo=<%=bean.demographicNo%>');return false;">Add Tickler</a></td></tr>
+    <tr><td><a href="javascript:void(0)" onClick="popupPage('<%=bsurl%>/Tickler.do?method=edit&tickler.demographic_webName=<%=StringEscapeUtils.escapeJavaScript(bean.getPatientLastName() +"," + bean.getPatientFirstName())%>&tickler.demographic_no=<%=bean.demographicNo%>');return false;">Add Tickler</a></td></tr>
 </caisirole:SecurityAccess>
 
 <caisirole:SecurityAccess accessName="medical form" accessType="access" providerNo="<%=bean.providerNo%>" demoNo="<%=bean.demographicNo%>" programId="<%=pgId%>">
@@ -420,7 +427,7 @@ String backurl=bsurl+"/oscarEncounter/IncomingEncounter.do?";
 <%
     String pAge = Integer.toString(oscar.util.UtilDateUtilities.calcAge(bean.yearOfBirth,bean.monthOfBirth,bean.dateOfBirth));
     oscar.oscarLab.ca.on.CommonLabResultData comLab = new oscar.oscarLab.ca.on.CommonLabResultData();
-    java.util.ArrayList labs = comLab.populateLabResultsData(LoggedInInfo.getLoggedInInfoFromSession(request), "",bean.demographicNo, "", "","","U");
+    java.util.ArrayList labs = comLab.populateLabResultsData("",bean.demographicNo, "", "","","U");
     session.setAttribute("casemgmt_labsbeans",labs);
 %>
 <caisi:isModuleLoad moduleName="TORONTO_RFQ" reverse="true">

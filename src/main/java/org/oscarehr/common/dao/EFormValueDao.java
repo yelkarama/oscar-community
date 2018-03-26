@@ -23,7 +23,6 @@
 
 package org.oscarehr.common.dao;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Query;
@@ -74,17 +73,12 @@ public class EFormValueDao extends AbstractDao<EFormValue> {
     	Query query = entityManager.createQuery("select x from " + modelClass.getSimpleName() + " x where x.formDataId=?1 and x.varName=?2");
 		query.setParameter(1, fdid);
 		query.setParameter(2, varName);
-		
-		@SuppressWarnings("unchecked")
-		List<EFormValue> results = query.getResultList();
+		EFormValue result=(EFormValue)query.getSingleResult();
 
-		if (results==null || results.isEmpty()) return null;
-		return(results.get(0));
+		return(result);
     }
 
     public List<EFormValue> findByFormDataIdList(List<Integer> fdids) {
-    	if (fdids==null || fdids.isEmpty()) return new ArrayList<EFormValue>();
-    	
     	Query query = entityManager.createQuery("select x from " + modelClass.getSimpleName() + " x where x.formDataId in (?1)");
 		query.setParameter(1, fdids);
 
@@ -93,19 +87,4 @@ public class EFormValueDao extends AbstractDao<EFormValue> {
 
 		return(results);
     }
-    
-    
-    //for EFormReportTool
-    public List<String> findAllVarNamesForEForm(Integer fid) {
-    	
-    	Query query = entityManager.createQuery("select DISTINCT(x.varName) from " + modelClass.getSimpleName() + " x where x.formId in (?1)");
-		query.setParameter(1, fid);
-
-		@SuppressWarnings("unchecked")
-		List<String> results=query.getResultList();
-
-		return(results);
-
-    }
 }
-		

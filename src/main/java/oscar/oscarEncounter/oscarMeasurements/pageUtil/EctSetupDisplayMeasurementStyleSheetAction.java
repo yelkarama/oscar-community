@@ -33,32 +33,21 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.oscarEncounter.oscarMeasurements.bean.EctStyleSheetBeanHandler;
 
 public final class EctSetupDisplayMeasurementStyleSheetAction extends Action {
 
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	
     public ActionForward execute(ActionMapping mapping,
                                  ActionForm form,
                                  HttpServletRequest request,
                                  HttpServletResponse response)
         throws Exception {
-    	
-    	if( securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_admin", "w", null) || securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_admin.measurements", "w", null) )  {
   
         EctStyleSheetBeanHandler hd = new EctStyleSheetBeanHandler();           
         HttpSession session = request.getSession();
         session.setAttribute( "styleSheets", hd );            
        
         return (mapping.findForward("continue"));
-        
-    	}else{
-			throw new SecurityException("Access Denied!"); //missing required security object (_admin)
-    	} 
     }
 }

@@ -22,69 +22,79 @@
  * Ontario, Canada
  */
 
+
 package oscar.oscarLab.tld;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.TagSupport;
 
-import org.oscarehr.common.dao.ProviderLabRoutingDao;
-import org.oscarehr.hospitalReportManager.dao.HRMDocumentToProviderDao;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
+
+import oscar.oscarDB.DBHandler;
 
 /**
  *
  * @author Jay Gallagher
  */
 public class LabTag extends TagSupport {
+   
+  
+   public LabTag() {
+	numNewLabs = 0;
+   }
+   
+   public int doStartTag() throws JspException    {
+        try {
+            
+            String sql = new String("select count(*) from providerLabRouting where provider_no = '"+ providerNo +"' and status = 'N'");            
+            ResultSet rs = DBHandler.GetSQL(sql);
+            while (rs.next()) {
+               numNewLabs = (rs.getInt(1));
+            }
 
-	private String providerNo;
-	private int numNewLabs;
-	private int numNewHrmLabs;
-	
-	public LabTag() {
-		numNewLabs = 0;
-		numNewHrmLabs = 0;
-	}
+            rs.close();
+        }      catch(SQLException e)        {
+           MiscUtils.getLogger().error("Error", e);
+        }
+        try        {
+            JspWriter out = super.pageContext.getOut();            
+            if(numNewLabs > 0)
+                out.print("<span class='tabalert'>  ");
+            else
+                out.print("<span>  ");
+        } catch(Exception p) {MiscUtils.getLogger().error("Error",p);
+        }        
+        return(EVAL_BODY_INCLUDE);
+    }
+   
 
-	public int doStartTag() throws JspException {
-		ProviderLabRoutingDao dao = SpringUtils.getBean(ProviderLabRoutingDao.class);
-		HRMDocumentToProviderDao hrmDocumentToProviderDao = SpringUtils.getBean(HRMDocumentToProviderDao.class);
+    public void setProviderNo(String providerNo1)    {
+       providerNo = providerNo1;
+    }
 
-		numNewLabs = dao.findByProviderNo(providerNo, "N").size();
-		numNewHrmLabs = hrmDocumentToProviderDao.findNonViewedByProviderNo(providerNo).size();
-		try {
-			JspWriter out = super.pageContext.getOut();
-			if (numNewLabs > 0 || numNewHrmLabs > 0) {
-				out.print("<span class='tabalert'>  ");
-			}
-			else out.print("<span>  ");
-		} catch (Exception p) {
-			MiscUtils.getLogger().error("Error", p);
-		}
-		return (EVAL_BODY_INCLUDE);
-	}
+    public String getProviderNo()    {
+        return providerNo;
+    }
 
-	public void setProviderNo(String providerNo1) {
-		providerNo = providerNo1;
-	}
+    
 
-	public String getProviderNo() {
-		return providerNo;
-	}
+    public int doEndTag()        throws JspException    {
+       try{
+          JspWriter out = super.pageContext.getOut();         
+        //ronnie 2007-5-4
+          if (numNewLabs>0)
+              out.print("<sup>"+numNewLabs+"</sup></span>");
+          else
+              out.print("</span>");
+       }catch(Exception p) {MiscUtils.getLogger().error("Error",p);
+       }
+       return EVAL_PAGE;
+    }
 
-	public int doEndTag() throws JspException {
-		try {
-			JspWriter out = super.pageContext.getOut();
-			//ronnie 2007-5-4
-			if (numNewLabs > 0 || numNewHrmLabs > 0) {
-				out.print("<sup>" + new Integer(numNewLabs+numNewHrmLabs) + "</sup></span>");
-			}
-			else out.print("</span>");
-		} catch (Exception p) {
-			MiscUtils.getLogger().error("Error", p);
-		}
-		return EVAL_PAGE;
-	}
+    private String providerNo;
+    private int numNewLabs;
 }

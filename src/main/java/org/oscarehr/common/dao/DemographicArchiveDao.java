@@ -28,8 +28,10 @@ import java.util.List;
 
 import javax.persistence.Query;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.DemographicArchive;
+import org.oscarehr.util.MiscUtils;
 import org.springframework.stereotype.Repository;
 
 import oscar.util.StringUtils;
@@ -86,35 +88,14 @@ public class DemographicArchiveDao extends AbstractDao<DemographicArchive> {
         return (results);
     }
 
-    public Long archiveRecord(Demographic d) {
-    	DemographicArchive da = new DemographicArchive(d);
-		persist(da);
-		return da.getId();
-    }
-    
-    public List<DemographicArchive> findByDemographicNoChronologically(Integer demographicNo) {
+    public void archiveRecord(Demographic d) {
+    	DemographicArchive da = new DemographicArchive();
+    	try {
+    		BeanUtils.copyProperties(da, d);
+    		persist(da);
+    	}catch(Exception e) {
+    		MiscUtils.getLogger().error("Error",e);
+    	}
 
-    	String sqlCommand = "select x from DemographicArchive x where x.demographicNo=?1 order by x.lastUpdateDate ASC";
-
-        Query query = entityManager.createQuery(sqlCommand);
-        query.setParameter(1, demographicNo);
-
-        @SuppressWarnings("unchecked")
-        List<DemographicArchive> results = query.getResultList();
-
-        return (results);
-    }
-    
-    public List<Object[]> findMetaByDemographicNo(Integer demographicNo) {
-
-    	String sqlCommand = "select x.id,x.demographicNo,x.lastUpdateUser,x.lastUpdateDate from DemographicArchive x where x.demographicNo=?1 order by x.lastUpdateDate DESC, x.id DESC";
-
-        Query query = entityManager.createQuery(sqlCommand);
-        query.setParameter(1, demographicNo);
-
-        @SuppressWarnings("unchecked")
-        List<Object[]> results = query.getResultList();
-
-        return (results);
     }
 }

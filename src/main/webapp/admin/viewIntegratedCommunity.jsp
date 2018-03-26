@@ -24,22 +24,6 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-	boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin" rights="r" reverse="<%=true%>"> 
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_admin");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="org.apache.commons.lang.time.DateFormatUtils"%>
 <%@page import="org.oscarehr.PMmodule.caisi_integrator.CaisiIntegratorManager"%>
 <%@page import="org.oscarehr.caisi_integrator.ws.CachedFacility"%>
@@ -49,8 +33,7 @@ if(!authed) {
 <%@include file="/layouts/caisi_html_top.jspf"%>
 
 <%
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-	List<CachedFacility> facilities=CaisiIntegratorManager.getRemoteFacilities(loggedInInfo, loggedInInfo.getCurrentFacility(),false);
+	List<CachedFacility> facilities=CaisiIntegratorManager.getRemoteFacilities(false);
 
 	int secondsTillConsideredStale = -1;
 	try{

@@ -22,29 +22,16 @@
  * Ontario, Canada
  */
 
+
 package oscar.oscarPrevention;
 
 import java.util.Date;
-
-import org.oscarehr.caisi_integrator.ws.CachedDemographicPrevention;
-import org.oscarehr.common.model.Prevention;
-
-import oscar.util.ConversionUtils;
 
 /**
  * 
  * @author Jay Gallagher
  */
 public class PreventionItem {
-
-	String id = null;
-	String name = null;
-	Date datePreformed = null;
-	Date nextDate = null;
-	String never = null;
-	boolean refused;
-	private boolean inelligible = false;
-	private boolean remoteEntry = false;
 
 	public PreventionItem() {
 	}
@@ -61,28 +48,12 @@ public class PreventionItem {
 		this.nextDate = dNext;
 	}
 
-	public PreventionItem(String name, Date dPreformed, String never, Date dNext, String result) {
+        public PreventionItem(String name, Date dPreformed, String never, Date dNext, String result) {
 		this.name = name;
 		this.datePreformed = dPreformed;
 		this.never = never;
 		this.nextDate = dNext;
-		this.inelligible = result.equalsIgnoreCase("2");
-	}
-
-	public PreventionItem(Prevention pp) {
-		this.name = pp.getPreventionType();
-		this.datePreformed = pp.getPreventionDate();
-		this.never = ConversionUtils.toBoolString(pp.isNever()); 
-		this.nextDate = pp.getNextDate();
-		this.refused = pp.isRefused();
-    }
-	
-	public PreventionItem(CachedDemographicPrevention pp) {
-		this.name = pp.getPreventionType();
-		this.datePreformed = pp.getPreventionDate().getTime();
-		this.never = ConversionUtils.toBoolString(pp.isNever());
-		this.nextDate = pp.getNextDate() == null ? null : pp.getNextDate().getTime();
-		this.refused = pp.isRefused();
+                this.inelligible = result.equalsIgnoreCase("2");
 	}
 
 	public boolean getNeverVal() {
@@ -124,13 +95,23 @@ public class PreventionItem {
 	/**
 	 * Setter for property next_date.
 	 * 
-	 * @param nextDate
+	 * @param next_date
 	 *            New value of property next_date.
 	 */
 	public void setNextDate(java.util.Date nextDate) {
 		this.nextDate = nextDate;
 	}
 
+	String id = null;
+	String name = null;
+	Date datePreformed = null;
+	Date nextDate = null;
+	String never = null;
+	// boolean deleted = null; ???
+	boolean refused;
+        private boolean inelligible = false;
+	private boolean remoteEntry=false;
+	
 	public boolean isRemoteEntry() {
 		return remoteEntry;
 	}
@@ -139,11 +120,11 @@ public class PreventionItem {
 		this.remoteEntry = remoteEntry;
 	}
 
-	public boolean isInelligible() {
-		return this.inelligible;
-	}
+        public boolean isInelligible() {
+            return this.inelligible;
+        }
 
-	public void setInelligible(boolean inelligible) {
-		this.inelligible = inelligible;
-	}
+        public void setInelligible(boolean inelligible) {
+            this.inelligible = inelligible;
+        }
 }

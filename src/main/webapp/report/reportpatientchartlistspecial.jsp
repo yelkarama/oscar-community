@@ -24,100 +24,106 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_report,_admin.reporting" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_report&type=_admin.reporting");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-
-<%@ page import="java.util.*, java.sql.*, oscar.*, java.text.*, java.lang.*,java.net.*" errorPage="../appointment/errorpage.jsp"%>
-<%@ page import="org.oscarehr.util.SpringUtils"%>
-
-<%@ page import="org.oscarehr.common.model.MyGroup"%>
-<%@ page import="org.oscarehr.common.dao.MyGroupDao"%>
-
-<%@ page import="org.oscarehr.common.model.ProviderData"%>
-<%@ page import="org.oscarehr.common.dao.ProviderDataDao"%>
-
-
-<%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
-<%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
-
-<jsp:useBean id="patientBean" class="oscar.AppointmentMainBean"	scope="page" />
-<jsp:useBean id="myGroupBean" class="java.util.Vector" scope="page" />
-<jsp:useBean id="providerBean" class="java.util.Properties"	scope="session" />
-
 <%
   
   String curUser_no = (String) session.getAttribute("user");
   String orderby = request.getParameter("orderby")!=null?request.getParameter("orderby"):("last_name") ;
   int age = Integer.parseInt(request.getParameter("age"));
+%>
+<%@ page
+	import="java.util.*, java.sql.*, oscar.*, java.text.*, java.lang.*,java.net.*"
+	errorPage="../appointment/errorpage.jsp"%>
+<%@ page import="oscar.login.DBHelp"%>
 
-  MyGroupDao dao = SpringUtils.getBean(MyGroupDao.class);
-  ProviderDataDao providerDataDao = SpringUtils.getBean(ProviderDataDao.class);
-
-
+<jsp:useBean id="patientBean" class="oscar.AppointmentMainBean"
+	scope="page" />
+<jsp:useBean id="myGroupBean" class="java.util.Vector" scope="page" />
+<jsp:useBean id="providerBean" class="java.util.Properties"
+	scope="session" />
+<% 
   String [][] dbQueries;
+
+  /* choose the right database: postgres or mysql */
+
+    String db_type = oscar.OscarProperties.getInstance().getProperty("db_type").trim();
+    if (db_type.equalsIgnoreCase("mysql")) {
       dbQueries = new String[][] { 
       //{"search_patient", "select provider_no, last_name, first_name, chart_no from demographic where provider_no = ? order by "+orderby }, 
       {"search_patient", "select distinct(d.demographic_no), d.last_name, d.first_name, d.sex, d.chart_no, d.patient_status, a.appointment_date, d.address, d.city, d.province, d.postal, DATE_FORMAT(CONCAT((year_of_birth), '-', (month_of_birth),'-',(date_of_birth)),'%Y-%m-%d') as dob from demographic d, appointment a where d.provider_no = ? and d.demographic_no=a.demographic_no and (d.patient_status like 'AC' or d.patient_status like 'UHIP') and (YEAR(CURRENT_DATE)-YEAR(DATE_FORMAT(CONCAT((year_of_birth), '-', (month_of_birth),'-',(date_of_birth)),'%Y-%m-%d'))) -(RIGHT(CURRENT_DATE,5)<RIGHT(DATE_FORMAT(CONCAT((year_of_birth), '-', (month_of_birth),'-',(date_of_birth)),'%Y-%m-%d'),5)) >? order by d.last_name, d.first_name, a.appointment_date desc" }, 
+      {"searchmygroupall", "select * from mygroup where mygroup_no= ? order by last_name"}
       };
+    } else if (db_type.equalsIgnoreCase("postgresql")) {
+       dbQueries = new String[][] {
+       {"searchmygroupall", "select * from mygroup where mygroup_no= ? order by last_name"},
+       {"search_patient", "select distinct(d.demographic_no), d.last_name, d.first_name, d.sex, d.chart_no, d.patient_status, a.appointment_date, d.address, d.city, d.province, d.postal, to_date(CONCAT(year_of_birth,month_of_birth::varchar,date_of_birth::varchar),'YYYYMMDD') as dob from demographic d, appointment a where d.provider_no = ? and d.demographic_no=a.demographic_no and (d.patient_status like 'AC' or d.patient_status like 'UHIP') and to_date(CONCAT(year_of_birth,month_of_birth::varchar,date_of_birth::varchar),'YYYYMMDD') <= date 'today' - interval ?"}
+       };
+       } else {
+         throw new java.sql.SQLException("ERROR: database " + db_type + " unrecognized.");
+       }
 
   String[][] responseTargets=new String[][] {  };
   patientBean.doConfigure(dbQueries,responseTargets);
-
-  String curProvider_no = (String) session.getAttribute("user");
-    
-  boolean isSiteAccessPrivacy=false;
-  boolean isTeamAccessPrivacy=false; 
 %>
-<security:oscarSec objectName="_site_access_privacy" roleName="<%=roleName$%>" rights="r" reverse="false"> <%isSiteAccessPrivacy=true; %></security:oscarSec>
-<security:oscarSec objectName="_team_access_privacy" roleName="<%=roleName$%>" rights="r" reverse="false"> <%isTeamAccessPrivacy=true; %></security:oscarSec>
+
+<%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
+<%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
+<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
+<%
+    if(session.getAttribute("user") == null ) response.sendRedirect("../logout.jsp");
+    String curProvider_no = (String) session.getAttribute("user");
+
+    if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
+    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
+    
+    boolean isSiteAccessPrivacy=false;
+    boolean isTeamAccessPrivacy=false; 
+%>
+<security:oscarSec objectName="_site_access_privacy" roleName="<%=roleName$%>" rights="r" reverse="false">
+	<%isSiteAccessPrivacy=true; %>
+</security:oscarSec>
+<security:oscarSec objectName="_team_access_privacy" roleName="<%=roleName$%>" rights="r" reverse="false">
+	<%isTeamAccessPrivacy=true; %>
+</security:oscarSec>
 
 <% 
-List<ProviderData> pdList = null;
 HashMap<String,String> providerMap = new HashMap<String,String>();
-
 //multisites function
 if (isSiteAccessPrivacy || isTeamAccessPrivacy) {
-
+	String sqlStr = "select provider_no from provider ";
 	if (isSiteAccessPrivacy) 
-		pdList = providerDataDao.findByProviderSite(curProvider_no);
-	
+		sqlStr = "select distinct p.provider_no from provider p inner join providersite s on s.provider_no = p.provider_no " 
+		 + " where s.site_id in (select site_id from providersite where provider_no = " + curProvider_no + ")";
 	if (isTeamAccessPrivacy) 
-		pdList = providerDataDao.findByProviderTeam(curProvider_no);
-
-	for(ProviderData providerData : pdList) {
-		providerMap.put(providerData.getId(), "true");
+		sqlStr = "select distinct p.provider_no from provider p where team in (select team from provider "
+				+ " where team is not null and team <> '' and provider_no = " + curProvider_no + ")";
+	DBHelp dbObj = new DBHelp();
+	ResultSet rs = dbObj.searchDBRecord(sqlStr);
+	while (rs.next()) {
+		providerMap.put(rs.getString("provider_no"),"true");
 	}
+	rs.close();
 }
 %>
 
 <html:html locale="true">
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
-<title><bean:message key="report.reportpatientchartlistspecial.title" /></title>
+<title><bean:message
+	key="report.reportpatientchartlistspecial.title" /></title>
 <link rel="stylesheet" href="../web.css">
 <script language="JavaScript">
 <!--
 function setfocus() {
   this.focus();
+  //document.titlesearch.keyword.select();
 }
+
+
+  
 
 //-->
 </SCRIPT>
 </head>
-
 <% 
   String provider_no = request.getParameter("provider_no")!=null?request.getParameter("provider_no"):"175" ;
   ResultSet rsdemo = null ;
@@ -127,14 +133,14 @@ function setfocus() {
   //initial myGroupBean if neccessary
   if(provider_no.startsWith("_grp_")) {
     bGroup = true;
-    List<MyGroup> myGroups = dao.findAll();
-    Collections.sort(myGroups, MyGroup.MyGroupNoComparator);
-    for(MyGroup myGroup:myGroups) {
-    	myGroupBean.add(myGroup.getId().getProviderNo());
+	  rsdemo = patientBean.queryResults(provider_no.substring(5), "searchmygroupall");
+    while (rsdemo.next()) { 
+	    myGroupBean.add(rsdemo.getString("provider_no"));
     }
   }
 %>
-<body bgproperties="fixed" onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0">
+<body bgproperties="fixed" onLoad="setfocus()" topmargin="0"
+	leftmargin="0" rightmargin="0">
 
 <table border="0" cellspacing="0" cellpadding="0" width="100%">
 	<tr bgcolor="#CCCCFF">
@@ -156,7 +162,17 @@ function setfocus() {
 
   for(int i=0; i<pnum; i++) {
     param[0]=bGroup?((String) myGroupBean.get(i)):provider_no;
-    rsdemo = patientBean.queryResults(param,(new int[]{age}), "search_patient");
+
+    /* this is a fix since a PreparedStatement dont substitute ? between single quotes */
+    if (db_type.equalsIgnoreCase("mysql"))
+	  rsdemo = patientBean.queryResults(param,(new int[]{age}), "search_patient");
+    /* instead a int, use an int and a String */
+    if (db_type.equalsIgnoreCase("postgresql")){
+          String[] param1 = new String[2];
+          param1[0] = param[0];
+          param1[1] = Integer.toString(age).concat(" year");
+          rsdemo =  patientBean.queryResults(param1, "search_patient");
+   }
 
     while (rsdemo.next()) { 
     	
@@ -184,7 +200,8 @@ function setfocus() {
 		<td align="right"></td>
 	</tr>
 </table>
-<table width="100%" border="0" bgcolor="#ffffff" cellspacing="1" cellpadding="2">
+<table width="100%" border="0" bgcolor="#ffffff" cellspacing="1"
+	cellpadding="2">
 	<tr bgcolor="#CCCCFF" align="center">
 		<TH width="12%"><b><a
 			href="reportpatientchartlist.jsp?provider_no=<%=provider_no%>&orderby=last_name"><bean:message

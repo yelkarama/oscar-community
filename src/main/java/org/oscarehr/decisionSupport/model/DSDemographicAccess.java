@@ -32,26 +32,17 @@ package org.oscarehr.decisionSupport.model;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.oscarehr.billing.CA.ON.dao.BillingClaimDAO;
 import org.oscarehr.casemgmt.dao.CaseManagementNoteDAO;
 import org.oscarehr.casemgmt.model.CaseManagementNote;
-import org.oscarehr.common.dao.BillingONCHeader1Dao;
 import org.oscarehr.common.dao.FlowSheetCustomizationDao;
-import org.oscarehr.common.dao.ProviderStudyDao;
-import org.oscarehr.common.dao.StudyDao;
-import org.oscarehr.common.dao.StudyDataDao;
 import org.oscarehr.common.model.FlowSheetCustomization;
-import org.oscarehr.common.model.ProviderStudy;
-import org.oscarehr.common.model.ProviderStudyPK;
-import org.oscarehr.common.model.Study;
-import org.oscarehr.common.model.StudyData;
 import org.oscarehr.decisionSupport.model.conditionValue.DSValue;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
@@ -84,14 +75,7 @@ public class DSDemographicAccess {
         notes("noteContains"),
         billedFor("billedFor"),
         paid("paid"),
-        flowsheet("flowsheetUptoDate"),
-        providerInStudy("providerInStudy"),
-        studyActive("studyActive"),
-        hasATCcode("hasATCcode"),
-        demoHasData("demoHasData"),
-        hasRxClass("hasRxClass");
-        
-        
+        flowsheet("flowsheetUptoDate");
         //define more here....
 
         private final String accessMethod;
@@ -104,170 +88,19 @@ public class DSDemographicAccess {
 
     private String demographicNo;
     private String providerNo = null;
-    private List<Object> dynamicArgs = null;
     private boolean passedGuideline = false;
     private org.oscarehr.common.model.Demographic demographicData;
     private List<Prescription> prescriptionData;
 
-    private LoggedInInfo loggedInInfo;
-    
-    private DSDemographicAccess() {
-    	
-    }
-    
-    public DSDemographicAccess(LoggedInInfo loggedInInfo, String demographicNo) {
-    	this.loggedInInfo = loggedInInfo;
+    public DSDemographicAccess(String demographicNo) {
         this.demographicNo = demographicNo;
     }
 
-    public DSDemographicAccess(LoggedInInfo loggedInInfo, String demographicNo, String providerNo) {
-        this(loggedInInfo,demographicNo);
+    public DSDemographicAccess(String demographicNo, String providerNo) {
+        this.demographicNo = demographicNo;
         this.providerNo = providerNo;
     }
-    
-    public DSDemographicAccess(LoggedInInfo loggedInInfo, String demographicNo, String providerNo, List<Object> dynamicArgs) {
-        this(loggedInInfo,demographicNo,providerNo);
-        this.dynamicArgs = dynamicArgs;
-        logger.debug("dynamic args size " + this.dynamicArgs.size());
-    }
-    
-    public boolean hasRxClassNotany(String atcCodes) {
-    	List<Prescription>undeletedPrescriptions = this.getPrescriptionData();
-    	List<Prescription>prescriptions = new ArrayList<Prescription>();
-    	
-    	Date now = new Date();
-    	Date end_date;
-    	for( Prescription prescription : undeletedPrescriptions ) {
-    		end_date = prescription.getEndDate();
-    		if( end_date != null ) {
-    			if( end_date.after(now) ) {
-    				prescriptions.add(prescription);
-    			}
-    		}
-    	}
-    	
-    	boolean notInClass = true;
-    	String atcCode;
-    	for( Object atcCodeObj : this.dynamicArgs ) {
-    		atcCode = (String)atcCodeObj;
-    		for( Prescription prescription : prescriptions ) {
-    			logger.debug("Comparing " + prescription.getAtcCode() + " to " + atcCode);
-    			if( prescription.getAtcCode() != null && prescription.getAtcCode().equals(atcCode)) {
-    				notInClass = false;
-    				break;
-    			}
-    		}
-    		
-    		if( !notInClass ) {
-    			break;
-    		}
-    	}
-    	
-    	return notInClass;
-    }
-    
-    public boolean hasRxClassAny(String atcCode) { return !hasRxClassNotany(atcCode); }
-    public boolean hasRxClassNotall(String atcCode) throws DecisionSupportException { throw new DecisionSupportException("NOT IMPLEMENTED"); }
-    public boolean hasRxClassNot(String atcCode)  { return hasRxClassNotany(atcCode); }
-    public boolean hasRxClassAll(String atcCode) throws DecisionSupportException { throw new DecisionSupportException("NOT IMPLEMENTED"); }
-    
-    public boolean demoHasDataNot(String studyId) {
-    	logger.debug("demoHasData called");
-    	StudyDao studyDao = (StudyDao)SpringUtils.getBean(StudyDao.class);
-    	
-    	studyId = studyId.replaceAll("'", "");
-    	Study study = studyDao.findByName(studyId);
-    	StudyDataDao studyDataDao = (StudyDataDao)SpringUtils.getBean(StudyDataDao.class);
-    	List<StudyData> studyDataList = studyDataDao.findByDemoAndStudy(Integer.parseInt(demographicNo), study.getId());
-    	
-    	boolean isEmpty = true;
-    	for( StudyData studyData : studyDataList ) {
-    		if( !studyData.getContent().equalsIgnoreCase("Eligible - ask later") ) {
-    			isEmpty = false;
-    		}
-    	}
-    	
-    	return isEmpty;
-    }
 
-    public boolean demoHasDataAny(String atcCode) throws DecisionSupportException { throw new DecisionSupportException("NOT IMPLEMENTED"); }
-    public boolean demoHasDataNotall(String atcCode) throws DecisionSupportException { throw new DecisionSupportException("NOT IMPLEMENTED"); }
-    public boolean demoHasDataNotany(String atcCode) throws DecisionSupportException { throw new DecisionSupportException("NOT IMPLEMENTED"); }
-    public boolean demoHasDataAll(String atcCode) throws DecisionSupportException { throw new DecisionSupportException("NOT IMPLEMENTED"); }
-
-    
-    public boolean hasATCcode(DSValue rxCode) {
-    	logger.debug("hasATCcode dynamicArgs size " + this.dynamicArgs.size());
-    	boolean found = false;
-    	String atcCode = "";
-    	
-    	for( Object obj : this.dynamicArgs ) {
-    		atcCode = (String)obj;
-    		logger.debug("comparing " + rxCode.getValue() + " with " + atcCode);
-    		if( atcCode.startsWith(rxCode.getValue())) {
-    			found = true;
-    			break;
-    		}
-    	}
-    	
-    	
-    	return found;
-    }
-    
-    public boolean hasATCcodeAny(String atcCodes) {
-    	logger.debug("HASATCCODEANY CALLED");
-    	boolean found = false;
-    	List<DSValue> testATCcodes = DSValue.createDSValues(atcCodes);
-    	for( DSValue testATCcode : testATCcodes ) {
-    		if( this.hasATCcode(testATCcode) ) {
-    			found = true;
-    			break;
-    		}
-    	}
-    	
-    	return found;
-    }
-    
-    public boolean hasATCcodeNot(String atcCode) throws DecisionSupportException { throw new DecisionSupportException("NOT IMPLEMENTED"); }
-    public boolean hasATCcodeNotall(String atcCode) throws DecisionSupportException { throw new DecisionSupportException("NOT IMPLEMENTED"); }
-    public boolean hasATCcodeNotany(String atcCode) { return !this.hasATCcodeAny(atcCode); }
-    public boolean hasATCcodeAll(String atcCode) throws DecisionSupportException { throw new DecisionSupportException("NOT IMPLEMENTED"); }
-    
-    public boolean studyActiveAll(String strStudyId) {
-    	StudyDao studyDao = (StudyDao)SpringUtils.getBean(StudyDao.class);
-    	strStudyId = strStudyId.replaceAll("'", "");
-    	Study study = studyDao.findByName(strStudyId);
-    	
-    	return (study.getCurrent1() == 1 );
-    }
-    
-    public boolean StudyActiveNot(String strStudyId) { return !studyActiveAll(strStudyId); }
-    public boolean StudyActiveNotall(String strStudyId) { return !studyActiveAll(strStudyId); }
-    public boolean StudyActiveNotany(String strStudyId) { return !studyActiveAll(strStudyId); }
-    public boolean StudyActiveAny(String strStudyId) { return studyActiveAll(strStudyId); }
-
-    
-    public boolean providerInStudyAll(String strStudyId ) {
-    	StudyDao studyDao = (StudyDao)SpringUtils.getBean(StudyDao.class);    	
-    	ProviderStudyDao providerStudyDao = (ProviderStudyDao)SpringUtils.getBean(ProviderStudyDao.class);
-    	strStudyId = strStudyId.replaceAll("'", "");
-    	logger.info("Looking up " + strStudyId);
-    	Study study = studyDao.findByName(strStudyId);
-    	logger.info("STUDY found " + String.valueOf(study != null));
-    	ProviderStudyPK providerStudyPK = new ProviderStudyPK();
-    	providerStudyPK.setProviderNo(this.providerNo);
-    	providerStudyPK.setStudyNo(study.getId());
-    	
-    	ProviderStudy providerStudy = providerStudyDao.find(providerStudyPK);
-    	
-    	return (providerStudy != null );
-    }
-    
-    public boolean providerInStudyNot(String strStudyId) throws DecisionSupportException { throw new DecisionSupportException("NOT IMPLEMENTED"); }
-    public boolean providerInStudyNotall(String strStudyId) throws DecisionSupportException { throw new DecisionSupportException("NOT IMPLEMENTED"); }
-    public boolean providerInStudyNotany(String strStudyId) throws DecisionSupportException { throw new DecisionSupportException("NOT IMPLEMENTED"); }
-    public boolean providerInStudyAny(String strStudyId) throws DecisionSupportException { throw new DecisionSupportException("NOT IMPLEMENTED"); }
-    
     public List<dxResearchBean> getDxCodes() {
         dxResearchBeanHandler handler = new dxResearchBeanHandler(demographicNo);
         List<dxResearchBean> dxCodes = handler.getDxResearchBeanVector();
@@ -326,7 +159,7 @@ public class DSDemographicAccess {
     public List<Prescription> getRxCodes() {
     	logger.debug("GET RX CODES CALLED");
         try {
-            Prescription[] prescriptions = new RxPrescriptionData().getActivePrescriptionsByPatient(Integer.parseInt(this.demographicNo));
+            Prescription[] prescriptions = new RxPrescriptionData().getPrescriptionsByPatientHideDeleted(Integer.parseInt(this.demographicNo));
             List<Prescription> prescribedDrugs = Arrays.asList(prescriptions);
             return prescribedDrugs;
         } catch (NumberFormatException nfe) {
@@ -391,23 +224,23 @@ public class DSDemographicAccess {
 
     //not used by isAge
     public String getAge() {
-        return getDemographicData(loggedInInfo).getAge() + " y";
+        return getDemographicData().getAge() + " y";
     }
 
     public boolean isAge(DSValue statement) throws DecisionSupportException {
     	logger.debug("IS AGE CALLED");
-        String compareAge = getDemographicData(loggedInInfo).getAgeInYears() + "";
+        String compareAge = getDemographicData().getAgeInYears() + "";
         if (statement.getValueUnit() != null) {
             if (statement.getValueUnit().equals("y")){/*empty*/}
-            else if (statement.getValueUnit().equals("m")) compareAge = DemographicData.getAgeInMonths(getDemographicData(loggedInInfo)) + "";
-            else if (statement.getValueUnit().equals("d")) compareAge = DemographicData.getAgeInDays(getDemographicData(loggedInInfo)) + "";
+            else if (statement.getValueUnit().equals("m")) compareAge = DemographicData.getAgeInMonths(getDemographicData()) + "";
+            else if (statement.getValueUnit().equals("d")) compareAge = DemographicData.getAgeInDays(getDemographicData()) + "";
             else throw new DecisionSupportException("Cannot recognize unit: " + statement.getValueUnit());
         }
         return statement.testValue(compareAge);
     }
 
     public long getAgeDays() {
-        return DemographicData.getAgeInDays(getDemographicData(loggedInInfo));
+        return DemographicData.getAgeInDays(getDemographicData());
     }
 
     public boolean isAgeAny(String ageStatements) throws DecisionSupportException {
@@ -431,14 +264,14 @@ public class DSDemographicAccess {
     }
 
     //ageStatement: ">2y"
-    public boolean isAgeNot( String ageStatement) throws DecisionSupportException { return isAgeNotany(ageStatement); }
+    public boolean isAgeNot(String ageStatement) throws DecisionSupportException { return isAgeNotany(ageStatement); }
 
     public boolean isAgeNotall(String ageStatement) throws DecisionSupportException { return !isAgeAll(ageStatement); }
 
-    public boolean isAgeNotany( String ageStatement) throws DecisionSupportException { return !isAgeAny(ageStatement); }
+    public boolean isAgeNotany(String ageStatement) throws DecisionSupportException { return !isAgeAny(ageStatement); }
 
     public String getSex() {
-        return getDemographicData(loggedInInfo).getSex();
+        return getDemographicData().getSex();
     }
 
     public boolean isSex(DSValue sexStatement) throws DecisionSupportException {
@@ -527,7 +360,7 @@ public class DSDemographicAccess {
 
     	if(hasFlowSheet) {
 
-			List<FlowSheetCustomization> custList = flowSheetCustomizationDao.getFlowSheetCustomizations( flowsheetId,providerNo,Integer.parseInt(demographicNo));
+			List<FlowSheetCustomization> custList = flowSheetCustomizationDao.getFlowSheetCustomizations( flowsheetId,providerNo,demographicNo);
 
 	        MeasurementFlowSheet mFlowsheet = templateConfig.getFlowSheet(flowsheetId,custList);
 
@@ -560,7 +393,7 @@ public class DSDemographicAccess {
 
     	boolean retval = true;  //Set this optimistically that it has not been paid in the said number of days
     	if(options.containsKey("payer") && options.get("payer").equals("MSP")){
-    		BillingONCHeader1Dao billingONCHeader1Dao = (BillingONCHeader1Dao)SpringUtils.getBean("billingONCHeader1Dao");
+    		BillingClaimDAO billingClaimONDAO = (BillingClaimDAO)SpringUtils.getBean("billingClaimDAO");
     		String[] codes = searchStrings.replaceAll("'","" ).split(",");
 
     		if(options.containsKey("notInDays")){
@@ -568,7 +401,7 @@ public class DSDemographicAccess {
                 int numDays = -1;
                 for (String code: codes){
                     //This returns how many days since the last time this code was paid and -1 if it never has been settled
-                    numDays = billingONCHeader1Dao.getDaysSincePaid(code, Integer.parseInt(demographicNo));
+                    numDays = billingClaimONDAO.getDaysSincePaid(code, demographicNo);
 
                     //If any of the codes has been paid in the number of days then return false
                     if (numDays < notInDays && numDays != -1){
@@ -577,7 +410,7 @@ public class DSDemographicAccess {
                     }
                     else {
                     	//if no paid bills in last number of days check to see if it has been billed within last 2 months and waits to be settled
-                    	numDays = billingONCHeader1Dao.getDaysSinceBilled(code, Integer.parseInt(demographicNo));
+                    	numDays = billingClaimONDAO.getDaysSinceBilled(code, demographicNo);
 
                     	if( numDays < 60 && numDays != -1 ) {
                     		retval = false;
@@ -596,36 +429,7 @@ public class DSDemographicAccess {
     	return retval;
     }
 
-    public boolean paidAll(String searchStrings,Map options) {
-
-        int countPaid = 0;
-        int numCodes = 0;
-
-	if(options.containsKey("payer") && options.get("payer").equals("MSP")){
-
-            BillingONCHeader1Dao billingONCHeader1Dao = (BillingONCHeader1Dao)SpringUtils.getBean("billingONCHeader1Dao");
-            String[] codes = searchStrings.replaceAll("'","" ).split(",");
-            numCodes = codes.length;
-
-            if(options.containsKey("inDays")){
-                int inDays = getAsInt(options,"inDays");
-
-                for (String code: codes){
-                    //This returns how many days since the last time this code was paid and -1 if it never has been settled
-                    int numDaysSinceSettled = billingONCHeader1Dao.getDaysSincePaid(code, Integer.parseInt(demographicNo));
-                    int numDaysSinceBilled =  billingONCHeader1Dao.getDaysSinceBilled(code, Integer.parseInt(demographicNo));
-
-                    if  (((numDaysSinceSettled <= inDays) && (numDaysSinceSettled != -1))
-                      ||((numDaysSinceBilled <= inDays) && (numDaysSinceBilled != -1))){
-                        countPaid++;
-                    }
-                    logger.debug("PAYER:MSP demo "+demographicNo+" Code:"+code+" numDaysSinceSettled "+numDaysSinceSettled+"  numDaysSinceBilled "+numDaysSinceBilled+" inDays:"+inDays+ " Answer: "+((countPaid > 0) && (countPaid == numCodes))+" Setting number paid to :"+countPaid);
-                }
-            }
-        }
-
-	return ((countPaid > 0) && (countPaid == numCodes));
-    }
+    public boolean paidAll(String searchStrings,Map options) throws DecisionSupportException { throw new DecisionSupportException("NOT IMPLEMENTED");  }
     public boolean paidNot(String searchStrings,Map options) throws DecisionSupportException { throw new DecisionSupportException("NOT IMPLEMENTED");  }
     public boolean paidNotall(String searchStrings,Map options) throws DecisionSupportException { throw new DecisionSupportException("NOT IMPLEMENTED"); }
     public boolean paidNotany(String searchStrings,Map options) throws DecisionSupportException { throw new DecisionSupportException("NOT IMPLEMENTED"); }
@@ -647,13 +451,13 @@ public class DSDemographicAccess {
         if(options.containsKey("payer") && options.get("payer").equals("MSP")){
         	logger.debug("PAYER:MSP ");
             ServiceCodeValidationLogic bcCodeValidation = null;
-            BillingONCHeader1Dao billingONCHeader1Dao = null;
+            BillingClaimDAO billingClaimONDAO = null;
             String billregion = OscarProperties.getInstance().getProperty("billregion", "");
             if( billregion.equalsIgnoreCase("BC") ) {
                 bcCodeValidation = new ServiceCodeValidationLogic();
             }
             else if( billregion.equalsIgnoreCase("ON") ) {
-                billingONCHeader1Dao = (BillingONCHeader1Dao)SpringUtils.getBean("billingONCHeader1Dao");
+                billingClaimONDAO = (BillingClaimDAO)SpringUtils.getBean("billingClaimDAO");
             }
             String[] codes = searchStrings.replaceAll("\'","" ).split(",");
 
@@ -677,7 +481,7 @@ public class DSDemographicAccess {
                         numDays = bcCodeValidation.daysSinceCodeLastBilled(demographicNo,code) ;
                      }
                      else if( billregion.equalsIgnoreCase("ON") ) {
-                         numDays = billingONCHeader1Dao.getDaysSinceBilled(code, Integer.parseInt(demographicNo));
+                         numDays = billingClaimONDAO.getDaysSinceBilled(code, demographicNo);
                      }
 
                     //If any of the codes has been billed in the number of days then return false
@@ -786,9 +590,9 @@ public class DSDemographicAccess {
     /**
      * @return the demographicData
      */
-    public org.oscarehr.common.model.Demographic getDemographicData(LoggedInInfo loggedInInfo) {
+    public org.oscarehr.common.model.Demographic getDemographicData() {
         if (this.demographicData == null) {
-            this.demographicData = new DemographicData().getDemographic(loggedInInfo, demographicNo);
+            this.demographicData = new DemographicData().getDemographic(demographicNo);
         }
         return demographicData;
     }

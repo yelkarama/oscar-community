@@ -32,7 +32,6 @@ package org.oscarehr.decisionSupport.service;
 
 import org.apache.log4j.Logger;
 import org.oscarehr.util.DbConnectionFilter;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 
 /**
@@ -42,17 +41,17 @@ public class DSServiceThread extends Thread {
 	private static final Logger logger = MiscUtils.getLogger();
 
 	private DSService service;
-	private LoggedInInfo loggedInInfo;
+	private String providerNo;
 
-	public DSServiceThread(DSService service, LoggedInInfo loggedInInfo) {
+	public DSServiceThread(DSService service, String providerNo) {
 		this.service = service;
-		this.loggedInInfo = loggedInInfo;
+		this.providerNo = providerNo;
 	}
 
 	@Override
 	public void run() {
 		try {
-			service.fetchGuidelinesFromService(loggedInInfo);
+			service.fetchGuidelinesFromService(providerNo);
 		} catch (Exception e) {
 			logger.error("Error", e);
 		} finally {

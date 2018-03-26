@@ -36,22 +36,16 @@
 <%@page import="org.oscarehr.common.model.ProviderPreference"%>
 <%@page import="org.oscarehr.web.admin.ProviderPreferencesUIBean"%>
 
-
 <%
-    String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
+	if (session.getAttribute("userrole") == null) response.sendRedirect("../logout.jsp");
+	String roleName$ = (String)session.getAttribute("userrole") + "," + (String)session.getAttribute("user");
 %>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_rx" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_rx");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-<logic:notPresent name="RxSessionBean" scope="session">
+<security:oscarSec roleName="<%=roleName$%>" objectName="_rx" rights="r"
+reverse="<%=true%>">
+	<%
+		response.sendRedirect("../noRights.html");
+	%>
+</security:oscarSec><logic:notPresent name="RxSessionBean" scope="session">
 	<logic:redirect href="error.html" />
 </logic:notPresent>
 <logic:present name="RxSessionBean" scope="session">
@@ -64,15 +58,16 @@
 <c:set var="ctx" value="${pageContext.request.contextPath}" />
 <%
 	oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBean)pageContext.findAttribute("bean");
+%>
 
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+<%
 	RxPharmacyData pharmacyData = new RxPharmacyData();
-	List<PharmacyInfo>pharmacyList = pharmacyData.getPharmacyFromDemographic(Integer.toString(bean.getDemographicNo()));
+	org.oscarehr.common.model.PharmacyInfo pharmacy;
+	pharmacy = pharmacyData.getPharmacyFromDemographic(Integer.toString(bean.getDemographicNo()));
 	String prefPharmacy = "";
-	PharmacyInfo pharmacy = null;
-	if (pharmacyList != null && !pharmacyList.isEmpty()) {
-	    prefPharmacy = pharmacyList.get(0).getName();
-	    pharmacy = pharmacyList.get(0);
+	if (pharmacy != null)
+	{
+		prefPharmacy = pharmacy.getName();
 	}
 
 	String drugref_route = OscarProperties.getInstance().getProperty("drugref_route");
@@ -82,7 +77,7 @@
 	String annotation_display = org.oscarehr.casemgmt.model.CaseManagementNoteLink.DISP_PRESCRIP;
 	
 	//This checks if the provider has the ExternalPresriber feature enabled, if so then a link appear for the provider to access the ExternalPrescriber
-	ProviderPreference providerPreference=ProviderPreferencesUIBean.getProviderPreference(loggedInInfo.getLoggedInProviderNo());
+	ProviderPreference providerPreference=ProviderPreferencesUIBean.getLoggedInProviderPreference();
 	
 	boolean eRxEnabled= false;
 	String eRx_SSO_URL = null;
@@ -257,7 +252,7 @@ function load() {
 <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1" height="100%">
 	<%@ include file="TopLinks.jsp"%><!-- Row One included here-->
 	<tr>
-		<td width="10%" height="100%" valign="top"><%@ include file="SideLinksEditFavorites.jsp"%></td><!-- <td></td>Side Bar File --->
+		<%@ include file="SideLinksEditFavorites.jsp"%><!-- <td></td>Side Bar File --->
 		<td width="100%" style="border-left: 2px solid #A9A9A9;" height="100%" valign="top"><!--Column Two Row Two-->
 		<table cellpadding="0" cellspacing="2" style="border-collapse: collapse" bordercolor="#111111" width="100%" height="100%">
 			<tr>
@@ -286,14 +281,14 @@ function load() {
 						<td></td>
 						<td><b><bean:message key="SearchDrug.PreferedPharmacy"/> :</b> <a href="javascript: function myFunction() {return false; }" onClick="showpic('Layer1');" id="Calcs"><%=prefPharmacy%></a></td>
 					</tr>
+					<oscar:oscarPropertiesCheck property="MY_OSCAR" value="yes">
 						<indivo:indivoRegistered demographic="<%=String.valueOf(bean.getDemographicNo())%>" provider="<%=bean.getProviderNo()%>">
 							<tr>
-								<td colspan="3">
-									<a href="javascript: phrActionPopup('../oscarRx/SendToPhr.do?demoId=<%=Integer.toString(bean.getDemographicNo())%>', 'sendRxToPhr');">Send To PHR</a>
-								</td>
+								<td colspan="3"><!--<a href="javascript:popupWindow(720,700,'AddDrugProfileToPHR.jsp?demoId=<%=Integer.toString(bean.getDemographicNo())%>','PresPHR')">Send To Personal Health Record via JSP</a>   <br/>--> <a
+									href="javascript: phrActionPopup('../oscarRx/SendToPhr.do?demoId=<%=Integer.toString(bean.getDemographicNo())%>', 'sendRxToPhr');">Send To PHR</a></td>
 							</tr>
 						</indivo:indivoRegistered>
-					
+					</oscar:oscarPropertiesCheck>
 				</table>
 				</td>
 			</tr>
@@ -351,7 +346,7 @@ function load() {
 								<th align="center" width="100px"><b><bean:message key="SearchDrug.msgDelete"/></b></th>
 								<th align="center" width="20px">&nbsp;</th>
 								<%
-									boolean integratorEnabled=loggedInInfo.getCurrentFacility().isIntegratorEnabled();
+									boolean integratorEnabled=LoggedInInfo.loggedInInfo.get().currentFacility.isIntegratorEnabled();
 
 									if (integratorEnabled)
 									{
@@ -364,7 +359,7 @@ function load() {
 
 							<%
 								CaseManagementManager caseManagementManager=(CaseManagementManager)SpringUtils.getBean("caseManagementManager");
-								List<Drug> prescriptDrugs=caseManagementManager.getPrescriptions(loggedInInfo, patient.getDemographicNo(), showall);
+								List<Drug> prescriptDrugs=caseManagementManager.getPrescriptions(patient.getDemographicNo(), showall);
 
 								long now = System.currentTimeMillis();
 								long month = 1000L * 60L * 60L * 24L * 30L;

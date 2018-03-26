@@ -32,21 +32,6 @@
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-	  boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_lab" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_lab");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
 <%
     
 
@@ -61,13 +46,14 @@ if(!authed) {
     if ( ackStatus == null ) { ackStatus = "N"; } // default to only new lab reports
     if ( providerNo == null ) { providerNo = ""; }
     if ( searchProviderNo == null ) { searchProviderNo = providerNo; }
+    //mDSData.populateMDSResultsData2(searchProviderNo, demographicNo, request.getParameter("fname"), request.getParameter("lname"), request.getParameter("hnum"), ackStatus);
     
-    ArrayList<LabResultData> labs = comLab.populateLabResultsData(LoggedInInfo.getLoggedInInfoFromSession(request), "",demographicNo, "", "","","U");
+    ArrayList<LabResultData> labs = comLab.populateLabResultsData("",demographicNo, "", "","","U");
     
-    LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-    if (loggedInInfo.getCurrentFacility().isIntegratorEnabled())
+    LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+    if (loggedInInfo.currentFacility.isIntegratorEnabled())
     {
-       ArrayList<LabResultData> remoteResults=CommonLabResultData.getRemoteLabs(loggedInInfo,Integer.parseInt(demographicNo));
+       ArrayList<LabResultData> remoteResults=CommonLabResultData.getRemoteLabs(Integer.parseInt(demographicNo));
        labs.addAll(remoteResults);
     }
     
@@ -154,17 +140,6 @@ function checkAll(formId){
    }
 }
 </script>
-
-<link rel="stylesheet" type="text/css" href="<%= request.getContextPath() %>/js/jquery_css/smoothness/jquery-ui-1.10.2.custom.min.css"/>
-<script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery-1.9.1.js"></script>
-<script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery-ui-1.10.2.custom.min.js"></script>
-
-
-<script>
-$(function() {
-    $( document ).tooltip();
-  });
-</script>
 </head>
 
 <body oldclass="BodyStyle" vlink="#0000FF">
@@ -197,10 +172,7 @@ $(function() {
 				<input type="button" class="smallButton"
 					value="<bean:message key="oscarMDS.index.btnForward"/>"
 					onClick="checkSelected()"> <input type="button"
-					class="smallButton" value="File" onclick="submitFile()" />
-					<span title="<bean:message key="global.uploadWarningBody"/>" style="vertical-align:middle;font-family:arial;font-size:20px;font-weight:bold;color:#ABABAB;cursor:pointer"><img border="0" src="../images/icon_alertsml.gif"/></span></span>
-        
-					 <% } %>
+					class="smallButton" value="File" onclick="submitFile()" /> <% } %>
 				</td>
 				<td align="center" valign="center" width="40%" class="Nav">
 				&nbsp;&nbsp;&nbsp; <% if (demographicNo == null) { %> <span

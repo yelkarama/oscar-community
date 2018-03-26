@@ -23,32 +23,14 @@
     Ontario, Canada
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed2=true;
-%>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_report,_admin.reporting" rights="r" reverse="<%=true%>">
-	<%authed2=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_report&type=_admin.reporting");%>
-</security:oscarSec>
-<%
-if(!authed2) {
-	return;
-}
-%>
-
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@ page
-	import="org.apache.commons.lang.StringUtils,org.apache.commons.lang.StringEscapeUtils,java.util.*,oscar.util.*,oscar.oscarReport.data.*,oscar.oscarDB.*,java.sql.*,oscar.oscarDemographic.data.*,oscar.eform.*,org.oscarehr.common.model.Provider,org.oscarehr.managers.ProviderManager2,org.oscarehr.util.SpringUtils"%>
+	import="org.apache.commons.lang.StringUtils,org.apache.commons.lang.StringEscapeUtils,java.util.*,oscar.util.*,oscar.oscarDB.*,java.sql.*,oscar.eform.*,org.oscarehr.common.model.Provider,org.oscarehr.managers.ProviderManager2,org.oscarehr.util.SpringUtils"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
 
 <%
-	ProviderManager2 providerManager = (ProviderManager2) SpringUtils.getBean("providerManager2");
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+ProviderManager2 providerManager = (ProviderManager2) SpringUtils.getBean("providerManager2");
 %>
 
 <jsp:useBean id="reportMainBean" class="oscar.AppointmentMainBean"
@@ -61,6 +43,8 @@ if(!authed2) {
 <link rel="stylesheet" type="text/css"
 	href="../oscarEncounter/encounterStyles.css">
 <%  //This could be done alot better.
+if(session.getValue("user") == null)
+    response.sendRedirect("../logout.htm");
   String curUser_no,userfirstname,userlastname;
   curUser_no = (String) session.getAttribute("user");
 
@@ -159,7 +143,7 @@ table.ele {
 		<%
 		// null for both active and inactive because the report might be for a provider
 		// who's just left the current reporting period
-		List<Provider> providers = providerManager.getProviders(loggedInInfo, null);
+		List<Provider> providers = providerManager.getProviders(null);
 
 		for(Provider provider: providers){
 			//skip (system,system)
@@ -189,23 +173,13 @@ table.ele {
 	</tr>
 </table>
 
-<p>
-<strong>Providers:</strong><br>
 <%
 
 	if (providerNo != null && !formId.equals("")){
         
         int[] count;
         
-        for(Provider provider: providers){
-        	if(Arrays.asList(providerNo).contains(provider.getProviderNo())){
-				out.println(provider.getFormattedName() + "(" + provider.getProviderNo() + ")<br>");
-        	}
-        }
-    
     %>
-</p>
-    
 
 <p><strong>Note:</strong><br>O - Ongoing Clients<br>N - New Clients</p>
 <table border="1">
@@ -228,7 +202,6 @@ table.ele {
 
 	<tr>
 		<th>&nbsp;</th>
-		<th>O</th>
 		<th>N</th>
 		<th>O</th>
 		<th>N</th>
@@ -244,7 +217,7 @@ table.ele {
 		<th>N</th>
 		<th>O</th>
 		<th>N</th>
-		
+		<th>O</th>
 	</tr>
 	<tr>
 		<td>15-21 years</td>
@@ -427,8 +400,8 @@ table.ele {
 	<table border="1">
 	<tr>
 		<th>Activity</th>
-		<th>O</th>
 		<th>N</th>
+		<th>O</th>
 	</tr>
 	<tr>
 		<td ><strong>Assisted With Housing</strong></td>
@@ -534,7 +507,6 @@ table.ele {
 	</tr>
 	<tr>
 		<th>&nbsp;</th>
-		<th>O</th>
 		<th>N</th>
 		<th>O</th>
 		<th>N</th>
@@ -550,7 +522,7 @@ table.ele {
 		<th>N</th>
 		<th>O</th>
 		<th>N</th>		
-	
+		<th>O</th>
 	</tr>	
 	<tr>
 		<td>Aboriginal/Metis/First Nation/Inuit</td>		
@@ -590,8 +562,8 @@ table.ele {
 	</tr>
 	<tr>
 		<th>&nbsp;</th>
-		<th>O</th>
 		<th>N</th>
+		<th>O</th>
 	</tr>	
 	
 	<tr style="background-color:gainsboro;">
@@ -640,7 +612,7 @@ table.ele {
 		<td class="OSISdata"><%=count[1] %></td>
 	</tr>
 	<tr>
-		<td># Singles moved from hidden homelessness to temporary/transitional</td>
+		<td># Singles moved from hidden homelessness to temporary/trantional</td>
 		<%count = OneTimeConsultUtil.getOSISReport("","Hidden Homelessness to Temporary/Transitional Housing","","","","",providerNo,formId,startStr,endStr);%>
 		<td class="OSISdata"><%=count[0] %></td>
 		<td class="OSISdata"><%=count[1] %></td>
@@ -660,7 +632,7 @@ table.ele {
 	</tr>
 	
 	<tr style="background-color:gainsboro;">
-		<td>Other type of move that resulted in Single person moving from homelessness to housing (temporary or permanent)</td>
+		<td>Other type of move that resulsted in Single person moving from homelessness to housing (temporary or permanent)</td>
 		<%count = OneTimeConsultUtil.getOSISReport("","Other","","","","",providerNo,formId,startStr,endStr);%>
 		<td class="OSISdata"><%=count[0] %></td>
 		<td class="OSISdata"><%=count[1] %></td>

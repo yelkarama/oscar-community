@@ -142,7 +142,7 @@ public interface MessageHandler {
      * Return the obx value type
      * @param i
      * @param j
-     * @return String the obx value
+     * @return
      */
     public String getOBXValueType(int i, int j);
 
@@ -339,6 +339,5 @@ public interface MessageHandler {
     public String getRadiologistInfo();
 
     public String getNteForOBX(int i,int j);
-    
-    public String getNteForPID();
+
 }

@@ -26,6 +26,8 @@
 package oscar.oscarEncounter.oscarMeasurements.pageUtil;
 
 import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -40,62 +42,60 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 import org.apache.struts.util.MessageResources;
-import org.oscarehr.common.dao.MeasurementTypeDao;
-import org.oscarehr.common.model.MeasurementType;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
-import org.oscarehr.util.SpringUtils;
+import org.oscarehr.util.MiscUtils;
 
+import oscar.oscarDB.DBHandler;
 import oscar.oscarEncounter.oscarMeasurements.data.MeasurementTypes;
+import oscar.oscarMessenger.util.MsgStringQuote;
 
 public class EctAddMeasurementTypeAction extends Action {
 
-	private MeasurementTypeDao dao = SpringUtils.getBean(MeasurementTypeDao.class);
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException
     {
         EctAddMeasurementTypeForm frm = (EctAddMeasurementTypeForm) form;
 
-        if( securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_admin", "w", null) || securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_admin.measurements", "w", null) )  {
        
         request.getSession().setAttribute("EctAddMeasurementTypeForm", frm);
         
-        List<String> messages = new LinkedList<String>();
-         
-
-        String type = frm.getType();
-        String typeUp = type.toUpperCase();
-        String typeDesc = frm.getTypeDesc();
-        String typeDisplayName = frm.getTypeDisplayName();
-        String measuringInstrc = frm.getMeasuringInstrc();
-        String validation = frm.getValidation();
-        if (!allInputIsValid(request, type, typeDesc, typeDisplayName, measuringInstrc)){
-            return (new ActionForward(mapping.getInput()));
-        }
-
-        MeasurementType mt = new MeasurementType();
-        mt.setType(typeUp);
-        mt.setTypeDescription(typeDesc);
-        mt.setTypeDisplayName(typeDisplayName);
-        mt.setMeasuringInstruction(measuringInstrc);
-        mt.setValidation(validation);
-        dao.persist(mt);
+        MsgStringQuote str = new MsgStringQuote();     
+        List messages = new LinkedList();
         
+        try{
+            
+
+            String type = frm.getType();
+            String typeUp = type.toUpperCase();
+            String typeDesc = frm.getTypeDesc();
+            String typeDisplayName = frm.getTypeDisplayName();
+            String measuringInstrc = frm.getMeasuringInstrc();
+            String validation = frm.getValidation();
+            if (!allInputIsValid(request, type, typeDesc, typeDisplayName, measuringInstrc)){
+                return (new ActionForward(mapping.getInput()));
+            }
+
+            //Write to database
+            String sql = "INSERT INTO measurementType"
+                +"(type, typeDescription, typeDisplayName, measuringInstruction, validation)"
+                +" VALUES ('"+str.q(typeUp)+"','"+str.q(typeDesc)+"','"+str.q(typeDisplayName)+"','"+str.q(measuringInstrc)+"','"
+                + str.q(validation)+"')";
+            MiscUtils.getLogger().debug(" sql statement "+sql);
+            DBHandler.RunSQL(sql);
                 
+        }
+        catch(SQLException e)
+        {
+            MiscUtils.getLogger().error("Error", e);
+        }            
         
         MessageResources mr = getResources(request);
         String msg = mr.getMessage("oscarEncounter.oscarMeasurements.AddMeasurementType.successful", "!");
+        //String msg = "Measurement Type has been added successfully!";
         messages.add(msg);
         request.setAttribute("messages", messages);
-        MeasurementTypes mts =  MeasurementTypes.getInstance();
-        mts.reInit();
+        MeasurementTypes mt =  MeasurementTypes.getInstance();
+        mt.reInit();
         return mapping.findForward("success");
-        
-		}else{
-			throw new SecurityException("Access Denied!"); //missing required security object (_admin)
-		}
 
     }
     
@@ -105,12 +105,22 @@ public class EctAddMeasurementTypeAction extends Action {
         EctValidation validate = new EctValidation();
         String regExp = validate.getRegCharacterExp();
         boolean isValid = true;
-        
-        for(MeasurementType mt:dao.findByType(type)) {
-        	errors.add(type, new ActionMessage("error.oscarEncounter.Measurements.duplicateTypeName"));
-            saveErrors(request, errors);
-            isValid = false;            
+        try{
+            
+            String sql = "SELECT type FROM measurementType WHERE type='" + type +"'";
+            ResultSet rs = DBHandler.GetSQL(sql);
+            rs.next();
+            if(rs.getRow()>0){
+                errors.add(type,
+                new ActionMessage("error.oscarEncounter.Measurements.duplicateTypeName"));
+                saveErrors(request, errors);
+                isValid = false;                
+            }
         }
+        catch(SQLException e)
+        {
+            MiscUtils.getLogger().error("Error", e);
+        }     
         
         String errorField = "The type " + type;
         if(!validate.matchRegExp(regExp, type)){
@@ -119,7 +129,7 @@ public class EctAddMeasurementTypeAction extends Action {
             saveErrors(request, errors);
             isValid = false;
         }
-        if(!validate.maxLength(50, type)){
+        if(!validate.maxLength(4, type)){
             errors.add(type,
             new ActionMessage("errors.maxlength", errorField, "4"));
             saveErrors(request, errors);
@@ -140,7 +150,7 @@ public class EctAddMeasurementTypeAction extends Action {
             isValid = false;
         }
         
-        errorField = "The display name " + typeDisplayName;
+        errorField = "The type description " + typeDisplayName;
         if(!validate.matchRegExp(regExp, typeDisplayName)){
             errors.add(typeDisplayName,
             new ActionMessage("errors.invalid", errorField));

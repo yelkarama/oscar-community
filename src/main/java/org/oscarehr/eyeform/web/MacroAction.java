@@ -44,7 +44,6 @@ import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.dao.BillingServiceDao;
 import org.oscarehr.eyeform.dao.MacroDao;
 import org.oscarehr.eyeform.model.Macro;
-
 import org.oscarehr.util.SpringUtils;
 
 

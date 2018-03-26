@@ -23,7 +23,6 @@
  */
 package org.oscarehr.common.dao;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import org.junit.Before;
@@ -35,7 +34,7 @@ import org.oscarehr.util.SpringUtils;
 
 public class CountryCodeDaoTest extends DaoTestFixtures {
 
-	protected CountryCodeDao dao = SpringUtils.getBean(CountryCodeDao.class);
+	private CountryCodeDao dao = SpringUtils.getBean(CountryCodeDao.class);
 
 	public CountryCodeDaoTest() {
 
@@ -52,23 +51,6 @@ public class CountryCodeDaoTest extends DaoTestFixtures {
 		EntityDataGenerator.generateTestDataForModelClass(entity);
 		dao.persist(entity);
 		assertNotNull(entity.getId());
-	}
-
-	@Test
-	public void testGetAllCountryCodes() throws Exception {
-		int initialSize = dao.findAll().size();
-		CountryCode entity = new CountryCode();
-		EntityDataGenerator.generateTestDataForModelClass(entity);
-		dao.persist(entity);
-
-		assertEquals(dao.findAll().size(), initialSize + 1);
-	}
-
-	public void testGetCountryCode() throws Exception {
-		CountryCode country = new CountryCode();
-		EntityDataGenerator.generateTestDataForModelClass(country);
-		country = dao.getCountryCode("CA");
-		assertEquals("Canada", country.getCountryName());
 	}
 
 }

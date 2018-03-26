@@ -26,20 +26,15 @@
 package oscar.oscarRx.pageUtil;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.Vector;
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -50,25 +45,19 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
 import org.apache.struts.util.MessageResources;
-import org.apache.xmlrpc.XmlRpcClient;
 import org.apache.xmlrpc.XmlRpcClientLite;
 import org.oscarehr.PMmodule.caisi_integrator.RemoteDrugAllergyHelper;
-import org.oscarehr.common.dao.AppDefinitionDao;
-import org.oscarehr.common.dao.AppUserDao;
 import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.DemographicExtDao;
 import org.oscarehr.common.dao.UserDSMessagePrefsDao;
 import org.oscarehr.common.dao.UserPropertyDAO;
 import org.oscarehr.common.model.Allergy;
-import org.oscarehr.common.model.AppDefinition;
-import org.oscarehr.common.model.AppUser;
 import org.oscarehr.common.model.DemographicExt;
 import org.oscarehr.common.model.UserDSMessagePrefs;
 import org.oscarehr.common.model.UserProperty;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
-import org.oscarehr.app.OAuth1Utils;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -113,9 +102,6 @@ public final class RxMyDrugrefInfoAction extends DispatchAction {
 
     public ActionForward view(ActionMapping mapping,ActionForm form,HttpServletRequest request,HttpServletResponse response)  {
         MiscUtils.getLogger().debug("in view RxMyDrugrefInfoAction");
-        
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-
         try{
 
         long start = System.currentTimeMillis();
@@ -152,7 +138,7 @@ public final class RxMyDrugrefInfoAction extends DispatchAction {
 
         if(Boolean.valueOf(OscarProperties.getInstance().getProperty("drug_allergy_interaction_warnings", "false"))) {
         	RxDrugRef d = new RxDrugRef();
-        	Allergy[]  allerg = RxPatientData.getPatient(loggedInInfo, bean.getDemographicNo()).getActiveAllergies();
+        	Allergy[]  allerg = RxPatientData.getPatient(bean.getDemographicNo()).getActiveAllergies();
         	Vector vec = new Vector();
             for (int i =0; i < allerg.length; i++){
                Hashtable h = new Hashtable();
@@ -164,24 +150,26 @@ public final class RxMyDrugrefInfoAction extends DispatchAction {
         	codes.addAll(d.getAllergyClasses(vec));
         }
         //String[] str = new String[]{"warnings_byATC","bulletins_byATC","interactions_byATC"};
-        String[] str = new String[]{"atcfetch/getWarnings","atcfetch/getBulletins","atcfetch/getInteractions"};   //NEW more efficent way of sending multiple requests at the same time.
+        String[] str = new String[]{"warnings_byATC,bulletins_byATC,interactions_byATC,get_guidelines"};   //NEW more efficent way of sending multiple requests at the same time.
         MessageResources mr=getResources(request);
         Locale locale = getLocale(request);
 
         log2.debug("Interaction, local drug atc codes : "+codes);
 
-        if (loggedInInfo.getCurrentFacility().isIntegratorEnabled())
+        LoggedInInfo loggedInfo=LoggedInInfo.loggedInInfo.get();
+        if (loggedInfo.currentFacility.isIntegratorEnabled())
         {
-        	ArrayList<String> remoteDrugAtcCodes=RemoteDrugAllergyHelper.getAtcCodesFromRemoteDrugs(loggedInInfo, bean.getDemographicNo());
+        	ArrayList<String> remoteDrugAtcCodes=RemoteDrugAllergyHelper.getAtcCodesFromRemoteDrugs(bean.getDemographicNo());
         	codes.addAll(remoteDrugAtcCodes);
             log2.debug("remote drug atc codes : "+remoteDrugAtcCodes);
-        }        
-        log2.debug("Interaction, local + remote drug atc codes : "+codes);   
+        }
+
+        log2.debug("Interaction, local + remote drug atc codes : "+codes);
 
         Vector all = new Vector();
         for (String command : str){
             try{
-                Vector v = getMyDrugrefInfo(loggedInInfo,command, codes, provider, myDrugrefId);
+                Vector v = getMyDrugrefInfo(command,  codes,myDrugrefId) ;
 
                 if (v !=null && v.size() > 0){
                     all.addAll(v);
@@ -192,36 +180,15 @@ public final class RxMyDrugrefInfoAction extends DispatchAction {
                 MiscUtils.getLogger().error("Error", e);
             }
         }
-        
-        if(OscarProperties.getInstance().isPropertyActive("RX_INTERACTION_LOCAL_DRUGREF_REGIONAL_IDENTIFIER")){
-        	List regionalIdentifiers = bean.getRegionalIdentifier();
-        	if (loggedInInfo.getCurrentFacility().isIntegratorEnabled()){
-        		ArrayList<String> remoteDrugRegionalIdentiferCodes=RemoteDrugAllergyHelper.getRegionalIdentiferCodesFromRemoteDrugs(loggedInInfo, bean.getDemographicNo());
-        		regionalIdentifiers.addAll(remoteDrugRegionalIdentiferCodes);
-        	}
-        
-	        try{
-	        	RxDrugRef rxDrugRef = new RxDrugRef();
-	        	List localInteractions =  rxDrugRef.interactionByRegionalIdentifier(regionalIdentifiers,0);
-	        	log2.debug("local interactions size = "+localInteractions.size());
-	        	all.addAll(localInteractions);
-	        }catch(Exception e){
-	        	log2.error("Error calling interactions by regional identifier",e);
-	        }
-        }else{
-        	log2.debug("RX_INTERACTION_LOCAL_DRUGREF_REGIONAL_IDENTIFIER was null" );
-        }
-        
-        
         Collections.sort(all, new MyDrugrefComparator());
-        
+
         //filter out based on significance by facility, provider, demographic
         int level = 0;
-        int orgLevel = loggedInInfo.getCurrentFacility().getRxInteractionWarningLevel();
+        int orgLevel = LoggedInInfo.loggedInInfo.get().currentFacility.getRxInteractionWarningLevel();
         level = orgLevel;
         MiscUtils.getLogger().debug("orgLevel="+orgLevel);
 
-        UserProperty uprop = propDAO.getProp(loggedInInfo.getLoggedInProviderNo(), "rxInteractionWarningLevel");
+        UserProperty uprop = propDAO.getProp(LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo(), "rxInteractionWarningLevel");
         if(uprop!=null) {
         	if(uprop.getValue()!=null&&uprop.getValue().length()>0) {
         		int providerLevel = Integer.parseInt(uprop.getValue());
@@ -452,13 +419,23 @@ public final class RxMyDrugrefInfoAction extends DispatchAction {
     }
 
 
-    public Vector getMyDrugrefInfo(LoggedInInfo loggedInInfo,String command, Vector drugs, String providerNo, String myDrugrefId) {
+    public Vector getMyDrugrefInfo(String command, Vector drugs,String myDrugrefId) {
 
         removeNullFromVector(drugs);
+        Vector params = new Vector();
+
+        params.addElement(command);
+        params.addElement(drugs);
+
+        if (myDrugrefId != null && !myDrugrefId.trim().equals("")){
+            log2.debug("putting >"+myDrugrefId+ "< in the request");
+            params.addElement(myDrugrefId);
+            //params.addElement("true");
+        }
 
         Vector vec = new Vector();
-        log2.debug("CALL : FETCH:"+drugs);
-        Object obj =  callOAuthService(loggedInInfo,command,drugs, myDrugrefId);
+        log2.debug("CALL : FETCH:"+params);
+        Object obj =  callWebserviceLite("Fetch",params);
         log2.debug("RETURNED "+obj);
         if (obj instanceof Vector){
 
@@ -483,134 +460,23 @@ public final class RxMyDrugrefInfoAction extends DispatchAction {
     }
 
 
-    public Vector callOAuthService(LoggedInInfo loggedInInfo,String procedureName, Vector params, String myDrugrefId){
-    	try {
-    		AppDefinitionDao appDefinitionDao = SpringUtils.getBean(AppDefinitionDao.class);
-    		AppUserDao appUserDao = SpringUtils.getBean(AppUserDao.class);
-    		
-    		AppDefinition k2aApp = appDefinitionDao.findByName("K2A");
-    		
-    		boolean useXMLRPC = false;
-    		Vector result = null;
-    		
-    		if(k2aApp != null) {
-	    		AppUser k2aUser = appUserDao.findForProvider(k2aApp.getId(),loggedInInfo.getLoggedInProviderNo());
-	    		
-	    		if(k2aUser != null) {
-	    			
-		    		String requestURI = "/ws/api/" + procedureName;
-		    		
-		    		String requestURIWithParams = null;
-		    		if(params != null && !params.isEmpty() && params.size() > 0) {
-		    			requestURIWithParams = requestURI + "?";
-			    		for(int i=0;i<params.size();i++){
-							if(procedureName.contains("guidelines")) {
-								requestURIWithParams += "uuidCodes=" + params.get(i) + "&";
-							} else {
-								requestURIWithParams += "atcCodes=" + params.get(i) + "&";
-							}
-						}
-			    		requestURIWithParams = requestURIWithParams.substring(0,requestURIWithParams.length()-1);
-		    		}
-		    		
-		    		
-	    			if(requestURIWithParams == null) {
-		    			requestURIWithParams = requestURI;
-		    		} 
-		    		
-		    		String jsonString = OAuth1Utils.getOAuthGetResponse( loggedInInfo,k2aApp, k2aUser, requestURIWithParams, requestURI);
-		    		//Convert JSON return to Vector/Hashtable
-		    		JSONArray jsonArray = new JSONArray();
-		    		
-		    		if(jsonString != null && !jsonString.isEmpty()) {
-		    			jsonArray = new JSONArray(jsonString);
-		    			result = new Vector();
-		    			
-		    			for (int i = 0; i < jsonArray.length(); i++) {
-		    	        	JSONObject eform = jsonArray.getJSONObject(i);
-		    	        	Hashtable drugInfo = new Hashtable();
-		    	        	
-		    	        	Iterator iterator = eform.keys();
-		    	        	while(iterator.hasNext()){
-		    	        		String key = (String) iterator.next();
-		    	        		if(key.equals("significance") || key.equals("version")) {
-		    	        			drugInfo.put(key, eform.get(key).toString());
-		    	        		} else if(key.equals("updated_at") || key.equals("updatedAt") || key.equals("created_at")){
-		    	        			DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-		    	        			Date date = formatter.parse(eform.get(key).toString());
-		    	        			drugInfo.put(key, date);
-		    	        		} else {
-		    	        			drugInfo.put(key, eform.get(key));
-		    	        		}
-		    	        	}
-		    	     
-		    	        	result.add(drugInfo);
-		    			}
-		    		}
-	    		} else {
-	    			useXMLRPC = true;
-	    		}
-    		} else {
-    			useXMLRPC = true;
-    		}
-    		
-    		if(useXMLRPC) {
-    			Vector newParams = new Vector();
-    			
-    			//Convert from OAuth procedure name to xml rpc procedure name
-    			if(procedureName.equals("atcfetch/getWarnings")) {
-    				newParams.addElement("warnings_byATC");
-    				procedureName = "Fetch";
-    			} else if(procedureName.equals("atcfetch/getBulletins")) {
-    				newParams.addElement("bulletins_byATC");
-    				procedureName = "Fetch";
-    			} else if(procedureName.equals("atcfetch/getInteractions")) {
-    				newParams.addElement("interactions_byATC");
-    				procedureName = "Fetch";
-    			} else if(procedureName.equals("guidelines/getGuidelineIds")) {
-    				procedureName = "GetGuidelineIds";
-    			} else if(procedureName.equals("guidelines/getGuidelines")) {
-    				procedureName = "GetGuidelines";
-    			}
-    			
-    			if(params != null) {
-    				newParams.add(params);
-    			}
+    public Object callWebserviceLite(String procedureName, Vector params){
+        log2.debug("#CALLmyDRUGREF-"+procedureName);
+        Object object = null;
 
-    	        if (myDrugrefId != null && !myDrugrefId.trim().equals("")){
-    	            log2.debug("putting >"+myDrugrefId+ "< in the request");
-    	            newParams.addElement(myDrugrefId);
-    	            //params.addElement("true");
-    	        }
-    			log2.debug("#CALLmyDRUGREF-"+procedureName);
-    	        Object object = null;
+        String server_url = OscarProperties.getInstance().getProperty("MY_DRUGREF_URL","http://mydrugref.org/backend/api");
 
-    	        String server_url = OscarProperties.getInstance().getProperty("MY_DRUGREF_URL","http://know2act.org/backend/api");
-
-    	        TimingOutCallback callback = new TimingOutCallback(10 * 1000);
-    	        try{
-    	            log2.debug("server_url :"+server_url);
-    	            if (!System.getProperty("http.proxyHost","").isEmpty()) {
-    	                //The Lite client won't recgonize JAVA_OPTS as it uses a customized http
-    	                XmlRpcClient server = new XmlRpcClient(server_url);
-    	                server.executeAsync(procedureName, newParams, callback);
-    	            } else {
-    	                XmlRpcClientLite server = new XmlRpcClientLite(server_url);
-    	                server.executeAsync(procedureName, newParams, callback);
-    	            }
-    	            object = callback.waitForResponse();
-    	        } catch (TimeoutException e) {
-    	            log2.debug("No response from server."+server_url);
-    	        }catch(Exception ethrow){
-    	            log2.debug("Throwing error."+ethrow.getMessage());
-    	        }
-    	        result = (Vector)object;
-    		}
-    		
-    		return result;
-    	} catch(Exception e) {
-    		log2.error("Failed to retrieve K2A drug ref information", e);
-    		return null;
-    	}
+        TimingOutCallback callback = new TimingOutCallback(10 * 1000);
+        try{
+            log2.debug("server_url :"+server_url);
+            XmlRpcClientLite server = new XmlRpcClientLite(server_url);
+            server.executeAsync(procedureName, params, callback);
+            object = callback.waitForResponse();
+        } catch (TimeoutException e) {
+            log2.debug("No response from server."+server_url);
+        }catch(Throwable ethrow){
+            log2.debug("Throwing error."+ethrow.getMessage());
+        }
+        return object;
     }
 }

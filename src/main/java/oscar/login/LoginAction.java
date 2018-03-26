@@ -26,9 +26,7 @@
 package oscar.login;
 
 import java.io.IOException;
-import java.security.MessageDigest;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -37,9 +35,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import net.sf.json.JSONObject;
-
-import org.apache.cxf.common.util.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
@@ -50,26 +45,22 @@ import org.oscarehr.PMmodule.service.ProviderManager;
 import org.oscarehr.PMmodule.web.OcanForm;
 import org.oscarehr.common.dao.FacilityDao;
 import org.oscarehr.common.dao.ProviderPreferenceDao;
-import org.oscarehr.common.dao.ServiceRequestTokenDao;
 import org.oscarehr.common.dao.UserPropertyDAO;
 import org.oscarehr.common.model.Facility;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.model.ProviderPreference;
-import org.oscarehr.common.model.Security;
-import org.oscarehr.common.model.ServiceRequestToken;
 import org.oscarehr.common.model.UserProperty;
 import org.oscarehr.decisionSupport.service.DSService;
-import org.oscarehr.managers.AppManager;
 import org.oscarehr.phr.util.MyOscarUtils;
+import org.oscarehr.util.EncryptionUtils;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.LoggedInUserFilter;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SessionConstants;
 import org.oscarehr.util.SpringUtils;
 import org.springframework.context.ApplicationContext;
+import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
-
-import com.quatro.model.security.LdapSecurity;
 
 import oscar.OscarProperties;
 import oscar.log.LogAction;
@@ -88,141 +79,46 @@ public final class LoginAction extends DispatchAction {
 
     private static final Logger logger = MiscUtils.getLogger();
     private static final String LOG_PRE = "Login!@#$: ";
-    
-    
+
     private ProviderManager providerManager = (ProviderManager) SpringUtils.getBean("providerManager");
-    private AppManager appManager = SpringUtils.getBean(AppManager.class);
     private FacilityDao facilityDao = (FacilityDao) SpringUtils.getBean("facilityDao");
     private ProviderPreferenceDao providerPreferenceDao = (ProviderPreferenceDao) SpringUtils.getBean("providerPreferenceDao");
-    private ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
-    private UserPropertyDAO propDao =(UserPropertyDAO)SpringUtils.getBean("UserPropertyDAO");
-	private org.oscarehr.managers.SecurityManager securityManager = SpringUtils.getBean(org.oscarehr.managers.SecurityManager.class);
-			
-	public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    	boolean ajaxResponse = request.getParameter("ajaxResponse") != null?Boolean.valueOf(request.getParameter("ajaxResponse")):false;
-    	
-    	if(!"POST".equals(request.getMethod())) {
-    		MiscUtils.getLogger().error("Someone is trying to login with a GET request.",new Exception());
-    		 String newURL = mapping.findForward("error").getPath();
-             newURL = newURL + "?errormsg=Application Error. See Log.";         
-             return new ActionForward(newURL);
-    	}
-    	String ip = request.getRemoteAddr();
-        Boolean isMobileOptimized = request.getSession().getAttribute("mobileOptimized") != null;
-    	
-        LoginCheckLogin cl = new LoginCheckLogin();
-        
-        String userName = "";
-        String password = "";
-        String pin = "";
-        String nextPage= "";
-        boolean forcedpasswordchange = true;
-        String where = "failure";
-        
-    	if (request.getParameter("forcedpasswordchange") != null && request.getParameter("forcedpasswordchange").equalsIgnoreCase("true")) {
-    		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
-    		//Coming back from force password change.
-    	    userName = (String) request.getSession().getAttribute("userName");
-    	    password = (String) request.getSession().getAttribute("password");
-    	    pin = (String) request.getSession().getAttribute("pin");
-    	    nextPage = (String) request.getSession().getAttribute("nextPage");
-    	    
-    	    String newPassword = ((LoginForm) form).getNewPassword();
-    	    String confirmPassword = ((LoginForm) form).getConfirmPassword();
-    	    String oldPassword = ((LoginForm) form).getOldPassword();
-    	   
-    	    String newPin = ((LoginForm) form).getNewPin();
-    	    String confirmPin = ((LoginForm) form).getConfirmPin();
-    	    String oldPin = ((LoginForm) form).getOldPin();
-    	   
-    	    
-    	    
-    	    try{
-        	    String errorStr = errorHandling(password, newPassword, confirmPassword, encodePassword(oldPassword), oldPassword);
-        	    
-        	    //Error Handling
-        	    if (errorStr != null && !errorStr.isEmpty()) {
-    	        	String newURL = mapping.findForward("forcepasswordreset").getPath();
-    	        	newURL = newURL + errorStr;  	        	
-    	            return(new ActionForward(newURL));  
-        	    }
-        	    
-        	    if(!StringUtils.isEmpty(pin)) {
-	        	    String errorStr2 = errorHandling2(pin, newPin, confirmPin, oldPin);
-	        	    //Error Handling
-	        	    if (errorStr2 != null && !errorStr2.isEmpty()) {
-	    	        	String newURL = mapping.findForward("forcepasswordreset").getPath();
-	    	        	newURL = newURL + errorStr2;  	        	
-	    	            return(new ActionForward(newURL));  
-	        	    }
-        	    }
-        	   
-        	    persistNewPasswordAndPin(loggedInInfo, userName, newPassword, newPin);
-        	    
-        	    
-        	    password = newPassword;
-        	    pin = newPin;
-        	    
-        	    //Remove the attributes from session
-        	    removeAttributesFromSession(request);
-         	}  
-         	catch (Exception e) {
-         		logger.error("Error", e);
-                String newURL = mapping.findForward("error").getPath();
-                newURL = newURL + "?errormsg=Setting values to the session.";   
-                
-        	    //Remove the attributes from session
-        	    removeAttributesFromSession(request);
-        	    
-                return(new ActionForward(newURL));  
-         	}
+    
+    public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-    	    //make sure this checking doesn't happen again
-    	    forcedpasswordchange = false;
-    	    
-    	} else {
-    		userName = ((LoginForm) form).getUsername();
-    	    password = ((LoginForm) form).getPassword();
-    	    pin = ((LoginForm) form).getPin();
-    	    nextPage=request.getParameter("nextPage");
-    		        
-	        logger.debug("nextPage: "+nextPage);
-	        if (nextPage!=null) {
-	        	// set current facility
-	            String facilityIdString=request.getParameter(SELECTED_FACILITY_ID);
-	            Facility facility=facilityDao.find(Integer.parseInt(facilityIdString));
-	            request.getSession().setAttribute(SessionConstants.CURRENT_FACILITY, facility);
-	            String username=(String)request.getSession().getAttribute("user");
-	            LogAction.addLog(username, LogConst.LOGIN, LogConst.CON_LOGIN, "facilityId="+facilityIdString, ip);
-	            if(facility.isEnableOcanForms()) {
-	            	request.getSession().setAttribute("ocanWarningWindow", OcanForm.getOcanWarningMessage(facility.getId()));
-	            }
-	            return mapping.findForward(nextPage);
-	        }
-	        
-	        if (cl.isBlock(ip, userName)) {
-	        	logger.info(LOG_PRE + " Blocked: " + userName);
-	            // return mapping.findForward(where); //go to block page
-	            // change to block page
-	            String newURL = mapping.findForward("error").getPath();
-	            newURL = newURL + "?errormsg=Your account is locked. Please contact your administrator to unlock.";
-	            
-	            if(ajaxResponse) {
-	            	JSONObject json = new JSONObject();
-	            	json.put("success", false);
-	            	json.put("error", "Your account is locked. Please contact your administrator to unlock.");
-	            	response.setContentType("text/x-json");
-	            	json.write(response.getWriter());
-	            	return null;
-	            }
-	            
-	            return(new ActionForward(newURL));
-	        }
-	                
-	        logger.debug("ip was not blocked: "+ip);
-        
-    	}
-        
+        String ip = request.getRemoteAddr();
+        Boolean isMobileOptimized = request.getSession().getAttribute("mobileOptimized") != null;
+        String nextPage=request.getParameter("nextPage");
+        logger.debug("nextPage: "+nextPage);
+        if (nextPage!=null) {
+            // set current facility
+            String facilityIdString=request.getParameter(SELECTED_FACILITY_ID);
+            Facility facility=facilityDao.find(Integer.parseInt(facilityIdString));
+            request.getSession().setAttribute(SessionConstants.CURRENT_FACILITY, facility);
+            String username=(String)request.getSession().getAttribute("user");
+            LogAction.addLog(username, LogConst.LOGIN, LogConst.CON_LOGIN, "facilityId="+facilityIdString, ip);
+            if(facility.isEnableOcanForms()) {
+            	request.getSession().setAttribute("ocanWarningWindow", OcanForm.getOcanWarningMessage(facility.getId()));
+            }
+            return mapping.findForward(nextPage);
+        }
+
+        String where = "failure";
+        // String userName, password, pin, propName;
+        String userName = ((LoginForm) form).getUsername();
+        String password = ((LoginForm) form).getPassword();
+        String pin = ((LoginForm) form).getPin();
+
+        LoginCheckLogin cl = new LoginCheckLogin();
+        if (cl.isBlock(ip, userName)) {
+            logger.info(LOG_PRE + " Blocked: " + userName);
+            // return mapping.findForward(where); //go to block page
+            // change to block page
+            String newURL = mapping.findForward("error").getPath();
+            newURL = newURL + "?errormsg=Your account is locked. Please contact your administrator to unlock.";
+            return(new ActionForward(newURL));
+        }
+        logger.debug("ip was not blocked: "+ip);
         String[] strAuth;
         try {
             strAuth = cl.auth(userName, password, pin, ip);
@@ -236,83 +132,35 @@ public final class LoginAction extends DispatchAction {
             else {
                 newURL = newURL + "?errormsg=Database connection error: " + e.getMessage() + ".";
             }
-            
-            if(ajaxResponse) {
-            	JSONObject json = new JSONObject();
-            	json.put("success", false);
-            	json.put("error", "Database connection error:"+e.getMessage() + ".");
-            	response.setContentType("text/x-json");
-            	json.write(response.getWriter());
-            	return null;
-            }
-            
             return(new ActionForward(newURL));
         }
-        logger.debug("strAuth : "+Arrays.toString(strAuth));
-        if (strAuth != null && strAuth.length != 1) { // login successfully
-        	
-        	
-        	//is the provider record inactive?
-        	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
-            Provider p = providerDao.getProvider(strAuth[0]);
-            if(p == null || (p.getStatus() != null && p.getStatus().equals("0"))) {
-            	logger.info(LOG_PRE + " Inactive: " + userName);           
-            	LogAction.addLog(strAuth[0], "login", "failed", "inactive");
-            	
-                String newURL = mapping.findForward("error").getPath();
-                newURL = newURL + "?errormsg=Your account is inactive. Please contact your administrator to activate.";
-                return(new ActionForward(newURL));
-            }
-            
-            /* 
-             * This section is added for forcing the initial password change.
-             */
-           boolean isForcePasswordReset = securityManager.getPasswordResetFlag(userName);
-            
-           boolean requiresUpgrade = "true".equals(OscarProperties.getInstance().getProperty("password.forcePasswordResetToUpdateStorage", "true")) 
-        		   && securityManager.isRequireUpgradeToStorage(userName);
         
-           
-            if ((!OscarProperties.getInstance().getBooleanProperty("mandatory_password_reset", "false") && 
-            	isForcePasswordReset && forcedpasswordchange) || requiresUpgrade	) {
-            	
-            	String newURL = mapping.findForward("forcepasswordreset").getPath();
-            	
-            	try{
-            	   setUserInfoToSession( request, userName,  password,  pin, nextPage);
-            	}  
-            	catch (Exception e) {
-            		logger.error("Error", e);
-                    newURL = mapping.findForward("error").getPath();
-                    newURL = newURL + "?errormsg=Setting values to the session.";            		
-            	}
-
-                return(new ActionForward(newURL));            	
-            }
-                        
-            // invalidate the existing session
+        logger.debug("strAuth : "+strAuth);
+        if (strAuth != null && strAuth.length != 1) { // login successfully
+            // invalidate the existing sesson
             HttpSession session = request.getSession(false);
             if (session != null) {
-            	if(request.getParameter("invalidate_session") != null && request.getParameter("invalidate_session").equals("false")) {
-            		//don't invalidate in this case..messes up authenticity of OAUTH
-            	} else {
-            		session.invalidate();
-            	}
+                session.invalidate();
             }
             session = request.getSession(); // Create a new session for this user
+            LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+            loggedInInfo.session=session;
 
             logger.debug("Assigned new session for: " + strAuth[0] + " : " + strAuth[3] + " : " + strAuth[4]);
             LogAction.addLog(strAuth[0], LogConst.LOGIN, LogConst.CON_LOGIN, "", ip);
 
             // initial db setting
             Properties pvar = OscarProperties.getInstance();
-            MyOscarUtils.setDeterministicallyMangledPasswordSecretKeyIntoSession(session, password);
+            EncryptionUtils.setDeterministicallyMangledPasswordSecretKeyIntoSession(session, password);
             
 
+            // get View Type
+            String viewType = LoginViewTypeHlp.getInstance().getProperty(strAuth[3].toLowerCase());
             String providerNo = strAuth[0];
             session.setAttribute("user", strAuth[0]);
             session.setAttribute("userfirstname", strAuth[1]);
             session.setAttribute("userlastname", strAuth[2]);
+            session.setAttribute("userprofession", viewType);
             session.setAttribute("userrole", strAuth[4]);
             session.setAttribute("oscar_context_path", request.getContextPath());
             session.setAttribute("expired_days", strAuth[5]);
@@ -321,53 +169,63 @@ public final class LoginAction extends DispatchAction {
             // initiate security manager
             String default_pmm = null;
             
-            
-            
             // get preferences from preference table
         	ProviderPreference providerPreference=providerPreferenceDao.find(providerNo);
         	
-            
+            if (viewType.equalsIgnoreCase("receptionist") || viewType.equalsIgnoreCase("doctor")) {
                 
-        	if (providerPreference==null) providerPreference=new ProviderPreference();
-         	
-        	session.setAttribute(SessionConstants.LOGGED_IN_PROVIDER_PREFERENCE, providerPreference);
-        	
-            if (org.oscarehr.common.IsPropertiesOn.isCaisiEnable()) {
-            	String tklerProviderNo = null;
-            	UserProperty prop = propDao.getProp(providerNo, UserProperty.PROVIDER_FOR_TICKLER_WARNING);
-        		if (prop == null) {
-        			tklerProviderNo = providerNo;
-        		} else {
-        			tklerProviderNo = prop.getValue();
-        		}
-            	session.setAttribute("tklerProviderNo",tklerProviderNo);
+            	if (providerPreference==null) providerPreference=new ProviderPreference();
+             	
+            	session.setAttribute(SessionConstants.LOGGED_IN_PROVIDER_PREFERENCE, providerPreference);
             	
-                session.setAttribute("newticklerwarningwindow", providerPreference.getNewTicklerWarningWindow());
-                session.setAttribute("default_pmm", providerPreference.getDefaultCaisiPmm());
-                session.setAttribute("caisiBillingPreferenceNotDelete", String.valueOf(providerPreference.getDefaultDoNotDeleteBilling()));
-                
-                default_pmm = providerPreference.getDefaultCaisiPmm();
-                @SuppressWarnings("unchecked")
-                ArrayList<String> newDocArr = (ArrayList<String>)request.getSession().getServletContext().getAttribute("CaseMgmtUsers");    
-                if("enabled".equals(providerPreference.getDefaultNewOscarCme())) {
-                	newDocArr.add(providerNo);
-                	session.setAttribute("CaseMgmtUsers", newDocArr);
+                if (org.oscarehr.common.IsPropertiesOn.isCaisiEnable()) {
+                	if(providerPreference.getNewTicklerWarningWindow() != null)
+                		session.setAttribute("newticklerwarningwindow", providerPreference.getNewTicklerWarningWindow());
+                    session.setAttribute("default_pmm", providerPreference.getDefaultCaisiPmm());
+                    session.setAttribute("caisiBillingPreferenceNotDelete", String.valueOf(providerPreference.getDefaultDoNotDeleteBilling()));
+                    
+                    default_pmm = providerPreference.getDefaultCaisiPmm();
+                    @SuppressWarnings("unchecked")
+                    ArrayList<String> newDocArr = (ArrayList<String>)request.getSession().getServletContext().getAttribute("CaseMgmtUsers");    
+                    if("enabled".equals(providerPreference.getDefaultNewOscarCme())) {
+                    	newDocArr.add(providerNo);
+                    	session.setAttribute("CaseMgmtUsers", newDocArr);
+                    }
                 }
-            }
-            session.setAttribute("starthour", providerPreference.getStartHour().toString());
-            session.setAttribute("endhour", providerPreference.getEndHour().toString());
-            session.setAttribute("everymin", providerPreference.getEveryMin().toString());
-            session.setAttribute("groupno", providerPreference.getMyGroupNo());
+                session.setAttribute("starthour", providerPreference.getStartHour().toString());
+                session.setAttribute("endhour", providerPreference.getEndHour().toString());
+                session.setAttribute("everymin", providerPreference.getEveryMin().toString());
+                session.setAttribute("groupno", providerPreference.getMyGroupNo());
                 
-            where = "provider";
+            }
+
+            if (viewType.equalsIgnoreCase("receptionist")) { // go to receptionist view
+                // where =
+                // "receptionist";//receptionistcontrol.jsp?year="+nowYear+"&month="+(nowMonth)+"&day="+(nowDay)+"&view=0&displaymode=day&dboperation=searchappointmentday";
+                where = "provider";
+            }
+            else if (viewType.equalsIgnoreCase("doctor")) { // go to provider view
+                where = "provider"; // providercontrol.jsp?year="+nowYear+"&month="+(nowMonth)+"&day="+(nowDay)+"&view=0&displaymode=day&dboperation=searchappointmentday";
+            }
+            else if (viewType.equalsIgnoreCase("admin")) { // go to admin view
+                where = "admin";
+            }
 
             if (where.equals("provider") && default_pmm != null && "enabled".equals(default_pmm)) {
                 where = "caisiPMM";
             }
             
-            if (where.equals("provider") && OscarProperties.getInstance().getProperty("useProgramLocation", "false").equals("true") ) {
-                where = "programLocation";
+            if (where.equals("provider")) {
+                WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(getServlet().getServletContext());
+                UserPropertyDAO  propDAO =  (UserPropertyDAO) ctx.getBean("UserPropertyDAO");
+                UserProperty drugrefProperty = propDAO.getProp(UserProperty.MYDRUGREF_ID);
+                if (drugrefProperty != null) {
+                   
+                    DSService service =  (DSService) ctx.getBean("dsService");
+                    service.fetchGuidelinesFromServiceInBackground(providerNo);
+                }
             }
+
 
             String quatroShelter = OscarProperties.getInstance().getProperty("QUATRO_SHELTER");
             if(quatroShelter!= null && quatroShelter.equals("on")) {
@@ -388,24 +246,16 @@ public final class LoginAction extends DispatchAction {
             }
             CRHelper.recordLoginSuccess(userName, strAuth[0], request);
 
+            // setup caisi stuff
             String username = (String) session.getAttribute("user");
             Provider provider = providerManager.getProvider(username);
             session.setAttribute(SessionConstants.LOGGED_IN_PROVIDER, provider);
             session.setAttribute(SessionConstants.LOGGED_IN_SECURITY, cl.getSecurity());
 
-            LoggedInInfo loggedInInfo = LoggedInUserFilter.generateLoggedInInfoFromSession(request);
+	    loggedInInfo = LoggedInUserFilter.generateLoggedInInfoFromSession(request);
+	    MyOscarUtils.attemptMyOscarAutoLoginIfNotAlreadyLoggedIn(loggedInInfo);
             
-            if (where.equals("provider")) {
-                UserProperty drugrefProperty = propDao.getProp(UserProperty.MYDRUGREF_ID);
-                if (drugrefProperty != null || appManager.isK2AUser(loggedInInfo)) {
-                    DSService service =   SpringUtils.getBean(DSService.class);  
-                    service.fetchGuidelinesFromServiceInBackground(loggedInInfo);
-                }
-            }
-            
-		    MyOscarUtils.attemptMyOscarAutoLoginIfNotAlreadyLoggedIn(loggedInInfo, true);
-            
-            List<Integer> facilityIds = providerDao.getFacilityIds(provider.getProviderNo());
+            List<Integer> facilityIds = ProviderDao.getFacilityIds(provider.getProviderNo());
             if (facilityIds.size() > 1) {
                 return(new ActionForward("/select_facility.jsp?nextPage=" + where));
             }
@@ -438,12 +288,6 @@ public final class LoginAction extends DispatchAction {
                 request.getSession().setAttribute("proceedURL", proceedURL);               
                 return mapping.findForward("LoginTest");
             }
-            
-            //are they using the new UI?
-            UserProperty prop = propDao.getProp(provider.getProviderNo(), UserProperty.COBALT);
-            if(prop != null && prop.getValue() != null && prop.getValue().equals("yes")) {
-            	where="cobalt";
-            }
         }
         // expired password
         else if (strAuth != null && strAuth.length == 1 && strAuth[0].equals("expired")) {
@@ -451,200 +295,19 @@ public final class LoginAction extends DispatchAction {
             cl.updateLoginList(ip, userName);
             String newURL = mapping.findForward("error").getPath();
             newURL = newURL + "?errormsg=Your account is expired. Please contact your administrator.";
-            
-            if(ajaxResponse) {
-            	JSONObject json = new JSONObject();
-            	json.put("success", false);
-            	json.put("error", "Your account is expired. Please contact your administrator.");
-            	response.setContentType("text/x-json");
-            	json.write(response.getWriter());
-            	return null;
-            }
-            
             return(new ActionForward(newURL));
         }
-        else { 
-        	logger.debug("go to normal directory");
-
-        	// go to normal directory
+        else { // go to normal directory
             // request.setAttribute("login", "failed");
             // LogAction.addLog(userName, "failed", LogConst.CON_LOGIN, "", ip);
             cl.updateLoginList(ip, userName);
             CRHelper.recordLoginFailure(userName, request);
-            
-            if(ajaxResponse) {
-            	JSONObject json = new JSONObject();
-            	json.put("success", false);
-            	response.setContentType("text/x-json");
-            	json.put("error", "Invalid Credentials");
-            	json.write(response.getWriter());
-            	return null;
-            }
-            
             return mapping.findForward(where);
         }
 
-    	logger.debug("checking oauth_token");
-        if(request.getParameter("oauth_token") != null) {
-    		String proNo = (String)request.getSession().getAttribute("user");
-    		ServiceRequestTokenDao serviceRequestTokenDao = SpringUtils.getBean(ServiceRequestTokenDao.class);
-    		ServiceRequestToken srt = serviceRequestTokenDao.findByTokenId(request.getParameter("oauth_token"));
-    		if(srt != null) {
-    			srt.setProviderNo(proNo);
-    			serviceRequestTokenDao.merge(srt);
-    		}
-    	}
-        
-        if(ajaxResponse) {
-        	logger.debug("rendering ajax response");
-        	Provider prov = providerDao.getProvider((String)request.getSession().getAttribute("user"));
-        	JSONObject json = new JSONObject();
-        	json.put("success", true);
-        	json.put("providerName", prov.getFormattedName());
-        	json.put("providerNo", prov.getProviderNo());
-        	response.setContentType("text/x-json");
-        	json.write(response.getWriter());
-        	return null;
-        }
-        
-    	logger.debug("rendering standard response : "+where);
         return mapping.findForward(where);
     }
     
-    
-    /**
-     * Removes attributes from session
-     * @param request
-     */
-    private void removeAttributesFromSession(HttpServletRequest request) {
-	    request.getSession().removeAttribute("userName");
-	    request.getSession().removeAttribute("password");
-	    request.getSession().removeAttribute("pin");
-	    request.getSession().removeAttribute("nextPage");
-    }
-    
-    /**
-     * Set user info to session
-     * @param request
-     * @param userName
-     * @param password
-     * @param pin
-     * @param nextPage
-     */
-    private void setUserInfoToSession(HttpServletRequest request,String userName, String password, String pin,String nextPage) throws Exception{
-    	request.getSession().setAttribute("userName", userName);
-    	request.getSession().setAttribute("password", encodePassword(password));
-    	request.getSession().setAttribute("pin", pin);
-    	request.getSession().setAttribute("nextPage", nextPage);
-    
-    }
-    
-     /**
-      * Performs the error handling
-     * @param password
-     * @param newPassword
-     * @param confirmPassword
-     * @param oldPassword
-     * @return
-     */
-    private String errorHandling(String password, String  newPassword, String  confirmPassword, String  encodedOldPassword, String  oldPassword){
-	    
-    	String newURL = "";
-
-	    if (!encodedOldPassword.equals(password)) {
-     	   newURL = newURL + "?errormsg=Your old password, does NOT match the password in the system. Please enter your old password.";  
-     	} else if(StringUtils.isEmpty(newPassword)) {
- 	       newURL = newURL + "?errormsg=Your new password is empty.";  
- 	    } else if (!newPassword.equals(confirmPassword)) {
-      	   newURL = newURL + "?errormsg=Your new password does NOT match the confirmed password. Please try again.";  
-      	} else if (!Boolean.parseBoolean(OscarProperties.getInstance().getProperty("IGNORE_PASSWORD_REQUIREMENTS")) && newPassword.equals(oldPassword)) {
-       	   newURL = newURL + "?errormsg=Your new password is the same as your old password. Please choose a new password.";  
-       	} 
-	    
-	    
-    	    
-	    return newURL;
-     }
-    
-    private String errorHandling2(String pin, String  newPin, String  confirmPin, String  oldPin){
-	    
-    	String newURL = "";
-
-	    if (!oldPin.equals(pin)) {
-     	   newURL = newURL + "?errormsg=Your old PIN, does NOT match the PIN in the system. Please enter your old PIN.";  
-     	} else if(StringUtils.isEmpty(newPin)) {
-  	       newURL = newURL + "?errormsg=Your new PIN is empty.";  
-  	    } else if (!newPin.equals(confirmPin)) {
-      	   newURL = newURL + "?errormsg=Your new PIN does NOT match the confirmed PIN. Please try again.";  
-      	} else if (!Boolean.parseBoolean(OscarProperties.getInstance().getProperty("IGNORE_PASSWORD_REQUIREMENTS")) && newPin.equals(oldPin)) {
-       	   newURL = newURL + "?errormsg=Your new PIN is the same as your old PIN. Please choose a new PIN.";  
-       	} 
-    	    
-	    return newURL;
-     }
-    
-    
-    /**
-     * This method encodes the password, before setting to session.
-     * @param password
-     * @return
-     * @throws Exception
-     */
-    private String encodePassword(String password) throws Exception{
-
-    	MessageDigest md = MessageDigest.getInstance("SHA");
-    	
-    	StringBuilder sbTemp = new StringBuilder();
-	    byte[] btNewPasswd= md.digest(password.getBytes());
-	    for(int i=0; i<btNewPasswd.length; i++) sbTemp = sbTemp.append(btNewPasswd[i]);
-	
-	    return sbTemp.toString();
-	    
-    }
-    
-    
-    /**
-     * get the security record based on the username
-     * @param username
-     * @return
-     */
-    private Security getSecurity(LoggedInInfo loggedInInfo, String username) {
-
-		List<Security> results = securityManager.findByUserName(loggedInInfo, username);
-		Security security = null;
-		if (results.size() > 0) security = results.get(0);
-
-		if (security == null) {
-			return null;
-		} else if (OscarProperties.isLdapAuthenticationEnabled()) {
-			security = new LdapSecurity(security);
-		}
-		
-		return security;
-    }	
-    
-    
-    /**
-     * Persists the new password
-     * @param userName
-     * @param newPassword
-     * @return
-     */
-    private void  persistNewPasswordAndPin(LoggedInInfo loggedInInfo, String userName, String newPassword, String newPin) throws Exception{
-    
-	    Security security = getSecurity(loggedInInfo, userName);
-	    security.setPassword(PasswordHash.createHash(newPassword));
-	    security.setForcePasswordReset(Boolean.FALSE);
-	    security.setStorageVersion(Security.STORAGE_VERSION_2);
-	    
-	    if(!StringUtils.isEmpty(newPin)) {
-	    	security.setPin(PasswordHash.createHash(newPin));
-	    }
-	    
-	    securityManager.updateSecurityRecord(loggedInInfo, security); 
-		
-    }
-         
 	public ApplicationContext getAppContext() {
 		return WebApplicationContextUtils.getWebApplicationContext(getServlet().getServletContext());
 	}

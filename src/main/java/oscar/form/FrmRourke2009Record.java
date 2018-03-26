@@ -34,10 +34,10 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 
+import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.MeasurementDao;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.Measurement;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
@@ -50,25 +50,24 @@ public class FrmRourke2009Record extends FrmRecord {
 	private static final String HEAD_CIRCUMFERENCE_GRAPH = "HEAD_CIRC";
 	private static final String LENGTH_GRAPH = "LENGTH";
 	
+	private DemographicDao demoDAO = (DemographicDao)SpringUtils.getBean("demographicDao");
 	private String graphType;
 	
-    public Properties getFormRecord(LoggedInInfo loggedInInfo, int demographicNo, int existingID)
+    public Properties getFormRecord(int demographicNo, int existingID)
             throws SQLException    {
         Properties props = new Properties();
         
-        Demographic demo = demographicManager.getDemographic(loggedInInfo, demographicNo);
+        Demographic demo = demoDAO.getDemographicById(demographicNo);
         String updated = "false";
-        java.util.Date dob = null;
-
         if(existingID <= 0) {
 
             if(demo != null) {
                 props.setProperty("demographic_no", String.valueOf(demographicNo));
                 props.setProperty("c_pName", demo.getFormattedName());
-                //props.setProperty("formDate", UtilDateUtilities.DateToString(new Date(), "yyyy/MM/dd"));
-                props.setProperty("formCreated", UtilDateUtilities.DateToString(new Date(), "dd/MM/yyyy"));
-                //props.setProperty("formEdited", UtilDateUtilities.DateToString(new Date(), "yyyy/MM/dd"));
-                dob = UtilDateUtilities.calcDate(demo.getYearOfBirth(), demo.getMonthOfBirth(), demo.getDateOfBirth());
+                //props.setProperty("formDate", UtilDateUtilities.DateToString(UtilDateUtilities.Today(), "yyyy/MM/dd"));
+                props.setProperty("formCreated", UtilDateUtilities.DateToString(UtilDateUtilities.Today(), "dd/MM/yyyy"));
+                //props.setProperty("formEdited", UtilDateUtilities.DateToString(UtilDateUtilities.Today(), "yyyy/MM/dd"));
+                java.util.Date dob = UtilDateUtilities.calcDate(demo.getYearOfBirth(), demo.getMonthOfBirth(), demo.getDateOfBirth());
                 props.setProperty("c_birthDate", UtilDateUtilities.DateToString(dob, "dd/MM/yyyy"));
                 //props.setProperty("age", String.valueOf(UtilDateUtilities.calcAge(dob)));
                 String postal = demo.getPostal();
@@ -92,7 +91,7 @@ public class FrmRourke2009Record extends FrmRecord {
             sql = "SELECT demographic_no, CONCAT(last_name, ', ', first_name) AS pName, "
                 + "year_of_birth, month_of_birth, date_of_birth, sex, postal "
                 + "FROM demographic WHERE demographic_no = " + demographicNo;
-            demo = demographicManager.getDemographic(loggedInInfo, demographicNo);
+            demo = demoDAO.getDemographicById(demographicNo);
 
             if(demo != null) {
                 String rourkeVal = props.getProperty("c_pName","");
@@ -104,7 +103,7 @@ public class FrmRourke2009Record extends FrmRecord {
                 }
 
                 rourkeVal = props.getProperty("c_birthDate","");
-                dob = UtilDateUtilities.calcDate(demo.getYearOfBirth(), demo.getMonthOfBirth(), demo.getDateOfBirth());
+                java.util.Date dob = UtilDateUtilities.calcDate(demo.getYearOfBirth(), demo.getMonthOfBirth(), demo.getDateOfBirth());
                 demoVal = UtilDateUtilities.DateToString(dob, "dd/MM/yyyy");
 
                 if( !rourkeVal.equals(demoVal) ) {
@@ -125,20 +124,6 @@ public class FrmRourke2009Record extends FrmRecord {
             }
         }
         props.setProperty("updated", updated);
-
-        if (dob != null)
-        {
-            //set startdate for second page as defined in config file
-            Calendar cal = Calendar.getInstance();
-            cal.setTime(dob);
-            cal.add(Calendar.YEAR, 2);
-            props.setProperty("__startDate",  UtilDateUtilities.DateToString(cal.getTime(), "dd/MM/yyyy"));
-        }
-
-        //don't forget to set the xAxis scale for the 2 pages
-        props.setProperty("__xDateScale_1", String.valueOf(Calendar.MONTH));
-        props.setProperty("__xDateScale_2", String.valueOf(Calendar.YEAR));
-
         return props;
     }
 
@@ -152,18 +137,18 @@ public class FrmRourke2009Record extends FrmRecord {
     }
 
 //////////////new/ Done By Jay////
-    public boolean isFemale(LoggedInInfo loggedInInfo, int demoNo){
+    public boolean isFemale(int demoNo){
 	boolean retval = false;
-	Demographic demo = demographicManager.getDemographic(loggedInInfo, demoNo);
-     
+        DemographicDao demoDAO = (DemographicDao)SpringUtils.getBean("demographicDao");
+        Demographic demo = demoDAO.getDemographicById(demoNo);
 	if( demo != null && demo.getSex().equalsIgnoreCase("F") ) {
             retval = true;
         }
 	return retval;
     }
 ///////////////////////////////////
-  
-    public Properties getGraph(LoggedInInfo loggedInInfo, int demographicNo, int existingID) {
+    @Override
+    public Properties getGraph(int demographicNo, int existingID)  throws SQLException {
     	String formClass = "Growth0_36";
         Properties props = new Properties();
 
@@ -221,46 +206,40 @@ public class FrmRourke2009Record extends FrmRecord {
 
 				//now we add measurements from formGrowth0_36 form
 
-                EctFormData.PatientForm[] pforms = EctFormData.getPatientFormsFromLocalAndRemote(loggedInInfo, String.valueOf(demographicNo), "formGrowth0_36");
+                EctFormData.PatientForm[] pforms = EctFormData.getPatientFormsFromLocalAndRemote(String.valueOf(demographicNo), "formGrowth0_36");
                 if (pforms.length > 0) {
                 	EctFormData.PatientForm pfrm = pforms[0];
                 	FrmRecord rec = (new FrmRecordFactory()).factory(formClass);
-                	
-	                    try {
-	                        java.util.Properties growthProps = rec.getFormRecord(loggedInInfo, demographicNo, pfrm.formId);
-	                        Enumeration<Object> keys = growthProps.keys();
-	                        String key;
-	                        String value;
-	                        String[] dates;
-	                        String date;
-	                        while( keys.hasMoreElements() ) {
-	                        	key = (String) keys.nextElement();
-	                        	if( key.startsWith("date_")) {
-	                        		value = growthProps.getProperty(key, "");
-	                        		if( !value.equals("")) {
-	                        			dates = value.split("\\/");
-	                        			if( dates.length == 3 ) {
-	                        				date = dates[2] + "/" + dates[1] + "/" + dates[0];
-	                        				props.setProperty(key,date);
-	                        			}
-	                        		}
-	                        	}
-	                        	else if( key.startsWith("weight_") || key.startsWith("length_") || key.startsWith("headCirc_") ) {
-	                        			props.setProperty(key, growthProps.getProperty(key, ""));
-	                        	}
-	                        	                    	
-	                        }
-                        } catch (SQLException e) {
-
-                        	MiscUtils.getLogger().error("", e);
-                        }
+                    java.util.Properties growthProps = rec.getFormRecord(demographicNo, pfrm.formId);
+                    Enumeration<Object> keys = growthProps.keys();
+                    String key;
+                    String value;
+                    String[] dates;
+                    String date;
+                    while( keys.hasMoreElements() ) {
+                    	key = (String) keys.nextElement();
+                    	if( key.startsWith("date_")) {
+                    		value = growthProps.getProperty(key, "");
+                    		if( !value.equals("")) {
+                    			dates = value.split("\\/");
+                    			if( dates.length == 3 ) {
+                    				date = dates[2] + "/" + dates[1] + "/" + dates[0];
+                    				props.setProperty(key,date);
+                    			}
+                    		}
+                    	}
+                    	else if( key.startsWith("weight_") || key.startsWith("length_") || key.startsWith("headCirc_") ) {
+                    			props.setProperty(key, growthProps.getProperty(key, ""));
+                    	}
+                    	                    	
+                    }
                 }
                 
                 //now add measurements from Ht and Wt in measurements group
                 //first set up cutoff for first page = 2 years of age
                 //then set up cutoff for second page = 19 years of age
                 //then we can compare measurement dates and slot them accordingly
-                Demographic demographic = demographicManager.getDemographic(loggedInInfo, demographicNo);
+                Demographic demographic = demoDAO.getClientByDemographicNo(demographicNo);
                 
                 
                 MeasurementDao measurementDao = (MeasurementDao)SpringUtils.getBean("measurementDao");

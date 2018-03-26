@@ -74,7 +74,7 @@ public class FrmPdfGraphicRourke extends FrmPdfGraphic {
                 fEndX = toFloat(str);
                 
                 float range = fEndX - fStartX;
-                if( (int)range == 0 || range < 0 )
+                if( range == 0 || range < 0 )
                     range = 1;
                 
                 deltaX = nMaxPixX / range;
@@ -87,7 +87,7 @@ public class FrmPdfGraphicRourke extends FrmPdfGraphic {
                 fEndY = toFloat(str);
                 
                 range = fEndY - fStartY;
-                if( (int)range == 0 || range < 0 )
+                if( range == 0 || range < 0 )
                     range = 1;
                 
                 deltaY = nMaxPixY / range;
@@ -162,15 +162,11 @@ public class FrmPdfGraphicRourke extends FrmPdfGraphic {
             case Calendar.YEAR:
             	smonth = (smonth/12.0f) + startDate.get(Calendar.YEAR);
                 emonth = (emonth/12.0f) + curDate.get(Calendar.YEAR);
-                break;
-                
             case Calendar.MONTH:
+            default:
             	smonth += startDate.get(Calendar.YEAR) * 12.0;
                 emonth += curDate.get(Calendar.YEAR) * 12.0;
                 break;
-                
-            default:
-            	break;
             }
             
             if ( smonth > emonth ) {

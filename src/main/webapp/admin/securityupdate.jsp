@@ -26,44 +26,24 @@
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>"
-        objectName="_admin,_admin.userAdmin" rights="r"
-        reverse="<%=true%>">
-        <%authed=false; %>
-        <%response.sendRedirect("../securityError.jsp?type=_admin&type=_admin.userAdmin");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-
-<%@ page import="java.sql.*, java.util.*,java.security.*,oscar.*,oscar.oscarDB.*" errorPage="errorpage.jsp"%>
+<%@ page import="java.sql.*, java.util.*,java.security.*,oscar.*,oscar.oscarDB.*, oscar.util.SqlUtils" errorPage="errorpage.jsp"%>
 <%@ page import="oscar.log.LogAction,oscar.log.LogConst"%>
+<%@ include file="/common/webAppContextAndSuperMgr.jsp"%>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
-<%@ page import="org.oscarehr.common.model.Security" %>
-<%@ page import="org.oscarehr.util.LoggedInInfo" %>
-<%@ page import="org.oscarehr.managers.SecurityManager" %>
-<%@ page import="oscar.login.PasswordHash" %>
-<%@ page import="org.oscarehr.util.MiscUtils" %>
+<%@ page import="com.quatro.model.security.Security" %>
+<%@ page import="com.quatro.dao.security.SecurityDao" %>
 <%
-	LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
-	org.oscarehr.managers.SecurityManager securityManager = SpringUtils.getBean(org.oscarehr.managers.SecurityManager.class);
+	SecurityDao securityDao = (SecurityDao)SpringUtils.getBean("securityDao");
 %>
 
 <html:html locale="true">
 <head>
-<script type="text/javascript" src="<%=request.getContextPath()%>/js/global.js"></script>
+<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="admin.securityupdate.title" /></title>
 </head>
 <link rel="stylesheet" href="../web.css" />
-<body topmargin="0" leftmargin="0" rightmargin="0">
+<body background="../images/gray_bg.jpg" bgproperties="fixed"
+	topmargin="0" leftmargin="0" rightmargin="0">
 <center>
 <table border="0" cellspacing="0" cellpadding="0" width="100%">
 	<tr bgcolor="#486ebd">
@@ -72,7 +52,7 @@
 	</tr>
 </table>
 <%
-	StringBuffer sbTemp = new StringBuffer();
+    StringBuffer sbTemp = new StringBuffer();
     MessageDigest md = MessageDigest.getInstance("SHA");
     byte[] btNewPasswd= md.digest(request.getParameter("password").getBytes());
     for(int i=0; i<btNewPasswd.length; i++) sbTemp = sbTemp.append(btNewPasswd[i]);
@@ -80,23 +60,10 @@
     String sPin = request.getParameter("pin");
     if (OscarProperties.getInstance().isPINEncripted()) sPin = Misc.encryptPIN(request.getParameter("pin"));
 
-    String hashedPassword = null;
-	String hashedPin = null;
-	
-	boolean errorHashing=false;
-	
-	try {
-		hashedPassword = PasswordHash.createHash(request.getParameter("password"));
-		hashedPin = PasswordHash.createHash(request.getParameter("pin"));
-	} catch(Exception e) {
-		MiscUtils.getLogger().error("Error with hashing passwords on this system!",e);
-		errorHashing=true;
-	}
-	
     int rowsAffected =0;
 
-    Security s = securityManager.find(loggedInInfo,Integer.parseInt(request.getParameter("security_no")));
-    if(!errorHashing && s != null) {
+    Security s = securityDao.findById(Integer.parseInt(request.getParameter("security_no")));
+    if(s != null) {
     	s.setUserName(request.getParameter("user_name"));
 	    s.setProviderNo(request.getParameter("provider_no"));
 	    s.setBExpireset(request.getParameter("b_ExpireSet")==null?0:Integer.parseInt(request.getParameter("b_ExpireSet")));
@@ -105,23 +72,13 @@
 	    s.setBRemotelockset(request.getParameter("b_RemoteLockSet")==null?0:Integer.parseInt(request.getParameter("b_RemoteLockSet")));
 
     	if(request.getParameter("password")==null || !"*********".equals(request.getParameter("password"))){
-    		s.setPassword(hashedPassword);
-    		s.setPasswordUpdateDate(new java.util.Date());
+    		s.setPassword(sbTemp.toString());
     	}
 
     	if(request.getParameter("pin")==null || !"****".equals(request.getParameter("pin"))) {
-    		s.setPin(hashedPin);
-    		s.setPinUpdateDate(new java.util.Date());
+    		s.setPin(sPin);
     	}
-    	
-    	if (request.getParameter("forcePasswordReset") != null && request.getParameter("forcePasswordReset").equals("1")) {
-    	    s.setForcePasswordReset(Boolean.TRUE);
-    	} else {
-    		s.setForcePasswordReset(Boolean.FALSE);  
-        }
-    	s.setStorageVersion(Security.STORAGE_VERSION_2);
-    	
-    	securityManager.updateSecurityRecord(loggedInInfo, s);
+    	securityDao.saveOrUpdate(s);
     	rowsAffected=1;
     }
 
@@ -141,7 +98,7 @@
 %>
 </p>
 <p></p>
-
+<%@ include file="footer2htm.jsp"%>
 </center>
 </body>
 </html:html>

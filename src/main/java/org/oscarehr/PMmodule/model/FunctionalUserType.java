@@ -49,13 +49,11 @@ public class FunctionalUserType  implements Serializable {
 
 
 	/* [CONSTRUCTOR MARKER END] */
-    protected void initialize () {
-    	//no code in here right now    						
-    }
+    protected void initialize () {}
 
     /**
 	 * Return the unique identifier of this class
-* 
+* @hibernate.id
 *  generator-class="native"
 *  column="id"
 */

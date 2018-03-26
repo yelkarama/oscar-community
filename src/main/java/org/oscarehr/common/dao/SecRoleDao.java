@@ -22,7 +22,6 @@
  */
 package org.oscarehr.common.dao;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Query;
@@ -53,28 +52,13 @@ public class SecRoleDao extends AbstractDao<SecRole> {
 
 		return(results);
 	}
-    
-    public List<String> findAllNames()
- 	{
- 		StringBuilder sb=new StringBuilder();
- 		sb.append("select x.name from SecRole x");
-
- 		sb.append(" order by x.name");
-
- 		Query query = entityManager.createQuery(sb.toString());
-
- 		@SuppressWarnings("unchecked")
- 		List<String> results = query.getResultList();
-
- 		return(results);
- 	}
 
     public SecRole findByName(String name) {
     	Query q = entityManager.createQuery("select x from SecRole x where x.name=?");
 
     	q.setParameter(1, name);
-    	
-    	return this.getSingleResultOrNull(q);
+    	SecRole result = (SecRole)q.getSingleResult();
+    	return result;
     }
 
     public List<SecRole> findAllOrderByRole()
@@ -86,33 +70,4 @@ public class SecRoleDao extends AbstractDao<SecRole> {
 
 		return(results);
 	}
-    
-    /**
-     * get provider's roles being in secRole and secUserRole at the same time
-     * @param providerNo
-     * @return
-     */
-    public List<Integer> findRoleNosByProviderNo(String providerNo) {
-    	Query query = entityManager.createQuery("select t1.id from SecRole t1, org.oscarehr.common.model.SecUserRole t2 where"
-    			+ " t1.name=t2.roleName and t2.providerNo = :providerNo");
-    	query.setParameter("providerNo", providerNo);
-    	return query.getResultList();
-    }
-    
-    public List<SecRole> findByRoleNos(List<Integer> roleIds) {
-    	if (roleIds == null || roleIds.size() == 0) {
-    		return new ArrayList<SecRole>();
-    	}
-    	Query q = entityManager.createQuery("select s from SecRole s where s.id in (:roleIds)");
-    	q.setParameter("roleIds", roleIds);
-    	
-    	return q.getResultList();
-    }
-    
-    public List<SecRole> getRoles() {
-        @SuppressWarnings("unchecked")
-        Query q = entityManager.createQuery("select s from SecRole s order by s.name");
-
-        return q.getResultList();
-    }
 }

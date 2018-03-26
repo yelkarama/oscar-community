@@ -24,18 +24,13 @@
 
 --%>
 
-<%@page import="org.oscarehr.util.SpringUtils"%>
-<%@page import="org.oscarehr.sharingcenter.SharingCenterUtil"%>
-<%@page import="org.oscarehr.sharingcenter.dao.AffinityDomainDao"%>
-<%@page import="org.oscarehr.sharingcenter.model.AffinityDomainDataObject"%>
-<%@page import="org.oscarehr.myoscar.utils.MyOscarLoggedInInfo"%>
 <%@page import="org.oscarehr.util.LocaleUtils"%>
 <%@page import="org.oscarehr.phr.util.MyOscarUtils"%>
+<%@page import="org.oscarehr.phr.PHRAuthentication"%>
 <%@page import="org.oscarehr.util.MiscUtils"%>
 <%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="org.oscarehr.common.dao.UserPropertyDAO, org.oscarehr.common.model.UserProperty, org.springframework.web.context.support.WebApplicationContextUtils" %>
 <%
-LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 if(session.getValue("user") == null) response.sendRedirect("../logout.htm");
 if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
 String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -48,16 +43,8 @@ String annotation_display = org.oscarehr.casemgmt.model.CaseManagementNoteLink.D
 String appointment = request.getParameter("appointmentNo");
 int appointmentNo = 0;
 if(appointment != null && appointment.length()>0) {
-  appointmentNo = Integer.parseInt(appointment);
+	appointmentNo = Integer.parseInt(appointment);
 }
-
-// MARC-HI's Sharing Center
-boolean isSharingCenterEnabled = SharingCenterUtil.isEnabled();
-
-// get all installed affinity domains
-AffinityDomainDao affDao = SpringUtils.getBean(AffinityDomainDao.class);
-List<AffinityDomainDataObject> affinityDomains = affDao.getAllAffinityDomains();
-
 %>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
@@ -73,22 +60,6 @@ List<AffinityDomainDataObject> affinityDomains = affDao.getAllAffinityDomains();
 <%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
 <%@page import="org.oscarehr.util.SessionConstants"%>
 <c:set var="ctx" value="${pageContext.request.contextPath}" scope="request" />
-
-
-<%
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_edoc" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_edoc");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-
 <%
 
 //if delete request is made
@@ -122,35 +93,39 @@ if (request.getParameter("function") != null) {
 }
 
 if( !"".equalsIgnoreCase(moduleid) && (demographicNo == null || demographicNo.equalsIgnoreCase("null")) ) {
-  demographicNo = moduleid;
+	demographicNo = moduleid;
 }
 
 //module can be either demographic or provider from what i can tell
 
 String moduleName = "";
 if(module.equals("demographic")) {
-  moduleName = EDocUtil.getDemographicName(loggedInInfo, moduleid);
+	moduleName = EDocUtil.getDemographicName(moduleid);
 } else if(module.equals("provider")) {
-  moduleName = EDocUtil.getProviderName(moduleid);
+	moduleName = EDocUtil.getProviderName(moduleid);
 }
 
-
-String curUser = LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo();
+String curUser = "";
+if (request.getParameter("curUser") != null) {
+    curUser = request.getParameter("curUser");
+} else if (request.getAttribute("curUser") != null) {
+    curUser = (String) request.getAttribute("curUser");
+}
 
 //sorting
-EDocUtil.EDocSort sort = EDocUtil.EDocSort.OBSERVATIONDATE;
+String sort = EDocUtil.SORT_OBSERVATIONDATE;
 String sortRequest = request.getParameter("sort");
 if (sortRequest != null) {
-    if (sortRequest.equals("description")) sort = EDocUtil.EDocSort.DESCRIPTION;
-    else if (sortRequest.equals("type")) sort = EDocUtil.EDocSort.DOCTYPE;
-    else if (sortRequest.equals("contenttype")) sort = EDocUtil.EDocSort.CONTENTTYPE;
-    else if (sortRequest.equals("creator")) sort = EDocUtil.EDocSort.CREATOR;
-    else if (sortRequest.equals("uploaddate")) sort = EDocUtil.EDocSort.DATE;
-    else if (sortRequest.equals("observationdate")) sort = EDocUtil.EDocSort.OBSERVATIONDATE;
-    else if (sortRequest.equals("reviewer")) sort = EDocUtil.EDocSort.REVIEWER;
+    if (sortRequest.equals("description")) sort = EDocUtil.SORT_DESCRIPTION;
+    else if (sortRequest.equals("type")) sort = EDocUtil.SORT_DOCTYPE;
+    else if (sortRequest.equals("contenttype")) sort = EDocUtil.SORT_CONTENTTYPE;
+    else if (sortRequest.equals("creator")) sort = EDocUtil.SORT_CREATOR;
+    else if (sortRequest.equals("uploaddate")) sort = EDocUtil.SORT_DATE;
+    else if (sortRequest.equals("observationdate")) sort = EDocUtil.SORT_OBSERVATIONDATE;
+    else if (sortRequest.equals("reviewer")) sort = EDocUtil.SORT_REVIEWER;
 }
 
-ArrayList doctypes = EDocUtil.getActiveDocTypes(module);
+ArrayList doctypes = EDocUtil.getDoctypes(module);
 
 //Retrieve encounter id for updating encounter navbar if info this page changes anything
 String parentAjaxId;
@@ -186,15 +161,15 @@ if ( up != null && up.getValue() != null && up.getValue().equals("yes")){
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="dms.documentReport.title" /></title>
 <link rel="stylesheet" type="text/css"
-  href="../share/css/OscarStandardLayout.css" />
+	href="../share/css/OscarStandardLayout.css" />
 <script type="text/javascript" src="../share/javascript/Oscar.js"></script>
 <script type="text/javascript" src="../share/javascript/prototype.js"></script>
 
 <link rel="stylesheet" type="text/css"
-  href="../share/css/niftyCorners.css" />
+	href="../share/css/niftyCorners.css" />
 <link rel="stylesheet" type="text/css" href="dms.css" />
 <link rel="stylesheet" type="text/css"
-  href="../share/css/niftyPrint.css" media="print" />
+	href="../share/css/niftyPrint.css" media="print" />
 <script type="text/javascript" src="../share/javascript/nifty.js"></script>
 <script type="text/javascript" src="../phr/phr.js"></script>
 <script type="text/javascript">
@@ -214,16 +189,16 @@ setup();  //reload parent content if necessary
 
 var awnd=null;
 function popPage(url) {
-  awnd=rs('',url ,400,200,1);
-  awnd.focus();
+	awnd=rs('',url ,400,200,1);
+	awnd.focus();
 }
 
 
 function checkDelete(url, docDescription){
 // revision Apr 05 2004 - we now allow anyone to delete documents
-  if(confirm("<bean:message key="dms.documentReport.msgDelete"/> " + docDescription)) {
-    window.location = url;
-  }
+	if(confirm("<bean:message key="dms.documentReport.msgDelete"/> " + docDescription)) {
+		window.location = url;
+	}
 }
 
 function showhide(hideelement, button) {
@@ -242,7 +217,7 @@ function showhide(hideelement, button) {
 }
 
 
-function selectAll(checkboxId,parentEle, className){
+function checkAll(checkboxId,parentEle, className){
    var f = document.getElementById(checkboxId);
    var val = f.checked;
    var chkList = document.getElementsByClassName(className, parentEle);
@@ -338,16 +313,12 @@ function popup1(height, width, url, windowName){
 		<table class="TopStatusBar">
 			<tr>
 				<td><bean:message key="dms.documentReport.msgDocuments"/> &nbsp;
-				<% if(module.equals("demographic")) { %>
-					<oscar:nameage demographicNo="<%=moduleid%>"/> &nbsp; <oscar:phrverification demographicNo="<%=moduleid%>"><bean:message key="phr.verification.link"/></oscar:phrverification>
-				<%} %>
+				<oscar:nameage demographicNo="<%=moduleid%>"/> &nbsp; <oscar:phrverification demographicNo="<%=moduleid%>"><bean:message key="phr.verification.link"/></oscar:phrverification>
 				</td>
 				<td>&nbsp;</td>
-				<td style="text-align: right;">
-				<span class="HelpAboutLogout">
-					<oscar:help keywords="&Title=eDocuments&portal_type%3Alist=Document" key="app.top1" style="color:white; font-size:10px;font-style:normal;"/>&nbsp;|
-        				<a style="color:white; font-size:10px;font-style:normal;" href="<%=request.getContextPath()%>/oscarEncounter/About.jsp" target="_new"><bean:message key="global.about" /></a>
-				</span>
+				<td style="text-align: right;"><oscar:help keywords="2.6.1" key="app.top1" /> | <a
+					href="javascript: popupStart(300, 400, 'About.jsp')"><bean:message key="global.about"/></a> | <a
+					href="javascript: popupStart(300, 400, 'License.jsp')"><bean:message key="global.license"/></a>
 				</td>
 			</tr>
 		</table>
@@ -359,32 +330,33 @@ function popup1(height, width, url, windowName){
 				<jsp:param name="appointmentNo" value="<%=appointmentNo%>"/>
 			</jsp:include>
 
-      <html:form action="/dms/combinePDFs">
-      <input type="hidden" name="curUser" value="<%=curUser%>">
-      <input type="hidden" name="demoId" value="<%=moduleid%>">
-      <div class="documentLists"><%-- STUFF TO DISPLAY --%> <%
+			<html:form action="/dms/combinePDFs">
+			<input type="hidden" name="curUser" value="<%=curUser%>">
+			<input type="hidden" name="demoId" value="<%=moduleid%>">
+			<div class="documentLists"><%-- STUFF TO DISPLAY --%> <%
                 ArrayList categories = new ArrayList();
                 ArrayList categoryKeys = new ArrayList();
                 ArrayList privatedocs = new ArrayList();
 
                 MiscUtils.getLogger().debug("module="+module+", moduleid="+moduleid+", view="+view+", EDocUtil.PRIVATE="+EDocUtil.PRIVATE+", sort="+sort+", viewstatus="+viewstatus);
-                privatedocs = EDocUtil.listDocs(loggedInInfo, module, moduleid, view, EDocUtil.PRIVATE, sort, viewstatus);
+                privatedocs = EDocUtil.listDocs(module, moduleid, view, EDocUtil.PRIVATE, sort, viewstatus);
                 MiscUtils.getLogger().debug("privatedocs:"+privatedocs.size());
 
                 categories.add(privatedocs);
                 categoryKeys.add(moduleName + "'s Private Documents");
                 if (module.equals("provider")) {
                     ArrayList publicdocs = new ArrayList();
-                    publicdocs = EDocUtil.listDocs(loggedInInfo, module, moduleid, view, EDocUtil.PUBLIC, sort, viewstatus);
+                    publicdocs = EDocUtil.listDocs(module, moduleid, view, EDocUtil.PUBLIC, sort, viewstatus);
                     categories.add(publicdocs);
                     categoryKeys.add("Public Documents");
                 }
 
                 //--- get remote documents ---
-                if (loggedInInfo.getCurrentFacility().isIntegratorEnabled())
+                LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+                if (loggedInInfo.currentFacility.isIntegratorEnabled())
                 {
-                  List<EDoc> remoteDocuments=EDocUtil.getRemoteDocuments(loggedInInfo, Integer.parseInt(moduleid));
-                  categories.add(remoteDocuments);
+               	 	List<EDoc> remoteDocuments=EDocUtil.getRemoteDocuments(Integer.parseInt(moduleid));
+               	 	categories.add(remoteDocuments);
                     categoryKeys.add("Remote Documents");
                 }
 
@@ -392,257 +364,240 @@ function popup1(height, width, url, windowName){
                     String currentkey = (String) categoryKeys.get(i);
                     ArrayList category = (ArrayList) categories.get(i);
              %>
-      <div class="doclist">
-      <div class="headerline">
-      <div class="docHeading">
-      <% if( i == 0 ) {
+			<div class="doclist">
+			<div class="headerline">
+			<div class="docHeading">
+			<% if( i == 0 ) {
                          %> <span class="tabs" style="float: right">
-      <bean:message key="dms.documentReport.msgViewStatus"/> <select id="viewstatus" name="viewstatus"
-        style="text-size: 8px; margin-bottom: -4px;"
-        onchange="window.location.href='?function=<%=module%>&functionid=<%=moduleid%>&view=<%=view%>&viewstatus='+this.options[this.selectedIndex].value;">
-        <option value="all"
-          <%=viewstatus.equalsIgnoreCase("all") ? "selected":""%>><bean:message key="dms.documentReport.msgAll"/></option>
-        <option value="deleted"
-          <%=viewstatus.equalsIgnoreCase("deleted") ? "selected":""%>><bean:message key="dms.documentReport.msgDeleted"/></option>
-        <option value="active"
-          <%=viewstatus.equalsIgnoreCase("active") ? "selected":""%>><bean:message key="dms.documentReport.msgPublished"/></option>
-      </select> </span> <%
+			<bean:message key="dms.documentReport.msgViewStatus"/> <select id="viewstatus" name="viewstatus"
+				style="text-size: 8px; margin-bottom: -4px;"
+				onchange="window.location.href='?function=<%=module%>&functionid=<%=moduleid%>&view=<%=view%>&viewstatus='+this.options[this.selectedIndex].value;">
+				<option value="all"
+					<%=viewstatus.equalsIgnoreCase("all") ? "selected":""%>><bean:message key="dms.documentReport.msgAll"/></option>
+				<option value="deleted"
+					<%=viewstatus.equalsIgnoreCase("deleted") ? "selected":""%>><bean:message key="dms.documentReport.msgDeleted"/></option>
+				<option value="active"
+					<%=viewstatus.equalsIgnoreCase("active") ? "selected":""%>><bean:message key="dms.documentReport.msgPublished"/></option>
+			</select> </span> <%
                           }
                           %> <a id="plusminus<%=i%>"
-        href="javascript: showhide('documentsInnerDiv<%=i%>', 'plusminus<%=i%>');">
-      -- <%= currentkey%> </a> 
-      <!-- Enter the deleted code here -->
-      <%if(DocumentBrowserLink) {%><a href="../dms/documentBrowser.jsp?function=<%=module%>&functionid=<%=moduleid%>&categorykey=<%=currentkey%>"><bean:message key="dms.documentReport.msgBrowser"/></a><%}%>
-      <span class="tabs"> <bean:message key="dms.documentReport.msgView"/>: 
-      <select id="viewdoctype" name="view"
-        style="text-size: 8px; margin-bottom: -4px;"
-        onchange="window.location.href='?function=<%=module%>&functionid=<%=moduleid%>&view='+this.options[this.selectedIndex].value;">
-      
-          <option value="">All</option>
-        <%
+				href="javascript: showhide('documentsInnerDiv<%=i%>', 'plusminus<%=i%>');">
+			-- <%= currentkey%> </a> 
+			<!-- Enter the deleted code here -->
+			<%if(DocumentBrowserLink) {%><a href="../dms/documentBrowser.jsp?function=<%=module%>&functionid=<%=moduleid%>&categorykey=<%=currentkey%>"><bean:message key="dms.documentReport.msgBrowser"/></a><%}%>
+			<span class="tabs"> <bean:message key="dms.documentReport.msgView"/>: 
+			<select id="viewdoctype" name="view"
+				style="text-size: 8px; margin-bottom: -4px;"
+				onchange="window.location.href='?function=<%=module%>&functionid=<%=moduleid%>&view='+this.options[this.selectedIndex].value;">
+			
+			    <option value="">All</option>
+				<%
                  for (int i3=0; i3<doctypes.size(); i3++) {
                            String doctype = (String) doctypes.get(i3); %>
-        <option value="<%= doctype%>"
-        <%=(view.equalsIgnoreCase(doctype))? "selected":""%>><%= doctype%></option>
-        <%}%>
-      
-      </select>
-      </span>
-      </div>
-      </div>
-      <div id="documentsInnerDiv<%=i%>" style="background-color: #f2f7ff;">
-      <table id="privateDocs" class="docTable">
-        <tr>
-          <td>
-            <input class="tightCheckbox" type="checkbox" id="pdfCheck<%=i%>" onclick="selectAll('pdfCheck<%=i%>','privateDocsDiv', 'tightCheckbox<%=i%>');" />
-          </td>
-          <td width="30%"><b><a
-            href="?sort=description&function=<%=module%>&functionid=<%=moduleid%>&view=<%=view%>&viewstatus=<%=viewstatus%>"><bean:message
-            key="dms.documentReport.msgDocDesc" /></a></b></td>
-          <td width="8%"><b><a
-            href="?sort=contenttype&function=<%=module%>&functionid=<%=moduleid%>&view=<%=view%>&viewstatus=<%=viewstatus%>">
-                <bean:message key="dms.documentReport.msgContent"/></a></b></td>
-          <td width="8%"><b><a
-            href="?sort=type&function=<%=module%>&functionid=<%=moduleid%>&view=<%=view%>&viewstatus=<%=viewstatus%>">
-                <bean:message key="dms.documentReport.msgType"/></a></b></td>
-          <td width="12%"><b><a
-            href="?sort=creator&function=<%=module%>&functionid=<%=moduleid%>&view=<%=view%>&viewstatus=<%=viewstatus%>"><bean:message
-            key="dms.documentReport.msgCreator" /></a></b></td>
-          <td width="12%"><b><a
-            href="?sort=responsible&function=<%=module%>&functionid=<%=moduleid%>&view=<%=view%>&viewstatus=<%=viewstatus%>">
-            <bean:message key="dms.documentReport.msgResponsible"/></a></b></td>
-          <td width="10%"><a
-            href="?sort=observationdate&function=<%=module%>&functionid=<%=moduleid%>&view=<%=view%>&viewstatus=<%=viewstatus%>"
-            title="Observation Date"><b><bean:message key="dms.documentReport.msgDate"/></b></a></td>
-          <td width="12%"><b><a
-            href="?sort=reviewer&function=<%=module%>&functionid=<%=moduleid%>&view=<%=view%>&viewstatus=<%=viewstatus%>">
-            <bean:message key="dms.documentReport.msgReviewer"/></b></a></td>
-          <td width="8%">&nbsp;</td>
-        </tr>
+				<option value="<%= doctype%>"
+				<%=(view.equalsIgnoreCase(doctype))? "selected":""%>><%= doctype%></option>
+				<%}%>
+			
+			</select>
+			</span>
+			</div>
+			</div>
+			<div id="documentsInnerDiv<%=i%>" style="background-color: #f2f7ff;">
+			<table id="privateDocs" class="docTable">
+				<tr>
+					<td>
+						<input class="tightCheckbox" type="checkbox" id="pdfCheck<%=i%>" onclick="checkAll('pdfCheck<%=i%>','privateDocsDiv', 'tightCheckbox<%=i%>');" />
+					</td>
+					<td width="30%"><b><a
+						href="?sort=description&function=<%=module%>&functionid=<%=moduleid%>&view=<%=view%>&viewstatus=<%=viewstatus%>"><bean:message
+						key="dms.documentReport.msgDocDesc" /></a></b></td>
+					<td width="8%"><b><a
+						href="?sort=contenttype&function=<%=module%>&functionid=<%=moduleid%>&view=<%=view%>&viewstatus=<%=viewstatus%>">
+						    <bean:message key="dms.documentReport.msgContent"/></a></b></td>
+					<td width="8%"><b><a
+						href="?sort=type&function=<%=module%>&functionid=<%=moduleid%>&view=<%=view%>&viewstatus=<%=viewstatus%>">
+						    <bean:message key="dms.documentReport.msgType"/></a></b></td>
+					<td width="12%"><b><a
+						href="?sort=creator&function=<%=module%>&functionid=<%=moduleid%>&view=<%=view%>&viewstatus=<%=viewstatus%>"><bean:message
+						key="dms.documentReport.msgCreator" /></a></b></td>
+					<td width="12%"><b><a
+						href="?sort=responsible&function=<%=module%>&functionid=<%=moduleid%>&view=<%=view%>&viewstatus=<%=viewstatus%>">
+						<bean:message key="dms.documentReport.msgResponsible"/></a></b></td>
+					<td width="10%"><a
+						href="?sort=observationdate&function=<%=module%>&functionid=<%=moduleid%>&view=<%=view%>&viewstatus=<%=viewstatus%>"
+						title="Observation Date"><b><bean:message key="dms.documentReport.msgDate"/></b></a></td>
+					<td width="12%"><b><a
+						href="?sort=reviewer&function=<%=module%>&functionid=<%=moduleid%>&view=<%=view%>&viewstatus=<%=viewstatus%>">
+						<bean:message key="dms.documentReport.msgReviewer"/></b></a></td>
+					<td width="8%">&nbsp;</td>
+				</tr>
 
-        <%
+				<%
                 for (int i2=0; i2<category.size(); i2++) {
                     EDoc curdoc = (EDoc) category.get(i2);
                     //content type (take everything following '/')
                     int slash = 0;
                     String contentType = "";
-                    if( curdoc.getContentType() == null ) {
-                    contentType = "N/A";
-                    }else if ((slash = curdoc.getContentType().indexOf('/')) != -1) {
+                    if ((slash = curdoc.getContentType().indexOf('/')) != -1) {
                         contentType = curdoc.getContentType().substring(slash+1);
                     } else {
-            contentType = curdoc.getContentType();
-            }
+			contentType = curdoc.getContentType();
+		    }
                     String dStatus = "";
                     if ((curdoc.getStatus() + "").compareTo("H") == 0)
                         dStatus="html";
                     else
                         dStatus="active";
-        String reviewerName = curdoc.getReviewerName();
-        if (reviewerName.equals("")) reviewerName = "- - -";
+		    String reviewerName = curdoc.getReviewerName();
+		    if (reviewerName.equals("")) reviewerName = "- - -";
             %>
-        <tr>
-          <td>
-          <% if (curdoc.isPDF()){%> <input class="tightCheckbox<%=i%>"
-            type="checkbox" name="docNo" id="docNo<%=curdoc.getDocId()%>"
-            value="<%=curdoc.getDocId()%>" style="margin: 0px; padding: 0px;" />
-          <%}else{%> &nbsp; <%}%>
-          </td>
-          <td>
-          <%
+				<tr>
+					<td>
+					<% if (curdoc.isPDF()){%> <input class="tightCheckbox<%=i%>"
+						type="checkbox" name="docNo" id="docNo<%=curdoc.getDocId()%>"
+						value="<%=curdoc.getDocId()%>" style="margin: 0px; padding: 0px;" />
+					<%}else{%> &nbsp; <%}%>
+					</td>
+					<td>
+					<%
 
                               String url = "ManageDocument.do?method=display&doc_no="+curdoc.getDocId()+"&providerNo="+user_no+(curdoc.getRemoteFacilityId()!=null?"&remoteFacilityId="+curdoc.getRemoteFacilityId():"");
                               //String url = "documentGetFile.jsp?document=" + StringEscapeUtils.escapeJavaScript(curdoc.getFileName()) + "&type=" + dStatus + "&doc_no=" + curdoc.getDocId();
 
-          %>  <a <%=curdoc.getStatus() == 'D' ? "style='text-decoration:line-through'" : ""%>
-            href="javascript:void(0);" onclick="popupFocusPage(500,700,'<%=url%>','demographic_document');"> <%=curdoc.getDescription()%></a></td>
-          <td><%=contentType%></td>
-          <td><%=curdoc.getType()==null ? "N/A" : curdoc.getType()%></td>
-          <td><%=curdoc.getCreatorName()%></td>
-          <td><%=curdoc.getResponsibleName()%></td>
-          <td><%=curdoc.getObservationDate()%></td>
-          <td><%=reviewerName%></td>
-          <%-- <td><%=curdoc.getStatus() == 'D'? "Deleted" : "Active"%></td> --%>
-          <td valign="top">
-            <%
-              if (curdoc.getRemoteFacilityId()==null)
-              {
-                if( curdoc.getCreatorId().equalsIgnoreCase(user_no)) {
-                  if( curdoc.getStatus() == 'D' ) { %>
-                    <a href="documentReport.jsp?undelDocumentNo=<%=curdoc.getDocId()%>&function=<%=module%>&functionid=<%=moduleid%>&viewstatus=<%=viewstatus%>"><img
-                  src="<c:out value="${ctx}/images/user-trash.png"/>"
-                  title="<bean:message key="dms.documentReport.btnUnDelete"/>"></a>
-                  <%
-                  } else {
-                  %>
-                    <a href="javascript: checkDelete('documentReport.jsp?delDocumentNo=<%=curdoc.getDocId()%>&function=<%=module%>&functionid=<%=moduleid%>&viewstatus=<%=viewstatus%>','<%=StringEscapeUtils.escapeJavaScript(curdoc.getDescription())%>')"><img
-                  src="<c:out value="${ctx}/images/clear.png"/>" title="Delete"></a>
-                  <%
-                  }
-              } else {
-              %>
-                <security:oscarSec roleName="<%=roleName$%>" objectName="_admin,_admin.edocdelete" rights="r">
-                  <%
-                  if( curdoc.getStatus() == 'D' ) {%>
-                    <a href="documentReport.jsp?undelDocumentNo=<%=curdoc.getDocId()%>&function=<%=module%>&functionid=<%=moduleid%>&viewstatus=<%=viewstatus%>"><img
-                  src="<c:out value="${ctx}/images/user-trash.png"/>"
-                  title="<bean:message key="dms.documentReport.btnUnDelete"/>"></a> &nbsp;
-                  <%
-                  } else {
-                  %>
-                    <a href="javascript: checkDelete('documentReport.jsp?delDocumentNo=<%=curdoc.getDocId()%>&function=<%=module%>&functionid=<%=moduleid%>&viewstatus=<%=viewstatus%>','<%=StringEscapeUtils.escapeJavaScript(curdoc.getDescription())%>')"><img
-                  src="<c:out value="${ctx}/images/clear.png"/>" title="Delete"></a> &nbsp;
-                  <%
-                  }
-                  %>
-                </security:oscarSec>
-                <%
-                }
+					%>	<a <%=curdoc.getStatus() == 'D' ? "style='text-decoration:line-through'" : ""%>
+						href="javascript:void(0);" onclick="popupFocusPage(500,700,'<%=url%>','demographic_document');"> <%=curdoc.getDescription()%></a></td>
+					<td><%=contentType%></td>
+					<td><%=curdoc.getType()%></td>
+					<td><%=curdoc.getCreatorName()%></td>
+					<td><%=curdoc.getResponsibleName()%></td>
+					<td><%=curdoc.getObservationDate()%></td>
+					<td><%=reviewerName%></td>
+					<%-- <td><%=curdoc.getStatus() == 'D'? "Deleted" : "Active"%></td> --%>
+					<td valign="top">
+		    		<%
+		    			if (curdoc.getRemoteFacilityId()==null)
+		    			{
+			    			if( curdoc.getCreatorId().equalsIgnoreCase(user_no)) {
+							    if( curdoc.getStatus() == 'D' ) { %>
+						     		<a href="documentReport.jsp?undelDocumentNo=<%=curdoc.getDocId()%>&function=<%=module%>&functionid=<%=moduleid%>&viewstatus=<%=viewstatus%>"><img
+									src="<c:out value="${ctx}/images/user-trash.png"/>"
+									title="<bean:message key="dms.documentReport.btnUnDelete"/>"></a>
+			    				<%
+			    				} else {
+			    				%>
+						     		<a href="javascript: checkDelete('documentReport.jsp?delDocumentNo=<%=curdoc.getDocId()%>&function=<%=module%>&functionid=<%=moduleid%>&viewstatus=<%=viewstatus%>','<%=StringEscapeUtils.escapeJavaScript(curdoc.getDescription())%>')"><img
+									src="<c:out value="${ctx}/images/clear.png"/>" title="Delete"></a>
+			    				<%
+			    				}
+							} else {
+							%>
+								<security:oscarSec roleName="<%=roleName$%>" objectName="_admin,_admin.edocdelete" rights="r">
+			    				<%
+			    				if( curdoc.getStatus() == 'D' ) {%>
+							     	<a href="documentReport.jsp?undelDocumentNo=<%=curdoc.getDocId()%>&function=<%=module%>&functionid=<%=moduleid%>&viewstatus=<%=viewstatus%>"><img
+									src="<c:out value="${ctx}/images/user-trash.png"/>"
+									title="<bean:message key="dms.documentReport.btnUnDelete"/>"></a> &nbsp;
+			    				<%
+			    				} else {
+			    				%>
+							    	<a href="javascript: checkDelete('documentReport.jsp?delDocumentNo=<%=curdoc.getDocId()%>&function=<%=module%>&functionid=<%=moduleid%>&viewstatus=<%=viewstatus%>','<%=StringEscapeUtils.escapeJavaScript(curdoc.getDescription())%>')"><img
+									src="<c:out value="${ctx}/images/clear.png"/>" title="Delete"></a> &nbsp;
+			    				<%
+			    				}
+			    				%>
+								</security:oscarSec>
+			    			<%
+			    			}
 
-                if( curdoc.getStatus() != 'D' ) {
-                  if (curdoc.getStatus() == 'H') { %>
-                  <a href="#" onclick="popup(450, 600, 'addedithtmldocument.jsp?editDocumentNo=<%=curdoc.getDocId()%>&function=<%=module%>&functionid=<%=moduleid%>', 'EditDoc')">
-                  <%
-                  } else {
-                  %>
-                  <a href="#" onclick="popup(350, 500, 'editDocument.jsp?editDocumentNo=<%=curdoc.getDocId()%>&function=<%=module%>&functionid=<%=moduleid%>', 'EditDoc')">
-                  <%
-                  }
-                  %>
+			    			if( curdoc.getStatus() != 'D' ) {
+				    			if (curdoc.getStatus() == 'H') { %>
+									<a href="#" onclick="popup(450, 600, 'addedithtmldocument.jsp?editDocumentNo=<%=curdoc.getDocId()%>&function=<%=module%>&functionid=<%=moduleid%>', 'EditDoc')">
+			    				<%
+			    				} else {
+			    				%>
+									<a href="#" onclick="popup(350, 500, 'editDocument.jsp?editDocumentNo=<%=curdoc.getDocId()%>&function=<%=module%>&functionid=<%=moduleid%>', 'EditDoc')">
+			    				<%
+			    				}
+				    			%>
 
-                <img height="15px" width="15px" src="<c:out value="${ctx}/images/notepad.gif"/>" title="<bean:message key="dms.documentReport.btnEdit"/>"></a>
-                  <%
-                }
+								<img height="15px" width="15px" src="<c:out value="${ctx}/images/notepad.gif"/>" title="<bean:message key="dms.documentReport.btnEdit"/>"></a>
+			    				<%
+			    			}
 
-                if(module.equals("demographic")){%>
-                  <a href="#" title="Annotation" onclick="window.open('../annotation/annotation.jsp?display=<%=annotation_display%>&table_id=<%=curdoc.getDocId()%>&demo=<%=moduleid%>','anwin','width=400,height=500');">
-                    <img src="../images/notes.gif" border="0">
-                  </a>
-                           <%
-                           }
+			    			if(module.equals("demographic")){%>
+						    	<a href="#" title="Annotation" onclick="window.open('../annotation/annotation.jsp?display=<%=annotation_display%>&table_id=<%=curdoc.getDocId()%>&demo=<%=moduleid%>','anwin','width=400,height=500');">
+						      	<img src="../images/notes.gif" border="0">
+						    	</a>
+	                         <%
+	                         }
 
-                 if(!(moduleid.equals(session.getAttribute("user"))&& module.equals("demographic"))) {
+			    			 if(!moduleid.equals(session.getAttribute("user"))) {
 
-                                String tickler_url;
-                              if( org.oscarehr.common.IsPropertiesOn.isTicklerPlusEnable() ) {
-                                tickler_url = request.getContextPath()+"/Tickler.do?method=edit&tickler.demographic_webName="+moduleName+"&tickler.demographic_no="+moduleid;
-                              } else {
-                                tickler_url = request.getContextPath()+"/tickler/ForwardDemographicTickler.do?docType=DOC&docId="+curdoc.getDocId()+"&demographic_no="+moduleid;
-                              }
+	                              String tickler_url;
+		                          if( org.oscarehr.common.IsPropertiesOn.isTicklerPlusEnable() ) {
+		                          	tickler_url = request.getContextPath()+"/Tickler.do?method=edit&tickler.demographic_webName="+moduleName+"&tickler.demographic_no="+moduleid;
+		                          } else {
+		                          	tickler_url = request.getContextPath()+"/tickler/ForwardDemographicTickler.do?docType=DOC&docId="+curdoc.getDocId()+"&demographic_no="+moduleid;
+		                          }
 
-                              %>
+		                          %>
 
-                              &nbsp;<a href="javascript:void(0);" title="Tickler" onclick="popup(450,600,'<%=tickler_url%>','tickler')">T</a>
+		                          &nbsp;<a href="javascript:void(0);" title="Tickler" onclick="popup(450,600,'<%=tickler_url%>','tickler')">T</a>
 
-                           <%
-                           }
-               }
-              else
-              {
-                %>
-                Remote Document
-                <%
-              }
+	                         <%
+	                         }
+		    			 }
+		    			else
+		    			{
+		    				%>
+		    				Remote Document
+		    				<%
+		    			}
                          %>
                      </td>
-        </tr>
+				</tr>
 
-        <%}
+				<%}
             if (category.size() == 0) {%>
-        <tr>
-          <td colspan="6"><bean:message key="dms.documentReport.msgNoDocumentsToDisplay"/></td>
-        </tr>
-        <%}%>
-      </table>
+				<tr>
+					<td colspan="6"><bean:message key="dms.documentReport.msgNoDocumentsToDisplay"/></td>
+				</tr>
+				<%}%>
+			</table>
 
-      </div>
-      </div>
-      <%}%>
-      </div>
-      <div><input type="button" name="Button"
-        value="<bean:message key="dms.documentReport.btnDoneClose"/>"
-        onclick=self.close();> <input type="button" name="print"
-        value='<bean:message key="global.btnPrint"/>'
-        onClick="window.print()"> <input type="button"
-        value="<bean:message key="dms.documentReport.btnCombinePDF"/>"
-        onclick="return submitForm('<rewrite:reWrite jspPage="combinePDFs.do"/>');" />
-        <%
+			</div>
+			</div>
+			<%}%>
+			</div>
+			<div><input type="button" name="Button"
+				value="<bean:message key="dms.documentReport.btnDoneClose"/>"
+				onclick=self.close();> <input type="button" name="print"
+				value='<bean:message key="global.btnPrint"/>'
+				onClick="window.print()"> <input type="button"
+				value="<bean:message key="dms.documentReport.btnCombinePDF"/>"
+				onclick="return submitForm('<rewrite:reWrite jspPage="combinePDFs.do"/>');" />
+				<%
                     if( module.equals("demographic") ) {
 
-                      if (MyOscarUtils.isMyOscarEnabled(curUser))
-                      {
-                  String onclickString="alert('"+LocaleUtils.getMessage(request, "LoginToPHRFirst")+"')";
+                  	  if (MyOscarUtils.isVisibleMyOscarSendButton())
+                  	  {
+       						String onclickString="alert('"+LocaleUtils.getMessage(request, "LoginToMyOscarFirst")+"')";
 
-                  MyOscarLoggedInInfo myOscarLoggedInInfo=MyOscarLoggedInInfo.getLoggedInInfo(session);
-                  if (myOscarLoggedInInfo!=null && myOscarLoggedInInfo.isLoggedIn()) onclickString="return submitPhrForm('SendDocToPhr.do', 'sendDocToPhr');";
+      						PHRAuthentication auth=MyOscarUtils.getPHRAuthentication(session);
+      						if (auth!=null) onclickString="return submitPhrForm('SendDocToPhr.do', 'sendDocToPhr');";
 
-                  %>
-                  <input type="button" <%=MyOscarUtils.getDisabledStringForMyOscarSendButton(myOscarLoggedInInfo, Integer.parseInt(demographicNo))%> value="<%=LocaleUtils.getMessage(request, "SendToPHR")%>" onclick="<%=onclickString%>" />
-              <%
-                      }
-
-                      if (isSharingCenterEnabled) {
-                      %>
-                        <span style="float: right;">
-                          <select name="affinityDomain">
-
-                            <% for(AffinityDomainDataObject domain : affinityDomains) { %>
-                              <option value="<%=domain.getId()%>"><%=domain.getName()%></option>
-                            <% } %>
-
-                          </select>
-                          <input type="button" id="SendToAffinityDomain" name="SendToAffinityDomain" value="Share" onclick="return submitForm('<rewrite:reWrite jspPage="../sharingcenter/documents/shareDocumentsAction.jsp?type=edocs"/>');">
-                        </span>
-                      <%
-                      }
+	      					%>
+	      					<input type="button" <%=MyOscarUtils.getDisabledStringForMyOscarSendButton(auth, Integer.parseInt(demographicNo))%> value="<%=LocaleUtils.getMessage(request, "SendToMyOscar")%>" onclick="<%=onclickString%>" />
+							<%
+                  	  }
                     }
-              %>
-      </div>
-    </html:form></td>
-  </tr>
-  <tr>
-    <td colspan="2" class="MainTableBottomRowRightColumn"></td>
-  </tr>
+             	%>
+			</div>
+		</html:form></td>
+	</tr>
+	<tr>
+		<td colspan="2" class="MainTableBottomRowRightColumn"></td>
+	</tr>
 </table>
 
 

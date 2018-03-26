@@ -22,21 +22,6 @@
     Toronto, Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_form" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_form");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%@page import="org.oscarehr.util.LoggedInInfo" %>
 <%@page import="org.oscarehr.common.model.OcanStaffForm"%>
 <%@page import="org.oscarehr.PMmodule.web.OcanForm"%>
@@ -47,8 +32,7 @@
 	
 	String reasonForAssessment = request.getParameter("reasonForAssessment1");	
 	Integer clientId = Integer.valueOf(request.getParameter("demographicId1"));
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-
+	LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
 		
 	//When can we make Initial OCAN
 	/* We can make reassessment without having initial ocan, so comment out the following coding lines.
@@ -87,11 +71,11 @@
 		"SC".equals(reasonForAssessment) || "REV".equals(reasonForAssessment) || 
 		"REK".equals(reasonForAssessment)) {
 		//Firstly must have an intial ocan
-		if(OcanForm.haveInitialAssessment(loggedInInfo.getCurrentFacility().getId(),clientId)) { 
+		if(OcanForm.haveInitialAssessment(clientId)) { 
 			out.print("ia_exists_true");
 		} else {
 	
-			if(OcanForm.haveReassessment(loggedInInfo.getCurrentFacility().getId(),clientId)) {
+			if(OcanForm.haveReassessment(clientId)) {
 				out.print("ia_exists_true");
 			} else {
 				out.print("ia_exists_false");

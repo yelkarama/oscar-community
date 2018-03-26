@@ -32,10 +32,20 @@
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>close</title>
 <script LANGUAGE="JavaScript">
+    
+     if( opener.opener.document.forms["caseManagementEntryForm"] != undefined ){        
+        opener.opener.pasteToEncounterNote('<%=session.getAttribute("textOnEncounter")%>');
+     }else if( opener.document.forms["caseManagementEntryForm"] != undefined ){        
+        opener.pasteToEncounterNote('<%=session.getAttribute("textOnEncounter")%>');
+     }
+     //TODO:// add a section here that uses an ajax call to add a note.  Or should this check be made on the submitting (check to see if the form is defined) for and let the action add the note?
+  
+    
+    
 function closeWin() {
-	  opener.refreshEncounter();
-      self.opener.location.reload(); 
-      self.close();     
+      
+      self.close();
+      self.opener.location.reload();      
 }
 </script>
 

@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <%--
 
     Copyright (c) 2001-2002. Department of Family Medicine, McMaster University. All Rights Reserved.
@@ -25,20 +24,10 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
+  if(session.getValue("user") == null) response.sendRedirect("../logout.jsp");
 %>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_demographic" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_demographic");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
+
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -48,45 +37,82 @@
 
 <html:html locale="true">
 
+
+
 <head>
-<title><bean:message key="oscarLearning.studentImport.title" /></title>
-<link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
+<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
+<script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery.js"></script>
+<html:base />
+<title><bean:message key="oscarLearning.studentImport.title" />
+</title>
+<link rel="stylesheet" type="text/css"
+	href="../share/css/OscarStandardLayout.css">
+
+
+
+<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
+
+
 </head>
 
-<body>
-
-
-<div class="container-fluid">
-
-<h3><bean:message key="admin.admin.learning.importStudent"/></h3>
-<div class="well">
-
+<body class="BodyStyle" vlink="#0000FF">
+<!--  -->
+<table class="MainTable" id="scrollNumber1" name="encounterTable">
+	<tr class="MainTableTopRow">
+		<td class="MainTableTopRowLeftColumn"><bean:message
+			key="oscarLearning.studentImport.msgManager" /></td>
+		<td class="MainTableTopRowRightColumn">
+		<table class="TopStatusBar">
+			<tr>
+				<td></td>
+				<td>&nbsp;</td>
+				<td style="text-align: right"><oscar:help keywords="course" key="app.top1"/> | <a
+					href="javascript:popupStart(300,400,'About.jsp')"><bean:message
+					key="global.about" /></a> | <a
+					href="javascript:popupStart(300,400,'License.jsp')"><bean:message
+					key="global.license" /></a></td>
+			</tr>
+		</table>
+		</td>
+	</tr>
+	<tr>
+		<td class="MainTableLeftColumn" valign="top">&nbsp;</td>
+		<td class="MainTableRightColumn">
 	
 	<%
 		String totalImported = request.getParameter("r");
 		if(totalImported != null && totalImported.length()>0) {
 	%>				
 	
-		<h4><%=totalImported%> Records Successfully Imported.</h4>
+		<h4 style="color:red;"><%=totalImported%> Records Successfully Imported.</h4>
 	<%
 		}
 	%>
-
-
-
-	<div id="upload_form">
-		
-		<p>Batch upload student data into oscarLearning system. Format should be as follows (per line)</p>
-		<p>lastname,firstname,username,password,pin,student#</p>
-		<h4>Upload CSV file:</h4>
-		
-		<html:form action="/oscarLearning/StudentImport.do?method=uploadFile" method="post" enctype="multipart/form-data">
-			<html:file property="file"></html:file>						
-			<br/>
-			<html:submit/>
-		</html:form>
-	</div>
-</div>
-</div>
+				<div id="upload_form">
+					<br/>
+					<h2>Student Importer</h2>
+					<p>Batch upload student data into oscarLearning system. Format should be as follows (per line)</p>
+					<p>lastname,firstname,username,password,pin,student#</p>
+					<h4>Upload CSV file:</h4>
+					<br/>
+					<html:form action="/oscarLearning/StudentImport.do?method=uploadFile" method="post" enctype="multipart/form-data">
+						<html:file property="file"></html:file>						
+						<br/>
+						<html:submit/>
+					</html:form>
+				</div>
+	
+	
+		</td>
+	</tr>	
+	
+	
+	<tr>
+		<td class="MainTableBottomRowLeftColumn"></td>
+		<td class="MainTableBottomRowRightColumn"></td>
+	</tr>
+</table>
 </body>
+
+
 </html:html>

@@ -35,11 +35,8 @@ public class HtmlEditForm extends ActionForm {
     private String formSubject = "";
     private String formFileName = "";
     private String formHtml = "";
-    private boolean showLatestFormOnly = false;
     private boolean patientIndependent = false;
     private String roleType = "";
-    private String programNo = "";
-    private boolean restrictByProgram =false; 
     
     public HtmlEditForm() {
     }
@@ -100,37 +97,11 @@ public class HtmlEditForm extends ActionForm {
         this.formHtml = formHtml;
     }
     
-    public boolean isShowLatestFormOnly() {
-        return showLatestFormOnly;
-    }
-
-    public void setShowLatestFormOnly(boolean showLatestFormOnly) {
-        this.showLatestFormOnly = showLatestFormOnly;
-    }
-    
-    public boolean isPatientIndependent() {
+    public boolean getPatientIndependent() {
         return patientIndependent;
     }
 
     public void setPatientIndependent(boolean patientIndependent) {
         this.patientIndependent = patientIndependent;
     }
-
-	public String getProgramNo() {
-		return programNo;
-	}
-
-	public void setProgramNo(String programNo) {
-		this.programNo = programNo;
-	}
-
-	public boolean isRestrictByProgram() {
-		return restrictByProgram;
-	}
-
-	public void setRestrictByProgram(boolean restrictByProgram) {
-		this.restrictByProgram = restrictByProgram;
-	}
-    
-    
 }

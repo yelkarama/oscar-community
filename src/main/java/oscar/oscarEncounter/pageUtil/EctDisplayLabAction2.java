@@ -26,51 +26,56 @@
 package oscar.oscarEncounter.pageUtil;
 
 import java.net.URLEncoder;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.Properties;
+import java.util.Vector;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 import org.apache.struts.util.MessageResources;
-import org.oscarehr.caisi_integrator.ws.CachedDemographicLabResult;
 import org.oscarehr.common.dao.OscarLogDao;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
-import org.w3c.dom.Document;
 
 import oscar.OscarProperties;
-import oscar.oscarLab.ca.all.parsers.MessageHandler;
 import oscar.oscarLab.ca.all.web.LabDisplayHelper;
 import oscar.oscarLab.ca.on.CommonLabResultData;
 import oscar.oscarLab.ca.on.LabResultData;
 import oscar.util.DateUtils;
+import oscar.util.OscarRoleObjectPrivilege;
 import oscar.util.StringUtils;
+
+//import oscar.oscarSecurity.CookieSecurity;
 
 public class EctDisplayLabAction2 extends EctDisplayAction {
 	private static final Logger logger = MiscUtils.getLogger();
 	private static final String cmd = "labs";
 
 	public boolean getInfo(EctSessionBean bean, HttpServletRequest request, NavBarDisplayDAO Dao, MessageResources messages) {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		
+
 		logger.debug("EctDisplayLabAction2");
 		OscarLogDao oscarLogDao = (OscarLogDao) SpringUtils.getBean("oscarLogDao");
 
-		if(!securityInfoManager.hasPrivilege(loggedInInfo, "_lab", "r", null)) {
+		boolean a = true;
+		Vector v = OscarRoleObjectPrivilege.getPrivilegeProp("_newCasemgmt.labResult");
+		String roleName = (String) request.getSession().getAttribute("userrole") + "," + (String) request.getSession().getAttribute("user");
+		a = OscarRoleObjectPrivilege.checkPrivilege(roleName, (Properties) v.get(0), (Vector) v.get(1));
+		if (!a) {
 			return true; // Lab result link won't show up on new CME screen.
 		} else {
 
 			CommonLabResultData comLab = new CommonLabResultData();
-			ArrayList<LabResultData> labs = comLab.populateLabResultsData(loggedInInfo, "", bean.demographicNo, "", "", "", "U");
+			ArrayList<LabResultData> labs = comLab.populateLabResultsData("", bean.demographicNo, "", "", "", "U");
 			logger.debug("local labs found : "+labs.size());
 
-			if (loggedInInfo.getCurrentFacility().isIntegratorEnabled()) {
-				ArrayList<LabResultData> remoteResults = CommonLabResultData.getRemoteLabs(loggedInInfo, Integer.parseInt(bean.demographicNo));
+			LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
+			if (loggedInInfo.currentFacility.isIntegratorEnabled()) {
+				ArrayList<LabResultData> remoteResults = CommonLabResultData.getRemoteLabs(Integer.parseInt(bean.demographicNo));
 				logger.debug("remote labs found : "+remoteResults.size());
 				labs.addAll(remoteResults);
 			}
@@ -129,14 +134,11 @@ public class EctDisplayLabAction2 extends EctDisplayAction {
 				}
 			}
 			labs = new ArrayList<LabResultData>(accessionMap.values());
-			
+			logger.info("number of labs: " + labs.size());
 			for (int j = 0; j < labs.size(); j++) {
 				result = labs.get(j);
-                Date date = getServiceDate(loggedInInfo,result);
-                String formattedDate = "";
-                if(date != null) {
-                	DateUtils.getDate(date, "dd-MMM-yyyy", request.getLocale());
-                }
+				Date date = result.getDateObj();
+				String formattedDate = DateUtils.getDate(date, "dd-MMM-yyyy", request.getLocale());
 				// String formattedDate = DateUtils.getDate(date);
 				func = new StringBuilder("popupPage(700,960,'");
 				label = result.getLabel();
@@ -176,12 +178,9 @@ public class EctDisplayLabAction2 extends EctDisplayAction {
                 }
 
 				NavBarDisplayDAO.Item item = NavBarDisplayDAO.Item();
-				
+				logger.info("Adding link: " + labDisplayName + " : " + formattedDate);
 				item.setLinkTitle(labDisplayName + " " + formattedDate);
 				labDisplayName = StringUtils.maxLenString(labDisplayName, MAX_LEN_TITLE, CROP_LEN_TITLE, ELLIPSES); // +" "+formattedDate;
-                if (labDisplayName == null) {
-                    labDisplayName = "";
-                }
 				hash = winName.hashCode();
 				hash = hash < 0 ? hash * -1 : hash;
 				func.append(hash + "','" + url + "'); return false;");
@@ -202,112 +201,7 @@ public class EctDisplayLabAction2 extends EctDisplayAction {
 		}
 	}
 
-    public Date getServiceDate(LoggedInInfo loggedInInfo, LabResultData labData) {
-        ServiceDateLoader loader = new ServiceDateLoader(labData);
-        Date resultDate = loader.determineResultDate(loggedInInfo);
-        if (resultDate != null) {
-            return resultDate;
-        }
-        return labData.getDateObj();
-    }
-
 	public String getCmd() {
 		return cmd;
 	}
-
-    /**
-     * Attempts to determine service date for any given lab.
-     */
-    private static class ServiceDateLoader {
-
-        private LabResultData labData;
-
-        public ServiceDateLoader(LabResultData labData) {
-            this.labData = labData;
-        }
-
-        /**
-         * Attempts to determine service date for the aggregated
-         * lab.
-         *
-         * @return
-         * 		Returns the service date or null if date can
-         * 		not be determined
-         *
-         */
-        public Date determineResultDate(LoggedInInfo loggedInInfo) {
-            String serviceDate = getServiceDate(loggedInInfo);
-            if (serviceDate == null) {
-                return null;
-            }
-            return parseServiceDate(serviceDate);
-        }
-
-        private Date parseServiceDate(String serviceDate) {
-            Date result = null;
-            String dateFormat[] = new String[] {"yyyy-MM-dd", "dd-MMM-yyyy"};
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat();
-            
-            for( int idx = 0; idx < dateFormat.length; ++idx) {
-            	try {
-            	
-            		simpleDateFormat.applyPattern(dateFormat[idx]);
-            		result = simpleDateFormat.parse(serviceDate);
-            	} catch (ParseException e) {
-                
-            	}
-            }
-            return result;
-        }
-
-        private String getServiceDate(LoggedInInfo loggedInInfo) {
-            String segmentId = labData.getSegmentID();
-            MessageHandler handler = null;
-
-            try {
-                if (!labData.isRemoteLab()) {
-                    handler = getLocalHandler(segmentId);
-                } else {
-                    handler = getRemoteHandler(loggedInInfo, labData);
-                }
-            } catch (Exception e) {
-                logger.error("Unable to get handler for " + labData, e);
-            }
-
-            if (handler == null) {
-                return null;
-            }
-
-            String serviceDate = handler.getServiceDate();
-            return serviceDate;
-        }
-
-        public MessageHandler getRemoteHandler(LoggedInInfo loggedInInfo, LabResultData labData) {
-            Integer labPatientId = null;
-            try {
-                labPatientId = Integer.parseInt(labData.getLabPatientId());
-            } catch (Exception e) {
-                logger.error("Unable to parse " + labData.getLabPatientId(), e);
-                return null;
-            }
-
-            String remoteLabKey = LabDisplayHelper.makeLabKey(labPatientId, labData.getSegmentID(), labData.labType, labData.getDateTime());
-            CachedDemographicLabResult remoteLabResult=LabDisplayHelper.getRemoteLab(loggedInInfo,labData.getRemoteFacilityId(), remoteLabKey, labPatientId);
-            Document xmlData = null;
-            try {
-                xmlData = LabDisplayHelper.getXmlDocument(remoteLabResult);
-            } catch (Exception e) {
-                logger.error("Unable to get remote lab result", e);
-                return null;
-            }
-
-            MessageHandler handler = LabDisplayHelper.getMessageHandler(xmlData);
-            return handler;
-        }
-
-        public MessageHandler getLocalHandler(String segmentId) {
-            return oscar.oscarLab.ca.all.parsers.Factory.getHandler(segmentId);
-        }
-    }
-
 }

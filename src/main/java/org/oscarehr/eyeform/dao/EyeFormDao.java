@@ -30,7 +30,6 @@ import javax.persistence.Query;
 
 import org.oscarehr.common.dao.AbstractDao;
 import org.oscarehr.eyeform.model.EyeForm;
-import org.oscarehr.util.MiscUtils;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -49,16 +48,14 @@ public class EyeFormDao extends AbstractDao<EyeForm> {
 	}
 	
 	public EyeForm getByAppointmentNo(int appointmentNo) {
-		Query query = entityManager.createQuery("select x from "+modelClass.getSimpleName()+" x where x.appointmentNo=?1 order by x.date desc");
+		Query query = entityManager.createQuery("select x from "+modelClass.getSimpleName()+" x where x.appointmentNo=?1");
 		query.setParameter(1, appointmentNo);
 		
 		EyeForm eyeform = null;
 	
 		try {
 			eyeform = (EyeForm)query.getSingleResult();
-		} catch(NoResultException e) {
-			MiscUtils.getLogger().warn("warning",e);
-		}
+		} catch(NoResultException e) {}
 	
 		return eyeform;
 		

@@ -63,8 +63,8 @@ public class Provider implements Serializable, Comparable<Provider>{
     private String email;
     private String title;
     private String lastUpdateUser;
-    private Date lastUpdateDate = new Date();
-    private String supervisor;
+    private Date lastUpdateDate;
+
 
 	public String getPractitionerNo() {
 		return practitionerNo;
@@ -96,35 +96,6 @@ public class Provider implements Serializable, Comparable<Provider>{
 		this.setSex(sex);
 		this.setSpecialty(specialty);
 		this.setFirstName(firstName);
-	}
-	
-	public Provider(Provider provider) {
-		providerNo = provider.providerNo;
-		comments = provider.comments;
-		phone = provider.phone;
-		billingNo = provider.billingNo;
-		workPhone = provider.workPhone;
-		address = provider.address;
-		team = provider.team;
-		status = provider.status;
-		lastName = provider.lastName;
-		providerType = provider.providerType;
-		sex = provider.sex;
-		ohipNo = provider.ohipNo;
-		specialty = provider.specialty;
-		dob = provider.dob;
-		hsoNo = provider.hsoNo;
-		providerActivity = provider.providerActivity;
-		firstName = provider.firstName;
-		rmaNo = provider.rmaNo;
-		SignedConfidentiality = provider.SignedConfidentiality;
-		practitionerNo = provider.practitionerNo;
-		email = provider.email;
-		title = provider.title;
-		lastUpdateUser = provider.lastUpdateUser;
-		lastUpdateDate = provider.lastUpdateDate;
-                supervisor = provider.supervisor;
-
 	}
 
 	public String getFormattedName() {
@@ -208,7 +179,7 @@ public class Provider implements Serializable, Comparable<Provider>{
 	}
 
 	/**
-    * @deprecated no longer is use 2010-04-23, marked for future removal
+    * @Deprecated no longer is use 2010-04-23, marked for future removal
 	 */
 	public String getProviderType() {
 		return providerType;
@@ -318,46 +289,30 @@ public class Provider implements Serializable, Comparable<Provider>{
 	public Date getLastUpdateDate() {
     	return lastUpdateDate;
     }
-        public String getSupervisor() {
-            return this.supervisor;
-        }
 
 	public void setLastUpdateDate(Date lastUpdateDate) {
     	this.lastUpdateDate = lastUpdateDate;
     }
-        public void setSupervisor( String supervisor ) {
-            this.supervisor = supervisor;
-        }
 
 	public ComparatorName ComparatorName() {
 		return new ComparatorName();
 	}
 
-	
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((providerNo == null) ? 0 : providerNo.hashCode());
-		return result;
+	public boolean equals(Provider provider) {
+		try {
+			return (providerNo.equals(provider.providerNo));
+		} catch (Exception e) {
+			return (false);
+		}
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (obj == null) return false;
-		if (getClass() != obj.getClass()) return false;
-		Provider other = (Provider) obj;
-		if (providerNo == null) {
-			if (other.providerNo != null) return false;
-		} else if (!providerNo.equals(other.providerNo)) return false;
-		return true;
+    public int hashCode() {
+		if (providerNo==null) return(super.hashCode());
+		else return(providerNo.hashCode());
 	}
 
-
-
-	public static class ComparatorName implements Comparator<Provider>, Serializable {
+	public class ComparatorName implements Comparator<Provider>, Serializable {
 
 		public int compare(Provider o1, Provider o2) {
 			Provider bp1 = o1;
@@ -373,5 +328,4 @@ public class Provider implements Serializable, Comparable<Provider>{
 		if (providerNo==null) return(0);
 	    return(providerNo.compareTo(o.providerNo));
     }
-
 }

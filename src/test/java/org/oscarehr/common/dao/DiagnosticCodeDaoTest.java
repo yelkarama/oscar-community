@@ -26,8 +26,6 @@ package org.oscarehr.common.dao;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.oscarehr.common.dao.utils.EntityDataGenerator;
@@ -37,7 +35,7 @@ import org.oscarehr.util.SpringUtils;
 
 public class DiagnosticCodeDaoTest extends DaoTestFixtures {
 
-	protected DiagnosticCodeDao dao = SpringUtils.getBean(DiagnosticCodeDao.class);
+	private DiagnosticCodeDao dao = SpringUtils.getBean(DiagnosticCodeDao.class);
 
 	public DiagnosticCodeDaoTest() {
 	}
@@ -45,7 +43,7 @@ public class DiagnosticCodeDaoTest extends DaoTestFixtures {
 
 	@Before
 	public void before() throws Exception {
-		SchemaUtils.restoreTable("diagnosticcode","ctl_diagcode");
+		SchemaUtils.restoreTable("diagnosticcode");
 	}
 
 	@Test
@@ -77,15 +75,4 @@ public class DiagnosticCodeDaoTest extends DaoTestFixtures {
 
 		assertEquals(1,dao.findByDiagnosticCodeAndRegion(entity.getDiagnosticCode(),entity.getRegion()).size());
 	}
-	
-	@Test
-	public void testFindByRegionAndType() {
-		List<DiagnosticCode> codes = dao.findByRegionAndType("REG", "TYPE");
-		assertNotNull(codes);
-	}
-
-    @Test
-    public void testFindDiagnosictsAndCtlDiagCodesByServiceType() {
-	    assertNotNull(dao.findDiagnosictsAndCtlDiagCodesByServiceType("TYPE"));
-    }
 }

@@ -50,7 +50,6 @@ public class EventService implements ApplicationEventPublisherAware {
 		
 		applicationEventPublisher.publishEvent(new AppointmentStatusChangeEvent(source,appointment_no, provider_no,status));
 	}
-
 	/*
 	 * Event is fired:
     	src/main/webapp/appointment/appointmentaddarecord.jsp			

@@ -50,8 +50,6 @@ public class LogConst {
     public static final String ANNOTATE = "annotate";
     public static final String VERIFY = "verify";
     public static final String REFUSED = "refused";
-    public static final String UNLINK = "unlink";
-    public static final String SENT = "sent";
 
     public static final String CON_LOGIN_AGREEMENT = "login agreement";
     public static final String CON_LOGIN = "login";
@@ -63,7 +61,6 @@ public class LogConst {
     public static final String CON_PRIVILEGE = "privilege";
     public static final String CON_FORM = "form";
     public static final String CON_PRESCRIPTION = "prescription";
-    public static final String CON_MEDICATION = "medication";
     public static final String CON_DRUGS="drugs";
     public static final String CON_DRUGREASON="drugReason";
     public static final String CON_ALLERGY = "allergy";
@@ -84,9 +81,4 @@ public class LogConst {
     public static final String CON_CAISI_CLIENT_REFERRAL = "caisi client referral";
     public static final String CON_CAISI_CLIENT_ADMIT = "caisi client admission";
     public static final String CON_CAISI_CLIENT_DISCHARGE = "caisi client discharge";
-    public static final String CON_DOCUMENTDESCRIPTIONTEMPLATE = "documentDescriptionTemplate";
-    public static final String CON_DOCUMENTDESCRIPTIONTEMPLATEPREFERENCE = "documentDescriptionTemplatePreference";
-    public static final String CON_FAX  = "fax";
-    public static final String CON_PHARMACY  = "pharmacy";
-    
 }

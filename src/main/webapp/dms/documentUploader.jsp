@@ -12,25 +12,7 @@
 <%@page import="oscar.dms.data.*,java.util.*,oscar.oscarLab.ca.on.CommonLabResultData,org.oscarehr.util.SpringUtils,org.oscarehr.common.dao.QueueDao, oscar.oscarMDS.data.ProviderData" %>
 <%@page import="org.oscarehr.PMmodule.dao.ProviderDao, org.oscarehr.common.model.Provider" %>
 <%@page import="oscar.OscarProperties"%>
-<%@page import="org.oscarehr.common.model.UserProperty"%>
-<%@page import="org.oscarehr.util.SpringUtils"%>
-<%@page import="org.oscarehr.common.dao.UserPropertyDAO"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_edoc" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_edoc");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%
 
 ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao");
@@ -38,28 +20,13 @@ ArrayList<Provider> providers = new ArrayList<Provider>(providerDao.getActivePro
 String provider = CommonLabResultData.NOT_ASSIGNED_PROVIDER_NO;
 
 QueueDao queueDao = (QueueDao) SpringUtils.getBean("queueDao");
-HashMap<Integer,String> queues = queueDao.getHashMapOfQueues();
+HashMap queues = queueDao.getHashMapOfQueues();
 String queueIdStr = (String) request.getSession().getAttribute("preferredQueue");
 int queueId = 1;
 if (queueIdStr != null) {
     queueIdStr = queueIdStr.trim();
     queueId = Integer.parseInt(queueIdStr);
 }
-
-    String user_no = (String) session.getAttribute("user");
-    UserPropertyDAO userPropertyDAO = (UserPropertyDAO)SpringUtils.getBean("UserPropertyDAO");
-
-    UserProperty uProp = userPropertyDAO.getProp(user_no, UserProperty.UPLOAD_DOCUMENT_DESTINATION);
-    String destination=UserProperty.PENDINGDOCS;
-    if( uProp != null && uProp.getValue().equals(UserProperty.INCOMINGDOCS)) {
-        destination=UserProperty.INCOMINGDOCS;
-    }
-
-    uProp = userPropertyDAO.getProp(user_no, UserProperty.UPLOAD_INCOMING_DOCUMENT_FOLDER);
-    String destFolder="Mail";
-    if( uProp != null) {
-        destFolder=uProp.getValue();
-    }
 
 String context = request.getContextPath();
 String resourcePath = context + "/share/documentUploader/";
@@ -84,41 +51,11 @@ if (isFirefox > 0) {
 	<link rel="stylesheet" href="<%=resourcePath%>style.css">
 	<link rel="stylesheet" type="text/css" href="<%=context%>/share/css/OscarStandardLayout.css" />
 
+
 	<script type="text/javascript">
 	function setProvider(select){
 		jQuery("#provider").val(select.options[select.selectedIndex].value);
 	}
-	
-	function setQueue(select){
-		jQuery("#queue").val(select.options[select.selectedIndex].value);
-	}
-	
-        function setDestination(select){
-		jQuery("#destination").val(select.options[select.selectedIndex].value);
-                setDropList();
-                var destination=select.options[select.selectedIndex].value;
-                jQuery.ajax({url:'<%=context%>/dms/documentUpload.do?method=setUploadDestination&destination='+destination,async:false, success:function(data) {}});
-	}
-
-        function setDestFolder(select){
-                var destFolder=select.options[select.selectedIndex].value;
-		jQuery("#destFolder").val(destFolder);
-                jQuery.ajax({url:'<%=context%>/dms/documentUpload.do?method=setUploadIncomingDocumentFolder&destFolder='+destFolder,async:false, success:function(data) {}});
-	}
-
-        function setDropList()
-        {
-            if(document.getElementById('destinationDrop').options[document.getElementById('destinationDrop').selectedIndex].value=="incomingDocs")
-                    {
-                        document.getElementById('providerDropDiv').style.display = 'none';
-                        document.getElementById('destFolderDiv').style.display = 'block';
-                    }
-                    else
-                    {
-                        document.getElementById('providerDropDiv').style.display = 'block';
-                        document.getElementById('destFolderDiv').style.display = 'none';
-                    }
-        }
 	</script>
 	<style type="text/css">
 	body {
@@ -126,9 +63,9 @@ if (isFirefox > 0) {
 	}
 	</style>
 </head>
-<body onload="setDropList();">
+<body>
 <div id="fileupload">
-    <form action="<%=context%>/dms/documentUpload.do?method=executeUpload" method="POST" enctype="multipart/form-data">
+    <form action="<%=context%>/dms/documentUpload.do" method="POST" enctype="multipart/form-data">
         <div class="fileupload-buttonbar">
             <label class="fileinput-button">
                 <span id="add">Add files...</span>
@@ -136,20 +73,10 @@ if (isFirefox > 0) {
             </label>
             <button id="start" type="submit" class="start">Start upload</button>
             <button itd="cancel" type="reset" class="cancel">Cancel upload</button>
-            <br>
             <span>
 				<input type="hidden" id="provider" name="provider" value="<%=provider%>" />
-				<input type="hidden" id="queue"    name="queue" value="<%=queueId%>"/>
-                                <input type="hidden" id="destination"    name="destination" value="<%=destination%>"/>
-                                <input type="hidden" id="destFolder"    name="destFolder" value="<%=destFolder%>"/>
-                                <label style="font-family:Arial; font-weight:normal; font-size:12px" for="destinationDrop" class="fields"><bean:message key="dms.documentUploader.destination" />:</label>
-                                <select onchange="javascript:setDestination(this);"  id="destinationDrop"  name="destinationDrop">
-                                    <option value="pendingDocs" <%=( destination.equals("pendingDocs") ? " selected" : "")%> ><bean:message key="inboxmanager.document.pendingDocs" /></option>
-                                    <option value="incomingDocs" <%=( destination.equals("incomingDocs") ? " selected" : "")%> ><bean:message key="inboxmanager.document.incomingDocs" /></option>
-                                </select><br>
-
-                                <div id="providerDropDiv">
-                                <label style="font-family:Arial; font-weight:normal; font-size:12px" for="providerDrop" class="fields">Send to Provider:</label>
+				<input type="hidden" name="queue" value="<%=queueId%>"/>
+				<label style="font-family:Arial; font-weight:normal; font-size:12px" for="providerDrop" class="fields">Send to Provider:</label>
 				<select onchange="javascript:setProvider(this);" id="providerDrop" name="providerDrop">
 					<option value="0" <%=("0".equals(provider) ? " selected" : "")%>>None</option>
 					<%
@@ -161,32 +88,7 @@ if (isFirefox > 0) {
 					}
 					%>
 				</select>
-                                </div>
-				<label style="font-family:Arial; font-weight:normal; font-size:12px" for="queueDrop" class="fields">Queue:</label>
-				<select onchange="javascript:setQueue(this);" id="queueDrop" name="queueDrop">
-					<%-- option value="0" <%=("0".equals(queueId) ? " selected" : "")%>>None</option  --%>
-					<%
-					for (Map.Entry<Integer,String> entry : queues.entrySet()) {
-					    int key = entry.getKey();
-					    String value = entry.getValue();
-					   
-	                %>
-					<option value="<%=key%>" <%=( (key == queueId) ? " selected" : "")%>><%= value%></option>
-					<%
-					}
-					%>
-				</select>
-				
 			</span>
-                                <div id="destFolderDiv">
-                                <label style="font-family:Arial; font-weight:normal; font-size:12px" for="destinationDrop" class="fields"><bean:message key="dms.documentUploader.folder" />:</label>
-                                <select onchange="javascript:setDestFolder(this);"  id="destFolderDrop"  name="destFolderDrop">
-                                    <option value="Fax" <%=( destFolder.equals("Fax") ? " selected" : "")%> ><bean:message key="dms.incomingDocs.fax" /></option>
-                                    <option value="Mail" <%=( destFolder.equals("Mail") ? " selected" : "")%> ><bean:message key="dms.incomingDocs.mail" /></option>
-                                    <option value="File" <%=( destFolder.equals("File") ? " selected" : "")%> ><bean:message key="dms.incomingDocs.file" /></option>
-                                    <option value="Refile" <%=( destFolder.equals("Refile") ? " selected" : "")%> ><bean:message key="dms.incomingDocs.refile" /></option>
-                                </select>
-                                </div>
         </div>
     </form>
     <div class="fileupload-content">
@@ -254,10 +156,9 @@ if (isFirefox > 0) {
 <script src="<%=resourcePath%>jquery.fileupload-ui.js"></script>
 <script type="text/javascript">
 jQuery(function () {
-	var maxFiles = <%=Integer.parseInt(OscarProperties.getInstance().getProperty("documentUploader.maxNumberOfFiles", "5")) %>;
     'use strict';
     jQuery('#fileupload').fileupload({
-    	sequentialUploads: true, maxNumberOfFiles:maxFiles
+    	sequentialUploads: true
     });
 });
 </script>

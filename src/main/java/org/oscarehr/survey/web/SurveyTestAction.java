@@ -39,46 +39,34 @@ import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.apache.struts.action.ActionMessage;
-import org.apache.struts.action.ActionMessages;
 import org.apache.struts.action.DynaActionForm;
-import org.apache.struts.actions.DispatchAction;
-import org.oscarehr.common.model.SurveyTestData;
-import org.oscarehr.common.model.SurveyTestInstance;
+import org.oscarehr.survey.model.SurveyTestData;
+import org.oscarehr.survey.model.SurveyTestInstance;
 import org.oscarehr.survey.service.SurveyManager;
 import org.oscarehr.survey.service.SurveyModelManager;
 import org.oscarehr.survey.service.SurveyTestManager;
-import org.oscarehr.survey.service.UserManager;
 import org.oscarehr.survey.web.formbean.SurveyExecuteDataBean;
 import org.oscarehr.survey.web.formbean.SurveyExecuteFormBean;
 import org.oscarehr.surveymodel.Page;
 import org.oscarehr.surveymodel.SurveyDocument;
 import org.oscarehr.surveymodel.SurveyDocument.Survey;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
 
-public class SurveyTestAction extends DispatchAction {
+public class SurveyTestAction extends AbstractSurveyAction {
 
 	private static Logger log = MiscUtils.getLogger();
 
-	private SurveyManager surveyManager = (SurveyManager)SpringUtils.getBean("surveyManager");
-	private SurveyTestManager surveyTestManager = (SurveyTestManager)SpringUtils.getBean("surveyTestManager");
-	private UserManager userManager = (UserManager)SpringUtils.getBean("surveyUserManager");
+	private SurveyManager surveyManager;
+	private SurveyTestManager surveyTestManager;
 	
-	
-	protected void postMessage(HttpServletRequest request, String key, String val) {
-		ActionMessages messages = new ActionMessages();
-		messages.add(ActionMessages.GLOBAL_MESSAGE,new ActionMessage(key,val));
-		saveMessages(request,messages);
+	public void setSurveyManager(SurveyManager mgr) {
+		this.surveyManager = mgr;
 	}
 	
-	protected void postMessage(HttpServletRequest request, String key) {
-		ActionMessages messages = new ActionMessages();
-		messages.add(ActionMessages.GLOBAL_MESSAGE,new ActionMessage(key));
-		saveMessages(request,messages);
+	public void setSurveyTestManager(SurveyTestManager mgr) {
+		this.surveyTestManager = mgr;
 	}
-	
 	
 	public ActionForward unspecified(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		return test(mapping,form,request,response);
@@ -108,7 +96,7 @@ public class SurveyTestAction extends DispatchAction {
 		}
 		formBean.setId(Long.parseLong(surveyId));
 		
-		org.oscarehr.common.model.Survey surveyObj = surveyManager.getSurvey(String.valueOf(formBean.getId()));
+		org.oscarehr.survey.model.Survey surveyObj = surveyManager.getSurvey(String.valueOf(formBean.getId()));
 		String descr = surveyObj.getDescription();
 		descr = descr.replaceAll(" ","_");
 		descr = descr.toLowerCase();				
@@ -127,7 +115,7 @@ public class SurveyTestAction extends DispatchAction {
 			return mapping.findForward("manager");
 		}
 		
-		log.debug("running test on survey " + surveyObj.getId());
+		log.debug("running test on survey " + surveyObj.getSurveyId());
 		
 		SurveyDocument model = null;
 		try {
@@ -146,7 +134,7 @@ public class SurveyTestAction extends DispatchAction {
         	log.debug("loading up test data");
         	for(Iterator iter=instance.getData().iterator();iter.hasNext();) {
         		SurveyTestData dataItem = (SurveyTestData)iter.next();
-        		String key = dataItem.getDataKey();
+        		String key = dataItem.getKey();
         		if(SurveyModelManager.isCheckbox(model.getSurvey(),key)) {
         			String value = dataItem.getValue();
         			if(value != null) {
@@ -253,8 +241,8 @@ public class SurveyTestAction extends DispatchAction {
 		SurveyTestInstance instance = new SurveyTestInstance();
 		instance.setClientId(1);
 		instance.setDateCreated(new Date());
-		instance.setSurveyId((int)formBean.getId());
-		instance.setUserId((int)userManager.getUserId(request));
+		instance.setSurveyId(formBean.getId());
+		instance.setUserId(userManager.getUserId(request));
 		
 		/* fix the checkboxes */
 		Map test = new HashMap();
@@ -266,7 +254,7 @@ public class SurveyTestAction extends DispatchAction {
 				String realKey = key.substring(9);
 				String value = (String)data.getValues().get(key);
 				if(value.equals("checked")) {
-					// do nothing
+					
 				} else {
 					test.put(realKey,null);
 					//data.getValues().put(realKey,null);
@@ -288,11 +276,11 @@ public class SurveyTestAction extends DispatchAction {
 	    	String questionId = parsed[2];
 	    	
 			SurveyTestData dataItem = new SurveyTestData();
-			dataItem.setPageNumber(Integer.parseInt(pageNumber));
-			dataItem.setSectionId(Integer.parseInt(sectionId));
-			dataItem.setQuestionId(Integer.parseInt(questionId));
+			dataItem.setPageNumber(Long.parseLong(pageNumber));
+			dataItem.setSectionId(Long.parseLong(sectionId));
+			dataItem.setQuestionId(Long.parseLong(questionId));
 			dataItem.setValue((String)data.getValue(key));
-			dataItem.setDataKey(key);
+			dataItem.setKey(key);
 			instance.getData().add(dataItem);
 		}
 		

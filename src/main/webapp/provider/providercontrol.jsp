@@ -24,8 +24,6 @@
 
 --%>
 
-<%@page import="org.oscarehr.util.MiscUtils"%>
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@ taglib uri="/WEB-INF/caisi-tag.tld" prefix="caisi"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
@@ -37,14 +35,11 @@
 
 <caisi:isModuleLoad moduleName="caisi">
 <%
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
     String isOscar = request.getParameter("infirmaryView_isOscar");
     if (session.getAttribute("infirmaryView_isOscar")==null) isOscar="false";
     if (isOscar!=null) session.setAttribute("infirmaryView_isOscar", isOscar);
-    if(request.getParameter(SessionConstants.CURRENT_PROGRAM_ID) != null) {
+    if(request.getParameter(SessionConstants.CURRENT_PROGRAM_ID) != null)
     	session.setAttribute(SessionConstants.CURRENT_PROGRAM_ID,request.getParameter(SessionConstants.CURRENT_PROGRAM_ID));
-    	org.caisi.core.web.InfirmAction.updateCurrentProgram(request.getParameter(SessionConstants.CURRENT_PROGRAM_ID), loggedInInfo.getLoggedInProviderNo());
-    }
     session.setAttribute("infirmaryView_OscarURL",request.getRequestURL());
 
 %><c:import url="/infirm.do?action=getSig" />
@@ -52,7 +47,6 @@
 
 <%
     if(session.getAttribute("userrole") == null ) {
-   	 	MiscUtils.getLogger().error("userrole is null? logging user out");
         response.sendRedirect("../logout.jsp");
         return;
     }
@@ -73,7 +67,6 @@
 	<%
         if (true)
         {
-      	  	MiscUtils.getLogger().error("wrong role? logging user out");
             response.sendRedirect("../logout.jsp");
             return;
         }
@@ -82,45 +75,23 @@
 
 <%
     if(session.getAttribute("user") == null) {
- 	  	MiscUtils.getLogger().error("missing session user? logging user out");
         response.sendRedirect("../logout.jsp");
         return;
     }
 
-	//preserving context for new ui this is temp until schedule is created in new ui
-	String router = "";
-	String record = "";
-	String module = "";
-	//retained date as well  
-	
-	if(request.getParameter("record")!=null){
-		record="record="+request.getParameter("record");
-	}
-	
-	if(request.getParameter("module")!=null){
-		module="module=" + request.getParameter("module");
-	}
-	
-	if(!record.equals("") && !module.equals("")){
-		router = "&" + record + "&" + module;
-	}else if(record.equals("") && !module.equals("")){
-		router = "&" + module;
-	}
-	//preserving context ---end
-
     if(request.getParameter("year")==null && request.getParameter("month")==null && request.getParameter("day")==null && request.getParameter("displaymode")==null && request.getParameter("dboperation")==null) {
+        OscarProperties props = OscarProperties.getInstance();
         GregorianCalendar now=new GregorianCalendar();
         int nowYear = now.get(Calendar.YEAR);
         int nowMonth = now.get(Calendar.MONTH)+1 ; //be care for the month +-1
         int nowDay = now.get(Calendar.DAY_OF_MONTH);
-        OscarProperties props = OscarProperties.getInstance();
         String caisiView = null;
         caisiView = request.getParameter("GoToCaisiViewFromOscarView");
-        boolean viewAll_bool = true;  // false, restore original schedule view on appointment screen
+        boolean viewAll_bool = true;
         
         if (props.getProperty("default_schedule_viewall", "").startsWith("false") )
-            viewAll_bool = false;
-            
+			viewAll_bool = false;
+        
         if(caisiView!=null && "true".equals(caisiView)) {
         	if (viewAll_bool){
 	        	response.sendRedirect("./providercontrol.jsp?GoToCaisiViewFromOscarView=true&year="+nowYear+"&month="+(nowMonth)+"&day="+(nowDay)+"&view=0&displaymode=day&dboperation=searchappointmentday&viewall=1");
@@ -132,15 +103,13 @@
 	        }
         }
         if (viewAll_bool){
-        	       	
-	        response.sendRedirect("./providercontrol.jsp?year="+nowYear+"&month="+(nowMonth)+"&day="+(nowDay)+"&view=0&displaymode=day&dboperation=searchappointmentday&viewall=1" + router);
+	        response.sendRedirect("./providercontrol.jsp?year="+nowYear+"&month="+(nowMonth)+"&day="+(nowDay)+"&view=0&displaymode=day&dboperation=searchappointmentday&viewall=1");
 	        return;
 	    }
 	    else{
-	    	response.sendRedirect("./providercontrol.jsp?year="+nowYear+"&month="+(nowMonth)+"&day="+(nowDay)+"&view=0&displaymode=day&dboperation=searchappointmentday&viewall=0" + router);
+	    	response.sendRedirect("./providercontrol.jsp?year="+nowYear+"&month="+(nowMonth)+"&day="+(nowDay)+"&view=0&displaymode=day&dboperation=searchappointmentday&viewall=0");
 	        return;
 	    }
-	        
     }
 
     //associate each operation with an output JSP file - displaymode
@@ -151,13 +120,19 @@
             {"updatepreference" , "providerupdatepreference.jsp"},
             {"displaymygroup" , "providerdisplaymygroup.jsp"},
             {"encounter" , "providerencounter.jsp"},
+            {"prescribe" , "providerprescribe.jsp"},
             {"encountersingle" , "providerencountersingle.jsp"},
             {"vary" , request.getParameter("displaymodevariable")==null?"":URLDecoder.decode(request.getParameter("displaymodevariable")) },
+            {"saveform" , "providersaveform.jsp"},
             {"saveencounter" , "providersaveencounter.jsp"},
             {"savebill" , "providersavebill.jsp"},
+            {"saveprescribe" , "providersaveprescribe.jsp"},
             {"savedemographicaccessory" , "providersavedemographicaccessory.jsp"},
             {"encounterhistory" , "providerencounterhistory.jsp"},
             {"savedeletetemplate" , "providertemplate.jsp"},
+            {"savetemplate" , "providersavetemplate.jsp"},
+            {"savedeleteform" , "providerform.jsp"},
+            {"save_encounterform" , "providersaveencounterform.jsp"},
             {"ar1" , "formar1_99_12.jsp"},
             {"ar2" , "formar2_99_08.jsp"},
             {"newgroup" , "providernewgroup.jsp"},

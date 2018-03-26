@@ -40,10 +40,7 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.oscarReport.ClinicalReports.ClinicalReportManager;
 import oscar.oscarReport.ClinicalReports.Denominator;
@@ -51,8 +48,6 @@ import oscar.oscarReport.ClinicalReports.Numerator;
 import oscar.oscarReport.ClinicalReports.ReportEvaluator;
 public class RunClinicalReportAction extends Action {
     
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	
     /** Creates a new instance of RunClinicalReportAction */
     public RunClinicalReportAction() {
     }
@@ -60,10 +55,6 @@ public class RunClinicalReportAction extends Action {
     public ActionForward execute(ActionMapping mapping,ActionForm form,HttpServletRequest request,HttpServletResponse response)
         throws IOException, ServletException {
         
-    	if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_report", "r", null)) {
-  		  throw new SecurityException("missing required security object (_report)");
-  	  }
-    	
         String numeratorId = request.getParameter("numerator");
         String denominatorId = request.getParameter("denominator");
          
@@ -153,7 +144,7 @@ public class RunClinicalReportAction extends Action {
         
         
         ReportEvaluator re  = new ReportEvaluator();
-        re.evaluate(LoggedInInfo.getLoggedInInfoFromSession(request), d,n,extraVal);
+        re.evaluate(d,n,extraVal);
         
         int num = re.getNumeratorCount();
         int denom = re.getDenominatorCount();

@@ -25,34 +25,24 @@
 package oscar.oscarBilling.ca.bc.data;
 
 public class InjuryLocation {
-	private String sidetype;
-	private String sidedesc;
+  private String sidetype;
+  private String sidedesc;
+  public InjuryLocation() {
+  }
 
-	public InjuryLocation(Object[] o) {
-		this(String.valueOf(o[0]), String.valueOf(o[1]));
-	}
+  public void setSidetype(String sidetype) {
+    this.sidetype = sidetype;
+  }
 
-	public InjuryLocation(String type, String description) {
-		this.sidetype = type;
-		this.sidedesc = description;
-	}
+  public void setSidedesc(String sidedesc) {
+    this.sidedesc = sidedesc;
+  }
 
-	public InjuryLocation() {
-	}
+  public String getSidetype() {
+    return sidetype;
+  }
 
-	public void setSidetype(String sidetype) {
-		this.sidetype = sidetype;
-	}
-
-	public void setSidedesc(String sidedesc) {
-		this.sidedesc = sidedesc;
-	}
-
-	public String getSidetype() {
-		return sidetype;
-	}
-
-	public String getSidedesc() {
-		return sidedesc;
-	}
+  public String getSidedesc() {
+    return sidedesc;
+  }
 }

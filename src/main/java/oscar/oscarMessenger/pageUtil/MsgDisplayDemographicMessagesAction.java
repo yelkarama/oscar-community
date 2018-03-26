@@ -41,10 +41,7 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.oscarMessenger.util.MsgDemoMap;
 
@@ -55,18 +52,12 @@ import oscar.oscarMessenger.util.MsgDemoMap;
 public class MsgDisplayDemographicMessagesAction extends Action {
 
 
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	
     public ActionForward execute(ActionMapping mapping,
 				 ActionForm form,
 				 HttpServletRequest request,
 				 HttpServletResponse response)
 	throws IOException, ServletException {
 
-    	if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_msg", "r", null)) {
-			throw new SecurityException("missing required security object (_msg)");
-		}
-    	
             // Extract attributes we will need
         
             MiscUtils.getLogger().debug("this is displayDemographicMessages.Action");
@@ -79,12 +70,11 @@ public class MsgDisplayDemographicMessagesAction extends Action {
             //Initialize forward location
             String findForward = "success";
 
-            //if(request.getParameter("providerNo")!=null & request.getParameter("userName")!=null)
-            if(request.getSession().getAttribute("msgSessionBean") == null)
+            if(request.getParameter("providerNo")!=null & request.getParameter("userName")!=null)
             {
 
                 bean = new oscar.oscarMessenger.pageUtil.MsgSessionBean();
-                bean.setProviderNo((String) request.getSession().getAttribute("user"));
+                bean.setProviderNo(request.getParameter("providerNo"));
                 bean.setUserName(request.getParameter("userName"));
                 bean.setDemographic_no(request.getParameter("demographic_no"));
 

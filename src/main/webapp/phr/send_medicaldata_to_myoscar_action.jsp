@@ -24,23 +24,6 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_phr" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_phr");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
-<%@page import="org.oscarehr.myoscar.utils.MyOscarLoggedInInfo"%>
 <%@page import="org.oscarehr.common.service.myoscar.AllergiesManager"%>
 <%@page import="org.oscarehr.common.service.myoscar.ImmunizationsManager"%>
 <%@page import="org.oscarehr.common.service.myoscar.MeasurementsManager"%>
@@ -49,34 +32,33 @@
 <%@page import="org.oscarehr.util.LocaleUtils"%>
 <%@page import="org.oscarehr.util.MiscUtils"%>
 <%@page import="org.oscarehr.phr.util.MyOscarUtils"%>
+<%@page import="org.oscarehr.phr.PHRAuthentication"%>
 <%
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-
 	String parentPage = request.getParameter("parentPage");
 
 	try
 	{
 		Integer demographicNo = Integer.parseInt(request.getParameter("demographicId"));
 		String medicalDataType = request.getParameter("medicalDataType");
-		MyOscarLoggedInInfo myOscarLoggedInInfo=MyOscarLoggedInInfo.getLoggedInInfo(session);
+		PHRAuthentication auth=MyOscarUtils.getPHRAuthentication(session);
 		
 		if ("Allergies".equals(medicalDataType)) {
-			AllergiesManager.sendAllergiesToMyOscar(loggedInInfo, myOscarLoggedInInfo, demographicNo);
+			AllergiesManager.sendAllergiesToMyOscar(auth, demographicNo);
 		}
 		else if ("Immunizations".equals(medicalDataType)) {
-			ImmunizationsManager.sendImmunizationsToMyOscar(loggedInInfo, myOscarLoggedInInfo, demographicNo);
+			ImmunizationsManager.sendImmunizationsToMyOscar(auth, demographicNo);
 		}
 		else if ("Measurements".equals(medicalDataType)) {
-			MeasurementsManager.sendMeasurementsToMyOscar(loggedInInfo, myOscarLoggedInInfo, demographicNo);
+			MeasurementsManager.sendMeasurementsToMyOscar(auth, demographicNo);
 		}
 		else if ("Prescriptions".equals(medicalDataType)) {
-			PrescriptionMedicationManager.sendPrescriptionsMedicationsToMyOscar(loggedInInfo, myOscarLoggedInInfo, demographicNo);
+			PrescriptionMedicationManager.sendPrescriptionsMedicationsToMyOscar(auth, demographicNo);
 		}
 		else {
 			response.sendRedirect(parentPage);
 		}
 		
-		WebUtils.addInfoMessage(session, LocaleUtils.getMessage(request,"ItemsHaveBeenSentToPHR"));
+		WebUtils.addInfoMessage(session, LocaleUtils.getMessage(request,"ItemsHaveBeenSentToMyOscar"));
 	}
 	catch (Exception e)
 	{

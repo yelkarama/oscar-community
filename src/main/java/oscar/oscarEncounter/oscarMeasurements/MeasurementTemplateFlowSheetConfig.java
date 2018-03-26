@@ -182,8 +182,8 @@ public class MeasurementTemplateFlowSheetConfig implements InitializingBean {
     public Hashtable<String, String> getFlowsheetDisplayNames(){
         return flowsheetDisplayNames;
     }
-    
-  
+
+
     public String addFlowsheet(MeasurementFlowSheet m ){
         if( m.getName() == null || m.getName().equals("")){
             m.setName("U"+(flowsheets.size()+1));
@@ -414,12 +414,13 @@ public class MeasurementTemplateFlowSheetConfig implements InitializingBean {
             }
             else if( e.getName().equalsIgnoreCase("item") ) {
 
-            	String item_type = h.get("measurement_type");
-            	if (item_type==null) item_type = h.get("prevention_type");
-            	
-                if (item_type != null) {
+                if (h.get("measurement_type") != null) {
 
-                    log.debug("ADDING " + item_type);
+                    log.debug("ADDING " + h.get("measurement_type"));
+                    //d.addMeasurement("" + h.get("measurement_type"));
+                    //d.addMeasurementInfo("" + h.get("measurement_type"), mType.getMeasurementType("" + h.get("measurement_type")));
+                    //d.addMeasurementFlowSheetInfo("" + h.get("measurement_type"), h);
+
 
                     int ruleCount = 0;
                     Element rules  = e.getChild("rules");
@@ -428,9 +429,12 @@ public class MeasurementTemplateFlowSheetConfig implements InitializingBean {
                        List<Recommendation> ds = new ArrayList<Recommendation>();
                        for(Element reco: recomends){
                            ruleCount++;
-                            ds.add(new Recommendation(reco, item_type+ruleCount, item_type));
+                           //Hashtable recoHash =  getRecommendationHash( reco);
+                            //ds.add(getRuleBaseElement("" + h.get("measurement_type")+ruleCount,"" + h.get("measurement_type"), recoHash));
+                            ds.add(new Recommendation(reco,"" + h.get("measurement_type")+ruleCount,"" + h.get("measurement_type")));
                        }
-                       MiscUtils.getLogger().debug(""+ item_type+ " adding ds  "+ds);
+                       MiscUtils.getLogger().debug(""+ h.get("measurement_type")+ " adding ds  "+ds);
+                       //d.addDSElement(""+ h.get("measurement_type"),ds);
                        item.setRecommendations(ds);
                     }
                     //<rules>
@@ -463,7 +467,7 @@ public class MeasurementTemplateFlowSheetConfig implements InitializingBean {
 
                     }
 
-                    log.debug(" meas "+item_type+"  size "+rs.size());
+                    log.debug(" meas "+h.get("measurement_type")+"  size "+rs.size());
 
                     if (rs.size() > 0){
                         item.setTargetColour(rs);
@@ -671,7 +675,7 @@ public class MeasurementTemplateFlowSheetConfig implements InitializingBean {
     //  <warning gt="6m">Blood Glucose hasn't been reviewed in $NUMMONTHS months</warning>
     //  <warning eq="-1">Blood Glucose hasn't been reviewed</warning>
     //</rules>
-/*
+
     private Hashtable<String,String> getRecommendationHash(Element recowarn){
         Hashtable h = new Hashtable();
         String toParse = recowarn.getAttributeValue("monthrange");
@@ -685,8 +689,8 @@ public class MeasurementTemplateFlowSheetConfig implements InitializingBean {
         }
         return h;
     }
-*/
-    protected Element getRuleBaseElement(String ruleName,String measurement,Hashtable<String,String> recowarn){
+
+    private Element getRuleBaseElement(String ruleName,String measurement,Hashtable<String,String> recowarn){
 
         log.debug("LOADING RULES - getRuleBaseElement");
                     ArrayList<DSCondition> list = new ArrayList<DSCondition>();
@@ -710,7 +714,7 @@ public class MeasurementTemplateFlowSheetConfig implements InitializingBean {
                     list.add(new DSCondition("getLastDateRecordedInMonths", measurement, ">=", betweenVals[0]));
                     list.add(new DSCondition("getLastDateRecordedInMonths", measurement, "<=", betweenVals[1]));
                     if ( recowarn.get("text") == null){
-                         consequence ="m.add"+consequenceType+"(\""+measurement+"\",\""+measurement+"\" 1 hasn't been reviewed in \"+m.getLastDateRecordedInMonths(\""+measurement+"\")+\" months\";";
+                         consequence ="m.add"+consequenceType+"(\""+measurement+"\",\""+measurement+"\" hasn't been reviewed in \"+m.getLastDateRecordedInMonths(\""+measurement+"\")+\" months\";";
                     }
                 }
 
@@ -722,7 +726,7 @@ public class MeasurementTemplateFlowSheetConfig implements InitializingBean {
 
                 list.add(new DSCondition("getLastDateRecordedInMonths", measurement, ">", ""+gt));
                 if ( recowarn.get("text") == null){
-                         consequence ="m.add"+consequenceType+"(\""+measurement+"\",\""+measurement+"\" 2 hasn't been reviewed in \"+m.getLastDateRecordedInMonths(\""+measurement+"\")+\" months\";";
+                         consequence ="m.add"+consequenceType+"(\""+measurement+"\",\""+measurement+"\" hasn't been reviewed in \"+m.getLastDateRecordedInMonths(\""+measurement+"\")+\" months\";";
                 }
             }else if (toParse.indexOf("&lt;") != -1  ||  toParse.indexOf("<") != -1 ){ // less than style
                 toParse = toParse.replaceFirst("&lt;","");
@@ -731,14 +735,14 @@ public class MeasurementTemplateFlowSheetConfig implements InitializingBean {
                 int lt = Integer.parseInt(toParse);
                 list.add(new DSCondition("getLastDateRecordedInMonths", measurement, "<=", ""+lt));
                 if ( recowarn.get("text") == null){
-                         consequence ="m.add"+consequenceType+"(\""+measurement+"\",\""+measurement+"\" 3 hasn't been reviewed in \"+m.getLastDateRecordedInMonths(\""+measurement+"\")+\" months\";";
+                         consequence ="m.add"+consequenceType+"(\""+measurement+"\",\""+measurement+"\" hasn't been reviewed in \"+m.getLastDateRecordedInMonths(\""+measurement+"\")+\" months\";";
                     }
 
             }else if (!toParse.equals("")){ // less than style
                 int eq = Integer.parseInt(toParse);
                 list.add(new DSCondition("getLastDateRecordedInMonths", measurement, "==", ""+eq));
                 if ( recowarn.get("text") == null){
-                         consequence ="m.add"+consequenceType+"(\""+measurement+"\",\""+measurement+"\" 4 hasn'taaaaa been reviewed in \"+m.getLastDateRecordedInMonths(\""+measurement+"\")+\" months\";";
+                         consequence ="m.add"+consequenceType+"(\""+measurement+"\",\""+measurement+"\" hasn'taaaaa been reviewed in \"+m.getLastDateRecordedInMonths(\""+measurement+"\")+\" months\";";
                     }
             }
 

@@ -22,23 +22,6 @@
     Toronto, Ontario, Canada
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_report,_admin.reporting" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_report&type=_admin.reporting");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.util.HashMap"%>
 <%@page import="java.util.List"%>
@@ -47,8 +30,6 @@ if(!authed) {
 <%@page import="org.oscarehr.web.MisReportUIBean.DataRow"%>
 <%@page import="java.util.GregorianCalendar"%>
 <%
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-   		 
 	int startYear = Integer.parseInt(request.getParameter("startYear"));
 	int startMonth = Integer.parseInt(request.getParameter("startMonth"));
 	int endYear = Integer.parseInt(request.getParameter("endYear"));
@@ -65,7 +46,7 @@ if(!authed) {
 	if ("functionalCentre".equals(reportBy))
 	{
 		String functionalCentreId=request.getParameter("functionalCentreId");
-		misReportUIBean=new MisReportUIBean(loggedInInfo, functionalCentreId, startDate, actualEndDate);
+		misReportUIBean=new MisReportUIBean(functionalCentreId, startDate, actualEndDate);
 	}
 	else if ("programs".equals(reportBy))
 	{

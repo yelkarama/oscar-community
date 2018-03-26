@@ -26,8 +26,8 @@
 package org.oscarehr.ws.transfer_objects;
 
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.TimeZone;
 
 import org.oscarehr.common.model.Appointment;
 import org.oscarehr.common.model.Appointment.BookingSource;
@@ -36,9 +36,6 @@ import org.springframework.beans.BeanUtils;
 import oscar.util.DateUtils;
 
 public final class AppointmentTransfer {
-	
-	private static final TimeZone GMT_TIME_ZONE=TimeZone.getTimeZone("GMT");
-	
 	private Integer id;
 	private String providerNo;
 	/**
@@ -267,54 +264,31 @@ public final class AppointmentTransfer {
 		return (appointment);
 	}
 
-	public static AppointmentTransfer toTransfer(Appointment appointment, boolean useGMTTime) {
+	public static AppointmentTransfer toTransfer(Appointment appointment) {
 		if (appointment==null) return(null);
 		
 		AppointmentTransfer appointmentTransfer = new AppointmentTransfer();
-		
+
 		String[] ignored = { "appointmentDate", "startTime", "endTime", "createDateTime", "updateDateTime", "creatorSecurityId" };
 		BeanUtils.copyProperties(appointment, appointmentTransfer, ignored);
 
-		Calendar cal = DateUtils.toGregorianCalendar(appointment.getAppointmentDate(), appointment.getStartTime());
-		cal=setToGMTIfRequired(cal,useGMTTime);
+		GregorianCalendar cal = DateUtils.toGregorianCalendar(appointment.getAppointmentDate(), appointment.getStartTime());
 		appointmentTransfer.setAppointmentStartDateTime(cal);
 
 		cal = DateUtils.toGregorianCalendar(appointment.getAppointmentDate(), appointment.getEndTime());
-		cal=setToGMTIfRequired(cal,useGMTTime);
 		appointmentTransfer.setAppointmentEndDateTime(cal);
 
-		cal=DateUtils.toGregorianCalendar(appointment.getCreateDateTime());
-		cal=setToGMTIfRequired(cal,useGMTTime);
-		appointmentTransfer.setCreateDateTime(cal);
-		
-		cal=DateUtils.toGregorianCalendar(appointment.getUpdateDateTime());
-		cal=setToGMTIfRequired(cal,useGMTTime);
-		appointmentTransfer.setUpdateDateTime(cal);
+		appointmentTransfer.setCreateDateTime(DateUtils.toGregorianCalendar(appointment.getCreateDateTime()));
+		appointmentTransfer.setUpdateDateTime(DateUtils.toGregorianCalendar(appointment.getUpdateDateTime()));
 
 		return (appointmentTransfer);
 	}
 
-	public static Calendar setToGMTIfRequired(Calendar cal, boolean useGMTTime)
-	{
-		if (useGMTTime)
-		{
-			// must materialise time before setting zone or it thinks you're setting that time in that zone.
-			cal.getTimeInMillis();
-			
-			cal.setTimeZone(GMT_TIME_ZONE);
-			
-			// materialise value again so results are as expected.
-			cal.getTimeInMillis();
-		}
-		
-		return(cal);
-	}
-	
-	public static AppointmentTransfer[] toTransfers(List<Appointment> appointments, boolean useGMTTime) {
+	public static AppointmentTransfer[] toTransfer(List<Appointment> appointments) {
 		AppointmentTransfer[] result = new AppointmentTransfer[appointments.size()];
 
 		for (int i = 0; i < appointments.size(); i++) {
-			result[i] = toTransfer(appointments.get(i), useGMTTime);
+			result[i] = toTransfer(appointments.get(i));
 		}
 
 		return (result);

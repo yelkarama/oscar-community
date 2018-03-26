@@ -24,20 +24,7 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_eChart" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_eChart");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
+<%-- <%@page %>  --%>
 
 <%@page import="java.net.URLEncoder"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
@@ -59,7 +46,25 @@ if(!authed) {
 
 <h3>&nbsp;<bean:message key="oscarEncounter.Index.clinicalModules" /></h3>
 <ul id="ModuleList">
-
+	<%-- <li>               
+                        <%
+                            winName = "Master" + bean.demographicNo;
+                            if (vLocale.getCountry().equals("BR")) {                            
+                        %>
+                            <a class="links" onmouseover="this.className='linkhover'"  onmouseout="this.className='links'" href="javascript: function myFunction() {return false; }" onClick="popupPage(700,1000,'<%=winName%>','../demographic/demographiccontrol.jsp?demographic_no=<%=bean.demographicNo%>&displaymode=edit&dboperation=search_detail_ptbr','master')"
+                            title="<bean:message key="provider.appointmentProviderAdminDay.msgMasterFile"/>"><bean:message key="global.master"/></a>
+                        <%}else{%>
+                            <a class="links" onmouseover="this.className='linkhover'"  onmouseout="this.className='links'" href="javascript: function myFunction() {return false; }" onClick="popupPage(700,1000,'<%=winName%>','../demographic/demographiccontrol.jsp?demographic_no=<%=bean.demographicNo%>&displaymode=edit&dboperation=search_detail','master')"
+                            title="<bean:message key="provider.appointmentProviderAdminDay.msgMasterFile"/>"><bean:message key="global.master"/></a>
+                        <%}%>
+                    </li>
+                     <li>
+                        <%
+                           winName = "Consultations" + bean.demographicNo;
+                        %>
+                        <a class="links" onmouseover="this.className='linkhover'"  onmouseout="this.className='links'" href=# onClick="popupPage(700,960,'<%=winName%>','<rewrite:reWrite jspPage="oscarConsultationRequest/DisplayDemographicConsultationRequests.jsp"/>?de=<%=bean.demographicNo%>');return false;"><bean:message key="global.consultations"/></a>
+                    </li>
+                    --%>
 	<li><oscar:oscarPropertiesCheck property="PREVENTION" value="yes">
 		<%
                                winName = "Prevention" + bean.demographicNo;
@@ -79,7 +84,7 @@ if(!authed) {
                         <%
                            winName = "AddTickler" + bean.demographicNo;
                         %>
-                        <a class="links" onmouseover="this.className='linkhover'"  onmouseout="this.className='links'" href=# onClick="popupPage(580,800,'<%=winName%>','../appointment/appointmentcontrol.jsp?keyword=<%=URLEncoder.encode(bean.patientLastName+","+bean.patientFirstName)%>&displaymode=<%=URLEncoder.encode("Search ")%>&search_mode=search_name&originalpage=<%=URLEncoder.encode("../tickler/ticklerAdd.jsp")%>&orderby=last_name&appointment_date=2000-01-01&limit1=0&limit2=5&status=t&start_time=10:45&end_time=10:59&duration=15&dboperation=search_demorecord&type=&demographic_no=<%=bean.demographicNo%>');return false;"><bean:message key="oscarEncounter.Index.addTickler"/></a>                        
+                        <a class="links" onmouseover="this.className='linkhover'"  onmouseout="this.className='links'" href=# onClick="popupPage(580,800,'<%=winName%>','../appointment/appointmentcontrol.jsp?keyword=<%=URLEncoder.encode(bean.patientLastName+","+bean.patientFirstName)%>&displaymode=<%=URLEncoder.encode("Search ")%>&search_mode=search_name&originalpage=<%=URLEncoder.encode("../tickler/ticklerAdd.jsp")%>&orderby=last_name&appointment_date=2000-01-01&limit1=0&limit2=5&status=t&start_time=10:45&end_time=10:59&duration=15&dboperation=add_apptrecord&type=&demographic_no=<%=bean.demographicNo%>');return false;"><bean:message key="oscarEncounter.Index.addTickler"/></a>                        
                         <%
                            winName = "ViewTickler" + bean.demographicNo;
                         %>                        

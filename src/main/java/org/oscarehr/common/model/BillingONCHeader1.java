@@ -19,41 +19,32 @@
 package org.oscarehr.common.model;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.PostPersist;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import org.apache.cxf.common.util.StringUtils;
+import org.oscarehr.PMmodule.utility.Utility;
 
 @Entity
 @Table(name = "billing_on_cheader1")
 public class BillingONCHeader1 extends AbstractModel<Integer> implements Serializable {
 
+	/**
+	 *
+	 */
 	private static final long serialVersionUID = 1L;
-        
-        public static final String SETTLED = "S";
-        public static final String DELETED = "D";
-        
 	@Id
-        @GeneratedValue(strategy = GenerationType.AUTO)
-        private Integer id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Integer id;
 	@Column(name = "header_id", nullable = false)
 	private Integer headerId;
 	@Column(name = "transc_id")
@@ -91,8 +82,8 @@ public class BillingONCHeader1 extends AbstractModel<Integer> implements Seriali
 	private String billingDate = null;
 	@Column(name = "billing_time")
 	private String billingTime = null; //time format
-	private BigDecimal total = null;
-	private BigDecimal paid = null;
+	private String total = null;
+	private String paid = null;
 	private String status = null;
 	@Column(name = "comment1")
 	private String comment = null;
@@ -106,20 +97,14 @@ public class BillingONCHeader1 extends AbstractModel<Integer> implements Seriali
 	private String apptProviderNo = null;
 	@Column(name = "asstProvider_no")
 	private String asstProviderNo = null;
-	private String creator = null;        
+	private String creator = null;
 	@Column(name = "timestamp1", insertable = false, updatable = false)
 	@Temporal(TemporalType.TIMESTAMP)
-        private Date timestamp;
-	
-	private Integer programNo;
-	
+	private Date timestamp;
 	private String clinic = null;
-        @OneToMany(cascade=CascadeType.ALL, fetch=FetchType.EAGER)
-        @JoinColumn(name="ch1_id", referencedColumnName="id")
-        private List<BillingONItem>billingItems = new ArrayList<BillingONItem>(); 
 
 	public BillingONCHeader1() {}
-	
+
 	public BillingONCHeader1(Integer headerId, String transcId, String recId,
 			String hin, String ver, String dob, String payProgram,
 			String payee, String refNum, String faciltyNum, Date admissionDate,
@@ -129,7 +114,7 @@ public class BillingONCHeader1 extends AbstractModel<Integer> implements Seriali
 			Date billingDate, Date billingTime, Integer total, Integer paid,
 			String status, String comment, String visitType,
 			String providerOhipNo, String providerRmaNo, String apptProviderNo,
-			String asstProviderNo, String creator, Date timestamp, String clinic, Integer programNo) {
+			String asstProviderNo, String creator, Date timestamp, String clinic) {
 		super();
 		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 		this.headerId = headerId;
@@ -154,8 +139,8 @@ public class BillingONCHeader1 extends AbstractModel<Integer> implements Seriali
 		this.province = province;
 		this.billingDate = df.format(billingDate);
 		this.billingTime = df.format(billingTime);
-		this.total = BigDecimal.ZERO;
-		this.paid = BigDecimal.ZERO;
+		this.total = Utility.toCurrency(total);
+		this.paid = Utility.toCurrency(paid);
 		this.status = status;
 		this.comment = comment;
 		this.visitType = visitType;
@@ -166,61 +151,9 @@ public class BillingONCHeader1 extends AbstractModel<Integer> implements Seriali
 		this.creator = creator;
 		this.timestamp = timestamp;
 		this.clinic = clinic;
-		this.programNo = programNo;
 	}
 
-	public BillingONCHeader1(Integer headerId, String transcId, String recId,
-			String hin, String ver, String dob, String payProgram,
-			String payee, String refNum, String faciltyNum, Date admissionDate,
-			String refLabNum, String manReview, String location,
-			Integer demographicNo, String providerNo, Integer appointmentNo,
-			String demographicName, String sex, String province,
-			Date billingDate, Date billingTime, Integer total, Integer paid,
-			String status, String comment, String visitType,
-			String providerOhipNo, String providerRmaNo, String apptProviderNo,
-			String asstProviderNo, String creator, Date timestamp, String clinic,
-                        List<BillingONItem> billingItems, Integer programNo) {
-		super();
-		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-		this.headerId = headerId;
-		this.transcId = transcId;
-		this.recId = recId;
-		this.hin = hin;
-		this.ver = ver;
-		this.dob = dob;
-		this.payProgram = payProgram;
-		this.payee = payee;
-		this.refNum = refNum;
-		this.faciltyNum = faciltyNum;
-		this.admissionDate = df.format(admissionDate);
-		this.refLabNum = refLabNum;
-		this.manReview = manReview;
-		this.location = location;
-		this.demographicNo = demographicNo;
-		this.providerNo = providerNo;
-		this.appointmentNo = appointmentNo;
-		this.demographicName = demographicName;
-		this.sex = sex;
-		this.province = province;
-		this.billingDate = df.format(billingDate);
-		this.billingTime = df.format(billingTime);
-		this.total = BigDecimal.ZERO;
-		this.paid = BigDecimal.ZERO;
-		this.status = status;
-		this.comment = comment;
-		this.visitType = visitType;
-		this.providerOhipNo = providerOhipNo;
-		this.providerRmaNo = providerRmaNo;
-		this.apptProviderNo = apptProviderNo;
-		this.asstProviderNo = asstProviderNo;
-		this.creator = creator;
-		this.timestamp = timestamp;
-		this.clinic = clinic;
-        this.billingItems = billingItems;
-        this.programNo = programNo;
-	}
 
-        @Override
 	public Integer getId() {
 		return id;
 	}
@@ -306,7 +239,6 @@ public class BillingONCHeader1 extends AbstractModel<Integer> implements Seriali
 	}
 
 	public Date getAdmissionDate() throws ParseException  {
-		if(StringUtils.isEmpty(this.admissionDate)) return null;
 		return (new SimpleDateFormat("yyyy-MM-dd")).parse(this.admissionDate);
 	}
 
@@ -386,46 +318,40 @@ public class BillingONCHeader1 extends AbstractModel<Integer> implements Seriali
 		this.province = province;
 	}
 
-	public Date getBillingDate(){
-		try {
-	        return (new SimpleDateFormat("yyyy-MM-dd")).parse(this.billingDate);
-        } catch (ParseException e) {
-	        // TODO Auto-generated catch block
-	        return null;
-        }
+	public Date getBillingDate() throws ParseException {
+		return (new SimpleDateFormat("yyyy-MM-dd")).parse(this.billingDate);
 	}
 
 	public void setBillingDate(Date billingDate) {
 		this.billingDate = (new SimpleDateFormat("yyyy-MM-dd")).format(billingDate);
 	}
 
-	public Date getBillingTime(){
-		try {
-	        return (new SimpleDateFormat("HH:mm:ss")).parse(this.billingTime);
-        } catch (ParseException e) {
-	        // TODO Auto-generated catch block
-	        return null;
-        }
+	public Date getBillingTime() throws ParseException {
+		return (new SimpleDateFormat("HH:mm:ss")).parse(this.billingTime);
 	}
 
 	public void setBillingTime(Date billingTime) {
 		this.billingTime = (new SimpleDateFormat("HH:mm:ss")).format(billingTime);
 	}
 
-	public BigDecimal getTotal() {
-		return this.total;
+	public Long getTotal() {
+		if(this.total != null && this.total.length()>0) return Math.round(Double.parseDouble(this.total)*100);
+		else return 0L;
 	}
 
-	public void setTotal(BigDecimal total) {
-		this.total = total;
+	public void setTotal(Long total) {
+		if(total != null && this.total.length()>0) this.total = Utility.toCurrency(total/100);
+		else this.total = "0.00";
 	}
 
-	public BigDecimal getPaid() {
-		return this.paid;
+	public Long getPaid() {
+		if(this.paid != null && this.paid.length()>0) return Math.round(Double.parseDouble(this.paid)*100);
+		else return 0L;
 	}
 
-	public void setPaid(BigDecimal paid) {
-		this.paid = paid;
+	public void setPaid(Long paid) {
+		if(paid != null && this.paid.length()>0) this.paid = Utility.toCurrency(paid/100);
+		else this.paid = "0.00";
 	}
 
 	public String getStatus() {
@@ -503,46 +429,20 @@ public class BillingONCHeader1 extends AbstractModel<Integer> implements Seriali
 	public void setClinic(String clinic) {
 		this.clinic = clinic;
 	}
-        
-	
-    public Integer getProgramNo() {
-		return programNo;
-	}
 
-	public void setProgramNo(Integer programNo) {
-		this.programNo = programNo;
-	}
+	public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-	public List<BillingONItem> getBillingItems() {
-            return billingItems;
-        }
+        BillingONCHeader1 bill = (BillingONCHeader1) o;
 
-        public void setBillingItems(List<BillingONItem> billingItems) {
-            this.billingItems = billingItems;
-        }
-        
-        @PostPersist
-        public void postPersist() {            
-            for (BillingONItem b : this.billingItems) {
-                b.setCh1Id(this.id);
-            }                        
-        }
-                                                     
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+        if (id != null ? !id.equals(bill.id) : bill.id != null) return false;
 
-            BillingONCHeader1 bill = (BillingONCHeader1) o;
+        return true;
+    }
 
-            if (id != null ? !id.equals(bill.id) : bill.id != null) return false;
+    public int hashCode() {
+        return (id != null ? id.hashCode() : 0);
+    }
 
-            return true;
-        }
-        
-        @Override
-        public int hashCode() {
-            return (id != null ? id.hashCode() : 0);
-        }
-        
 }

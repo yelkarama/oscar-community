@@ -37,6 +37,7 @@ import org.oscarehr.PMmodule.dao.ProgramProviderDAO;
 import org.oscarehr.PMmodule.model.ProgramAccess;
 import org.oscarehr.PMmodule.model.ProgramProvider;
 import org.oscarehr.casemgmt.dao.RoleProgramAccessDAO;
+import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.SpringUtils;
 
 import com.quatro.model.security.Secrole;
@@ -48,7 +49,7 @@ public class CaseManagementIssue extends BaseObject {
 	private RoleProgramAccessDAO roleProgramAccessDAO=(RoleProgramAccessDAO)SpringUtils.getBean("RoleProgramAccessDAO");
 	
 	protected Long id;
-	protected Integer demographic_no;
+	protected String demographic_no;
 	protected long issue_id;
 	protected boolean acute;
 	// protected boolean medical_diagnosis;
@@ -57,7 +58,7 @@ public class CaseManagementIssue extends BaseObject {
 	// protected boolean active;
 	protected boolean resolved;
 	protected String type;
-	protected Date update_date = new Date();
+	protected Date update_date;
 	protected Set notes = new HashSet();
 	protected Issue issue;
 	protected Integer program_id = null;
@@ -127,11 +128,11 @@ public class CaseManagementIssue extends BaseObject {
 		this.certain = certain;
 	}
 
-	public Integer getDemographic_no() {
+	public String getDemographic_no() {
 		return demographic_no;
 	}
 
-	public void setDemographic_no(Integer demographic_no) {
+	public void setDemographic_no(String demographic_no) {
 		this.demographic_no = demographic_no;
 	}
 
@@ -222,14 +223,14 @@ public class CaseManagementIssue extends BaseObject {
 		this.program_id = program_id;
 	}
 
-	public boolean isWriteAccess(String providerNo, int programId)
+	public boolean isWriteAccess(int programId)
 	{
-		Boolean result = calculateWriteAccess(providerNo, programId);
+		Boolean result = calculateWriteAccess(programId);
 		return(result);
 	}
 
-	private boolean calculateWriteAccess(String providerNo, int programId) {
-	    List<ProgramProvider> ppList = programProviderDao.getProgramProviderByProviderProgramId(providerNo, new Long(programId));
+	private boolean calculateWriteAccess(int programId) {
+	    List<ProgramProvider> ppList = programProviderDao.getProgramProviderByProviderProgramId(LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo(), new Long(programId));
 	    if (ppList == null || ppList.isEmpty()) {
 	    	return(false);
 	    }

@@ -26,7 +26,6 @@ import java.util.List;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
-import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.dao.HL7HandlerMSHMappingDao;
 import org.oscarehr.common.dao.Hl7TextInfoDao;
 import org.oscarehr.common.model.HL7HandlerMSHMapping;
@@ -131,14 +130,9 @@ public class TDISHandler implements MessageHandler {
 
 					for (int l = 0; l < observation_reps; l++) {
 						OBX obx = obsr.getOBSERVATION(l).getOBX();
-						if (obx.getObservationIdentifier().getText().getValue() != null) {
-							if ((obxName = obx.getObservationIdentifier().getText().getValue()).indexOf("ITS") != -1
-									|| obxName.indexOf("DEPARTMENTAL") != -1) {
-								isITS = true;
-							}
-						} else {
-							obx.getObservationIdentifier().getText().setValue("");
-							obx.getValueType().setValue("");
+						if ((obxName = obx.getObservationIdentifier().getText().getValue()).indexOf("ITS") != -1
+								|| obxName.indexOf("DEPARTMENTAL") != -1) {
+							isITS = true;
 						}
 						obxSegs.add(obx);
 					}
@@ -399,7 +393,7 @@ public class TDISHandler implements MessageHandler {
 	 * @param i
 	 * @param j
 	 * @param its
-	 * @return String obx result
+	 * @return
 	 */
 	@SuppressWarnings("unchecked")
 	public String getOBXResult(int i, int j, boolean its) {
@@ -880,13 +874,30 @@ public class TDISHandler implements MessageHandler {
 		String docNames = "";
 
 		try {
-			int ccs = obrSegKeySet.get(0).getResultCopiesToReps();
-			for (int j=0; j<ccs;j++){
-				String name = getFullDocName(obrSegKeySet.get(0).getResultCopiesTo(j));
-				if (name != null && !name.equals("")) {
-					if (j>0) docNames +=", "+name;
-					else docNames +=name;
-				}
+			Terser terser = new Terser(msg);
+
+			String givenName = terser.get("/.ZDR(0)-4-1");
+			String middleName = terser.get("/.ZDR(0)-4-3");
+			String familyName = terser.get("/.ZDR(0)-4-2");
+
+			int i = 1;
+			while (givenName != null) {
+
+				if (i == 1)
+					docNames = givenName;
+				else
+					docNames = docNames + ", " + givenName;
+
+				if (middleName != null)
+					docNames = docNames + " " + middleName;
+				if (familyName != null)
+					docNames = docNames + " " + familyName;
+
+				givenName = terser.get("/.ZDR(" + i + ")-4-1");
+				middleName = terser.get("/.ZDR(" + i + ")-4-3");
+				familyName = terser.get("/.ZDR(" + i + ")-4-2");
+
+				i++;
 			}
 
 			return (docNames);
@@ -900,7 +911,6 @@ public class TDISHandler implements MessageHandler {
 	}
 
 	public ArrayList<String> getDocNums() {
-		ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
 		String docNum = "";
 		ArrayList<String> nums = new ArrayList<String>();
 		int i = 0;
@@ -908,16 +918,17 @@ public class TDISHandler implements MessageHandler {
 
 			// requesting client number
 			docNum = obrSegKeySet.get(0).getOrderingProvider(i).getIDNumber().getValue();
-			String billingNum = providerDao.getProviderByPractitionerNo(docNum).getOhipNo();
-			nums.add(billingNum == null?docNum:billingNum);
+			nums.add(docNum);
+
 			// cc'd docs numbers
-			int ccs = obrSegKeySet.get(0).getResultCopiesToReps();
-			for (int j=0; j<ccs;j++){
-				String num = obrSegKeySet.get(0).getResultCopiesTo(j).getIDNumber().getValue();
-				if (num != null && !num.equals("") && !num.equals(docNum)) {
-					billingNum = providerDao.getProviderByPractitionerNo(num).getOhipNo();
-					nums.add(billingNum == null?num:billingNum);
-				}
+			Terser terser = new Terser(msg);
+			String num = terser.get("/.ZDR(0)-3-1");
+			i = 1;
+			while (num != null) {
+				if (!num.equals(docNum))
+					nums.add(num);
+				num = terser.get("/.ZDR(" + i + ")-3-1");
+				i++;
 			}
 
 		} catch (Exception e) {
@@ -1019,8 +1030,5 @@ public class TDISHandler implements MessageHandler {
 	    // TODO Auto-generated method stub
 	    return null;
     }
-    public String getNteForPID(){
-    	
-    	return "";
-    }
+	
 }

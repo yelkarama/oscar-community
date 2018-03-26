@@ -36,6 +36,7 @@ public class IntakeNodeLabel implements Serializable {
 
   // constructors
 	public IntakeNodeLabel() {
+		initialize();
 	}
 
 	/**
@@ -43,6 +44,7 @@ public class IntakeNodeLabel implements Serializable {
 	 */
 	public IntakeNodeLabel(Integer id) {
 		this.setId(id);
+		initialize();
 	}
 
 	/**
@@ -52,6 +54,7 @@ public class IntakeNodeLabel implements Serializable {
 
 		this.setId(id);
 		this.setLabel(label);
+		initialize();
 	}
 
 	@Override
@@ -59,10 +62,13 @@ public class IntakeNodeLabel implements Serializable {
 		return new StringBuilder(REF).append("(").append(getId()).append(", ").append(getLabel()).append(")").toString();
 	}
 
+    protected void initialize() {
+    }
+
     /**
 	 * Return the unique identifier of this class
      *
-     *  generator-class="native" column="intake_node_label_id"
+     * @hibernate.id generator-class="native" column="intake_node_label_id"
      */
     public Integer getId() {
         return id;

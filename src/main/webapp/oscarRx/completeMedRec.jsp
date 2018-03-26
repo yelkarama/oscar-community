@@ -24,46 +24,28 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_measurement" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_measurement");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
+<%@ page language="java"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
 
 <%@ page import="org.oscarehr.util.LoggedInInfo" %>
-<%@ page import="org.oscarehr.common.model.Measurement" %>
-<%@ page import="org.oscarehr.common.dao.MeasurementDao" %>
+<%@ page import="oscar.oscarEncounter.oscarMeasurements.model.Measurements" %>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
-
+<%@ page import="oscar.oscarEncounter.oscarMeasurements.dao.MeasurementsDao" %>
 
 <%
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-	String providerNo=loggedInInfo.getLoggedInProviderNo();
-
-	Measurement m = new Measurement();
+	String providerNo = LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo();
+	Measurements m = new Measurements();
 	m.setComments("");
 	m.setDataField("Yes");
-	m.setCreateDate(new java.util.Date());
+	m.setDateEntered(new java.util.Date());
 	m.setDateObserved(new java.util.Date());
-	m.setDemographicId(Integer.parseInt(request.getParameter("demographicNo")));
+	m.setDemographicNo(Integer.parseInt(request.getParameter("demographicNo")));
 	m.setMeasuringInstruction("");
 	m.setProviderNo(providerNo);
 	m.setType("medr");
-	m.setAppointmentNo(0);
 	
-	MeasurementDao dao = SpringUtils.getBean(MeasurementDao.class);
-	dao.persist(m);
+	MeasurementsDao dao = (MeasurementsDao)SpringUtils.getBean("measurementsDao");
+	dao.addMeasurements(m);
 %>

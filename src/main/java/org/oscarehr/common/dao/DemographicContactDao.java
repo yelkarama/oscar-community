@@ -47,16 +47,7 @@ public class DemographicContactDao extends AbstractDao<DemographicContact>{
 		List<DemographicContact> dContacts = query.getResultList();
 		return dContacts;
 	}
-	
-	public List<DemographicContact> findActiveByDemographicNo(int demographicNo) {
-		String sql = "select x from " + this.modelClass.getName() + " x where x.demographicNo=? and x.deleted=false and x.active=1";
-		Query query = entityManager.createQuery(sql);
-		query.setParameter(1, demographicNo);
-		@SuppressWarnings("unchecked")
-		List<DemographicContact> dContacts = query.getResultList();
-		return dContacts;
-	}
-	
+
 	public List<DemographicContact> findByDemographicNoAndCategory(int demographicNo,String category) {
 		String sql = "select x from " + this.modelClass.getName() + " x where x.demographicNo=? and x.category=? and x.deleted=false";
 		Query query = entityManager.createQuery(sql);
@@ -72,18 +63,6 @@ public class DemographicContactDao extends AbstractDao<DemographicContact>{
 		Query query = entityManager.createQuery(sql);
 		query.setParameter(1, demographicNo);
 		query.setParameter(2, new Integer(contactId).toString());
-		@SuppressWarnings("unchecked")
-		List<DemographicContact> dContacts = query.getResultList();
-		return dContacts;
-	}
-	
-	public List<DemographicContact> findAllByContactIdAndCategoryAndType(int contactId, String category, int type) {
-		String sql = "select x from " + this.modelClass.getName() + " x where x.contactId = ? and x.category = ? and x.type = ?";
-		Query query = entityManager.createQuery(sql);
-		query.setParameter(1, new Integer(contactId).toString());
-		query.setParameter(2, category);
-		query.setParameter(3, type);
-		
 		@SuppressWarnings("unchecked")
 		List<DemographicContact> dContacts = query.getResultList();
 		return dContacts;

@@ -35,7 +35,7 @@ import org.oscarehr.util.SpringUtils;
 
 public class PharmacyInfoDaoTest extends DaoTestFixtures {
 
-	protected PharmacyInfoDao dao = (PharmacyInfoDao)SpringUtils.getBean("pharmacyInfoDao");
+	private PharmacyInfoDao dao = (PharmacyInfoDao)SpringUtils.getBean("pharmacyInfoDao");
 
 	public PharmacyInfoDaoTest() {
 	}
@@ -74,10 +74,9 @@ public class PharmacyInfoDaoTest extends DaoTestFixtures {
 		dao.persist(entity);
 		assertNotNull(entity.getId());
 
-		dao.deletePharmacy(entity.getId());
+		dao.deletePharmacy(String.valueOf(entity.getId2()));
 
-		Character status = PharmacyInfo.DELETED;
-		assertEquals(status,dao.find(entity.getId()).getStatus());
+		assertEquals("0",dao.find(entity.getId()).getStatus());
 	}
 
 	@Test
@@ -87,7 +86,7 @@ public class PharmacyInfoDaoTest extends DaoTestFixtures {
 		dao.persist(entity);
 		assertNotNull(entity.getId());
 
-		PharmacyInfo obj = dao.getPharmacy(entity.getId());
+		PharmacyInfo obj = dao.getPharmacy(String.valueOf(entity.getId2()));
 
 		assertEquals(obj.getId(),entity.getId());
 	}
@@ -99,7 +98,7 @@ public class PharmacyInfoDaoTest extends DaoTestFixtures {
 		dao.persist(entity);
 		assertNotNull(entity.getId());
 
-		PharmacyInfo obj = dao.getPharmacyByRecordID(entity.getId());
+		PharmacyInfo obj = dao.getPharmacyByRecordID(String.valueOf(entity.getId()));
 
 		assertEquals(obj.getId(),entity.getId());
 	}
@@ -109,20 +108,20 @@ public class PharmacyInfoDaoTest extends DaoTestFixtures {
 		int size = dao.getAllPharmacies().size();
 		PharmacyInfo entity = new PharmacyInfo();
 		EntityDataGenerator.generateTestDataForModelClass(entity);
-		entity.setStatus(PharmacyInfo.ACTIVE);
+		entity.setStatus("1");
 		dao.persist(entity);
 		assertNotNull(entity.getId());
 		entity = new PharmacyInfo();
 		EntityDataGenerator.generateTestDataForModelClass(entity);
-		entity.setStatus(PharmacyInfo.ACTIVE);
+		entity.setStatus("1");
 		dao.persist(entity);
 		assertNotNull(entity.getId());
 		entity = new PharmacyInfo();
 		EntityDataGenerator.generateTestDataForModelClass(entity);
-		entity.setStatus(PharmacyInfo.ACTIVE);
+		entity.setStatus("0");
 		dao.persist(entity);
 		assertNotNull(entity.getId());
 
-		assertEquals(dao.getAllPharmacies().size(),size+3);
+		assertEquals(dao.getAllPharmacies().size(),size+2);
 	}
 }

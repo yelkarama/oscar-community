@@ -24,22 +24,9 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
+  if(session.getValue("user") == null) response.sendRedirect("../../logout.jsp");
 %>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin.measurements" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../securityError.jsp?type=_admin.measurements");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-
 <%@ page import="java.util.*,oscar.oscarReport.pageUtil.*"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -56,6 +43,7 @@ if(!authed) {
      document.forms[0].forward.value=target;
 };
 </script>
+
 </head>
 
 <body class="BodyStyle" vlink="#0000FF">
@@ -67,7 +55,7 @@ if(!authed) {
 		<tr class="MainTableTopRow">
 			<td class="MainTableTopRowLeftColumn"><bean:message
 				key="oscarEncounter.Measurements.msgMeasurements" /></td>
-			<td class="MainTableTopRowRightColumn">
+			<td class="MainTableTopRowRightColumn" width="400">
 			<table class="TopStatusBar">
 				<tr>
 					<td><bean:message
@@ -79,7 +67,7 @@ if(!authed) {
 		<tr>
 			<td class="MainTableLeftColumn"></td>
 			<td class="MainTableRightColumn">
-			<table border=0 cellspacing=4 width=800>
+			<table border=0 cellspacing=4 width=700>
 				<tr>
 					<td>
 					<table>

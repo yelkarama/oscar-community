@@ -171,7 +171,6 @@ import org.apache.xmlbeans.XmlCalendar;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.tool.PrettyPrinter;
-import org.oscarehr.util.LoggedInInfo;
 import org.w3c.dom.Node;
 
 import oscar.OscarProperties;
@@ -184,13 +183,13 @@ import oscar.oscarProvider.data.ProviderData;
 
 public class XMLTransferUtil
 {
-	private static Logger logger = Logger
+	protected static Logger logger = Logger
 	.getLogger(XMLTransferUtil.class);
 
-	SimpleDateFormat dformat1 = new SimpleDateFormat(
+	public SimpleDateFormat dformat1 = new SimpleDateFormat(
 	"yyyy-MM-dd'T'HH:mm:ss");
 
-	SimpleDateFormat dformat2 = new SimpleDateFormat("yyyy-MM-dd");
+	public SimpleDateFormat dformat2 = new SimpleDateFormat("yyyy-MM-dd");
 
 	String defaultweb = "https://www.clinforma.net/HsfoHbps/DataVaultWS/definition.asmx";
 
@@ -288,7 +287,7 @@ public class XMLTransferUtil
 		return vs.getFormEdited();
 	}
 
-	public void addPatientToSite(LoggedInInfo loggedInInfo, Site site, PatientData pd)
+	public void addPatientToSite(Site site, PatientData pd)
 	{
 		String dateString2 = dformat2.format(pd.getConsentDate());
 		String dateString1 = dformat1.format(getSignedDate(pd.getPatient_Id()));
@@ -313,7 +312,7 @@ public class XMLTransferUtil
 
 		TxtEmrHcpID tehid = patient.addNewTxtEmrHcpID();
 		DemographicData demoData = new DemographicData();
-		String providerId=demoData.getDemographic(loggedInInfo, patient.getEmrPatientKey()).getProviderNo();
+		String providerId=demoData.getDemographic(patient.getEmrPatientKey()).getProviderNo();
 
 //		if (pd.getEmrHCPId() == null)
 //			tehid.setValue("");
@@ -1371,7 +1370,7 @@ public class XMLTransferUtil
 
 	}
 
-	public HsfoHbpsDataDocument generateXML(LoggedInInfo loggedInInfo, String providerNo,
+	public HsfoHbpsDataDocument generateXML(String providerNo,
 			Integer demographicNo)
 	{
 		HsfoHbpsDataDocument doc = HsfoHbpsDataDocument.Factory.newInstance();
@@ -1397,7 +1396,7 @@ public class XMLTransferUtil
 					String pid = (String) patientIdList.get(i);
 					PatientData pdata = getDemographic(pid);
 					if (pdata != null && pdata.getPatient_Id() != null)
-						addPatientToSite(loggedInInfo, site, pdata);
+						addPatientToSite(site, pdata);
 				}
 			if (patientIdList == null || patientIdList.size() == 0)
 				doc = null;
@@ -1405,7 +1404,7 @@ public class XMLTransferUtil
 		{
 			PatientData pdata = getDemographic(demographicNo.toString());
 			if (pdata != null && pdata.getPatient_Id() != null)
-				addPatientToSite(loggedInInfo, site, pdata);
+				addPatientToSite(site, pdata);
 			else
 				doc = null;
 		}
@@ -1431,8 +1430,8 @@ public class XMLTransferUtil
 	public ArrayList validateDoc(HsfoHbpsDataDocument doc) throws IOException,
 			XmlException
 	{
-		if (logger.isDebugEnabled())
-			logger.debug("<?xml version=\"1.0\" encoding=\"utf-8\"?>" + "\n"
+		if (logger.isInfoEnabled())
+			logger.info("<?xml version=\"1.0\" encoding=\"utf-8\"?>" + "\n"
 					+ PrettyPrinter.indent(doc.xmlText()));
 
 		ArrayList messageArray = new ArrayList();

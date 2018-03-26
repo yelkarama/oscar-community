@@ -22,22 +22,6 @@
     Toronto, Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_pmm" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_pmm");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="org.oscarehr.util.MiscUtils"%>
 <%@page import="org.oscarehr.caisi_integrator.ws.ConnectException_Exception"%>
 <%@page import="org.oscarehr.util.WebUtils"%>
@@ -52,7 +36,6 @@
 <%@page import="org.apache.commons.lang.StringUtils"%>
 
 <%
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 	int currentDemographicId=Integer.parseInt(request.getParameter("demographicId"));
 	Facility currentFacility = (Facility) request.getSession().getAttribute(SessionConstants.CURRENT_FACILITY);
 	Provider currentProvider = (Provider) request.getSession().getAttribute(SessionConstants.LOGGED_IN_PROVIDER);
@@ -61,7 +44,7 @@
 	{
 		try
 		{
-			ManageHnrClientAction.copyLocalValidatedToHnr(loggedInInfo, currentDemographicId);
+			ManageHnrClientAction.copyLocalValidatedToHnr(currentDemographicId);
 		}
 		catch (ConnectException_Exception e)
 		{
@@ -70,19 +53,19 @@
 		catch (DuplicateHinExceptionException e)
 		{
 			WebUtils.addErrorMessage(session, "This HIN is already in use in the HNR, please link to that individual.");
-			ManageHnrClientAction.setHcInfoValidation(loggedInInfo, currentDemographicId, false);
+			ManageHnrClientAction.setHcInfoValidation(currentDemographicId, false);
 		}
 		catch (InvalidHinExceptionException e)
 		{
 			WebUtils.addErrorMessage(session, "This HIN you provided does not pass validation. Please check the HIN and it's Type.");
-			ManageHnrClientAction.setHcInfoValidation(loggedInInfo, currentDemographicId, false);
+			ManageHnrClientAction.setHcInfoValidation(currentDemographicId, false);
 		}
 	}
 	else if ("copyHnrToLocal".equals(request.getParameter("action")))
 	{
 		try
 		{
-			ManageHnrClientAction.copyHnrToLocal(loggedInInfo, currentDemographicId);
+			ManageHnrClientAction.copyHnrToLocal(currentDemographicId);
 		}
 		catch (ConnectException_Exception e)
 		{
@@ -91,27 +74,27 @@
 	}
 	else if ("validatePicture".equals(request.getParameter("action")))
 	{
-		ManageHnrClientAction.setPictureValidation(loggedInInfo, currentDemographicId, true);
+		ManageHnrClientAction.setPictureValidation(currentDemographicId, true);
 	}
 	else if ("invalidatePicture".equals(request.getParameter("action")))
 	{
-		ManageHnrClientAction.setPictureValidation(loggedInInfo, currentDemographicId, false);
+		ManageHnrClientAction.setPictureValidation(currentDemographicId, false);
 	}
 	else if ("validateHcInfo".equals(request.getParameter("action")))
 	{
-		ManageHnrClientAction.setHcInfoValidation(loggedInInfo, currentDemographicId, true);
+		ManageHnrClientAction.setHcInfoValidation(currentDemographicId, true);
 	}
 	else if ("invalidateHcInfo".equals(request.getParameter("action")))
 	{
-		ManageHnrClientAction.setHcInfoValidation(loggedInInfo,currentDemographicId, false);
+		ManageHnrClientAction.setHcInfoValidation(currentDemographicId, false);
 	}
 	else if ("validateOtherInfo".equals(request.getParameter("action")))
 	{
-		ManageHnrClientAction.setOtherInfoValidation(loggedInInfo,currentDemographicId, true);
+		ManageHnrClientAction.setOtherInfoValidation(currentDemographicId, true);
 	}
 	else if ("invalidateOtherInfo".equals(request.getParameter("action")))
 	{
-		ManageHnrClientAction.setOtherInfoValidation(loggedInInfo,currentDemographicId, false);
+		ManageHnrClientAction.setOtherInfoValidation(currentDemographicId, false);
 	}
 	else
 	{

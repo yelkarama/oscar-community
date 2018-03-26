@@ -28,6 +28,9 @@ package oscar.oscarEncounter.pageUtil;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
+import java.util.Vector;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
@@ -40,6 +43,7 @@ import org.oscarehr.util.MiscUtils;
 
 import oscar.oscarRx.data.RxPrescriptionData.Prescription;
 import oscar.util.DateUtils;
+import oscar.util.OscarRoleObjectPrivilege;
 import oscar.util.StringUtils;
 
 /**
@@ -52,9 +56,11 @@ public class EctDisplayRxAction extends EctDisplayAction {
 
     public boolean getInfo(EctSessionBean bean, HttpServletRequest request, NavBarDisplayDAO Dao, MessageResources messages) {
 
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		
-		if (!securityInfoManager.hasPrivilege(loggedInInfo, "_rx", "r", null)) {
+    	boolean a = true;
+        Vector v = OscarRoleObjectPrivilege.getPrivilegeProp("_newCasemgmt.prescriptions");
+        String roleName = (String)request.getSession().getAttribute("userrole") + "," + (String) request.getSession().getAttribute("user");
+        a = OscarRoleObjectPrivilege.checkPrivilege(roleName, (Properties) v.get(0), (Vector) v.get(1));
+        if(!a) {
              return true; //Prescription link won't show up on new CME screen.
         } else {    	
     	
@@ -83,22 +89,23 @@ public class EctDisplayRxAction extends EctDisplayAction {
         int demographicId=Integer.parseInt(bean.demographicNo);
         
 		// --- get integrator drugs ---
-		if (loggedInInfo.getCurrentFacility().isIntegratorEnabled()) {
+		LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
+		if (loggedInInfo.currentFacility.isIntegratorEnabled()) {
 			try {
 				
 			
 				List<CachedDemographicDrug> remoteDrugs  = null;
 				try {
-					if (!CaisiIntegratorManager.isIntegratorOffline(loggedInInfo.getSession())){
-					   remoteDrugs = CaisiIntegratorManager.getDemographicWs(loggedInInfo, loggedInInfo.getCurrentFacility()).getLinkedCachedDemographicDrugsByDemographicId(demographicId);
+					if (!CaisiIntegratorManager.isIntegratorOffline()){
+					   remoteDrugs = CaisiIntegratorManager.getDemographicWs().getLinkedCachedDemographicDrugsByDemographicId(demographicId);
 					}
 				} catch (Exception e) {
 					MiscUtils.getLogger().error("Unexpected error.", e);
-					CaisiIntegratorManager.checkForConnectionError(loggedInInfo.getSession(), e);
+					CaisiIntegratorManager.checkForConnectionError(e);
 				}
 				
-				if(CaisiIntegratorManager.isIntegratorOffline(loggedInInfo.getSession())){
-				   remoteDrugs = IntegratorFallBackManager.getRemoteDrugs(loggedInInfo, demographicId);	
+				if(CaisiIntegratorManager.isIntegratorOffline()){
+				   remoteDrugs = IntegratorFallBackManager.getRemoteDrugs(demographicId);	
 				}
 				
 				logger.debug("remote Drugs : "+remoteDrugs.size());
@@ -110,13 +117,12 @@ public class EctDisplayRxAction extends EctDisplayAction {
 					if (remoteDrug.getEndDate()!=null) p.setEndDate(remoteDrug.getEndDate().getTime());
 					if (remoteDrug.getRxDate()!=null) p.setRxDate(remoteDrug.getRxDate().getTime());
 					p.setSpecial(remoteDrug.getSpecial());
-					p.setOutsideProviderName(" "); //little hack so that the style gets set to "external"
 					
 					// okay so I'm not exactly making it unique... that's the price of last minute conformance test changes.
 					uniqueDrugs.add(p);
 				}
 			} catch (Exception e) {
-				logger.error("error getting remote drugs", e);
+				logger.error("error getting remote allergies", e);
 			}
 		}
 
@@ -136,8 +142,6 @@ public class EctDisplayRxAction extends EctDisplayAction {
                 styleColor="style=\"color:orange;font-weight:bold;\"";
             }else if (drug.isCurrent() )  {
                 styleColor="style=\"color:blue;\"";
-            }else if (drug.isLongTerm() )  {
-                styleColor="style=\"color:grey;\"";
             }else
                 continue;
 
@@ -147,8 +151,7 @@ public class EctDisplayRxAction extends EctDisplayAction {
             String tmp = "";
             if (drug.getFullOutLine()!=null) tmp=drug.getFullOutLine().replaceAll(";", " ");
             String strTitle = StringUtils.maxLenString(tmp, MAX_LEN_TITLE, CROP_LEN_TITLE, ELLIPSES);
-           // strTitle = "<span " + styleColor + ">" + strTitle + "</span>";
-            strTitle = "<span " + getClassColour(drug, now, month) + ">" + strTitle + "</span>";
+            strTitle = "<span " + styleColor + ">" + strTitle + "</span>";
             item.setTitle(strTitle);
             item.setLinkTitle(tmp + " " + serviceDateStr + " - " + drug.getEndDate());
             item.setURL("return false;");
@@ -160,49 +163,6 @@ public class EctDisplayRxAction extends EctDisplayAction {
         }
     }
 
-    String getClassColour(Prescription drug, long referenceTime, long durationToSoon){
-        StringBuilder sb = new StringBuilder("class=\"");
-
-        if (!drug.isLongTerm() && (drug.isCurrent() && drug.getEndDate() != null && (drug.getEndDate().getTime() - referenceTime <= durationToSoon))) {
-            sb.append("expireInReference ");
-        }
-
-        if ((drug.isCurrent() && !drug.isArchived()) || drug.isLongTerm()) {
-            sb.append("currentDrug ");
-        }
-
-        if (drug.isArchived()) {
-            sb.append("archivedDrug ");
-        }
-
-        if(!drug.isLongTerm() && !drug.isCurrent()) {
-            sb.append("expiredDrug ");
-        }
-
-        if(drug.isLongTerm()){
-            sb.append("longTermMed ");
-        }
-
-        if(drug.isDiscontinued()){
-            sb.append("discontinued ");
-        }
-
-        if(drug.getOutsideProviderName() !=null && !drug.getOutsideProviderName().equals("")  ) {
-        	sb = new StringBuilder("class=\"");
-        	sb.append("external ");
-        }
-
-        String retval = sb.toString();
-
-        if(retval.equals("class=\"")){
-            return "";
-        }
-
-        return retval.substring(0,retval.length())+"\"";
-
-    }
-
-    
     public String getCmd() {
       return cmd;
     }

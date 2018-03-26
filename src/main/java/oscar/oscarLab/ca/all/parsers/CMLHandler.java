@@ -44,7 +44,6 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 
-import oscar.util.StringUtils;
 import oscar.util.UtilDateUtilities;
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.Segment;
@@ -367,18 +366,7 @@ public class CMLHandler implements MessageHandler {
     }
 
     public String getHealthNum(){
-    	//International Student HIN - https://sourceforge.net/p/oscarmcmaster/feature-requests/1003/
-    	String value = getString(msg.getRESPONSE().getPATIENT().getPID().getAlternatePatientID().getID().getValue());
-    	if(StringUtils.isNullOrEmpty(value) && msg.getRESPONSE().getPATIENT().getPID().getPatientIDExternalID() != null) {
-    		if(msg.getRESPONSE().getPATIENT().getPID().getPatientIDExternalID().getID() != null) {
-    			String tmp = getString(msg.getRESPONSE().getPATIENT().getPID().getPatientIDExternalID().getID().getValue());
-    			if(tmp != null && tmp.startsWith("MU")) {
-    				value = tmp.substring(2);
-    			}
-    		}
-    	}
-    	
-        return(value);
+        return(getString(msg.getRESPONSE().getPATIENT().getPID().getAlternatePatientID().getID().getValue()));
     }
 
     public String getHomePhone(){
@@ -621,9 +609,6 @@ public class CMLHandler implements MessageHandler {
 
     public String getNteForOBX(int i, int j){
 
-    	return "";
-    }
-    public String getNteForPID() {
     	return "";
     }
 }

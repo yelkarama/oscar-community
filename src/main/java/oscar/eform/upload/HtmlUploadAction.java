@@ -33,24 +33,14 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.upload.FormFile;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.eform.EFormUtil;
 import oscar.util.StringUtils;
 
 public class HtmlUploadAction extends Action {
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	
     public ActionForward execute(ActionMapping mapping, ActionForm form,
                                 HttpServletRequest request, HttpServletResponse response) {
-    	
-    	if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_eform", "w", null)) {
-			throw new SecurityException("missing required security object (_eform)");
-		}
-    	
         HtmlUploadForm fm = (HtmlUploadForm) form;
         FormFile formHtml = fm.getFormHtml();
         try {
@@ -59,20 +49,12 @@ public class HtmlUploadAction extends Action {
             String formName = fm.getFormName();
             String roleType = fm.getRoleType();
             String subject = fm.getSubject();
-            String programNo = fm.getProgramNo();
-            boolean showLatestFormOnly = fm.isShowLatestFormOnly();
-            boolean patientIndependent = fm.isPatientIndependent();
-            boolean restrictByProgram = fm.isRestrictByProgram();
-            boolean disableUpdate = fm.isDisableUpdate();
-            
+            boolean patientIndependent = fm.getPatientIndependent();
             String fileName = formHtml.getFileName();
-            EFormUtil.saveEForm(formName, subject, fileName, formHtmlStr, showLatestFormOnly, patientIndependent, roleType, programNo, restrictByProgram,disableUpdate);
-            request.setAttribute("status", "success");
-            return(mapping.findForward("success"));
+            String lastfid = EFormUtil.saveEForm(formName, subject, fileName, formHtmlStr, patientIndependent, roleType);
         } catch (Exception e) {
             MiscUtils.getLogger().error("Error", e);
-            return(mapping.findForward("fail"));
         }
-        
+        return(mapping.findForward("success"));
     }
 }

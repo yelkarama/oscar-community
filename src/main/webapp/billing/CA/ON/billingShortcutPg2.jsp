@@ -17,38 +17,10 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_billing" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%@page import="org.oscarehr.billing.CA.ON.model.BillingPercLimit"%>
-<%@page import="org.oscarehr.billing.CA.ON.dao.BillingPercLimitDao"%>
-<%@page import="org.oscarehr.common.model.BillingService"%>
-<%@page import="org.oscarehr.common.dao.BillingServiceDao"%>
-<%@page import="org.oscarehr.common.dao.DemographicDao"%>
-<%@page import="org.oscarehr.common.model.Demographic"%>
-<%@page import="org.oscarehr.common.model.Provider"%>
-<%@page import="org.oscarehr.PMmodule.dao.ProviderDao"%>
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
-
 <%
   if (session.getAttribute("user") == null) {
     response.sendRedirect("../../../logout.jsp");
   }
-
-  LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
-
 
   String user_no         = (String)session.getAttribute("user");
   String providerview    = request.getParameter("providerview") == null
@@ -63,7 +35,7 @@ if(!authed) {
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
 <%@ page errorPage="errorpage.jsp" import="java.util.*,java.math.*,java.net.*,java.sql.*, oscar.util.*, oscar.*"%>
-
+<%@ page import="oscar.oscarBilling.ca.on.data.BillingONDataHelp"%>
 <%@ page import="oscar.oscarBilling.ca.on.pageUtil.*"%>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
 <% java.util.Properties oscarVariables = OscarProperties.getInstance(); %>
@@ -93,8 +65,7 @@ if(!authed) {
   String            apptProvider_no   = request.getParameter("apptProvider_no");
   String ctlBillForm = request.getParameter("billForm");
   String            assgProvider_no   = request.getParameter("assgProvider_no");
-  if (assgProvider_no==null) assgProvider_no = new String();
-  
+  //String            dob               = request.getParameter("dob");
   String            demoSex           = request.getParameter("DemoSex");
   GregorianCalendar now               = new GregorianCalendar();
   int               curYear           = now.get(Calendar.YEAR);
@@ -104,66 +75,61 @@ if(!authed) {
   String content = "";
   String total = "";
 
-  
+  BillingONDataHelp dbObj             = new BillingONDataHelp();
   String            msg               = "<tr><td colspan='2'>Calculation</td></tr>";
   String            action            = "edit";
   Properties        propHist          = null;
   Vector            vecHist           = new Vector();
   // get provider's detail
   String proOHIPNO="", proRMA="";
-  
-  ProviderDao prDao = SpringUtils.getBean(ProviderDao.class);
-  Provider pr = prDao.getProvider(request.getParameter("xml_provider"));
-  if (pr != null) {
-	proOHIPNO = pr.getOhipNo();
-	proRMA = pr.getRmaNo();
+  String sql = "select * from provider where provider_no='" + request.getParameter("xml_provider") + "'";
+  ResultSet rs = dbObj.searchDBRecord(sql);
+  while (rs.next()) {
+	proOHIPNO = rs.getString("ohip_no");
+	proRMA = rs.getString("rma_no");
   }
-  
-  if(request.getParameter("xml_provider")!=null) {
-	  providerview = request.getParameter("xml_provider");
-  }
-  
+  if(request.getParameter("xml_provider")!=null) providerview = request.getParameter("xml_provider");
   // get patient's detail
   String errorFlag = "";
   String warningMsg = "", errorMsg = "";
   String r_doctor="", r_doctor_ohip="" ;
   String demoFirst="", demoLast="", demoHIN="", demoDOB="", demoDOBYY="", demoDOBMM="", demoDOBDD="", demoHCTYPE="";
-  
-  DemographicDao demoDao = SpringUtils.getBean(DemographicDao.class);
-  Demographic demo = demoDao.getDemographic(demo_no);
-  if (demo != null) {
-    assgProvider_no = demo.getProviderNo();
-    if (assgProvider_no==null) assgProvider_no = new String();
-    
-	demoFirst = demo.getFirstName();
-	demoLast = demo.getLastName();
-	demoSex = demo.getSex();
-	if (demo.getHin()!=null && demo.getVer()!=null) demoHIN = demo.getHin() + demo.getVer();
+  sql = "select * from demographic where demographic_no=" + demo_no;
+  rs = dbObj.searchDBRecord(sql);
+  while (rs.next()) {
+    assgProvider_no = rs.getString("provider_no");
+	demoFirst = rs.getString("first_name");
+	demoLast = rs.getString("last_name");
+	demoHIN = rs.getString("hin") + rs.getString("ver");
+	demoSex = rs.getString("sex");
 	if (demoSex.compareTo("M")==0) demoSex ="1";
 	if (demoSex.compareTo("F")==0) demoSex ="2";
 
-	demoHCTYPE = demo.getHcType()==null?"":demo.getHcType();
+	demoHCTYPE = rs.getString("hc_type")==null?"":rs.getString("hc_type");
 	if (demoHCTYPE.compareTo("") == 0 || demoHCTYPE == null || demoHCTYPE.length() <2) {
 		demoHCTYPE="ON";
 	}else{
 		demoHCTYPE=demoHCTYPE.substring(0,2).toUpperCase();
 	}
-	demoDOBYY = demo.getYearOfBirth();
-	demoDOBMM = demo.getMonthOfBirth();
-	demoDOBDD = demo.getDateOfBirth();
+	demoDOBYY = rs.getString("year_of_birth");
+	demoDOBMM = rs.getString("month_of_birth");
+	demoDOBDD = rs.getString("date_of_birth");
 
-	if (demo.getFamilyDoctor() == null) {
+	if (rs.getString("family_doctor") == null){
 		r_doctor = "N/A"; r_doctor_ohip="000000";
 	}else{
-		r_doctor=SxmlMisc.getXmlContent(demo.getFamilyDoctor(),"rd")==null ? "" : SxmlMisc.getXmlContent(demo.getFamilyDoctor(), "rd");
-		r_doctor_ohip=SxmlMisc.getXmlContent(demo.getFamilyDoctor(),"rdohip")==null ? "" : SxmlMisc.getXmlContent(demo.getFamilyDoctor(), "rdohip");
+		r_doctor=SxmlMisc.getXmlContent(rs.getString("family_doctor"),"rd")==null ? "" : SxmlMisc.getXmlContent(rs.getString("family_doctor"), "rd");
+		r_doctor_ohip=SxmlMisc.getXmlContent(rs.getString("family_doctor"),"rdohip")==null ? "" : SxmlMisc.getXmlContent(rs.getString("family_doctor"), "rdohip");
 	}
 
 	demoDOBMM = demoDOBMM.length() == 1 ? ("0" + demoDOBMM) : demoDOBMM;
 	demoDOBDD = demoDOBDD.length() == 1 ? ("0" + demoDOBDD) : demoDOBDD;
 	demoDOB = demoDOBYY + demoDOBMM + demoDOBDD;
 
-	if (demo.getHin()==null || demo.getHin().equals("")) {
+	if (rs.getString("hin") == null ) {
+		errorFlag = "1";
+		errorMsg = errorMsg + "<br><font color='red'>Error: The patient does not have a valid HIN. </font><br>";
+	} else if (rs.getString("hin").equals("")) {
 		warningMsg += "<br><font color='orange'>Warning: The patient does not have a valid HIN. </font><br>";
 	}
 	if (r_doctor_ohip != null && r_doctor_ohip.length()>0 && r_doctor_ohip.length() != 6) {
@@ -213,12 +179,15 @@ if(!authed) {
     for( int idx = 0; idx < tempDate.length; ++idx ) {
     }
 	for(int i=0; i<recordCount; i++) {
-		BillingServiceDao bsDao = SpringUtils.getBean(BillingServiceDao.class);
-		
-		for(BillingService bs : bsDao.findByServiceCodeAndLatestDate(billrec[i], ConversionUtils.fromDateString(request.getParameter("billDate")))) {
-			billrecdesc[i] = bs.getDescription();
-			pricerec[i] = bs.getValue() == null ? "" : bs.getValue();
-			percrec[i] = bs.getPercentage();
+		sql = "select service_code, description, value, percentage from billingservice where service_code='"
+			+ billrec[i] + "' and billingservice_date in (select max(b.billingservice_date) from billingservice b where b.service_code='" + billrec[i] + "' and b.billingservice_date <= '" + request.getParameter("billDate") + "')";
+		rs = dbObj.searchDBRecord(sql);
+		while (rs.next()) {
+			billrecdesc[i] = rs.getString("description");
+			//otherdbcode2 = rs.getString("service_code");
+			pricerec[i] = rs.getString("value")==null?"":rs.getString("value");
+			percrec[i] = rs.getString("percentage");
+			//otherperc2 = rs.getString("percentage");
 
 			if( (!"".equals(pricerec[i]) && Double.parseDouble(pricerec[i])>0.) || ( "".equals(percrec[i])) ) {
 				vecServiceCode.add( billrec[i] );
@@ -273,16 +242,19 @@ if(!authed) {
             aLimits[idx1] = false;
         }
 
-    int codeIdx = 0;
+        int codeIdx = 0;
 	for(int idx2 = 0; idx2 < size; ++idx2) {
 		//TODO: only one perc code allowed, otherwise error msg
-		BillingPercLimitDao bplDao = SpringUtils.getBean(BillingPercLimitDao.class);
-		for(BillingPercLimit bpl : bplDao.findByServiceCode("" + vecServiceCodePerc.get(codeIdx))) {
-			aLimits[idx2] = true;
-			aMinFee[idx2] = bpl.getMin();
-			aMaxFee[idx2] = bpl.getMax();
+		sql = "select min, max from billingperclimit where service_code='"
+			+ vecServiceCodePerc.get(codeIdx) + "'";
+		rs = dbObj.searchDBRecord(sql);
+		while (rs.next()) {
+			//bLimit = true;
+                        aLimits[idx2] = true;
+			aMinFee[idx2] = rs.getString("min");
+			aMaxFee[idx2] = rs.getString("max");
 		}
-        codeIdx += 4;
+                codeIdx += 4;
 	}
 
     // calculate total
@@ -347,8 +319,8 @@ if(!authed) {
 			param[4]=request.getParameter("ohip_version");
 			param[5]=request.getParameter("demographic_name");
 			param[6]=request.getParameter("hin");
-			param[7] = UtilDateUtilities.DateToString(new java.util.Date(), "yyyy-MM-dd");
-			param[8] = UtilDateUtilities.DateToString(new java.util.Date(), "HH:mm:ss");
+			param[7] = UtilDateUtilities.DateToString(UtilDateUtilities.now(), "yyyy-MM-dd");
+			param[8] = UtilDateUtilities.DateToString(UtilDateUtilities.now(), "HH:mm:ss");
 			//param[7]=request.getParameter("billing_date");
 			//param[8]=MyDateFormat.getTimeXX_XX_XX(request.getParameter("billing_time"));
 			param[9]= tempDate[k] ; // parse(billingDate) ;//request.getParameter("appointment_date");
@@ -386,7 +358,7 @@ if(!authed) {
                                         }
 				}
 				Vector vecT = saveObj.getBillingClaimHospObj(request, tempDate[k], total, vecServiceCode, vecServiceCodeUnit, vecServiceCodePrice);
-				saveObj.addABillingRecord(loggedInInfo, vecT);
+				saveObj.addABillingRecord(vecT);
 			} else {
 				Billing b = new Billing();
 				b.setClinicNo(Integer.parseInt(param[0]));
@@ -445,12 +417,8 @@ if(!authed) {
 
 		    	if (nBillDetailNo == 0) {
 		    		// roll back
-		    		Billing bb = billingDao.find(nBillNo);
-		    		if(bb != null) {
-		    			bb.setStatus("D");
-		    			billingDao.merge(bb);
-		    		}
-		    		
+		    		sql = "update billing set status='D' where billing_no = " + nBillNo;
+					dbObj.updateDBRecord(sql);
 		    		break;
 		    	}
 			}
@@ -467,7 +435,7 @@ if(!authed) {
 		        + URLEncoder.encode(demoFirst) + "&demographic_no="
 		        + demo_no + "&providerview=1&user_no="
 		        + user_no + "&apptProvider_no=none&appointment_date="
-		        + curYear +"-"+curMonth+"-"+curDay + "&start_time=0:00:00&bNewForm=1&status=t'</script>";
+		        + curYear +"-"+curMonth+"-"+curDay + "&start_time=0:00&bNewForm=1&status=t'</script>";
 		}
 	}
   }
@@ -485,11 +453,11 @@ if(!authed) {
 <script language="JavaScript">
 	<!--
 	    function onSave() {
-	        var submitTypeString = document.forms[0].submitType.value;
+	        //document.forms[0].submit.value="save";
 	        var ret = true;
 	        if(ret==true)
 	        {
-	            ret = confirm("Are you sure you want to " + submitTypeString + "?");
+	            ret = confirm("Are you sure you want to do the action?");
 	        }
 	        return ret;
 	    }
@@ -501,8 +469,8 @@ if(!authed) {
 
 <table border="0" cellpadding="0" cellspacing="2" width="100%"
 	bgcolor="#CCCCFF">
-	<form method="post" name="titlesearch" action="billingShortcutPg2.jsp" onsubmit="return onSave();">
-	<input type="hidden" value="" name="submitType" />
+	<form method="post" name="titlesearch" action="billingShortcutPg2.jsp"
+		onsubmit="return onSave();">
 	<tr>
 		<td>
 		<table border="0" cellspacing="0" cellpadding="0" width="100%">
@@ -612,10 +580,11 @@ if(!authed) {
 
 			<tr>
 
-				<td colspan='2' align='center' bgcolor="silver">
-				<input type="submit" name="button" value="Back to Edit"	onclick="document.forms[0].submitType.value='Back to Edit'"  style="width: 120px;" /> 
-				<input type="submit" name="button" value="Save" onclick="document.forms[0].submitType.value='Save'"style="width: 120px;" /> 
-				<input type="submit" name="button" value="Save and Back" onclick="document.forms[0].submitType.value='Save and Back'"style="width: 120px;" /></td>
+				<td colspan='2' align='center' bgcolor="silver"><input
+					type="submit" name="button" value="Back to Edit"
+					style="width: 120px;" /> <input type="submit" name="submit"
+					value="Save" style="width: 120px;" /> <input type="submit"
+					name="submit" value="Save and Back" style="width: 120px;" /></td>
 			</tr>
 		</table>
 		</td>

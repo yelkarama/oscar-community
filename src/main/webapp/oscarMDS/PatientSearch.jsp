@@ -23,31 +23,16 @@
     Ontario, Canada
 
 --%>
-<%@ page import="java.util.*, java.sql.*,java.net.*, oscar.oscarDB.DBPreparedHandler, oscar.MyDateFormat, oscar.Misc"%>
-<%@ page import="oscar.oscarDemographic.data.DemographicMerged"%>
-	
+<%@ page
+	import="java.util.*, java.sql.*,java.net.*, oscar.oscarDB.DBPreparedHandler, oscar.MyDateFormat, oscar.Misc"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-	  boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_lab" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_lab");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
 <% 
 
 // Apologies for the crap code.  Definitely could do with a major rewrite...
 
+  if(session.getValue("user") == null)    response.sendRedirect("../logout.jsp");
   // String curProvider_no = (String) session.getAttribute("user");
   String curProvider_no = request.getParameter("provider_no");
   String strLimit1="0";
@@ -58,9 +43,11 @@ if(!authed) {
 %>
 
 
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean"
+	scope="session" />
 <jsp:useBean id="providerBean" class="java.util.Properties"
 	scope="session" />
-<html>
+<%@page import="oscar.oscarDB.DBHandler"%><html>
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message
@@ -89,7 +76,8 @@ function checkTypeIn() {
 //-->
 </SCRIPT>
 </head>
-<body onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0">
+<body background="../images/gray_bg.jpg" bgproperties="fixed"
+	onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0">
 <table border="0" cellspacing="0" cellpadding="0" width="100%">
 	<tr bgcolor="#486ebd">
 		<th align=CENTER NOWRAP><font face="Helvetica" color="#FFFFFF">PATIENT
@@ -171,7 +159,7 @@ function checkTypeIn() {
 	<input type="hidden" name="labType"
 		value="<%=request.getParameter("labType")%>" />
 	<tr bgcolor="#339999">
-		<TH align="center" width="10%"><b><bean:message
+		<TH align="center" width="20%"><b><bean:message
 			key="oscarMDS.segmentDisplay.patientSearch.msgPatientId" /></b></TH>
 		<TH align="center" width="20%"><b><bean:message
 			key="oscarMDS.segmentDisplay.patientSearch.msgLastName" /></b></TH>
@@ -181,8 +169,6 @@ function checkTypeIn() {
 			key="oscarMDS.segmentDisplay.patientSearch.msgAge" /></b></TH>
 		<TH align="center" width="10%"><b><bean:message
 			key="oscarMDS.segmentDisplay.patientSearch.msgRosterStatus" /></b></TH>
-		<TH align="center" width="10%"><b><bean:message
-			key="oscarMDS.segmentDisplay.patientSearch.msgPatientStatus" /></b></TH>
 		<TH align="center" width="5%"><b><bean:message
 			key="oscarMDS.segmentDisplay.patientSearch.msgSex" /></B></TH>
 		<TH align="center" width="10%"><b><bean:message
@@ -216,7 +202,6 @@ function checkTypeIn() {
   }
 
   String fieldname="", regularexp="like"; // exactly search is not required by users, e.g. regularexp="=";
-  boolean isNameSearchByLastNameAndFirstName = false;
   if(request.getParameter("search_mode")!=null) {
     if(request.getParameter("keyword").indexOf("*")!=-1 || request.getParameter("keyword").indexOf("%")!=-1) regularexp="like";
     if(request.getParameter("search_mode").equals("search_address")) fieldname="address";
@@ -225,18 +210,13 @@ function checkTypeIn() {
     if(request.getParameter("search_mode").equals("search_dob")) fieldname="year_of_birth "+regularexp+" ?"+" and month_of_birth "+regularexp+" ?"+" and date_of_birth ";
     if(request.getParameter("search_mode").equals("search_chart_no")) fieldname="chart_no";
     if(request.getParameter("search_mode").equals("search_name")) {
-      if(request.getParameter("keyword").indexOf(",")==-1) {
-	  	fieldname="last_name";
-      } else if(request.getParameter("keyword").trim().indexOf(",")==(request.getParameter("keyword").trim().length()-1)) {
-	  	fieldname="last_name";
-      } else {
-	    isNameSearchByLastNameAndFirstName = true;
-	  	fieldname="last_name "+regularexp+" ?"+" and first_name ";
-      }
+      if(request.getParameter("keyword").indexOf(",")==-1)  fieldname="last_name";
+      else if(request.getParameter("keyword").trim().indexOf(",")==(request.getParameter("keyword").trim().length()-1)) fieldname="last_name";
+      else fieldname="last_name "+regularexp+" ?"+" and first_name ";
     }
   }
 
-  String sql = "select demographic_no,first_name,last_name,roster_status,patient_status,sex,chart_no,year_of_birth,month_of_birth,date_of_birth,provider_no from demographic where "+fieldname+ " "+regularexp+" ? " +orderby; // + " "+limit;  
+  String sql = "select demographic_no,first_name,last_name,roster_status,sex,chart_no,year_of_birth,month_of_birth,date_of_birth,provider_no from demographic where "+fieldname+ " "+regularexp+" ? " +orderby; // + " "+limit;  
   
   if(request.getParameter("search_mode").equals("search_name")) {      
       keyword=keyword+"%";
@@ -247,21 +227,10 @@ function checkTypeIn() {
          rs = db.queryResults(sql, keyword.substring(0,(keyword.length()-1)));//lastname
       }
       else { //lastname,firstname         
-    		String[] param;
+    		String[] param =new String[2];
     		int index = keyword.indexOf(",");
-    		if (index != -1) {
-    		    if (isNameSearchByLastNameAndFirstName) {
-    				param = new String[2];
-	  				param[0]=keyword.substring(0,index).trim()+"%";//(",");
-	  				param[1]=keyword.substring(index+1).trim()+"%";
-    		    } else {
-    				param = new String[1];
-    				param[0]=keyword.substring(0,index).trim()+"%";//(",");
-    		    }
-    		} else {
-    			param = new String[1];
-    		    param[0]=keyword;
-    		}
+	  		param[0]=keyword.substring(0,index).trim()+"%";//(",");
+	  		param[1]=keyword.substring(index+1).trim()+"%";
     		rs = db.queryResults(sql, param);
    	}
   } else if(request.getParameter("search_mode").equals("search_dob")) {      
@@ -269,9 +238,6 @@ function checkTypeIn() {
 	  		param[0]=""+MyDateFormat.getYearFromStandardDate(keyword)+"%";//(",");
 	  		param[1]=""+MyDateFormat.getMonthFromStandardDate(keyword)+"%";
 	  		param[2]=""+MyDateFormat.getDayFromStandardDate(keyword)+"%";  
-	  		if(param[1].length() == 2) {
-	  			param[1] = "0" + param[1];
-	  		}
     		rs = db.queryResults(sql, param);
   } else {      
     keyword=keyword+"%";
@@ -291,19 +257,7 @@ function checkTypeIn() {
                 idx++;
   	}
   	idx = 0;
-  	
-	
-	DemographicMerged dmDAO = new DemographicMerged();
-
     while (rs.next() && idx < Integer.parseInt(strLimit2)) {
-        String dem_no = oscar.Misc.getString(rs,"demographic_no");
-        String head = dmDAO.getHead(dem_no);
-
-        if(head != null && !head.equals(dem_no)) {
-        	//skip non head records
-        	continue;
-        }
-
       bodd=bodd?false:true; //for the color of rows
       nItems++; //to calculate if it is the end of records
 
@@ -328,7 +282,6 @@ function checkTypeIn() {
 		<td><%=nbsp( Misc.toUpperLowerCase(oscar.Misc.getString(rs,"first_name")) )%></td>
 		<td><%= age %></td>
 		<td><%=nbsp( oscar.Misc.getString(rs,"roster_status") )%></td>
-		<td><%=nbsp( oscar.Misc.getString(rs,"patient_status") )%></td>
 		<td><%=nbsp( oscar.Misc.getString(rs,"sex") )%></td>
 		<td><%=nbsp( oscar.Misc.getString(rs,"year_of_birth")+"-"+oscar.Misc.getString(rs,"month_of_birth")+"-"+oscar.Misc.getString(rs,"date_of_birth") )%></td>
 		<td><%=providerBean.getProperty(oscar.Misc.getString(rs,"provider_no"))==null?"&nbsp;":providerBean.getProperty(oscar.Misc.getString(rs,"provider_no")) %></td>

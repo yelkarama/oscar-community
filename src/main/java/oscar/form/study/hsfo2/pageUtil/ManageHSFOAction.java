@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
@@ -50,7 +51,6 @@ import org.jfree.data.time.TimeSeriesCollection;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.Hsfo2Patient;
 import org.oscarehr.common.model.Hsfo2Visit;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 
 import oscar.OscarProperties;
@@ -61,6 +61,8 @@ import oscar.util.UtilDateUtilities;
 
 
 /**
+ * insert into encounterForm (form_name,form_value,form_table,hidden ) values ( 'HSFP
+ * form','../form/HSFOform.do?demographic_no=','form_hsfo_visit',0);
  * 
  * Class used to fill data for the HSFO form Study
  */
@@ -98,13 +100,13 @@ public class ManageHSFOAction extends Action
   {
     logger.info( "ContextPath: " + request.getContextPath() );
     logger.info( "pathInfo: " + request.getPathInfo() );
-   // Map< String, String[] > params = request.getParameterMap();
+    Map< String, String[] > params = request.getParameterMap();
 
 
     Hsfo2Visit latestHsfo2Visit = new Hsfo2Visit();
     PatientList historyList = new PatientList();
     // RecordList record = new RecordList();
-    //List recordList = new LinkedList();
+    List recordList = new LinkedList();
 
     String patientId = (String) request.getAttribute( "demographic_no" );
     if ( patientId == null )
@@ -120,7 +122,7 @@ public class ManageHSFOAction extends Action
 
     DemographicData demoData = new DemographicData();
     //DemographicData.Demographic de = demoData.getDemographic( patientId );
-    Demographic de = demoData.getDemographic(LoggedInInfo.getLoggedInInfoFromSession(request), patientId);
+    Demographic de = demoData.getDemographic(patientId);
     
     boolean isDisplayGraphs = "displayGraphs".equalsIgnoreCase( request.getParameter( "operation" ) );
     
@@ -285,7 +287,7 @@ public class ManageHSFOAction extends Action
                 dbpSeries.addOrUpdate( visitDay, Hsfo2Visit.getDBP() );
               }
   
-              if ( (int)Hsfo2Visit.getWeight() != 0 )
+              if ( Hsfo2Visit.getWeight() != 0 )
               {
                 Double bmi = getBmi( Hsfo2Visit, hsfo2Patient );
                 if( bmi > 0 )
@@ -293,7 +295,7 @@ public class ManageHSFOAction extends Action
               }
               // modified by victor for waist_unit null bug,2007
               // if (Hsfo2Visit.getWaist() != 0{
-              if ( (int)Hsfo2Visit.getWaist() != 0 && Hsfo2Visit.getWaist_unit() != null )
+              if ( Hsfo2Visit.getWaist() != 0 && Hsfo2Visit.getWaist_unit() != null )
               {
                 double waistv = Hsfo2Visit.getWaist();
                 String waistunit = Hsfo2Visit.getWaist_unit();
@@ -325,12 +327,12 @@ public class ManageHSFOAction extends Action
             if ( labResultDate != null )
             {
               final Day labResultDay = new Day( labResultDate );
-              if ( (int)Hsfo2Visit.getTC_HDL() != 0 )
+              if ( Hsfo2Visit.getTC_HDL() != 0 )
               {
                 tcHdlSeries.addOrUpdate( labResultDay, Hsfo2Visit.getTC_HDL() );
               }
               
-              if ( (int)Hsfo2Visit.getLDL() != 0 )
+              if ( Hsfo2Visit.getLDL() != 0 )
               {
                 ldlSeries.addOrUpdate( labResultDay, Hsfo2Visit.getLDL() );
               }
@@ -486,12 +488,11 @@ public class ManageHSFOAction extends Action
     return 0.0;   //invalid
   }
   
- /**
-  * get the most recent lab work of this patient
-  * @param hsfo2Visit
-  * @param hsfo2Patient
-  * @param patientId
-  */
+  /**
+   * get the most recent lab work of this patient
+   * @param Hsfo2Visit
+   * @param patientId
+   */
   protected void getLabWork( Hsfo2Visit hsfo2Visit, Hsfo2Patient hsfo2Patient, int patientId )
   {
     HSFODAO hsfoDao = new HSFODAO();

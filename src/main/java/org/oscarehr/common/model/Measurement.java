@@ -26,7 +26,6 @@
 package org.oscarehr.common.model;
 
 import java.io.Serializable;
-import java.util.Comparator;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -54,18 +53,18 @@ public class Measurement extends AbstractModel<Integer> implements Serializable 
 
 	@Column(name = "demographicNo")
 	private Integer demographicId;
-	
-	@Column(name = "providerNo")	
+
+	@Column(name = "providerNo")
 	private String providerNo;
 	
 	@Column(name = "dataField", nullable=false, length=255)
-	private String dataField = "";
+	private String dataField;
 	
-	@Column(name = "measuringInstruction", length=255)
-	private String measuringInstruction = "";
+	@Column(name = "measuringInstruction", nullable=false, length=255)
+	private String measuringInstruction;
 	
-	@Column(name = "comments", length=255)
-	private String comments = "";
+	@Column(name = "comments", nullable=false, length=255)
+	private String comments;
 
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "dateObserved")
@@ -93,7 +92,7 @@ public class Measurement extends AbstractModel<Integer> implements Serializable 
 	}
 
 	public void setType(String type) {
-		this.type = StringUtils.trimToEmpty(type);
+		this.type = StringUtils.trimToNull(type);
 	}
 
 	public Integer getDemographicId() {
@@ -155,18 +154,4 @@ public class Measurement extends AbstractModel<Integer> implements Serializable 
 	public Date getCreateDate() {
 		return (createDate);
 	}
-	
-	
-	public void setCreateDate(Date createDate) {
-		this.createDate = createDate;
-	}
-	
-	   public static final Comparator<Measurement> DateObservedComparator = new Comparator<Measurement>() {
-	        public int compare(Measurement o1, Measurement o2) {
-	        	if(o1.getId()!=null && o2.getId() != null) {
-	        		return o1.getDateObserved().compareTo(o2.getDateObserved());
-	        	}
-	        	return 0;
-	        }
-	    };
 }

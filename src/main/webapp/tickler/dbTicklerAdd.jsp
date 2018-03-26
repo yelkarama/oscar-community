@@ -24,41 +24,24 @@
 
 --%>
 
+<%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
+<%@page import="org.springframework.web.context.WebApplicationContext"%>
 <%@ taglib uri="/WEB-INF/rewrite-tag.tld" prefix="rewrite" %>
+<%@ page import="java.math.*, java.util.*, java.io.*, java.sql.*, oscar.*, java.net.*,oscar.MyDateFormat,org.caisi.model.*,org.caisi.dao.*,oscar.util.*,org.oscarehr.common.model.*,org.oscarehr.common.dao.*"  %>
 
-<%@ page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
-<%@ page import="org.springframework.web.context.WebApplicationContext"%>
-<%@ page import="org.oscarehr.util.SpringUtils" %>
-<%@ page import="org.oscarehr.common.model.Tickler" %>
-<%@ page import="org.oscarehr.common.model.TicklerLink" %>
-<%@ page import="org.oscarehr.common.dao.TicklerLinkDao" %>
-<%@ page import="oscar.util.UtilDateUtilities" %>
-<%@page import="org.oscarehr.util.MiscUtils"%>
-<%@ page import="org.oscarehr.util.LoggedInInfo" %>
-<%@ page import="org.oscarehr.managers.TicklerManager" %>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
+<%@page import="org.oscarehr.util.MiscUtils"%><jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean" scope="session" />
+<%@ include file="dbTicker.jspf" %>
 <%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_tickler" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_tickler");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
 
-<%
-	TicklerManager ticklerManager = SpringUtils.getBean(TicklerManager.class);
-   	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-%>
+//GregorianCalendar now=new GregorianCalendar();
+//  int curYear = now.get(Calendar.YEAR);
+//  int curMonth = (now.get(Calendar.MONTH)+1);
+//  int curDay = now.get(Calendar.DAY_OF_MONTH);
 
-<%
-	String module="", module_id="", doctype="", docdesc="", docxml="", doccreator="", docdate="", docfilename="", docpriority="", docassigned="";
+ // String nowDate = String.valueOf(curYear)+"/"+String.valueOf(curMonth) + "/" + String.valueOf(curDay)+ " " +now.get(Calendar.HOUR_OF_DAY)+":"+now.get(Calendar.MINUTE) + ":"+now.get(Calendar.SECOND);
+
+String module="", module_id="", doctype="", docdesc="", docxml="", doccreator="", docdate="", docfilename="", docpriority="", docassigned="";
 module_id = request.getParameter("demographic_no");
 doccreator = request.getParameter("user_no");
 docdate = request.getParameter("xml_appointment_date");
@@ -72,33 +55,31 @@ String docId = request.getParameter("docId");
 
 
 Tickler tickler = new Tickler();
-    tickler.setDemographicNo(Integer.parseInt(module_id));
-    tickler.setUpdateDate(new java.util.Date());
-    if(docpriority != null && docpriority.equalsIgnoreCase("High")) {
-   	 tickler.setPriority(Tickler.PRIORITY.High);
-    }
-    if(docpriority != null && docpriority.equalsIgnoreCase("Low")) {
-      	 tickler.setPriority(Tickler.PRIORITY.Low);
-    }
-    tickler.setTaskAssignedTo(docassigned);
+    tickler.setDemographic_no(module_id);
+    tickler.setStatus('A');
+    tickler.setUpdate_date(new java.util.Date());
+    tickler.setPriority(docpriority);
+    tickler.setTask_assigned_to(docassigned);
     tickler.setCreator(doccreator);
     tickler.setMessage(docfilename);
-    tickler.setServiceDate(UtilDateUtilities.StringToDate(docdate));
+    tickler.setService_date(UtilDateUtilities.StringToDate(docdate));
 
 
-   ticklerManager.addTickler(loggedInInfo,tickler);
+   WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
+   TicklerDAO ticklerDAO = (TicklerDAO) ctx.getBean("ticklerDAOT");
+   ticklerDAO.saveTickler(tickler);
 
 
    if (docType != null && docId != null && !docType.trim().equals("") && !docId.trim().equals("") && !docId.equalsIgnoreCase("null") ){
 
-      int ticklerNo = tickler.getId();
+      long ticklerNo = tickler.getTickler_no();
       if (ticklerNo > 0){
           try{
              TicklerLink tLink = new TicklerLink();
              tLink.setTableId(Long.parseLong(docId));
              tLink.setTableName(docType);
              tLink.setTicklerNo(new Long(ticklerNo).intValue());
-             TicklerLinkDao ticklerLinkDao = (TicklerLinkDao) SpringUtils.getBean("ticklerLinkDao");
+             TicklerLinkDao ticklerLinkDao = (TicklerLinkDao) ctx.getBean("ticklerLinkDao");
              ticklerLinkDao.save(tLink);
              }catch(Exception e){
             	 MiscUtils.getLogger().error("No link with this tickler", e);

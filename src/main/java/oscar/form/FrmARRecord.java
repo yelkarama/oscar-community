@@ -27,17 +27,14 @@ package oscar.form;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.Properties;
-
-import org.oscarehr.util.LoggedInInfo;
 
 import oscar.OscarProperties;
 import oscar.oscarDB.DBHandler;
 import oscar.util.UtilDateUtilities;
 
 public class FrmARRecord extends FrmRecord {
-    public Properties getFormRecord(LoggedInInfo loggedInInfo, int demographicNo, int existingID) throws SQLException {
+    public Properties getFormRecord(int demographicNo, int existingID) throws SQLException {
         Properties props = new Properties();
 
         if (existingID <= 0) {
@@ -49,9 +46,10 @@ public class FrmARRecord extends FrmRecord {
                 java.util.Date date = UtilDateUtilities.calcDate(oscar.Misc.getString(rs, "year_of_birth"), rs
                         .getString("month_of_birth"), oscar.Misc.getString(rs, "date_of_birth"));
                 props.setProperty("demographic_no", oscar.Misc.getString(rs, "demographic_no"));
-                props.setProperty("formCreated", UtilDateUtilities.DateToString(new Date(), "yyyy/MM/dd"));
+                props.setProperty("formCreated", UtilDateUtilities.DateToString(UtilDateUtilities
+                        .Today(), "yyyy/MM/dd"));
                 //props.setProperty("formEdited",
-                // UtilDateUtilities.DateToString(new Date(),"yyyy/MM/dd"));
+                // UtilDateUtilities.DateToString(UtilDateUtilities.Today(),"yyyy/MM/dd"));
                 props.setProperty("c_pName", oscar.Misc.getString(rs, "pName"));
                 props.setProperty("c_address", oscar.Misc.getString(rs, "address"));
                 props.setProperty("pg1_dateOfBirth", UtilDateUtilities.DateToString(date,
@@ -59,7 +57,8 @@ public class FrmARRecord extends FrmRecord {
                 props.setProperty("pg1_age", String.valueOf(UtilDateUtilities.calcAge(date)));
                 props.setProperty("pg1_homePhone", oscar.Misc.getString(rs, "phone"));
                 props.setProperty("pg1_workPhone", oscar.Misc.getString(rs, "phone2"));
-                props.setProperty("pg1_formDate", UtilDateUtilities.DateToString(new Date(), "yyyy/MM/dd"));
+                props.setProperty("pg1_formDate", UtilDateUtilities.DateToString(UtilDateUtilities
+                        .Today(), "yyyy/MM/dd"));
             }
             rs.close();
         } else {

@@ -74,5 +74,24 @@ public class CdsFormOptionDao extends AbstractDao<CdsFormOption> {
 
 		return (results);
 	}
+	
+	public CdsFormOption findByCategoryAndName(String cdsDataCategory, String mainCatgeory) {
+		// build sql string
+		String sqlCommand = "select x from CdsFormOption x where x.cdsDataCategoryName=?1 and x.cdsDataCategory like ?2 order by x.id";
 
+		// set parameters
+		Query query = entityManager.createQuery(sqlCommand);
+		query.setParameter(1, mainCatgeory);
+		query.setParameter(2, cdsDataCategory+"%");
+
+		// run query
+		@SuppressWarnings("unchecked")
+		List<CdsFormOption> results = query.getResultList();
+
+		if(results.size() > 0)
+			return results.get(0);
+		else
+			return null;
+	}
+	
 }

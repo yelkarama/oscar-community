@@ -17,35 +17,18 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin.billing,_admin" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../../securityError.jsp?type=_admin&type=_admin.billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
+<% 
+if(session.getValue("user") == null) response.sendRedirect("../../../logout.jsp");
 %>
 
-<%@page import="oscar.util.ConversionUtils"%>
-<%@page import="org.oscarehr.util.DateRange"%>
-
-
-<%@ page import="java.math.*, java.util.*, java.sql.*, oscar.*, oscar.oscarBilling.ca.bc.MSP.*, java.net.*, oscar.*" errorPage="../../../errorpage.jsp"%>
+<%@ page
+	import="java.math.*, java.util.*, java.sql.*, oscar.*, oscar.oscarBilling.ca.bc.MSP.*, java.net.*"
+	errorPage="../../../errorpage.jsp"%>
 <%@ include file="../../../admin/dbconnection.jsp"%>
-<%@page import="org.oscarehr.util.SpringUtils" %>
-<%@page import="org.oscarehr.common.model.Provider" %>
-<%@page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
-
-
-<%
-	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
-%>
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean"
+	scope="session" />
+<jsp:useBean id="SxmlMisc" class="oscar.SxmlMisc" scope="session" />
+<%@ include file="dbBilling.jspf"%>
 
 <%
 String errorMsg = "";
@@ -57,7 +40,7 @@ String provider = request.getParameter("provider");
 String proOHIP=""; 
 String billinggroup_no;
    
-DateRange dateRange = null;
+String dateRange = "";
 String htmlValue="";
 String oscar_home= oscarVariables.getProperty("project_home")+".properties";
 
@@ -65,17 +48,16 @@ String dateBegin = request.getParameter("xml_vdate");
 String dateEnd = request.getParameter("xml_appointment_date");
 if (dateEnd.compareTo("") == 0) dateEnd = request.getParameter("curDate");
 if (dateBegin.compareTo("") == 0){
-	dateRange = new DateRange(null, ConversionUtils.fromDateString(dateEnd));
+	dateRange = " and billing_date <= '" + dateEnd + "'";
 }else{
-	dateRange = new DateRange(ConversionUtils.fromDateString(dateBegin), ConversionUtils.fromDateString(dateEnd));
+	dateRange = " and billing_date >='" + dateBegin + "' and billing_date <='" + dateEnd + "'";
 }
 
-for(Provider p:providerDao.getActiveProviders()) {
-	if(p.getOhipNo()!=null && !p.getOhipNo().isEmpty()) {
-			
-	proOHIP = p.getOhipNo();
+ResultSet rslocal = apptMainBean.queryResults(request.getParameter("provider"), "search_provider_ohip_dt");
+while(rslocal.next()){
+	proOHIP = rslocal.getString("ohip_no"); 
    
-	billinggroup_no= p.getBillingNo(); //SxmlMisc.getXmlContent(rslocal.getString("comments"),"<xml_p_billinggroup_no>","</xml_p_billinggroup_no>");
+	billinggroup_no= rslocal.getString("billing_no"); //SxmlMisc.getXmlContent(rslocal.getString("comments"),"<xml_p_billinggroup_no>","</xml_p_billinggroup_no>");
 
 	if (billinggroup_no == null ||  billinggroup_no.compareTo("") == 0 ||  billinggroup_no.compareTo("null")==0 ){
 		//error msg here
@@ -95,8 +77,8 @@ for(Provider p:providerDao.getActiveProviders()) {
 	extract.dbQuery();
 
 	htmlValue += "<font color='red'>" + errorMsg + "</font>" + extract.getHtmlCode()+ "<hr/><br/><br/>";
-} }
-
+}
+rslocal.close();
 
 request.setAttribute("html",htmlValue);
 %>

@@ -25,23 +25,8 @@
 --%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin,_admin.userAdmin" rights="r" reverse="<%=true%>">
-	<%response.sendRedirect("../securityError.jsp?type=_admin&type=_admin.userAdmin");%>
-	<%authed=false; %>
-</security:oscarSec>
-
-<%
-if(!authed) {
-	return;
-}
-%>
 <%@ page
-	import="java.sql.*, oscar.login.*, java.util.*,oscar.*,oscar.oscarDB.*,oscar.oscarProvider.data.ProviderBillCenter"
+	import="java.sql.*, oscar.login.*, java.util.*,oscar.*,oscar.oscarDB.*,oscar.util.SqlUtils,oscar.oscarProvider.data.ProviderBillCenter"
 	errorPage="errorpage.jsp"%>
 
 <%@page import="org.oscarehr.common.dao.SiteDao"%>
@@ -56,8 +41,7 @@ if(!authed) {
 <%@page import="org.oscarehr.common.model.ProviderSite"%>
 <%@page import="org.oscarehr.common.model.ProviderSitePK"%>
 <%@page import="org.oscarehr.common.dao.ProviderSiteDao"%>
-<%@page import="org.oscarehr.common.dao.UserPropertyDAO"%>
-<%@page import="org.oscarehr.common.model.UserProperty"%>
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean" scope="session" />
 <%
 	ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
 	ProviderSiteDao providerSiteDao = SpringUtils.getBean(ProviderSiteDao.class);
@@ -179,37 +163,8 @@ if(!authed) {
 		  p.setPractitionerNo(request.getParameter("practitionerNo"));
 		  p.setLastUpdateUser((String)session.getAttribute("user"));
 		  p.setLastUpdateDate(new java.util.Date());
-                  String supervisor = request.getParameter("supervisor");
-                  
-                  if( supervisor == null || supervisor.equalsIgnoreCase("null") || supervisor.equals("")) {
-                      p.setSupervisor(null);
-                  }
-                  else {
-                    p.setSupervisor(supervisor);
-                  }
-		  
 		  providerDao.updateProvider(p);
-		  
-		  
-		  UserPropertyDAO userPropertyDAO = (UserPropertyDAO)SpringUtils.getBean("UserPropertyDAO");
-		 
-		  String clinicalConnectId = request.getParameter("clinicalConnectId");
-		  String clinicalConnectType = request.getParameter("clinicalConnectType");
-		  
-		  userPropertyDAO.saveProp(provider.getProviderNo(), UserProperty.CLINICALCONNECT_ID, clinicalConnectId);
-		  userPropertyDAO.saveProp(provider.getProviderNo(), UserProperty.CLINICALCONNECT_TYPE, clinicalConnectType);
-		  
-		  String officialFirstName = request.getParameter("officialFirstName");
-		  String officialSecondName = request.getParameter("officialSecondName");
-		  String officialLastName = request.getParameter("officialLastName");
-		  String officialOlisIdtype = request.getParameter("officialOlisIdtype");
-		
-		  userPropertyDAO.saveProp(provider.getProviderNo(), UserProperty.OFFICIAL_FIRST_NAME, officialFirstName);
-		  userPropertyDAO.saveProp(provider.getProviderNo(), UserProperty.OFFICIAL_SECOND_NAME, officialSecondName);
-		  userPropertyDAO.saveProp(provider.getProviderNo(), UserProperty.OFFICIAL_LAST_NAME, officialLastName);
-		  userPropertyDAO.saveProp(provider.getProviderNo(), UserProperty.OFFICIAL_OLIS_IDTYPE, officialOlisIdtype);
-		  
-		
+
         if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) {
             String[] sites = request.getParameterValues("sites");
             DBPreparedHandler dbObj = new DBPreparedHandler();
@@ -228,8 +183,8 @@ if(!authed) {
         }
 %>
 <p>
-<h2><bean:message key="admin.providerupdate.msgUpdateSuccess" />
-<a href="providerupdateprovider.jsp?keyword=<%=request.getParameter("provider_no")%>"><%= request.getParameter("provider_no") %></a>
+<h2><bean:message key="admin.providerupdate.msgUpdateSuccess" /><a
+	href="admincontrol.jsp?keyword=<%=request.getParameter("provider_no")%>&displaymode=Provider_Update&dboperation=provider_search_detail"><%= request.getParameter("provider_no") %></a>
 </h2>
 <%
   } else {
@@ -249,7 +204,7 @@ else {
 }
 %>
 <p></p>
-
+<%@ include file="footer2htm.jsp"%>
 </center>
 </body>
 </html:html>

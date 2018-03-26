@@ -32,29 +32,8 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
    "http://www.w3.org/TR/html4/loose.dtd">
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_phr" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_phr");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@ page import="oscar.oscarDemographic.data.DemographicData"%>
-<%@ page import="java.util.Enumeration,oscar.dms.EDoc,oscar.dms.EDocUtil"%>
-<%@ page import="org.oscarehr.util.SpringUtils,org.apache.commons.lang.StringEscapeUtils" %>
-<%@ page import="org.oscarehr.common.dao.Hl7TextInfoDao,org.oscarehr.common.model.Hl7TextInfo"%>
-
-
-
+<%@ page import="java.util.Enumeration"%>
 
 <%@ taglib uri="/WEB-INF/phr-tag.tld" prefix="phr"%>
 
@@ -62,31 +41,40 @@
 String demographicNo = request.getParameter("demographic_no");
 if (demographicNo == null) demographicNo = request.getParameter("demographicNo");
 DemographicData demographicData = new DemographicData();
-String demographicName = demographicData.getDemographicFirstLastName(LoggedInInfo.getLoggedInInfoFromSession(request), demographicNo);
-
-String documentName = "";
-
-if(request.getParameter("labId") != null){
-	Hl7TextInfoDao hl7TextInfoDao = (Hl7TextInfoDao) SpringUtils.getBean("hl7TextInfoDao");
-	int lab_no = Integer.parseInt(request.getParameter("labId"));
-	Hl7TextInfo hl7Lab = hl7TextInfoDao.findLabId(lab_no);
-	documentName = hl7Lab.getLabelOrDiscipline();
-}else if(request.getParameter("module") != null && request.getParameter("module").equals("document")) {
-	String documentNo = request.getParameter("documentNo");
-	EDoc eDoc = EDocUtil.getDoc(documentNo);
-	documentName = eDoc.getDescription();
-}
-	
+String demographicName = demographicData.getDemographicFirstLastName(demographicNo);
 %>
 
 <html>
     <head>
         <title>Preview</title>
-		<link href="../library/bootstrap/3.0.0/css/bootstrap.css" rel="stylesheet">
+
+        <style type="text/css">
+            body {
+                font-size: 12px;
+            }
+            .title {
+                border-bottom: 1px solid black;
+                font-size: 12px;
+                font-weight: bold;
+                width: 300px;
+                margin-bottom: 10px;
+            }
+            table {
+                border-collapse: collapse;
+                padding: 1px;
+            }
+            .heading, th {
+                color: gray;
+                font-weight: normal;
+                text-align: left;
+                width: 60px;
+            }
+        </style>
+
         <script type="text/javascript" language="JavaScript" src="phr.js"></script>
         <script type="text/javascript" language="JavaScript">
             function send(obj) {
-                if (document.getElementById('demographic_no').value == "") {
+                if (obj.form.demographic_no.value == "") {
                     alert("Cannot find demographic number");
                     return false;
                 }
@@ -111,37 +99,48 @@ if(request.getParameter("labId") != null){
 
     </head>
     <body onload="onloadd()">
-    	
-        <div class="page-header" style="margin:5px"><h4>Send to <%=StringEscapeUtils.escapeHtml(demographicName)%>'s PHR - Preview</h4></div>
-        <div class="container">
-        <form action="<%=request.getContextPath()%>/SendToPhr.do" method="POST" >
-            <input type="hidden" name="demographic_no" value="<%=demographicNo%>" id="demographic_no">
+        <div class="title">Send to PHR - Preview</div>
+        <form action="<%=request.getContextPath()%>/SendToPhr.do" method="POST">
+            <input type="hidden" name="demographic_no" value="<%=demographicNo%>">
             <input type="hidden" name="method" value="send">
             <input type="Hidden" name="SendToPhrPreview" value="yes">
-            <%Enumeration<String> parameterNames = request.getParameterNames();
-              while (parameterNames.hasMoreElements()) {
-              	String parameterName = parameterNames.nextElement();
-                if (parameterName.equals("method")) continue;
-                for (String parameterValue: request.getParameterValues(parameterName)) {%>
-                	<input type="hidden" name="<%=parameterName%>" value="<%=parameterValue%>">
-			<%} }%>
-			
-            <div class="form-group">
-    			<label for="subject">Document Name</label>
-    			<input type="text" name="subject" class="form-control" id="subject" placeholder="" value="<%=documentName%>">
-  			</div>
-  			<div class="form-group">
-    			<label for="message">Annotation</label>
-    			<textarea name="message"   class="form-control" rows="3" ></textarea>
-  			</div>
-  			<div class="form-group">
-  				<input type="submit" onclick="this.form.method.value='documentPreview'" value="Document Preview" class="btn btn-default">
-  			 	<input type="button" onclick="window.close()" value="Cancel"  class="btn btn-default">
-                <input type="button" onclick="send(this)" value="Send" class="btn btn-primary">
-  			</div>
-           
+            <table>
+                <tr><th>Send to:</th><td><%=demographicName%></td></tr>
+                <tr><th>Subject:</th><td><input type="text" name="subject"> <span style="font-size: 10px;">(Subject of the message and document name)</span></td></tr>
+                <tr><td colspan="2">
+                        <span class="heading">Message:</span>
+                        <br>
+                        <textarea name="message" style="width: 500px; height: 100px;"></textarea>
+                    </td>
+                </tr>
+                <tr><th>Attached</th>
+                    <td><img style="width: 20px; height: 20px;" src="<%=request.getContextPath()%>/images/pdf-logo-small.jpg" alt="">
+                        <%
+                        String labId = request.getParameter("labId");
+                        if (labId != null) {%>
+                        <%}%>
+                        <span style="padding-bottom: 10px; vertical-align: middle;"><input type="submit" onclick="this.form.method.value='documentPreview'" value="Document Preview"></span>
+<%--document.getElementById('iframe').src='<%=request.getContextPath()%>/lab/CA/ALL/PrintPDF.do?segmentID=<%=labId%>'--%>
+                        <%Enumeration<String> parameterNames = request.getParameterNames();
+                        while (parameterNames.hasMoreElements()) {
+                            String parameterName = parameterNames.nextElement();
+                            if (parameterName.equals("method")) continue;
+                            for (String parameterValue: request.getParameterValues(parameterName)) {%>
+                            <input type="hidden" name="<%=parameterName%>" value="<%=parameterValue%>">
+                        <%}}%>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="height: 40px; vertical-align: bottom;">
+                        <div style="width: 200px; border-top: 1px solid #bdbdbd; padding-top: 3px;">
+                            <input type="button" onclick="window.close()" value="Cancel">
+                            <input type="button" onclick="send(this)" value="Send -->">
+                        </div>
+                    </td>
+                </tr>
+            </table>
         </form>
         <iframe name="iframe" id="iframe" style="border:0px; width: 0px; height: 0px;"/>
-        </div>
+        
     </body>
 </html>

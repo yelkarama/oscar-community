@@ -34,7 +34,7 @@ import org.oscarehr.util.SpringUtils;
 
 public class BatchEligibilityDaoTest extends DaoTestFixtures {
 
-	protected BatchEligibilityDao dao = (BatchEligibilityDao)SpringUtils.getBean("batchEligibilityDao");
+	private BatchEligibilityDao dao = (BatchEligibilityDao)SpringUtils.getBean("batchEligibilityDao");
 
 	@Before
 	public void before() throws Exception {

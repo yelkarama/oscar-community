@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <%--
 
     Copyright (c) 2006-. OSCARservice, OpenSoft System. All Rights Reserved.
@@ -20,21 +19,8 @@
 --%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin.billing,_admin" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_admin&type=_admin.billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
-<%
+    if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
+    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
     boolean isTeamBillingOnly=false;
     boolean isSiteAccessPrivacy=false;
     boolean isTeamAccessPrivacy=false; 
@@ -49,10 +35,17 @@ if(!authed) {
 	<%isTeamAccessPrivacy=true; %>
 </security:oscarSec>
 
-<%@ page import="java.io.*, java.sql.*, oscar.*, oscar.util.*, java.util.*" errorPage="errorpage.jsp"%>
+<% 
+    if(session.getAttribute("user") == null) response.sendRedirect("../../../logout.jsp");
+%>
+
+<%@ page
+	import="java.io.*, java.sql.*, oscar.*, oscar.util.*, java.util.*"
+	errorPage="errorpage.jsp"%>
 <%@ page import="oscar.oscarBilling.ca.on.pageUtil.*"%>
 <%@ page import="oscar.oscarBilling.ca.on.data.*"%>
-<jsp:useBean id="documentBean" class="oscar.DocumentBean" scope="request" />
+<jsp:useBean id="documentBean" class="oscar.DocumentBean"
+	scope="request" />
 
 <%
 JdbcBillingRAImpl dbObj = new JdbcBillingRAImpl();
@@ -86,8 +79,10 @@ if(!filename.equals("")) {
 
 <html>
 <head>
-<title><bean:message key="admin.admin.btnBillingReconciliation" /></title>
-<link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
+<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
+<title>Billing Reconcilliation</title>
+<link rel="stylesheet" type="text/css"
+	href="../billing/CA/ON/billingON.css" />
 
 <script language="JavaScript">
 <!--
@@ -121,25 +116,29 @@ function checkReconcile(url){
 </SCRIPT>
 </head>
 
-<body>
-<h3><bean:message key="admin.admin.btnBillingReconciliation" /></h3>
+<body leftmargin="0" topmargin="0" marginwidth="0" marginheight="0">
 
-<div class="container-fluid well">
-<button class="btn btn-primary pull-right" type='button' name='print' value='Print' onClick='window.print(); return false;'><i class="icon icon-print icon-white"></i>  Print</button><br/><br/>
+<table border="0" cellspacing="0" cellpadding="0" width="100%">
+	<tr class="myDarkGreen">
+		<th align='LEFT'><input type='button' name='print' value='Print'
+			onClick='window.print(); return false;'></th>
+		<th><font color="#FFFFFF">Billing Reconcilliation</font></th>
+		<th align='RIGHT'><input type='button' name='close' value='Close'
+			onClick='window.close()'></th>
+	</tr>
+</table>
 
-<table class="table table-striped table-hover table-condensed">
-<thead>
-	<tr >
-		<th>Read Date</th>
-		<th>Payment Date</th>
-		<th>Payable</th>
-		<th>Records/Claims</th>
-		<th>Total</th>
-		<th>Action</th>
+<table width="100%" border="0" cellspacing="1" cellpadding="0">
+	<tr class="myYellow">
+		<th width="10%">Read Date</th>
+		<th width="10%">Payment Date</th>
+		<th width="25%">Payable</th>
+		<th width="10%">Records/Claims</th>
+		<th width="8%">Total</th>
+		<th width="22%">Action</th>
 		<th>Status</th>
 	</tr>
-</thead>
-<tbody>
+
 	<% 
 
 List aL;
@@ -184,8 +183,7 @@ for(int i = 0; i < aL.size(); i++) {
 	<%
 }
 %>
-</tbody>
 </table>
-</div>
+
 </body>
 </html>

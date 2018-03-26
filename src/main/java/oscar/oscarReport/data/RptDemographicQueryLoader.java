@@ -56,7 +56,6 @@ public class RptDemographicQueryLoader {
 		String mSex   = null;
 		String mProviderNo    = null;
 		String mPatientStatus = null;
-		String mDemoIds = null;
 
 
 		  DemographicQueryFavourite dqf = demographicQueryFavouritesDao.find(Integer.parseInt(qId));
@@ -71,7 +70,6 @@ public class RptDemographicQueryLoader {
 			  mSex = dqf.getSex();
 			  mProviderNo = dqf.getProviderNo();
 			  mPatientStatus = dqf.getPatientStatus();
-			  mDemoIds = dqf.getDemoIds();
 		  }
 
 
@@ -114,9 +112,6 @@ public class RptDemographicQueryLoader {
           if (mPatientStatus != null && mPatientStatus.length() != 0){
             String[] t = fromXMLtoArray(mPatientStatus);
             dRF.setPatientStatus(t);
-          }
-          if (mDemoIds != null && !mDemoIds.isEmpty()) {
-        	  dRF.setDemoIds(mDemoIds);
           }
 
           return dRF;

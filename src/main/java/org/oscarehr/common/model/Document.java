@@ -30,8 +30,6 @@
 
 package org.oscarehr.common.model;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -44,13 +42,9 @@ import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-
-import org.apache.commons.io.FileUtils;
 
 /**
  *
@@ -65,7 +59,6 @@ import org.apache.commons.io.FileUtils;
     @NamedQuery(name = "Document.findByDocdesc", query = "SELECT d FROM Document d WHERE d.docdesc = :docdesc"),
     @NamedQuery(name = "Document.findByDocfilename", query = "SELECT d FROM Document d WHERE d.docfilename = :docfilename"),
     @NamedQuery(name = "Document.findByDoccreator", query = "SELECT d FROM Document d WHERE d.doccreator = :doccreator"),
-    @NamedQuery(name = "Document.findByContentdatetime", query = "SELECT d FROM Document d WHERE d.contentdatetime = :contentdatetime"),
     @NamedQuery(name = "Document.findByResponsible", query = "SELECT d FROM Document d WHERE d.responsible = :responsible"),
     @NamedQuery(name = "Document.findBySource", query = "SELECT d FROM Document d WHERE d.source = :source"),
     @NamedQuery(name = "Document.findByProgramId", query = "SELECT d FROM Document d WHERE d.programId = :programId"),
@@ -80,10 +73,6 @@ import org.apache.commons.io.FileUtils;
     @NamedQuery(name = "Document.findPhotosByAppointmentNo", query = "SELECT d FROM Document d WHERE d.appointmentNo = :appointmentNo and d.doctype='photo'")})
 public class Document extends AbstractModel<Integer> implements Serializable {
     private static final long serialVersionUID = 1L;
-   
-    public static final char STATUS_ACTIVE='A';
-    public static final char STATUS_DELETED='D';
-    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
@@ -127,9 +116,6 @@ public class Document extends AbstractModel<Integer> implements Serializable {
     @Basic(optional = false)
     @Column(name = "contenttype")
     private String contenttype;
-    @Column(name = "contentdatetime")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date contentdatetime;    
     @Basic(optional = false)
     @Column(name = "public1")
     private int public1;
@@ -140,16 +126,13 @@ public class Document extends AbstractModel<Integer> implements Serializable {
     private String reviewer;
     @Column(name = "reviewdatetime")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date reviewdatetime;    
+    private Date reviewdatetime;
+    @Basic(optional = false)
     @Column(name = "number_of_pages")
-    private Integer numberofpages;
+    private int numberofpages;
     @Column(name="appointment_no")
     private Integer appointmentNo;
 
-    private Boolean restrictToProgram=false;
-    
-    private String fileSignature;
-    
     public Document() {
     }
 
@@ -221,15 +204,7 @@ public class Document extends AbstractModel<Integer> implements Serializable {
     public void setDoccreator(String doccreator) {
         this.doccreator = doccreator;
     }
-    
-    public Date getContentdatetime() {
-        return contentdatetime;
-    }
 
-    public void setContentdatetime(Date contentdatetime) {
-        this.contentdatetime = contentdatetime;
-    }
-    
     public String getResponsible() {
         return responsible;
     }
@@ -310,7 +285,7 @@ public class Document extends AbstractModel<Integer> implements Serializable {
         this.reviewdatetime = reviewdatetime;
     }
 
-    public Integer getNumberofpages() {
+    public int getNumberofpages() {
         return numberofpages;
     }
 
@@ -350,42 +325,6 @@ public class Document extends AbstractModel<Integer> implements Serializable {
     	this.sourceFacility = sourceFacility;
     }
 
-	/**
-	 * @returns a string representing the path of the file on disk, i.e. document_dir+'/'+filename
-	 */
-	public String getDocumentFileFullPath()
-	{
-		String docDir = oscar.OscarProperties.getInstance().getProperty("DOCUMENT_DIR");
-		return(docDir+'/'+docfilename);
-	}
-	
-	public byte[] getDocumentFileContentsAsBytes() throws IOException
-	{
-		return(FileUtils.readFileToByteArray(new File(getDocumentFileFullPath())));
-	}
-	
-	@PrePersist
-	@PreUpdate
-	protected void jpaUpdateDate() {
-		this.updatedatetime = new Date();
-	}
 
-	public Boolean isRestrictToProgram() {
-		return restrictToProgram;
-	}
 
-	public void setRestrictToProgram(Boolean restrictToProgram) {
-		this.restrictToProgram = restrictToProgram;
-	}
-
-	public String getFileSignature() {
-		return fileSignature;
-	}
-
-	public void setFileSignature(String fileSignature) {
-		this.fileSignature = fileSignature;
-	}
-	
-	
-	
 }

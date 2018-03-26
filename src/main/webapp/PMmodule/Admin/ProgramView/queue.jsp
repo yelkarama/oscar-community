@@ -25,8 +25,7 @@
 --%>
 
 
-<%@page import="org.oscarehr.util.LoggedInInfo" %>
-<%@page import="oscar.eform.EFormUtil"%>
+
 <%@ page import="java.util.*"%>
 <%@ page import="org.oscarehr.PMmodule.model.ProgramQueue"%>
 <%@ page import="org.oscarehr.PMmodule.web.admin.ProgramManagerAction.RemoteQueueEntry"%>
@@ -36,23 +35,13 @@
 <%@page import="org.oscarehr.common.model.Demographic"%>
 <%@page import="org.oscarehr.PMmodule.dao.ProgramProviderDAO"%>
 <%@page import="org.oscarehr.PMmodule.model.Program"%>
+<%@ taglib uri="/WEB-INF/security.tld" prefix="security" %>
 <%@ taglib uri="/WEB-INF/caisi-tag.tld" prefix="caisi"%>
 <%@ include file="/taglibs.jsp"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin.pmm" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_admin.pmm");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
+<%@ taglib uri="/WEB-INF/caisi-tag.tld" prefix="caisi"%>
+
 <script>
-    function do_admission() {
+    function do_admission() {  
     	var admissionDate = document.getElementById('admissionDate').value;
       <%
       	String referralDateString=(String)request.getAttribute("referralDate");
@@ -81,7 +70,7 @@
     		return false;
     	} 
     	
-        var form = document.programManagerViewForm;
+    	    	var form = document.programManagerViewForm;
         form.method.value='admit';
         form.submit();
 
@@ -102,7 +91,7 @@
         var form = document.programManagerViewForm;
         form.elements['clientId'].value=client_id;
         form.elements['queueId'].value=queue_id;
-        if(action == 'admit') {
+        if(action == 'admit') {        	
             form.method.value='select_client_for_admit';
         }
         if(action == 'reject') {
@@ -146,6 +135,8 @@
         form.method.value='remove_remote_queue';
         form.submit();
 	}
+	
+	//false: date2 > date1
 	//true: date2 <= date1
 	function compareDates(date1, date2) {	
 		
@@ -206,6 +197,8 @@
 		}
 		return true;
 	}
+
+	
 </script>
 <html:hidden property="clientId" />
 <html:hidden property="queueId" />
@@ -213,6 +206,7 @@
 <%
 	ProgramProviderDAO ppd =(ProgramProviderDAO)SpringUtils.getBean("programProviderDAO");
 	boolean bShowEncounterLink = false; 
+	String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
 %>
 <security:oscarSec roleName="<%=roleName$%>" objectName="_eChart" rights="r">
 <% bShowEncounterLink = true; %>
@@ -290,20 +284,7 @@ String reason ="";
 				HttpSession se = request.getSession();			
 				ProgramQueue temp=(ProgramQueue)pageContext.getAttribute("queue_entry");
 				String programId = String.valueOf(temp.getProgramId());
-				Integer demographic_no = temp.getClientId().intValue();
-				String appointment = request.getParameter("appointment") == null ? "0":request.getParameter("appointment");
-				String orderBy = "";
-				String orderByRequest = request.getParameter("orderby");
-				if (orderByRequest == null) orderBy = EFormUtil.DATE;
-				else if (orderByRequest.equals("form_subject")) orderBy = EFormUtil.SUBJECT;
-				else if (orderByRequest.equals("form_name")) orderBy = EFormUtil.NAME;
-				Map<String,? extends Object> curform = Collections.EMPTY_MAP;
-				ArrayList<HashMap<String,? extends Object>> eForms = EFormUtil.listPatientEForms(LoggedInInfo.getLoggedInInfoFromSession(request), orderBy, EFormUtil.CURRENT, demographic_no.toString(), roleName$);
-				if(eForms != null ){
-					int eformsSize = eForms.size();
-					curform = eformsSize > 0 ? eForms.get(eformsSize-1):Collections.EMPTY_MAP;
-				}
-				String url = request.getContextPath() + "/eform/efmshowform_data.jsp?fdid= " + curform.get("fdid") + "&appointment=" + demographic_no;
+				int demographic_no = temp.getClientId().intValue();
 				if(ppd.isThisProgramInProgramDomain(curUser_no,Integer.valueOf(programId))) {				
 					
 					String eURL = "../oscarEncounter/IncomingEncounter.do?programId="+programId+"&providerNo="+curUser_no+"&appointmentNo="+rsAppointNO+"&demographicNo="+demographic_no+"&curProviderNo="+curUser_no+"&reason="+java.net.URLEncoder.encode(reason)+"&encType="+java.net.URLEncoder.encode("face to face encounter with client","UTF-8")+"&userName="+java.net.URLEncoder.encode( userfirstname+" "+userlastname)+"&curDate=null&appointmentDate=null&startTime=0:0"+"&status="+status+"&source=cm";
@@ -311,11 +292,7 @@ String reason ="";
 		<a href=#
 			onClick="popupPage(710, 1024,'../oscarSurveillance/CheckSurveillance.do?demographicNo=<%=demographic_no%>&proceed=<%=java.net.URLEncoder.encode(eURL)%>');return false;"
 			title="<bean:message key="global.encounter"/>"> <bean:message
-			key="provider.appointmentProviderAdminDay.btnEncounter" /></a>&nbsp;&nbsp;
-		<a href=#
-			onClick="popupPage(710,1024,'<%=request.getContextPath()%>/eform/efmshowform_data.jsp?demographicNo=<%=demographic_no%>&fdid=<%=curform.get("fdid")%>','0'); return false;"
-			title="<bean:message key="global.remoteReferral"/>"> <bean:message
-			key="provider.appointmentProviderAdminDay.btnIntake"/></a>
+			key="provider.appointmentProviderAdminDay.btnE" /></a> 
 		
 		
 	<% 	}	} 
@@ -327,10 +304,6 @@ String reason ="";
 		title="Referral Date" />
 	<display:column property="providerFormattedName" sortable="true"
 		title="Referring Provider" />
-	<display:column property="vacancyName" sortable="true"
-		title="Vacancy Name" />		
-	<display:column property="vacancyTemplateName" sortable="true"
-		title="Vacancy Template Name" />
 	<display:column property="notes" sortable="true"
 		title="Reason for referral" />
 	<display:column property="presentProblems" sortable="true"
@@ -370,15 +343,14 @@ String reason ="";
 			<td><textarea cols="50" rows="7" name="admission.admissionNotes"></textarea></td>
 		</tr>
 		<tr> <td>Admission Date:</td>
-		        <td><input type="text" id="admissionDate" name="admissionDate" value="" readonly ><img titltype="text"e="Calendar" id="cal_admissionDate" src="<%=request.getContextPath()%>/images/cal.gif" alt="Calendar" border="0">
-			<script type="text/javascript">Calendar.setup({inputField:'admissionDate',ifFormat :'%Y-%m-%d',button :'cal_admissionDate',align :'cr',singleClick :true,firstDay :1});</script>        
-                           
-			</td>
-		</tr>
-
+			<td><input type="text" id="admissionDate" name="admissionDate" value="" readonly ><img titltype="text"e="Calendar" id="cal_admissionDate" 
+                src="<%=request.getContextPath()%>/images/cal.gif" alt="Calendar" border="0">
+                <script type="text/javascript">Calendar.setup({inputField:'admissionDate',ifFormat :'%Y-%m-%d',button :'cal_admissionDate',align :'cr',singleClick :true,firstDay :1});</script>                                     
+                </td>
+        </tr>
 		<tr class="b">
 			<td colspan="2"><input type="button" value="Process Admission"
-				onclick="do_admission()" /> <input type="button" value="Cancel"
+				onclick="return do_admission()" /> <input type="button" value="Cancel"
 				onclick="refresh_queue()" /></td>
 		</tr>
 	</table>
@@ -461,8 +433,6 @@ String reason ="";
 		</display:column>
 		<display:column property="providerName" sortable="true"
 			title="Referring Provider" />
-	<display:column property="vacancyName" sortable="true"
-		title="Vacancy Name" />
 		<display:column property="referral.reasonForReferral" sortable="true"
 			title="Reason for referral" />
 		<display:column property="referral.presentingProblem" sortable="true"

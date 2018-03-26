@@ -28,11 +28,10 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
-import org.hibernate.Session;
 import org.hibernate.criterion.Expression;
+import org.oscarehr.PMmodule.model.Admission;
 import org.oscarehr.PMmodule.model.ClientReferral;
 import org.oscarehr.PMmodule.model.Program;
-import org.oscarehr.common.model.Admission;
 import org.oscarehr.util.MiscUtils;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -159,7 +158,7 @@ public class ClientReferralDAO extends HibernateDaoSupport {
             throw new IllegalArgumentException();
         }
 
-        String queryStr = "FROM Admission a WHERE a.clientId=? ORDER BY a.admissionDate DESC";
+        String queryStr = "FROM Admission a WHERE a.ClientId=? ORDER BY a.AdmissionDate DESC";
         @SuppressWarnings("unchecked")
         List<Admission> rs = getHibernateTemplate().find(queryStr, new Object[] { demographicNo });
         return rs;
@@ -250,25 +249,12 @@ public class ClientReferralDAO extends HibernateDaoSupport {
 
     @SuppressWarnings("unchecked")
     public List<ClientReferral> search(ClientReferral referral) {
-    	Session session = getSession();
-    	try {
-	        Criteria criteria = session.createCriteria(ClientReferral.class);
-	
-	        if (referral != null && referral.getProgramId().longValue() > 0) {
-	            criteria.add(Expression.eq("ProgramId", referral.getProgramId()));
-	        }
-	
-	        return criteria.list();
-    	}finally {
-    		this.releaseSession(session);
-    	}
-    }
-    
-    public List<ClientReferral> getClientReferralsByProgram(int programId) {
-    	@SuppressWarnings("unchecked")
-        List<ClientReferral> results = this.getHibernateTemplate().find("from ClientReferral cr where cr.ProgramId = ?", new Long(programId));
+        Criteria criteria = getSession().createCriteria(ClientReferral.class);
 
-       return results;
-    }
+        if (referral != null && referral.getProgramId().longValue() > 0) {
+            criteria.add(Expression.eq("ProgramId", referral.getProgramId()));
+        }
 
+        return criteria.list();
+    }
 }

@@ -81,7 +81,7 @@ public class HRMXMLHandler implements MessageHandler {
 			Source schemaFile = new StreamSource(new File(SFTPConnector.OMD_directory + "report_manager_cds.xsd"));
 			Schema schema = factory.newSchema(schemaFile); //new File(SFTPConnector.OMD_directory + "report_manager_cds.xsd"));
 
-			JAXBContext jc = JAXBContext.newInstance("org.oscarehr.hospitalReportManager.xsd");
+			JAXBContext jc = JAXBContext.newInstance("oscar.hospitalReportManager.xsd");
 			Unmarshaller u = jc.createUnmarshaller();
 			root = (OmdCds) u.unmarshal(byeArrayInputStream);
 			pr = root.getPatientRecord();
@@ -239,7 +239,7 @@ public class HRMXMLHandler implements MessageHandler {
 	 * @param i
 	 * @param j
 	 * @param its
-	 * @return String
+	 * @return
 	 */
 	public String getOBXResult(int i, int j, boolean its) {
 
@@ -397,11 +397,17 @@ public class HRMXMLHandler implements MessageHandler {
 	}
 
 	public String getDocName() {
+		String docName = "";
+
 		return "";
 	}
 
 	public String getCCDocs() {
+
+		String docNames = "";
+
 		return "";
+
 	}
 
 	public ArrayList<String> getDocNums() {
@@ -485,9 +491,6 @@ public class HRMXMLHandler implements MessageHandler {
 
 	    public String getNteForOBX(int i, int j){
 
-	    	return "";
-	    }
-	    public String getNteForPID() {
 	    	return "";
 	    }
 }

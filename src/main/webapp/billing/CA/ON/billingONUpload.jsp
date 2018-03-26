@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <%--
 
     Copyright (c) 2006-. OSCARservice, OpenSoft System. All Rights Reserved.
@@ -18,42 +17,32 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin.billing,_admin" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_admin&type=_admin.billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
 <%   
+if(session.getAttribute("user") == null) response.sendRedirect("../../../logout.jsp");
 OscarProperties props = OscarProperties.getInstance();
 session.setAttribute("homepath", props.getProperty("project_home", ""));      
 %>
-<%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ page import="oscar.*" errorPage="errorpage.jsp"%>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
 
 <html>
 <head>
-<title><bean:message key="admin.admin.uploadMOHFile"/></title>
-<link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
+<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
+<title>Upload MOH Files</title>
+<link rel="stylesheet" type="text/css" href="billingON.css" />
 
 <script type="text/javascript">
+<!--
+
+
+//-->
+
 function onSubmit(){
 	var val1 = document.form1.file1.value;
 	var n = val1.lastIndexOf('\\');
 	val1 = val1.substring((n*1+1));
-	if (val1.length>30) {
-			alert("File name: "+val1+" is too long. Please rename file and upload again!");
-			return false;
-	}
+	//alert(val1);
 	if (val1.substring(0,1) == "P" || val1.substring(0,1) == "S"){
 		if (document.all){
 			document.all.form1.action="../../../servlet/oscar.DocumentUploadServlet";
@@ -76,14 +65,32 @@ function onSubmit(){
 </SCRIPT>
 </head>
 
-<body>
-<h3><bean:message key="admin.admin.uploadMOHFile"/></h3>
-<div class="container-fluid well">
-	<form id="form1" name="form1" method="post" action="" ENCTYPE="multipart/form-data" onsubmit="return onSubmit();">
-		Select diskette<input style="margin-left:40px;" type="file" name="file1" value="" required>
-		<input class="btn btn-primary" type="submit" name="Submit" value="Create Report">
+<body bgcolor="#FFFFFF" text="#000000" onLoad="setfocus()">
+<table border="0" cellspacing="0" cellpadding="0" width="100%"
+	class="myDarkGreen">
+	<tr>
+		<th><font color="#FFFFFF"> Upload MOH Files </font></th>
+	</tr>
+</table>
+
+<p>
+<table width="400" border="0">
+	<form id="form1" name="form1" method="post" action=""
+		ENCTYPE="multipart/form-data" onsubmit="return onSubmit();">
+	<tr>
+		<td width="181"><b>Select diskette</b></td>
+		<td width="209"><input type="file" name="file1" value=""></td>
+	</tr>
+	<tr>
+		<td width="181"><input type="submit" name="Submit"
+			value="Create Report"></td>
+		<td width="209">&nbsp;</td>
+	</tr>
 	</form>
-*Select a file downloaded from EDT.
-</div>
+</table>
+
+<p><font face="Arial, Helvetica, sans-serif" size="2">*
+Select a file downloaded from EDT.</font></p>
+
 </body>
 </html>

@@ -78,6 +78,7 @@ public class OscarAction
    * @param response HttpServletResponse
    * @param docName String
    * @param docType String
+   * @return StringBuilder
    */
   public void cfgHeader(HttpServletResponse response, String docName,
                         String docType) {

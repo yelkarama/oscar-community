@@ -33,9 +33,7 @@ import java.sql.SQLException;
 import java.util.Properties;
 import java.util.Vector;
 
-import org.oscarehr.common.dao.ReportItemDao;
-import org.oscarehr.common.model.ReportItem;
-import org.oscarehr.util.SpringUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 
 import oscar.login.DBHelp;
 
@@ -46,33 +44,27 @@ public class RptReportItem {
     String report_name;
     int status = 1;
     DBHelp dbObj = new DBHelp();
-    private ReportItemDao dao = SpringUtils.getBean(ReportItemDao.class);
-    
 
     public boolean insertRecord() {
-    	ReportItem r = new ReportItem();
-    	r.setReportName(report_name);
-    	r.setStatus(status);
-    	dao.persist(r);
-        return true;
+        boolean ret = false;
+        String sql = "insert into reportItem (report_name, status) values ('"
+                + StringEscapeUtils.escapeSql(report_name) + "', " + status + ")";
+        ret = DBHelp.updateDBRecord(sql);
+        return ret;
     }
 
     public boolean deleteRecord(int recordId)  {
-    	ReportItem r = dao.find(recordId);
-    	if(r != null) {
-    		r.setStatus(0);
-    		dao.merge(r);
-    	}
-    	return true;
+        boolean ret = false;
+        String sql = "update reportItem set status=0 where id=" + recordId;
+        ret = DBHelp.updateDBRecord(sql);
+        return ret;
     }
 
     public boolean unDeleteRecord(int recordId)  {
-    	ReportItem r = dao.find(recordId);
-    	if(r != null) {
-    		r.setStatus(1);
-    		dao.merge(r);
-    	}
-    	return true;
+        boolean ret = false;
+        String sql = "update reportItem set status=1 where id=" + recordId;
+        ret = DBHelp.updateDBRecord(sql);
+        return ret;
     }
 
     // id

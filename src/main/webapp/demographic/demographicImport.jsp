@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <%--
 
     Copyright (c) 2001-2002. Department of Family Medicine, McMaster University. All Rights Reserved.
@@ -25,21 +24,6 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_demographic" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_demographic");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%@page import="oscar.oscarDemographic.data.*,java.util.*,oscar.oscarDemographic.pageUtil.Util"%>
 <%@page import="org.oscarehr.PMmodule.dao.ProgramDao, org.oscarehr.util.SpringUtils,org.oscarehr.PMmodule.model.Program"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
@@ -59,10 +43,12 @@
 <html:html locale="true">
 
 <head>
+<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <!--I18n-->
-<title><bean:message key="admin.admin.DemoImport"/></title>
-<link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
-
+<title>Import Demographic Information</title>
+<link rel="stylesheet" type="text/css"
+	href="../share/css/OscarStandardLayout.css">
+<script type="text/javascript" src="../share/javascript/Oscar.js"></script>
 
 <SCRIPT LANGUAGE="JavaScript">
 function displayAndDisable(){
@@ -74,23 +60,9 @@ function displayAndDisable(){
 
 
 <link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
-
-<link rel="stylesheet" type="text/css" href="<%=request.getContextPath() %>/js/jquery_css/smoothness/jquery-ui-1.10.2.custom.min.css"/>
-<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-1.9.1.js"></script>
-<script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery-ui-1.10.2.custom.min.js"></script>
-
-
-<script>
-$(document).ready(function(){
-	$("#uploadWarn").tooltip();
-});
-
-
-</script>
-
 </head>
 
-<body vlink="#0000FF">
+<body class="BodyStyle" vlink="#0000FF">
 
 <%
 oscar.OscarProperties op = oscar.OscarProperties.getInstance();
@@ -103,15 +75,35 @@ if (!Util.checkDir(op.getProperty("TMP_DIR"))) { %>
 } else {
 %>
 
-<div class="container-fluid well">
-	<h3><bean:message key="admin.admin.DemoImport"/></h3>
-		
-		<html:form action="/form/importUpload.do" method="POST"
+<table class="MainTable" id="scrollNumber1" name="encounterTable">
+	<tr class="MainTableTopRow">
+		<td class="MainTableTopRowLeftColumn" width="175"><bean:message
+			key="demographic.demographiceditdemographic.msgPatientDetailRecord" />
+		</td>
+		<td class="MainTableTopRowRightColumn">
+		<table class="TopStatusBar">
+			<tr>
+				<td>Import <!--i18n--></td>
+				<td>&nbsp;</td>
+				<td style="text-align: right"><oscar:help keywords="import demographic" key="app.top1"/> | <a
+					href="javascript:popupStart(300,400,'About.jsp')"><bean:message
+					key="global.about" /></a> | <a
+					href="javascript:popupStart(300,400,'License.jsp')"><bean:message
+					key="global.license" /></a></td>
+			</tr>
+		</table>
+		</td>
+	</tr>
+	<tr>
+		<td class="MainTableLeftColumn" valign="top">&nbsp;</td>
+		<td valign="top" class="MainTableRightColumn"><!--            
+            <html:form action="/form/importUpload.do" method="POST" enctype="multipart/form-data" onsubmit="displayAndDisable()">
+                        <input type="file" name="importFile" value="">                    
+                        <input type="submit" name="Submit" value="Import">
+            </html:form>
+//--> <html:form action="/form/importUpload.do" method="POST"
 			enctype="multipart/form-data" onsubmit="displayAndDisable()">
-                        <p><html:file property="importFile" value=""/>
-                        <span id="uploadWarn" title="<bean:message key="global.uploadWarningBody"/>" style="vertical-align:middle;font-family:arial;font-size:20px;font-weight:bold;color:#ABABAB;cursor:pointer"><img border="0" src="../images/icon_alertsml.gif"/></span></span>
-        
-                        </p>
+                        <p><html:file property="importFile" value=""/></p>
 						<%if(learningEnabled != null && learningEnabled.equalsIgnoreCase("yes")) { %>
 							<!-- Drop Down box of courses -->
 							Course:&nbsp;<html:select property="courseId">
@@ -128,8 +120,8 @@ if (!Util.checkDir(op.getProperty("TMP_DIR"))) { %>
                         </html:radio><br>
                         <html:radio property="matchProviderNames" value="false">
                             Import as new - same provider may have multiple entries
-                        </html:radio><br><br>
-                        <p><input class="btn btn-primary" type="submit" name="Submit" value="Import (CMS spec 4.0)"></p>
+                        </html:radio><br>
+                        <p><input type="submit" name="Submit" value="Import (CMS spec 4.0)"></p>
 		</html:form>
 
 		<div id="waitingMessage" style="display: none;">
@@ -155,10 +147,14 @@ if (!Util.checkDir(op.getProperty("TMP_DIR"))) { %>
 			<input type="submit" name="Submit" value="Download Import Event Log">
                      </html:form>
 		<% } %>
-</div>
+		</td>
+	</tr>
+	<tr>
+		<td class="MainTableBottomRowLeftColumn">&nbsp;</td>
+		<td class="MainTableBottomRowRightColumn" valign="top">&nbsp;</td>
+	</tr>
+</table>
                 
 <% } %>
-<script src="<%=request.getContextPath() %>/js/bootstrap.min.js"></script>
-
 </body>
 </html:html>

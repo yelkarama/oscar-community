@@ -1,4 +1,4 @@
-	<%--
+<%--
 
     Copyright (c) 2001-2002. Department of Family Medicine, McMaster University. All Rights Reserved.
     This software is published under the GPL GNU General Public License.
@@ -24,39 +24,20 @@
 
 --%>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_appointment" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_appointment");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%@page import="org.oscarehr.util.SessionConstants"%>
 <%@page import="org.oscarehr.common.model.ProviderPreference"%>
-<%@page import="oscar.oscarBilling.ca.bc.decisionSupport.BillingGuidelines"%>
-<%@page import="org.oscarehr.decisionSupport.model.DSConsequence"%>
-<%@page import="org.oscarehr.util.MiscUtils"%>
-<%@page import="java.util.Set,java.util.HashSet"%>
-<%@page import="org.oscarehr.managers.ProgramManager2"%>
-<%
- 
+<%@page %> <%
+  if(session.getAttribute("user") == null)    response.sendRedirect("../logout.jsp");
+
   String DONOTBOOK = "Do_Not_Book";
   String curProvider_no = request.getParameter("provider_no");
   String curDoctor_no = request.getParameter("doctor_no") != null ? request.getParameter("doctor_no") : "";
   String curUser_no = (String) session.getAttribute("user");
   String userfirstname = (String) session.getAttribute("userfirstname");
   String userlastname = (String) session.getAttribute("userlastname");
-  
-  LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+
+  //String curDemoNo = request.getParameter("demographic_no")!=null?request.getParameter("demographic_no"):"";
+  //String curDemoName = request.getParameter("demographic_name")!=null?request.getParameter("demographic_name"):"";
 
   ProviderPreference providerPreference=(ProviderPreference)session.getAttribute(SessionConstants.LOGGED_IN_PROVIDER_PREFERENCE);
   int everyMin=providerPreference.getEveryMin();
@@ -68,107 +49,46 @@
   if (request.getParameter("demographic_no")!=null) bFromWL=true;
 
   String duration = request.getParameter("duration")!=null?(request.getParameter("duration").equals(" ")||request.getParameter("duration").equals("")||request.getParameter("duration").equals("null")?(""+everyMin) :request.getParameter("duration")):(""+everyMin) ;
-
-  //check for management fee code eligibility
-  Set<String> billingRecommendations = new HashSet<String>();
-  try{
-    List<DSConsequence> list = BillingGuidelines.getInstance().evaluateAndGetConsequences(loggedInInfo, request.getParameter("demographic_no"), curProvider_no);
-
-    for (DSConsequence dscon : list){
-        if (dscon.getConsequenceStrength().equals(DSConsequence.ConsequenceStrength.recommendation)) {
-            String recommendation = new String(dscon.getText());
-            billingRecommendations.add(recommendation);
-        }
-    }
-  }catch(Exception e){
-    MiscUtils.getLogger().error("Error", e);
-  }
 %>
-<%@ page import="java.util.*, java.sql.*, oscar.*, java.text.*, java.lang.*, oscar.appt.*" errorPage="errorpage.jsp"%>
-<%@ page import="oscar.appt.status.service.AppointmentStatusMgr"%>
-<%@ page import="oscar.appt.status.service.impl.AppointmentStatusMgrImpl"%>
-<%@ page import="org.oscarehr.common.model.AppointmentStatus"%>
-<%@ page import="org.oscarehr.util.SpringUtils" %>
-<%@ page import="oscar.oscarEncounter.data.EctFormData"%>
-<%@ page import="org.oscarehr.common.model.DemographicCust" %>
-<%@ page import="org.oscarehr.common.dao.DemographicCustDao" %>
-<%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
-<%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
-<%@ page import="org.oscarehr.common.model.Provider" %>
-<%@ page import="org.oscarehr.common.model.Demographic" %>
-<%@ page import="org.oscarehr.common.dao.DemographicDao" %>
-<%@ page import="org.oscarehr.common.model.EncounterForm" %>
-<%@ page import="org.oscarehr.common.dao.EncounterFormDao" %>
-<%@ page import="org.oscarehr.common.model.Appointment" %>
-<%@ page import="org.oscarehr.common.dao.OscarAppointmentDao" %>
-<%@ page import="oscar.util.ConversionUtils" %>
-<%@ page import="org.apache.commons.lang.StringUtils" %>
-<%@ page import="org.oscarehr.PMmodule.model.Program" %>
-<%@ page import="org.oscarehr.PMmodule.model.ProgramProvider" %>
-<%@ page import="org.oscarehr.common.model.Facility" %>
-<%@ page import="org.oscarehr.PMmodule.service.ProviderManager" %>
-<%@ page import="org.oscarehr.PMmodule.service.ProgramManager" %>
-<%@ page import="org.oscarehr.util.LoggedInInfo"%>
-<%@ page import="org.oscarehr.managers.LookupListManager"%>
-<%@ page import="org.oscarehr.common.model.LookupList"%>
-<%@ page import="org.oscarehr.common.model.LookupListItem"%>
-
+<%@ include file="/common/webAppContextAndSuperMgr.jsp"%>
+<%@ page
+	import="java.util.*, java.sql.*, oscar.*, java.text.*, java.lang.*, oscar.appt.*"
+	errorPage="../appointment/errorpage.jsp"%>
+<%@ page import="oscar.appt.status.service.AppointmentStatusMgr"
+	errorPage="../appointment/errorpage.jsp"%>
+<%@ page import="oscar.appt.status.model.AppointmentStatus"
+	errorPage="../appointment/errorpage.jsp"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar" %>
-
+<%--RJ 07/07/2006 --%>
 <jsp:useBean id="providerBean" class="java.util.Properties" scope="session" />
-
+<%@page import="org.oscarehr.util.SpringUtils" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ page import="oscar.oscarEncounter.data.EctFormData"%>
+<%@page import="org.oscarehr.common.model.DemographicCust" %>
+<%@page import="org.oscarehr.common.dao.DemographicCustDao" %>
+<%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
 <%
 	DemographicCustDao demographicCustDao = (DemographicCustDao)SpringUtils.getBean("demographicCustDao");
-	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
-	DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
-	EncounterFormDao encounterFormDao = SpringUtils.getBean(EncounterFormDao.class);
-	OscarAppointmentDao appointmentDao = SpringUtils.getBean(OscarAppointmentDao.class);
-	
-	ProviderManager providerManager = SpringUtils.getBean(ProviderManager.class);
-	ProgramManager programManager = SpringUtils.getBean(ProgramManager.class);
-	
-	String providerNo = loggedInInfo.getLoggedInProviderNo();
-	Facility facility = loggedInInfo.getCurrentFacility();
-	
-    List<Program> programs = programManager.getActiveProgramByFacility(providerNo, facility.getId());
+%>
 
-	LookupListManager lookupListManager = SpringUtils.getBean(LookupListManager.class);
-	LookupList reasonCodes = lookupListManager.findLookupListByName(loggedInInfo, "reasonCode");
+<%
+  int iPageSize=5;
 
-    int iPageSize=5;
+  ApptData apptObj = ApptUtil.getAppointmentFromSession(request);
 
-    ApptData apptObj = ApptUtil.getAppointmentFromSession(request);
+  oscar.OscarProperties pros = oscar.OscarProperties.getInstance();
+  String strEditable = pros.getProperty("ENABLE_EDIT_APPT_STATUS");
+  Boolean isMobileOptimized = session.getAttribute("mobileOptimized") != null;
 
-    oscar.OscarProperties pros = oscar.OscarProperties.getInstance();
-    String strEditable = pros.getProperty("ENABLE_EDIT_APPT_STATUS");
-    Boolean isMobileOptimized = session.getAttribute("mobileOptimized") != null;
-
-    AppointmentStatusMgr apptStatusMgr = new AppointmentStatusMgrImpl();
-    List<AppointmentStatus> allStatus = apptStatusMgr.getAllActiveStatus();
-    
-    String useProgramLocation = OscarProperties.getInstance().getProperty("useProgramLocation");
-    String moduleNames = OscarProperties.getInstance().getProperty("ModuleNames");
-    boolean caisiEnabled = moduleNames != null && org.apache.commons.lang.StringUtils.containsIgnoreCase(moduleNames, "Caisi");
-    boolean locationEnabled = caisiEnabled && (useProgramLocation != null && useProgramLocation.equals("true"));
-    
-    ProgramManager2 programManager2 = SpringUtils.getBean(ProgramManager2.class);
+  AppointmentStatusMgr apptStatusMgr = (AppointmentStatusMgr)webApplicationContext.getBean("AppointmentStatusMgr");
+  List allStatus = apptStatusMgr.getAllActiveStatus();
 %>
 <%@page import="org.oscarehr.common.dao.SiteDao"%>
-<%@page import="org.oscarehr.common.model.Site"%>
-<html:html locale="true">
+<%@page import="org.oscarehr.common.model.Site"%><html:html locale="true">
 <head>
-<script type="text/javascript" src="../js/jquery-1.7.1.min.js"></script>
-<script src="<%=request.getContextPath()%>/js/jquery-ui-1.8.18.custom.min.js"></script>
-<script src="<%=request.getContextPath()%>/js/fg.menu.js"></script>
-
-<link rel="stylesheet" href="<%=request.getContextPath()%>/css/cupertino/jquery-ui-1.8.18.custom.css">
-<link rel="stylesheet" href="<%=request.getContextPath()%>/css/fg.menu.css">
-
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
-<script type="text/javascript" src="<%= request.getContextPath() %>/js/checkDate.js"></script>
 <script type="text/javascript" src="<%= request.getContextPath() %>/share/javascript/Oscar.js"></script>
 <% if (isMobileOptimized) { %>
     <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, width=device-width" />
@@ -183,15 +103,6 @@
    </script>
 <oscar:customInterface section="addappt"/>
 <script type="text/javascript">
-
-function onAdd() {
-    if (document.ADDAPPT.notes.value.length > 255) {
-      window.alert("<bean:message key="appointment.editappointment.msgNotesTooBig"/>");
-      return false;
-    }
-    return calculateEndTime() ;
-}
-
 
 <!--
 function setfocus() {
@@ -233,61 +144,24 @@ function checkTypeNum(typeIn) {
 }
 
 function checkTimeTypeIn(obj) {
-  var colonIdx;
   if(!checkTypeNum(obj.value) ) {
 	  alert ("<bean:message key="Appointment.msgFillTimeField"/>");
-  } else {
-      colonIdx = obj.value.indexOf(':');
-      if(colonIdx==-1) {
-        if(obj.value.length < 3) alert("<bean:message key="Appointment.msgFillValidTimeField"/>");
-        obj.value = obj.value.substring(0, obj.value.length-2 )+":"+obj.value.substring( obj.value.length-2 );
-  }
-}
-          
-  var hours = "";
-  var minutes = "";  
-
-  colonIdx = obj.value.indexOf(':');  
-  if (colonIdx < 1)
-      hours = "00";     
-  else if (colonIdx == 1)
-      hours = "0" + obj.value.substring(0,1);
-  else
-      hours = obj.value.substring(0,2);
-  
-  minutes = obj.value.substring(colonIdx+1,colonIdx+3);
-  if (minutes.length == 0)
-	    minutes = "00";
-  else if (minutes.length == 1)
-    minutes = "0" + minutes;
-  else if (minutes > 59)
-    minutes = "00";
-
-  obj.value = hours + ":" + minutes;    
+	} else {
+	  if(obj.value.indexOf(':')==-1) {
+	    if(obj.value.length < 3) alert("<bean:message key="Appointment.msgFillValidTimeField"/>");
+	    obj.value = obj.value.substring(0, obj.value.length-2 )+":"+obj.value.substring( obj.value.length-2 );
+	  }
+	}
 }
 
-var readOnly=false;
-function checkDateTypeIn(obj) {
-    if (obj.value == '') {
-        alert("Date cannot be empty");
-        return false;
-    } else { 
-        obj.value = obj.value.replace(/\//g,"-");
-        if (!check_date(obj.name))
-          return false;
-    } 
-}
-function isEmpty(str) {
-    return (!str || 0 === str.length);
-}
 function calculateEndTime() {
   var stime = document.ADDAPPT.start_time.value;
   var vlen = stime.indexOf(':')==-1?1:2;
   var shour = stime.substring(0,2) ;
   var smin = stime.substring(stime.length-vlen) ;
   var duration = document.ADDAPPT.duration.value ;
-  
-  if(isNaN(duration) || isEmpty(duration)) {
+
+  if(isNaN(duration)) {
 	  alert("<bean:message key="Appointment.msgFillTimeField"/>");
 	  return false;
   }
@@ -362,11 +236,9 @@ function pasteAppt(multipleSameDayGroupAppt) {
         //document.forms[0].chart_no.value = "<%=apptObj.getChart_no()%>";
         document.forms[0].keyword.value = "<%=apptObj.getName()%>";
         document.forms[0].demographic_no.value = "<%=apptObj.getDemographic_no()%>";
-        document.forms[0].reasonCode.value = "<%=apptObj.getReasonCode()%>";
-        document.forms[0].reason.value = "<%= StringEscapeUtils.escapeJavaScript(apptObj.getReason()) %>";
-        document.forms[0].notes.value = "<%= StringEscapeUtils.escapeJavaScript(apptObj.getNotes()) %>";
-        document.forms[0].location.value = "<%=apptObj.getLocation()%>";
-        document.forms[0].program_id.value = "<%=apptObj.getProgram()%>";
+        document.forms[0].reason.value = "<%=apptObj.getReason()%>";
+        document.forms[0].notes.value = "<%=apptObj.getNotes()%>";
+        //document.forms[0].location.value = "<%=apptObj.getLocation()%>";
         document.forms[0].resources.value = "<%=apptObj.getResources()%>";
         document.forms[0].type.value = "<%=apptObj.getType()%>";
         if('<%=apptObj.getUrgency()%>' == 'critical') {
@@ -404,8 +276,6 @@ function pasteAppt(multipleSameDayGroupAppt) {
 		                          break;
 		                  }
 		          }
-		  } else if (loc.nodeName == "INPUT") {
-			  document.forms['ADDAPPT'].location.value = locSel;
 		  }
 	}
 
@@ -446,164 +316,20 @@ function pasteAppt(multipleSameDayGroupAppt) {
   caltime.setTime(apptDate);
   caltime.add(GregorianCalendar.MINUTE, Integer.parseInt(duration)-1 );
 
-  java.util.Date startTime = ConversionUtils.fromDateString(request.getParameter("start_time"),"HH:mm");
-  java.util.Date endTime = ConversionUtils.fromDateString(caltime.get(Calendar.HOUR_OF_DAY) +":"+ caltime.get(Calendar.MINUTE),"HH:mm");
-  
-  List<Appointment> appts = appointmentDao.search_appt(apptDate, curProvider_no, startTime, endTime, startTime, endTime, startTime, endTime, Integer.parseInt((String)request.getSession().getAttribute("programId_oscarView")));
-  
-  long apptnum = appts.size() > 0 ? new Long(appts.size()) : 0;
-  
-  OscarProperties props = OscarProperties.getInstance();
-  
-  String timeoutSeconds = props.getProperty("appointment_locking_timeout","0");
-  int timeoutSecs = 0; 
-  try { 
-    timeoutSecs = Integer.parseInt(timeoutSeconds);
-  }catch (NumberFormatException e) {/*empty*/}
-  
-  int hourInt = caltime.get(Calendar.HOUR_OF_DAY); 
-  String hour = String.valueOf(hourInt);
-  if (hour.length() == 0)
-      hour = "00";
-   else if (hour.length() == 1)
-      hour = "0" + hour;
-  
-  int minuteInt = caltime.get(Calendar.MINUTE); 
-  String minute = String.valueOf(minuteInt);
-   if (minute.length() == 0)
-      minute = "00";
-   else if (minute.length() == 1) 
-      minute = "0" + minute;  
-  
-   if (timeoutSecs > 0) {
-%>
+  String [] param = new String[9] ;
+  param[0] = dateString2;
+  param[1] = curProvider_no;
+  param[2] = request.getParameter("start_time");
+  param[3] = caltime.get(Calendar.HOUR_OF_DAY) +":"+ caltime.get(Calendar.MINUTE);
+  param[4] = param[2];
+  param[5] = param[3];
+  param[6] = param[2];
+  param[7] = param[3];
+  param[8] = (String)request.getSession().getAttribute("programId_oscarView");
 
-<script>
-        var timers = new Array();
+  List<Map<String,Object>> resultList = oscarSuperManager.find("appointmentDao", "search_appt", param);
+  long apptnum = resultList.size() > 0 ? (Long)resultList.get(0).get("n") : 0;
 
-	$(document).ready(function(){
-           $(window).bind('beforeunload',function(){cancelPageLock();
-           });
-           //cancel any page view/locks held by provider on clicking 'X'
-           $("form#addappt").submit(function() {$(window).unbind('beforeunload');
-           });
-
-           calculateEndTime();
-           var endTime = document.forms[0].end_time.value;
-           var startTime = document.forms[0].start_time.value;
-           var apptDate = document.forms[0].appointment_date.value; 
-           updatePageLock(100,apptDate,startTime,endTime);	   
-	});
-        
-        function checkPageLock() {
-           $("#searchBtn").attr("disabled","disabled");
-           calculateEndTime();
-           var endTime = document.forms[0].end_time.value;
-           var startTime = document.forms[0].start_time.value;
-           var apptDate = document.forms[0].appointment_date.value;
-           updatePageLock(100,apptDate,startTime,endTime);
-           
-        }
-        
-        function updatePageLock(timeout, apptDate, startTime, endTime) {
-
-           for (var i = 0; i < timers.length; i++) {
-                clearTimeout(timers[i]);               
-           }
-                      
-	   haveLock=false;
-           $.ajax({
-               type: "POST",
-               url: "<%=request.getContextPath()%>/PageMonitoringService.do",
-               data: { method: "update", page: "addappointment", pageId: "<%=curProvider_no%>|" + apptDate + "|" + startTime + "|" + endTime, lock: true, timeout: <%=timeoutSeconds%>, cleanupExisting: true},
-               dataType: 'json',
-               async: false,
-               success: function(data,textStatus) {
-                       lockData=data;
-                            var locked=false;
-                            var lockedProviderName='';
-                            var providerNames='';
-                            haveLock=false;
-                       $.each(data, function(key, val) {				
-                         if(val.locked) {
-                             locked=true;
-                             lockedProviderName=val.providerName;
-                         }
-                         if(val.locked==true && val.self==true) {
-                                       haveLock=true;
-                               }
-                         if(providerNames.length > 0)
-                             providerNames += ",";
-                         providerNames += val.providerName;
-
-                       });
-
-                       var lockedMsg = locked?'<span style="color:red" title="'+lockedProviderName+'">&nbsp(locked)</span>':'';
-                       $("#lock_notification").html(
-                            '<span title="'+providerNames+'">Viewers:'+data.length+lockedMsg+'</span>'	   
-                       );
-
-
-                       if(haveLock==true) { //i have the lock
-                            $("#addButton").show(); 
-                            $("#printButton").show();
-                            $("#addPrintPreviewButton").show(); 
-                            $("#pasteButton").show(); 
-                            $("#apptRepeatButton").show(); 
-                       } else if(locked && !haveLock) { //someone else has lock.
-                            $("#addButton").hide(); 
-                            $("#printButton").hide();
-                            $("#addPrintPreviewButton").hide(); 
-                            $("#pasteButton").hide(); 
-                            $("#apptRepeatButton").hide();                          
-                       } else { //no lock
-                            $("#addButton").show(); 
-                            $("#printButton").show();
-                            $("#addPrintPreviewButton").show(); 
-                            $("#pasteButton").show(); 
-                            $("#apptRepeatButton").show();                                 
-                       }
-                       $("#searchBtn").removeAttr("disabled");
-               }
-             }
-            );
-            
-            timers.push(setTimeout(function(){updatePageLock(5000, apptDate, startTime, endTime)},timeout));      
-        }
-        
-        function cancelPageLock() {
-           calculateEndTime();
-           var endTime = document.forms[0].end_time.value;
-           var startTime = document.forms[0].start_time.value;
-           var apptDate = document.forms[0].appointment_date.value;
-           
-           for (var i = 0; i < timers.length; i++) {
-               clearTimeout(timers[i]);               
-           }
-           
-           $.ajax({
-               type: "POST",
-               url: "<%=request.getContextPath()%>/PageMonitoringService.do",
-               data: { method: "cancel", page: "addappointment", pageId: "<%=curProvider_no%>|" + apptDate + "|" + startTime + "|" + endTime},
-               dataType: 'json',
-               async: false,
-               success: function(data,textStatus) {}
-           });
-        }
-
-</script>
-
-<%
- } else {        
-%>
-<script>
-    function checkPageLock() { //don't do anything unless timeout/locking is enabled.
-    }
-    function cancelPageLock() { //don't do anything unless timeout/locking is enabled.
-    }
-</script>
-<%
-  }
   String deepcolor = apptnum==0?"#CCCCFF":"gold", weakcolor = apptnum==0?"#EEEEFF":"ivory";
   if (!isMobileOptimized) {
 %>
@@ -612,33 +338,49 @@ function pasteAppt(multipleSameDayGroupAppt) {
           .deep { background-color: <%= deepcolor %>; }
           .weak { background-color: <%= weakcolor %>; }
       </style>
-  
+      <!-- Must change styles for browsers that do not understand display:table properties -->
+      <!--[if lt IE 8]>
+        <style type="text/css">
+            body { min-width: 750px; }
+            .row { clear: both; }
+            li.deep { background-color: <%= weakcolor %>; }
+            .label, .space { float:left; width: 100px !important; }
+            .panel li div { border:none; }
+            .input, .space { text-align: right; float:left; }
+            .panel { background-color: #EEEEFF; }
+        </style>
+    <![endif]-->
+    <!-- Min-width doesn't work properly in IE6, so we simulate it using JavaScript.
+    It's important to set a min-width since many elements will be floating, and
+    resizing may cause elements to collapse in strange ways
+    -->
+    <!--[if lt IE 7]>
+        <script language="JavaScript">
+            window.onresize = function() { setMinWidth(860); }
+        </script>
+    <![endif]-->
 <%
   }
+  resultList = oscarSuperManager.find("appointmentDao", "search_appt_name", param);
   boolean bDnb = false;
-  for(Appointment a : appts) {
-	  String apptName = a.getName();
-	  if (apptName.equalsIgnoreCase(DONOTBOOK)) bDnb = true;
+  for (Map apt : resultList) {
+    String apptName = (String) apt.get("name");
+    if (apptName.equalsIgnoreCase(DONOTBOOK)) bDnb = true;
   }
- 
 
   // select provider lastname & firstname
   String pLastname = "";
   String pFirstname = "";
-  Provider p = providerDao.getProvider(curProvider_no);
-  if(p != null) {
-	  pLastname = p.getLastName();
-      pFirstname = p.getFirstName();
+  resultList = oscarSuperManager.find("appointmentDao", "search_provider_name", new Object [] {curProvider_no});
+  if (resultList.size() > 0) {
+	  Map name = resultList.get(0);
+      pLastname = (String) name.get("last_name");
+      pFirstname = (String) name.get("first_name");
   }
 %>
 </head>
 <body bgproperties="fixed"
 	onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0" bottommargin="0">
- <% if (timeoutSecs >0) { %>
-    <div id="lock_notification">
-        <span title="">Viewers: N/A</span>
-    </div>
- <% } %>
 <%
   String patientStatus = "";
   String disabled="";
@@ -655,9 +397,10 @@ function pasteAppt(multipleSameDayGroupAppt) {
 
   //to show Alert msg
 
+  OscarProperties props = OscarProperties.getInstance();
   boolean bMultipleSameDayGroupAppt = false;
   String displayStyle = "display:none";
-  String myGroupNo = providerPreference.getMyGroupNo();
+  String myGroupNo = (String) session.getAttribute("groupno");
 
   if (props.getProperty("allowMultipleSameDayGroupAppt", "").equalsIgnoreCase("no")) {
 
@@ -665,10 +408,13 @@ function pasteAppt(multipleSameDayGroupAppt) {
 
         if (!bFirstDisp && (demographicNo != null) && (!demographicNo.equals(""))) {
 
-        	
-        	appts = appointmentDao.search_group_day_appt(myGroupNo, Integer.parseInt(demographicNo), apptDate);
-            
-            long numSameDayGroupAppts = appts.size() > 0 ? new Long(appts.size()) : 0;
+            String [] sqlParam = new String[3] ;
+            sqlParam[0] = myGroupNo; //schedule group
+            sqlParam[1] = demographicNo;
+            sqlParam[2] = dateString2;
+
+            resultList = oscarSuperManager.find("appointmentDao", "search_group_day_appt", sqlParam);
+            long numSameDayGroupAppts = resultList.size() > 0 ? (Long)resultList.get(0).get("numAppts") : 0;
             bMultipleSameDayGroupAppt = (numSameDayGroupAppts > 0);
         }
 
@@ -691,39 +437,42 @@ function pasteAppt(multipleSameDayGroupAppt) {
 </div>
 <%
   if (!bFirstDisp && request.getParameter("demographic_no") != null && !request.getParameter("demographic_no").equals("")) {
-	  Demographic d = demographicDao.getDemographic(request.getParameter("demographic_no"));
-	  if(d != null) {
-		  patientStatus = d.getPatientStatus();
-		  address = d.getAddress();
-		  city = d.getCity();
-		  province = d.getProvince();
-		  postal = d.getPostal();
-		  phone = d.getPhone();
-		  phone2 = d.getPhone2();
-		  email = d.getEmail();
-		  String year_of_birth   = d.getYearOfBirth();
-	      String month_of_birth  = d.getMonthOfBirth();
-	      String date_of_birth   = d.getDateOfBirth();
-	      dob = "("+year_of_birth+"-"+month_of_birth+"-"+date_of_birth+")";
-	      sex = d.getSex();
-	      hin = d.getHin();
-	      String ver = d.getVer();
-	      hin = hin +" "+ ver;
-	        
-	      if (patientStatus == null || patientStatus.equalsIgnoreCase("AC")) {
-	        patientStatus = "";
-	      } else if (patientStatus.equalsIgnoreCase("FI")||patientStatus.equalsIgnoreCase("DE")||patientStatus.equalsIgnoreCase("IN")) {
-	      	disabled = "disabled";
-	      }
 
-	      String rosterStatus = d.getRosterStatus();
-	      if (rosterStatus == null || rosterStatus.equalsIgnoreCase("RO")) {
-	      	rosterStatus = "";
-	      }
+        resultList = oscarSuperManager.find("appointmentDao", "search_demographic_statusroster", new Object [] {request.getParameter("demographic_no") });
+	for (Map status : resultList) {
 
-	      if(!patientStatus.equals("") || !rosterStatus.equals("") ) {
-	      	String rsbgcolor = "BGCOLOR=\"orange\"" ;
-	        String exp = " null-undefined\n IN-inactive ID-deceased OP-out patient\n NR-not signed\n FS-fee for service\n TE-terminated\n SP-self pay\n TP-third party";
+        patientStatus      = (String) status.get("patient_status");
+        address            = (String) status.get("address");
+        city               = (String) status.get("city");
+        province           = (String) status.get("province");
+        postal             = (String) status.get("postal");
+        phone              = (String) status.get("phone");
+        phone2             = (String) status.get("phone2");
+        email              = (String) status.get("email");
+        String year_of_birth   = (String) status.get("year_of_birth");
+        String month_of_birth  = (String) status.get("month_of_birth");
+        String date_of_birth   = (String) status.get("date_of_birth");
+        dob = "("+year_of_birth+"-"+month_of_birth+"-"+date_of_birth+")";
+        sex = (String) status.get("sex");
+        hin                    = (String) status.get("hin");
+        String ver             = (String) status.get("ver");
+        hin = hin +" "+ ver;
+
+        if (patientStatus == null || patientStatus.equalsIgnoreCase("AC")) {
+           patientStatus = "";
+        } else if (patientStatus.equalsIgnoreCase("FI")||patientStatus.equalsIgnoreCase("DE")||patientStatus.equalsIgnoreCase("IN")) {
+           disabled = "disabled";
+        }
+
+        String rosterStatus = (String) status.get("roster_status");
+        if (rosterStatus == null || rosterStatus.equalsIgnoreCase("RO")) {
+           rosterStatus = "";
+        }
+
+
+        if(!patientStatus.equals("") || !rosterStatus.equals("") ) {
+          String rsbgcolor = "BGCOLOR=\"orange\"" ;
+          String exp = " null-undefined\n IN-inactive ID-deceased OP-out patient\n NR-not signed\n FS-fee for service\n TE-terminated\n SP-self pay\n TP-third party";
 
 %>
 <table width="98%" <%=rsbgcolor%> border=0 align='center'>
@@ -779,19 +528,8 @@ function pasteAppt(multipleSameDayGroupAppt) {
 	</tr>
 </table>
 <% } %>
-
-<% if (billingRecommendations.size() > 0) { %>
-        <table width="98%" align="center" style="border:solid 3px red;padding-left:10px;line-height:150%;font-family:Arial;color: red; background-color: #FFFFFF; font-size: 18px; font-weight: bold; text-align:left;">
-            <% for (String recommendation : billingRecommendations) { %>
-                <tr>
-                    <th><%=recommendation%></th>
-                </tr>
-            <% } %>
-        </table>
-<% } %>
-
-<FORM NAME="ADDAPPT" id="addappt" METHOD="post" ACTION="<%=request.getContextPath()%>/appointment/appointmentcontrol.jsp"
-	onsubmit="return(onAdd())"><INPUT TYPE="hidden"
+<FORM NAME="ADDAPPT" METHOD="post" ACTION="<%=request.getContextPath()%>/appointment/appointmentcontrol.jsp"
+	onsubmit="return(calculateEndTime())"><INPUT TYPE="hidden"
 	NAME="displaymode" value="">
 	<input type="hidden" name="year" value="<%=request.getParameter("year") %>" >
     <input type="hidden" name="month" value="<%=request.getParameter("month") %>" >
@@ -814,7 +552,7 @@ function pasteAppt(multipleSameDayGroupAppt) {
             <div class="input">
                 <INPUT TYPE="TEXT" NAME="appointment_date"
                     VALUE="<%=dateString2%>" WIDTH="25" HEIGHT="20" border="0"
-                    hspace="2" onChange="checkDateTypeIn(this);checkPageLock()">
+                    hspace="2">
             </div>
             <div class="space">&nbsp;</div>
             <div class="label"><bean:message key="Appointment.formStatus" />:</div>
@@ -825,8 +563,8 @@ function pasteAppt(multipleSameDayGroupAppt) {
                     border="0">
                     <% for (int i = 0; i < allStatus.size(); i++) { %>
                     <option
-                            value="<%=(allStatus.get(i)).getStatus()%>"
-                            <%=(allStatus.get(i)).getStatus().equals(request.getParameter("status"))?"SELECTED":""%>><%=(allStatus.get(i)).getDescription()%></option>
+                            value="<%=((AppointmentStatus)allStatus.get(i)).getStatus()%>"
+                            <%=((AppointmentStatus)allStatus.get(i)).getStatus().equals(request.getParameter("status"))?"SELECTED":""%>><%=((AppointmentStatus)allStatus.get(i)).getDescription()%></option>
                     <% } %>
             </select> <%
             }
@@ -841,14 +579,14 @@ function pasteAppt(multipleSameDayGroupAppt) {
             <div class="input">
                 <INPUT TYPE="TEXT" NAME="start_time"
                     VALUE='<%=request.getParameter("start_time")%>' WIDTH="25"
-                    HEIGHT="20" border="0" onChange="checkTimeTypeIn(this);checkPageLock()">
+                    HEIGHT="20" border="0" onChange="checkTimeTypeIn(this)">
             </div>
             <div class="space">&nbsp;</div>
 
             <%
 				    // multisites start ==================
 				    boolean bMultisites = org.oscarehr.common.IsPropertiesOn.isMultisitesEnable();
-				    SiteDao siteDao = (SiteDao)SpringUtils.getBean("siteDao");
+				    SiteDao siteDao = (SiteDao)WebApplicationContextUtils.getWebApplicationContext(application).getBean("siteDao");
 				    List<Site> sites = siteDao.getActiveSitesByProviderNo((String) session.getAttribute("user"));
 				    // multisites end ==================
 
@@ -861,11 +599,15 @@ function pasteAppt(multipleSameDayGroupAppt) {
 				    String colo = bMultisites
 				                                        ? ApptUtil.getColorFromLocation(sites, loc)
 				                                        : bMoreAddr? ApptUtil.getColorFromLocation(props.getProperty("scheduleSiteID", ""), props.getProperty("scheduleSiteColor", ""),loc) : "white";
-			%>                                    
-					<div class="input" style="text-align: right;"> <INPUT TYPE="button" NAME="typeButton" VALUE="<bean:message key="Appointment.formType"/>" onClick="openTypePopup()"> </div>
+					 if (bMultisites) {
+			%>
+				    <INPUT TYPE="button" NAME="typeButton" VALUE="<bean:message key="Appointment.formType"/>" onClick="openTypePopup()">
+			<% } else { %>
+				    <div class="label"><bean:message key="Appointment.formType"/>:</div>
+			<% } %>
 
             <div class="input">
-                <INPUT TYPE="TEXT" name="type"
+                <INPUT TYPE="TEXT" NAME="type"
                     VALUE='<%=bFirstDisp?"":request.getParameter("type").equals("")?"":request.getParameter("type")%>'
                     WIDTH="25" HEIGHT="20" border="0" hspace="2">
             </div>
@@ -874,7 +616,7 @@ function pasteAppt(multipleSameDayGroupAppt) {
             <div class="label"><bean:message key="Appointment.formDuration" />:</div> <!--font face="arial"> End Time :</font-->
             <div class="input">
                 <INPUT TYPE="TEXT" NAME="duration"
-                        VALUE="<%=duration%>" WIDTH="25" HEIGHT="20" border="0" hspace="2" onChange="checkPageLock()">
+                        VALUE="<%=duration%>" WIDTH="25" HEIGHT="20" border="0" hspace="2">
                 <INPUT TYPE="hidden" NAME="end_time"
                         VALUE='<%=request.getParameter("end_time")%>' WIDTH="25"
                         HEIGHT="20" border="0" hspace="2" onChange="checkTimeTypeIn(this)">
@@ -915,7 +657,7 @@ function pasteAppt(multipleSameDayGroupAppt) {
 			<input type="hidden" name="outofdomain" value="<%=OscarProperties.getInstance().getProperty("pmm.client.search.outside.of.domain.enabled","true")%>"/> 
             <!--input type="hidden" name="displaymode" value="Search " -->
             <div class="label">
-                <INPUT TYPE="submit" name="searchBtn" id="searchBtn" style="width:auto;"
+                <INPUT TYPE="submit" style="width:auto;"
                     onclick="document.forms['ADDAPPT'].displaymode.value='Search '"
                     VALUE="<bean:message key="appointment.addappointment.btnSearch"/>">
             </div>
@@ -929,27 +671,7 @@ function pasteAppt(multipleSameDayGroupAppt) {
         <li class="row deep">
             <div class="label"><bean:message key="Appointment.formReason" />:</div>
             <div class="input">
-                <select name="reasonCode">
-				    <%
-				    if(reasonCodes != null) {
-				    	for(LookupListItem reasonCode : reasonCodes.getItems()) {
-				    		if(reasonCode.isActive()) {
-				    %>
-				    <option value="<%=reasonCode.getId()%>"
-				    				<%=reasonCode.getValue().equals("Others")?"selected":""%>>
-				    	<%=StringEscapeUtils.escapeHtml(reasonCode.getValue())%>
-				    </option>
-				    <%
-				    		} }
-				    } else {
-					%>
-						<option value="-1">Other</option>
-					<%
-					}
-					%>
-				</select>
-				</br>
-				<textarea id="reason" name="reason" tabindex="2" rows="2" wrap="virtual" cols="18"><%=bFirstDisp?"":request.getParameter("reason").equals("")?"":request.getParameter("reason")%></textarea>
+                <textarea name="reason" tabindex="2" rows="2" wrap="virtual" cols="18"><%=bFirstDisp?"":request.getParameter("reason").equals("")?"":request.getParameter("reason")%></textarea>
             </div>
             <div class="space">&nbsp;</div>
             <div class="label"><bean:message key="Appointment.formNotes" />:</div>
@@ -974,16 +696,15 @@ function pasteAppt(multipleSameDayGroupAppt) {
             <div class="input">
 		<% // multisites start ==================
 		if (bMultisites) { %>
-	        <select tabindex="4" name="location" style="background-color: <%=colo%>" onchange='this.style.backgroundColor=this.options[this.selectedIndex].style.backgroundColor'>
-	        <% for (Site s:sites) { %>
-	                <option value="<%=s.getName()%>" style="background-color: <%=s.getBgColor()%>" <%=s.getName().equals(loc)?"selected":"" %>><%=s.getName()%></option>
-	        <% } %>
-	        </select>
+		                <select tabindex="4" name="location" style="background-color: <%=colo%>" onchange='this.style.backgroundColor=this.options[this.selectedIndex].style.backgroundColor'>
+		                <% for (Site s:sites) { %>
+		                        <option value="<%=s.getName()%>" style="background-color: <%=s.getBgColor()%>" <%=s.getName().equals(loc)?"selected":"" %>><%=s.getName()%></option>
+		                <% } %>
+		                </select>
 		<% } else {
 			// multisites end ==================
-%>
-        	<input type="TEXT" name="location" tabindex="4" value="<%=loc%>" width="25" height="20" border="0" hspace="2">	
-        	
+		%>
+		                <input type="TEXT" name="location" tabindex="4" value="<%=loc%>" width="25" height="20" border="0" hspace="2">
 		<% } %>
             </div>
             <div class="space">&nbsp;</div>
@@ -1014,7 +735,7 @@ function pasteAppt(multipleSameDayGroupAppt) {
 %>
                 <INPUT TYPE="TEXT" NAME="createdatetime" readonly VALUE="<%=strDateTime%>" WIDTH="25" HEIGHT="20" border="0" hspace="2">
                 <INPUT TYPE="hidden" NAME="provider_no" VALUE="<%=curProvider_no%>">
-                <INPUT TYPE="hidden" NAME="dboperation" VALUE="search_titlename">
+                <INPUT TYPE="hidden" NAME="dboperation" VALUE="add_apptrecord">
                 <INPUT TYPE="hidden" NAME="creator" VALUE='<%=StringEscapeUtils.escapeHtml(userlastname)+", "+StringEscapeUtils.escapeHtml(userfirstname)%>'>
                 <INPUT TYPE="hidden" NAME="remarks" VALUE="">
             </div>
@@ -1035,51 +756,6 @@ function pasteAppt(multipleSameDayGroupAppt) {
             	<input type="checkbox" name="urgency" value="critical"/>
             </div>
         </li>
-        <li class="row weak">
-           
-            <div class="label"><bean:message key="global.program"/>:</div>
-            <div class="input">
-            	<select name="program_id">
-            	<%
-            		//our program domain
-	            	List<Program> programs1 = programManager.getActiveProgramByFacility(providerNo, facility.getId());
-
-            		//the user you are making an appt for
-            		List<Program> programs2 = programManager.getActiveProgramByFacility(curProvider_no, facility.getId());
-            	
-            		List<Program> programsToShow = new ArrayList<Program>();
-            				
-            		//find the intersection
-            		for(Program pr:programs1) {
-            			if(programs2.contains(pr)) {
-            				programsToShow.add(pr);
-            			}
-            		}
-            				
-	                String sessionLocation1 = "";
-	                ProgramProvider programProvider1 = programManager2.getCurrentProgramInDomain(loggedInInfo, loggedInInfo.getLoggedInProviderNo());
-	                if(programProvider1!=null && programProvider1.getProgram() != null) {
-	                	sessionLocation1 = programProvider1.getProgram().getId().toString();
-	                }
-	                if (programsToShow != null && !programsToShow.isEmpty()) {
-				       	for (Program program1 : programsToShow) {
-				       	    String description = StringUtils.isBlank(program1.getLocation()) ? program1.getName() : program1.getLocation();
-				   	%>
-				        <option value="<%=program1.getId()%>" <%=program1.getId().toString().equals(sessionLocation1) ? "selected='selected'" : ""%>><%=StringEscapeUtils.escapeHtml(description)%></option>
-				    <%	}
-	                }
-			  	%>
-            	</select>
-            </div>
-
-            <div class="space">&nbsp;</div>
-            
-            <div class="label"></div>
-            <div class="input">
-            	
-            </div>
-        </li>
-        
     </ul>
 </div>
 <%String demoNo = request.getParameter("demographic_no");%>
@@ -1120,11 +796,6 @@ function pasteAppt(multipleSameDayGroupAppt) {
             onclick="document.forms['ADDAPPT'].displaymode.value='Add Appt & PrintCard'"
             VALUE="<bean:message key='global.btnPrint'/>"
             <%=disabled%>>
-        <input TYPE="submit" id="printReceiptButton"
-            onclick="document.forms['ADDAPPT'].displaymode.value='Add Appointment';document.forms['ADDAPPT'].printReceipt.value='1';"
-            VALUE="<bean:message key='appointment.addappointment.btnPrintReceipt'/>"
-            <%=disabled%>>
-        <input type="hidden" name="printReceipt" value="">
                 </TD>
 		<TD></TD>
         <% } %>
@@ -1137,20 +808,16 @@ function pasteAppt(multipleSameDayGroupAppt) {
                if (props.getProperty("allowMultipleSameDayGroupAppt", "").equalsIgnoreCase("no")) {
                     String [] sqlParam = new String[3] ;
                     sqlParam[0] = myGroupNo; //schedule group
-                    //convert empty string to placeholder demographic number "0" to prevent NumberFormatException when cutting/copying an empty appointmnet.
-                    if(apptObj.getDemographic_no().trim().equals(""))
-                    {
-                        apptObj.setDemographic_no("0");//demographic numbers start at 1
-                    }
                     sqlParam[1] = apptObj.getDemographic_no();
                     sqlParam[2] = dateString2;
-		    appts = appointmentDao.search_group_day_appt(myGroupNo, Integer.parseInt(apptObj.getDemographic_no()), apptDate);
-                    numSameDayGroupApptsPaste = appts.size() > 0 ? new Long(appts.size()) : 0;
+
+                    resultList = oscarSuperManager.find("appointmentDao", "search_group_day_appt", sqlParam);
+                    numSameDayGroupApptsPaste = resultList.size() > 0 ? (Long)resultList.get(0).get("numAppts") : 0;
                 }
           %>
           <input type="button" id="pasteButton" value="Paste" onclick="pasteAppt(<%=(numSameDayGroupApptsPaste > 0)%>);">
         <% }%>
-          <INPUT TYPE="RESET" id="backButton" class="leftButton top" VALUE="<bean:message key="appointment.addappointment.btnCancel"/>" onClick="cancelPageLock();window.close();">
+          <INPUT TYPE="RESET" id="backButton" class="leftButton top" VALUE="<bean:message key="appointment.addappointment.btnCancel"/>" onClick="window.close();">
        <% if (!props.getProperty("allowMultipleSameDayGroupAppt", "").equalsIgnoreCase("no")) {%>
           <input type="button" id="apptRepeatButton" value="<bean:message key="appointment.addappointment.btnRepeat"/>" onclick="onButRepeat()" <%=disabled%>>
       <%  } %>
@@ -1175,19 +842,19 @@ function pasteAppt(multipleSameDayGroupAppt) {
             </tr>
              <tr bgcolor="#ccccff">
                 <th style="padding-right: 20px" align="left"><bean:message key="appointment.addappointment.msgHin"/>:</th>
-                <td><%=hin.replace("null", "")%> </td>
+                <td><%=hin%> </td>
             </tr>
             <tr bgcolor="#ccccff">
                 <th style="padding-right: 20px"align="left"><bean:message key="appointment.addappointment.msgAddress"/>:</th>
-                <td><%=StringUtils.trimToEmpty(address)%>, <%=StringUtils.trimToEmpty(city)%>, <%=StringUtils.trimToEmpty(province)%>, <%=StringUtils.trimToEmpty(postal)%></td>
+                <td><%=address%>, <%=city%>, <%=province%>, <%=postal%></td>
             </tr>
             <tr bgcolor="#ccccff">
                 <th style="padding-right: 20px" align="left"><bean:message key="appointment.addappointment.msgPhone"/>:</th>
-                <td><b><bean:message key="appointment.addappointment.msgH"/></b>:<%=StringUtils.trimToEmpty(phone)%> <b><bean:message key="appointment.addappointment.msgW"/></b>:<%=StringUtils.trimToEmpty(phone2)%> </td>
+                <td><b><bean:message key="appointment.addappointment.msgH"/></b>:<%=phone%> <b><bean:message key="appointment.addappointment.msgW"/></b>:<%=phone2%> </td>
             </tr>
             <tr bgcolor="#ccccff" align="left">
                 <th style="padding-right: 20px"><bean:message key="appointment.addappointment.msgEmail"/>:</th>
-                <td><%=StringUtils.trimToEmpty(email)%></td>
+                <td><%=email%></td>
             </tr>
 
         </table>
@@ -1202,18 +869,20 @@ function pasteAppt(multipleSameDayGroupAppt) {
         for (String formTblName : formTblNames){
             if ((formTblName != null) && !formTblName.equals("")) {
                 //form table name defined
-                for(EncounterForm ef:encounterFormDao.findByFormTable(formTblName)) {
-                    String formName = ef.getFormName();
+                resultList = oscarSuperManager.find("appointmentDao", "search_formtbl", new Object [] {formTblName});
+                if (resultList.size() > 0) {
+                    //form table exists
+                    Map mFormName = resultList.get(0);
+                    String formName = (String) mFormName.get("form_name");
                     pageContext.setAttribute("formName", formName);
                     boolean formComplete = false;
-                    EctFormData.PatientForm[] ptForms = EctFormData.getPatientFormsFromLocalAndRemote(loggedInInfo, demoNo, formTblName);
+                    EctFormData.PatientForm[] ptForms = EctFormData.getPatientFormsFromLocalAndRemote(demoNo, formTblName);
 
                     if (ptForms.length > 0) {
                         formComplete = true;
                     }
                     numForms++;
                     if (numForms == 1) {
-               
     %>
             <table style="font-size: 9pt;" bgcolor="#c0c0c0" align="center" valign="top" cellpadding="3px">
                 <tr bgcolor="#ccccff">
@@ -1261,23 +930,19 @@ function pasteAppt(multipleSameDayGroupAppt) {
             param2[0] = demoNo;
             Calendar cal2 = Calendar.getInstance();
             param2[1] = new java.sql.Date(cal2.getTime().getTime());
-            java.util.Date start = cal2.getTime();
             cal2.add(Calendar.YEAR, 1);
-            java.util.Date end = cal2.getTime();
             param2[2] = new java.sql.Date(cal2.getTime().getTime());
-            
-            for(Object[] result : appointmentDao.search_appt_future(Integer.parseInt(demoNo), start, end)) {
-            	Appointment a = (Appointment)result[0];
-            	p = (Provider)result[1];
-           
+    		resultList = oscarSuperManager.find("appointmentDao", "search_appt_future", param2);
+
+    		for (Map appt : resultList) {
                 iRow ++;
                 if (iRow > iPageSize) break;
     %>
 	<tr bgcolor="#eeeeff">
-		<td style="background-color: #CCFFCC; padding-right: 25px"><%=ConversionUtils.toDateString(a.getAppointmentDate())%></td>
-		<td style="background-color: #CCFFCC; padding-right: 25px"><%=ConversionUtils.toTimeString(a.getStartTime())%></td>
-		<td style="background-color: #CCFFCC; padding-right: 25px"><%=p.getFormattedName()%></td>
-		<td style="background-color: #CCFFCC;"><%=a.getStatus()==null?"":(a.getStatus().equals("N")?"No Show":(a.getStatus().equals("C")?"Cancelled":"") )%></td>
+		<td style="background-color: #CCFFCC; padding-right: 25px"><%=appt.get("appointment_date")%></td>
+		<td style="background-color: #CCFFCC; padding-right: 25px"><%=appt.get("start_time")%></td>
+		<td style="background-color: #CCFFCC; padding-right: 25px"><%=appt.get("last_name") + ",&nbsp;" + appt.get("first_name")%></td>
+		<td style="background-color: #CCFFCC;"><%=appt.get("status")==null?"":(appt.get("status").equals("N")?"No Show":(appt.get("status").equals("C")?"Cancelled":"") )%></td>
 	</tr>
 	<%
             }
@@ -1285,18 +950,18 @@ function pasteAppt(multipleSameDayGroupAppt) {
             iRow=0;
             cal2 = Calendar.getInstance();
             cal2.add(Calendar.YEAR, -1);
-            
-            for(Object[] result : appointmentDao.search_appt_past(Integer.parseInt(demoNo), start, cal2.getTime())) {
-            	Appointment a = (Appointment)result[0];
-            	p = (Provider)result[1];
+            param2[2] = new java.sql.Date(cal2.getTime().getTime());
+    		resultList = oscarSuperManager.find("appointmentDao", "search_appt_past", param2);
+
+    		for (Map appt : resultList) {
                 iRow ++;
                 if (iRow > iPageSize) break;
     %>
 	<tr bgcolor="#eeeeff">
-		<td style="background-color: #CCFFCC; padding-right: 25px"><%=ConversionUtils.toDateString(a.getAppointmentDate())%></td>
-		<td style="background-color: #CCFFCC; padding-right: 25px"><%=ConversionUtils.toTimeString(a.getStartTime())%></td>
-		<td style="background-color: #CCFFCC; padding-right: 25px"><%=p.getFormattedName()%></td>
-		<td style="background-color: #CCFFCC;"><%=a.getStatus()==null?"":(a.getStatus().equals("N")?"No Show":(a.getStatus().equals("C")?"Cancelled":"") )%></td>
+		<td style="padding-right: 25px"><%=appt.get("appointment_date")%></td>
+		<td style="padding-right: 25px"><%=appt.get("start_time")%></td>
+		<td style="padding-right: 25px"><%=appt.get("last_name") + ",&nbsp;" + appt.get("first_name")%></td>
+		<td><%=appt.get("status")==null?"":(appt.get("status").equals("N")?"No Show":(appt.get("status").equals("C")?"Cancelled":"") )%></td>
 	</tr>
 	<%
             }

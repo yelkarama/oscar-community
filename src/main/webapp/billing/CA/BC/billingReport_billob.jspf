@@ -37,16 +37,19 @@
       
  double dOBFee = 0.00;
 
- ResultSet rs2=null ; 
+ ResultSet rs=null ;
+  ResultSet rs2=null ; 
+  String[] param =new String[3];
   String[] param2 =new String[10];
- 
-  List<Object[]> bs = billingDao.search_billob(request.getParameter("providerview"),ConversionUtils.fromDateString(dateBegin),ConversionUtils.fromDateString(dateEnd));
-  
+  param[0] = request.getParameter("providerview");
+ param[1] = dateBegin;  
+  param[2] = dateEnd;  
+  rs = apptMainBean.queryResults(param, "search_billob");
 int rCount = 0;
   boolean bodd=false;
    nItems=0;
   String apptDoctorNo="", apptNo="", demoNo = "", demoName="", userno="", apptDate="", apptTime="", reason="",  note="", total="";
-  if(bs.size()==0) {
+  if(rs==null) {
     out.println("failed!!!"); 
   } else {
   %>
@@ -66,19 +69,14 @@ int rCount = 0;
 
 	</tr>
 	<%
-    for (Object[] b:bs) {
-      Integer bId = (Integer)b[0];
-      String bTotal = (String)b[1];
-      String bStatus = (String)b[2];
-      java.util.Date bBillingDate = (java.util.Date)b[3];
-      String bDemographicName = (String)b[4];
-      
+    while (rs.next()) {
+     
       bodd=bodd?false:true; //for the color of rows
       nItems++; //to calculate if it is the end of records
-     demoName = bDemographicName;
-       apptDate = ConversionUtils.toDateString(bBillingDate);
-      reason = bStatus;
-      total = bTotal.indexOf(".") > 0?bTotal:bTotal.substring(0,bTotal.length()-2)+"."+bTotal.substring(bTotal.length()-2) ;
+     demoName = apptMainBean.getString(rs,"demographic_name");
+       apptDate = apptMainBean.getString(rs,"billing_date");
+      reason = apptMainBean.getString(rs,"status");
+      total = apptMainBean.getString(rs,"total").indexOf(".") > 0?apptMainBean.getString(rs,"total"):apptMainBean.getString(rs,"total").substring(0,apptMainBean.getString(rs,"total").length()-2)+"."+apptMainBean.getString(rs,"total").substring(apptMainBean.getString(rs,"total").length()-2) ;
       
       if (reason.equals("S")){
         dOBFee = Double.parseDouble(total);
@@ -90,22 +88,20 @@ int rCount = 0;
       param2[i] = "";
       }
       rCount = 0;
-      
-     List<BillingDetail> bds =  billingDetailDao.findByBillingNo(bId);
-     for(BillingDetail bd:bds) {
-	     if(!bd.getStatus().equals("D")) {
-	    	 param2[rCount] = bd.getServiceCode();
-	    	 rCount = rCount +1;
-	     }
-     }
-  
+   rs2 = apptMainBean.queryResults(apptMainBean.getString(rs,"billing_no"), "search_bill_record");
+   while (rs2.next()){
+   param2[rCount] = rs2.getString("service_code");
+   rCount = rCount +1;
+   }
+   
+   
 
 %>
 	<tr bgcolor="<%=bodd?"#EEEEFF":"white"%>">
 		<TD align="left" width="5%"><b><font size="2"
 			face="Arial, Helvetica, sans-serif"><a href=#
-			onClick='popupPage(700,720, "../../../billing/CA/BC/billingView.do?billing_no=<%=bId%>&dboperation=search_bill&hotclick=0")'
-			title="<%=reason%>"> <%=bId%></a></font></b></TD>
+			onClick='popupPage(700,720, "../../../billing/CA/BC/billingView.do?billing_no=<%=apptMainBean.getString(rs,"billing_no")%>&dboperation=search_bill&hotclick=0")'
+			title="<%=reason%>"> <%=apptMainBean.getString(rs,"billing_no")%></a></font></b></TD>
 		<TD align="left" width="20%"><b><font size="2"
 			face="Arial, Helvetica, sans-serif"><%=demoName%></font></b></TD>
 		<TD align="left" width="12%"><b><font size="2"

@@ -17,21 +17,6 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_billing" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
@@ -39,54 +24,35 @@ if(!authed) {
 	import="java.util.*,java.math.*,java.net.*,java.sql.*,oscar.util.*,oscar.*"%>
 <%@ page import="oscar.oscarBilling.ca.on.pageUtil.*"%>
 <%@ page import="oscar.oscarBilling.ca.on.data.*"%>
-<%@page import="org.oscarehr.managers.SecurityInfoManager"%>
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
-<%@page import="org.oscarehr.util.SpringUtils"%>
 
+<%//
+			if (session.getAttribute("user") == null) {
+				response.sendRedirect("../../../logout.jsp");
+			}
 
-<%
-		SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+			//String user_no = (String) session.getAttribute("user");
+			BillingCorrectionPrep bObj = new BillingCorrectionPrep();
+			List lObj = bObj.getBillingClaimHeaderObj(request.getParameter("xml_billing_no"));
+			BillingClaimHeader1Data ch1Obj = (BillingClaimHeader1Data) lObj.get(0);
+			boolean bs = bObj.updateBillingClaimHeader(ch1Obj, request);
 
-			String billingNo = request.getParameter("xml_billing_no");
-			String error = null;
-			
-			if(billingNo != null && !billingNo.equals("")) {
-			
-				//String user_no = (String) session.getAttribute("user");
-				BillingCorrectionPrep bObj = new BillingCorrectionPrep();
-				List lObj = bObj.getBillingClaimHeaderObj(billingNo);
-				BillingClaimHeader1Data ch1Obj = (BillingClaimHeader1Data) lObj.get(0);
-				boolean bs = bObj.updateBillingClaimHeader(ch1Obj, request);
-
-				// update item objs
-				if(lObj.size() > 1 && !"D".equals(ch1Obj.getStatus())) {
-					//lObj.remove(0);
-					bs = bObj.updateBillingItem(lObj, request);
-				}
-			
-			} else {
-				error = "No xml_billing_no parameter passed. Update failed";
+			// update item objs
+			if(lObj.size() > 1) {
+				lObj.remove(0);
+				bs = bObj.updateBillingItem(lObj, request);
 			}
 			
 		%>
 <p>
-<%if(error == null) { %>
-<h1>Successful Update of a billing Record.</h1>
-<%} else { %>
-<h1 style="color:red"><%=error %></h1>
-<%} %>
+<h1>Successful Updation of a billing Record.</h1>
 </p>
-
 <% if(request.getParameter("submit").equals("Submit&Correct Another")) { %>
-<center><input type='button' name='back' 
+<center><input type='button' name='back'
 	value='Correct Another'
 	onclick='window.location.href="billingONCorrection.jsp?billing_no="' />
 </center>
-<%} else {
-if(error == null) {	
-%>
+<%} else { %>
 <script LANGUAGE="JavaScript">
 	self.close();
 </script>
-<% } } %>
+<%} %>

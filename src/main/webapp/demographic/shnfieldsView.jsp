@@ -24,37 +24,21 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_demographic" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_demographic");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%@page import="java.util.*"%>
 <%@page import="org.oscarehr.common.dao.DemographicExtDao" %>
 <%@page import="org.oscarehr.util.SpringUtils" %>
-<%@page import="org.apache.commons.lang.StringUtils" %>
-
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean" scope="session" />
 <%
 String demographic_no = request.getParameter("demo");
 DemographicExtDao demographicExtDao = SpringUtils.getBean(DemographicExtDao.class);
-Map<String,String> demoExt = demographicExtDao.getAllValuesForDemo(Integer.parseInt(demographic_no));
+Map<String,String> demoExt = demographicExtDao.getAllValuesForDemo(demographic_no);
 
 Hashtable h = new Hashtable();
             h.put("-1","Not Asked");
             h.put("1","Has Given Consent");
             h.put("2","Has Refused Consent");
 %>
-<li>Consent: <b><%=getText(h,StringUtils.trimToEmpty(demoExt.get("given_consent")) )%></b>
+<li>Consent: <b><%=getText(h,apptMainBean.getString(demoExt.get("given_consent")) )%></b>
 </li>
 
 <%!

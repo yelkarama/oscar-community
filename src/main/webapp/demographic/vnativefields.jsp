@@ -24,32 +24,16 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_demographic" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_demographic");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%@page import="java.util.*"%>
 <%@page import="org.oscarehr.common.dao.DemographicExtDao" %>
 <%@page import="org.oscarehr.util.SpringUtils" %>
-<%@page import="org.apache.commons.lang.StringUtils" %>
-
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean" scope="session" />
 <%
 String demographic_no = request.getParameter("demo");
 DemographicExtDao demographicExtDao = SpringUtils.getBean(DemographicExtDao.class);
 Map<String,String> demoExt = null;
 if(demographic_no != null){
-	demoExt = demographicExtDao.getAllValuesForDemo(Integer.parseInt(demographic_no) );
+   demoExt = demographicExtDao.getAllValuesForDemo(demographic_no);
 }
 
 if(demoExt == null) demoExt = new HashMap<String,String>();
@@ -58,20 +42,20 @@ if(demoExt == null) demoExt = new HashMap<String,String>();
 <tr>
 	<td align="right"><b>Status #:</b></td>
 	<td align="left" >
-            <input type="text" name="statusNum" value="<%=StringUtils.trimToEmpty(demoExt.get("statusNum"))%>">
-	    <input type="hidden" name="statusNumOrig" value="<%=StringUtils.trimToEmpty(demoExt.get("statusNum"))%>">
+            <input type="text" name="statusNum" value="<%=apptMainBean.getString(demoExt.get("statusNum"))%>">
+	    <input type="hidden" name="statusNumOrig" value="<%=apptMainBean.getString(demoExt.get("statusNum"))%>">
 	</td>
         <td align="right"><b>First Nation Community:</b></td>
         <td align="left">
-            <input type="text" name="fNationCom" value="<%=StringUtils.trimToEmpty(demoExt.get("fNationCom"))%>">
-	    <input type="hidden" name="fNationComOrig" value="<%=StringUtils.trimToEmpty(demoExt.get("fNationCom"))%>">
+            <input type="text" name="fNationCom" value="<%=apptMainBean.getString(demoExt.get("fNationCom"))%>">
+	    <input type="hidden" name="fNationComOrig" value="<%=apptMainBean.getString(demoExt.get("fNationCom"))%>">
         </td>
 </tr>
 
 <tr>
 	<td align="right"><b>Ethnicity:</b></td>
 	<td align="left">
-	<% String ethnicity = StringUtils.trimToEmpty(demoExt.get("ethnicity")); %>
+	<% String ethnicity = apptMainBean.getString(demoExt.get("ethnicity")); %>
 	<select name="ethnicity">
 		<option value="-1" <%=getSel(ethnicity,"-1")%>>Not Set</option>
 		<option value="1" <%=getSel(ethnicity,"1")%>>Status
@@ -90,11 +74,11 @@ if(demoExt == null) demoExt = new HashMap<String,String>();
 		<option value="10" <%=getSel(ethnicity,"10")%>>Black</option>
 		<option value="11" <%=getSel(ethnicity,"11")%>>Other</option>
 	</select> <input type="hidden" name="ethnicityOrig"
-		value="<%=StringUtils.trimToEmpty(demoExt.get("ethnicity"))%>">
+		value="<%=apptMainBean.getString(demoExt.get("ethnicity"))%>">
 	</td>
 	<td align="right"><b>Area:</b></td>
 	<td align="left">
-	<% String area =   StringUtils.trimToEmpty(demoExt.get("area")); %> <select
+	<% String area =   apptMainBean.getString(demoExt.get("area")); %> <select
 		name="area">
 		<option value="-1" <%=getSel(area,"-1")%>>Not Set</option>
 		<option value="1" <%=getSel(area,"1")%>>CHA1</option>
@@ -114,7 +98,7 @@ if(demoExt == null) demoExt = new HashMap<String,String>();
 		Residents</option>
 		<option value="13" <%=getSel(area,"13")%>>Other</option>
 	</select> <input type="hidden" name="areaOrig"
-		value="<%=StringUtils.trimToEmpty(demoExt.get("area"))%>"></td>
+		value="<%=apptMainBean.getString(demoExt.get("area"))%>"></td>
 
 </tr>
 <%!

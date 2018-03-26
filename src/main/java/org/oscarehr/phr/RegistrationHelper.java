@@ -43,15 +43,6 @@ import org.oscarehr.common.model.Provider;
 import org.oscarehr.myoscar_server.ws.Relation;
 import org.oscarehr.util.SpringUtils;
 import org.oscarehr.util.WebUtils;
-import org.oscarehr.myoscar.client.ws_manager.MyOscarLoggedInInfoInterface;
-import org.oscarehr.phr.util.UsernameHelper;
-import org.oscarehr.myoscar_server.ws.AccountWs;
-import org.oscarehr.myoscar.client.ws_manager.MyOscarServerWebServicesManager;
-import org.oscarehr.myoscar.utils.MyOscarLoggedInInfo;
-import org.oscarehr.myoscar_server.ws.RelationshipTransfer4;
-
-
-
 
 public final class RegistrationHelper {
 	private static final String MYOSCAR_REGISTRATION_DEFAULTS_SESSION_KEY = "MYOSCAR_REGISTRATION_DEFAULTS";
@@ -63,22 +54,9 @@ public final class RegistrationHelper {
 
 	public static String getDefaultUserName(int demographicId) {
 		Demographic demographic = demographicDao.getDemographicById(demographicId);
-		String fn = UsernameHelper.stripName(demographic.getFirstName());
-		String ln = UsernameHelper.stripName(demographic.getLastName());	
-		
-		return (fn + '.' + ln);
+		return ((demographic.getFirstName() + '.' + demographic.getLastName()).toLowerCase());
 	}
-	
-	public static List<String> getPhrDefaultUserNameList(MyOscarLoggedInInfoInterface user, int demographicId) {
 
-		Demographic demographic = demographicDao.getDemographicById(demographicId);
-		String fn = UsernameHelper.stripName(demographic.getFirstName());
-		String ln = UsernameHelper.stripName(demographic.getLastName());	
-		String email = demographic.getEmail();
-		
-		return UsernameHelper.suggestUsernames(user, fn, ln, email);
-	}
-	
 	/**
 	 * Generate a password of length 12 using numbers and letters. This will ommit i/l/o/1/o to prevent abiguity. Due to the length the permutations are still large, i.e. (24^8 ~= 110 billion) * (8^4 = 4096) ~= 450,868,486,864,896 permutations ~= 450
 	 * trillion
@@ -138,13 +116,11 @@ public final class RegistrationHelper {
 
 		sb.append("<select name=\"" + widgetName + "\">");
 
-		sb.append("<option value=\"" + Relation.PRIMARY_CARE_PROVIDER.name() + "\" "+getSelectedString(session, widgetName, Relation.PRIMARY_CARE_PROVIDER.name())+" >");
-		sb.append(Relation.PRIMARY_CARE_PROVIDER.name());
-		sb.append("</option>");
-
-		sb.append("<option value=\"" + Relation.RESEARCH_ADMINISTRATOR.name() + "\" "+getSelectedString(session, widgetName, Relation.RESEARCH_ADMINISTRATOR.name())+" >");
-		sb.append(Relation.RESEARCH_ADMINISTRATOR.name());
-		sb.append("</option>");
+		for (Relation relation : Relation.values()) {
+			sb.append("<option value=\"" + relation.name() + "\" "+getSelectedString(session, widgetName, relation.name())+" >");
+			sb.append(relation.name());
+			sb.append("</option>");
+		}
 
 		sb.append("</select>");
 
@@ -221,32 +197,4 @@ public final class RegistrationHelper {
 
 		request.getSession().setAttribute(MYOSCAR_REGISTRATION_DEFAULTS_SESSION_KEY, defaults);
 	}
-	
-	/**
-	Checks to see if:
-	 a. PatientPrimaryCareProvider exists with the myoscar user 
-	 b. If the current provider has verified this relationship 
-	**/
-	public static boolean iHavePatientRelationship(MyOscarLoggedInInfo myOscarLoggedInInfo,Long myOscarUserId){
-		
-	   AccountWs accountWs = MyOscarServerWebServicesManager.getAccountWs(myOscarLoggedInInfo);
-	   final int REASONABLE_RELATIONSHIP_LIMIT = 256;
-	   int startIndex = 0;
-	   
-	   while(true){           
-	      java.util.List<RelationshipTransfer4> relationList = accountWs.getRelationshipsByPersonId2(myOscarLoggedInInfo.getLoggedInPersonId(), startIndex, REASONABLE_RELATIONSHIP_LIMIT);
-	      if (relationList.size() == 0) break;
-	    
-		  for (RelationshipTransfer4 rt : relationList) {
-			 if (rt.getRelation().equals("PatientPrimaryCareProvider")){
-	            if (rt.getPerson1().getPersonId().equals(myOscarUserId) && rt.getPerson2VerificationDate()!=null) {
-	               return true;
-	            }
-			 }
-	      }
-		  startIndex = startIndex + relationList.size();
-	   }
-	   return false;
-	}
-	
 }

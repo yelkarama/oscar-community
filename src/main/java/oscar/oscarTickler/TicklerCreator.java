@@ -24,76 +24,113 @@
 
 package oscar.oscarTickler;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
-import org.oscarehr.common.model.CustomFilter;
-import org.oscarehr.common.model.Tickler;
-import org.oscarehr.managers.TicklerManager;
-import org.oscarehr.util.LoggedInInfo;
-import org.oscarehr.util.SpringUtils;
+import org.oscarehr.util.MiscUtils;
 
+import oscar.oscarDB.DBHandler;
 
 public class TicklerCreator {
-	TicklerManager ticklerManager = SpringUtils.getBean(TicklerManager.class); 
-	
-	
   public TicklerCreator() {
   }
 
   /**
    * createTickler
    *
-   * @param demoNo the demographic no
-   * @param provNo the provider no
-   * @param message the tickler message
+   * @param string String
+   * @param provNo int
+   * @param reason String
    */
-  public void createTickler(LoggedInInfo loggedInInfo, String demoNo, String provNo, String message) {
-    if (!ticklerExists(loggedInInfo, demoNo, message)) {
-    	Tickler t = new Tickler();
-    	t.setDemographicNo(Integer.parseInt(demoNo));
-    	t.setMessage(message);
-    	t.setCreator(provNo);
-    	t.setTaskAssignedTo(provNo);
-    	ticklerManager.addTickler(loggedInInfo, t);
-    	
-
+  public void createTickler(String demoNo, String provNo, String message) {
+    if (!ticklerExists(demoNo, message)) {
+      SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd");
+      String nowDate = fmt.format(new java.util.Date());
+      String sql = "insert into tickler (demographic_no, message, status, update_date, service_date, creator, priority, task_assigned_to) " +
+          " values(" + demoNo + " ,'" + message + "','A',now(),'" + nowDate +
+          "','" + provNo + "','4','" + provNo + "')";
+      
+      try {
+        
+        DBHandler.RunSQL(sql);
+      }
+      catch (SQLException ex) {MiscUtils.getLogger().error("Error", ex);
+      }
     }
   }
-  
-  
-  public void createTickler(LoggedInInfo loggedInInfo, String demoNo, String provNo, String message, String assignedTo) {
-	   Tickler t = new Tickler();
-	   t.setDemographicNo(Integer.parseInt(demoNo));
-    	t.setMessage(message);
-    	t.setCreator(provNo);
-    	t.setTaskAssignedTo(assignedTo);
-    	ticklerManager.addTickler(loggedInInfo, t);
-	  }
-  
- 
+
   /**
    * Returns true if a tickler with the specified parameters exists
    *
    * @param demoNo String
+   * @param provNo String
    * @param message String
    * @return boolean
    */
-  public boolean ticklerExists(LoggedInInfo loggedInInfo, String demoNo, String message) {
-	  CustomFilter filter = new CustomFilter();
-	  filter.setDemographicNo(demoNo);
-	  filter.setMessage(message);
-	  filter.setStatus("A");
-	  List<Tickler> ticklers = ticklerManager.getTicklers(loggedInInfo, filter);
-	  return !ticklers.isEmpty();
+  public boolean ticklerExists(String demoNo, String message) {
+    String sql = "select * from tickler where demographic_no = " + demoNo +
+        " and message = '" + message + "'" +
+        " and status = 'A'";
+    
+    ResultSet rs = null;
+    try {
+      
+      rs = DBHandler.GetSQL(sql);
+      return rs.next();
+    }
+    catch (SQLException ex) {MiscUtils.getLogger().error("Error", ex);
+    }
+    finally {
+      try {
+        rs.close();
+      }
+      catch (SQLException ex1) {MiscUtils.getLogger().error("Error", ex1);
+      }
+    }
+    return false;
+
+  }
+
+  public void resolveTickler(String demoNo, String remString) {
+    String sql = "delete from tickler where demographic_no = '" +
+        demoNo + "'" +
+        " and message like '%" + remString + "%'" +
+        " and status = 'A'";
+    
+    try {
+      
+      DBHandler.RunSQL(sql);
+    }
+    catch (SQLException ex) {MiscUtils.getLogger().error("Error", ex);
+    }
   }
 
   /**
    * resolveTicklers
    *
-   * @param cdmPatientNos Vector (strings)
+   * @param cdmPatientNos Vector
    * @param remString String
    */
-  public void resolveTicklers(LoggedInInfo loggedInInfo, String providerNo, List<String> cdmPatientNos, String remString) {
-	  ticklerManager.resolveTicklers(loggedInInfo, providerNo, cdmPatientNos, remString);  
+  public void resolveTicklers(List cdmPatientNos, String remString) {
+    String qry = "delete from tickler where demographic_no in(";
+    for (int i = 0; i < cdmPatientNos.size(); i++) {
+      qry += cdmPatientNos.get(i);
+      if (i < cdmPatientNos.size() - 1) {
+        qry += ",";
+      }
+    }
+    qry += cdmPatientNos.size()==0 ? "0" : "";
+
+    qry += ") and message like '%" + remString + "%' and status = 'A'";
+    
+
+    try {
+      
+      DBHandler.RunSQL(qry);
+    }
+    catch (SQLException ex) {MiscUtils.getLogger().error("Error", ex);
+    }
   }
 }

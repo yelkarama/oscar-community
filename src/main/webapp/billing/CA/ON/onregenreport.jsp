@@ -17,24 +17,6 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin.billing,_admin" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_admin&type=_admin.billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
-<%@page import="oscar.util.ConversionUtils"%>
-<%@page import="org.oscarehr.util.DateRange"%>
 <%if (session.getAttribute("user") == null)
 				response.sendRedirect("../../../logout.jsp");
 %>
@@ -87,10 +69,17 @@ if(!authed) {
 				objFile.readInBillingNo();
 				objFile.renameFile();
 				// 
-				DateRange dateRange = new DateRange(null, ConversionUtils.fromDateString(dateEnd));
+				String dateRange = "";
+				dateRange = " and billing_date <= '" + dateEnd + "'";
+				//if (dateBegin.compareTo("") == 0){
+				//	dateRange = " and billing_date <= '" + dateEnd + "'";
+				//}else{
+				//	dateRange = " and billing_date >'" + dateBegin + "' and billing_date <='" + dateEnd + "'";
+				//}
 				objFile.setDateRange(dateRange);
+				//
 				
-				objFile.createBillingFileStr(LoggedInInfo.getLoggedInInfoFromSession(request), "" + headerId, new String[] {"B"}, false, mohOffice, false, false);
+				objFile.createBillingFileStr("" + headerId, "(status='B')", false, mohOffice, false, false);
 				objFile.writeFile(objFile.getValue());
 				objFile.writeHtml(objFile.getHtmlCode());
 				// update the diskname 
@@ -125,9 +114,17 @@ if(!authed) {
 						objFile.setHtmlFilename(htmlFilename);
 						objFile.readInBillingNo();
 						
-						DateRange dateRange = new DateRange(null, ConversionUtils.fromDateString(dateEnd));
+						// 
+						String dateRange = "";
+						dateRange = " and billing_date <= '" + dateEnd + "'";
+						//if (dateBegin.compareTo("") == 0){
+						//	dateRange = " and billing_date <= '" + dateEnd + "'";
+						//}else{
+						//	dateRange = " and billing_date >'" + dateBegin + "' and billing_date <='" + dateEnd + "'";
+						//}
 						objFile.setDateRange(dateRange);
-						objFile.createBillingFileStr(LoggedInInfo.getLoggedInInfoFromSession(request), "" + headerId, new String[] {"B"}, false, mohOffice, false, false);						
+						//
+						objFile.createBillingFileStr("" + headerId, "(status='B')", false, mohOffice, false, false);						
 						value += objFile.getValue() + "\n";
 						objFile.writeHtml(objFile.getHtmlCode());
 						objFile.updateDisknameSum(Integer.parseInt(diskId));

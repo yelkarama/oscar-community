@@ -23,20 +23,6 @@
     Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_edoc" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_edoc");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -49,15 +35,12 @@ String appointment = request.getParameter("appointmentNo");
 
 String module = "";
 String moduleid = "";
-String siteId = "";
 if (request.getParameter("function") != null) {
     module = request.getParameter("function");
     moduleid = request.getParameter("functionid");
-    siteId = request.getParameter("siteId");
 } else if (request.getAttribute("function") != null) {
     module = (String) request.getAttribute("function");
     moduleid = (String) request.getAttribute("functionid");
-    siteId = (String) request.getAttribute("siteId");
 }
 
 String curUser = "";
@@ -113,7 +96,7 @@ formdata = (AddEditDocumentForm) request.getAttribute("completedForm");
     formdata.setDocType(defaultType);
     formdata.setDocDesc(defaultType.equals("")?defaultDesc:defaultType);
     formdata.setDocCreator(user_no);
-    formdata.setObservationDate(UtilDateUtilities.DateToString(new Date(), "yyyy/MM/dd"));
+    formdata.setObservationDate(UtilDateUtilities.DateToString(UtilDateUtilities.now(), "yyyy/MM/dd"));
     formdata.setHtml(defaultHtml);
     formdata.setAppointmentNo(appointment);
 }
@@ -258,10 +241,6 @@ function checkDefaultDate(object, defaultValue) {
 
 function newDocType(){
 	var newOpt = prompt("Please enter new document type:", "");
-
-	if(newOpt == null)
-		return;
-
 	if (newOpt != "") {
 	    document.getElementById("docType").options[document.getElementById("docType").length] = new Option(newOpt, newOpt);
 	    document.getElementById("docType").options[document.getElementById("docType").length-1].selected = true;
@@ -274,10 +253,6 @@ function newDocType(){
 
 function newDocTypeLink(){
 	var newOpt = prompt("Please enter new document type:", "");
-
-	if(newOpt == null)
-		return;
-
 	if (newOpt != "") {
 	    document.getElementById("docType1").options[document.getElementById("docType1").length] = new Option(newOpt, newOpt);
 	    document.getElementById("docType1").options[document.getElementById("docType1").length-1].selected = true;
@@ -313,7 +288,6 @@ var docSubClassList = [
 		key="<%=(String) docerrors.get(errorkeys.nextElement())%>" /></font>
 	<br />
 	<% } %>
-	<input type="hidden" name="siteId" value='<%=siteId %>' >
 	<input type="hidden" name="function"
 		value="<%=formdata.getFunction()%>" size="20">
 	<input type="hidden" name="functionId"
@@ -345,7 +319,7 @@ var docSubClassList = [
 	(yyyy/mm/dd): </span>
 	<input type="text" name="observationDate" id="observationDate"
 		value="<%=formdata.getObservationDate()%>"
-		onclick="checkDefaultDate(this, '<%=UtilDateUtilities.DateToString(new Date(), "yyyy/MM/dd")%>')"
+		onclick="checkDefaultDate(this, '<%=UtilDateUtilities.DateToString(UtilDateUtilities.now(), "yyyy/MM/dd")%>')"
 		size="10" style="text-align: center;">
 	<a id="obsdate"><img title="Calendar" src="../images/cal.gif"
 		alt="Calendar" border="0" /></a>
@@ -370,8 +344,6 @@ for (String reportClass : reportClasses) {
         <bean:message key="dms.addDocument.msgDocSubClass"/>:
         <input type="text" name="docSubClass" id="docSubClass" style="width:330px">
         <div class="autocomplete_style" id="docSubClass_list"></div>
-        &nbsp;
-        <input type="checkbox" name="restrictToProgram"> Restrict to current program
         <br />
 	<input type="hidden" name="mode" value="add">
 	<input type="submit" name="Submit" value="Add">
@@ -439,9 +411,6 @@ for (String reportClass : reportClasses) {
         <bean:message key="dms.addDocument.msgDocSubClass"/>:
         <input type="text" name="docSubClass" id="docSubClass2" style="width:330px">
         <div class="autocomplete_style" id="docSubClass_list2"></div>
-        
-        
-		
         <br />
 	<input type="hidden" name="mode" value="addLink">
 	<input type="SUBMIT" name="Submit" value="Add">

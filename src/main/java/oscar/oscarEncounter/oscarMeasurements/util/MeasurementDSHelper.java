@@ -30,7 +30,6 @@ import java.util.Collection;
 import java.util.Date;
 
 import org.apache.log4j.Logger;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 
 import oscar.oscarDemographic.data.DemographicData;
@@ -58,28 +57,28 @@ public class MeasurementDSHelper {
         log.debug(logMessage);
     }
     
-    public MeasurementDSHelper(LoggedInInfo loggedInInfo, String demo){
+    public MeasurementDSHelper(String demo){
         log.debug("sdfsdf ==" +demo);
         demographic_no = demo;
         DemographicData dd = new DemographicData();
-        dob = dd.getDemographicDOB(loggedInInfo, demo);
-        sex = dd.getDemographicSex(loggedInInfo, demo);
+        dob = dd.getDemographicDOB(demo);
+        sex = dd.getDemographicSex(demo);
    
         log.debug("goin out");
     }
     
-    public MeasurementDSHelper(LoggedInInfo loggedInInfo, EctMeasurementsDataBean mdb) {
+    public MeasurementDSHelper(EctMeasurementsDataBean mdb) {
         this.mdb= mdb;
         DemographicData dd = new DemographicData();
-        dob = dd.getDemographicDOB(loggedInInfo, mdb.getDemo());
-        sex = dd.getDemographicSex(loggedInInfo, mdb.getDemo());
+        dob = dd.getDemographicDOB(mdb.getDemo());
+        sex = dd.getDemographicSex(mdb.getDemo());
         
     }
     
     public boolean setMeasurement(String measurementType){
         boolean setM = false;
         log.debug("demo "+this.demographic_no+" type "+measurementType);
-        EctMeasurementsDataBeanHandler mdbh = new  EctMeasurementsDataBeanHandler(Integer.valueOf(this.demographic_no), measurementType);
+        EctMeasurementsDataBeanHandler mdbh = new  EctMeasurementsDataBeanHandler(this.demographic_no, measurementType);
         Collection col = mdbh.getMeasurementsDataVector();
         if (col.size() >0){
             this.mdb = (EctMeasurementsDataBean) col.iterator().next();
@@ -127,11 +126,7 @@ public class MeasurementDSHelper {
         try{
            ret = Double.parseDouble(mdb.getDataField());
         }catch(Exception e){
-        	if(mdb.getType()!=null){
-        		MiscUtils.getLogger().error("Error for measurement type: " + mdb.getType(), e);
-        	}else{
-        		MiscUtils.getLogger().error("Error", e);
-        	}            
+            MiscUtils.getLogger().error("Error", e);
             problem =true;
         }  
         log.debug("DOUBLE val : "+ret);
@@ -145,7 +140,6 @@ public class MeasurementDSHelper {
            log.debug("Trying to parse "+data);
            ret = Double.parseDouble(  data.split(delimiter)[number]  );
         }catch(Exception e){
-                
             MiscUtils.getLogger().error("Error", e);
             problem = true;
         }

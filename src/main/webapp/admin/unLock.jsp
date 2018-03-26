@@ -23,45 +23,57 @@
     Ontario, Canada
 
 --%>
-
+<!--
+/*
+ *
+ * This software is published under the GPL GNU General Public License.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version. *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. *
+ *
+ * <OSCAR Service Group>
+ */
+-->
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%@ page errorPage="../errorpage.jsp"%>
 <%@ page import="java.util.*"%>
+<%@ page import="java.sql.*"%>
+<%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
 <%@ page import="oscar.login.*"%>
 <%@ page import="oscar.log.*"%>
-
-<%@ page import="org.oscarehr.util.SpringUtils" %>
-<%@ page import="org.oscarehr.util.LoggedInInfo" %>
-<%@ page import="org.oscarehr.common.model.Security" %>
-<%@ page import="org.oscarehr.managers.SecurityManager" %>
-
 <%
-	LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
-	org.oscarehr.managers.SecurityManager securityManager = SpringUtils.getBean(org.oscarehr.managers.SecurityManager.class);
-	String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-	String curUser_no = (String)session.getAttribute("user");
-
-	boolean isSiteAccessPrivacy=false;
-	boolean authed=true;
+if(session.getAttribute("user") == null )
+	response.sendRedirect("../logout.jsp");
+String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
+String curUser_no = (String)session.getAttribute("user");
 %>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin,_admin.userAdmin,_admin.unlockAccount" rights="r" reverse="<%=true%>"> 
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_admin&type=_admin.userAdmin&type=_admin.unlockAccount");%>
+<security:oscarSec roleName="<%=roleName$%>"
+	objectName="_admin,_admin.userAdmin,_admin.torontoRfq" rights="r"
+	reverse="<%=true%>">
+	<%response.sendRedirect("../noRights.html");%>
 </security:oscarSec>
+
 <%
-if(!authed) {
-	return;
-}
+    boolean isSiteAccessPrivacy=false;
 %>
 
-
-<security:oscarSec objectName="_site_access_privacy" roleName="<%=roleName$%>" rights="r" reverse="false"> <%isSiteAccessPrivacy=true; %>
+<security:oscarSec objectName="_site_access_privacy" roleName="<%=roleName$%>" rights="r" reverse="false">
+	<%isSiteAccessPrivacy=true; %>
 </security:oscarSec>
 
 
 <%
   String ip = request.getRemoteAddr();
   String msg = "Unlock";
+  //LoginList llist = null;
   LoginCheckLogin cl = new LoginCheckLogin();
   Vector vec = cl.findLockList();
   if(vec == null) vec = new Vector();
@@ -79,12 +91,13 @@ if(!authed) {
   
   //multi-office limit
   if (isSiteAccessPrivacy && vec.size() > 0) {
-
+	  DBHelp dbObj = new DBHelp(); 
+	  String sqlString = "select user_name from security p inner join providersite s ON p.provider_no = s.provider_no WHERE s.site_id IN (SELECT site_id from providersite where provider_no=" + curUser_no + ")";
+	  
+	  ResultSet rs = dbObj.searchDBRecord(sqlString);
 	  List<String> userList = new ArrayList<String>();
-	  List<Security> securityList = securityManager.findByProviderSite(loggedInInfo,curUser_no);
-
-	  for(Security security : securityList) {
-		userList.add(security.getUserName());
+	  if (rs.next()) {
+		  userList.add(rs.getString(1));
 	  }
 	  
 	  for(int i=0; i<vec.size(); i++) {
@@ -95,10 +108,10 @@ if(!authed) {
   }
   
 %>
-
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html:html locale="true">
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
@@ -143,6 +156,12 @@ if(!authed) {
 	<tr>
 		<td>&nbsp;</td>
 		<td>&nbsp;</td>
+	</tr>
+	<tr>
+		<td align="center" bgcolor="#CCCCFF" colspan="2"><input
+			type="button" name="Cancel"
+			value="<bean:message key="admin.resourcebaseurl.btnExit"/>"
+			onClick="window.close()" /></td>
 	</tr>
 </table>
 </form>

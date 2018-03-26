@@ -34,7 +34,7 @@ import org.oscarehr.util.SpringUtils;
 
 public class Icd9DaoTest extends DaoTestFixtures {
 
-	protected Icd9Dao dao = SpringUtils.getBean(Icd9Dao.class);
+	private Icd9Dao dao = SpringUtils.getBean(Icd9Dao.class);
 
 	public Icd9DaoTest() {
 	}
@@ -42,7 +42,7 @@ public class Icd9DaoTest extends DaoTestFixtures {
 
 	@Before
 	public void before() throws Exception {
-		SchemaUtils.restoreTable("icd9","Icd9Synonym");
+		SchemaUtils.restoreTable("icd9");
 	}
 
 	@Test
@@ -52,10 +52,5 @@ public class Icd9DaoTest extends DaoTestFixtures {
 		dao.persist(entity);
 
 		assertNotNull(entity.getId());
-	}
-	
-	@Test
-	public void testFindByCodingSystem() {
-		dao.findByCodingSystem("CS");
 	}
 }

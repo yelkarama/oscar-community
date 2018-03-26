@@ -17,28 +17,20 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin.billing,_admin" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_admin&type=_admin.billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%
-  String curUser_no = (String) session.getAttribute("user");
+  if(session.getValue("user") == null) 
+    response.sendRedirect("../logout.htm");
+  String curUser_no,userfirstname,userlastname;
+  curUser_no = (String) session.getAttribute("user");
+  userfirstname = (String) session.getAttribute("userfirstname");
+  userlastname = (String) session.getAttribute("userlastname");
 
 %>
-<%@ page import="java.math.*, java.util.*, java.sql.*, oscar.*, java.net.*" errorPage="../errorpage.jsp"%>
-
+<%@ page
+	import="java.math.*, java.util.*, java.sql.*, oscar.*, java.net.*"
+	errorPage="../errorpage.jsp"%>
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean"
+	scope="session" />
 <html>
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>

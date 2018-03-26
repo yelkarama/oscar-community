@@ -41,52 +41,44 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
-import org.apache.struts.actions.DispatchAction;
 import org.oscarehr.PMmodule.caisi_integrator.CaisiIntegratorManager;
-import org.oscarehr.PMmodule.dao.ClientReferralDAO;
-import org.oscarehr.PMmodule.dao.VacancyDao;
 import org.oscarehr.PMmodule.exception.AdmissionException;
 import org.oscarehr.PMmodule.exception.BedReservedException;
 import org.oscarehr.PMmodule.exception.FunctionalCentreDischargeException;
 import org.oscarehr.PMmodule.exception.ProgramFullException;
 import org.oscarehr.PMmodule.exception.ServiceRestrictionException;
-import org.oscarehr.PMmodule.model.ClientReferral;
+import org.oscarehr.PMmodule.model.Admission;
+import org.oscarehr.PMmodule.model.Bed;
+import org.oscarehr.PMmodule.model.BedDemographic;
+import org.oscarehr.PMmodule.model.JointAdmission;
 import org.oscarehr.PMmodule.model.Program;
 import org.oscarehr.PMmodule.model.ProgramQueue;
 import org.oscarehr.PMmodule.model.ProgramTeam;
-import org.oscarehr.PMmodule.model.Vacancy;
+import org.oscarehr.PMmodule.model.RoomDemographic;
 import org.oscarehr.PMmodule.service.AdmissionManager;
+import org.oscarehr.PMmodule.service.BedDemographicManager;
+import org.oscarehr.PMmodule.service.BedManager;
 import org.oscarehr.PMmodule.service.ClientManager;
 import org.oscarehr.PMmodule.service.ClientRestrictionManager;
+import org.oscarehr.PMmodule.service.LogManager;
 import org.oscarehr.PMmodule.service.ProgramManager;
 import org.oscarehr.PMmodule.service.ProgramQueueManager;
-import org.oscarehr.PMmodule.service.VacancyTemplateManager;
+import org.oscarehr.PMmodule.service.RoomDemographicManager;
+import org.oscarehr.PMmodule.web.BaseAction;
 import org.oscarehr.PMmodule.web.formbean.ProgramManagerViewFormBean;
 import org.oscarehr.caisi_integrator.ws.ReferralWs;
 import org.oscarehr.casemgmt.service.CaseManagementManager;
-import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.FacilityDao;
-import org.oscarehr.common.model.Admission;
-import org.oscarehr.common.model.Bed;
-import org.oscarehr.common.model.BedDemographic;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.Facility;
-import org.oscarehr.common.model.JointAdmission;
-import org.oscarehr.common.model.RoomDemographic;
-import org.oscarehr.common.model.Tickler;
-import org.oscarehr.managers.BedDemographicManager;
-import org.oscarehr.managers.BedManager;
-import org.oscarehr.managers.RoomDemographicManager;
-import org.oscarehr.managers.ScheduleManager;
-import org.oscarehr.managers.TicklerManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 import org.springframework.beans.factory.annotation.Required;
 
 import oscar.log.LogAction;
+import oscar.log.LogConst;
 
-public class ProgramManagerViewAction extends DispatchAction {
+public class ProgramManagerViewAction extends BaseAction {
 
 	private static Logger logger = MiscUtils.getLogger();
 	private ClientRestrictionManager clientRestrictionManager;
@@ -97,13 +89,11 @@ public class ProgramManagerViewAction extends DispatchAction {
 	private BedDemographicManager bedDemographicManager;
 	private BedManager bedManager;
 	private ClientManager clientManager;
+	private LogManager logManager;
 	private ProgramManager programManager;
 	private ProgramManagerAction programManagerAction;
-	private ProgramQueueManager programQueueManager;	
-	private DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
-	private TicklerManager ticklerManager = SpringUtils.getBean(TicklerManager.class);
-	private ScheduleManager scheduleManager = SpringUtils.getBean(ScheduleManager.class);
-	
+	private ProgramQueueManager programQueueManager;
+
 	public void setFacilityDao(FacilityDao facilityDao) {
 		this.facilityDao = facilityDao;
 	}
@@ -119,20 +109,11 @@ public class ProgramManagerViewAction extends DispatchAction {
 	@SuppressWarnings("unchecked")
     public ActionForward view(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		
 		ProgramManagerViewFormBean formBean = (ProgramManagerViewFormBean) form;
 
         // find the program id
         String programId = request.getParameter("id");
 
-        request.getSession().setAttribute("case_program_id",programId);
-
-        if(request.getParameter("newVacancy")!=null && "true".equals(request.getParameter("newVacancy")))
-			request.setAttribute("vacancyOrTemplateId", "");
-		else
-			request.setAttribute("vacancyOrTemplateId", formBean.getVacancyOrTemplateId());
-		
         if (programId == null) {
             programId = (String) request.getAttribute("id");
         }
@@ -157,8 +138,8 @@ public class ProgramManagerViewAction extends DispatchAction {
         List<ProgramQueue> queue = programQueueManager.getActiveProgramQueuesByProgramId(Long.valueOf(programId));
         request.setAttribute("queue", queue);
 
-		if (CaisiIntegratorManager.isEnableIntegratedReferrals(loggedInInfo.getCurrentFacility())) {
-			request.setAttribute("remoteQueue", programManagerAction.getRemoteQueue(loggedInInfo,Integer.parseInt(programId)));
+		if (CaisiIntegratorManager.isEnableIntegratedReferrals()) {
+			request.setAttribute("remoteQueue", programManagerAction.getRemoteQueue(Integer.parseInt(programId)));
 		}
 
         HashSet<Long> genderConflict = new HashSet<Long>();
@@ -177,7 +158,7 @@ public class ProgramManagerViewAction extends DispatchAction {
                 {
                     genderConflict.add(programQueue.getClientId());
                 }
-                if ("Transgender".equals(program.getManOrWoman()) && !"T".equals(demographic.getSex()))
+                if ("Transgendered".equals(program.getManOrWoman()) && !"T".equals(demographic.getSex()))
                 {
                     genderConflict.add(programQueue.getClientId());
                 }
@@ -234,8 +215,9 @@ public class ProgramManagerViewAction extends DispatchAction {
             // request.setAttribute("admissions", admissionManager.getCurrentAdmissionsByProgramId(programId));
             // clients should be active
             List<Admission> admissions = new ArrayList<Admission>();
-            List<Admission> ads = admissionManager.getCurrentAdmissionsByProgramId(programId);
-            for (Admission admission : ads) {
+            List ads = admissionManager.getCurrentAdmissionsByProgramId(programId);
+            for (Object ad1 : ads) {
+                Admission admission = (Admission) ad1;
                 Integer clientId = admission.getClientId();
                 if (clientId > 0) {
                     Demographic client = clientManager.getClientByDemographicNo(Integer.toString(clientId));
@@ -267,9 +249,10 @@ public class ProgramManagerViewAction extends DispatchAction {
             }
 
             List<Program> batchAdmissionServicePrograms = new ArrayList<Program>();
-            List<Program> servicePrograms;
+            List servicePrograms;
             servicePrograms = programManager.getServicePrograms();
-            for (Program sp : servicePrograms) {
+            for (Object serviceProgram1 : servicePrograms) {
+                Program sp = (Program) serviceProgram1;
                 if (sp.isAllowBatchAdmission() && sp.isActive()) {
                     batchAdmissionServicePrograms.add(sp);
                 }
@@ -285,10 +268,6 @@ public class ProgramManagerViewAction extends DispatchAction {
         if (formBean.getTab().equals("Access")) {
             request.setAttribute("accesses", programManager.getProgramAccesses(programId));
         }
-        
-        if (formBean.getTab().equals("Encounter Types")) {
-        	request.setAttribute("encounterTypes", programManager.getCustomEncounterTypes(loggedInInfo, Integer.parseInt(programId)));
-        }
 
         if (formBean.getTab().equals("Bed Check")) {
         	
@@ -303,7 +282,7 @@ public class ProgramManagerViewAction extends DispatchAction {
 	    		if(clientManager != null  &&  bedClientIds != null  &&  bedClientIds.length > 0){
 	    			isFamilyDependents = new Boolean[beds.length];
 	    			for(int i=0; i < bedClientIds.length; i++){
-	    				clientsJadm = clientManager.getJointAdmission(Integer.valueOf(bedClientIds[i].toString()));
+	    				clientsJadm = clientManager.getJointAdmission(Long.valueOf(bedClientIds[i].toString()));
 	    				
 	    	    		if(clientsJadm != null  &&  clientsJadm.getHeadClientId() != null) {
 	    	    			isFamilyDependents[i] = new Boolean(true);
@@ -324,11 +303,7 @@ public class ProgramManagerViewAction extends DispatchAction {
             request.setAttribute("client_statuses", programManager.getProgramClientStatuses(new Integer(programId)));
         }
 
-        if (formBean.getTab().equals("Schedule")) {
-        	request.setAttribute("myGroups", scheduleManager.getMyGroupsByProgramNo(Integer.parseInt(programId)));
-        }
-        
-        LogAction.log("view", "program", programId, request);
+        logManager.log("view", "program", programId, request);
 
         request.setAttribute("id", programId);
 
@@ -336,11 +311,10 @@ public class ProgramManagerViewAction extends DispatchAction {
     }
 
 	public ActionForward remove_remote_queue(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 		Integer remoteReferralId = Integer.valueOf(request.getParameter("remoteReferralId"));
 
 		try {
-			ReferralWs referralWs = CaisiIntegratorManager.getReferralWs(loggedInInfo, loggedInInfo.getCurrentFacility());
+			ReferralWs referralWs = CaisiIntegratorManager.getReferralWs();
 			referralWs.removeReferral(remoteReferralId);
 		} catch (MalformedURLException e) {
 			logger.error("Unexpected error", e);
@@ -371,7 +345,6 @@ public class ProgramManagerViewAction extends DispatchAction {
 	}
 
 	public ActionForward admit(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws NumberFormatException, FunctionalCentreDischargeException {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 		String programId = request.getParameter("id");
 		String clientId = request.getParameter("clientId");
 		String queueId = request.getParameter("queueId");
@@ -382,21 +355,15 @@ public class ProgramManagerViewAction extends DispatchAction {
 		String admissionNotes = request.getParameter("admission.admissionNotes");
 		String formattedAdmissionDate = request.getParameter("admissionDate");
 		Date admissionDate = oscar.util.DateUtils.toDate(formattedAdmissionDate);
-		List<Integer> dependents = clientManager.getDependentsList(new Integer(clientId));
+		List<Long> dependents = clientManager.getDependentsList(new Long(clientId));
 
 		try {
-			admissionManager.processAdmission(loggedInInfo, Integer.valueOf(clientId), loggedInInfo.getLoggedInProviderNo(), fullProgram, dischargeNotes, admissionNotes, queue.isTemporaryAdmission(), dependents, admissionDate);
-			
-			//change vacancy status to filled after one patient is admitted to associated program in that vacancy.
-	    	Vacancy vacancy = VacancyTemplateManager.getVacancyByName(queue.getVacancyName());
-	    	if(vacancy!=null) {
-	    		vacancy.setStatus("Filled");	    	
-	    		VacancyTemplateManager.saveVacancy(vacancy);
-	    	}
-	    	
+			admissionManager.processAdmission(Integer.valueOf(clientId), getProviderNo(request), fullProgram, dischargeNotes, admissionNotes, queue.isTemporaryAdmission(), dependents, admissionDate);
 			ActionMessages messages = new ActionMessages();
 			messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("admit.success"));
 			saveMessages(request, messages);
+			LogAction.addLog((String)request.getSession().getAttribute("user"), LogConst.ADD, LogConst.CON_CAISI_CLIENT_ADMIT, queueId, request.getRemoteAddr(), clientId, "caisi client admission success");
+
 		} catch (ProgramFullException e) {
 			logger.error("Error", e);
 			ActionMessages messages = new ActionMessages();
@@ -423,19 +390,17 @@ public class ProgramManagerViewAction extends DispatchAction {
 
 			request.setAttribute("id", programId);
 
-			request.setAttribute("hasOverridePermission", caseManagementManager.hasAccessRight("Service restriction override on admission", "access", loggedInInfo.getLoggedInProviderNo(), clientId, programId));
+			request.setAttribute("hasOverridePermission", caseManagementManager.hasAccessRight("Service restriction override on admission", "access", getProviderNo(request), clientId, programId));
 
 			return mapping.findForward("service_restriction_error");
 		}
 
-		LogAction.log("view", "admit to program", clientId, request);
+		logManager.log("view", "admit to program", clientId, request);
 
 		return view(mapping, form, request, response);
 	}
 
 	public ActionForward override_restriction(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws NumberFormatException, FunctionalCentreDischargeException {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		
 		String programId = (String) request.getSession().getAttribute("programId");
 		String clientId = request.getParameter("clientId");
 		String queueId = request.getParameter("queueId");
@@ -445,7 +410,7 @@ public class ProgramManagerViewAction extends DispatchAction {
 
 		request.setAttribute("id", programId);
 
-		if (isCancelled(request) || !caseManagementManager.hasAccessRight("Service restriction override on referral", "access", loggedInInfo.getLoggedInProviderNo(), clientId, programId)) {
+		if (isCancelled(request) || !caseManagementManager.hasAccessRight("Service restriction override on referral", "access", getProviderNo(request), clientId, programId)) {
 			return view(mapping, form, request, response);
 		}
 
@@ -453,7 +418,7 @@ public class ProgramManagerViewAction extends DispatchAction {
 		Program fullProgram = programManager.getProgram(String.valueOf(programId));
 
 		try {
-			admissionManager.processAdmission(loggedInInfo, Integer.valueOf(clientId), loggedInInfo.getLoggedInProviderNo(), fullProgram, dischargeNotes, admissionNotes, queue.isTemporaryAdmission(), true);
+			admissionManager.processAdmission(Integer.valueOf(clientId), getProviderNo(request), fullProgram, dischargeNotes, admissionNotes, queue.isTemporaryAdmission(), true);
 			ActionMessages messages = new ActionMessages();
 			messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("admit.success"));
 			saveMessages(request, messages);
@@ -471,9 +436,9 @@ public class ProgramManagerViewAction extends DispatchAction {
 			throw new RuntimeException(e);
 		}
 
-		LogAction.log("view", "override service restriction", clientId, request);
+		logManager.log("view", "override service restriction", clientId, request);
 
-		LogAction.log("view", "admit to program", clientId, request);
+		logManager.log("view", "admit to program", clientId, request);
 
 		return view(mapping, form, request, response);
 	}
@@ -492,7 +457,7 @@ public class ProgramManagerViewAction extends DispatchAction {
 		messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("program.saved", programName));
 		saveMessages(request, messages);
 
-		LogAction.log("write", "edit program - assign client to team", "", request);
+		logManager.log("write", "edit program - assign client to team", "", request);
 		return view(mapping, form, request, response);
 	}
 
@@ -504,22 +469,18 @@ public class ProgramManagerViewAction extends DispatchAction {
 
 		ad.setClientStatusId(Integer.valueOf(statusId));
 
-		if(statusId != null && "0".equals(statusId)) {
-			ad.setClientStatusId(null);
-		} 
 		admissionManager.saveAdmission(ad);
 
 		ActionMessages messages = new ActionMessages();
 		messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("program.saved", programName));
 		saveMessages(request, messages);
 
-		LogAction.log("write", "edit program - assign client to status", "", request);
+		logManager.log("write", "edit program - assign client to status", "", request);
 		return view(mapping, form, request, response);
 	}
 
 	public ActionForward batch_discharge(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		logger.info("do batch discharge");
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 		String type = request.getParameter("type");
 		String admitToProgramId;
 		if (type != null && type.equalsIgnoreCase("community")) {
@@ -595,8 +556,8 @@ public class ProgramManagerViewAction extends DispatchAction {
 					newAdmission.setAdmissionStatus(Admission.STATUS_CURRENT);
 					newAdmission.setClientId(admission.getClientId());
 					newAdmission.setProgramId(Integer.valueOf(admitToProgramId));
-					newAdmission.setProviderNo(loggedInInfo.getLoggedInProviderNo());
-//					newAdmission.setTeamId(0);
+					newAdmission.setProviderNo(getProviderNo(request));
+					newAdmission.setTeamId(0);
 
 					admissionManager.saveAdmission(newAdmission);
 				}
@@ -609,58 +570,21 @@ public class ProgramManagerViewAction extends DispatchAction {
 
 		return view(mapping, form, request, response);
 	}
-	
-	private void createWaitlistRejectionNotificationTickler(LoggedInInfo loggedInInfo, Facility facility, String clientId, Integer vacancyId, String creatorProviderNo) {
-		if(vacancyId == null)
-			return;
-		VacancyDao vacancyDao = SpringUtils.getBean(VacancyDao.class);
-		Vacancy vacancy = vacancyDao.find(vacancyId);
-		if(vacancy == null)
-			return;
-		
-		Demographic d = demographicDao.getDemographic(clientId);
-		Tickler t = new Tickler();
-		t.setCreator(creatorProviderNo);
-		t.setDemographicNo(Integer.parseInt(clientId));
-		t.setMessage("Client=["+d.getFormattedName()+"] rejected from vacancy=["+vacancy.getName()+"]");
-		t.setProgramId(vacancy.getWlProgramId());
-		t.setServiceDate(new Date());
-		t.setTaskAssignedTo(facility.getAssignRejectedVacancyApplicant());
-		t.setUpdateDate(new Date());
-		
-		ticklerManager.addTickler(loggedInInfo,t);
-	}
 
 	public ActionForward reject_from_queue(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 		String notes = request.getParameter("admission.admissionNotes");
 		String programId = request.getParameter("id");
 		String clientId = request.getParameter("clientId");
 		String rejectionReason = request.getParameter("radioRejectionReason");
 
-		List<Integer> dependents = clientManager.getDependentsList(new Integer(clientId));
+		List<Long> dependents = clientManager.getDependentsList(new Long(clientId));
 
 		logger.debug("rejecting from queue: program_id=" + programId + ",clientId=" + clientId);
 
-		ProgramQueue queue = this.programQueueManager.getActiveProgramQueue(programId,clientId);
-		
 		programQueueManager.rejectQueue(programId, clientId, notes, rejectionReason);
 
-		//TODO: WL notification
-		ClientReferralDAO clientReferralDao = SpringUtils.getBean(ClientReferralDAO.class);
-		Facility facility = loggedInInfo.getCurrentFacility();
-		if(facility.getAssignRejectedVacancyApplicant() != null && facility.getAssignRejectedVacancyApplicant().length()>0) {
-			Integer vacancyId = null;
-			if(queue!=null) {
-				ClientReferral referral = clientReferralDao.getClientReferral(queue.getReferralId());
-				if(referral != null) {
-					vacancyId = referral.getVacancyId();
-				}
-			}
-			createWaitlistRejectionNotificationTickler(loggedInInfo, facility,clientId,vacancyId, loggedInInfo.getLoggedInProviderNo());
-		}
 		if (dependents != null) {
-			for (Integer l : dependents) {
+			for (Long l : dependents) {
 				logger.debug("rejecting from queue: program_id=" + programId + ",clientId=" + l.intValue());
 				programQueueManager.rejectQueue(programId, l.toString(), notes, rejectionReason);
 			}
@@ -672,8 +596,8 @@ public class ProgramManagerViewAction extends DispatchAction {
 	public ActionForward select_client_for_admit(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		String programId = request.getParameter("id");
 		String clientId = request.getParameter("clientId");
-		String queueId = request.getParameter("queueId");
-
+		String queueId = request.getParameter("queueId");		
+		
 		Program program = programManager.getProgram(String.valueOf(programId));
 		ProgramQueue queue = programQueueManager.getProgramQueue(queueId);
 
@@ -710,7 +634,7 @@ public class ProgramManagerViewAction extends DispatchAction {
 	}
 
 	public ActionForward saveReservedBeds(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws FunctionalCentreDischargeException {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+
 		ProgramManagerViewFormBean programManagerViewFormBean = (ProgramManagerViewFormBean) form;
 
 		ActionMessages messages = new ActionMessages();
@@ -718,6 +642,8 @@ public class ProgramManagerViewAction extends DispatchAction {
 		List<Integer> familyList = new ArrayList<Integer>();
 		boolean isClientDependent = false;
 		boolean isClientFamilyHead = false;
+
+		LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
 
 		for (int i = 0; reservedBeds != null && i < reservedBeds.length; i++) {
 			Bed reservedBed = reservedBeds[i];
@@ -746,7 +672,7 @@ public class ProgramManagerViewAction extends DispatchAction {
 
 						if (isClientFamilyHead) {
 							familyList.clear();
-							List<JointAdmission> dependentList = clientManager.getDependents(Integer.valueOf(clientId.toString()));
+							List<JointAdmission> dependentList = clientManager.getDependents(Long.valueOf(clientId.toString()));
 							familyList.add(clientId);
 							for (int j = 0; dependentList != null && j < dependentList.size(); j++) {
 								familyList.add(Integer.valueOf(dependentList.get(j).getClientId().toString()));
@@ -755,7 +681,7 @@ public class ProgramManagerViewAction extends DispatchAction {
 							for (int k = 0; familyList != null && k < familyList.size(); k++) {
 								bedDemographic.getId().setDemographicNo(familyList.get(k));
 
-								BedDemographic dependentBD = bedDemographicManager.getBedDemographicByDemographic(familyList.get(k), loggedInInfo.getCurrentFacility().getId());
+								BedDemographic dependentBD = bedDemographicManager.getBedDemographicByDemographic(familyList.get(k), loggedInInfo.currentFacility.getId());
 
 								if (dependentBD != null) {
 									bedDemographic.getId().setBedId(dependentBD.getId().getBedId());
@@ -770,7 +696,7 @@ public class ProgramManagerViewAction extends DispatchAction {
 								if (communityProgramId > 0) {
 									try {
 										// discharge to community program
-										admissionManager.processDischargeToCommunity(loggedInInfo, communityProgramId, bedDemographic.getId().getDemographicNo(), loggedInInfo.getLoggedInProviderNo(), "bed reservation ended - manually discharged", "0", null, false);
+										admissionManager.processDischargeToCommunity(communityProgramId, bedDemographic.getId().getDemographicNo(), getProviderNo(request), "bed reservation ended - manually discharged", "0", null, false);
 									} catch (AdmissionException e) {
 
 										messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("discharge.failure", e.getMessage()));
@@ -790,7 +716,7 @@ public class ProgramManagerViewAction extends DispatchAction {
 							if (communityProgramId > 0) {
 								try {
 									// discharge to community program
-									admissionManager.processDischargeToCommunity(loggedInInfo, communityProgramId, bedDemographic.getId().getDemographicNo(), loggedInInfo.getLoggedInProviderNo(), "bed reservation ended - manually discharged", "0", null, false);
+									admissionManager.processDischargeToCommunity(communityProgramId, bedDemographic.getId().getDemographicNo(), getProviderNo(request), "bed reservation ended - manually discharged", "0", null, false);
 								} catch (AdmissionException e) {
 
 									messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("discharge.failure", e.getMessage()));
@@ -810,6 +736,7 @@ public class ProgramManagerViewAction extends DispatchAction {
 		return view(mapping, form, request, response);
 	}
 
+	@SuppressWarnings("unchecked")
 	public ActionForward switch_beds(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		/*
 		 * (1)Check whether both clients are from same program //??? probably not necessary ??? (1.1)If not, disallow bed switching
@@ -823,7 +750,7 @@ public class ProgramManagerViewAction extends DispatchAction {
 		 */
 		ProgramManagerViewFormBean formBean = (ProgramManagerViewFormBean) form;
 		ActionMessages messages = new ActionMessages();
-		//Bed[] reservedBeds = formBean.getReservedBeds();
+		Bed[] reservedBeds = formBean.getReservedBeds();
 		Bed bed1 = null;
 		Bed bed2 = null;
 		Integer client1 = null;
@@ -842,7 +769,7 @@ public class ProgramManagerViewAction extends DispatchAction {
 		Date today = new Date();
 		// List<Integer> familyList = new ArrayList<Integer>();
 
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+		LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
 
 		String switchBed1 = formBean.getSwitchBed1();
 		String switchBed2 = formBean.getSwitchBed2();
@@ -914,8 +841,8 @@ public class ProgramManagerViewAction extends DispatchAction {
 
 
 
-			RoomDemographic roomDemographic1 = roomDemographicManager.getRoomDemographicByDemographic(client1, loggedInInfo.getCurrentFacility().getId());
-			RoomDemographic roomDemographic2 = roomDemographicManager.getRoomDemographicByDemographic(client2, loggedInInfo.getCurrentFacility().getId());
+			RoomDemographic roomDemographic1 = roomDemographicManager.getRoomDemographicByDemographic(client1, loggedInInfo.currentFacility.getId());
+			RoomDemographic roomDemographic2 = roomDemographicManager.getRoomDemographicByDemographic(client2, loggedInInfo.currentFacility.getId());
 
 			if (roomDemographic1 == null || roomDemographic2 == null) {
 				messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("bed.check.error"));
@@ -1009,6 +936,10 @@ public class ProgramManagerViewAction extends DispatchAction {
 
 	public void setClientManager(ClientManager mgr) {
 		this.clientManager = mgr;
+	}
+
+	public void setLogManager(LogManager mgr) {
+		this.logManager = mgr;
 	}
 
 	public void setProgramManager(ProgramManager mgr) {

@@ -25,31 +25,32 @@
 
 package oscar.log;
 
+import java.sql.SQLException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.OscarLogDao;
 import org.oscarehr.common.model.OscarLog;
-import org.oscarehr.common.model.Provider;
 import org.oscarehr.util.DeamonThreadFactory;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
+
+import oscar.oscarDB.DBPreparedHandler;
 
 public class LogAction {
 	private static Logger logger = MiscUtils.getLogger();
 	private static OscarLogDao oscarLogDao = (OscarLogDao) SpringUtils.getBean("oscarLogDao");
 	private static ExecutorService executorService = Executors.newCachedThreadPool(new DeamonThreadFactory(LogAction.class.getSimpleName()+".executorService", Thread.MAX_PRIORITY));
 
-	public static void addLogSynchronous(LoggedInInfo loggedInInfo, String action, String data)
+	public static void addLogSynchronous(String action, String data)
 	{
+		LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
 		OscarLog logEntry=new OscarLog();
-		if (loggedInInfo.getLoggedInSecurity()!=null) logEntry.setSecurityId(loggedInInfo.getLoggedInSecurity().getSecurityNo());
-		if (loggedInInfo.getLoggedInProvider()!=null) logEntry.setProviderNo(loggedInInfo.getLoggedInProviderNo());
+		if (loggedInInfo.loggedInSecurity!=null) logEntry.setSecurityId(loggedInInfo.loggedInSecurity.getSecurityNo());
+		if (loggedInInfo.loggedInProvider!=null) logEntry.setProviderNo(loggedInInfo.loggedInProvider.getProviderNo());
 		logEntry.setAction(action);
 		logEntry.setData(data);
 		LogAction.addLogSynchronous(logEntry);		
@@ -76,26 +77,6 @@ public class LogAction {
 		addLog(provider_no, action, content, contentId, ip, demographicNo, null);
 	}
 
-	public static void addLog(LoggedInInfo loggedInInfo, String action, String content, String contentId, String demographicNo, String data)
-	{
-		OscarLog logEntry=new OscarLog();
-		if (loggedInInfo.getLoggedInSecurity()!=null) logEntry.setSecurityId(loggedInInfo.getLoggedInSecurity().getSecurityNo());
-		if (loggedInInfo.getLoggedInProvider()!=null) logEntry.setProviderNo(loggedInInfo.getLoggedInProviderNo());
-		logEntry.setAction(action);
-		logEntry.setContent(content);
-		logEntry.setContentId(contentId);
-		logEntry.setIp(loggedInInfo.getIp()); 
-
-		try {
-			demographicNo=StringUtils.trimToNull(demographicNo);
-			if (demographicNo != null) logEntry.setDemographicId(Integer.parseInt(demographicNo));
-		} catch (Exception e) {
-			logger.error("Unexpected error", e);
-		}
-		logEntry.setData(data);
-		executorService.execute(new AddLogExecutorTask(logEntry));
-	}
-	
 	/**
 	 * This method will add a log entry asynchronously in a separate thread.
 	 */
@@ -146,22 +127,19 @@ public class LogAction {
 			logger.error("Error logging entry : " + oscarLog);
 		}
 	}
-	
-	
-	/**
-	 * ported from the old caisi pmm_log
-	 */
-	public static void log(String accessType, String entity, String entityId, HttpServletRequest request) {		
-		OscarLog log = new OscarLog();
-		
-		Provider provider=(Provider) request.getSession().getAttribute("provider");
-		if (provider!=null) log.setProviderNo(provider.getProviderNo());
-		
-		log.setAction(accessType);
-		log.setContent(entity);
-		log.setContentId(entityId);
-		log.setIp(request.getRemoteAddr());
-	
-		oscarLogDao.persist(log);
+
+	public static boolean logAccess(String provider_no, String className, String method, String programId, String shelterId, String clientId, String queryStr, String sessionId, long timeSpan, String ex, int result) {
+		boolean ret = false;
+		DBPreparedHandler db = new DBPreparedHandler();
+		String sql = "insert into access_log (Id,provider_no,ACTIONCLASS,METHOD,QUERYSTRING,PROGRAMID,SHELTERID,CLIENTID,TIMESPAN,EXCEPTION,RESULT, SESSIONID)";
+		sql += " values(seq_log_id.nextval,'" + provider_no + "', '" + className + "','" + method + "',";
+		sql += "'" + queryStr + "'," + programId + "," + shelterId + "," + clientId + "," + String.valueOf(timeSpan) + ",'" + ex + "'," + result + ",'" + sessionId + "')";
+		try {
+			db.queryExecuteUpdate(sql);
+			ret = true;
+		} catch (SQLException e) {
+			logger.error("Error", e);
+		}
+		return ret;
 	}
 }

@@ -24,22 +24,6 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_admin");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-
 <%
   
   String user_no = (String) session.getAttribute("user");
@@ -71,17 +55,12 @@ function onExit() {
   String str = null;
   if(request.getParameter("submit")!=null && request.getParameter("submit").compareTo(" Save ")==0) {
     FileWriter inf = new FileWriter(".."+sep+"webapps"+sep+oscarVariables.getProperty("project_home")+sep+"decision"+sep+"annualreview"+sep+"desannualreviewplannerrisk.xml");
-    try {
-	    str = request.getParameter("checklist");
-		str = SxmlMisc.replaceString(str," & "," &amp; ");
-	  	str = SxmlMisc.replaceString(str," > "," &gt; ");
-	  	str = SxmlMisc.replaceString(str," < "," &lt; ");
-	    inf.write(str);
-	    inf.flush();
-    }
-    finally {
-    	inf.close();
-    }
+    str = request.getParameter("checklist");
+	  str = SxmlMisc.replaceString(str," & "," &amp; ");
+  	str = SxmlMisc.replaceString(str," > "," &gt; ");
+  	str = SxmlMisc.replaceString(str," < "," &lt; ");
+    inf.write(str);
+    inf.close();
   }			
 %>
 <table border="0" cellspacing="0" cellpadding="0" width="100%">
@@ -106,21 +85,17 @@ function onExit() {
 				throw new IOException();
 			}
 			RandomAccessFile raf = new RandomAccessFile(file, "r");
-			try {
-				String aline=""; //, temp="";
-				while (true) {
-					aline = raf.readLine(); 
-					if(aline!=null){
-	//					aline="<pre>" + aline + "</pre>"  ;
-	                    out.println(aline);
-					}else {
-						break;
-					}
+			String aline=""; //, temp="";
+			while (true) {
+				aline = raf.readLine(); 
+				if(aline!=null){
+//					aline="<pre>" + aline + "</pre>"  ;
+                    out.println(aline);
+				}else {
+					break;
 				}
 			}
-			finally {
-				raf.close();
-			}
+			raf.close();
 //		} catch(IOException e) {}
 %>
 </textarea> </font></td>

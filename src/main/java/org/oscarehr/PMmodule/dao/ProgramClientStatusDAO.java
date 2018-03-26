@@ -22,14 +22,12 @@
  */
 package org.oscarehr.PMmodule.dao;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.hibernate.Query;
-import org.hibernate.Session;
+import org.oscarehr.PMmodule.model.Admission;
 import org.oscarehr.PMmodule.model.ProgramClientStatus;
-import org.oscarehr.common.model.Admission;
 import org.oscarehr.util.MiscUtils;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -69,21 +67,16 @@ public class ProgramClientStatusDAO extends HibernateDaoSupport {
             throw new IllegalArgumentException();
         }
 
-        Session session = getSession();
-        List teams = new ArrayList();
-        try {
-	        Query query =session.createQuery("select pt.id from ProgramClientStatus pt where pt.programId = ? and pt.name = ?");
-	        query.setLong(0, programId.longValue());
-	        query.setString(1, statusName);
-	
-	        teams = query.list();
-	
-	        if (log.isDebugEnabled()) {
-	            log.debug("teamNameExists: programId = " + programId + ", statusName = " + statusName + ", result = " + !teams.isEmpty());
-	        }
-        }finally {
-        	releaseSession(session);
+        Query query = getSession().createQuery("select pt.id from ProgramClientStatus pt where pt.programId = ? and pt.name = ?");
+        query.setLong(0, programId.longValue());
+        query.setString(1, statusName);
+
+        List teams = query.list();
+
+        if (log.isDebugEnabled()) {
+            log.debug("teamNameExists: programId = " + programId + ", statusName = " + statusName + ", result = " + !teams.isEmpty());
         }
+
         return !teams.isEmpty();
     }
 

@@ -28,19 +28,23 @@
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 
+<%
+
+%>
 <%@ page import="java.util.*,java.sql.*,java.util.ResourceBundle" errorPage="../provider/errorpage.jsp"%>
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean" scope="session" />
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.model.MyGroup" %>
 <%@ page import="org.oscarehr.common.model.MyGroupPrimaryKey" %>
 <%@ page import="org.oscarehr.common.dao.MyGroupDao" %>
-<%@ page import="org.oscarehr.common.model.ProviderData"%>
-<%@ page import="org.oscarehr.common.dao.ProviderDataDao"%>
-
 <%
 	MyGroupDao myGroupDao = SpringUtils.getBean(MyGroupDao.class);
-	ProviderDataDao providerDao = SpringUtils.getBean(ProviderDataDao.class);
-
+%>
+<%
+    if(session.getAttribute("user") == null ) response.sendRedirect("../logout.jsp");
     String curProvider_no = (String) session.getAttribute("user");
+
+    if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
 
     boolean isSiteAccessPrivacy=false;
@@ -50,13 +54,13 @@
 	<%isSiteAccessPrivacy=true; %>
 </security:oscarSec>
 
-<!DOCTYPE html>
 <html:html locale="true">
 <head>
-
+<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="admin.adminnewgroup.title" /></title>
-
-<script>
+</head>
+<script language="javascript">
+<%-- start javascript ---- check to see if it is really empty in database --%>
 
 function setfocus() {
   this.focus();
@@ -71,8 +75,8 @@ function validate() {
      alert("<bean:message key="admin.adminNewGroup.msgGroupIsRequired"/>");
 
      return false;
-  }
-  else {
+  }else{
+
   	var checked=false;
   	var checkboxes = document.getElementsByName("data");
 	var x=0;
@@ -90,16 +94,12 @@ function validate() {
 }
 </script>
 
-<link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
-</head>
-
-
-
-<body onload="setfocus();">
+<body background="../images/gray_bg.jpg" bgproperties="fixed"
+	onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0">
 <%
   ResourceBundle properties = ResourceBundle.getBundle("oscarResources", request.getLocale());
 
-  if(request.getParameter("submit")!=null && request.getParameter("submit").equals(properties.getString("admin.admindisplaymygroup.btnSubmit1")) ) { //delete the group member
+  if(request.getParameter("submit").equals(properties.getString("admin.admindisplaymygroup.btnSubmit1")) ) { //delete the group member
     int rowsAffected=0;
     String[] param =new String[2];
     StringBuffer strbuf=new StringBuffer();
@@ -113,83 +113,84 @@ function validate() {
 	    myGroupDao.deleteGroupMember(param[0],param[1]);
       	rowsAffected = 1;
     }
+    out.println("<script language='JavaScript'>self.close();</script>");
   }
 %>
 
-<FORM NAME="UPDATEPRE" METHOD="post" ACTION="adminsavemygroup.jsp" onsubmit="return validate();">
+<FORM NAME="UPDATEPRE" METHOD="post" ACTION="admincontrol.jsp"
+	onsubmit="return validate();">
+<table border=0 cellspacing=0 cellpadding=0 width="100%">
+	<tr bgcolor="#486ebd">
+		<th align=CENTER NOWRAP><font face="Helvetica" color="#FFFFFF"><bean:message
+			key="admin.adminnewgroup.description" /></font></th>
+	</tr>
+</table>
 
-<%if(request.getParameter("submit")!=null && request.getParameter("submit").equals(properties.getString("admin.admindisplaymygroup.btnSubmit1")) ) { %>
-<br>
-    <div class="alert alert-success">
- 		<strong>Success!</strong> record(s) have been deleted.
-    </div>
-    
-    <a href="admindisplaymygroup.jsp" class="btn btn-primary">View Group List</a>
+<center>
+<table border="0" cellpadding="0" cellspacing="0" width="80%">
+	<tr>
+		<td width="100%">
 
-	<a href="adminnewgroup.jsp" class="btn"><bean:message key="admin.admindisplaymygroup.btnSubmit2"/></a>
-<%}else{%>    
-    
-<h3><bean:message key="admin.adminnewgroup.description" /></h3>
-
-
-					
-				 
-					<input type="text" name="mygroup_no" size="10" maxlength="10" placeholder="<bean:message key="admin.adminmygroup.formGroupNo" />" title="Enter an existing or new group name.">
-					<small>(Max. 10 chars.)</small>
-					
-		<table class="table table-condensed table-hover">	
-		<thead>
-			<tr class="btn-inverse">
-				<th></th>
-				<th>
-					<bean:message key="admin.admindisplaymygroup.formProviderName" />
-				</th>
+		<table BORDER="0" CELLPADDING="0" CELLSPACING="1" WIDTH="100%"
+			BGCOLOR="#C0C0C0">
+			<tr BGCOLOR="#CCFFFF">
+				<td ALIGN="center"><font face="arial"><bean:message
+					key="admin.adminmygroup.formGroupNo" /></font></td>
+				<td ALIGN="center"><font face="arial"> </font> <input
+					type="text" name="mygroup_no" size="10" maxlength="10"> <font
+					size="-2">(Max. 10 chars.)</font></td>
 			</tr>
-		</thead>
-			
-		<tbody>
+
+
 <%
-	// find all active providers
-	int i=0;
-	List<ProviderData> providerList = providerDao.findAll(false);
-   
-   for(ProviderData provider : providerList) {
-		i++;
+   ResultSet rsgroup = null;
+   int i=0;
+   if (isSiteAccessPrivacy)
+   {
+	  rsgroup = apptMainBean.queryResults(curProvider_no,"site_searchproviderall");
+   }
+   else
+   {
+	  rsgroup = apptMainBean.queryResults("searchproviderall");
+   }
+   while (rsgroup.next()) {
+     i++;
 %>
-			<tr class="<%=i%2==0?"":"info"%>">
-				<td width="20px" ALIGN="center">
-				<input type="checkbox" name="data" value="<%=i%>"> 
-				<input type="hidden" name="provider_no<%=i%>" value="<%= provider.getId() %>"> 
-				<input type="hidden" name="last_name<%=i%>" value='<%= provider.getLastName() %>'> 
-				<input type="hidden" name="first_name<%=i%>" value='<%= provider.getFirstName() %>'>
-				</td>
-				
-				<td><%= provider.getLastName() %>, <%= provider.getFirstName() %></td>
-
+			<tr BGCOLOR="<%=i%2==0?"ivory":"white"%>">
+				<td>&nbsp; <%=rsgroup.getString("last_name")%>, <%=rsgroup.getString("first_name")%></td>
+				<td ALIGN="center"><input type="checkbox" name="data"
+					value="<%=i%>"> <input type="hidden"
+					name="provider_no<%=i%>"
+					value="<%=rsgroup.getString("provider_no")%>"> <INPUT
+					TYPE="hidden" NAME="last_name<%=i%>"
+					VALUE='<%=rsgroup.getString("last_name")%>'> <INPUT
+					TYPE="hidden" NAME="first_name<%=i%>"
+					VALUE='<%=rsgroup.getString("first_name")%>'></td>
 			</tr>
-<%
+			<%
    }
 %>
-		</tbody>
+			<INPUT TYPE="hidden" NAME="displaymode" VALUE='savemygroup'>
+
 		</table>
 
+		</td>
+	</tr>
+</table>
+</center>
 
-<input type="submit" name="Submit"	class="btn btn-primary" value="<bean:message key="admin.adminnewgroup.btnSubmit"/>">
-
-<a href="admindisplaymygroup.jsp" class="btn btn-default">Cancel</a>
+<table width="100%" BGCOLOR="#486ebd">
+	<tr>
+		<TD align="center"><input type="submit" name="Submit"
+			value="<bean:message key="admin.adminnewgroup.btnSubmit"/>">
+		<INPUT TYPE="RESET" VALUE="<bean:message key="global.btnClose"/>"
+			onClick="window.close();"></TD>
+	</tr>
+</TABLE>
 
 </FORM>
 
-<%} %>
+<div align="center"><font size="1" face="Verdana" color="#0000FF"><B></B></font></div>
 
-
-<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-1.9.1.min.js"></script>
-
-<script>
-$( document ).ready(function() {
-parent.parent.resizeIframe($('html').height());      
-
-});
-</script>
 </body>
 </html:html>

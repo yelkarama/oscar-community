@@ -33,7 +33,7 @@ import java.util.TreeSet;
 import org.apache.log4j.Logger;
 import org.oscarehr.PMmodule.dao.ProgramDao;
 import org.oscarehr.PMmodule.dao.ProviderDao;
-
+import org.oscarehr.PMmodule.dao.RoleDAO;
 import org.oscarehr.PMmodule.dao.SecUserRoleDao;
 import org.oscarehr.PMmodule.model.Program;
 import org.oscarehr.PMmodule.model.SecUserRole;
@@ -58,7 +58,7 @@ public class PopulationReportUIBean {
 
 	private static Logger logger=MiscUtils.getLogger();
 	private ProgramDao programDao = (ProgramDao) SpringUtils.getBean("programDao");
-	
+	private RoleDAO roleDAO = (RoleDAO) SpringUtils.getBean("roleDAO");
 	private IssueGroupDao issueGroupDao = (IssueGroupDao) SpringUtils.getBean("issueGroupDao");
 	private PopulationReportDao populationReportDao = (PopulationReportDao) SpringUtils.getBean("populationReportDao");
 	private SecUserRoleDao secUserRoleDao = (SecUserRoleDao) SpringUtils.getBean("secUserRoleDao");
@@ -71,16 +71,14 @@ public class PopulationReportUIBean {
 	private Program program = null;
 	public boolean skipTotalRow=false;
 	private FunctionalCentre functionalCentre = null;
-	private LoggedInInfo loggedInInfo;
-	
-	public PopulationReportUIBean(LoggedInInfo loggedInInfo) {
-		this.loggedInInfo=loggedInInfo;
+
+	public PopulationReportUIBean() {
+
 	}
 
-	public PopulationReportUIBean(LoggedInInfo loggedInInfo,String functionalCentreId, int programId, Date startDate, Date endDate) {
+	public PopulationReportUIBean(String functionalCentreId, int programId, Date startDate, Date endDate) {
 		this.startDate = startDate;
 		this.endDate = endDate;
-		this.loggedInInfo=loggedInInfo;
 		setProgramId(programId);
 		setFunctionalCentreId(functionalCentreId);
 	}
@@ -208,7 +206,8 @@ public class PopulationReportUIBean {
 		int rowTotalUniqueClients = 0;
 		
 		if(functionalCentre!=null) {
-			List<Program> programList = programDao.getProgramsByFacilityIdAndFunctionalCentreId(loggedInInfo.getCurrentFacility().getId(), functionalCentre.getId());
+			LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+			List<Program> programList = programDao.getProgramsByFacilityIdAndFunctionalCentreId(loggedInInfo.currentFacility.getId(), functionalCentre.getId());
 			for(Program p : programList) {
 				Map<Integer, Integer> counts1 = populationReportDao.getCaseManagementNoteCountGroupedByIssueGroup(p.getId(), roleId, encounterType, startDate, endDate);
 							
@@ -220,9 +219,8 @@ public class PopulationReportUIBean {
 		}
 		if(program!=null) {
 			Map<Integer, Integer> counts2 = populationReportDao.getCaseManagementNoteCountGroupedByIssueGroup(program.getId(), roleId, encounterType, startDate, endDate);
-			
-			counts.putAll(addNewCounts(counts, counts2));
-	
+			//counts.putAll(counts2);
+			counts.putAll(addNewCounts(counts, counts2));	
 			rowTotalUniqueEncounters += populationReportDao.getCaseManagementNoteTotalUniqueEncounterCountInIssueGroups(program.getId(), roleId, encounterType, startDate, endDate);
 			rowTotalUniqueClients += populationReportDao.getCaseManagementNoteTotalUniqueClientCountInIssueGroups(program.getId(), roleId, encounterType, startDate, endDate);
 		}

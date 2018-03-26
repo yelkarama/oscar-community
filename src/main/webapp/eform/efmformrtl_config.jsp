@@ -15,24 +15,10 @@
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%
+  if(session.getAttribute("user") == null) response.sendRedirect("../logout.jsp");
   String userRole = (String)session.getAttribute("userrole");
   String status = (String)request.getAttribute("status");
   EFormDao efd = (EFormDao) SpringUtils.getBean("EFormDao");
-%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin.eform" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_admin.eform");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
 %>
 
 <html:html locale="true">
@@ -42,44 +28,53 @@
 
 <title>Rich Text Letter Settings</title>
 <script src="../share/javascript/Oscar.js"></script>
-
-
+<link rel="stylesheet" type="text/css" href="../share/css/OscarStandardLayout.css">
+<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
 </head>
 
-<body>
-
+<body class="BodyStyle" vlink="#0000FF">
 <% if (!userRole.toLowerCase().contains("admin")) { %>
 <p>
 <h2>Sorry! Only administrators can change these settings..</h2>
 </p>
 <% } else { %>
 
-<div class="well">
-
-<h3>Rich Text Letter</h3>
-
-<% if (status != null) { %>
-Rich Text Letter is <%= status %>.
-<% } else { %>
-<form action="<%=request.getContextPath()%>/eform/IndivicaRichTextLetterSettings.do" method="post" class="form-inline" id="rtlConfigForm">
-				
-	<label for="indivica_rtl_enabled"><input type="checkbox" name="indivica_rtl_enabled" id="indivica_rtl_enabled" <%= efd.isIndivicaRTLEnabled() ? "checked" : "" %>/> Check to use Rich Text Letter</label>
-	<br/><br/>
-	
-	<input type="submit" class="btn btn-primary" value="Save"/> 
-</form>
-
-</div>
+<table class="MainTable" id="scrollNumber1" name="encounterTable">
+	<tr class="MainTableTopRow">
+		<td style="max-width:200px;" class="MainTableTopRowLeftColumn">
+		Rich Text Letter</td>
+		<td class="MainTableTopRowRightColumn">
+		<table class="TopStatusBar">
+			<tr>
+				<td>Settings</td>						
+			</tr>
+		</table>
+		</td>
+	</tr>
+	<tr>
+		<td class="MainTableLeftColumn" valign="top" nowrap="nowrap">
+		   
+		</td>
+		<td valign="top" class="MainTableRightColumn">
+			<% if (status != null) { %>
+			Rich Text Letter is <%= status %>.
+			<% } else { %>
+			<form action="IndivicaRichTextLetterSettings.do" method="post">
+							
+				<input type="checkbox" name="indivica_rtl_enabled" id="indivica_rtl_enabled" <%= efd.isIndivicaRTLEnabled() ? "checked" : "" %>/> <label for="indivica_rtl_enabled">Check to use Rich Text Letter</label>
+				<br/><input type="submit" value="submit"/> 
+			</form>
+			<% } %>
+		</td>
+	</tr>
+	<tr>
+		<td class="MainTableBottomRowLeftColumn">&nbsp;</td>
+		<td class="MainTableBottomRowRightColumn" valign="top">&nbsp;</td>
+	</tr>
+</table>
 
 
 <%}%>
-
-<%}%>
-
-<script>
-registerFormSubmit('rtlConfigForm', 'dynamic-content');
-
-</script>
 </body>
 </html:html>
 <%!

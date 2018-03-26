@@ -33,11 +33,12 @@ import org.apache.struts.util.MessageResources;
 import org.oscarehr.PMmodule.caisi_integrator.CaisiIntegratorManager;
 import org.oscarehr.PMmodule.caisi_integrator.IntegratorFallBackManager;
 import org.oscarehr.caisi_integrator.ws.CachedDemographicIssue;
+import org.oscarehr.casemgmt.dao.IssueDAO;
 import org.oscarehr.casemgmt.model.CaseManagementIssue;
 import org.oscarehr.casemgmt.service.CaseManagementManager;
-import org.oscarehr.util.CppUtils;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
+import org.oscarehr.util.SpringUtils;
 
 import oscar.util.StringUtils;
 
@@ -47,6 +48,7 @@ import oscar.util.StringUtils;
 public class EctDisplayResolvedIssuesAction extends EctDisplayAction {
 	private String cmd = "resolvedIssues";
 
+	private IssueDAO issueDao=(IssueDAO) SpringUtils.getBean("IssueDAO");
 	
 	private CaseManagementManager caseManagementMgr;
 	private static Logger log = MiscUtils.getLogger();
@@ -57,9 +59,6 @@ public class EctDisplayResolvedIssuesAction extends EctDisplayAction {
 
 	@Override
     public boolean getInfo(EctSessionBean bean, HttpServletRequest request, NavBarDisplayDAO navBarDisplayDAO, MessageResources messages) {
-
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		String providerNo=loggedInInfo.getLoggedInProviderNo();
 
 		// set lefthand module heading and link
 		navBarDisplayDAO.setLeftHeading(messages.getMessage(request.getLocale(), "oscarEncounter.NavBar.resolvedIssues"));
@@ -76,15 +75,11 @@ public class EctDisplayResolvedIssuesAction extends EctDisplayAction {
 		int demographicId = Integer.parseInt(bean.getDemographicNo());
 		issues = caseManagementMgr.getIssues(demographicId);
 		String programId = (String) request.getSession().getAttribute("case_program_id");
-		issues = caseManagementMgr.filterIssues(loggedInInfo, providerNo, issues, programId);
+		issues = caseManagementMgr.filterIssues(issues, programId);
 	
 		List<CaseManagementIssue> issues_unr = new ArrayList<CaseManagementIssue>();
 		//only list resolved issues				
 		for(CaseManagementIssue issue : issues) {
-			if(containsIssue(CppUtils.cppCodes,issue.getIssue().getCode())) {
-				continue;
-			}
-			
 			if(issue.isResolved()) {
 				issues_unr.add(issue);
 			}				
@@ -108,22 +103,24 @@ public class EctDisplayResolvedIssuesAction extends EctDisplayAction {
 		}
 
 		
-		if (loggedInInfo.getCurrentFacility().isIntegratorEnabled()) {
+		LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
+
+		if (loggedInInfo.currentFacility.isIntegratorEnabled()) {
 			try {
 				
 		
 				List<CachedDemographicIssue> remoteIssues  = null;
 				try {
-					if (!CaisiIntegratorManager.isIntegratorOffline(loggedInInfo.getSession())){
-					   remoteIssues = CaisiIntegratorManager.getDemographicWs(loggedInInfo, loggedInInfo.getCurrentFacility()).getLinkedCachedDemographicIssuesByDemographicId(demographicId);
+					if (!CaisiIntegratorManager.isIntegratorOffline()){
+					   remoteIssues = CaisiIntegratorManager.getDemographicWs().getLinkedCachedDemographicIssuesByDemographicId(demographicId);
 					}
 				} catch (Exception e) {
 					MiscUtils.getLogger().error("Unexpected error.", e);
-					CaisiIntegratorManager.checkForConnectionError(loggedInInfo.getSession(),e);
+					CaisiIntegratorManager.checkForConnectionError(e);
 				}
 				
-				if(CaisiIntegratorManager.isIntegratorOffline(loggedInInfo.getSession())){
-				   remoteIssues = IntegratorFallBackManager.getRemoteDemographicIssues(loggedInInfo, demographicId);	
+				if(CaisiIntegratorManager.isIntegratorOffline()){
+				   remoteIssues = IntegratorFallBackManager.getRemoteDemographicIssues(demographicId);	
 				}
 				
 				for (CachedDemographicIssue cachedDemographicIssue : remoteIssues) {
@@ -159,8 +156,9 @@ public class EctDisplayResolvedIssuesAction extends EctDisplayAction {
 		
 		
 		// add integrator issues
+		//LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
 /*
-		if (loggedInInfo.getCurrentFacility().isIntegratorEnabled()) {
+		if (loggedInInfo.currentFacility.isIntegratorEnabled()) {
 			try {
 				List<CachedDemographicNote> remoteNotes=CaisiIntegratorManager.getLinkedNotes(demographicId);
 				
@@ -213,13 +211,5 @@ public class EctDisplayResolvedIssuesAction extends EctDisplayAction {
 
 	public String getCmd() {
 		return cmd;
-	}
-	public boolean containsIssue(String[]  issues, String issueCode) {
-		for (String caseManagementIssue : issues) {
-			if (caseManagementIssue.equals(issueCode)) {
-					return(true);
-			}
-		}
-		return false;
 	}
 }

@@ -22,6 +22,7 @@
  * Ontario, Canada
  */
 
+
 package oscar.dms;
 
 import java.io.File;
@@ -36,19 +37,14 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.log4j.Logger;
 import org.apache.struts.upload.FormFile;
-import org.oscarehr.common.model.CtlDocument;
-import org.oscarehr.common.model.CtlDocumentPK;
-import org.oscarehr.common.model.Document;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.util.MiscUtils;
 
-import oscar.MyDateFormat;
 import oscar.OscarProperties;
 import oscar.oscarTags.TagObject;
-import oscar.util.ConversionUtils;
 import oscar.util.UtilDateUtilities;
 
-public class EDoc extends TagObject implements Comparable<EDoc> {
+public class EDoc extends TagObject implements Comparable {
 	private static final Logger logger = MiscUtils.getLogger();
 
 	private String docId;
@@ -57,8 +53,8 @@ public class EDoc extends TagObject implements Comparable<EDoc> {
 	private String dateTimeStamp = "";
 	private Date dateTimeStampAsDate = null;
 	private String type = "";
-	private String docClass = "";
-	private String docSubClass = "";
+        private String docClass = "";
+        private String docSubClass = "";
 	private String fileName = "";
 	private String html = "";
 
@@ -72,7 +68,6 @@ public class EDoc extends TagObject implements Comparable<EDoc> {
 	private String moduleId = "";
 	private String docPublic = "0";
 	private String contentType = "";
-        private Date contentDateTime=null;
 	private String observationDate = "";
 	private String reviewerId = "";
 	private String reviewDateTime = null;
@@ -81,12 +76,6 @@ public class EDoc extends TagObject implements Comparable<EDoc> {
 	private boolean indivoRegistered = false;
 	private int numberOfPages = 0;
 	private Integer appointmentNo = -1;
-	private boolean restrictToProgram=false;
-	private String fileSignature;
-	
-	private org.oscarehr.common.model.Document document;
-	private CtlDocument ctlDocument;
-	
 
 	/** Creates a new instance of EDoc */
 	public EDoc() {
@@ -127,31 +116,11 @@ public class EDoc extends TagObject implements Comparable<EDoc> {
 		preliminaryProcessing();
 	}
 
-	public EDoc(String description, String type, String fileName, String html, String creatorId, String responsibleId, String source, char status, String observationDate, String reviewerId, String reviewDateTime, String module, String moduleId, boolean updateFilename) {
-		this.setDescription(description.trim());
-		this.setType(type.trim());
-		this.setFileName(fileName.trim());
-		this.setHtml(html);
-		this.setCreatorId(creatorId);
-		this.setResponsibleId(responsibleId);
-		this.setSource(source);
-		this.setStatus(status);
-		this.setModule(module.trim());
-		this.setModuleId(moduleId.trim());
-		this.setObservationDate(observationDate);
-		this.setReviewerId(reviewerId);
-		this.setReviewDateTime(reviewDateTime);
-
-		if (updateFilename) {
-			preliminaryProcessing();
-		}
-	}
-
 	/**
 	 *Comparable based on document id
 	 */
-	public int compareTo(EDoc o) {
-		EDoc doc = o;
+	public int compareTo(Object o) {
+		EDoc doc = (EDoc) o;
 		int ret;
 		int id1 = Integer.parseInt(docId);
 		int id2 = Integer.parseInt(doc.getDocId());
@@ -163,33 +132,17 @@ public class EDoc extends TagObject implements Comparable<EDoc> {
 		return ret;
 	}
 
-	
-	@Override
-		public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((docId == null) ? 0 : docId.hashCode());
-		return result;
-	}
+	public boolean equals(Object o) {
+		if (o == null) return false;
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (obj == null) return false;
-		if (getClass() != obj.getClass()) return false;
-		EDoc other = (EDoc) obj;
-		if (docId == null) {
-			if (other.docId != null) return false;
-		} else if (!docId.equals(other.docId)) return false;
-		return true;
+		return (compareTo(o) == 0);
 	}
 
 	private void preliminaryProcessing() {
 		this.dateTimeStamp = EDocUtil.getDmsDateTime();
 		this.setDateTimeStampAsDate(EDocUtil.getDmsDateTimeAsDate());
-                this.setContentDateTime(EDocUtil.getDmsDateTimeAsDate());
 		if (fileName.length() != 0) {
-			String filenamePrefix = UtilDateUtilities.DateToString(new Date(), "yyyyMMdd") + UtilDateUtilities.DateToString(new Date(), "HHmmss");
+			String filenamePrefix = UtilDateUtilities.DateToString(UtilDateUtilities.now(), "yyyyMMdd") + UtilDateUtilities.DateToString(UtilDateUtilities.now(), "HHmmss");
 			this.fileName = filenamePrefix + fileName;
 		}
 	}
@@ -245,12 +198,12 @@ public class EDoc extends TagObject implements Comparable<EDoc> {
 	}
 
 	public Integer getRemoteFacilityId() {
-		return (remoteFacilityId);
-	}
+    	return (remoteFacilityId);
+    }
 
 	public void setRemoteFacilityId(Integer remoteFacilityId) {
-		this.remoteFacilityId = remoteFacilityId;
-	}
+    	this.remoteFacilityId = remoteFacilityId;
+    }
 
 	public void setDocId(String docId) {
 		this.docId = docId;
@@ -261,12 +214,12 @@ public class EDoc extends TagObject implements Comparable<EDoc> {
 	}
 
 	public Date getReviewDateTimeDate() {
-		return (reviewDateTimeDate);
-	}
+    	return (reviewDateTimeDate);
+    }
 
 	public void setReviewDateTimeDate(Date reviewDateTimeDate) {
-		this.reviewDateTimeDate = reviewDateTimeDate;
-	}
+    	this.reviewDateTimeDate = reviewDateTimeDate;
+    }
 
 	public void setDescription(String description) {
 		this.description = description;
@@ -279,15 +232,7 @@ public class EDoc extends TagObject implements Comparable<EDoc> {
 	public void setDateTimeStamp(String dateTimeStamp) {
 		this.dateTimeStamp = dateTimeStamp;
 	}
-        
-        public Date getContentDateTime() {
-		return (contentDateTime);
-	}
 
-	public void setContentDateTime(Date contentDateTime) {
-		this.contentDateTime = contentDateTime;
-	}
-        
 	public String getModule() {
 		return module;
 	}
@@ -412,7 +357,6 @@ public class EDoc extends TagObject implements Comparable<EDoc> {
 		else if (docPublic == null || docPublic.length() == 0) this.docPublic = "0";
 		else this.docPublic = docPublic;
 	}
-
 	/**
 	 *Returns true if document a PDF.
 	 */
@@ -430,16 +374,16 @@ public class EDoc extends TagObject implements Comparable<EDoc> {
 	public boolean isImage() {
 		return this.contentType != null && !isPDF() && this.contentType.toLowerCase().contains("image/");
 	}
-
+	
 	/**
 	 * Returns true if this document is printable to PDF format.
 	 * @return true if this document is printable to PDF format and false otherwise
 	 */
-	public boolean isPrintable() {
+	public boolean isPrintable() {		
 		// At this time only PDF  and image files are supported.
 		return isPDF() || isImage();
 	}
-
+	
 	public String getObservationDate() {
 		return observationDate;
 	}
@@ -477,6 +421,8 @@ public class EDoc extends TagObject implements Comparable<EDoc> {
 		this.programId = programId;
 	}
 
+
+
 	public Integer getAppointmentNo() {
 		return appointmentNo;
 	}
@@ -504,7 +450,7 @@ public class EDoc extends TagObject implements Comparable<EDoc> {
 
 	public String getReviewerOhip() {
 		Provider provider = EDocUtil.getProvider(reviewerId);
-		if (provider != null) {
+		if(provider != null) {
 			return provider.getOhipNo();
 		}
 		return "";
@@ -530,64 +476,9 @@ public class EDoc extends TagObject implements Comparable<EDoc> {
 		this.numberOfPages = n;
 	}
 
-	public String getFileSignature() {
-		return fileSignature;
-	}
-
-	public void setFileSignature(String fileSignature) {
-		this.fileSignature = fileSignature;
-	}
-
-	public boolean isRestrictToProgram() {
-		return restrictToProgram;
-	}
-
-	public void setRestrictToProgram(boolean restrictToProgram) {
-		this.restrictToProgram = restrictToProgram;
-	}
-
-	public Document getDocument() {
-		
-		document = new Document();
-		document.setDoctype(this.getType());
-		document.setDocClass(this.getDocClass());
-		document.setDocSubClass(this.getDocSubClass());
-		document.setDocdesc(this.getDescription());
-		document.setDocxml(this.getHtml());
-		document.setDocfilename(this.getFileName());
-		document.setDoccreator(this.getCreatorId());
-		document.setSource(this.getSource());
-		document.setSourceFacility(this.getSourceFacility());
-		document.setResponsible(this.getResponsibleId());
-		document.setProgramId(this.getProgramId());
-		document.setUpdatedatetime(this.getDateTimeStampAsDate());
-        document.setContentdatetime(this.getContentDateTime());
-		document.setStatus(this.getStatus());
-		document.setContenttype(this.getContentType());
-		document.setPublic1(ConversionUtils.fromIntString(this.getDocPublic()));
-		document.setObservationdate(MyDateFormat.getSysDate(this.getObservationDate()));
-		document.setNumberofpages(this.getNumberOfPages());
-		document.setAppointmentNo(this.getAppointmentNo());
-		document.setRestrictToProgram(this.isRestrictToProgram());
-		document.setFileSignature( getFileSignature() );
-		return document;
-	}
-
-	public CtlDocument getCtlDocument() {
-		
-		ctlDocument = new CtlDocument();
-		CtlDocumentPK cdpk = new CtlDocumentPK();
-		cdpk.setModule( this.getModule() );
-		cdpk.setModuleId( Integer.parseInt( this.getModuleId() ) );
-		
-		ctlDocument.setId(cdpk);
-		ctlDocument.setStatus( String.valueOf( this.getStatus() ) );
-
-		return ctlDocument;
-	}
-
 	@Override
-	public String toString() {
-		return (ReflectionToStringBuilder.toString(this));
+    public String toString()
+	{
+		return(ReflectionToStringBuilder.toString(this));
 	}
 }

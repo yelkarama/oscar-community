@@ -22,23 +22,8 @@
     Toronto, Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_casemgmt.notes" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_casemgmt.notes");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%@page import="org.oscarehr.common.model.Demographic"%>
-<%@page import="org.oscarehr.common.model.Admission"%>
+<%@page import="org.oscarehr.PMmodule.model.Admission"%>
 <%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="org.oscarehr.util.SpringUtils"%>
 <%@page import="java.util.List"%>
@@ -125,7 +110,7 @@
 %>
 	</table>
 	<br/>
-	<input type="text" name="num_anonymous" value="0" size="3"/>&nbsp;
+	<input type="text" name="num_anonymous" value="0" size="3" readonly/>&nbsp;
 	Anonymous Clients
 	
 	<br/><br/>

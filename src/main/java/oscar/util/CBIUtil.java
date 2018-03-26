@@ -54,22 +54,22 @@ import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
 import org.apache.log4j.Logger;
+import org.oscarehr.PMmodule.dao.AdmissionDao;
 import org.oscarehr.PMmodule.dao.OcanSubmissionLogDao;
 import org.oscarehr.PMmodule.dao.ProgramDao;
 import org.oscarehr.PMmodule.dao.ProviderDao;
+import org.oscarehr.PMmodule.model.Admission;
 import org.oscarehr.PMmodule.model.OcanSubmissionLog;
 import org.oscarehr.PMmodule.model.Program;
-import org.oscarehr.common.dao.AdmissionDao;
+import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.FacilityDao;
 import org.oscarehr.common.dao.FunctionalCentreAdmissionDao;
 import org.oscarehr.common.dao.OcanStaffFormDao;
 import org.oscarehr.common.dao.OcanStaffFormDataDao;
-import org.oscarehr.common.model.Admission;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.Facility;
 import org.oscarehr.common.model.FunctionalCentreAdmission;
 import org.oscarehr.common.model.OcanStaffForm;
-import org.oscarehr.managers.DemographicManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.SpringUtils;
 
@@ -83,7 +83,8 @@ public class CBIUtil
 {
 	private static Logger logger = Logger.getLogger(CBIUtil.class);
 	private static OscarProperties oscarProperties = OscarProperties.getInstance();
-	
+	private SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+
 	// submit cbi data to cbi web service
 	public void submitCBIData(OcanStaffForm ocanStaffForm) throws Exception
 	{
@@ -130,19 +131,19 @@ public class CBIUtil
 		logger.info("CBI_WS_URL = " + CBI_WS_URL);
 
 		URL url = new URL(CBI_WS_URL);
-		QName qname = new QName(CBI_WS_CLIENT_QNAME_URL, CBI_WS_CLIENT_QNAME);
+        QName qname = new QName(CBI_WS_CLIENT_QNAME_URL, CBI_WS_CLIENT_QNAME);
 
-		Service service = Service.create(url, qname);
+        Service service = Service.create(url, qname);
 
-		CBIService cbiService = service.getPort(CBIService.class);
+        CBIService cbiService = service.getPort(CBIService.class);
 
-		Map<String, Object> req_ctx = ((BindingProvider)cbiService).getRequestContext();
-		req_ctx.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, CBI_WS_URL);
+        Map<String, Object> req_ctx = ((BindingProvider)cbiService).getRequestContext();
+        req_ctx.put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, CBI_WS_URL);
 
-		Map<String, List<String>> headers = new HashMap<String, List<String>>();
-		headers.put("Username", Collections.singletonList(CBI_WS_USERNAME));
-		headers.put("Password", Collections.singletonList(CBI_WS_PASSWORD));
-		req_ctx.put(MessageContext.HTTP_REQUEST_HEADERS, headers);
+        Map<String, List<String>> headers = new HashMap<String, List<String>>();
+        headers.put("Username", Collections.singletonList(CBI_WS_USERNAME));
+        headers.put("Password", Collections.singletonList(CBI_WS_PASSWORD));
+        req_ctx.put(MessageContext.HTTP_REQUEST_HEADERS, headers);
  		
 		//add logging handler only if debug mode is on.. 
 		//in info mode no need to create a handler object
@@ -164,9 +165,8 @@ public class CBIUtil
 		return result;
 	}
 
-
 	private CbiDataItem getCbiDataItem(OcanStaffForm ocanStaffForm) throws Exception
-	{
+	{		
 		CbiDataItem cbiDataItem = new CbiDataItem();
 		
 		FacilityDao facilityDao = (FacilityDao) SpringUtils.getBean("facilityDao");	
@@ -315,11 +315,11 @@ public class CBIUtil
 		List<OcanSubmissionLog> list = ocanSubmissionLogDao.findBySubmissionDateType(submissionStartDate, endDateInclusive.getTime(), "CBI");
 		return list;
 	}
-
+	
 	/**
 	 * get admission details for which admission_status = 'current' and program
 	 * type is not 'community' and program's functionalCentreId is not null
-	 * 
+	 *
 	 */
 	public List<Admission> getAdmissionDetailsToBeSubmittedToCBI()
 	{
@@ -373,11 +373,12 @@ public class CBIUtil
 		return toBeSubmittedCbiForms;
 	}
 	
-	public OcanStaffForm getLatestCbiFormByDemographicNoAndProgramId(Integer facilityId, Integer demographicNo, Integer programId) {
+	public OcanStaffForm getLatestCbiFormByDemographicNoAndProgramId(Integer demographicNo, Integer programId) {
 		OcanStaffFormDao ocanStaffFormDao = (OcanStaffFormDao) SpringUtils.getBean("ocanStaffFormDao");
 		AdmissionDao admissionDao = (AdmissionDao) SpringUtils.getBean("admissionDao");
 		Admission admission = admissionDao.getAdmission(programId, demographicNo);
 		Integer admissionId = Integer.valueOf(admission.getId().intValue());
+		Integer facilityId = LoggedInInfo.loggedInInfo.get().currentFacility.getId();
 		OcanStaffForm cbiForm = ocanStaffFormDao.findLatestCbiFormsByFacilityAdmissionId(facilityId, admissionId, null); //could be signed or unsigned
 		return cbiForm;				
 	}
@@ -388,10 +389,10 @@ public class CBIUtil
 		ProgramDao programDao = (ProgramDao) SpringUtils.getBean("programDao");
 
 		// get bed programs
-		Program[] bedProgramsArr = programDao.getProgramsByType(null, Program.BED_TYPE, null).toArray(new Program[0]);
+		Program[] bedProgramsArr = programDao.getBedPrograms();
 
 		// get service programs
-		List<Program> serviceProgramList = programDao.getProgramsByType(null, Program.SERVICE_TYPE, null);
+		List<Program> serviceProgramList = programDao.getServicePrograms();
 
 		// combine programs
 		List<Program> finalProgramList = new ArrayList<Program>();
@@ -403,19 +404,20 @@ public class CBIUtil
 		return finalProgramList;
 	}
 
-	public OcanStaffForm getCBIFormData(LoggedInInfo loggedInInfo, Integer clientId)
+	public OcanStaffForm getCBIFormData(Integer clientId)
 	{
-		Integer facilityId = getFacilityId(loggedInInfo, clientId);
+		Integer facilityId = getFacilityId(clientId);
 		OcanStaffFormDao ocanStaffFormDao = (OcanStaffFormDao) SpringUtils.getBean("ocanStaffFormDao");
 		OcanStaffForm ocanStaffForm = ocanStaffFormDao.findLatestByFacilityClient(facilityId, clientId, "CBI");
 
 		return ocanStaffForm;
 	}
 
-	public OcanStaffForm getCBIFormDataBySubmissionId(Integer facilityId, Integer submissionId)
+	public OcanStaffForm getCBIFormDataBySubmissionId(Integer submissionId)
 	{
 		OcanStaffForm ocanStaffForm = null;
 
+		Integer facilityId = LoggedInInfo.loggedInInfo.get().currentFacility.getId();
 		OcanStaffFormDao ocanStaffFormDao = (OcanStaffFormDao) SpringUtils.getBean("ocanStaffFormDao");
 		List<OcanStaffForm> ocanStaffFormList = ocanStaffFormDao.findBySubmissionId(facilityId, submissionId);
 		if (ocanStaffFormList != null && ocanStaffFormList.size() > 0)
@@ -432,19 +434,18 @@ public class CBIUtil
 	 * 2) if no facility id associted with provider no.. then get the first
 	 * facility from facility table
 	 */
-	public Integer getFacilityId(LoggedInInfo loggedInInfo, Integer clientId)
+	public Integer getFacilityId(Integer clientId)
 	{
 		Integer facilityId = 0;
 
-		DemographicManager demographicManager = SpringUtils.getBean(DemographicManager.class);
-		ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao");
-		Demographic demographic = demographicManager.getDemographic(loggedInInfo, clientId);
+		DemographicDao demographicDao = (DemographicDao) SpringUtils.getBean("demographicDao");
+		Demographic demographic = demographicDao.getDemographic(clientId + "");
 		if (demographic != null)
 		{
 			String providerNo = demographic.getProviderNo();
 
 			
-			List<Integer> facilityIds = providerDao.getFacilityIds(providerNo);
+			List<Integer> facilityIds = ProviderDao.getFacilityIds(providerNo);
 			if (facilityIds == null || facilityIds.size() == 0)
 			{
 				// if provider not associated with facility then get the 1st one
@@ -503,7 +504,7 @@ public class CBIUtil
 					}
 					messages.append("form id:" +cbiForm.getId() +", client id:"+cbiForm.getClientId() + " ,client name:" + cbiForm.getFirstName() + " " + cbiForm.getLastName() + " ; " );
 				}
-			}
+			}			
 		}
 		
 		return messages.toString();
@@ -515,7 +516,7 @@ public class CBIUtil
 
 	/**
 	 * generate tree structure to be display in admin screen
-	 * 
+	 *
 	 * @param list
 	 * @return
 	 */
@@ -671,7 +672,7 @@ public class CBIUtil
 	private static DatatypeFactory df = null;
     static {
         try {
-            df = DatatypeFactory.newInstance();
+            df = DatatypeFactory.newInstance();           
         } catch (DatatypeConfigurationException dce) {
             logger.error("Exception while obtaining DatatypeFactory instance");
         }
@@ -680,9 +681,8 @@ public class CBIUtil
 	 private static XMLGregorianCalendar asXMLGregorianCalendar(String fromDate)
 		{
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");			
-
 	        java.util.Date date = null;
-
+	        
 	        try { 
 				fromDate = fromDate.concat(" 12:13:14"); //Because CBI server does not handle time zone properly, if time is 00:00:00, it will cut one day off. So have to put fake time here.
 				date = sdf.parse(fromDate); 

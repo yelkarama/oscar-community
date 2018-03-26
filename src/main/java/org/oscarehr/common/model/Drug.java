@@ -24,11 +24,7 @@
 package org.oscarehr.common.model;
 
 import java.io.Serializable;
-import java.util.Calendar;
-import java.util.Comparator;
 import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Locale;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -44,9 +40,9 @@ import javax.persistence.Transient;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
-
 import oscar.oscarRx.data.RxPrescriptionData;
 import oscar.oscarRx.util.RxUtil;
+
 import oscar.util.UtilDateUtilities;
 
 @Entity
@@ -85,7 +81,6 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 	@Column(name = "durunit")
 	private String durUnit = null;
 	private String quantity = null;
-	private String dispensingUnits = null;
 	@Column(name = "`repeat`")
 	private Integer repeat = 0;
 	@Column(name = "last_refill_date")
@@ -124,8 +119,6 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 	private String unitName = null;
 	@Column(name = "long_term")
 	private Boolean longTerm = false;
-	@Column(name = "short_term")
-	private Boolean shortTerm = false;
 	@Column(name = "past_med")
 	private boolean pastMed;
 	@Column(name = "patient_compliance")
@@ -161,8 +154,6 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date lastUpdateDate;
-	
-	private Boolean dispenseInternal = false;
 
 	// ///
 	@Transient
@@ -181,7 +172,6 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 	public static final String NO_LONGER_NECESSARY = "noLongerNecessary";
 	public static final String SIMPLIFYING_TREATMENT = "simplifyingTreatment";
 	public static final String PATIENT_REQUEST = "patientRequest";
-    public static final String REPRESCRIBED = "represcribed";
 	public static final String NEW_SCIENTIFIC_EVIDENCE = "newScientificEvidence";
 	public static final String INCREASED_RISK_BENEFIT_RATIO = "increasedRiskBenefitRatio";
 	public static final String DISCONTINUED_BY_ANOTHER_PHYSICIAN = "discontinuedByAnotherPhysician";
@@ -207,7 +197,6 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 		this.freqCode = drug.getFrequencyCode();
 		this.duration = drug.getDuration();
 		this.durUnit = drug.getDurationUnit();
-		this.dispensingUnits = drug.getDispensingUnits();
 		this.quantity = drug.getQuantity();
 		this.repeat = drug.getRepeat();
 		this.lastRefillDate = drug.getLastRefillDate();
@@ -232,7 +221,6 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 		this.customInstructions = drug.getCustomInstr();
 		this.unitName = drug.getUnitName();
 		this.longTerm = drug.isLongTerm();
-		this.shortTerm = drug.getShortTerm();
 		this.pastMed = drug.isPastMed();
 		this.patientCompliance = drug.getPatientCompliance();
 		this.outsideProviderName = drug.getOutsideProviderName();
@@ -244,7 +232,6 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 		this.refillDuration = drug.getRefillDuration();
 		this.refillQuantity = drug.getRefillQuantity();
 		this.dispenseInterval = drug.getDispenseInterval();
-		this.dispenseInternal = drug.getDispenseInternal();
 	}
 
 	@PreUpdate
@@ -295,7 +282,7 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 
 	public String getDosageDisplay() {
 		String ret = "";
-		if(!(Math.abs(this.getTakeMin() - this.getTakeMax()) <  0.00000001 )) {
+		if (this.getTakeMin() != this.getTakeMax()) {
 			ret += RxUtil.FloatToString(this.getTakeMin()) + "-" + RxUtil.FloatToString(this.getTakeMax());
 		} else {
 			ret += RxUtil.FloatToString(this.getTakeMin());
@@ -313,7 +300,7 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 	public boolean isDiscontinued() {
 		String ar = getArchivedReason();
 		if (isArchived()
-		        && (UNKNOWN.equals(ar) || NOT_SELECTED.equals(ar) || DOSE_CHANGE.equals(ar) || ADVERSE_REACTION.equals(ar) || ALLERGY.equals(ar) || INEFFECTIVE_TREATMENT.equals(ar) || PRESCRIBING_ERROR.equals(ar) || NO_LONGER_NECESSARY.equals(ar) || SIMPLIFYING_TREATMENT.equals(ar) || PATIENT_REQUEST.equals(ar) || NEW_SCIENTIFIC_EVIDENCE.equals(ar) || INCREASED_RISK_BENEFIT_RATIO.equals(ar) || DISCONTINUED_BY_ANOTHER_PHYSICIAN.equals(ar) || COST.equals(ar) || DRUG_INTERACTION.equals(ar) || REPRESCRIBED.equals(ar)  || OTHER.equals(ar))) {
+		        && (UNKNOWN.equals(ar) || NOT_SELECTED.equals(ar) || DOSE_CHANGE.equals(ar) || ADVERSE_REACTION.equals(ar) || ALLERGY.equals(ar) || INEFFECTIVE_TREATMENT.equals(ar) || PRESCRIBING_ERROR.equals(ar) || NO_LONGER_NECESSARY.equals(ar) || SIMPLIFYING_TREATMENT.equals(ar) || PATIENT_REQUEST.equals(ar) || NEW_SCIENTIFIC_EVIDENCE.equals(ar) || INCREASED_RISK_BENEFIT_RATIO.equals(ar) || DISCONTINUED_BY_ANOTHER_PHYSICIAN.equals(ar) || COST.equals(ar) || DRUG_INTERACTION.equals(ar) || OTHER.equals(ar))) {
 			return true;
 		}
 		return false;
@@ -409,9 +396,8 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 	}
 
 	public Date getEndDate() {
-		//if (this.isDiscontinued()) return archivedDate;
-		//else return endDate;
-		return endDate;
+		if (this.isDiscontinued()) return archivedDate;
+		else return endDate;
 	}
 
 	public void setEndDate(Date endDate) {
@@ -488,14 +474,6 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 
 	public void setQuantity(String quantity) {
 		this.quantity = StringUtils.trimToNull(quantity);
-	}
-
-	public String getDispensingUnits() {
-		return dispensingUnits;
-	}
-
-	public void setDispensingUnits(String dispensingUnits) {
-		this.dispensingUnits = StringUtils.trimToNull(dispensingUnits);
 	}
 
 	public Integer getRepeat() {
@@ -663,15 +641,6 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 	public void setLongTerm(Boolean longTerm) {
 		this.longTerm = longTerm;
 	}
-	
-	public Boolean getShortTerm() {
-		if (shortTerm == null) shortTerm = false;
-		return shortTerm;
-	}
-
-	public void setShortTerm(Boolean shortTerm) {
-		this.shortTerm = shortTerm;
-	}
 
 	public Boolean isCustomNote() {
 		if (customNote == null) customNote = false;
@@ -731,33 +700,10 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 		this.outsideProviderOhip = StringUtils.trimToNull(outsideProviderOhip);
 	}
 
-    public boolean isCurrent() {
-        boolean b = false;
-
-        try {
-            GregorianCalendar cal = new GregorianCalendar(Locale.CANADA);
-            cal.add(GregorianCalendar.DATE, -1);
-
-            if (this.getEndDate().after(cal.getTime())) {
-                b = true;
-            }
-        } catch (Exception e) {
-            b = false;
-        }
-
-        return b;
-    }
-
-    public boolean isExpired() {
+	public boolean isExpired() {
 		if (endDate == null) return (false);
 
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(endDate);
-		cal.set(Calendar.HOUR_OF_DAY,23);
-		cal.set(Calendar.MINUTE, 59);
-		cal.set(Calendar.SECOND, 59);
-		
-		return ((new Date()).after(cal.getTime()));
+		return ((new Date()).after(endDate));
 	}
 
 	public boolean equals(Object o) {
@@ -900,32 +846,5 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 	public void setLastUpdateDate(Date lastUpdateDate) {
     	this.lastUpdateDate = lastUpdateDate;
     }
-
-	public Boolean getDispenseInternal() {
-		return dispenseInternal;
-	}
-
-	public void setDispenseInternal(Boolean dispenseInternal) {
-		this.dispenseInternal = dispenseInternal;
-	}
-
-
-
-	//Sorts Ids in descending order
-	public static class ComparatorIdDesc implements Comparator<Drug> {
-		public int compare(Drug d1, Drug d2) {
-			if( d1 == null && d2 == null )
-				return 0;
-			
-			if( d1 == null )
-				return 1;
-			
-			if( d2 == null ) 
-				return -1;
-			
-			return d2.getId().compareTo(d1.getId());				
-			
-		}
-	}
 
 }

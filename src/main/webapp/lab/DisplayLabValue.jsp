@@ -23,23 +23,6 @@
     Ontario, Canada
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-	  boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_lab" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_lab");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%@page import="java.io.Serializable"%>
 <%@ page
 	import="java.math.*, java.util.*, java.sql.*, oscar.*, java.net.*, oscar.oscarLab.ca.on.*,oscar.util.*,oscar.oscarLab.*"%>
 <%
@@ -52,8 +35,10 @@ if(!authed) {
     String testName = request.getParameter("testName");
     String identCode = request.getParameter("identCode");
    
-    ArrayList<Map<String, Serializable>> list   = CommonLabTestValues.findValuesForTest(labType, Integer.valueOf(demoNo), testName, identCode);
-    Collections.sort(list,new SortHashtable());
+    ArrayList list   = CommonLabTestValues.findValuesForTest(labType, demoNo, testName, identCode);
+    
+    SortHashtable sorter = new SortHashtable();
+                      Collections.sort(list,sorter);
              
     %>
 <div class="preventionSection" id="preventionSection<%=ran%>">
@@ -68,25 +53,24 @@ if(!authed) {
 </div>
 <%     
             for (int k = 0; k < list.size(); k++){
-                HashMap hMap = (HashMap) list.get(k);
+                Hashtable hdata = (Hashtable) list.get(k);
                 String labDisplayLink = "";
                 if ( labType.equals(LabResultData.MDS) ){
-                    labDisplayLink = "../oscarMDS/SegmentDisplay.jsp?segmentID="+hMap.get("lab_no")+"&providerNo="+session.getValue("user");
+                    labDisplayLink = "../oscarMDS/SegmentDisplay.jsp?segmentID="+hdata.get("lab_no")+"&providerNo="+session.getValue("user");
                 }else if (labType.equals(LabResultData.CML)){ 
-                    labDisplayLink = "../lab/CA/ON/CMLDisplay.jsp?segmentID="+hMap.get("lab_no")+"&providerNo="+session.getValue("user");
+                    labDisplayLink = "../lab/CA/ON/CMLDisplay.jsp?segmentID="+hdata.get("lab_no")+"&providerNo="+session.getValue("user");
                 }else if (labType.equals(LabResultData.HL7TEXT)){
-                    labDisplayLink = "../lab/CA/ALL/labDisplay.jsp?segmentID="+hMap.get("lab_no")+"&providerNo="+session.getValue("user");
+                    labDisplayLink = "../lab/CA/ALL/labDisplay.jsp?segmentID="+hdata.get("lab_no")+"&providerNo="+session.getValue("user");
                 }else if (labType.equals(LabResultData.EXCELLERIS)) {
-                    labDisplayLink = "../lab/CA/BC/labDisplay.jsp?segmentID="+hMap.get("lab_no")+"&providerNo="+session.getValue("user");
+                    labDisplayLink = "../lab/CA/BC/labDisplay.jsp?segmentID="+hdata.get("lab_no")+"&providerNo="+session.getValue("user");
                 }
-
             %>
 <div style="text-align: justify;"
-	title="fade=[on] header=[<%=hMap.get("result")%>] body=[<%=hMap.get("units")%> <%=hMap.get("range")%>]"
+	title="fade=[on] header=[<%=hdata.get("result")%>] body=[<%=hdata.get("units")%> <%=hdata.get("range")%>]"
 	class="preventionProcedure" id="preventionProcedure<%=""+k+""+ran%>"
 	onclick="javascript:popup(660,960,'<%= labDisplayLink %>','labReport')">
-<p <%=r(hMap.get("abn"))%>><%=hMap.get("result")%>
-&nbsp;&nbsp;&nbsp; <%=hMap.get("collDate")%></p>
+<p <%=r(hdata.get("abn"))%>><%=hdata.get("result")%>
+&nbsp;&nbsp;&nbsp; <%=hdata.get("collDate")%></p>
 </div>
 <%}%>
 </div>
@@ -120,4 +104,19 @@ String r(Object re){
         }
         return ret;
     }
+/*
+//first field is testName, 
+//second field is abn : abnormal or normal, A or N
+//third field is result
+//fourth field is units
+//fifth field is range
+//sixth field is date : collection Date 
+ *
+ *h.put("testName", testNam);
+               h.put("abn",abn);
+               h.put("result",result);
+               h.put("range",range);
+               h.put("units",units);
+               h.put("collDate",collDate); 
+ */
 %>

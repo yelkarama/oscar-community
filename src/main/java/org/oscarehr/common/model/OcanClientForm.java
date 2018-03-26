@@ -116,28 +116,18 @@ public class OcanClientForm extends AbstractModel<Integer> implements Serializab
     	this.clientId = clientId;
     }
 
-	
-	
-	@Override
+	public boolean equals(OcanClientForm o) {
+		try {
+			return (id != null && id.intValue() == o.id.intValue());
+		} catch (Exception e) {
+			return (false);
+		}
+	}
+
 	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
+		return (id != null ? id.hashCode() : 0);
 	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (!super.equals(obj)) return false;
-		if (getClass() != obj.getClass()) return false;
-		OcanClientForm other = (OcanClientForm) obj;
-		if (id == null) {
-			if (other.id != null) return false;
-		} else if (!id.equals(other.id)) return false;
-		return true;
-	}
-
+	
 	@PreRemove
 	protected void jpaPreventDelete()
 	{

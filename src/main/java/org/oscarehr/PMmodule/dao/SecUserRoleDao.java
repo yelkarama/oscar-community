@@ -23,7 +23,6 @@
 
 package org.oscarehr.PMmodule.dao;
 
-import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -56,13 +55,6 @@ public class SecUserRoleDao extends HibernateDaoSupport {
 
         return results;
     }
-    
-    public List<SecUserRole> findByRoleNameAndProviderNo(String roleName, String providerNo) {
-        @SuppressWarnings("unchecked")
-        List<SecUserRole> results = getHibernateTemplate().find("from SecUserRole s where s.RoleName = ? and s.ProviderNo=?", new Object[]{roleName,providerNo});
-
-        return results;
-    }
 
     public boolean hasAdminRole(String providerNo) {
         if (providerNo == null) {
@@ -88,15 +80,6 @@ public class SecUserRoleDao extends HibernateDaoSupport {
     }
 
     public void save(SecUserRole sur) {
-    	sur.setLastUpdateDate(new Date());
     	this.getHibernateTemplate().save(sur);
     }
-    
-    public List<String> getRecordsAddedAndUpdatedSinceTime(Date date) {
-		@SuppressWarnings("unchecked")
-		List<String> records = getHibernateTemplate().find("select p.ProviderNo From SecUserRole p WHERE p.lastUpdateDate > ?",date);
-		
-		return records;
-	}
-    
 }

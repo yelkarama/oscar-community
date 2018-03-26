@@ -54,14 +54,16 @@ import org.oscarehr.common.dao.MyGroupDao;
 import org.oscarehr.common.dao.UserPropertyDAO;
 import org.oscarehr.common.model.EForm;
 import org.oscarehr.common.model.EncounterForm;
-import org.oscarehr.common.model.Security;
 import org.oscarehr.common.model.UserProperty;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
+import oscar.OscarProperties;
 import oscar.oscarBilling.ca.bc.MSP.MSPReconcile;
 
+import com.quatro.dao.security.SecurityDao;
+import com.quatro.model.security.Security;
 
 /**
  * 
@@ -76,7 +78,7 @@ import oscar.oscarBilling.ca.bc.MSP.MSPReconcile;
 public class UserPreferenceAction extends DispatchAction {
 	
 	private Logger logger = MiscUtils.getLogger();
-	protected org.oscarehr.managers.SecurityManager securityManager = SpringUtils.getBean(org.oscarehr.managers.SecurityManager.class);
+	protected SecurityDao securityDao = (SecurityDao)SpringUtils.getBean("securityDao");
 	protected UserPropertyDAO userPropertyDao = (UserPropertyDAO)SpringUtils.getBean("UserPropertyDAO");
 	static Map<String,String> defaults = new HashMap<String,String>();	
 	protected Map<String,String> siteDefaults = new HashMap<String,String>();	
@@ -126,11 +128,7 @@ public class UserPreferenceAction extends DispatchAction {
 	public ActionForward form(ActionMapping mapping,ActionForm actionForm, HttpServletRequest request,HttpServletResponse response) {
 		if(!inited) init();
 		Map<String,String> prefs = new HashMap<String,String>();
-
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		String providerNo=loggedInInfo.getLoggedInProviderNo();
-
-		List<UserProperty> userProperties = userPropertyDao.getDemographicProperties(providerNo);
+		List<UserProperty> userProperties = userPropertyDao.getDemographicProperties(LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo());
 		prefs.putAll(defaults);
 		prefs.putAll(siteDefaults);
 		for(UserProperty up:userProperties) {
@@ -141,9 +139,6 @@ public class UserPreferenceAction extends DispatchAction {
 	}
 	
 	public ActionForward saveGeneral(ActionMapping mapping,ActionForm actionForm, HttpServletRequest request,HttpServletResponse response) {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		String providerNo=loggedInInfo.getLoggedInProviderNo();
-
 		//Is there a password change?
 		if(!getParameter(request,"new_password").isEmpty()) {
 			try {
@@ -171,13 +166,13 @@ public class UserPreferenceAction extends DispatchAction {
 				value = sb.toString();				
 			}
 			
-			UserProperty up = userPropertyDao.getProp(providerNo, key);
+			UserProperty up = userPropertyDao.getProp(LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo(), key);
 			if(up != null) {
 				up.setValue(value);
 				userPropertyDao.saveProp(up);
 			} else {
 				up = new UserProperty();
-				up.setProviderNo(providerNo);
+				up.setProviderNo(LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo());
 				up.setName(key);
 				up.setValue(value);
 				userPropertyDao.saveProp(up);
@@ -189,9 +184,6 @@ public class UserPreferenceAction extends DispatchAction {
 	
 	
 	private void changePassword(HttpServletRequest request) throws Exception {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		String providerNo=loggedInInfo.getLoggedInProviderNo();
-
 		String currentPassword = getParameter(request,"current_password");
 		String newPassword = getParameter(request,"new_password");
 		
@@ -205,7 +197,7 @@ public class UserPreferenceAction extends DispatchAction {
 		String stroldpasswd = sbTemp.toString();
 	    	    
 		//get password from db
-		Security secRecord = securityManager.findByProviderNo(loggedInInfo, providerNo);		
+		Security secRecord = securityDao.getByProviderNo(LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo());		
 		String strDBpasswd = secRecord.getPassword();
 		if (strDBpasswd.length()<20) {
 			sbTemp = new StringBuilder();		
@@ -222,7 +214,7 @@ public class UserPreferenceAction extends DispatchAction {
 		    	   sbTemp = sbTemp.append(btNewPasswd[i]);
 
 		       secRecord.setPassword(sbTemp.toString());
-		       securityManager.updateSecurityRecord(loggedInInfo, secRecord);
+		       securityDao.merge(secRecord);
 		       
 		       logger.info("password changed for provider");
 		} else {					
@@ -254,6 +246,11 @@ public class UserPreferenceAction extends DispatchAction {
 		}
 		sb.append("</select>");
 		return sb.toString();
+	}
+	
+	public static void printBillingPreferences() {
+		String billRegion = OscarProperties.getInstance().getProperty("billregion");
+		
 	}
 	
 	private static List<LabelValueBean> getOptions(String key) {

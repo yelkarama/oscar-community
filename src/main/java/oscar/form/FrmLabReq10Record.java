@@ -27,10 +27,9 @@ package oscar.form;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
@@ -41,11 +40,10 @@ import org.oscarehr.caisi_integrator.ws.CachedDemographicForm;
 import org.oscarehr.caisi_integrator.ws.DemographicWs;
 import org.oscarehr.caisi_integrator.ws.FacilityIdIntegerCompositePk;
 import org.oscarehr.common.dao.ClinicDAO;
+import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.model.Clinic;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.Provider;
-import org.oscarehr.util.LocaleUtils;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
@@ -55,32 +53,25 @@ import oscar.util.UtilDateUtilities;
 public class FrmLabReq10Record extends FrmRecord {
 	private static Logger logger=MiscUtils.getLogger();
 
-	
-	public Properties getFormRecord(LoggedInInfo loggedInInfo, int demographicNo, int existingID) throws SQLException {
+	private DemographicDao demographicDao=(DemographicDao) SpringUtils.getBean("demographicDao");
+
+	public Properties getFormRecord(int demographicNo, int existingID) throws SQLException {
         Properties props = new Properties();
 
         if (existingID <= 0) {
-        	Demographic demographic=demographicManager.getDemographic(loggedInInfo, demographicNo);
+        	Demographic demographic=demographicDao.getDemographicById(demographicNo);
 
             if (demographic!=null) {
                 props.setProperty("demographic_no", String.valueOf(demographic.getDemographicNo()));
                 props.setProperty("patientName", demographic.getLastName()+", "+ demographic.getFirstName());
-
-                String uhipStatus = OscarProperties.getInstance().getProperty("demo_uhip_status", "");
-                if (!uhipStatus.isEmpty() && demographic.getRosterStatus().equals(uhipStatus)) {
-                    props.setProperty("healthNumber", LocaleUtils.getMessage(Locale.getDefault(),"oscarEncounter.form.uhipLbl") + StringUtils.trimToEmpty(demographic.getChartNo()));
-                    props.setProperty("version", "");
-                } else {
-                    props.setProperty("healthNumber", StringUtils.trimToEmpty(demographic.getHin()));
-                    props.setProperty("version", StringUtils.trimToEmpty(demographic.getVer()));
-                }
-
+                props.setProperty("healthNumber", StringUtils.trimToEmpty(demographic.getHin()));
+                props.setProperty("version", StringUtils.trimToEmpty(demographic.getVer()));
                 props.setProperty("hcType", StringUtils.trimToEmpty(demographic.getHcType()));
-                props.setProperty("formCreated", UtilDateUtilities.DateToString(new Date(),
+                props.setProperty("formCreated", UtilDateUtilities.DateToString(UtilDateUtilities.Today(),
                         "yyyy/MM/dd"));
 
                 //props.setProperty("formEdited",
-                // UtilDateUtilities.DateToString(new Date(), "yyyy/MM/dd"));
+                // UtilDateUtilities.DateToString(UtilDateUtilities.Today(), "yyyy/MM/dd"));
                 java.util.Date dob = UtilDateUtilities.calcDate(demographic.getYearOfBirth(), demographic.getMonthOfBirth(), demographic.getDateOfBirth());
                 props.setProperty("birthDate", StringUtils.trimToEmpty(UtilDateUtilities.DateToString(dob, "yyyy/MM/dd")));
 
@@ -98,7 +89,6 @@ public class FrmLabReq10Record extends FrmRecord {
                 }
                 props.setProperty("sex",sex);
                 props.setProperty("demoProvider", StringUtils.trimToEmpty(demographic.getProviderNo()));
-                props.setProperty("patientChartNo", StringUtils.trimToEmpty(demographic.getChartNo()));
             }
 
             //get local clinic information
@@ -116,77 +106,82 @@ public class FrmLabReq10Record extends FrmRecord {
             String sql = "SELECT * FROM formLabReq10 WHERE demographic_no = " + demographicNo + " AND ID = "
                     + existingID;
             props = (new FrmRecordHelp()).getFormRecord(sql);
-            String chartNo = props.getProperty("patientChartNo");
-            String chartNoLbl = LocaleUtils.getMessage(Locale.getDefault(),"oscarEncounter.form.labreq.patientChartNo")+":";
-            int beginIdx = chartNo.lastIndexOf(chartNoLbl);
-            if (beginIdx >= 0) {
-                chartNo = chartNo.substring(beginIdx + chartNoLbl.length());
-                props.setProperty("patientChartNo", chartNo);
-            }
-
-            OscarProperties oscarProps = OscarProperties.getInstance();
-            if (oscarProps.getBooleanProperty("use_lab_clientreference","true")) {
-                String additionalInfo = LocaleUtils.getMessage(Locale.getDefault(), "oscarEncounter.form.labreq.clientreference") + ":" + String.valueOf(existingID);
-                props.setProperty("clientRefNo", additionalInfo);
-            }
         }
 
         return props;
     }
 
     public Properties getFormCustRecord(Properties props, String provNo) {
-        
-        ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");                
-        Provider mrp = null;
-        String demoProvider = props.getProperty("demoProvider","");   
-        
-        if (!demoProvider.isEmpty()) {
-            mrp =  providerDao.getProvider(demoProvider);
+        String demoProvider = props.getProperty("demoProvider", "");
+        String xmlSpecialtyCode = "<xml_p_specialty_code>";
+        String xmlSpecialtyCode2 = "</xml_p_specialty_code>";
 
-            if (mrp != null) {
-                props.setProperty("provName", "MRP: " + mrp.getFormattedName());            
-            }
-        }
-                        
-        OscarProperties oscarProps = OscarProperties.getInstance();
-        
-        if ((oscarProps.getProperty("lab_req_provider") != null) && (oscarProps.getProperty("lab_req_billing_no") != null)) {
-            
-            props.setProperty("reqProvName", oscarProps.getProperty("lab_req_provider"));
-            props.setProperty("practitionerNo", oscarProps.getProperty("lab_req_billing_no"));
-            
-    	} else {             
-            Provider provider = providerDao.getProvider(provNo);
-                
-            String ohipNo = provider.getOhipNo();
-            if (ohipNo == null || ohipNo.isEmpty()) {                
-                provider = mrp;            
-            }  
-            
-            if (provider != null) {
-                
-                String xmlSpecialtyCode = "<xml_p_specialty_code>";
-                String xmlSpecialtyCode2 = "</xml_p_specialty_code>";
-                String strSpecialtyCode = "00";
-                String comments = provider.getComments();     
+        ResultSet rs = null;
+        String sql = null;
 
-                if( comments.indexOf(xmlSpecialtyCode) != -1 ) {                                    
-                    String specialtyCode = comments.substring(comments.indexOf(xmlSpecialtyCode)+xmlSpecialtyCode.length(), comments.indexOf(xmlSpecialtyCode2));
-                    specialtyCode = specialtyCode.trim();
-                    if(!specialtyCode.isEmpty()) {
-                        strSpecialtyCode = specialtyCode;
+        if (!demoProvider.equals("")) {
+
+        	ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
+        	Provider provider = providerDao.getProvider(provNo);
+
+            if (demoProvider.equals(provNo) ) {
+                // from provider table
+
+                    String comments = provider.getComments();
+                    String strSpecialtyCode = "00";
+                    if( comments.indexOf(xmlSpecialtyCode) != -1 ) {
+                        strSpecialtyCode = comments.substring(comments.indexOf(xmlSpecialtyCode) + xmlSpecialtyCode.length(), comments.indexOf(xmlSpecialtyCode2));
+                        strSpecialtyCode = strSpecialtyCode.trim();
+                        if( strSpecialtyCode.equals("") ) {
+                            strSpecialtyCode = "00";
+                        }
                     }
-                }                                            
-                
-                ohipNo = provider.getOhipNo();
-            
-                if (ohipNo != null && !ohipNo.isEmpty()) {                                        
+                    String num = provider.getOhipNo() == null ? "" : provider.getOhipNo();
                     props.setProperty("reqProvName", provider.getFormattedName());
-                    props.setProperty("practitionerNo", "0000-" + ohipNo + "-" + strSpecialtyCode);
-                }
+                    props.setProperty("provName", "MRP: " + provider.getFormattedName());
+                    props.setProperty("practitionerNo", "0000-" + num + "-" + strSpecialtyCode);
+
+            } else {
+                // from provider table
+
+                String num = "";
+
+                    String comments = provider.getComments();
+                    String strSpecialtyCode = "00";
+                    if( comments.indexOf(xmlSpecialtyCode) != -1 ) {
+                        strSpecialtyCode = comments.substring(comments.indexOf(xmlSpecialtyCode)+xmlSpecialtyCode.length(), comments.indexOf(xmlSpecialtyCode2));
+                        strSpecialtyCode = strSpecialtyCode.trim();
+                        if( strSpecialtyCode.equals("") ) {
+                            strSpecialtyCode = "00";
+                        }
+                    }
+                    num = provider.getOhipNo() == null ? "" : provider.getOhipNo();
+                    props.setProperty("reqProvName", provider.getFormattedName());
+                    props.setProperty("practitionerNo", "0000-" + num + "-" + strSpecialtyCode);
+
+
+                // from provider table
+                provider = providerDao.getProvider(demoProvider);
+
+                    if( num.equals("") ) {
+                    	num = provider.getOhipNo() == null ? "" : provider.getOhipNo();
+                        props.setProperty("practitionerNo", "0000-"+num+"-00");
+                        props.setProperty("reqProvName", provider.getFormattedName());
+                    }
+                    props.setProperty("provName", "MRP: " + provider.getFormattedName());
+
             }
         }
-                                                 	    	    	    	
+        
+        //lab_req_override=true
+    	OscarProperties oscarProps = OscarProperties.getInstance();
+    	if(oscarProps.getProperty("lab_req_provider","").length()>0) {
+    		props.setProperty("reqProvName", oscarProps.getProperty("lab_req_provider"));
+    	}
+    	if(oscarProps.getProperty("lab_req_billing_no","").length()>0) {
+    		props.setProperty("practitionerNo", oscarProps.getProperty("lab_req_billing_no"));
+    	}
+    	
         //get local clinic information
         ClinicDAO clinicDao = (ClinicDAO)SpringUtils.getBean("clinicDAO");
     	Clinic clinic = clinicDao.getClinic();
@@ -226,13 +221,13 @@ public class FrmLabReq10Record extends FrmRecord {
     }
 
 
-    public static Properties getRemoteRecordProperties(LoggedInInfo loggedInInfo, Integer remoteFacilityId, Integer formId) throws IOException
+    public static Properties getRemoteRecordProperties(Integer remoteFacilityId, Integer formId) throws IOException
     {
     	FacilityIdIntegerCompositePk pk=new FacilityIdIntegerCompositePk();
     	pk.setIntegratorFacilityId(remoteFacilityId);
     	pk.setCaisiItemId(formId);
 
-    	DemographicWs demographicWs=CaisiIntegratorManager.getDemographicWs(loggedInInfo, loggedInInfo.getCurrentFacility());
+    	DemographicWs demographicWs=CaisiIntegratorManager.getDemographicWs();
     	CachedDemographicForm form=demographicWs.getCachedDemographicForm(pk);
 
     	ByteArrayInputStream bais=new ByteArrayInputStream(form.getFormData().getBytes());

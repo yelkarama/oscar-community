@@ -4,7 +4,7 @@
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
- * of the License, or (at your option) any later version.
+ * of the License, or (at your option) any later version. 
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -22,6 +22,7 @@
  * Ontario, Canada
  */
 
+
 package org.oscarehr.common.hl7.v2.oscar_to_oscar;
 
 import java.io.UnsupportedEncodingException;
@@ -29,7 +30,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.oscarehr.common.Gender;
@@ -122,7 +122,9 @@ public final class DataTypeUtils {
 
 	/**
 	 * @param xad
-	 * @param clinic
+	 * @param streetAddress i.e. 123 My St. unit 554
+	 * @param city
+	 * @param province 2 digit province / state code as defined by postal service, in canada it's in upper case, i.e. BC, ON
 	 * @param country iso 3166, 3 digit version / hl70399 code, i.e. USA, CAN, AUS in upper case.
 	 * @param addressType hlt0190 code, i.e. O=office, H=Home
 	 * @throws DataTypeException
@@ -148,7 +150,7 @@ public final class DataTypeUtils {
 	/**
 	 * @param msh
 	 * @param dateOfMessage
-	 * @param clinicName 
+	 * @param facilityName facility.getName();
 	 * @param messageCode i.e. "REF"
 	 * @param triggerEvent i.e. "I12"
 	 * @param messageStructure i.e. "REF_I12"
@@ -242,7 +244,7 @@ public final class DataTypeUtils {
 
 	/**
 	 * @param prd
-	 * @param professionalSpecialist
+	 * @param provider
 	 * @param providerRoleId Note that this is not the oscar provider role, look in the method to see valid values
 	 * @param providerRoleDescription Note that this is not the oscar provider role, look in the method to see valid values
 	 */
@@ -479,7 +481,7 @@ public final class DataTypeUtils {
 		nte.getCommentType().getText().setValue(subject);
 		if (fileName != null) nte.getCommentType().getNameOfCodingSystem().setValue(fileName);
 
-		String stringData = new String(Base64.encodeBase64(data), MiscUtils.DEFAULT_UTF8_ENCODING);
+		String stringData = MiscUtils.encodeToBase64String(data);
 		int dataLength = stringData.length();
 		int chunks = dataLength / DataTypeUtils.NTE_COMMENT_MAX_SIZE;
 		if (dataLength % DataTypeUtils.NTE_COMMENT_MAX_SIZE != 0) chunks++;
@@ -495,19 +497,19 @@ public final class DataTypeUtils {
 		}
 	}
 
-	public static byte[] getNteCommentsAsSingleDecodedByteArray(NTE nte) {
+	public static byte[] getNteCommentsAsSingleDecodedByteArray(NTE nte) throws UnsupportedEncodingException {
 		FT[] fts = nte.getComment();
 
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < fts.length; i++)
 			sb.append(fts[i].getValue());
 
-		return (Base64.decodeBase64(sb.toString()));
+		return (MiscUtils.decodeBase64(sb.toString()));
 	}
 
 	/**
 	 * @param rol
-	 * @param professionalSpecialist
+	 * @param provider
 	 * @param actionRole the role of the given provider with regards to this communcations. There is HL7 table 0443. We will also add DataTypeUtils.ACTION_ROLE_* as roles so we can send and receive arbitrary data under arbitrary conditions.
 	 * @throws HL7Exception
 	 */

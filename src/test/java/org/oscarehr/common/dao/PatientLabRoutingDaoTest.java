@@ -23,8 +23,11 @@
  */
 package org.oscarehr.common.dao;
 
-import static org.junit.Assert.assertNotNull;
+import static junit.framework.Assert.fail;
 
+import javax.persistence.PersistenceException;
+
+import org.hibernate.HibernateException;
 import org.junit.Before;
 import org.junit.Test;
 import org.oscarehr.common.dao.utils.SchemaUtils;
@@ -32,54 +35,33 @@ import org.oscarehr.util.SpringUtils;
 
 public class PatientLabRoutingDaoTest extends DaoTestFixtures {
 
-	protected PatientLabRoutingDao dao = SpringUtils.getBean(PatientLabRoutingDao.class);
+	private PatientLabRoutingDao dao = SpringUtils.getBean(PatientLabRoutingDao.class);
 
 	@Before
 	public void before() throws Exception {
-		SchemaUtils.restoreTable("patientLabRouting", "labTestResults", "labPatientPhysicianInfo", "mdsOBX", "mdsMSH", "hl7_msh", 
-				"hl7_pid", "hl7_obr", "hl7_obx", "hl7_orc", "consultdocs", "mdsZRG", "mdsMSH",
-				"mdsPID","mdsPV1","mdsZFR","mdsOBR");
+		SchemaUtils.restoreTable("patientLabRouting");
 	}
 
 	@Test
 	public void testFindDemographicByLabId() {
-		dao.findDemographicByLabId(1);
+		try {
+			dao.findDemographicByLabId(1);
+		} catch (HibernateException e) {
+			fail();
+		} catch (PersistenceException e) {
+			fail();
+		}
 	}
 
 	@Test
 	public void testFindDemographic() {
-		dao.findDemographics("TYPE", 10);
+		try {
+			dao.findDemographics("TYPE", 10);
+		} catch (HibernateException e) {
+			fail();
+		} catch (PersistenceException e) {
+			fail();
+		}
 	}
 
-	@Test
-	public void testFindUniqueTestNames() {
-		assertNotNull(dao.findUniqueTestNames(100, "MDS"));
-	}
-
-	@Test
-	public void testFindUniqueTestNamesForPatientExcelleris() {
-		assertNotNull(dao.findUniqueTestNamesForPatientExcelleris(100, "MDS"));
-	}
-
-	@Test
-	public void testFindByDemographicAndLabType() {
-		assertNotNull(dao.findByDemographicAndLabType(100, "MDS"));
-	}
-	
-	@Test
-	public void testFindRoutingsAndTests() {
-		assertNotNull(dao.findRoutingsAndTests(100, "MDS"));
-		assertNotNull(dao.findRoutingsAndTests(100, "MDS", "TEST"));
-	}
-	
-	@Test
-	public void testFindHl7InfoForRoutingsAndTests() {
-		assertNotNull(dao.findHl7InfoForRoutingsAndTests(100, "MDS", "TEST"));
-	}
-
-	@Test
-	public void testFindRoutingsAndConsultDocsByRequestId() {
-		assertNotNull(dao.findRoutingsAndConsultDocsByRequestId(100, "L"));
-	}
-	
 }

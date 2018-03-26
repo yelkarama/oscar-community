@@ -17,43 +17,22 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
+if(session.getAttribute("user") == null)    response.sendRedirect("../../../../logout.jsp");
+String user_no="";
+user_no = (String) session.getAttribute("user");
 %>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_billing" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../../../securityError.jsp?type=_billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
+<%@ page import="java.util.*, java.sql.*, oscar.*"
+	errorPage="../../../errorpage.jsp"%>
 
-
-<%
-String user_no = (String) session.getAttribute("user");
-%>
-<%@ page import="java.util.*, java.sql.*, oscar.*" errorPage="../../../errorpage.jsp"%>
-
-
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean" scope="session" />
 <jsp:useBean id="SxmlMisc" class="oscar.SxmlMisc" scope="session" />
-
+<%@ include file="dbINR.jspf"%>
 <%@ page import="org.oscarehr.util.SpringUtils"%>
-<%@ page import="org.oscarehr.common.model.Demographic"%>
 <%@ page import="org.oscarehr.common.model.Billing"%>
 <%@ page import="org.oscarehr.common.dao.BillingDao"%>
 <%@ page import="org.oscarehr.billing.CA.model.BillingDetail"%>
 <%@ page import="org.oscarehr.billing.CA.dao.BillingDetailDao"%>
-<%@page import="org.oscarehr.billing.CA.model.BillingInr" %>
-<%@page import="org.oscarehr.billing.CA.dao.BillingInrDao" %>
-<%@page import="oscar.util.ConversionUtils" %>
-<%
-	BillingInrDao billingInrDao = SpringUtils.getBean(BillingInrDao.class);
-%>
 <%
 	BillingDao billingDao = SpringUtils.getBean(BillingDao.class);
 	java.text.SimpleDateFormat timeFormatter = new java.text.SimpleDateFormat("HH:mm");
@@ -85,24 +64,23 @@ for (Enumeration e = request.getParameterNames() ; e.hasMoreElements() ;) {
 
 
 
-	List<Object[]> results = billingInrDao.search_inrbilling_dt_billno(Integer.parseInt(temp.substring(10)));
 
-      for(Object[] result: results){
-		BillingInr bi = (BillingInr)result[0];
-		Demographic d = (Demographic)result[1];
-    	  
-      demono = String.valueOf(bi.getDemographicNo());
-      demo_name = bi.getDemographicName();
-      demo_hin = d.getHin() + d.getVer();
-      demo_dob = d.getYearOfBirth() + d.getMonthOfBirth() + d.getDateOfBirth();
-      provider_no = String.valueOf(bi.getProviderNo());
-      provider_ohip_no = bi.getProviderOhipNo();
-      provider_rma_no = bi.getProviderRmaNo();
-      diagnostic_code = bi.getDiagnosticCode();
-      service_code = bi.getServiceCode();
-      service_desc = bi.getServiceDesc();
-      billing_amount = bi.getBillingAmount();
-      billing_unit = bi.getBillingUnit();
+     ResultSet rsdemo = null;
+      rsdemo = apptMainBean.queryResults(temp.substring(10), "search_inrbilling_dt_billno");
+      while(rsdemo.next()){
+
+      demono = rsdemo.getString("demographic_no");
+      demo_name = rsdemo.getString("demographic_name");
+      demo_hin = rsdemo.getString("hin") + rsdemo.getString("ver");
+      demo_dob = rsdemo.getString("year_of_birth") + rsdemo.getString("month_of_birth") + rsdemo.getString("date_of_birth");
+      provider_no = rsdemo.getString("provider_no");
+      provider_ohip_no = rsdemo.getString("provider_ohip_no");
+      provider_rma_no = rsdemo.getString("provider_rma_no");
+      diagnostic_code = rsdemo.getString("diagnostic_code");
+      service_code = rsdemo.getString("service_code");
+      service_desc = rsdemo.getString("service_desc");
+      billing_amount = rsdemo.getString("billing_amount");
+      billing_unit = rsdemo.getString("billing_unit");
 
 
 
@@ -145,20 +123,20 @@ for (Enumeration e = request.getParameterNames() ; e.hasMoreElements() ;) {
 	    String[] param4 = new String[2];
 	    param4[0] = demono;
 	    param4[1] = "0";
-	    ResultSet rsdemo = null;
+	    rsdemo = null;
 
-	    billNo = String.valueOf(billingDao.search_billing_no_by_appt(Integer.parseInt(demono),0));
-	    
+	    rsdemo = apptMainBean.queryResults(param4, "search_billing_no_by_appt");
+   while (rsdemo.next()) {
+   billNo = rsdemo.getString("billing_no");
+   }
+
    int recordAffected=0;
-  
-          bi = billingInrDao.find(Integer.parseInt(temp.substring(10)));
-          if(bi != null && !bi.getStatus().equals("D")) {
-				bi.setStatus("A");
-				bi.setCreateDateTime(ConversionUtils.fromDateString(request.getParameter("xml_appointment_date")));
-				billingInrDao.merge(bi);
-				recordAffected++;
-			}
-          
+         String[] param3 = new String[3];
+                 param3[0] = "A";
+                 param3[1] = request.getParameter("xml_appointment_date");
+                 param3[2] = temp.substring(10);
+          recordAffected = apptMainBean.queryExecuteUpdate(param3,"update_inrbilling_dt_billno");
+
 
    int recordCount = 1;
        for (int i=0;i<recordCount;i++){

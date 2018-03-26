@@ -24,35 +24,12 @@
 
 --%>
 
-<%@ page import="java.math.*, java.util.*, java.io.*, java.sql.*, oscar.*, java.net.*,oscar.MyDateFormat"%>
-<%@ page import="org.oscarehr.util.SpringUtils" %>
-<%@ page import="org.oscarehr.common.dao.MyGroupDao" %>
-<%@ page import="org.oscarehr.common.model.MyGroup" %>
-<%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
-<%@ page import="org.oscarehr.common.model.Provider" %>
-<%@ page import="org.oscarehr.common.dao.ReportProviderDao" %>
-<%@ page import="org.oscarehr.common.model.ReportProvider" %>
+<%@ page
+	import="java.math.*, java.util.*, java.io.*, java.sql.*, oscar.*, java.net.*,oscar.MyDateFormat"%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_report,_admin.reporting" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_report&type=_admin.reporting");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%
-	MyGroupDao myGroupDao = SpringUtils.getBean(MyGroupDao.class);
-    ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
-   	ReportProviderDao reportProviderDao = SpringUtils.getBean(ReportProviderDao.class);
-%>
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean"
+	scope="session" />
+<%@ include file="dbReport.jspf"%>
 <%    
  
 GregorianCalendar now=new GregorianCalendar();
@@ -63,6 +40,7 @@ GregorianCalendar now=new GregorianCalendar();
   String nowDate = String.valueOf(curYear)+"-"+String.valueOf(curMonth) + "-" + String.valueOf(curDay);
 //String nowDate = "2002-08-21";
 int dob_yy=0, dob_dd=0, dob_mm=0, age=0;
+//int  recordAffected = apptMainBean.queryExecuteUpdate(nowDate,"delete_reportagesex_bydate");
 String demo_no="", demo_sex="", provider_no="", roster="", patient_status="", status="";
 String demographic_dob="1800";
 String action = request.getParameter("action");
@@ -72,77 +50,130 @@ String last_name="", first_name="", mygroup="";
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <html:html locale="true">
 <head>
+<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="oscarReport.manageProvider.title" /></title>
-<link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="oscarReport.css">
+<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
+<script language="JavaScript">
+<!--
+
+function selectprovider(s) {
+  if(self.location.href.lastIndexOf("&providerview=") > 0 ) a = self.location.href.substring(0,self.location.href.lastIndexOf("&providerview="));
+  else a = self.location.href;
+	self.location.href = a + "&providerview=" +s.options[s.selectedIndex].value ;
+}
+function openBrWindow(theURL,winName,features) { 
+  window.open(theURL,winName,features);
+}
+
+function refresh() {
+  var u = self.location.href;
+  if(u.lastIndexOf("view=1") > 0) {
+    self.location.href = u.substring(0,u.lastIndexOf("view=1")) + "view=0" + u.substring(eval(u.lastIndexOf("view=1")+6));
+  } else {
+    history.go(0);
+  }
+}
+//-->
+</script>
+
 
 </head>
-<body>
+<body bgcolor="#FFFFFF" text="#000000" leftmargin="0" rightmargin="0"
+	topmargin="10">
 
-<div class="container-fluid">
-<form name="form1" action="dbManageProvider.jsp" method="post">
-
-<h3><bean:message key="oscarReport.manageProvider.msgManageProvider" /> <span class="text-info"><%=action.toUpperCase()%></span></h3>
-
-	<table class="table table-hover table-condensed">
-	
-	<thead>
-		<tr>
-			<td width="40%"><bean:message key="oscarReport.manageProvider.msgTeam" /></td>
-			<td width="50%" align="left"><bean:message key="oscarReport.manageProvider.msgProviderName" /></td>
-			<td width="10%" align="left"><bean:message	key="oscarReport.manageProvider.msgCheck" /></td>
-		</tr>
-	</thead>
-	
-	<tbody>
-		<% 
-			boolean bodd=true;	
-		    int count1 = 0;
-			 	          	    	   
-		for(String myGroup: myGroupDao.getGroups()) {
-			bodd=bodd?false:true; //for the color of rows
-			
-			
-			for(MyGroup mg: myGroupDao.getGroupByGroupNo(myGroup)) {
-				Provider p = providerDao.getProvider(mg.getId().getProviderNo());
-				status = "";
-				if (p != null) {
-					for(ReportProvider rp:reportProviderDao.findByProviderNoTeamAndAction(p.getProviderNo(), mg.getId().getMyGroupNo(), action)) {
-						status = rp.getStatus();
-					}
-				} else {
-					continue;
-				}
-	           
-	%>
-	
-		<tr class="<%=bodd?"info":" "%>">
-			<td width="40%"><%=mg.getId().getMyGroupNo()%></td>
-			<td width="50%" align="left">
-			<%=p.getLastName()%>, <%=p.getFirstName()%>
-			</td>
-		<td>
-			<input type="checkbox"
-			name="provider<%=count1%>"
-			value="<%=p.getProviderNo()%>|<%=mg.getId().getMyGroupNo()%>"
-			<%=status.equals("A")?"checked":""%>>
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+	<tr bgcolor="#000000">
+		<td height="40" width="10%"><input type='button' name='print'
+			value='<bean:message key="global.btnPrint"/>'
+			onClick='window.print()'></td>
+		<td width="90%" align="left">
+		<p><font face="Verdana, Arial, Helvetica, sans-serif"
+			color="#FFFFFF"><b><font
+			face="Arial, Helvetica, sans-serif" size="4">oscar<font
+			size="3">Report</font></font></b></font></p>
 		</td>
-		</tr>
-	
-		<%
-		count1 = count1 + 1;
-		}
-	
-	}
-	 	    
-	%>
-	</tbody>
-	</table>
-	
-	<input class="btn" type='button' name='print' value='<bean:message key="global.btnPrint"/>'onClick='window.print()'> 
-	<input type="hidden" name="submit" value="Submit">
-	<input class="btn btn-primary" type=submit value=<bean:message key="oscarReport.manageProvider.btnSubmit"/>>
-	<input type=hidden name=action value=<%=action%>> <input type=hidden name=count value=<%=count1%>>
+	</tr>
+</table>
+<form name="form1" action="dbManageProvider.jsp" method="post">
+<table width="50%" border="0" cellspacing="0" cellpadding="2">
+	<tr bgcolor="#CCCCFF">
+		<td width="100%" colspan="3" align="center"><b><bean:message
+			key="oscarReport.manageProvider.msgManageProvider" /> <%=action.toUpperCase()%></b>
+		</td>
+	</tr>
+	<tr bgcolor="#CCCCFF">
+		<td width="40%"><bean:message
+			key="oscarReport.manageProvider.msgTeam" /></td>
+		<td width="50%" align="left"><bean:message
+			key="oscarReport.manageProvider.msgProviderName" /></td>
+		<td width="10%" align="left"><bean:message
+			key="oscarReport.manageProvider.msgCheck" /></td>
+	</tr>
+
+	<% 
+
+    ResultSet rsdemo = null;
+  boolean bodd=true;	
+	    ResultSet rsdemo2 = null;
+	        ResultSet rsdemo3 = null;
+	    int count1 = 0;
+		 String param4 = "%";
+ 				String[] param =new String[3];
+		 	          	    	
+		 	          	    	   
+		 	          	 
+		 	          
+		 	          	    rsdemo = apptMainBean.queryResults(param4, "search_mygroup");
+		 	             while (rsdemo.next()) { 
+		 	             
+		 	                   bodd=bodd?false:true; //for the color of rows
+		 	             
+		 	             
+				     		 	          	    rsdemo2 = apptMainBean.queryResults(rsdemo.getString("mygroup_no"), "search_mygroup_provider");
+		 	             while (rsdemo2.next()) { 
+		 	             param[0] = rsdemo2.getString("provider_no");
+		 	             param[1] = rsdemo2.getString("mygroup_no");
+		 	             param[2] = action;
+		 	             status = "";
+		 	             rsdemo3 = apptMainBean.queryResults(param, "search_reportprovider_check");
+		 	                    while (rsdemo3.next()) {
+		 	                    status = rsdemo3.getString("status");
+		 	                    }
+		 	   
+		 	             
+		 	             
+%>
+
+	<tr bgcolor="<%=bodd?"#EEEEFF":"white"%>">
+		<td width="40%"><%=rsdemo2.getString("mygroup_no")%></td>
+		<td width="50%" align="left"><%=rsdemo2.getString("last_name")%>,
+		<%=rsdemo2.getString("first_name")%>
+	</tr>
+	<td width="10%" align="left"><input type="checkbox"
+		name="provider<%=count1%>"
+		value="<%=rsdemo2.getString("provider_no")%>|<%=rsdemo2.getString("mygroup_no")%>"
+		<%=status.equals("A")?"checked":""%>></td>
+	</tr>
+
+	<%
+count1 = count1 + 1;
+
+		 	          }
+             
+             
+
+}
+ 	    
+%>
+	<tr>
+		<td colspan=3><input type="hidden" name="submit" value="Submit">
+		<input type=submit
+			value=<bean:message key="oscarReport.manageProvider.btnSubmit"/>>
+		<input type=hidden name=action value=<%=action%>> <input
+			type=hidden name=count value=<%=count1%>></td>
+	</tr>
+</table>
 </form>
-</div>
 </body>
 </html:html>

@@ -27,60 +27,18 @@
 
 
 <%@ include file="/taglibs.jsp"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_admin");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
+
 <title>MyIssues ~ Issue List</title>
 <link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
 
 <button onclick="location.href='issueAdmin.do?method=edit'">Add
-Issue</button> 
-
-&nbsp;
-
-<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-1.9.1.min.js"></script>
-<script>
-function archiveIssues() {
-	var ids = "";
-	$("input:checked").each(function () {
-       var id = $(this).val();
-       ids = ids + "," + id;
-    });
-	if(ids.length > 0) {
-		ids = ids.substring(1);
-	}
-
-	$.ajax({
-        url: '<%=request.getContextPath()%>/issueAdmin.do?method=archiveIssues&ids=' + ids,
-        method: 'GET',
-        success: function(returnData){
-            window.location.reload();
-        }
-    });
-
-	
-}
-</script>
-
-<button onclick="archiveIssues()">Archive Checked Issue(s)</button>
-
+Issue</button>
 <table border="0" cellpadding="0" cellspacing="1" bgcolor="#C0C0C0">
 	<thead>
 		<tr class="title">
 			<!--
     <th><bean:message key="issueAdmin.id"/></th>
 -->
-			<th></th>
 			<th><bean:message key="issueAdmin.code" /></th>
 			<th><bean:message key="issueAdmin.description" /></th>
 			<th><bean:message key="issueAdmin.role" /></th>
@@ -102,7 +60,6 @@ function archiveIssues() {
 			<!--Not allow to edit issue
     <td><a href="issueAdmin.do?method=edit&amp;id=<c:out value="${issueAdmin.id}"/>"><c:out value="${issueAdmin.code}"/></a></td>
 -->
-			<td><input type="checkbox" name="checkedIssue" value="<c:out value="${issueAdmin.id}" />"/></td>
 			<td><c:out value="${issueAdmin.code}" /></a></td>
 			<td><c:out value="${issueAdmin.description}" /></td>
 			<td><c:out value="${issueAdmin.role}" /></td>

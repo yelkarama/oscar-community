@@ -23,32 +23,25 @@
 
 package org.oscarehr.casemgmt.dao;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-import org.oscarehr.PMmodule.model.Program;
-import org.oscarehr.caisi_integrator.ws.CodeType;
-import org.oscarehr.caisi_integrator.ws.FacilityIdDemographicIssueCompositePk;
+import javax.persistence.NonUniqueResultException;
+
 import org.oscarehr.casemgmt.model.CaseManagementIssue;
 import org.oscarehr.casemgmt.model.Issue;
-import org.oscarehr.util.MiscUtils;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class CaseManagementIssueDAO extends HibernateDaoSupport {
 
-	private static Logger log = MiscUtils.getLogger();
-	
     @SuppressWarnings("unchecked")
     public List<CaseManagementIssue> getIssuesByDemographic(String demographic_no) {
-        return this.getHibernateTemplate().find("from CaseManagementIssue cmi where cmi.demographic_no = ?", new Object[] {Integer.valueOf(demographic_no)});
+        return this.getHibernateTemplate().find("from CaseManagementIssue cmi where cmi.demographic_no = ?", new Object[] {demographic_no});
     }
 
     @SuppressWarnings("unchecked")
     public List<CaseManagementIssue> getIssuesByDemographicOrderActive(Integer demographic_no, Boolean resolved) {
-        return getHibernateTemplate().find("from CaseManagementIssue cmi where cmi.demographic_no = ? "+(resolved!=null?" and cmi.resolved="+resolved:"")+" order by cmi.resolved", new Object[] {demographic_no});
+        return getHibernateTemplate().find("from CaseManagementIssue cmi where cmi.demographic_no = ? "+(resolved!=null?" and cmi.resolved="+resolved:"")+" order by cmi.resolved", new Object[] {demographic_no.toString()});
     }
     
     @SuppressWarnings("unchecked")
@@ -66,7 +59,7 @@ public class CaseManagementIssueDAO extends HibernateDaoSupport {
 
     public CaseManagementIssue getIssuebyId(String demo, String id) {
         @SuppressWarnings("unchecked")
-        List<CaseManagementIssue> list = this.getHibernateTemplate().find("from CaseManagementIssue cmi where cmi.issue_id = ? and demographic_no = ?",new Object[]{Long.parseLong(id),Integer.valueOf(demo)});
+        List<CaseManagementIssue> list = this.getHibernateTemplate().find("from CaseManagementIssue cmi where cmi.issue_id = ? and demographic_no = ?",new Object[]{Long.parseLong(id),demo});
         if( list != null && list.size() == 1 )
             return list.get(0);
         
@@ -74,16 +67,14 @@ public class CaseManagementIssueDAO extends HibernateDaoSupport {
     }
 
     public CaseManagementIssue getIssuebyIssueCode(String demo, String issueCode) {
-    	@SuppressWarnings("unchecked")
-        List<CaseManagementIssue> list = this.getHibernateTemplate().find("select cmi from CaseManagementIssue cmi, Issue issue where cmi.issue_id=issue.id and issue.code = ? and cmi.demographic_no = ?",new Object[]{issueCode,Integer.valueOf(demo)});
+        @SuppressWarnings("unchecked")
+        List<CaseManagementIssue> list = this.getHibernateTemplate().find("select cmi from CaseManagementIssue cmi, Issue issue where cmi.issue_id=issue.id and issue.code = ? and cmi.demographic_no = ?",new Object[]{issueCode,demo});
         
-        if(list.size()>1){ 
-        log.error("Expected 1 result got more : "+list.size() + "(" + demo + "," + issueCode + ")");
-        }
+        if(list == null || list.size()<1) return(null);
+        	
+        if (list.size() == 1 ) return list.get(0);
         
-        if (list.size() == 1 || list.size()>1) return list.get(0);
-
-        return null;
+        throw(new NonUniqueResultException("Expected 1 result got more : "+list.size() + "(" + demo + "," + issueCode + ")"));          
     }
 
     public void deleteIssueById(CaseManagementIssue issue) {
@@ -96,7 +87,6 @@ public class CaseManagementIssueDAO extends HibernateDaoSupport {
         Iterator<CaseManagementIssue> itr = issuelist.iterator();
         while (itr.hasNext()) {
         	CaseManagementIssue cmi = itr.next();
-        	cmi.setUpdate_date(new Date());
         	if(cmi.getId()!=null && cmi.getId().longValue()>0) {
         		getHibernateTemplate().update(cmi);
         	} else {
@@ -107,54 +97,12 @@ public class CaseManagementIssueDAO extends HibernateDaoSupport {
     }
 
     public void saveIssue(CaseManagementIssue issue) {
-    	issue.setUpdate_date(new Date());
         getHibernateTemplate().saveOrUpdate(issue);
     }
     
     @SuppressWarnings("unchecked")
     public List<CaseManagementIssue> getAllCertainIssues() {
         return getHibernateTemplate().find("from CaseManagementIssue cmi where cmi.certain = true");
-    }
-
-    //for integrator
-    @SuppressWarnings("unchecked")
-    public List<Integer> getIssuesByProgramsSince(Date date, List<Program> programs) {
-    	StringBuilder sb = new StringBuilder();
-    	int i=0;
-    	for(Program p:programs) {
-    		if(i++ > 0)
-    			sb.append(",");
-    		sb.append(p.getId());
-    	}
-        return this.getHibernateTemplate().find("select cmi.demographic_no from CaseManagementIssue cmi where cmi.update_date > ? and program_id in ("+sb.toString()+")", new Object[] {date});
-    }
-
-    @SuppressWarnings("unchecked")
-    public List<CaseManagementIssue> getIssuesByDemographicSince(String demographic_no,Date date) {
-        return this.getHibernateTemplate().find("from CaseManagementIssue cmi where cmi.demographic_no = ? and cmi.update_date > ?", new Object[] {Integer.valueOf(demographic_no),date});
-    }
-    
-    @SuppressWarnings("unchecked")
-    public List<FacilityIdDemographicIssueCompositePk> getIssueIdsForIntegrator(Integer facilityId, Integer demographicNo) {
-        List<Object[]> rs =  this.getHibernateTemplate().find("select i.code,i.type from CaseManagementIssue cmi, Issue i where cmi.issue_id = i.id and cmi.demographic_no = ?", new Object[] {demographicNo});
-        List<FacilityIdDemographicIssueCompositePk> results = new ArrayList<FacilityIdDemographicIssueCompositePk>();
-        for(Object[] item:rs) {
-        	FacilityIdDemographicIssueCompositePk key = new FacilityIdDemographicIssueCompositePk();
-        	key.setIntegratorFacilityId(facilityId);
-        	key.setCaisiDemographicId(demographicNo);
-        	key.setIssueCode((String)item[0]);
-        	
-        	if("icd9".equals(item[1])) {
-				key.setCodeType(CodeType.ICD_9);
-			}
-			else if("icd10".equals(item[1])) {
-				key.setCodeType(CodeType.ICD_10);
-			} else {
-				key.setCodeType(CodeType.CUSTOM_ISSUE);
-			}
-        	results.add(key);
-        }
-        return results;
     }
 
 }

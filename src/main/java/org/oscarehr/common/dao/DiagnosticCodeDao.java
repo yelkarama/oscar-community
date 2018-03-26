@@ -33,7 +33,6 @@ import org.oscarehr.common.model.DiagnosticCode;
 import org.springframework.stereotype.Repository;
 
 @Repository
-@SuppressWarnings("unchecked")
 public class DiagnosticCodeDao extends AbstractDao<DiagnosticCode>{
 
 	public DiagnosticCodeDao() {
@@ -44,7 +43,7 @@ public class DiagnosticCodeDao extends AbstractDao<DiagnosticCode>{
 		String sql = "select x from DiagnosticCode x where x.diagnosticCode=?";
 		Query query = entityManager.createQuery(sql);
 		query.setParameter(1, diagnosticCode);
-		
+		@SuppressWarnings("unchecked")
 		List<DiagnosticCode> results = query.getResultList();
 		return results;
 	}
@@ -54,7 +53,7 @@ public class DiagnosticCodeDao extends AbstractDao<DiagnosticCode>{
 		Query query = entityManager.createQuery(sql);
 		query.setParameter(1, diagnosticCode);
 		query.setParameter(2, region);
-		
+		@SuppressWarnings("unchecked")
 		List<DiagnosticCode> results = query.getResultList();
 		return results;
 	}
@@ -65,7 +64,7 @@ public class DiagnosticCodeDao extends AbstractDao<DiagnosticCode>{
 		query.setParameter(1, searchString);
 		query.setParameter(2, searchString);
 
-		
+		@SuppressWarnings("unchecked")
 		List<DiagnosticCode> results = query.getResultList();
 		return results;
 	}
@@ -80,7 +79,7 @@ public class DiagnosticCodeDao extends AbstractDao<DiagnosticCode>{
 		query.setParameter(5, e);
 		query.setParameter(6, f);
 
-		
+		@SuppressWarnings("unchecked")
 		List<DiagnosticCode> results = query.getResultList();
 		return results;
 	}
@@ -90,7 +89,7 @@ public class DiagnosticCodeDao extends AbstractDao<DiagnosticCode>{
 		Query query = entityManager.createQuery(sql);
 		query.setParameter(1, code);
 
-		
+		@SuppressWarnings("unchecked")
 		List<DiagnosticCode> results = query.getResultList();
 		return results;
 	}
@@ -100,7 +99,7 @@ public class DiagnosticCodeDao extends AbstractDao<DiagnosticCode>{
 		Query query = entityManager.createQuery(sql);
 		query.setParameter(1, description);
 
-		
+		@SuppressWarnings("unchecked")
 		List<DiagnosticCode> results = query.getResultList();
 		return results;
 	}
@@ -108,30 +107,8 @@ public class DiagnosticCodeDao extends AbstractDao<DiagnosticCode>{
     public List<DiagnosticCode> getByDxCode(String dxCode){
         Query query = entityManager.createQuery("select bdx from DiagnosticCode bdx where bdx.diagnosticCode = ?");
         query.setParameter(1,dxCode);
-        
+        @SuppressWarnings("unchecked")
         List<DiagnosticCode> results = query.getResultList();
         return results;
     }
-
-	
-    public List<DiagnosticCode> findByRegionAndType(String billRegion, String serviceType) {
-		Query query = entityManager.createQuery("FROM DiagnosticCode d, CtlDiagCode c " +
-				"WHERE d.id = c.diagnosticCode " +
-				"AND d.region = :billRegion " +
-		 		"AND c.serviceType = :serviceType");
-		query.setParameter("billRegion", billRegion);
-		query.setParameter("serviceType", serviceType);
-		return query.getResultList();
-    }
-	
-	public List<Object[]> findDiagnosictsAndCtlDiagCodesByServiceType(String serviceType) {
-		String sql = "FROM DiagnosticCode d, CtlDiagCode c " +
-				"WHERE c.diagnosticCode = d.diagnosticCode " +
-				"AND c.serviceType = :serviceType " +
-	            "ORDER BY d.description";
-		
-		Query query = entityManager.createQuery(sql);
-		query.setParameter("serviceType", serviceType);
-		return query.getResultList();
-	}
 }

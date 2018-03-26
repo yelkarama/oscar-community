@@ -48,7 +48,7 @@ public class IncomingLabRules extends AbstractModel<Integer>{
 	@Column(name="frwdProvider_no")
 	private String frwdProviderNo;
 
-	private String archive = "0"; // false?!?
+	private String archive;
 
 	public Integer getId() {
     	return id;

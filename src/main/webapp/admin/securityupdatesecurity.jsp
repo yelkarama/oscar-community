@@ -25,30 +25,22 @@
 --%>
 
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%@page import="org.oscarehr.util.LoggedInInfo" %>
 <%
+    if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
 %>
 <security:oscarSec roleName="<%=roleName$%>"
-	objectName="_admin,_admin.userAdmin" rights="r"
+	objectName="_admin,_admin.userAdmin,_admin.torontoRfq" rights="r"
 	reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_admin&type=_admin.userAdmin");%>
+	<%response.sendRedirect("../logout.jsp");%>
 </security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
+
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
-<%@ page import="java.lang.*, java.util.*, java.text.*,java.sql.*, oscar.*"	errorPage="errorpage.jsp"%>
-
-<%@ page import="org.oscarehr.util.SpringUtils" %>
-<%@ page import="org.oscarehr.common.model.Security" %>
-<%@ page import="org.oscarehr.managers.SecurityManager" %>
-
+<%@ page
+	import="java.lang.*, java.util.*, java.text.*,java.sql.*, oscar.*"
+	errorPage="errorpage.jsp"%>
+<%@ include file="/common/webAppContextAndSuperMgr.jsp"%>
 
 <%!
 	OscarProperties op = OscarProperties.getInstance();
@@ -132,7 +124,8 @@
 </script>
 </head>
 
-<body onLoad="setfocus('user_name')" topmargin="0" leftmargin="0" rightmargin="0">
+<body background="../images/gray_bg.jpg" bgproperties="fixed"
+	onLoad="setfocus('user_name')" topmargin="0" leftmargin="0" rightmargin="0">
 <center>
 <table border="0" cellspacing="0" cellpadding="0" width="100%">
 	<tr bgcolor="#486ebd">
@@ -142,26 +135,24 @@
 	</tr>
 </table>
 <table cellspacing="0" cellpadding="2" width="100%" border="0">
-	<form method="post" action="securityupdate.jsp" name="updatearecord" onsubmit="return onsub()">
+	<form method="post" action="admincontrol.jsp" name="updatearecord"
+		onsubmit="return onsub()">
 <%
-	org.oscarehr.managers.SecurityManager securityManager = SpringUtils.getBean(org.oscarehr.managers.SecurityManager.class);
-	Integer securityId = Integer.valueOf(request.getParameter("keyword"));
-	Security security = securityManager.find(LoggedInInfo.getLoggedInInfoFromSession(request), securityId);
-	
-	if(security == null) {
+	List<Map<String,Object>> resultList = oscarSuperManager.find("adminDao", "security_search_detail", new Object[] {request.getParameter("keyword")});
+	if (resultList.size() == 0) {
 %>
 	<tr>
 		<td><bean:message key="admin.securityupdatesecurity.msgFailed" /></td>
 	</tr>
 <%
-	} 
-	else {
+	} else {
+		for (Map provider : resultList) {
 %>
 	<tr>
 		<td width="50%" align="right"><bean:message
 			key="admin.securityrecord.formUserName" />:</td>
 		<td><input type="text" name="user_name" maxlength="30"
-			value="<%= security.getUserName() %>"></td>
+			value="<%=provider.get("user_name")%>"></td>
 	</tr>
 	<tr>
 		<td align="right" nowrap><bean:message
@@ -181,19 +172,19 @@
 		<div align="right"><bean:message
 			key="admin.securityrecord.formProviderNo" />:</div>
 		</td>
-		<td><%= security.getProviderNo() %>
+		<td><%=provider.get("provider_no")%>
 		<input type="hidden" name="provider_no"
-			value="<%= security.getProviderNo() %>"></td>
+			value="<%=provider.get("provider_no")%>"></td>
 	</tr>
 	<!-- new security -->
 	<tr>
 		<td align="right" nowrap><bean:message
 			key="admin.securityrecord.formExpiryDate" />:</td>
 		<td><input type="checkbox" name="b_ExpireSet" value="1"
-			<%= security.getBExpireset()==0?"":"checked" %>> <bean:message
+			<%= ((Integer)provider.get("b_ExpireSet"))==0?"":"checked" %>> <bean:message
 			key="admin.securityrecord.formDate" />: <input
 			type="text" name="date_ExpireDate" id="date_ExpireDate"
-			value="<%=  security.getDateExpiredate() ==null?"": security.getDateExpiredate()  %>"
+			value="<%= provider.get("date_ExpireDate")==null?"":provider.get("date_ExpireDate") %>"
 			size="10" readonly /> <img src="../images/cal.gif"
 			id="date_ExpireDate_cal" /></td>
 	</tr>
@@ -201,10 +192,10 @@
 		<td align="right" nowrap><bean:message
 			key="admin.securityrecord.formRemotePIN" />:</td>
 		<td><input type="checkbox" name="b_RemoteLockSet" value="1"
-			<%= security.getBRemotelockset()==0?"":"checked" %>>
+			<%= ((Integer)provider.get("b_RemoteLockSet"))==0?"":"checked" %>>
 		<bean:message
 			key="admin.securityrecord.formLocalPIN" />: <input type="checkbox" name="b_LocalLockSet"
-			value="1" <%= security.getBLocallockset()==0?"":"checked" %>>
+			value="1" <%= ((Integer)provider.get("b_LocalLockSet"))==0?"":"checked" %>>
 		</td>
 	</tr>
 	<!-- new security -->
@@ -222,40 +213,23 @@
 			key="admin.securityrecord.formConfirm" />:</td>
 		<td><input type="password" name="conPin" value="****" size="6" maxlength="6" /></td>
 	</tr>
-	
-	<%
-		if (!OscarProperties.getInstance().getBooleanProperty("mandatory_password_reset", "false")) {
-	%>		  
-		<tr>		
-			<td align="right"><bean:message key="admin.provider.forcePasswordReset" />:
-			</td>
-			<td>
-					<select name="forcePasswordReset">
-							<option value="1" <% if (security != null && security.isForcePasswordReset()!= null && security.isForcePasswordReset()) { %>
-					                          SELECTED <%}%>>true</option>
-							<option value="0" <% if (security != null && security.isForcePasswordReset()!= null && !security.isForcePasswordReset()) { %>
-					                          SELECTED <%}%>>false</option>
-					</select>	
-			</td>
-		</tr>
-   <%} %>
-	
-	
 	<tr>
 		<td colspan="2" align="center">
-			<input type="hidden" name="security_no" value="<%= security.getSecurityNo() %>">
+			<input type="hidden" name="security_no" value="<%=provider.get("security_no")%>">
+			<input type="hidden" name="displaymode" value="Security_Update_Record">
 			<input type="submit" name="subbutton" value='<bean:message key="admin.securityupdatesecurity.btnSubmit"/>'>
-			<input type="button" value="<bean:message key="admin.securityupdatesecurity.btnDelete"/>" onclick="window.location='securitydelete.jsp?keyword=<%=security.getSecurityNo()%>'">
+			<input type="button" value="<bean:message key="admin.securityupdatesecurity.btnDelete"/>" onclick="window.location='admincontrol.jsp?keyword=<%=provider.get("security_no")%>&displaymode=Security_Delete'">
 		</td>
 	</tr>
 <%
 		}
+	}
 %>
 	</form>
 </table>
 
 <p></p>
-</center>
+<%@ include file="footerhtm.jsp"%></center>
 <script type="text/javascript">
 Calendar.setup({ inputField : "date_ExpireDate", ifFormat : "%Y-%m-%d", showsTime :false, button : "date_ExpireDate_cal" });
 </script>

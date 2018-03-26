@@ -27,21 +27,6 @@
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
 <%@ page import="oscar.oscarRx.data.*,java.util.*"%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_rx" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_rx");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <html:html locale="true">
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
@@ -127,14 +112,14 @@ oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBea
                             %>
 					<tr>
 						<td><a
-							href="LinkPharmacy.do?ID=<%=ph.getId()%>&DemoId=<jsp:getProperty name="patient" property="demographicNo"/>"><%=ph.getName()%></a></td>
+							href="LinkPharmacy.do?ID=<%=ph.getId2()%>&DemoId=<jsp:getProperty name="patient" property="demographicNo"/>"><%=ph.getName()%></a></td>
 						<td><%=ph.getAddress()%></td>
 						<td><%=ph.getCity()%></td>
 						<td><%=ph.getPhone1()%></td>
 						<td><%=ph.getFax()%></td>
-						<td><a href="ManagePharmacy.jsp?type=Edit&ID=<%=ph.getId()%>"><bean:message
+						<td><a href="ManagePharmacy.jsp?type=Edit&ID=<%=ph.getId2()%>"><bean:message
 							key="SelectPharmacy.editLink" /></a></td>
-						<td><a href="ManagePharmacy.jsp?type=Delete&ID=<%=ph.getId()%>"><bean:message
+						<td><a href="ManagePharmacy.jsp?type=Delete&ID=<%=ph.getId2()%>"><bean:message
 							key="SelectPharmacy.deleteLink" /></a></td>
 					</tr>
 					<% } %>

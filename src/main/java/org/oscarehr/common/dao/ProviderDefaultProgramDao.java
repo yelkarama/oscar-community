@@ -25,14 +25,11 @@
 
 package org.oscarehr.common.dao;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Query;
 
-import org.oscarehr.PMmodule.model.Program;
 import org.oscarehr.common.model.ProviderDefaultProgram;
-import org.oscarehr.util.MiscUtils;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -89,30 +86,4 @@ public class ProviderDefaultProgramDao extends AbstractDao<ProviderDefaultProgra
        }
     }
 
-	public List<Program> findProgramsByProvider(String providerNo) {
-		String sql = "FROM Program p WHERE p.id IN (SELECT pdp.programId FROM ProviderDefaultProgram pdp WHERE pdp.providerNo = :pr)";
-		Query query = entityManager.createQuery(sql);
-		query.setParameter("pr", providerNo);
-		
-		@SuppressWarnings("unchecked")
-        List<Program> results = query.getResultList();
-        return results;
-	    
-    }
-	
-	public List<Program> findProgramsByFacilityId(Integer facilityId) {
-		String sql = "from Program p where p.id in (select distinct pg.id from Program pg ,ProgramProvider pp where pp.ProgramId=pg.id and pg.facilityId=?)";
-		Query query;
-		try {
-			query = entityManager.createQuery(sql);
-			query.setParameter(1, facilityId);
-		} catch (Exception e) {
-			MiscUtils.getLogger().error(e.getMessage(),e);
-			return new ArrayList<Program>();
-		}
-		
-		@SuppressWarnings("unchecked")
-        List<Program> results = query.getResultList();
-		return results;
-	}
 }

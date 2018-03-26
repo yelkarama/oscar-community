@@ -8,23 +8,8 @@
     and "gnu.org/licenses/gpl-2.0.html".
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_lab" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_lab");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%@page contentType="text/html"%>
-	<%@page import="java.util.*,org.oscarehr.common.dao.DemographicDao, 
+	<%@page import="java.util.*,oscar.oscarDB.DBHandler,java.sql.ResultSet, org.oscarehr.common.dao.DemographicDao, 
 		org.oscarehr.common.model.Demographic, org.oscarehr.PMmodule.dao.ProviderDao, org.oscarehr.common.model.Provider,
 		org.oscarehr.olis.dao.OLISRequestNomenclatureDao, org.oscarehr.olis.dao.OLISResultNomenclatureDao,
 		org.oscarehr.olis.model.OLISRequestNomenclature, org.oscarehr.olis.model.OLISResultNomenclature, org.oscarehr.util.SpringUtils" %>
@@ -35,7 +20,7 @@
 	<%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
 
 	<% 
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+	if(session.getValue("user") == null) response.sendRedirect("../../logout.jsp");
 	%>
 
 
@@ -72,17 +57,6 @@
 	<link rel="stylesheet" type="text/css" href="../share/css/OscarStandardLayout.css">
 	<script type="text/javascript" src="../../../share/javascript/Oscar.js"></script>
 	<script type="text/javascript" src="../share/javascript/Oscar.js"></script>
-	
-	<script type="text/javascript" src="../share/yui/js/yahoo-dom-event.js"></script>
-        <script type="text/javascript" src="../share/yui/js/connection-min.js"></script>
-        <script type="text/javascript" src="../share/yui/js/animation-min.js"></script>
-        <script type="text/javascript" src="../share/yui/js/datasource-min.js"></script>
-        <script type="text/javascript" src="../share/yui/js/autocomplete-min.js"></script>
-        <script type="text/javascript" src="../js/demographicProviderAutocomplete.js"></script>
-
-        <link rel="stylesheet" type="text/css" href="../share/yui/css/fonts-min.css"/>
-        <link rel="stylesheet" type="text/css" href="../share/yui/css/autocomplete.css"/>
-	
 	
 	<script type="text/javascript">
 		    function selectOther(){                
@@ -151,61 +125,6 @@
 			width: auto;
 		}
 	</style>
-	 <style type="text/css">
-#myAutoComplete {
-    width:15em; /* set width here or else widget will expand to fit its container */
-    padding-bottom:2em;
-}
-
-
-
-
-        .yui-ac {
-	    position:relative;font-family:arial;font-size:100%;
-	}
-
-	/* styles for input field */
-	.yui-ac-input {
-	    position:relative;width:100%;
-	}
-
-	/* styles for results container */
-	.yui-ac-container {
-	    position:absolute;top:0em;width:100%;
-	}
-
-	/* styles for header/body/footer wrapper within container */
-	.yui-ac-content {
-	    position:absolute;width:100%;border:1px solid #808080;background:#fff;overflow:hidden;z-index:9050;
-	}
-
-	/* styles for container shadow */
-	.yui-ac-shadow {
-	    position:absolute;margin:.0em;width:100%;background:#000;-moz-opacity: 0.10;opacity:.10;filter:alpha(opacity=10);z-index:9049;
-	}
-
-	/* styles for results list */
-	.yui-ac-content ul{
-	    margin:0;padding:0;width:100%;
-	}
-
-	/* styles for result item */
-	.yui-ac-content li {
-	    margin:0;padding:0px 0px;cursor:default;white-space:nowrap;
-	}
-
-	/* styles for prehighlighted result item */
-	.yui-ac-content li.yui-ac-prehighlight {
-	    background:#B3D4FF;
-	}
-
-	/* styles for highlighted result item */
-	.yui-ac-content li.yui-ac-highlight {
-	    background:#426FD9;color:#FFF;
-	}
-
-</style>
-	
 	</head>
 
 	<body>
@@ -249,8 +168,8 @@
 ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao");
 List<Provider> allProvidersList = providerDao.getActiveProviders(); 
 
-//DemographicDao demographicDao = (DemographicDao) SpringUtils.getBean("demographicDao");
-//List allDemographics = demographicDao.getDemographics();
+DemographicDao demographicDao = (DemographicDao) SpringUtils.getBean("demographicDao");
+List allDemographics = demographicDao.getDemographics();
 
 OLISResultNomenclatureDao resultDao = (OLISResultNomenclatureDao) SpringUtils.getBean("OLISResultNomenclatureDao");
 List<OLISResultNomenclature> resultNomenclatureList = resultDao.findAll();
@@ -264,7 +183,7 @@ List<OLISRequestNomenclature> requestNomenclatureList = requestDao.findAll();
 	<select id="queryType" onchange="displaySearch(this)" style="margin-left:30px;">
 		<option value="Z01">Z01 - Retrieve Laboratory Information for Patient</option>
 		<option value="Z02">Z02 - Retrieve Laboratory Information for Order ID</option>
-		<%-- REMOVED UNTIL IT'S OPERATIONAL, REQUESTED BY ONTARIO MD option value="Z04">Z04 - Retrieve Laboratory Information Updates for Practitioner</option  --%>
+		<option value="Z04">Z04 - Retrieve Laboratory Information Updates for Practitioner</option>
 		<option value="Z05">Z05 - Retrieve Laboratory Information Updates for Destination Laboratory</option>
 		<option value="Z06">Z06 - Retrieve Laboratory Information Updates for Ordering Facility</option>
 		<option value="Z07">Z07 - Retrieve Test Results Reportable to Public Health</option>
@@ -332,7 +251,7 @@ List<OLISRequestNomenclature> requestNomenclatureList = requestDao.findAll();
 </tr>
 <%
 	UserPropertyDAO upDao = (UserPropertyDAO)SpringUtils.getBean("UserPropertyDAO");
-	String providerNo = loggedInInfo.getLoggedInProviderNo();
+	String providerNo = LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo();
 	UserProperty repLabProp = upDao.getProp(providerNo,"olis_reportingLab");
 	UserProperty exRepLabProp = upDao.getProp(providerNo,"olis_exreportingLab");
 	
@@ -364,58 +283,18 @@ List<OLISRequestNomenclature> requestNomenclatureList = requestDao.findAll();
 			<td colspan=4><hr /></td>
 		</tr>
 		<tr>
-			<td><span>Patient</span></td>
-			<td> 
-				<%String currentDocId="1"; %>
-				<input type="hidden" name="demographic" id="demofind<%=currentDocId%>" />
-                <input type="text" id="autocompletedemo<%=currentDocId%>" onchange="checkSave('<%=currentDocId%>')" name="demographicKeyword"  />
-                <div id="autocomplete_choices<%=currentDocId%>"class="autocomplete"></div>
-
-                <script type="text/javascript">       <%-- testDemocomp2.jsp    --%>
-                //new Ajax.Autocompleter("autocompletedemo<%=currentDocId%>", "autocomplete_choices<%=currentDocId%>", "../demographic/SearchDemographic.do", {minChars: 3, afterUpdateElement: saveDemoId});
-
-
-                YAHOO.example.BasicRemote = function() {
-                        var url = "../demographic/SearchDemographic.do";
-                        var oDS = new YAHOO.util.XHRDataSource(url,{connMethodPost:true,connXhrMode:'ignoreStaleResponses'});
-                        oDS.responseType = YAHOO.util.XHRDataSource.TYPE_JSON;// Set the responseType
-                        // Define the schema of the delimited resultsTEST, PATIENT(1985-06-15)
-                        oDS.responseSchema = {
-                            resultsList : "results",
-                            fields : ["formattedName","fomattedDob","demographicNo","status"]
-                        };
-                        // Enable caching
-                        oDS.maxCacheEntries = 100;
-                        //oDS.connXhrMode ="cancelStaleRequests";
-
-                        // Instantiate the AutoComplete
-                        var oAC = new YAHOO.widget.AutoComplete("autocompletedemo<%=currentDocId%>", "autocomplete_choices<%=currentDocId%>", oDS);
-                        oAC.queryMatchSubset = true;
-                        oAC.minQueryLength = 3;
-                        oAC.maxResultsDisplayed = 25;
-                        oAC.formatResult = resultFormatter2;
-                        //oAC.typeAhead = true;
-                        oAC.queryMatchContains = true;
-                        oAC.itemSelectEvent.subscribe(function(type, args) {
-                           var str = args[0].getInputEl().id.replace("autocompletedemo","demofind");
-                           document.getElementById(str).value = args[2][2];//li.id;
-                           args[0].getInputEl().value = args[2][0] + "("+args[2][1]+")";
-                           selectedDemos.push(args[0].getInputEl().value);
-                           
-                        });
-
-
-                        return {
-                            oDS: oDS,
-                            oAC: oAC
-                        };
-                    }();
-
-
-
-                </script>
-
-		</td>
+			<td><span>Patient</span></td><td> 
+			<select name="demographic" id="demographic">
+<option value=""></option>
+<%
+for (Object d : allDemographics) {
+	Demographic demo = (Demographic) d;
+	%>
+	<option value="<%=demo.getDemographicNo() %>">[<%=demo.getHin() %> <%=demo.getVer() %> (<%=demo.getHcType() %>)] <%=demo.getLastName() %>, <%=demo.getFirstName() %> (Sex: <%=demo.getSex() %>, DOB: <%=demo.getDateOfBirth() %>)</option>
+	<%
+}
+%>
+</select></td>
 		</tr>	
 		<tr>
 			<td colspan=4><hr /></td>
@@ -575,56 +454,17 @@ List<OLISRequestNomenclature> requestNomenclatureList = requestDao.findAll();
 		<tr>
 			<td width="20%"><span>Patient</span></td>
 			<td> 
-			<%currentDocId="2"; %>
-				<input type="hidden" name="demographic" id="demofind<%=currentDocId%>" />
-                <input type="text" id="autocompletedemo<%=currentDocId%>" onchange="checkSave('<%=currentDocId%>')" name="demographicKeyword"  />
-                <div id="autocomplete_choices<%=currentDocId%>"class="autocomplete"></div>
-
-                <script type="text/javascript">       <%-- testDemocomp2.jsp    --%>
-                //new Ajax.Autocompleter("autocompletedemo<%=currentDocId%>", "autocomplete_choices<%=currentDocId%>", "../demographic/SearchDemographic.do", {minChars: 3, afterUpdateElement: saveDemoId});
-
-
-                YAHOO.example.BasicRemote = function() {
-                        var url = "../demographic/SearchDemographic.do";
-                        var oDS = new YAHOO.util.XHRDataSource(url,{connMethodPost:true,connXhrMode:'ignoreStaleResponses'});
-                        oDS.responseType = YAHOO.util.XHRDataSource.TYPE_JSON;// Set the responseType
-                        // Define the schema of the delimited resultsTEST, PATIENT(1985-06-15)
-                        oDS.responseSchema = {
-                            resultsList : "results",
-                            fields : ["formattedName","fomattedDob","demographicNo","status"]
-                        };
-                        // Enable caching
-                        oDS.maxCacheEntries = 100;
-
-                        // Instantiate the AutoComplete
-                        var oAC = new YAHOO.widget.AutoComplete("autocompletedemo<%=currentDocId%>", "autocomplete_choices<%=currentDocId%>", oDS);
-                        oAC.queryMatchSubset = true;
-                        oAC.minQueryLength = 3;
-                        oAC.maxResultsDisplayed = 25;
-                        oAC.formatResult = resultFormatter2;
-                        //oAC.typeAhead = true;
-                        oAC.queryMatchContains = true;
-                        oAC.itemSelectEvent.subscribe(function(type, args) {
-                           var str = args[0].getInputEl().id.replace("autocompletedemo","demofind");
-
-                           document.getElementById(str).value = args[2][2];//li.id;
-                           args[0].getInputEl().value = args[2][0] + "("+args[2][1]+")";
-                           selectedDemos.push(args[0].getInputEl().value);
-                           
-                        });
-
-
-                        return {
-                            oDS: oDS,
-                            oAC: oAC
-                        };
-                    }();
-
-
-
-                </script>
-			
-			</td>
+			<select name="demographic" id="demographic">
+<option value=""></option>
+<%
+for (Object d : allDemographics) {
+	Demographic demo = (Demographic) d;
+	%>
+	<option value="<%=demo.getDemographicNo() %>">[<%=demo.getHin() %> <%=demo.getVer() %> (<%=demo.getHcType() %>)] <%=demo.getLastName() %>, <%=demo.getFirstName() %> (Sex: <%=demo.getSex() %>, DOB: <%=demo.getDateOfBirth() %>)</option>
+	<%
+}
+%>
+</select></td>
 		</tr>
 		<tr>
 			<td colspan=4><hr /></td>

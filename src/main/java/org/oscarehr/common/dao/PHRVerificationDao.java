@@ -38,23 +38,34 @@ public class PHRVerificationDao extends AbstractDao<PHRVerification> {
 		super(PHRVerification.class);
 	}
 	
-	public PHRVerification findLatestByDemographicId(Integer demographicId){
+	public List<PHRVerification> getForDemographic(int demographicNo){
         Query query = entityManager.createQuery("SELECT f FROM PHRVerification f WHERE f.demographicNo =? and archived = ? order by createdDate desc");
-        query.setParameter(1,demographicId);
+        query.setParameter(1,demographicNo);
         query.setParameter(2, false);
         
-        query.setMaxResults(1);
-        
-        return(getSingleResultOrNull(query));                
+        //@SuppressWarnings("unchecked")
+        return query.getResultList();                
      }
 	
-    public List<PHRVerification> findByDemographic(Integer demographicId, boolean active){
-        Query query = entityManager.createQuery("SELECT f FROM PHRVerification f WHERE f.demographicNo =? and archived = ? order by createdDate desc");
-        query.setParameter(1,demographicId);
-        query.setParameter(2, !active);
+	public String getVerificationLevel(int demographicNo){
+		String verificationLevel = ""; //No authentication 
+		Query query = entityManager.createQuery("SELECT f FROM PHRVerification f WHERE f.demographicNo =? and archived = ? order by createdDate desc");
+        query.setParameter(1,demographicNo);
+        query.setParameter(2, false);
         
-    	@SuppressWarnings("unchecked")
-    	List<PHRVerification> results=query.getResultList();
-        return(results);                
-     }
+        List<PHRVerification> list = query.getResultList();
+        
+        if (list.size() > 0){
+        	String authLevel =list.get(0).getVerificationLevel();
+        	if ( "FAX".equals(authLevel) || "MAIL".equals(authLevel)  || "EMAIL".equals(authLevel)){
+        		return "+1";
+        	}else if ("TEL".equals(authLevel) || "VIDEOPHONE".equals(authLevel)){
+        		return "+2";
+        	}else if ("INPERSON".equals(authLevel)){
+        		return "+3";
+        	}
+        }
+        return verificationLevel;
+	}
+	
 }

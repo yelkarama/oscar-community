@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <%--
 
     Copyright (c) 2001-2002. Department of Family Medicine, McMaster University. All Rights Reserved.
@@ -24,24 +23,11 @@
     Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_billing" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
 
 <%@page import="oscar.util.DateUtils"%>
 <%@page import="oscar.OscarProperties"%>
 <%
+if(session.getAttribute("user") == null)    response.sendRedirect("../../../../logout.jsp");
 String user_no="";
 user_no = (String) session.getAttribute("user");
 %>
@@ -91,13 +77,20 @@ user_no = (String) session.getAttribute("user");
 
 <html>
 <head>
-<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-1.9.1.min.js"></script>
-<script src="<%=request.getContextPath() %>/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="<%=request.getContextPath() %>/js/bootstrap-datepicker.js"></script>
+<link rel="stylesheet" href="billing.css">
+<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
+<!-- calendar stylesheet -->
+  <link rel="stylesheet" type="text/css" media="all" href="<c:out value="${ctx}"/>/share/calendar/calendar.css" title="win2k-cold-1">
 
-<link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
-<link href="<%=request.getContextPath() %>/css/datepicker.css" rel="stylesheet" type="text/css">
-<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
+  <!-- main calendar program -->
+  <script type="text/javascript" src="<c:out value="${ctx}"/>/share/calendar/calendar.js"></script>
+
+  <!-- language for the calendar -->
+  <script type="text/javascript" src="<c:out value="${ctx}"/>/share/calendar/lang/<bean:message key="global.javascript.calendar"/>"></script>
+
+  <!-- the following script defines the Calendar.setup helper function, which makes
+       adding a calendar a matter of 1 or 2 lines of code. -->
+  <script type="text/javascript" src="<c:out value="${ctx}"/>/share/calendar/calendar-setup.js"></script>
 
 <title><bean:message key="admin.admin.btnBatchBilling"/></title>
 <script type="text/javascript">
@@ -157,34 +150,33 @@ function init() {
 //-->
 </script>
 
-<style>
-@media print {
-  .visible-print {
-    display: inherit !important;
-  }
-  .hidden-print {
-    display: none !important;
-  }
-}
-</style>
 </head>
 
-<body>
-<h3><bean:message key="admin.admin.btnBatchBilling"/></h3>
-
-<div class="container-fluid">
-
-<div class="row well well-condensed hidden-print">
+<body bgcolor="#FFFFFF" text="#000000" leftmargin="0" rightmargin="0"
+	topmargin="0" onLoad="init()">
+<table border="0" cellspacing="0" cellpadding="0" width="100%">
+	<tr bgcolor="#486ebd">
+		<th align='LEFT'><input type='button' name='print' value='Print'
+			onClick='window.print()'></th>
+		<th align='CENTER'><font face="Arial, Helvetica, sans-serif"
+			color="#FFFFFF"><bean:message key="admin.admin.btnBatchBilling"/></font></th>
+		<th align='RIGHT'><input type='button' name='close' value='Close'
+			onClick='window.close()'></th>
+	</tr>
+</table>
 
 <% 
 ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao");
  %>
-	<form name="serviceform" method="post" action="BatchBill.do" class="form-inline">	
+<table width="100%" border="0" bgcolor="#E6F0F7">
+	<form name="serviceform" method="post" action="BatchBill.do">	
 	<input type="hidden" id="method" name="method" value="">	
-
-<div class="span2">
-	<bean:message key="billing.batchbilling.msgProvider"/><br>
-		<select name="provider" class="span2"onChange="jumpMenu('window',this)">
+	<tr>
+		<td width="220"><b><font face="Arial, Helvetica, sans-serif"
+			size="2" color="#003366"><bean:message key="billing.batchbilling.msgProvider"/></font></b></td>
+		<td width="254"><b><font face="Arial, Helvetica, sans-serif"
+			size="2" color="#003366"> <select name="provider"
+			onChange="jumpMenu('parent',this)">
 			<option value="#"><b><bean:message key="billing.batchbilling.msgProvider"/></b></option>
 			<option value="all"
 				<%=providerview.equals("all")?"selected":""%>><bean:message key="billing.batchbilling.msgAllProvider"/></option>
@@ -194,6 +186,10 @@ ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao");
 				proFirst = p.getFirstName();
 				proLast = p.getLastName();
 				proNo = p.getProviderNo();
+// billinggroup_no= SxmlMisc.getXmlContent(rslocal.getString("comments"),"<xml_p_billinggroup_no>","</xml_p_billinggroup_no>");
+// specialty_code = SxmlMisc.getXmlContent(rslocal.getString("comments"),"<xml_p_specialty_code>","</xml_p_specialty_code>");
+	
+
  %>
 			<option value="<%=proNo%>"
 				<%=providerview.equals(proNo)?"selected":""%>><%=proLast%>,
@@ -201,13 +197,14 @@ ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao");
 			<%
 
  }
+//
   %>
-		</select>
-</div>
-
-<div class="span3">
-		<bean:message key="billing.batchbilling.serviceCode"/>:			
-			<select id="service_code" class="span3" name="service_code">
+		</select> </font></b></td>
+		<td width="254"><font color="#003366"><b><font
+			face="Arial, Helvetica, sans-serif" size="2"><bean:message key="billing.batchbilling.serviceCode"/>:</font></b>			
+		</td>
+		<td width="254">
+			<select id="service_code" name="service_code">
 				<option value="all" <%=servicecode.equals("all")?"selected":""%>><bean:message key="billing.batchbilling.msgAllServiceCode"/></option>
 		<%			
 			List<String>serviceCodes = batchBillingDAO.findDistinctServiceCodes();
@@ -218,11 +215,11 @@ ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao");
 			}
 		%>
 			</select>
-</div>
-
-<div class="span4">
-		<bean:message key="billing.batchbilling.msgClinicLocation"/>:			
-		<select name="clinic_view" class="span4">
+		</td>
+		<td width="254"><font color="#003366"><b><font
+			face="Arial, Helvetica, sans-serif" size="2"><bean:message key="billing.batchbilling.msgClinicLocation"/>:</font></b>			
+		</td>		
+		<td width="277"><select name="clinic_view">
 			<%
              String clinic_location="", clinic_code="";
              List<ClinicLocation> clinicLocations = clinicLocationDao.findByClinicNo(1);
@@ -235,45 +232,31 @@ ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao");
 			<%
              }
              %>
-		</select>
-</div>
-</div><!--row well-->
-		
-
-<div class="row">
-
-
-		<input type="hidden" name="verCode"
+		</select><font color="#003366"> <input type="hidden" name="verCode"
 			value="V03"> <input type="hidden" name="curUser"
 			value="<%=user_no%>"> <input type="hidden" name="curDate"
 			value="<%=nowDate%>"> <input type="hidden" name="curTime"
-			value="<%=nowTime%>">
-			
-
-	<% 
-	   if( batchBillings != null && batchBillings.size() > 0) {
-
-%>
-
-<button class="btn pull-right" type='button' name='print' value='Print' onClick='window.print()'><i class="icon icon-print"></i> Print</button>
-		<br/><input type="checkbox" onclick="selectAll();"><br/><br/>
-		
-		<table class="table table-striped table-hover table-condensed">
-		<thead>
-			<tr>
-				<th><bean:message key="billing.batchbilling.msgSelection"/></th>
-				<th><bean:message key="billing.batchbilling.msgDemographic"/></th>
-				<th><bean:message key="billing.batchbilling.msgProviderTitle"/></th>
-				<th><bean:message key="billing.batchbilling.msgService"/></th>
-				<th><bean:message key="billing.batchbilling.msgAmount"/></th>
-				<th><bean:message key="billing.batchbilling.msgDiagnostic"/></th>
-				<th><bean:message key="billing.batchbilling.msgLastBillDate"/></th>
+			value="<%=nowTime%>"> </font></td>
+	</tr>
+	<tr>
+		<td colspan=6>
+		<table border="0" cellspacing="0" cellpadding="0" width="100%">
+			<tr bgcolor="#CCCCFF">
+				<td width="12%" height="16"><input type="checkbox" onclick="selectAll();"></td>
+				<td colspan="6" height="16">&nbsp;</td>
+			</tr>
+			<tr bgcolor="#CCCCFF">
+				<td width="12%" height="16"><bean:message key="billing.batchbilling.msgSelection"/></td>
+				<td width="22%" height="16"><bean:message key="billing.batchbilling.msgDemographic"/></td>
+				<td width="22%" height="16"><bean:message key="billing.batchbilling.msgProviderTitle"/></td>
+				<td width="12%" height="16"><bean:message key="billing.batchbilling.msgService"/></td>
+				<td width="12%" height="16"><bean:message key="billing.batchbilling.msgAmount"/></td>
+				<td width="10%" height="16"><bean:message key="billing.batchbilling.msgDiagnostic"/></td>
+				<td width="10%" height="16"><bean:message key="billing.batchbilling.msgLastBillDate"/></td>
 
 			</tr>
-		</thead>
-		<tbody>
-
-<%
+	<% 
+	   if( batchBillings != null && batchBillings.size() > 0) {
 		   DemographicDao demographicDAO = (DemographicDao) SpringUtils.getBean("demographicDao");
 		   String demo_name="";
 	       String diagnostic_code="", service_code="", billing_amount="";
@@ -316,68 +299,42 @@ ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao");
 		  }
 	  	  Count1 = Count1 + 1;
 	    %>
-		
-				<tr>
-					<td><input type="checkbox"
+				<tr bgcolor="<%=color%>">
+					<td width="12%" height="16"><input type="checkbox"
 						name="bill" value="<%=service_code + ";" + diagnostic_code + ";" + batchBilling.getDemographicNo() + ";" + batchBilling.getBillingProviderNo()%>"></td>
-					<td><%=demo_name%></a></td>
-					<td><%=proName1%></td>
-					<td><%=service_code%></td>
-					<td><%=billing_amount%></td>
-					<td><%=diagnostic_code%></td>
-					<td><%=billdate%></td>
+					<td width="22%" height="16"><%=demo_name%></a></td>
+					<td width="22%" height="16"><%=proName1%></td>
+					<td width="12%" height="16"><%=service_code%></td>
+					<td width="12%" height="16"><%=billing_amount%></td>
+					<td width="10%" height="16"><%=diagnostic_code%></td>
+					<td width="10%" height="16"><%=billdate%></td>
 				</tr>
 				<%}
 	  			 if ( Count1 == 0) { %>
-				<tr>
+				<tr bgcolor="#FFFFFF">
 					<td colspan=7><bean:message key="billing.batchbilling.msgNoMatch"/></td>
-				</tr>
+				
 				  <%} else {%>
 	
-				<tr>
-					<td colspan="7">
-					<div class="span3">
-					<bean:message key="billing.batchbilling.serviceDate"/>
-					<div class="input-append">
-						<input type="text" name="BillDate" id="BillDate" value="<%=now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.get(Calendar.DAY_OF_MONTH)%>" data-date-format="yyyy-m-d" style="width:90px"  autocomplete="off" readonly/>
-						<span class="add-on"><i class="icon-calendar"></i></span>
-					</div>
-					</div>
-					
-					<div class="span4">
-					<input type="button" class="btn btn-primary" onclick="return setMethod('doBatchBill');"	value="<bean:message key="billing.batchbilling.btnSubmit"/>">
-					<input type="button" class="btn" onclick="return askFirst('remove');" value="<bean:message key="billing.batchbilling.btnRemove"/>"> 					
-					</div>
+				<tr bgcolor="#FFFFFF">
+					<td colspan="2"><bean:message key="billing.batchbilling.serviceDate"/>
+						<input type="text" name="BillDate" id="BillDate" readonly value="<%=now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.get(Calendar.DAY_OF_MONTH)%>">
+						<img src="<c:out value="${ctx}/images/cal.gif" />" id="billDate_cal" alt="calendar">				
+					<td colspan=5><input type="button" onclick="return setMethod('doBatchBill');"
+						value="<bean:message key="billing.batchbilling.btnSubmit"/>">&nbsp;&nbsp;
+						<input type="button" onclick="return askFirst('remove');" value="<bean:message key="billing.batchbilling.btnRemove"/>"> 					
 					</td>
-	   			</tr>
+	   			</td>
 	   		
 	<%
 				}
-	   }else if(servicecode!=null && providerview!=null && batchBillings == null){
+	   }
 %>
-<tr><td>* Make selection above to generate batch billing</td></tr>
-<%
-}else{
-%>
-<tr><td>Nothing to report</td></tr>
-<%}%>
-</tbody>
+</table>
+    </td>
+    </tr>
+  </form>
 </table>
 
-  </form>
-</div>
-
-</div>
-
-<script>
-$(function (){ 
-	$('#BillDate').datepicker();
-}); 
-
-$( document ).ready(function() {
-parent.parent.resizeIframe($('html').height()+300);
-});
-
-</script>
 </body>
 </html>

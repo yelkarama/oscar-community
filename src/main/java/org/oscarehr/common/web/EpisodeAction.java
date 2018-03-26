@@ -36,7 +36,6 @@ import org.apache.struts.action.DynaActionForm;
 import org.apache.struts.actions.DispatchAction;
 import org.oscarehr.common.dao.EpisodeDao;
 import org.oscarehr.common.model.Episode;
-import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.SpringUtils;
 import org.springframework.beans.BeanUtils;
@@ -46,7 +45,6 @@ import oscar.OscarProperties;
 public class EpisodeAction extends DispatchAction {
 
 	private EpisodeDao episodeDao = SpringUtils.getBean(EpisodeDao.class);
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
 
 	@Override
     public ActionForward unspecified(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
@@ -55,11 +53,6 @@ public class EpisodeAction extends DispatchAction {
 
 	public ActionForward list(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)  {
 		Integer demographicNo = Integer.parseInt(request.getParameter("demographicNo"));
-		
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_demographic", "r", demographicNo)) {
-        	throw new SecurityException("missing required security object (_demographic)");
-        }
-		
 		List<Episode> episodes = episodeDao.findAll(demographicNo);
 		request.setAttribute("episodes",episodes);
 		return mapping.findForward("list");
@@ -81,8 +74,6 @@ public class EpisodeAction extends DispatchAction {
 	}
 
 	public ActionForward save(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)  {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		
 		DynaActionForm dform = (DynaActionForm)form;
 		Episode episode = (Episode)dform.get("episode");
 		Integer id = null;
@@ -96,12 +87,7 @@ public class EpisodeAction extends DispatchAction {
 			e = new Episode();
 		}
 		BeanUtils.copyProperties(episode, e, new String[]{"id","lastUpdateTime","lastUpdateUser"});
-		e.setLastUpdateUser(loggedInInfo.getLoggedInProviderNo());
-		
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_demographic", "w", e.getDemographicNo())) {
-        	throw new SecurityException("missing required security object (_demographic)");
-        }
-		
+		e.setLastUpdateUser(LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo());
 		if(id != null && id.intValue()>0) {
 			episodeDao.merge(e);
 		} else {

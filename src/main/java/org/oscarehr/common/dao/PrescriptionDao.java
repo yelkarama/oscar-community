@@ -40,65 +40,26 @@ public class PrescriptionDao extends AbstractDao<Prescription> {
 
 	public List<Prescription> findByDemographicId(Integer demographicId) {
 
-		String sqlCommand = "select x from " + modelClass.getSimpleName() + " x where x.demographicId=?1";
+		String sqlCommand = "select x from "+modelClass.getSimpleName()+" x where x.demographicId=?1";
 
-		Query query = entityManager.createQuery(sqlCommand);
-		query.setParameter(1, demographicId);
+        Query query = entityManager.createQuery(sqlCommand);
+        query.setParameter(1, demographicId);
 
-		@SuppressWarnings("unchecked")
-		List<Prescription> results = query.getResultList();
-		return (results);
-	}
+        @SuppressWarnings("unchecked")
+        List<Prescription> results = query.getResultList();
+        return (results);
+    }
 
 	public List<Prescription> findByDemographicIdUpdatedAfterDate(Integer demographicId, Date afterThisDate) {
-		String sqlCommand = "select x from " + modelClass.getSimpleName() + " x where x.demographicId=?1 and x.lastUpdateDate>=?2";
 
-		Query query = entityManager.createQuery(sqlCommand);
-		query.setParameter(1, demographicId);
-		query.setParameter(2, afterThisDate);
+		String sqlCommand = "select x from "+modelClass.getSimpleName()+" x where x.demographicId=?1 and x.lastUpdateDate>=?2";
 
-		@SuppressWarnings("unchecked")
-		List<Prescription> results = query.getResultList();
-		return (results);
-	}
+        Query query = entityManager.createQuery(sqlCommand);
+        query.setParameter(1, demographicId);
+        query.setParameter(2, afterThisDate);
 
-	public int updatePrescriptionsByScriptNo(Integer scriptNo, String comment) {
-		Query query = entityManager.createQuery("UPDATE Prescription p SET p.comments = :comments WHERE p.id = :id");
-		query.setParameter("comments", comment);
-		query.setParameter("id", scriptNo);
-		return query.executeUpdate();
-	}
-
-	/**
-	 * @return results ordered by lastUpdateDate
-	 */
-	public List<Prescription> findByUpdateDate(Date updatedAfterThisDateExclusive, int itemsToReturn) {
-		String sqlCommand = "select x from "+modelClass.getSimpleName()+" x where x.lastUpdateDate>?1 order by x.lastUpdateDate";
-
-		Query query = entityManager.createQuery(sqlCommand);
-		query.setParameter(1, updatedAfterThisDateExclusive);
-		setLimit(query, itemsToReturn);
-		
-		@SuppressWarnings("unchecked")
-		List<Prescription> results = query.getResultList();
-		return (results);
-	}
-	
-	/**
-	 * @return results ordered by lastUpdateDate asc
-	 */
-	public List<Prescription> findByProviderDemographicLastUpdateDate(String providerNo, Integer demographicId, Date updatedAfterThisDateExclusive, int itemsToReturn) {
-		String sqlCommand = "select x from "+modelClass.getSimpleName()+" x where x.demographicId=:demographicId and x.providerNo=:providerNo and x.lastUpdateDate>:updatedAfterThisDateExclusive order by x.lastUpdateDate";
-
-		Query query = entityManager.createQuery(sqlCommand);
-		query.setParameter("demographicId", demographicId);
-		query.setParameter("providerNo", providerNo);
-		query.setParameter("updatedAfterThisDateExclusive", updatedAfterThisDateExclusive);
-		setLimit(query, itemsToReturn);
-		
-		@SuppressWarnings("unchecked")
-		List<Prescription> results = query.getResultList();
-		return (results);
-	}
-
+        @SuppressWarnings("unchecked")
+        List<Prescription> results = query.getResultList();
+        return (results);
+    }
 }

@@ -25,9 +25,6 @@
 
 package org.oscarehr.ws.transfer_objects;
 
-/**
- * @deprecated 2015-01-28 
- */
 public final class LoginResultTransfer {
 	private Integer securityId;
 	private String securityTokenKey;

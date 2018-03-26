@@ -22,41 +22,17 @@
  * Ontario, Canada
  */
 
+
 package org.oscarehr.billing.CA.dao;
-
-import java.util.List;
-
-import javax.persistence.Query;
 
 import org.oscarehr.billing.CA.model.BillingDetail;
 import org.oscarehr.common.dao.AbstractDao;
 import org.springframework.stereotype.Repository;
 
 @Repository
-@SuppressWarnings("unchecked")
-public class BillingDetailDao extends AbstractDao<BillingDetail> {
+public class BillingDetailDao extends AbstractDao<BillingDetail>{
 
 	public BillingDetailDao() {
 		super(BillingDetail.class);
-	}
-
-	public List<BillingDetail> findByBillingNo(int billingNo) {
-		Query q = entityManager.createQuery("select x from BillingDetail x where x.billingNo=?");
-		q.setParameter(1, billingNo);
-		List<BillingDetail> results = q.getResultList();
-		return results;
-	}
-
-	public List<BillingDetail> findByBillingNoAndStatus(Integer billingNo, String status) {
-		Query query = createQuery("bd", "bd.billingNo = :billingNo AND bd.status = :status");
-		query.setParameter("billingNo", billingNo);
-		query.setParameter("status", status);
-		return query.getResultList();
-	}
-	
-	public List<BillingDetail> findByBillingNo(Integer billingNo) {
-		Query query = createQuery("bd", "bd.billingNo = :billingNo AND bd.status <> 'D' ORDER BY service_code");
-		query.setParameter("billingNo", billingNo);
-		return query.getResultList();
 	}
 }

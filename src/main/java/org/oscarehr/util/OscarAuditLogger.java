@@ -22,6 +22,7 @@
  * Ontario, Canada
  */
 
+
 package org.oscarehr.util;
 
 import org.oscarehr.common.dao.OscarLogDao;
@@ -33,58 +34,23 @@ public class OscarAuditLogger {
 	private static OscarLogDao logDao = (OscarLogDao) SpringUtils.getBean("oscarLogDao");
 
 	private OscarAuditLogger() {
-
+		
 	}
-
-	public static OscarAuditLogger getInstance() {
+	
+	public static OscarAuditLogger getInstance() {		
 		return instance;
 	}
-
-	public void log(LoggedInInfo loggedInInfo, String action, String content, String data) {
+	
+	public void log(String action, String content, String data) {
 		try {
 			OscarLog logItem = new OscarLog();
 			logItem.setAction(action);
 			logItem.setContent(content);
 			logItem.setData(data);
 
-			if (loggedInInfo!=null) logItem.setProviderNo(loggedInInfo.getLoggedInProviderNo());
-
-			logDao.persist(logItem);
-
-		} catch (Exception e) {
-			MiscUtils.getLogger().error("Couldn't write log message", e);
-		}
-	}
-
-	public void log(LoggedInInfo loggedInInfo, String action, String content, Integer demographicNo, String data) {
-		try {
-			OscarLog logItem = new OscarLog();
-			logItem.setAction(action);
-			logItem.setContent(content);
-			logItem.setDemographicId(demographicNo);
-			logItem.setData(data);
-
-			if (loggedInInfo!=null) logItem.setProviderNo(loggedInInfo.getLoggedInProviderNo());
-
-			logDao.persist(logItem);
-
-		} catch (Exception e) {
-			MiscUtils.getLogger().error("Couldn't write log message", e);
-		}
-	}
-
-	public void log(LoggedInInfo loggedInInfo, String action, String content, String keyword, String ipAddress, Integer demographicNo, String data) {
-		try {
-			OscarLog logItem = new OscarLog();
-			logItem.setAction(action);
-			logItem.setContent(content);
-			logItem.setContentId(keyword);
-			logItem.setDemographicId(demographicNo);
-			logItem.setData(data);
-			logItem.setIp(ipAddress);
-
-			if (loggedInInfo!=null) logItem.setProviderNo(loggedInInfo.getLoggedInProviderNo());
-
+			if (LoggedInInfo.loggedInInfo.get().loggedInProvider != null)
+				logItem.setProviderNo(LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo());
+			
 			logDao.persist(logItem);
 
 		} catch (Exception e) {

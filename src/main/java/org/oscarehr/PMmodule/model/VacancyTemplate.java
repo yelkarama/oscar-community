@@ -42,7 +42,9 @@ public class VacancyTemplate extends AbstractModel<Integer> implements java.io.S
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name="TEMPLATE_ID", unique=true, nullable=false)
-	private Integer id;	
+	private Integer id;
+	@Column(name = "PROGRAM_ID")
+	private Integer programId;
 	@Column(name = "NAME")
 	private String name;
 	@Column(name = "ACTIVE")
@@ -71,10 +73,24 @@ public class VacancyTemplate extends AbstractModel<Integer> implements java.io.S
 	}
 
 	/** full constructor */
-	public VacancyTemplate(Integer wlProgramId, String name, Boolean active) {
-		this.wlProgramId = wlProgramId;
+	public VacancyTemplate(Integer programId, String name, Boolean active) {
+		this.programId = programId;
 		this.name = name;
 		this.active = active;
+	}
+
+	/**
+	 * @return the programId
+	 */
+	public Integer getProgramId() {
+		return programId;
+	}
+
+	/**
+	 * @param programId the programId to set
+	 */
+	public void setProgramId(Integer programId) {
+		this.programId = programId;
 	}
 
 	/**

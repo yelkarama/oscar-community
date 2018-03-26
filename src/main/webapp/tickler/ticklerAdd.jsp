@@ -24,23 +24,11 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_tickler" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_tickler");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%    
-String user_no = (String) session.getAttribute("user");
+if(session.getAttribute("user") == null)
+    response.sendRedirect("../logout.jsp");
+String user_no;
+user_no = (String) session.getAttribute("user");
 int  nItems=0;
 String strLimit1="0";
 String strLimit2="5";
@@ -74,17 +62,9 @@ else
 
 %>
 <%@ page import="java.util.*, java.sql.*, oscar.*, java.net.*, oscar.oscarEncounter.pageUtil.EctSessionBean" %>
-<%@page import="org.oscarehr.util.SpringUtils" %>
-<%@page import="org.oscarehr.common.model.Appointment" %>
-<%@page import="org.oscarehr.common.dao.OscarAppointmentDao" %>
-<%@page import="org.oscarehr.common.model.Provider" %>
-<%@page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
-
-<%
-	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
-	OscarAppointmentDao appointmentDao = SpringUtils.getBean(OscarAppointmentDao.class);
-%>
-
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean" scope="session" />
+<jsp:useBean id="SxmlMisc" class="oscar.SxmlMisc" scope="session" />
+<%@ include file="dbTicker.jspf" %>
 <%
 GregorianCalendar now=new GregorianCalendar();
   int curYear = now.get(Calendar.YEAR);
@@ -298,7 +278,7 @@ var newD = newYear + "-" + newMonth + "-" + newDay;
          <input type="hidden" name="location"  tabindex="4" value="" width="25" height="20" border="0" hspace="2">
               <input type="hidden" name="resources"  tabindex="5" value="" width="25" height="20" border="0" hspace="2">
               <INPUT TYPE="hidden" NAME="user_id" readonly VALUE='oscardoc, doctor' WIDTH="25" HEIGHT="20" border="0" hspace="2">
-     	        <INPUT TYPE="hidden" NAME="dboperation" VALUE="search_demorecord">
+     	        <INPUT TYPE="hidden" NAME="dboperation" VALUE="add_apptrecord">
               <INPUT TYPE="hidden" NAME="createdatetime" readonly VALUE="2002-10-1 17:53:50" WIDTH="25" HEIGHT="20" border="0" hspace="2">
               <INPUT TYPE="hidden" NAME="provider_no" VALUE="115">
               <INPUT TYPE="hidden" NAME="creator" VALUE="oscardoc, doctor">
@@ -347,11 +327,8 @@ var newD = newYear + "-" + newMonth + "-" + newDay;
           	String appNo = (String) session.getAttribute("cur_appointment_no");
           	String location = null;
           	if (appNo != null) {
-          		Appointment a  = appointmentDao.find(Integer.parseInt(appNo));
-          		if(a != null) {
-          			location = a.getLocation();
-          		}
-          		
+          		ResultSet rs = apptMainBean.queryResults(appNo, "get_appt_location");
+          		if(rs.next()) location=apptMainBean.getString(rs,1);
           	}
       %> 
       <script>
@@ -391,12 +368,12 @@ function changeSite(sel) {
             <%  String proFirst="";
                 String proLast="";
                 String proOHIP="";
-				
-                for(Provider p : providerDao.getActiveProviders()) {
-               
-                    proFirst =p.getFirstName();
-                    proLast = p.getLastName();
-                    proOHIP = p.getProviderNo();
+
+                ResultSet rslocal = apptMainBean.queryResults("%", "search_provider_all");
+                while(rslocal.next()){
+                    proFirst = rslocal.getString("first_name");
+                    proLast = rslocal.getString("last_name");
+                    proOHIP = rslocal.getString("provider_no"); 
 
             %> 
             <option value="<%=proOHIP%>" <%=user_no.equals(proOHIP)?"selected":""%>><%=proLast%>, <%=proFirst%></option>

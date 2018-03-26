@@ -71,7 +71,7 @@ import org.oscarmcmaster.ar2005.YesNoNullType;
 
 public class AR2005XMLTest {
 
-	protected SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy/MM/dd");
+	private SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy/MM/dd");
 
 	@Test
 	public void generateXMLAndValidate() throws Exception {
@@ -348,14 +348,14 @@ public class AR2005XMLTest {
 		getNewbornCare(practitionerInformation.addNewNewbornCare());
 	}
 
-	protected void getBirthAttendants(BirthAttendants birthAttendants)  {
+	private void getBirthAttendants(BirthAttendants birthAttendants)  {
 		birthAttendants.setOBS(false);
 		birthAttendants.setFP(false);
 		birthAttendants.setMidwife(false);
 		birthAttendants.setOther("maternity centre");
 	}
 
-	protected void getNewbornCare(NewbornCare newbornCare)  {
+	private void getNewbornCare(NewbornCare newbornCare)  {
 		newbornCare.setPed(false);
 		newbornCare.setFP(false);
 		newbornCare.setMidwife(false);

@@ -23,41 +23,13 @@
     Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin.billing,_admin" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../../securityError.jsp?type=_admin&type=_admin.billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
+<%@ page
+	import="java.math.*, java.util.*, java.io.*, java.sql.*, oscar.*, java.net.*,oscar.MyDateFormat"%>
 
-<%@ page import="java.math.*, java.util.*, java.io.*, java.sql.*, oscar.*, java.net.*,oscar.MyDateFormat"%>
-<%@page import="org.oscarehr.util.MiscUtils"%>
-<%@page import="org.oscarehr.util.SpringUtils" %>
-<%@page import="org.oscarehr.billing.CA.BC.dao.TeleplanS00Dao" %>
-<%@page import="org.oscarehr.billing.CA.BC.model.TeleplanS00" %>
-<%@page import="org.oscarehr.billing.CA.BC.dao.TeleplanS22Dao" %>
-<%@page import="org.oscarehr.billing.CA.BC.model.TeleplanS22" %>
-<%@page import="org.oscarehr.billing.CA.BC.dao.TeleplanS23Dao" %>
-<%@page import="org.oscarehr.billing.CA.BC.model.TeleplanS23" %>
-<%@page import="org.oscarehr.billing.CA.BC.dao.TeleplanS25Dao" %>
-<%@page import="org.oscarehr.billing.CA.BC.model.TeleplanS25" %>
-<%
-	TeleplanS00Dao teleplanS00Dao = SpringUtils.getBean(TeleplanS00Dao.class);
-    TeleplanS22Dao teleplanS22Dao = SpringUtils.getBean(TeleplanS22Dao.class);
-	TeleplanS23Dao teleplanS23Dao = SpringUtils.getBean(TeleplanS23Dao.class);
-	TeleplanS25Dao teleplanS25Dao = SpringUtils.getBean(TeleplanS25Dao.class);
-%>
-
-
-<html>
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean"
+	scope="session" />
+<%@ include file="dbBilling.jspf"%>
+<%@page import="org.oscarehr.util.MiscUtils"%><html>
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <link rel="stylesheet" href="billing.css">
@@ -111,12 +83,14 @@ String proFirst="", proLast="", demoFirst="", demoLast="", apptDate="", apptTime
 			<%   
                         ResultSet rsdemo3 = null;
                         ResultSet rsdemo2 = null;
-                        for(Object[] result : teleplanS00Dao.search_taprovider(Integer.parseInt(raNo))) {
-                       		
-                            pohipno = (String)result[0];
-                            plast = (String)result[1];
-                            pfirst =(String)result[2];
-                         %>
+                        ResultSet rsdemo = null;
+                        rsdemo = apptMainBean.queryResults(raNo, "search_taprovider");
+                        while (rsdemo.next()) {   
+                          pohipno = rsdemo.getString("t_practitionerno");
+                          plast = rsdemo.getString("last_name");
+                          pfirst = rsdemo.getString("first_name");
+
+                    %>
 			<option value="<%=pohipno%>" <%=proNo.equals(pohipno)?"selected":""%>><%=plast%>,<%=pfirst%></option>
 			<%  }  %>
 		</select> <input type=submit name=submit value=Generate></form>
@@ -141,21 +115,49 @@ String proFirst="", proLast="", demoFirst="", demoLast="", apptDate="", apptTime
 
 	</tr>
 	<%
-
+      
+      
+         String[] param = new String[3];
+          param[0] = raNo;
+          param[1] = "S01";
+          param[2] = proNo;
+          
           String[] param0 = new String[2];
-        
-          for(TeleplanS22 result : teleplanS22Dao.search_taS22(Integer.parseInt(raNo), "S01", proNo)) {
-         
+          rsdemo2 = null;
+          rsdemo = null;
+          rsdemo = apptMainBean.queryResults(param, "search_taS22");
+          while (rsdemo.next()) {   
+            	 //   account = rsdemo.getString("t_officeno");
+            	    
+            	   // param0[0]=raNo;
+            	   // param0[1]=account;
+            	   //   demoLast = "";
+            	   // rsdemo3 =apptMainBean.queryResults(param0[1],"search_bill");
+            	   // while (rsdemo3.next()) {
+            	   // demoLast = rsdemo3.getString("demographic_name");
+            	   // }
+            	   // rsdemo2 = apptMainBean.queryResults(param0,"search_rabillno");
+            	    
+            	   // while (rsdemo2.next()) {   
+             	   //servicecode = rsdemo2.getString("service_code");
+             	   //servicedate = rsdemo2.getString("service_date");
+             	   //serviceno = rsdemo2.getString("service_count");
+      	           //explain = rsdemo2.getString("error_code");
+      	           //amountsubmit = rsdemo2.getString("amountclaim");
+      	           //amountpay = rsdemo2.getString("amountpay");
+                   //                        if (explain.compareTo("") == 0 || explain == null){
+		//		            	           explain = "**";
+      	         //  }      
       %>
 	<tr>
 
 
-		<td width="10%" height="16"><%=result.getPayment()%></td>
-		<td width="10%" height="16"><%=result.getPractitionerNo()%></td>
-		<td width="10%" height="16"><%=result.getPractitionerName()%></td>
-		<td width="10%" height="16" align="right"><%=moneyFormat(result.getAmountBilled())%></td>
-		<td width="10%" height="16" align="right"><%=moneyFormat(result.getAmountPaid())%></td>
-		<td width="50%" height="16"><%=String.valueOf(result.getLineCode()).compareTo("Y")==0?"Practitioner Totals within Payee":""%></td>
+		<td width="10%" height="16"><%=rsdemo.getString("t_payment")%></td>
+		<td width="10%" height="16"><%=rsdemo.getString("t_practitionerno")%></td>
+		<td width="10%" height="16"><%=rsdemo.getString("t_practitionername")%></td>
+		<td width="10%" height="16" align="right"><%=moneyFormat(rsdemo.getString("t_amtbilled"))%></td>
+		<td width="10%" height="16" align="right"><%=moneyFormat(rsdemo.getString("t_amtpaid"))%></td>
+		<td width="50%" height="16"><%=rsdemo.getString("t_linecode").compareTo("Y")==0?"Practitioner Totals within Payee":""%></td>
 
 	</tr>
 
@@ -187,26 +189,30 @@ String proFirst="", proLast="", demoFirst="", demoLast="", apptDate="", apptTime
 
 	</tr>
 	<%                        
-               
-                for(TeleplanS23 result : teleplanS23Dao.search_taS23(Integer.parseInt(raNo), "S01", proNo)) {
-               
+               String[] param1 = new String[3];
+                param1[0] = raNo;
+                param1[1] = "S01";
+                param1[2] = proNo;
+                
+               rsdemo = apptMainBean.queryResults(param1, "search_taS23");
+               while (rsdemo.next()) {   
              %>
 	<tr>
 
-		<td width="10%" height="16"><%=result.getPayment()%>&nbsp;</td>
-		<td width="5%" height="16"><%=result.getPayeeNo()%>&nbsp;</td>
-		<td width="5%" height="16"><%=result.getAjc()%>&nbsp;</td>
-		<td width="10%" height="16"><%=result.getAji()%>&nbsp;</td>
-		<td width="10%" height="16"><%=result.getAjm()%>&nbsp;</td>
-		<td width="10%" height="16"><%=result.getCalcMethod()%>&nbsp;</td>
-		<td width="5%" height="16" align="right"><%=moneyFormat(result.getrPercent())%>&nbsp;</td>
-		<td width="5%" height="16" align="right"><%=moneyFormat(result.getoPercent())%>&nbsp;</td>
-		<td width="5%" height="16" align="right"><%=moneyFormat(result.getgAmount())%>&nbsp;</td>
-		<td width="5%" height="16" align="right"><%=moneyFormat(result.getrAmount())%>&nbsp;</td>
-		<td width="5%" height="16" align="right"><%=moneyFormat(result.getoAmount())%>&nbsp;</td>
-		<td width="5%" height="16" align="right"><%=moneyFormat(result.getBalanceForward())%>&nbsp;</td>
-		<td width="10%" height="16" align="right"><%=moneyFormat(result.getAdjMade())%>&nbsp;</td>
-		<td width="10%" height="16" align="right"><%=moneyFormat(result.getAdjOutstanding())%>&nbsp;</td>
+		<td width="10%" height="16"><%=rsdemo.getString("t_payment")%>&nbsp;</td>
+		<td width="5%" height="16"><%=rsdemo.getString("t_payeeno")%>&nbsp;</td>
+		<td width="5%" height="16"><%=rsdemo.getString("t_ajc")%>&nbsp;</td>
+		<td width="10%" height="16"><%=rsdemo.getString("t_aji")%>&nbsp;</td>
+		<td width="10%" height="16"><%=rsdemo.getString("t_ajm")%>&nbsp;</td>
+		<td width="10%" height="16"><%=rsdemo.getString("t_calcmethod")%>&nbsp;</td>
+		<td width="5%" height="16" align="right"><%=moneyFormat(rsdemo.getString("t_rpercent"))%>&nbsp;</td>
+		<td width="5%" height="16" align="right"><%=moneyFormat(rsdemo.getString("t_opercent"))%>&nbsp;</td>
+		<td width="5%" height="16" align="right"><%=moneyFormat(rsdemo.getString("t_gamount"))%>&nbsp;</td>
+		<td width="5%" height="16" align="right"><%=moneyFormat(rsdemo.getString("t_ramount"))%>&nbsp;</td>
+		<td width="5%" height="16" align="right"><%=moneyFormat(rsdemo.getString("t_oamount"))%>&nbsp;</td>
+		<td width="5%" height="16" align="right"><%=moneyFormat(rsdemo.getString("t_balancefwd"))%>&nbsp;</td>
+		<td width="10%" height="16" align="right"><%=moneyFormat(rsdemo.getString("t_adjmade"))%>&nbsp;</td>
+		<td width="10%" height="16" align="right"><%=moneyFormat(rsdemo.getString("t_adjoutstanding"))%>&nbsp;</td>
 	</tr>
 
 
@@ -227,17 +233,19 @@ String proFirst="", proLast="", demoFirst="", demoLast="", apptDate="", apptTime
 	                
 	                
 	                   String[] param2 = new String[3];
-	                   
-	                    
-	                    for(TeleplanS25 result : teleplanS25Dao.search_taS25(Integer.parseInt(raNo),"S01",proNo)) {
-	                   
+	                    param2[0] = raNo;
+	                    param2[1] = "S01";
+	                    param2[2] = proNo;
+
+	                    rsdemo = apptMainBean.queryResults(param2, "search_taS25");
+	                    while (rsdemo.next()) {   
 	                 %>
 	<tr>
 
-		<td width="10%" height="16"><%=result.getPayment()%>&nbsp;</td>
-		<td width="10%" height="16"><%=result.getPayeeNo()%>&nbsp;</td>
-		<td width="10%" height="16"><%=result.getPractitionerNo()%>&nbsp;</td>
-		<td width="70%" height="16"><%=result.getMessage()%>&nbsp;</td>
+		<td width="10%" height="16"><%=rsdemo.getString("t_payment")%>&nbsp;</td>
+		<td width="10%" height="16"><%=rsdemo.getString("t_payeeno")%>&nbsp;</td>
+		<td width="10%" height="16"><%=rsdemo.getString("t_practitionerno")%>&nbsp;</td>
+		<td width="70%" height="16"><%=rsdemo.getString("t_message")%>&nbsp;</td>
 	</tr>
 
 

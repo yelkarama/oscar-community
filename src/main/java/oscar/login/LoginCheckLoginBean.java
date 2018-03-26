@@ -25,7 +25,6 @@
 
 package oscar.login;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
@@ -33,17 +32,17 @@ import org.apache.log4j.Logger;
 import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.PMmodule.dao.SecUserRoleDao;
 import org.oscarehr.PMmodule.model.SecUserRole;
-import org.oscarehr.common.dao.SecurityDao;
 import org.oscarehr.common.model.Provider;
-import org.oscarehr.common.model.Security;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
 import oscar.OscarProperties;
 import oscar.log.LogAction;
 import oscar.log.LogConst;
+import oscar.util.UtilDateUtilities;
 
-import com.quatro.model.security.LdapSecurity;
+import com.quatro.dao.security.SecurityDao;
+import com.quatro.model.security.Security;
 
 public final class LoginCheckLoginBean {
 	private static final Logger logger = MiscUtils.getLogger();
@@ -77,70 +76,40 @@ public final class LoginCheckLoginBean {
 		if (security == null) {
 			return cleanNullObj(LOG_PRE + "No Such User: " + username);
 		}
-		boolean auth = false;
-		
-		if(security.getStorageVersion() == Security.STORAGE_VERSION_1) {
-			// check pin if needed
-	
-			String sPin = pin;
-			if (oscar.OscarProperties.getInstance().isPINEncripted()) sPin = oscar.Misc.encryptPIN(sPin);
-	
-			if (isWAN() && security.getBRemotelockset() != null && security.getBRemotelockset().intValue() == 1 && (!sPin.equals(security.getPin()) || pin.length() < 3)) {
-				return cleanNullObj(LOG_PRE + "Pin-remote needed: " + username);
-			} else if (!isWAN() && security.getBLocallockset() != null && security.getBLocallockset().intValue() == 1 && (!sPin.equals(security.getPin()) || pin.length() < 3)) {
-				return cleanNullObj(LOG_PRE + "Pin-local needed: " + username);
-			}
-	
-			if (security.getBExpireset() != null && security.getBExpireset().intValue() == 1 && (security.getDateExpiredate() == null || security.getDateExpiredate().before(new Date()))) {
-				return cleanNullObjExpire(LOG_PRE + "Expired: " + username);
-			}
-			
-	
-			userpassword = security.getPassword();
-			if (userpassword.length() < 20) {
-				auth = password.equals(userpassword);
-			} else {
-				auth = security.checkPassword(password);
-			}
-		} else if(security.getStorageVersion() == Security.STORAGE_VERSION_2) {
-			
-			try {
-				//password check
-				if(!PasswordHash.validatePassword(this.password, security.getPassword())) {
-					return cleanNullObj(LOG_PRE + "Password failed: " + username);
-				}
-				
-				//remote pin check
-				if (isWAN() && security.getBRemotelockset() != null && security.getBRemotelockset().intValue() == 1 && (!PasswordHash.validatePassword(pin, security.getPin()))) {
-					return cleanNullObj(LOG_PRE + "Pin-remote needed: " + username);
-				}
-				
-				//local pin check
-				if (!isWAN() && security.getBLocallockset() != null && security.getBLocallockset().intValue() == 1 && (!PasswordHash.validatePassword(pin, security.getPin()))) {
-					return cleanNullObj(LOG_PRE + "Pin-local needed: " + username);
-				}
-				
-			}catch(Exception e) {
-				MiscUtils.getLogger().error("Unable to check the password",e);
-				return cleanNullObj(LOG_PRE + "Password failed: " + username);
-			}
-			
-			auth=true;
+		// check pin if needed
+
+		String sPin = pin;
+		if (oscar.OscarProperties.getInstance().isPINEncripted()) sPin = oscar.Misc.encryptPIN(sPin);
+
+		if (isWAN() && security.getBRemotelockset() != null && security.getBRemotelockset().intValue() == 1 && (!sPin.equals(security.getPin()) || pin.length() < 3)) {
+			return cleanNullObj(LOG_PRE + "Pin-remote needed: " + username);
+		} else if (!isWAN() && security.getBLocallockset() != null && security.getBLocallockset().intValue() == 1 && (!sPin.equals(security.getPin()) || pin.length() < 3)) {
+			return cleanNullObj(LOG_PRE + "Pin-local needed: " + username);
 		}
-		
-		
-		//expiry
+
+		if (security.getBExpireset() != null && security.getBExpireset().intValue() == 1 && (security.getDateExpiredate() == null || security.getDateExpiredate().before(UtilDateUtilities.now()))) {
+			return cleanNullObjExpire(LOG_PRE + "Expired: " + username);
+		}
 		String expired_days = "";
 		if (security.getBExpireset() != null && security.getBExpireset().intValue() == 1) {
 			// Give warning if the password will be expired in 10 days.
 
 			long date_expireDate = security.getDateExpiredate().getTime();
-			long date_now = new Date().getTime();
+			long date_now = UtilDateUtilities.now().getTime();
 			long date_diff = (date_expireDate - date_now) / (24 * 3600 * 1000);
 
 			if (security.getBExpireset().intValue() == 1 && date_diff < 11) {
 				expired_days = String.valueOf(date_diff);
 			}
+		}
+
+		boolean auth = false;
+
+		userpassword = security.getPassword();
+		if (userpassword.length() < 20) {
+			auth = password.equals(userpassword);
+		} else {
+			auth = security.checkPassword(password);
 		}
 
 		if (auth) { // login successfully
@@ -158,7 +127,7 @@ public final class LoginCheckLoginBean {
 	}
 
 	private String[] cleanNullObj(String errorMsg) {
-		logger.warn(errorMsg);
+		logger.info(errorMsg);
 		LogAction.addLogSynchronous("", "failed", LogConst.CON_LOGIN, username, ip);
 		userpassword = null;
 		password = null;
@@ -166,7 +135,7 @@ public final class LoginCheckLoginBean {
 	}
 
 	private String[] cleanNullObjExpire(String errorMsg) {
-		logger.warn(errorMsg);
+		logger.info(errorMsg);
 		LogAction.addLogSynchronous("", "expired", LogConst.CON_LOGIN, username, ip);
 		userpassword = null;
 		password = null;
@@ -174,18 +143,13 @@ public final class LoginCheckLoginBean {
 	}
 
 	private Security getUserID() {
-		//this gets a pass on not being used by a manager because the user is not authenticated
-		//I didn't want to add a non loggedInInfo method for getByUserName()
+
 		SecurityDao securityDao = (SecurityDao) SpringUtils.getBean("securityDao");
 		List<Security> results = securityDao.findByUserName(username);
 		Security security = null;
 		if (results.size() > 0) security = results.get(0);
 
-		if (security == null) {
-			return null;
-		} else if (OscarProperties.isLdapAuthenticationEnabled()) {
-			security = new LdapSecurity(security);
-		}
+		if (security == null) return null;
 
 		// find the detail of the user
 		ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao");

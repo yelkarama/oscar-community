@@ -61,6 +61,7 @@ public class NextAppointmentSearchHelper {
 	 * This implementation searches day by day until searchBean.numberOfResults is realized or MAX_DAYS_TO_SEARCH is reached
 	 * 
 	 * @param searchBean
+	 * @return
 	 */
 	public static List<NextAppointmentSearchResult> search(NextAppointmentSearchBean searchBean) {
 		List<NextAppointmentSearchResult> results = new ArrayList<NextAppointmentSearchResult>();
@@ -155,12 +156,7 @@ public class NextAppointmentSearchHelper {
 		}
 		//we have a schedule..lets check what template to use
 		String templateName = sd.getHour();		
-		ScheduleTemplate template = null;
-		if(templateName.startsWith("P:")) {
-			template = scheduleTemplateDao.find(new ScheduleTemplatePrimaryKey("Public",templateName));
-		} else {
-			template = scheduleTemplateDao.find(new ScheduleTemplatePrimaryKey(providerNo,templateName));
-		}
+		ScheduleTemplate template = scheduleTemplateDao.find(new ScheduleTemplatePrimaryKey(providerNo,templateName));
 		if(template == null) {
 			logger.warn("no template found for provider " + providerNo + " and name=" + templateName);
 			return results;

@@ -23,26 +23,9 @@
     Ontario, Canada
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_eform" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_eform");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%@ page import="java.sql.*, oscar.eform.data.*"%>
 <%
 	String id = request.getParameter("fid");
-	String messageOnFailure = "No eform or appointment is available";
   if (id == null) {  // form exists in patient
       id = request.getParameter("fdid");
       String appointmentNo = request.getParameter("appointment");
@@ -56,31 +39,13 @@
 
       String parentAjaxId = request.getParameter("parentAjaxId");
       if( parentAjaxId != null ) eForm.setAction(parentAjaxId);
-      
-      String html = eForm.getFormHtml();     
-      if(oscar.eform.EFormUtil.shouldDisableUpdateForEForm(Integer.parseInt(eForm.getFid() )) ) {
-    	  html = html.replaceAll("type=\"submit\"", "type=\"submit\" disabled=\"disabled\" title=\"Updates to existing eForm are disabled. Please create a new eform (here)\"");
-      }
-      out.print(html);
+      out.print(eForm.getFormHtml());
   } else {  //if form is viewed from admin screen
       EForm eForm = new EForm(id, "-1"); //form cannot be submitted, demographic_no "-1" indicate this specialty
       eForm.setContextPath(request.getContextPath());
       eForm.setupInputFields();
       eForm.setOscarOPEN(request.getRequestURI());
       eForm.setImagePath();
-      
-      String html = eForm.getFormHtml();     
-      if(oscar.eform.EFormUtil.shouldDisableUpdateForEForm(Integer.parseInt(eForm.getFid() )) ) {
-    	  html = html.replaceAll("type=\"submit\"", "type=\"submit\" disabled=\"disabled\" title=\"Updates to existing eForm are disabled. Please create a new eform (here)\"");
-      }
-      out.print(html);
+      out.print(eForm.getFormHtml());
   }
 %>
-<%
-String iframeResize = (String) session.getAttribute("useIframeResizing");
-if(iframeResize !=null && "true".equalsIgnoreCase(iframeResize)){ %>
-<script src="<%=request.getContextPath() %>/library/pym.js"></script>
-<script>
-    var pymChild = new pym.Child({ polling: 500 });
-</script>
-<%}%>

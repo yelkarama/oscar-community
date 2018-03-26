@@ -23,21 +23,7 @@
     Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_admin");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
+
 <%@page import="org.oscarehr.common.model.OcanStaffFormData"%>
 <%@page import="java.util.List"%>
 <%@page import="org.oscarehr.PMmodule.web.OcanForm"%>
@@ -64,17 +50,16 @@ public String getFieldVal(int ocanStaffFormId, String key)
 CBIUtil cbiUtil = new CBIUtil();
 OcanStaffForm ocanStaffForm = null;
 
-LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-Integer currentFacilityId=loggedInInfo.getCurrentFacility().getId();
-
 String submissionId = "";
 int formId = -1;
 if(request.getParameter("submissionId")!=null && request.getParameter("submissionId").trim().length()>0)
 {
 	submissionId = request.getParameter("submissionId");
-	ocanStaffForm = cbiUtil.getCBIFormDataBySubmissionId(currentFacilityId, Integer.parseInt(submissionId));
+	ocanStaffForm = cbiUtil.getCBIFormDataBySubmissionId(Integer.parseInt(submissionId));
 }
+%>
 
+<%
 if(ocanStaffForm!=null)
 {
 	formId = ocanStaffForm.getId();

@@ -1,5 +1,5 @@
 <%@ page import="org.apache.struts.validator.DynaValidatorForm"%>
-<%@ page import="org.oscarehr.common.model.Admission"%>
+<%@ page import="org.oscarehr.PMmodule.model.Admission"%>
 <%@ page import="org.oscarehr.PMmodule.model.DischargeReason"%>
 <%@ page import="java.text.SimpleDateFormat"%>
 <%@ page import="java.util.Date"%>
@@ -88,7 +88,6 @@ function checkDates() {
 				return false;
 		} 
 	}
-	
 	return true;	
 	
 }
@@ -186,7 +185,7 @@ String str_referralDate = referralDate==null?"":formatter.format(referralDate);
 
 <link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
 <body>
-<form id="fcAdmissionForm" name="fcAdmissionForm" action="ClientManager/functionalCentreAdmissionAction.jsp" method="GET" >	
+<form id="fcAdmissionForm" name="fcAdmissionForm" action="ClientManager/functionalCentreAdmissionAction.jsp" method="GET" onSubmit="RefreshParent(); window.close();">	
 
 <table width="100%" border="0" cellspacing="1" cellpadding="1">
 

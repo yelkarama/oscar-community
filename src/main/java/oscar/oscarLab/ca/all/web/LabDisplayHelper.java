@@ -35,7 +35,6 @@ import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 import org.oscarehr.PMmodule.caisi_integrator.CaisiIntegratorManager;
 import org.oscarehr.PMmodule.caisi_integrator.IntegratorFallBackManager;
@@ -44,7 +43,6 @@ import org.oscarehr.caisi_integrator.ws.DemographicWs;
 import org.oscarehr.caisi_integrator.ws.FacilityIdLabResultCompositePk;
 import org.oscarehr.common.dao.Hl7TextMessageDao;
 import org.oscarehr.common.model.Hl7TextMessage;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 import org.oscarehr.util.XmlUtils;
@@ -69,7 +67,7 @@ public class LabDisplayHelper {
 		return ("" + demographicId + ':' + segmentId + ':' + labType + ':' + labDateTime);
 	}
 
-	public static CachedDemographicLabResult getRemoteLab(LoggedInInfo loggedInInfo,Integer remoteFacilityId, String remoteLabKey,Integer demographicId)  {
+	public static CachedDemographicLabResult getRemoteLab(Integer remoteFacilityId, String remoteLabKey,Integer demographicId)  {
 		
 		FacilityIdLabResultCompositePk pk = new FacilityIdLabResultCompositePk();
 		pk.setIntegratorFacilityId(remoteFacilityId);
@@ -77,17 +75,17 @@ public class LabDisplayHelper {
 		CachedDemographicLabResult cachedDemographicLabResult = null;
 		
 		try {
-			if (!CaisiIntegratorManager.isIntegratorOffline(loggedInInfo.getSession())){
-				DemographicWs demographicWs = CaisiIntegratorManager.getDemographicWs(loggedInInfo, loggedInInfo.getCurrentFacility());
+			if (!CaisiIntegratorManager.isIntegratorOffline()){
+				DemographicWs demographicWs = CaisiIntegratorManager.getDemographicWs();
 				cachedDemographicLabResult = demographicWs.getCachedDemographicLabResult(pk);
 			}
 		} catch (Exception e) {
 			MiscUtils.getLogger().error("Unexpected error.", e);
-			CaisiIntegratorManager.checkForConnectionError(loggedInInfo.getSession(),e);
+			CaisiIntegratorManager.checkForConnectionError(e);
 		}
 			
-		if(CaisiIntegratorManager.isIntegratorOffline(loggedInInfo.getSession())){
-			List<CachedDemographicLabResult> labResults = IntegratorFallBackManager.getLabResults(loggedInInfo,demographicId);
+		if(CaisiIntegratorManager.isIntegratorOffline()){
+			List<CachedDemographicLabResult> labResults = IntegratorFallBackManager.getLabResults(demographicId);
 			for(CachedDemographicLabResult labResult:labResults){
 				if(labResult.getFacilityIdLabResultCompositePk().getIntegratorFacilityId() == pk.getIntegratorFacilityId() && 
 						labResult.getFacilityIdLabResultCompositePk().getLabResultId().equals(pk.getLabResultId()) ) {
@@ -95,9 +93,15 @@ public class LabDisplayHelper {
 					break;
 				}
 					
+					
 			}
 			
+			
 		} 
+		 
+		
+		
+		
 
 		return (cachedDemographicLabResult);
 	}
@@ -132,7 +136,7 @@ public class LabDisplayHelper {
 		Hl7TextMessage hl7TextMessage = hl7TextMessageDao.find(Integer.parseInt(lab.getSegmentID()));
 		String type = hl7TextMessage.getType();
 		XmlUtils.appendChildToRoot(doc, "hl7TextMessageType", type);
-		String hl7Body = new String(Base64.decodeBase64(hl7TextMessage.getBase64EncodedeMessage().getBytes(MiscUtils.DEFAULT_UTF8_ENCODING)), MiscUtils.DEFAULT_UTF8_ENCODING);
+		String hl7Body = MiscUtils.decodeBase64StoString(hl7TextMessage.getBase64EncodedeMessage());
 		XmlUtils.appendChildToRoot(doc, "hl7TextMessageBody", hl7Body);
 
 		try {
@@ -146,12 +150,12 @@ public class LabDisplayHelper {
 				for (int k = 0; k < obxCount; k++) {
 					String obxName = handler.getOBXName(j, k);
 					String identifier = handler.getOBXIdentifier(j, k);
-					ArrayList<Map<String, Serializable>> storedValues = CommonLabTestValues.findValuesForTest(lab.labType, demographicId, obxName, identifier);
+					ArrayList<Map<String, Serializable>> storedValues = CommonLabTestValues.findValuesForTest(lab.labType, String.valueOf(demographicId), obxName, identifier);
 					mapOfTestValues.put(identifier, storedValues);
 				}
 			}
-			byte[] serialisedTestValues = MiscUtils.serialize(mapOfTestValues);
-			XmlUtils.appendChildToRoot(doc, "mapOfTestValues", new String(Base64.encodeBase64(serialisedTestValues),MiscUtils.DEFAULT_UTF8_ENCODING));
+			byte[] serialisedTestValues = MiscUtils.serialiseToByteArray(mapOfTestValues);
+			XmlUtils.appendChildToRoot(doc, "mapOfTestValues", MiscUtils.encodeToBase64String(serialisedTestValues));
 		} catch (IOException e) {
 			logger.error("Serious hack code has failed miserably.", e);
 		}
@@ -166,7 +170,7 @@ public class LabDisplayHelper {
 		XmlUtils.appendChild(doc, child, "providerName", reportStatus.getProviderName());
 		XmlUtils.appendChild(doc, child, "providerNo", reportStatus.getProviderNo());
 		XmlUtils.appendChild(doc, child, "status", reportStatus.getStatus());
-		XmlUtils.appendChild(doc, child, "comment", reportStatus.getComment()!=null?reportStatus.getComment():"");
+		XmlUtils.appendChild(doc, child, "comment", reportStatus.getComment());
 		XmlUtils.appendChild(doc, child, "timestamp", reportStatus.getTimestamp());
 		XmlUtils.appendChild(doc, child, "segmentId", reportStatus.getID());
 
@@ -230,10 +234,10 @@ public class LabDisplayHelper {
 		try {
 	        Node rootNode = cachedDemographicLabResultXmlData.getFirstChild();
 	        String serialisedEncodedBytes = XmlUtils.getChildNodeTextContents(rootNode, "mapOfTestValues");
-	        byte[] serialisedDecodedBytes=Base64.decodeBase64(serialisedEncodedBytes);
+	        byte[] serialisedDecodedBytes=MiscUtils.decodeBase64(serialisedEncodedBytes);
 
 	        @SuppressWarnings("unchecked")
-            HashMap<String, ArrayList<Map<String, Serializable>>> result=(HashMap<String, ArrayList<Map<String, Serializable>>>) MiscUtils.deserialize(serialisedDecodedBytes);
+            HashMap<String, ArrayList<Map<String, Serializable>>> result=(HashMap<String, ArrayList<Map<String, Serializable>>>) MiscUtils.deserialiseFromByteArray(serialisedDecodedBytes);
 
 	        return result;
         } catch (Exception e) {

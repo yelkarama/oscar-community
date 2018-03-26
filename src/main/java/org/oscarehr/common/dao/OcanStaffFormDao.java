@@ -25,9 +25,11 @@ package org.oscarehr.common.dao;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
 import javax.persistence.Query;
-import org.springframework.stereotype.Repository;
+
 import org.oscarehr.common.model.OcanStaffForm;
+import org.springframework.stereotype.Repository;
 
 @Repository
 public class OcanStaffFormDao extends AbstractDao<OcanStaffForm> {
@@ -45,7 +47,6 @@ public class OcanStaffFormDao extends AbstractDao<OcanStaffForm> {
 		query.setParameter(2, clientId);
 		query.setParameter(3, "Completed");
 		query.setParameter(4, "IA");
-		query.setMaxResults(1);
 				
 		return getSingleResultOrNull(query);
 	}
@@ -78,7 +79,6 @@ public class OcanStaffFormDao extends AbstractDao<OcanStaffForm> {
 		query.setParameter(2, clientId);
 		query.setParameter(3, "Completed");
 		query.setParameter(4, "RA");
-		query.setMaxResults(1);
 				
 		return getSingleResultOrNull(query);
 	}
@@ -114,7 +114,6 @@ public class OcanStaffFormDao extends AbstractDao<OcanStaffForm> {
 		return null;
 	}
 	
-
 	
 	public OcanStaffForm findLatestCompletedDischargedAssessment(Integer facilityId, Integer clientId) {
 
@@ -125,7 +124,6 @@ public class OcanStaffFormDao extends AbstractDao<OcanStaffForm> {
 		query.setParameter(2, clientId);
 		query.setParameter(3, "Completed");
 		query.setParameter(4, "DIS");
-		query.setMaxResults(1);
 				
 		return getSingleResultOrNull(query);
 	}
@@ -139,7 +137,6 @@ public class OcanStaffFormDao extends AbstractDao<OcanStaffForm> {
 		query.setParameter(2, clientId);
 		//query.setParameter(3, "In Progress");
 		query.setParameter(4, ocanType);
-		query.setMaxResults(1);
 		
 		return getSingleResultOrNull(query);
 	}	
@@ -153,7 +150,7 @@ public class OcanStaffFormDao extends AbstractDao<OcanStaffForm> {
 		query.setParameter(1, submissionId);		
 		query.setParameter(2, providerNo);
 		query.setParameter(3, type);
-		query.setMaxResults(1);
+		
 		return getSingleResultOrNull(query);
 	}
 	
@@ -165,7 +162,7 @@ public class OcanStaffFormDao extends AbstractDao<OcanStaffForm> {
 		query.setParameter(1, facilityId);
 		query.setParameter(2, admissionId);		
 		if (signed!=null) query.setParameter(3, signed);
-		query.setMaxResults(1);
+		
 		return getSingleResultOrNull(query);
 	}
 	
@@ -189,14 +186,14 @@ public class OcanStaffFormDao extends AbstractDao<OcanStaffForm> {
 		String sqlCommand = "select distinct o.clientId from OcanStaffForm o where o.ocanType!='CBI' and o.facilityId=?1";
 
 		Query query = entityManager.createQuery(sqlCommand);
-		query.setParameter(1, facilityId);
+		query.setParameter(1, facilityId);		
 		
 		@SuppressWarnings("unchecked")
 		List<Integer> results = query.getResultList();
 		
 		return results;
 	}
-
+	
 	public OcanStaffForm getLastCompletedOcanForm(Integer facilityId, Integer clientId) {
 
 		String sqlCommand = "select * from OcanStaffForm where facilityId=?1 and clientId=?2 and assessmentStatus=?3 order by created desc , id desc";
@@ -205,7 +202,6 @@ public class OcanStaffFormDao extends AbstractDao<OcanStaffForm> {
 		query.setParameter(1, facilityId);
 		query.setParameter(2, clientId);
 		query.setParameter(3, "Completed");
-		query.setMaxResults(1);
 		//query.setParameter(4, ocanType);
 		
 		return getSingleResultOrNull(query);
@@ -220,7 +216,6 @@ public class OcanStaffFormDao extends AbstractDao<OcanStaffForm> {
           query.setParameter(2, clientId);
           query.setParameter(3, "Completed");
           query.setParameter(4, ocanType);
-          query.setMaxResults(1);
 
           return getSingleResultOrNull(query);
   }
@@ -317,11 +312,9 @@ public List<OcanStaffForm> findUnsubmittedOcanFormsByOcanType(Integer facilityId
 		
 		@SuppressWarnings("unchecked")
 		List<OcanStaffForm> results=query.getResultList();
-		
 		//Because staff could modify completed assessment. So it one assessment ID could have multiple assessment records.
 		//Only export the one with latest update.
 		List<OcanStaffForm> list = new ArrayList<OcanStaffForm>();
-		
 		int assessmentId_0=0;
 		for(OcanStaffForm res:results) {
 			int assessmentId_1 = res.getAssessmentId().intValue();
@@ -425,7 +418,6 @@ public List<OcanStaffForm> findUnsubmittedOcanFormsByOcanType(Integer facilityId
 
 		query.setParameter(1, facilityId);
 		query.setParameter(2, assessmentId);
-		query.setMaxResults(1);
 
 		return getSingleResultOrNull(query);
 

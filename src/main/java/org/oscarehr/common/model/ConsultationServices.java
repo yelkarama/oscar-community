@@ -28,6 +28,7 @@ package org.oscarehr.common.model;
 import java.io.Serializable;
 
 import javax.persistence.Basic;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -48,27 +49,29 @@ import java.util.List;
 @Table(name = "consultationServices")
 public class ConsultationServices extends AbstractModel<Integer> implements Serializable {
     private static final long serialVersionUID = 1L;
-    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
+    @Column(name = "serviceId")
     private Integer serviceId;
+    @Column(name = "serviceDesc")
     private String serviceDesc;
+    @Column(name = "active")
     private String active;
 
     @ManyToMany(fetch=FetchType.EAGER)
     @JoinTable( name="serviceSpecialists", joinColumns=@JoinColumn(name="serviceId"), inverseJoinColumns = @JoinColumn(name="specId") )
     private List<ProfessionalSpecialist> specialists;
 
-    public ConsultationServices() {}
-    
-    public ConsultationServices(String serviceDesc) {
-    	setServiceDesc(serviceDesc);
+    public ConsultationServices() {
     }
 
     @Override
     public Integer getId() {
 	    return(serviceId);
+    }
+    public ConsultationServices(Integer serviceId) {
+        this.serviceId = serviceId;
     }
 
     public Integer getServiceId() {

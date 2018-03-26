@@ -46,7 +46,6 @@ public class DbConnectionFilter implements javax.servlet.Filter {
 	/**
 	 * deprecated we should stop using raw jdbc connections. Don't write new code using raw jdbc, use JPA and native queries instead.
 	 */
-	@Deprecated
 	public static Connection getThreadLocalDbConnection() throws SQLException {
 		Connection c = dbConnection.get();
 		if (c == null || c.isClosed()) {

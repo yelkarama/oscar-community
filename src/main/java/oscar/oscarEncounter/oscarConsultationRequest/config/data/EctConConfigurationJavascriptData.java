@@ -25,26 +25,39 @@
 
 package oscar.oscarEncounter.oscarConsultationRequest.config.data;
 
-import org.oscarehr.common.dao.SpecialistsJavascriptDao;
-import org.oscarehr.common.model.SpecialistsJavascript;
-import org.oscarehr.util.SpringUtils;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import org.oscarehr.util.MiscUtils;
+
+import oscar.oscarDB.DBHandler;
 
 public class EctConConfigurationJavascriptData {
 
-	private SpecialistsJavascriptDao dao = SpringUtils.getBean(SpecialistsJavascriptDao.class);
-
     public void setJavascript(String jscript) {
-        for(SpecialistsJavascript s:dao.findBySetId("1")) {
-        	s.setJavascript(jscript);
-        	dao.merge(s);
+        //StringQuote str = new StringQuote();
+        oscar.oscarMessenger.util.MsgStringQuote str = new oscar.oscarMessenger.util.MsgStringQuote();
+	try {
+            
+            //String quotedString = UtilMisc.charEscape(jscript,'\\');
+            String quotedString = org.apache.commons.lang.StringEscapeUtils.escapeSql(jscript);
+	    String sql = "update specialistsJavascript set javascriptString = '" +quotedString+ "' where setId = '1'";
+            DBHandler.RunSQL(sql);
+        } catch(SQLException e) {
+            MiscUtils.getLogger().error("Error", e);
         }
-	
     }
 
     public String getJavascript() {
         String retval = null;
-        for(SpecialistsJavascript s:dao.findBySetId("1")) {
-        	retval = s.getJavascript();
+        try {
+            
+            String sql = "select javascriptString from specialistsJavascript where setId = '1'";
+            ResultSet rs = DBHandler.GetSQL(sql);
+            if(rs.next())
+                retval = oscar.Misc.getString(rs, "javascriptString");
+        } catch(SQLException e) {
+            MiscUtils.getLogger().error("Error", e);
         }
         return retval;
     }

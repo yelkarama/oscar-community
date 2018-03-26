@@ -32,7 +32,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -56,7 +55,7 @@ public class WaitingListName extends AbstractModel<Integer> {
 
 	@Column(name="create_date")
 	@Temporal(TemporalType.TIMESTAMP)
-	private Date createDate = new Date();
+	private Date createDate;
 
 	@Column(name="is_history")
 	private String isHistory;
@@ -110,9 +109,4 @@ public class WaitingListName extends AbstractModel<Integer> {
     }
 
 
-	@PrePersist
-	protected void jpa_setDateTime() {
-		this.createDate = new Date();
-	}
-	
 }

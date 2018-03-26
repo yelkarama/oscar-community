@@ -32,8 +32,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 
 @Table(name = "functionalCentreAdmission")
 @Entity
@@ -45,25 +43,13 @@ public class FunctionalCentreAdmission extends AbstractModel<Integer> implements
  
 	private Integer demographicNo;
 	private String functionalCentreId;
-	
-	@Temporal(TemporalType.DATE)
 	private Date referralDate;
-	
-	@Temporal(TemporalType.DATE)
 	private Date admissionDate;
-	
-	@Temporal(TemporalType.DATE)
 	private Date serviceInitiationDate;
-	
-	@Temporal(TemporalType.DATE)
 	private Date dischargeDate = null;
-	
 	private boolean discharged = false;
 	private String providerNo;
-	
-	@Temporal(TemporalType.DATE)
 	private Date updateDate;
-	
 	private String dischargeReason;
 	
 	public FunctionalCentreAdmission() {

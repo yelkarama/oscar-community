@@ -24,76 +24,85 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
+  if(session.getValue("user") == null)
+     response.sendRedirect("../logout.jsp");
+  String user_no;
+  user_no = (String) session.getAttribute("user");
+  int  nItems=0;
+  String strLimit1="0";
+  String strLimit2="5";
+  if(request.getParameter("limit1")!=null) strLimit1 = request.getParameter("limit1");
+  if(request.getParameter("limit2")!=null) strLimit2 = request.getParameter("limit2");
+  String providerview = request.getParameter("providerview")==null?"all":request.getParameter("providerview") ;
 %>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_report,_admin.reporting" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_report&type=_admin.reporting");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
+<%@ page
+	import="java.math.*, java.util.*, java.sql.*, oscar.*, java.net.*"
+	errorPage="errorpage.jsp"%>
 <%@ include file="../admin/dbconnection.jsp"%>
-<%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
-<%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
-<%@page import="java.math.*, java.util.*, java.sql.*, oscar.*, java.net.*" errorPage="errorpage.jsp"%>
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean"
+	scope="session" />
+<jsp:useBean id="SxmlMisc" class="oscar.SxmlMisc" scope="session" />
+<%@ include file="dbReport.jspf"%>
 <%@page import="org.oscarehr.util.SpringUtils" %>
 <%@page import="org.oscarehr.common.dao.ClinicLocationDao" %>
 <%@page import="org.oscarehr.common.model.ClinicLocation" %>
-<%@page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
-<%@page import="org.oscarehr.common.model.Provider" %>
-<%@page import="org.oscarehr.common.dao.ReportAgeSexDao" %>
-<%@page import="org.oscarehr.common.model.ReportAgeSex" %>
-<%@page import="oscar.util.ConversionUtils" %>
-<%@page import="org.oscarehr.util.MiscUtils"%>
 <%
-	String user_no = (String) session.getAttribute("user");
-	int  nItems=0;
-	String strLimit1="0";
-	String strLimit2="5";
-	
-	if(request.getParameter("limit1")!=null) {
-		  strLimit1 = request.getParameter("limit1");
-	}
-	
-	if(request.getParameter("limit2")!=null) {
-		  strLimit2 = request.getParameter("limit2");
-	}
-	String providerview = request.getParameter("providerview") == null ? "all" : request.getParameter("providerview");
+	ClinicLocationDao clinicLocationDao = (ClinicLocationDao)SpringUtils.getBean("clinicLocationDao");
+%>
+<%
+GregorianCalendar now=new GregorianCalendar();
+   int curYear = now.get(Calendar.YEAR);
+   int curMonth = (now.get(Calendar.MONTH)+1);
+   int curDay = now.get(Calendar.DAY_OF_MONTH);
+   String clinic="";
+   String clinicview = oscarVariables.getProperty("clinic_view");
 
-	ClinicLocationDao clinicLocationDao = (ClinicLocationDao) SpringUtils.getBean("clinicLocationDao");
-	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
-	ReportAgeSexDao reportAgeSexDao = SpringUtils.getBean(ReportAgeSexDao.class);
+   String visitLocation = clinicLocationDao.searchVisitLocation(clinicview);
+   if(visitLocation!=null) {
+  	 clinic = visitLocation;
+   }
 
-	GregorianCalendar now=new GregorianCalendar();
-	int curYear = now.get(Calendar.YEAR);
-	int curMonth = (now.get(Calendar.MONTH)+1);
-	int curDay = now.get(Calendar.DAY_OF_MONTH);
-	String clinic = "";
-	String clinicview = oscarVariables.getProperty("clinic_view");
-	
-	String visitLocation = clinicLocationDao.searchVisitLocation(clinicview);
-	if(visitLocation!=null) {
-		clinic = visitLocation;
-	}
-	
-	String reportAction = request.getParameter("reportAction") == null ? "" : request.getParameter("reportAction");
-	String xml_vdate = request.getParameter("xml_vdate") == null ? "" : request.getParameter("xml_vdate");
-	String xml_appointment_date = request.getParameter("xml_appointment_date") == null ? "" : request.getParameter("xml_appointment_date");
+   //String providerview=request.getParameter("provider")==null?"":request.getParameter("provider");
+   String reportAction=request.getParameter("reportAction")==null?"":request.getParameter("reportAction");
+   String xml_vdate=request.getParameter("xml_vdate") == null?"":request.getParameter("xml_vdate");
+   String xml_appointment_date = request.getParameter("xml_appointment_date")==null?"":request.getParameter("xml_appointment_date");
 
 %>
-<html:html locale="true">
+<%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
+<%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
+
+<%@page import="org.oscarehr.util.MiscUtils"%><html:html locale="true">
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="oscarReport.oscarReportAgeSex.title" /></title>
 <link rel="stylesheet" href="oscarReport.css">
 <link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
+<script language="JavaScript">
+<!--
+
+
+function selectprovider(s) {
+  if(self.location.href.lastIndexOf("&providerview=") > 0 ) a = self.location.href.substring(0,self.location.href.lastIndexOf("&providerview="));
+  else a = self.location.href;
+	self.location.href = a + "&providerview=" +s.options[s.selectedIndex].value ;
+}
+
+
+function openBrWindow(theURL,winName,features) {
+  window.open(theURL,winName,features);
+}
+function refresh() {
+  var u = self.location.href;
+  if(u.lastIndexOf("view=1") > 0) {
+    self.location.href = u.substring(0,u.lastIndexOf("view=1")) + "view=0" + u.substring(eval(u.lastIndexOf("view=1")+6));
+  } else {
+    history.go(0);
+  }
+}
+//-->
+</script>
+
 
 </head>
 
@@ -146,24 +155,24 @@ if(!authed) {
 			name="providerview">
 			<option value="" <%=providerview.equals("all")?"selected":""%>>-------<bean:message
 				key="oscarReport.oscarReportAgeSex.formSelectProvider" /> ----------</option>
-			<% 
-				// builds provider dropdown
-				String proFirst="";
-               	String proLast="";
-               	String proOHIP="";
-               	String specialty_code;
-               	String billinggroup_no;
-               	int Count = 0;
-               	for(Provider p: providerDao.getActiveProviders()) {
-               		proFirst =p.getFirstName();
-                  	proLast = p.getLastName();
-                  	proOHIP = p.getProviderNo();
-                  	billinggroup_no= SxmlMisc.getXmlContent(p.getComments(),"<xml_p_billinggroup_no>","</xml_p_billinggroup_no>");
-                  	specialty_code = SxmlMisc.getXmlContent(p.getComments(),"<xml_p_specialty_code>","</xml_p_specialty_code>");
-          	%>
+			<%   String proFirst="";
+               String proLast="";
+               String proOHIP="";
+               String specialty_code;
+               String billinggroup_no;
+               int Count = 0;
+               ResultSet rslocal = null;
+               rslocal = apptMainBean.queryResults("%", "search_provider_all_dt");
+               while(rslocal.next()){
+                  proFirst = rslocal.getString("first_name");
+                  proLast = rslocal.getString("last_name");
+                  proOHIP = rslocal.getString("provider_no");
+                  billinggroup_no= SxmlMisc.getXmlContent(rslocal.getString("comments"),"<xml_p_billinggroup_no>","</xml_p_billinggroup_no>");
+                  specialty_code = SxmlMisc.getXmlContent(rslocal.getString("comments"),"<xml_p_specialty_code>","</xml_p_specialty_code>");
+          %>
 			<option value="<%=proOHIP%>"
 				<%=providerview.equals(proOHIP)?"selected":""%>><%=proLast%>,<%=proFirst%></option>
-			<% } // -- end of provider dropdown %>
+			<%   }   %>
 		</select></div>
 		</td>
 		<td width="20%"><font color="#333333" size="2"
@@ -190,30 +199,50 @@ if(!authed) {
 			onClick="openBrWindow('../billing/billingCalendarPopup.jsp?type=end&amp;year=<%=curYear%>&amp;month=<%=curMonth%>','','width=300,height=300')"><bean:message
 			key="oscarReport.oscarReportAgeSex.btnEnd" />:</a></font> <input type="text"
 			name="xml_appointment_date" value="<%=xml_appointment_date%>">
+
+
 		</div>
 		</td>
 	</tr>
 	</form>
 </table>
 
+
+
 <% if (reportAction.compareTo("") == 0 || reportAction == null){%>
+
 <p>&nbsp;</p>
 <% } else {
+
       String Total="0", mNum="", fNum="";
       String dateBegin = request.getParameter("xml_vdate");
       String dateEnd = request.getParameter("xml_appointment_date");
-      if (dateEnd.compareTo("") == 0) {
-    	  dateEnd = MyDateFormat.getMysqlStandardDate(curYear, curMonth, curDay);
-      }
-      if (dateBegin.compareTo("") == 0) {
-    	  dateBegin="1950-01-01"; // set to any early date to start search from beginning
-      }
+      if (dateEnd.compareTo("") == 0) dateEnd = MyDateFormat.getMysqlStandardDate(curYear, curMonth, curDay);
+      if (dateBegin.compareTo("") == 0) dateBegin="1950-01-01"; // set to any early date to start search from beginning
+
+      ResultSet rs;
+      ResultSet rs2;
+      String[] param = new String[7];
+      String queryName = "count_reportagesex";
       if (reportAction.compareTo("NR") == 0) {
-    	  Total = String.valueOf(reportAgeSexDao.count_reportagesex_noroster("RO", "%", providerview, 0, 200, ConversionUtils.fromDateString(dateBegin),ConversionUtils.fromDateString( dateEnd)));
-      } else if (reportAction.compareTo("RO") == 0) {
-    	  Total = String.valueOf(reportAgeSexDao.count_reportagesex("RO", "%", providerview, 0, 200, ConversionUtils.fromDateString(dateBegin), ConversionUtils.fromDateString(dateEnd)));
+         queryName = "count_reportagesex_noroster";
+      }
+      if (reportAction.compareTo("RO") == 0 || reportAction.compareTo("NR") == 0) {
+         param[0] = "RO";
       } else {
-    	  Total =  String.valueOf(reportAgeSexDao.count_reportagesex("%", "%", providerview, 0, 200, ConversionUtils.fromDateString(dateBegin), ConversionUtils.fromDateString(dateEnd))) ;
+         param[0] = "%";
+      }
+
+      param[1] = "%";
+      param[2] = providerview;
+      param[3] = "0";
+      param[4] = "200";
+      param[5] = dateBegin;
+      param[6] = dateEnd ;
+      rs = null;
+      rs = apptMainBean.queryResults(param, queryName);
+      while(rs.next()){
+         Total = apptMainBean.getString(rs,"n");
       }
 
       BigDecimal percent = new BigDecimal(100).setScale(2, BigDecimal.ROUND_HALF_UP);
@@ -234,8 +263,8 @@ if(!authed) {
       BigDecimal LinePerc= new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);
    %>
 <pre><font face="Arial, Helvetica, sans-serif" size="2"> <bean:message
-	key="oscarReport.oscarReportAgeSex.msgDate" />: <%=curYear%>-<%=curMonth%>-<%=curDay%> <bean:message
-	key="oscarReport.oscarReportAgeSex.msgUnit" />: <%=clinic%> <bean:message
+	key="oscarReport.oscarReportAgeSex.msgDate" />: <%=curYear%>-<%=curMonth%>-<%=curDay%>                          <bean:message
+	key="oscarReport.oscarReportAgeSex.msgUnit" />: <%=clinic%>                                              <bean:message
 	key="oscarReport.oscarReportAgeSex.msgPhysician" />: <%=providerview%></font></pre>
 <table width="100%" border="0" cellspacing="0" cellpadding="0">
 	<tr bgcolor="#CCCCFF">
@@ -391,33 +420,32 @@ if(!authed) {
      AgeMatrix[19][0] = "95";
      AgeMatrix[19][1] = "200";
 
-     for (int i=0;i<20; i++){    	 
-         if (reportAction.compareTo("NR") == 0) {
-        	 mNum = String.valueOf(reportAgeSexDao.count_reportagesex_noroster("RO", "M%", providerview, Integer.parseInt(AgeMatrix[i][0]),  Integer.parseInt(AgeMatrix[i][1]), ConversionUtils.fromDateString(dateBegin),ConversionUtils.fromDateString( dateEnd)));
-         }
-         
-         else if (reportAction.compareTo("RO") == 0) {
-        	 mNum = String.valueOf(reportAgeSexDao.count_reportagesex("RO", "M%", providerview,  Integer.parseInt(AgeMatrix[i][0]),  Integer.parseInt(AgeMatrix[i][1]), ConversionUtils.fromDateString(dateBegin), ConversionUtils.fromDateString(dateEnd)));
-         }
-         
-         else {
-        	 mNum =  String.valueOf(reportAgeSexDao.count_reportagesex("%", "M%", providerview,  Integer.parseInt(AgeMatrix[i][0]),  Integer.parseInt(AgeMatrix[i][1]), ConversionUtils.fromDateString(dateBegin), ConversionUtils.fromDateString(dateEnd))) ;
-         }
-         
-         
-         if (reportAction.compareTo("NR") == 0) {
-        	 fNum = String.valueOf(reportAgeSexDao.count_reportagesex_noroster("RO", "F%", providerview, Integer.parseInt(AgeMatrix[i][0]),  Integer.parseInt(AgeMatrix[i][1]), ConversionUtils.fromDateString(dateBegin),ConversionUtils.fromDateString( dateEnd)));
-         }
-         
-         else if (reportAction.compareTo("RO") == 0) {
-        	 fNum = String.valueOf(reportAgeSexDao.count_reportagesex("RO", "F%", providerview,  Integer.parseInt(AgeMatrix[i][0]),  Integer.parseInt(AgeMatrix[i][1]), ConversionUtils.fromDateString(dateBegin), ConversionUtils.fromDateString(dateEnd)));
-         }
-         
-         else {
-        	 fNum =  String.valueOf(reportAgeSexDao.count_reportagesex("%", "F%", providerview,  Integer.parseInt(AgeMatrix[i][0]),  Integer.parseInt(AgeMatrix[i][1]), ConversionUtils.fromDateString(dateBegin), ConversionUtils.fromDateString(dateEnd))) ;
-         }
-         
 
+
+     for (int i=0;i<20; i++){
+        param[1] = "M%";
+        param[2] = providerview;
+        param[3] = AgeMatrix[i][0];
+        param[4] = AgeMatrix[i][1];
+        //param[5] = dateBegin;
+        //param[6] = dateEnd ;
+        rs = null;
+        rs = apptMainBean.queryResults(param, queryName);
+        while(rs.next()){
+           mNum = apptMainBean.getString(rs,"n");
+        }
+
+        param[1] = "F%";
+        //param[2] = providerview;
+        //param[3] = AgeMatrix[i][0];
+        //param[4] = AgeMatrix[i][1];
+        //param[5] = dateBegin;
+        //param[6] = dateEnd ;
+        rs2 = null;
+        rs2 = apptMainBean.queryResults(param, queryName);
+        while(rs2.next()){
+           fNum = rs2.getString("n");
+        }
         if (Total ==null || Total.compareTo("") == 0 || Total.compareTo("0") ==0){Total = "9999";}
         if (mNum ==null || mNum.compareTo("") == 0 || mNum.compareTo("0") ==0){mNum="0";}
         mdNum = new BigDecimal(Double.parseDouble(mNum)).setScale(2, BigDecimal.ROUND_HALF_UP);
@@ -562,7 +590,7 @@ if(!authed) {
 
 <% } // reportAction != null %>
 
-
+<%@ include file="../demographic/zfooterbackclose.jsp"%>
 </body>
 </html:html>
 

@@ -22,22 +22,7 @@
     Toronto, Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_report" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_report");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-<%@page import="oscar.util.DateUtils"%>
+<%@page import="org.apache.commons.lang.time.DateUtils"%>
 <%@page import="oscar.util.SqlUtils"%>
 <%@page import="java.util.*"%>
 <%@page import="org.caisi.model.*"%>
@@ -50,8 +35,7 @@
 
 <%@page contentType="text/csv"%>
 <%
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-	String agencyName = oscar.OscarProperties.getInstance().getProperty("db_name","");
+	String agencyName = SqlUtils.getCurrentDatabaseName();
 	String startDateString = request.getParameter("startDate");
 	String endDateString = request.getParameter("endDate");
 	SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM");
@@ -70,7 +54,7 @@
 	{
 		// do nothing, bad input
 	}
-	DateUtils.setToBeginningOfMonth(startCalendar);
+	MiscUtils.setToBeginningOfMonth(startCalendar);
 
 	Calendar endCalendar = Calendar.getInstance();
 	try
@@ -84,7 +68,7 @@
 	{
 		// do nothing, bad input
 	}
-	DateUtils.setToBeginningOfMonth(endCalendar);
+	MiscUtils.setToBeginningOfMonth(endCalendar);
 
 	// for each program...
 	//    for each month...
@@ -94,7 +78,7 @@
 	ProgressStatus progressStatus=new ProgressStatus();
 	session.setAttribute("progressStatus", progressStatus);
 	
-	PopulationReportUIBean populationReportUIBean = new PopulationReportUIBean(loggedInInfo);
+	PopulationReportUIBean populationReportUIBean = new PopulationReportUIBean();
 	populationReportUIBean.skipTotalRow=true;
 	
 	// print header
@@ -129,7 +113,7 @@
 		out.write('\n');
 	}
 
-	long months=(endCalendar.getTimeInMillis()-startCalendar.getTimeInMillis())/(org.apache.commons.lang.time.DateUtils.MILLIS_PER_DAY*30);
+	long months=(endCalendar.getTimeInMillis()-startCalendar.getTimeInMillis())/(DateUtils.MILLIS_PER_DAY*30);
 	long total=populationReportUIBean.getAllPrograms().size()*populationReportUIBean.getSecRoles().size()*3*months;
 	progressStatus.total="Estimated total "+total+" rows ("+populationReportUIBean.getAllPrograms().size()+" programs * "+populationReportUIBean.getSecRoles().size()+" roles * 3 encounter Types * "+months+" months)";
 	int rowsProcessed=0;
@@ -149,7 +133,7 @@
 		{
 			Calendar tempEndCalendar = (Calendar)tempStartCalendar.clone();
 			tempEndCalendar.add(Calendar.MONTH, 1);
-			DateUtils.setToBeginningOfMonth(tempEndCalendar);
+			MiscUtils.setToBeginningOfMonth(tempEndCalendar);
 			
 			populationReportUIBean.setStartDate(tempStartCalendar.getTime());
 			populationReportUIBean.setEndDate(tempEndCalendar.getTime());

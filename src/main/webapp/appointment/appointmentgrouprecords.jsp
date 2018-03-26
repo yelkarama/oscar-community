@@ -23,40 +23,19 @@
     Ontario, Canada
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_appointment" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_appointment");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%@page import="org.oscarehr.util.SessionConstants"%>
 <%@page import="org.oscarehr.common.model.ProviderPreference"%>
 <%@page import="org.oscarehr.common.dao.AppointmentArchiveDao" %>
 <%@page import="org.oscarehr.common.dao.OscarAppointmentDao" %>
 <%@page import="org.oscarehr.common.model.Appointment" %>
-<%@page import="org.oscarehr.common.dao.MyGroupDao" %>
-<%@page import="org.oscarehr.common.model.MyGroup" %>
-<%@page import="org.oscarehr.common.model.Provider" %>
-<%@page import="org.oscarehr.common.dao.ScheduleDateDao" %>
-<%@page import="org.oscarehr.common.model.ScheduleDate" %>
 <%@page import="org.oscarehr.util.SpringUtils" %>
 <%
 	AppointmentArchiveDao appointmentArchiveDao = (AppointmentArchiveDao)SpringUtils.getBean("appointmentArchiveDao");
 	OscarAppointmentDao appointmentDao = (OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
-	MyGroupDao myGroupDao = SpringUtils.getBean(MyGroupDao.class);
-	ScheduleDateDao scheduleDateDao = SpringUtils.getBean(ScheduleDateDao.class);
 %>
 <%
+	if (session.getAttribute("user") == null)    response.sendRedirect("../logout.jsp");
+
 	String curProvider_no = request.getParameter("provider_no");
 	ProviderPreference providerPreference=(ProviderPreference)session.getAttribute(SessionConstants.LOGGED_IN_PROVIDER_PREFERENCE);
 	String mygroupno = providerPreference.getMyGroupNo();
@@ -68,15 +47,16 @@
 	errorPage="errorpage.jsp"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
+<%@ include file="/common/webAppContextAndSuperMgr.jsp"%>
 
 <%
   if (request.getParameter("groupappt") != null) {
     boolean bSucc = false;
     if (request.getParameter("groupappt").equals("Add Group Appointment")) {
-        String[] param = new String[20];
+        String[] param = new String[19];
         int rowsAffected = 0, datano = 0;
         StringBuffer strbuf = null;
-		String createdDateTime = UtilDateUtilities.DateToString(new java.util.Date(),"yyyy-MM-dd HH:mm:ss");
+		String createdDateTime = UtilDateUtilities.DateToString(UtilDateUtilities.now(),"yyyy-MM-dd HH:mm:ss");
 		String userName = (String) session.getAttribute("userlastname") + ", " + (String) session.getAttribute("userfirstname");
 
         param[1]=request.getParameter("appointment_date");
@@ -96,47 +76,21 @@
         param[15]=request.getParameter("remarks");
         param[17]=(String)request.getSession().getAttribute("programId_oscarView");
         param[18]=request.getParameter("urgency");
-        param[19]=request.getParameter("reasonCode");
 
 		String[] param2 = new String[7];
         for (Enumeration e = request.getParameterNames() ; e.hasMoreElements() ;) {
 	        strbuf = new StringBuffer(e.nextElement().toString());
-            if (strbuf.toString().indexOf("one")==-1 && strbuf.toString().indexOf("two")==-1) 
-            	continue;
+            if (strbuf.toString().indexOf("one")==-1 && strbuf.toString().indexOf("two")==-1) continue;
+
 		    datano=Integer.parseInt(request.getParameter(strbuf.toString()) );
-		    
-		    
-		    Appointment a = new Appointment();
-			a.setProviderNo(request.getParameter("provider_no"+datano));
-			a.setAppointmentDate(ConversionUtils.fromDateString(request.getParameter("appointment_date")));
-			a.setStartTime(ConversionUtils.fromTimeStringNoSeconds(request.getParameter("start_time")));
-			a.setEndTime(ConversionUtils.fromTimeStringNoSeconds(request.getParameter("end_time")));
-			a.setName(request.getParameter("keyword"));
-			a.setNotes(request.getParameter("notes"));
-			a.setReason(request.getParameter("reason"));
-			a.setLocation(request.getParameter("location"));
-			a.setResources(request.getParameter("resources"));
-			a.setType(request.getParameter("type"));
-			a.setStyle(request.getParameter("style"));
-			a.setBilling(request.getParameter("billing"));
-			a.setStatus(request.getParameter("status"));
-			a.setCreateDateTime(new java.util.Date());
-			a.setCreator(userName);
-			a.setRemarks(request.getParameter("remarks"));
-			
-			if (!(request.getParameter("demographic_no").equals("")) && strbuf.toString().indexOf("one") != -1) {
-				a.setDemographicNo(Integer.parseInt(request.getParameter("demographic_no")));
+     	    param[0]=request.getParameter("provider_no"+datano);
+	        if (!(request.getParameter("demographic_no").equals("")) && strbuf.toString().indexOf("one") != -1) {
+				param[16]=request.getParameter("demographic_no");
      	    } else {
-     	    	a.setDemographicNo(0);
+     	    	param[16]="0";
      	    }
-			
-			a.setProgramId(Integer.parseInt((String)request.getSession().getAttribute("programId_oscarView")));
-			a.setUrgency(request.getParameter("urgency"));
-			a.setReasonCode(Integer.parseInt(request.getParameter("reasonCode")));
-			
-			appointmentDao.persist(a);
-			rowsAffected=1;
-		    
+	    	rowsAffected = oscarSuperManager.update("appointmentDao", "add_apptrecord", param);
+            if (rowsAffected != 1) break;
 
 			param2[0]=param[0]; //provider_no
 			param2[1]=param[1]; //appointment_date
@@ -146,17 +100,9 @@
 			param2[5]=param[14]; //creator
 			param2[6]=param[16]; //demographic_no
 
-			int demographicNo = 0;
-			if (!(request.getParameter("demographic_no").equals("")) && strbuf.toString().indexOf("one") != -1) {
-				demographicNo = Integer.parseInt(request.getParameter("demographic_no"));
-     	    } 
-			
-			Appointment appt = appointmentDao.search_appt_no(request.getParameter("provider_no"+datano), ConversionUtils.fromDateString(request.getParameter("appointment_date")), 
-					ConversionUtils.fromTimeStringNoSeconds(request.getParameter("start_time")), ConversionUtils.fromTimeStringNoSeconds(request.getParameter("end_time")), 
-					ConversionUtils.fromTimestampString(createdDateTime), userName, demographicNo);
-			
-			if (appt != null) {
-				Integer apptNo = appt.getId();
+			List<Map<String,Object>> apptList = oscarSuperManager.find("appointmentDao", "search_appt_no", param2);
+			if (apptList.size()>0) {
+				Integer apptNo = (Integer)apptList.get(0).get("appointment_no");
 				String mcNumber = request.getParameter("appt_mc_number");
 				OtherIdManager.saveIdAppointment(apptNo, "appt_mc_number", mcNumber);
 			}
@@ -168,7 +114,7 @@
     		request.getParameter("groupappt").equals("Group Delete")) {
         int rowsAffected = 0, datano = 0;
         StringBuffer strbuf = null;
-		String createdDateTime = UtilDateUtilities.DateToString(new java.util.Date(),"yyyy-MM-dd HH:mm:ss");
+		String createdDateTime = UtilDateUtilities.DateToString(UtilDateUtilities.now(),"yyyy-MM-dd HH:mm:ss");
 		String userName = (String) session.getAttribute("userlastname") + ", " + (String) session.getAttribute("userfirstname");
 
 		for (Enumeration e = request.getParameterNames() ; e.hasMoreElements() ;) {
@@ -177,14 +123,13 @@
  		    datano=Integer.parseInt(request.getParameter(strbuf.toString()) );
 
             if (request.getParameter("groupappt").equals("Group Cancel")) {
+                String[] param = new String[3];
+	            param[0]="C";
+                    param[1]=userName;   //request.getParameter("createdatetime");
+	            param[2]=request.getParameter("appointment_no" + datano);  //request.getParameter("creator");
 	            Appointment appt = appointmentDao.find(Integer.parseInt(request.getParameter("appointment_no"+datano)));
 	            appointmentArchiveDao.archiveAppointment(appt);
-	            if(appt != null) {
-	              	appt.setStatus("C");
-	              	appt.setLastUpdateUser(userName);
-	              	appointmentDao.merge(appt);
-	              	rowsAffected=1;
-	              }
+	            rowsAffected = oscarSuperManager.update("appointmentDao", "updatestatusc", param);
 			}
 
 		    //delete the selected appts
@@ -193,9 +138,8 @@
             		Appointment appt = appointmentDao.find(Integer.parseInt(request.getParameter("appointment_no"+datano)));
             		if( appt != null ) {
 	            		appointmentArchiveDao.archiveAppointment(appt);
-	            		appointmentDao.remove(appt.getId());
-	            		rowsAffected=1;
-	            	
+            			rowsAffected = oscarSuperManager.update("appointmentDao", "delete",
+            				new Object [] {request.getParameter("appointment_no" + datano)});
             		}
             	}
             }
@@ -205,79 +149,52 @@
             		Appointment appt = appointmentDao.find(Integer.parseInt(request.getParameter("appointment_no"+datano)));
             		if( appt != null ) {
 	            		appointmentArchiveDao.archiveAppointment(appt);
-	            		appointmentDao.remove(appt.getId());
-	            		rowsAffected=1;
-	            	
+            			rowsAffected = oscarSuperManager.update("appointmentDao", "delete",
+            				new Object [] {request.getParameter("appointment_no" + datano)});
             		}
             	}
 
-            	String[] paramu = new String[20];
-            	paramu[0]=request.getParameter("provider_no"+datano);
-            	 paramu[1]=request.getParameter("appointment_date");
-            	 paramu[2]=MyDateFormat.getTimeXX_XX_XX(request.getParameter("start_time"));
-            	 paramu[3]=MyDateFormat.getTimeXX_XX_XX(request.getParameter("end_time"));
-            	 paramu[4]=request.getParameter("keyword");
-            	 paramu[5]=request.getParameter("notes");
-            	 paramu[6]=request.getParameter("reason");
-            	 paramu[7]=request.getParameter("location");
-            	 paramu[8]=request.getParameter("resources");
-            	 paramu[9]=request.getParameter("type");
-            	 paramu[10]=request.getParameter("style");
-            	 paramu[11]=request.getParameter("billing");
-            	 paramu[12]=request.getParameter("status");
-            	 paramu[13]=createdDateTime;   //request.getParameter("createdatetime");
-            	 paramu[14]=userName;  //request.getParameter("creator");
-            	 paramu[15]=request.getParameter("remarks");
-            	 paramu[17]=(String)request.getSession().getAttribute("programId_oscarView");
-            	 paramu[18]=request.getParameter("urgency");
-            	 paramu[19]=request.getParameter("reasonCode");            	
-              
-		    	Appointment a = new Appointment();
-				a.setProviderNo(request.getParameter("provider_no"+datano));
-				a.setAppointmentDate(ConversionUtils.fromDateString(request.getParameter("appointment_date")));
-				a.setStartTime(ConversionUtils.fromTimeStringNoSeconds(request.getParameter("start_time")));
-				a.setEndTime(ConversionUtils.fromTimeStringNoSeconds(request.getParameter("end_time")));
-				a.setName(request.getParameter("keyword"));
-				a.setNotes(request.getParameter("notes"));
-				a.setReason(request.getParameter("reason"));
-				a.setLocation(request.getParameter("location"));
-				a.setResources(request.getParameter("resources"));
-				a.setType(request.getParameter("type"));
-				a.setStyle(request.getParameter("style"));
-				a.setBilling(request.getParameter("billing"));
-				a.setStatus(request.getParameter("status"));
-				a.setCreateDateTime(new java.util.Date());
-				a.setCreator(userName);
-				a.setRemarks(request.getParameter("remarks"));
-				
-				 if (!(request.getParameter("demographic_no").equals("")) && strbuf.toString().indexOf("one") != -1) {
-					a.setDemographicNo(Integer.parseInt(request.getParameter("demographic_no")));
-	     	    } else {
-	     	    	a.setDemographicNo(0);
-	     	    }
-				
-				a.setProgramId(Integer.parseInt((String)request.getSession().getAttribute("programId_oscarView")));
-				a.setUrgency(request.getParameter("urgency"));
-				a.setReasonCode(Integer.parseInt(request.getParameter("reasonCode")));
-				
-				appointmentDao.persist(a);
-				rowsAffected=1;
-		    	
-				if (rowsAffected==1) {				
-					
-					int demographicNo=0;
-					if (!(request.getParameter("demographic_no").equals("")) && strbuf.toString().indexOf("one") != -1) {
-						demographicNo = Integer.parseInt(request.getParameter("demographic_no"));
-		     	    }
-					
-					
-					Appointment appt = appointmentDao.search_appt_no(request.getParameter("provider_no"+datano), ConversionUtils.fromDateString(request.getParameter("appointment_date")), 
-							ConversionUtils.fromTimeStringNoSeconds(request.getParameter("start_time")), ConversionUtils.fromTimeStringNoSeconds(request.getParameter("end_time")), 
-							ConversionUtils.fromTimestampString(createdDateTime), userName, demographicNo);
-					
+                String[] paramu = new String[19];
+                        paramu[0]=request.getParameter("provider_no"+datano);
+                        paramu[1]=request.getParameter("appointment_date");
+                        paramu[2]=MyDateFormat.getTimeXX_XX_XX(request.getParameter("start_time"));
+                        paramu[3]=MyDateFormat.getTimeXX_XX_XX(request.getParameter("end_time"));
+                        paramu[4]=request.getParameter("keyword");
+                        paramu[5]=request.getParameter("notes");
+                        paramu[6]=request.getParameter("reason");
+                        paramu[7]=request.getParameter("location");
+                        paramu[8]=request.getParameter("resources");
+                        paramu[9]=request.getParameter("type");
+                        paramu[10]=request.getParameter("style");
+                        paramu[11]=request.getParameter("billing");
+                        paramu[12]=request.getParameter("status");
+                        paramu[13]=createdDateTime;   //request.getParameter("createdatetime");
+                        paramu[14]=userName;  //request.getParameter("creator");
+                        paramu[15]=request.getParameter("remarks");
+                        paramu[17]=(String)request.getSession().getAttribute("programId_oscarView");
+                        paramu[18]=request.getParameter("urgency");
 
-					if (appt != null) {
-						Integer apptNo = appt.getId();
+		        if (!(request.getParameter("demographic_no").equals("")) && strbuf.toString().indexOf("one") != -1) {
+					paramu[16]=request.getParameter("demographic_no");
+	     	    } else {
+	     	    	paramu[16]="0";
+	     	    }
+
+		    	rowsAffected = oscarSuperManager.update("appointmentDao", "add_apptrecord", paramu);
+
+				if (rowsAffected==1) {
+					String[] paramu2 = new String[7];
+					paramu2[0]=paramu[0]; //provider_no
+					paramu2[1]=paramu[1]; //appointment_date
+					paramu2[2]=paramu[2]; //start_time
+					paramu2[3]=paramu[3]; //end_time
+					paramu2[4]=paramu[13]; //createdatetime
+					paramu2[5]=paramu[14]; //creator
+					paramu2[6]=paramu[16]; //demographic_no
+
+					List<Map<String,Object>> apptList = oscarSuperManager.find("appointmentDao", "search_appt_no", paramu2);
+					if (apptList.size()>0) {
+						Integer apptNo = (Integer)apptList.get(0).get("appointment_no");
 						String mcNumber = request.getParameter("appt_mc_number");
 						OtherIdManager.saveIdAppointment(apptNo, "appt_mc_number", mcNumber);
 					}
@@ -424,58 +341,65 @@ function onSub() {
 	String eName = request.getParameter("keyword");
 
 	if (bEdit) {
-		Appointment appt = appointmentDao.find(Integer.parseInt(request.getParameter("appointment_no")));
-		if(appt != null) {
-			eApptDate = ConversionUtils.toDateString(appt.getAppointmentDate());
-	        eStartTime = ConversionUtils.toTimeStringNoSeconds(appt.getStartTime());
-			eEndTime = ConversionUtils.toTimeStringNoSeconds(appt.getEndTime());
-			eName = appt.getName();
+		List<Map<String,Object>> resultList = oscarSuperManager.find("appointmentDao",
+				"search", new Object [] {request.getParameter("appointment_no")});
+		if (resultList.size() > 0) {
+			Map appt = resultList.get(0);
+			eApptDate = String.valueOf(appt.get("appointment_date"));
+	        eStartTime = String.valueOf(appt.get("start_time"));
+			eEndTime = String.valueOf(appt.get("end_time"));
+			eName = String.valueOf(appt.get("name"));
 		}
 	}
 
+    String [] param0 = new String[5];
+    param0[0] = eApptDate;
+    param0[1] = eStartTime ;
+    param0[2] = param0[1] ;
+    param0[3] = param0[1] ;
+    param0[4] = eEndTime ;
     String temp = "";
 	String appt = "";
 	String dotStr = "";
 	boolean bOne = false;
 	boolean bTwo = false;
 
-	List<Appointment> otherAppts = appointmentDao.search_otherappt(ConversionUtils.fromDateString(eApptDate), ConversionUtils.fromTimeStringNoSeconds(eStartTime), ConversionUtils.fromTimeStringNoSeconds(eEndTime), 
-			 ConversionUtils.fromTimeStringNoSeconds(eStartTime),  ConversionUtils.fromTimeStringNoSeconds(eStartTime));
-	
-	for (Appointment other : otherAppts) {
+	List<Map<String,Object>> resultList = oscarSuperManager.find("appointmentDao", "search_otherappt", param0);
+
+	for (Map other : resultList) {
         bOne = false;
 	    bTwo = false;
 
-        if (eStartTime.equals(String.valueOf(ConversionUtils.toTimeStringNoSeconds(other.getStartTime()))) && eEndTime.equals(String.valueOf(ConversionUtils.toTimeStringNoSeconds(other.getEndTime()))) &&
-			eName.equals(other.getName())) {
-			if (other.getDemographicNo() != 0  ) {
+        if (eStartTime.equals(String.valueOf(other.get("start_time"))) && eEndTime.equals(String.valueOf(other.get("end_time"))) &&
+			eName.equals(other.get("name"))) {
+			if (other.get("demographic_no") != null && !other.get("demographic_no").equals(0)  ) {
 	            bOne = true;
 			} else {
                 bTwo = true;
 			}
 		}
-		if (other.getDemographicNo() != 0) dotStr = "";
+		if (other.get("demographic_no") != null && !other.get("demographic_no").equals(0)) dotStr = "";
 		else dotStr = ".";
 
-        if (bOne)    otherAppt.setProperty(other.getProviderNo()+"one", "checked");
-        if (bTwo)    otherAppt.setProperty(other.getProviderNo()+"two", "checked");
+        if (bOne)    otherAppt.setProperty(other.get("provider_no")+"one", "checked");
+        if (bTwo)    otherAppt.setProperty(other.get("provider_no")+"two", "checked");
         if (bOne || bTwo) {
-			otherAppt.setProperty(other.getProviderNo()+"apptno", String.valueOf(other.getId()));
-			appt += "<b>" + String.valueOf(ConversionUtils.toTimeStringNoSeconds(other.getStartTime())).substring(0,5) + "-" + String.valueOf(ConversionUtils.toTimeStringNoSeconds(other.getEndTime())).substring(0,5) + "|"
-				 + dotStr + other.getName() + "</b>|" ; //+	rsdemo.getString("reason") + "<br>";
+			otherAppt.setProperty(other.get("provider_no")+"apptno", String.valueOf(other.get("appointment_no")));
+			appt += "<b>" + String.valueOf(other.get("start_time")).substring(0,5) + "-" + String.valueOf(other.get("end_time")).substring(0,5) + "|"
+				 + dotStr + other.get("name") + "</b>|" ; //+	rsdemo.getString("reason") + "<br>";
 		} else {
-			appt += String.valueOf(ConversionUtils.toTimeStringNoSeconds(other.getStartTime())).substring(0,5) + "-" + String.valueOf(ConversionUtils.toTimeStringNoSeconds(other.getEndTime())).substring(0,5) + "|"
-				 + dotStr + other.getName() + "|" ; //+	rsdemo.getString("reason") + "<br>";
+			appt += String.valueOf(other.get("start_time")).substring(0,5) + "-" + String.valueOf(other.get("end_time")).substring(0,5) + "|"
+				 + dotStr + other.get("name") + "|" ; //+	rsdemo.getString("reason") + "<br>";
 		}
 
-		if (!String.valueOf(other.getProviderNo()).equals(temp))  { //new provider record
-            otherAppt.setProperty(other.getProviderNo()+"appt", appt);
-			temp = String.valueOf(other.getProviderNo());
+		if (!String.valueOf(other.get("provider_no")).equals(temp))  { //new provider record
+            otherAppt.setProperty(other.get("provider_no")+"appt", appt);
+			temp = String.valueOf(other.get("provider_no"));
 			appt = "";
 		} else {
-		    if (otherAppt.getProperty(other.getProviderNo()+"appt") != null)
-				appt = otherAppt.getProperty(other.getProviderNo() +"appt")+ "<br>" + appt;
-            otherAppt.setProperty(other.getProviderNo()+"appt", appt);
+		    if (otherAppt.getProperty(other.get("provider_no")+"appt") != null)
+				appt = otherAppt.getProperty(other.get("provider_no") +"appt")+ "<br>" + appt;
+            otherAppt.setProperty(other.get("provider_no")+"appt", appt);
     	    appt = "";
 		}
     }
@@ -508,50 +432,52 @@ function onSub() {
 			key="appointment.appointmentgrouprecords.msgExistedAppointment" /></th>
 	</tr>
 	<%
+    String [] param1 = new String[2];
+    param1[0] = request.getParameter("appointment_date");
 
     int i=0;
 	boolean bDefProvider = false;
 	boolean bAvailProvider = false;
 	boolean bLooperCon = false;
-	
-	List<Provider> gps = myGroupDao.search_groupprovider(mygroupno);
+	resultList = oscarSuperManager.find("appointmentDao", "search_groupprovider", new Object[] {mygroupno});
+
 	for (int j = 0; j < 2; j++) {
-	  for (Provider provider : gps) {
+	  for (Map provider : resultList) {
         i++;
 
-		
-		ScheduleDate sd = scheduleDateDao.findByProviderNoAndDate(provider.getProviderNo(), ConversionUtils.fromDateString(request.getParameter("appointment_date")));
-		
-		bAvailProvider = (sd != null) ? true : false;
+		param1[1] = String.valueOf(provider.get("provider_no"));
+		List<Map<String,Object>> providerTest = oscarSuperManager.find("appointmentDao", "search_scheduledate_single", param1);
+
+		bAvailProvider = providerTest.size() > 0 ? true : false;
 		if(bAvailProvider == bLooperCon) continue;
 
-        bDefProvider = curProvider_no.equals(provider.getProviderNo()) ? true : false;
+        bDefProvider = curProvider_no.equals(String.valueOf(provider.get("provider_no"))) ? true : false;
 %>
 	<tr
 		BGCOLOR="<%=bDefProvider?deepcolor:(bAvailProvider?weakcolor:"#e0e0e0")%>">
-		<td align='right'>&nbsp;<%=provider.getFormattedName()%></td>
+		<td align='right'>&nbsp;<%=provider.get("last_name")%>, <%=provider.get("first_name")%></td>
 		<td align='center'>&nbsp; <input type="checkbox" name="one<%=i%>"
 			value="<%=i%>"
-			<%=bEdit ? (otherAppt.getProperty(provider.getProviderNo()+"one")
-		!= null ? otherAppt.getProperty(provider.getProviderNo()+"one") : "") : (bDefProvider? "checked":"")%>
+			<%=bEdit ? (otherAppt.getProperty(provider.get("provider_no")+"one")
+		!= null ? otherAppt.getProperty(provider.get("provider_no")+"one") : "") : (bDefProvider? "checked":"")%>
 			onclick="onCheck(this)"> <input type="hidden"
 			name="provider_no<%=i%>"
-			value="<%=provider.getProviderNo()%>"> <INPUT
+			value="<%=provider.get("provider_no")%>"> <INPUT
 			TYPE="hidden" NAME="last_name<%=i%>"
-			VALUE='<%=provider.getLastName()%>'> <INPUT
+			VALUE='<%=provider.get("last_name")%>'> <INPUT
 			TYPE="hidden" NAME="first_name<%=i%>"
-			VALUE='<%=provider.getFirstName()%>'> <%    if (otherAppt.getProperty(provider.getProviderNo()+"apptno") != null) {%>
+			VALUE='<%=provider.get("first_name")%>'> <%    if (otherAppt.getProperty(provider.get("provider_no")+"apptno") != null) {%>
 		<input type="hidden" name="appointment_no<%=i%>"
-			value="<%=otherAppt.getProperty(provider.getProviderNo()+"apptno")%>">
+			value="<%=otherAppt.getProperty(provider.get("provider_no")+"apptno")%>">
 		<%    }    %>
 		</td>
 		<td align='center'>&nbsp; <input type="checkbox" name="two<%=i%>"
 			value="<%=i%>"
-			<%=bEdit ? (otherAppt.getProperty(provider.getProviderNo()+"two")
-		!= null ? otherAppt.getProperty(provider.getProviderNo()+"two") : "") : ""%>
+			<%=bEdit ? (otherAppt.getProperty(provider.get("provider_no")+"two")
+		!= null ? otherAppt.getProperty(provider.get("provider_no")+"two") : "") : ""%>
 			onclick="onCheck(this)"></td>
-		<td nowrap><%=otherAppt.getProperty(provider.getProviderNo()+"appt")
-		!= null ? otherAppt.getProperty(provider.getProviderNo()+"appt") : ""%>
+		<td nowrap><%=otherAppt.getProperty(provider.get("provider_no")+"appt")
+		!= null ? otherAppt.getProperty(provider.get("provider_no")+"appt") : ""%>
 		<%--
     // <input type="text" name="orig<%=i%>" value="<%=bDefProvider? request.getParameter("reason"):""%>" style="width:100%">
 --%> &nbsp;</td>

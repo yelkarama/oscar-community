@@ -8,15 +8,14 @@
     and "gnu.org/licenses/gpl-2.0.html".
 
 --%>
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="java.util.*, org.oscarehr.hospitalReportManager.*,org.oscarehr.hospitalReportManager.model.HRMCategory"%>
 
 <%
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-
 	String demographic_no = request.getParameter("demographic_no");
 	String deepColor = "#CCCCFF", weakColor = "#EEEEFF";
 
+	if (session.getAttribute("userrole") == null) response.sendRedirect("../logout.jsp");
+	String roleName$ = (String)session.getAttribute("userrole") + "," + (String)session.getAttribute("user");
 	String country = request.getLocale().getCountry();
 	String orderByRequest = request.getParameter("orderby");
 	String orderBy = "";
@@ -36,20 +35,6 @@
 %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_lab" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_lab");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
 
 <html:html locale="true">
 
@@ -98,7 +83,8 @@ function updateAjax() {
 <!--  -->
 <table class="MainTable" id="scrollNumber1" name="encounterTable">
 	<tr class="MainTableTopRow">
-		<td class="MainTableTopRowLeftColumn" width="175">HRM</td>
+		<td class="MainTableTopRowLeftColumn" width="175"><bean:message
+			key="eform.showmyform.msgMyForm" /></td>
 		<td class="MainTableTopRowRightColumn">
 		<table class="TopStatusBar">
 			<tr>
@@ -129,21 +115,23 @@ function updateAjax() {
 								<bean:message key="hrm.displayHRMDocList.reportType" />
 							</a>
 						</th>
-						<th><bean:message	key="hrm.displayHRMDocList.description" /></th>
-						
-						<th><a href="displayHRMDocList.jsp?demographic_no=<%=demographic_no%>&orderby=form_subject&group_view=<%=groupView%>&parentAjaxId=<%=parentAjaxId%>"><bean:message	key="hrm.displayHRMDocList.reportStatus" /></a></th>
-						<th><a href="displayHRMDocList.jsp?demographic_no=<%=demographic_no%>&group_view=<%=groupView%>&parentAjaxId=<%=parentAjaxId%>"><bean:message key="hrm.displayHRMDocList.timeReceived" /></a></th>
-						<th><FONT COLOR="blue"><bean:message key="hrm.displayHRMDocList.category" /></FONT></th>
+						<th><a
+							href="displayHRMDocList.jsp?demographic_no=<%=demographic_no%>&orderby=form_subject&group_view=<%=groupView%>&parentAjaxId=<%=parentAjaxId%>"><bean:message
+							key="hrm.displayHRMDocList.reportStatus" /></a></th>
+						<th><a
+							href="displayHRMDocList.jsp?demographic_no=<%=demographic_no%>&group_view=<%=groupView%>&parentAjaxId=<%=parentAjaxId%>"><bean:message
+							key="hrm.displayHRMDocList.timeReceived" /></a></th>
+						<th>Category</th>
 					</tr>
 					<%
 						ArrayList<HashMap<String,? extends Object>> hrmdocs;
 						if (groupView.equals(""))
 						{
-							hrmdocs = HRMUtil.listHRMDocuments(loggedInInfo,orderBy, demographic_no);
+							hrmdocs = HRMUtil.listHRMDocuments(orderBy, demographic_no);
 						}
 						else
 						{
-							hrmdocs = HRMUtil.listHRMDocuments(loggedInInfo,orderBy, demographic_no);
+							hrmdocs = HRMUtil.listHRMDocuments(orderBy, demographic_no);
 						}
 						
 						for (int i = 0; i < hrmdocs.size(); i++)
@@ -155,7 +143,6 @@ function updateAjax() {
 						<td><a href="#"
 							ONCLICK="popupPage('<%=request.getContextPath() %>/hospitalReportManager/Display.do?id=<%=curhrmdoc.get("id")%>&duplicateLabIds=<%=curhrmdoc.get("duplicateLabIds")%>', 'HRM Report'); return false;"
 							TITLE="<bean:message key="hrm.displayHRMDocList."/>"><%=curhrmdoc.get("report_type")%></a></td>
-						<td><%=curhrmdoc.get("description")%></td>
 						<td><%=curhrmdoc.get("report_status")%></td>
 						<td align='center'><%=curhrmdoc.get("time_received")%></td>
 						<td><%=curhrmdoc.get("category") != null ? ((HRMCategory)curhrmdoc.get("category")).getCategoryName() : "" %>

@@ -25,7 +25,7 @@
 
 package oscar.eform.actions;
 
-import java.util.HashMap;
+import java.util.Hashtable;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -34,45 +34,46 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
+import org.apache.struts.upload.FormFile;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 import org.oscarehr.util.WebUtils;
 
 import oscar.eform.EFormUtil;
 import oscar.eform.data.EFormBase;
 import oscar.eform.data.HtmlEditForm;
-
+import oscar.util.StringUtils;
 
 public class HtmlEditAction extends Action {
-	
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	
-    public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-    	
+    public ActionForward execute(ActionMapping mapping, ActionForm form,
+                                HttpServletRequest request, HttpServletResponse response) {
         HtmlEditForm fm = (HtmlEditForm) form;
-       
-        if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_eform", "w", null)) {
-			throw new SecurityException("missing required security object (_eform)");
-		}
-        
         try {
             String fid = fm.getFid();
             String formName = fm.getFormName();
             String formSubject = fm.getFormSubject();
             String formFileName = fm.getFormFileName();
             String formHtml = fm.getFormHtml();
-            boolean showLatestFormOnly = WebUtils.isChecked(request, "showLatestFormOnly");
+            FormFile uploadFile = fm.getUploadFile();
             boolean patientIndependent = WebUtils.isChecked(request, "patientIndependent");
-            boolean restrictByProgram = WebUtils.isChecked(request, "restrictByProgram");
-            boolean disableUpdate= WebUtils.isChecked(request, "disableUpdate");
-            
             String roleType = fm.getRoleType();
-            String programNo = fm.getProgramNo();
             
-            HashMap<String, String> errors = new HashMap<String, String>();
-            EFormBase updatedform = new EFormBase(fid, formName, formSubject, formFileName, formHtml, showLatestFormOnly, patientIndependent, roleType, programNo, restrictByProgram); //property container (bean)
+            Hashtable errors = new Hashtable();
+            if (request.getParameter("uploadMarker").equals("true")) {
+                //if uploading file
+                String readstream = StringUtils.readFileStream(uploadFile);
+                if (readstream.length() == 0) {
+                    errors.put("uploadError", "eform.errors.upload.failed");
+                } else {
+                    formHtml = org.apache.commons.lang.StringEscapeUtils.escapeJava(readstream);
+                    formFileName = uploadFile.getFileName();
+                }
+                Hashtable curht = createHashtable(fid, formName, formSubject, formFileName, formHtml, patientIndependent, roleType);
+                request.setAttribute("submitted", curht);
+                request.setAttribute("errors", errors);
+                return(mapping.findForward("success"));
+            }
+            formHtml = org.apache.commons.lang.StringEscapeUtils.escapeJava(formHtml);
+            EFormBase updatedform = new EFormBase(fid, formName, formSubject, formFileName, formHtml, patientIndependent, roleType); //property container (bean)
             //validation...
             if ((formName == null) || (formName.length() == 0)) {
                 errors.put("formNameMissing", "eform.errors.form_name.missing.regular");
@@ -81,36 +82,31 @@ public class HtmlEditAction extends Action {
                 errors.put("formNameExists", "eform.errors.form_name.exists.regular");
             }
             if ((fid.length() == 0) && (errors.size() == 0)) {
-                fid = EFormUtil.saveEForm(formName, formSubject, formFileName, formHtml, showLatestFormOnly, patientIndependent, roleType,programNo,restrictByProgram, disableUpdate);
+                fid = EFormUtil.saveEForm(formName, formSubject, formFileName, formHtml, patientIndependent, roleType);
                 request.setAttribute("success", "true");
             } else if (errors.size() == 0) {
                 EFormUtil.updateEForm(updatedform);
                 request.setAttribute("success", "true");
             }
             
-            HashMap<String, Object> curht = createHashMap(fid, formName, formSubject, formFileName, formHtml, showLatestFormOnly, patientIndependent, roleType, programNo, restrictByProgram);
+            Hashtable curht = createHashtable(fid, formName, formSubject, formFileName, formHtml, patientIndependent, roleType);
             request.setAttribute("submitted", curht);
             
             request.setAttribute("errors", errors);
         } catch (Exception e) {
             MiscUtils.getLogger().error("Error", e);
         }
-
         return(mapping.findForward("success"));
     }
     
-    private HashMap<String, Object> createHashMap(String fid, String formName, String formSubject, String formFileName, String formHtml, boolean showLatestFormOnly, boolean patientIndependent, String roleType, String programNo, boolean restrictByProgram) {
-    	HashMap<String, Object> curht = new HashMap<String, Object>();
+    private Hashtable createHashtable(String fid, String formName, String formSubject, String formFileName, String formHtml, boolean patientIndependent, String roleType) {
+        Hashtable curht = new Hashtable();
         curht.put("fid", fid);  
         curht.put("formName", formName);
         curht.put("formSubject", formSubject);
         curht.put("formFileName", formFileName);
-        curht.put("formHtml", formHtml);
-        curht.put("showLatestFormOnly", showLatestFormOnly);
         curht.put("patientIndependent", patientIndependent);
         curht.put("roleType", roleType);
-        curht.put("programNo",programNo);
-        curht.put("restrictByProgram", restrictByProgram);
         
         if (fid.length() == 0) {
             curht.put("formDate", "--");
@@ -119,6 +115,7 @@ public class HtmlEditAction extends Action {
             curht.put("formDate", EFormUtil.getEFormParameter(fid, "formDate"));
             curht.put("formTime", EFormUtil.getEFormParameter(fid, "formTime"));
         }
+        curht.put("formHtml", org.apache.commons.lang.StringEscapeUtils.unescapeJava(formHtml));
         return curht;
     }
     

@@ -23,24 +23,11 @@
     Ontario, Canada
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_billing" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../../securityError.jsp?type=_billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%
-  String curUser_no = (String) session.getAttribute("user");
+  if(session.getValue("user") == null)
+    response.sendRedirect("../logout.htm");
+  String curUser_no,userfirstname,userlastname;
+  curUser_no = (String) session.getAttribute("user");
  String UpdateDate = "";
  String DemoNo = "";
  String DemoName = "";
@@ -75,30 +62,20 @@ if(!authed) {
  ResultSet rsPatient = null;
 
 %>
-<%@ page import="java.math.*, java.util.*, java.sql.*, oscar.*, java.net.*" errorPage="errorpage.jsp"%>
-
-
+<%@ page
+	import="java.math.*, java.util.*, java.sql.*, oscar.*, java.net.*"
+	errorPage="errorpage.jsp"%>
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean"
+	scope="session" />
+<%@ include file="dbBilling.jspf"%>
 <%@page import="org.oscarehr.util.SpringUtils" %>
 <%@page import="org.oscarehr.common.dao.ClinicLocationDao" %>
 <%@page import="org.oscarehr.common.model.ClinicLocation" %>
 <%@ page import="org.oscarehr.common.model.DiagnosticCode" %>
 <%@ page import="org.oscarehr.common.dao.DiagnosticCodeDao" %>
-<%@page import="org.oscarehr.common.model.Provider" %>
-<%@page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
-<%@page import="org.oscarehr.billing.CA.model.BillingDetail" %>
-<%@page import="org.oscarehr.billing.CA.dao.BillingDetailDao" %>
-<%@ page import="org.oscarehr.common.model.Demographic" %>
-<%@ page import="org.oscarehr.common.dao.DemographicDao" %>
-<%@page import="org.oscarehr.common.model.Billing" %>
-<%@page import="org.oscarehr.common.dao.BillingDao" %>
-<%@page import="oscar.util.ConversionUtils" %>
 <%
 	DiagnosticCodeDao diagnosticCodeDao = SpringUtils.getBean(DiagnosticCodeDao.class);
 	ClinicLocationDao clinicLocationDao = (ClinicLocationDao)SpringUtils.getBean("clinicLocationDao");
-	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
-	BillingDetailDao billingDetailDao = SpringUtils.getBean(BillingDetailDao.class);
-	DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
-	BillingDao billingDao = SpringUtils.getBean(BillingDao.class);
 %>
 <%
   GregorianCalendar now=new GregorianCalendar();
@@ -373,22 +350,23 @@ document.body.insertAdjacentHTML('beforeEnd', WebBrowser);
 			size="2">Billing Physician#: <select style="font-size: 80%;"
 			name="provider_no">
 			<option value="">--- Select Provider ---</option>
-			<%
+			<% ResultSet rslocal = null;
 // Retrieving Provider
 String proFirst="", proLast="", proOHIP="", proNo="";
  int Count = 0;
- for(Provider p:providerDao.getActiveProviders()) {
-	 if(p.getOhipNo() != null && !p.getOhipNo().isEmpty()) {
+  rslocal = null;
+ rslocal = apptMainBean.queryResults("%", "search_provider_dt");
+ while(rslocal.next()){
 
- proFirst = p.getFirstName();
- proLast = p.getLastName();
- proOHIP = p.getProviderNo();
+ proFirst = rslocal.getString("first_name");
+ proLast = rslocal.getString("last_name");
+ proOHIP = rslocal.getString("provider_no");
 
 %>
 			<option value="<%=proOHIP%>"
 				<%=Provider.equals(proOHIP)?"selected":""%>><%=proOHIP%> |
 			<%=proLast%>, <%=proFirst%></option>
-			<% } }
+			<% }
 
 
   %><input type="hidden" name="xml_provider_no" value="<%=Provider%>"></font></b></td>
@@ -443,16 +421,16 @@ String proFirst="", proLast="", proOHIP="", proNo="";
     String billAmount = "";
     String diagCode = "";
     String billingunit="";
-   
-     List<BillingDetail> bds = billingDetailDao.findByBillingNo(Integer.parseInt(billNo));
- 	for(BillingDetail bd:bds) {
- 		if(bd.getStatus().equals("D")) continue;
+    ResultSet rsBillRec = null;
+     rsBillRec = null;
+ rsBillRec = apptMainBean.queryResults(billNo, "search_bill_record");
+ while(rsBillRec.next()){
 
- serviceCode = bd.getServiceCode();
- serviceDesc = bd.getServiceDesc();
- billAmount =bd.getBillingAmount();
- diagCode = bd.getDiagnosticCode();
- billingunit = bd.getBillingUnit();
+ serviceCode = rsBillRec.getString("service_code");
+ serviceDesc = rsBillRec.getString("service_desc");
+ billAmount = rsBillRec.getString("billing_amount");
+ diagCode = rsBillRec.getString("diagnostic_code");
+ billingunit = rsBillRec.getString("billingunit");
  rowCount = rowCount + 1;
  %>
 

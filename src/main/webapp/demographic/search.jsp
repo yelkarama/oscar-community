@@ -24,27 +24,14 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_search" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_search");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
+<%@ taglib uri="/WEB-INF/security.tld" prefix="security" %>
 
+<% String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user"); %>
 <% Boolean isMobileOptimized = session.getAttribute("mobileOptimized") != null; %>
 
 <html:html locale="true">
@@ -76,7 +63,7 @@
               dob.value = dob.value.substring(0, 4)+"-"+dob.value.substring(4, 6)+"-"+dob.value.substring(6, 8);
             }
             if(dob.value.length != 10) {
-              alert('<bean:message key="demographic.search.msgWrongDOB"/>');
+              alert("<bean:message key="demographic.search.msgWrongDOB"/>");
               typeInOK = false;
             }
             return typeInOK ;
@@ -98,20 +85,32 @@
         function searchOutOfDomain() {
             document.titlesearch.outofdomain.value="true";
             if (checkTypeIn()) document.titlesearch.submit();
-        }       
+        }
          
         </script>
 <% if (isMobileOptimized) { %>
    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, width=device-width" />
    <link rel="stylesheet" type="text/css" href="../mobile/searchdemographicstyle.css">
 <% } else { %>
- <link rel="stylesheet" type="text/css" media="all" href="../demographic/searchdemographicstyle.css"  />
- <link rel="stylesheet" type="text/css" href="../share/css/searchBox.css" />
-
+   <link rel="stylesheet" type="text/css" href="../share/css/searchBox.css" />
+   <style type="text/css">
+       body {
+            font-family: Verdana, helvetica, sans-serif;
+            font-size: 14px; margin: 0px; padding: 0px;
+            background-image: url("../images/gray_bg.jpg");
+       }
+       .searchBox .title { display: none; /* We don't want to display the title in the included jsp file ' */ }
+   </style>
 <% } %>
 </head>
 <body onload="setfocus()">
 <div id="demographicSearch">
+<table border="0" cellspacing="0" cellpadding="0" width="100%">
+	<tr bgcolor="#CCCCFF">
+		<th NOWRAP><font face="Helvetica"><bean:message
+			key="demographic.search.msgSearchPatient" /></font></th>
+	</tr>
+</table>
 </div>
     <!-- Search Box -->
     <%@ include file="zdemographicfulltitlesearch.jsp"%>
@@ -127,7 +126,7 @@
 	<oscar:oscarPropertiesCheck
 	property="SHOW_FILE_IMPORT_SEARCH" value="yes">
            &nbsp;&nbsp;&nbsp;<a href="demographicImport.jsp"><b><font
-		size="+1"><bean:message	key="demographic.search.importNewDemographic" /></font></a>
+		size="+1">Import New Demographic</font></a>
 </oscar:oscarPropertiesCheck></p>
 <p><!--a href="http://204.92.240.253:8080/test/slt/Search.jsp"><font size="+1"><bean:message key="demographic.search.btnELearning"/></font></a--></p>
 </body>

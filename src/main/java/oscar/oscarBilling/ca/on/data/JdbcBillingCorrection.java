@@ -18,86 +18,22 @@
 
 package oscar.oscarBilling.ca.on.data;
 
-import java.text.ParseException;
-import java.math.BigDecimal;
-import java.util.Date;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Vector;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.oscarehr.common.dao.BillingONCHeader1Dao;
-import org.oscarehr.common.dao.BillingONEAReportDao;
-import org.oscarehr.common.dao.BillingONExtDao;
-import org.oscarehr.common.dao.BillingONItemDao;
-import org.oscarehr.common.dao.BillingOnItemPaymentDao;
-import org.oscarehr.common.dao.BillingOnTransactionDao;
-import org.oscarehr.common.dao.RaDetailDao;
-import org.oscarehr.common.model.BillingONCHeader1;
-import org.oscarehr.common.model.BillingONEAReport;
-import org.oscarehr.common.model.BillingONExt;
-import org.oscarehr.common.model.BillingONItem;
-import org.oscarehr.common.model.BillingOnItemPayment;
-import org.oscarehr.common.model.BillingOnTransaction;
-import org.oscarehr.common.model.RaDetail;
-import org.oscarehr.util.SpringUtils;
-
+import org.apache.log4j.Logger;
 
 public class JdbcBillingCorrection {
+	private static final Logger _logger = Logger.getLogger(JdbcBillingCorrection.class);
+	BillingONDataHelp dbObj = new BillingONDataHelp();
 	JdbcBillingLog dbLog = new JdbcBillingLog();
-	
-	private BillingONCHeader1Dao billingHeaderDao = SpringUtils.getBean(BillingONCHeader1Dao.class);
-	//private BillingONRepoDao billingRepoDao = SpringUtils.getBean(BillingONRepoDao.class);
-	private BillingONItemDao billingItemDao = SpringUtils.getBean(BillingONItemDao.class);
-	private BillingONEAReportDao billingEaReportDao = SpringUtils.getBean(BillingONEAReportDao.class);
-	private RaDetailDao raDetailDao = SpringUtils.getBean(RaDetailDao.class);
-	private BillingOnItemPaymentDao itemPaymentDao = SpringUtils.getBean(BillingOnItemPaymentDao.class);
-	
-	private SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
-	private SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm:ss");
-	private SimpleDateFormat tsFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-	public boolean updateBillingClaimHeader(BillingClaimHeader1Data ch1Obj) throws ParseException {
-		BillingONCHeader1 c = billingHeaderDao.find(ch1Obj.getId());
-		c.setTranscId(ch1Obj.getTransc_id());
-		c.setRecId(ch1Obj.getRec_id());
-		c.setHin(ch1Obj.getHin());
-		c.setVer(ch1Obj.getVer());
-		c.setDob(ch1Obj.getDob());
-		c.setPayProgram(ch1Obj.getPay_program());
-		c.setPayee(ch1Obj.getPayee());
-		c.setRefNum(ch1Obj.getRef_num());
-		c.setFaciltyNum(ch1Obj.getFacilty_num());
-		c.setAdmissionDate(dateFormatter.parse(ch1Obj.getAdmission_date()));
-		c.setRefLabNum(ch1Obj.getRef_lab_num());
-		c.setManReview(ch1Obj.getMan_review());
-		c.setLocation(ch1Obj.getLocation());
-		c.setDemographicNo(Integer.parseInt(ch1Obj.getDemographic_no()));
-		c.setProviderNo(ch1Obj.getProvider_no());
-		c.setAppointmentNo(Integer.parseInt(ch1Obj.getAppointment_no()));
-		c.setDemographicName(StringEscapeUtils.escapeSql(ch1Obj.getDemographic_name()));
-		c.setSex(ch1Obj.getSex());
-		c.setProvince(ch1Obj.getProvince());
-		c.setBillingDate(dateFormatter.parse(ch1Obj.getBilling_date()));
-		c.setBillingTime(dateFormatter.parse(ch1Obj.getBilling_time()));
-		c.setTotal(new BigDecimal(ch1Obj.getTotal()));
-		c.setPaid(new BigDecimal(ch1Obj.getPaid()));
-		c.setStatus(ch1Obj.getStatus());
-		c.setComment(ch1Obj.getComment());
-		c.setVisitType(ch1Obj.getVisittype());
-		c.setProviderOhipNo(ch1Obj.getProvider_ohip_no());
-		c.setProviderRmaNo(ch1Obj.getProvider_rma_no());
-		c.setApptProviderNo(ch1Obj.getApptProvider_no());
-		c.setAsstProviderNo(ch1Obj.getAsstProvider_no());
-		c.setCreator(ch1Obj.getCreator());
-		c.setClinic(ch1Obj.getClinic()==null?"":ch1Obj.getClinic());
-		
-		billingHeaderDao.merge(c);			
-		
-		
-	/*	String sql = "update billing_on_cheader1 set transc_id='" + ch1Obj.getTransc_id() + "'," + " rec_id='"
+	public boolean updateBillingClaimHeader(BillingClaimHeader1Data ch1Obj) {
+		boolean retval = false;
+		String sql = "update billing_on_cheader1 set transc_id='" + ch1Obj.getTransc_id() + "'," + " rec_id='"
 				+ ch1Obj.getRec_id() + "'," + " hin='" + ch1Obj.getHin() + "'," + " ver='" + ch1Obj.getVer() + "',"
 				+ " dob='" + ch1Obj.getDob() + "'," + " pay_program='" + ch1Obj.getPay_program() + "'," + " payee='"
 				+ ch1Obj.getPayee() + "'," + " ref_num='" + ch1Obj.getRef_num() + "'," + " facilty_num='"
@@ -119,79 +55,135 @@ public class JdbcBillingCorrection {
 				+ "', clinic=" + (ch1Obj.getClinic()==null?"null":"'"+ch1Obj.getClinic()+"'")
 
 				+ " where id=" + ch1Obj.getId();
-				*/
-		
-		return true;
+		_logger.info("updateBillingClaimHeader(sql = " + sql + ")");
+
+		retval = dbObj.updateDBRecord(sql);
+
+		if (!retval) {
+			_logger.error("updateBillingClaimHeader(sql = " + sql + ")");
+		}
+		return retval;
 	}
 
-	public boolean updateBillingOneItem(BillingItemData val) throws ParseException {
-		BillingONItem b = billingItemDao.find(val.id);
-		if(b!=null) {
-			b.setTranscId(val.transc_id);
-			b.setRecId(val.rec_id);
-			b.setServiceCode(val.service_code);		
-			b.setFee(val.fee);
-			b.setServiceCount(val.ser_num);
-			b.setServiceDate(dateFormatter.parse(val.service_date));	
-			b.setDx(val.dx);
-			b.setDx1(val.dx1);
-			b.setDx2(val.dx2);
-			b.setStatus(val.status);
-			
-			billingItemDao.merge(b);
-		}
-		return true;		
-	}
-	
-	
-	public boolean updateBillingStatus(String id, String status, String providerNo) {
-		BillingONCHeader1 h = billingHeaderDao.find(Integer.valueOf(id));
-		if(h != null) {
-			h.setStatus(status);
-			billingHeaderDao.merge(h);
-			dbLog.addBillingLog(providerNo, "updateBillingStatus", "", id);
-			
-			List<BillingONItem> items = billingItemDao.getBillingItemByCh1Id(Integer.valueOf(id));
-			for(BillingONItem i:items) {
-				i.setStatus(status);
-			}
-			 dbLog.addBillingLog(providerNo, "updateBillingStatus-items", "", id);
-			return true;
+	public int addRepoClaimHeader(BillingClaimHeader1Data val) {
+		int retval = 0;
+		String sql = "insert into billing_on_repo values(\\N, " + " " + val.id + " ," + "'billing_on_cheader1'," + "'"
+				+ val.transc_id + "|" + val.rec_id + "|" + val.hin + "|" + val.ver + "|" + val.dob + "|"
+				+ val.pay_program + "|" + val.payee + "|" + val.ref_num + "|" + val.facilty_num + "|"
+				+ val.admission_date + "|" + val.ref_lab_num + "|" + val.man_review + "|" + val.location + "|"
+				+ val.demographic_no + "|" + val.provider_no + "|" + val.appointment_no + "|"
+				+ StringEscapeUtils.escapeSql(val.demographic_name) + "|" + val.sex + "|" + val.province + "|"
+				+ val.billing_date + "|" + val.billing_time + "|" + val.total + "|" + val.paid + "|" + val.status + "|"
+				+ val.comment + "|" + val.visittype + "|" + val.provider_ohip_no + "|" + val.apptProvider_no + "|"
+				+ val.asstProvider_no + "|" + val.creator + "|" + val.clinic + "', '" + val.update_datetime + "')";
+		_logger.info("addRepoBatchHeader(sql = " + sql + ")");
+		retval = dbObj.saveBillingRecord(sql);
+
+		if (retval > 0) {
 		} else {
-			return false;
+			_logger.error("addRepoClaimHeader(sql = " + sql + ")");
+			retval = 0;
 		}
+		return retval;
 	}
 
-
-	public List<String> getBillingCH1NoStatusByAppt(String id) {
-		List<String> obj = new ArrayList<String>();		
-		List<BillingONCHeader1> headers = billingHeaderDao.findByAppointmentNo(Integer.parseInt(id));
-		for(BillingONCHeader1 h:headers) {
-			obj.add(h.getId().toString());
-			obj.add(h.getStatus());
+	public boolean updateBillingOneItem(BillingItemData val) {
+		boolean retval = false;
+		String sql = "update billing_on_item set transc_id='" + val.transc_id + "', rec_id='" + val.rec_id
+				+ "', service_code='" + val.service_code + "', fee='" + val.fee + "', ser_num='" + val.ser_num
+				+ "', service_date='" + val.service_date + "', dx='" + val.dx + "', dx1='" + val.dx1 + "', dx2='"
+				+ val.dx2 + "', status='" + val.status + "' where id=" + val.id;
+		_logger.info("updateBillingOneItem(sql = " + sql + ")");
+		retval = dbObj.updateDBRecord(sql);
+		if (!retval) {
+			_logger.error("updateBillingOneItem(sql = " + sql + ")");
+			return retval;
 		}
-		
-		return obj;
+		return retval;
 	}
 
-	
-	public List<String> getBillingCH1NoStatusByBillNo(String id) {
-		List<String> obj = new ArrayList<String>();
-		BillingONCHeader1 header = billingHeaderDao.find(Integer.parseInt(id));
-		obj.add(header.getId().toString());
-		obj.add(header.getStatus());
-		
-		return obj;
+	public int addRepoOneItem(BillingItemData val) {
+		int retval = 0;
+		String sql = "insert into billing_on_repo values(\\N, " + " " + val.id + " ," + "'billing_on_item'," + "'"
+				+ val.transc_id + "|" + val.rec_id + "|" + val.service_code + "|" + val.fee + "|" + val.ser_num + "|"
+				+ val.service_date + "|" + val.dx + "|" + val.dx1 + "|" + val.dx2 + "|" + val.status + "', '"
+				+ val.timestamp + "')";
+		_logger.info("addRepoOneItem(sql = " + sql + ")");
+		retval = dbObj.saveBillingRecord(sql);
+
+		if (retval > 0) {
+		} else {
+			_logger.error("addRepoOneItem(sql = " + sql + ")");
+			retval = 0;
+		}
+		return retval;
 	}
-	
-	@SuppressWarnings("rawtypes")
-	public List getPayprogramByBillNo(String id){
-		BillingONCHeader1 b = billingHeaderDao.find(id);		
+
+	public boolean updateBillingStatus(String id, String status, String providerNo) {
+		boolean retval = false;
+		String sql = "update billing_on_cheader1 set status='" + status + "' where id=" + id;
+		_logger.info("updateBillingStatus(sql = " + sql + ")");
+		retval = dbObj.updateDBRecord(sql);
+		retval = dbLog.addBillingLog(providerNo, "updateBillingStatus", sql, id);
+		if (retval) {
+			_logger.error("updateBillingStatus(sql = " + sql + ")");
+		}
+
+		sql = "update billing_on_item set status='" + status + "' where ch1_id=" + id;
+		_logger.info("updateBillingStatus(sql = " + sql + ") by " + providerNo);
+		retval = dbObj.updateDBRecord(sql);
+		retval = dbLog.addBillingLog(providerNo, "updateBillingStatus", sql, id);
+		if (!retval) {
+			_logger.error("updateBillingStatus(sql = " + sql + ")");
+		}
+		return retval;
+	}
+
+	public boolean updateBillingItemStatus(String id, String status) {
+		boolean retval = false;
+		String sql = "update ', \\N )";
+		_logger.info("updateBillingItem(sql = " + sql + ")");
+		retval = dbObj.updateDBRecord(sql);
+
+		if (!retval) {
+			_logger.error("updateBillingItemStatus(sql = " + sql + ")");
+		}
+		return retval;
+	}
+
+	public List getBillingCH1NoStatusByAppt(String id) {
 		List obj = new Vector();
-		if(b!=null) {
-			obj.add(b.getPayProgram());
+		String sql = "select id,status from billing_on_cheader1 where appointment_no=" + id;
+		ResultSet rs = dbObj.searchDBRecord(sql);
+
+		try {
+			while (rs.next()) {
+				obj.add(rs.getString("id"));
+				obj.add(rs.getString("status"));
+			}
+		} catch (SQLException e) {
+			_logger.error("getBillingCH1NoStatusByAppt(sql = " + sql + ")");
+			obj = null;
 		}
-		return obj;	
+		return obj;
+	}
+
+	
+	public List getBillingCH1NoStatusByBillNo(String id) {
+		List obj = new Vector();
+		String sql = "select id,status from billing_on_cheader1 where id=" + id;
+		ResultSet rs = dbObj.searchDBRecord(sql);
+		
+		try {
+		       while (rs.next()) {
+		       obj.add(rs.getString("id"));
+		       obj.add(rs.getString("status"));
+		       }
+		    } catch (SQLException e) {
+		       _logger.error("getBillingCH1NoStatusByAppt(sql = " + sql + ")");
+		       obj = null;
+		    }
+		    return obj;
 	}
 	
 	// 0-cheader1 obj, 1 - item1obj, 2 - item2obj, ...
@@ -200,315 +192,183 @@ public class JdbcBillingCorrection {
 		BillingClaimHeader1Data ch1Obj = null;
 		BillingItemData itemObj = null;
 
-		BillingONCHeader1 h = billingHeaderDao.find(Integer.parseInt(id));
-		if(h != null) {
-			ch1Obj = new BillingClaimHeader1Data();
-			ch1Obj.setId(h.getId().toString());
-			ch1Obj.setTransc_id(h.getTranscId());
-			ch1Obj.setRec_id(h.getRecId());
-			ch1Obj.setHin(h.getHin());
-			ch1Obj.setVer(h.getVer());
-			ch1Obj.setDob(h.getDob());
+		String sql = "select * from billing_on_cheader1 where id=" + id;
+		ResultSet rs = dbObj.searchDBRecord(sql);
 
-			ch1Obj.setPay_program(h.getPayProgram());
-			ch1Obj.setPayee(h.getPayee());
-			ch1Obj.setRef_num(h.getRefNum());
-			ch1Obj.setFacilty_num(h.getFaciltyNum());
-			try {
-				if(h.getAdmissionDate() != null)
-					ch1Obj.setAdmission_date(dateFormatter.format(h.getAdmissionDate()));
-				else
-					ch1Obj.setAdmission_date("");
-			}catch(ParseException e) {
-				ch1Obj.setAdmission_date("");
-			}
-			ch1Obj.setRef_lab_num(h.getRefLabNum());
-			ch1Obj.setMan_review(h.getManReview());
-			ch1Obj.setLocation(h.getLocation());
-			ch1Obj.setClinic(h.getClinic());
+		try {
+			while (rs.next()) {
+				ch1Obj = new BillingClaimHeader1Data();
+				ch1Obj.setId("" + rs.getInt("id"));
+				ch1Obj.setTransc_id(rs.getString("transc_id"));
+				ch1Obj.setRec_id(rs.getString("rec_id"));
+				ch1Obj.setHin(rs.getString("hin"));
+				ch1Obj.setVer(rs.getString("ver"));
+				ch1Obj.setDob(rs.getString("dob"));
 
-			ch1Obj.setDemographic_no(h.getDemographicNo().toString());
-			ch1Obj.setProviderNo(h.getProviderNo());
-                        			
-			if( h.getAppointmentNo() != null ) {
-				ch1Obj.setAppointment_no(h.getAppointmentNo().toString());
-			}
-			else {
-				ch1Obj.setAppointment_no(null);
-			}
-			
-			ch1Obj.setDemographic_name(h.getDemographicName());
-			ch1Obj.setSex(h.getSex());
-			ch1Obj.setProvince(h.getProvince());
+				ch1Obj.setPay_program(rs.getString("pay_program"));
+				ch1Obj.setPayee(rs.getString("payee"));
+				ch1Obj.setRef_num(rs.getString("ref_num"));
+				ch1Obj.setFacilty_num(rs.getString("facilty_num"));
+				ch1Obj.setAdmission_date(rs.getString("admission_date"));
+				ch1Obj.setRef_lab_num(rs.getString("ref_lab_num"));
+				ch1Obj.setMan_review(rs.getString("man_review"));
+				ch1Obj.setLocation(rs.getString("location"));
+				ch1Obj.setClinic(rs.getString("clinic"));
 
-			if(h.getBillingDate() != null)
-				ch1Obj.setBilling_date(dateFormatter.format(h.getBillingDate()));
-			else
-				ch1Obj.setBilling_date("");
-			
-			if(h.getBillingTime() != null)
-				ch1Obj.setBilling_time(timeFormatter.format(h.getBillingTime()));
-			else
-				ch1Obj.setBilling_time("");
-			
-			ch1Obj.setTotal(String.valueOf(h.getTotal().doubleValue()));
-			ch1Obj.setPaid(String.valueOf(h.getPaid().doubleValue()));
-			ch1Obj.setStatus(h.getStatus());
-			ch1Obj.setComment(h.getComment());
-			ch1Obj.setVisittype(h.getVisitType());
-			ch1Obj.setProvider_ohip_no(h.getProviderOhipNo());
-			ch1Obj.setProvider_rma_no(h.getProviderRmaNo());
-			ch1Obj.setAsstProvider_no(h.getAsstProviderNo());
-			ch1Obj.setCreator(h.getCreator());			
-			if(h.getTimestamp() != null)
-				ch1Obj.setUpdate_datetime(tsFormatter.format(h.getTimestamp()));
-			else
-				ch1Obj.setUpdate_datetime("");
+				ch1Obj.setDemographic_no(rs.getString("demographic_no"));
+				ch1Obj.setProviderNo(rs.getString("provider_no"));
+				ch1Obj.setAppointment_no(rs.getString("appointment_no"));
+				ch1Obj.setDemographic_name(rs.getString("demographic_name"));
+				ch1Obj.setSex(rs.getString("sex"));
+				ch1Obj.setProvince(rs.getString("province"));
 
-			ch1Obj.setClinic(h.getClinic());
+				ch1Obj.setBilling_date(rs.getString("billing_date"));
+				ch1Obj.setBilling_time(rs.getString("billing_time"));
+				ch1Obj.setTotal(rs.getString("total"));
+				ch1Obj.setPaid(rs.getString("paid"));
+				ch1Obj.setStatus(rs.getString("status"));
+				ch1Obj.setComment(rs.getString("comment1"));
+				ch1Obj.setVisittype(rs.getString("visittype"));
+				ch1Obj.setProvider_ohip_no(rs.getString("provider_ohip_no"));
+				ch1Obj.setProvider_rma_no(rs.getString("provider_rma_no"));
+				ch1Obj.setApptProvider_no(rs.getString("apptProvider_no"));
+				ch1Obj.setAsstProvider_no(rs.getString("asstProvider_no"));
+				ch1Obj.setCreator(rs.getString("creator"));			
+				ch1Obj.setUpdate_datetime(rs.getString("timestamp1"));
 
-			// get billTo from billing_on_ext
-			BillingONExtDao billExtDao = (BillingONExtDao)SpringUtils.getBean(BillingONExtDao.class);
-			BillingONExt ext = billExtDao.getClaimExtItem(Integer.parseInt(ch1Obj.getId()), Integer.parseInt(ch1Obj.getDemographic_no()), "billTo");
-			if (ext != null) {
-				ch1Obj.setBillto(ext.getValue());
+				ch1Obj.setClinic(rs.getString("clinic"));
+								
+				obj.add(ch1Obj);
 			}
 
-			obj.add(ch1Obj);
+			sql = "select * from billing_on_item where ch1_id=" + id + " and status!='D'";
+			_logger.info("getBillingRecordObj(sql = " + sql + ")");
+			ResultSet rs2 = dbObj.searchDBRecord(sql);
+			while (rs2.next()) {
+				itemObj = new BillingItemData();
+				itemObj.setId("" + rs2.getInt("id"));
+				itemObj.setCh1_id("" + rs2.getInt("ch1_id"));
+				itemObj.setTransc_id(rs2.getString("transc_id"));
+				itemObj.setRec_id(rs2.getString("rec_id"));
+				itemObj.setService_code(rs2.getString("service_code"));
+				itemObj.setFee(rs2.getString("fee"));
+				itemObj.setSer_num(rs2.getString("ser_num"));
+				itemObj.setService_date(rs2.getString("service_date"));
+				String diagcode = rs2.getString("dx");
+				diagcode = ":::".equals(diagcode) ? "   " : diagcode;
+				itemObj.setDx(diagcode);
+				itemObj.setDx1(rs2.getString("dx1"));
+				itemObj.setDx2(rs2.getString("dx2"));
+				itemObj.setStatus(rs2.getString("status"));
+				itemObj.setTimestamp(rs2.getString("timestamp"));
+				obj.add(itemObj);
+			}
+		} catch (SQLException e) {
+			_logger.error("getBillingRecordObj(sql = " + sql + ")");
+			obj = null;
 		}
-		
-		List<BillingONItem> items = billingItemDao.getActiveBillingItemByCh1Id(Integer.parseInt(id));
-		for(BillingONItem i:items) {
-			itemObj = new BillingItemData();
-			itemObj.setId(i.getId().toString());
-			itemObj.setCh1_id(i.getCh1Id().toString());
-			itemObj.setTransc_id(i.getTranscId());
-			itemObj.setRec_id(i.getRecId());
-			itemObj.setService_code(i.getServiceCode());
-			itemObj.setFee(i.getFee());
-			itemObj.setSer_num(i.getServiceCount());
-			if(i.getServiceDate() != null)
-				itemObj.setService_date(dateFormatter.format(i.getServiceDate()));
-			else
-				itemObj.setService_date("");
-			
-			String diagcode = i.getDx();
-			diagcode = ":::".equals(diagcode) ? "   " : diagcode;
-			itemObj.setDx(diagcode);
-			itemObj.setDx1(i.getDx1());
-			itemObj.setDx2(i.getDx2());
-			itemObj.setStatus(i.getStatus());
-			if(i.getLastEditDT() != null)
-				itemObj.setTimestamp(tsFormatter.format(i.getLastEditDT()));
-			else
-				itemObj.setTimestamp("");
 
-				List<BillingOnItemPayment> itemPayList = itemPaymentDao.getAllByItemId(Integer.parseInt(itemObj.getId()));
-				BigDecimal sumPaid = BigDecimal.ZERO;
-				BigDecimal sumDiscount = BigDecimal.ZERO;
-				BigDecimal sumRefund = BigDecimal.ZERO;
-				if (itemPayList != null) {
-					for (BillingOnItemPayment itemPay : itemPayList) {
-						sumPaid = sumPaid.add(itemPay.getPaid());
-						sumDiscount = sumDiscount.add(itemPay.getDiscount());
-						sumRefund = sumRefund.add(itemPay.getRefund());
+		return obj;
+	}
+
+	public List getBillingRejectList(String id) {
+		List obj = new Vector();
+		String sql = "select claim_error, code_error from billing_on_eareport where billing_no=" + id
+				+ " order by process_date desc";
+		ResultSet rs = dbObj.searchDBRecord(sql);
+		try {
+			while (rs.next()) {
+				String error = rs.getString("claim_error").trim();
+				if (error.length() > 2) {
+					String temp[] = error.split("\\s");
+					for (int i = 0; i < temp.length; i++) {
+						obj.add(temp[i]);
 					}
 				}
-				itemObj.setPaid(sumPaid.toString());
-				itemObj.setDiscount(sumDiscount.toString());
-				itemObj.setRefund(sumRefund.toString());
-
-		
-			obj.add(itemObj);
+				error = rs.getString("code_error").trim();
+				if (error.length() > 1) {
+					String temp[] = error.split("\\s");
+					for (int i = 0; i < temp.length; i++) {
+						obj.add(temp[i]);
+					}
+				}
+			}
+		} catch (SQLException e) {
+			_logger.error("getBillingRejectList(sql = " + sql + ")");
+			obj = null;
 		}
-		
-	
 		return obj;
 	}
 
-	public List<String> getBillingRejectList(String id) {
-		List<String> obj = new ArrayList<String>();
-		List<BillingONEAReport> reports = billingEaReportDao.findByBillingNo(Integer.parseInt(id));
-		for(BillingONEAReport report:reports) {
-			String error = report.getClaimError().trim();
-			if (error.length() > 2) {
-				String temp[] = error.split("\\s");
-				for (int i = 0; i < temp.length; i++) {
-					obj.add(temp[i]);
-				}
-			}
-			error = report.getCodeError().trim();
-			if (error.length() > 1) {
-				String temp[] = error.split("\\s");
-				for (int i = 0; i < temp.length; i++) {
-					obj.add(temp[i]);
-				}
-			}
-		}
-		
-		return obj;
-	}
-
-	public List<String> getBillingExplanatoryList(String id) {
-		List<String> obj = new ArrayList<String>();
-		List<RaDetail> rds = raDetailDao.findByBillingNo(Integer.parseInt(id));
-		
+	public List getBillingExplanatoryList(String id) {
+		List obj = new Vector();
+		String sql = "select error_code, raheader_no from radetail where billing_no=" + id
+				+ " order by raheader_no desc, radetail_no";
+		ResultSet rs = dbObj.searchDBRecord(sql);
 		String tHeaderNo = "";
-
-		for(RaDetail rad:rds) {
-			if ("".equals(tHeaderNo)) {
-				tHeaderNo = String.valueOf(rad.getId());
-			} else if (!tHeaderNo.equals(rad.getId().toString())) {
-				break;
+		try {
+			while (rs.next()) {
+				if ("".equals(tHeaderNo)) {
+					tHeaderNo = rs.getString("raheader_no");
+				} else if (!tHeaderNo.equals(rs.getString("raheader_no"))) {
+					break;
+				}
+				obj.add(rs.getString("error_code"));
 			}
-			obj.add(rad.getErrorCode());
+		} catch (SQLException e) {
+			_logger.error("getBillingExplanatoryList(sql = " + sql + ")");
+			obj = null;
 		}
-		
 		return obj;
 	}
 
 	public String getBillingTotal(String id) {
-		BillingONCHeader1 b = billingHeaderDao.find(id);
-		if(b!=null) {
-			return String.valueOf(b.getTotal().doubleValue());			
+		String ret = "";
+		String sql = "select total from billing_on_cheader1 where id=" + id;
+		ResultSet rs = dbObj.searchDBRecord(sql);
+		try {
+			while (rs.next()) {
+				ret = rs.getString("total");
+			}
+		} catch (SQLException e) {
+			_logger.error("getBillingTotal(sql = " + sql + ")");
+			ret = null;
 		}
-		return "";
-		
+		return ret;
 	}
-	
-	
+
 	public String getBillingPaid(String id) {
-		BillingONCHeader1 b = billingHeaderDao.find(id);
-		if(b!=null) {
-			return String.valueOf(b.getPaid().doubleValue());			
+		String ret = "";
+		String sql = "select paid from billing_on_cheader1 where id=" + id;
+		ResultSet rs = dbObj.searchDBRecord(sql);
+		try {
+			while (rs.next()) {
+				ret = rs.getString("paid");
+			}
+		} catch (SQLException e) {
+			_logger.error("getBillingPaid(sql = " + sql + ")");
+			ret = null;
 		}
-		return "";
-		
+		return ret;
 	}
 
 	public boolean updateBillingTotal(String fee, String id) {
-		BillingONCHeader1 b = billingHeaderDao.find(id);
-		if(b!=null) {
-			b.setTotal(new BigDecimal(fee));
-			billingHeaderDao.merge(b);
-			return true;
+		boolean ret = false;
+		String sql = "update billing_on_cheader1 set total ='" + fee + "' where id=" + id;
+		ret = dbObj.updateDBRecord(sql);
+		if (!ret) {
+			_logger.error("updateBillingTotal(sql = " + sql + ")");
 		}
-		return false;
-		
+		return ret;
 	}
-	
+
 	public boolean updateBillingPaid(String fee, String id) {
-		BillingONCHeader1 b = billingHeaderDao.find(id);
-		if(b!=null) {
-			b.setPaid(new BigDecimal(fee));
-			billingHeaderDao.merge(b);
-			return true;
+		boolean ret = false;
+		String sql = "update billing_on_cheader1 set paid ='" + fee + "' where id=" + id;
+		ret = dbObj.updateDBRecord(sql);
+		if (!ret) {
+			_logger.error("updateBillingPaid(sql = " + sql + ")");
 		}
-		return false;		
+		return ret;
 	}
-
-	public void addInsertOneBillItemTrans(BillingClaimHeader1Data billHeader, BillingItemData billItem, String updateProviderNo) {
-		BillingOnTransactionDao billOnTransDao = (BillingOnTransactionDao)SpringUtils.getBean(BillingOnTransactionDao.class);
-		if (billOnTransDao == null) {
-			return;
-		}
-		
-		BillingOnTransaction billTrans = new BillingOnTransaction();
-		billTrans.setActionType(BillingDataHlp.ACTION_TYPE.C.name());
-		try {
-			billTrans.setAdmissionDate(new SimpleDateFormat("yyyy-MM-dd").parse(billHeader.getAdmission_date()));
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			billTrans.setAdmissionDate(null);
-		}
-		try {
-			billTrans.setBillingDate(new SimpleDateFormat("yyyy-MM-dd").parse(billHeader.getBilling_date()));
-		} catch (Exception e) {
-			billTrans.setBillingDate(null);
-		}
-		billTrans.setBillingNotes(billHeader.getComment());
-		billTrans.setCh1Id(Integer.parseInt(billHeader.getId()));
-		billTrans.setClinic(billHeader.getClinic());
-		billTrans.setCreator(billHeader.getCreator());
-		billTrans.setDemographicNo(Integer.parseInt(billHeader.getDemographic_no()));
-		billTrans.setDxCode(billItem.getDx());
-		billTrans.setFacilityNum(billHeader.getFacilty_num());
-		billTrans.setManReview(billHeader.getMan_review());
-		billTrans.setProviderNo(billHeader.getProviderNo());
-		billTrans.setProvince(billHeader.getProvince());
-		billTrans.setPayProgram(billHeader.getPay_program());
-		billTrans.setRefNum(billHeader.getRef_num());
-		
-		billTrans.setPaymentDate(null);
-		billTrans.setPaymentId(0);
-		billTrans.setPaymentType(0);
-		
-		billTrans.setServiceCode(billItem.getService_code());
-		billTrans.setServiceCodeInvoiced(billItem.getFee());
-		billTrans.setServiceCodePaid(BigDecimal.ZERO);
-		billTrans.setServiceCodeDiscount(BigDecimal.ZERO);
-		billTrans.setServiceCodeRefund(BigDecimal.ZERO);
-		billTrans.setServiceCodeNum(billItem.getSer_num());
-		
-		billTrans.setSliCode(billHeader.getLocation());
-		billTrans.setUpdateProviderNo(updateProviderNo);
-		billTrans.setVisittype(billHeader.getVisittype());
-		billTrans.setUpdateDatetime(new Timestamp(new Date().getTime()));
-		billTrans.setStatus(billItem.getStatus());
-		
-		billOnTransDao.persist(billTrans);
-	}
-	
-	public void addUpdateOneBillItemTrans(BillingClaimHeader1Data billHeader, BillingItemData billItem, String updateProviderNo) {
-		BillingOnTransactionDao billOnTransDao = (BillingOnTransactionDao)SpringUtils.getBean(BillingOnTransactionDao.class);
-		if (billOnTransDao == null) {
-			return;
-		}
-		
-		BillingOnTransaction billTrans = new BillingOnTransaction();
-		billTrans.setActionType(BillingDataHlp.ACTION_TYPE.U.name());
-		try {
-			billTrans.setAdmissionDate(new SimpleDateFormat("yyyy-MM-dd").parse(billHeader.getAdmission_date()));
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			billTrans.setAdmissionDate(null);
-		}
-		try {
-			billTrans.setBillingDate(new SimpleDateFormat("yyyy-MM-dd").parse(billHeader.getBilling_date()));
-		} catch (Exception e) {
-			billTrans.setBillingDate(null);
-		}
-		billTrans.setBillingNotes(billHeader.getComment());
-		billTrans.setCh1Id(Integer.parseInt(billHeader.getId()));
-		billTrans.setClinic(billHeader.getClinic());
-		billTrans.setCreator(billHeader.getCreator());
-		billTrans.setDemographicNo(Integer.parseInt(billHeader.getDemographic_no()));
-		billTrans.setFacilityNum(billHeader.getFacilty_num());
-		billTrans.setManReview(billHeader.getMan_review());
-		billTrans.setProviderNo(billHeader.getProviderNo());
-		billTrans.setProvince(billHeader.getProvince());
-		billTrans.setPayProgram(billHeader.getPay_program());
-		billTrans.setRefNum(billHeader.getRef_num());
-		
-		billTrans.setPaymentDate(null);
-		billTrans.setPaymentId(0);
-		billTrans.setPaymentType(0);
-		billTrans.setServiceCode(billItem.getService_code());
-		billTrans.setServiceCodeInvoiced(billItem.getFee());
-		billTrans.setServiceCodeNum(billItem.getSer_num());
-		billTrans.setDxCode(billItem.getDx());
-		billTrans.setStatus(billItem.getStatus());
-		
-		billTrans.setServiceCodePaid(BigDecimal.ZERO);
-		billTrans.setServiceCodePaid(BigDecimal.ZERO);
-		billTrans.setServiceCodePaid(BigDecimal.ZERO);
-		
-		billTrans.setSliCode(billHeader.getLocation());
-		billTrans.setUpdateProviderNo(updateProviderNo);
-		billTrans.setVisittype(billHeader.getVisittype());
-		billTrans.setUpdateDatetime(new Timestamp(new Date().getTime()));
-		
-		billOnTransDao.persist(billTrans);
-	}
-
 }

@@ -28,6 +28,9 @@ package oscar.oscarEncounter.pageUtil;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Properties;
+import java.util.Vector;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
@@ -41,6 +44,7 @@ import org.oscarehr.util.MiscUtils;
 
 import oscar.oscarRx.data.RxPatientData;
 import oscar.util.DateUtils;
+import oscar.util.OscarRoleObjectPrivilege;
 import oscar.util.StringUtils;
 
 /**
@@ -49,15 +53,16 @@ import oscar.util.StringUtils;
 public class EctDisplayAllergyAction extends EctDisplayAction {
 
 	private static Logger logger = MiscUtils.getLogger();
-	
-	
+
 	private String cmd = "allergies";
 
 	public boolean getInfo(EctSessionBean bean, HttpServletRequest request, NavBarDisplayDAO Dao, MessageResources messages) {
 
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		
-		if (!securityInfoManager.hasPrivilege(loggedInInfo, "_allergy", "r", null)) {
+		boolean a = true;
+		Vector v = OscarRoleObjectPrivilege.getPrivilegeProp("_newCasemgmt.allergies");
+		String roleName = (String) request.getSession().getAttribute("userrole") + "," + (String) request.getSession().getAttribute("user");
+		a = OscarRoleObjectPrivilege.checkPrivilege(roleName, (Properties) v.get(0), (Vector) v.get(1));
+		if (!a) {
 			return true; // Allergies link won't show up on new CME screen.
 		} else {
 
@@ -79,31 +84,35 @@ public class EctDisplayAllergyAction extends EctDisplayAction {
 			Integer demographicId = Integer.parseInt(bean.demographicNo);
 			Locale locale=request.getLocale();
 
-			allergies = RxPatientData.getPatient(loggedInInfo, demographicId).getActiveAllergies();
+			allergies = RxPatientData.getPatient(demographicId).getActiveAllergies();
 
 			// --- get local allergies ---
 			for (int idx = 0; idx < allergies.length; ++idx) {
+				if(allergies[idx].getArchived().equals("1")) {
+					continue;
+				}
 				Date date = allergies[idx].getEntryDate();
 				NavBarDisplayDAO.Item item = makeItem(date, allergies[idx].getDescription(), allergies[idx].getSeverityOfReaction(), locale);
 				Dao.addItem(item);
 			}
 
 			// --- get integrator allergies ---
-			if (loggedInInfo.getCurrentFacility().isIntegratorEnabled()) {
+			LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
+			if (loggedInInfo.currentFacility.isIntegratorEnabled()) {
 				try {
 					List<CachedDemographicAllergy> remoteAllergies  = null;
 					try {
-						if (!CaisiIntegratorManager.isIntegratorOffline(loggedInInfo.getSession())){
-							remoteAllergies = CaisiIntegratorManager.getDemographicWs(loggedInInfo, loggedInInfo.getCurrentFacility()).getLinkedCachedDemographicAllergies(demographicId);
+						if (!CaisiIntegratorManager.isIntegratorOffline()){
+							remoteAllergies = CaisiIntegratorManager.getDemographicWs().getLinkedCachedDemographicAllergies(demographicId);
 							MiscUtils.getLogger().debug("remoteAllergies retrieved "+remoteAllergies.size());
 						}
 					} catch (Exception e) {
 						MiscUtils.getLogger().error("Unexpected error.", e);
-						CaisiIntegratorManager.checkForConnectionError(loggedInInfo.getSession(),e);
+						CaisiIntegratorManager.checkForConnectionError(e);
 					}
 					
-					if(CaisiIntegratorManager.isIntegratorOffline(loggedInInfo.getSession())){
-						remoteAllergies = IntegratorFallBackManager.getRemoteAllergies(loggedInInfo,demographicId);	
+					if(CaisiIntegratorManager.isIntegratorOffline()){
+						remoteAllergies = IntegratorFallBackManager.getRemoteAllergies(demographicId);	
 						MiscUtils.getLogger().debug("fallBack Allergies retrieved "+remoteAllergies.size());
 					}
 

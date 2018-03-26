@@ -24,36 +24,18 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
+  if(session.getValue("user") == null) response.sendRedirect("../../logout.jsp");
 %>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_measurement" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../securityError.jsp?type=_measurement");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
 <%@ page import="oscar.oscarEncounter.pageUtil.*"%>
 <%@ page import="oscar.oscarEncounter.oscarMeasurements.pageUtil.*"%>
-<%@ page import="oscar.oscarEncounter.oscarMeasurements.bean.EctMeasuringInstructionBeanHandler, oscar.oscarEncounter.oscarMeasurements.bean.EctMeasuringInstructionBean"%>
-<%@ page import="java.util.Vector"%>
-<%@ page import="org.oscarehr.managers.MeasurementManager"%>
-<%@page import="org.oscarehr.util.SpringUtils" %>
+<%@ page import="java.util.Vector;"%>
 <%
     String demo = (String) request.getAttribute("demographicNo"); //bean.getDemographicNo();
-    
-    MeasurementManager measurementManager = SpringUtils.getBean(MeasurementManager.class); 
-    String groupName = (String) request.getAttribute("groupName");
 %>
 
 <html:html locale="true">
@@ -65,9 +47,6 @@ if(!authed) {
 </logic:present> <bean:message key="oscarEncounter.Index.measurements" /></title>
 
 <html:base />
-
-
-<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-1.7.1.min.js"></script>
 
 </head>
 
@@ -93,7 +72,7 @@ function popupPage(vheight,vwidth,page) { //open a new popup window
 parentChanged = false;
 
 function check() {
-	var ret = true;
+    var ret = true;
     
     if( parentChanged ) {
         document.forms[0].elements["value(parentChanged)"].value = "true";
@@ -102,18 +81,13 @@ function check() {
             ret = false;        
     }
     
-    if(ret) {
-
-      	 $.post('<%=request.getContextPath()%>/oscarEncounter/Measurements.do?ajax=true&skipCreateNote=true',$('#theForm').serialize(),function(data){
-			opener.postMessage(data,"*");
-      		window.close();
-      	 });
-
-    }
+    return ret;
 }
 </script>
 <body class="BodyStyle" vlink="#0000FF" onload="window.focus();">
-<html:form action="/oscarEncounter/Measurements" styleId="theForm">
+<!--  -->
+
+<html:form action="/oscarEncounter/Measurements">
 	<logic:present name="css">
 		<link rel="stylesheet" type="text/css"
 			href="<bean:write name="css" />">
@@ -122,7 +96,6 @@ function check() {
 		<link rel="stylesheet" type="text/css"
 			href="styles/measurementStyle.css">
 	</logic:notPresent>
-		
 	<table class="MainTable" id="scrollNumber1" name="encounterTable">
 		<tr class="MainTableTopRow">
 			<td class="MainTableTopRowLeftColumn"><logic:present
@@ -150,7 +123,6 @@ function check() {
 			</table>
 			</td>
 			<td class="MainTableRightColumn">
-			<%=measurementManager.getDShtml(groupName)%>
 			<table border=0 cellspacing=0>
 				<tr>
 					<td>
@@ -188,7 +160,7 @@ function check() {
 											name="measurementType" property="typeDisplayName" /></a></td>
 										<td><logic:iterate id="mInstrc"
 											name="<%=\"mInstrcs\"+ ctr%>"
-											property="measuringInstructionList">
+											property="measuringInstructionVector">
 											<input type="radio"
 												name='<%= "value(inputMInstrc-" + ctr + ")" %>'
 												value="<bean:write name="mInstrc" property="measuringInstrc"/>"
@@ -196,29 +168,8 @@ function check() {
 											<bean:write name="mInstrc" property="measuringInstrc" />
 											<br>
 										</logic:iterate></td>
-										<%
-										EctMeasuringInstructionBeanHandler mInstrh = (EctMeasuringInstructionBeanHandler) session.getAttribute("mInstrcs"+i);
-										EctMeasuringInstructionBean mInstrBean = mInstrh.getMeasuringInstructionList().get(0);
-										Integer index;
-										String[] options;
-										String measuringInstruction = mInstrBean.getMeasuringInstrc();
-										if( measuringInstruction.startsWith("Choose radio") ) {
-										   index = 12;
-										   measuringInstruction = measuringInstruction.substring(index);
-										   options = measuringInstruction.split(",");
-										%>
-										<td>
-										<%
-											for( int idx = 0; idx < options.length; ++idx ) {
-										%>	
-										<html:radio property='<%= "value(inputValue-" + ctr + ")" %>' value="<%=options[idx]%>"></html:radio><%=options[idx]%>&nbsp;										
-									
-										<%}%>
-										</td>
-										<%}else { %>
 										<td><html:text
 											property='<%= "value(inputValue-" + ctr + ")" %>' size="5" /></td>
-										<%} %>
 										<td><html:text
 											property='<%= "value(date-" + ctr + ")" %>' size="20" /></td>
 										<td><html:text
@@ -260,7 +211,6 @@ function check() {
 								<input type="hidden" name="value(parentChanged)" value="false" />
 								<input type="hidden" name="value(demographicNo)"
 									value="<%=demo%>" />
-								<input type="hidden" name="demographic_no" value="<%=demo%>" />
 								<logic:present name="css">
 									<input type="hidden" name="value(css)"
 										value="<bean:write name="css"/>" />
@@ -276,9 +226,9 @@ function check() {
 									<td><input type="button" name="Button"
 										value="<bean:message key="global.btnCancel"/>"
 										onClick="window.close()"></td>
-									<td><input type="button" name="Button"
+									<td><input type="submit" name="Button"
 										value="<bean:message key="global.btnSubmit"/>"
-										onclick="check();" /></td>
+										onclick="return check();" /></td>
 								</tr>
 							</table>
 							</td>

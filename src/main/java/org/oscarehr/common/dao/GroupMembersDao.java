@@ -25,10 +25,6 @@
 
 package org.oscarehr.common.dao;
 
-import java.util.List;
-
-import javax.persistence.Query;
-
 import org.oscarehr.common.model.GroupMembers;
 import org.springframework.stereotype.Repository;
 
@@ -38,28 +34,4 @@ public class GroupMembersDao extends AbstractDao<GroupMembers>{
 	public GroupMembersDao() {
 		super(GroupMembers.class);
 	}
-	
-	public List<GroupMembers> findByGroupId(int groupId) {
-		Query q = entityManager.createQuery("SELECT x FROM GroupMembers x WHERE x.groupId=?");
-		q.setParameter(1, groupId);
-		
-		@SuppressWarnings("unchecked")
-		List<GroupMembers> results = q.getResultList();
-		
-		return results;
-	}
-
-	@SuppressWarnings("unchecked")
-    public List<Object[]> findMembersByGroupId(int groupId) {
-        String sql = "FROM GroupMembers g, Provider p " 
-        		+ "WHERE g.providerNo = p.ProviderNo "
-                + "AND g.groupId = :id " 
-        		+ "ORDER BY p.LastName, p.FirstName";
-        Query query = entityManager.createQuery(sql);
-        query.setParameter("id", groupId);
-        return query.getResultList();
-    }
-	
-	
-	
 }

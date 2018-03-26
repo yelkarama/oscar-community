@@ -26,6 +26,7 @@
 package org.oscarehr.common.hl7.v2.oscar_to_oscar;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -47,7 +48,6 @@ import javax.crypto.spec.SecretKeySpec;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -60,8 +60,7 @@ import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.log4j.Logger;
 import org.oscarehr.common.model.ProfessionalSpecialist;
-import org.oscarehr.common.model.Provider;
-import org.oscarehr.util.CxfClientUtilsOld;
+import org.oscarehr.util.CxfClientUtils;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 
@@ -74,32 +73,28 @@ public final class SendingUtils {
 	private static final Logger logger = MiscUtils.getLogger();
 	private static final Integer CONNECTION_TIME_OUT = 10000;
 	
-	public static int send(LoggedInInfo loggedInInfo, AbstractMessage message, ProfessionalSpecialist professionalSpecialist) throws InvalidKeyException, SignatureException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidKeySpecException, IOException, HL7Exception
+	public static int send(AbstractMessage message, ProfessionalSpecialist professionalSpecialist) throws InvalidKeyException, SignatureException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidKeySpecException, IOException, HL7Exception
 	{
-		return(send(loggedInInfo,message, professionalSpecialist.geteDataUrl(), professionalSpecialist.geteDataOscarKey(), professionalSpecialist.geteDataServiceKey(), professionalSpecialist.geteDataServiceName()));
+		return(send(message, professionalSpecialist.geteDataUrl(), professionalSpecialist.geteDataOscarKey(), professionalSpecialist.geteDataServiceKey(), professionalSpecialist.geteDataServiceName()));
 	}
 	
-	public static int send(LoggedInInfo loggedInInfo, AbstractMessage message, String url, String publicOscarKeyString, String publicServiceKeyString, String serviceName) throws InvalidKeyException, SignatureException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException, InvalidKeySpecException, HL7Exception {
+	public static int send(AbstractMessage message, String url, String publicOscarKeyString, String publicServiceKeyString, String serviceName) throws InvalidKeyException, SignatureException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException, InvalidKeySpecException, HL7Exception {
 		PrivateKey publicServiceKey = getPublicServiceKey(publicServiceKeyString);
 		PublicKey publicOscarKey = getPublicOscarKey(publicOscarKeyString);
 
 		byte[] dataBytes=OscarToOscarUtils.pipeParser.encode(message).getBytes();
 		
-		return (send(loggedInInfo,dataBytes, url, publicOscarKey, publicServiceKey, serviceName));
+		return (send(dataBytes, url, publicOscarKey, publicServiceKey, serviceName));
 	}
 
-	public static int send(LoggedInInfo loggedInInfo, byte[] dataBytes, String url, PublicKey receiverOscarKey, PrivateKey publicServiceKey, String serviceName) throws InvalidKeyException, SignatureException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException {
+	public static int send(byte[] dataBytes, String url, PublicKey receiverOscarKey, PrivateKey publicServiceKey, String serviceName) throws InvalidKeyException, SignatureException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, IOException {
 		byte[] signature = getSignature(dataBytes, publicServiceKey);
 		SecretKey senderSecretKey = createSecretKey();
 		byte[] encryptedBytes = encryptData(dataBytes, senderSecretKey);
 		byte[] encryptedSecretKey = encryptEncryptionKey(senderSecretKey, receiverOscarKey);
 
-		if (loggedInInfo != null) {
-			Provider provider = loggedInInfo.getLoggedInProvider();
-			LogAction.addLog(provider.getProviderNo(), SendingUtils.class.getSimpleName(), "HL7", new String(dataBytes, MiscUtils.DEFAULT_UTF8_ENCODING));
-		} else {
-			throw new IllegalStateException("Unable to post data outside authentication context. Please make sure LoggedInInfo is configured to contain non-null provider.");
-		}
+		LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+		LogAction.addLog(loggedInInfo.loggedInProvider.getProviderNo(), SendingUtils.class.getSimpleName(), "HL7", new String(dataBytes, MiscUtils.ENCODING));
 		
 		return (postData(url, encryptedBytes, encryptedSecretKey, signature, serviceName));
 	}
@@ -109,8 +104,8 @@ public final class SendingUtils {
 		
 		String filename=serviceName+'_'+System.currentTimeMillis()+".hl7";
 		multipartEntity.addPart("importFile", new ByteArrayBody(encryptedBytes, filename));		
-		multipartEntity.addPart("key", new StringBody(new String(Base64.encodeBase64(encryptedSecretKey), MiscUtils.DEFAULT_UTF8_ENCODING)));
-		multipartEntity.addPart("signature", new StringBody(new String(Base64.encodeBase64(signature), MiscUtils.DEFAULT_UTF8_ENCODING)));
+		multipartEntity.addPart("key", new StringBody(MiscUtils.encodeToBase64String(encryptedSecretKey)));
+		multipartEntity.addPart("signature", new StringBody(MiscUtils.encodeToBase64String(signature)));
 		multipartEntity.addPart("service", new StringBody(serviceName));
 		multipartEntity.addPart("use_http_response_code", new StringBody("true"));
 
@@ -128,9 +123,9 @@ public final class SendingUtils {
 	private static HttpClient getTrustAllHttpClient()
 	{
 		try {
-	        SSLContext sslContext = SSLContext.getInstance("TLS");
+	        SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
 	        TrustManager[] temp =new TrustManager[1];
-	        temp[0]=new CxfClientUtilsOld.TrustAllManager();
+	        temp[0]=new CxfClientUtils.TrustAllManager();
 	        sslContext.init(null, temp, null);
 	        
 	        SSLSocketFactory sslSocketFactory = new SSLSocketFactory(sslContext);
@@ -173,8 +168,8 @@ public final class SendingUtils {
 		return (signature.sign());
 	}
 
-	public static PublicKey getPublicOscarKey(String publicOscarKeyString) throws NoSuchAlgorithmException, InvalidKeySpecException {
-	    X509EncodedKeySpec pubKeySpec = new X509EncodedKeySpec(Base64.decodeBase64(publicOscarKeyString));
+	public static PublicKey getPublicOscarKey(String publicOscarKeyString) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeySpecException {
+	    X509EncodedKeySpec pubKeySpec = new X509EncodedKeySpec(MiscUtils.decodeBase64(publicOscarKeyString));
 		KeyFactory pubKeyFactory = KeyFactory.getInstance("RSA");
 		PublicKey publicOscarKey = pubKeyFactory.generatePublic(pubKeySpec);
 	    return publicOscarKey;
@@ -184,23 +179,18 @@ public final class SendingUtils {
 	 * I know it returns a "private key" object but in reality it's a public key
 	 * because it's a key we give out to other people.
 	 */
-	public static PrivateKey getPublicServiceKey(String publicServiceKeyString) throws NoSuchAlgorithmException, InvalidKeySpecException {
-	    PKCS8EncodedKeySpec privKeySpec = new PKCS8EncodedKeySpec(Base64.decodeBase64(publicServiceKeyString));
+	public static PrivateKey getPublicServiceKey(String publicServiceKeyString) throws UnsupportedEncodingException, NoSuchAlgorithmException, InvalidKeySpecException {
+	    PKCS8EncodedKeySpec privKeySpec = new PKCS8EncodedKeySpec(MiscUtils.decodeBase64(publicServiceKeyString));
 		KeyFactory privKeyFactory = KeyFactory.getInstance("RSA");
 		PrivateKey publicServiceKey = privKeyFactory.generatePrivate(privKeySpec);
 	    return publicServiceKey;
     }
 
 	public static void main(String... argv) throws Exception {
-		// String url = "http://localhost:49898/oscar/lab/newLabUpload.do";
-		String url = "http://localhost:8080/oscar/lab/newLabUpload.do";
+		String url = "http://localhost:49898/oscar/lab/newLabUpload.do";
 		String publicOscarKeyString = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCCYf7j1EXWHdbtZgn7e28Yc4a/0Mznx1irA0NW1yknJU9TScpFUVJ9LKmo3+pqAqaGkWmZgz4bn0XZQ/PJNw9z24dRwaVzOgjJ9h1ci/cmei80UK7uL7soS3c1Hj6lddkZbAJ5+F9amasRsaabFI+Gvevq0EYMIaETFjZiEkDNUwIDAQAB";
 		String publicServiceKeyString = "MIICdQIBADANBgkqhkiG9w0BAQEFAASCAl8wggJbAgEAAoGBAI61yqsLH352cc+Ij3X/WzUKrFD6izRCwRqdS7RobiKmRqp6Ol1fiFJEOGGot1deNpIWJP05SNvx1qhMb9r6g8JamQvORR4QgUfKVOxwauOqm9myvSr8kPjAbQVHG8QcCBs+2qPfQU2whf+dpJFlx2P/Gx42W7S6HhK9awu9ZKeBAgMBAAECgYBRhwmBLZmQZZofNaS/hGJWqwJGQNvFv10SF0pohkBlCxjTy4AMV8dJOC/9mqUjBG+ohX4cK92zyTUYcJJ2Ryd9veIrVKM/3oUAXeHBaAHyaamFb8s6tZMHuJNJipV5igod/7nkRVGFa1RzamnMzrcnBLhqVZacwkN2F+BFzMTAAQJBAPxkQTT46O4DCbuNNxnIvMcpzIT17mhXNE+ZUOL1R2LMFM0bSyItkeiTaWQ1zgK4BPT3iAYiyvUq7fZOVGuGP9ECQQCQwBsubAM8R1STJERefMZRGAUg+UVTXatq9BK1xU9vQQCwKXBf78a+JLONQN/h8F8RXQduyyrNe0qpo7vTVAixAkA2zjJWpWI3JNO9NTns0Gkluk7d5GVjpOQIENu+nNJmgrhVnYKgJlMTtMbi6sgUUQ9KfmG8K1v1BuBrZrDwNFOxAkA9JSlWPsJPIEKVtWg8EbEkaGUiPKoQQS08DMYqiqK3eFn2EEsr+3mUsKQ4MwNfyc4e45FUN/ZovoAXkNayunjBAkAzhYBxLxjJTf7SBCjwcKus/Z0G1+mYWaKQuYWhyXhVJ7w8oNZ0KqoXECDYdeSAMEwGUkLHJjRtIFBHyJzR2vU6";
 
-		PublicKey publicOscarKey = getPublicOscarKey(publicOscarKeyString); 
-		PrivateKey publicServiceKey = getPublicServiceKey(publicServiceKeyString);
-		
-		byte[] bytes = "foo bar was here".getBytes(); 
-		send(null, bytes, url, publicOscarKey, publicServiceKey, "server1");
+		send("foo bar was here".getBytes(), url, getPublicOscarKey(publicOscarKeyString), getPublicServiceKey(publicServiceKeyString), "server1");
 	}
 }

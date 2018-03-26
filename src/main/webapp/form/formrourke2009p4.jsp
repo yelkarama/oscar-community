@@ -24,22 +24,6 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_form" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_form");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@ page import="oscar.util.*, oscar.form.*, oscar.form.data.*"%>
 <%@ page import="oscar.oscarEncounter.data.EctFormData" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
@@ -48,8 +32,7 @@
 
 <%
     String formClass = "Rourke2009";    
-   		 
-   	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+
     int demoNo = Integer.parseInt(request.getParameter("demographic_no"));
     int formId = Integer.parseInt(request.getParameter("formId"));
     int provNo = Integer.parseInt((String) session.getAttribute("user"));
@@ -57,7 +40,7 @@
     FrmRecord rec = (FrmRecord) request.getAttribute("frmRecord"); 
     String []growthCharts = new String[2];
     
-    if( ((FrmRourke2009Record)rec).isFemale(loggedInInfo, demoNo) ) {
+    if( ((FrmRourke2009Record)rec).isFemale(demoNo) ) {
     	growthCharts[0] = new String("GrowthChartRourke2009Girls&__cfgfile=GrowthChartRourke2009Girls3&__cfgGraphicFile=GrowthChartRourke2009GirlGraphic&__cfgGraphicFile=GrowthChartRourke2009GirlGraphic2&__cfgGraphicFile1=GrowthChartRourke2009GirlGraphic5&__cfgGraphicFile1=GrowthChartRourke2009GirlGraphic6&__numPages=2&__graphType=LENGTH&__template=GrowthChartRourke2009Girls");
         growthCharts[1] = new String("GrowthChartRourke2009Girls2&__cfgGraphicFile=GrowthChartRourke2009GirlGraphic3&__cfgGraphicFile=GrowthChartRourke2009GirlGraphic4&__graphType=HEAD_CIRC&__template=GrowthChartRourke2009Girlspg2");
     }
@@ -75,7 +58,7 @@
     String formTable = "formGrowth0_36";
     String formName = "Growth 0-36m";
     String growthChartURL = "";
-    EctFormData.PatientForm[] pforms = EctFormData.getPatientFormsFromLocalAndRemote(loggedInInfo, String.valueOf(demoNo), formTable);
+    EctFormData.PatientForm[] pforms = EctFormData.getPatientFormsFromLocalAndRemote(String.valueOf(demoNo), formTable);
     if (pforms.length > 0) {
     	EctFormData.PatientForm pfrm = pforms[0];
     	growthChartURL = request.getContextPath() + "/form/forwardshortcutname.jsp?formname=" + formName + "&demographic_no=" + demoNo + (pfrm.getRemoteFacilityId()!=null?"&remoteFacilityId="+pfrm.getRemoteFacilityId()+"&formId="+pfrm.getFormId():"");
@@ -149,7 +132,7 @@ description layer</div>
 				value="<%= props.getProperty("c_birthDate", "") %>" readonly="true">
 			&nbsp;&nbsp; 
 			Age: <input type="text" id="currentAge4" size="10" maxlength="10" readonly="true" ondblclick="calcAge();">
-				<% if(! ((FrmRourke2009Record)rec).isFemale(loggedInInfo, demoNo))
+				<% if(! ((FrmRourke2009Record)rec).isFemale(demoNo))
                 {
                     %>(<bean:message
 				key="oscarEncounter.formRourke1.msgMale" />)

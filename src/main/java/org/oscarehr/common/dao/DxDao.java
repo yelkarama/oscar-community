@@ -23,14 +23,11 @@
 
 package org.oscarehr.common.dao;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Query;
 
-import org.oscarehr.common.NativeSql;
 import org.oscarehr.common.model.DxAssociation;
-import org.oscarehr.util.MiscUtils;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -67,62 +64,4 @@ public class DxDao extends AbstractDao<DxAssociation> {
     	}
     	return null;
     }
-
-    @NativeSql
-    @SuppressWarnings("unchecked")
-	public List<Object[]> findCodingSystemDescription(String codingSystem, String code) {
-		try {
-			String sql = "SELECT " + codingSystem +", description FROM " + codingSystem + " WHERE " + codingSystem + " = :code";
-			Query query = entityManager.createNativeQuery(sql);
-			query.setParameter("code", code);
-			return query.getResultList();
-		} catch (Exception e) {
-			// TODO Add exclude to the test instead when it's merged  
-			return new ArrayList<Object[]>();
-		}
-    }
-	
-	@NativeSql
-    @SuppressWarnings("unchecked")
-	public List<Object[]> findCodingSystemDescription(String codingSystem, String[] keywords) {
-		try {
-			boolean flag=false;
-			StringBuilder buf = new StringBuilder("select " + codingSystem + ", description from " + codingSystem);
-			
-			for(String keyword : keywords){
-                if(keyword == null || keyword.trim().equals("")) {
-                	continue;
-                }
-                if(!flag) {
-                	buf.append(" where "); 
-                }
-                if(flag) {
-                	buf.append(" or ");
-                }
-                buf.append(" " + codingSystem + " like '%" + keyword + "%' or description like '%" + keyword + "%' ");
-                flag=true;
-            }
-			
-			Query query = entityManager.createNativeQuery(buf.toString());
-			return query.getResultList();
-		} catch (Exception e) {
-			MiscUtils.getLogger().error("error",e);
-			return new ArrayList<Object[]>();
-		}
-		
-	}
-	
-	@NativeSql
-	public String getCodeDescription(String codingSystem, String code) {
-		String desc="";
-		StringBuilder buf = new StringBuilder("select description from " + codingSystem + " where "+ codingSystem + "='" + code + "'");
-		try {
-			Query query = entityManager.createNativeQuery(buf.toString());
-			desc =  (String) query.getSingleResult();
-		} catch (Exception e) {
-			MiscUtils.getLogger().error("error "+buf,e);
-		}
-		return desc;
-	}
-		
 }

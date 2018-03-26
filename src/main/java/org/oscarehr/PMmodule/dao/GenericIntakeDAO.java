@@ -48,9 +48,9 @@ import org.oscarehr.PMmodule.model.IntakeNode;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.model.ReportStatistic;
-import org.oscarehr.util.AccumulatorMap;
 import org.oscarehr.util.DbConnectionFilter;
 import org.oscarehr.util.MiscUtils;
+import org.oscarehr.utils.AccumulatorMap;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import oscar.util.SqlUtils;
@@ -70,6 +70,9 @@ public class GenericIntakeDAO extends HibernateDaoSupport {
 			new Object[] { after });
 	}
 
+	/**
+	 * @see org.oscarehr.PMmodule.dao.GenericIntakeDAO#getLatestIntake(IntakeNode, java.lang.Integer, Integer)
+	 */
 	public Intake getLatestIntakeByFacility(IntakeNode node, Integer clientId, Integer programId, Integer facilityId) {
 		if (node == null || clientId == null) {
 			throw new IllegalArgumentException("Parameters node and clientId must be non-null");
@@ -113,6 +116,9 @@ public class GenericIntakeDAO extends HibernateDaoSupport {
 		return facilityIds;
 	}
 
+	/**
+	 * @see org.oscarehr.PMmodule.dao.GenericIntakeDAO#getIntakes(org.oscarehr.PMmodule.model.IntakeNode, java.lang.Integer, Integer)
+	 */
 	public List<Intake> getIntakes(IntakeNode node, Integer clientId, Integer programId, Integer facilityId) {
 		if (node == null || clientId == null) {
 			throw new IllegalArgumentException("Parameters node and clientId must be non-null");
@@ -322,6 +328,9 @@ public class GenericIntakeDAO extends HibernateDaoSupport {
 		return intakeIds;
 	}
 
+	/**
+	 * @see org.oscarehr.PMmodule.dao.GenericIntakeDAO#getReportStatistics(java.util.List, java.util.List)
+	 */
 	public SortedMap<Integer, SortedMap<String, ReportStatistic>> getReportStatistics(Hashtable<Integer,Integer> answerIds, Set<Integer> intakeIds) {
 		if (intakeIds == null || answerIds == null) {
 			throw new IllegalArgumentException("Parameters intakeIds, answerIds must be non-null");
@@ -469,7 +478,91 @@ public class GenericIntakeDAO extends HibernateDaoSupport {
 		}
 	}
 
+	private void convertToReportStatistics2(List<?> results, SortedMap<Integer, SortedMap<String, ReportStatistic>> reportStatistics) {
+		// for (Object o : results) {
+		// Object[] tuple = (Object[])o;
+		//
+		// Integer nodeId = (Integer)tuple[0];
+		// String value = (String)tuple[1];
+		//
+		// Integer count = Integer.valueOf(tuple[2].toString());
+		//
+		// if (!reportStatistics.containsKey(nodeId)) {
+		// reportStatistics.put(nodeId, new TreeMap<String, ReportStatistic>());
+		// }
+		//
+		// reportStatistics.get(nodeId).put(value, new ReportStatistic(count, size));
+		// }
+	}
 
+	/* the following codes are for street health report, not finished yet.
+	public List getCohort(Date EndDate, Date BeginDate, List clients) {
+        if (BeginDate == null && EndDate == null) {
+            return new ArrayList();
+        }
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy/MM/dd");
+        List results = new ArrayList();
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Getting Cohort: " + BeginDate + " to " + EndDate);
+        }
+
+        for (int x = 0; x < clients.size(); x++) {
+            Demographic client = (Demographic)clients.get(x);
+            if (client.getPatientStatus().equals("AC")) {
+                // get current intake
+                //Formintakec intake = this.getCurrentForm(client.getDemographicNo());
+            	Intake intake = getLatestIntake(client.getDemographicNo(),1);
+                // parse date
+                Date admissionDate = null;
+                try {
+                    //admissionDate = formatter.parse(intake.getAdmissionDate());
+                	admissionDate = formatter.parse(intake.getCreatedOnStr());
+                }
+                catch (Exception e) {
+                }
+                if (admissionDate == null) {
+                    LOG.warn("invalid admission date for client #" + client.getDemographicNo());
+                    continue;
+                }
+                // does it belong in this cohort?
+                if (BeginDate != null && EndDate != null) {
+                    if (admissionDate.after(BeginDate) && admissionDate.before(EndDate)) {
+                        LOG.debug("admissionDate=" + admissionDate);
+                        // ok, add this client
+                        Object[] ar = new Object[2];
+                        ar[0] = intake;
+                        ar[1] = client;
+                        results.add(ar);
+                    }
+                }
+                if (BeginDate == null && admissionDate.before(EndDate)) {
+                    LOG.debug("admissionDate=" + admissionDate);
+                    // ok, add this client
+                    Object[] ar = new Object[2];
+                    ar[0] = intake;
+                    ar[1] = client;
+                    results.add(ar);
+                }
+            }
+        }
+
+        LOG.info("getCohort: found " + results.size() + " results. (" + BeginDate + " - " + EndDate + ")");
+
+        return results;
+    }
+	private Intake getLatestIntake(String clientId, int num) {
+		if (clientId == null) {
+			throw new IllegalArgumentException("clientId must be non-null");
+		}
+
+		List<Intake> intakes = getIntakes(node, clientId, programId);
+		Intake intake = !intakes.isEmpty() ? intakes.get(0) : null;
+		LOG.info("get latest intake: " + intake);
+
+		return intake;
+	}
+	*/
 
 	public List<IntakeNode> getIntakeNodesByType(Integer formType) {
 		return this.getHibernateTemplate().find("From IntakeNode n where n.formType = ? and n.publish_by is not null", new Object[] {formType});

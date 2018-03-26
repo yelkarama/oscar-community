@@ -109,7 +109,20 @@ public class GenericIntakeConstants {
 		new LabelValueBean("North East", "13"), new LabelValueBean("North Simcoe Muskoka", "12"),
 		new LabelValueBean("North West", "14"), new LabelValueBean("Out of Country", "010-52"),
 		new LabelValueBean("Out Of Province", "010-30"), new LabelValueBean("South East", "10"),
-		new LabelValueBean("South West", "2"), new LabelValueBean("Toronto Centra", "7"),
+		new LabelValueBean("South West", "2"), new LabelValueBean("Toronto Central", "7"),
+		new LabelValueBean("Unknown", "UNK"), new LabelValueBean("Waterloo Wellington", "3")	
+		
+    };
+	
+	public static final LabelValueBean[] LHIIN_SERVICE_DELIVERY = new LabelValueBean[] { 		
+		new LabelValueBean("Select an answer", ""), new LabelValueBean("Central", "8"),
+		new LabelValueBean("Central East", "9"), new LabelValueBean("Central West", "5"),
+		new LabelValueBean("Champlain", "11"), new LabelValueBean("Erie St.Clair", "1"),
+		new LabelValueBean("Hamilton Niagara Haldimand Brant", "4"), new LabelValueBean("Mississauga-Halton", "6"),
+		new LabelValueBean("North East", "13"), new LabelValueBean("North Simcoe Muskoka", "12"),
+		new LabelValueBean("North West", "14"), new LabelValueBean("Out of Country", "010-52"),
+		new LabelValueBean("Out Of Province", "010-30"), new LabelValueBean("South East", "10"),
+		new LabelValueBean("South West", "2"), new LabelValueBean("Toronto Central", "7"),
 		new LabelValueBean("Unknown", "UNK"), new LabelValueBean("Waterloo Wellington", "3")	
 		
     };

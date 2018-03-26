@@ -22,22 +22,6 @@
     Toronto, Ontario, Canada
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_report,_admin.reporting" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_report&type=_admin.reporting");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
 <%@page import="java.util.*"%>
 <%@page import="org.caisi.dao.*"%>
 <%@page import="org.caisi.model.*"%>
@@ -49,110 +33,114 @@ if(!authed) {
 <%@page import="java.text.DateFormatSymbols"%>
 <%@page import="org.apache.commons.lang.StringEscapeUtils"%>
 
-<%@ include file="/taglibs.jsp"%>
-<c:set var="ctx" value="${pageContext.request.contextPath}"
-	scope="request" />
 
-<div class="page-header">
-	<h4>OCAN Export Report - v2.0.6</h4>
-</div>
+<%@include file="/layouts/caisi_html_top.jspf"%>
 
 
-<form method="post" action="${ctx}/oscarReport/ocan_report_export.jsp"
-	class="well form-horizontal">
+<h1>OCAN Export Report - v2.0.6</h1>
 
-	<fieldset>
-		<h4>
-			<bean:message key="admin.admin.ocanRpt" />
-			<br> <small>Please select the OCAN type and assessment
-				start date from &amp; to.</small>
-		</h4>
-		<div class="row-fluid">
-			<div class="control-group">
-				<label class="control-label">OCAN Type</label>
-				<div class="controls">
+				
+<form method="post" action="ocan_report_export.jsp">
+	<table class="borderedTableAndCells">
+		<tr>
+			<td>OCAN Type </td>			
+			<td >
+				<select name="ocanType" id="ocanType">
+					<option value="FULL">FULL</option>
+					<option value="SELF">SELF+CORE</option>
+					<option value="CORE">CORE</option>
+				</select>
+			</td>
+		</tr>
+		
+		<tr>
+			<td colspan="2">Date Selection  </td>
+			<td></td>
+		</tr>
+		<tr>			
+			<td>The Assessment Start Date From</td>
+			<td>
+				<select name="startYear">
+				<%
+					GregorianCalendar cal=new GregorianCalendar();
+					int year=cal.get(GregorianCalendar.YEAR);
+					year = year + 5;
+					for(int i=0;i<5;i++)
+					{	
+						%>
+						<option value="<%=year-i%>"><%=year-i %> </option>
+						<%
+					}
+					year = year - 5;
+					for (int i=0; i<10; i++)
+					{
+						%>
+							<option value="<%=year-i%>"><%=year-i%></option>
+						<%
+					}
+				%>
+				</select>
+				-
+				<select name="startMonth">
+				<%
+					DateFormatSymbols dateFormatSymbols=DateFormatSymbols.getInstance();
+					String[] months=dateFormatSymbols.getShortMonths();
+					
+					for (int i=1; i<13; i++)
+					{
+						%>
+							<option value="<%=i%>" title="<%=months[i-1]%>"><%=i%></option>
+						<%
+					}
+				%>
+				</select>
+			</td>
+		</tr>
 
-					<select name="ocanType" id="ocanType" class="span3">
-						<option value="FULL">FULL</option>
-						<option value="SELF">SELF+CORE</option>
-						<option value="CORE">CORE</option>
-					</select>
-				</div>
-			</div>
-			<div class="control-group">
-				<label class="control-label">From</label>
-				<div class="controls">
-					<select name="startYear" class="input-small">
-						<%
-							GregorianCalendar cal = new GregorianCalendar();
-							int year = cal.get(GregorianCalendar.YEAR);
-							year = year + 5;
-							for (int i = 0; i < 5; i++) {
+		<tr>
+			<td >To </td>
+			<td>
+				<select name="endYear">
+				<%					
+					int year2=cal.get(GregorianCalendar.YEAR);
+					year2 = year2 + 5;
+					for(int i=0;i<5;i++)
+					{	
 						%>
-						<option value="<%=year - i%>"><%=year - i%>
-						</option>
+						<option value="<%=year2-i%>"><%=year2-i %> </option>
 						<%
-							}
-							year = year - 5;
-							for (int i = 0; i < 10; i++) {
+					}
+					year2 = year2 - 5;
+					for (int i=0; i<10; i++)
+					{
 						%>
-						<option value="<%=year - i%>"><%=year - i%></option>
+							<option value="<%=year2-i%>"><%=year2-i%></option>
 						<%
-							}
+					}
+				%>
+				</select>
+				-
+				<select name="endMonth">
+				<%					
+					for (int i=1; i<13; i++)
+					{
 						%>
-					</select> <select name="startMonth" class="input-mini">
+							<option value="<%=i%>" title="<%=months[i-1]%>"><%=i%></option>
 						<%
-							DateFormatSymbols dateFormatSymbols = DateFormatSymbols
-									.getInstance();
-							String[] months = dateFormatSymbols.getShortMonths();
+					}
+				%>
+				</select>
+			</td>
+		</tr>
 
-							for (int i = 1; i < 13; i++) {
-						%>
-						<option value="<%=i%>" title="<%=months[i - 1]%>"><%=i%></option>
-						<%
-							}
-						%>
-					</select>
-				</div>
-			</div>
-			<div class="control-group">
-				<label class="control-label">To</label>
-				<div class="controls">
-					<select name="endYear" class="input-small">
-						<%
-							int year2 = cal.get(GregorianCalendar.YEAR);
-							year2 = year2 + 5;
-							for (int i = 0; i < 5; i++) {
-						%>
-						<option value="<%=year2 - i%>"><%=year2 - i%>
-						</option>
-						<%
-							}
-							year2 = year2 - 5;
-							for (int i = 0; i < 10; i++) {
-						%>
-						<option value="<%=year2 - i%>"><%=year2 - i%></option>
-						<%
-							}
-						%>
-					</select> <select name="endMonth" class="input-mini">
-						<%
-							for (int i = 1; i < 13; i++) {
-						%>
-						<option value="<%=i%>" title="<%=months[i - 1]%>"><%=i%></option>
-						<%
-							}
-						%>
-					</select>
-				</div>
-			</div>
 
-		</div>
-			<div class="control-group">
-				<div class="controls">
-					<input type="submit" value="Download Report"
-						class="btn btn-primary" />
-				</div>
-			</div>
-	</fieldset>
+
+		<tr>
+			<td></td>
+			<td><input type="submit" value="Download Report" /></td>
+		</tr>
+	</table>	
 </form>
+
+
+<%@include file="/layouts/caisi_html_bottom.jspf"%>

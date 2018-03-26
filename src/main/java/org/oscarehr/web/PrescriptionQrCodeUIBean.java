@@ -113,9 +113,9 @@ public final class PrescriptionQrCodeUIBean {
 		return null;
     }
 	
-	public static boolean isPrescriptionQrCodeEnabledForProvider(String providerNo)
+	public static boolean isPrescriptionQrCodeEnabledForCurrentProvider()
 	{
-		ProviderPreference providerPreference=ProviderPreferencesUIBean.getProviderPreference(providerNo);
+		ProviderPreference providerPreference=ProviderPreferencesUIBean.getLoggedInProviderPreference();
 		if (providerPreference==null) providerPreference=new ProviderPreference();
 			
 		return(providerPreference.isPrintQrCodeOnPrescriptions());

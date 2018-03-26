@@ -23,7 +23,6 @@
     Ontario, Canada
 
 --%>
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
@@ -43,24 +42,7 @@
 <%@page import="oscar.oscarRx.util.RxUtil" %>
 <%@page import="org.apache.commons.lang.StringEscapeUtils" %>
 
-<%@page import="java.util.ArrayList"%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_rx" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_rx");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-<html:html locale="true">
+<%@page import="java.util.ArrayList"%><html:html locale="true">
 <head>
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/global.js"></script>
 <title><bean:message key="StaticScript.title" /></title>
@@ -68,7 +50,6 @@
 <html:base />
 
 <%
-LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 oscar.oscarRx.pageUtil.RxSessionBean rxBean = null;
 %>
 <logic:notPresent name="RxSessionBean" scope="session">
@@ -91,6 +72,7 @@ oscar.oscarRx.pageUtil.RxSessionBean rxBean = null;
 	if( rxBean == null ) {
 		rxBean=(oscar.oscarRx.pageUtil.RxSessionBean)pageContext.findAttribute("bean");
 	}
+	String roleName$ = (String)session.getAttribute("userrole") + "," + (String)session.getAttribute("user");
 	com.quatro.service.security.SecurityManager securityManager = new com.quatro.service.security.SecurityManager();
 %>
 
@@ -114,9 +96,9 @@ oscar.oscarRx.pageUtil.RxSessionBean rxBean = null;
 	Integer currentDemographicNo=rxBean.getDemographicNo();
 	String atc = request.getParameter("atc");
 
-        ArrayList<StaticScriptBean.DrugDisplayData> drugs=StaticScriptBean.getDrugList(loggedInInfo, currentDemographicNo, regionalIdentifier, cn,bn,atc);
+        ArrayList<StaticScriptBean.DrugDisplayData> drugs=StaticScriptBean.getDrugList(currentDemographicNo, regionalIdentifier, cn,bn,atc);
 
-	oscar.oscarRx.data.RxPatientData.Patient patient=oscar.oscarRx.data.RxPatientData.getPatient(loggedInInfo, currentDemographicNo);
+	oscar.oscarRx.data.RxPatientData.Patient patient=oscar.oscarRx.data.RxPatientData.getPatient(currentDemographicNo);
 	String annotation_display=org.oscarehr.casemgmt.model.CaseManagementNoteLink.DISP_PRESCRIP;
 %>
 <script type="text/javascript" src="../share/javascript/prototype.js"/>"></script>
@@ -138,13 +120,10 @@ oscar.oscarRx.pageUtil.RxSessionBean rxBean = null;
             }});
        }
     }
-    
-    //represcribe a drug
+     //represcribe a drug
     function reRxDrugSearch3(reRxDrugId){
-        var dataUpdateId="reRxDrugId="+reRxDrugId+"&action=addToReRxDrugIdList&rand="+Math.floor(Math.random()*10001);
-        var urlUpdateId= "<c:out value="${ctx}"/>" + "/oscarRx/WriteScript.do?parameterValue=updateReRxDrug";
-        new Ajax.Request(urlUpdateId, {method: 'get',parameters:dataUpdateId}); 
-    	 
+        //location.href="SearchDrug3.jsp?reRxDrugId="+reRxDrugId;
+        //location.href='../oscarRx/choosePatient.do?providerNo=<%=curUser_no%>&demographicNo=<%=currentDemographicNo%>'
         var data="drugId="+reRxDrugId;
         var url= "<c:out value="${ctx}"/>" + "/oscarRx/rePrescribe2.do?method=saveReRxDrugIdToStash";
         new Ajax.Request(url, {method: 'post',parameters:data,asynchronous:false,onSuccess:function(transport){
@@ -266,7 +245,7 @@ oscar.oscarRx.pageUtil.RxSessionBean rxBean = null;
 							}
 						%>
 						</td>
-						<%if(securityManager.hasWriteAccess("_rx",roleName2$,true)) {%>
+						<%if(securityManager.hasWriteAccess("_rx",roleName$,true)) {%>
 						<td>
 							<%
 								if (drug.isLocal)

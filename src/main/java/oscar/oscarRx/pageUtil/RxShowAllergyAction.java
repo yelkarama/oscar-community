@@ -39,8 +39,6 @@ import org.oscarehr.common.dao.AllergyDao;
 import org.oscarehr.common.dao.UserPropertyDAO;
 import org.oscarehr.common.model.Allergy;
 import org.oscarehr.common.model.UserProperty;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
@@ -48,7 +46,6 @@ import oscar.OscarProperties;
 import oscar.oscarRx.data.RxPatientData;
 
 public final class RxShowAllergyAction extends DispatchAction {
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
 
 	private AllergyDao allergyDao = (AllergyDao) SpringUtils.getBean("allergyDao");
 
@@ -66,11 +63,10 @@ public final class RxShowAllergyAction extends DispatchAction {
     HttpServletResponse response)
     throws IOException, ServletException {
 
-    	LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
-		if (!securityInfoManager.hasPrivilege(loggedInInfo, "_allergy", "r", null)) {
-			throw new RuntimeException("missing required security object (_allergy)");
-		}
-		
+        if(request.getSession().getAttribute("user") == null  || !( ((String) request.getSession().getAttribute("userprofession")).equalsIgnoreCase("doctor") )  ){
+            return (mapping.findForward("Logout"));
+        }
+
         boolean useRx3=false;
         String rx3 = OscarProperties.getInstance().getProperty("RX3");
         if(rx3!=null&&rx3.equalsIgnoreCase("yes")) {
@@ -116,7 +112,7 @@ public final class RxShowAllergyAction extends DispatchAction {
         	reorder(request);
         }
 
-        RxPatientData.Patient patient = RxPatientData.getPatient(loggedInInfo, bean.getDemographicNo());
+        RxPatientData.Patient patient = RxPatientData.getPatient(bean.getDemographicNo());
 
         String forward="success";
         if(useRx3) {
@@ -132,13 +128,11 @@ public final class RxShowAllergyAction extends DispatchAction {
     }
 
     private void reorder(HttpServletRequest request) {
-    	LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
-    	
     	String direction = request.getParameter("direction");
     	String demographicNo = request.getParameter("demographicNo");
     	int allergyId = Integer.parseInt(request.getParameter("allergyId"));
     	try {
-    		Allergy[] allergies = RxPatientData.getPatient(loggedInInfo, demographicNo).getActiveAllergies();
+    		Allergy[] allergies = RxPatientData.getPatient(demographicNo).getActiveAllergies();
     		for(int x=0;x<allergies.length;x++) {
     			if(allergies[x].getAllergyId() == allergyId) {
     				if(direction.equals("up")) {

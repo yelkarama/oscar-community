@@ -25,15 +25,13 @@
 
 package oscar.oscarDB;
 
-import java.util.List;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.jdom.Document;
 import org.jdom.output.XMLOutputter;
-import org.oscarehr.common.dao.TableModificationDao;
-import org.oscarehr.common.model.ProviderLabRoutingModel;
-import org.oscarehr.common.model.TableModification;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
 /**
  * This class is used to archive deleted or updated rows that won't be used again.
@@ -67,21 +65,24 @@ public class ArchiveDeletedRecords {
     public ArchiveDeletedRecords() {
     }
     
-    private String getStringXmlFromResultSet(ProviderLabRoutingModel record) throws Exception{
-       ResultSetBuilder builder = new ResultSetBuilder(record);
+    private String getStringXmlFromResultSet(ResultSet rs) throws Exception{
+       ResultSetBuilder builder = new ResultSetBuilder(rs);
        Document doc = builder.build();
        XMLOutputter xml = new XMLOutputter();
        String xmlStr = xml.outputString(doc); 
        return xmlStr;     
     }
     
-    public int recordRowsToBeDeleted(List<ProviderLabRoutingModel> records, String provNo,String table){
+    
+    public int recordRowsToBeDeleted(String sql,String provNo,String table){
         try {
-            for(ProviderLabRoutingModel record : records) {
-            	String xmlStr = getStringXmlFromResultSet(record);
-                addRowsToModifiedTable(null,provNo,ArchiveDeletedRecords.DELETE, table, null, xmlStr);
+               
+            ResultSet rs = DBHandler.GetSQL(sql);            
+            if ( rs.next()){
+               String xmlStr = getStringXmlFromResultSet(rs);
+               addRowsToModifiedTable(null,provNo,ArchiveDeletedRecords.DELETE,table,null,xmlStr);
             }
-            
+            rs.close();
         }
         catch(Exception e) {
             MiscUtils.getLogger().error("Error", e);
@@ -90,18 +91,23 @@ public class ArchiveDeletedRecords {
     }
     
     private void addRowsToModifiedTable(String demoNo,String provNo,String modType,String table,String rowId,String resultSet){
-    	TableModification tm = new TableModification();
-    	tm.setDemographicNo(demoNo != null ? Integer.parseInt(demoNo) : null);
-    	tm.setProviderNo(provNo);
-    	tm.setModificationType(modType);
-    	tm.setTableName(table);
-    	tm.setRowId(rowId);
-    	tm.setResultSet(resultSet);
-    	
-    	TableModificationDao dao = SpringUtils.getBean(TableModificationDao.class);
-    	dao.persist(tm);
-    	
-    	MiscUtils.getLogger().debug("Added rows to modified table: " + tm);
+        try {
+               
+            String insertSql = "insert into table_modification (demographic_no,provider_no,modification_type,table_name,row_id,resultSet,modification_date) " +
+                               " values ('"+StringEscapeUtils.escapeSql(demoNo)+"', " +
+                               " '"+StringEscapeUtils.escapeSql(provNo)+"', " +
+                               " '"+StringEscapeUtils.escapeSql(modType)+"', " +
+                               " '"+StringEscapeUtils.escapeSql(table)+"', " +
+                               " '"+StringEscapeUtils.escapeSql(rowId)+"', " +
+                               " '"+StringEscapeUtils.escapeSql(resultSet)+"', " +                               
+                               "  now()" +
+                               ")";            
+            MiscUtils.getLogger().debug(insertSql);
+            DBHandler.RunSQL(insertSql);
+        }
+        catch(SQLException e) {
+            MiscUtils.getLogger().error("Error", e);
+        }        
     }
     
 }

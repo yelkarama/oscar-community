@@ -33,14 +33,10 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
    "http://www.w3.org/TR/html4/loose.dtd">
 
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
-<%@page import="org.oscarehr.myoscar.utils.MyOscarLoggedInInfo"%>
-<%@page import="org.oscarehr.myoscar.client.ws_manager.MyOscarLoggedInInfoInterface"%>
 <%@page import="org.oscarehr.phr.util.MyOscarUtils"%>
 <%@page import="org.apache.commons.lang.StringEscapeUtils"%>
 <%@page import="org.oscarehr.common.model.Provider"%>
 <%@page import="org.oscarehr.phr.RegistrationHelper"%>
-<%@page import="org.oscarehr.myoscar_server.ws.PersonTransfer3"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic" %>
@@ -55,20 +51,6 @@
 <%@ page import="oscar.oscarProvider.data.ProviderData"%>
 <%@ page import="java.util.*"%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_phr" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_phr");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
 
 <%
 DemographicExtDao demographicExtDao = SpringUtils.getBean(DemographicExtDao.class);
@@ -76,11 +58,13 @@ DemographicExtDao demographicExtDao = SpringUtils.getBean(DemographicExtDao.clas
 String demographicNo = request.getParameter("demographicNo");
 int demographicId=Integer.parseInt(demographicNo);
 
-org.oscarehr.common.model.Demographic demographic = new DemographicData().getDemographic(LoggedInInfo.getLoggedInInfoFromSession(request), demographicNo);
+org.oscarehr.common.model.Demographic demographic = new DemographicData().getDemographic(demographicNo);
 request.setAttribute("demographic", demographic);
 
-String hPhoneExt = demographicExtDao.getValueForDemoKey(Integer.parseInt(demographicNo), "hPhoneExt");
-String wPhoneExt = demographicExtDao.getValueForDemoKey(Integer.parseInt(demographicNo), "wPhoneExt");
+String defaultNewUserName=RegistrationHelper.getDefaultUserName(demographicId);
+
+String hPhoneExt = demographicExtDao.getValueForDemoKey(demographicNo, "hPhoneExt");
+String wPhoneExt = demographicExtDao.getValueForDemoKey(demographicNo, "wPhoneExt");
 if (hPhoneExt != null)
     request.setAttribute("demographicHomeExt", " " + hPhoneExt);
 if (wPhoneExt != null)
@@ -89,10 +73,8 @@ if (wPhoneExt != null)
 
 <html>
     <head>
-        <title>Register for PHR</title>
-        <link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/css/bootstrap.css">
-        <script type="text/javascript" src="<%=request.getContextPath()%>/js/jquery-1.7.1.min.js"></script>
-        
+                <title>Register Indivo</title>
+        <link rel="stylesheet" type="text/css" href="<%=request.getContextPath()%>/phr/phr.css">
         <style type="text/css" language="JavaScript">
             .headingTop {
                 width: 100%;
@@ -109,45 +91,21 @@ if (wPhoneExt != null)
         </style>
         <script type="text/javascript" language="JavaScript">
             function validateNSubmit() {
-                var error = false;
-                
-            	$("#username-group").removeClass('error');
-            	$("#username-required").hide();
-            	$("#username-invalid").hide();
-            	$("#password-group").removeClass('error');
-            	$("#pwd-help").hide();
-                
-            	
-	            if ($("#username").val() == '') {
-	            	$("#username-group").addClass('error');
-	            	$("#username-required").show();
-	                $("#username").focus();
-	                error = true;
-	            } 
-	            
-	            if(!error) {
-	            	var usernameRegex = /^[a-zA-Z0-9._]+$/;
-		            if (!usernameRegex.test($("#username").val())) {
-		            	$("#username-group").addClass('error');
-		            	$("#username-invalid").show();
-		                $("#username").focus();
-		                error = true;
-		            } 
-            	}	                   
-                
-                if ($("#password").val().length < 8) {
-	            	$("#password-group").addClass('error');
-	            	$("#pwd-help").show();
-	            	$("#password").focus();
-	            	error = true;
-	            }        
-                
-                if (error) return;                	
+                if (document.getElementById("username").value == '') {
+                    alert ("Username is required");
+                    document.getElementById("username").focus();
+                    return;
+                } else if (document.getElementById("password").length < 8) {
+                    alert ("Password must be at least 8 characters long");
+                    document.getElementById("password").focus();
+                    return;
+                }
 
                 //if everything is cool:
                 document.getElementById("submitButton").disabled = true;
-                document.getElementById("closeButton").disabled = false;
+                document.getElementById("closeButton").disabled = true;
                 document.getElementById("submitButton").value = "Creating user...";
+                document.getElementById("submittedMessage").style.display = 'block';
                 document.getElementById("registrationForm").submit();
             }
             function enableSubmit() {
@@ -160,290 +118,141 @@ if (wPhoneExt != null)
                     formElements[i].disabled = true;
                 }
                 document.getElementById("submitButton").disabled = true;
-                document.getElementById("closeButton").disabled = false;
+                document.getElementById("closeButton").disabled = true;
             }
-            
-            <%if(request.getParameter("success") != null) {%>
-	            $(document).ready(function() {  
-	               disableForm();
-	            });
-       		<%}%>
 
         </script>
     </head>
     <body>
-	    <%
-	    	MyOscarLoggedInInfo myOscarLoggedInInfo=MyOscarLoggedInInfo.getLoggedInInfo(session);
-	    	if (myOscarLoggedInInfo == null || !myOscarLoggedInInfo.isLoggedIn())
-	    	{
-	    		%>
-		            <jsp:include page="../AuthInclude.jsp">
-		                <jsp:param name="forwardto" value="<%=\"/RegisterIndivo.jsp?demographicNo=\" + demographicNo%>"/>
-		                <jsp:param name="pathtophr" value="<%=request.getContextPath() + \"/phr\"%>"/>
-		            </jsp:include>
-		        <%
-	    	}
-	    	
-	    	String dispDocNo = request.getParameter("DocId");
-	    	String user = (String) session.getAttribute("user");
-	    	
-	    	String password = null;;	    	
-	    	List<String> ulist;
-	    	boolean emailEmpty = false;
-	    	ulist = new ArrayList<String>();
-	    	
-	    	//flag for if the error message coming back is that the username already exists
-	    	boolean usernameNotUnique=false;	 
-			
-	    	if (myOscarLoggedInInfo != null && myOscarLoggedInInfo.isLoggedIn()) {
-		        //if there is a success or failure message, that means the page has been redirected
-		        //to itself, so we load the parameters that were sent on the last submit
-		    	if (request.getParameter("success") != null || request.getParameter("failmessage") != null) {
-		    		password = request.getParameter("password");
-		    		String un = request.getParameter("username");
-		    		
-		    		ulist.add(un);
-		    		String fail = request.getParameter("nonUnique");
-		    		if(fail != null && fail.equals("true")) {
-		    			//this flag will tell the jsp not to display the serverside error, but to display an inline error
-		    			usernameNotUnique=true;
-		    			
-		    			//we still want to display the username suggestions on a failure
-		    			ulist.addAll(RegistrationHelper.getPhrDefaultUserNameList(myOscarLoggedInInfo, demographicId));
-		    		}
-		    		
-		    		
-		    	} else {
-			    	ulist = RegistrationHelper.getPhrDefaultUserNameList(myOscarLoggedInInfo, demographicId);
-			    	password = RegistrationHelper.getNewRandomPassword();
-		    	}
-		    	
-		        
-		        //evaluate the email address. if empty, set flag to true
-		        if (demographic.getEmail() == null || demographic.getEmail().trim().equals("")) {
-		        	emailEmpty=true;
-		        }
-	    	}
-	    	
-	    	if(ulist.isEmpty()){
-	    		ulist.add("");
-	    	}
-	    		
-
-		%>
-	   
-        <html-el:form styleClass="form form-horizontal" action="/phr/UserManagement" styleId="registrationForm" method="POST" >
+        <phr:IfNotPHRAuthenticated>
+            <jsp:include page="../AuthInclude.jsp">
+                <jsp:param name="forwardto" value="<%=\"/phr/indivo/RegisterIndivo.jsp?demographicNo=\" + demographicNo%>"/>
+                <jsp:param name="pathtophr" value="<%=request.getContextPath() + \"/phr\"%>"/>
+            </jsp:include>
+        </phr:IfNotPHRAuthenticated>
+        <html-el:form action="/phr/UserManagement" styleId="registrationForm" method="POST">
                 <html-el:hidden property="method" value="registerUser"/>
                 <html-el:hidden property="demographicNo" value="<%=demographicNo%>"/>
-				<div class="page-header">			
-					<h3>PHR Patient Registration</h3>
-				</div>
-
-			
-				<table class="table table-condensed table-striped">					
-					<!-- Responses coming from server side -->
-					<%if (request.getParameter("failmessage") != null && usernameNotUnique==false) {%>
-			           <tr class="error">
-			           		<td>
-			           			<span class="span2"></span>"
-			               		<span class="span3 text-error"><%=request.getParameter("failmessage")%></span>
-			               	</td>
-			         	</tr>
-			        <%} 
-					if (request.getParameter("success") != null){%>                       
-						<tr class="success">
-							<td>	
-								<script type="text/javascript" language="JavaScript">
-		                           if(window.opener.document.forms[1].myOscarUserName){
-		                              window.opener.document.forms[1].myOscarUserName.value = '<%=ulist.get(0)%>'
-		                 		   }
-		                        </script>
-								<span class="span2"></span>		            
-								<span class="span3 text-success">User was successfully added</span>
-	
-					            <span class="span3">
-					            	<a class="btn btn-primary btn-small" href="../../dms/ManageDocument.do?method=display&doc_no=<%=dispDocNo%>&providerNo=<%=user%>">Download Registration Letter</a></div>
-					            </span>
-					        </td>
-					    </tr>	
-			        <%}%>
-				</table>
-				<div class="controls-row">
-			        <div class="span5">
-			        
-						<div class="control-group <%if(usernameNotUnique){%>error <%}%> " id="username-group">
-							<label class="control-label" for="username">Username</label>
-							<div class="controls">
-								<html-el:text styleId="username" property="username" value="<%=ulist.get(0)%>" />
-								<div class="help-block" id="username-required" style="display:none">Username is required</div>
-								<div class="help-block" id="username-invalid" style="display:none">Username is invalid</div>
-								<%
-									if(usernameNotUnique){%>
-										<div class="help-block" id="username-non-unique">Username is already in use</div>
-										<%if(ulist.size() > 1) {%>
-										<div class="help-block">Available:
-										<%	
-											
-											for (int i = 1; i < ulist.size() ; i++){
-												%>
-													<span><%=ulist.get(i)%><%if(i < ulist.size()-1 && ulist.size() > 2){ %>,<%}%></span>
-												<%
-											}
-										%>
-											</div>
-										<%}%>	
-									<%} %>
-								
-								
-							</div>
-						</div>
-						<div class="control-group" id="password-group">
-							<label class="control-label" for="password">Password (generated)</label>
-							<div class="controls">
-								<html-el:text styleId="password" property="password" value="<%=password%>"/>
-								<div class="help-block" id="pwd-help" style="display:none">Password must be at least 8 characters long</div>
-							</div>
-						</div>
-										
-						<div class="control-group <%if(emailEmpty){%> warning <%}%>">
-							<label class="control-label" for="email">E-mail</label>
-							<div class="controls">
-								<html-el:text property="email" value="${demographic.email}" />
-								<%if(emailEmpty) {%>
-									<div class="help-block" id="email-help">Please enter email address</div>
-								<%} %>
-							</div>
-						</div>	
-					</div>			
-
-					<div class="span4 text-center">					
-						<div class="control-group">
-							<a class="btn btn-link" href="../../demographic/demographiccontrol.jsp?demographic_no=<%=demographicId%>&displaymode=edit&dboperation=search_detail">Edit</a>
-							<address>
-							  <strong>${demographic.firstName}&nbsp;${demographic.lastName}</strong><br />
-							  ${demographic.address}<br />
-							  ${demographic.city},&nbsp;${demographic.province}&nbsp;${demographic.postal}<br />
-							  <abbr title="Phone">P:</abbr>&nbsp;${demographic.phone}&nbsp;${demographicHomeExt}<br />
-							  <abbr title="Work">W:</abbr>&nbsp;${demographic.phone2}&nbsp;${demographicWorkExt}<br />
-							  <abbr title="Date of Birth">DOB:</abbr>&nbsp;<%=DemographicData.getDob(demographic,"/")%>
-							</address>
-						</div>	
-					</div>		
-				</div>		
-
-				
-		
-		
-				<html-el:hidden property="address" value="${demographic.address}" />
-				<html-el:hidden property="city" value="${demographic.city}" />
-				<html-el:hidden property="province" value="${demographic.province}" />
-				<html-el:hidden property="postal" value="${demographic.postal}" />
-				<html-el:hidden property="phone" value="${demographic.phone}${demographicHomeExt}" />
-				<html-el:hidden property="phone2" value="${demographic.phone2}${demographicWorkExt}" />
-				<html-el:hidden property="dob" value="<%=DemographicData.getDob(demographic,\"/\")%>" />
-				<html-el:hidden property="firstName" value="${demographic.firstName}" />
-               	<html-el:hidden property="lastName" value="${demographic.lastName}" />
-               	
-               	
-				<h4>Relationships</h4>
-			
-				
-				<table class="table table-condensed table-striped">
-
-					<tr>
-						<td>Provider</td>
-						<td>Relationship</td>
-						<td>Allow to send messages</td>
-					</tr>
+            <div class="headingTop">MyOSCAR Patient Registration</div>
+            <div class="objectBlue">
+                <div class="objectBlueHeader">
+                    Login Information
+                </div>
+                <table>
+                    <tr>
+                        <td>Username: </td>
+                        <td><html-el:text styleId="username" property="username" value="<%=defaultNewUserName%>" size="30"/></td>
+                    </tr>
+                    <tr>
+                        <td>Password (default generated): </td>
+                        <td><html-el:text styleId="password" property="password" value="<%=RegistrationHelper.getNewRandomPassword()%>"/></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="objectBlue">
+                <div class="objectBlueHeader">
+                    Personal Information
+                </div>
+                <table>
+                    <tr>
+                        <td>Name (First, Last):</td>
+                        <td>
+                            <html-el:text property="firstName" value="${demographic.firstName}" size="20"/>
+                            <html-el:text property="lastName" value="${demographic.lastName}" size="20"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Street Address</td>
+                        <td><html-el:text property="address" value="${demographic.address}" size="40"/></td>
+                    </tr>
+                    <tr>
+                        <td>City</td>
+                        <td><html-el:text property="city" value="${demographic.city}" size="20"/></td>
+                    </tr>
+                    <tr>
+                        <td>Province</td>
+                        <td><html-el:text property="province" value="${demographic.province}" size="20"/></td>
+                    </tr>
+                    <tr>
+                        <td>Postal Code</td>
+                        <td><html-el:text property="postal" value="${demographic.postal}" size="10"/></td>
+                    </tr>
+                    <tr>
+                        <td>Home Phone Number:</td>
+                        <td><html-el:text property="phone" value="${demographic.phone}${demographicHomeExt}" size="20"/></td>
+                    </tr>
+                    <tr>
+                        <td>Work Phone Number:</td>
+                        <td><html-el:text property="phone2" value="${demographic.phone2}${demographicWorkExt}" size="20"/></td>
+                    </tr>
+                    <tr>
+                        <td>E-mail</td>
+                        <td><html-el:text property="email" value="${demographic.email}" size="30"/></td>
+                    </tr>
+                    <tr>
+                        <td>Date of Birth</td>
+                        <td><html-el:text property="dob" value="<%=DemographicData.getDob(demographic,\"/\")%>" size="10"/> (YYYY-MM-DD)</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="objectBlue">
+                <div class="objectBlueHeader">
+                    Relationships
+                </div>
+                <table>
+                    		<tr>
+                    			<th>&nbsp;</th>
+                    			<th>Provider</th>
+                    			<th>Relationship</th>
+                    			<th>Allow patients to send messages</th>
+                    		</tr>
                 	<%
                 		TreeMap<String, Provider> myOscarProviders=RegistrationHelper.getMyOscarProviders();
-                		
-                		//isolate the currently-logged-in Provider, in order to display this user 
-                		//in the first row
-	            		Long curProviderID = null;
-	            		String curProviderUserName = "";
-                		
-                		
-                		if (myOscarLoggedInInfo != null) {
-                			curProviderID= myOscarLoggedInInfo.getLoggedInPersonId();
-                			curProviderUserName = myOscarLoggedInInfo.getLoggedInPerson().getUserName();
-                   		
-                		
-	                		Provider curProvider = myOscarProviders.get(curProviderUserName);
-	                		
-	                		//the display row for the current Provider
-			                %><tr>
-		                		<%if (curProviderID != null && curProvider != null){ %>
-		                		<td>
-		                			<label class="checkbox">
-		                			<input type="checkbox" name="enable_primary_relation_<%=curProviderID%>" <%=RegistrationHelper.getCheckedString(session, "enable_primary_relation_"+curProviderID)%> />
-		                			<strong><%=StringEscapeUtils.escapeHtml(curProviderUserName+" ("+curProvider.getFormattedName()+')')%></strong>
-		                			</label>
-		                		</td>
-		                		<td><%=RegistrationHelper.renderRelationshipSelect(session, "primary_relation_"+curProviderID)%></td>
-		                        <td align="center"><input type="checkbox" name="reverse_relation_<%=curProviderID%>" value="PATIENT" <%=RegistrationHelper.getCheckedStringWithValueString(session, "reverse_relation_"+curProviderID,"PATIENT")%> ></td>
+                		for (Map.Entry<String, Provider> entry : myOscarProviders.entrySet())
+                		{
+                			Long providerMyOscarId=MyOscarUtils.getMyOscarUserId(session, entry.getKey());
+		                	%>
+		                	<tr class="userrow">
+		                		<%if (providerMyOscarId != null){ %>
+		                		<td><input type="checkbox" name="enable_primary_relation_<%=providerMyOscarId%>" <%=RegistrationHelper.getCheckedString(session, "enable_primary_relation_"+providerMyOscarId)%> /></td>
+		                        <td><%=StringEscapeUtils.escapeHtml(entry.getKey()+" ("+entry.getValue().getFormattedName()+')')%></td>
+		                		<td><%=RegistrationHelper.renderRelationshipSelect(session, "primary_relation_"+providerMyOscarId)%></td>
+		                        <td align="center"><input type="checkbox" name="reverse_relation_<%=providerMyOscarId%>" value="PATIENT" <%=RegistrationHelper.getCheckedStringWithValueString(session, "reverse_relation_"+providerMyOscarId,"PATIENT")%> ></td>
 		                        <%}else{ %>
 		                		<td>&nbsp</td>
-		                        <td class="error" ><!--  %=StringEscapeUtils.escapeHtml(curProviderUserName+" ("+curProvider.getFormattedName()+')')%>--></td>
-		                		<td class="error">Not Found on Server</td>
+		                        <td class="error" ><%=StringEscapeUtils.escapeHtml(entry.getKey()+" ("+entry.getValue().getFormattedName()+')')%></td>
+		                		<td colspan="2" class="error">Not Found on Server</td>
 		                		<%} %>
-		                	</tr><%
-	                		
-	                		
-		                	//Iterate through the rest of the Providers, display a row for each
-	                		for (Map.Entry<String, Provider> entry : myOscarProviders.entrySet())
-	                		{
-	                			Long providerMyOscarId=MyOscarUtils.getMyOscarUserIdFromOscarProviderNo(myOscarLoggedInInfo, entry.getValue().getProviderNo());
-	                			//We've already displayed the current Provider's row, so omit this user subsequently
-	                			if(providerMyOscarId != curProviderID){
-				                	%>
-				                	<tr>
-				                		
-				                		<%if (providerMyOscarId != null){ %>
-				                		<td>
-				                			<label class="checkbox">
-				                			<input type="checkbox" name="enable_primary_relation_<%=providerMyOscarId%>" <%=RegistrationHelper.getCheckedString(session, "enable_primary_relation_"+providerMyOscarId)%> />
-				                			<strong><%=StringEscapeUtils.escapeHtml(entry.getKey()+" ("+entry.getValue().getFormattedName()+')')%></strong>
-				                			</label>
-				                		</td>
-				                		<td><%=RegistrationHelper.renderRelationshipSelect(session, "primary_relation_"+providerMyOscarId)%></td>
-				                        <td align="center"><input type="checkbox" name="reverse_relation_<%=providerMyOscarId%>" value="PATIENT" <%=RegistrationHelper.getCheckedStringWithValueString(session, "reverse_relation_"+providerMyOscarId,"PATIENT")%> ></td>
-				                        <%}else{ %>
-				                		<td>&nbsp</td>
-				                        <td class="error" ><%=StringEscapeUtils.escapeHtml(entry.getKey()+" ("+entry.getValue().getFormattedName()+')')%></td>
-				                		<td class="error">Not Found on Server</td>
-				                		<%} %>
-				                	</tr>
-				                    <%
-	                			}
-	                		}
+		                	</tr>
+		                    <%
                 		}
-                    %>					
-				
-				</table>
-				<div class="controls-row">
-					<div class="control-group">
-						<span class="controls span1">
-							<html-el:button styleClass="btn btn-primary" onclick="validateNSubmit();" property="submitButton" styleId="submitButton" value="Submit"/>
-						 </span>
-						<span class="controls span1"> 					
-							<html-el:button styleClass="btn" property="closeButton" styleId="closeButton" value="Close" onclick="window.close();"/>
-						</span>
-					</div>	
-				</div>			
-				
+                    %>
+                </table>
+            </div>
+            <div class="objectBlue">
+                <div class="objectBlueHeader">
+                    Submit
+                </div>
+                <center>
+                    <html-el:button onclick="validateNSubmit();" property="submitButton" styleId="submitButton" value="Submit"/><html-el:button property="closeButton" styleId="closeButton" value="Close" onclick="window.close();"/>
+                </center>
+           </div>
        </html-el:form>
+       <div id="submittedMessage" class="objectGreen" style="position: absolute; width: 50%; height: 20%; display: none; top: 40%; left: 25%; text-align: center; font-size: 12px;">
+           <div class="objectGreenHeader">
+               Creating a new user
+           </div>
+           <br/>
+           Creating a new user......  <br/>
+           <b>Do not close this window.</b>
+       </div>
        <script type="text/javascript" language="JavaScript">
            enableSubmit();
        </script>
-	    <%
-	    	if (myOscarLoggedInInfo == null || !myOscarLoggedInInfo.isLoggedIn())
-	    	{
-	    		%>
-		           <script type="text/javascript" language="JavaScript">
-		               disableForm();
-		           </script>
-		        <%
-	    	}
-		%>
+       <phr:IfNotPHRAuthenticated>
+           <script type="text/javascript" language="JavaScript">
+               disableForm();
+           </script>
+       </phr:IfNotPHRAuthenticated>
     </body>
+</html>

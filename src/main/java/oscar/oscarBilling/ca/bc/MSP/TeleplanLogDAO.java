@@ -25,41 +25,65 @@
 
 package oscar.oscarBilling.ca.bc.MSP;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
 
-import org.oscarehr.billing.CA.BC.dao.LogTeleplanTxDao;
-import org.oscarehr.billing.CA.BC.model.LogTeleplanTx;
+import org.oscarehr.util.DbConnectionFilter;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
 /**
+ +------------------+---------+------+-----+---------+----------------+
+ | Field            | Type    | Null | Key | Default | Extra          |
+ +------------------+---------+------+-----+---------+----------------+
+ | log_no           | int(10) |      | PRI | NULL    | auto_increment |
+ | claim            | blob    | YES  |     | NULL    |                |
+ | sequence_no      | int(10) | YES  |     | NULL    |                |
+ | billingmaster_no | int(10) | YES  |     | NULL    |                |
+ +------------------+---------+------+-----+---------+----------------+
+
  * @author jay
  */
 
 public class TeleplanLogDAO {
-
-	private LogTeleplanTxDao dao = SpringUtils.getBean(LogTeleplanTxDao.class);
-
+    
+    /** Creates a new instance of TeleplanLogDAO */
     public TeleplanLogDAO() {
     }
+    String nsql ="insert into log_teleplantx (sequence_no, claim,billingmaster_no) values (?,?,?)";
     
     public void save(TeleplanLog tl){
-    	LogTeleplanTx l = new LogTeleplanTx();
-    	l.setSequenceNo(tl.getSequenceNo());
-    	l.setClaim(tl.getClaim().getBytes());
-    	l.setBillingMasterNo(tl.getBillingmasterNo());
-    	dao.persist(l);
+         try {
+           
+            PreparedStatement pstmt = DbConnectionFilter.getThreadLocalDbConnection().prepareStatement(nsql);
+            executeUpdate(pstmt,tl);
+            pstmt.close();
+         }catch (SQLException e) {
+            MiscUtils.getLogger().error("Error", e);
+         }
+    }
+    
+    private void executeUpdate(PreparedStatement pstmt, TeleplanLog tl) throws SQLException{
+        pstmt.setInt(1,tl.getSequenceNo());
+        pstmt.setString(2,tl.getClaim());
+        pstmt.setInt(3,tl.getBillingmasterNo());    
+        pstmt.executeUpdate();
+            
     }
     
     public void save(List list){
-        MiscUtils.getLogger().debug("LOG LIST SIZE"+list.size());
-        for (int i = 0; i < list.size(); i++){
-            TeleplanLog tl = (TeleplanLog) list.get(i);
-            LogTeleplanTx l = new LogTeleplanTx();
-        	l.setSequenceNo(tl.getSequenceNo());
-        	l.setClaim(tl.getClaim().getBytes());
-        	l.setBillingMasterNo(tl.getBillingmasterNo());
-        	dao.persist(l);
-        } 
+        try {
+            
+            PreparedStatement pstmt = DbConnectionFilter.getThreadLocalDbConnection().prepareStatement(nsql);
+            MiscUtils.getLogger().debug("LOG LIST SIZE"+list.size());
+            for (int i = 0; i < list.size(); i++){
+                TeleplanLog tl = (TeleplanLog) list.get(i);
+                executeUpdate(pstmt,tl);
+            }
+            pstmt.close();
+         }catch (SQLException e) {
+            MiscUtils.getLogger().error("LOG LIST NULL?"+list, e);
+         }
+        
     }
 }

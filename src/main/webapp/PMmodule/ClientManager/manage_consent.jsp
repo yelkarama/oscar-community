@@ -22,21 +22,6 @@
     Toronto, Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed2=true;
-%>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_pmm" rights="w" reverse="<%=true%>">
-	<%authed2=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_pmm");%>
-</security:oscarSec>
-<%
-	if(!authed2) {
-		return;
-	}
-%>
-
 <%@page import="org.oscarehr.util.SessionConstants"%>
 <%@page import="org.oscarehr.common.dao.*"%>
 <%@page import="org.oscarehr.common.model.*"%>
@@ -55,10 +40,9 @@
 	String.prototype.trim = function() { return this.replace(/^\s+|\s+$|\n$/g, ''); };
 </script>
 <%
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 	int currentDemographicId=Integer.parseInt(request.getParameter("demographicId"));
 	
-	ManageConsent manageConsent=new ManageConsent(loggedInInfo,currentDemographicId);
+	ManageConsent manageConsent=new ManageConsent(currentDemographicId);
 
 	String viewConsentId=request.getParameter("viewConsentId");
 	manageConsent.setViewConsentId(viewConsentId);
@@ -121,7 +105,7 @@
 					Check to indicate which agencies to exclude from consent :
 					<br />
 					<%
-						Collection<CachedFacility> facilitiesToDisplay=manageConsent.getAllFacilitiesToDisplay(loggedInInfo);
+						Collection<CachedFacility> facilitiesToDisplay=manageConsent.getAllFacilitiesToDisplay();
 					
 						if (facilitiesToDisplay!=null)
 						{
@@ -192,7 +176,7 @@
 	<%
 		if (manageConsent.useDigitalSignatures())
 		{
-			signatureRequestId=DigitalSignatureUtils.generateSignatureRequestId(loggedInInfo.getLoggedInProviderNo());
+			signatureRequestId=DigitalSignatureUtils.generateSignatureRequestId(LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo());
 			
 			String imageUrl=null;
 			String statusUrl=null;

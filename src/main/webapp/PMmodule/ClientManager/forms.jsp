@@ -22,47 +22,19 @@
     Toronto, Ontario, Canada
 
 --%>
-
 <%@ include file="/taglibs.jsp"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_pmm" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_pmm");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security" %>
 
 <%@page import="org.oscarehr.PMmodule.web.ClientManagerAction"%>
 <%@page import="org.oscarehr.common.model.CdsClientForm"%>
 <%@page import="org.oscarehr.common.model.OcanStaffForm"%>
 <%@page import="org.oscarehr.common.model.OcanClientForm"%>
 <%@page import="org.oscarehr.common.model.Demographic"%>
-<%@page import="java.util.Enumeration"%>
-<%@ page import="org.oscarehr.PMmodule.service.ProgramManager"%>
-<%@ page import="org.oscarehr.PMmodule.model.Program"%>
-<%@page import="org.oscarehr.util.SpringUtils"%>
-
-<input type="hidden" name="clientId" value="" />
+<%@page import="java.util.Enumeration"%><input type="hidden" name="clientId" value="" />
 <input type="hidden" name="formId" value="" />
 <input type="hidden" id="formInstanceId" value="0" />
 
-<% 
-	Demographic currentDemographic=(Demographic)request.getAttribute("client");
-		boolean programEnableOcan=false;
- 		String currentProgram = (String)session.getAttribute(org.oscarehr.util.SessionConstants.CURRENT_PROGRAM_ID);
- 		if(currentProgram != null) {
- 			ProgramManager pm = SpringUtils.getBean(ProgramManager.class);
- 			Program program = pm.getProgram(currentProgram);
- 			programEnableOcan =program.isEnableOCAN();
- 		}
+<% Demographic currentDemographic=(Demographic)request.getAttribute("client");
 %>
 
 <script>
@@ -339,7 +311,7 @@ New General Form:&nbsp;
 New User Created Form:&nbsp;
 <html:select property="form.formId" onchange="openSurvey(0)">
 	<html:option value="0">&nbsp;</html:option>
-	<html:options collection="survey_list" property="id" labelProperty="description" />
+	<html:options collection="survey_list" property="formId" labelProperty="description" />
 </html:select>
 <br />
 <br />
@@ -408,7 +380,6 @@ New User Created Form:&nbsp;
 <br />
 <br />
 
-<% if(programEnableOcan) { %>
 
 <div class="tabs">
 <table cellpadding="3" cellspacing="0" border="0">
@@ -493,33 +464,14 @@ New User Created Form:&nbsp;
 			<%
 				OcanStaffForm ocanStaffForm=(OcanStaffForm)request.getAttribute("form");
 				String fullOcanStaffFormUrl="ClientManager/ocan_form.jsp?ocanType=FULL&demographicId="+currentDemographic.getDemographicNo()+ "&ocanStaffFormId="+ocanStaffForm.getId();
-				String fullOcanClientFormUrl="ClientManager/ocan_client_form.jsp?ocanType=FULL&demographicId="+currentDemographic.getDemographicNo()+ "&ocanStaffFormId="+ocanStaffForm.getId();
-				boolean completed = ocanStaffForm.getAssessmentStatus()!=null?"Completed".equalsIgnoreCase(ocanStaffForm.getAssessmentStatus()):false;
+				String fullOcanClientFormUrl="ClientManager/ocan_client_form.jsp?ocanType=FULL&demographicId="+currentDemographic.getDemographicNo()+ "&ocanStaffFormId="+ocanStaffForm.getId();			
 			%>
 			
 			<!--  
 			<td><input type="button" value="Print Preview" onclick="printOcanStaffForm('<c:out value="${client.demographicNo}" />','<c:out value="${form.id}" />')" /></td>	
 		-->
-		
-			<td>
-			<% if(completed) { %>
-			<security:oscarSec roleName="<%=roleName$%>" objectName="_pmm_clientForms.updateCompletedOcan" rights="r">
-			<a href="<%=fullOcanStaffFormUrl%>">Update Staff Assessment</a>
-			</security:oscarSec>
-			<%} else {%>
-			<a href="<%=fullOcanStaffFormUrl%>">Update Staff Assessment</a>
-			<%} %>
-			<input type="button" value="Print Preview" onclick="document.location='<%=fullOcanStaffFormUrl+"&print=true"%>'" /></td>
-		
-		<td>
-		<% if(completed) { %>
-			<security:oscarSec roleName="<%=roleName$%>" objectName="_pmm_clientForms.updateCompletedOcan" rights="r">
-			<a href="<%=fullOcanClientFormUrl%>">Update Consumer Self-Assessment</a>
-			</security:oscarSec>
-			<%} else { %>
-			<a href="<%=fullOcanClientFormUrl%>">Update Consumer Self-Assessment</a>
-			<%} %>
-			<input type="button" value="Print Preview" onclick="document.location='<%=fullOcanClientFormUrl+"&print=true"%>'" /></td>
+			<td><a href="<%=fullOcanStaffFormUrl%>">Update Staff Assessment</a><input type="button" value="Print Preview" onclick="document.location='<%=fullOcanStaffFormUrl+"&print=true"%>'" /></td>
+		<td><a href="<%=fullOcanClientFormUrl%>">Update Consumer Self-Assessment</a><input type="button" value="Print Preview" onclick="document.location='<%=fullOcanClientFormUrl+"&print=true"%>'" /></td>
 		
 		</tr>
 	</c:forEach>
@@ -570,27 +522,11 @@ New User Created Form:&nbsp;
 				OcanStaffForm ocanStaffForm=(OcanStaffForm)request.getAttribute("form");
 				String selfOcanStaffFormUrl="ClientManager/ocan_form.jsp?ocanType=SELF&demographicId="+currentDemographic.getDemographicNo()+ "&ocanStaffFormId="+ocanStaffForm.getId();
 				String selfOcanClientFormUrl="ClientManager/ocan_client_form.jsp?ocanType=SELF&demographicId="+currentDemographic.getDemographicNo()+ "&ocanStaffFormId="+ocanStaffForm.getId();			
-				boolean completed = ocanStaffForm.getAssessmentStatus()!=null?"Completed".equalsIgnoreCase(ocanStaffForm.getAssessmentStatus()):false;
+				
 			%>
 			
-			<td>
-			<% if(completed) { %>
-			<security:oscarSec roleName="<%=roleName$%>" objectName="_pmm_clientForms.updateCompletedOcan" rights="r">
-			<a href="<%=selfOcanStaffFormUrl%>">Update Staff Assessment</a>
-			</security:oscarSec>
-			<%} else {%>
-			<a href="<%=selfOcanStaffFormUrl%>">Update Staff Assessment</a>
-			<%} %>
-			<input type="button" value="Print Preview" onclick="document.location='<%=selfOcanStaffFormUrl+"&print=true"%>'" /></td>
-		<td>
-			<% if(completed) { %>
-			<security:oscarSec roleName="<%=roleName$%>" objectName="_pmm_clientForms.updateCompletedOcan" rights="r">
-			<a href="<%=selfOcanClientFormUrl%>">Update Consumer Self-Assessment</a>
-			</security:oscarSec>
-			<%} else { %>
-			<a href="<%=selfOcanClientFormUrl%>">Update Consumer Self-Assessment</a>
-			<%} %>
-			<input type="button" value="Print Preview" onclick="document.location='<%=selfOcanClientFormUrl+"&print=true"%>'" /></td>
+			<td><a href="<%=selfOcanStaffFormUrl%>">Update Staff Assessment</a><input type="button" value="Print Preview" onclick="document.location='<%=selfOcanStaffFormUrl+"&print=true"%>'" /></td>
+		<td><a href="<%=selfOcanClientFormUrl%>">Update Consumer Self-Assessment</a><input type="button" value="Print Preview" onclick="document.location='<%=selfOcanClientFormUrl+"&print=true"%>'" /></td>
 		
 		</tr>
 	</c:forEach>
@@ -633,23 +569,13 @@ New User Created Form:&nbsp;
 			<%
 				OcanStaffForm ocanStaffForm=(OcanStaffForm)request.getAttribute("form");
 				String coreOcanStaffFormUrl="ClientManager/ocan_form.jsp?ocanType=CORE&demographicId="+currentDemographic.getDemographicNo()+ "&ocanStaffFormId="+ocanStaffForm.getId();
-				boolean completed = ocanStaffForm.getAssessmentStatus()!=null?"Completed".equalsIgnoreCase(ocanStaffForm.getAssessmentStatus()):false;
+				
 			%>
 			
-			<td>
-			<% if(completed) { %>
-			<security:oscarSec roleName="<%=roleName$%>" objectName="_pmm_clientForms.updateCompletedOcan" rights="r">
-			<a href="<%=coreOcanStaffFormUrl%>">Update CORE OCAN</a>
-			</security:oscarSec>
-			<%} else { %>
-			<a href="<%=coreOcanStaffFormUrl%>">Update CORE OCAN</a>
-			<%} %><input type="button" value="Print Preview" onclick="document.location='<%=coreOcanStaffFormUrl+"&print=true"%>'" /></td>
+			<td><a href="<%=coreOcanStaffFormUrl%>">Update CORE OCAN</a><input type="button" value="Print Preview" onclick="document.location='<%=coreOcanStaffFormUrl+"&print=true"%>'" /></td>
 		
 		</tr>
 	</c:forEach>
 </table>
-
-
-<% } %>
 <br />
 <br />

@@ -23,22 +23,6 @@
     Ontario, Canada
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_report,_admin.reporting" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_report&type=_admin.reporting");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
         "http://www.w3.org/TR/html4/loose.dtd">
 <%@page
@@ -168,6 +152,7 @@ function disableifchecked(ele,nextDate){
 }
 </style>
 
+
 </head>
 
 <body class="BodyStyle" vlink="#0000FF">
@@ -197,10 +182,7 @@ function disableifchecked(ele,nextDate){
 			<input type="hidden" name="goto"
 				value="<%=request.getParameter("goto")%>" />
 			<div>Select Letter: <input type="file" name="reportFile"
-				value="upload" /> 
-				<span title="<bean:message key="global.uploadWarningBody"/>" style="vertical-align:middle;font-family:arial;font-size:20px;font-weight:bold;color:#ABABAB;cursor:pointer"><img border="0" src="../images/icon_alertsml.gif"/></span></span>
-        
-				Report Name: <input type="text" name="reportName" />
+				value="upload" /> Report Name: <input type="text" name="reportName" />
 
 			</div>
 

@@ -24,34 +24,10 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_form" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_form");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="org.oscarehr.util.MiscUtils"%>
 <%@page import="org.oscarehr.PMmodule.caisi_integrator.CaisiIntegratorManager"%>
-<%@page import="org.oscarehr.util.LocaleUtils"%>    
-<%@page import="org.oscarehr.common.dao.FrmLabReqPreSetDao, org.oscarehr.util.SpringUtils"%>
-<%@page import="oscar.form.*, oscar.OscarProperties, java.util.Date, oscar.util.UtilDateUtilities"%>
-<%@page import="oscar.oscarRx.data.RxProviderData, oscar.oscarRx.data.RxProviderData.Provider" %>
-<%@page import="org.oscarehr.util.MiscUtils,oscar.oscarClinic.ClinicData"%>
-<%@page import="org.oscarehr.PMmodule.model.Program" %>
-<%@page import="org.oscarehr.PMmodule.dao.ProgramDao" %>
-<%@page import="org.oscarehr.util.SpringUtils" %>
-<%@page import="java.util.List" %>
-
+<%@ page
+	import="oscar.form.*, oscar.OscarProperties, java.util.Date, oscar.util.UtilDateUtilities"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
@@ -66,29 +42,12 @@
 	href="labReq07Style.css">
 <link rel="stylesheet" type="text/css" media="print" href="print.css">
 <script src="../share/javascript/prototype.js" type="text/javascript"></script>
-<script src="<%=request.getContextPath()%>/js/jquery-1.7.1.min.js"></script>
 <link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
-
-<style type="text/css" media="print">
-.donotprint{
-    display:none;
-}
-</style>
-
 </head>
 
 <%
 	String formClass = "LabReq10";
 	String formLink = "formlabreq10.jsp";
-	
-	ClinicData clinic = new ClinicData();
-	RxProviderData rx = new RxProviderData();
-	List<Provider> prList = rx.getAllProviders();
-	
-	ProgramDao programDao = SpringUtils.getBean(ProgramDao.class);
-	List<Program> programList = programDao.getAllActivePrograms();
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-	
 
    boolean readOnly = false;
    int demoNo = Integer.parseInt(request.getParameter("demographic_no"));
@@ -106,14 +65,14 @@
 			props = (java.util.Properties)request.getSession().getAttribute("labReq10"+demoNo);	
 		}
 		if(props == null) {
-	   		props = rec.getFormRecord(LoggedInInfo.getLoggedInInfoFromSession(request),demoNo, formId);	        
+	   		props = rec.getFormRecord(demoNo, formId);	        
 			props = ((FrmLabReq10Record) rec).getFormCustRecord(props, provNo);
 		}		
 	}
 	else // it's remote
 	{
 		MiscUtils.getLogger().debug("Getting remote form : "+remoteFacilityIdString+":"+formId);
-		props=FrmLabReq10Record.getRemoteRecordProperties(loggedInInfo, Integer.parseInt(remoteFacilityIdString), formId);
+		props=FrmLabReq10Record.getRemoteRecordProperties(Integer.parseInt(remoteFacilityIdString), formId);
 		FrmRecordHelp.convertBooleanToChecked(props);
 	}
 	
@@ -123,9 +82,8 @@
 
    if (request.getParameter("labType") != null){
       if (formId == 0 ){
-         FrmLabReqPreSetDao preSetDao = (FrmLabReqPreSetDao) SpringUtils.getBean("frmLabReqPreSetDao");
          String labPreSet = request.getParameter("labType");
-         props = preSetDao.fillPropertiesByLabType(labPreSet,props);
+         props = FrmLabReqPreSet.set(labPreSet,props);
       }
    }
    
@@ -324,83 +282,10 @@ var maxYear=3100;
     }
 
     function popup(link) {
-    	windowprops = "height=700, width=960,location=no,"
-   			 + "scrollbars=yes, menubars=no, toolbars=no, resizable=no, top=0, left=0 titlebar=yes";
-    	window.open(link, "_blank", windowprops);
-	}
-    
-    
-    var providerData = new Object(); //{};
-    <%
-    for (Provider p : prList) {
-    	if (!p.getProviderNo().equalsIgnoreCase("-1")) {
-    		String prov_no = "prov_"+p.getProviderNo();
-
-    		%>
-    	 providerData['<%=prov_no%>'] = new Object(); //{};
-
-    	providerData['<%=prov_no%>'].address = "<%=p.getClinicAddress() %>";
-    	providerData['<%=prov_no%>'].city = "<%=p.getClinicCity() %>";
-    	providerData['<%=prov_no%>'].province = "<%=p.getClinicProvince() %>";
-    	providerData['<%=prov_no%>'].postal = "<%=p.getClinicPostal() %>";
-    	
-
-    <%	}
-    }
-
-
-if (OscarProperties.getInstance().getBooleanProperty("consultation_program_letterhead_enabled", "true")) {
-	if (programList != null) {
-		for (Program p : programList) {
-			String progNo = "prog_" + p.getId();
-%>
-		providerData['<%=progNo %>'] = new Object();
-		providerData['<%=progNo %>'].address = "<%=(p.getAddress() != null && p.getAddress().trim().length() > 0) ? p.getAddress().trim() : ((clinic.getClinicAddress() + "  " + clinic.getClinicCity() + "   " + clinic.getClinicProvince() + "  " + clinic.getClinicPostal()).trim()) %>";
-		providerData['<%=progNo %>'].city = "";
-		providerData['<%=progNo %>'].province = "";
-		providerData['<%=progNo %>'].postal = "";
-<%
-		}
-	}
-} %>
-
-    
-    function switchProvider(value) {
-    	
-    	if (value==-1) {
-    		$("select[name='letterhead']").value = value;
-    		$("input[name='clinicName']").val ("<%=clinic.getClinicName()%>");
-    		$("input[name='clinicAddress']").val ("<%=clinic.getClinicAddress() %>");
-    		$("input[name='clinicCity']").val ("<%=clinic.getClinicCity() + " " + clinic.getClinicProvince()%>");
-    		$("input[name='clinicPC']").val ("<%=clinic.getClinicPostal()  %>");
-    		
-    		$("#clinicName").html("<%=clinic.getClinicName()%>");
-    		$("#clinicAddress").html("<%=clinic.getClinicAddress() %>");
-    		$("#clinicCity").html("<%=clinic.getClinicCity() + " " + clinic.getClinicProvince()%>");
-    		$("#clinicPC").html("<%=clinic.getClinicPostal()  %>");
-    		
-    	} else {
-    		
-    		if (typeof providerData["prov_" + value] != "undefined")
-    			value = "prov_" + value;
-
-    		$("select[name='letterhead']").value = value;
-    		
-    		$("input[name='clinicName']").val ("");
-    		$("input[name='clinicAddress']").val (providerData[value]['address']);
-    		$("input[name='clinicCity']").val (providerData[value]['city'] + providerData[value]['province']);
-    		$("input[name='clinicPC']").val (providerData[value]['postal']);
-    		
-    		$("#clinicName").html ("");
-    		$("#clinicAddress").html (providerData[value]['address']);
-    		$("#clinicCity").html(providerData[value]['city'] + " " + providerData[value]['province']);
-    		$("#clinicPC").html(providerData[value]['postal']);
-    	}  
-    }
-    
-    $(document).ready(function(){
-    	switchProvider($("select[name='letterhead']").val());
-    });
+    windowprops = "height=700, width=960,location=no,"
+    + "scrollbars=yes, menubars=no, toolbars=no, resizable=no, top=0, left=0 titlebar=yes";
+    window.open(link, "_blank", windowprops);
+}
 </script>
 
 <body style="page: doublepage; page-break-after: right">
@@ -433,36 +318,12 @@ if (OscarProperties.getInstance().getBooleanProperty("consultation_program_lette
 	<table class="Head" class="hidePrint">
 		<tr>
 			<td nowrap="true">
-				<% if(!readOnly){ %> 
-					<input type="submit" value="Save" onclick="javascript:return onSave();" /> 
-					<input type="submit" value="Save and Exit" onclick="javascript:return onSaveExit();" />
-				 <% } %>
-				<input type="submit" value="Exit" onclick="javascript:return onExit();" /> 
-				<input type="submit" value="Print Pdf" onclick="javascript:return onPrintPDF();" />
-
-				<select name="letterhead" id="letterhead" onchange="switchProvider(this.value)">
-					<option value="-1"><%=clinic.getClinicName() %></option>
-				<%
-					for (Provider p : prList) {
-						if (p.getProviderNo().compareTo("-1") != 0 && (p.getFirstName() != null || p.getSurname() != null)) {
-				%>
-				<option value="<%=p.getProviderNo() %>" <%=(!props.getProperty("letterhead","-1").equals("-1") && p.getProviderNo().equals(props.getProperty("letterhead","-1")))?" selected=\"selected\" ":"" %>>
-		
-					<%=p.getFirstName() %> <%=p.getSurname() %>
-				</option>
-				<% }}  
-		
-				if (OscarProperties.getInstance().getBooleanProperty("consultation_program_letterhead_enabled", "true")) {
-				for (Program p : programList) {
-				%>
-					<option value="prog_<%=p.getId() %>" <%=(!props.getProperty("letterhead","-1").equals("-1") && props.getProperty("letterhead","-1").equals("prog_"+p.getId()))?" selected=\"selected\" ":"" %>>
-					<%=p.getName() %>
-					</option>
-				<% }
-				}%>
-				</select>
-
-			</td>
+			<% if(!readOnly){ %> <input type="submit" value="Save"
+				onclick="javascript:return onSave();" /> <input type="submit"
+				value="Save and Exit" onclick="javascript:return onSaveExit();" /> <% } %>
+			<input type="submit" value="Exit"
+				onclick="javascript:return onExit();" /> <input type="submit"
+				value="Print Pdf" onclick="javascript:return onPrintPDF();" /></td>
 		</tr>
 	</table>
 
@@ -492,10 +353,14 @@ if (OscarProperties.getInstance().getBooleanProperty("consultation_program_lette
 						<%=props.getProperty("provName", "")==null?"":props.getProperty("provName", "")%>&nbsp;<br>
 					<% } %>
 					
-					<input type="hidden" style="width: 100%" name="clinicName" value="<%=props.getProperty("clinicName","")%>" /><span id="clinicName"><%=props.getProperty("clinicName","")%></span><br>
-					<input type="hidden" style="width: 100%" name="clinicAddress" value="<%=props.getProperty("clinicAddress", "")%>" /> <span id="clinicAddress"><%=props.getProperty("clinicAddress", "")%></span><br>
-					<input type="hidden" style="width: 100%" name="clinicCity" value="<%=props.getProperty("clinicCity", "")%>" /><span id="clinicCity"> <%=props.getProperty("clinicCity", "")%>,<%=props.getProperty("clinicProvince","") %></span><br>
-					<input type="hidden" style="width: 100%" name="clinicPC" value="<%=props.getProperty("clinicPC", "")%>" /><span id="clinicPC"> <%=props.getProperty("clinicPC", "")%></span><br>
+					<input type="hidden" style="width: 100%" name="clinicName"
+						value="<%=props.getProperty("clinicName","")%>" /> <%=props.getProperty("clinicName","")%>&nbsp;<br>
+					<input type="hidden" style="width: 100%" name="clinicAddress"
+						value="<%=props.getProperty("clinicAddress", "")%>" /> <%=props.getProperty("clinicAddress", "")%>&nbsp;<br>
+					<input type="hidden" style="width: 100%" name="clinicCity"
+						value="<%=props.getProperty("clinicCity", "")%>" /> <%=props.getProperty("clinicCity", "")%>,<%=props.getProperty("clinicProvince","") %><br>
+					<input type="hidden" style="width: 100%" name="clinicPC"
+						value="<%=props.getProperty("clinicPC", "")%>" /> <%=props.getProperty("clinicPC", "")%>&nbsp;<br>
 					</td>
 				</tr>
 				<tr>
@@ -523,7 +388,7 @@ if (OscarProperties.getInstance().getBooleanProperty("consultation_program_lette
 					<td class="borderGrayTopBottom" style="border-top: 0px;"><font
 						class="subHeading">Additional Clinical Information <i
 						style="font-size: -1;">(e.g. diagnosis)</i></font><br>
-					<textarea name="aci" id="aci" style="width: 100%; height: 59px;"
+					<textarea name="aci" style="width: 100%; height: 59px;"
 						tabindex="1">
 					<%
                     if (props.getProperty("aci") == null) {
@@ -571,38 +436,6 @@ if (OscarProperties.getInstance().getBooleanProperty("consultation_program_lette
 					<td class="labArea" style="vertical-align: top; height: 154px;"
 						colspan="3"><b><i><font class="subHeading">Laboratory
 					Use Only:</font></i></b></br>
-					<% if(oscarProps.getProperty("labreq_CKD").equals("true")){ %>
-						
-					
-	                    <table width="100%" border="0" class="donotprint">
-	                        <tr>
-	                            <td style="color:red;" width="33%">Primary Care Work Up</td>
-	                            <td style="color:red;" width="33%">&nbsp;</td>
-	                            <td style="color:red;" width="33%">Referral Work Up</td>
-	                        </tr>
-	                        <tr>
-	                            <td>
-	                                <input type="button" name="btnCKDInitial" id="btnCKDInitial" value="CKD Initial Testing" style="margin-bottom:5px;width:160px;" onclick="document.getElementById('b_creatinine').checked=true;document.getElementById('b_albumin').checked=true;"/><br/>
-	                                <input type="button" name="btnConfirmDX" id="btnConfirmDX" value="Confirm Dx" style="margin-bottom:5px;width:160px;" onclick="document.getElementById('b_creatinine').checked=true;document.getElementById('b_albumin').checked=true;document.getElementById('aci').value='Complete in 3 months';"/><br/>
-	                                <input type="button" name="btnClinicalConern" id="btnClinicalConcern" value="Clinical Concern" style="margin-bottom:5px;width:160px;" onclick="document.getElementById('b_creatinine').checked=true;document.getElementById('b_albumin').checked=true;document.getElementById('aci').value='Complete in 2 weeks';"/><br/>
-	                                <input type="button" name="btnFollowUpTesting" id="btnFollowUpTesting" value="Follow Up Testing" style="margin-bottom:5px;width:160px;" onclick="document.getElementById('b_sodium').checked=true;document.getElementById('b_potassium').checked=true;"/>
-	                            </td>
-	                            <td>
-	                                <br/><br/>
-	                                <input type="button" name="btnMonCKD6Mos" id="btnMonCKD6Mos" value="Monitor CKD 6 mos" style="margin-bottom:5px;width:160px;" onclick="document.getElementById('b_creatinine').checked=true;document.getElementById('b_albumin').checked=true;document.getElementById('aci').value='Please complete in 6 months';"/><br/>
-	                                <input type="button" name="btnMonCKD1yr" id="btnMonCKD1yr" value="Monitor CKD 1 yr" style="margin-bottom:5px;width:160px;" onclick="document.getElementById('b_creatinine').checked=true;document.getElementById('b_albumin').checked=true;document.getElementById('aci').value='Please complete in 1 year';"/><br/>
-	                                <input type="button" name="btnMonCKDConcern" id="btnMonCKDConcern" value="Monitor CKD concern" style="margin-bottom:5px;width:160px;" onclick="document.getElementById('b_creatinine').checked=true;document.getElementById('b_albumin').checked=true;document.getElementById('aci').value='Complete in 2 weeks';"/>
-	                            </td>
-	                            <td>
-	                                <input type="button" name="btnLowEGFR" id="btnLowEGFR" value="Low eGFR" style="margin-bottom:5px;width:160px;" onclick="document.getElementById('b_sodium').checked=true;document.getElementById('b_albumin').checked=true;document.getElementById('b_potassium').checked=true;"/><br/>
-	                                <input type="button" name="btnAlbuminuria" id="btnAlbuminuria" value="Albuminuria" style="margin-bottom:5px;width:160px;" onclick="document.getElementById('b_sodium').checked=true;document.getElementById('b_potassium').checked=true;"/><br/><br/><br/>
-	                                <input type="button" name="btnClear" id="btnClear" value="Clear" style="margin-bottom:5px;width:160px;" onclick="document.getElementById('b_potassium').checked=false;document.getElementById('b_sodium').checked=false;document.getElementById('b_creatinine').checked=false;document.getElementById('b_albumin').checked=false;document.getElementById('aci').value='';"/>
-	
-	                            </td>
-	                        </tr>
-	
-	                    </table>					
-						<% } %>
 					</td>
 				</tr>
 				<tr>
@@ -662,23 +495,11 @@ if (OscarProperties.getInstance().getBooleanProperty("consultation_program_lette
 							<center><%=props.getProperty("patientCity", "")%></center>
 							</td>
 							<td class="borderGrayBottomRight"
-								style="width: 130px;"><font
+								style="border-right: 0px; width: 130px;"><font
 								class="subHeading">Postal Code:</font><br />
 							<input type="hidden" style="width: 90%" name="patientPC"
 								value="<%=props.getProperty("patientPC", "")%>" /> <%=props.getProperty("patientPC", "")%>
 							</td>
-                                                        <%  
-                                                            String demoChartNo = "";
-                                                            if(oscarProps.getProperty("lab_req_include_chartno","false").equals("true")){
-                                                                demoChartNo = LocaleUtils.getMessage(request.getLocale(), "oscarEncounter.form.labreq.patientChartNo") + ":" + props.getProperty("patientChartNo", "");
-                                                            }
-                                                        %>
-                                                        <td class="borderGrayBottomRight"
-								style="border-right: 0px; width: 130px;"><font
-                                                                class="subHeading"><bean:message key="oscarEncounter.form.labreq.patientChartNo"/></font><br />
-							<input type="hidden" style="width: 90%" name="patientChartNo"
-								value="<%=demoChartNo%>" /> <%=props.getProperty("patientChartNo", "")%>
-                                                        </td>
 						</tr>
 					</table>
 					<table width="100%">
@@ -756,7 +577,7 @@ if (OscarProperties.getInstance().getBooleanProperty("consultation_program_lette
 						</tr>
 						<tr>
 							<td class="checkboxTd"><input type="checkbox"
-								name="b_creatinine" id="b_creatinine" <%=props.getProperty("b_creatinine", "")%>></td>
+								name="b_creatinine" <%=props.getProperty("b_creatinine", "")%>></td>
 							<td class="checkboxLabelTd" colspan="2">Creatinine (eGFR)</td>
 						</tr>
 						<tr>
@@ -766,12 +587,12 @@ if (OscarProperties.getInstance().getBooleanProperty("consultation_program_lette
 						</tr>
 						<tr>
 							<td class="checkboxTd"><input type="checkbox"
-								name="b_sodium" id="b_sodium" <%=props.getProperty("b_sodium", "")%>></td>
+								name="b_sodium" <%=props.getProperty("b_sodium", "")%>></td>
 							<td class="checkboxLabelTd" colspan="2">Sodium</td>
 						</tr>
 						<tr>
 							<td class="checkboxTd"><input type="checkbox"
-								name="b_potassium" id="b_potassium" <%=props.getProperty("b_potassium", "")%>></td>
+								name="b_potassium" <%=props.getProperty("b_potassium", "")%>></td>
 							<td class="checkboxLabelTd" colspan="2">Potassium</td>
 						</tr>
 						<tr>
@@ -802,7 +623,7 @@ if (OscarProperties.getInstance().getBooleanProperty("consultation_program_lette
 						</tr>
 						<tr>
 							<td class="checkboxTd"><input type="checkbox"
-								name="b_albumin" id="b_albumin" <%=props.getProperty("b_albumin", "")%>></td>
+								name="b_albumin" <%=props.getProperty("b_albumin", "")%>></td>
 							<td class="checkboxLabelTd" colspan="2">Albumin</td>
 						</tr>
 						<tr>

@@ -35,7 +35,7 @@ import org.oscarehr.util.SpringUtils;
 
 public class BillingDetailDaoTest extends DaoTestFixtures {
 
-	public BillingDetailDao dao = SpringUtils.getBean(BillingDetailDao.class);
+	private BillingDetailDao dao = SpringUtils.getBean(BillingDetailDao.class);
 
 	public BillingDetailDaoTest() {
 	}
@@ -51,10 +51,5 @@ public class BillingDetailDaoTest extends DaoTestFixtures {
 		EntityDataGenerator.generateTestDataForModelClass(entity);
 		dao.persist(entity);
 		assertNotNull(entity.getId());
-	}
-
-	@Test
-	public void testFindByBillingNoAndStatus() {
-		assertNotNull(dao.findByBillingNoAndStatus(100, "STS"));
 	}
 }

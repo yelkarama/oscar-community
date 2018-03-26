@@ -120,9 +120,6 @@ public class PregnancyAction extends DispatchAction {
 		String code = request.getParameter("code");
 		String codeType = request.getParameter("codetype");
 		
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		String providerNo=loggedInInfo.getLoggedInProviderNo();
-
 		//check for an existing pregnancy
 		List<String> codes = new ArrayList<String>();
 		codes.add("72892002");
@@ -150,7 +147,7 @@ public class PregnancyAction extends DispatchAction {
 		e.setDemographicNo(demographicNo);
 		e.setDescription("");
 		e.setLastUpdateTime(new Date());
-		e.setLastUpdateUser(providerNo);
+		e.setLastUpdateUser(LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo());
 		e.setStatus("Current");
 		e.setStartDate(new Date());
 		e.setDescription(mod.getDescription());
@@ -159,7 +156,7 @@ public class PregnancyAction extends DispatchAction {
 		//start up a new ar on enhanced form
 		try {
 			FrmONAREnhancedRecord f = new FrmONAREnhancedRecord();
-			Properties p = f.getFormRecord(loggedInInfo, demographicNo, 0);
+			Properties p = f.getFormRecord(demographicNo, 0);
 			p.setProperty("episodeId", String.valueOf(e.getId()));
 			f.saveFormRecord(p);
 		}catch(SQLException ee) {
@@ -235,13 +232,10 @@ public class PregnancyAction extends DispatchAction {
 		Integer demographicNo = Integer.parseInt(request.getParameter("demographicNo"));
 		String penicillin = request.getParameter("penicillin");
 		
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		String providerNo=loggedInInfo.getLoggedInProviderNo();
-
 		if(labReqVersion.equals("07")) {
 			FrmLabReq07Record lr = new FrmLabReq07Record();
-			Properties p = lr.getFormRecord(loggedInInfo, demographicNo, 0);		
-			p = lr.getFormCustRecord(loggedInInfo,loggedInInfo.getCurrentFacility(),p, providerNo);
+			Properties p = lr.getFormRecord(demographicNo, 0);		
+			p = lr.getFormCustRecord(p, LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo());
 			if(penicillin != null && penicillin.equals("checked")) {
 				p.setProperty("o_otherTests1","Vaginal Anal GBS w/ sensitivities");
 				p.setProperty("o_otherTests2", "pt allergic to penicillin");
@@ -251,8 +245,8 @@ public class PregnancyAction extends DispatchAction {
 			request.getSession().setAttribute("labReq07"+demographicNo,p);
 		}else {
 			FrmLabReq10Record lr = new FrmLabReq10Record();
-			Properties p = lr.getFormRecord(loggedInInfo, demographicNo, 0);		
-			p = lr.getFormCustRecord(p, providerNo);
+			Properties p = lr.getFormRecord(demographicNo, 0);		
+			p = lr.getFormCustRecord(p, LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo());
 			if(penicillin != null && penicillin.equals("checked")) {
 				p.setProperty("o_otherTests1","Vaginal Anal GBS w/ sensitivities");
 				p.setProperty("o_otherTests2", "pt allergic to penicillin");
@@ -270,13 +264,10 @@ public class PregnancyAction extends DispatchAction {
 		String ferritin = request.getParameter("ferritin");
 		String hbElectrophoresis = request.getParameter("hb_electrophoresis");
 		
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		String providerNo=loggedInInfo.getLoggedInProviderNo();
-
 		if(labReqVersion.equals("07")) {
 			FrmLabReq07Record lr = new FrmLabReq07Record();
-			Properties p = lr.getFormRecord(loggedInInfo, demographicNo, 0);
-			p = lr.getFormCustRecord(loggedInInfo,loggedInInfo.getCurrentFacility(),p, providerNo);
+			Properties p = lr.getFormRecord(demographicNo, 0);
+			p = lr.getFormCustRecord(p, LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo());
 			
 			if(ferritin != null && ferritin.equals("checked")) {
 				p.setProperty("b_ferritin","checked=\"checked\"");			
@@ -288,8 +279,8 @@ public class PregnancyAction extends DispatchAction {
 			
 		} else {
 			FrmLabReq10Record lr = new FrmLabReq10Record();
-			Properties p = lr.getFormRecord(loggedInInfo, demographicNo, 0);
-			p = lr.getFormCustRecord(p, providerNo);
+			Properties p = lr.getFormRecord(demographicNo, 0);
+			p = lr.getFormCustRecord(p, LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo());
 			
 			if(ferritin != null && ferritin.equals("checked")) {
 				p.setProperty("b_ferritin","checked=\"checked\"");			
@@ -373,7 +364,7 @@ public class PregnancyAction extends DispatchAction {
                 curPageNum = curPageNum.length() > 3 ? ("" + curPageNum.charAt(0)) : curPageNum;
 
                 //copy an old record
-                props = rec.getFormRecord(LoggedInInfo.getLoggedInInfoFromSession(request) , Integer.parseInt(request.getParameter("demographic_no")), Integer
+                props = rec.getFormRecord(Integer.parseInt(request.getParameter("demographic_no")), Integer
                         .parseInt(request.getParameter("formId")));
 
                 //empty the current page
@@ -437,9 +428,6 @@ public class PregnancyAction extends DispatchAction {
 		String type = request.getParameter("type");
 		String value = request.getParameter("value");
 		
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		String providerNo=loggedInInfo.getLoggedInProviderNo();
-
 		MeasurementDao md = SpringUtils.getBean(MeasurementDao.class);
 		
 		Measurement m = new Measurement();
@@ -449,7 +437,7 @@ public class PregnancyAction extends DispatchAction {
 		m.setDateObserved(new Date());
 		m.setDemographicId(Integer.parseInt(demographicNo));
 		m.setMeasuringInstruction("");
-		m.setProviderNo(providerNo);
+		m.setProviderNo(LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo());
 		m.setType(type);
 		
 		md.persist(m);
@@ -535,14 +523,11 @@ Repeat antibody screen
 		String antibody = request.getParameter("antibody");
 		String glucose = request.getParameter("glucose");
 		
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		String providerNo=loggedInInfo.getLoggedInProviderNo();
-
 		
 		if(labReqVersion.equals("07")) {
 			FrmLabReq07Record lr = new FrmLabReq07Record();
-			Properties p = lr.getFormRecord(loggedInInfo, demographicNo, 0);
-			p = lr.getFormCustRecord(loggedInInfo,loggedInInfo.getCurrentFacility(),p, providerNo);
+			Properties p = lr.getFormRecord(demographicNo, 0);
+			p = lr.getFormCustRecord(p, LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo());
 			
 			if(hb != null && hb.equals("checked")) {
 				p.setProperty("h_cbc","checked=\"checked\"");			
@@ -560,8 +545,8 @@ Repeat antibody screen
 			request.getSession().setAttribute("labReq07"+demographicNo,p);
 		} else {
 			FrmLabReq10Record lr = new FrmLabReq10Record();
-			Properties p = lr.getFormRecord(loggedInInfo, demographicNo, 0);
-			p = lr.getFormCustRecord(p, providerNo);
+			Properties p = lr.getFormRecord(demographicNo, 0);
+			p = lr.getFormCustRecord(p, LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo());
 			
 			if(hb != null && hb.equals("checked")) {
 				p.setProperty("h_cbc","checked=\"checked\"");			
@@ -585,13 +570,11 @@ Repeat antibody screen
 		Integer demographicNo = Integer.parseInt(request.getParameter("demographicNo"));
 		String glucose = request.getParameter("glucose");
 		
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		String providerNo=loggedInInfo.getLoggedInProviderNo();
-
+		
 		if(labReqVersion.equals("07")) {
 			FrmLabReq07Record lr = new FrmLabReq07Record();
-			Properties p = lr.getFormRecord(loggedInInfo, demographicNo, 0);
-			p = lr.getFormCustRecord(loggedInInfo,loggedInInfo.getCurrentFacility(),p, providerNo);
+			Properties p = lr.getFormRecord(demographicNo, 0);
+			p = lr.getFormCustRecord(p, LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo());
 					
 			if(glucose != null && glucose.equals("checked")) {
 				p.setProperty("o_otherTests1","2 Hr 75gm GLUCOSE Screen");
@@ -599,8 +582,8 @@ Repeat antibody screen
 			request.getSession().setAttribute("labReq07"+demographicNo,p);
 		} else {
 			FrmLabReq10Record lr = new FrmLabReq10Record();
-			Properties p = lr.getFormRecord(loggedInInfo, demographicNo, 0);
-			p = lr.getFormCustRecord(p, providerNo);
+			Properties p = lr.getFormRecord(demographicNo, 0);
+			p = lr.getFormCustRecord(p, LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo());
 					
 			if(glucose != null && glucose.equals("checked")) {
 				p.setProperty("o_otherTests1","2 Hr 75gm GLUCOSE Screen");
@@ -683,7 +666,7 @@ Repeat antibody screen
 		FrmONARRecord ar2005 = new FrmONARRecord();
 		Properties p = null;
 		try {
-			p = ar2005.getFormRecord(LoggedInInfo.getLoggedInInfoFromSession(request), demographicNo, Integer.parseInt(formId));
+			p = ar2005.getFormRecord(demographicNo, Integer.parseInt(formId));
 		}catch(SQLException ex) {
 			request.setAttribute("message", "Error: Couldn't read existing AR2005 form");
 			return mapping.findForward("migrate");
@@ -695,9 +678,6 @@ Repeat antibody screen
 	}
 	public ActionForward doMigrate(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)  {
 		Integer demographicNo = Integer.parseInt(request.getParameter("demographicNo"));
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		String providerNo=loggedInInfo.getLoggedInProviderNo();
-		
 		Episode e = null;
 		//check for an existing pregnancy
 		List<String> codes = new ArrayList<String>();
@@ -723,7 +703,7 @@ Repeat antibody screen
 			e.setDemographicNo(demographicNo);
 			e.setDescription("");
 			e.setLastUpdateTime(new Date());
-			e.setLastUpdateUser(providerNo);
+			e.setLastUpdateUser(LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo());
 			e.setStatus("Current");
 			e.setStartDate(new Date());
 			e.setDescription(mod.getDescription());
@@ -743,7 +723,7 @@ Repeat antibody screen
 		FrmONARRecord ar2005 = new FrmONARRecord();
 		Properties p = null;
 		try {
-			p = ar2005.getFormRecord(loggedInInfo, demographicNo, Integer.parseInt(formId));
+			p = ar2005.getFormRecord(demographicNo, Integer.parseInt(formId));
 		}catch(SQLException ex) {
 			request.setAttribute("message", "Error: Couldn't read existing AR2005 form");
 			return mapping.findForward("migrate");
@@ -752,7 +732,7 @@ Repeat antibody screen
 		FrmONAREnhancedRecord f = new FrmONAREnhancedRecord();
 		Properties newProps = null;
 		try {
-			newProps = f.getFormRecord(loggedInInfo, demographicNo, 0);
+			newProps = f.getFormRecord(demographicNo, 0);
 		}catch(SQLException ex) {
 			request.setAttribute("message", "Error: Couldn't create new enhanced form");
 			return mapping.findForward("migrate");
@@ -980,9 +960,7 @@ Repeat antibody screen
 		String printMethod = request.getParameter("printMethod");
 		String resourceName = request.getParameter("resourceName");
 		String resourceId = request.getParameter("resourceId");
-		
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		String providerNo=loggedInInfo.getLoggedInProviderNo();
+		String providerNo = LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo();
 		
 		PrintResourceLog item = new PrintResourceLog();
 		item.setDateTime(new Date());

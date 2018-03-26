@@ -29,12 +29,12 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
-import org.apache.struts.actions.DispatchAction;
+import org.oscarehr.PMmodule.web.admin.BaseAdminAction;
 
 import com.quatro.model.LookupCodeValue;
 import com.quatro.service.LookupManager;
 
-public class LookupTableListAction extends DispatchAction {
+public class LookupTableListAction extends BaseAdminAction {
     private LookupManager lookupManager=null;
     
 	public void setLookupManager(LookupManager lookupManager) {
@@ -42,7 +42,14 @@ public class LookupTableListAction extends DispatchAction {
 	}
 
     public ActionForward unspecified(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		return list(mapping,form,request,response);
+		//try {
+			//super.getAccess(request, KeyConstants.FUN_ADMIN_LOOKUP);
+			return list(mapping,form,request,response);
+		//}
+		//catch(NoAccessException e)
+		//{
+		//	return mapping.findForward("failure");
+		//}
 	}
 	
 	private ActionForward list(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {

@@ -17,46 +17,26 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_billing" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%
+if(session.getAttribute("user") == null) response.sendRedirect("../../../logout.htm");
 String curUser_no = (String) session.getAttribute("user");
-
+String userfirstname = (String) session.getAttribute("userfirstname");
+String userlastname = (String) session.getAttribute("userlastname");
 %>
 
-<%@ page import="java.math.*, java.util.*, java.sql.*, oscar.*, java.net.*, oscar.oscarResearch.oscarDxResearch.bean.*"	errorPage="../errorpage.jsp"%>
+<%@ page
+	import="java.math.*, java.util.*, java.sql.*, oscar.*, java.net.*, oscar.oscarResearch.oscarDxResearch.bean.*"
+	errorPage="../errorpage.jsp"%>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
 <%@ include file="../../../admin/dbconnection.jsp"%>
-
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean"
+	scope="session" />
+<%@ include file="dbBilling.jspf"%>
 <%@page import="org.oscarehr.util.SpringUtils" %>
 <%@page import="org.oscarehr.common.dao.ClinicLocationDao" %>
 <%@page import="org.oscarehr.common.model.ClinicLocation" %>
-<%@page import="org.oscarehr.common.dao.DemographicDao" %>
-<%@page import="org.oscarehr.common.model.Demographic" %>
-<%@page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
-<%@page import="org.oscarehr.common.model.Provider" %>
-<%@page import="org.oscarehr.common.dao.BillingServiceDao" %>
-<%@page import="org.oscarehr.common.model.BillingService" %>
-
 <%
 	ClinicLocationDao clinicLocationDao = (ClinicLocationDao)SpringUtils.getBean("clinicLocationDao");
-	DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
-	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
-	BillingServiceDao billingServiceDao = SpringUtils.getBean(BillingServiceDao.class);
 %>
 <html>
 <head>
@@ -203,40 +183,40 @@ String r_doctor="", r_doctor_ohip="" ;
 String r_status=request.getParameter("xml_referral");
 String demoFirst="", demoLast="", demoHIN="", demoDOB="", demoDOBYY="", demoDOBMM="", demoDOBDD="", demoSex="", demoHCTYPE="";
 
-Demographic d = demographicDao.getDemographic(demoNO);
-if(d != null) {
-	demoFirst = d.getFirstName();
-	demoLast = d.getLastName();
-	demoHIN = d.getHin() + d.getVer();
-	demoSex = d.getSex();
+ResultSet rslocal = apptMainBean.queryResults(demoNO, "search_demographic_details");
+while(rslocal.next()){
+	demoFirst = rslocal.getString("first_name");
+	demoLast = rslocal.getString("last_name");
+	demoHIN = rslocal.getString("hin") + rslocal.getString("ver");
+	demoSex = rslocal.getString("sex");
 	if (demoSex.compareTo("M")==0) demoSex ="1";
 	if (demoSex.compareTo("F")==0) demoSex ="2";
 
-	demoHCTYPE = d.getHcType()==null?"":d.getHcType();
+	demoHCTYPE = rslocal.getString("hc_type")==null?"":rslocal.getString("hc_type");
 	if (demoHCTYPE.compareTo("") == 0 || demoHCTYPE == null || demoHCTYPE.length() <2) {
 		demoHCTYPE="ON";
 	}else{
 		demoHCTYPE=demoHCTYPE.substring(0,2).toUpperCase();
 	}
-	demoDOBYY = d.getYearOfBirth();
-	demoDOBMM = d.getMonthOfBirth();
-	demoDOBDD = d.getDateOfBirth();
+	demoDOBYY = rslocal.getString("year_of_birth");
+	demoDOBMM = rslocal.getString("month_of_birth");
+	demoDOBDD = rslocal.getString("date_of_birth");
 
-	if (d.getFamilyDoctor() == null){
+	if (rslocal.getString("family_doctor") == null){
 		r_doctor = "N/A"; r_doctor_ohip="000000";
 	}else{
-		r_doctor=SxmlMisc.getXmlContent(d.getFamilyDoctor(),"rd")==null ? "" : SxmlMisc.getXmlContent(d.getFamilyDoctor(), "rd");
-		r_doctor_ohip=SxmlMisc.getXmlContent(d.getFamilyDoctor(),"rdohip")==null ? "" : SxmlMisc.getXmlContent(d.getFamilyDoctor(), "rdohip");
+		r_doctor=SxmlMisc.getXmlContent(rslocal.getString("family_doctor"),"rd")==null ? "" : SxmlMisc.getXmlContent(rslocal.getString("family_doctor"), "rd");
+		r_doctor_ohip=SxmlMisc.getXmlContent(rslocal.getString("family_doctor"),"rdohip")==null ? "" : SxmlMisc.getXmlContent(rslocal.getString("family_doctor"), "rdohip");
 	}
 
 	demoDOBMM = demoDOBMM.length() == 1 ? ("0" + demoDOBMM) : demoDOBMM;
 	demoDOBDD = demoDOBDD.length() == 1 ? ("0" + demoDOBDD) : demoDOBDD;
 	demoDOB = demoDOBYY + demoDOBMM + demoDOBDD;
 
-	if (d.getHin() == null ) {
+	if (rslocal.getString("hin") == null ) {
 		errorFlag = "1";
 		errorMsg = errorMsg + "Error: The patient does not have a valid HIN. <br>";
-	} else if (d.getHin().equals("")) {
+	} else if (rslocal.getString("hin").equals("")) {
 		warningMsg += "Warning: The patient does not have a valid HIN. <br>";
 	}
 	if (r_doctor_ohip != null && r_doctor_ohip.length()>0 && r_doctor_ohip.length() != 6) {
@@ -248,7 +228,7 @@ if(d != null) {
 	}
 
 }
-
+rslocal.close();
 
 if (r_doctor==null || r_status == null || r_doctor.equals("")) r_doctor="N/A";
 if (r_doctor_ohip==null || r_status == null || r_doctor_ohip.equals("")) r_doctor_ohip="000000";
@@ -256,32 +236,36 @@ if (r_doctor_ohip==null || r_status == null || r_doctor_ohip.equals("")) r_docto
 
 String proFirst="", proLast="", proRMA="", proOHIPNO="", crFirst="Not", crLast="Available", apptFirst="Not", apptLast="Available", asstFirst="Not", asstLast="Available";
 
-Provider p = providerDao.getProvider(proNO);
-if(p != null) {
-	proFirst = p.getFirstName();
-	proLast = p.getLastName();
-	proOHIPNO = p.getOhipNo();
-	proRMA = p.getRmaNo();
+ResultSet rsprovider = apptMainBean.queryResults(proNO, "search_provider_name");
+while(rsprovider.next()){
+	proFirst = rsprovider.getString("first_name");
+	proLast = rsprovider.getString("last_name");
+	proOHIPNO = rsprovider.getString("ohip_no");
+	proRMA = rsprovider.getString("rma_no");
 }
+rsprovider.close();
 
-p = providerDao.getProvider(request.getParameter("apptProvider_no"));
-if(p != null) {
-	apptFirst = p.getFirstName();
-	apptLast = p.getLastName();
+rsprovider = apptMainBean.queryResults(request.getParameter("apptProvider_no"), "search_provider_name");
+while(rsprovider.next()){
+	apptFirst = rsprovider.getString("first_name");
+	apptLast = rsprovider.getString("last_name");
 }
+rsprovider.close();
 
-p = providerDao.getProvider(request.getParameter("asstProvider_no"));
-if(p != null) {
-	asstFirst = p.getFirstName();
-	asstLast = p.getLastName();
+rsprovider = apptMainBean.queryResults(request.getParameter("asstProvider_no"), "search_provider_name");
+while(rsprovider.next()){
+	asstFirst = rsprovider.getString("first_name");
+	asstLast = rsprovider.getString("last_name");
 }
+rsprovider.close();
 
-p = providerDao.getProvider(curUser_no);
-if(p != null) {
-	crFirst = p.getFirstName();
-	crLast = p.getLastName();
+//rsprovider = apptMainBean.queryResults(request.getParameter("user_no"), "search_provider_name");
+rsprovider = apptMainBean.queryResults(curUser_no, "search_provider_name");
+while(rsprovider.next()){
+	crFirst = rsprovider.getString("first_name");
+	crLast = rsprovider.getString("last_name");
 }
-
+rsprovider.close();
 
 String visitdate = request.getParameter("xml_vdate");
 String billtype = request.getParameter("xml_billtype");
@@ -389,13 +373,14 @@ if (othercode1.compareTo("") == 0 || othercode1 == null || othercode1.length() <
 		othercode1unit = "1";
 	}
 
-	for(BillingService bs: billingServiceDao.getBillingCodeAttr(othercode1.substring(0,5))) {
-		otherdesc1 = bs.getDescription();
-		otherdbcode1 = bs.getServiceCode();
-		otherfee1 = bs.getValue();
-		otherperc1 = bs.getPercentage();
+	ResultSet rsother = apptMainBean.queryResults(othercode1.substring(0,5), "search_servicecode_detail");
+	while(rsother.next()){
+		otherdesc1 = rsother.getString("description");
+		otherdbcode1 = rsother.getString("service_code");
+		otherfee1 = rsother.getString("value");
+		otherperc1 = rsother.getString("percentage");
 	}
-	
+	rsother.close();
 
 	if (otherdesc1.compareTo("") == 0 || otherdesc1 == null ) {
 		otherflag1 = 0;
@@ -489,12 +474,14 @@ if (othercode2.compareTo("") == 0 || othercode2 == null || othercode2.length() <
 		othercode2unit = "1";
 	}
 
-	for(BillingService bs: billingServiceDao.getBillingCodeAttr(othercode1.substring(0,5))) {
-		otherdesc2 = bs.getDescription();
-		otherdbcode2 = bs.getServiceCode();
-		otherfee2 = bs.getValue();
-		otherperc2 = bs.getPercentage();
+	ResultSet  rsother = apptMainBean.queryResults(othercode2.substring(0,5), "search_servicecode_detail");
+	while(rsother.next()){
+		otherdesc2 = rsother.getString("description");
+		otherdbcode2 = rsother.getString("service_code");
+		otherfee2 = rsother.getString("value");
+		otherperc2 = rsother.getString("percentage");
 	}
+	rsother.close();
 
 	if (otherdesc2.compareTo("") == 0 || otherdesc2 == null) {
 		otherflag2 = 0;
@@ -586,13 +573,14 @@ if (othercode3.compareTo("") == 0 || othercode3 == null || othercode3.length() <
 	if (othercode3unit.compareTo("") == 0 || othercode3unit == null) {
 		othercode3unit = "1";
 	}
-	
-	for(BillingService bs: billingServiceDao.getBillingCodeAttr(othercode1.substring(0,5))) {
-		otherdesc3 = bs.getDescription();
-		otherdbcode3= bs.getServiceCode();
-		otherfee3 = bs.getValue();
+
+	ResultSet rsother = apptMainBean.queryResults(othercode3.substring(0,5), "search_servicecode_detail");
+	while(rsother.next()){
+		otherdesc3 = rsother.getString("description");
+		otherdbcode3 = rsother.getString("service_code");
+		otherfee3 = rsother.getString("value");
 	}
-	
+	rsother.close();
 
 	if (otherdesc3.compareTo("") == 0 || otherdesc3 == null ) {
 		otherflag3 = 0;

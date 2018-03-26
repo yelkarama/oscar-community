@@ -76,7 +76,7 @@ public class OLISSchedulerJob extends TimerTask {
 			olisPrefs.setLastRun(new Date());
 			olisPrefDao.merge(olisPrefs);
 
-			OLISPollingUtil.requestResults(null);
+			OLISPoller.startAutoFetch();
 		} catch (Exception e) {
 			logger.error("error", e);
 		} finally {

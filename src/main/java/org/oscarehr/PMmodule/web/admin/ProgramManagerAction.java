@@ -23,7 +23,6 @@
 
 package org.oscarehr.PMmodule.web.admin;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -32,6 +31,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -45,12 +45,14 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 import org.apache.struts.action.DynaActionForm;
-import org.apache.struts.actions.DispatchAction;
 import org.oscarehr.PMmodule.caisi_integrator.CaisiIntegratorManager;
-import org.oscarehr.PMmodule.dao.CriteriaDao;
-import org.oscarehr.PMmodule.dao.CriteriaTypeOptionDao;
-import org.oscarehr.PMmodule.dao.VacancyDao;
-import org.oscarehr.PMmodule.dao.VacancyTemplateDao;
+import org.oscarehr.PMmodule.dao.CriteriaDAO;
+import org.oscarehr.PMmodule.dao.CriteriaSelectionOptionDAO;
+import org.oscarehr.PMmodule.dao.CriteriaTypeDAO;
+import org.oscarehr.PMmodule.dao.CriteriaTypeOptionDAO;
+import org.oscarehr.PMmodule.dao.VacancyTemplateDAO;
+import org.oscarehr.PMmodule.model.Admission;
+import org.oscarehr.PMmodule.model.BedCheckTime;
 import org.oscarehr.PMmodule.model.Criteria;
 import org.oscarehr.PMmodule.model.CriteriaSelectionOption;
 import org.oscarehr.PMmodule.model.CriteriaType;
@@ -67,12 +69,15 @@ import org.oscarehr.PMmodule.model.ProgramTeam;
 import org.oscarehr.PMmodule.model.Vacancy;
 import org.oscarehr.PMmodule.model.VacancyTemplate;
 import org.oscarehr.PMmodule.service.AdmissionManager;
+import org.oscarehr.PMmodule.service.BedCheckTimeManager;
 import org.oscarehr.PMmodule.service.ClientRestrictionManager;
+import org.oscarehr.PMmodule.service.LogManager;
 import org.oscarehr.PMmodule.service.ProgramManager;
 import org.oscarehr.PMmodule.service.ProgramQueueManager;
 import org.oscarehr.PMmodule.service.ProviderManager;
 import org.oscarehr.PMmodule.service.VacancyTemplateManager;
 import org.oscarehr.PMmodule.utility.ProgramAccessCache;
+import org.oscarehr.PMmodule.web.BaseAction;
 import org.oscarehr.caisi_integrator.ws.CachedProvider;
 import org.oscarehr.caisi_integrator.ws.DemographicTransfer;
 import org.oscarehr.caisi_integrator.ws.DemographicWs;
@@ -81,19 +86,7 @@ import org.oscarehr.caisi_integrator.ws.Referral;
 import org.oscarehr.caisi_integrator.ws.ReferralWs;
 import org.oscarehr.common.dao.FacilityDao;
 import org.oscarehr.common.dao.FunctionalCentreDao;
-import org.oscarehr.common.model.Admission;
-import org.oscarehr.common.model.BedCheckTime;
-import org.oscarehr.common.model.Facility;
 import org.oscarehr.common.model.FunctionalCentre;
-import org.oscarehr.common.model.ProgramEncounterType;
-import org.oscarehr.common.model.Tickler;
-import org.oscarehr.managers.BedCheckTimeManager;
-import org.oscarehr.managers.ScheduleManager;
-import org.oscarehr.managers.TicklerManager;
-import org.oscarehr.match.IMatchManager;
-import org.oscarehr.match.MatchManager;
-import org.oscarehr.match.MatchManagerException;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,10 +94,7 @@ import org.springframework.beans.factory.annotation.Required;
 
 import com.quatro.service.security.RolesManager;
 
-import net.sf.json.JSONObject;
-import oscar.log.LogAction;
-
-public class ProgramManagerAction extends DispatchAction {
+public class ProgramManagerAction extends BaseAction {
 
 	private static final Logger logger = MiscUtils.getLogger();
 
@@ -112,6 +102,7 @@ public class ProgramManagerAction extends DispatchAction {
 	private FacilityDao facilityDao = null;
 	private AdmissionManager admissionManager;
 	private BedCheckTimeManager bedCheckTimeManager;
+	private LogManager logManager;
 	private ProgramManager programManager;
 	private ProviderManager providerManager;
 	private ProgramQueueManager programQueueManager;
@@ -120,17 +111,11 @@ public class ProgramManagerAction extends DispatchAction {
 	//private RoleManager roleManager;
 	private RolesManager roleManager;
 	private FunctionalCentreDao functionalCentreDao;
-	private static VacancyTemplateDao vacancyTemplateDAO = (VacancyTemplateDao) SpringUtils.getBean(VacancyTemplateDao.class);
-	private static CriteriaDao criteriaDAO = SpringUtils.getBean(CriteriaDao.class);
-	//private static CriteriaTypeDao criteriaTypeDAO = SpringUtils.getBean(CriteriaTypeDao.class);
-	private static CriteriaTypeOptionDao criteriaTypeOptionDAO = SpringUtils.getBean(CriteriaTypeOptionDao.class);
-	//private static CriteriaSelectionOptionDao criteriaSelectionOptionDAO = (CriteriaSelectionOptionDao) SpringUtils.getBean(CriteriaSelectionOptionDao.class);
-	
-	private TicklerManager ticklerManager = SpringUtils.getBean(TicklerManager.class);
-	
-	private IMatchManager matchManager = new MatchManager();
-	
-	private ScheduleManager scheduleManager = SpringUtils.getBean(ScheduleManager.class);
+	private static VacancyTemplateDAO vacancyTemplateDAO = (VacancyTemplateDAO) SpringUtils.getBean("vacancyTemplateDAO");
+	private static CriteriaDAO criteriaDAO = (CriteriaDAO) SpringUtils.getBean("criteriaDAO");
+	private static CriteriaTypeDAO criteriaTypeDAO = (CriteriaTypeDAO) SpringUtils.getBean("criteriaTypeDAO");
+	private static CriteriaTypeOptionDAO criteriaTypeOptionDAO = (CriteriaTypeOptionDAO) SpringUtils.getBean("criteriaTypeOptionDAO");
+	private static CriteriaSelectionOptionDAO criteriaSelectionOptionDAO = (CriteriaSelectionOptionDAO) SpringUtils.getBean("criteriaSelectionOptionDAO");
 	
 	public void setFacilityDao(FacilityDao facilityDao) {
 		this.facilityDao = facilityDao;
@@ -176,7 +161,7 @@ public class ProgramManagerAction extends DispatchAction {
 		programForm.set("searchType", searchType);
 		programForm.set("searchFacilityId", searchFacilityId);
 
-		LogAction.log("read", "full program list", "", request);
+		logManager.log("read", "full program list", "", request);
 
 		return mapping.findForward("list");
 	}
@@ -196,7 +181,7 @@ public class ProgramManagerAction extends DispatchAction {
 			return list(mapping, form, request, response);
 		}
 
-		if (!StringUtils.isEmpty(id)) {
+		if (id != null && id!="") {
 			Program program = programManager.getProgram(id);
 			
 			if (program == null) {
@@ -276,13 +261,13 @@ public class ProgramManagerAction extends DispatchAction {
 
 		pp.setRoleId(provider.getRoleId());
 
-		programManager.saveProgramProvider(LoggedInInfo.getLoggedInInfoFromSession(request),pp);
+		programManager.saveProgramProvider(pp);
 
 		ActionMessages messages = new ActionMessages();
 		messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("program.saved", program.getName()));
 		saveMessages(request, messages);
 
-		LogAction.log("write", "edit program - assign role", String.valueOf(program.getId()), request);
+		logManager.log("write", "edit program - assign role", String.valueOf(program.getId()), request);
 		programForm.set("provider", new ProgramProvider());
 
 		setEditAttributes(request, String.valueOf(program.getId()));
@@ -303,13 +288,13 @@ public class ProgramManagerAction extends DispatchAction {
 			pp.getTeams().add(team);
 		}
 
-		programManager.saveProgramProvider(LoggedInInfo.getLoggedInInfoFromSession(request),pp);
+		programManager.saveProgramProvider(pp);
 
 		ActionMessages messages = new ActionMessages();
 		messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("program.saved", program.getName()));
 		saveMessages(request, messages);
 
-		LogAction.log("write", "edit program - assign team", String.valueOf(program.getId()), request);
+		logManager.log("write", "edit program - assign team", String.valueOf(program.getId()), request);
 		programForm.set("provider", new ProgramProvider());
 
 		setEditAttributes(request, String.valueOf(program.getId()));
@@ -332,7 +317,7 @@ public class ProgramManagerAction extends DispatchAction {
 		messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("program.saved", program.getName()));
 		saveMessages(request, messages);
 
-		LogAction.log("write", "edit program - assign client to team", String.valueOf(program.getId()), request);
+		logManager.log("write", "edit program - assign client to team", String.valueOf(program.getId()), request);
 
 		setEditAttributes(request, String.valueOf(program.getId()));
 
@@ -381,7 +366,7 @@ public class ProgramManagerAction extends DispatchAction {
 		messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("program.deleted", name));
 		saveMessages(request, messages);
 
-		LogAction.log("write", "delete program", String.valueOf(program.getId()), request);
+		logManager.log("write", "delete program", String.valueOf(program.getId()), request);
 
 		return list(mapping, form, request, response);
 	}
@@ -397,7 +382,7 @@ public class ProgramManagerAction extends DispatchAction {
 		messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("program.saved", program.getName()));
 		saveMessages(request, messages);
 
-		LogAction.log("write", "edit program - delete access", String.valueOf(program.getId()), request);
+		logManager.log("write", "edit program - delete access", String.valueOf(program.getId()), request);
 
 		this.setEditAttributes(request, String.valueOf(program.getId()));
 		programForm.set("access", new ProgramAccess());
@@ -416,7 +401,7 @@ public class ProgramManagerAction extends DispatchAction {
 		ActionMessages messages = new ActionMessages();
 		messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("program.saved", program.getName()));
 		saveMessages(request, messages);
-		LogAction.log("write", "edit program - delete function user", String.valueOf(program.getId()), request);
+		logManager.log("write", "edit program - delete function user", String.valueOf(program.getId()), request);
 
 		this.setEditAttributes(request, String.valueOf(program.getId()));
 
@@ -435,7 +420,7 @@ public class ProgramManagerAction extends DispatchAction {
 			messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("program.saved", program.getName()));
 			saveMessages(request, messages);
 
-			LogAction.log("write", "edit program - delete provider", String.valueOf(program.getId()), request);
+			logManager.log("write", "edit program - delete provider", String.valueOf(program.getId()), request);
 		}
 		this.setEditAttributes(request, String.valueOf(program.getId()));
 		programForm.set("provider", new ProgramProvider());
@@ -532,7 +517,7 @@ public class ProgramManagerAction extends DispatchAction {
 		programForm.set("provider", pp);
 		request.setAttribute("providerName", pp.getProvider().getFormattedName());
 
-		LogAction.log("write", "edit program - edit provider", String.valueOf(program.getId()), request);
+		logManager.log("write", "edit program - edit provider", String.valueOf(program.getId()), request);
 
 		setEditAttributes(request, String.valueOf(program.getId()));
 
@@ -577,7 +562,7 @@ public class ProgramManagerAction extends DispatchAction {
 		fullQueue.setStatus(ProgramQueue.STATUS_REMOVED);
 		programQueueManager.saveProgramQueue(fullQueue);
 
-		LogAction.log("write", "edit program - queue removal", String.valueOf(program.getId()), request);
+		logManager.log("write", "edit program - queue removal", String.valueOf(program.getId()), request);
 
 		setEditAttributes(request, String.valueOf(program.getId()));
 
@@ -587,12 +572,11 @@ public class ProgramManagerAction extends DispatchAction {
 	public ActionForward remove_remote_queue(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		DynaActionForm programForm = (DynaActionForm) form;
 		Program program = (Program) programForm.get("program");
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 
 		Integer remoteReferralId = Integer.valueOf(request.getParameter("remoteReferralId"));
 
 		try {
-			ReferralWs referralWs = CaisiIntegratorManager.getReferralWs(loggedInInfo, loggedInInfo.getCurrentFacility());
+			ReferralWs referralWs = CaisiIntegratorManager.getReferralWs();
 			referralWs.removeReferral(remoteReferralId);
 		} catch (MalformedURLException e) {
 			logger.error("Unexpected error", e);
@@ -625,14 +609,14 @@ public class ProgramManagerAction extends DispatchAction {
 				}
 			}
 
-			programManager.saveProgramProvider(LoggedInInfo.getLoggedInInfoFromSession(request),pp);
+			programManager.saveProgramProvider(pp);
 		}
 
 		ActionMessages messages = new ActionMessages();
 		messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("program.saved", program.getName()));
 		saveMessages(request, messages);
 
-		LogAction.log("write", "edit program - assign team (removal)", String.valueOf(program.getId()), request);
+		logManager.log("write", "edit program - assign team (removal)", String.valueOf(program.getId()), request);
 		programForm.set("provider", new ProgramProvider());
 
 		setEditAttributes(request, String.valueOf(program.getId()));
@@ -688,7 +672,7 @@ public class ProgramManagerAction extends DispatchAction {
 		messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("program.saved", program.getName()));
 		saveMessages(request, messages);
 
-		LogAction.log("write", "edit program", String.valueOf(program.getId()), request);
+		logManager.log("write", "edit program", String.valueOf(program.getId()), request);
 
 		setEditAttributes(request, String.valueOf(program.getId()));
 
@@ -729,7 +713,6 @@ public class ProgramManagerAction extends DispatchAction {
 		if (request.getParameter("program.alcohol") == null) program.setAlcohol(false);
 		if (request.getParameter("program.physicalHealth") == null) program.setPhysicalHealth(false);
 		if (request.getParameter("program.mentalHealth") == null) program.setMentalHealth(false);
-		if (request.getParameter("program.enableOCAN") == null) program.setEnableOCAN(false);
 		if (request.getParameter("program.housing") == null) program.setHousing(false);
 		if (request.getParameter("program.enableEncounterTime") == null) program.setEnableEncounterTime(false);
 		if (request.getParameter("program.enableEncounterTransportationTime") == null) program.setEnableEncounterTransportationTime(false);
@@ -775,7 +758,7 @@ public class ProgramManagerAction extends DispatchAction {
 
 		ProgramAccessCache.setAccessMap(program.getId());
 		
-		LogAction.log("write", "edit program", String.valueOf(program.getId()), request);
+		logManager.log("write", "edit program", String.valueOf(program.getId()), request);
 
 		setEditAttributes(request, String.valueOf(program.getId()));
 
@@ -814,7 +797,6 @@ public class ProgramManagerAction extends DispatchAction {
 		oldProgram.setAlcohol(getParameterAsBoolean(request,"old_alcohol"));
 		oldProgram.setPhysicalHealth(getParameterAsBoolean(request,"old_physicalHealth"));
 		oldProgram.setMentalHealth(getParameterAsBoolean(request,"old_mentalHealth"));
-		oldProgram.setEnableOCAN(getParameterAsBoolean(request,"old_enableOCAN"));
 		oldProgram.setHousing(getParameterAsBoolean(request,"old_housing"));
 		oldProgram.setFacilityId(getParameterAsInteger(request,"old_facility_id",0));
 		oldProgram.setEnableEncounterTime(getParameterAsBoolean(request,"old_enableEncounterTime"));
@@ -836,10 +818,13 @@ public class ProgramManagerAction extends DispatchAction {
 	}
 	
 	public ActionForward viewVacancyTemplate(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+		DynaActionForm programForm = (DynaActionForm) form;
+		String programId = request.getParameter("programId");
 		String templateId = request.getParameter("templateId");
 		
 		request.setAttribute("templateId", templateId);
 		
+		VacancyTemplate vt = vacancyTemplateDAO.getVacancyTemplate(Integer.valueOf(templateId));
 		List<Criteria> criterias = criteriaDAO.getCriteriaByTemplateId(Integer.valueOf(templateId));
 		request.setAttribute("criterias",criterias);
 		
@@ -853,6 +838,7 @@ public class ProgramManagerAction extends DispatchAction {
 		
 		programForm.set("program", program);
 		
+		String programId = request.getParameter("programId");
 		String templateId = request.getParameter("requiredVacancyTemplateId");
 		
 		request.setAttribute("view.tab", "vacancy_add");
@@ -868,7 +854,6 @@ public class ProgramManagerAction extends DispatchAction {
 	
 	public ActionForward save_vacancy(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 		DynaActionForm programForm = (DynaActionForm) form;
 		Program program = (Program) programForm.get("program");
 		
@@ -882,116 +867,59 @@ public class ProgramManagerAction extends DispatchAction {
 		String templateId_str = request.getParameter("requiredVacancyTemplateId");
 		if(!StringUtils.isBlank(templateId_str))
 			templateId = Integer.valueOf(templateId_str);
-				
+		VacancyTemplate vacancyTemplate=VacancyTemplateManager.createVacancyTemplate(templateId_str);
+		
+		Vacancy vacancy = new Vacancy();
+		String vacancyId = request.getParameter("vacancyId");
+		if(!StringUtils.isBlank(vacancyId)) {
+			vacancy = VacancyTemplateManager.getVacancyById(Integer.valueOf(vacancyId));
+		}		
+		vacancy.setTemplateId(templateId);
+		vacancy.setStatus(parameters.get("vacancyStatus")[0]);
+		vacancy.setReasonClosed(parameters.get("reasonClosed")[0]);		
+			
 		String dateClosed = parameters.get("dateClosed")[0];
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", request.getLocale());
-		Date dateClosedFormatted = new Date();
+		ResourceBundle props = ResourceBundle.getBundle("oscarResources", request.getLocale());
 		if (!StringUtils.isBlank(dateClosed)) {			
 			try {
-				dateClosedFormatted = formatter.parse(dateClosed);					
+				Date dateClosedFormatted = formatter.parse(dateClosed);			
+				vacancy.setDateClosed(dateClosedFormatted);
 			} catch (Exception e){
 				logger.warn("warn", e);
 			}
 		}
 		
-		Vacancy vacancy = new Vacancy();
-		String vacancyId = request.getParameter("vacancyId");
-		if(!StringUtils.isBlank(vacancyId)) {
-			vacancy = VacancyTemplateManager.getVacancyById(Integer.valueOf(vacancyId));	
-			vacancy.setStatus(parameters.get("vacancyStatus")[0]);
-			vacancy.setReasonClosed(parameters.get("reasonClosed")[0]);	
-			vacancy.setDateClosed(dateClosedFormatted);
-			VacancyTemplateManager.saveVacancy(vacancy);
-
-			Facility f = loggedInInfo.getCurrentFacility();
-			if(f.getAssignNewVacancyTicklerProvider() != null && f.getAssignNewVacancyTicklerProvider().length()>0 
-				&& f.getAssignNewVacancyTicklerDemographic() != null && f.getAssignNewVacancyTicklerDemographic()> 0) {
-				createWaitlistNotificationTickler(loggedInInfo,f,vacancy,loggedInInfo.getLoggedInProviderNo());
-			}
-		} else {		
-			vacancy.setTemplateId(templateId);				
-			vacancy.setName(request.getParameter("vacancyName"));			
-			vacancy.setDateCreated(new Date());			
-			vacancy.setWlProgramId(program.getId());
-			vacancy.setStatus(parameters.get("vacancyStatus")[0]);
-			vacancy.setReasonClosed(parameters.get("reasonClosed")[0]);	
-			vacancy.setDateClosed(dateClosedFormatted);
-			VacancyTemplateManager.saveVacancy(vacancy);	
+		vacancy.setDateCreated(new Date());
+		
+		vacancy.setWlProgramId(program.getId());
+		VacancyTemplateManager.saveVacancy(vacancy);		
 			
-			Facility f = loggedInInfo.getCurrentFacility();
-			if(f.getAssignNewVacancyTicklerProvider() != null && f.getAssignNewVacancyTicklerProvider().length()>0 
-				&& f.getAssignNewVacancyTicklerDemographic() != null && f.getAssignNewVacancyTicklerDemographic()> 0) {
-				createWaitlistNotificationTickler(loggedInInfo,f,vacancy,loggedInInfo.getLoggedInProviderNo());
-			}
-				
-			List<Criteria> criteriaList = VacancyTemplateManager.getRefinedCriteriasByTemplateId(templateId);
-			for(Criteria c : criteriaList) {
-				CriteriaType type = VacancyTemplateManager.getCriteriaTypeById(c.getCriteriaTypeId());
-				Criteria newCriteria = new Criteria();			
-				newCriteria.setVacancyId(vacancy.getId());			
-				newCriteria.setMatchScoreWeight(1.0); //???
-						
-				if(c.getCanBeAdhoc()==1) { //mandatory and not changeable, disabled in the form and the value not contained in request. But it should keep same value in new criteria.
-                                	newCriteria.setCanBeAdhoc(c.getCanBeAdhoc());
-                                	newCriteria.setCriteriaTypeId(c.getCriteriaTypeId());
-                                	newCriteria.setCriteriaValue(c.getCriteriaValue());
-                                	newCriteria.setRangeEndValue(c.getRangeEndValue());
-                                	newCriteria.setRangeStartValue(c.getRangeStartValue());
-                                	VacancyTemplateManager.saveCriteria(newCriteria);
-                                	continue;
-                        	}
-
-				String required = type.getFieldName().toLowerCase().replaceAll(" ","_")+"Required";
-				if(request.getParameter(required) == null) 
-					newCriteria.setCanBeAdhoc(0);
-				else
-					newCriteria.setCanBeAdhoc(Integer.valueOf(request.getParameter(required)));
-				
-				String targetName = "targetOf"+ type.getFieldName().toLowerCase().replaceAll(" ","_");
-				String[] answers = parameters.get(targetName);
-				
-				saveTemplateOrVacancy(parameters, answers, type, newCriteria, request);			
-			}	
-				
-			//Call Match Manager
-			//TODO do the testing
-			try {
-		        matchManager.processEvent(vacancy, IMatchManager.Event.VACANCY_CREATED);
-	        } catch (MatchManagerException e) {
-	        	log.error("Match manager failed", e);
-	        }
-		}
-
+		//Save Criteria
+		//List<CriteriaType> typeList = VacancyTemplateManager.getAllCriteriaTypes();
+		//for(CriteriaType type : typeList) {	
+		List<Criteria> criteriaList = VacancyTemplateManager.getRefinedCriteriasByTemplateId(templateId);
+		for(Criteria c : criteriaList) {
+			CriteriaType type = VacancyTemplateManager.getCriteriaTypeById(c.getCriteriaTypeId());
+			Criteria newCriteria = new Criteria();			
+			newCriteria.setVacancyId(vacancy.getId());			
+			newCriteria.setMatchScoreWeight(1.0); //???
+					
+			String required = type.getFieldName().toLowerCase().replaceAll(" ","_")+"Required";
+			if(request.getParameter(required) == null) 
+				newCriteria.setCanBeAdhoc(false);
+			
+			String targetName = "targetOf"+ type.getFieldName().toLowerCase().replaceAll(" ","_");
+			String[] answers = parameters.get(targetName);
+			
+			saveTemplateOrVacancy(parameters, answers, type, newCriteria, request);
+			
+		}	
+		
 		setEditAttributes(request, String.valueOf(program.getId()));
+		
 		return edit(mapping, form, request, response);		
 		
-	}
-	
-    private void createWaitlistWithdrawnNotificationTickler(LoggedInInfo loggedInInfo,Facility facility, Vacancy vacancy, String creatorProviderNo) {
-        Tickler t = new Tickler();
-        t.setCreator(creatorProviderNo);
-        t.setDemographicNo(facility.getVacancyWithdrawnTicklerDemographic());
-        t.setMessage("vacancy=["+vacancy.getName()+"] withdrawn");      
-        t.setProgramId(vacancy.getWlProgramId());
-        t.setServiceDate(new Date());     
-        t.setTaskAssignedTo(facility.getVacancyWithdrawnTicklerProvider());
-        t.setUpdateDate(new Date());
-     
-        ticklerManager.addTickler(loggedInInfo,t);
-    }
-
-	
-	private void createWaitlistNotificationTickler(LoggedInInfo loggedInInfo,Facility facility, Vacancy vacancy, String creatorProviderNo) {
-		Tickler t = new Tickler();
-		t.setCreator(creatorProviderNo);
-		t.setDemographicNo(facility.getAssignNewVacancyTicklerDemographic());
-		t.setMessage("New vacancy=["+vacancy.getName()+"]");
-		t.setProgramId(vacancy.getWlProgramId());
-		t.setServiceDate(new Date());
-		t.setTaskAssignedTo(facility.getAssignNewVacancyTicklerProvider());
-		t.setUpdateDate(new Date());
-		
-		ticklerManager.addTickler(loggedInInfo,t);
 	}
 	
 	public ActionForward save_vacancy_template(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
@@ -1009,6 +937,7 @@ public class ProgramManagerAction extends DispatchAction {
 		String vacancyTemplateId = request.getParameter("vacancyOrTemplateId");
 		VacancyTemplate vacancyTemplate=VacancyTemplateManager.createVacancyTemplate(vacancyTemplateId);
 		vacancyTemplate.setName(request.getParameter("templateName"));
+		vacancyTemplate.setProgramId(Integer.parseInt(request.getParameter("associatedProgramId")));
 		if (request.getParameter("templateActive") == null) {
 			vacancyTemplate.setActive(false);
 		}		
@@ -1016,13 +945,13 @@ public class ProgramManagerAction extends DispatchAction {
 		VacancyTemplateManager.saveVacancyTemplate(vacancyTemplate);	
 		
 		//Save Criteria
-		//List<CriteriaType> typeList = VacancyTemplateManager.getAllCriteriaTypes();
-		List<CriteriaType> typeList = VacancyTemplateManager.getAllCriteriaTypesByWlProgramId(Integer.parseInt(request.getParameter("programId")));
+		List<CriteriaType> typeList = VacancyTemplateManager.getAllCriteriaTypes();
 		for(CriteriaType type : typeList) {
 			Criteria criteria = new Criteria();		
 			criteria.setTemplateId(vacancyTemplate.getId());			
 			String required = type.getFieldName().toLowerCase().replaceAll(" ","_")+"Required";
-			criteria.setCanBeAdhoc(request.getParameter(required)==null?0:Integer.valueOf(request.getParameter(required)));
+			if(request.getParameter(required) == null) 
+				criteria.setCanBeAdhoc(false);			
 			String targetName = "targetOf"+ type.getFieldName().toLowerCase().replaceAll(" ","_");
 			String[] answers = parameters.get(targetName);
 			
@@ -1037,7 +966,7 @@ public class ProgramManagerAction extends DispatchAction {
 	
 	private void saveTemplateOrVacancy(HashMap<String, String[]> parameters, String[] answers, CriteriaType type, Criteria criteria, HttpServletRequest request) {
 		
-		if(type.getFieldType().equalsIgnoreCase("select_multiple") || type.getFieldType().equalsIgnoreCase("select_multiple_narrowing")) {
+		if(type.getFieldType().equalsIgnoreCase("select_multiple")) {
 			
 			saveCriteria(criteria, answers);
 			
@@ -1145,7 +1074,7 @@ public class ProgramManagerAction extends DispatchAction {
 
 		programManager.saveProgramAccess(access);
 
-		LogAction.log("write", "access", String.valueOf(program.getId()), request);
+		logManager.log("write", "access", String.valueOf(program.getId()), request);
 
 		ActionMessages messages = new ActionMessages();
 		messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("program.saved", program.getName()));
@@ -1184,7 +1113,7 @@ public class ProgramManagerAction extends DispatchAction {
 		messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("program.saved", program.getName()));
 		saveMessages(request, messages);
 
-		LogAction.log("write", "edit program - save function user", String.valueOf(program.getId()), request);
+		logManager.log("write", "edit program - save function user", String.valueOf(program.getId()), request);
 
 		programForm.set("function", new ProgramFunctionalUser());
 		setEditAttributes(request, String.valueOf(program.getId()));
@@ -1211,13 +1140,13 @@ public class ProgramManagerAction extends DispatchAction {
 			return mapping.findForward("edit");
 		}
 
-		programManager.saveProgramProvider(LoggedInInfo.getLoggedInInfoFromSession(request),provider);
+		programManager.saveProgramProvider(provider);
 
 		ActionMessages messages = new ActionMessages();
 		messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("program.saved", program.getName()));
 		saveMessages(request, messages);
 
-		LogAction.log("write", "edit program - save provider", String.valueOf(program.getId()), request);
+		logManager.log("write", "edit program - save provider", String.valueOf(program.getId()), request);
 		programForm.set("provider", new ProgramProvider());
 		setEditAttributes(request, String.valueOf(program.getId()));
 
@@ -1245,7 +1174,7 @@ public class ProgramManagerAction extends DispatchAction {
 
 		programManager.saveProgramTeam(team);
 
-		LogAction.log("write", "edit program - save team", String.valueOf(program.getId()), request);
+		logManager.log("write", "edit program - save team", String.valueOf(program.getId()), request);
 
 		ActionMessages messages = new ActionMessages();
 		messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("program.saved", program.getName()));
@@ -1257,17 +1186,18 @@ public class ProgramManagerAction extends DispatchAction {
 	}
 
 	private void setEditAttributes(HttpServletRequest request, String programId) {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		
-		if (!StringUtils.isEmpty(programId)) {
+
+		if (programId != null && programId!="") {
 			request.setAttribute("id", programId);
 			request.setAttribute("programName", programManager.getProgram(programId).getName());
 			request.setAttribute("providers", programManager.getProgramProviders(programId));
 			request.setAttribute("functional_users", programManager.getFunctionalUsers(programId));
 
-			List<ProgramTeam> teams = programManager.getProgramTeams(programId);
+			List teams = programManager.getProgramTeams(programId);
 
-			for (ProgramTeam team : teams) {
+			for (Object team1 : teams) {
+				ProgramTeam team = (ProgramTeam) team1;
+
 				team.setProviders(programManager.getAllProvidersInTeam(Integer.valueOf(programId), team.getId()));
 				team.setAdmissions(programManager.getAllClientsInTeam(Integer.valueOf(programId), team.getId()));
 			}
@@ -1282,17 +1212,11 @@ public class ProgramManagerAction extends DispatchAction {
 			request.setAttribute("accesses", programManager.getProgramAccesses(programId));
 			request.setAttribute("queue", programQueueManager.getActiveProgramQueuesByProgramId(Long.valueOf(programId)));
 
-			if (CaisiIntegratorManager.isEnableIntegratedReferrals(loggedInInfo.getCurrentFacility())) {
-				request.setAttribute("remoteQueue", getRemoteQueue(loggedInInfo, Integer.parseInt(programId)));
+			if (CaisiIntegratorManager.isEnableIntegratedReferrals()) {
+				request.setAttribute("remoteQueue", getRemoteQueue(Integer.parseInt(programId)));
 			}
 
 			request.setAttribute("programFirstSignature", programManager.getProgramFirstSignature(Integer.valueOf(programId)));
-			
-			request.setAttribute("myGroups", scheduleManager.getMyGroupsByProgramNo(Integer.parseInt(programId)));
-			
-			request.setAttribute("encounterTypes", programManager.getCustomEncounterTypes(loggedInInfo, Integer.parseInt(programId)));
-			request.setAttribute("encTypes", programManager.getNonGlobalEncounterTypes(loggedInInfo));
-			
 		}
 
 		request.setAttribute("roles", roleManager.getRoles());
@@ -1302,8 +1226,6 @@ public class ProgramManagerAction extends DispatchAction {
 		request.setAttribute("bed_programs", programManager.getBedPrograms());
 
 		request.setAttribute("facilities", facilityDao.findAll(true));
-		
-		request.setAttribute("allMyGroups", scheduleManager.getMyGroups());
 	}
 
 	public static class RemoteQueueEntry {
@@ -1337,10 +1259,10 @@ public class ProgramManagerAction extends DispatchAction {
 
 	}
 
-	protected List<RemoteQueueEntry> getRemoteQueue(LoggedInInfo loggedInInfo, int programId) {
+	protected List<RemoteQueueEntry> getRemoteQueue(int programId) {
 		try {
-			DemographicWs demographicWs = CaisiIntegratorManager.getDemographicWs(loggedInInfo, loggedInInfo.getCurrentFacility());
-			ReferralWs referralWs = CaisiIntegratorManager.getReferralWs(loggedInInfo, loggedInInfo.getCurrentFacility());
+			DemographicWs demographicWs = CaisiIntegratorManager.getDemographicWs();
+			ReferralWs referralWs = CaisiIntegratorManager.getReferralWs();
 			List<Referral> remoteReferrals = referralWs.getReferralsToProgram(programId);
 
 			ArrayList<RemoteQueueEntry> results = new ArrayList<RemoteQueueEntry>();
@@ -1358,7 +1280,7 @@ public class ProgramManagerAction extends DispatchAction {
 				FacilityIdStringCompositePk pk = new FacilityIdStringCompositePk();
 				pk.setIntegratorFacilityId(remoteReferral.getSourceIntegratorFacilityId());
 				pk.setCaisiItemId(remoteReferral.getSourceCaisiProviderId());
-				CachedProvider cachedProvider = CaisiIntegratorManager.getProvider(loggedInInfo, loggedInInfo.getCurrentFacility(),pk);
+				CachedProvider cachedProvider = CaisiIntegratorManager.getProvider(pk);
 				if (cachedProvider != null) {
 					remoteQueueEntry.setProviderName(cachedProvider.getLastName() + ", " + cachedProvider.getFirstName());
 				} else {
@@ -1445,7 +1367,7 @@ public class ProgramManagerAction extends DispatchAction {
 
 		programManager.saveProgramClientStatus(status);
 
-		LogAction.log("write", "edit program - save status", String.valueOf(program.getId()), request);
+		logManager.log("write", "edit program - save status", String.valueOf(program.getId()), request);
 
 		ActionMessages messages = new ActionMessages();
 		messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("program.saved", program.getName()));
@@ -1463,11 +1385,7 @@ public class ProgramManagerAction extends DispatchAction {
 
 		Admission ad = admissionManager.getAdmission(admission.getId());
 
-		if(admission.getClientStatusId() != null && admission.getClientStatusId().intValue() == 0) {
-			ad.setClientStatusId(null);
-		} else {
-			ad.setClientStatusId(admission.getClientStatusId());
-		}
+		ad.setClientStatusId(admission.getClientStatusId());
 
 		admissionManager.saveAdmission(ad);
 
@@ -1475,7 +1393,7 @@ public class ProgramManagerAction extends DispatchAction {
 		messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("program.saved", program.getName()));
 		saveMessages(request, messages);
 
-		LogAction.log("write", "edit program - assign client to status", String.valueOf(program.getId()), request);
+		logManager.log("write", "edit program - assign client to status", String.valueOf(program.getId()), request);
 
 		setEditAttributes(request, String.valueOf(program.getId()));
 
@@ -1499,113 +1417,7 @@ public class ProgramManagerAction extends DispatchAction {
 
 		return edit(mapping, form, request, response);
 	}
-	
-	public ActionForward activeTmplStatus(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		DynaActionForm programForm = (DynaActionForm) form;
-		String vacancyId = (String)programForm.get("vacancyOrTemplateId");
-		try {
-			int templateId = Integer.parseInt(vacancyId);
-			VacancyTemplate vacTmpl = vacancyTemplateDAO.getVacancyTemplate(templateId);
-			if (vacTmpl != null) {
-				vacTmpl.setActive(true);
-				try {
-					vacancyTemplateDAO.mergeVacancyTemplate(vacTmpl);
-				} catch (Exception e) {
-					logger.debug(e.toString());
-				}
-			}
-		} catch (Exception e) {
-			logger.debug(e.toString());
-		}
-		
-		return edit(mapping, form, request, response);
-	}
-	
-	public ActionForward inactiveTmplStatus(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		DynaActionForm programForm = (DynaActionForm) form;
-		String vacancyId = (String)programForm.get("vacancyOrTemplateId");
-		try {
-			int templateId = Integer.parseInt(vacancyId);
-			VacancyTemplate vacTmpl = vacancyTemplateDAO.getVacancyTemplate(templateId);
-			if (vacTmpl != null) {
-				vacTmpl.setActive(false);
-				try {
-					vacancyTemplateDAO.mergeVacancyTemplate(vacTmpl);
-				} catch (Exception e) {
-					logger.debug(e.toString());
-				}
-			}
-		} catch (Exception e) {
-			logger.debug(e.toString());
-		}
-		
-		return edit(mapping, form, request, response);
-	}
 
-
-
-    
-	public ActionForward saveVacancyStatus(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		String vacancyId = request.getParameter("vacancyId");
-		String status = request.getParameter("status");
-		boolean success=true;
-		String error = "";
-		
-		VacancyDao vacancyDao = SpringUtils.getBean(VacancyDao.class);
-		Vacancy vacancy = vacancyDao.find(Integer.parseInt(vacancyId));
-		
-		if(vacancy != null) {
-			vacancy.setStatus(status);
-			vacancy.setStatusUpdateUser(loggedInInfo.getLoggedInProviderNo());
-			vacancy.setStatusUpdateDate(new Date());
-			vacancyDao.merge(vacancy);
-			
-            Facility f = loggedInInfo.getCurrentFacility();
-            if(status.equals("Withdrawn") && f.getVacancyWithdrawnTicklerProvider() != null && f.getVacancyWithdrawnTicklerProvider().length()>0 
-                    && f.getVacancyWithdrawnTicklerDemographic() != null && f.getVacancyWithdrawnTicklerDemographic()> 0) {
-                    createWaitlistWithdrawnNotificationTickler(loggedInInfo,f,vacancy,loggedInInfo.getLoggedInProviderNo());
-            }
-            
-		} else {
-			error="Vacancy not found";
-			success=false;
-		}
-		
-		JSONObject obj = new JSONObject();
-		obj.put("success", success);
-		obj.put("error", error);
-		
-		try {
-			response.getWriter().print(obj.toString());
-		}catch(IOException e) {
-			MiscUtils.getLogger().warn("error writing json",e);
-		}
-		return null;
-	}
-	
-	
-	
-	public ActionForward saveScheduleGroups(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		DynaActionForm programForm = (DynaActionForm) form;
-		Program program = (Program) programForm.get("program");
-
-		String[] vals = request.getParameterValues("checked_group");
-		scheduleManager.replaceMyGroupProgram(program.getId(),vals);
-		
-		
-		LogAction.log("write", "scheduleprogram", String.valueOf(program.getId()), request);
-
-		ActionMessages messages = new ActionMessages();
-		messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("program.saved", program.getName()));
-		saveMessages(request, messages);
-		//programForm.set("access", new ProgramAccess());
-		setEditAttributes(request, String.valueOf(program.getId()));
-
-		
-		return mapping.findForward("edit");
-	}
-	
 	private boolean isChanged(Program program1, Program program2) {
 		boolean changed = false;
 
@@ -1664,6 +1476,10 @@ public class ProgramManagerAction extends DispatchAction {
 		this.bedCheckTimeManager = bedCheckTimeManager;
 	}
 
+	public void setLogManager(LogManager mgr) {
+		this.logManager = mgr;
+	}
+
 	public void setProgramManager(ProgramManager mgr) {
 		this.programManager = mgr;
 	}
@@ -1694,79 +1510,4 @@ public class ProgramManagerAction extends DispatchAction {
     	this.vacancyTemplateManager = vacancyTemplateManager;
     }
 
-	protected Integer getParameterAsInteger(HttpServletRequest request, String name, Integer defaultVal) {
-		String param = request.getParameter(name);
-		if(!(param==null || param.equals("null") || param.equals(""))) {
-			return Integer.valueOf(param);
-		}
-		return defaultVal;
-	}
-	
-	protected Boolean getParameterAsBoolean(HttpServletRequest request, String name, Boolean defaultVal) {
-		String param = request.getParameter(name);
-		if(param != null) {
-			return Boolean.valueOf(param);
-		}
-		return defaultVal;
-	}
-	
-	protected Boolean getParameterAsBoolean(HttpServletRequest request, String name) {
-		return getParameterAsBoolean(request,name,false);
-	}
-	
-	
-	public ActionForward delete_encounterType(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		DynaActionForm programForm = (DynaActionForm) form;
-		Program program = (Program) programForm.get("program");
-		ProgramEncounterType encounterType = (ProgramEncounterType) programForm.get("encounterType");
-
-		
-		programManager.deleteCustomEncounterType(encounterType.getId());
-
-		ActionMessages messages = new ActionMessages();
-		messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("program.saved", program.getName()));
-		saveMessages(request, messages);
-
-		LogAction.log("write", "edit program - delete encounter type", String.valueOf(program.getId()), request);
-
-		this.setEditAttributes(request, String.valueOf(program.getId()));
-		programForm.set("encounterType", new ProgramEncounterType());
-
-		return edit(mapping, form, request, response);
-	}
-
-	public ActionForward save_encounterType(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		DynaActionForm programForm = (DynaActionForm) form;
-		Program program = (Program) programForm.get("program");
-		ProgramEncounterType programEncounterType = (ProgramEncounterType) programForm.get("encounterType");
-
-		if (this.isCancelled(request)) {
-			return list(mapping, form, request, response);
-		}
-		programEncounterType.getId().setProgramId(program.getId().intValue());
-
-		if (programManager.findCustomEncounterType(programEncounterType.getId()) != null) {
-			ActionMessages messages = new ActionMessages();
-			messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("program.duplicate_encounterType", program.getName()));
-			saveMessages(request, messages);
-			programForm.set("encounterType", new ProgramEncounterType());
-			setEditAttributes(request, String.valueOf(program.getId()));
-			return mapping.findForward("edit");
-		}
-
-		programManager.saveCustomEncounterType(programEncounterType);
-
-		LogAction.log("write", "encounter_type", String.valueOf(program.getId()), request);
-
-		ActionMessages messages = new ActionMessages();
-		messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("program.saved", program.getName()));
-		saveMessages(request, messages);
-		programForm.set("encounterType", new ProgramEncounterType());
-		setEditAttributes(request, String.valueOf(program.getId()));
-
-		
-		return mapping.findForward("edit");
-	}
-
-	
 }

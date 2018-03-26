@@ -41,31 +41,27 @@ import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
 import oscar.oscarRx.data.RxPatientData;
-import oscar.oscarRx.data.RxPatientData.Patient;
 import oscar.util.DateUtils;
 
 public final class AllergyHelperBean {
 	private static Logger logger = MiscUtils.getLogger();
 	private static final PartialDateDao partialDateDao = (PartialDateDao) SpringUtils.getBean("partialDateDao");
 
-	public static List<AllergyDisplay> getAllergiesToDisplay(LoggedInInfo loggedInInfo, Integer demographicId, Locale locale)  {
+	public static List<AllergyDisplay> getAllergiesToDisplay(Integer demographicId, Locale locale)  {
 		ArrayList<AllergyDisplay> results = new ArrayList<AllergyDisplay>();
 
-		addLocalAllergies(loggedInInfo, demographicId, results, locale);
+		addLocalAllergies(demographicId, results, locale);
 
-		if (loggedInInfo.getCurrentFacility().isIntegratorEnabled()) {
-			addIntegratorAllergies(loggedInInfo, demographicId, results, locale);
+		LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
+		if (loggedInInfo.currentFacility.isIntegratorEnabled()) {
+			addIntegratorAllergies(demographicId, results, locale);
 		}
 
 		return (results);
 	}
 
-	private static void addLocalAllergies(LoggedInInfo loggedInInfo, Integer demographicId, ArrayList<AllergyDisplay> results, Locale locale)  {
-		Patient pt = RxPatientData.getPatient(loggedInInfo, demographicId);
-		if(pt == null) {
-			return;
-		}
-		Allergy[] allergies = pt.getActiveAllergies();
+	private static void addLocalAllergies(Integer demographicId, ArrayList<AllergyDisplay> results, Locale locale)  {
+		Allergy[] allergies = RxPatientData.getPatient(demographicId).getActiveAllergies();
 
 		if (allergies == null) return;
 
@@ -79,7 +75,7 @@ public final class AllergyHelperBean {
 			allergyDisplay.setReaction(allergy.getReaction());
 			allergyDisplay.setSeverityCode(allergy.getSeverityOfReaction());
 			allergyDisplay.setTypeCode(allergy.getTypeCode());
-			allergyDisplay.setArchived(allergy.getArchived()?"1":"0");
+			allergyDisplay.setArchived(allergy.getArchived());
 
 			String entryDate = partialDateDao.getDatePartial(allergy.getEntryDate(), PartialDate.ALLERGIES, allergy.getAllergyId(), PartialDate.ALLERGIES_ENTRYDATE);
 			String startDate = partialDateDao.getDatePartial(allergy.getStartDate(), PartialDate.ALLERGIES, allergy.getAllergyId(), PartialDate.ALLERGIES_STARTDATE);
@@ -90,20 +86,20 @@ public final class AllergyHelperBean {
 		}
 	}
 
-	private static void addIntegratorAllergies(LoggedInInfo loggedInInfo, Integer demographicId, ArrayList<AllergyDisplay> results, Locale locale) {
+	private static void addIntegratorAllergies(Integer demographicId, ArrayList<AllergyDisplay> results, Locale locale) {
 		try {
 			List<CachedDemographicAllergy> remoteAllergies  = null;
 			try {
-				if (!CaisiIntegratorManager.isIntegratorOffline(loggedInInfo.getSession())){
-					remoteAllergies = CaisiIntegratorManager.getDemographicWs(loggedInInfo, loggedInInfo.getCurrentFacility()).getLinkedCachedDemographicAllergies(demographicId);
+				if (!CaisiIntegratorManager.isIntegratorOffline()){
+					remoteAllergies = CaisiIntegratorManager.getDemographicWs().getLinkedCachedDemographicAllergies(demographicId);
 				}
 			} catch (Exception e) {
 				MiscUtils.getLogger().error("Unexpected error.", e);
-				CaisiIntegratorManager.checkForConnectionError(loggedInInfo.getSession(),e);
+				CaisiIntegratorManager.checkForConnectionError(e);
 			}
 			
-			if(CaisiIntegratorManager.isIntegratorOffline(loggedInInfo.getSession())){
-				remoteAllergies = IntegratorFallBackManager.getRemoteAllergies(loggedInInfo,demographicId);	
+			if(CaisiIntegratorManager.isIntegratorOffline()){
+				remoteAllergies = IntegratorFallBackManager.getRemoteAllergies(demographicId);	
 			}
 			
 

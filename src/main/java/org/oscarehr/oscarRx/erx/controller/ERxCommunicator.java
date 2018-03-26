@@ -95,7 +95,7 @@ public class ERxCommunicator {
      *            The username to use when connecting
      * @param password
      *            The password to use when connecting
-     * @param locale
+     * @param localeId
      */
     public ERxCommunicator(URL remoteURL, String username, String password,
             String locale) {

@@ -34,10 +34,13 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
-import org.apache.struts.actions.DispatchAction;
 import org.apache.struts.validator.DynaValidatorForm;
+import org.oscarehr.PMmodule.web.admin.BaseAdminAction;
 
-public final class UnlockAccountAction extends DispatchAction {
+import com.quatro.common.KeyConstants;
+import com.quatro.model.security.NoAccessException;
+
+public final class UnlockAccountAction extends BaseAdminAction {
 
     public ActionForward unspecified(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
     {
@@ -46,8 +49,8 @@ public final class UnlockAccountAction extends DispatchAction {
     
     public ActionForward unlock(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) 
     {
-    	
-    		
+    	try {
+    		super.getAccess(request, KeyConstants.FUN_ADMIN_UNLOCKUSER);
 	    	DynaValidatorForm myForm = (DynaValidatorForm) form;
 	    	String [] userIds = myForm.getString("userId").split(",");
 	    	
@@ -67,15 +70,22 @@ public final class UnlockAccountAction extends DispatchAction {
 	    	  messages.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("Selected Users are successfully unlocked "));
 	    	  saveMessages(request, messages);
 	    	  return list(mapping, form, request, response);
-    	
+    	}
+    	catch(NoAccessException e)
+    	{
+    		return mapping.findForward("failure");
+    	}
     }
 
     private ActionForward list(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)
     {
-    	return mapping.findForward("list");
-    	
+    	try {
+    		super.getAccess(request, KeyConstants.FUN_ADMIN_UNLOCKUSER);
+    		return mapping.findForward("list");
+    	}
+    	catch(NoAccessException e)
+    	{
+    		return mapping.findForward("failure");
+    	}
     }
-    
-	
-	
  }

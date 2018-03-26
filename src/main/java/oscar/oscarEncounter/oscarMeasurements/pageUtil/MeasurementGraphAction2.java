@@ -31,6 +31,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -75,14 +77,10 @@ import org.jfree.data.xy.DefaultOHLCDataset;
 import org.jfree.data.xy.OHLCDataItem;
 import org.jfree.data.xy.XYDataset;
 import org.oscarehr.PMmodule.utility.UtilDateUtilities;
-import org.oscarehr.common.dao.MeasurementsExtDao;
-import org.oscarehr.common.model.MeasurementsExt;
-import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.DbConnectionFilter;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
+import oscar.oscarDB.DBHandler;
 import oscar.oscarEncounter.oscarMeasurements.bean.EctMeasurementsDataBean;
 import oscar.oscarEncounter.oscarMeasurements.bean.EctMeasurementsDataBeanHandler;
 import oscar.oscarLab.ca.on.CommonLabTestValues;
@@ -94,7 +92,6 @@ import oscar.oscarLab.ca.on.CommonLabTestValues;
 public class MeasurementGraphAction2 extends Action {
 
     private static Logger log = MiscUtils.getLogger();
-    private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
 
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException {
         log.debug("In MeasurementGraphAction2");
@@ -103,16 +100,12 @@ public class MeasurementGraphAction2 extends Action {
             response.sendRedirect("../logout.jsp");
         }
 
-        if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_measurement", "r", null)) {
-			throw new SecurityException("missing required security object (_measurement)");
-		}
-        
 
-        Integer demographicNo = Integer.valueOf(request.getParameter("demographic_no"));
+        String demographicNo = request.getParameter("demographic_no");
         String typeIdName = request.getParameter("type");
         String typeIdName2 = request.getParameter("type2");
 
-        String patientName = oscar.oscarDemographic.data.DemographicNameAgeString.getInstance().getNameAgeString(LoggedInInfo.getLoggedInInfoFromSession(request), demographicNo);
+        String patientName = oscar.oscarDemographic.data.DemographicNameAgeString.getInstance().getNameAgeString(demographicNo);
         String chartTitle = "Data Graph for " + patientName;
         int width = 800;
         int height = 400;
@@ -161,21 +154,21 @@ public class MeasurementGraphAction2 extends Action {
         return null;
     }
 
-    ArrayList<EctMeasurementsDataBean> getList(Integer demographicNo, String typeIdName) {
+    ArrayList<EctMeasurementsDataBean> getList(String demographicNo, String typeIdName) {
         EctMeasurementsDataBeanHandler ectMeasure = new EctMeasurementsDataBeanHandler(demographicNo, typeIdName);
         Collection<EctMeasurementsDataBean> dataVector = ectMeasure.getMeasurementsDataVector();
         ArrayList<EctMeasurementsDataBean> list = new ArrayList<EctMeasurementsDataBean>(dataVector);
         return list;
     }
 
-    private static XYTaskDataset getDrugDataSet(Integer demographicId,String[] dins){
+    private static XYTaskDataset getDrugDataSet(String demographic,String[] dins){
 
         TaskSeriesCollection datasetDrug = new TaskSeriesCollection();
         oscar.oscarRx.data.RxPrescriptionData prescriptData = new oscar.oscarRx.data.RxPrescriptionData();
 
 
         for(String din:dins){
-             oscar.oscarRx.data.RxPrescriptionData.Prescription [] arr =  prescriptData.getPrescriptionScriptsByPatientRegionalIdentifier(demographicId,din);
+             oscar.oscarRx.data.RxPrescriptionData.Prescription [] arr =  prescriptData.getPrescriptionScriptsByPatientRegionalIdentifier(Integer.parseInt(demographic),din);
              TaskSeries ts  = new TaskSeries(arr[0].getBrandName());
              for(oscar.oscarRx.data.RxPrescriptionData.Prescription pres:arr){
                  ts.add(new Task(pres.getBrandName(),pres.getRxDate(),pres.getEndDate()));
@@ -189,12 +182,12 @@ public class MeasurementGraphAction2 extends Action {
         return dataset;
     }
 
-    private static String[] getDrugSymbol(Integer demographic,String[] dins){
+    private static String[] getDrugSymbol(String demographic,String[] dins){
         String[] ret = new String[dins.length];
         ArrayList<String> list = new ArrayList<String>();
         oscar.oscarRx.data.RxPrescriptionData prescriptData = new oscar.oscarRx.data.RxPrescriptionData();
         for(String din:dins){
-             oscar.oscarRx.data.RxPrescriptionData.Prescription [] arr =  prescriptData.getPrescriptionScriptsByPatientRegionalIdentifier(demographic,din);
+             oscar.oscarRx.data.RxPrescriptionData.Prescription [] arr =  prescriptData.getPrescriptionScriptsByPatientRegionalIdentifier(Integer.parseInt(demographic),din);
              list.add( arr[0].getBrandName() );
 
         }
@@ -207,15 +200,17 @@ public class MeasurementGraphAction2 extends Action {
 
 
 
-    JFreeChart referenceRangeChart(Integer demographicNo, String typeIdName, String typeIdName2, String patientName, String chartTitle) {
+    JFreeChart referenceRangeChart(String demographicNo, String typeIdName, String typeIdName2, String patientName, String chartTitle) {
              org.jfree.data.time.TimeSeriesCollection dataset = new org.jfree.data.time.TimeSeriesCollection();
 
         ArrayList<EctMeasurementsDataBean> list = getList(demographicNo, typeIdName);
         ArrayList<OHLCDataItem> dataItems = new ArrayList<OHLCDataItem>();
+        String typeYAxisName = "";
 
         if (typeIdName.equals("BP")) {
             log.debug("Using BP LOGIC FOR type 1 ");
             EctMeasurementsDataBean sampleLine = list.get(0);
+            typeYAxisName = sampleLine.getTypeDescription();
             TimeSeries systolic = new TimeSeries("Systolic", Day.class);
             TimeSeries diastolic = new TimeSeries("Diastolic", Day.class);
             for (EctMeasurementsDataBean mdb : list) { // dataVector) {
@@ -233,6 +228,7 @@ public class MeasurementGraphAction2 extends Action {
             // get the name from the TimeSeries
             EctMeasurementsDataBean sampleLine = list.get(0);
             String typeLegendName = sampleLine.getTypeDisplayName();
+            typeYAxisName = sampleLine.getTypeDescription(); // this should be the type of measurement
             TimeSeries newSeries = new TimeSeries(typeLegendName, Day.class);
             for (EctMeasurementsDataBean mdb : list) { //dataVector) {
                 newSeries.addOrUpdate(new Day(mdb.getDateObservedAsDate()), Double.parseDouble(mdb.getDataField()));
@@ -304,7 +300,7 @@ public class MeasurementGraphAction2 extends Action {
         return chart;
     }
 
-    JFreeChart rxAndLabChart(Integer demographicNo, String typeIdName, String typeIdName2, String patientName, String chartTitle) {
+    JFreeChart rxAndLabChart(String demographicNo, String typeIdName, String typeIdName2, String patientName, String chartTitle) {
         org.jfree.data.time.TimeSeriesCollection dataset = new org.jfree.data.time.TimeSeriesCollection();
 
         ArrayList<EctMeasurementsDataBean> list = getList(demographicNo, typeIdName);
@@ -431,7 +427,7 @@ public class MeasurementGraphAction2 extends Action {
 
 
 
-    JFreeChart labChart(Integer demographicNo, String typeIdName, String typeIdName2, String patientName, String chartTitle) {
+    JFreeChart labChart(String demographicNo, String typeIdName, String typeIdName2, String patientName, String chartTitle) {
         org.jfree.data.time.TimeSeriesCollection dataset = new org.jfree.data.time.TimeSeriesCollection();
         ArrayList<EctMeasurementsDataBean> list = getList(demographicNo, typeIdName);
         String typeYAxisName = "";
@@ -511,7 +507,7 @@ public class MeasurementGraphAction2 extends Action {
 ////                                    h.put("collDate",collDate);
 ////                                    h.put("collDateDate",UtilDateUtilities.getDateFromString(collDate, "yyyy-MM-dd HH:mm:ss"));
 ////                                    labList.add(h);
-        JFreeChart actualLabChartRef(Integer demographicNo, String labType, String identifier,String testName, String patientName, String chartTitle) {
+        JFreeChart actualLabChartRef(String demographicNo, String labType, String identifier,String testName, String patientName, String chartTitle) {
             org.jfree.data.time.TimeSeriesCollection dataset = new org.jfree.data.time.TimeSeriesCollection();
 
             ArrayList<Map<String, Serializable>> list = CommonLabTestValues.findValuesForTest(labType, demographicNo, testName, identifier);
@@ -599,7 +595,7 @@ public class MeasurementGraphAction2 extends Action {
 
 
 
-        JFreeChart actualLabChartRefPlusMeds(Integer demographicNo, String labType, String identifier,String testName, String patientName, String chartTitle,String[] drugs) {
+        JFreeChart actualLabChartRefPlusMeds(String demographicNo, String labType, String identifier,String testName, String patientName, String chartTitle,String[] drugs) {
             org.jfree.data.time.TimeSeriesCollection dataset = new org.jfree.data.time.TimeSeriesCollection();
 
 
@@ -609,7 +605,7 @@ public class MeasurementGraphAction2 extends Action {
               try{
 
               Connection conn = DbConnectionFilter.getThreadLocalDbConnection();
-              list = CommonLabTestValues.findValuesByLoinc2(demographicNo.toString(), identifier, conn );
+              list = CommonLabTestValues.findValuesByLoinc2(demographicNo, identifier, conn );
               MiscUtils.getLogger().debug("List ->"+list.size());
               conn.close();
               }catch(Exception ed){
@@ -734,7 +730,7 @@ public class MeasurementGraphAction2 extends Action {
 
 
 
-       JFreeChart labChartRef(Integer demographicNo, String typeIdName, String typeIdName2, String patientName, String chartTitle) {
+        JFreeChart labChartRef(String demographicNo, String typeIdName, String typeIdName2, String patientName, String chartTitle) {
         org.jfree.data.time.TimeSeriesCollection dataset = new org.jfree.data.time.TimeSeriesCollection();
         ArrayList<EctMeasurementsDataBean> list = getList(demographicNo, typeIdName);
         String typeYAxisName = "";
@@ -835,7 +831,7 @@ public class MeasurementGraphAction2 extends Action {
             return chart;
     }
 
-    JFreeChart defaultChart(Integer demographicNo, String typeIdName,
+    JFreeChart defaultChart(String demographicNo, String typeIdName,
             String typeIdName2, String patientName,
             String chartTitle) {
         org.jfree.data.time.TimeSeriesCollection dataset = new org.jfree.data.time.TimeSeriesCollection();
@@ -850,14 +846,10 @@ public class MeasurementGraphAction2 extends Action {
             TimeSeries systolic = new TimeSeries("Systolic", Day.class);
             TimeSeries diastolic = new TimeSeries("Diastolic", Day.class);
             for (EctMeasurementsDataBean mdb : list) { // dataVector) {
-            	if(!mdb.getDataField().equals("")){
-	                String[] str = mdb.getDataField().split("/");
-	
-	                systolic.addOrUpdate(new Day(mdb.getDateObservedAsDate()), Double.parseDouble(str[0]));
-	                diastolic.addOrUpdate(new Day(mdb.getDateObservedAsDate()), Double.parseDouble(str[1]));
-            	}else{
-            		log.debug("Error passing measurement value to chart. DataField is empty for ID:" + mdb.getId());
-            	}
+                String[] str = mdb.getDataField().split("/");
+
+                systolic.addOrUpdate(new Day(mdb.getDateObservedAsDate()), Double.parseDouble(str[0]));
+                diastolic.addOrUpdate(new Day(mdb.getDateObservedAsDate()), Double.parseDouble(str[1]));
             }
             dataset.addSeries(diastolic);
             dataset.addSeries(systolic);
@@ -871,12 +863,7 @@ public class MeasurementGraphAction2 extends Action {
 
             TimeSeries newSeries = new TimeSeries(typeLegendName, Day.class);
             for (EctMeasurementsDataBean mdb : list) { //dataVector) {
-            	
-            	if(!mdb.getDataField().equals("")){
-            		newSeries.addOrUpdate(new Day(mdb.getDateObservedAsDate()), Double.parseDouble(mdb.getDataField()));
-            	}else{
-            		log.debug("Error passing measurement value to chart. DataField is empty for ID:" + mdb.getId());
-            	}
+                newSeries.addOrUpdate(new Day(mdb.getDateObservedAsDate()), Double.parseDouble(mdb.getDataField()));
             }
             dataset.addSeries(newSeries);
         }
@@ -890,18 +877,14 @@ public class MeasurementGraphAction2 extends Action {
             org.jfree.data.time.TimeSeriesCollection dataset2 = new org.jfree.data.time.TimeSeriesCollection();
 
             log.debug("list2 " + list2);
-            
+
             EctMeasurementsDataBean sampleLine2 = list2.get(0);
             String typeLegendName = sampleLine2.getTypeDisplayName();
             String typeYAxisName2 = sampleLine2.getTypeDescription(); // this should be the type of measurement
 
             TimeSeries newSeries = new TimeSeries(typeLegendName, Day.class);
             for (EctMeasurementsDataBean mdb : list2) { //dataVector) {
-            	if(!mdb.getDataField().equals("")){
-            		newSeries.addOrUpdate(new Day(mdb.getDateObservedAsDate()), Double.parseDouble(mdb.getDataField()));
-	            }else{
-	        		log.debug("Error passing measurement value to chart. DataField is empty for ID:" + mdb.getId());
-	            }
+                newSeries.addOrUpdate(new Day(mdb.getDateObservedAsDate()), Double.parseDouble(mdb.getDataField()));
             }
             dataset2.addSeries(newSeries);
 
@@ -934,7 +917,7 @@ public class MeasurementGraphAction2 extends Action {
     /*
      * Just Drugs
      */
-    JFreeChart ChartMeds(Integer demographicNo,String patientName, String chartTitle,String[] drugs) {
+    JFreeChart ChartMeds(String demographicNo,String patientName, String chartTitle,String[] drugs) {
             MiscUtils.getLogger().debug("In ChartMeds");
             org.jfree.data.time.TimeSeriesCollection dataset = new org.jfree.data.time.TimeSeriesCollection();
             JFreeChart chart = ChartFactory.createTimeSeriesChart(chartTitle, "Days", "MEDS", dataset, true, true, true);
@@ -979,16 +962,30 @@ public class MeasurementGraphAction2 extends Action {
 
 
 
-    private  Hashtable getMeasurementsExt(Integer measurementId) {
-		Hashtable<String,String> hash = new Hashtable<String,String>();
-		if (measurementId!=null) {
-		    MeasurementsExtDao dao = SpringUtils.getBean(MeasurementsExtDao.class);
-		    MeasurementsExt m = dao.find(measurementId);
-		    if(m != null) {
-		    	hash.put(m.getKeyVal(), m.getVal());
-		    }
-		}
-		return hash;
+    private  Hashtable getMeasurementsExt(Integer measurementId) throws SQLException {
+	Hashtable<String,String> hash = new Hashtable<String,String>();
+	if (measurementId!=null) {
+
+	    String sql = "SELECT * FROM measurementsExt WHERE measurement_id=" + measurementId;
+	    ResultSet rs = DBHandler.GetSQL(sql);
+
+	    while (rs.next()) {
+		hash.put(rs.getString("keyval"),rs.getString("val"));
+	    }
+	}
+	return hash;
+    }
+
+     private static XYItemRenderer setAxisAndDataSet(int i,XYPlot plot, ValueAxis axis,XYDataset dataset,Paint p){
+        plot.setRangeAxis(i, axis);
+        plot.setDataset(i, dataset);
+        plot.mapDatasetToRangeAxis(i, i);
+
+        XYItemRenderer renderer = new StandardXYItemRenderer();
+        renderer.setSeriesPaint(0,p);
+        axis.setLabelPaint(p);
+        axis.setTickLabelPaint(p);
+        return renderer;
     }
 
     private static XYItemRenderer setAxisAndDataSet(int i,XYPlot plot, ValueAxis axis,XYDataset dataset,Paint p,XYItemRenderer renderer){

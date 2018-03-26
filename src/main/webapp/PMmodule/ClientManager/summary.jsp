@@ -22,26 +22,13 @@
     Toronto, Ontario, Canada
 
 --%>
-<%@ include file="/taglibs.jsp"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_pmm" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_pmm");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%@page import="java.util.List"%>
 <%@page import="oscar.util.DateUtils"%>
 <%@page import="org.oscarehr.PMmodule.model.Program"%>
 <%@page import="org.apache.commons.lang.StringEscapeUtils"%>
-<%@page import="org.oscarehr.common.model.Admission"%>
+<%@ include file="/taglibs.jsp"%>
+
+<%@page import="org.oscarehr.PMmodule.model.Admission"%>
 <%@page import="org.oscarehr.common.model.Demographic"%>
 <%@page import="org.oscarehr.PMmodule.model.ClientReferral"%>
 <%@page import="org.oscarehr.PMmodule.web.utils.UserRoleUtils"%>
@@ -62,8 +49,7 @@
 	ProgramProviderDAO ppd =(ProgramProviderDAO)SpringUtils.getBean("programProviderDAO");
 	IntegratorConsentDao integratorConsentDao=(IntegratorConsentDao)SpringUtils.getBean("integratorConsentDao");
 	Demographic currentDemographic=(Demographic)request.getAttribute("client");
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-	boolean caisiSearchWorkflow = Boolean.valueOf(OscarProperties.getInstance().getProperty("caisi.search.workflow","true"));
+	LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
 %>
 
 
@@ -79,23 +65,10 @@
 <%@page import="org.oscarehr.util.SpringUtils"%>
 <%@page import="org.oscarehr.common.model.DemographicCust"%>
 <%@page import="org.oscarehr.common.dao.DemographicCustDao"%>
-<%@page import="org.oscarehr.PMmodule.web.AdmissionForDisplay"%>
-<%@ page import="org.oscarehr.PMmodule.service.ProgramManager"%>
-
-<input type="hidden" name="clientId" value="" />
+<%@page import="org.oscarehr.PMmodule.web.AdmissionForDisplay"%><input type="hidden" name="clientId" value="" />
 <input type="hidden" name="formId" value="" />
 <input type="hidden" id="formInstanceId" value="0" />
 
-<%
-//get current program, to check for OCAN
-boolean programEnableOcan=false;
-String currentProgram = (String)session.getAttribute(org.oscarehr.util.SessionConstants.CURRENT_PROGRAM_ID);
-if(currentProgram != null) {
-	ProgramManager pm = SpringUtils.getBean(ProgramManager.class);
-	Program program = pm.getProgram(currentProgram);
-	programEnableOcan =program.isEnableOCAN();
-}
-%>
 <script>
 var XMLHttpRequestObject = false;
 
@@ -238,7 +211,7 @@ function updateCdsForm(message, cdsFormId) {
 				<c:out value="${client.hin}" />&nbsp;<c:out value="${client.ver}" />&nbsp;(<c:out value="${client.hcType}" />)
 				<%
 					// show the button even if integrator is disabled, this is to allow people to validate local data with integrator disabled.
-					if (loggedInInfo.getCurrentFacility().isEnableHealthNumberRegistry())
+					if (loggedInInfo.currentFacility.isEnableHealthNumberRegistry())
 					{
 						%>
 							<input type="button" value="Manage Health Number Registry" onclick="document.location='ClientManager/manage_hnr_client.jsp?demographicId=<%=currentDemographic.getDemographicNo()%>'" />
@@ -310,7 +283,7 @@ function updateCdsForm(message, cdsFormId) {
 		</td>
 	</tr>
 	<%
-		if (loggedInInfo.getCurrentFacility().isIntegratorEnabled())
+		if (LoggedInInfo.loggedInInfo.get().currentFacility.isIntegratorEnabled())
 		{
 			%>
 				<tr>
@@ -322,7 +295,7 @@ function updateCdsForm(message, cdsFormId) {
 
 							try
 							{
-								GetConsentTransfer remoteConsent=CaisiIntegratorManager.getConsentState(loggedInInfo, loggedInInfo.getCurrentFacility(), currentDemographic.getDemographicNo());
+								GetConsentTransfer remoteConsent=CaisiIntegratorManager.getConsentState(currentDemographic.getDemographicNo());
 
 								if (remoteConsent!=null)
 								{
@@ -332,7 +305,7 @@ function updateCdsForm(message, cdsFormId) {
 									if (remoteConsent.getConsentState()==ConsentState.SOME) sb.append("Limited consent, ");
 									if (remoteConsent.getConsentState()==ConsentState.NONE) sb.append("No consent, ");
 
-									CachedFacility myFacility=CaisiIntegratorManager.getCurrentRemoteFacility(loggedInInfo, loggedInInfo.getCurrentFacility());
+									CachedFacility myFacility=CaisiIntegratorManager.getCurrentRemoteFacility();
 									if (myFacility.getIntegratorFacilityId().equals(remoteConsent.getIntegratorFacilityId()))
 									{
 										sb.append("set locally on ");
@@ -553,11 +526,10 @@ function updateCdsForm(message, cdsFormId) {
 			<%
 				if (!UserRoleUtils.hasRole(request, UserRoleUtils.Roles.external))
 					{
-					if(caisiSearchWorkflow) {
 			%> <input type="button" value="Update"
 				onclick="updateQuickIntake('<c:out value="${client.demographicNo}" />')" />&nbsp;
 			<%
-				} }
+				}
 			%> <input type="button" value="Print Preview"
 				onclick="printQuickIntake('<c:out value="${client.demographicNo}" />', '<c:out value="${mostRecentQuickIntake.id}"/>')" />
 			</td>
@@ -565,14 +537,8 @@ function updateCdsForm(message, cdsFormId) {
 		<c:if test="${mostRecentQuickIntake == null}">
 			<td><span style="color: red">None found</span></td>
 			<td></td>
-			<td>
-				<%
-					if(caisiSearchWorkflow) {
-				%>
-			<input type="button" value="Create"
-				onclick="updateQuickIntake('<c:out value="${client.demographicNo}" />')" />
-				<% } %>
-				</td>
+			<td><input type="button" value="Create"
+				onclick="updateQuickIntake('<c:out value="${client.demographicNo}" />')" /></td>
 		</c:if>
 	</tr>
 	<%
@@ -605,7 +571,8 @@ function updateCdsForm(message, cdsFormId) {
 			</tr>
 		<%
 
-		if (loggedInInfo.getCurrentFacility().isEnableOcanForms() && programEnableOcan )
+
+		if (LoggedInInfo.loggedInInfo.get().currentFacility.isEnableOcanForms())
 		{
 	%>
 	<tr>
@@ -733,7 +700,7 @@ function updateCdsForm(message, cdsFormId) {
 	
 	
 	<%
-	if (loggedInInfo.getCurrentFacility().isEnableCbiForm())
+	if (LoggedInInfo.loggedInInfo.get().currentFacility.isEnableCbiForm())
 	{
 		List<OcanStaffForm> allLatestCbiForms=(List<OcanStaffForm>)request.getAttribute("allLatestCbiForms");
 		if (allLatestCbiForms!=null && allLatestCbiForms.size()>0)
@@ -759,7 +726,7 @@ function updateCdsForm(message, cdsFormId) {
 				<td colspan="5">
 					<input type="button" value="New CBI Form" onclick="document.location='ClientManager/cbi_form.jsp?ocanStaffFormId=0&prepopulate=0&ocanType=CBI&demographicId=<%=currentDemographic.getDemographicNo()%>'" />
 				</td>
-	</tr>
+			</tr>
 	<%} %>
 </table>
 <br />
@@ -816,7 +783,9 @@ function updateCdsForm(message, cdsFormId) {
 </table>
 </div>
 
-<% boolean bShowEncounterLink = false;%>
+<% boolean bShowEncounterLink = false;
+String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
+%>
 <security:oscarSec roleName="<%=roleName$%>" objectName="_eChart" rights="r">
 <% bShowEncounterLink = true; %>
 </security:oscarSec>
@@ -849,7 +818,7 @@ String reason ="";
 					%>
 					<logic:notEqual value="community" property="programType" name="admission">
 						<a href=# onClick="popupPage(710, 1024,'../oscarSurveillance/CheckSurveillance.do?programId=<%=tempAdmission.getProgramId()%>&demographicNo=<%=demographic_no%>&proceed=<%=java.net.URLEncoder.encode(eURL)%>');return false;" title="<bean:message key="global.encounter"/>">
-						   <bean:message key="provider.appointmentProviderAdminDay.btnEncounter" />
+						   <bean:message key="provider.appointmentProviderAdminDay.btnE" />
 						</a>
 					</logic:notEqual>
 					<%
@@ -880,12 +849,10 @@ String reason ="";
 
 <display:table class="simple" cellspacing="2" cellpadding="3" id="referral" name="referrals" export="false" pagesize="10" requestURI="/PMmodule/ClientManager.do">
 	<display:setProperty name="paging.banner.placement" value="bottom" />
-	<display:column property="selectVacancy" sortable="true" title="Vacancy Name" />
-	<display:column property="vacancyTemplateName" sortable="true" title="Vacancy Template Name" />
+
 	<display:column property="programName" sortable="true" title="Facility / Program Name" />
 	<display:column property="programType" sortable="true" title="Program Type" />
 	<display:column property="referralDate" sortable="true" title="Referral Date" />
 	<display:column property="referringProvider" sortable="true" title="Referring Provider/Facility" />
 	<display:column property="daysInQueue" sortable="true" title="Days in Queue" />
-	
 </display:table>

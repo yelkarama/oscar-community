@@ -8,24 +8,6 @@
     and "gnu.org/licenses/gpl-2.0.html".
     
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_report,_admin.reporting,_admin" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_report&type=_admin.reporting&type=_admin");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%@page import="java.nio.charset.Charset"%>
-<%@page import="org.apache.commons.lang.StringEscapeUtils"%>
 <%@ page language="java"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -36,31 +18,21 @@ if(!authed) {
 <html:html locale="true">
 <head>
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/global.js"></script>
-<script type="text/javascript" src="<%= request.getContextPath() %>/share/javascript/jquery/jquery-1.4.2.js"></script>
 <title>MOH Report</title>
 <link rel="stylesheet" href="<%=request.getContextPath()%>/billing.css" >
 <link rel="stylesheet" type="text/css" media="all" href="<%=request.getContextPath()%>/share/css/extractedFromPages.css" />
 
-<%
-String INBOX = OscarProperties.getInstance().getProperty("ONEDT_INBOX");
-String filename = (String)request.getAttribute("filename");
-if (filename == null) { 
-    filename = request.getParameter("filename"); 
-}
-
-String fileContents = null;
-if( !filename.matches(".*\\.\\..*") ) {
-
-	File file = new File(INBOX + "/" + filename);
-	fileContents = FileUtils.readFileToString(file, "UTF-8");
-}
-else {
-    fileContents = "";
-}
-%>
-
 <script>
 <!--
+
+function getRelative(path) {
+   // we are assuming that the file path is in the OscarDocument location
+   cpath="<%=request.getContextPath()%>";
+   i=path.indexOf("OscarDocument");
+   subpath=path.substr(i); 
+   var dpath=cpath+"/../"+subpath;
+   return dpath;
+}
 
 function loadXMLDoc(xmldoc) 
 {
@@ -73,54 +45,44 @@ function loadXMLDoc(xmldoc)
    }
    xhttp.open("GET",xmldoc,false);
    xhttp.send("");
-   
    return xhttp.responseXML;
 }
 
 function displayReport() 
-{ 	
-   var cpath="<%=request.getContextPath()%>";
-   var fname = "<%=filename%>";
-   sname= cpath + "/billing/CA/ON/ES.xsl";
+{ 
+	<%
+	String filename = (String)request.getAttribute("filename");
+	if (filename == null) { filename = request.getParameter("filename"); }
+	%>
+   var fname="<%=filename%>";
+   var backuppath="<%=session.getAttribute("backupfilepath")%>";
+   var fullpath=getRelative(backuppath)+fname;
+   var sname= cpath + "/billing/CA/ON/ES.xsl";
    if (fname.substring(2,4) == "OU") {
 	   sname=cpath + "/billing/CA/ON/OU.xsl";
    }
-   
-   xml='<%=StringEscapeUtils.escapeJavaScript(fileContents)%>';
-   try {            
+   try {
+      xml=loadXMLDoc(fullpath);
       xsl=loadXMLDoc(sname);
-      
    } catch(err) {
-      txt="Cannot load XSL document.\n";
+      txt="Cannot load XML & XSL documents.\n";
+      txt+="xml doc="+fullpath+"\n";
       txt+="xsl doc="+sname+"\n";
-      txt+="Error description: " + err.description;      
+      txt+="Error description: " + err.description;
       alert(txt);
       return;
   }
-   
-   var xmlDoc = null;
-   
-   if (navigator.appName == 'Microsoft Internet Explorer') {
-       xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
-       xmlDoc.async = false;
-       xmlDoc.loadXML(xml);
-   } else if (window.DOMParser) {
-       parser = new DOMParser();
-       xmlDoc = parser.parseFromString(xml, "text/xml");
-   } else {
-       alert("Your browser doesn't suppoprt XML parsing!");
-   }
 
    // code for Mozilla, Firefox, Opera
    if (document.implementation && document.implementation.createDocument) {
-      xsltProcessor=new XSLTProcessor();      
+      xsltProcessor=new XSLTProcessor();
       xsltProcessor.importStylesheet(xsl);
-      resultDocument = xsltProcessor.transformToFragment(xmlDoc,document);
-      jQuery("#MOHreport").html(resultDocument);
+      resultDocument = xsltProcessor.transformToFragment(xml,document);
+      document.getElementById("MOHreport").appendChild(resultDocument);
    } else if (window.ActiveXObject) {
       // code for IE
-      ex=xmlDoc.transformNode(xsl);
-      jQuery('#MOHreport').html(ex);
+      ex=xml.transformNode(xsl);
+      document.getElementById("MOHreport").innerHTML=ex;
    } else {
       alert("Viewing report is not supported by this Browser.");
    }
@@ -128,23 +90,20 @@ function displayReport()
 }
 // -->
 </script>
-
-<style>
-@media print {
-	.noprint {display:none !important;}
-}
-</style>
 </head>
 
-<body onload="displayReport()">
-<table width="100%" border="0" cellspacing="0" cellpadding="0" class="noprint">
+<body onload="displayReport()" >
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
 	<tr>
-		<td height="40" width="10%" class="Header">
-			<font size="3">Billing</font>
+		<td height="40" width="10%" class="Header"><input type="button"
+			name="print" value="<bean:message key="global.btnPrint"/>"
+			onClick="window.print()"></td>
+		<td width="80%" align="left" class="Header">oscar<font size="3">Billing</font>
 		</td>
-		<td width="90%" align="right" class="Header">
-			<input type="button" name="print" value="<bean:message key="global.btnPrint"/>"	onClick="window.print()">
-		</td>
+		<td width="10%" align="right" class="Header"><input type="button" name="close"
+                        value="<bean:message key="global.btnClose"/>"
+                        onClick="window.close()"></td>
+
 	</tr>
 </table>
 <div id="MOHreport" ></div>

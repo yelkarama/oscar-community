@@ -53,7 +53,7 @@ public class Prevention extends AbstractModel<Integer> implements Serializable {
 	private Date creationDate = new Date();
 
 	@Column(name = "prevention_date")
-	@Temporal(TemporalType.TIMESTAMP)
+	@Temporal(TemporalType.DATE)
 	private Date preventionDate = null;
 
 	@Column(name = "provider_no")
@@ -74,9 +74,6 @@ public class Prevention extends AbstractModel<Integer> implements Serializable {
 	private String creatorProviderNo = null;
 	
 	private Date lastUpdateDate = null;
-	
-	private Boolean restrictToProgram = false;
-	private Integer programNo;
 
 	public Integer getDemographicId() {
 		return demographicId;
@@ -181,26 +178,4 @@ public class Prevention extends AbstractModel<Integer> implements Serializable {
 	{
 		lastUpdateDate=new Date();
 	}
-	
-	public String getDeletedRawValue() {
-		return String.valueOf(deleted);
-	}
-
-	public Boolean getRestrictToProgram() {
-		return restrictToProgram;
-	}
-
-	public void setRestrictToProgram(Boolean restrictToProgram) {
-		this.restrictToProgram = restrictToProgram;
-	}
-
-	public Integer getProgramNo() {
-		return programNo;
-	}
-
-	public void setProgramNo(Integer programNo) {
-		this.programNo = programNo;
-	}
-	
-	
 }

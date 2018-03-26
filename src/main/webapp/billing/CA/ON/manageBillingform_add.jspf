@@ -23,25 +23,9 @@
  * Ontario, Canada 
  */
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin.billing,_admin" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_admin&type=_admin.billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<% String errorMessage = request.getParameter("errorMessage"); %>
 
 <form name="servicetypeform" method="post">
-<table width="92%" border="0" height="285">
+<table width="90%" border="0" height="285">
 	<tr>
 		<td width="5%">&nbsp;</td>
 		<td width="30%" valign="top">
@@ -49,12 +33,10 @@ if(!authed) {
 			<tr>
 				<th colspan="2" class="white"><bean:message
 					key="billing.manageBillingform_add.msgAdd" /></th>
-			</tr>			
+			</tr>
 			<tr>
-				<td width="50%" class="white">			
-				<font color="red">
-				<bean:message
-					key="billing.manageBillingform_add.formServiceID" /> : </font></td>
+				<td width="50%" class="white"><bean:message
+					key="billing.manageBillingform_add.formServiceID" /> :</td>
 				<td width="50%" class="white"><input type="text" name="typeid"
 					maxlength="3"></td>
 			</tr>
@@ -111,22 +93,6 @@ if(!authed) {
 					onClick="valid(this.form)"></td>
 				<td class="white">&nbsp;</td>
 			</tr>
-			
-			<% 			
-			 if (errorMessage != null && errorMessage.length() > 0) {
-			%>
-				<tr>
-				    <td class="white">&nbsp;</td>
-					<td width="50%" class="white">			
-					<font color="red" size="2"> <%= errorMessage %>
-					</font></td>
-					
-				</tr>				
-			</tr>
-				
-			<% }
-			%>
-			
 		</table>
 		</td>
 
@@ -142,32 +108,32 @@ if(!authed) {
 			</tr>
 
 			<% 
-		
-	List<Object[]> uniqueServiceTypeList =  ctlBillingServiceDao.getUniqueServiceTypes();		
-			
+	ResultSet rs=null ;
+	ResultSet rs2=null ;
+
+	rs = apptMainBean.queryResults("%", "search_ctlbillservice");
 	int rCount = 0;
 	boolean bodd=false;
 
-	if(uniqueServiceTypeList == null) {
+	if(rs==null) {
 		out.println("failed!!!"); 
 	} else {
-	    for(Object[] service : uniqueServiceTypeList)
-	    {
-	      
-	    	%>
+		while (rs.next()) {
+%>
 
-	    				<tr>
-	    					<td width="30%" valign="top" class="black"><a href=#
-	    						onClick='manageType("<%=service[0]%>","<%=service[1]%>");return false;'
-	    						title="Manage Billing Form"><%=service[0]%></a> 
-	    					</td>
-	    					<td class="black"><a href=#
-	    						onClick='manageType("<%=service[0]%>","<%=service[1]%>");return false;'
-	    						title="Manage Billing Form"><%=service[1]%></a>
-	    					</td>
-	    				</tr>
-	    				<%
-	   }
+			<tr>
+				<td width="30%" valign="top" class="black"><a href=#
+					onClick='manageType("<%=rs.getString("servicetype")%>","<%=rs.getString("servicetype_name")%>");return false;'
+					title="Manage Billing Form"><%=rs.getString("servicetype")%></a> <!--		<a href=# onClick='onUnbilled("dbManageBillingform_delete.jsp?servicetype=<%=rs.getString("servicetype")%>");return false;' title="Delete Billing Form"><%=rs.getString("servicetype")%></a> -->
+				</td>
+				<td class="black"><a href=#
+					onClick='manageType("<%=rs.getString("servicetype")%>","<%=rs.getString("servicetype_name")%>");return false;'
+					title="Manage Billing Form"><%=rs.getString("servicetype_name")%></a>
+				<!--		<a href=# onClick='onUnbilled("dbManageBillingform_delete.jsp?servicetype=<%=rs.getString("servicetype")%>");return false;' title="Delete Billing Form"><%=rs.getString("servicetype_name")%></a> -->
+				</td>
+			</tr>
+			<%
+	}
 }
 %>
 

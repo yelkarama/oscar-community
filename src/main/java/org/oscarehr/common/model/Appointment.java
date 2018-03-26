@@ -24,8 +24,6 @@
 package org.oscarehr.common.model;
 
 import java.io.Serializable;
-import java.util.Calendar;
-import java.util.Comparator;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -35,7 +33,6 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -111,16 +108,6 @@ public class Appointment extends AbstractModel<Integer> implements Serializable 
 	@Enumerated(EnumType.STRING)
 	private BookingSource bookingSource;
 	
-	private Integer reasonCode;
-
-	public Integer getReasonCode() {
-		return reasonCode;
-	}
-
-	public void setReasonCode(Integer reasonCode) {
-		this.reasonCode = reasonCode;
-	}
-
 	public String getProviderNo() {
 		return providerNo;
 	}
@@ -320,53 +307,10 @@ public class Appointment extends AbstractModel<Integer> implements Serializable 
 	public Integer getId() {
 		return id;
 	}
-	
-	public void setId(Integer id) {
-		this.id = id;
-	}
 
-	@PrePersist
 	@PreUpdate
 	protected void jpaUpdateLastUpdateTime() {
 		this.updateDateTime = new Date();
 	}
-	
-    public static final Comparator<Appointment> APPT_DATE_COMPARATOR =new Comparator<Appointment>()
-    {
-        public int compare(Appointment o1, Appointment o2) {
-        	if (o1==null && o2!=null) return -1;
-        	if (o1==null && o2==null) return 0;
-        	if (o1!=null && o2==null) return 1;
-        					
-        	Date d1 = o1.getAppointmentDate();
-        	Date d2 = o2.getAppointmentDate();
-        	int tmp = d1.compareTo(d2);
-        	if(tmp == 0) {
-        		Date t1 = o1.getStartTime();
-        		Date t2 = o2.getStartTime();
-        		return t1.compareTo(t2);
-        	} else {
-        		return tmp;
-        	}     
-        }       
-    };
 
-
-   
-   public Date getStartTimeAsFullDate(){
-	   try{
-		   Calendar cal = Calendar.getInstance();
-		   cal.setTime(getAppointmentDate());
-		   Calendar acal = Calendar.getInstance();
-		   acal.setTime(getStartTime());
-		   cal.set(Calendar.HOUR_OF_DAY, acal.get(Calendar.HOUR_OF_DAY));
-		   cal.set(Calendar.MINUTE, acal.get(Calendar.MINUTE));
-		   cal.set(Calendar.SECOND,0);
-		   cal.set(Calendar.MILLISECOND, 0);
-		   return cal.getTime();
-	   }catch(Exception e){
-		   return null;
-	   }
-   }
-    
 }

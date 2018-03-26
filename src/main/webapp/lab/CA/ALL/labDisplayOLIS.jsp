@@ -17,21 +17,6 @@
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar" %>
 <%@ taglib uri="/WEB-INF/oscarProperties-tag.tld" prefix="oscarProperties"%>
 <%@ taglib uri="/WEB-INF/indivo-tag.tld" prefix="indivo"%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-	  boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_lab" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../../securityError.jsp?type=_lab");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
 <%
 	String segmentID = request.getParameter("segmentID");
 String originalSegmentID = segmentID;
@@ -1433,7 +1418,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                            	</tr>
                                             <% } %>
                                             <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
-                                                <td valign="top" align="leftZOR"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier='+encodeURIComponent('<%= handler.getOBXIdentifier(obr, obx)%>'))"><%=obxDisplayName %></a></td>
+                                                <td valign="top" align="leftZOR"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier=<%= handler.getOBXIdentifier(obr, obx) %>')"><%=obxDisplayName %></a></td>
                                                 <td align="right"><%= strikeOutInvalidContent(handler.getOBXResult(obr, obx), status) %></td>
                                                 <td align="center">
                                                         <%= strikeOutInvalidContent(handler.getOBXAbnormalFlag(obr, obx), status)%>
@@ -1449,7 +1434,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                         } else if (obxValueType.equals("SN")) { // or Structured Numeric
 	                                              %>
 	                                              <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
-	                                                  <td valign="top" align="leftZOR"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier='+encodeURIComponent('<%= handler.getOBXIdentifier(obr, obx)%>'))"><%=obxDisplayName %></a></td>
+	                                                  <td valign="top" align="leftZOR"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier=<%= handler.getOBXIdentifier(obr, obx) %>')"><%=obxDisplayName %></a></td>
 	                                                  <td align="right"><%= strikeOutInvalidContent(handler.getOBXSNResult(obr, obx), status) %></td>
 	                                                  <td align="center">
 	                                                          <%= strikeOutInvalidContent(handler.getOBXAbnormalFlag(obr, obx), status)%>
@@ -1475,7 +1460,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
 										} else if (obxValueType.equals("TM")) { // Time
 											%>
                                             <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
-                                                <td valign="top" align="leftZOR"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier='+encodeURIComponent('<%= handler.getOBXIdentifier(obr, obx)%>'))"><%=obxDisplayName %></a></td>
+                                                <td valign="top" align="leftZOR"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier=<%= handler.getOBXIdentifier(obr, obx) %>')"><%=obxDisplayName %></a></td>
                                                 <td align="right"><%= strikeOutInvalidContent(handler.getOBXTMResult(obr, obx), status) %></td>
                                                 <td align="center" colspan="4"></td>
                                                 <td align="center"><%=statusMsg %></td>
@@ -1484,7 +1469,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
 										} else if (obxValueType.equals("DT")) { // Date
 											%>
                                             <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
-                                                <td valign="top" align="leftZOR"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier='+encodeURIComponent('<%= handler.getOBXIdentifier(obr, obx)%>'))"><%=obxDisplayName %></a></td>
+                                                <td valign="top" align="leftZOR"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier=<%= handler.getOBXIdentifier(obr, obx) %>')"><%=obxDisplayName %></a></td>
                                                 <td align="right"><%= strikeOutInvalidContent(handler.getOBXDTResult(obr, obx), status) %></td>
                                                 <td align="center" colspan="4"></td>
                                                 <td align="center"><%=statusMsg%></td>
@@ -1493,7 +1478,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
 										} else if (obxValueType.equals("TS")) { // Time Stamp (Date & Time)
 											%>
                                             <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
-                                                <td valign="top" align="leftZOR"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier='+encodeURIComponent('<%= handler.getOBXIdentifier(obr, obx)%>'))"><%=obxDisplayName %></a></td>
+                                                <td valign="top" align="leftZOR"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier=<%= handler.getOBXIdentifier(obr, obx) %>')"><%=obxDisplayName %></a></td>
                                                 <td align="right"><%= strikeOutInvalidContent(handler.getOBXTSResult(obr, obx), status) %></td>
                                                 <td align="center" colspan="4"></td>
                                                 <td align="center"><%=statusMsg %></td>
@@ -1502,15 +1487,10 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
    										} else if (obxValueType.equals("ED")) { // Encapsulated Data
    											%>
    											<tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
-												<td colspan="7" valign="top" align="leftZOR"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier='+encodeURIComponent('<%= handler.getOBXIdentifier(obr, obx)%>'))"><%=obxDisplayName %></a></td>
+												<td colspan="7" valign="top" align="leftZOR"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier=<%= handler.getOBXIdentifier(obr, obx) %>')"><%=obxDisplayName %></a></td>
    											</tr>
    											<tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
-   											<%if(!preview) { %>
-   												<td colspan="4" valign="left"><a href="PrintOLIS.do?segmentID=<%=segmentID%>&obr=<%=obr%>&obx=<%=obx%>" style="margin-left: 30px;">Click to view attachment.</a>
-   											<% } else { %>
-   												<td colspan="4" valign="left"><a href="PrintOLIS.do?uuid=<%=oscar.Misc.getStr(request.getParameter("uuid"), "")%>&obr=<%=obr%>&obx=<%=obx%>" style="margin-left: 30px;">Click to view attachment.</a>   											
-   											<% } %>
-   												</td>
+   												<td colspan="4" valign="left"><a href="PrintOLIS.do?segmentID=<%=segmentID%>&obr=<%=obr%>&obx=<%=obx%>" style="margin-left: 30px;">Click to view attachment.</a></td>
    												<td align="left" colspan="2"><%=strikeOutInvalidContent(handler.getOBXUnits(obr, obx), status) %></td>
    												<td align="center"><%=statusMsg %></td>
    											</tr>
@@ -1519,7 +1499,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
 
    											%>
    											<tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
-												<td colspan="7" valign="top" align="leftZOR"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier='+encodeURIComponent('<%= handler.getOBXIdentifier(obr, obx)%>'))"><%=obxDisplayName %></a></td>
+												<td colspan="7" valign="top" align="leftZOR"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier=<%= handler.getOBXIdentifier(obr, obx) %>')"><%=obxDisplayName %></a></td>
    											</tr>
    											<tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
    												<td colspan="6" valign="left"><span  style="margin-left:15px;"><%=handler.getOBXCEName(obr,obx) %></span></td>
@@ -1567,7 +1547,7 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                         } else {
                                         	%>
                                             <tr bgcolor="<%=(linenum % 2 == 1 ? highlight : "")%>" class="<%=lineClass%>">
-                                                <td valign="top" align="leftZOR"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier='+encodeURIComponent('<%= handler.getOBXIdentifier(obr, obx)%>'))"><%=obxDisplayName %></a></td>
+                                                <td valign="top" align="leftZOR"><%= obrFlag ? "&nbsp; &nbsp; &nbsp;" : "&nbsp;" %><a href="javascript:popupStart('660','900','../ON/labValues.jsp?testName=<%=obxName%>&demo=<%=demographicID%>&labType=HL7&identifier=<%= handler.getOBXIdentifier(obr, obx) %>')"><%=obxDisplayName %></a></td>
                                                 <td align="right"><%= strikeOutInvalidContent(handler.getOBXResult(obr, obx), status) %></td>
                                                 <td align="center">
                                                         <%= strikeOutInvalidContent(handler.getOBXAbnormalFlag(obr, obx), status)%>
@@ -1631,9 +1611,11 @@ div.Title4   { font-weight: 600; font-size: 8pt; color: white; font-family:
                                     <input type="button" class="smallButton" value="<bean:message key="oscarMDS.index.btnForward"/>" onClick="popupStart(300, 400, '../../../oscarMDS/SelectProvider.jsp', 'providerselect')">
                                     <input type="button" value=" <bean:message key="global.btnClose"/> " onClick="window.close()">
                                     <input type="button" value=" <bean:message key="global.btnPrint"/> " onClick="printPDF()">
+                                    <oscarProperties:oscarPropertiesCheck property="MY_OSCAR" value="yes">
                                         <indivo:indivoRegistered demographic="<%=demographicID%>" provider="<%=providerNo%>">
                                         <input type="button" value="<bean:message key="global.btnSendToPHR"/>" onClick="sendToPHR('<%=segmentID%>', '<%=demographicID%>')">
                                         </indivo:indivoRegistered>
+                                    </oscarProperties:oscarPropertiesCheck>
                                     <% if ( searchProviderNo != null ) { // we were called from e-chart %>
                                     <input type="button" value=" <bean:message key="oscarMDS.segmentDisplay.btnEChart"/> " onClick="popupStart(360, 680, '../../../oscarMDS/SearchPatient.do?labType=HL7&segmentID=<%=segmentID%>&name=<%=java.net.URLEncoder.encode(handler.getLastName()+", "+handler.getFirstName())%>', 'searchPatientWindow')">
                                     <% } %>

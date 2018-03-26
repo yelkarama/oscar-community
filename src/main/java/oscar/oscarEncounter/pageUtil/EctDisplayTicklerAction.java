@@ -26,44 +26,49 @@
 package oscar.oscarEncounter.pageUtil;
 
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.sql.ResultSet;
 import java.util.Date;
-import java.util.List;
+import java.util.Properties;
+import java.util.Vector;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.struts.util.MessageResources;
-import org.oscarehr.common.model.Tickler;
-import org.oscarehr.managers.TicklerManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
+import oscar.oscarTickler.TicklerData;
 import oscar.util.DateUtils;
+import oscar.util.OscarRoleObjectPrivilege;
 import oscar.util.StringUtils;
+
+//import oscar.oscarSecurity.CookieSecurity;
 
 public class EctDisplayTicklerAction extends EctDisplayAction {
     private static final String cmd = "tickler";
 
  public boolean getInfo(EctSessionBean bean, HttpServletRequest request, NavBarDisplayDAO Dao, MessageResources messages) {
-	 LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-	 
-	if (!securityInfoManager.hasPrivilege(loggedInInfo, "_tickler", "r", null)) {
+
+	 boolean a = true;
+ 	Vector v = OscarRoleObjectPrivilege.getPrivilegeProp("_newCasemgmt.viewTickler");
+     String roleName = (String)request.getSession().getAttribute("userrole") + "," + (String) request.getSession().getAttribute("user");
+     a = OscarRoleObjectPrivilege.checkPrivilege(roleName, (Properties) v.get(0), (Vector) v.get(1));
+ 	if(!a) {
  		return true; //The link of tickler won't show up on new CME screen.
  	} else {
 
- 
+ try {
 
     //Set lefthand module heading and link
     String winName = "ViewTickler" + bean.demographicNo;
     String pathview, pathedit;
     if( org.oscarehr.common.IsPropertiesOn.isTicklerPlusEnable() ) {
-    	pathview = request.getContextPath() + "/Tickler.do?filter.demographic_webName="+ encode(bean) +"&filter.demographicNo=" + bean.demographicNo +"&filter.assignee=";
-    	pathedit = request.getContextPath() + "/Tickler.do?method=edit&tickler.demographic_webName="+ encode(bean) +"&tickler.demographicNo=" + bean.demographicNo;
+    	pathview = request.getContextPath() + "/Tickler.do?filter.demographic_webName="+ URLEncoder.encode(bean.patientLastName + "," + bean.patientFirstName,"UTF-8") +"&filter.demographic_no=" + bean.demographicNo +"&filter.assignee=";
+    	pathedit = request.getContextPath() + "/Tickler.do?method=edit&tickler.demographic_webName="+ URLEncoder.encode(bean.patientLastName + "," + bean.patientFirstName,"UTF-8") +"&tickler.demographic_no=" + bean.demographicNo;
     }
     else {
         pathview = request.getContextPath() + "/tickler/ticklerDemoMain.jsp?demoview=" + bean.demographicNo + "&parentAjaxId=" + cmd;
-        pathedit = request.getContextPath() + "/appointment/appointmentcontrol.jsp?keyword=" + encode(bean) + "&displaymode=" + encode("Search ") + "&search_mode=search_name&originalpage=" + encode(request.getContextPath() + "/tickler/ticklerAdd.jsp") + "&orderby=last_name&appointment_date=2000-01-01&limit1=0&limit2=5&status=t&start_time=10:45&end_time=10:59&duration=15&dboperation=search_demorecord&type=&demographic_no=" + bean.demographicNo + "&parentAjaxId=" + cmd + "&updateParent=false";
+        pathedit = request.getContextPath() + "/appointment/appointmentcontrol.jsp?keyword=" + URLEncoder.encode(bean.patientLastName + "," + bean.patientFirstName,"UTF-8") + "&displaymode=" + URLEncoder.encode("Search ", "UTF-8") + "&search_mode=search_name&originalpage=" + URLEncoder.encode(request.getContextPath() + "/tickler/ticklerAdd.jsp", "UTF-8") + "&orderby=last_name&appointment_date=2000-01-01&limit1=0&limit2=5&status=t&start_time=10:45&end_time=10:59&duration=15&dboperation=add_apptrecord&type=&demographic_no=" + bean.demographicNo + "&parentAjaxId=" + cmd + "&updateParent=false";
     }
 
     String url = "popupPage(500,900,'" + winName + "','" + pathview + "')";
@@ -79,40 +84,30 @@ public class EctDisplayTicklerAction extends EctDisplayAction {
     String dateBegin = "1900-01-01";
     String dateEnd = "8888-12-31";
 
-    TicklerManager ticklerManager = SpringUtils.getBean(TicklerManager.class);
-    List<Tickler> ticklers = ticklerManager.findActiveByDemographicNo(loggedInInfo,Integer.parseInt(bean.demographicNo));
+    TicklerData tickler = new TicklerData();
+    ResultSet rs = tickler.listTickler(bean.demographicNo, TicklerData.ACTIVE, dateBegin, dateEnd);
 
     Date serviceDate;
     Date today = new Date(System.currentTimeMillis());
     String itemHeader;
-    String priority;
-    String flag;
     int hash;
     long days;
-    for(Tickler t : ticklers) {
+    while(rs.next()) {
         NavBarDisplayDAO.Item item = NavBarDisplayDAO.Item();
-        serviceDate = t.getServiceDate();
-        priority = t.getPriorityWeb().toUpperCase( );
-
+        serviceDate = rs.getDate("service_date");
         item.setDate(serviceDate);
         days = (today.getTime() - serviceDate.getTime())/(1000*60*60*24);
         if( days > 0 )
             item.setColour("#FF0000");
 
-        itemHeader = StringUtils.maxLenString(t.getMessage(), MAX_LEN_TITLE, CROP_LEN_TITLE, ELLIPSES);
-        item.setLinkTitle(priority + ": " + itemHeader + " " + DateUtils.formatDate(serviceDate,request.getLocale()));
-        if(priority.equals("HIGH")){
-        	flag = "<span style='color:red'>&#9873;</span> ";
-        	itemHeader = "<b>"+itemHeader+"</b>";
-        }else{
-        	flag = "";
-        }
-        item.setTitle(flag + itemHeader);
-        // item.setValue(String.valueOf(t.getTickler_no()));
-        winName = StringUtils.maxLenString(t.getMessage(), MAX_LEN_TITLE, MAX_LEN_TITLE, "");
+        itemHeader = StringUtils.maxLenString(rs.getString("message"), MAX_LEN_TITLE, CROP_LEN_TITLE, ELLIPSES);
+        item.setLinkTitle(itemHeader+ " " + DateUtils.formatDate(serviceDate,request.getLocale()));
+        item.setTitle(itemHeader);
+        //item.setValue(rs.getString("tickler_no"));
+        winName = StringUtils.maxLenString(oscar.Misc.getString(rs,"message"), MAX_LEN_TITLE, MAX_LEN_TITLE, "");
         hash = Math.abs(winName.hashCode());
         if( org.oscarehr.common.IsPropertiesOn.isTicklerPlusEnable() ) {
-        	url = "popupPage(500,900,'" + hash + "','" + request.getContextPath() + "/Tickler.do?method=view&id="+t.getId()+"'); return false;";
+        	url = "popupPage(500,900,'" + hash + "','" + request.getContextPath() + "/Tickler.do?method=view&id="+oscar.Misc.getString(rs,"tickler_no")+"'); return false;";
         } else {
         	url = "popupPage(500,900,'" + hash + "','" + request.getContextPath() + "/tickler/ticklerDemoMain.jsp?demoview=" + bean.demographicNo + "&parentAjaxId=" + cmd + "'); return false;";
         }
@@ -120,27 +115,18 @@ public class EctDisplayTicklerAction extends EctDisplayAction {
         Dao.addItem(item);
 
     }
- 	}
 
      Dao.sortItems(NavBarDisplayDAO.DATESORT);
- 
+ }catch( Exception e ) {
+     MiscUtils.getLogger().debug("Error retrieving " + cmd + " : " + e.getMessage());
+     MiscUtils.getLogger().error("Error", e);
+     return false;
+ }
     return true;
+ 	}
   }
 
-	private String encode(EctSessionBean bean) {
-		return encode(bean.patientLastName + "," + bean.patientFirstName);
-	}
-
-	private String encode(String str) {
-		try {
-			return URLEncoder.encode(str, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			MiscUtils.getLogger().error("Unable to encode string using UTF-8", e);
-			throw new RuntimeException(e);
-		}
-	}
-
-	public String getCmd() {
-		return cmd;
-	}
+ public String getCmd() {
+     return cmd;
+ }
 }

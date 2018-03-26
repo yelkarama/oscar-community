@@ -28,21 +28,16 @@
 
 <%-- Updated by Eugene Petruhin on 05 feb 2009 while fixing #2493970 --%>
 
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@ include file="/taglibs.jsp"%>
 <%@ page import="java.util.*"%>
 <%@ page import="org.oscarehr.PMmodule.web.utils.UserRoleUtils"%>
 <%@ page import="org.springframework.web.context.WebApplicationContext"%>
-<%@ page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
-<%@ page import="org.oscarehr.PMmodule.service.ProgramManager"%>
-<%@ page import="org.oscarehr.PMmodule.model.Program"%>
-<%@ page import="org.oscarehr.util.SpringUtils"%>
+<%@ page
+	import="org.springframework.web.context.support.WebApplicationContextUtils"%>
 <%@ taglib uri="/WEB-INF/caisi-tag.tld" prefix="caisi"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 
 <%
-	LoggedInInfo loggedInInfo987=LoggedInInfo.getLoggedInInfoFromSession(request);
-
     long loadPage = System.currentTimeMillis();
     if (session.getAttribute("userrole") == null) response.sendRedirect("../logout.jsp");
     String roleName$ = (String) session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -64,15 +59,6 @@
 
     String dateStr = yearStr + "-" + mthStr + "-" + dayStr;
 	WebApplicationContext ctx=null;
-	
-	//get current program, to check for OCAN
-	boolean programEnableOcan=false;
-	String currentProgram = (String)session.getAttribute(org.oscarehr.util.SessionConstants.CURRENT_PROGRAM_ID);
-	if(currentProgram != null) {
-		ProgramManager pm = SpringUtils.getBean(ProgramManager.class);
-		Program program = pm.getProgram(currentProgram);
-		programEnableOcan =program.isEnableOCAN();
-	}
 %>
 
 <script type="text/javascript">
@@ -107,6 +93,22 @@
         popupPage2(url, "IntakeReport" + type);
     }
 
+    function createIntakeCReport1()
+    {
+        var startDate = "";
+
+        while (startDate.length != 10 || startDate.substring(4, 5) != "-" || startDate.substring(7, 8) != "-")
+        {
+            startDate = prompt("Please enter the date in this format (e.g. 2006-01-01)", "<%=dateStr%>");
+            if (startDate == null) {
+                return false;
+            }
+        }
+
+        alert('Generating report for date ' + startDate);
+
+        popupPage2('<html:rewrite action="/PMmodule/IntakeCMentalHealthReportAction.do"/>?startDate=' + startDate, "IntakeCReport");
+    }
 
 	function getGeneralFormsReport()
 	{
@@ -123,10 +125,6 @@
         {
             startDate = prompt("Please enter start date (e.g. 2006-01-01)", "<%=dateStr%>");
             if (startDate == null) {
-                return false;
-            }
-            if (!dojo.validate.isValidDate(startDate, 'YYYY-MM-DD')) {
-                alert("'" + startDate + "' is not a valid start date");
                 return false;
             }
         }
@@ -161,9 +159,42 @@
 
 </script>
 
+<!--
+	 <div id="navcolumn">
+     <table border="0" cellspacing="0" cellpadding="4">
+         <tr>
+            <td align="left">
+                <table border="0" cellpadding="0" cellspacing="2">
+                    <tr>
+                        <td nowrap="nowrap" width="120">
+                            <div align="center">
+                                <img src="<html:rewrite page="/images/caisi_1.jpg" />" alt="Caisi" id="caisilogo"
+                                     border="0"/>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td nowrap="nowrap" width="120">
+                            <div align="center">
+                                <%
+                                    ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
+                                %>
+                                <span style="font-weight:bold"></span>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</div>
+-->
 <div id="projecttools" class="toolgroup">
 <div class="label"><strong>Navigator</strong></div>
-<div class="body">
+<div class="body"><!-- <div>
+        <span><html:link action="/PMmodule/ProviderInfo.do">Home</html:link></span>
+    </div>
+-->
 <div><span>Client Management</span> <security:oscarSec
 	roleName="<%=roleName$%>" objectName="_pmm.clientSearch" rights="r">
 	<div><html:link action="/PMmodule/ClientSearch2.do">Search Client</html:link>
@@ -172,7 +203,7 @@
             if (!userHasExternalOrErClerkRole) {
         %> <security:oscarSec roleName="<%=roleName$%>"
 	objectName="_pmm.newClient" rights="r">
-	<div><html:link action="/PMmodule/ClientSearch2.do">New Client</html:link>
+	<div><html:link action="/PMmodule/GenericIntake/Search.do">New Client</html:link>
 	</div>
 </security:oscarSec> <security:oscarSec roleName="<%=roleName$%>"
 	objectName="_pmm.mergeRecords" rights="r">
@@ -202,7 +233,7 @@
 		</caisi:isModuleLoad>
 		</span></div>
                 <%                
-                if (loggedInInfo987.getCurrentFacility()!=null && loggedInInfo987.getCurrentFacility().isEnableOcanForms() && programEnableOcan)
+                if (org.oscarehr.util.LoggedInInfo.loggedInInfo.get().currentFacility!=null && org.oscarehr.util.LoggedInInfo.loggedInInfo.get().currentFacility.isEnableOcanForms())
                 {
                 %>
                         <div>
@@ -213,15 +244,16 @@
                 %>
 		</div>
 	</security:oscarSec>
-</c:if> 
+</c:if> <!--    <div>
+        <span><a href='<%=request.getContextPath()%>/logout.jsp'>Logout</a></span>
+    </div>
+-->
 
 <div>
 	
 		<span>Wait-list Management</span>
-		<!--  
 		<div><span><a target='_blank' href='<c:out value="${ctx}"/>/PMmodule/incVacancyMatches.jsp'>New Vacancies</a></span></div>
-		-->
-		<div><html:link action="/PMmodule/AllVacancies.do">All Vacancies</html:link></div>
+		<div><span><a target='_blank' href='<c:out value="${ctx}"/>/PMmodule/incVacancyList.jsp'>All Vacancies</a></span></div>
 </div>
 
 <div>
@@ -246,6 +278,7 @@
 
 	<div><html:link action="/PMmodule/FacilityManager.do?method=list">Manage Facilities</html:link>
 	</div>
+
 </security:oscarSec> <security:oscarSec roleName="<%=roleName$%>" objectName="_pmm.editor"
 	rights="r">
 	<span>Editor</span>
@@ -291,7 +324,22 @@
 
 	<div><a HREF="#" ONCLICK="popupPage2('<%=request.getContextPath()%>/admin/admin.jsp', 'Admin');return false;">Admin
 	Page</a></div>
-	</div>
-</security:oscarSec> 
-</div>
+	<!--
+                   	<caisi:isModuleLoad moduleName="TORONTO_RFQ" reverse="false">
+                   	<div>
+                   		<html:link action="/Lookup/LookupTableList.do">Lookup Field Editor</html:link>
+                  	</div>
+                    </caisi:isModuleLoad>
+--></div>
+</security:oscarSec> <!--
+         <security:oscarSec roleName="<%=roleName$%>"
+                               objectName="_pmm.caisiRoles"
+                               rights="r">
+        <div><div>
+            <span><a href="javascript.void(0);"
+                     onclick="window.open('<html:rewrite action="/CaisiRole.do"/>','caisi_role','width=500,height=500');return false;">Caisi
+                Roles</a></span>
+        </div></div>
+		</security:oscarSec>
+--></div>
 </div>

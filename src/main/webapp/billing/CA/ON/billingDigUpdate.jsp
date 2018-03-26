@@ -17,29 +17,15 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 --%>
+<%@ page import="java.sql.*, java.util.*,java.net.*, oscar.MyDateFormat"
+	errorPage="errorpage.jsp"%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin.billing,_admin" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_admin&type=_admin.billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%@ page import="java.sql.*, java.util.*,java.net.*, oscar.MyDateFormat" errorPage="errorpage.jsp"%>
-
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean"
+	scope="session" />
+<%@ include file="dbBilling.jspf"%>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.model.DiagnosticCode" %>
 <%@ page import="org.oscarehr.common.dao.DiagnosticCodeDao" %>
-<%@ page import="org.oscarehr.util.MiscUtils" %>
-
 <%
 	DiagnosticCodeDao diagnosticCodeDao = SpringUtils.getBean(DiagnosticCodeDao.class);
 %>
@@ -57,10 +43,8 @@ if(!authed) {
     }
     //-->
 </script>
-
 </head>
 <body onload="start()">
-
 <center>
 <table border="0" cellspacing="0" cellpadding="0" width="90%">
 	<tr bgcolor="#486ebd">
@@ -69,35 +53,32 @@ if(!authed) {
 	</tr>
 </table>
 <%
-  boolean error = false;
+
+
+
   String code = request.getParameter("update");
   code = code.substring(code.length()-3);
 
-  try {
   	 List<DiagnosticCode> dcodes = diagnosticCodeDao.findByDiagnosticCode(code);
   	 for(DiagnosticCode dcode:dcodes) {
   		 dcode.setDescription(request.getParameter(code));
   		diagnosticCodeDao.merge(dcode);
   	 }
-  }
-  catch(Exception ex) {
-	  error = true;
-	  MiscUtils.getLogger().error("Error", ex);
-  }
-%> 
 
-<%
-if(!error) {
+%> <%
 %>
-	<p><h1>Successful Addition of a billing Record.</h1></p>
-<%
-}
-else {
-%>
-	<p><h1>Sorry, addition has failed.</h1></p>
-<%
-}
-%>
+<p>
+<h1>Successful Addition of a billing Record.</h1>
+</p>
+<script LANGUAGE="JavaScript">
+    history.go(-1);return false;
+    self.opener.refresh();
+</script>
+
+<p>
+<h1>Sorry, addition has failed.</h1>
+</p>
+
 <p></p>
 <hr width="90%"></hr>
 <form><input type="button" value="Close this window"

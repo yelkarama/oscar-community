@@ -26,6 +26,7 @@
 package oscar.oscarEncounter.oscarMeasurements.pageUtil;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -36,25 +37,17 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.oscarehr.common.dao.MeasurementGroupStyleDao;
-import org.oscarehr.common.model.MeasurementGroupStyle;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
+
+import oscar.oscarDB.DBHandler;
 
 
 public class EctEditMeasurementStyleAction extends Action {
-	
-	private MeasurementGroupStyleDao dao = SpringUtils.getBean(MeasurementGroupStyleDao.class);
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
 
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException
     {
  
-    	if( securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_admin", "w", null) || securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_admin.measurements", "w", null) )  {
-    	
         EctEditMeasurementStyleForm frm = (EctEditMeasurementStyleForm) form;                
         request.getSession().setAttribute("EctEditMeasurementStyleForm", frm);
         
@@ -68,10 +61,6 @@ public class EctEditMeasurementStyleAction extends Action {
         session.setAttribute( "groupName", groupName);
         
         return mapping.findForward("continue");
-        
-		}else{
-			throw new SecurityException("Access Denied!"); //missing required security object (_admin)
-		}
 
     }
     
@@ -82,10 +71,14 @@ public class EctEditMeasurementStyleAction extends Action {
      ******************************************************************************************/
     private void changeCSS(String inputGroupName, String styleSheet){
         
-    	for(MeasurementGroupStyle m:dao.findByGroupName(inputGroupName)) {
-    		m.setId(Integer.parseInt(styleSheet));
-    		dao.merge(m);
-    	}
-         
+        try {
+            
+            String sql = "UPDATE measurementGroupStyle SET cssID ='" + styleSheet + "' WHERE groupName='" + inputGroupName + "'";
+            MiscUtils.getLogger().debug("Sql Statement: " + sql);
+            DBHandler.RunSQL(sql);
+        }
+        catch(SQLException e) {
+            MiscUtils.getLogger().error("Error", e);            
+        }        
     }
 }

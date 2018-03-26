@@ -22,19 +22,19 @@
  * Ontario, Canada
  */
 
+
 package org.oscarehr.ws;
 
-import java.lang.management.ManagementFactory;
 import java.util.Date;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.oscarehr.PMmodule.dao.ProviderDao;
-import org.oscarehr.common.model.Security;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.SpringUtils;
 
-public final class WsUtils {
+import com.quatro.model.security.Security;
+
+public final class WsUtils
+{
 	private static ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao");
 
 	/**
@@ -44,56 +44,30 @@ public final class WsUtils {
 	 * @param security can be null, it will return false for null. 
 	 * @param securityToken can be the SecurityId's password, or a valid securityToken.
 	 */
-	public static boolean checkAuthenticationAndSetLoggedInInfo(HttpServletRequest request, Security security, String securityToken) {
-		if (security != null) {
-			if (security.getDateExpiredate() != null && security.getDateExpiredate().before(new Date())) return (false);
-
-			if (checkToken(security, securityToken) || security.checkPassword(securityToken)) {
-				LoggedInInfo loggedInInfo = new LoggedInInfo();
-				loggedInInfo.setLoggedInSecurity(security);
+	public static boolean checkAuthenticationAndSetLoggedInInfo(Security security, String securityToken)
+	{
+		if (security != null)
+		{
+			if (security.getDateExpiredate()!=null && security.getDateExpiredate().before(new Date())) return(false);
+			
+			if (checkToken(security, securityToken) || security.checkPassword(securityToken))
+			{
+				LoggedInInfo x = new LoggedInInfo();
+				x.loggedInSecurity = security;
 				if (security.getProviderNo() != null) {
-					loggedInInfo.setLoggedInProvider(providerDao.getProvider(security.getProviderNo()));
+					x.loggedInProvider = providerDao.getProvider(security.getProviderNo());
 				}
 
-				LoggedInInfo.setLoggedInInfoIntoRequest(request, loggedInInfo);
-				return (true);
+				LoggedInInfo.loggedInInfo.set(x);
+				return(true);
 			}
 		}
-
-		return (false);
+		
+		return(false);
 	}
 
 	private static boolean checkToken(Security security, String securityToken) {
-		return (securityToken.equals(generateSecurityToken(security)));
-	}
-
-	public static String generateSecurityToken(Security security) {
-		// we'll add a randomish seed to a deterministic value unique to the user.
-		// the randomish seed can be the jvm start time
-		// the deterministic value unique to the user is a mostly unique rendition of their 
-		// password.
-		
-		long jvmStartTime = ManagementFactory.getRuntimeMXBean().getStartTime();
-		long mangling = getStringAsLongRendition(security.getPassword());
-		return (String.valueOf(jvmStartTime + mangling));
-	}
-
-	/**
-	 * The purpose of this method is to generate a long from the given string.
-	 * It doesn't have to be anything in particular other than being deterministic 
-	 * and relatively unique (no uniqueness guarantees required). 
-	 */
-	private static long getStringAsLongRendition(String s) {
-		long result = 0;
-		int modMax = 6;
-		int mod = 0;
-
-		for (char c : s.toCharArray()) {
-			result = result + c * (long) Math.pow(100, mod);
-
-			mod = (mod + 1) % modMax;
-		}
-
-		return (result);
-	}
+// will sort this out later when we setup tokens
+	    return false;
+    }
 }

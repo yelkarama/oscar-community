@@ -24,38 +24,12 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_form" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_form");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%
   String user_no = (String) session.getAttribute("user");
 %>
-<%@ page import="java.util.*, java.sql.*, oscar.*" errorPage="errorpage.jsp"%>
-<%@page import="org.oscarehr.util.SpringUtils" %>
-<%@page import="org.oscarehr.common.dao.DemographicAccessoryDao" %>
-<%@page import="org.oscarehr.common.model.DemographicAccessory" %>
-<%@page import="org.oscarehr.common.dao.FormDao" %>
-<%@page import="org.oscarehr.common.model.Form" %>
-<%@page import="org.oscarehr.common.dao.DemographicDao" %>
-<%@page import="org.oscarehr.common.model.Demographic" %>
-<%
-	DemographicAccessoryDao demographicAccessoryDao = (DemographicAccessoryDao)SpringUtils.getBean("demographicAccessoryDao");
-	FormDao formDao = SpringUtils.getBean(FormDao.class);
-	DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
-%>
-
+<%@ page import="java.util.*, java.sql.*, oscar.*"
+	errorPage="errorpage.jsp"%>
+<%@ include file="/common/webAppContextAndSuperMgr.jsp"%>
 
 <html>
 <head>
@@ -70,7 +44,7 @@ function setfocus() {
 //-->
 </SCRIPT>
 <link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
-<link rel="stylesheet" href="../css/receptionistapptstyle.css"
+<link rel="stylesheet" href="../receptionist/receptionistapptstyle.css"
 	type="text/css">
 </head>
 
@@ -85,17 +59,19 @@ function setfocus() {
 
   if(!bNew ) { //not new form
     bNewList = false;
-    Form f = formDao.find(Integer.parseInt(request.getParameter("form_no")));
-    if(f != null) {
-      content = f.getContent();
+    List<Map<String, Object>> resultList = oscarSuperManager.find("providerDao", "search_form", new Object[] {request.getParameter("form_no")});
+    for (Map form : resultList) {
+      content = (String)form.get("content");
 %> <xml id="xml_list"><encounter> <%=content%> </encounter></xml> <%
     }
   } else {
-    Form f =  formDao.search_form_no(Integer.parseInt(request.getParameter("demographic_no")), "Old Rourke");
-    
-    if (f != null) {
+    String[] param2 =new String[2];
+    param2[0]=request.getParameter("demographic_no");
+    param2[1]="Old Rourke" ; //form_name;
+    List<Map<String, Object>> resultList = oscarSuperManager.find("providerDao", "search_form_no", param2);
+    for (Map form : resultList) {
       bNew = false;
-      content = f.getContent();
+      content = (String)form.get("content");
 %> <xml id="xml_list"><encounter> <%=content%> </encounter></xml> <%
     }          
   }

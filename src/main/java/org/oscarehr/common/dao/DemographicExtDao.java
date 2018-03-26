@@ -34,7 +34,6 @@ import java.util.Map;
 
 import javax.persistence.Query;
 
-import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.DemographicExt;
 import org.springframework.stereotype.Repository;
 
@@ -87,39 +86,6 @@ public class DemographicExtDao extends AbstractDao<DemographicExt>{
  		return result;
  	}
 
- 	@SuppressWarnings("unchecked")
-	public List<DemographicExt> searchDemographicExtByKeyAndValue( String key, String value ) { 
-
- 		List<DemographicExt> results = null;		
- 		Query query;
- 		
- 		if( key != null && ! key.isEmpty() ) {
- 			
- 			key = key.trim();
- 			value = value.trim() + "%"; 
- 			query = entityManager.createQuery("SELECT d from DemographicExt d where d.key = ? and d.value LIKE ?");
- 	 		query.setParameter(1, key);
- 	 		query.setParameter(2, value);
-
- 	 		results = query.getResultList();
- 		}
-
- 	    return results;
- 	}
- 	
- 	public List<DemographicExt> getDemographicExtByKeyAndValue(String key,String value) {
-
- 		Query query = entityManager.createQuery("SELECT d from DemographicExt d where d.key = ? and d.value=? order by d.dateCreated DESC");
- 		query.setParameter(1, key);
- 		query.setParameter(2, value);
-
- 	    @SuppressWarnings("unchecked")
- 		List<DemographicExt> results = query.getResultList();
-
- 	    return results;
- 	}
- 	
- 	
  	public DemographicExt getLatestDemographicExt(Integer demographicNo, String key) {
 
  		if (demographicNo == null || demographicNo.intValue() <= 0) {
@@ -130,7 +96,7 @@ public class DemographicExtDao extends AbstractDao<DemographicExt>{
  			throw new IllegalArgumentException();
  		}
 
- 		Query query = entityManager.createQuery("SELECT d from DemographicExt d where d.demographicNo=? and d.key = ? order by d.dateCreated DESC, d.id DESC");
+ 		Query query = entityManager.createQuery("SELECT d from DemographicExt d where d.demographicNo=? and d.key = ? order by d.dateCreated DESC");
  		query.setParameter(1, demographicNo);
  		query.setParameter(2, key);
 
@@ -186,6 +152,7 @@ public class DemographicExtDao extends AbstractDao<DemographicExt>{
  	}
 
  	public void removeDemographicExt(Integer id) {
+
  		if (id == null || id.intValue() <= 0) {
  			throw new IllegalArgumentException();
  		}
@@ -203,22 +170,21 @@ public class DemographicExtDao extends AbstractDao<DemographicExt>{
  			throw new IllegalArgumentException();
  		}
 
- 		DemographicExt tmp = getDemographicExt(demographicNo, key);
- 		if(tmp != null) {
- 			remove(tmp.getId());
- 		}
+ 		remove(getDemographicExt(demographicNo, key).getId());
+
  	}
 
-    public Map<String,String> getAllValuesForDemo(Integer demo){
+    public Map<String,String> getAllValuesForDemo(String demo){
     	Map<String,String> retval =  new HashMap<String,String>();
     	Query query = entityManager.createQuery("SELECT d from DemographicExt d where d.demographicNo=? order by d.dateCreated");
- 		query.setParameter(1, demo);
+ 		query.setParameter(1, Integer.parseInt(demo));
 
  		@SuppressWarnings("unchecked")
         List<DemographicExt> demographicExts = query.getResultList();
  		for(DemographicExt demographicExt:demographicExts) {
-			retval.put(demographicExt.getKey(), demographicExt.getValue());
-			retval.put(demographicExt.getKey() + "_id", demographicExt.getId().toString());
+ 			if(demographicExt.getKey() != null && demographicExt.getValue() != null) {
+ 				retval.put(demographicExt.getKey(), demographicExt.getValue());
+ 			}
  		}
 
         return retval;
@@ -229,12 +195,13 @@ public class DemographicExtDao extends AbstractDao<DemographicExt>{
      * This Method is used to add a key value pair for a patient
      * @param providerNo providers Number entering the key value pair
      * @param demo Demographic number of the patient that the  key/value  pair is for
+     * @param key The key ie "cellphone"
      * @param value The value for this key
      */
-    public void addKey(String providerNo, Integer demo,String key, String value){
+    public void addKey(String providerNo, String demo,String key, String value){
     	DemographicExt demographicExt = new DemographicExt();
     	demographicExt.setProviderNo(providerNo);
-    	demographicExt.setDemographicNo(demo);
+    	demographicExt.setDemographicNo(Integer.parseInt(demo));
     	demographicExt.setKey(key);
     	demographicExt.setValue(value);
     	demographicExt.setDateCreated(new java.util.Date());
@@ -242,14 +209,14 @@ public class DemographicExtDao extends AbstractDao<DemographicExt>{
     }
 
 
-    public void addKey(String providerNo, Integer demo,String key, String newValue,String oldValue){
+    public void addKey(String providerNo, String demo,String key, String newValue,String oldValue){
        if ( oldValue == null ){
     	   oldValue = "";
        }
        if (newValue != null && !oldValue.equalsIgnoreCase(newValue)){
 			DemographicExt demographicExt = new DemographicExt();
 			demographicExt.setProviderNo(providerNo);
-			demographicExt.setDemographicNo(demo);
+			demographicExt.setDemographicNo(Integer.parseInt(demo));
 			demographicExt.setKey(key);
 			demographicExt.setValue(newValue);
 			demographicExt.setDateCreated(new java.util.Date());
@@ -271,60 +238,15 @@ public class DemographicExtDao extends AbstractDao<DemographicExt>{
         return  arr;
      }
 
-     public List<String[]> getListOfValuesForDemo(Integer demo){
+     public List<String[]> getListOfValuesForDemo(String demo){
         return hashtable2ArrayList(getAllValuesForDemo(demo));
      }
 
-     public String getValueForDemoKey(Integer demo, String key){
-    	 DemographicExt ext = this.getDemographicExt(demo, key);
+     public String getValueForDemoKey(String demo, String key){
+    	 DemographicExt ext = this.getDemographicExt(Integer.parseInt(demo), key);
     	 if(ext != null) {
     		 return ext.getValue();
     	 }
     	 return null;
      }
-     
-	 public List<Integer> findDemographicIdsByKeyVal(String key, String val) {
-	 		Query query = entityManager.createQuery("SELECT distinct d.demographicNo from DemographicExt d where d.key=? and d.value=?");
-	 		query.setParameter(1, key);
-	 		query.setParameter(2, val);
-	 		
-	 		@SuppressWarnings("unchecked")
-	 		List<Integer> results = query.getResultList();
-
-	 		return results;
-	 	 }
-	 
-	 
-		@SuppressWarnings("unchecked")
-		public List<Demographic> searchDemographicByPhoneAndStatus(String phoneStr, List<String> statuses, int limit, int offset, String providerNo, boolean outOfDomain,boolean ignoreStatuses) {
-			String queryString = "SELECT d from DemographicExt e,Demographic d where d.DemographicNo = e.demographicNo and e.key = ? and e.value like ?";
-
-			if(statuses != null) {
-				queryString += " and d.PatientStatus " + ((ignoreStatuses)?"not":"") + "  in (:statuses)";
-			}
-			 
-			
-			if(providerNo != null && !outOfDomain) {
-				queryString += " AND d.id IN ("+ DemographicDao.PROGRAM_DOMAIN_RESTRICTION+") ";
-			}
-			
-			Query query = entityManager.createQuery(queryString);
-	 		query.setParameter(1, "demo_cell");
-	 		query.setParameter(2, phoneStr + "%");
-
-	 		query.setFirstResult(offset);
-	 		query.setMaxResults(limit);
-	 		
-	 		if(statuses != null) {
-				query.setParameter("statuses", statuses);
-			}
-
-			if(providerNo != null && !outOfDomain) {
-				query.setParameter("providerNo", providerNo);
-			}
-			
-	 	    List<Demographic> results = query.getResultList();
-	 	    
-			return results;
-		}
 }

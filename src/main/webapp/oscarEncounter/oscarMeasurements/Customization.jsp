@@ -24,28 +24,15 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
+  if(session.getValue("user") == null) response.sendRedirect("../../logout.jsp");
 %>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin.measurements" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../securityError.jsp?type=_admin.measurements");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
 <%@ page import="oscar.oscarEncounter.pageUtil.*"%>
 <%@ page import="oscar.oscarEncounter.oscarMeasurements.pageUtil.*"%>
-<%@ page import="java.util.Vector"%>
+<%@ page import="java.util.Vector;"%>
 
 <html:html locale="true">
 <head>
@@ -190,6 +177,17 @@ function popupOscarConS(vheight,vwidth,varpage) { //open a new popup window
 	</tr>
 	<tr>
 		<td></td>
+	</tr>
+	<tr>
+		<td>
+		<table class=messButtonsA cellspacing=0 cellpadding=3>
+			<tr>
+				<td class="messengerButtonsA"><a
+					href="javascript:window.close()" class="messengerButtons"><bean:message
+					key="global.btnClose" /></a></td>
+			</tr>
+		</table>
+		</td>
 	</tr>
 </table>
 </body>

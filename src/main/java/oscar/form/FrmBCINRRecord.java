@@ -3,11 +3,8 @@ package oscar.form;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.Properties;
 import java.util.Vector;
-
-import org.oscarehr.util.LoggedInInfo;
 
 import oscar.login.DBHelp;
 import oscar.oscarDB.DBHandler;
@@ -16,7 +13,7 @@ import oscar.util.UtilDateUtilities;
 public class FrmBCINRRecord extends FrmRecord {
 	private String _dateFormat = "dd/MM/yyyy";
 
-	public Properties getFormRecord(LoggedInInfo loggedInInfo, int demographicNo, int existingID) throws SQLException {
+	public Properties getFormRecord(int demographicNo, int existingID) throws SQLException {
 		Properties props = new Properties();
 
 		if (existingID <= 0) {
@@ -29,10 +26,10 @@ public class FrmBCINRRecord extends FrmRecord {
 						.getString("month_of_birth"), oscar.Misc.getString(rs, "date_of_birth"));
 				props.setProperty("demographic_no", oscar.Misc.getString(rs, "demographic_no"));
 				props
-						.setProperty("formCreated", UtilDateUtilities.DateToString(new Date(),
+						.setProperty("formCreated", UtilDateUtilities.DateToString(UtilDateUtilities.Today(),
 								_dateFormat));
 				// props.setProperty("formEdited",
-				// UtilDateUtilities.DateToString(new Date(),_dateFormat));
+				// UtilDateUtilities.DateToString(UtilDateUtilities.Today(),_dateFormat));
 				props.setProperty("c_surname", oscar.Misc.getString(rs, "last_name"));
 				props.setProperty("c_givenName", oscar.Misc.getString(rs, "first_name"));
 				props.setProperty("c_address", oscar.Misc.getString(rs, "address"));

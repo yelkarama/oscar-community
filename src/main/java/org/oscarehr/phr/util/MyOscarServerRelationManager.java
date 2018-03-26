@@ -25,45 +25,88 @@ package org.oscarehr.phr.util;
 
 import java.util.List;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
-import org.oscarehr.myoscar.client.ws_manager.MyOscarServerWebServicesManager;
-import org.oscarehr.myoscar.utils.MyOscarLoggedInInfo;
 import org.oscarehr.myoscar_server.ws.AccountWs;
-import org.oscarehr.myoscar_server.ws.RelationshipTransfer4;
+import org.oscarehr.myoscar_server.ws.NoSuchItemException_Exception;
+import org.oscarehr.myoscar_server.ws.Relation;
+import org.oscarehr.myoscar_server.ws.RelationshipTransfer2;
+import org.oscarehr.phr.PHRAuthentication;
 import org.oscarehr.util.MiscUtils;
+import org.oscarehr.util.QueueCache;
 
-/**
- * @deprecated 2012-11-22 use AccountManager instead, it should have all the account relationship calls needed.
- */
+import oscar.oscarDemographic.data.DemographicData;
+
 public class MyOscarServerRelationManager {
-	private static final Logger logger = MiscUtils.getLogger();
+	private static final Logger logger=MiscUtils.getLogger();
 
-	private static List<RelationshipTransfer4> getRelationShipTransferFromServer(MyOscarLoggedInInfo myOscarLoggedInInfo, Long targetMyOscarUserId) {
-		AccountWs accountWs = MyOscarServerWebServicesManager.getAccountWs(myOscarLoggedInInfo);
-		final int REASONABLE_RELATIONSHIP_LIMIT = 1024;
-		List<RelationshipTransfer4> relationList = accountWs.getRelationshipsByPersonId2(targetMyOscarUserId, 0, REASONABLE_RELATIONSHIP_LIMIT);
-		if (relationList.size() >= REASONABLE_RELATIONSHIP_LIMIT) logger.error("Error, we hit a hard coded limit. targetMyOscarUserId=" + targetMyOscarUserId);
+	private static final int MAX_OBJECTS_TO_CACHE = 1024;
+
+	private static QueueCache<String, List<RelationshipTransfer2>> relationDataCache = new QueueCache<String, List <RelationshipTransfer2>>(4, MAX_OBJECTS_TO_CACHE, DateUtils.MILLIS_PER_HOUR*2);
+
+	private static List<RelationshipTransfer2> getRelationShipTransferFromServer(PHRAuthentication auth,String myoscarUsername) throws NoSuchItemException_Exception{
+		AccountWs accountWs=MyOscarServerWebServicesManager.getAccountWs(auth.getMyOscarUserId(), auth.getMyOscarPassword());
+		List<RelationshipTransfer2> relationList = accountWs.getRelationshipsByPrimaryPersonIdRelatedPersonId(auth.getMyOscarUserName(),myoscarUsername);
 		return relationList;
 	}
 
-	public static List<RelationshipTransfer4> getRelationData(MyOscarLoggedInInfo myOscarLoggedInInfo, Long targetMyOscarUserId){
-		List<RelationshipTransfer4> relationList = getRelationShipTransferFromServer(myOscarLoggedInInfo, targetMyOscarUserId);
-		return relationList;
+	private static String getCacheKey(String primaryUsername, String relatedUsername){
+		return(primaryUsername + ":" + relatedUsername);
 	}
 
-	public static boolean hasPatientRelationship(MyOscarLoggedInInfo myOscarLoggedInInfo, Long targetMyOscarUserId) {
+	public static List<RelationshipTransfer2> getRelationData(PHRAuthentication auth,String myoscarUsername) throws NoSuchItemException_Exception{
 
-		List<RelationshipTransfer4> relationList = getRelationData(myOscarLoggedInInfo, targetMyOscarUserId);
-		if (relationList != null) {
-			for (RelationshipTransfer4 rt : relationList) {
-				if (rt.getRelation().equals("PatientPrimaryCareProvider"))
-				{
-					if (rt.getPerson2().getPersonId().equals(myOscarLoggedInInfo.getLoggedInPersonId()) && rt.getPerson2VerificationDate()!=null) {
-						return(true);
-					}
-				}
-			}
+		String cacheKey = getCacheKey(auth.getMyOscarUserName(), myoscarUsername);
+		List<RelationshipTransfer2> relationList = relationDataCache.get(cacheKey);
+
+		if(relationList == null){
+			relationList = getRelationShipTransferFromServer(auth, myoscarUsername);
+			relationDataCache.put(cacheKey, relationList);
 		}
-		return false;
+		return relationList;
 	}
+
+	public static boolean hasPatientRelationship(PHRAuthentication auth,String myoscarUsername) throws NoSuchItemException_Exception{
+
+		boolean patientRelationshipExists= false;
+		List<RelationshipTransfer2> relationList = getRelationData( auth, myoscarUsername);
+		if(relationList != null){
+		    for(RelationshipTransfer2 rt:relationList){
+		    	if (Relation.PATIENT == rt.getRelation()){
+		    		patientRelationshipExists = true;
+		    		break;
+		    	}
+		    }
+		}
+		return patientRelationshipExists;
+	}
+
+	/**
+	 *
+	 * @param auth
+	 * @param demoNo
+	 * @return True if relation was created
+	 * @throws Exception
+	 */
+	public static boolean addPatientRelationship(PHRAuthentication auth, String demoNo ) throws Exception {
+		boolean relationCreated = false;
+		AccountWs accountWs=MyOscarServerWebServicesManager.getAccountWs(auth.getMyOscarUserId(), auth.getMyOscarPassword());
+
+		org.oscarehr.common.model.Demographic demo = new DemographicData().getDemographic(demoNo);
+        String myOscarUserName = demo.getMyOscarUserName();
+        boolean patientRelationshipExists= MyOscarServerRelationManager.hasPatientRelationship(auth,myOscarUserName);
+
+        if (!patientRelationshipExists){
+		   accountWs.createRelationshipByUserName(auth.getMyOscarUserName(), myOscarUserName, Relation.PATIENT);
+		   relationCreated = true;
+		   relationDataCache.remove(getCacheKey(auth.getMyOscarUserName(), myOscarUserName));
+        }else{
+        	logger.error("Patient Relation was not added already exists");
+        }
+        return relationCreated;
+    }
+
+
+
+
 }

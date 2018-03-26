@@ -32,6 +32,8 @@ import java.sql.SQLException;
 
 import org.oscarehr.util.MiscUtils;
 
+import oscar.oscarDB.DBPreparedHandler;
+
 
 public class DAO {
 
@@ -40,7 +42,6 @@ public class DAO {
             try {
                 rs.close();
             } catch (SQLException e) {
-            	MiscUtils.getLogger().error("this really shouldn't happen", e);
             }
 
             rs = null;
@@ -52,7 +53,6 @@ public class DAO {
             try {
                 pstmt.close();
             } catch (SQLException e) {
-            	MiscUtils.getLogger().error("this really shouldn't happen", e);
             }
 
             pstmt = null;
@@ -83,7 +83,13 @@ public class DAO {
         }
     }
 
- 
+    /**
+     * @return
+     */
+    public DBPreparedHandler getDBPreparedHandler() {
+        return new DBPreparedHandler();
+    }
+
     protected String getStrIn(String[] ids) {
         String id = "";
 

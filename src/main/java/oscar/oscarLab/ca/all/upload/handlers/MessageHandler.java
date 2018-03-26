@@ -24,9 +24,6 @@
 
 
 package oscar.oscarLab.ca.all.upload.handlers;
-
-import org.oscarehr.util.LoggedInInfo;
-
 /**
  *
  * @author wrighd
@@ -49,6 +46,6 @@ public interface MessageHandler {
      *  If any exceptions are encountered the method should return 'null'
      *  otherwise it should return the String "success"
      */
-    public String parse(LoggedInInfo loggedInInfo, String serviceName, String fileName,int fileId, String ipAddr);
+    public String parse(String serviceName, String fileName,int fileId);
     
 }

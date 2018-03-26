@@ -24,23 +24,6 @@
 
 --%>
 
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_report,_admin.reporting" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_report&type=_admin.reporting");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="oscar.oscarReport.data.DemographicSets, oscar.oscarDemographic.data.*,java.util.*,oscar.oscarPrevention.*,oscar.oscarProvider.data.*,oscar.util.*,oscar.oscarReport.ClinicalReports.*,oscar.oscarEncounter.oscarMeasurements.*,oscar.oscarEncounter.oscarMeasurements.bean.*"%>
 <%@page import="com.Ostermiller.util.CSVPrinter,java.io.*"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
@@ -48,6 +31,9 @@ if(!authed) {
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar" %>
 
 <%
+            if (session.getValue("user") == null) {
+                response.sendRedirect("../logout.jsp");
+            }
             String provider = (String) session.getValue("user");
 
             String numeratorId = (String) request.getAttribute("numeratorId");
@@ -77,7 +63,7 @@ if(!authed) {
             DemographicSets demoSets = new DemographicSets();
             List<String> demoSetList = demoSets.getDemographicSets();
 
-            List<Map<String,String>> providers = ProviderData.getProviderList();
+            ArrayList<Hashtable<String,String>> providers = ProviderData.getProviderList();
 
             String[] headings = (String[]) request.getAttribute("showfields");
 %>
@@ -323,7 +309,7 @@ if(!authed) {
                                 </select>
 
                                 <select  id="denominator_provider_no" name="denominator_provider_no">
-                                    <%for (Map<String,String> h : providers) {%>
+                                    <%for (Hashtable<String,String> h : providers) {%>
                                     <option value="<%= h.get("providerNo")%>" <%= (h.get("providerNo").equals(provider) ? " selected" : "")%>><%= h.get("lastName")%> <%= h.get("firstName")%></option>
                                     <%}%>
                                 </select>
@@ -429,8 +415,8 @@ if(!authed) {
                     ArrayList<Hashtable> list = (ArrayList) request.getAttribute("list");
                     for (Hashtable h : list) {
 
-                        Hashtable demoHash = deName.getNameAgeSexHashtable(LoggedInInfo.getLoggedInInfoFromSession(request), "" + h.get("_demographic_no"));
-                        org.oscarehr.common.model.Demographic demoObj = demoData.getDemographic(LoggedInInfo.getLoggedInInfoFromSession(request), "" + h.get("_demographic_no"));
+                        Hashtable demoHash = deName.getNameAgeSexHashtable("" + h.get("_demographic_no"));
+                        org.oscarehr.common.model.Demographic demoObj = demoData.getDemographic("" + h.get("_demographic_no"));
 
                         String colour = "";
                         if (h.get("_report_result") != null && ("" + h.get("_report_result")).equals("false")) {

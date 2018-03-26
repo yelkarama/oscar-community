@@ -26,45 +26,36 @@ package org.caisi.service;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.oscarehr.casemgmt.dao.IssueDAO;
-import org.oscarehr.casemgmt.model.Issue;
+import org.caisi.dao.IssueAdminDAO;
+import org.caisi.model.IssueAdmin;
 import org.oscarehr.util.MiscUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public class IssueAdminManager {
     private static Logger log = MiscUtils.getLogger();
-    
-    @Autowired
-    private IssueDAO dao;
+    private IssueAdminDAO dao;
 
-
-    public List<Issue> getIssueAdmins() {
-        return dao.getIssues();
+    public void setIssueAdminDAO(IssueAdminDAO dao) {
+        this.dao = dao;
     }
 
-    public Issue getIssueAdmin(String issueAdminId) {
-        Issue issueAdmin = dao.getIssue(Long.valueOf(issueAdminId));
+    public List getIssueAdmins() {
+        return dao.getIssueAdmins();
+    }
+
+    public IssueAdmin getIssueAdmin(String issueAdminId) {
+        IssueAdmin issueAdmin = dao.getIssueAdmin(Long.valueOf(issueAdminId));
         if (issueAdmin == null) {
             log.warn("UserId '" + issueAdminId + "' not found in database.");
         }
         return issueAdmin;
     }
 
-    public Issue saveIssueAdmin(Issue issueAdmin) {
-        dao.saveIssue(issueAdmin);
+    public IssueAdmin saveIssueAdmin(IssueAdmin issueAdmin) {
+        dao.saveIssueAdmin(issueAdmin);
         return issueAdmin;
     }
 
-    @Deprecated
     public void removeIssueAdmin(String issueAdminId) {
-        dao.delete(Long.valueOf(issueAdminId));
-    }
-    
-    public void archiveIssues(List<Integer> ids) {
-    	for(Integer id:ids) {
-    		Issue i = dao.getIssue(new Long(id));
-    		i.setArchived(true);
-    		dao.saveIssue(i);
-    	}
+        dao.removeIssueAdmin(Long.valueOf(issueAdminId));
     }
 }

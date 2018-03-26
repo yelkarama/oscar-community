@@ -45,7 +45,6 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.upload.FormFile;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 
 import oscar.oscarReport.reportByTemplate.ReportManager;
@@ -57,14 +56,7 @@ import oscar.oscarReport.reportByTemplate.ReportManager;
 public class UploadTemplates extends Action {
     public ActionForward execute(ActionMapping mapping, ActionForm form,
                                  HttpServletRequest request, HttpServletResponse response) {
-    	
-    	String roleName$ = (String)request.getSession().getAttribute("userrole") + "," + (String) request.getSession().getAttribute("user");
-    	if(!com.quatro.service.security.SecurityManager.hasPrivilege("_admin", roleName$)  && !com.quatro.service.security.SecurityManager.hasPrivilege("_report", roleName$)) {
-    		throw new SecurityException("Insufficient Privileges");
-    	}
-		
          String action = request.getParameter("action");
-         String xmltext = request.getParameter("xmltext");
          String message = "Error: Improper request - Action param missing";
          FormFile file = (FormFile) form.getMultipartRequestHandler().getFileElements().get("templateFile");
          String xml = "";
@@ -75,21 +67,18 @@ public class UploadTemplates extends Action {
              message = "Exception: File Not Found";
              MiscUtils.getLogger().error("Error", ioe);
          }
-         if("edit".equals(action) && xml.length()==0) {
-        	 xml = xmltext;
-         }
          ReportManager reportManager = new ReportManager();
          if (action.equals("add")) {
-             message = reportManager.addTemplate(null, xml, LoggedInInfo.getLoggedInInfoFromSession(request));
+             message = reportManager.addTemplate(xml);
          } else if (action.equals("edit")) {
              String templateId = request.getParameter("templateid");
-             message = reportManager.updateTemplate(null, templateId, xml, LoggedInInfo.getLoggedInInfoFromSession(request));
+             message = reportManager.updateTemplate(templateId, xml);
          }
          request.setAttribute("message", message);
          request.setAttribute("action", action);
          request.setAttribute("templateid", request.getParameter("templateid"));
          request.setAttribute("opentext", request.getParameter("opentext"));
-         request.setAttribute("xmltext", request.getParameter("xmltext"));
          return mapping.findForward("success");
     }
+    
 }

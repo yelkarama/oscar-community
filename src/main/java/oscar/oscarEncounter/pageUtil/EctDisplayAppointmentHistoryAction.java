@@ -33,24 +33,22 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.struts.util.MessageResources;
 import org.oscarehr.PMmodule.dao.ProviderDao;
+import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.OscarAppointmentDao;
 import org.oscarehr.common.model.Appointment;
 import org.oscarehr.common.model.Provider;
-import org.oscarehr.util.LoggedInInfo;
+import org.oscarehr.eyeform.dao.SpecsHistoryDao;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
 import oscar.util.StringUtils;
 
+//import oscar.oscarSecurity.CookieSecurity;
+
 public class EctDisplayAppointmentHistoryAction extends EctDisplayAction {
     private static final String cmd = "appointmentHistory";
 
-    
  public boolean getInfo(EctSessionBean bean, HttpServletRequest request, NavBarDisplayDAO Dao, MessageResources messages) {
-	
-	if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_appointment", "r", null)) {
-		throw new SecurityException("missing required security object (_appointment)");
-	}
 
  try {
 
@@ -78,8 +76,10 @@ public class EctDisplayAppointmentHistoryAction extends EctDisplayAction {
     Dao.setRightHeadingID(cmd); //no menu so set div id to unique id for this action
 
 
-   ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
-   
+    SpecsHistoryDao shDao = (SpecsHistoryDao)SpringUtils.getBean("SpecsHistoryDAO");
+    ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
+    DemographicDao demographicDao = (DemographicDao)SpringUtils.getBean("demographicDao");
+
 
     OscarAppointmentDao appointmentDao = (OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
     List<Appointment> appts = appointmentDao.getAppointmentHistory(Integer.parseInt(bean.getDemographicNo()));

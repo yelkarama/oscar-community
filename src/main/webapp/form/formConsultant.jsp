@@ -17,27 +17,11 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_form" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_form");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <%@ page import="oscar.util.*, oscar.form.*, oscar.form.data.*"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic" %>
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%
     String formClass = "Consultant";
     String formLink = "formConsultant.jsp";
@@ -46,7 +30,7 @@
     int formId = Integer.parseInt(request.getParameter("formId")); // If <= 0, it means a new form is created, otherwise its an old form that is being editted
     int provNo = Integer.parseInt((String) session.getAttribute("user"));
     FrmRecord rec = (new FrmRecordFactory()).factory(formClass);
-    java.util.Properties props = rec.getFormRecord(LoggedInInfo.getLoggedInInfoFromSession(request),demoNo, formId);
+    java.util.Properties props = rec.getFormRecord(demoNo, formId);
     FrmConsultantRecord rec1 = new FrmConsultantRecord();
     String doctor_name = rec1.getProvName(provNo);          // Retrieve the doctors name from provNo
     if (formId <= 0){

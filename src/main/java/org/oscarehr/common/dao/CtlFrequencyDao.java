@@ -38,14 +38,14 @@ public class CtlFrequencyDao extends AbstractDao<CtlFrequency>{
 	public CtlFrequencyDao() {
 		super(CtlFrequency.class);
 	}
-	
-	@SuppressWarnings("unchecked")
+
 	public List<CtlFrequency> findAll() {
-		Query query = entityManager.createQuery("SELECT x FROM " + modelClass.getSimpleName() + " x");
-		List<CtlFrequency> results = query.getResultList();
-		return results;
+	  	String sql = "select x from CtlFrequency x";
+    	Query query = entityManager.createQuery(sql);
+
+        @SuppressWarnings("unchecked")
+        List<CtlFrequency> results = query.getResultList();
+        return results;
 	}
-	
-	
-	
+
 }

@@ -23,38 +23,38 @@
 
 package org.oscarehr.survey.service.impl;
 
-import org.oscarehr.common.dao.CaisiFormDao;
-import org.oscarehr.common.model.CaisiForm;
-import org.oscarehr.common.model.Survey;
+import org.oscarehr.survey.dao.oscar.OscarFormDAO;
+import org.oscarehr.survey.model.Survey;
+import org.oscarehr.survey.model.oscar.OscarForm;
 import org.oscarehr.survey.service.SurveyLaunchManager;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
-@Component(value="surveyLaunchManager")
+@Transactional
 public class SurveyLaunchManagerOscar implements SurveyLaunchManager {
 
-	@Autowired
-	private CaisiFormDao caisiFormDao;
+	private OscarFormDAO oscarFormDAO;
 	
-	
+	public void setOscarFormDAO(OscarFormDAO dao) {
+		this.oscarFormDAO = dao;
+	}
 	
 	public long launch(Survey survey) {
-		CaisiForm form = new CaisiForm();
+		OscarForm form = new OscarForm();
 		form.setDescription(survey.getDescription());
 		form.setSurveyData(survey.getSurveyData());
-		form.setStatus(1);
+		form.setStatus(OscarForm.STATUS_ACTIVE);
 		form.setFacilityId(survey.getFacilityId());
 		
-		caisiFormDao.persist(form);
+		oscarFormDAO.saveOscarForm(form);
 		
-		return form.getId().longValue();
+		return form.getFormId().longValue();
 	}
 	
 	public void close(long formId) {
-		this.caisiFormDao.updateStatus((int)formId,0);
+		this.oscarFormDAO.updateStatus(new Long(formId),new Short(OscarForm.STATUS_INACTIVE));
 	}
 
 	public void reopen(long formId) {
-		this.caisiFormDao.updateStatus((int)formId,1);
+		this.oscarFormDAO.updateStatus(new Long(formId),new Short(OscarForm.STATUS_ACTIVE));
 	}
 }

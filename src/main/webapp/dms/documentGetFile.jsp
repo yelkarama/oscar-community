@@ -24,31 +24,15 @@
 
 --%>
 
-<%@page import="oscar.util.ConversionUtils"%>
 <%@taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
-<%@page import="java.math.*, java.util.*, java.io.*, java.sql.*, oscar.*, java.net.*,oscar.MyDateFormat"%>
-<%@page import="org.oscarehr.util.SpringUtils" %>
-<%@page import="org.oscarehr.common.dao.DocumentDao" %>
-<%@page import="org.oscarehr.common.model.Document" %>
+<%@page
+	import="java.math.*, java.util.*, java.io.*, java.sql.*, oscar.*, java.net.*,oscar.MyDateFormat"%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean"
+	scope="session" />
+<%@include file="dbDMS.jspf"%>
 <%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_edoc" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_edoc");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-<%
-	DocumentDao documentDao = SpringUtils.getBean(DocumentDao.class);
   String filename = "", filetype = "", doc_no = "";
   String docdownload = oscar.OscarProperties.getInstance().getProperty("DOCUMENT_DIR");
   String downloadMethod = oscar.OscarProperties.getInstance().getProperty("DOCUMENT_DOWNLOAD_METHOD");
@@ -100,19 +84,17 @@
          outs.close();
         }
   } else {
-      Integer doc_no_as_int = ConversionUtils.fromIntString(doc_no);
-      if (doc_no_as_int != null) {
-	      List<Document> documents = documentDao.findActiveByDocumentNo(doc_no_as_int);
-	      
-		  for(Document d: documents) {
-			out.print(d.getDocxml());
-		  }
-	  }
-     }
+    ResultSet rslocal2 = null;
+    rslocal2 = apptMainBean.queryResults(doc_no, "search_document_content");
+    while (rslocal2.next()) {
+      out.print(rslocal2.getString("docxml"));
+    }
+  }
   } else {
 %>
 <jsp:forward page='../dms/errorpage.jsp'>
 	<jsp:param name="msg"
 		value='<bean:message key="dms.documentGetFile.msgFileNotfound"/>' />
 </jsp:forward>
+
 <%}%>

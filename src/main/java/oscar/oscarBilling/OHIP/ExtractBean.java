@@ -27,27 +27,18 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
 
 import org.apache.log4j.Logger;
-import org.oscarehr.billing.CA.dao.BillingDetailDao;
-import org.oscarehr.billing.CA.model.BillingDetail;
-import org.oscarehr.common.dao.BillingDao;
-import org.oscarehr.common.model.Billing;
-import org.oscarehr.util.DateRange;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.OscarProperties;
-import oscar.util.ConversionUtils;
+import oscar.oscarBilling.data.BillingONDataHelp;
 import oscar.util.UtilDateUtilities;
 public class ExtractBean extends Object implements Serializable {
-    
-    private static final long serialVersionUID = 1L;
-	private static Logger logger=MiscUtils.getLogger(); 
-    private BillingDao billingDao = SpringUtils.getBean(BillingDao.class);
+    private static Logger logger=MiscUtils.getLogger(); 
 
     private String apptDate;
 	private String batchCount = "";
@@ -60,7 +51,7 @@ public class ExtractBean extends Object implements Serializable {
 	private String billingUnit;
 	private String content;
 	private int count = 0;
-	private DateRange dateRange = new DateRange(null, null);
+	private String dateRange = "";
 	public String[] dbParam;
 	private String demoName;
 	private String demoSex = "";
@@ -110,7 +101,7 @@ public class ExtractBean extends Object implements Serializable {
 	private BigDecimal percent = new BigDecimal(0).setScale(2,
 			BigDecimal.ROUND_HALF_UP);
 	private String providerNo;
-	
+	private String query;
 	private String rCount = "";
 	private int recordCount = 0;
 	private String referral;
@@ -358,42 +349,49 @@ public class ExtractBean extends Object implements Serializable {
 			htmlValue = buildHTMLContentHeader();
 			// start here
 			value = batchHeader;
-						
-			BillingDao dao = SpringUtils.getBean(BillingDao.class);
-			BillingDetailDao detDao = SpringUtils.getBean(BillingDetailDao.class);
-			
-			for(Billing b : dao.findByProviderStatusAndDates(providerNo, Arrays.asList(new String [] {"O", "W"}), dateRange)) {
+			BillingONDataHelp dbObj = new BillingONDataHelp();
+
+			query = "select * from billing where provider_ohip_no='"
+					+ providerNo + "' and (status='O' or status='W') "
+					+ dateRange + " order by billing_date, billing_time";
+			ResultSet rs = dbObj.searchDBRecord(query);
+			//if (rs != null) {
+			while (rs.next()) {
 				patientCount++;
-				invNo = "" + b.getId();
-				inPatient = "" + b.getClinicNo();
-				demoName = b.getDemographicName();
-				hin = b.getHin();
-				dob = b.getDob();
-				visitDate = new java.sql.Date(b.getVisitDate().getTime());
-				visitType = b.getVisitType();
-				outPatient = b.getClinicRefCode();
-				specCode = b.getStatus();
-				content = b.getContent();
+				invNo = rs.getString("billing_no");
+				//   ohipVer = rs.getString("organization_spec_code");
+				inPatient = rs.getString("clinic_no");
+				demoName = rs.getString("demographic_name");
+				hin = rs.getString("hin");
+				dob = rs.getString("dob");
+				visitDate = rs.getDate("visitdate");
+				visitType = rs.getString("visittype");
+				outPatient = rs.getString("clinic_ref_code");
+				specCode = rs.getString("status");
+				content = rs.getString("content");
 				value += buildHeader1();
 				htmlContent += printErrorPartMsg();
-				
 				// build billing detail
 				invCount = 0;
-				for(BillingDetail bd : detDao.findByBillingNoAndStatus(ConversionUtils.fromIntString(invNo), specCode)) {
+				query = "select * from billingdetail where billing_no='"
+						+ invNo + "' and status='" + specCode + "'";
+
+				ResultSet rs2 = dbObj.searchDBRecord(query);
+				while (rs2.next()) {
 					recordCount++;
 					count = 0;
-					serviceCode = bd.getServiceCode();
-					fee = bd.getBillingAmount();
-					diagcode = bd.getDiagnosticCode();
+					serviceCode = rs2.getString("service_code");
+					fee = rs2.getString("billing_amount");
+					diagcode = rs2.getString("diagnostic_code");
 					//appt = rs2.getDate("appointment_date").toString();
-					billingUnit = bd.getBillingUnit();
+					billingUnit = rs2.getString("billingunit");
 					count = 6 - fee.length();
-					apptDate = UtilDateUtilities.DateToString(bd.getAppointmentDate(), "yyyyMMdd");
+					apptDate = UtilDateUtilities.DateToString(rs2
+							.getDate("appointment_date"), "yyyyMMdd");
 					dFee = Double.parseDouble(fee);
-					bdFee = BigDecimal.valueOf(dFee).setScale(2,
+					bdFee = new BigDecimal(dFee).setScale(2,
 							BigDecimal.ROUND_HALF_UP);
 					BigTotal = BigTotal.add(bdFee);
-					
 					checkItem();
 					value += buildItem();
 					htmlContent += buildHTMLContentRecord(invCount);
@@ -412,7 +410,7 @@ public class ExtractBean extends Object implements Serializable {
 			flagOrder = 4 - pCount.length();
 			secondFlag = 5 - rCount.length();
 			thirdFlag = 4 - hcCount.length();
-			percent = BigDecimal.valueOf(0.01)
+			percent = new BigDecimal(0.01)
 					.setScale(2, BigDecimal.ROUND_HALF_UP);
 			BigTotal = BigTotal.multiply(percent);
 			value += buildTrailer();
@@ -423,8 +421,8 @@ public class ExtractBean extends Object implements Serializable {
 			ohipClaim = String.valueOf(pCount);
 			totalAmount = BigTotal.toString();
 			//}
-		} catch (Exception e) {
-			MiscUtils.getLogger().error("error", e);
+			//dbExt.closeConnection();
+		} catch (SQLException e) {
 		}
 	}
 	public String getHtmlCode() {
@@ -458,19 +456,17 @@ public class ExtractBean extends Object implements Serializable {
 		return value;
 	}
 	public void setAsBilled(String newInvNo) {
-		Billing b= billingDao.find(Integer.parseInt(newInvNo));
-		if(b != null) {
-			b.setStatus("B");
-			billingDao.merge(b);
-		}
+		BillingONDataHelp dbObj = new BillingONDataHelp();
+		String sql = "update billing set status='B' where billing_no='"
+				+ newInvNo + "'";
+		dbObj.updateDBRecord(sql);
 	}
 	// batchCount 1 ???
 	public synchronized void setBatchCount(String newBatchCount) {
 		batchCount = newBatchCount;
 	}
-	
-	public synchronized void setDateRange(Date from, Date to) {
-		dateRange = new DateRange(from, to);
+	public synchronized void setDateRange(String newDateRange) {
+		dateRange = newDateRange;
 	}
 	// flag 0 - nothing ??? 1 - set as billed.
 	public synchronized void seteFlag(String neweFlag) {

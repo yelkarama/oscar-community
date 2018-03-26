@@ -24,21 +24,6 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_eChart" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_eChart");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%
 
   String demographic_no = request.getParameter("demographic_no")!=null?request.getParameter("demographic_no"):("null") ;
@@ -48,7 +33,8 @@
 <%@ page
 	import="java.util.*, java.sql.*, oscar.*, java.text.*, java.lang.*,java.net.*,java.io.*"
 	errorPage="../../appointment/errorpage.jsp"%>
-
+<jsp:useBean id="plannerBean" class="oscar.AppointmentMainBean"
+	scope="page" />
 <jsp:useBean id="riskDataBean" class="java.util.Properties" scope="page" />
 <jsp:useBean id="risks"
 	class="oscar.decision.DesAntenatalPlannerRisks_99_12" scope="page" />
@@ -60,6 +46,12 @@
 <%@page import="org.oscarehr.common.dao.DesapriskDao" %>
 <%
 	DesapriskDao desapriskDao = SpringUtils.getBean(DesapriskDao.class);
+%>
+<%
+String [][] dbQueries=new String[][] {
+{"search_formarrisk", "select * from formAR where ID = ?" },
+};
+plannerBean.doConfigure(dbQueries);
 %>
 
 <html>
@@ -80,8 +72,7 @@
 
   ResultSet rsdemo = null ;
   if(!form_no.equals("0")) {
-	  rsdemo = oscar.oscarDB.DBHandler.GetSQL("select * from formAR where ID = " + form_no);
-	 
+	  rsdemo = plannerBean.queryResults(form_no, "search_formarrisk");
       ResultSetMetaData resultsetmetadata = rsdemo.getMetaData();
       while (rsdemo.next()) {
           finalEDB = rsdemo.getString("c_finalEDB");

@@ -24,31 +24,10 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_phr" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_phr");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-<%@page import="org.oscarehr.util.WebUtilsOld"%>
-<%@page import="org.oscarehr.util.WebUtils"%>
-<%@page import="org.oscarehr.myoscar_server.ws.MinimalPersonTransfer2"%>
-<%@page import="org.oscarehr.myoscar.client.ws_manager.AccountManager"%>
-<%@page import="org.oscarehr.myoscar_server.ws.MessageTransfer3"%>
-<%@page import="org.oscarehr.myoscar.client.ws_manager.MessageManager"%>
-<%@page import="org.oscarehr.myoscar.utils.MyOscarLoggedInInfo"%>
 <%@page import="org.apache.commons.lang.StringEscapeUtils"%>
 <%@page import="org.oscarehr.phr.util.MyOscarUtils"%>
-<%@page import="org.oscarehr.phr.util.MyOscarServerRelationManager"%>
+<%@page import="org.oscarehr.phr.PHRAuthentication"%>
+<%@page import="org.oscarehr.phr.util.MyOscarMessageManager,org.oscarehr.phr.util.MyOscarServerRelationManager"%>
 <%@page import="org.oscarehr.myoscar_server.ws.MessageTransfer"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
@@ -64,18 +43,12 @@
 <%@ taglib uri="http://jakarta.apache.org/struts/tags-html-el" prefix="html-el" %>
 <c:set var="ctx" value="${pageContext.request.contextPath}" scope="request" />
 <%
-	Demographic demographic= null;
-	String DemographicNo = null;
-	String myOscarUserName = null;
-	DemographicDao demographicDao = (DemographicDao) SpringUtils.getBean("demographicDao");
-	
-	MyOscarLoggedInInfo myOscarLoggedInInfo=MyOscarLoggedInInfo.getLoggedInInfo(session);
-	
-	boolean replyAll=Boolean.parseBoolean(request.getParameter("replyAll"));
-	
-	if(request.getParameter("subject") != null){
-		request.setAttribute("subject", request.getParameter("subject")); 
-	}
+Demographic demographic= null;
+String DemographicNo = null;
+String myOscarUserName = null;
+PHRAuthentication phrAuthentication=MyOscarUtils.getPHRAuthentication(session);
+DemographicDao demographicDao = (DemographicDao) SpringUtils.getBean("demographicDao");
+
 %>
 <html:html locale="true">
 
@@ -83,7 +56,7 @@
     <html:base/>
     <link rel="stylesheet" type="text/css" href="../../oscarMessenger/encounterStyles.css">
 <title>
-Create Message
+<%--bean:message key="indivoMessenger.CreateIndivoMessage.title"/--%> Create Message
 </title>
 
 <style type="text/css">
@@ -156,7 +129,6 @@ Create Message
           }
        }catch (e){
           alert ("ERROR: could not paste to EMR");
-          console.error("error", e);
        }
     }    
 </script>
@@ -167,7 +139,7 @@ Create Message
     <table  class="MainTable" id="scrollNumber1" name="encounterTable">
         <tr class="MainTableTopRow">
             <td class="MainTableTopRowLeftColumn">
-                Create Message
+                <%-- bean:message key="indivoMessenger.CreateMessage.msgMessenger"/ --%>Create Message
             </td>
             <td class="MainTableTopRowRightColumn">
                 <table class="TopStatusBar">
@@ -220,20 +192,17 @@ Create Message
 
                     <tr>
                         <td>
-                        	<%=WebUtilsOld.popErrorMessagesAsHtml(session)%>
                             <table> 
                             	<%
                             		Long replyToMessageId=null;
-                            		MessageTransfer3 replyToMessage=null;
+                            		MessageTransfer replyToMessage=null;
                             		try
                             		{
                             			replyToMessageId=new Long(request.getParameter("replyToMessageId"));
                             			
-                            			replyToMessage=MessageManager.getMessage(myOscarLoggedInInfo, replyToMessageId);
-                            			Long myOscarSenderUserId=replyToMessage.getSenderPersonId();
-                            			MinimalPersonTransfer2 senderMinimalPerson=AccountManager.getMinimalPerson(myOscarLoggedInInfo, myOscarSenderUserId);
-                            			myOscarUserName=senderMinimalPerson.getUserName();
-                                		demographic=MyOscarUtils.getDemographicByMyOscarUserName(senderMinimalPerson.getUserName());
+                            			replyToMessage=MyOscarMessageManager.getMessage(phrAuthentication.getMyOscarUserId(), phrAuthentication.getMyOscarPassword(), replyToMessageId);
+                            			myOscarUserName=replyToMessage.getSenderPersonUserName();
+                                		demographic=MyOscarUtils.getDemographicByMyOscarUserName(myOscarUserName);
                             		}
                             		catch (Exception e)
                             		{
@@ -247,7 +216,7 @@ Create Message
                             			}
                             		}
                             	%>
-                                <html:form action="/phr/PhrMessage" enctype="multipart/form-data">
+                                <html:form action="/phr/PhrMessage">
                                     <tr>
                                         <th align="left" bgcolor="#DDDDFF">
                                             <bean:message key="oscarMessenger.CreateMessage.msgMessage"/>
@@ -257,32 +226,14 @@ Create Message
                                         <td bgcolor="#EEEEFF" valign=top>
                                             <table>
                                                 <tr>
-                                                    <td style="text-align:right;vertical-align:top">To :</td>
+                                                    <td align="right">To :</td>
                                                     <td>
 			                                        	<%
 			                                        		if (replyToMessage!=null)
 			                                        		{
-			                           							Long senderPersonId=replyToMessage.getSenderPersonId();
-			                           							MinimalPersonTransfer2 minimalPersonSender=AccountManager.getMinimalPerson(myOscarLoggedInInfo, senderPersonId);
-			                           							String senderString=minimalPersonSender.getLastName()+", "+minimalPersonSender.getFirstName()+" ("+minimalPersonSender.getUserName()+")";
-
-			                           							%>
-			                                        				<input size="30" readonly="readonly" type="text" value="<%=StringEscapeUtils.escapeHtml(senderString)%>" />
+			                                        			%>
+			                                        				<input size="30" readonly="readonly" type="text" value="<%=StringEscapeUtils.escapeHtml(replyToMessage.getSenderPersonLastName()+", "+replyToMessage.getSenderPersonFirstName())%>" />
 			                                        			<%
-			                                        			
-			                                        			if (replyAll)
-			                                        			{
-			                                        				for (Long recipientId : replyToMessage.getRecipientPeopleIds())
-			                                        				{
-			                                        					if (myOscarLoggedInInfo.getLoggedInPersonId().equals(recipientId)) continue;
-					                           							MinimalPersonTransfer2 minimalPersonRecipient=AccountManager.getMinimalPerson(myOscarLoggedInInfo, recipientId);
-					                           							String recipientString=minimalPersonRecipient.getLastName()+", "+minimalPersonRecipient.getFirstName()+" ("+minimalPersonRecipient.getUserName()+")";
-					                           							%>
-					                           								<br />
-				                                        					<input size="30" readonly="readonly" type="text" value="<%=StringEscapeUtils.escapeHtml(recipientString)%>" />
-				                                        				<%
-			                                        				}
-			                                        			}
 			                                        		}
 			                                        		else
 			                                        		{
@@ -296,7 +247,7 @@ Create Message
 														<div id="relationshipMessage"></div>    
 														<script type="text/javascript">
 														$.ajax({
-														    url: '../PatientRelationship.jsp?demoNo=<%=demographic.getDemographicNo()%>&myOscarUserName=<%=myOscarUserName%>',
+														    url: '../PatientRelationship.jspf?demoNo=<%=demographic.getDemographicNo()%>&myOscarUserName=<%=myOscarUserName%>',
 														    dataType: 'html',
 														    timeout: 7000,
 														    cache: false,
@@ -315,9 +266,8 @@ Create Message
 			                                        	<%
 			                                        		if (replyToMessage!=null)
 			                                        		{
-			                                        			String subject=MessageManager.getSubject(replyToMessage);
 			                                        			%>
-			                                        				<input size="67" readonly="readonly" type="text" value="Re: <%=StringEscapeUtils.escapeHtml(subject)%>" />
+			                                        				<input size="67" readonly="readonly" type="text" value="Re: <%=StringEscapeUtils.escapeHtml(replyToMessage.getSubject())%>" />
 			                                        			<%
 			                                        		}
 			                                        		else
@@ -332,13 +282,11 @@ Create Message
 	                                        	<%
 	                                        		if (replyToMessage!=null)
 	                                        		{
-	                                        			String messageBody=MessageManager.getMessageBody(replyToMessage);
-	                                        			
 	                                        			%>
 		                                                    <tr>
 		                                                        <td style="text-align:right;vertical-align:top">Re:</td>
 		                                                        <td >
-		                                                            <textarea disabled="disabled" readonly="readonly" cols="60" rows="4" style="border: 1px solid black;color:black" ><%=StringEscapeUtils.escapeHtml(messageBody)%></textarea>
+		                                                            <textarea disabled="disabled" readonly="readonly" cols="60" rows="4" style="border: 1px solid black;color:black" ><%=StringEscapeUtils.escapeHtml(replyToMessage.getContents())%></textarea>
 		                                                        </td>
 		                                                    </tr>
 	                                        			<%
@@ -346,28 +294,8 @@ Create Message
 	                                        	%>
                                                 <tr>
                                                     <td>&nbsp;</td>
-                                                    <td>
-                                                    	<%
-                                                    		String body="";
-                                                    		if(request.getParameter("message") != null){
-                                                    			body = "\n\n\n\n-----------------------\n"+request.getParameter("message");
-                                                    		}
-                                                    	%>
-                                                    	<html:textarea value="<%=StringEscapeUtils.escapeHtml(body)%>" name="body" styleId="message" property="body" cols="60" rows="18"/>
-                                                    </td>
+                                                    <td><html:textarea value="" name="body" styleId="message" property="body" cols="60" rows="18"/></td>
                                                         
-                                                </tr>
-                                                <tr>
-                                                    <td><bean:message key="oscarMessenger.CreateMessage.AttachFile"/></td>
-                                                    <td>
-                                                    	<input type="file" name="fileAttachment" />
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td colspan="2">
-                                                    	<bean:message key="oscarMessenger.CreateMessage.SaveAttachmentToDocs"/>
-                                                    	<input type="checkbox" name="saveFileAttachmentToDocs" />
-                                                    </td>
                                                 </tr>
                                             </table>
                                            
@@ -378,30 +306,27 @@ Create Message
                                         		{
                                         			%>
                                         				<input type="hidden" name="replyToMessageId" value="<%=replyToMessageId%>" />
-                                        				<input type="hidden" name="replyAll" value="<%=replyAll%>" />
                                         				<input type="hidden" name="method" value="sendReply" />
                                         				<input type="hidden" name="demographicNo" value="<%=request.getParameter("demographicNo")%>" />
                                         				
                                             			<input type="submit" 
                                             			<%if (demographic == null){%>
 		                                   					disabled="disabled"
-		                                   					title="<bean:message key="global.no.phr.account.registered"/>"
+		                                   					title="<bean:message key="global.no.myoscar.account.registered"/>"
 		                                				<%}%> 
                                             				class="ControlPushButton" value="<bean:message key="oscarMessenger.CreateMessage.btnSendMessageCpyToeChart"/>" onclick="setCpyToChart();" >
                                             			<input type="button" 
                                             				<%if (demographic == null){%>
 		                                   						disabled="disabled"
-		                                   						title="<bean:message key="global.no.phr.account.registered"/>"
+		                                   						title="<bean:message key="global.no.myoscar.account.registered"/>"
 		                                					<%}%> 
                                             				class="ControlPushButton" value="<bean:message key="oscarMessenger.CreateMessage.btnOpenEchart"/>" onclick="gotoEchart2('<%=request.getParameter("demographicNo")%>','<%=replyToMessageId%>');" />
-														<!-- commented out as this doesn't seem to work, constant js null reference error
                                             			<input type="button" 
                                             				<%if (demographic == null){%>
 		                                   						disabled="disabled"
-		                                   						title="<bean:message key="global.no.phr.account.registered"/>"
+		                                   						title="<bean:message key="global.no.myoscar.account.registered"/>"
 		                                					<%}%> 
                                             				class="ControlPushButton" value="<bean:message key="oscarMessenger.CreateMessage.btnPasteToEchart"/>" onclick="paste2Echart();"/>
-                                            			-->                                            			
                                         			<%
                                         		}
                                         		else

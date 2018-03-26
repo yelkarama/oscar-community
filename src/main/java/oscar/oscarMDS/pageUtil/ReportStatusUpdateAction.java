@@ -26,37 +26,28 @@
 package oscar.oscarMDS.pageUtil;
 
 import java.io.IOException;
-import java.util.Calendar;
+import java.sql.ResultSet;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
-import org.oscarehr.common.dao.PatientLabRoutingDao;
-import org.oscarehr.common.model.PatientLabRouting;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.log.LogAction;
 import oscar.log.LogConst;
+import oscar.oscarDB.DBHandler;
 import oscar.oscarLab.ca.on.CommonLabResultData;
-import oscar.util.ConversionUtils;
 
 public class ReportStatusUpdateAction extends DispatchAction {
 
     private static Logger logger = MiscUtils.getLogger();
 
-    private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-    
     public ReportStatusUpdateAction() {
     }
 
@@ -70,10 +61,6 @@ public class ReportStatusUpdateAction extends DispatchAction {
             HttpServletResponse response)
              {
 
-    	if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_lab", "w", null)) {
-			throw new SecurityException("missing required security object (_lab)");
-		}
-    	
         int labNo = Integer.parseInt(request.getParameter("segmentID"));
         String multiID = request.getParameter("multiID");
         String providerNo = request.getParameter("providerNo");
@@ -125,29 +112,25 @@ public class ReportStatusUpdateAction extends DispatchAction {
         	logger.error("exception in setting comment",e);
             return mapping.findForward("failure");
         }
-        
-        String now = ConversionUtils.toDateString(Calendar.getInstance().getTime(), "dd-MMM-yy HH mm");
-        String jsonStr = "{date:" + now + "}";
-        JSONObject json = JSONObject.fromObject(jsonStr);
-        logger.info("JSON " + json.toString());
-        response.setContentType("application/json");
-        try {
-	        response.getWriter().write(json.toString());
-	        response.flushBuffer();
-        } catch (IOException e) {	        
-	        logger.error("FAILED TO RETURN DATE", e);
-        }
-        
     	return null;
     }
 
     private static String getDemographicIdFromLab(String labType, int labNo)
     {
     	String demographicID="";
-    	PatientLabRoutingDao dao = SpringUtils.getBean(PatientLabRoutingDao.class);
-    	for(PatientLabRouting r : dao.findByLabNoAndLabType(labNo, labType)) {
-    		demographicID = "" + r.getDemographicNo();
-    	}
-        return demographicID;
+        try{
+            String sql = "SELECT demographic_no FROM patientLabRouting WHERE lab_type = '"+labType+"' and lab_no='"+labNo+"'";
+
+            ResultSet rs = DBHandler.GetSQL(sql);
+
+            while(rs.next()){
+                demographicID = oscar.Misc.getString(rs, "demographic_no");
+            }
+            rs.close();
+        }catch(Exception e){
+        	logger.error("Error", e);
+        }
+
+        return(demographicID);
     }
 }

@@ -39,7 +39,6 @@ import org.oscarehr.caisi_integrator.ws.CachedProvider;
 import org.oscarehr.caisi_integrator.ws.FacilityIdIntegerCompositePk;
 import org.oscarehr.caisi_integrator.ws.FacilityIdStringCompositePk;
 import org.oscarehr.caisi_integrator.ws.Referral;
-import org.oscarehr.util.LoggedInInfo;
 
 import oscar.util.DateUtils;
 
@@ -58,26 +57,22 @@ public class ReferralSummaryDisplay {
 	private String referralDate;
 	private String referringProvider;
 	private int daysInQueue;
-	private String selectVacancy;
-	private String vacancyTemplateName;
-	
+
 	public ReferralSummaryDisplay(ClientReferral clientReferral) {
 		programName = "local / "+clientReferral.getProgramName();
 		programType = clientReferral.getProgramType();
 		referralDate = dateFormatter.format(clientReferral.getReferralDate());
 		referringProvider = clientReferral.getProviderFormattedName() + " / local";
 		daysInQueue = DateUtils.calculateDayDifference(clientReferral.getReferralDate(), new Date());
-		selectVacancy = clientReferral.getSelectVacancy();
-		vacancyTemplateName = clientReferral.getVacancyTemplateName();
 	}
 
-	public ReferralSummaryDisplay(LoggedInInfo loggedInInfo, Referral referral) throws MalformedURLException {
-		CachedFacility cachedDestinationFacility=CaisiIntegratorManager.getRemoteFacility(loggedInInfo, loggedInInfo.getCurrentFacility(), referral.getDestinationIntegratorFacilityId());
+	public ReferralSummaryDisplay(Referral referral) throws MalformedURLException {
+		CachedFacility cachedDestinationFacility=CaisiIntegratorManager.getRemoteFacility(referral.getDestinationIntegratorFacilityId());
 		
 		FacilityIdIntegerCompositePk remoteProgramPk = new FacilityIdIntegerCompositePk();
 		remoteProgramPk.setIntegratorFacilityId(referral.getDestinationIntegratorFacilityId());
 		remoteProgramPk.setCaisiItemId(referral.getDestinationCaisiProgramId());
-		CachedProgram cachedProgram = CaisiIntegratorManager.getRemoteProgram(loggedInInfo, loggedInInfo.getCurrentFacility(), remoteProgramPk);
+		CachedProgram cachedProgram = CaisiIntegratorManager.getRemoteProgram(remoteProgramPk);
 		
 		programName = cachedDestinationFacility.getName()+" / "+cachedProgram.getName();
 		programType = cachedProgram.getType();
@@ -91,8 +86,8 @@ public class ReferralSummaryDisplay {
 		FacilityIdStringCompositePk remoteProviderPk = new FacilityIdStringCompositePk();
 		remoteProviderPk.setIntegratorFacilityId(referral.getSourceIntegratorFacilityId());
 		remoteProviderPk.setCaisiItemId(referral.getSourceCaisiProviderId());
-		CachedProvider cachedProvider = CaisiIntegratorManager.getProvider(loggedInInfo, loggedInInfo.getCurrentFacility(), remoteProviderPk);
-		CachedFacility cachedSourceFacility=CaisiIntegratorManager.getRemoteFacility(loggedInInfo, loggedInInfo.getCurrentFacility(), referral.getSourceIntegratorFacilityId());
+		CachedProvider cachedProvider = CaisiIntegratorManager.getProvider(remoteProviderPk);
+		CachedFacility cachedSourceFacility=CaisiIntegratorManager.getRemoteFacility(referral.getSourceIntegratorFacilityId());
 		referringProvider = cachedProvider.getLastName()+", "+cachedProvider.getFirstName()+" / "+cachedSourceFacility.getName();
 	}
 
@@ -116,11 +111,4 @@ public class ReferralSummaryDisplay {
 		return daysInQueue;
 	}
 
-	public String getSelectVacancy() {
-		return selectVacancy;
-	}
-	
-	public String getVacancyTemplateName() {
-		return vacancyTemplateName;
-	}
 }

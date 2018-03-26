@@ -38,8 +38,8 @@ import javax.xml.bind.JAXBException;
 import org.apache.log4j.Logger;
 import org.oscarehr.PMmodule.service.GenericIntakeManager;
 import org.oscarehr.util.DbConnectionFilter;
+import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.MiscUtilsOld;
 import org.oscarehr.util.ShutdownException;
 
 import oscar.ocan.service.OcanDataProcessor;
@@ -65,6 +65,7 @@ public class OcanSubmissionTask extends TimerTask {
 
 	@Override
 	public void run() {
+		LoggedInInfo.setLoggedInInfoToCurrentClassAndMethod();
 		try {
 			logger.info("start ocan submission task");
 
@@ -89,7 +90,7 @@ public class OcanSubmissionTask extends TimerTask {
 				}
 
 				for (Map<String, String> intakeMap : intakes) {
-					MiscUtilsOld.checkShutdownSignaled();
+					MiscUtils.checkShutdownSignaled();
 
 					try {
 						ocanDataProcessor.createOcanRecord(process,
@@ -119,6 +120,7 @@ public class OcanSubmissionTask extends TimerTask {
 		} catch (ParseException e) {
 			logger.error("finishOcanProcess() thrown an exception, terminating the submission.", e);
 		} finally {
+			LoggedInInfo.loggedInInfo.remove();
 			DbConnectionFilter.releaseAllThreadDbResources();
 		}
 	}

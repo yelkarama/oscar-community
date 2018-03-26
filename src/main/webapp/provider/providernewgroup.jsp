@@ -25,6 +25,7 @@
 --%>
 
 <%@ page import="java.util.*,java.sql.*" errorPage="../provider/errorpage.jsp"%>
+<%@ include file="/common/webAppContextAndSuperMgr.jsp"%>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -32,11 +33,8 @@
 <%@ page import="org.oscarehr.common.model.MyGroup" %>
 <%@ page import="org.oscarehr.common.model.MyGroupPrimaryKey" %>
 <%@ page import="org.oscarehr.common.dao.MyGroupDao" %>
-<%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
-<%@ page import="org.oscarehr.common.model.Provider" %>
 <%
 	MyGroupDao myGroupDao = SpringUtils.getBean(MyGroupDao.class);
-    ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 %>
 <html:html locale="true">
 <head>
@@ -61,7 +59,8 @@ function checkForm() {
 </script>
 </head>
 
-<body onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0">
+<body background="../images/gray_bg.jpg" bgproperties="fixed"
+	onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0">
 <%
   if ("Delete".equals(request.getParameter("submit_form")) ) { //delete the group member
     int rowsAffected=0;
@@ -106,20 +105,21 @@ function checkForm() {
 			</tr>
 <%
    int i=0;
-   for(Provider p : providerDao.getActiveProviders()) {
+   List<Map<String,Object>> resultList = oscarSuperManager.find("providerDao", "searchprovider", new Object[] {});
+   for (Map provider : resultList) {
      i++;
 %>
 			<tr BGCOLOR="#C4D9E7">
-				<td><font face="arial"> &nbsp;<%=p.getLastName()%>,
-				<%=p.getFirstName()%></font></td>
+				<td><font face="arial"> &nbsp;<%=provider.get("last_name")%>,
+				<%=provider.get("first_name")%></font></td>
 				<td ALIGN="center"><font face="arial"> </font> <input
 					type="checkbox" name="data<%=i%>" value="<%=i%>"> <input
 					type="hidden" name="provider_no<%=i%>"
-					value="<%=p.getProviderNo()%>"> <INPUT
+					value="<%=provider.get("provider_no")%>"> <INPUT
 					TYPE="hidden" NAME="last_name<%=i%>"
-					VALUE='<%=p.getLastName()%>'> <INPUT
+					VALUE='<%=provider.get("last_name")%>'> <INPUT
 					TYPE="hidden" NAME="first_name<%=i%>"
-					VALUE='<%=p.getFirstName()%>'></td>
+					VALUE='<%=provider.get("first_name")%>'></td>
 			</tr>
 <%
    }

@@ -30,16 +30,11 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.oscarehr.common.dao.DemographicDao;
-import org.oscarehr.common.model.Demographic;
-import org.oscarehr.managers.DemographicManager;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.oscarEncounter.oscarMeasurements.bean.EctMeasurementsDataBean;
 import oscar.oscarEncounter.oscarMeasurements.bean.EctMeasurementsDataBeanHandler;
@@ -55,15 +50,11 @@ public class MeasurementInfo {
     Hashtable<String,String> warningHash = new Hashtable<String,String>();
     ArrayList<String> recommendations = null;
     Hashtable<String,String> recommendationHash = new Hashtable<String,String>();
-    HashMap<String,Boolean> hiddens = new HashMap<String,Boolean>();
 
     ArrayList measurementList = new ArrayList();
     Hashtable measurementHash = new Hashtable();
     ArrayList itemList = new ArrayList();
     String demographicNo = "";
-    
-    DemographicManager demographicManager = SpringUtils.getBean(DemographicManager.class);
-     
     /** Creates a new instance of MeasurementInfo */
     public MeasurementInfo(String demographic) {
         demographicNo = demographic;
@@ -102,11 +93,6 @@ public class MeasurementInfo {
         }
         return recommendations;
     }
-    
-    public boolean getHidden(String measurement){
-    	if (hiddens.get(measurement) == null) return false;
-    	return hiddens.get(measurement);
-    }
 
     public void setDemographic(String demographic){
         demographicNo = demographic;
@@ -120,7 +106,7 @@ public class MeasurementInfo {
     public void getMeasurements(List<String> list){
         for (int i =0; i < list.size(); i++){
            String measurement = list.get(i);
-           EctMeasurementsDataBeanHandler ect = new EctMeasurementsDataBeanHandler(Integer.valueOf(demographicNo), measurement);
+           EctMeasurementsDataBeanHandler ect = new EctMeasurementsDataBeanHandler(demographicNo, measurement);
            Collection v = ect.getMeasurementsDataVector();
            measurementList.add(new ArrayList(v));
            measurementHash.put(measurement,new ArrayList(v));
@@ -146,10 +132,6 @@ public class MeasurementInfo {
         }
         warningHash.put(measurement,warningMessage);
         warning.add(warningMessage);
-    }
-    
-    public void addHidden(String measurement, boolean hidden) {
-    	hiddens.put(measurement, hidden);
     }
 
 
@@ -188,6 +170,7 @@ public class MeasurementInfo {
 //    }
 
     public int getLastDateRecordedInMonths(String measurement){
+
         int numMonths = -1;
         ArrayList list = getMeasurementData(measurement);
         Hashtable h =  null;
@@ -206,29 +189,6 @@ public class MeasurementInfo {
         log.debug("Returning the number of months "+numMonths);
         return numMonths;
     }
-    
-    public String getLastDateRecordedInMonthsMsg (String measurement){
-        String message = "";
-        int numMonths = -1;
-        ArrayList list = getMeasurementData(measurement);
-
-        if ( list != null && list.size() > 0){
-           
-            EctMeasurementsDataBean mdata = (EctMeasurementsDataBean) list.get(0);
-            Date date = mdata.getDateObservedAsDate();
-            numMonths = getNumMonths(date, Calendar.getInstance().getTime());
-        }
-
-        log.debug("Returning the number of months "+message);
-        
-        if(numMonths == -1){
-        	message = "has never been reviewed";
-        }else{
-        	message = "hasn't been reviewed in " +numMonths+" months";
-        }
-        
-        return message;
-    }
 
     public int getLastValueAsInt(String measurement){
 
@@ -246,49 +206,8 @@ public class MeasurementInfo {
         log.debug("Returning the number of months "+value);
         return value;
     }
-    
-    public int isDataEqualToYes(String measurement){   	
-        int v = 0;
-        String str="";
-        ArrayList list = getMeasurementData(measurement);
-        Hashtable h =  null;
-        if ( list != null && list.size() > 0){
-            EctMeasurementsDataBean mdata = (EctMeasurementsDataBean) list.get(0);
-            try{
-            	str = mdata.getDataField();
-            }catch (Exception e ){
-               MiscUtils.getLogger().error("Error", e);
-            }
-        }        
-        
-        if(str.equalsIgnoreCase("yes")){
-        	v=1;
-        }
-        
-        return v;
-    }
-    
-    /*
-     * Called by Drools - not sure how to pass in LoggedInInfo
-     */
-    public boolean getGender(String sex){
-    	if (sex==null) return false;
-    	DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
-    	Demographic d = demographicDao.getDemographic(demographicNo);
-    	return (sex.trim().equals(d.getSex()));
-    }
-    
-    /*
-     *Called by Drools - not sure how to pass in LoggedInInfo
-     */
-    public int getAge(){
-    	DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
-    	Demographic d = demographicDao.getDemographic(demographicNo);
-    	return d.getAgeInYears();
-    }
-    
 
- 
+
     private int getNumMonths(Date dStart, Date dEnd) {
         int i = 0;
         log.debug("Getting the number of months between "+dStart.toString()+ " and "+dEnd.toString() );
@@ -302,4 +221,11 @@ public class MeasurementInfo {
         if (i < 0) { i = 0; }
         return i;
    }
+
+
+    private void debug(String s){
+        log.debug(s);
+    }
+
+
 }

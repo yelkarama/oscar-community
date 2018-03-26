@@ -34,130 +34,128 @@ import oscar.util.UtilMisc;
  * @version 1.0
  */
 public class BillHistory {
-	
-	private int id;
-	private int billingMasterNo;
-	private String practitioner_no = "";
-	private String billingStatus = "";
-	private Date archiveDate;
-	private String billingtype = "";
-	private String seqNum = "";
-	private double amount;
-	private double amountReceived;
-	private String paymentTypeId;
-	private String paymentTypeDesc;
+  private int id;
+  private int billingMasterNo;
+  private String practitioner_no = "";
+  private String billingStatus = "";
+  private Date archiveDate;
+  private String billingtype = "";
+  private String seqNum = "";
+  private double amount;
+  private double amountReceived;
+  private String paymentTypeId;
+  private String paymentTypeDesc;
+  public BillHistory() {
+  }
 
-	public BillHistory() {
-	}
+  public void setId(int id) {
+    this.id = id;
+  }
 
-	public void setId(int id) {
-		this.id = id;
-	}
+  /**
+   * Sets the billingMaster Number of the records which is being tracked
+   * @param billingMasterNo int
+   */
+  public void setBillingMasterNo(int billingMasterNo) {
+    this.billingMasterNo = billingMasterNo;
+  }
 
-	/**
-	 * Sets the billingMaster Number of the records which is being tracked
-	 * @param billingMasterNo int
-	 */
-	public void setBillingMasterNo(int billingMasterNo) {
-		this.billingMasterNo = billingMasterNo;
-	}
+  /**
+   * Sets the number of the provider who is responsible for initiating this audit event
+   * @param providerNo int
+   */
+  public void setPractitioner_no(String practitioner_no) {
 
-	/**
-	 * Sets the number of the provider who is responsible for initiating this audit event
-	 * @param practitioner_no String
-	 */
-	public void setPractitioner_no(String practitioner_no) {
+    this.practitioner_no = practitioner_no;
+  }
 
-		this.practitioner_no = practitioner_no;
-	}
+  /**
+   * Set the status of the billingMaster record at the time of the event
+   * @param billingStatus String
+   */
+  public void setBillingStatus(String billingStatus) {
+    this.billingStatus = billingStatus;
+  }
 
-	/**
-	 * Set the status of the billingMaster record at the time of the event
-	 * @param billingStatus String
-	 */
-	public void setBillingStatus(String billingStatus) {
-		this.billingStatus = billingStatus;
-	}
+  /**
+   * Sets the Date of the event
+   * @param archiveDate Date
+   */
+  public void setArchiveDate(Date archiveDate) {
+    this.archiveDate = archiveDate;
+  }
 
-	/**
-	 * Sets the Date of the event
-	 * @param archiveDate Date
-	 */
-	public void setArchiveDate(Date archiveDate) {
-		this.archiveDate = archiveDate;
-	}
+  public void setBillingtype(String billingtype) {
 
-	public void setBillingtype(String billingtype) {
+    this.billingtype = billingtype;
+  }
 
-		this.billingtype = billingtype;
-	}
+  public void setSeqNum(String seqNum) {
 
-	public void setSeqNum(String seqNum) {
+    this.seqNum = seqNum;
+  }
 
-		this.seqNum = seqNum;
-	}
+  public void setAmount(double amount) {
+    this.amount = UtilMisc.toCurrencyDouble(amount);
+  }
 
-	public void setAmount(double amount) {
-		this.amount = UtilMisc.toCurrencyDouble(amount);
-	}
+  public void setAmountReceived(double amountReceived) {
+    this.amountReceived = UtilMisc.toCurrencyDouble(amountReceived);
+  }
 
-	public void setAmountReceived(double amountReceived) {
-		this.amountReceived = UtilMisc.toCurrencyDouble(amountReceived);
-	}
+  public void setPaymentTypeId(String paymentTypeId) {
+    this.paymentTypeId = paymentTypeId;
+  }
 
-	public void setPaymentTypeId(String paymentTypeId) {
-		this.paymentTypeId = paymentTypeId;
-	}
+  public void setPaymentTypeDesc(String paymentTypeDesc) {
+    this.paymentTypeDesc = paymentTypeDesc;
+  }
 
-	public void setPaymentTypeDesc(String paymentTypeDesc) {
-		this.paymentTypeDesc = paymentTypeDesc;
-	}
+  public int getId() {
+    return id;
+  }
 
-	public int getId() {
-		return id;
-	}
+  public int getBillingMasterNo() {
+    return billingMasterNo;
+  }
 
-	public int getBillingMasterNo() {
-		return billingMasterNo;
-	}
+  public String getPractitioner_no() {
 
-	public String getPractitioner_no() {
+    return practitioner_no;
+  }
 
-		return practitioner_no;
-	}
+  public String getBillingStatus() {
+    return billingStatus;
+  }
 
-	public String getBillingStatus() {
-		return billingStatus;
-	}
+  public Date getArchiveDate() {
+    return archiveDate;
+  }
 
-	public Date getArchiveDate() {
-		return archiveDate;
-	}
+  public String getBillingtype() {
 
-	public String getBillingtype() {
+    return billingtype;
+  }
 
-		return billingtype;
-	}
+  public String getSeqNum() {
 
-	public String getSeqNum() {
+    return seqNum;
+  }
 
-		return seqNum;
-	}
+  public double getAmount() {
+    return amount;
+  }
 
-	public double getAmount() {
-		return amount;
-	}
+  public double getAmountReceived() {
+    return amountReceived;
+  }
 
-	public double getAmountReceived() {
-		return amountReceived;
-	}
+  public String getPaymentTypeId() {
+    return paymentTypeId;
+  }
 
-	public String getPaymentTypeId() {
-		return paymentTypeId;
-	}
-
-	public String getPaymentTypeDesc() {
-		return paymentTypeDesc;
-	}
+  public String getPaymentTypeDesc() {
+    return paymentTypeDesc;
+  }
 
 }

@@ -37,10 +37,10 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
-import org.oscarehr.common.dao.AdmissionDao;
+import org.oscarehr.PMmodule.dao.AdmissionDao;
+import org.oscarehr.PMmodule.model.Admission;
 import org.oscarehr.common.dao.OcanStaffFormDao;
 import org.oscarehr.common.dao.OcanStaffFormDataDao;
-import org.oscarehr.common.model.Admission;
 import org.oscarehr.common.model.OcanStaffForm;
 import org.oscarehr.common.model.OcanStaffFormData;
 import org.oscarehr.util.LoggedInInfo;
@@ -60,9 +60,8 @@ public class OcanWorkloadAction extends DispatchAction {
     }
 
 	public ActionForward view(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		String providerNo = loggedInInfo.getLoggedInProviderNo();
-		Integer facilityId = loggedInInfo.getCurrentFacility().getId();
+		String providerNo = LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo();
+		Integer facilityId = LoggedInInfo.loggedInInfo.get().currentFacility.getId();
 
 		List<OcanStaffForm> ocanForms = ocanStaffFormDao.findLatestOcanFormsByStaff(facilityId,providerNo);
 
@@ -106,9 +105,6 @@ public class OcanWorkloadAction extends DispatchAction {
 	 */
 	public ActionForward reassign(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		MiscUtils.getLogger().info("Reassigning OCAN Workload");
-
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-
 		String assessmentId = request.getParameter("assessmentId");
 		String consumerId = request.getParameter("consumerId");
 		String newProviderNo = request.getParameter("reassign_new_provider");
@@ -119,7 +115,7 @@ public class OcanWorkloadAction extends DispatchAction {
 		//get the latest of each assessment for the client.
 		//update the providerNo, and persist as new form,
 		//same with data.
-		List<OcanStaffForm> ocans = ocanStaffFormDao.findLatestByConsumer(loggedInInfo.getCurrentFacility().getId(),Integer.valueOf(consumerId));
+		List<OcanStaffForm> ocans = ocanStaffFormDao.findLatestByConsumer(LoggedInInfo.loggedInInfo.get().currentFacility.getId(),Integer.valueOf(consumerId));
 		for(OcanStaffForm ocan:ocans) {
 			List<OcanStaffFormData> ocanData = ocanStaffFormDataDao.findByForm(ocan.getId());
 

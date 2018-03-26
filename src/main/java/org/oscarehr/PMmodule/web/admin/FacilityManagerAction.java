@@ -37,37 +37,34 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
-import org.apache.struts.actions.DispatchAction;
+import org.oscarehr.PMmodule.dao.AdmissionDao;
+import org.oscarehr.PMmodule.model.Admission;
 import org.oscarehr.PMmodule.model.Program;
+import org.oscarehr.PMmodule.service.LogManager;
 import org.oscarehr.PMmodule.service.ProgramManager;
+import org.oscarehr.PMmodule.web.BaseAction;
 import org.oscarehr.PMmodule.web.FacilityDischargedClients;
-import org.oscarehr.common.dao.AdmissionDao;
 import org.oscarehr.common.dao.DemographicDao;
-import org.oscarehr.common.dao.EFormDao;
 import org.oscarehr.common.dao.FacilityDao;
-import org.oscarehr.common.model.Admission;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.Facility;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.SessionConstants;
-import org.oscarehr.util.SpringUtils;
 import org.oscarehr.util.WebUtils;
-
-import oscar.log.LogAction;
 
 import com.quatro.service.LookupManager;
 
 /**
  */
-public class FacilityManagerAction extends DispatchAction {
+public class FacilityManagerAction extends BaseAction {
 
 	private AdmissionDao admissionDao;
 	private DemographicDao demographicDao;
 	private ProgramManager programManager;
 	private LookupManager lookupManager;
-	
+	private LogManager logManager;
+
 	private FacilityDao facilityDao;
-    private EFormDao eFormDao = (EFormDao) SpringUtils.getBean("EFormDao");
 
 	public void setFacilityDao(FacilityDao facilityDao) {
 		this.facilityDao = facilityDao;
@@ -80,7 +77,6 @@ public class FacilityManagerAction extends DispatchAction {
 	private static final String BEAN_FACILITIES = "facilities";
 	private static final String BEAN_ASSOCIATED_PROGRAMS = "associatedPrograms";
 	private static final String BEAN_ASSOCIATED_CLIENTS = "associatedClients";
-    private static final String registrationIntakeName = "Registration Intake";
 
 	public ActionForward unspecified(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		return list(mapping, form, request, response);
@@ -107,7 +103,6 @@ public class FacilityManagerAction extends DispatchAction {
 
 		FacilityManagerForm facilityForm = (FacilityManagerForm) form;
 		facilityForm.setFacility(facility);
-        facilityForm.setRegistrationIntakeForms(eFormDao.getEfromInGroupByGroupName(registrationIntakeName));
 
 		List<FacilityDischargedClients> facilityClients = new ArrayList<FacilityDischargedClients>();
 
@@ -172,7 +167,6 @@ public class FacilityManagerAction extends DispatchAction {
 
 		FacilityManagerForm managerForm = (FacilityManagerForm) form;
 		managerForm.setFacility(facility);
-        managerForm.setRegistrationIntakeForms(eFormDao.getEfromInGroupByGroupName(registrationIntakeName));
 
 		request.setAttribute("id", facility.getId());
 		request.setAttribute("orgId", facility.getOrgId());
@@ -210,7 +204,6 @@ public class FacilityManagerAction extends DispatchAction {
 	}
 
 	public ActionForward save(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 		FacilityManagerForm mform = (FacilityManagerForm) form;
 		Facility facility = mform.getFacility();
 
@@ -230,22 +223,21 @@ public class FacilityManagerAction extends DispatchAction {
 			facility.setEnableDigitalSignatures(WebUtils.isChecked(request, "facility.enableDigitalSignatures"));
 
 			facility.setEnableAnonymous(WebUtils.isChecked(request, "facility.enableAnonymous"));
-            facility.setEnablePhoneEncounter(WebUtils.isChecked(request, "facility.enablePhoneEncounter"));
 			facility.setEnableGroupNotes(WebUtils.isChecked(request, "facility.enableGroupNotes"));
 			facility.setEnableOcanForms(WebUtils.isChecked(request, "facility.enableOcanForms"));
 			facility.setEnableEncounterTime(WebUtils.isChecked(request, "facility.enableEncounterTime"));
 			facility.setEnableEncounterTransportationTime(WebUtils.isChecked(request, "facility.enableEncounterTransportationTime"));
 			facility.setEnableCbiForm(WebUtils.isChecked(request, "facility.enableCbiForm"));
-			if(facility.getRegistrationIntake()!=null&&facility.getRegistrationIntake()<0)facility.setRegistrationIntake(null);
 			
 			if (facility.getId() == null || facility.getId() == 0) facilityDao.persist(facility);
 			else facilityDao.merge(facility);
 
+			LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
 			// if we just updated our current facility, refresh local cached data in the session / thread local variable
-			if (loggedInInfo.getCurrentFacility().getId().intValue()==facility.getId().intValue())
+			if (loggedInInfo.currentFacility.getId().intValue()==facility.getId().intValue())
 			{
 				request.getSession().setAttribute(SessionConstants.CURRENT_FACILITY, facility);
-				loggedInInfo.setCurrentFacility(facility);
+				loggedInInfo.currentFacility=facility;
 			}
 			
 			ActionMessages messages = new ActionMessages();
@@ -254,7 +246,7 @@ public class FacilityManagerAction extends DispatchAction {
 
 			request.setAttribute("id", facility.getId());
 
-			LogAction.log("write", "facility", facility.getId().toString(), request);
+			logManager.log("write", "facility", facility.getId().toString(), request);
 
 			return list(mapping, form, request, response);
 		} catch (Exception e) {
@@ -276,6 +268,10 @@ public class FacilityManagerAction extends DispatchAction {
 
 	public void setLookupManager(LookupManager lookupManager) {
 		this.lookupManager = lookupManager;
+	}
+
+	public void setLogManager(LogManager mgr) {
+		this.logManager = mgr;
 	}
 
 	public void setProgramManager(ProgramManager mgr) {

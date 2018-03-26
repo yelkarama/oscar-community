@@ -23,27 +23,12 @@
     Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed2=true;
-%>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_flowsheet" rights="w" reverse="<%=true%>">
-	<%authed2=false; %>
-	<%response.sendRedirect("../../../securityError.jsp?type=_flowsheet");%>
-</security:oscarSec>
-<%
-if(!authed2) {
-	return;
-}
-%>
-
 <% long startTime = System.currentTimeMillis(); %>
-<%@ page import="oscar.oscarDemographic.data.*,java.util.*,oscar.oscarPrevention.*,oscar.oscarEncounter.oscarMeasurements.*,oscar.oscarEncounter.oscarMeasurements.bean.*,java.net.*"%>
-<%@ page import="org.jdom.Element,oscar.oscarEncounter.oscarMeasurements.data.*,org.jdom.output.Format,org.jdom.output.XMLOutputter,oscar.oscarEncounter.oscarMeasurements.util.*,java.io.*" %>
-<%@ page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
-<%@ page import="org.springframework.web.context.WebApplicationContext"%>
-<%@ page import="org.oscarehr.common.dao.*,org.oscarehr.common.model.FlowSheetCustomization"%>
+<%@page import="oscar.oscarDemographic.data.*,java.util.*,oscar.oscarPrevention.*,oscar.oscarEncounter.oscarMeasurements.*,oscar.oscarEncounter.oscarMeasurements.bean.*,java.net.*"%>
+<%@page import="org.jdom.Element,oscar.oscarEncounter.oscarMeasurements.data.*,org.jdom.output.Format,org.jdom.output.XMLOutputter,oscar.oscarEncounter.oscarMeasurements.util.*,java.io.*" %>
+<%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
+<%@page import="org.springframework.web.context.WebApplicationContext"%>
+<%@page import="org.oscarehr.common.dao.*,org.oscarehr.common.model.FlowSheetCustomization"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar" %>
@@ -52,8 +37,11 @@ if(!authed2) {
 
 <%
     long startTimeToGetP = System.currentTimeMillis();
+    if(session.getValue("user") == null) response.sendRedirect("../../logout.jsp");
     //int demographic_no = Integer.parseInt(request.getParameter("demographic_no"));
-     //TODO: MOVE THIS TO AN ACTION
+    if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
+    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
+ //TODO: MOVE THIS TO AN ACTION
 WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
 FlowSheetCustomizationDao flowSheetCustomizationDao = (FlowSheetCustomizationDao) ctx.getBean("flowSheetCustomizationDao");
 MeasurementTemplateFlowSheetConfig templateConfig = MeasurementTemplateFlowSheetConfig.getInstance();
@@ -63,28 +51,7 @@ String measurement = request.getParameter("measurement");
 String demographic = request.getParameter("demographic");
 
 long start = System.currentTimeMillis() ;
-
-List<FlowSheetCustomization> custList = null;
-
-if(demographic == null || demographic.isEmpty()) {
-	custList = flowSheetCustomizationDao.getFlowSheetCustomizations( flowsheet,(String) session.getAttribute("user"));
-} else {
-	custList = flowSheetCustomizationDao.getFlowSheetCustomizations( flowsheet,(String) session.getAttribute("user"),Integer.parseInt(demographic));
-}
-
-String module="";
-String htQueryString = "";
-if(request.getParameter("htracker")!=null){
-	module="htracker";
-	htQueryString="&"+module;	
-}
-
-if(request.getParameter("htracker")!=null && request.getParameter("htracker").equals("slim")){
-	module="slim";
-	htQueryString=htQueryString+"=slim";
-}
-
-
+List<FlowSheetCustomization> custList = flowSheetCustomizationDao.getFlowSheetCustomizations( flowsheet,(String) session.getAttribute("user"),demographic);
 MeasurementFlowSheet mFlowsheet = templateConfig.getFlowSheet(flowsheet,custList);
 long end = System.currentTimeMillis() ;
 long diff = end - start;
@@ -95,253 +62,355 @@ FlowSheetItem fsi =mFlowsheet.getFlowSheetItem(measurement);
 //EctMeasurementTypeBeanHandler mType = new EctMeasurementTypeBeanHandler();
 %>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html:html locale="true">
 
 <head>
-<title>Update Flowsheet <%=flowsheet%>  <oscar:nameage demographicNo="<%=demographic%>"/></title><!--I18n-->
-
-<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet">
-
-
-<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
-<!--[if lt IE 9]>
-  <script src="<%=request.getContextPath() %>/js/html5.js"></script>
-<![endif]-->
-
-
+<title><%=flowsheet%> - <oscar:nameage demographicNo="<%=demographic%>"/></title><!--I18n-->
+<link rel="stylesheet" type="text/css" href="../../../share/css/OscarStandardLayout.css" />
+<script type="text/javascript" src="../../../share/javascript/Oscar.js"></script>
+<script type="text/javascript" src="../../../share/javascript/prototype.js"></script>
 
 <style type="text/css">
-#scrollToTop{
-Position:fixed;
-display:none;
-bottom:30px;
-right:15px;
-}
+    div.ImmSet { background-color: #ffffff;clear:left;margin-top:10px;}
+    div.ImmSet h2 {  }
+    div.ImmSet h2 span { font-size:smaller; }
+    div.ImmSet ul {  }
+    div.ImmSet li {  }
+    div.ImmSet li a { text-decoration:none; color:blue;}
+    div.ImmSet li a:hover { text-decoration:none; color:red; }
+    div.ImmSet li a:visited { text-decoration:none; color:blue;}
 
-.mtype-details{
-display:inline-block;
-}
+    /*h3{font-size: 100%;margin:0 0 10px;padding: 2px 0;color: #497B7B;text-align: center}*/
+
 </style>
 
 <style type="text/css" media="print">
 .DoNotPrint {
 	display: none;
 }
-</style> 
-                              
+</style>
+
+<link rel="stylesheet" type="text/css" href="../../share/css/niftyCorners.css" />
+<link rel="stylesheet" type="text/css" href="../../share/css/niftyPrint.css" media="print" />
+<script type="text/javascript" src="../../share/javascript/nifty.js"></script>
+
+<script type="text/javascript">
+    window.onload=function(){
+        if(!NiftyCheck())
+            return;
+
+//Rounded("div.news","all","transparent","#FFF","small border #999");
+        Rounded("div.headPrevention","all","#CCF","#efeadc","small border blue");
+        Rounded("div.preventionProcedure","all","transparent","#F0F0E7","small border #999");
+
+//Rounded("span.footnote","all","transparent","#F0F0E7","small border #999");
+
+        Rounded("div.leftBox","top","transparent","#CCCCFF","small border #ccccff");
+        Rounded("div.leftBox","bottom","transparent","#EEEEFF","small border #ccccff");
+
+    }
+</script>
+
+
+<style type="text/css">
+body {font-size:100%}
+
+
+div.leftBox{
+    width:90%;
+    margin-top: 2px;
+    margin-left:3px;
+    margin-right:3px;
+    float: left;
+}
+
+span.footnote {
+    background-color: #ccccee;
+    border: 1px solid #000;
+    width: 4px;
+}
+
+div.leftBox h3 {
+    background-color: #ccccff;
+/*font-size: 1.25em;*/
+    font-size: 8pt;
+    font-variant:small-caps;
+    font-weight:bold;
+    margin-top:0px;
+    padding-top:0px;
+    margin-bottom:0px;
+    padding-bottom:0px;
+}
+
+div.leftBox ul{
+/*border-top: 1px solid #F11;*/
+/*border-bottom: 1px solid #F11;*/
+    font-size: 1.0em;
+    list-style:none;
+    list-style-type:none;
+    list-style-position:outside;
+    padding-left:1px;
+    margin-left:1px;
+    margin-top:0px;
+    padding-top:1px;
+    margin-bottom:0px;
+    padding-bottom:0px;
+}
+
+div.leftBox li {
+    padding-right: 15px;
+    white-space: nowrap;
+}
+
+
+div.headPrevention {
+    position:relative;
+    float:left;
+    width:12em;
+    height:2.9em;
+}
+
+div.headPrevention p {
+    background: #ddddff;
+    font-family: verdana,tahoma,sans-serif;
+    margin:0;
+
+    padding: 4px 4px;
+    line-height: 1.2;
+/*text-align: justify;*/
+    height:2em;
+    font-family: sans-serif;
+}
+
+div.headPrevention a {
+    text-decoration:none;
+}
+
+div.headPrevention a:active { color:blue; }
+div.headPrevention a:hover { color:blue; }
+div.headPrevention a:link { color:blue; }
+div.headPrevention a:visited { color:blue; }
+
+
+div.preventionProcedure{
+    width:9em;
+    float:left;
+    margin-left:3px;
+    margin-bottom:3px;
+}
+
+div.preventionProcedure p {
+    font-size: 0.8em;
+    font-family: verdana,tahoma,sans-serif;
+    background: #F0F0E7;
+    margin:0;
+    padding: 1px 2px;
+/*line-height: 1.3;*/
+/*text-align: justify*/
+}
+
+div.preventionSection {
+    width: 100%;
+    position:relative;
+    margin-top:5px;
+    float:left;
+    clear:left;
+}
+
+div.preventionSet {
+    border: thin solid grey;
+    clear:left;
+}
+
+div.recommendations{
+    font-family: verdana,tahoma,sans-serif;
+    font-size: 1.2em;
+}
+
+div.recommendations ul{
+    padding-left:15px;
+    margin-left:1px;
+    margin-top:0px;
+    padding-top:1px;
+    margin-bottom:0px;
+    padding-bottom:0px;
+}
+
+div.recommendations li{
+
+}
+
+
+
+</style>
+
 </head>
 
-<body id="updateFlowsheetBody">
+<body class="BodyStyle" >
+<!--  -->
+<table  class="MainTable" id="scrollNumber1" >
+<tr class="MainTableTopRow">
+    <td class="MainTableTopRowLeftColumn"  >
+        editFlowsheet
+    </td>
+    <td class="MainTableTopRowRightColumn">
+        <table class="TopStatusBar">
+            <tr>
+                <td >
+                    Flowsheet : <%=flowsheet%>   - <%=measurement%>
 
-<%
-if(request.getParameter("htracker")==null || ( request.getParameter("htracker")!=null && !request.getParameter("htracker").equals("slim")) ){
+                    Demographic :
+                    <% if (demographic!=null) { %>
+                    <oscar:nameage demographicNo="<%=demographic%>"/>  <!--  a href="EditFlowsheet.jsp?flowsheet=<%=flowsheet%>">Go to all patients</a  -->
+                    <%}else{%>
+                        All Patients
+                    <%}%>
 
-if(request.getParameter("demographic")==null){ %>
-<div class="well well-small"></div>
-<%}else{ %>
-<%@ include file="/share/templates/patient.jspf"%>
-<div style="height:60px;"></div>
-<%} 
-}
-%>
+                </td>
+                <td  >&nbsp;
 
-<div class="container" id="container-main">
+                </td>
+                <td style="text-align:right">
+                    <oscar:help keywords="flowsheet" key="app.top1"/> | <a href="javascript:popupStart(300,400,'About.jsp')" ><bean:message key="global.about" /></a> | <a href="javascript:popupStart(300,400,'License.jsp')" ><bean:message key="global.license" /></a>
+                </td>
+            </tr>
+        </table>
+    </td>
+</tr>
+<tr>
+<td class="MainTableLeftColumn" valign="top">
+   sdfsdf
 
-<div class="span8">
-<h3 style="display:inline">Update Measurement</h3> <em>for <strong><%=flowsheet%></strong> flowsheet </em>
 
-<form action="FlowSheetCustomAction.do">
+</td>
 
-		    <%if(request.getParameter("htracker")!=null){ %>
-		    <input type="hidden" name="htracker" value="<%=module%>">
-		    <%}%> 
-			
+<td valign="top" class="MainTableRightColumn">
+<div style="margin-left:10px;">
+      <form action="FlowSheetCustomAction.do">
             <input type="hidden" name="method" value="update"/>
             <input type="hidden" name="flowsheet" value="<%=flowsheet%>"/>
             <input type="hidden" name="measurement" value="<%=measurement%>"/>
-            
-            <%if(request.getParameter("demographic")!=null){ %>
             <input type="hidden" name="demographic" value="<%=demographic%>"/>
-            <%} %>
             <fieldset width="300px">
                <input type="hidden" name="updater" value="yes"/>
                <input type="hidden" name="prevention_type" value="<%=h2.get("prevention_type")%>"/>
                <input type="hidden" name="measurement_type" value="<%=h2.get("measurement_type")%>" />
-                
-                <div class="well">
-                <h4>Measurement Details</h4>
-                
-                <div class="mtype-details">
-                Display Name: <br />
-                <input type="text" name="display_name" value="<%= h2.get("display_name")%>" />
-                </div>
-                
-                <div class="mtype-details">
-                Guideline:  <br />  
-                <input type="text" name="guideline"   value="<%=h2.get("guideline")%>"   />
-                </div>
-                
-                <div class="mtype-details">
-                Graphable: <br />
-                <select name="graphable" style="width:80px">
+                Display Name: <input type="text" name="display_name" value="<%= h2.get("display_name")%>" /><br>
+                Guideline:    <input type="text" name="guideline"   value="<%=h2.get("guideline")%>"   /><br>
+                Graphable: <select name="graphable"   >
                     <option  value="yes" <%=sel(""+h2.get("graphable"),"yes")%> >YES</option>
                     <option  value="no"  <%=sel(""+h2.get("graphable"),"no")%> >NO</option>
-                </select> 
-                </div>
-                
-                <div class="mtype-details">
-                Value Name:<br />
-                <input type="text" name="value_name"   value="<%=h2.get("value_name")%>"    />
-                </div>
-                </div>
-                
-                <div class="well">                
-                    <h4>Rule</h4>
-                    
-                    <table class="table table-striped">
+                </select>><br>
+                Value Name:<input type="text" name="value_name"   value="<%=h2.get("value_name")%>"    /><br>
+                <div>
+                    <h3>Rule</h3>
+                   <br/>
+
                     <%
                     int count = 0;
                     if (dsR != null) {
                         for (Recommendation e : dsR) { count++;
                         %>
-                        <tr><td>
-                            <div class="mtype-details">
-                            Strength:  <br /> <select name="strength<%=count%>">
+                            Strength:   <select name="strength<%=count%>">
                                             <option value="recommendation" <%=sel(e.getStrength(),"recommendation")%>    >Recommendation</option>
                                             <option value="warning"        <%=sel(e.getStrength(),"warning")%>>Warning</option>
                                         </select>
-                            </div>
-                            
-                            <div class="mtype-details">
-                            Text: <br /><input type="text" name="text<%=count%>" length="100"  value="<%=e.getText()%>" />
-							</div>
+                            Text: <input type="text" name="text<%=count%>" length="100"  value="<%=e.getText()%>" />
 
+                               <ul style="list-style-type: none;" >
                                <%
                                List<RecommendationCondition> conds = e.getRecommendationCondition() ;
                                int condCount = 0;
                                for(RecommendationCondition cond:conds){condCount++;%>
-							<br />
-							<div class="mtype-details">
-							<br />
-                               <select name="type<%=count%>c<%=condCount%>" >
+
+                               <li><select name="type<%=count%>c<%=condCount%>" >
                                         <option value="monthrange"        <%=sel("monthrange", cond.getType())%>     >Month Range</option>
                                         <option value="lastValueAsInt"    <%=sel("lastValueAsInt",cond.getType())%>  >Last Int Value </option>
                                    </select>
-							</div>
-							
-							<div class="mtype-details">
-                                   Param: <br /><input type="text" name="param<%=count%>c<%=condCount%>" value="<%=s(cond.getParam())%>" />
-                            </div>
-                                                              
-                            <div class="mtype-details">       
-                                   Value: <br /><input type="text" name="value<%=count%>c<%=condCount%>" value="<%=cond.getValue()%>" />
-                             </div>  
+
+                                   Param: <input type="text" name="param<%=count%>c<%=condCount%>" value="<%=s(cond.getParam())%>" />
+                                   Value: <input type="text" name="value<%=count%>c<%=condCount%>" value="<%=cond.getValue()%>" />
+                               </li>
 
                                <%} condCount++;%>
-                               <br />
-                               
-							<div class="mtype-details">
-							<br />
-                              <select name="type<%=count%>c<%=condCount%>" >
+
+                               <li><select name="type<%=count%>c<%=condCount%>" >
                                         <option value="monthrange"         >Month Range</option>
                                         <option value="lastValueAsInt"     >Last Int Value </option>
-                              </select>
-							</div>
+                                   </select>
 
-								<div class="mtype-details">								
-                                   Param: <br/> <input type="text" name="param<%=count%>c<%=condCount%>"  />
-                                   </div>
-                                   
-                                    <div class="mtype-details">
-                                    Value: <br /><input type="text" name="value<%=count%>c<%=condCount%>"  />
-                               		</div>
+                                   Param: <input type="text" name="param<%=count%>c<%=condCount%>"  />
+                                   Value: <input type="text" name="value<%=count%>c<%=condCount%>"  />
+                               </li>
+                               </ul>
 
                             <br/>
-                            </td></tr>
                         <%
                         }
                     }
                     count++;
                     %>
-					<tr><td>
-                    <div class="mtype-details">
-                    Strength:<br />   <select name="strength<%=count%>">
+
+                    NEW<br>
+                    Strength:   <select name="strength<%=count%>">
                                     <option value="recommendation"     >Recommendation</option>
                                     <option value="warning">Warning</option>
                                 </select>
-                    </div>
-                    
-                    <div class="mtype-details">
-                                Text: <br /><input type="text" name="text<%=count%>" length="100"   />
-					</div>
-                    
-                    <br />          
+                                Text: <input type="text" name="text<%=count%>" length="100"   />
 
-					<div class="mtype-details">
-					<br />
-                               <select name="type<%=count%>c1" >
+                               <ul style="list-style-type: none;" >
+
+
+                               <li><select name="type<%=count%>c1" >
                                         <option value="monthrange"         >Month Range</option>
                                         <option value="lastValueAsInt"     >Last Int Value </option>
                                    </select>
-					</div>
-					
-					<div class="mtype-details">
-                                   Param: <br /><input type="text" name="param<%=count%>c1"  />
-                    </div>
-                    
-                    <div class="mtype-details">
-                                   Value: <br /><input type="text" name="value<%=count%>c1"  />
-                    </div>           
-    				</td></tr>
-    				</table>
+
+                                   Param: <input type="text" name="param<%=count%>c1"  />
+                                   Value: <input type="text" name="value<%=count%>c1"  />
+                               </li>
+                               </ul>
+
+
+
+
+                    <br/>
                 </div>
 
 
-                <div class="well">
-                <table class="table table-striped">
+                <div>
                     <%
                            Hashtable colourHash = mFlowsheet.getIndicatorHashtable();
                            List<TargetColour> list = fsi.getTargetColour();
                     int targetCount = 0;
                     if (list !=null){
                     for(TargetColour tc:list){ targetCount++;%>
-                        
-                            
-                            <tr><td>
-                           <h4>Target <%=targetCount%></h4>
+                        <div style="border: 1px;">
+                           <h3>Target <%=targetCount%></h3>
 
-                           
+                            <ul style="list-style-type: none;" >
                                <%
                                List<TargetCondition> conds = tc.getTargetConditions() ;
                                int condCount = 0;
                                for(TargetCondition cond:conds){condCount++;%>
-                               
-							<div class="mtype-details">
-							<br />
-                               <select name="targettype<%=targetCount%>c<%=condCount%>" >
+
+                               <li><select name="targettype<%=targetCount%>c<%=condCount%>" >
                                    <option value="getDataAsDouble"     <%=sel("getDataAsDouble", cond.getType())%>  >Number Value</option>
                                         <option value="isMale"              <%=sel("isMale",cond.getType())%>> Is Male </option>
                                         <option value="isFemale"            <%=sel("isFemale",cond.getType())%>> Is Female </option>
                                         <option value="getNumberFromSplit"  <%=sel("getNumberFromSplit",cond.getType())%>> Number Split </option>
                                         <option value="isDataEqualTo"       <%=sel("isDataEqualTo",cond.getType())%>>  String </option>
                                    </select>
-							</div>
-							
-							<div class="mtype-details">
-                                   Param:<br /> <input type="text" name="targetparam<%=targetCount%>c<%=condCount%>" value="<%=s(cond.getParam())%>" />
-                            </div>
-                            
-                            <div class="mtype-details">       
-                                   Value: <br /><input type="text" name="targetvalue<%=targetCount%>c<%=condCount%>" value="<%=cond.getValue()%>" />
-                            </div>
-                              <br />
+
+                                   Param: <input type="text" name="targetparam<%=targetCount%>c<%=condCount%>" value="<%=s(cond.getParam())%>" />
+                                   Value: <input type="text" name="targetvalue<%=targetCount%>c<%=condCount%>" value="<%=cond.getValue()%>" />
+                               </li>
 
                                <%}condCount++;%>
 
-							<div class="mtype-details">
-							<br />
-                               <select name="targettype<%=targetCount%>c<%=condCount%>">
+                               <li><select name="targettype<%=targetCount%>c<%=condCount%>">
                                        <option value="-1">Not Set</option>
                                         <option value="getDataAsDouble"       >Number Value</option>
                                         <option value="isMale"              > Is Male </option>
@@ -349,19 +418,13 @@ if(request.getParameter("demographic")==null){ %>
                                         <option value="getNumberFromSplit"  > Number Split </option>
                                         <option value="isDataEqualTo"       >  String </option>
                                    </select>
-							</div>
-							
-							<div class="mtype-details">
-                                   Param: <br /><input type="text" name="targetparam<%=targetCount%>c<%=condCount%>" value="" />
-                            </div>
-                            
-                            <div class="mtype-details">
-                                   Value: <br /><input type="text" name="targetvalue<%=targetCount%>c<%=condCount%>" value="" />
-                            </div>
-                              
-							<br />
 
-                           
+                                   Param: <input type="text" name="targetparam<%=targetCount%>c<%=condCount%>" value="" />
+                                   Value: <input type="text" name="targetvalue<%=targetCount%>c<%=condCount%>" value="" />
+                               </li>
+
+
+                           </ul>
 
                            <!-- div style="width:200px;" -->
                            <ul style="display: inline;  list-style-type: none; ">
@@ -374,18 +437,16 @@ if(request.getParameter("demographic")==null){ %>
                                </li>
                                <%}%>
                            </ul>
-                           </td></tr>
+                           <!--  /div  -->
 
                    <%}
                     }targetCount++;%>
 
-				<tr><td>
-                   <h4>Target <%=targetCount%></h4>
+                   <h3>New Target <%=targetCount%></h3>
 
-                            
-					<div class="mtype-details">
-					<br />
-                               <select name="targettype<%=targetCount%>c1">
+                            <ul style="list-style-type: none;" >
+
+                               <li><select name="targettype<%=targetCount%>c1">
                                        <option value="-1">Not Set</option>
                                         <option value="getDataAsDouble"       >Number Value</option>
                                         <option value="isMale"              > Is Male </option>
@@ -393,17 +454,14 @@ if(request.getParameter("demographic")==null){ %>
                                         <option value="getNumberFromSplit"  > Number Split </option>
                                         <option value="isDataEqualTo"       >  String </option>
                                    </select>
-					</div>
-					
-					<div class="mtype-details">
-                                   Param: <br /><input type="text" name="targetparam<%=targetCount%>c1" value="" />
-                    </div>
-                    
-                    <div class="mtype-details">
-                                   Value: <br /><input type="text" name="targetvalue<%=targetCount%>c1" value="" />
-                    </div>               
-                     <br />
-  
+
+                                   Param: <input type="text" name="targetparam<%=targetCount%>c1" value="" />
+                                   Value: <input type="text" name="targetvalue<%=targetCount%>c1" value="" />
+                               </li>
+
+
+                           </ul>
+
                            <!-- div style="width:200px;" -->
                            <ul style="display: inline;  list-style-type: none; ">
                                <%Enumeration en = colourHash.keys();
@@ -414,51 +472,27 @@ if(request.getParameter("demographic")==null){ %>
                                </li>
                                <%}%>
                            </ul>
-						</td></tr>
-						</table>
-						
+
                     </div>
-               
-				<div style="width:100%;text-align:right">
-				<%if(request.getParameter("demographic")==null){ %>
-				<a href="EditFlowsheet.jsp?flowsheet=<%=flowsheet%>" class="btn">Cancel</a>
-				<%}else{ %>
-                <a href="EditFlowsheet.jsp?flowsheet=<%=flowsheet%>&demographic=<%=demographic%><%=htQueryString%>" class="btn">Cancel</a> 
-                <%} %>
-                <input type="submit" class="btn btn-primary" value="Update" />
                 </div>
-                
+
+                <input type="submit" value="Update" />
             </fieldset>
-           </form>
-           </div>
-    </div>
+        </form>
 
-<div id="scrollToTop"><a href="#updateFlowsheetBody"><i class="icon-arrow-up"></i>Top</a></div>
-
-
-<script src="<%=request.getContextPath() %>/js/jquery-1.9.1.js"></script> 
-<script src="<%=request.getContextPath() %>/js/bootstrap.min.js"></script>	
-<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery.dataTables.js"></script>
-
-<script src="<%=request.getContextPath() %>/js/jquery.validate.js"></script>
-
-<script>
-$(document).ready(function () {
-	var h = $(document).height();
-	parent.parent.document.getElementById('trackerSlim').style.height = h+"px";
-	
-	$(document).scroll(function () {
-	    var y = $(this).scrollTop();
-	    if (y > 60) {
-	        $('#scrollToTop').fadeIn();
-	    } else {
-	        $('#scrollToTop').fadeOut();
-	    }
-	});
-
-});
-</script>
-
+</div>
+</td>
+</tr>
+<tr>
+    <td class="MainTableBottomRowLeftColumn">
+        &nbsp;
+    </td>
+    <td class="MainTableBottomRowRightColumn" valign="top">
+        &nbsp;
+    </td>
+</tr>
+</table>
+<script type="text/javascript" src="../../share/javascript/boxover.js"></script>
 </body>
 </html:html>
 <%!

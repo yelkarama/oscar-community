@@ -26,7 +26,7 @@ package org.oscarehr.common;
 public enum Gender {
 	M("Male"),
 	F("Female"),
-	T("Transgender"),
+	T("Transgendered"),
 	O("Other"),
 	U("Undefined");
 	

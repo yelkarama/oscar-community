@@ -17,33 +17,20 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 --%>
+<%
+  if(session.getValue("user") == null) 
+    response.sendRedirect("../logout.htm");
+  String curUser_no,userfirstname,userlastname;
+  curUser_no = (String) session.getAttribute("user");    
+  userfirstname = (String) session.getAttribute("userfirstname");
+  userlastname = (String) session.getAttribute("userlastname");
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
 %>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin.billing,_admin" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_admin&type=_admin.billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%
-
-  String curUser_no = (String) session.getAttribute("user");    
-%>
-<%@ page import="java.math.*, java.util.*, java.sql.*, oscar.*, java.net.*" errorPage="../errorpage.jsp"%>
-<%@page import="org.oscarehr.util.SpringUtils" %>
-<%@page import="org.oscarehr.common.dao.BillingServiceDao" %>
-<%@page import="org.oscarehr.common.model.BillingService" %>
-<%
-	BillingServiceDao billingServiceDao = SpringUtils.getBean(BillingServiceDao.class);
-%>
+<%@ page
+	import="java.math.*, java.util.*, java.sql.*, oscar.*, java.net.*"
+	errorPage="../errorpage.jsp"%>
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean"
+	scope="session" />
 <html>
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
@@ -52,6 +39,7 @@ if(!authed) {
 <!--
 function CodeAttach(File0, File1, File2) {
       
+      self.close();
 <% 
 if(request.getParameter("nameF") != null) {
 		out.println("self.opener." + request.getParameter("nameF") + " = File0;");
@@ -61,7 +49,6 @@ if(request.getParameter("nameF") != null) {
       self.opener.document.serviceform.xml_other2.value = File1;
       self.opener.document.serviceform.xml_other3.value = File2;
 <% } %>
-      self.close();
 }
 -->
 </script>
@@ -122,11 +109,12 @@ if(request.getParameter("nameF") != null) {
   
  int rowsAffected=0;
     
-	for( BillingService bs:billingServiceDao.findByServiceCode(code)) {
-  		bs.setDescription(request.getParameter(code));
-  		billingServiceDao.merge(bs);
-  		rowsAffected++;
-  	}
+    String[] param1 =new String[2];
+	  param1[0]=request.getParameter(code);
+	  param1[1]=code;
+//	  param1[1]=request.getParameter("apptProvider_no"); param1[2]=request.getParameter("appointment_date"); param1[3]=MyDateFormat.getTimeXX_XX_XX(request.getParameter("start_time"));
+  	 rowsAffected = apptMainBean.queryExecuteUpdate(param1,"updatebillservice");
+ 
 %>
 <%
 %>

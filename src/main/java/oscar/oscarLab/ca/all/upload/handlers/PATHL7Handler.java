@@ -39,7 +39,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.log4j.Logger;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -54,7 +53,7 @@ public class PATHL7Handler implements MessageHandler {
 
 	Logger logger = Logger.getLogger(PATHL7Handler.class);
 
-	public String parse(LoggedInInfo loggedInInfo, String serviceName, String fileName, int fileId, String ipAddr) {
+	public String parse(String serviceName, String fileName, int fileId) {
 		Document doc = null;
 		try {
 			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
@@ -72,7 +71,7 @@ public class PATHL7Handler implements MessageHandler {
 				for (i = 0; i < messages.getLength(); i++) {
 
 					String hl7Body = messages.item(i).getFirstChild().getTextContent();
-					MessageUploader.routeReport(loggedInInfo, serviceName, "PATHL7", hl7Body, fileId);
+					MessageUploader.routeReport(serviceName, "PATHL7", hl7Body, fileId);
 
 				}
 			} catch (Exception e) {

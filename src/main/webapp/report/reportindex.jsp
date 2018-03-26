@@ -23,22 +23,6 @@
     Ontario, Canada
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed2=true;
-%>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_report,_admin.reporting" rights="r" reverse="<%=true%>">
-	<%authed2=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_report&type=_admin.reporting");%>
-</security:oscarSec>
-<%
-if(!authed2) {
-	return;
-}
-%>
-
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%
 String country = request.getLocale() .getCountry();
@@ -62,24 +46,25 @@ String billingRegion = (oscar.OscarProperties.getInstance()).getProperty("billre
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%@ taglib uri="/WEB-INF/caisi-tag.tld" prefix="caisi"%>
 
 <%
 
+	if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
+	String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
 	
     boolean isSiteAccessPrivacy=false;
     boolean isTeamAccessPrivacy=false; 
     String provider_dboperation = "search_provider";
     String mygroup_dboperation = "search_group";
 %>
-<security:oscarSec objectName="_site_access_privacy" roleName="<%=roleName2$%>" rights="r" reverse="false">
+<security:oscarSec objectName="_site_access_privacy" roleName="<%=roleName$%>" rights="r" reverse="false">
 	<%
 		isSiteAccessPrivacy =true;
 		provider_dboperation = "site_search_provider";
 		mygroup_dboperation = "site_search_group";
 	%>
 </security:oscarSec>
-<security:oscarSec objectName="_team_access_privacy" roleName="<%=roleName2$%>" rights="r" reverse="false">
+<security:oscarSec objectName="_team_access_privacy" roleName="<%=roleName$%>" rights="r" reverse="false">
 	<%
 		isTeamAccessPrivacy =true; 
 		provider_dboperation = "team_search_provider";
@@ -122,9 +107,9 @@ function selectprovider(s) {
 
 function ogo() {
   var region = '<%=billingRegion%>';
-  var s = document.getElementsByName("startDate")[0].value;
+  var s = document.report.startDate.value.replace('/', '-');
   s = s.replace('/', '-');
-  var e = document.getElementsByName("endDate")[0].value;
+  var e = document.report.endDate.value.replace('/', '-');
   e = e.replace('/', '-');
   var u = '';
   if (region == "BC") u = 'reportbcedblist.jsp?startDate=' + s + '&endDate=' + e;
@@ -134,9 +119,9 @@ function ogo() {
 
 function ogo2() {
   var region = '<%=billingRegion%>';  
-  var s = document.getElementsByName("startDate")[0].value;
+  var s = document.report.startDate.value.replace('/', '-');
   s = s.replace('/', '-');
-  var e = document.getElementsByName("endDate")[0].value;
+  var e = document.report.endDate.value.replace('/', '-');
   e = e.replace('/', '-');
   var u = '';
   if (region == "BC") u = 'reportbcedblist2007.jsp?startDate=' + s + '&endDate=' + e;
@@ -155,21 +140,19 @@ function popupPageNew(vheight,vwidth,varpage) {
   }
 }
 
-
-
 function go(r) {
-  var s = document.getElementsByName("provider_no")[0].value;
-  var t = document.getElementsByName("sdate")[0].value;
-  var u = document.getElementsByName("asdate")[0].value;
-  var v = document.getElementsByName("aedate")[0].value;
-  var y = document.getElementsByName("sTime")[0].value;
-  var z = document.getElementsByName("eTime")[0].value;
-  var ro = document.getElementById("rosteredOnly").checked;
-  var td = document.getElementsByName("tabDay")[0].value;
+//s.options[s.selectedIndex].value
+  var s = document.report.provider_no.value ;
+  var t = document.report.sdate.value ;
+  var u = document.report.asdate.value ;
+  var v = document.report.aedate.value ;
+  var y = document.report.sTime.value ;
+  var z = document.report.eTime.value ;  
+  var ro = document.report.rosteredOnly.checked;
   var w = 'reportdaysheet.jsp?dsmode=' + r + '&provider_no=' + s +'&sdate='+ t;
   var x = 'reportdaysheet.jsp?dsmode=' + r + '&provider_no=' + s +'&sdate='+ u + '&edate=' + v + '&sTime=' + y + '&eTime=' + z ;
   var x2 = 'reportdaysheet.jsp?dsmode=' + r + '&provider_no=' + s +'&sdate='+ u + '&edate=' + v + '&sTime=' + y + '&eTime=' + z + '&rosteredStatus=true';
-  var y2 =  'tabulardaysheetreport.jsp?provider_no=' + s +'&sdate=' + td.replace('/', '-');
+  var y2 =  'tabulardaysheetreport.jsp?provider_no=' + s +'&sdate=' + document.report.tabDay.value.replace('/', '-');
 
 if (r=='tab')
 {
@@ -188,20 +171,18 @@ else if(r=='new') {
 }
 
 function gonew(r) {
-
-var s = document.getElementsByName("provider_no")[0].value;
-var t = document.getElementsByName("sdate")[0].value;
-var u = document.getElementsByName("asdate")[0].value;
-var v = document.getElementsByName("aedate")[0].value;
-var y = document.getElementsByName("sTime")[0].value;
-var z = document.getElementsByName("eTime")[0].value;
-var ro = document.getElementById("rosteredOnly").checked;
-var td = document.getElementsByName("tabDay")[0].value;
-
+//s.options[s.selectedIndex].value
+var s = document.report.provider_no.value ;
+var t = document.report.sdate.value ;
+var u = document.report.asdate.value ;
+var v = document.report.aedate.value ;
+var y = document.report.sTime.value ;
+var z = document.report.eTime.value ;
+var ro = document.report.rosteredOnly.checked;
 var w = 'reportdaysheet2.jsp?dsmode=' + r + '&provider_no=' + s +'&sdate='+ t;
 var x = 'reportdaysheet2.jsp?dsmode=' + r + '&provider_no=' + s +'&sdate='+ u + '&edate=' + v + '&sTime=' + y + '&eTime=' + z ;
 var x2 = 'reportdaysheet2.jsp?dsmode=' + r + '&provider_no=' + s +'&sdate='+ u + '&edate=' + v + '&sTime=' + y + '&eTime=' + z + '&rosteredStatus=true';
-var y2 =  'tabulardaysheetreport.jsp?provider_no=' + s +'&sdate=' + td.replace('/', '-');
+var y2 =  'tabulardaysheetreport.jsp?provider_no=' + s +'&sdate=' + document.report.tabDay.value.replace('/', '-');
 
 if (r=='tab')
  {
@@ -220,33 +201,32 @@ popupPage(600,750,w);
    }
 
 function ggo(r) {
-  var s = document.getElementsByName("pprovider_no")[0].value;
-  var t = document.getElementsByName("ssdate")[0].value;
-  
+//s.options[s.selectedIndex].value
+  var s = document.report.pprovider_no.value ;
+  var t = document.report.ssdate.value ;
   var u = 'reportapptsheet.jsp?dsmode=' + r + '&provider_no=' + s +'&sdate='+ t;
 	popupPage(600,750,u);
 }
 ONCLICK ="popupPage(600,750,'reportpatientchartlist.jsp')"
 function pcgo() {
-  var s = document.getElementsByName("pcprovider_no")[0].value;
+  var s = document.report.pcprovider_no.value ;
   var u = 'reportpatientchartlist.jsp?provider_no=' + s;
 	popupPage(600,750,u);
 }
 function opcgo() {
-  var s = document.getElementsByName("opcprovider_no")[0].value;
-  var a = document.getElementsByName("age")[0].value;
+  var s = document.report.opcprovider_no.value ;
+  var a = document.report.age.value ;
   var u = 'reportpatientchartlistspecial.jsp?provider_no=' + s + '&age=' + a;
 	popupPage(600,1010,u);
 }
 function nsgo() {
-  var s = document.getElementsByName("nsprovider_no")[0].value;
-  var t = document.getElementsByName("nsdate")[0].value;
+  var s = document.report.nsprovider_no.value ;
+  var t = document.report.nsdate.value ;
   var u = 'reportnoshowapptlist.jsp?provider_no=' + s +'&sdate='+ t;
 	popupPage(600,750,u);
 }
 function popUpWaitingList(vheight,vwidth,varpage) {
-	var listIdObject = document.getElementsByName("list_id")[0];
-	var page = varpage + listIdObject.options[listIdObject.selectedIndex].value;
+    var page = varpage + document.report.list_id.options[document.report.list_id.selectedIndex].value;
     windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=0,screenY=0,top=0,left=0";
     var popup=window.open(page, "Waiting List", windowprops);
 }
@@ -261,15 +241,10 @@ GregorianCalendar cal = (GregorianCalendar) now.clone();
 String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.get(Calendar.DATE) ;
 %>
 <form name='report'>
-<table border=0 cellspacing=0 cellpadding=0 width="100%">
+        <table border=0 cellspacing=0 cellpadding=0 width="100%">
 	<tr bgcolor="#486ebd">
-		<td align=LEFT><font face="Helvetica" color="#FFFFFF"><bean:message key="report.reportindex.msgTitle" /></td>
-		<td align=RIGHT>
-		<span class="HelpAboutLogout">
-			<oscar:help keywords="&Title=Report+Tab&portal_type%3Alist=Document" key="app.top1" style="color:white; font-size:10px;font-style:normal;"/>&nbsp;
-        		<a style="color:white; font-size:10px;font-style:normal;" href="<%=request.getContextPath()%>/oscarEncounter/About.jsp" target="_new"><bean:message key="global.about" /></a>
-		</span> </font>
-		</td>
+		<th align=CENTER NOWRAP><font face="Helvetica" color="#FFFFFF"><bean:message
+			key="report.reportindex.msgTitle" /></font></th>
 	</tr>
 </table>
 <table border="0" cellpadding="0" cellspacing="0" width="95%">
@@ -290,13 +265,13 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 			ONCLICK="ogo2()">05</a> <% } %>
 		</td>
 		<td><a HREF="#"
-			onClick="popupPage(310,430,'../share/CalendarPopup.jsp?urlfrom=../report/reportindex.jsp&year=<%=now.get(Calendar.YEAR)%>&month=<%=now.get(Calendar.MONTH)+1%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('startDate')[0].value")%>')">
+			onClick="popupPage(310,430,'../share/CalendarPopup.jsp?urlfrom=../report/reportindex.jsp&year=<%=now.get(Calendar.YEAR)%>&month=<%=now.get(Calendar.MONTH)+1%>&param=<%=URLEncoder.encode("&formdatebox=document.report.startDate.value")%>')">
 		<bean:message key="report.reportindex.formFrom" /></a> 
 		<%-- any early default start date should suffice for reporting all --%>
 		<INPUT TYPE="text" NAME="startDate" VALUE="<%=today%>" size='10'>
 		</td>
 		<td><a HREF="#"
-			onClick="popupPage(310,430,'../share/CalendarPopup.jsp?urlfrom=../report/reportindex.jsp&year=<%=now.get(Calendar.YEAR)%>&month=<%=now.get(Calendar.MONTH)+1%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('endDate')[0].value")%>')">
+			onClick="popupPage(310,430,'../share/CalendarPopup.jsp?urlfrom=../report/reportindex.jsp&year=<%=now.get(Calendar.YEAR)%>&month=<%=now.get(Calendar.MONTH)+1%>&param=<%=URLEncoder.encode("&formdatebox=document.report.endDate.value")%>')">
 		<bean:message key="report.reportindex.formTo" /></a> <INPUT TYPE="text"
 			NAME="endDate" VALUE="<%=today%>" size='10'></td>
 		<td><INPUT TYPE="button" NAME="button"
@@ -304,7 +279,7 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 			onClick="ogo()"></td>
 		<td></td>
 	</tr>
-	
+	<% if (!country.equals("BR")) {  %>
 	<tr>
 		<td width="2"><%=j%>
 		<%j++;%>
@@ -318,7 +293,7 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 		<td></td>
 		<td></td>
 	</tr>
-	
+	<% }%>
 	<tr>
 		<td width="2"><%=j%>
 		<%j++;%>
@@ -364,11 +339,11 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
                         <sup>*</sup><a HREF="#" ONCLICK="go('all')"><bean:message
 			key="report.reportindex.btnAllAppt" /></a><br>&nbsp;&nbsp; <bean:message key="report.reportindex.chkRostered"/> <input type="checkbox" id="rosteredOnly" value="true"> </td>
 		<td><a HREF="#"
-			onClick="popupPage(310,430,'../share/CalendarPopup.jsp?urlfrom=../report/reportindex.jsp&year=<%=now.get(Calendar.YEAR)%>&month=<%=now.get(Calendar.MONTH)+1%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('asdate')[0].value")%>')"><bean:message
+			onClick="popupPage(310,430,'../share/CalendarPopup.jsp?urlfrom=../report/reportindex.jsp&year=<%=now.get(Calendar.YEAR)%>&month=<%=now.get(Calendar.MONTH)+1%>&param=<%=URLEncoder.encode("&formdatebox=document.report.asdate.value")%>')"><bean:message
 			key="report.reportindex.formFrom" /></a> <input type='text' name="asdate"
 			VALUE="<%=today%>" size=10></td>
 		<td><a HREF="#"
-			onClick="popupPage(310,430,'../share/CalendarPopup.jsp?urlfrom=../report/reportindex.jsp&year=<%=now.get(Calendar.YEAR)%>&month=<%=now.get(Calendar.MONTH)+1%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('aedate')[0].value")%>')"><bean:message
+			onClick="popupPage(310,430,'../share/CalendarPopup.jsp?urlfrom=../report/reportindex.jsp&year=<%=now.get(Calendar.YEAR)%>&month=<%=now.get(Calendar.MONTH)+1%>&param=<%=URLEncoder.encode("&formdatebox=document.report.aedate.value")%>')"><bean:message
 			key="report.reportindex.formTo" /> </a> <input type='text' name="aedate"
 			VALUE="<%=today%>" size=10></td>
 		<td><select name="sTime">
@@ -415,12 +390,12 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
     <!-- add lab day sheet -->
         <script type="text/javascript">
         function labgo(s) {
-                var t = document.getElementsByName("apptDate")[0].value;
+                var t = document.report.apptDate.value ;
                 var u = 'printLabDaySheetAction.do?xmlStyle=labDaySheet.xml&input_date=' + t;
                 popupPage(600,1000,u);
         }
         function labgo1(s) {
-        	var t = document.getElementsByName("apptDate1")[0].value;
+                var t = document.report.apptDate1.value ;
                 var u = 'printLabDaySheetAction.do?xmlStyle=billDaySheet.xml&input_date=' + t;
                 popupPage(600,1000,u);
         }
@@ -632,7 +607,7 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
                 String NoShowEDate = cal.get(Calendar.YEAR)+"-"+(cal.get(Calendar.MONTH)+1)+"-"+cal.get(Calendar.DATE);
             	%> <bean:message key="report.reportindex.msgStart"/>: <input name="nsdate" type="input" size="8"
 			id="NoShowDate" <%=NoShowEDate%>> <a HREF="#"
-			onClick="popupPage(310,430,'../share/CalendarPopup.jsp?urlfrom=../report/reportindex.jsp&year=<%=now.get(Calendar.YEAR)%>&month=<%=now.get(Calendar.MONTH)+1%>&param=<%=URLEncoder.encode("&formdatebox=document.getElementsByName('nsdate')[0].value")%>')"><img
+			onClick="popupPage(310,430,'../share/CalendarPopup.jsp?urlfrom=../report/reportindex.jsp&year=<%=now.get(Calendar.YEAR)%>&month=<%=now.get(Calendar.MONTH)+1%>&param=<%=URLEncoder.encode("&formdatebox=document.report.nsdate.value")%>')"><img
 			title=Calendar " src="../images/cal.gif" alt="Calendar" border="0"><a>
 
 
@@ -668,7 +643,10 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 		<td></td>
 		<td></td>
 	</tr>
-
+	<%
+       // If country = Brazil, do not show the following links:
+       if (!country.equals("BR")) {
+    %>
 	<tr>
 		<td width="2"><%=j%>
 		<%j++;%>
@@ -735,7 +713,7 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
 		<td></td>
 		<td></td>
 	</tr>
-	
+	<% } // end - if country %>
 	<tr>
 		<td width="2"><%=j%>
 		<%j++;%>
@@ -808,18 +786,18 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
     <tr>
         <td width="2"><%=j%><%j++;%></td>
         <td width="1"></td>
-        <td width="300"><a href="../oscarReport/OSISReport.jsp" title="Off Streets into Shelters (OSIS) is a report based off of a Hamilton Public Health eForm" target="_blank"><bean:message key="report.reportindex.btnOSISReport"/></a></td>
+        <td width="300"><a href="../oscarReport/OSISReport.jsp" target="_blank" title="Report that is based off of Hamilton Public Health eForm - Off the Streets into Shelters"><bean:message key="report.reportindex.btnOSISReport"/></a></td>
         <td></td>
         <td></td>
         <td></td>
         <td></td>
     </tr>
-     <tr>
+    <tr>
 	<td width="2"><%=j%><%j++;%></td>
 	<td width="1"></td>
 	<td width="300"><a title="Report that is based off of a Hamilton Public Health eForm for One Time Consults" href="../oscarReport/CDSOneTimeConsultReport.jsp" target="_blank"><bean:message key="report.reportindex.btnCDSOneTimeConsultReport"/></a></td>
-
-     </tr>   
+    </tr>
+        
      <tr></tr>  
      <tr></tr>
      
@@ -827,33 +805,42 @@ String today = now.get(Calendar.YEAR)+"-"+(now.get(Calendar.MONTH)+1)+"-"+now.ge
     	<td colspan='3' align="left">
     <c:if
 	test="${sessionScope.userrole ne 'er_clerk' and sessionScope.userrole ne 'Vaccine Provider'}">
-
-	<div><span>CAISI Reporting Tools</span> 
-	<caisi:isModuleLoad moduleName="caisi">
-		<div><a HREF="../PMmodule/ClientManager.do?method=getGeneralFormsReport" target="generalFormsReport">General Forms Reports</a></div>
-		<div><a href="javascript:void(0);" onclick="javascript:getIntakeReport('quick');return false;">Registration Intake Report</a></div>
-		<div><a href="javascript:void(0);" onclick="javascript:getIntakeReport('indepth');return false;">Follow-up Intake Report</a></div>
-		<div><html:link action="/PMmodule/Reports/ProgramActivityReport.do">Activity Report</html:link></div>
-		<div><html:link action="/SurveyManager.do?method=reportForm">User Created Form Report</html:link></div>
-		<div><html:link action="QuatroReport/ReportList.do">Quatro Report Runner</html:link></div>
-		<div><a href="javascript:void(0);" onclick="javascript:createStreetHealthReport();return false;">Street Health Mental Health Report</a></div>
+	<div><span>CAISI Reporting Tools</span> <caisi:isModuleLoad
+		moduleName="TORONTO_RFQ" reverse="true">
+				
+		<div><a HREF="../PMmodule/ClientManager.do?method=getGeneralFormsReport" target="generalFormsReport">General Forms Reports 
+		</a></div>
+		<div><a href="javascript:void(0);" onclick="javascript:getIntakeReport('quick');return false;">Registration
+		Intake Report</a></div>
+		<div><a href="javascript:void(0);" onclick="javascript:getIntakeReport('indepth');return false;">Follow-up
+		Intake Report</a></div>
+		  
+		<caisi:isModuleLoad moduleName="intakec.enabled">
+			<div><a href="javascript:void(0);" onclick="javascript:createIntakeCReport1();return false;">Street
+			Health Mental Health Report</a></div>
+		</caisi:isModuleLoad>
+		
+		<div><html:link action="/PMmodule/Reports/ProgramActivityReport.do">Activity Report</html:link>
+		</div>
+		<%--
+                <div>
+                    <html:link action="/PMmodule/Reports/ClientListsReport">Client Lists Report</html:link>
+                </div>
+                --%>
+		<div><html:link action="/SurveyManager.do?method=reportForm">User Created Form Report</html:link>
+		</div>
+		</caisi:isModuleLoad> <caisi:isModuleLoad moduleName="TORONTO_RFQ" reverse="false">
+			<div><html:link action="QuatroReport/ReportList.do">Quatro Report Runner</html:link>
+			</div>
+		</caisi:isModuleLoad> <caisi:isModuleLoad moduleName="streethealth">
+		<div><a href="javascript:void(0);" onclick="javascript:createStreetHealthReport();return false;">Street
+		Health Mental Health Report</a></div>
 	</caisi:isModuleLoad></div>
 </c:if> 
 	
     </td>
     </tr>
-
-
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_admin,_admin.reporting" rights="r" reverse="<%=false%>">
-    <tr>
-	<td width="2"><%=j%><%j++;%></td>
-	<td width="1"></td>
-	<td width="300"><a href="javascript:void(0);" onclick="popupPage(600,800,'../oscarReport/reportByTemplate/homePage.jsp')"><bean:message key="admin.admin.rptbyTemplate" /></a></td>
-
-    </tr>      
-</security:oscarSec>
-
-    <tr><td>&nbsp;</td></tr>
+    
     <tr>
         <td colspan='3' align="left"><input type="button" name="Button" value="<bean:message key="report.reportindex.btnCancel"/>" onClick="window.close()"></td>
         <td></td>

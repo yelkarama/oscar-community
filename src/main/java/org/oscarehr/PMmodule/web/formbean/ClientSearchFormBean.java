@@ -141,7 +141,9 @@ public class ClientSearchFormBean {
 	public boolean isSearchUsingSoundex() {
 		return searchUsingSoundex;
 	}
-
+	/**
+	 * @param searchUsingSondex The searchOutsideDomain to set.
+	 */
 	public void setSearchUsingSoundex(boolean searchUsingSoundex) {
 		this.searchUsingSoundex = searchUsingSoundex;
 	}

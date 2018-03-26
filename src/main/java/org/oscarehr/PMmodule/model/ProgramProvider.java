@@ -24,8 +24,6 @@
 package org.oscarehr.PMmodule.model;
 
 import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
 
 import org.oscarehr.common.model.Provider;
 
@@ -47,9 +45,6 @@ public class ProgramProvider implements Serializable {
     private java.util.Set<org.oscarehr.PMmodule.model.ProgramTeam> _teams;
     private String programName;
     private Program program;
-    
-    private String lastUpdateUser;
-    private Date lastUpdateDate;
 
     // constructors
 	public ProgramProvider () {
@@ -90,7 +85,7 @@ public class ProgramProvider implements Serializable {
 
     /**
 	 * Return the unique identifier of this class
-* 
+* @hibernate.id
 *  generator-class="native"
 *  column="id"
 */
@@ -153,7 +148,7 @@ public class ProgramProvider implements Serializable {
     }
 
     /**
-     * 
+     * @hibernate.property
 *  column=role_id
      */
     public Secrole getRole () {
@@ -169,7 +164,7 @@ public class ProgramProvider implements Serializable {
     }
 
     /**
-     * 
+     * @hibernate.property
 *  column=provider_no
      */
     public Provider getProvider () {
@@ -228,33 +223,4 @@ public class ProgramProvider implements Serializable {
     public String toString () {
         return super.toString();
     }
-
-	public static String getIdsAsStringList(List<ProgramProvider> results) {
-		StringBuilder sb = new StringBuilder();
-
-		for (ProgramProvider model : results) {
-			sb.append(model.getId().toString());
-			sb.append(',');
-		}
-
-		return (sb.toString());
-	}
-
-	public String getLastUpdateUser() {
-		return lastUpdateUser;
-	}
-
-	public void setLastUpdateUser(String lastUpdateUser) {
-		this.lastUpdateUser = lastUpdateUser;
-	}
-
-	public Date getLastUpdateDate() {
-		return lastUpdateDate;
-	}
-
-	public void setLastUpdateDate(Date lastUpdateDate) {
-		this.lastUpdateDate = lastUpdateDate;
-	}
-	
-	
 }

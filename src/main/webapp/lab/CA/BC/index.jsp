@@ -23,73 +23,32 @@
     Ontario, Canada
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-	  boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_lab" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../../securityError.jsp?type=_lab");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%@page import="oscar.util.ConversionUtils"%>
-<%@page import="org.oscarehr.common.model.Demographic"%>
-<%@page import="org.oscarehr.billing.CA.BC.model.Hl7Obr"%>
-<%@page import="org.oscarehr.billing.CA.BC.model.Hl7Pid"%>
-<%@page import="java.util.List"%>
-<%@page import="java.sql.ResultSet" %>
-<%@page import="org.oscarehr.util.SpringUtils" %>
-<%@page import="org.oscarehr.billing.CA.BC.dao.Hl7LinkDao" %>
-<%@page import="org.oscarehr.billing.CA.BC.model.Hl7Link" %>
-
 <%  
-
-	Hl7LinkDao linkDao = SpringUtils.getBean(Hl7LinkDao.class);
-	
+	if(session.getAttribute("user") == null || !session.getAttribute("userprofession").equals("doctor")){
+    	response.sendRedirect("../../../logout.jsp");
+   }
+    String
+    	update_linking = "UPDATE hl7_link SET hl7_link.status='N' WHERE hl7_link.pid_id='@pid'",
+    	insert_auto_matching = "INSERT INTO hl7_link ( pid_id, demographic_no ) SELECT hl7_pid.pid_id, demographic.demographic_no FROM demographic, hl7_pid LEFT JOIN hl7_link ON hl7_pid.pid_id=hl7_link.pid_id WHERE demographic.hin=hl7_pid.external_id AND hl7_link.pid_id IS NULL",
+    	delete_linking = "DELETE FROM hl7_link WHERE hl7_link.pid_id='@pid'",
+    	insert_linking = "INSERT INTO hl7_link ( pid_id, demographic_no ) VALUES ('@pid', '@demo'); ",
+    	select_lab_matching = "SELECT DISTINCT hl7_pid.pid_id, hl7_pid.patient_name, hl7_pid.date_of_birth as birth, hl7_pid.sex, demographic.demographic_no, demographic.last_name, demographic.first_name, demographic.year_of_birth as year, demographic.month_of_birth as month, demographic.date_of_birth as day, hl7_obr.ordering_provider, hl7_obr.result_copies_to FROM hl7_pid left join hl7_link on hl7_link.pid_id=hl7_pid.pid_id left join demographic on hl7_link.demographic_no=demographic.demographic_no left join hl7_obr on hl7_pid.pid_id=hl7_obr.pid_id WHERE hl7_link.status='P' OR hl7_link.status is null;";
     if(request.getParameterValues("chk")!= null){
     	String[] values = request.getParameterValues("chk");
     	for(int i = 0; i < values.length; ++i){
-    		Hl7Link l = linkDao.find(Integer.parseInt(values[i]));
-    		if(l != null) {
-    			l.setStatus("N");
-    			linkDao.merge(l);
-    		}
+    		DBHandler.RunSQL(update_linking.replaceAll("@pid", values[i]));
     	}
     }
-
-    for(Object[] o : linkDao.findMagicLinks()) {
-    	Demographic demo = (Demographic) o[0];
-    	Hl7Pid pid = (Hl7Pid) o[0];
-    	Hl7Link link = (Hl7Link) o[0];
-    	
-		Hl7Link h = new Hl7Link();
-		h.setId(pid.getId());
-		h.setDemographicNo(demo.getDemographicNo());
-		linkDao.persist(h);
-    }
-	
+	DBHandler.RunSQL(insert_auto_matching);
     if(request.getParameter("demo_id") != null && request.getParameter("pid") != null){
-    	
-    	linkDao.remove(linkDao.find(Integer.parseInt(request.getParameter("pid"))));
-    	
-    	Hl7Link h = new Hl7Link();
-    	h.setId(Integer.parseInt(request.getParameter("pid")));
-    	h.setDemographicNo(Integer.parseInt(request.getParameter("demo_id")));
-    	linkDao.persist(h);
-    	
+    	DBHandler.RunSQL(delete_linking.replaceAll("@pid", request.getParameter("pid")));
+    	DBHandler.RunSQL(insert_linking.replaceAll("@pid", request.getParameter("pid")).replaceAll("@demo", request.getParameter("demo_id")));
     }
 %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 
-<html:html>
+<%@page import="oscar.oscarDB.DBHandler"%><html:html>
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>OSCAR oscarPathNET - Patient Linking</title>
@@ -144,41 +103,25 @@ function PopupLab(pid){
 		<td class="Header">BirthDate</td>
 	</tr>
 	<%
+		java.sql.ResultSet result = DBHandler.GetSQL(select_lab_matching);
 		boolean other = true;
-		for(Object[] o : linkDao.findLabs()) {
-			Hl7Pid pid = (Hl7Pid) o[0]; 
-			Hl7Link link = (Hl7Link) o[1]; 
-			Hl7Obr obr = (Hl7Obr) o[2];
-			Demographic demo = (Demographic) o[3];
+		while(result.next()){
 %>
 	<tr class="<%=(other? "WhiteBG" : "LightBG")%>">
 		<td class="Text"><input type="checkbox" name="chk"
-			value="<%=pid.getId()%>" /></td>
+			value="<%=result.getString("pid_id")%>" /></td>
 		<td class="Text"><a href="#"
-			onclick="return PopupLab('<%=pid.getId()%>');"><%=oscar.Misc.check(pid.getPatientName(), "")%></a></td>
-		<td class="Text">
-			<%=ConversionUtils.toDateString(pid.getDateOfBirth())%>
-		</td>
-		<td class="Text" align="center">
-			<%=oscar.Misc.check(pid.getSex(), "")%>
-		</td>
-		<td class="Text">
-			<%=oscar.Misc.check(obr.getOrderingProvider(), "").replaceAll("~", ",<br/>")%>
-		</td>
-		<td class="Text" style="border-right: #464646 1px solid;">
-			<%=oscar.Misc.check(obr.getResultCopiesTo(), "").replaceAll("~", ",<br/>")%>
-		</td>
-		<td class="Text" style="border-left: #464646 1px solid;">
-			<a href="#" onclick="return PopupDemo('<%=link.getId()%>');">
-				<%=oscar.Misc.check("" + demo.getDemographicNo(), "select")%>
-			</a>
-		</td>
-		<td class="Text">
-			<%= demo.getFullName()%>
-		</td>
-		<td class="Text">
-			<%=	demo.getBirthDayAsString() %>
-		</td>
+			onclick="return PopupLab('<%=result.getString("pid_id")%>');"><%=oscar.Misc.check(result.getString("patient_name"), "")%></a></td>
+		<td class="Text"><%=oscar.Misc.check(result.getString("birth").split(" ")[0], "")%></td>
+		<td class="Text" align="center"><%=oscar.Misc.check(result.getString("sex"), "")%></td>
+		<td class="Text"><%=oscar.Misc.check(result.getString("ordering_provider"), "").replaceAll("~", ",<br/>")%></td>
+		<td class="Text" style="border-right: #464646 1px solid;"><%=oscar.Misc.check(result.getString("result_copies_to"), "").replaceAll("~", ",<br/>")%></td>
+		<td class="Text" style="border-left: #464646 1px solid;"><a
+			href="#"
+			onclick="return PopupDemo('<%=result.getString("pid_id")%>');"><%=oscar.Misc.check(result.getString("demographic_no"), "select")%>
+		</a></td>
+		<td class="Text"><%=((result.getString("last_name")==null && result.getString("first_name")==null)? "" : result.getString("last_name") + ", " + result.getString("first_name"))%></td>
+		<td class="Text"><%=((result.getString("year")==null && result.getString("month")==null && result.getString("day")==null)? "" : result.getString("year") + "-" + result.getString("month") + "-" + result.getString("day"))%></td>
 	</tr>
 	<%
 			other=!other;

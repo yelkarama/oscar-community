@@ -23,10 +23,12 @@
     Ontario, Canada
 
 --%>
-<%@page import="org.oscarehr.billing.CA.BC.model.WcbNoiCode"%>
-<%@page import="org.oscarehr.util.SpringUtils"%>
-<%@page import="org.oscarehr.billing.CA.BC.dao.WcbNoiCodeDao"%>
-<html:html locale="true">
+<%
+  	if (session.getAttribute("user") == null){
+		response.sendRedirect("../../logout.jsp");
+	}
+%>
+<%@page import="oscar.oscarDB.DBHandler"%><html:html locale="true">
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title>OSCAR Nature of Injury</title>
@@ -71,18 +73,19 @@ function posttoText(index){
 	</tr>
 	<%
 	boolean color = false;
-	WcbNoiCodeDao dao = SpringUtils.getBean(WcbNoiCodeDao.class);
-	for(WcbNoiCode c : dao.findByCodeOrLevel(searchStr)){
+   String wherestr = "where code like '"+searchStr+"' or level1 like '"+searchStr+"' or level2 like '"+searchStr+"' or level3 like '"+searchStr+"'";
+	java.sql.ResultSet rs = DBHandler.GetSQL("SELECT code, level1, level2, level3, usagenote FROM wcb_noi_code "+wherestr+" ORDER BY level1, level2, level3");
+	while (rs.next()){
 %>
 	<tr <%=((color) ? "bgcolor=\"#F6F6F6\"" : "")%> align="left"
 		valign="top">
 		<td class="SmallerText"><a href=#
-			onClick="posttoText('<%=c.getCode()%>');"><%=c.getCode()%></a>
+			onClick="posttoText('<%=rs.getString("code")%>');"><%=rs.getString("code")%></a>
 		</td>
-		<td class="SmallerText"><%=c.getLevel1()%></td>
-		<td class="SmallerText"><%=c.getLevel2()%></td>
-		<td class="SmallerText"><%=c.getLevel3()%></td>
-		<td class="SmallerText"><%=c.getUsagenote()%></td>
+		<td class="SmallerText"><%=oscar.Misc.getString(rs,"level1")%></td>
+		<td class="SmallerText"><%=oscar.Misc.getString(rs,"level2")%></td>
+		<td class="SmallerText"><%=oscar.Misc.getString(rs,"level3")%></td>
+		<td class="SmallerText"><%=oscar.Misc.getString(rs,"usagenote")%></td>
 	</tr>
 	<%
 		color = !(color);

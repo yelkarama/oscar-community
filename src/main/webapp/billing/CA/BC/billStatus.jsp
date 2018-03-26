@@ -23,37 +23,18 @@
     Ontario, Canada
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
+  if(session.getValue("user") == null)
+    response.sendRedirect("../../../logout.jsp");
 %>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_report,_admin.reporting,_admin" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../../securityError.jsp?type=_report&type=_admin.reporting&type=_admin");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
 <%@ page import="java.math.*,java.util.*, java.sql.*, oscar.*, java.net.*,oscar.oscarBilling.ca.bc.MSP.*,oscar.util.*" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic" %>
-<%@page import="org.oscarehr.util.SpringUtils" %>
-<%@page import="org.oscarehr.common.dao.ReportProviderDao" %>
-<%@page import="org.oscarehr.common.model.ReportProvider" %>
-<%@page import="org.oscarehr.common.model.Provider" %>
-
-
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean" scope="session" /><jsp:useBean id="SxmlMisc" class="oscar.SxmlMisc" scope="session" />
+<%@ include file="dbBilling.jspf" %>
 <%
-	ReportProviderDao reportProviderDao = SpringUtils.getBean(ReportProviderDao.class);
-%>
-
-<%
+  String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
   java.text.NumberFormat nf = java.text.NumberFormat.getCurrencyInstance();
   String user_no;
   user_no = (String) session.getAttribute("user");
@@ -103,15 +84,15 @@ boolean adminAccess = false;
 <%@page import="org.oscarehr.util.MiscUtils"%><html>
 <head>
 <html:base/>
-<title><bean:message key="admin.admin.editInvoices"/></title>
-<link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
+<title>Invoice List</title>
+<link rel="stylesheet" type="text/css" media="all" href="../../../share/calendar/calendar.css" title="win2k-cold-1" />
 
-<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-1.9.1.min.js"></script>
-<script src="<%=request.getContextPath() %>/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="<%=request.getContextPath() %>/js/bootstrap-datepicker.js"></script>
-
-<link href="<%=request.getContextPath() %>/css/datepicker.css" rel="stylesheet" type="text/css">
-<link rel="stylesheet" href="<%=request.getContextPath() %>/css/font-awesome.min.css">
+<!--<script type="text/javascript" src="../../../share/javascript/sorttable.js"></script>-->
+<script type="text/javascript" src="../../../share/calendar/calendar.js"></script>
+<script type="text/javascript" src="../../../share/calendar/lang/<bean:message key="global.javascript.calendar"/>
+">
+</script>
+<script type="text/javascript" src="../../../share/calendar/calendar-setup.js"></script>
 
 <script>
 addEvent(window, "load", sortables_init);
@@ -302,9 +283,110 @@ function addEvent(elm, evType, fn, useCapture)
   }
 }
 
-</script>
-<script language="JavaScript">
 
+</script>
+<style type="text/css">
+	<!--
+	BODY                  {                     font-size: 8pt ; font-family: verdana,arial,helvetica; color: #000000; background-color: #FFFFFF;}
+	TD                    {                     font-size: 8pt ; font-family: verdana,arial,helvetica; color: #000000                                                    }
+	TD.black              {font-weight: bold  ; font-size: 8pt ; font-family: verdana,arial,helvetica; color: #FFFFFF; background-color: #666699   ;}
+	TD.lilac              {font-weight: normal; font-size: 8pt ; font-family: verdana,arial,helvetica; color: #000000; background-color: #EEEEFF  ;}
+	TD.boldlilac          {font-weight: normal; font-size: 8pt ; font-family: verdana,arial,helvetica; color: #000000; background-color: #EEEEFF  ;}
+	TD.lilac A:link       {font-weight: normal; font-size: 8pt ; font-family: verdana,arial,helvetica; color: #000000; background-color: #EEEEFF  ;}
+	TD.lilac A:visited    {font-weight: normal; font-size: 8pt ; font-family: verdana,arial,helvetica; color: #000000; background-color: #EEEEFF  ;}
+	TD.lilac A:hover      {font-weight: normal;                                                                            color: #000000; background-color: #CDCFFF  ;}
+	TD             {font-weight: normal; font-size: 8pt ; font-family: verdana,arial,helvetica; color: #000000; }
+	TD.heading            {font-weight: bold  ; font-size: 8pt ; font-family: verdana,arial,helvetica; color: #FDCB03; background-color: #666699   ;}
+	H2                    {font-weight: bold  ; font-size: 12pt; font-family: verdana,arial,helvetica; color: #000000; background-color: #FFFFFF;}
+	H3                    {font-weight: bold  ; font-size: 10pt; font-family: verdana,arial,helvetica; color: #000000; background-color: #FFFFFF;}
+	H4                    {font-weight: normal; font-size: 8pt ; font-family: verdana,arial,helvetica; color: #000000; background-color: #FFFFFF;}
+	H6                    {font-weight: bold  ; font-size: 7pt ; font-family: verdana,arial,helvetica; color: #000000; background-color: #FFFFFF;}
+	A:link                {                     font-size: 8pt ; font-family: verdana,arial,helvetica; color: #336666; }
+	A:visited             {                     font-size: 8pt ; font-family: verdana,arial,helvetica; color: #336666; }
+ 	A:hover               {                                                                            color: red; }
+	TD.cost               {font-weight: bold  ; font-size: 8pt ; font-family: verdana,arial,helvetica; color: red; background-color: #FFFFFF;}
+	TD A:link       {font-weight: bold  ; font-size: 8pt ; font-family: verdana,arial,helvetica; color: #000000; }
+	TD A:visited    {font-weight: bold  ; font-size: 8pt ; font-family: verdana,arial,helvetica; color: #000000; }
+	TD A:hover      {                                                                            color: #FDCB03; }
+	TD.title              {font-weight: bold  ; font-size: 10pt; font-family: verdana,arial,helvetica; color: #000000; background-color: #FFFFFF;}
+	TD.white A:link       {font-weight: normal; font-size: 8pt ; font-family: verdana,arial,helvetica; color: #000000; background-color: #FFFFFF;}
+	TD.white A:visited    {font-weight: normal; font-size: 8pt ; font-family: verdana,arial,helvetica; color: #000000; background-color: #FFFFFF;}
+	TD.white A:hover      {font-weight: normal; font-size: 8pt ; font-family: verdana,arial,helvetica; color: #000000; background-color: #CDCFFF  ;}
+	#navbar               {                     font-size: 8pt ; font-family: verdana,arial,helvetica; color: #FDCB03; background-color: #666699   ;}
+	SPAN.navbar A:link    {font-weight: bold  ; font-size: 8pt ; font-family: verdana,arial,helvetica; color: #FFFFFF; background-color: #666699   ;}
+	SPAN.navbar A:visited {font-weight: bold  ; font-size: 8pt ; font-family: verdana,arial,helvetica; color: #EFEFEF; background-color: #666699   ;}
+	SPAN.navbar A:hover   {                                                                            color: #FDCB03; background-color: #666699   ;}
+	SPAN.bold             {font-weight: bold  ;                                                                        background-color: #666699   ;}
+	-->
+        td.bCellData{ font-family: Arial,Helvetica,sans-serif; }
+        a.billType{ font-family: Arial,Helvetica,sans-serif; text-decoration: none;}
+        th.bHeaderData{ font-weight:bold; font-family: Arial,Helvetica,sans-serif; }
+
+.tabular_list th {
+	border:1px solid;
+	border-color:#ddd #999 #888 #ddd;
+	padding:2px;
+	padding-bottom:0px;
+	font-size:10pt;
+}
+.tabular_list td {
+	border:1px solid;
+	border-color:#fff #bbb #bbb #fff;
+	padding:1px;
+	font-size:9pt;
+}
+</style>
+<script language="JavaScript">
+<!--
+function popupPage(vheight,vwidth,varpage) { //open a new popup window
+  var page = "" + varpage;
+  windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes";
+  var popup=window.open(page, "attachment", windowprops);
+  if (popup != null) {
+    if (popup.opener == null) {
+      popup.opener = self;
+    }
+   popup.focus();
+  }
+}
+
+function popupPage2(vheight,vwidth,varpage,pagename) { //open a new popup window
+  var page = "" + varpage;
+  windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes";
+  var popup=window.open(page, pagename, windowprops);
+  if (popup != null) {
+    if (popup.opener == null) {
+      popup.opener = self;
+    }
+   popup.focus();
+  }
+}
+function selectprovider(s) {
+  if(self.location.href.lastIndexOf("&providerview=") > 0 ) a = self.location.href.substring(0,self.location.href.lastIndexOf("&providerview="));
+  else a = self.location.href;
+	self.location.href = a + "&providerview=" +s.options[s.selectedIndex].value ;
+}
+function openBrWindow(theURL,winName,features) { //v2.0
+  window.open(theURL,winName,features);
+}
+function setfocus() {
+  this.focus();
+}
+function refresh() {
+      history.go(0);
+
+}
+
+function fillEndDate(d){
+    document.serviceform.xml_appointment_date.value= d;
+
+}
+function setDemographic(demoNo){
+    document.serviceform.demographicNo.value = demoNo;
+}
+
+
+//-->
 
 function billTypeOnly(showEle){
    document.serviceform.showMSP.checked = false;
@@ -314,41 +396,22 @@ function billTypeOnly(showEle){
    document.serviceform.elements[showEle].checked = true;
 }
 </script>
-
-<script src="<%=request.getContextPath() %>/js/bootstrap.min.js"></script>
-
-<style>
-	input[type="text"] {
-		height: 30px;
-		width: 100px;
-	}
-
-@media print {
-
-  .hidden-print {
-    display: none !important;
-  }
-
-  
-  /*this is so the link locatons don't display*/
-  a:link:after, a:visited:after {
-    content: "";
-  }
-}
-</style>
-
 </head>
 
-<body>
-<div class="container-fluid">
-<h3><bean:message key="admin.admin.editInvoices"/></h3>
+<body bgcolor="#FFFFFF" text="#000000" leftmargin="0" rightmargin="0" topmargin="10">
 
-<div class="row well hidden-print">
-
-<div align="right"><a href="javascript: function myFunction() {return false; }" onClick="popupPage(700,720,'../../../oscarReport/manageProvider.jsp?action=billingreport')">Manage Provider List</a></div>
-
-<div align="right"><%=DateUtils.sumDate("yyyy-M-d","0")%></div>
-
+<table width="100%" border="1" cellspacing="0" cellpadding="0">
+  <tr bgcolor="#FFFFFF">
+    <div align="right"><a href="javascript: function myFunction() {return false; }" onClick="popupPage(700,720,'../../../oscarReport/manageProvider.jsp?action=billingreport')"><font face="Arial, Helvetica, sans-serif" size="1">Manage Provider List </font></a></div>
+  </tr>
+</table>
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr bgcolor="#000000">
+    <td height="40" width="10%"></td>
+    <td width="90%" align="left"><p><font color="#FFFFFF" size="4" face="Arial, Helvetica, sans-serif"><b>oscar<font size="3">Billing - Invoice List</font></b></font> </p></td>
+    <td nowrap valign="bottom"><font face="Verdana, Arial, Helvetica, sans-serif" color="#FFFFFF"><b><%=DateUtils.sumDate("yyyy-M-d","0")%></b></font> </td>
+  </tr>
+</table>
 
 <%
 if("true".equals(readonly)){
@@ -360,72 +423,74 @@ if("true".equals(readonly)){
 <%=request.getParameter("firstName")%>      (
 <%=request.getParameter("demographicNo")%>      )
 </div><%}%>
+<table width="100%" border="0" bgcolor="#EEEEFF">
+  <form name="serviceform" method="get" action="billStatus.jsp">
+  <input type="hidden" name="filterPatient" value="<%=readonly%>"/>
+  <input type="hidden" name="lastName" value="<%=request.getParameter("lastName")%>"/>
+  <input type="hidden" name="firstName" value="<%=request.getParameter("firstName")%>"/>
+ <!--<input type="hidden" name="demographicNo" value="<%=demographicNo%>"/>-->
+  <tr>
+    <td rowspan="2"><table>
+        <tr>
+          <td class="bCellData" ><input type="checkbox" name="showMSP" value="show"  <%=showMSP?"checked":""%> />
+            <a   onclick="billTypeOnly('showMSP')">MSP</a> </td>
+        </tr>
+        <tr>
+          <td class="bCellData" ><input type="checkbox" name="showWCB" value="show"  <%=showWCB?"checked":""%> />
+            <a   onclick="billTypeOnly('showWCB')">WCB</a> </td>
+        </tr>
+        <tr>
+          <td class="bCellData" ><input type="checkbox" name="showPRIV" value="show" <%=showPRIV?"checked":""%>  />
+            <a onClick="billTypeOnly('showPRIV')">Private</a> </td>
+        </tr>
+        <tr>
+          <td class="bCellData" ><input type="checkbox" name="showICBC" value="show" <%=showICBC?"checked":""%>  />
+            <a onClick="billTypeOnly('showICBC')">ICBC</a> </td>
+        </tr>
+      </table></td>
+    <td colspan=2><div align="center"> <font face="Verdana, Arial, Helvetica, sans-serif" size="2" color="#333333"><b>Select provider </b></font>
+        <select name="providerview">
+          <option value="ALL">All Providers</option>
+          <%  String proFirst="";
+                        String proLast="";
+                        String proOHIP="";
+                        String specialty_code;
+                        String billinggroup_no;
+                        int Count = 0;
+                        ResultSet rslocal;
+                        rslocal = null;
+                        rslocal = apptMainBean.queryResults("billingreport", "search_reportprovider");
+                        while(rslocal.next()){
+                            proFirst = rslocal.getString("first_name");
+                            proLast = rslocal.getString("last_name");
+                            proOHIP = rslocal.getString("provider_no");
+                    %>
+          <option value="<%=proOHIP%>" <%=providerview.equals(proOHIP)?"selected":""%>><%=proLast%>, <%=proFirst%></option>
+          <%  } %>
+        </select>
+        <font color="#333333" size="2" face="Verdana, Arial, Helvetica, sans-serif">
+        <input type="hidden" name="verCode" value="V03"/>
+        <input type="submit" name="Submit" value="Create Report">
+        </font> </div></td>
+  </tr>
+  <tr>
+    <td class="bCellData" ><div align="center"> <font color="#333333">Service Date-Range</font> &nbsp;&nbsp; <font size="1" face="Arial, Helvetica, sans-serif"> <a href="javascript: function myFunction() {return false; }" id="hlSDate">Begin:</a> </font>
+        <input type="text" name="xml_vdate" id="xml_vdate" value="<%=xml_vdate%>">
+        <font size="1" face="Arial, Helvetica, sans-serif"> <a href="javascript: function myFunction() {return false; }" id="hlADate" >End:</a> </font>
+        <input type="text" name="xml_appointment_date" id="xml_appointment_date" value="<%=xml_appointment_date%>">
+        <a href="javascript: function myFunction() {return false; }" onClick="fillEndDate('<%=DateUtils.sumDate("yyyy-M-d","-30")%>')" >30</a>&nbsp; <a href="javascript: function myFunction() {return false; }" onClick="fillEndDate('<%=DateUtils.sumDate("yyyy-M-d","-60")%>')" >60</a>&nbsp; <a href="javascript: function myFunction() {return false; }" onClick="fillEndDate('<%=DateUtils.sumDate("yyyy-M-d","-90")%>')" >90</a>&nbsp;
 
-
-<form name="serviceform" method="get" action="billStatus.jsp" class="form-inline">
-	<input type="hidden" name="filterPatient" value="<%=readonly%>"/>
-	<input type="hidden" name="lastName" value="<%=request.getParameter("lastName")%>"/>
-	<input type="hidden" name="firstName" value="<%=request.getParameter("firstName")%>"/>
- 	<!--<input type="hidden" name="demographicNo" value="<%=demographicNo%>"/>-->
-
-
-    <input type="checkbox" name="showMSP" value="show"  <%=showMSP?"checked":""%>/><a onclick="billTypeOnly('showMSP')">MSP</a>
-    <input type="checkbox" name="showWCB" value="show"  <%=showWCB?"checked":""%>/><a onclick="billTypeOnly('showWCB')">WCB</a>
-    <input type="checkbox" name="showPRIV" value="show" <%=showPRIV?"checked":""%>/><a onClick="billTypeOnly('showPRIV')">Private</a>
-    <input type="checkbox" name="showICBC" value="show" <%=showICBC?"checked":""%>/><a onClick="billTypeOnly('showICBC')">ICBC</a><br><br>
-
-<div class="span3">
-    Select provider<br>
-    <select name="providerview">
-      <option value="ALL">All Providers</option>
-      <%  String proFirst="";
-                    String proLast="";
-                    String proOHIP="";
-                    String specialty_code;
-                    String billinggroup_no;
-                    int Count = 0;
-                    for(Object[] result:reportProviderDao.search_reportprovider("billingreport")) {
-                   		ReportProvider rp = (ReportProvider)result[0];
-                   		Provider p = (Provider)result[1];
-                        proFirst = p.getFirstName();
-                        proLast = p.getLastName();
-                        proOHIP =p.getProviderNo();
-                %>
-      <option value="<%=proOHIP%>" <%=providerview.equals(proOHIP)?"selected":""%>><%=proLast%>, <%=proFirst%></option>
-      <%  } %>
-    </select>
-</div>
-
-    <input type="hidden" name="verCode" value="V03"/>
-    
-<div class="span2">		
-	Service Start Date:<br>
-	<div class="input-append">
-		<input type="text" name="xml_vdate" id="xml_vdate" value="<%=xml_vdate%>" pattern="^\d{4}-((0\d)|(1[012]))-(([012]\d)|3[01])$" autocomplete="off" />
-		<span class="add-on"><i class="icon-calendar"></i></span>
-	</div>
-</div><!--span2-->
-	
-<div class="span3">		
-	Service End Date: 	<a href="javascript: function myFunction() {return false; }" onClick="fillEndDate('<%=DateUtils.sumDate("yyyy-M-d","-30")%>')" >30</a>&nbsp; <a href="javascript: function myFunction() {return false; }" onClick="fillEndDate('<%=DateUtils.sumDate("yyyy-M-d","-60")%>')" >60</a>&nbsp; <a href="javascript: function myFunction() {return false; }" onClick="fillEndDate('<%=DateUtils.sumDate("yyyy-M-d","-90")%>')" >90</a>&nbsp;
-<br>
-	<div class="input-append">
-		<input type="text" name="xml_appointment_date" id="xml_appointment_date" value="<%=xml_appointment_date%>" pattern="^\d{4}-((0\d)|(1[012]))-(([012]\d)|3[01])$" autocomplete="off" />
-		<span class="add-on"><i class="icon-calendar"></i></span>
-	</div>
-</div><!--span3-->
-
-<div class="span2">
-    Demographic:<br>
-	<%
-		String readonlyStr = "true".equals(readonly)?"readonly":"";
-	%>
-    <input type="text" name="demographicNo" size="5" value="<%=xml_demoNo%>" <%=readonlyStr%>"/>
-</div><!-- span3-->	
-
-
-<div class="span10">
-<br>
+        Demographic:
+		<%
+			String readonlyStr = "true".equals(readonly)?"readonly":"";
+		%>
+        <input type="text" name="demographicNo" size="5" value="<%=xml_demoNo%>" <%=readonlyStr%>"/>
+      </div></td>
+    <td class="bCellData"><div align="right">
+        <input type='button' name='print' value='Print' onClick='window.print()'>
+      </div></td>
+  </tr>
+</table>
 <% String billTypes = request.getParameter("billTypes");
 if (billTypes == null){
     billTypes = MSPReconcile.REJECTED;
@@ -435,7 +500,9 @@ billTypes = "%";
 }
 
 %>
-	  <input type="radio" name="billTypes" value="<%=MSPReconcile.REJECTED%>"     <%=billTypes.equals(MSPReconcile.REJECTED)?"checked":""%>/>
+<table>
+  <tr>
+    <td><input type="radio" name="billTypes" value="<%=MSPReconcile.REJECTED%>"     <%=billTypes.equals(MSPReconcile.REJECTED)?"checked":""%>/>
       Rejected
       <input type="radio" name="billTypes" value="<%=MSPReconcile.NOTSUBMITTED%>" <%=billTypes.equals(MSPReconcile.NOTSUBMITTED)?"checked":""%>/>
       Not Submitted
@@ -474,42 +541,35 @@ billTypes = "%";
 
 	  <input type="radio" name="billTypes" value="$"                              <%=billTypes.equals("$")?"checked":""%>/>
 	  Paid Bills
-</div><!-- span10 -->
+      <input type="hidden" name="submitted" value="yes"/>
 
-<div class="span10">
-<br>
-<input type="hidden" name="submitted" value="yes"/>
-<input class="btn btn-primary" type="submit" name="Submit" value="Create Report">
-</div><!-- span10 -->
-
+    </td>
+  </tr>
+</table>
 </form>
-</div><!-- row well-->
-
-<div class="row">
-<input class="btn pull-right hidden-print" type='button' name='print' value='Print' onClick='window.print()'>
-<table class="table table-striped  table-condensed">
+<table class="sortable tabular_list" id="table-1" width="100%" border="2"  valign="top">
 <thead>
-	<tr>
-	<th align="center" title="INVOICE #" >INVOICE # </th>
-	<th align="center" title="LINE #" >SEQ # </th>
-    <th align="center" title="APP. DATE">APP. DATE</th>
-	<th align="center" title="TYPE" >TYPE </th>
+	<tr bgcolor="#CCCCFF">
+	<th align="center" class="bHeaderData" title="INVOICE #" >INVOICE # </th>
+	<th align="center" class="bHeaderData" title="LINE #" >SEQ # </th>
+    <th align="center" class="bHeaderData" title="APP. DATE">APP. DATE</th>
+	<th align="center" class="bHeaderData" title="TYPE" >TYPE </th>
 	<%
 		if(!"true".equals(readonly)){
 	%>
-    <th align="center" title="PATIENT" >PATIENT</th>
+    <th align="center" class="bHeaderData" title="PATIENT" >PATIENT</th>
 	<%}%>
-	 <th align="center" title="PRACT" >PRACT.</th>
-	<th align="center" title="Status">STAT</th>
+	 <th align="center" class="bHeaderData" title="PRACT" >PRACT.</th>
+	<th align="center" class="bHeaderData" title="Status">STAT</th>
 
 
-    <th align="center" title="Fee Code">FEE CODE</th>
-    <th align="center" title="QTY">QTY</th>
-    <th align="center" title="Amount Billed">AMT</th>
-    <th align="center" title="Amount Paid"  >PAID</th>
-    <th align="center">OWED</th>
-    <th align="center">DX CODE </th>
-    <th align="center">MSGS</th>
+    <th align="center" class="bHeaderDate" title="Fee Code">FEE CODE</th>
+    <th align="center" class="bHeaderDate" title="QTY">QTY</th>
+    <th align="center" class="bHeaderDate" title="Amount Billed">AMT</th>
+    <th align="center" class="bHeaderDate" title="Amount Paid"  >PAID</th>
+    <th align="center" class="bHeaderDate" >OWED</th>
+    <th align="center" class="bHeaderDate" >DX CODE </th>
+    <th align="center" class="bHeaderData" >MSGS</th>
   </tr>
 </thead>
    <tbody>
@@ -519,19 +579,20 @@ billTypes = "%";
     String dateEnd = request.getParameter("xml_appointment_date");
     String demoNo = request.getParameter("demographicNo");
 
+    ArrayList list;
     MSPReconcile.BillSearch bSearch = msp.getBills(billTypes, providerview, dateBegin ,dateEnd,demoNo,!showWCB,!showMSP,!showPRIV,!showICBC);
-
+    list = bSearch.list;
     Properties p2 = bSearch.getCurrentErrorMessages();
     Properties p = msp.currentC12Records();
     boolean bodd = true;
     boolean incorrectVal = false;
     boolean paidinCorrectval = false;
 	String currentBillingNo = "";
-    for (int i = 0; i < bSearch.list.size(); i++){
+    for (int i = 0; i < list.size(); i++){
 
       incorrectVal = false;
       paidinCorrectval = false;
-      MSPReconcile.Bill b = (MSPReconcile.Bill) bSearch.list.get(i);
+      MSPReconcile.Bill b = (MSPReconcile.Bill) list.get(i);
 
       bodd=currentBillingNo.equals(b.billing_no) ? !bodd : bodd; //for the color of rows
       nItems++; //to calculate if it is the end of records
@@ -557,8 +618,8 @@ billTypes = "%";
 
    %>
 
-  <tr>
-      <td align="center">
+  <tr bgcolor="<%=bodd?"#EEEEFF":"white"%>">
+      <td align="center" class="bCellData">
         <%if("Pri".equals(b.billingtype)){%>
 	 	<a href="javascript:popupPage(800,800, '../../../billing/CA/BC/billingView.do?billing_no=<%=b.billing_no%>&receipt=yes')"><%=b.billing_no%>       </a>
 		<%}
@@ -568,30 +629,30 @@ billTypes = "%";
 		<%}%>		    </td>
 
 
-	<td align="center"><a href="javascript: function myFunction() {return false; }" onClick="popupPage2(500,1020,'genTAS00ByOfficeNo.jsp?officeNo=<%=b.billMasterNo%>','RecValues');"> <%=b.seqNum%> </a></td>
-	<td align="center"><%=b.apptDate%></td>
-	<td align="center"><%=b.billingtype%></td>
+	<td align="center" class="bCellData" ><a href="javascript: function myFunction() {return false; }" onClick="popupPage2(500,1020,'genTAS00ByOfficeNo.jsp?officeNo=<%=b.billMasterNo%>','RecValues');"> <%=b.seqNum%> </a></td>
+	<td align="center" class="bCellData" ><%=b.apptDate%></td>
+	<td align="center" class="bCellData" ><%=b.billingtype%></td>
 	<%
 		if(!"true".equals(readonly)){
 	%>
-   <td align="center"><a href="javascript: setDemographic('<%=b.demoNo%>');"><%=b.demoName%></a></td>
+   <td align="center" class="bCellData" ><a href="javascript: setDemographic('<%=b.demoNo%>');"><%=b.demoName%></a></td>
 	<%}%>
-	<td align="center"><%=b.providerLastName%>,<%=b.providerFirstName%></td>
-	 <td align="center" title="<%=msp.getStatusDesc(b.reason)%>" ><%=msp.getStatusDesc(b.reason)==null?"&nbsp":msp.getStatusDesc(b.reason)%></td>
+	<td align="center" class="bCellData" ><%=b.providerLastName%>,<%=b.providerFirstName%></td>
+	 <td align="center" class="bCellData" title="<%=msp.getStatusDesc(b.reason)%>" ><%=msp.getStatusDesc(b.reason)==null?"&nbsp":msp.getStatusDesc(b.reason)%></td>
 
 
-    <td align="center"><%=b.code%></td>
-    <td align="center" <%=isBadVal(incorrectVal)%> ><%=b.quantity%></td>
-    <td align="center" <%=isBadVal(incorrectVal)%> ><%=nf.format(Double.parseDouble(b.amount))%> </td>
-    <td align="center"><%=nf.format(pAmount)%> </td>
+    <td align="center" class="bCellData" ><%=b.code%></td>
+    <td align="center" class="bCellData" <%=isBadVal(incorrectVal)%> ><%=b.quantity%></td>
+    <td align="center" class="bCellData" <%=isBadVal(incorrectVal)%> ><%=nf.format(Double.parseDouble(b.amount))%> </td>
+    <td align="center" class="bCellData" ><%=nf.format(pAmount)%> </td>
     <%
     double dblAmtOwed = msp.getAmountOwing(b.billMasterNo,b.amount,b.billingtype);
     BigDecimal amtOwed = new BigDecimal(dblAmtOwed).setScale(2, BigDecimal.ROUND_HALF_UP);
     owedTotal = owedTotal.add(amtOwed);
 
     %>
-    <td align="center"><%=nf.format(amtOwed)%> </td>
-    <td align="center"><%=s(b.dx1)%></td>
+    <td align="center" class="bCellData" ><%=nf.format(amtOwed)%> </td>
+    <td align="center" class="bCellData" ><%=s(b.dx1)%></td>
 
     <td>
       <% if (adminAccess){ %>  
@@ -609,48 +670,41 @@ billTypes = "%";
     }
     if (rowCount == 0) {
     %>
-  <tr>
-    <td colspan="14" align="center"> No bills </td>
+  <tr bgcolor="<%=bodd?"ivory":"white"%>">
+    <td colspan="14" align="center" class="bCellData"> No bills </td>
   </tr>
   <% }%>
     </tbody>
   <tfoot>
-  <tr>
+  <tr class="sortbottom">
     <logic:notEqual parameter="filterPatient" value="true">
-      <td align="center">&nbsp;</td>
+      <td class="bCellData" align="center">&nbsp;</td>
     </logic:notEqual>
-    <td align="center">&nbsp;</td>
-    <td align="center">&nbsp;</td>
-    <td align="center">&nbsp;</td>
-    <td align="center">&nbsp;</td>
-    <td align="center">Count:</td>
-    <td align="center"><%=bSearch.list.size()%></td>
-    <td align="center">&nbsp;</td>
-    <td align="center">Total:</td>
-    <td align="center"><%=nf.format(total.doubleValue())%></td>
-    <td align="center"><%=nf.format(paidTotal.doubleValue())%></td>
-    <td align="center"><%=nf.format(owedTotal.doubleValue())%></td>
-    <td align="center">&nbsp;</td>
-    <td align="center">&nbsp;</td>
+    <td class="bCellData" align="center">&nbsp;</td>
+    <td class="bCellData" align="center">&nbsp;</td>
+    <td class="bCellData" align="center">&nbsp;</td>
+    <td class="bCellData" align="center">&nbsp;</td>
+    <td align="center" class="bCellData" >Count:</td>
+    <td align="center" class="bCellData" ><%=list.size()%></td>
+    <td align="center" class="bCellData" >&nbsp;</td>
+    <td align="center" class="bCellData" >Total:</td>
+    <td align="center" class="bCellData" ><%=nf.format(total.doubleValue())%></td>
+    <td align="center" class="bCellData" ><%=nf.format(paidTotal.doubleValue())%></td>
+    <td align="center" class="bCellData" ><%=nf.format(owedTotal.doubleValue())%></td>
+    <td class="bCellData" align="center">&nbsp;</td>
+    <td class="bCellData" align="center">&nbsp;</td>
 
   </tr>
   </tfoot>
 </table>
-</div><!--row-->
-
 <script language='javascript'>
-	var startDate = $("#xml_vdate").datepicker({
-		format : "yyyy-mm-dd"
-	});
-	
-	var endDate = $("#xml_appointment_date").datepicker({
-		format : "yyyy-mm-dd"
-	});
+       Calendar.setup({inputField:"xml_vdate",ifFormat:"%Y-%m-%d",showsTime:false,button:"hlSDate",singleClick:true,step:1});
+       Calendar.setup({inputField:"xml_appointment_date",ifFormat:"%Y-%m-%d",showsTime:false,button:"hlADate",singleClick:true,step:1});
 </script>
-<script language="javascript" src="../../../commons/scripts/sort_table/css.js"/>
-<script language="javascript" src="../../../commons/scripts/sort_table/common.js"/>
-<script language="javascript" src="../../../commons/scripts/sort_table/standardista-table-sorting.js"/>
-</div><!--container-->
+<script language="javascript" src="../../../commons/scripts/sort_table/css.js">
+<script language="javascript" src="../../../commons/scripts/sort_table/common.js">
+<script language="javascript" src="../../../commons/scripts/sort_table/standardista-table-sorting.js">
+
 </body>
 </html>
 <%!

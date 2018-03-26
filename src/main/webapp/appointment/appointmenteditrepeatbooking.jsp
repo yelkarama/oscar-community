@@ -23,22 +23,6 @@
     Ontario, Canada
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_appointment" rights="u" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_appointment");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%
   if(session.getAttribute("user") == null) response.sendRedirect("../logout.jsp");
   String deepcolor = "#CCCCFF", weakcolor = "#EEEEFF", tableTitle = "#99ccff";
@@ -48,7 +32,7 @@
 	errorPage="errorpage.jsp"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
-
+<%@ include file="/common/webAppContextAndSuperMgr.jsp"%>
 <%@page import="org.oscarehr.common.dao.AppointmentArchiveDao" %>
 <%@page import="org.oscarehr.common.dao.OscarAppointmentDao" %>
 <%@page import="org.oscarehr.common.model.Appointment" %>
@@ -76,11 +60,11 @@
 <%
   if (request.getParameter("groupappt") != null) {
     boolean bSucc = false;
-	String createdDateTime = UtilDateUtilities.DateToString(new java.util.Date(),"yyyy-MM-dd HH:mm:ss");
+	String createdDateTime = UtilDateUtilities.DateToString(UtilDateUtilities.now(),"yyyy-MM-dd HH:mm:ss");
 	String userName =  (String) session.getAttribute("userlastname") + ", " + (String) session.getAttribute("userfirstname");
 	String everyNum = request.getParameter("everyNum")!=null? request.getParameter("everyNum") : "0";
 	String everyUnit = request.getParameter("everyUnit")!=null? request.getParameter("everyUnit") : "day";
-	String endDate = request.getParameter("endDate")!=null? request.getParameter("endDate") : UtilDateUtilities.DateToString(new java.util.Date(),"dd/MM/yyyy");
+	String endDate = request.getParameter("endDate")!=null? request.getParameter("endDate") : UtilDateUtilities.DateToString(UtilDateUtilities.now(),"dd/MM/yyyy");
 	int delta = Integer.parseInt(everyNum);
 	if (everyUnit.equals("week") ) {
 		delta = delta*7;
@@ -95,47 +79,41 @@
         String[] param = new String[19];
         int rowsAffected=0, datano=0;
 
-  	    java.util.Date iDate = ConversionUtils.fromDateString(request.getParameter("appointment_date"));
-  	        
+            param[0]=request.getParameter("provider_no");
+            param[1]=request.getParameter("appointment_date");
+            param[2]=MyDateFormat.getTimeXX_XX_XX(request.getParameter("start_time"));
+            param[3]=MyDateFormat.getTimeXX_XX_XX(request.getParameter("end_time"));
+            param[4]=request.getParameter("keyword");
+            param[5]=request.getParameter("notes");
+            param[6]=request.getParameter("reason");
+            param[7]=request.getParameter("location");
+            param[8]=request.getParameter("resources");
+            param[9]=request.getParameter("type");
+            param[10]=request.getParameter("style");
+            param[11]=request.getParameter("billing");
+            param[12]=request.getParameter("status");
+            param[13]=createdDateTime;   //request.getParameter("createdatetime");
+            param[14]=userName;  //request.getParameter("creator");
+            param[15]=request.getParameter("remarks");
+            param[17]=(String)request.getSession().getAttribute("programId_oscarView");
+
+  	    if (request.getParameter("demographic_no")!=null && !(request.getParameter("demographic_no").equals(""))) {
+			param[16]=request.getParameter("demographic_no");
+	    } else param[16]="0";
+
+  	    	param[18] = request.getParameter("urgency");
+
 		while (true) {
-			Appointment a = new Appointment();
-			a.setProviderNo(request.getParameter("provider_no"));
-			a.setAppointmentDate(iDate);
-			a.setStartTime(ConversionUtils.fromTimeStringNoSeconds(request.getParameter("start_time")));
-			a.setEndTime(ConversionUtils.fromTimeStringNoSeconds(request.getParameter("end_time")));
-			a.setName(request.getParameter("keyword"));
-			a.setNotes(request.getParameter("notes"));
-			a.setReason(request.getParameter("reason"));
-			a.setLocation(request.getParameter("location"));
-			a.setResources(request.getParameter("resources"));
-			a.setType(request.getParameter("type"));
-			a.setStyle(request.getParameter("style"));
-			a.setBilling(request.getParameter("billing"));
-			a.setStatus(request.getParameter("status"));
-			a.setCreateDateTime(new java.util.Date());
-			a.setCreator(userName);
-			a.setRemarks(request.getParameter("remarks"));
-			if (request.getParameter("demographic_no")!=null && !(request.getParameter("demographic_no").equals(""))) {
-				a.setDemographicNo(Integer.parseInt(request.getParameter("demographic_no")));
-		    } else {
-		    	a.setDemographicNo(0);
-		    }
-			
-			a.setProgramId(Integer.parseInt((String)request.getSession().getAttribute("programId_oscarView")));
-			a.setUrgency(request.getParameter("urgency"));
-			a.setReasonCode(Integer.parseInt(request.getParameter("reasonCode")));
-			appointmentDao.persist(a);
-			
+			rowsAffected = oscarSuperManager.update("appointmentDao", "add_apptrecord", param);
+            if (rowsAffected != 1) break;
 
 			gCalDate.setTime(UtilDateUtilities.StringToDate(param[1], "yyyy-MM-dd"));
 			gCalDate = addDateByYMD(gCalDate, everyUnit, delta);
 
-			if (gCalDate.after(gEndDate)) 
-				break;
-			else 
-				iDate = gCalDate.getTime();
+			if (gCalDate.after(gEndDate)) break;
+			else param[1] = UtilDateUtilities.DateToString(gCalDate.getTime(), "yyyy-MM-dd");
 		}
-        bSucc = true;
+        if (rowsAffected == 1) bSucc = true;
 	}
 
 
@@ -145,18 +123,19 @@
         int rowsAffected=0, datano=0;
 
         Object[] paramE = new Object[10];
-        Appointment aa = appointmentDao.find(Integer.parseInt(request.getParameter("appointment_no")));
-        if (aa != null) {
-                paramE[0]=ConversionUtils.toDateString(aa.getAppointmentDate());
-                paramE[1]=aa.getProviderNo();
-                paramE[2]=ConversionUtils.toTimeStringNoSeconds(aa.getStartTime());
-                paramE[3]=ConversionUtils.toTimeStringNoSeconds(aa.getEndTime());
-                paramE[4]=aa.getName();
-                paramE[5]=aa.getNotes();
-                paramE[6]=aa.getReason();
-                paramE[7]=ConversionUtils.toTimestampString(aa.getCreateDateTime());
-                paramE[8]=aa.getCreator();
-                paramE[9]=String.valueOf(aa.getDemographicNo());
+        List<Map<String,Object>> resultList = oscarSuperManager.find("appointmentDao", "search", new Object [] {request.getParameter("appointment_no")});
+        if (resultList.size() > 0) {
+                Map appt = resultList.get(0);
+                paramE[0]=String.valueOf(appt.get("appointment_date")); //request.getParameter("appointment_date"); // param[3] - appointment_date
+                paramE[1]=appt.get("provider_no"); //request.getParameter("provider_no");
+                paramE[2]=appt.get("start_time"); //MyDateFormat.getTimeXX_XX_XX(request.getParameter("start_time"));
+                paramE[3]=appt.get("end_time"); //MyDateFormat.getTimeXX_XX_XX(request.getParameter("end_time"));
+                paramE[4]=appt.get("name"); //request.getParameter("keyword");
+                paramE[5]=appt.get("notes"); //request.getParameter("notes");
+                paramE[6]=appt.get("reason"); //request.getParameter("reason");
+                paramE[7]=appt.get("createdatetime"); //request.getParameter("createdatetime");
+                paramE[8]=appt.get("creator"); //request.getParameter("creator");
+                paramE[9]=appt.get("demographic_no"); //request.getParameter("creator");
 
         }
 
@@ -172,18 +151,8 @@
 			while (true) {
 				Appointment appt = appointmentDao.find(Integer.parseInt(request.getParameter("appointment_no")));
 			    appointmentArchiveDao.archiveAppointment(appt);
-			    
-			    List<Appointment> appts = appointmentDao.find(dayFormatter.parse((String)param[3]), (String)param[4], ConversionUtils.fromTimeStringNoSeconds((String)param[5]), ConversionUtils.fromTimeStringNoSeconds((String)param[6]),
-						(String)param[7], (String)param[8], (String)param[9], ConversionUtils.fromTimestampString((String)param[10]), (String)param[11], Integer.parseInt((String)param[12]));
-			    
-            	for(Appointment a:appts) {
-            		a.setStatus("C");
-            		a.setUpdateDateTime(ConversionUtils.fromTimestampString(createdDateTime));
-            		a.setLastUpdateUser(userName);
-            		appointmentDao.merge(a);
-            		rowsAffected++;
-            	}
-				
+				rowsAffected = oscarSuperManager.update("appointmentDao", "cancel_appt", param);
+
 				gCalDate.setTime(UtilDateUtilities.StringToDate((String)param[3], "yyyy-MM-dd"));
 				gCalDate = addDateByYMD(gCalDate, everyUnit, delta);
 
@@ -201,14 +170,13 @@
 			// repeat doing
 			while (true) {
 
-				List<Appointment> appts = appointmentDao.find(dayFormatter.parse((String)param[0]), (String)param[1], ConversionUtils.fromTimeStringNoSeconds((String)param[2]), ConversionUtils.fromTimeStringNoSeconds((String)param[3]),
-						(String)param[4], (String)param[5], (String)param[6],  ConversionUtils.fromTimestampString((String)param[7]), (String)param[8], Integer.parseInt((String)param[9]));
+				List<Appointment> appts = appointmentDao.find(dayFormatter.parse((String)param[0]), (String)param[1], (java.sql.Time)param[2], (java.sql.Time)param[3],
+						(String)param[4], (String)param[5], (String)param[6], (java.sql.Timestamp)param[7], (String)param[8], (Integer)param[9]);
 				for(Appointment appt:appts) {
 					appointmentArchiveDao.archiveAppointment(appt);
-					appointmentDao.remove(appt.getId());
-					rowsAffected++;
 				}
-				
+				rowsAffected = oscarSuperManager.update("appointmentDao", "delete_appt", param);
+
 				gCalDate.setTime(UtilDateUtilities.StringToDate((String)param[0], "yyyy-MM-dd"));
 				gCalDate = addDateByYMD(gCalDate, everyUnit, delta);
 
@@ -219,50 +187,34 @@
 		}
 
 		if (request.getParameter("groupappt").equals("Group Update")) {
-			Object[] param = new Object[22];
-            param[0]=MyDateFormat.getTimeXX_XX_XX(request.getParameter("start_time"));
-            param[1]=MyDateFormat.getTimeXX_XX_XX(request.getParameter("end_time"));
-            param[2]=request.getParameter("keyword");
-            param[3]=request.getParameter("demographic_no");
-            param[4]=request.getParameter("notes");
-            param[5]=request.getParameter("reason");
-            param[6]=request.getParameter("location");
-            param[7]=request.getParameter("resources");
-            param[8]=createdDateTime;
-            param[9]=userName;
-            param[10]=request.getParameter("urgency");
-            param[11]=request.getParameter("reasonCode");
- 	        for(int k=0; k<paramE.length; k++) 
- 	        	param[k+12] = paramE[k];
+			Object[] param = new Object[21];
+                        param[0]=MyDateFormat.getTimeXX_XX_XX(request.getParameter("start_time"));
+                        param[1]=MyDateFormat.getTimeXX_XX_XX(request.getParameter("end_time"));
+                        param[2]=request.getParameter("keyword");
+                        param[3]=request.getParameter("demographic_no");
+                        param[4]=request.getParameter("notes");
+                        param[5]=request.getParameter("reason");
+                        param[6]=request.getParameter("location");
+                        param[7]=request.getParameter("resources");
+                        param[8]=createdDateTime;
+                        param[9]=userName;
+                        param[10]=request.getParameter("urgency");
+ 	        for(int k=0; k<paramE.length; k++) param[k+11] = paramE[k];
 
 			// repeat doing
 			while (true) {
-				List<Appointment> appts = appointmentDao.find(dayFormatter.parse((String)paramE[0]), (String)paramE[1], ConversionUtils.fromTimeStringNoSeconds((String)paramE[2]), ConversionUtils.fromTimeStringNoSeconds((String)paramE[3]),
-						(String)paramE[4], (String)paramE[5], (String)paramE[6],  ConversionUtils.fromTimestampString((String)paramE[7]), (String)paramE[8], Integer.parseInt((String)paramE[9]));
+				List<Appointment> appts = appointmentDao.find(dayFormatter.parse((String)param[11]), (String)paramE[1], (java.sql.Time)paramE[2],(java.sql.Time) paramE[3],
+						(String)paramE[4], (String)paramE[5], (String)paramE[6], (java.sql.Timestamp)paramE[7], (String)paramE[8], (Integer)paramE[9]);
 				for(Appointment appt:appts) {
 					appointmentArchiveDao.archiveAppointment(appt);
-					appt.setStartTime(ConversionUtils.fromTimeString(MyDateFormat.getTimeXX_XX_XX(request.getParameter("start_time"))));
-					appt.setEndTime(ConversionUtils.fromTimeString(MyDateFormat.getTimeXX_XX_XX(request.getParameter("end_time"))));
-					appt.setName(request.getParameter("keyword"));
-					appt.setDemographicNo(Integer.parseInt((String)paramE[9]));
-					appt.setNotes(request.getParameter("notes"));
-					appt.setReason(request.getParameter("reason"));
-					appt.setLocation(request.getParameter("location"));
-					appt.setResources(request.getParameter("resources"));
-					appt.setUpdateDateTime(ConversionUtils.fromTimestampString(createdDateTime));
-					appt.setLastUpdateUser(userName);
-					appt.setUrgency(request.getParameter("urgency"));
-					appt.setReasonCode(Integer.parseInt(request.getParameter("reasonCode")));
-					appointmentDao.merge(appt);
-					rowsAffected++;
 				}
-				
-				
-				gCalDate.setTime(UtilDateUtilities.StringToDate((String)param[12], "yyyy-MM-dd"));
+				rowsAffected = oscarSuperManager.update("appointmentDao", "update_appt", param);
+
+				gCalDate.setTime(UtilDateUtilities.StringToDate((String)param[11], "yyyy-MM-dd"));
 				gCalDate = addDateByYMD(gCalDate, everyUnit, delta);
 
 				if (gCalDate.after(gEndDate)) break;
-				else param[12] = UtilDateUtilities.DateToString(gCalDate.getTime(), "yyyy-MM-dd");
+				else param[11] = UtilDateUtilities.DateToString(gCalDate.getTime(), "yyyy-MM-dd");
 			}
         	bSucc = true;
 		}
@@ -370,30 +322,32 @@ function onSub() {
 
 <table border=0 cellspacing=0 cellpadding=0 width="100%">
 	<tr bgcolor="<%=deepcolor%>">
-		<th><font face="Helvetica"><bean:message key="appointment.appointmenteditrepeatbooking.title"/></font></th>
+		<th><font face="Helvetica">Repeat Booking</font></th>
 	</tr>
 </table>
 
 <table border="0" cellspacing="1" cellpadding="2" width="100%">
 	<tr>
 		<td width="20%"></td>
-		<td nowrap><bean:message key="appointment.appointmenteditrepeatbooking.howoften"/></td>
+		<td nowrap>How often?</td>
 	</tr>
 	<tr>
 		<td></td>
-		<td nowrap>&nbsp;&nbsp;&nbsp; 
-		
-		<input type="radio" name="dateUnit" value="<bean:message key="day"/>"   <%="checked"%> onclick='onCheck(this, "day")'><bean:message key="day"/> &nbsp;&nbsp; 
-		<input type="radio" name="dateUnit" value="<bean:message key="week"/>"  <%=""%>        onclick='onCheck(this, "week")'><bean:message key="week"/> &nbsp;&nbsp; 
-		<input type="radio" name="dateUnit" value="<bean:message key="month"/>" <%=""%>        onclick='onCheck(this, "month")'><bean:message key="month"/> &nbsp;&nbsp; 
-		<input type="radio" name="dateUnit" value="<bean:message key="year"/>"  <%=""%>        onclick='onCheck(this, "year")'><bean:message key="year"/></td>
+		<td nowrap>&nbsp;&nbsp;&nbsp; <input type="radio" name="dateUnit"
+			value="day" <%="checked"%> onclick='onCheck(this, "day")'>
+		Day &nbsp;&nbsp; <input type="radio" name="dateUnit" value="week"
+			<%=""%> onclick='onCheck(this, "week")'> Week &nbsp;&nbsp; <input
+			type="radio" name="dateUnit" value="month" <%=""%>
+			onclick='onCheck(this, "month")'> Month &nbsp;&nbsp; <input
+			type="radio" name="dateUnit" value="year" <%=""%>
+			onclick='onCheck(this, "year")'> Year</td>
 	</tr>
 </table>
 
 <table border="0" cellspacing="1" cellpadding="2" width="100%">
 	<tr>
 		<td width="20%"></td>
-		<td width="16%" nowrap><bean:message key="appointment.appointmenteditrepeatbooking.every"/></td>
+		<td width="16%" nowrap>Every</td>
 		<td nowrap><select name="everyNum">
 			<%
 for (int i = 1; i < 12; i++) {
@@ -407,13 +361,13 @@ for (int i = 1; i < 12; i++) {
 	</tr>
 	<tr>
 		<td></td>
-		<td><bean:message key="appointment.appointmenteditrepeatbooking.endon"/> &nbsp;&nbsp;
+		<td>End on &nbsp;&nbsp;
 		<button type="button" id="f_trigger_b">...</button>
 		<br>
-		<font size="-1"><bean:message key="ddmmyyyy"/></font></td>
+		<font size="-1">(dd/mm/yyyy)</font></td>
 		<td nowrap valign="top"><input type="text" name="endDate"
 			id="endDate" size="10"
-			value="<%=UtilDateUtilities.DateToString(new java.util.Date(),"dd/MM/yyyy")%>"
+			value="<%=UtilDateUtilities.DateToString(UtilDateUtilities.now(),"dd/MM/yyyy")%>"
 			readonly></td>
 	</tr>
 </table>

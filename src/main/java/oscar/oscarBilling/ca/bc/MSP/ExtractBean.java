@@ -28,35 +28,23 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 
 import org.apache.log4j.Logger;
-import org.oscarehr.billing.CA.BC.dao.LogTeleplanTxDao;
-import org.oscarehr.billing.CA.BC.model.LogTeleplanTx;
-import org.oscarehr.billing.CA.BC.model.Wcb;
-import org.oscarehr.common.dao.BillingDao;
-import org.oscarehr.common.dao.BillingServiceDao;
-import org.oscarehr.common.model.Billing;
-import org.oscarehr.util.DateRange;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.Misc;
 import oscar.OscarProperties;
-import oscar.entities.Billingmaster;
 import oscar.oscarBilling.ca.bc.data.BillingHistoryDAO;
-import oscar.oscarBilling.ca.bc.data.BillingmasterDAO;
-import oscar.util.ConversionUtils;
+import oscar.oscarDB.DBHandler;
+import oscar.util.UtilMisc;
 
 
 
 public class ExtractBean extends Object implements Serializable {
     private static Logger logger=MiscUtils.getLogger();
-    private LogTeleplanTxDao logTeleplanTxDao = SpringUtils.getBean(LogTeleplanTxDao.class);
-    private BillingDao billingDao = SpringUtils.getBean(BillingDao.class);
-    private BillingmasterDAO billingmasterDao =  SpringUtils.getBean(BillingmasterDAO.class);
-
 
     private String ohipRecord;
     private String ohipClaim;
@@ -89,7 +77,7 @@ public class ExtractBean extends Object implements Serializable {
     private double dFee;
     private BigDecimal BigTotal = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);
     private BigDecimal bdFee = new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);
-    private DateRange dateRange = null;
+    private String dateRange="";
     private String eFlag="";
     private int vsFlag=0;
     private String logNo = "";
@@ -110,7 +98,7 @@ public class ExtractBean extends Object implements Serializable {
     public synchronized void dbQuery(){
         String dataCenterId = OscarProperties.getInstance().getProperty("dataCenterId");
         if (HasBillingItemsToSubmit()) {
-           
+           try{
 
                if (vsFlag == 0) {
                    logNo =  getSequence() ;
@@ -128,72 +116,77 @@ public class ExtractBean extends Object implements Serializable {
                errorMsg = "";
 
                value = batchHeader;
-               
-               BillingDao dao = SpringUtils.getBean(BillingDao.class);
-               BillingmasterDAO bmDao = SpringUtils.getBean(BillingmasterDAO.class);
 
-            	   for(Billing b : dao.findByProviderStatusAndDates(providerNo, Arrays.asList(new String[] {"O", "W"}), dateRange)) {
+               query = "select * from billing where provider_ohip_no='"+ providerNo+"' and (status='O' or status='W') " + dateRange;
+
+               MiscUtils.getLogger().debug("1st billing query "+query);
+               ResultSet rs = DBHandler.GetSQL(query);
+
+
+               if (rs != null){
+
+                   while(rs.next()) {
                      patientCount ++;
-                     invNo = b.getId().toString();
-                     demoName = b.getDemographicName();
-                     String billType =  b.getBillingtype();
+                     invNo = rs.getString("billing_no");
+                     demoName = rs.getString("demographic_name");
+                     String billType =  rs.getString("billingtype");
                      invCount = 0;
 
-                     if (billType.equals("MSP")  || billType.equals("ICBC") ) {
-                           
-                              for(Billingmaster bm : bmDao.getBillingMasterWithStatus(invNo, "O")) {
+                     MiscUtils.getLogger().debug("Bill Type  : "+billType+" pt :"+patientCount);
+                        if (billType.equals("MSP")  || billType.equals("ICBC") ) {
+                           MiscUtils.getLogger().debug("Going to process a "+billType+" type bill invoice #"+invNo );
+
+                           ResultSet rs2 = DBHandler.GetSQL("select * from billingmaster where billing_no='"+ invNo +"' and billingstatus='O'");
+                              while (rs2.next()) {
                                  recordCount ++;
+
                                  logNo = getSequence();
-                                 
-                                 String dataLine = getClaimDetailRecord(bm,logNo);
+                                 MiscUtils.getLogger().debug("processing "+invNo);
+
+                                 String dataLine = getClaimDetailRecord(rs2,logNo);
                                  if (dataLine.length() != 424 ){ MiscUtils.getLogger().debug("dataLine2 "+logNo+" Len"+dataLine.length()); }
 
                                  value += "\n"+dataLine+"\r";
                                  logValue = dataLine;
                                  setLog(logNo,logValue);
 
-                                 if (hasNoteRecord(bm)){
+                                 if (hasNoteRecord(rs2)){
                                     String noteLogNo = getSequence();
-                                    String noteRecordLine = getNoteRecord(bm,noteLogNo);
+                                    String noteRecordLine = getNoteRecord(rs2,noteLogNo);
                                     value += "\n"+noteRecordLine+"\r";
                                     setLog(noteRecordLine,noteLogNo);
                                  }
 
-                                 dFee = bm.getBillAmountAsDouble();
-                                 bdFee = BigDecimal.valueOf(dFee).setScale(2, BigDecimal.ROUND_HALF_UP);
+                                 dFee = Double.parseDouble(rs2.getString("bill_amount"));
+                                 bdFee = new BigDecimal(dFee).setScale(2, BigDecimal.ROUND_HALF_UP);
                                  BigTotal = BigTotal.add(bdFee);
 
-                                 if (isMSPInsurer(bm)){
-                                    htmlContent += htmlLine("" + bm.getBillingmasterNo(),invNo,demoName, bm.getPhn(), bm.getServiceDate(),
-                                    		bm.getBillingCode() ,bm.getBillAmount(),bm.getDxCode1(),
-                                    		bm.getDxCode2(),bm.getDxCode3());
+                                 if (isMSPInsurer(rs2)){
+                                    htmlContent += htmlLine(rs2.getString("billingmaster_no"),invNo,demoName, rs2.getString("phn"), rs2.getString("service_date"),rs2.getString("billing_code") ,rs2.getString("bill_amount"),rs2.getString("dx_code1"),rs2.getString("dx_code2"),rs2.getString("dx_code3"));
                                  }else{
-                                    htmlContent += htmlLine("" + bm.getBillingmasterNo(), invNo, demoName, 
-                                    		bm.getOinRegistrationNo(), 
-                                    		bm.getServiceDate(),
-                                    		bm.getBillingCode(),
-                                    		bm.getBillAmount(),
-                                    		bm.getDxCode1(),
-                                    		bm.getDxCode2(),
-                                    		bm.getDxCode3());
+                                    htmlContent += htmlLine(rs2.getString("billingmaster_no"),invNo,demoName, rs2.getString("oin_registration_no"), rs2.getString("service_date"),rs2.getString("billing_code") ,rs2.getString("bill_amount"),rs2.getString("dx_code1"),rs2.getString("dx_code2"),rs2.getString("dx_code3"));
                                  }
 
 
 
-                                 errorMsg = checkData.checkC02("" + bm.getBillingmasterNo(), bm);
+                                 errorMsg = checkData.checkC02(rs2.getString("billingmaster_no"), rs2);
                                  htmlContent += errorMsg;
 
                                  invCount++;
-                                 setAsBilledMaster("" + bm.getBillingmasterNo());
+                                 setAsBilledMaster(rs2.getString("billingmaster_no"));
 
 
                               }// while
                         }else if (billType.equals("WCB")){
-                           BillingServiceDao bsDao = SpringUtils.getBean(BillingServiceDao.class);
+                           ResultSet rs2 =
+                           DBHandler.GetSQL("SELECT *, billingservice.value As `feeitem1` FROM billingservice, wcb JOIN billing ON wcb.billing_no=billing.billing_no WHERE wcb.billing_no='"
+                           + invNo + "' AND wcb.status='O' AND billing.status IN ('O', 'W') AND billingservice.service_code=wcb.w_feeitem");
 
-                        	for(Object[] o : bsDao.findSomethingByBillingId(ConversionUtils.fromIntString(invNo))) {
-                        		
-                              WcbSb sb = new WcbSb((Wcb) o[1]);
+
+
+                           if (rs2.next()) {
+
+                              WcbSb sb = new WcbSb(rs2);
                               htmlContent += sb.getHtmlLine();
                               htmlContent += checkData.printWarningMsg("");
 
@@ -247,10 +240,12 @@ public class ExtractBean extends Object implements Serializable {
                               }
                            }
 
-                           Billingmaster bm = bmDao.getBillingmaster(ConversionUtils.fromIntString(invNo));
-                           if (bm != null) {
-                              setAsBilledMaster("" + bm.getBillingmasterNo());
+                           rs2.close();
+                           rs2 = DBHandler.GetSQL("SELECT billingmaster_no FROM billingmaster WHERE billing_no="+ invNo);
+                           if (rs2.next()) {
+                              setAsBilledMaster(rs2.getString("billingmaster_no"));
                            }
+                           rs2.close();
                            /////////////////////////////////////
                         }
                         setAsBilled(invNo);
@@ -267,31 +262,38 @@ public class ExtractBean extends Object implements Serializable {
                    ohipReciprocal = String.valueOf(hcCount);
                    ohipRecord = String.valueOf(rCount);
                    ohipClaim = String.valueOf(pCount);
-               
-           
+               }
+           }catch (SQLException e) {
+               MiscUtils.getLogger().error("Error", e);
+           }
         }
     }
 
 
     public void setAsBilled(String newInvNo){
-        if (eFlag.equals("1")){
-      	  Billing b = billingDao.find(Integer.parseInt(newInvNo));
-      	  if(b != null) {
-      		  b.setStatus("B");
-      		  billingDao.merge(b);
-      	  }
-        }
-      }
+      if (eFlag.equals("1")){
+         String query30 = "update billing set status='B' where billing_no='" + newInvNo + "'";
+         try {
 
-      public void setAsBilledMaster(String newInvNo){
-        if (eFlag.equals("1")){
-      	  Billingmaster b = billingmasterDao.getBillingmaster(Integer.parseInt(newInvNo));
-      	  if(b != null) {
-      		  b.setBillingstatus("B");
-      		  billingmasterDao.update(b);
-      	  }
-        }
+        	 DBHandler.RunSQL(query30);
+         }catch (SQLException e) {
+            MiscUtils.getLogger().error("Error", e);
+         }
       }
+    }
+
+    public void setAsBilledMaster(String newInvNo){
+      if (eFlag.equals("1")){
+         String query30 = "update billingmaster set billingstatus='B' where billingmaster_no='" + newInvNo + "'";
+         try {
+
+        	 DBHandler.RunSQL(query30);
+            createBillArchive(newInvNo);
+         }catch (SQLException e) {
+            MiscUtils.getLogger().error("Error", e);
+         }
+      }
+    }
 
     /**
      * Adds a new entry into the billing_history table
@@ -304,11 +306,13 @@ public class ExtractBean extends Object implements Serializable {
 
     public void setLog(String x, String logValue){
       if (eFlag.equals("1")){
-    	  LogTeleplanTx l = this.logTeleplanTxDao.find(Integer.parseInt(x));
-    	  if(l != null) {
-    		  l.setClaim(logValue.getBytes());
-    		  logTeleplanTxDao.merge(l);
-    	  }
+         String nsql = "update log_teleplantx set claim='" + UtilMisc.mysqlEscape(logValue) + "' where log_no='"+ x +"'";
+         try {
+
+        	 DBHandler.RunSQL(nsql);
+         }catch (SQLException e) {
+            MiscUtils.getLogger().error("Error", e);
+         }
       }
     }
 
@@ -316,11 +320,19 @@ public class ExtractBean extends Object implements Serializable {
     public String getSequence(){
       String n="1";
       if (eFlag.equals("1")){
-         LogTeleplanTx l = new LogTeleplanTx();
-         l.setClaim("New Log".getBytes());
-         logTeleplanTxDao.persist(l);
-         return l.getId().toString();
-         
+         String nsql ="";
+         nsql =  "insert into log_teleplantx (log_no, claim) values ('\\N','" + "New Log" + "')";
+         try {
+
+        	 DBHandler.RunSQL(nsql);
+            ResultSet  rs = DBHandler.GetSQL("SELECT LAST_INSERT_ID()");
+            if (rs.next()){
+               n = rs.getString(1);
+            }
+            rs.close();
+         }catch (SQLException e) {
+            MiscUtils.getLogger().error("Error", e);
+         }
       }
       return n;
     }
@@ -411,7 +423,7 @@ public class ExtractBean extends Object implements Serializable {
     public synchronized void setVSFlag(int newVSFlag){
         vsFlag = newVSFlag;
     }
-    public synchronized void setDateRange(DateRange newDateRange){
+    public synchronized void setDateRange(String newDateRange){
         dateRange = newDateRange;
     }
     public String  roundUp (String str){
@@ -422,70 +434,69 @@ public class ExtractBean extends Object implements Serializable {
            logger.error("Unexpected error", e);}
        return retval;
     }
-    
-    public String getClaimDetailRecord(Billingmaster bm, String LogNo) {
-    	String dataLine =     Misc.forwardSpace(bm.getClaimcode(), 3)            //p00   3
-                + Misc.forwardSpace(bm.getDatacenter(), 5)           //p02   5
-                + Misc.forwardZero(logNo,7)                                  //p04   7
-                + Misc.forwardSpace(bm.getPayeeNo(), 5)             //p06   5
-                + Misc.forwardSpace(bm.getPractitionerNo(), 5)      //p08   5
-                + Misc.forwardZero(bm.getPhn(), 10)                  //p14  10
-                + Misc.forwardSpace(bm.getNameVerify(), 4)          //p16   4
-                + Misc.forwardSpace(bm.getDependentNum(), 2)        //p18   2
-                + Misc.forwardZero(roundUp(bm.getBillingUnit()),3) //p20   3
-                + Misc.forwardZero(bm.getClarificationCode(), 2)    //p22   2
-                + Misc.forwardSpace(bm.getAnatomicalArea(),  2)     //p23   2
-                + Misc.forwardSpace(bm.getAfterHour(), 1)           //p24   1
-                + Misc.forwardZero(bm.getNewProgram(), 2)           //p25   2
-                + Misc.forwardZero(bm.getBillingCode(), 5)          //p26   5
-                + Misc.moneyFormatPaddedZeroNoDecimal(bm.getBillAmount(), 7)           //p27   7
-                + Misc.forwardZero(bm.getPaymentMode(),  1)         //p28   1
-                + Misc.forwardSpace(bm.getServiceDate(),  8)        //p30   8
-                + Misc.forwardZero(bm.getServiceToDay(), 2)        //p32   2
-                + Misc.forwardSpace(bm.getSubmissionCode(),  1)     //p34   1
-                + Misc.space(1)                                              //p35   1
-                + Misc.backwardSpace(bm.getDxCode1(),  5)           //p36   5
-                + Misc.backwardSpace(bm.getDxCode2(),  5)           //p37   5
-                + Misc.backwardSpace(bm.getDxCode3(),  5)           //p38   5
-                + Misc.space(15)                                             //p39  15
-                + Misc.forwardSpace(bm.getServiceLocation(),  1)    //p40   1
-                + Misc.forwardZero(bm.getReferralFlag1(),  1)       //p41   1
-                + Misc.forwardZero(bm.getReferralNo1(), 5)          //p42   5
-                + Misc.forwardZero(bm.getReferralFlag2(), 1)        //p44   1
-                + Misc.forwardZero(bm.getReferralNo2(), 5)          //p46   5
-                + Misc.forwardZero(bm.getTimeCall(), 4)             //p47   4
-                + Misc.forwardZero(bm.getServiceStartTime(), 4)    //p48   4
-                + Misc.forwardZero(bm.getServiceEndTime(), 4)      //p50   4
-                + Misc.forwardZero(bm.getBirthDate(), 8)            //p52   8
-                + Misc.forwardZero("" + bm.getBillingmasterNo(),  7)     //p54   7
-                + Misc.forwardSpace(bm.getCorrespondenceCode(),  1) //p56   1
-                //+ misc.space(20)                                             //p58  20
-                + Misc.backwardSpace(bm.getClaimComment(), 20)      //p58  20
-                + Misc.forwardSpace(bm.getMvaClaimCode(), 1)       //p60   1
-                + Misc.forwardZero(bm.getIcbcClaimNo(),  8)        //p62   8
-                + Misc.forwardZero(bm.getOriginalClaim(),  20 )     //p64  20
-                + Misc.forwardZero(bm.getFacilityNo(),  5)          //p70   5
-                + Misc.forwardZero(bm.getFacilitySubNo(),  5)      //p72   5
-                + Misc.space(58)                                             //p80  58
-                + Misc.backwardSpace(bm.getOinInsurerCode(), 2)    //p100  2
-                + Misc.forwardZero(bm.getOinRegistrationNo(), 12)  //p102 12
-                + Misc.backwardSpace(bm.getOinBirthdate(), 8)       //p104  8
-                + Misc.backwardSpace(bm.getOinFirstName(), 12)     //p106 12
-                + Misc.backwardSpace(bm.getOinSecondName(), 1)     //p108  1
-                + Misc.backwardSpace(bm.getOinSurname(), 18)        //p110 18
-                + Misc.backwardSpace(bm.getOinSexCode(), 1)        //p112  1
-                + Misc.backwardSpace(bm.getOinAddress(), 25)        //p114 25
-                + Misc.backwardSpace(bm.getOinAddress2(), 25)       //p116 25
-                + Misc.backwardSpace(bm.getOinAddress3(), 25)       //p118 25
-                + Misc.backwardSpace(bm.getOinAddress4(), 25)       //p120 25
-                + Misc.backwardSpace(bm.getOinPostalcode(), 6);     //p122  6
-    	return dataLine;
+    public String getClaimDetailRecord(ResultSet rs2,String LogNo) throws SQLException{
+        String dataLine =     Misc.forwardSpace(rs2.getString("claimcode"),3)            //p00   3
+                            + Misc.forwardSpace(rs2.getString("datacenter"),5)           //p02   5
+                            + Misc.forwardZero(logNo,7)                                  //p04   7
+                            + Misc.forwardSpace(rs2.getString("payee_no"),5)             //p06   5
+                            + Misc.forwardSpace(rs2.getString("practitioner_no"),5)      //p08   5
+                            + Misc.forwardZero(rs2.getString("phn"),10)                  //p14  10
+                            + Misc.forwardSpace(rs2.getString("name_verify"),4)          //p16   4
+                            + Misc.forwardSpace(rs2.getString("dependent_num"),2)        //p18   2
+                            + Misc.forwardZero(roundUp(rs2.getString("billing_unit")),3) //p20   3
+                            + Misc.forwardZero(rs2.getString("clarification_code"),2)    //p22   2
+                            + Misc.forwardSpace(rs2.getString("anatomical_area"), 2)     //p23   2
+                            + Misc.forwardSpace(rs2.getString("after_hour"),1)           //p24   1
+                            + Misc.forwardZero(rs2.getString("new_program"),2)           //p25   2
+                            + Misc.forwardZero(rs2.getString("billing_code"),5)          //p26   5
+                            + Misc.moneyFormatPaddedZeroNoDecimal(rs2.getString("bill_amount"),7)           //p27   7
+                            + Misc.forwardZero(rs2.getString("payment_mode"), 1)         //p28   1
+                            + Misc.forwardSpace(rs2.getString("service_date"), 8)        //p30   8
+                            + Misc.forwardZero(rs2.getString("service_to_day"),2)        //p32   2
+                            + Misc.forwardSpace(rs2.getString("submission_code"), 1)     //p34   1
+                            + Misc.space(1)                                              //p35   1
+                            + Misc.backwardSpace(rs2.getString("dx_code1"), 5)           //p36   5
+                            + Misc.backwardSpace(rs2.getString("dx_code2"), 5)           //p37   5
+                            + Misc.backwardSpace(rs2.getString("dx_code3"), 5)           //p38   5
+                            + Misc.space(15)                                             //p39  15
+                            + Misc.forwardSpace(rs2.getString("service_location"), 1)    //p40   1
+                            + Misc.forwardZero(rs2.getString("referral_flag1"), 1)       //p41   1
+                            + Misc.forwardZero(rs2.getString("referral_no1"),5)          //p42   5
+                            + Misc.forwardZero(rs2.getString("referral_flag2"),1)        //p44   1
+                            + Misc.forwardZero(rs2.getString("referral_no2"),5)          //p46   5
+                            + Misc.forwardZero(rs2.getString("time_call"),4)             //p47   4
+                            + Misc.forwardZero(rs2.getString("service_start_time"),4)    //p48   4
+                            + Misc.forwardZero(rs2.getString("service_end_time"),4)      //p50   4
+                            + Misc.forwardZero(rs2.getString("birth_date"),8)            //p52   8
+                            + Misc.forwardZero(rs2.getString("billingmaster_no"), 7)     //p54   7
+                            + Misc.forwardSpace(rs2.getString("correspondence_code"), 1) //p56   1
+                            //+ misc.space(20)                                             //p58  20
+                            + Misc.backwardSpace(rs2.getString("claim_comment"),20)      //p58  20
+                            + Misc.forwardSpace(rs2.getString("mva_claim_code"),1)       //p60   1
+                            + Misc.forwardZero(rs2.getString("icbc_claim_no"), 8)        //p62   8
+                            + Misc.forwardZero(rs2.getString("original_claim"), 20 )     //p64  20
+                            + Misc.forwardZero(rs2.getString("facility_no"), 5)          //p70   5
+                            + Misc.forwardZero(rs2.getString("facility_sub_no"), 5)      //p72   5
+                            + Misc.space(58)                                             //p80  58
+                            + Misc.backwardSpace(rs2.getString("oin_insurer_code"),2)    //p100  2
+                            + Misc.forwardZero(rs2.getString("oin_registration_no"),12)  //p102 12
+                            + Misc.backwardSpace(rs2.getString("oin_birthdate"),8)       //p104  8
+                            + Misc.backwardSpace(rs2.getString("oin_first_name"),12)     //p106 12
+                            + Misc.backwardSpace(rs2.getString("oin_second_name"),1)     //p108  1
+                            + Misc.backwardSpace(rs2.getString("oin_surname"),18)        //p110 18
+                            + Misc.backwardSpace(rs2.getString("oin_sex_code"),1)        //p112  1
+                            + Misc.backwardSpace(rs2.getString("oin_address"),25)        //p114 25
+                            + Misc.backwardSpace(rs2.getString("oin_address2"),25)       //p116 25
+                            + Misc.backwardSpace(rs2.getString("oin_address3"),25)       //p118 25
+                            + Misc.backwardSpace(rs2.getString("oin_address4"),25)       //p120 25
+                            + Misc.backwardSpace(rs2.getString("oin_postalcode"),6);     //p122  6
+        return dataLine;
     }
 
-    public boolean hasNoteRecord (Billingmaster bm) {
+    public boolean hasNoteRecord (ResultSet rs) {
        boolean retval = false;
        try{
-          String correspondenceCode = bm.getCorrespondenceCode();
+          String correspondenceCode = rs.getString("correspondence_code");
           if (correspondenceCode.equals("N") || correspondenceCode.equals("B")){
              retval = true;
           }
@@ -496,9 +507,9 @@ public class ExtractBean extends Object implements Serializable {
        return retval;
     }
 
-    public String getNoteRecord(Billingmaster bm, String seqNo) {
+    public String getNoteRecord(ResultSet rs, String seqNo) throws SQLException{
        MSPBillingNote note = new MSPBillingNote();
-       return MSPBillingNote.getN01(bm.getDatacenter(), seqNo, bm.getPayeeNo(), bm.getPractitionerNo(), "A", note.getNote("" + bm.getBillingmasterNo()));
+       return MSPBillingNote.getN01(rs.getString("datacenter"), seqNo, rs.getString("payee_no"), rs.getString("practitioner_no"), "A", note.getNote(rs.getString("billingmaster_no")));
     }
 
     public String htmlContentHeaderGen(String providerNo,String output,String errorMsg){
@@ -551,13 +562,22 @@ public class ExtractBean extends Object implements Serializable {
 
 
     public static boolean HasBillingItemsToSubmit() {
-      BillingDao dao = SpringUtils.getBean(BillingDao.class);
-      return !dao.getMyMagicBillings().isEmpty();
+      boolean tosubmit = false;
+      try {
+
+         ResultSet rs =
+         DBHandler.GetSQL("SELECT COUNT(billing_no) As `count` FROM billing WHERE status <> 'B' AND billingtype IN ('ICBC', 'WCB', 'MSP')");
+         tosubmit = rs.next() && 0 < rs.getInt("count");
+         rs.close();
+      }catch (Exception ex) {
+          logger.error("Unexpected error", ex);
+      }
+      return tosubmit;
    }
 
-    public boolean isMSPInsurer(Billingmaster bm) {
+    public boolean isMSPInsurer(ResultSet rs2) throws SQLException{
        boolean retval = true;
-       String insurer = bm.getOinInsurerCode();
+       String insurer = rs2.getString("oin_insurer_code");
        if ( insurer != null && (insurer.trim().length() > 0) ){
           retval = false;
        }

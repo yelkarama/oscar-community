@@ -17,42 +17,28 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_billing" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%
+if(session.getValue("user") == null) response.sendRedirect("../../../logout.htm");
 String curUser_no = (String) session.getAttribute("user");
+String userfirstname = (String) session.getAttribute("userfirstname");
+String userlastname = (String) session.getAttribute("userlastname");
 String content = (String) session.getAttribute("content");
 session.setAttribute("content", "");
 %>
 
-<%@ page import="java.sql.*, java.util.*,java.net.*, oscar.util.*, oscar.oscarBilling.ca.on.data.*, oscar.MyDateFormat" errorPage="errorpage.jsp"%>
-
+<%@ page
+	import="java.sql.*, java.util.*,java.net.*, oscar.util.*, oscar.oscarBilling.ca.on.data.*, oscar.MyDateFormat"
+	errorPage="errorpage.jsp"%>
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean" scope="session" />
+<%@ include file="dbBilling.jspf"%>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.model.Billing" %>
 <%@ page import="org.oscarehr.common.dao.BillingDao" %>
 <%@ page import="org.oscarehr.billing.CA.model.BillingDetail" %>
 <%@ page import="org.oscarehr.billing.CA.dao.BillingDetailDao" %>
-<%@page import="org.oscarehr.common.dao.AppointmentArchiveDao" %>
-<%@page import="org.oscarehr.common.dao.OscarAppointmentDao" %>
-<%@page import="org.oscarehr.common.model.Appointment" %>
 <%
 	BillingDao billingDao = SpringUtils.getBean(BillingDao.class);
 	BillingDetailDao billingDetailDao = SpringUtils.getBean(BillingDetailDao.class);
-	AppointmentArchiveDao appointmentArchiveDao = (AppointmentArchiveDao)SpringUtils.getBean("appointmentArchiveDao");
-	OscarAppointmentDao appointmentDao = (OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
 %>
 <html>
 <head>
@@ -104,7 +90,7 @@ billingDao.persist(b);
 
 int nBillNo = 0;
 int nBillDetailNo = 0;
-
+BillingONDataHelp billObj = new BillingONDataHelp();
 
 nBillNo =b.getId();
 
@@ -135,27 +121,20 @@ if (nBillNo > 0) {
 	}
 
     if (nBillDetailNo > 0) {
-    	Appointment appts = appointmentDao.find(Integer.parseInt(request.getParameter("appointment_no")));
-    	String apptCurStatus = "T";
-    	if(appts != null) {
-    		apptCurStatus = appts.getStatus();
-    	}
-        
-    oscar.appt.ApptStatusData as = new oscar.appt.ApptStatusData();
-    String billStatus = as.billStatus(apptCurStatus);
-    Appointment appt = appointmentDao.find(Integer.parseInt(request.getParameter("appointment_no")));
-	appointmentArchiveDao.archiveAppointment(appt);
-	
-    int rowsAffected=0;
-    if(appt != null) {
-		appt.setStatus(billStatus);
-		appt.setLastUpdateUser((String)session.getAttribute("user"));
-		appointmentDao.merge(appt);
-		rowsAffected=1;
-	}
-    
-   	Integer billNo = billingDao.search_billing_no(Integer.parseInt(request.getParameter("demographic_no")));
-    if(billNo != null) {
+        ResultSet rsdemo = apptMainBean.queryResults(request.getParameter("appointment_no"), "searchapptstatus");
+        String apptCurStatus = rsdemo.next()?rsdemo.getString("status"):"T";
+
+        oscar.appt.ApptStatusData as = new oscar.appt.ApptStatusData();
+        String billStatus = as.billStatus(apptCurStatus);
+        String[] param1 =new String[3];
+	    param1[0]=billStatus;
+	    param1[1]=(String)session.getAttribute("user");
+	    param1[2]=request.getParameter("appointment_no");
+
+        int rowsAffected = apptMainBean.queryExecuteUpdate(param1,"updateapptstatus");
+        rsdemo.close();
+        rsdemo = apptMainBean.queryResults(request.getParameter("demographic_no"), "search_billing_no");
+        while (rsdemo.next()) {
 %>
 <p>
 <h1>Successful Addition of a billing Record.</h1>
@@ -166,7 +145,7 @@ if (nBillNo > 0) {
 	self.close();
 	if (!self.opener.document.caseManagementEntryForm) self.opener.refresh();
 </script> <%
-            return; //get only one billing_no
+            break; //get only one billing_no
         }//end of while
     }  else {
 %>

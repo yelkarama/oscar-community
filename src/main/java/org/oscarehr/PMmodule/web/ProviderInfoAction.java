@@ -32,7 +32,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.apache.struts.actions.DispatchAction;
 import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.PMmodule.model.Program;
 import org.oscarehr.PMmodule.model.ProgramProvider;
@@ -40,17 +39,12 @@ import org.oscarehr.PMmodule.service.ProgramManager;
 import org.oscarehr.PMmodule.service.ProviderManager;
 import org.oscarehr.common.dao.FacilityDao;
 import org.oscarehr.common.model.Facility;
-import org.oscarehr.util.LoggedInInfo;
-import org.oscarehr.util.SpringUtils;
 
-public class ProviderInfoAction extends DispatchAction {
+public class ProviderInfoAction extends BaseAction {
 
     private FacilityDao facilityDao=null;
     private ProgramManager programManager;
     private ProviderManager providerManager;
-    
-    private ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
-    
     
     public void setFacilityDao(FacilityDao facilityDao) {
         this.facilityDao = facilityDao;
@@ -65,12 +59,10 @@ public class ProviderInfoAction extends DispatchAction {
     }
 
     public ActionForward view(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-
-		String providerNo = null;
+        String providerNo = null;
         providerNo = (String)request.getSession().getAttribute("user");
         if(providerNo == null || "".equals(providerNo) ) {
-            providerNo = loggedInInfo.getLoggedInProviderNo();
+            providerNo = getProviderNo(request);
         }
 
         request.setAttribute("provider", providerManager.getProvider(providerNo));
@@ -91,7 +83,18 @@ public class ProviderInfoAction extends DispatchAction {
             }
         }
         
-        List<Integer> facilityIds = providerDao.getFacilityIds(providerNo);
+/*
+        for (ProgramProvider programProvider : providerManager.getProgramDomain(providerNo)) {
+            Program program = programManager.getProgram(programProvider.getProgramId());
+
+            if (program.isActive()) {
+                programProvider.setProgram(program);
+                programDomain.add(programProvider);
+            }
+        }
+       
+*/        
+        List<Integer> facilityIds = ProviderDao.getFacilityIds(providerNo);
         ArrayList<Facility> facilities=new ArrayList<Facility>();
         for (Integer facilityId : facilityIds){
             facilities.add(facilityDao.find(facilityId));

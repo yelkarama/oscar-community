@@ -22,30 +22,14 @@
     Toronto, Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_billing" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
+<%@ page import="java.util.*, java.text.*,java.sql.*, java.net.*, oscar.*, oscar.util.*, org.oscarehr.provider.model.PreventionManager" %>
 
-<%@page import="org.oscarehr.common.dao.CtlBillingServiceDao"%>
-<%@page import="org.oscarehr.common.model.BillingONItem"%>
-<%@page import="org.oscarehr.common.dao.BillingONItemDao"%>
-<%@page import="java.util.*, java.text.*,java.sql.*, java.net.*, oscar.*, oscar.util.*, org.oscarehr.provider.model.PreventionManager" %>
-<%@page import="oscar.oscarBilling.ca.on.data.*"%>
-<%@page import="oscar.oscarBilling.ca.on.pageUtil.*"%>
+<%@ page import="oscar.oscarBilling.ca.on.data.*"%>
+<%@ page import="oscar.oscarBilling.ca.on.pageUtil.*"%>
 <%@page import="org.oscarehr.common.model.ProviderPreference"%>
 <%@page import="org.oscarehr.common.dao.ProviderPreferenceDao"%>
 <%@page import="org.oscarehr.util.SpringUtils"%>
+
 
 <%
 	String prov = request.getParameter("billRegion");
@@ -61,6 +45,10 @@ if(!authed) {
 	String appointment_date = request.getParameter("appointment_date");
 	String start_time = request.getParameter("start_time");
 	
+	if (session.getAttribute("user") == null) {
+		response.sendRedirect("../../../logout.jsp");
+	}
+	
 	
     oscar.OscarProperties oscarVariables = oscar.OscarProperties.getInstance();
            
@@ -69,7 +57,8 @@ if(!authed) {
 	String provider_no;
 	if( apptProvider_no.equalsIgnoreCase("none") ) {
 		provider_no = user_no;
-    } else {
+    }
+    else {
     	provider_no = apptProvider_no;
     }
 	
@@ -114,10 +103,11 @@ if(!authed) {
 	//sql = "select id,billing_date,admission_date,visitType, timestamp, facilty_num, ref_num from billing_on_cheader1 "+ " where demographic_no="+ demo_no	+ " and status!='D' order by billing_date desc, id desc limit 1";
 	//rs = dbObj.searchDBRecord(sql);
 	Properties propHist = null;
-	List<BillingONItem> rs2 = new ArrayList<BillingONItem>();
+	ResultSet rs2 = null;
 	int size =0; 
+	BillingONDataHelp dbObj = new BillingONDataHelp();
 	
-
+	
 	if (aL.size()>0) {					
 		BillingClaimHeader1Data obj= (BillingClaimHeader1Data) aL.get(0);
 		BillingItemData iobj = (BillingItemData) aL.get(1);
@@ -156,9 +146,19 @@ if(!authed) {
 		dxCode1 = iobj.getDx1();
 		dxCode2 = iobj.getDx2();
 		
-		BillingONItemDao dao = SpringUtils.getBean(BillingONItemDao.class);
-		rs2 = dao.getActiveBillingItemByCh1Id(ConversionUtils.fromIntString(billNo));
+		
+		String sql0 = "select * from billing_on_item where ch1_id=" + billNo + " and status!='D'";
+		rs2 = dbObj.searchDBRecord(sql0);			
+		
+		//r_doctor_ohip = rs.getString("ref_num");
+		// get the latest ref. doctor number
+		//if (bFirst && "checked".equals(SxmlMisc.getXmlContent(rs.getString("content"), "xml_referral"))) {
+		//	bFirst = false;
+		//	r_doctor_ohip = SxmlMisc.getXmlContent(rs.getString("content"), "rdohip");
+		//}
 	}
+
+	
 	
 		String action_str =	"../../../billing.do?billRegion="+URLEncoder.encode(prov)+"&billForm="+URLEncoder.encode(billForm)+"&hotclick="+URLEncoder.encode(hotclick)+"&appointment_no="+appointment_no+"&demographic_name="+URLEncoder.encode(name)+"&status="+status+"&demographic_no="+demographic_no+"&providerview="+providerview+"&user_no="+curUser_no+"&apptProvider_no="+apptProvider_no+"&appointment_date="+appointment_date+"&start_time="+start_time+"&bNewForm=1";
 
@@ -169,9 +169,10 @@ if(!authed) {
 		</p>
 		<form><input type="button" value="Back to previous page"
 			onClick="window.close()"></form>
-		<% 
-		} else {
-		%>
+		<% }
+		   else{
+			   
+		 %>
 
 
  
@@ -220,15 +221,19 @@ if(!authed) {
 	int serviceN = 0;
 	int services_checked_num = 0;
 	String service_code_="", service_code_num_="",serviceCode_="", serviceUnit_="";
-	
-	CtlBillingServiceDao cBillDao = SpringUtils.getBean(CtlBillingServiceDao.class);
-	for(BillingONItem b : rs2) {
-		service_code_ = b.getServiceCode();
-		service_code_num_ = b.getServiceCount();
+	while (rs2.next()) {
+			
+		service_code_ = rs2.getString("service_code");
+		service_code_num_ = rs2.getString("ser_num");
 		
 		if("1".equals(service_code_num_)) {	
-			for(Object[] svc : cBillDao.findUniqueServiceTypesByCode(service_code)) {
-				curBillForm = String.valueOf(svc[1]); // servicetype
+	
+			//curBillForm
+			
+			String sql = "select distinct servicetype_name, servicetype from ctl_billingservice where status='A' and service_code='"+service_code_+"'";
+			ResultSet rs = dbObj.searchDBRecord(sql);
+			while (rs.next()) {
+				curBillForm = rs.getString("servicetype");
 				billForm = curBillForm;
 				break;
 			}
@@ -236,7 +241,9 @@ if(!authed) {
 			xml_serviceCode = "xml_".concat(service_code_);
 			services_checked_num ++;
 %>
- 			<input type="hidden" name="<%=xml_serviceCode %>" id="<%=xml_serviceCode %>" value="checked" />   			
+			
+ 			<input type="hidden" name="<%=xml_serviceCode %>" id="<%=xml_serviceCode %>" value="checked" />  
+ 			
 <%
 		} else {
 			serviceCode_ = "serviceCode".concat(String.valueOf(serviceN));
@@ -252,13 +259,21 @@ if(!authed) {
 		}
 	}
 %>
-	<input type="hidden" name="services_checked" id="services_checked" value=<%=services_checked_num %>>	
-<%
 
+  
+	<input type="hidden" name="services_checked" id="services_checked" value=<%=services_checked_num %>>
+	
+	
+	
+<%
+	
   }	
 %>
+
+ 
  <input type="hidden" name="curBillForm" id="curBillForm" value="<%=curBillForm%>" /> 
  <input type="hidden" name="billForm" id="billForm" value="<%=billForm%>" />	
+
 <center>
 <p>
 Do you want to edit the billing?
@@ -266,7 +281,12 @@ Do you want to edit the billing?
 <input type="submit" name="submit2" value="Yes" />
 <input type="button" name="close" value="No" onclick="window.close()" />
 </center>
+
 </form>
+ 
 <SCRIPT LANGUAGE="JavaScript"><!--
 setTimeout('document.editBillingForm.submit()',50);
 //--></SCRIPT>
+
+
+

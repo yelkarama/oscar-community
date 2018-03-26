@@ -24,26 +24,19 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin.billing,_admin" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../../../securityError.jsp?type=_admin&type=_admin.billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
+  if(session.getValue("user") == null)
+    response.sendRedirect("../../../logout.htm");
+  String curUser_no,userfirstname,userlastname;
+  curUser_no = (String) session.getAttribute("user");
+  userfirstname = (String) session.getAttribute("userfirstname");
+  userlastname = (String) session.getAttribute("userlastname");
 
-<%
-  String curUser_no = (String) session.getAttribute("user");
 %>
-<%@ page import="java.math.*, java.util.*, java.sql.*, oscar.*, java.net.*"%>
-
+<%@ page
+	import="java.math.*, java.util.*, java.sql.*, oscar.*, java.net.*"%>
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean"
+	scope="session" />
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.model.DiagnosticCode" %>
 <%@ page import="org.oscarehr.common.dao.DiagnosticCodeDao" %>

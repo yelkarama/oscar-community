@@ -17,22 +17,9 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
+<%  
+if(session.getValue("user") == null) response.sendRedirect("../../../logout.htm");
 %>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_billing" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
 
 <html>
 <head>
@@ -125,6 +112,7 @@ try {
 		billunit = request.getParameter("billingunit" + tempBill.substring(11));
 		billingamount = request.getParameter("billingamount" + tempBill.substring(11));
 		dbBillingDataBean.setService_code(request.getParameter(tempBill));      
+		dbBillingDataBean.setVariables(oscarVariables);
 		
 		strAuth = dbBillingDataBean.ejbLoad();
 		if(strAuth!=null) { //login successfully

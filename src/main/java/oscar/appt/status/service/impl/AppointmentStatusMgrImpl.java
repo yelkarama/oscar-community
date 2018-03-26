@@ -22,78 +22,54 @@
  */
 package oscar.appt.status.service.impl;
 
-import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.beanutils.BeanComparator;
-import org.oscarehr.common.dao.AppointmentStatusDao;
-import org.oscarehr.common.model.AppointmentStatus;
-import org.oscarehr.util.SpringUtils;
+import org.springframework.transaction.annotation.Transactional;
 
+import oscar.appt.status.dao.AppointmentStatusDAO;
+import oscar.appt.status.model.AppointmentStatus;
 import oscar.appt.status.service.AppointmentStatusMgr;
 
 /**
  *
  * @author toby
  */
-
+@Transactional
 public class AppointmentStatusMgrImpl implements AppointmentStatusMgr {
 
-    private static AppointmentStatusDao appointStatusDao = SpringUtils.getBean(AppointmentStatusDao.class);
+    private AppointmentStatusDAO appointStatusDao = null;
 
-    private static List<AppointmentStatus> cachedActiveStatuses = null;
-    private static boolean cacheIsDirty=false;
-    
-    public static List<AppointmentStatus> getCachedActiveStatuses() {
-    	if(cachedActiveStatuses==null || cacheIsDirty) {
-    		cachedActiveStatuses = appointStatusDao.findActive();
-    	}
-		return cachedActiveStatuses;
-	}
-
-	@SuppressWarnings("unchecked")
-	public static synchronized void setCachedActiveStatuses(List<AppointmentStatus> cachedActiveStatuses) {
-		Collections.sort(cachedActiveStatuses, new BeanComparator("id"));
-		AppointmentStatusMgrImpl.cachedActiveStatuses = cachedActiveStatuses;
-	}
-	
-	
-
-	public static boolean isCacheIsDirty() {
-		return cacheIsDirty;
-	}
-
-	public static void setCacheIsDirty(boolean cacheIsDirty) {
-		AppointmentStatusMgrImpl.cacheIsDirty = cacheIsDirty;
-	}
-	
-	public List<AppointmentStatus> getAllStatus(){
-        return appointStatusDao.findAll();
+    public AppointmentStatusDAO getAppointStatusDao(){
+        return appointStatusDao;
     }
     
-    public List<AppointmentStatus> getAllActiveStatus(){
-    	if(cacheIsDirty) {
-    		setCachedActiveStatuses(appointStatusDao.findActive());
-    		cacheIsDirty=false;
-    	}
-        return appointStatusDao.findActive();
+    public void setAppointStatusDao(AppointmentStatusDAO dao){
+        this.appointStatusDao = dao;
     }
+    
+    public List getAllStatus(){
+        return appointStatusDao.getAllStatus();
+    };
+    
+    public List getAllActiveStatus(){
+        return appointStatusDao.getAllActiveStatus();
+    };
 
     public AppointmentStatus getStatus(int ID){
-        return appointStatusDao.find(ID);
-    }
+        return appointStatusDao.getStatus(ID);
+    };
 
     public void changeStatus(int ID, int iActive){
         appointStatusDao.changeStatus(ID, iActive);
-    }
+    };
 
     public void modifyStatus(int ID, String strDesc, String strColor){
         appointStatusDao.modifyStatus(ID, strDesc, strColor);
-    }
+    };
 
-    public int checkStatusUsuage(List<AppointmentStatus> allStatus){
+    public int checkStatusUsuage(List allStatus){
         return appointStatusDao.checkStatusUsuage(allStatus);
-    }
+    };
     
     public void reset(){
         appointStatusDao.modifyStatus(1, "To Do", "#FDFEC7");

@@ -17,38 +17,18 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin.billing,_admin" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_admin&type=_admin.billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
+<% 
+    if(session.getAttribute("user") == null) response.sendRedirect("../../../logout.jsp");
 %>
 
-<%@ page import="java.math.*, java.util.*, java.io.*, java.sql.*, java.net.*, oscar.*, oscar.util.*, oscar.MyDateFormat" errorPage="errorpage.jsp"%>
+<%@ page
+	import="java.math.*, java.util.*, java.io.*, java.sql.*, java.net.*, oscar.*, oscar.util.*, oscar.MyDateFormat"
+	errorPage="errorpage.jsp"%>
 <%@ page import="oscar.oscarBilling.ca.on.pageUtil.*"%>
 
-<%@page import="org.oscarehr.util.SpringUtils" %>
-<%@page import="org.oscarehr.common.model.RaHeader" %>
-<%@page import="org.oscarehr.common.dao.RaHeaderDao" %>
-<%@page import="org.oscarehr.common.model.RaDetail" %>
-<%@page import="org.oscarehr.common.dao.RaDetailDao" %>
-<%@page import="org.oscarehr.common.model.Billing" %>
-<%@page import="org.oscarehr.common.dao.BillingDao" %>
-<%
-	RaHeaderDao dao = SpringUtils.getBean(RaHeaderDao.class);
-	BillingDao billingDao = SpringUtils.getBean(BillingDao.class);
-	RaDetailDao raDetailDao = SpringUtils.getBean(RaDetailDao.class);
-%>
-
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean"
+	scope="session" />
+<%@ include file="dbBilling.jspf"%>
 
 <% 
 String raNo = "", flag="", plast="", pfirst="", pohipno="", proNo="";
@@ -65,20 +45,28 @@ ArrayList noErrorBill = new ArrayList();
 ArrayList errorBill = new ArrayList();
 ArrayList errorBillNoQ = new ArrayList();
 
+String[] param0 = new String[2];
+param0[0] = raNo;
+param0[1] = proNo+"%";
+String[] param = new String[4];
+param[0] = raNo;
+param[1] = "I2";
+param[2] = "35";
+param[3] = proNo+"%";
 
-for(RaDetail rad:raDetailDao.search_raerror35(Integer.parseInt(raNo), "I2", "35", proNo+"%")) {
-	account = String.valueOf(rad.getBillingNo());
-	errorBill.add(account);	
-	if(!rad.getServiceCode().matches("Q011A|Q020A|Q130A|Q131A|Q132A|Q133A|Q140A|Q141A|Q142A")) {
-		errorBillNoQ.add(account);
+ResultSet rsdemo = apptMainBean.queryResults(param, "search_raerror35");
+while (rsdemo.next()) {   
+	account = rsdemo.getString("billing_no");
+	errorBill.add((String) account);
+	if(!rsdemo.getString("service_code").matches("Q011A|Q020A|Q130A|Q131A|Q132A|Q133A|Q140A|Q141A|Q142A")) {
+		errorBillNoQ.add((String) account);
 	}
 }
 
 account = "";
-List<Integer> res = raDetailDao.search_ranoerror35(Integer.parseInt(raNo),"I2","35",proNo+"%");
-
-for (Integer r:res) {   
-	account = String.valueOf(r);
+rsdemo = apptMainBean.queryResults(param, "search_ranoerror35");
+while (rsdemo.next()) {   
+	account = rsdemo.getString("billing_no");
 	eFlag="1";
 	for (int i=0; i< errorBill.size(); i++){
 		errorAccount = (String) errorBill.get(i);
@@ -91,15 +79,11 @@ for (Integer r:res) {
 	if(eFlag.compareTo("1")==0) noErrorBill.add(account);
 }      
 
-String[] param0 = new String[2];
-param0[0] = raNo;
-param0[1] = proNo+"%";
-
-
 // settle Qcodes
 account = "";
-for(Integer r: raDetailDao.search_ranoerrorQ(Integer.parseInt(raNo), proNo+"%")) {
-	account = String.valueOf(r);
+rsdemo = apptMainBean.queryResults(param0, "search_ranoerrorQ");
+while (rsdemo.next()) {   
+	account = rsdemo.getString("billing_no");
 	eFlag="1";
 	for (int i=0; i< errorBillNoQ.size(); i++){
 		errorAccount = (String) errorBillNoQ.get(i);
@@ -116,17 +100,14 @@ BillingRAPrep obj = new BillingRAPrep();
 for (int j=0; j< noErrorBill.size();j++){
 	noErrorAccount=(String) noErrorBill.get(j);
 	obj.updateBillingStatus(noErrorAccount, "S");
-	
+	//int recordAffected = apptMainBean.queryExecuteUpdate(noErrorAccount,"update_billhd");
 }
 
-int recordAffected1 = 0;
-	 
-	 RaHeader raHeader = dao.find(Integer.parseInt(raNo));
-	 if(raHeader != null) {
-		 raHeader.setStatus("F");
-		 dao.merge(raHeader);
-		recordAffected1++;
-	 }
+String[] paramx = new String[2]; 
+paramx[0] = "F";
+paramx[1] = raNo;
+
+int recordAffected1 = apptMainBean.queryExecuteUpdate(paramx,"update_rahd_status");
 %>
 
 <script LANGUAGE="JavaScript">

@@ -70,7 +70,7 @@ public class DemographicStudyPK implements Serializable {
 	public boolean equals(Object o) {
 		try {
 			DemographicStudyPK o1 = (DemographicStudyPK) o;
-			return ((demographicNo.equals( o1.demographicNo)) && (studyNo.equals(o1.studyNo)));
+			return ((demographicNo == o1.demographicNo) && (studyNo == o1.studyNo));
 		} catch (RuntimeException e) {
 			return (false);
 		}

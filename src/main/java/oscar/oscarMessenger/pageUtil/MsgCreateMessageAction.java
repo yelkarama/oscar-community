@@ -25,7 +25,6 @@
 
 package oscar.oscarMessenger.pageUtil;
 import java.io.IOException;
-import java.util.Arrays;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -35,11 +34,6 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.oscarehr.common.model.OscarMsgType;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
-import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.oscarMessenger.data.MsgProviderData;
 import oscar.oscarMessenger.util.MsgDemoMap;
@@ -47,36 +41,23 @@ import oscar.oscarMessenger.util.MsgDemoMap;
 public class MsgCreateMessageAction extends Action {
 
 
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	
     public ActionForward execute(ActionMapping mapping,
 				 ActionForm form,
 				 HttpServletRequest request,
 				 HttpServletResponse response)
 	throws IOException, ServletException {
 
-    	if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_msg", "w", null)) {
-			throw new SecurityException("missing required security object (_msg)");
-		}
-    	
             // Extract attributes we will need
             oscar.oscarMessenger.pageUtil.MsgSessionBean bean;
             bean = (oscar.oscarMessenger.pageUtil.MsgSessionBean)request.getSession().getAttribute("msgSessionBean");
-            String userNo   = bean.getProviderNo();
-            String userName = bean.getUserName();
-            String att      = bean.getAttachment();
-            String pdfAtt      = bean.getPDFAttachment();
-            bean.nullAttachment();
+                String userNo   = bean.getProviderNo();
+                String userName = bean.getUserName();
+                String att      = bean.getAttachment();
+                String pdfAtt      = bean.getPDFAttachment();
+                bean.nullAttachment();
             String message      = ((MsgCreateMessageForm)form).getMessage();
             String[] providers  = ((MsgCreateMessageForm)form).getProvider();
             String subject      = ((MsgCreateMessageForm)form).getSubject();
-	    bean.setMessage(null);
-            bean.setSubject(null);
-            
-            MiscUtils.getLogger().debug("Providers: " + Arrays.toString(providers));
-            MiscUtils.getLogger().debug("Subject: " + subject);
-            MiscUtils.getLogger().debug("Message: " + message);
-            
             String sentToWho    = null;
             String currLoco     = null;
             String messageId    = null;
@@ -107,7 +88,15 @@ public class MsgCreateMessageAction extends Action {
                 sentToWho = sentToWho+" "+messageData.getRemoteNames(remoteProviderListing);
             }
 
-            messageId = messageData.sendMessage2(message,subject,userName,sentToWho,userNo,providerListing,att, pdfAtt, OscarMsgType.GENERAL_TYPE);
+            messageId = messageData.sendMessage2(message,subject,userName,sentToWho,userNo,providerListing,att, pdfAtt);
+
+            if (messageData.isRemotes()){
+                oscar.oscarMessenger.data.MsgRemoteMessageData  remoteMessageData;
+                remoteMessageData = new oscar.oscarMessenger.data.MsgRemoteMessageData(messageId,currLoco);
+
+                remoteMessageData.start();
+
+            }
 
             //link msg and demogrpahic if both messageId and demographic_no are not null
             if (demographic_no != null && (demographic_no.equals("") || demographic_no.equals("null")) ){

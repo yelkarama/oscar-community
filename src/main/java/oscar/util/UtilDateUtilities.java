@@ -35,11 +35,6 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
-import org.oscarehr.util.MiscUtils;
-
-/**
- * @deprecated 2013-04-28 use org.oscarehr.util.DateUtils instead 
- */
 public class UtilDateUtilities {
 
     public static Date StringToDate(String s)    {
@@ -92,6 +87,13 @@ public class UtilDateUtilities {
     public static String justDay(Date date){
         SimpleDateFormat simpledateformat = new SimpleDateFormat("dd");
         return simpledateformat.format(date);
+    }
+
+    public static Date now()    {    //Today()    
+        return GregorianCalendar.getInstance().getTime();
+    }
+    public static Date  Today()  {       
+        return GregorianCalendar.getInstance().getTime();
     }
 
     public static Date  Tomorrow()  {
@@ -194,7 +196,7 @@ public class UtilDateUtilities {
 
     public static String getToday(String datePattern){
        Format formatter = new SimpleDateFormat(datePattern);
-       return formatter.format(new Date());       
+       return formatter.format(Today());       
     }
     
     /**
@@ -210,7 +212,6 @@ public class UtilDateUtilities {
          DateFormat formatter = new SimpleDateFormat(datePattern);
          date = formatter.parse(dateStr);                        
       } catch (ParseException e) {
-    	  MiscUtils.getLogger().error("Looks bad, too bad original author didn't document how bad", e);
       }
       return date   ;     
     }

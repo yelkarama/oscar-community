@@ -23,28 +23,11 @@
     Ontario, Canada
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_form" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_form");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%@ page
 	import="java.util.*, oscar.util.UtilDateUtilities, oscar.form.*, oscar.form.data.*, oscar.oscarPrevention.PreventionData,oscar.oscarRx.data.RxPrescriptionData"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 
 <%
 String formClass = "BCHP";
@@ -54,7 +37,7 @@ int demoNo = Integer.parseInt(request.getParameter("demographic_no"));
 int formId = Integer.parseInt(request.getParameter("formId"));
 int provNo = Integer.parseInt((String) session.getAttribute("user"));
 FrmRecord rec = (new FrmRecordFactory()).factory(formClass);
-java.util.Properties props = rec.getFormRecord(LoggedInInfo.getLoggedInInfoFromSession(request),demoNo, formId);
+java.util.Properties props = rec.getFormRecord(demoNo, formId);
 
 props.setProperty("c_lastVisited", "pg2");
 
@@ -90,7 +73,7 @@ if (props == null || (props.getProperty("pg2_medName1", "").equals("") && props.
     }
     
     // fill the preventions
-    ArrayList<Map<String,Object>> vaccines = PreventionData.getPreventionData(LoggedInInfo.getLoggedInInfoFromSession(request), demoNo);
+    ArrayList<Map<String,Object>> vaccines = PreventionData.getPreventionData(""+demoNo);
     int count1 = 0;
     int count2 = 0;
     int count3 = 0;

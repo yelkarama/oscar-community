@@ -23,24 +23,10 @@
     Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-	boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin" rights="r" reverse="<%=true%>"> 
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_admin");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
 <%@page import="org.oscarehr.util.WebUtils,org.oscarehr.common.service.AcceptableUseAgreementManager,org.oscarehr.common.model.Property" %>
 <%
-		
+if(session.getAttribute("user") == null) response.sendRedirect("../../logout.jsp");
+    		
 Property latestProperty = AcceptableUseAgreementManager.findLatestProperty();
 String checked = "";
 String fromDate = "";
@@ -80,16 +66,7 @@ String duration = "1";
 
 		<!-- the following script defines the Calendar.setup helper function, which makes adding a calendar a matter of 1 or 2 lines of code. -->
 		<script type="text/javascript" src="../share/calendar/calendar-setup.js"></script>
-
-		<link rel="stylesheet" type="text/css" href="<%= request.getContextPath() %>/js/jquery_css/smoothness/jquery-ui-1.10.2.custom.min.css"/>
-		<script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery-1.9.1.js"></script>
-		<script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery-ui-1.10.2.custom.min.js"></script>
-		<script>
-		$(function() {
-		    $( document ).tooltip();
-		  });
-		</script>
-
+    </head>
     <body>
         <table class="MainTable">
             <tr class="MainTableTopRow">
@@ -152,10 +129,7 @@ String duration = "1";
                 	
                 	<br>
                 	<br>
-                        Agreement file (txt file)<input type="file" name="importFile">
-                        <span title="<bean:message key="global.uploadWarningBody"/>" style="vertical-align:middle;font-family:arial;font-size:20px;font-weight:bold;color:#ABABAB;cursor:pointer"><img border="0" src="../images/icon_alertsml.gif"/></span></span>
-        
-                        <br>
+                        Agreement file (txt file)<input type="file" name="importFile"><br>
                         <input type="submit" value="<bean:message key="admin.admin.uploadEntryTxt"/>">
                     </html:form>
                 </td>

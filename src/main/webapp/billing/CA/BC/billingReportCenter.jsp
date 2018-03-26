@@ -24,23 +24,11 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_report,_admin.reporting,_admin" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../../securityError.jsp?type=_report&type=_admin.reporting&type=_admin");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
 <%    
-  String user_no = (String) session.getAttribute("user");
+  if(session.getValue("user") == null)
+    response.sendRedirect("../logout.jsp");
+  String user_no;
+  user_no = (String) session.getAttribute("user");
   int  nItems=0;
      String strLimit1="0";
     String strLimit2="5";
@@ -48,16 +36,13 @@ if(!authed) {
   if(request.getParameter("limit2")!=null) strLimit2 = request.getParameter("limit2");
   String providerview = request.getParameter("providerview")==null?"all":request.getParameter("providerview") ;
 %>
-<%@ page import="java.util.*, java.sql.*, oscar.*, java.net.*" errorPage="errorpage.jsp"%>
-<%@ page import="org.oscarehr.util.SpringUtils" %>
-<%@ page import="org.oscarehr.common.model.ReportProvider" %>
-<%@ page import="org.oscarehr.common.model.Provider" %>
-<%@ page import="org.oscarehr.common.dao.ReportProviderDao" %>
+<%@ page import="java.util.*, java.sql.*, oscar.*, java.net.*"
+	errorPage="errorpage.jsp"%>
 
-<%
-	ReportProviderDao reportProviderDao = SpringUtils.getBean(ReportProviderDao.class);
-%>
-
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean"
+	scope="session" />
+<jsp:useBean id="SxmlMisc" class="oscar.SxmlMisc" scope="session" />
+<%@ include file="dbBilling.jspf"%>
 <%
 GregorianCalendar now=new GregorianCalendar(); 
   int curYear = now.get(Calendar.YEAR);
@@ -77,6 +62,29 @@ GregorianCalendar now=new GregorianCalendar();
 <title>Billing Report</title>
 <link rel="stylesheet" href="../web.css">
 <link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
+<script language="JavaScript">
+<!--
+
+function selectprovider(s) {
+  if(self.location.href.lastIndexOf("&providerview=") > 0 ) a = self.location.href.substring(0,self.location.href.lastIndexOf("&providerview="));
+  else a = self.location.href;
+	self.location.href = a + "&providerview=" +s.options[s.selectedIndex].value ;
+}
+function openBrWindow(theURL,winName,features) { //v2.0
+  window.open(theURL,winName,features);
+}
+
+function refresh() {
+  var u = self.location.href;
+  if(u.lastIndexOf("view=1") > 0) {
+    self.location.href = u.substring(0,u.lastIndexOf("view=1")) + "view=0" + u.substring(eval(u.lastIndexOf("view=1")+6));
+  } else {
+    history.go(0);
+  }
+}
+//-->
+</script>
+
 
 </head>
 
@@ -125,13 +133,13 @@ GregorianCalendar now=new GregorianCalendar();
            String specialty_code; 
 String billinggroup_no;
            int Count = 0;
-           for(Object[] result:reportProviderDao.search_reportprovider("billingreport")) {
-				ReportProvider rp = (ReportProvider)result[0];
-				Provider p = (Provider)result[1];
-				
-				 proFirst = p.getFirstName();
-				 proLast = p.getLastName();
-				 proOHIP = p.getProviderNo();
+        ResultSet rslocal;
+        rslocal = null;
+ rslocal = apptMainBean.queryResults("billingreport", "search_reportprovider");
+ while(rslocal.next()){
+ proFirst = rslocal.getString("first_name");
+ proLast = rslocal.getString("last_name");
+ proOHIP = rslocal.getString("provider_no"); 
 
 %>
 			<option value="<%=proOHIP%>"

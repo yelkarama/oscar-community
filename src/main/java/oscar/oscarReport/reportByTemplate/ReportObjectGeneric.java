@@ -45,12 +45,8 @@ public class ReportObjectGeneric implements ReportObject {
     private String description = "";
     private String type = "";
     private int active;
-    private String category;
-    
     private ArrayList parameters = new ArrayList(0);
     
-    private boolean sequence;
-     
     
     public ReportObjectGeneric() {
     }
@@ -66,12 +62,6 @@ public class ReportObjectGeneric implements ReportObject {
         this.setDescription(description);
     }
     
-    public ReportObjectGeneric(String templateId, String title, String description, String category) {
-        this(templateId,title,description);
-        this.category = category;
-    }
-    
-    
     public ReportObjectGeneric(String templateId, String title, String description, String type, ArrayList parameters) {
         this.setTemplateId(templateId);
         this.setTitle(title);
@@ -79,12 +69,7 @@ public class ReportObjectGeneric implements ReportObject {
         this.setType(type);
         this.setParameters(parameters);
     }
-    
-    public ReportObjectGeneric(String templateId, String title, String description, String type, ArrayList parameters, String category) {
-       this(templateId,title,description,type,parameters);
-       this.category = category;
-    }
-    
+
     public String getTemplateId() {
         return templateId;
     }
@@ -158,48 +143,14 @@ public class ReportObjectGeneric implements ReportObject {
         return sql;
     }
     
-    public String getPreparedSQL(int sequenceNo, Map parameters) {
-        String sql = (new ReportManager()).getSQL(this.templateId);
-        
-        String parts[] = sql.split(";");
-        
-        if(parts.length <= sequenceNo) {
-        	return null;
+    private Parameter getParameter(String id) {
+        for (int i=0; i<parameters.size(); i++) {
+            Parameter curParam = (Parameter) parameters.get(i);
+            if (curParam.getParamId() == id) return curParam;
         }
-        sql = parts[sequenceNo];
-        
-        
-        int cursor1 = 0;
-        while ((cursor1 = sql.indexOf("{")) != -1) {
-            int cursor2 = sql.indexOf("}", cursor1);
-            String paramId = sql.substring(cursor1+1, cursor2);
-
-            String[] substValues = (String[]) parameters.get(paramId);
-            if (substValues == null) { //if type textlist or this param isn't in the request
-                substValues = (String[]) parameters.get(paramId + ":list");
-                if (substValues != null) {
-                    substValues[0] = substValues[0].replaceAll(" ", "");
-                    substValues = StringUtils.splitToStringArray(substValues[0], ",");
-                } else if (parameters.get(paramId + ":check") != null) {
-                    substValues = new String[0];
-                } else return "";
-            }
-            if (substValues.length == 1) //if one valuemnmmnm
-                sql = sql.substring(0, cursor1) + substValues[0] + sql.substring(cursor2+1);
-            else { //if multiple values
-                //DynamicElement curelement = getDynamicElement(dynamicElementId);
-                if (cursor1 != 0 && (sql.charAt(cursor1-1) == '\'' || sql.charAt(cursor1-1) == '\"')) {
-                    sql = sql.substring(0, cursor1) + StringUtils.join(substValues, sql.charAt(cursor1-1) + "," + sql.charAt(cursor1-1)) + sql.substring(cursor2+1);
-                } else {
-                    sql = sql.substring(0, cursor1) + StringUtils.join(substValues, ",") + sql.substring(cursor2+1);
-                }
-                
-            }
-        }
-        MiscUtils.getLogger().debug("<REPORT BY TEMPLATE> SQL: " + sql);
-        return sql;
+        return null;
     }
-    
+
     public int getActive() {
         return active;
     }
@@ -208,22 +159,4 @@ public class ReportObjectGeneric implements ReportObject {
         this.active = active;
     }
 
-	public boolean isSequence() {
-		return sequence;
-	}
-
-	public void setSequence(boolean sequence) {
-		this.sequence = sequence;
-	}
-
-	public String getCategory() {
-		return category;
-	}
-
-	public void setCategory(String category) {
-		this.category = category;
-	}
-
-	
 }
-

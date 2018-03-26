@@ -77,6 +77,7 @@ public class BillingClaimsErrorReportBeanHandlerSave {
 					erObj.setGroup_no(nextline.substring(23, 27));
 					erObj.setSpecialty(nextline.substring(33, 35));
 					erObj.setProcess_date(nextline.substring(38, 46));
+					erRepObj.deleteErrorReport(erObj);
 				}
 
 				if (headerCount.compareTo("H") == 0) {
@@ -103,10 +104,6 @@ public class BillingClaimsErrorReportBeanHandlerSave {
 					erObj.setVer(nextline.substring(13, 15));
 					erObj.setDob(nextline.substring(15, 23));
 					erObj.setBilling_no(nextline.substring(23, 31));
-					
-					if(erObj.getBilling_no().startsWith("FC")) {
-						erObj.setBilling_no(erObj.getBilling_no().substring(2));
-					}
 					erObj.setRef_no(nextline.substring(35, 41));
 					erObj.setFacility(nextline.substring(41, 45));
 					erObj.setAdmitted_date(nextline.substring(45, 53));
@@ -114,8 +111,6 @@ public class BillingClaimsErrorReportBeanHandlerSave {
 							+ nextline.substring(70, 73).trim() + " " + nextline.substring(73, 76).trim() + " "
 							+ nextline.substring(76, 79);
 					// erObj.setClaim_error()
-					erRepObj.deleteErrorReport(erObj);
-
 				}
 
 				if (headerCount.compareTo("R") == 0) {

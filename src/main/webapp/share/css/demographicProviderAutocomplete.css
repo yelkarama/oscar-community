@@ -25,12 +25,12 @@
 
 	/* styles for results container */
 	.yui-ac-container {
-	    position:absolute;top:0em;width:400px;
+	    position:absolute;top:0em;width:100%;
 	}
 
 	/* styles for header/body/footer wrapper within container */
 	.yui-ac-content {
-	    position:absolute;width:400px;border:1px solid #808080;background:#fff;overflow:hidden;z-index:9050;
+	    position:absolute;width:200px;border:1px solid #808080;background:#fff;overflow:hidden;z-index:9050;
 	}
 
 	/* styles for container shadow */
@@ -40,7 +40,7 @@
 
 	/* styles for results list */
 	.yui-ac-content ul{
-	    margin:0;padding:0;width:400px;
+	    margin:0;padding:0;width:100%;
 	}
 
 	/* styles for result item */
@@ -56,16 +56,4 @@
 	/* styles for highlighted result item */
 	.yui-ac-content li.yui-ac-highlight {
 	    background:#426FD9;color:#FFF;
-	}
-	
-
-	.ui-autocomplete {
-		background-color: #FFFFFF;
-		border: 3px outset #2EFE2E;
-		width:400px;
-	}
-	
-	.ui-menu-item:hover {
-		background-color:#426FD9;
-		color:#FFFFFF;
 	}

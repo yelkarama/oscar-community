@@ -75,4 +75,22 @@ public class OcanFormOptionDao extends AbstractDao<OcanFormOption> {
 		return (results);
 	}
 
+	public OcanFormOption findByCategoryAndValue(String category, String categoryValue) {
+		// build sql string
+		String sqlCommand = "select x from OcanFormOption x where x.ocanDataCategory =?1 and x.ocanDataCategoryValue=?2 order by x.ocanDataCategoryName";
+
+		// set parameters
+		Query query = entityManager.createQuery(sqlCommand);
+		query.setParameter(1, category);
+		query.setParameter(2, categoryValue);
+
+		// run query
+		@SuppressWarnings("unchecked")
+		List<OcanFormOption> results = query.getResultList();
+
+		if(results.size()>0)
+			return results.get(0);
+		else
+			return null;
+	}
 }

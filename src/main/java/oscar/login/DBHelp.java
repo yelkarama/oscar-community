@@ -32,18 +32,29 @@ package oscar.login;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javax.persistence.PersistenceException;
+
 import org.apache.log4j.Logger;
 import org.oscarehr.util.MiscUtils;
 
 import oscar.oscarDB.DBHandler;
+import oscar.util.SqlUtils;
 
 /**
  * deprecated Use JPA instead, no new code should be written against this class.
  */
-@Deprecated
 public final class DBHelp {
     private static final Logger logger = MiscUtils.getLogger();
 
+    public static boolean updateDBRecord(String sql) {
+        try {
+        	SqlUtils.update(sql);
+            return(true);
+        } catch (PersistenceException e) {
+            logger.error("Error", e);
+            return(false);
+        }
+    }
 
     public static ResultSet searchDBRecord(String sql) {
         ResultSet ret = null;

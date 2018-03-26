@@ -90,7 +90,8 @@ public class CreateBillingReportActionForm extends ActionForm {
     /**@todo: finish this method, this is just the skeleton.*/
     return null;
   }
-  
+  public void reset(ActionMapping actionMapping, HttpServletRequest httpServletRequest) {
+  }
   public String getRepType() {
     return repType;
   }

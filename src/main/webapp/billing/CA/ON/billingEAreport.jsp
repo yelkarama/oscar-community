@@ -17,22 +17,9 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
+  
 %>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_report,_admin.reporting,_admin" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_report&type=_admin.reporting&type=_admin");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
 <%@ page import="java.util.*,oscar.oscarReport.pageUtil.*"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -215,8 +202,8 @@ if(!authed) {
 									<td class="fieldName" width="7%">Provider #</td>
 									<td class="fieldName" width="4%">Group#</td>
 									<td class="fieldName" width="7%">Create Date</td>
-									<td class="fieldName" width="5%">Seq#</td>
 									<td class="fieldName" width="7%">Rec Start</td>
+									<td class="fieldName" width="4%">Seq#</td>
 									<td class="fieldName" width="5%">Rec End</td>
 									<td class="fieldName" width="7%">Rec Type</td>
 									<td class="fieldName" width="5%">Claims</td>
@@ -241,7 +228,7 @@ if(!authed) {
 											name="batchAck" property="batchSequenceNumber" /></td>
 										<td class="dataTable" width="7%"><bean:write
 											name="batchAck" property="microStart" /></td>
-										<td class="dataTable" width="5%"><bean:write
+										<td class="dataTable" width="4%"><bean:write
 											name="batchAck" property="microEnd" /></td>
 										<td class="dataTable" width="7%"><bean:write
 											name="batchAck" property="microType" /></td>

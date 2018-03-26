@@ -23,249 +23,176 @@
     Ontario, Canada
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
+  
+  String deepColor = "#CCCCFF" , weakColor = "#EEEEFF" ;
 %>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin.eform" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_admin.eform");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-<%@ page import="oscar.eform.data.*, oscar.eform.*, java.util.*, oscar.util.*, org.apache.commons.lang.StringEscapeUtils"%>
+<%@ page
+	import="oscar.eform.data.*, oscar.eform.*, java.util.*, oscar.util.*,java.lang.String,org.apache.commons.lang.StringEscapeUtils"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%
-HashMap<String, Object> curform = new HashMap<String, Object>();
-HashMap<String, String> errors = new HashMap<String, String>();
-
+   Hashtable curform = new Hashtable();
+   Hashtable errors = new Hashtable();
 if (request.getAttribute("submitted") != null) {
-    curform = (HashMap<String, Object>) request.getAttribute("submitted");
-    errors = (HashMap<String, String>) request.getAttribute("errors");
-} else if (request.getParameter("fid") != null ) {
+    curform = (Hashtable) request.getAttribute("submitted");
+    errors = (Hashtable) request.getAttribute("errors");
+} else if (request.getParameter("fid") != null) {
     String curfid = request.getParameter("fid");
     curform = EFormUtil.loadEForm(curfid);
 }
-
    //remove "null" values
    if (curform.get("fid") == null) curform.put("fid", "");
    if (curform.get("formName") == null) curform.put("formName", "");
    if (curform.get("formSubject") == null) curform.put("formSubject", "");
    if (curform.get("formFileName") == null) curform.put("formFileName", "");
    if (curform.get("roleType") == null) curform.put("roleType", "");
-   if (curform.get("programNo") == null) curform.put("programNo", "");
    
-   
-   if (request.getParameter("formHtmlG") != null){
+   if (request.getParameter("formHtml") != null){
        //load html from hidden form from eformGenerator.jsp,the html is then injected into edit-eform
-      curform.put("formHtml", StringEscapeUtils.unescapeHtml(request.getParameter("formHtmlG")));
+      curform.put("formHtml",org.apache.commons.lang.StringEscapeUtils.unescapeHtml(request.getParameter("formHtml")));
    }
    if (curform.get("formDate") == null) curform.put("formDate", "--");
    if (curform.get("formTime") == null) curform.put("formTime", "--");
-   
-   if (curform.get("showLatestFormOnly") ==null) curform.put("showLatestFormOnly", false);
    if (curform.get("patientIndependent") ==null) curform.put("patientIndependent", false);
-   if (curform.get("restrictByProgram") ==null) curform.put("restrictByProgram", false);
-   if (curform.get("disabledUpdate") ==null) curform.put("disabledUpdate", false);
+   boolean patientIndependent = (Boolean) curform.get("patientIndependent");
    
-   String formHtml = StringEscapeUtils.escapeHtml((String) curform.get("formHtml"));
-	if(formHtml==null){formHtml="";}	
+   String formHtmlRaw = (String) curform.get("formHtml");
+   String formHtml = "";
+   if (request.getAttribute("formHtml") != null) {
+       formHtml = (String) request.getAttribute("formHtml");
+   }
+     formHtml =org.apache.commons.lang.StringEscapeUtils.escapeHtml(formHtmlRaw);
 %>
-<!DOCTYPE html>
 <html:html locale="true">
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="eform.edithtml.msgEditEform" /></title>
-
-<style>
-.input-error{   
-    border-color: rgba(229, 103, 23, 0.8) !important; 
-    box-shadow: 0 1px 1px rgba(229, 103, 23, 0.075) inset, 0 0 8px rgba(229, 103, 23, 0.6) !important; 
-    outline: 0 none !important;  
-}
-
-#popupDisplay{display:inline-block;}
-#panelDisplay{display:none;}
-</style>
+<link rel="stylesheet" href="../share/css/OscarStandardLayout.css">
+<link rel="stylesheet" href="../share/css/eformStyle.css">
+<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
 
 <script type="text/javascript" language="JavaScript">
 function openLastSaved() {
-    window.open('<%=request.getContextPath()%>/eform/efmshowform_data.jsp?fid=<%= curform.get("fid") %>', 'PreviewForm', 'toolbar=no, location=no, status=yes, menubar=no, scrollbars=yes, resizable=yes, width=700, height=600, left=300, top=100');   
+    window.open('efmshowform_data.jsp?fid=<%= curform.get("fid") %>', 'PreviewForm', 'toolbar=no, location=no, status=yes, menubar=no, scrollbars=yes, resizable=yes, width=700, height=600, left=300, top=100');   
+}
+function disablensubmit() {
+    document.forms['eFormEdit'].savebtn.disabled = true;
+    document.forms['eFormEdit'].submit();
 }
 
-//using this to check if page is being viewing in admin panel or in popup
-var elementExists = document.getElementById("dynamic-content");
-
-if (elementExists){
-document.getElementById("popupDisplay").style.display = 'none';
-document.getElementById("panelDisplay").style.display = 'inline';
-}else{
-document.write('<link href="<%=request.getContextPath() %>/css/bootstrap.css" rel="stylesheet" type="text/css">');
+function disablenupload() {
+    document.getElementById('uploadbtn').disabled = true;
+    document.getElementById('uploadMarker').value = "true";
+    document.forms['eFormEdit'].submit();
 }
-
-<% if ((request.getAttribute("success") != null) && (errors.size() == 0)) { %>
-if (elementExists==null){
-window.opener.location.href = '<%=request.getContextPath()%>/administration/?show=Forms';
-}
-<%}%>
 </script>
-
 </head>
 
-<body id="eformBody">
-
-<%@ include file="efmTopNav.jspf"%>
-
-<%if (request.getParameter("fid") != null){%>
-<h3><bean:message key="eform.edithtml.msgEditEform" /></h3>
-<%}else{%>
-<h3>Create New eForm</h3>
-<%}%>
-
-<form action="<%=request.getContextPath()%>/eform/editForm.do" method="POST" enctype="multipart/form-data" id="editform" name="eFormEdit">
-
-<div class="well" style="position: relative;">
-		
-<% if ((request.getAttribute("success") != null) && (errors.size() == 0)) { %>
-<div class="alert alert-success">
-<button type="button" class="close" data-dismiss="alert">&times;</button>
-<bean:message key="eform.edithtml.msgChangesSaved" />.
-</div>
-<% } %> 
-	
-	<%String formNameMissing = errors.get("formNameMissing");
-    if (errors.containsKey("formNameMissing")) { %>
-	<div class="alert alert-error">
-    <button type="button" class="close" data-dismiss="alert">&times;</button>
-    <bean:message key="<%=formNameMissing%>" />
-    </div>
-	<%} else if (errors.containsKey("formNameExists")) { %>
-	<div class="alert alert-error">
-    <button type="button" class="close" data-dismiss="alert">&times;</button>
-    <bean:message key="<%=formNameMissing%>" />
-    </div>
-	<%}%>
-
-		<input type="hidden" name="fid" id="fid" value="<%= curform.get("fid")%>">
-       
-		<% if ((request.getAttribute("success") == null) || (errors.size() != 0)) {%>
-			<!--error? -->
-		<% } %>
-		
-			<!--LAST SAVED-->
-			<div style="position:absolute;top:2px;right:4px;">			
-			<em><bean:message key="eform.edithtml.msgLastModified" />: 	<%= curform.get("formDate")%>&nbsp;<%= curform.get("formTime") %></em>
-			</div>
-
-			<!--FORM NAME-->
-			<div style="display:inline-block">
-			 
-			<bean:message key="eform.uploadhtml.formName" />:
-			<br />
-			<input type="text" name="formName" value="<%= curform.get("formName") %>" class="<% if (errors.containsKey("formNameMissing") || (errors.containsKey("formNameExists"))) { %> input-error <% } %>" size="30" /> 
-			<br />
-			
-			</div>
-			
-			<!--FORM ADDITIONAL INFO-->
-			<div style="display:inline-block">
-			<bean:message key="eform.uploadhtml.formSubject" />:<br />
-                        <input type="text" name="formSubject" value="<%= curform.get("formSubject") %>" size="30" /><br />
-			</div>
-
-			<!--ROLE TYPE-->
-			<div style="display:inline-block">			
-			<bean:message key="eform.uploadhtml.btnRoleType"/><br />
-			<select name="roleType">
-			<option value="">- select one -</option>
-			<%  ArrayList roleList = EFormUtil.listSecRole(); 
-			String selected = "";
-			for (int i=0; i<roleList.size(); i++) {  
-				selected = "";
-				if(roleList.get(i).equals(curform.get("roleType"))) {
-					selected = "selected";
-				}
-			%>  			
-			<option value="<%=roleList.get(i) %>" <%= selected%> %><%=roleList.get(i) %></option>
-	
-			<%} %>
-			</select><br />
-			</div>
-
-			<!--ProgramNo-->
-			<div style="display:inline-block">			
-			<bean:message key="eform.uploadhtml.btnProgram"/><br />
-			<select name="programNo">
-			<option value="">- select one -</option>
-			<%  List<org.oscarehr.PMmodule.model.Program> pList = EFormUtil.listPrograms(); 
-			selected = "";
-			for (int i=0; i<pList.size(); i++) {  
-				selected = "";
-				if(pList.get(i).getId().toString().equals(curform.get("programNo"))) {
-					selected = "selected";
-				}
-			%>  			
-			<option value="<%=pList.get(i).getId() %>" <%= selected%> %><%=pList.get(i).getName() %></option>
-	
-			<%} %>
-			</select><br />
-			</div>
-			
-			<!--PATIENT INDEPENDANT-->
-			<div style="display:inline-block">
-			<bean:message key="eform.uploadhtml.showLatestFormOnly" />	<input type="checkbox" name="showLatestFormOnly" value="true" <%= (Boolean)curform.get("showLatestFormOnly")?"checked":"" %> />
-				<br/>
-			<bean:message key="eform.uploadhtml.patientIndependent" /> <input type="checkbox" name="patientIndependent" value="true" <%= (Boolean)curform.get("patientIndependent")?"checked":"" %> /><br />
-			<bean:message key="eform.uploadhtml.restrictByProgram" /> <input type="checkbox" name="restrictByProgram" value="true" <%= (Boolean)curform.get("restrictByProgram")?"checked":"" %> /><br />
-			<bean:message key="eform.uploadhtml.disableUpdate" /> <input type="checkbox" name="disableUpdate" value="true" <%= curform.get("disableUpdate") != null?"checked":"" %> /><br />
-						
-			</div>
-
-			<br />			
-			<bean:message key="eform.edithtml.msgEditHtml" />:<br />
-			<textarea wrap="off" name="formHtml" style="" class="span12" rows="40"><%= formHtml%></textarea><br />
-
-<p>
-	<div id="panelDisplay">
-	<a href="<%=request.getContextPath()%>/eform/efmformmanager.jsp" class="btn contentLink">
-	 <i class="icon-circle-arrow-left"></i> Back to eForm Library<!--<bean:message key="eform.edithtml.msgBackToForms"/>-->
-	</a>
-	<input type="button" class="btn" value="<bean:message key="eform.edithtml.msgPreviewLast"/>" <% if (curform.get("fid") == null) {%> disabled	<%}%> name="previewlast" onclick="openLastSaved()"> 
-	<a href="<%=request.getContextPath()%>/eform/efmformmanageredit.jsp?fid=<%= curform.get("fid") %>" class="btn contentLink"> <bean:message key="eform.edithtml.cancelChanges"/></a>
+<body>
+<html:form action="/eform/editForm" styleId="editform" method="POST"
+	enctype="multipart/form-data">
+	<div style="background: #CCCCFF; width: 100%;">
+	<center><font face="Helvetica"><bean:message
+		key="eform.edithtml.msgEditEform" /></font></center>
 	</div>
+	<center>
+	<% if ((request.getAttribute("success") != null) && (errors.size() == 0)) { %><font
+		class="warning" style="font-size: 12px;"><bean:message
+		key="eform.edithtml.msgChangesSaved" /></font>
+	<% } %> <input type="hidden" name="fid" id="fid"
+		value="<%= curform.get("fid")%>">
+        <table width="100%" height="85%" class="maintable"
+		<% if ((request.getAttribute("success") == null) || (errors.size() != 0)) {%>
+		style="margin-top: 19px;" <% } %>>
+		<tr class="highlight">
+			<th style="width: 150px; text-align: right;"><bean:message
+				key="eform.uploadhtml.formName" />:</th>
+			<td><input type="text" name="formName"
+				value="<%= curform.get("formName") %>"
+				<% if (errors.containsKey("formNameMissing") || (errors.containsKey("formNameExists"))) {
+                                    
+                                %>
+				class="warning" <% } %> size="30" /> 
+                                <%String formNameMissing = (String) errors.get("formNameMissing"); 
+                                  if (errors.containsKey("formNameMissing")) {  
+                                %>
+			<font class="warning"><bean:message key="<%=formNameMissing%>" /></font> <%} else if (errors.containsKey("formNameExists")) { %>
+			<font class="warning"><bean:message key="<%=formNameMissing%>" /></font> <%} %>
+			</td>
+			<th><bean:message key="eform.uploadhtml.btnRoleType"/></th>
+			<td><select name="roleType">
+				<option value="">- select one -</option>
+                <%  ArrayList roleList = EFormUtil.listSecRole(); 
+                	String selected = "";
+					for (int i=0; i<roleList.size(); i++) {  
+						selected = "";
+						if(roleList.get(i).equals(curform.get("roleType"))) {
+							selected = "selected";
+						}
+  				%>  			
+  					<option value="<%=roleList.get(i) %>" <%= selected%> %><%=roleList.get(i) %></option>
+                                        	
+                <%} %>
+                </select>
+            </td>
+			<th style="text-align: right;"><bean:message
+				key="eform.uploadhtml.patientIndependent" /><input type="checkbox" name="patientIndependent" value="true"
+                                   <%= patientIndependent?"checked":"" %> /></th>
+		</tr>
+		<tr class="highlight">
+			<th style="text-align: right;"><bean:message
+				key="eform.uploadhtml.formSubject" />:</th>
+                        <td colspan="2"><input type="text" name="formSubject"
+				value="<%= curform.get("formSubject") %>" size="30" /></td>
+		</tr>
+		<tr class="highlight">
+			<th style="text-align: right;"><bean:message key="eform.uploadhtml.formFileName" /> <sup>optional</sup>: </th>
+			<td colspan="2"><input type="text" name="formFileName"
+				value="<%= curform.get("formFileName")%>" size="50" /></td>
+		</tr>
+		<tr>
+			<th style="text-align: right;"><bean:message key="eform.edithtml.msgLastModified" />:</th>
+			<td colspan="2"><%= curform.get("formDate")%> <%= curform.get("formTime") %></td>
+		</tr>
+		<tr>
+			<th style="text-align: right;"><bean:message key="eform.edithtml.frmUploadFile" /> <sup>optional</sup>:</th>
+                        <td colspan="2"><input type="file" name="uploadFile" size="40"
+				<% if (errors.containsKey("uploadError")) { %> class="warning"
+				<% } %>> <input type="hidden" name="uploadMarker"
+				id="uploadMarker" value="false"> <input type="button"
+				name="uploadbtn" id="uploadbtn"
+				value="<bean:message key="eform.edithtml.frmUpload"/>"
+				onclick="disablenupload()"> <% if (errors.containsKey("uploadError")) { 
+                                    String uploadError = (String) errors.get("uploadError"); %>
+                                <font class="warning"><bean:message key="<%=uploadError%>" /></font>
+			<% } %>
+			</td>
+		</tr>
+		<tr height="100%">
+			<th valign="top" style="text-align: right;"><bean:message key="eform.edithtml.msgEditHtml" />:</th>
+			<td colspan="2"><textarea style="width: 100%; height: 100%;"
+			wrap="off" name="formHtml"><%= formHtml%></textarea></td>
+		</tr>
+		<tr>
+			<th style="text-align: right;"><bean:message key="eform.edithtml.frmSubmit" />:</th>
+			<td colspan="2"><input type="button"
+				value="<bean:message key="eform.edithtml.msgPreviewLast"/>"
+				<% if (((String) curform.get("fid")).length() == 0) {%> disabled
+				<%}%> name="previewlast" onclick="openLastSaved()"> <input
+				type="submit" value="<bean:message key="eform.edithtml.msgSave"/>"
+				name="savebtn" onclick="disablensubmit()"> <input
+				type="button"
+				value="<bean:message key="eform.edithtml.cancelChanges"/>"
+				onclick="javascript: window.location='efmformmanageredit.jsp?fid=<%= curform.get("fid") %>'">
+			<input type="button"
+				value="<bean:message key="eform.edithtml.msgBackToForms"/>"
+				onclick="javascript: window.location='efmformmanager.jsp'">
 
-	<a href="#" class="btn" id="popupDisplay" onClick="window.close()"> 
-	 <i class="icon-circle-arrow-left"></i> Back to eForm Library<!--<bean:message key="eform.edithtml.msgBackToForms"/>-->
-	</a>
-
-	<input type="submit" class="btn btn-primary" value="<bean:message key="eform.edithtml.msgSave"/>" data-loading-text="Saving..." name="savebtn" id="savebtn"  > 
-
-</p>	
-</div>
-</form>
-
-
-<%@ include file="efmFooter.jspf"%>
-
-<script>
-registerFormSubmit('editform', 'dynamic-content');
-
-$(document).ready(function () {
-
-$("html, body").animate({ scrollTop: 0 }, "slow");
-return false;
-
-});
-</script>
-
-
+			</td>
+		</tr>
+	</table>
+	</center>
+</html:form>
 </body>
 </html:html>
-

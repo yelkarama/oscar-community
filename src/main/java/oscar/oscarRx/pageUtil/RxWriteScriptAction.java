@@ -33,7 +33,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
@@ -53,55 +52,37 @@ import org.apache.struts.util.MessageResources;
 import org.oscarehr.casemgmt.model.CaseManagementNote;
 import org.oscarehr.casemgmt.model.CaseManagementNoteLink;
 import org.oscarehr.casemgmt.service.CaseManagementManager;
-import org.oscarehr.common.dao.DrugDao;
-import org.oscarehr.common.dao.DrugReasonDao;
+import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.PartialDateDao;
 import org.oscarehr.common.dao.UserPropertyDAO;
 import org.oscarehr.common.model.Demographic;
-import org.oscarehr.common.model.Drug;
-import org.oscarehr.common.model.DrugReason;
 import org.oscarehr.common.model.PartialDate;
 import org.oscarehr.common.model.UserProperty;
-import org.oscarehr.managers.CodingSystemManager;
-import org.oscarehr.managers.DemographicManager;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import oscar.OscarProperties;
 import oscar.log.LogAction;
 import oscar.log.LogConst;
 import oscar.oscarRx.data.RxDrugData;
-import oscar.oscarRx.data.RxDrugData.DrugMonograph.DrugComponent;
 import oscar.oscarRx.data.RxPrescriptionData;
 import oscar.oscarRx.util.RxUtil;
 import oscar.util.StringUtils;
 
 public final class RxWriteScriptAction extends DispatchAction {
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	
-	private static final String PRIVILEGE_READ = "r";
-	private static final String PRIVILEGE_WRITE = "w";
 
 	private static final Logger logger = MiscUtils.getLogger();
 	private static UserPropertyDAO userPropertyDAO;
 	private static final String DEFAULT_QUANTITY = "30";
 	private static final PartialDateDao partialDateDao = (PartialDateDao)SpringUtils.getBean("partialDateDao");
 
-	DemographicManager demographicManager = SpringUtils.getBean(DemographicManager.class) ;
-    
 	String removeExtraChars(String s){
 		return s.replace(""+((char) 130 ),"").replace(""+((char) 194 ),"").replace(""+((char) 195 ),"").replace(""+((char) 172 ),"");
 	}
-	
 
 	public ActionForward unspecified(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException, Exception {
-		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
-		checkPrivilege(loggedInInfo, PRIVILEGE_WRITE);
-		
+
 		RxWriteScriptForm frm = (RxWriteScriptForm) form;
 		String fwd = "refresh";
 		oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBean) request.getSession().getAttribute("RxSessionBean");
@@ -137,7 +118,6 @@ public final class RxWriteScriptAction extends DispatchAction {
 			rx.setDuration(frm.getDuration());
 			rx.setDurationUnit(frm.getDurationUnit());
 			rx.setQuantity(frm.getQuantity());
-			rx.setDispensingUnits(frm.getDispensingUnits());
 			rx.setRepeat(frm.getRepeat());
 			rx.setLastRefillDate(RxUtil.StringToDate(frm.getLastRefillDate(), "yyyy-MM-dd"));
 			rx.setNosubs(frm.getNosubs());
@@ -154,7 +134,6 @@ public final class RxWriteScriptAction extends DispatchAction {
 			rx.setOutsideProviderName(frm.getOutsideProviderName());
 			rx.setOutsideProviderOhip(frm.getOutsideProviderOhip());
 			rx.setLongTerm(frm.getLongTerm());
-			rx.setShortTerm(frm.getShortTerm());
 			rx.setPastMed(frm.getPastMed());
 			rx.setPatientCompliance(frm.getPatientComplianceY(), frm.getPatientComplianceN());
 
@@ -189,7 +168,7 @@ public final class RxWriteScriptAction extends DispatchAction {
 			if (frm.getAction().equals("updateAndPrint")) {
 				// SAVE THE DRUG
 				int i;
-				String scriptId = prescription.saveScript(loggedInInfo, bean);
+				String scriptId = prescription.saveScript(bean);
 				@SuppressWarnings("unchecked")
 				ArrayList<String> attrib_names = bean.getAttributeNames();
 				// p("attrib_names", attrib_names.toString());
@@ -231,8 +210,6 @@ public final class RxWriteScriptAction extends DispatchAction {
 	}
 
 	public ActionForward updateReRxDrug(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException {
-		checkPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), PRIVILEGE_WRITE);
-		
 		oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBean) request.getSession().getAttribute("RxSessionBean");
 		if (bean == null) {
 			response.sendRedirect("error.html");
@@ -256,8 +233,6 @@ public final class RxWriteScriptAction extends DispatchAction {
 	}
 
 	public ActionForward saveCustomName(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException {
-		checkPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), PRIVILEGE_WRITE);
-		
 		oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBean) request.getSession().getAttribute("RxSessionBean");
 		if (bean == null) {
 			response.sendRedirect("error.html");
@@ -316,9 +291,7 @@ public final class RxWriteScriptAction extends DispatchAction {
 
 	public ActionForward newCustomNote(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException {
 		logger.debug("=============Start newCustomNote RxWriteScriptAction.java===============");
-		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
-		checkPrivilege(loggedInInfo, PRIVILEGE_WRITE);
-		
+
 		oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBean) request.getSession().getAttribute("RxSessionBean");
 		if (bean == null) {
 			response.sendRedirect("error.html");
@@ -350,7 +323,7 @@ public final class RxWriteScriptAction extends DispatchAction {
 			if (RxUtil.isRxUniqueInStash(bean, rx)) {
 				listRxDrugs.add(rx);
 			}
-			int rxStashIndex = bean.addStashItem(loggedInInfo, rx);
+			int rxStashIndex = bean.addStashItem(rx);
 			bean.setStashIndex(rxStashIndex);
 
 			String today = null;
@@ -375,8 +348,6 @@ public final class RxWriteScriptAction extends DispatchAction {
 	}
 
 	public ActionForward listPreviousInstructions(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException {
-		checkPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), PRIVILEGE_READ);
-		
 		logger.debug("=============Start listPreviousInstructions RxWriteScriptAction.java===============");
 		String randomId = request.getParameter("randomId");
 		randomId = randomId.trim();
@@ -401,9 +372,7 @@ public final class RxWriteScriptAction extends DispatchAction {
 
 	public ActionForward newCustomDrug(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException {
 		logger.debug("=============Start newCustomDrug RxWriteScriptAction.java===============");
-		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
-		checkPrivilege(loggedInInfo, PRIVILEGE_WRITE);
-		
+
 		MessageResources messages = getResources(request);
 		// set default quantity;
 		setDefaultQuantity(request);
@@ -413,8 +382,6 @@ public final class RxWriteScriptAction extends DispatchAction {
 			response.sendRedirect("error.html");
 			return null;
 		}
-		
-		String customDrugName = request.getParameter("name");
 
 		try {
 			RxPrescriptionData rxData = new RxPrescriptionData();
@@ -422,10 +389,6 @@ public final class RxWriteScriptAction extends DispatchAction {
 			// create Prescription
 			RxPrescriptionData.Prescription rx = rxData.newPrescription(bean.getProviderNo(), bean.getDemographicNo());
 			String ra = request.getParameter("randomId");
-			
-			if(customDrugName != null && !customDrugName.isEmpty()) {
-				rx.setCustomName(customDrugName);
-			}
 			rx.setRandomId(Integer.parseInt(ra));
 			rx.setGenericName(null);
 			rx.setBrandName(null);
@@ -444,7 +407,7 @@ public final class RxWriteScriptAction extends DispatchAction {
 			if (RxUtil.isRxUniqueInStash(bean, rx)) {
 				listRxDrugs.add(rx);
 			}
-			int rxStashIndex = bean.addStashItem(loggedInInfo, rx);
+			int rxStashIndex = bean.addStashItem(rx);
 			bean.setStashIndex(rxStashIndex);
 
 			String today = null;
@@ -468,8 +431,6 @@ public final class RxWriteScriptAction extends DispatchAction {
 	}
 
 	public ActionForward normalDrugSetCustom(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException {
-		checkPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), PRIVILEGE_WRITE);
-		
 		oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBean) request.getSession().getAttribute("RxSessionBean");
 		if (bean == null) {
 			response.sendRedirect("error.html");
@@ -516,14 +477,8 @@ public final class RxWriteScriptAction extends DispatchAction {
 
 	public ActionForward createNewRx(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException {
 		logger.debug("=============Start createNewRx RxWriteScriptAction.java===============");
-		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
-		checkPrivilege(loggedInInfo, PRIVILEGE_WRITE);
-		
-		String success = "newRx";
 		// set default quantity
 		setDefaultQuantity(request);
-		userPropertyDAO = (UserPropertyDAO) SpringUtils.getBean("UserPropertyDAO");
-		UserProperty propUseRx3 = userPropertyDAO.getProp( (String) request.getSession().getAttribute("user"), UserProperty.RX_USE_RX3);
 
 		oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBean) request.getSession().getAttribute("RxSessionBean");
 		if (bean == null) {
@@ -548,37 +503,10 @@ public final class RxWriteScriptAction extends DispatchAction {
 			logger.debug("requesting drug from drugref id="+drugId);
 			RxDrugData.DrugMonograph dmono = drugData.getDrug2(drugId);
 
-			String brandName = null;
-			ArrayList<DrugComponent> drugComponents = dmono.getDrugComponentList();	
-			
-			if(StringUtils.isNullOrEmpty(brandName)) {
-				brandName = text;
-			}
+			String brandName = text;
 
-			if( drugComponents != null && drugComponents.size() > 0 ) {
-
-				StringBuilder stringBuilder = new StringBuilder();
-				int count = 0;
-				for( RxDrugData.DrugMonograph.DrugComponent drugComponent : drugComponents ) {
-					
-					stringBuilder.append( drugComponent.getName() );
-					stringBuilder.append(" ");
-					stringBuilder.append( drugComponent.getStrength() );
-					stringBuilder.append( drugComponent.getUnit() );
-					
-					count++;
-					if( count > 0 && count != drugComponents.size() ) {
-						stringBuilder.append( " / " );
-					}
-				}
-				
-				rx.setGenericName(stringBuilder.toString()); 
-			} else {
-				rx.setGenericName(dmono.name); 
-			}
-
+			rx.setGenericName(dmono.name); // TODO: how was this done before?
 			rx.setBrandName(brandName);
-			
 
 			//there's a change there's multiple forms. Select the first one by default
 			//save the list in a separate variable to make a drop down in the interface.
@@ -630,7 +558,7 @@ public final class RxWriteScriptAction extends DispatchAction {
 				listRxDrugs.add(rx);
 			}
 			bean.addAttributeName(rx.getAtcCode() + "-" + String.valueOf(bean.getStashIndex()));
-			int rxStashIndex = bean.addStashItem(loggedInInfo, rx);
+			int rxStashIndex = bean.addStashItem(rx);
 			bean.setStashIndex(rxStashIndex);
 			String today = null;
 			Calendar calendar = Calendar.getInstance();
@@ -649,19 +577,10 @@ public final class RxWriteScriptAction extends DispatchAction {
 			logger.error("Error", e);
 		}
 		logger.debug("=============END createNewRx RxWriteScriptAction.java===============");
-
-//		Place holder for new Medication Module proposal.
-//		if( OscarProperties.getInstance().getBooleanProperty("ENABLE_RX4", "yes") && 
-//				( ! BooleanUtils.toBoolean(propUseRx3.getValue()) ) ) {
-//			success = "newRx4";
-//		}
-	
-		return ( mapping.findForward(success) );
+		return (mapping.findForward("newRx"));
 	}
 
 	public ActionForward updateDrug(ActionMapping mapping, ActionForm aform, HttpServletRequest request, HttpServletResponse response) throws IOException {
-		checkPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), PRIVILEGE_WRITE);
-		
 		oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBean) request.getSession().getAttribute("RxSessionBean");
 		if (bean == null) {
 			response.sendRedirect("error.html");
@@ -810,8 +729,6 @@ public final class RxWriteScriptAction extends DispatchAction {
 	}
 
 	public ActionForward updateSpecialInstruction(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		checkPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), PRIVILEGE_WRITE);
-		
 		// get special instruction from parameter
 		// get rx from random Id
 		// rx.setspecialisntruction
@@ -829,8 +746,6 @@ public final class RxWriteScriptAction extends DispatchAction {
 	}
 
 	public ActionForward updateProperty(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		checkPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), PRIVILEGE_WRITE);
-		
 		oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBean) request.getSession().getAttribute("RxSessionBean");
 		String elem = request.getParameter("elementId");
 		String val = request.getParameter("propertyValue");
@@ -867,11 +782,8 @@ public final class RxWriteScriptAction extends DispatchAction {
 	}
 
 	public ActionForward updateSaveAllDrugs(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException, Exception {
-		checkPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), PRIVILEGE_WRITE);
-		
 		oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBean) request.getSession().getAttribute("RxSessionBean");
 		request.getSession().setAttribute("rePrint", null);// set to print.
-		String onlyPrint = request.getParameter("onlyPrint");
 		List<String> paramList = new ArrayList();
 		Enumeration em = request.getParameterNames();
 		List<String> randNum = new ArrayList();
@@ -905,13 +817,11 @@ public final class RxWriteScriptAction extends DispatchAction {
 					boolean patientComplianceN = false;
 					boolean isOutsideProvider = false;
 					boolean isLongTerm = false;
-					boolean isShortTerm = false;
 					boolean isPastMed = false;
-					boolean isDispenseInternal=false;
 					boolean isStartDateUnknown = false;
-	                boolean isNonAuthoritative = false;
-	                Date pickupDate;
-	                Date pickupTime;
+                                        boolean isNonAuthoritative = false;
+                                        Date pickupDate;
+                                        Date pickupTime;
                     int dispenseInterval;
                     int refillDuration;
                     int refillQuantity;
@@ -929,25 +839,14 @@ public final class RxWriteScriptAction extends DispatchAction {
 							} else {
 								rx.setBrandName(val);
 							}
-							
+							;
 						} else if (elem.equals("repeats_" + num)) {
 							if (val.equals("") || val == null) {
 								rx.setRepeat(0);
 							} else {
 								rx.setRepeat(Integer.parseInt(val));
 							}
-						
-						} else if(elem.equals("codingSystem_" + num)) {
-							if(val != null) {
-								rx.setDrugReasonCodeSystem(val);
-							}
-							
-						} else if(elem.equals("reasonCode_" + num)) {
-							if(val != null) {
-								rx.setDrugReasonCode(val);
-							}
-						} else if (elem.equals("dispensingUnits_" + num)) {
-							rx.setDispensingUnits(val);
+
 						} else if (elem.equals("instructions_" + num)) {
 							rx.setSpecial(val);
 						} else if (elem.equals("quantity_" + num)) {
@@ -968,29 +867,25 @@ public final class RxWriteScriptAction extends DispatchAction {
 							} else {
 								isLongTerm = false;
 							}
-						} else if (elem.equals("shortTerm_" + num)) {
-							if (val.equals("on")) {
-								isShortTerm = true;
-							} else {
-								isShortTerm = false;
-							}	
-                        } else if (elem.equals("nonAuthoritativeN_" + num)) {
+                                                } else if (elem.equals("nonAuthoritativeN_" + num)) {
 							if (val.equals("on")) {
 								isNonAuthoritative = true;
 							} else {
 								isNonAuthoritative = false;
 							}
-                        } else if(elem.equals("refillDuration_"+num)) {
-                        	rx.setRefillDuration(Integer.parseInt(val));
-                        } else if(elem.equals("refillQuantity_"+num)) {
-                        	rx.setRefillQuantity(Integer.parseInt(val));
-                        } else if(elem.equals("dispenseInterval_"+num)) {
-                        	rx.setDispenseInterval(Integer.parseInt(val));
+                                                } else if(elem.equals("refillDuration_"+num)) {
+                                                	rx.setRefillDuration(Integer.parseInt(val));
+                                                } else if(elem.equals("refillQuantity_"+num)) {
+                                                	rx.setRefillQuantity(Integer.parseInt(val));
+                                                } else if(elem.equals("dispenseInterval_"+num)) {
+                                                	rx.setDispenseInterval(Integer.parseInt(val));
 						} else if (elem.equals("lastRefillDate_" + num)) {
 							rx.setLastRefillDate(RxUtil.StringToDate(val, "yyyy-MM-dd"));
+						} else if (elem.equals("outsideProviderName_" + num)) {
+							rx.setOutsideProviderName(val);
 						} else if (elem.equals("rxDate_" + num)) {
 							if ((val == null) || (val.equals(""))) {
-								rx.setRxDate(RxUtil.StringToDate("1900-01-01", "yyyy-MM-dd"));
+								rx.setRxDate(RxUtil.StringToDate("0000-00-00", "yyyy-MM-dd"));
 							} else {
 								rx.setRxDate(RxUtil.StringToDate(val, "yyyy-MM-dd"));
 							}
@@ -1007,7 +902,7 @@ public final class RxWriteScriptAction extends DispatchAction {
 							}
 						} else if (elem.equals("writtenDate_" + num)) {
 							if (val == null || (val.equals(""))) {
-								rx.setWrittenDate(RxUtil.StringToDate("1900-01-01", "yyyy-MM-dd"));
+								rx.setWrittenDate(RxUtil.StringToDate("0000-00-00", "yyyy-MM-dd"));
 							} else {
 								rx.setWrittenDateFormat(partialDateDao.getFormat(val));
 								rx.setWrittenDate(partialDateDao.StringToDate(val));
@@ -1032,12 +927,6 @@ public final class RxWriteScriptAction extends DispatchAction {
 								isPastMed = true;
 							} else {
 								isPastMed = false;
-							}
-						} else if (elem.equals("dispenseInternal_" + num)) {
-							if (val.equals("on")) {
-								isDispenseInternal = true;
-							} else {
-								isDispenseInternal = false;
 							}
 						} else if (elem.equals("startDateUnknown_" + num)) {
 							if (val.equals("on")) {
@@ -1077,243 +966,13 @@ public final class RxWriteScriptAction extends DispatchAction {
 
 					}
 
-					// get Methadone or Suboxone information
-					int rxMod = 1;
-					if (OscarProperties.getInstance().isPropertyActive("enable_rx_custom_methodone_suboxone")) {
-						String rxModules = request.getParameter("rxModules_" + num);
-						if (rxModules != null) {
-							try {
-								rxMod = Integer.parseInt(rxModules);
-							} catch (Exception e) {}
-						}
-						if (rxMod == 2) { // Methadone
-							// start date and end date
-							String val = request.getParameter("methadoneStartDate_"+num);
-							if ((val == null) || (val.equals(""))) {
-								rx.setRxDate(RxUtil.StringToDate("1900-01-01", "yyyy-MM-dd"));
-							} else {
-								rx.setRxDate(RxUtil.StringToDate(val, "yyyy-MM-dd"));
-							}
-							val = request.getParameter("methdoneEndDate_"+num);
-							if (val == null || val.isEmpty()) {
-								rx.setEndDate(RxUtil.StringToDate("1900-01-01", "yyyy-MM-dd"));
-							} else {
-								rx.setEndDate(RxUtil.StringToDate(val, "yyyy-MM-dd"));
-							}
-							
-							// days circled
-							StringBuilder sb = new StringBuilder(); 
-							val = request.getParameter("drkMon_"+num);
-							if (val != null && val.equals("on")) {
-								sb.append("MON,");
-							}
-							val = request.getParameter("drkTues_"+num);
-							if (val != null && val.equals("on")) {
-								sb.append("TUES,");
-							}
-							val = request.getParameter("drkWed_"+num);
-							if (val != null && val.equals("on")) {
-								sb.append("WED,");
-							}
-							val = request.getParameter("drkThurs_"+num);
-							if (val != null && val.equals("on")) {
-								sb.append("THURS,");
-							}
-							val = request.getParameter("drkFri_"+num);
-							if (val != null && val.equals("on")) {
-								sb.append("FRI,");
-							}
-							val = request.getParameter("drkSat_"+num);
-							if (val != null && val.equals("on")) {
-								sb.append("SAT,");
-							}
-							val = request.getParameter("drkSun_"+num);
-							if (val != null && val.equals("on")) {
-								sb.append("SUN,");
-							}
-							if (sb.length() > 0) {
-								sb.deleteCharAt(sb.length() - 1);
-							}
-							sb.append(";");
-							int len = sb.length();
-							
-							// take home doses
-							boolean bTakeHome = false;
-							val = request.getParameter("homedoseMonMeth_"+num);
-							if (val != null && val.equals("on")) {
-								sb.append("MON,");
-								bTakeHome = true;
-							}
-							val = request.getParameter("homedoseTuesMeth_"+num);
-							if (val != null && val.equals("on")) {
-								sb.append("TUES,");
-								bTakeHome = true;
-							}
-							val = request.getParameter("homedoseWedMeth_"+num);
-							if (val != null && val.equals("on")) {
-								sb.append("WED,");
-								bTakeHome = true;
-							}
-							val = request.getParameter("homedoseThursMeth_"+num);
-							if (val != null && val.equals("on")) {
-								sb.append("THURS,");
-								bTakeHome = true;
-							}
-							val = request.getParameter("homedoseFriMeth_"+num);
-							if (val != null && val.equals("on")) {
-								sb.append("FRI,");
-								bTakeHome = true;
-							}
-							val = request.getParameter("homedoseSatMeth_"+num);
-							if (val != null && val.equals("on")) {
-								sb.append("SAT,");
-								bTakeHome = true;
-							}
-							val = request.getParameter("homedoseSunMeth_"+num);
-							if (val != null && val.equals("on")) {
-								sb.append("SUN,");
-								bTakeHome = true;
-							}
-							val = request.getParameter("homedoseNoMeth_"+num);
-							if (val != null && val.equals("on") && bTakeHome) {
-								sb.append("CARRY,");
-							}
-							if (sb.length() > len) {
-								sb.deleteCharAt(sb.length() - 1);
-							} else {
-								sb.append("NONE");
-							}
-							sb.append(";" + request.getParameter("carryLevelMeth_"+num));
-							rx.setComment(sb.toString());
-							
-							// exceed dosage from methadone
-							/*
-							val = request.getParameter("excQtyMeth_"+num);
-							if (val == null) {
-								val = "";
-							}
-							rx.setDosage(val);
-							*/
-						} else if (rxMod == 3) { // Suboxone
-							String val = request.getParameter("suboxoneStartDate_"+num);
-							if ((val == null) || (val.equals(""))) {
-								rx.setRxDate(RxUtil.StringToDate("1900-01-01", "yyyy-MM-dd"));
-							} else {
-								rx.setRxDate(RxUtil.StringToDate(val, "yyyy-MM-dd"));
-							}
-							val = request.getParameter("suboxoneEndDate_"+num);
-							if (val == null || val.isEmpty()) {
-								rx.setEndDate(RxUtil.StringToDate("1900-01-01", "yyyy-MM-dd"));
-							} else {
-								rx.setEndDate(RxUtil.StringToDate(val, "yyyy-MM-dd"));
-							}
-							
-							// days circled
-							StringBuilder sb = new StringBuilder(); 
-							val = request.getParameter("doseMonSub_"+num);
-							if (val != null && val.equals("on")) {
-								sb.append("MON,");
-							}
-							val = request.getParameter("doseTuesSub_"+num);
-							if (val != null && val.equals("on")) {
-								sb.append("TUES,");
-							}
-							val = request.getParameter("doseWedSub_"+num);
-							if (val != null && val.equals("on")) {
-								sb.append("WED,");
-							}
-							val = request.getParameter("doseThursSub_"+num);
-							if (val != null && val.equals("on")) {
-								sb.append("THURS,");
-							}
-							val = request.getParameter("doseFriSub_"+num);
-							if (val != null && val.equals("on")) {
-								sb.append("FRI,");
-							}
-							val = request.getParameter("doseSatSub_"+num);
-							if (val != null && val.equals("on")) {
-								sb.append("SAT,");
-							}
-							val = request.getParameter("doseSunSub_"+num);
-							if (val != null && val.equals("on")) {
-								sb.append("SUN,");
-							}
-							if (sb.length() > 0) {
-								sb.deleteCharAt(sb.length() - 1);
-							}
-							sb.append(";");
-							int len = sb.length();
-							
-							// take home doses
-							boolean bTakeHome = false;
-							val = request.getParameter("homedoseMonSub_"+num);
-							if (val != null && val.equals("on")) {
-								sb.append("MON,");
-								bTakeHome = true;
-							}
-							val = request.getParameter("homedoseTuesSub_"+num);
-							if (val != null && val.equals("on")) {
-								sb.append("TUES,");
-								bTakeHome = true;
-							}
-							val = request.getParameter("homedoseWedSub_"+num);
-							if (val != null && val.equals("on")) {
-								sb.append("WED,");
-								bTakeHome = true;
-							}
-							val = request.getParameter("homedoseThursSub_"+num);
-							if (val != null && val.equals("on")) {
-								sb.append("THURS,");
-								bTakeHome = true;
-							}
-							val = request.getParameter("homedoseFriSub_"+num);
-							if (val != null && val.equals("on")) {
-								sb.append("FRI,");
-								bTakeHome = true;
-							}
-							val = request.getParameter("homedoseSatSub_"+num);
-							if (val != null && val.equals("on")) {
-								sb.append("SAT,");
-								bTakeHome = true;
-							}
-							val = request.getParameter("homedoseSunSub_"+num);
-							if (val != null && val.equals("on")) {
-								sb.append("SUN,");
-								bTakeHome = true;
-							}
-							val = request.getParameter("homedoseNoSub_"+num);
-							if (val != null && val.equals("on") && bTakeHome) {
-								sb.append("CARRY,");
-							}
-							
-							if (sb.length() > len) {
-								sb.deleteCharAt(sb.length() - 1);
-							} else {
-								sb.append("NONE");
-							}
-							sb.append(";" + request.getParameter("carryLevelSub_"+num));
-							rx.setComment(sb.toString());
-							
-							// exceed dosage from subonxone
-							/* do not save and overwrite dosage
-							val = request.getParameter("excQtySub_"+num);
-							if (val == null) {
-								val = "";
-							}
-							rx.setDosage(val);
-							*/
-						}
-					}
-					
 					if (!isOutsideProvider) {
 						rx.setOutsideProviderName("");
 						rx.setOutsideProviderOhip("");
 					}
 					rx.setPastMed(isPastMed);
-					rx.setDispenseInternal(isDispenseInternal);
 					rx.setStartDateUnknown(isStartDateUnknown);
 					rx.setLongTerm(isLongTerm);
-					rx.setShortTerm(isShortTerm);
                                         rx.setNonAuthoritative(isNonAuthoritative);
 					String newline = System.getProperty("line.separator");
 					rx.setPatientCompliance(patientComplianceY, patientComplianceN);
@@ -1326,31 +985,24 @@ public final class RxWriteScriptAction extends DispatchAction {
 						if (rx.getSpecialInstruction() != null && !rx.getSpecialInstruction().equalsIgnoreCase("null") && rx.getSpecialInstruction().trim().length() > 0) special += newline + rx.getSpecialInstruction();
 					} else if (rx.isCustom()) {// custom drug
 						if (rx.getUnitName() == null) {
-							special = rx.getCustomName() + newline + (rx.getSpecial()==null?"":rx.getSpecial());
+							special = rx.getCustomName() + newline + rx.getSpecial();
 							if (rx.getSpecialInstruction() != null && !rx.getSpecialInstruction().equalsIgnoreCase("null") && rx.getSpecialInstruction().trim().length() > 0) special += newline + rx.getSpecialInstruction();
-							if (rxMod == 1) {
-								special += newline + "Qty:" + rx.getQuantity() + " " + rx.getDispensingUnits() + " Repeats:" + "" + rx.getRepeat();
-							}
+							special += newline + "Qty:" + rx.getQuantity() + " Repeats:" + "" + rx.getRepeat();
 						} else {
-							special = rx.getCustomName() + newline + (rx.getSpecial()==null?"":rx.getSpecial());
+							special = rx.getCustomName() + newline + rx.getSpecial();
 							if (rx.getSpecialInstruction() != null && !rx.getSpecialInstruction().equalsIgnoreCase("null") && rx.getSpecialInstruction().trim().length() > 0) special += newline + rx.getSpecialInstruction();
-							if (rxMod == 1) {
-								special += newline + "Qty:" + rx.getQuantity() + " " + rx.getUnitName() + " Repeats:" + "" + rx.getRepeat();
-							}
+							special += newline + "Qty:" + rx.getQuantity() + " " + rx.getUnitName() + " Repeats:" + "" + rx.getRepeat();
 						}
 					} else {// non-custom drug
 						if (rx.getUnitName() == null) {
-							special = rx.getBrandName() + newline + (rx.getSpecial()==null?"":rx.getSpecial());
+							special = rx.getBrandName() + newline + rx.getSpecial();
 							if (rx.getSpecialInstruction() != null && !rx.getSpecialInstruction().equalsIgnoreCase("null") && rx.getSpecialInstruction().trim().length() > 0) special += newline + rx.getSpecialInstruction();
-							if (rxMod == 1) {
-								special += newline + "Qty:" + rx.getQuantity() + " Repeats:" + "" + rx.getRepeat();
-							}
+
+							special += newline + "Qty:" + rx.getQuantity() + " Repeats:" + "" + rx.getRepeat();
 						} else {
-							special = rx.getBrandName() + newline + (rx.getSpecial()==null?"":rx.getSpecial());
+							special = rx.getBrandName() + newline + rx.getSpecial();
 							if (rx.getSpecialInstruction() != null && !rx.getSpecialInstruction().equalsIgnoreCase("null") && rx.getSpecialInstruction().trim().length() > 0) special += newline + rx.getSpecialInstruction();
-							if (rxMod == 1) {
-								special += newline + "Qty:" + rx.getQuantity() + " " + rx.getUnitName() + " Repeats:" + "" + rx.getRepeat();
-							}
+							special += newline + "Qty:" + rx.getQuantity() + " " + rx.getUnitName() + " Repeats:" + "" + rx.getRepeat();
 						}
 					}
 
@@ -1382,20 +1034,14 @@ public final class RxWriteScriptAction extends DispatchAction {
 			}
 		}
 
-		if (!"true".equals(onlyPrint)) { // #331 feature 
-			saveDrug(request);
-		}
+		saveDrug(request);
 		return null;
 	}
 
         public ActionForward getDemoNameAndHIN(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException, Exception {
-        	LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
-    		if (!securityInfoManager.hasPrivilege(loggedInInfo, "_demographic", PRIVILEGE_READ, null)) {
-    			throw new RuntimeException("missing required security object (_demographic)");
-    		}
-        	
             String demoNo=request.getParameter("demoNo").trim();
-            Demographic d=demographicManager.getDemographic(loggedInInfo, demoNo);
+            DemographicDao demographicDAO=(DemographicDao)SpringUtils.getBean("demographicDao") ;
+            Demographic d=demographicDAO.getDemographic(demoNo);
             HashMap hm=new HashMap();
             if(d!=null){
                 hm.put("patientName", d.getDisplayName());
@@ -1408,10 +1054,7 @@ public final class RxWriteScriptAction extends DispatchAction {
             response.getOutputStream().write(jo.toString().getBytes());
             return null;
         }
-        
 	public ActionForward changeToLongTerm(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException, Exception {
-		checkPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), PRIVILEGE_WRITE);
-		
 		String strId = request.getParameter("ltDrugId");
 		if (strId != null) {
 			int drugId = Integer.parseInt(strId);
@@ -1424,8 +1067,7 @@ public final class RxWriteScriptAction extends DispatchAction {
 			RxPrescriptionData rxData = new RxPrescriptionData();
 			RxPrescriptionData.Prescription oldRx = rxData.getPrescription(drugId);
 			oldRx.setLongTerm(true);
-			oldRx.setShortTerm(false);
-			boolean b = oldRx.Save(oldRx.getScript_no());
+			boolean b = oldRx.Save();
 			HashMap hm = new HashMap();
 			if (b) hm.put("success", true);
 			else hm.put("success", false);
@@ -1442,33 +1084,20 @@ public final class RxWriteScriptAction extends DispatchAction {
 	}
 
 	public void saveDrug(final HttpServletRequest request) throws Exception {
-		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
-		checkPrivilege(loggedInInfo, PRIVILEGE_WRITE);
-		
 		oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBean) request.getSession().getAttribute("RxSessionBean");
 
 		RxPrescriptionData.Prescription rx = null;
 		RxPrescriptionData prescription = new RxPrescriptionData();
-		String scriptId = prescription.saveScript(loggedInInfo, bean);
+		String scriptId = prescription.saveScript(bean);
 		StringBuilder auditStr = new StringBuilder();
 		ArrayList<String> attrib_names = bean.getAttributeNames();
-		
 		for (int i = 0; i < bean.getStashSize(); i++) {
 			try {
 				rx = bean.getStashItem(i);
-				rx.Save(scriptId);// new drug id available after this line			
+				rx.Save(scriptId);// new drug id available after this line
 				bean.addRandomIdDrugIdPair(rx.getRandomId(), rx.getDrugId());
 				auditStr.append(rx.getAuditString());
 				auditStr.append("\n");
-				
-				// save drug reason. Method borrowed from 
-				// RxReasonAction. 
-				if( ! StringUtils.isNullOrEmpty( rx.getDrugReasonCode() ) ) {
-					addDrugReason( rx.getDrugReasonCodeSystem(), 
-							"false", "", rx.getDrugReasonCode(), 
-							rx.getDrugId()+"", rx.getDemographicNo()+"",  
-							rx.getProviderNo(), request );
-				}
 
 				//write partial date
 				if (StringUtils.filled(rx.getWrittenDateFormat()))
@@ -1476,7 +1105,6 @@ public final class RxWriteScriptAction extends DispatchAction {
 			} catch (Exception e) {
 				logger.error("Error", e);
 			}
-
 			// Save annotation
 			HttpSession se = request.getSession();
 			WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(se.getServletContext());
@@ -1500,32 +1128,6 @@ public final class RxWriteScriptAction extends DispatchAction {
 
 		String ip = request.getRemoteAddr();
 		request.setAttribute("scriptId", scriptId);
-        
-		List<String> reRxDrugList = new ArrayList<String>();
-        reRxDrugList=bean.getReRxDrugIdList();        
-        
-        Iterator<String> i = reRxDrugList.iterator();
-        
-        DrugDao drugDao = (DrugDao) SpringUtils.getBean("drugDao"); 
-        
-        while (i.hasNext()) {
-        
-        String item = i.next();
-        
-        //archive drug(s)
-        Drug drug = drugDao.find(Integer.parseInt(item));
-        drug.setArchived(true);
-        drug.setArchivedDate(new Date());
-        drug.setArchivedReason(Drug.REPRESCRIBED);       
-        drugDao.merge(drug);
-              
-        //log that this med is being re-prescribed
-        LogAction.addLog((String) request.getSession().getAttribute("user"), LogConst.REPRESCRIBE, LogConst.CON_MEDICATION, "drugid="+item, ip, "" + bean.getDemographicNo(), auditStr.toString());
-        
-        //log that the med is being discontinued buy the system
-        LogAction.addLog("-1", LogConst.DISCONTINUE, LogConst.CON_MEDICATION, "drugid="+item, "", "" + bean.getDemographicNo(), auditStr.toString());
-        
-        }
 		LogAction.addLog((String) request.getSession().getAttribute("user"), LogConst.ADD, LogConst.CON_PRESCRIPTION, scriptId, ip, "" + bean.getDemographicNo(), auditStr.toString());
 
 		return;
@@ -1539,61 +1141,5 @@ public final class RxWriteScriptAction extends DispatchAction {
 		JSONObject jsonObject = JSONObject.fromObject(hm);
 		response.getOutputStream().write(jsonObject.toString().getBytes());
 		return null;
-	}
-	
-	
-	private void checkPrivilege(LoggedInInfo loggedInInfo, String privilege) {
-		if (!securityInfoManager.hasPrivilege(loggedInInfo, "_rx", privilege, null)) {
-			throw new RuntimeException("missing required security object (_rx)");
-		}
-	}
-
-	private void addDrugReason(String codingSystem, 
-			String primaryReasonFlagStr, String comments, 
-			String code, String drugIdStr, String demographicNo,  
-			String providerNo, HttpServletRequest request ) {
-		
-		MessageResources mResources = MessageResources.getMessageResources( "oscarResources" );
-		DrugReasonDao drugReasonDao = (DrugReasonDao) SpringUtils.getBean("drugReasonDao");
-		Integer drugId = Integer.parseInt(drugIdStr);
-		
-		// should this be instantiated with the Spring Utilities?
-		CodingSystemManager codingSystemManager = new CodingSystemManager();
-
-		if ( ! codingSystemManager.isCodeAvailable(codingSystem, code) ){
-			request.setAttribute("message", mResources.getMessage("SelectReason.error.codeValid"));
-			return;
-		}
-
-        if(drugReasonDao.hasReason(drugId, codingSystem, code, true)){
-        	request.setAttribute("message", mResources.getMessage("SelectReason.error.duplicateCode"));
-        	return;
-        }
-
-        MiscUtils.getLogger().debug("addDrugReasonCalled codingSystem "+codingSystem+ " code "+code+ " drugIdStr "+drugId);
-
-        boolean primaryReasonFlag = true;
-        if(!"true".equals(primaryReasonFlagStr)){
-        	primaryReasonFlag = false;
-        }
-
-        DrugReason dr = new DrugReason();
-
-        dr.setDrugId(drugId);
-        dr.setProviderNo(providerNo);
-        dr.setDemographicNo(Integer.parseInt(demographicNo));
-
-        dr.setCodingSystem(codingSystem);
-        dr.setCode(code);
-        dr.setComments(comments);
-        dr.setPrimaryReasonFlag(primaryReasonFlag);
-        dr.setArchivedFlag(false);
-        dr.setDateCoded(new Date());
-
-        drugReasonDao.addNewDrugReason(dr);
-
-        String ip = request.getRemoteAddr();
-        LogAction.addLog((String) request.getSession().getAttribute("user"), LogConst.ADD, LogConst.CON_DRUGREASON, ""+dr.getId() , ip,demographicNo,dr.getAuditString());
-
 	}
 }

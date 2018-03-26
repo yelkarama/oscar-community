@@ -35,35 +35,31 @@ import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionRedirect;
 import org.apache.struts.actions.DispatchAction;
-import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.PHRVerificationDao;
-import org.oscarehr.common.model.Demographic;
-import org.oscarehr.managers.DemographicManager;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.myoscar.client.ws_manager.AccountManager;
-import org.oscarehr.myoscar.utils.MyOscarLoggedInInfo;
-import org.oscarehr.util.LoggedInInfo;
+import org.oscarehr.phr.PHRAuthentication;
+import org.oscarehr.phr.util.MyOscarUtils;
+import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
 import oscar.OscarProperties;
-import oscar.log.LogAction;
-import oscar.log.LogConst;
 import oscar.oscarDemographic.data.DemographicData;
 import oscar.util.UtilDateUtilities;
+import oscar.log.LogAction;
+import oscar.log.LogConst;
 
 /**
  *
  * @author apavel
  */
 public class PHRViewPatientRecord extends DispatchAction {
+    private static final Logger log2 = MiscUtils.getLogger();
 
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	 
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
        return super.execute(mapping, form, request, response);
@@ -84,49 +80,25 @@ public class PHRViewPatientRecord extends DispatchAction {
             response.getWriter().println("Error: Lost demographic number.  Please try again");
             return null;
         }
+        PHRAuthentication auth = (PHRAuthentication) request.getSession().getAttribute(PHRAuthentication.SESSION_PHR_AUTH);
         
-        if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_demographic", "r", demographicNo)) {
-        	throw new SecurityException("missing required security object (_demgoraphic)");
-        }
-        
-        LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-        MyOscarLoggedInInfo myOscarLoggedInInfo=MyOscarLoggedInInfo.getLoggedInInfo(request.getSession());
-        
-        if (myOscarLoggedInInfo == null || !myOscarLoggedInInfo.isLoggedIn()) {
+        if (auth == null || auth.getMyOscarUserId() == null) {
             request.setAttribute("forwardToOnSuccess", request.getContextPath() + "/demographic/viewPhrRecord.do?demographic_no=" + demographicNo);
             return mapping.findForward("login");
         } else {
-        	
-        	//Check if patient has been verified
-            DemographicManager demographicManager = SpringUtils.getBean(DemographicManager.class); 
-    	   	String verificationLevel = demographicManager.getPhrVerificationLevelByDemographicId(loggedInInfo, Integer.parseInt(demographicNo));
-    	   	int verifyLevel = 0;
-    	   	try{
-    	      verifyLevel = Integer.parseInt(verificationLevel.replace('+', ' ').trim());
-    	   	}catch(Exception e){ /*Should already be set to zero */ }
-    	   
-    	   	if (verifyLevel != 3){ //Prompt for verification
-    	   		request.setAttribute("forwardToOnSuccess", "/demographic/viewPhrRecord.do?demographic_no=" + demographicNo);
-    	   		request.setAttribute("demographicNo", demographicNo);
-    	   		return mapping.findForward("viewVerification");//verifyAndRedirect");
-    	   		
-    	   	}
-        	
             String phrPath = OscarProperties.getInstance().getProperty("myOSCAR.url"); //http://130.113.106.96:8080/myoscar_client/
             if (phrPath == null) {
                 response.getWriter().println("Error: 'myOSCAR.url' property is not configured... please contact support to have this feature enabled");
                 return null;
             }
-            
-    		DemographicDao demographicDao = (DemographicDao) SpringUtils.getBean("demographicDao");
-    		Demographic demographic = demographicDao.getDemographicById(Integer.parseInt(demographicNo));
-            Long myOscarUserId = AccountManager.getUserId(myOscarLoggedInInfo, demographic.getMyOscarUserName());
+            DemographicData demographicData = new DemographicData();
+            Long myOscarUserId = MyOscarUtils.getMyOscarUserId(auth, demographicData.getDemographic(demographicNo).getMyOscarUserName());
 
             LogAction.addLog((String) request.getSession().getAttribute("user"), LogConst.READ, LogConst.CON_PHR, String.valueOf(myOscarUserId), request.getRemoteAddr(), demographicNo, "");
 //            request.setAttribute("userid", auth.getUserId());
 //            request.setAttribute("ticket", auth.getToken());
-            request.setAttribute("userName", myOscarLoggedInInfo.getLoggedInPerson().getUserName());
-            request.setAttribute("password", myOscarLoggedInInfo.getLoggedInPersonSecurityToken());
+            request.setAttribute("userName", auth.getMyOscarUserName());
+            request.setAttribute("password", auth.getMyOscarPassword());
             request.setAttribute("viewpatient", myOscarUserId);
             request.setAttribute("url", phrPath + (phrPath.endsWith("/")?"":"/") + "patient_view_action.jsp");
             return mapping.findForward("phr");
@@ -161,7 +133,7 @@ public class PHRViewPatientRecord extends DispatchAction {
         }
         
         DemographicData demographicData = new DemographicData();
-        phrA.setPhrUserName(demographicData.getDemographic(LoggedInInfo.getLoggedInInfoFromSession(request), demographicNo).getMyOscarUserName());
+        phrA.setPhrUserName(demographicData.getDemographic(demographicNo).getMyOscarUserName());
         phrA.setVerificationLevel(request.getParameter("verificationLevel"));
         phrA.setVerificationDate(verificationDate);// fix me
         phrA.setPhotoId(photoId);
@@ -176,12 +148,8 @@ public class PHRViewPatientRecord extends DispatchAction {
         
         LogAction.addLog((String) request.getSession().getAttribute("user"), LogConst.VERIFY, LogConst.CON_PHR, phrA.getPhrUserName(), request.getRemoteAddr(), demographicNo, "");
         
-    	ActionRedirect ar = new ActionRedirect(mapping.findForward("viewVerification"));
-    	ar.addParameter("demographic_no", demographicNo);
-        
-        if(request.getParameter("forwardToOnSuccess") != null ){
-        	ar = new ActionRedirect(request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath()+request.getParameter("forwardToOnSuccess"));
-        }
+        ActionRedirect ar = new ActionRedirect(mapping.findForward("viewVerification"));
+        ar.addParameter("demographic_no", demographicNo);
         return ar;
     }
     

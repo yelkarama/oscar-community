@@ -27,16 +27,17 @@ package oscar.oscarEncounter.pageUtil;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 import org.apache.struts.util.MessageResources;
-import org.oscarehr.common.dao.AdmissionDao;
+import org.oscarehr.PMmodule.dao.AdmissionDao;
+import org.oscarehr.PMmodule.model.Admission;
 import org.oscarehr.common.dao.FlowsheetDao;
 import org.oscarehr.common.dao.MeasurementGroupStyleDao;
-import org.oscarehr.common.model.Admission;
 import org.oscarehr.common.model.Flowsheet;
 import org.oscarehr.common.model.MeasurementGroupStyle;
 import org.oscarehr.util.LoggedInInfo;
@@ -48,9 +49,12 @@ import oscar.oscarEncounter.oscarMeasurements.MeasurementTemplateFlowSheetConfig
 import oscar.oscarEncounter.oscarMeasurements.bean.EctMeasurementsDataBeanHandler;
 import oscar.oscarResearch.oscarDxResearch.bean.dxResearchBeanHandler;
 import oscar.util.DateUtils;
+import oscar.util.OscarRoleObjectPrivilege;
 import oscar.util.StringUtils;
 
 
+
+//import oscar.oscarSecurity.CookieSecurity;
 
 public class EctDisplayMeasurementsAction extends EctDisplayAction {
 	private static final String cmd = "measurements";
@@ -59,9 +63,11 @@ public class EctDisplayMeasurementsAction extends EctDisplayAction {
 
 	public boolean getInfo(EctSessionBean bean, HttpServletRequest request, NavBarDisplayDAO Dao, MessageResources messages) {
 
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		
-		if (!securityInfoManager.hasPrivilege(loggedInInfo, "_measurement", "r", null)) {
+		boolean a = true;
+		Vector v = OscarRoleObjectPrivilege.getPrivilegeProp("_newCasemgmt.measurements");
+		String roleName = (String) request.getSession().getAttribute("userrole") + "," + (String) request.getSession().getAttribute("user");
+		a = OscarRoleObjectPrivilege.checkPrivilege(roleName, (Properties) v.get(0), (Vector) v.get(1));
+		if (!a) {
 			return true; //Messurement link won't show up on new CME screen.
 		} else {
 
@@ -112,22 +118,6 @@ public class EctDisplayMeasurementsAction extends EctDisplayAction {
 					Dao.addItem(item);
 				}
 			}
-			
-			if(OscarProperties.getInstance().getBooleanProperty("health_tracker", "true")) {
-			NavBarDisplayDAO.Item item = NavBarDisplayDAO.Item();
-			//temp while testing
-				String dispname = "Health Tracker";
-	
-				winName = "viewTracker" + bean.demographicNo;
-				hash = Math.abs(winName.hashCode());
-				url = "window.open('" + request.getContextPath() + "/oscarEncounter/oscarMeasurements/HealthTrackerPage.jspf?demographic_no=" + bean.demographicNo + "&template=tracker'," + hash + ",'height=' + screen.height + ',width=' + screen.width +',resizable=yes,scrollbars=yes, fullscreen=yes');return false;";
-				item.setLinkTitle(dispname);
-				dispname = StringUtils.maxLenString(dispname, MAX_LEN_TITLE, CROP_LEN_TITLE, ELLIPSES);
-				item.setTitle(dispname);
-				item.setURL(url);
-				Dao.addItem(item);
-			}
-			
 			//next we add dx triggered flowsheets to the module items
 			dxResearchBeanHandler dxRes = new dxResearchBeanHandler(bean.demographicNo);
 			Vector dxCodes = dxRes.getActiveCodeListWithCodingSystem();
@@ -206,12 +196,12 @@ public class EctDisplayMeasurementsAction extends EctDisplayAction {
 			}
 
 			//finally we add specific measurements to module item list
-			Integer demo = Integer.valueOf(bean.getDemographicNo());
+			String demo = bean.getDemographicNo();
 			oscar.oscarEncounter.oscarMeasurements.bean.EctMeasurementsDataBeanHandler hd = new oscar.oscarEncounter.oscarMeasurements.bean.EctMeasurementsDataBeanHandler(demo);
 			oscar.oscarEncounter.oscarMeasurements.bean.EctMeasurementsDataBean data;
 			Vector measureTypes = (Vector) hd.getMeasurementsDataVector();
-			if (loggedInInfo.getCurrentFacility().isIntegratorEnabled()) {
-				EctMeasurementsDataBeanHandler.addRemoteMeasurementsTypes(loggedInInfo,measureTypes,demo);
+			if (LoggedInInfo.loggedInInfo.get().currentFacility.isIntegratorEnabled()) {
+				EctMeasurementsDataBeanHandler.addRemoteMeasurementsTypes(measureTypes,Integer.parseInt(demo));
 			}
 			
 			for (int idx = 0; idx < measureTypes.size(); ++idx) {
@@ -224,8 +214,8 @@ public class EctDisplayMeasurementsAction extends EctDisplayAction {
 
 				hd = new oscar.oscarEncounter.oscarMeasurements.bean.EctMeasurementsDataBeanHandler(demo, data.getType());
 				Vector measures = (Vector) hd.getMeasurementsDataVector();
-				if (loggedInInfo.getCurrentFacility().isIntegratorEnabled()) {
-					EctMeasurementsDataBeanHandler.addRemoteMeasurements(loggedInInfo,measures,data.getType(),demo);
+				if (LoggedInInfo.loggedInInfo.get().currentFacility.isIntegratorEnabled()) {
+					EctMeasurementsDataBeanHandler.addRemoteMeasurements(measures,data.getType(),Integer.parseInt(demo));
 				}
 
 				if (measures.size() > 0) {

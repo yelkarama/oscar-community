@@ -24,32 +24,61 @@
 
 --%>
 
+<%
+  if(session.getValue("user") == null) response.sendRedirect("../../logout.jsp");
+%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
-<%@ page import="java.lang.*,oscar.oscarEncounter.oscarMeasurements.pageUtil.*"%>
+<%@ page
+	import="java.lang.*,oscar.oscarEncounter.oscarMeasurements.pageUtil.*"%>
 
 <html:html locale="true">
 <head>
-<title><bean:message key="oscarEncounter.Measurements.msgProcessMeasurementsSubmission" /></title>
+<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
+<title><bean:message
+	key="oscarEncounter.Measurements.msgProcessMeasurementsSubmission" /></title>
 <html:base />
 </head>
 
-<script language="javascript"> 
-function closeWin() {
-   //  self.opener.location.reload(); 
-     self.close();     
-}
+<script language="javascript">
+
+function write2Parent(text){  
+    var changed = <bean:write name="parentChanged"/>;    
+    
+    if( !changed ) {
+      //we support pasting into orig encounter and new casemanagement
+      if( opener.document.forms["caseManagementEntryForm"] != undefined ) {        
+        opener.pasteToEncounterNote(text);
+      }
+      else if( opener.document.encForm != undefined ) {
+        opener.document.encForm.enTextarea.focus();
+        opener.document.encForm.enTextarea.value = opener.document.encForm.enTextarea.value + "\n" + text;
+        opener.setTimeout("document.encForm.enTextarea.scrollTop=document.encForm.enTextarea.scrollHeight", 0);  // setTimeout is needed to allow browser to realize that text field has been updated         
+      }
+      
+    }
+    
+    self.window.close();    
+ }
+
+
 </script>
 
-<body onload="closeWin();">
+<link rel="stylesheet" type="text/css" href="../styles.css">
+<body topmargin="0" leftmargin="0" vlink="#0000FF">
 <html:errors />
-Processing...
+<table>
+	<tr>
+		<td>Processing...</td>
+		<script>
+            write2Parent("<bean:write name="textOnEncounter"/>");
+        </script>
+	</tr>
+</table>
 
-<%
-//clear so values don't repeat after added to note
-session.setAttribute("textOnEncounter", null);
-%>
+
+
 
 </body>
 </html:html>

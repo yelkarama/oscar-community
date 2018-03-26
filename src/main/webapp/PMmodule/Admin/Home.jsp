@@ -28,7 +28,7 @@
 String _appPath = request.getContextPath();
 %>
 <%@ include file="/taglibs.jsp"%>
-<%@page import="com.quatro.common.KeyConstants" %>
+<%@page import="com.quatro.common.KeyConstants;" %>
 
 <table width="100%" height="100%" cellpadding="0px" cellspacing="0px" style="border-width: 1px; border-style: solid; bordercolor: black">
 	<tr>
@@ -124,10 +124,7 @@ String _appPath = request.getContextPath();
 
 
 				<th style="vertical-align: middle">
-					<%
-						String securityRole = "" + session.getAttribute("userrole") + "," + session.getAttribute("user");
-					%>
-					<security:oscarSec roleName="<%=securityRole%>" objectName="<%=KeyConstants.FUN_ADMIN_LOOKUP %>" rights="<%=KeyConstants.ACCESS_READ%>">
+					<security:oscarSec objectName="<%=KeyConstants.FUN_ADMIN_LOOKUP %>" rights="<%=KeyConstants.ACCESS_READ%>">
 						<a id="orgAdd"	href="<c:out value='${ctx}'/>/Lookup/LookupTableList.do"> <img
 						ID="lnkCare1" src="<%=_appPath%>/images/Lookup-60.gif" Height="60"
 						Width="60" border="0" style="vertical-align: middle"/></a>
@@ -139,7 +136,7 @@ String _appPath = request.getContextPath();
 
 
 						<th align="left" style="vertical-align: middle" class="clsHomePageLabels">
-							<security:oscarSec roleName="<%=securityRole%>" objectName="<%=KeyConstants.FUN_ADMIN_LOOKUP %>" rights="<%=KeyConstants.ACCESS_READ%>">
+							<security:oscarSec objectName="<%=KeyConstants.FUN_ADMIN_LOOKUP %>" rights="<%=KeyConstants.ACCESS_READ%>">
 								<a	id="orgAdd"	href="<c:out value='${ctx}'/>/Lookup/LookupTableList.do">
 								Lookup Tables</a>
 							</security:oscarSec>
@@ -163,18 +160,27 @@ String _appPath = request.getContextPath();
 			<tr>
 				<th></th>
 				<th style="vertical-align: middle">
+					<security:oscarSec objectName="<%=KeyConstants.FUN_ADMIN_MERGECLIENT %>" rights="<%=KeyConstants.ACCESS_READ%>">
+						<a id="lnkMergeClient"	href="<c:out value='${ctx}'/>/PMmodule/MergeClient.do"> 
+						<img ID="lnkMereg1" src="<%=_appPath%>/images/ClientMerge.gif" Height="60"
+						Width="60" border="0" style="vertical-align: middle"/></a>
+					</security:oscarSec>		
 				</th>
 				<th style="vertical-align: middle">
 				<table align="left">
 					<tr>
 						<th align="left" style="vertical-align: middle" class="clsHomePageLabels">
+							<security:oscarSec objectName="<%=KeyConstants.FUN_ADMIN_MERGECLIENT %>" rights="<%=KeyConstants.ACCESS_READ%>">
+							<a	id="lnkMerge2"	href="<c:out value='${ctx}'/>/PMmodule/MergeClient.do">
+							Merge Client</a>
+							</security:oscarSec>
 						</th>
 					</tr>
 				</table>
 				</th>
 				<th></th>
 				<th style="vertical-align: middle">
-					<security:oscarSec roleName="<%=securityRole%>" objectName="<%=KeyConstants.FUN_ADMIN_SYSTEMMESSAGE %>" rights="<%=KeyConstants.ACCESS_READ%>">
+					<security:oscarSec objectName="<%=KeyConstants.FUN_ADMIN_SYSTEMMESSAGE %>" rights="<%=KeyConstants.ACCESS_READ%>">
 					<a id="lnkSysMessage1"	href="<c:out value='${ctx}'/>/SystemMessage.do"> 
 					<img ID="imgAddMessage" src="<%=_appPath%>/images/SystemMessages60.gif" Height="60"
 					Width="60" border="0" style="vertical-align: middle"/></a>
@@ -184,7 +190,7 @@ String _appPath = request.getContextPath();
 				<table align="left">
 					<tr>
 						<th align="left" style="vertical-align: middle" class="clsHomePageLabels">
-						<security:oscarSec roleName="<%=securityRole%>" objectName="<%=KeyConstants.FUN_ADMIN_SYSTEMMESSAGE %>" rights="<%=KeyConstants.ACCESS_READ%>">
+						<security:oscarSec objectName="<%=KeyConstants.FUN_ADMIN_SYSTEMMESSAGE %>" rights="<%=KeyConstants.ACCESS_READ%>">
 							<a	id="lnkAddMessage2"	href="<c:out value='${ctx}'/>/SystemMessage.do">
 							System Message</a>
 						</security:oscarSec>	

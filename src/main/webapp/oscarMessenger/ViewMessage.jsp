@@ -24,39 +24,9 @@
 
 --%>
 
-<%@page import="org.oscarehr.casemgmt.model.CaseManagementNote"%>
-<%@page import="org.oscarehr.casemgmt.dao.CaseManagementNoteDAO"%>
-<%@page import="java.util.Set"%>
-<%@page import="java.util.List"%>
-<%@page import="java.util.HashMap"%>
-<%@page import="org.oscarehr.common.model.ResidentOscarMsg"%>
-<%@page import="org.oscarehr.common.dao.ResidentOscarMsgDao"%>
-<%@page import="org.oscarehr.common.model.OscarMsgType"%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-	  String providerNo = (String) request.getAttribute("providerNo");
-      String curUser_no = (String) session.getAttribute("user");
-      String roleName$ = (String)session.getAttribute("userrole") + "," + curUser_no;
-		
-	  boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_msg" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_msg");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-<%@page import="org.oscarehr.myoscar.utils.MyOscarLoggedInInfo"%>
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
-<%@page import="org.oscarehr.common.dao.UserPropertyDAO"%>
-<%@page import="org.oscarehr.common.model.UserProperty"%>
-<%@page import="org.oscarehr.util.SpringUtils"%>
-
-
-<%
+<%    
+if(session.getValue("user") == null)
+    response.sendRedirect("../logout.jsp");
 String providerview = request.getParameter("providerview")==null?"all":request.getParameter("providerview") ;
 boolean bFirstDisp=true; //this is the first time to display the window
 if (request.getParameter("bFirstDisp")!=null) bFirstDisp= (request.getParameter("bFirstDisp")).equals("true");
@@ -68,7 +38,6 @@ if (request.getParameter("bFirstDisp")!=null) bFirstDisp= (request.getParameter(
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
-<%@ taglib uri="/WEB-INF/phr-tag.tld" prefix="phr"%>
 
 
 <html:html locale="true">
@@ -80,17 +49,21 @@ if (request.getParameter("bFirstDisp")!=null) bFirstDisp= (request.getParameter(
 <link rel="stylesheet" type="text/css" href="printable.css"
 	media="print">
 
-<style>
-.TopStatusBar{
-width:100% !important;
-height:100% !important;
-}
-</style>
-
+<logic:notPresent name="msgSessionBean" scope="session">
+	<logic:redirect href="index.jsp" />
+</logic:notPresent>
+<logic:present name="msgSessionBean" scope="session">
+	<bean:define id="bean"
+		type="oscar.oscarMessenger.pageUtil.MsgSessionBean"
+		name="msgSessionBean" scope="session" />
+	<logic:equal name="bean" property="valid" value="false">
+		<logic:redirect href="index.jsp" />
+	</logic:equal>
+</logic:present>
 <%
-//oscar.oscarMessenger.pageUtil.MsgSessionBean bean = (oscar.oscarMessenger.pageUtil.MsgSessionBean)pageContext.findAttribute("bean");
+oscar.oscarMessenger.pageUtil.MsgSessionBean bean = (oscar.oscarMessenger.pageUtil.MsgSessionBean)pageContext.findAttribute("bean");
 oscar.oscarMessenger.util.MsgDemoMap msgDemoMap = new oscar.oscarMessenger.util.MsgDemoMap();
-java.util.HashMap<String, List<String> > demoMap = msgDemoMap.getDemoMap2((String) request.getAttribute("viewMessageId"));
+java.util.Hashtable demoMap = msgDemoMap.getDemoMap((String) request.getAttribute("viewMessageId"));
 String boxType = request.getParameter("boxType");
 %>
 
@@ -114,7 +87,7 @@ function popupViewAttach(vheight,vwidth,varpage) { //open a new popup window
   var winName;
   
   if( page.indexOf("IncomingEncounter.do") > -1 ) {
-    winName = "encounter";
+    winName = "Encounter";
   }
   else {
     winName = "oscarMVA";
@@ -134,8 +107,6 @@ function popup(demographicNo, msgId, providerNo, action) { //open a new popup wi
   var vheight = 700;
   var vwidth = 980;  
   
-  
-  
   if (demographicNo!=null &&  demographicNo!="" ){
       //alert("demographicNo is not null!");
       windowprops = "height="+vheight+",width="+vwidth+",location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=0,screenY=0,top=0,left=0";    
@@ -146,28 +117,14 @@ function popup(demographicNo, msgId, providerNo, action) { //open a new popup wi
       var encType = "oscarMessenger";
       var txt;
       
-      //note editor in new ui
-      var noteEditorId = "noteEditor"+demographicNo;
-      var noteEditor = window.parent.opener.document.getElementById(noteEditorId);
-      var ngApp = window.parent.opener.document.body.parentElement.getAttribute("ng-app");
-      
       if ( action == "writeToEncounter") {
           win = window.open("","<bean:message key="provider.appointmentProviderAdminDay.apptProvider"/>");
-          if ( win.pasteToEncounterNote && win.demographicNo == demographicNo ) {  
+          if( win.pasteToEncounterNote && win.demographicNo == demographicNo ) {
             txt = fmtOscarMsg();
             win.pasteToEncounterNote(txt);
-          } else if ( noteEditor != undefined ){
-        	win.close(); 
-        	txt = "\n" + fmtOscarMsg();
-        	noteEditor.value = noteEditor.value + txt; 
-          } else if ( noteEditor == undefined && ngApp != undefined ){
-        	  win.close();
-        	  txt = "\n" + fmtOscarMsg();
-        	  getAngJsPath = window.opener.location.href;
-        	  newAngJsPath = getAngJsPath.substring(0, getAngJsPath.indexOf('#')+2) + "record/" + demographicNo + "/summary?noteEditorText=" + encodeURI(txt);
-        	  window.opener.location.href = newAngJsPath;	  
-          } else { 
-              win.close();                          
+          }
+          else {
+            win.close();                          
               page = 'WriteToEncounter.do?demographic_no='+demographicNo+'&msgId='+msgId+'&providerNo='+providerNo+'&encType=oscarMessenger';         
               var popUp=window.open(page, "<bean:message key="provider.appointmentProviderAdminDay.apptProvider"/>", windowprops);
               if (popUp != null) {
@@ -252,10 +209,11 @@ function fmtOscarMsg() {
 					<td><bean:message
 						key="oscarMessenger.ViewMessage.msgViewMessage" /></td>
 					<td></td>
-					<td style="text-align: right">
-					  <oscar:help keywords="message" key="app.top1"/> | 
-					  <a href="javascript:void(0)" onclick="javascript:popupPage(600,700,'../oscarEncounter/About.jsp')"><bean:message key="global.about" /></a>
-				    </td>
+					<td style="text-align: right"><oscar:help keywords="message" key="app.top1"/> | <a
+						href="javascript:popupStart(300,400,'About.jsp')"><bean:message
+						key="global.about" /></a> | <a
+						href="javascript:popupStart(300,400,'License.jsp')"><bean:message
+						key="global.license" /></a></td>
 				</tr>
 			</table>
 			</td>
@@ -400,7 +358,8 @@ function fmtOscarMsg() {
 								<bean:message key="oscarMessenger.ViewMessage.btnForward" />
 							</html:submit> <html:submit styleClass="ControlPushButton" property="delete">
 								<bean:message key="oscarMessenger.ViewMessage.btnDelete" />
-							</html:submit> <html:hidden property="messageNo" value="<%=(String)request.getAttribute(\"viewMessageNo\") %>" />
+							</html:submit> <html:hidden property="messageNo"
+								value="<%=(String)request.getAttribute(\"viewMessageNo\") %>" />
 							</td>
 
 						</tr>
@@ -436,7 +395,7 @@ function fmtOscarMsg() {
 
                                 String demographic_no = request.getParameter("demographic_no");
                                 DemographicData demoData = new  DemographicData();
-                                org.oscarehr.common.model.Demographic demo =  demoData.getDemographic(LoggedInInfo.getLoggedInInfoFromSession(request), demographic_no);
+                                org.oscarehr.common.model.Demographic demo =  demoData.getDemographic(demographic_no);
                                 String demoName = "";
                                 String demoLastName = "";
                                 String demoFirstName = "";
@@ -479,86 +438,21 @@ function fmtOscarMsg() {
                                         if(demoMap !=null){ %>
 
 						<%  int idx = 0;                                           
-                                                Set<String> keys = demoMap.keySet();
-                                                int demoCount;
-                                            for ( String demoID : keys ) { 
-                                               demoCount = 0;
-                                                List<String> list = demoMap.get(demoID);
-                                                for( String demoN : list ) {
-                                                     
+                                            for (Enumeration e=demoMap.keys(); e.hasMoreElements(); ) { 
+                                                String demoID = (String)e.nextElement(); 
                                         %>
 						<tr>
 							<td bgcolor="#EEEEFF"></td>
 							<td bgcolor="#EEEEFF"><input type="text" size="30" readonly
 								style="background: #EEEEFF; border: none"
-								value="<%=demoN%>" /> <a
+								value="<%=(String)demoMap.get(demoID)%>" /> <a
 								href="javascript:popupViewAttach(700,960,'../demographic/demographiccontrol.jsp?demographic_no=<%=demoID%>&displaymode=edit&dboperation=search_detail')">M</a>
-								
-							<a href="javascript:void(0)" onclick="window.opener.location.href='../web/#/record/<%=demoID%>/summary'">E2</a>
-							<%
-								//Hide old echart link
-								boolean showOldEchartLink = true;
-							    UserPropertyDAO propDao =(UserPropertyDAO)SpringUtils.getBean("UserPropertyDAO");
-								UserProperty oldEchartLink = propDao.getProp(curUser_no, UserProperty.HIDE_OLD_ECHART_LINK_IN_APPT);
-								if (oldEchartLink!=null && "Y".equals(oldEchartLink.getValue())) showOldEchartLink = false;
-								CaseManagementNoteDAO caseManagementNoteDAO = SpringUtils.getBean(CaseManagementNoteDAO.class);
-							if (showOldEchartLink) {
-                                                            String params = "";
-                                                            String msgType = (String)request.getAttribute("msgType");
-                                                            
-                                                            if( msgType != null ) {
-                                                                
-                                                                    if( Integer.valueOf(msgType).equals(OscarMsgType.OSCAR_REVIEW_TYPE) ) {
-                                                                        HashMap<String,List<String>> hashMap =  (HashMap<String,List<String>>)request.getAttribute("msgTypeLink");
-                                                                        if( hashMap != null) {                                                                            
-                                                                            List<String> demoList = hashMap.get(demoID);
-                                                                            
-                                                                             String[] val = demoList.get(demoCount).split(":");
-                                                                             if( val.length == 3 ) {
-                                                                                 String note_id = "";
-                                                                                 CaseManagementNote note = caseManagementNoteDAO.getNote(Long.valueOf(val[2]));
-                                                                                 if( note != null ) {
-                                                                                     String uuid = note.getUuid();
-                                                                                     List<CaseManagementNote> noteList = caseManagementNoteDAO.getNotesByUUID(uuid);
-                                                                                     if( noteList.get(noteList.size()-1).getId().equals(note.getId()) ) {
-                                                                                         note_id = String.valueOf(note.getId());
-                                                                                     }
-                                                                                     else {
-                                                                                         note_id = String.valueOf(noteList.get(noteList.size()-1).getId());
-                                                                                     }
-                                                                                 }
-                                                                                
-                                                                                params = "&appointmentNo=" + (val[0].equalsIgnoreCase("null") ? "" :  val[0]) +"&msgType=" + msgType + "&OscarMsgTypeLink="+val[1]+"&noteId="+note_id;
-                                                                             }
-                                                                             else {
-                                                                                 params = "";
-                                                                             }
-                                                                         }
-                                                                    }
-                                                                }
-                                                            
-                                                            
-                                                        
-                                                        %>
-                                                         <a href="javascript:void(0)" onclick="popupViewAttach(700,960,'../oscarEncounter/IncomingEncounter.do?demographicNo=<%=demoID%>&curProviderNo=<%=request.getAttribute("providerNo")%><%=params%>');return false;">E</a>
-							<%} %>
-								
-							<a href="javascript:popupViewAttach(700,960,'../oscarRx/choosePatient.do?providerNo=<%=request.getAttribute("providerNo")%>&demographicNo=<%=demoID%>')">Rx</a>
-								
-							<phr:indivoRegistered provider="<%=providerNo%>" demographic="<%=demoID%>">
-								<%
-									String onclickString="alert('Please login to MyOscar first.')";
-	
-									MyOscarLoggedInInfo myOscarLoggedInInfo=MyOscarLoggedInInfo.getLoggedInInfo(session);
-									if (myOscarLoggedInInfo!=null && myOscarLoggedInInfo.isLoggedIn()) onclickString="msg4phr = encodeURIComponent(document.getElementById('msgBody').innerHTML); sub4phr =  encodeURIComponent(document.getElementById('msgSubject').innerHTML); popupViewAttach(600,900,'../phr/PhrMessage.do?method=createMessage&providerNo="+request.getAttribute("providerNo")+"&demographicNo="+demoID+"&message='+msg4phr+'&subject='+sub4phr)";
-								%>
-								<a href="javascript: function myFunction() {return false; }" ONCLICK="<%=onclickString%>"	title="myOscar">
-									<bean:message key="demographic.demographiceditdemographic.msgSendMsgPHR"/>
-								</a>
-							</phr:indivoRegistered>	
-							
-								
-								
+							<a href="#"
+								onclick="popupViewAttach(700,960,'../oscarEncounter/IncomingEncounter.do?demographicNo=<%=demoID%>&curProviderNo=<%=request.getAttribute("providerNo")%>');return false;">E</a>
+							<a
+								href="javascript:popupViewAttach(700,960,'../oscarRx/choosePatient.do?providerNo=<%=request.getAttribute("providerNo")%>&demographicNo=<%=demoID%>')">Rx</a>
+
+
 							<input type="button" class="ControlPushButton"
 								name="writeEncounter" value="Write to encounter"
 								onclick="popup( '<%=demoID%>','<%=request.getAttribute("viewMessageId")%>','<%=request.getAttribute("providerNo")%>','writeToEncounter')" />
@@ -572,11 +466,7 @@ function fmtOscarMsg() {
 								demographicNo="<%=demoID%>" /></a></td>
 						</tr>
 						<%     ++idx;
-                                                ++demoCount;
-                                            }
-                                            
-                                          }
-                                       
+                                            }                                                                                                                           
                                     }
                                 else{%>
 						<tr>

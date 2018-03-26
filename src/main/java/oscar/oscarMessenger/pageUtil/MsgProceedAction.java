@@ -22,11 +22,11 @@
  * Ontario, Canada
  */
 
+
 package oscar.oscarMessenger.pageUtil;
 
+
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -36,52 +36,57 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.oscarehr.common.dao.RemoteAttachmentsDao;
-import org.oscarehr.common.model.RemoteAttachments;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
-import org.oscarehr.util.SpringUtils;
+import org.oscarehr.util.MiscUtils;
 
-import oscar.util.ConversionUtils;
+import oscar.oscarDB.DBHandler;
 
 public class MsgProceedAction extends Action {
 
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	
-	public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+ public ActionForward execute(ActionMapping mapping,
+				 ActionForm form,
+				 HttpServletRequest request,
+				 HttpServletResponse response)
+	throws IOException, ServletException {
 
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_msg", "w", null)) {
-			throw new SecurityException("missing required security object (_msg)");
-		}
-		
-		MsgProceedForm frm = (MsgProceedForm) form;
 
-		String id;
-		String demoId;
+    MsgProceedForm frm = (MsgProceedForm) form;
 
-		oscar.oscarMessenger.pageUtil.MsgSessionBean bean;
-		bean = (oscar.oscarMessenger.pageUtil.MsgSessionBean) request.getSession().getAttribute("msgSessionBean");
+    String id;
+    String demoId;
 
-		demoId = frm.getDemoId();
-		id = frm.getId();
+    oscar.oscarMessenger.pageUtil.MsgSessionBean bean;
+    bean = (oscar.oscarMessenger.pageUtil.MsgSessionBean)request.getSession().getAttribute("msgSessionBean");
 
-		RemoteAttachmentsDao dao = SpringUtils.getBean(RemoteAttachmentsDao.class);
-		List<RemoteAttachments> rs = dao.findByDemoNoAndMessageId(ConversionUtils.fromIntString(demoId), ConversionUtils.fromIntString(id));
-		if (rs.size() > 0) {
-			request.setAttribute("confMessage", "1");
-		} else {
-			RemoteAttachments ra = new RemoteAttachments();
-			ra.setDemographicNo(Integer.parseInt(demoId));
-			ra.setMessageId(Integer.parseInt(id));
-			ra.setSavedBy(bean.getUserName());
-			ra.setDate(new Date());
-			ra.setTime(new Date());
-			dao.persist(ra);
-			request.setAttribute("confMessage", "2");
-		}
 
-		bean.nullAttachment();
+    demoId = frm.getDemoId();
+    id = frm.getId();
+    //id = oscar.oscarMessenger.docxfer.util.xml.decode64(id);
 
-		return (mapping.findForward("success"));
-	}
+    try{
+        
+        java.sql.ResultSet rs;
+
+        String sel = "select * from remoteAttachments where demographic_no = '"+demoId+"' and messageid = '"+id+"' ";
+
+        rs = DBHandler.GetSQL(sel);
+
+        if (rs.next()){
+            rs.close();
+            request.setAttribute("confMessage","1");
+        }else{
+            rs.close();
+            String sql = "insert into remoteAttachments (demographic_no,messageid, savedBy,date,time) values "
+            +"('"+demoId+"','"+id+"','"+bean.getUserName()+"','today', 'now')";
+            DBHandler.RunSQL(sql);
+            request.setAttribute("confMessage","2");
+
+        }
+
+    }catch (java.sql.SQLException e){MiscUtils.getLogger().error("Error", e); }
+
+    bean.nullAttachment();
+
+
+    return (mapping.findForward("success"));
+    }
 }

@@ -25,10 +25,6 @@
 
 package org.oscarehr.common.dao;
 
-import java.util.List;
-
-import javax.persistence.Query;
-
 import org.oscarehr.common.model.ReportLetters;
 import org.springframework.stereotype.Repository;
 
@@ -37,16 +33,6 @@ public class ReportLettersDao extends AbstractDao<ReportLetters>{
 
 	public ReportLettersDao() {
 		super(ReportLetters.class);
-	}
-	
-	public List<ReportLetters> findCurrent() {
-		Query q = entityManager.createQuery("select l from ReportLetters l WHERE l.archive=? ORDER BY l.dateTime,l.reportName");
-		q.setParameter(1, "0");
-		
-		@SuppressWarnings("unchecked")
-		List<ReportLetters> results = q.getResultList();
-		
-		return results;
 	}
 
 }

@@ -62,8 +62,8 @@ public class PayRefSummary {
   /**
    * Increments the value of the specified payment type, with the supplied
    * String reprentation of a double value
-   * @param paymentMethod String
-   * @param value double
+   * @param item String
+   * @param strValue String
    */
   public void addIncValue(String paymentMethod, double value) {
     paymentMethod = paymentMethod == null ? "" : paymentMethod;

@@ -37,10 +37,7 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.OscarProperties;
 import oscar.oscarEncounter.oscarMeasurements.pageUtil.EctValidation;
@@ -48,16 +45,9 @@ import oscar.oscarReport.data.ObecData;
 import oscar.util.DateUtils;
 
 public class ObecAction extends Action {
-	
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
    
    public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)
    throws ServletException, IOException {
-	   
-	   if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_report", "r", null)) {
-	  		  throw new SecurityException("missing required security object (_report)");
-	  	  	}
-	   
       Properties proppies = OscarProperties.getInstance();
       
       ObecForm frm = (ObecForm)form;

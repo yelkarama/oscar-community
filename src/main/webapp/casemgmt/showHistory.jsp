@@ -25,20 +25,6 @@
 --%>
 
 <%@ include file="/casemgmt/taglibs.jsp"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_casemgmt.notes" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_casemgmt.notes");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%@ page
 	import="org.springframework.web.context.*,org.springframework.web.context.support.*, org.oscarehr.PMmodule.service.ProviderManager, org.oscarehr.casemgmt.model.CaseManagementNote"%>
 <%
@@ -56,7 +42,7 @@
 <nested:iterate indexId="idx" id="note" name="history">
 	<div
 		style="width: 99%; background-color: #EFEFEF; font-size: 12px; border-left: thin groove #000000; border-bottom: thin groove #000000; border-right: thin groove #000000;">
-	<div><p><nested:write name="note" property="note" /></p></div>
+	<pre><nested:write name="note" property="note" /></pre>
 	<div style="color: #0000FF;"><nested:notEmpty name="current">
 		<c:if test="${current[idx] == false}">
 			<div style="color: #FF0000;">REMOVED</div>

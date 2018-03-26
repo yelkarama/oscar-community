@@ -39,7 +39,7 @@ public class DigitalSignatureUtils {
 	public static final String SIGNATURE_REQUEST_ID_KEY = "signatureRequestId";
 
 	public static String generateSignatureRequestId(String providerNo) {
-		return (providerNo + System.currentTimeMillis());
+		return (providerNo + "_" + System.currentTimeMillis());
 	}
 
 	public static String getTempFilePath(String signatureRequestId) {
@@ -55,7 +55,7 @@ public class DigitalSignatureUtils {
 	public static DigitalSignature storeDigitalSignatureFromTempFileToDB(LoggedInInfo loggedInInfo, String signatureRequestId, int demographicId) {
 		DigitalSignature digitalSignature = null;
 
-		if (loggedInInfo.getCurrentFacility().isEnableDigitalSignatures()) {
+		if (loggedInInfo.currentFacility.isEnableDigitalSignatures()) {
 			FileInputStream fileInputStream = null;
 			try {
 				String filename = DigitalSignatureUtils.getTempFilePath(signatureRequestId);
@@ -66,8 +66,8 @@ public class DigitalSignatureUtils {
 				digitalSignature = new DigitalSignature();
 				digitalSignature.setDateSigned(new Date());
 				digitalSignature.setDemographicId(demographicId);
-				digitalSignature.setFacilityId(loggedInInfo.getCurrentFacility().getId());
-				digitalSignature.setProviderNo(loggedInInfo.getLoggedInProviderNo());
+				digitalSignature.setFacilityId(loggedInInfo.currentFacility.getId());
+				digitalSignature.setProviderNo(loggedInInfo.loggedInProvider.getProviderNo());
 				digitalSignature.setSignatureImage(image);
 
 				DigitalSignatureDao digitalSignatureDao = (DigitalSignatureDao) SpringUtils.getBean("digitalSignatureDao");
@@ -76,10 +76,8 @@ public class DigitalSignatureUtils {
 				return (digitalSignature);
 			} catch (FileNotFoundException e) {
 	            logger.debug("Signature file not found. User probably didn't collect a signature.", e);
-	            return null;
 			} catch (Exception e) {
 	            logger.error("UnexpectedError.", e);
-	            return null;
 			} finally {
 				if (fileInputStream != null) {
 					try {

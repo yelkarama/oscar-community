@@ -384,7 +384,7 @@ public class HSFODAO {
         try {
 
             Connection connect = DbConnectionFilter.getThreadLocalDbConnection();
-            st = connect.prepareStatement(sqlstatement,Statement.RETURN_GENERATED_KEYS);
+            st = connect.prepareStatement(sqlstatement);
             //////
 
             st.setString(1,visitData.getPatient_Id());

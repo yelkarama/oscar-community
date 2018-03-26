@@ -34,11 +34,15 @@ import org.oscarehr.util.SpringUtils;
 
 public class ProviderDefaultProgramDaoTest extends DaoTestFixtures {
 
-	protected ProviderDefaultProgramDao dao = SpringUtils.getBean(ProviderDefaultProgramDao.class);
+	private ProviderDefaultProgramDao dao = SpringUtils.getBean(ProviderDefaultProgramDao.class);
+
+	public ProviderDefaultProgramDaoTest() {
+	}
+
 
 	@Before
 	public void before() throws Exception {
-		SchemaUtils.restoreTable("provider_default_program", "program", "admission", "program_queue", "Facility","program_provider");
+		SchemaUtils.restoreTable("provider_default_program");
 	}
 
 	@Test
@@ -47,10 +51,5 @@ public class ProviderDefaultProgramDaoTest extends DaoTestFixtures {
 		EntityDataGenerator.generateTestDataForModelClass(entity);
 		dao.persist(entity);
 		assertNotNull(entity.getId());
-	}
-	
-	@Test
-	public void testFindProgramsByProvider() {
-		assertNotNull(dao.findProgramsByProvider("100"));
 	}
 }

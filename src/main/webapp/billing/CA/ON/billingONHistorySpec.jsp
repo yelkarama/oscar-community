@@ -17,29 +17,13 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_billing" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%@page import="org.oscarehr.util.DateRange"%>
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
-<%
- 
+  if(session.getAttribute("user") == null)
+    response.sendRedirect("../logout.htm");
   String curProvider_no;
   curProvider_no = (String) session.getAttribute("user");
- 
+  String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user"); 
+
   String strDay="0";
   if(request.getParameter("day")!=null) strDay = request.getParameter("day");
   
@@ -48,16 +32,17 @@ if(!authed) {
   calendar.add(Calendar.DATE, Integer.parseInt(strDay)*(-1));
   String strStartDay = calendar.get(Calendar.YEAR) + "-" + (calendar.get(Calendar.MONTH)+1) + "-" + calendar.get(Calendar.DATE);;
 
-  DateRange pDateRange= new DateRange(MyDateFormat.getSysDate(strStartDay), MyDateFormat.getSysDate(strToday));
+  DBPreparedHandlerParam[] pDateRange= new DBPreparedHandlerParam[2];
+  pDateRange[0]= new DBPreparedHandlerParam(MyDateFormat.getSysDate(strStartDay));
+  pDateRange[1]= new DBPreparedHandlerParam(MyDateFormat.getSysDate(strToday));
   
   String serviceCode = request.getParameter("serviceCode")!=null? request.getParameter("serviceCode") : "";
-  
-  LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
 %>
 <%@ page
 	import="java.util.*, java.sql.*, java.net.*, oscar.*, oscar.oscarDB.*"
 	errorPage="errorpage.jsp"%>
 <%@ page import="oscar.oscarBilling.ca.on.data.*"%>
+<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <jsp:useBean id="providerBean" class="java.util.Properties"
 	scope="session" />
 <html>
@@ -113,8 +98,8 @@ function upCaseCtrl(ctrl) {
 	<% // new billing records
 JdbcBillingReviewImpl dbObj = new JdbcBillingReviewImpl();
 String limit = "";
-
-List aL = dbObj.getBillingHist(loggedInInfo, request.getParameter("demographic_no"), 10000000, 0, pDateRange);
+//List aL = dbObj.getBillingHist(request.getParameter("demographic_no"), limit, dateRange);
+List aL = dbObj.getBillingHist(request.getParameter("demographic_no"), 10000000, 0, pDateRange);
 int nItems=0;
 for(int i=0; i<aL.size(); i=i+2) {
 	BillingClaimHeader1Data obj = (BillingClaimHeader1Data) aL.get(i);
@@ -129,7 +114,7 @@ for(int i=0; i<aL.size(); i=i+2) {
 	<tr bgcolor="<%=i%2==0?"#CCFF99":"white"%>">
 		<td width="5%" align="center" height="25"><%=obj.getId()%></td>
 		<td align="center"><%=obj.getBilling_date()%> <%--=obj.getBilling_time()--%></td>
-		<td align="center"><%=BillingDataHlp.getPropBillingType().getProperty(obj.getStatus(),"")%></td>
+		<td align="center"><%=BillingDataHlp.propBillingType.getProperty(obj.getStatus(),"")%></td>
 		<td align="center"><%=strServiceCode%></td>
 		<td align="center"><%=itObj.getDx()%></td>
 		<td align="center"><%=obj.getTotal()%></td>

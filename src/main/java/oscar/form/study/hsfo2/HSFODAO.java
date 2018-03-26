@@ -125,8 +125,44 @@ public class HSFODAO
   public int insertVisit( Hsfo2Visit visitData, String provider_no )
   {
     int id = -1;
-
+    String TC_DHL = "";
+    if ( visitData.getTC_HDL_LabresultsDate() != null && !visitData.getTC_HDL_LabresultsDate().equals( "" ) )
+    {
+      TC_DHL = "'" + visitData.getTC_HDL_LabresultsDate() + "',";
+    }
+    else
+    {
+      TC_DHL = visitData.getTC_HDL_LabresultsDate() + ",";
+    }
+    String LDL = "";
+    if ( visitData.getLDL_LabresultsDate() != null && !visitData.getLDL_LabresultsDate().equals( "" ) )
+    {
+      LDL = "'" + visitData.getLDL_LabresultsDate() + "',";
+    }
+    else
+    {
+      LDL = visitData.getLDL_LabresultsDate() + ",";
+    }
+    String HDL = "";
+    if ( visitData.getHDL_LabresultsDate() != null && !visitData.getHDL_LabresultsDate().equals( "" ) )
+    {
+      HDL = "'" + visitData.getHDL_LabresultsDate() + "',";
+    }
+    else
+    {
+      HDL = visitData.getHDL_LabresultsDate() + ",";
+    }
+    String A1C = "";
+    if ( visitData.getA1C_LabresultsDate() != null && !visitData.getA1C_LabresultsDate().equals( "" ) )
+    {
+      A1C = "'" + visitData.getA1C_LabresultsDate() + "',";
+    }
+    else
+    {
+      A1C = visitData.getA1C_LabresultsDate() + ",";
+    }
     
+  
     boolean insertNewRecord = true;
     
     if( visitData.getId()!=null && visitData.getId() >0 ) {
@@ -186,6 +222,7 @@ public class HSFODAO
   // check if this is a new record
   public boolean isRecordExists( Date visitdate, String demographicNo )
   {
+	  boolean isRecordExists = false;
 	  Hsfo2Visit visit = visitDao.getPatientLatestVisitRecordByVisitDate(visitdate, demographicNo);
 	  if(visit!=null) 
 		  return true;
@@ -252,6 +289,7 @@ public class HSFODAO
    * 
    * @param patientId
    * @param visitRecordId
+   * @return
    */
   public boolean isFirstVisitRecordForThePatient( String patientId, int visitRecordId )
   {	  
@@ -421,7 +459,7 @@ public class HSFODAO
     {
     	//save height;
         double height = visitData.getHeight();
-        if( (int)height != 0 )
+        if( height != 0 )
         {
           if( !"cm".equalsIgnoreCase( visitData.getHeight_unit() ) )
           {
@@ -432,7 +470,7 @@ public class HSFODAO
     	
       //WT: weight
       double weight = visitData.getWeight();
-      if( (int)weight != 0 )
+      if( weight != 0 )
       {
         if( !"kg".equalsIgnoreCase( visitData.getWeight_unit() ) )
         {
@@ -443,7 +481,7 @@ public class HSFODAO
       
       //WAIS  for waist
       double waist = visitData.getWaist();
-      if( (int)waist != 0 )
+      if( waist != 0 )
       {
         if( !"cm".equalsIgnoreCase( visitData.getWaist_unit()) )
         {

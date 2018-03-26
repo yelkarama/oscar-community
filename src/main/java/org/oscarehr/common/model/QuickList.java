@@ -43,7 +43,7 @@ public class QuickList extends AbstractModel<Integer> implements Serializable {
 
 	private String quickListName;
 
-	private String createdByProvider;
+	private int createdByProvider;
 
 	private String dxResearchCode;
 
@@ -65,11 +65,11 @@ public class QuickList extends AbstractModel<Integer> implements Serializable {
     	this.quickListName = quickListName;
     }
 
-	public String getCreatedByProvider() {
+	public int getCreatedByProvider() {
     	return createdByProvider;
     }
 
-	public void setCreatedByProvider(String createdByProvider) {
+	public void setCreatedByProvider(int createdByProvider) {
     	this.createdByProvider = createdByProvider;
     }
 

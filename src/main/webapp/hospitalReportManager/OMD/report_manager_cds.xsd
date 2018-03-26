@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- edited with XMLSpy v2006 rel. 3 sp2 (http://www.altova.com) by (OntarioMD) -->
-<!-- HRM-XSD Schema v1.1.2 / EMR 4.1 / Publish Date: August 14, 2013 -->
+<!-- edited with XMLSpy v2006 rel. 3 sp2 (http://www.altova.com) by Renato Zoratti (OntarioMD) -->
 <xs:schema xmlns="cds" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:cdsd="cds_dt" targetNamespace="cds" elementFormDefault="qualified" attributeFormDefault="qualified">
-	<xs:import namespace="cds_dt" schemaLocation="report_manager_dt.xsd"/>
+	<xs:import namespace="cds_dt" schemaLocation="ontariomd_cds_dt.xsd"/>
 	<xs:element name="OmdCds">
 		<xs:complexType>
 			<xs:sequence>
@@ -159,21 +158,21 @@
 	<xs:element name="TransactionInformation">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element name="MessageUniqueID">
+				<xs:element name="MessageUniqueID" minOccurs="1">
 					<xs:simpleType>
 						<xs:restriction base="cdsd:text">
-							<xs:maxLength value="250"/>
+							<xs:maxLength value="50"/>
 						</xs:restriction>
 					</xs:simpleType>
 				</xs:element>
-				<xs:element name="DeliverToUserID">
+				<xs:element name="DeliverToUserID" minOccurs="1">
 					<xs:simpleType>
 						<xs:restriction base="cdsd:text">
-							<xs:maxLength value="9"/>
+							<xs:maxLength value="8"/>
 						</xs:restriction>
 					</xs:simpleType>
 				</xs:element>
-				<xs:element name="Provider" type="cdsd:personNameSimple"/>
+				<xs:element name="Physician" type="cdsd:personNameSimple" minOccurs="1"/>				
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>

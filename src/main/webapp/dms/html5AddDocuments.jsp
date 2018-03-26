@@ -23,20 +23,6 @@
     Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_edoc" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_edoc");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
 
 <!--   /** No SWF Object Multiple File Upload
      * @version         1.1.1
@@ -61,7 +47,7 @@
         <%
             QueueDao queueDao = (QueueDao) SpringUtils.getBean("queueDao");
             List<Hashtable> queues=queueDao.getQueues();
-            List providers = ProviderData.getProviderList();
+            ArrayList providers = ProviderData.getProviderList();
             String queueIdStr = (String) request.getSession().getAttribute("preferredQueue");
             int queueId = 1;
             if (queueIdStr != null) {
@@ -333,7 +319,7 @@
                 <select onchange="javascript:addProviderToPost(this);" id="providerDrop" name="providerDrop">
                     <option value="-2" <%=("-2".equals(provider) ? " selected" : "")%> >None</option>
                     <%for (int i = 0; i < providers.size(); i++) {
-                                    Map h = (Map) providers.get(i);%>
+                                    Hashtable h = (Hashtable) providers.get(i);%>
                     <option value="<%= h.get("providerNo")%>" <%= (h.get("providerNo").equals(provider) ? " selected" : "")%>><%= h.get("lastName")%> <%= h.get("firstName")%></option>
                     <%}%>
                 </select>

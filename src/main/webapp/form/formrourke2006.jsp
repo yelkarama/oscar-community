@@ -23,22 +23,7 @@
     Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_form" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_form");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
 
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@ page import="oscar.form.*"%><%
     int demoNo = Integer.parseInt(request.getParameter("demographic_no"));
     int formId = Integer.parseInt(request.getParameter("formId"));    
@@ -49,7 +34,7 @@
 			pageContext.forward("formrourke2006p1.jsp?demographic_no=" + demoNo + "&formId=" + formId) ; 
  		} else {
 			FrmRecord rec = (new FrmRecordFactory()).factory("Rourke2006");
-			java.util.Properties props = rec.getFormRecord(LoggedInInfo.getLoggedInInfoFromSession(request) ,demoNo, formId);
+			java.util.Properties props = rec.getFormRecord(demoNo, formId);
 
 			String pageNum = props.getProperty("c_lastVisited", "p1"); //'p1'
                         pageContext.forward("formrourke2006" + pageNum

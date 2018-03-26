@@ -11,11 +11,11 @@ package oscar.oscarEncounter.oscarConsultationRequest.pageUtil;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ResourceBundle;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
-import org.oscarehr.common.printing.FontSettings;
-import org.oscarehr.common.printing.PdfWriterFactory;
 import org.oscarehr.util.MiscUtils;
 
 import com.lowagie.text.Document;
@@ -66,11 +66,12 @@ public class ImagePDFCreator extends PdfPageEventHelper {
 		
 		// Create the document we are going to write to
 		document = new Document();
-		// PdfWriter writer = PdfWriter.getInstance(document, os);
-		PdfWriter writer = PdfWriterFactory.newInstance(document, os, FontSettings.HELVETICA_6PT);
+		PdfWriter writer = PdfWriter.getInstance(document, os);
 
 		
 		document.setPageSize(PageSize.LETTER);
+		ResourceBundle.getBundle("oscarResources",request.getLocale())
+			.getString("oscarEncounter.oscarConsultationRequest.consultationFormPrint.msgImage");
 		document.addCreator("OSCAR");
 		document.open();
 		

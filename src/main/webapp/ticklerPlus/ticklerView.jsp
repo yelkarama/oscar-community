@@ -24,25 +24,9 @@
 --%>
 <%-- Updated by Eugene Petruhin on 17 dec 2008 while fixing #2422864 & #2317933 & #2379840 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_tickler" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_tickler");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%@ include file="/ticklerPlus/header.jsp" %>
-
 	<tr>
-            <td class="searchTitle" colspan="4">View Tickler #<c:out value="${tickler.id}"/></td>
+            <td class="searchTitle" colspan="4">View Tickler #<c:out value="${tickler.tickler_no}"/></td>
 	</tr>
 </table>
 <%@ include file="messages.jsp" %>
@@ -54,19 +38,19 @@
 <%@page import="org.oscarehr.common.model.Provider"%>
 <script>
 	function reassign_tickler() {
-		document.ticklerForm.id.value=<c:out value="${tickler.id}"/>;
+		document.ticklerForm.id.value=<c:out value="${tickler.tickler_no}"/>;
 		document.ticklerForm.method.value='reassign';
 		document.ticklerForm.submit();
 	}
 
 	function update_status() {
-		document.ticklerForm.id.value=<c:out value="${tickler.id}"/>;
+		document.ticklerForm.id.value=<c:out value="${tickler.tickler_no}"/>;
 		document.ticklerForm.method.value='update_status';
 		document.ticklerForm.submit();
 	}
 	
 	function add_comment() {
-		document.ticklerForm.id.value=<c:out value="${tickler.id}"/>;
+		document.ticklerForm.id.value=<c:out value="${tickler.tickler_no}"/>;
 		document.ticklerForm.method.value='add_comment';
 		document.ticklerForm.submit(); 
 	}
@@ -87,50 +71,47 @@
 	
 	Tickler temp = (Tickler)request.getAttribute("tickler");
 	if(temp != null) {
-		Demographic demographic = temp.getDemographic();
+		Demographic demographic = (Demographic)temp.getDemographic();
 		if(demographic != null) {
-	demographic_name = demographic.getLastName() + "," + demographic.getFirstName();
+			demographic_name = demographic.getLastName() + "," + demographic.getFirstName();
 		}
 		
-		if (temp.getProgramId()!=null) {
-	ProgramDao programDao=(ProgramDao)SpringUtils.getBean("programDao");
-	Program program=programDao.getProgram(temp.getProgramId());
-	program_name=program.getName();
+		if (temp.getProgram_id()!=null) {
+			ProgramDao programDao=(ProgramDao)SpringUtils.getBean("programDao");
+			Program program=programDao.getProgram(temp.getProgram_id());
+			program_name=program.getName();
 		}
-	
-		Provider provider = temp.getProvider();
+			
+		Provider provider = (Provider)temp.getProvider();
 		if(provider != null) {
-	provider_name = provider.getLastName() + "," + provider.getFirstName();
+			provider_name = provider.getLastName() + "," + provider.getFirstName();
 		}
 
-		Provider assignee = temp.getAssignee();
+		Provider assignee = (Provider)temp.getAssignee();
 		if(assignee != null) {
-	assignee_id = assignee.getProviderNo();
-	@SuppressWarnings("unchecked")
-	java.util.List<Provider> providers = (java.util.List<Provider>)request.getAttribute("providers");
-	boolean found=false;
-	for(Provider p:providers) {
-		if(p.getProviderNo().equals(assignee.getProviderNo())) {
-	found=true;
-	break;
-		}
-	}
-	if(!found) {
-		inactive_name = assignee.getLastName() + "," + assignee.getFirstName();
-	}						
+			assignee_id = assignee.getProviderNo();
+			@SuppressWarnings("unchecked")
+			java.util.List<Provider> providers = (java.util.List<Provider>)request.getAttribute("providers");
+			boolean found=false;
+			for(Provider p:providers) {
+				if(p.getProviderNo().equals(assignee.getProviderNo())) {
+					found=true;
+					break;
+				}
+			}
+			if(!found) {
+				inactive_name = assignee.getLastName() + "," + assignee.getFirstName();
+			}						
 		}
 
-		status = "Active";
-		if(temp.getStatus().equals(Tickler.STATUS.C)) {
-	status="Completed";
+		switch(temp.getStatus()) {
+			case 'A': status="Active";break;
+			case 'D': status="Deleted";break;
+			case 'C': status="Completed";break;
 		}
-		if(temp.getStatus().equals(Tickler.STATUS.D)) {
-	status="Deleted";
-		}
-		
 
 		if ("High".equals(temp.getPriority())) {
-	priorityStyle = " style='color:red;'";
+			priorityStyle = " style='color:red;'";
 		}
 	}
 %>
@@ -139,23 +120,23 @@
 	</tr>
 	<tr>
 		<td class="fieldTitle">Demographic:</td>
-		<td class="fieldValue"><a href="../demographic/demographiccontrol.jsp?demographic_no=<c:out value="${tickler.demographicNo}"/>&displaymode=edit&dboperation=search_detail" target="demographic"><%=demographic_name%></a></td>
+		<td class="fieldValue"><a href="../demographic/demographiccontrol.jsp?demographic_no=<c:out value="${tickler.demographic_no}"/>&displaymode=edit&dboperation=search_detail" target="demographic"><%=demographic_name %></a></td>
 	</tr>
 	<tr>
 		<td class="fieldTitle">Program:</td>
-		<td class="fieldValue"><%=program_name%></td>
+		<td class="fieldValue"><%=program_name %></td>
 	</tr>
 	<tr>
 		<td class="fieldTitle">Provider:</td>
-		<td class="fieldValue"><%=provider_name%></td>
+		<td class="fieldValue"><%=provider_name %></td>
 	</tr>
 	<tr>
 		<td class="fieldTitle">Service Date:</td>
-		<td class="fieldValue"><fmt:formatDate pattern="MM/dd/yy : hh:mm a" value="${tickler.serviceDate}"/></td>
+		<td class="fieldValue"><fmt:formatDate pattern="MM/dd/yy : hh:mm a" value="${tickler.service_date}"/></td>
 	</tr>
 	<tr>
 		<td class="fieldTitle">Date Created:</td>
-		<td class="fieldValue"><fmt:formatDate pattern="MM/dd/yy : hh:mm a" value="${tickler.updateDate}"/></td>
+		<td class="fieldValue"><fmt:formatDate pattern="MM/dd/yy : hh:mm a" value="${tickler.update_date}"/></td>
 	</tr>
 	<tr>
 		<td class="fieldTitle">Priority:</td>
@@ -164,24 +145,16 @@
 	<tr>
 		<td class="fieldTitle">Task Assigned To:</td>
 		<td class="fieldValue">
-	            <html:select property="tickler.taskAssignedTo" value="<%=assignee_id%>">
-					<%
-						if (inactive_name.length() > 0) {
-					%>
+	            <html:select property="tickler.task_assigned_to" value="<%=assignee_id%>">
+					<% if (inactive_name.length() > 0) { %>
     	    		    <option value="<%=assignee_id%>" selected><%=inactive_name%></option>
-					<%
-						}
-					%>
+					<% } %>
         		    <html:options collection="providers" property="providerNo" labelProperty="formattedName"/>
             	</html:select>
 				<input type="button" value="Re-Assign Task" onclick="reassign_tickler()"/>
-				<%
-					if (inactive_name.length() > 0) {
-				%>
+				<% if (inactive_name.length() > 0) { %>
    	    		    <span style='color: red'>Warning! <%=inactive_name%> is inactive.</span>
-				<%
-					}
-				%>
+				<% } %>
 		</td>
 	</tr>
 	<tr>
@@ -215,30 +188,24 @@
 	<c:forEach var="update" items="${tickler.updates}">
 	<%
 		provider_name="";
-			status="";
-			TicklerUpdate update = (TicklerUpdate)pageContext.getAttribute("update");
-			if(update != null) {
-		Provider provider = update.getProvider();
-		if(provider != null) {
-			provider_name = provider.getLastName() + "," + provider.getFirstName();
-		}
-		
-		if(update.getStatus().equals(Tickler.STATUS.A)){
-			status="Active";
-		}
-		if(update.getStatus().equals(Tickler.STATUS.C)) {
-			status="Completed";
-		}
-		if(update.getStatus().equals(Tickler.STATUS.D)) {
-			status="Deleted";
-		}
-		
+		status="";
+		TicklerUpdate update = (TicklerUpdate)pageContext.getAttribute("update");
+		if(update != null) {
+			Provider provider = (Provider)update.getProvider();
+			if(provider != null) {
+				provider_name = provider.getLastName() + "," + provider.getFirstName();
 			}
+			switch(update.getStatus()) {
+				case 'A': status="Active";break;
+				case 'D': status="Deleted";break;
+				case 'C': status="Completed";break;
+			}
+		}
 	%>
 		<tr>
-			<td class="fieldValue"><fmt:formatDate pattern="MM/dd/yy : hh:mm a" value="${update.updateDate}"/></td>
-			<td class="fieldValue"><%=provider_name%></td>
-			<td class="fieldValue"><%=status%></td>
+			<td class="fieldValue"><fmt:formatDate pattern="MM/dd/yy : hh:mm a" value="${update.update_date}"/></td>
+			<td class="fieldValue"><%=provider_name %></td>
+			<td class="fieldValue"><%=status %></td>
 		</tr>
 	</c:forEach>
 </table>
@@ -255,16 +222,16 @@
 	<c:forEach var="comment" items="${tickler.comments}">
 	<%
 		provider_name="";
-			TicklerComment comment = (TicklerComment)pageContext.getAttribute("comment");
-			if(comment != null) {
-		Provider provider = comment.getProvider();
-		if(provider != null) {
-			provider_name = provider.getLastName() + "," + provider.getFirstName();
-		}
+		TicklerComment comment = (TicklerComment)pageContext.getAttribute("comment");
+		if(comment != null) {
+			Provider provider = (Provider)comment.getProvider();
+			if(provider != null) {
+				provider_name = provider.getLastName() + "," + provider.getFirstName();
 			}
+		}
 	%>
 		<tr>
-			<td class="fieldValue"><fmt:formatDate pattern="MM/dd/yy : hh:mm a" value="${comment.updateDate}"/></td>
+			<td class="fieldValue"><fmt:formatDate pattern="MM/dd/yy : hh:mm a" value="${comment.update_date}"/></td>
 			<td class="fieldValue"><%=provider_name %></td>
 			<td class="fieldValue"><c:out value="${comment.message}"/></td>
 		</tr>

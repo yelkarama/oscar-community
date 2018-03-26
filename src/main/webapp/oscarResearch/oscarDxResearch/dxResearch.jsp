@@ -24,7 +24,8 @@
 
 --%>
 
-<%@ page import="oscar.oscarResearch.oscarDxResearch.util.dxResearchCodingSystem"%>
+<%@ page
+	import="oscar.oscarResearch.oscarDxResearch.util.dxResearchCodingSystem"%>
 <%@ page
 	import="oscar.OscarProperties"%>
 <%@ page import="com.quatro.service.security.SecurityManager" %>
@@ -33,22 +34,9 @@
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-	  boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_dxresearch" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_dxresearch");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
 <%   
+    if(session.getValue("user") == null) response.sendRedirect("../../logout.jsp");
+	String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
 	
 	//John's Question: Can't we just get rid of this to force use of the object _dx.code
 	//String disableVal = OscarProperties.getInstance().getProperty("dxResearch_disable_entry", "false");
@@ -69,20 +57,16 @@ if(!authed) {
 	
     String user_no = (String) session.getAttribute("user");
     String color ="";
-    int Count=0; 
-    
-    pageContext.setAttribute("showQuicklist", showQuicklist);
-    pageContext.setAttribute("disable", disable);
+    int Count=0;    
 %>
 
-
+<link rel="stylesheet" type="text/css" href="dxResearch.css">
 <html:html locale="true">
 <head>
-<link rel="stylesheet" type="text/css" href="dxResearch.css">
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <script type="text/javascript" src="<%= request.getContextPath() %>/share/javascript/prototype.js"></script>
 <script language="JavaScript">
-//<!--
+<!--
 function setfocus() {
 	document.forms[0].xml_research1.focus();
 	document.forms[0].xml_research1.select();
@@ -133,6 +117,12 @@ function set(target) {
      document.forms[0].forward.value=target;
 }
 
+function changeList(){
+    var quickList = document.forms[0].quickList.options[document.forms[0].quickList.selectedIndex].value;
+    var demographicNo = document.forms[0].demographicNo.value;    
+    var providerNo = document.forms[0].providerNo.value;        
+    location.href = 'setupDxResearch.do?demographicNo='+demographicNo+'&quickList='+quickList+'&providerNo='+providerNo;
+}
 
 function openNewPage(vheight,vwidth,varpage) { 
   var page = varpage;
@@ -163,8 +153,7 @@ function update_date(did, demoNo, provNo) {
 
 //-->
 </script>
-
-<!-- link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  /-->
+<link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
 <title><bean:message key="oscarResearch.oscarDxResearch.dxResearch.title" /></title>
 </head>
 
@@ -191,7 +180,7 @@ function update_date(did, demoNo, provNo) {
 					<td width="26%" valign="top">
 
 					<table width="100%" border="0" cellspacing="0" cellpadding="2"
-						height="500" bgcolor="#FFFFFF" style="vertical-align:top;">
+						height="500" bgcolor="#FFFFFF">
 						<tr>
 							<td class="heading"><bean:message key="oscarResearch.oscarDxResearch.codingSystem" />: <html:select
 								property="selectedCodingSystem"  disabled="<%=disable%>">
@@ -225,43 +214,68 @@ function update_date(did, demoNo, provNo) {
                                <input type="button" name="codeSearch" class=mbttn
 								value="<bean:message key="oscarResearch.oscarDxResearch.btnCodeSearch"/>"
 								onClick="javascript: ResearchScriptAttach();") > 
-                                                            
-                                <input type="button" name="codeAdd" class=mbttn
+                                                            <input type="button" name="codeAdd" class=mbttn
 								value="<bean:message key="ADD"/>"
 								onClick="javascript: submitform('','');">
-								
 								<% } else { %>
-								
 								 <input type="button" name="button" class=mbttn
 								value="<bean:message key="oscarResearch.oscarDxResearch.btnCodeSearch"/>"
 								onClick="javascript: ResearchScriptAttach();")  disabled="<%=disable%>"> 
-                                                            
-                                <input type="button" name="button" class=mbttn
+                                                            <input type="button" name="button" class=mbttn
 								value="<bean:message key="ADD"/>"
 								onClick="javascript: submitform('','');" disabled="<%=disable%>">
 								<% } %>
 								</td>
 						</tr>
-						
-					<%-- DX QUICK LIST - returns a table --%>
-						<logic:equal name="showQuicklist" value="true" scope="page">
 						<tr>
-							<td>
-							<jsp:include page="dxQuickList.jsp" >
-								<jsp:param value="false" name="disable"/>
-								<jsp:param value="${ param.quickList }" name="quickList" />
-								<jsp:param value="${ demographicNo }" name="demographicNo"/>
-								<jsp:param value="${ providerNo }" name="providerNo"/>
-							</jsp:include>
+							<td class="heading"><bean:message key="oscarResearch.oscarDxResearch.quickList" /></td>
+						</tr>
+						<tr>
+							<%
+								String disableQl="false";
+								if(!showQuicklist) {
+									disableQl = "true";
+								}
+							%>
+							<td><%-- RJ --%> <html:select property="quickList" style="width:200px" onchange="javascript:changeList();" disabled="<%=Boolean.valueOf(disableQl) %>">
+								<logic:iterate id="quickLists" name="allQuickLists"
+									property="dxQuickListBeanVector">
+									<option value="<bean:write name="quickLists" property="quickListName" />"
+										<bean:write name="quickLists" property="lastUsed" />
+										<%
+											String ql = request.getParameter("quickList");
+										%>
+										<logic:equal name="quickLists" property="quickListName" value="<%=ql%>">
+											selected
+										</logic:equal> >
+ 
+									
+										<bean:write	name="quickLists" property="quickListName" />
+									</option>
+								</logic:iterate>
+							</html:select> 
+							<%if(disable) { %>
+							<input type="button" value="<bean:message key="oscarResearch.oscarDxResearch.btnGO"/>"
+								onclick="javascript:changeList();" disabled="<%=disable%>">
+							<% } else { %>
+								<input type="button" value="<bean:message key="oscarResearch.oscarDxResearch.btnGO"/>"
+								onclick="javascript:changeList();">
+							<% } %>	
 							</td>
 						</tr>
-						</logic:equal>
-					<%-- DX QUICK LIST --%>
-						
+						<logic:iterate id="item" name="allQuickListItems"
+							property="dxQuickListItemsVector">
+							<tr>
+								<td class="quickList"><a href="#"
+									title='<bean:write name="item" property="dxSearchCode"/>'
+									onclick="javascript:submitform('<bean:write name="item" property="dxSearchCode"/>','<bean:write name="item" property="type"/>');"><bean:write
+									name="item" property="description" /></a></td>
+							</tr>
+						</logic:iterate>
+						<tr>
+						</tr>
 					</table>
-				
-					
-							
+
 					</td>
 					<td width="75%" valign="top">
 

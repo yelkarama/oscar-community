@@ -24,29 +24,10 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_form" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_form");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="org.oscarehr.util.MiscUtils"%>
 <%@page import="org.oscarehr.PMmodule.caisi_integrator.CaisiIntegratorManager"%>
 <%@ page
 	import="oscar.form.*, oscar.OscarProperties, java.util.Date, oscar.util.UtilDateUtilities"%>
-<%@page import="org.oscarehr.util.LocaleUtils"%>    
-<%@page import="org.oscarehr.common.dao.FrmLabReqPreSetDao, org.oscarehr.util.SpringUtils"%>
-    
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
@@ -65,7 +46,6 @@
 </head>
 
 <%
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 	String formClass = "LabReq07";
 	String formLink = "formlabreq07.jsp";
 
@@ -85,14 +65,14 @@
 			props = (java.util.Properties)request.getSession().getAttribute("labReq07"+demoNo);	
 		}
 		if(props == null) {
-	   		props = rec.getFormRecord(LoggedInInfo.getLoggedInInfoFromSession(request),demoNo, formId);	        
-			props = ((FrmLabReq07Record) rec).getFormCustRecord(loggedInInfo, loggedInInfo.getCurrentFacility(), props, provNo);
+	   		props = rec.getFormRecord(demoNo, formId);	        
+			props = ((FrmLabReq07Record) rec).getFormCustRecord(props, provNo);
 		}		
 	}
 	else // it's remote
 	{
 		MiscUtils.getLogger().debug("Getting remote form : "+remoteFacilityIdString+":"+formId);
-		props=FrmLabReq07Record.getRemoteRecordProperties(loggedInInfo, Integer.parseInt(remoteFacilityIdString), formId,demoNo);
+		props=FrmLabReq07Record.getRemoteRecordProperties(Integer.parseInt(remoteFacilityIdString), formId,demoNo);
 		FrmRecordHelp.convertBooleanToChecked(props);
 	}
 	
@@ -102,9 +82,8 @@
 
    if (request.getParameter("labType") != null){
       if (formId == 0 ){
-         FrmLabReqPreSetDao preSetDao = (FrmLabReqPreSetDao) SpringUtils.getBean("frmLabReqPreSetDao"); 
          String labPreSet = request.getParameter("labType");
-         props = preSetDao.fillPropertiesByLabType(labPreSet,props);
+         props = FrmLabReqPreSet.set(labPreSet,props);
       }
    }
    
@@ -513,23 +492,11 @@ var maxYear=3100;
 							<center><%=props.getProperty("patientCity", "")%></center>
 							</td>
 							<td class="borderGrayBottomRight"
-								style="width: 130px;"><font
+								style="border-right: 0px; width: 130px;"><font
 								class="subHeading">Postal Code:</font><br />
 							<input type="hidden" style="width: 90%" name="patientPC"
 								value="<%=props.getProperty("patientPC", "")%>" /> <%=props.getProperty("patientPC", "")%>
 							</td>
-                                                        <%  
-                                                            String demoChartNo = "";
-                                                            if(oscarProps.getProperty("lab_req_include_chartno","false").equals("true")){
-                                                                demoChartNo = LocaleUtils.getMessage(request.getLocale(), "oscarEncounter.form.labreq.patientChartNo") + ":" + props.getProperty("patientChartNo", "");
-                                                            }
-                                                        %>
-                                                        <td class="borderGrayBottomRight"
-								style="border-right: 0px; width: 130px;"><font
-                                                                class="subHeading"><bean:message key="oscarEncounter.form.labreq.patientChartNo"/></font><br />
-							<input type="hidden" style="width: 90%" name="patientChartNo"
-								value="<%=demoChartNo%>" /> <%=props.getProperty("patientChartNo", "")%>
-                                                        </td>
 						</tr>
 					</table>
 					<table width="100%">

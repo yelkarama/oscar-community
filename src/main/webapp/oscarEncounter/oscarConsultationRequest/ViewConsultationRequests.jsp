@@ -24,110 +24,73 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_con" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../securityError.jsp?type=_con");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
-<%@page import="org.oscarehr.common.dao.ConsultationRequestDao"%>
-<%@ page import="oscar.oscarEncounter.pageUtil.*,java.text.*,java.util.*"%>
-<%@ page import="java.sql.ResultSet"%>
-<%@ page import="org.oscarehr.common.dao.UserPropertyDAO, org.oscarehr.common.model.UserProperty, org.springframework.web.context.support.WebApplicationContextUtils" %>
-<%@ page import="org.oscarehr.util.SpringUtils" %>
-
-<%@ page import="org.oscarehr.common.model.Site"%>
-<%@ page import="org.oscarehr.common.dao.SiteDao"%>
-
-<%@ page import="org.oscarehr.common.model.ProviderData"%>
-<%@ page import="org.oscarehr.common.dao.ProviderDataDao"%>
-
-
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic" %>
+<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
+<%@page import="oscar.oscarEncounter.pageUtil.*,java.text.*,java.util.*"%>
+<%@ page import="oscar.login.DBHelp"%>
+<%@ page import="java.sql.ResultSet"%>
+<%@page import="org.oscarehr.common.dao.SiteDao"%>
+<%@page import="org.oscarehr.common.dao.UserPropertyDAO, org.oscarehr.common.model.UserProperty, org.springframework.web.context.support.WebApplicationContextUtils" %>
+<%@page import="org.oscarehr.common.model.Site"%>
 
 <%
+    if(session.getAttribute("user") == null ) response.sendRedirect("../../logout.jsp");
     String curProvider_no = (String) session.getAttribute("user");
+
+    if(session.getAttribute("userrole") == null )  response.sendRedirect("../../logout.jsp");
+    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
     
     boolean isSiteAccessPrivacy=false;
     boolean isTeamAccessPrivacy=false; 
     boolean bMultisites=org.oscarehr.common.IsPropertiesOn.isMultisitesEnable();
     List<String> mgrSite = new ArrayList<String>();
-    
-	ProviderDataDao providerDataDao = SpringUtils.getBean(ProviderDataDao.class);
-	
-	String strLimit =  request.getParameter("limit");
-	String strOffset = request.getParameter("offset");
-	
-	Integer limit = ConsultationRequestDao.DEFAULT_CONSULT_REQUEST_RESULTS_LIMIT;
-	Integer offset = 0;
-	
-	try {
-		offset = Integer.parseInt(strOffset);
-	} catch(NumberFormatException e) {
-		offset = 0;
-	}
-	
-	try {
-		limit = Integer.parseInt(strLimit);
-	} catch(NumberFormatException e) {
-		limit = 100;
-	}
-	
-	
-	
-
 %>
-<security:oscarSec objectName="_site_access_privacy" roleName="<%=roleName$%>" rights="r" reverse="false"> <%isSiteAccessPrivacy=true; %></security:oscarSec>
-<security:oscarSec objectName="_team_access_privacy" roleName="<%=roleName$%>" rights="r" reverse="false"> <%isTeamAccessPrivacy=true; %></security:oscarSec>
+<security:oscarSec objectName="_site_access_privacy" roleName="<%=roleName$%>" rights="r" reverse="false">
+	<%isSiteAccessPrivacy=true; %>
+</security:oscarSec>
+<security:oscarSec objectName="_team_access_privacy" roleName="<%=roleName$%>" rights="r" reverse="false">
+	<%isTeamAccessPrivacy=true; %>
+</security:oscarSec>
 
 <% 
-List<ProviderData> pdList = null;
 HashMap<String,String> providerMap = new HashMap<String,String>();
-
 //multisites function
 if (isSiteAccessPrivacy || isTeamAccessPrivacy) {
-
+	String sqlStr = "select provider_no from provider ";
 	if (isSiteAccessPrivacy) 
-		pdList = providerDataDao.findByProviderSite(curProvider_no);
-	
+		sqlStr = "select distinct p.provider_no from provider p inner join providersite s on s.provider_no = p.provider_no " 
+		 + " where s.site_id in (select site_id from providersite where provider_no = " + curProvider_no + ")";
 	if (isTeamAccessPrivacy) 
-		pdList = providerDataDao.findByProviderTeam(curProvider_no);
-
-	for(ProviderData providerData : pdList) {
-		providerMap.put(providerData.getId(), "true");
+		sqlStr = "select distinct p.provider_no from provider p where team in (select team from provider "
+				+ " where team is not null and team <> '' and provider_no = " + curProvider_no + ")";
+	DBHelp dbObj = new DBHelp();
+	ResultSet rs = dbObj.searchDBRecord(sqlStr);
+	while (rs.next()) {
+		providerMap.put(rs.getString("provider_no"),"true");
 	}
+	rs.close();
 }
 %>
 
 <%
-//multi-site office , save all bgcolor to Hashmap
-HashMap<String,String> siteBgColor = new HashMap<String,String>();
-HashMap<String,String> siteShortName = new HashMap<String,String>();
-if (bMultisites) {
-   	SiteDao siteDao = (SiteDao)WebApplicationContextUtils.getWebApplicationContext(application).getBean("siteDao");
-   	
-   	List<Site> sites = siteDao.getAllSites();
-   	for (Site st : sites) {
-   		siteBgColor.put(st.getName(),st.getBgColor());
-   		siteShortName.put(st.getName(),st.getShortName());
-   	}
-   	List<Site> providerSites = siteDao.getActiveSitesByProviderNo(curProvider_no);
-   	for (Site st : providerSites) {
-   		mgrSite.add(st.getName());
-   	}
-}
+	//multi-site office , save all bgcolor to Hashmap
+	HashMap<String,String> siteBgColor = new HashMap<String,String>();
+	HashMap<String,String> siteShortName = new HashMap<String,String>();
+	if (bMultisites) {
+    	SiteDao siteDao = (SiteDao)WebApplicationContextUtils.getWebApplicationContext(application).getBean("siteDao");
+    	
+    	List<Site> sites = siteDao.getAllSites();
+    	for (Site st : sites) {
+    		siteBgColor.put(st.getName(),st.getBgColor());
+    		siteShortName.put(st.getName(),st.getShortName());
+    	}
+    	List<Site> providerSites = siteDao.getActiveSitesByProviderNo(curProvider_no);
+    	for (Site st : providerSites) {
+    		mgrSite.add(st.getName());
+    	}
+	}
 %>
 
 <html:html locale="true">
@@ -257,16 +220,6 @@ function setOrder(val){
   }    
   document.forms[0].submit();
 }
-
-function gotoPage(next) {
-	var frm = document.forms[0];
-	
-	frm.limit.value = <%=limit%>;
-	if (next) frm.offset.value = <%=offset+limit%>;
-	else frm.offset.value = <%=offset-limit%>;
-	
-	frm.submit();
-}
 </script>
 
 
@@ -287,9 +240,7 @@ function gotoPage(next) {
                             <%
                                if (team.equals("-1")){
                             %>
-                            <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.formTeamNotApplicable"/>
-                            <% } else if (team.isEmpty()) { %>
-                            <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.formViewAll"/>
+                            <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgViewAll"/>
                             <% } else { %>
                             <%= team %>
                             <% } %>               
@@ -318,18 +269,11 @@ function gotoPage(next) {
                     <td style="margin: 0; padding: 0;">
                         <html:form action="/oscarEncounter/ViewConsultation"  method="get">
                             <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.formSelectTeam"/>:
-                            <select name="sendTo">                                
-				<option value=""><bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.formViewAll"/></option>                                
-                                <%                                
-                                   if (team.equals("-1")) { %>
-                                <option value="-1" selected ><bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.formTeamNotApplicable"/></option>
-                                <% }
-                                    else {
-                                 %>
-                                 <option value="-1"><bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.formTeamNotApplicable"/></option>
-                                <%    }
+                            <select name="sendTo">
+				<option value="-1"><bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.formViewAll"/></option>
+                                <%
                                    for (int i =0; i < consultUtil.teamVec.size();i++){
-                                     String te = (String) consultUtil.teamVec.elementAt(i);                                                                        
+                                     String te = (String) consultUtil.teamVec.elementAt(i);
                                      if (te.equals(team)){
                                 %>
                                     <option value="<%=te%>" selected><%=te%></option>
@@ -347,8 +291,6 @@ function gotoPage(next) {
                             <html:hidden property="currentTeam"/>
                             <html:hidden property="orderby"/>
                             <html:hidden property="desc"/>
-                            <html:hidden property="offset"/>
-                            <html:hidden property="limit"/>
                             </div>
                         </html:form>
                     </td>
@@ -362,8 +304,8 @@ function gotoPage(next) {
                                    <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgStatus"/>
                                    </a>
                                 </th>
-				 				<th align="left" class="VCRheads" width="10%">
-									<bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgUrgency"/>
+				 <th align="left" class="VCRheads" width="10%">
+					<bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgUrgency"/>
                                 </th>
                                 <th align="left" class="VCRheads">
                                    <a href=# onclick="setOrder('2'); return false;">
@@ -416,7 +358,7 @@ function gotoPage(next) {
                         <%                                                        
                             oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctViewConsultationRequestsUtil theRequests;                            
                             theRequests = new  oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctViewConsultationRequestsUtil();                            
-                            theRequests.estConsultationVecByTeam(LoggedInInfo.getLoggedInInfoFromSession(request), team,includeCompleted,startDate,endDate,orderby,desc,searchDate,offset,limit);                                                        
+                            theRequests.estConsultationVecByTeam(team,includeCompleted,startDate,endDate,orderby,desc,searchDate);                                                        
                             boolean overdue;                            
                             UserPropertyDAO pref = (UserPropertyDAO) WebApplicationContextUtils.getWebApplicationContext(pageContext.getServletContext()).getBean("UserPropertyDAO");
                             String user = (String)session.getAttribute("user");
@@ -431,26 +373,25 @@ function gotoPage(next) {
                             for (int i = 0; i < theRequests.ids.size(); i++){
                              //multisites. skip record if not belong to same site/team
                              if (isSiteAccessPrivacy || isTeamAccessPrivacy) {
-                             	if(providerMap.get(theRequests.providerNo.elementAt(i))== null)  continue;
+                             	if(providerMap.get((String) theRequests.providerNo.elementAt(i))== null)  continue;
                              }	
                             	
-                            String id      =  theRequests.ids.elementAt(i);
-                            String status  =  theRequests.status.elementAt(i);
-                            String patient =  theRequests.patient.elementAt(i);
-                            String provide =  theRequests.provider.elementAt(i);
-                            String service =  theRequests.service.elementAt(i);
-                            String date    =  theRequests.date.elementAt(i);
-                            String demo    =  theRequests.demographicNo.elementAt(i);
-                            String appt    =  theRequests.apptDate.elementAt(i);
-                            String patBook =  theRequests.patientWillBook.elementAt(i);
-                            String urgency =  theRequests.urgency.elementAt(i);
-                            String sendTo  =  theRequests.teams.elementAt(i);
-                            if (sendTo==null) sendTo = "-1";
+                            String id      = (String) theRequests.ids.elementAt(i);
+                            String status  = (String) theRequests.status.elementAt(i);
+                            String patient = (String) theRequests.patient.elementAt(i);
+                            String provide = (String) theRequests.provider.elementAt(i);
+                            String service = (String) theRequests.service.elementAt(i);
+                            String date    = (String) theRequests.date.elementAt(i);
+                            String demo    = (String) theRequests.demographicNo.elementAt(i);
+                            String appt    = (String) theRequests.apptDate.elementAt(i);
+                            String patBook = (String) theRequests.patientWillBook.elementAt(i);
+                            String urgency = (String) theRequests.urgency.elementAt(i);
+                            String sendTo = theRequests.teams.elementAt(i);
                             String specialist = theRequests.vSpecialist.elementAt(i);
                             String followUpDate = theRequests.followUpDate.elementAt(i);
                             String siteName = ""; 
                             if (bMultisites) {
-                            	siteName =  theRequests.siteName.elementAt(i);
+                            	siteName = (String) theRequests.siteName.elementAt(i);
                             }
                             if(status.equals("1") && dateGreaterThan(date, Calendar.WEEK_OF_YEAR, -1)){
                                 tickerList.add(demo);
@@ -496,14 +437,14 @@ function gotoPage(next) {
                                     <% }else if(status.equals("4")) { %>
                                     <bean:message key="oscarEncounter.oscarConsultationRequest.ViewConsultationRequests.msgDONE"/>    
                                     <% } %>
-								</td>
+				</td>
                                 <td class="stat<%=status%>">
 			            <% if (urgency.equals("1")){ %>
-								<div style="color:red;"> Urgent </div>
+					<div style="color:red;"> Urgent </div>
                                     <% }else if(urgency.equals("2")) { %>
-										Non-Urgent
+					Non-Urgent
                                     <% }else if(urgency.equals("3")) { %>
-										Return
+					Return
                                     <% } %>
 
 
@@ -561,19 +502,6 @@ function gotoPage(next) {
                     </td>
                 </tr>
                 </table>
-                
-          
-                	<%
-                	if(offset > 0) {
-//                		String queryString = getNewQueryString(request.getQueryString(),offset-limit,limit);
-                		%><input type="button" value="Prev" onClick="gotoPage(false);"/><%
-                	}
-                	if(theRequests.ids.size() == limit) {
-//                		String queryString = getNewQueryString(request.getQueryString(),offset+limit,limit);
-	               		%><input type="button" value="Next" onClick="gotoPage(true);"/><%
-                	}
-                	%>
-               
             </td>
         </tr>
         <tr>
@@ -604,37 +532,12 @@ function gotoPage(next) {
 
 </html:html>
 <%!
-/*
-String getNewQueryString(String queryString,Integer offset, Integer limit) {
-	
-	String result = "";
-	List<String> resultParts = new ArrayList<String>();
-	
-	String[] parts = queryString.split("&");
-	for(String part:parts) {
-		
-		if(!part.startsWith("offset=") && !part.startsWith("limit=")) {
-			resultParts.add(part);
-		}
-	}
-	
-	resultParts.add("offset=" + (offset!=null?offset:0));
-	resultParts.add("limit=" + (limit != null?limit:ConsultationRequestDao.DEFAULT_CONSULT_REQUEST_RESULTS_LIMIT));
-	for(int x=0;x<resultParts.size();x++) {
-		if(x>0)
-			result += "&";
-		result += resultParts.get(x);
-	}
-	
-	return result;
-}
-*/
 
 boolean dateGreaterThan(String dateStr, int unit, int period){
     DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");    
     Date prevDate = null;
     try{
-       prevDate = formatter.parse(dateStr);
+       prevDate = (java.util.Date)formatter.parse(dateStr);
     }catch (Exception e){ 
     return false;
     }         

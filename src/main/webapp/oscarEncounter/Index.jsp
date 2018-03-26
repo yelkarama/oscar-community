@@ -24,32 +24,22 @@
 
 --%>
 
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="oscar.oscarRx.data.RxPatientData"%>
 <%@ taglib uri="http://www.caisi.ca/plugin-tag" prefix="plugin" %>
 <%@ taglib uri="/WEB-INF/caisi-tag.tld" prefix="caisi"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
+    if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
     String demographic$ = request.getParameter("demographicNo") ;
     boolean bPrincipalControl = false;
     boolean bPrincipalDisplay = false;
-    
-    LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 %>
-
-<%
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_eChart" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_eChart");%>
+<security:oscarSec roleName="<%=roleName$%>" objectName="_eChart"
+	rights="r" reverse="<%=true%>">
+"You have no right to access this page!"
+<% response.sendRedirect("../noRights.html"); %>
 </security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
 
 <security:oscarSec roleName="<%=roleName$%>"
 	objectName='<%="_eChart$"+demographic$%>' rights="o"
@@ -62,7 +52,7 @@ You have no rights to access the data!
 <security:oscarSec roleName='<%="_principal"%>'
 	objectName='<%="_eChart"%>' rights="ow" reverse="<%=false%>">
 	<% 	bPrincipalControl = true;
-	if(EctPatientData.getProviderNo(loggedInInfo, demographic$).equals((String) session.getAttribute("user")) ) {
+	if(EctPatientData.getProviderNo(demographic$).equals((String) session.getAttribute("user")) ) {
 		bPrincipalDisplay = true;
 	}
 %>
@@ -104,7 +94,7 @@ You have no rights to access the data!
 <%
 session.setAttribute("encounter_oscar_bean", bean);
 session.setAttribute("encounter_bean_flag", "true");
-String encounterurl=request.getContextPath()+"/mod/specialencounterComp/forward.jsp?method=view&demographicNo="+bean.demographicNo+"&providerNo="+bean.providerNo+"&providerName="+URLEncoder.encode(bean.userName);
+String encounterurl=request.getContextPath()+"/mod/specialencounterComp/forward.jsp?method=view&demographicNo="+bean.demographicNo+"&providerNo="+bean.providerNo+"&providerName="+bean.userName;
 session.setAttribute("encounter_oscar_baseurl",request.getContextPath());
 if (request.getParameter("specalEncounter")==null)
 {
@@ -120,7 +110,7 @@ if (request.getParameter("specalEncounter")==null)
 session.setAttribute("casemgmt_oscar_baseurl",request.getContextPath());
 session.setAttribute("casemgmt_oscar_bean", bean);
 session.setAttribute("casemgmt_bean_flag", "true");
-String hrefurl=request.getContextPath()+"/casemgmt/forward.jsp?action=view&demographicNo="+bean.demographicNo+"&providerNo="+bean.providerNo+"&providerName="+URLEncoder.encode(bean.userName);
+String hrefurl=request.getContextPath()+"/casemgmt/forward.jsp?action=view&demographicNo="+bean.demographicNo+"&providerNo="+bean.providerNo+"&providerName="+bean.userName;
 if (request.getParameter("casetoEncounter")==null)
 {
 	response.sendRedirect(hrefurl);
@@ -135,7 +125,7 @@ if (request.getParameter("casetoEncounter")==null)
   String demoNo = bean.demographicNo;
   String provNo = bean.providerNo;
   EctFormData.Form[] forms = EctFormData.getForms();
-  EctPatientData.Patient pd = new EctPatientData().getPatient(loggedInInfo, demoNo);
+  EctPatientData.Patient pd = new EctPatientData().getPatient(demoNo);
   EctProviderData.Provider prov = new EctProviderData().getProvider(provNo);
   String patientName = pd.getFirstName()+" "+pd.getSurname();
   String patientAge = pd.getAge();
@@ -145,14 +135,17 @@ if (request.getParameter("casetoEncounter")==null)
   java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.struts.Globals.LOCALE_KEY);
 
   CommonLabResultData comLab = new CommonLabResultData();
-  ArrayList labs = comLab.populateLabResultsData(loggedInInfo,"",demoNo, "", "","","U");
+  ArrayList labs = comLab.populateLabResultsData("",demoNo, "", "","","U");
   Collections.sort(labs);
+
+  //MDSResultsData labResults =  new MDSResultsData();
+  //labResults.populateMDSResultsData("", demoNo, "", "", "", "U");
 
   String province = ((String ) oscarVariables.getProperty("billregion","")).trim().toUpperCase();
   Properties windowSizes = oscar.oscarEncounter.pageUtil.EctWindowSizes.getWindowSizes(provNo);
 
   MsgDemoMap msgDemoMap = new MsgDemoMap();
-  List<String> msgVector = msgDemoMap.getMsgVector(demoNo);
+  Vector msgVector = msgDemoMap.getMsgVector(demoNo);
   MsgMessageData msgData;
 
   EctSplitChart ectSplitChart = new EctSplitChart();
@@ -852,7 +845,7 @@ function removeSaveFeedback()  {
 			style="font-size: 80%; border-top: 2px solid #A9A9A9; border-right: 2px solid #A9A9A9; vertical-align: top">
 		<table class="LeftTable">
 			<caisi:isModuleLoad moduleName="caisi">
-				<%String hrefurl2=request.getContextPath()+"/casemgmt/forward.jsp?action=view&demographicNo="+bean.demographicNo+"&providerNo="+bean.providerNo+"&providerName="+URLEncoder.encode(bean.userName);
+				<%String hrefurl2=request.getContextPath()+"/casemgmt/forward.jsp?action=view&demographicNo="+bean.demographicNo+"&providerNo="+bean.providerNo+"&providerName="+bean.userName;
 %>
 				<tr>
 					<td><a href="<%=hrefurl2%>">Case Management Encounter</a></td>
@@ -864,14 +857,20 @@ function removeSaveFeedback()  {
 			</tr>
 			<tr>
 				<td>
-				<a
+				<%if (vLocale.getCountry().equals("BR")) {%> <a
+					href="javascript: function myFunction() {return false; }"
+					onClick="popup(700,1000,'../demographic/demographiccontrol.jsp?demographic_no=<%=bean.demographicNo%>&displaymode=edit&dboperation=search_detail_ptbr','master')"
+					title="<bean:message key="provider.appointmentProviderAdminDay.msgMasterFile"/>"><bean:message
+					key="global.master" /></a> <%}else{%> <a
 					href="javascript: function myFunction() {return false; }"
 					onClick="popup(700,1000,'../demographic/demographiccontrol.jsp?demographic_no=<%=bean.demographicNo%>&displaymode=edit&dboperation=search_detail','master')"
 					title="<bean:message key="provider.appointmentProviderAdminDay.msgMasterFile"/>"><bean:message
-					key="global.master" /></a>
-				<br>
+					key="global.master" /></a> <%}%><br>
 				<%
-               if(bean.status.indexOf('B')==-1) { %>
+                if (vLocale.getCountry().equals("BR")) { %> <a href=#
+					onClick='popupPage(700,1000, "../oscar/billing/procedimentoRealizado/init.do?appId=<%=bean.appointmentNo%>");return false;'
+					title="<bean:message key="global.billing"/>"><bean:message
+					key="global.billing" /></a> <% } else {%> <% if(bean.status.indexOf('B')==-1) { %>
 				<a href=#
 					onClick='popupPage(700,1000, "../billing.do?billRegion=<%=URLEncoder.encode(province)%>&billForm=<%=URLEncoder.encode(oscarVariables.getProperty("default_view"))%>&hotclick=<%=URLEncoder.encode("")%>&appointment_no=<%=bean.appointmentNo%>&demographic_name=<%=URLEncoder.encode(bean.patientLastName+","+bean.patientFirstName)%>&demographic_no=<%=bean.demographicNo%>&providerview=<%=bean.curProviderNo%>&user_no=<%=bean.providerNo%>&apptProvider_no=<%=bean.curProviderNo%>&appointment_date=<%=bean.appointmentDate%>&start_time=<%=bean.startTime%>&bNewForm=1&status=t");return false;'
 					title="<bean:message key="global.billing"/>"><bean:message
@@ -879,11 +878,11 @@ function removeSaveFeedback()  {
 				<a href=#
 					onClick='onUnbilled("../billing/CA/<%=province%>/billingDeleteWithoutNo.jsp?status=<%=bean.status%>&appointment_no=<%=bean.appointmentNo%>");return false;'
 					title="<bean:message key="global.unbil"/>">-<bean:message
-					key="global.billing" /></a> <% } %> <br>
-				<a href=#
+					key="global.billing" /></a> <% } %> <% } %> <br>
+				<%  if (!vLocale.getCountry().equals("BR")) { %> <a href=#
 					onClick="popupOscarRx(700,1027,'../oscarRx/choosePatient.do?providerNo=<%=bean.providerNo%>&demographicNo=<%=bean.demographicNo%>');return false;"><bean:message
 					key="global.prescriptions" /></a><br>
-				<a href=#
+				<% } %> <a href=#
 					onClick="popupOscarCon(700,960,'<rewrite:reWrite jspPage="oscarConsultationRequest/DisplayDemographicConsultationRequests.jsp"/>?de=<%=bean.demographicNo%>');return false;"><bean:message
 					key="global.consultations" /></a><br>
 
@@ -908,11 +907,14 @@ function removeSaveFeedback()  {
 				</oscar:oscarPropertiesCheck> <%  if (oscar.OscarProperties.getInstance().getProperty("oscarcomm","").equals("on")) { %>
 				<a href="javascript:popupOscarComm(700,960,'RemoteAttachments.jsp')"><bean:message
 					key="global.oscarComm" /></a><br>
+				<% } else {%> <a
+					href="javascript:popupOscarComm(700,960,'../packageNA.jsp?pkg=oscarComm')"><bean:message
+					key="global.oscarComm" /></a><br>
 				<% } %> <a href=#
 					onClick="popupOscarComm(580,900,'../oscarResearch/oscarDxResearch/setupDxResearch.do?demographicNo=<%=bean.demographicNo%>&providerNo=<%=provNo%>&quickList=');return false;"><bean:message
 					key="global.disease" /></a><br>
 				<a href=#
-					onClick="popupOscarCon(580,800,'../appointment/appointmentcontrol.jsp?keyword=<%=URLEncoder.encode(bean.patientLastName+","+bean.patientFirstName)%>&displaymode=<%=URLEncoder.encode("Search ")%>&search_mode=search_name&originalpage=<%=URLEncoder.encode("../tickler/ticklerAdd.jsp")%>&orderby=last_name&appointment_date=2000-01-01&limit1=0&limit2=5&status=t&start_time=10:45&end_time=10:59&duration=15&dboperation=search_demorecord&type=&demographic_no=<%=bean.demographicNo%>');return false;"><bean:message
+					onClick="popupOscarCon(580,800,'../appointment/appointmentcontrol.jsp?keyword=<%=URLEncoder.encode(bean.patientLastName+","+bean.patientFirstName)%>&displaymode=<%=URLEncoder.encode("Search ")%>&search_mode=search_name&originalpage=<%=URLEncoder.encode("../tickler/ticklerAdd.jsp")%>&orderby=last_name&appointment_date=2000-01-01&limit1=0&limit2=5&status=t&start_time=10:45&end_time=10:59&duration=15&dboperation=add_apptrecord&type=&demographic_no=<%=bean.demographicNo%>');return false;"><bean:message
 					key="oscarEncounter.Index.addTickler" /></a><br>
 				</td>
 			</tr>
@@ -1000,7 +1002,7 @@ function removeSaveFeedback()  {
                             String msgSubject;
                             String msgDate;
                             for(int j=0; j<10 && j<msgVector.size(); j++) {
-                                msgId = (String) msgVector.get(j);
+                                msgId = (String) msgVector.elementAt(j);
                                 msgData = new MsgMessageData(msgId);
                                 msgSubject = msgData.getSubject();
                                 msgDate = msgData.getDate();
@@ -1338,7 +1340,7 @@ function removeSaveFeedback()  {
 						<div class="presBox" id="allergyBox">
 						<ul>
 							<%
-								org.oscarehr.common.model.Allergy[] allergies = RxPatientData.getPatient(loggedInInfo, Integer.parseInt(demoNo)).getAllergies(loggedInInfo);
+								org.oscarehr.common.model.Allergy[] allergies = RxPatientData.getPatient(Integer.parseInt(demoNo)).getAllergies();
 
                                             for (int j=0; j<allergies.length; j++){%>
 							<li><a

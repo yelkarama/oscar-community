@@ -23,19 +23,6 @@
 
 --%>
 <%@ include file="/taglibs.jsp"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin.pmm" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_admin.pmm");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
 
 <%@ page import="org.oscarehr.PMmodule.web.formbean.*"%>
 <%@ page import="org.oscarehr.PMmodule.model.Program"%>
@@ -47,7 +34,7 @@
 
 	<html:hidden property="view.tab" />
 	<html:hidden property="view.subtab" />
-	<html:hidden property="vacancyOrTemplateId" />		
+	<html:hidden property="vacancyOrTemplateId" />
 	<input type="hidden" name="id"
 		value="<c:out value="${requestScope.id}"/>" />
 	<input type="hidden" name="method" value="edit" />
@@ -88,13 +75,12 @@
 						selectedTab = (String) request.getAttribute("view.tab");
 					}
 					String selectedSubtab = request.getParameter("view.subtab");
-					
 					/*
 					if (selectedTab == null || selectedTab.trim().equals("")) {
 						selectedTab = ProgramManagerViewFormBean.tabs[0];
 					}
 					*/
-				
+					String roleName$ = (String) session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
 
 				%>
 			<table cellpadding="0" cellspacing="0" border="0">
@@ -189,25 +175,11 @@
 					<%} else if(ProgramManagerViewFormBean.tabs[i].equalsIgnoreCase("Vacancies")) {
 								%>
 					<security:oscarSec roleName="<%=roleName$%>"
-						objectName="_pmm_editProgram.vacancies" rights="r">
+						objectName="_pmm_editProgram.serviceRestrictions" rights="r">
 						<td><a href="javascript:void(0)"
 							onclick="javascript:clickTab('<%=ProgramManagerViewFormBean.tabs[i] %>');return false;"><%=ProgramManagerViewFormBean.tabs[i]%></a></td>
 					</security:oscarSec>
-					<%} else if(ProgramManagerViewFormBean.tabs[i].equalsIgnoreCase("Schedule")) {
-								%>
-					<security:oscarSec roleName="<%=roleName$%>"
-						objectName="_pmm_editProgram.schedules" rights="r">
-						<td><a href="javascript:void(0)"
-							onclick="javascript:clickTab('<%=ProgramManagerViewFormBean.tabs[i] %>');return false;"><%=ProgramManagerViewFormBean.tabs[i]%></a></td>
-					</security:oscarSec>
-					<%} else if(ProgramManagerViewFormBean.tabs[i].equalsIgnoreCase("Encounter Types")) {
-						%>
-			<security:oscarSec roleName="<%=roleName$%>"
-				objectName="_pmm_editProgram.encounterTypes" rights="r">
-				<td><a href="javascript:void(0)"
-					onclick="javascript:clickTab('<%=ProgramManagerViewFormBean.tabs[i] %>');return false;"><%=ProgramManagerViewFormBean.tabs[i]%></a></td>
-			</security:oscarSec>
-			<%} 
+					<%} 
 								%>
 					<%
 								}

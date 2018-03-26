@@ -22,28 +22,16 @@
  * Ontario, Canada
  */
 
-package org.oscarehr.common.dao;
 
-import javax.persistence.Query;
+package org.oscarehr.common.dao;
 
 import org.oscarehr.common.model.IndivoDocs;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class IndivoDocsDao extends AbstractDao<IndivoDocs> {
+public class IndivoDocsDao extends AbstractDao<IndivoDocs>{
 
 	public IndivoDocsDao() {
 		super(IndivoDocs.class);
-	}
-
-	public IndivoDocs findByOscarDocNo(Integer id) {
-		return findByOscarDocNo(id, "Rx");
-	}
-
-	public IndivoDocs findByOscarDocNo(Integer id, String docType) {
-		Query query = createQuery("i", "i.oscarDocNo = :docNo AND i.docType = :docType");
-		query.setParameter("docNo", id);
-		query.setParameter("docType", docType);
-		return getSingleResultOrNull(query);
 	}
 }

@@ -25,7 +25,8 @@
 --%>
 
 <%@ page import="java.math.*, java.util.*, java.io.*, java.sql.*, oscar.*, java.net.*,oscar.MyDateFormat"%>
-
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean" scope="session" />
+<%@ include file="dbReport.jspf"%>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.model.ReportProvider" %>
 <%@ page import="org.oscarehr.common.dao.ReportProviderDao" %>
@@ -92,13 +93,9 @@ for(ReportProvider rp:res) {
 	  reportProviderDao.persist(rp);
 %> <%
 }
-%> 
-<script type="text/javascript">
-	<%if(action.equals("visitreport")){%>
-	window.opener.location.href="<%=request.getContextPath() %>/administration/?show=<%=action%>";
-	<%}%>  
-
-    window.close();
+%> <script LANGUAGE="JavaScript">
+      self.close();
+      self.opener.refresh();
 </script> <%
 %>
 <p></p>

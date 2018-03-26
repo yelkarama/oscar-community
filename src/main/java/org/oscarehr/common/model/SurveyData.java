@@ -60,7 +60,7 @@ public class SurveyData extends AbstractModel<Integer> {
 
 	private String answer;
 
-	private Integer processed = null;
+	private int processed;
 
 	public Integer getId() {
     	return id;

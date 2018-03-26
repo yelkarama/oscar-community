@@ -23,24 +23,15 @@
     Ontario, Canada
 
 --%>
+<%
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_billing" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../../securityError.jsp?type=_billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
+  if(session.getValue("user") == null)
 
-<%
-  String curUser_no = (String) session.getAttribute("user");
+    response.sendRedirect("../../../logout.htm");
+
+  String curUser_no,userfirstname,userlastname;
+
+  curUser_no = (String) session.getAttribute("user");
 
  String UpdateDate = "";
 
@@ -102,35 +93,30 @@ if(!authed) {
 
  int rowReCount = 0;
 
+  ResultSet rslocation = null;
+
+ ResultSet rsPatient = null;
+
+
 
 %>
 
-<%@ page import="java.math.*, java.util.*, java.sql.*, oscar.*, java.net.*" errorPage="errorpage.jsp"%>
+<%@ page
+	import="java.math.*, java.util.*, java.sql.*, oscar.*, java.net.*"
+	errorPage="errorpage.jsp"%>
 
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean"
+	scope="session" />
 
-
+<%@ include file="dbBilling.jspf"%>
 <%@page import="org.oscarehr.util.SpringUtils" %>
 <%@page import="org.oscarehr.common.dao.ClinicLocationDao" %>
 <%@page import="org.oscarehr.common.model.ClinicLocation" %>
 <%@ page import="org.oscarehr.common.model.DiagnosticCode" %>
 <%@ page import="org.oscarehr.common.dao.DiagnosticCodeDao" %>
-<%@ page import="org.oscarehr.common.model.Provider" %>
-<%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
-<%@ page import="org.oscarehr.billing.CA.model.BillingDetail" %>
-<%@ page import="org.oscarehr.billing.CA.dao.BillingDetailDao" %>
-<%@ page import="org.oscarehr.common.model.Demographic" %>
-<%@ page import="org.oscarehr.common.dao.DemographicDao" %>
-<%@ page import="oscar.entities.Billingmaster" %>
-<%@ page import="oscar.oscarBilling.ca.bc.data.BillingmasterDAO" %>
-<%@ page import="oscar.util.ConversionUtils" %>
-<%@ page import="org.oscarehr.common.model.Billing" %>
 <%
-	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 	DiagnosticCodeDao diagnosticCodeDao = SpringUtils.getBean(DiagnosticCodeDao.class);
 	ClinicLocationDao clinicLocationDao = (ClinicLocationDao)SpringUtils.getBean("clinicLocationDao");
-	BillingDetailDao billingDetailDao = SpringUtils.getBean(BillingDetailDao.class);
-	DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
-	BillingmasterDAO billingMasterDao = SpringUtils.getBean(BillingmasterDAO.class);
 %>
 
 <%
@@ -427,7 +413,7 @@ document.body.insertAdjacentHTML('beforeEnd', WebBrowser);
 			name="xml_clinic_ref_code" value="<%=location%>"><select
 			style="font-size: 80%;" name="clinic_ref_code">
 			<option value="">--- Select Visit Location ---</option>
-			<% 
+			<%  rslocation = null;
 
 			List<ClinicLocation> clinicLocations = clinicLocationDao.findByClinicNo(1);
             for(ClinicLocation clinicLocation:clinicLocations) {
@@ -450,7 +436,7 @@ document.body.insertAdjacentHTML('beforeEnd', WebBrowser);
 			name="provider_no">
 			<option value="">--- Select Provider ---</option>
 
-			<% 
+			<% ResultSet rslocal = null;
 
 // Retrieving Provider
 
@@ -458,15 +444,19 @@ String proFirst="", proLast="", proOHIP="", proNo="";
 
  int Count = 0;
 
- for(Provider p:providerDao.getActiveProviders()) {
-	if(p.getOhipNo() != null && !p.getOhipNo().isEmpty()) {
+  rslocal = null;
+
+ rslocal = apptMainBean.queryResults("%", "search_provider_dt");
+
+ while(rslocal.next()){
 
 
- proFirst = p.getFirstName();
 
- proLast = p.getLastName();
+ proFirst = rslocal.getString("first_name");
 
- proOHIP = p.getProviderNo();
+ proLast = rslocal.getString("last_name");
+
+ proOHIP = rslocal.getString("provider_no");
 
 
 
@@ -476,7 +466,7 @@ String proFirst="", proLast="", proOHIP="", proNo="";
 				<%=Provider.equals(proOHIP)?"selected":""%>><%=proOHIP%> |
 			<%=proLast%>, <%=proFirst%></option>
 
-			<% } }
+			<% }
 
 
 
@@ -581,18 +571,25 @@ String proFirst="", proLast="", proOHIP="", proNo="";
 
     String billingunit="";
 
-    for(BillingDetail bd:billingDetailDao.findByBillingNo(Integer.parseInt(billNo))) {
-    	if(bd.getStatus().equals("D"))continue;
-   
- serviceCode = bd.getServiceCode();
+    ResultSet rsBillRec = null;
 
- serviceDesc = bd.getServiceDesc();
+     rsBillRec = null;
 
- billAmount =bd.getBillingAmount();
+ rsBillRec = apptMainBean.queryResults(billNo, "search_bill_record");
 
- diagCode = bd.getDiagnosticCode();
+ while(rsBillRec.next()){
 
- billingunit = bd.getBillingUnit();
+
+
+ serviceCode = rsBillRec.getString("service_code");
+
+ serviceDesc = rsBillRec.getString("service_desc");
+
+ billAmount = rsBillRec.getString("billing_amount");
+
+ diagCode = rsBillRec.getString("diagnostic_code");
+
+ billingunit = rsBillRec.getString("billingunit");
 
  rowCount = rowCount + 1;
 
@@ -682,7 +679,10 @@ String proFirst="", proLast="", proOHIP="", proNo="";
 
  String diagDesc = "";
 
- 
+   ResultSet rsDiagCode = null;
+
+     rsDiagCode = null;
+
  	List<DiagnosticCode> results = diagnosticCodeDao.searchCode(diagCode);
  	for(DiagnosticCode result:results) {
  		diagDesc = result.getDescription();

@@ -28,6 +28,7 @@ package oscar.oscarDemographic.pageUtil;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -73,7 +74,6 @@ import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.PartialDate;
 import org.oscarehr.common.model.Prevention;
 import org.oscarehr.common.model.Provider;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
@@ -262,7 +262,7 @@ public class CihiExportAction extends DispatchAction {
 		List<String> patientList = demoSets.getDemographicSet(frm.getString("patientSet"));
 
 		//make all xml files, zip them and save to document directory
-		String filename = this.make(LoggedInInfo.getLoggedInInfoFromSession(request), frm, patientList, tmpDir);
+		String filename = this.make(frm, patientList, tmpDir);
 
 		//we got this far so save entry to db
 		DataExport dataExport = new DataExport();
@@ -283,7 +283,7 @@ public class CihiExportAction extends DispatchAction {
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-    private String make(LoggedInInfo loggedInInfo, DynaValidatorForm frm, List patientList, String tmpDir) throws Exception {
+    private String make(DynaValidatorForm frm, List patientList, String tmpDir) throws Exception {
 		 HashMap<String,CiHiCdsDocument> xmlMap = new HashMap<String,CiHiCdsDocument>();
 		 HashMap<String,String> fileNamesMap = new HashMap<String,String>();
 		 String demoNo;
@@ -326,13 +326,17 @@ public class CihiExportAction extends DispatchAction {
 			 this.buildOngoingProblems(demo, patientRecord);
 			 this.buildRiskFactors(demo, patientRecord);
 			 this.buildAllergies(demo, patientRecord);
-			 
-			 this.buildCareElements(demo, patientRecord);
-			 
+			 try {
+				 this.buildCareElements(demo, patientRecord);
+			 }
+			 catch(SQLException e) {
+				 MiscUtils.getLogger().error("Build Care Elements DB Failed", e);
+			 }
+
 			 this.buildProcedure(demo, patientRecord);
 			 this.buildLaboratoryResults(demo, patientRecord);
 			 this.buildMedications(demo, patientRecord);
-			 this.buildImmunizations(loggedInInfo, demo, patientRecord);
+			 this.buildImmunizations(demo, patientRecord);
 		 }
 
 
@@ -467,7 +471,7 @@ public class CihiExportAction extends DispatchAction {
 				dateFullorPartial.setFullDate(cal);
 			}
 		} catch( Exception e ) {
-			MiscUtils.getLogger().error("Error",e);
+
 		}
 
 	}
@@ -533,7 +537,7 @@ public class CihiExportAction extends DispatchAction {
                 	try {
                 		familyHistory.setAgeAtOnset(BigInteger.valueOf(Long.parseLong(age)));
                 	}catch(NumberFormatException e) {
-                		//ignore
+
                 	}
                 }
 
@@ -702,7 +706,7 @@ public class CihiExportAction extends DispatchAction {
 	}
 
 	@SuppressWarnings("unchecked")
-    private void buildCareElements(Demographic demo, PatientRecord patientRecord) {
+    private void buildCareElements(Demographic demo, PatientRecord patientRecord) throws SQLException {
 		List<Measurements> measList = ImportExportMeasurements.getMeasurements(demo.getDemographicNo().toString());
 		CareElements careElements = patientRecord.addNewCareElements();
 		Calendar cal = Calendar.getInstance();
@@ -872,7 +876,7 @@ public class CihiExportAction extends DispatchAction {
 		}
 	}
 
-	private void buildLaboratoryResults(Demographic demo, PatientRecord patientRecord) {
+	private void buildLaboratoryResults(Demographic demo, PatientRecord patientRecord) throws SQLException {
 				log.debug("Building lab results for " + demo.getDemographicNo() + " " + demo.getFormattedName());
                 List<LabMeasurements> labMeaList = ImportExportMeasurements.getLabMeasurements(demo.getDemographicNo().toString());
                 for (LabMeasurements labMea : labMeaList) {
@@ -987,12 +991,10 @@ public class CihiExportAction extends DispatchAction {
 
 	}
 
-    private void buildImmunizations(LoggedInInfo loggedInInfo, Demographic demo, PatientRecord patientRecord) {
+    private void buildImmunizations(Demographic demo, PatientRecord patientRecord) {
     	HashMap<String,String> preventionMap;
     	List<Prevention> preventionsList = getPreventionDao().findNotDeletedByDemographicId(demo.getDemographicNo());
 
-    	Map<String,Object> prevTypes = Util.getPreventionTypes(loggedInInfo);
-    	
          for( Prevention prevention: preventionsList ) {
              preventionMap = getPreventionExtDao().getPreventionExt(prevention.getId());
 
@@ -1001,7 +1003,7 @@ public class CihiExportAction extends DispatchAction {
         	 if (StringUtils.filled(preventionMap.get("name"))) {
         		immunizations.setImmunizationName(preventionMap.get("name"));
         	 }else{
-        		String preventionType = Util.getImmunizationType(loggedInInfo, prevention.getPreventionType(),prevTypes);
+        		String preventionType = Util.getImmunizationType(prevention.getPreventionType());
         		if (cdsDt.ImmunizationType.Enum.forString(preventionType)!=null) {
         			immunizations.setImmunizationName(preventionType);
         		} else {

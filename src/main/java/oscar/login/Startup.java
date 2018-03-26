@@ -55,7 +55,7 @@ public class Startup implements ServletContextListener {
 			try {
 				// Anyone know a better way to do this?
 				String url = sc.getServletContext().getResource("/").getPath();
-				logger.debug(url);
+				logger.info(url);
 				int idx = url.lastIndexOf('/');
 				url = url.substring(0, idx);
 
@@ -161,15 +161,6 @@ public class Startup implements ServletContextListener {
 			logger.error("Unexpected error.", e);
 			throw (new RuntimeException(e));
 		}
-		
-		String javaVersion = System.getProperty("java.version");
-		if(javaVersion != null) {
-			 if(javaVersion.startsWith("1.6") || javaVersion.startsWith("1.5")) {
-				 logger.warn("OSCAR is designed to work with JAVA 7. Please check your runtime environment");
-			 }
-		} else {
-			logger.info("Unable to determine what version of JAVA your are running. Please ensure your are using a JAVA 7 JVM");
-		}
 	}
 
 	// Checks for default property with name propName. If the property does not exist,
@@ -180,19 +171,19 @@ public class Startup implements ServletContextListener {
 		String propertyDir = p.getProperty(propName);
 		if (propertyDir == null) {
 			propertyDir = baseDir + "/" + context + endDir;
-			logger.debug("Setting property " + propName + " with value " + propertyDir);
+			logger.info("Setting property " + propName + " with value " + propertyDir);
 			p.setProperty(propName, propertyDir);
 			// Create directory if it does not exist
 			if (!(new File(propertyDir)).exists()) {
-				logger.warn("Directory does not exist:  " + propertyDir + ". Creating.");
+				logger.info("Directory does not exist:  " + propertyDir);
+				logger.info("Creating...");
 				boolean success = (new File(propertyDir)).mkdirs();
-				if (!success) logger.error("An error occured when creating " + propertyDir);
+				if (!success) logger.info("An error occured when creating " + propertyDir);
 			}
 		}
 	}
 
 	public void contextDestroyed(ServletContextEvent arg0) {
-		// nothing to do right now
 	}
 
 }

@@ -9,15 +9,11 @@
 
 package org.oscarehr.hospitalReportManager;
 
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
@@ -30,13 +26,13 @@ import org.oscarehr.hospitalReportManager.dao.HRMDocumentSubClassDao;
 import org.oscarehr.hospitalReportManager.dao.HRMDocumentToDemographicDao;
 import org.oscarehr.hospitalReportManager.dao.HRMDocumentToProviderDao;
 import org.oscarehr.hospitalReportManager.dao.HRMProviderConfidentialityStatementDao;
+import org.oscarehr.hospitalReportManager.dao.HRMSubClassDao;
 import org.oscarehr.hospitalReportManager.model.HRMCategory;
 import org.oscarehr.hospitalReportManager.model.HRMDocument;
 import org.oscarehr.hospitalReportManager.model.HRMDocumentComment;
 import org.oscarehr.hospitalReportManager.model.HRMDocumentSubClass;
 import org.oscarehr.hospitalReportManager.model.HRMDocumentToDemographic;
 import org.oscarehr.hospitalReportManager.model.HRMDocumentToProvider;
-import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
@@ -49,27 +45,20 @@ public class HRMDisplayReportAction extends DispatchAction {
 	private static HRMDocumentToDemographicDao hrmDocumentToDemographicDao = (HRMDocumentToDemographicDao) SpringUtils.getBean("HRMDocumentToDemographicDao");
 	private static HRMDocumentToProviderDao hrmDocumentToProviderDao = (HRMDocumentToProviderDao) SpringUtils.getBean("HRMDocumentToProviderDao");
 	private static HRMDocumentSubClassDao hrmDocumentSubClassDao = (HRMDocumentSubClassDao) SpringUtils.getBean("HRMDocumentSubClassDao");
-	//private static HRMSubClassDao hrmSubClassDao = (HRMSubClassDao) SpringUtils.getBean("HRMSubClassDao");
+	private static HRMSubClassDao hrmSubClassDao = (HRMSubClassDao) SpringUtils.getBean("HRMSubClassDao");
 	private static HRMCategoryDao hrmCategoryDao = (HRMCategoryDao) SpringUtils.getBean("HRMCategoryDao");
 	private static HRMDocumentCommentDao hrmDocumentCommentDao = (HRMDocumentCommentDao) SpringUtils.getBean("HRMDocumentCommentDao");
 	private static HRMProviderConfidentialityStatementDao hrmProviderConfidentialityStatementDao = (HRMProviderConfidentialityStatementDao) SpringUtils.getBean("HRMProviderConfidentialityStatementDao");
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-    
+	
 	public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		String hrmDocumentId = request.getParameter("id");
-		
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_hrm", "r", null)) {
-        	throw new SecurityException("missing required security object (_hrm)");
-        }
 		
 		if (hrmDocumentId != null) {
                     HRMDocument document = hrmDocumentDao.findById(Integer.parseInt(hrmDocumentId)).get(0);
 
                     if (document != null) {
                         logger.debug("reading repotFile : "+document.getReportFile());
-                        HRMReport report = HRMReportParser.parseReport(loggedInInfo, document.getReportFile());
+                        HRMReport report = HRMReportParser.parseReport(document.getReportFile());
                         
                         request.setAttribute("hrmDocument", document);
 
@@ -89,7 +78,8 @@ public class HRMDisplayReportAction extends DispatchAction {
                             List<HRMDocumentSubClass> subClassList = hrmDocumentSubClassDao.getSubClassesByDocumentId(document.getId());
                             request.setAttribute("subClassList", subClassList);
 
-                            HRMDocumentToProvider thisProviderLink = hrmDocumentToProviderDao.findByHrmDocumentIdAndProviderNo(document.getId().toString(), loggedInInfo.getLoggedInProviderNo());
+                            String loggedInProviderNo = LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo();
+                            HRMDocumentToProvider thisProviderLink = hrmDocumentToProviderDao.findByHrmDocumentIdAndProviderNo(document.getId().toString(), loggedInProviderNo);
                             request.setAttribute("thisProviderLink", thisProviderLink);
 
                             if (thisProviderLink != null) {
@@ -126,29 +116,12 @@ public class HRMDisplayReportAction extends DispatchAction {
                             request.setAttribute("allDocumentsWithRelationship", allDocumentsWithRelationship);
 
 
-                            List<HRMDocumentComment> documentComments = hrmDocumentCommentDao.getCommentsForDocument(Integer.parseInt(hrmDocumentId));
+                            List<HRMDocumentComment> documentComments = hrmDocumentCommentDao.getCommentsForDocument(hrmDocumentId);
                             request.setAttribute("hrmDocumentComments", documentComments);
 
 
-                            String confidentialityStatement = hrmProviderConfidentialityStatementDao.getConfidentialityStatementForProvider(loggedInInfo.getLoggedInProviderNo());
+                            String confidentialityStatement = hrmProviderConfidentialityStatementDao.getConfidentialityStatementForProvider(loggedInProviderNo);
                             request.setAttribute("confidentialityStatement", confidentialityStatement);
-                            
-                            String duplicateLabIdsString=StringUtils.trimToNull(request.getParameter("duplicateLabIds"));
-                            Map<Integer,Date> dupReportDates = new HashMap<Integer,Date>();
-                            Map<Integer,Date> dupTimeReceived = new HashMap<Integer,Date>();
-                            
-                            if (duplicateLabIdsString!=null) {
-                            	String[] duplicateLabIdsStringSplit=duplicateLabIdsString.split(",");
-                            	for (String tempId : duplicateLabIdsStringSplit) {
-                            		HRMDocument doc = hrmDocumentDao.find(Integer.parseInt(tempId));
-                            		dupReportDates.put(Integer.parseInt(tempId),doc.getReportDate());
-                            		dupTimeReceived.put(Integer.parseInt(tempId),doc.getTimeReceived());
-                            	}
-                            
-                            }
-                            
-                            request.setAttribute("dupReportDates",dupReportDates);
-                            request.setAttribute("dupTimeReceived", dupTimeReceived);
                         }
                     }
 			
@@ -158,8 +131,10 @@ public class HRMDisplayReportAction extends DispatchAction {
 		return mapping.findForward("display");
 	}
 	
-	public static HRMDocumentToProvider getHRMDocumentFromProvider(String providerNo, Integer hrmDocumentId)
+	
+	public static HRMDocumentToProvider getHRMDocumentFromCurrentProvider(Integer hrmDocumentId)
 	{
-		return(hrmDocumentToProviderDao.findByHrmDocumentIdAndProviderNo(hrmDocumentId.toString(), providerNo));
+		LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+		return(hrmDocumentToProviderDao.findByHrmDocumentIdAndProviderNo(hrmDocumentId.toString(), loggedInInfo.loggedInProvider.getProviderNo()));
 	}
 }

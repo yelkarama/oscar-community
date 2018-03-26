@@ -212,7 +212,7 @@ INSERT INTO `measurementTypeTEMP` (`type`, `typeDisplayName`, `typeDescription`,
 ( 'PSPA', 'Patient Sets physical Activity Goal', 'Patient Sets physical Activity Goal', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'PSSC', 'Psychosocial Screening', 'Psychosocial Screening', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'PsyC', 'Psychosocial Counseling Given', 'Psychosocial Counseling Given', 'Yes/No', '7', '2013-02-01 00:00:00'),
-( 'HR', 'P', 'Heart Rate', 'in bpm (nnn) Range:40-180', '5', '2013-02-01 00:00:00'),
+( 'PULSE', 'P', 'Heart Rate', 'in bpm (nnn) Range:40-180', '5', '2013-02-01 00:00:00'),
 ( 'PVD', 'PVD', 'Peripheral vascular disease', 'Yes/No', '7', '2013-02-01 00:00:00'),
 ( 'QDSH', 'QuickDASH Score', 'Disabilities of the Arm, Shoulder and Hand - Score', 'number', '5', '2013-02-01 00:00:00'),
 ( 'RABG', 'Recommend ABG', 'Recommend ABG', 'Yes/No', '7', '2013-02-01 00:00:00'),
@@ -278,9 +278,6 @@ UPDATE `measurementType` m, `measurementTypeTEMP` t  SET m.measuringInstruction=
 -- UPDATE measurements SET type='SmkD' WHERE type='POSK';
 -- UPDATE measurements SET type='SmkPY' WHERE type='SmkH';
 -- UPDATE measurements SET type='WAIS' WHERE type='WS';
-UPDATE measurements SET type='HR' WHERE type='PULS';
-UPDATE measurements SET type='ACR' WHERE type='UACR';
-
 
 -- now relink existing measurements
 -- UPDATE `measurements` m, `measurementTypeTEMP` t  SET m.measuringInstruction=t.measuringInstruction where m.measuringInstruction IS NULL;
@@ -617,7 +614,7 @@ INSERT INTO `measurementType` (`type`, `typeDisplayName`, `typeDescription`, `me
 INSERT INTO `measurementType` (`type`, `typeDisplayName`, `typeDescription`, `measuringInstruction`, `validation`, `createDate`) VALUES
 ( 'HPCP', 'Hep C PCR', 'Hep C PCR', 'Yes/No', '7', '2013-02-01 00:00:00') ON DUPLICATE KEY UPDATE `validation`=7;
 INSERT INTO `measurementType` (`type`, `typeDisplayName`, `typeDescription`, `measuringInstruction`, `validation`, `createDate`) VALUES
-( 'HR', 'P', 'Heart Rate', 'in bpm (nnn) Range:40-180', '5', '2013-02-01 00:00:00') ON DUPLICATE KEY UPDATE `validation`=5;
+( 'PULSE', 'P', 'Heart Rate', 'in bpm (nnn) Range:40-180', '5', '2013-02-01 00:00:00') ON DUPLICATE KEY UPDATE `validation`=5;
 INSERT INTO `measurementType` (`type`, `typeDisplayName`, `typeDescription`, `measuringInstruction`, `validation`, `createDate`) VALUES
 ( 'HRMS', 'Review med use and side effects', 'HTN Review of Medication use and side effects', 'null', '11', '2013-02-01 00:00:00') ON DUPLICATE KEY UPDATE `validation`=11;
 INSERT INTO `measurementType` (`type`, `typeDisplayName`, `typeDescription`, `measuringInstruction`, `validation`, `createDate`) VALUES
@@ -861,7 +858,7 @@ CREATE TABLE IF NOT EXISTS `validations` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   `regularExp` varchar(100),
-  `maxValue1` double,
+  `maxValue` double,
   `minValue` double,
   `maxLength` int(3),
   `minLength` int(3),
@@ -875,7 +872,7 @@ CREATE TABLE IF NOT EXISTS `validations` (
 -- Data for table `validations` that matches the `measurementType` data above
 --
 
-INSERT INTO `validations` (`id`, `name`, `regularExp`, `maxValue1`, `minValue`, `maxLength`, `minLength`, `isNumeric`, `isTrue`, `isDate`) VALUES
+INSERT INTO `validations` (`id`, `name`, `regularExp`, `maxValue`, `minValue`, `maxLength`, `minLength`, `isNumeric`, `isTrue`, `isDate`) VALUES
 (1, 'Numeric Value: 0 to 1', NULL, 10, 0, NULL, NULL, 1, NULL, NULL),
 (2, 'Numeric Value: 0 to 10', NULL, 10, 0, NULL, NULL, 1, NULL, NULL),
 (3, 'Numeric Value: 0 to 50', NULL, 50, 0, NULL, NULL, 1, NULL, NULL),

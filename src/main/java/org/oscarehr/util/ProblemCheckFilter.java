@@ -137,7 +137,7 @@ public final class ProblemCheckFilter implements Filter
 
 		public void setAttribute(String arg0, Object arg1)
 		{
-			if (!(arg1 instanceof Serializable)) logger.warn("Some one putting non serialisable item into session. key="+arg0);
+			if (!(arg1 instanceof Serializable)) logger.warn("Some one putting non serialisable item into session. key="+arg0, new Exception("Non serialisable item in session"));
 
 			session.setAttribute(arg0, arg1);
 		}
@@ -157,18 +157,12 @@ public final class ProblemCheckFilter implements Filter
 		
 		public HttpSession getSession()
 		{
-			HttpSession parentSession = super.getSession();
-			if (parentSession == null)
-				return null;
-			return new SessionChecker(super.getSession());
+			return(new SessionChecker(super.getSession()));
 		}
 		
 		public HttpSession getSession(boolean create)
 		{
-			HttpSession parentSession = super.getSession(create);
-			if (parentSession == null)
-				return null;
-			return new SessionChecker(super.getSession(create));
+			return(new SessionChecker(super.getSession(create)));
 		}
 	}
 	

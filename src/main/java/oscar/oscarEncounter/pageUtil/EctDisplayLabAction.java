@@ -33,7 +33,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 import org.apache.struts.util.MessageResources;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 
 import oscar.oscarLab.ca.on.CommonLabResultData;
@@ -41,22 +40,19 @@ import oscar.oscarLab.ca.on.LabResultData;
 import oscar.util.DateUtils;
 import oscar.util.StringUtils;
 
+//import oscar.oscarSecurity.CookieSecurity;
+
 public class EctDisplayLabAction extends EctDisplayAction {
 	private static final Logger logger=MiscUtils.getLogger();
 	
 	private static final String cmd = "labs";
     
   public boolean getInfo(EctSessionBean bean, HttpServletRequest request, NavBarDisplayDAO Dao, MessageResources messages) {          
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-	
-	if(!securityInfoManager.hasPrivilege(loggedInInfo, "_lab", "r", null)) {
-		throw new SecurityException("missing required security object (_lab)");
-	}
      
 	  logger.debug("EctDisplayLabAction");
 	  
 	  CommonLabResultData comLab = new CommonLabResultData();
-        ArrayList<LabResultData> labs = comLab.populateLabResultsData(loggedInInfo, "",bean.demographicNo, "", "","","U");
+        ArrayList<LabResultData> labs = comLab.populateLabResultsData("",bean.demographicNo, "", "","","U");
         Collections.sort(labs);
 
         //set text for lefthand module title

@@ -24,7 +24,6 @@
 package org.oscarehr.integration.born;
 
 import static org.junit.Assert.assertEquals;
-import org.junit.Ignore;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -40,11 +39,9 @@ public class ONAREnhancedBornConnectorTest extends DaoTestFixtures {
 	}
 
 	@Test
-	@Ignore
-	public void testConnector()  {
+	public void testConnector() throws Exception {
 		ONAREnhancedBornConnector c = new ONAREnhancedBornConnector();
-		//not sure it's worth fixing right now
-		//c.updateBorn();
+		c.updateBorn();
 	}
 
 }

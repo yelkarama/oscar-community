@@ -42,7 +42,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.apache.struts.action.Action;
@@ -51,9 +50,9 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.oscarehr.common.IsPropertiesOn;
 import org.oscarehr.common.dao.ClinicDAO;
-import org.oscarehr.common.dao.ConsultDocsDao;
 import org.oscarehr.common.dao.ConsultationRequestDao;
 import org.oscarehr.common.dao.ConsultationRequestExtDao;
+import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.Hl7TextInfoDao;
 import org.oscarehr.common.dao.ProfessionalSpecialistDao;
 import org.oscarehr.common.hl7.v2.oscar_to_oscar.OruR01;
@@ -61,7 +60,6 @@ import org.oscarehr.common.hl7.v2.oscar_to_oscar.OruR01.ObservationData;
 import org.oscarehr.common.hl7.v2.oscar_to_oscar.RefI12;
 import org.oscarehr.common.hl7.v2.oscar_to_oscar.SendingUtils;
 import org.oscarehr.common.model.Clinic;
-import org.oscarehr.common.model.ConsultDocs;
 import org.oscarehr.common.model.ConsultationRequest;
 import org.oscarehr.common.model.ConsultationRequestExt;
 import org.oscarehr.common.model.Demographic;
@@ -69,19 +67,12 @@ import org.oscarehr.common.model.DigitalSignature;
 import org.oscarehr.common.model.Hl7TextInfo;
 import org.oscarehr.common.model.ProfessionalSpecialist;
 import org.oscarehr.common.model.Provider;
-import org.oscarehr.managers.DemographicManager;
-import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.DigitalSignatureUtils;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 import org.oscarehr.util.WebUtils;
-
-import com.lowagie.text.DocumentException;
-
-import ca.uhn.hl7v2.HL7Exception;
-import ca.uhn.hl7v2.model.v26.message.ORU_R01;
-import ca.uhn.hl7v2.model.v26.message.REF_I12;
+import org.apache.commons.lang.StringUtils;
 import oscar.OscarProperties;
 import oscar.dms.EDoc;
 import oscar.dms.EDocUtil;
@@ -89,22 +80,19 @@ import oscar.oscarLab.ca.all.pageUtil.LabPDFCreator;
 import oscar.oscarLab.ca.on.CommonLabResultData;
 import oscar.oscarLab.ca.on.LabResultData;
 import oscar.util.ParameterActionForward;
+import ca.uhn.hl7v2.HL7Exception;
+import ca.uhn.hl7v2.model.v26.message.ORU_R01;
+import ca.uhn.hl7v2.model.v26.message.REF_I12;
+
+import com.lowagie.text.DocumentException;
 
 public class EctConsultationFormRequestAction extends Action {
 
 	private static final Logger logger=MiscUtils.getLogger();
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	private ConsultDocsDao consultDocsDao = (ConsultDocsDao)SpringUtils.getBean("consultDocsDao");
-	
-	
+	private boolean bMultisites=org.oscarehr.common.IsPropertiesOn.isMultisitesEnable();
 	@Override
 	public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_con", "w", null)) {
-			throw new SecurityException("missing required security object (_con)");
-		}
-		
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 		EctConsultationFormRequestForm frm = (EctConsultationFormRequestForm) form;		
 
 		String appointmentHour = frm.getAppointmentHour();
@@ -125,7 +113,7 @@ public class EctConsultationFormRequestAction extends Action {
 		String requestId = "";
 
 		boolean newSignature = request.getParameter("newSignature") != null && request.getParameter("newSignature").equalsIgnoreCase("true");
-		String signatureId = null;
+		String signatureId = "";
 		String signatureImg = frm.getSignatureImg();
 		if(StringUtils.isBlank(signatureImg)) {
 			signatureImg = request.getParameter("newSignatureImg");
@@ -144,6 +132,7 @@ public class EctConsultationFormRequestAction extends Action {
 
 			try {				
 								if (newSignature) {
+									LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
 									DigitalSignature signature = DigitalSignatureUtils.storeDigitalSignatureFromTempFileToDB(loggedInInfo, signatureImg, Integer.parseInt(demographicNo));
 									if (signature != null) { signatureId = "" + signature.getId(); }
 								}
@@ -161,21 +150,13 @@ public class EctConsultationFormRequestAction extends Action {
                         		consult.setLetterheadPhone(frm.getLetterheadPhone());
                         		consult.setLetterheadFax(frm.getLetterheadFax());
                         		
-								if (frm.getAppointmentDate() != null && !frm.getAppointmentDate().equals("")) {
-									date = DateUtils.parseDate(frm.getAppointmentDate(), format);
-									consult.setAppointmentDate(date);
-									
-									if(!StringUtils.isEmpty(appointmentHour) && !StringUtils.isEmpty(frm.getAppointmentMinute())) {
-										try {
-											date = DateUtils.setHours(date, new Integer(appointmentHour));
-											date = DateUtils.setMinutes(date, new Integer(frm.getAppointmentMinute()));
-											consult.setAppointmentTime(date);
-										}
-										catch(NumberFormatException nfEx) {
-							                MiscUtils.getLogger().error("Invalid Time", nfEx);
-										}
-									}
-								}
+                                if( frm.getAppointmentYear() != null && !frm.getAppointmentYear().equals("") ) {
+                                   date = DateUtils.parseDate(frm.getAppointmentYear() + "-" + frm.getAppointmentMonth() + "-" + frm.getAppointmentDay(), format);
+                                   consult.setAppointmentDate(date);
+                                   date = DateUtils.setHours(date, new Integer(appointmentHour));
+                                   date = DateUtils.setMinutes(date, new Integer(frm.getAppointmentMinute()));
+                                   consult.setAppointmentTime(date);
+                                }
                                 consult.setReasonForReferral(frm.getReasonForConsultation());
                                 consult.setClinicalInfo(frm.getClinicalInformation());
                                 consult.setCurrentMeds(frm.getCurrentMedications());
@@ -187,8 +168,7 @@ public class EctConsultationFormRequestAction extends Action {
                                 consult.setSendTo(frm.getSendTo());
                                 consult.setConcurrentProblems(frm.getConcurrentProblems());
                                 consult.setUrgency(frm.getUrgency());
-                                consult.setAppointmentInstructions( frm.getAppointmentInstructions() );
-                                consult.setSiteName(frm.getSiteName());
+				consult.setSiteName(frm.getSiteName());
                                 Boolean pWillBook = false;
                                 if( frm.getPatientWillBook() != null ) {
                                     pWillBook = frm.getPatientWillBook().equals("1");
@@ -200,11 +180,6 @@ public class EctConsultationFormRequestAction extends Action {
                                     consult.setFollowUpDate(date);
                                 }
 
-                                if(frm.getSource()!=null && !"null".equals(frm.getSource())) {
-                                	consult.setSource(frm.getSource());
-                                } else {
-                                	consult.setSource("");
-                                }
 
                                 consultationRequestDao.persist(consult);
 
@@ -214,7 +189,7 @@ public class EctConsultationFormRequestAction extends Action {
                                         consult.setProfessionalSpecialist(professionalSpecialist);
                                         consultationRequestDao.merge(consult);
                                     }
-                                        MiscUtils.getLogger().debug("saved new consult id "+ consult.getId());
+                                        MiscUtils.getLogger().info("saved new consult id "+ consult.getId());
                                         requestId = String.valueOf(consult.getId());
                                         
                                 Enumeration e = request.getParameterNames();
@@ -233,8 +208,6 @@ public class EctConsultationFormRequestAction extends Action {
 									if (docs[idx].length() > 0) {
 										if (docs[idx].charAt(0) == 'D') EDocUtil.attachDocConsult(providerNo, docs[idx].substring(1), requestId);
 										else if (docs[idx].charAt(0) == 'L') ConsultationAttachLabs.attachLabConsult(providerNo, docs[idx].substring(1), requestId);
-										else if (docs[idx].charAt(0) == 'H') consultDocsDao.attachDocConsult(providerNo, docs[idx].substring(1), requestId, ConsultDocs.DOCTYPE_HRM);
-
 									}
 								}
 			}
@@ -253,98 +226,74 @@ public class EctConsultationFormRequestAction extends Action {
 
 			try {				     
 				
-				if (newSignature) {
-					DigitalSignature signature = DigitalSignatureUtils.storeDigitalSignatureFromTempFileToDB(loggedInInfo, signatureImg, Integer.parseInt(demographicNo));
-					if (signature != null) {
-						signatureId = "" + signature.getId();
-					} else {
-						signatureId = null;
-					}
-				} else {
-					signatureId = signatureImg;
-				}
-				
-                ConsultationRequest consult = consultationRequestDao.find(new Integer(requestId));
-                Date date = DateUtils.parseDate(frm.getReferalDate(), format);
-                consult.setReferralDate(date);
-                consult.setServiceId(new Integer(frm.getService()));
+								if (newSignature) {
+									LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
+									DigitalSignature signature = DigitalSignatureUtils.storeDigitalSignatureFromTempFileToDB(loggedInInfo, signatureImg, Integer.parseInt(demographicNo));
+									if (signature != null) {
+										signatureId = "" + signature.getId();
+									} else {
+										signatureId = signatureImg;
+									}
+								} else {
+									signatureId = signatureImg;
+								}
+								
+                                ConsultationRequest consult = consultationRequestDao.find(new Integer(requestId));
+                                Date date = DateUtils.parseDate(frm.getReferalDate(), format);
+                                consult.setReferralDate(date);
+                                consult.setServiceId(new Integer(frm.getService()));
 
-                consult.setSignatureImg(signatureId);
-                
-                //We shouldn't change the referral provider just because someone updated and printed it! 
-                //consult.setProviderNo(frm.getProviderNo());
-                
-        		consult.setLetterheadName(frm.getLetterheadName());
-        		consult.setLetterheadAddress(frm.getLetterheadAddress());
-        		consult.setLetterheadPhone(frm.getLetterheadPhone());
-        		consult.setLetterheadFax(frm.getLetterheadFax());
+                                consult.setSignatureImg(signatureId);
+                                //We shouldn't change the referral provider just because someone updated and printed it! 
+                                //consult.setProviderNo(frm.getProviderNo());
+                                
+                        		consult.setLetterheadName(frm.getLetterheadName());
+                        		consult.setLetterheadAddress(frm.getLetterheadAddress());
+                        		consult.setLetterheadPhone(frm.getLetterheadPhone());
+                        		consult.setLetterheadFax(frm.getLetterheadFax());
+                                
+                                Integer specId = new Integer(frm.getSpecialist());
+                                ProfessionalSpecialist professionalSpecialist=professionalSpecialistDao.find(specId);
+                                consult.setProfessionalSpecialist(professionalSpecialist);
+                                if( frm.getAppointmentYear() != null && !frm.getAppointmentYear().equals("") ) {
+                                   date = DateUtils.parseDate(frm.getAppointmentYear() + "-" + frm.getAppointmentMonth() + "-" + frm.getAppointmentDay(), format);
+                                   consult.setAppointmentDate(date);
+                                   date = DateUtils.setHours(date, new Integer(appointmentHour));
+                                   date = DateUtils.setMinutes(date, new Integer(frm.getAppointmentMinute()));
+                                   consult.setAppointmentTime(date);
+                                }
+                                consult.setReasonForReferral(frm.getReasonForConsultation());
+                                consult.setClinicalInfo(frm.getClinicalInformation());
+                                consult.setCurrentMeds(frm.getCurrentMedications());
+                                consult.setAllergies(frm.getAllergies());
+                                consult.setDemographicId(new Integer(frm.getDemographicNo()));
+                                consult.setStatus(frm.getStatus());
+                                consult.setStatusText(frm.getAppointmentNotes());
+                                consult.setSendTo(frm.getSendTo());
+                                consult.setConcurrentProblems(frm.getConcurrentProblems());
+                                consult.setUrgency(frm.getUrgency());
+				consult.setSiteName(frm.getSiteName());
+                                 Boolean pWillBook = false;
+                                if( frm.getPatientWillBook() != null ) {
+                                    pWillBook = frm.getPatientWillBook().equals("1");
+                                }
+                                consult.setPatientWillBook(pWillBook);
 
-                /*
-                 * If Consultant: was changed to "blank/No Consultant Saved" we
-                 * don't want to try and create an Integer out of the specId as
-                 * it will throw a NumberForamtException
-                */
-                String specIdStr = frm.getSpecialist();
-                ProfessionalSpecialist professionalSpecialist=null;
-
-                if (specIdStr != null && !specIdStr.isEmpty())
-                {
-                    Integer specId = new Integer(frm.getSpecialist());
-                    professionalSpecialist=professionalSpecialistDao.find(specId);
-                }
-                consult.setProfessionalSpecialist(professionalSpecialist);
-
-                if( frm.getAppointmentDate() != null && !frm.getAppointmentDate().equals("") ) {
-                	date = DateUtils.parseDate(frm.getAppointmentDate(), format);
-                	consult.setAppointmentDate(date);
-			try {
-	                	date = DateUtils.setHours(date, new Integer(appointmentHour));
-        	        	date = DateUtils.setMinutes(date, new Integer(frm.getAppointmentMinute()));
-                		consult.setAppointmentTime(date);
-			}catch(NumberFormatException nfEx) {
-				MiscUtils.getLogger().error("Invalid Time", nfEx);
-			}
-                }
-                consult.setReasonForReferral(frm.getReasonForConsultation());
-                consult.setClinicalInfo(frm.getClinicalInformation());
-                consult.setCurrentMeds(frm.getCurrentMedications());
-                consult.setAllergies(frm.getAllergies());
-                consult.setDemographicId(new Integer(frm.getDemographicNo()));
-                consult.setStatus(frm.getStatus());
-                consult.setStatusText(frm.getAppointmentNotes());
-                consult.setSendTo(frm.getSendTo());
-                consult.setConcurrentProblems(frm.getConcurrentProblems());
-                consult.setUrgency(frm.getUrgency());
-                consult.setAppointmentInstructions( frm.getAppointmentInstructions() );
-                consult.setSiteName(frm.getSiteName());
-                 Boolean pWillBook = false;
-                if( frm.getPatientWillBook() != null ) {
-                    pWillBook = frm.getPatientWillBook().equals("1");
-                }
-                consult.setPatientWillBook(pWillBook);
-
-                if( frm.getFollowUpDate() != null && !frm.getFollowUpDate().equals("") ) {
-                    date = DateUtils.parseDate(frm.getFollowUpDate(), format);
-                    consult.setFollowUpDate(date);
-                }
-                
-                if(frm.getSource()!=null && !"null".equals(frm.getSource())) {
-                	consult.setSource(frm.getSource());
-                } else {
-                	consult.setSource("");
-                }
-                
-                consultationRequestDao.merge(consult);
-                
-                consultationRequestExtDao.clear(Integer.parseInt(requestId));
-                Enumeration e = request.getParameterNames();
-                while(e.hasMoreElements()) {
-                	String name = (String)e.nextElement();
-                	if(name.startsWith("ext_")) {
-                		String value = request.getParameter(name);
-                		consultationRequestExtDao.persist(createExtEntry(requestId,name.substring(name.indexOf("_")+1),value));
-                	}
-                }
+                                if( frm.getFollowUpDate() != null && !frm.getFollowUpDate().equals("") ) {
+                                    date = DateUtils.parseDate(frm.getFollowUpDate(), format);
+                                    consult.setFollowUpDate(date);
+                                }
+                                consultationRequestDao.merge(consult);
+                                
+                                consultationRequestExtDao.clear(Integer.parseInt(requestId));
+                                Enumeration e = request.getParameterNames();
+                                while(e.hasMoreElements()) {
+                                	String name = (String)e.nextElement();
+                                	if(name.startsWith("ext_")) {
+                                		String value = request.getParameter(name);
+                                		consultationRequestExtDao.persist(createExtEntry(requestId,name.substring(name.indexOf("_")+1),value));
+                                	}
+                                }
 			}
 
 			catch (ParseException e) {
@@ -393,12 +342,12 @@ public class EctConsultationFormRequestAction extends Action {
 			// upon success continue as normal with success message
 			// upon failure, go to consultation update page with message
 			try {
-	            doHl7Send(loggedInInfo, Integer.parseInt(requestId));
-	            WebUtils.addLocalisedInfoMessage(request, "oscarEncounter.oscarConsultationRequest.ConfirmConsultationRequest.msgCreatedUpdateESent");
+	            doHl7Send(Integer.parseInt(requestId));
+	            WebUtils.addResourceBundleInfoMessage(request, "oscarEncounter.oscarConsultationRequest.ConfirmConsultationRequest.msgCreatedUpdateESent");
             } catch (Exception e) {
             	logger.error("Error contacting remote server.", e);
             	
-            	WebUtils.addLocalisedErrorMessage(request, "oscarEncounter.oscarConsultationRequest.ConfirmConsultationRequest.msgCreatedUpdateESendError");
+	            WebUtils.addResourceBundleErrorMessage(request, "oscarEncounter.oscarConsultationRequest.ConfirmConsultationRequest.msgCreatedUpdateESendError");
 	    		ParameterActionForward forward = new ParameterActionForward(mapping.findForward("failESend"));
 	    		forward.addParameter("de", demographicNo);
 	    		forward.addParameter("requestId", requestId);
@@ -420,8 +369,7 @@ public class EctConsultationFormRequestAction extends Action {
 		obj.setRequestId(Integer.parseInt(requestId));
 		return obj;
 	}
-	
-	private void doHl7Send(LoggedInInfo loggedInInfo, Integer consultationRequestId) throws InvalidKeyException, SignatureException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidKeySpecException, IOException, HL7Exception, ServletException {
+	private void doHl7Send(Integer consultationRequestId) throws InvalidKeyException, SignatureException, NoSuchAlgorithmException, NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException, InvalidKeySpecException, IOException, HL7Exception, ServletException {
 		
 	    ConsultationRequestDao consultationRequestDao=(ConsultationRequestDao)SpringUtils.getBean("consultationRequestDao");
 	    ProfessionalSpecialistDao professionalSpecialistDao=(ProfessionalSpecialistDao)SpringUtils.getBean("professionalSpecialistDao");
@@ -432,22 +380,24 @@ public class EctConsultationFormRequestAction extends Action {
 	    ProfessionalSpecialist professionalSpecialist=professionalSpecialistDao.find(consultationRequest.getSpecialistId());
 	    Clinic clinic=clinicDAO.getClinic();
 	    
+        LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+	    
 	    // set status now so the remote version shows this status
 	    consultationRequest.setStatus("2");
 
 	    REF_I12 refI12=RefI12.makeRefI12(clinic, consultationRequest);
-	    SendingUtils.send(loggedInInfo, refI12, professionalSpecialist);
+	    SendingUtils.send(refI12, professionalSpecialist);
 	    
 	    // save after the sending just in case the sending fails.
 	    consultationRequestDao.merge(consultationRequest);
 	    
 	    //--- send attachments ---
-    	Provider sendingProvider=loggedInInfo.getLoggedInProvider();
-    	DemographicManager demographicManager = SpringUtils.getBean(DemographicManager.class);
-    	Demographic demographic=demographicManager.getDemographic(loggedInInfo, consultationRequest.getDemographicId());
+    	Provider sendingProvider=loggedInInfo.loggedInProvider;
+    	DemographicDao demographicDao=(DemographicDao) SpringUtils.getBean("demographicDao");
+    	Demographic demographic=demographicDao.getDemographicById(consultationRequest.getDemographicId());
 
     	//--- process all documents ---
-	    ArrayList<EDoc> attachments=EDocUtil.listDocs(loggedInInfo, demographic.getDemographicNo().toString(), consultationRequest.getId().toString(), EDocUtil.ATTACHED);
+	    ArrayList<EDoc> attachments=EDocUtil.listDocs(demographic.getDemographicNo().toString(), consultationRequest.getId().toString(), true);
 	    for (EDoc attachment : attachments)
 	    {
 	        ObservationData observationData=new ObservationData();
@@ -457,12 +407,12 @@ public class EctConsultationFormRequestAction extends Action {
 	        observationData.binaryData=attachment.getFileBytes();
 
 	        ORU_R01 hl7Message=OruR01.makeOruR01(clinic, demographic, observationData, sendingProvider, professionalSpecialist);        
-	        SendingUtils.send(loggedInInfo, hl7Message, professionalSpecialist);	    	
+	        SendingUtils.send(hl7Message, professionalSpecialist);	    	
 	    }
 	    
 	    //--- process all labs ---
         CommonLabResultData labData = new CommonLabResultData();
-        ArrayList<LabResultData> labs = labData.populateLabResultsData(loggedInInfo, demographic.getDemographicNo().toString(), consultationRequest.getId().toString(), CommonLabResultData.ATTACHED);
+        ArrayList<LabResultData> labs = labData.populateLabResultsData(demographic.getDemographicNo().toString(), consultationRequest.getId().toString(), CommonLabResultData.ATTACHED);
 	    for (LabResultData attachment : labs)
 	    {
 	    	try {
@@ -477,7 +427,7 @@ public class EctConsultationFormRequestAction extends Action {
 
 	            
 	            ORU_R01 hl7Message=OruR01.makeOruR01(clinic, demographic, observationData, sendingProvider, professionalSpecialist);        
-	            int statusCode=SendingUtils.send(loggedInInfo, hl7Message, professionalSpecialist);
+	            int statusCode=SendingUtils.send(hl7Message, professionalSpecialist);
 	            if (HttpServletResponse.SC_OK!=statusCode) throw(new ServletException("Error, received status code:"+statusCode));
             } catch (DocumentException e) {
 	            logger.error("Unexpected error.", e);

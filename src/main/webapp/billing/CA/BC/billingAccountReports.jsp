@@ -1,35 +1,19 @@
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
+  if (session.getValue("user") == null)
+    response.sendRedirect("../../../logout.jsp");
 %>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_report,_admin.reporting,_admin" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../../securityError.jsp?type=_report&type=_admin.reporting&type=_admin");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%@ page import="java.math.*,java.util.*, java.sql.*, oscar.*, java.net.*,oscar.oscarBilling.ca.bc.MSP.*,oscar.util.*"%>
+<%@page
+	import="java.math.*,java.util.*, java.sql.*, oscar.*, java.net.*,oscar.oscarBilling.ca.bc.MSP.*,oscar.util.*"%>
 <%@taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@taglib uri="/WEB-INF/struts-logic.tld" prefix="logic"%>
-
-<%@page import="org.oscarehr.util.SpringUtils" %>
-<%@page import="org.oscarehr.common.dao.ReportProviderDao" %>
-<%@page import="org.oscarehr.common.model.ReportProvider" %>
-<%@page import="org.oscarehr.common.model.Provider" %>
-
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean"
+	scope="session" />
+<jsp:useBean id="SxmlMisc" class="oscar.SxmlMisc" scope="session" />
+<%@include file="dbBilling.jspf"%>
 <%
-	ReportProviderDao reportProviderDao = SpringUtils.getBean(ReportProviderDao.class);
-%>
-
-<%
-  String user_no = (String) session.getAttribute("user");
+  String user_no;
+  user_no = (String) session.getAttribute("user");
   int nItems = 0;
   String strLimit1 = "0";
   String strLimit2 = "5";
@@ -190,13 +174,13 @@ function clearField(field){
                     String specialty_code;
                     String billinggroup_no;
                     int Count = 0;
-                    for(Object[] result:reportProviderDao.search_reportprovider("billingreport")) {
-                    	ReportProvider rp = (ReportProvider)result[0];
-                    	Provider p = (Provider)result[1];
-                    	proFirst = p.getFirstName();
-                    	proLast = p.getLastName();
-                    	proOHIP = p.getOhipNo();
-                 
+                    ResultSet rslocal;
+                    rslocal = null;
+                    rslocal = apptMainBean.queryResults("billingreport", "search_reportprovider");
+                    while (rslocal.next()) {
+                      proFirst = rslocal.getString("first_name");
+                      proLast = rslocal.getString("last_name");
+                      proOHIP = rslocal.getString("ohip_no");
                 %>
 					<option value="<%=proOHIP%>"><%=proLast%> , <%=proFirst%>
 					</option>
@@ -216,12 +200,13 @@ function clearField(field){
                 String specialty_code;
                 String billinggroup_no;
                 int Count = 0;
-                for(Object[] result:reportProviderDao.search_reportprovider("billingreport")) {
-                	ReportProvider rp = (ReportProvider)result[0];
-                	Provider p = (Provider)result[1];
-                	proFirst = p.getFirstName();
-                	proLast = p.getLastName();
-                	proOHIP = p.getOhipNo();
+                ResultSet rslocal;
+                rslocal = null;
+                rslocal = apptMainBean.queryResults("billingreport", "search_reportprovider");
+                while (rslocal.next()) {
+                  proFirst = rslocal.getString("first_name");
+                  proLast = rslocal.getString("last_name");
+                  proOHIP = rslocal.getString("provider_no");
             %>
 					<option value="<%=proOHIP%>"><%=proLast%> , <%=proFirst%>
 					</option>
@@ -241,12 +226,13 @@ function clearField(field){
               String specialty_code;
               String billinggroup_no;
               int Count = 0;
-              for(Object[] result:reportProviderDao.search_reportprovider("billingreport")) {
-              	ReportProvider rp = (ReportProvider)result[0];
-              	Provider p = (Provider)result[1];
-              	proFirst = p.getFirstName();
-              	proLast = p.getLastName();
-              	proOHIP = p.getOhipNo();
+              ResultSet rslocal;
+              rslocal = null;
+              rslocal = apptMainBean.queryResults("billingreport", "search_reportprovider");
+              while (rslocal.next()) {
+                proFirst = rslocal.getString("first_name");
+                proLast = rslocal.getString("last_name");
+                proOHIP = rslocal.getString("provider_no");
             %>
 					<option value="<%=proOHIP%>"><%=proLast%> , <%=proFirst%>
 					</option>

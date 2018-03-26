@@ -11,8 +11,11 @@ done
 
 ant -f build_client_stubs.xml compile_client_stubs
 
-VERSION=2015.01.28
+rm -f ~/.m2/repository/org/oscarehr/client_stubs/SNAPSHOT/*.jar
 
+PROJECTS="oscar_patient_portal"
 
-mvn install:install-file -DgroupId=org.oscarehr.oscar -DartifactId=oscar_client_stubs -Dversion=${VERSION} -Dpackaging=jar -Dfile=../../target/oscar_client_stubs.jar -DcreateChecksum=true -DgeneratePom=true
-mvn install:install-file -DgroupId=org.oscarehr.oscar -DartifactId=oscar_client_stubs -Dversion=${VERSION} -Dpackaging=jar -Dfile=../../target/oscar_client_stubs.jar -DcreateChecksum=true -DgeneratePom=true -DlocalRepositoryPath=../../../oscar_maven_repo/local_repo -DlocalRepositoryId=local_repo
+for foo in $PROJECTS;
+do
+   mvn install:install-file -DgroupId=org.oscarehr.oscar -DartifactId=oscar_client_stubs -Dversion=SNAPSHOT -Dpackaging=jar -Dfile=../../target/oscar_client_stubs.jar -DcreateChecksum=true -DgeneratePom=true -DlocalRepositoryPath=../../../${foo}/local_repo -DlocalRepositoryId=local_repo
+done;

@@ -26,38 +26,20 @@
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>"
-        objectName="_admin,_admin.userAdmin" rights="w"
-        reverse="<%=true%>">
-        <%authed=false; %>
-        <%response.sendRedirect("../securityError.jsp?type=_admin&type=_admin.userAdmin");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
 <%@ page import="java.sql.*, java.util.*" errorPage="errorpage.jsp"%>
 <%@ page import="oscar.log.LogAction,oscar.log.LogConst"%>
+<%@ include file="/common/webAppContextAndSuperMgr.jsp"%>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
-<%@ page import="org.oscarehr.common.model.Security" %>
-<%@ page import="org.oscarehr.util.LoggedInInfo" %>
-<%@ page import="org.oscarehr.managers.SecurityManager" %>
+<%@ page import="com.quatro.model.security.Security" %>
+<%@ page import="com.quatro.dao.security.SecurityDao" %>
 <%
-	LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
-	org.oscarehr.managers.SecurityManager securityManager = SpringUtils.getBean(org.oscarehr.managers.SecurityManager.class);
+	SecurityDao securityDao = (SecurityDao)SpringUtils.getBean("securityDao");
 %>
 <html:html locale="true">
 <head>
-<script type="text/javascript" src="<%=request.getContextPath()%>/js/global.js"></script></head>
+<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script></head>
 <link rel="stylesheet" href="../web.css" />
-<body topmargin="0" leftmargin="0" rightmargin="0">
+<body background="../images/gray_bg.jpg" bgproperties="fixed" topmargin="0" leftmargin="0" rightmargin="0">
 <center>
 <table border="0" cellspacing="0" cellpadding="0" width="100%">
 	<tr bgcolor="#486ebd">
@@ -67,15 +49,16 @@ if(!authed) {
 </table>
 <%
 	int rowsAffected=0;
-	Security s = securityManager.find(loggedInInfo, Integer.parseInt(request.getParameter("keyword")));
+	Security s = securityDao.findById(Integer.parseInt(request.getParameter("keyword")));
 	if(s != null) {
-		securityManager.remove(loggedInInfo, s.getId());
+		securityDao.delete(s);
 		rowsAffected=1;
 		LogAction.addLog((String) request.getSession().getAttribute("user"), LogConst.DELETE, LogConst.CON_SECURITY,
         		request.getParameter("keyword"), request.getRemoteAddr());
 	}
 
 	if (rowsAffected ==1) {
+
 %>
 <p>
 <h2><bean:message key="admin.securitydelete.msgDeletionSuccess" />:
@@ -89,7 +72,7 @@ if(!authed) {
   }
 %>
 <p></p>
-
+<%@ include file="footer2htm.jsp"%>
 </center>
 </body>
 </html:html>

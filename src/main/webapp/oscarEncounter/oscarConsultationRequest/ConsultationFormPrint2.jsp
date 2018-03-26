@@ -24,23 +24,8 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_con" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../securityError.jsp?type=_con");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%! boolean bMultisites = org.oscarehr.common.IsPropertiesOn.isMultisitesEnable(); %>
+<%@ include file="/common/webAppContextAndSuperMgr.jsp"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
 <%@ taglib uri="/WEB-INF/struts-logic.tld" prefix="logic" %>
@@ -61,7 +46,7 @@ if(!authed) {
 <%
 	oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctConsultationFormRequestUtil reqFrm;
 	reqFrm = new oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctConsultationFormRequestUtil ();
-	reqFrm.estRequestFromId(LoggedInInfo.getLoggedInInfoFromSession(request), (String)request.getAttribute("reqId"));
+	reqFrm.estRequestFromId((String)request.getAttribute("reqId"));
 
 	reqFrm.specPhone = request.getParameter("phone");
 
@@ -528,7 +513,7 @@ if (requestId!=null) aburl+="&requestId="+requestId; %>
 						   					<%}%>
 											<%if (Integer.parseInt(reqFrm.status) > 2 ){%>
 												<BR>
-												<%=reqFrm.appointmentDate %>  (y/m/d)
+												<%=reqFrm.appointmentYear %>/<%=reqFrm.appointmentMonth %>/<%=reqFrm.appointmentDay %>  (y/m/d)
 							  		  	   <%}%>
 										</td>
 									</tr>

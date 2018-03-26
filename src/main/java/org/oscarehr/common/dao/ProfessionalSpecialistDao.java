@@ -23,13 +23,11 @@
 
 package org.oscarehr.common.dao;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Query;
-import org.apache.commons.lang.StringUtils;
+
 import org.oscarehr.common.model.ProfessionalSpecialist;
-import org.oscarehr.util.MiscUtils;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -101,9 +99,6 @@ public class ProfessionalSpecialistDao extends AbstractDao<ProfessionalSpecialis
 	}
 
 	public List<ProfessionalSpecialist> findByReferralNo(String referralNo) {
-		if (StringUtils.isBlank(referralNo)) {
-			return null;
-		}
 		Query query = entityManager.createQuery("select x from " + modelClass.getName() + " x WHERE x.referralNo=? order by x.lastName");
 		query.setParameter(1, referralNo);
 
@@ -133,93 +128,4 @@ public class ProfessionalSpecialistDao extends AbstractDao<ProfessionalSpecialis
 	{
 		return(findByEDataUrlNotNull().size()>0);
 	}
-	
-
-	public List<ProfessionalSpecialist> search(String keyword) {
-		StringBuilder where = new StringBuilder();
-		List<String> paramList = new ArrayList<String>();
-		
-		String searchMode = "search_name";
-		String orderBy = "c.lastName,c.firstName";
-	    
-		if(searchMode.equals("search_name")) {
-			String[] temp = keyword.split("\\,\\p{Space}*");
-			if(temp.length>1) {
-		      where.append("c.lastName like ?1 and c.firstName like ?2");
-		      paramList.add(temp[0].trim()+"%");
-		      paramList.add(temp[1].trim()+"%");
-		    } else {
-		      where.append("c.lastName like ?1");
-		      paramList.add(temp[0].trim()+"%");
-		    }
-		}		
-		String sql = "SELECT c from ProfessionalSpecialist c where " + where.toString() + " order by " + orderBy;
-		MiscUtils.getLogger().info(sql);
-		Query query = entityManager.createQuery(sql);
-		for(int x=0;x<paramList.size();x++) {
-			query.setParameter(x+1,paramList.get(x));
-		}		
-		
-		@SuppressWarnings("unchecked")
-		List<ProfessionalSpecialist> contacts = query.getResultList();
-		return contacts;
-	}
-	
-	public List<ProfessionalSpecialist> findByFullNameAndSpecialtyAndAddress(String lastName, String firstName, String specialty, String address, Boolean showHidden) {
-		String sql = "select x from " + modelClass.getName() + " x WHERE (x.lastName like ? and x.firstName like ?) ";
-		
-		if(!StringUtils.isEmpty(specialty)) {
-			sql += " AND x.specialtyType LIKE ? ";
-		}
-		
-		if(!StringUtils.isEmpty(address)) {
-			sql += " AND x.streetAddress LIKE ? ";
-		}
-		
-		if(showHidden == null || !showHidden) {
-			sql += " AND x.hideFromView=false ";
-		}
-		sql += " order by x.lastName";
-		
-		Query query = entityManager.createQuery(sql);
-		query.setParameter(1, "%"+lastName+"%");
-		query.setParameter(2, "%"+firstName+"%");
-
-		int index=3;
-		if(!StringUtils.isEmpty(specialty)) {
-			query.setParameter(index++, "%" + specialty +"%");
-		}
-		if(!StringUtils.isEmpty(address)) {
-			query.setParameter(index++, "%" + address +"%");
-		}
-		
-		@SuppressWarnings("unchecked")
-		List<ProfessionalSpecialist> cList = query.getResultList();
-
-		return cList;
-	}
-	
-	public List<ProfessionalSpecialist> findByService(String serviceName) {
-		Query query = entityManager.createQuery("select x from " + modelClass.getName() + " x, ConsultationServices cs, ServiceSpecialists ss WHERE x.id = ss.id.specId and ss.id.serviceId = cs.serviceId and cs.serviceDesc = ?");
-		query.setParameter(1, serviceName);
-
-		@SuppressWarnings("unchecked")
-		List<ProfessionalSpecialist> cList = query.getResultList();
-
-		
-		return cList;
-	}
-	
-	public List<ProfessionalSpecialist> findByServiceId(Integer serviceId) {
-		Query query = entityManager.createQuery("select x from " + modelClass.getName() + " x, ServiceSpecialists ss WHERE x.id = ss.id.specId and ss.id.serviceId = ?");
-		query.setParameter(1, serviceId);
-
-		@SuppressWarnings("unchecked")
-		List<ProfessionalSpecialist> cList = query.getResultList();
-
-		
-		return cList;
-	}
-	
-	
 }

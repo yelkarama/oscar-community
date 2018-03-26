@@ -47,7 +47,6 @@ import org.oscarehr.common.dao.FacilityDao;
 import org.oscarehr.common.dao.SecurityTokenDao;
 import org.oscarehr.common.model.Facility;
 import org.oscarehr.common.model.Provider;
-import org.oscarehr.common.model.Security;
 import org.oscarehr.common.model.SecurityToken;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
@@ -62,8 +61,6 @@ public class StJoesTokenManager extends SecurityTokenManager {
 	private ProviderManager providerManager = (ProviderManager) SpringUtils.getBean("providerManager");
     private FacilityDao facilityDao = (FacilityDao) SpringUtils.getBean("facilityDao");
     private SecUserRoleDao secUserRoleDao=(SecUserRoleDao)SpringUtils.getBean("secUserRoleDao");
-    private ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
-    
     
 	@Override
 	public void requestToken(ServletRequest request, ServletResponse response,
@@ -146,7 +143,7 @@ public class StJoesTokenManager extends SecurityTokenManager {
         //don't really need all this for what we're using this for, but tried to get everything in there.
         //be nice if this was in a common class.
         Integer facilityId = null;
-        List<Integer> facilityIds = providerDao.getFacilityIds(st.getProviderNo());
+        List<Integer> facilityIds = ProviderDao.getFacilityIds(st.getProviderNo());
         if(facilityIds.size()==0) {
         	List<Facility> facility = facilityDao.findAll(null);
         	facilityId = facility.get(0).getId();
@@ -166,19 +163,18 @@ public class StJoesTokenManager extends SecurityTokenManager {
         session.setAttribute("user", provider.getProviderNo());
         session.setAttribute("userfirstname", provider.getFirstName());
         session.setAttribute("userlastname", provider.getLastName());
+        session.setAttribute("userprofession", provider.getProviderType());
         session.setAttribute("userrole", sb.toString());
         session.setAttribute("oscar_context_path", httpRequest.getContextPath());
         //session.setAttribute("expired_days", strAuth[5]);
         Facility facility=facilityDao.find(facilityId);
         httpRequest.getSession().setAttribute("currentFacility", facility);
 
-        LoggedInInfo loggedInInfo=new LoggedInInfo();
-		loggedInInfo.setCurrentFacility((Facility) session.getAttribute(SessionConstants.CURRENT_FACILITY));
-		loggedInInfo.setLoggedInProvider((Provider) session.getAttribute(SessionConstants.LOGGED_IN_PROVIDER));
-		loggedInInfo.setLoggedInSecurity((Security) session.getAttribute(SessionConstants.LOGGED_IN_SECURITY));
-		loggedInInfo.setInitiatingCode(httpRequest.getRequestURI());
-		loggedInInfo.setLocale(httpRequest.getLocale());
-		LoggedInInfo.setLoggedInInfoIntoSession(session, loggedInInfo);
+        LoggedInInfo x=new LoggedInInfo();
+		x.currentFacility=(Facility) session.getAttribute(SessionConstants.CURRENT_FACILITY);
+		x.loggedInProvider=(Provider) session.getAttribute(SessionConstants.LOGGED_IN_PROVIDER);
+		x.initiatingCode=httpRequest.getRequestURI();
+		LoggedInInfo.loggedInInfo.set(x);
 		
 		return true;
 	}

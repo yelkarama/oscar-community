@@ -37,9 +37,11 @@ import org.oscarehr.common.dao.AllergyDao;
 import org.oscarehr.common.dao.SentToPHRTrackingDao;
 import org.oscarehr.common.model.Allergy;
 import org.oscarehr.common.model.SentToPHRTracking;
-import org.oscarehr.myoscar.commons.MedicalDataType;
-import org.oscarehr.myoscar.utils.MyOscarLoggedInInfo;
-import org.oscarehr.myoscar_server.ws.MedicalDataTransfer4;
+import org.oscarehr.myoscar_server.ws.ItemAlreadyExistsException_Exception;
+import org.oscarehr.myoscar_server.ws.MedicalDataTransfer3;
+import org.oscarehr.myoscar_server.ws.MedicalDataType;
+import org.oscarehr.phr.PHRAuthentication;
+import org.oscarehr.phr.util.MyOscarServerWebServicesManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
@@ -51,7 +53,7 @@ public final class AllergiesManager {
 	private static final String OSCAR_ALLERGIES_DATA_TYPE = "ALLERGY";
 	private static final SentToPHRTrackingDao sentToPHRTrackingDao = (SentToPHRTrackingDao) SpringUtils.getBean("sentToPHRTrackingDao");
 
-	public static void sendAllergiesToMyOscar(LoggedInInfo loggedInInfo, MyOscarLoggedInInfo myOscarLoggedInInfo, Integer demographicId) throws ClassCastException {
+	public static void sendAllergiesToMyOscar(PHRAuthentication auth, Integer demographicId) throws ClassCastException {
 		// get last synced info
 
 		// get the items for the person which are changed since last sync
@@ -59,7 +61,7 @@ public final class AllergiesManager {
 		// send the item or update it
 
 		Date startSyncTime = new Date();
-		SentToPHRTracking sentToPHRTracking = MyOscarMedicalDataManagerUtils.getExistingOrCreateInitialSentToPHRTracking(demographicId, OSCAR_ALLERGIES_DATA_TYPE, MyOscarLoggedInInfo.getMyOscarServerBaseUrl());
+		SentToPHRTracking sentToPHRTracking = MyOscarMedicalDataManagerUtils.getExistingOrCreateInitialSentToPHRTracking(demographicId, OSCAR_ALLERGIES_DATA_TYPE, MyOscarServerWebServicesManager.getMyOscarServerBaseUrl());
 		logger.debug("sendAllergiesToMyOscar : demographicId=" + demographicId + ", lastSyncTime=" + sentToPHRTracking.getSentDatetime());
 
 		AllergyDao allergyDao = (AllergyDao) SpringUtils.getBean("allergyDao");
@@ -68,10 +70,12 @@ public final class AllergiesManager {
 			logger.debug("sendAllergiesToMyOscar : allergyId=" + allergy.getId());
 
 			try {
-				MedicalDataTransfer4 medicalDataTransfer = toMedicalDataTransfer(loggedInInfo, myOscarLoggedInInfo, allergy);
-
-				// don't ask me why but allergies are currently changeable in oscar, therefore, they're never completed.
-				MyOscarMedicalDataManagerUtils.addMedicalData(loggedInInfo.getLoggedInProviderNo(),myOscarLoggedInInfo, medicalDataTransfer, OSCAR_ALLERGIES_DATA_TYPE, allergy.getId(), false, true);
+				MedicalDataTransfer3 medicalDataTransfer = toMedicalDataTransfer(auth, allergy);
+				try {
+					MyOscarMedicalDataManagerUtils.addMedicalData(auth, medicalDataTransfer, OSCAR_ALLERGIES_DATA_TYPE, allergy.getId());
+				} catch (ItemAlreadyExistsException_Exception e) {
+					MyOscarMedicalDataManagerUtils.updateMedicalData(auth, medicalDataTransfer, OSCAR_ALLERGIES_DATA_TYPE, allergy.getId());
+				}
 			} catch (Exception e) {
 				logger.error("Unexpected error", e);
 			}
@@ -152,22 +156,23 @@ public final class AllergiesManager {
 	/**
 	 * This method may return null for invalid allergy entries... we have some of those, specifically when no provider can be identified to be responsible for this send.
 	 */
-	private static MedicalDataTransfer4 toMedicalDataTransfer(LoggedInInfo loggedInInfo, MyOscarLoggedInInfo  myOscarLoggedInInfo, Allergy allergy) throws ClassCastException, ClassNotFoundException, InstantiationException, IllegalAccessException, ParserConfigurationException {
+	private static MedicalDataTransfer3 toMedicalDataTransfer(PHRAuthentication auth, Allergy allergy) throws ClassCastException, ClassNotFoundException, InstantiationException, IllegalAccessException, ParserConfigurationException {
 
 		// okay big anomaly here, some records do not have providers numbers. This is really invalid data.
 		// Our attempt will be to check for a provider number, if none exists, we'll try to use the person who is sending - if it's a person
 		// otherwise... we can't do anything, we can't set this to null, it makes no sense from a thread, at least if its clicked by a person they have double checked it.
 		String providerNo = allergy.getProviderNo();
+		LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
 
 		if (providerNo == null) {
-			if (loggedInInfo.getLoggedInProvider() != null) // in case it's background thread.
+			if (loggedInInfo.loggedInProvider != null) // in case it's background thread.
 			{
-				providerNo = loggedInInfo.getLoggedInProviderNo();
+				providerNo = loggedInInfo.loggedInProvider.getProviderNo();
 			}
 		}
 
 		if (providerNo != null) {
-			MedicalDataTransfer4 medicalDataTransfer = MyOscarMedicalDataManagerUtils.getEmptyMedicalDataTransfer(myOscarLoggedInInfo, allergy.getEntryDate(), providerNo, allergy.getDemographicNo());
+			MedicalDataTransfer3 medicalDataTransfer = MyOscarMedicalDataManagerUtils.getEmptyMedicalDataTransfer3(auth, allergy.getEntryDate(), providerNo, allergy.getDemographicNo());
 			// don't ask me why but allergies are currently changeable in oscar, therefore, they're never completed.
 			medicalDataTransfer.setCompleted(false);
 
@@ -176,10 +181,10 @@ public final class AllergiesManager {
 
 			medicalDataTransfer.setMedicalDataType(MedicalDataType.ALLERGY.name());
 
-			medicalDataTransfer.setOriginalSourceId(MyOscarMedicalDataManagerUtils.generateSourceId(loggedInInfo.getCurrentFacility().getName(), OSCAR_ALLERGIES_DATA_TYPE, allergy.getId()));
+			medicalDataTransfer.setOriginalSourceId(MyOscarMedicalDataManagerUtils.generateSourceId(loggedInInfo.currentFacility.getName(), OSCAR_ALLERGIES_DATA_TYPE, allergy.getId()));
 
 			boolean active = true;
-			if (allergy.getArchived()) active = false;
+			if (allergy.getArchived() != null && "1".equals(allergy.getArchived())) active = false;
 			medicalDataTransfer.setActive(active);
 
 			return (medicalDataTransfer);

@@ -36,42 +36,36 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
-import org.apache.struts.actions.DispatchAction;
 import org.oscarehr.PMmodule.exception.BedReservedException;
 import org.oscarehr.PMmodule.exception.DuplicateBedNameException;
 import org.oscarehr.PMmodule.exception.DuplicateRoomNameException;
 import org.oscarehr.PMmodule.exception.RoomHasActiveBedsException;
+import org.oscarehr.PMmodule.model.Bed;
+import org.oscarehr.PMmodule.model.BedDemographic;
+import org.oscarehr.PMmodule.model.Room;
+import org.oscarehr.PMmodule.model.RoomDemographic;
+import org.oscarehr.PMmodule.service.BedManager;
 import org.oscarehr.PMmodule.service.ProgramManager;
+import org.oscarehr.PMmodule.service.RoomManager;
+import org.oscarehr.PMmodule.web.BaseAction;
 import org.oscarehr.common.dao.FacilityDao;
-import org.oscarehr.common.model.Bed;
-import org.oscarehr.common.model.BedDemographic;
 import org.oscarehr.common.model.Facility;
-import org.oscarehr.common.model.Room;
-import org.oscarehr.common.model.RoomDemographic;
-import org.oscarehr.managers.BedManager;
-import org.oscarehr.managers.BedDemographicManager;
-import org.oscarehr.managers.RoomManager;
-import org.oscarehr.managers.RoomDemographicManager;
-import org.oscarehr.util.SpringUtils;
 
 /**
  * Responsible for managing beds
  */
-public class BedManagerAction extends DispatchAction {
+public class BedManagerAction extends BaseAction {
 
     private static final String FORWARD_MANAGE = "manage";
 
-    private BedManager bedManager = SpringUtils.getBean(BedManager.class);
+    private BedManager bedManager;
 
     private ProgramManager programManager;
 
-    private RoomManager roomManager = SpringUtils.getBean(RoomManager.class);
+    private RoomManager roomManager;
 
     private FacilityDao facilityDao;
 
-    private BedDemographicManager bedDemographicManager = SpringUtils.getBean(BedDemographicManager.class);
-    private RoomDemographicManager roomDemographicManager =SpringUtils.getBean(RoomDemographicManager.class);
-    
     public void setFacilityDao(FacilityDao facilityDao) {
 		this.facilityDao = facilityDao;
 	}
@@ -189,7 +183,7 @@ public class BedManagerAction extends DispatchAction {
         // if some bed assigned, retrieve all beds assigned to this room -> delete them all <-- ???
         // (3)then delete this room ('room' table)
         try {
-            List<RoomDemographic> roomDemographicList = roomDemographicManager.getRoomDemographicByRoom(roomId);
+            List<RoomDemographic> roomDemographicList = getRoomDemographicManager().getRoomDemographicByRoom(roomId);
 
             if (roomDemographicList != null && !roomDemographicList.isEmpty()) {
                 throw new RoomHasActiveBedsException("The room has client(s) assigned to it and cannot be removed.");
@@ -262,7 +256,7 @@ public class BedManagerAction extends DispatchAction {
 
         try {
 
-            BedDemographic bedDemographic = bedDemographicManager.getBedDemographicByBed(bedId);
+            BedDemographic bedDemographic = getBedDemographicManager().getBedDemographicByBed(bedId);
 
             if (bedDemographic != null) {
                 throw new BedReservedException("The bed has client assigned to it and cannot be removed.");

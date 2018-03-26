@@ -25,10 +25,9 @@
 --%>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
         "http://www.w3.org/TR/html4/loose.dtd">
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="org.apache.commons.lang.StringUtils"%>
 <%@page import="oscar.oscarDemographic.data.*,java.util.*,oscar.oscarPrevention.*,oscar.oscarProvider.data.*,oscar.util.*,oscar.oscarReport.data.*,oscar.oscarPrevention.pageUtil.*,java.net.*,oscar.eform.*"%>
-<%@page import="oscar.OscarProperties, org.oscarehr.util.SpringUtils, org.oscarehr.common.dao.BillingONCHeader1Dao" %>
+<%@page import="oscar.OscarProperties, org.oscarehr.util.SpringUtils, org.oscarehr.billing.CA.ON.dao.BillingClaimDAO" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar" %>
@@ -36,22 +35,8 @@
 <jsp:useBean id="providerBean" class="java.util.Properties" scope="session" />
 <c:set var="ctx" value="${pageContext.request.contextPath}" scope="request"/>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-	  boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_prevention" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_prevention");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%
+  if(session.getValue("user") == null) response.sendRedirect("../logout.jsp");
   String demographic_no = request.getParameter("demographic_no");
 
   oscar.oscarReport.data.RptSearchData searchData  = new oscar.oscarReport.data.RptSearchData();
@@ -60,15 +45,15 @@ if(!authed) {
   String preventionText = "";
 
   String eformSearch = (String) request.getAttribute("eformSearch");
-  //EfmData efData = new EfmData();
-  BillingONCHeader1Dao bCh1Dao = (BillingONCHeader1Dao)SpringUtils.getBean("billingONCHeader1Dao");
+  EfmData efData = new EfmData();
+  BillingClaimDAO bcDAO = (BillingClaimDAO)SpringUtils.getBean("billingClaimDAO");
 %>
 
 <html:html locale="true">
 
 <head>
 <html:base/>
-<title><bean:message key="oscarprevention.index.oscarpreventiontitre" /></title><!-- i18n -->
+<title>oscarPrevention</title><!-- i18n -->
 
 <script type="text/javascript" src="../share/javascript/Oscar.js"></script>
 <link rel="stylesheet" type="text/css" href="../share/css/OscarStandardLayout.css">
@@ -363,7 +348,7 @@ table.ele thead {
     <table  class="MainTable" id="scrollNumber1" >
         <tr class="MainTableTopRow">
             <td class="MainTableTopRowLeftColumn" width="100" >
-               <bean:message key="oscarprevention.index.oscarpreventiontitre" />
+               oscarPrevention
             </td>
             <td class="MainTableTopRowRightColumn">
                 <table class="TopStatusBar">
@@ -498,11 +483,10 @@ table.ele thead {
                           <%}%>
                           <th>Phone</th>
                           <th>Address</th>
-                          <th>Next Appt.</th>
                           <th>Status</th>
                           <%if (type != null ){ %>
                           <th>Shot #</th>
-                          <%}%>                          
+                          <%}%>
                           <th>Bonus Stat</th>
                           <th>Since Last Procedure Date</th>
                           <th>Last Procedure Date</th>
@@ -523,8 +507,8 @@ table.ele thead {
                          for (int i = 0; i < list.size(); i++){
                              setBill = false;
                             PreventionReportDisplay dis = (PreventionReportDisplay) list.get(i);
-                            Hashtable h = deName.getNameAgeSexHashtable(LoggedInInfo.getLoggedInInfoFromSession(request), dis.demographicNo.toString());
-                            org.oscarehr.common.model.Demographic demo = demoData.getDemographic(LoggedInInfo.getLoggedInInfoFromSession(request),  dis.demographicNo.toString());
+                            Hashtable h = deName.getNameAgeSexHashtable(dis.demographicNo);
+                            org.oscarehr.common.model.Demographic demo = demoData.getDemographic(dis.demographicNo);
 
                             if ( dis.nextSuggestedProcedure != null ){
                                 if (dis.nextSuggestedProcedure.equals("L1")){
@@ -565,15 +549,14 @@ table.ele thead {
                           <td><%=demo.getHin()+demo.getVer()%></td>
                           <td><%=demo.getPhone()%> </td>
                           <td><%=demo.getAddress()+" "+demo.getCity()+" "+demo.getProvince()+" "+demo.getPostal()%> </td>
-                          <td><oscar:nextAppt demographicNo="<%=demo.getDemographicNo().toString()%>"/></td>
-                          <td bgcolor="<%=dis.color%>"><%=dis.state%></td>                          
+                          <td bgcolor="<%=dis.color%>"><%=dis.state%></td>
                           <td bgcolor="<%=dis.color%>"><%=dis.bonusStatus%></td>
                           <td bgcolor="<%=dis.color%>"><%=dis.numMonths%></td>
                           <td bgcolor="<%=dis.color%>"><%=dis.lastDate%></td>
 
 
                           <% }else {
-                              org.oscarehr.common.model.Demographic demoSDM = demoData.getSubstituteDecisionMaker(LoggedInInfo.getLoggedInInfoFromSession(request), dis.demographicNo.toString());%>
+                              org.oscarehr.common.model.Demographic demoSDM = demoData.getSubstituteDecisionMaker(dis.demographicNo);%>
                           <td><%=demo.getAgeAsOf(asDate)%></td>
                           <td><%=h.get("sex")%></td>
                           <td><%=h.get("lastName")%></td>
@@ -582,9 +565,8 @@ table.ele thead {
                           <td><%=demoSDM==null?"":demoSDM.getLastName()%><%=demoSDM==null?"":","%> <%= demoSDM==null?"":demoSDM.getFirstName() %>&nbsp;</td>
                           <td><%=demoSDM==null?"":demoSDM.getPhone()%> &nbsp;</td>
                           <td><%=demoSDM==null?"":demoSDM.getAddress()+" "+demoSDM==null?"":demoSDM.getCity()+" "+demoSDM==null?"":demoSDM.getProvince()+" "+demoSDM==null?"":demoSDM.getPostal()%> &nbsp;</td>
-                          <td><oscar:nextAppt demographicNo="<%=demo.getDemographicNo().toString()%>"/></td>
                           <td bgcolor="<%=dis.color%>"><%=dis.state%></td>
-                          <td bgcolor="<%=dis.color%>"><%=dis.numShots%></td>                          
+                          <td bgcolor="<%=dis.color%>"><%=dis.numShots%></td>
                           <td bgcolor="<%=dis.color%>"><%=dis.bonusStatus%></td>
                           <td bgcolor="<%=dis.color%>"><%=dis.numMonths%></td>
                           <td bgcolor="<%=dis.color%>"><%=dis.lastDate%></td>
@@ -594,7 +576,7 @@ table.ele thead {
                              <% if (dis.lastFollowup != null ){ %>
                                  <%=dis.lastFollupProcedure%>
                                  <%=UtilDateUtilities.DateToString(dis.lastFollowup)%>
-                                 <%=UtilDateUtilities.getNumMonths(dis.lastFollowup,new Date())%>M
+                                 <%=UtilDateUtilities.getNumMonths(dis.lastFollowup,UtilDateUtilities.now())%>M
                              <% }else{ %>
                                 ----
                              <% } %>
@@ -620,7 +602,7 @@ table.ele thead {
                           <td bgcolor="<%=dis.color%>"><%=providerName%></td>
                           <td bgcolor="<%=dis.color%>">
                               <% if( billCode != null && setBill ) {
-                                  numDays = bCh1Dao.getDaysSinceBilled(billCode, dis.demographicNo);
+                                  numDays = bcDAO.getDaysSinceBilled(billCode, dis.demographicNo);
                                   //we only want to enable billing if it has been a year since the last invoice was created
                                   enabled = numDays >= 0 && numDays < 365 ? "disabled" : "checked";
                               %>
@@ -698,7 +680,7 @@ table.ele thead {
     String getUrlParamList(ArrayList list,String paramName){
         String queryStr = "";
         for (int i = 0; i < list.size(); i++){
-            String demo = String.valueOf(list.get(i));
+            String demo = (String) list.get(i);
             if (i == 0){
               queryStr += paramName+"="+demo;
             }else{

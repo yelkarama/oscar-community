@@ -25,11 +25,6 @@
 
 package org.oscarehr.common.dao;
 
-import java.util.Date;
-import java.util.List;
-
-import javax.persistence.Query;
-
 import org.oscarehr.common.model.Appointment;
 import org.oscarehr.common.model.AppointmentArchive;
 import org.springframework.beans.BeanUtils;
@@ -48,20 +43,5 @@ public class AppointmentArchiveDao extends AbstractDao<AppointmentArchive> {
 		aa.setAppointmentNo(appointment.getId());
 		persist(aa);
 		return aa;
-	}
-	
-	/**
-	 * @return results ordered by lastUpdateDate
-	 */
-	public List<AppointmentArchive> findByUpdateDate(Date updatedAfterThisDateExclusive, int itemsToReturn) {
-		String sqlCommand = "select x from "+modelClass.getSimpleName()+" x where x.updateDateTime>?1 order by x.updateDateTime";
-
-		Query query = entityManager.createQuery(sqlCommand);
-		query.setParameter(1, updatedAfterThisDateExclusive);
-		setLimit(query, itemsToReturn);
-		
-		@SuppressWarnings("unchecked")
-		List<AppointmentArchive> results = query.getResultList();
-		return (results);
 	}
 }

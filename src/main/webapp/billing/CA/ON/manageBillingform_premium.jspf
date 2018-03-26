@@ -23,36 +23,28 @@
  * Ontario, Canada 
  */
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin.billing,_admin" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_admin&type=_admin.billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
 <% 
-
-  List<CtlBillingServicePremium> cbsps = ctlBillingServicePremiumDao.findByStatus("A");
   
+ ResultSet rs=null ;
+  ResultSet rs2=null ;
+  String[] param =new String[1];
+  String[] param2 =new String[10];
+  
+ 
+    
+  param[0] = "A";
+  rs = apptMainBean.queryResults(param, "search_billingservice_premium_dt");
    int rCount = 0;     int rCount1 = 0;  int tCount = 0;  int tCount1 = 0; int tCount2 = 0; int tCount3 = 0;
   boolean bodd=false;
   
  
   String servicetype_name="";
-  if(cbsps == null) {
+  if(rs==null) {
    out.println("failed!!!"); 
   } else {
   %>
 <% 
-   for (CtlBillingServicePremium cbsp: cbsps) {
+   while (rs.next()) {
      
          rCount = rCount + 1;
    }
@@ -67,17 +59,17 @@ if(!authed) {
        service_code1[j] = "";
        service_desc1[j] = "";
   } 
-    List<Object[]> results = ctlBillingServicePremiumDao.search_ctlpremium("A");
-     
- if(results==null) {
+     rs = null;
+     rs = apptMainBean.queryResults(param, "search_ctlpremium");
+ if(rs==null) {
    out.println("failed!!!"); 
   } else {
   %>
 <% 
-   for (Object[] result: results) {
+   while (rs.next()) {
  
-        service_code1[rCount1] = (String)result[0];
-        service_desc1[rCount1] = (String)result[1];
+        service_code1[rCount1] = rs.getString("service_code");
+        service_desc1[rCount1] = rs.getString("service_desc");
        rCount1 = rCount1 +1;
    }
  } 

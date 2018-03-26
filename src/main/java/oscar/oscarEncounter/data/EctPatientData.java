@@ -29,50 +29,34 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
 
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 
 import oscar.OscarProperties;
-import oscar.log.LogAction;
 import oscar.oscarDB.DBHandler;
 import oscar.util.UtilDateUtilities;
 
 public class EctPatientData {
 
-    public static String getProviderNo(LoggedInInfo loggedInInfo, String demographicNo) {
+    public static String getProviderNo(String demographicNo) {
         String ret = "";
-        ResultSet rs = null;
         try {
 
-           rs = DBHandler.GetSQL("SELECT provider_no FROM demographic WHERE demographic_no = "
+            ResultSet rs = DBHandler.GetSQL("SELECT provider_no FROM demographic WHERE demographic_no = "
                             + demographicNo);
             if (rs.next())
                 ret = oscar.Misc.getString(rs, "provider_no");
-            
+            rs.close();
         } catch (SQLException e) {
             MiscUtils.getLogger().debug("error - EctPatientData.getProviderNo");
         }
-        finally {
-			if( rs != null ) {
-				try {
-					rs.close();
-				} catch (SQLException e) {
-					
-				}
-			}
-		}
-        LogAction.addLogSynchronous(loggedInInfo, "EctPatientData.getProviderNo", "demographicNo=" + demographicNo);
-        
-        
         return ret;
     }
 
-    public Patient getPatient(LoggedInInfo loggedInInfo, String demographicNo) {
+    public Patient getPatient(String demographicNo) {
 
         Patient p = null;
-        ResultSet rs = null;
         try {
-             rs = DBHandler.GetSQL("SELECT demographic_no, last_name, first_name, sex, year_of_birth, month_of_birth, date_of_birth, address, city, postal, phone, roster_status FROM demographic WHERE demographic_no = "
+            ResultSet rs = DBHandler.GetSQL("SELECT demographic_no, last_name, first_name, sex, year_of_birth, month_of_birth, date_of_birth, address, city, postal, phone, roster_status FROM demographic WHERE demographic_no = "
                             + demographicNo);
             if (rs.next())
                 p = new Patient(rs.getInt("demographic_no"), oscar.Misc.getString(rs, "last_name"), oscar.Misc.getString(rs, "first_name"),
@@ -80,22 +64,10 @@ public class EctPatientData {
                                 .getString("month_of_birth"), oscar.Misc.getString(rs, "date_of_birth")),
                         oscar.Misc.getString(rs, "address"), oscar.Misc.getString(rs, "city"), oscar.Misc.getString(rs, "postal"), oscar.Misc.getString(rs, "phone"),
                         oscar.Misc.getString(rs, "roster_status"));
-            
+            rs.close();
         } catch (SQLException e) {
             MiscUtils.getLogger().error("Error", e);
         }
-        finally {
-        	if( rs != null ) {
-        		try {        	
-        			rs.close();
-        		} catch (SQLException e) {
-				
-        		}
-        	}
-        }
-        
-        LogAction.addLogSynchronous(loggedInInfo, "EctPatientData.getPatient", "demographicNo=" + demographicNo);
-        
         return p;
     }
 
@@ -193,8 +165,9 @@ public class EctPatientData {
             private void init() {
             	OscarProperties properties = OscarProperties.getInstance();
         		if( !Boolean.parseBoolean(properties.getProperty("AbandonOldChart", "false"))) {
-        		    ResultSet rs = null;
 	                try {
+
+	                    ResultSet rs;
 
 	                    String sql = "select * from eChart where demographicNo=" + demographicNo
 	                            + " ORDER BY eChartId DESC";
@@ -210,19 +183,10 @@ public class EctPatientData {
 	                        this.encounter = oscar.Misc.getString(rs, "encounter");
 	                        this.subject = oscar.Misc.getString(rs, "subject");
 	                    }
-	                    
+	                    rs.close();
 	                } catch (SQLException e) {
 	                    MiscUtils.getLogger().error("Error", e);
 	                }
-	                finally {
-						if( rs != null ) {
-							try {
-								rs.close();
-							} catch (SQLException e) {
-								
-							}
-						}
-					}
         		}
             }
 

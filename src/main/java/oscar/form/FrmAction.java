@@ -40,9 +40,6 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.log.LogAction;
 import oscar.log.LogConst;
@@ -50,17 +47,9 @@ import oscar.log.LogConst;
 public final class FrmAction extends Action {
     
     Logger log = Logger.getLogger(FrmAction.class);
-    private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
     
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request,
             HttpServletResponse response) throws ServletException, IOException {
-    	
-    	if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_form", "w", null)) {
-			throw new SecurityException("missing required security object (_form)");
-		}
-    	
-    	
-    	LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
         int newID = 0;
         FrmRecord rec = null;
         String where = "";                
@@ -90,7 +79,7 @@ public final class FrmAction extends Action {
             }
             //if we are printing all pages of form, grab info from db and merge with current page info
             else if( request.getParameter("submit").equals("printAll") ) {
-                props = rec.getFormRecord(loggedInInfo, Integer.parseInt(request.getParameter("demographic_no")),
+                props = rec.getFormRecord(Integer.parseInt(request.getParameter("demographic_no")),
                         Integer.parseInt(request.getParameter("formId")));
                 
                 String name;
@@ -111,7 +100,7 @@ public final class FrmAction extends Action {
                     curPageNum = curPageNum.length() > 3 ? ("" + curPageNum.charAt(0)) : curPageNum;
 
                     //copy an old record
-                    props = rec.getFormRecord(loggedInInfo, Integer.parseInt(request.getParameter("demographic_no")), Integer
+                    props = rec.getFormRecord(Integer.parseInt(request.getParameter("demographic_no")), Integer
                             .parseInt(request.getParameter("formId")));
 
                     //empty the current page

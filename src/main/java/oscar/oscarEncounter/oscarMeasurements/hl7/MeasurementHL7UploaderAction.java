@@ -39,16 +39,13 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.upload.FormFile;
-import org.oscarehr.common.dao.MeasurementDao;
 import org.oscarehr.common.model.Demographic;
-import org.oscarehr.common.model.Measurement;
-import org.oscarehr.managers.DemographicManager;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.SpringUtils;
 import org.springframework.web.struts.DispatchActionSupport;
 
 import oscar.OscarProperties;
+import oscar.oscarEncounter.oscarMeasurements.dao.MeasurementsDao;
+import oscar.oscarEncounter.oscarMeasurements.model.Measurements;
 import oscar.oscarLab.ca.all.pageUtil.LabUploadAction;
 import oscar.oscarLab.ca.all.pageUtil.LabUploadForm;
 import oscar.oscarLab.ca.all.util.Utilities;
@@ -65,11 +62,11 @@ import ca.uhn.hl7v2.validation.impl.NoValidation;
 
 public class MeasurementHL7UploaderAction extends DispatchActionSupport {
 	private static Logger logger = Logger.getLogger(MeasurementHL7UploaderAction.class);
+
 	private static SimpleDateFormat sdf = new SimpleDateFormat(OscarProperties.getInstance().getProperty("oscar.measurements.hl7.datetime.format", "yyyyMMddHHmmss"));
 
-	private static MeasurementDao measurementsDao = SpringUtils.getBean(MeasurementDao.class);
-	private static SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	
+	private MeasurementsDao measurementsDao;
+
 	// settings to be set in spring config xml, if needed
 	private String defaultProviderNo = OscarProperties.getInstance().getProperty("oscar.measurements.hl7.defaultProviderNo", "999998");
 	private String hl7UploadPassword = OscarProperties.getInstance().getProperty("oscar.measurements.hl7.password");
@@ -78,17 +75,15 @@ public class MeasurementHL7UploaderAction extends DispatchActionSupport {
 		this.hl7UploadPassword = uploadPassword;
 	}
 
+	public void setMeasurementsDao(MeasurementsDao measurementsDao) {
+		this.measurementsDao = measurementsDao;
+	}
+
 	public void setDefaultProviderNo(String defaultProviderNo) {
 		this.defaultProviderNo = defaultProviderNo;
 	}
 
 	public ActionForward upload(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		
-		LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
-        if(!securityInfoManager.hasPrivilege(loggedInInfo, "_measurement", "w", null)) {
-			throw new SecurityException("missing required security object (_measurement)");
-		}
-        
 		Date dateEntered = new Date();
 		String hl7msg = null;
 
@@ -126,8 +121,8 @@ public class MeasurementHL7UploaderAction extends DispatchActionSupport {
 			String hcn = patient.getPatientIDInternalID(0).getID().getValue();
 			String hcnType = patient.getPatientIDInternalID(0).getAssigningAuthority().getNamespaceID().getValue();
 			// get demographic no from hcn
-			DemographicManager demographicManager= SpringUtils.getBean(DemographicManager.class);
-			List<Demographic> demos = demographicManager.getActiveDemosByHealthCardNo(loggedInInfo, hcn, hcnType);
+			org.oscarehr.common.dao.DemographicDao demographicDao=(org.oscarehr.common.dao.DemographicDao) SpringUtils.getBean("demographicDao");
+			List<Demographic> demos = demographicDao.getActiveDemosByHealthCardNo(hcn, hcnType);
 			if (demos == null || demos.size() == 0) throw new RuntimeException("There is no active patient with the supplied health card number: " + hcn + " " + hcnType);
 
 			// try to get consult doctor's providerID
@@ -168,16 +163,17 @@ public class MeasurementHL7UploaderAction extends DispatchActionSupport {
 					Integer demographicNo = demo.getDemographicNo();
 
 					// add to oscar measurements table
-					Measurement m = new Measurement();
+					Measurements m = new Measurements();
 					m.setComments(abnormal + " by " + sender);
 					m.setDataField(data);
+					m.setDateEntered(dateEntered);
 					m.setDateObserved(dateObserved);
-					m.setDemographicId(demographicNo);
+					m.setDemographicNo(demographicNo);
 					m.setMeasuringInstruction(unit);
 					m.setProviderNo(providerNo);
 					m.setType(measurementType);
 
-					measurementsDao.persist(m);
+					measurementsDao.addMeasurements(m);
 				}
 			}
 

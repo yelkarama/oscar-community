@@ -376,36 +376,7 @@ public class OLISHL7Handler implements MessageHandler {
 		}
 		return result;
 	}
-	
-	
-	/*
-	Return the sending lab in the format of 2.16.840.1.113883.3.59.1:9999 where 9999 is the lab identifier
-	
-	 5047 Canadian Medical Laboratories
-	 5552 Gamma Dynacare
-	 5687 LifeLabs
-	 5254 Alpha Laboratories
-	 */
-	public String getPlacerGroupNumber(){
-		try {
-			String value = getString(terser.get("/.ORC-4-3"));
-			return value;
-		} catch (Exception e) {
-			MiscUtils.getLogger().error("OLIS HL7 Error", e);
-		}
-		return null;
-	}
 
-	public String getPerformingFacilityNameOnly() {
-		try {
-			String value = getString(terser.get("/.ZBR-6-1"));
-			return value;
-		} catch (Exception e) {
-			MiscUtils.getLogger().error("OLIS HL7 Error", e);
-		}
-		return "";
-	}
-	
 	public String getPerformingFacilityName() {
 		try {
 			String key = "", value = "", ident = "";
@@ -710,32 +681,15 @@ public class OLISHL7Handler implements MessageHandler {
 		}
 	}
 
-	
-	public String getLastUpdateInOLISUnformated() {
+	public String getLastUpdateInOLIS() {
 		try {
-			 String date = null;
-			 
-			 int obrNum = getOBRCount();
-			 Segment obr = null;
-			 if (obrNum == 1) {
-				obr = terser.getSegment("/.OBR");
-			 } else {
-				obr = (Segment) terser.getFinder().getRoot().get("OBR" + obrNum);
-			 }
-			 
-			 date = Terser.get(obr, 22, 0,1,1);
-			 
-			return date;
+			String date = getString(terser.get("/.OBR-22-1"));
+			if (date.length() > 0) return formatDateTime(date);
+			return "";
 		} catch (HL7Exception e) {
 			MiscUtils.getLogger().error("OLIS HL7 Error", e);
 			return "";
 		}
-	}
-	
-	public String getLastUpdateInOLIS() {
-			String date = getLastUpdateInOLISUnformated();
-			if (date.length() > 0) return formatDateTime(date);
-			return "";
 	}
 
 	public String getOBXCEParentId(int obr, int obx) {
@@ -839,7 +793,8 @@ public class OLISHL7Handler implements MessageHandler {
 		Parser p = new PipeParser();
 
 		p.setValidationContext(new NoValidation());
-		
+		// force parsing as a generic message by changing the message structure
+		hl7Body = hl7Body.replaceAll("R01", "");
 		msg = p.parse(hl7Body.replaceAll("\n", "\r\n"));
 		headers = new ArrayList<String>();
 		terser = new Terser(msg);
@@ -1324,11 +1279,10 @@ public class OLISHL7Handler implements MessageHandler {
 
 	@Override
 	public String getMsgDate() {
-		//return 
-		//Temporary fix until we change how the MessageUploader grabs the observation date.
-		
+
 		try {
-			String dateString = getCollectionDateTime(0);
+			String date = getString(terser.get("/.MSH-7-1"));
+			String dateString = formatDateTime(date);
 			return dateString.substring(0, 19);
 		} catch (Exception e) {
 			return ("");
@@ -1357,13 +1311,13 @@ public class OLISHL7Handler implements MessageHandler {
 				response.setContentType("image/gif");
 				response.setHeader("Content-Disposition", "attachment; filename=\"" + getAccessionNum().replaceAll("\\s", "_") + "_" + obr + "-" + obx + "_Image.gif\"");
 			} else if (subtype.equals("RTF")) {
-				response.setContentType("application/rtf");
+				response.setContentType("application/gif");
 				response.setHeader("Content-Disposition", "attachment; filename=\"" + getAccessionNum().replaceAll("\\s", "_") + "_" + obr + "-" + obx + "_Document.rtf\"");
 			} else if (subtype.equals("HTML")) {
 				response.setContentType("text/html");
 				response.setHeader("Content-Disposition", "attachment; filename=\"" + getAccessionNum().replaceAll("\\s", "_") + "_" + obr + "-" + obx + "_Document.html\"");
-			} else if (subtype.equals("XML")) {
-				response.setContentType("text/xml");
+			} else if (subtype.equals("RTF")) {
+				response.setContentType("text/plain");
 				response.setHeader("Content-Disposition", "attachment; filename=\"" + getAccessionNum().replaceAll("\\s", "_") + "_" + obr + "-" + obx + "_Document.xml\"");
 			}
 
@@ -2358,11 +2312,6 @@ public class OLISHL7Handler implements MessageHandler {
 	public String audit() {
 		return "";
 	}
-	
-	@Override
-	public String getNteForPID() {
-    	return "";
-    }
 
 	protected String getOBXField(int i, int j, int field, int rep, int comp) {
 		ArrayList<Segment> obxSegs = obrGroups.get(i);

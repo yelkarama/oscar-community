@@ -38,7 +38,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 
 import oscar.oscarEncounter.oscarMeasurements.bean.EctMeasurementsDataBean;
@@ -59,7 +58,7 @@ public class FOBTReport implements PreventionReport{
     public FOBTReport() {
     }
 
-    public Hashtable<String,Object> runReport(LoggedInInfo loggedInInfo,ArrayList<ArrayList<String>> list,Date asofDate){
+    public Hashtable<String,Object> runReport(ArrayList<ArrayList<String>> list,Date asofDate){
 
         int inList = 0;
         double done= 0,doneWithGrace = 0;
@@ -67,19 +66,19 @@ public class FOBTReport implements PreventionReport{
 
         for (int i = 0; i < list.size(); i ++){//for each  element in arraylist
              ArrayList<String> fieldList = list.get(i);
-             Integer demo = Integer.valueOf( fieldList.get(0));
+             String demo = fieldList.get(0);
 
              //search   prevention_date prevention_type  deleted   refused
-             ArrayList<Map<String,Object>> prevs = PreventionData.getPreventionData(loggedInInfo, "FOBT",demo);
-             PreventionData.addRemotePreventions(loggedInInfo,prevs, demo,"FOBT",null);
-             ArrayList<Map<String,Object>> colonoscopys = PreventionData.getPreventionData(loggedInInfo, "COLONOSCOPY",demo);
-             PreventionData.addRemotePreventions(loggedInInfo,colonoscopys, demo,"COLONOSCOPY",null);
+             ArrayList<Map<String,Object>> prevs = PreventionData.getPreventionData("FOBT",demo);
+             PreventionData.addRemotePreventions(prevs, Integer.parseInt(demo),"FOBT",null);
+             ArrayList<Map<String,Object>> colonoscopys = PreventionData.getPreventionData("COLONOSCOPY",demo);
+             PreventionData.addRemotePreventions(colonoscopys, Integer.parseInt(demo),"COLONOSCOPY",null);
              PreventionReportDisplay prd = new PreventionReportDisplay();
              prd.demographicNo = demo;
              prd.bonusStatus = "N";
              prd.billStatus = "N";
              Date prevDate = null;
-             if(ineligible(prevs) || colonoscopywith10(colonoscopys,asofDate)){
+             if(ineligible(prevs) || colonoscopywith5(colonoscopys,asofDate)){
                 prd.rank = 5;
                 prd.lastDate = "------";
                 prd.state = "Ineligible";
@@ -197,7 +196,7 @@ public class FOBTReport implements PreventionReport{
           String percentWithGraceStr = "0";
           double eligible = list.size() - inList;
           log.debug("eligible "+eligible+" done "+done);
-          if ((int)eligible != 0){
+          if (eligible != 0){
              double percentage = ( done / eligible ) * 100;
              double percentageWithGrace =  (done+doneWithGrace) / eligible  * 100 ;
              log.debug("in percentage  "+percentage   +" "+( done / eligible));
@@ -239,12 +238,12 @@ public class FOBTReport implements PreventionReport{
        return false;
    }
 
-   boolean colonoscopywith10(ArrayList<Map<String,Object>> list,Date asofDate){
+   boolean colonoscopywith5(ArrayList<Map<String,Object>> list,Date asofDate){
        DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
        Calendar cal = Calendar.getInstance();
        cal.setTime(asofDate);
-       cal.add(Calendar.YEAR, -10);
-       Date tenyearcutoff = cal.getTime();
+       cal.add(Calendar.YEAR, -5);
+       Date fiveyearcutoff = cal.getTime();
        for (int i =0; i < list.size(); i ++){
     	   Map<String,Object> h = list.get(i);
            if ( h.get("refused") != null && ((String) h.get("refused")).equals("0")){
@@ -257,8 +256,8 @@ public class FOBTReport implements PreventionReport{
                 	//empty
                 }
 
-                if (tenyearcutoff.before(prevDate)){
-                   log.debug("Colonoscopy within 10 years: Last colonoscopy "+formatter.format(prevDate)+ " 10 year mark "+formatter.format(tenyearcutoff) );
+                if (fiveyearcutoff.before(prevDate)){
+                   log.debug("Colonoscopy within 5 years: Last colonoscopy "+formatter.format(prevDate)+ " 5 year mark "+formatter.format(fiveyearcutoff) );
                    return true;
                 }
            }

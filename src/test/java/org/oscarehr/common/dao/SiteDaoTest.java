@@ -41,7 +41,7 @@ import org.oscarehr.util.SpringUtils;
 
 public class SiteDaoTest extends DaoTestFixtures {
 
-	protected SiteDao dao = SpringUtils.getBean(SiteDao.class);
+	private SiteDao dao = SpringUtils.getBean(SiteDao.class);
 
 	public SiteDaoTest() {
 	}
@@ -49,7 +49,7 @@ public class SiteDaoTest extends DaoTestFixtures {
 
 	@Before
 	public void before() throws Exception {
-		SchemaUtils.restoreTable("site","providersite","provider","mygroup","appointment");
+		SchemaUtils.restoreTable("site","providersite","provider");
 	}
 
 	@Test

@@ -23,38 +23,14 @@
     Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_form" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_form");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
 
 <%
+  if(session.getValue("user") == null)  response.sendRedirect("../logout.jsp");
   String user_no = (String) session.getAttribute("user");
 %>
-<%@ page import="java.util.*, java.sql.*, oscar.*" errorPage="errorpage.jsp"%>
-
-<%@page import="org.oscarehr.util.SpringUtils" %>
-<%@page import="org.oscarehr.common.dao.DemographicAccessoryDao" %>
-<%@page import="org.oscarehr.common.model.DemographicAccessory" %>
-<%@page import="org.oscarehr.common.dao.FormDao" %>
-<%@page import="org.oscarehr.common.model.Form" %>
-<%@page import="org.oscarehr.common.dao.DemographicDao" %>
-<%@page import="org.oscarehr.common.model.Demographic" %>
-<%
-	DemographicAccessoryDao demographicAccessoryDao = (DemographicAccessoryDao)SpringUtils.getBean("demographicAccessoryDao");
-	FormDao formDao = SpringUtils.getBean(FormDao.class);
-	DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
-%>
+<%@ page import="java.util.*, java.sql.*, oscar.*"
+	errorPage="errorpage.jsp"%>
+<%@ include file="/common/webAppContextAndSuperMgr.jsp"%>
 
 <html>
 <head>
@@ -112,9 +88,9 @@ function onSubmitForm() {
 
   if( !bNew ) {
     String content="";
-    Form f = formDao.find(Integer.parseInt(request.getParameter("form_no")));
-    if(f != null) {
-        content = f.getContent();
+    List<Map<String, Object>> resultList = oscarSuperManager.find("providerDao", "search_form", new Object[] {request.getParameter("form_no")});
+    for (Map form : resultList) {
+        content = (String)form.get("content");
 %>
 <xml id="xml_list">
 <encounter>
@@ -126,7 +102,8 @@ function onSubmitForm() {
   }
 %>
 </head>
-<body onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0">
+<body onLoad="setfocus()" background="../images/gray_bg.jpg"
+	bgproperties="fixed" topmargin="0" leftmargin="0" rightmargin="0">
 <form name="serviceform" action="providercontrol.jsp" method="POST"
 	onSubmit="return (onSubmitForm());">
 

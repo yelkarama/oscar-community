@@ -41,16 +41,12 @@ import java.io.InputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.upload.FormFile;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.oscarLab.FileUploadCheck;
 import oscar.oscarLab.ca.all.upload.HandlerClassFactory;
@@ -58,51 +54,42 @@ import oscar.oscarLab.ca.all.upload.handlers.MessageHandler;
 import oscar.oscarLab.ca.all.util.Utilities;
 
 public class InsideLabUploadAction extends Action {
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
     Logger logger = Logger.getLogger(InsideLabUploadAction.class);
     
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)  {
-    	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-    	if(!securityInfoManager.hasPrivilege(loggedInInfo, "_lab", "w", null)) {
-    		throw new SecurityException("missing required security object (_lab)");
-    	}
-    	
-    	LabUploadForm frm = (LabUploadForm) form;
+        LabUploadForm frm = (LabUploadForm) form;
         FormFile importFile = frm.getImportFile();
         String filename = importFile.getFileName();
         String proNo = (String) request.getSession().getAttribute("user");
         String outcome = "failure";
         
-        InputStream formFileIs=null;
-        InputStream localFileIs=null;
-        
         try{
-            formFileIs = importFile.getInputStream();
+            InputStream is = importFile.getInputStream();
             
             
             String type = request.getParameter("type");
-            if (type.equals("OTHER")) {
+            if (type.equals("OTHER"))
                 type = request.getParameter("otherType");
-            }
             
-            String filePath = Utilities.saveFile(formFileIs, filename);
+            String filePath = Utilities.saveFile(is, filename);
+            is.close();
             File file = new File(filePath);
             
-            localFileIs = new FileInputStream(filePath);
-            int checkFileUploadedSuccessfully = FileUploadCheck.addFile(file.getName(),localFileIs,proNo);            
+            is = new FileInputStream(filePath);
+            int checkFileUploadedSuccessfully = FileUploadCheck.addFile(file.getName(),is,proNo);            
+            is.close();
             
             if (checkFileUploadedSuccessfully != FileUploadCheck.UNSUCCESSFUL_SAVE){
-                logger.debug("filePath"+filePath);
-                logger.debug("Type :"+type);
+                logger.info("filePath"+filePath);
+                logger.info("Type :"+type);
                 MessageHandler msgHandler = HandlerClassFactory.getHandler(type);
                 if(msgHandler != null){
-                   logger.debug("MESSAGE HANDLER "+msgHandler.getClass().getName());
+                   logger.info("MESSAGE HANDLER "+msgHandler.getClass().getName());
                 }
-                if((msgHandler.parse(loggedInInfo, getClass().getSimpleName(), 
-                		filePath,checkFileUploadedSuccessfully, request.getRemoteAddr())) != null) {
+                if((msgHandler.parse(getClass().getSimpleName(), filePath,checkFileUploadedSuccessfully)) != null)
                     outcome = "success";
-                }
+                
             }else{
                 outcome = "uploaded previously";
             }
@@ -110,10 +97,6 @@ public class InsideLabUploadAction extends Action {
         }catch(Exception e){
             logger.error("Error: ",e);
             outcome = "exception";
-        }
-        finally {
-        	IOUtils.closeQuietly(formFileIs);
-        	IOUtils.closeQuietly(localFileIs);
         }
         
         request.setAttribute("outcome", outcome);

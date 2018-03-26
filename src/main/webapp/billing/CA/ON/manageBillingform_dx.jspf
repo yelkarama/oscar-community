@@ -24,22 +24,6 @@
  */
 -->
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin.billing,_admin" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_admin&type=_admin.billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-
 <form method="post" name="form1" action="dbManageBillingform_dx.jsp">
 <table width="75%" border="0" cellpadding="3" bgcolor="#9999CC">
 	<tr>
@@ -47,6 +31,11 @@ if(!authed) {
 
 
 		<% 
+  
+ ResultSet rs=null ;
+  ResultSet rs2=null ;
+  String[] param =new String[1];
+  String[] param2 =new String[10];
 
     String[] service_code = new String[45];
 
@@ -55,23 +44,22 @@ if(!authed) {
   service_code[j] = "";
 
   } 
- 
-  List<CtlDiagCode> cdcs = ctlDiagCodeDao.findByServiceType(request.getParameter("billingform"));
- 
+  param[0] = request.getParameter("billingform");
+  rs = apptMainBean.queryResults(param, "search_ctldiagcode_detail");
 int rCount = 0;
   boolean bodd=false;
   
  
   String servicetype_name="";
-  if(cdcs==null) {
+  if(rs==null) {
    out.println("failed!!!"); 
   } else {
   %>
 		<% 
-   for (CtlDiagCode cdc : cdcs) {
+   while (rs.next()) {
      
       bodd=bodd?false:true; //for the color of rows
-        service_code[rCount] = cdc.getDiagnosticCode();
+        service_code[rCount] = rs.getString("diagnostic_code");
      
       rCount = rCount + 1;
    }

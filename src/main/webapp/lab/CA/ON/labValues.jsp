@@ -23,23 +23,6 @@
     Ontario, Canada
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-	  boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_lab" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../../securityError.jsp?type=_lab");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="java.io.Serializable"%>
 <%@page import="org.w3c.dom.Document"%>
 <%@page import="org.oscarehr.caisi_integrator.ws.CachedDemographicLabResult"%>
@@ -62,21 +45,19 @@ if (identifier == null) identifier = "NULL";
 
 String highlight = "#E0E0FF";
 
-LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-
 DemographicData dData = new DemographicData();
-org.oscarehr.common.model.Demographic demographic =  dData.getDemographic(loggedInInfo, demographicNo);
+org.oscarehr.common.model.Demographic demographic =  dData.getDemographic(demographicNo);
 
 ArrayList list = null;
 
 if (!(demographicNo == null || demographicNo.equals("null"))){
 	if(remoteFacilityIdString==null)
 	{
-		list = CommonLabTestValues.findValuesForTest(labType, Integer.valueOf(demographicNo), testName, identifier);
+		list = CommonLabTestValues.findValuesForTest(labType, demographicNo, testName, identifier);
 	}
 	else
 	{
-		CachedDemographicLabResult remoteLab=LabDisplayHelper.getRemoteLab(loggedInInfo, Integer.parseInt(remoteFacilityIdString), remoteLabKey,Integer.parseInt(demographicNo));
+		CachedDemographicLabResult remoteLab=LabDisplayHelper.getRemoteLab(Integer.parseInt(remoteFacilityIdString), remoteLabKey,Integer.parseInt(demographicNo));
 		Document labContentsAsXml=LabDisplayHelper.getXmlDocument(remoteLab);
 		HashMap<String, ArrayList<Map<String, Serializable>>> mapOfTestValues=LabDisplayHelper.getMapOfTestValues(labContentsAsXml);
 		list=mapOfTestValues.get(identifier);

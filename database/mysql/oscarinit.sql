@@ -1,23 +1,4 @@
 
-CREATE TABLE `surveyData` (
-  surveyDataId int(10) NOT NULL auto_increment,
-  surveyId varchar(5) default NULL,
-  demographic_no int(10) default NULL,
-  provider_no varchar(6) default NULL,
-  status char(2) default NULL,
-  survey_date date default NULL,
-  answer varchar(10) default NULL,
-  processed int(10) default NULL,
-  INDEX `surveyId_index` (surveyId(5)),
-  INDEX `demographic_no_index` (demographic_no),
-  INDEX `provider_no_index` (provider_no(6)),
-  INDEX `status_index` (status(2)),
-  INDEX `survey_date_index` (survey_date),
-  INDEX `answer_index` (answer(10)),
-  INDEX `processed_index` (processed),
-  PRIMARY KEY  (`surveyDataId`)
-) ;
-
 --
 -- Table structure for table `FaxClientLog`
 --
@@ -75,15 +56,14 @@ CREATE TABLE appointment (
   name varchar(50) default NULL,
   demographic_no int(10) default NULL,
   program_id int default 0,
-  notes varchar(255),
-  reasonCode INT(11),
+  notes varchar(80) default NULL,
   reason varchar(80) default NULL,
   location varchar(30) default NULL,
   resources varchar(255) default NULL,
   type varchar(50) NULL,
   style varchar(10) default NULL,
   billing varchar(10) default NULL,
-  status char(2) BINARY default NULL,
+  status char(2) default NULL,
   imported_status varchar(20),
   createdatetime datetime default NULL,
   updatedatetime datetime default NULL,
@@ -136,9 +116,8 @@ CREATE TABLE billactivity (
 --
 
 CREATE TABLE billcenter (
-  billcenter_code char(2) NOT NULL,
-  billcenter_desc varchar(20) default NULL,
-  primary key(billcenter_code)
+  billcenter_code char(2) NOT NULL default '',
+  billcenter_desc varchar(20) default NULL
 ) ;
 
 --
@@ -210,7 +189,7 @@ CREATE TABLE billinginr (
   demographic_name varchar(60) NOT NULL default '',
   hin varchar(12) default NULL,
   dob varchar(8) default NULL,
-  provider_no varchar(10) default NULL,
+  provider_no int(10) default NULL,
   provider_ohip_no varchar(20) default NULL,
   provider_rma_no varchar(20) default NULL,
   creator varchar(6) default NULL,
@@ -241,8 +220,7 @@ CREATE TABLE billingservice (
   anaesthesia char(2) default NULL,
   termination_date date default '9999-12-31',
   displaystyle int(10),
-  sliFlag TINYINT(1) NOT NULL default 0,
-  gstFlag tinyint(1) NOT NULL default 0,
+  sliFlag TINYINT(1) NOT NULL,
   PRIMARY KEY  (billingservice_no),
   KEY billingservice_service_code_index (service_code)
 ) ;
@@ -315,20 +293,15 @@ CREATE TABLE consultationRequests (
   requestId int(10) NOT NULL auto_increment,
   concurrentProblems text,
   urgency char(2) default NULL,
-  appointmentInstructions VARCHAR(256),
   patientWillBook tinyint(1),
   followUpDate date default NULL,
   site_name varchar(255),
   signature_img VARCHAR(20),
-  letterheadName VARCHAR(255),
+  letterheadName VARCHAR(20),
   letterheadAddress TEXT,
   letterheadPhone VARCHAR(50),
   letterheadFax VARCHAR(50),
-  `lastUpdateDate` datetime not null,
-  fdid int(10),
-  source varchar(50),
-  PRIMARY KEY  (`requestId`),
-  KEY demographicNoIndex (`demographicNo`)
+  PRIMARY KEY  (requestId)
 ) ;
 
 --
@@ -341,53 +314,6 @@ CREATE TABLE consultationServices (
   active char(2) default NULL,
   PRIMARY KEY  (serviceId)
 ) ;
-
---
--- Table structure for table `consultationResponse`
---
-
-CREATE TABLE consultationResponse (
-  responseId int(10) NOT NULL auto_increment,
-  responseDate date,
-  referralDate date,
-  referringDocId int(10),
-  appointmentDate date,
-  appointmentTime time,
-  appointmentNote text,
-  referralReason text,
-  examination text,
-  impression text,
-  plan text,
-  clinicalInfo text,
-  currentMeds text,
-  allergies text,
-  providerNo varchar(6),
-  demographicNo int(10),
-  status char(2),
-  sendTo varchar(20),
-  concurrentProblems text,
-  urgency char(2),
-  followUpDate date,
-  signatureImg VARCHAR(20),
-  letterheadName VARCHAR(20),
-  letterheadAddress TEXT,
-  letterheadPhone VARCHAR(50),
-  letterheadFax VARCHAR(50),
-  PRIMARY KEY  (responseId)
-) ;
-
---
--- CREATE TABLE consultResponseDoc
---
-CREATE TABLE `consultResponseDoc` (
-  `id` int(10) NOT NULL auto_increment PRIMARY KEY,
-  `responseId` int(10) NOT NULL,
-  `documentNo` int(10) NOT NULL,
-  `docType` char(1) NOT NULL,
-  `deleted` char(1), 
-  `attachDate` date,
-  `providerNo` varchar(6) NOT NULL
-);
 
 --
 -- Table structure for table `ctl_billingservice`
@@ -496,7 +422,7 @@ CREATE TABLE demographic (
   last_name varchar(30) NOT NULL default '',
   first_name varchar(30) NOT NULL default '',
   address varchar(60),
-  city varchar(50),
+  city varchar(20),
   province varchar(20),
   postal varchar(9),
   phone varchar(20),
@@ -504,8 +430,8 @@ CREATE TABLE demographic (
   email varchar(100),
   myOscarUserName varchar(255) unique,
   year_of_birth varchar(4),
-  month_of_birth varchar(2),
-  date_of_birth varchar(2),
+  month_of_birth char(2),
+  date_of_birth char(2),
   hin varchar(20),
   ver char(3),
   roster_status varchar(20),
@@ -536,12 +462,11 @@ CREATE TABLE demographic (
   newsletter varchar(32),
   anonymous varchar(32),
   lastUpdateUser varchar(6),
-  lastUpdateDate datetime not null,
+  lastUpdateDate date,
   PRIMARY KEY  (demographic_no),
-  KEY `hin` (`hin`),
-  KEY `name` (last_name,first_name),
-  KEY `country_of_origin` (`country_of_origin`),
-  KEY `demo_last_first_hin_sex_Index` (demographic_no, last_name, first_name, hin, sex)
+  KEY hin (hin),
+  KEY name (last_name,first_name),
+  KEY `country_of_origin` (`country_of_origin`)
 );
 
 --
@@ -570,21 +495,6 @@ CREATE TABLE demographiccust (
   KEY cust2 (cust2),
   KEY cust3 (cust3),
   KEY cust4 (cust4)
-) ;
-
---
--- Table structure for table `demographiccustArchive`
---
-
-CREATE TABLE demographiccustArchive (
-  id int(10) AUTO_INCREMENT,
-  demographic_no int(10) NOT NULL,
-  cust1 varchar(255),
-  cust2 varchar(255),
-  cust3 varchar(255),
-  cust4 varchar(255),
-  content text,
-  PRIMARY KEY  (id)
 ) ;
 
 --
@@ -663,7 +573,7 @@ CREATE TABLE diseases (
 
 CREATE TABLE document (
   document_no int(20) NOT NULL auto_increment,
-  doctype varchar(60),
+  doctype varchar(20) default NULL,
   docClass varchar(60),
   docSubClass varchar(60),
   docdesc varchar(255) NOT NULL default '',
@@ -676,16 +586,13 @@ CREATE TABLE document (
   program_id int,
   updatedatetime datetime default NULL,
   status char(1) NOT NULL default '',
-  contenttype varchar(255) NOT NULL default '',
-  contentdatetime datetime,
+  contenttype varchar(60) NOT NULL default '',
   public1 int(1) NOT NULL default '0',
   observationdate date default NULL,
   reviewer varchar(30) default '',
   reviewdatetime datetime default NULL,
-  number_of_pages int(6),
+  number_of_pages int(6) not null default 0,
   appointment_no int(11) default NULL,
-  restrictToProgram tinyint(1),
-  fileSignature varchar(255),
   PRIMARY KEY  (document_no)
 ) ;
 
@@ -700,9 +607,6 @@ CREATE TABLE reportTemplates (
   templatexml text NOT NULL,
   active tinyint NOT NULL DEFAULT 1,
   `type` varchar(32) default null,
-  uuid varchar(60),
-  sequence tinyint(1),
-  category varchar(255),
   PRIMARY KEY (templateid)
 );
 
@@ -727,7 +631,6 @@ CREATE TABLE drugs (
   duration varchar(4) default NULL,
   durunit char(1) default NULL,
   quantity varchar(20) default NULL,
-  dispensingUnits varchar(20),
   `repeat` tinyint(4) default NULL,
   last_refill_date date,
   nosubs tinyint(1) NOT NULL default '0',
@@ -749,7 +652,6 @@ CREATE TABLE drugs (
   unitName varchar(10) default NULL,
   custom_note boolean,
   long_term boolean,
-  short_term boolean,
   non_authoritative boolean,
   past_med boolean,
   patient_compliance tinyint(1),
@@ -768,12 +670,8 @@ CREATE TABLE drugs (
   comment varchar(255),
   start_date_unknown boolean,
   lastUpdateDate datetime not null,
-  dispenseInternal tinyint(1) not null,
-  PRIMARY KEY  (drugid),
-  KEY `special_instructionIndex` (special_instruction(5)),
-  KEY `demo_script_pos_rxdate_Index` (demographic_no, script_no, position, rx_date, drugid)
+  PRIMARY KEY  (drugid)
 ) ;
-
 
 --
 -- Table structure for table `dxresearch`
@@ -783,14 +681,12 @@ CREATE TABLE dxresearch (
   dxresearch_no int(10) NOT NULL auto_increment,
   demographic_no int(10) default '0',
   start_date date default '0001-01-01',
-  update_date datetime not null,
+  update_date date default '0001-01-01',
   status char(1) default 'A',
   dxresearch_code varchar(10) default '',
   coding_system varchar(20),
   association tinyint(1) not null default 0,
-  providerNo varchar(6),
-  PRIMARY KEY  (dxresearch_no),
-  KEY `demographic_noIndex` (demographic_no)
+  PRIMARY KEY  (dxresearch_no)
 ) ;
 
 CREATE TABLE `dx_associations` (
@@ -819,7 +715,7 @@ CREATE TABLE eChart (
   reminders text,
   encounter text,
   PRIMARY KEY  (eChartId),
-  KEY `demographicNoIdIndex` (demographicNo,eChartId)
+  KEY demographicno (demographicNo)
 )  MAX_ROWS=200000000 AVG_ROW_LENGTH=9000;
 
 --
@@ -836,12 +732,8 @@ CREATE TABLE eform (
   form_creator varchar(255) default NULL,
   status tinyint(1) NOT NULL default '1',
   form_html mediumtext,
-  showLatestFormOnly boolean NOT NULL,
-  patient_independent boolean NOT NULL,
+  patient_independent boolean,
   roleType varchar(50) default NULL,
-  programNo int(10),
-  restrictToProgram tinyint(1) NOT NULL,
-  disableUpdate tinyint(1) ,
   PRIMARY KEY  (fid),
   UNIQUE KEY id (fid)
 ) ;
@@ -861,18 +753,16 @@ CREATE TABLE eform_data (
   form_time time default NULL,
   form_provider varchar(255) default NULL,
   form_data mediumtext,
-  showLatestFormOnly boolean NOT NULL,
-  patient_independent boolean NOT NULL,
+  patient_independent tinyint(1) not null,
   roleType varchar(50) default NULL,
   PRIMARY KEY  (fdid),
   UNIQUE KEY id (fdid),
-  KEY `dem_inde_stat_date_time_Index` (`demographic_no`, `patient_independent`, `status`, `form_date`, `form_time`),
+  KEY `idx_eform_data_demographic_no` (`demographic_no`),
   KEY `idx_eform_data_status` (`status`),
   KEY `idx_eform_data_from_date` (`form_date`),
   KEY `idx_eform_data_form_name` (`form_name`),
   KEY `idx_eform_data_subject` (`subject`),
   KEY `idx_eform_data_fid` (`fid`),
-  KEY `patient_independentIndex` (`patient_independent`),
   KEY `idx_eform_data_form_provider` (`form_provider`)
 ) ;
 
@@ -889,8 +779,7 @@ CREATE TABLE `eform_values` (
   `var_name` varchar(30) NOT NULL default '',
   `var_value` text,
   PRIMARY KEY  (`id`),
-  KEY `eform_values_varname_varvalue` (`var_name`,`var_value`(30)),
-  KEY `fdidIndex` (`fdid`)
+  KEY `eform_values_varname_varvalue` (`var_name`,`var_value`(30))
 );
 
 --
@@ -975,7 +864,6 @@ CREATE TABLE favorites (
   duration varchar(4) default NULL,
   durunit char(1) default NULL,
   quantity varchar(20) default NULL,
-  dispensingUnits varchar(20),
   `repeat` tinyint(4) default NULL,
   nosubs tinyint(1) NOT NULL default '0',
   prn tinyint(1) NOT NULL default '0',
@@ -990,7 +878,6 @@ CREATE TABLE favorites (
   dosage text,
   custom_instructions boolean default false,
   unitName varchar(10) default NULL,
-  dispenseInternal tinyint(1) not null,
   PRIMARY KEY  (favoriteid)
 ) ;
 
@@ -6300,306 +6187,6 @@ CREATE TABLE `formConsult` (
   PRIMARY KEY  (`ID`)
 ) ;
 
---
--- Table structure for table `formIntakeHx`
---
-CREATE TABLE formIntakeHx (
-  `ID` int(10) NOT NULL AUTO_INCREMENT,
-  `demographic_no` int(10) NOT NULL,
-  `provider_no` int(10),
-  `formCreated` date,
-  `formEdited` timestamp,
-  `student_number` varchar(50),
-  `student_surname` varchar(50),
-  `student_firstname` varchar(50),
-  `student_dob` varchar(50),
-  `student_sex` varchar(50),
-  `student_ercontact_name` varchar(50),
-  `student_ercontact_phone` varchar(50),
-  `student_ercontact_address` varchar(50),
-  `student_ercontact_address2` varchar(50),
-  `student_physician_name` varchar(50),
-  `student_physician_address` varchar(50),
-  `student_physician_address2` varchar(50),
-  `student_physician_phone` varchar(50),
-  `student_faculty_phone` varchar(50),
-  `academic_year` varchar(50),
-  `pt_ft` varchar(50),
-  `AllergicYesNo` varchar(50),
-  `AllergicNonDrugYesNo` varchar(50),
-  `DrugAllergy1` varchar(50),
-  `DrugAllergyRS1` varchar(50),
-  `DrugAllergy2` varchar(50),
-  `DrugAllergyRS2` varchar(50),
-  `DrugAllergy3` varchar(50),
-  `DrugAllergyRS3` varchar(50),
-  `DrugAllergy4` varchar(50),
-  `DrugAllergyRS4` varchar(50),
-  `DrugAllergy5` varchar(50),
-  `DrugAllergyRS5` varchar(50),
-  `DrugAllergy6` varchar(50),
-  `DrugAllergyRS6` varchar(50),
-  `DrugAllergy7` varchar(50),
-  `DrugAllergyRS7` varchar(50),
-  `DrugAllergy8` varchar(50),
-  `DrugAllergyRS8` varchar(50),
-  `AllergicShotsYesNo` varchar(50),
-  `allergicbee` tinyint(1),
-  `allergicragweed` tinyint(1),
-  `allergicOtherPollens` tinyint(1),
-  `allergicgrasses` tinyint(1),
-  `allergicdust` tinyint(1),
-  `allergicanimal` tinyint(1),
-  `allergicother` tinyint(1),
-  `allergicfood` tinyint(1),
-  `TakeOtherDrugs` varchar(50),
-  `CurrentDrug1` varchar(50),
-  `CurrentDrug2` varchar(50),
-  `CurrentDrug3` varchar(50),
-  `CurrentDrug4` varchar(50),
-  `CurrentDrug5` varchar(50),
-  `CurrentDrug6` varchar(50),
-  `CurrentDrug7` varchar(50),
-  `SeriousIllness` varchar(50),
-  `PastIllness1` varchar(50),
-  `IllnessAge1` varchar(50),
-  `PastIllness2` varchar(50),
-  `IllnessAge2` varchar(50),
-  `PastIllness3` varchar(50),
-  `IllnessAge3` varchar(50),
-  `PastIllness4` varchar(50),
-  `IllnessAge4` varchar(50),
-  `PastIllness5` varchar(50),
-  `IllnessAge5` varchar(50),
-  `PastIllness6` varchar(50),
-  `IllnessAge6` varchar(50),
-  `operations` varchar(50),
-  `NameofOperation1` varchar(50),
-  `NameofOperationAge1` varchar(50),
-  `NameofOperation2` varchar(50),
-  `NameofOperationAge2` varchar(50),
-  `NameofOperation3` varchar(50),
-  `NameofOperationAge3` varchar(50),
-  `NameofOperation4` varchar(50),
-  `NameofOperationAge4` varchar(50),
-  `NameofOperation5` varchar(50),
-  `NameofOperationAge5` varchar(50),
-  `NameofOperation6` varchar(50),
-  `NameofOperationAge6` varchar(50),
-  `Conditionsbrokenbones` varchar(50),
-  `ConditionsDescbrokenbones` varchar(50),
-  `Conditionsmigraine` varchar(50),
-  `ConditionsDescmigraine` varchar(50),
-  `Conditionsneurologicdisorder` varchar(50),
-  `ConditionsDescneurologicdisorder` varchar(50),
-  `Conditionsasthma` varchar(50),
-  `ConditionsDescasthma` varchar(50),
-  `Conditionspneumonia` varchar(50),
-  `ConditionsDescpneumonia` varchar(50),
-  `Conditionslungdisease` varchar(50),
-  `ConditionsDesclungdisease` varchar(50),
-  `Conditionsheartdisease` varchar(50),
-  `ConditionsDescheartdisease` varchar(50),
-  `Conditionsulcer` varchar(50),
-  `ConditionsDesculcer` varchar(50),
-  `Conditionsboweldisease` varchar(50),
-  `ConditionsDescboweldisease` varchar(50),
-  `Conditionshepatitis` varchar(50),
-  `ConditionsDeschepatitis` varchar(50),
-  `ConditionsHIV` varchar(50),
-  `ConditionsDescHIV` varchar(50),
-  `Conditionsthyroid` varchar(50),
-  `ConditionsDescthyroid` varchar(50),
-  `Conditionsblooddisorder` varchar(50),
-  `ConditionsDescblooddisorder` varchar(50),
-  `Conditionsdiabetes` varchar(50),
-  `ConditionsDescdiabetes` varchar(50),
-  `Conditionsbloodtransfusion` varchar(50),
-  `ConditionsDescbloodtransfusion` varchar(50),
-  `Conditionscancerorleukemia` varchar(50),
-  `ConditionsDesccancerorleukemia` varchar(50),
-  `Conditionssexualdisease` varchar(50),
-  `ConditionsDescsexualdisease` varchar(50),
-  `ConditionsURI` varchar(50),
-  `ConditionsDescURI` varchar(50),
-  `Conditionsemotional` varchar(50),
-  `ConditionsDescemotional` varchar(50),
-  `Conditionsarthritis` varchar(50),
-  `ConditionsDescarthritis` varchar(50),
-  `Conditionseatingdisorder` varchar(50),
-  `ConditionsDesceatingdisorder` varchar(50),
-  `Conditionsosteoporosis` varchar(50),
-  `ConditionsDescosteoporosis` varchar(50),
-  `Conditionsskin` varchar(50),
-  `ConditionsDescskin` varchar(50),
-  `ConditionsHighbloodpressure` varchar(50),
-  `ConditionsDescHighbloodpressure` varchar(50),
-  `Conditionslearningdisability` varchar(50),
-  `ConditionsDesclearningdisability` varchar(50),
-  `Conditionsschizophrenia` varchar(50),
-  `ConditionsDescschizophrenia` varchar(50),
-  `Conditionsalcohol` varchar(50),
-  `ConditionsDescalcohol` varchar(50),
-  `ConditionsMS` varchar(50),
-  `ConditionsDescMS` varchar(50),
-  `Conditionsstroke` varchar(50),
-  `ConditionsDescstroke` varchar(50),
-  `ConditionsHighcholesterol` varchar(50),
-  `ConditionsDescHighcholesterol` varchar(50),
-  `Conditionsdepression` varchar(50),
-  `ConditionsDescdepression` varchar(50),
-  `ConditionsDrugdependency` varchar(50),
-  `ConditionsDescDrugdependency` varchar(50),
-  `ConditionsOtherdisease` text,
-  `ConditionsDescOtherdisease` varchar(50),
-  `ImmunizationHepatitisB` varchar(50),
-  `ImmunizationYearHepatitisB` varchar(50),
-  `ImmunizationHadTetanus` varchar(50),
-  `ImmunizationYearTetanus` varchar(50),
-  `ImmunizationHadPolio` varchar(50),
-  `ImmunizationYearPolio` varchar(50),
-  `ImmunizationHadMMR` varchar(50),
-  `ImmunizationYearMMR` varchar(50),
-  `ImmunizationHadTB` varchar(50),
-  `ImmunizationYearTB` varchar(50),
-  `ImmunizationHadRubella` varchar(50),
-  `ImmunizationYearRubella` varchar(50),
-  `ImmunizationHadVaricella` varchar(50),
-  `ImmunizationYearVaricella` varchar(50),
-  `ImmunizationHadMeningitis` varchar(50),
-  `ImmunizationYearMeningitis` varchar(50),
-  `ImmunizationHadPneumococcus` varchar(50),
-  `ImmunizationYearPneumococcus` varchar(50),
-  `HaveImmunizationCard` varchar(50),
-  `SeatBelt` varchar(50),
-  `smoker` varchar(50),
-  `HowMuchSmoke` varchar(50),
-  `smokeInPast` varchar(50),
-  `UseDrugs` varchar(50),
-  `Alcohol` varchar(50),
-  `HowManyDrinks` varchar(50),
-  `HowManyDrinksWeek` varchar(50),
-  `exercise` varchar(50),
-  `biologicalmigraine` varchar(50),
-  `biologicalDescmigraine` varchar(50),
-  `biologicalneurologic` varchar(50),
-  `biologicalDescneurologic` varchar(50),
-  `biologicalasthma` varchar(50),
-  `biologicalDescasthma` varchar(50),
-  `biologicalpneumonia` varchar(50),
-  `biologicalDescpneumonia` varchar(50),
-  `biologicallungdisease` varchar(50),
-  `biologicalDesclungdisease` varchar(50),
-  `biologicalheartdisease` varchar(50),
-  `biologicalDescheartdisease` varchar(50),
-  `biologicalulcer` varchar(50),
-  `biologicalDesculcer` varchar(50),
-  `biologicalboweldisease` varchar(50),
-  `biologicalDescboweldisease` varchar(50),
-  `biologicalhepatitis` varchar(50),
-  `biologicalDeschepatitis` varchar(50),
-  `biologicalthyroid` varchar(50),
-  `biologicalDescthyroid` varchar(50),
-  `biologicalblooddisorder` varchar(50),
-  `biologicalDescblooddisorder` varchar(50),
-  `biologicaldiabetes` varchar(50),
-  `biologicalDescdiabetes` varchar(50),
-  `biologicalbloodtransfusion` varchar(50),
-  `biologicalDescbloodtransfusion` varchar(50),
-  `biologicalcancerorleukemia` varchar(50),
-  `biologicalDesccancerorleukemia` varchar(50),
-  `biologicalURI` varchar(50),
-  `biologicalDescURI` varchar(50),
-  `biologicalemotional` varchar(50),
-  `biologicalDescemotional` varchar(50),
-  `biologicalarthritis` varchar(50),
-  `biologicalDescarthritis` varchar(50),
-  `biologicalosteoporosis` varchar(50),
-  `biologicalDescosteoporosis` varchar(50),
-  `biologicalskin` varchar(50),
-  `biologicalDescskin` varchar(50),
-  `biologicalHBP` varchar(50),
-  `biologicalDescHBP` varchar(50),
-  `biologicallearningdisability` varchar(50),
-  `biologicalDesclearningdisability` varchar(50),
-  `biologicalschizophrenia` varchar(50),
-  `biologicalDescschizophrenia` varchar(50),
-  `biologicalalcohol` varchar(50),
-  `biologicalDescalcohol` varchar(50),
-  `biologicalMS` varchar(50),
-  `biologicalDescMS` varchar(50),
-  `biologicalstroke` varchar(50),
-  `biologicalDescstroke` varchar(50),
-  `biologicalhighcholesterol` varchar(50),
-  `biologicalDeschighcholesterol` varchar(50),
-  `biologicaldepression` varchar(50),
-  `biologicalDescdepression` varchar(50),
-  `biologicaldrug` varchar(50),
-  `biologicalDescdrug` varchar(50),
-  `General` varchar(250),
-  `Nervous` varchar(250),
-  `HEENT` varchar(250),
-  `Neck` varchar(250),
-  `Chest` varchar(250),
-  `Heart` varchar(250),
-  `Gastrointestinal` varchar(250),
-  `GenitalsUrinary` varchar(250),
-  `GeneralPsychiatric` varchar(250),
-  `firstPeriod` varchar(50),
-  `monthlyPeriod` text,
-  `periodLength` text,
-  `severeCramps` text,
-  `unusualBleeding` text,
-  `PID` text,
-  `ovarianCyst` text,
-  `breastCancer` text,
-  `hadBreastLump` text,
-  `BeenPregnant` text,
-  `TherapeuticAbortion` text,
-  `AgeHadAbortion` text,
-  `HadPap` text,
-  `AbnormalPap` text,
-  `LastPap` text,
-  `usedBirthControl` text,
-  `birthcontrolUsed1` varchar(50),
-  `birthcontrolUsed2` varchar(50),
-  `birthcontrolUsed3` varchar(50),
-  `birthcontrolUsed4` varchar(50),
-  `onbirthcontrol` varchar(50),
-  `problemsBirthControl` varchar(50),
-  `monthlyBreastSelfExam` varchar(50),
-  `hadSexualIntercourse` varchar(50),
-  `sexWithMale` varchar(50),
-  `sexWithFemale` varchar(50),
-  `ageHadSex` varchar(50),
-  `partnersLastYear` varchar(50),
-  `HowOftenUseCondoms` varchar(50),
-  `hadSTD` varchar(50),
-  `hadHPV` varchar(50),
-  `hadchlamydia` varchar(50),
-  `hadgonorrhea` varchar(50),
-  `hadHSV2` varchar(50),
-  `hadsyphilis` varchar(50),
-  `immunizationDiseasePneumococcus` text,
-  `immunizationDiseaseYearPneumococcus` text,
-  `immunizationDiseaseMeningitis` text,
-  `immunizationDiseaseYearMeningitis` text,
-  `immunizationDiseaseVaricella` text,
-  `immunizationDiseaseYearVaricella` text,
-  `immunizationDiseaseTb` text,
-  `immunizationDiseaseYearTb` text,
-  `immunizationDiseaseRubella` text,
-  `immunizationDiseaseYearRubella` text,
-  `immunizationDiseaseMMR` text,
-  `immunizationDiseaseYearMMR` text,
-  `immunizationDiseasePolio` text,
-  `immunizationDiseaseYearPolio` text,
-  `immunizationDiseaseTetanus` text,
-  `immunizationDiseaseYearTetanus` text,
-  `immunizationDiseaseYearHepatitisB` text,
-  `immunizationDiseaseHepatitisB` text,
-   PRIMARY KEY (`ID`)
-);
 
 --
 -- Table structure for table `groupMembers_tbl`
@@ -6628,10 +6215,9 @@ CREATE TABLE groups_tbl (
 --
 
 CREATE TABLE ichppccode (
-  ichppccode varchar(10),
+  ichppccode varchar(10) default NULL,
   diagnostic_code varchar(10) default NULL,
-  description varchar(255) default NULL,
-  primary key(ichppccode)
+  description varchar(255) default NULL
 ) ;
 
 --
@@ -6670,7 +6256,7 @@ CREATE TABLE labRequestReportLink (
 CREATE TABLE mdsMSH (
   segmentID int(10) NOT NULL auto_increment,
   sendingApp char(180) default NULL,
-  dateTime datetime NOT NULL,
+  dateTime datetime NOT NULL default '0000-00-00 00:00:00',
   type char(7) default NULL,
   messageConID char(20) default NULL,
   processingID char(3) default NULL,
@@ -6884,10 +6470,10 @@ CREATE TABLE measurements(
   providerNo varchar(6) NOT NULL default '',
   dataField  varchar(255) NOT NULL,
   measuringInstruction varchar(255) NOT NULL,
-  comments varchar(255),
-  dateObserved datetime,
+  comments varchar(255) NOT NULL,
+  dateObserved datetime NOT NULL,
   dateEntered datetime NOT NULL,
-  appointmentNo int(10),
+  appointmentNo int(10) NOT NULL,
   PRIMARY KEY(id),
   KEY type (type),
   KEY measuringInstruction (measuringInstruction),
@@ -6951,7 +6537,7 @@ CREATE TABLE measurementGroupStyle(
 DROP TABLE IF EXISTS measurementType;
 CREATE TABLE measurementType (
   id int UNSIGNED AUTO_INCREMENT,
-  type varchar(50) NOT NULL,
+  type varchar(4) NOT NULL,
   typeDisplayName varchar(255) NOT NULL,
   typeDescription varchar(255) NOT NULL,
   measuringInstruction varchar(255) NOT NULL,
@@ -6968,7 +6554,7 @@ CREATE TABLE measurementType (
 --
 CREATE TABLE measurementTypeDeleted (
   id int UNSIGNED AUTO_INCREMENT,
-  type varchar(50) NOT NULL,
+  type varchar(4) NOT NULL,
   typeDisplayName varchar(20) NOT NULL,
   typeDescription varchar(255) NOT NULL,
   measuringInstruction varchar(255) NOT NULL,
@@ -7004,16 +6590,13 @@ CREATE TABLE messagetbl (
   themessage text,
   thesubject varchar(128) default NULL,
   sentby varchar(62) default NULL,
-  sentto text default NULL,
+  sentto varchar(255) default NULL,
   sentbyNo varchar(6) default NULL,
   sentByLocation int(10) default NULL,
   attachment text,
   pdfattachment blob,
   actionstatus char(2) default NULL,
-  `type` int(10),
-  type_link varchar(2048),
-  PRIMARY KEY  (messageid),
-  KEY `id_by_subject_Index` (messageid, sentby, thesubject)
+  PRIMARY KEY  (messageid)
 ) ;
 
 
@@ -7022,11 +6605,9 @@ CREATE TABLE messagetbl (
 --
 
 CREATE TABLE msgDemoMap (
-  id int(11) auto_increment,
   messageID mediumint(9),
   demographic_no int(10),
-  PRIMARY KEY (id),
-  KEY  (messageID, demographic_no)
+  PRIMARY KEY  (messageID, demographic_no)
 ) ;
 
 
@@ -7040,7 +6621,6 @@ CREATE TABLE mygroup (
   last_name varchar(30) NOT NULL default '',
   first_name varchar(30) NOT NULL default '',
   vieworder char(2) default NULL,
-  default_billing_form varchar(10),
   PRIMARY KEY  (mygroup_no,provider_no)
 ) ;
 
@@ -7067,8 +6647,6 @@ CREATE TABLE patientLabRouting (
   lab_no int(10) NOT NULL default '0',
   lab_type char(3) NOT NULL default 'MDS',
   id int(10) NOT NULL auto_increment,
-  created datetime not null,
-  dateModified datetime,
   PRIMARY KEY  (`id`),
   KEY `demographic` (`demographic_no`),
   KEY `lab_type_index` (`lab_type`),
@@ -7154,15 +6732,7 @@ CREATE TABLE professionalSpecialists (
   eDataServiceName varchar(255),
   lastUpdated datetime not null,
   annotation text,
-  referralNo varchar(6),
-  institutionId int(10) not null,
-  departmentId int(10) not null,
-  privatePhoneNumber varchar(30),
-  cellPhoneNumber varchar(30),
-  pagerNumber varchar(30),
-  salutation varchar(10),
-  hideFromView tinyint(1),
-  eformId int(10)
+  referralNo varchar(6)
 );
 
 --
@@ -7174,9 +6744,7 @@ CREATE TABLE professionalSpecialists (
   value varchar(255) default NULL,
   id int(10) NOT NULL auto_increment,
   provider_no varchar(6) default '',
-  PRIMARY KEY  (`id`),
-  KEY `provider_noIndex` (`provider_no`),
-  KEY `nameIndex` (name(20))
+  PRIMARY KEY  (`id`)
 )  ;
 
 --
@@ -7188,7 +6756,6 @@ CREATE TABLE provider (
   last_name varchar(30) NOT NULL default '',
   first_name varchar(30) NOT NULL default '',
   provider_type varchar(15) NOT NULL default '',
-  supervisor varchar(6),
   specialty varchar(40) NOT NULL default '',
   team varchar(20) default '',
   sex char(1) NOT NULL default '',
@@ -7209,7 +6776,7 @@ CREATE TABLE provider (
   `email` varchar(60) default NULL,
   `title` varchar(20) default NULL,
   `lastUpdateUser` varchar(6) default NULL,
-  `lastUpdateDate` datetime not null,
+  `lastUpdateDate` date default NULL,
   `signed_confidentiality` datetime,
   PRIMARY KEY  (provider_no)
 );
@@ -7236,9 +6803,9 @@ CREATE TABLE providerLabRouting (
   lab_type char(3) default 'MDS',
   id int(10) NOT NULL auto_increment,
   PRIMARY KEY  (`id`),
-  KEY `labno_index`(`lab_no`),
-  KEY `provider_lab_status_index` ( `provider_no` ( 3 ) , `status`)
+  KEY `labno_index`(`lab_no`)
 ) ;
+
 
 --
 -- Table structure for table quickList
@@ -7246,7 +6813,7 @@ CREATE TABLE providerLabRouting (
 CREATE TABLE quickList(
   `id` int(10) not null auto_increment primary key,
   quickListName varchar(255) NOT NULL,
-  createdByProvider varchar(20),
+  createdByProvider int(10),
   dxResearchCode varchar(10),
   codingSystem varchar(20)
 ) ;
@@ -7256,7 +6823,7 @@ CREATE TABLE quickList(
 --
 CREATE TABLE quickListUser(
   `id` int(10) not null auto_increment primary key,
-  providerNo varchar(20) NOT NULL,
+  providerNo int(10) NOT NULL,
   quickListName varchar(10) NOT NULL,
   lastUsed datetime
 ) ;
@@ -7288,7 +6855,7 @@ CREATE TABLE radetail (
 
 CREATE TABLE raheader (
   raheader_no int(6) NOT NULL auto_increment,
-  filename varchar(30) NOT NULL,
+  filename varchar(12) NOT NULL default '',
   paymentdate varchar(8) NOT NULL default '',
   payable varchar(30) NOT NULL default '',
   totalamount varchar(10) NOT NULL default '',
@@ -7446,10 +7013,6 @@ CREATE TABLE `scheduledate` (
   `hour` varchar(255) default NULL,
   `creator` varchar(50) default NULL,
   `status` char(1) NOT NULL default '',
-   key(sdate),
-   key(provider_no),
-   key(status),
-   key(sdate,provider_no,hour,status),
   PRIMARY KEY  (`id`)
 ) ;
 
@@ -7508,23 +7071,18 @@ CREATE TABLE scheduletemplatecode (
 
 CREATE TABLE security (
   security_no int(6) NOT NULL auto_increment,
-  user_name varchar(30) NOT NULL,
-  password varchar(255) NOT NULL,
+  user_name varchar(30) NOT NULL default '',
+  password varchar(80) NOT NULL default '',
   provider_no varchar(6) default NULL,
-  pin varchar(255),
-  b_ExpireSet int(1) default 1,
-  date_ExpireDate date default '2100-01-01',
-  b_LocalLockSet int(1) default 1,
-  b_RemoteLockSet int(1) default 1,
-  forcePasswordReset tinyint(1),
-  storageVersion int NOT NULL,
-  passwordUpdateDate datetime,
-  pinUpdateDate datetime,
-  lastUpdateUser varchar(20),
-  lastUpdateDate timestamp,
+  pin varchar(6) default NULL,
   PRIMARY KEY  (security_no),
   UNIQUE user_name (user_name)
 ) ;
+
+alter table `security` add b_RemoteLockSet int(1) default 1 after pin;
+alter table `security` add b_LocalLockSet int(1) default 1 after pin;
+alter table `security` add date_ExpireDate date default '2100-01-01' after pin;
+alter table `security` add b_ExpireSet int(1) default 1 after pin;
 
 
 --
@@ -7570,13 +7128,11 @@ CREATE TABLE study (
 CREATE TABLE studydata (
   studydata_no int(10) NOT NULL auto_increment,
   demographic_no int(10) NOT NULL default '0',
-  deleted tinyint not null,
   study_no int(3) NOT NULL default '0',
   provider_no varchar(6) NOT NULL default '',
   timestamp timestamp NOT NULL,
   status varchar(30) default NULL,
   content text,
-  keyname varchar(32),
   PRIMARY KEY  (studydata_no)
 ) ;
 
@@ -7614,10 +7170,7 @@ CREATE TABLE tickler (
   creator varchar(6) default NULL,
   priority varchar(6) default 'Normal',
   task_assigned_to varchar(255),
-  category_id int(11),
-  PRIMARY KEY  (tickler_no),
-  KEY `statusIndex` (`status`),
-  KEY `demo_status_date_Index` (demographic_no,status,service_date)
+  PRIMARY KEY  (tickler_no)
 ) ;
 
 --
@@ -7639,7 +7192,7 @@ CREATE TABLE validations(
   id int UNSIGNED AUTO_INCREMENT,
   name varchar(100) NOT NULL,
   regularExp varchar(100) ,
-  `maxValue1` double,
+  `maxValue` double,
   minValue double,
   maxLength int(3),
   minLength int(3),
@@ -7657,7 +7210,7 @@ CREATE TABLE `waitingListName` (
   `name` varchar(80) NOT NULL default '',
   `group_no` varchar(10) default '',
   `provider_no` varchar(6) default '',
-  `create_date` datetime NOT NULL,
+  `create_date` datetime NOT NULL default '0000-00-00 00:00:00',
   `is_history` char(1) default 'N',
   PRIMARY KEY  (`ID`)
 );
@@ -7672,7 +7225,7 @@ CREATE TABLE `waitingList` (
   `demographic_no` int(10) NOT NULL default '0',
   `note` varchar(255) default NULL,
   `position` bigint(20) NOT NULL default '0',
-  `onListSince` datetime NOT NULL,
+  `onListSince` datetime NOT NULL default '0000-00-00 00:00:00',
   `is_history` char(1) default NULL,
   PRIMARY KEY  (`id`),
   KEY `listID` (`listID`)
@@ -7709,13 +7262,22 @@ create table demographicPharmacy (
    pharmacyID int(10),
    demographic_no int(10),
    status char(1) default '1',
-   addDate timestamp,
-   preferredOrder int(10)
+   addDate timestamp
 ) ;
 
 
 
-
+CREATE TABLE surveyData (
+  surveyDataId int(10) NOT NULL auto_increment,
+  surveyId varchar(5) default NULL,
+  demographic_no int(10) default NULL,
+  provider_no varchar(6) default NULL,
+  status char(2) default NULL,
+  survey_date date default NULL,
+  answer varchar(10) default NULL,
+  processed int(10) default NULL,
+  PRIMARY KEY  (`surveyDataId`)
+) ;
 
 CREATE TABLE `log` (
   id bigint auto_increment primary key,
@@ -7728,7 +7290,7 @@ CREATE TABLE `log` (
   INDEX `content` (`content`),
   `contentId` varchar(80),
   INDEX `contentId` (`contentId`),
-  `ip` varchar(64),
+  `ip` varchar(30),
   `demographic_no` int(10),
   INDEX `demographic_no` (`demographic_no`),
   `data` text,
@@ -7739,7 +7301,7 @@ CREATE TABLE preventions (
   id int(10) NOT NULL auto_increment,
   demographic_no int(10) NOT NULL default '0',
   creation_date datetime default NULL,
-  prevention_date datetime default NULL,
+  prevention_date date default NULL,
   provider_no varchar(6) NOT NULL default '',
   provider_name varchar(255) default NULL,
   prevention_type varchar(20) default NULL,
@@ -7749,16 +7311,6 @@ CREATE TABLE preventions (
   never char(1) default '0',
   creator int(10) default NULL,
   lastUpdateDate datetime NOT NULL,
-  restrictToProgram tinyint(1),
-  programNo int,
-  INDEX `preventions_demographic_no` (`demographic_no`),
-  INDEX `preventions_provider_no` (provider_no(6)),
-  INDEX `preventions_prevention_type` (prevention_type(10)),
-  INDEX `preventions_refused` (refused),
-  INDEX `preventions_deleted` (deleted),
-  INDEX `preventions_never` (never),
-  INDEX `preventions_creation_date` (`creation_date`),
-  INDEX `preventions_next_date` (next_date),
   PRIMARY KEY  (`id`)
 ) ;
 
@@ -7767,11 +7319,8 @@ CREATE TABLE preventionsExt (
   prevention_id int(10) default NULL,
   keyval varchar(20) default NULL,
   val text,
-  INDEX `preventionsExt_prevention_id` (prevention_id),
-  INDEX `preventionsExt_keyval` (keyval(10)),
   PRIMARY KEY  (`id`)
 ) ;
-
 
 CREATE TABLE `secRole` (
   `role_no` int(3) NOT NULL auto_increment,
@@ -7785,10 +7334,9 @@ CREATE TABLE `secRole` (
 create table secUserRole(
   `id`  int(10) not null auto_increment,
   `provider_no` VARCHAR(6) not null,
-  `role_name` VARCHAR(60) not null,
+  `role_name` VARCHAR(30) not null,
   `orgcd` VARCHAR(80) default 'R0000001',
   `activeyn`    int(1),
-  `lastUpdateDate` datetime not null,
   primary key (id)
 );
 
@@ -7838,7 +7386,6 @@ CREATE TABLE demographicQueryFavourites (
   patientStatus text,
   queryName varchar(255) default NULL,
   archived char(1) default NULL,
-  demoIds text,
   PRIMARY KEY  (favId)
 );
 
@@ -7898,19 +7445,6 @@ CREATE TABLE `demographicExt` (
   INDEX (demographic_no)
 ) ;
 
-CREATE TABLE `demographicExtArchive` (
-  `id` int(10) NOT NULL auto_increment,
-  `archiveId` bigint(20),
-  `demographic_no` int(10) default NULL,
-  `provider_no` varchar(6) default NULL,
-  `key_val` varchar(64) default NULL,
-  `value` text,
-  `date_time` datetime default NULL,
-  `hidden` char(1) default '0',
-  PRIMARY KEY  (`id`),
-  INDEX (demographic_no)
-) ;
-
 CREATE TABLE `relationships` (
   `id` int(10) NOT NULL auto_increment,
   `facility_id` int,
@@ -7929,7 +7463,7 @@ CREATE TABLE `relationships` (
 
 CREATE TABLE `table_modification` (
   `id` int(10) NOT NULL auto_increment primary key,
-  `demographic_no` int(10) default '0',
+  `demographic_no` int(10) NOT NULL default '0',
   `provider_no` varchar(6) NOT NULL default '',
   `modification_date` datetime default NULL,
   `modification_type` varchar(20) default NULL,
@@ -7948,7 +7482,7 @@ CREATE TABLE `fileUploadCheck` (
   `provider_no` varchar(6) NOT NULL default '',
   `filename` varchar(255) NOT NULL default '',
   `md5sum` varchar(255) default NULL,
-  `date_time` datetime NOT NULL,
+  `date_time` datetime NOT NULL default '0000-00-00 00:00:00',
   PRIMARY KEY  (`id`)
 );
 
@@ -7956,8 +7490,7 @@ create table scratch_pad (
    id int(10) not null auto_increment primary key,
    provider_no varchar(6),
    date_time datetime,
-   scratch_text text,
-   status tinyint(1)
+   scratch_text text
 );
 
 --
@@ -8019,13 +7552,12 @@ create table hl7TextInfo(
 	discipline varchar(100),
 	last_name varchar(30),
 	first_name varchar(30),
-	report_status varchar(10) NOT NULL,
-	accessionNum varchar(255),
+	report_status varchar(1) NOT NULL,
+	accessionNum varchar(20),
 	filler_order_num varchar(50),
 	sending_facility varchar(50),
 	label varchar(255),
-	KEY `labno_index`(`lab_no`),
-	KEY `accession_index`(`accessionNum`)
+	KEY `labno_index`(`lab_no`)
 );
 
 create table hl7TextMessage(
@@ -8078,11 +7610,30 @@ CREATE TABLE incomingLabRules(
 
 
 
+create index preventions_demographic_no on preventions (demographic_no);
+create index preventions_provider_no on preventions (provider_no(6));
+create index preventions_prevention_type on preventions (prevention_type(10));
+create index preventions_refused on preventions (refused);
+create index preventions_deleted on preventions (deleted);
+create index preventions_never on preventions (never);
+create index preventions_creation_date on preventions (creation_date);
+create index preventions_next_date on preventions (next_date);
 
 
 
 
+create index preventionsExt_prevention_id on preventionsExt (prevention_id);
+create index preventionsExt_keyval on preventionsExt (keyval(10));
 
+
+
+create index surveyId_index on surveyData (surveyId(5));
+create index demographic_no_index on surveyData (demographic_no);
+create index provider_no_index on surveyData (provider_no(6));
+create index status_index on surveyData (status(2));
+create index survey_date_index on surveyData (survey_date);
+create index answer_index on surveyData (answer(10));
+create index processed_index on surveyData (processed);
 
 create table IssueGroup (id int primary key auto_increment, name varchar(255) not null);
 create table IssueGroupIssues (issueGroupId int not null, issue_id int not null, unique(issueGroupId,issue_id), index(issue_id));
@@ -8096,11 +7647,12 @@ CREATE TABLE demographic_merged(
     merged_to INT(10) NOT NULL,
     deleted INT(1) NOT NULL DEFAULT 0,
     `lastUpdateUser` varchar(6) default NULL,
-    `lastUpdateDate` date default NULL,
-    INDEX `dem_merged` (demographic_no, merged_to, deleted),
-    INDEX `dem_merged_dem` (demographic_no, deleted),
-    INDEX `dem_merged_merge` (merged_to, deleted)
+    `lastUpdateDate` date default NULL
 );
+
+CREATE INDEX dem_merged ON demographic_merged (demographic_no, merged_to, deleted);
+CREATE INDEX dem_merged_dem ON demographic_merged (demographic_no, deleted);
+CREATE INDEX dem_merged_merge ON demographic_merged (merged_to, deleted);
 
 --
 -- New audit table stores hashes of casemanagement notes
@@ -8648,9 +8200,10 @@ create table lst_orgcd
   activeyn     VARCHAR(1),
   orderbyindex int,
   codetree      VARCHAR(80),
-  primary key (code),
-  INDEX `IDX_ORGCD_CODE` (codetree)
+  primary key (code)
 );
+
+create index IDX_ORGCD_CODE on lst_orgcd (codetree);
 
 create table favoritesprivilege
 (
@@ -8663,14 +8216,12 @@ create table favoritesprivilege
 
 CREATE TABLE `appointment_status` (
   `id` int(11) NOT NULL auto_increment,
-  `status` char(2) BINARY NOT NULL,
+  `status` char(2) NOT NULL,
   `description` char(30) NOT NULL default 'no description',
   `color` char(7) NOT NULL default '#cccccc',
   `icon` char(30) NOT NULL default '''''',
   `active` int(1) NOT NULL default '1',
   `editable` int(1) NOT NULL default '0',
-  `short_letter_colour` INT(11) NULL COMMENT 'The colour of the short letters in the system', 
-  `short_letters` VARCHAR(5) NULL COMMENT 'The short letter representation of the appointment status',
   PRIMARY KEY  (`id`)
 );
 
@@ -8697,8 +8248,7 @@ CREATE TABLE `casemgmt_note_link` (
   `table_id` int(10) NOT NULL,
   `note_id` int(10) NOT NULL,
   `other_id` varchar(25),
-  PRIMARY KEY  (`id`),
-  KEY note_idIndex (`note_id`)
+  PRIMARY KEY  (`id`)
 );
 
 
@@ -8708,8 +8258,7 @@ CREATE TABLE `casemgmt_note_ext` (
   `key_val` varchar(64) NOT NULL,
   `value` text,
   `date_value` date,
-  PRIMARY KEY  (`id`),
-  KEY note_idIndex (`note_id`)
+  PRIMARY KEY (`id`)
 );
 
 
@@ -8805,8 +8354,6 @@ CREATE TABLE `site` (
   `status` tinyint(4) NOT NULL default '0',
   `providerId_from` int null,
   `providerId_to` int null,
-  `siteLogoId` int ,
-  `siteUrl` varchar(50),
   PRIMARY KEY  (`site_id`),
   UNIQUE KEY `unique_name` (`name`),
   UNIQUE KEY `unique_shortname` (`short_name`)
@@ -8943,11 +8490,11 @@ CREATE TABLE appointmentArchive (
   name varchar(50),
   demographic_no int(10),
   program_id int,
-  notes varchar(255),
+  notes varchar(80),
   reason varchar(80),
   location varchar(30),
   resources varchar(255),
-  type varchar(50),
+  type varchar(10),
   style varchar(10),
   billing varchar(10),
   status char(2),
@@ -8981,7 +8528,7 @@ CREATE TABLE `EyeformFollowUp` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `appointment_no` int(11)  ,
   `demographic_no` int(11) ,
-  `timespan` varchar(6),
+  `timespan` int(11) ,
   `timeframe` varchar(25) ,
   `followup_provider` varchar(100) ,
   `date` timestamp ,
@@ -9080,7 +8627,6 @@ CREATE TABLE `EyeformSpecsHistory` (
   `updateTime` datetime ,
   `status` varchar(2) ,
   `appointmentNo` int(11) ,
-   `note` varchar(254),
   PRIMARY KEY (`id`)
 );
 
@@ -9109,7 +8655,6 @@ CREATE TABLE `issue` (
   `priority` CHAR(10) DEFAULT NULL,
   `type` VARCHAR(32) DEFAULT NULL,
   `sortOrderId` int NOT NULL,
-  `archived` tinyint(1) NOT NULL,
   PRIMARY KEY  (`issue_id`),
   KEY `description_index`(`description`(20)),
   KEY (`code`)
@@ -9151,10 +8696,6 @@ create table EyeformConsultationReport (
  plan text,
  urgency varchar(100),
  patientWillBook integer,
- contactId varchar(100),
- contact_type int(10),
- otherReferralId int(11),
- siteId int(11),
  primary key(id)
 );
 
@@ -9183,12 +8724,7 @@ create table DemographicContact (
 	sdm varchar(25),
 	ec varchar(25),
 	note varchar(200),
-	consentToContact tinyint(1),
-	active tinyint(1),
-	mrp tinyint(1),
-	programNo int(10),
-	contactTypeId int,
-	KEY (`demographicNo`)
+KEY (`demographicNo`)
 );
 
 
@@ -9215,7 +8751,6 @@ cpso varchar(10),
 systemId varchar(30),
 deleted tinyint,
 updateDate timestamp not null,
-programNo int,
 KEY (`type`),
 KEY (`cpso`),
 KEY (`systemId`)
@@ -9275,7 +8810,6 @@ CREATE TABLE `HRMDocument` (
   `reportLessDemographicInfoHash` varchar(64) ,
   `sourceFacility` varchar(120) ,
   `hrmCategoryId` int ,
-  `description` varchar(255),
   PRIMARY KEY (`id`)
 ) ;
 
@@ -9334,7 +8868,6 @@ CREATE TABLE `HRMProviderConfidentialityStatement` (
   `statement` text,
   PRIMARY KEY (`providerNo`)
 );
-
 
 create table document_storage (
 	id int(10)  NOT NULL auto_increment primary key,
@@ -9572,23 +9105,14 @@ create table Facility (
 	enableDigitalSignatures tinyint(1) not null,
         ocanServiceOrgNumber int(10) not null,
         enableOcanForms tinyint(1) not null,
-        enableCbiForm tinyint(1) not null,
+ 	enableCbiForm tinyint(1) not null,
 	enableAnonymous tinyint(1) unsigned NOT NULL,
-	enablePhoneEncounter tinyint(1) unsigned NOT NULL,
 	enableGroupNotes tinyint(1) unsigned NOT NULL,
 	lastUpdated datetime not null,
 	enableEncounterTime tinyint(1) not null,
 	enableEncounterTransportationTime tinyint(1) not null,
-	registrationIntake int(8),
-	rxInteractionWarningLevel int(10) not null,
-	displayAllVacancies int(1) not null,
-	vacancyWithdrawnTicklerProvider varchar(25),
-	vacancyWithdrawnTicklerDemographic int(10),
-	assignNewVacancyTicklerProvider varchar(25),
-	assignNewVacancyTicklerDemographic int(10),
-	assignRejectedVacancyApplicant varchar(25)
+	rxInteractionWarningLevel int(10) not null
 );
-
 
 
 CREATE TABLE `program` (
@@ -9635,19 +9159,18 @@ CREATE TABLE `program` (
   `capacity_funding` int(10),
   `capacity_space` int(10),
   `lastUpdateUser` varchar(6),
- lastUpdateDate datetime not null,
+  `lastUpdateDate` date,
   `enableEncounterTime` tinyint(1),
   `enableEncounterTransportationTime` tinyint(1),
   `siteSpecificField` varchar(255),
 	emailNotificationAddressesCsv varchar(255),
-	lastReferralNotification datetime,
-  `enableOCAN` tinyint(1) not null
-
+	lastReferralNotification datetime
 );
 
 CREATE TABLE `vacancy_template` (
-  `TEMPLATE_ID` int(11) NOT NULL AUTO_INCREMENT,  
-  `NAME` varchar(100) NOT NULL,
+  `TEMPLATE_ID` int(11) NOT NULL AUTO_INCREMENT,
+  `PROGRAM_ID` int(11) NOT NULL,
+  `NAME` varchar(32) NOT NULL,
   `ACTIVE` tinyint(1) NOT NULL,
   `WL_PROGRAM_ID` int(11) NOT NULL,
   PRIMARY KEY (`TEMPLATE_ID`)
@@ -9684,7 +9207,7 @@ CREATE TABLE `criteria` (
   `TEMPLATE_ID` int(11),
   `VACANCY_ID` int(11),
   `MATCH_SCORE_WEIGHT` double NOT NULL,
-  `CAN_BE_ADHOC` int(1) NOT NULL,
+  `CAN_BE_ADHOC` tinyint(1) NOT NULL,
   PRIMARY KEY (`CRITERIA_ID`)
 );
 
@@ -9695,35 +9218,16 @@ CREATE TABLE `criteria_selection_option` (
   PRIMARY KEY (`SELECT_OPTION_ID`)
 );
 
-CREATE TABLE `vacancy` (
+CREATE TABLE `Vacancy` (
   `id` int(11) primary key NOT NULL AUTO_INCREMENT,
-  `vacancyName` varchar(255) NOT NULL,
   `templateId` int(11) NOT NULL,
   `status` varchar(24) NOT NULL,
   `dateClosed` timestamp NULL,
   `reasonClosed` varchar(255),
-  `wlProgramId` int(11) NOT NULL,
-  `dateCreated` datetime NOT NULL,
-  `emailNotificationAddressesCsv` varchar(255),
-   statusUpdateUser varchar(25),
-   statusUpdateDate datetime
+  `WL_PROGRAM_ID` int(11) NOT NULL,
+  `DATE_CREATE` date NOT NULL,
+  `emailNotificationAddressesCsv` varchar(255)
 );
-
-CREATE TABLE `vacancy_client_match` (
-  `match_id` int NOT NULL AUTO_INCREMENT,
-  `vacancy_id` int(11),
-  `client_id` int(11),
-  `contact_attempts` int(11),
-  `last_contact_date` datetime,
-  `status` varchar(30),
-  `rejection_reason` text,
-  `form_id` int(10),
-  `match_percent` double,
-  `proportion` varchar(8),
-   PRIMARY KEY (`match_id`),
-   UNIQUE KEY `vacancy_id` (`vacancy_id`,`client_id`,`form_id`)
-) ;
-
 
 create table MyGroupAccessRestriction (
         id int not null auto_increment,
@@ -9759,972 +9263,7 @@ create table Episode (
 	notes text
 );
 
-CREATE TABLE form_hsfo2_visit (
- 	ID int(10) NOT NULL auto_increment,
-  demographic_no int(10) NOT NULL,
-  provider_no varchar(10) NOT NULL ,
-  formCreated date ,
-  formEdited timestamp NOT NULL,
-  Patient_Id varchar(255) NOT NULL,
-  VisitDate_Id date NOT Null,
-  Drugcoverage enum('yes', 'no', 'null'),
-  SBP int(3) ,
-  SBP_goal int(3) ,
-  DBP int(3) ,
-  DBP_goal int(3) ,
-  Height double(4, 1) NOT NULL,
-  Height_unit enum('cm', 'inch') NOT NULL,
-  Bptru_used enum('yes', 'no', 'null'),
-  Weight double(4, 1) ,
-  Weight_unit enum('kg', 'lb', 'null'),
-  Waist double(4, 1) ,
-  Waist_unit enum('cm', 'inch', 'null'),
-  TC_HDL double(3, 1) ,
-  LDL double(3, 1) ,
-  HDL double(2, 1) ,
-  Triglycerides double(3,1),
-  Nextvisit enum('Under1Mo', '1to2Mo', '3to6Mo', 'Over6Mo', 'null'),
-  Bpactionplan bool NOT NULL,
-  PressureOff bool NOT NULL,
-  PatientProvider bool NOT NULL,
-  ABPM bool NOT NULL,
-  Home bool NOT NULL,
-  CommunityRes bool NOT NULL,
-  ProRefer bool NOT NULL,
-  HtnDxType enum('PrimaryHtn', 'ElevatedBpReadings', 'null'),
-  Dyslipid bool NOT NULL,
-  Diabetes bool NOT NULL,
-  KidneyDis bool NOT NULL,
-  Obesity bool NOT NULL,
-  CHD bool NOT NULL,
-  Stroke_TIA bool NOT NULL,
-  Risk_weight bool,
-  Risk_activity bool,
-  Risk_diet bool,
-  Risk_smoking bool,
-  Risk_alcohol bool,
-  Risk_stress bool,
-  PtView enum('Uninterested', 'Thinking', 'Deciding', 'TakingAction', 'Maintaining', 'Relapsing', 'null'),
-  Change_importance int(2),
-  Change_confidence int(2),
-  exercise_minPerWk int(3),
-  smoking_cigsPerDay int(2),
-  alcohol_drinksPerWk int(2),
-  sel_DashDiet enum('Always', 'Often', 'Sometimes', 'Never', 'null'),
-  sel_HighSaltFood enum('Always', 'Often', 'Sometimes', 'Never', 'null'),
-  sel_Stressed enum('Always', 'Often', 'Sometimes', 'Never', 'null'),
-  LifeGoal enum('Goal_weight', 'Goal_activity', 'Goal_dietDash', 'Goal_dietSalt', 'Goal_smoking', 'Goal_alcohol', 'Goal_stress', 'null'),
-  FamHx_Htn bool NOT NULL,
-  FamHx_Dyslipid bool NOT NULL,
-  FamHx_Diabetes bool NOT NULL,
-  FamHx_KidneyDis bool NOT NULL,
-  FamHx_Obesity bool NOT NULL,
-  FamHx_CHD bool NOT NULL,
-  FamHx_Stroke_TIA bool NOT NULL,
-  Diuret_rx bool NOT NULL,
-  Diuret_SideEffects bool NOT NULL,
-  Diuret_RxDecToday enum('Same', 'Increase', 'Decrease', 'Stop', 'Start', 'InClassSwitch', 'null') ,
-  Ace_rx bool NOT NULL,
-  Ace_SideEffects bool NOT NULL,
-  Ace_RxDecToday enum('Same', 'Increase', 'Decrease', 'Stop', 'Start', 'InClassSwitch', 'null') ,
-  Arecept_rx bool NOT NULL,
-  Arecept_SideEffects bool NOT NULL,
-  Arecept_RxDecToday enum('Same', 'Increase', 'Decrease', 'Stop', 'Start', 'InClassSwitch', 'null') ,
-  Beta_rx bool NOT NULL,
-  Beta_SideEffects bool NOT NULL,
-  Beta_RxDecToday enum('Same', 'Increase', 'Decrease', 'Stop', 'Start', 'InClassSwitch', 'null') ,
-  Calc_rx bool NOT NULL,
-  Calc_SideEffects bool NOT NULL,
-  Calc_RxDecToday enum('Same', 'Increase', 'Decrease', 'Stop', 'Start', 'InClassSwitch', 'null') ,
-  Anti_rx bool NOT NULL,
-  Anti_SideEffects bool NOT NULL,
-  Anti_RxDecToday enum('Same', 'Increase', 'Decrease', 'Stop', 'Start', 'InClassSwitch', 'null') ,
-  Statin_rx bool NOT NULL,
-  Statin_SideEffects bool NOT NULL,
-  Statin_RxDecToday enum('Same', 'Increase', 'Decrease', 'Stop', 'Start', 'InClassSwitch', 'null') ,
-  Lipid_rx bool NOT NULL,
-  Lipid_SideEffects bool NOT NULL,
-  Lipid_RxDecToday enum('Same', 'Increase', 'Decrease', 'Stop', 'Start', 'InClassSwitch', 'null') ,
-  Hypo_rx bool NOT NULL,
-  Hypo_SideEffects bool NOT NULL,
-  Hypo_RxDecToday enum('Same', 'Increase', 'Decrease', 'Stop', 'Start', 'InClassSwitch', 'null') ,
-  Insul_rx bool NOT NULL,
-  Insul_SideEffects bool NOT NULL,
-  Insul_RxDecToday enum('Same', 'Increase', 'Decrease', 'Stop', 'Start', 'InClassSwitch', 'null') ,
-  Often_miss int(2) ,
-  Herbal enum('yes', 'no', 'null') ,
-  TC_HDL_LabresultsDate date,
-  LDL_LabresultsDate date,
-  HDL_LabresultsDate date,
-  A1C_LabresultsDate date,
-  Locked bool,
-  
-  depression bool,
-  famHx_depression bool,
-  assessActivity int(3),
-  assessSmoking int(3),
-  assessAlcohol int(3),
-  nextVisitInMonths int(3),
-  nextVisitInWeeks int(3),
-  
-  monitor bool,
-  egfrDate date,
-  egfr int(3),
-  acr double(5, 1),  
-  
-  lastBaseLineRecord bool NOT NULL,
-  A1C double(3, 3) ,
-  fbs double(3, 1) ,
-  ASA_rx bool NOT NULL,
-  ASA_SideEffects bool NOT NULL,
-  ASA_RxDecToday enum('Same', 'Increase', 'Decrease', 'Stop', 'Start', 'InClassSwitch', 'null') ,
- 
-  PRIMARY KEY  (ID)
-) ;
-
-CREATE TABLE hsfo2_patient (
-  ID int(10) NOT NULL auto_increment,
-  SiteCode varchar(10) Not null,
-  Patient_Id varchar(255) NOT NULL,
-  FName text NOT NULL,
-  LName text NOT NULL,
-  BirthDate date NOT NULL,
-  Sex enum('m', 'f') NOT NULL,
-  PostalCode varchar(7) NOT NULL,
-  
-  Ethnic_White bool NOT NULL,
-  Ethnic_Black bool NOT NULL,
-  Ethnic_EIndian bool NOT NULL,
-  Ethnic_Pakistani bool NOT NULL,
-  Ethnic_SriLankan bool NOT NULL,
-  Ethnic_Bangladeshi bool NOT NULL,
-  Ethnic_Chinese bool NOT NULL,
-  Ethnic_Japanese bool NOT NULL,
-  Ethnic_Korean bool NOT NULL,
-  Ethnic_Hispanic bool NOT NULL,
-  Ethnic_FirstNation bool NOT NULL,
-  Ethnic_Other bool NOT NULL,
-  Ethnic_Refused bool NOT NULL,
-  Ethnic_Unknown bool NOT NULL,
-  PharmacyName text,
-  PharmacyLocation text,
-  sel_TimeAgoDx enum('AtLeast1YrAgo', 'Under1YrAgo', 'NA', 'null'),
-  EmrHCPId text,
-  ConsentDate date not null,
-  
-  statusInHmp enum('enrolled', 'notEnrolled' ) ,
-  dateOfHmpStatus date ,
-  registrationId varchar(64),
-  submitted bool NOT NULL,
-  
-  
-  PRIMARY KEY  (ID)
-) ;
-
-CREATE TABLE hsfo2_system (
-  ID int(10) NOT NULL auto_increment,
-  LastUploadDate date NOT NULL,
-  PRIMARY KEY  (ID)
-) ;
-
-CREATE TABLE `hsfo_recommit_schedule` (   
-  `id` int(11) NOT NULL auto_increment,   
-  `status` varchar(2) ,       
-  `memo` text,                            
-  `schedule_time` datetime ,  
-  `user_no` varchar(6) ,      
-  `check_flag` tinyint(1) ,   
-   PRIMARY KEY  (`id`)                     
-   ) ; 
-
-CREATE TABLE `PageMonitor` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  pageName varchar(100) NOT NULL,
-  pageId varchar(255) NOT NULL,
-  session varchar(100),
-  remoteAddr varchar(20),
-  locked tinyint(1),
-  updateDate timestamp not null,
-  timeout int(10),
-  providerNo varchar(10),
-  providerName varchar(100),
-  PRIMARY KEY (`id`)
-);
-
-create table BornTransmissionLog(
-        id integer not null auto_increment,
-        submitDateTime timestamp not null,
-        success tinyint(1) default 0,
-        filename varchar(100) not null,
-        primary key(id)
-);
-
-
-CREATE TABLE `PrintResourceLog` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  resourceName varchar(100) NOT NULL,
-  resourceId varchar(50) NOT NULL,
-  dateTime timestamp not null,
-  providerNo varchar(10),
-  externalLocation varchar(200),
-  externalMethod varchar(100),
-  PRIMARY KEY (`id`)
-);
-
-CREATE TABLE `eyeform_macro_def` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `macroName` varchar(255),
-  `lastUpdated` datetime,
-  `copyFromLastImpression` tinyint(1),
-  `impressionText` text,
-  `planText` text,
-  PRIMARY KEY (`id`)
-);
-
-CREATE TABLE `eyeform_macro_billing` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `macroId` int(11),
-  `billingServiceCode` varchar(50),
-  `multiplier` double,
-  PRIMARY KEY (`id`)
-);
-
-create table billing_on_payment (
-    payment_id int (10) NOT NULL auto_increment primary key, 
-    billing_no int(6) NOT NULL, 
-    pay_date timestamp NOT NULL,
-    paymentTypeId int(10),
-    creator varchar(30),
-    total_payment decimal(10,2) not null,
-    total_discount decimal(10,2) not null,
-    total_refund decimal(10,2) not null,
-    total_credit decimal(10,2) not null
-
-);
-
---
--- Table structure for table `formCounseling`
---
-CREATE TABLE `formCounseling` (
-  `ID` int(10) NOT NULL AUTO_INCREMENT,
-  `provider_no` int(10),    
-  `doc_name` varchar(60),
-  `cl_name` varchar(60),
-  `cl_address1` varchar(170),
-  `cl_address2` varchar(170),
-  `cl_phone` varchar(16),
-  `cl_fax` varchar(16),
-  `billingreferral_no` int(10),
-  `t_name` varchar(60),
-  `t_name2` varchar(60),
-  `t_address1` varchar(170),
-  `t_address2` varchar(170),
-  `t_phone` varchar(16),
-  `t_fax` varchar(16),
-  `demographic_no` int(10) NOT NULL,  
-  `p_name` varchar(60),
-  `p_address1` varchar(170),
-  `p_address2` varchar(170),
-  `p_phone` varchar(16),
-  `p_birthdate` varchar(30),
-  `p_healthcard` varchar(20),  
-  `comments` text,
-  `formCreated` date,
-  `formEdited` timestamp,
-  `consultTime` date,  
-  PRIMARY KEY (`ID`)
-);
-
---
--- Table structure for table `formNoShowPolicy`
---
-CREATE TABLE `formNoShowPolicy` (
-  `ID` int(10) NOT NULL AUTO_INCREMENT,
-  `provider_no` int(10),
-  `demographic_no` int(10) NOT NULL,
-  `formCreated` date,
-  `formEdited` timestamp,
-  `formVersion` varchar(10),
-  PRIMARY KEY (`ID`)
-);
-
---
--- Table structure for table `formSelfAssessment`
---
-
-CREATE TABLE `formSelfAssessment` (
-  `ID` int(10) NOT NULL AUTO_INCREMENT,
-  `demographic_no` int(10),
-  `provider_no` int(10),
-  `formCreated` date,
-  `formEdited` timestamp,
-  `name` varchar(255),
-  `p_birthdate` varchar(255),
-  `sex` varchar(255),
-  `faculty` varchar(255),
-  `AcademicYear` varchar(255),
-  `PTFT` varchar(255),
-  `Job` varchar(255),
-  `Hours` varchar(255),
-  `Residence` mediumtext,
-  `Campus` mediumtext,
-  `Home` mediumtext,
-  `Roommates` mediumtext,
-  `LivingSituationOther` mediumtext,
-  `Depression` mediumtext,
-  `helplessness` mediumtext,
-  `ADHD` mediumtext,
-  `Obsessions` mediumtext,
-  `Bipolar` mediumtext,
-  `Anxiety` mediumtext,
-  `Esteem` mediumtext,
-  `Relationship` mediumtext,
-  `Eating` mediumtext,
-  `Sexual` mediumtext,
-  `Suicidal` mediumtext,
-  `Psychosis` mediumtext,
-  `Mania` mediumtext,
-  `Grief` mediumtext,
-  `Substance` mediumtext,
-  `TraumaEmotional` mediumtext,
-  `TraumaPhysical` mediumtext,
-  `TraumaSexual` mediumtext,
-  `Academic` mediumtext,
-  `ReasonsOther` mediumtext,
-  `Hospitalizations` mediumtext,
-  `Surgery` mediumtext,
-  `Medicalillnesses` mediumtext,
-  `CurrentMedications` mediumtext,
-  `CurrentMedicationsList` mediumtext,
-  `psychiatricMedications` mediumtext,
-  `psychiatricMedicationsList` mediumtext,
-  `HospitalizationsOther` mediumtext,
-  `PastSubstance` mediumtext,
-  `PastAlcohol` mediumtext,
-  `PastPrescribedDrugs` mediumtext,
-  `PastCounterMedications` mediumtext,
-  `PastStreetDrugs` mediumtext,
-  `PastTobacco` mediumtext,
-  `PastPSYCHIATRICTraumaEmotional` mediumtext,
-  `PastPSYCHIATRICTraumaPhysical` mediumtext,
-  `PastPSYCHIATRICTraumaSexual` mediumtext,
-  `PastLegal` mediumtext,
-  `PastGambling` mediumtext,
-  `PastReactionsMedication` mediumtext,
-  `PastReactionsMedicationList` mediumtext,
-  `PastSuicideAttempts` mediumtext,
-  `PastSuicideMany` mediumtext,
-  `PastSuicideWhen` mediumtext,
-  `PastCutting` mediumtext,
-  `ptsd` mediumtext,
-  `PastPASTPSYCHIATRICOther` mediumtext,
-  `AgesMother` mediumtext,
-  `AgesFather` mediumtext,
-  `AgesSiblings` mediumtext,
-  `AgesOthers` mediumtext,
-  `Adopted` mediumtext,
-  `FamilyDepression` mediumtext,
-  `FamilyAnxiety` mediumtext,
-  `FamilySubstance` mediumtext,
-  `FamilyAlcohol` mediumtext,
-  `FamilyDrugs` mediumtext,
-  `FamilyEmotional` mediumtext,
-  `FamilyPhysical` mediumtext,
-  `FamilySexual` mediumtext,
-  `FamilySuicide` mediumtext,
-  `FamilyEating` mediumtext,
-  `FamilyBipolar` mediumtext,
-  `FamilyPsychosis` mediumtext,
-  `FamilySchizophrenia` mediumtext,
-  `FamilyADHD` mediumtext,
-  `FamilyPsychiatricOther` mediumtext,
-  `Smoker` mediumtext,
-  `SmokeQty` mediumtext,
-  `StreetDrugs` mediumtext,
-  `DrinkAlcohol` mediumtext,
-  `DrinkAlcoholMany` mediumtext,
-  `DrinkAlcoholWeekly` mediumtext,
-  `Exercise` mediumtext,
-  `Meals` mediumtext,
-  `InRelationship` mediumtext,
-  `AcademicPerformance` mediumtext,
-  `SexualOrientation` mediumtext,
-  `ReligiousAffiliation` mediumtext,
-  `GeneralOther` mediumtext,
-  PRIMARY KEY (`ID`)
-);
-
-create table providerstudy (
-        study_no int(10),
-        provider_no varchar(6),
-        creator varchar(6),
-        `timestamp` timestamp
-);
-
-
-CREATE TABLE `workflow` (
-  ID int(10) NOT NULL AUTO_INCREMENT,
-  workflow_type varchar(100),
-  provider_no varchar(20),
-  demographic_no int(10),
-  completion_date date,
-  current_state varchar(50),
-  create_date_time datetime,
-  PRIMARY KEY(`ID`)
-);
-
-create table Institution (
-        id int PRIMARY KEY NOT NULL auto_increment,
-        name varchar(255) not null,
-        address varchar(255),
-        city varchar(100),
-        province varchar(100),
-        postal varchar(10),
-        country varchar(25),
-        phone varchar(25),
-        fax varchar(25),
-        website varchar(100),
-        email varchar(50),
-        annotation text
-);
-
-create table Department (
-        id int PRIMARY KEY NOT NULL auto_increment,
-        name varchar(255) not null,
-        annotation text
-);
-
-
-create table InstitutionDepartment (
-        institutionId int not null,
-        departmentId int not null
-);
-
-CREATE TABLE `casemgmt_note_lock` (
-  `id` int(10) NOT NULL AUTO_INCREMENT,
-  `session_id` varchar(255),
-  `ip_address` varchar(64),
-  `provider_no` varchar(6),
-  `note_id` int(10),
-  `demographic_no` int(10),
-  `lock_acquired` datetime,
-  PRIMARY KEY (`id`),
-  KEY `casemgmt_note_lock_providerNo` (`provider_no`),
-  KEY `casemgmt_note_lock_note_id` (`note_id`),
-  KEY `casemgmt_note_lock_providerNo_noteId` (`provider_no`,`note_id`)
-);
-
-CREATE TABLE `default_issue` (
-  `id` int(9) NOT NULL AUTO_INCREMENT,
-  `assigned_time` datetime NOT NULL,
-  `issue_ids` text,
-  `provider_no` varchar(6) NOT NULL,
-  `update_time` datetime NOT NULL,
-  PRIMARY KEY (`id`)
-);
-
-create table OscarCode (
-      id int(10) NOT NULL auto_increment primary key,
-      OscarCode varchar(25) not null,
-      description varchar(255)
-);
-
-create table labTestResults(
-  id int(10) NOT NULL auto_increment primary key,
-  labPatientPhysicianInfo_id int(10),
-  line_type char (1),
-  title varchar(255),
-  notUsed1 varchar(255),
-  notUsed2 varchar(255),
-  test_name varchar(255),
-  abn char(1),
-  minimum varchar(65),
-  maximum varchar(65),
-  units varchar(65),
-  result varchar(65),
-  description text,
-  location_id  varchar(255),
-  last char(1)
-);
-
-
-create table labPatientPhysicianInfo(
-  id int(10) NOT NULL auto_increment primary key,
-  labReportInfo_id int(10),
-  accession_num varchar(64),
-  physician_account_num varchar(30),
-  service_date varchar(10),
-  patient_first_name varchar(100),
-  patient_last_name varchar(100),
-  patient_sex char(1),
-  patient_health_num varchar(20),
-  patient_dob varchar(15),
-  lab_status char(1),
-  doc_num varchar(50),
-  doc_name varchar(100),
-  doc_addr1 varchar(100),
-  doc_addr2 varchar(100),
-  doc_addr3 varchar(100),
-  doc_postal varchar(15),
-  doc_route varchar(50),
-  comment1 text,
-  comment2 text,
-  patient_phone varchar(20),
-  doc_phone varchar(20),
-  collection_date varchar(20),
-  lastUpdateDate datetime not null
-);
-
-
-create table LookupList (
-        id int(11) NOT NULL AUTO_INCREMENT,
-        name varchar(50) NOT NULL,
-        `listTitle` varchar(50),
-        description varchar(255),
-        categoryId int,
-        `active` tinyint(1) not null,
-        createdBy varchar(8) not null,
-        dateCreated timestamp not null,
-        primary key(id)
-);
-
-create table LookupListItem (
-        id int(11) NOT NULL AUTO_INCREMENT,
-        lookupListId int(11) not null,
-        value varchar(50) NOT NULL,
-        label varchar(255),
-        displayOrder int not null,
-        `active` tinyint(1) not null,
-        createdBy varchar(8) not null,
-        dateCreated timestamp not null,
-        primary key(id)
-);
-
-
-create table CtlRelationships (
-        id int(11) NOT NULL AUTO_INCREMENT,
-        value varchar(50) NOT NULL,
-        label varchar(255),
-        `active` tinyint(1) not null,
-	maleInverse varchar(50),
-	femaleInverse varchar(50),
-        primary key(id)
-);
-
-CREATE TABLE  documentDescriptionTemplate (
-  id int(10) unsigned NOT NULL AUTO_INCREMENT,
-  doctype varchar(60) NOT NULL,
-  description varchar(255) NOT NULL,
-  descriptionShortcut varchar(20) NOT NULL,
-  provider_no varchar(6),
-  lastUpdated timestamp NOT NULL,
-  PRIMARY KEY (id)
-);
-
-
-create table ORNPreImplementationReportLog (
-  id int(10) NOT NULL auto_increment,
-  providerNo varchar(10) not null,
-  reportData text not null,
-  lastUpdateDate datetime not null,
-  primary key(id)
-);
-
-
-CREATE TABLE `ServiceRequestToken` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `clientId` int(11) DEFAULT NULL,
-  `tokenId` varchar(255) NOT NULL,
-  `tokenSecret` varchar(255) NOT NULL,
-  `callback` varchar(255) NOT NULL,
-  `verifier` varchar(255) DEFAULT NULL,
-  `providerNo` varchar(25) DEFAULT NULL,
-  `scopes` varchar(255) DEFAULT NULL,
-  `dateCreated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-);
-
-CREATE TABLE `ServiceAccessToken` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `clientId` int(11) DEFAULT NULL,
-  `tokenId` varchar(255) NOT NULL,
-  `tokenSecret` varchar(255) NOT NULL,
-  `lifetime` int(10) NOT NULL,
-  `issued` int(10) NOT NULL,
-  `providerNo` varchar(25) DEFAULT NULL,
-  `scopes` varchar(255) DEFAULT NULL,
-  `dateCreated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-);
-
-CREATE TABLE `ServiceClient` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
-  `clientKey` varchar(255) NOT NULL,
-  `clientSecret` varchar(255) NOT NULL,
-  `uri` varchar(255) DEFAULT NULL,
-  `dateCreated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-);
-
-create table PreventionsLotNrs(
-  id int(10) NOT NULL AUTO_INCREMENT, 
-  creationDate datetime,
-  providerNo varchar(6) NOT NULL,
-  preventionType varchar(20) NOT NULL,
-  lotNr text NOT NULL,
-  deleted boolean NOT NULL, 
-  lastUpdateDate datetime NOT NULL,
-  PRIMARY KEY (`id`)
-);
-
-/* Sharing Center Tables - begin */
-CREATE TABLE IF NOT EXISTS `sharing_affinity_domain` (
-    `id` int AUTO_INCREMENT PRIMARY KEY,
-    `oid` VARCHAR(255),
-    `permission` VARCHAR(10),
-    `name` VARCHAR(255)
-);
-
-CREATE TABLE IF NOT EXISTS `sharing_actor` (
-    `id` int AUTO_INCREMENT PRIMARY KEY,
-    `oid` VARCHAR(255),
-    `name` VARCHAR(255),
-    `actor_type` VARCHAR(255),
-    `secure` TINYINT(1),
-    `endpoint` VARCHAR(255),
-    `id_facility_name` VARCHAR(255),
-    `id_application_id` VARCHAR(255),
-    `domain_fk` INT,
-    CONSTRAINT `fk_sharing_domain` FOREIGN KEY (`domain_fk`) REFERENCES `sharing_affinity_domain` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-);
-
-CREATE TABLE IF NOT EXISTS `sharing_policy_definition` (
-    `id` int AUTO_INCREMENT PRIMARY KEY,
-    `display_name` VARCHAR(255),
-    `code` VARCHAR(255),
-    `code_system` VARCHAR(255),
-    `policy_doc_url` VARCHAR(255),
-    `ack_duration` DOUBLE,
-    `domain_fk` INT,
-    CONSTRAINT `fk_sharing_pd_domain` FOREIGN KEY (`domain_fk`) REFERENCES `sharing_affinity_domain` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-);
-
-CREATE TABLE IF NOT EXISTS `sharing_acl_definition` (
-    `id` int AUTO_INCREMENT PRIMARY KEY,
-    `role` VARCHAR(255),
-    `permission` VARCHAR(255),
-    `action_outcome` VARCHAR(255),
-    `policy_fk` INT,
-    CONSTRAINT `fk_sharing_policy` FOREIGN KEY (`policy_fk`) REFERENCES `sharing_policy_definition` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-);
-
-CREATE TABLE IF NOT EXISTS `sharing_value_set` (
-    `id` int AUTO_INCREMENT PRIMARY KEY,
-    `value_set_id` VARCHAR(255),
-    `description` VARCHAR(255),
-    `attribute` VARCHAR(255),
-    `domain_fk` INT,
-    CONSTRAINT `fk_sharing_vs_domain` FOREIGN KEY (`domain_fk`) REFERENCES `sharing_affinity_domain` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-);
-
-CREATE TABLE IF NOT EXISTS `sharing_code_mapping` (
-    `id` int AUTO_INCREMENT PRIMARY KEY,
-    `attribute` VARCHAR(255),
-    `description` VARCHAR(255),
-    `domain_fk` INT,
-    CONSTRAINT `fk_sharing_cm_domain` FOREIGN KEY (`domain_fk`) REFERENCES `sharing_affinity_domain` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-);
-
-CREATE TABLE IF NOT EXISTS `sharing_code_value` (
-    `id` int AUTO_INCREMENT PRIMARY KEY,
-    `code_system` VARCHAR(255),
-    `code` VARCHAR(255),
-    `display_name` VARCHAR(255),
-    `code_system_name` VARCHAR(255),
-    `mapping_fk` INT,
-    CONSTRAINT `fk_sharing_mapping` FOREIGN KEY (`mapping_fk`) REFERENCES `sharing_code_mapping` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-);
-
-CREATE TABLE IF NOT EXISTS `sharing_clinic_info` (
-    `id` int AUTO_INCREMENT PRIMARY KEY,
-    `org_oid` VARCHAR(255),
-    `name` VARCHAR(255),
-    `application_name` VARCHAR(255),
-    `facility_name` VARCHAR(255),
-    `universal_id` VARCHAR(255),
-    `namespace` VARCHAR(255),
-    `source_id` VARCHAR(255)
-);
-# Ensure there is a record in the sharing_clinic_info table
-INSERT INTO sharing_clinic_info (org_oid, name, application_name, facility_name, universal_id, namespace, source_id)
-SELECT * FROM (SELECT '0.1.2.3.4', 'Clinic Name', 'OSCAR_App', 'OSCAR_Facility', '1.0.1', 'OSCAR', '1.0.2') AS temp_set
-WHERE NOT EXISTS (SELECT * FROM sharing_clinic_info);
-
-CREATE TABLE IF NOT EXISTS `sharing_infrastructure` (
-    `id` int AUTO_INCREMENT PRIMARY KEY,
-    `alias` VARCHAR(255),
-    `common_name` VARCHAR(255),
-    `organizational_unit` VARCHAR(255),
-    `organization` VARCHAR(255),
-    `locality` VARCHAR(255),
-    `state` VARCHAR(255),
-    `country` VARCHAR(255),
-    `public_key` TEXT,
-    `private_key` TEXT
-);
-
-CREATE TABLE IF NOT EXISTS `sharing_patient_document` (
-  `patientDocumentId` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `demographic_no` INT,
-  `uniqueDocumentId` VARCHAR(255),
-  `repositoryUniqueId` VARCHAR(45),
-  `creationTime` DATETIME,
-  `isDownloaded` TINYINT(1),
-  `affinityDomain` VARCHAR(255),
-  `title` VARCHAR(255),
-  `mimetype` VARCHAR(255),
-  `author` VARCHAR(255),
-  `affinityDomain_fk` INT,
-  CONSTRAINT `fk_sharing_pat_doc_affinityDomain` FOREIGN KEY (`affinityDomain_fk`) REFERENCES `sharing_affinity_domain` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-);
-
-CREATE TABLE IF NOT EXISTS `sharing_patient_network` (
-    `id` INT AUTO_INCREMENT PRIMARY KEY,
-    `demographic_no` INT,
-    `affinity_domain` INT,
-    `sharing_enabled` TINYINT(1),
-    `sharing_key` VARCHAR(255),
-    `date_enabled` Date,
-    CONSTRAINT `fk_sharing_pat_netwk_affinity_domain` FOREIGN KEY (`affinity_domain`) REFERENCES `sharing_affinity_domain` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-);
-
-CREATE TABLE IF NOT EXISTS `sharing_mapping_code` (
-    `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `attribute` VARCHAR(255),
-    `code` VARCHAR(255),
-    `code_system` VARCHAR(255),
-    `code_system_name` VARCHAR(255),
-    `display_name` VARCHAR(255)
-);
-
-CREATE TABLE IF NOT EXISTS `sharing_mapping_site` (
-    `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `affinity_domain` INT NOT NULL,
-    `source` VARCHAR(255) NOT NULL,
-    `facility_type_code` INT,
-    `practice_setting_code` INT,
-    CONSTRAINT `fk_sharing_mapping_site_facility_type_code` FOREIGN KEY (`facility_type_code`) REFERENCES `sharing_mapping_code` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
-    CONSTRAINT `fk_sharing_mapping_site_practice_setting_code` FOREIGN KEY (`practice_setting_code`) REFERENCES `sharing_mapping_code` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-);
-
-CREATE TABLE IF NOT EXISTS `sharing_mapping_edoc` (
-    `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `affinity_domain` INT NOT NULL,
-    `doc_type` VARCHAR(255) NOT NULL,
-    `source` VARCHAR(255) NOT NULL,
-    `class_code` INT,
-    `type_code` INT,
-    `format_code` INT,
-    `content_type_code` INT,
-    `event_code_list` INT,
-    `folder_code_list` INT,
-    CONSTRAINT `fk_sharing_mapping_edoc_class_code` FOREIGN KEY (`class_code`) REFERENCES `sharing_mapping_code` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
-    CONSTRAINT `fk_sharing_mapping_edoc_type_code` FOREIGN KEY (`type_code`) REFERENCES `sharing_mapping_code` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
-    CONSTRAINT `fk_sharing_mapping_edoc_format_code` FOREIGN KEY (`format_code`) REFERENCES `sharing_mapping_code` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
-    CONSTRAINT `fk_sharing_mapping_edoc_content_type_code` FOREIGN KEY (`content_type_code`) REFERENCES `sharing_mapping_code` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
-    CONSTRAINT `fk_sharing_mapping_edoc_event_code_list` FOREIGN KEY (`event_code_list`) REFERENCES `sharing_mapping_code` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
-    CONSTRAINT `fk_sharing_mapping_edoc_folder_code_list` FOREIGN KEY (`folder_code_list`) REFERENCES `sharing_mapping_code` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-);
-
-CREATE TABLE IF NOT EXISTS `sharing_mapping_eform` (
-    `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `affinity_domain` INT NOT NULL,
-    `eform_id` INT NOT NULL,
-    `source` VARCHAR(255) NOT NULL,
-    `class_code` INT,
-    `type_code` INT,
-    `format_code` INT,
-    `content_type_code` INT,
-    `event_code_list` INT,
-    `folder_code_list` INT,
-    CONSTRAINT `fk_sharing_mapping_eform_class_code` FOREIGN KEY (`class_code`) REFERENCES `sharing_mapping_code` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
-    CONSTRAINT `fk_sharing_mapping_eform_type_code` FOREIGN KEY (`type_code`) REFERENCES `sharing_mapping_code` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
-    CONSTRAINT `fk_sharing_mapping_eform_format_code` FOREIGN KEY (`format_code`) REFERENCES `sharing_mapping_code` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
-    CONSTRAINT `fk_sharing_mapping_eform_content_type_code` FOREIGN KEY (`content_type_code`) REFERENCES `sharing_mapping_code` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
-    CONSTRAINT `fk_sharing_mapping_eform_event_code_list` FOREIGN KEY (`event_code_list`) REFERENCES `sharing_mapping_code` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
-    CONSTRAINT `fk_sharing_mapping_eform_folder_code_list` FOREIGN KEY (`folder_code_list`) REFERENCES `sharing_mapping_code` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-);
-
-CREATE TABLE IF NOT EXISTS `sharing_mapping_misc` (
-    `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    `affinity_domain` INT NOT NULL,
-    `type` VARCHAR(255) NOT NULL,
-    `source` VARCHAR(255) NOT NULL,
-    `class_code` INT,
-    `type_code` INT,
-    `format_code` INT,
-    `content_type_code` INT,
-    `event_code_list` INT,
-    `folder_code_list` INT,
-    CONSTRAINT `fk_sharing_mapping_misc_class_code` FOREIGN KEY (`class_code`) REFERENCES `sharing_mapping_code` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
-    CONSTRAINT `fk_sharing_mapping_misc_type_code` FOREIGN KEY (`type_code`) REFERENCES `sharing_mapping_code` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
-    CONSTRAINT `fk_sharing_mapping_misc_format_code` FOREIGN KEY (`format_code`) REFERENCES `sharing_mapping_code` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
-    CONSTRAINT `fk_sharing_mapping_misc_content_type_code` FOREIGN KEY (`content_type_code`) REFERENCES `sharing_mapping_code` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
-    CONSTRAINT `fk_sharing_mapping_misc_event_code_list` FOREIGN KEY (`event_code_list`) REFERENCES `sharing_mapping_code` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
-    CONSTRAINT `fk_sharing_mapping_misc_folder_code_list` FOREIGN KEY (`folder_code_list`) REFERENCES `sharing_mapping_code` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-);
-
-CREATE TABLE IF NOT EXISTS `sharing_document_export` (
-    `id` INT AUTO_INCREMENT PRIMARY KEY,
-    `document_type` VARCHAR(10) NOT NULL,
-    `document` BLOB NOT NULL,
-    `demographic_no` INT NOT NUlL,
-    CONSTRAINT `fk_sharing_document_export_demographic_no` FOREIGN KEY (`demographic_no`) REFERENCES `demographic` (`demographic_no`) ON DELETE CASCADE ON UPDATE CASCADE
-);
-
-CREATE TABLE IF NOT EXISTS `sharing_patient_policy_consent` (
-  `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `demographic_no` INT NOT NULL,
-  `affinity_domain_id` INT NOT NULL,
-  `consent_date` DATETIME NOT NULL,
-  `policy_id` INT NOT NULL,
-  CONSTRAINT `fk_sharing_consent_policy_definition` FOREIGN KEY (`policy_id`) REFERENCES `sharing_policy_definition` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
-  CONSTRAINT `fk_sharing_consent_affinity_domain` FOREIGN KEY (`affinity_domain_id`) REFERENCES `sharing_affinity_domain` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-);
-
-CREATE TABLE IF NOT EXISTS `sharing_exported_doc` (
-  `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  `affinity_domain` INT NOT NULL,
-  `demographic_no` INT NOT NULL,
-  `local_doc_id` INT,
-  `document_type` VARCHAR(10) NOT NULL,
-  `document_uid` VARCHAR(255) NOT NULL,
-  `document_uuid` VARCHAR(255) NOT NULL,
-  `date_exported` DATETIME NOT NULL,
-  CONSTRAINT `fk_sharing_exported_doc_domain` FOREIGN KEY (`affinity_domain`) REFERENCES `sharing_affinity_domain` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-);
-/* Sharing Center Tables - end */
-
-create table ORNCkdScreeningReportLog (
-  id int(10) NOT NULL auto_increment,
-  providerNo varchar(10) not null,
-  reportData text not null,
-  lastUpdateDate datetime not null,
-  primary key(id)
-);
-
-
-create table DrugProduct(
-        id int(9) NOT NULL auto_increment,
-        name varchar(255),
-        code varchar(255),
-        lotNumber varchar(255),
-        dispensingEvent int(9),
-        amount int not null,
-        expiryDate date,
-        location int,
-	dateCreated TIMESTAMP,
-	lastUpdateDate TIMESTAMP,
-	lastUpdateUser varchar(10),
-        primary key (id)
-);
-
-
-create table DrugDispensing (
-        id int(9) not null auto_increment,
-        drugId int(9),
-        dateCreated datetime,
-        productId int(9),
-        quantity int(9),
-        unit varchar(20),
-        dispensingProviderNo varchar(20),
-        providerNo varchar(20),
-        paidFor tinyint(1),
-        notes text,
-        programNo int,
-	archived tinyint(1) not null,
-        primary key(id)
-);
-
-create table DrugDispensingMapping (
-        id int(9) not null auto_increment,
-        din varchar(50),
-        duration varchar(255),
-        durUnit char(1),
-        freqCode varchar(6),
-        quantity varchar(20),
-        takeMin float,
-        takeMax float,
-        productCode varchar(255),
-        dateCreated datetime,
-        primary key(id)
-);
-
-
-
-CREATE TABLE IF NOT EXISTS `OscarJob` (
-    `id` int AUTO_INCREMENT PRIMARY KEY,
-    `name` VARCHAR(255),
-    `description` VARCHAR(255),
-    `oscarJobTypeId` INTEGER,
-    `cronExpression` VARCHAR(255),
-    `providerNo` VARCHAR(10),
-    `enabled` TINYINT(1) NOT NULL,
-    `updated` DATETIME NOT NULL
-);
-
-
-CREATE TABLE IF NOT EXISTS `OscarJobType` (
-    `id` int AUTO_INCREMENT PRIMARY KEY,
-    `name` VARCHAR(255),
-    `description` VARCHAR(255),
-    `className` VARCHAR(255),
-    `enabled` TINYINT(1) NOT NULL,
-    `updated` DATETIME NOT NULL
-);
-
-CREATE TABLE ProductLocation (
-  `id` int(11) NOT NULL auto_increment,
-  `name` varchar(255),
-  PRIMARY KEY  (`id`)
-);
-
-CREATE TABLE `faxes` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `filename` varchar(255),
-  `faxline` varchar(11),
-  `destination` varchar(11),
-  `status` varchar(32),
-  `statusString` varchar(255),
-  `document` text,
-  `numPages` int(11),
-  `stamp` datetime,
-  `user` varchar(255),
-  `jobId` int(11),
-  `oscarUser` varchar(6),
-  `demographicNo` int(11),
-  PRIMARY KEY (`id`),
-  KEY `faxline` (`faxline`),
-  KEY `faxstatus` (`status`)
-); 
-
-CREATE TABLE `fax_config` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `url` varchar(255),
-  `siteUser` varchar(255),
-  `passwd` varchar(255),
-  `faxUser` varchar(255),
-  `faxPasswd` varchar(255),
-  `queue` varchar(255),
-  `active` tinyint(1),
-  `faxNumber` varchar(10),
-  `senderEmail` varchar(255),
-  PRIMARY KEY (`id`)
-);
-
-
-CREATE TABLE formONAREnhancedRecord (
+CREATE TABLE formONAREnhanced(
   ID int(10) NOT NULL  auto_increment,
   episodeId int(10),
   sent_to_born tinyint(1) default 0,
@@ -11111,724 +9650,712 @@ CREATE TABLE formONAREnhancedRecord (
   c_planManage19 varchar(100) default NULL,
   c_riskFactors20 varchar(50) default NULL,
   c_planManage20 varchar(100) default NULL,
-  PRIMARY KEY (`ID`),
-  KEY `demographic_noIndex` (`demographic_no`)
-);
 
-
-CREATE TABLE formONAREnhancedRecordExt1 (
-  ID int(10) NOT NULL ,
   ar2_rhNeg tinyint(1) default NULL,
   ar2_rhIG varchar(10) default NULL,
   ar2_rubella tinyint(1) default NULL,
   ar2_hepBIG tinyint(1) default NULL,
   ar2_hepBVac tinyint(1) default NULL,
-  `pg2_date1` date default NULL,
-  `pg2_gest1` varchar(6),
-  `pg2_wt1` varchar(6),
-  `pg2_BP1` varchar(8),
-  `pg2_urinePr1` char(3),
-  `pg2_urineGl1` char(3),
-  `pg2_ht1` varchar(6),
-  `pg2_presn1` varchar(6),
-  `pg2_FHR1` varchar(6),
-  `pg2_comments1` varchar(80),
-  `pg2_date2` date,
-  `pg2_gest2` varchar(6),
-  `pg2_ht2` varchar(6),
-  `pg2_wt2` varchar(6),
-  `pg2_presn2` varchar(6),
-  `pg2_FHR2` varchar(6),
-  `pg2_urinePr2` char(3),
-  `pg2_urineGl2` char(3),
-  `pg2_BP2` varchar(8),
-  `pg2_comments2` varchar(80),
-  `pg2_date3` date,
-  `pg2_gest3` varchar(6),
-  `pg2_ht3` varchar(6),
-  `pg2_wt3` varchar(6),
-  `pg2_presn3` varchar(6),
-  `pg2_FHR3` varchar(6),
-  `pg2_urinePr3` char(3),
-  `pg2_urineGl3` char(3),
-  `pg2_BP3` varchar(8),
-  `pg2_comments3` varchar(80),
-  `pg2_date4` date,
-  `pg2_gest4` varchar(6),
-  `pg2_ht4` varchar(6),
-  `pg2_wt4` varchar(6),
-  `pg2_presn4` varchar(6),
-  `pg2_FHR4` varchar(6),
-  `pg2_urinePr4` char(3),
-  `pg2_urineGl4` char(3),
-  `pg2_BP4` varchar(8),
-  `pg2_comments4` varchar(80),
-  `pg2_date5` date,
-  `pg2_gest5` varchar(6),
-  `pg2_ht5` varchar(6),
-  `pg2_wt5` varchar(6),
-  `pg2_presn5` varchar(6),
-  `pg2_FHR5` varchar(6),
-  `pg2_urinePr5` char(3),
-  `pg2_urineGl5` char(3),
-  `pg2_BP5` varchar(8),
-  `pg2_comments5` varchar(80),
-  `pg2_date6` date,
-  `pg2_gest6` varchar(6),
-  `pg2_ht6` varchar(6),
-  `pg2_wt6` varchar(6),
-  `pg2_presn6` varchar(6),
-  `pg2_FHR6` varchar(6),
-  `pg2_urinePr6` char(3),
-  `pg2_urineGl6` char(3),
-  `pg2_BP6` varchar(8),
-  `pg2_comments6` varchar(80),
-  `pg2_date7` date,
-  `pg2_gest7` varchar(6),
-  `pg2_ht7` varchar(6),
-  `pg2_wt7` varchar(6),
-  `pg2_presn7` varchar(6),
-  `pg2_FHR7` varchar(6),
-  `pg2_urinePr7` char(3),
-  `pg2_urineGl7` char(3),
-  `pg2_BP7` varchar(8),
-  `pg2_comments7` varchar(80),
-  `pg2_date8` date,
-  `pg2_gest8` varchar(6),
-  `pg2_ht8` varchar(6),
-  `pg2_wt8` varchar(6),
-  `pg2_presn8` varchar(6),
-  `pg2_FHR8` varchar(6),
-  `pg2_urinePr8` char(3),
-  `pg2_urineGl8` char(3),
-  `pg2_BP8` varchar(8),
-  `pg2_comments8` varchar(80),
-  `pg2_date9` date,
-  `pg2_gest9` varchar(6),
-  `pg2_ht9` varchar(6),
-  `pg2_wt9` varchar(6),
-  `pg2_presn9` varchar(6),
-  `pg2_FHR9` varchar(6),
-  `pg2_urinePr9` char(3),
-  `pg2_urineGl9` char(3),
-  `pg2_BP9` varchar(8),
-  `pg2_comments9` varchar(80),
-  `pg2_date10` date,
-  `pg2_gest10` varchar(6),
-  `pg2_ht10` varchar(6),
-  `pg2_wt10` varchar(6),
-  `pg2_presn10` varchar(6),
-  `pg2_FHR10` varchar(6),
-  `pg2_urinePr10` char(3),
-  `pg2_urineGl10` char(3),
-  `pg2_BP10` varchar(8),
-  `pg2_comments10` varchar(80),
-  `pg2_date11` date,
-  `pg2_gest11` varchar(6),
-  `pg2_ht11` varchar(6),
-  `pg2_wt11` varchar(6),
-  `pg2_presn11` varchar(6),
-  `pg2_FHR11` varchar(6),
-  `pg2_urinePr11` char(3),
-  `pg2_urineGl11` char(3),
-  `pg2_BP11` varchar(8),
-  `pg2_comments11` varchar(80),
-  `pg2_date12` date,
-  `pg2_gest12` varchar(6),
-  `pg2_ht12` varchar(6),
-  `pg2_wt12` varchar(6),
-  `pg2_presn12` varchar(6),
-  `pg2_FHR12` varchar(6),
-  `pg2_urinePr12` char(3),
-  `pg2_urineGl12` char(3),
-  `pg2_BP12` varchar(8),
-  `pg2_comments12` varchar(80),
-  `pg2_date13` date,
-  `pg2_gest13` varchar(6),
-  `pg2_ht13` varchar(6),
-  `pg2_wt13` varchar(6),
-  `pg2_presn13` varchar(6),
-  `pg2_FHR13` varchar(6),
-  `pg2_urinePr13` char(3),
-  `pg2_urineGl13` char(3),
-  `pg2_BP13` varchar(8),
-  `pg2_comments13` varchar(80),
-  `pg2_date14` date,
-  `pg2_gest14` varchar(6),
-  `pg2_ht14` varchar(6),
-  `pg2_wt14` varchar(6),
-  `pg2_presn14` varchar(6),
-  `pg2_FHR14` varchar(6),
-  `pg2_urinePr14` char(3),
-  `pg2_urineGl14` char(3),
-  `pg2_BP14` varchar(8),
-  `pg2_comments14` varchar(80),
-  `pg2_date15` date,
-  `pg2_gest15` varchar(6),
-  `pg2_ht15` varchar(6),
-  `pg2_wt15` varchar(6),
-  `pg2_presn15` varchar(6),
-  `pg2_FHR15` varchar(6),
-  `pg2_urinePr15` char(3),
-  `pg2_urineGl15` char(3),
-  `pg2_BP15` varchar(8),
-  `pg2_comments15` varchar(80),
-  `pg2_date16` date,
-  `pg2_gest16` varchar(6),
-  `pg2_ht16` varchar(6),
-  `pg2_wt16` varchar(6),
-  `pg2_presn16` varchar(6),
-  `pg2_FHR16` varchar(6),
-  `pg2_urinePr16` char(3),
-  `pg2_urineGl16` char(3),
-  `pg2_BP16` varchar(8),
-  `pg2_comments16` varchar(80),
-  `pg2_date17` date,
-  `pg2_gest17` varchar(6),
-  `pg2_ht17` varchar(6),
-  `pg2_wt17` varchar(6),
-  `pg2_presn17` varchar(6),
-  `pg2_FHR17` varchar(6),
-  `pg2_urinePr17` char(3),
-  `pg2_urineGl17` char(3),
-  `pg2_BP17` varchar(8),
-  `pg2_comments17` varchar(80),
-  `pg2_date18` date,
-  `pg2_gest18` varchar(6),
-  `pg2_ht18` varchar(6),
-  `pg2_wt18` varchar(6),
-  `pg2_presn18` varchar(6),
-  `pg2_FHR18` varchar(6),
-  `pg2_urinePr18` char(3),
-  `pg2_urineGl18` char(3),
-  `pg2_BP18` varchar(8),
-  `pg2_comments18` varchar(80),
-  `pg2_date19` date,
-  `pg2_gest19` varchar(6),
-  `pg2_ht19` varchar(6),
-  `pg2_wt19` varchar(6),
-  `pg2_presn19` varchar(6),
-  `pg2_FHR19` varchar(6),
-  `pg2_urinePr19` char(3),
-  `pg2_urineGl19` char(3),
-  `pg2_BP19` varchar(8),
-  `pg2_comments19` varchar(80),
-  `pg2_date20` date,
-  `pg2_gest20` varchar(6),
-  `pg2_ht20` varchar(6),
-  `pg2_wt20` varchar(6),
-  `pg2_presn20` varchar(6),
-  `pg2_FHR20` varchar(6),
-  `pg2_urinePr20` char(3),
-  `pg2_urineGl20` char(3),
-  `pg2_BP20` varchar(8),
-  `pg2_comments20` varchar(80),
-  `pg2_date21` date,
-  `pg2_gest21` varchar(6),
-  `pg2_ht21` varchar(6),
-  `pg2_wt21` varchar(6),
-  `pg2_presn21` varchar(6),
-  `pg2_FHR21` varchar(6),
-  `pg2_urinePr21` char(3),
-  `pg2_urineGl21` char(3),
-  `pg2_BP21` varchar(8),
-  `pg2_comments21` varchar(80),
-  `pg2_date22` date,
-  `pg2_gest22` varchar(6),
-  `pg2_ht22` varchar(6),
-  `pg2_wt22` varchar(6),
-  `pg2_presn22` varchar(6),
-  `pg2_FHR22` varchar(6),
-  `pg2_urinePr22` char(3),
-  `pg2_urineGl22` char(3),
-  `pg2_BP22` varchar(8),
-  `pg2_comments22` varchar(80),
-  `pg2_date23` date,
-  `pg2_gest23` varchar(6),
-  `pg2_ht23` varchar(6),
-  `pg2_wt23` varchar(6),
-  `pg2_presn23` varchar(6),
-  `pg2_FHR23` varchar(6),
-  `pg2_urinePr23` char(3),
-  `pg2_urineGl23` char(3),
-  `pg2_BP23` varchar(8),
-  `pg2_comments23` varchar(80),
-  `pg2_date24` date,
-  `pg2_gest24` varchar(6),
-  `pg2_ht24` varchar(6),
-  `pg2_wt24` varchar(6),
-  `pg2_presn24` varchar(6),
-  `pg2_FHR24` varchar(6),
-  `pg2_urinePr24` char(3),
-  `pg2_urineGl24` char(3),
-  `pg2_BP24` varchar(8),
-  `pg2_comments24` varchar(80),
-  `pg2_date25` date,
-  `pg2_gest25` varchar(6),
-  `pg2_ht25` varchar(6),
-  `pg2_wt25` varchar(6),
-  `pg2_presn25` varchar(6),
-  `pg2_FHR25` varchar(6),
-  `pg2_urinePr25` char(3),
-  `pg2_urineGl25` char(3),
-  `pg2_BP25` varchar(8),
-  `pg2_comments25` varchar(80),
-  `pg2_date26` date,
-  `pg2_gest26` varchar(6),
-  `pg2_ht26` varchar(6),
-  `pg2_wt26` varchar(6),
-  `pg2_presn26` varchar(6),
-  `pg2_FHR26` varchar(6),
-  `pg2_urinePr26` char(3),
-  `pg2_urineGl26` char(3),
-  `pg2_BP26` varchar(8),
-  `pg2_comments26` varchar(80),
-  `pg2_date27` date,
-  `pg2_gest27` varchar(6),
-  `pg2_ht27` varchar(6),
-  `pg2_wt27` varchar(6),
-  `pg2_presn27` varchar(6),
-  `pg2_FHR27` varchar(6),
-  `pg2_urinePr27` char(3),
-  `pg2_urineGl27` char(3),
-  `pg2_BP27` varchar(8),
-  `pg2_comments27` varchar(80),
-  `pg2_date28` date,
-  `pg2_gest28` varchar(6),
-  `pg2_ht28` varchar(6),
-  `pg2_wt28` varchar(6),
-  `pg2_presn28` varchar(6),
-  `pg2_FHR28` varchar(6),
-  `pg2_urinePr28` char(3),
-  `pg2_urineGl28` char(3),
-  `pg2_BP28` varchar(8),
-  `pg2_comments28` varchar(80),
-  `pg2_date29` date,
-  `pg2_gest29` varchar(6),
-  `pg2_ht29` varchar(6),
-  `pg2_wt29` varchar(6),
-  `pg2_presn29` varchar(6),
-  `pg2_FHR29` varchar(6),
-  `pg2_urinePr29` char(3),
-  `pg2_urineGl29` char(3),
-  `pg2_BP29` varchar(8),
-  `pg2_comments29` varchar(80),
-  `pg2_date30` date,
-  `pg2_gest30` varchar(6),
-  `pg2_ht30` varchar(6),
-  `pg2_wt30` varchar(6),
-  `pg2_presn30` varchar(6),
-  `pg2_FHR30` varchar(6),
-  `pg2_urinePr30` char(3),
-  `pg2_urineGl30` char(3),
-  `pg2_BP30` varchar(8),
-  `pg2_comments30` varchar(80),
-  `pg2_date31` date,
-  `pg2_gest31` varchar(6),
-  `pg2_ht31` varchar(6),
-  `pg2_wt31` varchar(6),
-  `pg2_presn31` varchar(6),
-  `pg2_FHR31` varchar(6),
-  `pg2_urinePr31` char(3),
-  `pg2_urineGl31` char(3),
-  `pg2_BP31` varchar(8),
-  `pg2_comments31` varchar(80),
-  `pg2_date32` date,
-  `pg2_gest32` varchar(6),
-  `pg2_ht32` varchar(6),
-  `pg2_wt32` varchar(6),
-  `pg2_presn32` varchar(6),
-  `pg2_FHR32` varchar(6),
-  `pg2_urinePr32` char(3),
-  `pg2_urineGl32` char(3),
-  `pg2_BP32` varchar(8),
-  `pg2_comments32` varchar(80),
-  `pg2_date33` date,
-  `pg2_gest33` varchar(6),
-  `pg2_ht33` varchar(6),
-  `pg2_wt33` varchar(6),
-  `pg2_presn33` varchar(6),
-  `pg2_FHR33` varchar(6),
-  `pg2_urinePr33` char(3),
-  `pg2_urineGl33` char(3),
-  `pg2_BP33` varchar(8),
-  `pg2_comments33` varchar(80),
-  `pg2_date34` date,
-  `pg2_gest34` varchar(6),
-  `pg2_ht34` varchar(6),
-  `pg2_wt34` varchar(6),
-  `pg2_presn34` varchar(6),
-  `pg2_FHR34` varchar(6),
-  `pg2_urinePr34` char(3),
-  `pg2_urineGl34` char(3),
-  `pg2_BP34` varchar(8),
-  `pg2_comments34` varchar(80),
-  `pg2_date35` date,
-  `pg2_gest35` varchar(6),
-  `pg2_ht35` varchar(6),
-  `pg2_wt35` varchar(6),
-  `pg2_presn35` varchar(6),
-  `pg2_FHR35` varchar(6),
-  `pg2_urinePr35` char(3),
-  `pg2_urineGl35` char(3),
-  `pg2_BP35` varchar(8),
-  `pg2_comments35` varchar(80),
-  `pg2_date36` date,
-  `pg2_gest36` varchar(6),
-  `pg2_ht36` varchar(6),
-  `pg2_wt36` varchar(6),
-  `pg2_presn36` varchar(6),
-  `pg2_FHR36` varchar(6),
-  `pg2_urinePr36` char(3),
-  `pg2_urineGl36` char(3),
-  `pg2_BP36` varchar(8),
-  `pg2_comments36` varchar(80),
-  `pg2_date37` date,
-  `pg2_gest37` varchar(6),
-  `pg2_ht37` varchar(6),
-  `pg2_wt37` varchar(6),
-  `pg2_presn37` varchar(6),
-  `pg2_FHR37` varchar(6),
-  `pg2_urinePr37` char(3),
-  `pg2_urineGl37` char(3),
-  `pg2_BP37` varchar(8),
-  `pg2_comments37` varchar(80),
-  `pg2_date38` date,
-  `pg2_gest38` varchar(6),
-  `pg2_ht38` varchar(6),
-  `pg2_wt38` varchar(6),
-  `pg2_presn38` varchar(6),
-  `pg2_FHR38` varchar(6),
-  `pg2_urinePr38` char(3),
-  `pg2_urineGl38` char(3),
-  `pg2_BP38` varchar(8),
-  `pg2_comments38` varchar(80),
-  `pg2_date39` date,
-  `pg2_gest39` varchar(6),
-  `pg2_ht39` varchar(6),
-  `pg2_wt39` varchar(6),
-  `pg2_presn39` varchar(6),
-  `pg2_FHR39` varchar(6),
-  `pg2_urinePr39` char(3),
-  `pg2_urineGl39` char(3),
-  `pg2_BP39` varchar(8),
-  `pg2_comments39` varchar(80),
-  `pg2_date40` date,
-  `pg2_gest40` varchar(6),
-  `pg2_ht40` varchar(6),
-  `pg2_wt40` varchar(6),
-  `pg2_presn40` varchar(6),
-  `pg2_FHR40` varchar(6),
-  `pg2_urinePr40` char(3),
-  `pg2_urineGl40` char(3),
-  `pg2_BP40` varchar(8),
-  `pg2_comments40` varchar(80),
-  KEY `idIndex` (`ID`)
-);
-
-CREATE TABLE formONAREnhancedRecordExt2 (
-  ID int(10) NOT NULL ,
-  `pg2_date41` date,
-  `pg2_gest41` varchar(6),
-  `pg2_ht41` varchar(6),
-  `pg2_wt41` varchar(6),
-  `pg2_presn41` varchar(6),
-  `pg2_FHR41` varchar(6),
-  `pg2_urinePr41` char(3),
-  `pg2_urineGl41` char(3),
-  `pg2_BP41` varchar(8),
-  `pg2_comments41` varchar(80),
-  `pg2_date42` date,
-  `pg2_gest42` varchar(6),
-  `pg2_ht42` varchar(6),
-  `pg2_wt42` varchar(6),
-  `pg2_presn42` varchar(6),
-  `pg2_FHR42` varchar(6),
-  `pg2_urinePr42` char(3),
-  `pg2_urineGl42` char(3),
-  `pg2_BP42` varchar(8),
-  `pg2_comments42` varchar(80),
-  `pg2_date43` date,
-  `pg2_gest43` varchar(6),
-  `pg2_ht43` varchar(6),
-  `pg2_wt43` varchar(6),
-  `pg2_presn43` varchar(6),
-  `pg2_FHR43` varchar(6),
-  `pg2_urinePr43` char(3),
-  `pg2_urineGl43` char(3),
-  `pg2_BP43` varchar(8),
-  `pg2_comments43` varchar(80),
-  `pg2_date44` date,
-  `pg2_gest44` varchar(6),
-  `pg2_ht44` varchar(6),
-  `pg2_wt44` varchar(6),
-  `pg2_presn44` varchar(6),
-  `pg2_FHR44` varchar(6),
-  `pg2_urinePr44` char(3),
-  `pg2_urineGl44` char(3),
-  `pg2_BP44` varchar(8),
-  `pg2_comments44` varchar(80),
-  `pg2_date45` date,
-  `pg2_gest45` varchar(6),
-  `pg2_ht45` varchar(6),
-  `pg2_wt45` varchar(6),
-  `pg2_presn45` varchar(6),
-  `pg2_FHR45` varchar(6),
-  `pg2_urinePr45` char(3),
-  `pg2_urineGl45` char(3),
-  `pg2_BP45` varchar(8),
-  `pg2_comments45` varchar(80),
-  `pg2_date46` date,
-  `pg2_gest46` varchar(6),
-  `pg2_ht46` varchar(6),
-  `pg2_wt46` varchar(6),
-  `pg2_presn46` varchar(6),
-  `pg2_FHR46` varchar(6),
-  `pg2_urinePr46` char(3),
-  `pg2_urineGl46` char(3),
-  `pg2_BP46` varchar(8),
-  `pg2_comments46` varchar(80),
-  `pg2_date47` date,
-  `pg2_gest47` varchar(6),
-  `pg2_ht47` varchar(6),
-  `pg2_wt47` varchar(6),
-  `pg2_presn47` varchar(6),
-  `pg2_FHR47` varchar(6),
-  `pg2_urinePr47` char(3),
-  `pg2_urineGl47` char(3),
-  `pg2_BP47` varchar(8),
-  `pg2_comments47` varchar(80),
-  `pg2_date48` date,
-  `pg2_gest48` varchar(6),
-  `pg2_ht48` varchar(6),
-  `pg2_wt48` varchar(6),
-  `pg2_presn48` varchar(6),
-  `pg2_FHR48` varchar(6),
-  `pg2_urinePr48` char(3),
-  `pg2_urineGl48` char(3),
-  `pg2_BP48` varchar(8),
-  `pg2_comments48` varchar(80),
-  `pg2_date49` date,
-  `pg2_gest49` varchar(6),
-  `pg2_ht49` varchar(6),
-  `pg2_wt49` varchar(6),
-  `pg2_presn49` varchar(6),
-  `pg2_FHR49` varchar(6),
-  `pg2_urinePr49` char(3),
-  `pg2_urineGl49` char(3),
-  `pg2_BP49` varchar(8),
-  `pg2_comments49` varchar(80),
-  `pg2_date50` date,
-  `pg2_gest50` varchar(6),
-  `pg2_ht50` varchar(6),
-  `pg2_wt50` varchar(6),
-  `pg2_presn50` varchar(6),
-  `pg2_FHR50` varchar(6),
-  `pg2_urinePr50` char(3),
-  `pg2_urineGl50` char(3),
-  `pg2_BP50` varchar(8),
-  `pg2_comments50` varchar(80),
-  `pg2_date51` date,
-  `pg2_gest51` varchar(6),
-  `pg2_ht51` varchar(6),
-  `pg2_wt51` varchar(6),
-  `pg2_presn51` varchar(6),
-  `pg2_FHR51` varchar(6),
-  `pg2_urinePr51` char(3),
-  `pg2_urineGl51` char(3),
-  `pg2_BP51` varchar(8),
-  `pg2_comments51` varchar(80),
-  `pg2_date52` date,
-  `pg2_gest52` varchar(6),
-  `pg2_ht52` varchar(6),
-  `pg2_wt52` varchar(6),
-  `pg2_presn52` varchar(6),
-  `pg2_FHR52` varchar(6),
-  `pg2_urinePr52` char(3),
-  `pg2_urineGl52` char(3),
-  `pg2_BP52` varchar(8),
-  `pg2_comments52` varchar(80),
-  `pg2_date53` date,
-  `pg2_gest53` varchar(6),
-  `pg2_ht53` varchar(6),
-  `pg2_wt53` varchar(6),
-  `pg2_presn53` varchar(6),
-  `pg2_FHR53` varchar(6),
-  `pg2_urinePr53` char(3),
-  `pg2_urineGl53` char(3),
-  `pg2_BP53` varchar(8),
-  `pg2_comments53` varchar(80),
-  `pg2_date54` date,
-  `pg2_gest54` varchar(6),
-  `pg2_ht54` varchar(6),
-  `pg2_wt54` varchar(6),
-  `pg2_presn54` varchar(6),
-  `pg2_FHR54` varchar(6),
-  `pg2_urinePr54` char(3),
-  `pg2_urineGl54` char(3),
-  `pg2_BP54` varchar(8),
-  `pg2_comments54` varchar(80),
-  `pg2_date55` date,
-  `pg2_gest55` varchar(6),
-  `pg2_ht55` varchar(6),
-  `pg2_wt55` varchar(6),
-  `pg2_presn55` varchar(6),
-  `pg2_FHR55` varchar(6),
-  `pg2_urinePr55` char(3),
-  `pg2_urineGl55` char(3),
-  `pg2_BP55` varchar(8),
-  `pg2_comments55` varchar(80),
-  `pg2_date56` date,
-  `pg2_gest56` varchar(6),
-  `pg2_ht56` varchar(6),
-  `pg2_wt56` varchar(6),
-  `pg2_presn56` varchar(6),
-  `pg2_FHR56` varchar(6),
-  `pg2_urinePr56` char(3),
-  `pg2_urineGl56` char(3),
-  `pg2_BP56` varchar(8),
-  `pg2_comments56` varchar(80),
-  `pg2_date57` date,
-  `pg2_gest57` varchar(6),
-  `pg2_ht57` varchar(6),
-  `pg2_wt57` varchar(6),
-  `pg2_presn57` varchar(6),
-  `pg2_FHR57` varchar(6),
-  `pg2_urinePr57` char(3),
-  `pg2_urineGl57` char(3),
-  `pg2_BP57` varchar(8),
-  `pg2_comments57` varchar(80),
-  `pg2_date58` date,
-  `pg2_gest58` varchar(6),
-  `pg2_ht58` varchar(6),
-  `pg2_wt58` varchar(6),
-  `pg2_presn58` varchar(6),
-  `pg2_FHR58` varchar(6),
-  `pg2_urinePr58` char(3),
-  `pg2_urineGl58` char(3),
-  `pg2_BP58` varchar(8),
-  `pg2_comments58` varchar(80),
-  `pg2_date59` date,
-  `pg2_gest59` varchar(6),
-  `pg2_ht59` varchar(6),
-  `pg2_wt59` varchar(6),
-  `pg2_presn59` varchar(6),
-  `pg2_FHR59` varchar(6),
-  `pg2_urinePr59` char(3),
-  `pg2_urineGl59` char(3),
-  `pg2_BP59` varchar(8),
-  `pg2_comments59` varchar(80),
-  `pg2_date60` date,
-  `pg2_gest60` varchar(6),
-  `pg2_ht60` varchar(6),
-  `pg2_wt60` varchar(6),
-  `pg2_presn60` varchar(6),
-  `pg2_FHR60` varchar(6),
-  `pg2_urinePr60` char(3),
-  `pg2_urineGl60` char(3),
-  `pg2_BP60` varchar(8),
-  `pg2_comments60` varchar(80),
-  `pg2_date61` date,
-  `pg2_gest61` varchar(6),
-  `pg2_ht61` varchar(6),
-  `pg2_wt61` varchar(6),
-  `pg2_presn61` varchar(6),
-  `pg2_FHR61` varchar(6),
-  `pg2_urinePr61` char(3),
-  `pg2_urineGl61` char(3),
-  `pg2_BP61` varchar(8),
-  `pg2_comments61` varchar(80),
-  `pg2_date62` date,
-  `pg2_gest62` varchar(6),
-  `pg2_ht62` varchar(6),
-  `pg2_wt62` varchar(6),
-  `pg2_presn62` varchar(6),
-  `pg2_FHR62` varchar(6),
-  `pg2_urinePr62` char(3),
-  `pg2_urineGl62` char(3),
-  `pg2_BP62` varchar(8),
-  `pg2_comments62` varchar(80),
-  `pg2_date63` date,
-  `pg2_gest63` varchar(6),
-  `pg2_ht63` varchar(6),
-  `pg2_wt63` varchar(6),
-  `pg2_presn63` varchar(6),
-  `pg2_FHR63` varchar(6),
-  `pg2_urinePr63` char(3),
-  `pg2_urineGl63` char(3),
-  `pg2_BP63` varchar(8),
-  `pg2_comments63` varchar(80),
-  `pg2_date64` date,
-  `pg2_gest64` varchar(6),
-  `pg2_ht64` varchar(6),
-  `pg2_wt64` varchar(6),
-  `pg2_presn64` varchar(6),
-  `pg2_FHR64` varchar(6),
-  `pg2_urinePr64` char(3),
-  `pg2_urineGl64` char(3),
-  `pg2_BP64` varchar(8),
-  `pg2_comments64` varchar(80),
-  `pg2_date65` date,
-  `pg2_gest65` varchar(6),
-  `pg2_ht65` varchar(6),
-  `pg2_wt65` varchar(6),
-  `pg2_presn65` varchar(6),
-  `pg2_FHR65` varchar(6),
-  `pg2_urinePr65` char(3),
-  `pg2_urineGl65` char(3),
-  `pg2_BP65` varchar(8),
-  `pg2_comments65` varchar(80),
-  `pg2_date66` date,
-  `pg2_gest66` varchar(6),
-  `pg2_ht66` varchar(6),
-  `pg2_wt66` varchar(6),
-  `pg2_presn66` varchar(6),
-  `pg2_FHR66` varchar(6),
-  `pg2_urinePr66` char(3),
-  `pg2_urineGl66` char(3),
-  `pg2_BP66` varchar(8),
-  `pg2_comments66` varchar(80),
-  `pg2_date67` date,
-  `pg2_gest67` varchar(6),
-  `pg2_ht67` varchar(6),
-  `pg2_wt67` varchar(6),
-  `pg2_presn67` varchar(6),
-  `pg2_FHR67` varchar(6),
-  `pg2_urinePr67` char(3),
-  `pg2_urineGl67` char(3),
-  `pg2_BP67` varchar(8),
-  `pg2_comments67` varchar(80),
-  `pg2_date68` date,
-  `pg2_gest68` varchar(6),
-  `pg2_ht68` varchar(6),
-  `pg2_wt68` varchar(6),
-  `pg2_presn68` varchar(6),
-  `pg2_FHR68` varchar(6),
-  `pg2_urinePr68` char(3),
-  `pg2_urineGl68` char(3),
-  `pg2_BP68` varchar(8),
-  `pg2_comments68` varchar(80),
-  `pg2_date69` date,
-  `pg2_gest69` varchar(6),
-  `pg2_ht69` varchar(6),
-  `pg2_wt69` varchar(6),
-  `pg2_presn69` varchar(6),
-  `pg2_FHR69` varchar(6),
-  `pg2_urinePr69` char(3),
-  `pg2_urineGl69` char(3),
-  `pg2_BP69` varchar(8),
-  `pg2_comments69` varchar(80),
-  `pg2_date70` date,
-  `pg2_gest70` varchar(6),
-  `pg2_ht70` varchar(6),
-  `pg2_wt70` varchar(6),
-  `pg2_presn70` varchar(6),
-  `pg2_FHR70` varchar(6),
-  `pg2_urinePr70` char(3),
-  `pg2_urineGl70` char(3),
-  `pg2_BP70` varchar(8),
-  `pg2_comments70` varchar(80),
-
+  pg2_date1 date default NULL,
+  pg2_gest1 varchar(6) default NULL,
+  pg2_wt1 varchar(6) default NULL,
+  pg2_BP1 varchar(8) default NULL,
+  pg2_urinePr1 char(3) default NULL,
+  pg2_urineGl1 char(3) default NULL,
+  pg2_ht1 varchar(6) default NULL,
+  pg2_presn1 varchar(6) default NULL,
+  pg2_FHR1 varchar(6) default NULL,
+  pg2_comments1 varchar(255) default NULL,
+  pg2_date2 date default NULL,
+  pg2_gest2 varchar(6) default NULL,
+  pg2_ht2 varchar(6) default NULL,
+  pg2_wt2 varchar(6) default NULL,
+  pg2_presn2 varchar(6) default NULL,
+  pg2_FHR2 varchar(6) default NULL,
+  pg2_urinePr2 char(3) default NULL,
+  pg2_urineGl2 char(3) default NULL,
+  pg2_BP2 varchar(8) default NULL,
+  pg2_comments2 varchar(255) default NULL,
+  pg2_date3 date default NULL,
+  pg2_gest3 varchar(6) default NULL,
+  pg2_ht3 varchar(6) default NULL,
+  pg2_wt3 varchar(6) default NULL,
+  pg2_presn3 varchar(6) default NULL,
+  pg2_FHR3 varchar(6) default NULL,
+  pg2_urinePr3 char(3) default NULL,
+  pg2_urineGl3 char(3) default NULL,
+  pg2_BP3 varchar(8) default NULL,
+  pg2_comments3 varchar(255) default NULL,
+  pg2_date4 date default NULL,
+  pg2_gest4 varchar(6) default NULL,
+  pg2_ht4 varchar(6) default NULL,
+  pg2_wt4 varchar(6) default NULL,
+  pg2_presn4 varchar(6) default NULL,
+  pg2_FHR4 varchar(6) default NULL,
+  pg2_urinePr4 char(3) default NULL,
+  pg2_urineGl4 char(3) default NULL,
+  pg2_BP4 varchar(8) default NULL,
+  pg2_comments4 varchar(255) default NULL,
+  pg2_date5 date default NULL,
+  pg2_gest5 varchar(6) default NULL,
+  pg2_ht5 varchar(6) default NULL,
+  pg2_wt5 varchar(6) default NULL,
+  pg2_presn5 varchar(6) default NULL,
+  pg2_FHR5 varchar(6) default NULL,
+  pg2_urinePr5 char(3) default NULL,
+  pg2_urineGl5 char(3) default NULL,
+  pg2_BP5 varchar(8) default NULL,
+  pg2_comments5 varchar(255) default NULL,
+  pg2_date6 date default NULL,
+  pg2_gest6 varchar(6) default NULL,
+  pg2_ht6 varchar(6) default NULL,
+  pg2_wt6 varchar(6) default NULL,
+  pg2_presn6 varchar(6) default NULL,
+  pg2_FHR6 varchar(6) default NULL,
+  pg2_urinePr6 char(3) default NULL,
+  pg2_urineGl6 char(3) default NULL,
+  pg2_BP6 varchar(8) default NULL,
+  pg2_comments6 varchar(255) default NULL,
+  pg2_date7 date default NULL,
+  pg2_gest7 varchar(6) default NULL,
+  pg2_ht7 varchar(6) default NULL,
+  pg2_wt7 varchar(6) default NULL,
+  pg2_presn7 varchar(6) default NULL,
+  pg2_FHR7 varchar(6) default NULL,
+  pg2_urinePr7 char(3) default NULL,
+  pg2_urineGl7 char(3) default NULL,
+  pg2_BP7 varchar(8) default NULL,
+  pg2_comments7 varchar(255) default NULL,
+  pg2_date8 date default NULL,
+  pg2_gest8 varchar(6) default NULL,
+  pg2_ht8 varchar(6) default NULL,
+  pg2_wt8 varchar(6) default NULL,
+  pg2_presn8 varchar(6) default NULL,
+  pg2_FHR8 varchar(6) default NULL,
+  pg2_urinePr8 char(3) default NULL,
+  pg2_urineGl8 char(3) default NULL,
+  pg2_BP8 varchar(8) default NULL,
+  pg2_comments8 varchar(255) default NULL,
+  pg2_date9 date default NULL,
+  pg2_gest9 varchar(6) default NULL,
+  pg2_ht9 varchar(6) default NULL,
+  pg2_wt9 varchar(6) default NULL,
+  pg2_presn9 varchar(6) default NULL,
+  pg2_FHR9 varchar(6) default NULL,
+  pg2_urinePr9 char(3) default NULL,
+  pg2_urineGl9 char(3) default NULL,
+  pg2_BP9 varchar(8) default NULL,
+  pg2_comments9 varchar(255) default NULL,
+  pg2_date10 date default NULL,
+  pg2_gest10 varchar(6) default NULL,
+  pg2_ht10 varchar(6) default NULL,
+  pg2_wt10 varchar(6) default NULL,
+  pg2_presn10 varchar(6) default NULL,
+  pg2_FHR10 varchar(6) default NULL,
+  pg2_urinePr10 char(3) default NULL,
+  pg2_urineGl10 char(3) default NULL,
+  pg2_BP10 varchar(8) default NULL,
+  pg2_comments10 varchar(255) default NULL,
+  pg2_date11 date default NULL,
+  pg2_gest11 varchar(6) default NULL,
+  pg2_ht11 varchar(6) default NULL,
+  pg2_wt11 varchar(6) default NULL,
+  pg2_presn11 varchar(6) default NULL,
+  pg2_FHR11 varchar(6) default NULL,
+  pg2_urinePr11 char(3) default NULL,
+  pg2_urineGl11 char(3) default NULL,
+  pg2_BP11 varchar(8) default NULL,
+  pg2_comments11 varchar(255) default NULL,
+  pg2_date12 date default NULL,
+  pg2_gest12 varchar(6) default NULL,
+  pg2_ht12 varchar(6) default NULL,
+  pg2_wt12 varchar(6) default NULL,
+  pg2_presn12 varchar(6) default NULL,
+  pg2_FHR12 varchar(6) default NULL,
+  pg2_urinePr12 char(3) default NULL,
+  pg2_urineGl12 char(3) default NULL,
+  pg2_BP12 varchar(8) default NULL,
+  pg2_comments12 varchar(255) default NULL,
+  pg2_date13 date default NULL,
+  pg2_gest13 varchar(6) default NULL,
+  pg2_ht13 varchar(6) default NULL,
+  pg2_wt13 varchar(6) default NULL,
+  pg2_presn13 varchar(6) default NULL,
+  pg2_FHR13 varchar(6) default NULL,
+  pg2_urinePr13 char(3) default NULL,
+  pg2_urineGl13 char(3) default NULL,
+  pg2_BP13 varchar(8) default NULL,
+  pg2_comments13 varchar(255) default NULL,
+  pg2_date14 date default NULL,
+  pg2_gest14 varchar(6) default NULL,
+  pg2_ht14 varchar(6) default NULL,
+  pg2_wt14 varchar(6) default NULL,
+  pg2_presn14 varchar(6) default NULL,
+  pg2_FHR14 varchar(6) default NULL,
+  pg2_urinePr14 char(3) default NULL,
+  pg2_urineGl14 char(3) default NULL,
+  pg2_BP14 varchar(8) default NULL,
+  pg2_comments14 varchar(255) default NULL,
+  pg2_date15 date default NULL,
+  pg2_gest15 varchar(6) default NULL,
+  pg2_ht15 varchar(6) default NULL,
+  pg2_wt15 varchar(6) default NULL,
+  pg2_presn15 varchar(6) default NULL,
+  pg2_FHR15 varchar(6) default NULL,
+  pg2_urinePr15 char(3) default NULL,
+  pg2_urineGl15 char(3) default NULL,
+  pg2_BP15 varchar(8) default NULL,
+  pg2_comments15 varchar(255) default NULL,
+  pg2_date16 date default NULL,
+  pg2_gest16 varchar(6) default NULL,
+  pg2_ht16 varchar(6) default NULL,
+  pg2_wt16 varchar(6) default NULL,
+  pg2_presn16 varchar(6) default NULL,
+  pg2_FHR16 varchar(6) default NULL,
+  pg2_urinePr16 char(3) default NULL,
+  pg2_urineGl16 char(3) default NULL,
+  pg2_BP16 varchar(8) default NULL,
+  pg2_comments16 varchar(255) default NULL,
+  pg2_date17 date default NULL,
+  pg2_gest17 varchar(6) default NULL,
+  pg2_ht17 varchar(6) default NULL,
+  pg2_wt17 varchar(6) default NULL,
+  pg2_presn17 varchar(6) default NULL,
+  pg2_FHR17 varchar(6) default NULL,
+  pg2_urinePr17 char(3) default NULL,
+  pg2_urineGl17 char(3) default NULL,
+  pg2_BP17 varchar(8) default NULL,
+  pg2_comments17 varchar(255) default NULL,
+  pg2_date18 date default NULL,
+  pg2_gest18 varchar(6) default NULL,
+  pg2_ht18 varchar(6) default NULL,
+  pg2_wt18 varchar(6) default NULL,
+  pg2_presn18 varchar(6) default NULL,
+  pg2_FHR18 varchar(6) default NULL,
+  pg2_urinePr18 char(3) default NULL,
+  pg2_urineGl18 char(3) default NULL,
+  pg2_BP18 varchar(8) default NULL,
+  pg2_comments18 varchar(255) default NULL,
+  pg2_date19 date default NULL,
+  pg2_gest19 varchar(6) default NULL,
+  pg2_ht19 varchar(6) default NULL,
+  pg2_wt19 varchar(6) default NULL,
+  pg2_presn19 varchar(6) default NULL,
+  pg2_FHR19 varchar(6) default NULL,
+  pg2_urinePr19 char(3) default NULL,
+  pg2_urineGl19 char(3) default NULL,
+  pg2_BP19 varchar(8) default NULL,
+  pg2_comments19 varchar(255) default NULL,
+  pg2_date20 date default NULL,
+  pg2_gest20 varchar(6) default NULL,
+  pg2_ht20 varchar(6) default NULL,
+  pg2_wt20 varchar(6) default NULL,
+  pg2_presn20 varchar(6) default NULL,
+  pg2_FHR20 varchar(6) default NULL,
+  pg2_urinePr20 char(3) default NULL,
+  pg2_urineGl20 char(3) default NULL,
+  pg2_BP20 varchar(8) default NULL,
+  pg2_comments20 varchar(255) default NULL,
+  pg2_date21 date default NULL,
+  pg2_gest21 varchar(6) default NULL,
+  pg2_ht21 varchar(6) default NULL,
+  pg2_wt21 varchar(6) default NULL,
+  pg2_presn21 varchar(6) default NULL,
+  pg2_FHR21 varchar(6) default NULL,
+  pg2_urinePr21 char(3) default NULL,
+  pg2_urineGl21 char(3) default NULL,
+  pg2_BP21 varchar(8) default NULL,
+  pg2_comments21 varchar(255) default NULL,
+  pg2_date22 date default NULL,
+  pg2_gest22 varchar(6) default NULL,
+  pg2_ht22 varchar(6) default NULL,
+  pg2_wt22 varchar(6) default NULL,
+  pg2_presn22 varchar(6) default NULL,
+  pg2_FHR22 varchar(6) default NULL,
+  pg2_urinePr22 char(3) default NULL,
+  pg2_urineGl22 char(3) default NULL,
+  pg2_BP22 varchar(8) default NULL,
+  pg2_comments22 varchar(255) default NULL,
+  pg2_date23 date default NULL,
+  pg2_gest23 varchar(6) default NULL,
+  pg2_ht23 varchar(6) default NULL,
+  pg2_wt23 varchar(6) default NULL,
+  pg2_presn23 varchar(6) default NULL,
+  pg2_FHR23 varchar(6) default NULL,
+  pg2_urinePr23 char(3) default NULL,
+  pg2_urineGl23 char(3) default NULL,
+  pg2_BP23 varchar(8) default NULL,
+  pg2_comments23 varchar(255) default NULL,
+  pg2_date24 date default NULL,
+  pg2_gest24 varchar(6) default NULL,
+  pg2_ht24 varchar(6) default NULL,
+  pg2_wt24 varchar(6) default NULL,
+  pg2_presn24 varchar(6) default NULL,
+  pg2_FHR24 varchar(6) default NULL,
+  pg2_urinePr24 char(3) default NULL,
+  pg2_urineGl24 char(3) default NULL,
+  pg2_BP24 varchar(8) default NULL,
+  pg2_comments24 varchar(255) default NULL,
+  pg2_date25 date default NULL,
+  pg2_gest25 varchar(6) default NULL,
+  pg2_ht25 varchar(6) default NULL,
+  pg2_wt25 varchar(6) default NULL,
+  pg2_presn25 varchar(6) default NULL,
+  pg2_FHR25 varchar(6) default NULL,
+  pg2_urinePr25 char(3) default NULL,
+  pg2_urineGl25 char(3) default NULL,
+  pg2_BP25 varchar(8) default NULL,
+  pg2_comments25 varchar(255) default NULL,
+  pg2_date26 date default NULL,
+  pg2_gest26 varchar(6) default NULL,
+  pg2_ht26 varchar(6) default NULL,
+  pg2_wt26 varchar(6) default NULL,
+  pg2_presn26 varchar(6) default NULL,
+  pg2_FHR26 varchar(6) default NULL,
+  pg2_urinePr26 char(3) default NULL,
+  pg2_urineGl26 char(3) default NULL,
+  pg2_BP26 varchar(8) default NULL,
+  pg2_comments26 varchar(255) default NULL,
+  pg2_date27 date default NULL,
+  pg2_gest27 varchar(6) default NULL,
+  pg2_ht27 varchar(6) default NULL,
+  pg2_wt27 varchar(6) default NULL,
+  pg2_presn27 varchar(6) default NULL,
+  pg2_FHR27 varchar(6) default NULL,
+  pg2_urinePr27 char(3) default NULL,
+  pg2_urineGl27 char(3) default NULL,
+  pg2_BP27 varchar(8) default NULL,
+  pg2_comments27 varchar(255) default NULL,
+  pg2_date28 date default NULL,
+  pg2_gest28 varchar(6) default NULL,
+  pg2_ht28 varchar(6) default NULL,
+  pg2_wt28 varchar(6) default NULL,
+  pg2_presn28 varchar(6) default NULL,
+  pg2_FHR28 varchar(6) default NULL,
+  pg2_urinePr28 char(3) default NULL,
+  pg2_urineGl28 char(3) default NULL,
+  pg2_BP28 varchar(8) default NULL,
+  pg2_comments28 varchar(255) default NULL,
+  pg2_date29 date default NULL,
+  pg2_gest29 varchar(6) default NULL,
+  pg2_ht29 varchar(6) default NULL,
+  pg2_wt29 varchar(6) default NULL,
+  pg2_presn29 varchar(6) default NULL,
+  pg2_FHR29 varchar(6) default NULL,
+  pg2_urinePr29 char(3) default NULL,
+  pg2_urineGl29 char(3) default NULL,
+  pg2_BP29 varchar(8) default NULL,
+  pg2_comments29 varchar(255) default NULL,
+  pg2_date30 date default NULL,
+  pg2_gest30 varchar(6) default NULL,
+  pg2_ht30 varchar(6) default NULL,
+  pg2_wt30 varchar(6) default NULL,
+  pg2_presn30 varchar(6) default NULL,
+  pg2_FHR30 varchar(6) default NULL,
+  pg2_urinePr30 char(3) default NULL,
+  pg2_urineGl30 char(3) default NULL,
+  pg2_BP30 varchar(8) default NULL,
+  pg2_comments30 varchar(255) default NULL,
+  pg2_date31 date default NULL,
+  pg2_gest31 varchar(6) default NULL,
+  pg2_ht31 varchar(6) default NULL,
+  pg2_wt31 varchar(6) default NULL,
+  pg2_presn31 varchar(6) default NULL,
+  pg2_FHR31 varchar(6) default NULL,
+  pg2_urinePr31 char(3) default NULL,
+  pg2_urineGl31 char(3) default NULL,
+  pg2_BP31 varchar(8) default NULL,
+  pg2_comments31 varchar(255) default NULL,
+  pg2_date32 date default NULL,
+  pg2_gest32 varchar(6) default NULL,
+  pg2_ht32 varchar(6) default NULL,
+  pg2_wt32 varchar(6) default NULL,
+  pg2_presn32 varchar(6) default NULL,
+  pg2_FHR32 varchar(6) default NULL,
+  pg2_urinePr32 char(3) default NULL,
+  pg2_urineGl32 char(3) default NULL,
+  pg2_BP32 varchar(8) default NULL,
+  pg2_comments32 varchar(255) default NULL,
+  pg2_date33 date default NULL,
+  pg2_gest33 varchar(6) default NULL,
+  pg2_ht33 varchar(6) default NULL,
+  pg2_wt33 varchar(6) default NULL,
+  pg2_presn33 varchar(6) default NULL,
+  pg2_FHR33 varchar(6) default NULL,
+  pg2_urinePr33 char(3) default NULL,
+  pg2_urineGl33 char(3) default NULL,
+  pg2_BP33 varchar(8) default NULL,
+  pg2_comments33 varchar(255) default NULL,
+  pg2_date34 date default NULL,
+  pg2_gest34 varchar(6) default NULL,
+  pg2_ht34 varchar(6) default NULL,
+  pg2_wt34 varchar(6) default NULL,
+  pg2_presn34 varchar(6) default NULL,
+  pg2_FHR34 varchar(6) default NULL,
+  pg2_urinePr34 char(3) default NULL,
+  pg2_urineGl34 char(3) default NULL,
+  pg2_BP34 varchar(8) default NULL,
+  pg2_comments34 varchar(255) default NULL,
+  pg2_date35 date default NULL,
+  pg2_gest35 varchar(6) default NULL,
+  pg2_ht35 varchar(6) default NULL,
+  pg2_wt35 varchar(6) default NULL,
+  pg2_presn35 varchar(6) default NULL,
+  pg2_FHR35 varchar(6) default NULL,
+  pg2_urinePr35 char(3) default NULL,
+  pg2_urineGl35 char(3) default NULL,
+  pg2_BP35 varchar(8) default NULL,
+  pg2_comments35 varchar(255) default NULL,
+  pg2_date36 date default NULL,
+  pg2_gest36 varchar(6) default NULL,
+  pg2_ht36 varchar(6) default NULL,
+  pg2_wt36 varchar(6) default NULL,
+  pg2_presn36 varchar(6) default NULL,
+  pg2_FHR36 varchar(6) default NULL,
+  pg2_urinePr36 char(3) default NULL,
+  pg2_urineGl36 char(3) default NULL,
+  pg2_BP36 varchar(8) default NULL,
+  pg2_comments36 varchar(255) default NULL,
+  pg2_date37 date default NULL,
+  pg2_gest37 varchar(6) default NULL,
+  pg2_ht37 varchar(6) default NULL,
+  pg2_wt37 varchar(6) default NULL,
+  pg2_presn37 varchar(6) default NULL,
+  pg2_FHR37 varchar(6) default NULL,
+  pg2_urinePr37 char(3) default NULL,
+  pg2_urineGl37 char(3) default NULL,
+  pg2_BP37 varchar(8) default NULL,
+  pg2_comments37 varchar(255) default NULL,
+  pg2_date38 date default NULL,
+  pg2_gest38 varchar(6) default NULL,
+  pg2_ht38 varchar(6) default NULL,
+  pg2_wt38 varchar(6) default NULL,
+  pg2_presn38 varchar(6) default NULL,
+  pg2_FHR38 varchar(6) default NULL,
+  pg2_urinePr38 char(3) default NULL,
+  pg2_urineGl38 char(3) default NULL,
+  pg2_BP38 varchar(8) default NULL,
+  pg2_comments38 varchar(255) default NULL,
+  pg2_date39 date default NULL,
+  pg2_gest39 varchar(6) default NULL,
+  pg2_ht39 varchar(6) default NULL,
+  pg2_wt39 varchar(6) default NULL,
+  pg2_presn39 varchar(6) default NULL,
+  pg2_FHR39 varchar(6) default NULL,
+  pg2_urinePr39 char(3) default NULL,
+  pg2_urineGl39 char(3) default NULL,
+  pg2_BP39 varchar(8) default NULL,
+  pg2_comments39 varchar(255) default NULL,
+  pg2_date40 date default NULL,
+  pg2_gest40 varchar(6) default NULL,
+  pg2_ht40 varchar(6) default NULL,
+  pg2_wt40 varchar(6) default NULL,
+  pg2_presn40 varchar(6) default NULL,
+  pg2_FHR40 varchar(6) default NULL,
+  pg2_urinePr40 char(3) default NULL,
+  pg2_urineGl40 char(3) default NULL,
+  pg2_BP40 varchar(8) default NULL,
+  pg2_comments40 varchar(255) default NULL,
+  pg2_date41 date default NULL,
+  pg2_gest41 varchar(6) default NULL,
+  pg2_ht41 varchar(6) default NULL,
+  pg2_wt41 varchar(6) default NULL,
+  pg2_presn41 varchar(6) default NULL,
+  pg2_FHR41 varchar(6) default NULL,
+  pg2_urinePr41 char(3) default NULL,
+  pg2_urineGl41 char(3) default NULL,
+  pg2_BP41 varchar(8) default NULL,
+  pg2_comments41 varchar(255) default NULL,
+  pg2_date42 date default NULL,
+  pg2_gest42 varchar(6) default NULL,
+  pg2_ht42 varchar(6) default NULL,
+  pg2_wt42 varchar(6) default NULL,
+  pg2_presn42 varchar(6) default NULL,
+  pg2_FHR42 varchar(6) default NULL,
+  pg2_urinePr42 char(3) default NULL,
+  pg2_urineGl42 char(3) default NULL,
+  pg2_BP42 varchar(8) default NULL,
+  pg2_comments42 varchar(255) default NULL,
+  pg2_date43 date default NULL,
+  pg2_gest43 varchar(6) default NULL,
+  pg2_ht43 varchar(6) default NULL,
+  pg2_wt43 varchar(6) default NULL,
+  pg2_presn43 varchar(6) default NULL,
+  pg2_FHR43 varchar(6) default NULL,
+  pg2_urinePr43 char(3) default NULL,
+  pg2_urineGl43 char(3) default NULL,
+  pg2_BP43 varchar(8) default NULL,
+  pg2_comments43 varchar(255) default NULL,
+  pg2_date44 date default NULL,
+  pg2_gest44 varchar(6) default NULL,
+  pg2_ht44 varchar(6) default NULL,
+  pg2_wt44 varchar(6) default NULL,
+  pg2_presn44 varchar(6) default NULL,
+  pg2_FHR44 varchar(6) default NULL,
+  pg2_urinePr44 char(3) default NULL,
+  pg2_urineGl44 char(3) default NULL,
+  pg2_BP44 varchar(8) default NULL,
+  pg2_comments44 varchar(255) default NULL,
+  pg2_date45 date default NULL,
+  pg2_gest45 varchar(6) default NULL,
+  pg2_ht45 varchar(6) default NULL,
+  pg2_wt45 varchar(6) default NULL,
+  pg2_presn45 varchar(6) default NULL,
+  pg2_FHR45 varchar(6) default NULL,
+  pg2_urinePr45 char(3) default NULL,
+  pg2_urineGl45 char(3) default NULL,
+  pg2_BP45 varchar(8) default NULL,
+  pg2_comments45 varchar(255) default NULL,
+  pg2_date46 date default NULL,
+  pg2_gest46 varchar(6) default NULL,
+  pg2_ht46 varchar(6) default NULL,
+  pg2_wt46 varchar(6) default NULL,
+  pg2_presn46 varchar(6) default NULL,
+  pg2_FHR46 varchar(6) default NULL,
+  pg2_urinePr46 char(3) default NULL,
+  pg2_urineGl46 char(3) default NULL,
+  pg2_BP46 varchar(8) default NULL,
+  pg2_comments46 varchar(255) default NULL,
+  pg2_date47 date default NULL,
+  pg2_gest47 varchar(6) default NULL,
+  pg2_ht47 varchar(6) default NULL,
+  pg2_wt47 varchar(6) default NULL,
+  pg2_presn47 varchar(6) default NULL,
+  pg2_FHR47 varchar(6) default NULL,
+  pg2_urinePr47 char(3) default NULL,
+  pg2_urineGl47 char(3) default NULL,
+  pg2_BP47 varchar(8) default NULL,
+  pg2_comments47 varchar(255) default NULL,
+  pg2_date48 date default NULL,
+  pg2_gest48 varchar(6) default NULL,
+  pg2_ht48 varchar(6) default NULL,
+  pg2_wt48 varchar(6) default NULL,
+  pg2_presn48 varchar(6) default NULL,
+  pg2_FHR48 varchar(6) default NULL,
+  pg2_urinePr48 char(3) default NULL,
+  pg2_urineGl48 char(3) default NULL,
+  pg2_BP48 varchar(8) default NULL,
+  pg2_comments48 varchar(255) default NULL,
+  pg2_date49 date default NULL,
+  pg2_gest49 varchar(6) default NULL,
+  pg2_ht49 varchar(6) default NULL,
+  pg2_wt49 varchar(6) default NULL,
+  pg2_presn49 varchar(6) default NULL,
+  pg2_FHR49 varchar(6) default NULL,
+  pg2_urinePr49 char(3) default NULL,
+  pg2_urineGl49 char(3) default NULL,
+  pg2_BP49 varchar(8) default NULL,
+  pg2_comments49 varchar(255) default NULL,
+  pg2_date50 date default NULL,
+  pg2_gest50 varchar(6) default NULL,
+  pg2_ht50 varchar(6) default NULL,
+  pg2_wt50 varchar(6) default NULL,
+  pg2_presn50 varchar(6) default NULL,
+  pg2_FHR50 varchar(6) default NULL,
+  pg2_urinePr50 char(3) default NULL,
+  pg2_urineGl50 char(3) default NULL,
+  pg2_BP50 varchar(8) default NULL,
+  pg2_comments50 varchar(255) default NULL,
+  pg2_date51 date default NULL,
+  pg2_gest51 varchar(6) default NULL,
+  pg2_ht51 varchar(6) default NULL,
+  pg2_wt51 varchar(6) default NULL,
+  pg2_presn51 varchar(6) default NULL,
+  pg2_FHR51 varchar(6) default NULL,
+  pg2_urinePr51 char(3) default NULL,
+  pg2_urineGl51 char(3) default NULL,
+  pg2_BP51 varchar(8) default NULL,
+  pg2_comments51 varchar(255) default NULL,
+  pg2_date52 date default NULL,
+  pg2_gest52 varchar(6) default NULL,
+  pg2_ht52 varchar(6) default NULL,
+  pg2_wt52 varchar(6) default NULL,
+  pg2_presn52 varchar(6) default NULL,
+  pg2_FHR52 varchar(6) default NULL,
+  pg2_urinePr52 char(3) default NULL,
+  pg2_urineGl52 char(3) default NULL,
+  pg2_BP52 varchar(8) default NULL,
+  pg2_comments52 varchar(255) default NULL,
+  pg2_date53 date default NULL,
+  pg2_gest53 varchar(6) default NULL,
+  pg2_ht53 varchar(6) default NULL,
+  pg2_wt53 varchar(6) default NULL,
+  pg2_presn53 varchar(6) default NULL,
+  pg2_FHR53 varchar(6) default NULL,
+  pg2_urinePr53 char(3) default NULL,
+  pg2_urineGl53 char(3) default NULL,
+  pg2_BP53 varchar(8) default NULL,
+  pg2_comments53 varchar(255) default NULL,
+  pg2_date54 date default NULL,
+  pg2_gest54 varchar(6) default NULL,
+  pg2_ht54 varchar(6) default NULL,
+  pg2_wt54 varchar(6) default NULL,
+  pg2_presn54 varchar(6) default NULL,
+  pg2_FHR54 varchar(6) default NULL,
+  pg2_urinePr54 char(3) default NULL,
+  pg2_urineGl54 char(3) default NULL,
+  pg2_BP54 varchar(8) default NULL,
+  pg2_comments54 varchar(255) default NULL,
+  pg2_date55 date default NULL,
+  pg2_gest55 varchar(6) default NULL,
+  pg2_ht55 varchar(6) default NULL,
+  pg2_wt55 varchar(6) default NULL,
+  pg2_presn55 varchar(6) default NULL,
+  pg2_FHR55 varchar(6) default NULL,
+  pg2_urinePr55 char(3) default NULL,
+  pg2_urineGl55 char(3) default NULL,
+  pg2_BP55 varchar(8) default NULL,
+  pg2_comments55 varchar(255) default NULL,
+  pg2_date56 date default NULL,
+  pg2_gest56 varchar(6) default NULL,
+  pg2_ht56 varchar(6) default NULL,
+  pg2_wt56 varchar(6) default NULL,
+  pg2_presn56 varchar(6) default NULL,
+  pg2_FHR56 varchar(6) default NULL,
+  pg2_urinePr56 char(3) default NULL,
+  pg2_urineGl56 char(3) default NULL,
+  pg2_BP56 varchar(8) default NULL,
+  pg2_comments56 varchar(255) default NULL,
+  pg2_date57 date default NULL,
+  pg2_gest57 varchar(6) default NULL,
+  pg2_ht57 varchar(6) default NULL,
+  pg2_wt57 varchar(6) default NULL,
+  pg2_presn57 varchar(6) default NULL,
+  pg2_FHR57 varchar(6) default NULL,
+  pg2_urinePr57 char(3) default NULL,
+  pg2_urineGl57 char(3) default NULL,
+  pg2_BP57 varchar(8) default NULL,
+  pg2_comments57 varchar(255) default NULL,
+  pg2_date58 date default NULL,
+  pg2_gest58 varchar(6) default NULL,
+  pg2_ht58 varchar(6) default NULL,
+  pg2_wt58 varchar(6) default NULL,
+  pg2_presn58 varchar(6) default NULL,
+  pg2_FHR58 varchar(6) default NULL,
+  pg2_urinePr58 char(3) default NULL,
+  pg2_urineGl58 char(3) default NULL,
+  pg2_BP58 varchar(8) default NULL,
+  pg2_comments58 varchar(255) default NULL,
+  pg2_date59 date default NULL,
+  pg2_gest59 varchar(6) default NULL,
+  pg2_ht59 varchar(6) default NULL,
+  pg2_wt59 varchar(6) default NULL,
+  pg2_presn59 varchar(6) default NULL,
+  pg2_FHR59 varchar(6) default NULL,
+  pg2_urinePr59 char(3) default NULL,
+  pg2_urineGl59 char(3) default NULL,
+  pg2_BP59 varchar(8) default NULL,
+  pg2_comments59 varchar(255) default NULL,
+  pg2_date60 date default NULL,
+  pg2_gest60 varchar(6) default NULL,
+  pg2_ht60 varchar(6) default NULL,
+  pg2_wt60 varchar(6) default NULL,
+  pg2_presn60 varchar(6) default NULL,
+  pg2_FHR60 varchar(6) default NULL,
+  pg2_urinePr60 char(3) default NULL,
+  pg2_urineGl60 char(3) default NULL,
+  pg2_BP60 varchar(8) default NULL,
+  pg2_comments60 varchar(255) default NULL,
+  pg2_date61 date default NULL,
+  pg2_gest61 varchar(6) default NULL,
+  pg2_ht61 varchar(6) default NULL,
+  pg2_wt61 varchar(6) default NULL,
+  pg2_presn61 varchar(6) default NULL,
+  pg2_FHR61 varchar(6) default NULL,
+  pg2_urinePr61 char(3) default NULL,
+  pg2_urineGl61 char(3) default NULL,
+  pg2_BP61 varchar(8) default NULL,
+  pg2_comments61 varchar(255) default NULL,
+  pg2_date62 date default NULL,
+  pg2_gest62 varchar(6) default NULL,
+  pg2_ht62 varchar(6) default NULL,
+  pg2_wt62 varchar(6) default NULL,
+  pg2_presn62 varchar(6) default NULL,
+  pg2_FHR62 varchar(6) default NULL,
+  pg2_urinePr62 char(3) default NULL,
+  pg2_urineGl62 char(3) default NULL,
+  pg2_BP62 varchar(8) default NULL,
+  pg2_comments62 varchar(255) default NULL,
+  pg2_date63 date default NULL,
+  pg2_gest63 varchar(6) default NULL,
+  pg2_ht63 varchar(6) default NULL,
+  pg2_wt63 varchar(6) default NULL,
+  pg2_presn63 varchar(6) default NULL,
+  pg2_FHR63 varchar(6) default NULL,
+  pg2_urinePr63 char(3) default NULL,
+  pg2_urineGl63 char(3) default NULL,
+  pg2_BP63 varchar(8) default NULL,
+  pg2_comments63 varchar(255) default NULL,
+  pg2_date64 date default NULL,
+  pg2_gest64 varchar(6) default NULL,
+  pg2_ht64 varchar(6) default NULL,
+  pg2_wt64 varchar(6) default NULL,
+  pg2_presn64 varchar(6) default NULL,
+  pg2_FHR64 varchar(6) default NULL,
+  pg2_urinePr64 char(3) default NULL,
+  pg2_urineGl64 char(3) default NULL,
+  pg2_BP64 varchar(8) default NULL,
+  pg2_comments64 varchar(255) default NULL,
+  pg2_date65 date default NULL,
+  pg2_gest65 varchar(6) default NULL,
+  pg2_ht65 varchar(6) default NULL,
+  pg2_wt65 varchar(6) default NULL,
+  pg2_presn65 varchar(6) default NULL,
+  pg2_FHR65 varchar(6) default NULL,
+  pg2_urinePr65 char(3) default NULL,
+  pg2_urineGl65 char(3) default NULL,
+  pg2_BP65 varchar(8) default NULL,
+  pg2_comments65 varchar(255) default NULL,
+  pg2_date66 date default NULL,
+  pg2_gest66 varchar(6) default NULL,
+  pg2_ht66 varchar(6) default NULL,
+  pg2_wt66 varchar(6) default NULL,
+  pg2_presn66 varchar(6) default NULL,
+  pg2_FHR66 varchar(6) default NULL,
+  pg2_urinePr66 char(3) default NULL,
+  pg2_urineGl66 char(3) default NULL,
+  pg2_BP66 varchar(8) default NULL,
+  pg2_comments66 varchar(255) default NULL,
+  pg2_date67 date default NULL,
+  pg2_gest67 varchar(6) default NULL,
+  pg2_ht67 varchar(6) default NULL,
+  pg2_wt67 varchar(6) default NULL,
+  pg2_presn67 varchar(6) default NULL,
+  pg2_FHR67 varchar(6) default NULL,
+  pg2_urinePr67 char(3) default NULL,
+  pg2_urineGl67 char(3) default NULL,
+  pg2_BP67 varchar(8) default NULL,
+  pg2_comments67 varchar(255) default NULL,
+  pg2_date68 date default NULL,
+  pg2_gest68 varchar(6) default NULL,
+  pg2_ht68 varchar(6) default NULL,
+  pg2_wt68 varchar(6) default NULL,
+  pg2_presn68 varchar(6) default NULL,
+  pg2_FHR68 varchar(6) default NULL,
+  pg2_urinePr68 char(3) default NULL,
+  pg2_urineGl68 char(3) default NULL,
+  pg2_BP68 varchar(8) default NULL,
+  pg2_comments68 varchar(255) default NULL,
+  pg2_date69 date default NULL,
+  pg2_gest69 varchar(6) default NULL,
+  pg2_ht69 varchar(6) default NULL,
+  pg2_wt69 varchar(6) default NULL,
+  pg2_presn69 varchar(6) default NULL,
+  pg2_FHR69 varchar(6) default NULL,
+  pg2_urinePr69 char(3) default NULL,
+  pg2_urineGl69 char(3) default NULL,
+  pg2_BP69 varchar(8) default NULL,
+  pg2_comments69 varchar(255) default NULL,
+  pg2_date70 date default NULL,
+  pg2_gest70 varchar(6) default NULL,
+  pg2_ht70 varchar(6) default NULL,
+  pg2_wt70 varchar(6) default NULL,
+  pg2_presn70 varchar(6) default NULL,
+  pg2_FHR70 varchar(6) default NULL,
+  pg2_urinePr70 char(3) default NULL,
+  pg2_urineGl70 char(3) default NULL,
+  pg2_BP70 varchar(8) default NULL,
+  pg2_comments70 varchar(255) default NULL,
   ar2_uDate1 date,
   ar2_uGA1 varchar(10) default NULL,
   ar2_uResults1 varchar(50) default NULL,
@@ -11909,380 +10436,235 @@ CREATE TABLE formONAREnhancedRecordExt2 (
   pg2_formDate date default NULL,
   pg2_signature2 varchar(50) default NULL,
   pg2_formDate2 date default NULL,
-  pg1_geneticA_riskLevel varchar(25),
-  pg1_geneticB_riskLevel varchar(25),
-  pg1_geneticC_riskLevel varchar(25),
-  pg1_labCustom3Result_riskLevel varchar(25),
-  KEY `idIndex` (`ID`)
-);
+  PRIMARY KEY (ID)
+) ENGINE=MyISAM;
 
-
-create table DrugProductTemplate (
-        id int NOT NULL auto_increment,
-        name varchar(255),
-        code varchar(255),
-        amount int not null,
-        primary key (id)
-);
-
-
-CREATE TABLE `AppDefinition` (
-  `id` int(9) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255),
-  `appType` varchar(255),
-  `config` text,
-  `active` tinyint(1),
-  `addedBy` varchar(8),
-  `added` datetime,
-  PRIMARY KEY (`id`)
-);
-
-
-CREATE TABLE `AppUser` (
-  `id` int(9) NOT NULL AUTO_INCREMENT,
-  `providerNo` varchar(8),
-  `appId` int(9),
-  `authenticationData` text,
-  `added` datetime,
-  PRIMARY KEY (`id`)
-);
-
-CREATE TABLE `IntegratorProgress` (
- `id` int(11) NOT NULL auto_increment,
- `dateCreated` timestamp,
- `status` varchar(50),
- `errorMessage` varchar(255),
- PRIMARY KEY  (`id`),
- KEY `idx_status` (`status`)
-);
-
-
-CREATE TABLE `IntegratorProgressItem` (
- `id` int(11) NOT NULL auto_increment,
-  `demographicNo` int not null,
-  `integratorProgressId` int not null,
- `dateUpdated` timestamp,
- `status` varchar(50),
- PRIMARY KEY  (`id`),
- KEY `idx_id` (`integratorProgressId`),
- KEY `idx_status` (`status`)
-);
-
--- ----------------------------
---  Table structure for `Icd9Synonym`
--- ----------------------------
-CREATE TABLE `Icd9Synonym` (
-  `dxCode` varchar(10) NOT NULL,
-  `patientFriendly` varchar(250) NOT NULL,
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  PRIMARY KEY (`id`)
-);
-
-
---
--- Table structure for table 'contactspecialty'
---
-CREATE TABLE `ContactSpecialty` (
-  `id` int(11) NOT NULL,
-  `specialty` varchar(50) NOT NULL,
-  `description` varchar(140),
-  PRIMARY KEY (`id`)
-);
-
-
---
--- Table structure for table 'specialty'
---
-
-CREATE TABLE specialty (
-  region varchar(5) default '',
-  specialty char(2) default '',
-  specialtydesc varchar(100) default ''
+CREATE TABLE form_hsfo2_visit (
+ 	ID int(10) NOT NULL auto_increment,
+  demographic_no int(10) NOT NULL,
+  provider_no varchar(10) NOT NULL ,
+  formCreated date ,
+  formEdited timestamp NOT NULL,
+  Patient_Id varchar(255) NOT NULL,
+  VisitDate_Id date NOT Null,
+  Drugcoverage enum('yes', 'no', 'null'),
+  SBP int(3) ,
+  SBP_goal int(3) ,
+  DBP int(3) ,
+  DBP_goal int(3) ,
+  Height double(4, 1) NOT NULL,
+  Height_unit enum('cm', 'inch') NOT NULL,
+  Bptru_used enum('yes', 'no', 'null'),
+  Weight double(4, 1) ,
+  Weight_unit enum('kg', 'lb', 'null'),
+  Waist double(4, 1) ,
+  Waist_unit enum('cm', 'inch', 'null'),
+  TC_HDL double(3, 1) ,
+  LDL double(3, 1) ,
+  HDL double(2, 1) ,
+  Triglycerides double(3,1),
+  Nextvisit enum('Under1Mo', '1to2Mo', '3to6Mo', 'Over6Mo', 'null'),
+  Bpactionplan bool NOT NULL,
+  PressureOff bool NOT NULL,
+  PatientProvider bool NOT NULL,
+  ABPM bool NOT NULL,
+  Home bool NOT NULL,
+  CommunityRes bool NOT NULL,
+  ProRefer bool NOT NULL,
+  HtnDxType enum('PrimaryHtn', 'ElevatedBpReadings', 'null'),
+  Dyslipid bool NOT NULL,
+  Diabetes bool NOT NULL,
+  KidneyDis bool NOT NULL,
+  Obesity bool NOT NULL,
+  CHD bool NOT NULL,
+  Stroke_TIA bool NOT NULL,
+  Risk_weight bool,
+  Risk_activity bool,
+  Risk_diet bool,
+  Risk_smoking bool,
+  Risk_alcohol bool,
+  Risk_stress bool,
+  PtView enum('Uninterested', 'Thinking', 'Deciding', 'TakingAction', 'Maintaining', 'Relapsing', 'null'),
+  Change_importance int(2),
+  Change_confidence int(2),
+  exercise_minPerWk int(3),
+  smoking_cigsPerDay int(2),
+  alcohol_drinksPerWk int(2),
+  sel_DashDiet enum('Always', 'Often', 'Sometimes', 'Never', 'null'),
+  sel_HighSaltFood enum('Always', 'Often', 'Sometimes', 'Never', 'null'),
+  sel_Stressed enum('Always', 'Often', 'Sometimes', 'Never', 'null'),
+  LifeGoal enum('Goal_weight', 'Goal_activity', 'Goal_dietDash', 'Goal_dietSalt', 'Goal_smoking', 'Goal_alcohol', 'Goal_stress', 'null'),
+  FamHx_Htn bool NOT NULL,
+  FamHx_Dyslipid bool NOT NULL,
+  FamHx_Diabetes bool NOT NULL,
+  FamHx_KidneyDis bool NOT NULL,
+  FamHx_Obesity bool NOT NULL,
+  FamHx_CHD bool NOT NULL,
+  FamHx_Stroke_TIA bool NOT NULL,
+  Diuret_rx bool NOT NULL,
+  Diuret_SideEffects bool NOT NULL,
+  Diuret_RxDecToday enum('Same', 'Increase', 'Decrease', 'Stop', 'Start', 'InClassSwitch', 'null') ,
+  Ace_rx bool NOT NULL,
+  Ace_SideEffects bool NOT NULL,
+  Ace_RxDecToday enum('Same', 'Increase', 'Decrease', 'Stop', 'Start', 'InClassSwitch', 'null') ,
+  Arecept_rx bool NOT NULL,
+  Arecept_SideEffects bool NOT NULL,
+  Arecept_RxDecToday enum('Same', 'Increase', 'Decrease', 'Stop', 'Start', 'InClassSwitch', 'null') ,
+  Beta_rx bool NOT NULL,
+  Beta_SideEffects bool NOT NULL,
+  Beta_RxDecToday enum('Same', 'Increase', 'Decrease', 'Stop', 'Start', 'InClassSwitch', 'null') ,
+  Calc_rx bool NOT NULL,
+  Calc_SideEffects bool NOT NULL,
+  Calc_RxDecToday enum('Same', 'Increase', 'Decrease', 'Stop', 'Start', 'InClassSwitch', 'null') ,
+  Anti_rx bool NOT NULL,
+  Anti_SideEffects bool NOT NULL,
+  Anti_RxDecToday enum('Same', 'Increase', 'Decrease', 'Stop', 'Start', 'InClassSwitch', 'null') ,
+  Statin_rx bool NOT NULL,
+  Statin_SideEffects bool NOT NULL,
+  Statin_RxDecToday enum('Same', 'Increase', 'Decrease', 'Stop', 'Start', 'InClassSwitch', 'null') ,
+  Lipid_rx bool NOT NULL,
+  Lipid_SideEffects bool NOT NULL,
+  Lipid_RxDecToday enum('Same', 'Increase', 'Decrease', 'Stop', 'Start', 'InClassSwitch', 'null') ,
+  Hypo_rx bool NOT NULL,
+  Hypo_SideEffects bool NOT NULL,
+  Hypo_RxDecToday enum('Same', 'Increase', 'Decrease', 'Stop', 'Start', 'InClassSwitch', 'null') ,
+  Insul_rx bool NOT NULL,
+  Insul_SideEffects bool NOT NULL,
+  Insul_RxDecToday enum('Same', 'Increase', 'Decrease', 'Stop', 'Start', 'InClassSwitch', 'null') ,
+  Often_miss int(2) ,
+  Herbal enum('yes', 'no', 'null') ,
+  TC_HDL_LabresultsDate date,
+  LDL_LabresultsDate date,
+  HDL_LabresultsDate date,
+  A1C_LabresultsDate date,
+  Locked bool,
+  
+  depression bool,
+  famHx_depression bool,
+  assessActivity int(3),
+  assessSmoking int(3),
+  assessAlcohol int(3),
+  nextVisitInMonths int(3),
+  nextVisitInWeeks int(3),
+  
+  monitor bool,
+  egfrDate date,
+  egfr int(3),
+  acr double(5, 1),  
+  
+  lastBaseLineRecord bool NOT NULL,
+  A1C double(3, 3) ,
+  fbs double(3, 1) ,
+  ASA_rx bool NOT NULL,
+  ASA_SideEffects bool NOT NULL,
+  ASA_RxDecToday enum('Same', 'Increase', 'Decrease', 'Stop', 'Start', 'InClassSwitch', 'null') ,
+ 
+  PRIMARY KEY  (ID)
 ) ;
 
-create table EFormReportTool (
-  `id` int(11) NOT NULL auto_increment,
-  `tableName` varchar(255) not null,
-  `eformId` int not null,
-  `expiryDate` datetime,
-  `dateCreated` timestamp,
-  `providerNo` varchar(6),
-  `name` varchar(255),
-  `dateLastPopulated` timestamp null,
-  `latestMarked` tinyint(1) not null,
-  `startDate` datetime,
-  `endDate` datetime,
-  PRIMARY KEY  (`id`)
-);
-
-CREATE TABLE `billing_on_item_payment`(
-        `id` INT(12) NOT NULL AUTO_INCREMENT,
-        `ch1_id` INT(12) NOT NULL,
-        `billing_on_payment_id` INT(12) NOT NULL,
-        `billing_on_item_id` INT(12) NOT NULL,
-        `payment_timestamp` TIMESTAMP,
-        `paid` DECIMAL(10,2) NOT NULL,
-        `refund` DECIMAL(10,2) NOT NULL,
-        `discount` DECIMAL(10,2) NOT NULL,
-        `credit` DECIMAL(10,2) NOT NULL,
-        PRIMARY KEY  (`id`),
-        KEY(`ch1_id`),
-        KEY(`billing_on_payment_id`),
-        KEY(`billing_on_item_id`)
-);
-
-CREATE TABLE `billing_on_transaction` (
-  `id` int(12) NOT NULL AUTO_INCREMENT,
-  `ch1_id` int(12) NOT NULL,
-  `payment_id` int(12) NOT NULL,
-  `billing_on_item_payment_id` int(12) NOT NULL,
-  `demographic_no` int(10) NOT NULL,
-  `update_provider_no` varchar(6) NOT NULL,
-  `update_datetime` timestamp NOT NULL,
-  `payment_date` date,
-  `ref_num` varchar(6),
-  `province` char(2),
-  `man_review` char(1),
-  `billing_date` date,
-  `status` char(1),
-  `pay_program` char(3),
-  `facility_num` char(4),
-  `clinic` varchar(30),
-  `provider_no` varchar(6),
-  `creator` varchar(30),
-  `visittype` char(2),
-  `admission_date` date,
-  `sli_code` varchar(10),
-  `service_code` varchar(10),
-  `service_code_num` char(2),
-  `service_code_invoiced` varchar(64),
-  `service_code_paid` decimal(10,2),
-  `service_code_refund` decimal(10,2),
-  `service_code_discount` decimal(10,2),
-  `dx_code` varchar(3),
-  `billing_notes` varchar(255),
-  `action_type` char(1),
-  `payment_type_id` int(2),
-  `service_code_credit` DECIMAL(10,2),
-  PRIMARY KEY (`id`),
-  KEY `ch1_id` (`ch1_id`),
-  KEY `payment_id` (`payment_id`),
-  KEY `service_code` (`service_code`),
-  KEY `dx_code` (`dx_code`),
-  KEY `payment_type_id` (`payment_type_id`),
-  KEY `demographic_no`(`demographic_no`),
-  KEY `provider_no`(`provider_no`),
-  KEY `creator`(`creator`),
-  KEY `pay_program`(`pay_program`)
-);
-
-
-CREATE TABLE `SecurityArchive` (
- `id` int(11) NOT NULL auto_increment,
-  security_no int(6) NOT NULL,
-  user_name varchar(30) NOT NULL,
-  password varchar(255) NOT NULL,
-  provider_no varchar(6) default NULL,
-  pin varchar(255),
-  b_ExpireSet int(1),
-  date_ExpireDate date,
-  b_LocalLockSet int(1),
-  b_RemoteLockSet int(1),
-  forcePasswordReset tinyint(1),
-  storageVersion int NOT NULL,
-  passwordUpdateDate datetime,
-  pinUpdateDate datetime,
-  lastUpdateUser varchar(20),
-  lastUpdateDate timestamp,
- PRIMARY KEY  (`id`)
-);
-
-
-create table MyGroupProgram (
-        id int(9) NOT NULL auto_increment,
-	myGroupNo varchar(10) not null,
-	programNo int(10) not null,
-        primary key (id)
-);
-
-
-CREATE TABLE `ResourceStorage` (
-  `id` int(10) NOT NULL AUTO_INCREMENT,
-  `resourceType` varchar(100),
-  `resourceName` varchar(100),
-  `uuid` varchar(40),
-  `fileContents` mediumblob,
-  `uploadDate` datetime,
-  `active` tinyint(1),
-  PRIMARY KEY (`id`),
-  KEY `ResourceStorage_resourceType_active` (`resourceType`(10),`active`)
-);
-
-
-CREATE TABLE `BORNPathwayMapping` (
-  `id` int(10) NOT NULL AUTO_INCREMENT,
-  `bornPathway` varchar(100),
-  `serviceId` int(10),
-  PRIMARY KEY (`id`)
-);
-
-CREATE TABLE `Consent` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `demographic_no` int(10),
-  `consent_type_id` int(10),
-  `explicit` tinyint(1),
-  `optout` tinyint(1),
-  `last_entered_by` varchar(10),
-  `consent_date` datetime,
-  `optout_date` datetime,
-  `edit_date` datetime,
-  PRIMARY KEY (`id`)
-);
-
-CREATE TABLE `consentType` (
-  `id` int(15) NOT NULL AUTO_INCREMENT,
-  `type` varchar(50),
-  `name` varchar(50),
-  `description` varchar(500),
-  `active` tinyint(1),
-  PRIMARY KEY (`id`)
-);
-
-
-
-CREATE TABLE billingperclimit (
-  service_code varchar(10) NOT NULL ,
-  min varchar(8),
-  max varchar(8),
-  effective_date date,
-  id int auto_increment,
-  PRIMARY KEY  (id)
+CREATE TABLE hsfo2_patient (
+  ID int(10) NOT NULL auto_increment,
+  SiteCode varchar(10) Not null,
+  Patient_Id varchar(255) NOT NULL,
+  FName text NOT NULL,
+  LName text NOT NULL,
+  BirthDate date NOT NULL,
+  Sex enum('m', 'f') NOT NULL,
+  PostalCode varchar(7) NOT NULL,
+  
+  Ethnic_White bool NOT NULL,
+  Ethnic_Black bool NOT NULL,
+  Ethnic_EIndian bool NOT NULL,
+  Ethnic_Pakistani bool NOT NULL,
+  Ethnic_SriLankan bool NOT NULL,
+  Ethnic_Bangladeshi bool NOT NULL,
+  Ethnic_Chinese bool NOT NULL,
+  Ethnic_Japanese bool NOT NULL,
+  Ethnic_Korean bool NOT NULL,
+  Ethnic_Hispanic bool NOT NULL,
+  Ethnic_FirstNation bool NOT NULL,
+  Ethnic_Other bool NOT NULL,
+  Ethnic_Refused bool NOT NULL,
+  Ethnic_Unknown bool NOT NULL,
+  PharmacyName text,
+  PharmacyLocation text,
+  sel_TimeAgoDx enum('AtLeast1YrAgo', 'Under1YrAgo', 'NA', 'null'),
+  EmrHCPId text,
+  ConsentDate date not null,
+  
+  statusInHmp enum('enrolled', 'notEnrolled' ) ,
+  dateOfHmpStatus date ,
+  registrationId varchar(64),
+  submitted bool NOT NULL,
+  
+  
+  PRIMARY KEY  (ID)
 ) ;
 
-CREATE TABLE `EncounterType` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `value` varchar(255),
-  `global` tinyint(1) NOT NULL,
-  PRIMARY KEY (`id`)
-);
-
-
-CREATE TABLE `ProgramEncounterType` (
-  `programId` int(10) NOT NULL,
-  `encounterTypeId` int(10) NOT NULL,
-  PRIMARY KEY (`programId`,`encounterTypeId`)
-);
-
-CREATE TABLE `dashboard` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255),
-  `description` varchar(255),
-  `creator` varchar(11),
-  `edited` datetime,
-  `active` bit(1),
-  `locked` bit(1),
-  PRIMARY KEY (`id`)
-);
-
-CREATE TABLE `indicatorTemplate` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `dashboardId` int(11),
-  `name` varchar(255),
-  `category` varchar(255),
-  `subCategory` varchar(255),
-  `framework` varchar(255),
-  `frameworkVersion` date,
-  `definition` tinytext,
-  `notes` tinytext,
-  `template` mediumtext,
-  `active` bit(1),
-  `locked` bit(1),
-  `shared` tinyint(1),
-  PRIMARY KEY (`id`)
-);
-
-CREATE TABLE `demographicSite` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `siteId` int(11) NOT NULL,
-  `demographicId` int(10) NOT NULL,
-  PRIMARY KEY (`id`)
-);
-
-CREATE TABLE  `site_role_mpg` (
-  `id` int not null auto_increment,
-  `site_id` int(10) unsigned NOT NULL,
-  `access_role_id` int(10) unsigned ,
-  `crt_dt` timestamp NOT NULL ,
-  `admit_discharge_role_id` int(10) unsigned,
-  primary key (`id`)
-);
-
-CREATE TABLE `tickler_category` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `category` varchar(55),
-  `description` varchar(255),
-  `active` bit(1),
-  PRIMARY KEY (`id`)
-);
-
-CREATE TABLE `preventionsBilling` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `preventionType` varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `billingServiceCodeAndUnit` varchar(50) NOT NULL,
-  `billingType` varchar(50) NOT NULL,
-  `visitType` varchar(50) NOT NULL,
-  `billingDxCode` varchar(50) NOT NULL,
-  `visitLocation` varchar(50) NOT NULL,
-  `sliCode` varchar(10) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `pbtype` (`preventionType`)
-);
-
-CREATE TABLE `ContactType` (
-  id int(10) NOT NULL auto_increment,
-  name varchar(255),
-  male tinyint(1),
-  female tinyint(1),
-  inverseRelationship tinyint(1),
-  active tinyint(1),
-  PRIMARY KEY  (`id`)
+CREATE TABLE hsfo2_system (
+  ID int(10) NOT NULL auto_increment,
+  LastUploadDate date NOT NULL,
+  PRIMARY KEY  (ID)
 ) ;
 
+CREATE TABLE `hsfo_recommit_schedule` (   
+  `id` int(11) NOT NULL auto_increment,   
+  `status` varchar(2) ,       
+  `memo` text,                            
+  `schedule_time` datetime ,  
+  `user_no` varchar(6) ,      
+  `check_flag` tinyint(1) ,   
+   PRIMARY KEY  (`id`)                     
+   ) ; 
 
-CREATE TABLE `ProgramContactType` (
- `programId` int(11) NOT NULL,
- `contactTypeId` int(11) NOT NULL,
- `category` varchar(255) not null,
- PRIMARY KEY  (`programId`,`contactTypeId`,`category`)
-);
-
-CREATE TABLE `onCallClinicDates` (
-   `id` int(10) NOT NULL,
-   `startDate` date,
-   `endDate` date,
-   `name` varchar(256),
-   `location` varchar(256),
-   `color` varchar(7),
+CREATE TABLE `PageMonitor` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  pageName varchar(100) NOT NULL,
+  session varchar(100),
+  remoteAddr varchar(20),
+  locked tinyint(1),
+  updateDate timestamp not null,
+  timeout int(10),
+  providerNo varchar(10),
+  providerName varchar(100),
   PRIMARY KEY (`id`)
 );
 
-CREATE TABLE resident_oscarMsg (
-    id int(11) auto_increment,
-    supervisor_no varchar(6),
-    resident_no varchar(6),
-    demographic_no int(11),
-    appointment_no int(11),    
-    note_id int(10),
-    complete int(1),
-    create_time timestamp,
-    complete_time timestamp,
-    PRIMARY KEY(id),
-    index note_id_idx (note_id)
+create table BornTransmissionLog(
+        id integer not null auto_increment,
+        submitDateTime timestamp not null,
+        success tinyint(1) default 0,
+        filename varchar(100) not null,
+        primary key(id)
 );
 
-CREATE TABLE oscar_msg_type (
-    type int(10),
-    description varchar(255),
-    PRIMARY KEY(type)
+
+CREATE TABLE `PrintResourceLog` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  resourceName varchar(100) NOT NULL,
+  resourceId varchar(50) NOT NULL,
+  dateTime timestamp not null,
+  providerNo varchar(10),
+  externalLocation varchar(200),
+  externalMethod varchar(100),
+  PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `eyeform_macro_def` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `macroName` varchar(255),
+  `lastUpdated` datetime,
+  `copyFromLastImpression` tinyint(1),
+  `impressionText` text,
+  `planText` text,
+  PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `eyeform_macro_billing` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `macroId` int(11),
+  `billingServiceCode` varchar(50),
+  `multiplier` double,
+  PRIMARY KEY (`id`)
 );
 

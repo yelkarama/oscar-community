@@ -28,15 +28,13 @@
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 <%@ taglib uri="/WEB-INF/caisi-tag.tld" prefix="caisi"%>
-<%@ page import="java.sql.*, java.util.*, oscar.*" errorPage="errorpage.jsp"%>
-<%@page import="org.oscarehr.common.model.ProviderPreference"%>
-<%@page import="org.oscarehr.web.admin.ProviderPreferencesUIBean"%>
-<%@page import="org.oscarehr.util.SpringUtils" %>
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
-<%@ page import="org.oscarehr.common.dao.UserPropertyDAO" %>
-<%@ page import="org.oscarehr.common.model.UserProperty" %>
 
-<html:html locale="true">
+<%@ page import="java.sql.*, java.util.*, oscar.*" errorPage="errorpage.jsp"%>
+<%@ include file="/common/webAppContextAndSuperMgr.jsp"%>
+
+
+<%@page import="org.oscarehr.common.model.ProviderPreference"%>
+<%@page import="org.oscarehr.web.admin.ProviderPreferencesUIBean"%><html:html locale="true">
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <script LANGUAGE="JavaScript">
@@ -48,7 +46,7 @@
 </script>
 </head>
 
-<body>
+<body background="../images/gray_bg.jpg" bgproperties="fixed">
 <center>
 <table border="0" cellspacing="0" cellpadding="0" width="90%">
 	<tr bgcolor="#486ebd">
@@ -63,19 +61,7 @@
 	if (selected_site != null) {
 		session.setAttribute("site_selected", (selected_site.equals("none") ? null : selected_site) );	    
 	}
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-	String curUser_providerno = loggedInInfo.getLoggedInProviderNo();
-	String ticklerforproviderno = request.getParameter("ticklerforproviderno");
-	UserPropertyDAO propDao =(UserPropertyDAO)SpringUtils.getBean("UserPropertyDAO");
-	UserProperty prop = propDao.getProp(curUser_providerno, UserProperty.PROVIDER_FOR_TICKLER_WARNING);
-	if (prop == null) {
-		prop = new UserProperty();
-		prop.setProviderNo(curUser_providerno);
-		prop.setName(UserProperty.PROVIDER_FOR_TICKLER_WARNING);
-	}
-	prop.setValue(ticklerforproviderno);
-	propDao.saveProp(prop);
-	
+
 	ProviderPreference providerPreference=ProviderPreferencesUIBean.updateOrCreateProviderPreferences(request);
 
 	//--- 

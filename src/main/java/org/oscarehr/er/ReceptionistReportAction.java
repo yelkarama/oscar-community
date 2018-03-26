@@ -39,9 +39,11 @@ import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 import org.apache.struts.actions.DispatchAction;
 import org.oscarehr.PMmodule.caisi_integrator.CaisiIntegratorManager;
+import org.oscarehr.PMmodule.model.Admission;
 import org.oscarehr.PMmodule.service.AdmissionManager;
 import org.oscarehr.PMmodule.service.ClientManager;
 import org.oscarehr.PMmodule.service.ProgramManager;
+import org.oscarehr.PMmodule.service.ProviderManager;
 import org.oscarehr.caisi_integrator.ws.CachedDemographicIssue;
 import org.oscarehr.caisi_integrator.ws.CachedFacility;
 import org.oscarehr.caisi_integrator.ws.DemographicWs;
@@ -49,11 +51,12 @@ import org.oscarehr.casemgmt.dao.IssueDAO;
 import org.oscarehr.casemgmt.model.Issue;
 import org.oscarehr.casemgmt.service.CaseManagementManager;
 import org.oscarehr.casemgmt.web.CaseManagementViewAction.IssueDisplay;
-import org.oscarehr.common.model.Admission;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.Drug;
+import org.oscarehr.common.model.Provider;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
+import org.oscarehr.util.SessionConstants;
 import org.oscarehr.util.SpringUtils;
 
 import oscar.OscarProperties;
@@ -68,6 +71,7 @@ public class ReceptionistReportAction extends DispatchAction {
 	private ClientManager clientManager;
 	private AdmissionManager admissionManager;
 	private CaseManagementManager caseManagementManager;
+	private ProviderManager providerManager;
 	
 	
 	public void setProgramManager(ProgramManager mgr) {
@@ -85,7 +89,11 @@ public class ReceptionistReportAction extends DispatchAction {
 	public void setCaseManagementManager(CaseManagementManager mgr) {
 		this.caseManagementManager = mgr;
 	}
-		
+	
+	public void setProviderManager(ProviderManager mgr) {
+		this.providerManager = mgr;
+	}
+	
 	protected void postMessage(HttpServletRequest request, String key, String val) {
 		ActionMessages messages = new ActionMessages();
 		messages.add(ActionMessages.GLOBAL_MESSAGE,new ActionMessage(key,val));
@@ -116,8 +124,6 @@ public class ReceptionistReportAction extends DispatchAction {
 	 * 
 	 */
 	public ActionForward show_report(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		String providerNo=loggedInInfo.getLoggedInProviderNo();
 		String clientId = request.getParameter("id");
 		
 		Demographic client = clientManager.getClientByDemographicNo(clientId);
@@ -152,17 +158,19 @@ public class ReceptionistReportAction extends DispatchAction {
 		request.setAttribute("issues",issues);
 		
 		ArrayList<IssueDisplay> issuesToDisplay = new ArrayList<IssueDisplay>();
-		this.addRemoteIssues(loggedInInfo, issuesToDisplay, Integer.parseInt(clientId), false);
+		this.addRemoteIssues(issuesToDisplay, Integer.parseInt(clientId), false);
 		request.setAttribute("remote_issues",issuesToDisplay);
 		
 				
 		List<Drug> prescriptions = null;
 		boolean viewAll=true;
 
-		request.setAttribute("isIntegratorEnabled", loggedInInfo.getCurrentFacility().isIntegratorEnabled());			
-		prescriptions = caseManagementManager.getPrescriptions(loggedInInfo, Integer.valueOf(clientId), viewAll);
+		request.setAttribute("isIntegratorEnabled", LoggedInInfo.loggedInInfo.get().currentFacility.isIntegratorEnabled());			
+		prescriptions = caseManagementManager.getPrescriptions(Integer.valueOf(clientId), viewAll);
 		
-		request.setAttribute("Prescriptions", prescriptions);		    	
+		request.setAttribute("Prescriptions", prescriptions);
+
+		String providerNo = ((Provider) request.getSession().getAttribute(SessionConstants.LOGGED_IN_PROVIDER)).getProviderNo();		    	
     	
 		// Setup RX bean start
 		RxSessionBean bean = new RxSessionBean();
@@ -182,18 +190,19 @@ public class ReceptionistReportAction extends DispatchAction {
 		return mapping.findForward("report");
 	}
 
-	private void addRemoteIssues(LoggedInInfo loggedInInfo, ArrayList<IssueDisplay> issuesToDisplay, int demographicNo, boolean resolved) {
+	private void addRemoteIssues(ArrayList<IssueDisplay> issuesToDisplay, int demographicNo, boolean resolved) {
+		LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
 
-		if (!loggedInInfo.getCurrentFacility().isIntegratorEnabled()) return;
+		if (!loggedInInfo.currentFacility.isIntegratorEnabled()) return;
 
 		try {
-			DemographicWs demographicWs = CaisiIntegratorManager.getDemographicWs(loggedInInfo, loggedInInfo.getCurrentFacility());
+			DemographicWs demographicWs = CaisiIntegratorManager.getDemographicWs();
 			List<CachedDemographicIssue> remoteIssues = demographicWs.getLinkedCachedDemographicIssuesByDemographicId(demographicNo);
 
 			for (CachedDemographicIssue cachedDemographicIssue : remoteIssues) {
 				try {
 					if (resolved == cachedDemographicIssue.isResolved()) {
-						issuesToDisplay.add(getIssueToDisplay(loggedInInfo, cachedDemographicIssue));
+						issuesToDisplay.add(getIssueToDisplay(cachedDemographicIssue));
 					}
 				} catch (Exception e) {
 					log.error("Unexpected error.", e);
@@ -204,7 +213,7 @@ public class ReceptionistReportAction extends DispatchAction {
 		}
 	}
 
-	private IssueDisplay getIssueToDisplay(LoggedInInfo loggedInInfo, CachedDemographicIssue cachedDemographicIssue) throws MalformedURLException {
+	private IssueDisplay getIssueToDisplay(CachedDemographicIssue cachedDemographicIssue) throws MalformedURLException {
 		IssueDisplay issueDisplay = new IssueDisplay();
 
 		issueDisplay.acute = cachedDemographicIssue.isAcute() ? "acute" : "chronic";
@@ -229,7 +238,7 @@ public class ReceptionistReportAction extends DispatchAction {
 		}
 
 		Integer remoteFacilityId = cachedDemographicIssue.getFacilityDemographicIssuePk().getIntegratorFacilityId();
-		CachedFacility remoteFacility = CaisiIntegratorManager.getRemoteFacility(loggedInInfo, loggedInInfo.getCurrentFacility(),remoteFacilityId);
+		CachedFacility remoteFacility = CaisiIntegratorManager.getRemoteFacility(remoteFacilityId);
 		if (remoteFacility != null) issueDisplay.location = "remote: " + remoteFacility.getName();
 		else issueDisplay.location = "remote, name unavailable";
 

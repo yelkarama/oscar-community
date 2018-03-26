@@ -34,7 +34,7 @@
 	<input type="hidden" name="method" value="create_survey" />
 	<input type="hidden" name="numPages" id="numPages" value="1" />
 
-	<html:hidden property="survey.id" />
+	<html:hidden property="survey.surveyId" />
 	<br />
 	<table width="100%">
 		<logic:messagesPresent message="true">
@@ -60,7 +60,7 @@
 			<td class="leftfield">Template:&nbsp;&nbsp; <html:select
 				property="web.templateId" styleClass="formElement">
 				<html:option value="0">&nbsp;</html:option>
-				<html:options collection="templates" property="id"
+				<html:options collection="templates" property="surveyId"
 					labelProperty="description" />
 			</html:select></td>
 		</tr>

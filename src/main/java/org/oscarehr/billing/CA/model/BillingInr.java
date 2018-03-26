@@ -57,8 +57,9 @@ public class BillingInr extends AbstractModel<Integer>{
 
 	private String dob;
 
+	//TODO: this needs to be fixed to a string, but not messing with billing code today
 	@Column(name="provider_no")
-	private String providerNo;
+	private int providerNo;
 
 	@Column(name="provider_ohip_no")
 	private String providerOhipNo;
@@ -129,11 +130,11 @@ public class BillingInr extends AbstractModel<Integer>{
     	this.dob = dob;
     }
 
-	public String getProviderNo() {
+	public int getProviderNo() {
     	return providerNo;
     }
 
-	public void setProviderNo(String providerNo) {
+	public void setProviderNo(int providerNo) {
     	this.providerNo = providerNo;
     }
 

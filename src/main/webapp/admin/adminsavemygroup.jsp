@@ -27,8 +27,12 @@
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 
-
+<%
+  if(session.getValue("user") == null)
+    response.sendRedirect("../logout.htm");
+%>
 <%@ page import="java.sql.*, java.util.*, oscar.MyDateFormat" errorPage="../errorpage.jsp"%>
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean" scope="session" />
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.model.MyGroup" %>
 <%@ page import="org.oscarehr.common.model.MyGroupPrimaryKey" %>
@@ -36,27 +40,25 @@
 <%
 	MyGroupDao myGroupDao = SpringUtils.getBean(MyGroupDao.class);
 %>
-
-<!DOCTYPE html>
 <html:html locale="true">
 <head>
-
-<script>
+<script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
+<script LANGUAGE="JavaScript">
     <!--
     function start(){
       this.focus();
     }
     //-->
 </script>
-
-<link href="<%=request.getContextPath() %>/css/bootstrap.min.css" rel="stylesheet">
-
-
 </head>
-
 <body onload="start()">
-
-<br>
+<center>
+<table border="0" cellspacing="0" cellpadding="0" width="90%">
+	<tr bgcolor="#486ebd">
+		<th align="CENTER"><font face="Helvetica" color="#FFFFFF"><bean:message
+			key="admin.adminsavemygroup.title" /></font></th>
+	</tr>
+</table>
 <%
 	int rowsAffected=0;
 	String[] nums = request.getParameterValues("data");
@@ -78,32 +80,26 @@
 
   if (rowsAffected > 0) {
 %>
-
-    <div class="alert alert-success">
- 		<bean:message key="admin.adminsavemygroup.msgAdditionSuccess" />
-    </div>
- <%
+<p>
+<h1><bean:message key="admin.adminsavemygroup.msgAdditionSuccess" /></h1>
+</p>
+<script LANGUAGE="JavaScript">
+      self.close();
+     	//self.opener.refresh();
+</script> <%
   }  else {
 %>
-	<div class="alert alert-error">
-		<bean:message key="admin.adminsavemygroup.msgAdditionFailure" />
-	</div>
+<p>
+<h1><bean:message key="admin.adminsavemygroup.msgAdditionFailure" /></h1>
+</p>
 <%
   }
 %>
-
-
-<a href="admindisplaymygroup.jsp" class="btn btn-primary">View Group List</a>
-
-<a href="adminnewgroup.jsp" class="btn"><bean:message key="admin.admindisplaymygroup.btnSubmit2"/></a>
-
-<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-1.9.1.min.js"></script>
-
-<script>
-$( document ).ready(function() {	
-    parent.parent.resizeIframe($('html').height());	
-});
-</script>
-
+<p></p>
+<hr width="90%"></hr>
+<form><input type="button"
+	value="<bean:message key="global.btnClose"/>" onClick="window.close()">
+</form>
+</center>
 </body>
 </html:html>

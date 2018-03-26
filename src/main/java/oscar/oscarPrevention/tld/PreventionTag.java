@@ -31,9 +31,7 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.TagSupport;
 
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.oscarPrevention.Prevention;
 import oscar.oscarPrevention.PreventionDS;
@@ -52,9 +50,9 @@ public class PreventionTag extends TagSupport {
    }
 
    public int doStartTag() throws JspException    {
-	Prevention p = PreventionData.getPrevention( LoggedInInfo.getLoggedInInfoFromSession(super.pageContext.getSession()), Integer.valueOf(demographicNo));
+	Prevention p = PreventionData.getPrevention(demographicNo);
         try{
-	PreventionDS pf = SpringUtils.getBean(PreventionDS.class);
+	PreventionDS pf = PreventionDS.getInstance();
 	pf.getMessages(p);
         }catch(Exception e){
            MiscUtils.getLogger().error("Error", e);

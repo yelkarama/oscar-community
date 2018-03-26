@@ -38,7 +38,7 @@ public class OscarSpringContextLoaderListener extends ContextLoaderListener {
 		try {
 			logger.info("Creating OscarContextLoader");
 			return new OscarSpringContextLoader();
-		} catch (Exception t) {
+		} catch (Throwable t) {
 			logger.error("Unexpected error.", t);
 			throw (new RuntimeException(t));
 		}

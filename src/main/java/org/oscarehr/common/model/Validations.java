@@ -25,10 +25,6 @@
 
 package org.oscarehr.common.model;
 
-import java.io.Serializable;
-import java.util.Comparator;
-
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -37,7 +33,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name="validations")
-public class Validations extends AbstractModel<Integer> implements Serializable {
+public class Validations extends AbstractModel<Integer>{
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,29 +41,21 @@ public class Validations extends AbstractModel<Integer> implements Serializable 
 
 	private String name;
 
-	@Column(nullable=true)
 	private String regularExp;
-	
-	@Column(nullable=true)
-	private Double minValue;
 
-	@Column(name="maxValue1",nullable=true)
-	private Double maxValue;
+	private double minValue;
 
-	@Column(nullable=true)
-	private Integer minLength;
+	private double maxValue;
 
-	@Column(nullable=true)
-	private Integer maxLength = 0;
+	private int minLength;
 
-	@Column(nullable=true)
-	private Boolean isNumeric;
+	private int maxLength;
 
-	@Column(nullable=true)
-	private Boolean isTrue;
+	private boolean isNumeric;
 
-	@Column(nullable=true)
-	private Boolean isDate;
+	private boolean isTrue;
+
+	private boolean isDate;
 
 	public Integer getId() {
     	return id;
@@ -93,67 +81,61 @@ public class Validations extends AbstractModel<Integer> implements Serializable 
     	this.regularExp = regularExp;
     }
 
-	public Double getMinValue() {
+	public double getMinValue() {
     	return minValue;
     }
 
-	public void setMinValue(Double minValue) {
+	public void setMinValue(double minValue) {
     	this.minValue = minValue;
     }
 
-	public Double getMaxValue() {
+	public double getMaxValue() {
     	return maxValue;
     }
 
-	public void setMaxValue(Double maxValue) {
+	public void setMaxValue(double maxValue) {
     	this.maxValue = maxValue;
     }
 
-	public Integer getMinLength() {
+	public int getMinLength() {
     	return minLength;
     }
 
-	public void setMinLength(Integer minLength) {
+	public void setMinLength(int minLength) {
     	this.minLength = minLength;
     }
 
-	public Integer getMaxLength() {
+	public int getMaxLength() {
     	return maxLength;
     }
 
-	public void setMaxLength(Integer maxLength) {
+	public void setMaxLength(int maxLength) {
     	this.maxLength = maxLength;
     }
 
-	public Boolean isNumeric() {
+	public boolean isNumeric() {
     	return isNumeric;
     }
 
-	public void setNumeric(Boolean isNumeric) {
+	public void setNumeric(boolean isNumeric) {
     	this.isNumeric = isNumeric;
     }
 
-	public Boolean isTrue() {
+	public boolean isTrue() {
     	return isTrue;
     }
 
-	public void setTrue(Boolean isTrue) {
+	public void setTrue(boolean isTrue) {
     	this.isTrue = isTrue;
     }
 
-	public Boolean isDate() {
+	public boolean isDate() {
     	return isDate;
     }
 
-	public void setDate(Boolean isDate) {
+	public void setDate(boolean isDate) {
     	this.isDate = isDate;
     }
-
-    public static final Comparator<Validations> NameComparator = new Comparator<Validations>() {
-        public int compare(Validations o1, Validations o2) {
-                return o1.getName().compareTo(o2.getName());
-        }
-    }; 
 
 
 }

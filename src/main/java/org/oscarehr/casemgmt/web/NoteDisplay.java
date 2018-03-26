@@ -113,15 +113,11 @@ public interface NoteDisplay {
 	public boolean isRxAnnotation();
 
 	public boolean isEformData();
-	
-	public boolean isFreeDraw();
 
 	public boolean isEncounterForm();
 
 	public boolean isInvoice();
 
-	public boolean isTicklerNote();
-	
 	public CaseManagementNoteLink getNoteLink();
 
 	public RxPrescriptionData.Prescription getRxFromAnnotation(CaseManagementNoteLink cmnl);
@@ -145,6 +141,4 @@ public interface NoteDisplay {
 	public String getEncounterTime();
 
 	public String getEncounterTransportationTime();
-	
-	public Integer getAppointmentNo();
 }

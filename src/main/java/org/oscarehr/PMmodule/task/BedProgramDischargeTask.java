@@ -29,18 +29,18 @@ import java.util.TimerTask;
 import org.apache.log4j.Logger;
 import org.oscarehr.PMmodule.exception.AdmissionException;
 import org.oscarehr.PMmodule.exception.FunctionalCentreDischargeException;
+import org.oscarehr.PMmodule.model.Bed;
+import org.oscarehr.PMmodule.model.BedDemographic;
 import org.oscarehr.PMmodule.model.Program;
 import org.oscarehr.PMmodule.service.AdmissionManager;
+import org.oscarehr.PMmodule.service.BedDemographicManager;
+import org.oscarehr.PMmodule.service.BedManager;
 import org.oscarehr.PMmodule.service.ProgramManager;
 import org.oscarehr.PMmodule.utility.DateTimeFormatUtils;
-import org.oscarehr.common.model.Bed;
-import org.oscarehr.common.model.BedDemographic;
 import org.oscarehr.common.model.Provider;
-import org.oscarehr.managers.BedDemographicManager;
-import org.oscarehr.managers.BedManager;
 import org.oscarehr.util.DbConnectionFilter;
+import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.MiscUtilsOld;
 import org.oscarehr.util.ShutdownException;
 
 public class BedProgramDischargeTask extends TimerTask {
@@ -70,6 +70,7 @@ public class BedProgramDischargeTask extends TimerTask {
 
 	@Override
 	public void run() {
+		LoggedInInfo.setLoggedInInfoToCurrentClassAndMethod();
 		try {
             log.debug("start bed program discharge task");
 
@@ -81,7 +82,7 @@ public class BedProgramDischargeTask extends TimerTask {
             }
             
             for (Program bedProgram : bedPrograms) {
-            	MiscUtilsOld.checkShutdownSignaled();
+            	MiscUtils.checkShutdownSignaled();
             	
                 Date dischargeTime = DateTimeFormatUtils.getTimeFromString(DISCHARGE_TIME);
                 Date previousExecutionTime = DateTimeFormatUtils.getTimeFromLong(scheduledExecutionTime() - PERIOD);
@@ -97,13 +98,13 @@ public class BedProgramDischargeTask extends TimerTask {
                     }
                     
                     for (Bed reservedBed : reservedBeds) {
-                    	MiscUtilsOld.checkShutdownSignaled();
+                    	MiscUtils.checkShutdownSignaled();
                     	
                         BedDemographic bedDemographic = bedDemographicManager.getBedDemographicByBed(reservedBed.getId());
                         
                         if (bedDemographic != null && bedDemographic.getId() != null && bedDemographic.isExpired()) {
                             try {
-                                admissionManager.processDischargeToCommunity(null, Program.DEFAULT_COMMUNITY_PROGRAM_ID, bedDemographic.getId().getDemographicNo(), Provider.SYSTEM_PROVIDER_NO, "bed reservation ended - automatically discharged", "0" , null, false);
+                                admissionManager.processDischargeToCommunity(Program.DEFAULT_COMMUNITY_PROGRAM_ID, bedDemographic.getId().getDemographicNo(), Provider.SYSTEM_PROVIDER_NO, "bed reservation ended - automatically discharged", "0" , null, false);
                             }
                             catch (AdmissionException e) {
                                 log.error("Error discharging to community", e);
@@ -120,6 +121,7 @@ public class BedProgramDischargeTask extends TimerTask {
         	log.debug("BedProgramDischargeTask noticed shutdown signaled.");
         }
         finally {
+			LoggedInInfo.loggedInInfo.remove();
             DbConnectionFilter.releaseAllThreadDbResources();
         }
 	}

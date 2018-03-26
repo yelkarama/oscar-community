@@ -25,19 +25,12 @@
 --%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
+    if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
 %>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin,_admin.userAdmin" rights="*" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_admin&type=_admin.userAdmin");%>
+<security:oscarSec roleName="<%=roleName$%>" objectName="_admin,_admin.userAdmin,_admin.torontoRfq" rights="*" reverse="<%=true%>">
+	<%response.sendRedirect("../logout.jsp");%>
 </security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 
 <%@ page errorPage="../errorpage.jsp"%>
 <%@ page import="java.util.*"%>
@@ -46,8 +39,6 @@
 <%@ page import="oscar.login.*"%>
 <%@ page import="oscar.log.*"%>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
-<%@ page import="org.springframework.dao.DataIntegrityViolationException"%>
-<%@ page import="java.sql.BatchUpdateException"%>
 <%@ page import="org.oscarehr.util.SpringUtils"%>
 <%@ page import="org.oscarehr.common.model.SecRole"%>
 <%@ page import="org.oscarehr.common.dao.SecRoleDao"%>
@@ -155,17 +146,8 @@ if (request.getParameter("submit") != null && request.getParameter("submit").equ
 		sop.setPrivilege(privilege);
 		sop.setPriority(Integer.parseInt(priority));
 		sop.setProviderNo(curUser_no);
-		String secExceptionMsg = new String();
-		try {
-			secObjPrivilegeDao.persist(sop);
-		} 
-		catch(DataIntegrityViolationException divEx) {
-			secExceptionMsg = divEx.getMostSpecificCause().getLocalizedMessage();
-		}
-		if(secExceptionMsg.length() > 0)
-			msg += secExceptionMsg;
-		else
-			msg += "Role/Obj/Rights " + roleUserGroup + "/" + objectName + "/" + privilege + " is added. ";
+		secObjPrivilegeDao.persist(sop);
+		msg += "Role/Obj/Rights " + roleUserGroup + "/" + objectName + "/" + privilege + " is added. ";
 	    LogAction.addLog(curUser_no, LogConst.ADD, LogConst.CON_PRIVILEGE, roleUserGroup +"|"+ objectName +"|"+privilege, ip);
 	}
 }
@@ -489,12 +471,5 @@ for(SecObjPrivilege sop:sops) {
 	</form>
 </table>
 
-<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-1.9.1.min.js"></script>
-<script>
-$( document ).ready(function() {	
-    parent.parent.resizeIframe($('html').height());	
-	
-});
-</script>
 </body>
 </html>

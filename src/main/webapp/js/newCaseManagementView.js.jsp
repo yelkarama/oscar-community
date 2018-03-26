@@ -38,7 +38,6 @@
    	var defaultDiv;
    	var changeIssueFunc;
    	var addIssueFunc;
-   	var needToReleaseLock = true;
 
        var X       = 10;
     var small   = 60;
@@ -53,29 +52,11 @@
         var measurementWindows = new Array();
         var openWindows = new Object();
         var origCaseNote = "";
-        var origObservationDate = "";        
+        var origObservationDate = "";
+        var tmpSaveNeeded = true;
         var calendar;
-		var reloadWindows = new Object();
-		var updateDivTimer = null;
-		var reloadDivUrl;
-		var reloadDiv;
-		
-		function checkLengthofObject(o) {
-			var c = 0;
-			for( var attr in o ) {
-				if( o.hasOwnProperty(attr) ) {
-					++c;
-				}
-			}
-			
-			return c;
-		
-		}
-		
+
         function popupPage(vheight,vwidth,name,varpage) { //open a new popup window
-		  if (varpage == null || varpage == -1) {
-		  	return false;
-		  }
           if( varpage.indexOf("..") == 0 ) {
             varpage = ctx + varpage.substr(2);
           }
@@ -89,34 +70,6 @@
                         openWindows[name].opener = self;
                     }
                     openWindows[name].focus();
-                    if( updateDivTimer == null ) {
-                    	updateDivTimer = setInterval(
-                    		function() {
-			
-								if( checkLengthofObject(openWindows) > 0 ) {
-									for( var name in openWindows ) {
-										if( openWindows[name].closed && reloadWindows[name] != undefined ) {
-											reloadDivUrl = reloadWindows[name];
-											reloadDiv = reloadWindows[name+"div"];
-											
-											loadDiv(reloadDiv,reloadDivUrl,0);
-
-											delete reloadWindows[name];
-											var divName = name + "div";
-											delete reloadWindows[divName];
-											delete openWindows[name];
-										}
-																	
-									}
-			
-								}
-								if( checkLengthofObject(openWindows) == 0 ) {
-									clearInterval(updateDivTimer);
-									updateDivTimer = null;
-								}
-		
-							},1000);
-                    } 
                 }
 
         }
@@ -147,28 +100,51 @@
         }
 
         var okToClose = false;
-
-            function onClosing() {
-                 for( var idx = 0; idx < measurementWindows.length; ++idx ) {
-                     if( !measurementWindows[idx].closed )
-                         measurementWindows[idx].parentChanged = true;
-                 }
-            
-                if( needToReleaseLock ) {								
-				//release lock on note
-				var url = ctx + "/CaseManagementEntry.do";
-				var nId = document.forms['caseManagementEntryForm'].noteId.value;
-				var params = "method=releaseNoteLock&providerNo=" + providerNo + "&demographicNo=" + demographicNo + "&noteId=" + nId;
-				new Ajax.Request (
-					url,
-					{
-						method: 'post',
-						postBody: params,
-						asynchronous: false						
-					}
-				);				
-                }
+        function onClosing() {
+            for( var idx = 0; idx < measurementWindows.length; ++idx ) {
+                if( !measurementWindows[idx].closed )
+                    measurementWindows[idx].parentChanged = true;
             }
+
+            //check to see if we need to save
+            if( $(caseNote) != null && tmpSaveNeeded && (origCaseNote != $(caseNote).value || origObservationDate != $("observationDate").value) ) {
+                tmpSaveNeeded = false;
+                //autoSave(false);
+                document.forms['caseManagementEntryForm'].sign.value='persist';
+                document.forms["caseManagementEntryForm"].method.value = "saveAndExit";
+                document.forms["caseManagementEntryForm"].ajax.value = false;
+                document.forms["caseManagementEntryForm"].chain.value = "";
+                document.forms["caseManagementEntryForm"].includeIssue.value = "off";
+
+                var frm = document.forms["caseManagementEntryForm"];
+                var url = ctx + "/CaseManagementEntry.do";
+                var objAjax = new Ajax.Request (
+                    url,
+                    {
+                        method: 'post',
+                        postBody: Form.serialize(frm),
+                        asynchronous: false,
+                        onComplete: function(request) {
+                            tmpSaveNeeded = false;
+                            okToClose = true;
+                        },
+                        onFailure: function(request) {
+                            if( request.status == 403 )
+                                alert(sessionExpiredError);
+                            else
+                                alert(request.status + " " + savingNoteError);
+                        }
+                     }
+                   );
+
+                   while(1) {
+                        if( okToClose == true ) {
+                            break;
+                        }
+                   }
+            } //end if save needed
+
+        }
 
         var numMenus = 3;
         function showMenu(menuNumber, eventObj) {
@@ -370,9 +346,6 @@ var oMedsLabel;
 var famHistoryLabel;
 var riskFactorsLabel;
 
-/*
-	Loads issue notes: Social History, Medical History, Ongoing Concerns, Reminders
-*/
 function showIssueNotes() {
 /*
     var issueNoteUrls = {
@@ -406,17 +379,6 @@ function notesIncrementAndLoadMore() {
 	}
 }
 
-/**
-
-	Responsible for loading notes on the eChart
-	@param {offset} 
-		Offset from the beginning of the notes
-	@param {numToReturn}
-		Number of notes to load
-	@param {demoNo}
-		Demographic number to loads notes for
-
-*/
 function notesLoader(offset, numToReturn, demoNo) {
 	$("notesLoading").style.display = "inline";
 	var params = "method=viewNotesOpt&offset=" + offset + "&numToReturn=" + numToReturn + "&demographicNo=" + demoNo;
@@ -427,6 +389,7 @@ function notesLoader(offset, numToReturn, demoNo) {
 			ctx + "/CaseManagementView.do",
 			{
 				method: 'post',
+				asynchronous:false,
 				postBody: params,
 				evalScripts: true,
 				insertion: Insertion.Top,
@@ -474,11 +437,10 @@ function navBarLoader() {
                   ctx + "/oscarEncounter/displayMeasurements.do?hC=" + Colour.measurements,
                   ctx + "/oscarEncounter/displayConsultation.do?hC=" + Colour.consultation,
                   ctx + "/oscarEncounter/displayHRM.do?hC=",
-                  ctx + "/oscarEncounter/displayMyOscar.do?hC=",
-                  ctx + "/eaaps/displayEctEaaps.do?hC="
+                  ctx + "/oscarEncounter/displayMyOscar.do?hC="                 
               ];
 
-            var leftNavBarTitles = [ "preventions", "tickler", "Dx", "forms", "eforms", "docs","labs", "msgs", "measurements", "consultation","HRM","PHR", "eaaps"];
+            var leftNavBarTitles = [ "preventions", "tickler", "Dx", "forms", "eforms", "docs","labs", "msgs", "measurements", "consultation","HRM","myoscar"];
 
             var rightNavBar = [
                   ctx + "/oscarEncounter/displayAllergy.do?hC=" + Colour.allergy,
@@ -490,11 +452,10 @@ function navBarLoader() {
                   ctx + "/oscarEncounter/displayResolvedIssues.do?hC=" + Colour.resolvedIssues,
                   ctx + "/oscarEncounter/displayDecisionSupportAlerts.do?providerNo=" + providerNo + "&demographicNo=" + demographicNo,                                       
                   ctx + "/oscarEncounter/displayEpisodes.do?hC=" + Colour.episode,
-                  ctx + "/oscarEncounter/displayPregnancies.do?hC="+ Colour.episode,
-                  ctx + "/oscarEncounter/displayContacts.do?hC=" + Colour.contacts
+                  ctx + "/oscarEncounter/displayPregnancies.do?hC="+ Colour.episode
               ];
 
-            var rightNavBarTitles = [ "allergies", "Rx", "OMeds", "RiskFactors", "FamHistory", "unresolvedIssues", "resolvedIssues", "Guidelines","episode","pregnancy","contacts"];
+            var rightNavBarTitles = [ "allergies", "Rx", "OMeds", "RiskFactors", "FamHistory", "unresolvedIssues", "resolvedIssues", "Guidelines","episode","pregnancy" ];
 
 
           var navbar = "leftNavBar";
@@ -654,33 +615,6 @@ function navBarLoader() {
 
 }
 
-function showIntegratedNote(title, note, location, providerName, obsDate){
-	$("integratedNoteTitle").innerHTML = title;
-	$("integratedNoteDetails").innerHTML = "Integrated Facility:" + location + " by " + providerName + " on " + obsDate;
-	
-	$("integratedNoteTxt").value = note;
-	
-	var coords = null;
-    if(document.getElementById("measurements_div") == null) {
-    	coords = Position.page($("topContent"));
-    } else {
-   		coords = Position.positionedOffset($("cppBoxes"));
-    }
-
-    var top = Math.max(coords[1], 0);
-    var right = Math.round(coords[0]/0.66);
-
-	$("showIntegratedNote").style.right = right + "px";
-    $("showIntegratedNote").style.top = top + "px";
-    
-    $("channel").style.visibility = "hidden";
-    $("showEditNote").style.display = "none";
-    
-	$("showIntegratedNote").style.display = "block";
-	
-	$("integratedNoteTxt").focus();
-}
-
 //display in place editor
 function showEdit(e,title, noteId, editors, date, revision, note, url, containerDiv, reloadUrl, noteIssues, noteExts, demoNo) {
     //Event.extend(e);
@@ -697,7 +631,7 @@ function showEdit(e,title, noteId, editors, date, revision, note, url, container
    		coords = Position.positionedOffset($("cppBoxes"));
     }
 
-    var top = Math.max(coords[1], 0);
+    var top = coords[1];
     var right = Math.round(coords[0]/0.66);
     var height = $("showEditNote").getHeight();
     var gutterMargin = 150;
@@ -756,7 +690,6 @@ function showEdit(e,title, noteId, editors, date, revision, note, url, container
 
     $(editElem).style.right = right + "px";
     $(editElem).style.top = top + "px";
-    $("showIntegratedNote").style.display = "none";
     if( Prototype.Browser.IE ) {
         //IE6 bug of showing select box
         $("channel").style.visibility = "hidden";
@@ -894,7 +827,7 @@ function prepareExtraFields(cpp,exts) {
 	rowIDs[i] = "Item"+exFields[i];
 	$(rowIDs[i]).hide();
     }
-    if (cpp==cppNames[1]) $(rowIDs[2],rowIDs[4],rowIDs[8],rowIDs[9]).invoke("show");
+    if (cpp==cppNames[1]) $(rowIDs[2],rowIDs[8],rowIDs[9]).invoke("show");
     if (cpp==cppNames[2]) $(rowIDs[3],rowIDs[4],rowIDs[7],rowIDs[8],rowIDs[9]).invoke("show");
     if (cpp==cppNames[3]) $(rowIDs[5],rowIDs[8],rowIDs[9],rowIDs[10]).invoke("show");
     if (cpp==cppNames[4]) $(rowIDs[3],rowIDs[6],rowIDs[8],rowIDs[9]).invoke("show");
@@ -1223,8 +1156,8 @@ function loadDiv(div,url,limit) {
         text = text.replace(/\\u0022/g, "\u0022");
         text = text.replace(/\\u0027/g, "\u0027");
 
-        //if( $(caseNote).value.length > 0 )
-            //$(caseNote).value += "\n\n";
+        if( $(caseNote).value.length > 0 )
+            $(caseNote).value += "\n\n";
 
         var curPos = $(caseNote).value.length;
         //subtract \r chars from total length for IE
@@ -1322,23 +1255,6 @@ function resetView(frm, error, e) {
     Element.observe(parent, 'click', unlockNote);
 }
 
-function removeLock(id) {
-	var regEx = /\d+/;
-    var nId = regEx.exec(id);
-	var url = ctx + "/CaseManagementEntry.do";
-	params = "method=releaseNoteLock&providerNo=" + providerNo + "&demographicNo=" + demographicNo + "&noteId=" + nId + "&force=true";
-	
-	new Ajax.Request(
-		url,
-		{
-			method: 'post',
-			postBody: params,
-			asynchronous: true
-		}
-	);	
-}
-
-
 var updatedNoteId = -1;  //used to store id of ajax saved note used below
 var selectBoxes = new Object();
 var unsavedNoteWarning;
@@ -1381,9 +1297,6 @@ function changeToView(id) {
                 return false;
         }
    }
-
-	//remove lock from note
-	removeLock(id);
 
 
     //cancel updating of issues
@@ -1708,12 +1621,14 @@ function fetchNote(nId) {
 }
 
 function toggleFullViewForAll(f) {
-	jQuery('[name="fullViewTrigger"]').each(function(){
-		$(this).click();
-	});
-	jQuery('[name="expandViewTrigger"]').each(function(){
-		$(this).click();
-	});
+    var triggers = document.getElementsByName('fullViewTrigger');
+    for (var i=0; i<triggers.length; i++) {
+        fullViewById(triggers[i].id);
+    }
+    triggers = document.getElementsByName('expandViewTrigger');
+    for (var i=0; i<triggers.length; i++) {
+        xpandViewById(triggers[i].id);
+    }
 }
 
 //this func fires only if maximize button is clicked
@@ -1724,21 +1639,18 @@ function fullView(e) {
 }
 
 function fullViewById(id) {
-	var url = ctx + "/CaseManagementView.do";
+    var url = ctx + "/CaseManagementView.do";
 
     var regEx = /\d+/;
     var nId = regEx.exec(id);
-	
-    
+
     var txt = "n" + nId;
     var img = "quitImg" + nId;
     var fullId = "full" + nId;
     var params = "method=viewNote&raw=false&noteId=" + nId;
-    var noteTxtId = "txt" + nId; 
+    var noteTxtId = "txt" + nId;
     var btnHtml = "<img title='Minimize Display' id='bottomQuitImg" + nId + "' alt='Minimize Display' onclick='minView(event)' style='float:right; margin-right:5px; margin-bottom:3px;' src='" + ctx + "/oscarEncounter/graphics/triangle_up.gif'>";
     Element.stopObserving(txt, 'click', fullView);
-	
-	
 
     var ajax = new Ajax.Request (
                     url,
@@ -1747,12 +1659,11 @@ function fullViewById(id) {
                         postBody: params,
                         evalScripts: true,
                         onSuccess: function(response) {
-                        	$(noteTxtId).update(response.responseText);
+                            $(noteTxtId).update(response.responseText);
                             if( largeNote(response.responseText) ) {
                                 new Insertion.After(noteTxtId,btnHtml);
                             }
                             $(fullId).value = "true";
-                         
                         }
                     }
                );
@@ -1860,29 +1771,6 @@ function unlockNote(e) {
     Element.stopObserving(txt, 'click', unlockNote);
 }
 
-function NoteisLocked(nId) {
-
-	var noteIsLocked = "";
-	var url = ctx + "/CaseManagementEntry.do";
-	params = "method=isNoteEdited&providerNo=" + providerNo + "&demographicNo=" + demographicNo + "&noteId=" + nId;
-	
-	new Ajax.Request(
-		url,
-		{
-			method: 'post',
-			postBody: params,
-			evalScripts: true,
-			asynchronous: false,
-			onSuccess: function(request) {										
-					var json = request.responseText.evalJSON();								
-					noteIsLocked = json.isNoteEdited;
-			}
-		}
-	);	
-	
-	return noteIsLocked;
-}
-
 var sigCache = "";
 //place Note text in textarea for editing and add save, sign etc buttons for this note
 function editNote(e) {
@@ -1899,37 +1787,6 @@ function editNote(e) {
     var txt = "n" + nId;
     var xpandId = "xpImg" + nId;
     var sig = "sig" + nId;
-    
-    var noteLockStatus = NoteisLocked(nId);
-    if(noteLockStatus == "user") {
-    	var viewEditedNote = confirm("You have started to edit this note in another window.\nDo you wish to continue?");
-    	if( viewEditedNote ) {    	
-    		var parent = $(caseNote).parentNode.id;
-    		var oldNoteId = parent.substr(1);	    		
-    		var params = "method=releaseNoteLock&demographicNo=" + demographicNo + "&providerNo=" + providerNo  + "&noteId=" + oldNoteId + "&force=true";
-    		jQuery.ajax({
-				type: "POST",
-				url:  ctx + "/CaseManagementEntry.do",
-				data: params
-			});
-    		    		
-    		params = "method=updateNoteLock&demographicNo=" + demographicNo + "&noteId=" + nId;
-			jQuery.ajax({
-				type: "POST",
-				url:  ctx + "/CaseManagementEntry.do",
-				data: params
-			});
-    	}  
-    	else {
-    		Event.stop(e);
-    		return false;
-    	}
-    }
-    else if( noteLockStatus == "other" ) {
-    	Event.stop(e);
-    	alert("This note is being edited by another user.  Try again later");
-    	return false;
-    }
 
     if( $(xpandId) != null ) {
         xpandView(e);
@@ -2008,7 +1865,6 @@ function editNote(e) {
         setCaretPosition($(caseNote),$(caseNote).value.length);
         $(caseNote).focus();
         origCaseNote = $F(caseNote);
-        
     }
     else {
         fetchNote(nId);
@@ -2169,17 +2025,6 @@ function issueIsAssigned() {
 
 var filterError;
 
-function resetInputElements(element) {
-	if (Object.prototype.toString.call(element) == "[object NodeList]") {
-		var size = element.length;
-		for (var i = 0; i < size; i++) {
-			element[i].checked = false;
-		}
-	} else {
-		element.checked = false;
-	}
-}
-
 function filter(reset) {
     var url = ctx + "/CaseManagementEntry.do";
     var params = "ajaxview=ajaxView&fullChart=" + fullChart;
@@ -2192,13 +2037,6 @@ function filter(reset) {
     document.forms["caseManagementViewForm"].method.value = "view";
     document.forms["caseManagementViewForm"].resetFilter.value = reset;
 
-	if (reset) {
-		resetInputElements(document.forms["caseManagementViewForm"].filter_providers);
-		resetInputElements(document.forms["caseManagementViewForm"].filter_roles);
-		resetInputElements(document.forms["caseManagementViewForm"].note_sort);
-		resetInputElements(document.forms["caseManagementViewForm"].issues);
-	}
-	
     var caseMgtEntryfrm = document.forms["caseManagementEntryForm"];
     var caseMgtViewfrm = document.forms["caseManagementViewForm"];
     params +=  "&" + Form.serialize(caseMgtEntryfrm);
@@ -2290,7 +2128,7 @@ function validDate() {
     date.setHours(timeArr[0]);
     date.setMinutes(timeArr[1]);
 
-    var today = new Date();
+    var today = new Date(strToday);
     today.setHours(23);
     today.setMinutes(59);
 
@@ -2305,12 +2143,9 @@ var assignObservationDateError;
 var assignIssueError;
 var savingNoteError;
 var encTimeError;
-var transportationTimeError;
 var encMinError;
 var encTimeMandatoryMsg;
 var encTimeMandatory;
-var transportationTimeMandatoryMsg;
-var transportationTimeMandatory;
 
 function ajaxSaveNote(div,noteId,noteTxt) {
 
@@ -2501,9 +2336,8 @@ function saveNoteAjax(method, chain) {
     document.forms["caseManagementEntryForm"].chain.value = chain;
     document.forms["caseManagementEntryForm"].includeIssue.value = "off";
 
-    clearAutoSaveTimer();
-
     var caseMgtEntryfrm = document.forms["caseManagementEntryForm"];
+    tmpSaveNeeded = false;
 
 	var params = Form.serialize(caseMgtEntryfrm);
     params += "&ajaxview=ajaxView&fullChart=" + fullChart;
@@ -2536,92 +2370,12 @@ function saveNoteAjax(method, chain) {
                             }
 
                       );
+
     return false;
-}
-function cancelResident() {
-    jQuery('#resident').trigger("reset");
-    jQuery("#residentChain").val("");
-    jQuery("#residentMethod").val("");
-    if( jQuery(".supervisor").is(":visible") ) {
-        jQuery(".supervisor").slideUp(300);                    
-    }
-
-    if( jQuery(".reviewer").is(":visible") ) {
-        jQuery(".reviewer").slideUp(300);
-    }
-    
-    jQuery('#showResident').fadeOut(2000);
-    jQuery('#showResident').css('z-index',300);
-    
-    return false;
-
-}
-
-function subResident() {
-    if( !jQuery("input[name='reviewed']:checked").length ) {
-        alert("Please select if the note has been reviewed");
-        return false;
-    }
-
-    if( (jQuery("input[name='reviewed']:checked").val() == "true" && jQuery("#reviewer").val() == "") ) {
-        alert("Please select who you reviewed the note with");
-        return false;
-    }
-    
-    else if( (jQuery("input[name='reviewed']:checked").val() == "false" && jQuery("#supervisor").val() == "") ) {
-        alert("Please Choose Your Supervisor");
-        return false;
-    }
-
-    jQuery('<input>').attr({
-    type: 'hidden',
-    id: 'isAResident',
-    name: 'isAResident',
-    value: 'true'
-}).appendTo('#resident');
-
-    jQuery('<input>').attr({
-    type: 'hidden',
-    id: 'supervisor',
-    name: 'supervisor',
-    value: jQuery("#supervisor").val()
-}).appendTo("form[name='caseManagementEntryForm']");
-
-    jQuery('<input>').attr({
-    type: 'hidden',
-    id: 'reviewer',
-    name: 'reviewer',
-    value: jQuery("#reviewer").val()
-}).appendTo("form[name='caseManagementEntryForm']");
-
-    jQuery('<input>').attr({
-    type: 'hidden',
-    id: 'resident',
-    name: 'resident',
-    value: 'true'
-}).appendTo("form[name='caseManagementEntryForm']");
-
-  jQuery('#showResident').fadeOut(2000);
-  jQuery('#showResident').css('z-index',300);  
-  savePage(jQuery("#residentMethod").val(), jQuery("#residentChain").val());
-  return false;
 }
 
 
 function savePage(method, chain) {
-       
-        if( typeof jQuery("form[name='resident'] input[name='residentMethod']").val() != "undefined" && 
-            jQuery("form[name='resident'] input[name='residentMethod']").val().trim().length == 0 &&
-            method.match(/.*[Ee]xit$/g) != null  ) { 
-            jQuery("#residentChain").val(chain);
-            jQuery("#residentMethod").val(method);
-            jQuery("#showResident").css('z-index',1);
-            jQuery("#showResident").fadeIn(2000);
-            jQuery("#reviewed").focus();
-            return false;
-        }
-
-
 	if ((typeof jQuery("form[name='caseManagementEntryForm'] input[name='_note_program_no']").val() != "undefined") &&
 			(typeof jQuery("form[name='caseManagementEntryForm'] input[name='_note_role_id']").val() != "undefined")) {
 		if (jQuery("form[name='caseManagementEntryForm'] input[name='_note_program_no']").val().trim().length == 0 ||
@@ -2636,7 +2390,6 @@ function savePage(method, chain) {
 			return false;
 		}
 	}
-
 
 	var noteStr;
 	noteStr = $F(caseNote);
@@ -2715,8 +2468,6 @@ function savePage(method, chain) {
 		}     
  		
     }
-
-    
     document.forms["caseManagementEntryForm"].method.value = method;
     document.forms["caseManagementEntryForm"].ajax.value = false;
     document.forms["caseManagementEntryForm"].chain.value = chain;
@@ -2725,17 +2476,8 @@ function savePage(method, chain) {
     document.forms["caseManagementViewForm"].method.value = method;
 
     var caseMgtEntryfrm = document.forms["caseManagementEntryForm"];
+    tmpSaveNeeded = false;
 
-    clearAutoSaveTimer();
-
-    if( method == "saveAndExit" ) {
-    	needToReleaseLock = false;
-    }
-    else {
-    	needToReleaseLock = true;
-    }
-
-	origCaseNote = $F(caseNote);
     caseMgtEntryfrm.submit();
 
 	jQuery("span[note_addon]").each(function(i){
@@ -2834,10 +2576,10 @@ function changeDiagnosisUnresolved(issueId) {
     var closeWithoutSaveMsg;
     function closeEnc(e) {
         Event.stop(e);
-        if( !lostNoteLock && (origCaseNote != $F(caseNote)  || origObservationDate != $("observationDate").value)) {
+        if( origCaseNote != $F(caseNote)  || origObservationDate != $("observationDate").value) {
             if( confirm(closeWithoutSaveMsg) ) {
                 var frm = document.forms["caseManagementEntryForm"];
-                origCaseNote = $F(caseNote);
+                tmpSaveNeeded = false;
                 frm.method.value = "cancel";
                 frm.submit();
             }
@@ -3082,7 +2824,6 @@ function deleteAutoSave() {
 }
 var month=new Array(12);
 var msgDraftSaved;
-var lostNoteLock = false;
 function autoSave(async) {
 
     var url = ctx + "/CaseManagementEntry.do";
@@ -3107,57 +2848,33 @@ function autoSave(async) {
                                                 if( $("autosaveTime") == null )
                                                     new Insertion.Bottom(sig, "<div id='autosaveTime' class='sig' style='text-align:center; margin:0px;'><\/div>");
                                                     */
-                                                    
-                                                
-                                                
                                                 var d = new Date();
                                                 var min = d.getMinutes();
                                                 min = min < 10 ? "0" + min : min;
-                                                
-                                                var seconds = d.getSeconds();
-                                                seconds = seconds < 10 ? "0" + seconds : seconds;
 
-                                                var fmtDate = "<i>" + msgDraftSaved + " " + d.getDate() + "-" + month[d.getMonth()]  + "-" + d.getFullYear() + " " + d.getHours() + ":" + min +  ":" + seconds + "<\/i>";
+                                                var fmtDate = "<i>" + msgDraftSaved + " " + d.getDate() + "-" + month[d.getMonth()]  + "-" + d.getFullYear() + " " + d.getHours() + ":" + min + "<\/i>";
                                                 $("autosaveTime").update(fmtDate);
-                                                
 
-                                           },
-                                 onFailure: function(req) {
-                                 	if( req.status == 403 ) {
-                                                	lostNoteLock = true;
-                                                	var msg = "<i>Autosave cancelled due to note being edited in another window</i>";
-                                                	$("autosaveTime").update(msg);
-                                    }
-                                 
-                                 }
+                                           }
                             }
                      );
 
+
+
 }
 
-
 function backup() {
-	
+
     if(origCaseNote != $(caseNote).value || origObservationDate != $("observationDate").value) {
-        autoSave(true);        
+        autoSave(true);
     }
 
-	if( !lostNoteLock ) {
-    	setTimer();
-    }
+    setTimer();
 }
 
 var autoSaveTimer;
 function setTimer() {
-    autoSaveTimer = setTimeout("backup()", 5000);
-}
-
-function clearAutoSaveTimer() {
-    clearTimeout(autoSaveTimer);
-}
-
-function clearAutoSaveTimer() {
-    clearTimeout(autoSaveTimer);
+    autoSaveTimer = setTimeout("backup()", 60000);
 }
 
 var unsavedNoteMsg;
@@ -3192,17 +2909,6 @@ function showIssueHistory(demoNo, issueIds) {
 var caseNote = "";  //contains id of note text area; system permits only 1 text area at a time to be created
 var numChars = 0;
 function monitorCaseNote(e) {
-	
-	//if we have lost the lock on the note alert the user
-	if( lostNoteLock ) {
-		var openAgain = confirm("You have saved/edited this note in another window\nPlease reopen the Chart if you wish to continue editing this note" +
-			"\n Do you wish to reopen the chart now?");
-			
-	    if( openAgain ) {
-	    	window.location.reload(true);
-	    }
-	}
-
     var MAXCHARS = 78;
     var MINCHARS = -10;
     var newChars = $(caseNote).value.length - numChars;
@@ -3512,9 +3218,9 @@ function autoCompleteShowMenuCPP(element, update) {
     function printNotes() {
         if( $("printopDates").checked && !printDateRange()) {
             return false;
-        }else if( $("printopAll").checked ){
-            printAll();
         }
+        else if( $("printopAll").checked )
+            printAll();
 
         if( $F("notes2print").length == 0 && $F("printCPP") == "false" && $F("printRx") == "false" && $F("printLabs") == "false" ) {
             alert(nothing2PrintMsg);
@@ -3529,6 +3235,7 @@ function autoCompleteShowMenuCPP(element, update) {
         frm.pStartDate.value = $F("printStartDate");
         frm.pEndDate.value = $F("printEndDate");
         frm.submit();
+
 
         return false;
     }
@@ -3623,12 +3330,16 @@ function autoCompleteShowMenuCPP(element, update) {
         var noteId;
         var notesDiv;
         var pos;
-        
-        $("notes2print").value = "ALL_NOTES";
-        
-        /*
+
+        //$("notes2print").value = "";
+
+		// load all notes before printing
+		var demographicNo = $("demographicNo").value;
+		notesLoader(0, 9999, demographicNo);
+		var size = $("encMainDiv").children.length;
+
         //cycle through container divs for each note
-        for( idx = 1; idx <= maxNcId; ++idx ) {
+        for( idx = 1; idx <= size; ++idx ) {
         
         	if( $("nc" + idx) == null ) continue;
         
@@ -3641,7 +3352,6 @@ function autoCompleteShowMenuCPP(element, update) {
                     addPrintQueue(noteId);
             }
         }
-        */
     }
 
     var editUnsignedMsg;
@@ -3668,337 +3378,11 @@ function autoCompleteShowMenuCPP(element, update) {
 		 	var url='groupNoteSelect.jsp?programId='+programId + '&demographicNo='+demographicNo;
 	    	popupPage(600,700,'group',url);
 
-	}
-
-
-  	function assign(programId,demographicNo) {
-        if( origCaseNote != $F(caseNote)  || origObservationDate != $("observationDate").value) {
-    var sumaryId = "sumary";
-    var sumary;
-    var saving = false;
-            var parent = $(caseNote).parentNode.id;
-            var nId = parent.substr(1);
-            var tmp = $(caseNote).value;
-            var sig = 'sig' + nId;
-            //assignNoteAjax('save','list',programId,demographicNo);
-                   	// Prevent saving of note if the current note isn't properly assigned to a program and role. (note_program_ui_enabled = true)
-                        if ((typeof jQuery("form[name='caseManagementEntryForm'] input[name='_note_program_no']").val() != "undefined") &&
-                    			(typeof jQuery("form[name='caseManagementEntryForm'] input[name='_note_role_id']").val() != "undefined")) {
-                    		if (jQuery("form[name='caseManagementEntryForm'] input[name='_note_program_no']").val().trim().length == 0 ||
-                    				jQuery("form[name='caseManagementEntryForm'] input[name='_note_role_id']").val().trim().length == 0) {
-                    			// For weird cases where the role id or program number is missing.
-                    			_missingRoleProgramIdError();
-                    			return false;
-                    		} else if (jQuery("form[name='caseManagementEntryForm'] input[name='_note_program_no']").val() == "-2" ||
-                    				jQuery("form[name='caseManagementEntryForm'] input[name='_note_role_id']").val() == "-2") {
-                    			// For the case where you're trying to save a note with no available programs or roles
-                    			_noVisibleProgramsError();
-                    			return false;
-                    		}
-                    	}
-            saving = true;
-            ajaxSaveNote(sig,nId,tmp);
-                //cancel updating of issues
-                //IE destroys innerHTML of sig div when calling ajax update
-                //so we have to restore it here if the ajax call is aborted
-                //this is buggy don't use
-                /*if( ajaxRequest != undefined  && callInProgress(ajaxRequest.transport) ) {
-                    ajaxRequest.transport.abort();
-                    var siblings = $(caseNote).siblings();
-                    var pos;
-
-                    for( var idx = 0; idx < siblings.length; ++idx ) {
-                        if( (pos = siblings[idx].id.indexOf("sig")) != -1 ) {
-                            nId = siblings[idx].id.substr(pos+3);
-                            sumaryId += nId;
-                            if( $(sumaryId) == null ) {
-                                siblings[idx].innerHTML = sigCache;
-                            }
-                            break;
-                        }
-                    }
-                } */
-
-                //clear auto save
-                clearTimeout(autoSaveTimer);
-                deleteAutoSave();
-
-                if( $("notePasswd") != null ) {
-                    Element.remove("notePasswd");
-                }
-
-                Element.stopObserving(caseNote, 'keyup', monitorCaseNote);
-                Element.stopObserving(caseNote, 'click', getActiveText);
-
-                Element.remove(caseNote);
-
-                //remove observation date input text box but preserve date if there is one
-                if( !saving && $("observationDate") != null ) {
-                    var observationDate = $("observationDate").value;
-
-            		new Insertion.After("observationDate", " <span id='obs" + nId + "'>" + observationDate + "</span>");
-                    Element.remove("observationDate");
-                    Element.remove("observationDate_cal");
-
-                    var observationId = "observation" + nId;
-
-                    var html = $(observationId).innerHTML;
-
-                    html = html.substr(0,html.indexOf(":")+1) + " <span id='obs" + nId + "'>" + observationDate + "<\/span>" + html.substr(html.indexOf(":")+1);
-
-                    $(observationId).update(html);
-
-                }
-
-                if( $("autosaveTime") != null )
-                    Element.remove("autosaveTime");
-
-                if( $("noteIssues") != null )
-                    Element.remove("noteIssues");
-
-            	if( $("noteIssues-resolved") != null )
-            		Element.remove("noteIssues-resolved");
-
-            	if( $("noteIssues-unresolved") != null )
-            		Element.remove("noteIssues-unresolved");
-
-                var selectEnc = "encTypeSelect" + nId;
-
-                if( $(selectEnc) != null ) {
-                    var encTypeId = "encType" + nId;
-                    var content = $F(selectEnc);
-                    var encType;
-                    if( content.length > 0 )
-                        encType = "&quot;" + content + "&quot;";
-                    else
-                        encType = "";
-                    Element.remove(selectEnc);
-                    $(encTypeId).update(encType);
-
-                }
-                //we can stop listening for add issue here
-                Element.stopObserving('asgnIssues', 'click', addIssueFunc);
-                if( tmp.length == 0 )
-                    tmp = "&nbsp;";
-
-                tmp = tmp.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-                tmp = tmp.replace(/\n/g,"<br>");
-
-                if( !saving ) {
-                    if( largeNote(tmp) ) {
-                        var btmImg = "<img title='Minimize Display' id='bottomQuitImg" + nId + "' alt='Minimize Display' onclick='minView(event)' style='float:right; margin-right:5px; margin-bottom:3px; ' src='" + ctx + "/oscarEncounter/graphics/triangle_up.gif'>";
-                        new Insertion.Before(sig, btmImg);
-                    }
-
-                    //$(txt).style.fontSize = normalFont;
-
-                    //if we're not restoring a new note display print img
-                    //if( nId.substr(0,1) != "0" ) {
-                    //    img = "<img title='Print' id='print" + nId + "' alt='Toggle Print Note' onclick='togglePrint(" + nId + ", event)' style='float:right; margin-right:5px; margin-top: 2px;' src='" + ctx + "/oscarEncounter/graphics/printer.png'>";
-                    //     new Insertion.Top(parent, img);
-                   // }
-
-                    var printImg = "print" + nId;
-                    var img = "<img title='Minimize' id='quitImg" + nId + "' onclick='minView(event)' style='float:right; margin-right:5px; margin-top: 2px;' src='" + ctx + "/oscarEncounter/graphics/triangle_up.gif'>";
-                    var printimg = "<img title='Print' id='" + printImg + "' alt='Toggle Print Note' onclick='togglePrint(" + nId + ", event)' style='float:right; margin-right:5px; margin-top: 2px;' src='" + ctx + "/oscarEncounter/graphics/printer.png'>";
-                    var input = "<div id='txt" + nId + "'>" + tmp + "<\/div>";
-
-                    var func;
-                    var editWarn = "editWarn" + nId;
-                    if( $F(editWarn) == "true" ) {
-                        func = "noPrivs(event);";
-                    }
-                    else {
-                        func = "editNote(event);";
-                    }
-
-                    var editAnchor = "<a title='Edit' id='edit"+ nId + "' href='#' onclick='" + func + " return false;' style='float: right; margin-right: 5px; font-size:8px;'>" + editLabel + "</a>";
-                    var editAnchor = "<a title='Edit' id='edit"+ nId + "' href='#' onclick='" + func + " return false;' style='float: right; margin-right: 5px; font-size:8px;'>" + editLabel + "</a>";
-                    var editId = "edit" + nId;
-
-                    var attribName = "anno" + (new Date().getTime());
-                    var attribAnchor = "<input id='anno" + nId + "' height='10px;' width='10px' type='image' src='" + ctx + "/oscarEncounter/graphics/annotation.png' title='" + annotationLabel + "' style='float: right; margin-right: 5px; margin-bottom: 3px;'" +
-                    	"onclick=\"window.open('" + ctx + "/annotation/annotation.jsp?atbname=" + attribName + "&table_id=" + nId + "&display=EChartNote&demo=" + demographicNo + "','anwin','width=400,height=500');$('annotation_attribname').value='" + attribName + "'; return false;\">";
-
-                    new Insertion.Top(parent, editAnchor);
-                    new Insertion.After(editId, input);
-
-
-                     if( nId.substr(0,1) != "0" ) {
-                        Element.remove(printImg);
-                        new Insertion.Before(editId, printimg);
-                        new Insertion.After(editId, attribAnchor);
-                        new Insertion.Top(parent, img);
-                    }
-
-                    new Insertion.Top(parent, img);
-
-                    $(parent).style.height = "auto";
-
-                }
-            }//else{
-  			var noteId = document.forms["caseManagementEntryForm"].noteId.value;
-		 	var url='../PMmodule/ClientSearch2.do?programId='+programId + '&noteId='+noteId+'&method=attachForm&demographicNo='+demographicNo;
-	    	popupPage(600,700,'group',url);
-            //}
-	}
-
+	}	
+	
 	function setIssueCheckbox(val) {
 		jQuery("input[name='issues']").each(function(){
 			if(jQuery(this).val() == val)
 				jQuery(this).attr("checked","checked");
 		});
 	}
-
-function assignNoteAjax(method, chain,programId,demographicNo) {
-
-	var noteStr;
-	noteStr = $F(caseNote);
-    /*
-    if( noteStr.replace(/^\s+|\s+$/g,"").length == 0 ) {
-        alert("Please enter a note before saving");
-        return false;
-    }
-    */
-
-    if( $("observationDate") != undefined && $("observationDate").value.length > 0 && !validDate() ) {
-        alert(pastObservationDateError);
-        return false;
-    }
-
-    if( caisiEnabled ) {
-        if( requireIssue && !issueIsAssigned() ) {
-            alert(assignIssueError);
-            return false;
-        }
-/* the observationDate could be the default one as today.
-        if( requireObsDate && $("observationDate").value.length == 0 ) {
-            alert(assignObservationDateError);
-            return false;
-        }
-*/
-        if($("encTypeSelect0") != null && $("encTypeSelect0").options[$("encTypeSelect0").selectedIndex].value.length == 0 ) {
-        	alert(assignEncTypeError);
-        	return false;
-        }
- 		if(document.getElementById("hourOfEncounterTime") != null) {
-	        if(
-	         isNaN(document.getElementById("hourOfEncounterTime").value) ||
-	         isNaN(document.getElementById("minuteOfEncounterTime").value) ) {
-	        	alert(encTimeError);
-	        	return false;
-	        }
-		   if(
-			parseInt(document.getElementById("minuteOfEncounterTime").value) == 0 &&
-			parseInt(document.getElementById("hourOfEncounterTime").value) == 0 ) {
-		   
-		   		if(encTimeMandatory) {
-		    		alert(encTimeMandatoryMsg);
-		    		return false;
-		   		}	
-		   	}	
-		}
-		
-		if(document.getElementById("hourOfEncTransportationTime") != null) {
-	        if(
-	         isNaN(document.getElementById("hourOfEncTransportationTime").value) ||
-	         isNaN(document.getElementById("minuteOfEncTransportationTime").value) ) {
-	        	alert(transportationTimeError);
-	        	return false;
-	        }
-		   if(
-			parseInt(document.getElementById("minuteOfEncTransportationTime").value) == 0 &&
-			parseInt(document.getElementById("hourOfEncTransportationTime").value) == 0 ) {
-		   
-		   		if(transportationTimeMandatory) {
-		    		alert(transportationTimeMandatoryMsg);
-		    		return false;
-		   		}	
-		   	}	
-		}
-    }
-    document.forms["caseManagementEntryForm"].method.value = method;
-    document.forms["caseManagementEntryForm"].ajax.value = false;
-    document.forms["caseManagementEntryForm"].chain.value = chain;
-    document.forms["caseManagementEntryForm"].includeIssue.value = "off";
-
-    var caseMgtEntryfrm = document.forms["caseManagementEntryForm"];
-    
-
-	var params = Form.serialize(caseMgtEntryfrm);
-    params += "&ajaxview=ajaxView&fullChart=" + fullChart;
-
-    var url = ctx + "/CaseManagementEntry.do";
-
-    $("notCPP").update("Loading...");
-
-	var objAjax = new Ajax.Request (
-                            url,
-                            {
-                                method: 'post',
-                                postBody: params,
-                                evalScripts: true,
-                                onSuccess: function(request) {
-                                                $("notCPP").update(request.responseText);
-												$("notCPP").style.height = "50%";
-												if( fullChart == "true" ) {
-													$("quickChart").innerHTML = quickChartMsg;
-													$("quickChart").onclick = function() {return viewFullChart(false);}
-												}
-												else {
-													$("quickChart").innerHTML = fullChartMsg;
-													$("quickChart").onclick = function() {return viewFullChart(true);}
-												}
-                                           },
-                                onFailure: function(request) {
-                                                $("notCPP").update("Error: " + request.status + request.responseText);
-                                            }
-                            }
-
-                      );
-
-}
-
-
-	
-	function doInformedConsent(demographicNo) {
-		var checked = jQuery("#informedConsentCheck").attr("checked");
-		if(checked) {
-			var forSure = window.confirm("Are you sure you would like to indicate that Informed Consent has been collected?");
-			if(forSure) {
-				        jQuery.getJSON(ctx+"/DemographicExtService.do?method=saveNewValue&demographicNo="+demographicNo + "&key=informedConsent&value=yes",
-			                function(data,textStatus){
-			                  if(data != undefined && parseInt(data.value) > 0) {
-			                  	jQuery("#informedConsentDiv").remove();
-			                  }
-      				  });
-				
-			} else {
-				jQuery("#informedConsentCheck").attr("checked",false);
-			}
-		}
-	}
-
-	
-	function clearTempNotes(demographicNo) {
-		jQuery.getJSON(ctx+"/CaseManagementEntry.do?method=clearTempNotes&demographicNo="+demographicNo,
-              function(data,textStatus){
-              if(data != null && data.success == true) {
-              	location.reload();
-              }  else {
-              	alert(data.error);
-              }
- 		});
-	}
-	
-window.addEventListener("message", receiveMessage, false);
-	
-function receiveMessage(event) {
-	var data = JSON.parse(event.data);
-	if(data.encounterText != null && data.encounterText.length > 0) {
-		var x = {};
-		x.responseText = data.encounterText;
-		writeToEncounterNote(x);
-	}
-	
-}

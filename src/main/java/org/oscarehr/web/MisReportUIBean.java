@@ -30,16 +30,16 @@ import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
+import org.oscarehr.PMmodule.dao.AdmissionDao;
 import org.oscarehr.PMmodule.dao.ProgramDao;
 import org.oscarehr.PMmodule.dao.ProviderDao;
+import org.oscarehr.PMmodule.model.Admission;
 import org.oscarehr.PMmodule.model.Program;
 import org.oscarehr.casemgmt.dao.CaseManagementNoteDAO;
 import org.oscarehr.casemgmt.model.CaseManagementNote;
-import org.oscarehr.common.dao.AdmissionDao;
 import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.FunctionalCentreDao;
 import org.oscarehr.common.dao.GroupNoteLinkDao;
-import org.oscarehr.common.model.Admission;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.FunctionalCentre;
 import org.oscarehr.common.model.GroupNoteLink;
@@ -68,8 +68,8 @@ public final class MisReportUIBean {
 	public static class DataRow {
 		public int dataReportId;
 		public String dataReportDescription;
-		public ArrayList<Integer> dataReportResult=new ArrayList<Integer>();
-		
+		public ArrayList<Integer> dataReportResult=new ArrayList<Integer>();		
+
 		private DataRow(int dataReportId, String dataReportDescription, int dataReportResult) {
 			this.dataReportId = dataReportId;
 			this.dataReportDescription = StringEscapeUtils.escapeHtml(dataReportDescription);
@@ -201,14 +201,15 @@ public final class MisReportUIBean {
 	/**
 	 * End dates should be treated as inclusive.
 	 */
-	public MisReportUIBean(LoggedInInfo loggedInInfo, String functionalCentreId, GregorianCalendar startDate, GregorianCalendar endDate) {
+	public MisReportUIBean(String functionalCentreId, GregorianCalendar startDate, GregorianCalendar endDate) {
 
 		this.startDate =startDate; 
 		this.endDate=endDate;
 
+		LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
 		FunctionalCentre functionalCentre = functionalCentreDao.find(functionalCentreId);
 		reportByDescription=StringEscapeUtils.escapeHtml(functionalCentre.getAccountId() + ", " + functionalCentre.getDescription());
-		selectedPrograms = programDao.getProgramsByFacilityIdAndFunctionalCentreId(loggedInInfo.getCurrentFacility().getId(), functionalCentreId);
+		selectedPrograms = programDao.getProgramsByFacilityIdAndFunctionalCentreId(loggedInInfo.currentFacility.getId(), functionalCentreId);
 		
 		populateAdmissions();
 		generateDataRows();
@@ -237,7 +238,7 @@ public final class MisReportUIBean {
 		
 		populateAdmissions();
 		generateDataRows();
-	}
+	}	
 	
 	/**
 	 * End dates should be treated as inclusive.
@@ -248,7 +249,7 @@ public final class MisReportUIBean {
 		this.endDate=endDate;
 		this.providerNo = providerNo;
 		
-		//LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
+		LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
 		Provider provider = providerDao.getProvider(providerNo);
 		reportByDescription=StringEscapeUtils.escapeHtml(provider.getFormattedName());
 		List<String> programIds = caseManagementNoteDAO.getProgramIdsByProviderNoAndObservationDate(providerNo, startDate.getTime(), endDate.getTime());
@@ -285,7 +286,7 @@ public final class MisReportUIBean {
 
 	public static String getDateRangeForDisplay(GregorianCalendar startDate, GregorianCalendar endDate) {
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-		return (StringEscapeUtils.escapeHtml(simpleDateFormat.format(startDate.getTime()) + " to " + simpleDateFormat.format(endDate.getTime()) + " (inclusive)"));
+		return (StringEscapeUtils.escapeHtml(simpleDateFormat.format(startDate.getTime()) + " to " + simpleDateFormat.format(endDate.getTime()) + " (exclusive)"));
 	}
 	
 	private void populateAdmissions() {
@@ -326,7 +327,7 @@ public final class MisReportUIBean {
 		addBedProgramInfoForSRI(dataSRIRows);
 		
 	}
-
+	
 	public ArrayList<DataRow> getDataRows()
 	{
 		return(dataRows);
@@ -914,7 +915,7 @@ public final class MisReportUIBean {
 		tempMisReportBean.headerRow=headerRow;
 		return(tempMisReportBean);
 	}
-
+			
 	private static ArrayList<DataRow> combineDataSet(ArrayList<MisReportUIBean> misReportBeans) {
 		ArrayList<DataRow> combinedData=new ArrayList<DataRow>();
 		

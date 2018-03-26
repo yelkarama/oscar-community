@@ -26,8 +26,9 @@
 package oscar.oscarEncounter.oscarConsultationRequest.pageUtil;
 
 import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Date;
-import java.util.List;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -42,24 +43,18 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.oscarehr.common.dao.FaxClientLogDao;
-import org.oscarehr.common.dao.OscarCommLocationsDao;
 import org.oscarehr.common.model.FaxClientLog;
-import org.oscarehr.common.model.FaxJob;
-import org.oscarehr.common.model.OscarCommLocations;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
 import oscar.OscarProperties;
 import oscar.oscarClinic.ClinicData;
+import oscar.oscarDB.DBHandler;
 import oscar.oscarFax.client.OSCARFAXClient;
 import oscar.oscarFax.client.OSCARFAXSOAPMessage;
 
 public class EctConsultationFaxAction extends Action {
 
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	
    String replaceIllegalCharacters(String str){
       return str.replaceAll("&", "&amp;").replaceAll(">","&gt;").replaceAll("<","&lt;");
    }
@@ -70,22 +65,14 @@ public class EctConsultationFaxAction extends Action {
 
    public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)
    throws ServletException, IOException {
-	    
       String curUser_no = (String) request.getSession().getAttribute("user");
 
       if(curUser_no == null){
          MiscUtils.getLogger().debug("EJECTING");
          return mapping.findForward("eject");
       }
-      
-      if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_con", "r", null)) {
-			throw new SecurityException("missing required security object (_con)");
-      }
 
       OscarProperties props = OscarProperties.getInstance();
-      
-      FaxJob faxJob = new FaxJob();
-     
 
       FaxClientLog faxClientLog = new FaxClientLog();
       faxClientLog.setProviderNo(curUser_no);
@@ -131,11 +118,11 @@ public class EctConsultationFaxAction extends Action {
 
       oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctConsultationFormRequestUtil reqFrm;
       reqFrm = new oscar.oscarEncounter.oscarConsultationRequest.pageUtil.EctConsultationFormRequestUtil();
-      reqFrm.estRequestFromId(LoggedInInfo.getLoggedInInfoFromSession(request), requestId);
+      reqFrm.estRequestFromId(requestId);
 
       try{
          if (Integer.parseInt(reqFrm.status) > 2 ){
-             appDate = reqFrm.appointmentDate;
+            appDate = reqFrm.appointmentDay+"/"+reqFrm.appointmentMonth+"/"+reqFrm.appointmentYear+" (d/m/y) ";
          }else{
             appDate = "";
          }
@@ -244,7 +231,14 @@ public class EctConsultationFaxAction extends Action {
             faxClientLog.setEndTime(new Date());
             faxDao.merge(faxClientLog);
          }
-      } catch(Exception e) {
+
+
+
+
+
+
+
+      } catch(Throwable e) {
          MiscUtils.getLogger().error("Error", e);
       }
       MiscUtils.getLogger().debug("Client Has Finished Running");
@@ -259,14 +253,19 @@ public class EctConsultationFaxAction extends Action {
 
    }
    String getLocationId(){
-      OscarCommLocationsDao dao = SpringUtils.getBean(OscarCommLocationsDao.class);
-      List<OscarCommLocations> locations =  dao.findByCurrent1(1);
-      for(OscarCommLocations l : locations) {
-    	  return "" + l.getId();
+      String retval = "";
+      try {
+
+         String sql = "select locationId from oscarcommlocations where current1 = '1' ";
+         ResultSet rs = DBHandler.GetSQL(sql);
+         if(rs.next())
+            retval = oscar.Misc.getString(rs, "locationId");
       }
-      return "";
+      catch(SQLException e) {
+         MiscUtils.getLogger().error("Error", e);
+      }
+      return retval;
    }
-   
    public String urg(String str){
       String retval = "";
       if (str.equals("1")){

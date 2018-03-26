@@ -48,10 +48,8 @@ import org.oscarehr.PMmodule.model.Program;
 import org.oscarehr.PMmodule.model.ProgramProvider;
 import org.oscarehr.PMmodule.service.ProgramManager;
 import org.oscarehr.common.dao.DemographicDao;
-import org.oscarehr.common.dao.DemographicExtDao;
 import org.oscarehr.common.dao.SecRoleDao;
 import org.oscarehr.common.model.Demographic;
-import org.oscarehr.common.model.DemographicExt;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.model.SecRole;
 import org.oscarehr.util.LoggedInInfo;
@@ -71,20 +69,18 @@ public class CourseManagerAction extends DispatchAction {
 	private static ProgramManager programManager = (ProgramManager) SpringUtils.getBean("programManager");
 	private static DemographicDao demographicDao = (DemographicDao) SpringUtils.getBean("demographicDao");
 	private static ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao");
-	private static DemographicExtDao demographicExtDao = SpringUtils.getBean(DemographicExtDao.class);
+
 
 	public ActionForward createCourse(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)
 		throws IOException
 	{
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-
 		DynaActionForm courseForm = (DynaActionForm) form;
 		String name = (String)courseForm.get("name");
 		logger.info("creating course: " + name);
 
 		String result = "";
 
-		int facilityId = loggedInInfo.getCurrentFacility().getId();
+		int facilityId = LoggedInInfo.loggedInInfo.get().currentFacility.getId();
 		try {
 			Program p = new Program();
 			p.setName(name);
@@ -115,7 +111,8 @@ public class CourseManagerAction extends DispatchAction {
 
 	}
 
-	public static List<Program> getCoursesByModerator(String providerNo) {
+	public static List<Program> getCoursesByModerator() {
+		String providerNo = LoggedInInfo.loggedInInfo.get().loggedInProvider.getProviderNo();
 		SecRoleDao roleDao = (SecRoleDao)SpringUtils.getBean("secRoleDao");
 		SecRole role = roleDao.findByName("moderator");
 
@@ -157,6 +154,7 @@ public class CourseManagerAction extends DispatchAction {
 			logger.warn("no valid course id passed");
 			return null;
 		}
+		Program p = programDao.getProgram(id);
 
 		//p.get
 		ProgramManager programManager = (ProgramManager) SpringUtils.getBean("programManager");
@@ -207,11 +205,8 @@ public class CourseManagerAction extends DispatchAction {
 		}
 		logger.info("course id is " + id);
 
-		List<Demographic> demographics = new ArrayList<Demographic>();
-		for(DemographicExt de :demographicExtDao.getDemographicExtByKeyAndValue("course", String.valueOf(id))) {
-			demographics.add(demographicDao.getDemographicById(de.getDemographicNo()));
-		}
-		
+		List<Demographic> demographics = demographicDao.getDemographicsByExtKey("course",String.valueOf(id));
+
 		logger.info("# of demographics in that course according to ext entry: " + demographics.size());
 		List<PatientDetailBean> results = new ArrayList<PatientDetailBean>();
 
@@ -242,6 +237,7 @@ public class CourseManagerAction extends DispatchAction {
 		logger.warn("no valid course id passed");
 		return null;
 	}
+	Program p = programDao.getProgram(id);
 
 	//p.get
 	ProgramManager programManager = (ProgramManager) SpringUtils.getBean("programManager");
@@ -278,6 +274,7 @@ public class CourseManagerAction extends DispatchAction {
 	}
 
 	public ActionForward saveCourseDetails(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)
+
 	{
 		logger.info("save course details");
 
@@ -285,6 +282,7 @@ public class CourseManagerAction extends DispatchAction {
 		String tmpCourseId = request.getParameter("courseId");
 		courseId = Integer.parseInt(tmpCourseId);
 
+		Map<String,String> dataMap = new HashMap<String,String>();
 		Map params = request.getParameterMap();
 		List<ProgramProvider> results = new ArrayList<ProgramProvider>();
 
@@ -313,7 +311,7 @@ public class CourseManagerAction extends DispatchAction {
 		}
 
 		for(ProgramProvider pp:results) {
-			programManager.saveProgramProvider(LoggedInInfo.getLoggedInInfoFromSession(request),pp);
+			programManager.saveProgramProvider(pp);
 		}
 
 		logger.info("saved course");

@@ -27,19 +27,23 @@ package oscar.oscarEncounter.pageUtil;
 
 
 import java.util.List;
+import java.util.Properties;
+import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.struts.util.MessageResources;
 import org.oscarehr.PMmodule.dao.ProviderDao;
 import org.oscarehr.common.model.Provider;
-import org.oscarehr.eyeform.dao.EyeformOcularProcedureDao;
+import org.oscarehr.eyeform.dao.OcularProcDao;
 import org.oscarehr.eyeform.model.EyeformOcularProcedure;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
+import oscar.util.OscarRoleObjectPrivilege;
 import oscar.util.StringUtils;
+
+//import oscar.oscarSecurity.CookieSecurity;
 
 public class EctDisplayOcularProcedureAction extends EctDisplayAction {
 	ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
@@ -47,68 +51,75 @@ public class EctDisplayOcularProcedureAction extends EctDisplayAction {
     private static final String cmd = "ocularprocedure";
 
  public boolean getInfo(EctSessionBean bean, HttpServletRequest request, NavBarDisplayDAO Dao, MessageResources messages) {
-	if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_eyeform", "r", null)) {
-		throw new SecurityException("missing required security object (_eyeform)");
-	}
 
-	 try {
-	
-		String appointmentNo = request.getParameter("appointment_no");
-	
-	    //Set lefthand module heading and link
-	    String winName = "OcularProcedure" + bean.demographicNo;
-	    String pathview, pathedit;
-	
-	    pathview = request.getContextPath() + "/eyeform/OcularProc.do?method=list&demographicNo=" + bean.demographicNo;
-	    pathedit = request.getContextPath() + "/eyeform/OcularProc.do?proc.demographicNo=" + bean.demographicNo + "&proc.appointmentNo=" + appointmentNo;
-	
-	
-	    String url = "popupPage(500,900,'" + winName + "','" + pathview + "')";
-	    Dao.setLeftHeading(messages.getMessage(request.getLocale(), "global.viewOcularProcedure"));
-	    Dao.setLeftURL(url);
-	
-	    //set right hand heading link
-	    winName = "AddOcularProcedure" + bean.demographicNo;
-	    url = "popupPage(500,600,'" + winName + "','" + pathedit + "'); return false;";
-	    Dao.setRightURL(url);
-	    Dao.setRightHeadingID(cmd); //no menu so set div id to unique id for this action
-	
-	
-	    EyeformOcularProcedureDao opDao = (EyeformOcularProcedureDao)SpringUtils.getBean(EyeformOcularProcedureDao.class);
-	    ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
-	
-	
-	    List<EyeformOcularProcedure> ops = opDao.getByDemographicNo(Integer.parseInt(bean.demographicNo));
-	
-	    for(EyeformOcularProcedure op:ops) {
-	    	NavBarDisplayDAO.Item item = NavBarDisplayDAO.Item();
-	    	item.setDate(op.getDate());
-	    	item.setValue(op.getId().toString());
-	
-	    	Provider provider = providerDao.getProvider(op.getDoctor());
-	
-	    	//String title = provider.getTeam() + " " + op.getEye() + " " + op.getProcedureName();
-	    	String title = op.getEye() + " " + op.getProcedureName();
-	    	if(provider.getTeam() != null && provider.getTeam().length()>0) {
-	    		title = title + "|" + provider.getTeam();
-	    	}
-	    	String itemHeader = StringUtils.maxLenString(title, MAX_LEN_TITLE, CROP_LEN_TITLE, ELLIPSES);
-	        item.setTitle(itemHeader);
-	
-	        item.setLinkTitle(op.getLocation() + ";" + op.getProcedureNote());
-	
-	        int hash = Math.abs(winName.hashCode());
-	        url = "popupPage(500,900,'" + hash + "','" + request.getContextPath() + "/eyeform/OcularProc.do?proc.id="+ op.getId() +"'); return false;";
-	        item.setURL(url);
-	        Dao.addItem(item);
-	    }
-	
-	   //  Dao.sortItems(NavBarDisplayDAO.DATESORT);
-	 }catch( Exception e ) {
-	     MiscUtils.getLogger().error("Error", e);
-	     return false;
-	 }
+	 boolean a = true;
+ 	Vector v = OscarRoleObjectPrivilege.getPrivilegeProp("_newCasemgmt.ocularProcedure");
+     String roleName = (String)request.getSession().getAttribute("userrole") + "," + (String) request.getSession().getAttribute("user");
+     a = OscarRoleObjectPrivilege.checkPrivilege(roleName, (Properties) v.get(0), (Vector) v.get(1));
+     a=true;
+ 	if(!a) {
+ 		return true; //The link of tickler won't show up on new CME screen.
+ 	} else {
+
+ try {
+
+	String appointmentNo = request.getParameter("appointment_no");
+
+    //Set lefthand module heading and link
+    String winName = "OcularProcedure" + bean.demographicNo;
+    String pathview, pathedit;
+
+    pathview = request.getContextPath() + "/eyeform/OcularProc.do?method=list&demographicNo=" + bean.demographicNo;
+    pathedit = request.getContextPath() + "/eyeform/OcularProc.do?proc.demographicNo=" + bean.demographicNo + "&proc.appointmentNo=" + appointmentNo;
+
+
+    String url = "popupPage(500,900,'" + winName + "','" + pathview + "')";
+    Dao.setLeftHeading(messages.getMessage(request.getLocale(), "global.viewOcularProcedure"));
+    Dao.setLeftURL(url);
+
+    //set right hand heading link
+    winName = "AddOcularProcedure" + bean.demographicNo;
+    url = "popupPage(500,600,'" + winName + "','" + pathedit + "'); return false;";
+    Dao.setRightURL(url);
+    Dao.setRightHeadingID(cmd); //no menu so set div id to unique id for this action
+
+
+    OcularProcDao opDao = (OcularProcDao)SpringUtils.getBean("OcularProcDAO");
+    ProviderDao providerDao = (ProviderDao)SpringUtils.getBean("providerDao");
+
+
+    List<EyeformOcularProcedure> ops = opDao.getByDemographicNo(Integer.parseInt(bean.demographicNo));
+
+    for(EyeformOcularProcedure op:ops) {
+    	NavBarDisplayDAO.Item item = NavBarDisplayDAO.Item();
+    	item.setDate(op.getDate());
+    	item.setValue(op.getId().toString());
+
+    	Provider provider = providerDao.getProvider(op.getDoctor());
+
+    	//String title = provider.getTeam() + " " + op.getEye() + " " + op.getProcedureName();
+    	String title = op.getEye() + " " + op.getProcedureName();
+    	if(provider.getTeam() != null && provider.getTeam().length()>0) {
+    		title = title + "|" + provider.getTeam();
+    	}
+    	String itemHeader = StringUtils.maxLenString(title, MAX_LEN_TITLE, CROP_LEN_TITLE, ELLIPSES);
+        item.setTitle(itemHeader);
+
+        item.setLinkTitle(op.getLocation() + ";" + op.getProcedureNote());
+
+        int hash = Math.abs(winName.hashCode());
+        url = "popupPage(500,900,'" + hash + "','" + request.getContextPath() + "/eyeform/OcularProc.do?proc.id="+ op.getId() +"'); return false;";
+        item.setURL(url);
+        Dao.addItem(item);
+    }
+
+   //  Dao.sortItems(NavBarDisplayDAO.DATESORT);
+ }catch( Exception e ) {
+     MiscUtils.getLogger().error("Error", e);
+     return false;
+ }
     return true;
+ 	}
   }
 
  public String getCmd() {

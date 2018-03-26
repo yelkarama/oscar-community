@@ -26,27 +26,14 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
    "http://www.w3.org/TR/html4/loose.dtd">
 <%--This JSP is the 'view template XML' jsp from the report configuraiton screen--%>
-
+<%
+  if(session.getValue("user") == null) response.sendRedirect("../../logout.jsp");
+%>
 
 <%@ page
 	import="oscar.oscarReport.reportByTemplate.*, org.apache.commons.lang.StringEscapeUtils"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_report,_admin.reporting,_admin" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../securityError.jsp?type=_report&type=_admin.reporting&type=_admin");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
 <html:html locale="true">
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
@@ -103,12 +90,13 @@ if(!authed) {
 		<div class="xmlBorderDiv"><pre wrap="on"
 			style="font-size: 11px;"><%=StringEscapeUtils.escapeHtml(xml)%></pre>
 		</div>
-		
-		<div class="noprint" style="clear: left; float: left; margin-top: 15px;">
-			<input type="button" value="Back" onclick="javascript: history.go(-1);return false;"> 
-			<input type="button" value="Print" onclick="javascript: window.print();">
-			<input type="button" value="Edit Template" onclick="document.location='addEditTemplate.jsp?templateid=<%=templateid%>&opentext=1'">
-			<a href="exportTemplateAction.do?templateid=<%=templateid%>&name=<%=curreport.getTitle()%>" class="link">Export Template to K2A</a>
+		<a href="addEditTemplate.jsp?templateid=<%=templateid%>" class="link">Edit
+		Template</a>
+		<div class="noprint"
+			style="clear: left; float: left; margin-top: 15px;"><input
+			type="button" value="<-- Back"
+			onclick="javascript: history.go(-1);return false;"> <input
+			type="button" value="Print" onclick="javascript: window.print();">
 		</div>
 		</td>
 	</tr>

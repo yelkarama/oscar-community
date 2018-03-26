@@ -29,10 +29,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
@@ -47,10 +44,9 @@ import org.oscarehr.caisi_integrator.ws.DemographicWs;
 import org.oscarehr.caisi_integrator.ws.FacilityIdIntegerCompositePk;
 import org.oscarehr.caisi_integrator.ws.FacilityIdStringCompositePk;
 import org.oscarehr.common.dao.ClinicDAO;
+import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.model.Clinic;
 import org.oscarehr.common.model.Demographic;
-import org.oscarehr.common.model.Facility;
-import org.oscarehr.util.LocaleUtils;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
@@ -62,35 +58,27 @@ import oscar.util.UtilDateUtilities;
 public class FrmLabReq07Record extends FrmRecord {
 	private static Logger logger=MiscUtils.getLogger();
 
+	private DemographicDao demographicDao=(DemographicDao) SpringUtils.getBean("demographicDao");
 	private ClinicDAO clinicDao = (ClinicDAO)SpringUtils.getBean("clinicDAO");
 
 
-        @Override
-	public Properties getFormRecord(LoggedInInfo loggedInInfo, int demographicNo, int existingID) throws SQLException {
+	public Properties getFormRecord(int demographicNo, int existingID) throws SQLException {
         Properties props = new Properties();
 
         if (existingID <= 0) {
-        	Demographic demographic=demographicManager.getDemographic(loggedInInfo, demographicNo);
+        	Demographic demographic=demographicDao.getDemographicById(demographicNo);
 
             if (demographic!=null) {
                 props.setProperty("demographic_no", String.valueOf(demographic.getDemographicNo()));
                 props.setProperty("patientName", demographic.getLastName()+", "+ demographic.getFirstName());
-
-                String uhipStatus = OscarProperties.getInstance().getProperty("demo_uhip_status", "");
-                if (!uhipStatus.isEmpty() && demographic.getRosterStatus().equals(uhipStatus)) {
-                    props.setProperty("healthNumber", LocaleUtils.getMessage(Locale.getDefault(),"oscarEncounter.form.uhipLbl") + StringUtils.trimToEmpty(demographic.getChartNo()));
-                    props.setProperty("version", "");
-                } else {
-                    props.setProperty("healthNumber", StringUtils.trimToEmpty(demographic.getHin()));
-                    props.setProperty("version", StringUtils.trimToEmpty(demographic.getVer()));
-                }
-
+                props.setProperty("healthNumber", StringUtils.trimToEmpty(demographic.getHin()));
+                props.setProperty("version", StringUtils.trimToEmpty(demographic.getVer()));
                 props.setProperty("hcType", StringUtils.trimToEmpty(demographic.getHcType()));
-                props.setProperty("formCreated", UtilDateUtilities.DateToString(new Date(),
+                props.setProperty("formCreated", UtilDateUtilities.DateToString(UtilDateUtilities.Today(),
                         "yyyy/MM/dd"));
 
                 //props.setProperty("formEdited",
-                // UtilDateUtilities.DateToString(new Date(), "yyyy/MM/dd"));
+                // UtilDateUtilities.DateToString(UtilDateUtilities.Today(), "yyyy/MM/dd"));
                 java.util.Date dob = UtilDateUtilities.calcDate(demographic.getYearOfBirth(), demographic.getMonthOfBirth(), demographic.getDateOfBirth());
                 props.setProperty("birthDate", StringUtils.trimToEmpty(UtilDateUtilities.DateToString(dob, "yyyy/MM/dd")));
 
@@ -101,7 +89,6 @@ public class FrmLabReq07Record extends FrmRecord {
                 props.setProperty("province", StringUtils.trimToEmpty(demographic.getProvince()));
                 props.setProperty("sex", StringUtils.trimToEmpty(demographic.getSex()));
                 props.setProperty("demoProvider", StringUtils.trimToEmpty(demographic.getProviderNo()));
-                props.setProperty("patientChartNo", StringUtils.trimToEmpty(demographic.getChartNo()));
             }
 
             //get local clinic information
@@ -118,25 +105,12 @@ public class FrmLabReq07Record extends FrmRecord {
             String sql = "SELECT * FROM formLabReq07 WHERE demographic_no = " + demographicNo + " AND ID = "
                     + existingID;
             props = (new FrmRecordHelp()).getFormRecord(sql);
-            String chartNo = props.getProperty("patientChartNo");
-            String chartNoLbl = LocaleUtils.getMessage(Locale.getDefault(),"oscarEncounter.form.labreq.patientChartNo")+":";
-            int beginIdx = chartNo.lastIndexOf(chartNoLbl);
-            if (beginIdx >= 0) {
-                chartNo = chartNo.substring(beginIdx + chartNoLbl.length());
-                props.setProperty("patientChartNo", chartNo);
-            }
-
-            OscarProperties oscarProps = OscarProperties.getInstance();
-            if (oscarProps.getBooleanProperty("use_lab_clientreference","true")) {
-                String additionalInfo = LocaleUtils.getMessage(Locale.getDefault(), "oscarEncounter.form.labreq.clientreference") + ":" + String.valueOf(existingID);
-                props.setProperty("clientRefNo", additionalInfo);
-            }
         }
 
         return props;
     }
 
-    public Properties getFormCustRecord(LoggedInInfo loggedInInfo, Facility facility, Properties props, String provNo) throws SQLException {
+    public Properties getFormCustRecord(Properties props, String provNo) throws SQLException {
         String demoProvider = props.getProperty("demoProvider", "");
         String xmlSpecialtyCode = "<xml_p_specialty_code>";
         String xmlSpecialtyCode2 = "</xml_p_specialty_code>";
@@ -227,11 +201,11 @@ public class FrmLabReq07Record extends FrmRecord {
     		props.setProperty("practitionerNo", oscarProps.getProperty("lab_req_billing_no"));
     	}
     	
-    	if (facility.isIntegratorEnabled()) {
+    	if (LoggedInInfo.loggedInInfo.get().currentFacility.isIntegratorEnabled()) {
     	//if patient was from integrator link up doc from other site
 	    	try{
 		    	Integer localDemographicId = Integer.parseInt(props.getProperty("demographic_no"));
-		    	DemographicWs demographicWs = CaisiIntegratorManager.getDemographicWs(loggedInInfo, facility);
+		    	DemographicWs demographicWs = CaisiIntegratorManager.getDemographicWs();
 		    	List<DemographicTransfer> directLinks=demographicWs.getDirectlyLinkedDemographicsByDemographicId(localDemographicId);
 		    		
 		    	if (directLinks.size()>0){
@@ -241,12 +215,12 @@ public class FrmLabReq07Record extends FrmRecord {
 		        	FacilityIdStringCompositePk providerPk=new FacilityIdStringCompositePk();
 		        	providerPk.setIntegratorFacilityId(demographicTransfer.getIntegratorFacilityId());
 		        	providerPk.setCaisiItemId(demographicTransfer.getLastUpdateUser());
-		        	CachedProvider p = CaisiIntegratorManager.getProvider(loggedInInfo, facility, providerPk);
+		        	CachedProvider p = CaisiIntegratorManager.getProvider(providerPk);
 		        	if(p != null){
 			            props.setProperty("copyLname", p.getLastName());
 			            props.setProperty("copyFname", p.getFirstName());
 			    		
-			    		List<CachedProgram> cps = CaisiIntegratorManager.getAllPrograms(loggedInInfo, facility);
+			    		List<CachedProgram> cps = CaisiIntegratorManager.getAllPrograms();
 			    		for(CachedProgram cp:cps){
 			    			if(providerPk.getIntegratorFacilityId() == cp.getFacilityIdIntegerCompositePk().getIntegratorFacilityId() && "OSCAR".equals(cp.getName()) &&  cp.getAddress() != null){
 			    				props.setProperty("copyAddress", cp.getAddress());  
@@ -280,19 +254,6 @@ public class FrmLabReq07Record extends FrmRecord {
         String sql = "SELECT * FROM formLabReq07 WHERE demographic_no = " + demographicNo;
         return ((new FrmRecordHelp()).getPrintRecords(sql));
     }
-    
-    public static List<Properties> getPrintRecordsSince(int demographicNo, Date lastUpdateDate) throws SQLException {
-    	SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String sql = "SELECT * FROM formLabReq07 WHERE demographic_no = " + demographicNo + " and formEdited > '" + formatter.format(lastUpdateDate) + "'";
-        return ((new FrmRecordHelp()).getPrintRecords(sql));
-    }
-
-    public static List<Integer> getDemogaphicIdsSince(Date lastUpdateDate) throws SQLException {
-    	SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String sql = "SELECT demographic_no FROM formLabReq07 WHERE formEdited > '" + formatter.format(lastUpdateDate) + "'";
-        return ((new FrmRecordHelp()).getDemographicIds(sql));
-    }
-
 
     public String findActionValue(String submit) throws SQLException {
         return ((new FrmRecordHelp()).findActionValue(submit));
@@ -303,7 +264,7 @@ public class FrmLabReq07Record extends FrmRecord {
     }
 
 
-    public static Properties getRemoteRecordProperties(LoggedInInfo loggedInInfo, Integer remoteFacilityId, Integer formId,Integer demoNo) throws IOException
+    public static Properties getRemoteRecordProperties(Integer remoteFacilityId, Integer formId,Integer demoNo) throws IOException
     {
     	FacilityIdIntegerCompositePk pk=new FacilityIdIntegerCompositePk();
     	pk.setIntegratorFacilityId(remoteFacilityId);
@@ -311,19 +272,19 @@ public class FrmLabReq07Record extends FrmRecord {
 
     	CachedDemographicForm form = null;
     	try {
-			if (!CaisiIntegratorManager.isIntegratorOffline(loggedInInfo.getSession())){
-				DemographicWs demographicWs=CaisiIntegratorManager.getDemographicWs(loggedInInfo, loggedInInfo.getCurrentFacility());
+			if (!CaisiIntegratorManager.isIntegratorOffline()){
+				DemographicWs demographicWs=CaisiIntegratorManager.getDemographicWs();
 			    form=demographicWs.getCachedDemographicForm(pk);
 			}
 		} catch (Exception e) {
 			logger.error("Unexpected error.", e);
-			CaisiIntegratorManager.checkForConnectionError(loggedInInfo.getSession(),e);
+			CaisiIntegratorManager.checkForConnectionError(e);
 		}
     	
     	
-		if(CaisiIntegratorManager.isIntegratorOffline(loggedInInfo.getSession())){
+		if(CaisiIntegratorManager.isIntegratorOffline()){
 			Integer demographicNo = 0;
-			List<CachedDemographicForm> forms = IntegratorFallBackManager.getRemoteForms(loggedInInfo, demoNo, "formLabReq07");
+			List<CachedDemographicForm> forms = IntegratorFallBackManager.getRemoteForms(demoNo, "formLabReq07");
 			for(CachedDemographicForm f:forms){
 				if (f.getFacilityIdIntegerCompositePk().getCaisiItemId() == pk.getCaisiItemId() && f.getFacilityIdIntegerCompositePk().getIntegratorFacilityId() == pk.getIntegratorFacilityId()){
 					form = f;

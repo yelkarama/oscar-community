@@ -36,38 +36,29 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.oscarEncounter.oscarMeasurements.bean.EctMeasurementsDataBean;
 import oscar.oscarEncounter.pageUtil.EctSessionBean;
 
 public final class EctSetupHistoryIndexAction extends Action {
 	private Logger logger = MiscUtils.getLogger();
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	
+
 	public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-		
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_measurement", "r", null)) {
-			throw new SecurityException("missing required security object (_measurement)");
-		}
-		
 		EctSessionBean bean = (EctSessionBean) request.getSession().getAttribute("EctSessionBean");
 		request.getSession().setAttribute("EctSessionBean", bean);
 
 		if (bean != null) {
-			Integer demo = Integer.valueOf(bean.getDemographicNo());
+			String demo = bean.getDemographicNo();
 
 			request.getSession().setAttribute("EctSessionBean", bean);
 
 			oscar.oscarEncounter.oscarMeasurements.bean.EctMeasurementsDataBeanHandler hd = new oscar.oscarEncounter.oscarMeasurements.bean.EctMeasurementsDataBeanHandler(demo);
-			if (loggedInInfo.getCurrentFacility().isIntegratorEnabled()) {
+			if (LoggedInInfo.loggedInInfo.get().currentFacility.isIntegratorEnabled()) {
 				List<EctMeasurementsDataBean> measureTypes = (List<EctMeasurementsDataBean>) hd.getMeasurementsDataVector ();
-				oscar.oscarEncounter.oscarMeasurements.bean.EctMeasurementsDataBeanHandler.addRemoteMeasurementsTypes(loggedInInfo, measureTypes,demo);
+				oscar.oscarEncounter.oscarMeasurements.bean.EctMeasurementsDataBeanHandler.addRemoteMeasurementsTypes(measureTypes,Integer.parseInt(demo));
 			}
 
 			HttpSession session = request.getSession();

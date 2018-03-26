@@ -26,8 +26,6 @@
 package org.oscarehr.common.dao;
 
 
-import java.util.List;
-
 import javax.persistence.Query;
 
 import org.oscarehr.common.model.DemographicStudy;
@@ -41,14 +39,8 @@ public class DemographicStudyDao extends AbstractDao<DemographicStudy>{
 		super(DemographicStudy.class);
 	}
 
-	@SuppressWarnings("unchecked")
-	public List<DemographicStudy> findAll() {
-		Query query = createQuery("x", null);
-		return query.getResultList();
-	}
-	
 	public int removeByDemographicNo(Integer demographicNo) {
-		Query query = entityManager.createQuery("delete from DemographicStudy x where x.id.demographicNo=?");
+		Query query = entityManager.createQuery("delete x from DemographicStudy x where x.demographicNo=?");
 		query.setParameter(1, demographicNo);
 		return query.executeUpdate();
 	}
@@ -59,20 +51,6 @@ public class DemographicStudyDao extends AbstractDao<DemographicStudy>{
 		pk.setStudyNo(studyNo);
 
 		return find(pk);
-	}
-	
-	@SuppressWarnings("unchecked")
-
-	public List<DemographicStudy> findByStudyNo(int studyNo) {
-		Query query = entityManager.createQuery("select x from DemographicStudy x where x.id.studyNo=?");
-		query.setParameter(1, studyNo);
-		return query.getResultList();
-	}
-
-	public List<DemographicStudy> findByDemographicNo(int demographicNo) {
-		Query query = entityManager.createQuery("select x from DemographicStudy x where x.id.demographicNo=?");
-		query.setParameter(1, demographicNo);
-		return query.getResultList();
 	}
 
 }

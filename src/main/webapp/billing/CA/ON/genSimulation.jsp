@@ -17,33 +17,18 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin.billing,_admin" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_admin&type=_admin.billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
+<% 
+if(session.getValue("user") == null) response.sendRedirect("../../../logout.jsp");
 %>
 
-<%@page import="oscar.util.ConversionUtils"%>
-<%@page import="java.util.Date"%>
-<%@page import="org.oscarehr.util.DateRange"%>
-<%@ page import="java.math.*, java.util.*, java.sql.*, oscar.*, oscar.oscarBilling.ca.on.OHIP.*, java.net.*" errorPage="errorpage.jsp"%>
-<%@ page import="org.oscarehr.util.SpringUtils" %>
-<%@ page import="org.oscarehr.common.model.Provider" %>
-<%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
+<%@ page
+	import="java.math.*, java.util.*, java.sql.*, oscar.*, oscar.oscarBilling.ca.on.OHIP.*, java.net.*"
+	errorPage="errorpage.jsp"%>
 
-<%
-	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
-%>
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean"
+	scope="session" />
+<jsp:useBean id="SxmlMisc" class="oscar.SxmlMisc" scope="session" />
+<%@ include file="dbBilling.jspf"%>
 
 <%
 String errorMsg = "";
@@ -60,52 +45,53 @@ String proOHIP="";
 String specialty_code; 
 String billinggroup_no;
    
-DateRange dateRange = null;
+String dateRange = "";
 String htmlValue="";
 
 
-Date dateBegin = ConversionUtils.fromDateString(request.getParameter("xml_vdate"));
-Date dateEnd = ConversionUtils.fromDateString(request.getParameter("xml_appointment_date"));
-if (dateEnd == null) {
-	dateEnd = ConversionUtils.fromDateString(request.getParameter("curDate"));
+String dateBegin = request.getParameter("xml_vdate");
+String dateEnd = request.getParameter("xml_appointment_date");
+if (dateEnd.compareTo("") == 0) dateEnd = request.getParameter("curDate");
+if (dateBegin.compareTo("") == 0){
+	dateRange = " and billing_date <= '" + dateEnd + "'";
+}else{
+	dateRange = " and billing_date >='" + dateBegin + "' and billing_date <='" + dateEnd + "'";
 }
 
-dateRange = new DateRange(dateBegin, dateEnd);
 
-for(Provider p:providerDao.getActiveProviders()) {
-	if(p.getOhipNo() != null && !p.getOhipNo().isEmpty()) {
-		proOHIP =p.getOhipNo();
-		billinggroup_no= SxmlMisc.getXmlContent(p.getComments(),"<xml_p_billinggroup_no>","</xml_p_billinggroup_no>");
-		specialty_code = SxmlMisc.getXmlContent(p.getComments(),"<xml_p_specialty_code>","</xml_p_specialty_code>");
+ResultSet rslocal = apptMainBean.queryResults(request.getParameter("provider"), "search_provider_ohip_dt");
+while(rslocal.next()){
+	proOHIP = rslocal.getString("ohip_no"); 
+	billinggroup_no= SxmlMisc.getXmlContent(rslocal.getString("comments"),"<xml_p_billinggroup_no>","</xml_p_billinggroup_no>");
+	specialty_code = SxmlMisc.getXmlContent(rslocal.getString("comments"),"<xml_p_specialty_code>","</xml_p_specialty_code>");
 
-		if (specialty_code == null || specialty_code.compareTo("") == 0 || specialty_code.compareTo("null")==0 || specialty_code.length() != PROVIDER_SPECIALTYCODE_LENGTH){
-			//error msg here
-			errorMsg += "The provider's specialty code is not correct!<br>";
-			specialty_code = "00"; 
-		}
-
-		if (billinggroup_no == null ||  billinggroup_no.compareTo("") == 0 ||  billinggroup_no.compareTo("null")==0 || billinggroup_no.length() != PROVIDER_GROUPNO_LENGTH){
-			//error msg here
-			errorMsg += "The provider's group no is not correct!<br>";
-			billinggroup_no = "0000";
-		} 
-
-		oscar.oscarBilling.ca.on.OHIP.ExtractBean extract = new oscar.oscarBilling.ca.on.OHIP.ExtractBean();
-		//extract.setOscarHome(oscar_home);
-		extract.seteFlag("0");
-		extract.setDateRange(dateRange);
-		extract.setOhipVer(request.getParameter("verCode"));
-		extract.setProviderNo(proOHIP);
-		extract.setOhipCenter(request.getParameter("billcenter"));
-		extract.setGroupNo(billinggroup_no);
-		extract.setSpecialty(specialty_code);
-		extract.setBatchCount(String.valueOf(bCount));
-		extract.dbQuery();
-
-		htmlValue = "<font color='red'>" + errorMsg + "</font>" + extract.getHtmlValue();		
+	if (specialty_code == null || specialty_code.compareTo("") == 0 || specialty_code.compareTo("null")==0 || specialty_code.length() != PROVIDER_SPECIALTYCODE_LENGTH){
+		//error msg here
+		errorMsg += "The provider's specialty code is not correct!<br>";
+		specialty_code = "00"; 
 	}
-}
 
+	if (billinggroup_no == null ||  billinggroup_no.compareTo("") == 0 ||  billinggroup_no.compareTo("null")==0 || billinggroup_no.length() != PROVIDER_GROUPNO_LENGTH){
+		//error msg here
+		errorMsg += "The provider's group no is not correct!<br>";
+		billinggroup_no = "0000";
+	} 
+
+	oscar.oscarBilling.ca.on.OHIP.ExtractBean extract = new oscar.oscarBilling.ca.on.OHIP.ExtractBean();
+	//extract.setOscarHome(oscar_home);
+	extract.seteFlag("0");
+	extract.setDateRange(dateRange);
+	extract.setOhipVer(request.getParameter("verCode"));
+	extract.setProviderNo(proOHIP);
+	extract.setOhipCenter(request.getParameter("billcenter"));
+	extract.setGroupNo(billinggroup_no);
+	extract.setSpecialty(specialty_code);
+	extract.setBatchCount(String.valueOf(bCount));
+	extract.dbQuery();
+
+	htmlValue = "<font color='red'>" + errorMsg + "</font>" + extract.getHtmlValue();
+}
+rslocal.close();
 
 request.setAttribute("html",htmlValue);
 %>

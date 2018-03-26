@@ -39,7 +39,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -47,7 +46,6 @@ import org.apache.struts.action.ActionRedirect;
 import org.apache.struts.actions.DispatchAction;
 import org.apache.struts.upload.FormFile;
 import org.oscarehr.PMmodule.caisi_integrator.ConformanceTestHelper;
-import org.oscarehr.PMmodule.model.ProgramProvider;
 import org.oscarehr.casemgmt.model.CaseManagementNote;
 import org.oscarehr.casemgmt.model.CaseManagementNoteLink;
 import org.oscarehr.casemgmt.service.CaseManagementManager;
@@ -55,21 +53,14 @@ import org.oscarehr.common.dao.DocumentStorageDao;
 import org.oscarehr.common.dao.ProviderInboxRoutingDao;
 import org.oscarehr.common.dao.QueueDocumentLinkDao;
 import org.oscarehr.common.dao.SecRoleDao;
-import org.oscarehr.common.dao.SiteDao;
 import org.oscarehr.common.model.DocumentStorage;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.common.model.SecRole;
-import org.oscarehr.common.model.Site;
-import org.oscarehr.managers.ProgramManager2;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SessionConstants;
 import org.oscarehr.util.SpringUtils;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
-
-import com.lowagie.text.pdf.PdfReader;
 
 import oscar.MyDateFormat;
 import oscar.dms.EDoc;
@@ -80,19 +71,14 @@ import oscar.log.LogConst;
 import oscar.oscarEncounter.data.EctProgram;
 import oscar.util.UtilDateUtilities;
 
+import com.lowagie.text.pdf.PdfReader;
+
 public class AddEditDocumentAction extends DispatchAction {
-	
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	
 	public ActionForward html5MultiUpload(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		ResourceBundle props = ResourceBundle.getBundle("oscarResources");
-		
+		Hashtable errors = new Hashtable();
 		AddEditDocumentForm fm = (AddEditDocumentForm) form;
 
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_edoc", "w", null)) {
-			throw new SecurityException("missing required security object (_edoc)");
-		}
-		
 		FormFile docFile = fm.getFiledata();
 		int numberOfPages = 0;
 		String fileName = docFile.getFileName();
@@ -100,15 +86,6 @@ public class AddEditDocumentAction extends DispatchAction {
 		EDoc newDoc = new EDoc("", "", fileName, "", user, user, fm.getSource(), 'A', oscar.util.UtilDateUtilities.getToday("yyyy-MM-dd"), "", "", "demographic", "-1", 0);
 		newDoc.setDocPublic("0");
 		newDoc.setAppointmentNo(Integer.parseInt(fm.getAppointmentNo()));
-		
-        // if the document was added in the context of a program
-		ProgramManager2 programManager = SpringUtils.getBean(ProgramManager2.class);
-		LoggedInInfo loggedInInfo  = LoggedInInfo.getLoggedInInfoFromSession(request);
-		ProgramProvider pp = programManager.getCurrentProgramInDomain(loggedInInfo, loggedInInfo.getLoggedInProviderNo());
-		if(pp != null && pp.getProgramId() != null) {
-			newDoc.setProgramId(pp.getProgramId().intValue());
-		}
-		
 		fileName = newDoc.getFileName();
 		// save local file;
 		if (docFile.getFileSize() == 0) {
@@ -140,7 +117,7 @@ public class AddEditDocumentAction extends DispatchAction {
 		if (providerId != null) { // TODO: THIS NEEDS TO RUN THRU THE lab forwarding rules!
 			WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(request.getSession().getServletContext());
 			ProviderInboxRoutingDao providerInboxRoutingDao = (ProviderInboxRoutingDao) ctx.getBean("providerInboxRoutingDAO");
-			providerInboxRoutingDao.addToProviderInbox(providerId, Integer.parseInt(doc_no), "DOC");
+			providerInboxRoutingDao.addToProviderInbox(providerId, doc_no, "DOC");
 		}
 		// add to queuelinkdocument
 		String queueId = request.getParameter("queue");
@@ -153,19 +130,18 @@ public class AddEditDocumentAction extends DispatchAction {
 			queueDocumentLinkDAO.addActiveQueueDocumentLink(qid, did);
 			request.getSession().setAttribute("preferredQueue", queueId);
 		}
-		
+		if (docFile != null) {
+
+		}
+
 		return null;
 
 	}
 
-	public static int countNumOfPages(String fileName) {// count number of pages in a local pdf file
+	public int countNumOfPages(String fileName) {// count number of pages in a local pdf file
 
 		int numOfPage = 0;
 		String docdownload = oscar.OscarProperties.getInstance().getProperty("DOCUMENT_DIR");
-                if (!docdownload.endsWith(File.separator))
-                {
-                    docdownload += File.separator; 
-                }
 		String filePath = docdownload + fileName;
 
 		try {
@@ -181,11 +157,6 @@ public class AddEditDocumentAction extends DispatchAction {
 
 	public ActionForward fastUpload(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		AddEditDocumentForm fm = (AddEditDocumentForm) form;
-		
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_edoc", "w", null)) {
-			throw new SecurityException("missing required security object (_edoc)");
-		}
-		
 		Hashtable errors = new Hashtable();
 		FormFile docFile = fm.getDocFile();
 		String fileName = docFile.getFileName();
@@ -193,15 +164,6 @@ public class AddEditDocumentAction extends DispatchAction {
 		EDoc newDoc = new EDoc("", "", fileName, "", user, user, fm.getSource(), 'A', oscar.util.UtilDateUtilities.getToday("yyyy-MM-dd"), "", "", "demographic", "-1");
 		newDoc.setDocPublic("0");
 		newDoc.setAppointmentNo(Integer.parseInt(fm.getAppointmentNo()));
-		
-        // if the document was added in the context of a program
-		ProgramManager2 programManager = SpringUtils.getBean(ProgramManager2.class);
-		LoggedInInfo loggedInInfo  = LoggedInInfo.getLoggedInInfoFromSession(request);
-		ProgramProvider pp = programManager.getCurrentProgramInDomain(loggedInInfo, loggedInInfo.getLoggedInProviderNo());
-		if(pp != null && pp.getProgramId() != null) {
-			newDoc.setProgramId(pp.getProgramId().intValue());
-		}
-		
 		fileName = newDoc.getFileName();
 		// save local file;
 		if (docFile.getFileSize() == 0) {
@@ -210,11 +172,6 @@ public class AddEditDocumentAction extends DispatchAction {
 		}
 		writeLocalFile(docFile, fileName);
 		newDoc.setContentType(docFile.getContentType());
-                if (fileName.toLowerCase().endsWith(".pdf")) {
-                    newDoc.setContentType("application/pdf");
-                    int numberOfPages = countNumOfPages(fileName);
-                    newDoc.setNumberOfPages(numberOfPages);                        
-                }
 
 		EDocUtil.addDocumentSQL(newDoc);
 
@@ -227,11 +184,6 @@ public class AddEditDocumentAction extends DispatchAction {
 
 	public ActionForward execute2(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		AddEditDocumentForm fm = (AddEditDocumentForm) form;
-		
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_edoc", "w", null)) {
-			throw new SecurityException("missing required security object (_edoc)");
-		}
-		
 		if (fm.getMode().equals("") && fm.getFunction().equals("") && fm.getFunctionId().equals("")) {
 			// file size exceeds the upload limit
 			Hashtable errors = new Hashtable();
@@ -242,59 +194,27 @@ public class AddEditDocumentAction extends DispatchAction {
 			return mapping.findForward("failEdit");
 		} else if (fm.getMode().equals("add")) {
 			// if add/edit success then send redirect, if failed send a forward (need the formdata and errors hashtables while trying to avoid POSTDATA messages)
-			Integer documentNo = addDocument(fm, mapping, request);
-			String siteId = request.getParameter("siteId");
-			if (documentNo!=null && documentNo.intValue()>0) { // if success
-				//if it's for site logo, need to update siteLogoId in site table.				
-				if(siteId!=null && !"null".equalsIgnoreCase(siteId)) {
-					SiteDao siteDao = (SiteDao) SpringUtils.getBean("siteDao");
-					Site site = siteDao.getById(Integer.valueOf(siteId));
-					site.setSiteLogoId(documentNo);
-					siteDao.merge(site);	
-					ActionRedirect redirect = new ActionRedirect(mapping.findForward("successAddLogo"));
-					return redirect;
-				} else {
-					ActionRedirect redirect = new ActionRedirect(mapping.findForward("successAdd"));
-					redirect.addParameter("docerrors", "docerrors"); // Allows the JSP to check if the document was just submitted
-					redirect.addParameter("function", request.getParameter("function"));
-					redirect.addParameter("functionid", request.getParameter("functionid"));
-					redirect.addParameter("curUser", request.getParameter("curUser"));
-					redirect.addParameter("appointmentNo",request.getParameter("appointmentNo"));
-					String parentAjaxId = request.getParameter("parentAjaxId");
-					// if we're called with parent ajax id inform jsp that parent needs to be updated
-					if (!parentAjaxId.equals("")) {
-						redirect.addParameter("parentAjaxId", parentAjaxId);
-						redirect.addParameter("updateParent", "true");
-					}
-					return redirect;
+			if (addDocument(fm, mapping, request) == true) { // if success
+				ActionRedirect redirect = new ActionRedirect(mapping.findForward("successAdd"));
+				redirect.addParameter("docerrors", "docerrors"); // Allows the JSP to check if the document was just submitted
+				redirect.addParameter("function", request.getParameter("function"));
+				redirect.addParameter("functionid", request.getParameter("functionid"));
+				redirect.addParameter("curUser", request.getParameter("curUser"));
+				redirect.addParameter("appointmentNo",request.getParameter("appointmentNo"));
+				String parentAjaxId = request.getParameter("parentAjaxId");
+				// if we're called with parent ajax id inform jsp that parent needs to be updated
+				if (!parentAjaxId.equals("")) {
+					redirect.addParameter("parentAjaxId", parentAjaxId);
+					redirect.addParameter("updateParent", "true");
 				}
+				return redirect;
 			} else {
-				if(siteId!=null && !"null".equalsIgnoreCase(siteId)) {
-					ActionRedirect redirect = new ActionRedirect(mapping.findForward("failAddLogo"));
-					redirect.addParameter("method","update");
-					redirect.addParameter("function",request.getParameter("function"));
-					redirect.addParameter("functinoId",request.getParameter("functionId"));
-					redirect.addParameter("siteId",siteId);		
-					if ((fm.getDocDesc().length() == 0) || (fm.getDocDesc().equals("Enter Title"))) {
-						redirect.addParameter("logoErrors","Description missing");						
-					}
-					if (fm.getDocType().length() == 0) {
-						redirect.addParameter("logoErrors","Document type missing");								
-					}
-					FormFile docFile = fm.getDocFile();
-					if (docFile.getFileSize() == 0) {
-						redirect.addParameter("logoErrors","Document failed to upload");				
-					}
-					
-					return redirect;
-				} else {
-					request.setAttribute("function", request.getParameter("function"));
-					request.setAttribute("functionid", request.getParameter("functionid"));
-					request.setAttribute("parentAjaxId", request.getParameter("parentAjaxId"));
-					request.setAttribute("curUser", request.getParameter("curUser"));
-					request.setAttribute("appointmentNo",request.getParameter("appointmentNo"));
-					return mapping.findForward("failAdd");
-				}
+				request.setAttribute("function", request.getParameter("function"));
+				request.setAttribute("functionid", request.getParameter("functionid"));
+				request.setAttribute("parentAjaxId", request.getParameter("parentAjaxId"));
+				request.setAttribute("curUser", request.getParameter("curUser"));
+				request.setAttribute("appointmentNo",request.getParameter("appointmentNo"));
+				return mapping.findForward("failAdd");
 			}
 		} else {
 			ActionForward forward = editDocument(fm, mapping, request);
@@ -303,8 +223,8 @@ public class AddEditDocumentAction extends DispatchAction {
 	}
 
 	// returns true if successful
-	private Integer addDocument(AddEditDocumentForm fm, ActionMapping mapping, HttpServletRequest request) {
-		Integer documentNo = -1;
+	private boolean addDocument(AddEditDocumentForm fm, ActionMapping mapping, HttpServletRequest request) {
+
 		Hashtable errors = new Hashtable();
 		try {
 			if ((fm.getDocDesc().length() == 0) || (fm.getDocDesc().equals("Enter Title"))) {
@@ -325,7 +245,6 @@ public class AddEditDocumentAction extends DispatchAction {
 
 			EDoc newDoc = new EDoc(fm.getDocDesc(), fm.getDocType(), fileName1, "", fm.getDocCreator(), fm.getResponsibleId(), fm.getSource(), 'A', fm.getObservationDate(), "", "", fm.getFunction(), fm.getFunctionId());
 			newDoc.setDocPublic(fm.getDocPublic());
-
 			newDoc.setAppointmentNo(Integer.parseInt(fm.getAppointmentNo()));
                         newDoc.setDocClass(fm.getDocClass());
                         newDoc.setDocSubClass(fm.getDocSubClass());
@@ -334,24 +253,12 @@ public class AddEditDocumentAction extends DispatchAction {
 			// save local file
 			File file = writeLocalFile(docFile, fileName2);
 			newDoc.setContentType(docFile.getContentType());
-                        if (fileName2.toLowerCase().endsWith(".pdf")) {
-                            newDoc.setContentType("application/pdf");
-                            int numberOfPages = countNumOfPages(fileName2);
-                            newDoc.setNumberOfPages(numberOfPages);                        
-                        }
-		
+
 
 			// if the document was added in the context of a program
-			ProgramManager2 programManager = SpringUtils.getBean(ProgramManager2.class);
-			LoggedInInfo loggedInInfo  = LoggedInInfo.getLoggedInInfoFromSession(request);
-			ProgramProvider pp = programManager.getCurrentProgramInDomain(loggedInInfo, loggedInInfo.getLoggedInProviderNo());
-			if(pp != null && pp.getProgramId() != null) {
-				newDoc.setProgramId(pp.getProgramId().intValue());
-			}
-			
-			String restrictToProgramStr = request.getParameter("restrictToProgram");
-			newDoc.setRestrictToProgram("on".equals(restrictToProgramStr));
-			
+			String programIdStr = (String) request.getSession().getAttribute(SessionConstants.CURRENT_PROGRAM_ID);
+			if (programIdStr != null) newDoc.setProgramId(Integer.valueOf(programIdStr));
+
 			// if the document was added in the context of an appointment
 			if(fm.getAppointmentNo() != null && fm.getAppointmentNo().length()>0) {
 				newDoc.setAppointmentNo(Integer.parseInt(fm.getAppointmentNo()));
@@ -362,9 +269,9 @@ public class AddEditDocumentAction extends DispatchAction {
 		 		EDocUtil.addDocTypeSQL(fm.getDocType(),fm.getFunction());
 		 	} 
 		 	
+			
 			// ---
 			String doc_no = EDocUtil.addDocumentSQL(newDoc);
-			documentNo = Integer.valueOf(doc_no);
 			if(ConformanceTestHelper.enableConformanceOnlyTestFeatures){
 				storeDocumentInDatabase(file, Integer.parseInt(doc_no));
 			}
@@ -414,14 +321,12 @@ public class AddEditDocumentAction extends DispatchAction {
 				cmn.setLocked(false);
 				cmn.setHistory(strNote);
 				cmn.setPosition(0);
-				
-				Long note_id = cmm.saveNoteSimpleReturnID(cmn);
-				 
+				cmm.saveNoteSimple(cmn);
 				// Add a noteLink to casemgmt_note_link
 				CaseManagementNoteLink cmnl = new CaseManagementNoteLink();
 				cmnl.setTableName(CaseManagementNoteLink.DOCUMENT);
 				cmnl.setTableId(Long.parseLong(EDocUtil.getLastDocumentNo()));
-				cmnl.setNoteId(note_id);
+				cmnl.setNoteId(Long.parseLong(EDocUtil.getLastNoteId()));
 
 				EDocUtil.addCaseMgmtNoteLink(cmnl);
 			}
@@ -431,19 +336,14 @@ public class AddEditDocumentAction extends DispatchAction {
 			// ActionRedirect redirect = new ActionRedirect(mapping.findForward("failAdd"));
 			request.setAttribute("docerrors", errors);
 			request.setAttribute("completedForm", fm);
-			return documentNo;
+			return false;
 		}
 
-		return documentNo;
+		return true;
 	}
 
 	private ActionForward editDocument(AddEditDocumentForm fm, ActionMapping mapping, HttpServletRequest request) {
 		Hashtable errors = new Hashtable();
-		
-		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_edoc", "w", null)) {
-			throw new SecurityException("missing required security object (_edoc)");
-		}
-		
 		try {
 			if (fm.getDocDesc().length() == 0) {
 				errors.put("descmissing", "dms.error.descriptionInvalid");
@@ -454,19 +354,13 @@ public class AddEditDocumentAction extends DispatchAction {
 				throw new Exception();
 			}
 			FormFile docFile = fm.getDocFile();
-                        String fileName = ""; 
-                        
-                        if(oscar.OscarProperties.getInstance().getBooleanProperty("ALLOW_UPDATE_DOCUMENT_CONTENT", "true"))
-                        {
-                            fileName=docFile.getFileName();
-                        }
-                        
+			String fileName = docFile.getFileName();
 			String reviewerId = filled(fm.getReviewerId()) ? fm.getReviewerId() : "";
 			String reviewDateTime = filled(fm.getReviewDateTime()) ? fm.getReviewDateTime() : "";
 
 			if (!filled(reviewerId) && fm.getReviewDoc()) {
 				reviewerId = (String) request.getSession().getAttribute("user");
-				reviewDateTime = UtilDateUtilities.DateToString(new Date(), EDocUtil.REVIEW_DATETIME_FORMAT);
+				reviewDateTime = UtilDateUtilities.DateToString(UtilDateUtilities.now(), EDocUtil.REVIEW_DATETIME_FORMAT);
 				if (fm.getFunction() != null && fm.getFunction().equals("demographic")) {
 					LogAction.addLog((String) request.getSession().getAttribute("user"), LogConst.REVIEWED, LogConst.CON_DOCUMENT, fm.getMode(), request.getRemoteAddr(), fm.getFunctionId());
 				} else {
@@ -479,29 +373,20 @@ public class AddEditDocumentAction extends DispatchAction {
 			newDoc.setDocId(fm.getMode());
 			newDoc.setDocPublic(fm.getDocPublic());
 			newDoc.setAppointmentNo(Integer.parseInt(fm.getAppointmentNo()));
-            newDoc.setDocClass(fm.getDocClass());
-            newDoc.setDocSubClass(fm.getDocSubClass());
-            String programIdStr = (String) request.getSession().getAttribute(SessionConstants.CURRENT_PROGRAM_ID);
-            if (programIdStr != null) newDoc.setProgramId(Integer.valueOf(programIdStr));
-
-            			
+                        newDoc.setDocClass(fm.getDocClass());
+                        newDoc.setDocSubClass(fm.getDocSubClass());
 			fileName = newDoc.getFileName();
-			if (docFile.getFileSize() != 0 && fileName.length()!=0) {
+			if (docFile.getFileSize() != 0) {
 				// save local file
 				writeLocalFile(docFile, fileName);
 				newDoc.setContentType(docFile.getContentType());
-                                if (fileName.toLowerCase().endsWith(".pdf")) {
-                                    newDoc.setContentType("application/pdf");
-                                    int numberOfPages = countNumOfPages(fileName);
-                                    newDoc.setNumberOfPages(numberOfPages);                        
-                                }
 				// ---
 			} else if (docFile.getFileName().length() != 0) {
 				errors.put("uploaderror", "dms.error.uploadError");
 				throw new FileNotFoundException();
 			}
 			if(fm.getReviewDoc()) {
-				newDoc.setReviewDateTime(UtilDateUtilities.DateToString(new Date(), EDocUtil.REVIEW_DATETIME_FORMAT));
+				newDoc.setReviewDateTime(UtilDateUtilities.DateToString(UtilDateUtilities.now(), EDocUtil.REVIEW_DATETIME_FORMAT));
 			}
 			EDocUtil.editDocumentSQL(newDoc, fm.getReviewDoc());
 
@@ -553,11 +438,10 @@ public class AddEditDocumentAction extends DispatchAction {
 		return file;
 	}
 
-	public static int storeDocumentInDatabase(File file, Integer documentNo){
+	public int storeDocumentInDatabase(File file, Integer documentNo){
 		Integer ret = 0;
-		FileInputStream fin = null;
 		try{
-			fin=new FileInputStream(file);
+			FileInputStream fin = new FileInputStream(file);
 			byte fileContents[] = new byte[(int)file.length()];
 			fin.read(fileContents);
 			DocumentStorage docStor = new DocumentStorage();
@@ -569,10 +453,6 @@ public class AddEditDocumentAction extends DispatchAction {
 			ret = docStor.getId();
 		}catch(Exception e){
 			MiscUtils.getLogger().error("Error putting file in database",e);
-		}
-		finally
-		{
-			IOUtils.closeQuietly(fin);
 		}
 		return ret;
 	}

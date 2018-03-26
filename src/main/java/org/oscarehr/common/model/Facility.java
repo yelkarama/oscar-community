@@ -65,41 +65,6 @@ public class Facility extends AbstractModel<Integer> implements Serializable {
 	private boolean enableEncounterTime = false;
 	private boolean enableEncounterTransportationTime = false;
 	private int rxInteractionWarningLevel = 0;
-	private String vacancyWithdrawnTicklerProvider = null;
-	private Integer vacancyWithdrawnTicklerDemographic = null;
-	private Integer registrationIntake;
-	private int displayAllVacancies=1;
-	private String assignNewVacancyTicklerProvider = null;
-	private Integer assignNewVacancyTicklerDemographic = null;
-    private String assignRejectedVacancyApplicant = null;
-  
-    public int getDisplayAllVacancies() {
-    	return displayAllVacancies;
-    }
-
-    
-
-	public void setDisplayAllVacancies(int displayAllVacancies) {
-    	this.displayAllVacancies = displayAllVacancies;
-    }
-
-	public Integer getRegistrationIntake() {
-	    return registrationIntake;
-	}
-
-	public void setRegistrationIntake(Integer registrationIntake) {
-        this.registrationIntake = registrationIntake;
-    }
-
-    public boolean isEnablePhoneEncounter() {
-        return enablePhoneEncounter;
-    }
-
-    public void setEnablePhoneEncounter(boolean enablePhoneEncounter) {
-        this.enablePhoneEncounter = enablePhoneEncounter;
-    }
-
-    private boolean enablePhoneEncounter = false;
 	
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date lastUpdated=new Date();
@@ -335,50 +300,6 @@ public class Facility extends AbstractModel<Integer> implements Serializable {
 	public void setRxInteractionWarningLevel(int rxInteractionWarningLevel) {
     	this.rxInteractionWarningLevel = rxInteractionWarningLevel;
     }
-
-	public String getVacancyWithdrawnTicklerProvider() {
-		return vacancyWithdrawnTicklerProvider;
-	}
-
-	public void setVacancyWithdrawnTicklerProvider(String vacancyWithdrawnTicklerProvider) {
-		this.vacancyWithdrawnTicklerProvider = vacancyWithdrawnTicklerProvider;
-	}
-
-	public Integer getVacancyWithdrawnTicklerDemographic() {
-		return vacancyWithdrawnTicklerDemographic;
-	}
-
-	public void setVacancyWithdrawnTicklerDemographic(Integer vacancyWithdrawnTicklerDemographic) {
-		this.vacancyWithdrawnTicklerDemographic = vacancyWithdrawnTicklerDemographic;
-	}
-
-	public String getAssignNewVacancyTicklerProvider() {
-		return assignNewVacancyTicklerProvider;
-	}
-
-	public void setAssignNewVacancyTicklerProvider(String assignNewVacancyTicklerProvider) {
-		this.assignNewVacancyTicklerProvider = assignNewVacancyTicklerProvider;
-	}
-
-	public Integer getAssignNewVacancyTicklerDemographic() {
-		return assignNewVacancyTicklerDemographic;
-	}
-
-	public void setAssignNewVacancyTicklerDemographic(Integer assignNewVacancyTicklerDemographic) {
-		this.assignNewVacancyTicklerDemographic = assignNewVacancyTicklerDemographic;
-	}
-
-
-
-	public String getAssignRejectedVacancyApplicant() {
-		return assignRejectedVacancyApplicant;
-	}
-
-
-
-	public void setAssignRejectedVacancyApplicant(String assignRejectedVacancyApplicant) {
-		this.assignRejectedVacancyApplicant = assignRejectedVacancyApplicant;
-	}
 
 	
 	

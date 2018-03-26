@@ -27,7 +27,7 @@ package oscar.oscarEncounter.oscarMeasurements.data;
 
 import java.util.List;
 
-import org.oscarehr.common.model.MeasurementsExt;
+import oscar.oscarEncounter.oscarMeasurements.model.MeasurementsExt;
 
 public class LabMeasurements {
     private Measurements measure;

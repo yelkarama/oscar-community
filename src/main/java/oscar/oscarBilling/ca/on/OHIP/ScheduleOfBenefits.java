@@ -95,7 +95,7 @@ public class ScheduleOfBenefits {
 
 				String newPrice = (String) newPricingInfo.get("gpFees");
 				double newDoub = (Double.parseDouble(newPrice))/10000;
-				BigDecimal newPriceDec = BigDecimal.valueOf(newDoub).setScale(2, BigDecimal.ROUND_HALF_UP);
+				BigDecimal newPriceDec = new BigDecimal(newDoub).setScale(2, BigDecimal.ROUND_HALF_UP);
 
 				if( newPriceDec.compareTo(zeroBD) == 0){
 					newPriceDec = getJBD((String) newPricingInfo.get("specFee"));
@@ -138,7 +138,7 @@ public class ScheduleOfBenefits {
 		} catch (Exception e) {
 			oldDoub = 0.00;
 		}
-		BigDecimal oldPriceDec = BigDecimal.valueOf(oldDoub).setScale(2, BigDecimal.ROUND_HALF_UP);
+		BigDecimal oldPriceDec = new BigDecimal(oldDoub).setScale(2, BigDecimal.ROUND_HALF_UP);
 		BigDecimal diffPriceDec = fee.subtract(oldPriceDec);
 		boolean feeChanged = oldPriceDec.compareTo(fee) != 0;
 		boolean feeNonZero = fee.compareTo(BigDecimal.ZERO) != 0;
@@ -154,14 +154,6 @@ public class ScheduleOfBenefits {
 
 		// No need to edit a billing code if the price hasn't changed.  
 		if (oldPricingInfo != null && addChangedCodes && !feeChanged) { return null; }
-
-		// Check for date change
-		if (oldPricingInfo != null) {
-			String oldServiceDate = (String)oldPricingInfo.get("billingservice_date");
-			oldServiceDate = oldServiceDate.replace("-",  "");
-			String newServiceDate = (String)newPricingInfo.get("effectiveDate");
-			if(oldServiceDate.equals(newServiceDate)) {return null; }
-		}
 
 		change.put("newprice", fee);
 		change.put("feeCode", newPricingInfo.get("feeCode") + feeType);
@@ -189,14 +181,15 @@ public class ScheduleOfBenefits {
 	}
 
 	BigDecimal getBD(String s){
-		BigDecimal bd = new BigDecimal(s);
+		double dgpFees = Double.parseDouble(s);
+		BigDecimal bd = new BigDecimal(dgpFees);
 		bd.setScale(2,BigDecimal.ROUND_UP);
 		return bd;
 	}
 
 	BigDecimal getBD4digit(String s){
 		double dgpFees = Double.parseDouble(s);
-		BigDecimal bd = BigDecimal.valueOf((dgpFees/10000));
+		BigDecimal bd = new BigDecimal((dgpFees/10000));
 		bd.setScale(2,BigDecimal.ROUND_HALF_UP);
 		return bd;
 	}
@@ -204,7 +197,7 @@ public class ScheduleOfBenefits {
 
 	BigDecimal getJBD(String s){
 		double newDoub = (Double.parseDouble(s))/10000;
-		return BigDecimal.valueOf(newDoub).setScale(2, BigDecimal.ROUND_HALF_UP);
+		return new BigDecimal(newDoub).setScale(2, BigDecimal.ROUND_HALF_UP);
 	}
 
 	Hashtable breakLine(String s){
@@ -230,7 +223,7 @@ public class ScheduleOfBenefits {
 			h.put("anaesthetistFee", anaesthetistFee);
 			h.put("nonAnaesthetistFee",nonAnaesthetistFee);
 			double dgpFees = Double.parseDouble(gpFees);
-			BigDecimal bd = BigDecimal.valueOf(dgpFees);
+			BigDecimal bd = new BigDecimal(dgpFees);
 			bd.setScale(2);
 			MiscUtils.getLogger().debug(feeCode+" "+effectiveDate+" "+terminactionDate+" "+gpFees+" "+assistantCompFee+" "+specFee+" "+anaesthetistFee+" "+nonAnaesthetistFee);
 			MiscUtils.getLogger().debug(feeCode+" "+effectiveDate+" "+terminactionDate+" "+getJBD(gpFees)+" "+getJBD(assistantCompFee)+" "+getJBD(specFee)+" "+getJBD(anaesthetistFee)+" "+getJBD(nonAnaesthetistFee));

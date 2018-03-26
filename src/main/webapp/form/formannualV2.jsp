@@ -23,29 +23,15 @@
     Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_form" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_form");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
+
 <%@ page import="oscar.oscarEncounter.data.EctPatientData"%>
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 
 <%
     String demoNo = request.getParameter("demographic_no");
     int formId = Integer.parseInt(request.getParameter("formId"));
     //int provNo = Integer.parseInt(request.getParameter("provNo"));
 
-	EctPatientData.Patient p = new EctPatientData().getPatient(LoggedInInfo.getLoggedInInfoFromSession(request), demoNo);
+	EctPatientData.Patient p = new EctPatientData().getPatient(demoNo);
     String s = p.getSex();
 
     if(true) {

@@ -33,6 +33,8 @@ import javax.servlet.http.Cookie;
 public class CookieSecurity
 {
     public static String providerCookie = "oscprvid";
+    public static String receptionistCookie = "oscrcpid";    
+    public static String adminCookie = "oscadmid";    
     
     public Cookie GiveMeACookie(String cookieName) {
         Random rndGenerator = new Random();

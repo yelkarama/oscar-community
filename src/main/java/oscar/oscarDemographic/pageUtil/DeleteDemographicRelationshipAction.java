@@ -25,8 +25,9 @@
 
 package oscar.oscarDemographic.pageUtil;
 
-import java.util.List;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Hashtable;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -35,9 +36,6 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.log.LogAction;
 import oscar.log.LogConst;
@@ -49,18 +47,11 @@ import oscar.oscarDemographic.data.DemographicRelationship;
  */
 public class DeleteDemographicRelationshipAction extends Action {
 
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
-	
     /** Creates a new instance of DeleteDemographicRelationshipAction */
     public DeleteDemographicRelationshipAction() {
     }
 
     public ActionForward execute(ActionMapping mapping,ActionForm form,HttpServletRequest request,HttpServletResponse response) {
-    	
-    	if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_demographic", "w", null)) {
-			throw new SecurityException("missing required security object (_demographic)");
-		}
-    	
       String origDemo = request.getParameter("origDemo");
       String id = request.getParameter("id");
       String idRel = getRelationID(id);
@@ -78,9 +69,9 @@ public class DeleteDemographicRelationshipAction extends Action {
     String getRelationID(String id) {
 	String relationID = "";
 	DemographicRelationship demo = new DemographicRelationship();
-	List<Map<String,String>> dr = demo.getDemographicRelationshipsByID(id);
+	ArrayList<Hashtable<String,String>> dr = demo.getDemographicRelationshipsByID(id);
 	for (int i=0; i<dr.size(); i++) {
-	    Map<String,String> h = dr.get(i);
+	    Hashtable<String,String> h = dr.get(i);
 	    String demo_no =  h.get("demographic_no");
 	    String demo_r  =  h.get("relation_demographic_no");
 	    String rel     =  h.get("relation");
@@ -94,9 +85,9 @@ public class DeleteDemographicRelationshipAction extends Action {
     String getRelationshipID(String demo_no, String demo_r, String[] rel_of) {
 	String relationshipID = "";
 	DemographicRelationship demo = new DemographicRelationship();
-	List<Map<String,String>> dr = demo.getDemographicRelationships(demo_no);
+	ArrayList<HashMap<String,String>> dr = demo.getDemographicRelationships(demo_no);
 	for (int i=0; i<dr.size(); i++) {
-		Map<String,String> h =  dr.get(i);
+		HashMap<String,String> h =  dr.get(i);
 	    String demoRel = h.get("demographic_no");
 	    if (demo_r.trim().equalsIgnoreCase(demoRel.trim())) {
 		String rel = h.get("relation");

@@ -27,10 +27,7 @@ package oscar.form;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.Properties;
-
-import org.oscarehr.util.LoggedInInfo;
 
 import oscar.login.DBHelp;
 import oscar.oscarDB.DBHandler;
@@ -40,7 +37,7 @@ import oscar.util.UtilDateUtilities;
 public class FrmBCHPRecord extends FrmRecord {
     private String _dateFormat = "dd/MM/yyyy";
 
-    public Properties getFormRecord(LoggedInInfo loggedInInfo, int demographicNo, int existingID) throws SQLException {
+    public Properties getFormRecord(int demographicNo, int existingID) throws SQLException {
         Properties props = new Properties();
 
         if (existingID <= 0) {
@@ -51,15 +48,15 @@ public class FrmBCHPRecord extends FrmRecord {
             ResultSet rs = DBHandler.GetSQL(sql);
             if (rs.next()) {
                 props.setProperty("demographic_no", rs.getString("demographic_no"));
-                props.setProperty("formCreated", UtilDateUtilities.DateToString(new Date(),
+                props.setProperty("formCreated", UtilDateUtilities.DateToString(UtilDateUtilities.Today(),
                                 _dateFormat));
                 // props.setProperty("formEdited",
-                // UtilDateUtilities.DateToString(new Date(),_dateFormat));
+                // UtilDateUtilities.DateToString(UtilDateUtilities.Today(),_dateFormat));
                 props.setProperty("pg1_patientName", rs.getString("last_name")+", "+rs.getString("first_name"));
                 props.setProperty("pg1_phn", rs.getString("hin"));
                 props.setProperty("pg1_phone", rs.getString("phone") + "  " + rs.getString("phone2"));
                 props.setProperty("pg1_formDate", UtilDateUtilities
-                        .DateToString(new Date(), _dateFormat));
+                        .DateToString(UtilDateUtilities.Today(), _dateFormat));
                 providerNo = rs.getString("provider_no");
             }
             rs.close();

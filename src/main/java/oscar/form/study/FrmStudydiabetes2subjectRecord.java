@@ -31,13 +31,11 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.Properties;
 
-import org.oscarehr.util.LoggedInInfo;
-
 import oscar.oscarDB.DBHandler;
 import oscar.util.UtilDateUtilities;
 
 public class FrmStudydiabetes2subjectRecord extends FrmStudyRecord {
-    public Properties getFormRecord(LoggedInInfo loggedInInfo, int demographicNo, int existingID) throws SQLException    {
+    public Properties getFormRecord(int demographicNo, int existingID) throws SQLException    {
         Properties props = new Properties();
         
         if(existingID <= 0) {
@@ -47,8 +45,8 @@ public class FrmStudydiabetes2subjectRecord extends FrmStudyRecord {
             {
                 Date dob = UtilDateUtilities.calcDate(oscar.Misc.getString(rs, "year_of_birth"), oscar.Misc.getString(rs, "month_of_birth"), oscar.Misc.getString(rs, "date_of_birth"));
                 props.setProperty("demographic_no", oscar.Misc.getString(rs, "demographic_no"));
-                props.setProperty("formCreated", UtilDateUtilities.DateToString(new Date(), "yyyy/MM/dd"));
-                props.setProperty("formEdited", UtilDateUtilities.DateToString(new Date(), "yyyy/MM/dd"));
+                props.setProperty("formCreated", UtilDateUtilities.DateToString(UtilDateUtilities.Today(), "yyyy/MM/dd"));
+                props.setProperty("formEdited", UtilDateUtilities.DateToString(UtilDateUtilities.Today(), "yyyy/MM/dd"));
                 props.setProperty("birthDate", UtilDateUtilities.DateToString(dob, "yyyy/MM/dd"));
                 props.setProperty("pName", oscar.Misc.getString(rs, "pName"));
             }
@@ -108,7 +106,7 @@ public class FrmStudydiabetes2subjectRecord extends FrmStudyRecord {
             if(md.getColumnTypeName(i).equalsIgnoreCase("date")) {
                 Date d;
                 if(md.getColumnName(i).equalsIgnoreCase("formEdited"))  {
-                    d = new Date();
+                    d = UtilDateUtilities.Today();
                 } else {
                     d = UtilDateUtilities.StringToDate(value, "yyyy/MM/dd");
                 }

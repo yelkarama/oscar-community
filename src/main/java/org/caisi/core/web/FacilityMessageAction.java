@@ -37,25 +37,17 @@ import org.apache.struts.action.ActionMessage;
 import org.apache.struts.action.ActionMessages;
 import org.apache.struts.action.DynaActionForm;
 import org.apache.struts.actions.DispatchAction;
+import org.caisi.model.FacilityMessage;
 import org.caisi.service.FacilityMessageManager;
-import org.oscarehr.PMmodule.model.Program;
-import org.oscarehr.PMmodule.model.ProgramProvider;
-import org.oscarehr.PMmodule.service.ProgramManager;
+import org.oscarehr.PMmodule.dao.ProgramProviderDAO;
 import org.oscarehr.common.dao.FacilityDao;
-import org.oscarehr.common.dao.FacilityMessageDao;
 import org.oscarehr.common.model.Facility;
-import org.oscarehr.common.model.FacilityMessage;
-import org.oscarehr.managers.ProgramManager2;
-import org.oscarehr.util.LoggedInInfo;
-import org.oscarehr.util.SpringUtils;
 
 public class FacilityMessageAction extends DispatchAction {
 
 	private FacilityMessageManager mgr = null;
 	private FacilityDao facilityDao = null;
-	private FacilityMessageDao facilityMessageDao = SpringUtils.getBean(FacilityMessageDao.class);
-	private ProgramManager programManager = SpringUtils.getBean(ProgramManager.class);
-	private ProgramManager2 programManager2 = SpringUtils.getBean(ProgramManager2.class);
+	private ProgramProviderDAO programProviderDAO;
 	
 	public void setFacilityMessageManager(FacilityMessageManager mgr) {
 		this.mgr = mgr;
@@ -64,6 +56,10 @@ public class FacilityMessageAction extends DispatchAction {
 	public void setFacilityDao(FacilityDao facilityDao) {
 		this.facilityDao = facilityDao;
 	}
+	
+	public void setProgramProviderDAO(ProgramProviderDAO dao) {
+		this.programProviderDAO = dao;
+	}	
 	
 	public ActionForward unspecified(ActionMapping mapping,ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		return list(mapping,form,request,response);
@@ -76,21 +72,7 @@ public class FacilityMessageAction extends DispatchAction {
 		if(facility!=null)
 			facilityId = facility.getId();
 		
-		List<FacilityMessage> activeMessages = mgr.getMessagesByFacilityIdOrNull(facilityId);
-		
-		for(FacilityMessage msg:activeMessages) {
-			if(msg.getProgramId() != null) {
-				Program program = programManager2.getProgram(LoggedInInfo.getLoggedInInfoFromSession(request), msg.getProgramId());
-				if(program != null) {
-					msg.setProgramName(program.getName());
-				}
-				else {
-					msg.setProgramName("N/A");
-				}
-			} else {
-				msg.setProgramName("N/A");
-			}
-		}
+		List<FacilityMessage> activeMessages = mgr.getMessagesByFacilityId(facilityId);
 		if(activeMessages!=null && activeMessages.size() >0)
 			request.setAttribute("ActiveFacilityMessages",activeMessages);
 		return mapping.findForward("list");
@@ -105,11 +87,6 @@ public class FacilityMessageAction extends DispatchAction {
 		facilities.add((Facility)request.getSession().getAttribute("currentFacility"));
 		
 		request.getSession().setAttribute("facilities", facilities);
-		
-		List<Program> programs = programManager.getPrograms(((Facility)request.getSession().getAttribute("currentFacility")).getId());
-		
-		request.setAttribute("programs", programs);
-		
 		
 		if(messageId != null) {
 			FacilityMessage msg = mgr.getMessage(messageId);
@@ -130,13 +107,12 @@ public class FacilityMessageAction extends DispatchAction {
 	public ActionForward save(ActionMapping mapping,ActionForm form, HttpServletRequest request, HttpServletResponse response) {
 		DynaActionForm userForm = (DynaActionForm)form;
 		FacilityMessage msg = (FacilityMessage)userForm.get("facility_message");
-		msg.setCreationDate(new Date());
+		msg.setCreation_date(new Date());
 		Integer facilityId = msg.getFacilityId().intValue();
 		String facilityName = "";
 		if(facilityId!=null && facilityId.intValue()!=0)
 			facilityName = facilityDao.find(facilityId).getName();
 		msg.setFacilityName(facilityName);
-		
 		mgr.saveFacilityMessage(msg);
 		
         ActionMessages messages = new ActionMessages();
@@ -154,12 +130,7 @@ public class FacilityMessageAction extends DispatchAction {
 		Integer facilityId = null;
 		if(facility!=null) 
 			facilityId = facility.getId();
-		Integer programId = null;
-		ProgramProvider pp = programManager2.getCurrentProgramInDomain(LoggedInInfo.getLoggedInInfoFromSession(request),LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo());
-		if(pp != null) {
-			programId = pp.getProgramId().intValue();
-		}
-		List<FacilityMessage> messages = facilityMessageDao.getMessagesByFacilityIdOrNullAndProgramIdOrNull(facilityId,programId);
+		List<FacilityMessage> messages = programProviderDAO.getFacilityMessagesByFacilityId(facilityId);
 		if(messages!=null && messages.size()>0) {
 			request.setAttribute("FacilityMessages",messages);
 		}

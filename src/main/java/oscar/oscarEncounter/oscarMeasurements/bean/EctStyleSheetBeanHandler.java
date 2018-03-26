@@ -22,39 +22,50 @@
  * Ontario, Canada
  */
 
+
 package oscar.oscarEncounter.oscarMeasurements.bean;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 import java.util.Vector;
 
-import org.apache.commons.beanutils.BeanComparator;
-import org.oscarehr.common.dao.MeasurementCSSLocationDao;
-import org.oscarehr.common.model.MeasurementCSSLocation;
-import org.oscarehr.util.SpringUtils;
+import org.oscarehr.util.MiscUtils;
+
+import oscar.oscarDB.DBHandler;
 
 public class EctStyleSheetBeanHandler {
+    
+    Vector styleSheetNameVector = new Vector();
+ 
+    public EctStyleSheetBeanHandler() {
+        init();
+    }
+    
+    public boolean init() {
+        
+        boolean verdict = true;
+        try {
+            
+            String sql = "SELECT * from measurementCSSLocation ORDER BY cssID";
+            MiscUtils.getLogger().debug("Sql Statement: " + sql);
+            ResultSet rs;
+            for(rs = DBHandler.GetSQL(sql); rs.next(); )
+            {
+                EctStyleSheetBean location = new EctStyleSheetBean(oscar.Misc.getString(rs, "location"), rs.getInt("cssID"));
+                styleSheetNameVector.add(location);
+            }
 
-	Vector<EctStyleSheetBean> styleSheetNameVector = new Vector<EctStyleSheetBean>();
+            rs.close();
+        }
+        catch(SQLException e) {
+            MiscUtils.getLogger().error("Error", e);
+            verdict = false;
+        }
+        return verdict;
+    }
 
-	public EctStyleSheetBeanHandler() {
-		init();
-	}
-
-	@SuppressWarnings("unchecked")
-	public boolean init() {
-		MeasurementCSSLocationDao dao = SpringUtils.getBean(MeasurementCSSLocationDao.class);
-		List<MeasurementCSSLocation> ms = dao.findAll();
-		Collections.sort(ms, new BeanComparator("id"));
-		for (MeasurementCSSLocation l : ms) {
-			EctStyleSheetBean location = new EctStyleSheetBean(l.getLocation(), l.getId());
-			styleSheetNameVector.add(location);
-		}
-		return true;
-	}
-
-	public Collection<EctStyleSheetBean> getStyleSheetNameVector() {
-		return styleSheetNameVector;
-	}
+    public Collection getStyleSheetNameVector(){
+        return styleSheetNameVector;
+    }
 }

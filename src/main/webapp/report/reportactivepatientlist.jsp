@@ -24,22 +24,6 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed2=true;
-%>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_report,_admin.reporting" rights="r" reverse="<%=true%>">
-	<%authed2=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_report&type=_admin.reporting");%>
-</security:oscarSec>
-<%
-if(!authed2) {
-	return;
-}
-%>
-
-<%@page import="oscar.util.ConversionUtils"%>
 <%
   
   String strLimit1="0";
@@ -63,7 +47,7 @@ if(!authed2) {
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <title><bean:message key="report.reportactivepatientlist.title" />
 </title>
-<link rel="stylesheet" href="../css/receptionistapptstyle.css">
+<link rel="stylesheet" href="../receptionist/receptionistapptstyle.css">
 <script language="JavaScript">
 <!--
 function setfocus() {
@@ -74,7 +58,8 @@ function setfocus() {
 </SCRIPT>
 
 </head>
-<body onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0">
+<body background="../images/gray_bg.jpg" bgproperties="fixed"
+	onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0">
 
 <table border="0" cellspacing="0" cellpadding="0" width="100%">
 	<tr bgcolor="#486ebd">
@@ -127,12 +112,7 @@ function setfocus() {
   while (rs.next()) {
     bodd=bodd?false:true; //for the color of rows
     nItems++; 
-   	int yearOfBirthInt = ConversionUtils.fromIntString(reportMainBean.getString(rs,"year_of_birth"));
-   	int monthOfBirthInt = ConversionUtils.fromIntString(reportMainBean.getString(rs,"month_of_birth"));
-   	int dateOfBirthInt = ConversionUtils.fromIntString(reportMainBean.getString(rs,"date_of_birth"));
-    if(yearOfBirthInt != 0 && monthOfBirthInt != 0 && dateOfBirthInt != 0) {
-    	age=MyDateFormat.getAge(yearOfBirthInt, monthOfBirthInt, dateOfBirthInt);
-    }
+    if(reportMainBean.getString(rs,"year_of_birth")!=null && reportMainBean.getString(rs,"month_of_birth")!=null && reportMainBean.getString(rs,"date_of_birth")!=null) age=MyDateFormat.getAge(Integer.parseInt(reportMainBean.getString(rs,"year_of_birth")),Integer.parseInt(reportMainBean.getString(rs,"month_of_birth")),Integer.parseInt(reportMainBean.getString(rs,"date_of_birth")));
 %>
 	<tr bgcolor="<%=bodd?"ivory":"white"%>">
 		<td nowrap><%=reportMainBean.getString(rs,"last_name")%></td>

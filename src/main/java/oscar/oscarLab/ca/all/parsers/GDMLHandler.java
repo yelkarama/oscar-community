@@ -47,7 +47,6 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.Hl7TextInfoDao;
 import org.oscarehr.common.model.Hl7TextMessageInfo;
-import org.oscarehr.common.model.Hl7TextMessageInfo2;
 import org.oscarehr.util.SpringUtils;
 
 import oscar.util.UtilDateUtilities;
@@ -84,7 +83,7 @@ public class GDMLHandler implements MessageHandler {
         p.setValidationContext(new NoValidation());
         msg = (ORU_R01) p.parse(hl7Body.replaceAll( "\n", "\r\n" ));
 
-        ArrayList<String> labs = getMatchingGDMLLabsByAccessionNo(hl7Body);
+        ArrayList<String> labs = getMatchingGDMLLabs(hl7Body);
         headers = new ArrayList<String>();
         obrSegMap = new LinkedHashMap<OBR,ArrayList<OBX>>();
         obrSegKeySet = new ArrayList<OBR>();
@@ -119,6 +118,65 @@ public class GDMLHandler implements MessageHandler {
 
             }
         }
+    }
+
+    private ArrayList<String> getMatchingGDMLLabs(String hl7Body) {
+		Base64 base64 = new Base64(0);
+		ArrayList<String> ret = new ArrayList<String>();
+		int monthsBetween = 0;
+		Hl7TextInfoDao hl7TextInfoDao = (Hl7TextInfoDao) SpringUtils.getBean("hl7TextInfoDao");
+
+		try {
+			List<Hl7TextMessageInfo> matchingLabs = hl7TextInfoDao.getMatchingLabs(hl7Body);
+			for ( Hl7TextMessageInfo l: matchingLabs ) {
+				Date dateA = UtilDateUtilities.StringToDate(l.labDate_A,"yyyy-MM-dd hh:mm:ss");
+				Date dateB = UtilDateUtilities.StringToDate(l.labDate_B,"yyyy-MM-dd hh:mm:ss");
+				if (dateA.before(dateB)) {
+					monthsBetween = UtilDateUtilities.getNumMonths(dateA, dateB);
+				} else {
+					monthsBetween = UtilDateUtilities.getNumMonths(dateB, dateA);
+				}
+				if (monthsBetween < 4) {
+					ret.add(new String(base64.decode(l.message.getBytes("ASCII")), "ASCII"));
+				}
+				if (l.lab_no_A==l.lab_no_B)
+					break;
+			}
+
+
+		} catch (Exception e) {
+			logger.error("Exception in HL7 getMatchingLabs: ", e);
+		}
+
+		// if there have been no labs added to the database yet just return this
+		// lab
+		if (ret.size() == 0)
+			ret.add(hl7Body);
+		return ret;
+	}
+
+    public String getMsgType(){
+        return("GDML");
+    }
+
+    public String getMsgDate(){
+        return(formatDateTime(msg.getMSH().getDateTimeOfMessage().getTimeOfAnEvent().getValue()));
+    }
+
+    public String getMsgPriority(){
+        String priority = "R";
+        for (int i=0; i < getOBRCount(); i++){
+            try{
+                if (getString(msg.getRESPONSE().getORDER_OBSERVATION(i).getOBR().getPriority().getValue()).equals("S")){
+                    priority="S";
+                    break;
+                }
+            }catch(Exception e){
+                logger.error("Error finding priority", e);
+            }
+        }
+
+        return priority;
     }
 
     /**
@@ -181,8 +239,13 @@ public class GDMLHandler implements MessageHandler {
 
         try{
 
+            Terser t = new Terser(msg);
             Segment obxSeg = (( obrSegMap.get(obrSegKeySet.get(i))).get(j));
-            String ident = getString(getComponent(obxSeg, 3, 0, 1));
+            String ident = getString(Terser.get(obxSeg, 3, 0, 1, 1 ));
+            String subIdent = Terser.get(obxSeg, 3, 0, 1, 2);
+
+            if (subIdent != null)
+                ident = ident+"&"+subIdent;
 
             logger.info("returning obx identifier: "+ident);
             return(ident);
@@ -225,7 +288,7 @@ public class GDMLHandler implements MessageHandler {
         String result = "";
         try{
 
-            result = getString(getComponent(((obrSegMap.get(obrSegKeySet.get(i))).get(j)), 5, 0, 1));
+            result = getString(Terser.get((( obrSegMap.get(obrSegKeySet.get(i))).get(j)),5,0,1,1));
 
             // format the result
             if (result.endsWith("."))
@@ -240,6 +303,7 @@ public class GDMLHandler implements MessageHandler {
     public String getOBXReferenceRange(int i, int j){
         String ret = "";
         try{
+            Terser terser = new Terser(msg);
 
             OBX obxSeg = (obrSegMap.get(obrSegKeySet.get(i))).get(j);
 
@@ -247,7 +311,7 @@ public class GDMLHandler implements MessageHandler {
             // which will usually contain the units as well
 
             if (getOBXUnits(i, j).equals(""))
-                ret = getString(getComponent(obxSeg, 7, 0, 2));
+                ret = getString(Terser.get(obxSeg,7,0,2,1));
 
             // may have to fall back to original reference range if the second
             // component is empty
@@ -286,7 +350,8 @@ public class GDMLHandler implements MessageHandler {
             // if there are no units specified check the formatted reference
             // range for the units
             if (ret.equals("")){
-                ret = getString(getComponent(obxSeg, 7, 0, 2));
+                Terser terser = new Terser(msg);
+                ret = getString(Terser.get(obxSeg,7,0,2,1));
 
                 // only display units from the formatted reference range if they
                 // have not already been displayed as the reference range
@@ -343,6 +408,8 @@ public class GDMLHandler implements MessageHandler {
         // update j to the number of the comment not the index of a comment array
         j++;
         try {
+            Terser terser = new Terser(msg);
+
             int obxCount = getOBXCount(i);
             int count = 0;
             int l = 0;
@@ -360,13 +427,11 @@ public class GDMLHandler implements MessageHandler {
             l--;
 
             int k = 0;
-
-            String nextComment = getComponent(obxSeg, 5, k, 1);
-            
+            String nextComment = Terser.get(obxSeg,5,k,1,1);
             while(nextComment != null){
-                comment = comment + getString(nextComment).replaceAll("\\\\\\.br\\\\", "<br />");
+                comment = comment + nextComment.replaceAll("\\\\\\.br\\\\", "<br />");
                 k++;
-                nextComment = getComponent(obxSeg, 5, k, 1);
+                nextComment = Terser.get(obxSeg,5,k,1,1);
             }
 
         } catch (Exception e) {
@@ -382,6 +447,8 @@ public class GDMLHandler implements MessageHandler {
     public int getOBXCommentCount(int i, int j){
         int count = 0;
         try{
+
+            Terser terser = new Terser(msg);
             String comment = "";
             OBX obxSeg = ( obrSegMap.get(obrSegKeySet.get(i))).get(j);
             while(comment != null){
@@ -405,14 +472,14 @@ public class GDMLHandler implements MessageHandler {
             k++;
 
             OBX obxSeg = ( obrSegMap.get(obrSegKeySet.get(i))).get(j);
-            comment = getComponent(obxSeg, 7, k, 1);
+            comment = Terser.get(obxSeg,7,k,1,1);
             if (comment == null)
-                comment = getComponent(obxSeg, 7, k, 2);
+                comment = Terser.get(obxSeg,7,k,2,1);
 
         }catch(Exception e){
             logger.error("Cannot return comment", e);
         }
-        return getString(comment).replaceAll("\\\\\\.br\\\\", "<br />");
+        return comment.replaceAll("\\\\\\.br\\\\", "<br />");
     }
 
 
@@ -663,122 +730,6 @@ public class GDMLHandler implements MessageHandler {
     public String audit(){
         return "";
     }
-    
-    public String getFillerOrderNumber(){
-		return "";
-	}
-
-    public String getEncounterId(){
-    	return "";
-    }
-    
-    public String getRadiologistInfo(){
-		return "";
-	}
-
-    public String getNteForOBX(int i, int j){
-    	return "";
-    }
-
-    public String getMsgType(){
-        return("GDML");
-    }
-
-    public String getMsgDate(){
-        return(formatDateTime(msg.getMSH().getDateTimeOfMessage().getTimeOfAnEvent().getValue()));
-    }
-
-    public String getMsgPriority(){
-        String priority = "R";
-        for (int i=0; i < getOBRCount(); i++){
-            try{
-                if (getString(msg.getRESPONSE().getORDER_OBSERVATION(i).getOBR().getPriority().getValue()).equals("S")){
-                    priority="S";
-                    break;
-                }
-            }catch(Exception e){
-                logger.error("Error finding priority", e);
-            }
-        }
-
-        return priority;
-    }
-
-    
-    private ArrayList<String> getMatchingGDMLLabsByAccessionNo(String hl7Body) {
-		Base64 base64 = new Base64(0);
-		ArrayList<String> ret = new ArrayList<String>();
-		int monthsBetween = 0;
-		Hl7TextInfoDao hl7TextInfoDao = (Hl7TextInfoDao) SpringUtils.getBean("hl7TextInfoDao");
-
-		try {
-			DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-	        java.util.Date dateB = formatter.parse(getServiceDate());
-			List<Hl7TextMessageInfo2> matchingLabs = hl7TextInfoDao.getMatchingLabsByAccessionNo(getAccessionNum());
-			for ( Hl7TextMessageInfo2 l: matchingLabs ) {
-				Date dateA = UtilDateUtilities.StringToDate(l.labDate_A,"yyyy-MM-dd hh:mm:ss");
-				
-				if (dateA.before(dateB)) {
-					monthsBetween = UtilDateUtilities.getNumMonths(dateA, dateB);
-				} else {
-					monthsBetween = UtilDateUtilities.getNumMonths(dateB, dateA);
-				}
-				if (monthsBetween < 4) {
-					ret.add(new String(base64.decode(l.message.getBytes("ASCII")), "ASCII"));
-				}
-				
-				if(hl7Body.equals(new String(base64.decode(l.message.getBytes("ASCII")), "ASCII"))){
-					logger.error("same message ");
-					break;
-				}
-			}
-
-
-		} catch (Exception e) {
-			logger.error("Exception in HL7 getMatchingGDMLLabsByAccessionNo: ", e);
-		}
-
-		// if there have been no labs added to the database yet just return this
-		// lab
-		if (ret.size() == 0)
-			ret.add(hl7Body);
-		return ret;
-	}    
-    
-    private ArrayList<String> getMatchingGDMLLabs(String hl7Body) {
-		Base64 base64 = new Base64(0);
-		ArrayList<String> ret = new ArrayList<String>();
-		int monthsBetween = 0;
-		Hl7TextInfoDao hl7TextInfoDao = (Hl7TextInfoDao) SpringUtils.getBean("hl7TextInfoDao");
-
-		try {
-			List<Hl7TextMessageInfo> matchingLabs = hl7TextInfoDao.getMatchingLabs(hl7Body);
-			for ( Hl7TextMessageInfo l: matchingLabs ) {
-				Date dateA = UtilDateUtilities.StringToDate(l.labDate_A,"yyyy-MM-dd hh:mm:ss");
-				Date dateB = UtilDateUtilities.StringToDate(l.labDate_B,"yyyy-MM-dd hh:mm:ss");
-				if (dateA.before(dateB)) {
-					monthsBetween = UtilDateUtilities.getNumMonths(dateA, dateB);
-				} else {
-					monthsBetween = UtilDateUtilities.getNumMonths(dateB, dateA);
-				}
-				if (monthsBetween < 4) {
-					ret.add(new String(base64.decode(l.message.getBytes("ASCII")), "ASCII"));
-				}
-				if (l.lab_no_A==l.lab_no_B)
-					break;
-			}
-
-
-		} catch (Exception e) {
-			logger.error("Exception in HL7 getMatchingLabs: ", e);
-		}
-
-		// if there have been no labs added to the database yet just return this
-		// lab
-		if (ret.size() == 0)
-			ret.add(hl7Body);
-		return ret;
-	}
 
     private String getFullDocName(XCN docSeg){
         String docName = "";
@@ -843,33 +794,21 @@ public class GDMLHandler implements MessageHandler {
             return("");
         }
     }
-    
-    private String getComponent(Segment seg, int i, int j, int k) throws HL7Exception{
-    	//track "&" in field and process accordingly, & = sub-component separator in HL7
-    	String field = Terser.get(seg, i, j, k, 1);
-    	
-    	if (field!=null){
-            int subIndex = 2;
-        	String nextSub = Terser.get(seg, i, j, k, subIndex);
-        	
-        	while(nextSub != null){
-        		field += "&" + getString(nextSub);
-        		nextSub = Terser.get(seg, i, j, k, ++subIndex);
-        	}
-    	}
-    	return field;
+ public String getFillerOrderNumber(){
+
+
+		return "";
+	}
+
+    public String getEncounterId(){
+    	return "";
     }
-    public String getNteForPID() {
-    	try {
-    		String comments= new String();
-    		int commentCount = msg.getRESPONSE().getPATIENT().getNTEReps();
-    		for (int i = 0 ; i<commentCount; i++) {
-    			comments += (i+1) + "-" + msg.getRESPONSE().getPATIENT().getNTE().getSourceOfComment().getValue() + ". ";
-    		}
-    		return comments;
-    	} catch (Exception e) {
-    		logger.error("Could not generate nte segment for patient",e);
-    		return "";
-    	}
+    public String getRadiologistInfo(){
+		return "";
+	}
+
+    public String getNteForOBX(int i, int j){
+
+    	return "";
     }
 }

@@ -24,22 +24,6 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_measurement" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../securityError.jsp?type=_measurement");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-
 <%@page import="oscar.oscarDemographic.data.*,java.util.*,oscar.oscarPrevention.*,oscar.oscarProvider.data.*,oscar.util.*,oscar.oscarEncounter.oscarMeasurements.*,oscar.oscarEncounter.oscarMeasurements.bean.*,oscar.oscarEncounter.oscarMeasurements.pageUtil.*"%>
 <%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
 <%@page import="org.springframework.web.context.WebApplicationContext"%>
@@ -49,11 +33,14 @@ if(!authed) {
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar" %>
 
 <%
+  if(session.getValue("user") == null) response.sendRedirect("../logout.jsp");
   String demographic_no = request.getParameter("demographic_no");
   String id = request.getParameter("id");
   String measurement = request.getParameter("measurement");
   String[] measurements = request.getParameterValues("measurement");
   String temp = request.getParameter("template");
+
+
 
   WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
   FlowSheetCustomizationDao flowSheetCustomizationDao = (FlowSheetCustomizationDao) ctx.getBean("flowSheetCustomizationDao");
@@ -61,7 +48,7 @@ if(!authed) {
 
 
 
-  List<FlowSheetCustomization> custList = flowSheetCustomizationDao.getFlowSheetCustomizations( temp,(String) session.getAttribute("user"),Integer.parseInt(demographic_no));
+  List<FlowSheetCustomization> custList = flowSheetCustomizationDao.getFlowSheetCustomizations( temp,(String) session.getAttribute("user"),demographic_no);
   MeasurementFlowSheet mFlowsheet = templateConfig.getFlowSheet(temp,custList);
 
   EctMeasurementTypeBeanHandler mType = new EctMeasurementTypeBeanHandler();
@@ -79,7 +66,7 @@ if(!authed) {
   boolean never = false;
   Hashtable extraData = new Hashtable();
 
-  List providers = ProviderData.getProviderList();
+  ArrayList providers = ProviderData.getProviderList();
 %>
 
 
@@ -87,7 +74,7 @@ if(!authed) {
 
 <head>
 <title>
-<bean:message key="oscarEncounter.Index.measurements" />
+oscarMeasurement
 </title><!--I18n-->
 <html:base/>
 <link rel="stylesheet" type="text/css" href="../../share/css/OscarStandardLayout.css">
@@ -115,26 +102,6 @@ if(!authed) {
 
   ////////
 </style>
-
-
-<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-1.7.1.min.js"></script>
-<script>
-	jQuery.noConflict();
-</script>
-
-<script>
-	function doSubmit() {
-		
-		 jQuery.post(jQuery("#measurementForm").attr('action') + '?ajax=true&skipCreateNote=true',jQuery('#measurementForm').serialize(),function(data){
-				opener.opener.postMessage(data,"*");
-				opener.location.reload();
-	      		window.close();
-	      	 });
-		 
-		 return false;
-		 
-	}
-</script>
 
 <SCRIPT LANGUAGE="JavaScript">
 
@@ -184,8 +151,6 @@ function masterDateFill(v){
 </SCRIPT>
 
 <style type="text/css">
-	Body{background-color: #fff;}
-	
 	table.outline{
 	   margin-top:50px;
 	   border-bottom: 1pt solid #888888;
@@ -412,21 +377,19 @@ clear: left;
 							<%}%>
 							<br />
 
-  						<label for="<%="value(inputValue-"+ctr+")"%>" class="fields"><%=h2.get("value_name")%>:</label>
-                            <% if ( mtypeBean.getValidationName() != null && (mtypeBean.getValidationName().equals("Yes/No") || mtypeBean.getValidationName().equals("Yes/No/NA") || mtypeBean.getValidationName().equals("Yes/No/Maybe"))){ %>
+
+
+
+
+                            <label for="<%="value(inputValue-"+ctr+")"%>" class="fields"><%=h2.get("value_name")%>:</label>
+                            <% if ( mtypeBean.getValidationName() != null && mtypeBean.getValidationName().equals("Yes/No")){ %>
                             <select  id="<%= "value(inputValue-" + ctr + ")" %>" name="<%= "value(inputValue-" + ctr + ")" %>" >
                                 <%if (measurements.length > 1){ %>
                                 <option value="" >Not Answered</option>
                                 <%}%>
                                 <option value="Yes"  <%=sel("Yes", val)%>>Yes</option>
                                 <option value="No"   <%=sel("No", val)%>>No</option>
-                                
-                                <% if(mtypeBean.getValidationName().equals("Yes/No/Maybe")){ %>
-                                <option value="Maybe" <%=sel("Maybe", val)%>>Maybe</option>                                
-                                <%}else{ %>
                                 <option value="NotApplicable" <%=sel("NotApplicable", val)%>>Not Applicable</option>
-                                <%} %>
-                                
                             </select>
                             <%}else{%>
                             <input type="text" id="<%= "value(inputValue-" + ctr + ")" %>" name="<%= "value(inputValue-" + ctr + ")" %>" size="5" value="<%=val%>" /> <br/>
@@ -450,9 +413,9 @@ clear: left;
                <br/>
 
                <% if ( id != null ) { %>
-               <input type="submit" name="delete" value="Delete" id="deleteButton" disabled="false" />
+               <input type="submit" name="delete" value="Delete" id="deleteButton" disabled="false"/>
                <% }else{ %>
-               <input type="button" value="Save" onClick="doSubmit();">
+               <input type="submit" value="Save">
                <%}%>
                </html:form>
             </td>

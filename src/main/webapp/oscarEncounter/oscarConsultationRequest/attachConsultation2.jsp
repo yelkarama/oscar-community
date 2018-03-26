@@ -8,24 +8,8 @@
     and "gnu.org/licenses/gpl-2.0.html".
     
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_con" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../securityError.jsp?type=_con");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
-<%
+if(session.getValue("user") == null) response.sendRedirect("../logout.htm");
 String user_no = (String) session.getAttribute("user");
 String userfirstname = (String) session.getAttribute("userfirstname");
 String userlastname = (String) session.getAttribute("userlastname");
@@ -46,8 +30,6 @@ String userlastname = (String) session.getAttribute("userlastname");
 
 //preliminary JSP code
 
-LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-
 // "Module" and "function" is the same thing (old dms module)
 String module = "demographic";
 String demoNo = request.getParameter("demo");
@@ -63,7 +45,7 @@ if( demoNo == null || demoNo.equals("null")  ) {
     
 }
 
-String patientName = EDocUtil.getDemographicName(loggedInInfo, demoNo);
+String patientName = EDocUtil.getDemographicName(demoNo);
 String[] docType = {"D","L"};
 String http_user_agent = request.getHeader("User-Agent");
 boolean onIPad = http_user_agent.indexOf("iPad") >= 0;
@@ -86,9 +68,9 @@ boolean onIPad = http_user_agent.indexOf("iPad") >= 0;
 //<!--   
 <% 
 CommonLabResultData labData = new CommonLabResultData();
-ArrayList<LabResultData> labs = labData.populateLabResultsData(loggedInInfo, demoNo, requestId, CommonLabResultData.ATTACHED);
+ArrayList<LabResultData> labs = labData.populateLabResultsData(demoNo, requestId, CommonLabResultData.ATTACHED);
 ArrayList<EDoc> privatedocs = new ArrayList<EDoc>();
-privatedocs = EDocUtil.listDocs(loggedInInfo, demoNo, requestId, EDocUtil.ATTACHED);
+privatedocs = EDocUtil.listDocs(demoNo, requestId, EDocUtil.ATTACHED);
 String attachedDocs = "";
 if (requestId == null || requestId.equals("") || requestId.equals("null")) {
 	attachedDocs = "window.opener.document.EctConsultationFormRequestForm.documents.value";
@@ -226,9 +208,9 @@ function toggleSelectAll() {
             final String UNPRINTABLE_TITLE = "This file must be manually printed.";
             final String UNPRINTABLE_ALT = "Unprintable";
             
-            privatedocs = EDocUtil.listDocs(loggedInInfo, "demographic", demoNo, null, EDocUtil.PRIVATE, EDocUtil.EDocSort.OBSERVATIONDATE);
+            privatedocs = EDocUtil.listDocs("demographic", demoNo, null, EDocUtil.PRIVATE, EDocUtil.SORT_DESCRIPTION, "active");
             labData = new CommonLabResultData();
-            labs = labData.populateLabResultsData(loggedInInfo, "",demoNo, "", "","","U");
+            labs = labData.populateLabResultsData("",demoNo, "", "","","U");
             Collections.sort(labs);       
             
             if (labs.size() == 0 && privatedocs.size() == 0) {
@@ -243,9 +225,6 @@ function toggleSelectAll() {
                         value="" title="Select/un-select all documents."
                         style="margin: 0px; padding: 0px;"/> Select all  
             </li>
-            <% if(privatedocs.size() > 0){%>
-            	<h2>Documents</h2>
-            <%}%>
             <%
 	            EDoc curDoc;
 	            String url;      
@@ -323,12 +302,7 @@ function toggleSelectAll() {
 		                   </div>
 		                </li>
 	                <%                                           
-	                }
-	            	if(labs.size() > 0){
-	            	%>
-	            		<h2>Labs</h2>	
-	            	<%
-	            	}
+	                }	
 		                 
 	                LabResultData result;
 	                String labDisplayName;

@@ -34,13 +34,9 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import org.oscarehr.common.dao.HsfoRecommitScheduleDao;
 import org.oscarehr.common.model.Demographic;
-import org.oscarehr.common.model.HsfoRecommitSchedule;
 import org.oscarehr.util.DbConnectionFilter;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.oscarDemographic.data.DemographicData;
 /**
@@ -48,9 +44,6 @@ import oscar.oscarDemographic.data.DemographicData;
  *
  */
 public class RecommitDAO {
-	
-	private HsfoRecommitScheduleDao dao = SpringUtils.getBean(HsfoRecommitScheduleDao.class);
-	
 	 public RecommitDAO() {
 	 }
 
@@ -103,28 +96,73 @@ public class RecommitDAO {
 	 }
 
 	 public void updateLastSchedule(RecommitSchedule rd) {
-		 HsfoRecommitSchedule h = dao.find(rd.getId());
-		 if(h != null) {
-			 h.setStatus(rd.getStatus());
-			 h.setMemo(rd.getMemo());
-			 h.setScheduleTime(rd.getSchedule_time());
-			 h.setUserNo(rd.getUser_no());
-			 h.setCheckFlag(rd.isCheck_flag());
-			 dao.merge(h);
-		 }
+		 PreparedStatement st = null;
+	     String sqlstatement ="update hsfo_recommit_schedule set id=?, status=?, "+
+	     		"memo=?, schedule_time=?,user_no=?,check_flag=? where id=?";
+	     SimpleDateFormat sf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+
+	     try {
+
+	         Connection connect = DbConnectionFilter.getThreadLocalDbConnection();
+	         st = connect.prepareStatement(sqlstatement);
+	         st.setString(1,rd.getId().toString());
+	         st.setString(2,rd.getStatus());
+	         st.setString(3,rd.getMemo());
+	         st.setString(4,sf.format(rd.getSchedule_time()));
+	         st.setString(5, rd.getUser_no());
+	         st.setBoolean(6,rd.isCheck_flag());
+	         st.setString(7, rd.getId().toString());
+	         st.executeUpdate();
+	     }catch (SQLException se) {
+	         MiscUtils.getLogger().debug("SQL Error while update the latest record to the hsfo_xml_recommit table : "+ se.toString());
+	     }catch (Exception ne) {
+	         MiscUtils.getLogger().debug("Other Error while update the latest record to the hsfo_xml_recommit table : "+ ne.toString());
+	     }finally {
+
+	    	 if (st != null)
+				try {
+						st.close();
+					} catch (SQLException e) {
+                                            MiscUtils.getLogger().error("Error", e);
+					}
+			}
+
 	 }
 
 	 public void insertchedule(RecommitSchedule rd) {
-	     HsfoRecommitSchedule t = new HsfoRecommitSchedule();
-	     t.setStatus(rd.getStatus());
-	     t.setMemo(rd.getMemo());
-	     t.setScheduleTime(rd.getSchedule_time());
-	     t.setUserNo(rd.getUser_no());
-	     t.setCheckFlag(rd.isCheck_flag());
-	     
-	     dao.persist(t);
+		 PreparedStatement st = null;
+	     String sqlstatement ="insert into hsfo_recommit_schedule set status=?, "+
+	     		"memo=?, schedule_time=?,user_no=?,check_flag=?";
+	     SimpleDateFormat sf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-	   
+
+	     try {
+
+	         Connection connect = DbConnectionFilter.getThreadLocalDbConnection();
+	         st = connect.prepareStatement(sqlstatement);
+
+	         st.setString(1,rd.getStatus());
+	         st.setString(2,rd.getMemo());
+	         st.setString(3,sf.format(rd.getSchedule_time()));
+	         st.setString(4, rd.getUser_no());
+	         st.setBoolean(5,rd.isCheck_flag());
+
+	         st.executeUpdate();
+	     }catch (SQLException se) {
+	         MiscUtils.getLogger().debug("SQL Error while insert a new record to the hsfo_xml_recommit table : "+ se.toString());
+	     }catch (Exception ne) {
+	         MiscUtils.getLogger().debug("Other Error while insert a new record to the hsfo_xml_recommit table : "+ ne.toString());
+	     }finally {
+
+	    	 if (st != null)
+				try {
+						st.close();
+					} catch (SQLException e) {
+                                            MiscUtils.getLogger().error("Error", e);
+					}
+			}
+
 	 }
 
 	 public boolean isLastActivExpire() {
@@ -144,7 +182,7 @@ public class RecommitDAO {
 		 }
 	 }
 
-	 public String SynchronizeDemoInfo(LoggedInInfo loggedInInfo) {
+	 public String SynchronizeDemoInfo() {
 		 HSFODAO hsfoDao=new HSFODAO();
 		 List idList=hsfoDao.getAllPatientId();
 		 Iterator itr=idList.iterator();
@@ -152,7 +190,7 @@ public class RecommitDAO {
 		 while (itr.hasNext()){
 			 String pid=(String)itr.next();
 			 PatientData pd=hsfoDao.retrievePatientRecord(pid);
-			 Demographic demo=demoData.getDemographic(loggedInInfo, pid);
+			 Demographic demo=demoData.getDemographic(pid);
 			 String internalId=demo.getProviderNo();
 			 if(internalId==null || internalId.length()==0){
 				 return demo.getLastName()+","+demo.getFirstName();
@@ -174,14 +212,14 @@ public class RecommitDAO {
 		 return null;
 	 }
 
-	 public String checkProvider(LoggedInInfo loggedInInfo) {
+	 public String checkProvider() {
 		 HSFODAO hsfoDao=new HSFODAO();
 		 List idList=hsfoDao.getAllPatientId();
 		 Iterator itr=idList.iterator();
 		 DemographicData demoData = new DemographicData();
 		 while (itr.hasNext()){
 			 String pid=(String)itr.next();
-			 Demographic demo=demoData.getDemographic(loggedInInfo, pid);
+			 Demographic demo=demoData.getDemographic(pid);
 			 String internalId=demo.getProviderNo();
 			 if(internalId==null || internalId.length()==0){
 				 return demo.getLastName()+","+demo.getFirstName();

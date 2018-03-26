@@ -17,24 +17,9 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_billing" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
 <%// start
-			
+			if (session.getAttribute("user") == null)
+				response.sendRedirect("../../../logout.htm");
 			String curUser_no, userfirstname, userlastname;
 			curUser_no = (String) session.getAttribute("user");
 
@@ -315,7 +300,7 @@ if(bFlag) {
 <% } %>
 
 <form name="serviceform" method="post"
-	action=""
+	action="billingONCorrectionSave.jsp"
 	onsubmit="return validateAllItems()"><input type="hidden"
 	name="xml_billing_no" value="<%=billNo%>" /> <input type="hidden"
 	name="update_date" value="<%=UpdateDate%>" />
@@ -434,11 +419,11 @@ if(bFlag) {
 		<td width="46%"><b> Pay Program:</b> <input type="hidden"
 			name="xml_payProgram" value="<%=BillDate%>" /><select
 			style="font-size: 80%;" name="payProgram">
-			<%for (int i = 0; i < BillingDataHlp.getVecPaymentType().size(); i = i + 2) {
+			<%for (int i = 0; i < BillingDataHlp.vecPaymentType.size(); i = i + 2) {
 
 					%>
-			<option value="<%=BillingDataHlp.getVecPaymentType().get(i) %>"
-				<%=payProgram.equals((String)BillingDataHlp.getVecPaymentType().get(i))? "selected":"" %>><%=BillingDataHlp.getVecPaymentType().get(i + 1)%></option>
+			<option value="<%=BillingDataHlp.vecPaymentType.get(i) %>"
+				<%=payProgram.equals((String)BillingDataHlp.vecPaymentType.get(i))? "selected":"" %>><%=BillingDataHlp.vecPaymentType.get(i + 1)%></option>
 			<%}
 
 				%>
@@ -469,9 +454,9 @@ if(bFlag) {
 			style="font-size: 80%;" name="provider_no">
 			<option value=""><bean:message
 				key="billing.billingCorrection.msgSelectProvider" /></option>
-			<%List<String> pList = (new JdbcBillingPageUtil()).getCurProviderStr();
+			<%List pList = (Vector) (new JdbcBillingPageUtil()).getCurProviderStr();
 				for (int i = 0; i < pList.size(); i++) {
-					String temp[] = ( pList.get(i)).split("\\|");
+					String temp[] = ((String) pList.get(i)).split("\\|");
 
 					%>
 			<option value="<%=temp[0]%>"
@@ -624,7 +609,7 @@ if(bFlag) {
 		</td>
 	</tr>
 </table>
-</form>
+<form>
 </body>
 <script type="text/javascript">
 Calendar.setup( { inputField : "xml_appointment_date", ifFormat : "%Y-%m-%d", showsTime :false, button : "xml_appointment_date_cal", singleClick : true, step : 1 } );

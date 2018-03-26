@@ -26,6 +26,7 @@
 package oscar.oscarEncounter.oscarMeasurements.pageUtil;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Collection;
 
 import javax.servlet.ServletException;
@@ -37,21 +38,12 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.oscarehr.common.dao.MeasurementGroupDao;
-import org.oscarehr.common.dao.MeasurementGroupStyleDao;
-import org.oscarehr.common.model.MeasurementGroup;
-import org.oscarehr.common.model.MeasurementGroupStyle;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
-import org.oscarehr.managers.MeasurementManager;
 
+import oscar.oscarDB.DBHandler;
 import oscar.oscarEncounter.oscarMeasurements.bean.EctStyleSheetBeanHandler;
 
 public class EctSelectMeasurementGroupAction extends Action {
-	
-	private MeasurementGroupStyleDao styleDao = SpringUtils.getBean(MeasurementGroupStyleDao.class);
-	private MeasurementGroupDao groupDao = SpringUtils.getBean(MeasurementGroupDao.class);
-	private MeasurementManager measurementManager = SpringUtils.getBean(MeasurementManager.class);
 
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException
@@ -83,23 +75,6 @@ public class EctSelectMeasurementGroupAction extends Action {
             deleteGroup(groupName);
             return mapping.findForward("delete");
         }
-        if(forward.compareTo("dsHTML")==0){
-        	
-        	String state = "addDSHTML";
-        	String groupId = null;
-        	boolean propExists = false;
-        	String propKey = null;
-        	
-        	groupId = measurementManager.findGroupId(groupName);
-        	propKey = "mgroup.ds.html."+groupId;
-        	propExists = measurementManager.isProperty(propKey);
-        	
-        	if(propExists){
-        		state = "removeDSHTML";
-        	}
-        	//set here if if should be addDSHTML or removeDSHTML or completeDSHTML
-        	return mapping.findForward(state);
-        }
         else{
             return mapping.findForward("type");
         }
@@ -112,16 +87,17 @@ public class EctSelectMeasurementGroupAction extends Action {
      * @return 
      ******************************************************************************************/
     private void deleteGroup(String inputGroupName){
-    	
-    	//MeasurementGroupStyle
-    	for(MeasurementGroupStyle ms:styleDao.findByGroupName(inputGroupName)) {
-    		styleDao.remove(ms.getId());
-        } 
-    	
-        //MeasurementGroup
-        for(MeasurementGroup m:groupDao.findByName(inputGroupName)) {
-        	groupDao.remove(m.getId());
-        }
         
+        try {
+            
+            String sql = "DELETE FROM measurementGroupStyle WHERE groupName='" + inputGroupName + "'";
+            MiscUtils.getLogger().debug("Sql Statement: " + sql);
+            DBHandler.RunSQL(sql);            
+            sql = "DELETE FROM measurementGroup WHERE name='" + inputGroupName + "'";
+            DBHandler.RunSQL(sql);
+        }
+        catch(SQLException e) {
+            MiscUtils.getLogger().error("Error", e);            
+        }        
     }
 }

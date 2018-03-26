@@ -25,21 +25,16 @@
 --%>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
 "http://www.w3.org/TR/html4/loose.dtd">
+<%-- This JSP is the first page you see when you enter 'report by template' --%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
+    if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-	boolean authed=true;
 %>
 <security:oscarSec roleName="<%=roleName$%>"
 	objectName="_admin,_admin.misc" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_admin&type=_admin.misc");%>
+	<%response.sendRedirect("../logout.jsp");%>
 </security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
 
 <%@ page import="java.util.*,oscar.oscarReport.reportByTemplate.*"%>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
@@ -77,16 +72,6 @@
 	src="../share/javascript/prototype.js"></script>
 <script type="text/javascript" language="JavaScript"
 	src="../share/javascript/Oscar.js"></script>
-
-<link rel="stylesheet" type="text/css" href="<%=request.getContextPath() %>/js/jquery_css/smoothness/jquery-ui-1.10.2.custom.min.css"/>
-<script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery-1.9.1.js"></script>
-<script type="text/javascript" src="<%=request.getContextPath() %>/js/jquery-ui-1.10.2.custom.min.js"></script>
-<script>
-jQuery.noConflict();
-jQuery(function() {
-    jQuery( document ).tooltip();
-  });
-</script>
 
 <style type="text/css">
 table.outline {
@@ -198,7 +183,7 @@ br {
 					<td><b>Actions</b></td>
 				</tr>
 			<%
-			Hashtable<String, String> systemFlowsheets = MeasurementTemplateFlowSheetConfig.getInstance().getFlowsheetDisplayNames();
+				Hashtable<String, String> systemFlowsheets = MeasurementTemplateFlowSheetConfig.getInstance().getFlowsheetDisplayNames();
 				for(String name:systemFlowsheets.keySet()) {
 					String displayName = systemFlowsheets.get(name);
 					MeasurementFlowSheet flowSheet = MeasurementTemplateFlowSheetConfig.getInstance().getFlowSheet(name);
@@ -213,11 +198,7 @@ br {
 					if(fs!=null) {
 						type = (fs.isExternal())?"System":"Custom";
 					}
-
-
-					if(!flowSheet.getDisplayName().equals("Health Tracker")){
 					%>
-						
 						<tr>
 							<td><%=flowSheet.getDisplayName()%></td>
 							<td><%=flowSheet.isUniversal() %></td>
@@ -234,7 +215,6 @@ br {
 							</td>
 						</tr>
 					<%
-					}
 				}
 			%>
 			</table>
@@ -242,10 +222,7 @@ br {
 			<br/><br/><br/>
 			
 			<form enctype="multipart/form-data" method="POST" action="<%=request.getContextPath()%>/admin/manageFlowsheetsUpload.jsp">
-				<input type="file" name="flowsheet_file"/>
-				<span title="<bean:message key="global.uploadWarningBody"/>" style="vertical-align:middle;font-family:arial;font-size:20px;font-weight:bold;color:#ABABAB;cursor:pointer"><img border="0" src="../images/icon_alertsml.gif"/></span></span>
-        
-				&nbsp;
+				<input type="file" name="flowsheet_file"/>&nbsp;
 				<input type="submit" value="Upload" />
 			</form>					
 		</td>

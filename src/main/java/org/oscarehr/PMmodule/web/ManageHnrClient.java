@@ -58,22 +58,21 @@ public class ManageHnrClient {
 	private boolean pictureValidated = false;
 	private boolean hcInfoValidated = false;
 	private boolean otherValidated = false;
-	private LoggedInInfo loggedInInfo;
+	private LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
 	
-	public ManageHnrClient(LoggedInInfo loggedInInfo, Integer demographicId) {
-		this.loggedInInfo=loggedInInfo;
+	public ManageHnrClient(Integer demographicId) {
 		demographic = demographicDao.getDemographicById(demographicId);
 		clientImage = clientImageDAO.getClientImage(demographicId);
 
 		// we're only dealing with 1 hnr entry even if there's multiple because there should
 		// only be 1, a minor issue about some of this code not being atomic makes multiple
 		// entries theoretically possible though in reality it should never happen.
-		List<ClientLink> temp = clientLinkDao.findByFacilityIdClientIdType(loggedInInfo.getCurrentFacility().getId(), demographicId, true, ClientLink.Type.HNR);
+		List<ClientLink> temp = clientLinkDao.findByFacilityIdClientIdType(loggedInInfo.currentFacility.getId(), demographicId, true, ClientLink.Type.HNR);
 		if (temp.size() > 0) clientLink = temp.get(0);
 
-		if (loggedInInfo.getCurrentFacility().isEnableHealthNumberRegistry() && loggedInInfo.getCurrentFacility().isIntegratorEnabled() && clientLink != null) {
+		if (loggedInInfo.currentFacility.isEnableHealthNumberRegistry() && loggedInInfo.currentFacility.isIntegratorEnabled() && clientLink != null) {
 			try {
-				hnrClient = CaisiIntegratorManager.getHnrClient(loggedInInfo, loggedInInfo.getCurrentFacility(), clientLink.getRemoteLinkId());
+				hnrClient = CaisiIntegratorManager.getHnrClient(clientLink.getRemoteLinkId());
 			} catch (ConnectException_Exception e) {
 				logger.error("Error Connecting to HNR server", e);
 			} catch (Exception e) {
@@ -81,13 +80,13 @@ public class ManageHnrClient {
 			}
 		}
 
-		HnrDataValidation tempValidation = hnrDataValidationDao.findMostCurrentByFacilityIdClientIdType(loggedInInfo.getCurrentFacility().getId(), demographicId, HnrDataValidation.Type.PICTURE);
+		HnrDataValidation tempValidation = hnrDataValidationDao.findMostCurrentByFacilityIdClientIdType(loggedInInfo.currentFacility.getId(), demographicId, HnrDataValidation.Type.PICTURE);
 		pictureValidated = (tempValidation != null && tempValidation.isValidAndMatchingCrc(clientImage.getImage_data()));
 
-		tempValidation = hnrDataValidationDao.findMostCurrentByFacilityIdClientIdType(loggedInInfo.getCurrentFacility().getId(), demographicId, HnrDataValidation.Type.HC_INFO);
+		tempValidation = hnrDataValidationDao.findMostCurrentByFacilityIdClientIdType(loggedInInfo.currentFacility.getId(), demographicId, HnrDataValidation.Type.HC_INFO);
 		hcInfoValidated = (tempValidation != null && tempValidation.isValidAndMatchingCrc(HnrDataValidation.getHcInfoValidationBytes(demographic)));
 
-		tempValidation = hnrDataValidationDao.findMostCurrentByFacilityIdClientIdType(loggedInInfo.getCurrentFacility().getId(), demographicId, HnrDataValidation.Type.OTHER);
+		tempValidation = hnrDataValidationDao.findMostCurrentByFacilityIdClientIdType(loggedInInfo.currentFacility.getId(), demographicId, HnrDataValidation.Type.OTHER);
 		otherValidated = (tempValidation != null && tempValidation.isValidAndMatchingCrc(HnrDataValidation.getOtherInfoValidationBytes(demographic)));
 	}
 
@@ -213,7 +212,7 @@ public class ManageHnrClient {
 	
 	private boolean hasConsented() {
 		try {
-	        GetConsentTransfer consent=CaisiIntegratorManager.getConsentState(loggedInInfo, loggedInInfo.getCurrentFacility(), demographic.getDemographicNo());
+	        GetConsentTransfer consent=CaisiIntegratorManager.getConsentState(demographic.getDemographicNo());
 	        return(consent!=null && consent.getConsentState()==ConsentState.ALL);
         } catch (Exception e) {
         	logger.debug("Exception getting consent state.", e);

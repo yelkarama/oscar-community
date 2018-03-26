@@ -18,33 +18,32 @@
 
 package oscar.appt;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.AppointmentArchiveDao;
 import org.oscarehr.common.dao.OscarAppointmentDao;
-import org.oscarehr.common.dao.RScheduleDao;
-import org.oscarehr.common.dao.ScheduleDateDao;
 import org.oscarehr.common.model.Appointment;
-import org.oscarehr.common.model.RSchedule;
-import org.oscarehr.common.model.ScheduleDate;
 import org.oscarehr.util.SpringUtils;
 
 import oscar.SxmlMisc;
-import oscar.util.ConversionUtils;
+import oscar.oscarBilling.ca.on.data.BillingONDataHelp;
+import oscar.service.OscarSuperManager;
 import oscar.util.UtilDateUtilities;
 
 public class JdbcApptImpl {
 	private static final Logger _logger = Logger.getLogger(JdbcApptImpl.class);
+	BillingONDataHelp dbObj = new BillingONDataHelp();
 	AppointmentArchiveDao appointmentArchiveDao = (AppointmentArchiveDao)SpringUtils.getBean("appointmentArchiveDao");
     OscarAppointmentDao appointmentDao = (OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
 
+
 	public boolean deleteAppt(String apptNo) {
+                OscarSuperManager oscarSuperManager = (OscarSuperManager)SpringUtils.getBean("oscarSuperManager");
                 Appointment appt = appointmentDao.find(Integer.parseInt(apptNo));
           	  	appointmentArchiveDao.archiveAppointment(appt);
-          	  	int retval=0;
-          	  	if(appt != null) {
-          	  		appointmentDao.remove(appt.getId());
-          	  		retval=1;
-          	  	}
+                int retval = oscarSuperManager.update("appointmentDao", "delete", new String[]{apptNo});
 		if (retval==1) {
 			_logger.error("deleteAppt(id=" + apptNo + ")");
 		}
@@ -53,19 +52,23 @@ public class JdbcApptImpl {
 
 	public String getLocationFromSchedule(String apptDate, String provider_no) {
 		String retval = getLocationFromSpec(apptDate, provider_no, "c");
-		if (!"".equals(retval)) {
+		if (!"".equals(retval))
 			return retval;
-		}
-		
 		retval = getLocationFromSpec(apptDate, provider_no, "b");
-		
-		if (!"".equals(retval)) {
+		if (!"".equals(retval))
 			return retval;
-		}
-		
-		RScheduleDao dao = SpringUtils.getBean(RScheduleDao.class); 
-		for(RSchedule r : dao.findByProviderNoAndDates(provider_no, ConversionUtils.fromDateString(apptDate))) {
-			retval = r.getAvailHour();
+
+		String sql = "select avail_hour from rschedule where provider_no='" + provider_no + "' ";
+		sql += " and sdate<='" + apptDate + "' and edate>='" + apptDate + "'";
+		// _logger.info("getLocationFromSchedule(sql = " + sql + ")");
+
+		ResultSet rs = dbObj.searchDBRecord(sql);
+		try {
+			while (rs.next()) {
+				retval = oscar.Misc.getString(rs,"avail_hour");
+			}
+		} catch (SQLException e) {
+			_logger.error("getLocationFromSchedule(sql = " + sql + ")");
 		}
 
 		// get weekday number
@@ -88,24 +91,35 @@ public class JdbcApptImpl {
 	// priority = c, reason = location
 	private String getLocationFromSpec(String apptDate, String provider_no, String priority) {
 		String retval = "";
-		
-		ScheduleDateDao dao = SpringUtils.getBean(ScheduleDateDao.class);
-		for(ScheduleDate s : dao.findByProviderStartDateAndPriority(provider_no, ConversionUtils.fromDateString(apptDate), priority)) {
-			retval = s.getReason();
+		String sql = "select reason from scheduledate where sdate='" + apptDate + "' and provider_no='" + provider_no
+				+ "' and priority='" + priority + "'";
+		// _logger.info("getLocationFromSpec(sql = " + sql + ")");
+
+		ResultSet rs = dbObj.searchDBRecord(sql);
+		try {
+			while (rs.next()) {
+				retval = oscar.Misc.getString(rs,"reason");
+			}
+		} catch (SQLException e) {
+			_logger.error("getLocationFromSpec(sql = " + sql + ")");
 		}
-	
+
 		retval = retval == null ? "" : retval;
 		return retval;
 	}
 
 	public String getPrevApptDate(String thisServiceDate) {
 		String retval = "";
-		
-		OscarAppointmentDao dao = SpringUtils.getBean(OscarAppointmentDao.class);
-		Appointment a = dao.findByDate(ConversionUtils.fromDateString(thisServiceDate));
-		
-		if (a != null) {
-			retval = ConversionUtils.toDateString(a.getAppointmentDate());
+		String sql = "select appointment_date from appointment where appointment_date<'" + thisServiceDate + "' ";
+		sql += " order by appointment_date desc limit 1";
+
+		ResultSet rs = dbObj.searchDBRecord(sql);
+		try {
+			while (rs.next()) {
+				retval = oscar.Misc.getString(rs,"appointment_date");
+			}
+		} catch (SQLException e) {
+			_logger.error("getPrevApptDate(sql = " + sql + ")");
 		}
 
 		return retval;

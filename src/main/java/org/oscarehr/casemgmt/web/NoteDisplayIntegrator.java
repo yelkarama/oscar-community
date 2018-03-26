@@ -39,7 +39,6 @@ import org.oscarehr.caisi_integrator.ws.NoteIssue;
 import org.oscarehr.casemgmt.dao.IssueDAO;
 import org.oscarehr.casemgmt.model.CaseManagementNoteLink;
 import org.oscarehr.casemgmt.model.Issue;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
@@ -56,33 +55,27 @@ public class NoteDisplayIntegrator implements NoteDisplay {
 	private String providerName="Unavailable";
 	private ArrayList<String> issueDescriptions=new ArrayList<String>();
 
-	@Override
-    public Integer getAppointmentNo() {
-		return null;
-    }
-	
-	
-	public NoteDisplayIntegrator(LoggedInInfo loggedInInfo,CachedDemographicNote cachedDemographicNote)
+	public NoteDisplayIntegrator(CachedDemographicNote cachedDemographicNote)
 	{
 		this.cachedDemographicNote=cachedDemographicNote;
 
     	try {
     		// note location
-	        CachedFacility cachedFacility=CaisiIntegratorManager.getRemoteFacility(loggedInInfo, loggedInInfo.getCurrentFacility(),cachedDemographicNote.getCachedDemographicNoteCompositePk().getIntegratorFacilityId());
+	        CachedFacility cachedFacility=CaisiIntegratorManager.getRemoteFacility(cachedDemographicNote.getCachedDemographicNoteCompositePk().getIntegratorFacilityId());
 	        if (cachedFacility!=null) location="Integrated Facility : "+cachedFacility.getName();
 
 	        // program name
 	    	FacilityIdIntegerCompositePk programPk=new FacilityIdIntegerCompositePk();
 	    	programPk.setIntegratorFacilityId(cachedDemographicNote.getCachedDemographicNoteCompositePk().getIntegratorFacilityId());
 	    	programPk.setCaisiItemId(cachedDemographicNote.getCaisiProgramId());
-	    	CachedProgram remoteProgram=CaisiIntegratorManager.getRemoteProgram(loggedInInfo, loggedInInfo.getCurrentFacility(),programPk);
+	    	CachedProgram remoteProgram=CaisiIntegratorManager.getRemoteProgram(programPk);
 	    	if (remoteProgram!=null) programName=remoteProgram.getName();
 
 	    	// provider name
 	    	FacilityIdStringCompositePk providerPk=new FacilityIdStringCompositePk();
 	    	providerPk.setIntegratorFacilityId(cachedDemographicNote.getCachedDemographicNoteCompositePk().getIntegratorFacilityId());
 	    	providerPk.setCaisiItemId(cachedDemographicNote.getObservationCaisiProviderId());
-	    	CachedProvider remoteProvider=CaisiIntegratorManager.getProvider(loggedInInfo, loggedInInfo.getCurrentFacility(),providerPk);
+	    	CachedProvider remoteProvider=CaisiIntegratorManager.getProvider(providerPk);
 	    	if (remoteProvider!=null) providerName=remoteProvider.getLastName()+", "+remoteProvider.getFirstName();
 
 	    	// issue descriptions
@@ -127,8 +120,7 @@ public class NoteDisplayIntegrator implements NoteDisplay {
     }
 
 	public Date getObservationDate() {
-		if (cachedDemographicNote.getObservationDate()==null) return(null);
-		else return(cachedDemographicNote.getObservationDate().getTime());
+	    return(MiscUtils.toDate(cachedDemographicNote.getObservationDate()));
     }
 
 	public String getProgramName() {
@@ -160,8 +152,7 @@ public class NoteDisplayIntegrator implements NoteDisplay {
     }
 
 	public Date getUpdateDate() {
-		if (cachedDemographicNote.getUpdateDate()==null) return(null);
-		else return(cachedDemographicNote.getUpdateDate().getTime());
+	    return(MiscUtils.toDate(cachedDemographicNote.getUpdateDate()));
     }
 
 	public String getUuid() {
@@ -242,16 +233,4 @@ public class NoteDisplayIntegrator implements NoteDisplay {
 	    // TODO Auto-generated method stub
 	    return null;
     }
-
-
-	@Override
-	public boolean isFreeDraw() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	
-	public boolean isTicklerNote() {
-		return false;
-	}
 }

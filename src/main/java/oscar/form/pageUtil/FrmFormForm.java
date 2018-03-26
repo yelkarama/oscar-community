@@ -37,8 +37,11 @@ import org.oscarehr.util.MiscUtils;
  */
 public final class FrmFormForm extends ActionForm {
  
+   static int howmany = 0;
+   
    public FrmFormForm(){
-      MiscUtils.getLogger().debug("FrmFormForm gets instantiated");
+      howmany++;
+      MiscUtils.getLogger().debug("FrmFormForm gets instantiated howmany = "+howmany+" ");
       MiscUtils.getLogger().debug("FrmFormForm currentMem = "+currentMem());
    }
     //Using map-backed method to get the value of each field
@@ -55,7 +58,12 @@ public final class FrmFormForm extends ActionForm {
         return values.get(key);
     }
     
-
+    public void finalize(){
+       howmany--;
+       MiscUtils.getLogger().debug("FrmFormForm gets finalized howmany = "+howmany+" ");
+       MiscUtils.getLogger().debug("FrmFormForm currentMem = "+currentMem());
+    }
+        
     public String currentMem(){        
        long total = Runtime.getRuntime().totalMemory();
        long free  = Runtime.getRuntime().freeMemory();

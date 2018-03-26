@@ -36,22 +36,6 @@
  * <OSCAR TEAM>
  */
 -->
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin.billing,_admin" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_admin&type=_admin.billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
 <%
   if (session.getAttribute("user") == null) {
     response.sendRedirect("../logout.jsp");
@@ -60,6 +44,7 @@ if(!authed) {
 <%@ page errorPage="../appointment/errorpage.jsp"
 	import="java.util.*,
                                                            java.sql.*"%>
+<%@ page import="oscar.oscarBilling.ca.on.data.BillingONDataHelp"%>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
 <%@page import="org.oscarehr.util.SpringUtils" %>
 <%@page import="org.oscarehr.common.model.Billingreferral" %>
@@ -73,6 +58,7 @@ if(!authed) {
   String action = "search"; // add/edit
   //BillingServiceCode serviceCodeObj = new BillingServiceCode();
   Properties	prop  = new Properties();
+  BillingONDataHelp dbObj = new BillingONDataHelp();
   if (request.getParameter("submit") != null && request.getParameter("submit").equals("Save")) {
     // check the input data
 

@@ -80,9 +80,5 @@ public class Ichppccode extends AbstractCodeSystemModel<String> {
 	   return "ichppccode";
     }
 
-	@Override
-	public void setCode(String code) {
-		this.setId(code);
-	}
 
 }

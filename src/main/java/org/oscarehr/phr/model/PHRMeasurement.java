@@ -30,11 +30,14 @@
 
 package org.oscarehr.phr.model;
 
+import java.sql.SQLException;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
 
 import org.indivo.IndivoException;
+import org.indivo.client.ActionNotPerformedException;
 import org.indivo.xml.JAXBUtils;
 import org.indivo.xml.phr.DocumentGenerator;
 import org.indivo.xml.phr.contact.ConciseContactInformationType;
@@ -48,7 +51,6 @@ import org.indivo.xml.phr.urns.DocumentClassificationUrns;
 import org.indivo.xml.phr.vital.ResultType;
 import org.indivo.xml.phr.vital.VitalSign;
 import org.indivo.xml.phr.vital.VitalSignType;
-import org.oscarehr.common.model.MeasurementsExt;
 import org.oscarehr.util.MiscUtils;
 import org.w3c.dom.Element;
 
@@ -57,6 +59,7 @@ import oscar.oscarEncounter.oscarMeasurements.bean.EctMeasurementsDataBean;
 import oscar.oscarEncounter.oscarMeasurements.data.ImportExportMeasurements;
 import oscar.oscarEncounter.oscarMeasurements.data.LoincMapEntry;
 import oscar.oscarEncounter.oscarMeasurements.data.MeasurementMapConfig;
+import oscar.oscarEncounter.oscarMeasurements.model.MeasurementsExt;
 
 /**
  *
@@ -72,7 +75,7 @@ public class PHRMeasurement extends PHRDocument{
     }
 
     //sending new meds to PHR
-    public PHRMeasurement(EctProviderData.Provider provider, Integer demographicNo, Long myOscarUserId, String dataType, EctMeasurementsDataBean measurement) throws JAXBException, IndivoException  {
+    public PHRMeasurement(EctProviderData.Provider provider, String demographicNo, Long myOscarUserId, String dataType, EctMeasurementsDataBean measurement) throws JAXBException, ActionNotPerformedException, IndivoException  {
         //super();
         IndivoDocumentType document = getPhrMeasurementDocument(provider, measurement);
         JAXBContext docContext = JAXBContext.newInstance(IndivoDocumentType.class.getPackage().getName());
@@ -167,6 +170,7 @@ public class PHRMeasurement extends PHRDocument{
 
             //try to obtain unit from measurementExt
             ImportExportMeasurements iem = new ImportExportMeasurements();
+            try {
                 MeasurementsExt measurementExt = ImportExportMeasurements.getMeasurementsExtByKeyval(new Long(measurement.getId()), "unit");
                 if (measurementExt != null) {
                     CodedValueType unitCVT = new CodedValueType();
@@ -175,6 +179,9 @@ public class PHRMeasurement extends PHRDocument{
                     unitCVT.setCodingSystem(csrt);
                     result.setUnit(unitCVT);
                 }
+            } catch (SQLException e) {
+                MiscUtils.getLogger().error("Error", e);
+            }
 
         }
         //For all measurements

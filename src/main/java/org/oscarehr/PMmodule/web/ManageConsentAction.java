@@ -46,17 +46,16 @@ public class ManageConsentAction {
 	private IntegratorConsent consent = new IntegratorConsent();
 	private String signatureRequestId = null;
 	private Integer clientId = null;
-	private LoggedInInfo loggedInInfo;
+	private LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
 
-	public ManageConsentAction(LoggedInInfo loggedInInfo,Integer clientId) throws MalformedURLException {
-		this.loggedInInfo=loggedInInfo;
+	public ManageConsentAction(Integer clientId) throws MalformedURLException {
 		this.clientId = clientId;
 
 		consent.setDemographicId(clientId);
-		consent.setFacilityId(loggedInInfo.getCurrentFacility().getId());
-		consent.setProviderNo(loggedInInfo.getLoggedInProviderNo());
+		consent.setFacilityId(loggedInInfo.currentFacility.getId());
+		consent.setProviderNo(loggedInInfo.loggedInProvider.getProviderNo());
 
-		for (CachedFacility cachedFacility : CaisiIntegratorManager.getRemoteFacilities(loggedInInfo, loggedInInfo.getCurrentFacility())) {
+		for (CachedFacility cachedFacility : CaisiIntegratorManager.getRemoteFacilities()) {
 			consent.getConsentToShareData().put(cachedFacility.getIntegratorFacilityId(), true);
 		}
 	}
@@ -82,12 +81,14 @@ public class ManageConsentAction {
 	 */
 	public void storeAllConsents() throws IOException {
 
+		LoggedInInfo loggedInInfo = LoggedInInfo.loggedInInfo.get();
+
 		DigitalSignature digitalSignature = DigitalSignatureUtils.storeDigitalSignatureFromTempFileToDB(loggedInInfo, signatureRequestId, clientId);
 		if (digitalSignature != null) consent.setDigitalSignatureId(digitalSignature.getId());
 
 		integratorConsentDao.persist(consent);
 		
-		CaisiIntegratorManager.pushConsent(loggedInInfo, loggedInInfo.getCurrentFacility(), consent);
+		CaisiIntegratorManager.pushConsent(consent);
 	}
 
 	public void setExcludeMentalHealthData(Boolean b) {

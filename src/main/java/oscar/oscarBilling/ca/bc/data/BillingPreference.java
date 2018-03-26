@@ -24,73 +24,48 @@
 
 package oscar.oscarBilling.ca.bc.data;
 
-import static javax.persistence.GenerationType.IDENTITY;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
-import org.oscarehr.common.model.AbstractModel;
-
 /**
  * Represents a user preferences in the Billing Module
+ * @author not attributable
+ * @version 1.0
  */
-@Entity
-@Table(name = "billing_preferences")
-public class BillingPreference extends AbstractModel<Integer> {
+public class BillingPreference {
+  /**
+   * indicates the default display value in the Billing Screen
+   * May be one of thre values refer to = 1, refer from = 2 or neither = 3
+   */
+  private int referral = 1;
+  private int providerNo;
+  private int defaultPayeeNo = 0;
+  public BillingPreference() {
+  }
 
-	@Id
-	@GeneratedValue(strategy = IDENTITY)
-	@Column(name = "id", unique = true, nullable = false)
-	private Integer id;
+  public void setReferral(int referral) {
 
-	/**
-	 * indicates the default display value in the Billing Screen
-	 * May be one of thre values refer to = 1, refer from = 2 or neither = 3
-	 */
-	@Column(name = "referral", nullable = false)
-	private int referral = 1;
+    this.referral = referral;
+  }
 
-	@Column(name = "providerNo", nullable = false)
-	private int providerNo;
+  public void setProviderNo(int providerNo) {
 
-	@Column(name = "defaultPayeeNo", nullable = false)
-	private int defaultPayeeNo = 0;
+    this.providerNo = providerNo;
+  }
 
-	public BillingPreference() {
-	}
+  public void setDefaultPayeeNo(int defaultPayeeNo) {
 
-	public Integer getId() {
-		return id;
-	}
+    this.defaultPayeeNo = defaultPayeeNo;
+  }
 
-	public void setId(Integer id) {
-		this.id = id;
-	}
+  public int getReferral() {
 
-	public void setReferral(int referral) {
-		this.referral = referral;
-	}
+    return referral;
+  }
 
-	public void setProviderNo(int providerNo) {
-		this.providerNo = providerNo;
-	}
+  public int getProviderNo() {
+    return providerNo;
+  }
 
-	public void setDefaultPayeeNo(int defaultPayeeNo) {
-		this.defaultPayeeNo = defaultPayeeNo;
-	}
+  public int getDefaultPayeeNo() {
 
-	public int getReferral() {
-		return referral;
-	}
-
-	public int getProviderNo() {
-		return providerNo;
-	}
-
-	public int getDefaultPayeeNo() {
-		return defaultPayeeNo;
-	}
+    return defaultPayeeNo;
+  }
 }

@@ -25,9 +25,6 @@
 
 package oscar.oscarMessenger.pageUtil;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Vector;
 
 import javax.servlet.ServletException;
@@ -38,22 +35,13 @@ import org.apache.struts.action.Action;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.oscarehr.common.dao.MessageListDao;
-import org.oscarehr.common.model.MessageList;
-import org.oscarehr.common.model.OscarMsgType;
-import org.oscarehr.managers.SecurityInfoManager;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
 import oscar.oscarDB.DBHandler;
 import oscar.oscarMessenger.util.MsgDemoMap;
 import oscar.util.ParameterActionForward;
 
 public class MsgViewMessageAction extends Action {
-	
-	private MessageListDao messageListDao = SpringUtils.getBean(MessageListDao.class);
-	private SecurityInfoManager securityInfoManager = SpringUtils.getBean(SecurityInfoManager.class);
 
     public ActionForward execute(ActionMapping mapping,
 				 ActionForm form,
@@ -61,15 +49,11 @@ public class MsgViewMessageAction extends Action {
 				 HttpServletResponse response)
 	throws IOException, ServletException {
 
-    	if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_msg", "r", null)) {
-			throw new SecurityException("missing required security object (_msg)");
-		}
-    	
         // Extract attributes we will need
         
 
         oscar.oscarMessenger.pageUtil.MsgSessionBean bean = (oscar.oscarMessenger.pageUtil.MsgSessionBean)request.getSession().getAttribute("msgSessionBean");
-        String providerNo= LoggedInInfo.getLoggedInInfoFromSession(request).getLoggedInProviderNo();
+        String providerNo= null;
         if(bean!=null)
             providerNo = bean.getProviderNo();
         else
@@ -108,19 +92,17 @@ public class MsgViewMessageAction extends Action {
                  String sentto  = (oscar.Misc.getString(rs, "sentto"));
                  String thetime = (oscar.Misc.getString(rs, "theime"));
                  String thedate = (oscar.Misc.getString(rs, "thedate"));
-                 String att     = rs.getString("attachment");
-                 String pdfAtt  = rs.getString("pdfattachment");
-                 String msgType = (oscar.Misc.getString(rs, "type"));
-                 String msgType_link = (oscar.Misc.getString(rs, "type_link"));
+                 String att     = oscar.Misc.getString(rs, "attachment");
+                 String pdfAtt     = oscar.Misc.getString(rs, "pdfattachment");
 
-                 if (att == null || att.equalsIgnoreCase("null") ){
+                 if (att == null || att.equals("null") ){
                     attach ="0";
                  }else{
                     attach ="1";
                  }
 
 
-                 if (pdfAtt == null || pdfAtt.equalsIgnoreCase("null") ){
+                 if (pdfAtt == null || pdfAtt.equals("null") ){
                     pdfAttach ="0";
                  }else{
                     pdfAttach ="1";
@@ -143,45 +125,14 @@ public class MsgViewMessageAction extends Action {
                      request.setAttribute("orderBy", orderBy);
                  }
                                   
-                 if( msgType != null && !"".equalsIgnoreCase(msgType) ) {
-                     request.setAttribute("msgType", msgType);
-                     
-                     if( Integer.valueOf(msgType).equals(OscarMsgType.OSCAR_REVIEW_TYPE) ) {
-                         if( msgType_link != null ) {
-                            HashMap<String,List<String>>hashMap = new HashMap<String,List<String>>();
-                            String[] keyValues = msgType_link.split(",");
-
-                            for( String s : keyValues ) {
-                                String[] keyValue = s.split(":");
-                                if( keyValue.length == 4 ) {
-                                    if( hashMap.containsKey(keyValue[0]) ) {
-                                        hashMap.get(keyValue[0]).add(keyValue[1]+":"+keyValue[2]+":"+keyValue[3]);
-                                    }
-                                    else {
-                                        List<String> list = new ArrayList<String>();
-                                        list.add(keyValue[1]+":"+keyValue[2]+":"+keyValue[3]);
-                                        hashMap.put(keyValue[0], list);
-                                    }
-                                }
-                            }
-                            request.setAttribute("msgTypeLink", hashMap);
-                         }
-                     }
-                 }
-                                  
                  MiscUtils.getLogger().debug("viewMessagePosition: " + messagePosition + "IsLastMsg: " + request.getAttribute("viewMessageIsLastMsg"));
               }
               else{
-                 i=0; // something wrong no message there
+                 i=0; // somethin wrong no message there
               }
 
               if (i == 1){
-            	  for(MessageList ml:messageListDao.findByProviderNoAndMessageNo(providerNo, Long.valueOf(messageNo))) {
-            		  if(!ml.getStatus().equals("del")) {
-            			  ml.setStatus("read");
-            			  messageListDao.merge(ml);
-            		  }
-            	  }
+                 DBHandler.RunSQL("update messagelisttbl set status = \'read\' where provider_no = \'"+providerNo+"\' and message = \'"+messageNo+"\' and status not like 'del'");
               }
               
               if (linkMsgDemo !=null && demographic_no!=null){

@@ -17,23 +17,15 @@
     Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin.billing,_admin" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_admin&type=_admin.billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
+if(session.getValue("user") == null) response.sendRedirect("../../../logout.jsp");
 %>
 
-<%@ page import="java.math.*, java.util.*, java.io.*, java.sql.*, oscar.*, java.net.*,oscar.MyDateFormat"%>
+<%@ page
+	import="java.math.*, java.util.*, java.io.*, java.sql.*, oscar.*, java.net.*,oscar.MyDateFormat"%>
 
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean" scope="session" />
+<%@ include file="dbBilling.jspf"%>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.model.CtlBillingService" %>
 <%@ page import="org.oscarehr.common.dao.CtlBillingServiceDao" %>
@@ -43,10 +35,7 @@ if(!authed) {
 <%
 String typeid = request.getParameter("typeid");
 String type = request.getParameter("type");
-
-for(CtlBillingService b:ctlBillingServiceDao.findByServiceType(typeid)) {
-	ctlBillingServiceDao.remove(b.getId());
-}
+int rowsAffected0 = apptMainBean.queryExecuteUpdate(typeid,"delete_ctlbillservice");
 
 String[] group = new String[4];
 int rowsAffected = -100;

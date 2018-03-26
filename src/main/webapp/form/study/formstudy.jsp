@@ -23,33 +23,8 @@
     Ontario, Canada
 
 --%>
-
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_form" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../securityError.jsp?type=_form");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-<%@ page import="java.util.*, java.sql.*, oscar.*, oscar.util.*" errorPage="../../errorpage.jsp"%>
-<%@page import="org.oscarehr.util.SpringUtils" %>
-<%@page import="org.oscarehr.common.model.Study" %>
-<%@page import="org.oscarehr.common.dao.StudyDao" %>
-<%@page import="org.oscarehr.common.model.DemographicStudy" %>
-<%@page import="org.oscarehr.common.dao.DemographicStudyDao" %>
-<%
-	StudyDao studyDao = SpringUtils.getBean(StudyDao.class);
-    DemographicStudyDao demographicStudyDao = SpringUtils.getBean(DemographicStudy.class);
-%>
-
+<%@ page import="java.util.*, java.sql.*, oscar.*, oscar.util.*"
+	errorPage="../../errorpage.jsp"%>
 <%
     //this is a quick independent page to let you select study.
     
@@ -58,6 +33,16 @@
     String deepColor = "#CCCCFF", weakColor = "#EEEEFF", rightColor = "gold" ;
 %>
 
+<jsp:useBean id="studyBean" class="oscar.AppointmentMainBean"
+	scope="page" />
+
+<% 
+    String [][] dbQueries=new String[][] { 
+        {"search_study", "select s.* from study s order by ? " }, 
+        {"search_demostudy", "select d.demographic_no, s.* from demographicstudy d left join study s on d.study_no=s.study_no where d.demographic_no=? and s.current1=1 order by d.study_no" }, 
+	};
+    studyBean.doConfigure(dbQueries);
+%>
 <html>
 <head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
@@ -97,27 +82,25 @@ function setfocus() {
 		<TH width="50%">Description</TH>
 	</tr>
 	<%
-
+    ResultSet rs = null ;
     int nItems=0;
     int ectsize=0;
     String datetime =null;
     String bgcolor = null;
   
-    for(DemographicStudy ds : demographicStudyDao.findByDemographicNo(Integer.parseInt(request.getParameter("demographic_no")))) {
-    	Study s = studyDao.find(ds.getId().getStudyNo());
-    	if(s.getCurrent1() == 1) {
-    		
+    rs = studyBean.queryResults(new String[]{request.getParameter("demographic_no")}, "search_demostudy");
+    while (rs.next()) { 
     	nItems++;
 	    bgcolor = nItems%2==0?"#EEEEFF":"white";
 %>
 	<tr bgcolor="<%=bgcolor%>">
-		<td align="center"><%=s.getId()%></td>
+		<td align="center"><%=studyBean.getString(rs,"s.study_no")%></td>
 		<td><a
-			href="<%=s.getStudyLink()%>?demographic_no=<%=request.getParameter("demographic_no")%>&study_no=<%=s.getId()%>"><%=s.getStudyName()%></a></td>
-		<td><%=s.getDescription()%></td>
+			href="<%=studyBean.getString(rs,"s.study_link")%>?demographic_no=<%=request.getParameter("demographic_no")%>&study_no=<%=studyBean.getString(rs,"s.study_no")%>"><%=studyBean.getString(rs,"s.study_name")%></a></td>
+		<td><%=studyBean.getString(rs,"s.description")%></td>
 	</tr>
 	<%
-	} }
+	}
 %>
 	<tr>
 		<td>&nbsp;</td>

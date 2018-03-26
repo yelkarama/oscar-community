@@ -24,28 +24,13 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin.billing,_admin" rights="w" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../../../securityError.jsp?type=_admin&type=_admin.billing");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-
 <%@ page
 	import="java.math.*, java.util.*, java.io.*, java.sql.*, oscar.*, java.net.*,oscar.MyDateFormat,oscar.oscarBilling.ca.bc.MSP.*,oscar.*"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
-
+<jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean" scope="session" />
 <jsp:useBean id="documentBean" class="oscar.DocumentBean" scope="request" />
 
+<%@ include file="dbBilling.jspf"%>
 <%@ page import="org.oscarehr.util.SpringUtils"%>
 <%@ page import="org.oscarehr.billing.CA.BC.model.TeleplanS21"%>
 <%@ page import="org.oscarehr.billing.CA.BC.dao.TeleplanS21Dao"%>
@@ -129,10 +114,12 @@ while ((nextline=input.readLine())!=null){
        param2[1] = t_payment;
        param2[2] = t_payeeno;
 
-       for(TeleplanS21 result : teleplanS21Dao.findByFilenamePaymentPayeeNo(filename,t_payment, t_payeeno)) {
-    	   raNo = result.getId().toString();
+       ResultSet rsdemo = null;
+       rsdemo = apptMainBean.queryResults(param2, "search_tahd");
+       while (rsdemo.next()) {
+          raNo = rsdemo.getString("s21_id");
        }
-      
+
        if (raNo.compareTo("") == 0 || raNo == null){
           recFlag = 1;
 
@@ -601,9 +588,10 @@ while ((nextline=input.readLine())!=null){
                 t_officefolioclaimno = nextline.substring(39, 46);
                 t_filler = nextline.substring(46, 70);
                 if (raNo.equals("")){
-                    
-                    for(TeleplanS21 result : teleplanS21Dao.findByFilenamePaymentPayeeNo(filename,t_payment, t_payeeno)) {
-                 	   raNo = result.getId().toString();
+                    String[] param2 = {filename, t_payment, t_payeeno};
+                    ResultSet rsdemo = apptMainBean.queryResults(param2, "search_tahd");
+                    while (rsdemo.next()){
+                            raNo = rsdemo.getString("s21_id");
                     }
                     if (raNo.compareTo("") == 0 || raNo == null){
                         recFlag = 1;
@@ -731,15 +719,20 @@ while ((nextline=input.readLine())!=null){
 	</tr>
 
 	<%
-	for(TeleplanS21 result : teleplanS21Dao.search_all_tahd("D")) {
-        raNo  = result.getId().toString();
-        paymentdate = result.getPayment();
-        payable = result.getPayeeName();
-        amtbilled= result.getAmountBilled();
-        amtpaid = result.getAmountPaid();
-        balancefwd = result.getBalanceForward();
-        chequeamt= result.getCheque();
-        newbalance = result.getNewBalance();
+    ResultSet rsdemo;
+    rsdemo = null;
+    String[] param5 =new String[1];
+    param5[0] = "D";
+    rsdemo = apptMainBean.queryResults(param5, "search_all_tahd");
+    while (rsdemo.next()) {
+        raNo  = rsdemo.getString("s21_id");
+        paymentdate = rsdemo.getString("t_payment");
+        payable = rsdemo.getString("t_payeename");
+        amtbilled= rsdemo.getString("t_amtbilled");
+        amtpaid = rsdemo.getString("t_amtpaid");
+        balancefwd = rsdemo.getString("t_balancefwd");
+        chequeamt= rsdemo.getString("t_cheque");
+        newbalance = rsdemo.getString("t_newbalance");
         //total = rsdemo.getString("totalamount");
    %>
 
@@ -754,7 +747,7 @@ while ((nextline=input.readLine())!=null){
 		<td><a href="genTAS01.jsp?rano=<%=raNo%>&proNo=" target="_blank">Billed</a>
 		| <a href="genTAS00.jsp?rano=<%=raNo%>&proNo=" target="_blank">Detail</a>|
 		<a href="genTAS22.jsp?rano=<%=raNo%>&proNo=" target="_blank">Summary</a></td>
-		<td><%=result.getStatus()%></td>
+		<td><%=rsdemo.getString("status")%></td>
 	</tr>
 
 	<% }%>

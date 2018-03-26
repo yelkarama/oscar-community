@@ -23,20 +23,13 @@
 <%@ include file="/taglibs.jsp"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 <%
+    if(session.getAttribute("userrole") == null )  response.sendRedirect("../logout.jsp");
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-	boolean authed=true;
-	String provider_no=(String) session.getAttribute("user");
 %>
 <security:oscarSec roleName="<%=roleName$%>"
 	objectName="_admin,_admin.misc" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_admin&type=_admin.misc");%>
+	<%response.sendRedirect("../logout.jsp");%>
 </security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
 
 <%@page import="org.oscarehr.common.model.Site"%>
 <html:html locale="true">
@@ -71,14 +64,14 @@
 		&nbsp;</td>
 		<td class="MainTableRightColumn" valign="top">
 		
-<nested:form action="/admin/ManageSites?method=add&function=provider&functionId=<%=provider_no %>">
+<nested:form action="/admin/ManageSites?method=add">
 <nested:submit style="border:1px solid #666666;">Add New Site</nested:submit>
 </nested:form>
 
   <display-el:table name="sites" id="site" class="its" style="border:1px solid #666666; width:99%;margin-top:2px;">
      <display-el:column title="Active" ><c:choose ><c:when test="${site.status==0}">No</c:when><c:otherwise>Yes</c:otherwise></c:choose></display-el:column>
      <display-el:column title="Site Name">
-     <a href="<%= request.getContextPath() %>/admin/ManageSites.do?method=update&function=provider&functionId=<%=provider_no %>&siteId=<c:out value='${site.siteId}'/>" ><c:out value="${site.name}" /></a></display-el:column>
+     <a href="<%= request.getContextPath() %>/admin/ManageSites.do?method=update&siteId=<c:out value='${site.siteId}'/>" ><c:out value="${site.name}" /></a></display-el:column>
      <display-el:column property="shortName" title="Short Name" />
      <display-el:column property="bgColor" title="Color" style="background-color:${site.bgColor}" />
      <display-el:column property="phone" title="Telephone" />
@@ -91,9 +84,6 @@
      <display-el:column property="providerIdFrom" title="ProviderID From" />
      <display-el:column property="providerIdTo" title="ProviderID To" />  
    <% } %>   
-   <display-el:column title="SiteLogo">
-   <a href="<%= request.getContextPath() %>/dms/ManageDocument.do?method=display&doc_no=<c:out value='${site.siteLogoId}'/>&providerNo=<%=provider_no%>"><c:out value='${site.siteLogoDesc}'/></a></display-el:column>
-   <display-el:column property="siteUrl" title="Site URL" />
   </display-el:table>
 		
 

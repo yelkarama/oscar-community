@@ -22,24 +22,8 @@
     Toronto, Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-    String roleName2$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed2=true;
-%>
-<security:oscarSec roleName="<%=roleName2$%>" objectName="_form" rights="w" reverse="<%=true%>">
-	<%authed2=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_form");%>
-</security:oscarSec>
-<%
-	if(!authed2) {
-		return;
-	}
-%>
-
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@page import="org.oscarehr.common.model.CdsClientForm"%>
-<%@page import="org.oscarehr.common.model.Admission"%>
+<%@page import="org.oscarehr.PMmodule.model.Admission"%>
 <%@page import="org.oscarehr.PMmodule.web.CdsForm4"%>
 <%@page import="org.oscarehr.util.SessionConstants"%>
 <%@page import="org.oscarehr.util.SpringUtils"%>
@@ -50,8 +34,7 @@
 <%@page import="org.oscarehr.common.dao.FunctionalCentreDao" %>
 <%@page import="org.oscarehr.common.dao.CdsClientFormDao" %>
 <%@page import="org.oscarehr.util.LoggedInInfo"%>
-<%@page import="org.oscarehr.common.model.DemographicExt" %>
-<%@page import="org.oscarehr.common.dao.DemographicExtDao" %>
+
 <%@include file="/layouts/caisi_html_top-jquery.jspf"%>
 <script type="text/javascript">
 var $j = jQuery.noConflict();
@@ -61,13 +44,11 @@ var $j = jQuery.noConflict();
 
 
 <%
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-   		 
-	// is only populated if it's an existing form, i.e. new one off existing form
+	// is only populated if it's an existing form, i.e. new one based off of an existing form
 	Integer cdsFormId=null;
 
 	// must be populated some how
-	
+	//int currentDemographicId=Integer.parseInt(request.getParameter("demographicId"));
 	int currentDemographicId;
 	
 	String currentProgramId = (String)session.getAttribute(SessionConstants.CURRENT_PROGRAM_ID);
@@ -76,11 +57,11 @@ var $j = jQuery.noConflict();
 	// must be populated some how
 	CdsClientForm cdsClientForm=null;
 	
-	if (request.getParameter("cdsFormId")!=null)
+	if (request.getParameter("cdsFormId")!=null )
 	{
 		cdsFormId=Integer.parseInt(request.getParameter("cdsFormId"));
 		cdsClientForm=CdsForm4.getCdsClientFormByCdsFormId(cdsFormId);
-		currentDemographicId=cdsClientForm.getClientId();
+		currentDemographicId=cdsClientForm.getClientId();		
 	}
 	else
 	{
@@ -96,20 +77,6 @@ var $j = jQuery.noConflict();
 	boolean disabledStr = false;
 	if(cdsClientForm.isSigned())
 		disabledStr = true;
-	
-	String recipientLocation = "";
-	String lhinConsumerResides = "";
-	
-	DemographicExtDao demographicExtDao = SpringUtils.getBean(DemographicExtDao.class);
-	DemographicExt de = demographicExtDao.getLatestDemographicExt(currentDemographicId, "lhinConsumerResides");
-	if(de != null) {
-		lhinConsumerResides = de.getValue();
-		lhinConsumerResides = residesTranslate(lhinConsumerResides);
-	}
-	de = demographicExtDao.getLatestDemographicExt(currentDemographicId, "recipientLocation");
-	if(de != null) {
-		recipientLocation = de.getValue();
-	}
 %>
 
 
@@ -128,7 +95,6 @@ $j("document").ready(function() {
 });
 
 $j('document').ready(function() {
-	
 	
 	var demographicId='<%=currentDemographicId%>';	
 	var cdsFormId = '<%=cdsClientForm.getId()%>';
@@ -191,25 +157,28 @@ function submitCdsForm() {
 		return false;
 	} 
 	
-	
-	
-	$j("#cds_form :disabled").each(function(){
-		if($j(this).attr('name').indexOf('baseline') != -1) {
-			$j(this).attr('disabled',false);
-		}	
-	});
-	
 	return confirm("CDS Baseline data cannot be changed once the initial CDS form is signed and saved. Are you sure you want to sign it?");
 }
 </script>
-<script>
-$j(document).ready(function() {	
-	$j("#serviceRecipientLocation").val('<%=recipientLocation%>');	
-	$j("#serviceRecipientLhin").val('<%=lhinConsumerResides%>');	
-});
-</script>
 <style>
 .error {color:red;}
+<!--
+.baseline_disabled {
+    pointer-events: none;
+    cursor: not-allowed;
+}
+-->
+.baseline_disabled {
+	border: 1px; 
+	solid: #999; 
+	color: #333;
+	font-style: italic;
+	opacity: 0.5;
+}
+.baseline_disabled option {
+	color: #000; 
+	opacity: 1;
+}
 </style>
 
 Client name : <%=CdsForm4.getEscapedClientName(currentDemographicId)%> 
@@ -221,7 +190,9 @@ CDS form (CDS-MH v4.05)
 <br />
 
 <form id="cds_form" action="cds_form_4_action.jsp" name="cds_form" method="post" onsubmit="return submitCdsForm();" >
+
 <input type="hidden" name="cdsFormId" id="cdsFormId" value="<%=cdsFormId%>" />
+
 	<table style="margin-left:auto;margin-right:auto;background-color:#f0f0f0;border-collapse:collapse">
 		<tr>
 			<td class="genericTableHeader">Select corresponding admission</td>
@@ -231,7 +202,7 @@ CDS form (CDS-MH v4.05)
 					FunctionalCentreAdmissionDao fcAdmissionDao = (FunctionalCentreAdmissionDao) SpringUtils.getBean("functionalCentreAdmissionDao");	
 					FunctionalCentreDao functionalCentreDao = (FunctionalCentreDao) SpringUtils.getBean("functionalCentreDao");	
 					CdsClientFormDao cdsClientFormDao = (CdsClientFormDao) SpringUtils.getBean("cdsClientFormDao");	
-					//LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
+					LoggedInInfo loggedInInfo=LoggedInInfo.loggedInInfo.get();
 					
 					String selected="";
 					if(cdsFormId==null)	{ //new form: list all programs IDs not used in cds form.
@@ -242,7 +213,7 @@ CDS form (CDS-MH v4.05)
 						for (FunctionalCentreAdmission fcAdmission : fcAdmissionDao.getDistinctAdmissionsByDemographicNo(Integer.valueOf(currentDemographicId)) )
 						{	
 							FunctionalCentre functionalCentre = functionalCentreDao.find(fcAdmission.getFunctionalCentreId());
-							CdsClientForm existingCdsForm = cdsClientFormDao.findLatestByFacilityAdmissionId(loggedInInfo.getCurrentFacility().getId(), Integer.valueOf(fcAdmission.getId()), null);
+							CdsClientForm existingCdsForm = cdsClientFormDao.findLatestByFacilityAdmissionId(loggedInInfo.currentFacility.getId(), Integer.valueOf(fcAdmission.getId()), null);
 							if(existingCdsForm!=null) 
 								continue;                                       
 									                                                   
@@ -305,7 +276,7 @@ CDS form (CDS-MH v4.05)
 					Calendar.setup({ inputField : "serviceInitiationDate", ifFormat : "%Y-%m-%d", showsTime :false, button : "serviceInitiationDate_cal", singleClick : true, step : 1 });
 				</script>			
 			</td>
-		</tr>
+		</tr> 
 	-->
 		<tr>
 			<td class="genericTableHeader">8. Gender</td>
@@ -316,13 +287,19 @@ CDS form (CDS-MH v4.05)
 		<tr>
 			<td class="genericTableHeader">10. Service Recipient Location</td>
 			<td class="genericTableData">
-				<%=CdsForm4.renderSelectQuestion(false, false, true, printOnly, cdsClientForm.getId(), "serviceRecipientLocation", CdsForm4.getCdsFormOptions("010"),  "class=\"{validate: {required:true}}\" ")%>
+				<%=CdsForm4.renderSelectQuestionWithDefaultValue(false, false, true, printOnly, cdsClientForm.getId(), "serviceRecipientLocation", CdsForm4.getCdsFormOptions("010"),  "class=\"{validate: {required:true}}\" ",currentDemographicId, "recipientLocation", "LHIN code", "")%>
 			</td>
 		</tr>
 		<tr>
 			<td class="genericTableHeader">10a. Service Recipient LHIN</td>
 			<td class="genericTableData">
-				<%=CdsForm4.renderSelectQuestion(false,false, true, printOnly, cdsClientForm.getId(), "serviceRecipientLhin", CdsForm4.getCdsFormOptions("10a"), "class=\"{validate: {required:true}}\" " )%>
+				<%=CdsForm4.renderSelectQuestionWithDefaultValue(false,false, true, printOnly, cdsClientForm.getId(), "serviceRecipientLhin", CdsForm4.getCdsFormOptions("10a"), "class=\"{validate: {required:true}}\" " ,currentDemographicId, "lhinConsumerResides", "LHIN code", "10a")%>
+			</td>
+		</tr>
+		<tr>
+			<td class="genericTableHeader">10b. Service Delivery LHIN</td>
+			<td class="genericTableData">
+				<%=CdsForm4.renderSelectQuestionWithDefaultValue(false,false, true, printOnly, cdsClientForm.getId(), "serviceDeliveryLhin", CdsForm4.getCdsFormOptions("10b"), "class=\"{validate: {required:true}}\" ", currentDemographicId, "lhinServiceDelivery", "LHIN code", "10b") %>
 			</td>
 		</tr>
 		<tr>
@@ -340,7 +317,11 @@ CDS form (CDS-MH v4.05)
 		<tr>
 			<td class="genericTableHeader">13. Baseline Legal status</td>
 			<td class="genericTableData">
+				<% if(disabledStr) {%>
+				<%=CdsForm4.renderSelectQuestion(disabledStr, false, true, printOnly, cdsClientForm.getId(), "baselineLegalStatus", CdsForm4.getCdsFormOptions("013"),  "class=\"{validate: {required:true}}  baseline_disabled \" ")%>
+				<%} else {%>
 				<%=CdsForm4.renderSelectQuestion(disabledStr, false, true, printOnly, cdsClientForm.getId(), "baselineLegalStatus", CdsForm4.getCdsFormOptions("013"),  "class=\"{validate: {required:true}}\" ")%>
+				<%} %>
 			</td>
 		</tr>
 		<tr>
@@ -453,7 +434,10 @@ CDS form (CDS-MH v4.05)
 											alert('Error retrieving hospital days : '+transport) 
 										}
 									}
-						        
+									
+									//$('#hospitalAdmission').val('');
+									//$('#hospitalDischarge').val('');
+									
 									new Ajax.Updater('hospitalisedDaysList', 'cds_form_4_current_hospitalisations.jsp', ajaxArgs);
 								}
 			
@@ -510,7 +494,12 @@ CDS form (CDS-MH v4.05)
 		<tr>
 			<td class="genericTableHeader">22. Baseline Living Arrangement</td>
 			<td class="genericTableData">
-				<%=CdsForm4.renderSelectQuestion(disabledStr, false, true, printOnly, cdsClientForm.getId(), "baselineLivingArrangement", CdsForm4.getCdsFormOptions("022"),  "class=\"{validate: {required:true}}\" ")%>
+				<% if(disabledStr) { %>
+				<%=CdsForm4.renderSelectQuestion(disabledStr, false, true, printOnly, cdsClientForm.getId(), "baselineLivingArrangement", CdsForm4.getCdsFormOptions("022"),  "class=\"{validate: {required:true}} baseline_disabled \" ")%>
+				<% } else { %>
+				<%=CdsForm4.renderSelectQuestion(disabledStr, false, true, printOnly, cdsClientForm.getId(), "baselineLivingArrangement", CdsForm4.getCdsFormOptions("022"),  "class=\"{validate: {required:true}} \" ")%>
+				
+				<%} %>
 			</td>
 		</tr>
 		<tr>
@@ -522,13 +511,21 @@ CDS form (CDS-MH v4.05)
 		<tr>
 			<td class="genericTableHeader">24. Baseline Residence Type</td>
 			<td class="genericTableData">
-				<%=CdsForm4.renderSelectQuestion(disabledStr, false, true, printOnly, cdsClientForm.getId(), "baselineResidenceType", CdsForm4.getCdsFormOptions("024"),  "class=\"{validate: {required:true}}\" ")%>
+				<%if(disabledStr) { %>
+				<%=CdsForm4.renderSelectQuestion(disabledStr, false, true, printOnly, cdsClientForm.getId(), "baselineResidenceType", CdsForm4.getCdsFormOptions("024"),  "class=\"{validate: {required:true}} baseline_disabled \" ")%>
+				<%} else { %>
+				<%=CdsForm4.renderSelectQuestion(disabledStr, false, true, printOnly, cdsClientForm.getId(), "baselineResidenceType", CdsForm4.getCdsFormOptions("024"),  "class=\"{validate: {required:true}} \" ")%>
+				<%} %>
 			</td>
 		</tr>
 		<tr>
 			<td class="genericTableHeader">24a. Baseline Level of Residential Support</td>
 			<td class="genericTableData">
-				<%=CdsForm4.renderSelectQuestion(disabledStr, false, true, printOnly, cdsClientForm.getId(), "baselineResidentialSupport", CdsForm4.getCdsFormOptions("24a"),  "class=\"{validate: {required:true}}\" ")%>
+				<%if(disabledStr) { %>
+				<%=CdsForm4.renderSelectQuestion(disabledStr, false, true, printOnly, cdsClientForm.getId(), "baselineResidentialSupport", CdsForm4.getCdsFormOptions("24a"),  "class=\"{validate: {required:true}} baseline_disabled \" ")%>
+				<%} else { %>
+				<%=CdsForm4.renderSelectQuestion(disabledStr, false, true, printOnly, cdsClientForm.getId(), "baselineResidentialSupport", CdsForm4.getCdsFormOptions("24a"),  "class=\"{validate: {required:true}} \" ")%>
+				<%} %>
 			</td>
 		</tr>
 		<tr>
@@ -546,7 +543,11 @@ CDS form (CDS-MH v4.05)
 		<tr>
 			<td class="genericTableHeader">26. Baseline Employment Status</td>
 			<td class="genericTableData">
-				<%=CdsForm4.renderSelectQuestion(disabledStr, false, true, printOnly, cdsClientForm.getId(), "baselineEmploymentStatus", CdsForm4.getCdsFormOptions("026"),  "class=\"{validate: {required:true}}\" ")%>
+				<%if(disabledStr) { %>
+				<%=CdsForm4.renderSelectQuestion(disabledStr, false, true, printOnly, cdsClientForm.getId(), "baselineEmploymentStatus", CdsForm4.getCdsFormOptions("026"),  "class=\"{validate: {required:true}} baseline_disabled \" ")%>
+				<%} else { %>
+				<%=CdsForm4.renderSelectQuestion(disabledStr, false, true, printOnly, cdsClientForm.getId(), "baselineEmploymentStatus", CdsForm4.getCdsFormOptions("026"),  "class=\"{validate: {required:true}} \" ")%>
+				<%} %>
 			</td>
 		</tr>
 		<tr>
@@ -558,7 +559,11 @@ CDS form (CDS-MH v4.05)
 		<tr>
 			<td class="genericTableHeader">28. Baseline Educational Status</td>
 			<td class="genericTableData">
+				<%if(disabledStr) { %>
+				<%=CdsForm4.renderSelectQuestion(disabledStr, false, true, printOnly, cdsClientForm.getId(), "baselineEducationStatus", CdsForm4.getCdsFormOptions("028"),  "class=\"{validate: {required:true}} baseline_disabled \" ")%>
+				<%} else { %>
 				<%=CdsForm4.renderSelectQuestion(disabledStr, false, true, printOnly, cdsClientForm.getId(), "baselineEducationStatus", CdsForm4.getCdsFormOptions("028"),  "class=\"{validate: {required:true}}\" ")%>
+				<%} %>
 			</td>
 		</tr>
 		<tr>
@@ -576,7 +581,11 @@ CDS form (CDS-MH v4.05)
 		<tr>
 			<td class="genericTableHeader">30. Baseline Primary Income Source</td>
 			<td class="genericTableData">
+				<%if(disabledStr) { %>
+				<%=CdsForm4.renderSelectQuestion(disabledStr, false, true, printOnly, cdsClientForm.getId(), "baselinePrimaryIncome", CdsForm4.getCdsFormOptions("030"),  "class=\"{validate: {required:true}} baseline_disabled \" ")%>
+				<%} else { %>
 				<%=CdsForm4.renderSelectQuestion(disabledStr, false, true, printOnly, cdsClientForm.getId(), "baselinePrimaryIncome", CdsForm4.getCdsFormOptions("030"),  "class=\"{validate: {required:true}}\" ")%>
+				<%} %>
 			</td>
 		</tr>
 		<tr>
@@ -634,47 +643,3 @@ CDS form (CDS-MH v4.05)
 </form>
 
 <%@include file="/layouts/caisi_html_bottom2.jspf"%>
-<%!
-String residesTranslate(String v) {
-	if(v == null || v.isEmpty()) {
-		return "";
-	}
-	if("8".equals(v)) {
-		return "10a-01";
-	} else if("9".equals(v)) {
-		return "10a-02";
-	} else if("5".equals(v)) {
-		return "10a-03";
-	} else if("11".equals(v)) {
-		return "10a-04";
-	} else if("1".equals(v)) {
-		return "10a-05";
-	} else if("4".equals(v)) {
-		return "10a-06";
-	} else if("6".equals(v)) {
-		return "10a-07";
-	} else if("13".equals(v)) {
-		return "10a-08";
-	} else if("12".equals(v)) {
-		return "10a-09";
-	} else if("14".equals(v)) {
-		return "10a-10";
-	} else if("010-52".equals(v)) {
-		return "";
-	} else if("010-30".equals(v)) {
-		return "10a-15";
-	} else if("10".equals(v)) {
-		return "10a-11";
-	} else if("2".equals(v)) {
-		return "10a-12";
-	} else if("7".equals(v)) {
-		return "10a-13";
-	} else if("UNK".equals(v)) {
-		return "10a-16";
-	} else if("3".equals(v)) {
-		return "10a-14";
-	}
-	return "";
-	
-}
-%>

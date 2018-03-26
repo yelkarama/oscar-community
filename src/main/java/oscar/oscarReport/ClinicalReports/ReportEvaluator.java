@@ -31,7 +31,6 @@ import java.util.Hashtable;
 import java.util.List;
 
 import org.apache.commons.collections.KeyValue;
-import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 
 import oscar.oscarEncounter.oscarMeasurements.bean.EctMeasurementsDataBean;
@@ -55,11 +54,11 @@ public class ReportEvaluator {
     public ReportEvaluator() {
     }
 
-    public void evaluate(LoggedInInfo loggedInInfo, Denominator deno, Numerator numer){
-        evaluate(loggedInInfo, deno,numer,null);
+    public void evaluate(Denominator deno, Numerator numer){
+        evaluate(deno,numer,null);
     }
 
-    public void evaluate(LoggedInInfo loggedInInfo, Denominator deno, Numerator numer,List<KeyValue> additionalFields){
+    public void evaluate(Denominator deno, Numerator numer,List<KeyValue> additionalFields){
         denominator = deno;
         numerator = numer;
         List demoList = deno.getDenominatorList();
@@ -67,7 +66,7 @@ public class ReportEvaluator {
         setReportResultList(new ArrayList<Hashtable<String,Object>>());
         for (int i = 0; i < demoList.size(); i++){
             String demo = (String) demoList.get(i);
-            boolean bool = numer.evaluate(loggedInInfo, demo);
+            boolean bool = numer.evaluate(demo);
             //Object obj = numer.getOutputValues();  // PROBLEM IS THAT THIS WILL ALWAYS HAVE A VALUE
             Hashtable<String,Object> h = new Hashtable<String,Object>();
             h.put("_demographic_no",demo);
@@ -78,7 +77,7 @@ public class ReportEvaluator {
                     String key = (String) field.getKey();
                     String val = (String) field.getValue();
 
-                    EctMeasurementsDataBeanHandler ect = new EctMeasurementsDataBeanHandler(Integer.valueOf(demo), val);
+                    EctMeasurementsDataBeanHandler ect = new EctMeasurementsDataBeanHandler(demo, val);
                     Collection<EctMeasurementsDataBean> v = ect.getMeasurementsDataVector();
                     //Execute for the value and attach it to the key in the hashtable
                     //Object obj =

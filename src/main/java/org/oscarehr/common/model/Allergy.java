@@ -24,7 +24,6 @@
 
 package org.oscarehr.common.model;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -40,7 +39,6 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import org.apache.commons.lang.StringUtils;
-
 
 @Entity
 @Table(name = "allergies")
@@ -62,8 +60,7 @@ public class Allergy extends AbstractModel<Integer> {
 	private String description;
 
 	private String reaction;
-	
-	private boolean archived=false;
+	private String archived;
 
 	@Column(name = "HICL_SEQNO")
 	private Integer hiclSeqno;
@@ -117,11 +114,11 @@ public class Allergy extends AbstractModel<Integer> {
 	 */
 	private String providerNo;
 
-	public boolean getArchived() {
+	public String getArchived() {
 		return archived;
 	}
 
-	public void setArchived(boolean archived) {
+	public void setArchived(String archived) {
 		this.archived = archived;
 	}
 
@@ -297,6 +294,7 @@ public class Allergy extends AbstractModel<Integer> {
     	this.integratorResult = integratorResult;
     }
 
+
 	public String getStartDateFormat() {
     	return startDateFormat;
     }
@@ -304,17 +302,6 @@ public class Allergy extends AbstractModel<Integer> {
 	public void setStartDateFormat(String startDateFormat) {
     	this.startDateFormat = startDateFormat;
     }
-	
-	public String getStartDateFormatted() {
-		if (this.startDate==null) return new String();
-		
-		SimpleDateFormat df = null;
-		if (PartialDate.YEARMONTH.equals(this.startDateFormat)) df = new SimpleDateFormat("yyyy-MM");
-		else if (PartialDate.YEARONLY.equals(this.startDateFormat)) df = new SimpleDateFormat("yyyy");
-		else df = new SimpleDateFormat("yyyy-MM-dd");
-		
-		return df.format(this.startDate);
-	}
 
 	@PreUpdate
 	@PrePersist
@@ -355,7 +342,7 @@ public class Allergy extends AbstractModel<Integer> {
         if ("1".equals(onsetCode)) return("Immediate");
         if ("2".equals(onsetCode)) return("Gradual");
         if ("3".equals(onsetCode)) return("Slow");
-        else return("Unknown");
+        else return("Unknown "+onsetCode);
      }
 
     public String getTypeDesc() {
@@ -399,12 +386,6 @@ public class Allergy extends AbstractModel<Integer> {
             case 14:
                 s = "Ingredient";
                 break;
-            case 0:
-            	s = "Custom Allergy";
-            	break;
-            case -1:
-            	s = "Intolerance";
-            	break;
             default:
                 s = "";
         }
@@ -419,7 +400,7 @@ public class Allergy extends AbstractModel<Integer> {
         if ("1".equals(severityCode)) return("Mild");
         if ("2".equals(severityCode)) return("Moderate");
         if ("3".equals(severityCode)) return("Severe");
-        else return("Unknown");
+        else return("Unknown "+severityCode);
     }
 
     public String getAuditString() {

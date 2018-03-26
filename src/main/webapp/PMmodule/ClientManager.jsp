@@ -22,22 +22,7 @@
     Toronto, Ontario, Canada
 
 --%>
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
 <%@ include file="/taglibs.jsp"%>
-<%
-    String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_pmm" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_pmm");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
 <%@ page import="org.oscarehr.PMmodule.web.formbean.*"%>
 <%@page import="org.oscarehr.PMmodule.web.utils.UserRoleUtils"%>
 <%@page import="org.springframework.web.context.WebApplicationContext"%>
@@ -54,9 +39,7 @@
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.util.List"%>
 <%@page import="java.util.Properties" %>
-<%
-	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(session);
-%>
+
 <html:form action="/PMmodule/ClientManager.do">
 
 	<html:hidden property="view.tab" />
@@ -117,8 +100,7 @@
 				if (isExternal)
 				{
 					// "Bed Reservation", "Forms", "Refer"
-					if ("Bed Reservation".equalsIgnoreCase(ClientManagerFormBean.tabs[x]) || "Forms".equalsIgnoreCase(ClientManagerFormBean.tabs[x]) || "Refer".equalsIgnoreCase(ClientManagerFormBean.tabs[x])
-							|| "Refer to vacancy".equals(ClientManagerFormBean.tabs[x])) 
+					if ("Bed Reservation".equalsIgnoreCase(ClientManagerFormBean.tabs[x]) || "Forms".equalsIgnoreCase(ClientManagerFormBean.tabs[x]) || "Refer".equalsIgnoreCase(ClientManagerFormBean.tabs[x])) 
 						continue;				
 				}
 					
@@ -149,9 +131,8 @@
 				} else {
 			        int demographicId=Integer.parseInt((String)request.getAttribute("id"));
 					AdmissionManager admissionManager=(AdmissionManager)SpringUtils.getBean("admissionManager");
-					boolean activeInFacility=admissionManager.isActiveInCurrentFacility(loggedInInfo, demographicId);
-					boolean requireActiveTab="Refer".equals(ClientManagerFormBean.tabs[x]) || "Discharge".equals(ClientManagerFormBean.tabs[x]) 
-							                 || "Refer to vacancy".equals(ClientManagerFormBean.tabs[x]);
+					boolean activeInFacility=admissionManager.isActiveInCurrentFacility(demographicId);
+					boolean requireActiveTab="Refer".equals(ClientManagerFormBean.tabs[x]) || "Discharge".equals(ClientManagerFormBean.tabs[x]);
 					
 					if (requireActiveTab && !activeInFacility)
 					{

@@ -43,7 +43,6 @@ public final class RxUpdateFavoriteForm extends ActionForm {
     private String duration = null;
     private String durationUnit = null;
     private String quantity = null;
-    private String dispensingUnits = null;
     private String repeat = null;
     private boolean nosubs = false;
     private boolean prn = false;
@@ -125,19 +124,11 @@ public final class RxUpdateFavoriteForm extends ActionForm {
     public String getQuantity() {
         return (this.quantity);
     }
-
+    
     public void setQuantity(String RHS) {
         this.quantity = RHS;
     }
-
-    public String getDispensingUnits() {
-        return (this.dispensingUnits);
-    }
-
-    public void setDispensingUnits(String RHS) {
-        this.dispensingUnits = RHS;
-    }
-
+    
     public String getRepeat() {
         return (this.repeat);
     }
@@ -186,7 +177,6 @@ public final class RxUpdateFavoriteForm extends ActionForm {
         this.duration = null;
         this.durationUnit = null;
         this.quantity = null;
-        this.dispensingUnits = null;
         this.repeat = null;
         this.nosubs = false;
         this.prn = false;

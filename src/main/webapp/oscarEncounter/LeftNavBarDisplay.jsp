@@ -24,29 +24,13 @@
 
 --%>
 
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_eChart" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_eChart");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
-
-
 <%@page import="org.apache.commons.lang.StringUtils"%>
 <%@page
 	import="oscar.oscarEncounter.pageUtil.NavBarDisplayDAO, oscar.util.*, java.util.ArrayList, java.util.Date, java.util.Calendar, java.io.IOException"%>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="com.quatro.dao.security.SecobjprivilegeDao" %>
 <%@ page import="com.quatro.model.security.Secobjprivilege" %>
-<%@ page import="java.util.List, java.util.regex.Pattern, java.util.regex.Matcher" %>
+<%@ page import="java.util.List" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <c:set var="ctx" value="${pageContext.request.contextPath}"
 	scope="request" />
@@ -69,6 +53,7 @@ if(!authed) {
         //Do we have a '+' command to display on the right of the module header?
         String rh = dao.getRightHeadingID();
 		String rhid = dao.getRightHeadingID();
+		String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
 		com.quatro.service.security.SecurityManager securityMgr = new com.quatro.service.security.SecurityManager();
 
 		if( !rh.equals("") && securityMgr.hasWriteAccess("_" + ((String)request.getAttribute("cmd")).toLowerCase(),roleName$)) {
@@ -142,7 +127,6 @@ if(!authed) {
             String div = (String)request.getAttribute("navbarName");
             div = div.trim();
             int numItems = dao.numItems();
-            StringBuilder reloadURL = new StringBuilder(request.getParameter("reloadURL") + "&reloadURL=" + request.getParameter("reloadURL"));
             String strToDisplay = request.getParameter("numToDisplay");
             int numToDisplay;
             boolean xpanded = false;
@@ -150,9 +134,9 @@ if(!authed) {
 
             if( strToDisplay != null ) {
                 numToDisplay = Integer.parseInt(strToDisplay);
-				reloadURL.append("&numToDisplay=" + strToDisplay);
+
                 if( numItems > numToDisplay ) {
-                    String xpandUrl = request.getParameter("reloadURL") + "&reloadURL=" + request.getParameter("reloadURL") + "&cmd=" + div;
+                    String xpandUrl = request.getParameter("reloadURL") + "&cmd=" + div;
                     manageItems = xpandUrl;
                 }
             }
@@ -162,7 +146,7 @@ if(!authed) {
                     xpanded = true;
                 }
             }
-			reloadURL.append("&cmd=" + div);
+
             int numDisplayed = 0;
 
             ArrayList<NavBarDisplayDAO.Item> current = new ArrayList<NavBarDisplayDAO.Item>();
@@ -184,16 +168,16 @@ if(!authed) {
                     current.add(item);
             }
 
-            StringBuilder jscode = new StringBuilder();
-			
-            numDisplayed = display(noDates, numToDisplay, numDisplayed, manageItems, xpanded, numItems, jscode, displayThreshold, reloadURL.toString(), dao.getDivId(), request, out);
+            StringBuffer jscode = new StringBuffer();
+
+            numDisplayed = display(noDates, numToDisplay, numDisplayed, manageItems, xpanded, numItems, jscode, displayThreshold, request, out);
 
             if( numDisplayed < numToDisplay ){
-               numDisplayed += display(current, numToDisplay, numDisplayed, manageItems, xpanded, numItems, jscode, displayThreshold, reloadURL.toString(), dao.getDivId(), request, out);
+               numDisplayed += display(current, numToDisplay, numDisplayed, manageItems, xpanded, numItems, jscode, displayThreshold, request, out);
             }
 
             if( numDisplayed < numToDisplay ){
-                numDisplayed += display(pastDates, numToDisplay, numDisplayed, manageItems, xpanded, numItems, jscode, displayThreshold, reloadURL.toString(), dao.getDivId(),request, out);
+                numDisplayed += display(pastDates, numToDisplay, numDisplayed, manageItems, xpanded, numItems, jscode, displayThreshold, request, out);
             }
 
             if( numDisplayed == 0 ) {
@@ -215,14 +199,10 @@ if(!authed) {
         return "";
     }
 
-    public int display(ArrayList<NavBarDisplayDAO.Item>items, int numToDisplay, int numDisplayed, String reloadUrl, boolean xpanded, int numItems, StringBuilder js, int displayThreshold, String divReloadUrl, String cmd, javax.servlet.http.HttpServletRequest request, javax.servlet.jsp.JspWriter out ) throws IOException {
+    public int display(ArrayList<NavBarDisplayDAO.Item>items, int numToDisplay, int numDisplayed, String reloadUrl, boolean xpanded, int numItems, StringBuffer js, int displayThreshold, javax.servlet.http.HttpServletRequest request, javax.servlet.jsp.JspWriter out ) throws IOException {
         String stripe,colour,bgColour;
         String imgName;
         String dateFormat = "dd-MMM-yyyy";
-        Pattern pattern = Pattern.compile("'([^']*)'");        
-        
-        
-        String divReloadInfo;
         numToDisplay -= numDisplayed;
 
         int total = items.size() < numToDisplay ? items.size() : numToDisplay;
@@ -266,8 +246,7 @@ if(!authed) {
 				//This should be done in the display classes but I'll keep it here for future reference
 				//url = StringUtils.replaceEach(url, new String[] {"'","\\\""}, new String[] {"\'","\\\""});
                 if( item.isURLJavaScript() ) {
-                    divReloadInfo = trackWindowString(url, divReloadUrl, cmd, pattern);
-                	out.println("<a class='links' style='" + colour + "' onmouseover=\"this.className='linkhover'\" onmouseout=\"this.className='links'\" href='#' onclick=\"" + divReloadInfo + url + "\" title='" + item.getLinkTitle() + "'>");
+                	out.println("<a class='links' style='" + colour + "' onmouseover=\"this.className='linkhover'\" onmouseout=\"this.className='links'\" href='#' onclick=\"" + url + "\" title='" + item.getLinkTitle() + "'>");
                 }
                 else {
                 	out.println("<a class='links' style='" + colour + "' onmouseover=\"this.className='linkhover'\" onmouseout=\"this.className='links'\" href=\"" + url + "\" title='" + item.getLinkTitle() + "' target=\"_blank\">");
@@ -278,10 +257,9 @@ if(!authed) {
 
                 if( item.getDate() != null ) {
                     out.println("<span style=\"z-index: 100; "+dateColour+" overflow:hidden;   position:relative; height:1.2em; white-space:nowrap; float:right; text-align:right;\">");
-										
+
                     if( item.isURLJavaScript() ) {
-                		divReloadInfo = trackWindowString(url, divReloadUrl, cmd, pattern);
-                    	out.println("...<a class='links' style='margin-right: 2px;" + colour + "' onmouseover=\"this.className='linkhover'\" onmouseout=\"this.className='links'\" href='#' onclick=\"" + divReloadInfo + url + "\" title='" + item.getLinkTitle() + "'>");
+                    	out.println("...<a class='links' style='margin-right: 2px;" + colour + "' onmouseover=\"this.className='linkhover'\" onmouseout=\"this.className='links'\" href='#' onclick=\"" + url + "\" title='" + item.getLinkTitle() + "'>");
                     }
                     else {
                     	out.println("...<a class='links' style='margin-right: 2px;" + colour + "' onmouseover=\"this.className='linkhover'\" onmouseout=\"this.className='links'\" href=\"" + url + "\" title='" + item.getLinkTitle() + "' target=\"_blank\">");
@@ -298,21 +276,6 @@ if(!authed) {
          }
 
          return j;
-    }
-    
-    public String trackWindowString(String url, String reloadUrl, String cmd, Pattern pattern) {
-		String windowName, divReloadInfo = "";
-		if( url.startsWith("popupPage") ) {                		    
-	    	Matcher matcher = pattern.matcher(url);
-	    	if( matcher.find() ) {                				
-	    		windowName = matcher.group(1);
-	    		reloadUrl += "&numToDisplay=6&cmd=" + cmd;
-	    		divReloadInfo = "reloadWindows['" + windowName + "'] = '" + reloadUrl + "';reloadWindows['"+ windowName + "div'] = '" + cmd + "';";                		    	
-	    	}
-	   
-		}
-		
-		return divReloadInfo;
     }
 
     %>

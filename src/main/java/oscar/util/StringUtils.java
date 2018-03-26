@@ -206,33 +206,16 @@ public class StringUtils {
      */
     public static boolean isNumeric(String str) {
         boolean ret = false;
-        if (filled(str)) {
+        if (str != null && !str.equals("")) {
             try {
                 new Double(str);
                 ret = true;
             } catch (NumberFormatException e) {
                 ret = false;
             }
-            return ret;
-        }
-        return ret;
-    }
 
-    /**
-     * Returns true if the provided string is an integer
-     * @param str String
-     * @return boolean
-     */
-    public static boolean isInteger(String str) {
-        boolean ret = false;
-        if (filled(str)) {
-            try {
-                new Integer(str);
-                ret = true;
-            } catch (NumberFormatException e) {
-                ret = false;
-            }
-            return ret;
+                return ret;
+
         }
         return ret;
     }
@@ -251,8 +234,7 @@ public class StringUtils {
     /**
      * Returns true if the specified String represents a valid date
      *
-     * @param dateString String
-     * @param format String
+     * @param string String
      * @return boolean
      */
     public static boolean isValidDate(String dateString, String format) {
@@ -262,7 +244,6 @@ public class StringUtils {
             fmt.parse(dateString);
             ret = true;
         } catch (ParseException ex) {
-        	MiscUtils.getLogger().error("Looks bad, too bad original author didn't document how bad", ex);
         }
             return ret;
 

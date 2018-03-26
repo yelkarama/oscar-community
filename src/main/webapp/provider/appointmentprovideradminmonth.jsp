@@ -24,32 +24,8 @@
 
 --%>
 
-<%@ page import="org.oscarehr.common.dao.ProviderSiteDao"%>
-<%@ page import="org.oscarehr.util.SessionConstants"%>
-<%@ page import="org.oscarehr.common.model.ProviderPreference"%>
-<%@ page import="org.oscarehr.util.SpringUtils" %>
-<%@ page import="org.oscarehr.common.dao.UserPropertyDAO" %>
-<%@ page import="org.oscarehr.common.model.UserProperty" %>
-<%@ page import="org.oscarehr.common.dao.ScheduleHolidayDao" %>
-<%@ page import="org.oscarehr.common.model.ScheduleHoliday" %>
-<%@ page import="org.oscarehr.common.dao.MyGroupDao" %>
-<%@ page import="org.oscarehr.common.model.MyGroup" %>
-<%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
-<%@ page import="org.oscarehr.common.model.Provider" %>
-<%@ page import="oscar.util.ConversionUtils" %>
-<%@ page import="org.oscarehr.common.dao.ScheduleDateDao" %>
-<%@ page import="org.oscarehr.common.model.ScheduleDate" %>
-<%@ page import="org.oscarehr.common.dao.ProviderSiteDao" %>
-
-<%
-	UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
-    ScheduleHolidayDao scheduleHolidayDao = SpringUtils.getBean(ScheduleHolidayDao.class);
-    MyGroupDao myGroupDao = SpringUtils.getBean(MyGroupDao.class);
-    ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
-    ScheduleDateDao scheduleDateDao = SpringUtils.getBean(ScheduleDateDao.class);
-    ProviderSiteDao providerSiteDao = SpringUtils.getBean(ProviderSiteDao.class);
-%>
-
+<%@page import="org.oscarehr.util.SessionConstants"%>
+<%@page import="org.oscarehr.common.model.ProviderPreference"%>
 <%!
 //multisite starts =====================
 private	List<Site> sites; 
@@ -83,6 +59,7 @@ private String getSiteHTML(String reason, List<Site> sites) {
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security" %>
 
 <%
+  if(session.getValue("user") == null)  response.sendRedirect("../logout.jsp");
   String curUser_no, curProvider_no,userfirstname,userlastname,mygroupno,n_t_w_w="";
   curProvider_no = (String) session.getAttribute("user");
   String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -93,8 +70,6 @@ private String getSiteHTML(String reason, List<Site> sites) {
   userfirstname = (String) session.getAttribute("userfirstname");
   userlastname = (String) session.getAttribute("userlastname");
   mygroupno = (request.getParameter("mygroup_no") == null ? providerPreference.getMyGroupNo() : request.getParameter("mygroup_no"));  
-  if(mygroupno==null)
-	  mygroupno=".default";
 if (org.oscarehr.common.IsPropertiesOn.isCaisiEnable() && org.oscarehr.common.IsPropertiesOn.isTicklerPlusEnable()){
   n_t_w_w = (String) session.getAttribute("newticklerwarningwindow");
 }
@@ -112,18 +87,14 @@ if (org.oscarehr.common.IsPropertiesOn.isCaisiEnable() && org.oscarehr.common.Is
 
   Collection<Integer> eforms = providerPreference.getAppointmentScreenEForms();
   StringBuilder eformIds = new StringBuilder();
-  if(eforms != null) {
-	  for( Integer eform : eforms ) {
-	  	eformIds = eformIds.append("&eformId=" + eform);
-	  }
+  for( Integer eform : eforms ) {
+  	eformIds = eformIds.append("&eformId=" + eform);
   }
 
   Collection<String> forms = providerPreference.getAppointmentScreenForms();
   StringBuilder ectFormNames = new StringBuilder();
-  if(forms != null) {
-	  for( String formName : forms ) {
-	  	ectFormNames = ectFormNames.append("&encounterFormName=" + formName);
-	  }
+  for( String formName : forms ) {
+  	ectFormNames = ectFormNames.append("&encounterFormName=" + formName);
   }
   
   
@@ -157,21 +128,6 @@ if (org.oscarehr.common.IsPropertiesOn.isCaisiEnable() && org.oscarehr.common.Is
 	boolean isSiteAccessPrivacy=false;
 	boolean isTeamAccessPrivacy=false; 
 %>
-
-<%
-    boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_appointment,_month" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect(request.getContextPath() + "/securityError.jsp?type=_appointment");%>
-</security:oscarSec>
-<%
-	if(!authed) {
-		return;
-	}
-%>
-
-
 <security:oscarSec objectName="_site_access_privacy" roleName="<%=roleName$%>" rights="r" reverse="false">
 	<%isSiteAccessPrivacy=true; %>
 </security:oscarSec>
@@ -181,7 +137,7 @@ if (org.oscarehr.common.IsPropertiesOn.isCaisiEnable() && org.oscarehr.common.Is
 
 <% 
 if (bMultisites) {
-	SiteDao siteDao = (SiteDao)SpringUtils.getBean("siteDao");
+	SiteDao siteDao = (SiteDao)WebApplicationContextUtils.getWebApplicationContext(application).getBean("siteDao");
 	sites = siteDao.getAllActiveSites(); 
 	
 	String requestSite = request.getParameter("site") ;
@@ -232,30 +188,21 @@ if (bMultisites) {
 <%@ page
 	import="java.lang.*, java.util.*, java.text.*,java.net.*,java.sql.*,oscar.*"
 	errorPage="errorpage.jsp"%>
-<% 
-	java.util.Properties oscarVariables = OscarProperties.getInstance();
-%>
-	
+<% java.util.Properties oscarVariables = OscarProperties.getInstance(); %>
 <jsp:useBean id="scheduleHolidayBean" class="java.util.Hashtable"
 	scope="session" />
 <jsp:useBean id="providerNameBean" class="oscar.Dict" scope="page" />
 <jsp:useBean id="myGrpBean" class="java.util.Properties" scope="page" />
 
+<%@ include file="/common/webAppContextAndSuperMgr.jsp"%>
 
 <%
-	String prov=  oscarVariables.getProperty("billregion","").trim().toUpperCase();
-	String resourcebaseurl =  oscarVariables.getProperty("resource_base_url");
-	
-	UserProperty rbu = userPropertyDao.getProp("resource_baseurl");
-	if(rbu != null) {
-		resourcebaseurl = rbu.getValue();
-	}
-	    
-    String resourcehelpHtml = ""; 
-    UserProperty rbuHtml = userPropertyDao.getProp("resource_helpHtml");
-    if(rbuHtml != null) {
-    	resourcehelpHtml = rbuHtml.getValue();
-    }
+  String prov=  oscarVariables.getProperty("billregion","").trim().toUpperCase();
+  String resourcebaseurl = "http://resource.oscarmcmaster.org/oscarResource/";
+  List<Map<String, Object>> resultList = oscarSuperManager.find("providerDao", "search_resource_baseurl", new String[] {"resource_baseurl"});
+  for (Map url : resultList) {
+ 	  resourcebaseurl = (String) url.get("value");
+  }
 
 	GregorianCalendar now=new GregorianCalendar();
   int curYear = now.get(Calendar.YEAR); //curYear should be the real now date
@@ -301,12 +248,12 @@ if (bMultisites) {
   strMonth=month>9?(""+month):("0"+month);
   strDay=day>9?(""+day):("0"+day);
 
-  List<Map<String, Object>> resultList = null;
   //initial holiday bean
   if(scheduleHolidayBean.isEmpty() ) {
-	 for(ScheduleHoliday sd: scheduleHolidayDao.findAfterDate(ConversionUtils.fromDateString((year-1)+"-"+month+"-01"))) {
-		 scheduleHolidayBean.put(ConversionUtils.toDateString(sd.getId()), new HScheduleHoliday(sd.getHolidayName()));
-	 } 
+    resultList = oscarSuperManager.find("providerDao", "search_scheduleholiday", new String[] {(year-1)+"-"+month+"-01"});
+    for (Map holiday : resultList) {
+      scheduleHolidayBean.put(String.valueOf(holiday.get("sdate")), new HScheduleHoliday(String.valueOf(holiday.get("holiday_name"))));
+    }
   }
   //declare display schedule string
   StringBuffer bgcolor = new StringBuffer();
@@ -319,10 +266,10 @@ if (bMultisites) {
   //initial myGrp bean
   if(providerview.startsWith("_grp_",0)) {
 	String curGrp = providerview.substring(5);
-	for(MyGroup g:myGroupDao.getGroupByGroupNo(curGrp)) {
-		myGrpBean.setProperty(g.getId().getProviderNo(), curGrp);	
+	resultList = oscarSuperManager.find("providerDao", "searchmygroupprovider", new Object[] {curGrp});
+	for (Map provider : resultList) {
+		myGrpBean.setProperty(String.valueOf(provider.get("provider_no")), curGrp);
 	}
-	
   }
   java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.struts.Globals.LOCALE_KEY);   
 %>
@@ -342,9 +289,9 @@ if (bMultisites) {
 
 <title><bean:message
 	key="provider.appointmentprovideradminmonth.title" /></title>
-<link rel="stylesheet" href="../css/receptionistapptstyle.css" type="text/css">
+<link rel="stylesheet" href="../receptionist/receptionistapptstyle.css"
+	type="text/css">
 <link rel="stylesheet" type="text/css" media="all" href="../share/css/extractedFromPages.css"  />
-<link rel="stylesheet" href="../css/helpdetails.css" type="text/css">
    <style type="text/css">    
         #navlist{
             margin: 0;
@@ -480,15 +427,18 @@ function refreshTabAlerts(id) {
 
 <table BORDER="0" CELLPADDING="0" CELLSPACING="0" WIDTH="100%">
 	<tr>
-	<td align="center" >
-		<a href="http://oscarmcmaster.org/" target="_blank" title="OSCAR EMR"><img src="<%=request.getContextPath()%>/images/oscar_small.png" border="0"></a>
-	</td>
 		<td>
 		<ul id="navlist">
-			<li><a href='providercontrol.jsp?year=<%=curYear%>&month=<%=curMonth%>&day=<%=curDay%>&view=0&displaymode=day&dboperation=searchappointmentday&viewall=1'><bean:message key="provider.appointmentProviderAdminDay.schedView"/></a></li>
-			 <li>
-			 <a href='providercontrol.jsp?year=<%=curYear%>&month=<%=curMonth%>&day=<%=curDay%>&view=0&displaymode=day&dboperation=searchappointmentday&caseload=1&clProv=<%=curUser_no%>'><bean:message key="global.caseload"/></a>
-			 </li>
+			<li><a
+				href="providercontrol.jsp?year=<%=curYear%>&month=<%=curMonth%>&day=<%=curDay%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+request.getParameter("curProviderName") )%>&displaymode=day&dboperation=searchappointmentday"
+				TITLE='<bean:message key="provider.appointmentProviderAdminDay.viewDaySched"/>'
+				OnMouseOver="window.status='<bean:message key="provider.appointmentProviderAdminDay.viewDaySched"/>' ; return true"><bean:message
+				key="global.today" /></a></li>
+			<li><a
+				href="providercontrol.jsp?year=<%=year%>&month=<%=month%>&day=1&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+request.getParameter("curProviderName") )%>&displaymode=month&dboperation=searchappointmentmonth"
+				TITLE='<bean:message key="provider.appointmentProviderAdminDay.viewMonthSched"/>'
+				OnMouseOver="window.status='<bean:message key="provider.appointmentProviderAdminDay.viewMonthSched"/>' ; return true"><bean:message
+				key="global.month" /></a></li>
 			<li><a href="#"
 				ONCLICK="popupOscarRx(550,687,'<%=resourcebaseurl%>');return false;"
 				title="<bean:message key="provider.appointmentProviderAdminDay.viewResources"/>"
@@ -514,11 +464,15 @@ function refreshTabAlerts(id) {
 			
 			<security:oscarSec roleName="<%=roleName$%>" objectName="_billing" rights="r">
 			<li>
-				<a HREF="#"
-					ONCLICK="popupOscarRx(550,687,'../billing/CA/<%=prov%>/billingReportCenter.jsp?displaymode=billreport&providerview=<%=curUser_no%>');return false;"
-					TITLE='<bean:message key="global.genBillReport"/>'
-					onMouseOver="window.status='<bean:message key="global.genBillReport"/>';return true"><bean:message
-					key="global.billing" /></a>
+			<%if (vLocale.getCountry().equals("BR")) { %> <a HREF="#"
+				ONCLICK="popupOscarRx(550,687,'../oscar/billing/consultaFaturamentoMedico/init.do');return false;"
+				TITLE='<bean:message key="global.genBillReport"/>'
+				onMouseOver="window.status='<bean:message key="global.genBillReport"/>';return true"><bean:message
+				key="global.billing" /></a> <% } else {%> <a HREF="#"
+				ONCLICK="popupOscarRx(550,687,'../billing/CA/<%=prov%>/billingReportCenter.jsp?displaymode=billreport&providerview=<%=curUser_no%>');return false;"
+				TITLE='<bean:message key="global.genBillReport"/>'
+				onMouseOver="window.status='<bean:message key="global.genBillReport"/>';return true"><bean:message
+				key="global.billing" /></a> <% } %>
 			</li>
 			</security:oscarSec>
 			
@@ -592,36 +546,38 @@ function refreshTabAlerts(id) {
 		</ul>
 		</td>
 
-		
-		<td align="right" valign="bottom">
-		
+		<form method="post" name="jumptodate" action="providercontrol.jsp">
+		<td align="right" valign="bottom"><INPUT TYPE="text" NAME="year"
+			VALUE="<%=strYear%>" WIDTH="4" HEIGHT="10" border="0" size="4"
+			maxlength="4">- <INPUT TYPE="text" NAME="month"
+			VALUE="<%=strMonth%>" WIDTH="2" HEIGHT="10" border="0" size="2"
+			maxlength="2">- <INPUT TYPE="text" NAME="day"
+			VALUE="<%=strDay%>" WIDTH="2" HEIGHT="10" border="0" size="2"
+			maxlength="2"> <INPUT TYPE="hidden" NAME="view"
+			VALUE="<%=view%>"> <INPUT TYPE="hidden" NAME="curProvider"
+			VALUE="<%=request.getParameter("curProvider")%>"> <INPUT
+			TYPE="hidden" NAME="curProviderName"
+			VALUE="<%=request.getParameter("curProviderName")%>"> <INPUT
+			TYPE="hidden" NAME="displaymode" VALUE="day"> <INPUT
+			TYPE="hidden" NAME="dboperation" VALUE="searchappointmentday">
+		<input type="hidden" name="Go" value=""> <INPUT TYPE="SUBMIT"
+			VALUE="<bean:message key="provider.appointmentprovideradminmonth.btnGo"/>"
+			onclick="document.forms['jumptodate'].Go.value='GO'; document.forms['jumptodate'].submit();"
+			SIZE="5">&nbsp;&nbsp;
+
 		  <a href="javascript: function myFunction() {return false; }" onClick="popup(700,1000,'../scratch/index.jsp','scratch')"><span id="oscar_scratch"></span></a>&nbsp;
 		  
-			<%if(resourcehelpHtml==""){ %>
-				<a href="javascript:void(0)" onClick ="popupPage(600,750,'<%=resourcebaseurl%>')"><bean:message key="global.help"/></a>
-			<%}else{%>
-			<div id="help-link">
-				
-				    <a href="javascript:void(0)" onclick="document.getElementById('helpHtml').style.display='block';document.getElementById('helpHtml').style.right='0px';"><bean:message key="global.help"/></a>
-			
-				<div id="helpHtml">
-				<div class="help-title">Help</div>
-				
-				<div class="help-body">
-				
-				<%=resourcehelpHtml%>
-				</div>
-				<a href="javascript:void(0)" class="help-close" onclick="document.getElementById('helpHtml').style.right='-280px';document.getElementById('helpHtml').style.display='none'">(X)</a>
-					</div>
-			
-			</div>
-			<%}%>
-			
+
+		  <caisi:isModuleLoad moduleName="TORONTO_RFQ" reverse="true">
+		  <a href="#" onClick ="popupPage(600,750,'<%=resourcebaseurl%>')"><bean:message key="global.help"/></a> 
+		  </caisi:isModuleLoad>			
 			
 			| <a href="../logout.jsp"><bean:message key="provider.appointmentprovideradminmonth.btnlogOut" />  &nbsp;</a>
-
+			
+			
+			
 			</td>
-		
+		</form>
 	</tr>
 </table>
 
@@ -639,40 +595,11 @@ function refreshTabAlerts(id) {
 				<b><span CLASS=title><%=strYear%>-<%=strMonth%></span></b> <a
 					href="providercontrol.jsp?year=<%=year%>&month=<%=(month+1)%>&day=<%=day%>&displaymode=month&dboperation=searchappointmentmonth&providerview=<%=providerview%>">
 				<img src="../images/next.gif" WIDTH="10" HEIGHT="9" BORDER="0"
-					ALT="<%=arrayMonthOfYear[month%12]%>" vspace="2">&nbsp;&nbsp;</a>
-				
-         		| <u><a href="providercontrol.jsp?year=<%=curYear%>&month=<%=curMonth%>&day=<%=curDay%>&view=0&displaymode=day&dboperation=searchappointmentday&viewall=1"  title="<bean:message key="provider.appointmentProviderAdminDay.viewAllProv"/>"><bean:message key="provider.appointmentProviderAdminDay.viewAll"/></a></u>				
-					
-				| <a
-				href="providercontrol.jsp?year=<%=curYear%>&month=<%=curMonth%>&day=<%=curDay%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+request.getParameter("curProviderName") )%>&displaymode=day&dboperation=searchappointmentday"
-				TITLE='<bean:message key="provider.appointmentProviderAdminDay.viewDaySched"/>'
-				OnMouseOver="window.status='<bean:message key="provider.appointmentProviderAdminDay.viewDaySched"/>' ; return true"><bean:message key="global.today" /></a>	
-				
-				| <span style="color:#333">Month</span>
-				
-				</td>
+					ALT="<%=arrayMonthOfYear[month%12]%>" vspace="2">&nbsp;&nbsp;</a></td>
 				<TD ALIGN="center" width="33%"><B> <%= arrayMonthOfYear[(month+11)%12] %>
 				</b></TD>
 				<td ALIGN="RIGHT">
-		<form method="post" name="jumptodate" action="providercontrol.jsp" style="display:inline;margin:0px;padding:0px;padding-right:10px;">
-		<INPUT TYPE="text" NAME="year"
-			VALUE="<%=strYear%>" WIDTH="4" HEIGHT="10" border="0" size="4"
-			maxlength="4">- <INPUT TYPE="text" NAME="month"
-			VALUE="<%=strMonth%>" WIDTH="2" HEIGHT="10" border="0" size="2"
-			maxlength="2">- <INPUT TYPE="text" NAME="day"
-			VALUE="<%=strDay%>" WIDTH="2" HEIGHT="10" border="0" size="2"
-			maxlength="2"> <INPUT TYPE="hidden" NAME="view"
-			VALUE="<%=view%>"> <INPUT TYPE="hidden" NAME="curProvider"
-			VALUE="<%=request.getParameter("curProvider")%>"> <INPUT
-			TYPE="hidden" NAME="curProviderName"
-			VALUE="<%=request.getParameter("curProviderName")%>"> <INPUT
-			TYPE="hidden" NAME="displaymode" VALUE="day"> <INPUT
-			TYPE="hidden" NAME="dboperation" VALUE="searchappointmentday">
-		<input type="hidden" name="Go" value=""> <INPUT TYPE="SUBMIT"
-			VALUE="<bean:message key="provider.appointmentprovideradminmonth.btnGo"/>"
-			onclick="document.forms['jumptodate'].Go.value='GO'; document.forms['jumptodate'].submit();"
-			SIZE="5">
-		</form>
+
 
 <% boolean isTeamOnly=false; %>
 
@@ -716,12 +643,12 @@ function refreshTabAlerts(id) {
 <%
 	isTeamOnly=true;
 	String provider_no = curUser_no;
-	for(Provider p : providerDao.getActiveProviders()) {
-	
-		providerNameBean.setDef(p.getProviderNo(), p.getLastName()+","+p.getFirstName());		
+	resultList = oscarSuperManager.find("providerDao", "searchloginteam", new Object[]{provider_no, provider_no});
+	for (Map provider : resultList) {
+		providerNameBean.setDef(String.valueOf(provider.get("provider_no")), provider.get("last_name")+","+provider.get("first_name"));		
 %>
-					<option value="<%=p.getProviderNo()%>"
-						<%=providerview.equals(p.getProviderNo())?"selected":""%>><%=providerNameBean.getShortDef(p.getProviderNo(), "", NameMaxLen)%></option>
+					<option value="<%=provider.get("provider_no")%>"
+						<%=providerview.equals(provider.get("provider_no"))?"selected":""%>><%=providerNameBean.getShortDef(String.valueOf(provider.get("provider_no")), "", NameMaxLen)%></option>
 <%
 	}
 %>
@@ -730,23 +657,24 @@ function refreshTabAlerts(id) {
 <security:oscarSec roleName="<%=roleName$%>"
 	objectName="_team_schedule_only" rights="r" reverse="true">				
 <%
-	for(MyGroup g : myGroupDao.searchmygroupno()) {
-	
-		if (!bMultisites || siteGroups == null || siteGroups.size() == 0 || siteGroups.contains(g.getId().getMyGroupNo())) {  		
+	resultList = oscarSuperManager.find("providerDao", "searchmygroupno", new Object[] {});
+	for (Map group : resultList) {
+		if (!bMultisites || siteGroups == null || siteGroups.size() == 0 || siteGroups.contains(group.get("mygroup_no"))) {  		
 %>
-					<option value="<%="_grp_"+g.getId().getMyGroupNo()%>"
-						<%=(providerview.indexOf("_grp_") != -1 && mygroupno.equals(g.getId().getMyGroupNo()))?"selected":""%>><bean:message
-						key="provider.appointmentprovideradminmonth.formGRP" />: <%=g.getId().getMyGroupNo()%></option>
+					<option value="<%="_grp_"+group.get("mygroup_no")%>"
+						<%=(providerview.indexOf("_grp_") != -1 && mygroupno.equals(group.get("mygroup_no")))?"selected":""%>><bean:message
+						key="provider.appointmentprovideradminmonth.formGRP" />: <%=group.get("mygroup_no")%></option>
 <%
 		}
 	}
 
-	for(Provider p : providerDao.getActiveProviders()) {
-		if (!bMultisites || siteProviderNos  == null || siteProviderNos.size() == 0 || siteProviderNos.contains(p.getProviderNo())) { 
-		providerNameBean.setDef(p.getProviderNo(), p.getLastName()+","+p.getFirstName());
+	resultList = oscarSuperManager.find("providerDao", "searchprovider", new Object[] {});
+	for (Map provider : resultList) {
+		if (!bMultisites || siteProviderNos  == null || siteProviderNos.size() == 0 || siteProviderNos.contains(provider.get("provider_no"))) { 
+		providerNameBean.setDef(String.valueOf(provider.get("provider_no")), provider.get("last_name")+","+provider.get("first_name"));
 %>
-					<option value="<%=p.getProviderNo()%>"
-						<%=providerview.equals(p.getProviderNo())?"selected":""%>><%=providerNameBean.getShortDef(p.getProviderNo(), "", NameMaxLen)%></option>
+					<option value="<%=provider.get("provider_no")%>"
+						<%=providerview.equals(provider.get("provider_no"))?"selected":""%>><%=providerNameBean.getShortDef(String.valueOf(provider.get("provider_no")), "", NameMaxLen)%></option>
 <%
 		}
 	}
@@ -781,10 +709,6 @@ function refreshTabAlerts(id) {
 						<td width="14.2%"><font SIZE="2" color="green"><bean:message
 							key="provider.appointmentprovideradminmonth.msgSat" /></font></td>
 					</tr>
-                                        <% String caisi = "";%>
-                                        <caisi:isModuleLoad moduleName="caisi"> 
-                                            <% caisi = "infirmaryView_isOscar=true&GoToCaisiViewFromOscarView=fals&viewall=1&";%>
-                                        </caisi:isModuleLoad>
 					<%
     String[] param = new String[2];
     boolean bFistEntry = true;
@@ -793,40 +717,33 @@ function refreshTabAlerts(id) {
 
    		
 
-   	List<ScheduleDate> sds = null;
    	if (isTeamOnly && (providerview.equals("all") || providerview.startsWith("_grp_"))) {
    		// only display providers that has the same team field value.
    	   	
    	   	param[0] = year+"-"+month+"-"+"1";
         param[1] = cal.get(Calendar.YEAR)+"-"+(cal.get(Calendar.MONTH)+1)+"-"+"1";
-        
-        List<String> ps = providerDao.getProvidersInTeam(providerDao.getProvider(curUser_no).getTeam());
-        ps.add(curUser_no);
-        sds = scheduleDateDao.search_scheduledate_teamp(ConversionUtils.fromDateString(year+"-"+month+"-"+"01"),ConversionUtils.fromDateString(cal.get(Calendar.YEAR)+"-"+(cal.get(Calendar.MONTH)+1)+"-"+"01"),"A",ps);   
+        resultList = oscarSuperManager.find("providerDao", "search_scheduledate_teamp", new String[]{param[0], param[1], curUser_no, curUser_no });   		
    		
    	} else
     if(providerview.equals("all") || providerview.startsWith("_grp_",0)) {
 	      param[0] = year+"-"+month+"-"+"1";
 	      param[1] = cal.get(Calendar.YEAR)+"-"+(cal.get(Calendar.MONTH)+1)+"-"+"1";
 		  if (selectedSite == null) {  
-		      sds = scheduleDateDao.search_scheduledate_datep(ConversionUtils.fromDateString(year+"-"+month+"-"+"01"),ConversionUtils.fromDateString(cal.get(Calendar.YEAR)+"-"+(cal.get(Calendar.MONTH)+1)+"-"+"01"),"A");
+		      resultList = oscarSuperManager.find("providerDao", "search_scheduledate_datep", param);
 	    	}
 	    	else	{
-	    	  List<String> ps = providerSiteDao.findByProviderNoBySiteName(selectedSite);
-	    	  sds = scheduleDateDao.search_scheduledate_teamp(ConversionUtils.fromDateString(year+"-"+month+"-"+"01"),ConversionUtils.fromDateString(cal.get(Calendar.YEAR)+"-"+(cal.get(Calendar.MONTH)+1)+"-"+"01"),"A",ps);   
-	     		
+	    	  resultList = oscarSuperManager.find("providerDao", "site_search_scheduledate_datep", new String[]{param[0], param[1], selectedSite});	
 	      }
     } else {
       String[] param1 = new String[3];
       param1[0] = year+"-"+month+"-"+"1";
       param1[1] = cal.get(Calendar.YEAR)+"-"+(cal.get(Calendar.MONTH)+1)+"-"+"1";
       param1[2] = providerview;
-      sds = scheduleDateDao.search_scheduledate_teamp(ConversionUtils.fromDateString(year+"-"+month+"-"+"01"),ConversionUtils.fromDateString(cal.get(Calendar.YEAR)+"-"+(cal.get(Calendar.MONTH)+1)+"-"+"01"),"A",Arrays.asList(new String[]{providerview}));   
-   	
+      resultList = oscarSuperManager.find("providerDao", "search_scheduledate_singlep", param1);
     }
 
-              Iterator<ScheduleDate> it = sds.iterator();
-              ScheduleDate date = null;
+              Iterator<Map<String,Object>> it = resultList.iterator();
+              Map date = null;
               for (int i=0; i<dateGrid.length; i++) {
                 out.println("</tr>");
                 for (int j=0; j<7; j++) {
@@ -844,31 +761,31 @@ function refreshTabAlerts(id) {
                  
             %>
 					<td nowrap bgcolor="<%=bgcolor.toString()%>" valign="top"><a
-						href='providercontrol.jsp?<%=caisi%>year=<%=year%>&month=<%=MyDateFormat.getDigitalXX(month)%>&day=<%=MyDateFormat.getDigitalXX(dateGrid[i][j])%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+request.getParameter("curProviderName"))%>&displaymode=day&dboperation=searchappointmentday'>
+						href='providercontrol.jsp?year=<%=year%>&month=<%=MyDateFormat.getDigitalXX(month)%>&day=<%=MyDateFormat.getDigitalXX(dateGrid[i][j])%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+request.getParameter("curProviderName"))%>&displaymode=day&dboperation=searchappointmentday'>
 					<span class='date'>&nbsp;<%=dateGrid[i][j] %> </span> <font
 						size="-2" color="blue"><%=strHolidayName.toString()%></font> <%
   while (bFistEntry?it.hasNext():true) { 
     date = bFistEntry?it.next():date;
     String _scheduleDate = year+"-"+MyDateFormat.getDigitalXX(month)+"-"+MyDateFormat.getDigitalXX(dateGrid[i][j]);    
-    if(!ConversionUtils.toDateString(date.getDate()).equals(_scheduleDate) ) {
+    if(!String.valueOf(date.get("sdate")).equals(_scheduleDate) ) {
       bFistEntry = false;
       break;
     } else {
       bFistEntry = true;
-      if(String.valueOf(date.getAvailable()).equals("0")) continue;
+      if(String.valueOf(date.get("available")).equals("0")) continue;
     }
-    if(isTeamOnly || !providerview.startsWith("_grp_",0) || myGrpBean.containsKey(date.getProviderNo()) ) {
+    if(isTeamOnly || !providerview.startsWith("_grp_",0) || myGrpBean.containsKey(String.valueOf(date.get("provider_no"))) ) {
     	%>
-    <br><span class='datepname'>&nbsp;<%=providerNameBean.getShortDef(date.getProviderNo(),"",NameMaxLen )%></span><span
-						class='datephour'><%=date.getHour() %></span>
+    <br><span class='datepname'>&nbsp;<%=providerNameBean.getShortDef(String.valueOf(date.get("provider_no")),"",NameMaxLen )%></span><span
+						class='datephour'><%=date.get("hour") %></span>
 	<%
-    	if (bMultisites && CurrentSiteMap.get(date.getReason()) != null && ( selectedSite == null || "NONE".equals(date.getReason()) || selectedSite.equals(date.getReason()))) {
+    	if (bMultisites && CurrentSiteMap.get(date.get("reason")) != null && ( selectedSite == null || "NONE".equals(date.get("reason")) || selectedSite.equals(date.get("reason")))) {
 %> 
-<% if (bMultisites) { out.print(getSiteHTML(date.getReason(), sites)); } %>
+<% if (bMultisites) { out.print(getSiteHTML((String)date.get("reason"), sites)); } %>
 					
 <% if (!bMultisites) { %>	
 					
-						<span class='datepreason'><%=date.getReason() %></span>
+						<span class='datepreason'><%=date.get("reason") %></span>
 <% } %>
 <%  } } } %>
 					</a></font></td>
@@ -955,7 +872,7 @@ function refreshTabAlerts(id) {
             %>
 							<td align='center' bgcolor='#FOFOFO'><font
 								FACE='VERDANA,ARIAL,HELVETICA' SIZE='2'> <a
-								href='providercontrol.jsp?<%=caisi%>year=<%=year%>&month=<%=MyDateFormat.getDigitalXX(month)%>&day=<%=dateGrid[i][j+1]==0?1:dateGrid[i][j+1]%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+request.getParameter("curProviderName") )%>&displaymode=week&dboperation=searchapptweek'>
+								href='providercontrol.jsp?year=<%=year%>&month=<%=MyDateFormat.getDigitalXX(month)%>&day=<%=dateGrid[i][j+1]==0?1:dateGrid[i][j+1]%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+request.getParameter("curProviderName") )%>&displaymode=week&dboperation=searchapptweek'>
 							<%=(i+1)%></font></td>
 							<%
                     continue;
@@ -965,7 +882,7 @@ function refreshTabAlerts(id) {
                     if(dateGrid[i][j]==day) {
             %>
 							<td align='center'><a
-								href='providercontrol.jsp?<%=caisi%>year=<%=year%>&month=<%=MyDateFormat.getDigitalXX(month)%>&day=<%=MyDateFormat.getDigitalXX(day)%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+request.getParameter("curProviderName") )%>&displaymode=day&dboperation=searchappointmentday'>
+								href='providercontrol.jsp?year=<%=year%>&month=<%=MyDateFormat.getDigitalXX(month)%>&day=<%=MyDateFormat.getDigitalXX(day)%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+request.getParameter("curProviderName") )%>&displaymode=day&dboperation=searchappointmentday'>
 							<font FACE="VERDANA,ARIAL,HELVETICA" SIZE="2" color="red">
 							<div class='specialtxt'><%= dateGrid[i][j] %></div>
 							</font></a></td>
@@ -973,7 +890,7 @@ function refreshTabAlerts(id) {
             %>
 							<td align='center'><font FACE='VERDANA,ARIAL,HELVETICA'
 								SIZE='2' color='white'><a
-								href='providercontrol.jsp?<%=caisi%>year=<%=year%>&month=<%=MyDateFormat.getDigitalXX(month)%>&day=<%=MyDateFormat.getDigitalXX(dateGrid[i][j])%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+request.getParameter("curProviderName"))%>&displaymode=day&dboperation=searchappointmentday'>
+								href='providercontrol.jsp?year=<%=year%>&month=<%=MyDateFormat.getDigitalXX(month)%>&day=<%=MyDateFormat.getDigitalXX(dateGrid[i][j])%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+request.getParameter("curProviderName"))%>&displaymode=day&dboperation=searchappointmentday'>
 							<%=dateGrid[i][j] %></a></font></td>
 							<%
                     }
@@ -1055,7 +972,7 @@ function refreshTabAlerts(id) {
             %>
 							<td align='center' bgcolor='#FOFOFO'><font
 								FACE='VERDANA,ARIAL,HELVETICA' SIZE='2'> <a
-								href='providercontrol.jsp?<%=caisi%>year=<%=year%>&month=<%=MyDateFormat.getDigitalXX(month)%>&day=<%=dateGrid[i][j+1]==0?1:dateGrid[i][j+1]%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+request.getParameter("curProviderName") )%>&displaymode=week&dboperation=searchapptweek'>
+								href='providercontrol.jsp?year=<%=year%>&month=<%=MyDateFormat.getDigitalXX(month)%>&day=<%=dateGrid[i][j+1]==0?1:dateGrid[i][j+1]%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+request.getParameter("curProviderName") )%>&displaymode=week&dboperation=searchapptweek'>
 							<%=(i+1)%></font></td>
 							<%
                     continue;
@@ -1065,7 +982,7 @@ function refreshTabAlerts(id) {
                     if(dateGrid[i][j]==day) {
             %>
 							<td align='center'><a
-								href='providercontrol.jsp?<%=caisi%>year=<%=year%>&month=<%=MyDateFormat.getDigitalXX(month)%>&day=<%=MyDateFormat.getDigitalXX(day)%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+request.getParameter("curProviderName") )%>&displaymode=day&dboperation=searchappointmentday'>
+								href='providercontrol.jsp?year=<%=year%>&month=<%=MyDateFormat.getDigitalXX(month)%>&day=<%=MyDateFormat.getDigitalXX(day)%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+request.getParameter("curProviderName") )%>&displaymode=day&dboperation=searchappointmentday'>
 							<font FACE="VERDANA,ARIAL,HELVETICA" SIZE="2" color="red">
 							<div class='specialtxt'><%= dateGrid[i][j] %></div>
 							</font></a></td>
@@ -1073,7 +990,7 @@ function refreshTabAlerts(id) {
             %>
 							<td align='center'><font FACE='VERDANA,ARIAL,HELVETICA'
 								SIZE='2' color='white'><a
-								href='providercontrol.jsp?<%=caisi%>year=<%=year%>&month=<%=MyDateFormat.getDigitalXX(month)%>&day=<%=MyDateFormat.getDigitalXX(dateGrid[i][j])%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+request.getParameter("curProviderName"))%>&displaymode=day&dboperation=searchappointmentday'>
+								href='providercontrol.jsp?year=<%=year%>&month=<%=MyDateFormat.getDigitalXX(month)%>&day=<%=MyDateFormat.getDigitalXX(dateGrid[i][j])%>&view=<%=view==0?"0":("1&curProvider="+request.getParameter("curProvider")+"&curProviderName="+request.getParameter("curProviderName"))%>&displaymode=day&dboperation=searchappointmentday'>
 							<%=dateGrid[i][j] %></a></font></td>
 							<%
                     }
@@ -1160,7 +1077,7 @@ document.onkeypress=function(e){
 				<% } %>
 			}
 			case <bean:message key="global.workflowShortcut"/> : popupOscarRx(700,1024,'../oscarWorkflow/WorkFlowList.jsp','<bean:message key="global.workflow"/>'); return false ; //code for 'W'orkflow
-			case <bean:message key="global.phrShortcut"/> : popupOscarRx('600', '1024','../phr/PhrMessage.do?method=viewMessages','INDIVOMESSENGER2<%=curUser_no%>')
+			case <bean:message key="global.myoscarShortcut"/> : popupOscarRx('600', '1024','../phr/PhrMessage.do?method=viewMessages','INDIVOMESSENGER2<%=curUser_no%>')
 			default : return;
                }
 	}

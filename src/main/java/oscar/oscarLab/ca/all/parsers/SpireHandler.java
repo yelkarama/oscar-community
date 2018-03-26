@@ -738,7 +738,7 @@ public class SpireHandler implements MessageHandler {
     }
     
     public String getHealthNum(){
-        String hin = (getString(msg.getRESPONSE().getPATIENT().getPID().getPatientIDExternalID().getID().getValue()));
+        String hin = (getString(msg.getRESPONSE().getPATIENT().getPID().getAlternatePatientID().getID().getValue()));
         
         if (hin != null && hin.equals(""))
 			hin = null;
@@ -1018,10 +1018,6 @@ public class SpireHandler implements MessageHandler {
 	}
     
     public String getNteForOBX(int i, int j){
-    	
-    	return "";
-    }
-    public String getNteForPID(){
     	
     	return "";
     }

@@ -22,21 +22,19 @@
  * Ontario, Canada
  */
 
+
 package oscar.oscarDemographic.data;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Hashtable;
 
-import org.oscarehr.common.dao.RelationshipsDao;
-import org.oscarehr.common.model.Relationships;
-import org.oscarehr.util.LoggedInInfo;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.oscarehr.util.MiscUtils;
-import org.oscarehr.util.SpringUtils;
 
-import oscar.util.ConversionUtils;
+import oscar.oscarDB.DBHandler;
 
 /**
  *
@@ -44,144 +42,194 @@ import oscar.util.ConversionUtils;
  */
 public class DemographicRelationship {
 
-	public DemographicRelationship() {
-	}
+   /*
+   CREATE TABLE relationships (
+   id int(10) NOT NULL auto_increment,
+   demographic_no int(10) NOT NULL default '0',
+   relation_demographic_no int(10) NOT NULL default '0',
+   relation varchar(20),
+   creation_date datetime default NULL,
+   creator varchar(6) NOT NULL default '',
+   sub_decision_maker char(1) default '0',
+   emergency_contact char(1) default '0',
+   notes text,
+   deleted char(1) default '0',
+   PRIMARY KEY  (id)
+   )
+   */
 
-	/**
-	 * @param facilityId can be null
-	 */
-	public void addDemographicRelationship(String demographic, String linkingDemographic, String relationship, boolean sdm, boolean emergency, String notes, String providerNo, Integer facilityId) {
-		Relationships relationships = new Relationships();
-		relationships.setFacilityId(facilityId);
-		relationships.setDemographicNo(ConversionUtils.fromIntString(demographic));
-		relationships.setRelationDemographicNo(ConversionUtils.fromIntString(linkingDemographic));
-		relationships.setRelation(relationship);
-		relationships.setSubDecisionMaker(ConversionUtils.toBoolString(sdm));
-		relationships.setEmergencyContact(ConversionUtils.toBoolString(emergency));
-		relationships.setNotes(notes);
-		relationships.setCreator(providerNo);
-		relationships.setCreationDate(new Date());
+   public DemographicRelationship() {
+   }
 
-		RelationshipsDao dao = SpringUtils.getBean(RelationshipsDao.class);
-		dao.persist(relationships);
-	}
+   /**
+    * @param facilityId can be null
+    */
+   public void addDemographicRelationship(String demographic,String linkingDemographic,String relationship,boolean sdm,boolean emergency,String notes,String providerNo, Integer facilityId){
+       String sdmStr = "0";
+       String eContact = "0";
+       if (sdm){
+          sdmStr = "1";
+       }
+       if(emergency){
+          eContact = "1";
+       }
 
-	public void deleteDemographicRelationship(String id) {
-		RelationshipsDao dao = SpringUtils.getBean(RelationshipsDao.class);
-		Relationships relationships = dao.find(ConversionUtils.fromIntString(id));
-		if (relationships == null) MiscUtils.getLogger().error("Unable to find demographic relationship to delete");
+       try {
 
-		relationships.setDeleted(ConversionUtils.toBoolString(Boolean.TRUE));
-		dao.merge(relationships);
-	}
+            String sql = "insert into relationships (facility_id,demographic_no,relation_demographic_no,relation,sub_decision_maker,emergency_contact,notes,creator,creation_date) values "
+            + "("+facilityId+",'"+demographic+"','"+linkingDemographic+"','"+StringEscapeUtils.escapeSql(relationship)+"','"+sdmStr+"','"+eContact+"','"+StringEscapeUtils.escapeSql(notes)+"','"+providerNo+"',now())";
+            DBHandler.RunSQL(sql);
 
-	public ArrayList<Map<String, String>> getDemographicRelationships(String demographic) {
-		RelationshipsDao dao = SpringUtils.getBean(RelationshipsDao.class);
-		ArrayList<Map<String, String>> list = new ArrayList<Map<String, String>>();
+        } catch (SQLException e) {
+            MiscUtils.getLogger().error("Error", e);
+        }
+   }
 
-		List<Relationships> relationships = dao.findByDemographicNumber(ConversionUtils.fromIntString(demographic));
+   public void deleteDemographicRelationship(String id){
+      try {
 
-		if (relationships.isEmpty()) {
-			MiscUtils.getLogger().warn("Unable to find demographic relationship for demographic " + demographic);
-			return list;
-		}
+         String sql = "update relationships  set deleted = '1' where  id = '"+id+"'";
+         DBHandler.RunSQL(sql);
+      } catch (SQLException e) {
+         MiscUtils.getLogger().error("Error", e);
+      }
+   }
 
-		for (Relationships r : relationships) {
-			HashMap<String, String> h = new HashMap<String, String>();
-			h.put("id", r.getId().toString());
-			h.put("demographic_no", String.valueOf(r.getRelationDemographicNo()));
-			h.put("relation", r.getRelation());
-			h.put("sub_decision_maker", r.getSubDecisionMaker());
-			h.put("emergency_contact", r.getEmergencyContact());
-			h.put("notes", r.getNotes());
-			list.add(h);
-		}
 
-		return list;
-	}
+	public ArrayList<HashMap<String,String>> getDemographicRelationships(String demographic){
+		ArrayList<HashMap<String,String>> list = new ArrayList<HashMap<String,String>>();
+		try {
 
-	public ArrayList<Map<String, String>> getDemographicRelationshipsByID(String id) {
-		RelationshipsDao dao = SpringUtils.getBean(RelationshipsDao.class);
-		Relationships r = dao.findActive(ConversionUtils.fromIntString(id));
-		ArrayList<Map<String, String>> list = new ArrayList<Map<String, String>>();
-		if (r == null) {
-			MiscUtils.getLogger().warn("Unable to find demographic relationship for ID " + id);
-			return list;
-		}
-
-		Map<String, String> h = new HashMap<String, String>();
-		h.put("demographic_no", ConversionUtils.toIntString(r.getDemographicNo()));
-		h.put("relation_demographic_no", ConversionUtils.toIntString(r.getRelationDemographicNo()));
-		h.put("relation", r.getRelation());
-		h.put("sub_decision_maker", r.getSubDecisionMaker());
-		h.put("emergency_contact", r.getEmergencyContact());
-		h.put("notes", r.getNotes());
-		list.add(h);
-
-		return list;
-	}
-
-	public String getSDM(String demographic) {
-		RelationshipsDao dao = SpringUtils.getBean(RelationshipsDao.class);
-		List<Relationships> rs = dao.findActiveSubDecisionMaker(ConversionUtils.fromIntString(demographic));
-		String result = null;
-		for (Relationships r : rs)
-			result = ConversionUtils.toIntString(r.getRelationDemographicNo());
-		return result;
-	}
-
-	public List<Map<String, Object>> getDemographicRelationshipsWithNamePhone(LoggedInInfo loggedInInfo, String demographic_no) {
-		RelationshipsDao dao = SpringUtils.getBean(RelationshipsDao.class);
-		List<Relationships> rs = dao.findActiveSubDecisionMaker(ConversionUtils.fromIntString(demographic_no));
-
-		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
-
-		for (Relationships r : rs) {
-			HashMap<String, Object> h = new HashMap<String, Object>();
-			String demo = ConversionUtils.toIntString(r.getRelationDemographicNo());
-
-			DemographicData dd = new DemographicData();
-			org.oscarehr.common.model.Demographic demographic = dd.getDemographic(loggedInInfo, demo);
-			h.put("lastName", demographic.getLastName());
-			h.put("firstName", demographic.getFirstName());
-			h.put("phone", demographic.getPhone());
-			h.put("demographicNo", demo);
-			h.put("relation", r.getRelation());
-
-			h.put("subDecisionMaker", ConversionUtils.fromBoolString(r.getSubDecisionMaker()));
-			h.put("emergencyContact", ConversionUtils.fromBoolString(r.getEmergencyContact()));
-			h.put("notes", r.getNotes());
-			h.put("age", demographic.getAge());
-			list.add(h);
+			ResultSet rs;
+			String sql = "select * from relationships where demographic_no = '"+demographic+"' and deleted != '1'";
+			rs = DBHandler.GetSQL(sql);
+			while(rs.next()){
+				HashMap<String,String> h = new HashMap<String,String>();
+				h.put("id", oscar.Misc.getString(rs, "id"));
+				h.put("demographic_no", oscar.Misc.getString(rs, "relation_demographic_no"));
+				h.put("relation", oscar.Misc.getString(rs, "relation"));
+				h.put("sub_decision_maker", oscar.Misc.getString(rs, "sub_decision_maker"));
+				h.put("emergency_contact", oscar.Misc.getString(rs, "emergency_contact"));
+				h.put("notes", oscar.Misc.getString(rs, "notes"));
+				list.add(h);
+			}
+		} catch (SQLException e) {
+			MiscUtils.getLogger().error("Error", e);
 		}
 		return list;
 	}
 
-	public List<Map<String, Object>> getDemographicRelationshipsWithNamePhone(LoggedInInfo loggedInInfo, String demographic_no, Integer facilityId) {
-		RelationshipsDao dao = SpringUtils.getBean(RelationshipsDao.class);
-		List<Relationships> rs = dao.findActiveByDemographicNumberAndFacility(ConversionUtils.fromIntString(demographic_no), facilityId);
 
-		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
-		for (Relationships r : rs) {
-			HashMap<String, Object> h = new HashMap<String, Object>();
-			String demo = ConversionUtils.toIntString(r.getRelationDemographicNo());
+   public ArrayList<Hashtable<String,String>> getDemographicRelationshipsByID(String id){
+      ArrayList<Hashtable<String,String>> list = new ArrayList<Hashtable<String,String>>();
+      try {
 
-			DemographicData dd = new DemographicData();
-			org.oscarehr.common.model.Demographic demographic = dd.getDemographic(loggedInInfo, demo);
-			h.put("lastName", demographic.getLastName());
-			h.put("firstName", demographic.getFirstName());
-			h.put("phone", demographic.getPhone());
-			h.put("demographicNo", demo);
-			h.put("relation", r.getRelation());
+         ResultSet rs;
+         String sql = "select * from relationships where id = '"+id+"' and deleted != '1'";
+         rs = DBHandler.GetSQL(sql);
+         while(rs.next()){
+            Hashtable<String,String> h = new Hashtable<String,String>();
+            h.put("demographic_no", oscar.Misc.getString(rs, "demographic_no"));
+            h.put("relation_demographic_no", oscar.Misc.getString(rs, "relation_demographic_no"));
+            h.put("relation", oscar.Misc.getString(rs, "relation"));
+            h.put("sub_decision_maker", oscar.Misc.getString(rs, "sub_decision_maker"));
+	    h.put("emergency_contact", oscar.Misc.getString(rs, "emergency_contact"));
+            h.put("notes", oscar.Misc.getString(rs, "notes"));
+            list.add(h);
+         }
+      } catch (SQLException e) {
+         MiscUtils.getLogger().error("Error", e);
+      }
+      return list;
+   }
 
-			h.put("subDecisionMaker", ConversionUtils.fromBoolString(r.getSubDecisionMaker()));
-			h.put("emergencyContact", ConversionUtils.fromBoolString(r.getEmergencyContact()));
-			h.put("notes", r.getNotes());
-			h.put("age", demographic.getAge());
-			list.add(h);
-		}
 
-		return list;
-	}
+   public String getSDM(String demographic){
+      String sdm = null;
+      try {
+
+         ResultSet rs;
+         String sql = "select * from relationships where demographic_no = '"+demographic+"' and deleted != '1' and sub_decision_maker = '1'";
+         rs = DBHandler.GetSQL(sql);
+         if(rs.next()){
+            sdm = oscar.Misc.getString(rs, "relation_demographic_no");
+         }
+      } catch (SQLException e) {
+         MiscUtils.getLogger().error("Error", e);
+      }
+      return sdm;
+   }
+
+
+
+   public ArrayList<Hashtable<String,Object>> getDemographicRelationshipsWithNamePhone(String demographic_no){
+      ArrayList<Hashtable<String,Object>> list = new ArrayList<Hashtable<String,Object>>();
+      try {
+
+         ResultSet rs;
+         String sql = "select * from relationships where demographic_no = '"+demographic_no+"' and deleted != '1'";
+         rs = DBHandler.GetSQL(sql);
+         while(rs.next()){
+            Hashtable<String,Object> h = new Hashtable<String,Object>();
+            String demo = oscar.Misc.getString(rs, "relation_demographic_no");
+            DemographicData dd = new DemographicData();
+            org.oscarehr.common.model.Demographic demographic = dd.getDemographic(demo);
+            h.put("lastName", demographic.getLastName());
+            h.put("firstName", demographic.getFirstName());
+            h.put("phone", demographic.getPhone());
+            h.put("demographicNo", demo);
+            h.put("relation", oscar.Misc.getString(rs, "relation"));
+
+            h.put("subDecisionMaker", booleanConverter(oscar.Misc.getString(rs, "sub_decision_maker")));
+            h.put("emergencyContact", booleanConverter(oscar.Misc.getString(rs, "emergency_contact")));
+            h.put("notes", oscar.Misc.getString(rs, "notes"));
+            h.put("age",demographic.getAge());
+            list.add(h);
+         }
+      } catch (SQLException e) {
+         MiscUtils.getLogger().error("Error", e);
+      }
+      return list;
+   }
+
+   public ArrayList<Hashtable<String,Object>> getDemographicRelationshipsWithNamePhone(String demographic_no, Integer facilityId){
+	      ArrayList<Hashtable<String,Object>> list = new ArrayList<Hashtable<String,Object>>();
+	      try {
+
+	         ResultSet rs;
+	         String sql = "select * from relationships where demographic_no = '"+demographic_no+"' and deleted != '1'" +
+	                      " and facility_id=" + facilityId.toString();
+	         rs = DBHandler.GetSQL(sql);
+	         while(rs.next()){
+	        	 Hashtable<String,Object> h = new Hashtable<String,Object>();
+	            String demo = oscar.Misc.getString(rs, "relation_demographic_no");
+	            DemographicData dd = new DemographicData();
+	            org.oscarehr.common.model.Demographic demographic = dd.getDemographic(demo);
+	            h.put("lastName", demographic.getLastName());
+	            h.put("firstName", demographic.getFirstName());
+	            h.put("phone", demographic.getPhone());
+	            h.put("demographicNo", demo);
+	            h.put("relation", oscar.Misc.getString(rs, "relation"));
+
+	            h.put("subDecisionMaker", booleanConverter(oscar.Misc.getString(rs, "sub_decision_maker")));
+	            h.put("emergencyContact", booleanConverter(oscar.Misc.getString(rs, "emergency_contact")));
+	            h.put("notes", oscar.Misc.getString(rs, "notes"));
+	            h.put("age",demographic.getAge());
+	            list.add(h);
+	         }
+	      } catch (SQLException e) {
+	         MiscUtils.getLogger().error("Error", e);
+	      }
+	      return list;
+	   }
+
+
+   private Boolean booleanConverter(String s){
+      boolean isTrue = false;
+      if (s != null && s.equals("1")){
+         isTrue = true;
+      }
+      return new Boolean(isTrue);
+   }
 
 }

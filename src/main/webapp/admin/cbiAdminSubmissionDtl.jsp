@@ -23,46 +23,27 @@
     Ontario, Canada
 
 --%>
-<%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
-<%
-      String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
-      boolean authed=true;
-%>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_admin" rights="r" reverse="<%=true%>">
-	<%authed=false; %>
-	<%response.sendRedirect("../securityError.jsp?type=_admin");%>
-</security:oscarSec>
-<%
-if(!authed) {
-	return;
-}
-%>
 
-<%@page import="org.oscarehr.util.LoggedInInfo"%>
-<%@page import="org.oscarehr.common.model.Admission"%>
-<%@page import="org.oscarehr.common.dao.AdmissionDao"%>
+<%@page import="org.oscarehr.PMmodule.model.Admission"%>
+<%@page import="org.oscarehr.PMmodule.dao.AdmissionDao"%>
 <%@page import="org.oscarehr.common.model.FunctionalCentreAdmission"%>
 <%@page import="org.oscarehr.common.dao.FunctionalCentreAdmissionDao"%>
-
 <%@page import="org.oscarehr.util.SpringUtils"%>
 <%@page import="org.oscarehr.common.model.OcanStaffForm"%>
+<%@page import="org.apache.jasper.tagplugins.jstl.core.ForEach"%>
 <%@page import="org.oscarehr.PMmodule.model.OcanSubmissionLog"%>
 <%@page import="java.util.List"%>
 <%@page import="oscar.util.CBIUtil"%>
 <%@page import="java.util.Date"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@page import="java.text.DateFormat"%>
-
 <%!
 CBIUtil cbiUtil = new CBIUtil();
 %>
 
 <%
 List<OcanSubmissionLog> submissionLogList = null;
-   		 
-LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
-Integer currentFacilityId=loggedInInfo.getCurrentFacility().getId();
- 			
+
 String dateStr = "";
 if(request.getParameter("date")!=null && request.getParameter("date").trim().length()>0)
 {
@@ -144,7 +125,7 @@ if(submissionLogList!=null)
 							if(ocanSubmissionLog!=null)
 							{
 								//get form record based on the submission id 
-								OcanStaffForm ocanStaffForm = cbiUtil.getCBIFormDataBySubmissionId(currentFacilityId, ocanSubmissionLog.getId());
+								OcanStaffForm ocanStaffForm = cbiUtil.getCBIFormDataBySubmissionId(ocanSubmissionLog.getId());
 								
 								if(ocanStaffForm!=null)
 								{	
