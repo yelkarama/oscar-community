@@ -240,7 +240,7 @@
 								&nbsp;
 								<a title="Master File" href="#" onclick="popup(700,1027,'demographiccontrol.jsp?demographic_no=<%=contactId%>&displaymode=edit&dboperation=search_detail', 'demographic')">M</a>
 								|
-								<a title="Encounter" href="#" onclick="popup(710,1024,'<%=request.getContextPath() %>/oscarEncounter/IncomingEncounter.do?providerNo=<%=providerNo%>&appointmentNo=&demographicNo=<%=contactId%>&curProviderNo=&reason=<%=URLEncoder.encode(noteReason, "UTF-8")%>&encType=&curDate=<%=""+curYear%>-<%=""+curMonth%>-<%=""+curDay%>&appointmentDate=&startTime=&status=', 'demographic');return false;">E</a>
+								<a title="Encounter" href="#" onclick="popup(710,1024,'<%=request.getContextPath() %>/oscarEncounter/IncomingEncounter.do?providerNo=<%=providerNo%>&appointmentNo=&demographicNo=<%=contactId%>&curProviderNo=&reason=<%=URLEncoder.encode(noteReason, "UTF-8")%>&encType=&curDate=<%=""+curYear%>-<%=""+curMonth%>-<%=""+curDay%>&appointmentDate=&startTime=&status=', 'encounter');return false;">E</a>
 								<%
 									}
 								%>
