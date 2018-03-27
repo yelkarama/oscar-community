@@ -293,7 +293,6 @@ function updateDayNote(providerNo) {
 			window.location.reload();
 			var linkTextEle = jQuery('#dayNoteLink_' + providerNo);
 			linkTextEle.text(data);
-			linkTextEle.show();
 		},
 		error: function (data) {
 			console.log(data);
