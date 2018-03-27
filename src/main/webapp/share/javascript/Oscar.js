@@ -290,6 +290,7 @@ function updateDayNote(providerNo) {
 		success: function (data) {
 			jQuery('#dayNoteInputDiv_' + providerNo).hide();
 			jQuery('#dayNoteInput_' + providerNo).val(data);
+			window.location.reload();
 			var linkTextEle = jQuery('#dayNoteLink_' + providerNo);
 			linkTextEle.text(data);
 			linkTextEle.show();
