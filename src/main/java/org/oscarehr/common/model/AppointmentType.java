@@ -24,6 +24,7 @@
 package org.oscarehr.common.model;
 
 import javax.persistence.*;
+import java.util.Comparator;
 
 @Entity
 @Table(name="appointmentType")
@@ -61,6 +62,13 @@ public class AppointmentType extends AbstractModel<Integer> {
         this.enabled = oldType.isEnabled();
     }
 
+    public static final Comparator<AppointmentType> ORDER_BY_NAME = new Comparator<AppointmentType>() {
+        @Override
+        public int compare(AppointmentType o1, AppointmentType o2) {
+            return o1.getName().toLowerCase().compareTo(o2.getName().toLowerCase());
+        }
+    };
+    
 	@Override
     public Integer getId() {
 		return id;

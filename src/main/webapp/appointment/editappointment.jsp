@@ -133,6 +133,7 @@
 	} else {
 		appointmentTypes = appointmentTypeDao.listAllTemplates();
 	}
+    Collections.sort(appointmentTypes, AppointmentType.ORDER_BY_NAME);
 
     LookupListManager lookupListManager = SpringUtils.getBean(LookupListManager.class);
     LookupList reasonCodes = lookupListManager.findLookupListByName(loggedInInfo, "reasonCode");
