@@ -353,7 +353,7 @@ if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) {
 		<%=as.getDescription()%>
 	  <% } %>
 	  </td>
-      <td><%=appointment.getType() %></td>
+      <td><%="null".equalsIgnoreCase(appointment.getType())?"":appointment.getType()%></td>
       <td><%=reasonDropDown%> <%=appointment.getReason()!=null?appointment.getReason():""%></td>
       <% if( provider != null ) {%>
       <td><%=(provider.getLastName() == null ? "N/A" : provider.getLastName()) + "," + (provider.getFirstName() == null ? "N/A" : provider.getFirstName())%></td>
