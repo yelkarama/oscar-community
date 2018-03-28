@@ -60,7 +60,7 @@ function checkContactMethodField(field) {
     var valid = true;
     var fieldElement = $('#contact_'+field);
 
-    if (fieldElement.val().trim() && $('#contact_typeSelect').val() === 'external') {
+    if (fieldElement.val().trim() && ($('#contact_typeSelect').val() === 'external' || $('#contactType').text() === 'External')) {
         if (field === 'phone' || field === 'cell' || field === 'work') {
             valid = validatePhoneNumber(fieldElement.val());
 
@@ -159,6 +159,11 @@ function isValid() {
 
     if (!$('#contact_contactName').val() || $('#contact_contactName').val().trim().length <= 0) {
         $returnMessage += "Missing contact name \n";
+        valid = false;
+    }
+
+    if (isExistingContact($('#contact_contactId').val())) {
+        $returnMessage += "Contact already exits for this demographic \n";
         valid = false;
     }
 
@@ -417,6 +422,20 @@ function updateSort(column) {
     $("#sortOrder").val(sortOrder);
 
     document.contactList.submit();
+}
+
+function isExistingContact(id) {
+    var contactExists = false;
+    $.ajax({
+        url:'../demographic/Contact.do',
+        async:false,
+        data: {method: "doesContactExist", demographicNo: $('#demographicNo').val(), contactId: id},
+        success:function(data) {
+            contactExists = data.contactExists;
+        }
+    });
+
+    return contactExists;
 }
 
 function validateEmail(email) {

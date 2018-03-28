@@ -25,6 +25,7 @@
 
 package org.oscarehr.common.web;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -35,6 +36,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.struts.action.ActionForm;
@@ -567,6 +569,34 @@ public class ContactAction extends DispatchAction {
 		request.setAttribute( "pcontact.lastName", request.getParameter("keyword") );
 		request.setAttribute( "contactRole", request.getParameter("contactRole")  );
 		return mapping.findForward("pForm");
+	}
+
+	public ActionForward doesContactExist(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+		Integer demographicNo = StringUtils.trimToNull(request.getParameter("demographicNo")) != null ? Integer.parseInt(request.getParameter("demographicNo")) : null;
+		Integer contactId = StringUtils.trimToNull(request.getParameter("contactId")) != null ? Integer.parseInt(request.getParameter("contactId")) : null;
+
+		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_demographic", "r", null)) {
+			throw new SecurityException("missing required security object (_demographic)");
+		}
+
+		Boolean contactExists = false;
+
+		if (demographicNo != null && contactId != null) {
+			List<DemographicContact> contacts = demographicContactDao.find(demographicNo, contactId);
+			contactExists = contacts != null && contacts.size() > 0;
+		}
+
+		try {
+			JSONObject jsonObject = new JSONObject();
+			jsonObject.put("contactExists", contactExists);
+			response.setContentType("application/json");
+			response.setCharacterEncoding("UTF-8");
+			response.getWriter().write(jsonObject.toString());
+		} catch (IOException e) {
+			logger.error("Error writing response.", e);
+		}
+
+		return null;
 	}
 	
 	public ActionForward editHealthCareTeam(ActionMapping mapping, ActionForm form, 
