@@ -61,13 +61,28 @@ public class BillingONExtDao extends AbstractDao<BillingONExt>{
     }
     
 	public List<BillingONExt> find(String key, String value) {
-		Query q = createQuery("q", "q.keyVal = :key AND q.value = :value");
-		q.setParameter("key", key);
-		q.setParameter("value", value);
-		return q.getResultList();
+        return find(key, value, false);
 	}
 
-    
+    public List<BillingONExt> find(String key, String value, boolean includeDeleted) {
+
+        String sql = "select e.* from billing_on_ext e  ";
+        if (!includeDeleted) {
+            sql += " inner join billing_on_cheader1 b ON e.billing_no = b.id where b.status <> 'D' and e.key_val=? ";
+        } else {
+            sql += " where e.key_val=? ";
+        }
+
+        sql += " and e.value=?";
+        Query query = entityManager.createNativeQuery(sql, BillingONExt.class);
+        query.setParameter(1, key);
+        query.setParameter(2, value);
+
+        List<BillingONExt> results = query.getResultList();
+        return results;
+    }
+
+
     public List<BillingONExt> findByBillingNoAndKey(Integer billingNo, String key) {
     	String sql = "select bExt from BillingONExt bExt where bExt.billingNo=? and bExt.keyVal=? order by bExt.id DESC";
         Query query = entityManager.createQuery(sql);
