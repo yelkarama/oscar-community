@@ -176,5 +176,5 @@
 </div>
 <div class="modal-footer">
     <button class="btn btn-secondary" style="float: left" data-dismiss="modal">Cancel</button>
-    <button id="save" class="btn btn-primary" onclick="return saveContact();">Save</button>
+    <button id="save" class="btn btn-primary" onclick="return saveContact(true);">Save</button>
 </div>

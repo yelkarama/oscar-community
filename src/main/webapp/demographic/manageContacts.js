@@ -1,3 +1,4 @@
+var $isNewContact = false;
 var $personalRoles = [
     {key: 'Mother', description: 'Mother'},
     {key: 'Father', description: 'Father'},
@@ -162,7 +163,7 @@ function isValid() {
         valid = false;
     }
 
-    if (isExistingContact($('#contact_contactId').val())) {
+    if (isExistingContact($('#contact_contactId').val()) && $isNewContact) {
         $returnMessage += "Contact already exits for this demographic \n";
         valid = false;
     }
@@ -194,7 +195,8 @@ function popupWindow(height, width, top, left, url, windowName){
     return popupWindow.winRefs[windowName];
 }
 
-function saveContact(id) {
+function saveContact(isNewContact) {
+    $isNewContact = isNewContact !== null ? isNewContact : false;
     var valid = isValid();
     if (!valid) {
         alert($returnMessage);
