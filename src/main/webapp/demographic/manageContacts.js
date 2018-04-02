@@ -1,4 +1,7 @@
 var $isNewContact = false;
+
+var $displayEditModal = true;
+
 var $personalRoles = [
     {key: 'Mother', description: 'Mother'},
     {key: 'Father', description: 'Father'},
@@ -175,6 +178,11 @@ function popup(height, width, url, windowName){
     if (!windowName) {
         windowName = "manageContacts";
     }
+    
+    if (windowName === "demographic" || windowName === "encounter") {
+        $displayEditModal = false;
+    }
+
     return popupWindow(height, width, 0, 0, url, windowName)
 }
 
@@ -319,7 +327,7 @@ function setContactCategoryType(category, typeSelect) {
 function setContactView(id) {
     var contact = contacts && contacts.length > 0 ? $.grep(contacts, function(e){ return e.id === id; })[0] : null;
 
-    if (contact && contact.category) {
+    if (contact && contact.category && $displayEditModal) {
         var searchVal = "";
 
         if (!id){
@@ -337,6 +345,8 @@ function setContactView(id) {
             }
         });
     }
+
+    $displayEditModal = true;
 }
 
 function setValues(contact) {
