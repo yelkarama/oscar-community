@@ -627,33 +627,46 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 	}
 
 	public List<Demographic> searchDemographicByPhone(String phoneStr, int limit, int offset, String providerNo, boolean outOfDomain) {
-		return searchDemographicByPhoneAndStatus(phoneStr,null,limit,offset,null,providerNo,outOfDomain,false);
+		List<Demographic> demographics = searchDemographicByPhoneAndStatus(phoneStr,null,limit,offset,null,providerNo,outOfDomain,false);
+		demographics.addAll(searchDemographicByExtKeyAndValueLike("demo_cell", phoneStr,limit,offset,null,providerNo,outOfDomain));
+		return demographics;
 	}
 
 	public List<Demographic> searchDemographicByPhoneAndNotStatus(String phoneStr, List<String> statuses, int limit, int offset, String providerNo, boolean outOfDomain) {
-		return searchDemographicByPhoneAndStatus(phoneStr,statuses,limit,offset,null,providerNo,outOfDomain,true);
+		List<Demographic> demographics = searchDemographicByPhoneAndStatus(phoneStr,statuses,limit,offset,null,providerNo,outOfDomain,true);
+		demographics.addAll(searchDemographicByExtKeyAndValueLikeAndNotStatus("demo_cell", phoneStr,statuses,limit,offset,null,providerNo,outOfDomain));
+		return demographics;
+
 	}
 	
 	public List<Demographic> searchDemographicByPhoneAndStatus(String phoneStr, List<String> statuses, int limit, int offset, String providerNo, boolean outOfDomain) {
-		return searchDemographicByPhoneAndStatus(phoneStr,statuses,limit,offset,null,providerNo,outOfDomain,false);
+		List<Demographic> demographics = searchDemographicByPhoneAndStatus(phoneStr,statuses,limit,offset,null,providerNo,outOfDomain,false);
+		demographics.addAll(searchDemographicByExtKeyAndValueLikeAndStatus("demo_cell", phoneStr,statuses,limit,offset,null,providerNo,outOfDomain));
+		return demographics;
 	}
 
 	public List<Demographic> searchDemographicByPhone(String phoneStr, int limit, int offset, String orderBy, String providerNo, boolean outOfDomain) {
-		return searchDemographicByPhoneAndStatus(phoneStr,null,limit,offset,orderBy,providerNo,outOfDomain,false);
+		List<Demographic> demographics = searchDemographicByPhoneAndStatus(phoneStr,null,limit,offset,orderBy,providerNo,outOfDomain,false);
+		demographics.addAll(searchDemographicByExtKeyAndValueLike("demo_cell", phoneStr,limit,offset,orderBy,providerNo,outOfDomain));
+		return demographics;
 	}
-
+	
 	public List<Demographic> searchDemographicByPhoneAndNotStatus(String phoneStr, List<String> statuses, int limit, int offset, String orderBy, String providerNo, boolean outOfDomain) {
-		return searchDemographicByPhoneAndStatus(phoneStr,statuses,limit,offset,orderBy,providerNo,outOfDomain,true);
+		List<Demographic> demographics = searchDemographicByPhoneAndStatus(phoneStr,statuses,limit,offset,orderBy,providerNo,outOfDomain,true);
+		demographics.addAll(searchDemographicByExtKeyAndValueLikeAndNotStatus("demo_cell", phoneStr,statuses,limit,offset,orderBy,providerNo,outOfDomain));
+		return demographics;
 	}
 
 	public List<Demographic> searchDemographicByPhoneAndStatus(String phoneStr, List<String> statuses, int limit, int offset, String orderBy, String providerNo, boolean outOfDomain) {
-		return searchDemographicByPhoneAndStatus(phoneStr,statuses,limit,offset,orderBy,providerNo,outOfDomain,false);
+		List<Demographic> demographics = searchDemographicByPhoneAndStatus(phoneStr,statuses,limit,offset,orderBy,providerNo,outOfDomain,false);
+		demographics.addAll(searchDemographicByExtKeyAndValueLikeAndStatus("demo_cell", phoneStr,statuses,limit,offset,orderBy,providerNo,outOfDomain));
+		return demographics;
 	}
 
 	@SuppressWarnings("unchecked")
 	public List<Demographic> searchDemographicByPhoneAndStatus(String phoneStr, List<String> statuses, int limit, int offset, String orderBy, String providerNo, boolean outOfDomain,boolean ignoreStatuses) {
 		List<Demographic> list = new ArrayList<Demographic>();
-		String queryString = "From Demographic d where d.Phone like :phone ";
+		String queryString = "From Demographic d where (d.Phone like :phone OR d.Phone2 LIKE :phone)";
 
 		if(statuses != null) {
 			queryString += " and d.PatientStatus " + ((ignoreStatuses)?"not":"") + "  in (:statuses)";
