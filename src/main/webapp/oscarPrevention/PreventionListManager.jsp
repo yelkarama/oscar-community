@@ -180,11 +180,11 @@ function indicatorAllDisplay(items){
 	n = preventions.length;
 	if(n>1){
 		for(i=0;i<n;i++){
-			id = preventions[i].replace(" ", "");
+			id = preventions[i].replace(/\s/g, "");
 			indicatorDisplay(id, preventions[i]);
 		}
 	}else{			
-		id = items.replace(" ", "");
+		id = items.replace(/\s/g, "");
 		indicatorDisplay(id, items);
 	}
 }
