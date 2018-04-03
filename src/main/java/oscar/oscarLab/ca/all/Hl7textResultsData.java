@@ -721,7 +721,10 @@ public class Hl7textResultsData {
 			}
 
 			lbData.accessionNumber = accessionNum;
-			lbData.healthNumber = health_no;
+			if(health_no != null && health_no.equals("null")) {
+				health_no = "";
+			}
+			lbData.healthNumber = StringUtils.trimToEmpty(health_no);
 			lbData.patientName = last_name + ", " + first_name;
 			lbData.sex = sex;
 			lbData.label = label;

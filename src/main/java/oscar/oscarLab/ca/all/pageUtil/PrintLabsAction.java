@@ -56,6 +56,10 @@ import org.oscarehr.caisi_integrator.ws.CachedDemographicLabResult;
 import org.oscarehr.util.MiscUtils;
 import org.w3c.dom.Document;
 
+import com.lowagie.text.DocumentException;
+
+import oscar.log.LogAction;
+import oscar.log.LogConst;
 import oscar.OscarProperties;
 import oscar.oscarLab.ca.all.Hl7textResultsData;
 import oscar.oscarLab.ca.all.parsers.Factory;
@@ -85,6 +89,8 @@ public class PrintLabsAction extends Action{
 			throw new SecurityException("missing required security object (_lab)");
 		}
     	
+    	LogAction.addLog((String) request.getSession().getAttribute("user"), LogConst.READ, LogConst.CON_HL7_LAB, request.getParameter("segmentID"), request.getRemoteAddr(),"");
+    	 
         try {
             if (request.getParameter("method")!=null&& request.getParameter("method").equalsIgnoreCase("combineAndPrint")){
                 combineAndPrint(mapping,form,request,response);
@@ -126,8 +132,11 @@ public class PrintLabsAction extends Action{
             } else {
 	            response.setContentType("application/pdf");  //octet-stream
 	            response.setHeader("Content-Disposition", "attachment; filename=\""+handler.getPatientName().replaceAll("\\s", "_")+"_LabReport.pdf\"");
-	            LabPDFCreator pdf = new LabPDFCreator(handler, response.getOutputStream(), labId, multiLabId, dateLabReceived);
+                File f = File.createTempFile(request.getParameter("segmentID"),"pdf");
+                FileOutputStream fos = new FileOutputStream(f);
+	            LabPDFCreator pdf = new LabPDFCreator(handler, fos, labId, multiLabId, dateLabReceived);
 	            pdf.printPdf();
+	            pdf.addEmbeddedDocuments(f,response.getOutputStream());
             }
         }catch(DocumentException de) {
             logger.error("DocumentException occured insided PrintLabsAction", de);

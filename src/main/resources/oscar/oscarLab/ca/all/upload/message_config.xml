@@ -7,6 +7,7 @@
     <handler name="CLS"		className="CLSHandler"/>
  	<handler name="eaaps"   className="org.oscarehr.research.eaaps.EaapsHandler"/>
 	<handler name="EPSILON" className="EpsilonHandler" />
+	<handler name="ExcellerisON" className="ExcellerisOntarioHandler" />
 	<handler name="GDML" className="GDMLHandler"/>
 	<handler name="HHSEMR" className="HHSEmrDownloadHandler"/>
 	<handler name="ICL" className="ICLHandler" />

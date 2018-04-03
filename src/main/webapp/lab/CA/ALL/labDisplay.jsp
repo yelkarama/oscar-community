@@ -96,6 +96,8 @@ String showAllstr = request.getParameter("all");
 String billRegion=(props.getProperty("billregion","")).trim().toUpperCase();
 String billForm=props.getProperty("default_view");
 
+List<String> allLicenseNames = new ArrayList<String>();
+String lastLicenseNo = null, currentLicenseNo = null;
 
 if(providerNo == null) {
 	providerNo = loggedInInfo.getLoggedInProviderNo();
@@ -1287,6 +1289,10 @@ pre {
                                <td width="15%" align="middle" valign="bottom" class="Cell"><bean:message key="oscarMDS.segmentDisplay.formDateTimeCompleted"/></td>
                                <td width="6%" align="middle" valign="bottom" class="Cell"><bean:message key="oscarMDS.segmentDisplay.formNew"/></td>
                           	   <td width="6%" align="middle" valign="bottom" class="Cell"><bean:message key="oscarMDS.segmentDisplay.formAnnotate"/></td>
+                          	   <% if ("ExcellerisON".equals(handler.getMsgType())) { %>
+                          	   	<td width="6%" align="middle" valign="bottom" class="Cell">License #</td>
+                          	   </tr>
+                          	   <% } %>
                            </tr>
                            
  							<%if("CLS".equals(handler.getMsgType())) { %>
@@ -1609,9 +1615,17 @@ pre {
                                            	<%		
                                            		} else {
                                            	%>
-                                           	
+											
+											<%
+												if(handler.getMsgType().equals("ExcellerisON") && handler.getOBXValueType(j,k).equals("ED")) {
+												%>	
+													 <td align="<%=align%>"><a href="<%=request.getContextPath() %>/lab/DownloadEmbeddedDocumentFromLab.do?labNo=<%=segmentID%>&segment=<%=j%>&group=<%=k%>">PDF Report</a></td>
+													 <%
+												} else {
+											%>
                                            <td align="<%=align%>"><%= handler.getOBXResult( j, k) %></td>
                                           
+                                          	<% } %>
                                            <td align="center">
                                                    <%= handler.getOBXAbnormalFlag(j, k)%>
                                            </td>
@@ -1626,6 +1640,17 @@ pre {
 	                                                	<%if(!isPrevAnnotation){ %><img src="../../../images/notes.gif" alt="rxAnnotation" height="16" width="13" border="0"/><%}else{ %><img src="../../../images/filledNotes.gif" alt="rxAnnotation" height="16" width="13" border="0"/> <%} %>
 	                                                </a>
                                                 </td>
+                                                
+                                            <% if ("ExcellerisON".equals(handler.getMsgType())) { 
+                                            	lastLicenseNo = currentLicenseNo;
+                        						currentLicenseNo = ((ExcellerisOntarioHandler)handler).getLabLicenseNo(j, k);
+                        						String licenseName = ((ExcellerisOntarioHandler)handler).getLabLicenseName(j, k);
+                        						if(!allLicenseNames.contains(licenseName)) {
+                        							allLicenseNames.add(licenseName);
+                        						}
+                                            %>
+                                            	<td><%= !currentLicenseNo.equals(lastLicenseNo)?currentLicenseNo:""%></td>
+                                            <% } %>
                                        </tr>
 
 										<%}
@@ -1770,6 +1795,18 @@ pre {
                                     <span class="Field2"><i><bean:message key="oscarMDS.segmentDisplay.msgReportEnd"/></i></span>
                                 </td>
                             </tr>
+                        </table>
+                        
+                        <br/>
+                        <table>
+                        	<%
+                        		for(String lName : allLicenseNames) {
+                        	%>
+                        	<tr>
+                        		<td><%=lName %></td>
+                        	</tr>
+                        	
+                        	<% } %>
                         </table>
                     </td>
                 </tr>

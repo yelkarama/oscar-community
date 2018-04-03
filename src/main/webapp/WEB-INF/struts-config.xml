@@ -3010,6 +3010,8 @@
 		<action path="/billing/HealthCardValidationPreferences" type="org.oscarehr.billing.HealthCardValidationPreferencesAction" parameter="method" scope="request" validate="false" >
 			<forward name="success" path="/billing/healthCardValidationPreferences.jsp" />
 		</action>
+		<action path="/lab/DownloadEmbeddedDocumentFromLab" type="oscar.oscarLab.ca.all.pageUtil.DownloadEmbeddedDocumentFromLabAction" >
+		</action>
 		
 		<action path="/billing/ScheduleBillingService" type="org.oscarehr.billing.ScheduleBillingServiceAction" parameter="method" scope="request" validate="false">
 			<forward name="success" path="/billing/billingServiceSchedule.jsp" />
