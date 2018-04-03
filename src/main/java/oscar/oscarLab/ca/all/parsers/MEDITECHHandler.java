@@ -110,14 +110,16 @@ public class MEDITECHHandler implements MessageHandler {
 	/**
 	 * Determines if this lab is a LTS or PATH type. 
 	 */
-	public boolean isUnstructured() {		
-		for(UNSTRUCTURED lab : UNSTRUCTURED.values()) {
-			if( lab.name().equalsIgnoreCase( getSendingApplication() ) ) {
-				return true;
+	public boolean isUnstructured() {
+		boolean isUnstructured = true;
+		for(int j = 0; j < getOBRCount(); j++) {
+			for(int k = 0; k < getOBXCount(j); k++) {
+				if(!"TX".equals(getOBXValueType(j, k))) {
+					isUnstructured = false;
+				}
 			}
 		}
-
-		return false;
+		return isUnstructured ;
 	}
 
 	/**
