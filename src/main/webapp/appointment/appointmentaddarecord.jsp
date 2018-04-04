@@ -179,7 +179,7 @@ if (request.getParameter("demographic_no") != null && !(request.getParameter("de
 		boolean allowCell = allowCellReminders == null || Boolean.parseBoolean(allowCellReminders.getValue());
 		boolean allowEmail = allowEmailReminders == null || Boolean.parseBoolean(allowEmailReminders.getValue());
 
-		if (allowReminders != null && allowReminders.getValue().equals("true")) {
+		if (allowReminders == null || allowReminders.getValue().equals("true")) {
 			AppointmentReminder ar = new AppointmentReminder();
 			String reminderEmail = "";
 			String reminderCell = "";
