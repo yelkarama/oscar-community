@@ -16,7 +16,9 @@
 	<%@page import="org.oscarehr.common.dao.UserPropertyDAO" %>
 	<%@page import="org.oscarehr.common.model.UserProperty" %>
 	<%@page import="org.oscarehr.util.LoggedInInfo" %>
-	<%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="java.text.SimpleDateFormat" %>
+<%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 	<%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar"%>
 
 	<% 
@@ -232,20 +234,45 @@
 
 
 <%
-ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao");
-List<Provider> allProvidersList = providerDao.getActiveProviders(); 
+	ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao");
+	List<Provider> allProvidersList = providerDao.getActiveProviders(); 
 
-//DemographicDao demographicDao = (DemographicDao) SpringUtils.getBean("demographicDao");
-//List allDemographics = demographicDao.getDemographics();
+	String selectedDemographicNo = "";
+	String selectedDemographicName = "";
+	Demographic selectedDemographic = null;
+	if (!StringUtils.isBlank(request.getParameter("demographicNo")) && StringUtils.isNumeric(request.getParameter("demographicNo"))) {
+		DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
+		selectedDemographic = demographicDao.getDemographicById(Integer.valueOf(request.getParameter("demographicNo")));
+		selectedDemographicNo = String.valueOf(selectedDemographic.getDemographicNo());
+		selectedDemographicName = selectedDemographic.getLastName() + ", " + selectedDemographic.getFirstName() + "(" + selectedDemographic.getBirthDayAsString() + ")";
+	}
 
-OLISResultNomenclatureDao resultDao = (OLISResultNomenclatureDao) SpringUtils.getBean("OLISResultNomenclatureDao");
-List<OLISResultNomenclature> resultNomenclatureList = resultDao.findAll();
+	OLISResultNomenclatureDao resultDao = (OLISResultNomenclatureDao) SpringUtils.getBean("OLISResultNomenclatureDao");
+	List<OLISResultNomenclature> resultNomenclatureList = new ArrayList<OLISResultNomenclature>();//resultDao.findAll();
 
-OLISRequestNomenclatureDao requestDao = (OLISRequestNomenclatureDao) SpringUtils.getBean("OLISRequestNomenclatureDao");
-List<OLISRequestNomenclature> requestNomenclatureList = requestDao.findAll();
+	OLISRequestNomenclatureDao requestDao = (OLISRequestNomenclatureDao) SpringUtils.getBean("OLISRequestNomenclatureDao");
+	List<OLISRequestNomenclature> requestNomenclatureList = new ArrayList<OLISRequestNomenclature>();//requestDao.findAll();
 
-%>
-			
+
+	UserPropertyDAO upDao = (UserPropertyDAO)SpringUtils.getBean("UserPropertyDAO");
+	String providerNo = loggedInInfo.getLoggedInProviderNo();
+	UserProperty repLabProp = upDao.getProp(providerNo,"olis_reportingLab");
+	UserProperty exRepLabProp = upDao.getProp(providerNo,"olis_exreportingLab");
+	UserProperty datePeriodSearchInterval = upDao.getProp("olis_dateSearchInterval");
+
+	String reportingLabVal = (repLabProp!=null)?repLabProp.getValue():"";
+	String exReportingLabVal = (exRepLabProp!=null)?exRepLabProp.getValue():"";
+	String startTimePeriod = "";
+	String endTimePeriod = "";
+	if (datePeriodSearchInterval != null) {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		Calendar cal = new GregorianCalendar();
+		cal.setTime(new Date());
+		endTimePeriod = sdf.format(cal.getTime());
+		cal.add(Calendar.MONTH, -1 * Integer.parseInt(datePeriodSearchInterval.getValue()));
+		startTimePeriod = sdf.format(cal.getTime());
+	}
+%>			
 
 	<select id="queryType" onchange="displaySearch(this)" style="margin-left:30px;">
 		<option value="Z01">Z01 - Retrieve Laboratory Information for Patient</option>
@@ -266,7 +293,10 @@ List<OLISRequestNomenclature> requestNomenclatureList = requestDao.findAll();
 		</tr>
 		<tr>
 			<th width="20%">Date &amp; Time Period to Search<br />(yyyy-mm-dd)</th>
-			<td width="30%"><input style="width:150px" type="text" name="startTimePeriod" id="startTimePeriod" value="" > to <input style="width:150px" name="endTimePeriod" type="text" id="endTimePeriod" ></td>
+			<td width="30%">
+				<input style="width:150px" type="text" name="startTimePeriod" id="startTimePeriod" value="<%=startTimePeriod%>"> to 
+				<input style="width:150px" name="endTimePeriod" type="text" id="endTimePeriod" value="<%=endTimePeriod%>">
+			</td>
 		</tr><tr>
 			<th width="20%">Observation Date &amp; Time Period<br />(yyyy-mm-dd)</th>
 			<td width="30%"><input style="width:150px;" type="text" name="observationStartTimePeriod" id="observationStartTimePeriod" > to <input style="width:150px" name="obsevationEndTimePeriod" type="text" id="observationEndTimePeriod" ></td>
@@ -316,16 +346,6 @@ List<OLISRequestNomenclature> requestNomenclatureList = requestDao.findAll();
 </select>
 </td>
 </tr>
-<%
-	UserPropertyDAO upDao = (UserPropertyDAO)SpringUtils.getBean("UserPropertyDAO");
-	String providerNo = loggedInInfo.getLoggedInProviderNo();
-	UserProperty repLabProp = upDao.getProp(providerNo,"olis_reportingLab");
-	UserProperty exRepLabProp = upDao.getProp(providerNo,"olis_exreportingLab");
-	
-	String reportingLabVal = (repLabProp!=null)?repLabProp.getValue():"";
-	String exReportingLabVal = (exRepLabProp!=null)?exRepLabProp.getValue():"";
-
-%>
 <tr>
 			<th width="20%">Reporting Laboratory</th>
 			<td colspan="3"><select id="reportingLaboratory" name="reportingLaboratory">
@@ -353,8 +373,8 @@ List<OLISRequestNomenclature> requestNomenclatureList = requestDao.findAll();
 			<td><span>Patient</span></td>
 			<td> 
 				<%String currentDocId="1"; %>
-				<input type="hidden" name="demographic" id="demofind<%=currentDocId%>" />
-                <input type="text" id="autocompletedemo<%=currentDocId%>" onchange="checkSave('<%=currentDocId%>')" name="demographicKeyword"  />
+				<input type="hidden" name="demographic" id="demofind<%=currentDocId%>" value="<%=selectedDemographicNo%>"/>
+                <input type="text" id="autocompletedemo<%=currentDocId%>" onchange="checkSave('<%=currentDocId%>')" name="demographicKeyword" value="<%=selectedDemographicName%>"/>
                 <div id="autocomplete_choices<%=currentDocId%>"class="autocomplete"></div>
 
                 <script type="text/javascript">       <%-- testDemocomp2.jsp    --%>

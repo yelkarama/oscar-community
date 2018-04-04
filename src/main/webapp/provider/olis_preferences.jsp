@@ -53,14 +53,14 @@
 				<th width="20%">Default Reporting Laboratory</th>
 				<td colspan="3">
 					<%
-						String val1 = (String)request.getAttribute("reportingLaboratory");
-						if(val1 == null) val1 = "";
+						String value = (String)request.getAttribute("reportingLaboratory");
+						if(value == null) value = "";
 					%>
 					<select id="reportingLaboratory" name="reportingLaboratory">
-						<option value="" <%=(val1.equals("")?"selected=\"selected\"":"") %>></option>
-						<option value="5552" <%=(val1.equals("5552")?"selected=\"selected\"":"") %>>Gamma-Dynacare</option>
-						<option value="5407" <%=(val1.equals("5407")?"selected=\"selected\"":"") %>>CML</option>
-						<option value="5687" <%=(val1.equals("5687")?"selected=\"selected\"":"") %>>LifeLabs</option>
+						<option value="" <%=(value.equals("")?"selected=\"selected\"":"") %>></option>
+						<option value="5552" <%=(value.equals("5552")?"selected=\"selected\"":"") %>>Gamma-Dynacare</option>
+						<option value="5407" <%=(value.equals("5407")?"selected=\"selected\"":"") %>>CML</option>
+						<option value="5687" <%=(value.equals("5687")?"selected=\"selected\"":"") %>>LifeLabs</option>
 					</select>
 				</td>
 			</tr>
@@ -68,19 +68,28 @@
 				<th width="20%">Default Exclude Reporting Laboratory</th>
 				<td width="30%">
 					<%
-						val1 = (String)request.getAttribute("excludeReportingLaboratory");
-						if(val1 == null) val1 = "";
+						value = (String)request.getAttribute("excludeReportingLaboratory");
+						if(value == null) value = "";
 					%>
 					<select id="excludeReportingLaboratory" name="excludeReportingLaboratory">
-						<option value="" <%=(val1.equals("")?"selected=\"selected\"":"") %>></option>
-						<option value="5552" <%=(val1.equals("5552")?"selected=\"selected\"":"") %>>Gamma-Dynacare</option>
-						<option value="5407" <%=(val1.equals("5407")?"selected=\"selected\"":"") %>>CML</option>
-						<option value="5687" <%=(val1.equals("5687")?"selected=\"selected\"":"") %>>LifeLabs</option>
+						<option value="" <%=(value.equals("")?"selected=\"selected\"":"") %>></option>
+						<option value="5552" <%=(value.equals("5552")?"selected=\"selected\"":"") %>>Gamma-Dynacare</option>
+						<option value="5407" <%=(value.equals("5407")?"selected=\"selected\"":"") %>>CML</option>
+						<option value="5687" <%=(value.equals("5687")?"selected=\"selected\"":"") %>>LifeLabs</option>
 					</select>
 			</td>
 			</tr>
-								
-			
+			<tr>
+				<th width="20%">Default date period to search back<br/>
+				<span style="font-size: small;">Search dates will be defaulted to the current date minus the selected months to the current date</span></th>
+				<td width="30%">
+					<%
+						value = (String)request.getAttribute("dateSearchInterval");
+						if(value == null) { value = ""; }
+					%>
+					<input type="number" id="dateSearchInterval" name="dateSearchInterval" value="<%=value%>" min="0" max="240"/> Months
+				</td>
+			</tr>
 		</table>
 			<input type="submit" value="Save Changes"/>
 			</form>

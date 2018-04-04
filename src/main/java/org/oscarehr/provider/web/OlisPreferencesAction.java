@@ -28,6 +28,7 @@ package org.oscarehr.provider.web;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -56,6 +57,11 @@ public class OlisPreferencesAction extends DispatchAction {
 		prop = dao.getProp(providerNo, "olis_exreportingLab");
 		if(prop != null)
 			request.setAttribute("excludeReportingLaboratory", prop.getValue());
+		
+		prop = dao.getProp(providerNo, "olis_dateSearchInterval");
+		if(prop != null) {
+			request.setAttribute("dateSearchInterval", prop.getValue());
+		}
 
 		return mapping.findForward("form");	   
 	}
@@ -63,6 +69,7 @@ public class OlisPreferencesAction extends DispatchAction {
 	public ActionForward save(ActionMapping mapping, ActionForm actionform, HttpServletRequest request, HttpServletResponse response) {
 		String reportingLab = request.getParameter("reportingLaboratory");
 		String excludeReportingLab = request.getParameter("excludeReportingLaboratory");
+		String dateSearchInterval = request.getParameter("dateSearchInterval");
 		LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 		String providerNo=loggedInInfo.getLoggedInProviderNo();
 		
@@ -86,6 +93,21 @@ public class OlisPreferencesAction extends DispatchAction {
 			}
 			prop.setValue(excludeReportingLab);
 			dao.saveProp(prop);
+		}
+		
+		if(StringUtils.isNumeric(dateSearchInterval)) {
+			UserProperty prop = dao.getProp(providerNo, "olis_dateSearchInterval");
+			if (prop != null && StringUtils.isBlank(dateSearchInterval)) {
+				dao.delete(prop);
+			} else if (!StringUtils.isBlank(dateSearchInterval)) {
+				if (prop == null) {
+					prop = new UserProperty();
+					prop.setName("olis_dateSearchInterval");
+					prop.setProviderNo(providerNo);
+				}
+				prop.setValue(dateSearchInterval);
+				dao.saveProp(prop);
+			}
 		}
 		
 		return view(mapping,actionform,request,response);

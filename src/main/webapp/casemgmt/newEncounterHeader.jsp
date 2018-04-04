@@ -132,6 +132,8 @@
 		<%}%>
         <%=getEChartLinks() %>
         &nbsp;&nbsp;
+		<a href="javascript:popupPage(800,1000, 'olis_search', '<%=request.getContextPath()%>/olis/Search.jsp?demographicNo=<%=demoNo%>')">OLIS Search</a>
+        &nbsp;&nbsp;
         
 		<%
 		if (facility.isIntegratorEnabled()){
