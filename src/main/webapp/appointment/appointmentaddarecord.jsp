@@ -169,15 +169,15 @@ if (request.getParameter("demographic_no") != null && !(request.getParameter("de
 			";\n endTime=" + sdf.format(a.getEndTimeAsFullDate()) + ";\n status=" + a.getStatus();
 	LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.ADD, LogConst.CON_APPT, "appointment_no=" + a.getId(), String.valueOf(a.getDemographicNo()), logData);
 
-	if (OscarProperties.getInstance().getBooleanProperty("enable_appointment_reminders", "true")) {
-		DemographicExtDao demographicExtDao = SpringUtils.getBean(DemographicExtDao.class);
-		DemographicExt allowReminders = demographicExtDao.getDemographicExt(a.getDemographicNo(), "allow_appointment_reminders");
-		DemographicExt allowPhoneReminders = demographicExtDao.getDemographicExt(a.getDemographicNo(), "reminder_phone");
-		DemographicExt allowCellReminders = demographicExtDao.getDemographicExt(a.getDemographicNo(), "reminder_cell");
-		DemographicExt allowEmailReminders = demographicExtDao.getDemographicExt(a.getDemographicNo(), "reminder_email");
-		boolean allowPhone = allowPhoneReminders == null || Boolean.parseBoolean(allowPhoneReminders.getValue());
-		boolean allowCell = allowCellReminders == null || Boolean.parseBoolean(allowCellReminders.getValue());
-		boolean allowEmail = allowEmailReminders == null || Boolean.parseBoolean(allowEmailReminders.getValue());
+	if (OscarProperties.getInstance().getBooleanProperty("enable_appointment_reminders", "true") && a.getDemographicNo() > 0) {
+			DemographicExtDao demographicExtDao = SpringUtils.getBean(DemographicExtDao.class);
+			DemographicExt allowReminders = demographicExtDao.getDemographicExt(a.getDemographicNo(), "allow_appointment_reminders");
+			DemographicExt allowPhoneReminders = demographicExtDao.getDemographicExt(a.getDemographicNo(), "reminder_phone");
+			DemographicExt allowCellReminders = demographicExtDao.getDemographicExt(a.getDemographicNo(), "reminder_cell");
+			DemographicExt allowEmailReminders = demographicExtDao.getDemographicExt(a.getDemographicNo(), "reminder_email");
+			boolean allowPhone = allowPhoneReminders == null || Boolean.parseBoolean(allowPhoneReminders.getValue());
+			boolean allowCell = allowCellReminders == null || Boolean.parseBoolean(allowCellReminders.getValue());
+			boolean allowEmail = allowEmailReminders == null || Boolean.parseBoolean(allowEmailReminders.getValue());
 
 		if (allowReminders == null || allowReminders.getValue().equals("true")) {
 			AppointmentReminder ar = new AppointmentReminder();
