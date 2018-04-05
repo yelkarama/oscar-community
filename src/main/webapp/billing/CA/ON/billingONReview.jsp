@@ -359,6 +359,11 @@ boolean dupServiceCode = false;
 			var value=jQuery("#payee").val();
 			jQuery("#payeename").val(value);
             var ret = checkTotal();
+            
+            if (ret) {
+                jQuery("input[type='submit'][name='submit']").hide();
+                jQuery("#isSaving").show();
+			} 
             bClick = false;
 
             return ret;
@@ -1052,6 +1057,9 @@ function onCheckMaster() {
                                     <td><div class='myError'>Warning: Duplicated service codes. </div></td>
                                     <% }
                                     %>
+				<span id="isSaving" style="display: none">
+					Saving ...
+				</span>
                                     </td>
 			</tr>
 		</table>
