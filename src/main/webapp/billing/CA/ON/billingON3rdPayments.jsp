@@ -110,7 +110,7 @@ if(isTeamBillingOnly || isTeamAccessPrivacy) {
  	teamProviders = providerDao.getActiveTeamProviders(providerNo);
 }
 */
-NumberFormat currency = NumberFormat.getCurrencyInstance();
+NumberFormat currency = NumberFormat.getCurrencyInstance(Locale.US);
 BigDecimal paymentParam = BigDecimal.valueOf(0);
 
 String billingNo = request.getParameter("billingNo");
@@ -309,8 +309,8 @@ function validateDiscountNumberic(idx) {
 					<div align="right">
 						<select id="sel<%=i%>" name="sel<%=i%>" onchange="setStatus(this.selectedIndex,<%=i %>);">
 							<option value="payment">Payment</option>
-	       		 			<option value="credit">Refund Credit / Overpayment</option>
-	       		 			<option value="refund">Write off</option>
+	       		 			<option value="credit">Overpayment</option>
+	       		 			<option value="refund">Refund / Write off</option>
 						</select>
 	        		</div>
 	      		</td>
@@ -417,8 +417,8 @@ function validateDiscountNumberic(idx) {
 					<th align="left">Payment Type</th>
 					<th align="left">Date</th>
 					<th align="left">Discount</th>
-					<th align="left">Refund Credit / Overpayment</th>
-					<th align="left">Write off</th>
+					<th align="left">Overpayment</th>
+					<th align="left">Refund / Write off</th>
 					<th align="left">Balance</th>
 					<th></th>
 				</tr>
