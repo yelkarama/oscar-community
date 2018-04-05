@@ -66,6 +66,10 @@ public abstract class AbstractDao<T extends AbstractModel<?>> {
 		entityManager.persist(o);
 	}
 
+	public void batchPersist(List<AbstractModel<?>> oList) {
+		batchPersist(oList, 20);
+	}
+	
 	public void batchPersist(List<AbstractModel<?>> oList, int batchSize) {
 		EntityManager batchEntityManager = null;
 		EntityTransaction transaction = null;

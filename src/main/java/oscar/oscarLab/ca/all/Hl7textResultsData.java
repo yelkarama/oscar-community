@@ -26,6 +26,7 @@ package oscar.oscarLab.ca.all;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -42,6 +43,7 @@ import org.oscarehr.common.dao.MeasurementMapDao;
 import org.oscarehr.common.dao.MeasurementsDeletedDao;
 import org.oscarehr.common.dao.MeasurementsExtDao;
 import org.oscarehr.common.dao.PatientLabRoutingDao;
+import org.oscarehr.common.model.AbstractModel;
 import org.oscarehr.common.model.ConsultDocs;
 import org.oscarehr.common.model.ConsultResponseDoc;
 import org.oscarehr.common.model.Hl7TextInfo;
@@ -82,13 +84,13 @@ public class Hl7textResultsData {
 	public static void populateMeasurementsTable(String lab_no, String demographic_no) {
 		MessageHandler h = Factory.getHandler(lab_no);
 
-		java.util.Calendar calender = java.util.Calendar.getInstance();
-		String day = Integer.toString(calender.get(java.util.Calendar.DAY_OF_MONTH));
-		String month = Integer.toString(calender.get(java.util.Calendar.MONTH) + 1);
-		String year = Integer.toString(calender.get(java.util.Calendar.YEAR));
-		String hour = Integer.toString(calender.get(java.util.Calendar.HOUR));
-		String min = Integer.toString(calender.get(java.util.Calendar.MINUTE));
-		String second = Integer.toString(calender.get(java.util.Calendar.SECOND));
+		Calendar calender = Calendar.getInstance();
+		String day = Integer.toString(calender.get(Calendar.DAY_OF_MONTH));
+		String month = Integer.toString(calender.get(Calendar.MONTH) + 1);
+		String year = Integer.toString(calender.get(Calendar.YEAR));
+		String hour = Integer.toString(calender.get(Calendar.HOUR));
+		String min = Integer.toString(calender.get(Calendar.MINUTE));
+		String second = Integer.toString(calender.get(Calendar.SECOND));
 		String dateEntered = year + "-" + month + "-" + day + " " + hour + ":" + min + ":" + second + ":";
 
 		//Check for other versions of this lab
@@ -107,12 +109,14 @@ public class Hl7textResultsData {
 		}
 
 		if (k != 0) {
+			List<AbstractModel<?>> measurementsToRemove = new ArrayList<>();
 			MeasurementsDeleted measurementsDeleted;
 			for (Measurement m : measurementDao.findByValue("lab_no", matchingLabs[k - 1])) {
 				measurementsDeleted = new MeasurementsDeleted(m);
-				measurementsDeletedDao.persist(measurementsDeleted);
+				measurementsToRemove.add(measurementsDeleted);
 				measurementDao.remove(m.getId());
 			}
+			measurementsDeletedDao.batchPersist(measurementsToRemove);
 		}
 		// loop through the measurements for the lab and add them
 
@@ -192,61 +196,62 @@ public class Hl7textResultsData {
 					measurementDao.persist(m);
 
 					int mId = m.getId();
+				    List<AbstractModel<?>> measurementsExts = new ArrayList<>();
 
 					MeasurementsExt me = new MeasurementsExt();
 					me.setMeasurementId(mId);
 					me.setKeyVal("lab_no");
 					me.setVal(lab_no);
-					measurementsExtDao.persist(me);
+					measurementsExts.add(me);
 
 					me = new MeasurementsExt();
 					me.setMeasurementId(mId);
 					me.setKeyVal("abnormal");
 					me.setVal(abnormal);
-					measurementsExtDao.persist(me);
+					measurementsExts.add(me);
 
 					me = new MeasurementsExt();
 					me.setMeasurementId(mId);
 					me.setKeyVal("identifier");
 					me.setVal(identifier);
-					measurementsExtDao.persist(me);
+					measurementsExts.add(me);
 
 					me = new MeasurementsExt();
 					me.setMeasurementId(mId);
 					me.setKeyVal("name");
 					me.setVal(name);
-					measurementsExtDao.persist(me);
+					measurementsExts.add(me);
 
 					me = new MeasurementsExt();
 					me.setMeasurementId(mId);
 					me.setKeyVal("labname");
 					me.setVal(labname);
-					measurementsExtDao.persist(me);
+					measurementsExts.add(me);
 
 					me = new MeasurementsExt();
 					me.setMeasurementId(mId);
 					me.setKeyVal("accession");
 					me.setVal(accession);
-					measurementsExtDao.persist(me);
+					measurementsExts.add(me);
 
 					me = new MeasurementsExt();
 					me.setMeasurementId(mId);
 					me.setKeyVal("request_datetime");
 					me.setVal(req_datetime);
-					measurementsExtDao.persist(me);
+					measurementsExts.add(me);
 
 					me = new MeasurementsExt();
 					me.setMeasurementId(mId);
 					me.setKeyVal("datetime");
 					me.setVal(datetime);
-					measurementsExtDao.persist(me);
+					measurementsExts.add(me);
 
 					if (olis_status != null && olis_status.length() > 0) {
 						me = new MeasurementsExt();
 						me.setMeasurementId(mId);
 						me.setKeyVal("olis_status");
 						me.setVal(olis_status);
-						measurementsExtDao.persist(me);
+						measurementsExts.add(me);
 					}
 
 					if (unit != null && unit.length() > 0) {
@@ -254,7 +259,7 @@ public class Hl7textResultsData {
 						me.setMeasurementId(mId);
 						me.setKeyVal("unit");
 						me.setVal(unit);
-						measurementsExtDao.persist(me);
+						measurementsExts.add(me);
 					}
 
 					if (refRange[0].length() > 0) {
@@ -262,30 +267,31 @@ public class Hl7textResultsData {
 						me.setMeasurementId(mId);
 						me.setKeyVal("range");
 						me.setVal(refRange[0]);
-						measurementsExtDao.persist(me);
+						measurementsExts.add(me);
 					} else {
 						if (refRange[1].length() > 0) {
 							me = new MeasurementsExt();
 							me.setMeasurementId(mId);
 							me.setKeyVal("minimum");
 							me.setVal(refRange[1]);
-							measurementsExtDao.persist(me);
+							measurementsExts.add(me);
 						}
 						if (refRange[2].length() > 0) {
 							me = new MeasurementsExt();
 							me.setMeasurementId(mId);
 							me.setKeyVal("maximum");
 							me.setVal(refRange[2]);
-							measurementsExtDao.persist(me);
+							measurementsExts.add(me);
 						}
 					}
 
-					me = new MeasurementsExt();
-					me.setMeasurementId(mId);
-					me.setKeyVal("other_id");
-					me.setVal(i + "-" + j);
-					measurementsExtDao.persist(me);
-				}
+                    me = new MeasurementsExt();
+                    me.setMeasurementId(mId);
+                    me.setKeyVal("other_id");
+                    me.setVal(i + "-" + j);
+                    measurementsExts.add(me);
+                    
+                    measurementsExtDao.batchPersist(measurementsExts);
 			}
 		}
 		
