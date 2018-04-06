@@ -35,8 +35,11 @@
 <%@page import="org.oscarehr.common.dao.OscarAppointmentDao" %>
 <%@page import="org.oscarehr.common.model.Appointment" %>
 <%@page import="org.oscarehr.util.SpringUtils" %>
+<%@ page import="org.oscarehr.common.dao.AppointmentReminderDao" %>
+<%@ page import="org.oscarehr.common.model.AppointmentReminder" %>
 <%
 	AppointmentArchiveDao appointmentArchiveDao = (AppointmentArchiveDao)SpringUtils.getBean("appointmentArchiveDao");
+	AppointmentReminderDao appointmentReminderDao = SpringUtils.getBean(AppointmentReminderDao.class);
 	OscarAppointmentDao appointmentDao = (OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
 %>
 <html:html locale="true">
@@ -56,6 +59,13 @@
 	ApptUtil.copyAppointmentIntoSession(request);
 	Appointment appt = appointmentDao.find(Integer.parseInt(request.getParameter("appointment_no")));
 	appointmentArchiveDao.archiveAppointment(appt);
+
+	AppointmentReminder appointmentReminder = appointmentReminderDao.getByAppointmentNo(appt.getId());
+	if (appointmentReminder != null) {
+	    appointmentReminder.setCancelled(true);
+	    appointmentReminderDao.merge(appointmentReminder);
+	}
+
 	int rowsAffected=0;
 	if(appt != null) {
 		appointmentDao.remove(appt.getId());

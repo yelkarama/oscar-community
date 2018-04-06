@@ -188,21 +188,21 @@ if (request.getParameter("demographic_no") != null && !(request.getParameter("de
 			if (demo != null) {
 				reminderEmail = demo.getEmail();
 				if (!demo.getPhone().isEmpty()) {
-					reminderPhone = demo.getPhone().substring(0, 1).equals("1") ? "+" + demo.getPhone().replaceAll("-", "") : "+1" + demo.getPhone().replaceAll("-", "");
+					reminderPhone = demo.getPhone().substring(0, 1).equals("1") ? "+" + demo.getPhone().replaceAll("[^0-9]", "") : "+1" + demo.getPhone().replaceAll("[^0-9]", "");
 				}
 			}
 
-	if (demographicExt != null && !demographicExt.getValue().isEmpty())
-	{
-		reminderCell = demographicExt.getValue().substring(0, 1).equals("1")?"+" + demographicExt.getValue().replaceAll("-", ""):"+1" + demographicExt.getValue().replaceAll("-", "");
-	}
-	ar.setReminderEmail(allowEmail ?reminderEmail: "");
-	ar.setReminderCell(allowCell ?reminderCell: "");
-	ar.setReminderPhone(allowPhone ?reminderPhone: "");
-	ar.setCancelled(false);
-	ar.setConfirmed(false);
-	ar.setUniqueCancellationKey(UUID.randomUUID().toString());
-	appointmentReminderDao.persist(ar);
+			if (demographicExt != null && !demographicExt.getValue().isEmpty())
+			{
+				reminderCell = demographicExt.getValue().substring(0, 1).equals("1")?"+" + demographicExt.getValue().replaceAll("[^0-9]", ""):"+1" + demographicExt.getValue().replaceAll("[^0-9]", "");
+			}
+			ar.setReminderEmail(allowEmail ? reminderEmail : "");
+			ar.setReminderCell(allowCell ? reminderCell: "");
+			ar.setReminderPhone(allowPhone ? reminderPhone : "");
+			ar.setCancelled(false);
+			ar.setConfirmed(false);
+			ar.setUniqueCancellationKey(UUID.randomUUID().toString());
+			appointmentReminderDao.persist(ar);
 
 	AppointmentReminderStatus ars = new AppointmentReminderStatus();
 	ars.setApptReminderId(ar.getId());

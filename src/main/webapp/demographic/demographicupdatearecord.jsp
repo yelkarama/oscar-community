@@ -77,6 +77,7 @@
 	WaitingListDao waitingListDao = (WaitingListDao)SpringUtils.getBean("waitingListDao");
 	OscarAppointmentDao appointmentDao = (OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
 	DemographicGroupLinkDao demographicGroupLinkDao = SpringUtils.getBean(DemographicGroupLinkDao.class);
+	AppointmentReminderDao appointmentReminderDao = SpringUtils.getBean(AppointmentReminderDao.class);
 	
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
 	
@@ -120,6 +121,15 @@
 	String demoNo = request.getParameter("demographic_no");
 	int demographicNo = Integer.parseInt(demoNo);
 	List<DemographicExt> demoProviders = ded.getMultipleDemographicExt(demographicNo, "freshbooksId");
+	List<Appointment> demoAppointments = appointmentDao.getAllByDemographicNo(demographicNo);
+	List<AppointmentReminder> demoReminders = new ArrayList<AppointmentReminder>();
+
+	for(Appointment appointment : demoAppointments) {
+	    AppointmentReminder appointmentReminder = appointmentReminderDao.getByAppointmentNo(appointment.getId());
+	    if (appointmentReminder != null) {
+	        demoReminders.add(appointmentReminder);
+		}
+	}
 
 	String updateEmail = demographic.getEmail();
 	String updateFirstName = demographic.getFirstName();
@@ -133,6 +143,10 @@
 	if (!request.getParameter("email").equalsIgnoreCase(demographic.getEmail()))
 	{
 		updateEmail = request.getParameter("email");
+		for (AppointmentReminder appointmentReminder : demoReminders) {
+				appointmentReminder.setReminderEmail(updateEmail);
+				appointmentReminderDao.merge(appointmentReminder);
+			}
 	}
 
 	if (!request.getParameter("first_name").equalsIgnoreCase(demographic.getFirstName()))
@@ -148,6 +162,37 @@
 	if (!request.getParameter("phone").equalsIgnoreCase(demographic.getPhone()))
 	{
 		updateHomePhone = request.getParameter("phone");
+		updateHomePhone = updateHomePhone.replaceAll("[^0-9]", "");
+		if (!updateHomePhone.equals("")) {
+            if (updateHomePhone.substring(0, 1).equals("1")) {
+                updateHomePhone = "+" + updateHomePhone;
+            } else {
+                updateHomePhone = "+1" + updateHomePhone;
+            }
+        }
+		for (AppointmentReminder appointmentReminder : demoReminders) {
+			appointmentReminder.setReminderPhone(updateHomePhone);
+			appointmentReminderDao.merge(appointmentReminder);
+		}
+	}
+
+	Map<String, String> demoExt = demographicExtDao.getAllValuesForDemo(demographicNo);
+
+	if (!StringUtils.trimToEmpty(request.getParameter("demo_cell")).equalsIgnoreCase(StringUtils.trimToEmpty(demoExt.get("demo_cell"))))
+	{
+        String updateCell = request.getParameter("demo_cell");
+        updateCell = updateCell.replaceAll("[^0-9]", "");
+        if (!updateCell.equals("")) {
+            if (updateCell.substring(0, 1).equals("1")) {
+                updateCell = "+" + updateCell;
+            } else {
+                updateCell = "+1" + updateCell;
+            }
+        }
+        for (AppointmentReminder appointmentReminder : demoReminders) {
+            appointmentReminder.setReminderCell(updateCell);
+            appointmentReminderDao.merge(appointmentReminder);
+        }
 	}
 
 	if (!request.getParameter("address").equalsIgnoreCase(demographic.getAddress()))
@@ -303,7 +348,6 @@
 	String familyDoctorId = "";
 	String familyPhysicianId = "";
 	List<DemographicExt> extensions = new ArrayList<DemographicExt>();
-	Map<String, String> demoExt = demographicExtDao.getAllValuesForDemo(demographicNo);
 
 	if (!StringUtils.trimToEmpty(demoExt.get("insurance_company")).equals(StringUtils.trimToEmpty(request.getParameter("insurance_company")))) {
 		extensions.add(new DemographicExt(request.getParameter("insurance_company_id"), proNo, demographicNo, "insurance_company", request.getParameter("insurance_company")));

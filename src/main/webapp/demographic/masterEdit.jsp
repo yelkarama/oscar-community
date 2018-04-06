@@ -483,7 +483,7 @@
 		<td align="left"><input type="text" name="phone" id="phone"
 			onblur="formatPhoneNum();" <%=getDisabled("phone")%>
 			style="display: inline; width: auto;"
-			value="<%=StringUtils.trimToEmpty(StringUtils.trimToEmpty(demographic.getPhone()))%>">
+			value="<%=StringUtils.trimToEmpty(StringUtils.trimToEmpty(demographic.getPhone()))%>" maxlength="20">
 			<bean:message key="demographic.demographiceditdemographic.msgExt" />:<input
 			type="text" name="hPhoneExt" <%=getDisabled("hPhoneExt")%>
 			value="<%=StringUtils.trimToEmpty(StringUtils.trimToEmpty(demoExt.get("hPhoneExt")))%>"
@@ -495,7 +495,7 @@
 		<td align="left"><input type="text" name="phone2"
 			<%=getDisabled("phone2")%> onblur="formatPhoneNum();"
 			style="display: inline; width: auto;"
-			value="<%=StringUtils.trimToEmpty(demographic.getPhone2())%>">
+			value="<%=StringUtils.trimToEmpty(demographic.getPhone2())%>"  maxlength="20">
 			<bean:message key="demographic.demographiceditdemographic.msgExt" />:<input
 			type="text" name="wPhoneExt" <%=getDisabled("wPhoneExt")%>
 			value="<%=StringUtils.trimToEmpty(StringUtils.trimToEmpty(demoExt.get("wPhoneExt")))%>"
