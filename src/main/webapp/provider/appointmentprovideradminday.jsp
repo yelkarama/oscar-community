@@ -41,7 +41,6 @@
 <%@ page import="org.oscarehr.common.dao.UserPropertyDAO" %>
 <%@ page import="org.oscarehr.common.model.UserProperty" %>
 <%@ page import="org.oscarehr.PMmodule.dao.ProviderDao" %>
-<%@ page import="org.oscarehr.common.model.Provider" %>
 <%@ page import="org.oscarehr.common.dao.SiteDao" %>
 <%@ page import="org.oscarehr.common.model.Site" %>
 <%@ page import="org.oscarehr.common.dao.MyGroupDao" %>
@@ -54,8 +53,6 @@
 <%@ page import="org.oscarehr.common.model.ScheduleTemplate" %>
 <%@ page import="org.oscarehr.common.dao.OscarAppointmentDao" %>
 <%@ page import="org.oscarehr.common.model.Appointment" %>
-<%@ page import="org.oscarehr.common.dao.UserPropertyDAO" %>
-<%@ page import="org.oscarehr.common.model.UserProperty" %>
 <%@ page import="org.oscarehr.common.model.Tickler" %>
 <%@ page import="org.oscarehr.managers.TicklerManager" %>
 <%@page import="org.oscarehr.managers.ProgramManager2"%>
@@ -481,15 +478,10 @@ if (systemPreferences != null) {
 	displayTypePreference = Boolean.parseBoolean(systemPreferences.getValue());
 }
 %>
-<%@page import="oscar.util.*"%>
 <%@page import="oscar.oscarDB.*"%>
 
 <%@page import="oscar.appt.JdbcApptImpl"%>
 <%@page import="oscar.appt.ApptUtil"%>
-<%@page import="org.oscarehr.common.dao.SiteDao"%>
-<%@page import="org.oscarehr.common.model.Site"%>
-<%@page import="org.oscarehr.web.admin.ProviderPreferencesUIBean"%>
-<%@page import="org.oscarehr.common.model.ProviderPreference"%>
 <%@page import="org.oscarehr.web.AppointmentProviderAdminDayUIBean"%>
 <%@page import="org.oscarehr.common.model.EForm"%>
 <%@ page import="org.oscarehr.common.dao.ProviderScheduleNoteDao" %>
@@ -2410,8 +2402,8 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
     		
     		<!--  alerts -->
     		<% if(OscarProperties.getInstance().getProperty("displayAlertsOnScheduleScreen", "").equals("true")){ %>
-    		<% if(dCust != null && dCust.getAlert() != null && !dCust.getAlert().isEmpty()) { %>
-    			<a href="#" onClick="return false;" title="<%=StringEscapeUtils.escapeHtml(dCust.getAlert())%>">A</a>		
+    		<% if(dCust != null && dCust.getBookingAlert() != null && !dCust.getBookingAlert().isEmpty()) { %>
+    			<a href="#" onClick="return false;" title="<%=StringEscapeUtils.escapeHtml(dCust.getBookingAlert())%>">A</a>		
     		<%} }%>
     		
     		<!--  notes -->
@@ -2445,8 +2437,8 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
 					
 					<!--  alerts -->
 			<% if(OscarProperties.getInstance().getProperty("displayAlertsOnScheduleScreen", "").equals("true")) {%>
-    		<% if(dCust != null && dCust.getAlert() != null && !dCust.getAlert().isEmpty()) { %>
-    			<a href="#" onClick="return false;" title="<%=StringEscapeUtils.escapeHtml(dCust.getAlert())%>">A</a>		
+    		<% if(dCust != null && dCust.getBookingAlert() != null && !dCust.getBookingAlert().isEmpty()) { %>
+    			<a href="#" onClick="return false;" title="<%=StringEscapeUtils.escapeHtml(dCust.getBookingAlert())%>">A</a>		
     		<%} } %>
     		
     		<!--  notes -->

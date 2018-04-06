@@ -190,7 +190,7 @@ public class DemographicService extends AbstractServiceImpl {
 		if (demoCust!=null) {
 			result.setNurse(demoCust.getNurse());
 			result.setResident(demoCust.getResident());
-			result.setAlert(demoCust.getAlert());
+			result.setAlert(demoCust.getBookingAlert());
 			result.setMidwife(demoCust.getMidwife());
 			result.setNotes(demoCust.getNotes());
 		}
@@ -331,7 +331,7 @@ public class DemographicService extends AbstractServiceImpl {
 		if (demoCust!=null) {
 			result.setNurse(demoCust.getNurse());
 			result.setResident(demoCust.getResident());
-			result.setAlert(demoCust.getAlert());
+			result.setAlert(demoCust.getBookingAlert());
 			result.setMidwife(demoCust.getMidwife());
 			result.setNotes(demoCust.getNotes());
 		}
@@ -398,7 +398,7 @@ public class DemographicService extends AbstractServiceImpl {
 			}
 			demoCust.setNurse(data.getNurse());
 			demoCust.setResident(data.getResident());
-			demoCust.setAlert(data.getAlert());
+			demoCust.setBookingAlert(data.getAlert());
 			demoCust.setMidwife(data.getMidwife());
 			demoCust.setNotes(data.getNotes());
 			demographicManager.createUpdateDemographicCust(getLoggedInInfo(),demoCust);

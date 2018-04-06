@@ -581,6 +581,10 @@ div.logoutBox {
 				<bean:message key="admin.admin.btnInsertTemplate" /></a>
 			</li>
 			</security:oscarSec>
+			<li><a href="#"
+				   onclick='popupPage(550,800,&quot;<html:rewrite page="/admin/eChartAlert.jsp"/>&quot;);return false;'>
+				<bean:message key="admin.admin.btnechartAlert" /></a>
+			</li>
 		</ul>
 		</div>
 	</security:oscarSec>

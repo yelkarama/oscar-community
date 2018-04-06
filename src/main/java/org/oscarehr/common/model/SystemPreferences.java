@@ -22,6 +22,13 @@ public class SystemPreferences extends AbstractModel<Integer>
     @Temporal(TemporalType.TIMESTAMP)
     private Date updateDate;
 
+    public SystemPreferences() {}
+    public SystemPreferences(String name, String value) {
+        this.name = name;
+        this.value = value;
+        this.updateDate = new Date();
+    }
+
     public Integer getId() {
         return id;
     }
@@ -40,6 +47,14 @@ public class SystemPreferences extends AbstractModel<Integer>
 
     public String getValue() {
         return value;
+    }
+
+    /**
+     * Gets the system preference as a boolean
+     * @return true if value is "true", false otherwise
+     */
+    public Boolean getValueAsBoolean() {
+        return "true".equals(value);
     }
 
     public void setValue(String value) {

@@ -63,7 +63,6 @@
 <%@page import="org.oscarehr.common.model.CdsClientForm"%>
 <%@page import="org.oscarehr.common.model.OcanStaffForm"%>
 <%@page import="org.oscarehr.PMmodule.web.ClientManagerAction"%>
-<%@page import="org.oscarehr.util.SpringUtils"%>
 <%@page import="org.oscarehr.common.model.DemographicCust"%>
 <%@page import="org.oscarehr.common.dao.DemographicCustDao"%>
 <%@page import="org.oscarehr.PMmodule.web.AdmissionForDisplay"%>
@@ -149,7 +148,7 @@ function openSurvey() {
 		DemographicCustDao demographicCustDao = SpringUtils.getBean(DemographicCustDao.class);
 		DemographicCust demographicCust = demographicCustDao.find(currentDemographic.getDemographicNo());
 		if(demographicCust != null) {
-			String alert = demographicCust.getAlert();
+			String alert = demographicCust.getBookingAlert();
 			if(alert != null && alert.length()>0) {
 				alert = alert.replaceAll("\n", "<br/>");
     %>

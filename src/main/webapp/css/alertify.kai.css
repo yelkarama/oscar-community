@@ -1,0 +1,155 @@
+/**
+ * KAI Look and Feel
+ */
+.alertify,
+.alertify-log {
+    font-family: sans-serif;
+}
+.alertify {
+    background: #fcfcfc;
+    border: 5px solid #333;
+    border: 5px solid rgba(51, 51, 51, 1);
+    border-radius: 4px;
+    box-shadow: 0 3px 3px rgba(0,0,0,.3);
+    -webkit-background-clip: padding;     /* Safari 4? Chrome 6? */
+    -moz-background-clip: padding;     /* Firefox 3.6 */
+    background-clip: padding-box; /* Firefox 4, Safari 5, Opera 10, IE 9 */
+}
+.alertify-message {
+	word-break: break-word;
+}
+.alertify-button {
+    display: inline-block !important;
+    margin-bottom: 0 !important;
+    margin-left: 10px !important;
+    margin-right: 5px !important;
+    font-weight: normal !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    -ms-touch-action: manipulation !important;
+    touch-action: manipulation !important;
+    cursor: pointer !important;
+    background-image: none !important;
+    border: none !important;
+    white-space: nowrap !important;
+    padding: 6px 12px !important;
+    font-size: 14px !important;
+    line-height: 1.42857143 !important;
+    border-radius: 4px !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    user-select: none !important;
+}
+.alertify-button:hover,
+.alertify-button:focus {
+    border: inherit;
+    background-image: none;
+}
+.alertify-button:focus {
+    box-shadow: none;
+}
+.alertify-button:active {
+    position: relative;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,.15), 0 1px 2px rgba(0,0,0,.05);
+}
+.alertify-buttons {
+    text-align: right;
+}
+.alertify-button-cancel {
+    color: #333;
+    background-color: #ddd;
+}
+.alertify-button-cancel:hover,
+.alertify-button-cancel:focus {
+    background-color: #ccc;;
+}
+.alertify-button-ok {
+    color: #fff;
+    background-color: #53B848;
+}
+.alertify-button-ok:hover,
+.alertify-button-ok:focus {
+    background-color: #259145;
+}
+.alertify-oscar-alert-help {
+	display: inline-block !important;
+	margin-bottom: 0 !important;
+	margin-left: 10px !important;
+	margin-right: 5px !important;
+	text-align: center !important;
+	vertical-align: middle !important;
+	cursor: help !important;
+	background-image: none !important;
+	border: none !important;
+	white-space: nowrap !important;
+	padding: 6px 12px !important;
+	font-size: 14px !important;
+	line-height: 1.42857143 !important;
+	-webkit-user-select: none !important;
+	-moz-user-select: none !important;
+	-ms-user-select: none !important;
+	user-select: none !important;
+	border-radius: 20px !important;
+	background-color: dodgerblue;
+	font-weight: bold !important;
+	color: white;
+}
+.alertify-oscar-alert-help {
+	position: relative;
+	display: inline-block;
+}
+.alertify-oscar-alert-help .alertify-oscar-alert-help-tooltip {
+	visibility: hidden;
+	width: 200px;
+	white-space: normal;
+	background-color: #555;
+	color: #fff;
+	text-align: center;
+	border-radius: 6px;
+	padding: 5px 0;
+	position: absolute;
+	z-index: 1;
+	bottom: 125%;
+	left: 50%;
+	margin-left: -100px;
+	opacity: 0;
+	transition: opacity 0.3s;
+}
+.alertify-oscar-alert-help .alertify-oscar-alert-help-tooltip::after {
+	content: "";
+	position: absolute;
+	top: 100%;
+	left: 50%;
+	margin-left: -5px;
+	border-width: 5px;
+	border-style: solid;
+	border-color: #555 transparent transparent transparent;
+}
+.alertify-oscar-alert-help:hover .alertify-oscar-alert-help-tooltip {
+	visibility: visible;
+	opacity: 1;
+}
+
+.alertify-inner {
+    text-align: left;
+}
+.alertify-inner .label-md{
+    width: inherit;
+}
+
+.alertify-log {
+    background: #333333;
+    background: rgba(0,0,0,.9);
+    padding: 15px;
+    border-radius: 4px;
+    color: #FFF;
+}
+.alertify-log-error {
+    background: #d9534f;
+    background: rgba(217, 83, 79, 1);
+}
+.alertify-log-success {
+    background: #53B848;
+    background: rgba(83, 184, 72, 1);
+}

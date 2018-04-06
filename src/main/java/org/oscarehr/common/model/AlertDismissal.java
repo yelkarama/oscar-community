@@ -26,81 +26,46 @@
 package org.oscarehr.common.model;
 
 import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.Table;
+import java.util.Date;
 
 @Entity
-@Table(name="demographiccust")
-public class DemographicCust extends AbstractModel<Integer>{
+@Table(name="alert_dismissal")
+public class AlertDismissal extends AbstractModel<AlertDismissalPK>{
+    
+    @EmbeddedId
+    private AlertDismissalPK id;
+	
+    @Column(name="dismiss_date")
+    private Date dismissDate;
 
-	@Id
-	@Column(name="demographic_no")
-	private Integer id;
-
-	@Column(name="cust1")
-	private String nurse;
-
-	@Column(name="cust2")
-	private String resident;
-
-	@Column(name="cust3")
-	private String bookingAlert;
-
-	@Column(name="cust4")
-	private String midwife;
-
-	@Column(name="content")
-	private String notes;
-
-	public Integer getId() {
-		return id;
-	}
-
-	public String getNurse() {
-    	return nurse;
+    public AlertDismissal() {}
+    public AlertDismissal(Integer id, String providerNo) {
+        this.id = new AlertDismissalPK(id, providerNo);
+        this.dismissDate = new Date();
     }
 
-	public void setNurse(String nurse) {
-    	this.nurse = nurse;
+    @Override
+    public AlertDismissalPK getId() {
+        return id;
+    }
+    public void setId(AlertDismissalPK id) {
+        this.id = id;
     }
 
-	public String getResident() {
-    	return resident;
+    public String getProviderNo() {
+        return getId().getProviderNo();
+    }
+    public Integer getAlertId() {
+        return getId().getAlertId();
     }
 
-	public void setResident(String resident) {
-    	this.resident = resident;
+    public Date getDismissDate() {
+        return dismissDate;
     }
-
-	public String getBookingAlert() {
-    	return bookingAlert;
+    public void setDismissDate(Date dismissDate) {
+        this.dismissDate = dismissDate;
     }
-	public void setBookingAlert(String bookingAlert) {
-    	this.bookingAlert = bookingAlert;
-    }
-
-	public String getMidwife() {
-    	return midwife;
-    }
-
-	public void setMidwife(String midwife) {
-    	this.midwife = midwife;
-    }
-
-	public String getNotes() {
-    	return notes;
-    }
-
-	public void setNotes(String notes) {
-    	this.notes = notes;
-    }
-
-	public void setId(Integer id) {
-    	this.id = id;
-    }
-
-
-
-
 }

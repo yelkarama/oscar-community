@@ -463,6 +463,11 @@ String curProvider_no = (String)session.getAttribute("user");
 					<li><a href='javascript:void(0);'
 						class="xlink" rel="${ctx}/admin/providertemplate.jsp"><bean:message
 						key="admin.admin.btnInsertTemplate" /></a></li>
+					<li>
+						<a href='javascript:void(0);' class="xlink" rel="${ctx}/admin/eChartAlert.jsp">
+							<bean:message key="admin.admin.btnechartAlert" />
+						</a>
+					</li>
 				</ul>
 				</div>
 				</div>

@@ -42,6 +42,13 @@
 <%@ page import="org.oscarehr.common.model.Demographic" %>
 <%@ page import="oscar.oscarDemographic.data.DemographicData" %>
 <%@ page import="org.oscarehr.provider.web.CppPreferencesUIBean" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="org.oscarehr.common.dao.AlertDao" %>
+<%@ page import="org.oscarehr.common.model.Alert" %>
+<%@ page import="org.oscarehr.common.dao.AlertDismissalDao" %>
+<%@ page import="org.owasp.encoder.Encode" %>
+<%@ page import="org.oscarehr.common.dao.SystemPreferencesDao" %>
+<%@ page import="org.oscarehr.common.model.SystemPreferences" %>
 <jsp:useBean id="displayServiceUtil" scope="request" class="oscar.oscarEncounter.oscarConsultationRequest.config.pageUtil.EctConDisplayServiceUtil" />
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
@@ -63,6 +70,7 @@
     String encTimeMandatoryValue = OscarProperties.getInstance().getProperty("ENCOUNTER_TIME_MANDATORY","false");
 
 	LoggedInInfo loggedInInfo=LoggedInInfo.getLoggedInInfoFromSession(request);
+	String providerNo=loggedInInfo.getLoggedInProviderNo();
 	//EctConDisplayServiceUtil displayServiceUtil =
 	displayServiceUtil.estSpecialist();
 	String providerNoFromChart = null;
@@ -71,6 +79,9 @@
 	Demographic demographic = null;
 	String familyDoctor = null;
 	String rdohip = "";
+	
+	Alert activeChartAlert = null;
+	Alert activeAdminAlert = null;
 
 	if (demoNo != null) {
 		demoData = new oscar.oscarDemographic.data.DemographicData();
@@ -82,6 +93,24 @@
 		if (familyDoctor != null && familyDoctor.trim().length() > 0) {
 			rdohip = SxmlMisc.getXmlContent(familyDoctor, "rdohip");
 			rdohip = rdohip == null ? "" : rdohip.trim();
+		}
+
+		SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
+		AlertDao alertDao = SpringUtils.getBean(AlertDao.class);
+		AlertDismissalDao alertDismissalDao = SpringUtils.getBean(AlertDismissalDao.class);
+
+		SystemPreferences demographicEChartPopupPreference = systemPreferencesDao.findPreferenceByName("demographicEChartPopup");
+		if (demographicEChartPopupPreference != null && demographicEChartPopupPreference.getValueAsBoolean()) {
+			Alert chartAlert = alertDao.findLatestEnabledByDemographicNoAndType(demographic.getDemographicNo(), Alert.AlertType.CHART);
+			if (chartAlert != null && !StringUtils.isEmpty(chartAlert.getMessage()) && !alertDismissalDao.isDismissed(chartAlert.getId(), providerNo)) {
+				activeChartAlert = chartAlert;
+			}
+		}
+		
+		Alert adminAlert = alertDao.findLatestAdminAlert();
+		if (adminAlert != null && !StringUtils.isEmpty(adminAlert.getMessage()) 
+				&& adminAlert.getEnabled() && !alertDismissalDao.isDismissed(adminAlert.getId(), providerNo)) {
+			activeAdminAlert = adminAlert;
 		}
 	}
 
@@ -393,11 +422,13 @@ function checkNotifications(){
     }
 </script>
 
+<!-- Alertify.js style-->
+<link rel="stylesheet" href="<c:out value="${ctx}"/>/css/alertify.core.css" />
+<link rel="stylesheet" href="<c:out value="${ctx}"/>/css/alertify.kai.css" />
 <!-- set size of window if customized in preferences -->
 <%
 	UserPropertyDAO uPropDao = (UserPropertyDAO)SpringUtils.getBean("UserPropertyDAO");
 	
-	String providerNo=loggedInInfo.getLoggedInProviderNo();
 	UserProperty widthP = uPropDao.getProp(providerNo, "encounterWindowWidth");
 	UserProperty heightP = uPropDao.getProp(providerNo, "encounterWindowHeight");
 	UserProperty maximizeP = uPropDao.getProp(providerNo, "encounterWindowMaximize");
@@ -1347,5 +1378,41 @@ if (OscarProperties.getInstance().getBooleanProperty("note_program_ui_enabled", 
                     
                 </div>
  <%}%>
+
+	<script type="text/javascript" src="<c:out value="${ctx}"/>/js/alertify.js"></script>
+	<script type="text/javascript">
+
+		function displayAlert(alertId, message, title) {
+			alertify.set({  title: title, labels: {ok: 'Dismiss', cancel: 'Okay'}});
+			alertify.oscarAlert(message, function (dismiss) {
+				if (dismiss) {
+					dismissAlert(alertId);
+				}
+			}).set('modal', false);
+		}
+		function dismissAlert(alertId) {
+			var url = '<%=request.getContextPath()%>/alert.do';
+			var data = 'method=dismiss&alertId=' + alertId;
+			new Ajax.Request(url, {
+				method: 'post', parameters: data, onSuccess: function (response) {
+					if ('success' === response.responseText) {
+						alertify.success("Successfully dismissed alert!");
+					}
+				}
+			});
+		}
+		<%	String alertText;
+			if (activeAdminAlert != null) {
+			    alertText = Encode.forJavaScript(Encode.forHtml(activeAdminAlert.getMessage()));
+		%>
+		displayAlert('<%=activeAdminAlert.getId()%>', '<%=alertText%>', '<%=activeAdminAlert.getAlertTitle()%>');
+		<%	}
+			if (activeChartAlert != null) {
+			    alertText = Encode.forJavaScript(Encode.forHtml(activeChartAlert.getMessage()));
+		%>
+		displayAlert('<%=activeChartAlert.getId()%>', '<%=alertText%>', '<%=activeChartAlert.getAlertTitle()%>');
+		<%	} %>
+		
+	</script>
 </body>
 </html:html>

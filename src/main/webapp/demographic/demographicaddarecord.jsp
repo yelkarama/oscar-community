@@ -275,7 +275,7 @@
         DemographicCust demographicCust = new DemographicCust();
        	demographicCust.setResident(request.getParameter("cust2"));
     	demographicCust.setNurse(request.getParameter("cust1"));
-    	demographicCust.setAlert(request.getParameter("cust3"));
+    	demographicCust.setBookingAlert(request.getParameter("cust3"));
     	demographicCust.setMidwife(request.getParameter("cust4"));
     	demographicCust.setNotes("<unotes>"+ request.getParameter("content")+"</unotes>");
     	demographicCust.setId(demographic.getDemographicNo());

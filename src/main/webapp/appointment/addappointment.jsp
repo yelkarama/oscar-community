@@ -846,13 +846,13 @@ var appointmentTypeData = {};
 	if( request.getParameter("demographic_no")!=null && !"".equals(request.getParameter("demographic_no")) ) {
 	DemographicCust demographicCust = demographicCustDao.find(Integer.parseInt(request.getParameter("demographic_no")));
 
-		if (demographicCust != null && demographicCust.getAlert() != null && !demographicCust.getAlert().equals("") ) {
+		if (demographicCust != null && demographicCust.getBookingAlert() != null && !demographicCust.getBookingAlert().equals("") ) {
 
 %>
 <p>
 <table width="98%" BGCOLOR="yellow" border=1 align='center'>
 	<tr>
-		<td><font color='red'><bean:message key="Appointment.formAlert" />: <b><%=demographicCust.getAlert()%></b></font></td>
+		<td><font color='red'><bean:message key="Appointment.formAlert" />: <b><%=demographicCust.getBookingAlert()%></b></font></td>
 	</tr>
 </table>
 <%

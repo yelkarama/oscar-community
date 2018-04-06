@@ -347,10 +347,10 @@ public class BillingDocumentErrorReportUploadAction extends Action {
 						}
 						DemographicCust demographicCust = demographicCustDao.find(d.getDemographicNo());
 						if(demographicCust != null && batchEligibility != null) {
-							String newAlert =  demographicCust.getAlert() + "\n" + "Invalid old version code: "
+							String newAlert =  demographicCust.getBookingAlert() + "\n" + "Invalid old version code: "
 									+ bean.getVersion() + "\nReason: " + batchEligibility.getMOHResponse() + "- "
 									+ batchEligibility.getReason() + "\nResponse Code: " + responseCode;
-							demographicCust.setAlert(newAlert);
+							demographicCust.setBookingAlert(newAlert);
 							demographicCustDao.merge(demographicCust);
 						}
 					}

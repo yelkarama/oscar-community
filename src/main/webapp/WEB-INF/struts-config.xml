@@ -881,6 +881,9 @@
 		<action name="FreshbooksAction"  path="/FreshbooksAction" scope="request" type="org.oscarehr.common.model.FreshbooksAction">
 		</action>
 
+        <action name="AlertAction" path="/alert" parameter="method" scope="request" type="org.oscarehr.casemgmt.web.AlertAction">
+        </action>
+        
 		<action name="RxChoosePatientForm" path="/oscarRx/choosePatient" scope="request" type="oscar.oscarRx.pageUtil.RxChoosePatientAction">
 			<forward name="success" path="/oscarRx/SearchDrug.jsp" />
 			<forward name="successRX3" path="/oscarRx/SearchDrug3.jsp" />

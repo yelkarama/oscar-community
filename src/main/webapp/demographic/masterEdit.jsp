@@ -75,6 +75,7 @@
 <%@ page import="org.oscarehr.common.model.Specialty" %>
 <%@ page import="org.apache.commons.lang.StringUtils"%>
 <%@ page import="oscar.oscarBilling.ca.on.data.JdbcBilling3rdPartImpl" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <html:html locale="true">
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <jsp:useBean id="apptMainBean" class="oscar.AppointmentMainBean" scope="session" />
@@ -109,7 +110,8 @@
 	String privacyConsent = request.getParameter("privacyConsent");
 	String informedConsent = request.getParameter("informedConsent");
 	String wLReadonly = request.getParameter("wLReadonly");
-	String alert = request.getParameter("alert");
+	String bookingAlert = request.getParameter("bookingAlert");
+	String chartAlertText = request.getParameter("chartAlertText");
 	String notes = request.getParameter("notes");
 
 	int demographicNoAsInt = Integer.parseInt(demographic_no);
@@ -1570,10 +1572,16 @@ function updateStatusDate(patientOrRoster){
 				</tr>
 
 				<tr>
-					<td width="7%" align="right"><font color="#FF0000"><b><bean:message
-									key="demographic.demographiceditdemographic.formAlert" />: </b></font></td>
-					<td><textarea name="alert" style="width: 100%" cols="80"
-							rows="2"><%=alert%></textarea></td>
+					<td width="7%" align="right"><font color="#FF0000"><b> Booking Alert: </b></font></td>
+					<td>
+						<textarea name="bookingAlert" style="width: 100%" cols="80" rows="2" maxlength="200"><%=Encode.forHtmlContent(bookingAlert)%></textarea>
+					</td>
+				</tr>
+				<tr>
+					<td width="7%" align="right"><font color="#FF0000"><b> Chart Alert: </b></font></td>
+					<td>
+						<textarea name="chartAlertText" style="width: 100%" cols="80" rows="2" maxlength="200"><%=Encode.forHtmlContent(chartAlertText)%></textarea>
+					</td>
 				</tr>
 				<tr>
 					<td align="right"><b><bean:message

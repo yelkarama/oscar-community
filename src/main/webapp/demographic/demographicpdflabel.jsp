@@ -124,7 +124,7 @@ DemographicCust demographicCust = demographicCustDao.find(Integer.parseInt(demog
 if(demographicCust != null) {
 	resident = demographicCust.getResident();
 	nurse = demographicCust.getNurse();
-	alert = demographicCust.getAlert();
+	alert = demographicCust.getBookingAlert();
 	midwife = demographicCust.getMidwife();
 	notes = SxmlMisc.getXmlContent(demographicCust.getNotes(),"unotes") ;
 	notes = notes==null?"":notes;

@@ -579,7 +579,7 @@ var appointmentTypeData = {};
    		
 		DemographicCust demographicCust = demographicCustDao.find(Integer.parseInt(demono));
 		if(demographicCust != null) {
-			alert = demographicCust.getAlert();
+			alert = demographicCust.getBookingAlert();
 		}
 
 	}

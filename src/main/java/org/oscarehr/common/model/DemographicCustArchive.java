@@ -117,7 +117,7 @@ public class DemographicCustArchive extends AbstractModel<Integer>{
 	
 	public DemographicCustArchive(DemographicCust dc) {
 		this.demographicNo = dc.getId();
-		this.alert = dc.getAlert();
+		this.alert = dc.getBookingAlert();
 		this.midwife = dc.getMidwife();
 		this.nurse = dc.getNurse();
 		this.resident = dc.getResident();

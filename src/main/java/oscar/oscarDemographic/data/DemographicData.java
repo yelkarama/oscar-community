@@ -436,7 +436,7 @@ public class DemographicData {
 	public void addDemographiccust(String demoNo, String content) {
 		DemographicCust demographicCust = new DemographicCust();
 		demographicCust.setId(Integer.parseInt(demoNo));
-		demographicCust.setAlert("");
+		demographicCust.setBookingAlert("");
 		demographicCust.setMidwife("");
 		demographicCust.setNurse("");
 		demographicCust.setResident("");

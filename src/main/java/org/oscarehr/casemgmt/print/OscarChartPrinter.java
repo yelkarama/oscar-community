@@ -383,7 +383,7 @@ public class OscarChartPrinter {
         phrase = new Phrase(LEADING, "", font);
         //alerts & notes
         if(demographicCust != null) {
-	        phrase.add("Alerts: " + demographicCust.getAlert() + "\n");
+	        phrase.add("Alerts: " + demographicCust.getBookingAlert() + "\n");
 	        if(demographicCust.getNotes().length()>0) {
 	        	phrase.add("Notes: " + SxmlMisc.getXmlContent(demographicCust.getNotes(),"unotes") + "\n");
 	        }

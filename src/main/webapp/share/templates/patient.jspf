@@ -57,7 +57,7 @@ Demographic demographic_header=demographicDao_header.getDemographic(d);
 	DemographicCust demographicCust = demographicCustDao.find(demographic_header.getDemographicNo());
 	String alert = new String();
 	if(demographicCust!=null) {
-		alert = demographicCust.getAlert();
+		alert = demographicCust.getBookingAlert();
 	}   		
 %>
 

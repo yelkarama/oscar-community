@@ -45,8 +45,6 @@
 <%@page import="org.oscarehr.util.MiscUtils"%>
 <%@page import="org.oscarehr.util.SpringUtils" %>
 
-<%@page import="org.oscarehr.provider.model.PreventionManager" %>
-
 <%@ page import="org.oscarehr.PMmodule.dao.ProgramDao" %>
 <%@ page import="org.oscarehr.PMmodule.model.Program" %>
 <%@page import="org.oscarehr.PMmodule.web.GenericIntakeEditAction" %>
@@ -60,6 +58,7 @@
 <%@ page import="javax.swing.*" %>
 <%@ page import="org.oscarehr.casemgmt.model.ProviderExt" %>
 <%@ page import="oscar.util.ChangedField" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean"%>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
@@ -74,6 +73,7 @@
 	DemographicDao demographicDao = (DemographicDao)SpringUtils.getBean("demographicDao");
 	DemographicArchiveDao demographicArchiveDao = (DemographicArchiveDao)SpringUtils.getBean("demographicArchiveDao");
 	DemographicCustDao demographicCustDao = (DemographicCustDao)SpringUtils.getBean("demographicCustDao");
+	AlertDao alertDao = SpringUtils.getBean(AlertDao.class);
 	WaitingListDao waitingListDao = (WaitingListDao)SpringUtils.getBean("waitingListDao");
 	OscarAppointmentDao appointmentDao = (OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
 	DemographicGroupLinkDao demographicGroupLinkDao = SpringUtils.getBean(DemographicGroupLinkDao.class);
@@ -623,23 +623,27 @@
 
     //find the democust record for update
     DemographicCust demographicCust = demographicCustDao.find(Integer.parseInt(request.getParameter("demographic_no")));
-    if(demographicCust != null) {
-    	demographicCust.setResident(request.getParameter("resident"));
-    	demographicCust.setNurse(request.getParameter("nurse"));
-    	demographicCust.setAlert(request.getParameter("alert"));
-    	demographicCust.setMidwife(request.getParameter("midwife"));
-    	demographicCust.setNotes("<unotes>"+ request.getParameter("notes")+"</unotes>");
-    	demographicCustDao.merge(demographicCust);
-    } else {
-    	demographicCust = new DemographicCust();
-    	demographicCust.setResident(request.getParameter("resident"));
-    	demographicCust.setNurse(request.getParameter("nurse"));
-    	demographicCust.setAlert(request.getParameter("alert"));
-    	demographicCust.setMidwife(request.getParameter("midwife"));
-    	demographicCust.setNotes("<unotes>"+ request.getParameter("notes")+"</unotes>");
-    	demographicCust.setId(Integer.parseInt(request.getParameter("demographic_no")));
-    	demographicCustDao.persist(demographicCust);
-    }
+    if(demographicCust == null) {
+		demographicCust = new DemographicCust();
+	}
+	demographicCust.setResident(request.getParameter("resident"));
+	demographicCust.setNurse(request.getParameter("nurse"));
+	demographicCust.setBookingAlert(request.getParameter("bookingAlert"));
+	demographicCust.setMidwife(request.getParameter("midwife"));
+	demographicCust.setNotes("<unotes>"+ request.getParameter("notes")+"</unotes>");
+    demographicCustDao.saveEntity(demographicCust);
+
+
+	String newChartAlertText = request.getParameter("chartAlertText");
+	if (!StringUtils.isBlank(newChartAlertText) && newChartAlertText.length() <= 200) {
+		Alert oldChartAlert = alertDao.findLatestEnabledByDemographicNoAndType(demographicNo, Alert.AlertType.CHART);
+		// Compare encoded text for any changes
+		if ((oldChartAlert != null && !newChartAlertText.equals(Encode.forHtmlContent(oldChartAlert.getMessage())))
+				|| oldChartAlert == null) {
+			Alert newChartAlert = new Alert(demographicNo, Alert.AlertType.CHART, newChartAlertText);
+			alertDao.saveEntity(newChartAlert);
+		}
+	}
 
     //update admission information
     GenericIntakeEditAction gieat = new GenericIntakeEditAction();

@@ -118,7 +118,6 @@ if(!authed) {
 <%@ page import="oscar.oscarDemographic.data.*"%>
 <%@ page import="oscar.oscarDemographic.pageUtil.Util" %>
 <%@ page import="org.springframework.web.context.*,org.springframework.web.context.support.*" %>
-<%@ page import="oscar.OscarProperties"%>
 <%@ page import="org.oscarehr.common.dao.*,org.oscarehr.common.model.*" %>
 <%@ page import="org.oscarehr.common.OtherIdManager" %>
 <%@ page import="org.oscarehr.common.web.ContactAction" %>
@@ -142,6 +141,7 @@ if(!authed) {
 	DemographicDao demographicDao=(DemographicDao)SpringUtils.getBean("demographicDao");
 	ProfessionalSpecialistDao professionalSpecialistDao = (ProfessionalSpecialistDao) SpringUtils.getBean("professionalSpecialistDao");
 	DemographicCustDao demographicCustDao = (DemographicCustDao)SpringUtils.getBean("demographicCustDao");
+	AlertDao alertDao = SpringUtils.getBean(AlertDao.class);
 	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 	List<Provider> providers = providerDao.getActiveProviders();
 	List<Provider> doctors = providerDao.getActiveProvidersByRole("doctor");
@@ -312,6 +312,7 @@ if(!authed) {
 <%@page import="org.apache.commons.lang.StringUtils"%>
 <%@ page import="org.oscarehr.util.AgeCalculator" %>
 <%@ page import="org.oscarehr.util.Age" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <html:html locale="true">
 
 <head>
@@ -990,34 +991,24 @@ jQuery(document).ready(function() {
                                 String rdohip="", rd="", fd="", family_doc = "";
                                 String fam_doc_contents="", fam_doc_ohip="", fam_doc_name="";
 
-                                String resident="", nurse="", alert="", notes="", midwife="";
+                                String resident="", nurse="", notes="", midwife="";
+                                String bookingAlert = "";
+                                String chartAlertText = "";
                                 
                                 DemographicCust demographicCust = demographicCustDao.find(Integer.parseInt(demographic_no));
                                 if(demographicCust != null) {
                                     resident = demographicCust.getResident() == null ? "" : demographicCust.getResident();
                             		nurse = demographicCust.getNurse() == null ? "" : demographicCust.getNurse();
-                            		alert = demographicCust.getAlert() == null ? "" : demographicCust.getAlert();;
-                            		midwife = demographicCust.getMidwife() == null ? "" : demographicCust.getMidwife();;
-                                	notes = SxmlMisc.getXmlContent(demographicCust.getNotes(),"unotes") ;
-                                	
-                                	resident = resident==null?"":resident;
-                                	nurse = nurse==null?"":nurse;
-                                	alert = alert==null?"":alert;	
-                                	midwife = midwife==null?"":midwife;
-                                	notes = notes==null?"":notes;                               	
+                            		bookingAlert = demographicCust.getBookingAlert() == null ? "" : demographicCust.getBookingAlert();
+                            		midwife = demographicCust.getMidwife() == null ? "" : demographicCust.getMidwife();
+                                	notes = SxmlMisc.getXmlContent(demographicCust.getNotes(),"unotes") ;                       	
                                 }
                                 
-                                if( resident == null ) {
-                                	resident = "";
-                                }
                                 
-                                if( nurse == null ) {
-                                	nurse = "";
-                                }
-                                
-                                if( midwife == null ) {
-                                	midwife = "";
-                                }
+                                Alert chartAlert = alertDao.findLatestEnabledByDemographicNoAndType(demographic.getDemographicNo(), Alert.AlertType.CHART);
+                                if (chartAlert != null) {
+									chartAlertText = chartAlert.getMessage();
+								}
 
                                 // Demographic demographic=demographicDao.getDemographic(demographic_no);
 
@@ -1469,7 +1460,7 @@ if (iviewTag!=null && !"".equalsIgnoreCase(iviewTag.trim())){
                     <!-- A list used in the mobile version for users to pick which information they'd like to see -->
                     <div id="mobileDetailSections" style="display:<%=(isMobileOptimized)?"block":"none"%>;">
                         <ul class="wideList">
-                            <% if (!"".equals(alert)) { %>
+                            <% if (!"".equals(bookingAlert)) { %>
                             <li><a style="color:brown" onClick="showHideMobileSections(new Array('alert'))"><bean:message
                                 key="demographic.demographiceditdemographic.formAlert" /></a></li>
                             <% } %>
@@ -1856,10 +1847,23 @@ if ( Dead.equals(PatStat) ) {%>
             </div>
 
 						<div class="demographicSection" id="alert">
-						<h3>&nbsp;<bean:message
-							key="demographic.demographiceditdemographic.formAlert" /></h3>
-                                                <b style="color: brown;"><%=alert%></b>
-						&nbsp;
+							<h3>&nbsp;Alerts</h3>
+							<div style="width: 100%; margin-bottom: 4px;">
+								<div style="width: 19%; display: inline-block; vertical-align: top;">
+									Booking Alert: 
+								</div>
+								<div style="width: 80%; display: inline-block; vertical-align: top;">
+									<b style="color: brown;"><%=Encode.forHtmlContent(bookingAlert)%></b>
+								</div>
+							</div>
+							<div style="width: 100%; margin-bottom: 4px;">
+								<div style="width: 19%; display: inline-block; vertical-align: top;">
+									Chart Alert: 
+								</div>
+								<div style="width: 80%; display: inline-block; vertical-align: top;">
+									<b style="color: brown;"><%=Encode.forHtmlContent(chartAlertText)%></b>
+								</div>
+							</div>
 						</div>
 
 						<div class="demographicSection" id="rxInteractionWarningLevel">
@@ -2504,7 +2508,8 @@ if ( Dead.equals(PatStat) ) {%>
 							<jsp:param name="privacyConsent" value="<%= privacyConsent %>" />
 							<jsp:param name="informedConsent" value="<%= informedConsent %>" />
 							<jsp:param name="wLReadonly" value="<%= wLReadonly %>" />
-							<jsp:param name="alert" value="<%= alert %>" />
+							<jsp:param name="bookingAlert" value="<%= bookingAlert %>" />
+							<jsp:param name="chartAlertText" value="<%= chartAlertText %>" />
 							<jsp:param name="notes" value="<%= notes %>" />
 						</jsp:include>
 						
