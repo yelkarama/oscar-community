@@ -73,6 +73,19 @@ else
     updateParent = "true";  
 
 Boolean writeToEncounter = false;
+    LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+    Boolean caisiEnabled = OscarProperties.getInstance().isPropertyActive("caisi");
+    Integer defaultProgramId = null;
+    List<ProgramProvider> programProviders = new ArrayList<ProgramProvider>();
+    
+    if (caisiEnabled) {
+        ProgramProviderDAO programProviderDao = SpringUtils.getBean(ProgramProviderDAO.class);
+        programProviders = programProviderDao.getProgramProviderByProviderNo(loggedInInfo.getLoggedInProviderNo());
+        if (programProviders.size() == 1) {
+            defaultProgramId = programProviders.get(0).getProgram().getId();
+        }
+    }
+    
 %>
 <%@ page import="java.util.*, java.sql.*, oscar.*, java.net.*, oscar.oscarEncounter.pageUtil.EctSessionBean" %>
 <%@page import="org.oscarehr.util.SpringUtils" %>
@@ -104,7 +117,12 @@ GregorianCalendar now=new GregorianCalendar();
 <%@page import="org.oscarehr.common.dao.SiteDao"%>
 <%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
 <%@page import="org.oscarehr.common.model.Site"%>
-<%@page import="org.oscarehr.common.model.Provider"%><html:html locale="true">
+<%@ page import="org.oscarehr.PMmodule.dao.ProgramDao" %>
+<%@ page import="org.oscarehr.PMmodule.model.Program" %>
+<%@ page import="org.oscarehr.util.LoggedInInfo" %>
+<%@ page import="org.oscarehr.PMmodule.dao.ProgramProviderDAO" %>
+<%@ page import="org.oscarehr.PMmodule.model.ProgramProvider" %>
+<html:html locale="true">
 <head>
 <title><bean:message key="tickler.ticklerAdd.title"/></title>
 <link rel="stylesheet" href="../billing/billing.css" >
@@ -154,7 +172,7 @@ function validate(form){
 validate(form, false);
 }
 function validate(form, writeToEncounter){
-    if (validateDemoNo(form)){
+    if (validateDemoNo(form) <%=caisiEnabled?"&& validateSelectedProgram()":""%>){
         if(writeToEncounter){
             form.action = "dbTicklerAdd.jsp?writeToEncounter=true";
         }
@@ -164,28 +182,36 @@ function validate(form, writeToEncounter){
         form.submit();
     }
 }
+
 function validateDemoNo() {
-  if (document.serviceform.demographic_no.value == "") {
-alert("<bean:message key="tickler.ticklerAdd.msgInvalidDemographic"/>");
-	return false;
- }
- else{  if (document.serviceform.xml_appointment_date.value == "") {
-alert("<bean:message key="tickler.ticklerAdd.msgMissingDate"/>");
-	return false;
- }
-<% if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) { %>
- else if (document.serviceform.site.value=="none"){
-alert("Must assign task to a provider.");
-	return false;
- } 
-<% } %>
- else{
- return true;
+    if (document.serviceform.demographic_no.value == "") {
+        alert("<bean:message key="tickler.ticklerAdd.msgInvalidDemographic"/>");
+        return false;
+    } else {
+        if (document.serviceform.xml_appointment_date.value == "") {
+            alert("<bean:message key="tickler.ticklerAdd.msgMissingDate"/>");
+            return false;
+        }
+        <% if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) { %>
+        else if (document.serviceform.site.value == "none") {
+            alert("Must assign task to a provider.");
+            return false;
+        }
+        <% } %>
+        else {
+            return true;
+        }
+    }
 }
- }
 
-
+function validateSelectedProgram() {
+    if (document.serviceform.program_assigned_to.value === "none") {
+        alert("<bean:message key="tickler.ticklerAdd.msgNoProgramSelected"/>");
+        return false;
+    }
+    return true;
 }
+
 function refresh() {
   var u = self.location.href;
   if(u.lastIndexOf("view=1") > 0) {
@@ -430,6 +456,26 @@ function changeSite(sel) {
            <input type="hidden" name="docType" value="<%=request.getParameter("docType")%>"/>
            <input type="hidden" name="docId" value="<%=request.getParameter("docId")%>"/>
       </td>
+    <% if (caisiEnabled) { %>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td height="21" valign="top">
+          <font color="#003366" size="2" face="Verdana, Arial, Helvetica, sans-serif">
+              <strong><bean:message key="tickler.ticklerMain.programAssignedTo"/>:</strong>
+          </font>
+      </td>
+      <td valign="top">
+          <select name="program_assigned_to">
+              <option value="none" <%=defaultProgramId == null?"selected=\"selected\"":""%>>None selected</option>
+          <%  for (ProgramProvider pp : programProviders) { %>
+              <option value="<%=pp.getProgram().getId()%>" <%=pp.getProgram().getId().equals(defaultProgramId)?"selected=\"selected\"":""%>>
+                  <%=pp.getProgram().getName()%>
+              </option>
+          <%  } %>
+          </select>
+      </td>
+    <% } %>
       <td>&nbsp;</td>
     </tr>
     <tr> 

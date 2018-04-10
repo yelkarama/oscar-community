@@ -488,6 +488,19 @@ public class Tickler extends AbstractModel<Integer> {
             return (t2.getUpdateDate().compareTo(t1.getUpdateDate()));
 	}
     };
+    public static final Comparator<Tickler> ProgramComparator = new Comparator<Tickler>() {
+        
+        @Override
+        public int compare(Tickler o1, Tickler o2) {
+            if (o1 == null || o1.getProgram() == null) {
+                return -1;
+            }
+            if (o2 == null || o2.getProgram() == null) {
+                return 1;
+            }
+            return (o1.getProgram().getName().compareTo(o2.getProgram().getName()));
+        }
+    };
     
     public static final Comparator<Tickler> PriorityAscComparator = new Comparator<Tickler>() {
         @Override

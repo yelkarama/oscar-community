@@ -84,6 +84,15 @@ public class PropertyDao extends AbstractDao<Property> {
 		}
 		
 	}
+	
+    public String getValueByNameAndDefault(String name, String defaultValue) {
+        Property result = checkByName(name);
+        if (result == null) {
+            return defaultValue;
+        } else {
+            return result.getValue();
+        }
+    }
     
     public List<Property> findByNameAndValue(String name, String value)
  	{

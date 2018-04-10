@@ -118,6 +118,8 @@ public class CustomFilter extends AbstractModel<Integer> {
 	
 	
 	@Transient
+	private List<Integer> programIdsIn;
+	@Transient
 	private String client;
 	@Transient
 	private String mrp;
@@ -223,6 +225,14 @@ public class CustomFilter extends AbstractModel<Integer> {
 
 	public void setProgramId(String programId) {
 		this.programId = programId;
+	}
+
+	public List<Integer> getWithProgramIdsIn() {
+		return programIdsIn;
+	}
+
+	public void setWithProgramIdsIn(List<Integer> programIds) {
+		this.programIdsIn = programIds;
 	}
 
 	public String getName() {

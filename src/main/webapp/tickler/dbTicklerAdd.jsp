@@ -74,6 +74,7 @@ docdate = request.getParameter("xml_appointment_date");
 docfilename =request.getParameter("textarea");
 docpriority =request.getParameter("priority");
 docassigned =request.getParameter("task_assigned_to");
+String programAssignedTo = request.getParameter("program_assigned_to");
 
 String docType =request.getParameter("docType");
 String docId = request.getParameter("docId");
@@ -95,6 +96,9 @@ Tickler tickler = new Tickler();
       	 tickler.setPriority(Tickler.PRIORITY.Low);
     }
     tickler.setTaskAssignedTo(docassigned);
+    if (programAssignedTo != null) {
+        tickler.setProgramId(Integer.valueOf(programAssignedTo));
+    }
     tickler.setCreator(doccreator);
     tickler.setMessage(docfilename);
     tickler.setServiceDate(UtilDateUtilities.StringToDate(docdate));

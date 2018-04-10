@@ -77,6 +77,7 @@ public class TicklerManager {
         public static String CREATOR = "creator";
         public static String SERVICE_DATE = "service_date";
         public static String CREATION_DATE = "creation_date";
+        public static String PROGRAM = "program";
         public static String PRIORITY = "priority";
         public static String TASK_ASSIGNED_TO = "task_assigned_to";
         public static String SORT_ASC = "asc";
@@ -677,6 +678,8 @@ public class TicklerManager {
                         Collections.sort(ticklers, Tickler.ServiceDateAscComparator);
                     } else if (sortColumn.equals(CREATION_DATE)) {
                         Collections.sort(ticklers,Tickler.CreationDateAscComparator);
+                    } else if (sortColumn.equals(PROGRAM)) {
+                        Collections.sort(ticklers,Tickler.ProgramComparator);
                     } else if (sortColumn.equals(PRIORITY)) {
                         Collections.sort(ticklers,Tickler.PriorityAscComparator);
                     } else if (sortColumn.equals(TASK_ASSIGNED_TO)) {
@@ -691,6 +694,9 @@ public class TicklerManager {
                         Collections.sort(ticklers, Tickler.ServiceDateDescComparator);
                     } else if (sortColumn.equals(CREATION_DATE)) {
                         Collections.sort(ticklers,Tickler.CreationDateDescComparator);
+                    } else if (sortColumn.equals(PROGRAM)) {
+                        Collections.sort(ticklers,Tickler.ProgramComparator);
+                        Collections.reverse(ticklers);
                     } else if (sortColumn.equals(PRIORITY)) {
                         Collections.sort(ticklers,Tickler.PriorityDescComparator);
                     } else if (sortColumn.equals(TASK_ASSIGNED_TO)) {

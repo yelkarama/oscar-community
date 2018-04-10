@@ -56,6 +56,12 @@
 <%@ page import="org.oscarehr.hospitalReportManager.model.HRMDocument" %>
 <%@ page import="org.oscarehr.hospitalReportManager.dao.HRMDocumentDao" %>
 <%@ page import="java.net.URLEncoder" %>
+<%@ page import="java.util.*" %>
+<%@ page import="org.oscarehr.PMmodule.model.Program" %>
+<%@ page import="org.oscarehr.PMmodule.dao.ProgramDao" %>
+<%@ page import="org.oscarehr.PMmodule.dao.ProgramProviderDAO" %>
+<%@ page import="org.oscarehr.PMmodule.model.ProgramProvider" %>
+<%@ page import="org.oscarehr.common.dao.PropertyDao" %>
 
 <%
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -95,6 +101,33 @@
      else {
          providerview = request.getParameter("providerview");
      }
+
+    Boolean caisiEnabled = OscarProperties.getInstance().isPropertyActive("caisi");
+    String ticklerShowOnlyProviderPrograms = "false";
+    List<Program> programsList = new ArrayList<Program>();
+    String selectedProgram = "all";
+    
+    if (caisiEnabled) {
+        PropertyDao propertyDao = SpringUtils.getBean(PropertyDao.class);
+        ProgramDao programDao = SpringUtils.getBean(ProgramDao.class);
+        ticklerShowOnlyProviderPrograms = propertyDao.getValueByNameAndDefault("tickler_show_only_providers_programs", "false");
+        if (request.getParameter("programView") != null) {
+            selectedProgram = request.getParameter("programView");
+        }
+        Integer defaultProgramId = null;
+        if ("true".equals(ticklerShowOnlyProviderPrograms)) {
+            ProgramProviderDAO programProviderDao = SpringUtils.getBean(ProgramProviderDAO.class);
+            List<ProgramProvider> programProviders = programProviderDao.getProgramProviderByProviderNo(loggedInInfo.getLoggedInProviderNo());
+            for (ProgramProvider pp : programProviders) {
+                programsList.add(pp.getProgram());
+            }
+            if (programsList.size() == 1) {
+                selectedProgram = String.valueOf(programsList.get(0).getId());
+            }
+        } else {
+            programsList = programDao.getCommunityProgramsByFacilityId(loggedInInfo.getCurrentFacility().getId());
+        }
+    }
 
     // Check for property to default assigned provider and if present - default to user logged in
     boolean ticklerDefaultAssignedProvider = OscarProperties.getInstance().isPropertyActive("tickler_default_assigned_provider") || providerPreference.isTicklerDefaultAssignedProvider();
@@ -613,6 +646,19 @@ var beginD = "1900-01-01"
         %>
           </select>
 
+			<% if (caisiEnabled) { %>
+			<br/>
+			&nbsp;&nbsp;
+			<b><bean:message key="tickler.ticklerMain.msgProgram"/> </b>
+			<select name="programView">
+				<option value="all" <%="all".equals(selectedProgram)?"selected=\"selected\"":""%>>All Programs</option>
+				<%	for (Program p : programsList) { %>
+				<option value="<%=p.getId()%>" <%=String.valueOf(p.getId()).equals(selectedProgram)?"selected=\"selected\"":""%>>
+					<%=p.getName()%>
+				</option>
+				<%	} %>
+			</select>
+			<% } %>
 
           <!-- -->
           &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<font face="Verdana, Arial, Helvetica, sans-serif" size="2" color="#333333"><b><bean:message key="tickler.ticklerMain.msgAssignedTo"/></b></font>
@@ -674,7 +720,7 @@ function changeSite(sel) {
 
       <!--/td>
       <td -->
-        <font color="#333333" size="2" face="Verdana, Arial, Helvetica, sans-serif">
+        <font color="#333333" style="float: right" size="2" face="Verdana, Arial, Helvetica, sans-serif">
         <input type="hidden" name="Submit" value="">
         <input type="button" value="<bean:message key="tickler.ticklerMain.btnCreateReport"/>" class="mbttn noprint" onclick="document.forms['serviceform'].Submit.value='Create Report'; document.forms['serviceform'].submit();">
         <oscar:oscarPropertiesCheck property="TICKLERSAVEVIEW" value="yes">
@@ -720,6 +766,7 @@ function changeSite(sel) {
         <c:set var="sortByCreator" scope="request"><%=TicklerManager.CREATOR%></c:set>
         <c:set var="sortByServiceDate" scope="request"><%=TicklerManager.SERVICE_DATE%></c:set>
         <c:set var="sortByCreationDate" scope="request"><%=TicklerManager.CREATION_DATE%></c:set>
+		<c:set var="sortByProgram" scope="request"><%=TicklerManager.PROGRAM%></c:set>
         <c:set var="sortByPriority" scope="request"><%=TicklerManager.PRIORITY%></c:set>
         <c:set var="sortByTAT" scope="request"><%=TicklerManager.TASK_ASSIGNED_TO%></c:set>
                         
@@ -759,6 +806,14 @@ function changeSite(sel) {
                     <c:out value="${imgTag}" escapeXml="false"/>                   
                 </c:if> 
             </th>
+			<% if (caisiEnabled) { %>
+			<th style="color:#000000; font-size:xsmall; font-family:verdana,arial,helvetica;">
+				&nbsp;<a href="#" onClick="sortTicklers('<c:out value="${sortByProgram}"/>');"><bean:message key="tickler.ticklerMain.msgProgram"/></a>&nbsp;
+				<c:if test="${sortColumn == sortByProgram}">
+					<c:out value="${imgTag}" escapeXml="false"/>
+				</c:if>
+			</th>
+			<% } %>
 
             <th style="color:#000000; font-size:xsmall; font-family:verdana,arial,helvetica;" width="8%">
                 <a href="#" onClick="document.forms['ticklerform'].sort_order.value='<%=sortOrderStr%>';document.forms['ticklerform'].sort_column.value='<c:out value="${sortByPriority}"/>'; document.forms['ticklerform'].submit();"><bean:message key="tickler.ticklerMain.Priority"/></a>  
@@ -783,7 +838,10 @@ function changeSite(sel) {
 <%
                                 Integer footerColSpan = 10;
                                 if (ticklerEditEnabled) {
-                                    footerColSpan = 11;
+                                    footerColSpan++;
+                                }
+                                if (caisiEnabled) {
+                                    footerColSpan++;
                                 }
 %>
                                 <tr class="noprint"><td colspan="<%=footerColSpan%>" class="white"><a id="checkAllLink" name="checkAllLink" href="javascript:CheckAll();"><bean:message key="tickler.ticklerMain.btnCheckAll"/></a> - <a href="javascript:ClearAll();"><bean:message key="tickler.ticklerMain.btnClearAll"/></a> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
@@ -833,6 +891,18 @@ function changeSite(sel) {
 								  if (!providerview.isEmpty() && !providerview.equals("all")) {
 								      filter.setProvider(providerview);
 								  }
+
+
+								  if ("true".equals(ticklerShowOnlyProviderPrograms)) {
+								      List<Integer> programIds = new ArrayList<Integer>();
+								      for (Program p : programsList) {
+								          programIds.add(p.getId());
+									  }
+								      filter.setWithProgramIdsIn(programIds);
+								  }
+								if (!selectedProgram.isEmpty() && !selectedProgram.equals("all")) {
+									filter.setProgramId(selectedProgram);
+								}
 								  
 								  if (!assignedTo.isEmpty() && !assignedTo.equals("all")) {
 								      filter.setAssignee(assignedTo);
@@ -894,6 +964,9 @@ function changeSite(sel) {
                                     <TD ROWSPAN="1" class="<%=cellColour%>"><%=t.getProvider() == null ? "N/A" : t.getProvider().getFormattedName()%></TD>
                                     <TD ROWSPAN="1" class="<%=cellColour%>"><%=t.getServiceDate()%></TD>
                                     <TD ROWSPAN="1" class="<%=cellColour%>"><%=t.getUpdateDate()%></TD>
+									<% if (caisiEnabled) { %>
+									<td rowspan="1" class="<%=cellColour%>"><%=t.getProgram() != null?t.getProgram().getName():""%></td>
+									<% } %>
                                     <TD ROWSPAN="1" class="<%=cellColour%>"><%=t.getPriority()%></TD>
                                     <TD ROWSPAN="1" class="<%=cellColour%>"><%=t.getAssignee() != null ? t.getAssignee().getLastName() + ", " + t.getAssignee().getFirstName() : "N/A"%></TD>
                                     <TD ROWSPAN="1" class="<%=cellColour%>"><%=t.getStatusDesc(locale)%></TD>
@@ -973,6 +1046,9 @@ function changeSite(sel) {
                                         <td ROWSPAN="1" class="<%=cellColour%>"></td>
                                         <td ROWSPAN="1" class="<%=cellColour%>"><%=tc.getUpdateDate(locale)%> <%=tc.getUpdateTime(locale)%></td>
                                         <td ROWSPAN="1" class="<%=cellColour%>"></td>
+                                        <% if (caisiEnabled) { %>
+                                        <td ROWSPAN="1" class="<%=cellColour%>"></td>
+                                        <% } %>
                                         <td ROWSPAN="1" class="<%=cellColour%>"></td>
                                         <td ROWSPAN="1" class="<%=cellColour%>"></td>
                                         <td ROWSPAN="1" class="<%=cellColour%>"><%=tc.getMessage()%></td>

@@ -317,6 +317,17 @@ public class TicklerDao extends AbstractDao<Tickler>{
 		if (includeProgramClause) {
 			query = query + " and t.programId = ?";
 			paramList.add(Integer.valueOf(filter.getProgramId()));
+		} else if (filter.getWithProgramIdsIn() != null && !filter.getWithProgramIdsIn().isEmpty()) {
+			query += " and (";
+			for (int i = 0; i < filter.getWithProgramIdsIn().size(); i++) {
+				Integer id = filter.getWithProgramIdsIn().get(i);
+				query += " t.programId = ?";
+				paramList.add(id);
+				if (i < filter.getWithProgramIdsIn().size() - 1) {
+					query += " OR ";
+				}
+			}
+			query += ") ";
 		}
 		if (includeStatusClause) {
 			query = query + " and t.status = ?";
