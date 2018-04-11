@@ -175,6 +175,7 @@ NumberFormat formatter = new DecimalFormat("#0.00");
 <%@ page import="org.oscarehr.common.model.*" %>
 <%@ page import="org.oscarehr.common.dao.*" %>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
+<%@ page import="org.owasp.encoder.Encode" %>
 <html>
     <head>
         <title><bean:message key="admin.admin.invoiceRpts"/></title>
@@ -393,7 +394,7 @@ table td,th{font-size:12px;}
 		allProviderOptions.append("<option ");
 		if (providerNo.equals(provider.getProviderNo())) { allProviderOptions.append("selected "); }
 		allProviderOptions.append("value=\"").append(provider.getProviderNo()).append("\">");
-		allProviderOptions.append(provider.getLastName()).append(", ").append(provider.getFirstName());
+		allProviderOptions.append(Encode.forJavaScript(provider.getLastName())).append(", ").append(Encode.forJavaScript(provider.getFirstName()));
 		allProviderOptions.append("</option>");
 	}
 	if (bMultisites) {
@@ -411,11 +412,11 @@ table td,th{font-size:12px;}
 		siteProvidersList.addAll(siteProvidersSet);
 		Collections.sort(siteProvidersList, (new Provider()).ComparatorName());
 		for (Provider provider : siteProvidersList) {
-			if (siteProvidersList.contains(provider)) {
+			if (providerList.contains(provider)) {
 				optionsString.append("<option ");
 				if (providerNo.equals(provider.getProviderNo())) { optionsString.append("selected "); }
 				optionsString.append("value=\"").append(provider.getProviderNo()).append("\">");
-				optionsString.append(provider.getLastName()).append(", ").append(provider.getFirstName());
+				optionsString.append(Encode.forJavaScript(provider.getLastName())).append(", ").append(Encode.forJavaScript(provider.getFirstName()));
 				optionsString.append("</option>");
 			}
 		}

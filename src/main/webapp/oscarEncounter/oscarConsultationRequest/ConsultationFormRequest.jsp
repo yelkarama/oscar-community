@@ -1690,7 +1690,7 @@ function updateFaxButton() {
 												{
 													practitionerNo = loggedInPractitionerNo;
 												}
-												else if (demographic.getProvider() != null && !demographic.getProvider().equals("") && demographic.getProvider().getPractitionerNo() != null && !demographic.getProvider().getPractitionerNo().equals(""))
+												else if (demographic.getProvider() != null && demographic.getProvider().getPractitionerNo() != null && !demographic.getProvider().getPractitionerNo().equals(""))
 												{
 													practitionerNo = demographic.getProvider().getPractitionerNo();
 												}

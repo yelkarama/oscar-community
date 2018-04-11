@@ -368,6 +368,15 @@ public class Provider implements Serializable, Comparable<Provider>{
 			return (false);
 		}
 	}
+	
+	@Override
+    public boolean equals(Object o) {
+	    if (o instanceof Provider) {
+	        Provider p = (Provider) o;
+	        return (p.getProviderNo() != null && p.getProviderNo().equals(providerNo));
+        }
+        return false;
+    }
 
 	@Override
     public int hashCode() {
