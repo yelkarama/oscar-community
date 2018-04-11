@@ -41,6 +41,7 @@
 
 
 <%@page import="org.oscarehr.common.Gender" %>
+<%@ page import="org.oscarehr.common.dao.PropertyDao" %>
 <%
 
   String curProvider_no,userfirstname,userlastname;
@@ -156,6 +157,10 @@ jQuery(document).ready( function() {
 </head>
 
 <body onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0">
+<%
+	PropertyDao propertyDao = SpringUtils.getBean(PropertyDao.class);
+	Boolean enableCustomTemporaryGroups = propertyDao.isActiveBooleanProperty("enable_custom_temporary_groups");
+%>
 <center>
 <table border="0" cellspacing="0" cellpadding="0" width="100%">
 	<tr bgcolor="#486ebd">
@@ -222,26 +227,32 @@ for (int i=0; i<sites.size(); i++) {
 	<tr>
 		<td align="right"><bean:message key="admin.provider.formType" /><font
 			color="red">:</font></td>
-		<td><!--input type="text" name="provider_type" --> <%
- 
- %> <select id="provider_type" name="provider_type">
-			<option value="receptionist"><bean:message
-				key="admin.provider.formType.optionReceptionist" /></option>
-			<option value="doctor" selected="selected"><bean:message
-				key="admin.provider.formType.optionDoctor" /></option>
-			<option value="nurse"><bean:message
-				key="admin.provider.formType.optionNurse" /></option>
-			<option value="resident"><bean:message
-				key="admin.provider.formType.optionResident" /></option>
-			<option value="midwife"><bean:message
-				key="admin.provider.formType.optionMidwife" /></option>
-			<option value="admin"><bean:message
-				key="admin.provider.formType.optionAdmin" /></option>
-			<caisi:isModuleLoad moduleName="survey">
-				<option value="er_clerk"><bean:message
-					key="admin.provider.formType.optionErClerk" /></option>
-			</caisi:isModuleLoad>
-		</select> 
+		<td>
+			<div style="display: inline-block; min-width: 173px;">
+				<select id="provider_type" name="provider_type">
+					<option value="receptionist"><bean:message
+						key="admin.provider.formType.optionReceptionist" /></option>
+					<option value="doctor" selected="selected"><bean:message
+						key="admin.provider.formType.optionDoctor" /></option>
+					<option value="nurse"><bean:message
+						key="admin.provider.formType.optionNurse" /></option>
+					<option value="resident"><bean:message
+						key="admin.provider.formType.optionResident" /></option>
+					<option value="midwife"><bean:message
+						key="admin.provider.formType.optionMidwife" /></option>
+					<option value="admin"><bean:message
+						key="admin.provider.formType.optionAdmin" /></option>
+					<caisi:isModuleLoad moduleName="survey">
+						<option value="er_clerk"><bean:message
+							key="admin.provider.formType.optionErClerk" /></option>
+					</caisi:isModuleLoad>
+				</select>
+			</div>
+			<%  if (enableCustomTemporaryGroups) { %>
+			<label>
+				<input type="checkbox" name="has_schedule" value="true" checked="checked"/>Has Schedule
+			</label>
+			<% } %>
 		</td>
 	</tr>
         <%

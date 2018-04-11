@@ -137,9 +137,11 @@ public class ProviderDao extends HibernateDaoSupport {
 	}
 	
 	public List<Provider> getProviders(String[] providers) {
-		List<Provider> rs = getHibernateTemplate().find(
-				"FROM Provider p WHERE p.providerNumber IN (?)", (Object[]) providers);
-		return rs;
+		Session session = getSession();
+		String sql = "FROM Provider p WHERE p.ProviderNo IN (:providerNo)";
+		Query q = session.createQuery(sql);
+		q.setParameterList("providerNo", providers);
+		return q.list();
 	}
 
 
@@ -252,6 +254,10 @@ public class ProviderDao extends HibernateDaoSupport {
 			log.debug("getActiveProvidersByRole: # of results=" + rs.size());
 		}
 		return rs;
+	}
+	
+	public List<Provider> getActiveProvidersWithSchedule() {
+		return getHibernateTemplate().find("FROM  Provider p WHERE p.Status='1' AND p.HasSchedule = TRUE ORDER BY p.LastName");
 	}
 
 	public List<Provider> getDoctorsWithOhip(){

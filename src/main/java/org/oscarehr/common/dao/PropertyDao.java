@@ -105,4 +105,9 @@ public class PropertyDao extends AbstractDao<Property> {
 		query.setParameter(1, name);
 		query.executeUpdate();
 	}
+
+	public Boolean isActiveBooleanProperty(String name) {
+		List<Property> properties = findByName(name);
+		return !properties.isEmpty() && "true".equals(properties.get(0).getValue());
+	}
 }

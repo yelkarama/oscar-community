@@ -32,7 +32,6 @@
 <%@ page import="java.net.URLEncoder" %>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.model.MyGroup" %>
-<%@ page import="org.oscarehr.common.model.MyGroupPrimaryKey" %>
 <%@ page import="org.oscarehr.common.dao.MyGroupDao" %>
 
 <%
@@ -49,6 +48,8 @@
 </security:oscarSec>
 
 <%@ page import="java.util.*,java.sql.*" errorPage="../provider/errorpage.jsp"%>
+<%@ page import="org.oscarehr.common.dao.PropertyDao" %>
+<%@ page import="org.oscarehr.common.model.Property" %>
 
 <!DOCTYPE html>
 <html:html locale="true">
@@ -109,6 +110,21 @@ ul{
 
 
 <body>
+<%
+	String checked = "checked=\"checked\"";
+	PropertyDao propertyDao = SpringUtils.getBean(PropertyDao.class);
+	Property enableCustomTemporaryGroups = propertyDao.checkByName("enable_custom_temporary_groups");
+	if (enableCustomTemporaryGroups == null) {
+		enableCustomTemporaryGroups = new Property();
+		enableCustomTemporaryGroups.setName("enable_custom_temporary_groups");
+		enableCustomTemporaryGroups.setValue("false");
+	}
+	
+	if (request.getParameter("enableCustomTemporaryGroups") != null) {
+		enableCustomTemporaryGroups.setValue(request.getParameter("enableCustomTemporaryGroups"));
+		propertyDao.saveEntity(enableCustomTemporaryGroups);
+	}
+%>
 <h3><bean:message key="admin.admin.btnSearchGroupNoRecords" /></h3>	
 <%
 
@@ -125,7 +141,9 @@ if(isSiteAccessPrivacy) {
 int i=0;
 int j=0;
 for(MyGroup myGroup : groupList) {
-
+	if (myGroup.getId().getMyGroupNo().startsWith("tmp-")) { // ignore temp groups
+		continue;
+	}
 	if(!myGroup.getId().getMyGroupNo().equals(oldNumber)) {
 		i++;
 		if(!firstGroup){%>
@@ -182,6 +200,22 @@ for(MyGroup myGroup : groupList) {
 		  </div>
 		</div>
 	</FORM>
+<h3><bean:message key="admin.admin.btnCustomTemporaryGroup"/></h3>
+<form class="form-inline" method="post" action="<%=request.getContextPath()%>/admin/admindisplaymygroup.jsp">
+	Enable Custom Temporary Groups:
+	<label>
+		<input style="margin: 0" type="radio" name="enableCustomTemporaryGroups"
+			   value="true" <%="true".equals(enableCustomTemporaryGroups.getValue())?checked:""%>/>
+		On
+	</label>
+	<label>
+		<input style="margin: 0" type="radio" name="enableCustomTemporaryGroups"
+			   value="false" <%=!"true".equals(enableCustomTemporaryGroups.getValue())?checked:""%>/>
+		Off
+	</label>
+	&nbsp;&nbsp;&nbsp;
+	<button class="btn btn-primary" type="submit" value="save">Save</button>
+</form>
 
 <script>
 

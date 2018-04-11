@@ -101,6 +101,8 @@ public class ProviderData extends AbstractModel<String> implements Serializable 
 	private Date signedConfidentiality = null;
         @Column(name = "supervisor")
         private String supervisor;
+    @Column(name = "has_schedule")
+    private Boolean hasSchedule;
       
 	public ProviderData() {}
 	
@@ -312,8 +314,15 @@ public class ProviderData extends AbstractModel<String> implements Serializable 
             ProviderData other = (ProviderData) object;
             return ProviderData.ProviderNoComparator.compare(this, other) == 0;
         }
-        
-	public static final Comparator<ProviderData> LastNameComparator = new Comparator<ProviderData>() {
+
+    public Boolean getHasSchedule() {
+        return hasSchedule;
+    }
+    public void setHasSchedule(Boolean hasSchedule) {
+        this.hasSchedule = hasSchedule;
+    }
+
+    public static final Comparator<ProviderData> LastNameComparator = new Comparator<ProviderData>() {
         public int compare(ProviderData pd1, ProviderData pd2) {
         	return pd1.getLastName().compareTo(pd2.getLastName());
         }

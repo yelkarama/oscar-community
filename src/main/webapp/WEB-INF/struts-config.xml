@@ -1163,6 +1163,9 @@
 			<forward name="success" path="/form/HSFOform.do" />
 			<forward name="exit" path="/oscarEncounter/close.jsp" />
 		</action>
+		<action path="/provider/customSchedule" scope="request" type="org.oscarehr.common.web.TemporaryScheduleAction">
+			<forward name="success" path="/provider/customSchedule.jsp"/>
+		</action>
 
           <!-- actions for HSFO2 begin -->
 	        <action name="inputForm" path="/admin/RecommitHSFO2" parameter="method" scope="request" type="oscar.form.study.hsfo2.pageUtil.RecommitHSFOAction" >

@@ -39,5 +39,6 @@
 		<property name="lastUpdateUser" type="string"/>
 		<property name="lastUpdateDate" type="timestamp" />
                 <property name="supervisor" type="string" />
+		<property column="has_schedule" name="HasSchedule" length="1" not-null="true" type="java.lang.Boolean"/>
 	</class>
 </hibernate-mapping>

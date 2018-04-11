@@ -12569,3 +12569,5 @@ CREATE TABLE provider_schedule_note (
     note TEXT NOT NULL,
     PRIMARY KEY (provider_no, `date`)
 );
+
+ALTER TABLE provider ADD COLUMN has_schedule BOOLEAN DEFAULT TRUE NOT NULL;

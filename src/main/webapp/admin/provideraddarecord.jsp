@@ -95,6 +95,7 @@ p.setProviderNo(request.getParameter("provider_no"));
 p.setLastName(request.getParameter("last_name"));
 p.setFirstName(request.getParameter("first_name"));
 p.setProviderType(request.getParameter("provider_type"));
+p.setHasSchedule("true".equals(request.getParameter("has_schedule")));
 p.setSpecialty(request.getParameter("specialty"));
 p.setTeam(request.getParameter("team"));
 p.setSex(request.getParameter("sex"));

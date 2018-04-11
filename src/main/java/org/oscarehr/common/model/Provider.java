@@ -66,6 +66,7 @@ public class Provider implements Serializable, Comparable<Provider>{
     private String lastUpdateUser;
     private Date lastUpdateDate = new Date();
     private String supervisor;
+    private Boolean hasSchedule = true;
 
 	public String getPractitionerNo() {
 		return practitionerNo;
@@ -126,7 +127,7 @@ public class Provider implements Serializable, Comparable<Provider>{
 		lastUpdateUser = provider.lastUpdateUser;
 		lastUpdateDate = provider.lastUpdateDate;
                 supervisor = provider.supervisor;
-
+        hasSchedule = provider.hasSchedule;
 	}
 
 	public String getFormattedName() {
@@ -348,6 +349,13 @@ public class Provider implements Serializable, Comparable<Provider>{
         public void setSupervisor( String supervisor ) {
             this.supervisor = supervisor;
         }
+        
+    public Boolean getHasSchedule() {
+        return hasSchedule;
+    }
+    public void setHasSchedule(Boolean hasSchedule) {
+        this.hasSchedule = hasSchedule;
+    }
 
 	public ComparatorName ComparatorName() {
 		return new ComparatorName();

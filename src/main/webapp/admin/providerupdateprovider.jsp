@@ -71,9 +71,10 @@
 <%@page import="org.oscarehr.common.model.ProviderSite"%>
 <%@page import="org.oscarehr.common.model.ProviderSitePK"%>
 <%@page import="org.oscarehr.common.dao.ProviderSiteDao"%>
+	<%@ page import="org.oscarehr.common.dao.PropertyDao" %>
 
 
-<head>
+	<head>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/global.js"></script>
 <script type="text/javascript" src="<%= request.getContextPath() %>/js/jquery-1.9.1.js"></script>
 <title><bean:message key="admin.providerupdateprovider.title" /></title>
@@ -133,6 +134,10 @@ jQuery(document).ready( function() {
 </security:oscarSec>
 
 <body onLoad="setfocus()" topmargin="0" leftmargin="0" rightmargin="0">
+<%
+	PropertyDao propertyDao = SpringUtils.getBean(PropertyDao.class);
+	Boolean enableCustomTemporaryGroups = propertyDao.isActiveBooleanProperty("enable_custom_temporary_groups");
+%>
 <center>
 <table border="0" cellspacing="0" cellpadding="0" width="100%">
 	<tr bgcolor="#486ebd">
@@ -213,38 +218,45 @@ for (int i=0; i<sites.size(); i++) {
 		<td align="right"><bean:message key="admin.provider.formType" />:
 		</td>
 		<td>
-			<select id="provider_type" name="provider_type">
-			<option value="receptionist"
-				<% if (provider.getProviderType().equals("receptionist")) { %>
-				SELECTED <%}%>><bean:message
-				key="admin.provider.formType.optionReceptionist" /></option>
-			<option value="doctor"
-				<% if (provider.getProviderType().equals("doctor")) { %>
-				SELECTED <%}%>><bean:message
-				key="admin.provider.formType.optionDoctor" /></option>
-			<option value="nurse"
-				<% if (provider.getProviderType().equals("nurse")) { %>
-				SELECTED <%}%>><bean:message
-				key="admin.provider.formType.optionNurse" /></option>
-			<option value="resident"
-				<% if (provider.getProviderType().equals("resident")) { %>
-				SELECTED <%}%>><bean:message
-				key="admin.provider.formType.optionResident" /></option>
-			<option value="midwife"
-				<% if (provider.getProviderType().equals("midwife")) { %>
-				SELECTED <%}%>><bean:message
-				key="admin.provider.formType.optionMidwife" /></option>
-			<option value="admin"
-				<% if (provider.getProviderType().equals("admin")) { %>
-				SELECTED <%}%>><bean:message
-				key="admin.provider.formType.optionAdmin" /></option>
-			<caisi:isModuleLoad moduleName="survey">
-				<option value="er_clerk"
-					<% if (provider.getProviderType().equals("er_clerk")) { %>
+			<div style="display: inline-block; min-width: 173px;">
+				<select id="provider_type" name="provider_type">
+				<option value="receptionist"
+					<% if (provider.getProviderType().equals("receptionist")) { %>
 					SELECTED <%}%>><bean:message
-					key="admin.provider.formType.optionErClerk" /></option>
-			</caisi:isModuleLoad>
-		</select> <!--input type="text" name="provider_type" value="<%= provider.getProviderType() %>" maxlength="15" -->
+					key="admin.provider.formType.optionReceptionist" /></option>
+				<option value="doctor"
+					<% if (provider.getProviderType().equals("doctor")) { %>
+					SELECTED <%}%>><bean:message
+					key="admin.provider.formType.optionDoctor" /></option>
+				<option value="nurse"
+					<% if (provider.getProviderType().equals("nurse")) { %>
+					SELECTED <%}%>><bean:message
+					key="admin.provider.formType.optionNurse" /></option>
+				<option value="resident"
+					<% if (provider.getProviderType().equals("resident")) { %>
+					SELECTED <%}%>><bean:message
+					key="admin.provider.formType.optionResident" /></option>
+				<option value="midwife"
+					<% if (provider.getProviderType().equals("midwife")) { %>
+					SELECTED <%}%>><bean:message
+					key="admin.provider.formType.optionMidwife" /></option>
+				<option value="admin"
+					<% if (provider.getProviderType().equals("admin")) { %>
+					SELECTED <%}%>><bean:message
+					key="admin.provider.formType.optionAdmin" /></option>
+				<caisi:isModuleLoad moduleName="survey">
+					<option value="er_clerk"
+						<% if (provider.getProviderType().equals("er_clerk")) { %>
+						SELECTED <%}%>><bean:message
+						key="admin.provider.formType.optionErClerk" /></option>
+				</caisi:isModuleLoad>
+			</select> <!--input type="text" name="provider_type" value="<%= provider.getProviderType() %>" maxlength="15" -->
+		</div>
+		<%  if (enableCustomTemporaryGroups) { %>
+		<label>
+			<input type="checkbox" name="has_schedule" value="true" <%=provider.getHasSchedule()?"checked=\"checked\"":""%>/>Has Schedule
+		</label>
+		<% } %>
 		</td>
 	</tr>
         <%

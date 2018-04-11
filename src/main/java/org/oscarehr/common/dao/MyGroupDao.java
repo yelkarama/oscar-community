@@ -178,4 +178,9 @@ public class MyGroupDao extends AbstractDao<MyGroup> {
          return dList;
      }
      
+     public void deleteTemporaryGroup(String temporaryGroupNo) {
+         Query query = entityManager.createQuery("DELETE FROM MyGroup g WHERE g.id.myGroupNo = :temporaryGroupNo");
+         query.setParameter("temporaryGroupNo", temporaryGroupNo);
+         query.executeUpdate();
+     }
 }

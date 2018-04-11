@@ -85,6 +85,7 @@
 	DemographicStudyDao demographicStudyDao = SpringUtils.getBean(DemographicStudyDao.class);
 	StudyDao studyDao = SpringUtils.getBean(StudyDao.class);
 	UserPropertyDAO userPropertyDao = SpringUtils.getBean(UserPropertyDAO.class);
+	PropertyDao propertyDao = SpringUtils.getBean(PropertyDao.class);
 	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 	SiteDao siteDao = SpringUtils.getBean(SiteDao.class);
 	MyGroupDao myGroupDao = SpringUtils.getBean(MyGroupDao.class);
@@ -104,6 +105,8 @@
 	for(LookupListItem lli:reasonCodes.getItems()) {
 		reasonCodesMap.put(lli.getId(),lli);	
 	}
+	
+	Boolean enableCustomTemporaryGroups = propertyDao.isActiveBooleanProperty("enable_custom_temporary_groups");
 
 	String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
 
@@ -273,6 +276,9 @@ public boolean patientHasOutstandingPrivateBills(String demographicNo){
     String mygroupno = providerPreference2.getMyGroupNo();
     if(mygroupno == null){
     	mygroupno = ".default";
+    }
+    if (!mygroupno.equals("tmp-" + loggedInInfo1.getLoggedInProviderNo())) {
+        myGroupDao.deleteTemporaryGroup("tmp-" + loggedInInfo1.getLoggedInProviderNo());
     }
     String caisiView = null;
     caisiView = request.getParameter("GoToCaisiViewFromOscarView");
@@ -481,6 +487,7 @@ if (apptDate.before(minDate)) {
 <%@page import="org.oscarehr.common.model.EForm"%>
 <%@ page import="org.oscarehr.common.dao.ProviderScheduleNoteDao" %>
 <%@ page import="org.oscarehr.common.model.ProviderScheduleNote" %>
+<%@ page import="org.oscarehr.common.dao.PropertyDao" %>
 <html:html locale="true">
 <head>
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/global.js"></script>
@@ -756,6 +763,15 @@ if(newGroupNo.indexOf("_grp_") != -1) {
   var programId=0;
   popupPage(10,10, "providercontrol.jsp?provider_no=<%=curUser_no%>&start_hour=<%=startHour%>&end_hour=<%=endHour%>&every_min=<%=everyMin%>&color_template=deepblue&dboperation=updatepreference&displaymode=updatepreference&default_servicetype=<%=defaultServiceType%>&prescriptionQrCodes=<%=prescriptionQrCodes%>&erx_enable=<%=erx_enable%>&erx_training_mode=<%=erx_training_mode%>&mygroup_no="+newGroupNo+"&programId_oscarView="+programId + "<%=eformIds.toString()%><%=ectFormNames.toString()%>");
 <%}%>
+}
+
+function changeGroupExternal(newGroupNo) {
+	<% if (org.oscarehr.common.IsPropertiesOn.isCaisiEnable() && org.oscarehr.common.IsPropertiesOn.isTicklerPlusEnable()) { %>
+	var programId_forCME = document.getElementById("bedprogram_no").value;
+	popupPage(10, 10, "providercontrol.jsp?provider_no=<%=curUser_no%>&start_hour=<%=startHour%>&end_hour=<%=endHour%>&every_min=<%=everyMin%>&caisiBillingPreferenceNotDelete=<%=caisiBillingPreferenceNotDelete%>&new_tickler_warning_window=<%=newticklerwarningwindow%>&default_pmm=<%=default_pmm%>&color_template=deepblue&dboperation=updatepreference&displaymode=updatepreference&default_servicetype=<%=defaultServiceType%>&prescriptionQrCodes=<%=prescriptionQrCodes%>&erx_enable=<%=erx_enable%>&erx_training_mode=<%=erx_training_mode%>&mygroup_no=" + newGroupNo + "&programId_oscarView=0&case_program_id=" + programId_forCME + "<%=eformIds.toString()%><%=ectFormNames.toString()%>");
+	<% } else { %>
+	popupPage(10, 10, "providercontrol.jsp?provider_no=<%=curUser_no%>&start_hour=<%=startHour%>&end_hour=<%=endHour%>&every_min=<%=everyMin%>&color_template=deepblue&dboperation=updatepreference&displaymode=updatepreference&default_servicetype=<%=defaultServiceType%>&prescriptionQrCodes=<%=prescriptionQrCodes%>&erx_enable=<%=erx_enable%>&erx_training_mode=<%=erx_training_mode%>&mygroup_no=" + newGroupNo + "&programId_oscarView=0<%=eformIds.toString()%><%=ectFormNames.toString()%>");
+	<% } %>
 }
 
 <%
@@ -1620,11 +1636,20 @@ if (curProvider_no[provIndex].equals(provNum)) {
     	</select>
 <%
 	}
+	if (enableCustomTemporaryGroups) {
 %>
+	<a href="#" onclick="popupPage(715,680,'customSchedule.jsp');return false;" title="Create a temporary custom schedule">C</a>
+<%  } %>
   <span><bean:message key="global.group"/>:</span>
 
 <%
 	List<MyGroupAccessRestriction> restrictions = myGroupAccessRestrictionDao.findByProviderNo(curUser_no);
+	List<Provider> myGroupProviders;
+	if (enableCustomTemporaryGroups) {
+		myGroupProviders = providerDao.getActiveProvidersWithSchedule();
+	} else {
+		myGroupProviders = providerDao.getActiveProviders();
+	}
 %>
   <select id="mygroup_no" name="mygroup_no" onChange="changeGroup(this)">
   <option value=".<bean:message key="global.default"/>">.<bean:message key="global.default"/></option>
@@ -1633,7 +1658,7 @@ if (curProvider_no[provIndex].equals(provNum)) {
 <security:oscarSec roleName="<%=roleName$%>" objectName="_team_schedule_only" rights="r" reverse="false">
 <%
 	String provider_no = curUser_no;
-	for(Provider p : providerDao.getActiveProviders()) {
+	for(Provider p : myGroupProviders) {
 		boolean skip = checkRestriction(restrictions,p.getProviderNo());
 		if(!skip) {
 %>
@@ -1660,14 +1685,21 @@ if (curProvider_no[provIndex].equals(provNum)) {
 		boolean skip = checkRestriction(restrictions,g.getId().getMyGroupNo());
 
 		if (!skip && (!bMultisites || siteGroups == null || siteGroups.size() == 0 || siteGroups.contains(g.getId().getMyGroupNo()))) {
+		    String groupName = g.getId().getMyGroupNo();
+		    if (g.getId().getMyGroupNo().equals("tmp-" + loggedInInfo1.getLoggedInProviderNo())) {
+				groupName = "Custom Group";
+			} else if (g.getId().getMyGroupNo().startsWith("tmp-")) { // else if the temp group does not match provider's
+		        continue;
+			}
 %>
-  <option value="<%="_grp_"+g.getId().getMyGroupNo()%>"
-		<%=mygroupno.equals(g.getId().getMyGroupNo())?"selected":""%>><%=g.getId().getMyGroupNo()%></option>
+  <option value="<%="_grp_"+g.getId().getMyGroupNo()%>" <%=mygroupno.equals(g.getId().getMyGroupNo())?"selected":""%>>
+	  <%=groupName%>
+  </option>
 <%
-	}
+		}
 	}
 
-	for(Provider p : providerDao.getActiveProviders()) {
+	for(Provider p : myGroupProviders) {
 		boolean skip = checkRestriction(restrictions,p.getProviderNo());
 
 		if (!skip && (!bMultisites || siteProviderNos  == null || siteProviderNos.size() == 0 || siteProviderNos.contains(p.getProviderNo()))) {
