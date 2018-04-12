@@ -389,8 +389,8 @@ function validateDiscountNumberic(idx) {
 		    balances.add(balance);
 		    
 		    String paymentType = "";
-		    int paymentTypeId = paymentLists.get(i).getPaymentTypeId();
-		    if(paymentTypeId>0) {
+		Integer paymentTypeId = paymentLists.get(i).getPaymentTypeId();
+		if(paymentTypeId != null && paymentTypeId>0) {
 		    	
 		    	BillingPaymentType ptype = paymentTypeDao.find(paymentTypeId);
 		    	paymentType = ptype.getPaymentType();
