@@ -1,0 +1,1 @@
+ALTER TABLE appointment MODIFY status CHAR(2) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL DEFAULT 't';
