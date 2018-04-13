@@ -667,7 +667,17 @@ function showHideLayers() { //v3.0
 
 function onNext() {
     var ret = true;
-    if (!checkAllDates()) {
+    <% if (org.oscarehr.common.IsPropertiesOn.isMultisitesEnable()) { %>
+        if (!checkSiteSelect()) {
+			alert("You haven't selected a clinic!");
+        	return false;
+        }
+    <% } %>
+	
+    if (!checkProviderSelect()) {
+		alert("You haven't selected a provider!");
+		ret = false;
+	} else if (!checkAllDates()) {
     	ret = false;
     }else if(!checkServicePercent()){
     	ret = false;
@@ -686,6 +696,21 @@ function onNext() {
 	}
    
     return ret;
+}
+
+function checkProviderSelect() {
+	var providerSelectElement = document.getElementsByName('xml_provider')[0];
+	if (providerSelectElement.options.length === 0 || providerSelectElement.selectedIndex == -1) {
+		return false;
+	}
+	return true;
+}
+function checkSiteSelect() {
+	var siteSelectElement = document.getElementsByName('site')[0];
+	if (siteSelectElement.options.length === 0 || siteSelectElement.options[siteSelectElement.selectedIndex].value == 'none') {
+		return false;
+	}
+	return true;
 }
 
 function checkServicePercent() {
@@ -983,9 +1008,12 @@ function onChangePrivate() {
     var val = document.forms[0].xml_billtype[n].value;
     var n2 = document.forms[0].xml_provider.selectedIndex;
     var providerSelect = document.getElementsByName('xml_provider')[0];
-    var selectedProvider = providerSelect.options[providerSelect.selectedIndex].value.split("|")[0];
+    var selectedProviderStr = '&providerview=<%=providerview%>';
+    if (providerSelect.options.length !== 0) {
+		selectedProviderStr = '&providerview=' + providerSelect.options[providerSelect.selectedIndex].value.split("|")[0];
+	}
     if (val.substring(0, 3) == "PAT" || val.substring(0, 3) == "OCF" || val.substring(0, 3) == "ODS" || val.substring(0, 3) == "CPP" || val.substring(0, 3) == "STD") {
-        self.location.href = "billingON.jsp?curBillForm=<%="PRI"%>&hotclick=<%=URLEncoder.encode("","UTF-8")%>&appointment_no=<%=request.getParameter("appointment_no")%>&demographic_name=<%=URLEncoder.encode(demoname,"UTF-8")%>&demographic_no=<%=request.getParameter("demographic_no")%>&xml_billtype="+val.substring(0,3)+"&apptProvider_no=<%=request.getParameter("apptProvider_no")%>&providerview="+selectedProvider+"&appointment_date=<%=request.getParameter("appointment_date")%>&status=<%=request.getParameter("status")%>&start_time=<%=request.getParameter("start_time")%>&bNewForm=1";
+        self.location.href = "billingON.jsp?curBillForm=<%="PRI"%>&hotclick=<%=URLEncoder.encode("","UTF-8")%>&appointment_no=<%=request.getParameter("appointment_no")%>&demographic_name=<%=URLEncoder.encode(demoname,"UTF-8")%>&demographic_no=<%=request.getParameter("demographic_no")%>&xml_billtype="+val.substring(0,3)+"&apptProvider_no=<%=request.getParameter("apptProvider_no")%>"+selectedProviderStr+"&appointment_date=<%=request.getParameter("appointment_date")%>&status=<%=request.getParameter("status")%>&start_time=<%=request.getParameter("start_time")%>&bNewForm=1";
     }
     else if (val.substring(0, 3) == "BON") {
         self.location.href = "billingON.jsp?curBillForm=<%=oscarVariables.getProperty("primary_care_incentive", "").trim()%>&hotclick=<%=URLEncoder.encode("","UTF-8")%>&appointment_no=<%=request.getParameter("appointment_no")%>&demographic_name=<%=URLEncoder.encode(demoname,"UTF-8")%>&demographic_no=<%=request.getParameter("demographic_no")%>&xml_billtype="+val.substring(0,3)+"&apptProvider_no=<%=request.getParameter("apptProvider_no")%>&providerview="+selectedProvider+"&appointment_date=<%=request.getParameter("appointment_date")%>&status=<%=request.getParameter("status")%>&start_time=<%=request.getParameter("start_time")%>&bNewForm=1";    }
