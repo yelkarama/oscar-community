@@ -77,6 +77,7 @@ import org.oscarehr.casemgmt.model.CaseManagementNoteLink;
 import org.oscarehr.casemgmt.model.ClientImage;
 import org.oscarehr.casemgmt.model.Issue;
 import org.oscarehr.casemgmt.service.CaseManagementFax;
+import org.oscarehr.casemgmt.service.CaseManagementManager;
 import org.oscarehr.casemgmt.service.CaseManagementPrint;
 import org.oscarehr.casemgmt.web.CaseManagementViewAction.IssueDisplay;
 import org.oscarehr.casemgmt.web.formbeans.CaseManagementEntryFormBean;
@@ -85,6 +86,7 @@ import org.oscarehr.common.dao.CasemgmtNoteLockDao;
 import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.OscarAppointmentDao;
 import org.oscarehr.common.dao.ProviderDefaultProgramDao;
+import org.oscarehr.common.model.Admission;
 import org.oscarehr.common.model.Appointment;
 import org.oscarehr.common.model.CaseManagementTmpSave;
 import org.oscarehr.common.model.CasemgmtNoteLock;
@@ -1212,22 +1214,53 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 		String sessionFrmName = "caseManagementEntryForm" + demo;
 
 		CaseManagementEntryFormBean sessionFrm = (CaseManagementEntryFormBean) session.getAttribute(sessionFrmName);
+        CaseManagementNote note = sessionFrm.getCaseNote();
 
 		//compare locks and see if they are the same
 		CasemgmtNoteLock casemgmtNoteLockSession = (CasemgmtNoteLock) session.getAttribute("casemgmtNoteLock" + demo);
 
-		try {
+        if (casemgmtNoteLockSession == null) {
+            // Create new lock for new note
+            casemgmtNoteLockSession = new CasemgmtNoteLock();
+            casemgmtNoteLockSession.setDemographicNo(Integer.parseInt(demo));
+            casemgmtNoteLockSession.setIpAddress(request.getRemoteAddr());
+            casemgmtNoteLockSession.setProviderNo(providerNo);
+            casemgmtNoteLockSession.setSessionId(session.getId());
+            casemgmtNoteLockSession.setLockAcquired(new Date());
+            
+            // the note session was already removed, so this note is no longer part of a 
+            // a note history. Save as a new note to prevent data loss
+            logger.warn("Lock not found for " + demo + " provider " + providerNo + " IP " + request.getRemoteAddr() +
+                    "\n creating new note for noteId" + note.getId());
+            ProgramManager programManager = SpringUtils.getBean(ProgramManager.class);
+            AdmissionManager admissionManager = SpringUtils.getBean(AdmissionManager.class);
+            
+            CaseManagementNote newNote = cform.getCaseNote();
+            newNote.setObservation_date(new Date());
+            newNote.setDemographic_no(demo);
+            newNote.setProviderNo(providerNo);
+            String role = null;
+            try {
+                role = String.valueOf((programManager.getProgramProvider(note.getProviderNo(), note.getProgram_no())).getRole().getId());
+            } catch (Exception e) {
+                role = "0";
+            }
+            newNote.setReporter_caisi_role(role);
+            String team = "0";
+            try {
+                Admission admission = admissionManager.getAdmission(note.getProgram_no(), Integer.valueOf(note.getDemographic_no()));
+                if (admission != null) {
+                    team = String.valueOf(admission.getTeamId());
+                }
+            } catch (Exception e) {
+            }
+            newNote.setReporter_program_team(team);
+            newNote.setAppointmentNo(Integer.parseInt(cform.getAppointmentNo()));
+            newNote.setSigning_provider_no("");
+            newNote.setRevision("1");
+            note = newNote;
+        }
 
-			if (casemgmtNoteLockSession == null) {
-				throw new Exception("SESSION CASEMANAGEMENT NOTE LOCK OBJECT IS NULL");
-			}
-		} catch (Exception e) {
-			//Exception thrown if other window has saved and exited so lock is gone
-			logger.error("Lock not found for " + demo + " provider " + providerNo + " IP " + request.getRemoteAddr(), e);
-			return -1L;
-		}
-
-		CaseManagementNote note = sessionFrm.getCaseNote();
 		String noteTxt = cform.getCaseNote_note();
 		noteTxt = org.apache.commons.lang.StringUtils.trimToNull(noteTxt);
 		if (noteTxt == null || noteTxt.equals("")) return -1L;
@@ -1451,7 +1484,11 @@ public class CaseManagementEntryAction extends BaseCaseManagementEntryAction {
 		//update lock to new note id
 		casemgmtNoteLockSession.setNoteId(note.getId());
 		logger.debug("UPDATING NOTE ID in LOCK");
-		casemgmtNoteLockDao.merge(casemgmtNoteLockSession);
+		if (casemgmtNoteLockSession.isPersistent()) {
+            casemgmtNoteLockDao.merge(casemgmtNoteLockSession);
+        } else {
+		    casemgmtNoteLockDao.persist(casemgmtNoteLockSession);
+        }
 		session.setAttribute("casemgmtNoteLock" + demo, casemgmtNoteLockSession);
 
 		session.removeAttribute(attrib_name);
