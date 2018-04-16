@@ -163,6 +163,7 @@ public class ProviderData {
 		result.setLastUpdateUser(lastUpdateUser);
 		result.setLastUpdateDate(ConversionUtils.fromDateString(lastUpdateDate));
 		result.setSignedConfidentiality(ConversionUtils.fromDateString(signed_confidentiality));
+		result.setHasSchedule(false);
 		return result;
 	}
 

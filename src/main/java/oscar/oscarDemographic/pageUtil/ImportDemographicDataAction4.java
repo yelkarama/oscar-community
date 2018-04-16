@@ -911,6 +911,7 @@ import oscar.util.UtilDateUtilities;
 
                                 DemographicContact demoContact = new DemographicContact();
                                 demoContact.setCreated(new Date());
+                                demoContact.setCreator("");
                                 demoContact.setUpdateDate(new Date());
                                 demoContact.setDemographicNo(Integer.valueOf(demographicNo));
                                 demoContact.setContactId(cDemoNo);
