@@ -126,6 +126,7 @@ public class RaHeaderDao extends AbstractDao<RaHeader>{
 	    String sql = "SELECT r, p FROM RaDetail r, RaHeader ra, Provider p " + 
 	    		"WHERE p.OhipNo = r.providerOhipNo " +
 				"AND r.raHeaderNo = :raId " +
+				"AND ra.id = :raId " +
 				"AND p.Comments like CONCAT('%',ra.groupNo,'%')" +
 				"GROUP BY r.providerOhipNo";
 		Query query = entityManager.createQuery(sql);
