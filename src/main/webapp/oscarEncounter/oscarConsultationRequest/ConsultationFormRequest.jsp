@@ -29,7 +29,7 @@
       String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
       boolean authed=true;
 %>
-<security:oscarSec roleName="<%=roleName$%>" objectName="_con" rights="w" reverse="<%=true%>">
+<security:oscarSec roleName="<%=roleName$%>" objectName="_con" rights="r" reverse="<%=true%>">
 	<%authed=false; %>
 	<%response.sendRedirect("../../securityError.jsp?type=_con");%>
 </security:oscarSec>
@@ -1613,43 +1613,45 @@ function updateFaxButton() {
 				<tr>
 					<td class="tite4" colspan=2>
 					<% boolean faxEnabled = props.getBooleanProperty("faxEnable", "yes"); %>
-					<% if (request.getAttribute("id") != null) { %>
-					
+					<security:oscarSec roleName="<%=roleName$%>" objectName="_con" rights="r" reverse="true">
+						<% if (request.getAttribute("id") != null) { %>
+
 						<input name="update" type="button" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnUpdate"/>" onclick="return checkForm('Update Consultation Request','EctConsultationFormRequestForm');" />
 						<input name="updateAndPrint" type="button" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnUpdateAndPrint"/>" onclick="return checkForm('Update Consultation Request And Print Preview','EctConsultationFormRequestForm');" />
 						<input name="printPreview" type="button" value="Print Preview" onclick="return checkForm('And Print Preview','EctConsultationFormRequestForm');" />
-						
+
 						<logic:equal value="true" name="EctConsultationFormRequestForm" property="eReferral">
-							<input name="updateAndSendElectronicallyTop" type="button" 
-								value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnUpdateAndSendElectronicReferral"/>" 
+							<input name="updateAndSendElectronicallyTop" type="button"
+								value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnUpdateAndSendElectronicReferral"/>"
 								onclick="return checkForm('Update_esend','EctConsultationFormRequestForm');" />
 						</logic:equal>
-			
+
 						<oscar:oscarPropertiesCheck value="yes" property="faxEnable">
 							<input id="fax_button" name="updateAndFax" type="button" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnUpdateAndFax"/>" onclick="return checkForm('Update And Fax','EctConsultationFormRequestForm');" />
 							<input id="update_print_fax_button" name="updatePrintAndFax" type="button" value="Update, Print, & Fax" onclick="return checkForm('Update Print And Fax','EctConsultationFormRequestForm');" />
 						</oscar:oscarPropertiesCheck>
 
-					<% } else { %>
-					
+						<% } else { %>
+
 						<input name="submitSaveOnly" type="button" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnSubmit"/>" onclick="return checkForm('Submit Consultation Request','EctConsultationFormRequestForm'); " />
 						<input name="submitAndPrint" type="button" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnSubmitAndPrint"/>" onclick="return checkForm('Submit Consultation Request And Print Preview','EctConsultationFormRequestForm'); " />
-						
+
 						<logic:equal value="true" name="EctConsultationFormRequestForm" property="eReferral">
-							<input name="submitAndSendElectronicallyTop" type="button" 
-							value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnSubmitAndSendElectronicReferral"/>" 
+							<input name="submitAndSendElectronicallyTop" type="button"
+							value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnSubmitAndSendElectronicReferral"/>"
 							onclick="return checkForm('Submit_esend','EctConsultationFormRequestForm');" />
 						</logic:equal>
-				
+
 						<oscar:oscarPropertiesCheck value="yes" property="faxEnable">
 							<input id="fax_button" name="submitAndFax" type="button" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnSubmitAndFax"/>" onclick="return checkForm('Submit And Fax','EctConsultationFormRequestForm');" />
 							<input id="submit_print_fax_button2" name="submitPrintAndFax" type="button" value="Submit, Print, & Fax" onclick="return checkForm('Submit Print And Fax','EctConsultationFormRequestForm');" />
 						</oscar:oscarPropertiesCheck>
-					<% }%>
-					
-					<logic:equal value="true" name="EctConsultationFormRequestForm" property="eReferral">
-						<input type="button" value="Send eResponse" onclick="$('saved').value='true';document.location='<%=thisForm.getOruR01UrlString(request)%>'" />
-					</logic:equal>
+						<% }%>
+
+						<logic:equal value="true" name="EctConsultationFormRequestForm" property="eReferral">
+							<input type="button" value="Send eResponse" onclick="$('saved').value='true';document.location='<%=thisForm.getOruR01UrlString(request)%>'" />
+						</logic:equal>
+					</security:oscarSec>
 					
 					</td>
                     </tr>
@@ -2416,10 +2418,11 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 
 				<tr>
 					<td colspan=2><input type="hidden" name="submission" value="">
-					<%
-						if (request.getAttribute("id") != null)
-								{
-					%>
+					<security:oscarSec roleName="<%=roleName$%>" objectName="_con" rights="r" reverse="true">
+						<%
+							if (request.getAttribute("id") != null)
+							{
+						%>
 						<input name="update" type="button" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnUpdate"/>" onclick="return checkForm('Update Consultation Request','EctConsultationFormRequestForm');" />
 						<input name="updateAndPrint" type="button" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnUpdateAndPrint"/>" onclick="return checkForm('Update Consultation Request And Print Preview','EctConsultationFormRequestForm');" />
 						<logic:equal value="true" name="EctConsultationFormRequestForm" property="eReferral">
@@ -2430,11 +2433,11 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 							<input id="fax_button2" name="updateAndFax" type="button" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnUpdateAndFax"/>" onclick="return checkForm('Update And Fax','EctConsultationFormRequestForm');" />
 							<input id="update_print_fax_button2" name="updatePrintAndFax" type="button" value="Update, Print, & Fax" onclick="return checkForm('Update Print And Fax','EctConsultationFormRequestForm');" />
 						</oscar:oscarPropertiesCheck>
-					<%
+						<%
 						}
-								else
-								{
-					%>
+						else
+						{
+						%>
 						<input name="submitSaveOnly" type="button" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnSubmit"/>" onclick="return checkForm('Submit Consultation Request','EctConsultationFormRequestForm'); " />
 						<input name="submitAndPrint" type="button" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnSubmitAndPrint"/>" onclick="return checkForm('Submit Consultation Request And Print Preview','EctConsultationFormRequestForm'); " />
 						<logic:equal value="true" property="eReferral" name="EctConsultationFormRequestForm" >
@@ -2444,12 +2447,13 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 							<input id="fax_button2" name="submitAndFax" type="button" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnSubmitAndFax"/>" onclick="return checkForm('Submit And Fax','EctConsultationFormRequestForm');" />
 							<input id="submit_print_fax_button2" name="submitPrintAndFax" type="button" value="Submit, Print, & Fax" onclick="return checkForm('Submit Print And Fax','EctConsultationFormRequestForm');" />
 						</oscar:oscarPropertiesCheck>
-					<%
-						}%>
+						<%
+							}%>
 
 						<logic:equal value="true" name="EctConsultationFormRequestForm" property="eReferral">
 							<input type="button" value="Send eResponse" onclick="$('saved').value='true';document.location='<%=thisForm.getOruR01UrlString(request)%>'" />
 						</logic:equal>
+					</security:oscarSec>
 					</td>
 				</tr>
 

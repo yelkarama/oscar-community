@@ -396,7 +396,13 @@ CasemgmtNoteLock casemgmtNoteLock = (CasemgmtNoteLock)session.getAttribute("case
  						<% } %>
  												
 						<img title="<bean:message key="oscarEncounter.print.title"/>" id='print<%=globalNoteId%>' alt="<bean:message key="oscarEncounter.togglePrintNote.title"/>" onclick="togglePrint(<%=globalNoteId%>, event)" style='float: right; margin-right: 5px;' src='<%=ctx %>/oscarEncounter/graphics/printer.png' />
-						<textarea tabindex="7" cols="84" rows="10" class="txtArea" wrap="soft" style="line-height: 1.1em;" name="caseNote_note" id="caseNote_note<%=savedId%>"><%=cform.getCaseNote_note()%></textarea>
+
+						<security:oscarSec roleName="<%=roleName2$%>" objectName="_casemgmt.notes" rights="w" reverse="false">
+							<textarea tabindex="7" cols="84" rows="10" class="txtArea" wrap="soft" style="line-height: 1.1em;" name="caseNote_note" id="caseNote_note<%=savedId%>"><%=cform.getCaseNote_note()%></textarea>
+						</security:oscarSec>
+						<security:oscarSec roleName="<%=roleName2$%>" objectName="_casemgmt.notes" rights="w" reverse="true">
+							<textarea tabindex="7" cols="84" rows="10" class="txtArea" wrap="soft" style="line-height: 1.1em;" name="caseNote_note" id="caseNote_note<%=savedId%>" readonly><%=cform.getCaseNote_note()%></textarea>
+						</security:oscarSec>
 						
 						<div class="sig" style="display:inline;<%=bgColour%>" id="sig<%=globalNoteId%>">
 							<%@ include file="noteIssueList.jsp"%>
@@ -478,10 +484,13 @@ CasemgmtNoteLock casemgmtNoteLock = (CasemgmtNoteLock)session.getAttribute("case
 					 			if(!note.isReadOnly())
 					 			{
 						 		%>
-							 		<a title="<bean:message key="oscarEncounter.edit.msgEdit"/>" id="edit<%=globalNoteId%>"
-							 		href="#" onclick="<%=editWarn?"noPrivs(event)":"editNote(event)"%> ;return false;" style="float: right; margin-right: 5px; font-size: 10px;">
-							 			<bean:message key="oscarEncounter.edit.msgEdit" />
-							 		</a>
+									<security:oscarSec roleName="<%=roleName2$%>" objectName="_casemgmt.notes" rights="w" reverse="false">
+										<a title="<bean:message key="oscarEncounter.edit.msgEdit"/>" id="edit<%=globalNoteId%>"
+										   href="#" onclick="<%=editWarn?"noPrivs(event)":"editNote(event)"%> ;return false;" style="float: right; margin-right: 5px; font-size: 10px;">
+											<bean:message key="oscarEncounter.edit.msgEdit" />
+										</a>
+									</security:oscarSec>
+
 								<%
 								}
 
@@ -505,10 +514,12 @@ CasemgmtNoteLock casemgmtNoteLock = (CasemgmtNoteLock)session.getAttribute("case
 	                      		if(!note.isReadOnly())
 	                      		{
 								%>
-							 		<a title="<bean:message key="oscarEncounter.edit.msgEdit"/>" id="edit<%=globalNoteId%>"
-							 		href="javascript:void(0);" onclick="<%=editWarn?"noPrivs(event)":"editNote(event)"%> ;return false;" style="float: right; margin-right: 5px; font-size: 10px;">
-							 		<bean:message key="oscarEncounter.edit.msgEdit" />
-							 		</a>
+									<security:oscarSec roleName="<%=roleName2$%>" objectName="_casemgmt.notes" rights="w" reverse="false">
+										<a title="<bean:message key="oscarEncounter.edit.msgEdit"/>" id="edit<%=globalNoteId%>"
+										   href="javascript:void(0);" onclick="<%=editWarn?"noPrivs(event)":"editNote(event)"%> ;return false;" style="float: right; margin-right: 5px; font-size: 10px;">
+											<bean:message key="oscarEncounter.edit.msgEdit" />
+										</a>
+									</security:oscarSec>
 						 		<%
 								}
 	                   		}
@@ -539,12 +550,14 @@ CasemgmtNoteLock casemgmtNoteLock = (CasemgmtNoteLock)session.getAttribute("case
 								if(!note.isReadOnly())
 								{
 								%>
-									<div>
-							 		<a title="<bean:message key="oscarEncounter.edit.msgEdit"/>" id="edit<%=globalNoteId%>"
-							 		href="javascript:void(0);" onclick="<%=editWarn?"noPrivs(event)":"editNote(event)"%> ;return false;" style="float: right; margin-right: 5px; font-size: 10px;">
-							 		<bean:message key="oscarEncounter.edit.msgEdit" />
-							 		</a>
-							 		</div>
+									<security:oscarSec roleName="<%=roleName2$%>" objectName="_casemgmt.notes" rights="w" reverse="false">
+										<div>
+											<a title="<bean:message key="oscarEncounter.edit.msgEdit"/>" id="edit<%=globalNoteId%>"
+											   href="javascript:void(0);" onclick="<%=editWarn?"noPrivs(event)":"editNote(event)"%> ;return false;" style="float: right; margin-right: 5px; font-size: 10px;">
+												<bean:message key="oscarEncounter.edit.msgEdit" />
+											</a>
+										</div>
+									</security:oscarSec>
 						 		<%
 								}
 							}

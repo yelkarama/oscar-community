@@ -1,0 +1,9 @@
+INSERT INTO `kai15`.`secobjprivilege` (`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('readOnly', '_Reminders', 'r', '0', '999998');
+INSERT INTO `kai15`.`secobjprivilege` (`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('readOnly', '_consultation', 'r', '0', '999998');
+INSERT INTO `kai15`.`secobjprivilege` (`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('readOnly', '_OMeds', 'r', '0', '999998');
+INSERT INTO `kai15`.`secobjprivilege` (`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('readOnly', '_RiskFactors', 'r', '0', '999998');
+INSERT INTO `kai15`.`secobjprivilege` (`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('readOnly', '_FamHistory', 'r', '0', '999998');
+INSERT INTO `kai15`.`secobjprivilege` (`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('readOnly', '_MedHistory', 'r', '0', '999998');
+INSERT INTO `kai15`.`secobjprivilege` (`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('readOnly', '_Concerns', 'r', '0', '999998');
+INSERT INTO `kai15`.`secobjprivilege` (`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('readOnly', '_SocHistory', 'r', '0', '999998');
+INSERT INTO `kai15`.`secobjprivilege` (`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('readOnly', '_demographic.createInvoice', 'r', '0', '999998');

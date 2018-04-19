@@ -61,7 +61,7 @@
 	{
 		frm = (CaseManagementEntryFormBean)session.getAttribute(caseMgmtEntryFrm);
 		request.setAttribute("caseManagementEntryForm", frm);
-	} 
+	}
 %>
 <nested:empty name="caseManagementEntryForm" property="caseNote.id">
 	<nested:notEmpty name="newNoteIdx">
@@ -93,7 +93,8 @@
 </div>
 
 <div style="margin: 0px 3px 0px 0px; font-size: 11px;"><span style="float: right;">
-<nested:notEmpty name="ajaxsave">
+<security:oscarSec roleName="<%=roleName$%>" objectName="_casemgmt.notes" rights="w" reverse="false">
+	<nested:notEmpty name="ajaxsave">
 	<bean:message key="oscarEncounter.encounterDate.title"/>:&nbsp;<span
 		id="obs<nested:write name="caseManagementEntryForm" property="caseNote.id" />">
 	<nested:write name="caseManagementEntryForm"
@@ -113,6 +114,14 @@
 		onclick="return showHistory('<nested:write name="caseManagementEntryForm" property="caseNote.id" />', event);"><nested:write
 		name="caseManagementEntryForm" property="caseNote.revision" /></a>
 </nested:empty>
+</security:oscarSec>
+
+<security:oscarSec roleName="<%=roleName$%>" objectName="_casemgmt.notes" rights="w" reverse="true">
+	<bean:message key="oscarEncounter.encounterDate.title"/>:&nbsp;<span id="obs<nested:write name="caseManagementEntryForm" property="caseNote.id" />">
+	<nested:write name="caseManagementEntryForm" property="caseNote.observation_date" format="dd-MMM-yyyy H:mm" /></span>&nbsp;
+	<bean:message key="oscarEncounter.noteRev.title"/><a href="#" onclick="return showHistory('<nested:write name="caseManagementEntryForm" property="caseNote.id" />', event);">
+	<nested:write name="caseManagementEntryForm" property="caseNote.revision" /></a>
+</security:oscarSec>
 </div>
 
 <div style="margin-left: 3px; font-size: 11px;"><span style="float: left;">
@@ -203,32 +212,38 @@ if(currentFacility.isEnableEncounterTransportationTime() || (currentProgram != n
 <div style="clear: right; margin: 0px 3px 0px 0px; font-size: 11px; float: right;">
 <bean:message key="oscarEncounter.encType.title"/>:&nbsp;
 <span id="encType<%=noteIndex%>">
+<security:oscarSec roleName="<%=roleName$%>" objectName="_casemgmt.notes" rights="w" reverse="false">
 	<nested:empty name="ajaxsave">
-	<html:select styleId="<%=encSelect%>" styleClass="encTypeCombo"
-		name="caseManagementEntryForm" property="caseNote.encounter_type">
-		<html:option value=""></html:option>
-		<html:option value="face to face encounter with client"><bean:message key="oscarEncounter.faceToFaceEnc.title"/></html:option>
-		<html:option value="telephone encounter with client"><bean:message key="oscarEncounter.telephoneEnc.title"/></html:option>
-		<html:option value="email encounter with client"><bean:message key="oscarEncounter.emailEnc.title"/></html:option>
-		<html:option value="encounter without client"><bean:message key="oscarEncounter.noClientEnc.title"/></html:option>
-		
-		<%
-			if(loggedInInfo73557.getCurrentFacility().isEnableGroupNotes()) {
-		%>
-		
-		<html:option value="group face to face encounter"><bean:message key="oscarEncounter.groupFaceEnc.title"/></html:option>
-		<html:option value="group telephone encounter"><bean:message key="oscarEncounter.groupTelephoneEnc.title"/></html:option>
-		<html:option value="group encounter with client"><bean:message key="oscarEncounter.emailEnc.title"/></html:option>
-		<html:option value="group encounter without group"><bean:message key="oscarEncounter.groupNoClientEnc.title"/></html:option>
-		
-		<%
-			}
-		%>
-	</html:select>
+		<html:select styleId="<%=encSelect%>" styleClass="encTypeCombo"
+					 name="caseManagementEntryForm" property="caseNote.encounter_type">
+			<html:option value=""></html:option>
+			<html:option value="face to face encounter with client"><bean:message key="oscarEncounter.faceToFaceEnc.title"/></html:option>
+			<html:option value="telephone encounter with client"><bean:message key="oscarEncounter.telephoneEnc.title"/></html:option>
+			<html:option value="email encounter with client"><bean:message key="oscarEncounter.emailEnc.title"/></html:option>
+			<html:option value="encounter without client"><bean:message key="oscarEncounter.noClientEnc.title"/></html:option>
+
+			<%
+				if(loggedInInfo73557.getCurrentFacility().isEnableGroupNotes()) {
+			%>
+
+			<html:option value="group face to face encounter"><bean:message key="oscarEncounter.groupFaceEnc.title"/></html:option>
+			<html:option value="group telephone encounter"><bean:message key="oscarEncounter.groupTelephoneEnc.title"/></html:option>
+			<html:option value="group encounter with client"><bean:message key="oscarEncounter.emailEnc.title"/></html:option>
+			<html:option value="group encounter without group"><bean:message key="oscarEncounter.groupNoClientEnc.title"/></html:option>
+
+			<%
+				}
+			%>
+		</html:select>
 	</nested:empty> <nested:notEmpty name="ajaxsave">
-            &quot;<nested:write name="caseManagementEntryForm"
-		property="caseNote.encounter_type" />&quot;
-    </nested:notEmpty> 
+	&quot;<nested:write name="caseManagementEntryForm"
+						property="caseNote.encounter_type" />&quot;
+</nested:notEmpty>
+</security:oscarSec>
+
+<security:oscarSec roleName="<%=roleName$%>" objectName="_casemgmt.notes" rights="w" reverse="true">
+	&quot;<nested:write name="caseManagementEntryForm" property="caseNote.encounter_type" />&quot;
+</security:oscarSec>
 </span></div>
 
  

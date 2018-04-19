@@ -2873,3 +2873,17 @@ INSERT INTO `daysheet_configuration` VALUES ('1', 'Note', 'Note', '1', 12), ('2'
   ('7', 'Appointment Reason', 'Reason', '1', 8), ('8', 'Home Phone', 'Home Phone', '1', 9),
   ('9', 'Demographic Number', 'Demo #', '1', 3), ('10', 'Date of Birth', 'Date of Birth', '1', 5),
   ('11', 'Health Card Number', 'HIN', '1', 6), ('12', 'Visit Code', 'Visit Code', '1',10);
+
+insert into `secObjectName` (`objectName`) values ('_dashboardCommonLink');
+insert into `secObjPrivilege` values('doctor','_dashboardCommonLink','o',0,'999998');
+insert into `secObjPrivilege` values('admin','_dashboardCommonLink','o',0,'999998');
+
+INSERT INTO `kai15`.`secobjprivilege` (`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('readOnly', '_Reminders', 'r', '0', '999998');
+INSERT INTO `kai15`.`secobjprivilege` (`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('readOnly', '_consultation', 'r', '0', '999998');
+INSERT INTO `kai15`.`secobjprivilege` (`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('readOnly', '_OMeds', 'r', '0', '999998');
+INSERT INTO `kai15`.`secobjprivilege` (`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('readOnly', '_RiskFactors', 'r', '0', '999998');
+INSERT INTO `kai15`.`secobjprivilege` (`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('readOnly', '_FamHistory', 'r', '0', '999998');
+INSERT INTO `kai15`.`secobjprivilege` (`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('readOnly', '_MedHistory', 'r', '0', '999998');
+INSERT INTO `kai15`.`secobjprivilege` (`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('readOnly', '_Concerns', 'r', '0', '999998');
+INSERT INTO `kai15`.`secobjprivilege` (`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('readOnly', '_SocHistory', 'r', '0', '999998');
+INSERT INTO `kai15`.`secobjprivilege` (`roleUserGroup`, `objectName`, `privilege`, `priority`, `provider_no`) VALUES ('readOnly', '_demographic.createInvoice', 'r', '0', '999998');
