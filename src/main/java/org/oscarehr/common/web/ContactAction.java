@@ -445,7 +445,6 @@ public class ContactAction extends DispatchAction {
 
 		if (!contactResults.isEmpty()) {
 			relatedContact = contactResults.get(0);
-			reverseRole = getReverseRole(StringUtils.trimToEmpty(request.getParameter("contact_role")), demographicNo);
 		} else {
 			relatedContact.setType(DemographicContact.TYPE_DEMOGRAPHIC);
 			relatedContact.setNote("");
@@ -455,6 +454,8 @@ public class ContactAction extends DispatchAction {
 			relatedContact.setEc("");
 			relatedContact.setCreator(providerNo);
 		}
+		relatedContact.setDemographicNo(contactId);
+		reverseRole = getReverseRole(StringUtils.trimToEmpty(request.getParameter("contact_role")), demographicNo);
 
 		if (StringUtils.trimToNull(reverseRole) != null) {
 			relatedContact.setRole(reverseRole);
