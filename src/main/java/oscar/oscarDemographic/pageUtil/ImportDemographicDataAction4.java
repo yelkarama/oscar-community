@@ -205,6 +205,7 @@ import oscar.util.UtilDateUtilities;
     HashMap<String, Integer> entries = new HashMap<String, Integer>();
     Integer importNo = 0;
     OscarProperties oscarProperties = OscarProperties.getInstance();
+    List<String> importErrors = new ArrayList<String>();
 
     ProgramManager programManager = (ProgramManager) SpringUtils.getBean("programManager");
     AdmissionManager admissionManager = (AdmissionManager) SpringUtils.getBean("admissionManager");
@@ -358,6 +359,7 @@ import oscar.util.UtilDateUtilities;
         ArrayList<String> err_summ = new ArrayList<String>(); //errors: summary
         ArrayList<String> err_othe = new ArrayList<String>(); //errors: other categories
         ArrayList<String> err_note = new ArrayList<String>(); //non-errors: notes
+        importErrors = new ArrayList<String>();
 
         String docDir = oscarProperties.getProperty("DOCUMENT_DIR");
         docDir = Util.fixDirName(docDir);
@@ -376,6 +378,8 @@ import oscar.util.UtilDateUtilities;
         } catch (XmlException ex) {logger.error("Error", ex);
         }
         PatientRecord patientRec = omdCds.getPatientRecord();
+        
+        try {
 
         //DEMOGRAPHICS
         Demographics demo = patientRec.getDemographics();
@@ -803,26 +807,32 @@ import oscar.util.UtilDateUtilities;
                 String contactNote = StringUtils.noNull(contt[i].getNote());
                 String cDemoNo = dd.getDemoNoByNamePhoneEmail(loggedInInfo, cFirstName, cLastName, homePhone, workPhone, cEmail);
                 String cPatient = cLastName+","+cFirstName;
-                if (StringUtils.empty(cDemoNo)) {   //add new demographic as contact
-                    psDate = UtilDateUtilities.DateToString(new Date(),"yyyy-MM-dd");
-                    demoRes = dd.addDemographic(loggedInInfo, ""/*title*/, cLastName, cFirstName, "", ""/*address*/, ""/*city*/, ""/*province*/, ""/*postal*/,
-                    			homePhone, workPhone, ""/*year_of_birth*/, ""/*month_*/, ""/*date_*/, ""/*hin*/, ""/*ver*/, ""/*roster_status*/, "", "", "",
-                    			"Contact-only", psDate, ""/*date_joined*/, ""/*chart_no*/, ""/*official_lang*/, ""/*spoken_lang*/, ""/*provider_no*/,
-                    			"F", ""/*end_date*/, ""/*eff_date*/, ""/*pcn_indicator*/, ""/*hc_type*/, ""/*hc_renew_date*/, ""/*family_doctor*/,
-                    			cEmail, "", "", "", "", "", "", "");
-                	cDemoNo = demoRes.getId();
-                    err_note.add("Contact-only patient "+cPatient+" (Demo no="+cDemoNo+") created");
+                try {
+                    if (StringUtils.empty(cDemoNo)) {   //add new demographic as contact
+                        psDate = UtilDateUtilities.DateToString(new Date(),"yyyy-MM-dd");
+                        demoRes = dd.addDemographic(loggedInInfo, ""/*title*/, cLastName, cFirstName, "", ""/*address*/, ""/*city*/, ""/*province*/, ""/*postal*/,
+                                homePhone, workPhone, ""/*year_of_birth*/, ""/*month_*/, ""/*date_*/, ""/*hin*/, ""/*ver*/, ""/*roster_status*/, "", "", "",
+                                "Contact-only", psDate, ""/*date_joined*/, ""/*chart_no*/, ""/*official_lang*/, ""/*spoken_lang*/, ""/*provider_no*/,
+                                "F", ""/*end_date*/, ""/*eff_date*/, ""/*pcn_indicator*/, ""/*hc_type*/, ""/*hc_renew_date*/, ""/*family_doctor*/,
+                                cEmail, "", "", "", "", "", "", "");
+                        cDemoNo = demoRes.getId();
+                        err_note.add("Contact-only patient "+cPatient+" (Demo no="+cDemoNo+") created");
 
-                    if (!workExt.equals("")) demographicExtDao.addKey("", Integer.parseInt(cDemoNo), "wPhoneExt", workExt);
-                    if (!homeExt.equals("")) demographicExtDao.addKey("", Integer.parseInt(cDemoNo), "hPhoneExt", homeExt);
-                    if (!cellPhone.equals("")) demographicExtDao.addKey("", Integer.parseInt(cDemoNo), "demo_cell", cellPhone);
+                        if (!workExt.equals("")) demographicExtDao.addKey("", Integer.parseInt(cDemoNo), "wPhoneExt", workExt);
+                        if (!homeExt.equals("")) demographicExtDao.addKey("", Integer.parseInt(cDemoNo), "hPhoneExt", homeExt);
+                        if (!cellPhone.equals("")) demographicExtDao.addKey("", Integer.parseInt(cDemoNo), "demo_cell", cellPhone);
+                    }
+                    insertIntoAdmission(cDemoNo);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    err_othe.add("Error adding contact-only patient " +cPatient);
                 }
-                insertIntoAdmission(cDemoNo);
+
 
                 cdsDt.PurposeEnumOrPlainText[] contactPurposes = contt[i].getContactPurposeArray();
                 String sdm="", emc="", cPurpose=null;
                 String[] rel = new String[contactPurposes.length];
-
+                
                 for (int j=0; j<contactPurposes.length; j++) {
                     cPurpose = contactPurposes[j].getPurposeAsPlainText();
                     if (cPurpose==null) cPurpose = contactPurposes[j].getPurposeAsEnum().toString();
@@ -843,47 +853,54 @@ import oscar.util.UtilDateUtilities;
                         rel[j] = cPurpose;
                     }
                 }
-
+                
                 if (StringUtils.filled(cDemoNo)) {
-                	if (oscarProperties.isPropertyActive("NEW_CONTACTS_UI")) {
-                        for (int j=0; j<rel.length; j++) {
-                        	if (rel[j]==null) continue;
+                    boolean newContactsUi = oscarProperties.isPropertyActive("NEW_CONTACTS_UI");
+                    try {
+                        if (newContactsUi) {
+                            for (int j=0; j<rel.length; j++) {
+                                if (rel[j]==null) continue;
 
-                            DemographicContact demoContact = new DemographicContact();
-                            demoContact.setCreated(new Date());
-                            demoContact.setUpdateDate(new Date());
-                            demoContact.setDemographicNo(Integer.valueOf(demographicNo));
-                            demoContact.setContactId(cDemoNo);
-                            demoContact.setType(1); //should be "type" - display problem
-                            demoContact.setCategory("personal");
-                        	demoContact.setRole(rel[j]);
-                            demoContact.setEc(emc);
-                            demoContact.setSdm(sdm);
-                            demoContact.setNote(contactNote);
-                        	contactDao.persist(demoContact);
+                                DemographicContact demoContact = new DemographicContact();
+                                demoContact.setCreated(new Date());
+                                demoContact.setUpdateDate(new Date());
+                                demoContact.setDemographicNo(Integer.valueOf(demographicNo));
+                                demoContact.setContactId(cDemoNo);
+                                demoContact.setType(1); //should be "type" - display problem
+                                demoContact.setCategory("personal");
+                                demoContact.setRole(rel[j]);
+                                demoContact.setEc(emc);
+                                demoContact.setSdm(sdm);
+                                demoContact.setNote(contactNote);
+                                contactDao.persist(demoContact);
 
-                        	//clear emc, sdm, contactNote after 1st save
-                        	emc = "";
-                        	sdm = "";
-                        	contactNote = "";
-                        }
-                	} else {
-				        Facility facility = (Facility) request.getSession().getAttribute(SessionConstants.CURRENT_FACILITY);
-				        Integer facilityId = null;
-				        if (facility!=null) facilityId = facility.getId();
+                                //clear emc, sdm, contactNote after 1st save
+                                emc = "";
+                                sdm = "";
+                                contactNote = "";
+                            }
+                        } else {
+                            Facility facility = (Facility) request.getSession().getAttribute(SessionConstants.CURRENT_FACILITY);
+                            Integer facilityId = null;
+                            if (facility!=null) facilityId = facility.getId();
 
-				        for (int j=0; j<rel.length; j++) {
-				        	if (rel[j]==null) continue;
+                            for (int j=0; j<rel.length; j++) {
+                                if (rel[j]==null) continue;
 
-							DemographicRelationship demoRel = new DemographicRelationship();
-							demoRel.addDemographicRelationship(demographicNo, cDemoNo, rel[j], sdm.equals("true"), emc.equals("true"), contactNote, admProviderNo, facilityId);
+                                DemographicRelationship demoRel = new DemographicRelationship();
+                                demoRel.addDemographicRelationship(demographicNo, cDemoNo, rel[j], sdm.equals("true"), emc.equals("true"), contactNote, admProviderNo, facilityId);
 
-                        	//clear emc, sdm, contactNote after 1st save
-                        	emc = "";
-                        	sdm = "";
-                        	contactNote = "";
-				        }
-                	}
+                                //clear emc, sdm, contactNote after 1st save
+                                emc = "";
+                                sdm = "";
+                                contactNote = "";
+                            }
+                    } 
+
+                	} catch (Exception e) {
+                        e.printStackTrace();
+                        err_othe.add("Error adding " + cPatient + " as demographic " + (newContactsUi ? "contact" : "relation"));
+                    }
                 }
             }
 
@@ -892,25 +909,30 @@ import oscar.util.UtilDateUtilities;
             PersonalHistory[] pHist = patientRec.getPersonalHistoryArray();
             for (int i=0; i<pHist.length; i++) {
                 if (i==0) scmi = getCMIssue("SocHistory");
-                CaseManagementNote cmNote = prepareCMNote("1",null);
-                cmNote.setIssues(scmi);
+                try {
+                    CaseManagementNote cmNote = prepareCMNote("1",null);
+                    cmNote.setIssues(scmi);
 
-                //main field
-                String socialHist = "Imported Personal History";
-//                String summary = pHist[i].getCategorySummaryLine();
-                String residual = getResidual(pHist[i].getResidualInfo());
-                if (StringUtils.empty(residual)) continue;
+                    //main field
+                    String socialHist = "Imported Personal History";
+    //                String summary = pHist[i].getCategorySummaryLine();
+                    String residual = getResidual(pHist[i].getResidualInfo());
+                    if (StringUtils.empty(residual)) continue;
+    
+                    cmNote.setNote(socialHist);
+                    caseManagementManager.saveNoteSimple(cmNote);
+                    addOneEntry(PERSONALHISTORY);
 
-                cmNote.setNote(socialHist);
-                caseManagementManager.saveNoteSimple(cmNote);
-                addOneEntry(PERSONALHISTORY);
-
-                //to dumpsite
-                residual = Util.addLine("imported.cms4.2011.06", residual);
-                Long hostNoteId = cmNote.getId();
-                cmNote = prepareCMNote("2",null);
-                cmNote.setNote(residual);
-                saveLinkNote(hostNoteId, cmNote);
+                    //to dumpsite
+                    residual = Util.addLine("imported.cms4.2011.06", residual);
+                    Long hostNoteId = cmNote.getId();
+                    cmNote = prepareCMNote("2",null);
+                    cmNote.setNote(residual);
+                    saveLinkNote(hostNoteId, cmNote);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    err_summ.add("Error adding Personal History item " + (i + 1) + " of " + pHist.length);
+                }
             }
 
             //FAMILY HISTORY
@@ -995,14 +1017,15 @@ import oscar.util.UtilDateUtilities;
             PastHealth[] pHealth = patientRec.getPastHealthArray();
             for (int i=0; i< pHealth.length; i++) {
                 if (i==0) scmi = getCMIssue("MedHistory");
-                CaseManagementNote cmNote = prepareCMNote("1",null);
+                try {
+                    CaseManagementNote cmNote = prepareCMNote("1",null);
 
-                //diagnosis code
-                if (pHealth[i].getDiagnosisProcedureCode()==null) {
-                    cmNote.setIssues(scmi);
-                } else {
-                    cmNote.setIssues(getCMIssue("MedHistory", pHealth[i].getDiagnosisProcedureCode()));
-                }
+                    //diagnosis code
+                    if (pHealth[i].getDiagnosisProcedureCode()==null) {
+                        cmNote.setIssues(scmi);
+                    } else {
+                        cmNote.setIssues(getCMIssue("MedHistory", pHealth[i].getDiagnosisProcedureCode()));
+                    }
 
                 //main field
                 String medicalHist = pHealth[i].getPastHealthProblemDescriptionOrProcedures();
@@ -1011,29 +1034,29 @@ import oscar.util.UtilDateUtilities;
                 caseManagementManager.saveNoteSimple(cmNote);
                 addOneEntry(FAMILYHISTORY);
 
-                //annotation
-                Long hostNoteId = cmNote.getId();
-                cmNote = prepareCMNote("2",null);
-                String note = pHealth[i].getNotes();
-                cmNote.setNote(note);
-                saveLinkNote(hostNoteId, cmNote);
+                    //annotation
+                    Long hostNoteId = cmNote.getId();
+                    cmNote = prepareCMNote("2",null);
+                    String note = pHealth[i].getNotes();
+                    cmNote.setNote(note);
+                    saveLinkNote(hostNoteId, cmNote);
 
 
-                //to dumpsite
-                String dump = "imported.cms4.2011.06";
-                /*
-                String summary = pHealth[i].getCategorySummaryLine();
-                if (StringUtils.empty(summary)) {
-                    err_summ.add("No Summary for Past Health ("+(i+1)+")");
-                }
-                dump = Util.addLine(dump, summary);
-                */
-                String diagCode = isICD9(pHealth[i].getDiagnosisProcedureCode()) ? null : getCode(pHealth[i].getDiagnosisProcedureCode(),"Diagnosis/Procedure");
-                dump = Util.addLine(dump, diagCode);
-                dump = Util.addLine(dump, getResidual(pHealth[i].getResidualInfo()));
-                cmNote = prepareCMNote("2",null);
-                cmNote.setNote(dump);
-                saveLinkNote(hostNoteId, cmNote);
+                    //to dumpsite
+                    String dump = "imported.cms4.2011.06";
+                    /*
+                    String summary = pHealth[i].getCategorySummaryLine();
+                    if (StringUtils.empty(summary)) {
+                        err_summ.add("No Summary for Past Health ("+(i+1)+")");
+                    }
+                    dump = Util.addLine(dump, summary);
+                    */
+                    String diagCode = isICD9(pHealth[i].getDiagnosisProcedureCode()) ? null : getCode(pHealth[i].getDiagnosisProcedureCode(),"Diagnosis/Procedure");
+                    dump = Util.addLine(dump, diagCode);
+                    dump = Util.addLine(dump, getResidual(pHealth[i].getResidualInfo()));
+                    cmNote = prepareCMNote("2",null);
+                    cmNote.setNote(dump);
+                    saveLinkNote(hostNoteId, cmNote);
 
                 //extra fields
                 CaseManagementNoteExt cme = new CaseManagementNoteExt();
@@ -1062,12 +1085,17 @@ import oscar.util.UtilDateUtilities;
                         cme.setValue(pHealth[i].getLifeStage().toString());
                         caseManagementManager.saveNoteExt(cme);
                     }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    err_summ.add("Error adding Past Health item " + (i + 1) + " of " + pHealth.length);
                 }
+            }
 
-                //PROBLEM LIST
-                ProblemList[] probList = patientRec.getProblemListArray();
-                for (int i=0; i<probList.length; i++) {
-                    if (i==0) scmi = getCMIssue("Concerns");
+            //PROBLEM LIST
+            ProblemList[] probList = patientRec.getProblemListArray();
+            for (int i=0; i<probList.length; i++) {
+                if (i==0) scmi = getCMIssue("Concerns");
+                try {
                     CaseManagementNote cmNote = prepareCMNote("1",null);
 
                     //diagnosis code
@@ -1143,12 +1171,17 @@ import oscar.util.UtilDateUtilities;
                         cme.setValue(probList[i].getLifeStage().toString());
                         caseManagementManager.saveNoteExt(cme);
                     }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    err_summ.add("Error adding Concern item " + (i + 1) + " of " + probList.length);
                 }
+            }
 
-                //RISK FACTORS
-                RiskFactors[] rFactors = patientRec.getRiskFactorsArray();
-                for (int i=0; i<rFactors.length; i++) {
-                    if (i==0) scmi = getCMIssue("RiskFactors");
+            //RISK FACTORS
+            RiskFactors[] rFactors = patientRec.getRiskFactorsArray();
+            for (int i=0; i<rFactors.length; i++) {
+                if (i==0) scmi = getCMIssue("RiskFactors");
+                try {
                     CaseManagementNote cmNote = prepareCMNote("1",null);
                     cmNote.setIssues(scmi);
 
@@ -1213,12 +1246,17 @@ import oscar.util.UtilDateUtilities;
                         cme.setValue(rFactors[i].getLifeStage().toString());
                         caseManagementManager.saveNoteExt(cme);
                     }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    err_summ.add("Error adding Risk Factor item " + (i + 1) + " of " + rFactors.length);
                 }
+            }
 
-                //ALERTS & SPECIAL NEEDS
-                AlertsAndSpecialNeeds[] alerts = patientRec.getAlertsAndSpecialNeedsArray();
-                for (int i=0; i<alerts.length; i++) {
-                    if (i==0) scmi = getCMIssue("Reminders");
+            //ALERTS & SPECIAL NEEDS
+            AlertsAndSpecialNeeds[] alerts = patientRec.getAlertsAndSpecialNeedsArray();
+            for (int i=0; i<alerts.length; i++) {
+                if (i==0) scmi = getCMIssue("Reminders");
+                try {
                     CaseManagementNote cmNote = prepareCMNote("1",null);
                     cmNote.setIssues(scmi);
 
@@ -1268,12 +1306,18 @@ import oscar.util.UtilDateUtilities;
                         cme.setValue(dateFPGetPartial(alerts[i].getEndDate()));
                         caseManagementManager.saveNoteExt(cme);
                     }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    err_summ.add("Error adding Reminder Alert item " + (i + 1) + " of " + alerts.length);
                 }
 
-                //CLINICAL NOTES
-                ClinicalNotes[] cNotes = patientRec.getClinicalNotesArray();
-                Date observeDate = new Date(), createDate = new Date();
-                for (int i=0; i<cNotes.length; i++) {
+            }
+
+            //CLINICAL NOTES
+            ClinicalNotes[] cNotes = patientRec.getClinicalNotesArray();
+            Date observeDate = new Date(), createDate = new Date();
+            for (int i=0; i<cNotes.length; i++) {
+                try {
                     //encounter note
                     String encounter = cNotes[i].getMyClinicalNotesContent();
                     if (StringUtils.empty(encounter)) {
@@ -1387,11 +1431,16 @@ import oscar.util.UtilDateUtilities;
                     CaseManagementNote dumpNote = prepareCMNote("2",null);
                     dumpNote.setNote(noteType);
                     saveLinkNote(cmNote.getId(), dumpNote);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    err_summ.add("Error adding Clinical Note item " + (i + 1) + " of " + cNotes.length);
                 }
+            }
 
-                //ALLERGIES & ADVERSE REACTIONS
-                AllergiesAndAdverseReactions[] aaReactArray = patientRec.getAllergiesAndAdverseReactionsArray();
-                for (int i=0; i<aaReactArray.length; i++) {
+            //ALLERGIES & ADVERSE REACTIONS
+            AllergiesAndAdverseReactions[] aaReactArray = patientRec.getAllergiesAndAdverseReactionsArray();
+            for (int i=0; i<aaReactArray.length; i++) {
+                try {
                     String description="", regionalId="", reaction="", severity="", entryDate="", startDate="", typeCode="", lifeStage="", alg_extra="";
                     String entryDateFormat=null, startDateFormat=null;
 
@@ -1460,13 +1509,18 @@ import oscar.util.UtilDateUtilities;
                     cmNote = prepareCMNote("2",null);
                     cmNote.setNote(dump);
                     saveLinkNote(cmNote, CaseManagementNoteLink.ALLERGIES, Long.valueOf(allergyId));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    err_summ.add("Error adding Allergy/Adverse Reaction item " + (i + 1) + " of " + aaReactArray.length);
                 }
+            }
 
 
-                //MEDICATIONS & TREATMENTS
-                MedicationsAndTreatments[] medArray = patientRec.getMedicationsAndTreatmentsArray();
-                String duration, quantity, dosage, special;
-                for (int i=0; i<medArray.length; i++) {
+            //MEDICATIONS & TREATMENTS
+            MedicationsAndTreatments[] medArray = patientRec.getMedicationsAndTreatmentsArray();
+            String duration, quantity, dosage, special;
+            for (int i=0; i<medArray.length; i++) {
+                try {
                     Drug drug = new Drug();
                     drug.setCreateDate(new Date());
                     drug.setWrittenDate(dateTimeFPtoDate(medArray[i].getPrescriptionWrittenDate(), timeShiftInDays));
@@ -1679,12 +1733,17 @@ import oscar.util.UtilDateUtilities;
                     cmNote = prepareCMNote("2",null);
                     cmNote.setNote(dump);
                     saveLinkNote(cmNote, CaseManagementNoteLink.DRUGS, (long)drug.getId());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    err_summ.add("Error adding Medication item " + (i + 1) + " of " + medArray.length);
                 }
+            }
 
 
-                //IMMUNIZATIONS
-                Immunizations[] immuArray = patientRec.getImmunizationsArray();
-                for (int i=0; i<immuArray.length; i++) {
+            //IMMUNIZATIONS
+            Immunizations[] immuArray = patientRec.getImmunizationsArray();
+            for (int i=0; i<immuArray.length; i++) {
+                try {
                     String preventionDate="", refused="0";
                     String preventionType=null, immExtra=null;
                     ArrayList<Map<String,String>> preventionExt = new ArrayList<Map<String,String>>();
@@ -1771,7 +1830,11 @@ import oscar.util.UtilDateUtilities;
         	            imNote.setNote(immExtra);
         	            saveLinkNote(imNote, CaseManagementNoteLink.PREVENTIONS, Long.valueOf(preventionId));
                     }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    err_summ.add("Error adding Immunization item " + (i + 1) + " of " + immuArray.length);
                 }
+            }
 
                 //LABORATORY RESULTS
                 LaboratoryResults[] labResultArr = patientRec.getLaboratoryResultsArray();
@@ -1786,7 +1849,8 @@ import oscar.util.UtilDateUtilities;
                 String[] allStatus = asd.getAllStatus();
                 String[] allTitle = asd.getAllTitle();
 
-                for (int i=0; i<appArray.length; i++) {
+            for (int i=0; i<appArray.length; i++) {
+                try {
                     String apptDateStr = dateFPtoString(appArray[i].getAppointmentDate(), timeShiftInDays);
                     if (StringUtils.filled(apptDateStr)) {
                         appointmentDate = UtilDateUtilities.StringToDate(apptDateStr);
@@ -1855,7 +1919,11 @@ import oscar.util.UtilDateUtilities;
                     appointmentDao.persist(appt);
                     
                     addOneEntry(APPOINTMENT);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    err_summ.add("Error adding Appointment item " + (i + 1) + " of " + appArray.length);
                 }
+            }
 
                 //REPORTS RECEIVED
 
@@ -1868,7 +1936,7 @@ import oscar.util.UtilDateUtilities;
                 List<ReportsReceived> HRMreports = new ArrayList<ReportsReceived>();
                 String HRMfile = docDir + "HRM_"+UtilDateUtilities.getToday("yyyy-MM-dd.HH.mm.ss");
                 for (int i=0; i<repR.length; i++) {
-
+                    try {
                     if (repR[i].getHRMResultStatus()!=null || repR[i].getOBRContentArray().length>0) { //HRM reports
                         HRMDocument hrmDoc = new HRMDocument();
                         HRMDocumentComment hrmDocComment = new HRMDocumentComment();
@@ -1994,6 +2062,10 @@ import oscar.util.UtilDateUtilities;
                             }
                         }
                     }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        err_summ.add("Error uploading HRM report " + (i + 1) + " of " + repR.length);
+                    }
                 }
                 CreateHRMFile.create(demo, HRMreports, HRMfile);
 
@@ -2003,168 +2075,240 @@ import oscar.util.UtilDateUtilities;
                     CareElements ce = careElems[i];
                     cdsDt.Height[] heights = ce.getHeightArray();
                     for (cdsDt.Height ht : heights) {
-                        Date dateObserved = ht.getDate()!=null ? ht.getDate().getTime() : null;
-                        String dataField = StringUtils.noNull(ht.getHeight());
-                        String dataUnit = ht.getHeightUnit()!=null ? "in "+ht.getHeightUnit().toString() : "";
+                        try {
+                            Date dateObserved = ht.getDate()!=null ? ht.getDate().getTime() : null;
+                            String dataField = StringUtils.noNull(ht.getHeight());
+                            String dataUnit = ht.getHeightUnit()!=null ? "in "+ht.getHeightUnit().toString() : "";
 
-                        if (ht.getDate()==null) err_data.add("Error! No Date for Height in Care Element ("+(i+1)+")");
-                        if (StringUtils.empty(ht.getHeight())) err_data.add("Error! No value for Height in Care Element ("+(i+1)+")");
-                        if (ht.getHeightUnit()==null) err_data.add("Error! No unit for Height in Care Element ("+(i+1)+")");
-                        ImportExportMeasurements.saveMeasurements("HT", demographicNo, admProviderNo, dataField, dataUnit, dateObserved);
-                        addOneEntry(CAREELEMENTS);
+                            if (ht.getDate()==null) err_data.add("Error! No Date for Height in Care Element ("+(i+1)+")");
+                            if (StringUtils.empty(ht.getHeight())) err_data.add("Error! No value for Height in Care Element ("+(i+1)+")");
+                            if (ht.getHeightUnit()==null) err_data.add("Error! No unit for Height in Care Element ("+(i+1)+")");
+                            ImportExportMeasurements.saveMeasurements("HT", demographicNo, admProviderNo, dataField, dataUnit, dateObserved);
+                            addOneEntry(CAREELEMENTS);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            err_summ.add("Error adding Height entry in Care Element (" + (i + 1) +")");
+                        }
                     }
                     cdsDt.Weight[] weights = ce.getWeightArray();
                     for (cdsDt.Weight wt : weights) {
-                        Date dateObserved = wt.getDate()!=null ? wt.getDate().getTime() : null;
-                        String dataField = StringUtils.noNull(wt.getWeight());
-                        String dataUnit = wt.getWeightUnit()!=null ? "in "+wt.getWeightUnit().toString() : "";
+                        try {
+                            Date dateObserved = wt.getDate() != null ? wt.getDate().getTime() : null;
+                            String dataField = StringUtils.noNull(wt.getWeight());
+                            String dataUnit = wt.getWeightUnit() != null ? "in " + wt.getWeightUnit().toString() : "";
 
-                        if (wt.getDate()==null) err_data.add("Error! No Date for Weight in Care Element ("+(i+1)+")");
-                        if (StringUtils.empty(wt.getWeight())) err_data.add("Error! No value for Weight in Care Element ("+(i+1)+")");
-                        if (wt.getWeightUnit()==null) err_data.add("Error! No unit for Weight in Care Element ("+(i+1)+")");
-                        ImportExportMeasurements.saveMeasurements("WT", demographicNo, admProviderNo, dataField, dataUnit, dateObserved);
-                        addOneEntry(CAREELEMENTS);
+                            if (wt.getDate() == null)
+                                err_data.add("Error! No Date for Weight in Care Element (" + (i + 1) + ")");
+                            if (StringUtils.empty(wt.getWeight()))
+                                err_data.add("Error! No value for Weight in Care Element (" + (i + 1) + ")");
+                            if (wt.getWeightUnit() == null)
+                                err_data.add("Error! No unit for Weight in Care Element (" + (i + 1) + ")");
+                            ImportExportMeasurements.saveMeasurements("WT", demographicNo, admProviderNo, dataField, dataUnit, dateObserved);
+                            addOneEntry(CAREELEMENTS);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            err_summ.add("Error adding Weight entry in Care Element (" + (i + 1) +")");
+                        }
                     }
                     cdsDt.WaistCircumference[] waists = ce.getWaistCircumferenceArray();
                     for (cdsDt.WaistCircumference wc : waists) {
-                        Date dateObserved = wc.getDate()!=null ? wc.getDate().getTime() : null;
-                        String dataField = StringUtils.noNull(wc.getWaistCircumference());
-                        String dataUnit = wc.getWaistCircumferenceUnit()!=null ? "in "+wc.getWaistCircumferenceUnit().toString() : "";
+                        try {
+                            Date dateObserved = wc.getDate() != null ? wc.getDate().getTime() : null;
+                            String dataField = StringUtils.noNull(wc.getWaistCircumference());
+                            String dataUnit = wc.getWaistCircumferenceUnit() != null ? "in " + wc.getWaistCircumferenceUnit().toString() : "";
 
-                        if (wc.getDate()==null) err_data.add("Error! No Date for Waist Circumference in Care Element ("+(i+1)+")");
-                        if (StringUtils.empty(wc.getWaistCircumference())) err_data.add("Error! No value for Waist Circumference in Care Element ("+(i+1)+")");
-                        if (wc.getWaistCircumferenceUnit()==null) err_data.add("Error! No unit for Waist Circumference in Care Element ("+(i+1)+")");
-                        ImportExportMeasurements.saveMeasurements("WC", demographicNo, admProviderNo, dataField, dataUnit, dateObserved);
-                        addOneEntry(CAREELEMENTS);
+                            if (wc.getDate() == null)
+                                err_data.add("Error! No Date for Waist Circumference in Care Element (" + (i + 1) + ")");
+                            if (StringUtils.empty(wc.getWaistCircumference()))
+                                err_data.add("Error! No value for Waist Circumference in Care Element (" + (i + 1) + ")");
+                            if (wc.getWaistCircumferenceUnit() == null)
+                                err_data.add("Error! No unit for Waist Circumference in Care Element (" + (i + 1) + ")");
+                            ImportExportMeasurements.saveMeasurements("WC", demographicNo, admProviderNo, dataField, dataUnit, dateObserved);
+                            addOneEntry(CAREELEMENTS);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            err_summ.add("Error adding Waist Circumference entry in Care Element (" + (i + 1) +")");
+                        }
                     }
                     cdsDt.BloodPressure[] bloodp = ce.getBloodPressureArray();
                     for (cdsDt.BloodPressure bp : bloodp) {
-                        Date dateObserved = bp.getDate()!=null ? bp.getDate().getTime() : null;
-                        String dataField = StringUtils.noNull(bp.getSystolicBP())+"/"+StringUtils.noNull(bp.getDiastolicBP());
-                        String dataUnit = bp.getBPUnit()!=null ? "in "+bp.getBPUnit().toString() : "";
+                        try {
+                            Date dateObserved = bp.getDate()!=null ? bp.getDate().getTime() : null;
+                            String dataField = StringUtils.noNull(bp.getSystolicBP())+"/"+StringUtils.noNull(bp.getDiastolicBP());
+                            String dataUnit = bp.getBPUnit()!=null ? "in "+bp.getBPUnit().toString() : "";
 
-                        if (bp.getDate()==null) err_data.add("Error! No Date for Blood Pressure in Care Element ("+(i+1)+")");
-                        if (StringUtils.empty(bp.getSystolicBP())) err_data.add("Error! No value for Systolic Blood Pressure in Care Element ("+(i+1)+")");
-                        if (StringUtils.empty(bp.getDiastolicBP())) err_data.add("Error! No value for Diastolic Blood Pressure in Care Element ("+(i+1)+")");
-                        if (bp.getBPUnit()==null) err_data.add("Error! No unit for Blood Pressure in Care Element ("+(i+1)+")");
-                        ImportExportMeasurements.saveMeasurements("BP", demographicNo, admProviderNo, dataField, dataUnit, dateObserved);
-                        addOneEntry(CAREELEMENTS);
+                            if (bp.getDate()==null) err_data.add("Error! No Date for Blood Pressure in Care Element ("+(i+1)+")");
+                            if (StringUtils.empty(bp.getSystolicBP())) err_data.add("Error! No value for Systolic Blood Pressure in Care Element ("+(i+1)+")");
+                            if (StringUtils.empty(bp.getDiastolicBP())) err_data.add("Error! No value for Diastolic Blood Pressure in Care Element ("+(i+1)+")");
+                            if (bp.getBPUnit()==null) err_data.add("Error! No unit for Blood Pressure in Care Element ("+(i+1)+")");
+                            ImportExportMeasurements.saveMeasurements("BP", demographicNo, admProviderNo, dataField, dataUnit, dateObserved);
+                            addOneEntry(CAREELEMENTS);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            err_summ.add("Error adding Blood Pressure entry in Care Element (" + (i + 1) +")");
+                        }
+
                     }
                     cdsDt.SmokingStatus[] smoks = ce.getSmokingStatusArray();
                     for (cdsDt.SmokingStatus ss : smoks) {
-                        Date dateObserved = ss.getDate()!=null ? ss.getDate().getTime() : null;
-                        String dataField = ss.getStatus()!=null ? ss.getStatus().toString() : "";
+                        try {
+                            Date dateObserved = ss.getDate()!=null ? ss.getDate().getTime() : null;
+                            String dataField = ss.getStatus()!=null ? ss.getStatus().toString() : "";
 
-                        if (ss.getDate()==null) err_data.add("Error! No Date for Smoking Status in Care Element ("+(i+1)+")");
-                        if (ss.getStatus()==null) err_data.add("Error! No value for Smoking Status in Care Element ("+(i+1)+")");
-                        ImportExportMeasurements.saveMeasurements("SKST", demographicNo, admProviderNo, dataField, dateObserved);
-                        addOneEntry(CAREELEMENTS);
+                            if (ss.getDate()==null) err_data.add("Error! No Date for Smoking Status in Care Element ("+(i+1)+")");
+                            if (ss.getStatus()==null) err_data.add("Error! No value for Smoking Status in Care Element ("+(i+1)+")");
+                            ImportExportMeasurements.saveMeasurements("SKST", demographicNo, admProviderNo, dataField, dateObserved);
+                            addOneEntry(CAREELEMENTS);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            err_summ.add("Error adding Smoking Status entry in Care Element (" + (i + 1) +")");
+                        }
                     }
                     cdsDt.SmokingPacks[] smokp = ce.getSmokingPacksArray();
                     for (cdsDt.SmokingPacks sp : smokp) {
-                        Date dateObserved = sp.getDate()!=null ? sp.getDate().getTime() : null;
-                        String dataField = sp.getPerDay()!=null ? sp.getPerDay().toString() : "";
+                        try {
+                            Date dateObserved = sp.getDate()!=null ? sp.getDate().getTime() : null;
+                            String dataField = sp.getPerDay()!=null ? sp.getPerDay().toString() : "";
 
-                        if (sp.getDate()==null) err_data.add("Error! No Date for Smoking Packs/Day in Care Element ("+(i+1)+")");
-                        if (sp.getPerDay()==null) err_data.add("Error! No value for Smoking Packs/Day in Care Element ("+(i+1)+")");
-                        ImportExportMeasurements.saveMeasurements("POSK", demographicNo, admProviderNo, dataField, dateObserved);
-                        addOneEntry(CAREELEMENTS);
+                            if (sp.getDate()==null) err_data.add("Error! No Date for Smoking Packs/Day in Care Element ("+(i+1)+")");
+                            if (sp.getPerDay()==null) err_data.add("Error! No value for Smoking Packs/Day in Care Element ("+(i+1)+")");
+                            ImportExportMeasurements.saveMeasurements("POSK", demographicNo, admProviderNo, dataField, dateObserved);
+                            addOneEntry(CAREELEMENTS);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            err_summ.add("Error adding Smoking Packs entry in Care Element (" + (i + 1) +")");
+                        }
                     }
                     cdsDt.SelfMonitoringBloodGlucose[] smbg = ce.getSelfMonitoringBloodGlucoseArray();
                     for (cdsDt.SelfMonitoringBloodGlucose sg : smbg) {
-                        Date dateObserved = sg.getDate()!=null ? sg.getDate().getTime() : null;
-                        String dataField = sg.getSelfMonitoring()!=null ? sg.getSelfMonitoring().toString() : "";
+                        try {
+                            Date dateObserved = sg.getDate()!=null ? sg.getDate().getTime() : null;
+                            String dataField = sg.getSelfMonitoring()!=null ? sg.getSelfMonitoring().toString() : "";
 
-                        if (sg.getDate()==null) err_data.add("Error! No Date for Self-monitoring Blood Glucose in Care Element ("+(i+1)+")");
-                        if (sg.getSelfMonitoring()==null) err_data.add("Error! No value for Self-monitoring Blood Glucose in Care Element ("+(i+1)+")");
-                        ImportExportMeasurements.saveMeasurements("SMBG", demographicNo, admProviderNo, dataField, dateObserved);
-                        addOneEntry(CAREELEMENTS);
+                            if (sg.getDate()==null) err_data.add("Error! No Date for Self-monitoring Blood Glucose in Care Element ("+(i+1)+")");
+                            if (sg.getSelfMonitoring()==null) err_data.add("Error! No value for Self-monitoring Blood Glucose in Care Element ("+(i+1)+")");
+                            ImportExportMeasurements.saveMeasurements("SMBG", demographicNo, admProviderNo, dataField, dateObserved);
+                            addOneEntry(CAREELEMENTS);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            err_summ.add("Error adding Self-monitoring Blood Glucose entry in Care Element (" + (i + 1) +")");
+                        }
                     }
                     cdsDt.DiabetesEducationalSelfManagement[] desm = ce.getDiabetesEducationalSelfManagementArray();
                     for (cdsDt.DiabetesEducationalSelfManagement dm : desm) {
-                        Date dateObserved = dm.getDate()!=null ? dm.getDate().getTime() : null;
-                        String dataField = dm.getEducationalTrainingPerformed()!=null ? dm.getEducationalTrainingPerformed().toString() : null;
+                        try {
+                            Date dateObserved = dm.getDate()!=null ? dm.getDate().getTime() : null;
+                            String dataField = dm.getEducationalTrainingPerformed()!=null ? dm.getEducationalTrainingPerformed().toString() : null;
 
-                        if (dm.getDate()==null) err_data.add("Error! No Date for Diabetes Educational/Self-management Training in Care Element ("+(i+1)+")");
-                        if (dm.getEducationalTrainingPerformed()==null) err_data.add("Error! No value for Diabetes Educational/Self-management Training in Care Element ("+(i+1)+")");
-                        ImportExportMeasurements.saveMeasurements("DMME", demographicNo, admProviderNo, dataField, dateObserved);
-                        addOneEntry(CAREELEMENTS);
+                            if (dm.getDate()==null) err_data.add("Error! No Date for Diabetes Educational/Self-management Training in Care Element ("+(i+1)+")");
+                            if (dm.getEducationalTrainingPerformed()==null) err_data.add("Error! No value for Diabetes Educational/Self-management Training in Care Element ("+(i+1)+")");
+                            ImportExportMeasurements.saveMeasurements("DMME", demographicNo, admProviderNo, dataField, dateObserved);
+                            addOneEntry(CAREELEMENTS);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            err_summ.add("Error adding Diabetes Educational/Self-management Training entry in Care Element (" + (i + 1) +")");
+                        }
                     }
                     cdsDt.DiabetesSelfManagementChallenges[] dsmc = ce.getDiabetesSelfManagementChallengesArray();
                     for (cdsDt.DiabetesSelfManagementChallenges dc : dsmc) {
-                        Date dateObserved = dc.getDate().getTime();
-                        String dataField = dc.getChallengesIdentified().toString();
-                        String dataCode = dc.getCodeValue()!=null ? "LOINC="+dc.getCodeValue().toString() : "";
+                        try {
+                            Date dateObserved = dc.getDate().getTime();
+                            String dataField = dc.getChallengesIdentified().toString();
+                            String dataCode = dc.getCodeValue()!=null ? "LOINC="+dc.getCodeValue().toString() : "";
 
-                        if (dc.getDate()==null) err_data.add("Error! No Date for Diabetes Self-management Challenges in Care Element ("+(i+1)+")");
-                        if (dc.getChallengesIdentified()==null) err_data.add("Error! No Challenges Identified for Diabetes Self-management Challenges in Care Element ("+(i+1)+")");
-                        if (dc.getCodeValue()==null) err_data.add("Error! No Code value for Diabetes Self-management Challenges in Care Element ("+(i+1)+")");
-                        ImportExportMeasurements.saveMeasurements("SMCD", demographicNo, admProviderNo, dataField, dataCode, dateObserved);
-                        addOneEntry(CAREELEMENTS);
+                            if (dc.getDate()==null) err_data.add("Error! No Date for Diabetes Self-management Challenges in Care Element ("+(i+1)+")");
+                            if (dc.getChallengesIdentified()==null) err_data.add("Error! No Challenges Identified for Diabetes Self-management Challenges in Care Element ("+(i+1)+")");
+                            if (dc.getCodeValue()==null) err_data.add("Error! No Code value for Diabetes Self-management Challenges in Care Element ("+(i+1)+")");
+                            ImportExportMeasurements.saveMeasurements("SMCD", demographicNo, admProviderNo, dataField, dataCode, dateObserved);
+                            addOneEntry(CAREELEMENTS);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            err_summ.add("Error adding Diabetes Self-management Challenges entry in Care Element (" + (i + 1) +")");
+                        }
                     }
                     cdsDt.DiabetesMotivationalCounselling[] dmc = ce.getDiabetesMotivationalCounsellingArray();
                     for (cdsDt.DiabetesMotivationalCounselling dc : dmc) {
-                        Date dateObserved = dc.getDate()!=null ? dc.getDate().getTime() : null;
-                        String dataField = "Yes";
-                        if (dc.getCounsellingPerformed()!=null) {
-                            if (dc.getCounsellingPerformed().equals(CounsellingPerformed.NUTRITION)) {
-                                ImportExportMeasurements.saveMeasurements("MCCN", demographicNo, admProviderNo, dataField, dateObserved);
-                                addOneEntry(CAREELEMENTS);
+                        try {
+                            Date dateObserved = dc.getDate()!=null ? dc.getDate().getTime() : null;
+                            String dataField = "Yes";
+                            if (dc.getCounsellingPerformed()!=null) {
+                                if (dc.getCounsellingPerformed().equals(CounsellingPerformed.NUTRITION)) {
+                                    ImportExportMeasurements.saveMeasurements("MCCN", demographicNo, admProviderNo, dataField, dateObserved);
+                                    addOneEntry(CAREELEMENTS);
+                                }
+                                else if (dc.getCounsellingPerformed().equals(CounsellingPerformed.EXERCISE)) {
+                                    ImportExportMeasurements.saveMeasurements("MCCE", demographicNo, admProviderNo, dataField, dateObserved);
+                                    addOneEntry(CAREELEMENTS);
+                                }
+                                else if (dc.getCounsellingPerformed().equals(CounsellingPerformed.SMOKING_CESSATION)) {
+                                    ImportExportMeasurements.saveMeasurements("MCCS", demographicNo, admProviderNo, dataField, dateObserved);
+                                    addOneEntry(CAREELEMENTS);
+                                }
+                                else if (dc.getCounsellingPerformed().equals(CounsellingPerformed.OTHER)) {
+                                    ImportExportMeasurements.saveMeasurements("MCCO", demographicNo, admProviderNo, dataField, dateObserved);
+                                    addOneEntry(CAREELEMENTS);
+                                }
                             }
-                            else if (dc.getCounsellingPerformed().equals(CounsellingPerformed.EXERCISE)) {
-                                ImportExportMeasurements.saveMeasurements("MCCE", demographicNo, admProviderNo, dataField, dateObserved);
-                                addOneEntry(CAREELEMENTS);
-                            }
-                            else if (dc.getCounsellingPerformed().equals(CounsellingPerformed.SMOKING_CESSATION)) {
-                                ImportExportMeasurements.saveMeasurements("MCCS", demographicNo, admProviderNo, dataField, dateObserved);
-                                addOneEntry(CAREELEMENTS);
-                            }
-                            else if (dc.getCounsellingPerformed().equals(CounsellingPerformed.OTHER)) {
-                                ImportExportMeasurements.saveMeasurements("MCCO", demographicNo, admProviderNo, dataField, dateObserved);
-                                addOneEntry(CAREELEMENTS);
-                            }
+                            if (dc.getDate()==null) err_data.add("Error! No Date for Diabetes Motivational Counselling in Care Element ("+(i+1)+")");
+                            if (dc.getCounsellingPerformed()==null) err_data.add("Error! No Diabetes Motivational Counselling Performed value for Diabetes Self-management Challenges in Care Element ("+(i+1)+")");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            err_summ.add("Error adding Diabetes Motivational Counselling entry in Care Element (" + (i + 1) +")");
                         }
-                        if (dc.getDate()==null) err_data.add("Error! No Date for Diabetes Motivational Counselling in Care Element ("+(i+1)+")");
-                        if (dc.getCounsellingPerformed()==null) err_data.add("Error! No Diabetes Motivational Counselling Performed value for Diabetes Self-management Challenges in Care Element ("+(i+1)+")");
                     }
                     cdsDt.DiabetesComplicationScreening[] dcs = ce.getDiabetesComplicationsScreeningArray();
                     for (cdsDt.DiabetesComplicationScreening ds : dcs) {
-                        Date dateObserved = ds.getDate()!=null ? ds.getDate().getTime() : null;
-                        String dataField = "Yes";
-                        if (ds.getExamCode()!=null) {
-                            if (ds.getExamCode().equals(ExamCode.X_32468_1)) {
-                                ImportExportMeasurements.saveMeasurements("EYEE", demographicNo, admProviderNo, dataField, dateObserved);
-                                addOneEntry(CAREELEMENTS);
-                            } else if (ds.getExamCode().equals(ExamCode.X_11397_7)) {
-                                ImportExportMeasurements.saveMeasurements("FTE", demographicNo, admProviderNo, dataField, dateObserved);
-                                addOneEntry(CAREELEMENTS);
-                            } else if (ds.getExamCode().equals(ExamCode.NEUROLOGICAL_EXAM)) {
-                                ImportExportMeasurements.saveMeasurements("FTLS", demographicNo, admProviderNo, dataField, dateObserved);
-                                addOneEntry(CAREELEMENTS);
+                        try {
+                            Date dateObserved = ds.getDate()!=null ? ds.getDate().getTime() : null;
+                            String dataField = "Yes";
+                            if (ds.getExamCode()!=null) {
+                                if (ds.getExamCode().equals(ExamCode.X_32468_1)) {
+                                    ImportExportMeasurements.saveMeasurements("EYEE", demographicNo, admProviderNo, dataField, dateObserved);
+                                    addOneEntry(CAREELEMENTS);
+                                } else if (ds.getExamCode().equals(ExamCode.X_11397_7)) {
+                                    ImportExportMeasurements.saveMeasurements("FTE", demographicNo, admProviderNo, dataField, dateObserved);
+                                    addOneEntry(CAREELEMENTS);
+                                } else if (ds.getExamCode().equals(ExamCode.NEUROLOGICAL_EXAM)) {
+                                    ImportExportMeasurements.saveMeasurements("FTLS", demographicNo, admProviderNo, dataField, dateObserved);
+                                    addOneEntry(CAREELEMENTS);
+                                }
                             }
+                            if (ds.getDate()==null) err_data.add("Error! No Date for Diabetes Complications Screening in Care Element ("+(i+1)+")");
+                            if (ds.getExamCode()==null) err_data.add("Error! No Exam Code for Diabetes Complications Screening in Care Element ("+(i+1)+")");
+                        } catch(Exception e) {
+                            e.printStackTrace();
+                            err_summ.add("Error adding Diabetes Complication Screening entry in Care Element (" + (i + 1) +")");
                         }
-                        if (ds.getDate()==null) err_data.add("Error! No Date for Diabetes Complications Screening in Care Element ("+(i+1)+")");
-                        if (ds.getExamCode()==null) err_data.add("Error! No Exam Code for Diabetes Complications Screening in Care Element ("+(i+1)+")");
                     }
                     cdsDt.DiabetesSelfManagementCollaborative[] dsco = ce.getDiabetesSelfManagementCollaborativeArray();
                     for (cdsDt.DiabetesSelfManagementCollaborative dc : dsco) {
-                        Date dateObserved = dc.getDate()!=null ? dc.getDate().getTime() : null;
-                        String dataField = StringUtils.noNull(dc.getDocumentedGoals());
-                        if (dc.getDate()==null) err_data.add("Error! No Date for Diabetes Self-management/Collaborative Goal Setting in Care Element ("+(i+1)+")");
-                        if (StringUtils.empty(dc.getDocumentedGoals())) err_data.add("Error! No Documented Goal for Diabetes Self-management/Collaborative Goal Setting in Care Element ("+(i+1)+")");
-                        if (dc.getCodeValue()==null) err_data.add("Error! No Code Value for Diabetes Self-management/Collaborative Goal Setting in Care Element ("+(i+1)+")");
-                        ImportExportMeasurements.saveMeasurements("CGSD", demographicNo, admProviderNo, dataField, dateObserved);
-                        addOneEntry(CAREELEMENTS);
+                        try {
+                            Date dateObserved = dc.getDate()!=null ? dc.getDate().getTime() : null;
+                            String dataField = StringUtils.noNull(dc.getDocumentedGoals());
+                            if (dc.getDate()==null) err_data.add("Error! No Date for Diabetes Self-management/Collaborative Goal Setting in Care Element ("+(i+1)+")");
+                            if (StringUtils.empty(dc.getDocumentedGoals())) err_data.add("Error! No Documented Goal for Diabetes Self-management/Collaborative Goal Setting in Care Element ("+(i+1)+")");
+                            if (dc.getCodeValue()==null) err_data.add("Error! No Code Value for Diabetes Self-management/Collaborative Goal Setting in Care Element ("+(i+1)+")");
+                            ImportExportMeasurements.saveMeasurements("CGSD", demographicNo, admProviderNo, dataField, dateObserved);
+                            addOneEntry(CAREELEMENTS);
+                        } catch(Exception e) {
+                            e.printStackTrace();
+                            err_summ.add("Error adding Diabetes Self-management/Collaborative Goal Setting entry in Care Element (" + (i + 1) +")");
+                        }
                     }
                     cdsDt.HypoglycemicEpisodes[] hype = ce.getHypoglycemicEpisodesArray();
                     for (cdsDt.HypoglycemicEpisodes he : hype) {
-                        Date dateObserved = he.getDate()!=null ? he.getDate().getTime() : null;
-                        String dataField = he.getNumOfReportedEpisodes()!=null ? he.getNumOfReportedEpisodes().toString() : "";
+                        try {
+                            Date dateObserved = he.getDate()!=null ? he.getDate().getTime() : null;
+                            String dataField = he.getNumOfReportedEpisodes()!=null ? he.getNumOfReportedEpisodes().toString() : "";
 
-                        if (he.getDate()==null) err_data.add("Error! No Date for Hypoglycemic Episodes in Care Element ("+(i+1)+")");
-                        if (he.getNumOfReportedEpisodes()==null) err_data.add("Error! No Reported Episodes value for Hypoglycemic Episodes in Care Element ("+(i+1)+")");
-                        ImportExportMeasurements.saveMeasurements("HYPE", demographicNo, admProviderNo, dataField, dateObserved);
-                        addOneEntry(CAREELEMENTS);
+                            if (he.getDate()==null) err_data.add("Error! No Date for Hypoglycemic Episodes in Care Element ("+(i+1)+")");
+                            if (he.getNumOfReportedEpisodes()==null) err_data.add("Error! No Reported Episodes value for Hypoglycemic Episodes in Care Element ("+(i+1)+")");
+                            ImportExportMeasurements.saveMeasurements("HYPE", demographicNo, admProviderNo, dataField, dateObserved);
+                            addOneEntry(CAREELEMENTS);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            err_summ.add("Error adding Hypoglycemic Episodes entry in Care Element (" + (i + 1) +")");
+                        }
                     }
                 }
             }
@@ -2172,6 +2316,12 @@ import oscar.util.UtilDateUtilities;
                 err_demo.addAll(demoRes.getWarningsCollection());
             }
             Util.cleanFile(xmlFile);
+        } catch (Exception e) {
+            e.printStackTrace();
+            err_othe.add("Demographic information was not fully imported.");
+        }
+        
+        err_summ.addAll(importErrors);
 
             return packMsgs(err_demo, err_data, err_summ, err_othe, err_note, warnings);
 	}
@@ -2768,7 +2918,15 @@ import oscar.util.UtilDateUtilities;
 		if (StringUtils.empty(firstName) && StringUtils.empty(lastName) && StringUtils.empty(ohipNo)) return ""; //no information at all!
 		pd = new ProviderData();
 		MiscUtils.getLogger().info("ADD EXTERNAL");
-		pd.addExternalProvider(firstName, lastName, ohipNo, cpsoNo);
+		
+		try {
+            pd.addExternalProvider(firstName, lastName, ohipNo, cpsoNo, status);
+        } catch (Exception e) {
+		    e.printStackTrace();
+		    importErrors.add("Error adding external provider " + lastName + ", " + firstName);
+		    return null;
+        }
+		
 		return pd.getProviderNo();
 	}
 
@@ -3277,8 +3435,9 @@ import oscar.util.UtilDateUtilities;
 	                }
 		        }
                   
-			}catch(Exception e) {
+			} catch(Exception e) {
 				logger.error("error", e);
+                importErrors.add("Error processing lab data");
 			}
 		}
 	}
