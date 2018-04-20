@@ -993,17 +993,17 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 	
 	public List<Demographic> searchDemographicByExtKeyAndValueLikeAndStatus(String key, String value, List<String> statuses, int limit, int offset, String orderBy, String providerNo, boolean outOfDomain,boolean ignoreStatuses) {
 		List<Demographic> list = new ArrayList<Demographic>();
-		String queryString = "SELECT {d.*} FROM demographic d "
-				+ "INNER JOIN demographicExt dext ON (dext.demographic_no=d.demographic_no) "
+		String queryString = "SELECT {de.*} FROM demographic de "
+				+ "INNER JOIN demographicExt dext ON (dext.demographic_no=de.demographic_no) "
 				+ "WHERE dext.key_val=:key "
 				+ "AND dext.value LIKE :value";
 
 		if(statuses != null) {
-			queryString += " AND d.patient_status " + ((ignoreStatuses)?"NOT":"") + "  IN (:statuses)";
+			queryString += " AND de.patient_status " + ((ignoreStatuses)?"NOT":"") + "  IN (:statuses)";
 		}
 
 		if(providerNo != null && !outOfDomain) {
-			queryString += " AND d.id IN ("+ PROGRAM_DOMAIN_RESTRICTION+") ";
+			queryString += " AND de.id IN ("+ PROGRAM_DOMAIN_RESTRICTION+") ";
 		}
 
 		if (orderBy!=null){
@@ -1025,7 +1025,7 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 				query.setParameter("providerNo", providerNo);
 			}
 
-			query.addEntity("d", Demographic.class); //tried to define 
+			query.addEntity("de", Demographic.class); //tried to define 
 			list = query.list();
 		} finally {
 			this.releaseSession(session);
@@ -1226,10 +1226,10 @@ public class DemographicDao extends HibernateDaoSupport implements ApplicationEv
 		}
 		else {
 			if (orderBy.equals("dob")) {
-				orderBy = "d.year_of_birth, d.month_of_birth, d.date_of_birth ";
+				orderBy = "de.year_of_birth, de.month_of_birth, de.date_of_birth ";
 			}
 			else {
-				orderBy = "d."+orderBy;
+				orderBy = "de."+orderBy;
 			}
 		}
 
