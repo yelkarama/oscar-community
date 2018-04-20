@@ -32,10 +32,15 @@ import org.joda.time.PeriodType;
 public class AgeCalculator {
 
 	public static Age calculateAge(Calendar birthDate) {
-		LocalDate birthdate = LocalDate.fromCalendarFields(birthDate);
-		LocalDate now = new LocalDate();                    //Today's date
-		Period period = new Period(birthdate, now, PeriodType.yearMonthDay());
+		Age age = null;
 		
-		return new Age(period.getDays(),period.getMonths(),period.getYears());
+		if (birthDate != null) {
+			LocalDate birthdate = LocalDate.fromCalendarFields(birthDate);
+			LocalDate now = new LocalDate();                    //Today's date
+			Period period = new Period(birthdate, now, PeriodType.yearMonthDay());
+			age = new Age(period.getDays(),period.getMonths(),period.getYears());
+		}
+		
+		return age;
 	}
 }
