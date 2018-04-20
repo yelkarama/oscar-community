@@ -1877,6 +1877,7 @@ import oscar.util.UtilDateUtilities;
                         notes = appArray[i].getAppointmentNotes();
                     }
                     String apptStatus = appArray[i].getAppointmentStatus();
+                    status = "";
                     if (apptStatus!=null) {
                         for (int j=1; j<allStatus.length; j++) {
                             String msg = getResources(request).getMessage(allTitle[j]);
