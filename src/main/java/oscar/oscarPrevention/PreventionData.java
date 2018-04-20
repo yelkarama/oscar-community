@@ -99,6 +99,36 @@ public class PreventionData {
 		return insertId;
 	}
 
+	public static Integer insertPreventionDataReturnError(String creator, String demoNo, String date, String providerNo, String providerName, String preventionType, String refused, String nextDate, String neverWarn, ArrayList<Map<String, String>> list) throws Exception {
+		Integer insertId = -1;
+		Prevention prevention = new Prevention();
+		prevention.setCreatorProviderNo(creator);
+		prevention.setDemographicId(Integer.valueOf(demoNo));
+		prevention.setPreventionDate(UtilDateUtilities.StringToDate(date, "yyyy-MM-dd HH:mm"));
+		prevention.setProviderName(providerName);
+		prevention.setProviderNo(providerNo);
+		prevention.setPreventionType(preventionType);
+		prevention.setNextDate(UtilDateUtilities.StringToDate(nextDate, "yyyy-MM-dd"));
+		prevention.setNever(neverWarn.trim().equals("1"));
+		if (refused.trim().equals("1")) prevention.setRefused(true);
+		else if (refused.trim().equals("2")) prevention.setIneligible(true);
+
+		preventionDao.persist(prevention);
+		if (prevention.getId() == null) return insertId;
+
+		insertId = prevention.getId();
+		for (int i = 0; i < list.size(); i++) {
+			Map<String, String> h = list.get(i);
+			for (Map.Entry<String, String> entry : h.entrySet()) {
+				if (entry.getKey() != null && entry.getValue() != null) {
+					addPreventionKeyValue("" + insertId, entry.getKey(), entry.getValue());
+				}
+			}
+		}
+
+		return insertId;
+	}
+
 	public static void addPreventionKeyValue(String preventionId, String keyval, String val) {
 		try {
 			PreventionExt preventionExt = new PreventionExt();

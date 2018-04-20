@@ -1798,6 +1798,10 @@ import oscar.util.UtilDateUtilities;
                     }
 
                     preventionDate = dateFPtoString(immuArray[i].getDate(), timeShiftInDays);
+                    if (!StringUtils.isNullOrEmpty(preventionDate) && !preventionDate.contains(":")){
+                        preventionDate = preventionDate.trim() + " 00:00";
+                    }
+                    
                     refused = getYN(immuArray[i].getRefusedFlag()).equals("Yes") ? "1" : "0";
                     if (immuArray[i].getRefusedFlag()==null) err_data.add("Error! No Refused Flag for Immunizations ("+(i+1)+")");
 /*
@@ -1820,7 +1824,7 @@ import oscar.util.UtilDateUtilities;
                     immExtra = Util.addLine(immExtra, "Instructions: ", immuArray[i].getInstructions());
                     immExtra = Util.addLine(immExtra, getResidual(immuArray[i].getResidualInfo()));
 
-                    Integer preventionId = PreventionData.insertPreventionData(admProviderNo, demographicNo, preventionDate, defaultProviderNo(), "", preventionType, refused, "", "", preventionExt);
+                    Integer preventionId = PreventionData.insertPreventionDataReturnError(admProviderNo, demographicNo, preventionDate, defaultProviderNo(), "", preventionType, refused, "", "", preventionExt);
                     addOneEntry(IMMUNIZATION);
 
                     //to dumpsite: Extra immunization data
