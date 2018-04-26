@@ -2399,6 +2399,9 @@ if ( Dead.equals(PatStat) ) {%>
                                                     <li><span class="label"><bean:message
                                                             key="<%= residentMessageKey %>" />:</span>
                                                         <span class="info"><%=providerBean.getProperty(resident==null ? "" : resident,"")%></span></li>
+							<% if (OscarProperties.getInstance().isPropertyActive("masterfile_referral_source")) { %>
+							<li><span class="label">Referral Source:</span><span class="info"><%=(demoExt.get("referral_source") != null?demoExt.get("referral_source"):"")%></span></li>
+							<% } %>
                                                     <li><span class="label"><bean:message
                                                             key="demographic.demographiceditdemographic.formRefDoc" />:</span><span class="info"><%=rd%></span>
 							</li>
