@@ -586,7 +586,7 @@ function navBarLoader() {
             for (String code : propertyNoteCodes) { %>
 				leftNavBar.unshift(ctx + "/CaseManagementView.do?method=listNotes&providerNo=" + providerNo + 
 					"&demographicNo=" + demographicNo + "&issue_code=<%=code%>&title=<%=code%>" + 
-					"&cmd=<%=code%>" + "&appointment_no=" + appointmentNo);
+					"&cmd=<%=code%>" + "&appointment_no=" + appointmentNo + "&hc=996633");
 				leftNavBarTitles.unshift('<%=code%>');
 			<% } %>
             var rightNavBar = [
@@ -618,7 +618,7 @@ function navBarLoader() {
 			for (String code : propertyNoteCodes) { %>
 				rightNavBar.unshift(ctx + "/CaseManagementView.do?method=listNotes&providerNo=" + providerNo +
 					"&demographicNo=" + demographicNo + "&issue_code=<%=code%>&title=<%=code%>" +
-					"&cmd=<%=code%>" + "&appointment_no=" + appointmentNo);
+					"&cmd=<%=code%>" + "&appointment_no=" + appointmentNo + "&hc=996633");
 				rightNavBarTitles.unshift('<%=code%>');
 			<% } %>
 

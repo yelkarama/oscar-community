@@ -83,8 +83,6 @@
 		    for (Issue issue : issues) {
 		        if (!issue.getDescription().isEmpty()) {
 		            title = issue.getDescription();
-					title = title.replace("as a part of cpp", "").trim();
-					title = title.replace("as part of cpp", "").trim(); // remove "as a part of cpp" string from title
 					break;
 				}
 			}
