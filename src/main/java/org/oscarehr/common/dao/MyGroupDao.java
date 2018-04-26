@@ -26,6 +26,7 @@ package org.oscarehr.common.dao;
 
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Query;
@@ -66,6 +67,17 @@ public class MyGroupDao extends AbstractDao<MyGroup> {
             return null;
         }
      }
+    public List<String> getGroupProviderNosOrderByViewOrder(String groupNo){
+        Query query = entityManager.createQuery("SELECT g.id.providerNo FROM MyGroup g WHERE g.id.myGroupNo=? ORDER BY g.viewOrder");
+        query.setParameter(1, groupNo);
+        @SuppressWarnings("unchecked")
+        List<String> dList = query.getResultList();
+        if (dList != null) {
+            return dList;
+        } else {
+            return new ArrayList<String>();
+        }
+    }
 
      public List<String> getGroups(){
     	 Query query = entityManager.createQuery("SELECT distinct g.id.myGroupNo FROM MyGroup g");

@@ -42,11 +42,30 @@
 		.fixed-header thead tr th {
 			border-bottom:0;
 		}
+		.fixed-header thead tr th:first-child {
+			width: 90%;
+		}
+		.fixed-header thead tr th:nth-child(2) {
+			width: 20%;
+			margin-right: 10px;
+			text-align: right;
+		}
 		.fixed-header tbody tr {
 			display: flex;
 		}
 		.fixed-header tbody tr td {
 			padding: 3px 8px;
+		}
+		.fixed-header tbody tr td:first-child {
+			width: 80%;
+		}
+		.fixed-header tbody tr td:nth-child(2) {
+			width: 20%;
+			margin-right: 10px;
+			text-align: right;
+		}
+		.fixed-header tbody tr td span.glyphicon {
+			cursor: pointer;
 		}
 		.fixed-header tbody {
 			height: 100%;
@@ -80,6 +99,12 @@
 <%
 	}
 %>
+	function moveUp(row) {
+		row.insertBefore(row.prev());
+	}
+	function moveDown(row) {
+		row.insertAfter(row.next());
+	}
 </script>
 <%
 	List<Provider> providerList = new ArrayList<Provider>();
@@ -92,9 +117,22 @@
 		
 		providerList = providerDao.getActiveProvidersWithSchedule();
 
-		existingCustomGroup = myGroupDao.getGroupDoctors("tmp-" + loggedInInfo.getLoggedInProviderNo());
+		existingCustomGroup = myGroupDao.getGroupProviderNosOrderByViewOrder("tmp-" + loggedInInfo.getLoggedInProviderNo());
 		if (existingCustomGroup == null) {
 			existingCustomGroup = new ArrayList<String>();
+		} else {
+		    // move the already selected providers to the top and order them
+			// Create and fill arraylist with the correct order
+			List<Provider> groupProviders = new ArrayList<Provider>();
+			while (groupProviders.size() < existingCustomGroup.size()) { groupProviders.add(null); }
+			for (Provider p : providerList) {
+				if (existingCustomGroup.contains(p.getProviderNo())) {
+					groupProviders.set(existingCustomGroup.indexOf(p.getProviderNo()), p);
+				}
+			}
+			// remove providers from list and add them to start of list
+			providerList.removeAll(groupProviders);
+			providerList.addAll(0, groupProviders);
 		}
 	}
 %>
@@ -116,8 +154,8 @@
 					<table class="table fixed-header" style="height: 500px;">
 						<thead>
 						<tr>
-							<th style="width: 90%">Provider</th>
-							<th style="width: 10%"><input type="checkbox" onclick="toggleCheckboxes(this);"/></th>
+							<th>Provider</th>
+							<th><input type="checkbox" onclick="toggleCheckboxes(this);"/></th>
 						</tr>
 						</thead>
 						<tbody>
@@ -127,8 +165,10 @@
 							    isChecked = existingCustomGroup.contains(p.getProviderNo());
 						%>
 						<tr>
-							<td style="width: 90%; padding: 0;"><label style="padding: 3px 8px;" for="<%=p.getProviderNo()%>_checked"><%=p.getFormattedName()%></label></td>
-							<td style="width: 10%">
+							<td><label style="padding: 3px 8px;" for="<%=p.getProviderNo()%>_checked"><%=p.getFormattedName()%></label></td>
+							<td>
+								<span class="glyphicon glyphicon-chevron-up" onclick="moveUp($(this).parent().parent())"></span>
+								<span class="glyphicon glyphicon-chevron-down" onclick="moveDown($(this).parent().parent())"></span>
 								<input type="checkbox" name="provider_checked" id="<%=p.getProviderNo()%>_checked" value="<%=p.getProviderNo()%>" <%=isChecked?checkedString:""%>/>
 							</td>
 						</tr>

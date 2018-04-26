@@ -39,6 +39,7 @@ import org.oscarehr.util.SpringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Arrays;
 import java.util.List;
 
 public class TemporaryScheduleAction extends DispatchAction {
@@ -68,7 +69,7 @@ public class TemporaryScheduleAction extends DispatchAction {
             myGroup.setId(new MyGroupPrimaryKey(customGroupNo, p.getProviderNo()));
             myGroup.setFirstName(p.getFirstName());
             myGroup.setLastName(p.getLastName());
-            myGroup.setViewOrder(0);
+            myGroup.setViewOrder(Arrays.asList(providerNos).indexOf(p.getProviderNo()));
             myGroupDao.saveEntity(myGroup);
         }
         
