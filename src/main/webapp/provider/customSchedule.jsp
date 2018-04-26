@@ -58,6 +58,7 @@
 		}
 		.fixed-header tbody tr td:first-child {
 			width: 80%;
+			padding: 0;
 		}
 		.fixed-header tbody tr td:nth-child(2) {
 			width: 20%;
