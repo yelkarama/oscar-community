@@ -1164,7 +1164,7 @@ if(wLReadonly.equals("")){
 					<%}%>
 				</td>
 			</tr>
-	<security:oscarSec roleName="<%=roleName$%>" objectName="_demographic.createInvoice" rights="w" reverse="false">
+	<security:oscarSec roleName="<%=roleName$%>" objectName="_billing,_demographic.createInvoice" rights="w" reverse="false">
 			<tr>
 				<td><a
 					href="javascript: function myFunction() {return false; }"
