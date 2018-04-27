@@ -6,6 +6,7 @@
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="org.oscarehr.common.dao.MyGroupDao" %>
 <%@ page import="org.oscarehr.util.LoggedInInfo" %>
+<%@ page import="java.util.Collections" %>
 <!DOCTYPE html>
 <html lang="en">
 <%
@@ -131,6 +132,7 @@
 					groupProviders.set(existingCustomGroup.indexOf(p.getProviderNo()), p);
 				}
 			}
+			groupProviders.removeAll(Collections.singleton(null));
 			// remove providers from list and add them to start of list
 			providerList.removeAll(groupProviders);
 			providerList.addAll(0, groupProviders);

@@ -68,7 +68,8 @@ public class MyGroupDao extends AbstractDao<MyGroup> {
         }
      }
     public List<String> getGroupProviderNosOrderByViewOrder(String groupNo){
-        Query query = entityManager.createQuery("SELECT g.id.providerNo FROM MyGroup g WHERE g.id.myGroupNo=? ORDER BY g.viewOrder");
+        Query query = entityManager.createNativeQuery("SELECT g.provider_no FROM mygroup g " +
+                "LEFT JOIN provider p ON p.provider_no = g.provider_no WHERE g.mygroup_no=? AND p.has_schedule");
         query.setParameter(1, groupNo);
         @SuppressWarnings("unchecked")
         List<String> dList = query.getResultList();
