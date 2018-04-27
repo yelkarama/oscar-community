@@ -1613,7 +1613,7 @@ function updateFaxButton() {
 				<tr>
 					<td class="tite4" colspan=2>
 					<% boolean faxEnabled = props.getBooleanProperty("faxEnable", "yes"); %>
-					<security:oscarSec roleName="<%=roleName$%>" objectName="_con" rights="r" reverse="true">
+					<security:oscarSec roleName="<%=roleName$%>" objectName="_con" rights="w" reverse="false">
 						<% if (request.getAttribute("id") != null) { %>
 
 						<input name="update" type="button" value="<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.btnUpdate"/>" onclick="return checkForm('Update Consultation Request','EctConsultationFormRequestForm');" />
@@ -2418,7 +2418,7 @@ if (defaultSiteId!=0) aburl2+="&site="+defaultSiteId;
 
 				<tr>
 					<td colspan=2><input type="hidden" name="submission" value="">
-					<security:oscarSec roleName="<%=roleName$%>" objectName="_con" rights="r" reverse="true">
+					<security:oscarSec roleName="<%=roleName$%>" objectName="_con" rights="w" reverse="false">
 						<%
 							if (request.getAttribute("id") != null)
 							{
