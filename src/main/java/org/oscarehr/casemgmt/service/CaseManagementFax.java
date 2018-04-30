@@ -42,12 +42,16 @@ import org.oscarehr.casemgmt.util.ExtPrint;
 import org.oscarehr.casemgmt.web.NoteDisplay;
 import org.oscarehr.casemgmt.web.NoteDisplayLocal;
 import org.oscarehr.common.dao.ClinicDAO;
+import org.oscarehr.common.dao.DemographicDao;
+import org.oscarehr.common.dao.DemographicExtDao;
 import org.oscarehr.common.dao.FaxConfigDao;
 import org.oscarehr.common.dao.FaxJobDao;
 import org.oscarehr.common.dao.MeasurementDao;
+import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.FaxConfig;
 import org.oscarehr.common.model.FaxJob;
 import org.oscarehr.common.model.Measurement;
+import org.oscarehr.common.model.Provider;
 import org.oscarehr.managers.ProgramManager2;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
@@ -80,6 +84,8 @@ public class CaseManagementFax {
     private ProgramManager2 programManager2 = SpringUtils.getBean(ProgramManager2.class);
     private ProgramManager programMgr = SpringUtils.getBean(ProgramManager.class);
     private CaseManagementPrint cmp = new CaseManagementPrint() ;
+    private DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
+    private DemographicExtDao demographicExtDao = SpringUtils.getBean(DemographicExtDao.class);
 
     public void doFax(LoggedInInfo loggedInInfo,Integer demographicNo, boolean printAllNotes,String[] noteIds,boolean printCPP,boolean printRx,boolean printLabs, boolean printMeasurements, Calendar startDate, Calendar endDate, HttpServletRequest request) throws IOException, DocumentException {
 
@@ -92,13 +98,31 @@ public class CaseManagementFax {
         logger.debug("NOTES2PRINT: " + noteIds);
 
         String demono = ""+demographicNo;
-        request.setAttribute("demoName", getDemoName(demono));
-        request.setAttribute("demoSex", getDemoSex(demono));
-        request.setAttribute("demoAge", getDemoAge(demono));
-        request.setAttribute("mrp", getMRP(request,demono));
-        String dob = getDemoDOB(demono);
-        dob = convertDateFmt(dob, request);
-        request.setAttribute("demoDOB", dob);
+        Demographic demographic = demographicDao.getDemographic(demono);
+        request.setAttribute("demoName", "");
+        request.setAttribute("demoSex", "");
+        request.setAttribute("demoAge", "");
+        request.setAttribute("mrp", "");
+        request.setAttribute("demoCity", "");
+        request.setAttribute("demoBandNumber", "");
+        request.setAttribute("demoDOB", "");
+        if (demographic != null) {
+            request.setAttribute("demoName", demographic.getFirstName() + " " + demographic.getLastName());
+            request.setAttribute("demoSex", demographic.getSex());
+            request.setAttribute("demoAge", demographic.getAge());
+            Provider mrp = demographic.getProvider();
+            if (mrp != null) {
+                request.setAttribute("mrp", mrp.getFirstName() + " " + mrp.getLastName());
+            }
+            if (OscarProperties.getInstance().isPropertyActive("FIRST_NATIONS_MODULE")) {
+                request.setAttribute("demoCity", demographic.getCity());
+                String bandNumber = demographicExtDao.getValueForDemoKey(demographicNo, "statusNum");
+                if (bandNumber != null) {
+                    request.setAttribute("demoBandNumber", bandNumber);
+                }
+            }
+            request.setAttribute("demoDOB", convertDateFmt(demographic.getFormattedDob(), request));
+        }
 
 
 
@@ -558,35 +582,6 @@ public class CaseManagementFax {
             return "";
         }
         return caseManagementMgr.getDemoName(demoNo);
-    }
-
-    protected String getDemoSex(String demoNo) {
-        if(demoNo == null) {
-            return "";
-        }
-        return caseManagementMgr.getDemoGender(demoNo);
-    }
-
-    protected String getDemoAge(String demoNo){
-        if (demoNo==null) return "";
-        return caseManagementMgr.getDemoAge(demoNo);
-    }
-
-    protected String getDemoDOB(String demoNo){
-        if (demoNo==null) return "";
-        return caseManagementMgr.getDemoDOB(demoNo);
-    }
-
-    protected String getMRP(HttpServletRequest request,String demographicNo) {
-        String strBeanName = "casemgmt_oscar_bean" + demographicNo;
-        oscar.oscarEncounter.pageUtil.EctSessionBean bean = (oscar.oscarEncounter.pageUtil.EctSessionBean) request.getSession().getAttribute(strBeanName);
-        if (bean == null) return new String("");
-        if (bean.familyDoctorNo == null) return new String("");
-        if (bean.familyDoctorNo.isEmpty()) return new String("");
-
-        oscar.oscarEncounter.data.EctProviderData.Provider prov = new oscar.oscarEncounter.data.EctProviderData().getProvider(bean.familyDoctorNo);
-        String name = prov.getFirstName() + " " + prov.getSurname();
-        return name;
     }
 
     protected String convertDateFmt(String strOldDate, HttpServletRequest request) {

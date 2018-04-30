@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -150,12 +151,17 @@ public class CaseManagementPrintPdf {
         String gender = propResource.getString("oscarEncounter.pdfPrint.gender") + " " + (String)request.getAttribute("demoSex") + "\n";
         String dob = propResource.getString("oscarEncounter.pdfPrint.dob") + " " + (String)request.getAttribute("demoDOB") + "\n";
         String age = propResource.getString("oscarEncounter.pdfPrint.age") + " " + (String)request.getAttribute("demoAge") + "\n";
+        String city = propResource.getString("oscarEncounter.pdfPrint.city") + " " + (String)request.getAttribute("demoCity") + "\n";
+        String bandNumber = propResource.getString("oscarEncounter.pdfPrint.bandNumber") + " " + (String)request.getAttribute("demoBandNumber") + "\n";
         String mrp = propResource.getString("oscarEncounter.pdfPrint.mrp") + " " + (String)request.getAttribute("mrp") + "\n";
-        String[] info = null;
+        List<String> headerInfo = new ArrayList<String>(Arrays.asList(title, gender, dob, age));
+        
+        if (OscarProperties.getInstance().isPropertyActive("FIRST_NATIONS_MODULE")) {
+            headerInfo.add(city);
+            headerInfo.add(bandNumber);
+        }
         if("true".equals(OscarProperties.getInstance().getProperty("print.includeMRP", "true"))) {
-        	info = new String[] { title, gender, dob, age, mrp };
-        } else {
-        	info = new String[] { title, gender, dob, age};
+            headerInfo.add(mrp);
         }
 
         ClinicData clinicData = new ClinicData();
@@ -218,9 +224,7 @@ public class CaseManagementPrintPdf {
         phrase = new Phrase();
         p = new Paragraph();
         p.setAlignment(Paragraph.ALIGN_RIGHT);
-        for( int idx = 0; idx < info.length; ++idx ) {
-            phrase.add(info[idx]);
-        }
+        phrase.addAll(headerInfo);
 
         ct.setSimpleColumn(document.right()/2f, upperYcoord, document.right(), document.top());
         p.add(phrase);
