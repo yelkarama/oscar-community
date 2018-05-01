@@ -547,7 +547,7 @@ public class OscarAppointmentDao extends AbstractDao<Appointment> {
     }
     
     public List<Object[]> export_appt(Integer demographicNo) {
-    	String sql="from Appointment app, Provider prov where app.id = prov.id and app.demographicNo = ?";
+    	String sql="from Appointment app, Provider prov where app.providerNo = prov.id and app.demographicNo = ?";
     	Query query = entityManager.createQuery(sql);
     	query.setParameter(1, demographicNo);
          
