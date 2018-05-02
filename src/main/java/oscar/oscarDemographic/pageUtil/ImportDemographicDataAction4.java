@@ -1032,7 +1032,7 @@ import oscar.util.UtilDateUtilities;
                 if (StringUtils.empty(medicalHist)) medicalHist = "Imported Medical History";
                 cmNote.setNote(medicalHist);
                 caseManagementManager.saveNoteSimple(cmNote);
-                addOneEntry(FAMILYHISTORY);
+                addOneEntry(PASTHEALTH);
 
                     //annotation
                     Long hostNoteId = cmNote.getId();
@@ -3370,14 +3370,16 @@ import oscar.util.UtilDateUtilities;
 		                   logger.debug("MESSAGE HANDLER "+msgHandler.getClass().getName());
 		                }
 		               if((msgHandler.parse(loggedInInfo, getClass().getSimpleName(), filePath,checkFileUploadedSuccessfully, "")) != null) {
-		            	   labNo = ((GDMLHandler)msgHandler).getLastLabNo();
+		            	   labNo = checkFileUploadedSuccessfully;
 		                    logger.info("successfully added lab");        
+		                    addOneEntry(LABS);
 		               }
 		            }else{
 		            	 logger.info("uploaded previously");
 		            }
 		        }catch(Exception e){
 		            logger.error("Error: ",e);
+                    importErrors.add("Error adding lab");
 		        }
 		        finally {
 		        	IOUtils.closeQuietly(formFileIs);
