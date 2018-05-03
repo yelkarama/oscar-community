@@ -108,6 +108,7 @@
   java.util.Locale vLocale =(java.util.Locale)session.getAttribute(org.apache.struts.Globals.LOCALE_KEY);
 
   OscarProperties props = OscarProperties.getInstance();
+  PropertyDao propertyDao = new SpringUtils().getBean(PropertyDao.class);
 
   GregorianCalendar now=new GregorianCalendar();
 	SimpleDateFormat standardDateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -169,6 +170,8 @@
 	    PatientConsentManager patientConsentManager = SpringUtils.getBean( PatientConsentManager.class );
 		pageContext.setAttribute( "consentTypes", patientConsentManager.getConsentTypes() );
 	}
+
+	boolean showSin = !"hidden".equalsIgnoreCase(propertyDao.getValueByNameAndDefault("demographic.field.sin", ""));
 	
 	SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
 	Map<String, Boolean> masterFilePreferences = systemPreferencesDao.findByKeysAsMap(SystemPreferences.MASTER_FILE_PREFERENCE_KEYS);
@@ -1163,8 +1166,12 @@ function ignoreDuplicates() {
 					</jsp:include>
 											
 			</oscar:oscarPropertiesCheck>
-			<%-- END TOGGLE FIRST NATIONS MODULE --%>    
+			<%-- END TOGGLE FIRST NATIONS MODULE --%>
 
+				<% if (showSin) {%>
+				<td align="right"><b>SIN:</b></td>
+				<td align="left"><input type="text" name="sin" <%=getDisabled("sin")%> size="30" value="<%=StringUtils.trimToEmpty(demographic.getSin())%>"></td>
+				<%}%>
 	<td  id="cytologyLbl" align="right"><b> <bean:message key="demographic.demographicaddrecordhtm.cytolNum"/>:</b> </td>
 	<td id="cytologyCell" align="left"  >
 	    <input type="text" name="cytolNum">

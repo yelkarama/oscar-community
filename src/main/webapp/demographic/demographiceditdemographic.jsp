@@ -100,6 +100,7 @@
     
     PatientTypeDao patientTypeDao = (PatientTypeDao) SpringUtils.getBean("patientTypeDao");
     List<PatientType> patientTypes = patientTypeDao.findAllPatientTypes();
+	boolean showSin = !"hidden".equalsIgnoreCase(propertyDao.getValueByNameAndDefault("demographic.field.sin", ""));
 %>
 
 <security:oscarSec roleName="<%=roleName$%>"
@@ -1673,6 +1674,12 @@ if(oscarProps.getProperty("new_label_print") != null && oscarProps.getProperty("
                                                             key="demographic.demographiceditdemographic.formDOB" />: <%=birthYear%>-<%=birthMonth%>-<%=birthDate%>)
                                                         </span>
                                                     </li>
+							<% if (showSin) { %>
+							<li>
+								<span class="label">SIN:</span>
+								<span class="info"><%=StringUtils.trimToEmpty(demographic.getSin())%> </span>
+							</li>  
+							<% } %>
                                                     <li><span class="label"><bean:message key="demographic.demographiceditdemographic.msgDemoLanguage"/>:</span>
                                                         <span class="info"><%=StringUtils.trimToEmpty(demographic.getOfficialLanguage())%></span>
                                                     </li>

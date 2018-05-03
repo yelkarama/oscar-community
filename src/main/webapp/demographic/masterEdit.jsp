@@ -197,6 +197,7 @@
 
 	SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
 	Map<String, Boolean> masterFilePreferences = systemPreferencesDao.findByKeysAsMap(SystemPreferences.MASTER_FILE_PREFERENCE_KEYS);
+    boolean showSin = !"hidden".equalsIgnoreCase(propertyDao.getValueByNameAndDefault("demographic.field.sin", ""));
 %>
 <%!
 	public String getDisabled(String fieldName) {
@@ -683,6 +684,10 @@
 		</select></td>
 	</tr>
 	<tr valign="top">
+	<% if (showSin) {%>
+		<td align="right"><b>SIN:</b></td>
+		<td align="left"><input type="text" name="sin" <%=getDisabled("sin")%> size="30" value="<%=StringUtils.trimToEmpty(demographic.getSin())%>"></td>
+	<%}%>
 		<td align="right" nowrap><b> <bean:message
 					key="demographic.demographiceditdemographic.cytolNum" />:
 		</b></td>

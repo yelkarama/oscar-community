@@ -53,6 +53,7 @@ import java.util.zip.ZipInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import cdsDt.AddressType;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
@@ -570,23 +571,65 @@ import oscar.util.UtilDateUtilities;
         }
 
         String address="", city="", province="", postalCode="";
-        if (demo.getAddressArray().length>0) {
-            cdsDt.Address addr = demo.getAddressArray(0);	//only get 1st address, other ignored
-            if (addr!=null) {
-                if (StringUtils.filled(addr.getFormatted())) {
-                    address = addr.getFormatted();
-                } else {
-                    cdsDt.AddressStructured addrStr = addr.getStructured();
-                    if (addrStr!=null) {
-                        address = StringUtils.noNull(addrStr.getLine1()) + StringUtils.noNull(addrStr.getLine2()) + StringUtils.noNull(addrStr.getLine3());
-                        city = StringUtils.noNull(addrStr.getCity());
-                        province = getCountrySubDivCode(addrStr.getCountrySubdivisionCode());
-                        cdsDt.PostalZipCode postalZip = addrStr.getPostalZipCode();
-                        if (postalZip!=null) postalCode = StringUtils.noNull(postalZip.getPostalCode());
+            cdsDt.Address[] addresses = demo.getAddressArray();
+            if (addresses.length>0) {
+                for (int i = 0; i < addresses.length; i++) {
+                    cdsDt.Address addr = demo.getAddressArray(i);
+                    String tempAddress = "";
+                    String tempCity = "";
+                    String tempProvince = "";
+                    String tempPostalCode = "";
+                    String addressType = "";
+                    if (addr.getAddressType() == AddressType.M) {
+                        address = "Mailing ";
+                    } else if (addr.getAddressType() == AddressType.R) {
+                        address = "Residential ";
                     }
-                }
+                    
+                    if (StringUtils.filled(addr.getFormatted())) {
+                        tempAddress = addr.getFormatted();
+                        if (tempAddress.contains("\n")) {
+                            String[] formattedAddressParts = tempAddress.split("\n");
+                            StringBuilder formattedAddressExtra = new StringBuilder();
+                            
+                            for (int j = 0; j < formattedAddressParts.length; j++) {
+                                if (j == 0) {
+                                    tempAddress = formattedAddressParts[j];
+                                } else {
+                                    formattedAddressExtra.append(formattedAddressParts[j]).append(" ");
+                                }
+                            }
+                            
+                            if (!StringUtils.empty(formattedAddressExtra.toString())) {
+                                extra = Util.addLine(extra, "Additional Data From Formatted " + addressType + "Address: ", formattedAddressExtra.toString());
+                            }
+                        }
+                    } else {
+                        cdsDt.AddressStructured addrStr = addr.getStructured();
+                        if (addrStr!=null) {
+                            tempAddress = StringUtils.noNull(addrStr.getLine1()) + StringUtils.noNull(addrStr.getLine2()) + StringUtils.noNull(addrStr.getLine3());
+                            tempCity = StringUtils.noNull(addrStr.getCity());
+                            tempProvince = getCountrySubDivCode(addrStr.getCountrySubdivisionCode());
+                            cdsDt.PostalZipCode postalZip = addrStr.getPostalZipCode();
+                            if (postalZip!=null) tempPostalCode = StringUtils.noNull(postalZip.getPostalCode());
+                        }
+                    }
+                    
+                    if (i == 0) {
+                        address = tempAddress;
+                        city = tempCity;
+                        province = tempProvince;
+                        postalCode = tempPostalCode;
+                    } else if (StringUtils.filled(tempAddress)){
+                        extra = Util.addLine(extra, addressType + "Address:");
+                        extra = Util.addLine(extra, tempAddress);
+                        if (StringUtils.filled(tempCity) && StringUtils.filled(tempProvince) && StringUtils.filled(postalCode)) {
+                            extra = Util.addLine(extra, tempCity + ", " + tempProvince);
+                            extra = Util.addLine(extra, tempPostalCode);
+                        }
+                    }
+                } 
             }
-        }
         cdsDt.PhoneNumber[] pn = demo.getPhoneNumberArray();
         String workPhone="", workExt="", homePhone="", homeExt="", cellPhone="", ext="", patientPhone="";
         for (int i=0; i<pn.length; i++) {
