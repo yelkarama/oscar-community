@@ -158,7 +158,7 @@ public class TicklerDao extends AbstractDao<Tickler>{
 		return result.intValue();
 	}
 	public int getActiveTicklerCountInProviderPrograms(String providerNo) {
-		Query query = entityManager.createNativeQuery("select count(t.tickler_no) FROM Tickler t " +
+		Query query = entityManager.createNativeQuery("select count(t.tickler_no) FROM tickler t " +
 				"where t.status = 'A' " +
 				"and t.service_date <= :date " +
 				"and (t.task_assigned_to = :providerNo or t.task_assigned_to='All Providers') " +
