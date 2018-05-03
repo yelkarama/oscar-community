@@ -1,6 +1,9 @@
 <%@ page import="org.oscarehr.common.dao.PropertyDao" %>
 <%@ page import="org.oscarehr.util.SpringUtils" %>
-<%@ page import="org.oscarehr.common.model.Property" %><%--
+<%@ page import="org.oscarehr.common.model.Property" %>
+<%@ page import="oscar.log.LogAction" %>
+<%@ page import="oscar.log.LogConst" %>
+<%@ page import="org.oscarehr.util.LoggedInInfo" %><%--
 
 
     Copyright (c) 2005-2012. Centre for Research on Inner City Health, St. Michael's Hospital, Toronto. All Rights Reserved.
@@ -54,6 +57,8 @@
 	    if ("true".equals(propertyString) || "false".equals(propertyString)) {
 			ticklerShowOnlyProviderPrograms.setValue(propertyString);
 			propertyDao.saveEntity(ticklerShowOnlyProviderPrograms);
+			LogAction.addLog(LoggedInInfo.getLoggedInInfoFromSession(request), LogConst.UPDATE, "CAISI tickler setting", 
+					"set " + ("true".equals(propertyString) ? "on" : "off"), "", "");
 		}
 	}
 	

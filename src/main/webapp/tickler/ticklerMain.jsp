@@ -656,6 +656,11 @@ var beginD = "1900-01-01"
 				<option value="<%=p.getId()%>" <%=String.valueOf(p.getId()).equals(selectedProgram)?"selected=\"selected\"":""%>>
 					<%=p.getName()%>
 				</option>
+				<%	} 
+					if ("true".equals(ticklerShowOnlyProviderPrograms)) { %>
+				<security:oscarSec roleName="<%=roleName$%>" objectName="_admin.tickler_programs_show_all_option" rights="r" reverse="<%=false%>">
+				<option value="allAndNoProgram" <%="allAndNoProgram".equals(selectedProgram)?"selected=\"selected\"":""%>>All With or Without Programs</option>
+				</security:oscarSec>
 				<%	} %>
 			</select>
 			<% } %>
@@ -893,14 +898,14 @@ function changeSite(sel) {
 								  }
 
 
-								  if ("true".equals(ticklerShowOnlyProviderPrograms)) {
+								  if ("true".equals(ticklerShowOnlyProviderPrograms) && !selectedProgram.equals("allAndNoProgram")) {
 								      List<Integer> programIds = new ArrayList<Integer>();
 								      for (Program p : programsList) {
 								          programIds.add(p.getId());
 									  }
 								      filter.setWithProgramIdsIn(programIds);
 								  }
-								if (!selectedProgram.isEmpty() && !selectedProgram.equals("all")) {
+								if (!selectedProgram.isEmpty() && !(selectedProgram.equals("all") || selectedProgram.equals("allAndNoProgram"))) {
 									filter.setProgramId(selectedProgram);
 								}
 								  

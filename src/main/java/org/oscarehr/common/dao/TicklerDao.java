@@ -23,6 +23,7 @@
  */
 package org.oscarehr.common.dao;
 
+import java.math.BigInteger;
 import java.util.*;
 
 import javax.persistence.Query;
@@ -154,6 +155,19 @@ public class TicklerDao extends AbstractDao<Tickler>{
 		
 		Long result = (Long)query.getSingleResult();
 		
+		return result.intValue();
+	}
+	public int getActiveTicklerCountInProviderPrograms(String providerNo) {
+		Query query = entityManager.createNativeQuery("select count(t.tickler_no) FROM Tickler t " +
+				"where t.status = 'A' " +
+				"and t.service_date <= :date " +
+				"and (t.task_assigned_to = :providerNo or t.task_assigned_to='All Providers') " +
+				"and t.program_id in (SELECT program_id FROM program_provider WHERE provider_no = :providerNo)");
+		query.setParameter("date", new Date());
+		query.setParameter("providerNo", providerNo);
+
+		BigInteger result = (BigInteger)query.getSingleResult();
+
 		return result.intValue();
 	}
 	

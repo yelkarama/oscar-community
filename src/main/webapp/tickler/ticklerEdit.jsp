@@ -40,6 +40,10 @@
 <%@page import="org.oscarehr.util.MiscUtils"%>
 <%@ page import="org.oscarehr.util.LoggedInInfo" %>
 <%@ page import="org.oscarehr.managers.TicklerManager" %>
+<%@ page import="org.oscarehr.PMmodule.model.ProgramProvider" %>
+<%@ page import="oscar.OscarProperties" %>
+<%@ page import="java.util.ArrayList" %>
+<%@ page import="org.oscarehr.PMmodule.dao.ProgramProviderDAO" %>
 
 <%
 	TicklerManager ticklerManager = SpringUtils.getBean(TicklerManager.class);
@@ -99,6 +103,16 @@
     GregorianCalendar now=new GregorianCalendar();
     int curYear = now.get(Calendar.YEAR);
     int curMonth = (now.get(Calendar.MONTH)+1);
+
+
+	Boolean caisiEnabled = OscarProperties.getInstance().isPropertyActive("caisi");
+	Integer defaultProgramId = t.getProgramId();
+	List<ProgramProvider> programProviders = new ArrayList<ProgramProvider>();
+
+	if (caisiEnabled) {
+		ProgramProviderDAO programProviderDao = SpringUtils.getBean(ProgramProviderDAO.class);
+		programProviders = programProviderDao.getProgramProviderByProviderNo(loggedInInfo.getLoggedInProviderNo());
+	}
 %>
 
 <html:html locale="true">
@@ -163,6 +177,20 @@
                 var newD = newYear + "-" + newMonth + "-" + newDay;
                 document.serviceform.xml_appointment_date.value = newD;
             }
+            
+            function validate(form) {
+				if (true <%=caisiEnabled?"&& validateSelectedProgram()":""%>){
+					form.submit();
+				}
+			}
+			
+			function validateSelectedProgram() {
+				if (document.serviceform.program_assigned_to.value === "none") {
+					alert("<bean:message key="tickler.ticklerAdd.msgNoProgramSelected"/>");
+					return false;
+				}
+				return true;
+			}
         </script>
     </head>
     
@@ -314,11 +342,33 @@
                         </select>
                     </td>
                 </tr>
-                
-                <tr>
-                 
-                    <th colspan="2" style="background-color: #666699;color:white;"><bean:message key="tickler.ticklerEdit.serviceDate"/></th>         
-                </tr>
+
+				<% if (caisiEnabled) { %>
+				<tr>
+					<th colspan="2" style="background-color: #666699;color:white;"><bean:message key="tickler.ticklerMain.programAssignedTo"/></th>
+				</tr>
+				<tr>
+					<td colspan="2"></td>
+					<td colspan="2">
+						<select name="program_assigned_to">
+							<option value="none" <%=defaultProgramId == null?"selected=\"selected\"":""%>>None selected</option>
+							<%  for (ProgramProvider pp : programProviders) { %>
+							<option value="<%=pp.getProgram().getId()%>" <%=pp.getProgram().getId().equals(defaultProgramId)?"selected=\"selected\"":""%>>
+								<%=pp.getProgram().getName()%>
+							</option>
+							<%  } %>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="2"></td>
+					<th colspan="2" style="background-color: #666699;color:white;"><bean:message key="tickler.ticklerEdit.serviceDate"/></th>
+				</tr>
+				<% } else { %>
+				<tr>
+					<th colspan="2" style="background-color: #666699;color:white;"><bean:message key="tickler.ticklerEdit.serviceDate"/></th>
+				</tr>
+				<% } %>
                 <tr>
                     <td colspan="2"></td>      
                     <td><input name="xml_appointment_date" type="text" maxlength="10" value="<%=t.getServiceDate()%>"/></td>
@@ -336,8 +386,8 @@
                             <html:checkbox property="emailDemographic"><bean:message key="tickler.ticklerEdit.emailDemographic"/></html:checkbox>
                          </oscar:oscarPropertiesCheck>
                        
-                         <input type="submit" name="updateTickler" value="<bean:message key="tickler.ticklerEdit.update"/>"/>
-                        <input type="submit" name="updateTickler" value="Update & Write to Encounter">
+                         <input type="button" name="updateTickler" value="<bean:message key="tickler.ticklerEdit.update"/>" onClick="validate(this.form);"/>
+                        <input type="button" name="updateTickler" value="Update & Write to Encounter" onClick="validate(this.form);"/>
                          <input type="button" name="cancelChangeTickler" value="<bean:message key="tickler.ticklerEdit.cancel"/>" onClick="window.close()"/>
                     </td>         
                 </tr>               

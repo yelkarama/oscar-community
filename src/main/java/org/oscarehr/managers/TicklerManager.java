@@ -43,6 +43,7 @@ import org.oscarehr.PMmodule.service.ProgramManager;
 import org.oscarehr.casemgmt.service.CaseManagementManager;
 import org.oscarehr.common.dao.ClinicDAO;
 import org.oscarehr.common.dao.CustomFilterDao;
+import org.oscarehr.common.dao.PropertyDao;
 import org.oscarehr.common.dao.TicklerCategoryDao;
 import org.oscarehr.common.dao.TicklerCommentDao;
 import org.oscarehr.common.dao.TicklerDao;
@@ -348,7 +349,15 @@ public class TicklerManager {
    
     
     public int getActiveTicklerCount(LoggedInInfo loggedInInfo, String providerNo) {
-        int result =  ticklerDao.getActiveTicklerCount(providerNo);
+        int result;
+
+        PropertyDao propertyDao = SpringUtils.getBean(PropertyDao.class);
+	    if (OscarProperties.getInstance().isPropertyActive("caisi") 
+                && "true".equals(propertyDao.getValueByNameAndDefault("tickler_show_only_providers_programs", "false"))) {
+            result = ticklerDao.getActiveTicklerCountInProviderPrograms(providerNo);
+        } else {
+            result = ticklerDao.getActiveTicklerCount(providerNo);
+        }
         
         return result;
     }

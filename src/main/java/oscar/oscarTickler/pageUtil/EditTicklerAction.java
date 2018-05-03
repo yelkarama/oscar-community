@@ -87,19 +87,20 @@ public class EditTicklerAction extends DispatchAction{
         String priority = request.getParameter("priority");
         String assignedTo = request.getParameter("assignedToProviders");
         String serviceDate = request.getParameter("xml_appointment_date");
+        String programStr = request.getParameter("program_assigned_to");
         boolean writeToEncounter = request.getParameter("updateTickler")!=null && request.getParameter("updateTickler").contains("Write to Encounter");
-        
-        if ((ticklerNo == null)
-         || (status == null)
-         || (priority == null)
-         || (serviceDate == null)
-         || (assignedTo == null)) 
-        {            
+
+        if (status == null || priority == null || serviceDate == null || assignedTo == null
+                || "none".equals(programStr)) {
             errors.add(ActionMessages.GLOBAL_MESSAGE, new ActionMessage("tickler.ticklerEdit.arg.error"));
-            saveErrors(request,errors);
+            saveErrors(request, errors);
             return mapping.findForward("failure");
         }
-        
+
+        Integer programId = null;
+        if (programStr != null) {
+            programId = Integer.parseInt(programStr);
+        }
         Tickler t = ticklerManager.getTickler(loggedInInfo,ticklerNo);
         
         if (t == null) {
@@ -214,6 +215,11 @@ public class EditTicklerAction extends DispatchAction{
         if (!assignedTo.equals(t.getTaskAssignedTo())){                
             tu.setAssignedTo(assignedTo);
             t.setTaskAssignedTo(assignedTo);
+            isUpdate = true;
+        }
+        
+        if (programId != null && !programId.equals(t.getProgramId())){
+            t.setProgramId(programId);
             isUpdate = true;
         }
 
