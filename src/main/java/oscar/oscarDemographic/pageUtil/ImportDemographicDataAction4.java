@@ -2620,13 +2620,16 @@ import oscar.util.UtilDateUtilities;
         }
 
 	Set<CaseManagementIssue> getCMIssue(String code) {
-		CaseManagementIssue cmIssu = new CaseManagementIssue();
-		cmIssu.setDemographic_no(demographicNo);
-		Issue isu = caseManagementManager.getIssueInfoByCode(StringUtils.noNull(code));
-		cmIssu.setIssue_id(isu.getId());
-		cmIssu.setType(isu.getType());
-		caseManagementManager.saveCaseIssue(cmIssu);
-
+		CaseManagementIssue cmIssu = caseManagementManager.getIssueByIssueCode(demographicNo, code);
+		if (cmIssu == null) {
+		    cmIssu = new CaseManagementIssue();
+            cmIssu.setDemographic_no(demographicNo);
+            Issue isu = caseManagementManager.getIssueInfoByCode(StringUtils.noNull(code));
+            cmIssu.setIssue_id(isu.getId());
+            cmIssu.setType(isu.getType());
+            caseManagementManager.saveCaseIssue(cmIssu);
+        }
+        
 		Set<CaseManagementIssue> sCmIssu = new HashSet<CaseManagementIssue>();
 		sCmIssu.add(cmIssu);
 		return sCmIssu;
@@ -2634,19 +2637,23 @@ import oscar.util.UtilDateUtilities;
 
 	Set<CaseManagementIssue> getCMIssue(String issueCode, cdsDt.StandardCoding diagCode) {
 		Set<CaseManagementIssue> sCmIssu = new HashSet<CaseManagementIssue>();
-		Issue isu = caseManagementManager.getIssueInfoByCode(StringUtils.noNull(issueCode));
-		if (isu!=null) {
-			CaseManagementIssue cmIssu = new CaseManagementIssue();
-			cmIssu.setDemographic_no(demographicNo);
-			cmIssu.setIssue_id(isu.getId());
-			cmIssu.setType(isu.getType());
-			caseManagementManager.saveCaseIssue(cmIssu);
-			sCmIssu.add(cmIssu);
-		}
-		if (isICD9(diagCode)) {
+        CaseManagementIssue cmIssu = caseManagementManager.getIssueByIssueCode(demographicNo, issueCode);
+        Issue isu = caseManagementManager.getIssueInfoByCode(StringUtils.noNull(issueCode));
+        
+        if (cmIssu == null && isu != null) {
+            cmIssu = new CaseManagementIssue();
+            cmIssu.setDemographic_no(demographicNo);
+            cmIssu.setIssue_id(isu.getId());
+            cmIssu.setType(isu.getType());
+            caseManagementManager.saveCaseIssue(cmIssu);
+        }
+        sCmIssu.add(cmIssu);
+		
+		if (diagCode != null && isICD9(diagCode)) {
+            cmIssu = caseManagementManager.getIssueByIssueCode(demographicNo, noDot(diagCode.getStandardCode()));
 			isu = caseManagementManager.getIssueInfoByCode(noDot(diagCode.getStandardCode()));
-			if (isu!=null) {
-				CaseManagementIssue cmIssu = new CaseManagementIssue();
+			if (cmIssu == null && isu != null) {
+				cmIssu = new CaseManagementIssue();
 				cmIssu.setDemographic_no(demographicNo);
 				cmIssu.setIssue_id(isu.getId());
 				cmIssu.setType(isu.getType());
