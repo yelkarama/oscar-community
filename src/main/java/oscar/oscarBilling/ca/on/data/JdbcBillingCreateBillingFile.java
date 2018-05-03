@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.oscarehr.billing.CA.ON.dao.BillingONDiskNameDao;
 import org.oscarehr.billing.CA.ON.dao.BillingONFilenameDao;
@@ -51,6 +52,7 @@ import org.oscarehr.common.model.BillingONCHeader1;
 import org.oscarehr.common.model.BillingONItem;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.Site;
+import org.oscarehr.integration.mcedt.mailbox.ActionUtils;
 import org.oscarehr.managers.DemographicManager;
 import org.oscarehr.util.DateRange;
 import org.oscarehr.util.LoggedInInfo;
@@ -983,6 +985,18 @@ public class JdbcBillingCreateBillingFile {
 
 			p.close();
 			out.close();
+			
+			try {
+				if (Integer.parseInt(year) < GregorianCalendar.getInstance().get(java.util.Calendar.YEAR)) {
+					OscarProperties props = OscarProperties.getInstance();
+					File file = new File(home_dir + ohipFilename);
+					File destDir = ActionUtils.isEmptyOrZero(file) ? new File(props.getProperty("ONEDT_SENT", "")) : new File(props.getProperty("ONEDT_OUTBOX", ""));;
+					
+					FileUtils.copyFileToDirectory(file, destDir, false);
+				}
+			} catch (Exception e) {
+				_logger.error("Move OHIP File Error");
+			}
 		} catch (Exception e) {
 			_logger.error("Write OHIP File Error");
 		}
