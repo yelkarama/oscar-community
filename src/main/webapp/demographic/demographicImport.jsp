@@ -136,6 +136,19 @@ if (!Util.checkDir(op.getProperty("TMP_DIR"))) { %>
 		<h2>This may take several minutes</h2>
 		</div>
 
+	<% if (request.getAttribute("successfulImports") != null && request.getAttribute("successfulImports") instanceof HashMap) {
+		Map<String, String> successfulImports = (HashMap<String, String>) request.getAttribute("successfulImports");
+	%>
+	<div style="font-weight:bold;">
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Successful Imports
+	</div>
+	<ul>
+		<% for (Map.Entry<String, String> entry : successfulImports.entrySet()){ %>
+		<li><%="Demographic No " + entry.getKey() + " (" + entry.getValue() + ")"%> </li>
+		<%}%>
+	</ul>
+	<%}%>
+
 		<% ArrayList list = (ArrayList)  request.getAttribute("warnings");
 	       String importLog = (String) request.getAttribute("importlog");
                if ( list != null ) {
@@ -150,7 +163,8 @@ if (!Util.checkDir(op.getProperty("TMP_DIR"))) { %>
 			<li><%=warn%></li>
 			<%}%>
 		</ul>
-		<%}%><html:form action="/form/importLogDownload.do" method="POST">
+		<%}%>
+	<html:form action="/form/importLogDownload.do" method="POST">
 			<input type="hidden" name="importlog" value="<%=importLog%>">
 			<input type="submit" name="Submit" value="Download Import Event Log">
                      </html:form>

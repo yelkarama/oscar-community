@@ -221,6 +221,7 @@ import oscar.util.UtilDateUtilities;
     OscarAppointmentDao appointmentDao = (OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
     ProviderLabRoutingDao providerLabRoutingDao = SpringUtils.getBean(ProviderLabRoutingDao.class);
     MeasurementsExtDao measurementsExtDao = SpringUtils.getBean(MeasurementsExtDao.class);
+    Map<String, String> successfulImports = new HashMap<String, String>();
 
     @Override
     public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception  {
@@ -259,6 +260,7 @@ import oscar.util.UtilDateUtilities;
         FormFile imp = frm.getImportFile();
         String ifile = tmpDir + imp.getFileName();
         ArrayList<String> warnings = new ArrayList<String>();
+        successfulImports = new HashMap<String, String>();
         ArrayList<String[]> logs = new ArrayList<String[]>();
         File importLog = null;
 
@@ -318,6 +320,9 @@ import oscar.util.UtilDateUtilities;
 
         //channel warnings and importlog to browser
         request.setAttribute("warnings",warnings);
+	if (successfulImports != null && successfulImports.size() > 0) {
+        request.setAttribute("successfulImports", successfulImports);
+    }
         if (importLog!=null) request.setAttribute("importlog",importLog.getPath());
 
         return mapping.findForward("success");
@@ -2864,7 +2869,9 @@ import oscar.util.UtilDateUtilities;
 	}
 
 	String[] packMsgs(ArrayList<String> err_demo, ArrayList<String> err_data, ArrayList<String> err_summ, ArrayList<String> err_othe, ArrayList<String> err_note, ArrayList<String> warnings) {
-		if (!(err_demo.isEmpty() && err_data.isEmpty() && err_summ.isEmpty() && err_othe.isEmpty() && err_note.isEmpty())) {
+		if (err_demo.isEmpty() && err_data.isEmpty() && err_summ.isEmpty() && err_othe.isEmpty() && err_note.isEmpty() && StringUtils.filled(demographicNo)) {
+		    successfulImports.put(demographicNo, patientName);
+        } else {
 			String title = "Fail to import patient "+patientName;
 			if (StringUtils.filled(demographicNo)) {
 				title = "Patient "+patientName+" (Demographic no="+demographicNo+")";
