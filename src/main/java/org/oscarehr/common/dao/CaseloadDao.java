@@ -49,7 +49,7 @@ public class CaseloadDao {
 																				"where ((dx.dxresearch_code='%s' and dx.status='A') OR boi.dx ='%1$s') " +
 																				"and d.patient_status not in ('FI','MO','DE','IN') " +
 																				"and d.roster_status='%s' " +
-																				"and ad.program_id in (select distinct pg.id from program pg, program_provider pp where pp.program_id=pg.id and pg.facilityId=%d)");
+																				"and ad.program_id in (select * from (select distinct pg.id from program pg, program_provider pp where pp.program_id=pg.id and pg.facilityId=%d) as y)");
 		caseloadSearchQueries.put("search_allpg_alldemo_dxfilter", "select distinct d.demographic_no, d.last_name, d.first_name from dxresearch dx " +
 																			"left join demographic d using (demographic_no) " +
 																			"left join admission ad on (ad.client_id=d.demographic_no) " +
@@ -57,9 +57,9 @@ public class CaseloadDao {
 																			"left join billing_on_item boi on (boi.ch1_id=boc.id) " +
 																				"where ((dx.dxresearch_code='%s' and dx.status='A') OR boi.dx ='%1$s') " +
 																				"and d.patient_status not in ('FI','MO','DE','IN') " +
-																				"and ad.program_id in (select distinct pg.id from program pg, program_provider pp where pp.program_id=pg.id and pg.facilityId=%d)");
-		caseloadSearchQueries.put("search_allpg_alldemo_rofilter", "select distinct d.demographic_no, d.last_name, d.first_name from demographic d left join admission ad on (ad.client_id=d.demographic_no) where d.patient_status not in ('FI','MO','DE','IN') and d.roster_status='%s' and ad.program_id in (select distinct pg.id from program pg, program_provider pp where pp.program_id=pg.id and pg.facilityId=%d)");
-		caseloadSearchQueries.put("search_allpg_alldemo_nofilter", "select distinct d.demographic_no, d.last_name, d.first_name from demographic d left join admission ad on (ad.client_id=d.demographic_no) where d.patient_status not in ('FI','MO','DE','IN') and ad.program_id in (select distinct pg.id from program pg, program_provider pp where pp.program_id=pg.id and pg.facilityId=%d)");
+																				"and ad.program_id in (select * from (select distinct pg.id from program pg, program_provider pp where pp.program_id=pg.id and pg.facilityId=%d) as y)");
+		caseloadSearchQueries.put("search_allpg_alldemo_rofilter", "select distinct d.demographic_no, d.last_name, d.first_name from demographic d left join admission ad on (ad.client_id=d.demographic_no) where d.patient_status not in ('FI','MO','DE','IN') and d.roster_status='%s' and ad.program_id in (select * from (select distinct pg.id from program pg, program_provider pp where pp.program_id=pg.id and pg.facilityId=%d) as y)");
+		caseloadSearchQueries.put("search_allpg_alldemo_nofilter", "select distinct d.demographic_no, d.last_name, d.first_name from demographic d left join admission ad on (ad.client_id=d.demographic_no) where d.patient_status not in ('FI','MO','DE','IN') and ad.program_id in (select * from (select distinct pg.id from program pg, program_provider pp where pp.program_id=pg.id and pg.facilityId=%d) as y)");
 
 		caseloadSearchQueries.put("search_allpg_provdemo_rodxfilter", "select distinct d.demographic_no, d.last_name, d.first_name from dxresearch dx " +
 																			"left join demographic d using (demographic_no) " +
@@ -71,7 +71,7 @@ public class CaseloadDao {
 																				"and d.patient_status not in ('FI','MO','DE','IN') " +
 																				"and d.roster_status='%s' " +
 																				"and ((dx.dxresearch_code='%s' and dx.status='A') OR boi.dx ='%5$s')" +
-																				"and ad.program_id in (select distinct pg.id from program pg, program_provider pp where pp.program_id=pg.id and pg.facilityId=%d)");
+																				"and ad.program_id in (select * from (select distinct pg.id from program pg, program_provider pp where pp.program_id=pg.id and pg.facilityId=%d) as y)");
 		caseloadSearchQueries.put("search_allpg_provdemo_dxfilter", "select distinct d.demographic_no, d.last_name, d.first_name from dxresearch dx " +
 																			"left join demographic d using (demographic_no) " +
 																			"left join demographiccust dc using (demographic_no) " +
@@ -81,9 +81,9 @@ public class CaseloadDao {
 																				"where (d.provider_no='%s' or dc.cust1='%s' or dc.cust2='%s' or dc.cust4='%s') " +
 																				"and d.patient_status not in ('FI','MO','DE','IN') " +
 																				"and ((dx.dxresearch_code='%s' and dx.status='A') OR boi.dx ='%5$s') " +
-																				"and ad.program_id in (select distinct pg.id from program pg, program_provider pp where pp.program_id=pg.id and pg.facilityId=%d)");
-		caseloadSearchQueries.put("search_allpg_provdemo_rofilter", "select distinct d.demographic_no, d.last_name, d.first_name from demographic d left join demographiccust dc using (demographic_no)  left join admission ad on (ad.client_id=d.demographic_no) where (d.provider_no='%s' or dc.cust1='%s' or dc.cust2='%s' or dc.cust4='%s') and d.patient_status not in ('FI','MO','DE','IN') and d.roster_status='%s' and ad.program_id in (select distinct pg.id from program pg, program_provider pp where pp.program_id=pg.id and pg.facilityId=%d)");
-		caseloadSearchQueries.put("search_allpg_provdemo_nofilter", "select distinct d.demographic_no, d.last_name, d.first_name from demographic d left join demographiccust dc using (demographic_no) left join admission ad on (ad.client_id=d.demographic_no) where (d.provider_no='%s' or dc.cust1='%s' or dc.cust2='%s' or dc.cust4='%s') and d.patient_status not in ('FI','MO','DE','IN') and ad.program_id in (select distinct pg.id from program pg, program_provider pp where pp.program_id=pg.id and pg.facilityId=%d)");
+																				"and ad.program_id in (select * from (select distinct pg.id from program pg, program_provider pp where pp.program_id=pg.id and pg.facilityId=%d) as y)");
+		caseloadSearchQueries.put("search_allpg_provdemo_rofilter", "select distinct d.demographic_no, d.last_name, d.first_name from demographic d left join demographiccust dc using (demographic_no)  left join admission ad on (ad.client_id=d.demographic_no) where (d.provider_no='%s' or dc.cust1='%s' or dc.cust2='%s' or dc.cust4='%s') and d.patient_status not in ('FI','MO','DE','IN') and d.roster_status='%s' and ad.program_id in (select * from (select distinct pg.id from program pg, program_provider pp where pp.program_id=pg.id and pg.facilityId=%d) as y)");
+		caseloadSearchQueries.put("search_allpg_provdemo_nofilter", "select distinct d.demographic_no, d.last_name, d.first_name from demographic d left join demographiccust dc using (demographic_no) left join admission ad on (ad.client_id=d.demographic_no) where (d.provider_no='%s' or dc.cust1='%s' or dc.cust2='%s' or dc.cust4='%s') and d.patient_status not in ('FI','MO','DE','IN') and ad.program_id in (select * from (select distinct pg.id from program pg, program_provider pp where pp.program_id=pg.id and pg.facilityId=%d) as y)");
 		
 		caseloadSearchQueries.put("search_alldemo_rodxfilter", "select distinct d.demographic_no, d.last_name, d.first_name from dxresearch dx " +
 																			"left join demographic d using (demographic_no) " +
