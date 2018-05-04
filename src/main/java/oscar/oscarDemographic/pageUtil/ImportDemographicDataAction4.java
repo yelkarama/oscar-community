@@ -1099,7 +1099,7 @@ import oscar.util.UtilDateUtilities;
                     }
                     dump = Util.addLine(dump, summary);
                     */
-                    String diagCode = isICD9(pHealth[i].getDiagnosisProcedureCode()) ? null : getCode(pHealth[i].getDiagnosisProcedureCode(),"Diagnosis/Procedure");
+                    String diagCode = getCode(pHealth[i].getDiagnosisProcedureCode(),"Diagnosis/Procedure");
                     dump = Util.addLine(dump, diagCode);
                     dump = Util.addLine(dump, getResidual(pHealth[i].getResidualInfo()));
                     cmNote = prepareCMNote("2",null);
@@ -2673,10 +2673,10 @@ import oscar.util.UtilDateUtilities;
 
 	Set<CaseManagementIssue> getCMIssue(String code) {
 		CaseManagementIssue cmIssu = caseManagementManager.getIssueByIssueCode(demographicNo, code);
-		if (cmIssu == null) {
+        Issue isu = caseManagementManager.getIssueInfoByCode(StringUtils.noNull(code));
+		if (cmIssu == null && isu != null) {
 		    cmIssu = new CaseManagementIssue();
             cmIssu.setDemographic_no(demographicNo);
-            Issue isu = caseManagementManager.getIssueInfoByCode(StringUtils.noNull(code));
             cmIssu.setIssue_id(isu.getId());
             cmIssu.setType(isu.getType());
             caseManagementManager.saveCaseIssue(cmIssu);
@@ -2705,10 +2705,15 @@ import oscar.util.UtilDateUtilities;
             cmIssu = caseManagementManager.getIssueByIssueCode(demographicNo, noDot(diagCode.getStandardCode()));
 			isu = caseManagementManager.getIssueInfoByCode(noDot(diagCode.getStandardCode()));
 			if (cmIssu == null && isu != null) {
+			    String type = isu.getType();
+			    if (StringUtils.isNullOrEmpty(type)) {
+			        type = diagCode.getStandardCodingSystem() != null ?  diagCode.getStandardCodingSystem().replaceAll("-", "") : "";
+                }
+                
 				cmIssu = new CaseManagementIssue();
 				cmIssu.setDemographic_no(demographicNo);
 				cmIssu.setIssue_id(isu.getId());
-				cmIssu.setType(isu.getType());
+				cmIssu.setType(type);
 				caseManagementManager.saveCaseIssue(cmIssu);
 				sCmIssu.add(cmIssu);
 			}
