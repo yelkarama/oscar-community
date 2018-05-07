@@ -85,11 +85,38 @@ if(request.getParameter("submit")!=null && request.getParameter("submit").equals
 	ArrayList<String> providers = new ArrayList<String>();
 	String htmlValue="";
 	
-	if (bMultisites) {
-		DateRange dateRange = null;
+	if ("all".equals(pro)) {
+		BillingReviewPrep prep = new BillingReviewPrep();
+		List<String> providerStr = null;
+		if (isTeamBillingOnly || isTeamAccessPrivacy) {			
+			providerStr = prep.getTeamProviderBillingStr(user_no);
+		}
+		else if (isSiteAccessPrivacy) {
+			providerStr = prep.getSiteProviderBillingStr(user_no);
+		}
+		else {
+			providerStr = prep.getProviderBillingStr();
+		}
+		for (int i = 0; i < providerStr.size(); i++) {
+			providers.add((providerStr.get(i)).split("\\|")[0]);			
+		}
+	}
+	else {
+		providers.add(pro);
+	}
+	
+	for (String provider : providers) {
+		errorMsg = "";
+		proObj = (new JdbcBillingPageUtil()).getProviderObj(provider);
+		
+		if (proObj.getOhipNo().length() != PROVIDER_BILLINGNO_LENGTH) 
+			errorMsg = "The provider's billing code is not correct!<br>";
+		
 		String proOHIP=""; 
 		String specialty_code; 
 		String billinggroup_no;
+		DateRange dateRange = null;
+		
 		String dateBegin = request.getParameter("xml_vdate");
 		String dateEnd = request.getParameter("xml_appointment_date");
 		if (dateEnd.compareTo("") == 0) dateEnd = request.getParameter("curDate");
@@ -98,156 +125,70 @@ if(request.getParameter("submit")!=null && request.getParameter("submit").equals
 		} else {
 			dateRange = new DateRange(ConversionUtils.fromDateString(dateBegin), ConversionUtils.fromDateString(dateEnd));
 		}
-		proObj = (new JdbcBillingPageUtil()).getProviderObj(pro);
 		
-		if (proObj.getOhipNo().length() != PROVIDER_BILLINGNO_LENGTH) 
-			errorMsg = "The provider's billing code is not correct!<br>";
-			
 		proOHIP = proObj.getOhipNo(); 
 		billinggroup_no= proObj.getBillingGroupNo();
 		specialty_code = proObj.getSpecialtyCode();
-
+	
 		if (specialty_code.length() != PROVIDER_SPECIALTYCODE_LENGTH){
 			errorMsg += "The provider's specialty code is not correct!<br>";
 			specialty_code = "00"; 
 		}
-
+	
 		if (billinggroup_no.length() != PROVIDER_GROUPNO_LENGTH){
 			errorMsg += "The provider's group no is not correct!<br>";
 			billinggroup_no = "0000";
 		} 
-
+	
 		JdbcBillingCreateBillingFile dbObj = new JdbcBillingCreateBillingFile();
 		dbObj.setEFlag("0");
 		dbObj.setDateRange(dateRange);
-		dbObj.setProviderNo(pro);
+		dbObj.setProviderNo(provider);
 		BillingBatchHeaderData bhObj = new BillingBatchHeaderData();
-		//bhObj.setId(bid);
-		//bhObj.setDisk_id("" + rs.getInt("disk_id"));
-		//bhObj.setTransc_id(rs.getString("transc_id"));
-		//bhObj.setRec_id(rs.getString("rec_id"));
 		bhObj.setSpec_id("   ");
 		bhObj.setMoh_office(" ");
-		//bhObj.setBatch_id(rs.getString("batch_id"));
-		//bhObj.setOperator(rs.getString("operator"));
 		bhObj.setGroup_num(billinggroup_no);
 		bhObj.setProvider_reg_num(proOHIP);
 		bhObj.setSpecialty(specialty_code);
-		//bhObj.setH_count(rs.getString("h_count"));
-		//bhObj.setR_count(rs.getString("r_count"));
-		//bhObj.setT_count(rs.getString("t_count"));
-		//bhObj.setBatch_date(rs.getString("batch_date"));
+		dbObj.setBatchHeaderObj(bhObj);
+		dbObj.errorMsg += errorMsg;
 		
-		dbObj.setBatchHeaderObj(bhObj);	
-		dbObj.createSiteBillingFileStr(LoggedInInfo.getLoggedInInfoFromSession(request), "0", new String[] {"O", "W", "I" });
-		htmlValue = "<font color='red'>" + errorMsg + "</font>" + dbObj.getHtmlValue();
+		dbObj.createBillingFileStr(LoggedInInfo.getLoggedInInfoFromSession(request), "0", new String[] { "O", "W", "I" }, true, null, summaryView);
+		if (dbObj.getRecordCount() > 0) {
+			recordCount += dbObj.getRecordCount();	
+			bigTotal = bigTotal.add(dbObj.getBigTotal());
+			htmlValue += dbObj.getHtmlValue();
+			errorCount += "".equals(dbObj.errorMsg) ? 0 : dbObj.errorMsg.split("<br>").length;
+			errorCount += "".equals(dbObj.errorFatalMsg) ? 0 : dbObj.errorFatalMsg.split("<br>").length;
+			dbObj.errorMsg = "";
+		}
+	}
+	
+	String billingTable = htmlValue;
+	htmlValue  = "\n<table class='table table-hover table-condensed'>\n"
+				+ "<thead>";
+	if (summaryView) {
+		htmlValue += "\n<tr><th >OHIP NO</th><th >Number of Records</th><th >Total Billed</th><th colspan='9'></th></tr></thead>";
 	}
 	else {
-		if ("all".equals(pro)) {
-			BillingReviewPrep prep = new BillingReviewPrep();
-			List<String> providerStr = null;
-			if (isTeamBillingOnly || isTeamAccessPrivacy) {			
-				providerStr = prep.getTeamProviderBillingStr(user_no);
-			}
-			else if (isSiteAccessPrivacy) {
-				providerStr = prep.getSiteProviderBillingStr(user_no);
-			}
-			else {
-				providerStr = prep.getProviderBillingStr();
-			}
-			for (int i = 0; i < providerStr.size(); i++) {
-				providers.add((providerStr.get(i)).split("\\|")[0]);			
-			}
-		}
-		else {
-			providers.add(pro);
-		}
+		htmlValue += "<tr><th >OHIP NO</th><th >Acct NO</th>"
+				+ "<th >Name</th><th >RO</th><th >DOB</th><th >Sex</th><th >Health #</th>"
+				+ "<th >Billdate</th><th >Code</th>"
+				+ "<th >Billed</th>"
+				+ "<th >DX</th><th align='right' >Comment</th></tr></thead>";	
+	
 		
-		for (String provider : providers) {
-			errorMsg = "";
-			proObj = (new JdbcBillingPageUtil()).getProviderObj(provider);
-			
-			if (proObj.getOhipNo().length() != PROVIDER_BILLINGNO_LENGTH) 
-				errorMsg = "The provider's billing code is not correct!<br>";
-			
-			String proOHIP=""; 
-			String specialty_code; 
-			String billinggroup_no;
-			DateRange dateRange = null;
-			
-			String dateBegin = request.getParameter("xml_vdate");
-			String dateEnd = request.getParameter("xml_appointment_date");
-			if (dateEnd.compareTo("") == 0) dateEnd = request.getParameter("curDate");
-			if (dateBegin.compareTo("") == 0){
-				dateRange = new DateRange(null, ConversionUtils.fromDateString(dateEnd));
-			} else {
-				dateRange = new DateRange(ConversionUtils.fromDateString(dateBegin), ConversionUtils.fromDateString(dateEnd));
-			}
-			
-			proOHIP = proObj.getOhipNo(); 
-			billinggroup_no= proObj.getBillingGroupNo();
-			specialty_code = proObj.getSpecialtyCode();
-		
-			if (specialty_code.length() != PROVIDER_SPECIALTYCODE_LENGTH){
-				errorMsg += "The provider's specialty code is not correct!<br>";
-				specialty_code = "00"; 
-			}
-		
-			if (billinggroup_no.length() != PROVIDER_GROUPNO_LENGTH){
-				errorMsg += "The provider's group no is not correct!<br>";
-				billinggroup_no = "0000";
-			} 
-		
-			JdbcBillingCreateBillingFile dbObj = new JdbcBillingCreateBillingFile();
-			dbObj.setEFlag("0");
-			dbObj.setDateRange(dateRange);
-			dbObj.setProviderNo(provider);
-			BillingBatchHeaderData bhObj = new BillingBatchHeaderData();
-			bhObj.setSpec_id("   ");
-			bhObj.setMoh_office(" ");
-			bhObj.setGroup_num(billinggroup_no);
-			bhObj.setProvider_reg_num(proOHIP);
-			bhObj.setSpecialty(specialty_code);
-			dbObj.setBatchHeaderObj(bhObj);
-			dbObj.errorMsg += errorMsg;
-			
-			dbObj.createBillingFileStr(LoggedInInfo.getLoggedInInfoFromSession(request), "0", new String[] { "O", "W", "I" }, true, null, summaryView);
-			if (dbObj.getRecordCount() > 0) {
-				recordCount += dbObj.getRecordCount();	
-				bigTotal = bigTotal.add(dbObj.getBigTotal());
-				htmlValue += dbObj.getHtmlValue();
-				errorCount += "".equals(dbObj.errorMsg) ? 0 : dbObj.errorMsg.split("<br>").length;
-				errorCount += "".equals(dbObj.errorFatalMsg) ? 0 : dbObj.errorFatalMsg.split("<br>").length;
-				dbObj.errorMsg = "";
-			}
-		}
-		
-		String billingTable = htmlValue;
-		htmlValue  = "\n<table class='table table-hover table-condensed'>\n"
-					+ "<thead>";
-		if (summaryView) {
-			htmlValue += "\n<tr><th >OHIP NO</th><th >Number of Records</th><th >Total Billed</th><th colspan='9'></th></tr></thead>";
-		}
-		else {
-			htmlValue += "<tr><th >OHIP NO</th><th >Acct NO</th>"
-					+ "<th >Name</th><th >RO</th><th >DOB</th><th >Sex</th><th >Health #</th>"
-					+ "<th >Billdate</th><th >Code</th>"
-					+ "<th >Billed</th>"
-					+ "<th >DX</th><th align='right' >Comment</th></tr></thead>";	
-		
-			
-						
-		}
-		htmlValue  += "<tbody>"+billingTable;
-		htmlValue  += "\n<tr><td colspan='12' >&nbsp;</td></tr><tr><td colspan='4'>" 
-			+ recordCount
-			+ " RECORDS PROCESSED, " 
-			+ errorCount 
-			+" ERROR"+ (errorCount > 1 ? "S" : "") + "</td><td colspan='8'>TOTAL: "
-			+ bigTotal.toString()
-			+ "\n</td></tr>";
-		htmlValue  += "</tbody></table>";
+					
 	}
+	htmlValue  += "<tbody>"+billingTable;
+	htmlValue  += "\n<tr><td colspan='12' >&nbsp;</td></tr><tr><td colspan='4'>" 
+		+ recordCount
+		+ " RECORDS PROCESSED, " 
+		+ errorCount 
+		+" ERROR"+ (errorCount > 1 ? "S" : "") + "</td><td colspan='8'>TOTAL: "
+		+ bigTotal.toString()
+		+ "\n</td></tr>";
+	htmlValue  += "</tbody></table>";
 	String logData = "provider_no=" + request.getParameter("provider") + 
 			"; \ndateBegin=" + request.getParameter("xml_vdate") +
 			"; \ndateEnd=" + request.getParameter("xml_appointment_date");
@@ -327,11 +268,7 @@ String xml_appointment_date = request.getParameter("xml_appointment_date")==null
 <div class="span3">
 Select Provider<br>
 <select name="provider">
-		<% if (bMultisites) { %>
-		<option value="all">Select Providers</option>
-		<% } else { %>
 		<option value="all">All Providers</option>
-		<% } %>
 		<%
 	BillingReviewPrep prep = new BillingReviewPrep();
 		
@@ -382,7 +319,7 @@ Select Provider<br>
 
 	<div class="span2" >
 	<br>
-	<button class="btn btn-primary " type="submit" name="submit" value="Create Report">Create Report</button>
+	<button class="btn btn-primary " type="submit" name="submit" value="Create Report" onclick="$('#loadingDiv').show();">Create Report</button>
 	</div>
 	
 	
@@ -400,6 +337,11 @@ Select Provider<br>
 </form>
 
 </div><!--container-->
+
+<div id="loadingDiv" style="text-align: center; display: none">
+	<img alt=" " src="<%=request.getContextPath() %>/images/DMSLoader.gif">
+	Simulating...
+</div>
 
 <%=request.getAttribute("html") == null?"":request.getAttribute("html")%>
 
