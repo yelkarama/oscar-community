@@ -52,12 +52,21 @@
 <%@ page import="org.oscarehr.util.LoggedInInfo" %>
 <%@ page import="oscar.log.LogConst" %>
 <%@ page import="org.oscarehr.common.model.AppointmentReminder" %>
+<%@ page import="org.oscarehr.common.model.Appointment" %>
 <%@ page import="org.oscarehr.common.dao.AppointmentReminderDao" %>
 <%@ page import="org.oscarehr.common.dao.AppointmentReminderStatusDao" %>
 <%@ page import="org.oscarehr.common.model.AppointmentReminderStatus" %>
+<%@ page import="org.oscarehr.common.dao.AppointmentArchiveDao" %>
+<%@ page import="org.oscarehr.common.dao.OscarAppointmentDao" %>
+<%@ page import="org.oscarehr.common.dao.DemographicExtDao" %>
+<%@ page import="org.oscarehr.common.dao.DemographicDao" %>
+<%@ page import="org.oscarehr.common.model.Demographic" %>
+<%@ page import="org.oscarehr.common.model.DemographicExt" %>
 <%
 	AppointmentArchiveDao appointmentArchiveDao = (AppointmentArchiveDao)SpringUtils.getBean("appointmentArchiveDao");
 	OscarAppointmentDao appointmentDao = (OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
+	DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
+	DemographicExtDao demographicExtDao = SpringUtils.getBean(DemographicExtDao.class);
     String changedStatus = null;
 %>
 <html:html locale="true">
@@ -135,6 +144,20 @@
 	  if(appt != null) {
 		  	if (request.getParameter("demographic_no")!=null && !(request.getParameter("demographic_no").equals(""))) {
 		  		appt.setDemographicNo(Integer.parseInt(request.getParameter("demographic_no")));
+
+		  		Demographic demographic = demographicDao.getDemographic(request.getParameter("demographic_no"));
+				DemographicExt demographicExt = demographicExtDao.getDemographicExt(Integer.parseInt(request.getParameter("demographic_no")), "demo_cell");
+
+				AppointmentReminder appointmentReminder = appointmentReminderDao.getByAppointmentNo(appt.getId());
+				if (appointmentReminder != null && demographic != null) {
+					String reminderCell = demographicExt==null?"":demographicExt.getValue().isEmpty()?"":demographicExt.getValue().substring(0, 1).equals("1")?"+" + demographicExt.getValue().replaceAll("[^0-9]", ""):"+1" + demographicExt.getValue().replaceAll("[^0-9]", "");
+					String reminderPhone = demographic.getPhone()==null?"":demographic.getPhone().isEmpty()?"":demographic.getPhone().substring(0, 1).equals("1") ? "+" + demographic.getPhone().replaceAll("[^0-9]", "") : "+1" + demographic.getPhone().replaceAll("[^0-9]", "");
+
+				    appointmentReminder.setReminderCell(reminderCell);
+				    appointmentReminder.setReminderPhone(reminderPhone);
+				    appointmentReminder.setReminderEmail(demographic.getEmail()==null?"":demographic.getEmail());
+				    appointmentReminderDao.merge(appointmentReminder);
+				}
 		 	} else {
 			 	appt.setDemographicNo(0);
 		 	}
