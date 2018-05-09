@@ -2462,6 +2462,8 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
 	<a href="#" title="<bean:message key="provider.appointmentProviderAdminDay.rosterMsg"/> <%=UtilMisc.htmlEscape(roster)%>"><font color="red">$</font></a>
 <% } else if ("NR".equalsIgnoreCase(roster) || "PL".equalsIgnoreCase(roster)) { %>
 	<a href="#" title="<bean:message key="provider.appointmentProviderAdminDay.rosterMsg"/> <%=UtilMisc.htmlEscape(roster)%>"><font color="red">#</font></a>
+<% } else {%>
+	<a href="#" title="<bean:message key="provider.appointmentProviderAdminDay.rosterMsg"/> <%=UtilMisc.htmlEscape(roster)%>"><font color="red"><%=roster%></font></a>
 <% } %>
 <!-- /security:oscarSec -->
 <% } %>
