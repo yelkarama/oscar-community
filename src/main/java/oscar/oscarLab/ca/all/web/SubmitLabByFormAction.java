@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -190,11 +191,8 @@ public class SubmitLabByFormAction extends DispatchAction {
 		sb.append(generatePID(lab)).append("\n");
 		sb.append(generateORC(lab)).append("\n");
 		sb.append(generateOBR(lab)).append("\n");
-
-		for(LabTest test:lab.getTests()) {
-			sb.append(generateTest(test));
-
-		}
+		sb.append(generateTests(lab.getTests()));
+		
 		return sb.toString();
 	}
 
@@ -231,21 +229,28 @@ public class SubmitLabByFormAction extends DispatchAction {
 		return "OBR|1|||UR^General Lab^L1^GENERAL LAB||"+sdf.format(lab.getLabReqDate())+"|"+sdf.format(lab.getTests().get(0).getDate())+"|||||||"+sdf.format(lab.getLabReqDate())+"||"+lab.getBillingNo()+"^"+lab.getProviderLastName()+"^"+lab.getProviderFirstName()+"||||||"+sdf.format(lab.getTests().get(0).getDate())+"||LAB|F|||"+ccString.toString();
 	}
 	/**
-	 * OBR ||placer_order_id||uni_service_id|||obs_datetime|||||||specimen_received_datetime||||||CCK^CCK|||||||R
-	 * @param test
+	 * OBX
+	 * @param tests
 	 * @return
 	 */
-	private String generateTest(LabTest test) {
+	
+	private String generateTests(List<LabTest> tests) {
 		StringBuilder sb = new StringBuilder();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
-		String refRange = test.getRefRangeLow() + " - " + test.getRefRangeHigh();
-		if(test.getRefRangeText().length()>0) {
-			refRange = test.getRefRangeText();
-		}
-		sb.append("OBX|1|" + test.getCodeType() + "|" + test.getCode() + "^" + test.getDescription() + "|GENERAL|" + test.getCodeValue() + "|" + test.getCodeUnit() + "|" + refRange + "|"+test.getFlag()+"|||" + test.getStat() + "|||" + sdf.format(test.getDate()));
-		if(test.getNotes().length()>0) {
+		
+		for(LabTest test : tests) {
+			String refRange = test.getRefRangeLow() + " - " + test.getRefRangeHigh();
+			Integer testNo = tests.indexOf(test) + 1;
+			
+			if(test.getRefRangeText().length()>0) {
+				refRange = test.getRefRangeText();
+			}
+			sb.append("OBX|" + testNo + "|" + test.getCodeType() + "|" + test.getCode() + "^" + test.getName() + "^" + test.getDescription() + "|GENERAL|" + test.getCodeValue() + "|" + test.getCodeUnit() + "|" + refRange + "|"+test.getFlag()+"|||" + test.getStat() + "|||" + sdf.format(test.getDate()));
+			if(test.getNotes().length()>0) {
+				sb.append("\n");
+				sb.append("NTE|1|L|NOTE: " + test.getNotes());
+			}
 			sb.append("\n");
-			sb.append("NTE|1|L|NOTE: " + test.getNotes());
 		}
 		return sb.toString();
 	}
