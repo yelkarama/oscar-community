@@ -27,7 +27,9 @@ package oscar.oscarRx.pageUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Vector;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -36,13 +38,16 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.apache.struts.action.ActionRedirect;
 import org.apache.struts.actions.DispatchAction;
 import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
+import oscar.oscarRx.data.RxPatientData;
 import oscar.oscarRx.data.RxPrescriptionData;
+import oscar.oscarRx.util.RxDrugRef;
 import oscar.oscarRx.util.RxUtil;
 
 
@@ -155,5 +160,55 @@ public final class RxUseFavoriteAction extends DispatchAction {
         RxUtil.printStashContent(bean);
 
         return (mapping.findForward("useFav2"));
+    }
+    
+    public ActionForward useFavAsAllergy(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) {
+        LoggedInInfo loggedInInfo = LoggedInInfo.getLoggedInInfoFromSession(request);
+        if (!securityInfoManager.hasPrivilege(loggedInInfo, "_rx", "r", null)) {
+            throw new RuntimeException("missing required security object (_rx)");
+        }
+        String favouriteIdString = request.getParameter("favouriteId");
+        
+        try {
+            int favouriteId = Integer.parseInt(favouriteIdString);
+            RxPrescriptionData rxData = new RxPrescriptionData();
+            RxPrescriptionData.Favorite fav = rxData.getFavorite(favouriteId);
+            Integer drugId = 0;
+            Integer categoryId = 0;
+            String drugName = "";
+            
+            // Checks if the drug has a brand name, if it doesn't then it is a custom drug and the drug and category ids remain 0 
+            if (fav.getBN() != null) {
+                try {
+                    // Gets the drug information based on the brand name 
+                    Vector vec = new RxDrugRef().list_drug_element(fav.getBN());
+                    // Sets the Ids and drug name for a brand name drug 
+                    categoryId = Integer.parseInt(((Hashtable) vec.get(0)).get("category").toString());
+                    drugId = fav.getGCN_SEQNO();
+                    drugName = fav.getBN();
+                } catch (Exception e) {
+                    MiscUtils.getLogger().error("Error fetching category information for " + fav.getGCN_SEQNO());
+                }
+            } else {
+                // Sets the custom name for the drug name since it is a custom drug
+                drugName = fav.getCustomName();
+            }
+            
+            ActionRedirect redirect = new ActionRedirect(mapping.findForward("addAllergy"));
+            redirect.addParameter("ID", drugId);
+            redirect.addParameter("name", drugName);
+            redirect.addParameter("type", categoryId);
+            
+            return redirect;
+        } catch (NumberFormatException e) {
+            MiscUtils.getLogger().error("Error parsing the Favourite Id: " + favouriteIdString + " to use as an allergy", e);
+        }
+
+        ActionRedirect redirect = new ActionRedirect(mapping.findForward("allergyError"));
+        RxPatientData.Patient patient = (RxPatientData.Patient)request.getSession().getAttribute("Patient");
+        redirect.addParameter("demographicNo", patient.getDemographicNo());
+        redirect.addParameter("allergyError", true);
+        
+        return redirect;
     }
 }

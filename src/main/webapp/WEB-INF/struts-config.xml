@@ -933,6 +933,8 @@
 		<action name="RxUseFavoriteForm" path="/oscarRx/useFavorite" scope="request" parameter="parameterValue" type="oscar.oscarRx.pageUtil.RxUseFavoriteAction">
 			<forward name="success" path="/oscarRx/WriteScript.jsp" />
 			<forward name="useFav2" path="/oscarRx/prescribe.jsp" />
+			<forward name="addAllergy" path="/oscarRx/addReaction.do" />
+			<forward name="allergyError" path="/oscarRx/showAllergy.do" />
 		</action>
 		<action input="/oscarRx/StaticScript.jsp" name="RxAddFavoriteForm" path="/oscarRx/addFavoriteStaticScript" parameter="parameterValue" scope="request" type="oscar.oscarRx.pageUtil.RxAddFavoriteAction">
 			<forward name="success" path="/oscarRx/StaticScript.jsp" />

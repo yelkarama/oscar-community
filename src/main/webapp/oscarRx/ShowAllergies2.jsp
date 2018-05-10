@@ -150,6 +150,10 @@ padding-right:6;
 
 
 <script type="text/javascript">
+	<% if (request.getQueryString() != null && request.getQueryString().contains("allergyError")) { %>
+		alert("An issue occcurred while trying to add a favourite drug as an allergy. Please try again or contact support if the issue persists");
+	<% }%>
+	
     function isEmpty(){
         if (document.RxSearchAllergyForm.searchString.value.length == 0){
             alert("Search Field is Empty");
@@ -178,6 +182,10 @@ padding-right:6;
     	}
 
     }
+    
+	function useFav2(id) {
+        window.location = "useFavorite.do?parameterValue=useFavAsAllergy&favouriteId=" + id;
+	}
 </script>
 
 </head>

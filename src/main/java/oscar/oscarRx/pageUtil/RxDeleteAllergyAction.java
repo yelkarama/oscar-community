@@ -83,6 +83,6 @@ public final class RxDeleteAllergyAction extends Action {
             	request.setAttribute("demographicNo",demographicNo);
         	}
 
-            return (mapping.findForward("success"));
+            return (mapping.findForward("successRx3"));
     }
 }
