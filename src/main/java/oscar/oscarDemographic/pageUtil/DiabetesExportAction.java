@@ -47,6 +47,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import cdsDt.DiabetesComplicationScreening;
+import cdsDt.ResultNormalAbnormalFlag;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -450,7 +452,7 @@ public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServlet
             } else if (meas.getType().equals("FTLS")) { // Foot Exam Test Loss of Sensation (Neurological Exam)
                 CareElements careElements = patientRecord.addNewCareElements();
 		cdsDt.DiabetesComplicationScreening dcs = careElements.addNewDiabetesComplicationsScreening();
-		dcs.setExamCode(cdsDt.DiabetesComplicationScreening.ExamCode.NEUROLOGICAL_EXAM);
+		dcs.setExamCode(DiabetesComplicationScreening.ExamCode.X_67536_3);
 		if (Util.yn(meas.getDataField())==cdsDt.YnIndicatorsimple.N) {
 		    errors.add("Patient "+demoNo+" didn't do Diabetes Complications Screening (Neurological Exam) on "+UtilDateUtilities.DateToString(meas.getDateObserved(),"yyyy-MM-dd"));
 		}
@@ -674,10 +676,9 @@ public ActionForward execute(ActionMapping mapping, ActionForm form, HttpServlet
 		errors.add("Error! No Laboratory Name for Lab Test "+testName+" for Patient "+demoNo);
 	    }
 
-	    labResults.setResultNormalAbnormalFlag(cdsDt.ResultNormalAbnormalFlag.U);
-	    data = StringUtils.noNull(labMea.getExtVal("abnormal"));
-	    if (data.equals("A") || data.equals("L")) labResults.setResultNormalAbnormalFlag(cdsDt.ResultNormalAbnormalFlag.Y);
-	    if (data.equals("N")) labResults.setResultNormalAbnormalFlag(cdsDt.ResultNormalAbnormalFlag.N);
+        ResultNormalAbnormalFlag resultNormalAbnormalFlag = ResultNormalAbnormalFlag.Factory.newInstance();
+        data = StringUtils.noNull(labMea.getExtVal("abnormal"));
+        resultNormalAbnormalFlag.setResultNormalAbnormalFlagAsPlainText(data);
 
 	    data = labMea.getExtVal("accession");
 	    if (StringUtils.filled(data)) {

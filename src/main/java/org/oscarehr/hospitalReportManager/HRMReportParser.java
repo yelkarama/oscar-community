@@ -48,7 +48,7 @@ import org.oscarehr.hospitalReportManager.model.HRMDocument;
 import org.oscarehr.hospitalReportManager.model.HRMDocumentSubClass;
 import org.oscarehr.hospitalReportManager.model.HRMDocumentToDemographic;
 import org.oscarehr.hospitalReportManager.model.HRMDocumentToProvider;
-import org.oscarehr.hospitalReportManager.xsd.OmdCds;
+import omd.hrm.OmdCds;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
@@ -101,7 +101,7 @@ public class HRMReportParser {
 				Source schemaFile = new StreamSource(new File(SFTPConnector.OMD_directory + "report_manager_cds.xsd"));
 				Schema schema = factory.newSchema(schemaFile); 
 
-				JAXBContext jc = JAXBContext.newInstance("org.oscarehr.hospitalReportManager.xsd");
+				JAXBContext jc = JAXBContext.newInstance("omd.hrm");
 				Unmarshaller u = jc.createUnmarshaller();
 				u.setSchema(schema);
 				

@@ -196,34 +196,35 @@ public class HRMUtil {
             List<HRMDocumentSubClass> subClassList = hrmDocumentSubClassDao.getSubClassesByDocumentId(hrmDocument.getId());
 
             HRMReport report = HRMReportParser.parseReport(loggedInInfo, hrmDocument.getReportFile());
-            if (report.getFirstReportClass().equalsIgnoreCase("Diagnostic Imaging Report") || report.getFirstReportClass().equalsIgnoreCase("Cardio Respiratory Report")) {
-                // We'll only care about the first one, as long as there is at least one
-                if (subClassList != null && subClassList.size() > 0) {
-                    HRMDocumentSubClass firstSubClass = subClassList.get(0);
-                    thisReportSubClassMapping = hrmSubClassDao.findApplicableSubClassMapping(report.getFirstReportClass(), firstSubClass.getSubClass(), firstSubClass.getSubClassMnemonic(), report.getSendingFacilityId());
-                }
-            } else {
-                // Medical records report
-                String[] reportSubClass = report.getFirstReportSubClass().split("\\^");
-                thisReportSubClassMapping = hrmSubClassDao.findApplicableSubClassMapping(report.getFirstReportClass(), reportSubClass[0], null, report.getSendingFacilityId());
-            }
+            if (report != null) {
+				if (report.getFirstReportClass().equalsIgnoreCase("Diagnostic Imaging Report") || report.getFirstReportClass().equalsIgnoreCase("Cardio Respiratory Report")) {
+					// We'll only care about the first one, as long as there is at least one
+					if (subClassList != null && subClassList.size() > 0) {
+						HRMDocumentSubClass firstSubClass = subClassList.get(0);
+						thisReportSubClassMapping = hrmSubClassDao.findApplicableSubClassMapping(report.getFirstReportClass(), firstSubClass.getSubClass(), firstSubClass.getSubClassMnemonic(), report.getSendingFacilityId());
+					}
+				} else {
+					// Medical records report
+					String[] reportSubClass = report.getFirstReportSubClass().split("\\^");
+					thisReportSubClassMapping = hrmSubClassDao.findApplicableSubClassMapping(report.getFirstReportClass(), reportSubClass[0], null, report.getSendingFacilityId());
+				}
 
-            if (thisReportSubClassMapping != null) {
-                category = thisReportSubClassMapping.getHrmCategory();
-            }
+				if (thisReportSubClassMapping != null) {
+					category = thisReportSubClassMapping.getHrmCategory();
+				}
 
 
-            HashMap<String, Object> curht = new HashMap<String, Object>();
-            curht.put("id", hrmDocument.getId());
-            curht.put("time_received", hrmDocument.getTimeReceived().toString());
-            curht.put("report_type", hrmDocument.getReportType());
-            curht.put("report_status", hrmDocument.getReportStatus());
-            curht.put("category", category);
-            curht.put("description", hrmDocument.getDescription());
+				HashMap<String, Object> curht = new HashMap<String, Object>();
+				curht.put("id", hrmDocument.getId());
+				curht.put("time_received", hrmDocument.getTimeReceived().toString());
+				curht.put("report_type", hrmDocument.getReportType());
+				curht.put("report_status", hrmDocument.getReportStatus());
+				curht.put("category", category);
+				curht.put("description", hrmDocument.getDescription());
 
-            hrmdocslist.add(curht);
-            hrmDocumentsAll.add(hrmDocument);
-
+				hrmdocslist.add(curht);
+				hrmDocumentsAll.add(hrmDocument);
+			}
         }
 
         if (TYPE.equals(sortBy)) {

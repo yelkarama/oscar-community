@@ -40,12 +40,12 @@ import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.Hl7TextInfoDao;
 import org.oscarehr.common.model.Hl7TextMessageInfo;
 import org.oscarehr.hospitalReportManager.SFTPConnector;
-import org.oscarehr.hospitalReportManager.xsd.DateFullOrPartial;
-import org.oscarehr.hospitalReportManager.xsd.HealthCard;
-import org.oscarehr.hospitalReportManager.xsd.OmdCds;
-import org.oscarehr.hospitalReportManager.xsd.PatientRecord;
-import org.oscarehr.hospitalReportManager.xsd.PhoneNumber;
-import org.oscarehr.hospitalReportManager.xsd.ReportsReceived;
+import omd.hrm.DateFullOrPartial;
+import omd.hrm.HealthCard;
+import omd.hrm.OmdCds;
+import omd.hrm.PatientRecord;
+import omd.hrm.PhoneNumber;
+import omd.hrm.ReportsReceived;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
 
@@ -81,7 +81,7 @@ public class HRMXMLHandler implements MessageHandler {
 			Source schemaFile = new StreamSource(new File(SFTPConnector.OMD_directory + "report_manager_cds.xsd"));
 			Schema schema = factory.newSchema(schemaFile); //new File(SFTPConnector.OMD_directory + "report_manager_cds.xsd"));
 
-			JAXBContext jc = JAXBContext.newInstance("org.oscarehr.hospitalReportManager.xsd");
+			JAXBContext jc = JAXBContext.newInstance("omd.hrm");
 			Unmarshaller u = jc.createUnmarshaller();
 			root = (OmdCds) u.unmarshal(byeArrayInputStream);
 			pr = root.getPatientRecord();

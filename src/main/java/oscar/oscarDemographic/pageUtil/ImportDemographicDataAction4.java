@@ -143,7 +143,7 @@ import cds.PastHealthDocument.PastHealth;
 import cds.PatientRecordDocument.PatientRecord;
 import cds.PersonalHistoryDocument.PersonalHistory;
 import cds.ProblemListDocument.ProblemList;
-import cds.ReportsReceivedDocument.ReportsReceived;
+import cds.ReportsDocument.Reports;
 import cds.RiskFactorsDocument.RiskFactors;
 import cdsDt.DateTimeFullOrPartial;
 import cdsDt.DiabetesComplicationScreening.ExamCode;
@@ -486,51 +486,61 @@ import oscar.util.UtilDateUtilities;
             err_data.add("Error! No Person Status Code");
         }
 
-        Enrolment[] enrolments = demo.getEnrolmentArray();
-        int enrolTotal = enrolments.length;
-        String[] roster_status=new String[enrolTotal],
-        		 roster_date=new String[enrolTotal],
-        		 term_date=new String[enrolTotal],
-        		 term_reason=new String[enrolTotal];
-
-        String rosterInfo = null;
-        Calendar enrollDate=null, currentEnrollDate=null;
-
-        for (int i=0; i<enrolTotal; i++) {
-            roster_status[i] = enrolments[i].getEnrollmentStatus()!=null ? enrolments[i].getEnrollmentStatus().toString() : "";
-            if	(roster_status[i].equals("1")) roster_status[i] = "RO";
-            else if (roster_status[i].equals("0")) roster_status[i] = "NR";
-            roster_date[i] = getCalDate(enrolments[i].getEnrollmentDate(), timeShiftInDays);
-            term_date[i] = getCalDate(enrolments[i].getEnrollmentTerminationDate(), timeShiftInDays);
-            if (enrolments[i].getTerminationReason()!=null)
-            	term_reason[i] = enrolments[i].getTerminationReason().toString();
-
-            //Sort enrolments by date
-            if (enrolments[i].getEnrollmentDate()!=null) currentEnrollDate = enrolments[i].getEnrollmentDate();
-            else if (enrolments[i].getEnrollmentTerminationDate()!=null) currentEnrollDate = enrolments[i].getEnrollmentTerminationDate();
-            else currentEnrollDate = null;
-
-            for (int j=i-1; j>=0; j--) {
-                if (enrolments[j].getEnrollmentDate()!=null) enrollDate = enrolments[j].getEnrollmentDate();
-                else if (enrolments[j].getEnrollmentTerminationDate()!=null) enrollDate = enrolments[j].getEnrollmentTerminationDate();
-                else break;
-
-                if (currentEnrollDate==null || currentEnrollDate.before(enrollDate)) {
-                    rosterInfo=roster_status[j]; roster_status[j]=roster_status[i]; roster_status[i]=rosterInfo;
-                    rosterInfo=roster_date[j];   roster_date[j]=roster_date[i];     roster_date[i]=rosterInfo;
-            		rosterInfo=term_date[j];     term_date[j]=term_date[i];         term_date[i]=rosterInfo;
-    				rosterInfo=term_reason[j];   term_reason[j]=term_reason[i];     term_reason[i]=rosterInfo;
-                }
-            }
-        }
 
         String rosterStatus=null, rosterDate=null, termDate=null, termReason=null;
-        if (enrolTotal>0) {
-        	rosterStatus=roster_status[enrolTotal-1];
-        	rosterDate=roster_date[enrolTotal-1];
-        	termDate=term_date[enrolTotal-1];
-        	termReason=term_reason[enrolTotal-1];
+        String[] roster_status=new String[0],
+                roster_date=new String[0],
+                term_date=new String[0],
+                term_reason=new String[0];
+        
+        if (demo.getEnrolment() != null){
+            Enrolment.EnrolmentHistory[] enrolments = demo.getEnrolment().getEnrolmentHistoryArray();
+            int enrolTotal = enrolments.length;
+            roster_status=new String[enrolTotal];
+            roster_date=new String[enrolTotal];
+            term_date=new String[enrolTotal];
+            term_reason=new String[enrolTotal];
+
+            String rosterInfo = null;
+            Calendar enrollDate=null, currentEnrollDate=null;
+
+            for (int i=0; i<enrolTotal; i++) {
+                roster_status[i] = enrolments[i].getEnrollmentStatus()!=null ? enrolments[i].getEnrollmentStatus().toString() : "";
+                if	(roster_status[i].equals("1")) roster_status[i] = "RO";
+                else if (roster_status[i].equals("0")) roster_status[i] = "NR";
+                roster_date[i] = getCalDate(enrolments[i].getEnrollmentDate(), timeShiftInDays);
+                term_date[i] = getCalDate(enrolments[i].getEnrollmentTerminationDate(), timeShiftInDays);
+                if (enrolments[i].getTerminationReason()!=null)
+                    term_reason[i] = enrolments[i].getTerminationReason().toString();
+
+                //Sort enrolments by date
+                if (enrolments[i].getEnrollmentDate()!=null) currentEnrollDate = enrolments[i].getEnrollmentDate();
+                else if (enrolments[i].getEnrollmentTerminationDate()!=null) currentEnrollDate = enrolments[i].getEnrollmentTerminationDate();
+                else currentEnrollDate = null;
+
+                for (int j=i-1; j>=0; j--) {
+                    if (enrolments[j].getEnrollmentDate()!=null) enrollDate = enrolments[j].getEnrollmentDate();
+                    else if (enrolments[j].getEnrollmentTerminationDate()!=null) enrollDate = enrolments[j].getEnrollmentTerminationDate();
+                    else break;
+
+                    if (currentEnrollDate==null || currentEnrollDate.before(enrollDate)) {
+                        rosterInfo=roster_status[j]; roster_status[j]=roster_status[i]; roster_status[i]=rosterInfo;
+                        rosterInfo=roster_date[j];   roster_date[j]=roster_date[i];     roster_date[i]=rosterInfo;
+                        rosterInfo=term_date[j];     term_date[j]=term_date[i];         term_date[i]=rosterInfo;
+                        rosterInfo=term_reason[j];   term_reason[j]=term_reason[i];     term_reason[i]=rosterInfo;
+                    }
+                }
+            }
+            
+            if (enrolTotal>0) {
+                rosterStatus=roster_status[enrolTotal-1];
+                rosterDate=roster_date[enrolTotal-1];
+                termDate=term_date[enrolTotal-1];
+                termReason=term_reason[enrolTotal-1];
+            }
         }
+        
+
 
         String sin = StringUtils.noNull(demo.getSIN());
 
@@ -1377,17 +1387,9 @@ import oscar.util.UtilDateUtilities;
                     	continue;
                     }
 
-                    //create date
-                    if (cNotes[i].getEnteredDateTime()!=null) {
-                    	createDate = dateTimeFPtoDate(cNotes[i].getEnteredDateTime(),timeShiftInDays);
-                    	observeDate = createDate;
-                    }
-
                     //observation date
                     if (cNotes[i].getEventDateTime()!=null) {
                     	observeDate = dateTimeFPtoDate(cNotes[i].getEventDateTime(),timeShiftInDays);
-                    	if (cNotes[i].getEnteredDateTime()==null) createDate = observeDate;
-
                     }
 
                     CaseManagementNote cmNote = prepareCMNote("1",null);
@@ -1458,7 +1460,7 @@ import oscar.util.UtilDateUtilities;
                             uuid = cmNote.getUuid();
 
                             //create "header", cms4 only
-                        	if (cNotes[i].getEnteredDateTime()!=null && !createDate.equals(cmNote.getUpdate_date())) {
+                        	if (createDate!=null && !createDate.equals(cmNote.getUpdate_date())) {
                         		CaseManagementNote headNote = prepareCMNote("2",null);
                         		headNote.setCreate_date(createDate);
                         		headNote.setUpdate_date(createDate);
@@ -1639,7 +1641,7 @@ import oscar.util.UtilDateUtilities;
                     drug.setDrugForm(medArray[i].getForm());
                     drug.setLongTerm(getYN(medArray[i].getLongTermMedication()).equals("Yes"));
                     drug.setPastMed(getYN(medArray[i].getPastMedications()).equals("Yes"));
-                    drug.setPatientCompliance(getYN(medArray[i].getPatientCompliance()));
+                    drug.setPatientCompliance(getYN(medArray[i].getPatientCompliance()).equals("Yes"));
 
                     if (NumberUtils.isDigits(medArray[i].getNumberOfRefills())) drug.setRepeat(Integer.valueOf(medArray[i].getNumberOfRefills()));
                     duration = medArray[i].getRefillDuration();
@@ -1989,8 +1991,8 @@ import oscar.util.UtilDateUtilities;
                 HRMDocumentSubClassDao hrmDocSubClassDao = (HRMDocumentSubClassDao) SpringUtils.getBean("HRMDocumentSubClassDao");
                 HRMDocumentToDemographicDao hrmDocToDemoDao = (HRMDocumentToDemographicDao) SpringUtils.getBean("HRMDocumentToDemographicDao");
 
-                ReportsReceived[] repR = patientRec.getReportsReceivedArray();
-                List<ReportsReceived> HRMreports = new ArrayList<ReportsReceived>();
+                Reports[] repR = patientRec.getReportsArray();
+                List<Reports> HRMreports = new ArrayList<Reports>();
                 String HRMfile = docDir + "HRM_"+UtilDateUtilities.getToday("yyyy-MM-dd.HH.mm.ss");
                 for (int i=0; i<repR.length; i++) {
                     try {
@@ -2021,7 +2023,7 @@ import oscar.util.UtilDateUtilities;
                         hrmDocToDemo.setHrmDocumentId(hrmDoc.getId());
                         hrmDocToDemoDao.persist(hrmDocToDemo);
 
-                        ReportsReceived.OBRContent[] obr = repR[i].getOBRContentArray();
+                        Reports.OBRContent[] obr = repR[i].getOBRContentArray();
                         for (int j=0; j<obr.length; j++) {
                             HRMDocumentSubClass hrmDocSc = new HRMDocumentSubClass();
                             if (obr[j].getAccompanyingSubClass()!=null) hrmDocSc.setSubClass(obr[j].getAccompanyingSubClass());
@@ -2088,7 +2090,7 @@ import oscar.util.UtilDateUtilities;
                                     reportExtra = Util.addLine(reportExtra, "Notes: ", repR[i].getNotes());
                                 }
 
-                                ReportsReceived.SourceAuthorPhysician authorPhysician = repR[i].getSourceAuthorPhysician();
+                                Reports.SourceAuthorPhysician authorPhysician = repR[i].getSourceAuthorPhysician();
                                 if (authorPhysician!=null) {
                                     if (authorPhysician.getAuthorName()!=null) {
                                         HashMap<String,String> author = getPersonName(authorPhysician.getAuthorName());
@@ -2098,7 +2100,7 @@ import oscar.util.UtilDateUtilities;
                                     }
                                 }
 
-                                ReportsReceived.ReportReviewed[] reportReviewed = repR[i].getReportReviewedArray();
+                                Reports.ReportReviewed[] reportReviewed = repR[i].getReportReviewedArray();
                                 if (reportReviewed.length>0) {
                                     HashMap<String,String> reviewerName = getPersonName(reportReviewed[0].getName());
                                     reviewer = writeProviderData(reviewerName.get("firstname"), reviewerName.get("lastname"), reportReviewed[0].getReviewingOHIPPhysicianId());
@@ -2329,7 +2331,7 @@ import oscar.util.UtilDateUtilities;
                                 } else if (ds.getExamCode().equals(ExamCode.X_11397_7)) {
                                     ImportExportMeasurements.saveMeasurements("FTE", demographicNo, admProviderNo, dataField, dateObserved);
                                     addOneEntry(CAREELEMENTS);
-                                } else if (ds.getExamCode().equals(ExamCode.NEUROLOGICAL_EXAM)) {
+                                } else if (ds.getExamCode().equals(ExamCode.X_67536_3)) {
                                     ImportExportMeasurements.saveMeasurements("FTLS", demographicNo, admProviderNo, dataField, dateObserved);
                                     addOneEntry(CAREELEMENTS);
                                 }
@@ -3494,7 +3496,7 @@ import oscar.util.UtilDateUtilities;
 		                    saveLinkNote(cmNote, CaseManagementNoteLink.LABTEST2, labNo.longValue(), "0-0");
 		                }
 
-						String olis_status = result.getOLISTestResultStatus();
+						String olis_status = result.getTestResultStatus();
 						if (StringUtils.filled(olis_status))  {
 							if(measId != null) {
 								saveMeasurementsExt(measId, "olis_status", olis_status);

@@ -18,13 +18,13 @@ import java.util.List;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.commons.codec.binary.Base64;
-import org.oscarehr.hospitalReportManager.xsd.DateFullOrPartial;
-import org.oscarehr.hospitalReportManager.xsd.Demographics;
-import org.oscarehr.hospitalReportManager.xsd.OmdCds;
-import org.oscarehr.hospitalReportManager.xsd.PersonNameStandard;
-import org.oscarehr.hospitalReportManager.xsd.PersonNameStandard.LegalName.OtherName;
-import org.oscarehr.hospitalReportManager.xsd.ReportFormat;
-import org.oscarehr.hospitalReportManager.xsd.ReportsReceived.OBRContent;
+import omd.hrm.DateFullOrPartial;
+import omd.hrm.Demographics;
+import omd.hrm.OmdCds;
+import omd.hrm.PersonNameStandard;
+import omd.hrm.PersonNameStandard.LegalName.OtherName;
+import omd.hrm.ReportFormat;
+import omd.hrm.ReportsReceived.OBRContent;
 import org.oscarehr.util.MiscUtils;
 
 public class HRMReport {

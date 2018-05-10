@@ -40,17 +40,17 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.datatype.XMLGregorianCalendar;
-import org.oscarehr.hospitalReportManager.xsd.DateFullOrPartial;
-import org.oscarehr.hospitalReportManager.xsd.OmdCds;
-import org.oscarehr.hospitalReportManager.xsd.PatientRecord;
-import org.oscarehr.hospitalReportManager.xsd.PersonNameSimple;
-import org.oscarehr.hospitalReportManager.xsd.ReportClass;
-import org.oscarehr.hospitalReportManager.xsd.ReportContent;
-import org.oscarehr.hospitalReportManager.xsd.ReportFormat;
-import org.oscarehr.hospitalReportManager.xsd.ReportMedia;
-import org.oscarehr.hospitalReportManager.xsd.ReportsReceived;
-import org.oscarehr.hospitalReportManager.xsd.ReportsReceived.OBRContent;
-import org.oscarehr.hospitalReportManager.xsd.TransactionInformation;
+import omd.hrm.DateFullOrPartial;
+import omd.hrm.OmdCds;
+import omd.hrm.PatientRecord;
+import omd.hrm.PersonNameSimple;
+import omd.hrm.ReportClass;
+import omd.hrm.ReportContent;
+import omd.hrm.ReportFormat;
+import omd.hrm.ReportMedia;
+import omd.hrm.ReportsReceived;
+import omd.hrm.ReportsReceived.OBRContent;
+import omd.hrm.TransactionInformation;
 
 
 /**
@@ -76,7 +76,7 @@ public class ReadHRMFile {
             if (!hrm.exists()) {
                 return;
             }
-            JAXBContext jc = JAXBContext.newInstance("org.oscarehr.hospitalReportManager.xsd");
+            JAXBContext jc = JAXBContext.newInstance("omd.hrm");
             Unmarshaller u = jc.createUnmarshaller();
             OmdCds root = (OmdCds) u.unmarshal(hrm);
 
