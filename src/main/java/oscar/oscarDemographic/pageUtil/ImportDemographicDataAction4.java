@@ -1102,6 +1102,9 @@ import oscar.util.UtilDateUtilities;
                     String diagCode = getCode(pHealth[i].getDiagnosisProcedureCode(),"Diagnosis/Procedure");
                     dump = Util.addLine(dump, diagCode);
                     dump = Util.addLine(dump, getResidual(pHealth[i].getResidualInfo()));
+                    if (pHealth[i].getProblemStatus() != null) {
+                        dump = Util.addLine(dump, "Problem Status:" + pHealth[i].getProblemStatus());
+                    }
                     cmNote = prepareCMNote("2",null);
                     cmNote.setNote(dump);
                     saveLinkNote(hostNoteId, cmNote);
