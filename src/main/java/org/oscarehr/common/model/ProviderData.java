@@ -204,6 +204,7 @@ public class ProviderData extends AbstractModel<String> implements Serializable 
 	}
 
 	public void setThirdPartyOnly(Boolean thirdPartyOnly) {
+	    if (thirdPartyOnly == null) { thirdPartyOnly = false; }
 		this.thirdPartyOnly = thirdPartyOnly;
 	}
 

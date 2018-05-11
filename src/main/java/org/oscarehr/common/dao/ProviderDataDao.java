@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
 import org.oscarehr.common.model.ProviderData;
@@ -272,11 +273,18 @@ public class ProviderDataDao extends AbstractDao<ProviderData> {
 	}
 
 	public Integer getLastId() {
-		Query query = entityManager.createQuery("SELECT p.id FROM ProviderData p ORDER BY CAST(p.id AS integer) ASC");
+		Query query = entityManager.createQuery("SELECT p.id FROM ProviderData p WHERE CAST(p.id AS integer) < -99998 ORDER BY CAST(p.id AS integer) ASC");
 		query.setMaxResults(1);
-		String result = (String ) query.getSingleResult();
+		String result = null;
+		try {
+			result = (String ) query.getSingleResult();
+		} catch (NoResultException nre) {
+			return 0;
+		}
+		
 		if (result == null)
 			return 0;
+			
 		return ConversionUtils.fromIntString(result);
 	}
 }
