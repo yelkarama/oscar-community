@@ -2079,6 +2079,10 @@ import oscar.util.UtilDateUtilities;
                                 if (repR[i].getMedia()!=null) {
                                 	reportExtra = Util.addLine(reportExtra, "Media: ", repR[i].getMedia().toString());
                                 }
+                                
+                                if(repR[i].getNotes() != null) {
+                                    reportExtra = Util.addLine(reportExtra, "Notes: ", repR[i].getNotes());
+                                }
 
                                 ReportsReceived.SourceAuthorPhysician authorPhysician = repR[i].getSourceAuthorPhysician();
                                 if (authorPhysician!=null) {

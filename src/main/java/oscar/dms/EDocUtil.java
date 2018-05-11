@@ -864,7 +864,7 @@ public final class EDocUtil {
 			cd.getId().setModuleId(ConversionUtils.fromIntString(demoNo));
 			cd.setStatus(String.valueOf('A'));
 			ctlDocumentDao.persist(cd);
-			key = 1;
+			key = cd.getId().getDocumentNo();
 		}
 		return key;
 	}
