@@ -273,7 +273,7 @@ public class ProviderDataDao extends AbstractDao<ProviderData> {
 	}
 
 	public Integer getLastId() {
-		Query query = entityManager.createQuery("SELECT p.id FROM ProviderData p WHERE CAST(p.id AS integer) < -99998 ORDER BY CAST(p.id AS integer) ASC");
+		Query query = entityManager.createQuery("SELECT p.id FROM ProviderData p WHERE CAST(p.id AS integer) > -99998 ORDER BY CAST(p.id AS integer) ASC");
 		query.setMaxResults(1);
 		String result = null;
 		try {
