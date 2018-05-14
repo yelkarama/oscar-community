@@ -520,7 +520,7 @@
 		<dependency>
 			<groupId>cds</groupId>
 			<artifactId>cds</artifactId>
-			<version>0.0-SNAPSHOT</version>
+			<version>5.2-SNAPSHOT</version>
 		</dependency>
 
 		<!-- cds cihi phc vrs -->

@@ -255,7 +255,7 @@ public class DemographicExportHelper {
 
 			medi.addNewPastMedications().setBoolean(arr[p].getPastMed());
 			mSummary = Util.addSummary(mSummary, "Past Medcation", arr[p].getPastMed() ? "Yes" : "No");
-
+/*
 			cdsDt.YnIndicatorAndBlank pc = medi.addNewPatientCompliance();
 			if (arr[p].getPatientCompliance() == null) {
 				pc.setBlank(cdsDt.Blank.X);
@@ -264,7 +264,7 @@ public class DemographicExportHelper {
 				pc.setBoolean(arr[p].getPatientCompliance());
 				mSummary = Util.addSummary(mSummary, "Patient Compliance", patientCompliance);
 			}
-
+*/
 			String outsideProviderName = arr[p].getOutsideProviderName();
 			if (StringUtils.filled(outsideProviderName)) {
 				MedicationsAndTreatments.PrescribedBy pcb = medi.addNewPrescribedBy();
@@ -293,7 +293,7 @@ public class DemographicExportHelper {
 			}
 
 			if (StringUtils.empty(mSummary)) exportErrors.add("Error! No Category Summary Line (Medications & Treatments) for Patient " + demoNo + " (" + (p + 1) + ")");
-			medi.setCategorySummaryLine(mSummary);
+		//	medi.setCategorySummaryLine(mSummary);
 		}
 	}
 
