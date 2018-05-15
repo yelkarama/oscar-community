@@ -99,6 +99,8 @@ public class SearchDemographicAutoCompleteAction extends Action {
         } 
         else if (searchStr.length() == 10 && searchStr.matches("([0-9]{4}-[0-9]{2}-[0-9]{2})")) {
             list = demographicDao.searchDemographicByDOB(searchStr, 100, 0,providerNo,outOfDomain);
+        } else if (searchStr.length() == 10 && searchStr.matches("([0-9]{10})")) {
+            list = demographicDao.searchDemographicByHIN(searchStr, 100, 0,providerNo,outOfDomain);
         }
         else if( activeOnly ) {
         	OscarProperties props = OscarProperties.getInstance();
