@@ -62,6 +62,7 @@
 <%@ page import="org.oscarehr.common.dao.DemographicDao" %>
 <%@ page import="org.oscarehr.common.model.Demographic" %>
 <%@ page import="org.oscarehr.common.model.DemographicExt" %>
+<%@ page import="org.oscarehr.common.dao.OnlineBookingInfoDao" %>
 <%
 	AppointmentArchiveDao appointmentArchiveDao = (AppointmentArchiveDao)SpringUtils.getBean("appointmentArchiveDao");
 	OscarAppointmentDao appointmentDao = (OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
@@ -148,7 +149,7 @@
 		  		Demographic demographic = demographicDao.getDemographic(request.getParameter("demographic_no"));
 				DemographicExt demographicExt = demographicExtDao.getDemographicExt(Integer.parseInt(request.getParameter("demographic_no")), "demo_cell");
 
-				AppointmentReminder appointmentReminder = appointmentReminderDao.getByAppointmentNo(appt.getId());
+				appointmentReminder = appointmentReminderDao.getByAppointmentNo(appt.getId());
 				if (appointmentReminder != null && demographic != null) {
 					String reminderCell = demographicExt==null?"":demographicExt.getValue().isEmpty()?"":demographicExt.getValue().substring(0, 1).equals("1")?"+" + demographicExt.getValue().replaceAll("[^0-9]", ""):"+1" + demographicExt.getValue().replaceAll("[^0-9]", "");
 					String reminderPhone = demographic.getPhone()==null?"":demographic.getPhone().isEmpty()?"":demographic.getPhone().substring(0, 1).equals("1") ? "+" + demographic.getPhone().replaceAll("[^0-9]", "") : "+1" + demographic.getPhone().replaceAll("[^0-9]", "");

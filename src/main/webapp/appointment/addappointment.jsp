@@ -434,8 +434,21 @@ function pasteAppt(multipleSameDayGroupAppt) {
 		}
 	}
 
+<%
+String selectedApptType = null;
+if (!bFirstDisp) {
+    selectedApptType = request.getParameter("type");
+}
+%>
+	
+var previousTypeId = 0;
 var appointmentTypeData = {};
-<%	for (AppointmentType appointmentType : appointmentTypes) { %>
+<%	for (AppointmentType appointmentType : appointmentTypes) {
+    if (selectedApptType != null && selectedApptType.equals(appointmentType.getName())) { %>
+        previousTypeId = <%=appointmentType.getId()%>;
+ <% }
+%>
+
 	appointmentTypeData['<%=appointmentType.getId()%>'] = {};
 	appointmentTypeData['<%=appointmentType.getId()%>'].name = '<%=StringEscapeUtils.escapeJavaScript(appointmentType.getName())%>';
 	appointmentTypeData['<%=appointmentType.getId()%>'].duration = '<%=appointmentType.getDuration()%>';
@@ -456,7 +469,6 @@ var appointmentTypeData = {};
 			document.forms['ADDAPPT'].duration.value = typeData.duration;
 			document.forms['ADDAPPT'].notes.value = typeData.notes;
 			document.forms['ADDAPPT'].resources.value = typeData.resources;
-			document.forms['ADDAPPT'].reason.value = typeData.reason;
 			var locations = document.forms['ADDAPPT'].location;
 			if (locations.nodeName === 'SELECT') {
 				for (var i = 0; i < locations.length; i++) {
@@ -469,13 +481,25 @@ var appointmentTypeData = {};
 			} else if (locations.nodeName === "INPUT") {
 				document.forms['ADDAPPT'].location.value = typeData.location;
 			}
-			var reasonOption = $("select[name='reasonCode'] option[value='" + typeData.reason + "']");
-			if (reasonOption.length > 0) {
-				reasonOption[0].selected = true;
-			}
-			else {
-				document.forms['ADDAPPT'].reason.value = typeData.reason;
-			}
+
+            var existingReason = document.forms['ADDAPPT'].reason.value;
+            if (previousTypeId > 0) {
+                var previousType = appointmentTypeData[previousTypeId];
+                existingReason = existingReason.replace(previousType.reason, "");
+                document.forms['ADDAPPT'].reason.value = existingReason;
+            }
+            
+            if (typeData.reason.length > 0) {
+                var reasonOption = $("select[name='reasonCode'] option[value='" + typeData.reason + "']");
+                if (reasonOption.length > 0) {
+                    reasonOption[0].selected = true;
+                }
+                else {
+                    document.forms['ADDAPPT'].reason.value = existingReason + (existingReason.length > 0 ? "\n" : "") + typeData.reason;
+                }
+            }
+
+            previousTypeId = appointmentTypeDataId;
 		}
 	}
     function pasteSwipedInfo() {
@@ -963,11 +987,7 @@ var appointmentTypeData = {};
             <div class="input">
 				<select style="width: 154px" name="typeSel" id="typeSel" onchange="setAppointmentType(this.value)">
 					<option value="">Select type</option>
-					<%	String selectedApptType = null;
-						if (!bFirstDisp) {
-							selectedApptType = request.getParameter("type");
-						}
-						for (AppointmentType apptType : appointmentTypes) { %>
+					<% for (AppointmentType apptType : appointmentTypes) { %>
 					<option value="<%=apptType.getId()%>" <%=(apptType.getName().equals(selectedApptType))?"selected=\"selected\"":""%>>
 						<%=apptType.getName()%>
 					</option>

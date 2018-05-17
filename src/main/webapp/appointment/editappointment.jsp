@@ -454,9 +454,24 @@ function openTypePopup () {
       popup.focus();
     }
 }
+<%
+Appointment appt = null;
+String selectedApptType;
+if (bFirstDisp) {
+    appt = appointmentDao.find(Integer.parseInt(appointment_no));
+    selectedApptType = appt.getType();
+} else {
+    selectedApptType = request.getParameter("type");
+}
+%>
 
+var previousTypeId = 0;
 var appointmentTypeData = {};
-<%	for (AppointmentType appointmentType : appointmentTypes) { %>
+<%	for (AppointmentType appointmentType : appointmentTypes) {
+    if (selectedApptType != null && selectedApptType.equals(appointmentType.getName())) { %>
+    previousTypeId = '<%= appointmentType.getId()%>';
+ <% } %>
+        
 	appointmentTypeData['<%=appointmentType.getId()%>'] = {};
 	appointmentTypeData['<%=appointmentType.getId()%>'].name = '<%=StringEscapeUtils.escapeJavaScript(appointmentType.getName())%>';
 	appointmentTypeData['<%=appointmentType.getId()%>'].duration = '<%=appointmentType.getDuration()%>';
@@ -477,7 +492,6 @@ var appointmentTypeData = {};
 			document.forms['EDITAPPT'].duration.value = typeData.duration;
 			document.forms['EDITAPPT'].notes.value = typeData.notes;
 			document.forms['EDITAPPT'].resources.value = typeData.resources;
-			document.forms['EDITAPPT'].reason.value = typeData.reason;
 			var locations = document.forms['EDITAPPT'].location;
 			if (locations.nodeName === 'SELECT') {
 				for (var i = 0; i < locations.length; i++) {
@@ -490,13 +504,24 @@ var appointmentTypeData = {};
 			} else if (locations.nodeName === "INPUT") {
 				document.forms['EDITAPPT'].location.value = typeData.location;
 			}
-			var reasonOption = $("select[name='reasonCode'] option[value='" + typeData.reason + "']");
-			if (reasonOption.length > 0) {
-				reasonOption[0].selected = true;
-			}
-			else {
-				document.forms['EDITAPPT'].reason.value = typeData.reason;
-			}
+			
+			var existingReason = document.forms['EDITAPPT'].reason.value;
+			if (previousTypeId > 0) {
+			    var previousType = appointmentTypeData[previousTypeId];
+			    existingReason = existingReason.replace(previousType.reason, "");
+                document.forms['EDITAPPT'].reason.value = existingReason;
+            }
+			
+			if (typeData.reason.length > 0) {
+                var reasonOption = $("select[name='reasonCode'] option[value='" + typeData.reason + "']");
+                if (reasonOption.length > 0) {
+                    reasonOption[0].selected = true;
+                } else {
+                    document.forms['EDITAPPT'].reason.value = existingReason + (existingReason.length > 0 ? "\n" : "") + typeData.reason;
+                }
+            }
+			
+			previousTypeId = appointmentTypeDataId;
 		}
 	}
 
@@ -523,15 +548,11 @@ var appointmentTypeData = {};
     </div>
 
 <%
-	Appointment appt = null;
+	
 	String demono="", chartno="", phone="", rosterstatus="", alert="", doctorNo="";
 	String strApptDate = bFirstDisp?"":request.getParameter("appointment_date") ;
 
-
 	if (bFirstDisp) {
-		appt = appointmentDao.find(Integer.parseInt(appointment_no));
-		
-
 		if (appt == null) {
 %>
 <bean:message key="appointment.editappointment.msgNoSuchAppointment" />
@@ -699,13 +720,7 @@ var appointmentTypeData = {};
 			<div class="input">
 				<select style="width: 154px" name="typeSel" id="typeSel" onchange="setAppointmentType(this.value)">
 					<option value="">Select type</option>
-					<%	String selectedApptType;
-						if (bFirstDisp) {
-							selectedApptType = appt.getType();
-						} else {
-							selectedApptType = request.getParameter("type");
-						}
-						for (AppointmentType apptType : appointmentTypes) { %>
+					<%	for (AppointmentType apptType : appointmentTypes) { %>
 					<option value="<%=apptType.getId()%>" <%=(apptType.getName().equals(selectedApptType)?"selected=\"selected\"":"")%>><%=apptType.getName()%></option>
 						<% } %>
 				</select>
