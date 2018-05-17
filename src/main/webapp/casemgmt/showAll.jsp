@@ -37,7 +37,7 @@
 <%}%>
 <% for (CaseManagementNote note : notes) { %>
     <div style="width: 99%; background-color: #EFEFEF; font-size: 12px; border-left: thin groove #000000; border-bottom: thin groove #000000; border-right: thin groove #000000;">
-        <div><pre><%=note.getNote()%></pre></div>
+        <div><pre style="white-space: pre-wrap;word-wrap: break-word;"><%=note.getNote()%></pre></div>
         <div style="color: #0000FF;">
             <% if(note.getNote()==null) { %>
                 <div style="color: #FF0000;">REMOVED</div>
