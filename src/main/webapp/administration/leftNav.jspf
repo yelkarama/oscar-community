@@ -511,6 +511,7 @@ String curProvider_no = (String)session.getAttribute("user");
 		                        <li><a href='javascript:void(0);'
 						class="xlink" rel="${ctx}/admin/groupPreferences.jsp"><bean:message key="admin.admin.btnGroupPreference" /></a></li>
 					<li><a href="javascript:void(0);" class="xlink" rel="${ctx}/oscarPrevention/PreventionManager.jsp" title="Customize prevention notifications."><bean:message key="admin.admin.preventionNotification.title" /></a></li>
+					<li><a href="javascript:void(0);" class="xlink" rel="${ctx}/admin/scheduleDisplaySettings.jsp" title="Customize schedule display">Display Settings</a></li>
 				</ul>
 				</div>
 				</div>

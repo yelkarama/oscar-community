@@ -473,6 +473,13 @@ if (apptDate.before(minDate)) {
     } else {
     allowWeek = "No";
 }
+
+Boolean displayTypePreference = false;
+SystemPreferencesDao systemPreferencesDao = SpringUtils.getBean(SystemPreferencesDao.class);
+SystemPreferences systemPreferences = systemPreferencesDao.findPreferenceByName("schedule_display_type");
+if (systemPreferences != null) {
+	displayTypePreference = Boolean.parseBoolean(systemPreferences.getValue());
+}
 %>
 <%@page import="oscar.util.*"%>
 <%@page import="oscar.oscarDB.*"%>
@@ -488,6 +495,8 @@ if (apptDate.before(minDate)) {
 <%@ page import="org.oscarehr.common.dao.ProviderScheduleNoteDao" %>
 <%@ page import="org.oscarehr.common.model.ProviderScheduleNote" %>
 <%@ page import="org.oscarehr.common.dao.PropertyDao" %>
+<%@ page import="org.oscarehr.common.dao.SystemPreferencesDao" %>
+<%@ page import="org.oscarehr.common.model.SystemPreferences" %>
 <html:html locale="true">
 <head>
 <script type="text/javascript" src="<%=request.getContextPath()%>/js/global.js"></script>
@@ -2509,6 +2518,12 @@ start_time += iSm + ":00";
 	notes: <%=notes%>"
 </oscar:oscarPropertiesCheck> ><%=(view==0) ? (name.length()>len?name.substring(0,len) : name + prefName) :name + prefName%></a>
 	
+<% if(displayTypePreference && !appointment.getType().equals("") && !appointment.getType().equals("null")) { %>
+<br>
+<%= appointment.getType() %> <%= appointment.getReason().length() > 0 ? " | " + appointment.getReason() : ""%>
+<br>
+<% } %>
+			  
 <% if(len==lenLimitedL || view!=0 || numAvailProvider==1 ) {%>
 
 <security:oscarSec roleName="<%=roleName$%>" objectName="_eChart" rights="r">
