@@ -1793,6 +1793,9 @@ function updateFaxButton() {
 									<html:option value="3">
 										<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.msgReturn" />
 									</html:option>
+									<html:option value="4">
+										<bean:message key="oscarEncounter.oscarConsultationRequest.ConsultationFormRequest.msgPriority" />
+									</html:option>
 								</html:select>
 							</td>
 						</tr>
