@@ -352,14 +352,14 @@ function printPaste2Parent(print){
       <% if (props.isPropertyActive("rx_paste_asterisk")) { %>
 	   text += "**********************************************************************************\n";
      <% } %>
-      //console.log("1");
-      //text = text.substring(0, 82) + "\n";
+      text += "Prescribed and printed by <%= loggedInInfo.getLoggedInProvider().getFormattedName() %>\n";
       if (document.all){
          text += preview.document.forms[0].rx_no_newlines.value
       } else {
          text += preview.document.forms[0].rx_no_newlines.value + "\n";
       }
-      //console.log("2");
+      
+      
 	  if (document.getElementById('additionalNotes') !== null) {
 		  text += document.getElementById('additionalNotes').value + "\n";
 	  }
