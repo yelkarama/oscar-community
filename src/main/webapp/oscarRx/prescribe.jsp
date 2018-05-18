@@ -193,7 +193,9 @@ if(listRxDrugs!=null){
         </div>
 
         <label id="labelQuantity_<%=rand%>"  style="float:left;width:80px;">Qty/Mitte:</label><input <%if(rx.isCustomNote()){%> disabled <%}%> type="text" id="quantity_<%=rand%>"     name="quantity_<%=rand%>"     value="<%=quantityText%>" onblur="updateQty(this);" />
+    <% if (!Boolean.parseBoolean(OscarProperties.getInstance().getProperty("rx_hide_dispensing_units"))) { %>
         <label style="">Units:</label><input type="text" size="5" id="dispensingUnits_<%=rand%>" onblur="addUnits(this);" maxlength="20" <%if(rx.isCustomNote()){%> disabled <%}%> name="dispensingUnits_<%=rand%>" value="<%=dispensingUnits%>" />
+    <% } %>
         <label style="">Repeats:</label><input type="text" id="repeats_<%=rand%>" onblur="addRepeats(this);" <%if(rx.isCustomNote()){%> disabled <%}%>    name="repeats_<%=rand%>"   value="<%=repeats%>" />
 
         <input  type="checkbox" id="longTerm_<%=rand%>"  name="longTerm_<%=rand%>" <%if(longTerm) {%> checked="true" <%}%> onchange="toggleLongTerm(this);" >Long Term Med </input>
