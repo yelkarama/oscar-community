@@ -41,14 +41,15 @@
 
 <%@page import="org.oscarehr.common.model.ProviderBillCenter" %>
 <%@page import="org.oscarehr.common.dao.ProviderBillCenterDao" %>
-<%@page import="org.oscarehr.util.SpringUtils" %>
 <%@ page import="org.oscarehr.common.dao.UserPropertyDAO" %>
 <%@ page import="org.oscarehr.common.model.UserProperty" %>
+<%@ page import="org.oscarehr.common.dao.ProviderSiteDao" %>
 
 <%
 	ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 	BillActivityDao billActivityDao = SpringUtils.getBean(BillActivityDao.class);
 	ProviderDataDao providerDataDao = SpringUtils.getBean(ProviderDataDao.class);
+	ProviderSiteDao providerSiteDao = SpringUtils.getBean(ProviderSiteDao.class);
 
 	String curProvider_no = (String) session.getAttribute("user");
     String roleName$ = (String)session.getAttribute("userrole") + "," + (String) session.getAttribute("user");
@@ -250,30 +251,41 @@ function setBillingCenter( providerNo ) {
 			UserPropertyDAO userPropertyDAO = (UserPropertyDAO) SpringUtils.getBean("UserPropertyDAO");
 			UserProperty defaultOhipProviderProp = userPropertyDAO.getProp((String)session.getAttribute("user"),"DEFAULT_OHIP_PROVIDER");
 			
-			List providerStr; 
+			List<Provider> providers;
 			
 			if (isTeamBillingOnly || isTeamAccessPrivacy) {
-				providerStr = prep.getTeamProviderBillingStr(curProvider_no);
+				providers = providerDao.getCurrentTeamProviders(curProvider_no);
 			}
 			else if (isSiteAccessPrivacy) {
-				providerStr = prep.getSiteProviderBillingStr(curProvider_no);
+				providers = providerSiteDao.findActiveProvidersWithSites(curProvider_no);
 			}
 			else {
-				providerStr = prep.getProviderBillingStr();
+				providers = providerDao.getBillableProviders();
 			}
 			
+			List<String> listedGroupNos = new ArrayList<String>();
+			List<Provider> providersToRemove = new ArrayList<Provider>();
+			for (Provider p : providers) {
+				String groupNo = p.getBillingGroupNo();
+				if (groupNo != null) {
+					if (!listedGroupNos.contains(groupNo)) {
+						listedGroupNos.add(groupNo);
+					}
+					providersToRemove.add(p);
+				}
+			}
+			Collections.sort(listedGroupNos, String.CASE_INSENSITIVE_ORDER);
+			providers.removeAll(providersToRemove);
 			
-			if(providerStr.size() > 1) { %>
+			if(providers.size() > 1) { %>
 				<option value="all">All Providers</option>
-			<% } %>
-
-			<% for (int i = 0; i < providerStr.size(); i++) {
-				String temp[] = ((String) providerStr.get(i)).split("\\|");
-				if (defaultOhipProviderProp != null && defaultOhipProviderProp.getValue().equals(temp[0])) { %>
-					<option value="<%=temp[0]%>" selected="selected"><%=temp[1]%>, <%=temp[2]%></option>
-				<% } else { %>
-					<option value="<%=temp[0]%>"><%=temp[1]%>, <%=temp[2]%></option>
-				<% } %>
+			<% }
+			for (String groupNo : listedGroupNos) { %>
+				<option value="group-<%=groupNo%>">Group: <%=groupNo%></option>
+			<% } 
+			for (Provider p : providers) { 
+				Boolean selected = defaultOhipProviderProp != null && defaultOhipProviderProp.getValue().equals(p.getProviderNo()); %>
+				<option value="<%=p.getProviderNo()%>" <%=selected?"selected=\"selected\"":""%>><%=p.getLastName()%>, <%=p.getFirstName()%></option>
 			<% } %>
 		</select>
 		</div>

@@ -34,10 +34,13 @@
 <%@ page import="oscar.log.LogAction" %>
 <%@ page import="oscar.log.LogConst" %>
 
-<%//
+<%
 			ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 			String provider = request.getParameter("provider");
 			String mohOffice = request.getParameter("billcenter");
+			String useProviderMOH = request.getParameter("useProviderMOH");
+			String dateBegin = request.getParameter("xml_vdate");
+			String dateEnd = request.getParameter("xml_appointment_date");
 			String[] BILLING_STATUS = new String[] {"O", "W", "I"};
 			int diskId = 0;
             int headerId = 0;
@@ -45,8 +48,6 @@
             ProviderBillCenter oriBillCenter = new ProviderBillCenter();
 
             DateRange dateRange = null;
-        	String dateBegin = request.getParameter("xml_vdate");
-        	String dateEnd = request.getParameter("xml_appointment_date");
         	if (dateEnd.compareTo("") == 0)
         		dateEnd = request.getParameter("curDate");
         	if (dateBegin.compareTo("") == 0) {
@@ -54,9 +55,11 @@
         	} else {
         		dateRange = new DateRange(ConversionUtils.fromDateString(dateBegin), ConversionUtils.fromDateString(dateEnd));
         	}
-        	
-        	String submit = request.getParameter("Submit");
-			if(!provider.equals("all")) {
+
+			Boolean groupOnly = false;
+			if (provider.startsWith("group-")) {
+				groupOnly = true;
+			} else if(!provider.equals("all")) {
 				Provider p = providerDao.getProvider(provider);
 				if(p != null) {
 					String retval = SxmlMisc.getXmlContent(p.getComments(), "<xml_p_billinggroup_no>", "</xml_p_billinggroup_no>");
@@ -65,14 +68,64 @@
 					}
 				}
 			}
-			        	
-            String useProviderMOH = request.getParameter("useProviderMOH");
-			if (provider.compareTo("all") == 0 || groupReport) {
+			
+			if (groupOnly) {
+				BillingDiskCreatePrep obj = new BillingDiskCreatePrep();
+				String groupNo = provider.replace("group-", "");
+				groupNo = groupNo.trim();
+				List<BillingProviderData> lProvider2 = new ArrayList<BillingProviderData>();
+				for (Provider p : providerDao.getBillableProvidersInGroupNo(groupNo)) {
+					if (p.getBillingGroupNo() != null && !"0000".equals(p.getBillingGroupNo())) {
+						lProvider2.add(new BillingProviderData(p));
+					}
+				}
+
+				List<String> providerNo = new Vector();
+				List<String> ohipNo = new Vector();
+				String value = "";
+
+
+				for (BillingProviderData p : lProvider2) {
+					providerNo.add(p.getProviderNo());
+					ohipNo.add(p.getOhipNo());
+				}
+				
+				MiscUtils.getLogger().info("creating group disk for ="+groupNo);
+				diskId = obj.createNewGrpDiskName(providerNo, ohipNo, groupNo, (String) session.getAttribute("user"));
+
+				JdbcBillingCreateBillingFile objFile = null;
+				value = "";
+
+				for (int i = 0; i < lProvider2.size(); i++) {
+					if (((BillingProviderData) lProvider2.get(i)).getBillingGroupNo().compareTo(groupNo)!=0)
+						continue;
+					objFile = new JdbcBillingCreateBillingFile();
+					objFile.setDateRange(dateRange);
+					BillingProviderData dataProvider = lProvider2.get(i);
+					String ohipFilename = obj.getOhipfilename(diskId);
+					String htmlFilename = obj.getHtmlfilename(diskId, dataProvider.getProviderNo());
+
+					boolean existBillCenter = oriBillCenter.hasBillCenter(dataProvider.getProviderNo());
+					// create the billing file with provider's own bill center
+					if (existBillCenter && oriBillCenter.getBillCenter(dataProvider.getProviderNo()).compareTo(mohOffice)!=0)
+						headerId = obj.createBatchHeader(dataProvider, "" + diskId, oriBillCenter.getBillCenter(dataProvider.getProviderNo()), "" + (i + 1),(String) session.getAttribute("user"));
+					else
+						// create the billing file
+						headerId = obj.createBatchHeader(dataProvider, "" + diskId, mohOffice, "" + (i + 1),(String) session.getAttribute("user"));
+					objFile.setProviderNo(dataProvider.getProviderNo());
+					objFile.setOhipFilename(ohipFilename);
+					objFile.setHtmlFilename(htmlFilename);
+					objFile.createBillingFileStr(LoggedInInfo.getLoggedInInfoFromSession(request), "" + headerId, BILLING_STATUS, false, mohOffice, false, "on".equals(useProviderMOH));
+					value += objFile.getValue();
+					objFile.writeHtml(objFile.getHtmlCode());
+					objFile.updateDisknameSum(diskId);
+				}
+				objFile.writeFile(value);
+			} else if (provider.equals("all") || groupReport) {
 				// if all, find who is solo, who is in group
 				BillingDiskCreatePrep obj = new BillingDiskCreatePrep();
 				//this returns ones who don't have a group billing
 				List lProvider = obj.getCurSoloProvider();
-				
 
 				if(!groupReport) {
 					for (int i = 0; i < lProvider.size(); i++) {
@@ -163,10 +216,8 @@
 						}
                         objFile.writeFile(value);
 					}
-			}
-			} 
-			
-			else {
+				}
+			} else {
 				// solo - one provider
 				BillingDiskCreatePrep obj = new BillingDiskCreatePrep();
 				List lProvider = new Vector();

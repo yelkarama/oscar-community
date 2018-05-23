@@ -296,6 +296,13 @@ public class ProviderDao extends HibernateDaoSupport {
 		List<Provider> rs = getHibernateTemplate().find("FROM Provider p where (p.OhipNo <> '' or p.RmaNo <> ''  or p.BillingNo <> '' or p.HsoNo <> '')and p.Status = '1' order by p.LastName");
 		return rs;
 	}
+	
+	public List<Provider> getBillableProvidersInGroupNo(String groupNo) {
+		String sql = "FROM Provider p WHERE p.OhipNo != '' AND p.ThirdPartyOnly = FALSE AND p.Status = '1' AND p.Comments LIKE ? ORDER BY p.LastName";
+		ArrayList<Object> paramList = new ArrayList<Object>();
+		paramList.add("%<xml_p_billinggroup_no>"+groupNo+"</xml_p_billinggroup_no>%");
+		return getHibernateTemplate().find(sql, paramList.toArray());
+	}
 
 	public List<Provider> getProviders(boolean active) {
 		

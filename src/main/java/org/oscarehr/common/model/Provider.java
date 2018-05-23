@@ -24,6 +24,9 @@
 
 package org.oscarehr.common.model;
 
+import org.apache.commons.lang.StringUtils;
+import oscar.SxmlMisc;
+
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Date;
@@ -161,6 +164,17 @@ public class Provider implements Serializable, Comparable<Provider>{
 
 	public void setComments(String comments) {
 		this.comments = comments;
+	}
+	
+	public String getBillingGroupNo() {
+		String groupNo = SxmlMisc.getXmlContent(comments, "<xml_p_billinggroup_no>", "</xml_p_billinggroup_no>");
+		groupNo = StringUtils.isBlank(groupNo) ? null : groupNo;
+		return groupNo;
+	}
+	public String getSpecialtyCode() {
+		String specialtyCod = SxmlMisc.getXmlContent(comments, "<xml_p_specialty_code>", "</xml_p_specialty_code>");
+		specialtyCod = StringUtils.isBlank(specialtyCod) ? null : specialtyCod;
+		return specialtyCod;
 	}
 
 	public String getPhone() {

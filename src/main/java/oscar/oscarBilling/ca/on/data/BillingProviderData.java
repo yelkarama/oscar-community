@@ -18,19 +18,34 @@
 
 package oscar.oscarBilling.ca.on.data;
 
+import org.oscarehr.common.model.Provider;
+
 public class BillingProviderData {
-	   String providerNo;
-	   String lastName;
-	   String firstName;
-	   String providerType;
-	   String specialtyCode;
-	   String team;
-	   String ohipNo;
-	   String rmaNo;
-	   String billingNo;
-	   String hso_no;
-	   String status;
-	   String billingGroupNo;
+	private String providerNo;
+	private String lastName;
+	private String firstName;
+	private String providerType;
+	private String specialtyCode;
+	private String team;
+	private String ohipNo;
+	private String rmaNo;
+	private String billingNo;
+	private String hso_no;
+	private String status;
+	private String billingGroupNo;
+
+	public BillingProviderData() {}
+	public BillingProviderData(Provider p) {
+		providerNo = p.getProviderNo();
+		lastName = p.getLastName();
+		firstName = p.getFirstName();
+		ohipNo = p.getOhipNo();
+		specialtyCode = p.getSpecialtyCode();
+		if (specialtyCode == null) { specialtyCode = "00"; }
+		billingGroupNo = p.getBillingGroupNo();
+		if (billingGroupNo == null) { billingGroupNo = "0000"; }
+	}
+	
 	public String getBillingGroupNo() {
 		return billingGroupNo;
 	}
