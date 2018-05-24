@@ -101,6 +101,10 @@ if(!addReaction){
             $('select[name=lifeStage] option[value="<%=lifeStage.toUpperCase()%>"]').attr('selected', 'selected');
 		<% } %>
     });
+
+    function useFav2(id) {
+        window.location = "useFavorite.do?parameterValue=useFavAsAllergy&favouriteId=" + id;
+    }
 </script>
 <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
@@ -111,7 +115,7 @@ if(!addReaction){
 	id="AutoNumber1" height="100%">
 	<%@ include file="TopLinks.jsp"%><!-- Row One included here-->
 	<tr>
-		<%@ include file="SideLinksNoEditFavorites2.jsp"%><!-- <td></td>Side Bar File --->
+		<%@ include file="SideLinksEditFavorites2.jsp"%><!-- <td></td>Side Bar File --->
 		<td width="100%" style="border-left: 2px solid #A9A9A9;" height="100%"
 			valign="top">
 		<table cellpadding="0" cellspacing="2"
