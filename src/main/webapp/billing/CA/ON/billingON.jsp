@@ -62,6 +62,7 @@
 
 			FreshbooksService fbs = new FreshbooksService();
 			DemographicExtDao ded = SpringUtils.getBean(DemographicExtDao.class);
+			CustomHealthcardTypeDao customHealthcardTypeDao = SpringUtils.getBean(CustomHealthcardTypeDao.class);
 
 			String user_no = (String) session.getAttribute("user");
 			String providerview = request.getParameter("providerview") == null ? "" : request.getParameter("providerview");
@@ -562,7 +563,8 @@
             	defaultBillType = t.getBillType();
            }
 
-           if ("OT".equals(demo.getHcType()) || "QC".equals(demo.getHcType())) {
+			List<CustomHealthcardType> customHealthcardTypes = customHealthcardTypeDao.findByName(demo.getHcType());
+           if ("OT".equals(demo.getHcType()) || "QC".equals(demo.getHcType()) || customHealthcardTypes.size() > 0) {
                ctlBillForm = "PRI";
                UserProperty defaultServiceTypeForHc = propertyDao.getProp(loggedInInfo.getLoggedInProviderNo(), "OT".equals(demo.getHcType()) ? UserProperty.DEFAULT_SERVICE_OTHER : UserProperty.DEFAULT_SERVICE_QUEBEC);
 			   if (defaultServiceTypeForHc != null && defaultServiceTypeForHc.getValue() != null && !defaultServiceTypeForHc.getValue().isEmpty() && !defaultServiceTypeForHc.getValue().equalsIgnoreCase("no")) {
