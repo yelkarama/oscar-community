@@ -1630,9 +1630,12 @@ function changeLt(drugId, isLongTerm){
                  }
             }});
    }
-   function checkIfInactive(id,dinNumber){
+   function checkIfInactive(id,dinNumber, fdbProdNum){
         var url="<c:out value="${ctx}"/>" + "/oscarRx/getInactiveDate.jsp"  ;
          var data="din="+dinNumber+"&id="+id +"&rand=" +  Math.floor(Math.random()*10001);
+       if (fdbProdNum != null) {
+           data += "&fdbProdNum=" + fdbProdNum;
+       }
          new Ajax.Request(url,{method: 'post',postBody:data,onSuccess:function(transport){
                  var json=transport.responseText.evalJSON();
                 if(json!=null){
@@ -1860,7 +1863,7 @@ YAHOO.example.FnMultipleFields = function(){
     // Define the schema of the delimited results
     oDS.responseSchema = {
         resultsList : "results",
-        fields : ["name", "id","isInactive"]
+        fields : ["name", "id","isInactive", "din", "fdbProdNum"]
     };
     // Enable caching
     oDS.maxCacheEntries =0;
@@ -1880,15 +1883,17 @@ YAHOO.example.FnMultipleFields = function(){
     // when an item gets selected and populate the input field
     //var myHiddenField = YAHOO.util.Dom.get("myHidden");
     var myHandler = function(type, args) {
-                    var arr = args[2];
-                    var url = "<c:out value="${ctx}"/>" + "/oscarRx/WriteScript.do?parameterValue=createNewRx"; //"prescribe.jsp";
-                    var ran_number=Math.round(Math.random()*1000000);
-                    var name=encodeURIComponent(arr.name);
-                    var params = "demographicNo=<%=demoNo%>&drugId="+arr.id+"&text="+name+"&randomId="+ran_number;  //hack to get around ie caching the page
-                   new Ajax.Updater('rxText',url, {method:'get',parameters:params,evalScripts:true,
-                        insertion: Insertion.Bottom,onSuccess:function(transport){
-                            updateCurrentInteractions();
-                        }});
+        var arr = args[2];
+        var url = "<c:out value="${ctx}"/>" + "/oscarRx/WriteScript.do?parameterValue=createNewRx"; //"prescribe.jsp";
+        var ran_number=Math.round(Math.random()*1000000);
+        var name=encodeURIComponent(arr.name);
+        var fdbId = arr.fdbProdNum;
+        var params = "demographicNo=<%=demoNo%>&drugId="+arr.id + (fdbId != null ? "&fdbProdNum=" + fdbId : "")
+            + "&text="+name+"&randomId="+ran_number;  //hack to get around ie caching the page
+        new Ajax.Updater('rxText',url, {method:'get',parameters:params,evalScripts:true,
+            insertion: Insertion.Bottom,onSuccess:function(transport){
+                updateCurrentInteractions();
+            }});
 
                     $('searchString').value = "";
 
@@ -2041,12 +2046,12 @@ function addFav(randomId,brandName){
     }
 
 
-function setSearchedDrug(drugId,name){
+function setSearchedDrug(drugId,name,usingFDB){
 
     var url = "<c:out value="${ctx}"/>" + "/oscarRx/WriteScript.do?parameterValue=createNewRx";
     var ran_number=Math.round(Math.random()*1000000);
     name=encodeURIComponent(name);
-    var params = "demographicNo=<%=demoNo%>&drugId="+drugId+"&text="+name+"&randomId="+ran_number;
+    var params = "demographicNo=<%=demoNo%>&drugId="+drugId+"&text="+name+"&randomId="+ran_number+"&usingFDB=" + usingFDB;
     new Ajax.Updater('rxText',url, {method:'get',parameters:params,asynchronous:true,evalScripts:true,insertion: Insertion.Bottom,onSuccess:function(transport){
                             updateCurrentInteractions();
             }});

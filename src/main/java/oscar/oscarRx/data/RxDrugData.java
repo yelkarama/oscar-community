@@ -338,6 +338,7 @@ public class RxDrugData {
 		ArrayList gen = null;
 		ArrayList afhcClass = null;
 		int totalSearch;
+		boolean usingFDB = false;
 		boolean empty = false;
 		public boolean failed = false;
 		public String errorMessage = null;
@@ -354,6 +355,9 @@ public class RxDrugData {
 				if (!h.get("name").equals("None found")){
 					Hashtable prev = i>0?(Hashtable) vec.get(i-1):null;
 					if (prev==null || !h.get("name").equals(prev.get("name"))){
+						if (h.containsKey("fdbProdNum")) {
+							usingFDB = true;
+						}
 						MinDrug d = new MinDrug(h);
 						if(d.type.equals("13")){
 							brand.add(d);
@@ -401,7 +405,11 @@ public class RxDrugData {
 			this.afhcClass = afhcClass;
 		}
 
-		@Override
+        public boolean isUsingFDB() {
+            return usingFDB;
+        }
+
+        @Override
 		public String toString() {
 			return ToStringBuilder.reflectionToString(this);
 		}

@@ -651,11 +651,21 @@ public final class RxWriteScriptAction extends DispatchAction {
 			int randomId = Integer.parseInt(ra);
 			rx.setRandomId(randomId);
 			String drugId = request.getParameter("drugId");
+			String fdbProdNum = request.getParameter("fdbProdNum");
+			boolean usingFDB = request.getParameter("usingFDB") != null && Boolean.parseBoolean(request.getParameter("usingFDB"));
 			String text = request.getParameter("text");
+			if (usingFDB) {
+				request.setAttribute("fdbProdNum", drugId);
+			}
 
 			// TODO: Is this to slow to do here? It's possible to do this in ajax, as in when this comes back launch an ajax request to fill in.
 			logger.debug("requesting drug from drugref id="+drugId);
-			RxDrugData.DrugMonograph dmono = drugData.getDrug2(drugId);
+			RxDrugData.DrugMonograph dmono;
+			if (fdbProdNum != null) {
+				dmono = drugData.getDrug2(fdbProdNum);
+			} else {
+				dmono = drugData.getDrug2(drugId);
+			}
 
 			String brandName = null;
 			ArrayList<DrugComponent> drugComponents = dmono.getDrugComponentList();	

@@ -28,10 +28,16 @@
 <%@page import="java.util.*,net.sf.json.*,java.io.*,org.apache.xmlrpc.*,oscar.oscarRx.util.*,oscar.oscarRx.data.*"  %><%
 String din =  request.getParameter("din");
 String id = request.getParameter("id");
+String fdbProdNum = request.getParameter("fdbProdNum")==null?(String)request.getAttribute("fdbProdNum"):request.getParameter("fdbProdNum");
 Vector vec=new Vector();
 try{
                 RxDrugRef drugData = new RxDrugRef();
-                 vec = drugData.getInactiveDate(din);
+                if (fdbProdNum != null && !fdbProdNum.equals("null")) {
+                    vec = drugData.getInactiveDate(fdbProdNum);
+                } else {
+                    vec = drugData.getInactiveDate(din);
+                }
+
     
     }catch(Exception e){
     	MiscUtils.getLogger().error("Error", e);

@@ -71,6 +71,7 @@ String demoNo = String.valueOf(rxBean.getDemographicNo());
 ArrayList brand = drugSearch.getBrand();
 ArrayList gen = drugSearch.getGen();
 ArrayList afhcClass = drugSearch.getAfhcClass();
+boolean usingFDB = drugSearch.isUsingFDB();
 int i;
 
 String drugref_route = OscarProperties.getInstance().getProperty("drugref_route");
@@ -105,7 +106,7 @@ for (int j=0; j<selRoute.length; j++) {
 <script type="text/javascript">
 
     function setDrugRx2(drugId,drugName){
-        window.opener.setSearchedDrug(drugId,drugName);
+        window.opener.setSearchedDrug(drugId,drugName, <%=usingFDB%>);
         window.close();
     }
 

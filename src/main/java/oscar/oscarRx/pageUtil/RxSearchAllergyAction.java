@@ -155,7 +155,11 @@ public final class RxSearchAllergyAction extends Action {
                 arr[i] = new Allergy();
 
                 arr[i].setTypeCode(((Integer) hash.get("category")).intValue());
-                arr[i].setDrugrefId( String.valueOf(hash.get("id")));
+                if (hash.containsKey("fdbProdNum")) {
+                    arr[i].setDrugrefId( String.valueOf(hash.get("fdbProdNum")));
+                } else {
+                    arr[i].setDrugrefId( String.valueOf(hash.get("id")));
+                }
                 arr[i].setDescription(((String) hash.get("name")));
 
                 if( arr[i].getTypeCode() == 13){

@@ -50,6 +50,7 @@
 %>
 
     <%
+String fdbProdNum = request.getParameter("fdbProdNum")==null?(String)request.getAttribute("fdbProdNum"):request.getParameter("fdbProdNum");
 
 List<RxPrescriptionData.Prescription> listRxDrugs=(List)request.getAttribute("listRxDrugs");
 oscar.oscarRx.pageUtil.RxSessionBean bean = (oscar.oscarRx.pageUtil.RxSessionBean)request.getSession().getAttribute("RxSessionBean");
@@ -706,9 +707,8 @@ if(listRxDrugs!=null){
             }();
 
 
-
+            checkIfInactive('<%=rand%>','<%=rx.getRegionalIdentifier()%>', '<%=fdbProdNum%>');
             checkAllergy('<%=rand%>','<%=rx.getAtcCode()%>');
-            checkIfInactive('<%=rand%>','<%=rx.getRegionalIdentifier()%>');
 
             var isDiscontinuedLatest=<%=isDiscontinuedLatest%>;
             //oscarLog("isDiscon "+isDiscontinuedLatest);
