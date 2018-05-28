@@ -230,7 +230,15 @@ public class DemographicExportAction4 extends Action {
 			}
 		} else {
 			if(demographicDao.getDemographic(demographicNo)!=null){
-				list.add(demographicDao.getDemographic(demographicNo));
+				Demographic demographic = demographicDao.getDemographic(demographicNo);
+				Provider demographicProvider = providerDao.getProvider(demographic.getProviderNo());
+				if (setName.equalsIgnoreCase("unmatched") && demographicProvider != null) {
+					setName = demographicProvider.getFirstName() != null ? demographicProvider.getFirstName() + "_" : "";
+					setName += demographicProvider.getLastName() != null ? demographicProvider.getLastName() + "_" : "";
+					setName += demographicProvider.getOhipNo() != null ? demographicProvider.getOhipNo() : "";
+				}
+				
+				list.add(demographic);
 			}
 
 		}
