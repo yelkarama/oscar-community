@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.oscarehr.common.dao.EChartDao;
 import org.oscarehr.common.dao.EncounterTemplateDao;
 import org.oscarehr.common.dao.MeasurementGroupStyleDao;
@@ -41,6 +42,8 @@ import org.oscarehr.common.model.EncounterTemplate;
 import org.oscarehr.common.model.MeasurementGroupStyle;
 import org.oscarehr.common.model.MessageTbl;
 import org.oscarehr.managers.DemographicManager;
+import org.oscarehr.util.Age;
+import org.oscarehr.util.AgeCalculator;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.SpringUtils;
 
@@ -154,25 +157,36 @@ public class EctSessionBean implements java.io.Serializable {
         postal = d.getPostal();
         phone = d.getPhone();
         familyDoctorNo = d.getProviderNo();
-        yearOfBirth = d.getYearOfBirth();
-        monthOfBirth = d.getMonthOfBirth();
-        dateOfBirth = d.getDateOfBirth();
+        yearOfBirth = StringUtils.trimToEmpty(d.getYearOfBirth());
+        monthOfBirth = StringUtils.trimToEmpty(d.getMonthOfBirth());
+        dateOfBirth = StringUtils.trimToEmpty(d.getDateOfBirth());
         roster = d.getRosterStatus();
         patientSex = d.getSex();
 
-        if (yearOfBirth.equals("null") || yearOfBirth=="") {
+        if (yearOfBirth.equals("null") || yearOfBirth.isEmpty()) {
             yearOfBirth = "0";
         }
-        if (monthOfBirth.equals("null") || monthOfBirth=="") {
+        if (monthOfBirth.equals("null") || monthOfBirth.isEmpty()) {
             monthOfBirth = "0";
         }
-        if (dateOfBirth.equals("null") || dateOfBirth=="") {
+        if (dateOfBirth.equals("null") || dateOfBirth.isEmpty()) {
             dateOfBirth = "0";
         }
-    
-        if(yearOfBirth!="" && yearOfBirth!=null)
-        	patientAge = UtilDateUtilities
-                .calcAge(UtilDateUtilities.calcDate(yearOfBirth, monthOfBirth, dateOfBirth));
+
+        Age demographicAge = AgeCalculator.calculateAge(d.getBirthDay());
+
+        if (demographicAge != null) {
+            patientAge = String.valueOf(demographicAge.getYears());
+            if ("0".equals(patientAge) && demographicAge.getMonths() > 0)
+            {
+                patientAge = demographicAge.getMonths() + " months";
+            }
+            else
+            {
+                patientAge += " years";
+            }
+        }
+
 
         OscarAppointmentDao apptDao = SpringUtils.getBean(OscarAppointmentDao.class);
         for(Appointment appt : apptDao.findByProviderAndDate(curProviderNo, ConversionUtils.fromDateString(appointmentDate))){
