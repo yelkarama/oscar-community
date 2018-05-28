@@ -1655,14 +1655,10 @@ import oscar.util.UtilDateUtilities;
 
                     drug.setETreatmentType(medArray[i].getTreatmentType());
                     //no need: DrugReason drugReason = new DrugReason();
-                    //no need: drug.setRxStatus(medArray[i].getPrescriptionStatus());
-
-                    //no need: String nosub = medArray[i].getSubstitutionNotAllowed();
-                    //no need: if (nosub!=null) drug.setNoSubs(nosub.equalsIgnoreCase("Y"));
-
-                    //no need: String non_auth = medArray[i].getNonAuthoritativeIndicator();
-                    //no need: if (non_auth!=null) drug.setNonAuthoritative(non_auth.equalsIgnoreCase("Y"));
-                    //no need: else  err_data.add("Error! No non-authoritative indicator for Medications & Treatments ("+(i+1)+")");
+                    drug.setRxStatus(medArray[i].getPrescriptionStatus());
+                    
+                    drug.setNoSubs(StringUtils.noNull( medArray[i].getSubstitutionNotAllowed()).equalsIgnoreCase("Y"));
+                    drug.setNonAuthoritative(StringUtils.noNull(medArray[i].getNonAuthoritativeIndicator()).equalsIgnoreCase("Y"));
 
                     //no need: if (NumberUtils.isDigits(medArray[i].getDispenseInterval())) drug.setDispenseInterval(Integer.parseInt(medArray[i].getDispenseInterval()));
                     //no need: else err_data.add("Error! Invalid Dispense Interval for Medications & Treatments ("+(i+1)+")");
@@ -1673,7 +1669,7 @@ import oscar.util.UtilDateUtilities;
                     if (sep>0) drug.setTakeMax(Util.leadingNumF(take.substring(sep+1)));
                     else drug.setTakeMax(drug.getTakeMin());
                     drug.setUnit(medArray[i].getDosageUnitOfMeasure());
-                    if ("table".equalsIgnoreCase(drug.getUnit())) drug.setUnit("tab");
+                    if ("tablet".equalsIgnoreCase(drug.getUnit())) drug.setUnit("tab");
 
                     drug.setDemographicId(Integer.valueOf(demographicNo));
                     drug.setArchived(false);
@@ -1710,12 +1706,6 @@ import oscar.util.UtilDateUtilities;
                     	special = addSpaced(special, "for "+drug.getDuration()+" days");
                     }
                     drug.setSpecial(special);
-
-                    //no need: special = Util.addLine(special, "Prescription Status: ", medArray[i].getPrescriptionStatus());
-                    //no need: special = Util.addLine(special, "Dispense Interval: ", medArray[i].getDispenseInterval());
-                    //no need: special = Util.addLine(special, "Protocol Id: ", medArray[i].getProtocolIdentifier());
-                    //no need: special = Util.addLine(special, "Prescription Id: ", medArray[i].getPrescriptionIdentifier());
-                    //no need: special = Util.addLine(special, "Prior Prescription Id: ", medArray[i].getPriorPrescriptionReferenceIdentifier());
 
 
                     if (StringUtils.filled(medArray[i].getPrescriptionInstructions())) {
@@ -1777,6 +1767,10 @@ import oscar.util.UtilDateUtilities;
                     dump = Util.addLine(dump, summary);
                     */
                     dump = Util.addLine(dump, getResidual(medArray[i].getResidualInfo()));
+                    dump = Util.addLine(dump, "Prescription Id: ", StringUtils.noNull(medArray[i].getPrescriptionIdentifier()));
+                    dump = Util.addLine(dump, "Prescription Id: ", StringUtils.noNull(medArray[i].getPriorPrescriptionReferenceIdentifier()));
+                    dump = Util.addLine(dump, "Problem Code: ", StringUtils.noNull(medArray[i].getProblemCode()));
+                    dump = Util.addLine(dump, "Protocol Id: ", StringUtils.noNull(medArray[i].getProtocolIdentifier()));
 
                     cmNote = prepareCMNote("2",null);
                     cmNote.setNote(dump);
