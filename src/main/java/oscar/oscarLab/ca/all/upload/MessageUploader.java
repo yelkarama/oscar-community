@@ -177,7 +177,7 @@ public final class MessageUploader {
 				// reformat date
 				// use OBR date, if blank use specimen received date
 				String date = obrDate.trim()!=""?obrDate.substring(0,obrDate.length()-1):collectionDate.substring(0,collectionDate.trim().length());
-				String format = "yyyy-MM-dd HH:mm:ss".substring(0, date.length());
+				String format = "yyyy-MM-dd HH:mm:ss".substring(0, date.length()+1);
 				obrDate = UtilDateUtilities.DateToString(UtilDateUtilities.StringToDate(date, format), "yyyy-MM-dd HH:mm:ss");
 			} catch (Exception e) {				
 				logger.error("Error parsing obr date : ", e);

@@ -135,7 +135,7 @@ public class LabResultImport {
 		plr.setStatus(status);
 		plr.setComment(comment);
 		plr.setTimestamp(ts);
-		plr.setLabType("CML");
+		plr.setLabType("HL7");
 		providerLabRoutingDao.persist(plr);
 		
 		return plr.getId().longValue();

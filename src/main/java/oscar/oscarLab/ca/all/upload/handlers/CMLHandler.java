@@ -53,6 +53,7 @@ public class CMLHandler implements MessageHandler {
 
 	Logger logger = Logger.getLogger(CMLHandler.class);
 	Hl7TextInfoDao hl7TextInfoDao = (Hl7TextInfoDao)SpringUtils.getBean("hl7TextInfoDao");
+	private Integer labNo = null;
 	
 	public String parse(LoggedInInfo loggedInInfo, String serviceName, String fileName, int fileId, String ipAddr) {
 
@@ -75,6 +76,8 @@ public class CMLHandler implements MessageHandler {
 					logger.error("Saved lab but could not parse base64 value");
 					return null;
 				}
+				 
+				labNo = routeResults.segmentId;
 
 			}
 		} catch (Exception e) {
@@ -115,5 +118,9 @@ public class CMLHandler implements MessageHandler {
 			}		
 		}
 		return false;	
+	}
+
+	public Integer getLastLabNo() {
+		return labNo;
 	}
 }

@@ -52,6 +52,7 @@ public class MDSHandler implements MessageHandler {
 
 	Logger logger = Logger.getLogger(MDSHandler.class);
 	Hl7TextInfoDao hl7TextInfoDao = (Hl7TextInfoDao)SpringUtils.getBean("hl7TextInfoDao");
+	Integer labNo = null;
 	
 
 	public String parse(LoggedInInfo loggedInInfo, String serviceName, String fileName, int fileId, String ipAddr) {
@@ -76,6 +77,8 @@ public class MDSHandler implements MessageHandler {
 					logger.error("Saved lab but could not parse base64 value");
 					return null;
 				}
+
+				labNo = routeResults.segmentId;
 				
 				audit.append(auditLine);
 
@@ -112,5 +115,9 @@ public class MDSHandler implements MessageHandler {
 			}		
 		}
 		return false;	
+	}
+
+	public Integer getLastLabNo() {
+		return labNo;
 	}
 }
