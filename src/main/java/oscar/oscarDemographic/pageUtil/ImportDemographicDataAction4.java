@@ -585,9 +585,9 @@ import oscar.util.UtilDateUtilities;
                     String tempPostalCode = "";
                     String addressType = "";
                     if (addr.getAddressType() == AddressType.M) {
-                        address = "Mailing ";
+                        addressType = "Mailing ";
                     } else if (addr.getAddressType() == AddressType.R) {
-                        address = "Residential ";
+                        addressType = "Residential ";
                     }
                     
                     if (StringUtils.filled(addr.getFormatted())) {
