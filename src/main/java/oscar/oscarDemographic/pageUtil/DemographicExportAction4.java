@@ -45,6 +45,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import cds.PersonalHistoryDocument;
 import cdsDt.DiabetesComplicationScreening;
+import cdsDt.PersonNameSimple;
 import cdsDt.ResidualInformation;
 import cdsDt.ResultNormalAbnormalFlag;
 import org.apache.commons.codec.binary.Base64;
@@ -431,6 +432,23 @@ public class DemographicExportAction4 extends Action {
 			
 			if (enrolment != null && !enrolmentHistoryArray.isEmpty()) {
 				enrolment.setEnrolmentHistoryArray((Demographics.Enrolment.EnrolmentHistory[])enrolmentHistoryArray.toArray(new Demographics.Enrolment.EnrolmentHistory[enrolmentHistoryArray.size()]));
+			}
+
+			if (StringUtils.filled(demographic.getProviderNo())) {
+				Provider mrp = providerDao.getProvider(demographic.getProviderNo());
+				Demographics.PrimaryPhysician primaryPhysician = demo.addNewPrimaryPhysician();
+				PersonNameSimple physicianName = primaryPhysician.addNewName();
+
+				physicianName.setFirstName(StringUtils.noNull(mrp.getFirstName()));
+				physicianName.setLastName(StringUtils.noNull(mrp.getLastName()));
+
+				if (StringUtils.filled(mrp.getOhipNo())) {
+					primaryPhysician.setOHIPPhysicianId(mrp.getOhipNo());
+				}
+
+				if (StringUtils.filled(mrp.getOhipNo())) {
+					primaryPhysician.setPrimaryPhysicianCPSO(mrp.getPractitionerNo());
+				}
 			}
 
 			//Person Status (Patient Status)
