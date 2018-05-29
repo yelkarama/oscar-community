@@ -46,6 +46,7 @@ import javax.servlet.http.HttpServletResponse;
 import cds.PersonalHistoryDocument;
 import cdsDt.DiabetesComplicationScreening;
 import cdsDt.PersonNameSimple;
+import cdsDt.PhoneNumberType;
 import cdsDt.ResidualInformation;
 import cdsDt.ResultNormalAbnormalFlag;
 import org.apache.commons.codec.binary.Base64;
@@ -64,6 +65,7 @@ import org.oscarehr.casemgmt.model.CaseManagementNote;
 import org.oscarehr.casemgmt.model.CaseManagementNoteExt;
 import org.oscarehr.casemgmt.model.CaseManagementNoteLink;
 import org.oscarehr.casemgmt.service.CaseManagementManager;
+import org.oscarehr.common.dao.ContactDao;
 import org.oscarehr.common.dao.DemographicArchiveDao;
 import org.oscarehr.common.dao.DemographicContactDao;
 import org.oscarehr.common.dao.DemographicDao;
@@ -72,14 +74,17 @@ import org.oscarehr.common.dao.Hl7TextInfoDao;
 import org.oscarehr.common.dao.Hl7TextMessageDao;
 import org.oscarehr.common.dao.OscarAppointmentDao;
 import org.oscarehr.common.dao.PartialDateDao;
+import org.oscarehr.common.dao.ProfessionalSpecialistDao;
 import org.oscarehr.common.model.Allergy;
 import org.oscarehr.common.model.Appointment;
+import org.oscarehr.common.model.Contact;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.DemographicArchive;
 import org.oscarehr.common.model.DemographicContact;
 import org.oscarehr.common.model.Hl7TextInfo;
 import org.oscarehr.common.model.Hl7TextMessage;
 import org.oscarehr.common.model.PartialDate;
+import org.oscarehr.common.model.ProfessionalSpecialist;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.e2e.director.E2ECreator;
 import org.oscarehr.e2e.util.EverestUtils;
@@ -116,6 +121,7 @@ import cds.ProblemListDocument.ProblemList;
 import cds.ReportsDocument.Reports;
 import cds.RiskFactorsDocument.RiskFactors;
 import oscar.OscarProperties;
+import oscar.SxmlMisc;
 import oscar.appt.ApptStatusData;
 import oscar.dms.EDoc;
 import oscar.dms.EDocUtil;
@@ -157,6 +163,8 @@ public class DemographicExportAction4 extends Action {
 	private static final Hl7TextMessageDao hl7TxtMssgDao = (Hl7TextMessageDao)SpringUtils.getBean("hl7TextMessageDao");
 	private static final DemographicExtDao demographicExtDao = (DemographicExtDao) SpringUtils.getBean("demographicExtDao");
 	private static final DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
+    private static final ContactDao cDao = SpringUtils.getBean(ContactDao.class);
+    private static final ProfessionalSpecialistDao professionalSpecialistDao = SpringUtils.getBean(ProfessionalSpecialistDao.class);
 	private static final ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 	private static final String PATIENTID = "Patient";
 	private static final String ALERT = "Alert";
@@ -2625,8 +2633,8 @@ public class DemographicExportAction4 extends Action {
 					contact.addNewContactPurpose().setPurposeAsEnum(cdsDt.PurposeEnumOrPlainText.PurposeAsEnum.SDM);
 				}
 				if (StringUtils.filled(contactNote)) contact.setNote(contactNote);
-
-				fillContactInfo(loggedInInfo, contact, contactId[j], demoNo, j);
+				
+				fillContactInfo(loggedInInfo, contact, demoContact, demoNo, j);
 			}
 		}
 	}
@@ -2723,7 +2731,143 @@ public class DemographicExportAction4 extends Action {
 		}
 	}
 
-	private void fillContactPurpose(String rel, Demographics.Contact contact) {
+    private void fillContactInfo(LoggedInInfo loggedInInfo, Demographics.Contact contact, DemographicContact demoContact, String demoNo, int index) {
+        String contactId = demoContact.getContactId();
+        auditLog.add("READ DemographicExt: demographicNo=" + contactId);
+        boolean phoneExtTooLong = false;
+
+        if(demoContact.getType() == DemographicContact.TYPE_PROVIDER) {
+            Provider provider = providerDao.getProvider(contactId);
+            if(provider != null){
+                String cell = SxmlMisc.getXmlContent(provider.getComments(),"xml_p_cell");
+
+                Util.writeNameSimple(contact.addNewName(), provider.getFirstName(), provider.getLastName());
+
+                if (StringUtils.filled(provider.getEmail())) {
+                    contact.setEmailAddress(provider.getEmail());
+                }
+
+                if (phoneNoValid(provider.getPhone())) {
+                    phoneExtTooLong = addPhone(provider.getPhone(), null, PhoneNumberType.R, contact.addNewPhoneNumber());
+                    if (phoneExtTooLong) {
+                        exportError.add("Home phone extension too long, export trimmed for contact ("+(index+1)+") of Patient "+demoNo);
+                    }
+                }
+
+                if (phoneNoValid(provider.getWorkPhone())) {
+                    phoneExtTooLong = addPhone(provider.getWorkPhone(), null, PhoneNumberType.W, contact.addNewPhoneNumber());
+                    if (phoneExtTooLong) {
+                        exportError.add("Work phone extension too long, export trimmed for contact ("+(index+1)+") of Patient "+demoNo);
+                    }
+                }
+
+                if (phoneNoValid(cell)) {
+                    addPhone(cell, null, PhoneNumberType.C, contact.addNewPhoneNumber());
+                }
+            }
+        } else if(demoContact.getType() == DemographicContact.TYPE_DEMOGRAPHIC) {
+            Demographic demographic = demographicDao.getClientByDemographicNo(Integer.parseInt(contactId));
+
+            if (demographic != null) {
+                Util.writeNameSimple(contact.addNewName(), demographic.getFirstName(), demographic.getLastName());
+				String cell = demographicExtDao.getValueForDemoKey(demographic.getDemographicNo(), "demo_cell");
+				String hPhoneExt = demographicExtDao.getValueForDemoKey(demographic.getDemographicNo(), "hPhoneExt");
+				String wPhoneExt = demographicExtDao.getValueForDemoKey(demographic.getDemographicNo(), "wPhoneExt");
+
+                if (StringUtils.filled(demographic.getEmail())) {
+                    contact.setEmailAddress(demographic.getEmail());
+                }
+
+				if (phoneNoValid(demographic.getPhone())) {
+					phoneExtTooLong = addPhone(demographic.getPhone(), hPhoneExt, PhoneNumberType.R, contact.addNewPhoneNumber());
+					if (phoneExtTooLong) {
+						exportError.add("Home phone extension too long, export trimmed for contact ("+(index+1)+") of Patient "+demoNo);
+					}
+				}
+
+				if (phoneNoValid(demographic.getPhone2())) {
+					phoneExtTooLong = addPhone(demographic.getPhone2(), wPhoneExt, PhoneNumberType.W, contact.addNewPhoneNumber());
+					if (phoneExtTooLong) {
+						exportError.add("Work phone extension too long, export trimmed for contact ("+(index+1)+") of Patient "+demoNo);
+					}
+				}
+
+				if (phoneNoValid(cell)) {
+					addPhone(cell, null, PhoneNumberType.C, contact.addNewPhoneNumber());
+				}
+            }
+        } else if(demoContact.getType() == DemographicContact.TYPE_CONTACT) {
+            Contact c = cDao.find(Integer.parseInt(contactId));
+
+            if (c != null) {
+                Util.writeNameSimple(contact.addNewName(), c.getFirstName(), c.getLastName());
+
+                if (StringUtils.filled(c.getEmail())) {
+                    contact.setEmailAddress(c.getEmail());
+                }
+
+				if (phoneNoValid(c.getResidencePhone())) {
+					phoneExtTooLong = addPhone(c.getResidencePhone(), null, PhoneNumberType.R, contact.addNewPhoneNumber());
+					if (phoneExtTooLong) {
+						exportError.add("Home phone extension too long, export trimmed for contact ("+(index+1)+") of Patient "+demoNo);
+					}
+				}
+
+				if (phoneNoValid(c.getWorkPhone())) {
+					phoneExtTooLong = addPhone(c.getWorkPhone(), c.getWorkPhoneExtension(), PhoneNumberType.W, contact.addNewPhoneNumber());
+					if (phoneExtTooLong) {
+						exportError.add("Work phone extension too long, export trimmed for contact ("+(index+1)+") of Patient "+demoNo);
+					}
+				}
+
+				if (phoneNoValid(c.getCellPhone())) {
+					addPhone(c.getCellPhone(), null, PhoneNumberType.C, contact.addNewPhoneNumber());
+				}
+            }
+        } else if(demoContact.getType() == DemographicContact.TYPE_PROFESSIONALSPECIALIST) {
+            ProfessionalSpecialist professionalSpecialist = professionalSpecialistDao.find(Integer.parseInt(contactId));
+
+            if (professionalSpecialist != null) {
+                Util.writeNameSimple(contact.addNewName(), professionalSpecialist.getFirstName(), professionalSpecialist.getLastName());
+
+                if (StringUtils.filled(professionalSpecialist.getEmailAddress())) {
+                    contact.setEmailAddress(professionalSpecialist.getEmailAddress());
+                }
+
+				if (phoneNoValid(professionalSpecialist.getPrivatePhoneNumber())) {
+					phoneExtTooLong = addPhone(professionalSpecialist.getPrivatePhoneNumber(), null, PhoneNumberType.R, contact.addNewPhoneNumber());
+					if (phoneExtTooLong) {
+						exportError.add("Home phone extension too long, export trimmed for contact ("+(index+1)+") of Patient "+demoNo);
+					}
+				}
+
+				if (phoneNoValid(professionalSpecialist.getPhoneNumber())) {
+					phoneExtTooLong = addPhone(professionalSpecialist.getPhoneNumber(), null, PhoneNumberType.W, contact.addNewPhoneNumber());
+					if (phoneExtTooLong) {
+						exportError.add("Work phone extension too long, export trimmed for contact ("+(index+1)+") of Patient "+demoNo);
+					}
+				}
+
+				if (phoneNoValid(professionalSpecialist.getCellPhoneNumber())) {
+					addPhone(professionalSpecialist.getCellPhoneNumber(), null, PhoneNumberType.C, contact.addNewPhoneNumber());
+				}
+            }
+        }
+
+        if (contact.getName() != null) {
+            if (StringUtils.empty(contact.getName().getFirstName())) {
+                exportError.add("Error! No First Name for contact ("+index+") for Patient "+demoNo);
+            }
+            if (StringUtils.empty(contact.getName().getLastName())) {
+                exportError.add("Error! No Last Name for contact ("+index+") for Patient "+demoNo);
+            }
+        } else {
+            exportError.add("Error! No Name for contact ("+index+") for Patient "+demoNo);
+        }
+    }
+
+
+    private void fillContactPurpose(String rel, Demographics.Contact contact) {
 		if (StringUtils.filled(rel)) {
 			cdsDt.PurposeEnumOrPlainText contactPurpose = contact.addNewContactPurpose();
 			if (rel.equals("Next of Kin")) contactPurpose.setPurposeAsEnum(cdsDt.PurposeEnumOrPlainText.PurposeAsEnum.NK);
