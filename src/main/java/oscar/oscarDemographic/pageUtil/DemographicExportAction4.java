@@ -75,6 +75,7 @@ import org.oscarehr.common.dao.Hl7TextMessageDao;
 import org.oscarehr.common.dao.OscarAppointmentDao;
 import org.oscarehr.common.dao.PartialDateDao;
 import org.oscarehr.common.dao.ProfessionalSpecialistDao;
+import org.oscarehr.common.exception.PatientDirectiveException;
 import org.oscarehr.common.model.Allergy;
 import org.oscarehr.common.model.Appointment;
 import org.oscarehr.common.model.Contact;
@@ -237,18 +238,21 @@ public class DemographicExportAction4 extends Action {
 				return mapping.findForward("fail");
 			}
 		} else {
-			if(demographicDao.getDemographic(demographicNo)!=null){
-				Demographic demographic = demographicDao.getDemographic(demographicNo);
-				Provider demographicProvider = providerDao.getProvider(demographic.getProviderNo());
-				if (setName.equalsIgnoreCase("unmatched") && demographicProvider != null) {
-					setName = demographicProvider.getFirstName() != null ? demographicProvider.getFirstName() + "_" : "";
-					setName += demographicProvider.getLastName() != null ? demographicProvider.getLastName() + "_" : "";
-					setName += demographicProvider.getOhipNo() != null ? demographicProvider.getOhipNo() : "";
-				}
-				
-				list.add(demographic);
-			}
+			try {
+				if(demographicNo!=null){
+					org.oscarehr.common.model.Demographic demographic = new DemographicData().getDemographic(loggedInInfo, demographicNo);
+					Provider demographicProvider = providerDao.getProvider(demographic.getProviderNo());
+					if (setName.equalsIgnoreCase("unmatched") && demographicProvider != null) {
+						setName = demographicProvider.getFirstName() != null ? demographicProvider.getFirstName() + "_" : "";
+						setName += demographicProvider.getLastName() != null ? demographicProvider.getLastName() + "_" : "";
+						setName += demographicProvider.getOhipNo() != null ? demographicProvider.getOhipNo() : "";
+					}
 
+					list.add(demographic);
+				}
+			} catch (PatientDirectiveException e) {
+				exportError.add("Error! " + "Patient "+demographicNo+ " has requested user not access record");
+			}
 		}
 
 	String ffwd = "fail";
@@ -2634,7 +2638,12 @@ public class DemographicExportAction4 extends Action {
 				}
 				if (StringUtils.filled(contactNote)) contact.setNote(contactNote);
 				
-				fillContactInfo(loggedInInfo, contact, demoContact, demoNo, j);
+				try {
+					fillContactInfo(loggedInInfo, contact, demoContact, demoNo, j);
+				} catch (PatientDirectiveException e) {
+					contact = null;
+					exportError.add("Error! Contact ("+j+") for Patient "+demoNo+ " has requested user not access record");
+				}
 			}
 		}
 	}
@@ -2666,7 +2675,6 @@ public class DemographicExportAction4 extends Action {
 				if (demoRel==null) continue;
 
 				Demographics.Contact contact = demo.addNewContact();
-
 				String ec=null, sdm=null, rel=null, contactNote=null;
 				//process multiple contact purposes
 				for (int k=j; k<demographicRelationships.size(); k++) {
@@ -2689,8 +2697,13 @@ public class DemographicExportAction4 extends Action {
 					contact.addNewContactPurpose().setPurposeAsEnum(cdsDt.PurposeEnumOrPlainText.PurposeAsEnum.SDM);
 				}
 				if (StringUtils.filled(contactNote)) contact.setNote(contactNote);
-
-				fillContactInfo(loggedInInfo, contact, contactId[j], demoNo, j);
+				
+				try {
+					fillContactInfo(loggedInInfo, contact, contactId[j], demoNo, j);
+				} catch (PatientDirectiveException e) {
+					contact = null;
+					exportError.add("Error! Contact ("+j+") for Patient "+demoNo+ " has requested user not access record");
+				}
 			}
 		}
 	}
@@ -2766,8 +2779,7 @@ public class DemographicExportAction4 extends Action {
                 }
             }
         } else if(demoContact.getType() == DemographicContact.TYPE_DEMOGRAPHIC) {
-            Demographic demographic = demographicDao.getClientByDemographicNo(Integer.parseInt(contactId));
-
+			org.oscarehr.common.model.Demographic demographic = new DemographicData().getDemographic(loggedInInfo, contactId);
             if (demographic != null) {
                 Util.writeNameSimple(contact.addNewName(), demographic.getFirstName(), demographic.getLastName());
 				String cell = demographicExtDao.getValueForDemoKey(demographic.getDemographicNo(), "demo_cell");
