@@ -391,12 +391,24 @@ public class DemographicExportAction4 extends Action {
 					if (StringUtils.filled(termReason))
 						enrolmentHistory.setTerminationReason(cdsDt.TerminationReasonCode.Enum.forString(termReason));
 				}
+				Provider mrp = providerDao.getProvider(demographic.getProviderNo());
+				if (mrp != null) {
+					Demographics.Enrolment.EnrolmentHistory.EnrolledToPhysician primaryPhysician = enrolmentHistory.addNewEnrolledToPhysician();
+					PersonNameSimple physicianName = primaryPhysician.addNewName();
+
+					physicianName.setFirstName(StringUtils.noNull(mrp.getFirstName()));
+					physicianName.setLastName(StringUtils.noNull(mrp.getLastName()));
+
+					if (StringUtils.filled(mrp.getOhipNo())) {
+						primaryPhysician.setOHIPPhysicianId(mrp.getOhipNo());
+					}
+				}
 				enrolmentHistoryArray.add(enrolmentHistory);
 			}
 
 			//Enrolment Status history
 			List<DemographicArchive> DAs = demoArchiveDao.findRosterStatusHistoryByDemographicNo(Integer.valueOf(demoNo));
-			String historyRS, historyRS1;
+			String historyRS, historyRS1, historyProviderNo;
 			Date historyRD, historyRD1, historyTD, historyTD1;
 			for (int i=0; i<DAs.size(); i++) {
 				if (enrolment == null) {
@@ -411,6 +423,8 @@ public class DemographicExportAction4 extends Action {
 				historyRD1 = i<DAs.size()-1 ? DAs.get(i+1).getRosterDate() : null;
 				historyTD = DAs.get(i).getRosterTerminationDate();
 				historyTD1 = i<DAs.size()-1 ? DAs.get(i+1).getRosterTerminationDate() : null;
+				
+				historyProviderNo = DAs.get(i).getProviderNo();
 
 				if (i==0) { //check history info with current
 					String rd = UtilDateUtilities.DateToString(historyRD);
@@ -435,6 +449,20 @@ public class DemographicExportAction4 extends Action {
 					if (StringUtils.filled(termReason))
 						enrolmentHistory.setTerminationReason(cdsDt.TerminationReasonCode.Enum.forString(termReason));
 				}
+				
+				Provider historyMrp = providerDao.getProvider(historyProviderNo);
+				if (historyMrp != null) {
+					Demographics.Enrolment.EnrolmentHistory.EnrolledToPhysician primaryPhysician = enrolmentHistory.addNewEnrolledToPhysician();
+					PersonNameSimple physicianName = primaryPhysician.addNewName();
+
+					physicianName.setFirstName(StringUtils.noNull(historyMrp.getFirstName()));
+					physicianName.setLastName(StringUtils.noNull(historyMrp.getLastName()));
+
+					if (StringUtils.filled(historyMrp.getOhipNo())) {
+						primaryPhysician.setOHIPPhysicianId(historyMrp.getOhipNo());
+					}
+				}
+
 				enrolmentHistoryArray.add(enrolmentHistory);
 			}
 			
