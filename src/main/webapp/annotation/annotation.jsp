@@ -98,7 +98,7 @@
     for (CaseManagementNoteLink link : cmll) {
 
         CaseManagementNote cmnote = cmm.getNote(link.getNoteId().toString());
-        if (cmnote.getNote().startsWith("imported.cms4.2011.06")) {
+        if (cmnote.getNote().startsWith("imported.cms")) {
             if (p_cmn_dump==null) p_cmn_dump = cmm.getNote(link.getNoteId().toString());
         } else {
             if (p_cmn==null) {
@@ -129,7 +129,7 @@
             note = p_cmn.getNote();
     }
     if (p_cmn_dump!=null) {
-        dump = p_cmn_dump.getNote().substring("imported.cms4.2011.06".length());
+        dump = p_cmn_dump.getNote().substring("imported.cms".length());
     }
     if (saved) {
 	String prog_no = new EctProgram(se).getProgram(user_no);

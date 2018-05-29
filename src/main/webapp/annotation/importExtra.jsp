@@ -69,8 +69,8 @@
     for (CaseManagementNoteLink link : lcml) {
 
         CaseManagementNote cmnote = cmm.getNote(link.getNoteId().toString());
-        if (cmnote.getNote().startsWith("imported.cms4.2011.06")) {
-        	dump = cmnote.getNote().substring("imported.cms4.2011.06".length());
+        if (cmnote.getNote().startsWith("imported.cms")) {
+        	dump = cmnote.getNote().substring("imported.cms".length());
         	break;
         }
     }

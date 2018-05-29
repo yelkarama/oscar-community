@@ -315,7 +315,7 @@ public class DemographicExportHelper {
 
 		for (CaseManagementNoteLink cml : cmll) {
 			CaseManagementNote n = cmm.getNote(cml.getNoteId().toString());
-			if (n.getNote() != null && !n.getNote().startsWith("imported.cms4.2011.06")) {//not from dumpsite
+			if (n.getNote() != null && !n.getNote().startsWith("imported.cms")) {//not from dumpsite
 				note = n.getNote();
 				break;
 			}

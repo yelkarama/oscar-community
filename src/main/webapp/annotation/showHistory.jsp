@@ -66,7 +66,7 @@
 
 <% for (CaseManagementNote cmn : lcmn) { 
       String showNote = cmn.getNote();
-      if (showNote.startsWith("imported.cms4.2011.06")) showNote = showNote.substring("imported.cms4.2011.06".length());
+      if (showNote.startsWith("imported.cms")) showNote = showNote.substring("imported.cms5.2017.06".length());
 %>
     <div style="width: 99%; background-color: #EFEFEF; font-size: 12px; border-left: thin groove #000000; border-bottom: thin groove #000000; border-right: thin groove #000000;">
 	<%=showNote%>

@@ -2201,7 +2201,7 @@ private String updateApptStatus(String status, String type) {
 				CaseManagementNote cmmn = getNote(link.getNoteId().toString());
 				if (cmmn == null) continue;
 
-				if (cmmn.getNote().startsWith("imported.cms4.2011.06")) {
+				if (cmmn.getNote().startsWith("imported.cms")) {
 					if (cml_dump == null) cml_dump = link;
 				} else {
 					if (cml_anno == null) cml_anno = link;

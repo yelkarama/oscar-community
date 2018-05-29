@@ -803,7 +803,7 @@ import oscar.util.UtilDateUtilities;
 
             //to dumpsite: Extra demographic data
             if (StringUtils.filled(extra)) {
-	            extra = Util.addLine("imported.cms4.2011.06", extra);
+	            extra = Util.addLine("imported.cms5.2017.06", extra);
 	            CaseManagementNote dmNote = prepareCMNote("2",null);
 	            dmNote.setNote(extra);
 	            saveLinkNote(dmNote, CaseManagementNoteLink.DEMOGRAPHIC, Long.valueOf(demographicNo));
@@ -972,7 +972,7 @@ import oscar.util.UtilDateUtilities;
                     addOneEntry(PERSONALHISTORY);
 
                     //to dumpsite
-                    residual = Util.addLine("imported.cms4.2011.06", residual);
+                    residual = Util.addLine("imported.cms5.2017.06", residual);
                     Long hostNoteId = cmNote.getId();
                     cmNote = prepareCMNote("2",null);
                     cmNote.setNote(residual);
@@ -1011,7 +1011,7 @@ import oscar.util.UtilDateUtilities;
                 saveLinkNote(hostNoteId, cmNote);
 
                 //to dumpsite
-                String dump = "imported.cms4.2011.06";
+                String dump = "imported.cms5.2017.06";
                 /*
                 String summary = fHist[i].getCategorySummaryLine();
                 if (StringUtils.empty(summary)) {
@@ -1091,7 +1091,7 @@ import oscar.util.UtilDateUtilities;
 
 
                     //to dumpsite
-                    String dump = "imported.cms4.2011.06";
+                    String dump = "imported.cms5.2017.06";
                     /*
                     String summary = pHealth[i].getCategorySummaryLine();
                     if (StringUtils.empty(summary)) {
@@ -1172,7 +1172,7 @@ import oscar.util.UtilDateUtilities;
 
 
                     //to dumpsite
-                    String dump = "imported.cms4.2011.06";
+                    String dump = "imported.cms5.2017.06";
                     /*
                     String summary = probList[i].getCategorySummaryLine();
                     if (StringUtils.empty(summary)) {
@@ -1251,7 +1251,7 @@ import oscar.util.UtilDateUtilities;
                     saveLinkNote(hostNoteId, cmNote);
 
                     //to dumpsite
-                    String dump = "imported.cms4.2011.06";
+                    String dump = "imported.cms5.2017.06";
                     /*
                     String summary = rFactors[i].getCategorySummaryLine();
                     if (StringUtils.empty(summary)) {
@@ -1329,7 +1329,7 @@ import oscar.util.UtilDateUtilities;
                     saveLinkNote(hostNoteId, cmNote);
 
                     //to dumpsite
-                    String dump = "imported.cms4.2011.06";
+                    String dump = "imported.cms5.2017.06";
                     /*
                     String summary = alerts[i].getCategorySummaryLine();
                     if (StringUtils.empty(summary)) {
@@ -1454,7 +1454,7 @@ import oscar.util.UtilDateUtilities;
                         		headNote.setCreate_date(createDate);
                         		headNote.setUpdate_date(createDate);
                         		headNote.setObservation_date(observeDate);
-                        		headNote.setNote("imported.cms4.2011.06"+uuid);
+                        		headNote.setNote("imported.cms5.2017.06"+uuid);
                         		caseManagementManager.saveNoteSimple(headNote);
                         	}
 
@@ -1468,7 +1468,7 @@ import oscar.util.UtilDateUtilities;
                     //to dumpsite
                     String noteType = cNotes[i].getNoteType();
                     if (StringUtils.filled(noteType)) {
-                    	noteType = Util.addLine("imported.cms4.2011.06", "Note Type: ", noteType);
+                    	noteType = Util.addLine("imported.cms5.2017.06", "Note Type: ", noteType);
                     }
 
                     CaseManagementNote dumpNote = prepareCMNote("2",null);
@@ -1538,7 +1538,7 @@ import oscar.util.UtilDateUtilities;
                     saveLinkNote(cmNote, CaseManagementNoteLink.ALLERGIES, Long.valueOf(allergyId));
 
                     //to dumpsite
-                    String dump = "imported.cms4.2011.06";
+                    String dump = "imported.cms5.2017.06";
                     /*
                     String summary = aaReactArray[i].getCategorySummaryLine();
                     if (StringUtils.empty(summary)) {
@@ -1766,7 +1766,7 @@ import oscar.util.UtilDateUtilities;
                     saveLinkNote(cmNote, CaseManagementNoteLink.DRUGS, (long)drug.getId());
 
                     //to dumpsite
-                    String dump = "imported.cms4.2011.06";
+                    String dump = "imported.cms5.2017.06";
                     /*
                     String summary = medArray[i].getCategorySummaryLine();
                     if (StringUtils.empty(summary)) {
@@ -1875,7 +1875,7 @@ import oscar.util.UtilDateUtilities;
 
                     //to dumpsite: Extra immunization data
                     if (StringUtils.filled(immExtra) && preventionId>=0) {
-        	            immExtra = Util.addLine("imported.cms4.2011.06", immExtra);
+        	            immExtra = Util.addLine("imported.cms5.2017.06", immExtra);
         	            CaseManagementNote imNote = prepareCMNote("2",null);
         	            imNote.setNote(immExtra);
         	            saveLinkNote(imNote, CaseManagementNoteLink.PREVENTIONS, Long.valueOf(preventionId));
@@ -2109,7 +2109,7 @@ import oscar.util.UtilDateUtilities;
 
                                 //to dumpsite: Extra report data
                                 if (StringUtils.filled(reportExtra)) {
-                    	            reportExtra = Util.addLine("imported.cms4.2011.06", reportExtra);
+                    	            reportExtra = Util.addLine("imported.cms5.2017.06", reportExtra);
                     	            CaseManagementNote rpNote = prepareCMNote("2",null);
                     	            rpNote.setNote(reportExtra);
                     	            saveLinkNote(rpNote, CaseManagementNoteLink.DOCUMENT, Long.valueOf(docNum));
@@ -3412,7 +3412,7 @@ import oscar.util.UtilDateUtilities;
 	                
 	                String labInfo = getLabDline(labResult, 0);
 	                if (StringUtils.filled(labInfo)) {
-	                    String dump = Util.addLine("imported.cms4.2011.06", labInfo);
+	                    String dump = Util.addLine("imported.cms5.2017.06", labInfo);
 	                    CaseManagementNote cmNote = prepareCMNote("2",null);
 	                    cmNote.setNote(dump);
 	                    saveLinkNote(cmNote, CaseManagementNoteLink.LABTEST, labNo.longValue(), "0-0");

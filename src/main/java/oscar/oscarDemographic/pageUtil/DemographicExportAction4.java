@@ -355,7 +355,7 @@ public class DemographicExportAction4 extends Action {
 			//Enrolment Status (Roster Status)
 			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 			Demographics.Enrolment enrolment = null;
-			List<Demographics.Enrolment.EnrolmentHistory> enrolmentHistoryArray = new ArrayList<>();
+			List<Demographics.Enrolment.EnrolmentHistory> enrolmentHistoryArray = new ArrayList<Demographics.Enrolment.EnrolmentHistory>();
 			Demographics.Enrolment.EnrolmentHistory enrolmentHistory;
 			String rosterStatus = demographic.getRosterStatus();
 			String rosterDate = "";
@@ -430,7 +430,7 @@ public class DemographicExportAction4 extends Action {
 			}
 			
 			if (enrolment != null && !enrolmentHistoryArray.isEmpty()) {
-				enrolment.setEnrolmentHistoryArray((Demographics.Enrolment.EnrolmentHistory[])enrolmentHistoryArray.toArray());
+				enrolment.setEnrolmentHistoryArray((Demographics.Enrolment.EnrolmentHistory[])enrolmentHistoryArray.toArray(new Demographics.Enrolment.EnrolmentHistory[enrolmentHistoryArray.size()]));
 			}
 
 			//Person Status (Patient Status)
@@ -545,7 +545,7 @@ public class DemographicExportAction4 extends Action {
 			//find all "header"; cms4 only
 			List<CaseManagementNote> headers = new ArrayList<CaseManagementNote>();
 			for (CaseManagementNote cmn : lcmn) {
-				if (cmn.getNote()!=null && cmn.getNote().startsWith("imported.cms4.2011.06") && cmm.getLinkByNote(cmn.getId()).isEmpty())
+				if (cmn.getNote()!=null && cmn.getNote().startsWith("imported.cms5.2017.06") && cmm.getLinkByNote(cmn.getId()).isEmpty())
 					headers.add(cmn);
 			}
 
@@ -583,7 +583,7 @@ public class DemographicExportAction4 extends Action {
 				}
 				if (!systemIssue && cmm.getLinkByNote(cmn.getId()).isEmpty()) { //this is not an annotation
 						encounter = cmn.getNote();
-						if (encounter.startsWith("imported.cms4.2011.06")) continue; //this is a "header", cms4 only
+						if (encounter.startsWith("imported.cms5.2017.06")) continue; //this is a "header", cms4 only
 				}
 
 				annotation = getNonDumpNote(CaseManagementNoteLink.CASEMGMTNOTE, cmn.getId(), null);
@@ -625,7 +625,7 @@ public class DemographicExportAction4 extends Action {
 						data.setDataType("String");
 						data.setContent(summary);
 						dataElementArray.add(data);
-						residualInformation.setDataElementArray((ResidualInformation.DataElement[]) dataElementArray.toArray());
+						residualInformation.setDataElementArray((ResidualInformation.DataElement[]) dataElementArray.toArray(new ResidualInformation.DataElement[dataElementArray.size()]));
 						personalHistory.setResidualInfo(residualInformation);
 					}
 				}
@@ -706,7 +706,7 @@ public class DemographicExportAction4 extends Action {
 						data.setDataType("String");
 						data.setContent(summary);
 						dataElementArray.add(data);
-						residualInformation.setDataElementArray((ResidualInformation.DataElement[]) dataElementArray.toArray());
+						residualInformation.setDataElementArray((ResidualInformation.DataElement[]) dataElementArray.toArray(new ResidualInformation.DataElement[dataElementArray.size()]));
 					}
 				}
 				if (exPastHealth) {
@@ -718,7 +718,7 @@ public class DemographicExportAction4 extends Action {
 						boolean diagnosisAssigned = false;
 						for (CaseManagementIssue isu : sisu) {
 							String codeSystem = isu.getIssue().getType();
-							if (!codeSystem.equals("system")) {
+							if (codeSystem != null && !codeSystem.equals("system")) {
 								if (diagnosisAssigned) {
 									summary = Util.addSummary(summary, "Diagnosis", isu.getIssue().getDescription());
 								} else {
@@ -779,7 +779,7 @@ public class DemographicExportAction4 extends Action {
 						data.setDataType("String");
 						data.setContent(summary);
 						dataElementArray.add(data);
-						residualInformation.setDataElementArray((ResidualInformation.DataElement[]) dataElementArray.toArray());
+						residualInformation.setDataElementArray((ResidualInformation.DataElement[]) dataElementArray.toArray(new ResidualInformation.DataElement[dataElementArray.size()]));
 					}
 				}
 				if (exProblemList) {
@@ -860,7 +860,7 @@ public class DemographicExportAction4 extends Action {
 						data.setDataType("String");
 						data.setContent(summary);
 						dataElementArray.add(data);
-						residualInformation.setDataElementArray((ResidualInformation.DataElement[]) dataElementArray.toArray());
+						residualInformation.setDataElementArray((ResidualInformation.DataElement[]) dataElementArray.toArray(new ResidualInformation.DataElement[dataElementArray.size()]));
 					}
 				}
 				if (exRiskFactors) {
@@ -931,7 +931,7 @@ public class DemographicExportAction4 extends Action {
 						data.setDataType("String");
 						data.setContent(summary);
 						dataElementArray.add(data);
-						residualInformation.setDataElementArray((ResidualInformation.DataElement[]) dataElementArray.toArray());
+						residualInformation.setDataElementArray((ResidualInformation.DataElement[]) dataElementArray.toArray(new ResidualInformation.DataElement[dataElementArray.size()]));
 					}
 				}
 
@@ -951,7 +951,7 @@ public class DemographicExportAction4 extends Action {
 						Date createDate = cmn.getCreate_date();
 						String uuid;
 						for (CaseManagementNote header : headers) {
-							uuid = header.getNote().substring("imported.cms4.2011.06".length());
+							uuid = header.getNote().substring("imported.cms5.2017.06".length());
 							if (uuid.equals(cmn.getUuid())) {
 								createDate = header.getCreate_date();
 							}
@@ -1034,7 +1034,7 @@ public class DemographicExportAction4 extends Action {
 						data.setDataType("String");
 						data.setContent(summary);
 						dataElementArray.add(data);
-						residualInformation.setDataElementArray((ResidualInformation.DataElement[]) dataElementArray.toArray());
+						residualInformation.setDataElementArray((ResidualInformation.DataElement[]) dataElementArray.toArray(new ResidualInformation.DataElement[dataElementArray.size()]));
 					}
 				}
 			}
@@ -1126,7 +1126,7 @@ public class DemographicExportAction4 extends Action {
 					data.setDataType("String");
 					data.setContent(aSummary);
 					dataElementArray.add(data);
-					residualInformation.setDataElementArray((ResidualInformation.DataElement[]) dataElementArray.toArray());
+					residualInformation.setDataElementArray((ResidualInformation.DataElement[]) dataElementArray.toArray(new ResidualInformation.DataElement[dataElementArray.size()]));
 				}
 			}
 			
@@ -1187,7 +1187,7 @@ public class DemographicExportAction4 extends Action {
 						data.setDataType("String");
 						data.setContent(phSummary);
 						dataElementArray.add(data);
-						residualInformation.setDataElementArray((ResidualInformation.DataElement[]) dataElementArray.toArray());
+						residualInformation.setDataElementArray((ResidualInformation.DataElement[]) dataElementArray.toArray(new ResidualInformation.DataElement[dataElementArray.size()]));
 					}
 				} else if (exImmunizations) {
 					imSummary = null;
@@ -1253,7 +1253,7 @@ public class DemographicExportAction4 extends Action {
 					data.setDataType("String");
 					data.setContent(imSummary);
 					dataElementArray.add(data);
-					residualInformation.setDataElementArray((ResidualInformation.DataElement[]) dataElementArray.toArray());
+					residualInformation.setDataElementArray((ResidualInformation.DataElement[]) dataElementArray.toArray(new ResidualInformation.DataElement[dataElementArray.size()]));
 				}
 			}
 
@@ -1493,7 +1493,7 @@ public class DemographicExportAction4 extends Action {
 					data.setDataType("String");
 					data.setContent(mSummary);
 					dataElementArray.add(data);
-					residualInformation.setDataElementArray((ResidualInformation.DataElement[]) dataElementArray.toArray());
+					residualInformation.setDataElementArray((ResidualInformation.DataElement[]) dataElementArray.toArray(new ResidualInformation.DataElement[dataElementArray.size()]));
 				}
 				arr = null;
 			}
@@ -2496,7 +2496,7 @@ public class DemographicExportAction4 extends Action {
 
 		for (CaseManagementNoteLink cml : cmll) {
 			CaseManagementNote n = cmm.getNote(cml.getNoteId().toString());
-			if (n.getNote()!=null && !n.getNote().startsWith("imported.cms4.2011.06")) {//not from dumpsite
+			if (n.getNote()!=null && !n.getNote().startsWith("imported.cms5.2017.06")) {//not from dumpsite
 				note = n.getNote();
 				break;
 			}
