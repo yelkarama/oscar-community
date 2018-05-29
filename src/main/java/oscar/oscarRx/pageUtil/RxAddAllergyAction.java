@@ -78,6 +78,9 @@ public final class RxAddAllergyAction extends Action {
             
             Allergy allergy = new Allergy();
             allergy.setDrugrefId(String.valueOf(id));
+            if (name != null && name.length() > 50) {
+                name = name.substring(0, 50);
+            }
             allergy.setDescription(name);
             allergy.setTypeCode(Integer.parseInt(type));
             allergy.setReaction(description);

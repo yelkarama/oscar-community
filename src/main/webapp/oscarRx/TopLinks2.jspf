@@ -116,7 +116,11 @@ if (rx_enhance!=null && rx_enhance.equals("true")) { %>
                     </td>
                     <td valign="top" align="right">
                         <span class="HelpAboutLogout" style="color:white;">
+							<% if (OscarProperties.getInstance().getBooleanProperty("use_fdb", "false")) { %>
 							<a style="color:white;" href="javascript: popupFocusPage(200,700,'./drugrefInfo.jsp','Drugref Info');" >Drugref Info</a> |
+							<% } else { %>
+							<a style="color: white;" href="javascript: popupFocusPage(950, 1100, 'https://www.fdbhealth.com/solutions/fdb-medknowledge-canada/');">First Databank Service v4.0.2</a>
+							<% } %>
 							<oscar:help keywords="&Title=Writing+Prescriptions&portal_type%3Alist=Document" key="app.top1" style="color:white;"/> |
                             <a style="color:white;" href="<%=request.getContextPath()%>/oscarEncounter/About.jsp" target="_new"><bean:message key="global.about" /></a>
                             <!-- is this needed? 
