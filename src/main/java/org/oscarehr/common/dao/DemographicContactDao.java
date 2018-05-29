@@ -98,6 +98,16 @@ public class DemographicContactDao extends AbstractDao<DemographicContact>{
         List<DemographicContact> dContacts = query.getResultList();
         return dContacts;
     }
+    
+    public List<DemographicContact> findActiveSubstituteDecisionMaker(Integer demographicNo) {
+		String sql = "select x from " + this.modelClass.getName() + " x where x.demographicNo=? and x.deleted=false and x.active=1 and x.type=1 and x.sdm='true'";
+		Query query = entityManager.createQuery(sql);
+		query.setParameter(1, demographicNo);
+		@SuppressWarnings("unchecked")
+		List<DemographicContact> dContacts = query.getResultList();
+		return dContacts;
+		
+	}
 
 	public List<DemographicContact> find(int demographicNo, int contactId) {
 		String sql = "select x from " + this.modelClass.getName() + " x where x.demographicNo=? and x.contactId = ? and x.deleted=false";

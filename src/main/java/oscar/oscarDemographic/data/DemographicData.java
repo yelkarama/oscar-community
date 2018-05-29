@@ -34,19 +34,26 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.oscarehr.common.dao.DemographicContactDao;
 import org.oscarehr.common.dao.DemographicCustDao;
 import org.oscarehr.common.model.Demographic;
+import org.oscarehr.common.model.DemographicContact;
 import org.oscarehr.common.model.DemographicCust;
+import org.oscarehr.common.model.Relationships;
 import org.oscarehr.managers.DemographicManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.SpringUtils;
 
+import oscar.OscarProperties;
+import oscar.util.ConversionUtils;
 import oscar.util.UtilDateUtilities;
 
 public class DemographicData {
 
+	private DemographicContactDao demographicContactDao = SpringUtils.getBean(DemographicContactDao.class);
 	private DemographicCustDao demographicCustDao = (DemographicCustDao)SpringUtils.getBean("demographicCustDao");
 	private DemographicManager demographicManager = SpringUtils.getBean(DemographicManager.class);
+	private OscarProperties oscarProperties = OscarProperties.getInstance();
 	
 	public DemographicData() {
 	}
@@ -170,11 +177,23 @@ public class DemographicData {
 
 	public Demographic getSubstituteDecisionMaker(LoggedInInfo loggedInInfo, String DemographicNo) {
 		Demographic demographic = null;
-		DemographicRelationship dr = new DemographicRelationship();
-		String demoNo = dr.getSDM(DemographicNo);
-		if (demoNo != null) {
-			demographic = getDemographic(loggedInInfo, demoNo);
+		
+		if (StringUtils.isNumeric(DemographicNo)) {
+			if (oscarProperties.isPropertyActive("NEW_CONTACTS_UI")) {
+				List<DemographicContact> results = demographicContactDao.findActiveSubstituteDecisionMaker(Integer.parseInt(DemographicNo));
+				
+				if (results != null && !results.isEmpty() && results.get(0) != null && results.get(0).getContactId() != null) {
+					demographic = getDemographic(loggedInInfo, results.get(0).getContactId());
+				}
+			} else {
+				DemographicRelationship dr = new DemographicRelationship();
+				String demoNo = dr.getSDM(DemographicNo);
+				if (demoNo != null) {
+					demographic = getDemographic(loggedInInfo, demoNo);
+				}
+			}
 		}
+
 		return demographic;
 	}
 
