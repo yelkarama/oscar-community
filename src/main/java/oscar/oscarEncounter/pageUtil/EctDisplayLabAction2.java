@@ -78,9 +78,6 @@ public class EctDisplayLabAction2 extends EctDisplayAction {
 				logger.debug("remote labs found : "+remoteResults.size());
 				labs.addAll(remoteResults);
 			}
-			if (!OscarProperties.getInstance().isPropertyActive("abnormal_labs_first")) {
-                Collections.sort(labs);
-            }
 
 			// set text for lefthand module title
 			Dao.setLeftHeading(messages.getMessage(request.getLocale(), "oscarEncounter.LeftNavBar.Labs"));
@@ -209,7 +206,9 @@ public class EctDisplayLabAction2 extends EctDisplayAction {
 				// item.setBgColour(bgcolour);
 				Dao.addItem(item);
 			}
-			Dao.sortItems(NavBarDisplayDAO.DATESORT_ASC);
+			if (!OscarProperties.getInstance().isPropertyActive("abnormal_labs_first")) {
+				Dao.sortItems(NavBarDisplayDAO.DATESORT_ASC);
+			}
 			return true;
 		}
 	}
