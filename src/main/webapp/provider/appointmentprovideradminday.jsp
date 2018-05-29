@@ -1666,7 +1666,6 @@ if (curProvider_no[provIndex].equals(provNum)) {
 	} else {
 %>
 
-<!-- caisi infirmary view extension add ffffffffffff-->
 <caisi:isModuleLoad moduleName="caisi">
 <table><tr><td align="right">
     <caisi:ProgramExclusiveView providerNo="<%=curUser_no%>" value="appointment">
@@ -1692,14 +1691,9 @@ if (curProvider_no[provIndex].equals(provNum)) {
 		session.setAttribute("infirmaryView_isOscar", "true");
 	%>
 </caisi:isModuleLoad>
-<!-- caisi infirmary view extension add end ffffffffffffff-->
 
 
 <logic:notEqual name="infirmaryView_isOscar" value="false">
-
-<%
-	//session.setAttribute("case_program_id", null);
-%>
 	<!--  multi-site , add site dropdown list -->
  <%
  	if (bMultisites) {
@@ -2171,7 +2165,7 @@ for(nProvider=0;nProvider<numProvider;nProvider++) {
 	 }
      bColor=bColor?false:true;
 %>
-            <td valign="top" width="<%=isWeekView?100/7:100/numProvider%>%"> <!-- for the first provider's schedule -->
+            <td valign="top" width="<%=isWeekView?100/7:100/numProvider%>%">
 
         <table border="0" cellpadding="0" bgcolor="#fff" cellspacing="0" width="100%"><!-- for the first provider's name -->
           <tr><td valign="top">
@@ -2696,9 +2690,9 @@ Boolean displayAppointmentReason = appointment.getReason() != null && appointmen
 	    if (enhancedOrClassic == null || (enhancedOrClassic != null && enhancedOrClassic.getValue() != null && enhancedOrClassic.getValue().equals("C"))) {
 	%>
 		&#124; <a href=# onClick='popupPage(755,1200, "../billing.do?billRegion=<%=URLEncoder.encode(prov)%>&billForm=<%=URLEncoder.encode(oscarVariables.getProperty("default_view"))%>&hotclick=<%=URLEncoder.encode("")%>&appointment_no=<%=appointment.getId()%>&demographic_name=<%=URLEncoder.encode(name)%>&status=<%=status%>&demographic_no=<%=demographic_no%>&providerview=<%=curProvider_no[nProvider]%>&user_no=<%=curUser_no%>&apptProvider_no=<%=curProvider_no[nProvider]%>&appointment_date=<%=year+"-"+month+"-"+day%>&start_time=<%=start_time%>&bNewForm=1");return false;' title="<bean:message key="global.billingtag"/>"><bean:message key="provider.appointmentProviderAdminDay.btnB"/></a>
-    <% } if (enhancedOrClassic != null && enhancedOrClassic.getValue() != null && enhancedOrClassic.getValue().equals("E")) { %>
-    &#124; <a href=# onClick='popupPage(755,1200, "/kaiemr/app/components/billing/?demographicNo=<%=demographic_no%>&appointmentNo=<%=appointment.getId()%>");return false;' title="<bean:message key="global.billingtag"/>">B2</a>
-    <% } %>
+			  <% } if (enhancedOrClassic != null && enhancedOrClassic.getValue() != null && enhancedOrClassic.getValue().equals("E")) { %>
+			  &#124; <a href=# onClick='popupPage(755,1200, "/kaiemr/app/components/billing/?demographicNo=<%=demographic_no%>&appointmentNo=<%=appointment.getId()%>");return false;' title="<bean:message key="global.billingtag"/>">B</a>
+			  <% } %>
 	<% 
 	}
 	else 

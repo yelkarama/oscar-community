@@ -1179,10 +1179,10 @@ if(wLReadonly.equals("")){
 					title="<bean:message key="demographic.demographiceditdemographic.msgBillPatient"/>"><bean:message key="demographic.demographiceditdemographic.msgCreateInvoice"/></a></td>
 			</tr>
 <% 		}
-	if (OscarProperties.getInstance().getBooleanProperty("new_billing", "true") && enhancedOrClassic != null && enhancedOrClassic.getValue() != null && enhancedOrClassic.getValue().equals("E")) { %>
+	if (enhancedOrClassic != null && enhancedOrClassic.getValue() != null && enhancedOrClassic.getValue().equals("E")) { %>
 	<tr>
 		<td>
-			<a href="javascript: function myFunction() {return false; }" onClick='popupPage(755,1200, "/kaiemr/app/components/billing/?demographicNo=<%=demographic_no%>");return false;' title="<bean:message key="global.billingtag"/>">Invoice2</a>
+			<a href="javascript: function myFunction() {return false; }" onClick='popupPage(755,1200, "/kaiemr/app/components/billing/?demographicNo=<%=demographic_no%>");return false;' title="<bean:message key="global.billingtag"/>">Create Invoice</a>
 		</td>
 	</tr>
 <% } %>
