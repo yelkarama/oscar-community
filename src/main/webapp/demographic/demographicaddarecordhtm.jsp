@@ -621,6 +621,15 @@ function ignoreDuplicates() {
 
 </script>
 </head>
+	<%!
+			public String getDisabled(String fieldName) {
+				String val = OscarProperties.getInstance().getProperty("demographic.edit." + fieldName, "");
+				if (val != null && val.equals("disabled")) {
+					return " disabled=\"disabled\" ";
+				}
+				return "";
+			}
+	%>
 <!-- Databases have alias for today. It is not necessary give the current date -->
 
 <body bgproperties="fixed" topmargin="0"
@@ -1170,7 +1179,7 @@ function ignoreDuplicates() {
 
 				<% if (showSin) {%>
 				<td align="right"><b>SIN:</b></td>
-				<td align="left"><input type="text" name="sin" <%=getDisabled("sin")%> size="30" value="<%=StringUtils.trimToEmpty(demographic.getSin())%>"></td>
+				<td align="left"><input type="text" name="sin" <%=getDisabled("sin")%> size="30" value=""></td>
 				<%}%>
 	<td  id="cytologyLbl" align="right"><b> <bean:message key="demographic.demographicaddrecordhtm.cytolNum"/>:</b> </td>
 	<td id="cytologyCell" align="left"  >
