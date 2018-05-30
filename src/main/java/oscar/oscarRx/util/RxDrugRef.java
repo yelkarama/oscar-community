@@ -762,6 +762,17 @@ public class RxDrugRef {
          
          return vec;
      }
+
+
+    public Hashtable<String, Vector> getInteractionsUsingFdb(Vector drugs) throws Exception {
+        removeNullFromVector(drugs);
+        Vector vec = new Vector();
+        Vector params = new Vector();
+        params.addElement("interactions_byDIN");
+        params.addElement(drugs);
+        return (Hashtable<String, Vector>) callWebserviceLite("fetch", params);
+    }
+     
        
     public Vector getAlergyWarnings(String drugs,Vector allergies)throws Exception{
          Vector params = new Vector();

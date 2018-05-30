@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
@@ -38,6 +39,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.Vector;
+
+import org.apache.commons.lang.StringUtils;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
 
@@ -73,7 +76,9 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import oscar.OscarProperties;
+import oscar.oscarRx.data.RxDrugData;
 import oscar.oscarRx.data.RxPatientData;
+import oscar.oscarRx.data.RxPrescriptionData;
 import oscar.oscarRx.util.MyDrugrefComparator;
 import oscar.oscarRx.util.RxDrugRef;
 import oscar.oscarRx.util.RxUtil;
@@ -164,7 +169,11 @@ public final class RxMyDrugrefInfoAction extends DispatchAction {
         	codes.addAll(d.getAllergyClasses(vec));
         }
         //String[] str = new String[]{"warnings_byATC","bulletins_byATC","interactions_byATC"};
-        String[] str = new String[]{"atcfetch/getWarnings","atcfetch/getBulletins","atcfetch/getInteractions"};   //NEW more efficent way of sending multiple requests at the same time.
+        List<String> str = new ArrayList<String>();   //NEW more efficent way of sending multiple requests at the same time.
+        if (OscarProperties.getInstance().isPropertyActive("rx_show_dchan_warnings")) {
+            str.add("atcfetch/getWarnings");
+            str.add("atcfetch/getBulletins");
+        }
         MessageResources mr=getResources(request);
         Locale locale = getLocale(request);
 
@@ -179,6 +188,35 @@ public final class RxMyDrugrefInfoAction extends DispatchAction {
         log2.debug("Interaction, local + remote drug atc codes : "+codes);   
 
         Vector all = new Vector();
+        
+        if (OscarProperties.getInstance().isPropertyActive("use_fdb")) {
+            RxDrugData.Interaction[] interactions = (RxDrugData.Interaction[]) bean.getInteractions();
+            RxPrescriptionData rxData = new RxPrescriptionData();
+            Vector dinCodes = new Vector<Object>(bean.getRegionalIdentifier());
+
+            RxDrugRef drugRef = new RxDrugRef();
+            Hashtable<String, Vector> fdbInteractions = drugRef.getInteractionsUsingFdb(dinCodes);
+
+            for (Object drugInteractionObj : fdbInteractions.get("First Databank Service")) {
+                Hashtable<String, String> drugInteraction = (Hashtable<String, String>) drugInteractionObj;
+                Hashtable<String, Object> displayInteraction = new Hashtable<String, Object>();
+                displayInteraction.put("is_fdb", "true");
+                displayInteraction.put("id", drugInteraction.get("interaction_id"));
+                displayInteraction.put("name", drugInteraction.get("interaction_name"));
+                displayInteraction.put("author", "First Databank Service");
+                displayInteraction.put("created_by", "First Databank Service");
+                displayInteraction.put("trusted", true);
+                displayInteraction.put("body", drugInteraction.get("comment"));
+                displayInteraction.put("comments", new Vector<>());
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+                displayInteraction.put("updated_at", sdf.parse(drugInteraction.get("update_date")));
+                displayInteraction.put("significance", drugInteraction.get("significance"));
+                all.add(displayInteraction);
+            }
+        } else if (OscarProperties.getInstance().isPropertyActive("rx_show_dchan_warnings")) {
+            str.add("atcfetch/getInteractions");
+        }
+        
         for (String command : str){
             try{
                 Vector v = getMyDrugrefInfo(loggedInInfo,command, codes, provider, myDrugrefId);
@@ -193,7 +231,7 @@ public final class RxMyDrugrefInfoAction extends DispatchAction {
             }
         }
         
-        if(OscarProperties.getInstance().isPropertyActive("RX_INTERACTION_LOCAL_DRUGREF_REGIONAL_IDENTIFIER")){
+        if(OscarProperties.getInstance().isPropertyActive("RX_INTERACTION_LOCAL_DRUGREF_REGIONAL_IDENTIFIER") && !OscarProperties.getInstance().isPropertyActive("use_fdb")){
         	List regionalIdentifiers = bean.getRegionalIdentifier();
         	if (loggedInInfo.getCurrentFacility().isIntegratorEnabled()){
         		ArrayList<String> remoteDrugRegionalIdentiferCodes=RemoteDrugAllergyHelper.getRegionalIdentiferCodesFromRemoteDrugs(loggedInInfo, bean.getDemographicNo());
@@ -300,13 +338,17 @@ public final class RxMyDrugrefInfoAction extends DispatchAction {
         Vector<String> currentIdWarnings=new Vector();
         for(int i=0;i<all.size();i++){
             Hashtable ht=(Hashtable)all.get(i);
-            Date dt=(Date)ht.get("updated_at");
-            Long time=dt.getTime();
-            String idWarning=ht.get("id")+"."+time;
-            if(!currentIdWarnings.contains(idWarning)){
-                currentIdWarnings.add(idWarning);
+            if (ht.get("updated_at") instanceof Date) {
+                Date dt = (Date) ht.get("updated_at");
+                Long time = dt.getTime();
+                String idWarning = ht.get("id") + "." + time;
+                if (!currentIdWarnings.contains(idWarning)) {
+                    currentIdWarnings.add(idWarning);
+                    allRetVec.add(ht);
+                    //idWarningVec.add(idWarning);
+                }
+            } else {
                 allRetVec.add(ht);
-                //idWarningVec.add(idWarning);
             }
         }
         MiscUtils.getLogger().debug("currentIdWarnings is  "+currentIdWarnings);

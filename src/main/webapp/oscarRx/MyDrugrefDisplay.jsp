@@ -112,11 +112,11 @@ trusted truejava.lang.Boolean ? i think
 
 <div id="<%=elementId%>"
 	<%=outputHtmlClass(trustedResource,hideResource)%>
-	style="font-size: 9pt;<%=hidden%>background-color:<%=sigColor(""+ht.get("significance"))%>;margin-right:3px;margin-left:3px;margin-top:2px;padding-left:3px;padding-top:3px;padding-bottom:3px;">
+	style="font-size: 9pt;<%=hidden%>background-color:<%=sigColor(""+ht.get("significance"))%>;margin-right:3px;margin-left:3px;margin-top:2px;padding-left:3px;padding-top:3px;padding-bottom:3px;min-width: 130px;">
 <span style="float: right;"><a href="javascript:void(0);"
 	onclick="HideW('<%=ht.get("id")%>.<%=getTime(ht.get("updated_at"))%>','<%=ht.get("id")%>','<%=getTime(ht.get("updated_at"))%>')">Hide</a></span>
         <%=interactStr%><br/>
-<b><%=ht.get("name")%></b> From:<%=s(ht.get("author"))%> <br/>
+<b><%=(ht.get("name") != null ? ht.get("name") : "")%></b> From:<%=s(ht.get("author"))%> <br/>
 Last Update:<%=s(lastUpdateDate)%><br/>
 
 <%if(bodyStr.length() > 90){%>
@@ -128,10 +128,15 @@ Last Update:<%=s(lastUpdateDate)%><br/>
 <%=ht.get("body")%>
 <%}%>
      <br/><!--br/><%--=interactStr--%><br/-->
-<% String ref = (String)ht.get("reference");%> <%if (commentsVec != null && commentsVec.size() > 0){ %>
+	<% if (commentsVec != null && commentsVec.size() > 0){ %>
 <a style="float: right;" href="javascript:void(0);"
 	onclick="$('comm.<%=ht.get("id")%>.<%=getTime(ht.get("updated_at"))%>').toggle();">comments</a>
-<%}%> (<%=ht.get("evidence")%>) &nbsp;Reference: <a href="<%=ht.get("reference")%>" target="_blank"><%= StringUtils.maxLenString(ref, 51, 50, "...") %></a>
+<%}%> 
+	<%=(ht.get("evidence") != null)?"(" + ht.get("evidence") + ")":""%>
+	<% String ref = (String)ht.get("reference");
+	if (ref != null) { %>
+	&nbsp;Reference: <a href="<%=ht.get("reference")%>" target="_blank"><%= StringUtils.maxLenString(ref, 51, 50, "...") %></a>
+	<% } %>
 
 
 

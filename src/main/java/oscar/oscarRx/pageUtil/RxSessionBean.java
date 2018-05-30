@@ -253,7 +253,10 @@ public class RxSessionBean  implements java.io.Serializable {
         }
         else {
             stash.add(item);
-            preloadInteractions();
+
+            if (!OscarProperties.getInstance().isPropertyActive("use_fdb")) {
+                preloadInteractions();
+            }
             preloadAllergyWarnings(loggedInInfo, item.getAtcCode());
 
 
