@@ -140,6 +140,7 @@ if(!authed) {
 <%@page import="org.oscarehr.util.SessionConstants"%>
 <%@ page import="oscar.log.LogAction" %>
 <%@ page import="oscar.log.LogConst" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 <html:html
 	locale="true">
 
@@ -862,6 +863,9 @@ text-align:left;
 		<input type="hidden" id="preventProcedureDate<%=i%>-<%=k%>"
 			name="preventProcedureDate<%=i%>-<%=k%>"
 			value="<%=hdata.get("prevention_date_no_time")%>">
+		<input type="hidden" id="preventProcedureBy<%=i%>-<%=k%>"
+			   name="preventProcedureBy<%=i%>-<%=k%>"
+			   value="<%=StringUtils.trimToEmpty(hdata.get("provider_name") != null ? hdata.get("provider_name").toString() : "")%>"/>
                     <%  String comments = hExt.get("comments");
                         if (comments != null && !comments.isEmpty() && OscarProperties.getInstance().getBooleanProperty("prevention_show_comments","true")) {%>      
                 <input type="hidden" id="preventProcedureComments<%=i%>-<%=k%>"

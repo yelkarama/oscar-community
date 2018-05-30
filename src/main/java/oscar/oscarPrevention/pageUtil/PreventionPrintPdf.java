@@ -195,7 +195,7 @@ public class PreventionPrintPdf {
         upperYcoord = document.top() - header.getHeight() -(clinicParagraph.getLeading()*4f) - font.getCalculatedLeading(LINESPACING);
         
         int subIdx;
-        String preventionHeader, procedureAge, procedureDate, procedureLotNumber, procedureStatus, procedureResult;
+        String preventionHeader, procedureAge, procedureDate, procedureLotNumber, procedureProvider, procedureStatus, procedureResult;
         
         //1 - obtain number of lines of incoming prevention data
         boolean showComments = OscarProperties.getInstance().getBooleanProperty("prevention_show_comments", "true");        
@@ -250,8 +250,9 @@ public class PreventionPrintPdf {
             procedureAge = currentPrevention.getString("preventionAge");
             procedureDate = currentPrevention.getString("preventionDate");
             procedureLotNumber = currentPrevention.getString("preventionLot");
+            procedureProvider = currentPrevention.getString("preventionProvider");
             procedureStatus = currentPrevention.getString("preventionStatus");
-            procedureResult = currentPrevention.getString("preventionResult");            
+            procedureResult = currentPrevention.getString("preventionResult");
 
             //Age
             Phrase procedure = new Phrase(LEADING, "Age:", FontFactory.getFont(FontFactory.HELVETICA, 10, Font.NORMAL, Color.BLACK));
@@ -269,6 +270,11 @@ public class PreventionPrintPdf {
                 procedure.add(new Chunk(procedureLotNumber, FontFactory.getFont(FontFactory.HELVETICA, 9, Font.NORMAL, Color.BLACK)));
                 procedure.add(Chunk.NEWLINE);
             }
+
+            //Date
+            procedure.add("Completed By:");
+            procedure.add(new Chunk(procedureProvider, FontFactory.getFont(FontFactory.HELVETICA, 9, Font.NORMAL, Color.BLACK)));
+            procedure.add(Chunk.NEWLINE);
 
             //Status
             procedure.add("Status:");
@@ -454,7 +460,7 @@ public class PreventionPrintPdf {
         JSONObject currentPrevention = new JSONObject();
         PreventionExtDao preventionExtDao = (PreventionExtDao) SpringUtils.getBean("preventionExtDao");
 
-        String preventionName, preventionAge, preventionDate, preventionStatus, preventionComments, preventionId;
+        String preventionName, preventionAge, preventionDate, preventionStatus, preventionComments, preventionId, preventionProvider;
 
         int mainIndex = 0;
         int subIndex = 0;
@@ -470,6 +476,7 @@ public class PreventionPrintPdf {
                 preventionDate = request.getParameter("preventProcedureDate" + headerIds[mainIndex] + "-" + subIndex);
                 preventionStatus = request.getParameter("preventProcedureStatus" + headerIds[mainIndex] + "-" + subIndex);
                 preventionId = request.getParameter("preventProcedureId" + headerIds[mainIndex] + "-" + subIndex);
+                preventionProvider = request.getParameter("preventProcedureBy" + headerIds[mainIndex] + "-" + subIndex);
                 preventionStatus = readableStatuses.get(preventionStatus);
                 
                 preventionComments = request.getParameter("preventProcedureComments" + headerIds[mainIndex] + "-" + subIndex);
@@ -492,6 +499,7 @@ public class PreventionPrintPdf {
                 currentPrevention.put("preventionStatus", preventionStatus);
                 currentPrevention.put("preventionComments", preventionComments);
                 currentPrevention.put("preventionResult", result);
+                currentPrevention.put("preventionProvider", preventionProvider);
 
                 //Adding it to list
                 preventionItems.add(currentPrevention);
