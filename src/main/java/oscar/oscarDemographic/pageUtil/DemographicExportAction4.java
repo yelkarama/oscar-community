@@ -227,7 +227,7 @@ public class DemographicExportAction4 extends Action {
 		boolean exLaboratoryResults = WebUtils.isChecked(request, "exLaboratoryResults");
 		boolean exAppointments = WebUtils.isChecked(request, "exAppointments");
 		boolean exClinicalNotes = WebUtils.isChecked(request, "exClinicalNotes");
-		boolean exReportsReceived = WebUtils.isChecked(request, "exReports");
+		boolean exReportsReceived = WebUtils.isChecked(request, "exReportsReceived");
 		boolean exAlertsAndSpecialNeeds = WebUtils.isChecked(request, "exAlertsAndSpecialNeeds");
 		boolean exCareElements = WebUtils.isChecked(request, "exCareElements");
 
