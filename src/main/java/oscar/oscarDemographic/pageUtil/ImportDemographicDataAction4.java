@@ -574,7 +574,7 @@ import oscar.util.UtilDateUtilities;
             err_data.add("Error! No Unique Vendor ID Sequence");
         }
 
-        String address="", city="", province="", postalCode="";
+        String address="", city="", province="", postalCode="", addressMailing="", cityMailing="", provinceMailing="", postalCodeMailing="";
             cdsDt.Address[] addresses = demo.getAddressArray();
             if (addresses.length>0) {
                 for (int i = 0; i < addresses.length; i++) {
@@ -619,18 +619,16 @@ import oscar.util.UtilDateUtilities;
                         }
                     }
                     
-                    if (i == 0) {
+                    if (addr.getAddressType() == AddressType.R) {
                         address = tempAddress;
                         city = tempCity;
                         province = tempProvince;
                         postalCode = tempPostalCode;
-                    } else if (StringUtils.filled(tempAddress)){
-                        extra = Util.addLine(extra, addressType + "Address:");
-                        extra = Util.addLine(extra, tempAddress);
-                        if (StringUtils.filled(tempCity) && StringUtils.filled(tempProvince) && StringUtils.filled(postalCode)) {
-                            extra = Util.addLine(extra, tempCity + ", " + tempProvince);
-                            extra = Util.addLine(extra, tempPostalCode);
-                        }
+                    } else if (addr.getAddressType() == AddressType.M){
+                        addressMailing = tempAddress;
+                        cityMailing = tempCity;
+                        provinceMailing = tempProvince;
+                        postalCodeMailing = tempPostalCode;
                     }
                 } 
             }
@@ -809,6 +807,10 @@ import oscar.util.UtilDateUtilities;
 	            saveLinkNote(dmNote, CaseManagementNoteLink.DEMOGRAPHIC, Long.valueOf(demographicNo));
             }
 
+            demographicExtDao.addKey(primaryPhysician, Integer.parseInt(demographicNo), "address_mailing", StringUtils.noNull(addressMailing));
+            demographicExtDao.addKey(primaryPhysician, Integer.parseInt(demographicNo), "city_mailing", StringUtils.noNull(cityMailing));
+            demographicExtDao.addKey(primaryPhysician, Integer.parseInt(demographicNo), "province_mailing", StringUtils.noNull(provinceMailing));
+            demographicExtDao.addKey(primaryPhysician, Integer.parseInt(demographicNo), "postal_mailing", StringUtils.noNull(postalCodeMailing));
             if (!workExt.equals("")) demographicExtDao.addKey(primaryPhysician, Integer.parseInt(demographicNo), "wPhoneExt", workExt);
             if (!homeExt.equals("")) demographicExtDao.addKey(primaryPhysician, Integer.parseInt(demographicNo), "hPhoneExt", homeExt);
             if (!cellPhone.equals("")) demographicExtDao.addKey(primaryPhysician, Integer.parseInt(demographicNo), "demo_cell", cellPhone);
@@ -2545,7 +2547,7 @@ import oscar.util.UtilDateUtilities;
 		String[] csdc = countrySubDivCode.split("-");
 		if (csdc.length==2) {
 			if (csdc[0].trim().equals("CA")) return csdc[1].trim(); //return w/o "CA-"
-			if (csdc[1].trim().equals("US")) return countrySubDivCode.trim(); //return w/ "US-"
+			if (csdc[0].trim().equals("US")) return countrySubDivCode.trim(); //return w/ "US-"
 		}
 		return "OT"; //Other
 	}

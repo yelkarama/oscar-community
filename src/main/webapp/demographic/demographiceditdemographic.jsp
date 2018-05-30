@@ -2039,6 +2039,7 @@ if ( Dead.equals(PatStat) ) {%>
                                                     <li><span class="label"><bean:message
                                                             key="demographic.demographicaddrecordhtm.formPhoneComment" />:</span>
                                                         <span class="info"><%=StringUtils.trimToEmpty(demoExt.get("phoneComment"))%></span></li>
+							<li><span class="info">Residential</span></li>
                                                     <li><span class="label"><bean:message
                                                             key="demographic.demographiceditdemographic.formAddr" />(<span class="popup"  onmouseover="nhpup.popup(addressHistory);" title="Address History">History</span>):</span>
                                                         <span class="info"><%=StringUtils.trimToEmpty(demographic.getAddress())%></span>
@@ -2061,6 +2062,35 @@ if ( Dead.equals(PatStat) ) {%>
 			                                  out.print(oscarProps.getProperty("demographicLabelPostal"));
                                                                                } %>:</span>
                                                        <span class="info"><%=StringUtils.trimToEmpty(demographic.getPostal())%></span></li>
+							<li><span class="info">Mailing</span></li>
+							<li>
+								<span class="label">
+									<bean:message key="demographic.demographiceditdemographic.formAddr" />:
+								</span>
+								<span class="info"><%=StringUtils.trimToEmpty(demoExt.get("address_mailing"))%></span>
+							</li>
+							<li>
+								<span class="label"><bean:message key="demographic.demographiceditdemographic.formCity" />:</span>
+								<span class="info"><%=StringUtils.trimToEmpty(demoExt.get("city_mailing"))%></span>
+							</li>
+							<li>
+								<span class="label">
+									<% if(oscarProps.getProperty("demographicLabelProvince") == null) { %>
+									<bean:message key="demographic.demographiceditdemographic.formProcvince" /> 
+									<% } else { 
+									    out.print(oscarProps.getProperty("demographicLabelProvince")); 
+									} %>:
+								</span>
+								<span class="info"><%=StringUtils.trimToEmpty(StringUtils.trimToEmpty(demoExt.get("province_mailing")))%></span></li>
+							<li>
+								<span class="label">
+									<% if(oscarProps.getProperty("demographicLabelPostal") == null) { %>
+									<bean:message key="demographic.demographiceditdemographic.formPostal" /> 
+									<% } else {
+										out.print(oscarProps.getProperty("demographicLabelPostal")); 
+									} %>:
+								</span>
+								<span class="info"><%=StringUtils.trimToEmpty(StringUtils.trimToEmpty(demoExt.get("postal_mailing")))%></span></li>
 
                                                     <li><span class="label"><bean:message
                                                             key="demographic.demographiceditdemographic.formEmail" />:</span>

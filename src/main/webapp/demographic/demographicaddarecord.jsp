@@ -309,6 +309,10 @@
 		}
 
        String proNo = (String) session.getValue("user");
+	   demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "address_mailing", request.getParameter("address_mailing"), "");
+	   demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "city_mailing", request.getParameter("city_mailing"), "");
+	   demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "province_mailing", request.getParameter("province_mailing"), "");
+	   demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "postal_mailing", request.getParameter("postal_mailing"), "");
        demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "hPhoneExt", request.getParameter("hPhoneExt"), "");
        demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "wPhoneExt", request.getParameter("wPhoneExt"), "");
        demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "demo_cell", request.getParameter("demo_cell"), "");

@@ -355,6 +355,22 @@
 		extensions.add(new DemographicExt(request.getParameter("reminder_preference_id"), proNo, demographicNo, "reminder_preference", request.getParameter("reminder_preference")));
 	}
 
+	if (!StringUtils.trimToEmpty(demoExt.get("address_mailing")).equals(StringUtils.trimToEmpty(request.getParameter("address_mailing")))) {
+		extensions.add(new DemographicExt(request.getParameter("address_mailing"), proNo, demographicNo, "address_mailing", request.getParameter("address_mailing")));
+	}
+
+	if (!StringUtils.trimToEmpty(demoExt.get("city_mailing")).equals(StringUtils.trimToEmpty(request.getParameter("city_mailing")))) {
+		extensions.add(new DemographicExt(request.getParameter("city_mailing"), proNo, demographicNo, "city_mailing", request.getParameter("city_mailing")));
+	}
+
+	if (!StringUtils.trimToEmpty(demoExt.get("province_mailing")).equals(StringUtils.trimToEmpty(request.getParameter("province_mailing")))) {
+		extensions.add(new DemographicExt(request.getParameter("province_mailing"), proNo, demographicNo, "province_mailing", request.getParameter("province_mailing")));
+	}
+
+	if (!StringUtils.trimToEmpty(demoExt.get("postal_mailing")).equals(StringUtils.trimToEmpty(request.getParameter("postal_mailing")))) {
+		extensions.add(new DemographicExt(request.getParameter("postal_mailing"), proNo, demographicNo, "postal_mailing", request.getParameter("postal_mailing")));
+	}
+
 	if (!StringUtils.trimToEmpty(demoExt.get("insurance_company")).equals(StringUtils.trimToEmpty(request.getParameter("insurance_company")))) {
 		extensions.add(new DemographicExt(request.getParameter("insurance_company_id"), proNo, demographicNo, "insurance_company", request.getParameter("insurance_company")));
 	}

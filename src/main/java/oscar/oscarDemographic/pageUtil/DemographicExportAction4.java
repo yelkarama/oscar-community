@@ -580,6 +580,19 @@ public class DemographicExportAction4 extends Action {
 				}
 			}
 
+			if (StringUtils.filled(demoExt.get("address_mailing"))) {
+				cdsDt.Address addr = demo.addNewAddress();
+				cdsDt.AddressStructured address = addr.addNewStructured();
+
+				addr.setAddressType(cdsDt.AddressType.M);
+				address.setLine1(demoExt.get("address_mailing"));
+				if (StringUtils.filled(demoExt.get("city_mailing")) || StringUtils.filled(demoExt.get("province_mailing")) || StringUtils.filled(demoExt.get("postal_mailing"))) {
+					address.setCity(StringUtils.noNull(demoExt.get("city_mailing")));
+					address.setCountrySubdivisionCode(StringUtils.noNull(demoExt.get("province_mailing")));
+					address.addNewPostalZipCode().setPostalCode(StringUtils.noNull(demoExt.get("postal_mailing")).replace(" ",""));
+				}
+			}
+
 			boolean phoneExtTooLong = false;
 			if (phoneNoValid(demographic.getPhone())) {
 				phoneExtTooLong = addPhone(demographic.getPhone(), demoExt.get("hPhoneExt"), cdsDt.PhoneNumberType.R, demo.addNewPhoneNumber());
