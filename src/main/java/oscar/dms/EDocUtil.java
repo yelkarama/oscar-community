@@ -667,6 +667,7 @@ public final class EDocUtil {
 			currentdoc.setResponsibleId(d.getResponsible());
 			currentdoc.setDocClass(d.getDocClass());
 			currentdoc.setDocSubClass(d.getDocSubClass());
+			currentdoc.setDescription(d.getDocdesc());
 			if (d.getProgramId() != null) {
 				currentdoc.setProgramId(d.getProgramId());
 			}

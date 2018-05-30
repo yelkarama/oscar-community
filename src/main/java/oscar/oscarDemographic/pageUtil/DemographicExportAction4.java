@@ -1775,6 +1775,8 @@ public class DemographicExportAction4 extends Action {
 						String docSubClass = edoc.getDocSubClass();
 						if (StringUtils.filled(docSubClass)) {
 							rpr.setSubClass(docSubClass);
+						} else if (StringUtils.filled(edoc.getDescription())) {
+							rpr.setSubClass(edoc.getDescription());
 						}
 						String obsDateStr = edoc.getObservationDate();
 						Date observationDate = UtilDateUtilities.StringToDate(obsDateStr, "yyyy/MM/dd");
