@@ -2608,43 +2608,46 @@ public class DemographicExportAction4 extends Action {
 		List<DemographicContact> demoContacts = contactDao.findByDemographicNo(Integer.valueOf(demoNo));
 		DemographicContact demoContact;
 
-		//create a list of contactIds
-		String[] contactId = new String[demoContacts.size()];
-		for (int j=0; j<demoContacts.size(); j++) {
-			demoContact = demoContacts.get(j);
-			if (demoContact!=null) contactId[j] = demoContact.getContactId();
-		}
-
 	LoopContacts:
-		for (int j=0; j<demoContacts.size(); j++) {
-			if (StringUtils.filled(contactId[j])) {
-				//if this contact is a duplicate, skip
-				//multiple contact purposes are processed later
-				for (int k=0; k<j; k++) {
-					if (contactId[j].equals(contactId[k])) {
+		for (int j=0; j < demoContacts.size(); j++) {
+			if (StringUtils.filled(demoContacts.get(j).getContactId())) {
+
+				demoContact = demoContacts.get(j);
+				
+				// If this contact is a duplicate, skip
+				// Multiple contact purposes are processed later
+				for (int k = 0; k < j; k++) {
+					if (demoContact.getType() == demoContacts.get(k).getType() && demoContact.getContactId().equals(demoContacts.get(k).getContactId())) {
 						continue LoopContacts;
 					}
 				}
-				demoContact = demoContacts.get(j);
-				if (demoContact==null) continue;
 
 				Demographics.Contact contact = demo.addNewContact();
 
 				String ec=null, sdm=null, rel=null, contactNote=null;
-				//process multiple contact purposes
-				for (int k=j; k<demoContacts.size(); k++) {
-					demoContact = demoContacts.get(k);
-					if (demoContact==null) continue;
-					if (!contactId[j].equals(demoContact.getContactId())) continue;
+				// Process multiple contact purposes
+				DemographicContact duplicateContact;
+				for (int k = j; k < demoContacts.size(); k++) {
+					duplicateContact = demoContacts.get(k);
+					if (!(demoContact.getType() == duplicateContact.getType() && demoContact.getContactId().equals(duplicateContact.getContactId()))) {
+						continue;
+					}
 
-					rel = demoContact.getRole();
-					if (StringUtils.empty(ec)) ec = demoContact.getEc();
-					if (StringUtils.empty(sdm)) sdm = demoContact.getSdm();
+					rel = duplicateContact.getRole();
+					
+					if (StringUtils.empty(ec)) {
+						ec = duplicateContact.getEc();
+					}
+					
+					if (StringUtils.empty(sdm)) {
+						sdm = duplicateContact.getSdm();
+					}
 
 					fillContactPurpose(rel, contact);
-					contactNote = Util.addLine(contactNote, demoContact.getNote());
+					contactNote = Util.addLine(contactNote, duplicateContact.getNote());
 
 				}
+				
 				if ("true".equalsIgnoreCase(ec)) {
 					contact.addNewContactPurpose().setPurposeAsEnum(cdsDt.PurposeEnumOrPlainText.PurposeAsEnum.EC);
 				}

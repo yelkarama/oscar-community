@@ -259,7 +259,7 @@
 											} else if (DemographicContact.CONTACT_PHONE.equals(dc.getBestContact()) && StringUtils.trimToNull(details.getResidencePhone()) != null) {
 												preferredContact = details.getResidencePhone();
 											} else if (DemographicContact.CONTACT_WORK.equals(dc.getBestContact()) && StringUtils.trimToNull(details.getWorkPhone()) != null) {
-												preferredContact = details.getWorkPhone();
+												preferredContact = details.getWorkPhone() + (details.getWorkPhoneExtension().isEmpty() ? "" : "  ext: " + details.getWorkPhoneExtension());
 											}
 										}
 									} else {

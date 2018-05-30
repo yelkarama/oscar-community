@@ -315,11 +315,13 @@ function setContactCategoryType(category, typeSelect) {
         $('#contact_phone').val('').removeAttr('disabled');
         $('#contact_cell').val('').removeAttr('disabled');
         $('#contact_work').val('').removeAttr('disabled');
+        $('#contact_work_extension').val('').removeAttr('disabled');
         $('#contact_email').val('').removeAttr('disabled');
     } else {
         $('#contact_phone').val('').attr('disabled', 'disabled');
         $('#contact_cell').val('').attr('disabled', 'disabled');
         $('#contact_work').val('').attr('disabled', 'disabled');
+        $('#contact_work_extension').val('').attr('disabled', 'disabled');
         $('#contact_email').val('').attr('disabled', 'disabled');
     }
 }
@@ -376,11 +378,13 @@ function setValues(contact) {
             $('#contact_phone').removeAttr('disabled');
             $('#contact_cell').removeAttr('disabled');
             $('#contact_work').removeAttr('disabled');
+            $('#contact_work_extension').removeAttr('disabled');
             $('#contact_email').removeAttr('disabled');
         }
         $('#contact_phone').val(contact.details.residencePhone ? contact.details.residencePhone : notSet);
         $('#contact_cell').val(contact.details.cellPhone ? contact.details.cellPhone : notSet);
         $('#contact_work').val(contact.details.workPhone ? contact.details.workPhone : notSet);
+        $('#contact_work_extension').val(contact.details.workPhoneExtension ? contact.details.workPhoneExtension : notSet);
         $('#contact_email').val(contact.details.email ? contact.details.email : notSet);
     }
 

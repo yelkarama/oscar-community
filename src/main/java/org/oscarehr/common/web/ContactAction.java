@@ -149,6 +149,7 @@ public class ContactAction extends DispatchAction {
                                 StringUtils.trimToEmpty(request.getParameter("contact_phone")),
                                 StringUtils.trimToEmpty(request.getParameter("contact_cell")),
                                 StringUtils.trimToEmpty(request.getParameter("contact_work")),
+								StringUtils.trimToEmpty(request.getParameter("contact_work_extension")),
                                 StringUtils.trimToEmpty(request.getParameter("contact_email"))
                         );
                         if (category.equals("professional")) {
@@ -205,6 +206,7 @@ public class ContactAction extends DispatchAction {
                         externalContact.setCellPhone(StringUtils.trimToEmpty(request.getParameter("contact_cell")));
                         externalContact.setResidencePhone( StringUtils.trimToEmpty(request.getParameter("contact_phone")));
                         externalContact.setWorkPhone(StringUtils.trimToEmpty(request.getParameter("contact_work")));
+						externalContact.setWorkPhoneExtension(StringUtils.trimToEmpty(request.getParameter("contact_work_extension")));
                         externalContact.setEmail(StringUtils.trimToEmpty(request.getParameter("contact_email")));
 
                         if (category.equals("personal")) {
@@ -899,12 +901,14 @@ public class ContactAction extends DispatchAction {
 			if (demographic != null) {
 				c.setContactName(demographic.getFormattedName());
 				String cell = demographicExtDao.getValueForDemoKey(demographic.getDemographicNo(), "demo_cell");
-
+				String workExtension = demographicExtDao.getValueForDemoKey(demographic.getDemographicNo(), "wPhoneExt");
+				
 				details = new Contact();
 				details.setCellPhone(StringUtils.trimToNull(cell));
 				details.setEmail(StringUtils.trimToNull(demographic.getEmail()));
 				details.setResidencePhone(StringUtils.trimToNull(demographic.getPhone()));
 				details.setWorkPhone(StringUtils.trimToNull(demographic.getPhone2()));
+				details.setWorkPhoneExtension(StringUtils.trimToNull(workExtension));
 				c.setDetails(details);
 			}
 		} else if(c.getType() == DemographicContact.TYPE_CONTACT) {

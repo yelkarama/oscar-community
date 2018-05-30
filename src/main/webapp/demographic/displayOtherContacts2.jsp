@@ -204,7 +204,7 @@
                         } else if (DemographicContact.CONTACT_PHONE.equals(dContact.getBestContact()) && StringUtils.trimToNull(details.getResidencePhone()) != null) {
                             preferredContact = details.getResidencePhone()  + " (main)";;
                         } else if (DemographicContact.CONTACT_WORK.equals(dContact.getBestContact()) && StringUtils.trimToNull(details.getWorkPhone()) != null) {
-                            preferredContact = details.getWorkPhone()  + " (work)";;
+                            preferredContact = details.getWorkPhone()  + "  ext: "+ details.getWorkPhoneExtension() + " (work)";;
                         }
                     } else {
                         preferredContact = "<span class=\"text-danger\" style=\"font-weight: bold\">No Consent</span>";

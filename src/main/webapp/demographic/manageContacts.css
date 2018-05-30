@@ -30,7 +30,9 @@ tr.inactive {
     width: 50%;
     display: inline;
 }
-
+.list-group-item input[type="text"]#contact_work_extension {
+    width:20%;
+}
 
 
 .list-group-item input[disabled],

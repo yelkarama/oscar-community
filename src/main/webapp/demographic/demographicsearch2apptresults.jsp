@@ -322,6 +322,7 @@ function selectContactJson(index) {
         opener.document.contactForm.elements['contact_phone'].value = contact.phone ? contact.phone : 'Not Set';
         opener.document.contactForm.elements['contact_cell'].value = contact.cell ? contact.cell : 'Not Set';
         opener.document.contactForm.elements['contact_work'].value = contact.work ? contact.work : 'Not Set';
+        opener.document.contactForm.elements['contact_work_extension'].value = contact.workExt ? contact.workExt : 'Not Set';
         opener.document.contactForm.elements['contact_email'].value = contact.email ? contact.email : 'Not Set';
 
         opener.document.contactForm.elements['contact_contactName'].onchange();
@@ -473,6 +474,7 @@ function addNameCaisi(demographic_no,lastname,firstname,chartno,messageID) {
 			contactJson.put("cell", demographicExtDao.getValueForDemoKey(demo.getDemographicNo(), "demo_cell"));
 			contactJson.put("phone", demo.getPhone());
 			contactJson.put("work", demo.getPhone2());
+			contactJson.put("workExt", demographicExtDao.getValueForDemoKey(demo.getDemographicNo(), "wPhoneExt"));
 			contactJson.put("email", demo.getEmail()); %>
 	<script type="text/javascript">
 		contactResults.push(<%=contactJson%>)

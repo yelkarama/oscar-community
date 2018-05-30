@@ -110,6 +110,9 @@
                     <input type="text" id="contact_work" name="contact_work" class="form-control input-sm" disabled="disabled" onchange="checkContactMethodField('work')" onblur="checkContactMethodField('work')" maxlength="16" />
 
                     <input type="radio" name="contact_bestContact" value="work" title="Set as preferred contact method" ondblclick="$(this).prop('checked', false);" style="float: right"/>
+                    
+                    <span class="label label-default">Ext.</span> &nbsp;&nbsp;
+                    <input type="text" id="contact_work_extension" name="contact_work_extension" class="form-control input-sm" disabled="disabled" onchange="checkContactMethodField('work')" onblur="checkContactMethodField('work')" maxlength="16" />
                 </li>
                 <li class="list-group-item">
                     <span class="label label-default">Email</span> &nbsp;&nbsp;

@@ -70,12 +70,13 @@ public class Contact extends AbstractModel<Integer> {
 	public Contact() {
 	}
 
-	public Contact(String lastName, String firstName, String residencePhone, String cellPhone, String workPhone, String email) {
+	public Contact(String lastName, String firstName, String residencePhone, String cellPhone, String workPhone, String workPhoneExtension, String email) {
 		this.lastName = lastName;
 		this.firstName = firstName;
 		this.residencePhone = residencePhone;
 		this.cellPhone = cellPhone;
 		this.workPhone = workPhone;
+		this.workPhoneExtension = workPhoneExtension;
 		this.email = email;
 	}
 
