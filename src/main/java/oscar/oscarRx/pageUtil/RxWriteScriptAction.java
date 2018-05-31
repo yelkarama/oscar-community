@@ -1214,10 +1214,12 @@ public final class RxWriteScriptAction extends DispatchAction {
 							special = rx.getCustomName() + newline + rx.getSpecial();
 							if (rx.getSpecialInstruction() != null && !rx.getSpecialInstruction().equalsIgnoreCase("null") && rx.getSpecialInstruction().trim().length() > 0) special += newline + rx.getSpecialInstruction();
 							special += newline + "Qty:" + rx.getQuantity() + " " + rx.getDispensingUnits() + " Repeats:" + "" + rx.getRepeat();
+							special += newline + "Refill Duration:" + rx.getRefillDuration() + " Refill Qty:" + rx.getRefillQuantity();
 						} else {
 							special = rx.getCustomName() + newline + rx.getSpecial();
 							if (rx.getSpecialInstruction() != null && !rx.getSpecialInstruction().equalsIgnoreCase("null") && rx.getSpecialInstruction().trim().length() > 0) special += newline + rx.getSpecialInstruction();
 							special += newline + "Qty:" + rx.getQuantity() + " " + rx.getUnitName() + " Repeats:" + "" + rx.getRepeat();
+							special += newline + "Refill Duration:" + rx.getRefillDuration() + " Refill Qty:" + rx.getRefillQuantity();
 						}
 					} else {// non-custom drug
 						if (rx.getUnitName() == null) {
@@ -1225,10 +1227,12 @@ public final class RxWriteScriptAction extends DispatchAction {
 							if (rx.getSpecialInstruction() != null && !rx.getSpecialInstruction().equalsIgnoreCase("null") && rx.getSpecialInstruction().trim().length() > 0) special += newline + rx.getSpecialInstruction();
 
 							special += newline + "Qty:" + rx.getQuantity() + " " + rx.getDispensingUnits() + " Repeats:" + "" + rx.getRepeat();
+							special += newline + "Refill Duration:" + rx.getRefillDuration() + " Refill Qty:" + rx.getRefillQuantity();
 						} else {
 							special = rx.getBrandName() + newline + rx.getSpecial();
 							if (rx.getSpecialInstruction() != null && !rx.getSpecialInstruction().equalsIgnoreCase("null") && rx.getSpecialInstruction().trim().length() > 0) special += newline + rx.getSpecialInstruction();
 							special += newline + "Qty:" + rx.getQuantity() + " " + rx.getUnitName() + " Repeats:" + "" + rx.getRepeat();
+							special += newline + "Refill Duration:" + rx.getRefillDuration() + " Refill Qty:" + rx.getRefillQuantity();
 						}
 					}
 
