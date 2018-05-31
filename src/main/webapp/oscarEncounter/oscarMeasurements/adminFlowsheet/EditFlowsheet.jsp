@@ -360,15 +360,16 @@ Flowsheet: <span style="font-weight:normal"><%=flowsheet.toUpperCase()%></span>
 		    	
 		    	MeasurementTemplateFlowSheetConfig mfc = MeasurementTemplateFlowSheetConfig.getInstance() ;
 		    	
-		    	FlowSheetItem item = mfc.getItemFromString(cust.getPayload());
+		    	
 
 		    	try{
-		    	if(item.getMeasurementType()!=null){
-		    	mtype=item.getMeasurementType();
-		    	//out.print(mtype);
-		    	}
-		    	}catch(Exception e){
-	             //do nothing   
+                    FlowSheetItem item = mfc.getItemFromString(cust.getPayload());
+                    
+                    if(item.getMeasurementType() != null){
+                        mtype = item.getMeasurementType();
+		    	    }
+		    	} catch (Exception e){
+	                //do nothing
 	            }
 		    %>
 		       <tr><td><a href="FlowSheetCustomAction.do?method=archiveMod&id=<%=cust.getId()%>&flowsheet=<%=flowsheet%><%=demographicStr%><%=htQueryString%>" class="action-icon"><i class="icon-trash"></i></a> </td> 

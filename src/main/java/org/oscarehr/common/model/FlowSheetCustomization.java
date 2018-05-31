@@ -72,6 +72,8 @@ public class FlowSheetCustomization extends AbstractModel<Integer>{
     @Column(name="archived_date")
     @Temporal(TemporalType.TIMESTAMP)
     private Date archivedDate = null;
+    @Column(name="universal")
+    private Boolean universal = true;
 
 
     public String toString(){
@@ -159,4 +161,10 @@ public class FlowSheetCustomization extends AbstractModel<Integer>{
         this.archivedDate = archivedDate;
     }
 
+    public Boolean getUniversal() {
+        return universal;
+    }
+    public void setUniversal(Boolean universal) {
+        this.universal = universal;
+    }
 }

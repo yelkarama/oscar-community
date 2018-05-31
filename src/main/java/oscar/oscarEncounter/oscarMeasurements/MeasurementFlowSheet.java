@@ -224,9 +224,8 @@ public class MeasurementFlowSheet {
         itemList.put(placement, item.getItemName(), item);
     }
 
-    public void setToHidden(String measurement){
-         FlowSheetItem item = (FlowSheetItem) itemList.get(measurement);
-         item.setHide(true);
+    public void deleteMeasurement(String measurement){
+         itemList.remove(measurement);
     }
 
 

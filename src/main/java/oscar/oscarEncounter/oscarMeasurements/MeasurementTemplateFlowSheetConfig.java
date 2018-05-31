@@ -789,7 +789,7 @@ public class MeasurementTemplateFlowSheetConfig implements InitializingBean {
 
 
                 }else if(FlowSheetCustomization.DELETE.equals(cust.getAction())){
-                    personalizedFlowsheet.setToHidden(cust.getMeasurement());
+                    personalizedFlowsheet.deleteMeasurement(cust.getMeasurement());
                     log.debug(" CUST DELETE");
                 }else{
                     log.debug("ERR"+cust);
