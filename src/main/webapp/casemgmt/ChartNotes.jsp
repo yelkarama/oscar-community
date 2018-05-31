@@ -590,7 +590,10 @@ try
 
 	</div>
 	<script type="text/javascript">
-
+        jQuery(document).ready(function(){
+            initTimer();
+        });
+        
 		if (parseInt(navigator.appVersion)>3) {
 			var windowHeight=750;
 			if (navigator.appName=="Netscape") {
@@ -607,7 +610,12 @@ try
 
 	<div id='save' style="width: 99%; background-color: #CCCCFF; padding-top: 5px; margin-left: 2px; border-left: thin solid #000000; border-right: thin solid #000000; border-bottom: thin solid #000000;">
 		<security:oscarSec roleName="<%=roleName$%>" objectName="_casemgmt.notes" rights="w" reverse="false">
-			<span style="float: right; margin-right: 5px;">
+            <div style="text-align: center; padding-bottom: 5px;" class="echart-timer">
+                <label id="timer__display" title="Paste to encounter"></label>
+                <span id="timer__start-pause" title="Pause" class="glyphicon glyphicon-pause"></span>
+                <span id="timer__restart" title="Restart" class="glyphicon glyphicon-refresh"></span>
+            </div>
+            <span style="float: right; margin-right: 5px;">
 				<input type="hidden" name="updateParent" value="<%=updateParent%>"/>
 			<%
 

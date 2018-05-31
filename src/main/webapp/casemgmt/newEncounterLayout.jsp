@@ -97,6 +97,7 @@
 <link rel="stylesheet" href="<c:out value="${ctx}"/>/css/casemgmt.css" type="text/css">
 <link rel="stylesheet" href="<c:out value="${ctx}"/>/oscarEncounter/encounterStyles.css" type="text/css">
 <link rel="stylesheet" type="text/css" href="<c:out value="${ctx}"/>/css/print.css" media="print">
+<link rel="stylesheet" type="text/css" href="<c:out value="${ctx}"/>/library/bootstrap/3.0.0/css/bootstrap.css">
 
 <!-- 
 <script src="<c:out value="${ctx}/js/jquery.js"/>"></script>
@@ -108,7 +109,7 @@
 
 <script src="<c:out value="${ctx}"/>/share/javascript/prototype.js" type="text/javascript"></script>
 <script src="<c:out value="${ctx}"/>/share/javascript/scriptaculous.js" type="text/javascript"></script>
-
+<script type="text/javascript" src="../js/timer.js"></script>
 <script type="text/javascript" src="<c:out value="${ctx}"/>/js/messenger/messenger.js"> </script>
 <script type="text/javascript" src="<c:out value="${ctx}"/>/js/messenger/messenger-theme-future.js"> </script>
 <link rel="stylesheet" type="text/css" href="<c:out value="${ctx}"/>/js/messenger/messenger.css"> </link>
