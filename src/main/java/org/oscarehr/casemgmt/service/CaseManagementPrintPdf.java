@@ -148,13 +148,13 @@ public class CaseManagementPrintPdf {
         //set up document title and header
         ResourceBundle propResource = ResourceBundle.getBundle("oscarResources");
         String title = propResource.getString("oscarEncounter.pdfPrint.title") + " " + (String)request.getAttribute("demoName") + "\n";
-        String gender = propResource.getString("oscarEncounter.pdfPrint.gender") + " " + (String)request.getAttribute("demoSex") + "\n";
-        String dob = propResource.getString("oscarEncounter.pdfPrint.dob") + " " + (String)request.getAttribute("demoDOB") + "\n";
+        String gender = propResource.getString("oscarEncounter.pdfPrint.gender") + " " + (String)request.getAttribute("demoSex") + "  ";
+        String dob = propResource.getString("oscarEncounter.pdfPrint.dob") + " " + (String)request.getAttribute("demoDOB") + "  ";
         String age = propResource.getString("oscarEncounter.pdfPrint.age") + " " + (String)request.getAttribute("demoAge") + "\n";
         String city = propResource.getString("oscarEncounter.pdfPrint.city") + " " + (String)request.getAttribute("demoCity") + "\n";
         String bandNumber = propResource.getString("oscarEncounter.pdfPrint.bandNumber") + " " + (String)request.getAttribute("demoBandNumber") + "\n";
         String mrp = propResource.getString("oscarEncounter.pdfPrint.mrp") + " " + (String)request.getAttribute("mrp") + "\n";
-        List<String> headerInfo = new ArrayList<String>(Arrays.asList(title, gender, dob, age));
+        List<String> headerInfo = new ArrayList<String>(Arrays.asList(title, gender + dob + age));
         
         if (OscarProperties.getInstance().isPropertyActive("FIRST_NATIONS_MODULE")) {
             headerInfo.add(city);
