@@ -63,6 +63,7 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.upload.FormFile;
+import org.apache.tika.Tika;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 import org.oscarehr.PMmodule.model.Program;
@@ -2053,6 +2054,7 @@ import oscar.util.UtilDateUtilities;
                                 if (StringUtils.filled(repR[i].getFileExtensionAndVersion())) {
                                     contentType = repR[i].getFileExtensionAndVersion();
                                     docFileName += Util.mimeToExt(contentType);
+                                    contentType = new Tika().detect(docFileName);
                                 } else {
                                     if (binaryFormat) err_data.add("Error! No File Extension for Report ("+(i+1)+")");
                                 }
