@@ -42,6 +42,8 @@ import com.quatro.dao.security.SecuserroleDao;
 import com.quatro.model.security.Secobjprivilege;
 import com.quatro.model.security.Secuserrole;
 
+import javax.servlet.http.HttpSession;
+
 @Service
 public class SecurityInfoManager {
 	public static final String READ = "r";
@@ -137,7 +139,9 @@ public class SecurityInfoManager {
 			if (noMatchingRoleToSpecificPatient) v = OscarRoleObjectPrivilege.getPrivilegeProp(objectName);
 			
 			if (!noMatchingRoleToSpecificPatient && OscarRoleObjectPrivilege.checkPrivilege(roleNames, (Properties)v.get(0), (List<String>)v.get(1), (List<String>)v.get(2), NORIGHTS)) {
-					throw new PatientDirectiveException("Patient has requested user not access record");
+				HttpSession returnSession = loggedInInfo.getSession();
+				returnSession.setAttribute("accountLocked", true);
+				loggedInInfo.setSession(returnSession);
 			} else  if (OscarRoleObjectPrivilege.checkPrivilege(roleNames, (Properties)v.get(0), (List<String>)v.get(1), (List<String>)v.get(2), "x")) {
 				return true;
 			}

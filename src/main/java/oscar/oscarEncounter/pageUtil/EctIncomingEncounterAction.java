@@ -96,6 +96,10 @@ public class EctIncomingEncounterAction extends Action {
 		String demoNo = request.getParameter("demographicNo");
 
 		if(!securityInfoManager.hasPrivilege(LoggedInInfo.getLoggedInInfoFromSession(request), "_demographic", "r", null)) {
+            if (loggedInInfo.getSession().getAttribute("accountLocked") != null) {
+                loggedInInfo.getSession().removeAttribute("accountLocked");
+                return mapping.findForward("accountLocked");
+            }
 			throw new SecurityException("missing required security object (_demographic)");
 		}
 		
