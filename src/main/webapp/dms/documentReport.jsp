@@ -479,8 +479,7 @@ function popup1(height, width, url, windowName){
             href="?sort=type&function=<%=module%>&functionid=<%=moduleid%>&view=<%=view%>&viewstatus=<%=viewstatus%>">
                 <bean:message key="dms.documentReport.msgType"/></a></b></td>
           <td width="12%"><b><a
-            href="?sort=creator&function=<%=module%>&functionid=<%=moduleid%>&view=<%=view%>&viewstatus=<%=viewstatus%>"><bean:message
-            key="dms.documentReport.msgCreator" /></a></b></td>
+            href="?sort=creator&function=<%=module%>&functionid=<%=moduleid%>&view=<%=view%>&viewstatus=<%=viewstatus%>">Importer</a></b></td>
           <td width="12%"><b><a
             href="?sort=responsible&function=<%=module%>&functionid=<%=moduleid%>&view=<%=view%>&viewstatus=<%=viewstatus%>">
             <bean:message key="dms.documentReport.msgResponsible"/></a></b></td>

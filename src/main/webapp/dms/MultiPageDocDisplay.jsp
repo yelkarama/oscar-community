@@ -754,10 +754,17 @@ function sendMRP(ele){
 									</tr>
 
                                     <tr>
-                                        <td><bean:message key="dms.documentReport.msgCreator"/>:</td>
+                                        <td>Importer:</td>
                                         <td><%=curdoc.getCreatorName()%></td>
                                     </tr>
-
+                                    <tr>
+                                        <td>Source Author:</td>
+                                        <td><input type="text" id="source_<%=docId%>" name="source" size="15" value="<%=StringUtils.noNull(curdoc.getSource())%>"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Source Facility:</td>
+                                        <td><input type="text" id="source_facility_<%=docId%>" name="source_facility" size="15" value="<%=StringUtils.noNull(curdoc.getSourceFacility())%>"/></td>
+                                    </tr>
                                     <tr>
                                         <td colspan="2" align="right"><a id="saveSucessMsg_<%=docId%>" style="display:none;color:blue;"><bean:message key="inboxmanager.document.SuccessfullySavedMsg"/></a><%if(!demographicID.equals("-1")){%><input type="submit" name="save" tabindex="<%=tabindex++%>" id="save<%=docId%>" value="Save" /><%} else{%><input type="submit" name="save" tabindex="<%=tabindex++%>" id="save<%=docId%>" disabled value="Save" /> <%}%></td>
                                     </tr>
