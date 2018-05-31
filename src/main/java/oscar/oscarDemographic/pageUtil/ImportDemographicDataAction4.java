@@ -1839,6 +1839,12 @@ import oscar.util.UtilDateUtilities;
                         preventionExt.add(ht);
                     }
 
+                    if (immuArray[i].getImmunizationCode() != null && "DIN".equalsIgnoreCase(immuArray[i].getImmunizationCode().getCodingSystem()) && StringUtils.filled(immuArray[i].getImmunizationCode().getValue())) {
+                        Map<String,String> ht = new HashMap<String,String>();
+                        ht.put("din", immuArray[i].getImmunizationCode().getValue());
+                        preventionExt.add(ht);
+                    }
+
                     if (StringUtils.filled(immuArray[i].getNotes())) {
                         Map<String,String> ht = new HashMap<String,String>();
                         ht.put("comments", immuArray[i].getNotes());

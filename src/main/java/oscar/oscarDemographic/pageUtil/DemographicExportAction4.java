@@ -44,6 +44,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import cds.PersonalHistoryDocument;
+import cdsDt.Code;
 import cdsDt.DiabetesComplicationScreening;
 import cdsDt.PersonNameSimple;
 import cdsDt.PhoneNumberType;
@@ -1278,6 +1279,11 @@ public class DemographicExportAction4 extends Action {
 					if (StringUtils.filled((String)extraData.get("route"))) immu.setRoute((String)extraData.get("route"));
 					if (StringUtils.filled((String)extraData.get("location"))) immu.setSite((String)extraData.get("location"));
 					if (StringUtils.filled((String)extraData.get("dose"))) immu.setDose((String)extraData.get("dose"));
+					if (StringUtils.filled((String)extraData.get("din"))) {
+						Code immunizationCode = immu.addNewImmunizationCode();
+						immunizationCode.setCodingSystem("DIN");
+						immunizationCode.setValue((String)extraData.get("din"));
+					}
 					if (StringUtils.filled((String)extraData.get("comments"))) immu.setNotes((String)extraData.get("comments"));
 
 					prevType = Util.getImmunizationType(prevType);

@@ -63,6 +63,7 @@ if(!authed) {
   String id = request.getParameter("id");
   Map<String,Object> existingPrevention = null;
     
+  String din = "";
   String lot ="";
   String provider = (String) session.getValue("user");
   String dateFmt = "yyyy-MM-dd HH:mm";
@@ -100,6 +101,7 @@ if(!authed) {
      providerName = (String) existingPrevention.get("providerName");
      extraData = PreventionData.getPreventionKeyValues(id);
      lot = (String) extraData.get("lot");
+     din = extraData.get("din");
      
 	CaseManagementManager cmm = (CaseManagementManager) SpringUtils.getBean("caseManagementManager");
 	List<CaseManagementNoteLink> cml = cmm.getLinkByTableId(CaseManagementNoteLink.PREVENTIONS, Long.valueOf(id));
@@ -511,6 +513,7 @@ function displayCloseWarning(){
                              <option value="-1"  >Other</option>
                          </select><br/>
                          <label for="manufacture">Manufacture:</label> <input type="text" name="manufacture" id="manufacture"  value="<%=str((extraData.get("manufacture")),"")%>"/><br/>
+                       <label for="din">DIN:</label>  <input type="text" name="din" id="din" value="<%=str(din,"")%>" /> <br/>
                    </fieldset>
                    <fieldset >
                       <legend >Comments</legend>
