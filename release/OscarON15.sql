@@ -16254,7 +16254,7 @@ INSERT INTO `ctl_doc_class` (`id`, `reportclass`, `subclass`) VALUES
 (152, 'Consultant ReportB', 'Encounter Report'),
 (153, 'Consultant ReportB', 'Operative Report'),
 (154, 'Consultant ReportB', 'Progress Report');
-
+(155, 'Lab Report', '');
 -- --------------------------------------------------------
 
 --
