@@ -190,7 +190,6 @@ public final class RxMyDrugrefInfoAction extends DispatchAction {
         Vector all = new Vector();
         
         if (OscarProperties.getInstance().isPropertyActive("use_fdb")) {
-            RxDrugData.Interaction[] interactions = (RxDrugData.Interaction[]) bean.getInteractions();
             RxPrescriptionData rxData = new RxPrescriptionData();
             Vector dinCodes = new Vector<Object>(bean.getRegionalIdentifier());
 
