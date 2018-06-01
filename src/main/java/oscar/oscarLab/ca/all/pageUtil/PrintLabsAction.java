@@ -132,7 +132,8 @@ public class PrintLabsAction extends Action{
             } else {
 	            response.setContentType("application/pdf");  //octet-stream
 	            response.setHeader("Content-Disposition", "attachment; filename=\""+handler.getPatientName().replaceAll("\\s", "_")+"_LabReport.pdf\"");
-                File f = File.createTempFile(request.getParameter("segmentID"),"pdf");
+	            Integer segmentId = Integer.parseInt(request.getParameter("segmentID"));
+                File f = File.createTempFile(String.format("%03d", segmentId),"pdf");
                 FileOutputStream fos = new FileOutputStream(f);
 	            LabPDFCreator pdf = new LabPDFCreator(handler, fos, labId, multiLabId, dateLabReceived);
 	            pdf.printPdf();

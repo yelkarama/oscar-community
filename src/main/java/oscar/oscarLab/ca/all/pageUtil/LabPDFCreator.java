@@ -601,11 +601,11 @@ public class LabPDFCreator extends PdfPageEventHelper{
 							if(!isAllowedDuplicate && (obxCount>1) && k > 0 && (handler.getOBXIdentifier(j, k).equals(handler.getOBXIdentifier(j, k-1)) && handler.getOBXName(j, k).equals(handler.getOBXName(j, k-1))) && (handler.getOBXValueType(j, k).equals("TX") || handler.getOBXValueType(j, k).equals("FT"))){
 								cell.setPhrase(new Phrase("", lineFont));
 								table.addCell(cell);
+							} else {
+								cell.setPadding(6);
+								cell.setPhrase(new Phrase(obxName, lineFont));
+								table.addCell(cell);
 							}
-							else{
-							cell.setPhrase(new Phrase((obrFlag ? "   " : "")
-									+ obxName, lineFont));
-							table.addCell(cell);}
 							boolean isLongText =false;
                             if(handler.getMsgType().equals("ExcellerisON")) {
                                 if("FT".equals(handler.getOBXValueType(j,k))) {
@@ -636,13 +636,21 @@ public class LabPDFCreator extends PdfPageEventHelper{
 									cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
 									table.addCell(cell);}
 							}else{
+								if(isLongText) {
+									cell.setColspan(4);
+								}
+								
 								if( handler.getMsgType().equals("ALPHA") && handler.getOBXValueType(j, k).equals("FT") ){					
 									cell.setPhrase(new Phrase("", lineFont)); //set empty column for display
 									cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
 									table.addCell(cell);
-								}else{
+								} else if (handler instanceof ExcellerisOntarioHandler && handler.getOBXValueType(j, k).equals("ED")) {
+									embeddedDocumentsToAppend.add(handler.getOBXResult(j, k));
+									cell.setPhrase(new Phrase("PDF Report (Appended to end of Laboratory Report)", lineFont));
+									table.addCell(cell);
+								} else {
 									cell.setPhrase(new Phrase(handler.getOBXResult(j, k).replaceAll("<br\\s*/*>", "\n"), lineFont));
-									cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+									cell.setHorizontalAlignment(Element.ALIGN_LEFT);
 									table.addCell(cell);
 								}
 							}
@@ -701,10 +709,11 @@ public class LabPDFCreator extends PdfPageEventHelper{
 								cell.setPaddingLeft(100);
                                 cell.setBorder(Rectangle.BOTTOM);
                                 if(handler.getMsgType().equals("ExcellerisON")) {
-                                    cell.setColspan(8);
-                                } else {
-                                    cell.setColspan(7);
+                                	cell.setPaddingLeft(3);
+                                	cell.setPhrase(new Phrase("", font));
+                                	table.addCell(cell);
                                 }
+								cell.setColspan(7);
 								cell.setHorizontalAlignment(Element.ALIGN_LEFT);
 								for (int l = 0; l < handler.getOBXCommentCount(j, k); l++) {
 									cell.setPhrase(new Phrase(handler.getOBXComment(j, k, l).replaceAll("<br\\s*/*>", "\n"), font));
@@ -1118,21 +1127,6 @@ public class LabPDFCreator extends PdfPageEventHelper{
                 cb.showTextAligned(PdfContentByte.ALIGN_RIGHT, handler.getPatientName(), 575, height - 30, 0);
                 cb.endText();
 
-            }
-
-            //add footer for every page
-            cb.beginText();
-            cb.setFontAndSize(bf, 8);
-            cb.showTextAligned(PdfContentByte.ALIGN_CENTER, "-"+pageNum+"-", width/2, 30, 0);
-            cb.endText();
-
-
-            // add promotext as footer if it is enabled
-            if ( OscarProperties.getInstance().getProperty("FORMS_PROMOTEXT") != null){
-                cb.beginText();
-                cb.setFontAndSize(BaseFont.createFont(BaseFont.HELVETICA,BaseFont.CP1252,BaseFont.NOT_EMBEDDED), 6);
-                cb.showTextAligned(PdfContentByte.ALIGN_CENTER, OscarProperties.getInstance().getProperty("FORMS_PROMOTEXT"), width/2, 19, 0);
-                cb.endText();
             }
 
         // throw any exceptions
