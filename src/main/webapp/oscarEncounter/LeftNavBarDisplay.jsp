@@ -135,13 +135,15 @@ if(!authed) {
         } }
 
         //left hand module header comes last as it's displayed as a block
+
+         boolean isConsent = request.getAttribute("consent") != null;
         %>
 <div style="clear: left; float: left; width: 90%;">
 <h3 style="width:100%; <%=getBackgroundColor(dao)%>"><a href="#"
 	onclick="<%=dao.getLeftURL()%>; return false;"><%=dao.getLeftHeading()%></a></h3>
 </div>
 
-<ul id="<%=request.getAttribute("navbarName")%>list">
+<ul id="<%=isConsent ? "consent" : request.getAttribute("navbarName")%>list">
 	<%
             //now we display the actual items of the module
             String manageItems = "";
@@ -214,7 +216,7 @@ if(!authed) {
                         else
                             pastDates.add(item);
                     else
-                        current.add(item); 
+                        current.add(item);
                 }
                 
             }
@@ -281,23 +283,28 @@ if(!authed) {
                 }
                 out.println("<li " + stripe + ">");
 
+                boolean isConsent = request.getAttribute("consent") != null;
+
                 if( curNum == 0 && xpanded ) {
-                    imgName = "img" + request.getAttribute("navbarName") + curNum;
+                    imgName = "img" + (isConsent? "consent" : request.getAttribute("navbarName")) + curNum;
                     out.println("<a href='#' onclick=\"return false;\" style='text-decoration:none; width:7px; z-index: 100; "+dateColour+" position:relative; margin: 0px; padding-bottom: 0px;  vertical-align: bottom; display: inline; float: right; clear:both;'><img id='" + imgName + "' src='" + request.getContextPath() + "/oscarMessenger/img/collapse.gif'/>&nbsp;&nbsp;</a>");
-                    js.append("imgfunc['" + imgName + "'] = clickListDisplay.bindAsEventListener(obj,'" + request.getAttribute("navbarName") + "', '" + displayThreshold + "');" );
+                    js.append("imgfunc['" + imgName + "'] = clickListDisplay.bindAsEventListener(obj,'" + (isConsent? "consent" : request.getAttribute("navbarName")) + "', '" + displayThreshold + "');" );
                     js.append("Element.observe($('" + imgName + "'), 'click', imgfunc['" + imgName + "']);");
                 }else if( j == (numToDisplay-1) && xpanded ) {
-                    imgName = "img" + request.getAttribute("navbarName") + curNum;
+                    imgName = "img" + (isConsent? "consent" : request.getAttribute("navbarName")) + curNum;
                     out.println("<a href='#' onclick=\"return false;\" style='text-decoration:none; width:7px; z-index: 100; "+dateColour+" position:relative; margin: 0px; padding-bottom: 0px;  vertical-align: bottom; display: inline; float: right; clear:both;'><img id='" + imgName + "' src='" + request.getContextPath() + "/oscarMessenger/img/collapse.gif'/>&nbsp;&nbsp;</a>");
-                    js.append("imgfunc['" + imgName + "'] = clickListDisplay.bindAsEventListener(obj,'" + request.getAttribute("navbarName") + "', '" + displayThreshold + "');" );
+                    js.append("imgfunc['" + imgName + "'] = clickListDisplay.bindAsEventListener(obj,'" + (isConsent? "consent" : request.getAttribute("navbarName")) + "', '" + displayThreshold + "');" );
                     js.append("Element.observe($('" + imgName + "'), 'click', imgfunc['" + imgName + "']);");
                 }else if( j == (numToDisplay-1) && numItems > (curNum+1) ) {
-                    imgName = "img" + request.getAttribute("navbarName") + curNum;
+                    if (isConsent) {
+                        reloadUrl = reloadUrl.substring(0, reloadUrl.indexOf("cmd")) + "cmd=consent";
+                    }
+                    imgName = "img" + (isConsent ? "consent" : request.getAttribute("navbarName")) + curNum;
                     out.println("<a href='#' onclick=\"return false;\" title='" + String.valueOf(numItems - j - 1) + " more items' style=' text-decoration:none; width:7px; z-index: 100; "+dateColour+" position:relative; margin: 0px; padding-bottom: 0px;  vertical-align: bottom; display: inline; float: right; clear:both;'><img id='" + imgName +  "' src='" + request.getContextPath() + "/oscarEncounter/graphics/expand.gif'/>&nbsp;&nbsp;</a>");
-                    js.append("imgfunc['" + imgName + "'] = clickLoadDiv.bindAsEventListener(obj,'" + request.getAttribute("navbarName") + "','" + reloadUrl + "');" );
+                    js.append("imgfunc['" + imgName + "'] = clickLoadDiv.bindAsEventListener(obj,'" + (isConsent ? "consent" : request.getAttribute("navbarName")) + "','" + reloadUrl + "');" );
                     js.append("Element.observe($('" + imgName + "'), 'click', imgfunc['" + imgName + "']);");
                 }else{
-                    out.println("<a border=0 style='text-decoration:none; width:7px; z-index: 100; "+dateColour+" position:relative; margin: 0px; padding-bottom: 0px;  vertical-align: bottom; display: inline; float: right; clear:both;'><img  id='img" + request.getAttribute("navbarName") + curNum + "' src='" + request.getContextPath() + "/images/clear.gif'/>&nbsp;&nbsp;</a>");
+                    out.println("<a border=0 style='text-decoration:none; width:7px; z-index: 100; "+dateColour+" position:relative; margin: 0px; padding-bottom: 0px;  vertical-align: bottom; display: inline; float: right; clear:both;'><img  id='img" + (isConsent? "consent" : request.getAttribute("navbarName")) + curNum + "' src='" + request.getContextPath() + "/images/clear.gif'/>&nbsp;&nbsp;</a>");
                 }
                 ++curNum;
 
