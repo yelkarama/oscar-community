@@ -444,7 +444,7 @@ public class DmsInboxManageAction extends DispatchAction {
 			labMap.put(segmentId, result);
 			ArrayList<String> labNums = new ArrayList<String>();
 
-			if (result.accessionNumber == null || result.accessionNumber.equals("")) {
+			if (result.accessionNumber == null || result.accessionNumber.equals("null") || result.accessionNumber.isEmpty()) {
 				labNums.add(segmentId);
 				accessionNumCount++;
 				accessionMap.put("noAccessionNum" + accessionNumCount + result.labType, labNums);
