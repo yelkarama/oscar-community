@@ -721,7 +721,15 @@ window.onload=function(){
 				<%if(!"PAT".equals(billType)){%>
 				<td>Description</td>
 				<%}else{%>
-				<td width="14%">Description</td><td width="3%">Payment</td><td width="3%">Discount</td>
+				<td width="14%">Description</td>
+				<td colspan='2'>
+					Payment
+					<span style="float: right"><input type="checkbox" id="calc_paid_all" name="calc_paid_all" onchange="updatePayment()"/></span>
+				</td>
+				<td colspan='2'>
+					Discount
+					<span style="float: right"><input type="checkbox" id="calc_discount_all" name="calc_discount_all" onchange="updateDiscount()"/></span>
+				</td>
 				<%}%>
 			</tr>
 <%  }
@@ -788,7 +796,9 @@ window.onload=function(){
 				</oscar:oscarPropertiesCheck>
 				<td nowrap width='14%'><pre><%=codeDescription%></pre></td>
 				<td nowrap width='3%'><input type="text" id="paid_<%=i%>" name="paid_<%=i %>" value="<%=paid_value%>" onBlur="calculatePayment();" ondblclick="this.value = '<%=codeTotal%>'" onchange="validatePaymentNumberic(<%=i %>)"/></td>
+				<td><input type="checkbox" id="calc_paid_<%=i%>" name="calc_paid_<%=i %>" onchange="updatePayment(<%=i%>)" style="float: right"/></td>
 				<td nowrap width='3%'><input type="text" id="discount_<%=i%>" name="discount_<%=i %>" value="0.00" onBlur="calculateDiscount();" onchange="validateDiscountNumberic(<%=i %>)"/></td>
+				<td><input type="checkbox" id="calc_discount_<%=i%>" name="calc_discount_<%=i %>" onchange="updateDiscount(<%=i%>)" style="float: right"/></td>
 				<%}%>
 			</tr>
 			<%
@@ -1119,6 +1129,68 @@ if (bMultisites) {
 
 
 <script language="JavaScript">
+    function updateDiscount(i) {
+        var payment;
+        var subtotal;
+        if (isNaN(i)) {
+            jQuery("input[id^='discount_']").each(function(j) {
+                payment = "0.00";
+                subtotal = jQuery('#percCodeSubtotal_' + j).val();
+
+                if (jQuery('#calc_discount_all').attr("checked") && subtotal) {
+                    jQuery('#calc_discount_' + j).attr('checked','checked');
+                    payment = parseFloat(subtotal).toFixed(2);
+                } else {
+                    jQuery('#calc_discount_' + j).removeAttr('checked');
+                }
+
+                document.getElementById('discount_' + j).value = payment;
+            });
+        } else {
+            payment = "0.00";
+            subtotal = jQuery('#percCodeSubtotal_' + i).val();
+
+            if (jQuery('#calc_discount_' + i).attr("checked") && subtotal) {
+                payment = parseFloat(subtotal).toFixed(2);
+            }
+
+            document.getElementById('discount_' + i).value = payment;
+        }
+
+		calculateDiscount();
+    }
+
+    function updatePayment(i) {
+        var payment;
+        var subtotal;
+        if (isNaN(i)) {
+            jQuery("input[id^='paid_']").each(function(j) {
+                payment = "0.00";
+                subtotal = jQuery('#percCodeSubtotal_' + j).val();
+
+                if (jQuery('#calc_paid_all').attr("checked") && subtotal) {
+                    jQuery('#calc_paid_' + j).attr('checked','checked');
+                    payment = parseFloat(subtotal).toFixed(2);
+                } else {
+                    jQuery('#calc_paid_' + j).removeAttr('checked');
+                }
+
+                document.getElementById('paid_' + j).value = payment;
+            });
+        } else {
+            payment = "0.00";
+            subtotal = jQuery('#percCodeSubtotal_' + i).val();
+
+            if (jQuery('#calc_paid_' + i).attr("checked") && subtotal) {
+                payment = parseFloat(subtotal).toFixed(2);
+            }
+
+            document.getElementById('paid_' + i).value = payment;
+        }
+
+        calculatePayment();
+    }
+
 function calculatePayment(){
     var payment = 0.00;
     jQuery("input[id^='paid_']").each(function(index) {
