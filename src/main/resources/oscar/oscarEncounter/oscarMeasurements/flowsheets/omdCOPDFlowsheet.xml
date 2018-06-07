@@ -33,6 +33,15 @@
     <measurement type="SMCP" typeDesc="Smoking Cessation Program" typeDisplayName="Smoking Cessation Program" measuringInstrc="">
         <validationRule name="No Validations" maxValue="" minValue="" isDate="" isNumeric="" regularExp="" maxLength="" minLength="" />
     </measurement>
+    <item measurement_type="NOEB" display_name="# Of Exacerbations" guideline="" graphable="yes" value_name="# Of Exacerbations" />
+    <measurement type="NOEB" typeDesc="The number of exacerbations due to COPD since last visit, as reported by the patient." typeDisplayName="# Of Exacerbations" measuringInstrc="">
+        <validationRule name="Numeric Value: 0 to 100" maxValue="100" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
+    </measurement>
+    <item measurement_type="CSMG" display_name="Collaborative Self-Management Goals" guideline="" graphable="no" value_name="Collaborative Self-Management Goals" />
+    <measurement type="CSMG" typeDesc="Records patient goals as recorded by the physician." typeDisplayName="Collaborative Self-Management Goals" measuringInstrc="">
+        <validationRule name="No Validations" maxValue="" minValue="0" isDate="" isNumeric="" regularExp="" maxLength="" minLength="" />
+    </measurement>
+
     <item measurement_type="BMI" display_name="BMI" guideline="" graphable="yes" value_name="BMI" >
         <ruleset>
             <rule indicationColor="HIGH">
