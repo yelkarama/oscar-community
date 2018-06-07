@@ -301,8 +301,10 @@ if(listRxDrugs!=null){
                 </select>    
 				<%} else { %>
 					<%=drugForm%>
-				<% } %>
-
+				<% } if (request.getAttribute("existingPrescription") != null) { %>
+                     <br/>
+                     <p style="color: orange">Warning: This drug is already a current prescription for this demographic!</p>
+                <% } %>
            <div id="renalDosing_<%=rand%>" ></div>
            <div id="luc_<%=rand%>" style="margin-top:2px;"></div>
            <oscar:oscarPropertiesCheck property="RENAL_DOSING_DS" value="yes">

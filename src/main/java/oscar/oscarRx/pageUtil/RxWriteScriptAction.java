@@ -767,6 +767,20 @@ public final class RxWriteScriptAction extends DispatchAction {
 			rx.setWrittenDate(tod);
 			rx.setDiscontinuedLatest(RxUtil.checkDiscontinuedBefore(rx));// check and set if rx was discontinued before.
 			request.setAttribute("listRxDrugs", listRxDrugs);
+
+			if (request.getAttribute("existingPrescription") != null) {
+				request.removeAttribute("existingPrescription");
+			}
+
+			DrugDao drugDao = SpringUtils.getBean(DrugDao.class);
+			List<Drug> drugs = drugDao.findByDemographicId(bean.getDemographicNo());
+
+			for (Drug drug : drugs) {
+				if (drug.getGcnSeqNo() == rx.getGCN_SEQNO() && drug.isCurrent()) {
+					request.setAttribute("existingPrescription", true);
+				}
+			}
+
 		} catch (Exception e) {
 			logger.error("Error", e);
 		}
