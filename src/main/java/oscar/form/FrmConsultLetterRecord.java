@@ -88,7 +88,7 @@ public class FrmConsultLetterRecord extends FrmRecord {
     }
     
     public void defaultRelatives(LoggedInInfo loggedInInfo, int demographicNo,Properties props) throws SQLException{
-    	String sql = "SELECT relation_demographic_no,relation 	FROM relationships where deleted = 0 and demographic_no=" + demographicNo +  " and relation in ('Partner','Spouse','Husband')";
+    	String sql = "SELECT relation_demographic_no,relation 	FROM relationships where (deleted = 0 OR deleted IS NULL) and demographic_no=" + demographicNo +  " and relation in ('Partner','Spouse','Husband')";
         ResultSet rs = null;
         try{
 	        rs = DBHandler.GetSQL(sql);
