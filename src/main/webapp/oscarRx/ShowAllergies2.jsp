@@ -171,6 +171,18 @@ padding-right:6;
         }
     }
 
+    function addPenicillinAllergy(){
+        window.location="addReaction2.do?ID=44452&name=PENICILLINS&type=10";
+    }
+
+    function addSulfonamideAllergy(){
+        window.location="addReaction2.do?ID=44159&name=SULFONAMIDES&type=10";
+    }
+
+    function addCustomNKDA(){
+        window.location="addReaction2.do?ID=0&type=0&name=NKDA";
+    }
+
 
     function show_Search_Criteria(){
     	var tbl_as = document.getElementById("advancedSearch");
@@ -482,6 +494,9 @@ padding-right:6;
 								value="Reset" />
 
                                <input type=button class="ControlPushButton" onclick="javascript:addCustomAllergy();" value="Custom Allergy" />
+								<input type=button class="ControlPushButton" onclick="javascript:addCustomNKDA();" value="NKDA" />
+								<input type=button class="ControlPushButton" onclick="javascript:addPenicillinAllergy();" value="Penicillin" />
+								<input type=button class="ControlPushButton" onclick="javascript:addSulfonamideAllergy();" value="Sulfa" />
                            <%
                            String shPref;
                            String showClose;
