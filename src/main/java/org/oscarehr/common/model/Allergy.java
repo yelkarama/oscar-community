@@ -428,10 +428,10 @@ public class Allergy extends AbstractModel<Integer> {
 
 	public RxDrugData.DrugMonograph isDrug(Integer type){
 		RxDrugData.DrugMonograph drugMonograph= null;
-		if (type != null && type.equals("13")){
+		if (type != null && type == 13){
 			RxDrugData drugData = new RxDrugData();
 			try{
-				drugMonograph = drugData.getDrug(""+id);
+				drugMonograph = drugData.getDrug(drugrefId);
 			}catch(Exception e){
 				MiscUtils.getLogger().error("Error", e);
 			}
