@@ -1805,8 +1805,7 @@ import oscar.util.UtilDateUtilities;
                     int sep = take.indexOf("-");
                     if (sep>0) drug.setTakeMax(Util.leadingNumF(take.substring(sep+1)));
                     else drug.setTakeMax(drug.getTakeMin());
-                    drug.setUnit(medArray[i].getDosageUnitOfMeasure());
-                    if ("tablet".equalsIgnoreCase(drug.getUnit())) drug.setUnit("tab");
+                    drug.setDispensingUnits(medArray[i].getDosageUnitOfMeasure());
 
                     drug.setDemographicId(Integer.valueOf(demographicNo));
                     drug.setArchived(false);
@@ -1829,6 +1828,11 @@ import oscar.util.UtilDateUtilities;
                     		String[] dValue = dosageValue.split("/");
                     		String[] dUnit = dosageUnit.split("/");
                     		dosage = dValue[0] + dUnit[0] + " / " + dValue[1] + (dUnit.length>1 ? dUnit[1] : "unit");
+                            
+                    		drug.setUnit(dosage);
+                            if ("tablet".equalsIgnoreCase(drug.getUnit())) {
+                                drug.setUnit("tab");
+                            }
                     	} else {
                     		dosage = dosageValue + " " + dosageUnit;
                     	}
@@ -1869,6 +1873,7 @@ import oscar.util.UtilDateUtilities;
                     
                     drug.setPosition(0);
                     drug.setDispenseInterval(0);
+                    drug.setComment(medArray[i].getNotes());
                     drugDao.persist(drug);
                     addOneEntry(MEDICATION);
 
@@ -1887,13 +1892,8 @@ import oscar.util.UtilDateUtilities;
 
                     //partial date
                     partialDateDao.setPartialDate(PartialDate.DRUGS, drug.getId(), PartialDate.DRUGS_WRITTENDATE, writtenDateFormat);
-
-                    //annotation
+                    
                     CaseManagementNote cmNote = prepareCMNote("2",null);
-                    String note = StringUtils.noNull(medArray[i].getNotes());
-                    cmNote.setNote(note);
-                    saveLinkNote(cmNote, CaseManagementNoteLink.DRUGS, (long)drug.getId());
-
                     //to dumpsite
                     String dump = "imported.cms5.2017.06";
                     /*

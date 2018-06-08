@@ -1529,6 +1529,10 @@ public class DemographicExportAction4 extends Action {
 						dosageValue = arr[p].getTakeMax();
 					}
 					String drugUnit = StringUtils.noNull(arr[p].getUnit());
+					
+					if (StringUtils.filled(arr[p].getDispensingUnits()) && !drugUnit.equalsIgnoreCase(arr[p].getDispensingUnits())) {
+						drugUnit = arr[p].getDispensingUnits();
+					}
 
 					if (drugUnit.equalsIgnoreCase(getDosageUnit(arr[p].getDosage()))) {
 						//drug unit should not be same as dosage unit
@@ -1638,20 +1642,20 @@ public class DemographicExportAction4 extends Action {
 					String outsideProviderName = arr[p].getOutsideProviderName();
 					if (StringUtils.filled(outsideProviderName)) {
 						MedicationsAndTreatments.PrescribedBy pcb = medi.addNewPrescribedBy();
+						Util.writeNameSimple(pcb.addNewName(), outsideProviderName);
 						String ohip = arr[p].getOutsideProviderOhip();
 						if (ohip!=null && ohip.trim().length()<=6)
 							pcb.setOHIPPhysicianId(ohip.trim());
-						Util.writeNameSimple(pcb.addNewName(), outsideProviderName);
 						mSummary = Util.addSummary(mSummary, "Prescribed by", StringUtils.noNull(outsideProviderName));
 					} else {
 						String prescribeProvider = arr[p].getProviderNo();
 						if (StringUtils.filled(prescribeProvider)) {
 							MedicationsAndTreatments.PrescribedBy pcb = medi.addNewPrescribedBy();
 							ProviderData prvd = new ProviderData(prescribeProvider);
+							Util.writeNameSimple(pcb.addNewName(), prvd.getFirst_name(), prvd.getLast_name());
 							String ohip = prvd.getOhip_no();
 							if (ohip!=null && ohip.trim().length()<=6)
 								pcb.setOHIPPhysicianId(ohip.trim());
-							Util.writeNameSimple(pcb.addNewName(), prvd.getFirst_name(), prvd.getLast_name());
 							mSummary = Util.addSummary(mSummary, "Prescribed by", StringUtils.noNull(prvd.getFirst_name())+" "+StringUtils.noNull(prvd.getLast_name()));
 						}
 					}
@@ -1667,10 +1671,10 @@ public class DemographicExportAction4 extends Action {
 					 *
 					 */
 
-					annotation = getNonDumpNote(CaseManagementNoteLink.DRUGS, (long)arr[p].getDrugId(), null);
+					
+					annotation = arr[p].getComment();
 					if (StringUtils.filled(annotation)) {
 						medi.setNotes(annotation);
-						mSummary = Util.addSummary(mSummary, "Notes", annotation);
 					}
 
 					if (StringUtils.empty(mSummary)) exportError.add("Error! No Category Summary Line (Medications & Treatments) for Patient "+demoNo+" ("+(p+1)+")");
@@ -2713,7 +2717,7 @@ public class DemographicExportAction4 extends Action {
 		for (CaseManagementNoteLink cml : cmll) {
 			CaseManagementNote n = cmm.getNote(cml.getNoteId().toString());
 			auditLog.add("READ | " + dateTime.format(new Date()) + " | CaseManagementNote: noteId=" + cml.getNoteId());
-			if (n.getNote()!=null && !n.getNote().startsWith("imported.cms5.2017.06")) {//not from dumpsite
+			if (n.getNote()!=null && !n.getNote().startsWith("imported.cms")) {//not from dumpsite
 				note = n.getNote();
 				break;
 			}
