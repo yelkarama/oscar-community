@@ -67,15 +67,110 @@
     <measurement type="ANSY" typeDesc="Asthma Night Time Symtoms" typeDisplayName="Asthma Night Time Symtoms" measuringInstrc="frequency per week">
         <validationRule name="Numeric Value: 0 to 2500" maxValue="2500" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
     </measurement>
-    <item measurement_type="FEV1" display_name="Forced Expiratory Volume in 1 second" guideline="greater than 90 percent personal or predicted or personal best" graphable="yes" value_name="90% personal or predicted best" >
+    <item measurement_type="FEV1" display_name="FEV1 (before puff) - (personal best of 3)" guideline="greater than 90 percent personal or predicted or personal best" graphable="yes" value_name="90% personal or predicted best" >
         <ruleset>
             <rule indicationColor="HIGH">
                 <condition type="isDataEqualTo" param="ASWA" value="Yes" />
             </rule>
         </ruleset>
     </item>
-    <measurement type="FEV1" typeDesc="Forced Expiratory Volume 1 Second" typeDisplayName="" measuringInstrc="Forced Expiratory Volume 1 Second">
+    <measurement type="FEV1" typeDesc="Forced Expiratory Volume -the volume of air that has been exhaled by the patient at the end of the first second of forced expiration." typeDisplayName="" measuringInstrc="Forced Expiratory Volume 1 Second">
         <validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
+    </measurement>
+    <item measurement_type="FVC" display_name="FVC (before puff)" guideline="Forced Vital Capacity - the volume of air that has been forcibly and maximally exhaled out by the patient until no more can be expired." 
+          graphable="no" value_name="Forced Vital Capacity" />
+    <measurement type="FVC" typeDesc="Forced Vital Capacity - the volume of air that has been forcibly and maximally exhaled out by the patient until no more can be expired."
+                 typeDisplayName="Forced Vital Capacity" measuringInstrc="">
+        <validationRule name="Numeric Value: 0 to 2500" maxValue="2500" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
+    </measurement>
+    <item measurement_type="FEVP" display_name="FEV1% (before puff)" guideline="The ratio of FEV1 to FVC calculated for the patient" graphable="no" value_name="Ratio of FEV1 to FVC" />
+    <measurement type="FEVP" typeDesc="The ratio of FEV1 to FVC calculated for the patient"
+                 typeDisplayName="FEV1% (before puff)" measuringInstrc="">
+        <validationRule name="Numeric Value: 0 to 1000" maxValue="1000" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
+    </measurement>
+    <item measurement_type="FVPP" display_name="FEV1 predicted" guideline="The FEV1 calculated in the population with similar characteristics (e.g., height, age, sex, race, weight, etc.)" 
+          graphable="no" value_name="FEV1 predicted" />
+    <measurement type="FVPP" typeDesc="The FEV1 calculated in the population with similar characteristics (e.g., height, age, sex, race, weight, etc.)"
+                 typeDisplayName="FEV1 predicted" measuringInstrc="">
+        <validationRule name="Numeric Value: 0 to 1000" maxValue="1000" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
+    </measurement>
+    <item measurement_type="FVCP" display_name="FVC predicted" guideline="The FVC calculated in the population with similar characteristics (height, age, sex, race, weight, etc.)"
+          graphable="no" value_name="FVC predicted" />
+    <measurement type="FVCP" typeDesc="The FVC calculated in the population with similar characteristics (height, age, sex, race, weight, etc.)"
+                 typeDisplayName="FVC predicted" measuringInstrc="">
+        <validationRule name="Numeric Value: 0 to 1000" maxValue="1000" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
+    </measurement>
+    <item measurement_type="FVPPP" display_name="FEV1% predicted" guideline="The ratio of FEV1 predicted to FVC predicted, calculated in the population with similar characteristics (height, age, sex, and sometimes race and weight.)"
+          graphable="no" value_name="FEV1% predicted" />
+    <measurement type="FVPPP" typeDesc="The FEV1 calculated in the population with similar characteristics (e.g., height, age, sex, race, weight, etc.)"
+                 typeDisplayName="FEV1% predicted" measuringInstrc="">
+        <validationRule name="Numeric Value: 0 to 1000" maxValue="1000" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
+    </measurement>
+    <item measurement_type="FVPPR" display_name="FEV1% of predicted (before puff)" guideline="FEV1% (before puff) of the patient divided by the average FEV1% predicted in the population with similar characteristics (e.g., height, age, sex, race, weight, etc.)"
+          graphable="no" value_name="FEV1 ratio (before puff)" />
+    <measurement type="FVPPR" typeDesc="FEV1% (before puff) of the patient divided by the average FEV1% predicted in the population with similar characteristics (e.g., height, age, sex, race, weight, etc.)"
+                 typeDisplayName="FEV1 ratio (before puff)" measuringInstrc="">
+        <validationRule name="Numeric Value: 0 to 1000" maxValue="1000" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
+    </measurement>
+    <item measurement_type="FVCR" display_name="FVC ratio (before puff)" guideline="FVC actual (before puff) / FVC predicted"
+          graphable="no" value_name="FVC ratio (before puff)" />
+    <measurement type="FVCR" typeDesc="FVC actual (before puff) / FVC predicted"
+                 typeDisplayName="FVC ratio (before puff)" measuringInstrc="">
+        <validationRule name="Numeric Value: 0 to 1000" maxValue="1000" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
+    </measurement>
+    <item measurement_type="FEFVR" display_name="FEV1 / FVC ratio (before puff)" guideline="FEV1 / FVC (before puff) actual divided by FEV1 / FVC predicted"
+          graphable="no" value_name="FEV1 / FVC ratio (before puff)" />
+    <measurement type="FEFVR" typeDesc="FEV1 / FVC (before puff) actual divided by FEV1 / FVC predicted"
+                 typeDisplayName="FEV1 / FVC ratio (before puff)" measuringInstrc="">
+        <validationRule name="Numeric Value: 0 to 1000" maxValue="1000" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
+    </measurement>
+    <item measurement_type="PEFR" display_name="PEF personal (before puff) - (best of 3)" guideline="Peak Expiratory Flow (or PEFR)- the maximal flow (or speed) achieved during the maximally forced expiration initiated at full inspiration."
+          graphable="no" value_name="PEF personal (before puff) - (best of 3)" />
+    <measurement type="PEFR" typeDesc="Peak Expiratory Flow (or PEFR)- the maximal flow (or speed) achieved during the maximally forced expiration initiated at full inspiration."
+                 typeDisplayName="PEF personal (before puff) - (best of 3)" measuringInstrc="litres/min">
+        <validationRule name="Numeric Value: 0 to 2500" maxValue="2500" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
+    </measurement>
+    <item measurement_type="FEV1A" display_name="FEV1 (after puff) (personal best of 3)" guideline="Forced Expiratory Volume -the volume of air that has been exhaled by the patient at the end of the first second of forced expiration"
+          graphable="no" value_name="FEV1 (after puff) (personal best of 3)" />
+    <measurement type="FEV1A" typeDesc="Forced Expiratory Volume -the volume of air that has been exhaled by the patient at the end of the first second of forced expiration"
+                 typeDisplayName="FEV1 (after puff) (personal best of 3)" measuringInstrc="">
+        <validationRule name="Numeric Value: 0 to 1000" maxValue="1000" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
+    </measurement>
+    <item measurement_type="FECA" display_name="FVC (after puff)" guideline="Forced Vital Capacity - the volume of air that has been forcibly and maximally exhaled out by the patient until no more can be expired"
+          graphable="no" value_name="FVC (after puff)" />
+    <measurement type="FECA" typeDesc="Forced Vital Capacity - the volume of air that has been forcibly and maximally exhaled out by the patient until no more can be expired"
+                 typeDisplayName="FVC (after puff)" measuringInstrc="">
+        <validationRule name="Numeric Value: 0 to 1000" maxValue="1000" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
+    </measurement>
+    <item measurement_type="FEVPA" display_name="FEV1% (after puff)" guideline="The ratio of FEV1 to FVC calculated for the patient"
+          graphable="no" value_name="FEV1% (after puff)" />
+    <measurement type="FEVPA" typeDesc="The ratio of FEV1 to FVC calculated for the patient"
+                 typeDisplayName="FEV1% (after puff)" measuringInstrc="">
+        <validationRule name="Numeric Value: 0 to 1000" maxValue="1000" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
+    </measurement>
+    <item measurement_type="FEVRA" display_name="FEV1% of predicted  (after puff) " guideline="FEV1% (after puff) of the patient divided by the average FEV1% predicted in the population with similar characteristics (e.g., height, age, sex, race, weight, etc.)"
+          graphable="no" value_name="FEV1% of predicted  (after puff) " />
+    <measurement type="FEVRA" typeDesc="FEV1% (after puff) of the patient divided by the average FEV1% predicted in the population with similar characteristics (e.g., height, age, sex, race, weight, etc.)"
+                 typeDisplayName="FEV1% of predicted  (after puff) " measuringInstrc="">
+        <validationRule name="Numeric Value: 0 to 1000" maxValue="1000" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
+    </measurement>
+    <item measurement_type="FVCRA" display_name="FVC ratio (after puff)" guideline="FVC actual (after puff) / FVC predicted"
+          graphable="no" value_name="FVC ratio (after puff)" />
+    <measurement type="FVCRA" typeDesc="FVC actual (after puff) / FVC predicted"
+                 typeDisplayName="FVC ratio (after puff)" measuringInstrc="">
+        <validationRule name="Numeric Value: 0 to 1000" maxValue="1000" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
+    </measurement>
+    <item measurement_type="FEFVA" display_name="FEV1/FVC ratio (after puff)" guideline="FEV1 / FVC (after puff) actual divided by FEV1 / FVC predicted"
+          graphable="no" value_name="FEV1 / FVC ratio (after puff)" />
+    <measurement type="FEFVA" typeDesc="FEV1 / FVC (after puff) actual divided by FEV1 / FVC predicted"
+                 typeDisplayName="FEV1 / FVC ratio (after puff)" measuringInstrc="">
+        <validationRule name="Numeric Value: 0 to 1000" maxValue="1000" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
+    </measurement>
+    <item measurement_type="PEFRA" display_name="PEF personal (after puff) - (best of 3)" guideline="Peak Expiratory Flow (or PEFR)- the maximal flow (or speed) achieved during the maximally forced expiration initiated at full inspiration."
+          graphable="no" value_name="PEF personal (after puff) - (best of 3)" />
+    <measurement type="PEFRA" typeDesc="Peak Expiratory Flow (or PEFR)- the maximal flow (or speed) achieved during the maximally forced expiration initiated at full inspiration."
+                 typeDisplayName="PEF personal (after puff) - (best of 3)" measuringInstrc="litres/min">
+        <validationRule name="Numeric Value: 0 to 2500" maxValue="2500" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
     </measurement>
     <item measurement_type="AELV" display_name="Exacerbations since last visit" guideline="Requiring clinical evaluations" graphable="yes" value_name="Has" >
         <ruleset>
@@ -98,10 +193,6 @@
         </rules>
     </item>
     <measurement type="SPIR" typeDesc="Spirometry" typeDisplayName="Spirometry" measuringInstrc="">
-        <validationRule name="Numeric Value: 0 to 2500" maxValue="2500" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
-    </measurement>
-    <item measurement_type="PEFR" display_name="PEFR value" guideline="best of 3" graphable="yes" value_name="PEFR value" />
-    <measurement type="PEFR" typeDesc="PEFR value" typeDisplayName="PEFR value" measuringInstrc="">
         <validationRule name="Numeric Value: 0 to 2500" maxValue="2500" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
     </measurement>
     <item measurement_type="ARAD" display_name="Asthma Definition" guideline="" graphable="yes" value_name="Reviewed" />
