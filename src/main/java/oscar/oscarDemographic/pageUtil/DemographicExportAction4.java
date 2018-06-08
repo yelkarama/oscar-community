@@ -538,15 +538,6 @@ public class DemographicExportAction4 extends Action {
 			String email = demographic.getEmail();
 			if (StringUtils.filled(email)) demo.setEmail(email);
 
-			if (StringUtils.filled(providerNo)) {
-				Demographics.PrimaryPhysician pph = demo.addNewPrimaryPhysician();
-				ProviderData prvd = new ProviderData(providerNo);
-				if (StringUtils.noNull(prvd.getOhip_no()).length()<=6) pph.setOHIPPhysicianId(prvd.getOhip_no());
-				Util.writeNameSimple(pph.addNewName(), prvd.getFirst_name(), prvd.getLast_name());
-				String cpso = prvd.getPractitionerNo();
-				if (cpso!=null && cpso.length()==5) pph.setPrimaryPhysicianCPSO(cpso);
-			}
-
 			if(StringUtils.filled(demographic.getSin())) {
 				demo.setSIN(demographic.getSin());
 			}
@@ -1524,9 +1515,9 @@ public class DemographicExportAction4 extends Action {
 
 					medi.addNewPastMedications().setBoolean(arr[p].getPastMed());
 					mSummary = Util.addSummary(mSummary, "Past Medcation",arr[p].getPastMed()?"Yes":"No");
-
-					cdsDt.YnIndicator pc = medi.addNewPatientCompliance();
+					
 					if (arr[p].getPatientCompliance()!=null) {
+						cdsDt.YnIndicator pc = medi.addNewPatientCompliance();
 						String patientCompliance = arr[p].getPatientCompliance() ? "Yes" : "No";
 						pc.setBoolean(arr[p].getPatientCompliance());
 						mSummary = Util.addSummary(mSummary, "Patient Compliance", patientCompliance);
