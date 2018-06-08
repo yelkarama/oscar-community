@@ -369,7 +369,7 @@ public class DemographicExportAction4 extends Action {
 				exportError.add("Error! No Gender for Patient "+demoNo);
 			}
 
-			String sin = demographic.getSin();
+			String sin = StringUtils.noNull(demographic.getSin()).replaceAll("[^0-9]+","");
 			if (StringUtils.filled(sin) && sin.length()==9) {
 				demo.setSIN(sin);
 			}
