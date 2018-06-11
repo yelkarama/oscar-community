@@ -231,13 +231,32 @@ function display(elements) {
 function EnablePrint(button) {
     if( button.value == "Enable Print" ) {
         button.value = "Print";
+        document.getElementById("printImmunizations").style.display = 'none';
         var checkboxes = document.getElementsByName("printHP");
+        display(checkboxes);
+        checkboxes = document.getElementsByName("immunization");
         display(checkboxes);
         var spaces = document.getElementsByName("printSp");
         display(spaces);
         button.form.sendToPhrButton.style.display = 'block';
-    }
-    else {
+    } else if (button.value === "Enable Print Immunizations") {
+        document.getElementById("printButton").style.display = 'none';
+        document.getElementById("printImmunizations").style.fontSize = 'inherit';
+        button.value = "Print Immunizations";
+		var checkboxes = document.getElementsByName("immunization");
+		display(checkboxes);
+        var spaces = document.getElementsByName("printSp");
+        display(spaces);
+        spaces = document.getElementsByName("printHP");
+        for (var i = 0; i < spaces.length; i++) {
+            spaces[i].removeAttribute("checked");
+		}
+        display(spaces);
+	} else if (button.value === "Print Immunizations") {
+        if (onPrint()) {
+            document.printFrm.submit();
+		}
+	} else {
         if( onPrint() )
             document.printFrm.submit();
     }
@@ -255,8 +274,18 @@ function onPrint() {
     }
 
     if( !thereIsData ) {
-        alert("You should check at least one prevention by selecting a checkbox next to a prevention");
-        return false;
+        checked = document.getElementsByName("immunization");
+        for( var i = 0; i < checked.length; ++i ) {
+            if( checked[i].checked ) {
+                thereIsData = true;
+                break;
+            }
+        }
+
+        if (!thereIsData) {
+            alert("You should check at least one prevention by selecting a checkbox next to a prevention");
+            return false;
+		}
     }
 
     return true;
@@ -671,7 +700,7 @@ text-align:left;
                     if( alist.size() > 0 ) {
                     %>
 		<div style="position: relative; float: left; padding-right: 10px;">
-		<input style="display: none;" type="checkbox" name="printHP"
+		<input style="display: none;" type="checkbox" name="<%=alist.get(0).get("isImmunization").equals("true") ? "immunization" : "printHP"%>"
 			value="<%=i%>" checked /> <%}else {%>
 		<div style="position: relative; float: left; padding-right: 25px;">
 		<span style="display: none;" name="printSp">&nbsp;</span> <%}%>
@@ -727,7 +756,7 @@ text-align:left;
                             if( alist.size() > 0 ) {
                             %>
 		<div style="position: relative; float: left; padding-right: 10px;">
-		<input style="display: none;" type="checkbox" name="printHP"
+		<input style="display: none;" type="checkbox" name="<%=alist.get(0).get("isImmunization").equals("true") ? "immunization" : "printHP"%>"
 			value="<%=i%>" checked /> <%}else {%>
 		<div style="position: relative; float: left; padding-right: 25px;">
 		<span style="display: none;" name="printSp">&nbsp;</span> <%}%>
@@ -827,7 +856,8 @@ text-align:left;
 	</tr>
 	<tr>
 		<td class="MainTableBottomRowLeftColumn">
-			<input type="button" class="noPrint" name="printButton" onclick="EnablePrint(this)" value="Enable Print">
+			<input type="button" class="noPrint" name="printButton" id="printButton" onclick="EnablePrint(this)" value="Enable Print">
+			<input type="button" class="noPrint" name="printImmunizations" id="printImmunizations" onclick="EnablePrint(this)" value="Enable Print Immunizations" style="font-size: x-small; ">
 <!--
 			<br>
 			<input type="button" name="sendToPhrButton" value="Send To MyOscar (PDF)" style="display: none;" onclick="sendToPhr(this)">

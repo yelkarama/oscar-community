@@ -301,6 +301,13 @@ public class PreventionData {
 				h.put("prevention_date_no_time", blankIfNull(UtilDateUtilities.DateToString(pDate, "yyyy-MM-dd")));
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 				h.put("next_date", (prevention.getNextDate() != null ? sdf.format(prevention.getNextDate()) : null));
+
+				Map<String, String> preventionExt = getPreventionKeyValues(prevention.getId().toString());
+				if (preventionExt.containsKey("result")) {
+					h.put("isImmunization", "false");
+				} else {
+					h.put("isImmunization", "true");
+				}
 				
 				String age = "N/A";
 				if (pDate != null) {

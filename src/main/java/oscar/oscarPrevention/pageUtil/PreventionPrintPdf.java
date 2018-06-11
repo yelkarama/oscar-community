@@ -43,6 +43,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
+import org.apache.commons.lang.ArrayUtils;
 import org.oscarehr.common.dao.PreventionExtDao;
 import org.oscarehr.common.dao.UserPropertyDAO;
 import org.oscarehr.common.model.Demographic;
@@ -102,7 +103,8 @@ public class PreventionPrintPdf {
     public void printPdf(HttpServletRequest request, HttpServletResponse response) throws IOException, DocumentException {
         response.setContentType("application/pdf");  //octet-stream
         response.setHeader("Content-Disposition", "attachment; filename=\"Prevention.pdf\"");
-        String[] headerIds = request.getParameterValues("printHP");
+        String[] headerIds = (String[]) ArrayUtils.addAll(request.getParameterValues("printHP"), request.getParameterValues("immunization"));
+
         printPdf(headerIds, request, response.getOutputStream());
     }
     
