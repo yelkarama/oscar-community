@@ -132,6 +132,7 @@ public final class RxMyDrugrefInfoAction extends DispatchAction {
         WebApplicationContext ctx = WebApplicationContextUtils.getRequiredWebApplicationContext(getServlet().getServletContext());
         UserPropertyDAO  propDAO =  (UserPropertyDAO) ctx.getBean("UserPropertyDAO");
         UserDSMessagePrefsDao  dsmessageDao =  (UserDSMessagePrefsDao) ctx.getBean("userDSMessagePrefsDao");
+        Boolean useFdb = OscarProperties.getInstance().isPropertyActive("use_fdb");
         MiscUtils.getLogger().debug("hideResources is before "+request.getSession().getAttribute("hideResources"));
         Hashtable dsPrefs=new Hashtable();
         if (request.getSession().getAttribute("hideResources") == null){
@@ -189,7 +190,7 @@ public final class RxMyDrugrefInfoAction extends DispatchAction {
 
         Vector all = new Vector();
         
-        if (OscarProperties.getInstance().isPropertyActive("use_fdb")) {
+        if (useFdb) {
             RxPrescriptionData rxData = new RxPrescriptionData();
             Vector dinCodes = new Vector<Object>(bean.getRegionalIdentifier());
 
@@ -209,7 +210,22 @@ public final class RxMyDrugrefInfoAction extends DispatchAction {
                 displayInteraction.put("comments", new Vector<>());
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
                 displayInteraction.put("updated_at", sdf.parse(drugInteraction.get("update_date")));
-                displayInteraction.put("significance", drugInteraction.get("significance"));
+                // FDB's significance levels don't correspond to drugrefs increasing levels of severity
+                /*  SEVERITY LEVEL:  2-Severe Interaction: Action is required to reduce the risk 
+                    of severe adverse interaction.
+                    SEVERITY LEVEL:  3-Moderate Interaction: Assess the risk to the patient and 
+                    take action as needed.
+                    SEVERITY LEVEL:  1-Contraindicated Drug Combination: This drug combination 
+                    is contraindicated and generally should not be dispensed or administered to 
+                    the same patient.
+                 */
+                if ("2".equals(drugInteraction.get("significance"))) {
+                    displayInteraction.put("significance", "3");
+                } else if ("3".equals(drugInteraction.get("significance"))) {
+                    displayInteraction.put("significance", "2");
+                } else {
+                    displayInteraction.put("significance", drugInteraction.get("significance"));
+                }
                 all.add(displayInteraction);
             }
         } else if (OscarProperties.getInstance().isPropertyActive("rx_show_dchan_warnings")) {
@@ -230,7 +246,7 @@ public final class RxMyDrugrefInfoAction extends DispatchAction {
             }
         }
         
-        if(OscarProperties.getInstance().isPropertyActive("RX_INTERACTION_LOCAL_DRUGREF_REGIONAL_IDENTIFIER") && !OscarProperties.getInstance().isPropertyActive("use_fdb")){
+        if(OscarProperties.getInstance().isPropertyActive("RX_INTERACTION_LOCAL_DRUGREF_REGIONAL_IDENTIFIER") && !useFdb){
         	List regionalIdentifiers = bean.getRegionalIdentifier();
         	if (loggedInInfo.getCurrentFacility().isIntegratorEnabled()){
         		ArrayList<String> remoteDrugRegionalIdentiferCodes=RemoteDrugAllergyHelper.getRegionalIdentiferCodesFromRemoteDrugs(loggedInInfo, bean.getDemographicNo());

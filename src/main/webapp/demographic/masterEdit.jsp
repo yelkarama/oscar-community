@@ -1608,24 +1608,42 @@ function updateStatusDate(patientOrRoster){
 
 
 	<tr valign="top">
-		<td nowrap colspan="4"><b><bean:message
-					key="demographic.demographiceditdemographic.rxInteractionWarningLevel" /></b>
-			<input type="hidden" name="rxInteractionWarningLevelOrig"
-			value="<%=StringUtils.trimToEmpty(demoExt.get("rxInteractionWarningLevel"))%>" />
-			<select id="rxInteractionWarningLevel"
-			name="rxInteractionWarningLevel">
-				<option value="0"
-					<%=(warningLevel.equals("0") ? "selected=\"selected\"" : "")%>>Not
-					Specified</option>
-				<option value="1"
-					<%=(warningLevel.equals("1") ? "selected=\"selected\"" : "")%>>Low</option>
-				<option value="2"
-					<%=(warningLevel.equals("2") ? "selected=\"selected\"" : "")%>>Medium</option>
-				<option value="3"
-					<%=(warningLevel.equals("3") ? "selected=\"selected\"" : "")%>>High</option>
-				<option value="4"
-					<%=(warningLevel.equals("4") ? "selected=\"selected\"" : "")%>>None</option>
-		</select> <oscar:oscarPropertiesCheck property="INTEGRATOR_LOCAL_STORE"
+		<td nowrap colspan="4">
+			<b><bean:message key="demographic.demographiceditdemographic.rxInteractionWarningLevel" /></b>
+			<input type="hidden" name="rxInteractionWarningLevelOrig" value="<%=StringUtils.trimToEmpty(demoExt.get("rxInteractionWarningLevel"))%>" />
+			<select id="rxInteractionWarningLevel" name="rxInteractionWarningLevel">
+				<option value="0"<%=(warningLevel.equals("0") ? " selected=\"selected\"" : "")%>>Not Specified</option>
+				<option value="1"<%=(warningLevel.equals("1") ? " selected=\"selected\"" : "")%>>Low</option>
+				<option value="2"<%=(warningLevel.equals("2") ? " selected=\"selected\"" : "")%>>Medium</option>
+				<option value="3"<%=(warningLevel.equals("3") ? " selected=\"selected\"" : "")%>>High</option>
+				<option value="4"<%=(warningLevel.equals("4") ? " selected=\"selected\"" : "")%>>None</option>
+			</select>
+	<oscar:oscarPropertiesCheck property="use_fdb" value="true">
+			<a id="toggle-interaction-descriptions" href="javascript:void(0);" onclick="toggleInteractionDescriptions();">Show Description</a>
+			<div id="interaction-descriptions" style="display: none;">
+				SEVERITY LEVEL LOW:  Contraindicated Drug Combination: This drug combination
+				is contraindicated and generally should not be dispensed or administered to
+				the same patient.<br/>
+				SEVERITY LEVEL MEDIUM:  Moderate Interaction: Assess the risk to the patient and
+				take action as needed.<br/>
+				SEVERITY LEVEL HIGH:  Severe Interaction: Action is required to reduce the risk
+				of severe adverse interaction.
+			</div>
+			<script>
+				function  toggleInteractionDescriptions() {
+					var descriptionsDiv = document.getElementById("interaction-descriptions");
+					var toggleLink = document.getElementById("toggle-interaction-descriptions");
+					if (descriptionsDiv.style.display === 'none') {
+						descriptionsDiv.style.display = 'block';
+						toggleLink.innerHTML = 'Hide Description';
+					} else {
+						descriptionsDiv.style.display = 'none';
+						toggleLink.innerHTML = 'Show Description';
+					}
+				}
+			</script>
+	</oscar:oscarPropertiesCheck>
+	<oscar:oscarPropertiesCheck property="INTEGRATOR_LOCAL_STORE"
 				value="yes">
 				<b><bean:message
 						key="demographic.demographiceditdemographic.primaryEMR" />:</b>

@@ -145,7 +145,7 @@
                 </tr>
                 
 		<tr class="b">
-			<td>Rx Interaction Warning Level:</td>
+			<td>Minimum Rx Interaction Warning Level:</td>
 			<td>
 				<html:select property="facility.rxInteractionWarningLevel">
 					<html:option value="0">Not Specified</html:option>
@@ -154,6 +154,31 @@
 					<html:option value="3">High</html:option>
 					<html:option value="4">None</html:option>
 				</html:select>
+				<oscar:oscarPropertiesCheck property="use_fdb" value="true">
+				<a id="toggle-interaction-descriptions" href="javascript:void(0);" onclick="toggleInteractionDescriptions();">Show Description</a>
+				<div id="interaction-descriptions" style="display: none;">
+					SEVERITY LEVEL LOW:  Contraindicated Drug Combination: This drug combination
+					is contraindicated and generally should not be dispensed or administered to
+					the same patient.<br/>
+					SEVERITY LEVEL MEDIUM:  Moderate Interaction: Assess the risk to the patient and
+					take action as needed.<br/>
+					SEVERITY LEVEL HIGH:  Severe Interaction: Action is required to reduce the risk
+					of severe adverse interaction.
+				</div>
+				<script>
+					function  toggleInteractionDescriptions() {
+						var descriptionsDiv = document.getElementById("interaction-descriptions");
+						var toggleLink = document.getElementById("toggle-interaction-descriptions");
+						if (descriptionsDiv.style.display === 'none') {
+							descriptionsDiv.style.display = 'block';
+							toggleLink.innerHTML = 'Hide Description';
+						} else {
+							descriptionsDiv.style.display = 'none';
+							toggleLink.innerHTML = 'Show Description';
+						}
+					}
+				</script>
+				</oscar:oscarPropertiesCheck>
 			</td>
 		</tr>                
 <!--Ronnie
