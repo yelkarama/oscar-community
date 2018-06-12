@@ -495,7 +495,7 @@ var appointmentTypeData = {};
                     reasonOption[0].selected = true;
                 }
                 else {
-                    document.forms['ADDAPPT'].reason.value = existingReason + (existingReason.length > 0 ? "\n" : "") + typeData.reason;
+                    document.forms['ADDAPPT'].reason.value = existingReason + (existingReason.length > 0 && !existingReason.endsWith("\n") ? "\n" : "") + typeData.reason;
                 }
             }
 
