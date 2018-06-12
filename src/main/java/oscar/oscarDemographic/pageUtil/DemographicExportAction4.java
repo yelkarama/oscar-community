@@ -3109,7 +3109,14 @@ public class DemographicExportAction4 extends Action {
 		if (StringUtils.filled(labMea.get("name"))) labResults.setTestNameReportedByLab(labMea.get("name"));
 
 		//laboratory name
-		labResults.setLaboratoryName(StringUtils.noNull(labMea.get("labname")));
+		String laboratoryName = StringUtils.noNull(labMea.get("labname"));
+		if (laboratoryName.equals("GDML")) {
+			laboratoryName = "Gamma";
+		} else if (laboratoryName.equals("MDS")) {
+			laboratoryName = "LifeLabs";
+		}
+		
+		labResults.setLaboratoryName(laboratoryName);
 		addOneEntry(LABS);
 		if (StringUtils.empty(labResults.getLaboratoryName())) {
 			exportError.add("Error! No Laboratory Name for Lab Test "+labResults.getLabTestCode()+" for Patient "+demoNo);
@@ -3126,7 +3133,7 @@ public class DemographicExportAction4 extends Action {
 		}
 
 		//lab normal/abnormal flag
-		ResultNormalAbnormalFlag resultNormalAbnormalFlag = ResultNormalAbnormalFlag.Factory.newInstance();
+		ResultNormalAbnormalFlag resultNormalAbnormalFlag = labResults.addNewResultNormalAbnormalFlag();
 		
 		String abnormalFlag = StringUtils.noNull(labMea.get("abnormal"));
 		resultNormalAbnormalFlag.setResultNormalAbnormalFlagAsPlainText(abnormalFlag);
@@ -3193,21 +3200,18 @@ public class DemographicExportAction4 extends Action {
 
 
 			//lab reviewer
-			HashMap<String,Object> labRoutingInfo = new HashMap<String,Object>();
-			if (labTable.equals(CaseManagementNoteLink.LABTEST))
-				labRoutingInfo.putAll(ProviderLabRouting.getInfo(lab_no, "HL7"));
-			else
-				labRoutingInfo.putAll(ProviderLabRouting.getInfo(lab_no, "CML"));
-			if (!labRoutingInfo.isEmpty()) {
+			HashMap<String,Object> labRoutingInfo = ProviderLabRouting.getInfo(lab_no, "HL7");
+
+			if (labRoutingInfo != null && labRoutingInfo.get("timestamp") != null && labRoutingInfo.get("provider_no") != null) {
 				String timestamp = labRoutingInfo.get("timestamp").toString();
 				if (UtilDateUtilities.StringToDate(timestamp, "yyyy-MM-dd HH:mm:ss") != null) {
-					LaboratoryResults.ResultReviewer reviewer = labResults.addNewResultReviewer();
-					reviewer.addNewDateTimeResultReviewed().setFullDateTime(Util.calDate(timestamp));
-
-					//reviewer name
-					cdsDt.PersonNameSimple reviewerName = reviewer.addNewName();
 					String lab_provider_no = (String) labRoutingInfo.get("provider_no");
 					if (!"0".equals(lab_provider_no)) {
+						LaboratoryResults.ResultReviewer reviewer = labResults.addNewResultReviewer();
+						reviewer.addNewDateTimeResultReviewed().setFullDateTime(Util.calDate(timestamp));
+
+						//reviewer name
+						cdsDt.PersonNameSimple reviewerName = reviewer.addNewName();
 						ProviderData pvd = new ProviderData(lab_provider_no);
 						Util.writeNameSimple(reviewerName, pvd.getFirst_name(), pvd.getLast_name());
 						if (StringUtils.noNull(pvd.getOhip_no()).length() <= 6) {

@@ -187,7 +187,7 @@ public class ProviderLabRouting {
 	public static HashMap<String, Object> getInfo(String lab_no, String lab_type) {
 		HashMap<String, Object> info = new HashMap<String, Object>();
 		ProviderLabRoutingDao dao = SpringUtils.getBean(ProviderLabRoutingDao.class);
-		ProviderLabRoutingModel r = dao.findByLabNoAndLabType(ConversionUtils.fromIntString(lab_no), lab_type);
+		ProviderLabRoutingModel r = dao.findByLabNoAndLabType(ConversionUtils.fromIntString(lab_no), lab_type, true);
 
 		if (r != null) {
 			info.put("lab_no", lab_no);

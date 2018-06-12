@@ -79,10 +79,20 @@ public class ProviderLabRoutingDao extends AbstractDao<ProviderLabRoutingModel> 
 	}
 	
 	public ProviderLabRoutingModel findByLabNoAndLabType(int labNo, String labType) {
-		Query query = entityManager.createQuery("select x from " + modelClass.getName() + " x where x.labNo=? and x.labType = ?");
+		return findByLabNoAndLabType(labNo, labType, false);
+	}
+
+	public ProviderLabRoutingModel findByLabNoAndLabType(int labNo, String labType, Boolean notUnmatched) {
+		String sql = "select x from " + modelClass.getName() + " x where x.labNo=? and x.labType = ?";
+		
+		if (notUnmatched) {
+			sql += " and x.providerNo != 0 and x.providerNo != -1 and x.providerNo is not null";
+		}
+		
+		Query query = entityManager.createQuery(sql);
 		query.setParameter(1, labNo);
 		query.setParameter(2, labType);
-		
+
 		return this.getSingleResultOrNull(query);
 	}
 
