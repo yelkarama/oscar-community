@@ -1896,7 +1896,11 @@ public class DemographicExportAction4 extends Action {
 						String contentType = Util.mimeToExt(edoc.getContentType());
 						if (StringUtils.empty(contentType)) contentType = cutExt(edoc.getFileName());
 						if (StringUtils.empty(contentType)) exportError.add("Error! No File Extension&Version info for Document \""+edoc.getFileName()+"\"");
-						rpr.setFileExtensionAndVersion(contentType);
+						
+						if (StringUtils.filled(contentType)) {
+							rpr.setFileExtensionAndVersion(contentType);
+						}
+						
 
 						String docClass = edoc.getDocClass();
 						if (cdsDt.ReportClass.Enum.forString(docClass)!=null) {
@@ -2027,7 +2031,7 @@ public class DemographicExportAction4 extends Action {
 								}
 
 								//File extension & version
-								if (reportStrings.get("fileextension&version")!=null) {
+								if (StringUtils.filled(reportStrings.get("fileextension&version"))) {
 									rpr.setFileExtensionAndVersion(reportStrings.get("fileextension&version"));
 								}
 
