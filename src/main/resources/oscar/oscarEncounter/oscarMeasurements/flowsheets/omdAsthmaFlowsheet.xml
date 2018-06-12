@@ -37,14 +37,68 @@
     <measurement type="ANR" typeDesc="Asthma Needs Reliever   " typeDisplayName="Asthma Needs Reliever   " measuringInstrc="frequency per week">
         <validationRule name="Numeric Value: 0 to 2500" maxValue="2500" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
     </measurement>
-    <item measurement_type="ASYM" display_name="Asthma Symptoms" guideline="dyspnea, cough, wheeze, chest tightness" graphable="yes" value_name="Frequency/Week">
+    <item measurement_type="ASYM" display_name="Asthma Symptoms" guideline="dyspnea, cough, wheeze, chest tightness, night time symptoms" graphable="yes" value_name="Frequency/Week">
         <ruleset>
             <rule indicationColor="HIGH">
-                <condition type="getDataAsDouble" param="ASYM" value="&gt;4" />
+                <condition type="getDataAsDouble" param="ADYS" value="&gt;4" />
+                <condition type="getDataAsDouble" param="ACHS" value="&gt;4" />
+                <condition type="getDataAsDouble" param="AWHS" value="&gt;4" />
+                <condition type="getDataAsDouble" param="ACTS" value="&gt;4" />
+                <condition type="getDataAsDouble" param="ANSY" value="&gt;0" />
             </rule>
         </ruleset>
     </item>
     <measurement type="ASYM" typeDesc="Asthma Symptoms" typeDisplayName="Asthma Symptoms" measuringInstrc="frequency per week">
+        <validationRule name="Numeric Value: 0 to 2500" maxValue="2500" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
+    </measurement>
+    <item measurement_type="ADYS" display_name="Asthma Dyspnea Symptoms" guideline="" graphable="yes" value_name="Frequency/Week">
+        <ruleset>
+            <rule indicationColor="HIGH">
+                <condition type="getDataAsDouble" param="ADYS" value="&gt;4" />
+            </rule>
+        </ruleset>
+    </item>
+    <measurement type="ADYS" parentType="ASYM" typeDesc="Asthma Dyspnea Symptoms" typeDisplayName="Asthma Dyspnea Symptoms" measuringInstrc="frequency per week">
+        <validationRule name="Numeric Value: 0 to 2500" maxValue="2500" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
+    </measurement>
+    <item measurement_type="ACHS" display_name="Asthma Cough Symptoms" guideline="" graphable="yes" value_name="Frequency/Week">
+        <ruleset>
+            <rule indicationColor="HIGH">
+                <condition type="getDataAsDouble" param="ACHS" value="&gt;4" />
+            </rule>
+        </ruleset>
+    </item>
+    <measurement type="ACHS" parentType="ASYM" typeDesc="Asthma Cough Symptoms" typeDisplayName="Asthma Cough Symptoms" measuringInstrc="frequency per week">
+        <validationRule name="Numeric Value: 0 to 2500" maxValue="2500" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
+    </measurement>
+    <item measurement_type="AWHS" display_name="Asthma Wheeze Symptoms" guideline="" graphable="yes" value_name="Frequency/Week">
+        <ruleset>
+            <rule indicationColor="HIGH">
+                <condition type="getDataAsDouble" param="AWHS" value="&gt;4" />
+            </rule>
+        </ruleset>
+    </item>
+    <measurement type="AWHS" parentType="ASYM" typeDesc="Asthma Wheeze Symptoms" typeDisplayName="Asthma Wheeze Symptoms" measuringInstrc="frequency per week">
+        <validationRule name="Numeric Value: 0 to 2500" maxValue="2500" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
+    </measurement>
+    <item measurement_type="ACTS" display_name="Asthma Chest Tightness Symptoms" guideline="" graphable="yes" value_name="Frequency/Week">
+        <ruleset>
+            <rule indicationColor="HIGH">
+                <condition type="getDataAsDouble" param="ACTS" value="&gt;4" />
+            </rule>
+        </ruleset>
+    </item>
+    <measurement type="ACTS" parentType="ASYM" typeDesc="Asthma Chest Tightness Symptoms" typeDisplayName="Asthma Chest Tightness Symptoms" measuringInstrc="frequency per week">
+        <validationRule name="Numeric Value: 0 to 2500" maxValue="2500" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
+    </measurement>
+    <item measurement_type="ANSY" display_name="Night Time Symptoms" guideline="" graphable="yes" value_name="Frequency/Week" >
+        <ruleset>
+            <rule indicationColor="HIGH">
+                <condition type="getDataAsDouble" value="&gt;0" /> <!--  param="ANSY" -->
+            </rule>
+        </ruleset>
+    </item>
+    <measurement type="ANSY" parentType="ASYM" typeDesc="Asthma Night Time Symptoms" typeDisplayName="Asthma Night Time Symptoms" measuringInstrc="frequency per week">
         <validationRule name="Numeric Value: 0 to 2500" maxValue="2500" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
     </measurement>
     <item measurement_type="ASWA" display_name="Absence since  last office visit" guideline="School/Work" graphable="yes" value_name="Has Absence" >
@@ -57,14 +111,14 @@
     <measurement type="ASWA" typeDesc="Asthma Absence School Work" typeDisplayName="Asthma Absence School Work" measuringInstrc="">
         <validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
     </measurement>
-    <item measurement_type="ANSY" display_name="Night Time Symptoms" guideline="" graphable="yes" value_name="Frequency/Week" >
+    <item measurement_type="ASWN" display_name="Number of Absences" guideline="School/Work" graphable="yes" value_name="# of Absences" >
         <ruleset>
             <rule indicationColor="HIGH">
                 <condition type="getDataAsDouble" value="&gt;0" /> <!--  param="ANSY" -->
             </rule>
         </ruleset>
     </item>
-    <measurement type="ANSY" typeDesc="Asthma Night Time Symtoms" typeDisplayName="Asthma Night Time Symtoms" measuringInstrc="frequency per week">
+    <measurement type="ASWN" typeDesc="Asthma # of School/Work Absences" typeDisplayName="Asthma # of School/Work Absences" measuringInstrc="">
         <validationRule name="Numeric Value: 0 to 2500" maxValue="2500" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
     </measurement>
     <item measurement_type="FEV1" display_name="FEV1 (before puff) - (personal best of 3)" guideline="greater than 90 percent personal or predicted or personal best" graphable="yes" value_name="90% personal or predicted best" >
@@ -225,7 +279,7 @@
     </measurement>
     <item measurement_type="AACP" display_name="Action Plan" guideline="" graphable="yes" value_name="Provided/Revised/Reviewed" />
     <measurement type="AACP" typeDesc="Asthma Action Plan " typeDisplayName="Asthma Action Plan " measuringInstrc="">
-        <validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
+        <validationRule name="Provided/Revised/Reviewed" maxValue="" minValue="" isDate="" isNumeric="" regularExp="PROVIDED|provided|Provided|REVISED|revised|Revised|REVIEWED|reviewed|Reviewed" maxLength="" minLength="" />
     </measurement>
     <item measurement_type="AEDR" display_name="Education Referral" guideline="" graphable="yes" value_name="Referred" />
     <measurement type="AEDR" typeDesc="Asthma Education Referral" typeDisplayName="Asthma Education Referral" measuringInstrc="">

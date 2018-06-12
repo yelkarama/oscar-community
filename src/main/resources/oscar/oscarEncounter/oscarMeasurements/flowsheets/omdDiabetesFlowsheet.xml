@@ -393,7 +393,7 @@ ds_rules="diab.drl"
       <header display_name="Neuropathy">
           <item measurement_type="EDGI" display_name="Autonomic Neuropathy" guideline="Erectile Dysfunction, gastrointestinal disturbance" graphable="no" value_name="Present" />
           <header display_name="Peripheral">
-              <item measurement_type="FTLS" display_name="Monofilament 10g" guideline="Check for peripheral anesthesia with 10g monofilament or 128 Hz tuning fork" graphable="no" value_name="Normal"  >
+              <item measurement_type="FTLS" display_name="Neurological Exam" guideline="Check for peripheral anesthesia with 10g monofilament or 128 Hz tuning fork" graphable="no" value_name="Normal"  >
                   <rules>
                   <recommendation strength="warning" >
                     <condition type="monthrange" param="FTLS" value="&gt;12" />
@@ -721,7 +721,7 @@ ds_rules="diab.drl"
   </measurement>
   
   
-  <measurement type="FTLS" typeDesc="Foot Exam  Loss of Sensation" typeDisplayName="Foot Exam  Test loss of Sensation" measuringInstrc="Normal">
+  <measurement type="FTLS" typeDesc="Neurological Exam Loss of Sensation (Foot)" typeDisplayName="Neurological Exam" measuringInstrc="Normal">
     <validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
   </measurement>
   
@@ -730,7 +730,7 @@ ds_rules="diab.drl"
     <validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
   </measurement>
     
-  <measurement type="DMME" typeDesc="Diabetes Education" typeDisplayName="Diabetes Education" measuringInstrc="Discussed">
+  <measurement type="DMME" typeDesc="Diabetes Education" typeDisplayName="Diabetes Education" measuringInstrc="Completed">
     <validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
   </measurement>
   
@@ -745,22 +745,21 @@ ds_rules="diab.drl"
   </measurement>
   
   
-  <measurement type="MCCN" typeDesc="Motivation Counselling Compeleted Nutrition" typeDisplayName="Motivation Counselling Compeleted Nutrition" measuringInstrc="">
+  <measurement type="MCCN" typeDesc="Motivation Counselling Completed Nutrition" typeDisplayName="Motivation Counselling Completed Nutrition" measuringInstrc="">
     <validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
   </measurement>
   
   
-  <measurement type="MCCE" typeDesc="Motivation Counselling Compeleted Exercise" typeDisplayName="Motivation Counselling Compeleted Exercise" measuringInstrc="">
+  <measurement type="MCCE" typeDesc="Motivation Counselling Completed Exercise" typeDisplayName="Motivation Counselling Completed Exercise" measuringInstrc="">
     <validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
   </measurement>
   
   
-  <measurement type="MCCS" typeDesc="Motivation Counselling Compeleted Smoking Cessation" typeDisplayName="Motivation Counselling Compeleted Smoking Cessation" measuringInstrc="">
+  <measurement type="MCCS" typeDesc="Motivation Counselling Completed Smoking Cessation" typeDisplayName="Motivation Counselling Completed Smoking Cessation" measuringInstrc="">
     <validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
   </measurement>
  
- 
-  <measurement type="MCCO" typeDesc="Motivation Counselling Compeleted Other" typeDisplayName="Motivation Counselling Compeleted Other" measuringInstrc="">
+  <measurement type="MCCO" typeDesc="Motivation Counselling Completed Other" typeDisplayName="Motivation Counselling Completed Other" measuringInstrc="">
     <validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
   </measurement>
  

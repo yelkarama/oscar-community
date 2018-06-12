@@ -35,6 +35,7 @@ public final class EctAddMeasurementTypeForm extends ActionForm {
     String typeDisplayName;
     String measuringInstrc;
     String validation;
+    String parentType;
     
     public String getType(){
         return this.type;
@@ -76,5 +77,12 @@ public final class EctAddMeasurementTypeForm extends ActionForm {
     public void setValidation(String validation){
         this.validation = validation;
     }
-    
+
+    public String getParentType() {
+        return parentType;
+    }
+
+    public void setParentType(String parentType) {
+        this.parentType = parentType;
+    }
 }

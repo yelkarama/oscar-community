@@ -391,8 +391,8 @@
            
     <measurement 
         type="FTLS"      
-        typeDesc="Foot Exam  Loss of Sensation"      
-        typeDisplayName="Foot Exam  Test loss of Sensation"
+        typeDesc="Neurological Exam  Loss of Sensation (Foot)"      
+        typeDisplayName="Neurological Exam"
         measuringInstrc="Normal">  
         <validationRule
            name="Yes/No"
@@ -426,7 +426,7 @@
         type="DMME"         
         typeDesc="Diabetes Education"      
         typeDisplayName="Diabetes Education" 
-        measuringInstrc="Discussed">  
+        measuringInstrc="Completed">  
         <validationRule
            name="Yes/No"
            regularExp="YES|yes|Yes|Y|NO|no|No|N"/>   

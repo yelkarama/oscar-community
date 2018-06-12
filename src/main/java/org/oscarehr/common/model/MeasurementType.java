@@ -28,6 +28,7 @@ package org.oscarehr.common.model;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -53,6 +54,8 @@ public class MeasurementType extends AbstractModel<Integer> implements Serializa
 	private String typeDescription;
 	private String measuringInstruction;
 	private String validation;
+	@Column(name = "parent_type")
+	private String parentType = null;
 
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date createDate=new Date();
@@ -111,4 +114,12 @@ public class MeasurementType extends AbstractModel<Integer> implements Serializa
 	public Date getCreateDate() {
     	return (createDate);
     }
+
+	public String getParentType() {
+		return parentType;
+	}
+
+	public void setParentType(String parentType) {
+		this.parentType = parentType;
+	}
 }

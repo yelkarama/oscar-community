@@ -96,7 +96,7 @@
 
 	<header display_name="Feet">
 		<item measurement_type="FTE" display_name="Foot Exam" guideline="Foot Care" graphable="no" value_name="Normal"  />
-		<item measurement_type="FTLS" display_name="Monofilament 10g" guideline="Check for peripheral anesthesia with 10g monofilament or 128 Hz tuning fork" graphable="no" value_name="Normal"  />
+		<item measurement_type="FTLS" display_name="Neurological Exam" guideline="Check for peripheral anesthesia with 10g monofilament or 128 Hz tuning fork" graphable="no" value_name="Normal"  />
 	</header>
 	
 	<header display_name="Psychosocial">
@@ -326,7 +326,7 @@
 	</measurement>
 	
 	
-	<measurement type="FTLS" typeDesc="Foot Exam  Loss of Sensation" typeDisplayName="Foot Exam  Test loss of Sensation" measuringInstrc="Normal">
+	<measurement type="FTLS" typeDesc="Neurological Exam Loss of Sensation (Foot)" typeDisplayName="Neurological Exam" measuringInstrc="Normal">
 	  <validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
 	</measurement>
 	
@@ -335,7 +335,7 @@
 	  <validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
 	</measurement>
 	  
-	<measurement type="DMME" typeDesc="Diabetes Education" typeDisplayName="Diabetes Education" measuringInstrc="Discussed">
+	<measurement type="DMME" typeDesc="Diabetes Education" typeDisplayName="Diabetes Education" measuringInstrc="Completed">
 	  <validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
 	</measurement>
 	
@@ -354,22 +354,22 @@
 	</measurement>
 	
 	
-	<measurement type="MCCN" typeDesc="Motivation Counseling Compeleted Nutrition" typeDisplayName="Motivation Counseling Compeleted Nutrition" measuringInstrc="">
+	<measurement type="MCCN" typeDesc="Motivation Counseling Completed Nutrition" typeDisplayName="Motivation Counseling Completed Nutrition" measuringInstrc="">
 	  <validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
 	</measurement>
 	
 	
-	<measurement type="MCCE" typeDesc="Motivation Counseling Compeleted Exercise" typeDisplayName="Motivation Counseling Compeleted Exercise" measuringInstrc="">
+	<measurement type="MCCE" typeDesc="Motivation Counseling Completed Exercise" typeDisplayName="Motivation Counseling Completed Exercise" measuringInstrc="">
 	  <validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
 	</measurement>
 	
 	
-	<measurement type="MCCS" typeDesc="Motivation Counseling Compeleted Smoking Cessation" typeDisplayName="Motivation Counseling Compeleted Smoking Cessation" measuringInstrc="">
+	<measurement type="MCCS" typeDesc="Motivation Counseling Completed Smoking Cessation" typeDisplayName="Motivation Counseling Completed Smoking Cessation" measuringInstrc="">
 	  <validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
 	</measurement>
 	
 	
-	<measurement type="MCCO" typeDesc="Motivation Counseling Compeleted Other" typeDisplayName="Motivation Counseling Compeleted Other" measuringInstrc="">
+	<measurement type="MCCO" typeDesc="Motivation Counseling Completed Other" typeDisplayName="Motivation Counseling Completed Other" measuringInstrc="">
 	  <validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
 	</measurement>
 	

@@ -76,6 +76,41 @@
     <measurement type="SOHF" typeDesc="Symptoms of Heart Failure" typeDisplayName="Symptoms of Heart Failure" measuringInstrc="">
         <validationRule name="Yes/No" maxValue="" minValue="" isDate="" isNumeric="" regularExp="YES|yes|Yes|Y|NO|no|No|N" maxLength="" minLength="" />
     </measurement>
+
+    <item measurement_type="HFFA" display_name="HF Fatigue Symptoms" guideline="" graphable="yes" value_name="Frequency/Week" />
+    <measurement type="HFFA" parentType="SOHF" typeDesc="HF Fatigue Symptoms" typeDisplayName="HF Fatigue Symptoms" measuringInstrc="frequency per week">
+        <validationRule name="Numeric Value: 0 to 2500" maxValue="2500" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
+    </measurement>
+
+    <item measurement_type="HFDI" display_name="HF Dizziness Symptoms" guideline="" graphable="yes" value_name="Frequency/Week" />
+    <measurement type="HFDI" parentType="SOHF" typeDesc="HF Dizziness Symptoms" typeDisplayName="HF Dizziness Symptoms" measuringInstrc="frequency per week">
+        <validationRule name="Numeric Value: 0 to 2500" maxValue="2500" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
+    </measurement>
+
+    <item measurement_type="HFSY" display_name="HF Syncope Symptoms" guideline="" graphable="yes" value_name="Frequency/Week" />
+    <measurement type="HFSY" parentType="SOHF" typeDesc="HF Syncope Symptoms" typeDisplayName="HF Syncope Symptoms" measuringInstrc="frequency per week">
+        <validationRule name="Numeric Value: 0 to 2500" maxValue="2500" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
+    </measurement>
+
+    <item measurement_type="HFDE" display_name="HF Dyspnea on Exertion Symptoms" guideline="" graphable="yes" value_name="Frequency/Week" />
+    <measurement type="HFDE" parentType="SOHF" typeDesc="HF Dyspnea on Exertion Symptoms" typeDisplayName="HF Dyspnea on Exertion Symptoms" measuringInstrc="frequency per week">
+        <validationRule name="Numeric Value: 0 to 2500" maxValue="2500" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
+    </measurement>
+
+    <item measurement_type="HFDR" display_name="HF Dyspnea at Rest Symptoms" guideline="" graphable="yes" value_name="Frequency/Week" />
+    <measurement type="HFSY" parentType="SOHF" typeDesc="HF Dyspnea at Rest Symptoms" typeDisplayName="HF Dyspnea at Rest Symptoms" measuringInstrc="frequency per week">
+        <validationRule name="Numeric Value: 0 to 2500" maxValue="2500" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
+    </measurement>
+
+    <item measurement_type="HFOR" display_name="HF Orthopnea Symptoms" guideline="" graphable="yes" value_name="Frequency/Week" />
+    <measurement type="HFOR" parentType="SOHF" typeDesc="HF Orthopnea Symptoms" typeDisplayName="HF Orthopnea Symptoms" measuringInstrc="frequency per week">
+        <validationRule name="Numeric Value: 0 to 2500" maxValue="2500" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
+    </measurement>
+
+    <item measurement_type="HFPN" display_name="HF Paroxysmal Nocturnal Dyspnea Symptoms" guideline="" graphable="yes" value_name="Frequency/Week" />
+    <measurement type="HFPN" parentType="SOHF" typeDesc="HF Paroxysmal Nocturnal Dyspnea Symptoms" typeDisplayName="HF Paroxysmal Nocturnal Dyspnea Symptoms" measuringInstrc="frequency per week">
+        <validationRule name="Numeric Value: 0 to 2500" maxValue="2500" minValue="0" isDate="" isNumeric="1" regularExp="" maxLength="" minLength="" />
+    </measurement>
         
     <item measurement_type="WT" display_name="Weight" guideline="" graphable="yes" value_name="Value" />
     <measurement type="WT" typeDesc="Weight" typeDisplayName="WT" measuringInstrc="in BMI">

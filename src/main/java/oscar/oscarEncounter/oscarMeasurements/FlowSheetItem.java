@@ -100,6 +100,7 @@ public class FlowSheetItem {
 
         valueName = allFields.get("value_name");
         possibleAnswer = allFields.get("possible_answer");
+        hide = Boolean.valueOf(allFields.get("hide"));
 
     }
 
