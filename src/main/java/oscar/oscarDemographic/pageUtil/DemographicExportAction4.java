@@ -1842,9 +1842,11 @@ public class DemographicExportAction4 extends Action {
 					}
 					if (StringUtils.filled(p.getFirstName()) || StringUtils.filled(p.getLastName())) {
 						Appointments.Provider prov = aptm.addNewProvider();
-
-						if (StringUtils.noNull(p.getOhipNo()).length()<=6) prov.setOHIPPhysicianId(p.getOhipNo());
 						Util.writeNameSimple(prov.addNewName(), p.getFirstName(), p.getLastName());
+						
+						if (StringUtils.noNull(p.getOhipNo()).length()<=6) {
+							prov.setOHIPPhysicianId(p.getOhipNo());
+						}
 					}
 					if (StringUtils.filled(ap.getNotes())) {
 						aptm.setAppointmentNotes(ap.getNotes());
