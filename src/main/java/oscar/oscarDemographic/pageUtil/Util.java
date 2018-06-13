@@ -181,6 +181,24 @@ public class Util {
 	return ret;
     }
 
+    static public void deleteDirectory(String dirPath) {
+        File directory = new File(dirPath);
+        File[] files = directory.listFiles();
+        if(files != null) { 
+            for(File file: files) {
+                if(file.isDirectory()) {
+                    deleteDirectory(file.getPath());
+                } else if (!file.delete()){
+                    file.deleteOnExit();
+                }
+            }
+        }
+        
+        if (!directory.delete()) {
+            directory.deleteOnExit();
+        }
+    }
+
     static public void downloadFile(String fileName, String dirName, HttpServletResponse rsp) {
         try {
             dirName = fixDirName(dirName);

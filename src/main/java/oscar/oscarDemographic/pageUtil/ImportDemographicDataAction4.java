@@ -25,7 +25,6 @@
 
 package oscar.oscarDemographic.pageUtil;
 
-import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -37,6 +36,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -205,6 +205,8 @@ import oscar.util.UtilDateUtilities;
     Integer importNo = 0;
     OscarProperties oscarProperties = OscarProperties.getInstance();
     List<String> importErrors = new ArrayList<String>();
+    List<File> importedFiles = new ArrayList<File>();
+    String tmpDir = oscarProperties.getProperty("TMP_DIR");
 
     ProgramManager programManager = (ProgramManager) SpringUtils.getBean("programManager");
     AdmissionManager admissionManager = (AdmissionManager) SpringUtils.getBean("admissionManager");
@@ -232,7 +234,6 @@ import oscar.util.UtilDateUtilities;
     	
         admProviderNo = (String) request.getSession().getAttribute("user");
         programId = new EctProgram(request.getSession()).getProgram(admProviderNo);
-        String tmpDir = oscarProperties.getProperty("TMP_DIR");
         tmpDir = Util.fixDirName(tmpDir);
         if (!Util.checkDir(tmpDir)) {
             logger.debug("Error! Cannot write to TMP_DIR - Check oscar.properties or dir permissions.");
@@ -262,6 +263,8 @@ import oscar.util.UtilDateUtilities;
         ArrayList<String> warnings = new ArrayList<String>();
         successfulImports = new HashMap<String, String>();
         ArrayList<String[]> logs = new ArrayList<String[]>();
+        List<File> xmlFiles = new ArrayList<File>();
+        importedFiles = new ArrayList<File>();
         File importLog = null;
 
         InputStream is = null;
@@ -281,7 +284,6 @@ import oscar.util.UtilDateUtilities;
                 in = new ZipInputStream(new FileInputStream(ifile));
                 boolean noXML = true;
                 ZipEntry entry = in.getNextEntry();
-                String entryDir = "";
 
                 while (entry!=null) {
                     String entryName = entry.getName();
@@ -293,37 +295,44 @@ import oscar.util.UtilDateUtilities;
                         if (lastFileSeparator > -1) {
                             String checkDir = tmpDir + entryName.substring(0, lastFileSeparator);
                             if (Files.notExists(Paths.get(checkDir))) {
-                                new File(checkDir).mkdirs();
+                                File dir = new File(checkDir);
+                                dir.mkdirs();
+                                importedFiles.add(dir);
                             }
                         }
                         
                         noXML = false;
-                        out = new FileOutputStream(ofile);
-                        while ((len=in.read(buf)) > 0) out.write(buf,0,len);
-                        out.close();
-                        logs.add(importXML(LoggedInInfo.getLoggedInInfoFromSession(request), ofile.getPath(), warnings, request, frm.getTimeshiftInDays(), students, courseId));
-                        importNo++;
-                        demographicNo=null;
+                        xmlFiles.add(ofile);
+                    } else {
+                        importedFiles.add(ofile);
                     }
+                    
+                    out = new FileOutputStream(ofile);
+                    while ((len=in.read(buf)) > 0) out.write(buf,0,len);
+                    out.close();
                     entry = in.getNextEntry();
                 }
                 if (noXML) {
                     Util.cleanFile(ifile);
                         throw new Exception ("Error! No .xml file in zip");
-                } else {
-                    importLog = makeImportLog(logs, tmpDir);
-                }
+                } 
                 in.close();
                 Util.cleanFile(ifile);
 
             } else if (matchFileExt(ifile.getName(), "xml")) {
-                logs.add(importXML(LoggedInInfo.getLoggedInInfoFromSession(request), ifile.getPath(), warnings, request,frm.getTimeshiftInDays(),students,courseId));
-                demographicNo=null;
-                importLog = makeImportLog(logs, tmpDir);
+                xmlFiles.add(ifile);
             } else {
                 Util.cleanFile(ifile);
                 throw new Exception ("Error! Import file must be .xml or .zip");
             }
+            
+            for (File xml : xmlFiles) {
+                logs.add(importXML(LoggedInInfo.getLoggedInInfoFromSession(request), xml.getPath(), warnings, request, frm.getTimeshiftInDays(), students, courseId));
+                importNo++;
+                demographicNo=null;
+            }
+            importLog = makeImportLog(logs, tmpDir);
+            
 	} catch (Exception e) {
             warnings.add("Error processing file: " + imp.getFileName());
             logger.error("Error", e);
@@ -338,13 +347,24 @@ import oscar.util.UtilDateUtilities;
             }
 
             if (out != null) {
+	            out.flush();
                 out.close();
             }
 	        
             if (os != null) {
+	            os.flush();
                 os.close(); 
             }
             
+            for (File file : importedFiles) {
+                if (file.exists()) {
+                    if (file.isDirectory()) {
+                        Util.deleteDirectory(file.getPath());
+                    } else if (!file.delete()) {
+                        file.deleteOnExit();
+                    }
+                }
+            }
         } catch (IOException e) {
             logger.error("Error", e);
         }
@@ -2206,10 +2226,27 @@ import oscar.util.UtilDateUtilities;
                             err_data.add("Error! No Report Format for Report ("+(i+1)+")");
                         }
                         cdsDt.ReportContent repCt = repR[i].getContent();
-                        if (repCt!=null) {
+                        String filePath = repR[i].getFilePath();
+                        if (repCt != null || filePath != null) {
                             byte[] b = null;
-                            if (repCt.getMedia()!=null) b = repCt.getMedia();
-                            else if (repCt.getTextContent()!=null) b = repCt.getTextContent().getBytes();
+                            
+                            if (repCt != null && repCt.getMedia()!=null) {
+                                b = repCt.getMedia();
+                            } else if (repCt != null && repCt.getTextContent()!=null) {
+                                b = repCt.getTextContent().getBytes();
+                            } else if (filePath != null) {
+                                int fileIndex = importedFiles.indexOf(new File(tmpDir + filePath));
+                                
+                                if (fileIndex != -1) {
+                                    Path path = Paths.get(importedFiles.get(fileIndex).getPath());
+                                    try {
+                                        b = Files.readAllBytes(path);
+                                    } catch (Exception e) {
+                                        logger.error("Error reading document ", e);
+                                    }
+                                }
+                            }
+                            
                             if (b==null) {
                                 err_othe.add("Error! No report file in xml ("+(i+1)+")");
                             } else {
