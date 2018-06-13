@@ -179,9 +179,7 @@
             }
             
             function validate(form) {
-				if (true <%=caisiEnabled?"&& validateSelectedProgram()":""%>){
-					form.submit();
-				}
+				return  <%= caisiEnabled ? "validateSelectedProgram()" : "true" %>
 			}
 			
 			function validateSelectedProgram() {
@@ -386,8 +384,8 @@
                             <html:checkbox property="emailDemographic"><bean:message key="tickler.ticklerEdit.emailDemographic"/></html:checkbox>
                          </oscar:oscarPropertiesCheck>
                        
-                         <input type="button" name="updateTickler" value="<bean:message key="tickler.ticklerEdit.update"/>" onClick="validate(this.form);"/>
-                        <input type="button" name="updateTickler" value="Update & Write to Encounter" onClick="validate(this.form);"/>
+                         <input type="submit" name="updateTickler" value="<bean:message key="tickler.ticklerEdit.update"/>" onClick="return validate(this.form);"/>
+                        <input type="submit" name="updateTickler" value="Update & Write to Encounter" onClick="return validate(this.form);"/>
                          <input type="button" name="cancelChangeTickler" value="<bean:message key="tickler.ticklerEdit.cancel"/>" onClick="window.close()"/>
                     </td>         
                 </tr>               
