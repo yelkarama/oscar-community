@@ -25,6 +25,7 @@
 
 package oscar.oscarDemographic.pageUtil;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -35,6 +36,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -255,39 +258,50 @@ import oscar.util.UtilDateUtilities;
         logger.info("apply this patient to " + students.size() + " students");
         matchProviderNames = frm.getMatchProviderNames();
         FormFile imp = frm.getImportFile();
-        String ifile = tmpDir + imp.getFileName();
+        File ifile = new File(tmpDir + imp.getFileName());
         ArrayList<String> warnings = new ArrayList<String>();
         successfulImports = new HashMap<String, String>();
         ArrayList<String[]> logs = new ArrayList<String[]>();
         File importLog = null;
 
+        InputStream is = null;
+        OutputStream os = null;
+        OutputStream out = null;
+        ZipInputStream in = null;
 	try {
-            InputStream is = imp.getInputStream();
-            OutputStream os = new FileOutputStream(ifile);
+            is = imp.getInputStream();
+            os = new FileOutputStream(ifile);
             byte[] buf = new byte[1024];
             int len;
             while ((len=is.read(buf)) > 0) os.write(buf,0,len);
             is.close();
             os.close();
 
-            if (matchFileExt(ifile, "zip")) {
-                ZipInputStream in = new ZipInputStream(new FileInputStream(ifile));
+            if (matchFileExt(ifile.getName(), "zip")) {
+                in = new ZipInputStream(new FileInputStream(ifile));
                 boolean noXML = true;
                 ZipEntry entry = in.getNextEntry();
                 String entryDir = "";
 
                 while (entry!=null) {
                     String entryName = entry.getName();
-                    if (entry.isDirectory()) entryDir = entryName;
-                    if (entryName.startsWith(entryDir)) entryName = entryName.substring(entryDir.length());
-
-                    String ofile = tmpDir + entryName;
-                    if (matchFileExt(ofile, "xml")) {
+                    File ofile = new File(tmpDir + entryName);
+                    if (entry.isDirectory()) {
+                        ofile.mkdirs();
+                    } else if (matchFileExt(ofile.getName(), "xml")) {
+                        int lastFileSeparator = entryName.lastIndexOf("/");
+                        if (lastFileSeparator > -1) {
+                            String checkDir = tmpDir + entryName.substring(0, lastFileSeparator);
+                            if (Files.notExists(Paths.get(checkDir))) {
+                                new File(checkDir).mkdirs();
+                            }
+                        }
+                        
                         noXML = false;
-                        OutputStream out = new FileOutputStream(ofile);
+                        out = new FileOutputStream(ofile);
                         while ((len=in.read(buf)) > 0) out.write(buf,0,len);
                         out.close();
-                        logs.add(importXML(LoggedInInfo.getLoggedInInfoFromSession(request) , ofile, warnings, request,frm.getTimeshiftInDays(),students,courseId));
+                        logs.add(importXML(LoggedInInfo.getLoggedInInfoFromSession(request), ofile.getPath(), warnings, request, frm.getTimeshiftInDays(), students, courseId));
                         importNo++;
                         demographicNo=null;
                     }
@@ -302,8 +316,8 @@ import oscar.util.UtilDateUtilities;
                 in.close();
                 Util.cleanFile(ifile);
 
-            } else if (matchFileExt(ifile, "xml")) {
-                logs.add(importXML(LoggedInInfo.getLoggedInInfoFromSession(request), ifile, warnings, request,frm.getTimeshiftInDays(),students,courseId));
+            } else if (matchFileExt(ifile.getName(), "xml")) {
+                logs.add(importXML(LoggedInInfo.getLoggedInInfoFromSession(request), ifile.getPath(), warnings, request,frm.getTimeshiftInDays(),students,courseId));
                 demographicNo=null;
                 importLog = makeImportLog(logs, tmpDir);
             } else {
@@ -313,7 +327,28 @@ import oscar.util.UtilDateUtilities;
 	} catch (Exception e) {
             warnings.add("Error processing file: " + imp.getFileName());
             logger.error("Error", e);
-	}
+	} finally {
+	    try {
+	        if (is != null) {
+                is.close();
+            }
+	        
+            if (in != null) {
+                in.close();
+            }
+
+            if (out != null) {
+                out.close();
+            }
+	        
+            if (os != null) {
+                os.close(); 
+            }
+            
+        } catch (IOException e) {
+            logger.error("Error", e);
+        }
+    }
 
         //channel warnings and importlog to browser
         request.setAttribute("warnings",warnings);
