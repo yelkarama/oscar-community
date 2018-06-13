@@ -591,21 +591,26 @@
 				<% } %>
 				<% } else { 
 					Map<String, String> provinces = ProvinceNames.getDefaultProvinces();
+					Boolean customHCTypesDisplayed = false;
 					for (Map.Entry<String, String> entry : provinces.entrySet()) {
 						String shortName = entry.getKey();
 						String longName = entry.getValue(); 
 						Boolean selected = hctype.equals(shortName);
-				%>
-				<option value="<%=shortName%>" <%=selected?" selected":""%>><%=shortName%>-<%=longName%></option>
-				<% 	}
-					List<CustomHealthcardType> customHealthcardTypes = customHealthcardTypeDao.findAll();
-					for (CustomHealthcardType customHcType : customHealthcardTypes) { 
-						if ((customHcType.getEnabled() && !customHcType.getDeleted()) || hctype.equals(customHcType.getName())) { %>
+						
+						if (shortName.startsWith("US") && !customHCTypesDisplayed) {
+							List<CustomHealthcardType> customHealthcardTypes = customHealthcardTypeDao.findAll();
+							for (CustomHealthcardType customHcType : customHealthcardTypes) {
+								if ((customHcType.getEnabled() && !customHcType.getDeleted()) || hctype.equals(customHcType.getName())) { %>
 				<option value="<%=customHcType.getName()%>" <%=hctype.equals(customHcType.getName())?" selected=\"selected\"":""%>>
 					<%=customHcType.getName() + (customHcType.getDeleted()?" (deleted)":"")%>
 				</option>
-				<% 		}
-					}
+				<% 				}
+							}
+							customHCTypesDisplayed = true;
+						}
+				%>
+				<option value="<%=shortName%>" <%=selected?" selected":""%>><%=shortName%>-<%=longName%></option>
+				<% 	}
 				}
 				%>
 	
