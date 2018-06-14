@@ -24,6 +24,7 @@
 
 --%>
 
+<%@ page import="oscar.OscarProperties" %>
 <%@ include file="/taglibs.jsp"%>
 <%@ taglib uri="/WEB-INF/security.tld" prefix="security"%>
 
@@ -154,7 +155,7 @@
 					<html:option value="3">High</html:option>
 					<html:option value="4">None</html:option>
 				</html:select>
-				<oscar:oscarPropertiesCheck property="use_fdb" value="true">
+				<% if (OscarProperties.getInstance().isPropertyActive("use_fdb")) { %>
 				<a id="toggle-interaction-descriptions" href="javascript:void(0);" onclick="toggleInteractionDescriptions();">Show Description</a>
 				<div id="interaction-descriptions" style="display: none;">
 					SEVERITY LEVEL LOW:  Contraindicated Drug Combination: This drug combination
@@ -178,7 +179,7 @@
 						}
 					}
 				</script>
-				</oscar:oscarPropertiesCheck>
+				<% } %>
 			</td>
 		</tr>                
 <!--Ronnie

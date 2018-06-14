@@ -665,7 +665,7 @@ function showHideERxPref() {
 						<option value="3" <%=(warningLevel.equals("3")?"selected=\"selected\"":"") %>>High</option>
 						<option value="4" <%=(warningLevel.equals("4")?"selected=\"selected\"":"") %>>None</option>
 					</select>
-					<oscar:oscarPropertiesCheck property="use_fdb" value="true">
+					<% if (OscarProperties.getInstance().isPropertyActive("use_fdb")) { %>
 					<a id="toggle-interaction-descriptions" href="javascript:void(0);" onclick="toggleInteractionDescriptions();">Show Description</a>
 					<div id="interaction-descriptions" style="display: none;">
 						SEVERITY LEVEL LOW:  Contraindicated Drug Combination: This drug combination
@@ -689,7 +689,7 @@ function showHideERxPref() {
 							}
 						}
 					</script>
-					</oscar:oscarPropertiesCheck>
+					<% } %>
 	            </td>
         <script>
 Event.observe('rxInteractionWarningLevel', 'change', function(event) {
