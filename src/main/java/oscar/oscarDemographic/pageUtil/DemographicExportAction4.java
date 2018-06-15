@@ -1143,10 +1143,12 @@ public class DemographicExportAction4 extends Action {
 
 						List<CaseManagementNote> cmn_same = cmm.getNotesByUUID(cmn.getUuid());
 						auditLog.add("READ | " + dateTime.format(new Date()) + " | CaseManagementNote: uuid=" + cmn.getUuid());
+						List<String> participatingProviders = new ArrayList<String>();
 						for (CaseManagementNote cm_note : cmn_same) {
 
 							//participating providers
-							if (StringUtils.filled(cm_note.getProviderNo()) && !Util.isVerified(cm_note)) {
+							if (StringUtils.filled(cm_note.getProviderNo()) && !Util.isVerified(cm_note) && !participatingProviders.contains(cm_note.getProviderNo())) {
+                                participatingProviders.add(cm_note.getProviderNo());
 								//participant info
 								ClinicalNotes.ParticipatingProviders pProvider = cNote.addNewParticipatingProviders();
 								ProviderData prvd = new ProviderData(cm_note.getProviderNo());
@@ -1160,7 +1162,7 @@ public class DemographicExportAction4 extends Action {
 							}
 
 							//reviewing providers
-							if (StringUtils.filled(cm_note.getSigning_provider_no()) && Util.isVerified(cm_note)) {
+							if (StringUtils.filled(cm_note.getSigning_provider_no()) && cm_note.isSigned()) {
 								//reviewer info
 								ClinicalNotes.NoteReviewer noteReviewer = cNote.addNewNoteReviewer();
 								ProviderData prvd = new ProviderData(cm_note.getSigning_provider_no());
