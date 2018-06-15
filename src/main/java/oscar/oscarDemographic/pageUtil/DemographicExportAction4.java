@@ -1922,9 +1922,8 @@ public class DemographicExportAction4 extends Action {
 						} else {
 							exportError.add("Not exporting invalid Event Date (Reports) for Patient "+demoNo+" ("+(j+1)+")");
 						}
-						String dateTimeStamp = edoc.getDateTimeStamp();
-						if (UtilDateUtilities.StringToDate(dateTimeStamp, "yyyy-MM-dd HH:mm:ss")!=null) {
-							rpr.addNewReceivedDateTime().setFullDateTime(Util.calDate(dateTimeStamp));
+						if (edoc.getContentDateTime()!=null) {
+							rpr.addNewReceivedDateTime().setFullDateTime(Util.calDate(edoc.getContentDateTime()));
 						} else {
 							exportError.add("Not exporting invalid Received DateTime (Reports) for Patient "+demoNo+" ("+(j+1)+")");
 						}
