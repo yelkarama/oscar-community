@@ -1217,9 +1217,6 @@ import oscar.util.UtilDateUtilities;
                     String diagCode = getCode(pHealth[i].getDiagnosisProcedureCode(),"Diagnosis/Procedure");
                     dump = Util.addLine(dump, diagCode);
                     dump = Util.addLine(dump, getResidual(pHealth[i].getResidualInfo()));
-                    if (pHealth[i].getProblemStatus() != null) {
-                        dump = Util.addLine(dump, "Problem Status:" + pHealth[i].getProblemStatus());
-                    }
                     cmNote = prepareCMNote("2",null);
                     cmNote.setNote(dump);
                     saveLinkNote(hostNoteId, cmNote);
@@ -1243,6 +1240,12 @@ import oscar.util.UtilDateUtilities;
                         cme.setKeyVal(CaseManagementNoteExt.RESOLUTIONDATE);
                         cme.setDateValue(dateFPtoDate(pHealth[i].getResolvedDate(), timeShiftInDays));
                         cme.setValue(dateFPGetPartial(pHealth[i].getResolvedDate()));
+                        caseManagementManager.saveNoteExt(cme);
+                    }
+                    if (pHealth[i].getProblemStatus() != null) {
+                        cme.setKeyVal(CaseManagementNoteExt.PROBLEMSTATUS);
+                        cme.setDateValue((Date)null);
+                        cme.setValue(pHealth[i].getProblemStatus());
                         caseManagementManager.saveNoteExt(cme);
                     }
                     if (pHealth[i].getLifeStage()!=null) {

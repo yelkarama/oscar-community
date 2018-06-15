@@ -904,7 +904,7 @@ public class DemographicExportAction4 extends Action {
 							}
 						}
 						addOneEntry(PASTHEALTH);
-						boolean bSTARTDATE=false, bRESOLUTIONDATE=false, bPROCEDUREDATE=false, bLIFESTAGE=false;
+						boolean bSTARTDATE=false, bRESOLUTIONDATE=false, bPROCEDUREDATE=false, bPROBLEMSTATUS=false, bLIFESTAGE=false;
 						for (CaseManagementNoteExt cme : cmeList) {
 							if (cme.getKeyVal().equals(CaseManagementNoteExt.STARTDATE)) {
 								if (bSTARTDATE) continue;
@@ -934,6 +934,13 @@ public class DemographicExportAction4 extends Action {
 									summary = Util.addSummary(summary, CaseManagementNoteExt.LIFESTAGE, cme.getValue());
 								}
 								bLIFESTAGE = true;
+							} else if (cme.getKeyVal().equals(CaseManagementNoteExt.PROBLEMSTATUS)) {
+								if (bPROBLEMSTATUS) continue;
+								if (StringUtils.filled(cme.getValue())) {
+									pHealth.setProblemStatus(cme.getValue());
+									summary = Util.addSummary(summary, CaseManagementNoteExt.PROBLEMSTATUS, cme.getValue());
+								}
+								bPROBLEMSTATUS = true;
 							}
 						}
 						pHealth.setPastHealthProblemDescriptionOrProcedures(medHist);
