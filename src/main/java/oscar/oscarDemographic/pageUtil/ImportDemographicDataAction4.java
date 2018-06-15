@@ -1191,7 +1191,14 @@ import oscar.util.UtilDateUtilities;
 
                 //main field
                 String familyHist = fHist[i].getProblemDiagnosisProcedureDescription();
-                if (StringUtils.empty(familyHist)) familyHist = "Imported Family History";
+                if (StringUtils.empty(familyHist)) {
+                    if (fHist[i].getDiagnosisProcedureCode() != null) {
+                        familyHist = fHist[i].getDiagnosisProcedureCode().getStandardCode() + ":" + fHist[i].getDiagnosisProcedureCode().getStandardCodeDescription();
+                    } else {
+                        familyHist = "Imported Family History";
+                    }
+                } 
+                
                 cmNote.setNote(familyHist);
                 caseManagementManager.saveNoteSimple(cmNote);
                 addOneEntry(FAMILYHISTORY);
@@ -1270,7 +1277,13 @@ import oscar.util.UtilDateUtilities;
 
                 //main field
                 String medicalHist = pHealth[i].getPastHealthProblemDescriptionOrProcedures();
-                if (StringUtils.empty(medicalHist)) medicalHist = "Imported Medical History";
+                    if (StringUtils.empty(medicalHist)) {
+                        if (pHealth[i].getDiagnosisProcedureCode() != null) {
+                            medicalHist = pHealth[i].getDiagnosisProcedureCode().getStandardCode() + ":" + pHealth[i].getDiagnosisProcedureCode().getStandardCodeDescription();
+                        } else {
+                            medicalHist = "Imported Medical History";
+                        }
+                    }
                 cmNote.setNote(medicalHist);
                 caseManagementManager.saveNoteSimple(cmNote);
                 addOneEntry(PASTHEALTH);
@@ -1354,7 +1367,15 @@ import oscar.util.UtilDateUtilities;
 
                     //main field
                     String ongConcerns = probList[i].getProblemDiagnosisDescription();
-                    if (StringUtils.empty(ongConcerns)) ongConcerns = "Imported Concern";
+                    if (StringUtils.empty(ongConcerns)) {
+                        if (StringUtils.filled(probList[i].getProblemDescription())) {
+                            ongConcerns = probList[i].getProblemDescription();
+                        } else if (probList[i].getDiagnosisCode() != null) {
+                            ongConcerns = probList[i].getDiagnosisCode().getStandardCode() + ":" + probList[i].getDiagnosisCode().getStandardCodeDescription();
+                        } else {
+                            ongConcerns = "Imported Concern";
+                        }
+                    }
                     cmNote.setNote(ongConcerns);
                     caseManagementManager.saveNoteSimple(cmNote);
                     addOneEntry(PROBLEMLIST);
