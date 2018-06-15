@@ -81,6 +81,7 @@ import org.oscarehr.casemgmt.model.Issue;
 import org.oscarehr.casemgmt.service.CaseManagementManager;
 import org.oscarehr.common.dao.AdmissionDao;
 import org.oscarehr.common.dao.AllergyDao;
+import org.oscarehr.common.dao.AppointmentStatusDao;
 import org.oscarehr.common.dao.DemographicArchiveDao;
 import org.oscarehr.common.dao.DemographicContactDao;
 import org.oscarehr.common.dao.DemographicDao;
@@ -97,6 +98,7 @@ import org.oscarehr.common.dao.ProviderLabRoutingDao;
 import org.oscarehr.common.model.Admission;
 import org.oscarehr.common.model.Allergy;
 import org.oscarehr.common.model.Appointment;
+import org.oscarehr.common.model.AppointmentStatus;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.DemographicArchive;
 import org.oscarehr.common.model.DemographicContact;
@@ -2087,11 +2089,10 @@ import oscar.util.UtilDateUtilities;
 
                 //APPOINTMENTS
                 Appointments[] appArray = patientRec.getAppointmentsArray();
+                AppointmentStatusDao appointmentStatusDao = SpringUtils.getBean(AppointmentStatusDao.class);
                 Date appointmentDate = null;
                 String notes="", reason="", status="", startTime="", endTime="", apptProvider="";
-                ApptStatusData asd = new ApptStatusData();
-                String[] allStatus = asd.getAllStatus();
-                String[] allTitle = asd.getAllTitle();
+                List<AppointmentStatus> allStatuses = appointmentStatusDao.findActive();
 
             for (int i=0; i<appArray.length; i++) {
                 try {
@@ -2123,16 +2124,15 @@ import oscar.util.UtilDateUtilities;
                     String apptStatus = appArray[i].getAppointmentStatus();
                     status = "";
                     if (apptStatus!=null) {
-                        for (int j=1; j<allStatus.length; j++) {
-                            String msg = getResources(request).getMessage(allTitle[j]);
-                            if (apptStatus.trim().equalsIgnoreCase(msg)) {
-                                status = allStatus[j];
+                        for (AppointmentStatus appointmentStatus : allStatuses) {
+                            if (apptStatus.trim().equalsIgnoreCase(appointmentStatus.getDescription())) {
+                                status = appointmentStatus.getStatus();
                                 apptStatus = null;
                                 break;
                             }
                         }
                         if (StringUtils.empty(status)) {
-                        	status = allStatus[0];
+                        	status = allStatuses.get(0).getStatus();
 //                        	err_note.add("Cannot map appointment status ["+apptStatus+"]. Appointment Status set to [To Do]");
                         }
 
