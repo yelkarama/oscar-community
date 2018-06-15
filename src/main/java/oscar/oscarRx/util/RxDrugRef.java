@@ -796,4 +796,10 @@ public class RxDrugRef {
         Vector vec = (Vector) callWebserviceLite("get_inactive_date",params);
         return vec;
     }
+    
+    public String getVersion() throws Exception{
+        Vector params = new Vector();
+        String result = (String) callWebserviceLite("version",params);
+        return result;
+    }
 }

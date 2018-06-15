@@ -6,6 +6,7 @@
 <%@ page import="oscar.oscarRx.data.*,oscar.oscarProvider.data.ProviderMyOscarIdData,oscar.oscarDemographic.data.DemographicData,oscar.OscarProperties,oscar.log.*"%>
 <%@ page import="org.oscarehr.common.dao.UserPropertyDAO" %>
 <%@ page import="org.oscarehr.common.dao.PharmacyInfoDao" %>
+<%@ page import="oscar.oscarRx.util.RxDrugRef" %>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar" %>
 <%/*
  * Copyright (c) 2001-2002. Department of Family Medicine, McMaster University. All Rights Reserved. *
@@ -117,10 +118,18 @@ if (rx_enhance!=null && rx_enhance.equals("true")) { %>
                     <td valign="top" align="right">
                         <span class="HelpAboutLogout" style="color:white;">
 							<% if (OscarProperties.getInstance().getBooleanProperty("use_fdb", "false")) { %>
-							<a style="color:white;" href="javascript: popupFocusPage(200,700,'./drugrefInfo.jsp','Drugref Info');" >Drugref Info</a> |
-							<% } else { %>
-							<a style="color: white;" href="javascript: popupFocusPage(950, 1100, 'https://www.fdbhealth.com/solutions/fdb-medknowledge-canada/');">First Databank Service v4.0.2</a>
+							<a style="color:white;" href="javascript: popupFocusPage(200,700,'./drugrefInfo.jsp','Drugref Info');" >Drugref Info</a>
+							<% } else {
+								RxDrugRef drugRef = new RxDrugRef();
+								String version = "4.0.2";
+								try {
+									version = drugRef.getVersion();
+								} catch (Exception e) {}
+							%>
+							<a style="color: white;" href="javascript: popupFocusPage(950, 1100, 'https://www.fdbhealth.com/solutions/fdb-medknowledge-canada/');">First Databank Service v<%=version%></a>
 							<% } %>
+						</span><br/>
+						<span class="HelpAboutLogout" style="color:white;">
 							<oscar:help keywords="&Title=Writing+Prescriptions&portal_type%3Alist=Document" key="app.top1" style="color:white;"/> |
                             <a style="color:white;" href="<%=request.getContextPath()%>/oscarEncounter/About.jsp" target="_new"><bean:message key="global.about" /></a>
                             <!-- is this needed? 
