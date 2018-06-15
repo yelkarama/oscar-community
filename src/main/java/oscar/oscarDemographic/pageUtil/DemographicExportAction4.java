@@ -210,13 +210,21 @@ public class DemographicExportAction4 extends Action {
 		
 		DemographicExportForm defrm = (DemographicExportForm)form;
 		String demographicNo = defrm.getDemographicNo();
-		String providerNo = defrm.getPatientSet();
-		Provider provider = providerDao.getProvider(providerNo);
-		String setName = "Unmatched";
-		if (provider != null) {
-			setName = provider.getFirstName() != null ? provider.getFirstName() + "_" : "";
-			setName += provider.getLastName() != null ? provider.getLastName() + "_" : "";
-			setName += provider.getOhipNo() != null ? provider.getOhipNo() : "";
+		Provider provider = null;
+		Boolean isSet = defrm.getPatientSet() != null && defrm.getPatientSet().startsWith("set_");
+		String setName = isSet ? defrm.getPatientSet().replace("set_", "") : defrm.getPatientSet();
+		
+		if (!StringUtils.filled(setName)) {
+			setName = "Unmatched";
+		}
+		
+		if (!isSet && demographicNo==null) {
+			provider = providerDao.getProvider(setName);
+			if (provider != null) {
+				setName = provider.getFirstName() != null ? provider.getFirstName() + "_" : "";
+				setName += provider.getLastName() != null ? provider.getLastName() + "_" : "";
+				setName += provider.getOhipNo() != null ? provider.getOhipNo() : "";
+			}
 		}
 		String pgpReady = defrm.getPgpReady();
 		String templateOption = defrm.getTemplate();
@@ -236,29 +244,37 @@ public class DemographicExportAction4 extends Action {
 		boolean exCareElements = WebUtils.isChecked(request, "exCareElements");
 
 		List<Demographic> list = new ArrayList<Demographic>();
-		if (demographicNo==null && providerNo!=null && !providerNo.equals("-1")) {
-			list = demographicDao.getDemographicByProvider(providerNo, false);
-			if (list.isEmpty()) {
-				return mapping.findForward("fail");
-			}
-		} else {
-			try {
-				if(demographicNo!=null){
-					org.oscarehr.common.model.Demographic demographic = new DemographicData().getDemographic(loggedInInfo, demographicNo);
-					Provider demographicProvider = providerDao.getProvider(demographic.getProviderNo());
-					if (setName.equalsIgnoreCase("unmatched") && demographicProvider != null) {
-						setName = demographicProvider.getFirstName() != null ? demographicProvider.getFirstName() + "_" : "";
-						setName += demographicProvider.getLastName() != null ? demographicProvider.getLastName() + "_" : "";
-						setName += demographicProvider.getOhipNo() != null ? demographicProvider.getOhipNo() : "";
-					}
-
+		if (isSet) {
+			List<String> demoNosInSet = new DemographicSets().getDemographicSet(setName);
+			for (String demoNoInSet : demoNosInSet) {
+				try {
+					Demographic demographic = new DemographicData().getDemographic(loggedInInfo, demoNoInSet);
 					list.add(demographic);
+				} catch (PatientDirectiveException e) {
+					exportError.add("Error! " + "Patient "+demographicNo+ " has requested user not access record");
 				}
+			}
+		} else if (demographicNo==null && provider!=null) {
+			list = demographicDao.getDemographicByProvider(provider.getProviderNo(), false);
+		} else if(demographicNo!=null){ 
+			try {
+				Demographic demographic = new DemographicData().getDemographic(loggedInInfo, demographicNo);
+				Provider demographicProvider = providerDao.getProvider(demographic.getProviderNo());
+				if (setName.equalsIgnoreCase("unmatched") && demographicProvider != null) {
+					setName = demographicProvider.getFirstName() != null ? demographicProvider.getFirstName() + "_" : "";
+					setName += demographicProvider.getLastName() != null ? demographicProvider.getLastName() + "_" : "";
+					setName += demographicProvider.getOhipNo() != null ? demographicProvider.getOhipNo() : "";
+				}
+
+				list.add(demographic);
 			} catch (PatientDirectiveException e) {
 				exportError.add("Error! " + "Patient "+demographicNo+ " has requested user not access record");
 			}
 		}
 
+		if (list.isEmpty()) {
+			return mapping.findForward("fail");
+		}
 	String ffwd = "fail";
 	String tmpDir = oscarProperties.getProperty("TMP_DIR");
 	
@@ -2213,7 +2229,11 @@ public class DemographicExportAction4 extends Action {
 	//zip all export files
 		String zipName = files.get(0).getName().replace(".xml", ".zip");
 	if (setName!=null) {
-		zipName = setName + ".zip";
+		if (isSet){
+			zipName = "export_" + setName + ".zip";
+		} else {
+			zipName = setName + ".zip";
+		}
 	}
 	if (!Util.zipFiles(files, zipName, tmpDir)) {
 			logger.debug("Error! Failed to zip export files");

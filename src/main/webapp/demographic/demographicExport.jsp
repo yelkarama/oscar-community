@@ -70,7 +70,9 @@
 
   String demographicNo = request.getParameter("demographicNo");
   ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
-  List<Provider> sets = providerDao.getActiveProviders();
+  List<Provider> enrollment = providerDao.getActiveProviders();
+  DemographicSets  ds = new DemographicSets();
+  List<String> sets = ds.getDemographicSets();
 
 //  oscar.oscarReport.data.RptSearchData searchData  = new oscar.oscarReport.data.RptSearchData();
 //  ArrayList queryArray = searchData.getQueryTypes();
@@ -229,19 +231,23 @@ if (!userRole.toLowerCase().contains("admin")) { %>
 	<bean:message key="demographic.demographicexport.exportingdemographicno" /><%=demographicNo%>
 	<%} else {%>
 	<bean:message key="demographic.demographicexport.patientset" /><br>
-	<html:select style="width: 189px" property="patientSet">
-	    <html:option value="-1"><bean:message key="demographic.demographicexport.selectset" /></html:option>
-	<%
-	/*			    for (int i =0 ; i < queryArray.size(); i++){
-	RptSearchData.SearchCriteria sc = (RptSearchData.SearchCriteria) queryArray.get(i);
-	String qId = sc.id;
-	String qName = sc.queryName;
-	*/
-	for (Provider provider : sets) {
-	%>
-	<html:option value="<%=provider.getProviderNo()%>"><%=provider.getFormattedName()%></html:option>
-	<%}%>
-	</html:select>
+	<select style="width: 189px" id="patientSet" name="patientSet">
+	    <option value="-1"><bean:message key="demographic.demographicexport.selectset" /></option>
+        <optgroup label="Enrollment Set">
+            <% for (Provider provider : enrollment) {%>
+            <option value="<%=provider.getProviderNo()%>"><%=provider.getFormattedName()%></option>
+            <%}%>
+        </optgroup>
+
+        <optgroup label="Patient Set">
+            <% 
+                for (int i=0; i<sets.size(); i++) {
+                    String setName = sets.get(i);
+            %>
+            <option value="set_<%=setName%>"><%=setName%></option>
+            <%}%>
+        </optgroup>
+	</select>
 	<%}%>
 
 	<br>	   
