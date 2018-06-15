@@ -49,6 +49,7 @@
 	<parameter name="chartno" class="java.lang.String"/>
 	<parameter name="comment" class="java.lang.String"/>
 	<parameter name="service_date" class="java.lang.String"/>
+	<parameter name="payment_date" class="java.lang.String"/>
 	<parameter name="practitioner" class="java.lang.String"/>
 	<parameter name="payee" class="java.lang.String"/>
 	<parameter name="ref_doctor" class="java.lang.String"/>
@@ -246,14 +247,21 @@
 				<textFieldExpression><![CDATA[$P{comment}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="26" y="12" width="100" height="20"/>
+				<reportElement x="0" y="12" width="80" height="20"/>
 				<textElement textAlignment="Center">
 					<font size="12" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Service Date]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="168" y="12" width="100" height="20"/>
+				<reportElement x="100" y="12" width="80" height="20"/>
+				<textElement textAlignment="Center">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Payment Date]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="180" y="12" width="150" height="20"/>
 				<textElement textAlignment="Center">
 					<font size="12" isBold="true"/>
 				</textElement>
@@ -263,17 +271,22 @@
 				<reportElement x="0" y="55" width="572" height="1"/>
 			</line>
 			<textField>
-				<reportElement x="0" y="32" width="140" height="20"/>
+				<reportElement x="0" y="32" width="80" height="20"/>
 				<textElement textAlignment="Center"/>
 				<textFieldExpression><![CDATA[$P{service_date}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="140" y="32" width="146" height="20"/>
+				<reportElement x="100" y="32" width="80" height="20"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression><![CDATA[$P{payment_date}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="180" y="32" width="150" height="20"/>
 				<textElement textAlignment="Center"/>
 				<textFieldExpression><![CDATA[$P{practitioner}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="284" y="32" width="149" height="20"/>
+				<reportElement x="310" y="32" width="150" height="20"/>
 				<textElement textAlignment="Center"/>
 				<textFieldExpression><![CDATA[$P{payee}]]></textFieldExpression>
 			</textField>
@@ -293,7 +306,7 @@
 				<textFieldExpression><![CDATA[$P{ref_doctor}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="306" y="12" width="100" height="20"/>
+				<reportElement x="310" y="12" width="150" height="20"/>
 				<textElement textAlignment="Center">
 					<font size="12" isBold="true"/>
 				</textElement>

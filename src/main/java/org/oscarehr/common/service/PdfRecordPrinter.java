@@ -121,6 +121,7 @@ public class PdfRecordPrinter {
     private BillingONExtDao billingONExtDao = (BillingONExtDao) SpringUtils.getBean("billingONExtDao");
     private ProviderDao providerDao = (ProviderDao) SpringUtils.getBean("providerDao");
     private ClinicDAO clinicDao = (ClinicDAO) SpringUtils.getBean("clinicDAO");
+    private BillingONPaymentDao billingONPaymentDao = SpringUtils.getBean(BillingONPaymentDao.class);
     
     public PdfRecordPrinter(OutputStream os) {
         this.os = os;
@@ -371,6 +372,16 @@ public class PdfRecordPrinter {
                             } else if (paramName.equals("comment")) {
                                 String comment = billingONCHeader1.getComment();
                                 parameters.put(paramName, comment);
+                            } else if (paramName.equals("payment_date")) {
+                                List<BillingONPayment> paymentRecords = billingONPaymentDao.find3rdPartyPayRecordsByBill(billingONCHeader1);
+                                String paymentDate = "";
+                                
+                                if (paymentRecords.size() > 0) {
+                                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                                    paymentDate = simpleDateFormat.format(paymentRecords.get(paymentRecords.size() - 1).getPaymentDate());
+                                }
+                                
+                                parameters.put(paramName, paymentDate);
                             } else {
                                 parameters.put(paramName,apExe.execute(paramName,String.valueOf(billingONCHeader1.getDemographicNo()),invoiceNo));
                             }                            

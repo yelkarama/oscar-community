@@ -41,6 +41,9 @@
 <%@page import="oscar.oscarBilling.ca.on.pageUtil.Billing3rdPartPrep" %>
 <%@page import="oscar.oscarBilling.ca.on.administration.GstControlAction" %>
 <%@ page import="java.math.MathContext" %>
+<%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
+<%@ page import="java.text.DateFormat" %>
+<%@ page import="java.text.SimpleDateFormat" %>
 
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html"%>
 
@@ -96,6 +99,8 @@ boolean isMulitSites = oscarProp.getBooleanProperty("multisites", "on");
 
 	String percent = gstProp.getProperty("gstPercent", "");
 
+    String paymentDate = "";
+	
 	String filePath = DisplayInvoiceLogo.getLogoImgAbsPath();
 	boolean isLogoImgExisted = true;
 	if (filePath.isEmpty()) {
@@ -197,8 +202,19 @@ boolean isMulitSites = oscarProp.getBooleanProperty("multisites", "on");
         if( !payMethod.isEmpty() && !"".equals(payMethod.get(0).getValue()) ) {
         	paymentDescription = billExtDao.getPayMethodDesc(payMethod.get(0));
         }
+
+        
+        
+        if (balanceOwing.compareTo(BigDecimal.ZERO) == 0 && paymentRecords.size() > 0) {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            paymentDate = simpleDateFormat.format(paymentRecords.get(paymentRecords.size() - 1).getPaymentDate());
+        }
     }
    
+    
+    
+	
+	
 %>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
@@ -344,12 +360,14 @@ boolean isMulitSites = oscarProp.getBooleanProperty("multisites", "on");
         <table width="100%" border="0">
             <tr>
                 <th>Service Date</th>
+                <th>Payment Date</th>
                 <th>Practitioner</th>
                 <th>Payee</th>
                 <th>Ref. Doctor</th>
             </tr>
             <tr align="center">
                 <td><%=billingDateStr%></td>
+                <td><%=paymentDate%></td>
                 <td><%=providerFormattedName%></td>
 
                 <% Properties prop = oscar.OscarProperties.getInstance();
