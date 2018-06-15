@@ -353,10 +353,11 @@ function setContactView(id) {
 
 function setValues(contact) {
     buildContactRoles(contact.category);
+    var contactRole = matchContactRole(contact.category, contact.role);
     $('#contact_id').val(contact.id);
     $('#contact_contactName').val(contact.contactName);
     $('#contactName').text(contact.contactName);
-    $('#contact_role').val(contact.role);
+    $('#contact_role').val(contactRole);
     $('#contact_consentToContact').val(contact.consentToContact ? '1' : '0');
     $('#contact_active').val(contact.active ? '1' : '0');
     $('#contact_contactId').val(contact.contactId);
@@ -405,6 +406,27 @@ function setValues(contact) {
     }
 
     setConsent();
+}
+
+/**
+ * Matches the contact's role by converting it and the keys in the array to lowercase and comparing them.
+ * This is necessary because if the role was imported and not capitalized, it may not match up with the correct patient role
+ * 
+ * category - The category the contact falls under, either Personal or Professional
+ * role - The contact's stored role
+ */
+function matchContactRole(category, role) {
+    var listToSearch = [];
+    
+    if (category === 'personal') {
+        listToSearch = $personalRoles;
+    } else if (category === 'professional') {
+        listToSearch = $professionalRoles;
+    }
+    
+    var matchedRole = listToSearch.find(r => r.key.toLowerCase() === role.toLowerCase());
+    
+    return matchedRole.description;
 }
 
 function updateList(listType) {
