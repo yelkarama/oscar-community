@@ -814,6 +814,19 @@ document.updatedelete.r_doctor_ohip.value = refNo;
  %>
 			</td>
 		</tr>
+		<tr>
+			<td align="right">
+				<b>Referral Date:</b>
+			</td>
+			<td>
+				<input type="hidden" name="referral-date-id" size="10" maxlength="10" value="<%=demoExt.get("referralDate_id")%>">
+				<input type="text" name="referral-date" id="referral-date" value="<%=demoExt.get("referralDate")%>"/>
+				<img src="../images/cal.gif" id="referral-date-calendar">
+				<script type="application/javascript">
+                    createStandardDatepicker(jQuery_3_1_0('#referral-date'), "referral-date-calendar");
+				</script>
+			</td>
+		</tr>
 
 	</oscar:oscarPropertiesCheck>
 	<%-- END TOGGLE OFF PATIENT CLINIC STATUS --%>

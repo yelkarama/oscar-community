@@ -54,8 +54,9 @@
   int nItems = 0;
   Vector vec = new Vector();
   Properties prop = null;
-  String param = request.getParameter("param")==null?"":request.getParameter("param") ;
-  String param2 = request.getParameter("param2")==null?"":request.getParameter("param2") ;
+  String param = request.getParameter("param")==null?"":request.getParameter("param");
+  String param2 = request.getParameter("param2")==null?"":request.getParameter("param2");
+  String referralDateParam = request.getParameter("referralDateParam");
   
   String doctorIdParameter = request.getParameter("paramId") == null ? "" : request.getParameter("paramId");
   String doctorNo = request.getParameter("refDoctorNo")==null? "" :request.getParameter("refDoctorNo");
@@ -193,6 +194,10 @@
 			<% } %>
 			opener.<%=param%> = data1;
 			opener.<%=param2%> = data2;
+			<% if (referralDateParam != null) { %>
+                opener.<%=referralDateParam%> = new Date().toISOString().slice(0, 10);
+            <% } %>
+			
 			self.close();
 		}
 		<%}}%>
@@ -248,6 +253,8 @@
 		value="<%=StringEscapeUtils.escapeHtml(param)%>">
 	<input type='hidden' name='param2'
 		value="<%=StringEscapeUtils.escapeHtml(param2)%>">
+	<input type='hidden' name='referralDateParam' 
+		value="<%=StringEscapeUtils.escapeHtml(referralDateParam)%>">
 	<input type='hidden' name='paramId'
 		value="<%=StringEscapeUtils.escapeHtml(doctorIdParameter)%>">
 	<input type='hidden' name='toname'

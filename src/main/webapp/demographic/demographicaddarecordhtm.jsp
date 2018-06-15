@@ -341,8 +341,9 @@ function referralScriptAttach2(refDoctorNoElement, refDoctorNameElement, refDoct
     t0 = escape("document.forms[1].elements[\'"+refDoctorNoElement+"\'].value");
     t1 = escape("document.forms[1].elements[\'"+refDoctorNameElement+"\'].value");
     t2 = escape("document.forms[1].elements[\'"+refDoctorIdElement+"\'].value");
+    var referralDateParam = escape("document.forms[1].elements['referral-date'].value");
     
-    rs('att',('../billing/CA/ON/searchRefDoc.jsp?refDoctorNo='+refDoctorNo+'&refDoctorName='+refDoctorName + '&param=' + t0 + '&param2=' + t1 + '&paramId=' + t2 + '&searchType=' + searchType),600,600,1);
+    rs('att',('../billing/CA/ON/searchRefDoc.jsp?refDoctorNo='+refDoctorNo+'&refDoctorName='+refDoctorName + '&param=' + t0 + '&param2=' + t1 + '&paramId=' + t2 + '&searchType=' + searchType + '&referralDateParam=' + referralDateParam),600,600,1);
 	 }
 
 <%
@@ -1279,6 +1280,18 @@ document.forms[1].r_doctor_ohip.value = refNo;
 								<a
 									href="javascript:referralScriptAttach2('r_doctor_ohip','r_doctor', 'r_doctor_id', 'number')"><bean:message key="demographic.demographiceditdemographic.btnSearch"/>
 								#</a> <% } %>
+				</td>
+			</tr>
+			<tr>
+				<td align="right">
+					<b>Referral Date:</b>
+				</td>
+				<td>
+					<input type="text" name="referral-date" id="referral-date" value=""/>
+					<img src="../images/cal.gif" id="referral-date-calendar">
+					<script type="application/javascript">
+                        createStandardDatepicker(jQuery_3_1_0('#referral-date'), "referral-date-calendar");
+					</script>
 				</td>
 			</tr>
             <tr valign="top">
