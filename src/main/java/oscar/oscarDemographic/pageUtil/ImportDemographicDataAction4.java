@@ -139,6 +139,7 @@ import cdsDt.DiabetesMotivationalCounselling.CounsellingPerformed;
 import cdsDt.PersonNameStandard.LegalName;
 import cdsDt.PersonNameStandard.OtherNames;
 import oscar.OscarProperties;
+import oscar.SxmlMisc;
 import oscar.appt.ApptStatusData;
 import oscar.dms.EDocUtil;
 import oscar.oscarDemographic.data.DemographicAddResult;
@@ -683,6 +684,22 @@ import oscar.util.UtilDateUtilities;
             primaryPhysician = student.getProviderNo();
         }
 
+        // Import referral doctor
+        String familyDoctorXml = "<rdohip></rdohip><rd></rd>";
+        cdsDt.PersonNameSimple demoReferringPhysician = demo.getReferredPhysician();
+        if (demoReferringPhysician != null) {
+            familyDoctorXml = "<rdohip></rdohip><rd>" + demoReferringPhysician.getLastName() 
+                    + "," + demoReferringPhysician.getFirstName() + "</rd>";
+        }
+
+        // Import family doctor
+        String familyPhysicianXml = "<fdohip></fdohip><fd></fd>";
+        cdsDt.PersonNameSimple demoFamilyPhysician = demo.getFamilyPhysician();
+        if (demoFamilyPhysician != null) {
+            familyPhysicianXml = "<fdohip></fdohip><fd>" + demoFamilyPhysician.getLastName()
+                    + "," + demoFamilyPhysician.getFirstName() + "</fd>";
+        }
+
         String year_of_birth = null;
         String month_of_birth = null;
         String date_of_birth = null;
@@ -765,12 +782,16 @@ import oscar.util.UtilDateUtilities;
             
             demographic.setHcRenewDate(dDate);
             demographic.setSin(sin);
+            demographic.setFamilyDoctor(familyDoctorXml);
+            demographic.setFamilyPhysician(familyPhysicianXml);
+            
             dd.setDemographic(loggedInInfo, demographic);
             err_note.add("Replaced Contact-only patient "+patientName+" (Demo no="+demographicNo+")");
 
             prefName = "itSetsHere!";
         } else { //add patient!
-            demoRes = dd.addDemographic(loggedInInfo, title, lastName, firstName, prefName, address, city, province, postalCode, homePhone, workPhone, year_of_birth, month_of_birth, date_of_birth, hin, versionCode, rosterStatus, rosterDate, termDate, termReason, patient_status, psDate, ""/*date_joined*/, chart_no, official_lang, spoken_lang, primaryPhysician, sex, ""/*end_date*/, ""/*eff_date*/, ""/*pcn_indicator*/, hc_type, hc_renew_date, ""/*family_doctor*/, email, ""/*pin*/, ""/*alias*/, ""/*previousAddress*/, ""/*children*/, ""/*sourceOfIncome*/, ""/*citizenship*/, sin);
+            demoRes = dd.addDemographic(loggedInInfo, title, lastName, firstName, prefName, address, city, province, postalCode, homePhone, workPhone, year_of_birth, month_of_birth, date_of_birth, hin, versionCode, rosterStatus, rosterDate, termDate, termReason, patient_status, psDate, ""/*date_joined*/, chart_no, official_lang, spoken_lang, primaryPhysician, sex, ""/*end_date*/, ""/*eff_date*/, ""/*pcn_indicator*/, hc_type, hc_renew_date, ""/*family_doctor*/, email, ""/*pin*/, ""/*alias*/, 
+                    ""/*previousAddress*/, ""/*children*/, ""/*sourceOfIncome*/, ""/*citizenship*/, sin, familyDoctorXml, familyPhysicianXml);
             demographicNo = demoRes.getId();
         }
 
@@ -864,7 +885,7 @@ import oscar.util.UtilDateUtilities;
                                 homePhone, workPhone, ""/*year_of_birth*/, ""/*month_*/, ""/*date_*/, ""/*hin*/, ""/*ver*/, ""/*roster_status*/, "", "", "",
                                 "Contact-only", psDate, ""/*date_joined*/, ""/*chart_no*/, ""/*official_lang*/, ""/*spoken_lang*/, ""/*provider_no*/,
                                 "F", ""/*end_date*/, ""/*eff_date*/, ""/*pcn_indicator*/, ""/*hc_type*/, ""/*hc_renew_date*/, ""/*family_doctor*/,
-                                cEmail, "", "", "", "", "", "", "");
+                                cEmail, "", "", "", "", "", "", "", "", "");
                         cDemoNo = demoRes.getId();
                         err_note.add("Contact-only patient "+cPatient+" (Demo no="+cDemoNo+") created");
 

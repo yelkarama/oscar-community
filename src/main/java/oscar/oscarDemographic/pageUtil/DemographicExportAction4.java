@@ -528,6 +528,26 @@ public class DemographicExportAction4 extends Action {
 					primaryPhysician.setPrimaryPhysicianCPSO(mrp.getPractitionerNo());
 				}
 			}
+			
+			// Store referral doctor
+			String referralDoctorName = SxmlMisc.getXmlContent(StringUtils.noNull(demographic.getFamilyDoctor()),"rd");
+			if (StringUtils.filled(referralDoctorName) && referralDoctorName.contains(",")) {
+			    String[] lastFirstNameArray = referralDoctorName.split(",");
+                PersonNameSimple referralPhysicianName = demo.addNewReferredPhysician();
+
+                referralPhysicianName.setFirstName(StringUtils.noNull(lastFirstNameArray[1]));
+                referralPhysicianName.setLastName(StringUtils.noNull(lastFirstNameArray[0]));
+            }
+
+            // Store family doctor
+            String familyDoctorName = SxmlMisc.getXmlContent(StringUtils.noNull(demographic.getFamilyPhysician()),"fd");
+            if (StringUtils.filled(familyDoctorName) && familyDoctorName.contains(",")) {
+                String[] lastFirstNameArray = familyDoctorName.split(",");
+                PersonNameSimple familyPhysicianName = demo.addNewFamilyPhysician();
+
+                familyPhysicianName.setFirstName(StringUtils.noNull(lastFirstNameArray[1]));
+                familyPhysicianName.setLastName(StringUtils.noNull(lastFirstNameArray[0]));
+            }
 
 			//Person Status (Patient Status)
 			String patientStatus = StringUtils.noNull(demographic.getPatientStatus());

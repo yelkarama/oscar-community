@@ -395,7 +395,7 @@
 					for (Map.Entry<String, String> entry : provinces.entrySet()) {
 						String shortName = entry.getKey();
 						String longName = entry.getValue();
-						Boolean selected = province.equals(shortName);
+						Boolean selected = (province != null && shortName.equals(province));
 				%>
 					<option value="<%=shortName%>" <%=selected?" selected":""%>><%=shortName%>-<%=longName%></option>
 				<%	}
