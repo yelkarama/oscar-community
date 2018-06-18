@@ -120,9 +120,9 @@
 						<table width="100%" cellpadding="3">
 							<tr>
 								<th align="left" width="50%" nowrap="nowrap"><b>Date Changed</b></th>
-								<th align="left" width="50%" nowrap="nowrap"><b>Roster Status</b></th>
+								<th align="left" width="50%" nowrap="nowrap"><b>Enrollment Status</b></th>
 								<th align="left" width="50%" nowrap="nowrap"><b>Date</b></th>
-								<th align="left" width="50%" nowrap="nowrap"><b>Rostered To</b></th>
+								<th align="left" width="50%" nowrap="nowrap"><b>Enrolled To</b></th>
 								<th align="left" width="50%" nowrap="nowrap"><b>Updated By</b></th>
 								<th align="left" width="50%" nowrap="nowrap"></th>											
 							</tr>
@@ -264,10 +264,10 @@
 		return "&lt;Not Set&gt;";
 	}
 	if(("RO").equals(code)) {
-		return "Rostered";
+		return "Enrolled";
 	}
 	if(("NR").equals(code)) {
-		return "Not Rostered";
+		return "Not Enrolled";
 	}
 	if(("TE").equals(code)) {
 		return "Terminated";

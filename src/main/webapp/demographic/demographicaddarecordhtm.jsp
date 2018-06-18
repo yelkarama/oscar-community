@@ -1298,12 +1298,17 @@ function ignoreDuplicates() {
 
 	</td>
     </tr>
+    <script>
+        function updateEnrollmentProvider(providerElement) {
+            jQuery_3_1_0('#enrollmentProvider').val(providerElement.value);
+        }
+    </script>
     <tr valign="top">
       <td id="demoDoctorLbl" align="right"><b><% if(oscarProps.getProperty("demographicLabelDoctor") != null) { out.print(oscarProps.getProperty("demographicLabelDoctor","")); } else { %>
                                                 <bean:message key="demographic.demographicaddrecordhtm.formDoctor"/><% } %>
                                                 : </b></td>
       <td id="demoDoctorCell" align="left" >
-        <select name="staff">
+        <select name="staff" id="provider_no" onchange="updateEnrollmentProvider(this)">
 					<option value=""></option>
 					<%
 					    String defaultDoctor = ((ProviderPreference)session.getAttribute(SessionConstants.LOGGED_IN_PROVIDER_PREFERENCE)).getDefaultDoctor(); 
@@ -1328,6 +1333,25 @@ function ignoreDuplicates() {
  
 %>
 				</select></td>
+			</tr>
+			<tr valign="top">
+				<td id="ptStatusLbl" align="right"><b><bean:message
+						key="demographic.demographicaddrecordhtm.formPatientStatus" />:</b></td>
+				<td id="ptStatusCell" align="left">
+					<select id="patient_status" name="patient_status" style="width: 160">
+						<option value="AC"><bean:message key="demographic.demographicaddrecordhtm.AC-Active" /></option>
+						<option value="IN"><bean:message key="demographic.demographicaddrecordhtm.IN-InActive" /></option>
+						<option value="DE"><bean:message key="demographic.demographicaddrecordhtm.DE-Deceased" /></option>
+						<option value="MO"><bean:message key="demographic.demographicaddrecordhtm.MO-Moved" /></option>
+						<option value="FI"><bean:message key="demographic.demographicaddrecordhtm.FI-Fired" /></option>
+						<%
+							for(String status : demographicDao.search_ptstatus()) { %>
+						<option value="<%=status%>"><%=status%></option>
+						<% } // end while %>
+					</select> <input type="button" onClick="newStatus();" value="<bean:message
+					key="demographic.demographicaddrecordhtm.AddNewPatient"/> ">
+
+				</td>
 			</tr>
 			<tr valign="top">
 				<td id="midwifeLbl" align="right"><b><bean:message
@@ -1492,14 +1516,45 @@ document.forms[1].r_doctor_ohip.value = refNo;
                         #</a> <% } %>
                 </td>
             </tr>
+            <script>
+                function toggleNotMrp(element) {
+                    if (!element.checked) {
+                        jQuery_3_1_0('#enrollmentProvider').val(jQuery_3_1_0('#provider_no').val());
+                        jQuery_3_1_0('#enrollmentProvider').attr('disabled', 'disabled');
+                        jQuery_3_1_0('#hiddenEnrollmentProvider').val(jQuery_3_1_0('#enrollmentProvider').val());
+                    } else {
+                        jQuery_3_1_0('#enrollmentProvider').removeAttr('disabled');
+                    }
+                }
+            </script>
+            <tr valign="top">
+                <td align="right">
+                    <b><bean:message key="demographic.demographiceditdemographic.formEnrollmentDoctor" />: </b>
+                </td>
+                <td align="left">
+                    <select name="enrollmentProvider" id="enrollmentProvider" style="width: 200px">
+                        <option value=""></option>
+                        <%
+                            for(Provider p : providerDao.getActiveProvidersByRole("doctor")) {
+                        %>
+                        <option value="<%=p.getProviderNo()%>">
+                            <%=Misc.getShortStr((p.getLastName() + "," + p.getFirstName()), "", nStrShowLen)%>
+                        </option>
+                        <% } %>
+                    </select>
+                    <input name="enrollmentProvider" id="hiddenEnrollmentProvider" type="hidden" value=""/>
+                    <input type="checkbox" id="notMrp" name="notMrp" onclick="toggleNotMrp(this)" />
+                    <b>Not MRP</b>
+                </td>
+            </tr>
 			<tr valign="top">
 				<td align="right" id="rosterStatusLbl" nowrap><b><bean:message
 					key="demographic.demographicaddrecordhtm.formPCNRosterStatus" />: </b></td>
 				<td id="rosterStatus" align="left"><!--input type="text" name="roster_status" onBlur="upCaseCtrl(this)"-->
 				<select id="roster_status"  name="roster_status" style="width: 160">
 					<option value=""></option>
-					<option value="RO"><bean:message key="demographic.demographicaddrecordhtm.RO-rostered" /></option>
-					<option value="NR"><bean:message key="demographic.demographicaddrecordhtm.NR-notrostered" /></option>
+					<option value="EN"><bean:message key="demographic.demographicaddrecordhtm.EN-Enrolled" /></option>
+					<option value="NE"><bean:message key="demographic.demographicaddrecordhtm.NE-NotEnrolled" /></option>
 					<option value="TE"><bean:message key="demographic.demographicaddrecordhtm.TE-terminated" /></option>
 					<option value="FS"><bean:message key="demographic.demographicaddrecordhtm.FS-feeforservice" /></option>
 					<% 
@@ -1517,23 +1572,6 @@ document.forms[1].r_doctor_ohip.value = refNo;
 				</td>
 			</tr>
 			<tr valign="top">
-                            <td id="ptStatusLbl" align="right"><b><bean:message
-					key="demographic.demographicaddrecordhtm.formPatientStatus" />:</b></td>
-				<td id="ptStatusCell" align="left">
-				<select id="patient_status" name="patient_status" style="width: 160">
-					<option value="AC"><bean:message key="demographic.demographicaddrecordhtm.AC-Active" /></option>
-					<option value="IN"><bean:message key="demographic.demographicaddrecordhtm.IN-InActive" /></option>
-					<option value="DE"><bean:message key="demographic.demographicaddrecordhtm.DE-Deceased" /></option>
-					<option value="MO"><bean:message key="demographic.demographicaddrecordhtm.MO-Moved" /></option>
-					<option value="FI"><bean:message key="demographic.demographicaddrecordhtm.FI-Fired" /></option>
-					<% 
-					for(String status : demographicDao.search_ptstatus()) { %>
-					<option value="<%=status%>"><%=status%></option>
-					<% } // end while %>
-				</select> <input type="button" onClick="newStatus();" value="<bean:message
-					key="demographic.demographicaddrecordhtm.AddNewPatient"/> ">
-				
-				</td>
 				<td id="chartNoLbl" align="right"><b><bean:message
 					key="demographic.demographicaddrecordhtm.formChartNo" />:</b></td>
 				<td id="chartNo" align="left"><input type="text" id="chart_no" name="chart_no" value="<%=StringEscapeUtils.escapeHtml(chartNoVal)%>">

@@ -859,14 +859,19 @@
 	<oscar:oscarPropertiesCheck
 		property="DEMOGRAPHIC_PATIENT_CLINIC_STATUS" value="true">
 
+		<script>
+			function updateEnrollmentProvider(providerElement) {
+			    jQuery_3_1_0('#enrollmentProvider').val(providerElement.value);
+			}
+		</script>
 		<tr valign="top">
 			<td align="right" nowrap><b> <% if(oscarProps.getProperty("demographicLabelDoctor") != null) { out.print(oscarProps.getProperty("demographicLabelDoctor","")); } else { %>
 					<bean:message
 						key="demographic.demographiceditdemographic.formDoctor" /> <% } %>:
 			</b></td>
-			<td align="left"><select name="provider_no"
-				<%=getDisabled("provider_no")%> style="width: 200px">
-					<option value=""></option>
+			<td align="left"><select name="provider_no" id="provider_no"
+				<%=getDisabled("provider_no")%> style="width: 200px" onchange="updateEnrollmentProvider(this)">
+				<option value=""></option>
 					<%
 							for(Provider p : doctors) {
                          
@@ -891,6 +896,60 @@
 						<%=Misc.getShortStr( (p.getLastName()+","+p.getFirstName()),"",nStrShowLen)%></option>
 					<% } %>
 			</select></td>
+		</tr>
+		<%
+			String patientStatusDate = "";
+			if (demographic.getPatientStatusDate() != null) {
+				patientStatusDate = demographic.getPatientStatusDate().toString();
+			}
+		%>
+		<tr valign="top">
+			<td align="right"><b><bean:message
+					key="demographic.demographiceditdemographic.formPatientStatus" />:</b>
+				<b> </b></td>
+			<td align="left">
+				<%
+					String patientStatus = demographic.getPatientStatus();
+					if (patientStatus == null)
+						patientStatus = "";
+				%>
+				<input type="hidden" name="initial_patientstatus"
+					   value="<%=patientStatus%>"> <select name="patient_status"
+														   style="width: 120" <%=getDisabled("patient_status")%> onChange="updateStatusDate('patient');">
+
+				<option value="AC" <%="AC".equals(patientStatus) ? " selected" : ""%>>
+					<bean:message
+							key="demographic.demographiceditdemographic.optActive" /></option>
+				<option value="IN" <%="IN".equals(patientStatus) ? " selected" : ""%>>
+					<bean:message
+							key="demographic.demographiceditdemographic.optInActive" /></option>
+				<option value="DE" <%="DE".equals(patientStatus) ? " selected" : ""%>>
+					<bean:message
+							key="demographic.demographiceditdemographic.optDeceased" /></option>
+				<option value="MO" <%="MO".equals(patientStatus) ? " selected" : ""%>>
+					<bean:message key="demographic.demographiceditdemographic.optMoved" /></option>
+				<option value="FI" <%="FI".equals(patientStatus) ? " selected" : ""%>>
+					<bean:message key="demographic.demographiceditdemographic.optFired" /></option>
+				<%
+					for (String status : demographicDao.search_ptstatus()) {
+				%>
+				<option <%=status.equals(patientStatus) ? " selected" : ""%>><%=status%></option>
+				<%
+					}
+
+					// end while
+				%>
+			</select> <input type="button" onClick="newStatus();"
+							 value="<bean:message key="demographic.demographiceditdemographic.btnAddNew"/>">
+
+			</td>
+			<td align="right" nowrap>
+				<b><bean:message key="demographic.demographiceditdemographic.PatientStatusDate" />: </b></td>
+			<td align="left">
+				<input  type="text" name="patientstatus_date" id="patientstatus_date" size="11" value="<%=patientStatusDate%>">
+				<img src="../images/cal.gif" id="patientstatus_date_cal">
+				<script type="application/javascript">createStandardDatepicker(jQuery_3_1_0('#patientstatus_date'), "patientstatus_date_cal");</script>
+			</td>
 		</tr>
 		<tr valign="top">
 			<td align="right" nowrap><b><bean:message
@@ -1042,7 +1101,48 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 			<td align="right" nowrap></td>
 			<td></td>
 		</tr>
-		<% } %>
+		<% }
+			boolean notMrp = false;
+
+			if (demoExt.get("notMrp") != null && demoExt.get("notMrp").equals("on")) {
+			    notMrp = true;
+			}
+		%>
+		<script>
+			function toggleNotMrp(element) {
+                if (!element.checked) {
+                    jQuery_3_1_0('#enrollmentProvider').val(jQuery_3_1_0('#provider_no').val());
+                    jQuery_3_1_0('#enrollmentProvider').attr('disabled', 'disabled');
+                    jQuery_3_1_0('#hiddenEnrollmentProvider').val(jQuery_3_1_0('#enrollmentProvider').val());
+                } else {
+                    jQuery_3_1_0('#enrollmentProvider').removeAttr('disabled');
+				}
+			}
+		</script>
+		<tr valign="top">
+			<td align="right">
+				<b><bean:message key="demographic.demographiceditdemographic.formEnrollmentDoctor" />: </b>
+			</td>
+			<td align="left">
+				<select name="enrollmentProvider" id="enrollmentProvider" style="width: 200px" <%=!notMrp ? "disabled" : ""%>>
+					<option value=""></option>
+					<%
+						String enrollmentProvider = demoExt.get("enrollmentProvider");
+						for(Provider p : doctors) {
+							if (enrollmentProvider == null) {
+								enrollmentProvider = demographic.getProviderNo();
+							}
+					%>
+							<option value="<%=p.getProviderNo()%>" <%=p.getProviderNo().equals(enrollmentProvider)?"selected":""%>>
+								<%=Misc.getShortStr((p.getLastName() + "," + p.getFirstName()), "", nStrShowLen)%>
+							</option>
+					<% } %>
+				</select>
+				<input name="enrollmentProvider" id="hiddenEnrollmentProvider" type="hidden" value=""/>
+				<input type="checkbox" id="notMrp" name="notMrp" onclick="toggleNotMrp(this)" <%=notMrp ? "checked" : ""%>/>
+				<b>Not MRP</b>
+			</td>
+		</tr>
 		<tr valign="top">
 			<td align="right" nowrap><b><bean:message
 						key="demographic.demographiceditdemographic.formRosterStatus" />:
@@ -1058,11 +1158,11 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 				id="roster_status" name="roster_status" style="width: 120"
 				<%=getDisabled("roster_status")%> onchange="updateStatusDate('roster');checkRosterStatus2();">
 					<option value=""></option>
-					<option value="RO" <%="RO".equals(rosterStatus) ? " selected" : ""%>>
-						<bean:message key="demographic.demographiceditdemographic.optRostered" />
+					<option value="EN" <%="RO".equals(rosterStatus) ? " selected" : ""%>>
+						<bean:message key="demographic.demographiceditdemographic.optEnrolled" />
 					</option>
-					<option value="NR" <%=rosterStatus.equals("NR") ? " selected" : ""%>>
-						<bean:message key="demographic.demographiceditdemographic.optNotRostered" />
+					<option value="NE" <%=rosterStatus.equals("NR") ? " selected" : ""%>>
+						<bean:message key="demographic.demographiceditdemographic.optNotEnrolled" />
 					</option>
 					<option value="TE" <%=rosterStatus.equals("TE") ? " selected" : ""%>>
 						<bean:message key="demographic.demographiceditdemographic.optTerminated" />
@@ -1093,18 +1193,13 @@ document.updatedelete.r_doctor_ohip.value = refNo;
 				if (demographic.getRosterDate() != null) {
 					rosterDate = demographic.getRosterDate().toString();
 				}
-				
+
 				String rosterTerminationDate = "";
 				String rosterTerminationReason = "";
 				if (demographic.getRosterTerminationDate() != null) {
 					rosterTerminationDate = demographic.getRosterTerminationDate().toString();
 				}
 				rosterTerminationReason = demographic.getRosterTerminationReason();
-
-				String patientStatusDate = "";
-				if (demographic.getPatientStatusDate() != null) {
-					patientStatusDate = demographic.getPatientStatusDate().toString();
-				}
 			%>
 
 			<td align="right" nowrap><b><bean:message
@@ -1188,55 +1283,6 @@ function updateStatusDate(patientOrRoster){
 	}
 }
 </script>
-
-	<tr valign="top">
-		<td align="right"><b><bean:message
-					key="demographic.demographiceditdemographic.formPatientStatus" />:</b>
-			<b> </b></td>
-		<td align="left">
-			<%
-				String patientStatus = demographic.getPatientStatus();
-				if (patientStatus == null)
-					patientStatus = "";
-			%>
-			<input type="hidden" name="initial_patientstatus"
-			value="<%=patientStatus%>"> <select name="patient_status"
-			style="width: 120" <%=getDisabled("patient_status")%> onChange="updateStatusDate('patient');">
-			
-				<option value="AC" <%="AC".equals(patientStatus) ? " selected" : ""%>>
-					<bean:message
-						key="demographic.demographiceditdemographic.optActive" /></option>
-				<option value="IN" <%="IN".equals(patientStatus) ? " selected" : ""%>>
-					<bean:message
-						key="demographic.demographiceditdemographic.optInActive" /></option>
-				<option value="DE" <%="DE".equals(patientStatus) ? " selected" : ""%>>
-					<bean:message
-						key="demographic.demographiceditdemographic.optDeceased" /></option>
-				<option value="MO" <%="MO".equals(patientStatus) ? " selected" : ""%>>
-					<bean:message key="demographic.demographiceditdemographic.optMoved" /></option>
-				<option value="FI" <%="FI".equals(patientStatus) ? " selected" : ""%>>
-					<bean:message key="demographic.demographiceditdemographic.optFired" /></option>
-				<%
-					for (String status : demographicDao.search_ptstatus()) {
-				%>
-				<option <%=status.equals(patientStatus) ? " selected" : ""%>><%=status%></option>
-				<%
-					}
-
-					// end while
-				%>
-		</select> <input type="button" onClick="newStatus();"
-			value="<bean:message key="demographic.demographiceditdemographic.btnAddNew"/>">
-
-		</td>
-		<td align="right" nowrap>
-			<b><bean:message key="demographic.demographiceditdemographic.PatientStatusDate" />: </b></td>
-		<td align="left">
-			<input  type="text" name="patientstatus_date" id="patientstatus_date" size="11" value="<%=patientStatusDate%>">
-			<img src="../images/cal.gif" id="patientstatus_date_cal">
-			<script type="application/javascript">createStandardDatepicker(jQuery_3_1_0('#patientstatus_date'), "patientstatus_date_cal");</script>
-		</td>
-	</tr>
 	<tr>
 		<td align="right"><b><bean:message
 					key="demographic.demographiceditdemographic.formPatientType" />:</b></td>
@@ -1325,9 +1371,9 @@ function updateStatusDate(patientOrRoster){
 		</td>
 	</tr>
 	<%-- 
-						THE "PATIENT JOINED DATE" ROW HAS NOT BEEN ADDED TWICE IN ERROR 
+						THE "PATIENT JOINED DATE" ROW HAS NOT BEEN ADDED TWICE IN ERROR
 						IT IS PLACED HERE FOR REPOSITIONING WHEN THE WAITING LIST
-						MODULE IS ACTIVE. 
+						MODULE IS ACTIVE.
 						THIS WAY WILL MAKE EVERYONE HAPPY.
 					--%>
 	<tr valign="top">

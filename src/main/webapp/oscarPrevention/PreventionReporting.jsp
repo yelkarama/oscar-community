@@ -29,6 +29,8 @@
 <%@page import="org.apache.commons.lang.StringUtils"%>
 <%@page import="oscar.oscarDemographic.data.*,java.util.*,oscar.oscarPrevention.*,oscar.oscarProvider.data.*,oscar.util.*,oscar.oscarReport.data.*,oscar.oscarPrevention.pageUtil.*,java.net.*,oscar.eform.*"%>
 <%@page import="oscar.OscarProperties, org.oscarehr.util.SpringUtils, org.oscarehr.common.dao.BillingONCHeader1Dao" %>
+<%@ page import="org.oscarehr.common.dao.DemographicExtDao" %>
+<%@ page import="org.oscarehr.common.model.DemographicExt" %>
 <%@ taglib uri="/WEB-INF/struts-bean.tld" prefix="bean" %>
 <%@ taglib uri="/WEB-INF/struts-html.tld" prefix="html" %>
 <%@ taglib uri="/WEB-INF/oscar-tag.tld" prefix="oscar" %>
@@ -511,7 +513,7 @@ table.ele thead {
                           <th>Last Contact Method</th>
                           <th>Next Contact Method</th>
                           <th class="unsortable">Select Contact<br><input type="checkbox" onclick="selectAllnsp()"></th>
-                          <th>Roster Physician</th>
+                          <th>Enrollment Physician</th>
                           <th class="unsortable">Bill</th>
                        </tr>
                        </thead>
@@ -527,6 +529,9 @@ table.ele thead {
                             PreventionReportDisplay dis = (PreventionReportDisplay) list.get(i);
                             Hashtable h = deName.getNameAgeSexHashtable(LoggedInInfo.getLoggedInInfoFromSession(request), dis.demographicNo.toString());
                             org.oscarehr.common.model.Demographic demo = demoData.getDemographic(LoggedInInfo.getLoggedInInfoFromSession(request),  dis.demographicNo.toString());
+
+                             DemographicExtDao demographicExtDao = SpringUtils.getBean(DemographicExtDao.class);
+                             DemographicExt enrollmentProvider = demographicExtDao.getDemographicExt(dis.demographicNo, "enrollmentProvider");
 
                             if ( dis.nextSuggestedProcedure != null ){
                                 if (dis.nextSuggestedProcedure.equals("L1")){
@@ -618,8 +623,8 @@ table.ele thead {
                           	<%} %>
                           </td>
                           <%
-                          	String providerName=providerBean.getProperty(demo.getProviderNo());
-                          	providerName=StringUtils.trimToEmpty(providerName);
+                          	String providerNo = enrollmentProvider == null ? "" : enrollmentProvider.getValue();
+                            String providerName = StringUtils.trimToEmpty(providerBean.getProperty(providerNo));
                           %>
                           <td bgcolor="<%=dis.color%>"><%=providerName%></td>
                           <td bgcolor="<%=dis.color%>">

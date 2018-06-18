@@ -152,6 +152,13 @@
 
 	DBPreparedHandlerParam [] param =new DBPreparedHandlerParam[34];
 
+	String enrollmentStatus = request.getParameter("roster_status");
+	if (enrollmentStatus.equals("EN")) {
+		enrollmentStatus = "RO";
+	} else if (enrollmentStatus.equals("NE")) {
+		enrollmentStatus = "NR";
+	}
+
 	Demographic demographic = new Demographic();
 	demographic.setLastName(request.getParameter("last_name").trim());
 	demographic.setFirstName(request.getParameter("first_name").trim());
@@ -169,7 +176,7 @@
 	demographic.setDateOfBirth(request.getParameter("date_of_birth")!=null && request.getParameter("date_of_birth").length()==1 ? "0"+request.getParameter("date_of_birth") : request.getParameter("date_of_birth"));
 	demographic.setHin(request.getParameter("hin"));
 	demographic.setVer(request.getParameter("ver"));
-	demographic.setRosterStatus(request.getParameter("roster_status"));
+	demographic.setRosterStatus(enrollmentStatus);
 	demographic.setPatientStatus(request.getParameter("patient_status"));
 	demographic.setDateJoined(MyDateFormat.getSysDate(request.getParameter("date_joined")));
 	demographic.setChartNo(request.getParameter("chart_no"));
@@ -338,6 +345,8 @@
        demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "patientType", request.getParameter("patientType"), "");
        demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "demographicMiscId", request.getParameter("demographicMiscId"), "");
        demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "includeEmailOnConsults", request.getParameter("includeEmailOnConsults") != null ? request.getParameter("includeEmailOnConsults") : "false");
+       demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "enrollmentProvider", request.getParameter("enrollmentProvider"));
+       demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "notMrp", request.getParameter("notMrp"), "");
 
 		if (OscarProperties.getInstance().isPropertyActive("showPrimaryCarePhysicianCheck")) {
 			demographicExtDao.addKey(proNo, demographic.getDemographicNo(), "HasPrimaryCarePhysician", request.getParameter("HasPrimaryCarePhysician"), "");

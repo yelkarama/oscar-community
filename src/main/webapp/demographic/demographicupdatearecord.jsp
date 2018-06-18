@@ -234,6 +234,13 @@
 		}
 	}
 
+	String enrollmentStatus = request.getParameter("roster_status");
+	if (enrollmentStatus.equals("EN")) {
+        enrollmentStatus = "RO";
+	} else if (enrollmentStatus.equals("NE")) {
+	    enrollmentStatus = "NR";
+    }
+
 	demographic.setLastName(request.getParameter("last_name").trim());
 	demographic.setFirstName(request.getParameter("first_name").trim());
 	demographic.setPrefName(request.getParameter("pref_name").trim());
@@ -250,7 +257,7 @@
 	demographic.setDateOfBirth(request.getParameter("date_of_birth")!=null && request.getParameter("date_of_birth").length()==1 ? "0"+request.getParameter("date_of_birth") : request.getParameter("date_of_birth"));
 	demographic.setHin(request.getParameter("hin")!=null?request.getParameter("hin").trim():"");
 	demographic.setVer(request.getParameter("ver"));
-	demographic.setRosterStatus(request.getParameter("roster_status"));
+	demographic.setRosterStatus(enrollmentStatus);
 	demographic.setPatientStatus(request.getParameter("patient_status"));
 	demographic.setChartNo(request.getParameter("chart_no"));
 	demographic.setProviderNo(request.getParameter("provider_no"));
@@ -519,6 +526,14 @@
 	if (OscarProperties.getInstance().isPropertyActive("masterfile_referral_source") &&
 			!StringUtils.trimToEmpty(demoExt.get("referral_source")).equals(referralSourceString)) {
 	    extensions.add(new DemographicExt(request.getParameter("referral_source_id"), proNo, demographicNo, "referral_source", referralSourceString));
+	}
+
+	if (!StringUtils.trimToEmpty(demoExt.get("enrollmentProvider")).equals(StringUtils.trimToEmpty(request.getParameter("enrollmentProvider")))) {
+		extensions.add(new DemographicExt(request.getParameter("enrollmentProvider_id"), proNo, demographicNo, "enrollmentProvider", request.getParameter("enrollmentProvider") == null ? "" : request.getParameter("enrollmentProvider")));
+	}
+
+	if (!StringUtils.trimToEmpty(demoExt.get("notMrp")).equals(StringUtils.trimToEmpty(request.getParameter("notMrp")))) {
+		extensions.add(new DemographicExt(request.getParameter("notMrp_id"), proNo, demographicNo, "notMrp", request.getParameter("notMrp") == null ? "" : request.getParameter("notMrp")));
 	}
 
     if (OscarProperties.getInstance().isPropertyActive("show_referral_date")) {

@@ -856,7 +856,7 @@ function checkReminderContactMethod(contactType) {
 function checkRosterStatus2(){
 	var rosterSelect = document.getElementById("roster_status");
 	<oscar:oscarPropertiesCheck property="FORCED_ROSTER_INTEGRATOR_LOCAL_STORE" value="yes">
-	if(rosterSelect.value == "RO"){
+	if(rosterSelect.value == "EN"){
 		var primaryEmr = document.getElementById("primaryEMR");
 		primaryEmr.value = "1";
 		primaryEmr.disable(true);
@@ -864,7 +864,7 @@ function checkRosterStatus2(){
 	</oscar:oscarPropertiesCheck>
 	
 	
-	if(rosterSelect.value == "RO" || rosterSelect.value == ""){
+	if(rosterSelect.value == "EN" || rosterSelect.value == ""){
 		jQuery(".termination_details").hide();
         jQuery(".termination_details input").val("");
         jQuery(".termination_details select").val("");
@@ -1791,10 +1791,18 @@ if(oscarProps.getProperty("new_label_print") != null && oscarProps.getProperty("
 						<% } %>
 						<div class="demographicSection" id="clinicStatus">
 						<h3>&nbsp;<bean:message key="demographic.demographiceditdemographic.msgClinicStatus"/> (<a href="#" onclick="popup(1000, 650, 'EnrollmentHistory.jsp?demographicNo=<%=demographic_no%>', 'enrollmentHistory'); return false;"><bean:message key="demographic.demographiceditdemographic.msgEnrollmentHistory"/></a>)</h3>
+						<%
+								String rosterStatus = demographic.getRosterStatus();
+								if (rosterStatus != null && rosterStatus.equals("RO")) {
+								    rosterStatus = "EN";
+								} else if (rosterStatus != null && rosterStatus.equals("NR")) {
+									rosterStatus = "NE";
+								}
+						%>
 						<ul>
                                                     <li><span class="label"><bean:message
                                                             key="demographic.demographiceditdemographic.formRosterStatus" />:</span>
-                                                        <span class="info"><%=StringUtils.trimToEmpty(demographic.getRosterStatus())%></span>
+                                                        <span class="info"><%=StringUtils.trimToEmpty(rosterStatus)%></span>
                                                     </li>
                                                     <li><span class="label"><bean:message
                                                             key="demographic.demographiceditdemographic.DateJoined" />:</span>
