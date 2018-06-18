@@ -212,7 +212,7 @@ public class EditTicklerAction extends DispatchAction{
         }
 
 
-        if (!assignedTo.equals(t.getTaskAssignedTo())){                
+        if (!assignedTo.equals(t.getTaskAssignedTo())){
             tu.setAssignedTo(assignedTo);
             t.setTaskAssignedTo(assignedTo);
             isUpdate = true;
@@ -226,9 +226,13 @@ public class EditTicklerAction extends DispatchAction{
         if (!serviceDate.equals(t.getServiceDate())){
            try {
                Date serviceDateAsDate = DateUtils.parseDate(serviceDate, request.getLocale());
-               tu.setServiceDate(serviceDateAsDate);
-               t.setServiceDate(serviceDateAsDate);
-               isUpdate = true;
+               if (serviceDateAsDate != null) {
+                   tu.setServiceDate(serviceDateAsDate);
+                   t.setServiceDate(serviceDateAsDate);
+                   isUpdate = true;
+               } else {
+                   logger.error("Service date is NULL, it will not be updated.");
+               }
            }
            catch (java.text.ParseException e) {
                logger.error("Service Date cannot be parsed:",e);

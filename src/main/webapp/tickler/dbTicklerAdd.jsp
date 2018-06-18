@@ -101,7 +101,11 @@ Tickler tickler = new Tickler();
     }
     tickler.setCreator(doccreator);
     tickler.setMessage(docfilename);
-    tickler.setServiceDate(UtilDateUtilities.StringToDate(docdate));
+    Date serviceDate = UtilDateUtilities.StringToDate(docdate);
+    if (serviceDate == null) {
+        serviceDate = new Date();
+    }
+    tickler.setServiceDate(serviceDate);
 
 
    ticklerManager.addTickler(loggedInInfo,tickler);
