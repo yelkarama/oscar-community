@@ -229,7 +229,7 @@ if(listRxDrugs!=null){
        	  <input type="text" size="6" id="refillQuantity_<%=rand%>" name="refillQuantity_<%=rand%>" value="<%=refillQuantity%>" />
        	  <br/>       	  
        	  <bean:message key="WriteScript.msgPrescribedDispenseInterval"/>
-       	  <input type="text" size="6" id="dispenseInterval_<%=rand%>" name="dispenseInterval_<%=rand%>" value="<%=dispenseInterval%>" />
+       	  <input type="text" size="6" maxlength="10" id="dispenseInterval_<%=rand%>" name="dispenseInterval_<%=rand%>" value="<%=dispenseInterval%>" />
        	  <br/>
        	  <%if(OscarProperties.getInstance().getProperty("rx.enable_internal_dispensing","false").equals("true")) {%>
 			  <bean:message key="WriteScript.msgDispenseInternal"/>	
@@ -396,7 +396,7 @@ if(listRxDrugs!=null){
        	  <br/> 
     	  
        	  <bean:message key="WriteScript.msgPrescribedDispenseInterval"/>
-       	  <input type="text" size="6" id="dispenseInterval_<%=rand%>" name="dispenseInterval_<%=rand%>" value="<%=dispenseInterval%>" />
+       	  <input type="text" size="6" maxlength="10" id="dispenseInterval_<%=rand%>" name="dispenseInterval_<%=rand%>" value="<%=dispenseInterval%>" />
        	  <br/>
        	  
 	     <%if(OscarProperties.getInstance().getProperty("rx.enable_internal_dispensing","false").equals("true")) {%>  

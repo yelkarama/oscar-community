@@ -150,7 +150,7 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 	@Column(name = "refill_quantity")
 	private Integer refillQuantity;
 	@Column(name = "dispense_interval")
-	private Integer dispenseInterval;
+	private String dispenseInterval;
 	@Column(name = "position")
 	private Integer position;
 	@Column(name = "start_date_unknown")
@@ -341,11 +341,11 @@ public class Drug extends AbstractModel<Integer> implements Serializable {
 		this.refillQuantity = refillQuantity;
 	}
 
-	public Integer getDispenseInterval() {
+	public String getDispenseInterval() {
 		return dispenseInterval;
 	}
 
-	public void setDispenseInterval(int dispenseInterval) {
+	public void setDispenseInterval(String dispenseInterval) {
 		this.dispenseInterval = dispenseInterval;
 	}
 

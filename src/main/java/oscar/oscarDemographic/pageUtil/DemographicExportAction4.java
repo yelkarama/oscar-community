@@ -1612,13 +1612,12 @@ public class DemographicExportAction4 extends Action {
 						medi.setPrescriptionStatus(arr[p].getRxStatus());
 						mSummary = Util.addSummary(mSummary, "Prescription Status", arr[p].getRxStatus());
 					}
-					/* no need:
-					if (arr[p].getDispenseInterval()!=null) {
-						medi.setDispenseInterval(String.valueOf(arr[p].getDispenseInterval()));
-						mSummary = Util.addLine(mSummary, "Dispense Interval", arr[p].getDispenseInterval().toString());
-					}
 					 *
 					 */
+					if (arr[p].getDispenseInterval()!=null) {
+						medi.setDispenseInterval(arr[p].getDispenseInterval());
+						mSummary = Util.addLine(mSummary, "Dispense Interval", arr[p].getDispenseInterval());
+					}
 					if (arr[p].getRefillDuration()!=null) {
 						medi.setRefillDuration(String.valueOf(arr[p].getRefillDuration()));
 						mSummary = Util.addSummary(mSummary, "Refill Duration", arr[p].getRefillDuration().toString());

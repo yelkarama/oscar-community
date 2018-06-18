@@ -1,0 +1,1 @@
+ALTER TABLE drugs MODIFY dispense_interval varchar(10);

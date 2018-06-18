@@ -658,7 +658,7 @@ public class RxPrescriptionData {
 		String rxStatus = null;
 		private Integer refillDuration = 0;
 		private Integer refillQuantity = 0;
-		private Integer dispenseInterval = 0;
+		private String dispenseInterval = "0";
 		private int position = 0;
 		private String comment = null;
 
@@ -1884,11 +1884,11 @@ public class RxPrescriptionData {
 			this.refillQuantity = refillQuantity;
 		}
 
-		public Integer getDispenseInterval() {
+		public String getDispenseInterval() {
 			return dispenseInterval;
 		}
 
-		public void setDispenseInterval(int dispenseInterval) {
+		public void setDispenseInterval(String dispenseInterval) {
 			this.dispenseInterval = dispenseInterval;
 		}
 

@@ -1846,7 +1846,7 @@ import oscar.util.UtilDateUtilities;
                     else drug.setPrn(false);
 
                     drug.setRegionalIdentifier(medArray[i].getDrugIdentificationNumber());
-                    drug.setRoute(medArray[i].getRoute());
+                    drug.setRoute("Oral");
                     drug.setDrugForm(medArray[i].getForm());
                     drug.setLongTerm(getYN(medArray[i].getLongTermMedication()).equals("Yes"));
                     drug.setPastMed(getYN(medArray[i].getPastMedications()).equals("Yes"));
@@ -1875,8 +1875,11 @@ import oscar.util.UtilDateUtilities;
                     drug.setNoSubs(StringUtils.noNull( medArray[i].getSubstitutionNotAllowed()).equalsIgnoreCase("Y"));
                     drug.setNonAuthoritative(StringUtils.noNull(medArray[i].getNonAuthoritativeIndicator()).equalsIgnoreCase("Y"));
 
-                    //no need: if (NumberUtils.isDigits(medArray[i].getDispenseInterval())) drug.setDispenseInterval(Integer.parseInt(medArray[i].getDispenseInterval()));
-                    //no need: else err_data.add("Error! Invalid Dispense Interval for Medications & Treatments ("+(i+1)+")");
+                    if (medArray[i].getDispenseInterval() != null) {
+                        drug.setDispenseInterval(medArray[i].getDispenseInterval());
+                    } else {
+                        drug.setDispenseInterval("0");
+                    }
 
                     String take = StringUtils.noNull(medArray[i].getDosage()).trim();
                     drug.setTakeMin(Util.leadingNumF(take));
@@ -1950,7 +1953,6 @@ import oscar.util.UtilDateUtilities;
                     }
                     
                     drug.setPosition(0);
-                    drug.setDispenseInterval(0);
                     drug.setComment(medArray[i].getNotes());
                     drugDao.persist(drug);
                     addOneEntry(MEDICATION);

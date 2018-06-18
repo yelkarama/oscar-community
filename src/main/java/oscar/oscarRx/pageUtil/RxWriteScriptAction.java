@@ -1113,7 +1113,7 @@ public final class RxWriteScriptAction extends DispatchAction {
                         } else if(elem.equals("refillQuantity_"+num)) {
                         	rx.setRefillQuantity(Integer.parseInt(val));
                         } else if(elem.equals("dispenseInterval_"+num)) {
-                        	rx.setDispenseInterval(Integer.parseInt(val));
+                        	rx.setDispenseInterval(val);
 						} else if (elem.equals("lastRefillDate_" + num)) {
 							rx.setLastRefillDate(RxUtil.StringToDate(val, "yyyy-MM-dd"));
 						} else if (elem.equals("rxDate_" + num)) {
