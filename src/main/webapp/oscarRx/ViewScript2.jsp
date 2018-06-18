@@ -41,6 +41,8 @@
 <%@page import="org.oscarehr.util.SpringUtils"%>
 <%@ page import="org.oscarehr.common.dao.*" %>
 <%@ page import="org.oscarehr.common.model.*" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="oscar.oscarProvider.data.ProviderData" %>
 <%
 	OscarAppointmentDao appointmentDao = SpringUtils.getBean(OscarAppointmentDao.class);
 	UserPropertyDAO userPropertyDAO = (UserPropertyDAO) SpringUtils.getBean(UserPropertyDAO.class);
@@ -363,11 +365,12 @@ function printIframe(){
 				self.focus();
 			}
 	}
-
+var readyStateCheckInterval;
+var encounterWindow;
 function printPaste2Parent(print){
     //console.log("in printPaste2Parent");
    try{
-      var text =""; 
+      text =""; 
       <% if (props.isPropertyActive("rx_paste_asterisk")) { %>
 	   text += "**********************************************************************************\n";
      <% } %>
@@ -403,13 +406,23 @@ function printPaste2Parent(print){
         window.parent.opener.document.encForm.enTextarea.value = window.parent.opener.document.encForm.enTextarea.value + text;
       }else if( window.parent.opener.document.getElementById(noteEditor) != undefined ){
     	window.parent.opener.document.getElementById(noteEditor).value = window.parent.opener.document.getElementById(noteEditor).value + text; 
+      } else {
+			var windowprops = "height=710,width=1024,location=no,scrollbars=yes,menubars=no,toolbars=no,resizable=yes,screenX=50,screenY=50,top=20,left=20";
+			var currentDate = new Date().toISOString().substring(0, 10);
+			encounterWindow = window.open("../oscarEncounter/IncomingEncounter.do?providerNo=<%= bean.getProviderNo() %>&demographicNo=<%= bean.getDemographicNo() %>&curProviderNo=<%= bean.getProviderNo() %>&userName=<%=ProviderData.getProviderName(bean.getProviderNo())%>&curDate=" + currentDate, "encounter", windowprops);
+			readyStateCheckInterval = setInterval(function() {
+			    if (encounterWindow.document.readyState === "complete") {
+			        clearInterval(readyStateCheckInterval);
+			        encounterWindow.pasteToEncounterNoteWhenReady(text);
+				}
+			}, 100);
       }
       
    }catch (e){
-      alert ("ERROR: could not paste to EMR");
+      alert ("ERROR: could not paste to EMR" + e);
    }
    
-   if (print) { printIframe(); }
+   if (print) { printIframe();}
    
 }
 

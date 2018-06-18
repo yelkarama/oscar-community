@@ -1329,13 +1329,23 @@ function loadDiv(div,url,limit) {
 
     }
 
+    var encounterNotesReadyCheckInterval;
+    function pasteToEncounterNoteWhenReady(txt) {
+        encounterNotesReadyCheckInterval = setInterval(function() {
+            if ($(caseNote) != null) {
+                clearInterval(encounterNotesReadyCheckInterval);
+                pasteToEncounterNote(txt);
+            }
+        }, 100);
+    }
+    
     function pasteToEncounterNote(txt) {
         $(caseNote).value += "\n" + txt;
         adjustCaseNote();
         setCaretPosition($(caseNote),$(caseNote).value.length);
 
     }
-
+    
     function writeToEncounterNote(request) {
 
         //$("templatejs").update(request.responseText);
