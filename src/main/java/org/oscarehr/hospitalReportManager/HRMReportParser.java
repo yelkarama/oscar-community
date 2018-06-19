@@ -12,6 +12,7 @@ package org.oscarehr.hospitalReportManager;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
@@ -52,6 +53,7 @@ import omd.hrm.OmdCds;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
 import org.oscarehr.util.SpringUtils;
+import org.springframework.core.io.ClassPathResource;
 import org.xml.sax.SAXException;
 
 import oscar.OscarProperties;
@@ -98,8 +100,9 @@ public class HRMReportParser {
 				SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 
 				// Load a WXS schema, represented by a Schema instance.
-				Source schemaFile = new StreamSource(new File(SFTPConnector.OMD_directory + "report_manager_cds.xsd"));
-				Schema schema = factory.newSchema(schemaFile); 
+				File schemaFile = new ClassPathResource("/xsd/hrm/1.1.2/ontariomd_hrm.xsd").getFile();
+				Source schemaSource = new StreamSource(schemaFile);
+				Schema schema = factory.newSchema(schemaSource); 
 
 				JAXBContext jc = JAXBContext.newInstance("omd.hrm");
 				Unmarshaller u = jc.createUnmarshaller();
@@ -117,17 +120,19 @@ public class HRMReportParser {
 				logger.error("FILE ERROR PARSING XML " + e);
 			} catch (JAXBException e) {
 				// TODO Auto-generated catch block
-				logger.error("error",e);
-				if(e.getLinkedException() != null) {
+				logger.error("error", e);
+				if (e.getLinkedException() != null) {
 					SFTPConnector.notifyHrmError(loggedInInfo, e.getLinkedException().getMessage());
 				} else {
 					SFTPConnector.notifyHrmError(loggedInInfo, e.getMessage());
 				}
-				
+			} catch (IOException e) {
+				logger.error("ERROR READING report_manager_cds.xsd RESOURCE" + e);
 			}
 
-                        if (root!=null && hrmReportFileLocation!=null && fileData!=null)
-                            return new HRMReport(root, hrmReportFileLocation, fileData);
+			if (root!=null && hrmReportFileLocation!=null && fileData!=null) {
+				return new HRMReport(root, hrmReportFileLocation, fileData);
+			}
 		}
 
 		return null;
