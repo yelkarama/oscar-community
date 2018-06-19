@@ -1658,6 +1658,10 @@ import oscar.util.UtilDateUtilities;
                         	cmNote.setSigning_provider_no(defaultProviderNo());
                         }
                         
+                        if (StringUtils.filled(cNotes[i].getNoteType())) {
+                            cmNote.setEncounter_type(cNotes[i].getNoteType());
+                        }
+                        
                         caseManagementManager.saveNoteSimple(cmNote);
 
                         //prepare for extra notes
