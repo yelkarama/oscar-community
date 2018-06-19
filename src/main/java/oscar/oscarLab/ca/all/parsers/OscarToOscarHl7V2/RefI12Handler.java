@@ -39,6 +39,7 @@ import ca.uhn.hl7v2.model.v26.segment.PRD;
 public final class RefI12Handler extends ChainnedMessageAdapter<REF_I12> {
 	
 	private static Logger logger = MiscUtils.getLogger();
+	private boolean reportBlocked = false;
 
 	public RefI12Handler(REF_I12 hl7Message) {
 	    super(hl7Message);
@@ -134,4 +135,7 @@ public final class RefI12Handler extends ChainnedMessageAdapter<REF_I12> {
 	    return null;
     }
 
+	public Boolean isReportBlocked() {
+		return reportBlocked;
+	}
 }

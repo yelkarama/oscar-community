@@ -732,6 +732,16 @@ if (request.getAttribute("printError") != null && (Boolean) request.getAttribute
                                                             </div>
                                                         </td>
                                                     </tr>
+                                                    <% if (handler.isReportBlocked()) { %>
+                                                    <tr>
+                                                        <td bgcolor="white">
+                                                            <div class="FieldData">
+                                                                <span style="color:red; font-weight:bold">Blocked Test Result: Do Not Disclose Without Explicit Patient Consent</span>
+                                                                <br/>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <% } %>
                                                 </table>
 
                                             <%}

@@ -250,7 +250,7 @@ public class OLISHL7Handler implements MessageHandler {
 
 	public boolean reportBlocked = false;
 
-	public boolean isReportBlocked() {
+	public Boolean isReportBlocked() {
 		return reportBlocked;
 	}
 

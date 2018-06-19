@@ -25,6 +25,7 @@
 
 package oscar.oscarLab.ca.all.parsers.OscarToOscarHl7V2;
 
+import ca.uhn.hl7v2.util.Terser;
 import org.apache.log4j.Logger;
 import org.oscarehr.common.hl7.v2.oscar_to_oscar.DataTypeUtils;
 import org.oscarehr.util.MiscUtils;
@@ -41,6 +42,8 @@ import ca.uhn.hl7v2.model.v26.segment.ROL;
 public final class OruR01Handler extends ChainnedMessageAdapter<ORU_R01> {
 	
 	private static Logger logger = MiscUtils.getLogger();
+	private boolean reportBlocked = false;
+	Terser terser = null;
 	
 	public OruR01Handler(ORU_R01 hl7Message) {
 	    super(hl7Message);
@@ -153,4 +156,8 @@ public final class OruR01Handler extends ChainnedMessageAdapter<ORU_R01> {
 		// TODO Auto-generated method stub
 	    return null;
     }
+
+	public Boolean isReportBlocked() {
+		return reportBlocked;
+	}
 }

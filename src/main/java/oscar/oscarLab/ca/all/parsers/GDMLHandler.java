@@ -46,6 +46,7 @@ import java.util.List;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 import org.oscarehr.common.dao.Hl7TextInfoDao;
+import org.oscarehr.common.hl7.v2.oscar_to_oscar.DynamicHapiLoaderUtils;
 import org.oscarehr.common.model.Hl7TextMessageInfo;
 import org.oscarehr.common.model.Hl7TextMessageInfo2;
 import org.oscarehr.util.SpringUtils;
@@ -73,7 +74,9 @@ public class GDMLHandler implements MessageHandler {
     ArrayList<String> headers = null;
     HashMap<OBR,ArrayList<OBX>> obrSegMap = null;
     ArrayList<OBR> obrSegKeySet = null;
-
+    private boolean reportBlocked = false;
+    Terser terser = null;
+    
     /** Creates a new instance of CMLHandler */
     public GDMLHandler(){
     }
@@ -88,6 +91,7 @@ public class GDMLHandler implements MessageHandler {
         headers = new ArrayList<String>();
         obrSegMap = new LinkedHashMap<OBR,ArrayList<OBX>>();
         obrSegKeySet = new ArrayList<OBR>();
+        terser = new Terser(msg);
 
         for (int i=0; i < labs.size(); i++){
             msg = (ORU_R01) p.parse(( labs.get(i)).replaceAll("\n", "\r\n"));
@@ -116,7 +120,15 @@ public class GDMLHandler implements MessageHandler {
                 if (!headers.contains(header)){
                     headers.add(header);
                 }
-
+            }
+            
+            try {
+                Boolean blocked = "Y".equalsIgnoreCase(DynamicHapiLoaderUtils.terserGet(terser, "/.ZPD-3-1"));
+                if(!reportBlocked && blocked) {
+                    reportBlocked = true;
+                }
+            } catch (Exception e) {
+                logger.error(e);
             }
         }
     }
@@ -593,7 +605,10 @@ public class GDMLHandler implements MessageHandler {
         String docNames = "";
 
         try {
-            Terser terser = new Terser(msg);
+            if (terser == null) {
+                terser = new Terser(msg);
+            }
+            
 
             String givenName = terser.get("/.ZDR(0)-4-1");
             String middleName = terser.get("/.ZDR(0)-4-3");
@@ -871,5 +886,9 @@ public class GDMLHandler implements MessageHandler {
     		logger.error("Could not generate nte segment for patient",e);
     		return "";
     	}
+    }
+
+    public Boolean isReportBlocked(){
+        return reportBlocked;
     }
 }

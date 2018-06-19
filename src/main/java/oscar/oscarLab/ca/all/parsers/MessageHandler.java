@@ -341,4 +341,6 @@ public interface MessageHandler {
     public String getNteForOBX(int i,int j);
     
     public String getNteForPID();
+
+    public Boolean isReportBlocked();
 }

@@ -73,6 +73,9 @@ public class TDISHandler implements MessageHandler {
 	
 	private ca.uhn.hl7v2.model.v25.group.ORU_R01_PATIENT pat_25; //patient object
 
+	private boolean reportBlocked = false;
+	private Terser terser = null;
+
 	public void init(String hl7Body) throws HL7Exception {
 
 		Parser p = new PipeParser();
@@ -84,6 +87,7 @@ public class TDISHandler implements MessageHandler {
 		msg = (ca.uhn.hl7v2.model.v25.message.ORU_R01) p.parse(hl7Body.replaceAll("\n", "\r\n")); // for now just fetch the object
 		msg.getMSH().getEncodingCharacters().setValue("^~\\&");
 		msg.getMSH().getFieldSeparator().setValue("|");
+		terser = new Terser(msg);
 
 		this.v2 = ORUR01Manager.getVersion(version);
 		
@@ -158,6 +162,15 @@ public class TDISHandler implements MessageHandler {
 						headers.add(header);
 					}
 				}
+			}
+
+			try {
+				Boolean blocked = "Y".equalsIgnoreCase(terser.get("/.ZPD-3-1"));
+				if(!reportBlocked && blocked) {
+					reportBlocked = true;
+				}
+			} catch (Exception e) {
+				logger.error(e);
 			}
 		} //end lab iteration
 
@@ -1023,4 +1036,8 @@ public class TDISHandler implements MessageHandler {
     	
     	return "";
     }
+
+	public Boolean isReportBlocked() {
+		return reportBlocked;
+	}
 }

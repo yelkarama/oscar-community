@@ -79,6 +79,13 @@ public class PATHL7Handler implements MessageHandler {
         Parser p = new PipeParser();
         p.setValidationContext(new NoValidation());
         msg = (ORU_R01) p.parse(hl7Body.replaceAll( "\n", "\r\n" ).replace("\\.Zt\\", "\t"));
+        terser = new Terser(msg);
+
+        try {
+            reportBlocked = "Y".equalsIgnoreCase(terser.get("/.ZPD-3-1"));
+        } catch (Exception e) {
+            logger.error(e);
+        }
     }
 
     public String getMsgType(){
@@ -711,4 +718,8 @@ public class PATHL7Handler implements MessageHandler {
 		return result;
 	}
     
+
+    public Boolean isReportBlocked() {
+        return reportBlocked;
+    }
 }

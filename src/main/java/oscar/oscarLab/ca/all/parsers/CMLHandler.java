@@ -64,6 +64,8 @@ public class CMLHandler implements MessageHandler {
 
     ORU_R01 msg = null;
     Logger logger = Logger.getLogger(CMLHandler.class);
+    private boolean reportBlocked = false;
+    Terser terser = null;
 
     /** Creates a new instance of CMLHandler */
     public CMLHandler(){
@@ -73,6 +75,13 @@ public class CMLHandler implements MessageHandler {
         Parser p = new PipeParser();
         p.setValidationContext(new NoValidation());
         msg = (ORU_R01) p.parse(hl7Body.replaceAll( "\n", "\r\n" ));
+        terser = new Terser(msg);
+
+        try {
+            reportBlocked = "Y".equalsIgnoreCase(terser.get("/.ZPD-3-1"));
+        } catch (Exception e) {
+            logger.error(e);
+        }
     }
 
     public String getMsgType(){
@@ -625,5 +634,9 @@ public class CMLHandler implements MessageHandler {
     }
     public String getNteForPID() {
     	return "";
+    }
+
+    public Boolean isReportBlocked() {
+        return reportBlocked;
     }
 }

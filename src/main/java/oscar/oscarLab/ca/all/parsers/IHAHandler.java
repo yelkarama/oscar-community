@@ -50,6 +50,7 @@ public class IHAHandler implements MessageHandler {
     protected Message msg = null;
     protected Terser terser;
     protected ArrayList<ArrayList<Segment>> obrGroups = null;
+    private boolean reportBlocked = false;
     
     public IHAHandler(){
     	//Creates a new instance of IHAHandler
@@ -98,6 +99,15 @@ public class IHAHandler implements MessageHandler {
                     break;
                 }else if ( segments[k].equals("OBR"+obrNum) || ( obrNum==1 && segments[k].equals("OBR"))){
                     obrFlag = true;
+                } else if ((segmentName.equals("ZPD"))) {
+                    try {
+                        Boolean blocked = "Y".equalsIgnoreCase(DynamicHapiLoaderUtils.terserGet(terser, "/.ZPD-3-1"));
+                        if(!reportBlocked && blocked) {
+                            reportBlocked = true;
+                        }
+                    } catch (Exception e) {
+                        logger.error(e);
+                    }
                 }
                 
             }
@@ -1188,5 +1198,9 @@ public class IHAHandler implements MessageHandler {
     }
     public String getNteForPID() {
     	return "";
+    }
+
+    public Boolean isReportBlocked() {
+        return reportBlocked;
     }
 }

@@ -261,6 +261,8 @@ public class SpireHandler implements MessageHandler {
     
     ORU_R01 msg = null;
     Logger logger = Logger.getLogger(SpireHandler.class);
+    private boolean reportBlocked = false;
+	private Terser terser = null;
     
     /** Creates a new instance of SpireHandler */
     public SpireHandler(){
@@ -274,6 +276,13 @@ public class SpireHandler implements MessageHandler {
         p.setValidationContext(new NoValidation());
         
         msg = (ORU_R01) p.parse(hl7Body.replaceAll( "\n", "\r\n" ));
+		terser = new Terser(msg);
+
+		try {
+			reportBlocked = "Y".equalsIgnoreCase(terser.get("/.ZPD-3-1"));
+		} catch (Exception e) {
+			logger.error(e);
+		}
     }
     
     /**
@@ -1025,4 +1034,8 @@ public class SpireHandler implements MessageHandler {
     	
     	return "";
     }
+
+	public Boolean isReportBlocked() {
+		return reportBlocked;
+	}
 }

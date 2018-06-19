@@ -1739,6 +1739,7 @@ public class DemographicExportAction4 extends Action {
 								} else {
 									labMeaValues.put("measureData", comments);
 								}
+                                labMeaValues.put("reportBlocked", h.isReportBlocked() ? "Y" : "");
 								
 								LaboratoryResults labResults2 = patientRec.addNewLaboratoryResults();
 								exportLabResult(labMeaValues, labResults2, demoNo);
@@ -3189,6 +3190,11 @@ public class DemographicExportAction4 extends Action {
 		//OLIS test result status
 		String olis_status = labMea.get("olis_status");
 		if (StringUtils.filled(olis_status)) labResults.setTestResultStatus(olis_status);
+
+		boolean reportBlocked = "Y".equals(labMea.get("reportBlocked"));
+		if (reportBlocked) {
+		    labResults.setBlockedTestResult(cdsDt.YIndicator.Y);
+		}
 
 		Integer labTable = CaseManagementNoteLink.LABTEST;
 		String lab_no = labMea.get("lab_no");

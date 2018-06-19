@@ -64,6 +64,8 @@ public class CLSHandler implements MessageHandler, oscar.oscarLab.ca.all.upload.
 
 	private ORU_R01 msg;
 
+	private boolean reportBlocked = false;
+
 	private Terser terser;
 	
 
@@ -72,6 +74,12 @@ public class CLSHandler implements MessageHandler, oscar.oscarLab.ca.all.upload.
 		p.setValidationContext(new NoValidation());
 		msg = (ORU_R01) p.parse(hl7Body);
 		terser = new Terser(msg);
+		
+		try {
+			reportBlocked = "Y".equalsIgnoreCase(terser.get("/.ZPD-3-1"));
+		} catch (Exception e) {
+			logger.error(e);
+		}
 	}
 
 	public String getMsgType() {
@@ -695,4 +703,8 @@ public class CLSHandler implements MessageHandler, oscar.oscarLab.ca.all.upload.
 	public String getNteForPID() {
     	return "";
     }
+
+	public Boolean isReportBlocked() {
+		return reportBlocked;
+	}
 }

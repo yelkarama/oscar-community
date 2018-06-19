@@ -36,6 +36,7 @@ import ca.uhn.hl7v2.parser.Parser;
 import ca.uhn.hl7v2.parser.PipeParser;
 import ca.uhn.hl7v2.util.Terser;
 import ca.uhn.hl7v2.validation.impl.NoValidation;
+import org.oscarehr.common.hl7.v2.oscar_to_oscar.DynamicHapiLoaderUtils;
 
 public class AlphaHandler extends DefaultGenericHandler implements MessageHandler {
 
@@ -43,6 +44,7 @@ public class AlphaHandler extends DefaultGenericHandler implements MessageHandle
     ca.uhn.hl7v2.model.v22.message.ORU_R01 msg22 = null;
     ca.uhn.hl7v2.model.v23.message.ORU_R01 msg23 = null;
     String version=null;
+    private boolean reportBlocked = false;
 
     
     
@@ -112,6 +114,15 @@ public class AlphaHandler extends DefaultGenericHandler implements MessageHandle
                     break;
                 }else if ( segments[k].equals("OBR"+obrNum) || ( obrNum==1 && segments[k].equals("OBR"))){
                     obrFlag = true;
+                } else if ((segmentName.equals("ZPD"))) {
+                    try {
+                        Boolean blocked = "Y".equalsIgnoreCase(DynamicHapiLoaderUtils.terserGet(terser, "/.ZPD-3-1"));
+                        if(!reportBlocked && blocked) {
+                            reportBlocked = true;
+                        }
+                    } catch (Exception e) {
+                        logger.error(e);
+                    }
                 }
 
             }
@@ -645,5 +656,9 @@ public class AlphaHandler extends DefaultGenericHandler implements MessageHandle
 		sb.append("OBR Count=" + getOBRCount());
 		sb.append("obxCount="+getOBXCount(0));
     	logger.info(sb.toString());
+    }
+
+    public Boolean isReportBlocked(){
+        return reportBlocked;
     }
 }

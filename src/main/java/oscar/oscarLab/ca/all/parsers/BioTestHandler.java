@@ -63,6 +63,8 @@ public class BioTestHandler implements MessageHandler {
     ArrayList<String> headers = null;
     HashMap<OBR,ArrayList<OBX>> obrSegMap = null;
     ArrayList<OBR> obrSegKeySet = null;
+    private boolean reportBlocked = false;
+    Terser terser = null;
 
     /** Creates a new instance of CMLHandler */
     public BioTestHandler(){
@@ -73,6 +75,7 @@ public class BioTestHandler implements MessageHandler {
         Parser p = new PipeParser();
         p.setValidationContext(new NoValidation());
         msg = (ORU_R01) p.parse(hl7Body.replaceAll( "\n", "\r\n" ));
+        terser = new Terser(msg);
 
         ArrayList<String> labs = getMatchingBioTestLabs(hl7Body);
         headers = new ArrayList<String>();
@@ -107,6 +110,15 @@ public class BioTestHandler implements MessageHandler {
                     headers.add(header);
                 }
 
+            }
+            
+            try {
+                Boolean blocked = "Y".equalsIgnoreCase(terser.get("/.ZPD-3-1"));
+                if(!reportBlocked && blocked) {
+                    reportBlocked = true;
+                }
+            } catch (Exception e) {
+                logger.error(e);
             }
         }
     }
@@ -812,5 +824,9 @@ public class BioTestHandler implements MessageHandler {
     }
     public String getNteForPID() {
     	return "";
+    }
+
+    public Boolean isReportBlocked(){
+        return reportBlocked;
     }
 }

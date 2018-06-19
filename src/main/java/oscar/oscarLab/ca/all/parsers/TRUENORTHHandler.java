@@ -51,6 +51,8 @@ public class TRUENORTHHandler implements MessageHandler {
     ArrayList<String> headers = null;
     HashMap<OBR, ArrayList<OBX>> obrSegMap = null;
     ArrayList<OBR> obrSegKeySet = null;
+    private boolean reportBlocked = false;
+    private Terser terser = null;
     
     public TRUENORTHHandler() {
     }
@@ -60,6 +62,7 @@ public class TRUENORTHHandler implements MessageHandler {
     	Parser p = new PipeParser();
         p.setValidationContext(new NoValidation());
         msg = (ORU_R01) p.parse(hl7Body.replaceAll( "\n", "\r\n" ));
+        terser = new Terser(msg);
         String accessionNumber = getAccessionNum(msg);
         String firstName = getFirstName();
         String lastName = getLastName();
@@ -97,6 +100,15 @@ public class TRUENORTHHandler implements MessageHandler {
 			if (!headers.contains(header)) {
 				headers.add(header);
 			}
+
+            try {
+                Boolean blocked = "Y".equalsIgnoreCase(terser.get("/.ZPD-3-1"));
+                if(!reportBlocked && blocked) {
+                    reportBlocked = true;
+                }
+            } catch (Exception e) {
+                logger.error(e);
+            }
 		}     
 
     }
@@ -734,5 +746,9 @@ public class TRUENORTHHandler implements MessageHandler {
     public String getNteForPID() {
 	    // TODO Auto-generated method stub
 	    return "";
+    }
+
+    public Boolean isReportBlocked() {
+        return reportBlocked;
     }
 }

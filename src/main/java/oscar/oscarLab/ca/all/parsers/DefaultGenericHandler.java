@@ -42,6 +42,7 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 
+import org.oscarehr.common.hl7.v2.oscar_to_oscar.DynamicHapiLoaderUtils;
 import oscar.util.UtilDateUtilities;
 import ca.uhn.hl7v2.HL7Exception;
 import ca.uhn.hl7v2.model.Message;
@@ -63,6 +64,7 @@ public class DefaultGenericHandler implements MessageHandler {
     protected Message msg = null;
     protected Terser terser;
     protected ArrayList<ArrayList<Segment>> obrGroups = null;
+    private boolean reportBlocked = false;
 
     /** Creates a new instance of CMLHandler */
     public DefaultGenericHandler(){
@@ -113,6 +115,15 @@ public class DefaultGenericHandler implements MessageHandler {
                     break;
                 }else if ( segments[k].equals("OBR"+obrNum) || ( obrNum==1 && segments[k].equals("OBR"))){
                     obrFlag = true;
+                } else if ((segmentName.equals("ZPD"))) {
+                    try {
+                        Boolean blocked = "Y".equalsIgnoreCase(DynamicHapiLoaderUtils.terserGet(terser, "/.ZPD-3-1"));
+                        if(!reportBlocked && blocked) {
+                            reportBlocked = true;
+                        }
+                    } catch (Exception e) {
+                        logger.error(e);
+                    }
                 }
 
             }
@@ -677,5 +688,9 @@ public class DefaultGenericHandler implements MessageHandler {
 
     public String getNteForPID() {
     	return "";
+    }
+
+    public Boolean isReportBlocked() {
+        return reportBlocked;
     }
 }

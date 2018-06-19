@@ -48,6 +48,8 @@ public class PFHTHandler implements MessageHandler {
 	private ArrayList<String> headers = null;
 	private HashMap<OBR, ArrayList<OBX>> obrSegMap = null;
 	private ArrayList<OBR> obrSegKeySet = null;
+	private boolean reportBlocked = false;
+	private Terser terser = null;
 
 
 
@@ -63,6 +65,7 @@ public class PFHTHandler implements MessageHandler {
 
 
 	        	msg = (ORU_R01) p.parse(hl7Body);
+		 terser = new Terser(msg);
 
 
 	        ArrayList<String> labs = getMatchingPFHTlabs(hl7Body);
@@ -107,7 +110,16 @@ public class PFHTHandler implements MessageHandler {
 	                }
 
 	            }
-	        }
+
+				try {
+					Boolean blocked = "Y".equalsIgnoreCase(terser.get("/.ZPD-3-1"));
+					if(!reportBlocked && blocked) {
+						reportBlocked = true;
+					}
+				} catch (Exception e) {
+					logger.error(e);
+				}
+			}
 	    }
 
 	    private ArrayList<String> getMatchingPFHTlabs(String hl7Body){
@@ -809,5 +821,9 @@ public class PFHTHandler implements MessageHandler {
 	    	
 	    	return "";
 	    }
+	    
+	public Boolean isReportBlocked() {
+		return reportBlocked;
+	}
 
 }

@@ -60,6 +60,7 @@ public class MDSHandler implements MessageHandler {
     ArrayList obrGroups = null;
     HashMap<String,String> headerMaps = new HashMap<String,String>();
     Logger logger = Logger.getLogger(MDSHandler.class);
+    private boolean reportBlocked = false;
 
     /** Creates a new instance of CMLHandler */
     public MDSHandler(){
@@ -115,7 +116,16 @@ public class MDSHandler implements MessageHandler {
 	                    break;
 	                }else if ( segments[k].equals("OBR"+obrNum) || ( obrNum==1 && segments[k].equals("OBR"))){
 	                    obrFlag = true;
-	                }
+	                } else if ((segmentName.equals("ZPD"))) {
+	                    try {
+                            Boolean blocked = "Y".equalsIgnoreCase(DynamicHapiLoaderUtils.terserGet(terser, "/.ZPD-3-1"));
+                            if(!reportBlocked && blocked) {
+                                reportBlocked = true;
+                            }
+                        } catch (Exception e) {
+	                        logger.error(e);
+                        }
+                    }
 
 	            }
 	            obrGroups.add(obxSegs);
@@ -939,6 +949,10 @@ public class MDSHandler implements MessageHandler {
     }
     public String getNteForPID() {
     	return "";
+    }
+    
+    public Boolean isReportBlocked(){
+        return reportBlocked;
     }
 
 }

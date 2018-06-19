@@ -3517,20 +3517,19 @@ import oscar.util.UtilDateUtilities;
 		List<String> accessionsDone = new ArrayList<String>();
 		
 		for(LaboratoryResults labResult: labResultArr) {
-			if(labResult.getAccessionNumber() == null || labResult.getAccessionNumber().isEmpty()) {
-				//lets generate one!
-				UUID uuid = UUID.randomUUID();
-				labResult.setAccessionNumber("OSCAR-" + uuid.toString().substring(0, 10));
-			}
-			
-			else if(accessionsDone.contains(labResult.getAccessionNumber())) {
+			if(StringUtils.filled(labResult.getAccessionNumber()) && accessionsDone.contains(labResult.getAccessionNumber())) {
 				continue;
 			}
 			
 			try {
 				//find others with same accession number
-				LaboratoryResults[] reportResults = filterByAccession(labResultArr,labResult.getAccessionNumber());
-				accessionsDone.add(labResult.getAccessionNumber());
+				LaboratoryResults[] reportResults = null;
+				if (StringUtils.filled(labResult.getAccessionNumber())) {
+                    reportResults = filterByAccession(labResultArr,labResult.getAccessionNumber());
+                    accessionsDone.add(labResult.getAccessionNumber());
+                } else {
+				    reportResults = new LaboratoryResults[] {labResult};
+                }
 				
 				
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddkkmmssSS");
@@ -3637,6 +3636,10 @@ import oscar.util.UtilDateUtilities;
 								saveMeasurementsExt(measId, "olis_status", olis_status);
 							}
 						}
+
+                        if (result.getBlockedTestResult() != null && "Y".equals(result.getBlockedTestResult().toString())) {
+                            saveMeasurementsExt(measId, "reportBlocked", "Y");
+                        }
 			               
 	                }
 	                

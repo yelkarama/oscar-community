@@ -16,6 +16,7 @@ import java.util.List;
 public class HL7CreateFile {
     private Demographic demographic;
     String LAB_TYPE = "CML";
+    Integer resultCount = 1;
     private static final Logger logger = MiscUtils.getLogger();
     private static final SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private static final SimpleDateFormat fullDateTime = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -31,6 +32,7 @@ public class HL7CreateFile {
         StringBuilder hl7 = new StringBuilder();
         
         if (labs != null && !labs.isEmpty()) {
+            resultCount = labs.size();
             LaboratoryResultsDocument.LaboratoryResults firstLab = labs.get(0);
             String labType = StringUtils.noNull(firstLab.getLaboratoryName());
             if (labType.equalsIgnoreCase("LifeLabs")) {
@@ -50,6 +52,9 @@ public class HL7CreateFile {
             }
             
             hl7.append(generatePID(demographic, firstLab)).append("\n");
+            if (firstLab.getBlockedTestResult() != null && "Y".equals(firstLab.getBlockedTestResult().toString())) {
+                hl7.append("ZPD|||Y|").append("\n");
+            }
             
             if (LAB_TYPE.equals("MDS")) {
                 hl7.append("PV1||R|^^^^^^^^|||||^^^^^|||||||||^^^^^^^^^^^^||||||||||||||||||||||||1|||").append("\n");
@@ -70,13 +75,15 @@ public class HL7CreateFile {
 
 
     private String generateMSH(LaboratoryResultsDocument.LaboratoryResults lab) {
+        String labNameType = LAB_TYPE + "|" + lab.getLaboratoryName();
         String requisitionDate = getDateTime(lab.getLabRequisitionDateTime());
         String version = "2.3";
         if (LAB_TYPE.equals("MDS")) {
+            labNameType = lab.getLaboratoryName() + "|" + LAB_TYPE;
             version = version + ".0";
         }
         
-        return "MSH|^~\\&|" + LAB_TYPE + "|" + LAB_TYPE + "|||" + requisitionDate + "||ORU^R01|" + lab.getAccessionNumber() + "|P|" + version + "||||";
+        return "MSH|^~\\&|" + labNameType + "|||" + requisitionDate + "||ORU^R01|" + StringUtils.noNull(lab.getAccessionNumber()) + "-" + resultCount + "|P|" + version + "||||";
     }
     
     private String generateNTE(LaboratoryResultsDocument.LaboratoryResults lab) {
@@ -141,10 +148,7 @@ public class HL7CreateFile {
                 }
                 
                 obxNo += 1;
-                String labTest = lab.getLabTestCode() + "^" + lab.getTestNameReportedByLab();
-                if (LAB_TYPE.equals("MDS")) {
-                    labTest = "-" + lab.getTestNameReportedByLab() + "^" + lab.getTestNameReportedByLab() + "^" + lab.getTestName();
-                }
+                String labTest = lab.getLabTestCode() + "^" + lab.getTestNameReportedByLab() + "^" + lab.getTestName();
                 
                 String obxSegment = "OBX|" + obxNo + "|ST|" + labTest+ "|Imported Test Results|" + result+ "|" +unit+ "|" + referenceRange + "|" + resultNormalAbnormalFlag+ "|||" + StringUtils.noNull(lab.getTestResultStatus()) + "|||" + collectionDate;
                 obx.append(obxSegment).append("\n");

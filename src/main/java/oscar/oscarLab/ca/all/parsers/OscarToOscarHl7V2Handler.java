@@ -43,6 +43,7 @@ import ca.uhn.hl7v2.model.v26.segment.PID;
 
 public final class OscarToOscarHl7V2Handler implements MessageHandler {
 	private static Logger logger = MiscUtils.getLogger();
+	private boolean reportBlocked = false;
 	
 	private ChainnedMessageAdapter<? extends AbstractMessage> chainnedMessageAdapter;
 	
@@ -251,5 +252,9 @@ public final class OscarToOscarHl7V2Handler implements MessageHandler {
     	
     	return "";
     }
+
+	public Boolean isReportBlocked() {
+		return reportBlocked;
+	} 
 
 }

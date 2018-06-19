@@ -65,6 +65,7 @@ public class HRMXMLHandler implements MessageHandler {
 
 	private OmdCds root = null;
 	private PatientRecord pr = null;
+	private boolean reportBlocked = false;
 
 	public void init(String hl7Body) throws HL7Exception {
 
@@ -490,4 +491,8 @@ public class HRMXMLHandler implements MessageHandler {
 	    public String getNteForPID() {
 	    	return "";
 	    }
+
+	public Boolean isReportBlocked() {
+		return reportBlocked;
+	}
 }

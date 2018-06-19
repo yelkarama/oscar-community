@@ -68,6 +68,7 @@ public class MEDITECHHandler implements MessageHandler {
 	private static Logger logger = Logger.getLogger(MEDITECHHandler.class);
 	protected ORU_R01 msg = null;
 	private Terser terser;
+	private boolean reportBlocked = false;
 
 	public MEDITECHHandler() {
 		// Default constructor.
@@ -82,6 +83,12 @@ public class MEDITECHHandler implements MessageHandler {
 		hl7Body = hl7Body.replaceAll( "\n", "\r\n" ).replace("\\.Zt\\", "\t");
 		msg = (ORU_R01) parser.parse(hl7Body);
 		terser = new Terser(msg);
+		
+		try {
+			reportBlocked = "Y".equalsIgnoreCase(terser.get("/.ZPD-3-1"));
+		} catch (Exception e) {
+			logger.error(e);
+		}
 	}
 
 	public String getXML() {
@@ -1003,4 +1010,7 @@ public class MEDITECHHandler implements MessageHandler {
 		return (docName);
 	}
 
+	public Boolean isReportBlocked() {
+		return reportBlocked;
+	}
 }

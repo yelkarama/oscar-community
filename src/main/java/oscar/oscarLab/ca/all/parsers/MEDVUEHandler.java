@@ -46,7 +46,8 @@ public class MEDVUEHandler implements MessageHandler {
 	private ArrayList<String> headers = null;
 	private OBR obrseg = null;
 	private OBX obxseg = null;
-	
+	private boolean reportBlocked = false;
+	private Terser terser = null;
 	
 	
 	private ca.uhn.hl7v2.model.v23.group.ORU_R01_PATIENT pat_23; //patient object
@@ -72,7 +73,7 @@ public class MEDVUEHandler implements MessageHandler {
 		for (int i = 0; i < labs.size(); i++) {
 
 			msg = (ca.uhn.hl7v2.model.v23.message.ORU_R01) p.parse(labs.get(i).replaceAll("\n", "\r\n"));
-		//msg = (ca.uhn.hl7v2.model.v23.message.ORU_R01) p.parse(((String) hl7Body).replaceAll("\n", "\r\n"));
+			terser = new Terser(msg);
 			ca.uhn.hl7v2.model.v23.group.ORU_R01_RESPONSE pat_res = msg.getRESPONSE();
 
 			ca.uhn.hl7v2.model.v23.group.ORU_R01_ORDER_OBSERVATION obsr = pat_res.getORDER_OBSERVATION();
@@ -80,9 +81,16 @@ public class MEDVUEHandler implements MessageHandler {
 			pat_23 = pat_res.getPATIENT();
 			obrseg = obsr.getOBR();
 			obxseg = obsr.getOBSERVATION().getOBX();
-			
-			
-			
+
+
+			try {
+				Boolean blocked = "Y".equalsIgnoreCase(terser.get("/.ZPD-3-1"));
+				if(!reportBlocked && blocked) {
+					reportBlocked = true;
+				}
+			} catch (Exception e) {
+				logger.error(e);
+			}
 
 			/*if (!headers.contains(header)) {
 				headers.add(header);
@@ -706,5 +714,9 @@ public class MEDVUEHandler implements MessageHandler {
 	public String getNteForPID() {
     	return "";
     }
+
+	public Boolean isReportBlocked() {
+		return reportBlocked;
+	}
 	
 }
