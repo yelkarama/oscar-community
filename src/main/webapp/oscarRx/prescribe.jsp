@@ -139,7 +139,7 @@ if(listRxDrugs!=null){
          boolean isOutsideProvider ;
          int refillQuantity=rx.getRefillQuantity();
          int refillDuration=rx.getRefillDuration();
-         int dispenseInterval=rx.getDispenseInterval();
+         String dispenseInterval=rx.getDispenseInterval();
          if(isDiscontinuedLatest){
                 archivedReason=rx.getLastArchReason();
                 archivedDate=rx.getLastArchDate();
