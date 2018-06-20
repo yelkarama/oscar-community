@@ -57,6 +57,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import cdsDt.AddressType;
+import cdsDt.PersonNameSimple;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
@@ -118,6 +119,7 @@ import org.oscarehr.hospitalReportManager.model.HRMDocument;
 import org.oscarehr.hospitalReportManager.model.HRMDocumentComment;
 import org.oscarehr.hospitalReportManager.model.HRMDocumentSubClass;
 import org.oscarehr.hospitalReportManager.model.HRMDocumentToDemographic;
+import org.oscarehr.hospitalReportManager.model.HRMDocumentToProvider;
 import org.oscarehr.managers.SecurityInfoManager;
 import org.oscarehr.util.LoggedInInfo;
 import org.oscarehr.util.MiscUtils;
@@ -2347,10 +2349,17 @@ import oscar.util.UtilDateUtilities;
                                     reviewDateTime = dateFPtoString(reportReviewed[0].getDateTimeReportReviewed(), timeShiftInDays);
                                 }
 
+                                String recipientProviderNo = admProviderNo;
+                                PersonNameSimple recipientName = repR[i].getRecipientName();
+                                if (recipientName != null) {
+                                    recipientProviderNo = writeProviderData(recipientName.getFirstName(), recipientName.getLastName(), null, null, "0");
+                                }
+
                                 observationDate = dateFPtoString(repR[i].getEventDateTime(), timeShiftInDays);
                                 updateDateTime = dateFPtoString(repR[i].getReceivedDateTime(), timeShiftInDays);
-                                contentDateTime= dateFPtoString(repR[i].getReceivedDateTime(), timeShiftInDays);
-                                docNum = EDocUtil.addDocument(demographicNo,docFileName,docDesc,"",docClass,docSubClass,contentType,contentDateTime,observationDate,updateDateTime,docCreator,admProviderNo,reviewer,reviewDateTime,source,sourceFacility);
+                                contentDateTime = dateFPtoString(repR[i].getReceivedDateTime(), timeShiftInDays);
+                                String sentDateTime = dateFPtoString(repR[i].getSentDateTime(), timeShiftInDays);
+                                docNum = EDocUtil.addDocument(demographicNo,docFileName,docDesc,"",docClass,docSubClass,contentType,contentDateTime,sentDateTime, observationDate,updateDateTime,docCreator,recipientProviderNo,reviewer,reviewDateTime,source,sourceFacility);
                                 if (docNum==null) docNum = 0;
                                 if (binaryFormat) addOneEntry(REPORTBINARY);
                                 else addOneEntry(REPORTTEXT);

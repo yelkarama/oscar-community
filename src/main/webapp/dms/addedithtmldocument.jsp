@@ -107,6 +107,7 @@ if (request.getAttribute("completedForm") != null) {
     formdata.setReviewerId(currentDoc.getReviewerId());
     formdata.setReviewDateTime(currentDoc.getReviewDateTime());
     formdata.setContentDateTime(UtilDateUtilities.DateToString(currentDoc.getContentDateTime(),EDocUtil.CONTENT_DATETIME_FORMAT));
+    formdata.setSentDateTime(UtilDateUtilities.DateToString(currentDoc.getSentDateTime(),EDocUtil.DMS_DATE_FORMAT));
     formdata.setHtml(UtilMisc.htmlEscape(currentDoc.getHtml()));
     lastUpdate = currentDoc.getDateTimeStamp();
     fileName = currentDoc.getFileName();
@@ -347,6 +348,10 @@ for (String reportClass : reportClasses) {
                 <tr>
 			<td><bean:message key="dms.addDocument.formContentAddedUpdated"/>:</td>
 			<td><%=formdata.getContentDateTime()%></td>
+		</tr>
+		<tr>
+			<td><bean:message key="dms.addDocument.formSentDate"/>:</td>
+			<td><%=formdata.getSentDateTime()%></td>
 		</tr>
 		<tr>
 			<td>Source Author:</td>

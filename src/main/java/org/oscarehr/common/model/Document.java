@@ -129,7 +129,10 @@ public class Document extends AbstractModel<Integer> implements Serializable {
     private String contenttype;
     @Column(name = "contentdatetime")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date contentdatetime;    
+    private Date contentdatetime;
+    @Column(name = "sent_date_time")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date sentDateTime;
     @Basic(optional = false)
     @Column(name = "public1")
     private int public1;
@@ -230,6 +233,13 @@ public class Document extends AbstractModel<Integer> implements Serializable {
         this.contentdatetime = contentdatetime;
     }
     
+    public Date getSentDateTime() {
+        return sentDateTime;
+    }
+    public void setSentDateTime(Date sentDateTime) {
+        this.sentDateTime = sentDateTime;
+    }
+
     public String getResponsible() {
         return responsible;
     }

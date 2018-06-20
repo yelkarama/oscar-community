@@ -95,6 +95,7 @@ if (request.getAttribute("completedForm") != null) {
     formdata.setReviewerId(currentDoc.getReviewerId());
     formdata.setReviewDateTime(currentDoc.getReviewDateTime());
     formdata.setContentDateTime(UtilDateUtilities.DateToString(currentDoc.getContentDateTime(),EDocUtil.CONTENT_DATETIME_FORMAT));
+    formdata.setSentDateTime(UtilDateUtilities.DateToString(currentDoc.getSentDateTime(),EDocUtil.DMS_DATE_FORMAT));
     formdata.setRestrictToProgram(currentDoc.isRestrictToProgram());
     lastUpdate = currentDoc.getDateTimeStamp();
     fileName = currentDoc.getFileName();
@@ -185,6 +186,10 @@ for (String reportClass : reportClasses) {
 		}
                 if (ans && !validDate("observationDate")) {
                     alert("Invalid Date: must be in format yyyy/mm/dd");
+                    ans = false;
+                }
+                if (ans && !validDate("sentDateTime")) {
+                    alert("Invalid Sent Date: must be in format yyyy/mm/dd");
                     ans = false;
                 }
 		object.Submit.disabled = false;
@@ -301,6 +306,13 @@ for (String reportClass : reportClasses) {
 			<td><%=formdata.getContentDateTime()%></td>
 		</tr>
 		<tr>
+		<td><bean:message key="dms.addDocument.formSentDate"/>:</td>
+			<td>
+				<input id="sentDateTime" name="sentDateTime" type="text" value="<%=formdata.getSentDateTime()%>">
+				<a id="sentDateTimeDate"><img title="Calendar" src="../images/cal.gif" alt="Calendar" border="0" /></a>
+			</td>
+		</tr>
+		<tr>
 			<td>Source Author:</td>
 			<td><input type="text" name="source" size="15" value="<%=formdata.getSource()%>"/></td>
 		</tr>
@@ -374,6 +386,7 @@ for (String reportClass : reportClasses) {
 	</table>
 </html:form> <script type="text/javascript">
                Calendar.setup( { inputField : "observationDate", ifFormat : "%Y/%m/%d", showsTime :false, button : "obsdate", singleClick : true, step : 1 } );
+               Calendar.setup( { inputField : "sentDateTime", ifFormat : "%Y/%m/%d", showsTime :false, button : "sentDateTimeDate", singleClick : true, step : 1 } );
            </script></div>
 </body>
 </html>

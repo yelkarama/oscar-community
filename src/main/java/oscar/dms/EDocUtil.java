@@ -298,6 +298,7 @@ public final class EDocUtil {
 			doc.setDocxml(newDocument.getHtml());
 			doc.setResponsible(newDocument.getResponsibleId());
 			doc.setPublic1(ConversionUtils.fromIntString(newDocument.getDocPublic()));
+            doc.setSentDateTime(newDocument.getSentDateTime());
 			if (doReview) {
 				doc.setReviewer(newDocument.getReviewerId());
 				doc.setReviewdatetime(ConversionUtils.fromDateString(newDocument.getReviewDateTime(), "yyyy/MM/dd HH:mm:ss"));
@@ -680,7 +681,8 @@ public final class EDocUtil {
 			currentdoc.setReviewerId(d.getReviewer());
 			currentdoc.setReviewDateTime(ConversionUtils.toTimestampString(d.getReviewdatetime()));
 			currentdoc.setReviewDateTimeDate(d.getReviewdatetime());
-                        currentdoc.setContentDateTime(d.getContentdatetime());
+			currentdoc.setContentDateTime(d.getContentdatetime());
+			currentdoc.setSentDateTime(d.getSentDateTime());
 			resultDocs.add(currentdoc);
 		}
 
@@ -731,6 +733,7 @@ public final class EDocUtil {
 			currentdoc.setContentType(d.getContenttype());
 			currentdoc.setNumberOfPages(d.getNumberofpages());
             currentdoc.setContentDateTime(d.getContentdatetime());
+            currentdoc.setSentDateTime(d.getSentDateTime());
             currentdoc.setAbnormal(d.isAbnormal());
             
             if(d.isRestrictToProgram() != null){
@@ -825,14 +828,14 @@ public final class EDocUtil {
 	}
 
 	public static int addDocument(String demoNo, String docFileName, String docDesc, String docType, String docClass, String docSubClass, String contentType, String contentDateTime, String observationDate, String updateDateTime, String docCreator, String responsible, String reviewer, String reviewDateTime) {
-		return addDocument(demoNo, docFileName, docDesc, docType, docClass, docSubClass, contentType, contentDateTime, observationDate, updateDateTime, docCreator, responsible, reviewer, reviewDateTime, null, null);
+		return addDocument(demoNo, docFileName, docDesc, docType, docClass, docSubClass, contentType, contentDateTime, null,  observationDate, updateDateTime, docCreator, responsible, reviewer, reviewDateTime, null, null);
 	}
 
 	public static int addDocument(String demoNo, String docFileName, String docDesc, String docType, String docClass, String docSubClass, String contentType, String contentDateTime, String observationDate, String updateDateTime, String docCreator, String responsible, String reviewer, String reviewDateTime, String source) {
-		return addDocument(demoNo, docFileName, docDesc, docType, docClass, docSubClass, contentType, contentDateTime, observationDate, updateDateTime, docCreator, responsible, reviewer, reviewDateTime, source, null);
+		return addDocument(demoNo, docFileName, docDesc, docType, docClass, docSubClass, contentType, contentDateTime, null, observationDate, updateDateTime, docCreator, responsible, reviewer, reviewDateTime, source, null);
 	}
 
-	public static int addDocument(String demoNo, String docFileName, String docDesc, String docType, String docClass, String docSubClass, String contentType, String contentDateTime, String observationDate, String updateDateTime, String docCreator, String responsible, String reviewer, String reviewDateTime, String source, String sourceFacility) {
+	public static int addDocument(String demoNo, String docFileName, String docDesc, String docType, String docClass, String docSubClass, String contentType, String contentDateTime, String sentDateTime, String observationDate, String updateDateTime, String docCreator, String responsible, String reviewer, String reviewDateTime, String source, String sourceFacility) {
 
 		Document doc = new Document();
 		doc.setDoctype(docType);
@@ -849,7 +852,8 @@ public final class EDocUtil {
 		doc.setObservationdate(MyDateFormat.getSysDate(observationDate));
 		doc.setReviewer(reviewer);
 		doc.setReviewdatetime(MyDateFormat.getSysDate(reviewDateTime));
-                doc.setContentdatetime(MyDateFormat.getSysDate(contentDateTime));
+		doc.setContentdatetime(MyDateFormat.getSysDate(contentDateTime));
+		doc.setSentDateTime(MyDateFormat.getSysDate(sentDateTime));
 		doc.setSource(source);
 		doc.setSourceFacility(sourceFacility);
 		doc.setNumberofpages(1);

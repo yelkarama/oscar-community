@@ -31,6 +31,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.ResourceBundle;
@@ -40,6 +41,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
@@ -447,6 +449,12 @@ public class AddEditDocumentAction extends DispatchAction {
 			newDoc.setAppointmentNo(Integer.parseInt(fm.getAppointmentNo()));
             newDoc.setDocClass(fm.getDocClass());
             newDoc.setDocSubClass(fm.getDocSubClass());
+            if (!StringUtils.isBlank(fm.getSentDateTime())) {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+                newDoc.setSentDateTime(sdf.parse(fm.getSentDateTime()));
+            } else {
+                newDoc.setSentDateTime(null);
+            }
             String programIdStr = (String) request.getSession().getAttribute(SessionConstants.CURRENT_PROGRAM_ID);
             if (programIdStr != null) newDoc.setProgramId(Integer.valueOf(programIdStr));
 

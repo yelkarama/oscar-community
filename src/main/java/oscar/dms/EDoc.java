@@ -67,7 +67,8 @@ public class EDoc extends TagObject implements Comparable<EDoc> {
 	private String moduleId = "";
 	private String docPublic = "0";
 	private String contentType = "";
-        private Date contentDateTime=null;
+	private Date contentDateTime=null;
+	private Date sentDateTime = null;
 	private String observationDate = "";
 	private String reviewerId = "";
 	private String reviewDateTime = null;
@@ -265,7 +266,14 @@ public class EDoc extends TagObject implements Comparable<EDoc> {
 	public void setContentDateTime(Date contentDateTime) {
 		this.contentDateTime = contentDateTime;
 	}
-        
+
+	public Date getSentDateTime() {
+		return sentDateTime;
+	}
+	public void setSentDateTime(Date sentDateTime) {
+		this.sentDateTime = sentDateTime;
+	}
+		
 	public String getModule() {
 		return module;
 	}

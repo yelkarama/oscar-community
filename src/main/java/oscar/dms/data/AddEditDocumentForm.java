@@ -49,6 +49,7 @@ public class AddEditDocumentForm extends ActionForm {
     private String reviewerId = "";
     private String reviewDateTime = "";
     private String contentDateTime = "";
+    private String sentDateTime = "";
     private boolean reviewDoc = false;
     private String html = "";
     
@@ -195,6 +196,13 @@ public class AddEditDocumentForm extends ActionForm {
 	this.contentDateTime = contentDateTime;
     }
     
+    public String getSentDateTime() {
+        return sentDateTime;
+    }
+    public void setSentDateTime(String sentDateTime) {
+        this.sentDateTime = sentDateTime;
+    }
+
     public boolean getReviewDoc() {
 	return reviewDoc;
     }

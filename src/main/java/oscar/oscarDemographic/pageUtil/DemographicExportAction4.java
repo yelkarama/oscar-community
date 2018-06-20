@@ -1932,6 +1932,9 @@ public class DemographicExportAction4 extends Action {
 						} else {
 							exportError.add("Not exporting invalid Received DateTime (Reports) for Patient "+demoNo+" ("+(j+1)+")");
 						}
+						if (edoc.getSentDateTime() != null) {
+							rpr.addNewSentDateTime().setFullDateTime(Util.calDate(edoc.getSentDateTime()));
+						}
 						String reviewDateTime = edoc.getReviewDateTime();
 						if (UtilDateUtilities.StringToDate(reviewDateTime,"yyyy-MM-dd HH:mm:ss")!=null) {
 							Reports.ReportReviewed reportReviewed = rpr.addNewReportReviewed();
@@ -1940,6 +1943,17 @@ public class DemographicExportAction4 extends Action {
 							reviewDateTime = StringUtils.noNull(edoc.getReviewerOhip());
 							if (reviewDateTime.length()<=6) reportReviewed.setReviewingOHIPPhysicianId(reviewDateTime);
 						}
+						
+						String recipientProviderNo = edoc.getResponsibleId();
+						if (StringUtils.filled(recipientProviderNo)) {
+							Provider recipientProvider = providerDao.getProvider(recipientProviderNo);
+							if (recipientProvider != null) {
+								PersonNameSimple recipientName = rpr.addNewRecipientName();
+								recipientName.setFirstName(StringUtils.noNull(recipientProvider.getFirstName()));
+								recipientName.setLastName(StringUtils.noNull(recipientProvider.getLastName()));
+							}
+						}
+						
 						Util.writeNameSimple(rpr.addNewSourceAuthorPhysician().addNewAuthorName(), edoc.getSource());
 
 						if (StringUtils.filled(edoc.getSourceFacility())) rpr.setSourceFacility(edoc.getSourceFacility());
