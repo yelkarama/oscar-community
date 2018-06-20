@@ -2075,6 +2075,12 @@ import oscar.util.UtilDateUtilities;
                         preventionExt.add(ht);
                     }
 
+                    if (StringUtils.filled(immuArray[i].getInstructions())) {
+                        Map<String,String> ht = new HashMap<String,String>();
+                        ht.put("instructions", immuArray[i].getInstructions());
+                        preventionExt.add(ht);
+                    }
+
                     if (StringUtils.filled(immuArray[i].getNotes())) {
                         Map<String,String> ht = new HashMap<String,String>();
                         ht.put("comments", immuArray[i].getNotes());

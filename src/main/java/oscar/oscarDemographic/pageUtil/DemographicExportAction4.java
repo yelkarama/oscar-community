@@ -1393,6 +1393,13 @@ public class DemographicExportAction4 extends Action {
 						immunizationCode.setCodingSystem("DIN");
 						immunizationCode.setValue((String)extraData.get("din"));
 					}
+					String instructions = (String)extraData.get("instructions");
+					if (StringUtils.filled(instructions)) {
+						if (instructions.length() > 250) {
+							instructions.substring(0, 250);
+						}
+						immu.setInstructions(instructions);
+					}
 					if (StringUtils.filled((String)extraData.get("comments"))) immu.setNotes((String)extraData.get("comments"));
 
 					prevType = Util.getImmunizationType(prevType);

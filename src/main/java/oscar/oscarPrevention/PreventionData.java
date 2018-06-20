@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.log4j.Logger;
 import org.oscarehr.PMmodule.caisi_integrator.CaisiIntegratorManager;
@@ -557,6 +558,10 @@ public class PreventionData {
 						addToHashIfNotNull(h, "din", ext.get("din"));
 						summary += "\nDIN: " + ext.get("din");
 					}
+				}
+				if (!StringUtils.isBlank(ext.get("instructions"))) {
+					addToHashIfNotNull(h, "instructions", ext.get("instructions"));
+					summary += "\nInstructions: " + ext.get("instructions");
 				}
 				if (ext.containsKey("comments") && !ext.get("comments").equals("")) {
 					addToHashIfNotNull(h, "comments", ext.get("comments"));
