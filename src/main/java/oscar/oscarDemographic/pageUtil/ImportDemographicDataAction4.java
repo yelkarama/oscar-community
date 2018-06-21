@@ -82,11 +82,13 @@ import org.oscarehr.common.dao.DemographicArchiveDao;
 import org.oscarehr.common.dao.DemographicContactDao;
 import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.DemographicExtDao;
+import org.oscarehr.common.dao.DemographicPharmacyDao;
 import org.oscarehr.common.dao.DrugDao;
 import org.oscarehr.common.dao.DrugReasonDao;
 import org.oscarehr.common.dao.MeasurementsExtDao;
 import org.oscarehr.common.dao.OscarAppointmentDao;
 import org.oscarehr.common.dao.PartialDateDao;
+import org.oscarehr.common.dao.PharmacyInfoDao;
 import org.oscarehr.common.dao.ProviderDataDao;
 import org.oscarehr.common.dao.ProviderLabRoutingDao;
 import org.oscarehr.common.model.Admission;
@@ -95,10 +97,12 @@ import org.oscarehr.common.model.Appointment;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.DemographicArchive;
 import org.oscarehr.common.model.DemographicContact;
+import org.oscarehr.common.model.DemographicPharmacy;
 import org.oscarehr.common.model.Drug;
 import org.oscarehr.common.model.Facility;
 import org.oscarehr.common.model.MeasurementsExt;
 import org.oscarehr.common.model.PartialDate;
+import org.oscarehr.common.model.PharmacyInfo;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.hospitalReportManager.dao.HRMDocumentCommentDao;
 import org.oscarehr.hospitalReportManager.dao.HRMDocumentDao;
@@ -206,10 +210,12 @@ import oscar.util.UtilDateUtilities;
     DrugDao drugDao = (DrugDao) SpringUtils.getBean("drugDao");
     DrugReasonDao drugReasonDao = (DrugReasonDao) SpringUtils.getBean("drugReasonDao");
     DemographicArchiveDao demoArchiveDao = (DemographicArchiveDao) SpringUtils.getBean("demographicArchiveDao");
+    DemographicPharmacyDao demographicPharmacyDao = SpringUtils.getBean(DemographicPharmacyDao.class);
     ProviderDataDao providerDataDao = (ProviderDataDao) SpringUtils.getBean("providerDataDao");
     PartialDateDao partialDateDao = (PartialDateDao) SpringUtils.getBean("partialDateDao");
     DemographicExtDao demographicExtDao = (DemographicExtDao) SpringUtils.getBean("demographicExtDao");
     OscarAppointmentDao appointmentDao = (OscarAppointmentDao)SpringUtils.getBean("oscarAppointmentDao");
+    PharmacyInfoDao pharmacyInfoDao = SpringUtils.getBean(PharmacyInfoDao.class);
     ProviderLabRoutingDao providerLabRoutingDao = SpringUtils.getBean(ProviderLabRoutingDao.class);
     MeasurementsExtDao measurementsExtDao = SpringUtils.getBean(MeasurementsExtDao.class);
     Map<String, String> successfulImports = new HashMap<String, String>();
@@ -838,6 +844,91 @@ import oscar.util.UtilDateUtilities;
             if (!cellPhone.equals("")) demographicExtDao.addKey(primaryPhysician, Integer.parseInt(demographicNo), "demo_cell", cellPhone);
             if(courseId>0) demographicExtDao.addKey(primaryPhysician, Integer.parseInt(demographicNo), "course", String.valueOf(courseId));
 
+            // Preferred Pharmacy  {
+            if (demo.isSetPreferredPharmacy()) {
+                try {
+                    PharmacyInfo pharmacy = new PharmacyInfo();
+
+                    Demographics.PreferredPharmacy preferredPharmacy = demo.getPreferredPharmacy();
+                    cdsDt.Address pharmacyAddress = preferredPharmacy.getAddress();
+                    String tempAddress = "";
+                    String tempCity = "";
+                    String tempProvince = "";
+                    String tempPostalCode = "";
+                    String tempPhone = "";
+                    String tempFax = "";
+
+                    if (StringUtils.filled(pharmacyAddress.getFormatted())) {
+                        tempAddress = pharmacyAddress.getFormatted();
+                        if (tempAddress.contains("\n")) {
+                            String[] formattedAddressParts = tempAddress.split("\n");
+
+                            for (int j = 0; j < formattedAddressParts.length; j++) {
+                                if (j == 0) {
+                                    tempAddress = formattedAddressParts[j];
+                                }
+                            }
+                        }
+                    } else {
+                        cdsDt.AddressStructured addrStr = pharmacyAddress.getStructured();
+                        if (addrStr!=null) {
+                            tempAddress = StringUtils.noNull(addrStr.getLine1()) + " " + StringUtils.noNull(addrStr.getLine2())  + " " + StringUtils.noNull(addrStr.getLine3());
+                            tempCity = StringUtils.noNull(addrStr.getCity());
+                            tempProvince = getCountrySubDivCode(addrStr.getCountrySubdivisionCode());
+                            cdsDt.PostalZipCode postalZip = addrStr.getPostalZipCode();
+
+                            if (postalZip!=null)  {
+                                tempPostalCode = StringUtils.noNull(postalZip.getPostalCode());
+                            }
+                        }
+                    }
+
+                    if (preferredPharmacy.isSetPhoneNumber()) {
+                        cdsDt.PhoneNumber phone = preferredPharmacy.getPhoneNumber();
+                        if (phone.isSetPhoneNumber()) {
+                            tempPhone = preferredPharmacy.getPhoneNumber().getPhoneNumber();
+                        } else {
+                            if (StringUtils.filled(phone.getNumber())) {
+                                String areaCode = StringUtils.filled(phone.getAreaCode()) ? phone.getAreaCode() + "-" : "";
+                                tempPhone = areaCode + phone.getNumber();
+                            }
+                        }
+                    }
+
+                    if (preferredPharmacy.isSetFaxNumber()) {
+                        cdsDt.PhoneNumber fax = preferredPharmacy.getPhoneNumber();
+                        if (fax.isSetPhoneNumber()) {
+                            tempFax = preferredPharmacy.getPhoneNumber().getPhoneNumber();
+                        } else {
+                            if (StringUtils.filled(fax.getNumber())) {
+                                String areaCode = StringUtils.filled(fax.getAreaCode()) ? fax.getAreaCode() + "-" : "";
+                                tempFax = areaCode + fax.getNumber();
+                            }
+                        }
+                    }
+
+                    pharmacy.setName(preferredPharmacy.getName());
+                    pharmacy.setPreferredOrder(0);
+                    pharmacy.setStatus(PharmacyInfo.ACTIVE);
+                    pharmacy.setAddress(tempAddress.trim());
+                    pharmacy.setCity(StringUtils.noNull(tempCity));
+                    pharmacy.setProvince(StringUtils.noNull(tempProvince));
+                    pharmacy.setPostalCode(StringUtils.noNull(tempPostalCode));
+                    pharmacy.setPhone1(StringUtils.noNull(tempPhone));
+                    pharmacy.setFax(StringUtils.noNull(tempFax));
+                    pharmacy.setEmail(StringUtils.noNull(preferredPharmacy.getEmailAddress()));
+                    pharmacy.setServiceLocationIdentifier("");
+                    pharmacy.setNotes("");
+                    
+                    pharmacyInfoDao.persist(pharmacy);
+                    
+                    demographicPharmacyDao.addPharmacyToDemographic(pharmacy.getId(), Integer.parseInt(demographicNo), pharmacy.getPreferredOrder());
+                    
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    err_summ.add("Error adding preferred pharmacy");
+                }
+            }
 
             //Demographic Contacts
             DemographicContactDao contactDao = (DemographicContactDao) SpringUtils.getBean("demographicContactDao");

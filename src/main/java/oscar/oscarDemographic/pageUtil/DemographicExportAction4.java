@@ -71,10 +71,12 @@ import org.oscarehr.common.dao.DemographicArchiveDao;
 import org.oscarehr.common.dao.DemographicContactDao;
 import org.oscarehr.common.dao.DemographicDao;
 import org.oscarehr.common.dao.DemographicExtDao;
+import org.oscarehr.common.dao.DemographicPharmacyDao;
 import org.oscarehr.common.dao.Hl7TextInfoDao;
 import org.oscarehr.common.dao.Hl7TextMessageDao;
 import org.oscarehr.common.dao.OscarAppointmentDao;
 import org.oscarehr.common.dao.PartialDateDao;
+import org.oscarehr.common.dao.PharmacyInfoDao;
 import org.oscarehr.common.dao.ProfessionalSpecialistDao;
 import org.oscarehr.common.exception.PatientDirectiveException;
 import org.oscarehr.common.model.Allergy;
@@ -83,9 +85,11 @@ import org.oscarehr.common.model.Contact;
 import org.oscarehr.common.model.Demographic;
 import org.oscarehr.common.model.DemographicArchive;
 import org.oscarehr.common.model.DemographicContact;
+import org.oscarehr.common.model.DemographicPharmacy;
 import org.oscarehr.common.model.Hl7TextInfo;
 import org.oscarehr.common.model.Hl7TextMessage;
 import org.oscarehr.common.model.PartialDate;
+import org.oscarehr.common.model.PharmacyInfo;
 import org.oscarehr.common.model.ProfessionalSpecialist;
 import org.oscarehr.common.model.Provider;
 import org.oscarehr.e2e.director.E2ECreator;
@@ -167,7 +171,9 @@ public class DemographicExportAction4 extends Action {
 	private static final Hl7TextMessageDao hl7TxtMssgDao = (Hl7TextMessageDao)SpringUtils.getBean("hl7TextMessageDao");
 	private static final DemographicExtDao demographicExtDao = (DemographicExtDao) SpringUtils.getBean("demographicExtDao");
 	private static final DemographicDao demographicDao = SpringUtils.getBean(DemographicDao.class);
+	private static final DemographicPharmacyDao demographicPharmacyDao = SpringUtils.getBean(DemographicPharmacyDao.class);
     private static final ContactDao cDao = SpringUtils.getBean(ContactDao.class);
+	private static final PharmacyInfoDao pharmacyInfoDao = SpringUtils.getBean(PharmacyInfoDao.class);
     private static final ProfessionalSpecialistDao professionalSpecialistDao = SpringUtils.getBean(ProfessionalSpecialistDao.class);
 	private static final ProviderDao providerDao = SpringUtils.getBean(ProviderDao.class);
 	private static final String PATIENTID = "Patient";
@@ -548,6 +554,46 @@ public class DemographicExportAction4 extends Action {
                 familyPhysicianName.setFirstName(StringUtils.noNull(lastFirstNameArray[1]));
                 familyPhysicianName.setLastName(StringUtils.noNull(lastFirstNameArray[0]));
             }
+            
+            List<DemographicPharmacy> demographicPharmacies = demographicPharmacyDao.findByDemographicId(Integer.parseInt(demographicNo));
+            if (!demographicPharmacies.isEmpty() && demographicPharmacies.get(0) != null) { 
+            	PharmacyInfo pharmacy = pharmacyInfoDao.getPharmacy(demographicPharmacies.get(0).getPharmacyId());
+            	
+            	if (pharmacy != null && StringUtils.filled(pharmacy.getName())) {
+					Demographics.PreferredPharmacy preferredPharmacy = demo.addNewPreferredPharmacy();
+					preferredPharmacy.setName(pharmacy.getName());
+					
+					if (StringUtils.filled(pharmacy.getAddress())) {
+						cdsDt.Address pharmacyAddress = preferredPharmacy.addNewAddress();
+						cdsDt.AddressStructured address = pharmacyAddress.addNewStructured();
+
+						pharmacyAddress.setAddressType(cdsDt.AddressType.M);
+						address.setLine1(pharmacy.getAddress());
+
+						if (StringUtils.filled(pharmacy.getCity()) || StringUtils.filled(pharmacy.getProvince()) || StringUtils.filled(pharmacy.getPostalCode())) {
+							address.setCity(StringUtils.noNull(pharmacy.getCity()));
+							address.setCountrySubdivisionCode(Util.setCountrySubDivCode(pharmacy.getProvince()));
+							address.addNewPostalZipCode().setPostalCode(StringUtils.noNull(pharmacy.getPostalCode()).replace(" ",""));
+						}
+					}
+					
+					if (StringUtils.filled(pharmacy.getPhone1())) {
+						cdsDt.PhoneNumber pharmacyPhone = preferredPharmacy.addNewPhoneNumber();
+						pharmacyPhone.setPhoneNumberType(cdsDt.PhoneNumberType.W);
+						pharmacyPhone.setPhoneNumber(pharmacy.getPhone1());
+					}
+
+					if (StringUtils.filled(pharmacy.getFax())) {
+						cdsDt.PhoneNumber pharmacyFax = preferredPharmacy.addNewFaxNumber();
+						pharmacyFax.setPhoneNumberType(cdsDt.PhoneNumberType.W);
+						pharmacyFax.setPhoneNumber(pharmacy.getFax());
+					}
+
+					if (StringUtils.filled(pharmacy.getEmail())) { 
+						preferredPharmacy.setEmailAddress(pharmacy.getEmail());
+					}
+				}
+			}
 
 			//Person Status (Patient Status)
 			String patientStatus = StringUtils.noNull(demographic.getPatientStatus());
