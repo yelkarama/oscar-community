@@ -158,22 +158,26 @@ if(demographicLink != null){
     LogAction.addLog((String) session.getAttribute("user"), LogConst.READ, LogConst.CON_HRM, ""+hrmReportId, request.getRemoteAddr());
 }
 
+String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+
+boolean obgynShortcuts = OscarProperties.getInstance().getProperty("show_obgyn_shortcuts", "false").equalsIgnoreCase("true");
+String formId = "0";
+
+
 String btnDisabled = "disabled";
 String demographicNo = "";
 if(demographicLink != null) {
 	btnDisabled="";
 	demographicNo = demographicLink.getDemographicNo().toString();
-}
-String currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
 
-boolean obgynShortcuts = OscarProperties.getInstance().getProperty("show_obgyn_shortcuts", "false").equalsIgnoreCase("true");
-String formId = "0";
-if (obgynShortcuts){
-	List<EctFormData.PatientForm> formsONAREnhanced = Arrays.asList(EctFormData.getPatientFormsFromLocalAndRemote(LoggedInInfo.getLoggedInInfoFromSession(request), demographicNo, "formONAREnhancedRecord", true));
-	if (formsONAREnhanced!=null && !formsONAREnhanced.isEmpty()){
-		formId = formsONAREnhanced.get(0).getFormId();
+	if (obgynShortcuts){
+		List<EctFormData.PatientForm> formsONAREnhanced = Arrays.asList(EctFormData.getPatientFormsFromLocalAndRemote(LoggedInInfo.getLoggedInInfoFromSession(request), demographicNo, "formONAREnhancedRecord", true));
+		if (formsONAREnhanced!=null && !formsONAREnhanced.isEmpty()){
+			formId = formsONAREnhanced.get(0).getFormId();
+		}
 	}
 }
+	
 %>
 
 
@@ -309,7 +313,7 @@ function popupPatientTickler(height, width, url, windowName,docId,d,n) {
 	<input type="button" id="mainEchart_<%=hrmReportId%>" value=" <bean:message key="oscarMDS.segmentDisplay.btnEChart"/> " onClick="popupPatient(710, 1024,'<%= request.getContextPath() %>/oscarEncounter/IncomingEncounter.do?updateParent=false&reason=<bean:message key="oscarMDS.segmentDisplay.labResults"/>&curDate=<%=currentDate%>>&appointmentNo=&appointmentDate=&startTime=&status=&demographicNo=', 'encounter', '<%=hrmReportId%>','<%=demographicNo %>')" <%=btnDisabled %>>
 	<input type="button" id="mainMaster_<%=hrmReportId%>" value=" <bean:message key="oscarMDS.segmentDisplay.btnMaster"/>" onClick="popupPatient(710,1024,'<%= request.getContextPath() %>/demographic/demographiccontrol.jsp?displaymode=edit&dboperation=search_detail&demographic_no=','master','<%=hrmReportId%>','<%=demographicNo %>')" <%=btnDisabled %>>
 	<input type="button" id="mainApptHistory_<%=hrmReportId%>" value=" <bean:message key="oscarMDS.segmentDisplay.btnApptHist"/>" onClick="popupPatient(710,1024,'<%= request.getContextPath() %>/demographic/demographiccontrol.jsp?orderby=appttime&displaymode=appt_history&dboperation=appt_history&limit1=0&limit2=25&demographic_no=','ApptHist','<%=hrmReportId%>','<%=demographicNo %>')" <%=btnDisabled %>>
-	<% if (obgynShortcuts) {%>
+	<% if (obgynShortcuts && demographicLink != null) {%>
         <input type="button" value="AR1-ILI" onClick="popupONAREnhanced(290, 625, '<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicNo %>&formId=<%=formId%>&section='+this.value)" />
         <input type="button" value="AR1-PGI" onClick="popupONAREnhanced(225, 590,'<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicNo %>&formId=<%=formId%>&section='+this.value)" />
         <input type="button" value="AR2-US" onClick="popupONAREnhanced(395, 655, '<%=request.getContextPath()%>/form/formonarenhancedForm.jsp?demographic_no=<%=demographicNo %>&formId=<%=formId%>&section='+this.value)" />
