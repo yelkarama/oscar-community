@@ -863,9 +863,9 @@ function showEdit(e,title, noteId, editors, date, revision, note, url, container
 	var cppDisplay = "";
         for( idx = 0,rows=0; idx < issueArray.length; idx+=3, ++rows ) {
             if( rows % 2 == 0 )
-                noteIssueUl += "<li><input type='checkbox' id='issueId' name='issue_id' checked value='" + issueArray[idx] + "'>" + issueArray[idx+2];
+                noteIssueUl += "<li><input type='checkbox' name='issue_id' checked value='" + issueArray[idx] + "'>" + issueArray[idx+2];
             else
-                noteIssueUl += "&nbsp; <input type='checkbox' id='issueId' name='issue_id' checked value='" + issueArray[idx] + "'>" + issueArray[idx+2] + "</li>";
+                noteIssueUl += "&nbsp; <input type='checkbox' name='issue_id' checked value='" + issueArray[idx] + "'>" + issueArray[idx+2] + "</li>";
 
 	    if (cppDisplay=="") cppDisplay = getCPP(issueArray[idx+1]);
         }
@@ -1060,7 +1060,7 @@ function updateCPPNote() {
    $('channel').style.visibility ='visible';
    $('showEditNote').style.display='none';
 
-   var curItems = document.forms["frmIssueNotes"].elements["issueId"];
+   var curItems = document.forms["frmIssueNotes"].elements["issue_id"];
    if( typeof curItems.length != "undefined" ) {
         size = curItems.length;
 
@@ -2930,7 +2930,7 @@ function addIssue2CPP(txtField, listItem) {
    var nodeId = listItem.id;
    var size = 0;
    var found = false;
-   var curItems = document.forms["frmIssueNotes"].elements["issueId"];
+   var curItems = document.forms["frmIssueNotes"].elements["issue_id"];
 
    if( typeof curItems.length != "undefined" ) {
         size = curItems.length;

@@ -74,6 +74,7 @@ import org.oscarehr.PMmodule.model.Program;
 import org.oscarehr.PMmodule.model.ProgramProvider;
 import org.oscarehr.PMmodule.service.AdmissionManager;
 import org.oscarehr.PMmodule.service.ProgramManager;
+import org.oscarehr.casemgmt.dao.IssueDAO;
 import org.oscarehr.casemgmt.model.CaseManagementIssue;
 import org.oscarehr.casemgmt.model.CaseManagementNote;
 import org.oscarehr.casemgmt.model.CaseManagementNoteExt;
@@ -217,6 +218,7 @@ import oscar.util.UtilDateUtilities;
     AdmissionManager admissionManager = (AdmissionManager) SpringUtils.getBean("admissionManager");
     AdmissionDao admissionDao = (AdmissionDao) SpringUtils.getBean("admissionDao");
     CaseManagementManager caseManagementManager = (CaseManagementManager) SpringUtils.getBean("caseManagementManager");
+    IssueDAO issueDao = SpringUtils.getBean(IssueDAO.class);
     DrugDao drugDao = (DrugDao) SpringUtils.getBean("drugDao");
     DrugReasonDao drugReasonDao = (DrugReasonDao) SpringUtils.getBean("drugReasonDao");
     DemographicArchiveDao demoArchiveDao = (DemographicArchiveDao) SpringUtils.getBean("demographicArchiveDao");
@@ -2917,19 +2919,21 @@ import oscar.util.UtilDateUtilities;
 		return writeProviderData("doctor", "oscardoc", "");
 	}
 
-        boolean isICD9(cdsDt.StandardCoding diagCode) {
-                if (diagCode==null) return false;
+	boolean isICD9(cdsDt.StandardCoding diagCode) {
+		if (diagCode == null) { return false; }
 
-                String codingSystem = StringUtils.noNull(diagCode.getStandardCodingSystem()).toLowerCase();
-		return (codingSystem.contains("icd") && codingSystem.contains("9"));
-        }
+		String codingSystem = StringUtils.noNull(diagCode.getStandardCodingSystem()).toLowerCase();
+		codingSystem = codingSystem.replaceAll("-", "");
+		return codingSystem.equalsIgnoreCase("icd9");
+	}
 
-        boolean isICD9(cdsDt.Code diagCode) {
-                if (diagCode==null) return false;
+	boolean isICD9(cdsDt.Code diagCode) {
+		if (diagCode == null) { return false; }
 
-                String codingSystem = StringUtils.noNull(diagCode.getCodingSystem()).toLowerCase();
-		return (codingSystem.contains("icd") && codingSystem.contains("9"));
-        }
+		String codingSystem = StringUtils.noNull(diagCode.getCodingSystem()).toLowerCase();
+		codingSystem = codingSystem.replaceAll("-", "");
+		return codingSystem.equalsIgnoreCase("icd9");
+	}
 
 	Set<CaseManagementIssue> getCMIssue(String code) {
 		CaseManagementIssue cmIssu = caseManagementManager.getIssueByIssueCode(demographicNo, code);
@@ -2964,6 +2968,16 @@ import oscar.util.UtilDateUtilities;
 		if (diagCode != null && isICD9(diagCode)) {
             cmIssu = caseManagementManager.getIssueByIssueCode(demographicNo, noDot(diagCode.getStandardCode()));
 			isu = caseManagementManager.getIssueInfoByCode(noDot(diagCode.getStandardCode()));
+			if (isu == null) {
+				isu = new Issue();
+				isu.setCode(noDot(diagCode.getStandardCode()));
+				isu.setDescription(diagCode.getStandardCodeDescription());
+				isu.setRole("doctor");
+				isu.setUpdate_date(new Date());
+				isu.setType("ICD9");
+				isu.setSortOrderId(0);
+				issueDao.saveIssue(isu);
+			}
 			if (cmIssu == null && isu != null) {
 			    String type = isu.getType();
 			    if (StringUtils.isNullOrEmpty(type)) {
